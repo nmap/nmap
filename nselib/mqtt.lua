@@ -903,19 +903,23 @@ end
 --         error message on failure.
 MQTT.utf8_parse = function(buf, pos)
   assert(type(buf) == "string")
+  if #buf < 2 then
+    return false, "Cannot parse a string of less than two bytes."
+  end
 
-  if not pos then
-    pos = 0
+  if not pos or pos == 0 then
+    pos = 1
   end
   assert(type(pos) == "number")
+  assert(pos <= #buf)
 
   local buf_length = buf:len()
-  if pos + 2 > buf_length then
+  if pos > buf_length - 1 then
     return false, ("Buffer at position %d has no space for a UTF-8 length-prefixed string."):format(pos)
   end
 
   local _, str_length = bin.unpack(">S", buf, pos)
-  if pos + 2 + str_length > buf_length then
+  if pos + 1 + str_length > buf_length then
     return false, ("Buffer at position %d has no space for a %d-byte UTF-8 string."):format(pos, str_length)
   end
 
@@ -1036,5 +1040,32 @@ end
 local long_str = string.char(0xFF, 0xFF, 0xFF, 0xFF, 0x7F)
 local pos, _ = MQTT.length_parse(long_str)
 test_suite:add_test(unittest.is_false(pos))
+
+-- 1.5.3 UTF-8 encoded strings
+local str = MQTT.utf8_build("")
+test_suite:add_test(unittest.equal(str, string.char(0x00, 0x00)))
+
+local str = MQTT.utf8_build("A")
+test_suite:add_test(unittest.equal(str, string.char(0x00, 0x01, 0x41)))
+
+local pos, _ = MQTT.utf8_parse("")
+test_suite:add_test(unittest.is_false(pos))
+
+local pos, _ = MQTT.utf8_parse("!")
+test_suite:add_test(unittest.is_false(pos))
+
+local pos, str = MQTT.utf8_parse(string.char(0x00, 0x01))
+test_suite:add_test(unittest.is_false(pos))
+
+local pos, str = MQTT.utf8_parse(string.char(0x00, 0x02, 0x41))
+test_suite:add_test(unittest.is_false(pos))
+
+local pos, str = MQTT.utf8_parse(string.char(0x00, 0x00))
+test_suite:add_test(unittest.equal(str, ""))
+test_suite:add_test(unittest.equal(pos, 3))
+
+local pos, str = MQTT.utf8_parse(string.char(0x00, 0x01, 0x41))
+test_suite:add_test(unittest.equal(str, "A"))
+test_suite:add_test(unittest.equal(pos, 4))
 
 return _ENV;
