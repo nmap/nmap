@@ -4,7 +4,9 @@ local comm = require "comm"
 local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
+local unittest = require "unittest"
 
 _ENV = stdnse.module("mqtt", stdnse.seeall)
 
@@ -812,7 +814,7 @@ MQTT.length_build = function(num)
     if num > 0 then
       byte = bit.bor(byte, 0x80)
     end
-    field = bin.pack("C", byte) .. field
+    field = field .. bin.pack("C", byte)
   until num == 0
 
   -- This field has a limit on its length in binary form.
@@ -833,12 +835,15 @@ end
 --         the error message on failure.
 MQTT.length_parse = function(buf, pos)
   assert(type(buf) == "string")
+  if #buf == 0 then
+    return false, "Cannot parse an empty string."
+  end
 
-  if not pos then
-    pos = 0
+  if not pos or pos == 0 then
+    pos = 1
   end
   assert(type(pos) == "number")
-  assert(pos < #buf)
+  assert(pos <= #buf)
 
   local multiplier = 1
   local offset = 0
@@ -937,5 +942,99 @@ MQTT.fixed_header = function(num, flags, pkt)
 
   return bin.pack("C", hdr) .. MQTT.length_build(#pkt) .. pkt
 end
+
+-- Skip unit tests unless we're explicitly testing.
+if not unittest.testing() then
+  return _ENV
+end
+
+test_suite = unittest.TestSuite:new()
+
+-- 2.2.3 Remaining Length
+local tests = {
+  { 1, 0,         string.char(0x00                  )},
+  { 1, 127,       string.char(0x7F                  )},
+  { 2, 128,       string.char(0x80, 0x01            )},
+  { 2, 16383,     string.char(0xFF, 0x7F            )},
+  { 3, 16384,     string.char(0x80, 0x80, 0x01      )},
+  { 3, 2097151,   string.char(0xFF, 0xFF, 0x7F      )},
+  { 4, 2097152,   string.char(0x80, 0x80, 0x80, 0x01)},
+  { 4, 268435455, string.char(0xFF, 0xFF, 0xFF, 0x7F)},
+}
+
+-- Lua strings are indexed from one, so confirm the behaviour of
+-- unpack() before continuing.
+--
+-- The result is that we can use both zero and one for the first byte,
+-- but either will return a position of two, and we must use the
+-- one-indexed interpretation of the last byte's index.
+local test_str = string.char(0x00, 0x01, 0x02)
+
+-- Parse first byte, using an improper index.
+local pos, num = bin.unpack("C", test_str, 0)
+test_suite:add_test(unittest.equal(num, 0))
+test_suite:add_test(unittest.equal(pos, 2))
+
+-- Parse first byte, using a proper index.
+local pos, num = bin.unpack("C", test_str, 1)
+test_suite:add_test(unittest.equal(num, 0))
+test_suite:add_test(unittest.equal(pos, 2))
+
+-- Parse second byte, using a proper index.
+local pos, num = bin.unpack("C", test_str, 2)
+test_suite:add_test(unittest.equal(num, 1))
+test_suite:add_test(unittest.equal(pos, 3))
+
+-- Parse third byte, using a proper index.
+local pos, num = bin.unpack("C", test_str, 3)
+test_suite:add_test(unittest.equal(num, 2))
+test_suite:add_test(unittest.equal(pos, 4))
+
+-- Parse non-existent byte, using an overflowing index.
+local pos, num = bin.unpack("C", test_str, 4)
+test_suite:add_test(unittest.is_nil(num))
+test_suite:add_test(unittest.equal(pos, 4))
+
+for _, test in ipairs(tests) do
+  local test_len = test[1]
+  local test_num = test[2]
+  local test_str = test[3]
+
+  local str = MQTT.length_build(test_num)
+  test_suite:add_test(unittest.equal(#str, test_len))
+  test_suite:add_test(unittest.equal(str, test_str))
+
+  -- Parse, implicitly from the first character.
+  local pos, num = MQTT.length_parse(test_str)
+  test_suite:add_test(unittest.equal(num, test_num))
+  test_suite:add_test(unittest.equal(pos, test_len + 1))
+
+  -- Parse, explicitly from the zero-indexed first character.
+  local pos, num = MQTT.length_parse(test_str, 0)
+  test_suite:add_test(unittest.equal(num, test_num))
+  test_suite:add_test(unittest.equal(pos, test_len + 1))
+
+  -- Parse, explicitly from the one-indexed first character.
+  local pos, num = MQTT.length_parse(test_str, 1)
+  test_suite:add_test(unittest.equal(num, test_num))
+  test_suite:add_test(unittest.equal(pos, test_len + 1))
+
+  -- Parse, explicitly from the one-indexed second character.
+  local pos, num = MQTT.length_parse("!" .. test_str, 2)
+  test_suite:add_test(unittest.equal(num, test_num))
+  test_suite:add_test(unittest.equal(pos, test_len + 2))
+
+  -- Truncate string and attempt to parse, expecting error.
+  local short_str = test_str:sub(1, test_len - 1)
+  test_suite:add_test(unittest.equal(#short_str, test_len - 1))
+  local pos, _ = MQTT.length_parse(short_str)
+  test_suite:add_test(unittest.is_false(pos))
+end
+
+-- Ensure that parsing a string with too many continuation bytes,
+-- which have their MSB set, fails as expected.
+local long_str = string.char(0xFF, 0xFF, 0xFF, 0xFF, 0x7F)
+local pos, _ = MQTT.length_parse(long_str)
+test_suite:add_test(unittest.is_false(pos))
 
 return _ENV;

@@ -75,6 +75,7 @@ local libs = {
 "membase",
 "mobileme",
 "mongodb",
+"mqtt",
 "msrpc",
 "msrpcperformance",
 "msrpctypes",
