@@ -404,7 +404,7 @@ Helper = {
     return self.comm:connect(options)
   end,
 
-    --- Sends a request to the MQTT broker.
+  --- Sends a request to the MQTT broker.
   --
   -- @name Helper.send
   --
