@@ -122,9 +122,6 @@ MQTT = {
       parse = nil,
     },
   },
-
-  build_req = function(self, type, options)
-  end,
 }
 
 Comm = {
