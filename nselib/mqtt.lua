@@ -743,7 +743,6 @@ end
 -- @return response Table representing a PUBLISH control packet on
 --         success, string containing the error message on failure.
 MQTT.packet["PUBLISH"].parse = function(fhflags, buf)
-  stdnse.debug1("PUB")
   assert(type(fhflags) == "number")
   assert(type(buf) == "string")
 
