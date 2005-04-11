@@ -1,0 +1,322 @@
+
+/***************************************************************************
+ * service_scan.h -- Routines used for service fingerprinting to determine *
+ * what application-level protocol is listening on a given port            *
+ * (e.g. snmp, http, ftp, smtp, etc.)                                      *
+ *                                                                         *
+ ***********************IMPORTANT NMAP LICENSE TERMS************************
+ *                                                                         *
+ * The Nmap Security Scanner is (C) 1996-2004 Insecure.Com LLC. Nmap       *
+ * is also a registered trademark of Insecure.Com LLC.  This program is    *
+ * free software; you may redistribute and/or modify it under the          *
+ * terms of the GNU General Public License as published by the Free        *
+ * Software Foundation; Version 2.  This guarantees your right to use,     *
+ * modify, and redistribute this software under certain conditions.  If    *
+ * you wish to embed Nmap technology into proprietary software, we may be  *
+ * willing to sell alternative licenses (contact sales@insecure.com).      *
+ * Many security scanner vendors already license Nmap technology such as  *
+ * our remote OS fingerprinting database and code, service/version         *
+ * detection system, and port scanning code.                               *
+ *                                                                         *
+ * Note that the GPL places important restrictions on "derived works", yet *
+ * it does not provide a detailed definition of that term.  To avoid       *
+ * misunderstandings, we consider an application to constitute a           *
+ * "derivative work" for the purpose of this license if it does any of the *
+ * following:                                                              *
+ * o Integrates source code from Nmap                                      *
+ * o Reads or includes Nmap copyrighted data files, such as                *
+ *   nmap-os-fingerprints or nmap-service-probes.                          *
+ * o Executes Nmap and parses the results (as opposed to typical shell or  *
+ *   execution-menu apps, which simply display raw Nmap output and so are  *
+ *   not derivative works.)                                                * 
+ * o Integrates/includes/aggregates Nmap into a proprietary executable     *
+ *   installer, such as those produced by InstallShield.                   *
+ * o Links to a library or executes a program that does any of the above   *
+ *                                                                         *
+ * The term "Nmap" should be taken to also include any portions or derived *
+ * works of Nmap.  This list is not exclusive, but is just meant to        *
+ * clarify our interpretation of derived works with some common examples.  *
+ * These restrictions only apply when you actually redistribute Nmap.  For *
+ * example, nothing stops you from writing and selling a proprietary       *
+ * front-end to Nmap.  Just distribute it by itself, and point people to   *
+ * http://www.insecure.org/nmap/ to download Nmap.                         *
+ *                                                                         *
+ * We don't consider these to be added restrictions on top of the GPL, but *
+ * just a clarification of how we interpret "derived works" as it applies  *
+ * to our GPL-licensed Nmap product.  This is similar to the way Linus     *
+ * Torvalds has announced his interpretation of how "derived works"        *
+ * applies to Linux kernel modules.  Our interpretation refers only to     *
+ * Nmap - we don't speak for any other GPL products.                       *
+ *                                                                         *
+ * If you have any questions about the GPL licensing restrictions on using *
+ * Nmap in non-GPL works, we would be happy to help.  As mentioned above,  *
+ * we also offer alternative license to integrate Nmap into proprietary    *
+ * applications and appliances.  These contracts have been sold to many    *
+ * security vendors, and generally include a perpetual license as well as  *
+ * providing for priority support and updates as well as helping to fund   *
+ * the continued development of Nmap technology.  Please email             *
+ * sales@insecure.com for further information.                             *
+ *                                                                         *
+ * As a special exception to the GPL terms, Insecure.Com LLC grants        *
+ * permission to link the code of this program with any version of the     *
+ * OpenSSL library which is distributed under a license identical to that  *
+ * listed in the included Copying.OpenSSL file, and distribute linked      *
+ * combinations including the two. You must obey the GNU GPL in all        *
+ * respects for all of the code used other than OpenSSL.  If you modify    *
+ * this file, you may extend this exception to your version of the file,   *
+ * but you are not obligated to do so.                                     *
+ *                                                                         *
+ * If you received these files with a written license agreement or         *
+ * contract stating terms other than the terms above, then that            *
+ * alternative license agreement takes precedence over these comments.     *
+ *                                                                         *
+ * Source is provided to this software because we believe users have a     *
+ * right to know exactly what a program is going to do before they run it. *
+ * This also allows you to audit the software for security holes (none     *
+ * have been found so far).                                                *
+ *                                                                         *
+ * Source code also allows you to port Nmap to new platforms, fix bugs,    *
+ * and add new features.  You are highly encouraged to send your changes   *
+ * to fyodor@insecure.org for possible incorporation into the main         *
+ * distribution.  By sending these changes to Fyodor or one the            *
+ * Insecure.Org development mailing lists, it is assumed that you are      *
+ * offering Fyodor and Insecure.Com LLC the unlimited, non-exclusive right *
+ * to reuse, modify, and relicense the code.  Nmap will always be          *
+ * available Open Source, but this is important because the inability to   *
+ * relicense code has caused devastating problems for other Free Software  *
+ * projects (such as KDE and NASM).  We also occasionally relicense the    *
+ * code to third parties as discussed above.  If you wish to specify       *
+ * special license conditions of your contributions, just say so when you  *
+ * send them.                                                              *
+ *                                                                         *
+ * This program is distributed in the hope that it will be useful, but     *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+ * General Public License for more details at                              *
+ * http://www.gnu.org/copyleft/gpl.html , or in the COPYING file included  *
+ * with Nmap.                                                              *
+ *                                                                         *
+ ***************************************************************************/
+
+/* $Id$ */
+
+#ifndef SERVICE_SCAN_H
+#define SERVICE_SCAN_H
+
+#include "nmap.h"
+#include "global_structures.h"
+
+#include <vector>
+#ifdef HAVE_PCRE_PCRE_H
+# include <pcre/pcre.h>
+#else
+# include <pcre.h>
+#endif
+
+/* Workaround for lack of namespace std on HP-UX 11.00 */
+namespace std {};
+using namespace std;
+
+/**********************  DEFINES/ENUMS ***********************************/
+#define DEFAULT_SERVICEWAITMS 5000
+#define DEFAULT_CONNECT_TIMEOUT 5000
+#define DEFAULT_CONNECT_SSL_TIMEOUT 8000  // includes connect() + ssl negotiation
+#define SERVICEMATCH_REGEX 1
+// #define SERVICEMATCH_STATIC 2 -- no longer supported
+
+/**********************  STRUCTURES  ***********************************/
+
+// This is returned when we find a match
+struct MatchDetails {
+// Rather the match is a "soft" service only match, where we should
+// continue to look for a better match.
+  bool isSoft;
+
+  // The service that was matched (Or NULL) zero-terminated.
+  const char *serviceName;
+
+  // The product/verson/info for the service that was matched (Or NULL)
+  // zero-terminated.
+  const char *product;
+  const char *version;
+  const char *info;
+};
+
+/**********************  CLASSES     ***********************************/
+
+class ServiceProbeMatch {
+ public:
+  ServiceProbeMatch();
+  ~ServiceProbeMatch();
+
+// match text from the nmap-service-probes file.  This must be called
+// before you try and do anything with this match.  This function
+// should be passed the whole line starting with "match" or
+// "softmatch" in nmap-service-probes.  The line number that the text
+// is provided so that it can be reported in error messages.  This
+// function will abort the program if there is a syntax problem.
+  void InitMatch(const char *matchtext, int lineno);
+
+  // If the buf (of length buflen) match the regex in this
+  // ServiceProbeMatch, returns the details of the match (service
+  // name, version number if applicable, and whether this is a "soft"
+  // match.  If the buf doesn't match, the serviceName field in the
+  // structure will be NULL.  The MatchDetails returned is only valid
+  // until the next time this function is called.  The only exception
+  // is that the serviceName field can be saved throughought program
+  // execution.  If no version matched, that field will be NULL.
+  const struct MatchDetails *testMatch(const u8 *buf, int buflen);
+// Returns the service name this matches
+  const char *getName() { return servicename; }
+  // The Line number where this match string was defined.  Returns
+  // -1 if unknown.
+  int getLineNo() { return deflineno; }
+ private:
+  int deflineno; // The line number where this match is defined.
+  bool isInitialized; // Has InitMatch yet been called?
+  char *servicename;
+  int matchtype; // SERVICEMATCH_REGEX or SERVICESCAN_STATIC
+  char *matchstr; // Regular expression text, or static string
+  int matchstrlen; // Because static strings may have embedded NULs
+  pcre *regex_compiled;
+  pcre_extra *regex_extra;
+  bool matchops_ignorecase;
+  bool matchops_dotall;
+  bool isSoft; // is this a soft match? ("softmatch" keyword in nmap-service-probes)
+  // If any of these 3 are non-NULL, a product, version, or template
+  // string was given to deduce the application/version info via
+  // substring matches.
+  char *product_template;
+  char *version_template;
+  char *info_template;
+  // The anchor is for SERVICESCAN_STATIC matches.  If the anchor is not -1, the match must
+  // start at that zero-indexed position in the response str.
+  int matchops_anchor;
+// Details to fill out and return for testMatch() calls
+  struct MatchDetails MD_return;
+
+  // Use the three version templates, and the match data included here
+  // to put the version info into 'product', 'version', and 'info',
+  // (as long as the given string sizes are sufficient).  Returns zero
+  // for success.  If no template is available for product, version,
+  // and/or info, that string will have zero length after the function
+  // call (assuming the corresponding length passed in is at least 1)
+  int getVersionStr(const u8 *subject, int subjectlen, int *ovector, 
+		  int nummatches, char *product, int productlen,
+		  char *version, int versionlen, char *info, int infolen);
+};
+
+
+class ServiceProbe {
+ public:
+  ServiceProbe();
+  ~ServiceProbe();
+  const char *getName() { return probename; }
+  void setName(const char *name); // a copy of name will be made and stored
+  // Returns true if this is the "null" probe, meaning it sends no probe and
+  // only listens for a banner.  Only TCP services have this.
+  bool isNullProbe() { return (probestringlen == 0); }
+  bool isProbablePort(u16 portno); // Returns true if the portnumber given was listed
+                                   // as a port that is commonly identified by this
+                                   // probe (e.g. an SMTP probe would commonly identify port 25)
+// Amount of time to wait after a connection succeeds (or packet sent) for a responses.
+  int totalwaitms;
+
+  // Parses the "probe " line in the nmap-service-probes file.  Pass the rest of the line
+  // after "probe ".  The format better be:
+  // [TCP|UDP] [probename] "probetext"
+  // the lineno is requested because this function will bail with an error
+  // (giving the line number) if it fails to parse the string.
+  void setProbeDetails(char *pd, int lineno);
+
+  // obtains the probe string (in raw binary form) and the length.  The string will be 
+  // NUL-terminated, but there may be other \0 in the string, so the termination is only
+  // done for easo of printing ASCII probes in debugging cases.
+  const u8 *getProbeString(int *stringlen) { *stringlen = probestringlen; return probestring; }
+  void setProbeString(const u8 *ps, int stringlen);
+
+  /* Protocols are IPPROTO_TCP and IPPROTO_UDP */
+  u8 getProbeProtocol() { 
+    assert(probeprotocol == IPPROTO_TCP || probeprotocol == IPPROTO_UDP); 
+    return probeprotocol;  
+  }
+  void setProbeProtocol(u8 protocol) { probeprotocol = protocol; }
+
+  // Takes a string as given in the 'ports '/'sslports ' line of
+  // nmap-service-probes.  Pass in the list from the appropriate
+  // line.  For 'sslports', tunnel should be specified as
+  // SERVICE_TUNNEL_SSL.  Otherwise use SERVICE_TUNNEL_NONE.  The line
+  // number is requested because this function will bail with an error
+  // (giving the line number) if it fails to parse the string.  Ports
+  // are a comma seperated list of prots and ranges
+  // (e.g. 53,80,6000-6010).
+  void setProbablePorts(enum service_tunnel_type tunnel,
+			const char *portstr, int lineno);
+
+  /* Returns true if the passed in port is on the list of probable
+     ports for this probe and tunnel type.  Use a tunnel of
+     SERVICE_TUNNEL_SSL or SERVICE_TUNNEL_NONE as appropriate */
+  bool portIsProbable(enum service_tunnel_type tunnel, u16 portno);
+  // Returns true if the passed in service name is among those that can
+  // be detected by the matches in this probe;
+  bool serviceIsPossible(const char *sname);
+
+  // Takes a match line in a probe description and adds it to the
+  // list of matches for this probe.  This function should be passed
+  // the whole line starting with "match" or "softmatch" in
+  // nmap-service-probes.  The line number is requested because this
+  // function will bail with an error (giving the line number) if it
+  // fails to parse the string.
+  void addMatch(const char *match, int lineno);
+
+  // If the buf (of length buflen) matches one of the regexes in this
+  // ServiceProbe, returns the details of the match (service name,
+  // version number if applicable, and whether this is a "soft" match.
+  // If the buf doesn't match, the serviceName field in the structure
+  // will be NULL.  The MatchDetails returned is only valid until the
+  // next time this function is called.  The only exception is that the
+  // serviceName field can be saved throughought program execution.  If
+  // no version matched, that field will be NULL. This function may
+  // return NULL if there are no match lines at all in this probe.
+  const struct MatchDetails *testMatch(const u8 *buf, int buflen);
+
+ private:
+  void setPortVector(vector<u16> *portv, const char *portstr, 
+				 int lineno);
+  char *probename;
+
+  u8 *probestring;
+  int probestringlen;
+  vector<u16> probableports;
+  vector<u16> probablesslports;
+  vector<const char *> detectedServices;
+  int probeprotocol;
+  vector<ServiceProbeMatch *> matches; // first-ever use of STL in Nmap!
+};
+
+class AllProbes {
+public:
+  AllProbes();
+  ~AllProbes();
+  // Tries to find the probe in this AllProbes class which have the
+  // given name and protocol.  It can return the NULL probe.
+  ServiceProbe *getProbeByName(const char *name, int proto);
+  vector<ServiceProbe *> probes; // All the probes except nullProbe
+  ServiceProbe *nullProbe; // No probe text - just waiting for banner
+};
+
+/**********************  PROTOTYPES  ***********************************/
+
+/* Execute a service fingerprinting scan against all open ports of the
+   Targets specified. */
+int service_scan(vector<Target *> &Targets);
+
+// Parses the given nmap-service-probes file into the AP class
+void parse_nmap_service_probe_file(AllProbes *AP, char *filename);
+
+#endif /* SERVICE_SCAN_H */
+
+
+
+
+

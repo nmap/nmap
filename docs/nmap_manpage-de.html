@@ -1,0 +1,1050 @@
+<HTML>
+<HEAD>
+<TITLE>Nmap network security scanner man page (German translation)</TITLE>
+</HEAD>
+<BODY>
+<H1>Nmap network security scanner man page (German translation)</H1>
+<HR>
+<PRE>
+<!-- Manpage converted by man2html 3.0.1 -->
+<B>NMAP(1)</B>                                                                <B>NMAP(1)</B>
+
+
+
+
+</PRE>
+<H2>NAME</H2><PRE>
+       nmap - Auswertungstool fuer Netzwerke und Security Scanner
+
+
+</PRE>
+<H2>SYNTAX</H2><PRE>
+       <B>nmap</B> [Scan-Typ(en)] [Optionen] &lt;Host oder Netz #1 ... [#N]&gt;
+
+
+</PRE>
+<H2>BESCHREIBUNG</H2><PRE>
+       <I>Nmap</I> wurde entwickelt, um Systemadministratoren und kuriosen Individuen
+       die Moeglichkeit zu geben, ansprechbare Systeme und die durch sie bere-
+       itgestellten  Dienste  in  grossen  Netzwerken zu identifizieren.  <I>nmap</I>
+       unterstuetzt eine Vielzahl verschiedener  Scanning-Techniken,  wie  zum
+       Beispiel  UDP,  TCP  connect(),  TCP SYN (half open), FTP-Proxy (bounce
+       attack), Reverse-ident, ICMP (Ping-Suchlauf), FIN, ACK-Suchlauf,  Xmas-
+       Tree, SYN-Suchlauf, IP-Protocol und Null-Scan.  Siehe Absatz <I>Scan-Typen</I>
+       fuer mehr Informationen. Ebenso  ermoeglicht  nmap  eine  Vielzahl  von
+       zusaetzlichen  Moeglichkeiten,  wie  das  Erkennen von Betriebssystemen
+       mittels  TCP/IP-Fingerprinting,   Stealth-Scanning,   dynamische   Ver-
+       zoegerungen   und  Uebertragungswiederholungs-Berechnungen,  paralleles
+       Scanning, Entdecken abgeschalteter Systeme mittels parallelem Scanning,
+       Decoy-Scanning,  entdecken  von  Port-Filtering,  direktes RPC-Scanning
+       (ohne Portmapper), fragmentiertes Scanning sowie flexible Ziel und Port
+       Spezifizierung.
+
+       Ein  Grossteil  der  Arbeit  wurde  in die Moeglichkeiten fuer non-root
+       Benutzer investiert. Leider benoetigen viele exotische Techniken  (z.B.
+       die Kernel-nahen raw sockets) root-Privilegien. Aus diesem Grund sollte
+       nmap stets als root genutzt werden, sofern dies moeglich  ist  (natuer-
+       lich kein setuid root).
+
+       Das   Resultat  eines  nmap-Durchlaufs  ist  normalerweise  eine  Liste
+       saemtlicher interessanter Ports der gescannten Geraete  (falls  vorhan-
+       den).  Sofern  eine  Zuweisung stattfinden kann, benennt nmap die well-
+       known Ports direkt mit ihrem Service-Namen, Portnummer, Status und Pro-
+       tokoll.  Der  Status ist entweder ’open’, ’filtered’ oder ’unfiltered’.
+       Open  (dt.  offen)  bedeutet,  dass  das  Zielsystem  auf  diesem  Port
+       Verbindungen  anzunehmen  in  der  Lage  ist.  Filtered (dt. gefiltert)
+       weist darauf hin, dass ein dediziertes  Firewall-System,  TCP/IP-Filter
+       oder  Netzwerk-Element  die  Arbeit  von nmap behindert und somit keine
+       verlaesslichen Rueckschluesse gemacht werden koennen.  Unfiltered  (dt.
+       ungefiltert)  heisst,  dass  nmap  den  Port kennt, jedoch beim Zugriff
+       keinerlei  Filter-Mechanismen  ausgemacht  werden  konnten.  Der  unge-
+       filterte  Status  wird  in  den  meisten  aller  Faelle vorhanden sein,
+       weshalb ein solcher nur immer dann ausgwiesen wird,  wenn  die  meisten
+       der gescannten Ports gefiltert (engl. filtered) sind.
+
+       Jenachdem,  welche  Optionen  angewandt  wurden,  ist  nmap in der Lage
+       Auskunft ueber die folgenden Charakteristiken des Zielsystems zu geben:
+       Genutztes  Betriebssystem,  TCP-Sequenznummern, Benutzername der an die
+       Ports gebundene Software, DNS-Name, ob es sich um ein Smurf-System han-
+       delt und viele mehr.
+
+
+</PRE>
+<H2>OPTIONEN</H2><PRE>
+       Das  Zusammenspiel verschiedener Optionen ist immer dann moeglich, wenn
+       dies auch Sinn macht. Einige Parameter koennen nur  in  Verbindung  mit
+       spezifischen  Scan-Methoden  genutzt  werden.  <I>nmap</I> versucht unlogische
+       und nicht unterstuetzte Kombinationen von Parametern abzufangen und den
+       Benutzer entsprechend zu warnen.
+
+       Falls  Sie  ungeduldig sind, koennen Sie den Abschnitt <I>Beispiele</I> ueber-
+       springen. Darin werden typische Befehlseingaben  gezeigt.  Ebenso  kann
+       <B>nmap</B>  <B>-h</B>  ausgefuehrt werden, um eine kurze Optionsreferenz ausgeben zu
+       lassen.
+
+       <B>SCAN-TYPEN</B>
+
+       <B>-sS</B>    TCP SYN-Scan: Diese Technik wird  oft  als  "halb-offen"  (engl.
+              "half-open")  bezeichnet, da keine volle TCP-Verbindung zustande
+              kommt. Der Scanner schickt ein TCP-Datagramm mit gesetzter  SYN-
+              Flagge  an  das Zielsystem, so wie dies im Rahmen des Drei-Wege-
+              Handschlags von TCP normalerweise auch der Fall  ist.  Nun  wird
+              auf  eine  positive Rueckmeldung des Zielsystems gewartet. Kommt
+              ein Paket mit gesetzter  SYN/ACK-Flagge  zurueck,  so  wird  der
+              Zielport  als im Status LISTENING (dt. abhoerend) identifiziert.
+              Im Gegenzug deutet ein RST-Datangramm  auf  einen  geschlossenen
+              Port  (engl.  closed)  hin.  Wird  ein  SYN/ACK-Datagramm entge-
+              gengenommen,  schickt  nmap  (bzw.  der   Betriebssystem-Kernel)
+              automatisch   ein  RST  zurueck,  um  den  Verbindungsaufbau  zu
+              abzubrechen. Der primaere  Vorteil  dieser  Vorgehensweise  ist,
+              dass viele Systeme solcherlei Zugriffe nicht protokollieren (Die
+              meisten Applikationen interessieren sich nur  fuer  vollstaendig
+              etablierte  Verbindungen). Leider setzt diese Scan-Technik root-
+              Privilegien voraus, da eine Generierung verhaeltnismaessig  exo-
+              tischer  Paket-Sequenzen  von Noeten ist. Dies ist die standard-
+              maessige Scan-Methode fuer priviligierte Benutzer.
+
+       <B>-sT</B>    TCP connect()-Scan:  Dies  ist  die  klassische  Form  des  TCP-
+              Portscannings. Der connect()-System-Call, der das Betriebssystem
+              zur Verfuegung  stellt,  wird  immer  dann  genutzt,  wenn  eine
+              Verbindung  zum  Port eines Zielsystems hergestellt werden soll.
+              Befindet sich der Zielport im Status LISTENING, so wird der con-
+              nect()-Zugriff  erfolgreich ausfallen. Der entscheidende Vorteil
+              dieser Methode ist, dass keine  erweiterten  Rechte  zur  Durch-
+              fuehrung erforderlich sind. Jeder Benutzer der meisten UNIX-Sys-
+              teme ist in der Lage solcherlei Zugriffe durchzufuehren.
+
+              Diese  Scan-Technik  ist  einfach  zu  entdecken  und  wird  mit
+              groesster  Wahrscheinlichkeit in den Protokoll-Dateien des Ziel-
+              systems auftauchen.  Dies  ist  der  standardmaessig  aktivierte
+              Scan-Typ fuer unprivilegierte Anwender.
+
+       <B>-sF</B> <B>-sX</B> <B>-sN</B>
+              Stealth  FIN-, Xmas-Tree- oder Null-Scan-Modis: Es gibt Momente,
+              wo SYN-Scans nicht heimlich genug  ausfallen.  Einige  Firewall-
+              Systeme  (z.B. Packet-Filter) sind in der Lage verdaechtige SYN-
+              Aktivitaeten zu erkennen; ebenso koennen Programme wie Synlogger
+              oder  Courtney  die  SYN-Portscans  als solche ausweisen.  Diese
+              erweiterten Scan-Techniken  koennen  somit  in  manchen  Faellen
+              ungehindert die gewuenschten Resultate liefern.
+
+              Die  Idee  ist,  dass geschlossene Ports auf solcherlei Zugriffe
+              mit einem RST-Datagramm antworten muessten,  waehrend  ansprech-
+              bare  Ports  die  Anfragen ignorieren sollten (siehe RFC 793, S.
+              64). Der FIN-Scan nutzt ein  TCP-Datagramm  mit  gesetzter  FIN-
+              Flagge, waehrend der Xmas-Tree-Scan die TCP-Flaggen FIN, URG und
+              PSH aktiviert. Der Null-Scan schaltet alle optionalen Flags  ab.
+              Leider  ignoriert  einmal mehr Microsoft die gaengigen Standards
+              und reagiert auf die exotischen Scan-Techniken ganz  unerwartet.
+              Dies  bedeutet, dass diese Scanning-Methoden nicht gegen Windows
+              9x, ME, NT, 2000 und XP funktionieren. Auf der anderen Seite ist
+              dies  natuerlich hervorragend, wenn es um das Identifizieren der
+              TCP/IP-Implementierung von Microsoft geht: Findet  einer  dieser
+              Scans einen offenen Port, so kann davon ausgegangen werden, dass
+              es sich beim Zielsystem nicht um ein Windows handelt - Im Gegen-
+              zug  deuten  unrealistisch  viele offene Ports auf eine Windows-
+              Maschine hin. Es gilt sich jedoch noch die Meinung  einer  klas-
+              sischen Scan-Methode (z.B. SYN) einzuholen.  Es gibt noch einige
+              andere  Betriebssysteme,  die  sich  aehnlich   demjenigen   von
+              Microsoft  verhalten. Dies sind zum Beispiel Cisco, BSDI, HP/UX,
+              MVS und IRIX.  All diese retournieren ein Reset,  auch  wenn  es
+              sich um einen ansprechbaren Port handelt. Mittlerweile ist diese
+              knifflige Unterscheidungs-Arbeit  mittels  exotischer  Scanning-
+              Techniken  eher weniger wichtig, da nmap eine erweiterte Methode
+              fuer das Erkennen des eingesetzten Betriebssystems mitbringt.
+
+       <B>-sP</B>    Ping-Scanning: Manchmal ist es lediglich gefragt,  welche  Hosts
+              in einem Netzwerk aktiv sind. nmap kann diese Frage beantworten,
+              indem eine ICMP echo request-Anfrage an jede IP-Adresse im spez-
+              ifizierten  Netzwerk  geschickt wird.  Hosts, die mit einer ICMP
+              echo reply antworten,  koennen  als  aktiv  ausgewiesen  werden.
+              Viele  gewissenhafte Firewall- und Systemadministratoren filtern
+              bzw.  verwerfen unnoetigen ICMP-Verkehr. nmap greift sodann  auf
+              eine  andere  Technik  zurueck.  Es  wird  ein TCP-Datagramm mit
+              gesetzter ACK-Flagge an einen potentiell offenen Port des  Ziel-
+              systems  geschickt  (standardmaessig  TCP-Port 80). Wird ein RST
+              zurueckgeschickt, so ist das Zielsystem vorhanden und  ansprech-
+              bar.  Eine  dritte Technik greift auf ein SYN-Datagramm zurueck,
+              das auf ein RST oder  SYN/ACK  wartet.  Alle  non-root  Benutzer
+              fuehren einen connect()-Zugriff durch.
+
+              Standardmaessig  (bei root-Benutzern) fuehrt nmap beides - ICMP-
+              und ACK-Technik - parallel  durch.  Dies  kann  durch  das  Her-
+              anziehen  der spaeter noch detaillierter beschriebenen Option <B>-P</B>
+              geaendert werden.
+
+              Wichtig ist zu wissen,  dass  der  Ping-Zugriff  standardmaessig
+              stets  erfolgt.  Abhaengig der Erreichbarkeit eines Systems wird
+              ein solches dann gescannt.  Benutzen Sie diese Option  lediglich
+              dann,  wenn  es  um das Durchfuehren eines Ping-Suchlaufs ( <B>ohne</B>
+              Portscan) geht.
+
+       <B>-sU</B>    UDP-Scans: Diese Methode wird stets dann herangezogen,  wenn  es
+              um  das  Identifizieren  der  offenen  UDP-Ports (siehe RFC 768)
+              eines Systems geht. Diese Technik basiert darauf, dass ein  UDP-
+              Datagramm  mit 0 Byte an Nutzdaten an jeden Port des Zielsystems
+              geschickt  wird.  Erhalten  wir  eine  ICMP  port   unreachable-
+              Nachricht, so ist der Zielport geschlossen. Andererseits handelt
+              es sich um einen offenen Port.
+
+              Einige Leute denken, dass UDP-Scanning sinnlos ist. Ich  moechte
+              in  diesem  Zusammenhang auf die Luecke in Solaris’ rpcbind hin-
+              weisen. rpcbind kann an einem  undokumentierten  UDP-Port  ueber
+              32770  gefunden werden. Bei diesem Angriff und der vorangehenden
+              Auswertung ist es sodann zu einem hohen Grad irrelevant, ob Port
+              111  durch  eine  Firewall  blockiert  wird  oder  nicht. Ebenso
+              existiert das populaere, von  cDc  entwickelte  Backdoor  namens
+              Back  Orifice, das durch einen frei waehlbaren UDP-Port Windows-
+              Maschinen kontrollieren laesst.  Und nicht zu vergessen die vie-
+              len potentiell verwundbaren Dienste, die auf UDP zurueckgreifen:
+              SNMP, TFTP, NFS, etc.
+
+              Traurigerweise  ist  UDP-Scanning   in   den   meisten   Faellen
+              schmerzhaft langsam, seitdem viele Betriebssystem-Entwickler der
+              Empfehlung von RFC 1812 (Absatz 4.3.2.8) nachgekommen sind,  die
+              Anzahl  ausgehender  ICMP-Fehlernachrichten  zu  limitieren. Zum
+              Beispiel definiert der  Linux-Kernel  (in  net/ipv4/icmp.h)  die
+              Anzahl  ausgehender ICMP destination unreachable-Fehlermeldungen
+              auf 80 fuer 4 Sekunden, mit einer 1/4 Sekunde Zusatz fuer  jeden
+              Uebertritt. Solaris weist einiges striktere Limitierungen auf (2
+              Nachrichten pro Sekunde), weshalb  ein  UDP-Portscan  gegen  ein
+              Solaris-System sehr lange dauert.  <I>nmap</I> ist in der Lage solcher-
+              lei Limitierungen zu erkennen und  mit  einem  dynamischen  Ver-
+              langsamen  der Geschwindigkeit zu reagieren. Dies verhindert das
+              Verstopfen des Netzwerks mit unnoetigen Paketen, die sowieso vom
+              Zielsystem ignoriert werden wuerden.
+
+              Einmal  mehr  typisch,  ignoriert Microsoft die Empfehlungen des
+              RFCs, weshalb eine Einschraenkung ausgehender ICMP-Fehlermeldun-
+              gen  gaenzlich bei der TCP/IP-Implementierung auf Windows 9x und
+              NT fehlt. Das scannen saemtlicher UDP-Ports auf  einer  Windows-
+              Maschine ist somit kein groesseres Problem.
+
+       <B>-sO</B>    IP  protocol-Scans:  Diese  Methode  kommt dann zum Tragen, wenn
+              herausgefunden werden will, welche IP-Protokolle vom  Zielsystem
+              unterstuetzt  werden.  Diese  Technik  basiert darauf, dass fuer
+              jedes IP-Protokoll ein RAW  IP-Paket  mit  fehlendem  Protokoll-
+              Header  an das Zielsystem geschickt wird. Erhalten wir eine ICMP
+              protocol unreachable-Fehlermeldung, so koennen wir davon  ausge-
+              hen,  dass das besagte Protokoll nicht unterstuetzt wird. Faellt
+              das Resultat anders aus, kann mit einer Protokoll-Unterstuetzung
+              gerechnet  werden.  Es  ist  wichtig  zu  bemerken,  dass einige
+              Betriebssysteme (z.B. AIX, HP-UX und Digital UNIX) und Firewall-
+              Loesungen  auf  das  Versenden  der  ICMP  protocol unreachable-
+              Fehlermeldungen gaenzlich verzichten. Das Resultat eines solchen
+              Verhaltens   ist   die   durch  nmap  generierte  Ausgabe,  dass
+              saemtliche Protokolle "offen" sind.
+
+              Aufgrund dessen, dass diese Scan-Methode  in  ihren  Grundzuegen
+              auf  den  Prinzipien  des  UDP-Portscannings aufbaut, spielt die
+              Rate  der  potentiell  generierten   ICMP-Fehlermeldungen   eine
+              beachtliche  Wichtigkeit.  Da  das  IP-Protokoll Feld nur 8 Bits
+              hat, muessen lediglich 256 Protokolle gescannt werden, was  sich
+              in einem angemessenen Zeitrahmen erledigen laesst.
+
+       <B>-sI</B> <B>&lt;Zombie-Host[:Zielport]&gt;</B>
+              Idlescan:  Diese erweiterte Scan-Technik ermoeglicht ein blindes
+              Scannen der TCP-Port eines Ziels (dies bedeutet, dass  keinerlei
+              Pakete  mit der richtigen IP-Absenderadresse verschickt werden).
+              Stattdessen wird eine einzigartige Attacke  angewandt,  die  die
+              Berechenbarkeit  der IP Fragmentation ID eines Zombie-Hosts aus-
+              nutzt. Intrusion Detection-Systeme werden den  Scan-Versuch  dem
+              spezifizierte  Zombie-System  zuschreiben  (welches  ansprechbar
+              sein und bestimmte Kriterien erfuellen muss). Ich habe eine Pub-
+              likation    zu   diesem   Thema   verfasst,   die   sich   unter
+              http://www.insecure.org/nmap/idlescan.html findet.
+
+              Neben der vollkommenen Sicherheit, nicht direkt  erkannt  werden
+              zu  koennen,  ermoeglicht  dieser  Scan-Typ das Erkennen von IP-
+              basierenden Vertrauensbeziehungen zwischen Geraeten.  Das  Port-
+              Listing  zeigt  die  offenen Ports <I>aus</I> <I>der</I> <I>Sicht</I> <I>des</I> <I>Zombie-Sys-</I>
+              <I>tems.</I>  Es ist sodann Moeglich  das  effektive  Zielsystem  durch
+              verschiedene Zombies scannen zu lassen, die eine bestehende Ver-
+              trauensbeziehung haben (via Router-  oder  Packetfilter-Regeln).
+              Ganz  offensichtlich  ist dies eine gewichtige Information, wenn
+              es um das Priorisieren  von  Angriffszielen  geht.  Andererseits
+              muessten Penetration Tester zuerst muehsam ein System kompromit-
+              tieren, bis verlaesslich gesagt werden kann, ob  ueberhaupt  die
+              erforderliche Vertrauensbeziehung besteht.
+
+              Durch  einen  Doppelpunkt  laesst  sich  die Portnummer des Zom-
+              biesystems definieren. Ohne diese Angabe waehlt nmap  den  Stan-
+              dardport,  der  auch  bei  TCP-Pings Verwendung findet (TCP-Port
+              80).
+
+       <B>-sA</B>    ACK-Scan: Auf diese erweiterte Scan-Technik  wird  normalerweise
+              immer dann zurueckgegriffen, wenn es um das Identifizieren eines
+              Firewall-Regelwerks geht. Zusaetzlich kann  diese  Methode  eine
+              Determinierung des Vorhandenseins einer Stateful Inspection, die
+              eingehende SYN-Pakete blockt, ermoeglichen.
+
+              Dieser Scan-Typ schickt ein ACK-Paket (mit zufaellig  gewaehlten
+              Bestaetigungs-/Sequenznummern)  an  den spezifizierten Zielport.
+              Kommt ein RST zurueck, wird der besagte  Port  als  "unfiltered"
+              (dt.  ungefiltert)  eingestuft.  Erhalten wir keine Rueckantwort
+              (oder kommt ein ICMP unreachable zurueck),  so  weist  nmap  den
+              Port  als "filtered" (dt. gefiltert) aus. Wichtig ist, dass <I>nmap</I>
+              normalerweise keine "unfiltered" ausgibt. So sind <B>keine</B> Ports in
+              der  Ausgabe  ein Indiz dafuer, dass alle Zugriffe durchgekommen
+              sind (und ein RST verursacht haben). Dieser Scan wird die  Ports
+              nie in einem "open" (dt. offenen) Status zeigen.
+
+       <B>-sW</B>    Window-Scan: Diese erweiterte Scan-Technik ist dem ACK-Scan sehr
+              aehnlich.  Ausser, dass  hiermit  manchmal  auch  offene,  unge-
+              filterte  und  gefilterte Ports durch eine Anomalie in der durch
+              die Betriebssysteme gewaehlten TCP window size  entdeckt  werden
+              koennen.  Systeme, die gegen diese Attacke verwundbar sind, sind
+              einige Versionen von AIX, Amiga, BeOS, BSDI, Cray,  Tru64  UNIX,
+              DG/UX, OpenVMS, Digital UNIX, FreeBSD, HP-UX, OS/2, IRIX, MacOS,
+              NetBSD, OpenBSD, OpenStep, QNX, Rhapsody, SunOS 4.x, Ultrix, VAX
+              and VxWorks. Siehe das Archiv der nmap-Hackers Mailingliste fuer
+              eine vollstaendige Auflistung.
+
+       <B>-sR</B>    RPC-Scan: Diese Methode arbeitet in Kombination mit den  meisten
+              moeglichen Scan-Typen von nmap zusammen. Jeder als offen identi-
+              fizierte TCP- und UDP-Port wird mit einer Vielzahl  von  SunRPC-
+              Nullkommandos ueberflutet, um eine Identifizierung von RPC-Ports
+              vorzunehmen. Falls ein solcher gefunden  wurde,  wird  der  Pro-
+              grammname  und  die Version ausgelesen, sofern diese Information
+              zur Verfuegung gestellt wird. Diese  Vorgehensweise  ist  ebenso
+              mit  dem  Heranziehen von ’rpcinfo -p’ moeglich; besonders dann,
+              wenn des Zielsystems Portmapper hinter einer restriktiven  Fire-
+              wall  steht oder durch einen TCP-Wrapper geschuetzt wird. Decoy-
+              Scans arbeiten zur Zeit nicht mit RPC-Scans  zusammen.   Irgend-
+              wann wird vielleicht Decoy-Scanning im Zusammenhang mit UDP-RPC-
+              Scans moeglich sein.
+
+       <B>-sL</B>    List-Scan: Diese simple Methode generiert eine Liste  aller  IP-
+              Adressen und Hostnamen, ohne die Zielsysteme direkt anzusprechen
+              (Ping oder Portscan).  Eine Namensaufloesung  ueber  DNS  findet
+              stets  statt,  sofern  dies  nicht  durch das Heranziehen von -n
+              unterbunden wird.
+
+       <B>-b</B> <B>&lt;FTP-Relay</B> <B>Host&gt;</B>
+              FTP-Bounce Attacke: Ein interessantes "Feature" des File  Trans-
+              port Protocols (RFC 959) ist die Unterstuetzung von "Proxy"-FTP-
+              Verbindungen. Mit anderen  Worten  ist  es  moeglich,  sich  von
+              boese.com  auf ziel.com zu verbinden und eine Datei ueberall hin
+              zu schicken. Nun, dies hat wohl ausgezeichnet funktioniert,  als
+              1985 das besagte RFC geschrieben wurde. In der heutigen Zeit ist
+              es nicht mehr ohne weiteres Moeglich, sich auf fremde FTP-Server
+              zu  verbinden  und  nach Belieben Dateien zu versenden. *Hobbit*
+              schrieb 1995 folgendes zu dieser Schwachstelle: "[This  protocol
+              flaw]  can  be used to post virtually untraceable mail and news,
+              hammer on servers at various sites, fill up disks,  try  to  hop
+              firewalls,  and  generally be annoying and hard to track down at
+              the same time." Bei dieser Scanning-Methode wird ein  als  Proxy
+              fungierender  FTP-Server  genutzt,  um  die  offenen Ports eines
+              Zielsystems ausfindig zu machen. Beispielsweise kann dadurch  zu
+              einem  hinter einer Firewall positionierten FTP-Server verbunden
+              werden, um danach  interne,  durch  das  Firewall-Element  gegen
+              externe  Zugriffe  geschuetzte  Ports  (z.B.  die NetBIOS-Ports)
+              anzusprechen.  Falls  auf   dem   FTP-Server   ein   Verzeichnis
+              existiert, bei dem sowohl Lese- als auch Schreibrechte vorhanden
+              sind (z.B.  /incoming), kann eine  semi-manuelle  Uebergabe  von
+              Daten  an  die  Zielports durchgefuehrt werden (nmap nimmt einem
+              diese Arbeit nicht ab).
+
+              Das mit der Option ’-b’ uebergebene Argument,  spezifiziert  den
+              als  Proxy gewollten Host, wobei die standard URL-Notation gilt.
+              Das  Format  lautet  <I>Benutzername:Passwort@Server:Port.</I>   Alles,
+              ausser  <I>Server</I>  ist  optional. Wie eine Determinierung der gegen
+              diese Zugriffsform verwundbare Server vorgenommen  werden  kann,
+              kann  in  meinem  Artikel  in <I>Phrack</I> 51 nachgelesen werden. Eine
+              aktualisierte   Version    ist    auf    der    <I>nmap</I>    Webseite
+              (http://www.insecure.org/nmap) verfuegbar.
+
+       <B>GENERELLE</B> <B>OPTIONEN</B>
+              Keine  der folgenden Optionen ist erforderlich. Einige von ihnen
+              koennen jedoch nuetzlich sein.
+
+       <B>-P0</B>    Verhindert das Pingen eines Hosts, bevor er gescannt wird.  Dies
+              ermoeglicht  das  Scannen  von  Netzwerken,  die keine ICMP echo
+              requests (oder responses) aufgrund einer  restriktiv  konfiguri-
+              erten Firewall zulassen. microsoft.com ist ein Beispiel fuer ein
+              solches Netzwerk, in dem diese  Funktion  stets  genutzt  werden
+              sollte.  Gebrauchen  Sie  <B>-P0</B> oder <B>-PT80</B> wenn ein Portscan gegen
+              microsoft.com durchgefuehrt werden soll.
+
+       <B>-PT</B>    Benutzt einen TCP-Ping, um die  Erreichbarkeit  eines  Hosts  zu
+              verifizieren.  Anstatt ICMP echo request-Abfragen zu verschicken
+              und auf die entsprechenden  ICMP  echo  reply-Rueckantworten  zu
+              warten,  wird  auf  ein  TCP-Datagramm  mit gesetzter ACK-Flagge
+              gesetzt. Ansprechbare Systeme sollten mit einem  RST  antworten.
+              Diese Funktion ist immer dann anzuwenden, wenn Systeme oder Net-
+              zwerke gescannt werden sollen, die  keine  Erreichbarkeitsueber-
+              pruefung  mittels ICMP zulassen und trotzdem zuerst die Erreich-
+              barkeit identifiziert werden soll. Bei non-root  Benutzern  wird
+              connect()  angewandt.  Um  den  Zielport  des Zugriffs zu spezi-
+              fizieren, kann -PT&lt;Portnummer&gt; herangezogen  werden.  Der  Stan-
+              dardport  ist  einmal  mehr TCP/80 (HTTP), da dieser eher selten
+              durch einen Filter gedeckt wird.
+
+       <B>-PS</B>    Diese Option  benutzt  fuer  root-Benutzer  SYN  (Verbindungsan-
+              forderungen)  anstatt ACK-Pakete. Ansprechbare Hosts sollten mit
+              einem  RST  (oder  in  seltenen  Faellen  mit   einem   SYN/ACK)
+              antworten.  Das  Setzen des Zielports kann auf die selbe Art wie
+              beim zuvor erlaeuterten -PT umgesetzt werden.
+
+       <B>-PI</B>    Diese Option nutzt einen klassischen Ping (ICMP  echo  request),
+              um  die  Erreichbarkeit  von Systemen und Broadcast-Adressen von
+              Subnetzen zu identifizieren. Letztere  sind  extern  erreichbare
+              IP-Adressen, die eine Umwandlung zu einem internen Broadcast des
+              Subnetzes durchfuehren. Solcherlei  sollten  verhindert  werden,
+              denn  sie  sind Voraussetzung fuer eine Reihe von Denial of Ser-
+              vice-Attacken (Smurf ist die bekannteste Variante).
+
+       <B>-PP</B>    Benutzt  eine  ICMP  timestamp-Anfrage  (Typ  13,  Code  0),  um
+              ansprechbare Hosts zu finden.
+
+       <B>-PM</B>    Das  Gleiche  wie  <B>-PI</B>  und <B>-PP</B> , ausser, dass eine ICMP address
+              mask request (Typ 17, Code 0) zum Tragen kommt.
+
+       <B>-PB</B>    Dies ist der standardmaessig gewaehlte  Ping-Typus.  Er  benutzt
+              beide Techniken, ACK ( <B>-PT</B> ) und ICMP echo requests ( <B>-PI</B> ), die
+              jeweils parallel durchgefuehrt werden. Auf diese  Weise  koennen
+              Firewall-Elemente  ausgetrickst werden, die eine der beiden Pro-
+              tokolle (nicht beide) filtern. Der Zielport fuer den TCP-Zugriff
+              kann  auf  die  gleiche  Weise gesetzt werden, wie im zuvor erk-
+              laerten -PT.
+
+       <B>-O</B>     Diese Option aktiviert  das  Identifizieren  des  am  Zielsystem
+              eingesetzten  Betriebssystems  anhand  des TCP/IP-Fingerabdrucks
+              (engl. TCP/IP fingerprint).  Es wird  eine  Anzahl  spezifischer
+              Tests  umgesetzt,  die  das  typische  Verhalten  der jeweiligen
+              TCP/IP-Implementierungen erkennen koennen sollen. Die  gegebenen
+              Informationen  stellen  quasi einen ’Fingerabdruck’ dar, der mit
+              der Datenbank der bekannten  Betriebssystem-Fingerabdrucke  (die
+              nmap-os-fingerprints Datei) verglichen wird.
+
+              Falls  nmap  nicht  in der Lage ist, eine mehr oder weniger ein-
+              deutige Identifikation des am Zielsystem  eingesetzten  Betrieb-
+              ssystems  vorzunehmen  und  die  gegebenen  Bedingungen gut sind
+              (mindestens ein ansprechbarer Port), gibt nmap eine URL aus, bei
+              der  neu gefundene Fingerprints eingesendet werden koennen. Dies
+              setzt natuerlich voraus,  dass  Sie  sich  eindeutig  im  Klaren
+              darueber  sind,  um was fuer ein Betriebssystem es sich handelt.
+              Durch diesen Schritt koennen Sie aktiv an  der  Erweiterung  der
+              Datenbank  mithelfen,  wodurch  sie  attraktiver fuer saemtliche
+              Benutzer wird. Falls Sie beim Einsenden des neuen Fingerabdrucks
+              die  IP-Adresse  des  Zielsystems  mitangeben, muessen Sie damit
+              rechnen, dass es von uns zu Ueberpruefungszwecken gescannt wird.
+
+              Die  Option  -O  aktiviert  ebenso  einige  weitere Tests. Einer
+              dieser ist das Messen der "Uptime". Hierzu wird  das  Timestamp-
+              Feature von TCP genutzt (RFC 1323), um erkennen zu koennen, wann
+              das Zielsystem das letzte mal neu gestartet wurde.  Diese  Funk-
+              tionalitaet  wird  natuerlich  nur  dann genutzt werden koennen,
+              wenn das Zielsystem diese Information auch entsprechend  bereit-
+              stellt.
+
+              Ein  anderer  Check, der durch die Option -O aktiviert wird, ist
+              die Klassifizierung der  Berechenbarkeit  der  TCP-Sequenznummer
+              des Zielsystems.  Das Ergebnis dieses Tests sagt aus, wie schwer
+              es  ist,  eine  bestehende   Verbindung   des   Zielsystems   zu
+              uebernehmen.  Dies  ist  dann  nuetzlich,  wenn  auf IP-Adressen
+              basierende Vertrauensbeziehungen (z.B. rlogin und  Firewall-Fil-
+              ter) missbraucht oder die Quelle eines Angriffs versteckt werden
+              sollen.  Die  mitgelieferte  Difficulty-Number  ist  statistisch
+              berechnet und kann jeweils leicht abweichen. Zusaetzlich wird in
+              knappen Worten (z.B. "worthy challenge" or "trivial  joke")  der
+              Zustand beschrieben. All dies wird nur dann ausgegeben, wenn der
+              Parameter -v mitangegeben wurde.
+
+              Wenn die Option -O zusammen mit dem Verbose-Modus  (-v)  genutzt
+              wird,  wird ebenso die Sequenz-Generierung der IPID ausgewiesen.
+              Die meisten Geraete werden als "incremental" klassifiziert,  was
+              bedeutet,  dass  sie fuer jedes verschickte Paket eine Inkremen-
+              tierung des ID-Felds im IP-Header vornehmen.  Ein  solches  Ver-
+              halten  macht  sie  verwundbar  gegen  eine  Reihe verschiedener
+              Auswertungs- und Spoofing-Attacken.
+
+       <B>-6</B>     Diese Option aktiviert die IPv6-Unterstuetzung. Saemtliche Ziele
+              muessen  mit  IPv6  zurecht  kommen, sofern diese Option genutzt
+              werden soll. Das Spezifizieren der Ziele kann ganz normal  ueber
+              den    DNS-Namen   (AAAA   record)   oder   IPv6-Adresse   (z.B.
+              3ffe:501:4819:2000:210:f3ff:fe03:4d0) geschehen.  Momentan  sind
+              TCP  connect()- und Ping-Scans von nmap unterstuetzt. Falls UDP-
+              oder andere Scan-Typen genutzt werden  sollen,  lohnt  sich  ein
+              Blick auf http://nmap6.sourceforge.net/ .
+
+       <B>-I</B>     Hiermit  wird das TCP reverse ident-Scanning aktiviert. Wie Dave
+              Goldsmith in einem Bugtraq-Posting aus dem Jahre 1996 publiziert
+              hat,  ermoeglicht  das  ident-Protokoll  (RFC  1413) das Identi-
+              fizieren des Besitzers eines TCP-Dienstes. So kann zum  Beispiel
+              eine  Verbindung  zum HTTP-Port des Zielsystems hergestellt wer-
+              den, um danach mittels ident herauszufinden,  ob  der  Webserver
+              als  root laeuft. Dies kann nur mit der Hilfe eines full-connect
+              TCP-Portscans (-sT) geschehen. Wenn <B>-I</B> aktiviert wird, wird  der
+              identd des Zielsystems fuer jeden als offen identifizierten Port
+              abgefragt.  Logischerweise  funktioniert  diese  ganze  Prozedur
+              nicht, wenn das Zielsystem keinen identd aktiv hat.
+
+       <B>-f</B>     Diese Option erreicht, dass der durchgefuehrte SYN-, FIN-, Xmas-
+              oder Null-Scan mit fragmentierten IP-Paketen arbeitet. Die  Idee
+              ist,  dass  der  TCP-Header ueber mehrere Pakete verteilt werden
+              soll, wodurch eine Inspizierung durch Firewall-  oder  Intrusion
+              Detection-Systeme  erschwert wird.  Bei dieser Funktion ist Vor-
+              sicht geboten, denn viele der  verbreiteten  Netzwerkanwendungen
+              kommen   mit  derlei  Datenverkehr  nicht  klar.  Beispielsweise
+              erhielt ich bei meinem liebsten Sniffer ein  segemtation  fault,
+              nachdem  das erste 36-byte Fragment eingelesen wurde. Danach kam
+              gar ein 24-byte Paket!  Waehrend diese Methode keinen Erfolg bei
+              Elementen  verspricht,  die eine Warteschlange fuer IP-Fragmente
+              haben (wie dies mittels der Option CONFIG_IP_ALWAYS_DEFRAG unter
+              Linux normalerweise der Fall ist), koennen andere Umgebungen den
+              enormen  Aufwand  fuer  eine  solche   Analyse   nicht   tragen,
+              verzichten darauf und koennen deshalb ausgetrickst werden.
+
+              Es  bleibt  zu  bemerken,  dass  diese  Option  nicht  auf allen
+              Betriebssystemen einwandfrei genutzt werden  kann.  Es  arbeitet
+              ohne  Zwischenfaelle  auf  meinem  Linux,  FreeBSD  und OpenBSD;
+              einige Leute berichten gar, dass es auch auf anderen *NIX  funk-
+              tioniert.
+
+       <B>-v</B>     Verbose-Modus:   Diese,   eine   sehr   zu  empfehlende  Option,
+              ermoeglicht eine erweiterte Ausgabe von Informationen. Eine dop-
+              pelte  Nutzung  ergibt  einen  doppelt so grossen Effekt. Ebenso
+              kann <B>-d</B> einige Male aktiviert werden,  falls  Sie  wirklich  vor
+              einem ueberlasteten Bildschirm verrueckt werden wollen!
+
+       <B>-h</B>     Diese handliche Funktion zeigt eine Kurzreferenz der nmap-Param-
+              eter. Wie Sie vielleicht gemerkt  haben,  handelt  es  sich  bei
+              dieser man-Page nicht unbedingt um eine ’handliche Kurzreferenz’
+              :)
+
+       <B>-oN</B> <B>&lt;Protokoll-Dateiname&gt;</B>
+              Dies protokolliert die Resultate des Scans  in  einem  normalen,
+              fuer  <B>Menschen</B> <B>lesbaren</B> Format in eine durch ein Argument spezi-
+              fizierte Datei.
+
+       <B>-oX</B> <B>&lt;Protokoll-Dateiname&gt;</B>
+              Dies protokolliert die Resultate des Scans als <B>XML</B> in die  durch
+              ein  Argument  spezifizierte  Datei. Dadurch koennen andere Pro-
+              gramme unkompliziert die durch  nmap  generierten  Informationen
+              auswerten   und   verarbeiten.  Durch  das  Argument  ’-’  (ohne
+              Anfuehrungszeichen) kann die Ausgabe auf stdout (fuer  Pipeline-
+              Verarbeitung,  etc.)  umgeleitet werden. In diesem Fall wird die
+              normale Bildschirmausgabe unterdrueckt. Achtung  vor  Fehlermel-
+              dungen (diese werden nach wie vor nach stderr geschickt). Ebenso
+              ist wichtig, dass ’-v’ in den  meisten  Faellen  einige  zusaet-
+              zliche  Informationen  gewaehrleisten  koennen  wird.  Die Doku-
+              mententypendefinition  (engl.  Document  Type  Definition,  abk.
+              DTD),  die  fuer  die  XML-Ausgabe  genutzt  wird,  steht  unter
+              http://www.insecure.org/nmap/data/nmap.dtd bereit.
+
+       <B>-oG</B> <B>&lt;Protokoll-Dateiname&gt;</B>
+              Dies protokolliert die Resultate des Scans in eine <B>grepbare</B> Form
+              in eine durch ein Argument spezifizierte Datei. Dadurch wird ein
+              simples Format angestrebt, welches alle Informationen auf  einer
+              Zeile  ausgibt,  weshalb  ganz  einfach ein grep fuer Ports, OS-
+              Informationen oder IP-Adressen  umgesetzt  werden  kann.  Dieses
+              einfache  Format  stellt  meistens  nicht so viele Informationen
+              bereit, wie dies bei  anderen  Ausgabevarianten  der  Fall  ist.
+              Diese  Form  war  die urspruenglich, fuer die Verarbeitung durch
+              externe    Programme    vorgehesene     Dokumentierungs-Ausgabe.
+              Mittlerweile  ist  jedoch  XML empfohlen (-oX). Einmal mehr kann
+              die Angabe von ’-’ (ohne Anfuehrungszeichen)  eine  Ausgabe  auf
+              stdout  erzwingen  (fuer Pipeline-Verarbeitung, etc.). Auch hier
+              wird die normale Ausgabe unterdrueckt. Ebenso werden  Fehlermel-
+              dungen  wie  ueblich auf stderr ausgegeben. Und ’-v’ wird in den
+              meisten Faellen einige zusaetzliche Informationen gewaehrleisten
+              koennen.
+
+       <B>-oA</B> <B>&lt;Basisdateiname&gt;</B>
+              Dies  veranlasst  nmap in der Form ALLER wichtigen Formate (nor-
+              mal, grepbar und XML) zu protokollieren. Sie geben den  Dateina-
+              men  an,  wobei  nmap  die Erweiterungen in Form von basis.nmap,
+              basis.gnmap und basis.xml automatisch anfuegen wird.
+
+       <B>-oS</B> <B>&lt;Protokoll-Dateiname&gt;</B>
+              Dies protokolliert die Resultate der Scans in einem fuer <B>s|&lt;ripT</B>
+              <B>kiDd|3</B>  lesbaren Format in eine durch ein Argument spezifizierte
+              Datei. Durch die Angabe des Arguments ’-’  (ohne  Anfuehrungsze-
+              ichen) kann die Ausgabe auf stdout umgeleitet werden.
+
+       <B>--resume</B> <B>&lt;Protokoll-Dateiname&gt;</B>
+              Ein  Netzwerk-Scan,  der durch das Druecken von Control-C unter-
+              brochen wurde, kann durch diese Option reaktiviert  werden.  Der
+              Protokoll-Dateiname  muss entweder eine normale (-oN) oder durch
+              Maschinen verarbeitbare  (-oM)  Scan-Protokoll-Datei  sein.  Die
+              Angabe   abweichender  oder  zusaetzlicher  Optionen  ist  nicht
+              moeglich - Sie werden vom abgebrochenen Scan  uebernommen.  nmap
+              wird mit der zuletzt in der Protokoll-Datei erfolgreich gescannt
+              vermerkten Maschine starten.
+
+       <B>--append_output</B>
+              Weist nmap an, die Scan-Resultate  an  die  spezifizierten  Pro-
+              tokoll-Datei anzuhaengen, anstatt die besagten Dateien zu ueber-
+              schreiben.
+
+       <B>-iL</B> <B>&lt;Eingabe-Dateiname&gt;</B>
+              Liest die Ziel-Spezifizierung ZUERST von der  angegebenen  Datei
+              ein,  und  erst  danach von der Kommandozeileneingabe. Die Datei
+              sollte eine Liste von Hosts oder Netzwerken enthalten, die  jew-
+              eils durch ein Leer-, Tabulator- oder Neuezeile-Zeichen getrennt
+              sind. Benutzen Sie einen Bindestrich (-) als <I>Eingabe-Dateiname</I> ,
+              falls  Sie  wollen, dass nmap die Zielspezifizierungen von stdin
+              liest (wie im Zusammenhang mit einer  Pipe).  Siehe  den  Absatz
+              <I>Ziel-Definition</I> fuer zusaetzliche Informationen zu der gueltigen
+              Ausdrucksweise.
+
+       <B>-iR</B>    Diese Option weist nmap an, zufaellig generierte Hosts zu  scan-
+              nen  :).  Dies  hat  kein  Ende.  Eine  solche  Funktion ist zum
+              Beispiel fuer eine statistische Auswertung innerhalb des  Inter-
+              nets  nuetzlich. Falls Sie einmal wirklich sehr gelangweilt sein
+              sollten, so versuchen Sie <I>nmap</I> <I>-sS</I> <I>-iR</I> <I>-p</I> <I>80</I>  um  Webserver-Sys-
+              teme zu finden.
+
+       <B>-p</B> <B>&lt;Port-Bereich&gt;</B>
+              Diese  Option spezifiziert, welche Ports gescannt werden sollen.
+              Zum Beispiel wird ’-p 23’ lediglich einen Zugriff auf  den  Port
+              23  (Telnet) der Zielsysteme durchfuehren. ’-p 20-30,139,60000-’
+              scannt die Ports zwischen 20 und 30, Port  139  und  alle  Ports
+              groesser als 60000. Standardmaessig werden saemtliche well-known
+              Ports zwischen 1 und 1024 sowie alle in der  services-Datei  von
+              nmap  gelisteten  Dienste gescannt. Fuer einen IP-Protokoll-Scan
+              (-sO) kann mit dieser Option die zu  scannende  Protokoll-Nummer
+              (0-255) angegeben werden.
+
+              Werden  gleichzeitig  TCP-  und  UDP-Ports gescannt, so kann das
+              jeweilige Protokoll durch ein  vorangestelltes  "T:"  oder  "U:"
+              angewaehlt  werden.  Die mitgegebenen Ports gelten so lange fuer
+              das  spezifizierte  Uebertragungsprotokoll,  bis   ein   anderes
+              angegeben  wird.  Zum  Beispiel  werden  mit  dem  Argument  "-p
+              U:53,111,137,T:21-25,80,139,8080" die UDP-Ports 53, 111 und  137
+              sowie  die  TCP-Ports  21  bis  25,  80,  139 und 8080 gescannt.
+              Wichtig ist, dass bei einem  gleichzeitigen  TCP-  und  UDP-Scan
+              neben  der  Angabe  von  -sU  mindestens  eine TCP-Scan-Variante
+              mitangegeben werden muss (zum Beispiel -sS, -sF oder -sT).  Wird
+              bei  der  Wahl  der  Zielports  auf das spezifizieren eines Pro-
+              tokolls verzichtet,  bezieht  sich  die  Option  auf  saemtliche
+              Uebertragungsprotokolle.
+
+       <B>-F</B>     Schneller  Scan-Modus (engl. Fast scan mode): Dies gibt an, dass
+              Sie lediglich die in  der  services-Datei  von  nmap  gelisteten
+              Dienste  scannen  wollen (oder bei -sO die Protokolle der proto-
+              cols-Datei). Selbstverstaendlich ist dies  viel  schneller,  als
+              saemtliche 65535 Ports eines Hosts zu ueberpruefen.
+
+       <B>-D</B> <B>&lt;Decoy1</B> <B>[,Decoy2][,ME],...&gt;</B>
+              Veranlasst  einen  sogenannten  Decoy-Scan (dt. Lockvolgel). Bei
+              diesem sieht es so aus,  als  wuerde  eine  Reihe  zusaetzlicher
+              Hosts  die Zielumgebung scannen.  Ein Intrusion Detection-System
+              wird zwischen 5 und 10 Portscans verschiedener IP-Adressen  pro-
+              tokollieren, wobei ohne weiteres nicht genau festgestellt werden
+              kann, welches System den  Scan  wirklich  durchfuehrt.  Waehrend
+              diese  Methode durch Router Path Traceing, Response-Dropping und
+              andere "aktive" Mechanismen niedergeschlagen werden kann, ist es
+              doch  eine extrem effektive Technik, um die eigene IP-Adresse zu
+              verstecken.
+
+              Die jeweiligen Lockvoegel koennen durch ein Komma getrennt  wer-
+              den.  Optional  kann  durch  die  Angabe von ’ME’ (dt. mich) die
+              eigene Position  in  der  Zugriffsreihenfolge  gewaehlt  werden.
+              Falls  ’ME’  in  die  sechste  oder  noch eine spaetere Position
+              gesetzt  wird,  sind  einige  Portscan-Detektoren  (z.B.   Solar
+              Designers  scanlogd)  nicht in der Lage, die richtige IP-Adresse
+              anzuzeigen.  Falls Sie ’ME’ nicht  mitangeben,  wird  nmap  eine
+              zufaellige Position bestimmen.
+
+              Achtung, die als Decoys angegebenen Hosts sollten vom Zielsystem
+              erreichbar sein. Andernfalls  ist  es  durchaus  moeglich,  dass
+              dieses  durch  einen SYN-Flood in die Knie gezwungen wird. Zudem
+              ist es relativ einfach zu  erkennen,  welches  System  den  Scan
+              durchfuehrt,  wenn  nur  dieses eine System wirklich im Netzwerk
+              aktiv ist. Es lohnt sich IP-Adressen anstatt Hostnamen  bei  der
+              Spezifizierung  der  Lockvogel-Systeme  anzugeben  (so ist keine
+              Namensaufloesung noetig und die Protokoll-Eintraege in den Name-
+              servern bleibt aus).
+
+              Ebenso  weisen einige (dumme) "Portscan-Detektoren" Firewalling-
+              Funktionalitaet     auf,     und     sie     unterbinden     die
+              Verbindungsmoeglichkeit  jeglichen  Systems,  das einen Portscan
+              durchfuehrt.   So   kann   es   durchaus    sein,    dass    die
+              Verbindungsmoeglichkeit  des Zielsystems zu den Lockvoegeln ver-
+              hindert wird.  Dies ist dann problematisch, wenn es sich um  ein
+              wichtiges  System,  wie  zum Beispiel das Standard-Gateway, han-
+              delt. Also, es gilt vorsichtig im Umgang mit  dieser  Option  zu
+              sein.  Die Moral dieser Geschichte ist, dass Portscan-Detektoren
+              mit automatisierter Strike-Back Funktionalitaet keine gute  Idee
+              sind  - Hinter jedem Portscan koennte sich ein Lockvogel verber-
+              gen!
+
+              Die Lockvoegel werden im initialen  Ping-Scan  (ICMP,  SYN  oder
+              ACK)  und  waehrend  der  eigentlichen Portscan-Phase verwendet.
+              Ebenso finden sie beim Durchfuehren einer  Betriebssystem-Erken-
+              nung ( <B>-O</B> ) Verwendung.
+
+              Es  bleibt  zu  sagen,  dass zu viele Lockvoegel einen Scan ver-
+              langsamen  und  ineffizienter  machen  koennen.  Ebenso  filtern
+              einige  ISPs  gespoofte  Pakete heraus, obwohl dies zur Zeit die
+              wenigsten machen.
+
+       <B>-S</B> <B>&lt;IP-Adresse&gt;</B>
+              Unter bestimmten Umstaenden ist <I>nmap</I> nicht  in  der  Lage,  Ihre
+              Quell-IP-Adresse  zu  identifizieren ( <I>nmap</I> wird Ihnen dies mit-
+              teilen). In einer solchen  Situation  kann  mit  der  Hilfe  der
+              Option  -S die IP-Adresse (der gewuenschten Schnittstelle) fest-
+              gelegt werden.
+
+              Eine andere Moeglichkeit dieser Option ist die Quelle des  Scans
+              zu  spoofen,  so dass das Zielsystem glaubt, dass <B>jemand</B> <B>anderes</B>
+              die Zugriffe durchfuehrt. Stellen Sie sich vor, dass eine  Firma
+              ploetzlich  von  ihrem Konkurrenten einen Scan verzeichnet! Dies
+              ist nicht der Hauptnutzen dieser Option.  Ich  denke  lediglich,
+              dass  diese Theorie einen guten Grund bereitstellt, nicht sofort
+              jeden als Scanner zu beschimpfen, nur weil es scheint, dass  von
+              ihm ein Scan gestartet wurde.
+
+       <B>-e</B> <B>&lt;Schnittstelle&gt;</B>
+              Weist  nmap  an, ueber welche Schnittstelle die Daten verschickt
+              und empfangen werden sollen. nmap sollte in der Lage sein diesen
+              Umstand  von  sich aus zu erkennen. Falls dem nicht so ist, kann
+              diese Option herangezogen werden.
+
+       <B>-g</B> <B>&lt;Portnummer&gt;</B>
+              Definiert den Quellport fuer die Scans. Einige  naive  Firewall-
+              Implementierungen  machen  bei  DNS  (53) und FTP-DATA (20) eine
+              Ausnahme und lassen solcherlei Verbindung entgegen  der  Bestim-
+              mungen  im  Regelwerk  zu.   Obschon dieser Umstand ganz einfach
+              durch Angreifer ausgenutzt werden kann, um sich  als  FTP-  oder
+              DNS-System  maskierend  einen Vorteil zu verschaffen. Fuer einen
+              UDP-Scan sollte 53 als erstes ausprobiert werden. Bei einem TCP-
+              Scan  bieten  sich  20  und  53 an. Achtung, es handelt sich bei
+              dieser Option lediglich um eine Anfrage, die nicht  zwingend  in
+              jeder  Situation  von  nmap  umgesetzt werden will und kann. Zum
+              Beispiel ist eine ISN-Analyse  nicht  von  System:Port  zu  Sys-
+              tem:Port  moeglich,  so  dass nmap eine dynamische Portzuweisung
+              durchfuehrt, auch wenn anderes durch -g angegeben wurde.
+
+              Seien Sie gewarnt, dass diese Option bei einigen  Scan-Varianten
+              Performance-Einbussen mit sich bringt.
+
+       <B>--data_length</B> <B>&lt;Anzahl&gt;</B>
+              Normalerweise  verschickt  nmap  moeglichst  kleine  Pakete, die
+              lediglich aus dem Header bestehen. So weisen  TCP-Datagramme  im
+              Normalfall  eine Laenge von 40 und ICMP echo request-Anfragen 28
+              Bytes auf. Diese Option weist nmap an, die  verschickten  Pakete
+              um  Null-Bytes zu verlaengern. Pakete zur Erkennung des Betrieb-
+              ssystens (-O) sind nicht betroffen. Ganz im Gegensatz  zu  Ping-
+              Zugriffen  und Portscan-Paketen. Dies verlangsamt natuerlich die
+              Zugriffe unter Umstaenden - Aber ebenso kann es  die  Unauffael-
+              ligkeit des Scans erhoehen.
+
+       <B>-n</B>     Sagt nmap, dass <B>NIE</B> reverse DNS-Aufloesungen von als aktiv iden-
+              tifizierten IP-Adressen durchgefuehrt werden sollen. Da DNS  oft
+              langsam ist, kann diese Option die Zugriffe beschleunigen.
+
+       <B>-R</B>     Sagt  nmap,  dass  <B>IMMER</B>  reverse  DNS-Aufloesungen von als Ziel
+              spezifizierten IP-Adressen  durchgefuehrt  werden  sollen.  Dies
+              wird  im Normalfall nur immer dann durchgefuehrt, wenn ein Ziel-
+              system als aktiv identifiziert werden konnte.
+
+       <B>-r</B>     Sagt nmap, dass <B>KEINE</B> zufaellige Wahl  beim  Scannen  der  Ports
+              gewuenscht ist.
+
+       <B>--ttl</B> <B>&lt;time</B> <B>to</B> <B>live&gt;</B>
+              Setzt den "Time to live" Wert im IPv4 Header.
+
+       <B>--randomize_hosts</B> <B>(dt.</B> <B>zufaellige</B> <B>Reihenfolge</B> <B>der</B> <B>Hosts)</B>
+              Sagt  nmap,  dass  bei  einer Gruppe von bis zu 2048 Zielen eine
+              zufaellige Reihenfolge gewaehlt werden soll, bevor sie  gescannt
+              werden.  Dies  kann den Scanvorgang fuer viele Netzwerk-Monitor-
+              ing-Systeme schwieriger  zu  entdecken  machen;  ganz  besonders
+              dann,  wenn  langsame  Timing-Optionen  angewandt  werden (siehe
+              unten).
+
+       <B>-M</B> <B>&lt;Maximale</B> <B>Sockets&gt;</B>
+              Setzt  die  maximale  Anzahl  der  Sockets  bei  einem  parallel
+              durchgefuehrten  TCP  connect()-Scan fest. Dies ist zum Beispiel
+              in Situationen nuetzlich, wenn der Scanvorgang  kuenstlich  ver-
+              langsamt  werden soll, damit das Zielsystem nicht unter der Last
+              der Zugriffe zusammenbricht. Eine  andere  Herangehensweise  ist
+              durch  -sS gegeben, die durch die Geraete oft einfacher zu hand-
+              haben ist.
+
+       <B>TIMING-OPTIONEN</B>
+              Normalerweise macht nmap hervorragende Arbeit, um waehrend eines
+              Scans  das Maximum an Performance herauszuholen, ohne Fehlermel-
+              dungen zu Hosts oder Ports zu provozieren. Trotzdem kann es Sit-
+              uationen geben, in denen das Timing von nmap nicht dem von Ihnen
+              gewuenschten entspricht.  Die  folgenden  Optionen  ermoeglichen
+              eine feine Skalierbarkeit der Kontrolle bezueglich des Scan-Tim-
+              ings:
+
+       <B>-T</B> <B>&lt;Paranoid|Sneaky|Polite|Normal|Aggressive|Insane&gt;</B>
+              Diese vordefinierten Timing-Richtlinien erlauben Ihnen nmap Ihre
+              Prioritaeten   mitzuteilen.  Der  <B>Paranoid</B>  -Modus  scannt  <B>sehr</B>
+              langsam, in der Hoffnung, nicht von Intrusion Detection-Systemen
+              entdeckt  zu  werden. Die Scans werden in Serie geschaltet (kein
+              paralleles Scanning) und im Normalfall wird  bis  zu  5  Minuten
+              zwischen  dem  Versand  der Pakete gewartet.  <B>Sneaky</B> (dt. schle-
+              ichend) ist aehnlich, ausser, dass lediglich 15  Sekunden  zwis-
+              chen  dem  Paket-Versand  gewartet  wird.  <B>Polite</B> (dt. hoeflich)
+              wird dann relevant, wenn die Netzwerkbelastung niedrig  gehalten
+              werden  will. Zum Beispiel, um Abstuerze von Systemen zu vermei-
+              den. Die Zugriffe werden wiederum in Serie geschaltet und  zwis-
+              chen  den Zugriffen wird <B>mindestens</B> 0.4 Sekunden gewartet.  <B>Nor-</B>
+              <B>mal</B> spiegelt das normale Verhalten von nmap  wieder,  was  einen
+              Kompromiss  zwischen  maximaler  Geschwindigkeit  bei  absoluter
+              Zuverlaessigkeit darstellt.  <B>Aggressive</B>  (dt.  aggressiv)  fuegt
+              eine Wartezeit von 5 Minuten zwischen den einzelnen Hosts hinzu.
+              Es wird jedoch nie  laenger  als  1.25  Sekunden  auf  Antworten
+              gewartet.   <B>Insane</B>  (dt.  geisteskrank)  ist  lediglich  in sehr
+              schnellen Netzwerken moeglich. Oder ueberall dort,  wo  auf  die
+              Zuverlaessigkeit  des  Resultat  nicht  sonderlich  viel gegeben
+              wird. Zwischen den einzelnen Systemen wird 75 und  zwischen  den
+              Zugriffen  0.3  Sekunden  gewartet. Dies lohnt sich zum Beispiel
+              fuer einen schnellen Netzwerk-Suchlauf :).  Die  einzelnen  Modi
+              koennen  ebenso durch eine Nummer (0-5) referenziert werden. Zum
+              Beispiel gibt ’-T 0’ den Paranoid-Modus an und ’-T 5’ steht fuer
+              Insane.
+
+              Diese  spezifischen  Timing-Modi  sollten NICHT zusammen mit den
+              nun folgend vorgestellten Timing-Optionen verwendet werden.
+
+       <B>--host_timeout</B> <B>&lt;Millisekunden&gt;</B>
+              Spezifiziert  den  Zeitraum,  der  nmap  gegeben  wird,  um  ein
+              einzelnes  System  zu scannen, bevor sich einer neuen IP-Adresse
+              gewidmet wird. Der Standardwert hat kein Timeout fuer Hosts.
+
+       <B>--max_rtt_timeout</B> <B>&lt;Millisekunden&gt;</B>
+              Spezifiziert den  Zeitraum,  der  nmap  gegeben  wird,  um  eine
+              Antwort  zu  warten,  bevor  eine  Uebertragunswiederholung ein-
+              geleitet wird oder das Timeout in Kraft tritt. Der  Standardwert
+              ist auf 9000 gesetzt.
+
+       <B>--min_rtt_timeout</B> <B>&lt;Millisekunden&gt;</B>
+              Antwortet  ein  Host sehr schnell auf unsere Anfragen, wird nmap
+              das Zeitlimit fuer zukuenftige Zugriffe auf das besagte Zielsys-
+              tem  verkleinern.  Dies bringt einen Geschwindigkeitsvorteil mit
+              sich, wobei jedoch auch Pakete  verloren  gehen  koennen,  falls
+              ploetzlich ein Antworten in der vorhergesehenen Zeitspanne nicht
+              mehr  moeglich  sein  sollte.  Mit  dieser  Option   kann   nmap
+              angewiesen werden, dass immer mindestens ein bestimmter Zeitwert
+              gewartet werden soll, bevor der Vorgang abgebrochen wird.
+
+       <B>--initial_rtt_timeout</B> <B>&lt;Millisekunden&gt;</B>
+              Spezifiziert das Timetout fuer den initialen Zugriff.  Dies  ist
+              normalerweise  nur  dann  sinnvoll,  wenn durch Firewall-Systeme
+              geschuetzte Hosts mit der Option  -P0  gescannt  werden  sollen.
+              Normalerweise ist nmap in der Lage den RTT-Wert anhand des Ping-
+              Zugriffs und der ersten Auswertungen  optimal  festzulegen.  Der
+              Standardwert lautet 6000.
+
+       <B>--max_parallelism</B> <B>&lt;Anzahl&gt;</B>
+              Spezifiziert  die  maximale  Anzahl  parallel  von  nmap  durch-
+              fuehrbaren Zugriffe.  Das Setzen dieser Option heisst fuer nmap,
+              dass nie mehr als 1 Port auf einmal gescannt werden soll. Ebenso
+              sind andere Scan-Typen  betroffen,  die  normalerweise  parallel
+              durchgefuehrt  werden  koennen  (z.B.  Ping-Suchlauf,  RPC-Scan,
+              etc.).
+
+       <B>--min_parallelism</B> <B>&lt;Anzahl&gt;</B>
+              Weist nmap an, beim Scan eine gewisse Anzahl von Ports  parallel
+              zu  scannen.  Dies kann unter Umstaenden den Auswertungs-Vorgang
+              von Firewall-Systemen beschleunigen. Aber seien Sie  vorsichtig:
+              Die  Resultate  werden  umso  unzuverlaessiger, desto hoeher die
+              Anzahl paralleler Zugriffe gesetzt wird.
+
+       <B>--scan_delay</B> <B>&lt;Millisekunden&gt;</B>
+              Spezifiziert das <B>Minimum</B> der Zeit, die nmap  zwischen  den  jew-
+              eiligen  Zugriffen  warten muss. Dies ist sehr nuetzlich, um das
+              Datenaufkommen  in  Netzwerken  zu  reduzieren  oder  durch  den
+              langsameren  Scanvorgang vor IDS-Tresholds verborgen zu bleiben.
+
+       <B>--packet_trace</B>
+              Sagt nmap, dass saemtliche verschickten und  empfangenen  Pakete
+              in  einem  tcpdump-aehnlichen  Format dargestellt werden sollen.
+              Dies ist ganz besonders fuer Debugging nuetzlich. Ausserdem kann
+              so viel ueber die Funktionsweise gelernt werden.
+
+
+</PRE>
+<H2>ZIEL-SPEZIFIKATION</H2><PRE>
+       Alles,  das  nmap  nicht  als Option mitgegeben wird (oder ein Argument
+       einer Option darstellt) wird als Ziel-Spezifikation angesehen. Die ein-
+       fachste Form dessen, ist das Auflisten von einzelnen Hostnamen oder IP-
+       Adressen in der Kommandozeile. Falls Sie ein Subnetz scannen wollen, so
+       koennen  Sie  <B>’/Maske’</B>  am  Hostnamen oder der IP-Adresse anfuegen. Die
+       <B>Maske</B> muss einen Wert zwischen 0 (das ganze Internet  scannen)  und  32
+       (den einzelnen Host scannen) aufweisen. Benutzen Sie /24 fuer das Scan-
+       nen eines Klasse C-Netzwerks und /16 fuer ein Klasse B-Netzwerk.
+
+       nmap greift zudem auf eine sehr maechtige Notation  zurueck,  die  eine
+       sehr komfortable Spezifikation von IP-Adressbereichen zulaesst. So kann
+       das Klasse B-Netzwerk 192.168.*.*  mit  der  Angabe  von  ’192.168.*.*’
+       oder   ’192.168.0-255.0-255’  oder  ’192.168.1-50,51-255.1,2,3,4,5-255’
+       gescannt werden. Und selbstverstaendlich ist auch die verbreitete Netz-
+       masken-Notation zulaessig: ’192.168.0.0/16’. All diese Eingaben fuehren
+       zum gleichen Ziel.  Falls Sie das  Asteriks-Zeichen  (dt.  Stern,  ’*’)
+       benutzen  wollen, denken Sie daran, dass einige Shells das Escapen mit-
+       tels Backslashes oder das Auskommentieren mittels Gaensefuesschen  ver-
+       langen.
+
+       Eine  andere  Moeglichkeit  ist  genau  durch das umgekehrte Herangehen
+       gegeben.  Anstatt ein ganzes Klasse B-Netzwerk zu scannen, kann mit der
+       Angabe  von  ’*.*.5.6-7’  jede IP-Adresse gescannt werden, die auf .5.6
+       oder .5.7 endet.  Fuer zusaetzliche Informationen, konsultieren Sie den
+       Abschnitt <I>Beispiele</I>
+
+
+</PRE>
+<H2>BEISPIELE</H2><PRE>
+       Hier  folgen  nun  einige  Beispiele  fuer  das  Nutzen von nmap. Diese
+       reichen von einfachen ueber normale bis hin zu komplexen Ansaetzen.  Es
+       werden   existente   IP-Adressen  und  Domainnamen  verwendet,  um  die
+       Beispiele konkreter zu gestalten.  Anstatt  ihrer  Stelle  sollten  Sie
+       Adressen  und Namen <B>Ihres</B> <B>eigenen</B> <B>Netzwerks</B> benutzen. Ich bin der Mein-
+       ung, dass Portscanning fremder  Netzwerke  nicht  illegal  ist;  ebenso
+       sollten Portscans nicht als Angriffe gewertet werden. Ich habe tausende
+       Maschinen gescannt und bisher erst eine Rueckmeldung erfahren.   Jedoch
+       bin  ich kein Anwalt und einige (langweilige) Leute koennten durch mit-
+       tels <I>nmap</I> generierter Zugriffe nervoes werden. Holen  Sie  sich  zuerst
+       eine  Erlaubnis  fuer Ihre Aktivitaeten ein oder tragen Sie die Risiken
+       selbst.
+
+       <B>nmap</B> <B>-v</B> <B>ziel.beispiel.com</B>
+
+       Diese Option scannt alle reservierten TCP-Ports am Zielsystem  mit  dem
+       Namen ziel.beispiel.com. Das -v aktiviert den Verbose-Modus.
+
+       <B>nmap</B> <B>-sS</B> <B>-O</B> <B>ziel.beispiel.com/24</B>
+
+       Hier  wird ein stealth SYN-Scan gegen jede der 255 Maschinen des Klasse
+       C-Netzwerks von ziel.beispiel.com gestartet. Ebenso wird  versucht  das
+       Betriebssystem   der  aktiven  Systeme  zu  ermitteln.  Dieser  Vorgang
+       erfordert root-Privilegien aufgrund des SYN-Scans und der  Betriebssys-
+       temerkennung.
+
+       <B>nmap</B> <B>-sX</B> <B>-p</B> <B>22,53,110,143,4564</B> <B>198.116.*.1-127</B>
+
+       Startet einen Xmas-Tree-Scan auf die erste Haelfte der 255 moeglichen 8
+       Bit Subnetze des Klasse B-Adressraums von 198.116. Wir ueberpruefen, ob
+       am  Zielsystem  SSHD,  DNS,  POP3D, IMAPD oder der Port 4564 aktiv ist.
+       Wichtig ist, dass Xmas-Scans nicht  gegen  Microsoft-Geraete  funktion-
+       ieren,  da  einige  Abweichungen bei der Implementierung des TCP-Stacks
+       gemacht wurden. Das gleiche gilt fuer Cisco-, IRIX-, HP/UX-  und  BSDI-
+       Maschinen.
+
+       <B>nmap</B> <B>-v</B> <B>--randomize_hosts</B> <B>-p</B> <B>80</B> <B>’*.*.2.3-5’</B>
+
+       Manchmal  ist  es nicht erforderlich einen IP-Adressbereich zu scannen.
+       So kann  es  durchaus  sein,  dass  in  einer  Situation  das  Absuchen
+       spezieller  Geraete noetig wird. Dieses Kommando findet saemtliche Web-
+       server, die eine IP-Adresse aufweisen, die auf  .2.3,  .2.4  oder  .2.5
+       endet.  Falls Sie root sind, so kommt eventuell ein Hinzufuegen von -sS
+       in Frage. Ebenso koennten mehr interessante  Systeme  gefunden  werden,
+       wenn  bei  127  gestartet wird (IMHO). In diesem Fall koennen die durch
+       die Sterne gegebenen Platzhalter durch ’127-222’ ersetzt werden.
+
+       <B>host</B> <B>-l</B> <B>firma.com</B> <B>|</B> <B>cut</B> <B>’-d</B> <B>’</B> <B>-f</B> <B>4</B> <B>|</B> <B>./nmap</B> <B>-v</B> <B>-iL</B> <B>-</B>
+
+       Fuehrt einen DNS-Zonetransfer durch, um saemtliche Hosts von  firma.com
+       zu  finden.  Die  Ausgabe  der IP-Adressen wird sodann fuer die weitere
+       Verarbeitung zu <I>nmap</I> umgeleitet. Die dokumentierte Kommandofolge  funk-
+       tioniert  nur  auf  Geraeten  mit GNU/Linux. Vielleicht muessen Sie auf
+       anderen Betriebssystemen andere Kommandos und Optionen heranziehen.
+
+
+</PRE>
+<H2>FEHLER</H2><PRE>
+       Fehler? Was fuer Fehler? Senden Sie sie mir, falls sie  solche  finden.
+       Entsprechende  Patches  waeren auch gleich nett :) Denken Sie ausserdem
+       daran, neue OS-Fingerabdruecke einzusenden, damit die Datenbank wachsen
+       kann.  nmap  gibt  eine URL zur Uebermittlung des unbekannten Fingerab-
+       drucks aus.
+
+
+</PRE>
+<H2>AUTOR</H2><PRE>
+       Fyodor <I>&lt;fyodor@insecure.org&gt;</I>
+
+
+</PRE>
+<H2>UEBERSETZUNG</H2><PRE>
+       Marc Ruef <I>&lt;marc.ruef@computec.ch&gt;</I>
+
+       http://www.computec.ch
+
+       Wettingen, Oktober 2002
+
+
+</PRE>
+<H2>DISTRIBUTION</H2><PRE>
+       Die  neueste  Version  von  <I>nmap</I>  kann  jeweils  von   <I>http://www.inse-</I>
+       <I>cure.org/nmap/</I> bezogen werden.
+
+       <I>nmap</I> is (C) 1995-2002 by Insecure.Com LLC
+
+       Dieses  Programm  gilt  als  freie  Software; Sie koennen sie unter den
+       Lizenzbestimmungen der GNU General Public License, wie sie von der Free
+       Software  Foundation  in  der  Version  2 publiziert wurde, weitergeben
+       und/oder veraendern. Dies weist Ihnen das Recht zu, die Software  unter
+       den  gegebenen  Bestimmungen zu nutzen, modifizieren und weiterzugeben.
+       Falls Sie diese Lizenzbestimmungen nicht akzeptieren wollen, ist  Inse-
+       cure.Org  unter  Umstaenden in der Lage, eine alternative Lizenzbestim-
+       mung auszuhandeln (kontaktieren Sie fyodor@insecure.org).
+
+       Der Quelltext dieser Software wird  aus  diesem  Grund  zur  Verfuegung
+       gestellt, weil wir glauben, dass die Benutzer ein Recht darauf haben zu
+       wissen,  was  die  von  ihnen  eingesetzten  Programme   machen.   Dies
+       ermoeglicht  zudem  das  Ueberpruefen  der Software auf etwaige Sicher-
+       heitsschwachstellen (bisher wurden keine gefunden).
+
+       Der Quelltext ermoeglicht zudem das Portieren von nmap auf  neue  Plat-
+       tformen,  das  Beheben  von  Fehlern und Hinzufuegen neuer Funktionali-
+       taeten. Ich darf Sie bitten entsprechende Aenderungen  an  fyodor@inse-
+       cure.org  zu  schicken,  um  eine etwaige Zusammenarbeit zu besprechen.
+       Durch das Senden von Neuerungen an Fyodor oder einem der Mitglieder der
+       Entwickler-Meilingliste  erlauben Sie die unlimitierte, nicht-exklusive
+       Weiterverwendung, Modifizierung und Relizensierung. Dies  ist  insofern
+       wichtig,  da einige andere Free Software Projekte (zum Beispiel KDE und
+       NASM) sich mit unnoetigen Lizenzproblemen konfrontiert sahen. nmap wird
+       stets  als open-source zur Verfuegung stehen.  Falls Sie sich an andere
+       Lizenzbestimmungen halten moechten, so vermerken Sie  dies  doch  bitte
+       beim Einsenden Ihres Materials.
+
+       Dieses  Programm  wurde  in  der Hoffnung entwickelt, dass es nuetzlich
+       ist; jedoch <B>OHNE</B> <B>JEGLICHE</B>  <B>GARANTIE.</B>   Siehe  die  GNU  General  Public
+       License  fuer  zusaetzliche  Informationen (sie ist in der Datei namens
+       COPYING, die mit <I>nmap</I> mitgeliefert wird, enthalten).
+
+       Es muss zusaetzlich  erwaehnt  werden,  dass  nmap  in  der  Lage  ist,
+       schlecht  geschriebene  Anwendungen,  TCP/IP-Stacks und Betriebssysteme
+       abstuerzen zu lassen.  <B>nmap</B> <B>sollte</B>  <B>nie</B>  <B>auf</B>  <B>mission-critical</B>  <B>Systeme</B>
+       <B>angewandt</B> <B>werden</B> , ausser, wenn ein entsprechender Ausfall (engl. down-
+       time) verkraftet werden kann. Wir bestaetigen hiermit, dass nmap  unter
+       Umstaenden  Systeme und Netzwerke negativ beeinflussen kann. Wir tragen
+       keine Verantwortung fuer Probleme, die beim Nutzen von  nmap  entstehen
+       koennen.
+
+       Aufgrund  dessen,  dass  das  Risiko eines Absturzes besteht und einige
+       Black Hats nmap fuer das  Auswerten  von  Angriffszielen  missbrauchen,
+       koennen einige Administratoren allergisch auf das Scannen ihrer Systeme
+       reagieren. Somit ist es stets empfehlenswert, die  Erlaubnis  fuer  das
+       Scannen eines Netzwerks einzuholen.
+
+       nmap  sollte  aus  Sicherheitsgruenden  nie mit erweiterten Privilegien
+       (z.B. suid root) gestartet werden.
+
+       Dieses Produkt beinhaltet Software-Teile, die von der  Apache  Software
+       Foundation  (http://www.apache.org/)  entwickelt  wurden.  Die  <I>Libpcap</I>
+       portable Bibliothek wird als Teil von nmap mitgeliefert. Libpcap  wurde
+       urspruenglich  durch Van Jacobson, Craig Leres und Steven McCanne, alle
+       vom Lawrence  Berkeley  National  Laboratory,  Universitaet  von  Kali-
+       fornien,   Berkeley,   CA,   entwickelt.   Zur   Zeit   wird   sie  von
+       http://www.tcpdump.org betreut.
+
+
+
+                                                                       <B>NMAP(1)</B>
+</PRE>
+<HR>
+<ADDRESS>
+Man(1) output converted with
+<a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
+</ADDRESS>
+</BODY>
+</HTML>

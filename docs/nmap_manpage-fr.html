@@ -1,0 +1,887 @@
+<HTML>
+<HEAD>
+<TITLE>Nmap network security scanner man page (French translation)</TITLE>
+</HEAD>
+<BODY>
+<H1>Nmap network security scanner man page (French translation)</H1>
+<HR>
+<PRE>
+<!-- Manpage converted by man2html 3.0.1 -->
+<B>NMAP(1)</B>                                                                <B>NMAP(1)</B>
+
+
+
+
+</PRE>
+<H2>NOM</H2><PRE>
+       nmap  -  Outil  d’exploration  rau et analyseur de sritSH SYNOPSIS <B>nmap</B>
+       [Type(s) de scan] [Options] &lt;hou rau #1 ... [#N]&gt;
+
+
+</PRE>
+<H2>DESCRIPTION</H2><PRE>
+       <I>Nmap</I> a  conpour que les administrateurs systs et les  curieux  puissent
+       analyser  de  grands  r aux  pour  drminer les h actifs et les services
+       offerts.  <I>nmap</I> supporte un grand nombre de techniques d’analyse :  UDP,
+       TCP  connect(),  TCP  SYN  (mi ouvert), ftp proxy (attaque par rebond),
+       Reverse-ident, ICMP (balayage de ping),  FIN,  balayage  de  ACK,  Xmas
+       Tree,  balayage  de  SYN,  Protocoles IP, et Null scan. Voir la section
+       <I>Types</I> <I>de</I> <I>scans</I> pour plus de dils. Nmap offre lement des  caract stiques
+       avanc  comme  la  dction du syst d’exploitation distant via l’empreinte
+       TCP/IP, l’analyse furtive, le di dynamique et les calculs  de  retrans-
+       mission,  l’analyse parall, dction de h inactifs via des pings paralls,
+       l’analyse avec leurres, la dction des ports filtr analyse directe (sans
+       portmapper)  des  RCP,  l’analyse  avec  fragmentation, et une notation
+       puissante pour dgner les h et les ports.
+
+       Des efforts significatifs ont  consacrpour que nmap soit utilisable par
+       des  utilisateurs  non-root. Malheureusement, la plupart des interfaces
+       noyaux critiques (comme les raw sockets) requi nt  les  privil s  root.
+       Nmap  devrait  donc e lancn tant que root autant que possible (mais pas
+       en setuid root, demment).
+
+       Le rltat de l’extion de nmap est habituellement une liste de ports  int
+       ssants  sur  les machines analys. Nmap donne pour chaque port le nom du
+       service, le num, l’t et le protocole.  L’t  peut   e  « open »,  « fil-
+       tered »  ou  « unfiltered ».   « Open »  signifie  que la machine cible
+       accepte les connexions sur ce port.  « Filtered » signifie qu’un  pare-
+       feu,  un filtre ou un autre obstacle rau prot le port et empe nmap de d
+       cter si le port est ouvert.  « Unfiltered » signifie que  le  port  est
+       fermt qu’aucun pare-feu n’a interf avec nmap.  Les ports « Unfiltered »
+       sont les plus courants et ne sont affichque lorsque la majorites  ports
+       analyssont dans l’t « filtered ».
+
+       En  fonction  des  options utilis, nmap peut aussi rapporter les caract
+       stiques  suivantes  du  syst  d’exploitation  distant :  type  de  syst
+       d’exploitation,  s encement  TCP,  noms des utilisateurs qui ont lances
+       programmes qui utent sur chaque port, le nom DNS,  et  d’autres  choses
+       encore.
+
+
+</PRE>
+<H2>OPTIONS</H2><PRE>
+       Les  options  ayant  du sens ensemble peuvent gralement e combin.  Cer-
+       taines options sont spfiques ertains modes d’analyses.  <I>nmap</I> essaye  de
+       d cter et de prnir l’utilisateur en cas de combinaisons d’options dntes
+       ou non support.
+
+       Si vous s impatient, vous pouvez passer directement a section des <I>exem-</I>
+       <I>ples</I> a fin, qui illustre l’usage courant. Vous pouvez aussi lancer <B>nmap</B>
+       <B>-h</B> pour un bref rappel de toutes les options.
+
+       <B>TYPES</B> <B>DE</B> <B>SCANS</B>
+
+       <B>-sS</B>    TCP SYN scan :  Cette  technique  est  souvent  appel scan  « mi
+              ouvert »,  parce  qu’on  ouvre  une  connexion  TCP incompl.  On
+              envoie un paquet SYN, comme pour une vtable ouverture de connex-
+              ion et on attend une rnse. Un SYN ou ACK indique que le port est
+              sous ute, en revanche un RST signifie que personne n’ute sur  ce
+              port.   Si  un  SYN ou ACK est re un RST est immatement envoyour
+              interrompre la connexion.  Le principal avantage de cette  tech-
+              nique  est  que  peu  de  sites l’archiveront.  dans leurs logs.
+              Malheureusement vous avez besoin des privils root pour  constru-
+              ire  ces  paquets SYN sur mesure. C’est le scan par dut pour les
+              utilisateurs qui ont les privils root.
+
+       <B>-sT</B>    TCP connect() scan : C’est la forme la plus simple de scan  TCP.
+              L’appel syst connect() fournit par votre syst d’exploitation est
+              utilisour ouvrir une connexion sur tous les ports int ssants  de
+              la cible. Si le port est sur ute, connect() rsira, sinon le port
+              est injoignable.  Le principal avantage de cette  technique  est
+              qu’elle  ne nssite pas de privils particuliers. Presque tous les
+              utilisateurs de toutes les machines Unix sont libres  d’utiliser
+              cet appel syst.
+
+              Ce  type de scan est facilement dctable par l’hcible puisque les
+              logs de la cible montreront un ensemble de connexions et de mes-
+              sages  d’erreurs pour les services qui ont accepta connexion qui
+              a  immatement coup C’est le scan par dut pour  les  utilisateurs
+              normaux (non root).
+
+       <B>-sF</B> <B>-sX</B> <B>-sN</B>
+              Stealth  FIN,  Xmas  Tree, ou Null scan modes : Parfois m un SYN
+              scan n’est pas suffisamment discret.  Certains pare-feux et fil-
+              treurs  de  paquets regardent les SYNs vers les ports interdits,
+              et des programmes comme Synlogger et Courtney peuvent dcter  ces
+              scans.  En revanche, ces scans avancdevrait pourvoir passer sans
+              probls.
+
+              L’idest qu’un port fermst requis pour rndre au  paquet  de  test
+              par  un  RST,  alors  que  les ports ouverts doivent ignorer les
+              paquets en question (voir RFC 793 pp 64). Le FIN scan utilise un
+              paquet  FIN nu comme testeur, alors que le scan Xmas tree active
+              les drapeaux URG et PUSH du paquet FIN. Le  scan  Null,  d ctive
+              tous  les drapeaux. Malheureusement Microsoft (comme d’habitude)
+              a dd’ignorer complment le standard et de faire les choses a fa .
+              C’est pourquoi ce type de scan ne fonctionne pas contre les syst
+              s sous Windows95/NT. Le cpositif est que c’est un bon  moyen  de
+              distinguer  deux  plates-formes.   Si  le  scan trouve des ports
+              ouverts, vous savez que la machine cible n’est pas sous Windows.
+              Si  un  -sF,-sX, ou -sN scan montre tous les ports ferm et qu’un
+              scan SYN (-sS) montre tous les ports ouverts, la  machine  cible
+              fonctionne  probablement  sous  Windows.  Ceci  est  moins utile
+              depuis que nmap a son propre dcteur de syst  d’exploitation  int
+              D’autres  systs ont le m probl que Windows : Cisco, BSDI, HP/UX,
+              MVS, et IRIX.  La plupart envoient des resets depuis  les  ports
+              ouverts au lieu d’ignorer le paquet.
+
+       <B>-sP</B>    Ping  scanning : Parfois vous voulez juste savoir quels sont les
+              h actifs d’un rau.  Nmap peut le faire pour vous en envoyant des
+              paquets  d’ o  ICMP haque adresse IP du rau spfiLes h qui rndent
+              sont   actifs.    Malheureusement,    certains    sites    comme
+              microsoft.com,  bloquent  les  paquets d’o.  Toutefois nmap peut
+              aussi envoyer un paquet TCP ack au port 80 (par dut).   Si  vous
+              recevez  un  RST  en  retour,  la machine est active. Une troisi
+              technique consiste nvoyer un paquet SYN et d’attendre un RST  ou
+              un  SYN/ACK.   Pour les utilisateurs non-root, la mode connect()
+              est utilis
+
+              Par dut (pour les utilisateurs root), nmap utilise la  technique
+              ICMP et ACK en parall. Vous pouvez changer l’option <B>-P</B> dite plus
+              tard.
+
+              Remarquez que le ping est fait par dut de toutes fa s  et  seuls
+              les h qui rndent sont analys N’utilisez cette option que si vous
+              voulez faire un balayage de ping <B>sans</B> faire d’analyse de  ports.
+
+       <B>-sU</B>    UDP  scans :  Cette  m ode  est utilispour drminer les ports UDP
+              (User Datagram Protocol, RFC 768) qui sont ouverts sur l’h Cette
+              technique consiste nvoyer un paquet udp de 0 octet haque port de
+              la machine cible. Si on ret  un  message  ICMP  « port  unreach-
+              able », alors le port est fermAutrement nous supposons qu’il est
+              ouvert.
+
+              Certaines personne pensent que l’analyse UDP est inutile.   J’ai
+              pour  habitude  de  leur  rappeler le trou rnt dans rcpbind sous
+              Solaris.  Rpcbind peut dissimuler un port UDP non documentuelque
+              part  au dessus de 32 770. Comme duvrir un tel port sans scanner
+              UDP ?  Il y a aussi le programme cDc Back Orifice  backdoor  qui
+              cache  un port UDP configurable sur les machines Windows. Sans m
+              mentionner tous les services courants qui utilisent UDP tels que
+              snmp, tftp, NFS, etc.
+
+              Malheureusement  l’analyse  UDP  peut   e  particuli ment longue
+              puisque la plupart des h implnte une suggestion de la  RFC  1812
+              (section  4.3.2.8)  pour  limiter  le  dt des messages d’erreurs
+              ICMP. Par exemple, le noyau Linux (dans net/ipv4/icmp.h)  limite
+              la  gration de message « destination unreachable » 0 pour 4 sec-
+              ondes, avec une plite 1/4 secondes si ce nombre est dssSolaris a
+              des  limites  encore plus strictes (eu pr2 messages par seconde)
+              et l’analyse nssite encore plus de temps.  <I>Nmap</I> dcte cette  lim-
+              ite  de  dt et ralentit plutue d’inonder inutilement le rau avec
+              des paquets qui seront ignorpar la machine cible.
+
+              Comme d’habitude, Microsoft a ignora suggestion RFC et  n’a  pas
+              impl nte limitation de taux dans les machines Win95 et NT. C’est
+              pourquoi nous pouvons analyser les 65K ports d’une machine  Win-
+              dows <B>trrapidement.</B> <B>Wahoo</B> <B>!</B>
+
+       <B>-sO</B>    IP protocol scans : Cette mode est utilispour drminer les proto-
+              coles IP supportpar l’h La technique consiste nvoyer des paquets
+              IP bruts sans ent de protocole haque protocole spfiur la machine
+              cible.  Si nous recevons un  message  ICMP  « protocol  unreach-
+              able »,  alors  le protocole n’est pas utilisAutrement nous sup-
+              posons qu’il est ouvert. Remarquez que certains h  (AIX,  HP-UX,
+              Digital  UNIX) et les pare-feux peuvent ne pas renvoyer les mes-
+              sages « protocol unreachable », faisant apparae ouverts tous les
+              protocoles.
+
+              Comme cette technique est trsimilaire ’analyse des ports UDP, la
+              limitation du dt ICMP peut aussi apparae.  Mais comme  le  champ
+              protocole  d’IP  n’a  que 8 bits, il y a au plus 256 protocoles,
+              donc la durrestera raisonnable.
+
+       <B>-sI</B> <B>&lt;zombie</B> <B>host[:probeport]&gt;</B>
+              scan paresseux : cette mode de scan avancautorise un scan TCP  v
+              tablement  aveugle  de  la  cible (aucun paquet ne sera envoy la
+              cible depuis votre vtable adresse IP).  la  place,  une  attaque
+              unilat le  exploite  la  prction de la sence d’identificateur de
+              fragmentation IP de l’hzombie pour glaner des  informations  sur
+              les ports ouverts de la cible.  Les systs de dctions d’intrusion
+              indiqueront que le scan provient de la machine zombie sp fi (qui
+              doit   e active et vfier un certain nombre de crits). J’envisage
+              de     donner     plus     d’explication         ttp://www.inse-
+              cure.org/nmap/nmap_documentation.html dans un futur proche.
+
+
+       En plus d’e extraordinairement furtive (gra nature aveugle), ce scan
+              permet de s’affranchir des relations de confiance entre machines
+              fond sur l’IP. La liste de ports montre les ports  ouverts  <I>tels</I>
+              <I>que</I>  <I>les</I>  <I>voit</I> <I>l’hzombie.</I>  Aussi, vous pouvez essayer de scanner
+              une cible en utilisant diffnts zombies ui  elle  fait  confiance
+              (via  les res de filtrage des routeurs/paquets).  idemment cette
+              information est  cruciale  pour  orienter  l’attaque.  Autrement
+              votre  test  de  ptration va consommer des ressources considbles
+              appartenant au syst intermaire,  pour  s’apercevoir  en  fin  de
+              compte  qu’il  n’y a pas de relation de confiance entre l’hcible
+              et l’IP de la machine zombie.
+
+              Vous pouvez ajouter un deux-point suivi par le num  de  port  si
+              vous  voulez  tester  un port particulier sur l’hzombie pour les
+              changement IPID.  Autrement Nmap utilisera le port qu’il utilise
+              par dut pour les pings TCP.
+
+       <B>-sA</B>    ACK scan : C’est une technique avancqui est utilisour duvrir les
+              res des pare-feux et pour savoir si on a affaire n  pare-feu  ou
+              un  simple  filtreur  de  paquets  qui  bloquent les paquets SYN
+              entrant.
+
+              Ce  type  d’analyse  envoie  un  paquet   ACK   (avec   un   num
+              d’acquittement/s ence  aloire) aux ports spfi Si un RST vient en
+              retour, les ports sont classcomme non filtr Si rien  ne  revient
+              (ou alors un message ICMP « unreachable »), les ports sont class
+              comme filtr. Remarquez que <I>nmap</I>  n’affiche  pas  les  ports  non
+              filtr Aussi, si <B>aucun</B> port n’est affichans la sortie, c’est sou-
+              vent un signe que tous les tests ont fonctionnet retournSTs). Ce
+              scan ne montrera dement jamais de port ouvert.
+
+       <B>-sW</B>    Window  scan :  C’est  une analyse avanctrsimilaire au ACK scan,
+              sauf qu’il peut parfois dcter aussi bien des ports  ouverts  que
+              filtr non  filtr gr   ne  anomalie dans la taille de la fene TCP
+              rapportpar certains systs.  Parmi les systs vulnbles se trouvent
+              certaines  versions de AIX, Amiga, BeOS, BSDI, Cray, Tru64 UNIX,
+              DG/UX, OpenVMS, Digital UNIX, FreeBSD, HP-UX, OS/2, IRIX, MacOS,
+              NetBSD,  OpenBSD,  OpenStep,  QNX,  Rhapsody, SunOS 4.X, Ultrix,
+              VAX, et VxWorks. Voir les archives  de  la  liste  de  diffusion
+              nmap-hackers pour une liste exhaustive.
+
+       <B>-sR</B>    RPC  scan.  Cette mode fonctionne en combinaison avec diverses m
+              odes d’analyse de port de nmap.  Il prend tous les ports TCP/UDP
+              ouverts et les inonde de commandes SunRPC NULL pour drminer ceux
+              qui sont des ports RPC, et si c’est le cas, le programme et  son
+              num de version qui les servent.  Vous pouvez obtenir la m infor-
+              mation que ’rpcinfo -p’ m si le portmapper cible  est  derri  un
+              pare-feu  (ou prot par un wrapper TCP). Les leurres ne fonction-
+              nent pour le moment pas avec les scans RCP, et je  dois  ajouter
+              le support pour les leurres dans les scans UPD RCP.
+
+       <B>-sL</B>    scan-liste. Cette mode gre une liste d’IP/nom sans les pinger ou
+              les scanner. La rlution de nom DNS sera rissauf si vous utilisez
+              -n.
+
+       <B>-b</B> <B>&lt;ftp</B> <B>relay</B> <B>host&gt;</B>
+              attaque par rebond FTP : Une caractstique intssante du protocole
+              ftp (RFC 959) est le support des connexions <B>proxy</B>.  En  d’autres
+              termes,  je dois e capable de me connecter depuis mechant.com au
+              serveur FTP de cible.com et demander que le  serveur  envoie  un
+              fichier  N’IMPORTE  O sur  Internet.   fonctionnait bien en 1985
+              quand la RFC a  ite. Mais dans l’Internet d’aujourd’hui nous  ne
+              pouvons  pas  nous permettre d’avoir des pirates qui durnent des
+              serveurs ftp  et  envoient  des  donn  n’importe  o s  Internet.
+              J’avais   it  en 1995 que ce dut du protocole « peut e utilisour
+              envoyer des courriers et nouvelles  intracables,  matraquer  des
+              serveurs  de  sites,  saturer les disques, essayer de contourner
+              les pare-feux et gralement e difficile ep r ».   On  peut  aussi
+              l’exploiter  pour  faire un scan des ports TCP depuis un serveur
+              ftp « proxy ». Ainsi, vous pouvez vous connecter n  serveur  ftp
+              derri  un  pare-feu  et scanner les ports sans e bloqu139 est un
+              bon nombre). Si le serveur ftp autorise la lecture  et  l’ iture
+              dans  certains rrtoires (tel que /incoming), vous pouvez envoyez
+              des donn arbitraires aux ports que vous avez trouvuvert (nmap ne
+              le fera toutefois pas pour vous)
+
+              L’argument  pass  l’option  <B>-b</B>  est  l’hque vous voulez utiliser
+              comme proxy, dans la notation  URL  standard.  Le  format  est :
+              <I>username:password@server:port.</I>   Tout sauf <I>server</I> est optionnel.
+              Pour drminer les serveurs qui sont vulnbles ette  attaque,  vous
+              pouvez voir mon article dans <I>Phrack</I> 51. Une version mise our est
+              disponible ’URL http://www.insecure.org/nmap.
+
+       <B>OPTIONS</B> <B>GALES</B>
+              Aucune n’est nssaire, mais certaines peuvent e trutiles.
+
+       <B>-P0</B>    Ne pas essayer de ping sur les h avant de  les  analyser.   Cela
+              permet l’analyse des raux qui ne permettent pas les requs ou les
+              rnses ICMP ravers leurs  pare-feux.   Microsoft.com  en  est  un
+              exemple, et vous devez toujours utiliser <B>-P0</B> ou <B>-PT80</B> pour faire
+              une analyse de port sur microsoft.com.
+
+       <B>-PT</B>    Utilise TCP "ping" pour drminer les h actifs. Au lieu  d’envoyer
+              une  requ  d’ o  ICMP  et d’attendre une rnse, nous envoyons des
+              paquets TCP ACK dans le rau cible (ou  contre  une  machine)  et
+              attendons des rnses pour conclure.  Les h devraient rndre par un
+              RST. Cette option prrve l’efficacites scan des h qui sont actifs
+              mais  autorise  l’analyse des h/raux qui bloquent les paquets de
+              ping.  Pour les utilisateurs non root, nous utilisons connect().
+              Pour  sp fier  le  port de destination du test utilisez -PT&lt;port
+              number&gt;. Le port par dut est 80, car ce port n’est  pas  souvent
+              filtr .TP  <B>-PS</B>  Cette option utilise des paquets SYN (demande de
+              connexion) a place des paquets ACK pour les  utilisateurs  ROOT.
+              Les h actifs devrait rndre par un RST (ou, rarement par un SYN |
+              ACK).
+
+       <B>-PI</B>    Cette option utilise un vtable paquet ping (requ d’o ICMP).   Il
+              recherche  les  h actifs et aussi regarde les adresses de diffu-
+              sion des sous-raux. Il y a des adresses IP qui sont joignable de
+              l’ext eur  et  qui  sont  traduites  en  une diffusion de paquet
+              entrant dans un rau.   devrait e supprimsi duvert, car permet un
+              grand nombre d’attaques de d de service.
+
+       <B>-PP</B>    utilise un paquet ICMP de requ d’estampille temporelle (code 13)
+              pour drminer les h qui utent.
+
+       <B>-PM</B>    Fait la m chose que <B>-PI</B> et <B>-PP</B> sauf qu’il utilise  une  requ  de
+              masque de sous-rau (ICMP code 17).
+
+       <B>-PB</B>    C’est  le  ping par dut. Il utilise les balayages ACK ( <B>-PT</B> ) et
+              ICMP ( <B>-PI</B> ) en parall. De cette mani, vous  pouvez  passer  les
+              pare-feux qui ne filtrent que l’un des deux types de paquets.
+
+       <B>-O</B>     Cette   option   active   l’identification  de  l’h distant  via
+              l’empreinte TCP/IP. Autrement dit, nmap utilise un  ensemble  de
+              techniques  pour  d cter  les  subtilit dans la pile rau du syst
+              d’exploitation de l’ordinateur que vous s en  train  d’analyser.
+              Il  utilise  ces  informations pour cr une « empreinte » qui est
+              comparavec sa base de  donn  d’empreintes  connues  (le  fichier
+              nmap-os-fingerprints)  pour retrouver le type de syst que vous s
+              en train d’analyser.
+
+              Si Nmap est incapable de deviner le syst  d’exploitation  de  la
+              machine,  et  que  les  conditions  sont bonnes (par exemple, au
+              moins un port est ouvert) Nmap fournira une URL que vous pourrez
+              utiliser pour soumettre si vous connaissez avec certitude le nom
+              du syst d’exploitation ui appartient cette  nouvelle  empreinte.
+              Vous  contribuerez ainsi ugmenter le nombre de systs d’exploita-
+              tions dctable par nmap et la la prsion de la  d ction.  Si  vous
+              laissez  une  adresse IP dans le formulaire, la machine pourra e
+              analyslorsque nous  ajouterons  l’empreinte  (pour  valider  que
+              marche).
+
+              L’option  -O  active  aussi plusieurs autres tests. L’un d’entre
+              eux est la mesure de « uptime » (duruldepuis le dernier redrrage
+              du  syst ), qui utilise l’estampille TCP (RFC 1323) pour deviner
+              la date du dernier redrrage de la machine. Ceci n’est rapport ue
+              pour les machines qui fournissent cette information.
+
+              Un  autre test activar -O est la classification de la prction de
+              la sence TCP. C’est une mesure  qui  d it  approximativement  la
+              difficult ’ blir  une connexion TCP forgcontre l’hdistant. C’est
+              utile pour exploiter les relations de confiances fond  sur  l’IP
+              source  (rlogin, firewall filters, etc) ou pour cacher la source
+              d’une attaque.  La valeur rle de la difficult st  calcul sur  un
+              antillon  et  peut  fluctuer.  Il  est  g ralement plus appropri
+              ’utiliser une classification par  nom  tel  que  « worthy  chal-
+              lenge »  ou  « trivial  joke ».  Ceci n’est rapportans la sortie
+              normale qu’avec l’option -v.
+
+              Si le mode verbeux (-v) est activn m temps que -O, la gration de
+              s ence IPID est aussi rapport La plupart des machines appartien-
+              nent a classe incrntale, ce qui  signifie  qu’elle  incr nte  le
+              champ  ID  dans l’ent IP pour chaque paquet envoyCe qui les rend
+              vulnbles a collecte  d’information  avanc et  aux  attaques  par
+              usurpation.
+
+       <B>-I</B>     Active  l’analyse TCP reverse ident. Dave Goldsmith dans un mes-
+              sage ugtraq en 1996, a fait remarquer  que  le  protocole  ident
+              (rfc  1413) autorise la duverte du nom d’utilisateur qui poss un
+              processus connectia TCP, m si le processus n’est pas   ’instiga-
+              teur  de  la connexion. Vous pouvez ainsi vous connecter au port
+              http et utiliser identd pour duvrir si le  serveur  tourne  sous
+              root.   Ceci  ne peut e fait qu’avec une connexion TCP compl sur
+              le port cible (i.e. l’option d’analyse -sT). Quand <B>-I</B> est utilis
+              l’identd  de l’hdistant est interrogour chaque port ouvert trouv
+              idemment ne fonctionne pas si l’hn’utilise pas identd.
+
+       <B>-f</B>     Cette option oblige les analyses FIN, XMAS, ou NULL  tiliser  de
+              petit  paquets  IP  fragment  L’id est  de partager l’ent TCP en
+              plusieurs paquets pour rendre leurs dctions plus  difficile  par
+              les  filtres  et  les systs de dction d’intrusion, et les autres
+              enquiquineurs qui tentent de dcter ce que vous  s  en  train  de
+              faire.   Faites attention avec ceci, certains programmes ont des
+              difficultavec ces petits paquets. Mon sniffer favori plante  imm
+              atement  lorsqu’il  ret le premier fragment de 36 octets.  Cette
+              option est inefficace contre les filtreurs  de  paquets  et  les
+              pare-feux  qui  r semblent les fragments IP (comme l’option CON-
+              FIG_IP_ALWAYS_DEFRAG dans le noyau Linux), certains raux ne peu-
+              vent  pas  supporter  cette perte de performance et ne rsemblent
+              pas les paquets.
+
+              Remarquez que je n’ai pas encore fait fonctionner  cette  option
+              sur tous les systs.  marche parfaitement sur les machines Linux,
+              FreeBSD et OpenBSD et certaines personnes m’ont rapporteurs succ
+              avec d’autres saveurs d’Unix.
+
+       <B>-v</B>     Mode  verbeux.  C’est  une option hautement recommandqui fournit
+              beaucoup d’informations sur ce que vous s  en  train  de  faire.
+              Vous  pouvez  l’utiliser deux fois pour un effet plus important.
+              Utiliser <B>-d</B> une paire de fois si vous  voulez  vraiment  devenir
+              fou avec le dlement de l’an !
+
+       <B>-h</B>     Cette  option  affiche  un  bref rpitulatif des options de nmap.
+              Comme vous l’avez sans doute remarqucette page de  manuel  n’est
+              pas vraiment un « bref rpitulatif ». :)
+
+       <B>-oN</B> <B>&lt;logfilename&gt;</B>
+              Enregistre les rltats de vos analyses dans un format <B>lisible</B> <B>par</B>
+              <B>un</B> <B>humain</B> dans le fichier spfin argument.
+
+       <B>-oX</B> <B>&lt;logfilename&gt;</B>
+              Enregistre le rltat de vos analyses dans un format <B>XML</B>  dans  le
+              fichier  sp fi n  argument. Ceci permet es programmes d’interprr
+              facilement les rltats de nmap.  Vous  pouvez  donner  l’argument
+              ’<B>-</B>’  (sans  les guillemets) pour envoyer la sortie sur la sortie
+              standard (pour les pipelines shells, etc).  Dans ce cas la  sor-
+              tie  normale  sera  supprim  Regardez attentivement les messages
+              d’erreurs si vous utilisez ceci (ils sont  encore  envoy sur  la
+              sortie d’erreur standard).  Notez aussi que <B>-v</B> peut afficher des
+              informations supplntaires.  La dnition de type de document (DTD)
+              d  nissant   la  structure  de  la  sortie  XML  est  disponible
+              ttp://www.insecure.org/nmap/data/nmap.dtd .
+
+       <B>-oG</B> <B>&lt;logfilename&gt;</B>
+              Enregistre les rltats de vos analyses dans une forme  adapt pour
+              <B>grep.</B>   Ce format simple fournit toutes les informations sur une
+              ligne. C’est le mnisme prres programmes qui  interagissent  avec
+              nmap,  mais  drmais nous recommandons pluta sortie XML (-oX). Ce
+              format simple ne contient  pas  autant  d’informations  que  les
+              autres  formats.  Vous  pouvez  donner  l’argument «<B>-</B>» (sans les
+              guillemets) pour envoyer la sortie sur la sortie standard  (pour
+              les  pipelines shells, etc).  Dans ce cas la sortie normale sera
+              supprim Regardez attentivement les messages  d’erreurs  si  vous
+              utilisez ceci (ils sont encore envoysur la sortie d’erreur stan-
+              dard).  Notez aussi que <B>-v</B> peut afficher des informations  suppl
+              ntaires.
+
+       <B>-oA</B> <B>&lt;logfilename&gt;</B>
+              indique map d’enregistrer dans tous les formats majeurs (normal,
+              grep et XML). Vous fournissez le prxe du nom de fichier  et  les
+              sorties auront respectivement les suffixes .nmap, .gnmap et .xml
+              .
+
+       <B>-oS</B> <B>&lt;logfilename&gt;</B>
+              enregistre les rltats de vos analyses en  format  <B>script</B>  <B>kiddie</B>
+              (NdT :  C’est  un  langage  dans  lequel  certaines lettres sont
+              remplac par des chiffres/symboles typiquement exemple A  devient
+              4,  E devient 3, etc. Cette langue est utilispar les « cowboyz »
+              d’Internet.  Cette population  folklorique  amuse  beaucoup  les
+              autres  internautes,  au  point qu’il existe une option pour eux
+              dans  nmap)  V0u$  poUV3z  dOnn3r  l’4rgUm3nt  ’<B>-</B>’   (s4ns   l3$
+              guIll3m3ts) poUr 3nvoy3r l4 sOrti3 sUr l4 $orti3 $t4nd4rd.
+
+       <B>--resume</B> <B>&lt;logfilename&gt;</B>
+              L’analyse d’un rau qui a  annulpar un Ctrl-C, probl de rau, etc.
+              peut e reprise en utilisant cette option.  logfilename  doit   e
+              soit  un  log  normal  (-oN) soit un log lisible par une machine
+              (-oM) d’une analyse avort Aucune autre option ne peut e donn (ce
+              sont obligatoirement les ms que celles du scan avort Nmap drrera
+              sur la machine aprla derni machine qui a  analysavec succdans le
+              fichier de log.
+
+       <B>--append_output</B>
+              indique   map  d’ire a fin des fichiers de sortie au lieu de les
+              aser.
+
+       <B>-iL</B> <B>&lt;inputfilename&gt;</B>
+              Lit les spfications de la cible depuis le  fichier  sp fi lut ue
+              depuis  la ligne de commande. Le fichier doit contenir une liste
+              d’h, d’expressions de raux sr par des  espaces,  tabulations  ou
+              retour  chariots.   Utilisez  le  tiret  pour  lire depuis stdin
+              (comme la fin d’un pipe).  Voyez la section <I>spfication</I> <I>de</I>  <I>cible</I>
+              pour plus d’information sur les expressions que vous pouvez met-
+              tre dans le fichier.
+
+       <B>-iR</B>    Cette option indique map de grer ses propres hnalyser par tirage
+              al oire  :).    ne finit jamais.   peut e utile pour un antillon
+              d’Internet pour estimer diverses choses.  Si vous vous  ennuyez,
+              essayez  <I>nmap</I>  <I>-sS</I>  <I>-iR</I>  <I>-p</I>  <I>80</I> pour rechercher des serveurs web
+              egarder.
+
+       <B>-p</B> <B>&lt;port</B> <B>ranges&gt;</B>
+              Cette option spfie les ports que vous voulez essayer.  Par exem-
+              ple  ’-p  23’  n’essayera  que  le  port  23 of de l’hcible. ’-p
+              20-30,139,60000-’ analysera les ports entre 20 et  30,  le  port
+              139, et tous les ports supeurs 0000. Le comportement par dut est
+              d’analyser tous les ports de 1 024 ainsi que tous les ports list
+              dans les fichiers de services fournis avec nmap.  Pour l’analyse
+              par IP (-sO), ceci spfie le num de  protocole  que  vous  voulez
+              analyser
+
+              Lorsque  vous scannez les ports TCP et UPD vous pouvez spfier un
+              protocole particulier en prxant les nums de ports par « T »:  ou
+              « U: ».   L’effet  du spficateur dure jusqu’e que vous en spfiez
+              un      autre.       Par      exemple,      l’argument      « -p
+              U:53,111,137,T:21-25,80,139,8080 »  scannera  les  ports UDP 53,
+              111 et 137 ainsi que les ports TCP mentionn Remarquez  que  pour
+              scanner  UDP et TCP, vous devez spfier -sU et au moins une anal-
+              yse TCP (telle que -sS, -sF ou -sT). Si  aucune  sp fication  de
+              protocole  n’est indiqu les nums de ports sont ajoutous les pro-
+              tocoles.
+
+       <B>-F</B> <B>Fast</B> <B>scan</B> <B>mode.</B>
+              Spfie que vous ne voulez analyser que  les  ports  list dans  le
+              fichier  des services livrvec nmap (ou le fichier des protocoles
+              pour -sO).  C’est demment plus rapide que d’analyser  les  65535
+              ports d’un h
+
+       <B>-D</B> <B>&lt;decoy1</B> <B>[,decoy2][,ME],...&gt;</B>
+              r ise un scan avec leurres. Du point de vue de l’hdistant, les h
+              leurres apparaont comme s’ils analysaient aussi le  r au  cible.
+              Ainsi,  les  syst s de dction d’intrusion ne pourront pas savoir
+              parmi l’ensemble des IP qui semblent les scanner quelle est l’IP
+              qui  effectue  r lement l’analyse et quelles IP ne sont en ritue
+              d’innocent leurres.  Bien que ceci puisse e contrar  path  trac-
+              ing, response-dropping, et d’autres mnismes actifs, c’est grale-
+              ment une technique efficace pour dissimuler son adresse IP.
+
+              Srez chaque hleurre par des virgules,  et  vous  pouvez  option-
+              nellement  utiliser  ’<B>ME</B>’ (Moi) comme l’un des leurres pour repr
+              nter la position que vous voulez utiliser  pour  votre  adresse.
+              Si  vous  utilisez  ’<B>ME</B>’ au dele la 6 position, la plupart des d
+              cteurs de scan (m l’excellent scanlogd de Solar Designer) seront
+              incapables  de  voir  votre  adresse IP.  Si vous n’utilisez pas
+              ’<B>ME</B>’, nmap choisira une position aloire.
+
+              Remarquez que les h leurres doivent e  actifs  ou  vous  risquez
+              accidentellement de faire une inondation SYN sur vos cibles.  Il
+              est aussi presque facile de drminer qui est en train de  scanner
+              si  seul  une  seule  machine est active sur le rau. Vous pouvez
+              vouloir utiliser des adresses IP a place des noms (ainsi  les  r
+              aux  leurres  ne  vous  verront pas dans les logs du serveurs de
+              nom).
+
+              Remarquez lement que quelques dcteurs (stupides)  de  scan  blo-
+              queront  les h qui tentent des scans de ports. Aussi vous pouvez
+              par inadvertance bloquer l’accdes machines  leurres   a  machine
+              cible.   Ceci peut provoquer de grave probls aux machines cibles
+              si le leurre s’av e sa passerelle internet ou  m  « localhost ».
+              Il  faut donc utiliser prudemment cette option.  La vraie morale
+              de cette histoire est que les dcteurs de  scan  ne  doivent  pas
+              prendre  de  mesures  contre les machines qui semblent les anal-
+              yser, car il se peut que ce soit des leurres !
+
+              Les leurres sont utilispour le scan initial (en utilisant  ICMP,
+              SYN,  ACK,  ou  autre chose) et pendant la vtable phase de scan.
+              Les leurres sont aussi utilispendant la dction de l’h distant  (
+              <B>-O</B> ).
+
+              Il  ne  faut  pas oublier que d’utiliser un trop grand nombre de
+              leurres peut ralentir le scan et m le rendre imprs. De plus cer-
+              tains  fournisseurs  d’acc  nternet (FAI) filtreront vos paquets
+              usurp bien que la plupart n’applique aucune restriction sur  les
+              paquets usurp
+
+       <B>-S</B> <B>&lt;adresse_ip&gt;</B>
+              Dans  certaines  circonstances,  <I>nmap</I>  est  incapable de drminer
+              l’adresse source.  <I>Nmap</I> vous avertira si  c’est  le  cas).  Dans
+              cette  situation, utilisez -S avec votre adresse IP (ou l’inter-
+              face depuis laquelle vous voulez envoyer les paquets).
+
+              Une autre utilisation possible de ce drapeau  est  d’usurper  le
+              scan  pour  faire  croire  aux  cibles que <B>quelqu’un</B> <B>d’autre</B> <B>les</B>
+              <B>scanne.</B>  Imaginez une entreprise qui se croit rliment  scann par
+              un  concurrent !   Ce  n’est  pas  l’utilisation premi ni le but
+              principal  de  ce  drapeau.   Je  pense  que  c’est  juste   une
+              possibilit ntssante pour les personnes qui sont au courant avant
+              qu’elles n’en accusent d’autres de les scanner.  <B>-e</B> est  g rale-
+              ment requis pour ce type d’utilisation.
+
+       <B>-e</B> <B>&lt;interface&gt;</B>
+              indique  l’interface  r au  tiliser pour envoyer et recevoir les
+              paquets.  <B>Nmap</B> devrait e capable de dcter ceci mais il  vous  pr
+              endra s’il n’y parvient pas.
+
+       <B>-g</B> <B>&lt;portnumber&gt;</B>
+              Spfie le num de port source dans le scan.  Beaucoup de pare-feux
+              et de filtreur de paquets na feront une exception dans leurs res
+              pour  autoriser le passage des paquets DNS (53) ou FTP-DATA (20)
+              pour blir une connexion.  idemment rit complment  les  avantages
+              de  s rit’un pare-feu puisque les intrus n’ont qu’e diser en FTP
+              ou DNS en modifiant leur port source. idemment pour un scan  UDP
+              vous  devriez  utiliser 53 en premier et pour les scans TCP vous
+              devriez utiliser 20 avant 53.  Remarquer  que  ce  n’est  qu’une
+              requ  -- nmap ne le fera que s’il y parvient.  Par exemple, vous
+              ne pouvez pas faire des analyse en parall  avec  un  seul  port.
+              Aussi <B>nmap</B> changera le port source m si vous utilisez <B>-g</B>.
+
+              Sachez qu’il y a une petite plite performance sur certains scans
+              si vous utilisez cette option, parce  que  j’enregistre  parfois
+              des informations utiles dans le num de port source.
+
+       <B>--data_length</B> <B>&lt;nombre&gt;</B>
+              Normalement nmap envoie des paquets minimalistes qui ne contien-
+              nent que l’en-t.  Ainsi, les paquets TCP font 40 octets  et  les
+              requ s  d’o ICMP, 28 octets.  Cette option indique map d’ajouter
+              le nombre spfi’octets  initialis a  plupart  des  paquets  qu’il
+              envoie.  La  dction de syst d’exploitation (-O) n’est pas affect
+              mais la plupart des paquets de ping et de scan de port le  sont.
+              ralentit les choses, mais peut e un peu moins voyant.
+
+       <B>-n</B>     Dit   map  de  ne  <B>JAMAIS</B>  faire  de rlution DNS inverse sur une
+              adresse IP active. Comme DNS est souvent lent, peut aider cc rer
+              les choses.
+
+       <B>-R</B>     Dit map de <B>TOUJOURS</B> faire la rlution DNS inverse des adresses IP
+              cibles. Normalement  ceci  n’est  fait  que  pour  les  machines
+              vivantes.
+
+       <B>-r</B>     Dit   map  <B>DE</B>  <B>NE</B> <B>PAS</B> changer aloirement l’ordre dans lequel les
+              ports seront analys
+
+       <B>--randomize_hosts</B>
+              Dit map de mnger chaque groupe comprenant jusqu’048 h  avant  de
+              les  analyser.  Ceci rend les scans moins dents e nombreux systs
+              de surveillance rau, particuliment quand vous le  combinez  avec
+              des options pour ralentir le timing (voir ci-dessous).
+
+       <B>-M</B> <B>&lt;max</B> <B>sockets&gt;</B>
+              Sp fie  le  nombre maximum de sockets qui seront utilisen parall
+              pour le scan TCP connect() (celui par d ut).  C’est  utile  pour
+              ralentir  lrement le scan et ter de crasher les machines cibles.
+              Une autre approche consiste tiliser <B>-sS</B>, qui est gralement  plus
+              facile r pour les machines.
+
+       <B>OPTIONS</B> <B>TIMING</B>
+              g ralement nmap parvient ’ajuster correctement aux caractstiques
+              du rau et nalyser aussi vite que possible tout en minimisant  la
+              probabilit ’ e dctCependant, il y a des cas o timings par dut de
+              Nmap ne correspondent pas os objectifs.  Les  options  suivantes
+              permettent un contrfin des timings :
+
+       <B>-T</B> <B>&lt;Paranoid</B> <B>|</B> <B>Sneaky</B> <B>|</B> <B>Polite</B> <B>|</B> <B>Normal</B> <B>|</B> <B>Aggressive</B> <B>|</B> <B>Insane&gt;</B>
+              Ce  sont  les  diffntes politiques de timing pour communiquer de
+              mani pratique vos prioritmap.
+
+              <B>Paranoid</B> analyse <B>trlentement</B> dans l’espoir d’ter d’e rep par les
+              syst  de  d ction d’intrusion.  Il salise tous les scans (pas de
+              scan parall) et attend au moins 5 minutes entre  les  envois  de
+              paquets.
+
+              <B>Sneaky</B> c’est la m chose, sauf qu’il attend 15 secondes entre les
+              envois de paquets.
+
+              <B>Polite</B> essaye de minimiser la charge sur le rau et de  r ire  la
+              probabilit e crasher des machines. Il salises les test et attend
+              <B>au</B> <B>moins</B> 0,4 secondes entre chaque.
+
+              <B>Normal</B> c’est le comportement par dut de Nmap, qui essaye de s’ex
+              ter  aussi  vite  que possible sans surcharger le rau ou oublier
+              des h/ports.
+
+              <B>Aggressive</B> ajoute un dmpte de 5 minutes par het n’attends jamais
+              les rnses individuelles plus de 1.25 secondes.
+
+              <B>Insane</B>  ne  convient qu’aux raux ultra-rapides os ne risquez par
+              de perdre d’informations. Il ajoute un dmpte de 75  secondes  et
+              n’attend  les  r nses individuelles que pendant 0,3 secondes. Il
+              permet de balayer trrapidement les raux.  Vous  pouvez  aussi  r
+              rencer  ces  modes  par num (0-5).  Par exemple, ’-T 0’ donne le
+              mode Paranoid et ’-T 5’ le mode Insane.
+
+              Ces modes timings NE devrait PAS e utiliser en combinaison  avec
+              les contr de bas niveau donnci-dessous.
+
+       <B>--host_timeout</B> <B>&lt;millisecondes&gt;</B>
+              Sp fie  la durque <B>nmap</B> est autorisonsacrer ’analyse d’un hunique
+              avant d’abandonner cette IP.  Par dut il n’y a pas de temps lim-
+              ite pour un h
+
+       <B>--max_rtt_timeout</B> <B>&lt;millisecondes&gt;</B>
+              Sp fie  la durmaximale que <B>nmap</B> peut laisser s’uler en attendant
+              une rnse es tests avant de retransmettre ou de  laisser  tomber.
+              La valeur par dut est 9 000.
+
+       <B>--min_rtt_timeout</B> <B>&lt;millisecondes&gt;</B>
+              Quand  les  h  cibles commencent tablir un mod de rnse trrapide-
+              ment, <B>nmap</B> diminuera la duraccordpar  test.   Ceci  augmente  la
+              vitesse du scan, mais peut conduire a perte de paquets quand une
+              rnse prend plus de temps que d’habitude.  Avec ce  param e  vous
+              pouvez  garantir que <B>nmap</B> attende au moins une certaine duravant
+              de laisser tomber un test.
+
+       <B>--initial_rtt_timeout</B> <B>&lt;millisecondes&gt;</B>
+              Spfie le dmpte du test initial. Ce n’est  g ralement  utile  que
+              lors  de  l’analyse  d’hderri un pare-feu avec -P0.  Normalement
+              <B>nmap</B> obtient de bonnes estimations artir du ping et des premiers
+              tests. Le mode par dut est 6 000.
+
+       <B>--max_parallelism</B> <B>&lt;nombre&gt;</B>
+              Sp fie  le nombre maximum de scans que <B>nmap</B> est autoris mener en
+              parall.  Positionner ceci  signifie que <B>nmap</B>  n’essayera  jamais
+              de  scanner  plus  d’un port a fois. Ce nombre affecte aussi les
+              autres scans parall comme le balayage de ping, RPC scan, etc.
+
+       <B>--scan_delay</B> <B>&lt;millisecondes&gt;</B>
+              Spfie la dur <B>minimum</B> que <B>nmap</B> doit  laisser  s’ uler  entre  ses
+              envois.  C’est utile pour rire la charge du rau ou pour ralentir
+              le dt du scan afin de ne pas atteindre le seuil  de  d enchement
+              des systs de dction d’intrusion.
+
+
+
+</PRE>
+<H2>SPIFICATION DE CIBLE</H2><PRE>
+       Tout  ce  qui  n’est pas une option ou un argument d’option est traitar
+       nmap comme une spfication d’h Le cas le plus simple et une liste de nom
+       d’h  ou d’adresse IP sur la ligne de commande.  Si vous voulez analyser
+       un sous rau d’adresses IP vous pouvez ajouter <B>’/mask’</B> au nom  d’h  <B>mask</B>
+       doit e compris entre 0 (scanner tout internet) et 32 (scanner un seul h
+       . Utiliser /24 pour analyser des adresses de classe ’C’ et /16 pour  la
+       classe ’B’.
+
+       <B>Nmap</B> utilise une notation puissante pour spfier une adresse IP en util-
+       isant des listes/intervalles pour chaque ment.  Ainsi vous pouvez anal-
+       yser  tout  un  rau de classe B 192.168.*.* en spfiant ’192.168.*.*’ ou
+       ’192.168.0-255.0-255’ ou m ’192.168.1-50,51-255.1,2,3,4,5-255’. Et bien
+       s ous  pouvez  utiliser la notation mask : ’192.168.0.0/16’. Elles sont
+       toutes ivalentes Si vous utilisez des astsques (’*’), souvenez-vous que
+       la  plupart  des shells nssitent que vous les prdiez par des anti-slash
+       ou que vous les protez par des guillemets.
+
+       Une autre chose intssante aire et de duper Internet : au lieu de  scan-
+       ner les h dans une classe ’B’, scanner ’*.*.5.6-7’ pour analyser toutes
+       les adresses IP se terminant par .5.6 ou .5.7. Pour plus d’informations
+       sur la spfication des h nalyser, voyez la section <I>exemples.</I>
+
+
+</PRE>
+<H2>EXEMPLES</H2><PRE>
+       Voici  quelques  exemples  d’utilisation de <B>nmap</B> du plus simple au plus
+       compliquRemarquez que les noms et adresses sont utilis pour rendre  les
+       choses  plus  concr s.  leur  place vous devriez substituer les noms et
+       adresses de <B>votre</B> <B>propre</B> <B>rau.</B>  Je ne pense pas que l’analyse  de  ports
+       d’autres  raux soit illle, ni que l’analyse de ports doit e conside par
+       les autres comme une attaque.  J’ai analyses centaines de  milliers  de
+       machines  et  je  n’ai  re  qu’une  seule  plainte. Mais je ne suis pas
+       juriste et certaines personnes pourraient e  ennuy  par  les  tests  de
+       <I>nmap.</I>   Aussi  demandez  pr ablement  la permission ou utilisez <B>nmap</B> os
+       risques et pls.
+
+       <B>nmap</B> <B>-v</B> <B>cible.exemple.com</B>
+
+       Cette option analyse tous les ports TCP rrvsur la  machine  cible.exem-
+       ple.com . Le -v signifie d’activer le mode verbeux.
+
+       <B>nmap</B> <B>-sS</B> <B>-O</B> <B>cible.exemple.com/24</B>
+
+       Envoie  un  scan  SYN furtif contre chaque machine active parmi les 255
+       machines de classe ’C’ qui sont sur cible.exemple.com.  Il essaye aussi
+       de drminer quel syst d’exploitation fonctionne sur chaque h Ceci nssite
+       les privils root en raison du  scan  SYN  et  de  la  d ction  de  syst
+       d’exploitation.
+
+       <B>nmap</B> <B>-sX</B> <B>-p</B> <B>22,53,110,143,4564</B> <B>198.116.*.1-127</B>
+
+       Envoie  un  scan  Xmas  tree a premi moitie chacun des 255 sous-raux de
+       l’espace d’adresse de classe B 198.116. Nous sommes en train de  tester
+       si  les  syst s font fonctionner sshd, DNS, pop3d, imapd, ou port 4564.
+       Remarquez que les scan Xmas ne fonctionnent  pas  contre  les  machines
+       Microsoft  en  raison  de  leur pile TCP dciente. Le m probl se produit
+       aussi avec les machines CISCO, IRIX, HP/UX, et BSDI.
+
+       <B>nmap</B> <B>-v</B> <B>--randomize_hosts</B> <B>-p</B> <B>80</B> <B>’*.*.2.3-5’</B>
+
+       Plutue de se concentrer sur une plage spfique d’IP, il est parfois  int
+       ssant de duper l’ensemble d’Internet et d’analyser un petit antillon de
+       chaque tranche. Cette commande trouve tous les  serveurs  web  sur  des
+       machines dont l’adresse IP se termine par .2.3, .2.4 ou .2.5 .  Si vous
+       s root, vous pouvez aussi ajouter <B>-sS</B>.  Vous trouverez plus de  machine
+       intssantes en comment 27, aussi vous utiliserez ’127-222’ a place de la
+       premi astsque car cette section poss une plus grande  densit e  machine
+       intssantes.
+
+       <B>host</B> <B>-l</B> <B>company.com</B> <B>|</B> <B>cut</B> <B>’-d</B> <B>’</B> <B>-f</B> <B>4</B> <B>|</B> <B>./nmap</B> <B>-v</B> <B>-iL</B> <B>-</B>
+
+       Fait  un  transfert  DNS  pour  duvrir les h de company.com et utiliser
+       leurs adresses IP pour alimenter <I>nmap</I>.  Les  commandes  ci-dessus  sont
+       pour  mon ordinateur GNU/Linux.  Vous pouvez avoir besoin d’autres com-
+       mandes/options pour d’autres systs d’exploitations.
+
+
+</PRE>
+<H2>BOGUES</H2><PRE>
+       Bogues ? Quels bogues ? Envoyez-moi tout ce que  vous  trouverez.   Les
+       patchs  sont les bienvenus. Souvenez-vous que vous pouvez aussi envoyer
+       les empreintes de nouveaux systs d’exploitation pour enrichir  la  base
+       de donn.  Si une empreinte appropriest trouv Nmap affichera l’URL aque-
+       lle vous pourrez l’envoyer.
+
+
+</PRE>
+<H2>AUTEUR</H2><PRE>
+       Fyodor <I>&lt;fyodor@insecure.org&gt;</I>
+
+
+</PRE>
+<H2>DISTRIBUTION</H2><PRE>
+       La derni  version  de  <I>nmap</I>  peut   e  obtenu  depuis  <I>http://www.inse-</I>
+       <I>cure.org/nmap/</I>
+
+       <I>nmap</I> est (C) 1995-2001 par Insecure.Com LLC
+
+       <I>libpcap</I>  est  aussi distribuavec nmap. Il est copyrightar Van Jacobson,
+       Craig Leres et Steven McCanne, tous du Lawrence Berkeley National Labo-
+       ratory, University of California, Berkeley, CA. La version distribuavec
+       nmap  peut   e  modifi   les   sources   d’origine   sont   disponibles
+       tp://ftp.ee.lbl.gov/libpcap.tar.Z .
+
+       Ce  programme  est un logiciel libre, vous pouvez le redistribuer et/ou
+       le modifier sous les termes de la GNU General Public License telle  que
+       publi par  par  la  Free Software Foundation ; Version 2. Ceci garantit
+       votre droit d’utiliser, modifier et redistribuer  Nmap  sous  certaines
+       conditions.   Si cette licence est inacceptable pour vous, Insecure.Org
+       pourrait   ntuellement  vendre  d’autres  licences.   (contacter   <B>fyo-</B>
+       <B>dor@dhp.com</B>).
+
+       Les  sources  sont  fournies  avec ce logiciel car nous croyons que les
+       utilisateurs ont le droit de savoir exactement ce que fait un programme
+       avant  de  le lancer. Ceci vous permet aussi d’auditer le logiciel pour
+       rechercher des trous de sritaucun n’a  trouvusqu’rnt).
+
+       Le code source vous permet aussi  de  porter  Nmap  vers  de  nouvelles
+       plates-formes,  corriger  des  bogues  et  ajouter  de nouvelles caract
+       stiques.  Vous s vivement encourag envoyer  vos  modifications   fBfyo-
+       dor@insecure.org  pour  une  ntuelle incorporation dans la distribution
+       principale. En envoyant ces modifications yodor ou uelqu’un de la liste
+       de diffusion de dloppement de insecure.org, il est supposue vous offrez
+       Fyodor le droit illimitt non exclusif de r iliser,  modifier  et  reli-
+       cencier  le code. C’est important parce que l’impossibilite relicencier
+       le code a provoques probls dstateurs dans d’autres projets de  logiciel
+       libre  (comme  KDE  et  NASM).   Nmap  sera toujours disponible en Open
+       Source.  Si vous drez spfier des conditions particulis de licence  pour
+       vos  contributions,  dites-le  nous  simplement  quand  vous  nous  les
+       envoyez.
+
+       Ce programme est distribuans l’espoir  d’ e  utile,  mais  <B>SANS</B>  <B>AUCUNE</B>
+       <B>GARANTIE</B>  m  la  garantie  implicite  relative   a  <B>QUALIT</B> <B>MARCHANDE</B> ou
+       <B>D’APTITUDE</B> <B>UNE</B> <B>UTILISATION</B> <B>PARTICULIE.</B>  Voir la licence GPL  (c’est  le
+       fichier COPYING de la distribution <I>nmap</I>.
+
+       Remarque :  Nmap  a  d  fait  planter certaines applications, des piles
+       TCP/IP et m des systs d’exploitations mal its.  Par  cons ent  <B>Nmap</B>  <B>ne</B>
+       <B>devrait</B>  <B>jamais</B>   <B>e</B>  <B>utilisontre</B> <B>des</B> <B>systs</B> <B>qui</B> <B>ont</B> <B>une</B> <B>mission</B> critique
+       oins que vous ne soyez prouffrir d’une ntuelle interruption de service.
+       Nous  reconnaissons  ici  que  nmap peut crasher vos systs et raux mais
+       nous ne sommes pas responsables des dts que Nmap pourrait provoquer.
+
+       En raison du lr risque de crashs et parce que  quelques  personnes  mal
+       intentionn  utilisent  nmap  pour  les  reconnaissances  pr minaires ne
+       attaque, certains administrateurs deviennent furieux  et  se  plaignent
+       quand  leurs systs sont scann C’est pourquoi il est plus sage de deman-
+       der la permission avant de lancer l’analyse d’un rau.
+
+       Nmap ne devrait jamais e lancvec des privils (par  exemple  suid  root)
+       pour des raisons de srit.Sp Toutes les versions de Nmap posteures a 2.0
+       sont compatibles an 2000. Il n’y a aucune raison de penser que les ver-
+       sions anteures ont des probls, mais nous ne les avons pas test.
+
+
+</PRE>
+<H2>TRADUCTION</H2><PRE>
+       Sstien Blanchet, 2002 &lt;sebastien.blanchet AT free.fr&gt;
+
+
+</PRE>
+<H2>RELECTURE</H2><PRE>
+       Grd Delafond
+
+
+
+                                                                       <B>NMAP(1)</B>
+</PRE>
+<HR>
+<ADDRESS>
+Man(1) output converted with
+<a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
+</ADDRESS>
+</BODY>
+</HTML>

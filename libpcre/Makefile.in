@@ -1,0 +1,132 @@
+
+# Makefile.in for PCRE (Perl-Compatible Regular Expression) library.
+
+# Edited substantially by fyodor@insecure.org to remove libtool dependency
+# and strip it to just building the library.
+
+# This setting enables Unix-style directory scanning in pcregrep, triggered
+# by the -f option. Maybe one day someone will add code for other systems.
+
+PCREGREP_OSTYPE=-DIS_UNIX
+
+#---------------------------------------------------------------------------#
+# The following lines are modified by "configure" to insert data that it is #
+# given in its arguments, or which it finds out for itself.                 #
+#---------------------------------------------------------------------------#
+
+SHELL = @SHELL@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+top_srcdir = @top_srcdir@
+
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+
+# NB: top_builddir is not referred to directly below, but it is used in the
+# setting of $(LIBTOOL), so don't remove it!
+
+top_builddir = .
+
+# BINDIR is the directory in which the pcregrep, pcretest, and pcre-config
+#          commands are installed.
+# INCDIR is the directory in which the public header files pcre.h and
+#          pcreposix.h are installed.
+# LIBDIR is the directory in which the libraries are installed.
+# MANDIR is the directory in which the man pages are installed.
+
+BINDIR = @bindir@
+LIBDIR = @libdir@
+INCDIR = @includedir@
+MANDIR = @mandir@
+
+# EXEEXT is set by configure to the extention of an executable file
+# OBJEXT is set by configure to the extention of an object file
+# The BUILD_* equivalents are the same but for the host we're building on
+
+EXEEXT = @EXEEXT@
+OBJEXT = @OBJEXT@
+# Note that these are just here to have a convenient place to look at the
+# outcome.
+BUILD_EXEEXT = @BUILD_EXEEXT@
+BUILD_OBJEXT = @BUILD_OBJEXT@
+
+# The compiler, C flags, preprocessor flags, etc
+
+CC = @CC@
+AR = ar
+RANLIB = @RANLIB@
+CFLAGS = @CFLAGS@
+CC_FOR_BUILD = @CC_FOR_BUILD@
+CFLAGS_FOR_BUILD = @CFLAGS_FOR_BUILD@
+UTF8 = @UTF8@
+NEWLINE = @NEWLINE@
+POSIX_MALLOC_THRESHOLD = @POSIX_MALLOC_THRESHOLD@
+LINK_SIZE = @LINK_SIZE@
+MATCH_LIMIT= @MATCH_LIMIT@
+INCLS = -I. -I$(top_srcdir)
+DEFS = $(NEWLINE) $(LINK_SIZE) $(MATCH_LIMIT)
+TARGET=libpcre.a
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+
+# These are the version numbers for the shared libraries
+
+PCRELIBVERSION = @PCRE_LIB_VERSION@
+PCREPOSIXLIBVERSION = @PCRE_POSIXLIB_VERSION@
+
+##############################################################################
+
+OBJ = maketables.@OBJEXT@ get.@OBJEXT@ study.@OBJEXT@ pcre.@OBJEXT@ @POSIX_OBJ@
+
+$(TARGET): $(OBJ)
+	-rm -f libpcre.a
+	$(AR) cr $@ $(OBJ)
+	$(RANLIB) $@
+
+all:            $(TARGET)
+
+pcre.@OBJEXT@:  $(top_srcdir)/chartables.c $(top_srcdir)/pcre.c \
+		$(top_srcdir)/internal.h $(top_srcdir)/printint.c \
+		pcre.h config.h Makefile
+		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(UTF8) $(POSIX_MALLOC_THRESHOLD) $(top_srcdir)/pcre.c
+
+pcreposix.@OBJEXT@: $(top_srcdir)/pcreposix.c $(top_srcdir)/pcreposix.h \
+		$(top_srcdir)/internal.h pcre.h config.h Makefile
+		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(POSIX_MALLOC_THRESHOLD) $(top_srcdir)/pcreposix.c
+
+maketables.@OBJEXT@:   $(top_srcdir)/maketables.c $(top_srcdir)/internal.h \
+		pcre.h config.h Makefile
+		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(top_srcdir)/maketables.c
+
+get.@OBJEXT@:          $(top_srcdir)/get.c $(top_srcdir)/internal.h \
+		pcre.h config.h Makefile
+		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(top_srcdir)/get.c
+
+study.@OBJEXT@:        $(top_srcdir)/study.c $(top_srcdir)/internal.h \
+		pcre.h config.h Makefile
+		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(UTF8) $(top_srcdir)/study.c
+
+# An auxiliary program makes the default character table source
+
+$(top_srcdir)/chartables.c:   dftables
+		./dftables >$(top_srcdir)/chartables.c
+
+dftables.@BUILD_OBJEXT@:     $(top_srcdir)/dftables.c $(top_srcdir)/maketables.c \
+		$(top_srcdir)/internal.h pcre.h config.h Makefile
+		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) -I. $(top_srcdir)/dftables.c
+
+dftables:       dftables.@BUILD_OBJEXT@
+		$(CC) $(CFLAGS) -o dftables dftables.@OBJEXT@
+
+# We deliberately omit dftables and chartables.c from 'make clean'; once made
+# chartables.c shouldn't change, and if people have edited the tables by hand,
+# you don't want to throw them away.
+
+clean:;         -rm -rf *.@OBJEXT@ *.lo *.a *.la .libs pcretest@EXEEXT@ pcregrep@EXEEXT@ testtry
+
+# But "make distclean" should get back to a virgin distribution
+
+distclean:      clean
+		-rm -f chartables.c libtool pcre-config pcre.h \
+		Makefile config.h config.status config.log config.cache
+
+# End

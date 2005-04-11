@@ -1,0 +1,369 @@
+<HTML>
+<HEAD>
+<TITLE>Nmap network security scanner man page (Russian translation)</TITLE>
+</HEAD>
+<BODY>
+<H1>Nmap network security scanner man page (Russian translation)</H1>
+<HR>
+<PRE>
+<!-- Manpage converted by man2html 3.0.1 -->
+<B>NMAP(1)</B>                                                                <B>NMAP(1)</B>
+
+
+
+
+</PRE>
+<H2>nmap - `NN N  .</H2><PRE>
+
+</PRE>
+<H2>.B nmap</H2><PRE>
+       [( NN] [] &lt; #1,[#N]&gt;
+
+
+       <I>Nmap</I>   ^ NN ,  N ` ®  .I nmap  NN,  UDP, TCP connect(), TCP SYN (), FTP
+       proxy ( ftp), Reverse-ident, ICMP (ping),  FIN,  ACK,  Xmas  tree,  SYN
+       NULL- NN.    N .I   NN.  Nmap   , `: C (-  L ` `TCP/IP, " NN,     NN, K
+       ping-, NN   ,,  (portmapper) RPC-NN, NN  IP-GC `ZN IP-D N
+
+        Nmap   NNL ZN l``N ,  . "", " ".  "" , L . " , ,Nmap     "" ,  NN Nmap
+       ,      Nmap   NmapE (  N `.
+
+        ZNÉ Nmap N z É TCP ISN,  (username) D`, W N,  l NIP-D
+
+
+</PRE>
+<H2>OPTIONS</H2><PRE>
+        ÉT .  É^NN,  Z@ T  NN.  <I>nmap</I> E  ZN É
+
+          ,  Nmap n <B>nmap</B> <B>-h</B> T  É.
+
+       <B>NN.</B>
+
+       <B>-sT</B>    TTCP connect(). NN TCP-.  connect(), QT  L. ZN R`   N  connect()
+              ( , E ZN  ,    N  .
+
+               ,  N  NN Å( N , log- TN    C. ,     D, W .
+
+       <B>-sS</B>     TCP SYN.   "" NN   TCP-N  E Nmap  SYN- , E G SYN|ACK  ZE ,    L
+              .  RST   .  Nmap  SYN|ACK,   W RST-    (LC  .NN.   T rootN SYN-.
+
+                  NNÉ -sS    K H N  É-p. TÉ-PS &lt;&gt;.
+
+       <B>-sF</B> <B>-sX</B> <B>-sN</B>
+              "" FIN, Xmas Tree NULL-NN.E,  SYN-NN   M ZL   "@ SYN-       Syn-
+              logger Courtney  SYN-NN.
+
+                 E N-NN  `  FIN- as Tree  G FIN|URG|PSH, `NULL-NN  G.  S C RFC
+              973  64, N `     , RST,     .  B Microsoft Windows, ,   N  `Win-
+              dows          RST-     K  Nmap C , FIN-NN ,   Windows.   `SYN-NN
+              Windows.  L, Windows  Q  Q  TK Cisco, BSDI, IRIX, HP/UX MVS.   W
+              RST-.
+
+       <B>-sP</B>    Ping-" N  N". `   D K  N. Nmap TW ICMP-" b   IP-DZN.  W   K.   (
+              microsoft.com) .  Nmap  TCP ACK- 80-N `( ).  RST-  K   SYN-E RST
+              SYN|ACK.      T root,connect().
+
+               root-Nmap` - ICMP ACK.   É <B>-P</B> N.
+
+              , ping-NNE  K  NN.   É E, ping-  NN .
+
+       <B>-sU</B>    TUDP-UDP-(RFC 768)  N  N W UDP-.    ICMP-" ", ,  . E , N .
+
+                    @  N N UDP- .   E  ""  rpcbind Solaris.    N UDP-   32770.
+              111-
+
+              L, NN UDP-  , KC RFC 1812 ( 4.3.2.8) ICMP-" ".          Linux  (
+              net/ipv4/icmp.h)   80  4  0,25   Solaris(2 , NN Solaris  .  <I>nmap</I>
+              E  , ]Q ,  Å
+
+                , Microsoft `Ll
+
+                65535 UDP- l
+               Windows.
+
+
+       <B>-sO</B>    N  IP.IP-,  N.   E IP-- ``N n  " ",   . E Nmap ,   .
+
+               (AIX, HP-UX, Digital UNIX) T " ".  N" ( ). N`` NN UDP-,       É
+              ICMP-  K "b IP-`  8  256 NN
+
+       <B>-sI</B> <B>&lt;zombie_[:]&gt;</B>
+              N "".  BNN .   Å,     IP-D.    IdleScan,   -".   B   NN     `IP.
+              m".
+
+                Å   ", Å "",   .    C    Å"Rb.  ZT   IPID  ".  E Nmap  `  "tcp
+              ping".
+
+                 T N, D http://www.cherepovets-city.ru/insecure/runmap/runmap-
+              idlescan.htm.
+
+       <B>-sA</B>    TACK-NN. W (ruleset) n   N ,  SYN-.
+
+                 N `W ACK- ( J ^  acknowledgement  number   sequence  number).
+              RST-  SÉ ".    L( ICMP-i,  SÉ ". , <I>nmap</I>   "      ` NN, , . ]E N,
+              `  `"" NN.
+
+       <B>-sW</B>    TTCP Window.   ACK-NN,  , ,T  ^  Initial Window TCP-,   N,     C
+              J AIX, Amiga, BeOS, BSDI, Cray, Tru64 UNIX, DG/UX, OpenVMS, Dig-
+              ital UNIX, FreeBSD, HP-UX, OS/2, IRIX, MacOS,  NetBSD,  OpenBSD,
+              OpenStep,  QNX, Rhapsody, SunOS 4.X, Ultrix, VAX VxWorks.   C  R
+              nmap-hackers.
+
+       <B>-sR</B>     RPC-NN. NNERPC-,  . TCP/UDP-`NULL-M SunRPC,   RPC-          C ,
+              ’rpcinfo -p’, portmapper N `  TCP-wrapper’.
+
+       <B>-sL</B>      ND É  D, NN Nmap,    NN. N`,   É-n.    E, ``     D
+
+       <B>-b</B> <B>&lt;ftp</B> <B>relay</B> <B>host&gt;</B>
+                 TK" FTP". "" `FTP (RFC 959)  `"" (proxy) ftp-.  M `source.com
+              ftp- target.com W,    DInternet! , Q  1985  (` RFC).  Nmap  "" N
+              N  " ftp-n     ftp-"  N ( 139-. ftp-  ( /incoming), W
+
+               ZE’-b’, W URL `ftp,  ". URL <I>:@:.</I>
+                `ZTT  ZT
+
+       <B>.</B>      É T (  LQ  Nmap  ZN),
+
+       <B>-P0</B>     ping-   NNÉ , ICMP-` .    microsoft.com,   É’-P0’’-PT80’(. ), `
+              N .
+
+       <B>-PT</B> <B>[_]</B>
+               TCP "ping".  `ICMP-l Nmap W TCP ACK- N E K    RST-  -root     É
+              connect().   É     N l   ` ICMP-``.  ZN  `Nl  W ACK-  É -PT&lt;1&gt;[,
+              2][...]. N  80-,  K`
+
+       <B>-PS</B> <B>[_]</B>
+              , Q ping-.  ACK- TCP "ping"  SYN- RST- ( - SYN|ACK).
+
+       <B>-PU</B> <B>[_]</B>
+              TUDP Ping. Nmap W UDP-  ZN EICMP "port unreachable" (  UDP)   K¬
+              UDP,
+
+       <B>-PE</B>    É  ping-`L ping-( ICMP-i.  K  `D  ICMP- M.   W  W "" .
+
+       <B>-PP</B>    ICMP "timestamp request (code 13)" K .
+
+       <B>-PM</B>    `É.B -PE <B>-PP</B>  ,  "netmask request" (ICMP code 17).
+
+       <B>-PB</B>    ping-  .   ACK ( <B>-PT</B> ) ICMP ( <B>-PE</B> ).
+
+       <B>-O</B>      É C N `  `TCP/IP.  M Nmap K L, É  NL`    NN LN",  N " `    WN N
+              nmap-os-fingerprinting,  E N n
+
+              ` Å   ,  Nmap     - D. ,   M TD W Nmap É ’-d’
+
+       <B>-6</B>      E`IPv6.  IPv6  É      ZN      L   DNS  (    AAAA)          IP-D
+              3ffe:501:4819:2000:210:f3ff:fe03:4d0.    ,  TCP connect()-NN TCP
+              connect() Ping-NN.   UDP  NN, http://nmap6.sourceforge.net/
+
+       <B>-I</B>     Treverse-ident NN.  Ident (RFC 1413)  (username) , TCP,     .  ,
+              http   identd   root.  N " TCP-  N (   É’-sT’). Nmap  identd N `
+              . ,   ,   Å identd.
+
+       <B>-f</B>     É SYN, FIN, Xmas NULL-NNZE IP-GC G. E TCP-  G ( i  n  ""   IP- G
+              TCP-
+
+              ^C  , Nmap   .   É!  ""TG  , " Z 36- Gn   24-G.
+
+       <B>-v</B>     T" ". É Q  Nmap   C.`ZT V. `  VÉ <B>-d</B>     .
+
+       <B>-h</B>       Nmap ZNÉT  N,  Q
+
+       <B>-oN</B> <B>&lt;~</B> E NN ZN
+
+       <B>-oX</B> <B>&lt;</B>  <B>~</B> E NN , ZN Rl T <B>XML</B> M  Nmap’n  R ’-’ (   stdout.   E . Document
+              Type Definition (DTD)  Nmap TXML
+               http://www.insecure.org/nmap/data/nmap.dtd .
+
+       <B>-oG</B> <B>&lt;~</B> E NN , ZN Rl T   grep. T,   .   É-oM (.  ) I MS   XML.  R`’-’.
+
+       <B>-oA</B> <B>&lt;_~</B>
+              E    TH (L, grep XML).   ZT base.nmap, base.gnmap base.xml.
+
+       <B>-oS</B> <B>&lt;~</B>  J.B s|&lt;ipT kiDd|3: thIs l0gz th3 r3suLtS of  YouR  ScanZ  iN  a
+              s|&lt;ipT kiDd|3 f0rM iNto THe fiL3 U sPecfy 4s an arGuMEnT!  U kAn
+              gIv3 the 4rgument ’-’ (wItHOUt qUOteZ) to sh00t output iNT0 stD-
+              ouT!@!!
+
+       <B>--resume</B> <B>&lt;~</B>
+                NN   C &lt;Ctrl C&gt;,      É,NN   É’-oG’ ’-oN’.   E Nmap ZN ÉlS N.É
+              ZT  NN  É ZN N. Nmap NN D,   ".
+
+       <B>--append_output</B>
+              ENmap   NN ,,
+
+       <B>-iL</B> <B>&lt;~</B> EN Å   nT   IP-D MKMÉC&lt;CR&gt;&lt;LF&gt; (  - ).     StdIn  `C H, V ` ’-’.
+              CTH "Å b.
+
+       <B>-iR</B> <B>&lt;&gt;</B>  VÉ, Nmap NTJ N  D   JÅ     .TN Internet.
+
+       <B>-p</B> <B>&lt;PZ(_&gt;</B>
+              ÉZENmap,  .   ’-p 23’  NN 23 ` Å.  ZN ’-p 20-30,139,60000-’ Nmap
+              NT 20  30 , 139 60000  ( 65535). N Nmap NPZ 1-1024, services.
+
+       <B>-F</B>      NN. ENmap  NN ¬ services. N    Nmap NL 65535 .
+
+       <B>-D</B> <B>&lt;_1,[_2],[,ME],...&gt;</B>
+                Nmap "E   DZ@ R.N `ENN  ( IP-D),  LIP-D.
+
+              ` K  ZT IP-D
+
+              (R ’ME’)    .  R ’ME’   É,N-(, scanlogd W`Solar Designer’i IP-D.
+              ZL R  ’ME’, Nmap   JÉ.   ZT`    IP-D ,  ZN,  L ÉT E   "" N SYN-.
+              l É     V
+
+              , N- NN.  N. CE,   ZL `D`’localhost’.  KÉ.
+
+               NN, ` C   ZL ,  NN E.  J T  (    ,  E  E .
+
+       <B>-S</B> <B>&lt;IP-D</B>
+              Nmap   W IP-D ` (  , ZTIP-D  R`  É( D,   ).    É- N NN Å ` .   E
+              N `ENN ZN  D.
+
+       <B>-e</B> <B>&lt;</B>   ZENmap,/    ZE R`É Nmap     M    T
+
+       <B>-g</B> <B>&lt;~</B>  ZE` , Nmap NN. DNS ( 53) FTP-DATA ( 20).  ", TK   W 53-20-.
+
+       <B>--data_length</B> <B>&lt;</B>
+              Nmap   ] TCP-40 , `ICMP "echo requests" - 28. É(ZN. W É
+
+       <B>-n</B>       ZTD   DNS-DE NN.
+
+       <B>-R</B>      ZTD   DNS-D
+
+       <B>-r</B>     W  N J
+
+       <B>-ttl</B> <B>&lt;^&gt;</B>
+              E TTL W IPv4  ^.
+
+       <B>--randomize_hosts</B>
+              ENmap  JN  2048    NNÉ NN lÉ  @NN.
+
+       <B>-M</B> <B>&lt;_</B>  EL TCP connect() NN. ` ^NN,  ]E" N n  Å  É’-sS’, SYN-NN " CM
+
+       <B>--packet_trace</B>
+               E  TTCPDump.
+
+       <B>--datadir</B> <B>[</B>
+                Nmap E   nmap-services, nmap-protocols, nmap-rpc, nmap-os-fin-
+              gerprints.  Nmap --nmapdir.   Q       NMAPDIR,        ~/nmap,  `
+              /usr/share/nmap .  Nmap   .     .
+
+              Nmap WE N.  , -,  L NN, -,  .  I WQ `,, É
+
+       <B>-T</B> <B>&lt;Paranoid|Sneaky|Polite|Normal|Aggressive|Insane&gt;</B>
+              `ÉENN.ZE Rn <B>Paranoid</B>  E, ` N-. NN  .  NN .  Nmap  NN TL   5   .B
+              Sneaky  Paranoid. `E L  W 15 . .B Polite  E, ` "" N n  TL    0,4
+              <B>Normal</B>      Nmap  .   NNL,.  <B>Aggressive</B> E NN  l  5 , N     E1,25
+              <B>Insane</B>  NNNN  `W 75 , `N - 0,3
+
+                    ZT N .  É’-T0’ Paranoid, `’-T5’ - Insane. C . , É’-T’ Nmap
+              ,    É (  .
+
+       <B>--host_timeout</B> <B>&lt;</B>
+              E Nmap   NN  l     IP-D. N  Nmap   DNN .
+
+       <B>--max_rtt_timeout</B> <B>&lt;</B>
+              EN Ll Nmap E N, T N ^  9000
+
+       <B>--min_rtt_timeout</B> <B>&lt;</B>
+              N    N, Nmap Z NN,    ,   . ÉEÀ NN ,  Nmap E TZN     ,
+
+       <B>--initial_rtt_timeout</B> <B>&lt;</B>
+              E  . É  NN ,, É ’-P0’. Nmap W ^ nW 6000
+
+       <B>--max_parallelism</B> <B>&lt;&gt;</B>
+              EL   NN,  Nmap. `` 1 , Nmap ` NT `
+
+       <B>--min_parallelism</B> <B>&lt;&gt;</B>
+              E  NN,  Nmap. E
+
+       <B>--scan_delay</B> <B>&lt;</B>
+              E MÉ NN.
+
+
+
+       <B>ÉR,</B> <B>Nmap</B>
+              D  Å `( l NN).     N - ZTD ZN ÉR. IP-D  ZT <B>’/mask’</B> ("b) IP-D N n
+              T^:
+
+              Nmap ZTÅIP-D, PZ . S B D128.210.*.*.              :  128.210.*.*
+              128.210.0-255.0-255            128.210.1-50,51-255.1,2,3,4,5-255
+              128.210.0.0/16  . ,   " (’*’), ""  PM   .     ZL       Å    IP-D
+              ’*.*.5.6-7’, Nmap NIP-D, N  5.6  5.7.     Nmap .
+
+
+
+        Nmap`ZN .
+
+       <B>nmap</B> <B>-v</B> <B>target.example.com</B>
+
+       TNTCP- target.example.com.   ’-v’NN.
+
+       <B>nmap</B> <B>-sS</B> <B>-O</B> <B>target.example.com/24</B>
+
+        SYN-NN  255 D S C,  target.example.com.  , N.  T root.
+
+       <B>nmap</B> <B>-sX</B> <B>-p</B> <B>22,53,110,143,4564</B> <B>198.116.*.1-127</B>
+
+          Xmas-NN   D(0-127) 255  S B DN 128.210.*.*.  H sshd (22 ), DNS (53),
+       pop3d (110), imapd (143) `4564. ]EN, Xmas-NN    Windows,  CISCO,  IRIX,
+       HP/UX BSDI.
+
+       <B>nmap</B> <B>-v</B> <B>--randomize_hosts</B> <B>-p</B> <B>80</B> <B>’*.*.2.3-5’</B>
+
+       Nmap  , IP-DN  .2.3,  , ZW É’-sS’. J  D   127.  ZT’127-222’.   T
+
+       <B>host</B> <B>-l</B> <B>company.com</B> <B>|</B> <B>cut</B> <B>’-d</B> <B>’</B> <B>-f</B> <B>4</B> <B>|</B> <B>./nmap</B> <B>-v</B> <B>-iL</B> <B>-</B>
+
+        DNS   company.com, Nmap  D.  `GNU/Linux.    `^
+
+   <B>,</B>
+        ,   -  WC. W   Nmap. `URL, `
+
+
+       Q : Nmap 3.release by Fyodor <I>&lt;fyodor@insecure.org&gt;</I>
+
+       : RuNmap 3.  <I>&lt;alex@cherepovets-city.ru&gt;</I>
+
+
+        Nmap RuNmap     D
+
+       <I>http://www.cherepovets-city.ru/insecure</I>
+
+       <I>http://www.insecure.org/</I>
+
+       <I>nmap</I> (C) 1995-2003 by Insecure.Com LLC
+
+       `l  N GNU General Public License,  Free Software Foundation;  2.   WÉÅ,
+       Å (sales@insecure.com).
+
+       ÅN,   (GNU GPL), ,   [,  .
+
+         GE  WT E` , `.  , N
+
+           NmapT W Dalex@cherepovets-city.ru  ,  Insecure.Org  W ÉÅNS GNU GPL.
+       E      .
+
+        `  W , `   ,   , ` <B>,</B>  <B>.</B>   GNU General Public License ( COPYING <I>nmap</I> ).
+
+         Nmap,  TCP/IP,  C.  <B>Nmap</B> N, ( @¬  àNmap.     GE ì
+
+        `Nmap   T ( suid root).
+
+       ` <I>Libpcap</I>  Nmap. W Wz Van Jacobson, Craig Leres Steven McCanne,Lawrence
+       Berkley  ,   , Q Nmap,  É.    D http://www.tcpdump.org .
+
+       W D: <I>alex@cherepovets-city.ru</I>
+
+
+
+                                                                       <B>NMAP(1)</B>
+</PRE>
+<HR>
+<ADDRESS>
+Man(1) output converted with
+<a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
+</ADDRESS>
+</BODY>
+</HTML>

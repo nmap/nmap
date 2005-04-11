@@ -1,0 +1,33 @@
+This directory conains a version of LibPCRE 4.3 that has been stripped
+down to under half its original uncompressed size.  So if you want
+docs, tests and such, you should go to the PCRE website at
+http://www.pcre.org .  Here are the changes for the Nmap version:
+
+o rm -rf doc testdata pcretest.c pcregrep.c pcredemo.c ChangeLog
+
+o Renamed configure.in to configure.ac
+
+o Removed Runtest, Runtest.in
+
+o Removed pcretest and pcregrep from the Makefile.in all target:
+
+--- Makefile.in.old     Sun Jul 20 23:00:56 2003
++++ Makefile.in Sun Jul 20 23:01:13 2003
+@@ -103,7 +103,7 @@
+ OBJ = maketables.@OBJEXT@ get.@OBJEXT@ study.@OBJEXT@ pcre.@OBJEXT@ @POSIX_OBJ@
+ LOBJ = maketables.lo get.lo study.lo pcre.lo @POSIX_LOBJ@
+ 
+-all:            libpcre.la @POSIX_LIB@ pcretest@EXEEXT@ pcregrep@EXEEXT@ @ON_WINDOWS@ winshared
++all:            libpcre.la @POSIX_LIB@ @ON_WINDOWS@ winshared
+ 
+ pcregrep@EXEEXT@: libpcre.la pcregrep.@OBJEXT@ @ON_WINDOWS@ winshared
+                $(LINK) -o pcregrep@EXEEXT@ pcregrep.@OBJEXT@ -lpcre
+
+o Stripped down Makefile and configure.ac substantially to remove
+  libtool dependency (was having trouble on Mac OS X), remove Windows
+  stuff (Nmap uses a custom MS VC project for this), and insure it only
+  worries about building libpcre.a (which is now build in the libpcre
+  directory rather than in libpcre/.libs ).
+
+
+o Regenerated configure script by running 'aclocal; autoconf'

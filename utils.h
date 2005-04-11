@@ -1,0 +1,264 @@
+
+/***************************************************************************
+ * utils.h -- Various miscellaneous utility functions which defy           *
+ * categorization :)                                                       *
+ *                                                                         *
+ ***********************IMPORTANT NMAP LICENSE TERMS************************
+ *                                                                         *
+ * The Nmap Security Scanner is (C) 1996-2004 Insecure.Com LLC. Nmap       *
+ * is also a registered trademark of Insecure.Com LLC.  This program is    *
+ * free software; you may redistribute and/or modify it under the          *
+ * terms of the GNU General Public License as published by the Free        *
+ * Software Foundation; Version 2.  This guarantees your right to use,     *
+ * modify, and redistribute this software under certain conditions.  If    *
+ * you wish to embed Nmap technology into proprietary software, we may be  *
+ * willing to sell alternative licenses (contact sales@insecure.com).      *
+ * Many security scanner vendors already license Nmap technology such as  *
+ * our remote OS fingerprinting database and code, service/version         *
+ * detection system, and port scanning code.                               *
+ *                                                                         *
+ * Note that the GPL places important restrictions on "derived works", yet *
+ * it does not provide a detailed definition of that term.  To avoid       *
+ * misunderstandings, we consider an application to constitute a           *
+ * "derivative work" for the purpose of this license if it does any of the *
+ * following:                                                              *
+ * o Integrates source code from Nmap                                      *
+ * o Reads or includes Nmap copyrighted data files, such as                *
+ *   nmap-os-fingerprints or nmap-service-probes.                          *
+ * o Executes Nmap and parses the results (as opposed to typical shell or  *
+ *   execution-menu apps, which simply display raw Nmap output and so are  *
+ *   not derivative works.)                                                * 
+ * o Integrates/includes/aggregates Nmap into a proprietary executable     *
+ *   installer, such as those produced by InstallShield.                   *
+ * o Links to a library or executes a program that does any of the above   *
+ *                                                                         *
+ * The term "Nmap" should be taken to also include any portions or derived *
+ * works of Nmap.  This list is not exclusive, but is just meant to        *
+ * clarify our interpretation of derived works with some common examples.  *
+ * These restrictions only apply when you actually redistribute Nmap.  For *
+ * example, nothing stops you from writing and selling a proprietary       *
+ * front-end to Nmap.  Just distribute it by itself, and point people to   *
+ * http://www.insecure.org/nmap/ to download Nmap.                         *
+ *                                                                         *
+ * We don't consider these to be added restrictions on top of the GPL, but *
+ * just a clarification of how we interpret "derived works" as it applies  *
+ * to our GPL-licensed Nmap product.  This is similar to the way Linus     *
+ * Torvalds has announced his interpretation of how "derived works"        *
+ * applies to Linux kernel modules.  Our interpretation refers only to     *
+ * Nmap - we don't speak for any other GPL products.                       *
+ *                                                                         *
+ * If you have any questions about the GPL licensing restrictions on using *
+ * Nmap in non-GPL works, we would be happy to help.  As mentioned above,  *
+ * we also offer alternative license to integrate Nmap into proprietary    *
+ * applications and appliances.  These contracts have been sold to many    *
+ * security vendors, and generally include a perpetual license as well as  *
+ * providing for priority support and updates as well as helping to fund   *
+ * the continued development of Nmap technology.  Please email             *
+ * sales@insecure.com for further information.                             *
+ *                                                                         *
+ * As a special exception to the GPL terms, Insecure.Com LLC grants        *
+ * permission to link the code of this program with any version of the     *
+ * OpenSSL library which is distributed under a license identical to that  *
+ * listed in the included Copying.OpenSSL file, and distribute linked      *
+ * combinations including the two. You must obey the GNU GPL in all        *
+ * respects for all of the code used other than OpenSSL.  If you modify    *
+ * this file, you may extend this exception to your version of the file,   *
+ * but you are not obligated to do so.                                     *
+ *                                                                         *
+ * If you received these files with a written license agreement or         *
+ * contract stating terms other than the terms above, then that            *
+ * alternative license agreement takes precedence over these comments.     *
+ *                                                                         *
+ * Source is provided to this software because we believe users have a     *
+ * right to know exactly what a program is going to do before they run it. *
+ * This also allows you to audit the software for security holes (none     *
+ * have been found so far).                                                *
+ *                                                                         *
+ * Source code also allows you to port Nmap to new platforms, fix bugs,    *
+ * and add new features.  You are highly encouraged to send your changes   *
+ * to fyodor@insecure.org for possible incorporation into the main         *
+ * distribution.  By sending these changes to Fyodor or one the            *
+ * Insecure.Org development mailing lists, it is assumed that you are      *
+ * offering Fyodor and Insecure.Com LLC the unlimited, non-exclusive right *
+ * to reuse, modify, and relicense the code.  Nmap will always be          *
+ * available Open Source, but this is important because the inability to   *
+ * relicense code has caused devastating problems for other Free Software  *
+ * projects (such as KDE and NASM).  We also occasionally relicense the    *
+ * code to third parties as discussed above.  If you wish to specify       *
+ * special license conditions of your contributions, just say so when you  *
+ * send them.                                                              *
+ *                                                                         *
+ * This program is distributed in the hope that it will be useful, but     *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+ * General Public License for more details at                              *
+ * http://www.gnu.org/copyleft/gpl.html , or in the COPYING file included  *
+ * with Nmap.                                                              *
+ *                                                                         *
+ ***************************************************************************/
+
+/* $Id$ */
+
+#ifndef UTILS_H
+#define UTILS_H
+
+#ifdef WIN32
+#include "mswin32\winclude.h"
+#else
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+#include <errno.h>
+#include <ctype.h>
+#include <sys/types.h>
+
+#if HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+
+#include <sys/time.h>
+#include <assert.h>
+#include <sys/mman.h>
+#include "config.h"
+#endif
+
+#if HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
+
+#include "nmap_error.h"
+#include "nmap.h"
+#include "global_structures.h"
+
+#ifndef MOD_DIFF
+#define MOD_DIFF(a,b) ((unsigned long) (MIN((unsigned long)(a) - (unsigned long ) (b), (unsigned long )(b) - (unsigned long) (a))))
+#endif
+#ifndef MOD_DIFF_USHORT
+#define MOD_DIFF_USHORT(a,b) ((MIN((unsigned short)((unsigned short)(a) - (unsigned short ) (b)), (unsigned short) ((unsigned short )(b) - (unsigned short) (a)))))
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+#define NIPQUAD(addr) \
+        (((addr) >> 0)  & 0xff), \
+        (((addr) >> 8)  & 0xff), \
+        (((addr) >> 16) & 0xff), \
+        (((addr) >> 24) & 0xff)
+
+#define MAX_PARSE_ARGS 254 /* +1 for integrity checking + 1 for null term */
+
+/* Timeval subtraction in microseconds */
+#define TIMEVAL_SUBTRACT(a,b) (((a).tv_sec - (b).tv_sec) * 1000000 + (a).tv_usec - (b).tv_usec)
+/* Timeval subtract in milliseconds */
+#define TIMEVAL_MSEC_SUBTRACT(a,b) ((((a).tv_sec - (b).tv_sec) * 1000) + ((a).tv_usec - (b).tv_usec) / 1000)
+/* Timeval subtract in seconds; truncate towards zero */
+#define TIMEVAL_SEC_SUBTRACT(a,b) ((a).tv_sec - (b).tv_sec + (((a).tv_usec < (b).tv_usec) ? - 1 : 0))
+
+/* assign one timeval to another timeval plus some msecs: a = b + msecs */
+#define TIMEVAL_MSEC_ADD(a, b, msecs) (a).tv_sec = (b).tv_sec + ((msecs) / 1000); (a).tv_usec = (b).tv_usec + ((msecs) % 1000) * 1000; (a).tv_sec += (a).tv_usec / 1000000; (a).tv_usec %= 1000000
+#define TIMEVAL_ADD(a, b, usecs) (a).tv_sec = (b).tv_sec + ((usecs) / 1000000); (a).tv_usec = (b).tv_usec + ((usecs) % 1000000); (a).tv_sec += (a).tv_usec / 1000000; (a).tv_usec %= 1000000
+
+/* Return num if it is between min and max.  Otherwise return min or
+   max (whichever is closest to num), */
+template<class T> T box(T bmin, T bmax, T bnum) {
+  if (bmin > bmax)
+    fatal("box(%d, %d, %d) called (min,max,num)", (int) bmin, (int) bmax, (int) bnum);
+  //  assert(bmin <= bmax);
+  if (bnum >= bmax)
+    return bmax;
+  if (bnum <= bmin)
+    return bmin;
+  return bnum;
+}
+
+void hdump(unsigned char *packet, unsigned int len);
+void lamont_hdump(char *cp, unsigned int length);
+
+/* Scramble the contents of an array*/
+void genfry(unsigned char *arr, int elem_sz, int num_elem);
+void shortfry(unsigned short *arr, int num_elem);
+/* Like the perl equivialent -- It removes the terminating newline from string
+   IF one exists.  It then returns the POSSIBLY MODIFIED string */
+char *chomp(char *string);
+
+// Send data to a socket, keep retrying until an error or the full length
+// is sent.  Returns -1 if there is an error, or len if the full length was sent.
+int Send(int sd, const void *msg, size_t len, int flags);
+
+ssize_t Write(int fd, const void *buf, size_t count);
+
+unsigned long gcd_ulong(unsigned long a, unsigned long b);
+unsigned int gcd_uint(unsigned int a, unsigned int b);
+unsigned long gcd_n_ulong(long nvals, unsigned long *val);
+unsigned int gcd_n_uint(int nvals, unsigned int *val);
+
+int arg_parse(const char *command, char ***argv);
+void arg_parse_free(char **argv);
+
+/* Convert a string in the format of a roughly C-style string literal
+   (e.g. can have \r, \n, \xHH escapes, etc.) into a binary string.
+   This is done in-place, and the new (shorter or the same) length is
+   stored in newlen.  If parsing fails, NULL is returned, otherwise
+   str is returned. */
+char *cstring_unescape(char *str, unsigned int *len);
+
+#ifndef HAVE_USLEEP
+#ifdef HAVE_NANOSLEEP
+void usleep(unsigned long usec);
+#endif
+#endif
+
+#ifndef HAVE_STRERROR
+char *strerror(int errnum);
+#endif
+
+/* Convert a comma-separated list of ASCII u16-sized numbers into the
+   given 'dest' array, which is of total size (meaning sizeof() as
+   opposed to numelements) of destsize.  If min_elem and max_elem are
+   provided, each number must be within (or equal to) those
+   constraints.  The number of numbers stored in 'dest' is returned,
+   except that -1 is returned in the case of an error. If -1 is
+   returned and errorstr is non-null, *errorstr is filled with a ptr to a
+   static string literal describing the error. */
+int numberlist2array(char *expr, u16 *dest, int destsize, char **errorstr, 
+		     u16 min_elem=0, u16 max_elem=65535);
+
+/* mmap() an entire file into the address space.  Returns a pointer
+   to the beginning of the file.  The mmap'ed length is returned
+   inside the length parameter.  If there is a problem, NULL is
+   returned, the value of length is undefined, and errno is set to
+   something appropriate.  The user is responsible for doing
+   an munmap(ptr, length) when finished with it.  openflags should 
+   be O_RDONLY or O_RDWR, or O_WRONLY
+*/
+char *mmapfile(char *fname, int *length, int openflags);
+
+#ifdef WIN32
+#define PROT_READ       0x1             /* page can be read */
+#define PROT_WRITE      0x2             /* page can be written */
+#define PROT_EXEC       0x4             /* page can be executed */
+#define PROT_NONE       0x0             /* page can not be accessed */
+
+#define MAP_SHARED      0x01            /* Share changes */
+
+int win32_munmap(char *filestr, int filelen);
+
+#endif /* WIN32 */
+
+#endif /* UTILS_H */

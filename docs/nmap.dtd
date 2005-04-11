@@ -1,0 +1,253 @@
+<!-- 
+     nmap.dtd
+     This is the DTD for nmap's XML output (-oX) format.
+     $Id$
+
+     Originally written by:
+     William McVey <wam@cisco.com> <wam+nmap@wamber.net>
+
+     Now maintained by Fyodor <fyodor@insecure.org> as part of Nmap.     
+
+     To validate using this file, simply add a DOCTYPE line similar to:
+     <!DOCTYPE nmaprun SYSTEM "nmap.dtd">
+     to the nmap output immediately below the prologue (the first line).  This
+     should allow you to run a validating parser against the output (so long
+     as the dtd is in your parser's dtd search path).
+
+     Bugs:
+     Most of the elements are "locked" into the specific order that nmap
+     generates, when there really is no need for a specific ordering.
+     This is primarily because I don't know the xml DTD construct to
+     specify "one each of this list of elements, in any order".  If there
+     is a construct similar to SGML's '&' operator, please let me know.
+
+     Since the work to write this DTD was done as part of WAM's
+     job duties for the Cisco Secure Consulting Services group
+     (http://www.cisco.com/go/securityconsulting), the following copyright 
+     needs to be included in this and any other derived works.
+
+#   Copyright (c) 2001 by Cisco systems, Inc.
+# 
+#   Permission to use, copy, modify, and distribute modified and
+#   unmodified copies of this software for any purpose and without fee is
+#   hereby granted, provided that (a) this copyright and permission notice
+#   appear on all copies of the software and supporting documentation, (b)
+#   the name of Cisco Systems, Inc. not be used in advertising or
+#   publicity pertaining to distribution of the program without specific
+#   prior permission, and (c) notice be given in supporting documentation
+#   that use, modification, copying and distribution is by permission of
+#   Cisco Systems, Inc.
+#
+#   Cisco Systems, Inc. makes no representations about the suitability
+#   of this software for any purpose.  THIS SOFTWARE IS PROVIDED ``AS
+#   IS'' AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+#   WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+#   FITNESS FOR A PARTICULAR PURPOSE.
+#
+
+-->
+
+<!-- parameter entities to specify common "types" used elsewhere in the DTD -->
+<!ENTITY % attr_numeric "CDATA" >
+<!ENTITY % attr_ipaddr "CDATA" >
+<!ENTITY % attr_numeric "CDATA" >
+<!ENTITY % attr_type "(ipv4 | ipv6 | mac)" >
+
+<!ENTITY % host_states "(up|down|unknown|skipped)" >
+
+<!-- see: nmap.c:statenum2str for list of port states -->
+<!-- Maybe they should be enumerated as in scan_types below , but I -->
+<!-- don't know how to escape states like open|filtered -->
+<!ENTITY % port_states "CDATA" >
+
+<!ENTITY % hostname_types "(PTR)" >
+
+<!-- see output.c:output_xml_scaninfo_records for scan types -->
+<!ENTITY % scan_types "(syn|ack|bounce|connect|null|xmas|window|maimon|fin|udp|ipproto)" >
+
+<!-- <!ENTITY % ip_versions "(ipv4)" > -->
+
+<!ENTITY % port_protocols "(ip|tcp|udp)" >
+
+<!-- I don't know exactly what these are, but the values were enumerated via:
+     grep "conf=" *
+--> 
+<!ENTITY % service_confs  "( 3 | 5 | 10)" >
+
+<!-- This element was started in nmap.c:nmap_main().
+     It represents to the topmost element of the output document.
+-->
+<!ELEMENT nmaprun      (scaninfo?, verbose, debugging, host*, runstats?) >
+<!ATTLIST nmaprun
+			scanner		(nmap)		#REQUIRED
+			args		CDATA		#IMPLIED
+			start		%attr_numeric;	#IMPLIED
+			startstr	CDATA	        #IMPLIED
+			version		CDATA		#REQUIRED
+			xmloutputversion (1.01)		#REQUIRED
+>
+
+<!-- this element is written in output.c:doscaninfo() -->
+<!ELEMENT scaninfo	EMPTY >
+<!ATTLIST scaninfo
+			type		%scan_types;	#REQUIRED
+			protocol	%port_protocols; #REQUIRED
+			numservices	%attr_numeric;	#REQUIRED
+			services	CDATA		#REQUIRED
+>
+
+<!-- these elements are written in nmap.c:nmap_main() -->
+<!ELEMENT verbose	EMPTY >
+<!ATTLIST verbose	level		%attr_numeric;	#IMPLIED >
+
+
+<!ELEMENT debugging 	EMPTY >
+<!ATTLIST debugging	level		%attr_numeric;	#IMPLIED >
+
+<!-- 
+     this element is started in nmap.c:nmap_main() and filled by
+     output.c:write_host_status(), output.c:printportoutput(), and
+     output.c:printosscanoutput()
+-->
+<!ELEMENT host		( status, address , (address | hostnames |
+                          smurf | ports | addport | os | uptime | 
+                          tcpsequence | ipidsequence | tcptssequence )* ) >
+
+
+<!-- these elements are written by output.c:write_xml_initial_hostinfo() -->
+<!ELEMENT status	EMPTY >
+<!ATTLIST status	state		%host_states;	#REQUIRED >
+
+<!ELEMENT address	EMPTY >
+<!ATTLIST address	
+			addr		%attr_ipaddr;	#REQUIRED
+			addrtype	%attr_type;	"ipv4"
+			vendor		CDATA		#IMPLIED
+>
+
+<!ELEMENT hostnames	(hostname)* >
+<!ELEMENT hostname	EMPTY >
+<!ATTLIST hostname
+			name		CDATA		#IMPLIED
+			type		%hostname_types; #IMPLIED
+>
+
+
+<!-- this element is written by output.c:write_host_status() -->
+<!ELEMENT smurf		EMPTY >
+<!ATTLIST smurf		responses	%attr_numeric;	#REQUIRED >
+
+<!-- this element is written by portlist.cc:addport() -->
+<!ELEMENT addport         EMPTY >
+<!ATTLIST addport         
+                        state           %port_states;    #REQUIRED
+                        owner           CDATA            #IMPLIED
+                        portid          %attr_numeric;   #REQUIRED
+                        protocol        %port_protocols; #REQUIRED
+>
+
+
+<!-- these elements are written by output.c:printportoutput() -->
+
+<!ELEMENT ports		(extraports? , port*) >
+
+<!ELEMENT extraports	EMPTY >
+<!ATTLIST extraports
+			state		%port_states;	#REQUIRED
+			count		%attr_numeric;	"closed"
+>
+
+<!ELEMENT port		(state , owner? , service? ) >
+<!ATTLIST port
+			protocol	%port_protocols;	#REQUIRED
+			portid		%attr_numeric;	#REQUIRED
+>
+
+<!ELEMENT state		EMPTY >
+<!ATTLIST state		state		%port_states;	#REQUIRED >
+
+<!ELEMENT owner		EMPTY >
+<!ATTLIST owner		name		CDATA		#REQUIRED >
+
+<!ELEMENT service	EMPTY >
+<!ATTLIST service
+			name		CDATA		#REQUIRED
+			conf		%service_confs;	#REQUIRED
+                        method          (table|detection|probed) #REQUIRED
+                        version         CDATA           #IMPLIED
+                        product         CDATA           #IMPLIED
+                        extrainfo       CDATA           #IMPLIED
+			proto		(rpc)		#IMPLIED
+			rpcnum		%attr_numeric;	#IMPLIED
+			lowver		%attr_numeric;	#IMPLIED
+			highver		%attr_numeric;	#IMPLIED
+>
+
+
+<!-- these elements are written by output.c: printosscanoutput() -->
+
+<!ELEMENT os		( portused* , osclass*, osmatch* ) >
+
+<!ELEMENT portused	EMPTY >
+<!ATTLIST portused
+			state 		%port_states;	#REQUIRED
+			proto 		%port_protocols; #REQUIRED
+			portid 		%attr_numeric;	#REQUIRED
+>
+<!ELEMENT osclass      EMPTY >
+<!ATTLIST osclass
+                       vendor          CDATA           #REQUIRED
+                       osgen           CDATA           #IMPLIED
+                       type            CDATA           #IMPLIED
+                       accuracy        CDATA           #REQUIRED
+                       osfamily        CDATA           #REQUIRED
+>
+
+
+<!ELEMENT osmatch	EMPTY >
+<!ATTLIST osmatch
+			name		CDATA		#REQUIRED
+			accuracy	%attr_numeric;	#REQUIRED
+>
+
+<!ELEMENT uptime	EMPTY >
+<!ATTLIST uptime
+			seconds		%attr_numeric;	#REQUIRED
+			lastboot	CDATA		#IMPLIED
+>
+
+<!ELEMENT tcpsequence	EMPTY >
+<!ATTLIST tcpsequence
+			index		%attr_numeric;	#REQUIRED
+			class		CDATA		#REQUIRED
+			difficulty	CDATA		#REQUIRED
+			values		CDATA		#REQUIRED
+>
+
+<!ELEMENT ipidsequence	EMPTY >
+<!ATTLIST ipidsequence
+			class		CDATA		#REQUIRED
+			values		CDATA		#REQUIRED
+>
+
+<!ELEMENT tcptssequence	EMPTY >
+<!ATTLIST tcptssequence
+			class		CDATA		#REQUIRED
+			values		CDATA		#IMPLIED
+>
+
+<!-- these elements are generated in output.c:printfinaloutput() -->
+<!ELEMENT runstats	(finished, hosts) >
+
+<!ELEMENT finished	EMPTY >
+<!ATTLIST finished	time		%attr_numeric;	#REQUIRED 
+                        timestr		CDATA	        #IMPLIED
+>
+
+<!ELEMENT hosts		EMPTY >
+<!ATTLIST hosts
+			up		%attr_numeric;	"0"
+			down		%attr_numeric;	"0"
+			skipped		%attr_numeric;	"0"
+			total		%attr_numeric;	#REQUIRED
+>

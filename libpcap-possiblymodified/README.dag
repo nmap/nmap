@@ -1,0 +1,48 @@
+
+The following instructions apply if you have a Linux or FreeBSD platform and
+want libpcap to support the DAG range of passive network monitoring cards from
+Endace (http://www.endace.com, see below for further contact details).
+
+1) Install and build the DAG software distribution by following the
+instructions supplied with that package. Current Endace customers can download
+the DAG software distibution from https://www.endace.com
+
+2) Configure libcap. To allow the 'configure' script to locate the DAG
+software distribution use the '--with-dag' option:
+
+        ./configure --with-dag=DIR
+
+Where DIR is the root of the DAG software distribution, for example
+/var/src/dag. If the DAG software is correctly detected 'configure' will
+report:
+
+        checking whether we have DAG API... yes
+
+If 'configure' reports that there is no DAG API, the directory may have been
+incorrectly specified or the DAG software was not built before configuring
+libpcap.
+
+See also the libpcap INSTALL.txt file for further libpcap configuration
+options.
+
+Building libpcap at this stage will include support for both the native packet
+capture stream (linux or bpf) and for capturing from DAG cards. To build
+libpcap with only DAG support specify the capture type as 'dag' when
+configuring libpcap:
+
+        ./configure --with-dag=DIR --with-pcap=dag
+
+Applications built with libpcap configured in this way will only detect DAG
+cards and will not capture from the native OS packet stream.
+
+----------------------------------------------------------------------
+
+Please submit bug reports via <support@endace.com>.
+
+Please also visit our Web pages at:
+
+        http://www.endace.com/
+        http://dag.cs.waikato.ac.nz/
+
+For more information about Endace DAG cards contact <sales@endace.com>.
+

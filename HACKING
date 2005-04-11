@@ -1,0 +1,119 @@
+Nmap HACKING
+------------
+
+Information for potential Nmap hackers!
+
+Source is provided to Nmap because we believe users have a
+right to know exactly what a program is going to do before they run
+it.  This also allows you to audit the software for security holes
+(none have been found so far).
+
+Source code also allows you to port Nmap to new platforms, fix bugs,
+and add new features.  You are highly encouraged to send your changes
+to fyodor@insecure.org or nmap-dev@insecure.org for possible
+incorporation into the main distribution.  By sending these changes to
+Fyodor or one the insecure.org development mailing lists, it is
+assumed that you are offering Fyodor the unlimited, non-exclusive
+right to reuse, modify, and relicense the code.  This is important
+because the inability to relicense code has caused devastating
+problems for other Free Software projects (such as KDE and NASM).
+Nmap will always be available Open Source.  If you wish to specify
+special license conditions of your contributions, just say so when you
+send them.
+
+Nmap is a community project and has already benefitted greatly from
+outside contributors ( for examples, see the CHANGELOG or
+http://www.insecure.org/nmap/#thanks ).  Bugfixes, and portability
+changes will almost always be accepted.  Even if you do not have time
+to track down and patch a problem, bug reports are always welcome.
+
+Hackers interested in something more major, such as a new feature, are
+encouraged to send a mail describing their plans to
+nmap-dev@insecure.org .  This is a good way to solicit feedback on
+your proposals.  List members or often very willing to help.  You
+might want to subscribe to that mailing list as well -- send a blank
+email to nmap-dev-subscribe@insecure.org .  While you are at it, you
+might also want to subscribe to nmap-hackers via the same mechanism.
+Web archives of those lists are at http://lists.insecure.org .
+
+If you are not ready to send details of your feature to the whole
+list, you can always start by mailing fyodor@insecure.org .
+
+Some ideas of useful contributions/projects
+-------------------------------------------
+
+Of course, you are welcome to work on whatever suits your fancy.  But
+here are some ideas of contributions that might be particularly
+useful:
+
+Table Rendering Code -- The system nmap uses for outputing the port
+status table is not very extensible.  For example, witness the chaos
+in Nmap.c required to support adding an Ident column to the table when
+-I is specified.  A simple table rendering library would be userul.
+Presumably it would take some sort of specification giving the number
+of columns & justification and an array of rows.  Then it would decide
+the appropriate column widths and print out the nicely formatted table.
+
+NmapFE improvements -- I am currently maintaining NmapFE (also known
+as xnmap) -- the GTK GUI front end to Nmap.  I am very open to changes
+and improvements in that program.  If you have enhancement ideas, give
+it a shot!
+
+Debian/SPARC binaries -- I would like to offer Debian and SPARC native
+binary packages via the web site.  Right now the nmap 'distro' rule
+creates the .tgz and *.rpm versions.  If anyone wants to enhance that
+to spit out debian packages as well, that would be great!  A
+'sunpackage' rule that I could run on a sparc would also be useful.
+Debian & Solaris packages are already available at debian.org and
+sunfreeware.com, but they are not always up-to-date.
+
+XML Output -- We have pretty much decided on a format ( see
+http://lists.insecure.org/nmap-dev/2000/Jul-Sep/0038.html ) , but the
+code hasn't been written yet.  An XSchema or DTD for the format would
+also be useful.
+
+
+How to make code contributions
+------------------------------
+
+The preferred mechanism for submitted changes is unified diffs against
+the latest development release version of Nmap.  Please send them to
+fyodor@insecure.org or nmap-dev@insecure.org .  
+
+To make a unified diff, please follow these instructions:
+
+1. Remove temporary files:
+    make clean
+
+2. Rename your source tree:
+    cd ..
+    mv nmap-2.54BETA4 nmap-2.54BETA4-snazzy-feature
+
+3. Unpack the original Nmap source alongside it:
+    tar xzf nmap-2.54BETA4.tgz
+
+4. Generate the diffs:
+   diff -urNb nmap-2.54BETA4 nmap-2.54BETA4-snazzy-feature > nmap.patch
+
+5. Check the patch and remove any unnecessary patches from the file.
+
+6. If you've added several features, it's best to send them as
+   several independent patches if you can.
+
+If you have just patched one or two files, then making patches is even
+easier. For each file, just do:
+
+  cp file.c file.c.orig
+  [Make changes to file.c ...]
+  diff -u file.c.orig file.c > file.c.patch
+
+and just send us the patch: file.c.patch.
+
+
+Credits
+-------
+
+I got the idea for this HACKING file from GNet (
+http://www.eecs.umich.edu/~dhelder/misc/gnet/ ) and followed the
+general structure of their HACKING file.
+

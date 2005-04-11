@@ -1,0 +1,25 @@
+Nmap 3.81 Usage: nmap [Scan Type(s)] [Options] <host or net list>
+Some Common Scan Types ('*' options require root privileges)
+* -sS TCP SYN stealth port scan (default if privileged (root))
+  -sT TCP connect() port scan (default for unprivileged users)
+* -sU UDP port scan
+  -sP ping scan (Find any reachable machines)
+* -sF,-sX,-sN Stealth FIN, Xmas, or Null scan (experts only)
+  -sV Version scan probes open ports determining service & app names/versions
+  -sR RPC scan (use with other scan types)
+Some Common Options (none are required, most can be combined):
+* -O Use TCP/IP fingerprinting to guess remote operating system
+  -p <range> ports to scan.  Example range: 1-1024,1080,6666,31337
+  -F Only scans ports listed in nmap-services
+  -v Verbose. Its use is recommended.  Use twice for greater effect.
+  -P0 Don't ping hosts (needed to scan www.microsoft.com and others)
+* -Ddecoy_host1,decoy2[,...] Hide scan using many decoys
+  -6 scans via IPv6 rather than IPv4
+  -T <Paranoid|Sneaky|Polite|Normal|Aggressive|Insane> General timing policy
+  -n/-R Never do DNS resolution/Always resolve [default: sometimes resolve]
+  -oN/-oX/-oG <logfile> Output normal/XML/grepable scan logs to <logfile>
+  -iL <inputfile> Get targets from file; Use '-' for stdin
+* -S <your_IP>/-e <devicename> Specify source address or network interface
+  --interactive Go into interactive mode (then press h for help)
+Example: nmap -v -sS -O www.my.com 192.168.0.0/16 '192.88-90.*.*'
+SEE THE MAN PAGE FOR MANY MORE OPTIONS, DESCRIPTIONS, AND EXAMPLES 

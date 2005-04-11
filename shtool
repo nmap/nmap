@@ -1,0 +1,1997 @@
+#!/bin/sh
+##
+##  shtool -- Portable Shell Tool
+##  Copyright (c) 1999 Ralf S. Engelschall, All Rights Reserved. 
+##  Version 1.2.3 (06-May-1999)
+##
+
+##
+##  LICENSE
+##  =======
+##
+##  ====================================================================
+##  Copyright (c) 1994-1999 Ralf S. Engelschall. All rights reserved.
+## 
+##  Redistribution and use in source and binary forms, with or without
+##  modification, are permitted provided that the following conditions
+##  are met:
+## 
+##  1. Redistributions of source code must retain the above copyright
+##     notice, this list of conditions and the following disclaimer. 
+## 
+##  2. Redistributions in binary form must reproduce the above copyright
+##     notice, this list of conditions and the following disclaimer in
+##     the documentation and/or other materials provided with the
+##     distribution.
+## 
+##  3. All advertising materials mentioning features or use of this
+##     software must display the following acknowledgment:
+##     "This product includes software developed by
+##      Ralf S. Engelschall <rse@engelschall.com>."
+## 
+##  4. Redistributions of any form whatsoever must retain the following
+##     acknowledgment:
+##     "This product includes software developed by
+##      Ralf S. Engelschall <rse@engelschall.com>."
+## 
+##  THIS SOFTWARE IS PROVIDED BY RALF S. ENGELSCHALL ``AS IS'' AND ANY
+##  EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+##  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+##  PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL RALF S. ENGELSCHALL OR
+##  ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+##  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+##  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+##  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+##  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+##  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+##  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+##  OF THE POSSIBILITY OF SUCH DAMAGE.
+##  ====================================================================
+##
+##  This product includes software developed by the Apache Group
+##  for use in the Apache HTTP server project (http://www.apache.org/)
+##
+
+##
+##  Usage: shtool <command> [<options>] [<args>]
+##
+##  Available commands:
+##  echo         Print command with optional construct expansion
+##  table        Pretty print a field-sperarated list as a table
+##  prop         Display a process indication though a running propeller
+##  move         Move files with simultan substitution and optimized movement
+##  install      Install a program, script or datafile
+##  mkdir        Make a directory
+##  mkln         Extended ln(1) command which calculates relative links
+##  mkshadow     Create a shadow tree
+##  fixperm      Fix file permission inside a source tree
+##  guessos      Simple OS/Platform guesser
+##  arx          Archive (ar) wrapper command.
+##  slo          Separate Linker Options by library class
+##  version      Generate and maintain a version information file
+##  path         Deal with $PATH variables
+##
+
+if [ $# -eq 0 ]; then
+    echo "$0:Error: Invalid command line" 1>&2
+fi
+if [ $# -eq 0 -o ".$1" = .-h ]; then
+    echo "$0:Usage: shtool <command> [<options>] [<args>]" 
+    echo ""
+    echo "Available commands are:"
+    echo ""
+    echo '  echo       [-n] [-e] <string> [<string> ...]'
+    echo '  table      [-F <sep>] [-w <width>] [-c <cols>] [-s <strip>]'
+    echo '             <str><sep><str><sep><str>...'
+    echo '  prop       [-p <prefix>]'
+    echo '  move       [-e] [-p] <src> <dst>'
+    echo '  install    [-c] [-m <mode>] [-o <owner>] [-g <group>]'
+    echo '             [-s] [-S <stripflags>] [-e <extension>] <file> <dir-or-file>'
+    echo '  mkdir      [-f] [-p] [-m <mode>] <dir> [<dir> ...]'
+    echo '  mkln       [-v] [-f] [-s] <src> [<src> ...] <dst>'
+    echo '  mkshadow   <srcdir> <dstdir>'
+    echo '  fixperm    <file-or-dir> [<file-or-dir> ...]'
+    echo '  guessos    '
+    echo '  arx        [-v] <ar-prg> <ar-cmd> <archive> <file> [<file>'
+    echo '             ...]'
+    echo '  slo        -Lxx -lxx [ -Lxx -lxx ... ]'
+    echo '  version    [-l <lang>] [-n <name>] [-p <prefix>] [-s'
+    echo '             <version>] [-i <knob>] [-d <type>] <file>'
+    echo '  path       [-s] [-r] [-d] [-b] [-m] [-p <path>] <string>'
+    echo '             [<string> ...]'
+    echo ""
+    exit 1
+fi
+if [ ".$1" = .-v ]; then
+    echo "shtool 1.2.3 (06-May-1999)"
+    exit 0
+fi
+util=$1
+shift
+case $util in
+
+echo )
+    #
+    #   command line parsing
+    #
+    newline="\n"
+    expand=no
+    while [ ".$1" != . ]; do
+        case $1 in
+            -n ) newline=""; shift; continue ;;
+            -e ) expand=yes; shift; continue ;;
+            *  ) break ;;
+        esac
+    done
+    text="$*"
+    
+    #
+    #   check for broken escape sequence expansion
+    #
+    seo=''
+    bytes=`echo '\1' | wc -c | awk '{ printf("%s", $1); }'`
+    if [ ".$bytes" != .3 ]; then
+        bytes=`echo -E '\1' | wc -c | awk '{ printf("%s", $1); }'`
+        if [ ".$bytes" = .3 ]; then
+            seo='-E'
+        fi
+    fi
+    
+    #
+    #   determine terminal bold sequence
+    #
+    term_bold='' 
+    tern_norm=''
+    if [ $expand = yes -a ".`echo $text | egrep '%[Bb]'`" != . ]; then
+        case $TERM in
+            xterm|xterm*|vt220|vt220*)
+                term_bold=`echo dummy | awk '{ printf("%c%c%c%c", 27, 91, 49, 109); }'`
+                term_norm=`echo dummy | awk '{ printf("%c%c%c", 27, 91, 109); }'`
+                ;;
+            vt100|vt100*)
+                term_bold=`echo dummy | awk '{ printf("%c%c%c%c%c%c", 27, 91, 49, 109, 0, 0); }'`
+                term_norm=`echo dummy | awk '{ printf("%c%c%c%c%c", 27, 91, 109, 0, 0); }'`
+                ;;
+        esac
+        if [ ".$term_bold" = . -o ".$term_norm" = . ]; then
+            md="`tput md 2>/dev/null`"
+            me="`tput me 2>/dev/null`"
+            if [ ".$md" != . -a ".$me" != . ]; then
+                term_bold="$xmd" 
+                term_norm="$xme"
+            fi
+        fi
+        if [ ".$term_bold" = . -o ".$term_norm" = . ]; then
+            echo "$0:Warning: unable to determine terminal sequence for bold mode" 1>&2
+        fi
+    fi
+    
+    #
+    #   determine user name
+    #
+    username=''
+    if [ $expand = yes -a ".`echo $text | egrep '%[uU]'`" != . ]; then
+        username="$LOGNAME"
+        if [ ".$username" = . ]; then
+            username="$USER"
+            if [ ".$username" = . ]; then
+                username="`(whoami) 2>/dev/null |\
+                           awk '{ printf("%s", $1); }'`"
+                if [ ".$username" = . ]; then
+                    username="`(who am i) 2>/dev/null |\
+                               awk '{ printf("%s", $1); }'`"
+                    if [ ".$username" = . ]; then
+                        username='unknown'
+                    fi
+                fi
+            fi
+        fi
+    fi
+    
+    #
+    #   determine user id
+    #
+    userid=''
+    if [ $expand = yes -a ".`echo $text | egrep '%U'`" != . ]; then
+        userid="`(id -u) 2>/dev/null`"
+        if [ ".$userid" = . ]; then
+            str="`(id) 2>/dev/null`"
+            if [ ".`echo $str | grep '^uid[ 	]*=[ 	]*[0-9]*('`" != . ]; then
+                userid=`echo $str | sed -e 's/^uid[ 	]*=[ 	]*//' -e 's/(.*//'`
+            fi
+            if [ ".$userid" = . ]; then
+                userid=`egrep "^${username}:" /etc/passwd 2>/dev/null | \
+                        sed -e 's/[^:]*:[^:]*://' -e 's/:.*$//'`
+                if [ ".$userid" = . ]; then
+                    userid=`(ypcat passwd) 2>/dev/null |
+                            egrep "^${username}:" | \
+                            sed -e 's/[^:]*:[^:]*://' -e 's/:.*$//'`
+                    if [ ".$userid" = . ]; then
+                        userid='?'
+                    fi
+                fi
+            fi
+        fi
+    fi
+    
+    #
+    #   determine host name
+    #
+    hostname=''
+    if [ $expand = yes -a ".`echo $text | egrep '%h'`" != . ]; then
+        hostname="`(uname -n) 2>/dev/null |\
+                   awk '{ printf("%s", $1); }'`"
+        if [ ".$hostname" = . ]; then
+            hostname="`(hostname) 2>/dev/null |\
+                       awk '{ printf("%s", $1); }'`"
+            if [ ".$hostname" = . ]; then
+                hostname='unknown'
+            fi
+        fi
+        case $hostname in
+            *.* )
+                domainname=".`echo $hostname | cut -d. -f2-`"
+                hostname="`echo $hostname | cut -d. -f1`"
+                ;;
+        esac
+    fi
+    
+    #
+    #   determine domain name
+    #
+    domainname=''
+    if [ $expand = yes -a ".`echo $text | egrep '%d'`" != . ]; then
+        if [ ".$domainname" = . ]; then
+            if [ -f /etc/resolv.conf ]; then
+                domainname="`egrep '^[ 	]*domain' /etc/resolv.conf | head -1 |\
+                             sed -e 's/.*domain//' \
+                                 -e 's/^[ 	]*//' -e 's/^ *//' -e 's/^	*//' \
+                                 -e 's/^\.//' -e 's/^/./' |\
+                             awk '{ printf("%s", $1); }'`"
+                if [ ".$domainname" = . ]; then
+                    domainname="`egrep '^[ 	]*search' /etc/resolv.conf | head -1 |\
+                                 sed -e 's/.*search//' \
+                                     -e 's/^[ 	]*//' -e 's/^ *//' -e 's/^	*//' \
+                                     -e 's/ .*//' -e 's/	.*//' \
+                                     -e 's/^\.//' -e 's/^/./' |\
+                                 awk '{ printf("%s", $1); }'`"
+                fi
+            fi
+        fi
+    fi
+    
+    #
+    #   determine current time
+    #
+    time_day=''
+    time_month=''
+    time_year=''
+    time_monthname=''
+    if [ $expand = yes -a ".`echo $text | egrep '%[DMYm]'`" != . ]; then
+        time_day="`date '+%d' | awk '{ printf("%s", $1); }'`"
+        time_month="`date '+%m' | awk '{ printf("%s", $1); }'`"
+        time_year="`date '+%Y' 2>/dev/null | awk '{ printf("%s", $1); }'`"
+        if test ".$time_year" = .; then
+            time_year="`date '+%y' | awk '{ printf("%s", $1); }'`"
+            case $time_year in
+                9[0-9]*) time_year="19$time_year" ;;
+                      *) time_year="20$time_year" ;;
+            esac
+        fi
+        case $time_month in
+            1|01) time_monthname='Jan' ;;
+            2|02) time_monthname='Feb' ;;
+            3|03) time_monthname='Mar' ;;
+            4|04) time_monthname='Apr' ;;
+            5|05) time_monthname='May' ;;
+            6|06) time_monthname='Jun' ;;
+            7|07) time_monthname='Jul' ;;
+            8|08) time_monthname='Aug' ;;
+            9|09) time_monthname='Sep' ;;
+              10) time_monthname='Oct' ;;
+              11) time_monthname='Nov' ;;
+              12) time_monthname='Dec' ;;
+        esac
+    fi
+    
+    #
+    #   expand special ``%x'' constructs
+    #
+    if [ $expand = yes ]; then
+        text=`echo $seo "$text" |\
+              sed -e "s;%B;${term_bold};g" \
+                  -e "s;%b;${term_norm};g" \
+                  -e "s;%u;${username};g" \
+                  -e "s;%U;${userid};g" \
+                  -e "s;%h;${hostname};g" \
+                  -e "s;%d;${domainname};g" \
+                  -e "s;%D;${time_day};g" \
+                  -e "s;%M;${time_month};g" \
+                  -e "s;%Y;${time_year};g" \
+                  -e "s;%m;${time_monthname};g"`
+    fi
+    
+    #
+    #   create output
+    #
+    echo dummy |\
+    awk '{ printf("%s%s", TEXT, NEWLINE); }' \
+        TEXT="$text" NEWLINE="$newline"
+;;
+
+table )
+    #
+    #   command line parsing
+    #
+    width=15
+    cols=3
+    sep=':'
+    strip=79
+    while [ ".$1" != . ]; do
+        case $1 in
+            -F ) sep="$2";   shift; shift; continue ;;
+            -w ) width="$2"; shift; shift; continue ;;
+            -c ) cols="$2";  shift; shift; continue ;;
+            -s ) strip="$2";   shift; shift; continue ;;
+            *  ) break ;;
+        esac
+    done
+    case x$sep in
+        x? ) ;;
+        *  ) echo "$0:Error: Invalid seperator (one char allowed only)" 1>&2; exit 1 ;;
+    esac
+    if [ $cols -gt 4 ]; then
+        echo "$0:Error: Invalid number of colums (1..4 allowed only)" 1>&2
+        exit 1
+    fi
+    
+    #
+    #   split the list into a table
+    #
+    list=`
+        IFS="$sep"
+        for entry in $*; do
+            if [ ".$entry" != . ]; then
+                echo "$entry"
+            fi
+        done |\
+        awk "
+            BEGIN { list = \"\"; n = 0; }
+            { 
+                list = list \\$1;
+                n = n + 1;
+                if (n < $cols) {
+                    list = list \":\";
+                }
+                if (n == $cols) {
+                    list = list \"\\n\";
+                    n = 0;
+                }
+            }
+            END { print list; }
+         "
+    `
+    
+    #
+    #   format table cells and make sure table 
+    #   doesn't exceed maximum width
+    #
+    IFS='
+    '
+    for entry in $list; do
+        case $cols in
+            1 ) eval "echo \"\${entry}\" | awk -F: '{ printf(\"%-${width}s\\n\", \$1); }'" ;;
+            2 ) eval "echo \"\${entry}\" | awk -F: '{ printf(\"%-${width}s %-${width}s\\n\", \$1, \$2); }'" ;;
+            3 ) eval "echo \"\${entry}\" | awk -F: '{ printf(\"%-${width}s %-${width}s %-${width}s\\n\", \$1, \$2, \$3); }'" ;;
+            4 ) eval "echo \"\${entry}\" | awk -F: '{ printf(\"%-${width}s %-${width}s %-${width}s %-${width}s\\n\", \$1, \$2, \$3, \$4); }'" ;;
+        esac
+    done |\
+    awk "{ 
+        if (length(\$0) > $strip) { 
+            printf(\"%s\\n\", substr(\$0, 0, $strip-1));
+        } else { 
+            print \$0; 
+        }
+    }"
+;;
+
+prop )
+    #
+    #   command line parsing
+    #
+    prefix=""
+    while [ ".$1" != . ]; do
+        case $1 in
+            -p ) prefix="$2"; shift; shift; continue ;;
+            *  ) break ;;
+        esac
+    done
+    if [ $# -gt 0 ]; then
+        echo "$0:Error: too much arguments" 1>&2
+        exit 1
+    fi
+    
+    perl=''
+    for dir in `echo $PATH | sed -e 's/:/ /g'` .; do
+        if [ -f "$dir/perl" ]; then
+            perl="$dir/perl"
+            break
+        fi
+    done
+    if [ ".$perl" != . ]; then
+        #   Perl is preferred because writing to STDERR in
+        #   Perl really writes immediately as one would expect
+        $perl -e '
+            @p = ("|","/","-","\\"); 
+            $i = 0; 
+            while (<STDIN>) { 
+                printf(STDERR "\r%s...%s\b", $ARGV[0], $p[$i++]);
+                $i = 0 if ($i > 3); 
+            }
+            printf(STDERR "\r%s    \n", $ARGV[0]);
+        ' "$prefix"
+    else
+        #   But when Perl doesn't exists we use Awk even
+        #   some Awk's buffer even the /dev/stderr writing :-(
+        awk '
+            BEGIN { 
+                split("|#/#-#\\", p, "#");
+                i = 1; 
+            } 
+            { 
+                printf("\r%s%c\b", prefix, p[i++]) > "/dev/stderr"; 
+                if (i > 4) { i = 1; } 
+            }
+            END {
+                printf("\r%s    \n", prefix) > "/dev/stderr";
+            }
+        ' "prefix=$prefix" 
+    fi
+;;
+
+move )
+    #
+    #   command line parsing
+    #
+    expand=no
+    preserve=no
+    while [ ".$1" != . ]; do
+        case $1 in
+            -e ) expand=yes ; shift; continue ;;
+            -p ) preserve=yes ; shift; continue ;;
+            *  ) break ;;
+        esac
+    done
+    if [ $# -ne 2 ]; then
+        echo "$0:Usage: move [-e] [-p] <src> <dst>" 1>&2
+        exit 1
+    fi
+    src=$1
+    dst=$2
+    
+    #
+    #   consistency checks
+    #
+    if [ ".$src" = . -o ".$dst" = . ]; then
+        echo "$0:Error: Invalid arguments" 1>&2
+        exit 1
+    fi
+    if [ ".$src" = ".$dst" ]; then
+        echo "$0:Error: Source and destination files are the same" 1>&2
+        exit 1
+    fi
+    expsrc="$src"
+    if [ $expand = yes ]; then
+        expsrc="`echo $expsrc`"
+    fi
+    if [ $expand = yes ]; then
+        if [ ".`echo "$src" | sed -e 's;^.*\\*.*$;;'`" = ".$src" ]; then
+            echo "$0:Error: Source doesn't contain wildcard ('*'): $dst" 1>&2
+            exit 1
+        fi
+        if [ ".`echo "$dst" | sed -e 's;^.*%[1-9].*$;;'`" = ".$dst" ]; then
+            echo "$0:Error: Destination doesn't contain substitution ('%N'): $dst" 1>&2
+            exit 1
+        fi
+        if [ ".$expsrc" = ".$src" ]; then
+            echo "$0:Error: Sources not found or no asterisk : $src" 1>&2
+            exit 1
+        fi
+    else
+        if [ ! -r "$src" ]; then
+            echo "$0:Error: Source not found: $src" 1>&2
+            exit 1
+        fi
+    fi
+    
+    #
+    #   determine substitution patterns
+    #
+    if [ $expand = yes ]; then
+        srcpat=`echo "$src" | sed -e 's/\\./\\\\./g' -e 's/;/\\;/g' -e 's;\\*;\\\\(.*\\\\);g'`
+        dstpat=`echo "$dst" | sed -e 's;%\([1-9]\);\\\\\1;g'`
+    fi
+    
+    #
+    #   iterate over source(s)
+    #
+    for onesrc in $expsrc; do
+        if [ $expand = yes ]; then
+            onedst=`echo $onesrc | sed -e "s;$srcpat;$dstpat;"`
+        else
+            onedst="$dst"
+        fi
+        errorstatus=0
+        if [ -r $onedst ]; then
+            if cmp -s $onesrc $onedst; then
+                rm -f $onesrc || errstatus=$?
+            else
+                mv -f $onesrc $onedst || errstatus=$?
+            fi
+        else
+            mv -f $onesrc $onedst || errstatus=$?
+        fi
+        if [ $errorstatus -ne 0 ]; then
+            break;
+        fi
+    done
+    
+    #   die gracefully
+    exit $errorstatus
+;;
+
+install )
+    #
+    #   put in absolute paths if you don't have them in your path; 
+    #   or use env. vars.
+    #
+    mvprog="${MVPROG-mv}"
+    cpprog="${CPPROG-cp}"
+    chmodprog="${CHMODPROG-chmod}"
+    chownprog="${CHOWNPROG-chown}"
+    chgrpprog="${CHGRPPROG-chgrp}"
+    stripprog="${STRIPPROG-strip}"
+    rmprog="${RMPROG-rm}"
+    
+    #
+    #   parse argument line
+    #
+    instcmd="$mvprog"
+    chmodcmd=""
+    chowncmd=""
+    chgrpcmd=""
+    stripcmd=""
+    rmcmd="$rmprog -f"
+    mvcmd="$mvprog"
+    ext=""
+    src=""
+    dst=""
+    while [ ".$1" != . ]; do
+        case $1 in
+            -c) instcmd="$cpprog"
+                shift; continue
+                ;;
+            -m) chmodcmd="$chmodprog $2"
+                shift; shift; continue
+                ;;
+            -o) chowncmd="$chownprog $2"
+                shift; shift; continue
+                ;;
+            -g) chgrpcmd="$chgrpprog $2"
+                shift; shift; continue
+                ;;
+            -s) stripcmd="$stripprog"
+                shift; continue;;
+            -S) stripcmd="$stripprog $2"
+                shift; shift; continue ;;
+            -e) ext="$2"
+                shift; shift; continue
+                ;;
+            *)  if [ ".$src" = . ]; then
+                    src=$1
+                else
+                    dst=$1
+                fi
+                shift; continue
+                ;;
+        esac
+    done
+    if [ ".$src" = . ]; then
+         echo "install.sh: no input file specified"
+         exit 1
+    fi
+    if [ ".$dst" = . ]; then
+         echo "install.sh: no destination specified"
+         exit 1
+    fi
+    
+    #
+    #  If destination is a directory, append the input filename; if
+    #  your system does not like double slashes in filenames, you may
+    #  need to add some logic
+    #
+    if [ -d $dst ]; then
+        dst="$dst/`basename $src`"
+    fi
+    
+    #  Add a possible extension (such as ".exe") to src and dst
+    src="$src$ext"
+    dst="$dst$ext"
+    
+    #  Make a temp file name in the proper directory.
+    dstdir=`dirname $dst`
+    dsttmp=$dstdir/#inst.$$#
+    
+    #  Move or copy the file name to the temp name
+    $instcmd $src $dsttmp
+    
+    #  And set any options; do chmod last to preserve setuid bits
+    if [ ".$chowncmd" != . ]; then $chowncmd $dsttmp; fi
+    if [ ".$chgrpcmd" != . ]; then $chgrpcmd $dsttmp; fi
+    if [ ".$stripcmd" != . ]; then $stripcmd $dsttmp; fi
+    if [ ".$chmodcmd" != . ]; then $chmodcmd $dsttmp; fi
+    
+    #  Now rename the file to the real destination.
+    $rmcmd $dst
+    $mvcmd $dsttmp $dst
+    
+    exit 0
+;;
+
+mkdir )
+    #   command line parsing
+    mode=""
+    force=0
+    parent=0
+    while [ ".$1" != . ]; do
+        case $1 in
+            -f)  force=1;          shift; continue ;; 
+            -p)  parent=1;         shift; continue ;;
+            -m)  mode="$2"; shift; shift; continue ;;
+             *)  break ;;
+        esac
+    done
+    if [ $# -eq 0 ]; then
+        echo "$0:Usage: mkdir [-f] [-p] [-m <mode>] <dir> [<dir> ...]" 1>&2
+        exit 1
+    fi
+    
+    errstatus=0
+    for p in ${1+"$@"}; do 
+        #   when the directory already exists...
+        if [ -d "$p" ]; then
+            if [ $force = 0 ]; then
+                echo "$0:Error: file exists: $p" 1>&2
+                errstatus=1
+                break
+            else
+                continue
+            fi
+        fi
+        #   when the directory has to be created
+        if [ $parent = 0 ]; then
+            mkdir $p || errstatus=$?
+        else
+            #   the smart situation
+            set fnord `echo ":$p" |\
+                       sed -e 's/^:\//%/' \
+                           -e 's/^://' \
+                           -e 's/\// /g' \
+                           -e 's/^%/\//'`
+            shift
+            pathcomp=
+            for d in ${1+"$@"}; do
+                pathcomp="$pathcomp$d"
+                case "$pathcomp" in
+                    -* ) pathcomp="./$pathcomp" ;;
+                esac
+                if [ ! -d "$pathcomp" ]; then
+                    mkdir $pathcomp || errstatus=$?
+                    if [ ".$mode" != . ]; then
+                        chmod $mode $pathcomp || errstatus=$?
+                    fi
+                fi
+                pathcomp="$pathcomp/"
+            done
+        fi
+    done
+    exit $errstatus
+;;
+
+mkln )
+    #
+    #   command line parsing
+    #
+    verbose=no
+    force=no
+    symbolic=no
+    while [ ".$1" != . ]; do
+        case $1 in
+            -v)  verbose=yes; shift; continue ;; 
+            -f)  force=yes; shift; continue ;; 
+            -s)  symbolic=yes; shift; continue ;; 
+             *)  break ;;
+        esac
+    done
+    if [ $# -lt 2 ]; then
+        echo "$0:Usage: mkln [-v] [-f] [-s] <from> [<from> ...] <to>" 1>&2
+        exit 1
+    fi
+    args=$?
+    srcs=""
+    while [ $# -gt 1 ]; do
+        srcs="$srcs $1"
+        shift
+    done
+    dst="$1"
+    if [ ! -d $dst ]; then
+        if [ $args -gt 2 ]; then
+            echo "$0:Error: multiple sources not allowed when destination isn't a directory" 1>&2
+            exit 1
+        fi
+    fi
+    
+    #
+    #   determine link options
+    #
+    lnopt=""
+    if [ $force = yes ]; then
+        lnopt="$lnopt -f"
+    fi
+    if [ $symbolic = yes ]; then
+        lnopt="$lnopt -s"
+    fi
+    
+    #
+    #   iterate over sources
+    #
+    for src in $srcs; do
+        #   debugging
+        if [ $verbose = yes ]; then
+            echo "src=\"$src\" dst=\"$dst\":"
+        fi
+    
+        #   determine if one of the paths is an absolute path,
+        #   because then we _have_ to use an absolute symlink
+        oneisabs=0
+        srcisabs=0
+        dstisabs=0
+        case $src in
+            /* ) oneisabs=1; srcisabs=1 ;;
+        esac
+        case $dst in
+            /* ) oneisabs=1; dstisabs=1 ;;
+        esac
+    
+        #   split source and destination into dir and base name
+        if [ -d $src ]; then
+            srcdir=`echo $src | sed -e 's;/*$;;'`
+            srcbase=""
+        else
+            srcdir=`echo  $src | sed -e 's;^[^/]*$;;' -e 's;^\(.*/\)[^/]*$;\1;' -e 's;\(.\)/$;\1;'`
+            srcbase=`echo $src | sed -e 's;.*/\([^/]*\)$;\1;'`
+        fi
+        if [ -d $dst ]; then
+            dstdir=`echo $dst | sed -e 's;/*$;;'`
+            dstbase=""
+        else
+            dstdir=`echo  $dst | sed -e 's;^[^/]*$;;' -e 's;^\(.*/\)[^/]*$;\1;' -e 's;\(.\)/$;\1;'`
+            dstbase=`echo $dst | sed -e 's;.*/\([^/]*\)$;\1;'`
+        fi
+    
+        #   debugging
+        if [ $verbose = yes ]; then
+            echo "  STATE 1:"
+            echo "  srcisabs=$srcisabs srcdir=\"$srcdir\" srcbase=\"$srcbase\""
+            echo "  dstisabs=$dstisabs dstdir=\"$dstdir\" dstbase=\"$dstbase\""
+            echo "  oneisabs=$oneisabs"
+        fi
+    
+        #   consistency check
+        if [ ".$dstdir" != . ]; then
+            if [ ! -d $dstdir ]; then
+                echo "$0:Error: destination directory not found: $dstdir" 1>&2
+                exit 1
+            fi
+        fi
+    
+        #   make sure the source is reachable from the destination
+        if [ $dstisabs = 1 ]; then
+            if [ $srcisabs = 0 ]; then
+                if [ -d $srcdir ]; then
+                    srcdir="`cd $srcdir; pwd | sed -e 's;/*$;;'`"
+                    srcisabs=1
+                    oneisabs=1
+                    #   debugging
+                    if [ $verbose = yes ]; then
+                        echo "  STATE 2:"
+                        echo "  srcisabs=$srcisabs srcdir=\"$srcdir\" srcbase=\"$srcbase\""
+                        echo "  dstisabs=$dstisabs dstdir=\"$dstdir\" dstbase=\"$dstbase\""
+                        echo "  oneisabs=$oneisabs"
+                    fi
+                fi
+            fi
+        fi
+    
+        #   split away a common prefix
+        prefix=""
+        if [ ".$srcdir" = ".$dstdir" ] && [ ".$srcdir" != . ]; then
+            prefix="$srcdir/"
+            srcdir=""
+            dstdir=""
+        else
+            while [ ".$srcdir" != . ] && [ ".$dstdir" != . ]; do
+                presrc=`echo $srcdir | sed -e 's;^\([^/]*\)/.*;\1;'`
+                predst=`echo $dstdir | sed -e 's;^\([^/]*\)/.*;\1;'`
+                if [ ".$presrc" != ".$predst" ]; then
+                    break
+                fi
+                prefix="$prefix$presrc/"
+                srcdir=`echo $srcdir | sed -e 's;^[^/]*/*;;'`
+                dstdir=`echo $dstdir | sed -e 's;^[^/]*/*;;'`
+            done
+        fi
+    
+        #   debugging
+        if [ $verbose = yes ]; then
+            echo "  STATE 3:"
+            echo "  prefix=$prefix"
+            echo "  srcisabs=$srcisabs srcdir=\"$srcdir\" srcbase=\"$srcbase\""
+            echo "  dstisabs=$dstisabs dstdir=\"$dstdir\" dstbase=\"$dstbase\""
+            echo "  oneisabs=$oneisabs"
+        fi
+    
+        #   destination prefix is just the common prefix
+        dstpre="$prefix"
+    
+        #   determine source prefix which is the reverse directory
+        #   step-up corresponding to the destination directory
+        srcpre=""
+        if [ $oneisabs = 0 ] || [ ".$prefix" != . -a ".$prefix" != ./ ]; then
+            pl="$dstdir/"
+            OIFS="$IFS"; IFS='/'
+            for pe in $pl; do
+                [ ".$pe" = . ] && continue
+                srcpre="../$srcpre"
+            done
+            IFS="$OIFS"
+        else
+            if [ $srcisabs = 1 ]; then
+                srcpre="$prefix"
+            fi
+        fi
+    
+        #   debugging
+        if [ $verbose = yes ]; then
+            echo "  STATE 4:"
+            echo "  prefix=$prefix"
+            echo "  srcisabs=$srcisabs srcpre=\"$srcpre\" srcdir=\"$srcdir\" srcbase=\"$srcbase\""
+            echo "  dstisabs=$dstisabs dstpre=\"$dstpre\" dstdir=\"$dstdir\" dstbase=\"$dstbase\""
+            echo "  oneisabs=$oneisabs"
+        fi
+    
+        #   determine destination symlink name
+        if [ ".$dstbase" = . ]; then
+            if [ ".$srcbase" != . ]; then
+                dstbase="$srcbase"
+            else
+                dstbase=`echo "$prefix$srcdir" | sed -e 's;/*$;;' -e 's;.*/\([^/]*\)$;\1;'`
+            fi
+        fi
+    
+        #   now finalize source and destination directory paths
+        srcdir=`echo $srcdir | sed -e 's;\([^/]\)$;\1/;'`
+        dstdir=`echo $dstdir | sed -e 's;\([^/]\)$;\1/;'`
+    
+        #   debugging
+        if [ $verbose = yes ]; then
+            echo "  STATE 5:"
+            echo "  prefix=$prefix"
+            echo "  srcisabs=$srcisabs srcpre=\"$srcpre\" srcdir=\"$srcdir\" srcbase=\"$srcbase\""
+            echo "  dstisabs=$dstisabs dstpre=\"$dstpre\" dstdir=\"$dstdir\" dstbase=\"$dstbase\""
+            echo "  oneisabs=$oneisabs"
+        fi
+    
+        #   run the final link command
+        if [ $verbose = yes ]; then
+            echo "  RESULT:"
+            echo "ln$lnopt $srcpre$srcdir$srcbase $dstpre$dstdir$dstbase"
+        fi
+        eval ln$lnopt $srcpre$srcdir$srcbase $dstpre$dstdir$dstbase
+    done
+    exit 0
+;;
+
+mkshadow )
+    #   default IFS
+    DIFS=' 	
+    '
+    
+    #   command line check
+    if [ $# -ne 2 ]; then
+        echo "$0:Error: Invalid aruments" 1>&2
+        exit 1
+    fi
+    
+    #   source and destination directory
+    src=`echo $1 | sed -e 's:/$::'`
+    dst=`echo $2 | sed -e 's:/$::'`
+    
+    #   check whether source exists
+    if [ ! -d $src ]; then
+        echo "$0:Error: source directory not found" 1>&2
+        exit 1
+    fi
+    
+    #   determine if one of the paths is an absolute path,
+    #   because then we have to use an absolute symlink
+    oneisabs=0
+    case $src in
+        /* ) oneisabs=1 ;;
+    esac
+    case $dst in
+        /* ) oneisabs=1 ;;
+    esac
+    
+    #   determine reverse directory for destination directory
+    dstrevdir=''
+    if [ $oneisabs = 0 ]; then
+        #   (inlined fp2rp)
+        OIFS="$IFS"; IFS='/'
+        for pe in $dst; do
+            dstrevdir="../$dstrevdir"
+        done
+        IFS="$OIFS"
+    else
+        src="`cd $src; pwd`";
+    fi
+    
+    #   create directory tree at destination
+    if [ ! -d $dst ]; then
+        mkdir $dst
+    fi
+    DIRS="`cd $src
+           find . -type d -print |\
+           sed -e '/\/CVS/d' \
+               -e '/^\.$/d' \
+               -e 's:^\./::'`"
+    OIFS="$IFS" IFS="$DIFS"
+    for dir in $DIRS; do
+        mkdir $dst/$dir
+    done
+    IFS="$OIFS"
+    
+    #   fill directory tree with symlinks to files
+    FILES="`cd $src
+            find . -depth -print |\
+            sed -e '/\.o$/d' \
+                -e '/\.a$/d' \
+                -e '/\.so$/d' \
+                -e '/\.so-o$/d' \
+                -e '/\.cvsignore$/d' \
+                -e '/\/CVS/d' \
+                -e '/\.indent\.pro$/d' \
+                -e '/\.apaci.*/d' \
+                -e '/Makefile$/d' \
+                -e '/\/\.#/d' \
+                -e '/\.orig$/d' \
+                -e 's/^\.\///'`"
+    OIFS="$IFS" IFS="$DIFS"
+    for file in $FILES; do
+         #  don't use `-type f' above for find because of symlinks
+         if [ -d $file ]; then
+             continue
+         fi
+         basename=`echo $file | sed -e 's:^.*/::'`
+         dir=`echo $file | sed -e 's:[^/]*$::' -e 's:/$::' -e 's:$:/:' -e 's:^/$::'`
+         from="$src/$file"
+         to="$dst/$dir$basename"
+         if [ $oneisabs = 0 ]; then
+             if [ ".$dir" != . ]; then
+                 subdir=`echo $dir | sed -e 's:/$::'`
+                 #   (inlined fp2rp)
+                 revdir=''
+                 OIFS2="$IFS"; IFS='/'
+                 for pe in $subdir; do
+                     revdir="../$revdir"
+                 done
+                 IFS="$OIFS2"
+                 #   finalize from
+                 from="$revdir$from"
+             fi
+             from="$dstrevdir$from"
+         fi
+         echo "    $to"
+         ln -s $from $to
+    done
+    IFS="$OIFS"
+;;
+
+fixperm )
+    for p in $*; do
+        for file in `find $p -depth -print`; do
+            if [ -f $file ]; then
+                if [ -x $file ]; then
+                    echo "    $file (FILE/EXEC)"
+                    chmod 775 $file
+                else
+                    echo "    $file (FILE/REGULAR)"
+                    chmod 664 $file
+                fi
+                continue
+            fi
+            if [ -d $file ]; then
+                echo "    $file (DIR)"
+                chmod 775 $file
+                continue
+            fi
+            echo "    $file (UNKNOWN)"
+        done
+    done
+;;
+
+guessos )
+    MACHINE=`(uname -m) 2>/dev/null` || MACHINE="unknown"
+    RELEASE=`(uname -r) 2>/dev/null` || RELEASE="unknown"
+     SYSTEM=`(uname -s) 2>/dev/null` ||  SYSTEM="unknown"
+    VERSION=`(uname -v) 2>/dev/null` || VERSION="unknown"
+    
+    XREL=`(uname -X) 2>/dev/null | grep "^Release" | awk '{print $3}'`
+    if [ "x$XREL" != "x" ]; then
+        if [ -f /etc/kconfig ]; then
+            case "$XREL" in
+                4.0|4.1) echo "${MACHINE}-whatever-isc4"; exit 0 ;;
+            esac
+        else
+        case "$XREL" in
+            3.2v4.2) 
+                echo "whatever-whatever-sco3"; exit 0 
+                ;;
+            3.2v5.0*) 
+                echo "whatever-whatever-sco5"; exit 0 
+                ;;
+            4.2MP)
+                if [ "x$VERSION" = "x2.1.1" ]; then
+                    echo "${MACHINE}-whatever-unixware211"; exit 0
+                elif [ "x$VERSION" = "x2.1.2" ]; then
+                    echo "${MACHINE}-whatever-unixware212"; exit 0
+                else
+                    echo "${MACHINE}-whatever-unixware2"; exit 0
+                fi
+                ;;
+            4.2) 
+                echo "whatever-whatever-unixware1"; exit 0 
+                ;;
+            5)
+                case "$VERSION" in
+                    7*) echo "${MACHINE}-whatever-unixware7"; exit 0 ;;
+                esac
+                ;;
+        esac
+        fi
+    fi
+    case "${SYSTEM}:${RELEASE}:${VERSION}:${MACHINE}" in
+        MiNT:*)
+            echo "m68k-atari-mint"; exit 0
+            ;;
+        A/UX:*)
+            echo "m68k-apple-aux3"; exit 0
+            ;;
+        AIX:*)
+            echo "${MACHINE}-ibm-aix${VERSION}.${RELEASE}"; exit 0
+            ;;
+        dgux:*)
+            echo "${MACHINE}-dg-dgux"; exit 0
+            ;;
+        HI-UX:*)
+            echo "${MACHINE}-hi-hiux"; exit 0
+            ;;
+        HP-UX:*)
+            HPUXVER=`echo ${RELEASE}|sed -e 's/[^.]*.[0B]*//'`
+            echo "${MACHINE}-hp-hpux${HPUXVER}"; exit 0
+            ;;
+        IRIX:*)
+            if [ -f /usr/lib32/mips4/libm.so ]; then
+                echo "${MACHINE}-sgi-irix32"; exit 0
+            else
+                echo "${MACHINE}-sgi-irix"; exit 0
+            fi
+            ;;
+        IRIX64:*)
+            echo "${MACHINE}-sgi-irix64"; exit 0
+            ;;
+        Linux:[2-9].*)
+            echo "${MACHINE}-whatever-linux2"; exit 0
+            ;;
+        Linux:1.*)
+            echo "${MACHINE}-whatever-linux1"; exit 0
+            ;;
+        LynxOS:*)
+            echo "${MACHINE}-lynx-lynxos"; exit 0
+            ;;
+        BSD/386:*:*:*486*|BSD/OS:*:*:*:*486*)
+            echo "i486-whatever-bsdi"; exit 0
+            ;;
+        BSD/386:*|BSD/OS:*)
+            echo "${MACHINE}-whatever-bsdi"; exit 0
+            ;;
+        FreeBSD:*)
+            VERS=`echo ${RELEASE} | sed -e 's/[-(].*//'`
+            MACH=`sysctl -n hw.model`
+            ARCH='whatever'
+            case ${MACH} in
+               *386*       ) MACH="i386"     ;;
+               *486*       ) MACH="i486"     ;;
+               Pentium\ II*) MACH="i686"     ;;
+               Pentium*    ) MACH="i586"     ;;
+               Alpha*      ) MACH="alpha"    ;;
+               *           ) MACH="$MACHINE" ;;
+            esac
+            case ${MACH} in
+               i[0-9]86 ) ARCH="pc" ;;
+            esac
+            echo "${MACH}-${ARCH}-freebsd${VERS}"; exit 0
+            ;;
+        NetBSD:*:*:*486*)
+            echo "i486-whatever-netbsd"; exit 0
+            ;;
+        NetBSD:*)
+            echo "${MACHINE}-whatever-netbsd"; exit 0
+            ;;
+        OpenBSD:*)
+            echo "${MACHINE}-whatever-openbsd"; exit 0
+            ;;
+        OSF1:*:*:*alpha*)
+            echo "${MACHINE}-dec-osf"; exit 0
+            ;;
+        QNX:*)
+            if [ "$VERSION" -gt 422 ]; then
+                echo "${MACHINE}-qssl-qnx32"
+            else
+                echo "${MACHINE}-qssl-qnx"
+            fi
+            exit 0
+            ;;
+        Paragon*:*:*:*)
+            echo "i860-intel-osf1"; exit 0
+            ;;
+        SunOS:5.*)
+            SOLVER=`echo ${RELEASE}|awk -F. '{
+            if (NF < 3)
+                printf "2%s0\n",$2
+            else
+                printf "2%s%s\n",$2,$3
+            }'`
+            echo "${MACHINE}-sun-solaris2.${SOLVER}"; exit 0
+            ;;
+        SunOS:*)
+            echo "${MACHINE}-sun-sunos4"; exit 0
+            ;;
+        UNIX_System_V:4.*:*)
+            echo "${MACHINE}-whatever-sysv4"; exit 0
+            ;;
+        unix:3.0.9*:*:88k)
+            echo "${MACHINE}-encore-sysv4"; exit 0
+            ;;
+        *:4*:R4*:m88k)
+            echo "${MACHINE}-whatever-sysv4"; exit 0
+            ;;
+        UnixWare:5:99*:*)
+            # Gemini, beta release of next rev of unixware
+            echo "${MACHINE}-whatever-unixware212"; exit 0
+            ;;
+        DYNIX/ptx:4*:*)
+            echo "${MACHINE}-whatever-sysv4"; exit 0
+            ;;
+        *:4.0:3.0:[345][0-9]?? | *:4.0:3.0:3[34]??[/,]* | library:*)
+            echo "x86-ncr-sysv4"; exit 0
+            ;;
+        ULTRIX:*)
+            echo "${MACHINE}-unknown-ultrix"; exit 0
+            ;;
+        SINIX-?:* | ReliantUNIX-?:*)
+            echo "${MACHINE}-siemens-sysv4"; exit 0
+            ;;
+        POSIX*BS2000)
+            echo "${MACHINE}-siemens-sysv4"; exit 0
+            ;;
+        machten:*)
+           echo "${MACHINE}-tenon-${SYSTEM}"; exit 0;
+           ;;
+        ConvexOS:*:11.*:*)
+           echo "${MACHINE}-v11-${SYSTEM}"; exit 0;
+           ;;
+        UNIX_SV:*:*:maxion)
+           echo "${MACHINE}-ccur-sysv4"; exit 0;
+           ;;
+        PowerMAX_OS:*:*:Night_Hawk)
+           MACHINE=`uname -p`
+           echo "${MACHINE}-concurrent-powermax"; exit 0;
+           ;;
+        UNIX_SV:*)
+           if [ -d /usr/nec ];then
+               echo "mips-nec-sysv4"; exit 0;
+           fi
+           ;;
+        NonStop-UX:4.[02]*:[BC]*:*)
+           echo "${MACHINE}-tandem-sysv4"; exit 0;
+           ;;
+        Rhapsody:*:*:*)
+           case "${MACHINE}" in
+               Power*) MACHINE=powerpc ;;
+           esac
+           echo "${MACHINE}-apple-rhapsody${RELEASE}"; exit 0
+           ;;
+        "RISC iX":*)
+           echo "arm-whatever-riscix"; exit 0;
+           ;;
+        *:4.0:2:*)
+           echo "whatever-unisys-sysv4"; exit 0;
+           ;;
+        *:*:dcosx:NILE*)
+           echo "pyramid-pyramid-svr4"; exit 0;
+           ;;
+        *:*:*:"DRS 6000")
+           echo "drs6000-whatever-whatever"; exit 0;
+           ;;
+    esac
+    # existance of the /usr/apollo directory is proof enough for Apollo
+    if [ -d /usr/apollo ]; then
+        echo "whatever-apollo-whatever"
+        exit 0
+    fi
+    # Now NeXT
+    ISNEXT=`hostinfo 2>/dev/null`
+    case "$ISNEXT" in
+        *NeXT*)
+             # Swiped from a friendly uname clone for NEXT/OPEN Step.
+             NEXTOSVER="`hostinfo | sed -n 's/.*NeXT Mach \([0-9\.]*\).*/\1/p'`"
+             if [ "$NEXTOSVER" -gt 3.3 ]; then
+                 NEXTOS="openstep"
+             else
+                 NEXTOS="nextstep"
+             fi
+             NEXTREL="`hostinfo | sed -n 's/.*NeXT Mach \([0-9\.]*\).*/\1/p'`" 
+             NEXTARCH=`arch`
+             echo "${NEXTARCH}-next-${NEXTOS}${NEXTREL}" ; exit 0
+             ;;
+    esac
+    
+    echo "${MACHINE}-whatever-${SYSTEM}|${RELEASE}|${VERSION}"
+;;
+
+arx )
+    #
+    #   command line parsing
+    #
+    verbose=no
+    while [ ".$1" != . ]; do
+        case $1 in
+            -v)  verbose=yes; shift; continue ;; 
+             *)  break ;;
+        esac
+    done
+    if [ $# -le 4 ]; then
+        echo "$0:Usage: arx [-v] <ar-prg> <ar-cmd> <archive> <file> [<file> ...]" 1>&2
+        exit 1
+    fi
+    ar_prg=$1;  shift
+    ar_cmd=$1;  shift
+    archive=$1; shift
+    files="$*"
+    
+    #
+    #   walk through the file list and expand archives members
+    #
+    tmpdir=`echo $archive | sed -e 's;[^/]*$;.arx;'`
+    nfiles=""
+    for file in $files; do
+        if [ ! -f $file ]; then
+            echo "$0:Error: input file not found: $file" 1>&2
+            exit 1
+        fi
+        case $file in
+            *.a ) 
+                if [ ! -d $tmpdir ]; then
+                    if [ $verbose = yes ]; then
+                        echo "mkdir $tmpdir"
+                    fi
+                    mkdir $tmpdir
+                fi
+                case $tmpdir in
+                     .arx ) 
+                         from="../$file"
+                         ;;
+                     * )
+                         dir=`echo $file | sed -e 's;[^/]*$;;' -e 's;\(.\)/$;\1;' -e 's;^$;.;'`
+                         base=`echo $file | sed -e 's;.*/\([^/]*\)$;\1;'`
+                         from="`cd $dir; pwd`/$base"
+                         ;;
+                esac
+                if [ $verbose = yes ]; then
+                    echo "(cd $tmpdir && $ar_prg x $from)"
+                fi
+                (cd $tmpdir && eval $ar_prg x $from)
+                if [ $? -ne 0 ]; then
+                    echo "$0:Error: member extraction failed for archive: $file" 1>&2
+                    exit 1
+                fi
+                for member in - `eval $ar_prg t $file`; do
+                    [ ".$member" = .- ] && continue
+                    nfiles="$nfiles $tmpdir/$member"
+                done
+                ;;
+            * )
+                nfiles="$nfiles $file"
+                ;;
+        esac
+    done
+    
+    #
+    #   run the final archive command
+    #
+    if [ $verbose = yes ]; then
+        echo "$ar_prg $ar_cmd $archive $nfiles"
+    fi
+    eval $ar_prg $ar_cmd $archive $nfiles
+    if [ $? -ne 0 ]; then
+        echo "$0:Error: archive command failed" 1>&2
+        exit $?
+    fi
+    
+    #
+    #   cleanup and die gracefully
+    #
+    if [ -d $tmpdir ]; then
+        if [ $verbose = yes ]; then
+            echo "rm -rf $tmpdir"
+        fi
+        rm -rf $tmpdir
+    fi
+    exit 0
+;;
+
+slo )
+    DIFS=' 	
+    '
+    
+    #   
+    #   parse out -L and -l options from command line
+    #
+    DIRS=''
+    LIBS=''
+    ARGV=''
+    optprev=""
+    OIFS="$IFS" IFS="$DIFS"
+    for opt
+    do
+        #   concatenate with previous option if exists
+        if [ ".$optprev" != . ]; then
+            opt="${optprev}${opt}";
+            optprev=''
+        fi
+        #   remember options for arg when used stand-alone
+        if [ ".$opt" = ".-L" -o ".$opt" = ".-l" ]; then
+            optprev="$opt"
+            continue;
+        fi
+        #   split argument into option plus option argument
+        arg="`echo $opt | cut -c3-`"
+        opt="`echo $opt | cut -c1-2`"
+        #   store into containers
+        case $opt in
+            -L) DIRS="$DIRS:$arg" ;;
+            -l) LIBS="$LIBS:$arg" ;;
+             *) ARGV="$ARGV $opt" ;;
+        esac
+    done
+    IFS="$OIFS"
+    
+    #
+    #   set linker default directories
+    #
+    DIRS_DEFAULT='/lib:/usr/lib'
+    if [ ".$LD_LIBRARY_PATH" != . ]; then
+        DIRS_DEFAULT="$DIRS_DEFAULT:$LD_LIBRARY_PATH"
+    fi
+    
+    #
+    #   sort options by class
+    #
+    DIRS_OBJ=''
+    LIBS_OBJ=''
+    DIRS_PIC=''
+    LIBS_PIC=''
+    DIRS_DSO=''
+    LIBS_DSO=''
+    
+    #    for each library...
+    OIFS="$IFS" IFS=':'
+    for lib in $LIBS; do
+        [ ".$lib" = . ] && continue
+    
+        found='no'
+        found_indefdir='no'
+        found_type=''
+        found_dir=''
+    
+        #    for each directory...
+        OIFS2="$IFS" IFS=":$DIFS"
+        for dir in ${DIRS} switch-to-defdirs ${DIRS_DEFAULT}; do
+            [ ".$dir" = . ] && continue
+            [ ".$dir" = .switch-to-defdirs ] && found_indefdir=yes
+            [ ! -d $dir ] && continue
+    
+            #    search the file
+            OIFS3="$IFS" IFS="$DIFS"
+            for file in '' `cd $dir && ls lib${lib}.* 2>/dev/null`; do
+                 [ ".$file" = . ] && continue
+                 case $file in
+                     *.so|*.so.[0-9]*|*.sl|*.sl.[0-9]* )
+                          found=yes;
+                          found_type=DSO; 
+                          break 
+                          ;;
+                     *.lo|*.la )
+                          found=yes;
+                          found_type=PIC 
+                          ;;
+                     *.a )
+                          if [ ".$found_type" = . ]; then
+                              found=yes
+                              found_type=OBJ 
+                          fi
+                          ;;
+                 esac
+            done
+            IFS="$OIFS3"
+            if [ ".$found" = .yes ]; then
+                found_dir="$dir"
+                break
+            fi
+        done
+        IFS="$OIFS2"
+    
+        if [ ".$found" = .yes ]; then
+            if [ ".$found_indefdir" != .yes ]; then
+                eval "dirlist=\"\${DIRS_${found_type}}:\""
+                if [ ".`echo \"$dirlist\" | fgrep :$found_dir:`" = . ]; then
+                    eval "DIRS_${found_type}=\"\$DIRS_${found_type}:${found_dir}\""
+                fi
+                eval "LIBS_${found_type}=\"\$LIBS_${found_type}:$lib\""
+            else
+                eval "LIBS_${found_type}=\"\$LIBS_${found_type}:$lib\""
+            fi
+        else
+            LIBS_OBJ="$LIBS_OBJ:$lib"
+            #dirlist="`echo $DIRS $DIRS_DEFAULT | sed -e 's/:/ /g'`"
+            #echo "slo:Warning: library \"$lib\" not found in any of the following dirs:" 2>&1
+            #echo "slo:Warning: $dirlist" 1>&1
+        fi
+    done
+    IFS="$OIFS"
+    
+    #
+    #   also pass-through unused dirs even if it's useless
+    #
+    OIFS="$IFS" IFS=':'
+    for dir in $DIRS; do
+        dirlist="${DIRS_OBJ}:${DIRS_PIC}:${DIRS_DSO}:"
+        if [ ".`echo \"$dirlist\" | fgrep :$dir:`" = . ]; then
+            DIRS_OBJ="$DIRS_OBJ:$dir"
+        fi
+    done
+    IFS="$OIFS"
+    
+    #
+    #   reassemble the options but seperated by type
+    #
+    OIFS="$IFS" IFS="$DIFS"
+    for type in OBJ PIC DSO; do
+        OIFS2="$IFS" IFS=':'
+        eval "libs=\"\$LIBS_${type}\""
+        opts=''
+        for lib in $libs; do
+            [ ".$lib" = . ] && continue
+            opts="$opts -l$lib"
+        done
+        eval "LIBS_${type}=\"$opts\""
+    
+        eval "dirs=\"\$DIRS_${type}\""
+        opts=''
+        for dir in $dirs; do
+            [ ".$dir" = . ] && continue
+            opts="$opts -L$dir"
+        done
+        eval "DIRS_${type}=\"$opts\""
+        IFS="$OIFS2"
+    done
+    IFS="$OIFS"
+    
+    #
+    #   give back results
+    #
+    OIFS="$IFS" IFS="$DIFS"
+    for var in ARGV DIRS_OBJ LIBS_OBJ DIRS_PIC LIBS_PIC DIRS_DSO LIBS_DSO; do
+        eval "val=\"\$${var}\""
+        val="`echo $val | sed -e 's/^ *//'`"
+        echo "SLO_${var}=\"${val}\""
+    done
+    IFS="$OIFS"
+;;
+
+version )
+    LANGUAGE=txt
+    NAME=unknown
+    PREFIX=unknown
+    FULLVERSION=unknown
+    REPORT=NO
+    INCREASE=P
+    USAGE=NO
+    FILE=""
+    while [ ".$1" != . ]; do
+        case $1 in
+            -l) LANGUAGE=$2; shift; shift; continue ;;
+            -n) NAME=$2; shift; shift; continue ;;
+            -p) PREFIX=$2; shift; shift; continue ;;
+            -s) FULLVERSION=$2; shift; shift; continue ;;
+            -i) INCREASE=$2; shift; shift; continue ;;
+            -d) REPORT=$2; shift; shift; continue ;;
+            -h) USAGE=YES; shift; continue ;;
+             *) break;
+        esac
+    done
+    if [ $# -ne 1 ]; then
+        USAGE=YES
+    else
+        FILE=$1
+    fi
+    
+    if [ ".$USAGE" = .YES ]; then
+        echo "$0:Usage: version [options] file"
+        echo "Options are:"
+        echo "-l <lang>                 set language to one of 'txt', 'c' or 'perl'" 
+        echo "-n <name>                 set program name"
+        echo "-p <prefix>               set symbol prefix"
+        echo "-s <v>.<r>[.pb]<p>        set version string"
+        echo "-i v|r|P|p|b|a|s          increase version, revision or {alpha,batch,patch,snap} level"
+        echo "-d short|long|libtool|hex display current version only"
+        echo "-h                        print this page"
+        exit 0
+    fi
+    
+    #   determine language
+    if [ ".$LANGUAGE" = .unknown ]; then
+        case $FILE in
+            *.txt )       LANGUAGE=txt  ;;
+            *.c )         LANGUAGE=c    ;;
+            *.pl | *.pm ) LANGUAGE=perl ;;
+            * )           echo "$0:Error: Unknown language type" 1>&2; exit 1 ;;
+        esac
+    fi
+    
+    #   determine prefix from name and vice versa
+    if [ ".$PREFIX" = . -o ".$PREFIX" = .unknown ]; then
+        if [ ".$NAME" != . -a ".$NAME" != .unknown ]; then
+            PREFIX="$NAME"
+        fi
+    fi
+    if [ ".$NAME" = . -o ".$NAME" = .unknown ]; then
+        if [ ".$PREFIX" != . -a ".$PREFIX" != .unknown ]; then
+            NAME="$PREFIX"
+        fi
+    fi
+    
+    #   determine version
+    date=unknown
+    if [ ".$FULLVERSION" = .unknown ]; then
+        if [ -r "$FILE" ]; then
+            #   grep out current information
+            id=`grep 'Version [0-9]*.[0-9]*[.abps][0-9]* ([0-9]*-[a-zA-Z]*-[0-9]*)' $FILE | \
+                head -1 | \
+                sed -e 's%.*Version \([0-9]*\)\.\([0-9]*\)\([.abps]\)\([0-9]*\) (\([0-9]*-[a-zA-Z]*-[0-9]*\)).*%\1:\2:\3:\4:\5%'`
+            version=`echo $id | awk -F: '{ print $1 }'`
+            revision=`echo $id | awk -F: '{ print $2 }'`
+            bptype=`echo $id | awk -F: '{ print $3 }'`
+            bplevel=`echo $id | awk -F: '{ print $4 }'`
+            date=`echo $id | awk -F: '{ print $5 }'`
+            if [ .$REPORT = .NO ]; then
+                case $INCREASE in
+                    b ) bplevel=`expr $bplevel + 1`
+                        bptype=b
+                        ;;
+                    a ) bplevel=`expr $bplevel + 1`
+                        bptype=a
+                        ;;
+                    s ) bplevel=`expr $bplevel + 1`
+                        bptype=s
+                        ;;
+                    P ) bplevel=`expr $bplevel + 1`
+                        bptype=.
+                        ;;
+                    p ) bplevel=`expr $bplevel + 1`
+                        bptype=p
+                        ;;
+                    r ) revision=`expr $revision + 1`
+                        bplevel=0
+                        ;;
+                    v ) version=`expr $version + 1`
+                        revision=0
+                        bplevel=0
+                        ;;
+                esac
+                date=calc
+            fi
+            FULLVERSION="$version.$revision$bptype$bplevel"
+        else
+            #   intialise to first version
+            version=0
+            revision=5
+            bptype=b
+            bplevel=0
+            date=calc
+        fi
+    else
+        #   take given version
+        V=`echo $FULLVERSION | sed -e 's%\([0-9]*\)\.\([0-9]*\)\([.abps]\)\([0-9]*\).*%\1:\2:\3:\4%'`
+        version=`echo $V | awk -F: '{ print $1 }'`
+        revision=`echo $V | awk -F: '{ print $2 }'`
+        bptype=`echo $V | awk -F: '{ print $3 }'`
+        bplevel=`echo $V | awk -F: '{ print $4 }'`
+        date=calc
+    fi
+    
+    #   determine hex value of version
+    case $FULLVERSION in
+        *.*a* )
+            HEX=`echo "$FULLVERSION" | sed -e 's/a.*//' | awk -F. '{ printf("%d%02d", $1, $2); }' &&
+                 echo "$FULLVERSION" | sed -e 's/.*a//' | awk '{ printf("0%02d", $1); }'`
+            ;;
+        *.*b* )
+            HEX=`echo "$FULLVERSION" | sed -e 's/b.*//' | awk -F. '{ printf("%d%02d", $1, $2); }' &&
+                 echo "$FULLVERSION" | sed -e 's/.*b//' | awk '{ printf("1%02d", $1); }'`
+            ;;
+        *.*.* )
+            HEX=`echo "$FULLVERSION" | awk -F. '{ printf("%d%02d2%02d", $1, $2, $3); }'`
+            ;;
+    esac
+    
+    #   determine libtool version
+    case $FULLVERSION in
+        *.*a* )
+            LTV=`echo "$FULLVERSION" | sed -e 's/a.*//' | awk -F. '{ printf("%d:0", $1*10+$2); }'`
+            ;;
+        *.*b* )
+            LTV=`echo "$FULLVERSION" | sed -e 's/b.*//' | awk -F. '{ printf("%d:0", $1*10+$2); }'`
+            ;;
+        *.*.* )
+            LTV=`echo "$FULLVERSION" | awk -F. '{ printf("%d:%d", $1*10+$2, $3); }'`
+            ;;
+    esac
+    
+    #   determine string out of filename
+    FILESTR=`echo "$FILE" | tr 'abcdefghijklmnopqrstuvwxyz./%+-' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ_____'`
+    
+    #   determine date
+    if [ ".$date" = .calc ]; then
+        day="`date '+%d' | awk '{ printf("%s", $1); }'`"
+        month="`date '+%m' | awk '{ printf("%s", $1); }'`"
+        year="`date '+%Y' 2>/dev/null | awk '{ printf("%s", $1); }'`"
+        if test ".$time_year" = .; then
+            year="`date '+%y' | awk '{ printf("%s", $1); }'`"
+            case $year in
+                9[0-9]*) year="19$year" ;;
+                      *) year="20$year" ;;
+            esac
+        fi
+        case $month in
+            1|01) month='Jan' ;;
+            2|02) month='Feb' ;;
+            3|03) month='Mar' ;;
+            4|04) month='Apr' ;;
+            5|05) month='May' ;;
+            6|06) month='Jun' ;;
+            7|07) month='Jul' ;;
+            8|08) month='Aug' ;;
+            9|09) month='Sep' ;;
+              10) month='Oct' ;;
+              11) month='Nov' ;;
+              12) month='Dec' ;;
+        esac
+        date="${day}-${month}-${year}"
+    fi
+    
+    if [ .$REPORT != .NO ]; then
+        case $REPORT in
+            long )
+                echo "$version.$revision$bptype$bplevel ($date)"
+                ;;
+            short )
+                echo "$version.$revision$bptype$bplevel"
+                ;;
+            libtool )
+                echo "$LTV"
+                ;;
+            hex )
+                echo "0x$HEX"
+                ;;
+        esac
+        exit 0
+    fi
+    
+    #   create the version file according the the selected language  
+    echo "new version: $version.$revision$bptype$bplevel ($date)"
+    tmpfile="version.tmp.$$"
+    rm -f $tmpfile >/dev/null 2>&1
+    case $LANGUAGE in
+        txt )
+            cat >$tmpfile <<'EOT'
+    
+  This is @NAME@ Version @VERSION@.@REVISION@@BPTYPE@@BPLEVEL@ (@DAY@-@MONTH@-@YEAR@)
+EOT
+            ;;
+        c )
+            cat >$tmpfile <<'EOT'
+/*
+**  @FILE@ -- Version File (automatically generated and maintained by shtool)
+*/
+
+#ifdef AS_HEADER
+
+#ifndef @FILESTR@
+#define @FILESTR@
+#define @PREFIX@_VERSION 0x@HEX@
+extern const int  @PREFIX@_Version;
+extern const char @PREFIX@_VersionStr[];
+extern const char @PREFIX@_Hello[];
+extern const char @PREFIX@_GNUVersion[];
+extern const char @PREFIX@_WhatID[];
+extern const char @PREFIX@_RCSIdentID[];
+extern const char @PREFIX@_WebID[];
+extern const char @PREFIX@_PlainID[];
+#endif
+
+#else
+
+const int  @PREFIX@_Version      = 0x@HEX@;
+const char @PREFIX@_VersionStr[] = "@VERSION@.@REVISION@@BPTYPE@@BPLEVEL@ (@DAY@-@MONTH@-@YEAR@)";
+const char @PREFIX@_Hello[]      = "This is @NAME@ Version @VERSION@.@REVISION@@BPTYPE@@BPLEVEL@ (@DAY@-@MONTH@-@YEAR@)";
+const char @PREFIX@_GNUVersion[] = "@NAME@ Version @VERSION@.@REVISION@@BPTYPE@@BPLEVEL@";
+const char @PREFIX@_WhatID[]     = "@(#)@NAME@ Version @VERSION@.@REVISION@@BPTYPE@@BPLEVEL@ (@DAY@-@MONTH@-@YEAR@)";
+const char @PREFIX@_RCSIdentID[] = "$Id$";
+const char @PREFIX@_WebID[]      = "@NAME@/@VERSION@.@REVISION@@BPTYPE@@BPLEVEL@";
+const char @PREFIX@_PlainID[]    = "@VERSION@.@REVISION@@BPTYPE@@BPLEVEL@";
+
+#endif
+EOT
+            ;;
+        perl )
+            cat >$tmpfile <<'EOT'
+##
+##  @FILE@ -- Version File (automatically generated and maintained by shtool)
+##
+
+$@PREFIX@_Version    = 0x@HEX@;
+$@PREFIX@_VersionStr = "@VERSION@.@REVISION@@BPTYPE@@BPLEVEL@ (@DAY@-@MONTH@-@YEAR@)";
+$@PREFIX@_Hello      = "This is @NAME@ Version @VERSION@.@REVISION@@BPTYPE@@BPLEVEL@ (@DAY@-@MONTH@-@YEAR@)";
+$@PREFIX@_GNUVersion = "@NAME@ Version @VERSION@.@REVISION@@BPTYPE@@BPLEVEL@";
+$@PREFIX@_WhatID     = "@(#)@NAME@ Version @VERSION@.@REVISION@@BPTYPE@@BPLEVEL@ (@DAY@-@MONTH@-@YEAR@)";
+$@PREFIX@_RCSIdentID = "\$Id$";
+$@PREFIX@_WebID      = "@NAME@/@VERSION@.@REVISION@@BPTYPE@@BPLEVEL@";
+$@PREFIX@_PlainID    = "@VERSION@.@REVISION@@BPTYPE@@BPLEVEL@";
+
+1;
+EOT
+            ;;
+    esac
+    
+    #   now create the version file
+    rm -f $FILE >/dev/null 2>&1
+    sed \
+        -e "s|@FILE@|$FILE|g" \
+        -e "s|@FILESTR@|$FILESTR|g" \
+        -e "s|@PREFIX@|$PREFIX|g" \
+        -e "s|@NAME@|$NAME|g" \
+        -e "s|@HEX@|$HEX|g" \
+        -e "s|@VERSION@|$version|g" \
+        -e "s|@REVISION@|$revision|g" \
+        -e "s|@BPTYPE@|$bptype|g" \
+        -e "s|@BPLEVEL@|$bplevel|g" \
+        -e "s|@YEAR@|$year|g" \
+        -e "s|@MONTH@|$month|g" \
+        -e "s|@DAY@|$day|g" <$tmpfile >$FILE
+    rm -f $tmpfile >/dev/null 2>&1
+    exit 0
+;;
+
+path )
+    #
+    #   parse argument line
+    #
+    silent=no
+    reverse=no
+    magic=no
+    dirname=no
+    basename=no
+    pathlist="$PATH"
+    namelist=""
+    tmpfile="path.tmp.$$"
+    while [ ".$1" != . ]; do
+        case $1 in
+            -s ) silent=yes   ; shift; continue ;;
+            -r ) reverse=yes  ; shift; continue ;;
+            -d ) dirname=yes  ; shift; continue ;;
+            -b ) basename=yes ; shift; continue ;;
+            -m ) magic=yes    ; shift; continue ;;
+            -p ) pathlist="$2"; shift; shift; continue ;;
+            *  ) break ;;
+        esac
+    done
+    if [ $# -eq 0 ]; then
+        echo "$0:Usage: path [-s] [-r] [-d] [-b] [-p <path>] <string> [<string> ...]" 1>&2
+        exit 1
+    fi
+    namelist="$*"
+    
+    #
+    #   check whether the test command supports the -x option
+    #
+    cat >$tmpfile <<EOT
+if [ -x / ] || [ -x /bin ] || [ -x /bin/ls ]; then
+    exit 0
+fi
+exit 1
+EOT
+    if sh $tmpfile 2>/dev/null; then
+        minusx="-x"
+    else
+        minusx="-r"
+    fi
+    rm -f $tmpfile
+    
+    #
+    #   split path string
+    #
+    paths="`echo $pathlist |\
+            sed -e 's/^:/.:/' \
+                -e 's/::/:.:/g' \
+                -e 's/:$/:./' \
+                -e 's/:/ /g'`"
+    
+    #
+    #   SPECIAL REQUEST
+    #   translate forward to reverse path
+    #
+    if [ $reverse = yes ]; then
+        if [ "x$namelist" = "x." ]; then
+            rp='.'
+        else
+            rp=''
+            for pe in `IFS="$IFS/"; echo $namelist`; do
+                rp="../$rp"
+            done
+        fi
+        echo $rp | sed -e 's:/$::'
+        exit 0
+    fi
+    
+    #
+    #   SPECIAL REQUEST
+    #   strip out directory or base name
+    #
+    if [ $dirname = yes ]; then
+        echo "$namelist" |\
+        sed -e 's;[^/]*$;;' -e 's;\(.\)/$;\1;'
+        exit 0
+    fi
+    if [ $basename = yes ]; then
+        echo "$namelist" |\
+        sed -e 's;.*/\([^/]*\)$;\1;'
+        exit 0
+    fi
+    
+    #
+    #   MAGIC SITUATION
+    #   Perl Interpreter (perl)
+    #
+    if [ ".$magic" = .yes ] && [ ".$namelist" = .perl ]; then
+        rm -f $tmpfile
+        touch $tmpfile
+        c=0
+        found=0
+        for dir in $paths; do
+            dir=`echo $dir | sed -e 's;/*$;;'`
+            for perl in perl5 perl miniperl; do
+                 if [ $minusx "$dir/$perl" ]; then
+                     perl="$dir/$perl"
+                     version=`$perl -v | grep version |\
+                              sed -e 's/.* version //' -e 's/ built.*//' -e 's/ with.*//'`
+                     versionnum="`echo $version | sed -e 's/\.//g' -e 's/_//g'`"
+                     versionnum=`expr $versionnum - $c`
+                     echo "$versionnum $perl" >>$tmpfile
+                     found=1
+                 fi
+            done
+            c=`expr $c + 1`
+        done
+        if [ $found = 1 ]; then
+            perl="`cat $tmpfile | sort -u | tail -1 | cut '-d ' -f2`"
+            rm -f $tmpfile
+            echo "$perl"
+            exit 0
+        fi
+        exit 1
+    fi
+    
+    #
+    #   MAGIC SITUATION
+    #   C pre-processor (cpp)
+    #
+    if [ ".$magic" = .yes ] && [ ".$namelist" = .cpp ]; then
+        cat >$tmpfile.c <<EOT
+#include <assert.h>
+    Syntax Error
+EOT
+        #   1. try the standard cc -E approach
+        cpp="${CC-cc} -E"
+        (eval "$cpp $tmpfile.c >/dev/null") 2>$tmpfile.out
+        my_error=`grep -v '^ *+' $tmpfile.out`
+        if [ ".$my_error" != . ]; then
+            #   2. try the cc -E approach and GCC's -traditional-ccp option
+            cpp="${CC-cc} -E -traditional-cpp"
+            (eval "$cpp $tmpfile.c >/dev/null") 2>$tmpfile.out
+            my_error=`grep -v '^ *+' $tmpfile.out`
+            if [ ".$my_error" != . ]; then
+                #   3. try a standalone cpp command in path and lib dirs
+                for path in $paths /lib /usr/lib /usr/local/lib; do
+                    path=`echo $path | sed -e 's;/*$;;'`
+                    if [ $minusx "$path/cpp" ] && [ ! -d "$path/cpp" ]; then
+                        cpp="$path/cpp"
+                        break
+                    fi
+                done
+                if [ ".$cpp" != . ]; then
+                    (eval "$cpp $tmpfile.c >/dev/null") 2>$tmpfile.out
+                    my_error=`grep -v '^ *+' $tmpfile.out`
+                    if [ ".$my_error" != . ]; then
+                        #   ok, we gave up...
+                        cpp=''
+                    fi
+                fi
+            fi
+        fi
+        rm -f $tmpfile.c $tmpfile.out
+        if [ ".$cpp" != . ]; then
+            echo "$cpp"
+            exit 0
+        fi
+        exit 1
+    fi
+    
+    #
+    #   STANDARD SITUATION
+    #   iterate over names
+    #
+    for name in $namelist; do
+        #   iterate over paths
+        for path in $paths; do
+            path=`echo $path | sed -e 's;/*$;;'`
+            if [ $minusx "$path/$name" ] && [ ! -d "$path/$name" ]; then
+                if [ "$silent" != "yes" ]; then
+                    echo "$path/$name"
+                fi
+                exit 0
+            fi
+        done
+    done
+    exit 1
+;;
+
+* )
+    echo "$0:Error: Unknown command" 2>&1
+    echo "$0:Hint:  Run 'shtool.gen -h' for usage" 2>&1
+    exit 1
+    ;;
+esac
+
+##EOF##
