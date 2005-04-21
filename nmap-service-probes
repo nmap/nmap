@@ -274,7 +274,8 @@ match imap m|^\* OK Domino IMAP4 Server Release (\d[-.\w]+) +ready| v/Lotus Domi
 match imap m|^\* OK Microsoft Exchange IMAP4rev1 server version ([-.\w]+) | v/Microsoft Exchange IMAP4rev1 server/$1//
 match imap m|^\* OK Microsoft Exchange 2000 IMAP4rev1 server version (\d[-.\w]+) \([-.\w]+\) ready\.\r\n| v/Microsoft Exchange 2000 IMAP4rev1 server/$1//
 match imap m|^\* OK \[CAPABILITY IMAP4REV1 .*IMAP4rev1 (200\d\.[-.\w]+) at| v/UW Imapd/$1//
-match imap m|^\* OK [-.\w]+ Cyrus IMAP4 v([-.\w]+) server ready\r\n| v/Cyrus IMAP4 server/$1//
+match imap m|^\* OK [-.\w]+ Cyrus IMAP4 v([-.\w\+]+) server ready\r\n| v/Cyrus IMAP4/$1//
+match imap m|^\* OK [-.\w]+ Cyrus IMAP4 Murder v([-.\w]+) server ready\r\n| v/Cyrus IMAP4 Murder/$1//
 match imap m|^\* OK Welcome to Binc IMAP v(\d[-.\w]+)| v/Binc IMAPd/$1//
 match imap m|^\* OK [-.\w]+ IMAP4rev1 AppleMailServer (\d[-.\w]+) ready\r\n| v/AppleMailServer imapd/$1//
 match imap m|^\* BYE Connection refused\r\n| v/Microsoft Exchange IMAP server//refused/
@@ -407,7 +408,8 @@ match pop3 m|^\+OK POP3 Ready <\d{3,6}\.1[012]\d{8}@[-.\w]+>\r\n| v|GNU mailutil
 # Solid POP3 Server 0.15 on Linux 2.4
 match pop3 m|^\+OK Solid POP3 server ready <\d{3,6}\.1[012]\d{8}@[-.\w]+>\r\n| v/Solid pop3d///
 # Cyrus POP3 v2.0.16
-match pop3 m|^\+OK [-.\w]+ Cyrus POP3 v(\d[-.\w]+) server ready\r\n| v/Cyrus pop3d/$1//
+match pop3 m|^\+OK [-.\w]+ Cyrus POP3 v(\d[-.\w\+]+) server ready ?\r\n| v/Cyrus POP3/$1//
+match pop3 m|^\+OK [-.\w]+ Cyrus POP3 Murder v(\d[-.\w\+]+) server ready ?\r\n| v/Cyrus POP3 Murder/$1//
 #  pop3d (GNU Mailutils 0.3) on Linux 2.4
 match pop3 m|^\+OK POP3 Ready <\d{3,6}\.1[012]\d{8}@\w+>\r\n| v/GNU Mailutils pop3d///
 # dovecot 0.99.10 on Linux 2.4
