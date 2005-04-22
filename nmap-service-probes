@@ -1280,7 +1280,7 @@ match imap m|^\* OK [-.+\w]+ IMAP4rev1 v1(\d[-.\w]+) server ready\r\n| v/UW-Imap
 # gnu/mailutils imap4d 0.3.2 on Linux
 match imap m|^\* OK IMAP4rev1\r\nGET BAD  Invalid command\r\n\* BAD  Null command\r\n$| v/GNU Mailutils imapd///
 # Cyrus IMAP 2.1.14
-match imaps m|^\* BYE Fatal error: tls_start_servertls\(\) failed\r\n$| v/Cyrus imapd///
+match ssl/imap m|^\* BYE Fatal error: tls_start_servertls\(\) failed\r\n$| v/Cyrus imapd///
 
 # Server: CUPS/1.1
 match ipp m|^HTTP/1\.0.*Server: CUPS/(\S+)|s v/CUPS $1///
@@ -1902,6 +1902,20 @@ Probe UDP xdmcp q|\0\x01\0\x02\0\x01\0\0|
 ports 177
 match xdmcp m/^\0\x01\0\x05..\0\0\0.(.+)\0.(.+)/ v/XDMCP/host $1 willing/Status: $2/
 match xdmcp m/^\0\x01\0\x06..\0.(.+)\0.(.+)/ v/XDMCP/host $1 unwilling/Status: $2/
+
+##############################NEXT PROBE##############################
+# AFS version probing
+Probe UDP AFSVersionRequest q|\0\0\x03\xe7\0\0\0\0\0\0\0\x65\0\0\0\0\0\0\0\0\x0d\x05\0\0\0\0\0\0\0\0\0\0|
+ports 7001
+# OpenAFS
+match afs m|^[\d\D]{28}\s*(OpenAFS)\s+([\d\.]+)\s+([^\0]+)\0| v/$1/$2/$3/
+match afs m|^[\d\D]{28}\s*(OpenAFS)\s+stable\s+([\d\.]+)\s+([^\0]+)\0| v/$1/$2/$3 stable/
+match afs m|^[\d\D]{28}\s*(OpenAFS)([\d\.]{3}[^\s\0]*)\s+([^\0]+)\0| v/$1/$2/$3/
+match afs m|^[\d\D]{28}\s*(OpenAFS)([\d\.]{3}[^\s\0]*)\0| v/$1/$2//
+# Transarc AFS
+match afs m|^[\d\D]{28}\s*Base\sconfiguration\safs([\d\.]+)\s+([^\s\0\;]+)[\0\;]| v/Transarc AFS/$1/$2/
+# Arla
+match afs m|^[\d\D]{28}\s*arla-([\d\.]+)\0| v/Arla/$1//
 
 
 
