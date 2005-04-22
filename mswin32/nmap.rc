@@ -54,8 +54,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,53,0,1
- PRODUCTVERSION 2,53,0,0
+ FILEVERSION 3,00,0,1
+ PRODUCTVERSION 3,00,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x21L
@@ -72,16 +72,16 @@ BEGIN
         BEGIN
             VALUE "Comments", "This build may not be equivalent to the official nMap 2.53\0"
             VALUE "CompanyName", "\0"
-            VALUE "FileDescription", "nMap ('nuff said)\0"
-            VALUE "FileVersion", "2.53\0"
-            VALUE "InternalName", "nMap\0"
-            VALUE "LegalCopyright", "Copyright (c) fyodor@insecure.org\0"
-            VALUE "LegalTrademarks", "\0"
-            VALUE "OriginalFilename", "nMap.exe\0"
+            VALUE "FileDescription", "nMap\0"
+            VALUE "FileVersion", "3.X\0"
+            VALUE "InternalName", "Nmap\0"
+            VALUE "LegalCopyright", "Copyright (c) Insecure.Com LLC (fyodor@insecure.org)\0"
+            VALUE "LegalTrademarks", "NMAP\0"
+            VALUE "OriginalFilename", "nmap.exe\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "nMap\0"
-            VALUE "ProductVersion", "2.53\0"
-            VALUE "SpecialBuild", "pre-merge beta\0"
+            VALUE "ProductName", "Nmap\0"
+            VALUE "ProductVersion", "3.X\0"
+            VALUE "SpecialBuild", "\0"
         END
     END
     BLOCK "VarFileInfo"
