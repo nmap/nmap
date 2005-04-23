@@ -341,7 +341,7 @@ match mysql m/^.\0\0\0\n(3\.[-.\w]+)\0...\0/s v/MySQL/$1//
 # r(NULL,2B,"'\0\0\0\n4.0.13\0\xdf\xbc\x02\0SC7)fHu5\0, \x08\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0")
 match mysql m/^.\0\0\0\n(4\.[-.\w]+)\0...\0/s v/MySQL/$1//
 
-match ncacn_http m|^ncacn_http/([\d.]+)$| v/ncacn_http/$1//
+match ncacn_http m|^ncacn_http/([\d.]+)$| v/Microsoft Windows RPC over HTTP/$1//
 # NCD Thinstar 300 running NCD Software 2.31 build 6
 match ncd-diag m|^WinCE/WBT Diagnostic port\n\rSerial Number: (\w+)  MAC Address: 0000(\w+)\s+.*CPU info: ([ -.+\w/ ]+)\r\n.*(Windows CE Kernel[-.+:\w ]+)\r|s v|NCD Thinster Terminal Diagnostic port||Serial# $1; MAC: $2; CPU: $3; $4|
 
@@ -842,6 +842,8 @@ match omapi m|^\0\0\0d\0\0\0\x18$| v/ISC (BIND|DHCPD) OMAPI///
 match svnserve m|^\(\x20success\x20\(\x201\x202\x20\(\x20ANONYMOUS\x20\)\x20\(\x20edit-pipeline\x20\)\x20\)\x20\)\x20$| v/Subversion///
 match icecreamd m|^[\x14-\x1f]\0\0\0$| v/icecreamd///
 
+match apc-agent m|^\xac\xed\0\x05$| v/APC PowerChute agent///
+
 ##############################NEXT PROBE##############################
 Probe TCP GenericLines q|\r\n\r\n|
 ports 21,23,43,98,110,113,199,505,540,628,1040,1248,1467,1501,2010,3333,5432,5555,6112,6667-6670,11965,30444
@@ -953,7 +955,7 @@ match zebedee m|^\x02\x01$| v/Zebedee encrypted tunnel///
 
 match bmc-perform-service m|^SDPACK$| v/BMC Perform Service Daemon///
 # Grisoft AVG antivirus server (distributing virus database updates)
-match http m|HTTP/1\.0 404 Not Found\r\nServer: GRISOFT-AVG TCP Server/(\d[-.\w ]+) .*\r\n| v/Grisoft AVG TCP Server/$1/antivirus updates/
+match http m|HTTP/1\.0 \d\d\d [\w ]+\r\nServer: GRISOFT-AVG TCP Server/(\d[-.\w]+) .*\r\n| v/Grisoft AVG TCP Server/$1//
 
 # Ubicom embedded ( http://www.ubicom.com/home.htm )
 match http m|^HTTP/1\.1 400 Bad Request\r\nCache-control: no-cache\r\nServer: Ubicom/(\d[-.\w ]+)\r\n| v/Ubicom embedded HTTP server/$1//
@@ -1213,9 +1215,9 @@ match http m|^HTTP/1.1 302 Document Follows\r\nLocation: /hag/pages/home.ssi\r\n
 match http m|^HTTP/1.0 200 OK\r\nServer:HTTP/1.0\r\n.*<title>Hewlett Packard</title>|s v/HP Jetdirect httpd///
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: EHTTP/([.\d]+)\r\nWWW-Authenticate: Basic realm=\"HP ([-.\w]+)\"\r\n| v/HP printer EHTTP admin server/$1/HP $2 printer/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Virata-EmWeb/([-.\w]+)\r\n.*\r\n\r\n\n<!--\nFile name: index\.html\n\nThis is the 'parent' file that calls the individual child frames\. \nThis is the file that is first accessed when the user types http://<ipaddress> \nin the browser toolbar\. \n\nThe UI Architecture consists of a total of 4 frames\. This file calls 3 high-level |s v/HP LaserJet printer webadmin//Virata-EmWeb embedded server $1/
-match http m|^HTTP/1\.0 \d{3}.*\r\nServer: CompaqHTTPServer/([\.\w]+)\r\n|s v/Compaq Insight Manager/$1//
+match http m|^HTTP/1\.0 \d{3} .*\r\nServer: CompaqHTTPServer/([.\w\d]+)\r\n|s v/Compaq Insight Manager HTTP server/$1//
 match http m|^HTTP/1\.1 401 Authorization Required\r\nWWW-Authenticate: Basic realm="Linksys ([-.A-Z\d/ ]+)"\r\n| v/Linksys router web admin server//device model $1/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Insight Manager (\d)\r\n\r\n|s v/Compaq Insite Manager/$1//
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Insight Manager (\d)\r\n\r\n|s v/Compaq Insight Manager/$1//
 match http m|^HTTP/1\.1 200 OK\r\nContent-Length: \d+\r\nConnection: close\r\nPragma: no-cache\r\nCache-Control: no-cache, no-store, must-revalidate\r\nExpires: 0\r\nContent-Type: text/html\r\n\r\n| v/GNU Httptunnel///
 # Blue Coat Port 80 Security Appliance Model: Blue Coat SG400 Software Version: SGOS 2.1.6044 Software Release id: 19480 Service Pack 4
 match http m|^HTTP/1\.0 301 Moved Permanently\r\nLocation: /Secure/Local/console/index\.htm\r\n\r\n$| v/Blue Coat Security Appliance HTTP admin interface///
@@ -1338,9 +1340,9 @@ match msdtc m|^...\0..$|s v/Microsoft Distributed Transaction Coordinator///
 match msdtc m|^ERROR\n$|s v/Microsoft Distributed Transaction Coordinator//error/
 
 # MLDonkey 2.5
-match napster m|^1INVALID REQUEST$| v/MLdonkey multi-network P2P client///
+match napster m|^1INVALID REQUEST$| v/MLDonkey multi-network P2P client///
 match napster m|^1$| v/Lopster Napster P2P client///
-
+match bittorent-tracker m|HTTP/1\.1 404 Not Found\r\nServer: MLdonkey\r\nConnection: close\r\nContent-Type: application/x-bittorrent\r\nContentlength: 0\r\n\r\n| v/MLDonkey multi-network P2P client///
 
 match netbios-ssn m/^\x83\0\0\x01\x82|\x8f$/
 match netwareip m|^\xfb\xff\xfe\xff\xfb\xff\xfe\xff\xfb\xff\xfe\xff$| v|Novell Netware/IP|||
@@ -1529,7 +1531,7 @@ match exec m|^\x01rexecd: [-\d]+ The login is not correct\.\n| v/AIX rexecd///
 match login m|^\x01Permission denied: Error 0$| v/Digital UNIX login///
 # RedHat 7.3 - Oracle TNS Listener Oracle 8.1.7
 # Oracle 8.1.6.1.0 on Linux 2.2.X
-match oracle-tns m|^\0\x1c\0\0\x04\x01\0\0\0X\0\0| v/Oracle Listener///
+match oracle-tns m|^\0\x1c\0\0\x04\x01\0\0\0X\0\0| v/Oracle TNS Listener///
 
 # OpenBSD 2.3
 # Solaris 9
@@ -1561,10 +1563,13 @@ match msrpc m|^\x04\x06\0\0\x10\0\0\0\0\0\0\0|
 # DNS Server status request: http://www.crynwr.com/crynwr/rfc1035/rfc1035.html
 ##############################NEXT PROBE##############################
 Probe TCP DNSStatusRequest q|\0\x0C\0\0\x10\0\0\0\0\0\0\0\0\0|
-ports 53,6050
+ports 53,6050,41523
 match domain m|^\0\x0C\0\0\x90\x04\0\0\0\0\0\0\0\0|
 # ARCserve Client Agent v4.0d for Solaris 2.x(Running on SunOS 5.8Generic_108528-13 sun4u)
 match arcserve m|^\0\0s\0\0\0\0\0$| v/ARCserve Client Agent//backup software/
+# ARCserver Client Agent Discovery service on W2K3
+match arcserve m|^([\w\d_-]+)\0$| v/ARCserve Discovery//host: $1/
+
 
 ##############################NEXT PROBE##############################
 Probe UDP NBTStat q|\x80\xf0\0\x10\0\x01\0\0\0\0\0\0\x20\x43\x4bAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0\x21\0\x01|
@@ -1627,6 +1632,7 @@ match nameserver m|^help\r\n\r\n\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0
 match nameserver m|^\x03\x03\x02$| v/Solaris Internet Name Server//IEN 116/
 match nameserver m|^\0\x06\x01\0\0\x01\0\0\x03\x03\x02$| v/Solaris Internet Name Server//IEN 116/
 
+match http m|^HTTP/1\.0 \d{3} .*\r\nServer: CompaqHTTPServer/([.\w\d]+)\r\n|s v/Compaq Insight Manager HTTP server/$1//
 
 ##############################NEXT PROBE##############################
 Probe TCP Help q|HELP\r\n|
@@ -1752,7 +1758,7 @@ match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0
 match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.[}2]\0\x01\0\x04A\0\0\0\0\x01\0\0\0\0\0\xfd[\xe3\xf3]\0\0|s v/Microsoft Windows 2000 microsoft-ds///
 # Microsoft Windows XP SP1
 # Windows 2000
-match msrpc m|^\x05\0\r\x03\x10\0\0\0\x18\0\0\0\0\x08\x01@\x04\0\x01\x05\0\0\0\0$| v/Microsoft Windows msrpc///
+match msrpc m|^\x05\0\r\x03\x10\0\0\0\x18\0\0\0\0\x08\x01@\x04\0\x01\x05\0\0\0\0$| v/Microsoft Windows RPC///
 # Windows 2000 Advanced Server c:\winnt\system32\Mstask.exe
 match mstask m|^\x05\0\r\x03\x10\0\0\0\x18\0\0\0\0\x08\x01@\x04\0\x01\x05\0...|s v/Microsoft mstask//task server - c:\winnt\system32\Mstask.exe/
 # Microsoft Windows 2000
@@ -1819,6 +1825,7 @@ match X11 m|^\0\0\0\x01\0\0\0\x0c\0\0\0\0$| v|HP MC/ServiceGuard|||
 match X11 m|^\x01\0\x0b\0\0\0%\0\0\x19\0\0\0\0\0\x01\xff\xff\?\0\0\x01\0\0\x12\0\xff\xff\x01\x02\0\0  \x08\xfe\xba\x1dF\0Labtam Europe Ltd\.\0\0\x01\x01| v/Labtam X-WinPro///
 match omninames m|^GIOP\x01\0\x01\x06\0\0\0\0$| v/omniORB omniNames//Corba naming service/
 
+match domain m|^\x80\xf0\x80\x12\0\x01\0\0\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01| v/Microsoft DNS///
 ##############################NEXT PROBE##############################
 # ftp://ftp.rfc-editor.org/in-notes/rfc1179.txt
 Probe TCP LPDString q|\x01default\n|
@@ -1839,7 +1846,7 @@ match printer m|^[-.\w]+: lpsched: unknown printer\n$| v/SGI IRIX lprsrv///
 ##############################NEXT PROBE##############################
 Probe TCP LDAPBindReq q|\x30\x0c\x02\x01\x01\x60\x07\x02\x01\x02\x04\0\x80\0|
 ports 256,257,389,3892
-sslports 636
+sslports 636,637
 
 match fw1-secureremote m|^[AQ]\0\0\0\0\0\0[^\0]| v/Checkpoint Firewall1 SecureRemote///
 match fw1-log m|^\0\0\0\t51000000\0\0\0\0[^\0]|  v/Checkpoint Firewall1 logging service///
@@ -1858,6 +1865,8 @@ match ldap m|^0\x84\0\0\0\x10\x02\x01\x01a\x84\0\0\0\x07\n\x01\0\x04\0\x04\0$| v
 match ldap m|^0\x17\x02\x01\x01a\x12\n\x01\0\x04\0\x04\x0bPGPError #0$| v/PGP Corp. PGP Keyserver///
 # OctetString VDE Enterprise Edition on Linux 2.4
 match ldap m|^0\x0e\x02\x01\x01a\t\n\x01\0\x04\0\x04\0\x87\0$| v/OctetString VDE directory service///
+# Lotus Notes 6.5.3 LDAP on W2K3, anonymous bind not allowed, port 637 (ssl)
+match ldap m|^0\.\x02\x01\x01a\)\n\x010\x04\0\x04\"Failed, anonymous bind not allowed$| v/Lotus Domino 6.x LDAP//access denied/
 
 ##############################NEXT PROBE##############################
 Probe TCP LANDesk-RC q|\x54\x4e\x4d\x50\x04\0\0\0\x54\x4e\x4d\x45\0\0\x04\0|
@@ -1914,6 +1923,11 @@ match distccd m|^DONE00000001STAT00000000SERR00000000SOUT00000000DOTO.*?GCC: ([^
 match distccd m|^DONE00000001.*?DOTO00| v/distccd/v1/unknown compiler/
 
 ##############################NEXT PROBE##############################
+Probe TCP JavaRMI q|\x4a\x52\x4d\x49\0\x02\x4b|
+
+match jrmi m|^N..[0-9.]+\0\0..$| v/Java RMI///
+
+##############################NEXT PROBE##############################
 Probe UDP Sqlping q|\x02|
 ports 1434
 match ms-sql-m m|^\x05..ServerName;([\w\-]+);InstanceName;[\w\-]+;IsClustered;\w{2,3};Version;([\d\.]+);np;.+;tcp;(\d{1,5});| v/Microsoft SQL Server/$2/ServerName: $1; TCPPort: $3/
@@ -1924,6 +1938,7 @@ Probe UDP NTPRequest q|\xe3\x00\x04\xfa\x00\x01\x00\x00\x00\x01\x00\x00\x00\x00\
 ports 123
 match ntp m|^\$[\x01-\x0f]..............................................$|s  v/NTP/v4//
 match ntp m|^\xe4\0..............................................$|s  v/NTP/v4/unsynchronized/
+match ntp m|^\x1c[\x01-\x0f]..............................................$|s v/NTP/v3//
 # Solaris Internet Name Server (42/udp), see ien116.txt
 match nameserver m|^help\r\n\r\n\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01| v/Solaris Internet Name Server//IEN 116/
 
@@ -1943,7 +1958,7 @@ match wms m|^\x01\0\0.\xce\xfa\x0b\xb0.\0\0\0MMS .\0{7}.{9}\0\0\0\x01\0\x04\0\0\
 ##############################NEXT PROBE##############################
 Probe TCP oracle-tns q|\0Z\0\0\x01\0\0\0\x016\x01,\0\0\x08\0\x7F\xFF\x7F\x08\0\0\0\x01\0 \0:\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\04\xE6\0\0\0\x01\0\0\0\0\0\0\0\0(CONNECT_DATA=(COMMAND=version))|
 ports 1521,1522,1525,1574
-match oracle-tns m|^\0.\0\0\x02\0\0\0.*TNSLSNR for ([-.+/ \w]{2,20}): Version ([-\d.]+) - Production|s v/Oracle DB Listener/$2 (for $1)//
+match oracle-tns m|^\0.\0\0\x02\0\0\0.*TNSLSNR for ([-.+/ \w]{2,20}): Version ([-\d.]+) - Production|s v/Oracle TNS Listener/$2 (for $1)//
 
 ##############################NEXT PROBE##############################
 Probe UDP xdmcp q|\0\x01\0\x02\0\x01\0\0|
@@ -1976,3 +1991,17 @@ match afs m|^[\d\D]{28}\s*arla-([\d\.]+)\0| v/Arla/$1//
 #Probe TCP WWWOFFLEctrlstat q|WWWOFFLE STATUS\r\n|
 #ports 8081
 #match http-proxy-ctrl m|^WWWOFFLE Server Status\n-*\nVersion *: (\d.*)\n| v/WWWOFFLE proxy control/$1//
+
+##########################################################################################################
+# Cross Match Verifier E TCP/IP fingerprint reader (http://www.crossmatch.com/products_singlescan_vE.html)
+# The device runs an embedded Linux
+#
+#Probe TCP Verifier q|Subscribe\n|
+#ports 1500
+#totalwaitms 11000
+#match crossmatchverifier m/^(Idle|Notify)\r\n$/ v/Cross Match Verifier E fingerprint control///
+#
+#Probe TCP VerifierAdvanced q|Query\n|
+#ports 1501
+#match crossmatchverifier m|^Settings\r\nGain\x20(\d+)\r\nContrast\x20(\d+)\r\nTime\x20(\d+)\r\nIllumination\x20(\d+)\r\nProcessed\r\n$|
+#v/Cross Match Verifier E fingerprint advanced control///
