@@ -16034,8 +16034,10 @@ PU(DF=Y%TOS=0%IPLEN=138%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 # Sun Solaris 9 Beta through Release on SPARC
 # solaris 9 i386
 # Solaris 9 4/04 version (SPARC)
-Fingerprint Sun Solaris 9
+# Solaris 10
+Fingerprint Sun Solaris 9 or 10
 Class Sun | Solaris | 9 | general purpose
+Class Sun | Solaris | 10 | general purpose
 TSeq(Class=RI%gcd=<6%SI=<A927C&>116A%IPID=I%TS=100HZ)
 T1(DF=Y%W=5B4|C0B7|807A%ACK=S++%Flags=AS%Ops=NNTMNW)
 T2(Resp=N)

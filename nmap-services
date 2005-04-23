@@ -991,6 +991,7 @@ acp               599/tcp    # Aeolon Core Protocol
 acp               599/udp    # Aeolon Core Protocol
 ipcserver         600/tcp    # Sun IPC server
 ipcserver         600/udp    # Sun IPC server
+mnotes            603/tcp    # CommonTime Mnotes PDA Synchronization
 urm               606/tcp    # Cray Unified Resource Manager
 urm               606/udp    # Cray Unified Resource Manager
 nqs               607/tcp    # 
@@ -1097,8 +1098,9 @@ hp-collector      781/tcp    # hp performance data collector
 hp-collector      781/udp    # hp performance data collector
 hp-managed-node   782/tcp    # hp performance data managed node
 hp-managed-node   782/udp    # hp performance data managed node
-hp-alarm-mgr      783/tcp    # hp performance data alarm manager
-hp-alarm-mgr      783/udp    # hp performance data alarm manager
+spamassassin      783/tcp    # Apache SpamAssassin spamd
+# hp-alarm-mgr      783/tcp    # hp performance data alarm manager
+# hp-alarm-mgr      783/udp    # hp performance data alarm manager
 concert           786/tcp    # 
 concert           786/udp    # 
 controlit         799/tcp    # Remotely possible
@@ -1154,6 +1156,8 @@ iad3              1032/tcp   # BBN IAD
 iad3              1032/udp   # BBN IAD
 netinfo           1033/tcp   # Netinfo is apparently on many OS X boxes.
 netsaint          1040/tcp   # Netsaint status daemon
+boinc-client      1043/tcp   # BOINC Client Control
+boinc-client      1043/udp   # BOINC Client Control
 java-or-OTGfileshare 1050/tcp # J2EE nameserver, also OTG, also called Disk/Application extender. Could also be MiniCommand backdoor OTGlicenseserv
 nim               1058/tcp   # 
 nim               1058/udp   # 

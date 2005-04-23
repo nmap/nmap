@@ -523,9 +523,10 @@ void log_write(int logt, const char *fmt, ...)
   bool buf_alloced = false;
   int rc = 0;
 
-  va_start(ap, fmt);
   if (l & LOG_STDOUT) {
+    va_start(ap, fmt);
     vfprintf(o.nmap_stdout, fmt, ap);
+    va_end(ap);
     l-=LOG_STDOUT;
   }
   if (l & LOG_SKID_NOXLT) { skid=0; l -= LOG_SKID_NOXLT; l |= LOG_SKID; }
@@ -534,7 +535,9 @@ void log_write(int logt, const char *fmt, ...)
     {
       if (!o.logfd[i] || !(l&1)) continue;
       while(1) {
+	va_start(ap, fmt);
 	rc = vsnprintf(buf,bufsz, fmt, ap);
+	va_end(ap);
 	if (rc >= 0 && rc < bufsz)
 	  break; // Successful
 	// D'oh!  Apparently not enough space - lets try a bigger buffer
@@ -545,7 +548,6 @@ void log_write(int logt, const char *fmt, ...)
       if (skid && ((1<<i)&LOG_SKID)) skid_output(buf);
       fwrite(buf,1,strlen(buf),o.logfd[i]);
     }
-  va_end(ap);
 
   if (buf_alloced)
     free(buf);

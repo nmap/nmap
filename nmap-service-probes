@@ -33,9 +33,10 @@
 # This is the NULL probe that just compares any banners given to us
 ##############################NEXT PROBE##############################
 Probe TCP NULL q||
-# Wait for at least 5 seconds for data.  Otherwise an Nmap default is used.
-totalwaitms 5000
-
+# Wait for at least 6 seconds for data.  It used to be 5, but some
+# smtp services have lately been instituting an artificial pause (see
+# FEATURE('greet_pause') in Sendmail, for example)
+totalwaitms 6000
 match acap m|^\* ACAP \(IMPLEMENTATION \"CommuniGate Pro ACAP (\d[-.\w]+)\"\) | v/CommuniGate Pro ACAP server//for mail client preference sharing/
 match aim m|^\*\x01..\0\x04\0\0\0\x01$|s v/Pyboticide AIM chat filter/// 
 # AMANDA index server 2.4.2p2 on Linux 2.4
@@ -128,6 +129,9 @@ match ftp m|^220 .* \(glftpd (\d[-.0-9a-zA-Z]+)_(\w+)(\+TLS)?\) ready\.\r\n| v/g
 match ftp m|^220 [-.\w]+ FTP server \(FirstClass v(\d[-.\w]+)\) ready\.\r\n| v/FirstClass FTP server/$1//
 match ftp m|^220 [-.\w]+ FTP server \(Compaq Tru64 UNIX Version (\d[-.\w]+)\) ready\.\r\n| v/Compaq Tru64 ftp server/$1//
 match ftp m|^220 AXIS ([-.\w]+) FTP Network Print Server V(\d[-.\w]+) [A-Z][a-z]| v/Axis network print server ftpd/$2/Model $1/
+match ftp m|^220 AXIS ([\d\w]+)V(\d\S+) (.*?) ready\.\n| v/AXIS $1 Webcam/$2/$3/
+match ftp m|^220 Axis (\d+) Network Camera (\d\S+) (.*?) ready\.\n| v/Axis $1 Webcam/$2/$3/
+match ftp m|^220 AXIS (\d+) Video Server (\d\S+) (.*?) ready\.| v/AXIS $1 Video Server/$2/$3/
 match ftp m|^220-Cerberus FTP Server Personal Edition\r\n220-UNREGISTERED\r\n| v/Cerberus FTP Server//Personal Edition; Unregistered/
 match ftp m|^220-GuildFTPd FTP Server \(c\) 2001\r\n220-Version (\d[-.\w]+)\r\n220 Please enter your name:\r\n| v/GuildFTPd/$1//
 match ftp m|^220 FTP print service:V-(\d[-.\w]+)/Use the network password for the ID if updating\.\r\n| v/Brother printer ftpd/$1//
@@ -214,6 +218,7 @@ match ftp-proxy m/^220-Sidewinder ftp proxy\.  You must login to the proxy first
 match ftp-proxy m/^220-\r\x0a220-Sidewinder ftp proxy/s v/Sidewinder FTP proxy///
 # TODO kerio?
 #match ftp m|^421 Service not available \(The FTP server is not responding\.\)\n$| v/unknown FTP server//service not responding/
+match vdr m|220 \S+ SVDRP VideoDiskRecorder (\d[^\;]+);| v/VDR/$1//
 
 softmatch ftp m/^220 [-.\w ]+ftp.*\r\n$/i
 softmatch ftp m/^220-[-.\w ]+ftp.*\r\n220/i
@@ -253,20 +258,8 @@ match imap m|^\* OK [-.\w]+ NetMail IMAP4 Agent server ready <.*>\r\n| v/Novell 
 match imap m|^\* OK [-.\w]+ IMAP4rev1 MDaemon (\d[-.\w]+) ready\r\n| v/Alt-N MDaemon imapd/$1//
 # Dovecot IMAP Server - http://dovecot.procontrol.fi/
 match imap m|^\* OK dovecot ready\.\r\n| v/Dovecot imapd///
-# courier-0.36.1
-match imap m|^\* OK Courier-IMAP ready\. Copyright 1998-2001 Double Precision, Inc\.  See COPYING for distribution information\.\r\n| v/Courier Imap/0.36 - 1.4//
-# Courier-Imap 1.4.3-2.3
-match imap m|^\* OK Courier-IMAP ready\. Copyright 1998-2002 Double Precision, Inc\.  See COPYING for distribution information\.\r\n| v/Courier Imap/1.4 - 2.3//
-# Courier Imap 1.7.0 on Linux
-# Courier IMAP server 1.6.2 on Linux
-match imap m|\* OK Courier-IMAP ready\. Copyright 1998-2003 Double Precision, Inc\.  See COPYING for distribution information\.\r\n| v/Courier Imap/1.6.X - 1.7.X//
-# Courier IMAP courier-imapd-0.42.0-1.7.3
-# Courier IMAP 1.7.2
-match imap m|^\* OK \[CAPABILITY IMAP4rev1 .*Courier-IMAP ready\. Copyright 1998-2003 Double Precision, Inc\.  See COPYING for distribution information\.\r\n| v/Courier IMAP4rev1/1.7.X//
-# courier-imap 2.0.0.20030809
-match imap m|^\* OK \[CAPABILITY IMAP4rev1\].*Courier-IMAP ready\. Copyright 1998-2003 Double Precision, Inc\.  See COPYING for distribution information\.\r\n| v/Courier IMAP4rev1/2.0.X//
-# Courier IMAP 1.7.2
-match imap m|\* OK \[CAPABILITY IMAP4rev1 CHILDREN NAMESPACE THREAD=ORDEREDSUBJECT THREAD=REFERENCES SORT QUOTA\] Courier-IMAP ready. Copyright 1998-2003 Double Precision, Inc.  See COPYING for distribution information.\r\n$| v/Courier IMAP4rev1/1.7.2//
+match imap m|^\* OK.*?Courier-IMAP ready\. Copyright 1998-(\d+) Double Precision, Inc\.  See COPYING for distribution information\.\r\n| v/Courier Imapd//released $1/
+match imap m|^\* OK \[CAPABILITY IMAP4rev1 .*?Courier-IMAP ready\. Copyright 1998-(\d+) Double Precision, Inc\.  See COPYING for distribution information\.\r\n| v/Courier IMAP4rev1 Imapd//released $1/
 match imap m|^\* OK CommuniGate Pro IMAP Server ([-.\w]+) at [-.\w]+ ready\r\n$| v/CommuniGate Pro imapd/$1//
 # W-Imapd-SSL v2001adebian-6
 match imap m|^\* OK \[CAPABILITY IMAP4REV1 X-NETSCAPE LOGIN-REFERRALS STARTTLS AUTH=LOGIN\] \S+ IMAP4rev1 ([-.\w]+) at| v/UW-Imapd-SSL/$1//
@@ -296,6 +289,8 @@ match irc m|^ERROR :Trying to reconnect too fast\.\r\n| v/Hybrid ircd///
 match irc m|^NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\nNOTICE AUTH :\*\*\* Checking Ident\r\nNOTICE AUTH :\*\*\* Found your hostname\r\nNOTICE AUTH :\*\*\* Got Ident response\r\n| v/Hybrid ircd///
 # dircproxy 1.0.3 on Linux 2.4.x
 match irc-proxy m|^:dircproxy NOTICE AUTH :Looking up your hostname\.\.\.\r\n:dircproxy NOTICE AUTH :Got your hostname\.\r\n| v/dircproxy///
+# dirkproxy (modificated dircproxy)
+match irc-proxy m|^:dirkproxy NOTICE AUTH :Looking up your hostname\.\.\.\r\n:dirkproxy NOTICE AUTH :Got your hostname\.\r\n| v/dirkproxy///
 # Unreal IRCD Server version 3.2 beta 17
 match irc m|^:[-.\w]+ NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\n| v/Unreal ircd///
 # dancer-ircd 1.0.31+maint8-1
@@ -346,10 +341,7 @@ match mysql m/^.\0\0\0\n(3\.[-.\w]+)\0...\0/s v/MySQL/$1//
 # r(NULL,2B,"'\0\0\0\n4.0.13\0\xdf\xbc\x02\0SC7)fHu5\0, \x08\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0")
 match mysql m/^.\0\0\0\n(4\.[-.\w]+)\0...\0/s v/MySQL/$1//
 
-# Hmmm ... http://seclists.org/lists/incidents/2002/Mar/0047.html
-# So "ncacn_http" may be used by multiple services.  I'll take this
-# one out for now.
-# match ncacn_http m|^ncacn_http/([\d.]+)$| v/ncacn_http/$1//
+match ncacn_http m|^ncacn_http/([\d.]+)$| v/ncacn_http/$1//
 # NCD Thinstar 300 running NCD Software 2.31 build 6
 match ncd-diag m|^WinCE/WBT Diagnostic port\n\rSerial Number: (\w+)  MAC Address: 0000(\w+)\s+.*CPU info: ([ -.+\w/ ]+)\r\n.*(Windows CE Kernel[-.+:\w ]+)\r|s v|NCD Thinster Terminal Diagnostic port||Serial# $1; MAC: $2; CPU: $3; $4|
 
@@ -360,6 +352,7 @@ match netstat m|^Active Internet connections \(servers and established\)\nProto 
 match netstat m|^netstat: invalid option -- f\nusage: netstat \[-veenNcCF\]| v/Linux netstat//broken/
 
 match nntp m|^nnrpd: invalid option -- S\nUsage error\.\n| v/INN NNTPd//broken/
+match nntp m|^502 You have no permission to talk\.  Goodbye.\r\n$| v/INN NNTPd//unauthorized/
 match nntp m|^200 [-.\w]+ NNTP Service Ready - ([-.\w]+@[-.\w]+) \(DIABLO (\d[-.\w ]+)\)\r\n| v/Diablo NNTP service/$2/Admin: $1/
 match nntp m|^200 NNTP Service (\d[-.\w ]+) Version: (\d[-.\w ]+) Posting Allowed \r\n| v/Microsoft NNTP Service/$2/posting ok/
 match nntp m|^200 [-.\w]+ DNEWS Version  (\d[-.\w]+).*posting OK \r\n| v/Netwinsite DNEWS/$1/posting OK/
@@ -516,6 +509,9 @@ match sftp m|^\+Shiva SFTP Service\0$| v/Shiva LanRover SFTP service///
 # HP-UX B.11.00 A 9000/785
 match shell m|^\x01remshd: getservbyname\n$| v/HP-UX Remshd///
 
+# good SMTP banner regexps can be found here:
+# http://www.tty1.net/smtp-survey/measurement_en.html
+
 match smtp m|^220 [-/.+\w]+ SMTP AnalogX Proxy (\d[-.\w]+) \(Release\) ready\r\n| v/AnalogX SMTP proxy/$1//
 
 match smtp m|^220 [-/.+\w]+ MailGate ready for ESMTP on | v/MailGate smtpd//Windows/
@@ -527,9 +523,11 @@ match smtp m|^220 [-.+\w]+ ESMTP NetIQ MailMarshal \(v(\d[-.\w]+)\) Ready\r\n| v
 # Dots in Revision to prevent MY CVS from screwing it up
 match smtp m|^220 [-.+\w]+ Novonyx SMTP ready \$Re..sion: ([\d.]+) \$\r\n| v|Novonyx Novell NetMail smtpd||Revision $1|
 match smtp m|^554-[-.+\w]+\.us\r\n554 Access denied\r\n$| v/IronPort appliance mail rejector///
-match smtp m|^220 eSafe@[-.+\w]+ Service ready\r\n| v/eSafe anti-virus mail gatewal///
-match smtp m|^220 [-.+\w]+ ESMTP Merak (\d[-.\w]+);| v/Merak Mail Server smtpd/$1/Windows/
-match smtp m|^220 MERCUR SMTP-Server \(v([^)]+)\) for ([-.\w ]+) ready at | v/LAN-ACES MERCUR smtp server/$1/$2/
+match smtp m|^220 eSafe@[-.+\w]+ Service ready\r\n| v/eSafe mail gateway///
+match smtp m|^220 .*?eSafe E?SMTP Service (\d\S+) ready| v/eSafe mail gateway/$1//
+match smtp m|^220 .*?eSafe E?SMTP Service ready| v/eSafe mail gateway///
+match smtp m|^220 \S+ ESMTP Merak (\d[^;]+);| v/Merak Mail Server smtpd/$1/Windows/
+match smtp m|^220.*?MERCUR SMTP[\s-]Server \(v([^)]+)\) for ([-.\w ]+) ready at | v/LAN-ACES MERCUR smtp server/$1/$2/
 match smtp m|^220 [-.+\w]+ MasqMail (\d[-.\w]+) ESMTP\r\n| v/MasqMail smtpd/$1//
 # Cisco NetWorks ESMTP server IOS (tm) 5300 Software (C5300-IS-M) on Cisco 5300 Access Server
 match smtp m|^220 [-.+\w]+ Cisco NetWorks ESMTP server\r\n| v/Cisco IOS NetWorks smtp server///
@@ -559,11 +557,11 @@ match smtp m/^220 X1 NT-ESMTP Server [-.+\w]+ \(IMail ([^)]+)\)\r\n/ v/IMail NT-
 match smtp m/^220-[-.+\w]+ Microsoft SMTP MAIL ready at.*Version: ([-\w.]+)\r\n/ v/Microsoft SMTP/$1//
 match smtp m/^220 [-.+\w]+ Microsoft ESMTP MAIL Service, Version: ([-\w.]+) ready/ v/Microsoft ESMTP/$1//
 match smtp m/^220 [-.+\w]+ ESMTP Server \(Microsoft Exchange Internet Mail Service ([-\w.]+)\) ready/ v/Microsoft Exchange/$1//
-match smtp m/^220 [-.+\w]+ ESMTP Sendmail (\d[^;]+);/ v/Sendmail/$1//
-match smtp m|^220 [-.+\w]+ SMTP Sendmail ([-/.+\w]+)\r\n| v/Sendmail/$1//
-match smtp m|^220 [-.+\w]+ Sendmail (SMI-\S+) ready at .*\r\n$| v/Sendmail/$1//
-match smtp m/^220[- ][^\r\n]+ ESMTP Exim (\d\S+)/ v/Exim smtpd/$1//
-match smtp m/Failed to open configuration file.*exim/ v/Exim smtpd///
+match smtp m|^220[\s-]\S+ E?SMTP Sendmail (\d[^; ]+)| v/Sendmail/$1//
+match smtp m|^220[\s-]\S+ Sendmail (SMI-\S+) ready at .*\r\n$| v/Sendmail/$1//
+match smtp m/^220[- ][^\r\n]+ ESMTP Exim (V?\d\S+)/ v/Exim smtpd/$1//
+match smtp m|^220 \S+ \S+ ESMTP receiver fssmtpd(\d+) ready| v/fssmtpd/$1//
+match smtp m/Failed to open configuration file.*exim/ v/Exim smtpd//broken/
 match smtp m/^220 CheckPoint FireWall-1 secure ESMTP server\r\n$/ v/Checkpoint FireWall-1 smtpd///
 match smtp m/^220 CheckPoint FireWall-1 secure SMTP server\r\n$/ v/Checkpoint FireWall-1 smtpd///
 match smtp m|^220 [-.+\w]+ running IBM AS/400 SMTP V([\w]+)| v|IBM AS/400 smtpd|$1||
@@ -577,13 +575,14 @@ match smtp m|^220-InterScan Version (\S+) .*Ready\r\n220 [-.+\w]+ NTMail \(v([-.
 match smtp m|^220 [-.\w]+ InterScan VirusWall NT ESMTP (\d[-.\w]+) \(build (\d+)\) ready at | v/Trend Micro InterScan VirusWall SMTP/$1 build $2//
 match smtp m|^220 [-.+\w]+ GroupWise Internet Agent (\S+) .*Novell, Inc\..*Ready\r\n| v/Novell GroupWise/$1//
 match smtp m|^220 Matrix SMTP Mail Server v([\w.]+) on <MATRIX_([\w]+)> Simple Mail Transfer Service Ready\r\n| v/Matrix SMTP Mail Server/$1/on Matrix $2/
-match smtp m|^220 Net_sec WebShield SMTP V(\S+) Network Associates, Inc\. Ready at| v/Network Associates WebShield/$1//
+match smtp m|^220 \S+ WebShield SMTP V(\d\S.*?) Network Associates, Inc\. Ready at| v/Network Associates WebShield/$1//
+match smtp m|^220 \S+ WebShielde250/SMTP Ready.| v/WebShielde250 smtpd///
 match smtp m|^220 [-.+\w]+ ESMTP MailMasher ready to boogie\r\n| v/MailMasher smtpd///
 # 220 example.com ESMTP Postfix (2.0.13) (Mandrake Linux)
 match smtp m|^220 [-.\w]+ ESMTP Postfix \(([-.\w]+)\) \(([-.\w ]+)\)| v/Postfix smtpd/$1/$2/
 # postfix 1.1.11-0.woody2
-match smtp m|^220 [-.\w]+ ESMTP Postfix| v/Postfix smtpd///
-match smtp m|^220 \*{10,40}\r\n| v|Cisco PIX sanatized smtpd|||
+match smtp m|^220[\s-]\S+ ESMTP Postfix| v/Postfix smtpd///
+match smtp m|^220 [\*\d\ ]{10,300}\r\n| v|Cisco PIX sanatized smtpd|||
 match smtp m|^220 ArGoSoft Mail Server Pro for WinNT/2000/XP, Version [-.\w]+ \(([-.\w]+)\)\r\n| v/ArGoSoft Mail Server Pro/$1//
 match smtp m|^220 [-.\w]+ ESMTP server \(Post.Office v([-.\w]+) release ([-.\w]+) ID# | v/Post.Office/$1 release $2//
 match smtp m|^220 [-.\w]+ ESMTP VisNetic.MailServer.v([-.\w]+); | v/VisNetic MailServer/$1//
@@ -596,13 +595,38 @@ match smtp m|^relaylock: Error: PRODUCT_ROOT_D not defined\nrelaylock: Error: PR
 match smtp m|^220 [-.\w]+ WebSTAR Mail Simple Mail Transfer Service Ready\r\n| v/WebSTAR SMTP server///
 match smtp m|^220 [-.\w]+ Lotus SMTP MTA Service Ready\r\n$| v/Lotus Notes SMTP///
 match smtp m|^220 [-.\w]+ SMTP NAVGW (\d[-.\w]+);| v/Norton Antivirus Gateway NAVGW/$1//
-match smtp m|^220 ([-.\w]+) Kerio MailServer (\d[-.\w]+) ESMTP ready\r\n$| v/Kerio MailServer/$1/$2/
-match smtp m|^220 YSmtp \S+ ESMTP service ready| v/Yahoo! MTA///
-match smtp m|^220 \S+ GMX Mailservices ESMTP| v/GMX MTA///
-match smtp m|214 2\.0\.0 http://www\.google\.com/search.*RFC\+2821\s*\r?\n| v/Google SMTP///
-match smtp m|^220 \S+ ESMTP MailMax (\d[-.\w\d]+)| v/MailMax/$1// 
-match smtp m|^220 Welcome to the INDY SMTP Server\r\n$| v/INDY smtpd/// 
-softmatch smtp m|^220 [-.\w ]+SMTP.*\r\n|
+match smtp m|^220 [-.\w]+ Kerio MailServer (\d[-.\w]+) ESMTP ready\r\n$| v/Kerio MailServer/$1//
+match smtp m|^220 YSmtp \S+ ESMTP service ready| v/Yahoo! smtpd///
+match smtp m|^220 Compuserve Office Mail Service \(lnxc-(\d+)\) ESMTP| v/Compuserve smtpd/$1//
+match smtp m|^220 \S+ GMX Mailservices ESMTP| v/GMX smtpd///
+match smtp m|^220 \S+ ESMTP MailMax (\d[-.\w\d]+)| v/MailMax smtpd/$1//
+match smtp m|^220 \S+ ESMTP WEB.DE V([^\s\;]+)| v/Web.de smtpd/$1//
+match smtp m|^220 Welcome to Nemesis ESMTP server on \S+| v/Nemesis smtpd///
+match smtp m|^220 Welcome to the INDY SMTP Server\r\n$| v/INDY smtpd///
+match smtp m|^220 Postini E?SMTP (\d+) [\w\d_\+-]+ ready| v/Postini smtpd/$1//
+match smtp m|^220 [\w\d-]+\.hotmail\.com Sending unsolicited commercial| v/Hotmail smtpd///
+match smtp m|^220[-\s]\S+ \(IntraStore TurboSendmail\) E?SMTP Service ready| v/TurboSendmail smtpd///
+match smtp m|^220[-\s]\S+ E?SMTP Mirapoint (\d[^\;]+);| v/Mirapoint smtpd/$1//
+match smtp m|^220[-\s]\S+ Trend Micro InterScan Messaging Security Suite, Version: (\d\S+) ready| v/Trend Micro InterScan smtpd/$1//
+match smtp m|^220[-\s]\S+.*?Server ESMTP \(iPlanet Messaging Server (\d[^\(\)]+)| v/Sun iPlanet smtdp/$1//
+match smtp m|^220[-\s]\S+ running Eudora Internet Mail Server X (\d\S+)| v/Eudora smtpd/$1//
+match smtp m|^220 \S+ - Maillennium E?SMTP| v/Maillennium smtpd///
+match smtp m|^220 \S+.*?SMTP \(Sun Internet Mail Server sims.(\d[^\)]+)\)| v/Sun sims smtpd/$1//
+match smtp m|^220 \S+ ESMTP qpsmtpd (\d\S+) ready;| v/qpsmtpd/$1//
+match smtp m|^220 \S+ ESMTP XWall v(\d\S+)| v/XWall smtpd/$1//
+match smtp m|^220 \S+ ESMTP Service \(Worldmail (\d[^\)]+)\) ready| v/Worldmail smtpd/$1//
+match smtp m|^220 \S+ eMail Sentinel (\d+) ESMTP Service ready| v/eMail Sentinel smtpd/$1//
+match smtp m|^220 \S+ ESMTP mxl_mta-(\d[^\;]+);| v/mxl smtpd/$1//
+match smtp m|^220 \S+ -- Server ESMTP \(SUN JES MTA 6\.x\)| v/SUN JES smtpd/6.x//
+match smtp m|^220 \S+ Service ready by DvISE PostMan \((\d+)\) ESMTP Server| v/DvISE PostMan smtpd/$1//
+match smtp m|^220 \S+ F-Secure Anti-Virus for Internet Mail ready| v/F-Secure AV SMTP Proxy///
+match smtp m|^220 \S+ Welcome to SpamFilter for ISP SMTP Server v(\d\S+)| v/LogSat SMTP Proxy/$1//
+match smtp m|^220-TrendMicro IMSS SMTP proxy\r\n| v/TrendMicro SMTP Proxy///
+match smtp m|^220 \S+ ESMTP server \(InterMail v(\S+)| v/InterMail smtpd/$1//
+match smtp m|^220 \S+ -- Server ESMTP \(Sun Java System Messaging Server (\d[^\(\)]+)| v/SUN JSMS smtpd/$1//
+match smtp m|^220 jMailer SMTP Server\r\n$| v/jMailer smtpd///
+
+softmatch smtp m|^220[\s-].*?E?SMTP[^\r]*\r\n|
 
 match snpp m|^220 [-.\w]+ SNPP server \(HylaFAX \(tm\) Version ([-.\w]+)\) ready.\r\n| v/HylaFAX SNPP/$1//
 match snpp m|^220 QuickPage v(\d[-.\w]+) SNPP server ready at | v/QuickPage SNPP/$1//
@@ -737,7 +761,7 @@ match telnet m/^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f.*User Access Ve
 # Cisco Pix 501 PIX IOS 6.3(1) telnet
 match telnet m/^\xff\xfb\x03\xff\xfb\x01\xff\xfb\x03\xff\xfb\x01.*\r\nUser Access Verification\r\n\r\nPassword: /s v/Cisco telnetd//IOS 6.X/
 # Cisco Catalyst 6509 - WS-C6509 Software, Version NmpSW: 5.5(1)
-match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\r\n\r\nCisco Systems Console\r\n\r\n\r\n\r\n\r\nEnter password: | v/Cisco Catalyst switch telnetd///
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\r\n\r\nCisco Systems Console\r\n| v/Cisco Catalyst switch telnetd///
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\n\r\nPassword required, but none set\r\n| v/Cisco router telnetd//password required but not set/
 match telnet m|^Access not permitted\. Closing connection\.\.\.\n$|s v/Cisco catalyst switch telnetd//access denied/
 match telnet m|^\xff\xfd\x18$| v/Cisco microswitch telnetd///
@@ -765,6 +789,13 @@ match telnet m|^\xff\xfd\x18\xff\xfb\x01\xff\xfe\x01Remote Management Console\r\
 # Note that openwall telnetd is derived from OpenBSD telnetd
 match telnet m|^\xff\xfd\x18\xff\xfd \xff\xfd#\xff\xfd'\xff\xfd\$$| v|Openwall GNU/*/Linux telnetd|||
 match telnet m|^\xff\xfc\x01\r\nHP JetDirect\r\n\r\nPlease type \"\?\" for HELP, or \"/\" for current settings\r\n> $| v/HP Jet Direct printer telnetd///
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\nAXIS (\S+) TELNET| v/AXIS Webcam/$1//
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\n\r\nTelebit\'s NetBlazer Version (\S+)\r\n| v/Telebit NetBlazer/$1//
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x03.*?FORE\x20Systems,\x20FORE\x20ES-2810.*?Version (\d[\d\.-]+)| v/FORE Systems ES-2810/$1//
+match telnet m|^\xff\xfb\x03\xff\xfb\x01.*ForeRunner ES-3810.*Enter Username: | v/FORE Systems ES-3810///
+match telnet m|^\xff\xfb\x01\r\nCopyright \(C\) 1999 by  Extreme Networks\r\r\n| v/Extreme Networks telnetd///
+match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03.*?ES-1000\x20Fast\x20Ethernet\x20Switch\x20Console| v/Marconi ES-1000///
+match telnet m|^\xff\xfb\x01login:\x20$| v/telnet//generic/
 
 # tinc 1.0.2-2 on Linux
 match tinc m|^0 \w+ 17\n| v/tinc vpn daemon///
@@ -807,6 +838,10 @@ match bpcd m|^gethostbyaddr: [\w ]+\n$| v/Veritas Netbackup//refused/
 # PostCast SMTP server 2.6.0 ( http://www.postcastserver.com/ )
 match smtp m|^220 PostCast SMTP server.*\r\n$| v/PostCast SMTP server///
 
+match omapi m|^\0\0\0d\0\0\0\x18$| v/ISC (BIND|DHCPD) OMAPI///
+match svnserve m|^\(\x20success\x20\(\x201\x202\x20\(\x20ANONYMOUS\x20\)\x20\(\x20edit-pipeline\x20\)\x20\)\x20\)\x20$| v/Subversion///
+match icecreamd m|^[\x14-\x1f]\0\0\0$| v/icecreamd///
+
 ##############################NEXT PROBE##############################
 Probe TCP GenericLines q|\r\n\r\n|
 ports 21,23,43,98,110,113,199,505,540,628,1040,1248,1467,1501,2010,3333,5432,5555,6112,6667-6670,11965,30444
@@ -834,7 +869,7 @@ match ftp m|^220 FTP server ready\.\r\n501 Command not supported\.\r\n$| v/D-Lin
 match ftp m|^220 [-.\w]+ FTP server ready\.\r\n530 Please login with USER and PASS\.\r\n530 Please login with USER and PASS\.\r\n$| v/Solaris ftpd///
 # vsftpd (Very Secure FTP Daemon) 1.0.0 on linux with custom ftpd_banner
 # We'll have to see if this match is unique enough
-match ftp m|^220 .*\r\n530 Please login with USER and PASS\.\r\n530 Please login with USER and PASS\.\r\n|s v/vsFTPd///
+match ftp m|^220 .*\r\n530 Please login with USER and PASS\.\r\n530 Please login with USER and PASS\.\r\n|s v/vsFTPd//customized banner/
 match ftp m|^220 [-.\w]+ FTP Server ready \.\.\.\r\n530 \r  : User not logged in\. Please login with USER and PASS first\.\r\n530 \r  : User not logged in\. Please login with USER and PASS first\.\r\n$| v/Bulletproof ftp server//Windows/
 # BulletProof FTP 2.21 on Windows 2000 Server
 match ftp m|^220 ftp\r\n$| v/Bulletproof ftp server//Windows/
@@ -923,6 +958,10 @@ match http m|HTTP/1\.0 404 Not Found\r\nServer: GRISOFT-AVG TCP Server/(\d[-.\w 
 # Ubicom embedded ( http://www.ubicom.com/home.htm )
 match http m|^HTTP/1\.1 400 Bad Request\r\nCache-control: no-cache\r\nServer: Ubicom/(\d[-.\w ]+)\r\n| v/Ubicom embedded HTTP server/$1//
 
+# wesnotd multiplayer network daemon (http://www.wesnoth.org/)
+match wesnotd m|^\0\0\0\x16\0\0\0\x1f\x02version\0\x040\..\..\0\0\x02mustlogin\0x05\x01\0| v/wesnotd///
+
+
 ##############################NEXT PROBE##############################
 Probe TCP GetRequest q|GET / HTTP/1.0\r\n\r\n|
 ports 70,79,80-85,88,113,139,143,280,497,515,540,554,631,783,993,995,1220,1503,2030,3052,3128,3372,3531,3689,5000,5432,5800,5900,6699,7070,8000-8010,8080-8085,8880-8888,9090,9999,10000,10005,11371,13722,15000,40193,4711
@@ -969,6 +1008,7 @@ match gnutella m|^HTTP/1\.[01] 404 Not Found\r\nServer: gtk-gnutella/(\d[-.\w]+)
 match gnutella m|^HTTP/1\.1 406 Not Acceptable\r\n$| v/LimeWire Gnutella P2P client///
 match gnutella m|^HTTP/1\.0 200\r\nServer: Mutella\r\n| v/Mutella Gnutella P2P client///
 match gnutella m|^HTTP/1\.1 404 Not Found\r\nServer: giFT-Gnutella/(\d[-.\w]+)\r\n| v/GiFT P2P client gnutella module/$1//
+match gnutella m|^HTTP/1\.1 200 OK\r\n.*\r\nServer: Shareaza (\d\S+)|s v/Shareaza/$1//
 match gopher m|^HTTP/1\.0 200 Ok\r\nMIME-Version: 1\.0\r\nServer: GopherWEB/(\d[-.\w]+)\r\n| v/Internet Gopher Server//Gopher+ protocol; GopherWeb $1/
 
 match http m|^HTTP/1\.0 401 Unauthorized\r\nPragma: no-cache\r\nContent-type: text/html\r\nWWW-Authenticate: Basic realm=\"Login to the Router Web Configurator\"\r\n\r\n<html>\n  <head>\n  <title>401 Unauthorized</title>\n  </head>\n<body>\n\n<div align=\"center\">| v/Draytek Vigor aDSL router webadmin///
@@ -1135,6 +1175,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServlet-Engine: Tomcat Web Server/(\d[-.\w]
 match 3dm-http m|^HTTP/1\.0 200 OK\r\nServer: 3ware/(\d[-.\w]+)\r\n.*<title>3ware 3DM - No remote access</title>|s v/3Ware 3DM Raid Daemon/$1/Access denied/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: publicfile| v/publicfile httpd///
 match http m|^HTTP/1\.[01].*Server: Apache/(\d+\.\d+\.[-.\w]+) ([^\r\n]+)|s v/Apache httpd/$1/$2/
+match http m|^HTTP/1\.[01].*Server: Apache/([\d\.-\w]+)\s*\r?\n|s v/Apache httpd/$1//
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Apache/(\d[-.\w]+)\r\n.*X-Powered-By: ([^\r\n]+)\r\n|s v/Apache httpd/$1/$2/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Apache/(\d[-.\w]+)\r\n|s v/Apache httpd/$1//
 # apache 1.3.26-0woody3 or Apache 2.0.45
@@ -1227,6 +1268,8 @@ match http m|^401 Access denied\r\nWWW-Authenticate: Negotiate \r\nContent-lengt
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: RomPager/([-.\w/ ]+)\r\n|s v/Embedded Allegro RomPager webserver/$1/ZyXEL ZyWALL 2/
 
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: IDSL MailGate (\d[-.\w]+)\r\n| v/MailGate web proxy/$1//
+match http m|^HTTP/1\.0 \d\d\d .*<TITLE>The AXIS 200 Home|s v/AXIS 200 Webcam///
+
 # While this response looks like a web admin port, I think the same port is used for the primary
 # proxy functionality.  This is version 3.0 final on Linux.
 match http-proxy m|^HTTP/1\.1 401 Unauthorized\r\nConnection: closed\r\nContent-Length: \d+\r\nWWW-Authenticate: Basic realm=\"WebWasher configuration\"\r\n| v/WebWasher filtering proxy///
@@ -1388,6 +1431,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nserver: BBC \d[-.\w]+; com\.hp\.openview\.C
 # Zero One Technology ( http://www.01tech.com/ ) print servers embedded HTTP service
 match http m|^HTTP/1\.\d\x20200\x20OK\r\nDate:\x20.*\r\nMIME-version:\x201\.\d\r\nServer:\x20ZOT-PS-(\d+)/(\d[-.\w]+)\r\n| v/Zero One Technology print server model $1 HTTP server/$2//
 
+match kmldonkey m|^HTTP/1\.1 400 Bad Request\r\nServer: KMLDonkey/(\d\S+)| v/KMLDonkey/$1//
 
 ##############################NEXT PROBE##############################
 Probe TCP RTSPRequest q|OPTIONS / RTSP/1.0\r\n\r\n|
@@ -1588,6 +1632,8 @@ match nameserver m|^\0\x06\x01\0\0\x01\0\0\x03\x03\x02$| v/Solaris Internet Name
 Probe TCP Help q|HELP\r\n|
 ports 1,7,21,25,79,113,2401,2627
 sslports 465
+totalwaitms 7500
+
 # CVSD (cvs chrooting service for pserver) cvsd 0.9.18
 # CVS 1.11.5 pserver
 match cvspserver m|^cvs \[pserver aborted\]: bad auth protocol start: HELP\r\n\n$| v/cvs pserver///
@@ -1628,34 +1674,29 @@ match ident m|^\d+, \d+ : USERID : UNIX : [-.@\w]+\r\n| v/Internet Rex identd///
 match smtp m|^220 [-.+\w]+ Generic SMTP handler\r\n214 Help not supported by this implementation\r\n$| v/Symantec Enterprise Firewall smtp proxy///
 # Lotus Notes Domino 6.1 smtp server on Win2K
 match smtp m|^220 Welcome to [-.+\w]+ ESMTP Server at .*\r\n214-Enter one of the following commands:\r\n214-HELO EHLO MAIL RCPT DATA RSET NOOP QUIT\r\n214 HELP VRFY EXPN STARTTLS \r\n$| v/Lotus Notes Domino smtpd///
-# Exim 3.33 on FreeBSD
-match smtp m|^220 ESMTP\r\n214-Commands supported:\r\n214-    HELO EHLO MAIL RCPT DATA ETRN\r\n214     NOOP QUIT RSET HELP \r\n$| v/Exim smtpd/3.33//
+match smtp m|^220.*?\n214-Commands supported:\r\n214-    HELO EHLO MAIL RCPT DATA(?: ETRN)?(?: AUTH)?\r\n214     NOOP QUIT RSET HELP \r\n$| v/Exim smtpd/3.X//
+match smtp m|^220.*?ESMTP.*\n214-Commands supported:\r\n214 AUTH (?:STARTTLS )?HELO EHLO MAIL RCPT DATA NOOP QUIT RSET HELP\r\n$| v/Exim smtpd/4.X//
 
-# Exim 4.22 with SSL compiled in (STARTTLS) custom banner (runtime configuration option) and VRFY and
-# EXPN also disabled in config file
-match stmp m|^220 [-/.+\w]+ ESMTP\r\n214-Commands supported:\r\n214 AUTH STARTTLS HELO EHLO MAIL RCPT DATA NOOP QUIT RSET HELP\r\n| v/Exim smtpd///
-# Exim 4.20 on Astaro Security Linux gateway/proxy/firewall/router.
-match smtp m|^220 [-.\w]+ ESMTP ready\.\r\n214-Commands supported:\r\n214 AUTH STARTTLS HELO EHLO MAIL RCPT DATA NOOP QUIT RSET HELP\r\n$| v/Exim smtpd/4.20//
-
-# Exim 4.0 with exiscan patch and banner removed - Linux 2.1.19 - 2.2.25
-match smtp m|^220 .*SMTP Ready\. Expected Helo with a valid domain\.\r\n214-Commands supported:\r\n214 AUTH HELO EHLO MAIL RCPT DATA NOOP QUIT RSET HELP\r\n| v/Exim smtpd/4.0//
-
-match smtp m|^220 .* ESMTP ?\r\n214[- ]qmail home page: http://pobox.com/~djb/qmail.html| v/qmail smtpd///
-match smtp m|^220 .* ESMTP ?\r\n214[- ]qmail home page: http://pobox\.com/~djb/qmail\.html\r\n214[- ]qmail-ldap patch home page: http://www\.nrg4u\.com\r\n| v/qmail-ldap smtpd///
-match smtp m|^220 [-.\w]+ ESMTP\r\n214 netqmail home page: http://qmail\.org/netqmail\r\n| v/netqmail smtpd/1.04//
+match smtp m|^220[\s-]\S+ ESMTP ?\r\n214[- ]qmail home page: http://pobox.com/~djb/qmail.html| v/qmail smtpd///
+match smtp m|^220[\s-]\S+ ESMTP ?\r\n214[- ]qmail home page: http://pobox\.com/~djb/qmail\.html\r\n214[- ]qmail-ldap patch home page: http://www\.nrg4u\.com\r\n| v/qmail-ldap smtpd///
+match smtp m|^220[\s-].*?ESMTP\r\n214 netqmail home page: http://qmail\.org/netqmail\r\n| v/netqmail smtpd/1.04//
 # VirusBuster MailShield for SMTP. Version 1.15.030 on Linux 2.4
 match smtp m|^220 [-.\w]+ SMTP version 1\.00;\r\n214 We strongly advise you to study of the RFC821\.\.\.\r\n$| v/VirusBuster MailShield for SMTP///
-# Postfix 1.1.11.0-woody3
-# Postfix 1.1.7-2
-match smtp m|^220 [-.\w]+ ESMTP Postfix\r\n$| v/Postfix smtpd/1.X//
 # Postfix 1.1.12, 1.1.13, 2.0.9, 2.0.16
 match smtp m|^220 .*\r\n502 Error: command not implemented\r\n$| v/Postfix smtpd///
 # Courier ESMTP courier-0.42.0-1.7.3
 match smtp m|^220 [-.\w]+ ESMTP\r\n502 ESMTP command error\r\n$| v/Courier smtpd///
-match smtp m|^220 [-.\w]+ ESMTP Sendmail ([^;]{3,50})| v/Sendmail smtpd/$1//
-match smtp m|^220 [-.\w]+ ESMTP Sendmail;| v/Sendmail smtpd///
-match smtp m|220.*214-2\.0\.0 This is sendmail version ([-+.\w]+)\r\n214-2\.0\.0 Topics:\r\n214-2\.0\.0|s v/Sendmail smtpd/$1//
+match smtp m|214-2\.0\.0 This is sendmail version (\S+)\r?\n214-2\.0\.0 Topics:|s v/Sendmail/$1//
+match smtp m|^220 \S+ E?SMTP Sendmail;| v/Sendmail///
 match smtp m|^220.* Sendmail (\d[-.\w]+) -- HELP not implemented\r\n|s v/Sendmail/$1//
+match smtp m|^220.*214-This is America Online mail version [vV](\S+)|s v/AOL smtpd/$1//
+match smtp m|^220.*214 2\.0\.0 http://www\.google\.com/search.*RFC\+2821\s*\r?\n|s v/Google smtpd///
+match smtp m|^220.*214 SMTP server comments and bug reports to: \<zmhacks\@nic.funet.fi\>|s v/ZMailer smtpd///
+match smtp m|^220.*500 MessageWall: Unrecognized command|s v/MessageWall SMTP proxy///
+match smtp m|^220.*500 Unknown or unimplemented command|s v/MIMEsweeper SMTP proxy///
+match smtp m|^220.*214 See http\:\/\/www\.messagelabs\.com\/support|s v/MessageLabs smtpd///
+match smtp m|^220 \S+ ESMTP Service\r\n502 5\.3\.0 Sendmail Xserve -- HELP not implemented\r\n$| v/Xserve smtpd///
+
 match tcpmux m|^(sgi_[-.\w]+\r\n([-.\w]+\r\n)*)$| v/SGI IRIX tcpmux//Available services: $SUBST(1, "\r\n", ",")/
 # Written in 1986.  More info at 
 # http://ftp.rge.com/pub/X/X11R5/contrib/xwebster.README
@@ -1864,6 +1905,13 @@ ports 1352
 # Lotus Server 6.0.1
 # Lotus Domino (r) Server (Release 6.0.1CF1 for Windows/32
 match lotusnotes m|^.\0\0\0.\0\0\0\x03\0\0@\x02\x0f\0.*\x03\0\0\0\0\x02\0/\0.\0\0\0\0\0\0\0@\x1f.*CN=([-.\w ]+)/O=([-.\w ]+)[^-.\w ]|s v/Lotus Domino server//CN=$1;Org=$2/
+
+##############################NEXT PROBE##############################
+Probe TCP DistCCD q|DIST00000001ARGC00000005ARGV00000002ccARGV00000002-cARGV00000006nmap.cARGV00000002-oARGV00000006nmap.oDOTI00000000|
+ports 3632
+
+match distccd m|^DONE00000001STAT00000000SERR00000000SOUT00000000DOTO.*?GCC: ([^\0]+)| v/distccd/v1/$1/
+match distccd m|^DONE00000001.*?DOTO00| v/distccd/v1/unknown compiler/
 
 ##############################NEXT PROBE##############################
 Probe UDP Sqlping q|\x02|

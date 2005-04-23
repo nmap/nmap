@@ -139,7 +139,7 @@ void nmapwin_list_interfaces();
 int if2nameindex(int ifi);
 #endif
 
-static PacketCounter PC;
+static PacketCounter PktCt;
 
 #ifndef WIN32 /* Already defined in wintcpip.c for now */
 void sethdrinclude(int sd) {
@@ -199,10 +199,10 @@ char *getFinalPacketStats(char *buf, int buflen) {
 #else
 	  "Raw packets sent: %llu (%s) | Rcvd: %llu (%s)",
 #endif
-	   PC.sendPackets,
-	   ll2shortascii(PC.sendBytes, sendbytesasc, sizeof(sendbytesasc)),
-	   PC.recvPackets,
-	   ll2shortascii(PC.recvBytes, recvbytesasc, sizeof(recvbytesasc)));
+	   PktCt.sendPackets,
+	   ll2shortascii(PktCt.sendBytes, sendbytesasc, sizeof(sendbytesasc)),
+	   PktCt.recvPackets,
+	   ll2shortascii(PktCt.recvBytes, recvbytesasc, sizeof(recvbytesasc)));
   return buf;
 }
 
@@ -217,11 +217,11 @@ void PacketTrace::trace(pdirection pdir, const u8 *packet, u32 len,
   struct timeval tv;
 
   if (pdir == SENT) {
-    PC.sendPackets++;
-    PC.sendBytes += len;
+    PktCt.sendPackets++;
+    PktCt.sendBytes += len;
   } else {
-    PC.recvPackets++;
-    PC.recvBytes += len;
+    PktCt.recvPackets++;
+    PktCt.recvBytes += len;
   }
 
   if (!o.packetTrace()) return;

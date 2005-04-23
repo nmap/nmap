@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$)
 
+o Fixed a crash problem related to non-portable varargs (vsnprintf)
+  usage. Reports of this crash came from Alan William Somers
+  (somers(a)its.caltech.edu) and Christophe (chris.branch(a)gmx.de).
+
 o Fixed the way tcp connect scan (-sT) respons to ICMP network
   unreachable responses (patch by Richard Moore
   (rich(a)westpoint.ltd.uk).
@@ -9,6 +13,36 @@ o Update random host scan (-iR) to support the latest IANA-allocated
 
 o Added some new RPC services to nmap-rpc thanks to a patch from
   vlad902 (vlad902(a)gmail.com).
+
+o Fixed Nmap compilation on Solaris x86 thanks to a patch from Simon
+  Burr (simes(a)bpfh.net).
+
+o Changed from CVS to Subversion source control system (which
+  rocks!). Neither repository is public (I'm paranoid because both CVS
+  and SVN have had remotely exploitable security holes), so the main
+  change users will see is that "Id" tags in file headers use the SVN
+  format for version numbering and such.
+
+o ultra_scan() now sets pseudo-random ACK values (rather than 0) for
+  any TCP scans in which the initial probe packet has the ACK flag set.
+  This would be the ACK, Xmas, Maimon, and Window scans.
+
+o Added a bunch of RPC numbers from nmap-rpc maintainer Eilon Gishri
+  (eilon(a)aristo.tau.ac.il)
+
+o Added a distcc probes and a bunch of smtp matches from Dirk Mueller
+  (mueller(a)kde.org) to nmap-service-probes.  Also added AFS version
+  probe and matches from Lionel Cons (lionel.cons(a)cern.ch)
+
+o Updated the Nmap version number, description, and similar fields
+  that MS Visual Studio places in the binary.  This was done by editing
+  mswin32/nmap.rc as suggested by Chris Paget (chrisp@ngssoftware.com)
+
+o Increased the buffer size allocated for fingerprints to prevent Nmap
+  from running out and quitting (error message: "Assertion
+  `servicefpalloc - servicefplen > 8' failed".  Thanks to Mike Hatz
+  (mhatz(a)blackcat.com) for the report. [ Actually this was done in a
+  previous version, but I forgot which one ]
 
 Nmap 3.81
 

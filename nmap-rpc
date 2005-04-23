@@ -65,7 +65,7 @@ sprayd          100012  spray
 rje_mapper      100014		# Remote job entry mapping service.
 selection_svc   100015  selnsvc
 database_svc    100016	dbsessionmgr unify netdbms dbms
-rexd            100017  rex
+rexd            100017	rex remote_exec
 alis            100018	alice office_auto
 sched           100019
 llockmgr        100020
@@ -138,13 +138,13 @@ amiserv		100146			# AMI Daemon
 amiaux		100147			# AMI Daemon
 ocfserv		100150			# OCF (Smart card) Daemon
 sunvts		100153
-smserverd	100155	rpc.smserverd
+smserverd	100155	rpc.smserverd	# support removable media devices 
 kcms_server	100221			# SunKCMS Profile Server
 nfs_acl		100227
 #
 # rpc.metad - SUNWmd - Sun Solstice DiskSuite
 #
-metad		100229	metad	rpc.metad
+metad		100229	metad	rpc.metad # METAD - SLVM metadb Daemon
 metamhd		100230	metamhd	rpc.metamhd
 #
 nfsauth		100231
@@ -162,13 +162,15 @@ nis_cache	100301
 nis_callback	100302
 nispasswd	100303	rpc.nispasswdd
 fnsypd          100304			# Federated Naming Service (FNS)
+
+# MDMN_COMMD
+mdcommd         100422			# SVM Multi Node Communication Daemon 
 stfsloader	100424			# Standard Type Services Framework (STSF) Font Server
 rpc.pts         105004  Protoserver	# Advanced Printing Software
 swu_svr		120100			# Software Usage Monitoring daemon 
 nf_snmd		120126			# SunNet Manager
 nf_snmd		120127
 pcnfsd		150001	pcnfs
-mapsvc		351455
 #
 # Pyramid
 #
@@ -202,6 +204,9 @@ Magfetch	200050	magfetch
 Optfetch	200051	optfetch
 Securitysrv	200052	securitysrv
 #
+bundle		200100 # Delay Tolerant Networking - DTN agent
+bundle_demux	200200 # Delay Tolerant Networking - DTN agent
+#
 # EcoTools daemons/programs
 #
 ecodisc		200201
@@ -210,8 +215,10 @@ eamon		200203
 ecoad		200205
 #
 # VERSANT
+# Operator Communications Software (OCS)
 #
 rpc.dbserv      211637  dbserv rpc.dbserv_dir
+rpc.taped       217843	taped  rpc.taped_dir
 rpc.taped       217854  taped  rpc.taped_dir
 #
 ADTFileLock     300001		# ADT file locking service.
@@ -224,12 +231,17 @@ fmeditor	300007				# FrameMaker Editor
 fmserver	300009	stdfm FrameServer	# FrameMaker Server
 #
 amd		300019	amq
+#
+Steering	300021		# Steering Library
+#
 rpc.ldmd	300029	ldm	# Unidata LDM
 #
 # DMFE/DAWS (Defense Automated Warning System)
 #
 UpdtAuditsS	300030	
 Dbpass		300091	dbpass
+#
+clms		300145		# CenterLine CodeCenter
 #
 # FrameMaker
 fm_flb		300214		# FrameMaker
@@ -256,7 +268,10 @@ mcserv		300516
 cluinfod	300527		# cluster information server (Digital UNIX)
 dmispd		300598		# Sun Solstice Enterprise DMI Service Provider
 prpasswd	300632
+ks		300664		# ACPLT/KS protocol
 sfs		344444		# SFS - Self-Certifying File System
+mapsvc		351455
+berkeleydb	351457		# Sleepycat Software: Berkeley DB
 prestoctl_svc	390100	presto	# Prestoserve control daemon
 #
 # Computer Associates
@@ -287,7 +302,7 @@ nsrnotd		390400		 # NetWorker notary service
 # Remedy AR System daemons
 #
 arserverd       390600  arserverd
-ntserverd       390601  ntserverd
+ntserverd       390601	ntserverd	# Remedy Notifier and AR Server 5.0
 ntclientd       390602  ntclientd
 aresclsrv       390603  aresclsrv
 arservtcd       390604  arservtcd
@@ -412,8 +427,12 @@ asedirector	395175  asedirector	# ASE Director Daemon
 aseagent	395176  aseagent	# ASE Agent Daemon
 asehsm		395177  asehsm		# Host Status Monitor Daemon
 aselogger	395179  aselogger	# Logger Daemon
+#
+pnictl		395250
 # BMC
 EnsignAgent	450000		# Ensign Agent
+#
+drac		900101		# Dynamic Relay Authorization Control
 #
 AdoIfServer 	1000002		# RHIC AdoIf Server (Accelerator Device Object)
 notifServer	2000004		# RHIC notifServer
@@ -567,6 +586,13 @@ ndbserver98	536871042
 ndbserver99	536871043
 ndbserver100	536871044
 #
+gnbk		536871680	# ACEDB genome database package
+#
+# Katie - Revision Control System
+#
+katie_mount	537208899
+katie_nfs	537208900	katie
+#
 fcagent		541414217	# SGI FibreVault Status/Configuration daemon
 #
 pnmd		591751041	# SunCluster - Public Network Management (PNM)
@@ -583,18 +609,39 @@ inetray         555555558
 inetray         555555559
 inetray         555555560
 #
-drac		900101		# Dynamic Relay Authorization Control
+# Keck Long Wavelength Spectrometer (LWS) related rpc daemons
+#
+collectd	600000001	collect		# IRE Computer
+xycomd		600000002	xycom		# IRE Computer
+motord		600000003	motor		# IRE Computer
+fitsd		600000004	fits writer	# Control Room computer
+#
 des_crypt	600100029	freebsd-crypt	# FreeBSD
 fypxfrd		600100069	freebsd-ypxfrd	# FreeBSD
 rdbx		611319808
 bminrd		630474513	# MacroModel - BatchMin Network Server
 bwnfsd          788585389	# (PC)NFS server by Beame & Whiteside, Inc.
 dmispd		805306368	# Sun Solstice Enterprise DMI Service Provider
+sql_disp	805310465	# GNU SQL Server
 rdict		805898569	# "Internetworking with TCP/IP Vol 3"
 piktc_svc	806422610	# PIKT: Problem Informant/Killer Tool 
+		822084608	# OLD - Inter-Language Unification (ILU)
+#
+# LIGO Global Diagnostics System (GDS) - Diagnostics Test Tool (DTT)
+#
+testpoint	822087681	# Test point server
+awg		822087682	# Arbitrary waveform generator
+cgdsrtdd	822087683	# Real-time data server
+gdsd		822087684	# Diagnostics message server
+chnconfd	822087685	# Channel database daemon for gds
+leapconfd	822087686	# Leap second information daemon
+# LIGO Global Diagnostics System (GDS) - Diagnostics Test Tool (DTT)
+rlaunchd	822087687	# Remote program launcher
+#
 cfsd		824395111
 cns		912680550	# Controls Name Server
 fmproduct	1073741824  _Frame_RPC		# FrameMaker
+gsql_trn	1073741840	# GNU SQL Server
 cfsd		1092830567
 rdb		1145324612	# Wind River Systems' VxWorks debug stub
 #

@@ -1700,6 +1700,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   int scanflags = 0;
   int decoy = 0;
   u32 seq = 0;
+  u32 ack = 0;
   u16 sport;
   u16 ipid = get_random_u16();
 
@@ -1733,10 +1734,13 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
     }
 
     seq = seq32_encode(USI, tryno, pingseq);
+    if (scanflags & TH_ACK)
+	  ack = rand();
+
     for(decoy = 0; decoy < o.numdecoys; decoy++) {
       packet = build_tcp_raw(&o.decoys[decoy], hss->target->v4hostip(), o.ttl, 
-			     ipid, sport, destport, seq, 0, scanflags, 0, NULL,
-			     0, o.extra_payload, o.extra_payload_length, 
+			     ipid, sport, destport, seq, ack, scanflags, 0, 
+			     NULL, 0, o.extra_payload, o.extra_payload_length, 
 			     &packetlen);
       if (decoy == o.decoyturn) {
 	probe->setIP(packet, packetlen);
