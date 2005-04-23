@@ -156,8 +156,10 @@ class TargetGroup {
   unsigned int current[4];
   u8 last[4];  
 
-  int ipsleft; /* Number of IPs left in this structure -- set to 0 if 
+/* Number of IPs left in this structure -- set to 0 if 
 		  the fields are not valid */
+  unsigned long ipsleft; 
+
 };
 
 class HostGroupState {

@@ -187,8 +187,8 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
     target_net = strtok(hostexp, "/");
     s = strtok(NULL, "");    /* find the end of the token from hostexp */
     netmask  = ( s ) ? atoi(s) : 32;
-    if ((int) netmask < 0 || netmask > 32) {
-      fprintf(stderr, "Illegal netmask value (%d), must be /0 - /32 .  Assuming /32 (one host)\n", netmask);
+    if ((int) netmask <= 0 || netmask > 32) {
+      fprintf(stderr, "Illegal netmask value (%d), must be /1 - /32 .  Assuming /32 (one host)\n", netmask);
       netmask = 32;
     }
     for(i=0; *(hostexp + i); i++) 
@@ -369,7 +369,7 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
   assert(sslen);
 
 
-  if (ipsleft <= 0)
+  if (ipsleft == 0)
     return -1;
   
   if (targets_type == IPV4_NETMASK) {
@@ -441,7 +441,6 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
 #endif // HAVE_IPV6
   }
   ipsleft--;
-  assert(ipsleft >= 0);
   
   /* If we are resuming from a previous scan, we have already finished
      scans up to o.resume_ip.  */
