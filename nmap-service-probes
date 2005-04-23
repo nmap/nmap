@@ -1364,7 +1364,7 @@ match rtsp m|^RTSP/1\.0 505 Protocol Version Not Supported\r\nDate: .*\r\nServer
 
 match slimp3 m|^GET %2f HTTP%2f1\.0\n$| v|SliMP3 MP3 player||http://www.slimdevices.com|
 # spamd 2.20-1woody
-match spamd m|^SPAMD/1\.0 76 Bad header line: GET / HTTP/1\.0\r\r\n| v/SpamAssassin spamd///
+match spamd m|^SPAMD/1\.0 76 Bad header line: GET / HTTP/1\.0\r\r?\n| v/SpamAssassin spamd///
 # Windows XP 8/2003
 match upnp m|^HTTP/1.1 400 Bad Request\r\n\r\n$| v/Microsoft Windows UPnP///
 match upnp m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nConnection: close\r\nServer: Microsoft-Windows-NT/(\d[-.\w]+) UPnP/(\d[-.\w]+) UPnP-Device-Host/(\d[-.\w]+)\r\n| v/Microsoft UPnP/$2/WindowsNT Vers: $1; UPnP Device Host: $3/
