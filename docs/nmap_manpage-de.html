@@ -867,7 +867,7 @@
        einer Option darstellt) wird als Ziel-Spezifikation angesehen. Die ein-
        fachste Form dessen, ist das Auflisten von einzelnen Hostnamen oder IP-
        Adressen in der Kommandozeile. Falls Sie ein Subnetz scannen wollen, so
-       koennen  Sie  <B>â€™/Maskeâ€™</B>  am  Hostnamen oder der IP-Adresse anfuegen. Die
+       koennen  Sie  â€<B>â</B>€™<B>/Maske</B>â€<B>â</B>€™  am  Hostnamen oder der IP-Adresse anfuegen. Die
        <B>Maske</B> muss einen Wert zwischen 0 (das ganze Internet  scannen)  und  32
        (den einzelnen Host scannen) aufweisen. Benutzen Sie /24 fuer das Scan-
        nen eines Klasse C-Netzwerks und /16 fuer ein Klasse B-Netzwerk.
@@ -928,7 +928,7 @@
        gemacht wurden. Das gleiche gilt fuer Cisco-, IRIX-, HP/UX-  und  BSDI-
        Maschinen.
 
-       <B>nmap</B> <B>-v</B> <B>--randomize_hosts</B> <B>-p</B> <B>80</B> <B>â€™*.*.2.3-5â€™</B>
+       <B>nmap</B> <B>-v</B> <B>--randomize_hosts</B> <B>-p</B> <B>80</B> â€<B>â</B>€™<B>*.*.2.3-5</B>â€<B>â</B>€™
 
        Manchmal  ist  es nicht erforderlich einen IP-Adressbereich zu scannen.
        So kann  es  durchaus  sein,  dass  in  einer  Situation  das  Absuchen
@@ -939,7 +939,7 @@
        wenn  bei  127  gestartet wird (IMHO). In diesem Fall koennen die durch
        die Sterne gegebenen Platzhalter durch â€™127-222â€™ ersetzt werden.
 
-       <B>host</B> <B>-l</B> <B>firma.com</B> <B>|</B> <B>cut</B> <B>â€™-d</B> <B>â€™</B> <B>-f</B> <B>4</B> <B>|</B> <B>./nmap</B> <B>-v</B> <B>-iL</B> <B>-</B>
+       <B>host</B> <B>-l</B> <B>firma.com</B> <B>|</B> <B>cut</B> â€<B>â</B>€™<B>-d</B> â€<B>â</B>€™ <B>-f</B> <B>4</B> <B>|</B> <B>./nmap</B> <B>-v</B> <B>-iL</B> <B>-</B>
 
        Fuehrt einen DNS-Zonetransfer durch, um saemtliche Hosts von  firma.com
        zu  finden.  Die  Ausgabe  der IP-Adressen wird sodann fuer die weitere

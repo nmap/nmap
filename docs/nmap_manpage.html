@@ -45,14 +45,20 @@
        The  result  of  running nmap is usually a list of interesting ports on
        the machine(s) being scanned (if any).  Nmap always  gives  the  port’s
        "well  known"  service name (if any), number, state, and protocol.  The
-       state is either "open", "filtered", or "unfiltered".  Open  means  that
-       the  target  machine  will accept() connections on that port.  Filtered
-       means that a firewall, filter, or other network  obstacle  is  covering
-       the port and preventing nmap from determining whether the port is open.
-       Unfiltered means that the port is known by nmap to  be  closed  and  no
-       firewall/filter  seems to be interfering with nmap’s attempts to deter-
-       mine this.  Unfiltered ports are the common case  and  are  only  shown
-       when most of the scanned ports are in the filtered state.
+       state is either "open", "closed"  "filtered",  or  "unfiltered".   Open
+       means  that  the target machine will accept() connections on that port.
+       Closed ports are not listening for connections (they have  no  applica-
+       tion associated with them).  Filtered means that a firewall, filter, or
+       other network obstacle is covering the port and  preventing  nmap  from
+       determining  whether  the port is open.  Unfiltered means that the port
+       is known by nmap to be closed and no firewall/filter seems to be inter-
+       fering  with  nmap’s  attempts to determine this.  Unfiltered ports are
+       the common case and are only shown when most of the scanned  ports  are
+       in  the filtered state.  In some cases, Nmap cannot distinguish between
+       filtered ports and those that are either open or closed.  For  example,
+       a port that does not respond to a FIN Scan could be either open or fil-
+       tered.   In  these  cases,  Nmap  lists  ports  as  "open|filtered"  or
+       "closed|filtered".
 
        Depending  on  options used, nmap may also report the following charac-
        teristics of the remote host: OS in use, TCP  sequentiality,  usernames
@@ -146,14 +152,14 @@
               sweep <B>without</B> doing any actual port scans.
 
        <B>-sV</B>    Version detection: After TCP and/or  UDP  ports  are  discovered
-              using   one   of  the  other  scan  methods,  version  detection
-              communicates with those ports to try and  determine  more  about
-              what  is actually running.  A file called nmap-service-probes is
-              used to determine the best probes for detecting various services
-              and  the  match  strings to expect.  Nmap tries to determine the
-              service protocol (e.g. ftp, ssh, telnet, http), the  application
-              name (e.g. ISC Bind, Apache httpd, Solaris telnetd), the version
-              number, and sometimes miscellaneous details like  whether  an  X
+              using  one of the other scan methods, version detection communi-
+              cates with those ports to try and determine more about  what  is
+              actually  running.  A file called nmap-service-probes is used to
+              determine the best probes for detecting various services and the
+              match  strings  to  expect.  Nmap tries to determine the service
+              protocol (e.g. ftp, ssh, telnet,  http),  the  application  name
+              (e.g. ISC Bind, Apache httpd, Solaris telnetd), the version num-
+              ber, and sometimes  miscellaneous  details  like  whether  an  X
               server  is open to connections or the SSH protocol version).  If
               Nmap was compiled with OpenSSL support, it will connect  to  SSL
               servers  to  deduce the service listening behind the encryption.

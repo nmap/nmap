@@ -10,6 +10,24 @@ o Fixed a crash problem related to non-portable varargs (vsnprintf)
   usage. Reports of this crash came from Alan William Somers
   (somers(a)its.caltech.edu) and Christophe (chris.branch(a)gmx.de).
 
+o Nmap distribution signing has changed. Release files are now signed
+  with a new Nmap Project GPG key (KeyID 6B9355D0).  Fyodor has also
+  generated a new key for himself (KeyID 33599B5F).  The Nmap key has
+  been signed by Fyodor's new key, which has been signed by Fyodor's
+  old key so that you know they are legit.  The new keys are available
+  at http://www.insecure.org/nmap/data/nmap_gpgkeys.txt , as
+  docs/nmap_gpgkeys.txt in the Nmap source tarball, and on the public
+  keyserver network.  Here are the fingerprints:
+    pub  1024D/33599B5F 2005-04-24
+         Key fingerprint = BB61 D057 C0D7 DCEF E730  996C 1AF6 EC50 3359 9B5F
+    uid  Fyodor <fyodor@insecure.org>
+    sub  2048g/D3C2241C 2005-04-24
+
+    pub  1024D/6B9355D0 2005-04-24
+         Key fingerprint = 436D 66AB 9A79 8425 FDA0  E3F8 01AF 9F03 6B93 55D0
+    uid  Nmap Project Signing Key (http://www.insecure.org/)
+    sub  2048g/A50A6A94 2005-04-24
+
 o Update random host scan (-iR) to support the latest IANA-allocated
   ranges, thanks to patch by Chad Loder (cloder(a)loder.us).
 

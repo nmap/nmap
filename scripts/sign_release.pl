@@ -30,13 +30,13 @@ foreach $file (readdir DISTDIR) {
 	my $sigfile = "$distdir/sigs/$file.gpg.txt";
 	my $digfile = "$distdir/sigs/$file.digest.txt";
 	if (!-f $sigfile) {
-	    my $command = "gpg --detach-sign --armor -o $sigfile $distdir/$file; chmod 644 $sigfile";
+	    my $command = "gpg --detach-sign -u 6B9355D0 --armor -o $sigfile $distdir/$file; chmod 644 $sigfile";
 	    print "Running: $command\n";
 	    system($command);
 	}
 
 	if (!-f $digfile) {
-	    my $command = "cd $distdir && gpg --print-md \\* $file > $digfile; chmod 644 $digfile";
+	    my $command = "cd $distdir && gpg --print-mds $file > $digfile; chmod 644 $digfile";
 	    print "Running: $command\n";
 	    system($command);		
 	}
