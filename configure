@@ -8999,3 +8999,8 @@ echo "$as_me: error: $ac_sub_configure failed for $ac_dir" >&2;}
   done
 fi
 
+# Krad ASCII ART#!#@$!@#$
+if test -f docs/leet-nmap-ascii-art.txt; then
+	cat docs/leet-nmap-ascii-art.txt
+fi
+echo "Configuration complete.  Type make to compile."

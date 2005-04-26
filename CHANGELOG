@@ -72,6 +72,10 @@ o Changed from CVS to Subversion source control system (which
   change users will see is that "Id" tags in file headers use the SVN
   format for version numbering and such.
 
+o Added 'leet ASCII art to the confugrator!  ARTIST NOTE: If you
+  think the ASCII art sucks, feel free to send me alternatives.  Note
+  that only people compiling the UNIX source code get the ASCII art.
+
 Nmap 3.81
 
 o Nmap now ships with and installs (in the same directory as other

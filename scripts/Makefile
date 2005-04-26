@@ -27,7 +27,7 @@ web:
 	test x$(wroot) != x
 	cd ../docs && cp -a nmap_gpgkeys.txt nmap_manpage*.html nmap*.1 \
                             xnmap.1 nmap.usage.txt nmap.dtd nmap.xsl \
-                            $(wroot)/nmap/data/
+                            leet-nmap-ascii-art.txt $(wroot)/nmap/data/
 	./sort-prints.pl ../nmap-os-fingerprints > nos && mv nos ../nmap-os-fingerprints
 	./produceosclasschoosebox.pl ../nmap-os-fingerprints > $(wroot)/nmap/data/os-classes.txt
 	cd .. && cp -a CHANGELOG HACKING COPYING COPYING.OpenSSL INSTALL \
@@ -122,8 +122,7 @@ distro:
                     nmap.1 nmapfe.1 nmap_french.1 nmap_german.1 \
                     nmap_italian.1 nmap_lithuanian.1 nmap_portuguese.1 \
                     nmap_spanish.1 nmap_russian.1 xnmap.1 nmap.dtd nmap.xsl \
-                    /usr/tmp/nmap-$(NMAP_VERSION)/docs
-
+                    leet-nmap-ascii-art.txt /usr/tmp/nmap-$(NMAP_VERSION)/docs
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/nmapfe
 	cd ../nmapfe; cp -ra Makefile.in aclocal.m4 configure configure.ac \
 	              nmapfe.c nmapfe.h nmapfe_sig.c nmapfe_sig.h \

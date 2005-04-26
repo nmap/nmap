@@ -714,3 +714,8 @@ dnl    AC_CONFIG_SUBDIRS( $libpcapdir )
 dnl fi
 
 AC_OUTPUT(Makefile)
+# Krad ASCII ART#!#@$!@#$
+if test -f docs/leet-nmap-ascii-art.txt; then
+	cat docs/leet-nmap-ascii-art.txt
+fi
+echo "Configuration complete.  Type make to compile."

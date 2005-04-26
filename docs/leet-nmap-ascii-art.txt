@@ -5,10 +5,10 @@
 - .-               \+  ;          (  O                           \____
                           )        \_____________  `              \  /
 (__                +- .( -'.- <. - _  VVVVVVV VV V\                 \/
-(_____            ._._: <_ - <- _  (--  _AAAAAAA__A_/                  |
+(_____            ._._: <_ - <- _  (--  _AAAAAAA__A_/                |
   .    /./.+-  . .- /  +--  - .     \______________//_              \_______
   (__ ' /x  / x _/ (                                  \___'          \     /
  , x / ( '  . / .  /                                      |           \   /
     /  /  _/ /    +                                      /              \/
-   '  (__/                                             / (author unknown) \
+   '  (__/                                             / (artist unknown) \
              NMAP IS A POWERFUL TOOL -- USE CAREFULLY AND REPONSIBLY
