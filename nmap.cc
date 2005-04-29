@@ -601,6 +601,8 @@ int nmap_main(int argc, char *argv[]) {
 	o.pingtype |= PINGTYPE_ICMP_TS;
       else if (*optarg == '0' || *optarg == 'N' || *optarg == 'D')      
 	o.pingtype = PINGTYPE_NONE;
+      else if (*optarg == 'R')
+	o.pingtype |= PINGTYPE_ARP;
       else if (*optarg == 'S') {
 	o.pingtype |= (PINGTYPE_TCP|PINGTYPE_TCP_USE_SYN);
 	if (isdigit((int) *(optarg+1)))
@@ -1792,6 +1794,8 @@ char *scantype2str(stype scantype) {
   case RPC_SCAN: return "RPCGrind Scan"; break;
   case MAIMON_SCAN: return "Maimon Scan"; break;
   case IPPROT_SCAN: return "IPProto Scan"; break;
+  case PING_SCAN: return "Ping Scan"; break;
+  case PING_SCAN_ARP: return "ARP Ping Scan"; break;
   default: assert(0); break;
   }
 

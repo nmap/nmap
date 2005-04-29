@@ -99,6 +99,7 @@
  ***************************************************************************/
 
 /* $Id$ */
+#include <dnet.h>
 
 #include "Target.h"
 #include "osscan.h"
@@ -125,7 +126,8 @@ void Target::Initialize() {
   targetipstring[0] = '\0';
   nameIPBuf = NULL;
   memset(&MACaddress, 0, sizeof(MACaddress));
-  MACaddress_set = false;
+  memset(&SrcMACaddress, 0, sizeof(SrcMACaddress));
+  MACaddress_set = SrcMACaddress_set = false;
   htn.msecs_used = 0;
   htn.toclock_running = false;
 }
@@ -351,7 +353,18 @@ int Target::setMACAddress(const u8 *addy) {
   return 0;
 }
 
+int Target::setSrcMACAddress(const u8 *addy) {
+  if (!addy) return 1;
+  memcpy(SrcMACaddress, addy, 6);
+  SrcMACaddress_set = 1;
+  return 0;
+}
+
 /* Returns the 6-byte long MAC address, or NULL if none has been set */
 const u8 *Target::MACAddress() {
   return (MACaddress_set)? MACaddress : NULL;
+}
+
+const u8 *Target::SrcMACAddress() {
+  return (SrcMACaddress_set)? SrcMACaddress : NULL;
 }

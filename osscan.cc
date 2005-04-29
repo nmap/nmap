@@ -144,7 +144,7 @@ int testno;
 int  timeout;
 int avnum;
 unsigned int sequence_base;
-unsigned int openport;
+unsigned long openport;
 unsigned int bytes;
 unsigned int closedport = 31337;
 Port *tport = NULL;
@@ -227,7 +227,7 @@ snprintf(filter, sizeof(filter), "dst host %s and (icmp or (tcp and src host %s)
  }
 
 if (o.verbose && openport != (unsigned long) -1)
-  log_write(LOG_STDOUT, "For OSScan assuming port %d is open, %d is closed, and neither are firewalled\n", openport, closedport);
+  log_write(LOG_STDOUT, "For OSScan assuming port %lu is open, %d is closed, and neither are firewalled\n", openport, closedport);
 
  current_port = o.magic_port + NUM_SEQ_SAMPLES +1;
  
@@ -422,7 +422,7 @@ if (o.verbose && openport != (unsigned long) -1)
 	 if ((tcp->th_flags & TH_RST)) {
 	   /*	 readtcppacket((char *) ip, ntohs(ip->ip_len));*/	 
 	   if (si->responses == 0) {	 
-	     fprintf(stderr, "WARNING:  RST from port %hu -- is this port really open?\n", openport);
+	     fprintf(stderr, "WARNING:  RST from port %lu -- is this port really open?\n", openport);
 	     /* We used to quit in this case, but left-overs from a SYN
 		scan or lame-ass TCP wrappers can cause this! */
 	   } 

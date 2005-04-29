@@ -107,6 +107,7 @@
 #include "NmapOps.h"
 #include "TargetGroup.h"
 #include "Target.h"
+#include "scan_engine.h"
 
 extern NmapOps o;
 enum pingstyle { pingstyle_unknown, pingstyle_rawtcp, pingstyle_rawudp, pingstyle_connecttcp, 
@@ -115,6 +116,7 @@ enum pingstyle { pingstyle_unknown, pingstyle_rawtcp, pingstyle_rawudp, pingstyl
 /*  predefined filters -- I need to kill these globals at some pont. */
 extern unsigned long flt_dsthost, flt_srchost;
 extern unsigned short flt_baseport;
+
 
 /* Gets the host number (index) of target in the hostbatch array of
  pointers.  Note that the target MUST EXIST in the array or all
@@ -239,6 +241,44 @@ static int hostupdate(Target *hostbatch[], Target *target,
   return 0;
 }
 
+/* Conducts an ARP ping sweep of the given hosts to determine which ones
+   are up on a local ethernet network */
+static void arpping(Target *hostbatch[], int num_hosts, 
+	     struct scan_lists *ports) {
+  /* First I change hostbatch into a vector<Target *>, which is what ultra_scan
+     takes.  I remove hosts that cannot be ARP scanned (such as localhost) */
+  vector<Target *> targets;
+  int targetno;
+  targets.reserve(num_hosts);
+
+  for(targetno = 0; targetno < num_hosts; targetno++) {
+    initialize_timeout_info(&hostbatch[targetno]->to);
+    /* Default timout should be much lower for arp */
+    hostbatch[targetno]->to.timeout = MIN(o.initialRttTimeout(), 100) * 1000;
+    if (!hostbatch[targetno]->SrcMACAddress()) {
+      bool islocal = islocalhost(hostbatch[targetno]->v4hostip());
+      if (islocal) {
+	log_write(LOG_STDOUT|LOG_NORMAL, 
+		  "ARP ping: Considering %s UP because it is a local IP, despite no MAC address for device %s\n",
+		  hostbatch[targetno]->NameIP(), hostbatch[targetno]->device);
+	hostbatch[targetno]->flags &= ~(HOST_DOWN|HOST_FIREWALLED);
+	hostbatch[targetno]->flags |= HOST_UP;
+      } else {
+	log_write(LOG_STDOUT|LOG_NORMAL, 
+		  "ARP ping: Considering %s DOWN because no MAC address found for device %s.\n",
+		  hostbatch[targetno]->NameIP(), hostbatch[targetno]->device);
+	hostbatch[targetno]->flags &= ~HOST_FIREWALLED;
+	hostbatch[targetno]->flags |= HOST_DOWN;
+      }
+      continue;
+    }
+    targets.push_back(hostbatch[targetno]);
+  }
+  if (!targets.empty())
+    ultra_scan(targets, ports, PING_SCAN_ARP);
+  return;
+}
+
 void hoststructfry(Target *hostbatch[], int nelem) {
   genfry((unsigned char *)hostbatch, sizeof(Target *), nelem);
   return;
@@ -291,7 +331,7 @@ do {
 	   3) We are doing a raw-mode portscan or osscan OR
 	   4) We are on windows and doing ICMP ping */
 	if (o.isr00t && o.af() == AF_INET && 
-	    ((*pingtype & (PINGTYPE_TCP|PINGTYPE_UDP)) || o.RawScan()
+	    ((*pingtype & (PINGTYPE_TCP|PINGTYPE_UDP|PINGTYPE_ARP)) || o.RawScan()
 #ifdef WIN32
          || (*pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))
 #endif // WIN32
@@ -323,6 +363,11 @@ do {
 	}
       }
 
+      /* If this is an ARP scan, we must determine the device's MAC address */
+      if (*pingtype & PINGTYPE_ARP) {
+	setTargetSrcMACAddressFromDevName(hs->hostbatch[hidx]);
+      }
+      
       /* In some cases, we can only allow hosts that use the same device
 	 in a group. */
       if (o.af() == AF_INET && o.isr00t && hidx > 0 && 
@@ -336,7 +381,7 @@ do {
 	goto batchfull;
       }
       hs->current_batch_sz++;
-    }
+}
 
   if (hs->current_batch_sz < hs->max_batch_sz &&
       hs->next_expression < hs->num_expressions) {
@@ -358,12 +403,19 @@ if (hs->randomize) {
   hoststructfry(hs->hostbatch, hs->current_batch_sz);
 }
 
-/* Finally we do the mass ping (if required) */
- if ((*pingtype & 
+/* First I'll do the ARP ping if necessary */
+ if (*pingtype & PINGTYPE_ARP) {
+   arpping(hs->hostbatch, hs->current_batch_sz, ports);
+ } 
+ /* TODO: For efficiency, at some point it might be nice to usually do ARP 
+    ping before mass ping (and so get rid of else below) */
+ /* Then we do the mass ping (if required - IP-level pings) */
+ else if ((*pingtype & 
       (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS) ) || 
      ((!o.isr00t || o.af() == AF_INET6 || hs->hostbatch[0]->v4host().s_addr) && 
       (*pingtype != PINGTYPE_NONE))) 
    massping(hs->hostbatch, hs->current_batch_sz, ports, *pingtype);
+ /* Otherwise -P0 so we just consider every host up */
  else for(i=0; i < hs->current_batch_sz; i++)  {
    initialize_timeout_info(&hs->hostbatch[i]->to);
    hs->hostbatch[i]->flags |= HOST_UP; /*hostbatch[i].up = 1;*/

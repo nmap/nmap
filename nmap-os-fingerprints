@@ -908,8 +908,9 @@ T7(Resp=Y%DF=N%W=0%ACK=O%Flags=R%Ops=)
 PU(Resp=N)
 
 # Apple AirPort Express (Apple Base Station V6.0)
-Fingerprint Apple AirPort Express WAP
+Fingerprint Apple AirPort Express WAP or Dell Fiber Channel Bridge Module
 Class Apple | embedded || WAP
+Class Dell | embedded || storage-misc
 TSeq(Class=RI%gcd=<6%SI=<A9830&>1000%TS=2HZ)
 T1(DF=Y%W=2000%ACK=S++%Flags=AS%Ops=MNWNNT)
 T2(Resp=N)

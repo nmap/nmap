@@ -176,8 +176,10 @@ class Target {
 
   /* Takes a 6-byte MAC address */
   int setMACAddress(const u8 *addy);
+  int setSrcMACAddress(const u8 *addy);
   /* Returns a pointer to 6-byte MAC address, or NULL if none is set */
   const u8 *MACAddress();
+  const u8 *SrcMACAddress();
 
   struct seq_info seq;
   FingerPrintResults *FPR;
@@ -189,7 +191,7 @@ class Target {
   int wierd_responses; /* echo responses from other addresses, Ie a network broadcast address */
   unsigned int flags; /* HOST_UP, HOST_DOWN, HOST_FIREWALLED, HOST_BROADCAST (instead of HOST_BROADCAST use wierd_responses */
   struct timeout_info to;
-  char device[64]; /* The device we transmit on -- make sure to adjust some str* calls if I ever change this*/
+  char device[64]; /* The device we transmit on -- make sure to adjust some str* calls if I ever change this size*/
 
  private:
   char *hostname; // Null if unable to resolve or unset
@@ -206,6 +208,8 @@ class Target {
   char *nameIPBuf; /* for the NameIP(void) function to return */
   u8 MACaddress[6];
   bool MACaddress_set;
+  u8 SrcMACaddress[6];
+  bool SrcMACaddress_set;
   struct host_timeout_nfo htn;
 };
 

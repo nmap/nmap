@@ -2100,10 +2100,10 @@ int service_scan(vector<Target *> &Targets) {
     bool plural = (Targets.size() != 1);
     if (!plural) {
       (*(Targets.begin()))->NameIP(targetstr, sizeof(targetstr));
-    } else snprintf(targetstr, sizeof(targetstr), "%d hosts", Targets.size());
+    } else snprintf(targetstr, sizeof(targetstr), "%u hosts", (unsigned) Targets.size());
 
-    log_write(LOG_STDOUT, "Initiating service scan against %d %s on %s at %02d:%02d\n", 
-	      SG->services_remaining.size(), 
+    log_write(LOG_STDOUT, "Initiating service scan against %u %s on %s at %02d:%02d\n", 
+	      (unsigned) SG->services_remaining.size(), 
 	      (SG->services_remaining.size() == 1)? "service" : "services", 
 	      targetstr, tm->tm_hour, tm->tm_min);
   }
@@ -2136,11 +2136,11 @@ int service_scan(vector<Target *> &Targets) {
   if (o.verbose) {
     gettimeofday(&now, NULL);
     if (SG->num_hosts_timedout == 0)
-      log_write(LOG_STDOUT, "The service scan took %.2fs to scan %d %s on %d %s.\n", 
+      log_write(LOG_STDOUT, "The service scan took %.2fs to scan %u %s on %u %s.\n", 
 		TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0, 
-		SG->services_finished.size(),  
+		(unsigned) SG->services_finished.size(),  
 		(SG->services_finished.size() == 1)? "service" : "services", 
-		Targets.size(), (Targets.size() == 1)? "host" : "hosts");
+		(unsigned) Targets.size(), (Targets.size() == 1)? "host" : "hosts");
     else log_write(LOG_STDOUT, 
 		   "Finished service scan in %.2fs, but %d %s timed out.\n", 
 		   TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0, 

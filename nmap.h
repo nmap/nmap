@@ -357,6 +357,7 @@ void *realloc();
 #define PINGTYPE_RAWTCP 128
 #define PINGTYPE_CONNECTTCP 256
 #define PINGTYPE_UDP  512
+#define PINGTYPE_ARP 1024
 
 /* TCP/IP ISN sequence prediction classes */
 #define SEQ_UNKNOWN 0

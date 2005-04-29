@@ -295,6 +295,14 @@ class PacketTrace {
   static void traceConnect(u8 proto, const struct sockaddr *sock, 
 			   int socklen, int connectrc, int connect_errno,
 			   const struct timeval *now);
+  /* Takes an ARP PACKET (including ethernet header) and prints it if
+     packet tracing is enabled.  'frame' must point to the 14-byte
+     ethernet header (e.g. starting with destination addr). The
+     direction must be PacketTrace::SENT or PacketTrace::RCVD .
+     Optional 'now' argument makes this function slightly more
+     efficient by avoiding a gettimeofday() call. */
+  static void PacketTrace::traceArp(pdirection pdir, const u8 *frame, u32 len,
+				    struct timeval *now);
 };
 
 class PacketCounter {
@@ -471,6 +479,26 @@ class IPProbe {
 
 };
 
+/* Handles an *IPv4* Arp probe */
+class ArpProbe {
+ public:
+  ArpProbe();
+  ~ArpProbe();
+/* Takes an ARP packet and stores _a copy_ of it, in this Probe,
+   adjusting proper header pointers and such.  Then length better
+   equal 42! */
+  int storePacket(u8 *arppacket, u32 len);
+  u32 packetbuflen; /* Length of the whole packet */
+  u8 *packetbuf; /* The packet itself */
+  struct in_addr *ipquery; /* IP address this ARP seeks */
+  /* Resets everything to NULL.  Frees packetbuf if it is filled.  You
+     can reuse a Probe by calling Reset() and then a new
+     storePacket(). */
+  void Reset(); 
+ private:
+
+};
+
  /* This ideally should be a port that isn't in use for any protocol on our machine or on the target */
 #define MAGIC_PORT 49724
 #define TVAL2LONG(X)  X.tv_sec * 1e6 + X.tv_usec
@@ -634,6 +662,15 @@ char *getFinalPacketStats(char *buf, int buflen);
 
 int setTargetMACIfAvailable(Target *target, struct link_header *linkhdr,
 			    struct ip *ip, int overwrite);
+
+/* Finds MAC address of target->device and sets into target.  Caches
+ the results so that it will be really quick if you have many targets
+ that send out with the same device, and you pass them roughly in
+ order (only caches one).  Returns -1 if cannot find the MAC address
+ (often meaning this is localhost, or some other non-ethernet device.
+ Returns 0 upon success. */
+int setTargetSrcMACAddressFromDevName(Target *target);
+
 int islocalhost(const struct in_addr * const addr);
 int unblock_socket(int sd);
 int Sendto(char *functionname, int sd, const unsigned char *packet, int len, 
@@ -653,6 +690,16 @@ int get_link_offset(char *device);
    lnkinfo->header will be filled with the appropriate values. */
 char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec, 
 		  struct timeval *rcvdtime, struct link_header *linknfo);
+/* Attempts to read one IPv4/Ethernet ARP reply packet from the pcap
+   descriptor pd.  If it receives one, fills in sendermac (must pass
+   in 6 bytes), senderIP, and rcvdtime (can be NULL if you don't care)
+   and returns 1.  If it times out and reads no arp requests, returns
+   0.  to_usec is the timeout period in microseconds.  Use 0 to avoid
+   blocking to the extent possible, and -1 to block forever.  Returns
+   -1 or exits if ther is an error. */
+int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
+		       long to_usec, struct timeval *rcvdtime);
+
 #ifndef HAVE_INET_ATON
 int inet_aton(register const char *, struct in_addr *);
 #endif

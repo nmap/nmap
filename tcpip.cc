@@ -100,7 +100,7 @@
 
 /* $Id$ */
 
-
+#include <dnet.h>
 #include "tcpip.h"
 #include "NmapOps.h"
 
@@ -206,6 +206,53 @@ char *getFinalPacketStats(char *buf, int buflen) {
   return buf;
 }
 
+  /* Takes an ARP PACKET (including ethernet header) and prints it if
+     packet tracing is enabled.  'frame' must point to the 14-byte
+     ethernet header (e.g. starting with destination addr). The
+     direction must be PacketTrace::SENT or PacketTrace::RCVD .
+     Optional 'now' argument makes this function slightly more
+     efficient by avoiding a gettimeofday() call. */
+void PacketTrace::traceArp(pdirection pdir, const u8 *frame, u32 len,
+			struct timeval *now) {
+  struct timeval tv;
+  char arpdesc[128];
+  char who_has[INET_ADDRSTRLEN], tell[INET_ADDRSTRLEN];
+    
+
+  if (pdir == SENT) {
+    PktCt.sendPackets++;
+    PktCt.sendBytes += len;
+  } else {
+    PktCt.recvPackets++;
+    PktCt.recvBytes += len;
+  }
+
+  if (!o.packetTrace()) return;
+
+  if (now)
+    tv = *now;
+  else gettimeofday(&tv, NULL);
+
+  if (len < 42) {
+    error("Packet tracer: Arp packets must be at least 42 bytes long.  Should be exactly that length excl. ethernet padding.");
+    return;
+  }
+
+  if (frame[21] == 1) /* arp REQUEST */ {
+    inet_ntop(AF_INET, frame+38, who_has, sizeof(who_has));
+    inet_ntop(AF_INET, frame+28, tell, sizeof(who_has));
+    snprintf(arpdesc, sizeof(arpdesc), "who-has %s tell %s", who_has, tell);
+  } else { /* ARP REPLY */
+    inet_ntop(AF_INET, frame+28, who_has, sizeof(who_has));
+    snprintf(arpdesc, sizeof(arpdesc), 
+	     "reply %s is-at %02X:%02X:%02X:%02X:%02X:%02X", who_has, 
+	     frame[22], frame[23], frame[24], frame[25], frame[26], frame[27]);
+  }
+
+  log_write(LOG_STDOUT|LOG_NORMAL, "%s (%.4fs) ARP %s\n", (pdir == SENT)? "SENT" : "RCVD",  o.TimeSinceStartMS(&tv) / 1000.0, arpdesc);
+
+  return;
+}
 
   /* Takes an IP PACKET and prints it if packet tracing is enabled.
      'packet' must point to the IPv4 header. The direction must be
@@ -293,6 +340,11 @@ void PacketTrace::traceConnect(u8 proto, const struct sockaddr *sock,
 	    (proto == IPPROTO_TCP)? "TCP" : "UDP", targetipstr, targetport, 
 	    errbuf);
 }
+
+
+
+
+
 
 /* Converts an IP address given in a sockaddr_storage to an IPv4 or
    IPv6 IP address string.  Since a static buffer is returned, this is
@@ -1321,96 +1373,6 @@ fcntl(sd, F_SETFL, options);
 return 1;
 }
 
-/* Get the source address and interface name */
-#if 0
-char *getsourceif(struct in_addr *src, struct in_addr *dst) {
-int sd, sd2;
-u16 p1;
-struct sockaddr_in sock;
-int socklen = sizeof(struct sockaddr_in);
-struct sockaddr sa;
-recvfrom6_t sasize = sizeof(struct sockaddr);
-int ports, res;
-u8 buf[65536];
-struct timeval tv;
-unsigned int start;
-int data_offset, ihl, *intptr;
-int done = 0;
-
-  /* Get us some unreserved port numbers */
-  get_random_bytes(&p1, 2);
-  if (p1 < 5000) p1 += 5000;
-
-  if (!getuid()) {
-    if ((sd2 = socket(AF_INET, SOCK_PACKET, htons(ETH_P_ALL))) == -1)
-      {perror("Linux Packet Socket troubles"); return 0;}
-    unblock_socket(sd2);
-    if ((sd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
-      {perror("Socket troubles"); return 0;}
-    sock.sin_family = AF_INET;
-    sock.sin_addr = *dst;
-    sock.sin_port = htons(p1);
-    if (connect(sd, (struct sockaddr *) &sock, sizeof(struct sockaddr_in)) == -1)
-      { perror("UDP connect()");
-      close(sd);
-      close(sd2);
-      return NULL;
-      }
-    if (getsockname(sd, (SA *)&sock, &socklen) == -1) {
-      perror("getsockname");
-      close(sd);
-      close(sd2);
-      return NULL;
-    }
-    ports = (ntohs(sock.sin_port) << 16) + p1;
-#if ( TCPIP_DEBUGGING )
-      printf("ports is %X\n", ports);
-#endif
-    if (send(sd, "", 0, 0) == -1)
-    fatal("Could not send UDP packet");
-    start = time(NULL);
-    do {
-      tv.tv_sec = 2;
-      tv.tv_usec = 0;
-      res = recvfrom(sd2, buf, 65535, 0, &sa, &sasize);
-      if (res < 0) {
-	if (socket_errno() != EWOULDBLOCK)
-	  perror("recvfrom");
-      }
-      if (res > 0) {
-#if ( TCPIP_DEBUGGING )
-	printf("Got packet!\n");
-	printf("sa.sa_data: %s\n", sa.sa_data);
-	printf("Hex dump of packet (len %d):\n", res);
-	hdump(buf, res);
-#endif
-	data_offset = get_link_offset(sa.sa_data);
-	ihl = (*(buf + data_offset) & 0xf) * 4;
-	/* If it is big enough and it is IPv4 */
-	if (res >=  data_offset + ihl + 4 &&
-	    (*(buf + data_offset) & 0x40)) {
-	  intptr = (int *)  ((char *) buf + data_offset + ihl);
-	  if (*intptr == ntohl(ports)) {
-	    intptr = (int *) ((char *) buf + data_offset + 12);
-#if ( TCPIP_DEBUGGING )
-	    printf("We've found our packet [krad]\n");
-#endif
-	    memcpy(src, buf + data_offset + 12, 4);
-	    close(sd);
-	    close(sd2);
-	    return strdup(sa.sa_data);
-	  }
-	}
-      }        
-    } while(!done && time(NULL) - start < 2);
-    close(sd);
-    close(sd2);
-  }
-
-return NULL;
-}
-#endif /* 0 */
-
 int getsourceip(struct in_addr *src, const struct in_addr * const dst) {
   int sd;
   struct sockaddr_in sock;
@@ -1442,48 +1404,6 @@ int getsourceip(struct in_addr *src, const struct in_addr * const dst) {
   return 1; /* Calling function responsible for checking validity */
 }
 
-#if 0
-int get_link_offset(char *device) {
-int sd;
-struct ifreq ifr;
-sd = socket(AF_INET, SOCK_DGRAM, 0);
-memset(&ifr, 0, sizeof(ifr));
-strncpy(ifr.ifr_name, device, sizeof(ifr.ifr_name));
-#if (defined(SIOCGIFHWADDR) && defined(ARPHRD_ETHER) && 
-     defined(ARPHRD_METRICOM) && defined(ARPHRD_SLIP) && defined(ARPHRD_CSLIP)
-     && defined(ARPHRD_SLIP6) && defined(ARPHRD_PPP) && 
-     defined(ARPHRD_LOOPBACK) )
-if (ioctl(sd, SIOCGIFHWADDR, &ifr) < 0 ) {
-  fatal("Can't obtain link offset.  What kind of interface are you using?");
-  }
-close(sd);
-switch (ifr.ifr_hwaddr.sa_family) {
-case ARPHRD_ETHER:  /* These two are standard ethernet */
-case ARPHRD_METRICOM:
-  return 14;
-  break;
-case ARPHRD_SLIP:
-case ARPHRD_CSLIP:
-case ARPHRD_SLIP6:
-case ARPHRD_CSLIP6:
-case ARPHRD_PPP:
-  return 0;
-  break;
-case ARPHRD_LOOPBACK:  /* Loopback interface (obviously) */
-  return 14;
-  break;
-default:
-  fatal("Unknown link layer device: %d", ifr.ifr_hwaddr.sa_family);
-}
-#else
-printf("get_link_offset called even though your host doesn't support it.  Assuming Ethernet or Loopback connection (wild guess)\n");
-return 14;
-#endif
-/* Not reached */
-exit(1);
-}
-#endif
-
 /* Read an IP packet using libpcap .  We return the packet and take
    a pcap descripter and a pointer to the packet length (which we set
    in the function. If you want a maximum length returned, you
@@ -1494,7 +1414,6 @@ exit(1);
    low values (and 0) degenerate to the timeout specified 
    in pcap_open_live()
  */
-
 /* If rcvdtime is non-null and a packet is returned, rcvd will be
    filled with the time that packet was captured from the wire by
    pcap.  If linknfo is not NULL, linknfo->headerlen and
@@ -1685,6 +1604,106 @@ bool pcap_recv_timeval_valid() {
 #else
   return true;
 #endif
+}
+
+/* Attempts to read one IPv4/Ethernet ARP reply packet from the pcap
+   descriptor pd.  If it receives one, fills in sendermac (must pass
+   in 6 bytes), senderIP, and rcvdtime (can be NULL if you don't care)
+   and returns 1.  If it times out and reads no arp requests, returns
+   0.  to_usec is the timeout period in microseconds.  Use 0 to avoid
+   blocking to the extent possible, and -1 to block forever.  Returns
+   -1 or exits if ther is an error. */
+int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
+		       long to_usec, struct timeval *rcvdtime) {
+  static int warning = 0;
+  int datalink;
+  struct pcap_pkthdr head;
+  u8 *p;
+  int timedout = 0;
+  int badcounter = 0;
+  struct timeval tv_start, tv_end;
+
+  if (!pd) fatal("NULL packet device passed to readarp_reply_pcap");
+
+  if (to_usec < 0) {
+    if (!warning) {
+      warning = 1;
+      error("WARNING: Negative timeout value (%lu) passed to readip_pcap() -- using 0", to_usec);
+    }
+    to_usec = 0;
+  }
+
+  /* New packet capture device, need to recompute offset */
+  if ( (datalink = pcap_datalink(pd)) < 0)
+    fatal("Cannot obtain datalink information: %s", pcap_geterr(pd));
+
+  if (datalink != DLT_EN10MB)
+    fatal("readarp_reply_pcap called on interfaces that is datatype %d rather than DLT_EN10MB (%d)", datalink, DLT_EN10MB);
+
+  if (to_usec > 0) {
+    gettimeofday(&tv_start, NULL);
+  }
+
+  do {
+#ifdef WIN32
+    gettimeofday(&tv_end, NULL);
+    to_left = MAX(1, (to_usec - TIMEVAL_SUBTRACT(tv_end, tv_start)) / 1000);
+    // Set the timeout (BUGBUG: this is cheating)
+    PacketSetReadTimeout(pd->adapter, to_left);
+#endif
+
+    p = (u8 *) pcap_next(pd, &head);
+
+    
+    if (p && head.caplen >= 42) { /* >= because Ethernet padding makes 60 */
+      /* frame type 0x0806 (arp), hw type eth (0x0001), prot ip (0x0800),
+	 hw size (0x06), prot size (0x04) */
+      if (memcmp(p + 12, "\x08\x06\x00\x01\x08\x00\x06\x04\x00\x02", 10) == 0) {
+	memcpy(sendermac, p + 22, 6);
+	/* I think alignment should allow this ... */
+	senderIP->s_addr = *(u32 *) (p + 28) ;
+	break;
+      }
+    }
+
+    if (!p) {
+      /* Should we timeout? */
+      if (to_usec == 0) {
+	timedout = 1;
+      } else if (to_usec > 0) {
+	gettimeofday(&tv_end, NULL);
+	if (TIMEVAL_SUBTRACT(tv_end, tv_start) >= to_usec) {
+	  timedout = 1;     
+	}
+      }
+    } else {
+      /* We'll be a bit patient if we're getting actual packets back, but
+	 not indefinitely so */
+      if (badcounter++ > 50)
+	timedout = 1;
+    }
+  } while(!timedout);
+
+  if (timedout) return 0;
+
+  if (rcvdtime) {
+    // FIXME: I eventually need to figure out why Windows head.ts time is sometimes BEFORE the time I
+    // sent the packet (which is according to gettimeofday() in nbase).  For now, I will sadly have to
+    // use gettimeofday() for Windows in this case
+    // Actually I now allow .05 discrepancy.   So maybe this isn't needed.  I'll comment out for now.
+    // Nope: it is still needed at least for Windows.  Sometimes the time from he pcap header is a 
+    // COUPLE SECONDS before the gettimeofday() results :(.
+#if defined(WIN32) || defined(__amigaos__)
+    gettimeofday(&tv_end, NULL);
+    *rcvdtime = tv_end;
+#else
+    *rcvdtime = head.ts;
+    assert(head.ts.tv_sec);
+#endif
+  }
+  PacketTrace::traceArp(PacketTrace::RCVD, (u8 *) p, 42,  rcvdtime);
+
+  return 1;
 }
 
 
@@ -2452,3 +2471,69 @@ int IPProbe::storePacket(u8 *ippacket, u32 len) {
   return 0;
 }
 
+ArpProbe::ArpProbe() {
+  packetbuflen = 0;
+  packetbuf = NULL;
+  Reset();
+}
+
+void ArpProbe::Reset() {
+  if (packetbuf)
+    free(packetbuf);
+  packetbuflen = 0;
+  packetbuf = NULL;
+  ipquery = NULL;
+}
+
+ArpProbe::~ArpProbe() {
+  if (packetbuf) {
+    free(packetbuf);
+    packetbuf = NULL;
+    packetbuflen = 0;
+  }
+  Reset();
+}
+
+int ArpProbe::storePacket(u8 *arppacket, u32 len) {
+  assert(packetbuf == NULL);
+  assert(len == 42);
+  packetbuf = (u8 *) safe_malloc(len);
+  memcpy(packetbuf, arppacket, len);
+  packetbuflen = len;
+  ipquery = (struct in_addr *) ((u8 *)arppacket + 38);
+  return 0;
+}
+
+
+
+/* Finds MAC address of target->device and sets into target.  Caches
+ the results so that it will be really quick if you have many targets
+ that send out with the same device, and you pass them roughly in
+ order (only caches one).  Returns -1 if cannot find the MAC address
+ (often meaning this is localhost, or some other non-ethernet device.
+ Returns 0 upon success. */
+int setTargetSrcMACAddressFromDevName(Target *target) {
+  static u8 MAC_Cache[6];
+  static char MAC_Cache_Dev[64] = {0};
+
+  assert(*target->device);
+  if (strcmp(target->device, MAC_Cache_Dev) == 0)
+    target->setSrcMACAddress(MAC_Cache);
+  else {
+    eth_t *e;
+    eth_addr_t et;
+
+    assert(sizeof(et) >= 6);
+    e = eth_open(target->device);
+    if (!e) 
+      fatal("dnet: Failed to open ethernet device %s\n", target->device);
+    if (eth_get(e, &et) == -1)
+      return -1;
+      //      fatal("dnet: Failed to obtain HW MAC address for ethernet device %s\n", target->device);
+    eth_close(e);
+    Strncpy(MAC_Cache_Dev, target->device, sizeof(MAC_Cache_Dev));
+    memcpy(MAC_Cache, (const char *) &et, 6);
+    target->setSrcMACAddress(MAC_Cache);
+  }
+  return 0;
+}
