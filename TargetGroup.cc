@@ -304,7 +304,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
  * get_next_host should be used for skipping the last octet :-) 
  * returns: number of hosts skipped */
 int TargetGroup::skip_range(_octet_nums octet) {
-  int hosts_skipped = 0, /* number of hosts skipped */
+  unsigned long hosts_skipped = 0, /* number of hosts skipped */
       oct = 0,           /* octect number */
       i;                 /* simple lcv */
 
@@ -330,7 +330,7 @@ int TargetGroup::skip_range(_octet_nums octet) {
   }
 
   /* catch if we try to take more than are left */
-  assert(ipsleft >= hosts_skipped - 1);
+  assert(ipsleft + 1>= hosts_skipped);
 
   /* increment the next octect that we can above us */
   for (i = oct; i >= 0; i--) {

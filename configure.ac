@@ -465,7 +465,7 @@ if test $have_dnet != yes ; then
   AC_CONFIG_SUBDIRS( libdnet-stripped )
   CXXFLAGS="-I$LIBDNETDIR/include $CXXFLAGS"
   LIBDNET_LIBS="$LIBDNETDIR/src/.libs/libdnet.a"
-  DNET_DEPENDS="$LIBDNETDIR/libdnet.a"
+  DNET_DEPENDS="$LIBDNETDIR/src/.libs/libdnet.a"
   DNET_CLEAN="dnet_clean"
   DNET_DIST_CLEAN="dnet_dist_clean"
 else

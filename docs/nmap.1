@@ -143,9 +143,9 @@ for a RST or a SYN/ACK.  For non-root users, a connect()
 method is used.
 .Sp
 By default (for root users), nmap uses both the ICMP and ACK
-techniques in parallel.  You can change the
-.B \-P 
-option described later.
+techniques in parallel.  You can change these with the
+.B \-P
+options described later.
 .Sp
 Note that pinging is done by default anyway, and only hosts
 that respond are scanned.  Only use this option if you wish
@@ -387,6 +387,13 @@ ACK packets for root users.  Hosts that are up should
 respond with a RST (or, rarely, a SYN|ACK).  You can set the
 destination ports in the same manner as \-PA above.
 .TP
+.B \-PR
+This option specifies a raw ethernet ARP ping.  It cannot be used in
+combination with any of the other ping types.  When the target
+machines are on the same network you are scanning from, this is the
+fastest and most reliable (because it goes below IP-level filters)
+ping method.  Nmap sends an IPv4-to-Ethernet ARP request for each
+target IP, and watches for any ARP response.
 .B \-PU [portlist]
 This option sends UDP probes to the specified hosts, expecting an ICMP
 port unreachable packet (or possibly a UDP response if the port is

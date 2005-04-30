@@ -2,6 +2,21 @@
 
 UNRELEASED
 
+o Added ARP ping (-PR). Nmap can now send raw ethernet ARP requests to
+  determine whether hosts on a LAN are up, rather than relying on
+  higher-level IP packets (which can only be sent after a successful ARP
+  request and reply anyway).  This is much faster and more reliable
+  (not subject to IP-level firewalling) than IP-based probes.  The
+  downside is that it only works when the target machine is on the same
+  LAN as the scanning machine.  It is recommended whenever those
+  conditions are met, and may sometime become the default when Nmap
+  detects that the conditions are met.  Example usage: nmap -sP -PR
+  192.168.0.0/16 .  This is not yet supported on Windows.
+
+o Added a stripped-down version of Dug Song's excellent libdnet
+  networking library (v. 1.10).  This allows Nmap to send raw ethernet
+  frames for the new ARP ping feature.
+
 o Fixed the way tcp connect scan (-sT) respons to ICMP network
   unreachable responses (patch by Richard Moore
   (rich(a)westpoint.ltd.uk).

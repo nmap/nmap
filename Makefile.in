@@ -60,7 +60,7 @@ export DEPS = nmap.h nmap_amigaos.h nmap_error.h targets.h idle_scan.h osscan.h 
 
 all: $(TARGET) $(TARGETNMAPFE)
 
-$(TARGET): $(DEPS) @PCAP_DEPENDS@ @PCRE_DEPENDS@ @LIBDNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(OBJS)
+$(TARGET): $(DEPS) @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(OBJS)
 	@echo Compiling nmap
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
@@ -113,7 +113,7 @@ pcap_clean:
 	-cd $(LIBPCAPDIR) && $(MAKE) clean
 pcre_clean:
 	-cd $(LIBPCREDIR) && $(MAKE) clean
-dnet_clean
+dnet_clean:
 	-cd $(LIBDNETDIR) && $(MAKE) clean
 nmapfe_clean:
 	-cd nmapfe && $(MAKE) clean
