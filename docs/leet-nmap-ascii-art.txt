@@ -10,5 +10,5 @@
   (__ ' /x  / x _/ (                                  \___'          \     /
  , x / ( '  . / .  /                                      |           \   /
     /  /  _/ /    +                                      /              \/
-   '  (__/                                             / (artist unknown) \
+   '  (__/                                             /                  \
              NMAP IS A POWERFUL TOOL -- USE CAREFULLY AND REPONSIBLY

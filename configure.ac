@@ -440,6 +440,46 @@ AC_SUBST(PCRE_DEPENDS)
 AC_SUBST(PCRE_CLEAN)
 AC_SUBST(PCRE_DIST_CLEAN)
 
+have_dnet=no
+requested_included_dnet=no
+LIBDNETDIR=libdnet-stripped
+
+# First we test whether they specified libdnet explicitly
+AC_ARG_WITH(libdnet,
+[  --with-libdnet=DIR    Use an existing (compiled) dnet lib from DIR/include and DIR/lib.],
+[  case "$with_libdnet" in
+  yes)
+    ;;
+  included)
+    ;;
+  *)
+    CXXFLAGS="-I$with_libdnet/include $CXXFLAGS"
+    LDFLAGS="-L$with_libdnet/lib $LDFLAGS"
+    have_dnet=yes
+    ;;
+  esac]
+)
+
+# If they didn't provide location, we use the included one
+if test $have_dnet != yes ; then
+  AC_CONFIG_SUBDIRS( libdnet-stripped )
+  CXXFLAGS="-I$LIBDNETDIR/include $CXXFLAGS"
+  LIBDNET_LIBS="$LIBDNETDIR/src/.libs/libdnet.a"
+  DNET_DEPENDS="$LIBDNETDIR/libdnet.a"
+  DNET_CLEAN="dnet_clean"
+  DNET_DIST_CLEAN="dnet_dist_clean"
+else
+  LIBDNET_LIBS="-ldnet"
+  DNET_DEPENDS=""
+  DNET_CLEAN=""
+  DNET_DIST_CLEAN=""
+fi
+
+AC_SUBST(LIBDNET_LIBS)
+AC_SUBST(LIBDNETDIR)
+AC_SUBST(DNET_DEPENDS)
+AC_SUBST(DNET_CLEAN)
+AC_SUBST(DNET_DIST_CLEAN)
 
 dnl AC_HEADER_TIME
 

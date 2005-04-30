@@ -1,0 +1,7 @@
+## $Id: Makefile.am.common,v 1.2 2002/12/02 04:05:25 dugsong Exp $
+
+AUTOMAKE_OPTIONS = foreign no-dependencies
+
+INCLUDES = -I$(top_srcdir)/include
+
+DISTCLEANFILES = *~

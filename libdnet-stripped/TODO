@@ -1,0 +1,79 @@
+ipfw2 on FreeBSD/5 (5.1 has pf)
+
+optimize port wildcard rules for each firewall type - e.g. using ipf
+FR_NONE, pf PF_OP_NONE, etc.
+
+ipchains sleazy exec
+
+audit addr_ntos() for non-zero'd host bits
+
+make *_loop() prevent modification within loop, or modify only
+post-iteration
+
+prefix everything with dnet_*, maybe new API with common dnet_t handle?
+
+more documentation and example code
+
+ip-cooked.c: use RTM_RESOLVE for ip_lookup_mac() (GetBestInterface()?)
+
+add a way to enable ip forwarding?
+
+finish IPv6 support everywhere (fw, route, ip6, win32, etc.)
+
+reimplement win32 fw (lost with laptop hd crash!@#$%)
+
+NAT, ipsec interface?
+
+maybe Checkpoint FW-1 support, via OPSEC (hrr)
+
+--------+------+-----+-----+----+----+------+-------+-----+
+        | addr | arp | eth | fw | ip | intf | route | tun |
+--------+------+-----+-----+----+----+------+-------+-----+
+openbsd |      |     |     |    |    |      |       |     |
+--------+------+-----+-----+----+----+------+-------+-----+
+freebsd |      |     |     |  1 |    |      |       |  ?  |
+--------+------+-----+-----+----+----+------+-------+-----+
+netbsd  |      |     |     |    |    |      |       |  ?  |
+--------+------+-----+-----+----+----+------+-------+-----+
+linux   |      |     |     |    |    |      |       |     |
+--------+------+-----+-----+----+----+------+-------+-----+
+solaris |      |     |     |  7 |    |      |       |  ?  |
+--------+------+-----+-----+----+----+------+-------+-----+
+macosx  |      |     |     |    |    |      |       |  ?  |
+--------+------+-----+-----+----+----+------+-------+-----+
+irix    |      |     |     |  7 |    |      |       |  -  |
+--------+------+-----+-----+----+----+------+-------+-----+
+bsdi    |      |     |     |  7 |    |      |       |  -  |
+--------+------+-----+-----+----+----+------+-------+-----+
+tru64   |      |     |     |  7 |    |      |       |  -  |
+--------+------+-----+-----+----+----+------+-------+-----+
+hp-ux   |      |     |     |  7 |    |   3  |       |  -  |
+--------+------+-----+-----+----+----+------+-------+-----+
+win32   |      |     |     |    |    |   3  |       |  -  |
+--------+------+-----+-----+----+----+------+-------+-----+
+unixware|      |  -  |  2  |  - |  - |      |   4   |  -  |
+--------+------+-----+-----+----+----+------+-------+-----+
+aix     |      |  5  |  -  |  - |  - |      |   6   |  -  |
+--------+------+-----+-----+----+----+------+-------+-----+
+
+  = works, tested	1 = ipfw support, but no ipfw2
+? = untested		2 = eth_send doesn't work
+- = unimplemented	3 = intf_set doesn't work
+			4 = route_loop only works
+			5 = arp_show doesn't work
+			6 = route_loop doesn't work
+			7 = IP Filter should work, but untested
+
+arp-{bsd,ioctl} both b0rked on unixware
+
+eth_send() doesn't allow src mac spoofing on MacOS X (no
+BIOCSHDRCMPLT) without patch (http://slagheap.net/etherspoof/),
+also b0rked on BSD/OS, says markus. not possible on Tru64?
+
+no support for ICMP code in ipfw, therefore none in fw-ipfw.c
+
+need reliable, legit HP-UX, Unixware, and AIX accounts with root
+access to finish the ports to those platforms. i'd be happy to port to
+other platforms also, given similar (temporary) access.
+
+$Id: TODO,v 1.25 2005/02/14 21:56:59 dugsong Exp $

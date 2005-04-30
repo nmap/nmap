@@ -1,0 +1,106 @@
+# $Id: THANKS,v 1.10 2005/02/17 02:58:11 dugsong Exp $
+
+many thanks to all the folks who have contributed to libdnet:
+
+Thamer Al-Harbash <tmh@whitefang.com>
+	excellent bug reports and fearless beta-testing
+
+Marc Bevand <bevand_m@epita.fr>
+	RFC 768 UDP zero-checksum fix
+
+Michael Coulter <mjc@bitz.ca>
+	OpenBSD pfioc_pooladdr fix, pf rule deletion bug report
+
+Michael A. Davis <mike@datanerds.net>
+	win32 code cleanup
+
+Scott Dawson <sdawson@arbor.net>
+	interface alias fix
+
+Ben Fleis <ben@monkey.org>
+	constification and code cleanup
+
+Mike Frantzen <frantzen@w4g.org>
+	dnet hex test module fix
+
+Markus Friedl <markus@openbsd.org>
+	BSD/OS testing and autoconf fixes
+
+Tangy Gnat <tanggnat@bahamut.synacklabs.net>
+	missing queue.h
+
+Loren Gorden <loren.gordon@videotron.ca>
+	many thorough, detailed bug reports and fixes
+
+Eric Jackson <shinobi@monkey.org>
+	OpenBSD-alpha testing
+
+Juan <juan@foxpaw.com>
+	plugged BPF fd leak on failure
+
+K2 <k2@ktwo.ca>
+	HP-UX, OSF1, UnixWare, Solaris x86, Slackware, etc. access
+
+Kirby Kuehl <kkuehl@gmail.com>
+	win32 and OpenBSD updates
+
+David Lee <david.lee@teracruz.com>
+	addr_btos() bugfixes
+
+Kuk-hyeon Lee <errai@inzen.com>
+	C++ support fixes
+
+Robert Lowe <robert.h.lowe@lawrence.edu>
+	Tru64 access, and allowing me to crash his machine
+
+Dominic Marks <dom@cus.org.uk>
+	FreeBSD 5 ipfw port fixes
+
+Jose Nazario <jose@biocserver.cwru.edu>
+	IRIX access, and allowing me to crash his machine
+
+Nergal <nergal@7bulls.com>
+	TCP sequence number handling fixes
+
+Peter C. Norton <spacey@lenin.nu>
+	Linux port fixes
+
+plaguez <dube0866@eurobretagne.fr>
+	for convincing me to write this, and suffering my bad French
+
+NN Poster <nnposter@users.sourceforge.net>
+	RPM spec file
+
+Niels Provos <provos@monkey.org>
+	many bugfixes and much encouragement
+
+Andrew Reiter <arr@watson.org>
+	help with ipfw braindeath
+
+John S <sjohns@users.sourceforge.net>
+	VPATH build bug report
+
+Federico Sacerdoti <fds@sdsc.edu>
+	dotted-quad IPv4 netmask support in addr_pton()
+
+Mike Schiffman <mike@infonexus.com>
+	inspiration via libnet
+
+Matt Smart <smart@monkey.org>
+	caught pastos
+
+Matt Sommers <mms@arbor.net>
+	BSD/OS testing
+
+Mike Stolarchuk <mts@off.to>
+	enlightening discussion of *ntoa optimizations
+
+Greg Taleck <taleck@oz.net>
+	OpenBSD pf bug reporting
+
+Christophe Ternat <christophe.ternat@rstpacket.org>
+	route-bsd.c fork() bug report
+
+xs <xs@nitric.net>
+	NetBSD testing
+

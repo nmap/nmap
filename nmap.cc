@@ -1107,7 +1107,6 @@ int nmap_main(int argc, char *argv[]) {
       o.decoys[o.decoyturn] = Targets[0]->v4source();
     
     /* I now have the group for scanning in the Targets vector */
-    /* TODO: Add parallel-capable scans here */
     if (o.synscan)
       ultra_scan(Targets, ports, SYN_SCAN);
     

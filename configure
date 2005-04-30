@@ -310,8 +310,9 @@ ac_includes_default="\
 #endif"
 
 ac_subdirs_all="$ac_subdirs_all libpcre"
+ac_subdirs_all="$ac_subdirs_all libdnet-stripped"
 ac_subdirs_all="$ac_subdirs_all $nmap_cfg_subdirs"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS libpcapdir pcredir CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX CXXPROG COMPAT_OBJS COMPAT_SRCS build build_cpu build_vendor build_os host host_cpu host_vendor host_os CPP EGREP TARGETNMAPFE INSTALLNMAPFE OPENSSL_LIBS PCAP_DEPENDS PCAP_CLEAN PCAP_DIST_CLEAN LIBPCAP_LIBS subdirs LIBPCRE_LIBS LIBPCREDIR PCRE_DEPENDS PCRE_CLEAN PCRE_DIST_CLEAN NBASEDIR LIBNBASE_LIBS NSOCKDIR LIBNSOCK_LIBS GTK_CONFIG LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS libpcapdir pcredir CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX CXXPROG COMPAT_OBJS COMPAT_SRCS build build_cpu build_vendor build_os host host_cpu host_vendor host_os CPP EGREP TARGETNMAPFE INSTALLNMAPFE OPENSSL_LIBS PCAP_DEPENDS PCAP_CLEAN PCAP_DIST_CLEAN LIBPCAP_LIBS subdirs LIBPCRE_LIBS LIBPCREDIR PCRE_DEPENDS PCRE_CLEAN PCRE_DIST_CLEAN LIBDNET_LIBS LIBDNETDIR DNET_DEPENDS DNET_CLEAN DNET_DIST_CLEAN NBASEDIR LIBNBASE_LIBS NSOCKDIR LIBNSOCK_LIBS GTK_CONFIG LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -859,6 +860,7 @@ Optional Packages:
   --with-openssl=DIR    Use optional openssl libs and includes from DIR/lib/ and DIR/include/openssl/)
   --with-libpcap=DIR    Look for pcap in DIR/include and DIR/libs
   --with-libpcre=DIR    Use an existing (compiled) pcre lib from DIR/include and DIR/lib.  Specify --with-libpcre=included to always use the version included with Nmap
+  --with-libdnet=DIR    Use an existing (compiled) dnet lib from DIR/include and DIR/lib.
   --with-libnbase=DIR     Look for nbase include/libs in DIR
   --with-libnsock=DIR     Compile and link to libnsock in DIR
 
@@ -6308,6 +6310,52 @@ fi
 
 
 
+have_dnet=no
+requested_included_dnet=no
+LIBDNETDIR=libdnet-stripped
+
+# First we test whether they specified libdnet explicitly
+
+# Check whether --with-libdnet or --without-libdnet was given.
+if test "${with_libdnet+set}" = set; then
+  withval="$with_libdnet"
+    case "$with_libdnet" in
+  yes)
+    ;;
+  included)
+    ;;
+  *)
+    CXXFLAGS="-I$with_libdnet/include $CXXFLAGS"
+    LDFLAGS="-L$with_libdnet/lib $LDFLAGS"
+    have_dnet=yes
+    ;;
+  esac
+
+fi;
+
+# If they didn't provide location, we use the included one
+if test $have_dnet != yes ; then
+
+
+subdirs="$subdirs libdnet-stripped "
+
+  CXXFLAGS="-I$LIBDNETDIR/include $CXXFLAGS"
+  LIBDNET_LIBS="$LIBDNETDIR/src/.libs/libdnet.a"
+  DNET_DEPENDS="$LIBDNETDIR/libdnet.a"
+  DNET_CLEAN="dnet_clean"
+  DNET_DIST_CLEAN="dnet_dist_clean"
+else
+  LIBDNET_LIBS="-ldnet"
+  DNET_DEPENDS=""
+  DNET_CLEAN=""
+  DNET_DIST_CLEAN=""
+fi
+
+
+
+
+
+
 
 
 echo "$as_me:$LINENO: checking struct ip" >&5
@@ -8329,6 +8377,11 @@ s,@LIBPCREDIR@,$LIBPCREDIR,;t t
 s,@PCRE_DEPENDS@,$PCRE_DEPENDS,;t t
 s,@PCRE_CLEAN@,$PCRE_CLEAN,;t t
 s,@PCRE_DIST_CLEAN@,$PCRE_DIST_CLEAN,;t t
+s,@LIBDNET_LIBS@,$LIBDNET_LIBS,;t t
+s,@LIBDNETDIR@,$LIBDNETDIR,;t t
+s,@DNET_DEPENDS@,$DNET_DEPENDS,;t t
+s,@DNET_CLEAN@,$DNET_CLEAN,;t t
+s,@DNET_DIST_CLEAN@,$DNET_DIST_CLEAN,;t t
 s,@NBASEDIR@,$NBASEDIR,;t t
 s,@LIBNBASE_LIBS@,$LIBNBASE_LIBS,;t t
 s,@NSOCKDIR@,$NSOCKDIR,;t t

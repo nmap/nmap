@@ -1,0 +1,59 @@
+
+*BSD, MacOS X, Linux
+--------------------
+
+./configure && make
+
+Solaris, IRIX, BSD/OS, HP-UX, Tru64
+-----------------------------------
+
+For firewall support, install Darren Reed's IP Filter package:
+
+	http://coombs.anu.edu.au/~avalon/
+
+For tunnel support on Solaris, install the Universal TUN/TAP Driver:
+
+	http://vtun.sourceforge.net/tun/
+
+Unixware, AIX
+-------------
+
+These ports are incomplete. If anyone can set me up with legitimate
+root access to these platforms, it would be most appreciated. :-)
+
+Windows 2000/XP
+---------------
+
+For raw Ethernet sending, install the WinPcap driver and DLLs, and
+extract their developer pack to a build directory:
+
+	http://winpcap.polito.it/install/default.htm
+
+# XXX - unsupported for now
+# For tunnel interface support, install the OpenVPN "TAP-Win32 Virtual
+# Ethernet Adapter" component (their Windows installer will let you
+# install it alone):
+#
+#	http://openvpn.sourceforge.net/
+
+For firewall support, install HSC's PktFilter service:
+
+	http://www.hsc.fr/ressources/outils/pktfilter/index.html.en
+
+Most Windows developers should just use the libdnet developer's pack
+(with MinGW and MSVC++ libraries) instead of building it themselves.
+But for those who really want to know...
+
+To build a MinGW native library (under Cygwin+MinGW):
+
+	./configure && make
+
+To build a Microsoft Visual C++ native library and Python module
+(again, under Cygwin+MinGW):
+
+	./configure
+	cd python && C:/Python23/python.exe setup.py build
+	cd ../src && lib /out:dnet.lib *.obj
+
+
+# $Id: INSTALL,v 1.4 2005/02/15 07:38:19 dugsong Exp $

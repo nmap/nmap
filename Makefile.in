@@ -18,6 +18,7 @@ CXX = @CXX@
 CCOPT = 
 LIBPCAPDIR = @libpcapdir@
 LIBPCREDIR = @LIBPCREDIR@
+LIBDNETDIR = @LIBDNETDIR@
 INCLS = -I$(LIBPCAPDIR) 
 DEFS = @DEFS@ -DNMAP_VERSION=\"$(NMAP_VERSION)\" -DNMAP_NAME=\"$(NMAP_NAME)\" -DNMAP_URL=\"$(NMAP_URL)\" -DNMAP_PLATFORM=\"$(NMAP_PLATFORM)\" -DNMAPDATADIR=\"$(nmapdatadir)\"
 # For mtrace debugging -- see MTRACE define in main.cc for instructions
@@ -29,7 +30,7 @@ CPPFLAGS = @CPPFLAGS@
 # CFLAGS = $(DEFS) $(INCLS)
 STATIC =
 LDFLAGS = @LDFLAGS@ $(STATIC)
-LIBS =  @LIBNBASE_LIBS@ @LIBNSOCK_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ @OPENSSL_LIBS@ @LIBS@
+LIBS =  @LIBNBASE_LIBS@ @LIBNSOCK_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ @OPENSSL_LIBS@ @LIBDNET_LIBS@ @LIBS@
 # LIBS =  -lefence @LIBS@
 # LIBS =  -lrmalloc @LIBS@
 SHTOOL = ./shtool
@@ -59,7 +60,7 @@ export DEPS = nmap.h nmap_amigaos.h nmap_error.h targets.h idle_scan.h osscan.h 
 
 all: $(TARGET) $(TARGETNMAPFE)
 
-$(TARGET): $(DEPS) @PCAP_DEPENDS@ @PCRE_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(OBJS)
+$(TARGET): $(DEPS) @PCAP_DEPENDS@ @PCRE_DEPENDS@ @LIBDNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(OBJS)
 	@echo Compiling nmap
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
@@ -70,6 +71,9 @@ FORCE:
 
 $(LIBPCREDIR)/libpcre.a: $(LIBPCREDIR)/Makefile FORCE
 	@echo Compiling libpcre; cd $(LIBPCREDIR) && $(MAKE)
+
+$(LIBDNETDIR)/src/.libs/libdnet.a: $(LIBDNETDIR)/Makefile FORCE
+	@echo Compiling libdnet; cd $(LIBDNETDIR) && $(MAKE)
 
 $(LIBPCAPDIR)/libpcap.a: $(LIBPCAPDIR)/Makefile FORCE
 	@echo Compiling libpcap; cd $(LIBPCAPDIR) && $(MAKE)
@@ -101,7 +105,7 @@ distro:
 web:
 	cd scripts && $(MAKE) web
 
-clean: @PCAP_CLEAN@ @PCRE_CLEAN@ nmapfe_clean nsock_clean nbase_clean my_clean
+clean: @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nmapfe_clean nsock_clean nbase_clean my_clean
 
 my_clean:
 	rm -f $(OBJS) $(TARGET) config.cache
@@ -109,6 +113,8 @@ pcap_clean:
 	-cd $(LIBPCAPDIR) && $(MAKE) clean
 pcre_clean:
 	-cd $(LIBPCREDIR) && $(MAKE) clean
+dnet_clean
+	-cd $(LIBDNETDIR) && $(MAKE) clean
 nmapfe_clean:
 	-cd nmapfe && $(MAKE) clean
 nbase_clean:
@@ -119,8 +125,11 @@ pcap_dist_clean:
 	-cd $(LIBPCAPDIR) && $(MAKE) distclean
 pcre_dist_clean:
 	-cd $(LIBPCREDIR) && $(MAKE) distclean
+dnet_dist_clean:
+	-cd $(LIBDNETDIR) && $(MAKE) distclean
 
-distclean: my_clean my_distclean @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@
+distclean: my_clean my_distclean @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@
+
 my_distclean:
 	rm -f Makefile Makefile.bak config.h stamp-h stamp-h.in \
 	         config.cache config.log config.status

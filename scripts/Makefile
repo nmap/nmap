@@ -145,6 +145,13 @@ distro:
                         perltest printint.c README study.c \
                         /usr/tmp/nmap-$(NMAP_VERSION)/libpcre
 
+	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/libdnet-stripped
+	cd ../$(LIBDNETDIR); cp -ra NMAP_MODIFICATIONS acconfig.h aclocal.m4 \
+              config configure configure.in dnet-config.in include INSTALL \
+              libtool LICENSE Makefile Makefile.am Makefile.am.common \
+              Makefile.in README src THANKS TODO \
+              /usr/tmp/nmap-$(NMAP_VERSION)/libdnet
+
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/nsock
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/nsock/include
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/nsock/src
@@ -162,8 +169,9 @@ distro:
                             /usr/tmp/nmap-$(NMAP_VERSION)/nsock/src/
 
 	rm -f /usr/tmp/nmap-$(NMAP_VERSION)/nbase/nbase_config.h 
-# Kill the CVS crap
+# Kill the SVN/CVS crap
 	find /usr/tmp/nmap-$(NMAP_VERSION) -type d -name CVS | xargs rm -rf
+	find /usr/tmp/nmap-$(NMAP_VERSION) -type d -name .svn | xargs rm -rf
 	find /usr/tmp/nmap-$(NMAP_VERSION) -exec chmod go=u-w '{}' \;
 	cd /usr/tmp; tar cjf nmap-$(NMAP_VERSION).tar.bz2 nmap-$(NMAP_VERSION)
 	cd /usr/tmp; tar czf nmap-$(NMAP_VERSION).tgz nmap-$(NMAP_VERSION)

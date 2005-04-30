@@ -1,0 +1,21 @@
+$Id$
+
+This is Dug Song's excellent Libdnet networking library version 1.10.
+It has been stripped down for inclusion within Nmap as follows:
+
+o Removed the following directories:
+  python, test, man
+
+o Removed all filenames from EXTRA_libdnet_la_SOURCES sources, as
+  they aren't needed with GNU automake 1.9.2
+
+o Removed files in now-removed dires that were reference from
+  configure.in:318
+
+o Ran "aclocal -I . -I config" to regenerate aclocal.m4 with my newer
+  aclocal.
+
+o Replaced config.guess config.sub and missing in config dir with
+  versions from Autoconf 2.59.
+
+o Added this NMAP_MODIFICATIONS file.

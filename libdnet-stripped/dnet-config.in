@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+# $Id: dnet-config.in,v 1.1 2001/10/19 01:29:00 dugsong Exp $
+
+prefix=@prefix@
+exec_prefix=@prefix@
+
+usage()
+{
+	cat <<EOF
+Usage: dnet-config [OPTIONS]
+Options:
+	[--version]
+	[--libs]
+	[--cflags]
+EOF
+	exit $1
+}
+
+if test $# -eq 0; then
+	usage 1 1>&2
+fi
+
+while test $# -gt 0; do
+  case "$1" in
+  -*=*) optarg=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
+  *) optarg= ;;
+  esac
+
+  case $1 in
+    --version)
+      echo @VERSION@
+      ;;
+    --cflags)
+      echo_cflags=yes
+      ;;
+    --libs)
+      echo_libs=yes
+      ;;
+    *)
+      usage 1 1>&2
+      ;;
+  esac
+  shift
+done
+
+if test "$echo_cflags" = "yes"; then
+      echo -I@includedir@
+fi
+
+if test "$echo_libs" = "yes"; then
+      echo -L@libdir@ -ldnet @LIBS@
+fi      
+

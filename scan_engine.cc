@@ -257,7 +257,7 @@ public:
   struct ultra_timing_vals timing;
   struct timeout_info to; /* Group-wide packet rtt/timeout info */
   int numtargets; /* Total # of targets scanned -- includes finished and incomplete hosts */
-  int numports; /* Number of ports scanned on each host */
+  int numprobes; /* Number of probes/ports scanned on each host */
   /* The last time waitForResponses finished (initialized to GSS creation time */
   int probes_sent; /* Number of probes sent in total.  This DOES include pings and retransmissions */
   struct timeval last_wait; 
@@ -658,14 +658,14 @@ GroupScanStats::GroupScanStats(UltraScanInfo *UltraSI) {
   num_probes_active = 0;
   numtargets = USI->numIncompleteHosts(); // They are all incomplete at the beginning
   if (USI->tcp_scan) {
-    numports = USI->ports->tcp_count;
+    numprobes = USI->ports->tcp_count;
   } else if (USI->udp_scan) {
-    numports = USI->ports->udp_count;
+    numprobes = USI->ports->udp_count;
   } else if (USI->prot_scan) {
-    numports = USI->ports->prot_count;
+    numprobes = USI->ports->prot_count;
   } else if (USI->ping_scan_arp) {
-    numports = 1;
-  }else assert(0); /* TODO: RPC scan and maybe ping */
+    numprobes = 1;
+  } else assert(0); /* TODO: RPC scan and maybe ping */
   
   if (USI->scantype == CONNECT_SCAN)
     CSI = new ConnectScanInfo;
@@ -1173,7 +1173,7 @@ int UltraScanInfo::removeCompletedHosts() {
 	if (nextI == incompleteHosts.end())
 	  nextI = incompleteHosts.begin();
       }
-      if (o.verbose) {
+      if (o.verbose && gstats->numprobes > 50) {
 	int remain = incompleteHosts.size() - 1;
 	if (remain && !timedout)
 	  log_write(LOG_STDOUT, "Completed %s against %s in %.2fs (%d %s)\n",
@@ -1210,7 +1210,7 @@ int determineScanGroupSize(int hosts_scanned_so_far,
   if (o.UDPScan())
     groupsize = 50;
   else if (o.TCPScan()) {
-    groupsize = MAX(500 / ports->tcp_count, 20);
+    groupsize = MAX(1024 / ports->tcp_count, 30);
     if (ports->tcp_count > 1000 && hosts_scanned_so_far == 0 && 
 	o.timing_level < 4)
       groupsize = 5; // Give quick results for the very first batch
@@ -2067,12 +2067,12 @@ void sendPingProbe(UltraScanInfo *USI, HostScanStats *hss) {
 }
 
 
-
 static void doAnyPings(UltraScanInfo *USI) {
   list<HostScanStats *>::iterator hostI;
   HostScanStats *hss = NULL;
 
   gettimeofday(&USI->now, NULL);
+  /* First single host pings */
   for(hostI = USI->incompleteHosts.begin(); 
       hostI != USI->incompleteHosts.end(); hostI++) {
     hss = *hostI;
@@ -2087,6 +2087,17 @@ static void doAnyPings(UltraScanInfo *USI) {
       hss->lastping_sent_numprobes = hss->numprobes_sent;
     }    
   }
+
+  /* Next come global pings */
+  /****NOT IMPLEMENTED YET *****
+  if (USI->gstats->numprobes < 30 && 
+      USI->gstats->lastping_sent_numprobes + 20 && 
+      TIMEVAL_SUBTRACT(USI->now, USI-gstats->lastrcvd) > USI->perf.pingtime && 
+      TIMEVAL_SUBTRACT(USI->now, USI-gstats->lastping_sent) > USI->perf.pingtime && 
+      USI->gstats->sendOK()) {
+    sendGlobalPingProbe(USI);
+    } ***/
+
 }
 
 /* Retransmit one probe that has presumably been timed out.  Only does
@@ -2154,7 +2165,7 @@ static void doAnyRetransmits(UltraScanInfo *USI) {
 	    /* For rate limit detection, we delay the first time a new tryno
 	       is seen, as long as we are scanning at least 2 ports */
 	    if (probe->tryno + 1 > host->rld.max_tryno_sent && 
-		USI->gstats->numports > 1) {
+		USI->gstats->numprobes > 1) {
 	      host->rld.max_tryno_sent = probe->tryno + 1;
 	      host->rld.rld_waiting = true;
 	      TIMEVAL_MSEC_ADD(host->rld.rld_waittime, USI->now, 1000);
@@ -2218,7 +2229,7 @@ static void printAnyStats(UltraScanInfo *USI) {
       // This is inexact (maxtries - 1) because of numprobes_sent includes
       // at least one try of ports_finished.
       thishostpercdone = host->ports_finished * (maxtries -1) + host->numprobes_sent;
-      thishostpercdone /= maxtries * USI->gstats->numports;
+      thishostpercdone /= maxtries * USI->gstats->numprobes;
       if (thishostpercdone >= .9999) thishostpercdone = .9999;
       avgdone += thishostpercdone;
     }
@@ -3129,7 +3140,7 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
     } else snprintf(targetstr, sizeof(targetstr), "%d hosts", (int) Targets.size());
     starttime = USI->now.tv_sec;
     tm = localtime(&starttime);
-    log_write(LOG_STDOUT, "Initiating %s against %s [%d port%s%s] at %02d:%02d\n", scantype2str(scantype), targetstr, USI->gstats->numports, (USI->gstats->numports != 1)? "s" : "", plural? "/host" : "", tm->tm_hour, tm->tm_min);
+    log_write(LOG_STDOUT, "Initiating %s against %s [%d port%s%s] at %02d:%02d\n", scantype2str(scantype), targetstr, USI->gstats->numprobes, (USI->gstats->numprobes != 1)? "s" : "", plural? "/host" : "", tm->tm_hour, tm->tm_min);
   }
 
   begin_sniffer(USI, Targets);
@@ -3151,7 +3162,7 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
       log_write(LOG_STDOUT, "The %s took %.2fs to scan %lu total ports.\n",
 		scantype2str(scantype), 
 		TIMEVAL_MSEC_SUBTRACT(USI->now, USI->SPM->begin) / 1000.0, 
-		(unsigned long) USI->gstats->numports * Targets.size());
+		(unsigned long) USI->gstats->numprobes * Targets.size());
     else log_write(LOG_STDOUT, "Finished %s in %.2fs, but %d %s timed out.\n", 
 		   scantype2str(scantype), 
 		   TIMEVAL_MSEC_SUBTRACT(USI->now, USI->SPM->begin) / 1000.0,
