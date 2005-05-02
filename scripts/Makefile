@@ -150,7 +150,7 @@ distro:
               config configure configure.in dnet-config.in include INSTALL \
               libtool LICENSE Makefile Makefile.am Makefile.am.common \
               Makefile.in README src THANKS TODO \
-              /usr/tmp/nmap-$(NMAP_VERSION)/libdnet
+              /usr/tmp/nmap-$(NMAP_VERSION)/libdnet-stripped
 
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/nsock
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/nsock/include
