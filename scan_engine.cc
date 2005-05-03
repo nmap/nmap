@@ -554,6 +554,7 @@ UltraProbe::UltraProbe() {
   type = UP_UNSET;
   IP = NULL;
   CP = NULL;
+  AP = NULL;
   tryno = 0;
   timedout = false;
   retransmitted = false;
@@ -1733,7 +1734,7 @@ static void ultrascan_port_update(UltraScanInfo *USI, HostScanStats *hss,
       if (USI->tcp_scan) {
 	hss->pingprobe.type = probespec::PS_TCP;
 	hss->pingprobe.portno = portno;
-	if (USI->scantype = CONNECT_SCAN)
+	if (USI->scantype == CONNECT_SCAN)
 	  hss->pingprobe.tcp_flags = TH_SYN;
 	else hss->pingprobe.tcp_flags = probe->IP->tcp->th_flags;
       } else if (USI->udp_scan) {
@@ -2505,7 +2506,10 @@ static bool get_arp_result(UltraScanInfo *USI, struct timeval *stime) {
       /* Add found HW address for target */
       hss->target->setMACAddress(rcvdmac);
 
-      assert(!hss->probes_outstanding.empty());      
+      if (hss->probes_outstanding.empty()) {
+	continue;
+	/* TODO: I suppose I should really mark the @@# host as up */
+      }
       probeI = hss->probes_outstanding.end();
       probeI--;
       ultrascan_host_update(USI, hss, probeI, HOST_UP, &rcvdtime);
