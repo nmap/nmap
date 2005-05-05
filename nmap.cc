@@ -1712,6 +1712,7 @@ int ip_is_reserved(struct in_addr *ip)
     case 41:        /* 041/8 is IANA reserved       */
     case 42:        /* 042/8 is IANA reserved       */
     case 55:        /* misc. U.S.A. Armed forces    */
+    case 127:       /* localhost */
     case 197:
       return 1;
     default:
