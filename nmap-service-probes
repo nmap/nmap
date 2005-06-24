@@ -625,6 +625,8 @@ match smtp m|^220-TrendMicro IMSS SMTP proxy\r\n| v/TrendMicro SMTP Proxy///
 match smtp m|^220 \S+ ESMTP server \(InterMail v(\S+)| v/InterMail smtpd/$1//
 match smtp m|^220 \S+ -- Server ESMTP \(Sun Java System Messaging Server (\d[^\(\)]+)| v/SUN JSMS smtpd/$1//
 match smtp m|^220 jMailer SMTP Server\r\n$| v/jMailer smtpd///
+match smtp m/^220[- ][^ ]+ Smail-([^ ]+) .*ESMTP/s v/Smail-ESMTP/$1//
+match smtp m/^220[- ][^ ]+ Smail-([^ ]+) / v/Smail/$1//
 
 softmatch smtp m|^220[\s-].*?E?SMTP[^\r]*\r\n|
 

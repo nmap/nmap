@@ -110,7 +110,7 @@
      output.c:printosscanoutput()
 -->
 <!ELEMENT host		( status, address , (address | hostnames |
-                          smurf | ports | addport | os | uptime | 
+                          smurf | ports | os | uptime | 
                           tcpsequence | ipidsequence | tcptssequence )* ) >
 
 
@@ -137,16 +137,6 @@
 <!ELEMENT smurf		EMPTY >
 <!ATTLIST smurf		responses	%attr_numeric;	#REQUIRED >
 
-<!-- this element is written by portlist.cc:addport() -->
-<!ELEMENT addport         EMPTY >
-<!ATTLIST addport         
-                        state           %port_states;    #REQUIRED
-                        owner           CDATA            #IMPLIED
-                        portid          %attr_numeric;   #REQUIRED
-                        protocol        %port_protocols; #REQUIRED
->
-
-
 <!-- these elements are written by output.c:printportoutput() -->
 
 <!ELEMENT ports		(extraports? , port*) >
@@ -154,7 +144,7 @@
 <!ELEMENT extraports	EMPTY >
 <!ATTLIST extraports
 			state		%port_states;	#REQUIRED
-			count		%attr_numeric;	"closed"
+			count		%attr_numeric;  #REQUIRED	
 >
 
 <!ELEMENT port		(state , owner? , service? ) >

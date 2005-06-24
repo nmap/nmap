@@ -3,7 +3,7 @@ CC=gcc
 CPP=g++
 INCLUDE_FLAGS= -I.. -I../nbase -I../libpcap-possiblymodified
 LINK_FLAGS=-L.. -L../nbase -L../libpcap-possiblymodified
-NMAP_OBJS=../osscan.o ../nmap_error.o ../utils.o ../tcpip.o ../output.o ../nmap.o ../scan_engine.o ../portlist.o ../timing.o ../nmap_rpc.o ../charpool.o ../services.o ../targets.o ../idle_scan.o ../protocols.o ../FingerPrintResults.o ../NmapOps.o ../TargetGroup.o ../Target.o ../NmapOutputTable.o ../service_scan.o ../nsock/src/libnsock.a
+NMAP_OBJS=../osscan.o ../nmap_error.o ../utils.o ../tcpip.o ../output.o ../nmap.o ../scan_engine.o ../portlist.o ../timing.o ../nmap_rpc.o ../charpool.o ../services.o ../targets.o ../idle_scan.o ../MACLookup.o ../protocols.o ../FingerPrintResults.o ../NmapOps.o ../TargetGroup.o ../Target.o ../NmapOutputTable.o ../service_scan.o ../nsock/src/libnsock.a
 DEFINES=-DHAVE_CONFIG_H=1
 DATAFILES = nmap-os-fingerprints nmap-service-probes nmap-services nmap-rpc nmap-protocols nmap-mac-prefixes
 SHTOOL = ../shtool
@@ -15,13 +15,13 @@ all: fingermatch fingerdiff servicematch
 dummy:
 
 fingermatch: dummy
-	$(CPP) -g -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt
+	$(CPP) -g -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt -ldnet
 
 fingerdiff: dummy
-	$(CPP) -g -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt
+	$(CPP) -g -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt -ldnet
 
 servicematch: dummy
-	$(CPP) -g -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt
+	$(CPP) -g -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt -ldnet
 
 web:
 	test x$(wroot) != x

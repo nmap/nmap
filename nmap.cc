@@ -280,6 +280,7 @@ int nmap_main(int argc, char *argv[]) {
       {"rH", no_argument, 0, 0},
       {"vv", no_argument, 0, 0},
       {"ff", no_argument, 0, 0},
+      {"privileged", no_argument, 0, 0},
       {"mtu", required_argument, 0, 0},
       {"append_output", no_argument, 0, 0},
       {"noninteractive", no_argument, 0, 0},
@@ -490,6 +491,8 @@ int nmap_main(int argc, char *argv[]) {
 	o.verbose += 2;
       } else if (strcmp(long_options[option_index].name, "ff") == 0) {
 	o.fragscan += 16; 
+      } else if (strcmp(long_options[option_index].name, "privileged") == 0) {
+	o.isr00t = 1;
       } else if (strcmp(long_options[option_index].name, "mtu") == 0) {
         o.fragscan = atoi(optarg);
         if (o.fragscan <= 0 || o.fragscan % 8 != 0)

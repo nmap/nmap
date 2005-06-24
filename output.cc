@@ -1089,7 +1089,17 @@ void printosscanoutput(Target *currenths) {
 	  log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"TCP/IP fingerprint:\n%s",  mergeFPs(currenths->FPR->FPs, currenths->FPR->numFPs, currenths->FPR->osscan_opentcpport, currenths->FPR->osscan_closedtcpport, currenths->MACAddress()));
 	}
       } else { assert(0); }
-    
+   
+    if (o.debugging || o.verbose > 1) {
+
+      log_write(LOG_XML,"<osfingerprint fingerprint=\"\n%s\" />\n", 
+		mergeFPs(currenths->FPR->FPs, currenths->FPR->numFPs, 
+			 currenths->FPR->osscan_opentcpport, 
+			 currenths->FPR->osscan_closedtcpport, 
+			 currenths->MACAddress()));
+    }
+
+ 
     log_write(LOG_XML, "</os>\n");
 
      if (currenths->seq.lastboot) {

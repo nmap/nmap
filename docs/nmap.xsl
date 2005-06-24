@@ -536,6 +536,13 @@ function timestamp2date(stamp)
 </xsl:template>
 <!-- ............................................................ -->
 
+<!-- os fingerprint -->
+<!-- ............................................................ -->
+<xsl:template match="osfingerprint">
+<li>os fingerprint: <em><xsl:value-of select="@fingerprint" /></em></li>
+</xsl:template>
+<!-- ............................................................ -->
+
 <!-- uptime -->
 <!-- ............................................................ -->
 <xsl:template match="uptime">

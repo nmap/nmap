@@ -13,6 +13,10 @@ o Added ARP ping (-PR). Nmap can now send raw ethernet ARP requests to
   detects that the conditions are met.  Example usage: nmap -sP -PR
   192.168.0.0/16 .  This is not yet supported on Windows.
 
+o The OS fingerprint is now provided in XML output if debugging is
+  enabled (-d) or verbosity is at least 2 (-v -v).  This patch was
+  sent by Okan Demirmen (okan(a)demirmen.com)
+
 o Added a stripped-down version of Dug Song's excellent libdnet
   networking library (v. 1.10).  This allows Nmap to send raw ethernet
   frames for the new ARP ping feature.
@@ -46,6 +50,22 @@ o Nmap distribution signing has changed. Release files are now signed
 o Update random host scan (-iR) to support the latest IANA-allocated
   ranges, thanks to patch by Chad Loder (cloder(a)loder.us).
 
+o Updated GNU shtool (a helper program used during 'make install' to
+  version 2.0.2, which fixes a predictable temporary filename
+  weakness discovered by Eric Raymond.
+
+o Removed addport element from XML DTD, since it is no longer used
+  (sugested by Lionel Cons (lionel.cons(a)cern.ch)
+
+o Added new --privileged command-line option and NMAP_PRIVILEGED
+  environmental variable.  Either of these tell Nmap to assume that
+  the user has full privileges to execute raw packet scans, OS
+  detection and the like.  This can be useful when Linux kernel
+  capabilities or other systems are used that allow non-root users to
+  perform raw packet or ethernet frame manipulation.  Without this
+  flag or variable set, Nmap bails on UNIX if geteuid() is
+  nonzero.
+
 o Added some new RPC services to nmap-rpc thanks to a patch from
   vlad902 (vlad902(a)gmail.com).
 
@@ -69,6 +89,10 @@ o Updated the Nmap version number, description, and similar fields
   that MS Visual Studio places in the binary.  This was done by editing
   mswin32/nmap.rc as suggested by Chris Paget (chrisp@ngssoftware.com)
 
+o Fixed Nmap compilation on DragonFly BSD (and perhaps some other
+  systems) by applying a short patch by Joerg Sonnenberger which omits
+  the declaration of errno if it is a #define.
+
 o Increased the buffer size allocated for fingerprints to prevent Nmap
   from running out and quitting (error message: "Assertion
   `servicefpalloc - servicefplen > 8' failed".  Thanks to Mike Hatz
@@ -87,10 +111,10 @@ o Changed from CVS to Subversion source control system (which
   change users will see is that "Id" tags in file headers use the SVN
   format for version numbering and such.
 
-o Added 'leet ASCII art to the confugrator!  ARTIST NOTE: If you
-  think the ASCII art sucks, feel free to send me alternatives.  Note
-  that only people compiling the UNIX source code get the ASCII
-  art. (ASCII artist unknown).
+o Added 'leet ASCII art to the confugrator!  ARTIST NOTE: If you think
+  the ASCII art sucks, feel free to send me alternatives.  Note that
+  only people compiling the UNIX source code get this. (ASCII artist
+  unknown).
 
 Nmap 3.81
 

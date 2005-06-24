@@ -178,7 +178,10 @@ void NmapOps::Initialize() {
 # ifdef __amigaos__
     isr00t = 1;
 # else
-    isr00t = !(geteuid());
+    if (getenv("NMAP_PRIVILEGED"))
+      isr00t = 1;
+    else
+      isr00t = !(geteuid());
 # endif // __amigaos__
 #else
   isr00t = 1;

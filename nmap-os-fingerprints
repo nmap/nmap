@@ -14216,7 +14216,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E|F%ULEN=134%DAT=E)
 
-Fingerprint OpenBSD 3.4 - 3.6
+Fingerprint OpenBSD 3.4 - 3.7
 Class OpenBSD | OpenBSD | 3.X | general purpose
 TSeq(Class=TR%gcd=<6%IPID=RD|RPI%TS=2HZ)
 T1(DF=Y%W=4000%ACK=S++%Flags=AS%Ops=MNWNNT)

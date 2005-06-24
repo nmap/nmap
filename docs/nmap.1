@@ -784,6 +784,28 @@ to randomize the order in which ports are scanned.
 .B \-\-ttl <value>
 Sets the IPv4 time to live field in sent packets to the given value.
 .TP
+.B \-\-privileged
+Tells Nmap to simply assume that it is privileged enough to perform
+raw socket sends, packet sniffing, and similar operations that usually
+require root privileges on UNIX systems.  By default Nmap bails if
+such operations are requested but geteuid() is not zero.  --privileged
+is useful with Linux kernel capabilities and similar systems that may
+be configured to allow unprivileged users to perform raw-packet
+scans.  Be sure to provide this option flag before any flags for
+options that require privileges (SYN scan, OS detection, etc.).  The
+NMAP_PRIVILEGED variable may be set as an equivalent alternative
+--privileged.
+.TP
+.B \-\-interactive
+Starts Nmap in interactive mode, which offers an interactive Nmap
+prompt allowing easy launching of multiple scans (either synchronously
+or in the background). This is useful for people who scan from
+multi-user systems -- they often want to test their security without
+letting everyone else on the system know exactly which systems they
+are scanning. Use --interactive to activate this mode and then type
+'h' for help.  This option is rarely used because proper shells are 
+usually more familiar and feature-complete.
+.TP
 .B \-\-randomize_hosts
 Tells Nmap to shuffle each group of up to 2048 hosts before
 it scans them.  This can make the scans less obvious to
