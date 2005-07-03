@@ -221,6 +221,7 @@ void NmapOps::Initialize() {
   decoyturn = -1;
   osscan = 0;
   servicescan = 0;
+  override_excludeports = 0;
   pingtype = PINGTYPE_UNKNOWN;
   listscan = pingscan = allowall = ackscan = bouncescan = connectscan = 0;
   rpcscan = nullscan = xmasscan = fragscan = synscan = windowscan = 0;

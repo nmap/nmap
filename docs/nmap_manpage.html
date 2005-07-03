@@ -579,6 +579,11 @@
               targets are provided in an newline-delimited exclude_file rather
               than on the command line.
 
+       <B>--allports</B>
+              Causes  version  detection  (-sV)  to scan all open ports found,
+              including those excluded as dangerous (likely to  cause  crashes
+              or other problems) in nmap-service-probes.
+
        <B>--append_output</B>
               Tells  Nmap  to append scan results to any output files you have
               specified rather than overwriting those files.
@@ -733,6 +738,28 @@
        <B>--ttl</B> <B>&lt;value&gt;</B>
               Sets the IPv4 time to live field in sent packets  to  the  given
               value.
+
+       <B>--privileged</B>
+              Tells Nmap to simply assume that it is privileged enough to per-
+              form raw socket sends, packet sniffing, and  similar  operations
+              that  usually  require  root  privileges  on  UNIX  systems.  By
+              default  Nmap  bails  if  such  operations  are  requested   but
+              geteuid() is not zero.  --privileged is useful with Linux kernel
+              capabilities and similar systems that may be configured to allow
+              unprivileged users to perform raw-packet scans.  Be sure to pro-
+              vide this option flag before any flags for options that  require
+              privileges  (SYN scan, OS detection, etc.).  The NMAP_PRIVILEGED
+              variable may be set as an equivalent alternative --privileged.
+
+       <B>--interactive</B>
+              Starts Nmap in interactive mode,  which  offers  an  interactive
+              Nmap  prompt  allowing  easy launching of multiple scans (either
+              synchronously or in the background). This is useful  for  people
+              who  scan  from  multi-user  systems  -- they often want to test
+              their security without letting everyone else on the system  know
+              exactly  which  systems  they are scanning. Use --interactive to
+              activate this mode and then type usually more familiar and  fea-
+              ture-complete.
 
        <B>--randomize_hosts</B>
               Tells  Nmap  to shuffle each group of up to 2048 hosts before it
@@ -919,8 +946,8 @@
 
        <B>nmap</B> <B>-v</B> <B>target.example.com</B>
 
-       This  option  scans  all reserved TCP ports on the machine target.exam-
-       ple.com .  The -v means turn on verbose mode.
+       This   option   scans   all   reserved   TCP   ports   on  the  machine
+       target.example.com .  The -v means turn on verbose mode.
 
        <B>nmap</B> <B>-sS</B> <B>-O</B> <B>target.example.com/24</B>
 

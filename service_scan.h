@@ -303,6 +303,9 @@ public:
   ServiceProbe *getProbeByName(const char *name, int proto);
   vector<ServiceProbe *> probes; // All the probes except nullProbe
   ServiceProbe *nullProbe; // No probe text - just waiting for banner
+
+  int isExcluded(unsigned short port, int proto);
+  struct scan_lists *excludedports;
 };
 
 /**********************  PROTOTYPES  ***********************************/

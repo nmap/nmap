@@ -11142,6 +11142,20 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N|Y)
 
+# http://www.turtlebeach.com/site/products/audiotron/producthome.asp
+Fingerprint Microsoft Windows 98SE or Turtle Beach AudioTron 100 network MP3 player
+Class Microsoft | Windows | 95/98/ME | general purpose
+Class Turtle Beach | embedded || media device
+TSeq(Class=TD%gcd=<68%SI=<1E%IPID=BI%TS=U)
+T1(DF=Y%W=2017%ACK=S++%Flags=AS%Ops=M)
+T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
+T3(Resp=Y%DF=Y%W=2017%ACK=S++%Flags=AS%Ops=M)
+T4(DF=N%W=0%ACK=O|S++%Flags=R%Ops=)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
 # Microsoft Windows 98SE, service pack 1 installed, litepc installed (www.litepc.com)
 Fingerprint Microsoft Windows 98SE SP1
 Class Microsoft | Windows | 95/98/ME | general purpose
@@ -16467,20 +16481,6 @@ T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
-
-# http://www.turtlebeach.com/site/products/audiotron/producthome.asp
-Fingerprint Turtle Beach AudioTron 100 network MP3 player or Microsoft Windows 98SE
-Class Turtle Beach | embedded || media device
-Class Microsoft | Windows | 95/98/ME | general purpose
-TSeq(Class=TD%gcd=<68%SI=<1E%IPID=BI%TS=U)
-T1(DF=Y%W=2017%ACK=S++%Flags=AS%Ops=M)
-T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
-T3(Resp=Y%DF=Y%W=2017%ACK=S++%Flags=AS%Ops=M)
-T4(DF=N%W=0%ACK=O|S++%Flags=R%Ops=)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Turtle Beach AudioTron with firmware 3.0.0
 Fingerprint Turtle Beach AudioTron network MP3 player

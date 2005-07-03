@@ -216,6 +216,16 @@ int Port::getServiceDeductions(struct serviceDeductions *sd) {
     sd->extrainfo = serviceprobe_extrainfo;
     populateFullVersionString(sd);
     return 0;
+  } else if (serviceprobe_results == PROBESTATE_EXCLUDED) {
+    service = nmap_getservbyport(htons(portno), (proto == IPPROTO_TCP)? "tcp" : "udp");
+
+    if (service) sd->name = service->s_name;
+
+    sd->name_confidence = 2;  // Since we didn't even check it, we aren't very confident
+    sd->dtype = SERVICE_DETECTION_TABLE;
+    sd->product = serviceprobe_product;  // Should have a string that says port was excluded
+    populateFullVersionString(sd);
+    return 0;
   } else if (serviceprobe_results == PROBESTATE_FINISHED_TCPWRAPPED) {
     sd->dtype = SERVICE_DETECTION_PROBED;
     sd->name = "tcpwrapped";

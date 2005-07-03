@@ -285,6 +285,7 @@ int nmap_main(int argc, char *argv[]) {
       {"append_output", no_argument, 0, 0},
       {"noninteractive", no_argument, 0, 0},
       {"ttl", required_argument, 0, 0}, /* Time to live */
+      {"allports", no_argument, 0, 0},
 #ifdef WIN32
       {"win_list_interfaces", no_argument, 0, 0},
       {"win_norawsock", no_argument, 0, 0}, 
@@ -404,6 +405,8 @@ int nmap_main(int argc, char *argv[]) {
 	o.append_output = 1;
       } else if (strcmp(long_options[option_index].name, "noninteractive") == 0) {
 	/* Do nothing */
+      } else if (strcmp(long_options[option_index].name, "allports") == 0) {
+        o.override_excludeports = 1;
       } else if (strcmp(long_options[option_index].name, "scan_delay") == 0) {
 	o.scan_delay = atoi(optarg);
 	if (o.scan_delay <= 0) {

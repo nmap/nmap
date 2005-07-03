@@ -304,10 +304,6 @@ void *realloc();
 
 #define MAX_DECOYS 128 /* How many decoys are allowed? */
 
-#ifndef MAX_RTT_TIMEOUT
-#define MAX_RTT_TIMEOUT 10000 /* Never allow more than 10 secs for packet round
-				 trip */
-#endif
 
 /* Default maximum send delay between probes to the same host */
 #ifndef MAX_TCP_SCAN_DELAY
@@ -324,6 +320,11 @@ void *realloc();
    networks (such as localhost scans).  */
 #ifndef MIN_RTT_TIMEOUT
 #define MIN_RTT_TIMEOUT 100 
+#endif
+
+#ifndef MAX_RTT_TIMEOUT
+#define MAX_RTT_TIMEOUT 10000 /* Never allow more than 10 secs for packet round
+				 trip */
 #endif
 
 #define INITIAL_RTT_TIMEOUT 1000 /* Allow 1 second initially for packet responses */

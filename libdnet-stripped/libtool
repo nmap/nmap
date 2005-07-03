@@ -6938,11 +6938,11 @@ striplib="strip --strip-unneeded"
 
 # Dependencies to place before the objects being linked to create a
 # shared library.
-predep_objects="/usr/lib/gcc/x86_64-redhat-linux/3.4.2/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/3.4.2/crtbeginS.o"
+predep_objects="/usr/lib/gcc/x86_64-redhat-linux/3.4.3/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/3.4.3/crtbeginS.o"
 
 # Dependencies to place after the objects being linked to create a
 # shared library.
-postdep_objects="/usr/lib/gcc/x86_64-redhat-linux/3.4.2/crtendS.o /usr/lib/gcc/x86_64-redhat-linux/3.4.2/../../../../lib64/crtn.o"
+postdep_objects="/usr/lib/gcc/x86_64-redhat-linux/3.4.3/crtendS.o /usr/lib/gcc/x86_64-redhat-linux/3.4.3/../../../../lib64/crtn.o"
 
 # Dependencies to place before the objects being linked to create a
 # shared library.
@@ -6954,7 +6954,7 @@ postdeps="-lstdc++ -lm -lgcc_s -lc -lgcc_s"
 
 # The library search path used internally by the compiler when linking
 # a shared library.
-compiler_lib_search_path="-L/usr/lib/gcc/x86_64-redhat-linux/3.4.2 -L/usr/lib/gcc/x86_64-redhat-linux/3.4.2 -L/usr/lib/gcc/x86_64-redhat-linux/3.4.2/../../../../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/3.4.2/../../.. -L/lib/../lib64 -L/usr/lib/../lib64"
+compiler_lib_search_path="-L/usr/lib/gcc/x86_64-redhat-linux/3.4.3 -L/usr/lib/gcc/x86_64-redhat-linux/3.4.3 -L/usr/lib/gcc/x86_64-redhat-linux/3.4.3/../../../../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/3.4.3/../../.. -L/lib/../lib64 -L/usr/lib/../lib64"
 
 # Method to check whether dependent libraries are shared objects.
 deplibs_check_method="pass_all"

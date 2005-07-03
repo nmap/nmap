@@ -998,10 +998,18 @@ void parse_nmap_service_probe_file(AllProbes *AP, char *filename) {
     if (*line == '\n' || *line == '#')
       continue;
   
+    if (strncmp(line, "Exclude ", 8) == 0) {
+      if (AP->excludedports != NULL)
+        fatal("Only 1 Exclude directive is allowed in the nmap-service-probes file");
+
+      AP->excludedports = getpts(line+8);
+      continue;
+    }
+  
   anotherprobe:
   
     if (strncmp(line, "Probe ", 6) != 0)
-      fatal("Parse error on line %d of nmap-service-probes file: %s -- line was expected to begin with \"Probe \"", lineno, filename);
+      fatal("Parse error on line %d of nmap-service-probes file: %s -- line was expected to begin with \"Probe \" or \"Exclude \"", lineno, filename);
     
     newProbe = new ServiceProbe();
     newProbe->setProbeDetails(line + 6, lineno);
@@ -1031,6 +1039,8 @@ void parse_nmap_service_probe_file(AllProbes *AP, char *filename) {
 	newProbe->totalwaitms = waitms;
       } else if (strncmp(line, "match ", 6) == 0 || strncmp(line, "softmatch ", 10) == 0) {
 	newProbe->addMatch(line, lineno);
+      } else if (strncmp(line, "Exclude ", 8) == 0) {
+        fatal("The Exclude directive must precede all Probes in nmap-service-probes");
       } else fatal("Parse error on line %d of nmap-service-probes file: %s -- unknown directive", lineno, filename);
     }
   }
@@ -1082,6 +1092,7 @@ const struct MatchDetails *ServiceProbe::testMatch(const u8 *buf, int buflen) {
 
 AllProbes::AllProbes() {
   nullProbe = NULL;
+  excludedports = NULL;
 }
 
 AllProbes::~AllProbes() {
@@ -1108,6 +1119,36 @@ ServiceProbe *AllProbes::getProbeByName(const char *name, int proto) {
 
   return NULL;
 }
+
+
+
+// Returns nonzero if port was specified in the excludeports
+// directive in nmap-service-probes. Zero otherwise.
+// Proto should be IPPROTO_TCP for TCP and IPPROTO_UDP for UDP
+// Note that although getpts() can set protocols (for protocol
+// scanning), this is ignored here because you can't version
+// scan protocols.
+int AllProbes::isExcluded(unsigned short port, int proto) {
+  unsigned short *p=NULL;
+  int count=-1;
+
+  if (proto == IPPROTO_TCP) {
+    p = excludedports->tcp_ports;
+    count = excludedports->tcp_count;
+  } else if (proto == IPPROTO_UDP) {
+    p = excludedports->udp_ports;
+    count = excludedports->udp_count;
+  } else {
+    fatal("Bad proto number (%d) specified in AllProbes::isExcluded", proto);
+  }
+
+  for (;count >= 0;count--)
+    if (p[count] == port) return 1;
+
+  return 0;
+}
+
+
 
 ServiceNFO::ServiceNFO(AllProbes *newAP) {
   target = NULL;
@@ -2061,6 +2102,35 @@ static void startTimeOutClocks(ServiceGroup *SG) {
   }
 }
 
+
+
+// We iterate through SG->services_remaining and remove any with port/protocol
+// pairs that are excluded. We use AP->isExcluded() to determine which ports
+// are excluded.
+void remove_excluded_ports(AllProbes *AP, ServiceGroup *SG) {
+  list<ServiceNFO *>::iterator i, nxt;
+  ServiceNFO *svc;
+
+  for(i = SG->services_remaining.begin(); i != SG->services_remaining.end(); i=nxt) {
+    nxt = i;
+    nxt++;
+
+    svc = *i;
+    if (AP->isExcluded(svc->portno, svc->proto)) {
+
+      if (o.debugging) printf("EXCLUDING %d/%s\n", svc->portno, svc->proto==IPPROTO_TCP ? "tcp" : "udp");
+
+      svc->port->setServiceProbeResults(PROBESTATE_EXCLUDED, NULL, SERVICE_TUNNEL_NONE,
+                                        "Excluded from version scan", NULL, NULL, NULL);
+
+      SG->services_remaining.erase(i);
+      SG->services_finished.push_back(svc);
+    }
+  }
+
+}
+
+
 /* Execute a service fingerprinting scan against all open ports of the
    Targets specified. */
 int service_scan(vector<Target *> &Targets) {
@@ -2085,6 +2155,13 @@ int service_scan(vector<Target *> &Targets) {
 
   // Now I convert the targets into a new ServiceGroup
   SG = new ServiceGroup(Targets, AP);
+
+  if (o.override_excludeports) {
+    if (o.debugging || o.verbose) printf("Overriding exclude ports option! Some undesirable ports may be version scanned!\n");
+  } else {
+    remove_excluded_ports(AP, SG);
+  }
+
   startTimeOutClocks(SG);
 
   if (SG->services_remaining.size() == 0) {
@@ -2120,7 +2197,7 @@ int service_scan(vector<Target *> &Targets) {
 
   launchSomeServiceProbes(nsp, SG);
 
-  // How long do we have befor timing out?
+  // How long do we have before timing out?
   gettimeofday(&now, NULL);
   timeout = -1;
 

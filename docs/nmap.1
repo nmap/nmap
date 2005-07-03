@@ -618,6 +618,11 @@ Same functionality as the --exclude option, only the excluded targets
 are provided in an newline-delimited exclude_file rather than on the
 command line.
 .TP
+.B \--allports
+Causes version detection (-sV) to scan all open ports found, including
+those excluded as dangerous (likely to cause crashes or other
+problems) in nmap-service-probes.
+.TP
 .B \--append_output
 Tells Nmap to append scan results to any output files you have specified
 rather than overwriting those files.

@@ -13,6 +13,16 @@ o Added ARP ping (-PR). Nmap can now send raw ethernet ARP requests to
   detects that the conditions are met.  Example usage: nmap -sP -PR
   192.168.0.0/16 .  This is not yet supported on Windows.
 
+o Added "Exclude" directive to nmap-service-probes grammar which
+  causes version detection to skip listed ports.  This is helpful for
+  ports such as 9100.  Some printers simply print any data sent to
+  that port, leading to pages of HTTP requests, SMB queries, X Windows
+  probes, etc.  If you really want to scan all ports, specify
+  --allports.  This patch came from Doug Hoyte (doug(a)hcsw.org).
+
+o Integrated a bunch of nmap-service-probes fingerprints from Doug
+  Hoyte (doug(a)hcsw.org)
+
 o The OS fingerprint is now provided in XML output if debugging is
   enabled (-d) or verbosity is at least 2 (-v -v).  This patch was
   sent by Okan Demirmen (okan(a)demirmen.com)

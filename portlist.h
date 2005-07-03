@@ -130,6 +130,7 @@ enum serviceprobestate {
   PROBESTATE_FINISHED_SOFTMATCHED, // Well, a soft match anyway
   PROBESTATE_FINISHED_NOMATCH, // D'oh!  Failed to find the service.
   PROBESTATE_FINISHED_TCPWRAPPED, // We think the port is blocked via tcpwrappers
+  PROBESTATE_EXCLUDED, // The port has been excluded from the scan
   PROBESTATE_INCOMPLETE // failed to complete (error, host timeout, etc.)
 };
 

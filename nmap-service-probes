@@ -131,7 +131,7 @@ match ftp m|^220-FileZilla Server version (\d[-.\w ]+)\r\n| v/FileZilla ftpd/$1/
 # Netgear RP114
 match ftp m|^220 ([-\w]+)? FTP version 1\.0 ready at | v/Netgear broadband router ftpd/1.0//
 match ftp m|^220 [-.\w]+ FTP server \(GNU inetutils (\d[-.\w ]+)\) ready\.\r\n| v/GNU Inetutils FTPd/$1//
-match ftp m|^220 .* \(glftpd (\d[-.0-9a-zA-Z]+)_(\w+)(\+TLS)?\) ready\.\r\n| v/glFtpD/$1/platform: $2/
+match ftp m|^220 .* \(glftpd (\d[-.0-9a-zA-Z]+)_(\w+)(\+TLS)?\) ready\.\r\n| v/glFtpD/$1/$2/
 match ftp m|^220 [-.\w]+ FTP server \(FirstClass v(\d[-.\w]+)\) ready\.\r\n| v/FirstClass FTP server/$1//
 match ftp m|^220 [-.\w]+ FTP server \(Compaq Tru64 UNIX Version (\d[-.\w]+)\) ready\.\r\n| v/Compaq Tru64 ftp server/$1//
 match ftp m|^220 AXIS ([-.\w]+) FTP Network Print Server V(\d[-.\w]+) [A-Z][a-z]| v/Axis network print server ftpd/$2/Model $1/
@@ -1139,7 +1139,7 @@ match http m|^HTTP/1\.0 200 OK\r\nServer: SimpleServer:WWW/(\d[-.\w]+)\r\n| v/An
 # Xitami v2.4d9 Windows
 match http m|^HTTP/1\.0 \d\d\d .*\r\nContent-Length: \d+\r\nX-Powered-By: ([-/.\w ]+)\r\nContent-Type: .*\r\nServer: Xitami\r\n| v/Xitami httpd//$1/
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: CANON HTTP Server Ver(\d[-.\w ]+)\r\n| v/Canon printer web interface/$1//
-match http m|^HTTP/1\.1 500 Server Error\r\nConnection: close\r\nContent-Length: \d+\r\nDate: .*\r\nServer: Radio UserLand/(\d[.\w ]+)-([-.\w ]+)\r\n\r\n| v/Radio Userland blog server/$1/platform: $2/
+match http m|^HTTP/1\.1 500 Server Error\r\nConnection: close\r\nContent-Length: \d+\r\nDate: .*\r\nServer: Radio UserLand/(\d[.\w ]+)-([-.\w ]+)\r\n\r\n| v/Radio Userland blog server/$1/$2/
 match http m|^HTTP/1\.1 302 Moved Temporarily\r\nPragma: no-cache\r\nLocation: /servlet/nodeinfo/\r\nExpires: .*\r\nCache-Control: post-check=0, pre-check=0\r\nConnection: close\r\nContent-type: \r\nServer: Fred (\d[-.\w]+) \(build (\d+)\) HTTP Servlets\r\n\r\n| v/Freenet Fred anonymous P2P/$1 build $2//
 match http m|^HTTP/1\.0 200 Ok\r\nServer: diva_httpd\r\n| v/Eicon Diva ISDN card configuration server///
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Resin/(\d[-.\w]+)\r\n| v/Caucho Resin JSP engine/$1//
@@ -1178,10 +1178,10 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Oracle XML DB/(Oracle[\w]+ Enterpri
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: Oracle9iAS \((\d[-.\w]+)\) Containers for J2EE\r\n| v/Oracle 9iAS J2EE webserver/$1//
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nAllow: .*\r\nServer: Oracle9iAS-Web-Cache/(\d[-.\w]+)\r\n| v/Oracle 9iAS Web Cache/$1//
 # ntop 2.1.56
-match http m|^HTTP/1\.0 \d\d\d .*\nServer: ntop/(\d[-.\w]+) \(([-.\w]+)\)\n|s v/Ntop web interface/$1/platform: $2/
+match http m|^HTTP/1\.0 \d\d\d .*\nServer: ntop/(\d[-.\w]+) \(([-.\w]+)\)\n|s v/Ntop web interface/$1/$2/
 match http m|^HTTP/1\.0 \d\d\d .*\nServer: ntop/(\d[-.\w]+) \([^\)\r]+\)\r\n|s v/Ntop web interface/$1//
 # Ntop 2.1.3
-match http m|HTTP/1\.0 \d\d\d .*\nDate: .*\nCache-Control: .*\nConnection: .*\nServer: ntop/(\d[-.\w]+) ([-.\w ]+) \(([-.\w]+)\)\n| v/Ntop web interface/$1/$2; platform: $3/
+match http m|HTTP/1\.0 \d\d\d .*\nDate: .*\nCache-Control: .*\nConnection: .*\nServer: ntop/(\d[-.\w]+) ([-.\w ]+) \(([-.\w]+)\)\n| v/Ntop web interface/$1/$2; $3/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Apt-proxy (\d[-.\w]+)\r\n|s v/Debian Apt-proxy/$1//
 match http m|^HTTP/1\.0 404 NON-EXISTENT BACKEND\r\n\r\n$| v/Debian Apt-proxy//Broken: no backend/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: mini_httpd/(\d[-.\w]+) | v/Mini_httpd/$1//
@@ -1423,8 +1423,8 @@ match postgresql m|^EFATAL:  invalid length of startup packet\n\0$| v/PostgreSQL
 match rendezvous m|^HTTP/1\.1 400 Bad Request\r\nDate: .*\r\nDAAP-Server: iTunes/(\d[-.\w]+) \((.*)\)\r\n| v/Apple iTunes/$1/on $2/
 
 match rtsp m|^RTSP/1.0 400 Bad Request\r\nServer: DSS/([-.\w]+) \[(v\d+)]-(\w+)\r\n| v/DarwinStreamingServer/$1/$2 on $3/
-match rtsp m|^RTSP/1\.0 400 Bad Request\r\nServer: QTSS/(\d[\d.]+ \[v\d+\]-Win32)\r\nCseq: \r\n| v/Apple QuickTime Streaming Server/$1//
-match rtsp m|^RTSP/1\.0 400 Bad Request\r\nServer: QTSS/(\d[-.\w]+) \(Build/([\d.]+); Platform/([-.\w]+)\)\r\nCseq: \r\nConnection: Close\r\n\r\n$| v/Apple QuickTime Streaming Server/$1 build $2/Platform: $3/
+match rtsp m|^RTSP/1\.0 400 Bad Request\r\nServer: QTSS/(\d[\d.]+ \[v\d+\]-Win32)\r\nCseq: \r\n| v/Apple QuickTime Streaming Server/$1/Win32/
+match rtsp m|^RTSP/1\.0 400 Bad Request\r\nServer: QTSS/(\d[-.\w]+) \(Build/([\d.]+); Platform/([-.\w]+)\)\r\nCseq: \r\nConnection: Close\r\n\r\n$| v/Apple QuickTime Streaming Server/$1 build $2/$3/
 match rtsp m|^RTSP/1\.0 505 Protocol Version Not Supported\r\nDate: .*\r\nServer: WMServer/(\d[-.\w]+)\r\n\r\n$| v/Microsoft Windows Media Server/$1//
 
 match slimp3 m|^GET %2f HTTP%2f1\.0\n$| v|SliMP3 MP3 player||http://www.slimdevices.com|
@@ -1517,9 +1517,9 @@ match kmldonkey m|^HTTP/1\.1 400 Bad Request\r\nServer: KMLDonkey/(\d\S+)| v/KML
 
 ##############################NEXT PROBE##############################
 Probe TCP RTSPRequest q|OPTIONS / RTSP/1.0\r\n\r\n|
-match rtsp m|^RTSP/1\.0 200 OK\r\nCSeq: 0\r\nDate: .*\r\nServer: RealServer Version (\d[-.\w]+) \(win32\)\r\n| v/Realserver RTSP/$1/win32/
-match rtsp m|^RTSP/1\.0 200 OK\r\n.*Server: RealMedia EncoderServer Version (\d[-.\w]+) \(win32\)\r\n|s v/RealMedia EncoderServer/$1/win32/
-match rtsp m|^RTSP/1\.0 200 OK\r\n.*Server: RealServer Version (\d[-.\w]+) \(([-.+\w]+)\)\r\n|s v/RealOne Server/$1/platform: $2/
+match rtsp m|^RTSP/1\.0 200 OK\r\nCSeq: 0\r\nDate: .*\r\nServer: RealServer Version (\d[-.\w]+) \(win32\)\r\n| v/Realserver RTSP/$1/Win32/
+match rtsp m|^RTSP/1\.0 200 OK\r\n.*Server: RealMedia EncoderServer Version (\d[-.\w]+) \(win32\)\r\n|s v/RealMedia EncoderServer/$1/Win32/
+match rtsp m|^RTSP/1\.0 200 OK\r\n.*Server: RealServer Version (\d[-.\w]+) \(([-.+\w]+)\)\r\n|s v/RealOne Server/$1/$2/
 # APC PowerChute Business Edition Agent 6.1.0.0 on Windows 2000 Server
 match powerchute m|^RTSP/1\.0 400 Bad request\r\nContent-type: text/html\r\n\r\n| v/APC PowerChute Agent///
 match msdtc m|^ERROR\n$|s v/Microsoft Distributed Transaction Coordinator//error/

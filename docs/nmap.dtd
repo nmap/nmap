@@ -77,7 +77,7 @@
 <!-- This element was started in nmap.c:nmap_main().
      It represents to the topmost element of the output document.
 -->
-<!ELEMENT nmaprun      (scaninfo?, verbose, debugging, host*, runstats?) >
+<!ELEMENT nmaprun      (scaninfo*, verbose, debugging, host*, runstats) >
 <!ATTLIST nmaprun
 			scanner		(nmap)		#REQUIRED
 			args		CDATA		#IMPLIED
@@ -167,6 +167,7 @@
                         version         CDATA           #IMPLIED
                         product         CDATA           #IMPLIED
                         extrainfo       CDATA           #IMPLIED
+			tunnel		(ssl)		#IMPLIED
 			proto		(rpc)		#IMPLIED
 			rpcnum		%attr_numeric;	#IMPLIED
 			lowver		%attr_numeric;	#IMPLIED
@@ -238,6 +239,5 @@
 <!ATTLIST hosts
 			up		%attr_numeric;	"0"
 			down		%attr_numeric;	"0"
-			skipped		%attr_numeric;	"0"
 			total		%attr_numeric;	#REQUIRED
 >

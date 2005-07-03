@@ -216,6 +216,9 @@ class NmapOps {
 			       target_struct_get will eventually set it 
 			       to 0. */
 
+  // Version Detection Options
+  int override_excludeports;
+
   struct in_addr decoys[MAX_DECOYS];
   int osscan_limit; /* Skip OS Scan if no open or no closed TCP ports */
   int osscan_guess;   /* Be more aggressive in guessing OS type */
