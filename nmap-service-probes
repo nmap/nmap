@@ -29,6 +29,9 @@
 # services, see our paper at
 # http://www.insecure.org/nmap/versionscan.html .
 
+# The Exclude directive takes a comma separated list of ports.
+# The format is exactly the same as the -p switch.
+Exclude T:9100
 
 # This is the NULL probe that just compares any banners given to us
 ##############################NEXT PROBE##############################
