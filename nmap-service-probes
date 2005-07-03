@@ -66,6 +66,9 @@ match citrix-ica m|^\x7f\x7fICA\0\x7f\x7fICA\0| v/Citrix Metaframe XP ICA///
 match concertosendlog m|^Concerto Software\r\n\r\nEnsemblePro SendLog Server - Version (\d[-.\w]+)\r\n\r\nEnter Telnet Password\r\n#> | v/Concerto Software EnsemblePro CRM software SendLog Server/$1//
 match concertotimesync m|^Concerto Software\r\n\r\nContactPro TimeSync Server - Version (\d[-.\w]+)\r\n\r\nEnter Telnet Password\r\n#> | v/Concerto Software EnsemblePro CRM software TimeSync Server/$1//
 
+# CompTek AquaGateKeeper (Telephony package) http://aqua.comptek.ru
+match H.323/Q.931 m|^\x03\0\0.*@| v/CompTek AquaGateKeeper///
+
 match cvspserver m|^no repository configured in /| v/CVS pserver//broken/
 match cvspserver m|^/usr/sbin/cvs-pserver: line \d+: .*cvs: No such file or directory\n| v/CVS pserver//broken/
 match cvsup m|^OK \d+ \d+ ([-.\w]+) CVSup server ready\n| v/CVSup/$1//
@@ -195,6 +198,9 @@ match ftp m|^220-Setting memory limit to 1024\+1024kbytes\r\n220-Local time is n
 
 match ftp m|^220  FTP server \(Hummingbird Ltd\. \(HCLFTPD\) Version (7.1.0.0)\) ready\.\r\n$| v/Hummingbird FTP server/$1//
 
+match ftp m|^220- .*\n220 [-.\w]+ FTP server \(Version (.*)\) ready\.\r\n|s v/BSD ftpd/$1//
+match ftp m|^220 ArGoSoft FTP Server for Windows NT/2000/XP, Version [\d.]+ \(([\d.]+)\)\r\n| v/ArGoSoft ftpd/$1/Win32/
+
 # Netware 6 - NWFTPD.NLM FTP Server Version 5.01w
 match ftp m|^220 Service Ready for new User\r\n$| v/Netware NWFTPD///
 match ftp m|^220 ([-\w]+) FTP server \(NetWare (v[\d.]+)\) ready\.\r\n$| v/Novell Netware ftpd/$2//
@@ -226,6 +232,7 @@ match vdr m|220 \S+ SVDRP VideoDiskRecorder (\d[^\;]+);| v/VDR/$1//
 softmatch ftp m/^220 [-.\w ]+ftp.*\r\n$/i
 softmatch ftp m/^220-[-.\w ]+ftp.*\r\n220/i
 softmatch ftp m/^220[- ].*ftp server.*\r\n/i
+softmatch ftp m/^220-\r?\n220 - ftp/i
 
 match fw1-rlogin m|^\0Check Point FireWall-1 authenticated RLogin server running on [-.\w]+\r\n\r| v/Check Point FireWall-1 authenticated RLogin server///
 match gnats m|^200 [-.\w]+ GNATS server (\d[-.\w]+) ready\.\r\n| v/GNATS bugtracking system/$1//
@@ -279,6 +286,7 @@ softmatch imap m/^\* OK [-.\w,:+ ]+imap[-.\w,:+ ]+\r\n$/i
 
 # Cyrus IMSPD
 match imsp m|^\* OK Cyrus IMSP version (\d[-.\w]+) ready\r\n$| v/Cyrus IMSPd/$1//
+match imap m|^\* OK Microsoft Exchange Server ([\d]+) IMAP4rev1 server version (\d[-.\w]+) \([-.\w]+\) ready\.\r\n| v/Microsoft Exchange Server $1/$2//
 
 # ircd-hybrid 7 on Linux
 match irc m|^NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\nNOTICE AUTH :\*\*\* Checking Ident\r\nNOTICE AUTH :\*\*\* Got Ident response\r\nNOTICE AUTH :\*\*\* Couldn't look up your hostname\r\n$| v/Hybrid ircd///
@@ -306,12 +314,14 @@ match irc m|^:[-.\w]+ NOTICE AUTH :BitlBee-IRCd initialized, please go on\r\n| v
 match irc m|^NOTICE AUTH :\*\*\* Hostname lookup disabled, using your numeric IP\r\nNOTICE AUTH :\*\*\* Checking Ident\r\n| v/PTlink ircd///
 match irc m|^:[-.+\w]+ NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\n:[-.+\w]+ NOTICE AUTH :\*\*\* Checking Ident\n:[-.+\w]+ NOTICE AUTH :\*\*\* Found your hostname\n| v/Bahamut Dalnet ircd//derived from DreamForge and Hybrid/
 match irc-proxy m|^:Welcome!psyBNC@lam3rz\.de NOTICE \* :psyBNC([-.\w]+)\r\n| v/psyBNC/$1//
-match issrealsecure m|^\0\0\0.\x08\x01\x03\x01\0.\x02\0\0..\0\0.\0\0\0..\0\0\x80\x04..\0.\0\xa0|s v/ISS RealSecure IDS//for Windows/
 # ISS RealSecure Server Sensor for Windows 6.5 on Windows NT 4.0 Server SP6a
 # ISS RealSecure ServerSensor 7.0 on Windows 2000 Server
 # ISS RealSecure Server Sensor 6.0 on Windows NT 4.0 Server SP6a
 # ISS RealSecure Server Sensor 7.0 issdaemon on Microsoft Windows NT Workstation with SP6a
-match issrealsecure m|^\0\0\0.\x08\x01\x04\x01\0..\0\0..\0\0.\0\0\0f.\0\0\x80\x04..\0.\0\xa0\0\0\0\0\0.\0\0\xa4\0\0|s v/ISS RealSecure IDS ServerSensor/6.0 - 7.0/for Windows/
+match issrealsecure m|^\0\0\0.\x08\x01\x03\x01\0.\x02\0\0..\0\0.\0\0\0..\0\0\x80\x04..\0.\0\xa0|s v/ISS RealSecure IDS//Windows/
+match issrealsecure m|^\0\0\0.\x08\x01\x04\x01\0..\0\0..\0\0.\0\0\0..\0\0\x80\x04..\0.\0\xa0\0\0\0\0\0.\0\0\xa4\0\0|s v/ISS RealSecure IDS ServerSensor/6.0 - 7.0/Windows/
+# I've only seen 1 example of the following. Probably not general enough
+match issrealsecure m|^\0\0\x01/\x08\x01\x03\x01\x01'\x04\0\0\0\x18\0\0\xa4\0\0\0f\x02\0\0\x80\x04\x06\0\0\x80\0\xa05Microsoft Enhanced RSA and AES Cryptographic Provider|s v/ISS Realsecure Workgroup Manager///
 match klogin m|^\x01klogind: (All authentication systems disabled; connection refused)\.\.\r\n| v/MIT Kerberos klogin//broken - $1/
 match lmtp m|^220 [-.\w]+ LMTP Cyrus v(\d[-.\w]+) ready\r\n| v/Cyrus Imap Daemon LMTP/$1//
 # LSMS VPN Firewall GUI admin port
@@ -372,6 +382,7 @@ match nntp m|^200 Microsoft Exchange Internet News Service Version (5\.5\.[.\d]+
 #match nntp m|^200 [-.\w]+ InterNetNews NNRP server INN (\d[-.\w]+) ready \(posting ok\)\.\r\n| v/InterNetNews (INN)/$1/posting ok/
 match nntp m|^200 [-.\w]+ InterNetNews NNRP server INN (\d[-.\w ]+) ready \(posting ok\)\.\r\n| v/InterNetNews (INN)/$1/posting ok/
 match nntp m|^200 NNTP-Server Classic Hamster Vr\. \d[-.\w ]+ \(Build (\d[-.\w ]+)\) \(post ok\) says: Hi!\r\n| v/Classic Hamster NNTPd/$1/for Windows; posting ok/
+match nntp m|^200 ArGoSoft News Server for WinNT/2000/XP v ([\d.]+) ready\r\n| v/ArGoSoft nntpd/$1/Win32/
 
 # Windows 2000 Server Windows Media Unicast Service (NsUnicast) - Nsum.exe
 match nsunicast m|^4\0\0\0V4\x12\0\0\0\0\0\0\0\0\x004\0\0\0\x04\0\xf0\0\xd3\x07\t\0.\0.\0.\0.\0.\0..\0\0\0\0.\0\0\0.\0\0\0\x02\0|s v/Microsoft Windows Media Unicast Service//nsum.exe/
@@ -441,13 +452,17 @@ match pop3 m/^\+OK X1 NT-POP3 Server [-\w.]+ \(IMail ([^)]+)\)\r\n/ v/IMail pop3
 match pop3 m/^\+OK POP3 \[cppop (\d[^]]+)\] at \[/ v/cppop pop3d/$1//
 match pop3 m/^\+OK Microsoft Exchange 2000 POP3 server version (\S+).* ready\.\r\n/ v/MS Exchange 2000 pop3d/$1//
 match pop3 m/^\+OK Microsoft Exchange POP3 server version (\S+) ready\r\n/ v/MS Exchange pop3d/$1//
+match pop3 m/^\+OK Der Microsoft Exchange POP3-Server \(Version ([\d\.]+)\) ist betriebsbereit\.\r\n/ v/MS Exchange pop3d/$1/German/
 match pop3 m/^\+OK QPOP \(version ([^)]+)\) at .*starting\./ v/Qpop pop3d/$1//
 match pop3 m/^\+OK QPOP Modified by Compaq \(version ([^)]+)\) at .*starting\./ v/QPop pop3d/$1//
 match pop3 m/^\+OK Qpopper .*\(version ([^)]+)\) at .*starting\./ v/Qpopper pop3d/$1//
 match pop3 m/^\+OK [-.\w]+ POP3 server \(Netscape Mail Server v(\d[-.\w])\) ready/ v/Netscape Mail Server pop3d/$1//
 match pop3 m/^\+OK Cubic Circle's v(\d[-.\w]+) .* POP3 ready/ v/Cubic Circle Cucipop pop3d/$1//
 match pop3 m/^\+OK CCProxy (\S+) POP3 Service Ready\r\n/ v/CCProxy pop3d/$1//
-match pop3 m/^\+OK ArGoSoft Mail Server Freeware, Version \S+ \(([^)]+)\)\r\n/ v/ArGoSoft freeware pop3d/$1//
+match pop3 m/^\+OK ArGoSoft Mail Server Freeware, Version \S+ \(([^)]+)\)\r\n$/ v/ArGoSoft freeware pop3d/$1//
+match pop3 m|^\+OK ArGoSoft Mail Server, Version [-.\w]+ \(([-.\w]+)\)\r\n$| v/ArGoSoft Mail Server pop3d/$1//
+match pop3 m|^\+OK ArGoSoft Mail Server Pro for WinNT/2000/XP, Version [-.\w]+ \(([-.\w]+)\)\r\n$| v/ArGoSoft Mail Server Pro pop3d/$1/Win32/
+match pop3 m|^\+OK ([\w-.]+) ArGoSoft Mail Server Pro for WinNT/2000/XP, Version [\d.]+ \(([\d.]+)\)\r\n| v/ArGoSoft Pro/$2/Host $1; Win32/
 match pop3 m/^\+OK [-.\w]+ Execmail POP3 \((\d[^)]+)\)/ v/Execmail pop3d/$1//
 match pop3 m/^\+OK MailSite POP3 Server (\S+) Ready </ v/MailSite pop3d/$1//
 match pop3 m/^Proxy\+ POP3 server\. Insecure access - terminating\.\r\n/ v/Proxy+ pop3d///
@@ -456,7 +471,6 @@ match pop3 m/^\+OK [-.\w]+ POP MDaemon (\S+) ready <MDAEMON/ v/MDaemon pop3d/$1/
 match pop3 m/^\+OK <\d{1,5}\.10\d{8}@[-.\w]+>\r\n$/ v/qmail-pop3d///
 # Courier Pop3 courier-pop3d-0.42.0-1.7.3
 match pop3 m|^\+OK Hello there\.\r\n$| v/Courier pop3d///
-match pop3 m|^\+OK ArGoSoft Mail Server Pro for WinNT/2000/XP, Version [-.\w]+ \(([-.\w]+)\)\r\n$| v/ArGoSoft Mail Server Pro pop3d/$1//
 match pop3 m/^\+OK [-.\w]+ VisNetic.MailServer.v([-.\w]+) POP3 / v/VisNetic MailServer pop3d/$1//
 match pop3 m/^\+OK [-.\w]+ POP3 server \(Post\.Office v([-.\w]+) release ([-.\w]+) with ZPOP version ([-.\w]+)\) ready / v|Post.Office pop3d|$1 release $2|w/ZPOP $3|
 match pop3 m/^\+OK CommuniGate Pro POP3 Server ([-.\w]+) ready/ v/CommuniGate Pro/$1//
@@ -504,6 +518,12 @@ match resvc m|^\{0000004c\} NODEINFO \(5\) \{38\}Version: (\d[-.\w ]+) Microsoft
 # Redhat Linux 7.1
 # rsync 2.5.5-0.1 with custom banner on Debian Woody
 match rsync m|^@RSYNCD: (\d+)| v///protocol version $1/
+
+
+# Simple Asynchronous File Transfer (SAFT)
+match saft m|^220 ([\w-.]+) SAFT server \(sendfiled ([\w.]+) on ([\w]+)\) ready\.\r\n| v/sendfiled/$2/Host $1; $3/
+
+
 match sdmsvc m|^[\xaa\xff]$| v/LANDesk Software Distribution//sdmsvc.exe/
 # http://www.ietf.org/internet-drafts/draft-martin-managesieve-04.txt
 match sieve m|^NO Fatal error: Error initializing actions\r\n$| v|Cyrus timsieved||included w/cyrus imap|
@@ -586,7 +606,9 @@ match smtp m|^220 [-.\w]+ ESMTP Postfix \(([-.\w]+)\) \(([-.\w ]+)\)| v/Postfix 
 # postfix 1.1.11-0.woody2
 match smtp m|^220[\s-]\S+ ESMTP Postfix| v/Postfix smtpd///
 match smtp m|^220 [\*\d\ ]{10,300}\r\n| v|Cisco PIX sanatized smtpd|||
-match smtp m|^220 ArGoSoft Mail Server Pro for WinNT/2000/XP, Version [-.\w]+ \(([-.\w]+)\)\r\n| v/ArGoSoft Mail Server Pro/$1//
+match smtp m|^220 ArGoSoft Mail Server Pro for WinNT/2000/XP, Version [-.\w]+ \(([-.\w]+)\)\r\n| v/ArGoSoft Mail Server Pro/$1/Win32/
+match smtp m|^220 ([\w-.]+) ArGoSoft Mail Server Pro for WinNT/2000/XP, Version [\d.]+ \(([\d.]+)\)\r\n| v/ArGoSoft Mail Server Pro/$2/Host $1; Win32/
+match smtp m|^220 ([\w-.]+) ArGoSoft Mail Server, Version [\d.]+ \(([\d.]+)\)\r\n| v/ArGoSoft Mail Server/$2/Host $1/
 match smtp m|^220 [-.\w]+ ESMTP server \(Post.Office v([-.\w]+) release ([-.\w]+) ID# | v/Post.Office/$1 release $2//
 match smtp m|^220 [-.\w]+ ESMTP VisNetic.MailServer.v([-.\w]+); | v/VisNetic MailServer/$1//
 # CommuniGate Pro 4.0.5
@@ -630,6 +652,7 @@ match smtp m|^220 \S+ -- Server ESMTP \(Sun Java System Messaging Server (\d[^\(
 match smtp m|^220 jMailer SMTP Server\r\n$| v/jMailer smtpd///
 match smtp m/^220[- ][^ ]+ Smail-([^ ]+) .*ESMTP/s v/Smail-ESMTP/$1//
 match smtp m/^220[- ][^ ]+ Smail-([^ ]+) / v/Smail/$1//
+
 
 softmatch smtp m|^220[\s-].*?E?SMTP[^\r]*\r\n|
 
@@ -820,6 +843,9 @@ match vnc m|^RFB 003.00(\d)\n$| v/VNC//protocol 3.$1/
 match vtun m|^VTUN server ver (\d[-.\w /]+)\n\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|  v/Vtun Virtual Tunnel/$1//
 match vtun m|^VTUN server ver \. (\d[-.\w /]+)\n\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0| v/Vtun Virtual Tunnel/$1//
 
+# http://www.3w.net/lan/faq.html
+match websense-eim m|^\x96\xfeS\xab$| v/Websense EIM///
+
 match winshell m/^Microsoft Windows ((2000)|(XP)|(NT 4\.0)) \[Version ([\d.]+)\]\r\n\(C\) Copyright 1985-20\d\d Microsoft Corp\.\r\n\r\n/ v/Microsoft Windows $1 $5 cmd.exe///
 
 # CcXstream Media Server 1.0.15 on Linux - Uses XBMSP (X-Box Media Streaming Protocol)
@@ -851,7 +877,7 @@ match apc-agent m|^\xac\xed\0\x05$| v/APC PowerChute agent///
 
 ##############################NEXT PROBE##############################
 Probe TCP GenericLines q|\r\n\r\n|
-ports 21,23,43,98,110,113,199,505,540,628,1040,1248,1467,1501,2010,3333,5432,5555,6112,6667-6670,11965,30444
+ports 21,23,43,98,110,113,119,199,505,540,628,1040,1248,1467,1501,2010,3333,5432,5555,6112,6667-6670,8000,11965,30444
 
 # bnetd (PvPGN BnetD Mod version 1.5.0) on Debian GNU/Linux (sid)
 match bnetd m|^BOT or Telnet Connection from \[127\.0\.0\.1\]\r\n\r\nEnter your account name and password\.\r\nSorry, there is no guest account\.\r\n\r\nUsername: | v/PvPGN BnetD Mod/1.5.0//
@@ -965,13 +991,22 @@ match http m|HTTP/1\.0 \d\d\d [\w ]+\r\nServer: GRISOFT-AVG TCP Server/(\d[-.\w]
 # Ubicom embedded ( http://www.ubicom.com/home.htm )
 match http m|^HTTP/1\.1 400 Bad Request\r\nCache-control: no-cache\r\nServer: Ubicom/(\d[-.\w ]+)\r\n| v/Ubicom embedded HTTP server/$1//
 
+match nntp m|^200 Coruscant BBS News \(Synchronet NNTP Service v(\d[-.\w ]+)\)\r\n| v/Synchronet NNTP Service/$1//
+
 # wesnotd multiplayer network daemon (http://www.wesnoth.org/)
 match wesnotd m|^\0\0\0\x16\0\0\0\x1f\x02version\0\x040\..\..\0\0\x02mustlogin\0x05\x01\0| v/wesnotd///
 
 
+
+
+# SHOUTcast Distributed Network Audio: www.shoutcast.com
+match shoutcast m|^ICY 200 OK\r\n.*SHOUTcast Distributed Network Audio Server/([\w\d]+).v([\d.]+).*icy-name:(.*?)\r\n|s v/SHOUTcast server ($1)/$2/Name: $3/
+match shoutcast m|^ICY 200 OK\r\n.*SHOUTcast Distributed Network Audio Server/([\w\d]+).v([\d.]+)|s v/SHOUTcast server ($1)/$2//
+match shoutcast m|^ICY 401 Service Unavailable\r\n.*SHOUTcast Distributed Network Audio Server/([\w\d]+) v([\d.]+)|s v/SHOUTcast server ($1)/$2//
+
 ##############################NEXT PROBE##############################
 Probe TCP GetRequest q|GET / HTTP/1.0\r\n\r\n|
-ports 70,79,80-85,88,113,139,143,280,497,515,540,554,631,783,993,995,1220,1503,2030,3052,3128,3372,3531,3689,5000,5432,5800,5900,6699,7070,8000-8010,8080-8085,8880-8888,9090,9999,10000,10005,11371,13722,15000,40193,4711
+ports 70,79,80-85,88,113,139,143,280,497,515,540,554,631,783,993,995,1220,1503,2030,3052,3128,3372,3531,3689,5000,5432,5800-5803,5900,6699,7070,8000-8010,8080-8085,8880-8888,9090,9999,10000,10005,11371,13722,15000,40193,4711
 sslports 443
 
 # Kerio PF 4.0.11 unregistered - Service process (Port 44xxx?) on MS W2K SP4+
@@ -1043,6 +1078,7 @@ match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n\r\n<HTML>\r\n<HEAD
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><META HTTP-EQUIV=\"Content-type\" CONTENT=\"text/html; charset=iso-8859-1\">\r\n<TITLE>Lexmark ([-/.+\w]+)</TITLE>| v/Lexmark printer webadmin//Lexmark $1/
 match http m|^HTTP/1\.0 200 OK\nServer: III (\d[-.\w]+)\n| v/Innovative Interfaces Innopac httpd/$1//
 match http m|^HTTP/1\.0 401 Unauthorized\r\nContent-type: text/html\r\nWWW-Authenticate: Basic realm=\"CISCO_WEB\"\r\n| v/Cisco DSL router webadmin///
+match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\n.*Server: Allegro-Software-RomPager/([\w.]+)\r\n\r\n<HTML>\n<HEAD>\n<TITLE>Cisco Systems, Inc\.</TITLE>.*Cisco IP Phone (\d+)|s v/Cisco IP Phone $2//Allegro RomPager $1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nRAKeepAliveHeader: \.\r\n| v/RemotelyAnywhere remote PC management webserver///
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: Ipswitch-IMail/(\d[-.\w]+)\r\n| v/IPSwitch IMail web service///
 match http m|^HTTP/1\.0 200 OK\r\nContent-type: text/html\r\nPragma: no-cache\r\nCache-Control: no-cache\r\n\r\n<html><head><title>Authentication Form</title></head><BODY BGCOLOR=\"#000000\" TEXT=\"#00FF00\"><p><h3 align=left><font face=\"arial,helvetica\">Client Authentication Remote Service</font>| v/Check Point Firewall-1 Client Authentication webserver///
@@ -1050,8 +1086,9 @@ match http m|^HTTP/1\.0 404 Not Found\r\nDate: .*\r\nServer: Check Point SVN fou
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: HP-UX_Apache-based_Web_Server/(\d[-.\w]+) (.*)\r\n| v/HP-UX httpd/$1/Apache derived; $2/
 match http m|^HTTP/1\.1 302 Moved\r\nContent-type: text/html\r\nConnection: close\r\nLocation: /1[012]\d{8}/l\r\n\r\n<H1>Document| v/Novell NetMail ModWeb webmail///
 match http m/^GIF89a\xa8\0-\0\xf7\0\0\x03\x03\x03\x83\x83\x83\xc4\xc4\xc4\xfe\x02\x02\xc9\x85c\x85|\xb5\xe2\xe2\xe2\xca\xa2\x8e\xd4RRCCC\xdeb\"\xa5\xa5\xa5\xe7\xc5/ v/Tweak XP web advertisement blocker///
-# Management interface for Xerox Phaser 5400, a laser printer. 
+# Management interface for Xerox Phaser printers. 
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nDate: .*\r\nExpires: .*\r\nLast-Modified: .*\r\nPragma: no-cache\r\nServer: Allegro-Software-RomPager/(\d[-.\w]+)\r\n\r\n<HTML>\n<!--Copyright \(c\) Xerox Corporation | v/Xerox printer webadmin//Embedded Allegro-Software-RomPager $1/
+match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nDate: .*\r\nExpires: .*\r\nLast-Modified: .*\r\nPragma: no-cache\r\nServer: Allegro-Software-RomPager/(\d[-.\w]+)\r\n\r\n<html>\n<head>\n<title>\nHome - \nPhaser (\w+)</title>\n|s v/Xerox printer webadmin//Printer $2; Embedded Allegro-Software-RomPager $1/
 match http m|^HTTP/1\.0 302 Moved Temporarily\r\nserver: IronPort httpd/(\d[-.\w]+)\r\n| v/IronPort mail appliance admin websever/$1//
 match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R(\d[-.\w]+)\r\nContent-Type: text/html\r\nExpires: .*\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n\r\n\n<html>\n<head><title>(CopperJet [-.+\w ]+)</title>| v/Allied Data CopperJet aDSL modem//Embedded Virata-EmWeb $1; $2/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\nServer: dhttpd/(\d[-.\w]+)\r\n| v/dhttpd/$1//
@@ -1060,9 +1097,16 @@ match http m|^HTTP/1\.0 200 OK\r\nPragma: no-cache\r\nContent-Type: text/html\r\
 match http m|^HTTP/1\.0 200 OK\nDate: .*\nServer: Intel NetportExpressPro/(\d[-.\w]+)\n| v/Intel NetportExpress Pro print server webadmin/$1//
 match http m|^HTTP/1\.0 200 Ok\r\nContent-Type: text/html; charset=\"utf-8\"\r\n\r\n<HTTP>\r\n<HEAD>\r\n  <TITLE>MythTV Status</TITLE>| v/MythTV Linux PVR webadmin///
 match http m|^HTTP/1\.0 302 Found\r\nLocation: http://[-.+\w]+:32\d\d\d/\r\n\r\n$| v/Sun Solaris Management Console//Runs Tomcat webserver/
+# Cyclades PR2000 Router
+match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"PR2000 - Login\"\r\nContent-Type: text/html\r\nServer: Allegro-Software-RomPager/ ?([\w.]+)\r\n\r\n.*</H1>This object on the Cyclades PR2000 - RomPager server is protected|s v/Cyclades PR2000 Router//Allegro RomPager $1/
 # 3Com OfficeConnect 812 Router telnetd
-match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"OCR-([-.\w]+)\"\r\nContent-Type: text/html\r\nServer: Allegro-Software-RomPager/(\d[-.\w]+)\r\n\r\n| v/3Com OfficeConnect Router webadmin//Embedded Allegro-Software-RomPager $2; OfficeConnect OCR-$1/
+match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"OCR-([-.\w]+)\"\r\nContent-Type: text/html\r\nServer: Allegro-Software-RomPager/(\d[-.\w]+)\r\n| v/3Com OfficeConnect Router webadmin//Embedded Allegro-Software-RomPager $2; OfficeConnect OCR-$1/
+match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"APC Management Card\"\r\nContent-Type: text/html\r\nServer: Allegro-Software-RomPager/ ?([\w.]+)\r\n\r\n| v/APC Management Web Server//Allegro RomPager $1/
+match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"PDU\"\r\nServer: Allegro-Software-RomPager/ ?([\w.]+)\r\n\r\n<HTML>\n<HEAD>\n<TITLE>Protected Object</TITLE>\n</HEAD>\n<BODY BGCOLOR=\"WHITE\">\n<H1>Protected Object</H1>\nThis object on the MasterSwitch Web Server is protected\.| v/APC masterswitch web server//Allegro RomPager $1/
 match http m|^HTTP/1\.0 200 OK\r\nPragma: no-cache\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.0 Transitional//EN\">\n.*<META NAME=Copyright CONTENT=\"Copyright \(c\) 2003 3Com Corporation\. All Rights Reserved\.\">\n.*<META http-equiv=\"3Cnumber\" content=\"([-.\w]+)\">\n|s v/3Com OfficeConnect router webadmin//3Com` $1/
+match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n.*\r\nServer: Allegro-Software-RomPager/ ?([\w.]+)\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">\n\n<html>\n\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; iso-8859-1\">\n<title>Summit Management Interface</title>|s v/Summit Management Interface//Allegro RomPager $1/
+match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\n.*Server: Allegro-Software-RomPager/([\w.]+)\r\n\r\n\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01 Transitional//EN\">\n<html>\n<head>\n<title>\nSoundBridge&nbsp;- Status</title>|s v/Roku Sound Bridge Web Interface//Allegro RomPager $1/
+
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"\r\n\r\n<title>401 Unauthorized</title><body><h1>401 Unauthorized</h1></body>| v/Acer Warplink Firewall Router webadmin///
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: httpd\r\nDate: Fri, 09 Jan 1970 11:48:03 GMT\r\nWWW-Authenticate: Basic realm=\"Sitecom WL-([-.\w]+)\"\r\n| v/Sitecom webadmin//Sitecom WL-$1 WAP/
 match http m|^HTTP/1\.0 200 OK\r\nDate: .*\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.0 Transitional//EN\"><html><body bgcolor=\"#C0C0C0\" text=\"#000000\" vlink=\"#800080\" link=\"#0000FF\"><P><h1>TempTrax Digital Thermometer</h1>| v/SensaTronics TempTrax Digital Thermometer///
@@ -1156,7 +1200,7 @@ match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: Embedded HTTP Server (\d[-.\
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: PSIWBL/(\d[-.\w]+)\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"Enter Password \(Leave User Name Empty\)\"\r\n| v/D-Link web admin server//Embedded webserver: PSIWBL $1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: WhatsUp_Gold/(\d[-.\w]+)\r\n| v/IPswitch Whats Up Gold/$1//
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"(MR[-.\w]+)\"\r\nContent-Type: text/html\r\nServer: ZyXEL-RomPager/(\d[-.\w]+)\r\n\r\n| v|NetGear webadmin||NetGear $1 WAP/Router; Embedded webserver: ZyXEL-RomPager $2|
-match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"(RP[-.\w]+)\"\r\nContent-Type: text/html\r\nServer: ZyXEL-RomPager/(\d[-.\w]+)\r\n\r\n| v|NetGear webadmin||NetGear $1 router; Embedded webserver: ZyXEL-RomPager $2|
+match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"(R[PT][-.\w]+)\"\r\nContent-Type: text/html\r\nServer: ZyXEL-RomPager/(\d[-.\w]+)\r\n\r\n| v|NetGear webadmin||NetGear $1 router; Embedded webserver: ZyXEL-RomPager $2|
 # Netgear MR814 wireless router remote administration, Firmware 4.13 Aug 20 2003
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"(MR[-.+\w]+)\"\r\nServer: Embedded HTTPD v(\d[-.\w]+), (.*)\r\n| v/NetGear MR-series WAP//$1; Embedded HTTPD $2, $3/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"Prestige ([-.\w ]+)\"\r\nContent-Type: text/html\r\nServer: ZyXEL-RomPager/(\d[-.\w ]+)\r\n\r\n| v|ZyXEL Prestige webadmin|$2|Prestige model $1|
@@ -1235,6 +1279,12 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: (Oracle[-.\w/]+) Oracle HTTP Server
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Oracle HTTP Server Powered by Apache\r\n|s v/Oracle HTTP Server Powered by Apache///
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Oracle HTTP Server Powered by Apache/([-.\w]+)\r\n|s v/Oracle HTTP Server Powered by Apache/$1//
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: Embedded HTTP Server (\d[.\d]+)\r\nWWW-Authenticate: Basic realm=\"([-+.\w]+)\"\r\nConnection:| v/D-Link Embedded HTTP Server/$1/on D-Link $2/
+match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n.*Pragma: no-cache\r\nServer: Allegro-Software-RomPager/ ?([\w.]+)\r\n\r\n<HTML><head>\n<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=iso-8859-1\">\n<TITLE></TITLE></HEAD><frameset framespacing=\"0\" BORDER=\"false\" frameborder=\"0\" rows=\"90,\*\">\n  <frame NAME=\"fLogo\" scrolling=\"no\" noresize src=\"/html/Hlogo\.html\"|s v/D-Link DSL-300g or g+//Allegro RomPager $1/
+match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"IntelEmbeddedWeb@Express460T\"\r\nContent-Type: text/html\r\nServer: Allegro-Software-RomPager/([\w.]+)\r\n| v/Intel 460T Standalone Switch//Allegro RomPager $1/
+# Some D-Link Switches
+match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n.*Server: Allegro-Software-RomPager/ ?([\w.]+)\r\n\r\n.*DES-(\d+) Web Management|s v/D-Link DES-$2 Switch//Allegro RomPager $1/
+match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n.*Server: Allegro-Software-RomPager/ ?([\w.]+)\r\n\r\n.*<TITLE>.*?(DES-\d+).*?</TITLE>|s v/D-Link $2 Switch//Allegro RomPager $1/
+
 # iCal 3.6
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nMIME-Version: 1\.0\r\nServer: Wapapi/1\.1\r\nContent-Type: text/html\r\nContent-Length: \d+\r\n\r\n<html>\r\n<head><title>iCal Tutorial:  Introduction</title></head>| v/Brown Bear iCal web calendar///
 match http m|^HTTP/1\.1 401 Unauthorized\r\nDate: .*\r\nServer: (Virata-EmWeb/R6_0_1)\r\nWWW-Authenticate: Basic realm=\"Administration Tools\"\r\n\r\n401 Unauthorized\r\n$| v/Netscreen administrative web server//runs $1/
@@ -1272,10 +1322,18 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: JRun Web Server\r\n| v/JRun Web 
 
 match http m|^401 Access denied\r\nWWW-Authenticate: Negotiate \r\nContent-length: 0\r\n\r\n| v/Microsoft IIS 5.0 WebDAV//access denied/
 
+match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\n.*Server: RomPager/([\w.]+) UPnP/([\w.]+)\r\n\r\n\n<html><head>.*<title>ZyXEL Prestige Router</title>|s v/ZyXEL Prestige Router//Allegro RomPager $1; UPnP $2/
+
+
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: RomPager/([-.\w/ ]+)\r\n|s v/Embedded Allegro RomPager webserver/$1/ZyXEL ZyWALL 2/
 
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: IDSL MailGate (\d[-.\w]+)\r\n| v/MailGate web proxy/$1//
 match http m|^HTTP/1\.0 \d\d\d .*<TITLE>The AXIS 200 Home|s v/AXIS 200 Webcam///
+
+match http m|^HTTP/1\.[01] 200 OK\nServer: Anti-Web V([\d.]+) \(([\w .-]+)\)\n| v/Anti-Web httpd/$1/Quote: $2/
+match http m|^HTTP/1\.0 200 OK\r\nServer: ArGoSoft Mail Server Pro for WinNT/2000/XP, Version [\d.]+ \(([\d.]+)\)\r\n| v/ArGoSoft Mail Server Pro httpd/$1/Win32/
+match http m|^HTTP/1\.0 400 Bad Request\r\nConnection: Close\r\n\r\n<HTML><HEAD>\n<TITLE>ERROR: The requested URL could not be retrieved</TITLE>\n</HEAD><BODY>\n<H2>The requested URL could not be retrieved</H2>\n<HR>\n<P>\nWhile trying to retrieve the URL:\n| v/WebSense http filter///
+
 
 # While this response looks like a web admin port, I think the same port is used for the primary
 # proxy functionality.  This is version 3.0 final on Linux.
@@ -1386,7 +1444,9 @@ match netbackup m|^1000      2\n43\nunexpected message received\n$| v/Veritas Ne
 match backupexec m|^\x80\0\0\$\0\0\0\x01[\x3F-\x4B]...\0\0\0\0\0\0\x05\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x03\0\0\0\0| v/Veritas Backup Exec/9.0//
 
 # RealVNC 4.0b4
-match vnc-http m|^HTTP/1\.1 200 OK\r\nServer: RealVNC/(\d[-.\w]+)\r\n.*<APPLET CODE=vncviewer/VNCViewer\.class ARCHIVE=vncviewer\.jar\r\n        WIDTH=(\d+) HEIGHT=(\d+)>\r\n<PARAM name=\"port\" value=\"(\d+)\">\r\n</APPLET>|s v/RealVNC/$1/Resolution $2x$3; VNC TCP port: $4/
+match vnc-http m|^HTTP/1\.1 200 OK\r\nServer: RealVNC/(\d[-.\w]+)\r\n.*<APPLET CODE=vncviewer/VNCViewer\.class ARCHIVE=vncviewer\.jar\r?\n *WIDTH=(\d+) HEIGHT=(\d+)>\r?\n<PARAM name=\"port\" value=\"(\d+)\">\r?\n</APPLET>|s v/RealVNC/$1/Resolution $2x$3; VNC TCP port: $4/
+# RealVNC Unknown Version
+match vnc-http m|^HTTP/1\.0 200 OK\n\n<HTML><TITLE>VNC desktop</TITLE>\n<APPLET CODE=vncviewer\.class ARCHIVE=vncviewer\.jar WIDTH=(\d+) HEIGHT=(\d+)>\n<param name=PORT value=(\d+)></APPLET></HTML>\n| v/RealVNC//Resolution $1x$2; VNC TCP port: $3/
 # TightVNC Server version 1.2.2 HTTP on Windows 2000 SP2
 match vnc-http m|^HTTP/1\.0 200 OK\n\n<HTML><TITLE>TightVNC desktop \[([-.\w]+)\]</TITLE>\n<APPLET CODE=vncviewer\.class ARCHIVE=vncviewer\.jar WIDTH=(\d+) HEIGHT=(\d+)>\n<param name=PORT value=(\d+)>| v/TightVNC/1.2.2/Host: $1; Resolution $2x$3; VNC TCP port: $4/
 # Tightvnc-1.2.3
@@ -1396,14 +1456,22 @@ match vnc-http m|^HTTP/1\.0 200 OK\n\n<HTML><TITLE>TightVNC desktop \[([-.\w]+)\
 # TightVNC 1.2.6
 match vnc-http m|^HTTP/1\.0 200 OK\n\n<HTML>\n  <HEAD><TITLE>TightVNC desktop \[[-.\w]+\]| v/TightVNC///
 # TightVNC 1.2.8
-match vnc-http m|^HTTP/1\.0 200 OK\r\n\r\n<!-- \n     index\.vnc - default HTML page for TightVNC Java viewer applet, to be\n     used with Xvnc\. On any file ending in \.vnc, the HTTP server embedded in\n     Xvnc will substitute the following variables when preceded by a dollar:\n     USER, DESKTOP, DISPLAY, APPLETWIDTH, APPLETHEIGHT, WIDTH, HEIGHT, PORT,\n.*<TITLE>\n(\w+)'s X desktop.*<APPLET CODE=VncViewer\.class ARCHIVE=VncViewer\.jar\n        WIDTH=(\d+) HEIGHT=(\d+)>\n<param name=PORT value=(\d+)>\n\n</APPLET>|s v/TightVNC/1.2.8/User: $1; Resolution $2x$3; VNC TCP port: $4/
+match vnc-http m|^HTTP/1\.0 200 OK[\r\n]*.*<!-- \n     index\.vnc - default HTML page for TightVNC Java viewer applet, to be\n     used with Xvnc\. On any file ending in \.vnc, the HTTP server embedded in\n     Xvnc will substitute the following variables when preceded by a dollar:\n     USER, DESKTOP, DISPLAY, APPLETWIDTH, APPLETHEIGHT, WIDTH, HEIGHT, PORT,\n.*<TITLE>\n(\w+)'s X desktop.*<APPLET CODE=VncViewer\.class ARCHIVE=VncViewer\.jar\n        WIDTH=(\d+) HEIGHT=(\d+)>\n<param name=PORT value=(\d+)>\n\n</APPLET>|s v/TightVNC/1.2.8/User: $1; Resolution $2x$3; VNC TCP port: $4/
+# TightVNC 1.2.9
+match vnc-http m|^HTTP/1\.0 200 OK\n.*<HTML><HEAD><TITLE>Remote Desktop</TITLE></HEAD>\n<BODY>\n<APPLET CODE=VncViewer\.class ARCHIVE=VncViewer\.jar WIDTH=(\d+) HEIGHT=(\d+)>\n\t<param name=PORT value=(\d+)>\n</APPLET>\n</BODY></HTML>\n|s v/TightVNC/1.2.9/Resolution $1x$2; VNC TCP port $3/
+# NetWare VNCServer
+match vnc-http m|^HTTP/1\.0 200 OK\n.*<!-- \r\n     index\.vnc - default HTML page for TightVNC Java viewer applet, to be.*<TITLE>\r\n([\d\w]+) - NetWare VNCServer desktop.*<APPLET CODE=VncViewer\.class ARCHIVE=VncViewer\.jar\r\n *WIDTH=(\d+) HEIGHT=(\d+)>\r\n<param name=PORT value=(\d+)>|s v/NetWare VNC Desktop//User: $1; Resolution $2x$3; VNC TCP port: $4/
 # WinVNC 3.3.7 Build Mar 5 2003
 match vnc-http m|^HTTP/1\.0 200 OK\r\n\r\n<HTML><TITLE>VNC desktop \[([-.\w]+)\]</TITLE>\n<APPLET CODE=vncviewer\.class ARCHIVE=vncviewer\.jar WIDTH=(\d+) HEIGHT=(\d+)>\n<param name=PORT value=(\d+)| v/WinVNC/3.3.7/Server: $1; Resolution $2x$3; VNC TCP port: $4/
 # WinVNC 3.3.3
 # Tight VNC 1.5.2
 match vnc-http m|^HTTP/1\.0 200 OK\n\n<HTML><TITLE>VNC desktop \[([-.\w]+)\]</TITLE>\n<APPLET CODE=vncviewer\.class ARCHIVE=vncviewer\.jar WIDTH=(\d+) HEIGHT=(\d+)>\n<param name=PORT value=(\d+)></APPLET></HTML>\n$| v/WinVNC//Server: $1; Resolution $2x$3; VNC TCP port: $4; May be standard or TightVNC/
 # Ultr@VNC Win32 v1.0.9 - HTTP
-match vnc-http m|^HTTP/1\.0 200 OK\n\n<HTML>\n  <HEAD><TITLE>Ultr@VNC Desktop \[[-.\w]+\] ------- Ultr@VNC Home Page is  http://ultravnc\.sf\.net -------</TITLE></HEAD>\n  <BODY>\n  <SPAN style='position: absolute; top:0px;left:0px'>\n    <APPLET CODE=VncViewer\.class ARCHIVE=VncViewer\.jar WIDTH=(\d+) HEIGHT=(\d+)>\n      <PARAM NAME=PORT VALUE=(\d+)>\n      <PARAM NAME=ENCODING VALUE=Tight>\n    </APPLET>  </SPAN>\n  </BODY>\n| v/Ultr@VNC//Resolution $1x$2; VNC TCP port: $3/
+match vnc-http m|^HTTP/1\.0 200 OK\n\n<HTML>\n  <HEAD><TITLE>Ultr@VNC Desktop \[[-. \w]+\] ------- Ultr@VNC Home Page is  http://ultravnc\.sf\.net -------</TITLE></HEAD>\n  <BODY>\n  <SPAN style='position: absolute; top:0px;left:0px'>\n    <APPLET CODE=VncViewer\.class ARCHIVE=VncViewer\.jar WIDTH=(\d+) HEIGHT=(\d+)>\n      <PARAM NAME=PORT VALUE=(\d+)>\n      <PARAM NAME=ENCODING VALUE=Tight>\n    </APPLET>  </SPAN>\n  </BODY>\n| v/Ultr@VNC//Resolution $1x$2; VNC TCP port: $3/
+# VNC to java display applet over http. Final AT&T release
+match vnc-http m|^HTTP/1\.0 200 OK[\r\n]+.*<!-- index\.vnc - default html page for Java VNC viewer applet.*<TITLE>\n([\w\d]+)'s X desktop.*<APPLET CODE=vncviewer\.class ARCHIVE=vncviewer\.jar.*WIDTH=(\d+).*HEIGHT=(\d+).*name=PORT value=(\d+)|s v/AT&T VNC//User $1; Resolution $2x$3; VNC TCP port $4/
+# KDE Built-in VNC Server
+match vnc-http m|^HTTP/1\.0 200 OK\n.*<HTML><HEAD><TITLE>(.*)'s desktop</TITLE></HEAD>\n<BODY>\n<APPLET CODE=[vV]nc[vV]iewer\.class ARCHIVE=[vV]nc[vV]iewer\.jar WIDTH=(\d+) HEIGHT=(\d+)>\n\t<param name=PORT value=(\d+)>\n</APPLET>\n</BODY></HTML>\n|s v/KDE Built-in VNC//User $1; Resolution $2x$3; VNC TCP port: $4/
 
 match xml-rpc m|^HTTP/1\.0 400 Bad Request\r\nServer: Apache XML-RPC (\d[-.\w ]+)\r\n\r\nMethod GET not implemented \(try POST\)$| v/Apache XML-RPC/$1//
 
@@ -1418,6 +1486,13 @@ match http m|^HTTP/1\.1 200 OK\r\nConnection: Close\r\nContent-Type: text/html; 
 # ASPI server (www.aspi.cz) on Solaris 6666/tcp
 match aspi m|^HTTP/1\.0 404 Not Found\r\nDate: .*\r\nServer: ByllSoftware Gurda/([\d.]+)\r\n| v/ASPI server/$1//
 match sunscreen-adm m|^\x01\0\0\0\0\0\0\0T\x03\0\0\0\0\0\x01\x1e\0\0\0\0\0\0;\0\0\0\0\0\0\0\0Error: incompatible with administration server \(version (\d[-.\w ]*)\)\nc\0\0\0\0\0\0\0\0\0\0\x01\0\0\0\0$| v/SunScreen Remote Administration server/$1//
+
+# PopChartServer
+match http m|^HTTP/1\.0 200 OK\r\n.*Server: PopChartServer ([\d.]+)\r\n|s v/PopChart Pro/$1//
+match http m|^HTTP/1\.0 200 OK\r\n.*Server: CordaServer \(PopChartServer compatible\) ([\d.]+)\r\n|s v/CordaServer/$1//
+
+
+
 
 ##############################NEXT PROBE##############################
 Probe TCP HTTPOptions q|OPTIONS / HTTP/1.0\r\n\r\n|
