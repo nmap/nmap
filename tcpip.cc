@@ -628,7 +628,6 @@ char dev[128];
 
   /* If it is the same addy as a local interface, then it is
      probably localhost */
-
   if (ipaddr2devname(dev, addr) != -1)
     return 1;
 
