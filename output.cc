@@ -235,7 +235,7 @@ void printportoutput(Target *currenths, PortList *plist) {
   Port *current;
   int numignoredports;
   int portno, protocount;
-  Port **protoarrays[2];
+  map<u16, Port*> protoarrays[2];
   char hostname[1200];
   int istate = plist->getIgnoredPortState();
   numignoredports = plist->state_counts[istate];
@@ -251,6 +251,7 @@ void printportoutput(Target *currenths, PortList *plist) {
   int numrows;
   vector<const char *> saved_servicefps;
 
+  //cout << numignoredports << " " << plist->numports << endl;
   assert(numignoredports <= plist->numports);
 
 
@@ -323,8 +324,8 @@ void printportoutput(Target *currenths, PortList *plist) {
   rowno = 1;
   if (o.ipprotscan) {
     for (portno = 0; portno < 256; portno++) {
-      if (!plist->ip_prots[portno]) continue;
-      current = plist->ip_prots[portno];
+      if (!plist->ip_ports[portno]) continue;
+      current = plist->ip_ports[portno];
       if (current->state != istate) {
 	if (!first) log_write(LOG_MACHINE,", ");
 	else first = 0;
@@ -345,12 +346,10 @@ void printportoutput(Target *currenths, PortList *plist) {
       }
     }
   } else {
-   for(portno = 0; portno < 65536; portno++) {
     for(protocount = 0; protocount < 2; protocount++) {
-      if (protoarrays[protocount] && protoarrays[protocount][portno]) 
-	current = protoarrays[protocount][portno];
-      else continue;
-      
+       for(map<u16,Port*>::iterator iter = protoarrays[protocount].begin(); iter != protoarrays[protocount].end(); iter++) {
+          current = (*iter).second;
+          
       if (current->state != istate) {    
 	if (!first) log_write(LOG_MACHINE,", ");
 	else first = 0;

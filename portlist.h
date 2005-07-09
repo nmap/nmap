@@ -103,6 +103,9 @@
 #define PORTLIST_H
 
 #include <nbase.h>
+#include <map>
+using namespace std;
+
 
 /* port states */
 #define PORT_UNKNOWN 0
@@ -150,10 +153,13 @@ struct serviceDeductions {
   // confident) expressing how accurate the service detection is
   // likely to be.
   int name_confidence;
-  // Any of these three will be NULL if undetermined.
+  // Any of these 6 can be NULL if we weren't able to determine it
   const char *product;
   const char *version;
   const char *extrainfo;
+  const char *hostname;
+  const char *ostype;
+  const char *devicetype;
   // SERVICE_TUNNEL_NONE or SERVICE_TUNNEL_SSL
   enum service_tunnel_type service_tunnel; 
   // This is the combined version of the three fields above.  It will be 
@@ -198,7 +204,8 @@ class Port {
   // detected and we tried to tunnel through it ).
   void setServiceProbeResults(enum serviceprobestate sres, const char *sname,
 			      enum service_tunnel_type tunnel, const char *product, 
-			      const char *version, 
+			      const char *version, const char *hostname,
+			      const char *ostype, const char *devicetype,
 			      const char *extrainfo, const char *fingerprint);
 
   /* Sets the results of an RPC scan.  if rpc_status is not
@@ -233,6 +240,9 @@ class Port {
   char *serviceprobe_product; 
   char *serviceprobe_version; 
   char *serviceprobe_extrainfo; 
+  char *serviceprobe_hostname;
+  char *serviceprobe_ostype;
+  char *serviceprobe_devicetype;
   enum service_tunnel_type serviceprobe_tunnel;
   // A fingerprint that the user can submit if the service wasn't recognized
   char *serviceprobe_fp;
@@ -267,9 +277,10 @@ class PortList {
 		   bool allow_portzero);
 
   Port *lookupPort(u16 portno, u8 protocol);
-  Port **udp_ports;
-  Port **tcp_ports;
-  Port **ip_prots;
+  map < u16, Port* > udp_ports;
+  map < u16, Port* > tcp_ports;
+  map < u16, Port* > ip_ports;
+
   int state_counts[PORT_HIGHEST_STATE]; /* How many ports in list are in each
 					   state */
   int state_counts_udp[PORT_HIGHEST_STATE];

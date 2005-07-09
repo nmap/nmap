@@ -204,9 +204,16 @@ int doMatch(AllProbes *AP, char *fprint, int fplen, char *ipaddystr) {
 	  } else Strncpy(softmatch, MD->serviceName, sizeof(softmatch));
 	} else {
 	  // YEAH!  Found a hard match!
-	  if (MD->product || MD->version || MD->info)
-	    printf("MATCHED %ssvc %s |%s|%s|%s|%s: %s\n", nullprobecheat? "(NULLPROBE CHEAT) " : "", MD->serviceName, MD->product? MD->product : "", MD->version? MD->version : "", MD->info? MD->info : "", ipaddystr, fprint);
-	  else
+	  if (MD->product || MD->version || MD->info || MD->hostname || MD->ostype || MD->devicetype) {
+	    printf("MATCHED %ssvc %s", nullprobecheat? "(NULLPROBE CHEAT) " : "", MD->serviceName);
+	    if (MD->product) printf(" p|%s|", MD->product);
+	    if (MD->version) printf(" v|%s|", MD->version);
+	    if (MD->info) printf(" i|%s|", MD->info);
+	    if (MD->hostname) printf(" h|%s|", MD->hostname);
+	    if (MD->ostype) printf(" o|%s|", MD->ostype);
+	    if (MD->devicetype) printf(" d|%s|", MD->devicetype);
+	    printf(" %s: %s\n", ipaddystr, fprint);
+	  } else
 	    printf("MATCHED %ssvc %s (NO VERSION)%s: %s\n", nullprobecheat? "(NULLPROBE CHEAT) " : "", MD->serviceName, ipaddystr, fprint);
 	  return 0;
 	}

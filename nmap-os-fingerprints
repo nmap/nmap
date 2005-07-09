@@ -5912,7 +5912,7 @@ T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=C0%IPLEN=38%RIPTL=134%RID=E%RIPCK=F%UCK=0%ULEN=134%DAT=E)
 
 Fingerprint F5 Labs Big/IP HA TCP/IP Load Balancer (BSDI kernel/x86)
-Class F5 Labs | BSDI || load balancer
+Class F5 Labs | BSD/OS || load balancer
 TSeq(Class=RI%gcd=<8%SI=<75C74&>12C4)
 T1(DF=Y%W=402E%ACK=S++%Flags=AS%Ops=MNWNNT)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
@@ -10793,7 +10793,7 @@ PU(Resp=N)
 
 # Microsoft Windows Longhorn Preview, Version 6.0 Build 4051.idx 02.031001-1340
 Fingerprint Microsoft Windows Longhorn Preview
-Class Microsoft | Windows Longhorn || general purpose
+Class Microsoft | Windows | Windows Longhorn | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I%TS=100HZ)
 T1(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
 T2(Resp=N)

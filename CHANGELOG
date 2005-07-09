@@ -20,6 +20,11 @@ o Added "Exclude" directive to nmap-service-probes grammar which
   probes, etc.  If you really want to scan all ports, specify
   --allports.  This patch came from Doug Hoyte (doug(a)hcsw.org).
 
+o Chagned the interesting ports array from a 65K-member array of
+  pointers into an STL list.  This noticeable reduces memory usage in
+  some cases, and should also give a slight runtime performance
+  boost. This patch was written by Paul Tarjan (ptarjan(a)gmail.com).
+
 o Integrated a bunch of nmap-service-probes fingerprints from Doug
   Hoyte (doug(a)hcsw.org)
 

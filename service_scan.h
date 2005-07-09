@@ -140,6 +140,11 @@ struct MatchDetails {
   const char *product;
   const char *version;
   const char *info;
+
+  // More information from a match. Zero-terminated strings or NULL.
+  const char *hostname;
+  const char *ostype;
+  const char *devicetype;
 };
 
 /**********************  CLASSES     ***********************************/
@@ -189,21 +194,26 @@ class ServiceProbeMatch {
   char *product_template;
   char *version_template;
   char *info_template;
+  // More templates:
+  char *hostname_template;
+  char *ostype_template;
+  char *devicetype_template;
   // The anchor is for SERVICESCAN_STATIC matches.  If the anchor is not -1, the match must
   // start at that zero-indexed position in the response str.
   int matchops_anchor;
 // Details to fill out and return for testMatch() calls
   struct MatchDetails MD_return;
 
-  // Use the three version templates, and the match data included here
-  // to put the version info into 'product', 'version', and 'info',
-  // (as long as the given string sizes are sufficient).  Returns zero
-  // for success.  If no template is available for product, version,
-  // and/or info, that string will have zero length after the function
+  // Use the six version templates and the match data included here
+  // to put the version info into the given strings, (as long as the sizes
+  // are sufficient).  Returns zero for success.  If no template is available
+  // for a string, that string will have zero length after the function
   // call (assuming the corresponding length passed in is at least 1)
   int getVersionStr(const u8 *subject, int subjectlen, int *ovector, 
 		  int nummatches, char *product, int productlen,
-		  char *version, int versionlen, char *info, int infolen);
+		  char *version, int versionlen, char *info, int infolen,
+                  char *hostname, int hostnamelen, char *ostype, int ostypelen,
+                  char *devicetype, int devicetypelen);
 };
 
 

@@ -155,11 +155,14 @@ public:
   Port *port; // The Port that this service represents (this copy is taken from inside Target)
   // if a match is found, it is placed here.  Otherwise NULL
   const char *probe_matched;
-  // If a match is found, any product/version/info is placed in these
-  // 3 strings.  Otherwise the string will be 0 length.
+  // If a match is found, any product/version/info/hostname/ostype/devicetype
+  // is placed in these 6 strings.  Otherwise the string will be 0 length.
   char product_matched[80];
   char version_matched[80];
   char extrainfo_matched[128];
+  char hostname_matched[128];
+  char ostype_matched[64];
+  char devicetype_matched[64];
   enum service_tunnel_type tunnel; /* SERVICE_TUNNEL_NONE, SERVICE_TUNNEL_SSL */
   // This stores our SSL session id, which will help speed up subsequent
   // SSL connections.  It's overwritten each time.  void* is used so we don't
@@ -256,6 +259,7 @@ ServiceProbeMatch::ServiceProbeMatch() {
   servicename = NULL;
   matchstr = NULL;
   product_template = version_template = info_template = NULL;
+  hostname_template = ostype_template = devicetype_template = NULL;
   regex_compiled = NULL;
   regex_extra = NULL;
   isInitialized = false;
@@ -271,6 +275,9 @@ ServiceProbeMatch::~ServiceProbeMatch() {
   if (product_template) free(product_template);
   if (version_template) free(version_template);
   if (info_template) free(info_template);
+  if (hostname_template) free(hostname_template);
+  if (ostype_template) free(ostype_template);
+  if (devicetype_template) free(devicetype_template);
   matchstrlen = 0;
   if (regex_compiled) pcre_free(regex_compiled);
   if (regex_extra) pcre_free(regex_extra);
@@ -286,7 +293,8 @@ ServiceProbeMatch::~ServiceProbeMatch() {
 // function will abort the program if there is a syntax problem.
 void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   const char *p;
-  char delimchar;
+  char *tmptemplate;
+  char delimchar, modechar;
   int pcre_compile_ops = 0;
   const char *pcre_errptr = NULL;
   int pcre_erroffset = 0;
@@ -375,56 +383,43 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
     fatal("ServiceProbeMatch::InitMatch: parse error on line %d of nmap-service-probes: match string must begin with 'm'", lineno);
   }
 
-  /* OK!  Now we look for the optional version-detection
-     product/version info in the form v/productname/version/info/
-     (where '/' delimiter can be anything) */
+  /* OK! Now we look for any templates of the form ?/.../
+   * where ? is either p, v, i, h, o, or d. / is any
+   * delimiter character and ... is a template */
 
+  while(1) {
   while(isspace(*matchtext)) matchtext++;
-  if (isalnum(*matchtext)) {
+    if (*matchtext == '\0' || *matchtext == '\r' || *matchtext == '\n') break;
+
     if (isSoft)
       fatal("ServiceProbeMatch::InitMatch: illegal trailing garbage on line %d of nmap-service-probes - note that softmatch lines cannot have a version specifier.", lineno);
-    if (*matchtext != 'v') 
-      fatal("ServiceProbeMatch::InitMatch: illegal trailing garbage (should be a version pattern match?) on line %d of nmap-service-probes", lineno);
-    delimchar = *(++matchtext);
-    ++matchtext;
-    // find the end of the productname
+
+    modechar = *(matchtext++);
+    if (*matchtext == 0 || *matchtext == '\r' || *matchtext == '\n')
+      fatal("ServiceProbeMatch::InitMatch: parse error on line %d of nmap-service-probes", lineno);
+
+    delimchar = *(matchtext++);
+
     p = strchr(matchtext, delimchar);
-    if (!p) fatal("ServiceProbeMatch::InitMatch: parse error on line %d of nmap-service-probes (in the version pattern - productname section)", lineno);
+    if (!p) fatal("ServiceProbeMatch::InitMatch: parse error on line %d of nmap-service-probes", lineno);
+
+    tmptemplate = NULL;
     tmpbuflen = p - matchtext;
     if (tmpbuflen > 0) {
-      product_template = (char *) safe_malloc(tmpbuflen + 1);
-      memcpy(product_template, matchtext, tmpbuflen);
-      product_template[tmpbuflen] = '\0';
-    }
-    // Now lets go after the version info
-    matchtext = p+1;
-    p = strchr(matchtext, delimchar);
-    if (!p) fatal("ServiceProbeMatch::InitMatch: parse error on line %d of nmap-service-probes (in the version pattern - version section)", lineno);
-    tmpbuflen = p - matchtext;
-    if (tmpbuflen > 0) {
-      version_template = (char *) safe_malloc(tmpbuflen + 1);
-      memcpy(version_template, matchtext, tmpbuflen);
-      version_template[tmpbuflen] = '\0';
-    }
-    // And finally for the "info"
-    matchtext = p+1;
-    p = strchr(matchtext, delimchar);
-    if (!p) fatal("ServiceProbeMatch::InitMatch: parse error on line %d of nmap-service-probes (in the version pattern - info section)", lineno);
-    tmpbuflen = p - matchtext;
-    if (tmpbuflen > 0) {
-      info_template = (char *) safe_malloc(tmpbuflen + 1);
-      memcpy(info_template, matchtext, tmpbuflen);
-      info_template[tmpbuflen] = '\0';
+      tmptemplate = (char *) safe_malloc(tmpbuflen + 1);
+      memcpy(tmptemplate, matchtext, tmpbuflen);
+      tmptemplate[tmpbuflen] = '\0';
     }
 
-    // Insure there is no trailing junk after the version string
-    // (usually cased by delimchar accidently being in the
-    // product/version/info string).
-    p++;
-    while(*p && *p != '\r' && *p != '\n') {
-      if (!isspace((int) *(unsigned char *)p))  fatal("ServiceProbeMatch::InitMatch: illegal trailing garbage (accidental version delimeter in your v//// string?) on line %d of nmap-service-probes", lineno);
-      p++;
-    }
+    if (modechar == 'p') product_template = tmptemplate;
+    else if (modechar == 'v') version_template = tmptemplate;
+    else if (modechar == 'i') info_template = tmptemplate;
+    else if (modechar == 'h') hostname_template = tmptemplate;
+    else if (modechar == 'o') ostype_template = tmptemplate;
+    else if (modechar == 'd') devicetype_template = tmptemplate;
+    else fatal("ServiceProbeMatch::InitMatch: Unknown template specifier '%c' on line %d of nmap-service-probes", modechar, lineno);
+
+    matchtext = p + 1;
   }
 
   isInitialized = 1;
@@ -445,6 +440,9 @@ const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int bufle
   static char product[80];
   static char version[80];
   static char info[128];
+  static char hostname[80];
+  static char ostype[32];
+  static char devicetype[32];
   char *bufc = (char *) buf;
   int ovector[150]; // allows 50 substring matches (including the overall match)
   assert(isInitialized);
@@ -469,10 +467,14 @@ const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int bufle
   } else {
     // Yeah!  Match apparently succeeded.
     // Now lets get the version number if available
-    i = getVersionStr(buf, buflen, ovector, rc, product, sizeof(product), version, sizeof(version), info, sizeof(info));    
+    i = getVersionStr(buf, buflen, ovector, rc, product, sizeof(product), version, sizeof(version), info, sizeof(info),
+                      hostname, sizeof(hostname), ostype, sizeof(ostype), devicetype, sizeof(devicetype));    
     if (*product) MD_return.product = product;
     if (*version) MD_return.version = version;
     if (*info) MD_return.info = info;
+    if (*hostname) MD_return.hostname = hostname;
+    if (*ostype) MD_return.ostype = ostype;
+    if (*devicetype) MD_return.devicetype = devicetype;
   
     MD_return.serviceName = servicename;
   }
@@ -734,22 +736,28 @@ static int dotmplsubst(const u8 *subject, int subjectlen,
 }
 
 
-// Use the three version templates, and the match data included here
-// to put the version info into 'product', 'version', and 'info',
-// (as long as the given string sizes are sufficient).  Returns zero
-// for success.  If no template is available for product, version,
-// and/or info, that string will have zero length after the function
+// Use the six version templates and the match data included here
+// to put the version info into the given strings, (as long as the sizes
+// are sufficient).  Returns zero for success.  If no template is available
+// for a string, that string will have zero length after the function
 // call (assuming the corresponding length passed in is at least 1)
+
 int ServiceProbeMatch::getVersionStr(const u8 *subject, int subjectlen, 
 	    int *ovector, int nummatches, char *product, int productlen,
-	    char *version, int versionlen, char *info, int infolen) {
+	    char *version, int versionlen, char *info, int infolen,
+                  char *hostname, int hostnamelen, char *ostype, int ostypelen,
+                  char *devicetype, int devicetypelen) {
 
   int rc;
-  assert(productlen >= 0 && versionlen >= 0 && infolen >= 0);
+  assert(productlen >= 0 && versionlen >= 0 && infolen >= 0 &&
+         hostnamelen >= 0 && ostypelen >= 0 && devicetypelen >= 0);
   
   if (productlen > 0) *product = '\0';
   if (versionlen > 0) *version = '\0';
   if (infolen > 0) *info = '\0';
+  if (hostnamelen > 0) *hostname = '\0';
+  if (ostypelen > 0) *ostype = '\0';
+  if (devicetypelen > 0) *devicetype = '\0';
   int retval = 0;
 
   // Now lets get this started!  We begin with the product name
@@ -779,6 +787,33 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, int subjectlen,
       error("Warning: Servicescan failed to fill info_template (subjectlen: %d). Too long? Match string was line %d: v/%s/%s/%s", subjectlen, deflineno, (product_template)? product_template : "",
 	    (version_template)? version_template : "", (info_template)? info_template : "");
       if (infolen > 0) *info = '\0';
+      retval = -1;
+    }
+  }
+  
+  if (hostname_template) {
+    rc = dotmplsubst(subject, subjectlen, ovector, nummatches, hostname_template, hostname, hostnamelen);
+    if (rc != 0) {
+      error("Warning: Servicescan failed to fill hostname_template (subjectlen: %d). Too long? Match string was line %d: h/%s/", subjectlen, deflineno, (hostname_template)? hostname_template : "");
+      if (hostnamelen > 0) *hostname = '\0';
+      retval = -1;
+    }
+  }
+
+  if (ostype_template) {
+    rc = dotmplsubst(subject, subjectlen, ovector, nummatches, ostype_template, ostype, ostypelen);
+    if (rc != 0) {
+      error("Warning: Servicescan failed to fill ostype_template (subjectlen: %d). Too long? Match string was line %d: p/%s/", subjectlen, deflineno, (ostype_template)? ostype_template : "");
+      if (ostypelen > 0) *ostype = '\0';
+      retval = -1;
+    }
+  }
+
+  if (devicetype_template) {
+    rc = dotmplsubst(subject, subjectlen, ovector, nummatches, devicetype_template, devicetype, devicetypelen);
+    if (rc != 0) {
+      error("Warning: Servicescan failed to fill devicetype_template (subjectlen: %d). Too long? Match string was line %d: d/%s/", subjectlen, deflineno, (devicetype_template)? devicetype_template : "");
+      if (devicetypelen > 0) *devicetype = '\0';
       retval = -1;
     }
   }
@@ -1161,6 +1196,7 @@ ServiceNFO::ServiceNFO(AllProbes *newAP) {
   currentresplen = 0;
   port = NULL;
   product_matched[0] = version_matched[0] = extrainfo_matched[0] = '\0';
+  hostname_matched[0] = ostype_matched[0] = devicetype_matched[0] = '\0';
   tunnel = SERVICE_TUNNEL_NONE;
   ssl_session = NULL;
   softMatchFound = false;
@@ -1659,6 +1695,7 @@ static int scanThroughTunnel(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
   svc->tunnel = SERVICE_TUNNEL_SSL;
   svc->probe_matched = NULL;
   svc->product_matched[0] = svc->version_matched[0] = svc->extrainfo_matched[0] = '\0';
+  svc->hostname_matched[0] = svc->ostype_matched[0] = svc->devicetype_matched[0] = '\0';
   svc->softMatchFound = false;
    svc->resetProbes(true);
   startNextProbe(nsp, nsi, SG, svc, true);
@@ -1903,6 +1940,12 @@ void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
 	  Strncpy(svc->version_matched, MD->version, sizeof(svc->version_matched));
 	if (MD->info) 
 	  Strncpy(svc->extrainfo_matched, MD->info, sizeof(svc->extrainfo_matched));
+	if (MD->hostname) 
+	  Strncpy(svc->hostname_matched, MD->hostname, sizeof(svc->hostname_matched));
+	if (MD->ostype) 
+	  Strncpy(svc->ostype_matched, MD->ostype, sizeof(svc->ostype_matched));
+	if (MD->devicetype) 
+	  Strncpy(svc->devicetype_matched, MD->devicetype, sizeof(svc->devicetype_matched));
 	svc->softMatchFound = MD->isSoft;
 	if (!svc->softMatchFound) {
 	  // We might be able to continue scan through a tunnel protocol 
@@ -2021,19 +2064,22 @@ list<ServiceNFO *>::iterator svc;
 					  *(*svc)->product_matched? (*svc)->product_matched : NULL, 
 					  *(*svc)->version_matched? (*svc)->version_matched : NULL, 
 					  *(*svc)->extrainfo_matched? (*svc)->extrainfo_matched : NULL, 
+					  *(*svc)->hostname_matched? (*svc)->hostname_matched : NULL, 
+					  *(*svc)->ostype_matched? (*svc)->ostype_matched : NULL, 
+					  *(*svc)->devicetype_matched? (*svc)->devicetype_matched : NULL, 
 					  NULL);
 
    } else if ((*svc)->probe_state == PROBESTATE_FINISHED_SOFTMATCHED) {
     (*svc)->port->setServiceProbeResults((*svc)->probe_state, 
 					  (*svc)->probe_matched,
 					 (*svc)->tunnel,
-					  NULL, NULL, NULL, 
+					  NULL, NULL, NULL, NULL, NULL, NULL, 
 					 (*svc)->getServiceFingerprint(NULL));
 
    }  else if ((*svc)->probe_state == PROBESTATE_FINISHED_NOMATCH) {
      if ((*svc)->getServiceFingerprint(NULL))
        (*svc)->port->setServiceProbeResults((*svc)->probe_state, NULL,
-					    (*svc)->tunnel, NULL, NULL, NULL, 
+					    (*svc)->tunnel, NULL, NULL, NULL, NULL, NULL, NULL,
 					    (*svc)->getServiceFingerprint(NULL));
    }
  }
@@ -2120,8 +2166,10 @@ void remove_excluded_ports(AllProbes *AP, ServiceGroup *SG) {
 
       if (o.debugging) printf("EXCLUDING %d/%s\n", svc->portno, svc->proto==IPPROTO_TCP ? "tcp" : "udp");
 
-      svc->port->setServiceProbeResults(PROBESTATE_EXCLUDED, NULL, SERVICE_TUNNEL_NONE,
-                                        "Excluded from version scan", NULL, NULL, NULL);
+      svc->port->setServiceProbeResults(PROBESTATE_EXCLUDED, NULL, 
+					SERVICE_TUNNEL_NONE,
+                                        "Excluded from version scan", NULL,
+					NULL, NULL, NULL, NULL, NULL);
 
       SG->services_remaining.erase(i);
       SG->services_finished.push_back(svc);
