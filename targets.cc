@@ -294,7 +294,7 @@ void returnhost(HostGroupState *hs) {
 
 Target *nexthost(HostGroupState *hs, TargetGroup *exclude_group,
 			    struct scan_lists *ports, int *pingtype) {
-int hidx;
+int hidx = 0;
 int i;
 struct sockaddr_storage ss;
 size_t sslen;
@@ -415,8 +415,9 @@ if (hs->randomize) {
  
  if ((o.sendpref & PACKET_SEND_ETH) && 
      hs->hostbatch[0]->ifType() == devt_ethernet) {
-   if (!setTargetNextHopMAC(hs->hostbatch[hidx]))
-     fatal("%s: Failed to determine dst MAC address for target %s", 
+   for(i=0; i < hs->current_batch_sz; i++)
+     if (!setTargetNextHopMAC(hs->hostbatch[i]))
+       fatal("%s: Failed to determine dst MAC address for target %s", 
 	   __FUNCTION__, hs->hostbatch[hidx]->NameIP());
  }
 
