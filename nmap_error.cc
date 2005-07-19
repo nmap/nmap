@@ -108,7 +108,7 @@
 extern void CloseLibs(void);
 #endif
 
-void fatal(char *fmt, ...) {
+void fatal(const char *fmt, ...) {
 va_list  ap;
 va_start(ap, fmt);
 fflush(stdout);
@@ -119,7 +119,7 @@ va_end(ap);
 exit(1);
 }
 
-void error(char *fmt, ...) {
+void error(const char *fmt, ...) {
 va_list  ap;
 va_start(ap, fmt);
 fflush(stdout);
@@ -130,7 +130,7 @@ va_end(ap);
 return;
 }
 
-void pfatal(char *err, ...) {
+void pfatal(const char *err, ...) {
 #ifdef WIN32
 	int lasterror =0;
 	char *errstr = NULL;
@@ -152,7 +152,7 @@ void pfatal(char *err, ...) {
 	exit(1);
 }
 
-void gh_perror(char *err, ...) {
+void gh_perror(const char *err, ...) {
 va_list  ap;va_start(ap, err);
 fflush(stdout);
 vfprintf(stderr, err, ap);

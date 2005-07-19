@@ -218,15 +218,15 @@ void *realloc();
 #include <pwd.h>
 #endif
 
-#ifndef NETINET_IN_SYSTEM_H  /* why the HELL does OpenBSD not do this? */
+#ifndef NETINET_IN_SYSTEM_H  /* why does OpenBSD not do this? */
 #include <netinet/in_systm.h> /* defines n_long needed for netinet/ip.h */
 #define NETINET_IN_SYSTEM_H
 #endif
-#ifndef NETINET_IP_H  /* why the HELL does OpenBSD not do this? */
+#ifndef NETINET_IP_H  /* why does OpenBSD not do this? */
 #include <netinet/ip.h> 
 #define NETINET_IP_H
 #endif
-#include <netinet/ip_icmp.h> 
+// #include <netinet/ip_icmp.h> 
 
 #if HAVE_ARPA_INET_H
 #include <arpa/inet.h>
@@ -237,7 +237,7 @@ void *realloc();
 #ifndef __FAVOR_BSD
 #define __FAVOR_BSD
 #endif
-#ifndef NETINET_TCP_H  /* why the HELL does OpenBSD not do this? */
+#ifndef NETINET_TCP_H  /* why does OpenBSD not do this? */
 #include <netinet/tcp.h>          /*#include <netinet/ip_tcp.h>*/
 #define NETINET_TCP_H
 #endif
@@ -313,6 +313,10 @@ void *realloc();
 #ifndef MAX_UDP_SCAN_DELAY
 #define MAX_UDP_SCAN_DELAY 1000
 #endif
+
+/* Maximum number of extra hostnames, OSs, and devices, we
+   consider when outputing the extra service info fields */
+#define MAX_SERVICE_INFO_FIELDS 5
 
 /* We wait at least 100 ms for a response by default - while that
    seems aggressive, waiting too long can cause us to fail to detect
@@ -431,8 +435,6 @@ void printusage(char *name, int rc);
 /* print Interactive usage information */
 void printinteractiveusage();
 
-/* Scan helper functions */
-unsigned long calculate_sleep(struct in_addr target);
 int check_ident_port(struct in_addr target);
 
 int ftp_anon_connect(struct ftpinfo *ftp);

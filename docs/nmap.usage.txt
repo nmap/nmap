@@ -1,4 +1,4 @@
-Nmap 3.83.DC1 Usage: nmap [Scan Type(s)] [Options] <host or net list>
+Nmap 3.83.SOC1 Usage: nmap [Scan Type(s)] [Options] <host or net list>
 Some Common Scan Types ('*' options require root privileges)
 * -sS TCP SYN stealth port scan (default if privileged (root))
   -sT TCP connect() port scan (default for unprivileged users)

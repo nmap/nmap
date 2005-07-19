@@ -25,20 +25,26 @@ o Chagned the interesting ports array from a 65K-member array of
   some cases, and should also give a slight runtime performance
   boost. This patch was written by Paul Tarjan (ptarjan(a)gmail.com).
 
-o Integrated a bunch of nmap-service-probes fingerprints from Doug
+o Integrated a ton of nmap-service-probes fingerprints from Doug
   Hoyte (doug(a)hcsw.org)
 
-o The OS fingerprint is now provided in XML output if debugging is
-  enabled (-d) or verbosity is at least 2 (-v -v).  This patch was
-  sent by Okan Demirmen (okan(a)demirmen.com)
+o Integrated many nmap-service-probes changes from Bo Jiang
+  (jiangbo(a)brandeis.edu)
 
 o Added a stripped-down version of Dug Song's excellent libdnet
   networking library (v. 1.10).  This allows Nmap to send raw ethernet
   frames for the new ARP ping feature.
 
+o The OS fingerprint is now provided in XML output if debugging is
+  enabled (-d) or verbosity is at least 2 (-v -v).  This patch was
+  sent by Okan Demirmen (okan(a)demirmen.com)
+
 o Fixed the way tcp connect scan (-sT) respons to ICMP network
   unreachable responses (patch by Richard Moore
   (rich(a)westpoint.ltd.uk).
+
+o Changed routethrough() to use libdnet rather than all of my custom
+  code.
 
 o Fixed a crash problem related to non-portable varargs (vsnprintf)
   usage. Reports of this crash came from Alan William Somers
@@ -94,6 +100,11 @@ o ultra_scan() now sets pseudo-random ACK values (rather than 0) for
 o Added a bunch of RPC numbers from nmap-rpc maintainer Eilon Gishri
   (eilon(a)aristo.tau.ac.il)
 
+o Added 'leet ASCII art to the confugrator!  ARTIST NOTE: If you think
+  the ASCII art sucks, feel free to send me alternatives.  Note that
+  only people compiling the UNIX source code get this. (ASCII artist
+  unknown).
+
 o Added a distcc probes and a bunch of smtp matches from Dirk Mueller
   (mueller(a)kde.org) to nmap-service-probes.  Also added AFS version
   probe and matches from Lionel Cons (lionel.cons(a)cern.ch).  And
@@ -125,11 +136,6 @@ o Changed from CVS to Subversion source control system (which
   and SVN have had remotely exploitable security holes), so the main
   change users will see is that "Id" tags in file headers use the SVN
   format for version numbering and such.
-
-o Added 'leet ASCII art to the confugrator!  ARTIST NOTE: If you think
-  the ASCII art sucks, feel free to send me alternatives.  Note that
-  only people compiling the UNIX source code get this. (ASCII artist
-  unknown).
 
 Nmap 3.81
 

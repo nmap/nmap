@@ -119,17 +119,21 @@ void Target::Initialize() {
   osscan_performed = 0;
   wierd_responses = flags = 0;
   memset(&to, 0, sizeof(to));
-  device[0] = '\0';
   memset(&targetsock, 0, sizeof(targetsock));
   memset(&sourcesock, 0, sizeof(sourcesock));
-  targetsocklen = sourcesocklen = 0;
+  memset(&nexthopsock, 0, sizeof(nexthopsock));
+  targetsocklen = sourcesocklen = nexthopsocklen = 0;
+  directly_connected = -1;
   targetipstring[0] = '\0';
   nameIPBuf = NULL;
   memset(&MACaddress, 0, sizeof(MACaddress));
   memset(&SrcMACaddress, 0, sizeof(SrcMACaddress));
-  MACaddress_set = SrcMACaddress_set = false;
+  memset(&NextHopMACaddress, 0, sizeof(NextHopMACaddress));
+  MACaddress_set = SrcMACaddress_set = NextHopMACaddress_set = false;
   htn.msecs_used = 0;
   htn.toclock_running = false;
+  interface_type = devt_other;
+  devname[0] = devfullname[0] = '\0';
 }
 
 void Target::Recycle() {
@@ -177,7 +181,8 @@ void Target::GenerateIPString() {
 /* Fills a sockaddr_storage with the AF_INET or AF_INET6 address
      information of the target.  This is a preferred way to get the
      address since it is portable for IPv6 hosts.  Returns 0 for
-     success. */
+     success. ss_len must be provided.  It is not examined, but is set
+     to the size of the sockaddr copied in. */
 int Target::TargetSockAddr(struct sockaddr_storage *ss, size_t *ss_len) {
   assert(ss);
   assert(ss_len);  
@@ -307,6 +312,41 @@ const char *Target::NameIP() {
   return NameIP(nameIPBuf, MAXHOSTNAMELEN + INET6_ADDRSTRLEN);
 }
 
+  /* Returns the next hop for sending packets to this host.  Returns true if
+     next_hop was filled in.  It might be false, for example, if
+     next_hop has never been set */
+bool Target::nextHop(struct sockaddr_storage *next_hop, size_t *next_hop_len) {
+  if (nexthopsocklen <= 0)
+    return false;
+  assert(nexthopsocklen <= sizeof(*next_hop));
+  if (next_hop)
+    memcpy(next_hop, &nexthopsock, nexthopsocklen);
+  if (next_hop_len)
+    *next_hop_len = nexthopsocklen;
+  return true;
+}
+
+  /* If the host is directly connected on a network, set and retrieve
+     that information here.  directlyConnected() will abort if it hasn't
+     been set yet.  */
+void Target::setDirectlyConnected(bool connected) {
+  directly_connected = connected? 1 : 0;
+}
+
+bool Target::directlyConnected() {
+  assert(directly_connected == 0 || directly_connected == 1);
+  return directly_connected;
+}
+
+/* Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
+     to sockaddr_storage */
+void Target::setNextHop(struct sockaddr_storage *next_hop, size_t next_hop_len) {
+  assert(next_hop_len > 0 && next_hop_len <= sizeof(nexthopsock));
+  memcpy(&nexthopsock, next_hop, next_hop_len);
+  nexthopsocklen = next_hop_len;
+}
+
+
   /* Starts the timeout clock for the host running (e.g. you are
      beginning a scan).  If you do not have the current time handy,
      you can pass in NULL.  When done, call stopTimeOutClock (it will
@@ -360,6 +400,22 @@ int Target::setSrcMACAddress(const u8 *addy) {
   return 0;
 }
 
+int Target::setNextHopMACAddress(const u8 *addy) {
+  if (!addy) return 1;
+  memcpy(NextHopMACaddress, addy, 6);
+  NextHopMACaddress_set = 1;
+  return 0;
+}
+
+/* Set the device names so that they can be returned by deviceName()
+   and deviceFullName().  The normal name may not include alias
+   qualifier, while the full name may include it (e.g. "eth1:1").  If
+   these are non-null, they will overwrite the stored version */
+void Target::setDeviceNames(const char *name, const char *fullname) {
+  if (name) Strncpy(devname, name, sizeof(devname));
+  if (fullname) Strncpy(devfullname, fullname, sizeof(devfullname));
+}
+
 /* Returns the 6-byte long MAC address, or NULL if none has been set */
 const u8 *Target::MACAddress() {
   return (MACaddress_set)? MACaddress : NULL;
@@ -367,4 +423,8 @@ const u8 *Target::MACAddress() {
 
 const u8 *Target::SrcMACAddress() {
   return (SrcMACaddress_set)? SrcMACaddress : NULL;
+}
+
+const u8 *Target::NextHopMACAddress() {
+  return (NextHopMACaddress_set)? NextHopMACaddress : NULL;
 }

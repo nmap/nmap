@@ -637,13 +637,13 @@ char dev[128];
 }
 
 /* Calls pcap_open_live and spits out an error (and quits) if the call
-   faile.  So a valid pcap_t will always be returned.  Note that the
+   fails.  So a valid pcap_t will always be returned.  Note that the
    Windows/UNIX versions are separate since they differ so much.
    Also, the actual my_pcap_open_live() for Windows is in
    mswin32/winip/winip.c.  It calls the function below if pcap is
    being used, otherwise it uses Windows raw sockets. */
 #ifdef WIN32
-pcap_t *my_real_pcap_open_live(char *device, int snaplen, int promisc, int to_ms) 
+pcap_t *my_real_pcap_open_live(const char *device, int snaplen, int promisc, int to_ms) 
 {
   char err0r[PCAP_ERRBUF_SIZE];
   pcap_t *pt;
@@ -676,7 +676,8 @@ pcap_t *my_real_pcap_open_live(char *device, int snaplen, int promisc, int to_ms
 }
 
 #else // !WIN32
-pcap_t *my_pcap_open_live(char *device, int snaplen, int promisc, int to_ms) 
+pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc, 
+			  int to_ms) 
 {
   char err0r[PCAP_ERRBUF_SIZE];
   pcap_t *pt;
@@ -745,7 +746,8 @@ int resolve(char *hostname, struct in_addr *ip) {
   return 0;
 }
 
-int send_tcp_raw_decoys( int sd, const struct in_addr *victim, int ttl,
+int send_tcp_raw_decoys( int sd, struct eth_nfo *eth, 
+			 const struct in_addr *victim, int ttl,
 			 u16 sport, u16 dport, u32 seq, u32 ack, u8 flags,
 			 u16 window, u8 *options, int optlen, char *data,
 			 u16 datalen) 
@@ -753,8 +755,9 @@ int send_tcp_raw_decoys( int sd, const struct in_addr *victim, int ttl,
   int decoy;
 
   for(decoy = 0; decoy < o.numdecoys; decoy++) 
-    if (send_tcp_raw(sd, &o.decoys[decoy], victim, ttl, sport, dport, seq, ack,
-		     flags, window, options, optlen, data, datalen) == -1)
+    if (send_tcp_raw(sd, eth, &o.decoys[decoy], victim, ttl, sport, dport, 
+		     seq, ack, flags, window, options, optlen, data, 
+		     datalen) == -1)
       return -1;
 
   return 0;
@@ -874,7 +877,7 @@ if (TCPIP_DEBUGGING > 1) {
 }
 
 /* You need to call sethdrinclude(sd) on the sending sd before calling this */
-int send_tcp_raw( int sd, const struct in_addr *source, 
+int send_tcp_raw( int sd, struct eth_nfo *eth, const struct in_addr *source, 
 		  const struct in_addr *victim, int ttl, 
 		  u16 sport, u16 dport, u32 seq, u32 ack, u8 flags,
 		  u16 window, u8 *options, int optlen, char *data, 
@@ -887,28 +890,47 @@ int send_tcp_raw( int sd, const struct in_addr *source,
 			     dport, seq, ack, flags, window, options, optlen, 
 			     data, datalen, &packetlen);
   if (!packet) return -1;
-  res = send_ip_packet(sd, packet, packetlen);
+  res = send_ip_packet(sd, eth, packet, packetlen);
 
   free(packet);
   return res;
 }
 
 /* Send a pre-built IPv4 packet */
-int send_ip_packet(int sd, u8 *packet, unsigned int packetlen) {
+int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetlen) {
   struct sockaddr_in sock;
   int res;
   struct ip *ip = (struct ip *) packet;
   struct tcphdr *tcp = NULL;
   udphdr_bsd *udp;
-
-  assert(sd >= 0);
+  u8 *eth_frame;
+  eth_t *ethsd;
+  bool ethsd_opened = false;
   assert(packet);
   assert( (int) packetlen > 0);
 
   // fragmentation requested && packet is bigger than MTU
   if (o.fragscan && ( packetlen - ip->ip_hl * 4 > (unsigned int) o.fragscan ))
-      return send_frag_ip_packet(sd, packet, packetlen, o.fragscan);
+      return send_frag_ip_packet(sd, eth, packet, packetlen, o.fragscan);
 
+  if (eth) {
+    eth_frame = (u8 *) safe_malloc(14 + packetlen);
+    memcpy(eth_frame + 14, packet, packetlen);
+    eth_pack_hdr(eth_frame, eth->dstmac, eth->srcmac, ETH_TYPE_IP);
+    if (!eth->ethsd) {
+      ethsd = eth_open(eth->devname);
+      if (!ethsd) 
+	fatal("send_ip_packet: Failed to open ethernet device (%s)", eth->devname);
+      ethsd_opened = true;
+    } else ethsd = eth->ethsd;
+    res = eth_send(ethsd, eth_frame, 14 + packetlen);
+    PacketTrace::trace(PacketTrace::SENT, packet, packetlen); 
+    if (ethsd_opened)
+      eth_close(ethsd);
+    return res;
+  }
+
+  assert(sd >= 0);
   memset(&sock, 0, sizeof(sock));
   sock.sin_family = AF_INET;
 #if HAVE_SOCKADDR_SA_LEN
@@ -926,9 +948,6 @@ int send_ip_packet(int sd, u8 *packet, unsigned int packetlen) {
       sock.sin_port = udp->uh_dport;
     }
   }
-  /* I'll try leaving out dest port and address and see what happens */
-  /* sock.sin_port = htons(dport);
-     sock.sin_addr.s_addr = victim->s_addr; */
   
   res = Sendto("send_ip_packet", sd, packet, BSDUFIX(ip->ip_len), 0,
 	       (struct sockaddr *)&sock,  (int)sizeof(struct sockaddr_in));
@@ -939,7 +958,7 @@ int send_ip_packet(int sd, u8 *packet, unsigned int packetlen) {
  * Minimal MTU for IPv4 is 68 and maximal IPv4 header size is 60
  * which gives us a right to cut TCP header after 8th byte
  * (shouldn't we inflate the header to 60 bytes too?) */
-int send_frag_ip_packet(int sd, u8 *packet, unsigned int packetlen, unsigned int mtu)
+int send_frag_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetlen, unsigned int mtu)
 {
     struct ip *ip = (struct ip *) packet;
     int headerlen = ip->ip_hl * 4; // better than sizeof(struct ip)
@@ -952,7 +971,7 @@ int send_frag_ip_packet(int sd, u8 *packet, unsigned int packetlen, unsigned int
 
     if (datalen <= mtu) {
         error("Warning: fragmentation (mtu=%i) requested but the payload is too small already (%i)", mtu, datalen);
-        return send_ip_packet(sd, packet, packetlen);
+        return send_ip_packet(sd, eth, packet, packetlen);
     }
 
     u8 *fpacket = (u8 *) safe_malloc(headerlen + mtu);
@@ -971,7 +990,7 @@ int send_frag_ip_packet(int sd, u8 *packet, unsigned int packetlen, unsigned int
 #endif
         if (fragment > 1) // copy data payload
             memcpy(fpacket + headerlen, packet + headerlen + (fragment - 1) * mtu, fdatalen);
-        res = send_ip_packet(sd, fpacket, headerlen + fdatalen);
+        res = send_ip_packet(sd, eth, fpacket, headerlen + fdatalen);
         if (res == -1)
             break;
     }
@@ -1157,13 +1176,14 @@ if (ip->ip_p== IPPROTO_UDP) {
  return 0;
 }
 
-int send_udp_raw_decoys( int sd, const struct in_addr *victim, int ttl, 
+int send_udp_raw_decoys( int sd, struct eth_nfo *eth, 
+			 const struct in_addr *victim, int ttl, 
 			 u16 sport, u16 dport, u16 ipid, char *data, 
 			 u16 datalen) {
   int decoy;
   
   for(decoy = 0; decoy < o.numdecoys; decoy++) 
-    if (send_udp_raw(sd, &o.decoys[decoy], victim, ttl, sport, dport, ipid,
+    if (send_udp_raw(sd, eth, &o.decoys[decoy], victim, ttl, sport, dport, ipid,
 		     data, datalen) == -1)
       return -1;
 
@@ -1262,7 +1282,8 @@ u8 *build_udp_raw(struct in_addr *source, const struct in_addr *victim,
   return packet;
 }
 
-int send_udp_raw( int sd, struct in_addr *source, const struct in_addr *victim,
+int send_udp_raw( int sd, struct eth_nfo *eth, struct in_addr *source, 
+		  const struct in_addr *victim,
  		  int ttl, u16 sport, u16 dport, u16 ipid, char *data, 
 		  u16 datalen) 
 {
@@ -1271,7 +1292,7 @@ int send_udp_raw( int sd, struct in_addr *source, const struct in_addr *victim,
   u8 *packet = build_udp_raw(source, victim, ttl, sport, dport, ipid, data, 
 			     datalen, &packetlen);
   if (!packet) return -1;
-  res = send_ip_packet(sd, packet, packetlen);
+  res = send_ip_packet(sd, eth, packet, packetlen);
 
   free(packet);
   return res;
@@ -1341,8 +1362,9 @@ if (TCPIP_DEBUGGING > 1) {
 
 
 /* You need to call sethdrinclude(sd) on the sending sd before calling this */
-int send_ip_raw( int sd, struct in_addr *source, const struct in_addr *victim, 
-		 int ttl, u8 proto, char *data, u16 datalen) 
+int send_ip_raw( int sd, struct eth_nfo *eth, struct in_addr *source, 
+		 const struct in_addr *victim, int ttl, u8 proto, 
+		 char *data, u16 datalen) 
 {
   unsigned int packetlen;
   int res = -1;
@@ -1351,7 +1373,7 @@ int send_ip_raw( int sd, struct in_addr *source, const struct in_addr *victim,
 			    data, datalen, &packetlen);
   if (!packet) return -1;
 
-  res = send_ip_packet(sd, packet, packetlen);
+  res = send_ip_packet(sd, eth, packet, packetlen);
 
   free(packet);
   return res;
@@ -1370,37 +1392,6 @@ options = O_NONBLOCK | fcntl(sd, F_GETFL);
 fcntl(sd, F_SETFL, options);
 #endif //WIN32
 return 1;
-}
-
-int getsourceip(struct in_addr *src, const struct in_addr * const dst) {
-  int sd;
-  struct sockaddr_in sock;
-  recvfrom6_t socklen = sizeof(struct sockaddr_in);
-  u16 p1;
-
-  get_random_bytes(&p1, sizeof(p1));
-  if (p1 < 5000) p1 += 5000;
-
-  if ((sd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
-    {perror("Socket troubles"); return 0;}
-  sock.sin_family = AF_INET;
-  sock.sin_addr = *dst;
-  sock.sin_port = htons(p1);
-  if (connect(sd, (struct sockaddr *) &sock, sizeof(struct sockaddr_in)) == -1)
-    { perror("UDP connect()");
-    close(sd);
-    return 0;
-    }
-  memset(&sock, 0, sizeof(sock));
-  if (getsockname(sd, (SA *)&sock, &socklen) == -1) {
-    perror("getsockname");
-    close(sd);
-    return 0;
-  }
-
-  src->s_addr = sock.sin_addr.s_addr;
-  close(sd);
-  return 1; /* Calling function responsible for checking validity */
 }
 
 /* Read an IP packet using libpcap .  We return the packet and take
@@ -1605,6 +1596,60 @@ bool pcap_recv_timeval_valid() {
 #endif
 }
 
+
+/* A trivial functon that maintains a cache of IP to MAC Address
+   entries.  If the command is ARPCACHE_GEt, this func looks for the
+   IPv4 address in ss and fills in the 'mac' parameter and returns
+   true if it is found.  Otherwise (not found), the function returns
+   false.  If the command is ARPCACHE_SET, the function adds an entry
+   with the given ip (ss) and mac address.  An existing entry for the
+   IP ss will be overwritten with the new MAC address.  true is always
+   returned for the set command. */
+bool NmapArpCache(int command, struct sockaddr_storage *ss, u8 *mac) {
+  struct sockaddr_in *sin = (struct sockaddr_in *) ss;
+  struct ArpCache { 
+    u32 ip; /* Network byte order */
+    u8 mac[6];
+  };
+  static struct ArpCache *Cache = NULL;
+  static int ArpCapacity = 0;
+  static int ArpCacheSz = 0;
+  int i;
+
+  if (sin->sin_family != AF_INET) 
+    fatal("NmapArpCache() can only take IPv4 addresses.  Sorry");
+  
+  if (command == ARPCACHE_GET) {
+    for(i=0; i < ArpCacheSz; i++) {
+      if (Cache[i].ip == sin->sin_addr.s_addr) {
+	memcpy(mac, Cache[i].mac, 6);
+	return true;
+      }
+    }
+    return false;
+  }
+  assert(command == ARPCACHE_SET);
+  if (ArpCacheSz == ArpCapacity) {
+    if (ArpCapacity == 0) ArpCapacity = 32;
+    else ArpCapacity <<= 2;
+  }
+  Cache = (struct ArpCache *) safe_realloc(Cache, 
+					   ArpCapacity * sizeof(struct ArpCache));
+
+  /* Ensure that it isn't already there ... */
+  for(i=0; i < ArpCacheSz; i++) {
+    if (Cache[i].ip == sin->sin_addr.s_addr) {
+      memcpy(Cache[i].mac, mac, 6);
+      return true;
+    }
+  }
+
+  /* Add it to the end of the list */
+  Cache[i].ip = sin->sin_addr.s_addr;
+  memcpy(Cache[i].mac, mac, 6);
+  return true;
+}
+
 /* Attempts to read one IPv4/Ethernet ARP reply packet from the pcap
    descriptor pd.  If it receives one, fills in sendermac (must pass
    in 6 bytes), senderIP, and rcvdtime (can be NULL if you don't care)
@@ -1722,9 +1767,6 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
 
 int setTargetMACIfAvailable(Target *target, struct link_header *linkhdr,
 			      struct ip *ip, int overwrite) {
-  struct sockaddr_storage ss;
-  size_t sslen;
-
   if (!linkhdr || !target || !ip)
     return 1;
 
@@ -1741,8 +1783,7 @@ int setTargetMACIfAvailable(Target *target, struct link_header *linkhdr,
   if (memcmp(linkhdr->header+6, "\0\0\0\0\0\0", 6) == 0)
     return 5;
 
-  target->TargetSockAddr(&ss, &sslen);
-  if (IPisDirectlyConnected(&ss, sslen) == 1) {
+  if (target->ifType() == devt_ethernet && target->directlyConnected()) {
     /* Yay!  This MAC address seems valid */
     target->setMACAddress(linkhdr->header + 6);
     return 0;
@@ -1750,12 +1791,155 @@ int setTargetMACIfAvailable(Target *target, struct link_header *linkhdr,
 
   return 5;
 }
- 
+
+/* Issues an ARP request for the MAC of targetss (which will be placed
+   in targetmac if obtained) from the source IP (srcip) and source mac
+   (srcmac) given.  "The request is ussued using device dev to the
+   broadcast MAC address.  The transmission is attempted up to 3
+   times.  If none of these elicit a response, false will be returned.
+   If the mac is determined, true is returned. */
+bool doArp(const char *dev, const u8 *srcmac, 
+	   const struct sockaddr_storage *srcip, 
+	   const struct sockaddr_storage *targetip, u8 *targetmac) {
+  /* timeouts in microseconds ... the first ones are retransmit times, while 
+     the final one is when we give up */
+  int timeouts[] = { 100000, 400000, 800000 }; 
+  int max_sends = 3;
+  int num_sends = 0; // How many we have sent so far 
+  eth_t *ethsd;
+  u8 frame[ETH_HDR_LEN + ARP_HDR_LEN + ARP_ETHIP_LEN];
+  const struct sockaddr_in *targetsin = (struct sockaddr_in *) targetip;
+  const struct sockaddr_in *srcsin = (struct sockaddr_in *) srcip;
+  struct timeval start, now, rcvdtime;
+  int timeleft;
+  int listenrounds;
+  int rc;
+  pcap_t *pd;
+  struct in_addr rcvdIP;
+  bool foundit = false;
+
+  if (targetsin->sin_family != AF_INET || srcsin->sin_family != AF_INET)
+    fatal("%s can only handle IPv4 addresses", __FUNCTION__);
+
+  /* Start listening */
+  pd = my_pcap_open_live(dev, 50, 1, 25);
+  set_pcap_filter(dev, pd, flt_all, "arp and ether dst host %02X:%02X:%02X:%02X:%02X:%02X", srcmac[0], srcmac[1], srcmac[2], srcmac[3], srcmac[4], srcmac[5]);
+
+  /* Prepare probe and sending stuff */
+  ethsd = eth_open(dev);
+  if (!ethsd) fatal("%s: failed to open device %s", __FUNCTION__, dev);
+  eth_pack_hdr(frame, ETH_ADDR_BROADCAST, srcmac, ETH_TYPE_ARP);
+  arp_pack_hdr_ethip(frame + ETH_HDR_LEN, ARP_OP_REQUEST, srcmac, 
+		     srcsin->sin_addr, ETH_ADDR_BROADCAST, 
+		     targetsin->sin_addr);
+  gettimeofday(&start, NULL);
+  gettimeofday(&now, NULL);
+
+  while(!foundit && num_sends < max_sends) {
+    /* Send the sucker */
+    rc = eth_send(ethsd, frame, sizeof(frame));
+    if (rc != sizeof(frame)) {
+      error("WARNING: %s: eth_send of ARP packet returned %u rather than expected %d bytes\n", __FUNCTION__, rc, (int) sizeof(frame));
+    }
+    PacketTrace::traceArp(PacketTrace::SENT, (u8 *) frame, sizeof(frame), &now);
+    num_sends++;
+    
+    listenrounds = 0;
+    while(!foundit) {
+      gettimeofday(&now, NULL);
+      timeleft = timeouts[num_sends - 1] - TIMEVAL_SUBTRACT(now, start);
+      if (timeleft < 0) {
+	if (listenrounds > 0) break;
+	else timeleft = 25000;
+      }
+      /* Now listen until we reach our next timeout or get an answer */
+      rc = read_arp_reply_pcap(pd, targetmac, &rcvdIP, timeleft, &rcvdtime);
+      if (rc == -1) fatal("%s: Received -1 response from readarp_reply_pcap", 
+			  __FUNCTION__);
+      if (rc == 1) {
+	/* Yay, I got one! But is it the right one? */
+	if (rcvdIP.s_addr != targetsin->sin_addr.s_addr)
+	  continue;  /* D'oh! */
+	foundit = true;  /* WOOHOO! */
+      }
+    }
+  }
+
+  /* OK - let's close up shop ... */
+  pcap_close(pd);
+  eth_close(ethsd);
+  return foundit;
+}
+
+
+/* This function ensures that the next hop MAC address for a target is
+   filled in.  This address is the target's own MAC if it is directly
+   connected, and the next hop mac otherwise.  Returns true if the
+   address is set when the function ends, false if not.  This function
+   firt checks if it is already set, if not it tries the arp cache,
+   and if that fails it sends an ARP request itself.  This should be
+   called after an ARP scan if many directly connected machines are
+   involved. setDirectlyConnected() (whether true or false) should
+   have already been called on target before this.  The target device
+   and src mac address should also already be set.  */
+bool setTargetNextHopMAC(Target *target) {
+  struct sockaddr_storage targetss, srcss;
+  size_t sslen;
+  arp_t *a;
+  u8 mac[6];
+  struct arp_entry ae;
+
+  if (target->ifType() != devt_ethernet)
+    return false; /* Duh. */
+
+  /* First check if we alread have it, duh. */
+  if (target->NextHopMACAddress())
+    return true;
+
+  /* For connected machines, it is the same as the target addy */
+  if (target->directlyConnected() && target->MACAddress()) {
+    target->setNextHopMACAddress(target->MACAddress());
+    return true;
+  }
+
+  if (target->directlyConnected()) {
+    target->TargetSockAddr(&targetss, &sslen);
+  } else {
+    if (!target->nextHop(&targetss, &sslen))
+      fatal("%s: Failed to determine nextHop to target", __FUNCTION__);
+  }
+
+  /* First, let us check the Nmap arp cache ... */
+  if (NmapArpCache(ARPCACHE_GET, &targetss, mac)) {
+    target->setNextHopMACAddress(mac);
+    return true;
+  }
+  
+  /* Maybe the system ARP cache will be more helpful */
+  a = arp_open();
+  addr_ston((sockaddr *)&targetss, &ae.arp_pa);
+  if (arp_get(a, &ae)) {
+    NmapArpCache(ARPCACHE_SET, &targetss, ae.arp_ha.addr_eth.data);
+    target->setNextHopMACAddress(ae.arp_ha.addr_eth.data);
+  }
+
+  /* OK, the last choice is to send our own damn ARP request (and
+     retransmissions if necessary) to determine the MAC */
+  target->SourceSockAddr(&srcss, NULL);
+  if (doArp(target->deviceName(), target->SrcMACAddress(), &srcss, &targetss, 
+	    mac)) {
+    NmapArpCache(ARPCACHE_SET, &targetss, mac);
+    target->setNextHopMACAddress(mac);
+  }
+  
+  /* I'm afraid that we couldn't find it!  Maybe it doesn't exist?*/
+  return false;
+} 
 
 #ifndef WIN32 /* Windows version of next few functions is currently 
                  in wintcpip.c.  Should be merged at some point. */
 /* Set a pcap filter */
-void set_pcap_filter(Target *target,
+void set_pcap_filter(const char *device,
 		     pcap_t *pd, PFILTERFN filter, char *bpf, ...)
 {
   va_list ap;
@@ -1768,8 +1952,8 @@ void set_pcap_filter(Target *target,
 #endif
   char err0r[256];
   
-  if (pcap_lookupnet(target->device, &localnet, &netmask, err0r) < 0)
-    fatal("Failed to lookup device subnet/netmask: %s", err0r);
+  if (pcap_lookupnet(device, &localnet, &netmask, err0r) < 0)
+    fatal("Failed to lookup subnet/netmask for device (%s): %s", device, err0r);
   
   va_start(ap, bpf);
   if (vsnprintf(buf, sizeof(buf), bpf, ap) >= (int) sizeof(buf))
@@ -1777,11 +1961,12 @@ void set_pcap_filter(Target *target,
   va_end(ap);
 
   /* Due to apparent bug in libpcap */
-  if (islocalhost(target->v4hostip()))
-    buf[0] = '\0';
+  /* Maybe this bug no longer exists ... I'll comment out for now 
+   *      if (islocalhost(target->v4hostip()))
+   *      buf[0] = '\0'; */
 
   if (o.debugging)
-    log_write(LOG_STDOUT, "Packet capture filter (device %s): %s\n", target->device, buf);
+    log_write(LOG_STDOUT, "Packet capture filter (device %s): %s\n", device, buf);
   
   if (pcap_compile(pd, &fcode, buf, 0, netmask) < 0)
     fatal("Error compiling our pcap filter: %s\n", pcap_geterr(pd));
@@ -1850,18 +2035,25 @@ int flt_icmptcp_5port(const char *packet, unsigned int len)
 
 #ifndef WIN32 /* Currently the Windows code for next few functions is 
                  in wintcpip.c -- should probably be merged at some
-				 point */
+				 point.  The dev passed in must be at least 
+				 16 bytes long */
+
 int ipaddr2devname( char *dev, const struct in_addr *addr ) {
 struct interface_info *mydevs;
 int numdevs;
 int i;
+struct sockaddr_in *sin;
+
 mydevs = getinterfaces(&numdevs);
 
 if (!mydevs) return -1;
 
 for(i=0; i < numdevs; i++) {
-  if (addr->s_addr == mydevs[i].addr.s_addr) {
-    strcpy(dev, mydevs[i].name);
+  sin = (struct sockaddr_in *) &mydevs[i].addr;
+  if (sin->sin_family != AF_INET)
+    continue;
+  if (addr->s_addr == sin->sin_addr.s_addr) {
+    Strncpy(dev, mydevs[i].devname, 16);
     return 0;
   }
 }
@@ -1877,7 +2069,7 @@ mydevs = getinterfaces(&numdevs);
 if (!mydevs) return -1;
 
 for(i=0; i < numdevs; i++) {
-  if (!strcmp(dev, mydevs[i].name)) {  
+  if (!strcmp(dev, mydevs[i].devfullname)) {  
     memcpy(addr, (char *) &mydevs[i].addr, sizeof(struct in_addr));
     return 0;
   }
@@ -1889,30 +2081,32 @@ return -1;
 #ifndef WIN32 /* ifdef'd out for now because 'doze apparently doesn't
 		         support ioctl() */
 struct interface_info *getinterfaces(int *howmany) {
-  static int initialized = 0;
+  static bool initialized = 0;
   static struct interface_info *mydevs;
-  static int numinterfaces = 0;
+  static int numifaces = 0;
   int ii_capacity = 0;
   int sd, len, rc;
   char *p;
-  char buf[10240];
+  u8 *buf;
+  int bufsz;
   struct ifconf ifc;
   struct ifreq *ifr;
   struct ifreq tmpifr;
   struct sockaddr_in *sin;
-
+  u16 ifflags;
   if (!initialized) {
     initialized = 1;
 
-    ii_capacity = 32;
-    mydevs = (struct interface_info *) safe_malloc(sizeof(struct interface_info) * ii_capacity);
+    ii_capacity = 16;
+    mydevs = (struct interface_info *) safe_zalloc(sizeof(struct interface_info) * ii_capacity);
 
     /* Dummy socket for ioctl */
     sd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sd < 0) pfatal("socket in getinterfaces");
-    memset(buf, 0, sizeof(buf));
-    ifc.ifc_len = sizeof(buf);
-    ifc.ifc_buf = buf;
+    bufsz = 20480;
+    buf = (u8 *) safe_zalloc(bufsz);
+    ifc.ifc_len = bufsz;
+    ifc.ifc_buf = (char *) buf;
     if (ioctl(sd, SIOCGIFCONF, &ifc) < 0) {
       fatal("Failed to determine your configured interfaces!\n");
     }
@@ -1935,7 +2129,7 @@ struct interface_info *getinterfaces(int *howmany) {
     printf("Size of struct ifreq: %d\n", sizeof(struct ifreq));
 #endif
 
-    for(; ifr && *((char *)ifr) && ((char *)ifr) < buf + ifc.ifc_len; 
+    for(; ifr && *((u8 *)ifr) && ((u8 *)ifr) < buf + ifc.ifc_len; 
 	((*(char **)&ifr) += len )) {
 #if TCPIP_DEBUGGING
       printf("ifr_name size = %d\n", sizeof(ifr->ifr_name));
@@ -1946,32 +2140,62 @@ struct interface_info *getinterfaces(int *howmany) {
       if (!*((char *)ifr))
         continue;
 
+      /* We currently only handle IPv4 */
       sin = (struct sockaddr_in *) &ifr->ifr_addr;
-      memcpy(&(mydevs[numinterfaces].addr), (char *) &(sin->sin_addr), sizeof(struct in_addr));
+      if (sin->sin_family != AF_INET)
+	continue;
+      memcpy(&(mydevs[numifaces].addr), sin, min(sizeof(mydevs[numifaces].addr), sizeof(sin)));
+      Strncpy(mydevs[numifaces].devname, ifr->ifr_name, sizeof(mydevs[numifaces].devname));
+      /* devname isn't allowed to have alias qualification */
+      if ((p = strchr(mydevs[numifaces].devname, ':')))
+	*p = '\0';
+      Strncpy(mydevs[numifaces].devfullname, ifr->ifr_name, sizeof(mydevs[numifaces].devfullname));
 
-      Strncpy(tmpifr.ifr_name, ifr->ifr_name, IFNAMSIZ);
-      memcpy(&(tmpifr.ifr_addr), &(sin->sin_addr), sizeof(tmpifr.ifr_addr));
+      Strncpy(tmpifr.ifr_name, ifr->ifr_name, sizeof(tmpifr.ifr_name));
+      memcpy(&(tmpifr.ifr_addr), sin, MIN(sizeof(tmpifr.ifr_addr), sizeof(sin)));
       rc = ioctl(sd, SIOCGIFNETMASK, &tmpifr);
       if (rc < 0 && errno != EADDRNOTAVAIL)
-	pfatal("Failed to determine the netmask of %s!", ifr->ifr_name);
+	pfatal("Failed to determine the netmask of %s!", tmpifr.ifr_name);
       else if (rc < 0)
-	mydevs[numinterfaces].netmask.s_addr = (unsigned) -1;
+	mydevs[numifaces].netmask_bits = 32;
       else {
 	sin = (struct sockaddr_in *) &(tmpifr.ifr_addr); /* ifr_netmask only on Linux */
-	memcpy(&(mydevs[numinterfaces].netmask), (char *) &(sin->sin_addr), sizeof(struct in_addr));
+	addr_stob(&(tmpifr.ifr_addr), &mydevs[numifaces].netmask_bits);
       }
-      /* In case it is a stinkin' alias */
-      if ((p = strchr(ifr->ifr_name, ':')))
-	*p = '\0';
-      Strncpy(mydevs[numinterfaces].name, ifr->ifr_name, IFNAMSIZ);
 
-      //  printf("ifr name=%s addr=%s, mask=%X\n", mydevs[numinterfaces].name, inet_ntoa(mydevs[numinterfaces].addr), mydevs[numinterfaces].netmask.s_addr); 
-#if TCPIP_DEBUGGING
-      printf("Interface %d is %s\n",numinterfaces,mydevs[numinterfaces].name);
-#endif
+      //  printf("ifr name=%s addr=%s, mask=%X\n", mydevs[numifaces].name, inet_ntoa(mydevs[numifaces].addr), mydevs[numifaces].netmask.s_addr); 
 
-      numinterfaces++;
-      if (numinterfaces == ii_capacity)  {      
+      /* Now we need to determine the device type ... this technique
+	 is kinda iffy ... may not be portable. */
+      /* First we get the flags */
+      Strncpy(tmpifr.ifr_name, ifr->ifr_name, sizeof(tmpifr.ifr_name));
+      memcpy(&(tmpifr.ifr_addr), sin, MIN(sizeof(tmpifr.ifr_addr), sizeof(sin)));
+      rc = ioctl(sd, SIOCGIFFLAGS, &tmpifr);
+      if (rc < 0) fatal("Failed to get IF Flags for device %s", ifr->ifr_name);
+      ifflags = tmpifr.ifr_flags;
+
+      if (ifflags & IFF_LOOPBACK)
+	mydevs[numifaces].device_type = devt_loopback;
+      else if (ifflags & IFF_BROADCAST) {
+	mydevs[numifaces].device_type = devt_ethernet;
+	/* Get the MAC Address ... */
+	Strncpy(tmpifr.ifr_name, mydevs[numifaces].devname, sizeof(tmpifr.ifr_name));
+	memcpy(&(tmpifr.ifr_addr), sin, MIN(sizeof(tmpifr.ifr_addr), MIN(sizeof(tmpifr.ifr_addr), sizeof(sin))));
+	rc = ioctl(sd, SIOCGIFHWADDR, &tmpifr);
+	if (rc < 0 && errno != EADDRNOTAVAIL)
+	  pfatal("Failed to determine the MAC address of %s!", tmpifr.ifr_name);
+	else if (rc >= 0)
+	  memcpy(mydevs[numifaces].mac, &tmpifr.ifr_addr.sa_data, 6);
+      }
+      else if (ifflags & IFF_POINTOPOINT)
+	mydevs[numifaces].device_type = devt_p2p;
+      else mydevs[numifaces].device_type = devt_other;
+
+      if (ifflags & IFF_UP)
+	mydevs[numifaces].device_up = true;
+      else mydevs[numifaces].device_up = false;
+      numifaces++;
+      if (numifaces == ii_capacity)  {      
 	ii_capacity <<= 2;
 	mydevs = (struct interface_info *) realloc(mydevs, sizeof(struct interface_info) * ii_capacity);
 	assert(mydevs);
@@ -1980,92 +2204,42 @@ struct interface_info *getinterfaces(int *howmany) {
       /* len = MAX(sizeof(struct sockaddr), ifr->ifr_addr.sa_len);*/
       len = ifr->ifr_addr.sa_len + sizeof(ifr->ifr_name);
 #endif 
-      mydevs[numinterfaces].name[0] = '\0';
+      mydevs[numifaces].devname[0] = mydevs[numifaces].devfullname[0] = '\0';
     }
+    free(buf);
     close(sd);
   }
-  if (howmany) *howmany = numinterfaces;
+  if (howmany) *howmany = numifaces;
   return mydevs;
 }
 #endif
 
-/* Check whether an IP address appears to be directly connected to an
-   interface on the computer (e.g. on the same ethernet network rather
-   than having to route).  Returns 1 if yes, -1 if maybe, 0 if not.
-   The Windows version tries to give an accurate answer, which I'm
-   not sure is the right thing to do in rawsock mode... */
-int IPisDirectlyConnected(struct sockaddr_storage *ss, size_t ss_len) {
-#if WIN32
-  struct sockaddr_in *sin = (struct sockaddr_in *) ss;
-  MIB_IPFORWARDROW route;
-  if(get_best_route(sin->sin_addr.s_addr, &route) < 0)
-         return -1;
-  return route.dwForwardType == 3 ? 1 : 0;
-#else
-  struct interface_info *interfaces;
-  int numinterfaces;
-  int i;
-  struct sockaddr_in *sin = (struct sockaddr_in *) ss;
-
-  if (sin->sin_family != AF_INET)
-    fatal("IPisDirectlyConnected passed a non IPv4 address");
-
-  interfaces =  getinterfaces(&numinterfaces);
-
-  for(i=0; i < numinterfaces; i++) {
-    if ((interfaces[i].addr.s_addr & interfaces[i].netmask.s_addr) == (sin->sin_addr.s_addr & interfaces[i].netmask.s_addr))
-      return 1;
-  }
-  return 0;
-#endif /* !WIN32 */
-}
-
-
-/* An awesome function to determine what interface a packet to a given
-   destination should be routed through.  It returns NULL if no appropriate
-   interface is found, oterwise it returns the device name and fills in the
-   source parameter.   Some of the stuff is
-   from Stevens' Unix Network Programming V2.  He had an easier suggestion
-   for doing this (in the book), but it isn't portable :( */
-#ifndef WIN32 /* Windows functionality is currently in wintcpip.c --
-                 should probably be merged at some point */
-
-char *routethrough(const struct in_addr * const dest, struct in_addr *source) {
-  static int initialized = 0;
-  int i;
-  struct in_addr addy;
-  static enum { procroutetechnique, connectsockettechnique, guesstechnique } technique = procroutetechnique;
-  char buf[10240];
-  struct interface_info *mydevs;
-  static struct myroute {
-    struct interface_info *dev;
-    u32 mask;
-    u32 dest;
-  } *myroutes;
-  int myroutes_capacity = 0;
-  int numinterfaces = 0;
-  char *p, *endptr;
-  char iface[64];
+/* Parse the system routing table, converting each route into a
+   sys_route entry.  Returns an array of sys_routes.  numroutes is set
+   to the number of routes in the array.  The routing table is only
+   read the first time this is called -- later results are cached.
+   The returned route array is sorted by netmask with the most
+   specific matches first. */
+struct sys_route *getsysroutes(int *howmany) {
+  int route_capacity = 128;
+  static struct sys_route *routes = NULL;
   static int numroutes = 0;
-  FILE *routez;
+  FILE *routefp;
+  char buf[1024];
+  char iface[16];
+  char *p, *endptr;
+  struct interface_info *ifaces;
+  int numifaces = 0;
+  int i;
 
-  if (!dest) fatal("routethrough passed a NULL dest address");
-
-  if (!initialized) {  
-    /* Dummy socket for ioctl */
-    initialized = 1;
-    mydevs = getinterfaces(&numinterfaces);
-    myroutes_capacity = 64;
-    myroutes = (struct myroute *) safe_malloc((sizeof(struct myroute) * myroutes_capacity));
-    /* Now we must go through several techniques to determine info */
-    routez = fopen("/proc/net/route", "r");
-
-    if (routez) {
-      /* OK, linux style /proc/net/route ... we can handle this ... */
-      /* Now that we've got the interfaces, we g0 after the r0ut3Z */
-      
-      fgets(buf, sizeof(buf), routez); /* Kill the first line */
-      while(fgets(buf,sizeof(buf), routez)) {
+  if (!routes) {
+    routes = (struct sys_route *) safe_zalloc(route_capacity * sizeof(struct sys_route));
+    ifaces = getinterfaces(&numifaces);
+    /* First let us try Linux-style /proc/net/route */
+    routefp = fopen("/proc/net/route", "r");
+    if (routefp) {
+      fgets(buf, sizeof(buf), routefp); /* Kill the first line (column headers) */
+      while(fgets(buf,sizeof(buf), routefp)) {
 	p = strtok(buf, " \t\n");
 	if (!p) {
 	  error("Could not find interface in /proc/net/route line");
@@ -2075,17 +2249,23 @@ char *routethrough(const struct in_addr * const dest, struct in_addr *source) {
 	  continue; /* Deleted route -- any other valid reason for
 		       a route to start with an asterict? */
 	Strncpy(iface, p, sizeof(iface));
-	if ((p = strchr(iface, ':'))) {
-	  *p = '\0'; /* To support IP aliasing */
-	}
 	p = strtok(NULL, " \t\n");
 	endptr = NULL;
-	myroutes[numroutes].dest = strtoul(p, &endptr, 16);
+	routes[numroutes].dest = strtoul(p, &endptr, 16);
 	if (!endptr || *endptr) {
 	  error("Failed to determine Destination from /proc/net/route");
 	  continue;
 	}
-	for(i=0; i < 6; i++) {
+
+	/* Now for the gateway */
+	p = strtok(NULL, " \t\n");
+	if (!p) break;
+	endptr = NULL;
+	routes[numroutes].gw.s_addr = strtoul(p, &endptr, 16);
+	if (!endptr || *endptr) {
+	  error("Failed to determine gw for %s from /proc/net/route\n", iface);
+	}
+	for(i=0; i < 5; i++) {
 	  p = strtok(NULL, " \t\n");
 	  if (!p) break;
 	}
@@ -2094,101 +2274,111 @@ char *routethrough(const struct in_addr * const dest, struct in_addr *source) {
 	  continue;
 	}
 	endptr = NULL;
-	myroutes[numroutes].mask = strtoul(p, &endptr, 16);
+	routes[numroutes].netmask = strtoul(p, &endptr, 16);
 	if (!endptr || *endptr) {
 	  error("Failed to determine mask from /proc/net/route");
 	  continue;
 	}
-
-
-#if TCPIP_DEBUGGING
-	  printf("#%d: for dev %s, The dest is %X and the mask is %X\n", numroutes, iface, myroutes[numroutes].dest, myroutes[numroutes].mask);
-#endif
-	  for(i=0; i < numinterfaces; i++)
-	    if (!strcmp(iface, mydevs[i].name)) {
-	      myroutes[numroutes].dev = &mydevs[i];
-	      break;
-	    }
-	  if (i == numinterfaces) 
-	    fatal("Failed to find interface %s mentioned in /proc/net/route\n", iface);
-	  numroutes++;
-	  if (numroutes == myroutes_capacity) {
-	    // Gotta grow it
-	    myroutes_capacity <<= 3;
-	    myroutes = (struct myroute *) realloc(myroutes, myroutes_capacity * (sizeof(struct myroute)));
-	    assert(myroutes);
+	for(i=0; i < numifaces; i++) {
+	  if (!strcmp(iface, ifaces[i].devfullname)) {
+	    routes[numroutes].device = &ifaces[i];
+	    break;
 	  }
-      }
-      fclose(routez);
-    } else {
-      technique = connectsockettechnique;
-    }
-  } else {  
-    mydevs = getinterfaces(&numinterfaces);
-  }
-  /* WHEW, that takes care of initializing, now we have the easy job of 
-     finding which route matches */
-  if (islocalhost(dest)) {
-
-    /* I used to set the source to 127.0.0.1 in this case, but that
-       seems to cause problems on Linux, where the dang system will
-       reply from another addy:
-         0.160995    127.0.0.1 -> 192.168.0.42 TCP 63331 > 1 [SYN] Seq=1321326640 Ack=0 Win=1024 Len=0
-         0.161027 192.168.0.42 -> 192.168.0.42 TCP 1 > 63331 [RST, ACK] Seq=0 Ack=1321326641 Win=0 Len=0
-         So I'll try just using the localhost device, but keeping the
-         more proper source 
-    //    if (source)
-    //      source->s_addr = htonl(0x7F000001);
-    */
-    /* Now we find the localhost interface name, assuming 127.0.0.1 is
-       localhost (it damn well better be!)... */
-    for(i=0; i < numinterfaces; i++) {    
-      if (mydevs[i].addr.s_addr == htonl(0x7F000001)) {
-	return mydevs[i].name;
-      }
-    }
-    return NULL;
-  }
-
-  if (technique == procroutetechnique) {    
-    for(i=0; i < numroutes; i++) {  
-      if ((dest->s_addr & myroutes[i].mask) == myroutes[i].dest) {
-	if (source) {
-	  source->s_addr = myroutes[i].dev->addr.s_addr;
 	}
-	return myroutes[i].dev->name;      
+	if (i == numifaces) {
+	  error("Failed to find device %s which was referenced in /proc/net/route", iface);
+	  continue;
+	}
+	numroutes++;
+	if (numroutes >= route_capacity) {
+	  route_capacity <<= 2;
+	  routes = (struct sys_route *) realloc(routes, route_capacity * sizeof(struct sys_route));
+	}
       }
-    }
-  } else if (technique == connectsockettechnique) {
-      if (!getsourceip(&addy, dest))
-	return NULL;
-      if (!addy.s_addr)  {  /* Solaris 2.4 */
-        struct hostent *myhostent = NULL;
-        char myname[MAXHOSTNAMELEN + 1];
-        if (gethostname(myname, MAXHOSTNAMELEN) || 
-           !(myhostent = gethostbyname(myname)))
-	  fatal("Cannot get hostname!  Try using -S <my_IP_address> or -e <interface to scan through>\n");
-        memcpy(&(addy.s_addr), myhostent->h_addr_list[0], sizeof(struct in_addr));
-#if ( TCPIP_DEBUGGING )
-      printf("We skillfully deduced that your address is %s\n", 
-        inet_ntoa(*source));
-#endif
-      }
+    } else fatal("Need to write portable route gathering code");
 
-      /* Now we insure this claimed address is a real interface ... */
-      for(i=0; i < numinterfaces; i++)
-	if (mydevs[i].addr.s_addr == addy.s_addr) {
-	  if (source) {
-	    source->s_addr = addy.s_addr;	  
-	  }
-	  return mydevs[i].name;
-	}  
-      return NULL;
-    } else 
-      fatal("I know sendmail technique ... I know rdist technique ... but I don't know what the hell kindof technique you are attempting!!!");
-    return NULL;
+    /* Ensure that the route array is sorted by netmask */
+    for(i=1; i < numroutes; i++) {
+      if (ntohl(routes[i].netmask) > ntohl(routes[i-1].netmask))
+	fatal("Uh-oh -- your route list isn't sorted by Netmask. Please notify fyodor@insecure.org\n");
+    }
+  }
+  if (!howmany) fatal("NULL howmany ptr passed to getsysroutes()");
+  *howmany = numroutes;
+  return routes;
 }
-#endif /* WIN32 */
+
+/* Takes a destination address (dst) and tries to determine the
+   source address and interface necessary to route to this address.
+   If no route is found, false is returned and rnfo is undefined.  If
+   a route is found, true is returned and rnfo is filled in with all
+   of the routing details */
+bool route_dst(const struct sockaddr_storage *const dst, struct route_nfo *rnfo) {
+  struct interface_info *ifaces;
+  int numifaces = 0;
+  struct sys_route *routes;
+  int numroutes = 0;
+  int ifnum;
+  int i;
+  u32 mask;
+  struct sockaddr_in *ifsin, *dstsin;
+  if (!dst) fatal("route_nfo passed a NULL dst address");
+  dstsin = (struct sockaddr_in *)dst;
+
+  if (dstsin->sin_family != AF_INET)
+    fatal("Sorry -- route_dst currently only supports IPv4");
+
+  ifaces = getinterfaces(&numifaces);
+  /* I suppose that I'll first determine whether it is a direct connect instance */
+  for(ifnum=0; ifnum < numifaces; ifnum++) {
+    ifsin = (struct sockaddr_in *) &ifaces[ifnum].addr;
+    if (ifsin->sin_family != AF_INET) continue;
+    if (dstsin->sin_addr.s_addr == ifsin->sin_addr.s_addr && 
+	ifaces[ifnum].device_type != devt_loopback) {
+      /* Trying to scan one of the machine's own interfaces -- we need
+	 to use the localhost device for this */
+      for(i=0; i < numifaces; i++)
+	if (ifaces[i].device_type == devt_loopback)
+	  break;
+      if (i < numifaces) {
+	rnfo->direct_connect = true;
+	memcpy(&rnfo->ii, &ifaces[i], sizeof(rnfo->ii));
+	/* But the source address we want to use is the target addy */
+	memcpy(&rnfo->srcaddr, &ifaces[ifnum].addr, sizeof(rnfo->srcaddr));
+	return true;
+      }
+      /* Hmmm ... no localhost -- I guess I'll just try using the device 
+	 itself */
+    }
+    mask = htonl((unsigned long) (0-1) << (32 - ifaces[ifnum].netmask_bits));
+    if ((ifsin->sin_addr.s_addr & mask) == (dstsin->sin_addr.s_addr & mask)) {
+      rnfo->direct_connect = 1;
+      memcpy(&rnfo->ii, &ifaces[ifnum], sizeof(rnfo->ii));
+      memcpy(&rnfo->srcaddr, &ifaces[ifnum].addr, sizeof(rnfo->srcaddr));
+      return true;
+    }
+  }
+
+  /* OK, so it isn't directly connected.  Let's do some routing! */
+  rnfo->direct_connect = false;
+
+  routes = getsysroutes(&numroutes);
+  /* Now we simply go through the list and take the first match */
+  for(i=0; i < numroutes; i++) {
+    if ((routes[i].dest & routes[i].netmask) == 
+	(dstsin->sin_addr.s_addr & routes[i].netmask)) {
+      /* Yay, found a matching route. */
+      memcpy(&rnfo->ii, routes[i].device, sizeof(rnfo->ii));
+      memcpy(&rnfo->srcaddr, &routes[i].device->addr, sizeof(rnfo->srcaddr));
+      ifsin = (struct sockaddr_in *) &rnfo->nexthop;
+      ifsin->sin_family = AF_INET;
+      ifsin->sin_addr.s_addr = routes[i].gw.s_addr;
+      return true;
+    }
+  }
+  return false;
+}
+
 
 /* Maximize the receive buffer of a socket descriptor (up to 500K) */
 void max_rcvbuf(int sd) {
@@ -2301,36 +2491,6 @@ int recvtime(int sd, char *buf, int len, int seconds, int *timedout) {
   return -1;
 }
 
-/* This attempts to calculate the round trip time (rtt) to a host by timing a
-   connect() to a port which isn't listening.  A better approach is to time a
-   ping (since it is more likely to get through firewalls (note, this isn't
-   always true nowadays --fyodor).  This is now 
-   implemented in isup() for users who are root.  */
-unsigned long calculate_sleep(struct in_addr target) {
-  struct timeval begin, end;
-  int sd;
-  struct sockaddr_in sock;
-  int res;
-
-  if ((sd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1)
-    {perror("Socket troubles"); exit(1);}
-
-  sock.sin_family = AF_INET;
-  sock.sin_addr.s_addr = target.s_addr;
-  sock.sin_port = htons(o.magic_port);
-
-  gettimeofday(&begin, NULL);
-  if ((res = connect(sd, (struct sockaddr *) &sock, 
-		     sizeof(struct sockaddr_in))) != -1)
-    fprintf(stderr, "WARNING: You might want to use a different value of -g (or change o.magic_port in the include file), as it seems to be listening on the target host!\n");
-  close(sd);
-  gettimeofday(&end, NULL);
-  if (end.tv_sec - begin.tv_sec > 5 ) /*uh-oh!*/
-    return 0;
-  return (end.tv_sec - begin.tv_sec) * 1000000 + (end.tv_usec - begin.tv_usec);
-}
-
-
 /* Examines the given tcp packet and obtains the TCP timestamp option
    information if available.  Note that the CALLER must ensure that
    "tcp" contains a valid header (in particular the th_off must be the
@@ -2392,10 +2552,6 @@ int retries = 0;
 int sleeptime = 0;
 
 do {
-  if (TCPIP_DEBUGGING > 1) {  
-    log_write(LOG_STDOUT, "trying sendto(%d, packet, %d, 0, %s, %d)",
-	   sd, len, inet_ntoa(sin->sin_addr), tolen);
-  }
   if ((res = sendto(sd, (const char *) packet, len, flags, to, tolen)) == -1) {
     int err = socket_errno();
 
@@ -2413,9 +2569,6 @@ do {
 } while( res == -1);
 
  PacketTrace::trace(PacketTrace::SENT, packet, len); 
-
-if (TCPIP_DEBUGGING > 1)
-  log_write(LOG_STDOUT, "successfully sent %d bytes of raw_tcp!\n", res);
 
 return res;
 }
@@ -2500,39 +2653,5 @@ int ArpProbe::storePacket(u8 *arppacket, u32 len) {
   memcpy(packetbuf, arppacket, len);
   packetbuflen = len;
   ipquery = (struct in_addr *) ((u8 *)arppacket + 38);
-  return 0;
-}
-
-
-
-/* Finds MAC address of target->device and sets into target.  Caches
- the results so that it will be really quick if you have many targets
- that send out with the same device, and you pass them roughly in
- order (only caches one).  Returns -1 if cannot find the MAC address
- (often meaning this is localhost, or some other non-ethernet device.
- Returns 0 upon success. */
-int setTargetSrcMACAddressFromDevName(Target *target) {
-  static u8 MAC_Cache[6];
-  static char MAC_Cache_Dev[64] = {0};
-
-  assert(*target->device);
-  if (strcmp(target->device, MAC_Cache_Dev) == 0)
-    target->setSrcMACAddress(MAC_Cache);
-  else {
-    eth_t *e;
-    eth_addr_t et;
-
-    assert(sizeof(et) >= 6);
-    e = eth_open(target->device);
-    if (!e) 
-      fatal("dnet: Failed to open ethernet device %s\n", target->device);
-    if (eth_get(e, &et) == -1)
-      return -1;
-      //      fatal("dnet: Failed to obtain HW MAC address for ethernet device %s\n", target->device);
-    eth_close(e);
-    Strncpy(MAC_Cache_Dev, target->device, sizeof(MAC_Cache_Dev));
-    memcpy(MAC_Cache, (const char *) &et, 6);
-    target->setSrcMACAddress(MAC_Cache);
-  }
   return 0;
 }

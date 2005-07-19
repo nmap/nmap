@@ -162,6 +162,8 @@ int seq_packets_sent = 0;
 int seq_response_num; /* response # for sequencing */
 double avg_ts_hz = 0.0; /* Avg. amount that timestamps incr. each second */
 struct link_header linkhdr;
+struct eth_nfo eth;
+ struct eth_nfo *ethptr; // for passing to send_ functions 
 
 if (target->timedOut(NULL))
   return NULL;
@@ -175,14 +177,24 @@ si->lastboot = 0;
 /* Init our fingerprint tests to each be NULL */
 memset(FPtests, 0, sizeof(FPtests)); 
 get_random_bytes(&sequence_base, sizeof(unsigned int));
-/* Init our raw socket */
- if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
-   pfatal("socket trobles in get_fingerprint");
- unblock_socket(rawsd);
- broadcast_socket(rawsd);
+ if ((o.sendpref & PACKET_SEND_ETH) &&  target->ifType() == devt_ethernet) {
+   memcpy(eth.srcmac, target->SrcMACAddress(), 6);
+   memcpy(eth.dstmac, target->NextHopMACAddress(), 6);
+   eth.ethsd = eth_open(target->deviceName());
+   rawsd = -1;
+   ethptr = &eth;
+  } else {
+    /* Init our raw socket */
+    if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
+      pfatal("socket trobles in get_fingerprint");
+    unblock_socket(rawsd);
+    broadcast_socket(rawsd);
 #ifndef WIN32
- sethdrinclude(rawsd);
+    sethdrinclude(rawsd);
 #endif
+    ethptr = NULL;
+    eth.ethsd = NULL;
+  }
 
  /* Now for the pcap opening nonsense ... */
  /* Note that the snaplen is 152 = 64 byte max IPhdr + 24 byte max link_layer
@@ -192,7 +204,7 @@ get_random_bytes(&sequence_base, sizeof(unsigned int));
 ossofttimeout = MAX(200000, target->to.timeout);
 oshardtimeout = MAX(500000, 5 * target->to.timeout);
 
- pd = my_pcap_open_live(target->device, /*650*/ 8192,  (o.spoofsource)? 1 : 0, (ossofttimeout + 500)/ 1000);
+ pd = my_pcap_open_live(target->deviceName(), /*650*/ 8192,  (o.spoofsource)? 1 : 0, (ossofttimeout + 500)/ 1000);
 
 if (o.debugging > 1)
    log_write(LOG_STDOUT, "Wait time is %dms\n", (ossofttimeout +500)/1000);
@@ -202,7 +214,7 @@ if (o.debugging > 1)
 
 snprintf(filter, sizeof(filter), "dst host %s and (icmp or (tcp and src host %s))", inet_ntoa(target->v4source()), target->targetipstr());
  
- set_pcap_filter(target, pd, flt_icmptcp, filter);
+ set_pcap_filter(target->deviceName(), pd, flt_icmptcp, filter);
  target->osscan_performed = 1; /* Let Nmap know that we did try an OS scan */
 
  /* Lets find an open port to use */
@@ -241,28 +253,31 @@ if (o.verbose && openport != (unsigned long) -1)
      /* Test 1 */
      if (!FPtests[1]) {     
        if (o.scan_delay) enforce_scan_delay(NULL);
-       send_tcp_raw_decoys(rawsd, target->v4hostip(), o.ttl, current_port, 
-			   openport, sequence_base, 0,TH_ECE|TH_SYN, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
+       send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
+			   current_port, openport, sequence_base, 0, 
+			   TH_ECE|TH_SYN, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
      }
      
      /* Test 2 */
      if (!FPtests[2]) {     
        if (o.scan_delay) enforce_scan_delay(NULL);
-       send_tcp_raw_decoys(rawsd, target->v4hostip(), o.ttl, current_port +1, 
+       send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
+			   current_port +1, 
 			   openport, sequence_base, 0,0, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
      }
 
      /* Test 3 */
      if (!FPtests[3]) {     
        if (o.scan_delay) enforce_scan_delay(NULL);
-       send_tcp_raw_decoys(rawsd, target->v4hostip(), o.ttl, current_port +2, 
+       send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, current_port +2, 
 			   openport, sequence_base, 0,TH_SYN|TH_FIN|TH_URG|TH_PUSH, 0,(u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
      }
 
      /* Test 4 */
      if (!FPtests[4]) {     
        if (o.scan_delay) enforce_scan_delay(NULL);
-       send_tcp_raw_decoys(rawsd, target->v4hostip(), o.ttl, current_port +3, 
+       send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
+			   current_port +3, 
 			   openport, sequence_base, 0,TH_ACK, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
      }
    }
@@ -270,21 +285,24 @@ if (o.verbose && openport != (unsigned long) -1)
    /* Test 5 */
    if (!FPtests[5]) {   
      if (o.scan_delay) enforce_scan_delay(NULL);
-     send_tcp_raw_decoys(rawsd, target->v4hostip(), o.ttl, current_port +4,
+     send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
+			 current_port +4,
 			 closedport, sequence_base, 0,TH_SYN, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
    }
 
      /* Test 6 */
    if (!FPtests[6]) {   
      if (o.scan_delay) enforce_scan_delay(NULL);
-     send_tcp_raw_decoys(rawsd, target->v4hostip(), o.ttl, current_port +5, 
+     send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
+			 current_port +5, 
 			 closedport, sequence_base, 0,TH_ACK, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
    }
 
      /* Test 7 */
    if (!FPtests[7]) {
      if (o.scan_delay) enforce_scan_delay(NULL);   
-     send_tcp_raw_decoys(rawsd, target->v4hostip(), o.ttl, current_port +6, 
+     send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
+			 current_port +6, 
 			 closedport, sequence_base, 0,TH_FIN|TH_PUSH|TH_URG, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
    }
 
@@ -370,7 +388,7 @@ if (o.verbose && openport != (unsigned long) -1)
 	 usleep(remaining_us);
        }
      }
-     send_tcp_raw_decoys(rawsd, target->v4hostip(), o.ttl, 
+     send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
 			 o.magic_port + seq_packets_sent + 1, 
 			 openport, 
 			 sequence_base + seq_packets_sent + 1, 0, 
@@ -738,7 +756,11 @@ for(i=0; i < 9; i++) {
  osscan_timedout:
  if (target->timedOut(NULL))
    FP = NULL;
- close(rawsd);
+ if (rawsd >= 0)
+   close(rawsd);
+ if (ethptr) {
+   eth_close(ethptr->ethsd);
+ }
  pcap_close(pd);
  return FP;
 }

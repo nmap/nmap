@@ -191,6 +191,10 @@ void write_host_status(Target *currenths, int resolve_all);
    if an OS Scan was performed */
 void printosscanoutput(Target *currenths);
 
+/* Prints the alternate hostname/OS/device information we got from the
+   service scan (if it was performed) */
+void printserviceinfooutput(Target *currenths);
+
 /* Prints the statistics and other information that goes at the very end
    of an Nmap run */
 void printfinaloutput(int numhosts_scanned, int numhosts_up, 

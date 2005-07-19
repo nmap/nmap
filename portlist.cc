@@ -173,24 +173,6 @@ static void populateFullVersionString(struct serviceDeductions *sd) {
     spaceleft -= strlen(sd->extrainfo) + 3;
   }
 
-  if (sd->hostname && spaceleft >= (strlen(sd->hostname) + 7)) {
-    strncat(dst, " Host: ", spaceleft);
-    strncat(dst, sd->hostname, spaceleft);
-    spaceleft -= strlen(sd->hostname) + 7;
-  }
-
-  if (sd->ostype && spaceleft >= (strlen(sd->ostype) + 5)) {
-    strncat(dst, " OS: ", spaceleft);
-    strncat(dst, sd->ostype, spaceleft);
-    spaceleft -= strlen(sd->ostype) + 5;
-    }
-
-  if (sd->devicetype && spaceleft >= (strlen(sd->devicetype) + 9)) {
-    strncat(dst, " Device: ", spaceleft);
-    strncat(dst, sd->devicetype, spaceleft);
-    spaceleft -= strlen(sd->devicetype) + 9;
-  }
-
 }
 
 
@@ -425,18 +407,18 @@ PortList::~PortList() {
 
   for(map<u16,Port*>::iterator iter = tcp_ports.begin(); iter != tcp_ports.end(); iter++)
      {
-        delete (*iter).second;
+        delete iter->second;
      }
   
 
   for(map<u16,Port*>::iterator iter = udp_ports.begin(); iter != udp_ports.end(); iter++)
      {
-        delete (*iter).second;
+        delete iter->second;
      }
 
-  for(map<u16,Port*>::iterator iter = ip_ports.begin(); iter != ip_ports.end(); iter++)
+  for(map<u16,Port*>::iterator iter = ip_prots.begin(); iter != ip_prots.end(); iter++)
      {
-        delete (*iter).second;
+        delete iter->second;
      }
 
   if (idstr) { 
@@ -478,10 +460,10 @@ int PortList::addPort(u16 portno, u8 protocol, char *owner, int state) {
     portarray = &udp_ports;
   } else if (protocol == IPPROTO_IP) {
     assert(portno < 256);
-    portarray = &ip_ports;
+    portarray = &ip_prots;
   } else fatal("addPort: attempted port insertion with invalid protocol");
 
-  if ((*portarray)[portno]) {
+  if (portarray->find(portno) == portarray->end()) {
     /* We must discount our statistics from the old values.  Also warn
        if a complete duplicate */
     current = (*portarray)[portno];    
@@ -496,8 +478,8 @@ int PortList::addPort(u16 portno, u8 protocol, char *owner, int state) {
     } else
       state_counts_ip[current->state]--;
   } else {
-    (*portarray)[portno] = new Port();
-    current = (*portarray)[portno];
+    current = new Port();
+    (*portarray)[portno] = current;
     numports++;
     current->portno = portno;
   }
@@ -517,10 +499,13 @@ int PortList::addPort(u16 portno, u8 protocol, char *owner, int state) {
       free(current->owner);
     current->owner = strdup(owner);
   }
-
-  /*  printf("\nCurrent Port List\n");
+  
+  /*
+  printf("\nCurrent Port List\n");
+  
   for(map<u16,Port*>::iterator iter = (*portarray).begin(); iter != (*portarray).end(); iter++)
-     printf("%d %d\n", (*iter).first, (*iter).second);
+    printf("(%d %d) ", iter->first, iter->second->portno);
+  printf("\n");
   */
   
 
@@ -541,8 +526,8 @@ int PortList::removePort(u16 portno, u8 protocol) {
     answer = udp_ports[portno];
     udp_ports.erase(portno);
   } else if (protocol == IPPROTO_IP) {
-    answer = ip_ports[portno];
-    ip_ports.erase(portno);
+    answer = ip_prots[portno];
+    ip_prots.erase(portno);
   }
 
   if (!answer)
@@ -582,7 +567,7 @@ Port *PortList::lookupPort(u16 portno, u8 protocol) {
     return udp_ports[portno];
 
   if (protocol == IPPROTO_IP)
-    return ip_ports[portno];
+    return ip_prots[portno];
 
   return NULL;
 }
@@ -620,40 +605,52 @@ int PortList::getIgnoredPortState() {
 Port *PortList::nextPort(Port *afterthisport, 
 			 u8 allowed_protocol, int allowed_state, 
 			 bool allow_portzero) {
-
+  
   /* These two are chosen because they come right "before" port 1/tcp */
-unsigned int current_portno = 0;
-unsigned int current_proto = IPPROTO_TCP;
+  unsigned int current_proto = IPPROTO_TCP;
+  map<u16,Port*>::iterator iter = tcp_ports.begin();
 
 if (afterthisport) {
-  current_portno = afterthisport->portno;
-  current_proto = afterthisport->proto;  /* (afterthisport->proto == IPPROTO_TCP)? IPPROTO_TCP : IPPROTO_UDP; */
-  current_portno++; /* Start on the port after the one we were given */ 
+  current_proto = afterthisport->proto;
+  
+  // This will advacne to one after the current
+  while (iter != tcp_ports.end() && iter->second->portno <= afterthisport->portno) {
+    iter++;
+  }
 } 
 
- if (!allow_portzero && current_portno == 0) current_portno++;
+/* if (afterthisport) 
+   printf("Next Port After %d, %d\n", afterthisport->portno, iter->second->portno); fflush(0);
+*/
+
+ if (!allow_portzero && iter->second->portno == 0) iter++;
+ 
 
 /* First we look for TCP ports ... */
 if (current_proto == IPPROTO_TCP) {
- if ((allowed_protocol == 0 || allowed_protocol == IPPROTO_TCP) && 
-    current_proto == IPPROTO_TCP)
-  for(; current_portno < 65536; current_portno++) {
-    if (tcp_ports[current_portno] &&
-	(!allowed_state || tcp_ports[current_portno]->state == allowed_state))
-      return tcp_ports[current_portno];
-  }
-
+  if ((allowed_protocol == 0 || allowed_protocol == IPPROTO_TCP) && 
+      current_proto == IPPROTO_TCP)
+    while (iter != tcp_ports.end()) {
+      if (!allowed_state || iter->second->state == allowed_state) {
+	//printf("Returning %d\n", iter->second->portno);
+	return iter->second;
+      }
+      iter++;
+    }
+  
   /*  Uh-oh.  We have tried all tcp ports, lets move to udp */
-  current_portno = 0;
   current_proto = IPPROTO_UDP;
+  iter = udp_ports.begin();
 }
 
 if ((allowed_protocol == 0 || allowed_protocol == IPPROTO_UDP) && 
     current_proto == IPPROTO_UDP) {
-  for(; current_portno < 65536; current_portno++) {
-    if (udp_ports[current_portno] &&
-	(!allowed_state || udp_ports[current_portno]->state == allowed_state))
-      return udp_ports[current_portno];
+  while (iter != udp_ports.end()) {
+    if (!allowed_state || iter->second->state == allowed_state) {
+      //printf("Returning %d\n", iter->second->portno);
+      return iter->second;
+    }
+    iter++;
   }
 }
 

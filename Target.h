@@ -122,7 +122,8 @@ class Target {
   /* Fills a sockaddr_storage with the AF_INET or AF_INET6 address
      information of the target.  This is a preferred way to get the
      address since it is portable for IPv6 hosts.  Returns 0 for
-     success. */
+     success. ss_len must be provided.  It is not examined, but is set
+     to the size of the sockaddr copied in. */
   int TargetSockAddr(struct sockaddr_storage *ss, size_t *ss_len);
   /* Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
      to sockaddr_storage */
@@ -159,6 +160,27 @@ class Target {
   /* This next version returns a STATIC buffer -- so no concurrency */
   const char *NameIP();
 
+  /* If the host is directly connected on a network, set and retrieve
+     that information here.  directlyConnected() will abort if it hasn't
+     been set yet.  */
+  void setDirectlyConnected(bool connected);
+  bool directlyConnected();
+
+  /* If the host is NOT directly connected, you can set the next hop
+     value here. It is OK to pass in a sockaddr_in or sockaddr_in6
+     casted to sockaddr_storage*/
+  void setNextHop(struct sockaddr_storage *next_hop, size_t next_hop_len);
+  /* Returns the next hop for sending packets to this host.  Returns true if
+     next_hop was filled in.  It might be false, for example, if
+     next_hop has never been set */
+  bool nextHop(struct sockaddr_storage *next_hop, size_t *next_hop_len);
+
+  /* Sets the interface type to one of: 
+     devt_ethernet, devt_loopback, devt_p2p, devt_other
+   */
+  void setIfType(devtype iftype) { interface_type = iftype; }
+  /* Returns -1 if it has not yet been set with setIfType() */
+  devtype ifType() { return interface_type; }
   /* Starts the timeout clock for the host running (e.g. you are
      beginning a scan).  If you do not have the current time handy,
      you can pass in NULL.  When done, call stopTimeOutClock (it will
@@ -177,9 +199,20 @@ class Target {
   /* Takes a 6-byte MAC address */
   int setMACAddress(const u8 *addy);
   int setSrcMACAddress(const u8 *addy);
+  int setNextHopMACAddress(const u8 *addy); // this should be the target's own MAC if directlyConnected()
+
   /* Returns a pointer to 6-byte MAC address, or NULL if none is set */
   const u8 *MACAddress();
   const u8 *SrcMACAddress();
+  const u8 *NextHopMACAddress();
+
+/* Set the device names so that they can be returned by deviceName()
+   and deviceFullName().  The normal name may not include alias
+   qualifier, while the full name may include it (e.g. "eth1:1").  If
+   these are non-null, they will overwrite the stored version */
+  void setDeviceNames(const char *name, const char *fullname);
+  const char *deviceName() { return *devname? devname : NULL; }
+  const char *deviceFullName() { return *devfullname? devfullname : NULL; }
 
   struct seq_info seq;
   FingerPrintResults *FPR;
@@ -191,26 +224,27 @@ class Target {
   int wierd_responses; /* echo responses from other addresses, Ie a network broadcast address */
   unsigned int flags; /* HOST_UP, HOST_DOWN, HOST_FIREWALLED, HOST_BROADCAST (instead of HOST_BROADCAST use wierd_responses */
   struct timeout_info to;
-  char device[64]; /* The device we transmit on -- make sure to adjust some str* calls if I ever change this size*/
 
- private:
+
+  private:
   char *hostname; // Null if unable to resolve or unset
   void Initialize();
   void FreeInternal(); // Free memory allocated inside this object
  // Creates a "presentation" formatted string out of the IPv4/IPv6 address
   void GenerateIPString();
-  struct sockaddr_storage targetsock, sourcesock;
-  size_t targetsocklen, sourcesocklen;
+  struct sockaddr_storage targetsock, sourcesock, nexthopsock;
+  size_t targetsocklen, sourcesocklen, nexthopsocklen;
+  int directly_connected; // -1 = unset; 0 = no; 1 = yes
 #ifndef INET6_ADDRSTRLEN
 #define INET6_ADDRSTRLEN 46
 #endif
   char targetipstring[INET6_ADDRSTRLEN];
   char *nameIPBuf; /* for the NameIP(void) function to return */
-  u8 MACaddress[6];
-  bool MACaddress_set;
-  u8 SrcMACaddress[6];
-  bool SrcMACaddress_set;
+  u8 MACaddress[6], SrcMACaddress[6], NextHopMACaddress[6];  
+  bool MACaddress_set, SrcMACaddress_set, NextHopMACaddress_set;
   struct host_timeout_nfo htn;
+  devtype interface_type;
+  char devname[32], devfullname[32];
 };
 
 #endif /* TARGET_H */

@@ -1061,24 +1061,30 @@ void UltraScanInfo::Init(vector<Target *> &Targets, struct scan_lists *pts, styp
   rawsd = -1;
   ethsd = NULL;
 
-  if ((tcp_scan || udp_scan || prot_scan) && scantype != CONNECT_SCAN) {
-    /* Initialize a raw socket */
-    if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
-      pfatal("socket troubles in UltraScanInfo::Init");
-    /* We do not wan't to unblock the socket since we want to wait 
-       if kernel send buffers fill up rather than get ENOBUF, and
-       we won't be receiving on the socket anyway 
-       unblock_socket(rawsd);*/
-    broadcast_socket(rawsd);
+  if ((tcp_scan || udp_scan || prot_scan || ping_scan_arp) && 
+      scantype != CONNECT_SCAN) {
+    if (ping_scan_arp || ((o.sendpref & PACKET_SEND_ETH) && 
+			  Targets[0]->ifType() == devt_ethernet)) {
+      /* We'll send ethernet packets with dnet */
+      ethsd = eth_open(Targets[0]->deviceName());
+      if (ethsd == NULL)
+	fatal("dnet: Failed to open device %s", Targets[0]->deviceName());
+      rawsd = -1;
+    } else {
+      /* Initialize a raw socket */
+      if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
+	pfatal("socket troubles in UltraScanInfo::Init");
+      /* We do not wan't to unblock the socket since we want to wait 
+	 if kernel send buffers fill up rather than get ENOBUF, and
+	 we won't be receiving on the socket anyway 
+	 unblock_socket(rawsd);*/
+      broadcast_socket(rawsd);
 #ifndef WIN32
-    sethdrinclude(rawsd); 
+      sethdrinclude(rawsd); 
 #endif
-  } else if (ping_scan_arp) {
-    ethsd = eth_open(Targets[0]->device);
-    if (ethsd == NULL)
-      fatal("dnet: Failed to open device %s", o.device);
-  } 
-
+      ethsd = NULL;
+    }
+  }
 }
 
   /* Consults with the group stats, and the hstats for every
@@ -1918,7 +1924,16 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   u32 ack = 0;
   u16 sport;
   u16 ipid = get_random_u16();
+  struct eth_nfo eth;
+  struct eth_nfo *ethptr = NULL;
 
+  if (USI->ethsd) {
+    memcpy(eth.srcmac, hss->target->SrcMACAddress(), 6);
+    memcpy(eth.dstmac, hss->target->MACAddress(), 6);
+    eth.ethsd = USI->ethsd;
+    eth.devname[0] = '\0';
+    ethptr = &eth;
+  }
   if (pingseq > 0) {
     if (tryno > 0) assert(0); /* tryno + pingseq not currently supported */
     sport = o.magic_port_set? o.magic_port : o.magic_port + USI->perf.tryno_cap + pingseq;
@@ -1946,7 +1961,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 	probe->setIP(packet, packetlen, pspec);
 	hss->lastprobe_sent = probe->sent = USI->now;
       }
-      send_ip_packet(USI->rawsd, packet, packetlen);
+      send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
       free(packet);
     }
   } else if (USI->udp_scan) {
@@ -1959,7 +1974,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 	probe->setIP(packet, packetlen, pspec);
 	hss->lastprobe_sent = probe->sent = USI->now;
       }
-      send_ip_packet(USI->rawsd, packet, packetlen);
+      send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
       free(packet);
     }
   } else if (USI->prot_scan) {
@@ -1996,7 +2011,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 	probe->setIP(packet, packetlen, pspec);
 	hss->lastprobe_sent = probe->sent = USI->now;
       }
-      send_ip_packet(USI->rawsd, packet, packetlen);
+      send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
       free(packet);
     }
 
@@ -2942,7 +2957,7 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
   }
   filterlen = 0;
 
-  USI->pd = my_pcap_open_live(Targets[0]->device, 100,  (o.spoofsource)? 1 : 0, 2);
+  USI->pd = my_pcap_open_live(Targets[0]->deviceName(), 100,  (o.spoofsource)? 1 : 0, 2);
   /* Windows nonsense */
   flt_srchost = Targets[0]->v4host().s_addr;
   flt_dsthost = Targets[0]->v4source().s_addr;
@@ -2982,7 +2997,7 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
     filterlen = len;
   } else assert(0); /* Other scan types? */
   if (o.debugging > 2) printf("Pcap filter: %s\n", pcap_filter);
-  set_pcap_filter(Targets[0], USI->pd, flt_all, pcap_filter);
+  set_pcap_filter(Targets[0]->deviceName(), USI->pd, flt_all, pcap_filter);
   /* pcap_setnonblock(USI->pd, 1, NULL); */
   
   return;

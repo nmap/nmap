@@ -260,13 +260,14 @@ static void arpping(Target *hostbatch[], int num_hosts,
       if (islocal) {
 	log_write(LOG_STDOUT|LOG_NORMAL, 
 		  "ARP ping: Considering %s UP because it is a local IP, despite no MAC address for device %s\n",
-		  hostbatch[targetno]->NameIP(), hostbatch[targetno]->device);
+		  hostbatch[targetno]->NameIP(), hostbatch[targetno]->deviceName());
 	hostbatch[targetno]->flags &= ~(HOST_DOWN|HOST_FIREWALLED);
 	hostbatch[targetno]->flags |= HOST_UP;
       } else {
 	log_write(LOG_STDOUT|LOG_NORMAL, 
 		  "ARP ping: Considering %s DOWN because no MAC address found for device %s.\n",
-		  hostbatch[targetno]->NameIP(), hostbatch[targetno]->device);
+		  hostbatch[targetno]->NameIP(), 
+		  hostbatch[targetno]->deviceName());
 	hostbatch[targetno]->flags &= ~HOST_FIREWALLED;
 	hostbatch[targetno]->flags |= HOST_DOWN;
       }
@@ -294,11 +295,16 @@ void returnhost(HostGroupState *hs) {
 Target *nexthost(HostGroupState *hs, TargetGroup *exclude_group,
 			    struct scan_lists *ports, int *pingtype) {
 int hidx;
-char *device;
 int i;
 struct sockaddr_storage ss;
 size_t sslen;
+struct intf_entry *ifentry;
+ u32 ifbuf[200] ;
+ struct route_nfo rnfo;
+ bool arpping_done = false;
 
+ ifentry = (struct intf_entry *) ifbuf; 
+ ifentry->intf_len = sizeof(ifbuf); // TODO: May want to use a larger buffer if interface aliases prove important.
 if (hs->next_batch_no < hs->current_batch_sz) {
   /* Woop!  This is easy -- we just pass back the next host struct */
   return hs->hostbatch[hs->next_batch_no++];
@@ -323,7 +329,7 @@ do {
       if (o.spoofsource) {
 	o.SourceSockAddr(&ss, &sslen);
 	hs->hostbatch[hidx]->setSourceSockAddr(&ss, sslen);
-	Strncpy(hs->hostbatch[hidx]->device, o.device, 64);
+	hs->hostbatch[hidx]->setDeviceNames(o.device, o.device);
       } else {
 	/* We figure out the source IP/device IFF
 	   1) We are r00t AND
@@ -336,44 +342,38 @@ do {
          || (*pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))
 #endif // WIN32
 		 )) {
-	  struct sockaddr_in *sin = (struct sockaddr_in *) &ss;
-	  sslen = sizeof(*sin);
-	  sin->sin_family = AF_INET;
-#if HAVE_SOCKADDR_SA_LEN
-	  sin->sin_len = sslen;
-#endif
-	  device = routethrough(hs->hostbatch[hidx]->v4hostip(), 
-				&(sin->sin_addr));
-	  hs->hostbatch[hidx]->setSourceSockAddr(&ss, sslen);
+	  hs->hostbatch[hidx]->TargetSockAddr(&ss, &sslen);
+	  if (!route_dst(&ss, &rnfo)) {
+	    fatal("%s: failed to determine route to %s", __FUNCTION__, hs->hostbatch[hidx]->NameIP());
+	  }
+	  if (rnfo.direct_connect) {
+	    hs->hostbatch[hidx]->setDirectlyConnected(true);
+	  } else {
+	    hs->hostbatch[hidx]->setDirectlyConnected(false);
+	    hs->hostbatch[hidx]->setNextHop(&rnfo.nexthop, 
+					    sizeof(rnfo.nexthop));
+	  }
+	  hs->hostbatch[hidx]->setIfType(rnfo.ii.device_type);
+	  if (rnfo.ii.device_type == devt_ethernet) {
+	    hs->hostbatch[hidx]->setSrcMACAddress(rnfo.ii.mac);
+	  }
+	  hs->hostbatch[hidx]->setSourceSockAddr(&rnfo.srcaddr, sizeof(rnfo.srcaddr));
 	  if (hidx == 0) /* Because later ones can have different src addy and be cut off group */
 	    o.decoys[o.decoyturn] = hs->hostbatch[hidx]->v4source();
-	  if (!device) {
-	    if (*pingtype == PINGTYPE_NONE) {
-	      fatal("Could not determine what interface to route packets through, run again with -e <device>");
-	    } else {
-#if WIN32
-          fatal("Unable to determine what interface to route packets through to %s", hs->hostbatch[hidx]->targetipstr());
-#endif
-	      error("WARNING:  Could not determine what interface to route packets through to %s, changing ping scantype to ICMP ping only", hs->hostbatch[hidx]->targetipstr());
-	      *pingtype = PINGTYPE_ICMP_PING;
-	    }
-	  } else {
-	    Strncpy(hs->hostbatch[hidx]->device, device, 64);
-	  }
+	  hs->hostbatch[hidx]->setDeviceNames(rnfo.ii.devname, rnfo.ii.devfullname);
+	  //	  printf("Target %s %s directly connected, goes through local iface %s, which %s ethernet\n", hs->hostbatch[hidx]->NameIP(), hs->hostbatch[hidx]->directlyConnected()? "IS" : "IS NOT", hs->hostbatch[hidx]->deviceName(), (hs->hostbatch[hidx]->ifType() == devt_ethernet)? "IS" : "IS NOT");
 	}
       }
 
-      /* If this is an ARP scan, we must determine the device's MAC address */
-      if (*pingtype & PINGTYPE_ARP) {
-	setTargetSrcMACAddressFromDevName(hs->hostbatch[hidx]);
-      }
-      
-      /* In some cases, we can only allow hosts that use the same device
-	 in a group. */
+      /* In some cases, we can only allow hosts that use the same
+	 device in a group.  Similarly, we don't mix
+	 directly-connected boxes with those that aren't */
       if (o.af() == AF_INET && o.isr00t && hidx > 0 && 
-	  *hs->hostbatch[hidx]->device && 
+	  hs->hostbatch[hidx]->deviceName() && 
 	  (hs->hostbatch[hidx]->v4source().s_addr != hs->hostbatch[0]->v4source().s_addr || 
-	   strcmp(hs->hostbatch[0]->device, hs->hostbatch[hidx]->device) != 0)) {
+	   strcmp(hs->hostbatch[0]->deviceName(), 
+		  hs->hostbatch[hidx]->deviceName()) != 0) 
+	  || hs->hostbatch[hidx]->directlyConnected() != hs->hostbatch[0]->directlyConnected()) {
 	/* Cancel everything!  This guy must go in the next group and we are
 	   outtof here */
 	hs->current_expression.return_last_host();
@@ -403,23 +403,34 @@ if (hs->randomize) {
   hoststructfry(hs->hostbatch, hs->current_batch_sz);
 }
 
-/* First I'll do the ARP ping if necessary */
- if (*pingtype & PINGTYPE_ARP) {
+/* First I'll do the ARP ping if all of the machines in the group are
+   directly connected over ethernet.  I may need the MAC addresses
+   later anyway. */
+ if (hs->hostbatch[0]->ifType() == devt_ethernet && 
+     hs->hostbatch[0]->directlyConnected() && 
+     o.sendpref != PACKET_SEND_IP_STRONG) {
    arpping(hs->hostbatch, hs->current_batch_sz, ports);
- } 
- /* TODO: For efficiency, at some point it might be nice to usually do ARP 
-    ping before mass ping (and so get rid of else below) */
- /* Then we do the mass ping (if required - IP-level pings) */
- else if ((*pingtype & 
-      (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS) ) || 
-     ((!o.isr00t || o.af() == AF_INET6 || hs->hostbatch[0]->v4host().s_addr) && 
-      (*pingtype != PINGTYPE_NONE))) 
-   massping(hs->hostbatch, hs->current_batch_sz, ports, *pingtype);
- /* Otherwise -P0 so we just consider every host up */
- else for(i=0; i < hs->current_batch_sz; i++)  {
-   initialize_timeout_info(&hs->hostbatch[i]->to);
-   hs->hostbatch[i]->flags |= HOST_UP; /*hostbatch[i].up = 1;*/
+   arpping_done = true;
  }
+ 
+ if ((o.sendpref & PACKET_SEND_ETH) && 
+     hs->hostbatch[0]->ifType() == devt_ethernet) {
+   if (!setTargetNextHopMAC(hs->hostbatch[hidx]))
+     fatal("%s: Failed to determine dst MAC address for target %s", 
+	   __FUNCTION__, hs->hostbatch[hidx]->NameIP());
+ }
+
+ /* TODO: Maybe I should allow real ping scan of directly connected
+    ethernet hosts? */
+ /* Then we do the mass ping (if required - IP-level pings) */
+ if (*pingtype == PINGTYPE_NONE) {
+   for(i=0; i < hs->current_batch_sz; i++)  {
+     initialize_timeout_info(&hs->hostbatch[i]->to);
+     hs->hostbatch[i]->flags |= HOST_UP; /*hostbatch[i].up = 1;*/
+   }
+ } else if (!arpping_done) 
+   massping(hs->hostbatch, hs->current_batch_sz, ports, *pingtype);
+ 
  return hs->hostbatch[hs->next_batch_no++];
 }
 
@@ -595,7 +606,7 @@ if (ptech.rawicmpscan || ptech.rawtcpscan || ptech.rawudpscan) {
      16 bytes of the TCP header
      ---
    = 104 byte snaplen */
-  pd = my_pcap_open_live(hostbatch[0]->device, 104, o.spoofsource, 20);
+  pd = my_pcap_open_live(hostbatch[0]->deviceName(), 104, o.spoofsource, 20);
 
   flt_dsthost = hostbatch[0]->v4source().s_addr;
   flt_baseport = sportbase;
@@ -606,7 +617,7 @@ if (ptech.rawicmpscan || ptech.rawtcpscan || ptech.rawudpscan) {
 	   sportbase , sportbase + 1, sportbase + 2, sportbase + 3, 
 	   sportbase + 4);
 
-  set_pcap_filter(hostbatch[0], pd, flt_icmptcp_5port, filter); 
+  set_pcap_filter(hostbatch[0]->deviceName(), pd, flt_icmptcp_5port, filter); 
 }
 
  blockinc = (int) (0.9999 + 8.0 / probes_per_host);
@@ -840,7 +851,7 @@ else {
 
  o.decoys[o.decoyturn].s_addr = target->v4source().s_addr;
  
- send_udp_raw_decoys( rawsd, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, seq, o.extra_payload, o.extra_payload_length);
+ send_udp_raw_decoys( rawsd, NULL, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, seq, o.extra_payload, o.extra_payload_length);
 
 
  return 0;
@@ -864,10 +875,10 @@ else {
  o.decoys[o.decoyturn].s_addr = target->v4source().s_addr;
 
  if (pingtype & PINGTYPE_TCP_USE_SYN) {   
-   send_tcp_raw_decoys( rawsd, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, myseq, myack, TH_SYN, 0, NULL, 0, o.extra_payload, 
+   send_tcp_raw_decoys( rawsd, NULL, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, myseq, myack, TH_SYN, 0, NULL, 0, o.extra_payload, 
 			o.extra_payload_length);
  } else {
-   send_tcp_raw_decoys( rawsd, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, myseq, myack, TH_ACK, 0, NULL, 0, o.extra_payload, 
+   send_tcp_raw_decoys( rawsd, NULL, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, myseq, myack, TH_ACK, 0, NULL, 0, o.extra_payload, 
 			o.extra_payload_length);
  }
 
@@ -976,7 +987,7 @@ if (ptech.icmpscan) {
        fprintf(stderr, "sendto: %s\n", strerror(sock_err));
      }
    } else {
-     send_ip_raw( rawsd, &o.decoys[decoy], target->v4hostip(), o.ttl, IPPROTO_ICMP, ping, icmplen);
+     send_ip_raw( rawsd, NULL, &o.decoys[decoy], target->v4hostip(), o.ttl, IPPROTO_ICMP, ping, icmplen);
    }
  }
 

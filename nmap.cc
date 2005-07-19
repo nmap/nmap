@@ -275,6 +275,8 @@ int nmap_main(int argc, char *argv[]) {
       {"version_trace", no_argument, 0, 0}, /* Display -sV related activity */
       {"fuzzy", no_argument, 0, 0}, /* Alias for osscan_guess */
       {"data_length", required_argument, 0, 0},
+      {"send_eth", no_argument, 0, 0},
+      {"send_ip", no_argument, 0, 0},
       {"stylesheet", required_argument, 0, 0},
       {"no-stylesheet", no_argument, 0, 0},
       {"rH", no_argument, 0, 0},
@@ -444,6 +446,10 @@ int nmap_main(int argc, char *argv[]) {
 	  o.extra_payload = (char *) safe_malloc(o.extra_payload_length);
 	  get_random_bytes(o.extra_payload, o.extra_payload_length);
 	}
+      } else if (strcmp(long_options[option_index].name, "send_eth") == 0) {
+	o.sendpref = PACKET_SEND_ETH_STRONG;
+      } else if (strcmp(long_options[option_index].name, "send_ip") == 0) {
+	o.sendpref = PACKET_SEND_IP_STRONG;
       } else if (strcmp(long_options[option_index].name, "stylesheet") == 0) {
 	o.setXSLStyleSheet(optarg);
       } else if (strcmp(long_options[option_index].name, "no-stylesheet") == 0) {
@@ -1085,16 +1091,16 @@ int nmap_main(int argc, char *argv[]) {
 	    }
 	  }
 	}
-	if (!*currenths->device)
-	  if (ipaddr2devname( currenths->device, currenths->v4sourceip()) != 0)
-	    fatal("Could not figure out what device to send the packet out on!  You might possibly want to try -S (but this is probably a bigger problem).  If you are trying to sp00f the source of a SYN/FIN scan with -S <fakeip>, then you must use -e eth0 (or other devicename) to tell us what interface to use.\n");
+	if (!currenths->deviceName())
+	  fatal("Do not have appropriate device name for target");
 	
 	/* Groups should generally use the same device as properties
 	   change quite a bit between devices.  Plus dealing with a
 	   multi-device group can be a pain programmatically. So if
 	   this Target has a different device the rest, we give it
 	   back. */
-	if (Targets.size() > 0 && strcmp(Targets[Targets.size() - 1]->device, currenths->device)) {
+	if (Targets.size() > 0 && 
+	    strcmp(Targets[Targets.size() - 1]->deviceName(), currenths->deviceName())) {
 	  returnhost(hstate);
 	  numhosts_scanned--; numhosts_up--;
 	  break;
@@ -1183,6 +1189,7 @@ int nmap_main(int argc, char *argv[]) {
 	printportoutput(currenths, &currenths->ports);
 	printmacinfo(currenths);
 	printosscanoutput(currenths);
+	printserviceinfooutput(currenths);
       }
     
       if (o.debugging) 

@@ -3951,7 +3951,7 @@ PU(Resp=N)
 # Brocade Fibre Switch, Firmware 2.6.0
 # Cisco Aironet 340 WAP running v 12.03T of the firmware (and VxWorks OS)
 Fingerprint Cisco Aironet WAP, Brocade Fibre Switch, or Sun Remote System Console
-Class Cisco | vxworks || WAP
+Class Cisco | VxWorks || WAP
 Class Brocade | embedded || switch
 Class Sun | embedded || remote management
 TSeq(Class=64K%IPID=I%TS=U)
@@ -10791,19 +10791,6 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-# Microsoft Windows Longhorn Preview, Version 6.0 Build 4051.idx 02.031001-1340
-Fingerprint Microsoft Windows Longhorn Preview
-Class Microsoft | Windows | Windows Longhorn | general purpose
-TSeq(Class=TR%gcd=<6%IPID=I%TS=100HZ)
-T1(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-T2(Resp=N)
-T3(Resp=N)
-T4(DF=Y%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=Y%W=0%ACK=O%Flags=R%Ops=)
-T7(Resp=N)
-PU(DF=N%TOS=0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
 # Microsoft Windows Server 2003, Enterprise Edition, Build 3790
 # Microsoft .NET Enterprise Server RC2 (Version 5.2 build 3718.dnsrv.021114-1947)
 Fingerprint Microsoft Windows .NET Enterprise Server RC2 (Version 5.2, build 3718.dnsrv.021114-1947)
@@ -12387,6 +12374,19 @@ T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E|F%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
+# Microsoft Windows Longhorn Preview, Version 6.0 Build 4051.idx 02.031001-1340
+Fingerprint Microsoft Windows Longhorn Preview
+Class Microsoft | Windows | Windows Longhorn | general purpose
+TSeq(Class=TR%gcd=<6%IPID=I%TS=100HZ)
+T1(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
+T2(Resp=N)
+T3(Resp=N)
+T4(DF=Y%W=0%ACK=O%Flags=R%Ops=)
+T5(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=Y%W=0%ACK=O%Flags=R%Ops=)
+T7(Resp=N)
+PU(DF=N%TOS=0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Windows 2000 Pro, Build 2195 SP4
 Fingerprint Microsoft Windows 2000 Pro SP4

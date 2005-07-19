@@ -190,6 +190,7 @@ void NmapOps::Initialize() {
   debugging = DEBUGGING;
   verbose = DEBUGGING;
   randomize_hosts = 0;
+  sendpref = PACKET_SEND_NOPREF;
   spoofsource = 0;
   device[0] = '\0';
   interactivemode = 0;
@@ -328,6 +329,13 @@ void NmapOps::ValidateOptions() {
    fatal("Ping scan is not valid with any other scan types (the other ones all include a ping scan");
  }
 
+ if (sendpref == PACKET_SEND_NOPREF) {
+#ifdef WIN32
+   sendpref = PACKET_SEND_ETH_STRONG;
+#else
+   sendpref = PACKET_SEND_IP_WEAK;
+#endif
+ }
 /* We start with stuff users should not do if they are not root */
   if (!isr00t) {
 

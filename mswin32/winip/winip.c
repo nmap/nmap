@@ -653,126 +653,7 @@ static void winip_list_interfaces()
     }
 }
 
-//   Find a route to dest.  Fill in source, return device
-
-//   I will fail this if no raw, so nmap will still work
-
 typedef DWORD (__stdcall *PGBI)(IPAddr, PDWORD);
-char *routethrough(const struct in_addr *dest, struct in_addr *source)
-{
-  /*
-    In theory, GetBestInterface is ideal. But we need
-    the source address. Even though GetBestInterface
-    is still the fastest way to get the name,
-    ipaddr2devname is fast enough.  So we use
-    SIO_ROUTING_INTERFACE_QUERY.
-  */
-
-  //   the raw senders tend to iterate this
-  //   so we cache the results
-  static DWORD last_dest = 0;
-  static DWORD last_source;
-  static char dev[128];
-  struct sockaddr_in sin_dest, sin_source;
-
-  winip_test(0);
-  if(inited == 3)
-    {
-      static int warned = 0;
-      if(!warned)
- printf("routethrough: failing due to lack of any raw support\n");
-      warned = 1;
-    }
-
-  if(last_dest == dest->s_addr)
-    {
-      source->s_addr = last_source;
-      return dev;
-    }
-
-  ZeroMemory(&sin_dest, sizeof(sin_dest));
-  sin_dest.sin_family = AF_INET;
-  sin_dest.sin_addr = *dest;
-
-  if(wo.nt4route)
-    {
-      MIB_IPFORWARDROW ir;
-      int ifi;
-
-      if(0 != get_best_route(sin_dest.sin_addr.s_addr, &ir))
- {
-   if(o.debugging > 1)
-     printf("get_best_route failed, so routethrough will fail\n");
-
-   return NULL;
- }
-
-      if(-1 == (ifi = winif2ifi(ir.dwForwardIfIndex)))
- fatal("routethrough: got unmappable (new?) interface\n");
-
-      if(0 != ifi2ipaddr(ifi, &sin_source.sin_addr))
- fatal("routethrough: no IP for device %s\n", ifi2name(ifi));
-
-      if(!rawsock_avail && !iftable[ifi].pcapname) return NULL;
-
-      strcpy(dev, ifi2name(ifi));
-    }
-  else
-    {
-      SOCKET s;
-      DWORD br;
-
-      s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-      if(s == INVALID_SOCKET)
- fatal("failed to create socket\n");
-
-      if(0 != WSAIoctl(s, SIO_ROUTING_INTERFACE_QUERY,
-         &sin_dest, sizeof(sin_dest),
-         &sin_source, sizeof(sin_source), &br, 0, 0))
- {
-   if(o.debugging)
-     printf("SIO_ROUTING_INTERFACE_QUERY(%s) failed (%d)\n", inet_ntoa(*dest), WSAGetLastError());
-   closesocket(s);
-   return NULL;
- }
-
-      closesocket(s);
-    }
-
-  //   localhost scan (fake) support
-  //   this allows localhost, but not 127.0.0.1, scans to seem to work
-  if(sin_source.sin_addr.s_addr == htonl(INADDR_LOOPBACK))
-    sin_source.sin_addr.s_addr = dest->s_addr;
-
-  if(0 != ipaddr2devname(dev, &sin_source.sin_addr))
-    {
-      if(o.debugging)
- {
-   printf("routethrough: %s routes through ", inet_ntoa(*dest));
-   printf("%s, but inaddr2devname failed\n",
-   inet_ntoa(sin_source.sin_addr));
- }
-
-      return 0;
-    }
-
-  if(!rawsock_avail &&
-     !iftable[ipaddr2ifi(sin_source.sin_addr.s_addr)].pcapname)
-    return NULL;
-
-  last_dest = dest->s_addr;
-  last_source = sin_source.sin_addr.s_addr;
-  *source = sin_source.sin_addr;
-
-  if(o.debugging > 1)
-    {
-      printf("%s will use interface ", inet_ntoa(*(struct in_addr*)&last_dest));
-      printf("%s\n", inet_ntoa(*(struct in_addr*)&last_source));
-    }
-
-  return dev;
-}
-
 
 //   socket and sendto replacements
 int win32_sendto(int sd, const char *packet, int len, 
@@ -816,7 +697,7 @@ void win32_pcap_close(pcap_t *pd)
   else rawrecv_close(pd);
 }
 
-pcap_t *my_pcap_open_live(char *device, int snaplen, int promisc, int to_ms)
+pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc, int to_ms)
 {
   int ifi = name2ifi(device);
   if(ifi == -1)
@@ -856,7 +737,7 @@ void sethdrinclude(int sd)
     }
 }
 
-void set_pcap_filter(Target *target,
+void set_pcap_filter(const char *device,
        pcap_t *pd, PFILTERFN filter, char *bpf, ...)
 {
   va_list ap;
@@ -871,7 +752,7 @@ void set_pcap_filter(Target *target,
       return;
     }
 
-  if (pcap_lookupnet(target->device, &localnet, &netmask, err0r) == -1)
+  if (pcap_lookupnet(device, &localnet, &netmask, err0r) == -1)
     ; /* fatal("Failed to lookup device subnet/netmask: %s", err0r);*/
 
   va_start(ap, bpf);
@@ -883,10 +764,6 @@ void set_pcap_filter(Target *target,
 
   if (o.debugging)
     log_write(LOG_STDOUT, "Packet capture filter: %s\n", buf);
-
-  /* Due to apparent bug in libpcap */
-  if (islocalhost(target->v4hostip()))
-    buf[0] = '\0';
 
   if (pcap_compile(pd, &fcode, buf, 0, netmask) < 0)
     fatal("Error compiling our pcap filter: %s\n", pcap_geterr(pd));

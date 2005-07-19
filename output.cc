@@ -127,6 +127,7 @@ static int getServiceXMLBuf(struct serviceDeductions *sd, char *xmlbuf,
   string versionxmlstring;
   char rpcbuf[128];
   char *xml_product = NULL, *xml_version = NULL, *xml_extrainfo = NULL;
+  char *xml_hostname = NULL, *xml_ostype = NULL, *xml_devicetype = NULL;
 
   if (xmlbuflen < 1) return -1;
   xmlbuf[0] = '\0';
@@ -153,6 +154,30 @@ static int getServiceXMLBuf(struct serviceDeductions *sd, char *xmlbuf,
     versionxmlstring += " extrainfo=\"";
     versionxmlstring += xml_extrainfo;
     free(xml_extrainfo); xml_extrainfo = NULL;
+    versionxmlstring += '\"';
+  }
+
+  if (sd->hostname) {
+    xml_hostname = xml_convert(sd->hostname);
+    versionxmlstring += " hostname=\"";
+    versionxmlstring += xml_hostname;
+    free(xml_hostname); xml_hostname = NULL;
+    versionxmlstring += '\"';
+  }
+
+  if (sd->ostype) {
+    xml_ostype = xml_convert(sd->ostype);
+    versionxmlstring += " ostype=\"";
+    versionxmlstring += xml_ostype;
+    free(xml_ostype); xml_ostype = NULL;
+    versionxmlstring += '\"';
+  }
+
+  if (sd->devicetype) {
+    xml_devicetype = xml_convert(sd->devicetype);
+    versionxmlstring += " devicetype=\"";
+    versionxmlstring += xml_devicetype;
+    free(xml_devicetype); xml_devicetype = NULL;
     versionxmlstring += '\"';
   }
 
@@ -234,8 +259,7 @@ void printportoutput(Target *currenths, PortList *plist) {
   struct protoent *proto;
   Port *current;
   int numignoredports;
-  int portno, protocount;
-  map<u16, Port*> protoarrays[2];
+  int portno;
   char hostname[1200];
   int istate = plist->getIgnoredPortState();
   numignoredports = plist->state_counts[istate];
@@ -318,14 +342,12 @@ void printportoutput(Target *currenths, PortList *plist) {
 
   log_write(LOG_MACHINE,"\t%s: ", (o.ipprotscan)? "Protocols" : "Ports" );
   
-  protoarrays[0] = plist->tcp_ports;
-  protoarrays[1] = plist->udp_ports;
   current = NULL;
   rowno = 1;
   if (o.ipprotscan) {
     for (portno = 0; portno < 256; portno++) {
-      if (!plist->ip_ports[portno]) continue;
-      current = plist->ip_ports[portno];
+      if (!plist->ip_prots[portno]) continue;
+      current = plist->ip_prots[portno];
       if (current->state != istate) {
 	if (!first) log_write(LOG_MACHINE,", ");
 	else first = 0;
@@ -346,10 +368,20 @@ void printportoutput(Target *currenths, PortList *plist) {
       }
     }
   } else {
-    for(protocount = 0; protocount < 2; protocount++) {
-       for(map<u16,Port*>::iterator iter = protoarrays[protocount].begin(); iter != protoarrays[protocount].end(); iter++) {
-          current = (*iter).second;
-          
+    map<u16,Port*>::iterator tcpIter = plist->tcp_ports.begin();
+    map<u16,Port*>::iterator udpIter = plist->udp_ports.begin();
+
+    while (tcpIter != plist->tcp_ports.end() || udpIter != plist->udp_ports.end()) {
+
+      // If the udp iterator is at the end, then we always read from tcp and vica-versa
+      if (tcpIter != plist->tcp_ports.end() && (udpIter == plist->udp_ports.end() || tcpIter->first <= udpIter->first)) {
+	current = tcpIter->second;
+	tcpIter++;
+      } else {
+	current = udpIter->second;
+	udpIter++;
+      }
+
       if (current->state != istate) {    
 	if (!first) log_write(LOG_MACHINE,", ");
 	else first = 0;
@@ -449,7 +481,7 @@ void printportoutput(Target *currenths, PortList *plist) {
 	rowno++;
       }
     }
-   }
+    
   }
   /*  log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"\n"); */
   if (plist->state_counts[istate] > 0)
@@ -1089,7 +1121,7 @@ void printosscanoutput(Target *currenths) {
 	}
       } else { assert(0); }
    
-    if (o.debugging || o.verbose > 1) {
+    if (o.debugging || o.verbose) {
 
       log_write(LOG_XML,"<osfingerprint fingerprint=\"\n%s\" />\n", 
 		mergeFPs(currenths->FPR->FPs, currenths->FPR->numFPs, 
@@ -1158,6 +1190,107 @@ void printosscanoutput(Target *currenths) {
      }
   }
 }
+
+
+
+/* An auxillary function for printserviceinfooutput(). Returns
+   non-zero if a and b are considered the same hostnames. */
+static int hostcmp(const char *a, const char *b) {
+  return strcasestr(a, b)? 1 : 0;
+}
+
+
+/* Prints the alternate hostname/OS/device information we got from the
+ *    service scan (if it was performed) */
+void printserviceinfooutput(Target *currenths) {
+
+  Port *p = NULL;
+  struct serviceDeductions sd;
+  int i, numhostnames=0, numostypes=0, numdevicetypes=0;
+  char hostname_tbl[MAX_SERVICE_INFO_FIELDS][MAXHOSTNAMELEN];
+  char ostype_tbl[MAX_SERVICE_INFO_FIELDS][64];
+  char devicetype_tbl[MAX_SERVICE_INFO_FIELDS][64];
+
+  for (i=0; i<MAX_SERVICE_INFO_FIELDS; i++)
+    hostname_tbl[i][0] = ostype_tbl[i][0] = devicetype_tbl[i][0] = '\0';
+
+  while ((p = currenths->ports.nextPort(p, 0, PORT_OPEN, false))) {
+    // The following 2 lines (from portlist.h) tell us that we don't
+    // need to worry about free()ing anything in the serviceDeductions struct.
+      // pass in an allocated struct serviceDeductions (don't wory about initializing, and
+      // you don't have to free any internal ptrs.
+    p->getServiceDeductions(&sd);
+
+    if (sd.hostname && !hostcmp(currenths->HostName(), sd.hostname)) {
+      for (i=0; i<MAX_SERVICE_INFO_FIELDS; i++) {
+        if (hostname_tbl[i][0] && hostcmp(&hostname_tbl[i][0], sd.hostname))
+          break;
+
+        if (!hostname_tbl[i][0]) {
+          numhostnames++;
+          strncpy(&hostname_tbl[i][0], sd.hostname, sizeof(hostname_tbl[i]));
+          break;
+        }
+      }
+    }
+
+    if (sd.ostype) {
+      for (i=0; i<MAX_SERVICE_INFO_FIELDS; i++) {
+        if (ostype_tbl[i][0] && !strcmp(&ostype_tbl[i][0], sd.ostype))
+          break;
+
+        if (!ostype_tbl[i][0]) {
+          numostypes++;
+          strncpy(&ostype_tbl[i][0], sd.ostype, sizeof(ostype_tbl[i]));
+          break;
+        }
+      }
+    }
+
+    if (sd.devicetype) {
+      for (i=0; i<MAX_SERVICE_INFO_FIELDS; i++) {
+        if (devicetype_tbl[i][0] && !strcmp(&devicetype_tbl[i][0], sd.devicetype))
+          break;
+
+        if (!devicetype_tbl[i][0]) {
+          numdevicetypes++;
+          strncpy(&devicetype_tbl[i][0], sd.devicetype, sizeof(devicetype_tbl[i]));
+          break;
+        }
+      }
+    }
+
+  }
+
+  if (!numhostnames && !numostypes && !numdevicetypes) return;
+
+  log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "Service Info:");
+
+  if (numhostnames) {
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, " Host%s: %s", numhostnames==1? "" : "s", &hostname_tbl[0][0]);
+    for (i=1; i<MAX_SERVICE_INFO_FIELDS; i++)
+      if (hostname_tbl[i][0])
+        log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, ", %s", &hostname_tbl[i][0]);
+  }
+
+  if (numostypes) {
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "  OS%s: %s", numostypes==1? "" : "s", &ostype_tbl[0][0]);
+    for (i=1; i<MAX_SERVICE_INFO_FIELDS; i++)
+      if (ostype_tbl[i][0])
+        log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, ", %s", &ostype_tbl[i][0]);
+  }
+
+  if (numdevicetypes) {
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "  Device%s: %s", numdevicetypes==1? "" : "s", &devicetype_tbl[0][0]);
+    for (i=1; i<MAX_SERVICE_INFO_FIELDS; i++)
+      if (devicetype_tbl[i][0])
+        log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, ", %s", &devicetype_tbl[i][0]);
+  }
+
+  log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "\n");
+
+}
+
 
 /* Prints the statistics and other information that goes at the very end
    of an Nmap run */

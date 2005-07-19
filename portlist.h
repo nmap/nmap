@@ -187,7 +187,7 @@ class Port {
   ~Port();
 
   // pass in an allocated struct serviceDeductions (don't wory about initializing, and
-  // you don't have to free any inernal ptrs.  See the serviceDeductions definition for
+  // you don't have to free any internal ptrs.  See the serviceDeductions definition for
   // the fields that are populated.  Returns 0 if at least a name is available.
   int getServiceDeductions(struct serviceDeductions *sd);
 
@@ -279,7 +279,7 @@ class PortList {
   Port *lookupPort(u16 portno, u8 protocol);
   map < u16, Port* > udp_ports;
   map < u16, Port* > tcp_ports;
-  map < u16, Port* > ip_ports;
+  map < u16, Port* > ip_prots;
 
   int state_counts[PORT_HIGHEST_STATE]; /* How many ports in list are in each
 					   state */

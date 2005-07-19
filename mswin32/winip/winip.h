@@ -126,7 +126,7 @@ typedef int (*PFILTERFN)(const char *packet, unsigned int len); /* 1 to keep */
 //	Makes gcc happy
 //	One wonders why VC doesn't complain...
 class Target;
-EXTERNC void set_pcap_filter(Target *target, pcap_t *pd, PFILTERFN filter, char *bpf, ...);
+EXTERNC void set_pcap_filter(const char *device, pcap_t *pd, PFILTERFN filter, char *bpf, ...);
 
 
 typedef struct _IPNODE {
@@ -173,7 +173,7 @@ EXTERNC int get_best_route(DWORD dest, PMIB_IPFORWARDROW r);
 
 //	pcapsend interface
 EXTERNC void pcapsend_init();
-EXTERNC pcap_t *my_real_pcap_open_live(char *device, int snaplen, int promisc, int to_ms);
+EXTERNC pcap_t *my_real_pcap_open_live(const char *device, int snaplen, int promisc, int to_ms);
 EXTERNC int pcapsendraw(const char *packet, int len, 
 						struct sockaddr *to, int tolen);
 

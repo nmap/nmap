@@ -126,13 +126,13 @@
 #include <unistd.h>
 #endif
 
-void fatal(char *fmt, ...)
+void fatal(const char *fmt, ...)
      __attribute__ ((format (printf, 1, 2)));
-void error(char *fmt, ...)
+void error(const char *fmt, ...)
      __attribute__ ((format (printf, 1, 2)));
-void pfatal(char *err, ...)
+void pfatal(const char *err, ...)
      __attribute__ ((format (printf, 1, 2)));
-void gh_perror(char *err, ...)
+void gh_perror(const char *err, ...)
      __attribute__ ((format (printf, 1, 2)));
 #endif /* NMAP_ERROR_H */
 
