@@ -1828,8 +1828,8 @@ bool doArp(const char *dev, const u8 *srcmac,
   /* Prepare probe and sending stuff */
   ethsd = eth_open(dev);
   if (!ethsd) fatal("%s: failed to open device %s", __FUNCTION__, dev);
-  eth_pack_hdr(frame, ETH_ADDR_BROADCAST, srcmac, ETH_TYPE_ARP);
-  arp_pack_hdr_ethip(frame + ETH_HDR_LEN, ARP_OP_REQUEST, srcmac, 
+  eth_pack_hdr(frame, ETH_ADDR_BROADCAST, *srcmac, ETH_TYPE_ARP);
+  arp_pack_hdr_ethip(frame + ETH_HDR_LEN, ARP_OP_REQUEST, *srcmac, 
 		     srcsin->sin_addr, ETH_ADDR_BROADCAST, 
 		     targetsin->sin_addr);
   gettimeofday(&start, NULL);
@@ -1852,6 +1852,7 @@ bool doArp(const char *dev, const u8 *srcmac,
 	if (listenrounds > 0) break;
 	else timeleft = 25000;
       }
+      listenrounds++;
       /* Now listen until we reach our next timeout or get an answer */
       rc = read_arp_reply_pcap(pd, targetmac, &rcvdIP, timeleft, &rcvdtime);
       if (rc == -1) fatal("%s: Received -1 response from readarp_reply_pcap", 
@@ -1918,7 +1919,7 @@ bool setTargetNextHopMAC(Target *target) {
   /* Maybe the system ARP cache will be more helpful */
   a = arp_open();
   addr_ston((sockaddr *)&targetss, &ae.arp_pa);
-  if (arp_get(a, &ae)) {
+  if (arp_get(a, &ae) == 0) {
     NmapArpCache(ARPCACHE_SET, &targetss, ae.arp_ha.addr_eth.data);
     target->setNextHopMACAddress(ae.arp_ha.addr_eth.data);
   }
@@ -1930,6 +1931,7 @@ bool setTargetNextHopMAC(Target *target) {
 	    mac)) {
     NmapArpCache(ARPCACHE_SET, &targetss, mac);
     target->setNextHopMACAddress(mac);
+    return true;
   }
   
   /* I'm afraid that we couldn't find it!  Maybe it doesn't exist?*/
@@ -2231,6 +2233,9 @@ struct sys_route *getsysroutes(int *howmany) {
   struct interface_info *ifaces;
   int numifaces = 0;
   int i;
+  u32 mask;
+  struct sockaddr_in *sin;
+  struct interface_info *ii;
 
   if (!routes) {
     routes = (struct sys_route *) safe_zalloc(route_capacity * sizeof(struct sys_route));
@@ -2289,6 +2294,30 @@ struct sys_route *getsysroutes(int *howmany) {
 	  error("Failed to find device %s which was referenced in /proc/net/route", iface);
 	  continue;
 	}
+
+	/* Now to deal with some alias nonsense ... at least on Linux
+	   this file will just list the short name, even though IP
+	   information (such as source address) from an alias must be
+	   used.  So if the purported device can't reach the gateway,
+	   try to find a device that starts with the same short
+	   devname, but can (e.g. eth0 -> eth0:3) */
+	ii = &ifaces[i];
+	mask = htonl((unsigned long) (0-1) << (32 - ii->netmask_bits));	
+	sin = (struct sockaddr_in *) &ii->addr;
+	if (routes[numroutes].gw.s_addr && (sin->sin_addr.s_addr & mask) != 
+	    (routes[numroutes].gw.s_addr & mask)) {
+	  for(i=0; i < numifaces; i++) {
+	    if (ii == &ifaces[i]) continue;
+	    if (strcmp(ii->devname, ifaces[i].devname) == 0) {
+	      sin = (struct sockaddr_in *) &ifaces[i].addr;
+	      if ((sin->sin_addr.s_addr & mask) == 
+		  (routes[numroutes].gw.s_addr & mask)) {
+		routes[numroutes].device = &ifaces[i];
+	      }
+	    }
+	  }
+	}
+
 	numroutes++;
 	if (numroutes >= route_capacity) {
 	  route_capacity <<= 2;
