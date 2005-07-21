@@ -2,6 +2,25 @@
 
 UNRELEASED
 
+o Applied a massive OS fingerprint update from Zhao Lei
+  (zhaolei(a)gmail.com).  About 350 fingerprints were added, and many
+  more were updated.  Notable additions include Mac OS X 10.4 (Tiger),
+  OpenBSD 3.7, FreeBSD 5.4, Windows Server 2003 SP1, Sony AIBO (along
+  with a new "robotic pet" device type category), the latest Linux 2.6
+  kernels Cisco routers with IOS 12.4, a ton of VoIP devices, Tru64
+  UNIX 5.1B, new Fortinet firewalls, AIX 5.3, NetBSD 2.0, Nokia IPSO
+  3.8.X, and Solaris 10.  Of course there are also tons of new
+  broadband routers, printers, WAPs and pretty much any other device
+  you can coax an ethernet cable (or wireless card) into!
+
+o Added the ability for Nmap to send and properly route raw ethernet
+  packets cointaining IP datagrams rather than always sending the
+  packets via raw sockets. This is particularly useful for Windows,
+  since Microsoft has disabled raw socket support in XP for no good
+  reason.  Nmap tries to choose the best method at runtime based on
+  platform, though you can override it with the new --send-eth and
+  --send-ip options.
+
 o Added ARP ping (-PR). Nmap can now send raw ethernet ARP requests to
   determine whether hosts on a LAN are up, rather than relying on
   higher-level IP packets (which can only be sent after a successful ARP

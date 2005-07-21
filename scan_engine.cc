@@ -1281,7 +1281,7 @@ static int get_next_target_probe(UltraScanInfo *USI, HostScanStats *hss,
       return -1;
     pspec->type = probespec::PS_UDP;
 
-    pspec->portno = USI->ports->tcp_ports[hss->next_portidx++];
+    pspec->portno = USI->ports->udp_ports[hss->next_portidx++];
 
     return 0;
   } else if (USI->prot_scan) {

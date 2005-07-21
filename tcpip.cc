@@ -958,7 +958,8 @@ int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetl
  * Minimal MTU for IPv4 is 68 and maximal IPv4 header size is 60
  * which gives us a right to cut TCP header after 8th byte
  * (shouldn't we inflate the header to 60 bytes too?) */
-int send_frag_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetlen, unsigned int mtu)
+int send_frag_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, 
+			unsigned int packetlen, unsigned int mtu)
 {
     struct ip *ip = (struct ip *) packet;
     int headerlen = ip->ip_hl * 4; // better than sizeof(struct ip)

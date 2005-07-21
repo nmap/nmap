@@ -1204,6 +1204,18 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=0%ULEN=134%DAT=E)
 
+Fingerprint Apple Mac OS X 10.3.3 (Panther)
+Class Apple | Mac OS X | 10.3.X | general purpose
+TSeq(Class=TR%gcd=<6%IPID=I%TS=2HZ)
+T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
+T2(Resp=N)
+T3(Resp=N)
+T4(DF=Y%W=0%ACK=O%Flags=R%Ops=)
+T5(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=Y%W=0%ACK=O%Flags=R%Ops=)
+T7(DF=Y%W=0%ACK=S%Flags=AR%Ops=)
+PU(DF=Y%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=0%ULEN=134%DAT=E)
+
 # Apple Mac OS 10.3.5 (Darwin Kernel Version 7.5.0)
 # Mac OS 10.3.7 Server, Darwain, PPC. Kernel version 7.70. All relevant updates as of 2/2/05
 Fingerprint Apple Mac OS X 10.3.5 or 10.3.7
@@ -1217,18 +1229,6 @@ T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=0%ULEN=134%DAT=E)
-
-Fingerprint Apple Mac OS X 10.3.3 (Panther)
-Class Apple | Mac OS X | 10.3.X | general purpose
-TSeq(Class=TR%gcd=<6%IPID=I%TS=2HZ)
-T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
-T2(Resp=N)
-T3(Resp=N)
-T4(DF=Y%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=Y%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=Y%W=0%ACK=S%Flags=AR%Ops=)
-PU(DF=Y%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=0%ULEN=134%DAT=E)
 
 # Darwin 7.7.0 Power Macintosh powerpc, OS X, version 10.3.7
 # Apple Mac OS X 10.3.6 (7R28) -  (Darwin 7.6.0)
@@ -6103,6 +6103,19 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
+# Digital OpenVMS Alpha 7.2
+Fingerprint DEC OpenVMS 7.2 Alpha
+Class DEC | OpenVMS | 7.X | general purpose
+TSeq(Class=64K%IPID=I%TS=U)
+T1(DF=N%W=C6C%ACK=S++%Flags=AS%Ops=MNW)
+T2(Resp=N)
+T3(Resp=Y%DF=N%W=C6C%ACK=O%Flags=A%Ops=)
+T4(DF=N%W=BB8%ACK=O%Flags=R%Ops=)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
+PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=0%ULEN=134%DAT=E)
+
 # The OS was running on a GS1280 Alpha server
 Fingerprint DEC OpenVMS 7.3
 Class DEC | OpenVMS | 7.X | general purpose
@@ -6260,19 +6273,6 @@ T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=Y%TOS=0%IPLEN=38%RIPTL=148%RID=F%RIPCK=0%UCK=0%ULEN=134%DAT=E)
-
-# Digital OpenVMS Alpha 7.2
-Fingerprint DEC OpenVMS 7.2 Alpha
-Class DEC | OpenVMS | 7.X | general purpose
-TSeq(Class=64K%IPID=I%TS=U)
-T1(DF=N%W=C6C%ACK=S++%Flags=AS%Ops=MNW)
-T2(Resp=N)
-T3(Resp=Y%DF=N%W=C6C%ACK=O%Flags=A%Ops=)
-T4(DF=N%W=BB8%ACK=O%Flags=R%Ops=)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
-PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=0%ULEN=134%DAT=E)
 
 Fingerprint DEC TOPS-20 Monitor 7(102540)-1,TD-1
 Class DEC | TOPS-20 || general purpose
@@ -9104,18 +9104,6 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=15C%RID=E%RIPCK=E%UCK=0%ULEN=134%DAT=E)
 
-Fingerprint IBM AIX 5.3 ML01
-Class IBM | AIX | 5.X | general purpose
-TSeq(Class=TR%gcd=<6%IPID=RPI%TS=U)
-T1(DF=Y%W=5B4%ACK=S++%Flags=AS%Ops=M)
-T2(Resp=N)
-T3(Resp=Y%DF=Y%W=5B4%ACK=S++%Flags=AS%Ops=M)
-T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
-PU(DF=N%TOS=0%IPLEN=38%RIPTL=15C%RID=E%RIPCK=F%UCK=0%ULEN=134%DAT=E)
-
 Fingerprint IBM AIX 5.1
 Class IBM | AIX | 5.X | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I%TS=U)
@@ -9280,6 +9268,18 @@ TSeq(Class=TR%gcd=<6%IPID=I%TS=U)
 T1(DF=Y%W=402E|FFFF%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=N)
 T3(Resp=Y%DF=Y%W=402E|FFFF%ACK=S++%Flags=AS%Ops=M)
+T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
+PU(DF=N%TOS=0%IPLEN=38%RIPTL=15C%RID=E%RIPCK=F%UCK=0%ULEN=134%DAT=E)
+
+Fingerprint IBM AIX 5.3 ML01
+Class IBM | AIX | 5.X | general purpose
+TSeq(Class=TR%gcd=<6%IPID=RPI%TS=U)
+T1(DF=Y%W=5B4%ACK=S++%Flags=AS%Ops=M)
+T2(Resp=N)
+T3(Resp=Y%DF=Y%W=5B4%ACK=S++%Flags=AS%Ops=M)
 T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
@@ -13682,6 +13682,20 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
+# Windows 5.2 (Build 3790.srv03_sp1_rtm.050324-1447 : Service Pack 1)
+# Windows Server 2003 SP1 all patches as of June-23-05
+Fingerprint Microsoft Windows 2003 Server SP1
+Class Microsoft | Windows | 2003/.NET | general purpose
+TSeq(Class=TR%gcd=<6%IPID=I)
+T1(DF=N%W=FAF0%ACK=S++%Flags=AS%Ops=MNWNNT)
+T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
+T3(Resp=Y%DF=N%W=FAF0%ACK=S++%Flags=AS%Ops=MNWNNT)
+T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
 Fingerprint Microsoft Windows 2003 Server Standard Edition
 Class Microsoft | Windows | 2003/.NET | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I)
@@ -13718,6 +13732,18 @@ T5(DF=Y%W=402E%ACK=S++%Flags=AS%Ops=MNWNNT)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
+
+Fingerprint Microsoft Windows 2003 Server Standart Edition SP1
+Class Microsoft | Windows | 2003/.NET | general purpose
+TSeq(Class=TR%gcd=<6%IPID=I)
+T1(DF=N%W=4000%ACK=S++%Flags=AS%Ops=MNWNNT)
+T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
+T3(Resp=Y%DF=N%W=4000%ACK=S++%Flags=AS%Ops=MNWNNT)
+T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+PU(DF=N%TOS=5C%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Windows 2003 standard edition version 5.2 build 3790.srv03_rtm.030324-2048 and lastest windows updates patches as november 9, 2004
 Fingerprint Microsoft Windows 2003 standard edition
@@ -13756,32 +13782,6 @@ T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=10%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
-# Windows 5.2 (Build 3790.srv03_sp1_rtm.050324-1447 : Service Pack 1)
-# Windows Server 2003 SP1 all patches as of June-23-05
-Fingerprint Microsoft Windows 2003 Server SP1
-Class Microsoft | Windows | 2003/.NET | general purpose
-TSeq(Class=TR%gcd=<6%IPID=I)
-T1(DF=N%W=FAF0%ACK=S++%Flags=AS%Ops=MNWNNT)
-T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
-T3(Resp=Y%DF=N%W=FAF0%ACK=S++%Flags=AS%Ops=MNWNNT)
-T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
-Fingerprint Microsoft Windows 2003 Server Standart Edition SP1
-Class Microsoft | Windows | 2003/.NET | general purpose
-TSeq(Class=TR%gcd=<6%IPID=I)
-T1(DF=N%W=4000%ACK=S++%Flags=AS%Ops=MNWNNT)
-T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
-T3(Resp=Y%DF=N%W=4000%ACK=S++%Flags=AS%Ops=MNWNNT)
-T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-PU(DF=N%TOS=5C%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 Fingerprint Microsoft Windows 3.1 with Trumpet Winsock 2.0 revision B
 Class Microsoft | Windows | 3.X | general purpose
@@ -13923,6 +13923,19 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
+# Windows 98 SE, no service packs, on AMD Sempron 2.4 GHz
+Fingerprint Microsoft Windows 98 SE
+Class Microsoft | Windows | 95/98/ME | general purpose
+TSeq(Class=RI%gcd=<6%SI=<1AA4&>D%IPID=RPI%TS=U)
+T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=M)
+T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
+T3(Resp=Y%DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=M)
+T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
 Fingerprint Microsoft Windows 98 SP1
 Class Microsoft | Windows | 95/98/ME | general purpose
 TSeq(Class=TD%gcd=<5%SI=<20)
@@ -13994,6 +14007,20 @@ TSeq(Class=TD%gcd=<FF%SI=<32%IPID=BI%TS=U)
 T1(DF=Y%W=2238%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
 T3(Resp=Y%DF=Y%W=2238%ACK=S++%Flags=AS%Ops=M)
+T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
+# Windows 98SE + unoffical service pack 1.6.1 (includes all cumulative patches and hotfixes)
+#                (http://exuberant.ms11.net/98sesp.html)
+Fingerprint Microsoft Windows 98SE
+Class Microsoft | Windows | 95/98/ME | general purpose
+TSeq(Class=TD%gcd=<E2%SI=<1E%IPID=RPI%TS=U)
+T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=M)
+T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
+T3(Resp=Y%DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=M)
 T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
@@ -14132,46 +14159,6 @@ T6(DF=N%W=0%ACK=S++|O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++|S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E|F%ULEN=134%DAT=E)
 
-# Windows 98 SE, no service packs, on AMD Sempron 2.4 GHz
-Fingerprint Microsoft Windows 98 SE
-Class Microsoft | Windows | 95/98/ME | general purpose
-TSeq(Class=RI%gcd=<6%SI=<1AA4&>D%IPID=RPI%TS=U)
-T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=M)
-T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
-T3(Resp=Y%DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=M)
-T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
-# Windows 98SE + unoffical service pack 1.6.1 (includes all cumulative patches and hotfixes)
-#                (http://exuberant.ms11.net/98sesp.html)
-Fingerprint Microsoft Windows 98SE
-Class Microsoft | Windows | 95/98/ME | general purpose
-TSeq(Class=TD%gcd=<E2%SI=<1E%IPID=RPI%TS=U)
-T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=M)
-T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
-T3(Resp=Y%DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=M)
-T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
-# Microaodr Windows XP Professional with SP! and latest Windows Update patches as of June 1, 2005
-Fingerprint Microsoft Windows XP Pro SP1
-Class Microsoft | Windows | NT/2K/XP | general purpose
-TSeq(Class=TR%gcd=<6%IPID=I%TS=U)
-T1(DF=Y%W=FAF0%ACK=S++%Flags=AS%Ops=MNW)
-T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
-T3(Resp=Y%DF=Y%W=FAF0%ACK=S++%Flags=AS%Ops=MNW)
-T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
 # Microsoft Windows XP Professional (English) w/ SP2 (Build 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2)
 # Widows XP Professional (English UK) w/SP2 - latest patches as of 20 Dec 2004 - build 2600.xpsp_sp2_rtm.040803-2158
 # Microsoft Windows XP Home (French) w/SP2 build 2600.xpsp_sp2_rtm.040803-2158
@@ -14249,6 +14236,19 @@ T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=80%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
+
+# Windows 2000 Advanced Server Version 5.0 (Build 2195: Service Pack 4)
+Fingerprint Microsoft Windows 2000 AS SP4
+Class Microsoft | Windows | NT/2K/XP | general purpose
+TSeq(Class=TR%gcd=<6%IPID=I)
+T1(DF=Y%W=402E%ACK=S++%Flags=AS%Ops=MNWNNT)
+T2(Resp=Y%DF=N%W=800|400%ACK=S%Flags=AR%Ops=WNMETL)
+T3(Resp=Y%DF=N%W=C00|800%ACK=S++%Flags=AR%Ops=WNMETL)
+T4(DF=N%W=C00%ACK=S%Flags=AR%Ops=WNMETL)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=400|800|C00%ACK=S%Flags=AR%Ops=WNMETL)
+T7(DF=N%W=1000|C00%ACK=S++%Flags=AR%Ops=WNMETL)
+PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
 
 Fingerprint Microsoft Windows 2000 Pro
 Class Microsoft | Windows | NT/2K/XP | general purpose
@@ -14470,6 +14470,19 @@ T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=1000|800%ACK=S%Flags=AR%Ops=WNMETL)
 T7(DF=N%W=C00|800%ACK=S++%Flags=AR%Ops=WNMETL)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E|F%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
+# Windows 2000 server SP4 with all current patches april 9th 2005
+Fingerprint Microsoft Windows 2000 server SP4
+Class Microsoft | Windows | NT/2K/XP | general purpose
+TSeq(Class=RI%gcd=<6%SI=<1C3B8&>157%IPID=I)
+T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
+T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
+T3(Resp=Y%DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T4(DF=N%W=0%ACK=S%Flags=R%Ops=)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=0%ACK=S%Flags=R%Ops=)
+T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Windows 2003 Standard build 3790
 # Microsoft Windows 2003/.NET Standard Edition
@@ -14809,6 +14822,45 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
+# Fingerprint Windows 2000 build 5.00.2195 SP4
+Fingerprint Microsoft Windows 2000 SP4
+Class Microsoft | Windows | NT/2K/XP | general purpose
+TSeq(Class=RI%gcd=<8%SI=<78816&>95%IPID=I)
+T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
+T2(Resp=N)
+T3(Resp=Y%DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
+T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T5(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
+T6(Resp=N)
+T7(Resp=N)
+PU(DF=N%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
+# Windows 2000 Version 5.0 Build 2195 SP 4 X86
+Fingerprint Microsoft Windows 2000 SP4
+Class Microsoft | Windows | NT/2K/XP | general purpose
+TSeq(Class=TR%gcd=<6%IPID=I)
+T1(DF=Y%W=4204|FFAF%ACK=S++%Flags=AS%Ops=MNWNNT)
+T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
+T3(Resp=Y%DF=Y%W=4204|FFAF%ACK=S++%Flags=AS%Ops=MNWNNT)
+T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
+# Windows Version 5.0 build 2195 SP 4
+Fingerprint Microsoft Windows 2000 SP4
+Class Microsoft | Windows | NT/2K/XP | general purpose
+TSeq(Class=TR%gcd=<6%IPID=I)
+T1(DF=Y%W=7FFF|832C|FA00%ACK=S++%Flags=AS%Ops=MNWNNT)
+T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
+T3(Resp=Y%DF=Y%W=7FFF|832C|FA00%ACK=S++|O%Flags=AS|A%Ops=MNWNNT|NNT)
+T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
 # Microsoft Windows 2000 SP4 and latest Windows Update patches as of Sept 26, 2003 running BlackICE
 # Microsoft Windows XP Pro with SP1 and latest Windows Update patches as of September 01, 2003
 Fingerprint Microsoft Windows 2000 SP4 or Windows XP SP1
@@ -14960,6 +15012,20 @@ T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
+# Windows NT 4.0 Service pack 6 w/exchange 5.5
+# Microsoft Windows NT 4.0 service pack 6 (English)
+Fingerprint Microsoft Windows NT 4.0 SP6
+Class Microsoft | Windows | NT/2K/XP | general purpose
+TSeq(Class=RI%gcd=<8%SI=<1F9C8&>FA%IPID=BI|RPI|RD%TS=U)
+T1(DF=Y%W=2017%ACK=S++%Flags=AS%Ops=M)
+T2(Resp=N)
+T3(Resp=N)
+T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Microsoft Windows NT4.0 Workstation SP6a
@@ -15243,6 +15309,32 @@ T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=N)
+PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
+# Windows XP Professionnel (5.1) Service Pack 2
+Fingerprint Microsoft Windows XP Pro SP 2
+Class Microsoft | Windows | NT/2K/XP | general purpose
+TSeq(Class=TR%gcd=<6%IPID=I)
+T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
+T2(Resp=Y%DF=N%W=C00|800|400%ACK=S%Flags=AR%Ops=WNMETL)
+T3(Resp=Y%DF=N%W=C00|800|400%ACK=S++%Flags=AR%Ops=WNMETL)
+T4(DF=N%W=400|1000%ACK=S%Flags=AR%Ops=WNMETL)
+T5(DF=N%W=C00%ACK=S++%Flags=AR%Ops=WNMETL)
+T6(DF=N%W=800|400%ACK=S%Flags=AR%Ops=WNMETL)
+T7(DF=N%W=400|800%ACK=S++%Flags=AR%Ops=WNMETL)
+PU(Resp=N)
+
+# Microaodr Windows XP Professional with SP! and latest Windows Update patches as of June 1, 2005
+Fingerprint Microsoft Windows XP Pro SP1
+Class Microsoft | Windows | NT/2K/XP | general purpose
+TSeq(Class=TR%gcd=<6%IPID=I%TS=U)
+T1(DF=Y%W=FAF0%ACK=S++%Flags=AS%Ops=MNW)
+T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
+T3(Resp=Y%DF=Y%W=FAF0%ACK=S++%Flags=AS%Ops=MNW)
+T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # bsed on msg 2236, 1304
@@ -15804,98 +15896,6 @@ T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
-# Windows 2000 Advanced Server Version 5.0 (Build 2195: Service Pack 4)
-Fingerprint Microsoft Windows 2000 AS SP4
-Class Microsoft | Windows | NT/2K/XP | general purpose
-TSeq(Class=TR%gcd=<6%IPID=I)
-T1(DF=Y%W=402E%ACK=S++%Flags=AS%Ops=MNWNNT)
-T2(Resp=Y%DF=N%W=800|400%ACK=S%Flags=AR%Ops=WNMETL)
-T3(Resp=Y%DF=N%W=C00|800%ACK=S++%Flags=AR%Ops=WNMETL)
-T4(DF=N%W=C00%ACK=S%Flags=AR%Ops=WNMETL)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=400|800|C00%ACK=S%Flags=AR%Ops=WNMETL)
-T7(DF=N%W=1000|C00%ACK=S++%Flags=AR%Ops=WNMETL)
-PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
-
-# Windows 2000 server SP4 with all current patches april 9th 2005
-Fingerprint Microsoft Windows 2000 server SP4
-Class Microsoft | Windows | NT/2K/XP | general purpose
-TSeq(Class=RI%gcd=<6%SI=<1C3B8&>157%IPID=I)
-T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
-T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
-T3(Resp=Y%DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T4(DF=N%W=0%ACK=S%Flags=R%Ops=)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=0%ACK=S%Flags=R%Ops=)
-T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
-# Fingerprint Windows 2000 build 5.00.2195 SP4
-Fingerprint Microsoft Windows 2000 SP4
-Class Microsoft | Windows | NT/2K/XP | general purpose
-TSeq(Class=RI%gcd=<8%SI=<78816&>95%IPID=I)
-T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
-T2(Resp=N)
-T3(Resp=Y%DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
-T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-T6(Resp=N)
-T7(Resp=N)
-PU(DF=N%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
-# Windows 2000 Version 5.0 Build 2195 SP 4 X86
-Fingerprint Microsoft Windows 2000 SP4
-Class Microsoft | Windows | NT/2K/XP | general purpose
-TSeq(Class=TR%gcd=<6%IPID=I)
-T1(DF=Y%W=4204|FFAF%ACK=S++%Flags=AS%Ops=MNWNNT)
-T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
-T3(Resp=Y%DF=Y%W=4204|FFAF%ACK=S++%Flags=AS%Ops=MNWNNT)
-T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
-# Windows Version 5.0 build 2195 SP 4
-Fingerprint Microsoft Windows 2000 SP4
-Class Microsoft | Windows | NT/2K/XP | general purpose
-TSeq(Class=TR%gcd=<6%IPID=I)
-T1(DF=Y%W=7FFF|832C|FA00%ACK=S++%Flags=AS%Ops=MNWNNT)
-T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
-T3(Resp=Y%DF=Y%W=7FFF|832C|FA00%ACK=S++|O%Flags=AS|A%Ops=MNWNNT|NNT)
-T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
-# Windows NT 4.0 Service pack 6 w/exchange 5.5
-# Microsoft Windows NT 4.0 service pack 6 (English)
-Fingerprint Microsoft Windows NT 4.0 SP6
-Class Microsoft | Windows | NT/2K/XP | general purpose
-TSeq(Class=RI%gcd=<8%SI=<1F9C8&>FA%IPID=BI|RPI|RD%TS=U)
-T1(DF=Y%W=2017%ACK=S++%Flags=AS%Ops=M)
-T2(Resp=N)
-T3(Resp=N)
-T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T7(Resp=N)
-PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
-# Windows XP Professionnel (5.1) Service Pack 2
-Fingerprint Microsoft Windows XP Pro SP 2
-Class Microsoft | Windows | NT/2K/XP | general purpose
-TSeq(Class=TR%gcd=<6%IPID=I)
-T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
-T2(Resp=Y%DF=N%W=C00|800|400%ACK=S%Flags=AR%Ops=WNMETL)
-T3(Resp=Y%DF=N%W=C00|800|400%ACK=S++%Flags=AR%Ops=WNMETL)
-T4(DF=N%W=400|1000%ACK=S%Flags=AR%Ops=WNMETL)
-T5(DF=N%W=C00%ACK=S++%Flags=AR%Ops=WNMETL)
-T6(DF=N%W=800|400%ACK=S%Flags=AR%Ops=WNMETL)
-T7(DF=N%W=400|800%ACK=S++%Flags=AR%Ops=WNMETL)
-PU(Resp=N)
 
 # HP Jornada running Windows CE 2.11 (Handheld/PC Pro 3.0) running on StrongARM 1100
 Fingerprint HP Jornada running Microsoft Windows CE 2.11 (Handheld/PC Pro 3.0 PDA)

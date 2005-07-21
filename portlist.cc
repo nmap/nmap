@@ -623,7 +623,7 @@ if (afterthisport) {
    printf("Next Port After %d, %d\n", afterthisport->portno, iter->second->portno); fflush(0);
 */
 
- if (!allow_portzero && iter->second->portno == 0) iter++;
+ if (!allow_portzero && iter->second && iter->second->portno == 0) iter++;
  
 
 /* First we look for TCP ports ... */
