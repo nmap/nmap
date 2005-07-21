@@ -91,7 +91,7 @@ AUTOMAKE = ${SHELL} /home/fyodor/nmap/libdnet-stripped/config/missing --run auto
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=none
-CFLAGS = -g -Wall
+CFLAGS = -g -O2 -Wall
 CHECKINC = 
 CHECKLIB = 
 CPP = gcc -E
