@@ -104,8 +104,6 @@
 
 #include <nbase.h>
 #include <map>
-using namespace std;
-
 
 /* port states */
 #define PORT_UNKNOWN 0
@@ -249,6 +247,7 @@ class Port {
 
 };
 
+
 class PortList {
  public:
   PortList();
@@ -272,14 +271,11 @@ class PortList {
    order from lowest to highest, except that if you ask for both TCP &
    UDP, every TCP port will be returned before we start returning UDP
    ports */
-    Port *nextPort(Port *afterthisport, 
-		   u8 allowed_protocol, int allowed_state, 
-		   bool allow_portzero);
+   Port *nextPort(Port *afterthisport, 
+  	          u8 allowed_protocol, int allowed_state, 
+		  bool allow_portzero);
 
   Port *lookupPort(u16 portno, u8 protocol);
-  map < u16, Port* > udp_ports;
-  map < u16, Port* > tcp_ports;
-  map < u16, Port* > ip_prots;
 
   int state_counts[PORT_HIGHEST_STATE]; /* How many ports in list are in each
 					   state */
@@ -288,6 +284,10 @@ class PortList {
   int state_counts_ip[PORT_HIGHEST_STATE];
   int getIgnoredPortState(); /* The state of the port we ignore for output */
   int numports; /* Total number of ports in list in ANY state */
+  // map<int,char*> foomap;
+  std::map < u16, Port *> udp_ports;
+  std::map < u16, Port* > tcp_ports;
+  std::map < u16, Port* > ip_prots;
  private:
   /* A string identifying the system these ports are on.  Just used for 
      printing open ports, if it is set with setIdStr() */

@@ -107,6 +107,8 @@
 #include "timing.h"
 #include "NmapOps.h"
 
+using namespace std;
+
 /* global options */
 extern char *optarg;
 extern int optind;

@@ -105,6 +105,8 @@
 #include "nmap.h"
 #include "NmapOps.h"
 
+using namespace std;
+
 #if HAVE_STRINGS_H
 #include <strings.h>
 #endif /* HAVE_STRINGS_H */

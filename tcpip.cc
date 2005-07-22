@@ -117,6 +117,20 @@
 #include <unistd.h>
 #endif
 
+#if HAVE_NET_IF_H
+#ifndef NET_IF_H  /* why doesn't OpenBSD do this? */
+#include <net/if.h>
+#define NET_IF_H
+#endif
+#endif
+
+#if HAVE_NETINET_IF_ETHER_H
+#ifndef NETINET_IF_ETHER_H
+#include <netinet/if_ether.h>
+#define NETINET_IF_ETHER_H
+#endif /* NETINET_IF_ETHER_H */
+#endif /* HAVE_NETINET_IF_ETHER_H */
+
 extern NmapOps o;
 
 #ifdef __amigaos__
@@ -2147,7 +2161,7 @@ struct interface_info *getinterfaces(int *howmany) {
       sin = (struct sockaddr_in *) &ifr->ifr_addr;
       if (sin->sin_family != AF_INET)
 	continue;
-      memcpy(&(mydevs[numifaces].addr), sin, min(sizeof(mydevs[numifaces].addr), sizeof(sin)));
+      memcpy(&(mydevs[numifaces].addr), sin, MIN(sizeof(mydevs[numifaces].addr), sizeof(*sin)));
       Strncpy(mydevs[numifaces].devname, ifr->ifr_name, sizeof(mydevs[numifaces].devname));
       /* devname isn't allowed to have alias qualification */
       if ((p = strchr(mydevs[numifaces].devname, ':')))
@@ -2155,7 +2169,7 @@ struct interface_info *getinterfaces(int *howmany) {
       Strncpy(mydevs[numifaces].devfullname, ifr->ifr_name, sizeof(mydevs[numifaces].devfullname));
 
       Strncpy(tmpifr.ifr_name, ifr->ifr_name, sizeof(tmpifr.ifr_name));
-      memcpy(&(tmpifr.ifr_addr), sin, MIN(sizeof(tmpifr.ifr_addr), sizeof(sin)));
+      memcpy(&(tmpifr.ifr_addr), sin, MIN(sizeof(tmpifr.ifr_addr), sizeof(*sin)));
       rc = ioctl(sd, SIOCGIFNETMASK, &tmpifr);
       if (rc < 0 && errno != EADDRNOTAVAIL)
 	pfatal("Failed to determine the netmask of %s!", tmpifr.ifr_name);
@@ -2172,7 +2186,7 @@ struct interface_info *getinterfaces(int *howmany) {
 	 is kinda iffy ... may not be portable. */
       /* First we get the flags */
       Strncpy(tmpifr.ifr_name, ifr->ifr_name, sizeof(tmpifr.ifr_name));
-      memcpy(&(tmpifr.ifr_addr), sin, MIN(sizeof(tmpifr.ifr_addr), sizeof(sin)));
+      memcpy(&(tmpifr.ifr_addr), sin, MIN(sizeof(tmpifr.ifr_addr), sizeof(*sin)));
       rc = ioctl(sd, SIOCGIFFLAGS, &tmpifr);
       if (rc < 0) fatal("Failed to get IF Flags for device %s", ifr->ifr_name);
       ifflags = tmpifr.ifr_flags;
@@ -2182,13 +2196,28 @@ struct interface_info *getinterfaces(int *howmany) {
       else if (ifflags & IFF_BROADCAST) {
 	mydevs[numifaces].device_type = devt_ethernet;
 	/* Get the MAC Address ... */
+#ifdef SIOCGIFHWADDR
 	Strncpy(tmpifr.ifr_name, mydevs[numifaces].devname, sizeof(tmpifr.ifr_name));
-	memcpy(&(tmpifr.ifr_addr), sin, MIN(sizeof(tmpifr.ifr_addr), MIN(sizeof(tmpifr.ifr_addr), sizeof(sin))));
+	memcpy(&(tmpifr.ifr_addr), sin, MIN(sizeof(tmpifr.ifr_addr), MIN(sizeof(tmpifr.ifr_addr), sizeof(*sin))));
 	rc = ioctl(sd, SIOCGIFHWADDR, &tmpifr);
 	if (rc < 0 && errno != EADDRNOTAVAIL)
 	  pfatal("Failed to determine the MAC address of %s!", tmpifr.ifr_name);
 	else if (rc >= 0)
 	  memcpy(mydevs[numifaces].mac, &tmpifr.ifr_addr.sa_data, 6);
+#else
+	/* Let's just let libdnet handle it ... */
+	eth_t *ethsd = eth_open(mydevs[numifaces].devname);
+	eth_addr_t ethaddr;
+
+	if (!ethsd) 
+	  fatal("%s: Failed to open ethernet interface (%s)", __FUNCTION__,
+		mydevs[numifaces].devname);
+	if (eth_get(ethsd, &ethaddr) != 0) 
+	  fatal("%s: Failed to obtain MAC address for ethernet interface (%s)",
+		__FUNCTION__, mydevs[numifaces].devname);
+	memcpy(mydevs[numifaces].mac, ethaddr.data, 6);
+#endif /*SIOCGIFHWADDR*/
+
       }
       else if (ifflags & IFF_POINTOPOINT)
 	mydevs[numifaces].device_type = devt_p2p;

@@ -107,6 +107,7 @@
 #include "NmapOps.h"
 #include <list>
 
+using namespace std;
 extern NmapOps o;
 class UltraScanInfo;
 

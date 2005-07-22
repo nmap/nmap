@@ -247,18 +247,18 @@ void *realloc();
 #endif
 
 /*#include <net/if_arp.h> *//* defines struct arphdr needed for if_ether.h */
-#if HAVE_NET_IF_H
-#ifndef NET_IF_H  /* why doesn't OpenBSD do this?! */
-#include <net/if.h>
-#define NET_IF_H
-#endif
-#endif
-#if HAVE_NETINET_IF_ETHER_H 
-#ifndef NETINET_IF_ETHER_H
-#include <netinet/if_ether.h>
-#define NETINET_IF_ETHER_H
-#endif /* NETINET_IF_ETHER_H */
-#endif /* HAVE_NETINET_IF_ETHER_H */
+// #if HAVE_NET_IF_H
+// #ifndef NET_IF_H  /* why doesn't OpenBSD do this?! */
+// #include <net/if.h>
+// #define NET_IF_H
+// #endif
+// #endif
+// #if HAVE_NETINET_IF_ETHER_H 
+// #ifndef NETINET_IF_ETHER_H
+// #include <netinet/if_ether.h>
+// #define NETINET_IF_ETHER_H
+// #endif /* NETINET_IF_ETHER_H */
+// #endif /* HAVE_NETINET_IF_ETHER_H */
 
 /*******  DEFINES  ************/
 

@@ -123,6 +123,10 @@
 #include <algorithm>
 #include <list>
 
+/* Workaround for lack of namespace std on HP-UX 11.00 */
+namespace std {};
+using namespace std;
+
 // Because this file uses assert()s for some security checking, we can't
 // have anyone turning off debugging.
 #undef NDEBUG

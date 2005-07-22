@@ -109,6 +109,7 @@
 #include "Target.h"
 #include "scan_engine.h"
 
+using namespace std;
 extern NmapOps o;
 enum pingstyle { pingstyle_unknown, pingstyle_rawtcp, pingstyle_rawudp, pingstyle_connecttcp, 
 		 pingstyle_icmp };

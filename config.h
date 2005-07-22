@@ -103,7 +103,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define PCAP_TIMEOUT_IGNORED 1
+/* #undef PCAP_TIMEOUT_IGNORED */
 
 #define HAVE_STRUCT_IP 1
 
@@ -123,7 +123,7 @@
 
 #define HAVE_STRING_H 1
 
-#define HAVE_GETOPT_H 1
+/* #undef HAVE_GETOPT_H */
 
 #define HAVE_STRINGS_H 1
 
@@ -131,7 +131,7 @@
 
 /* #undef HAVE_BSTRING_H */
 
-/* #undef WORDS_BIGENDIAN */
+#define WORDS_BIGENDIAN 1
 
 #define HAVE_MEMORY_H 1
 
@@ -142,21 +142,21 @@
 
 #define HAVE_SYS_PARAM_H 1
 
-/* #undef HAVE_SYS_SOCKIO_H */
+#define HAVE_SYS_SOCKIO_H 1
 
 /* #undef HAVE_PCRE_H */
 
-#define HAVE_PCRE_PCRE_H 1
+/* #undef HAVE_PCRE_PCRE_H */
 
 #define BSD_NETWORKING 1
 
-#define HAVE_INET_ATON 1
+/* #undef HAVE_INET_ATON */
 
-#define HAVE_STRCASESTR 1
+/* #undef HAVE_STRCASESTR */
 
 /* #undef HAVE_GETOPT_LONG */
 
-/* #undef IN_ADDR_DEEPSTRUCT */
+#define IN_ADDR_DEEPSTRUCT 1
 
 /* #undef HAVE_NETINET_IN_SYSTEM_H */
 
@@ -164,7 +164,7 @@
 
 #define HAVE_NETINET_IF_ETHER_H 1
 
-#define HAVE_OPENSSL 1
+/* #undef HAVE_OPENSSL */
 
 /* #undef STUPID_SOLARIS_CHECKSUM_BUG */
 
@@ -191,10 +191,10 @@ extern "C" int gethostname (char *, unsigned int);
 #endif
 
 /* #undef DEC */
-#define LINUX 1
+/* #undef LINUX */
 /* #undef FREEBSD */
 /* #undef OPENBSD */
-/* #undef SOLARIS */
+#define SOLARIS 1
 /* #undef SUNOS */
 /* #undef BSDI */
 /* #undef IRIX */

@@ -108,7 +108,7 @@
 #include "global_structures.h"
 
 /* 3rd generation Nmap scanning function.  Handles most Nmap port scan types */
-void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports, 
+void ultra_scan(std::vector<Target *> &Targets, struct scan_lists *ports, 
 		stype scantype);
 
 /* Handles the "positive-response" scans (where we get a response

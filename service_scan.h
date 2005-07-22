@@ -113,10 +113,6 @@
 # include <pcre.h>
 #endif
 
-/* Workaround for lack of namespace std on HP-UX 11.00 */
-namespace std {};
-using namespace std;
-
 /**********************  DEFINES/ENUMS ***********************************/
 #define DEFAULT_SERVICEWAITMS 5000
 #define DEFAULT_CONNECT_TIMEOUT 5000
@@ -291,17 +287,17 @@ class ServiceProbe {
   const struct MatchDetails *testMatch(const u8 *buf, int buflen);
 
  private:
-  void setPortVector(vector<u16> *portv, const char *portstr, 
+  void setPortVector(std::vector<u16> *portv, const char *portstr, 
 				 int lineno);
   char *probename;
 
   u8 *probestring;
   int probestringlen;
-  vector<u16> probableports;
-  vector<u16> probablesslports;
-  vector<const char *> detectedServices;
+  std::vector<u16> probableports;
+  std::vector<u16> probablesslports;
+  std::vector<const char *> detectedServices;
   int probeprotocol;
-  vector<ServiceProbeMatch *> matches; // first-ever use of STL in Nmap!
+  std::vector<ServiceProbeMatch *> matches; // first-ever use of STL in Nmap!
 };
 
 class AllProbes {
@@ -311,7 +307,7 @@ public:
   // Tries to find the probe in this AllProbes class which have the
   // given name and protocol.  It can return the NULL probe.
   ServiceProbe *getProbeByName(const char *name, int proto);
-  vector<ServiceProbe *> probes; // All the probes except nullProbe
+  std::vector<ServiceProbe *> probes; // All the probes except nullProbe
   ServiceProbe *nullProbe; // No probe text - just waiting for banner
 
   int isExcluded(unsigned short port, int proto);
@@ -322,14 +318,10 @@ public:
 
 /* Execute a service fingerprinting scan against all open ports of the
    Targets specified. */
-int service_scan(vector<Target *> &Targets);
+int service_scan(std::vector<Target *> &Targets);
 
 // Parses the given nmap-service-probes file into the AP class
 void parse_nmap_service_probe_file(AllProbes *AP, char *filename);
 
 #endif /* SERVICE_SCAN_H */
-
-
-
-
 
