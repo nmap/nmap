@@ -372,8 +372,8 @@ do {
 	  hs->hostbatch[hidx]->deviceName() && 
 	  (hs->hostbatch[hidx]->v4source().s_addr != hs->hostbatch[0]->v4source().s_addr || 
 	   strcmp(hs->hostbatch[0]->deviceName(), 
-		  hs->hostbatch[hidx]->deviceName()) != 0) 
-	  || hs->hostbatch[hidx]->directlyConnected() != hs->hostbatch[0]->directlyConnected()) {
+		  hs->hostbatch[hidx]->deviceName()) != 0 
+	  || hs->hostbatch[hidx]->directlyConnected() != hs->hostbatch[0]->directlyConnected())) {
 	/* Cancel everything!  This guy must go in the next group and we are
 	   outtof here */
 	hs->current_expression.return_last_host();

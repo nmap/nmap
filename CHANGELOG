@@ -2,6 +2,11 @@
 
 UNRELEASED
 
+o Changed the --no-stylesheet option to --no_stylesheet to be
+  consistant with all of the other Nmap options.  Though I'm starting to
+  like hyphens a bit better than underscores and may change all of the
+  options to use hyphens instad at some point.
+
 o Applied a massive OS fingerprint update from Zhao Lei
   (zhaolei(a)gmail.com).  About 350 fingerprints were added, and many
   more were updated.  Notable additions include Mac OS X 10.4 (Tiger),
@@ -18,18 +23,18 @@ o Added the ability for Nmap to send and properly route raw ethernet
   packets via raw sockets. This is particularly useful for Windows,
   since Microsoft has disabled raw socket support in XP for no good
   reason.  Nmap tries to choose the best method at runtime based on
-  platform, though you can override it with the new --send-eth and
-  --send-ip options.
+  platform, though you can override it with the new --send_eth and
+  --send_ip options.
 
 o Added ARP ping (-PR). Nmap can now send raw ethernet ARP requests to
   determine whether hosts on a LAN are up, rather than relying on
-  higher-level IP packets (which can only be sent after a successful ARP
-  request and reply anyway).  This is much faster and more reliable
-  (not subject to IP-level firewalling) than IP-based probes.  The
-  downside is that it only works when the target machine is on the same
-  LAN as the scanning machine.  It is recommended whenever those
-  conditions are met, and may sometime become the default when Nmap
-  detects that the conditions are met.  Example usage: nmap -sP -PR
+  higher-level IP packets (which can only be sent after a successful
+  ARP request and reply anyway).  This is much faster and more
+  reliable (not subject to IP-level firewalling) than IP-based probes.
+  The downside is that it only works when the target machine is on the
+  same LAN as the scanning machine.  It is now used automatically for
+  any hosts that are detected to be on a local ethernet network,
+  unless --send_ip was specified.  Example usage: nmap -sP -PR
   192.168.0.0/16 .  This is not yet supported on Windows.
 
 o Added "Exclude" directive to nmap-service-probes grammar which

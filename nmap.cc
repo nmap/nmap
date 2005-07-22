@@ -278,7 +278,7 @@ int nmap_main(int argc, char *argv[]) {
       {"send_eth", no_argument, 0, 0},
       {"send_ip", no_argument, 0, 0},
       {"stylesheet", required_argument, 0, 0},
-      {"no-stylesheet", no_argument, 0, 0},
+      {"no_stylesheet", no_argument, 0, 0},
       {"rH", no_argument, 0, 0},
       {"vv", no_argument, 0, 0},
       {"ff", no_argument, 0, 0},
@@ -452,7 +452,7 @@ int nmap_main(int argc, char *argv[]) {
 	o.sendpref = PACKET_SEND_IP_STRONG;
       } else if (strcmp(long_options[option_index].name, "stylesheet") == 0) {
 	o.setXSLStyleSheet(optarg);
-      } else if (strcmp(long_options[option_index].name, "no-stylesheet") == 0) {
+      } else if (strcmp(long_options[option_index].name, "no_stylesheet") == 0) {
 	o.setXSLStyleSheet(NULL);
       } else if (strcmp(long_options[option_index].name, "oN") == 0) {
 	normalfilename = optarg;

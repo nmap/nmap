@@ -491,7 +491,7 @@ record) or as a literal IP address such as
 and TCP connect() Ping scan are supported.  If you need UDP or other
 scan types, have a look at http://nmap6.sourceforge.net/ .
 .TP
-.B \--send-eth
+.B \--send_eth
 Asks Nmap to send packets at the raw ethernet (data link) layer rather
 than the higher IP (network) layer.  By default, Nmap chooses the one
 which is generally best for the platform it is running on.  Raw
@@ -500,7 +500,7 @@ while ethernet frames work best on the many Windows versions where
 Microsoft has disabled raw sockets support.  Nmap still uses raw IP
 packets when there is no other choice (such as non-ethernet
 connections).
-.B --send-ip
+.B --send_ip
 Asks Nmap to send packets via raw IP sockets rather than sending lower
 level ethernet frames.  It is the complement to the --send-eth
 option.discussed previously.
@@ -580,7 +580,7 @@ makes it easier to view results on a machine that doesn't have Nmap
 the local filesystem locaton of nmap.xsl is used by default for
 privacy reasons.
 .TP
-.B \--no-stylesheet
+.B \--no_stylesheet
 Specify this option to prevent Nmap from associating any XSL
 stylesheet with its XML output.  The xml-stylesheet directive is
 omitted.
