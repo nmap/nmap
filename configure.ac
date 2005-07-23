@@ -289,17 +289,14 @@ AC_ARG_WITH(libpcap,
 [  --with-libpcap[=DIR]    Look for pcap in DIR/include and DIR/libs. Specify --with-libpcap=included to always use version included with Nmap],
 [  case "$with_libpcap" in
   yes)
-    AC_MSG_WARN([YOU SAID YES...YOU SAID YES])
     AC_CHECK_HEADER(pcap.h,[
       AC_CHECK_LIB(pcap, pcap_datalink,
       [have_libpcap=yes ])])
     ;;
   included)
-    AC_MSG_WARN([YOU SAID INCLUDED...YOU SAID INCLUDED])
     have_libpcap=no
    ;;
   *)
-    AC_MSG_WARN([YOU SAID OTHER...YOU SAID OTHER])
     _cppflags=$CXXFLAGS
     _ldflags=$LDFLAGS
 
