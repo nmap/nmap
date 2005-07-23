@@ -286,7 +286,7 @@ have_libpcap=no
 test "${with_libpcap+set}" != "set" && with_libpcap=yes
 
 AC_ARG_WITH(libpcap,
-[  --with-libpcap[=DIR]    Look for pcap in DIR/include and DIR/libs],
+[  --with-libpcap[=DIR]    Look for pcap in DIR/include and DIR/libs. Specify --with-libpcap=included to always use version included with Nmap],
 [  case "$with_libpcap" in
   yes)
     AC_MSG_WARN([YOU SAID YES...YOU SAID YES])
@@ -294,8 +294,8 @@ AC_ARG_WITH(libpcap,
       AC_CHECK_LIB(pcap, pcap_datalink,
       [have_libpcap=yes ])])
     ;;
-  no)
-    AC_MSG_WARN([YOU SAID NO...YOU SAID NO])
+  included)
+    AC_MSG_WARN([YOU SAID INCLUDED...YOU SAID INCLUDED])
     have_libpcap=no
    ;;
   *)
