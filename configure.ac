@@ -296,6 +296,7 @@ AC_ARG_WITH(libpcap,
     ;;
   no)
     AC_MSG_WARN([YOU SAID NO...YOU SAID NO])
+    have_libpcap=no
    ;;
   *)
     AC_MSG_WARN([YOU SAID OTHER...YOU SAID OTHER])
