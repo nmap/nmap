@@ -858,7 +858,7 @@ Optional Packages:
   --with-localdirs        Explicitly ask compiler to use /usr/local/{include,libs} if they exist
   --without-nmapfe    skip nmapfe X-window GUI
   --with-openssl=DIR    Use optional openssl libs and includes from DIR/lib/ and DIR/include/openssl/)
-  --with-libpcap=DIR    Look for pcap in DIR/include and DIR/libs
+  --with-libpcap=DIR    Look for pcap in DIR/include and DIR/libs. Specify --with-libpcap=included to always use version included with Nmap
   --with-libpcre=DIR    Use an existing (compiled) pcre lib from DIR/include and DIR/lib.  Specify --with-libpcre=included to always use the version included with Nmap
   --with-libdnet=DIR    Use an existing (compiled) dnet lib from DIR/include and DIR/lib.
   --with-libnbase=DIR     Look for nbase include/libs in DIR
@@ -5492,9 +5492,9 @@ fi
 
 
     ;;
-  no)
-    { echo "$as_me:$LINENO: WARNING: YOU SAID NO...YOU SAID NO" >&5
-echo "$as_me: WARNING: YOU SAID NO...YOU SAID NO" >&2;}
+  included)
+    { echo "$as_me:$LINENO: WARNING: YOU SAID INCLUDED...YOU SAID INCLUDED" >&5
+echo "$as_me: WARNING: YOU SAID INCLUDED...YOU SAID INCLUDED" >&2;}
     have_libpcap=no
    ;;
   *)
