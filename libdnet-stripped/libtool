@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 # libtoolT - Provide generalized library-building support services.
 # Generated automatically by  (GNU libdnet 1.10)
@@ -47,7 +47,7 @@ available_tags="available_tags= CXX F77"
 # Libtool was configured on host ultra:
 
 # Shell to use when invoking shell scripts.
-SHELL="/bin/sh"
+SHELL="/bin/bash"
 
 # Whether or not to build shared libraries.
 build_libtool_libs=yes
@@ -6766,7 +6766,7 @@ build_old_libs=`case $build_libtool_libs in yes) $echo no;; *) $echo yes;; esac`
 # Libtool was configured on host ultra:
 
 # Shell to use when invoking shell scripts.
-SHELL="/bin/sh"
+SHELL="/bin/bash"
 
 # Whether or not to build shared libraries.
 build_libtool_libs=yes
@@ -7063,7 +7063,7 @@ include_expsyms=""
 # Libtool was configured on host ultra:
 
 # Shell to use when invoking shell scripts.
-SHELL="/bin/sh"
+SHELL="/bin/bash"
 
 # Whether or not to build shared libraries.
 build_libtool_libs=yes

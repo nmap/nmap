@@ -2,6 +2,19 @@
 
 UNRELEASED
 
+o Fixed a problem where Nmap compilation would use header files from
+  the libpcap included with Nmap even when it was linking to a system
+  libpcap.  Thanks to Solar Designer (solar(a)openwall.com) and Okan
+  Demirmen (okan(a)demirmen.com) for reporting the problem.
+
+o Added configure option --with-libpcap=included to tell Nmap to use
+  the version of libpcap it ships with rather than any that may already be
+  installed on the system.  You can still use --with-libpcap=[dir] to
+  specify that a system libpcap be installed rather than the shipped
+  one.  By default, Nmap looks at both and decides which one is likely
+  to work best.  If you are having problems on Solaris, try
+  --with-libpcap=included .
+
 o Changed the --no-stylesheet option to --no_stylesheet to be
   consistant with all of the other Nmap options.  Though I'm starting to
   like hyphens a bit better than underscores and may change all of the

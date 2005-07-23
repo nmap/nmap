@@ -1720,7 +1720,7 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
       if (memcmp(p + 12, "\x08\x06\x00\x01\x08\x00\x06\x04\x00\x02", 10) == 0) {
 	memcpy(sendermac, p + 22, 6);
 	/* I think alignment should allow this ... */
-	senderIP->s_addr = *(u32 *) (p + 28) ;
+	memcpy(&senderIP->s_addr, p+28, 4);
 	break;
       }
     }
@@ -2246,6 +2246,64 @@ struct interface_info *getinterfaces(int *howmany) {
 }
 #endif
 
+
+struct dnet_collector_route_nfo {
+  struct sys_route *routes;
+  int numroutes;
+  int route_capacity;
+  struct interface_info *ifaces;
+  int numifaces;
+};
+
+int collect_dnet_routes(const struct route_entry *entry, void *arg) {
+  struct dnet_collector_route_nfo *dcrn = (struct dnet_collector_route_nfo *) arg;
+  int i;
+
+  /* Make sure that it is the proper type of route ... */
+  if (entry->route_dst.addr_type != ADDR_TYPE_IP || entry->route_gw.addr_type != ADDR_TYPE_IP)
+    return 0; /* Not interested in IPv6 routes at the moment ... */
+  
+  /* Make sure we have room for the new route */
+  if (dcrn->numroutes >= dcrn->route_capacity) {
+    dcrn->route_capacity <<= 2;
+    dcrn->routes = (struct sys_route *) realloc(dcrn->routes, 
+						dcrn->route_capacity * sizeof(struct sys_route));
+  }
+  
+  /* Now for the important business */
+  dcrn->routes[dcrn->numroutes].dest = entry->route_dst.addr_ip;
+  addr_btom(entry->route_dst.addr_bits, &dcrn->routes[dcrn->numroutes].netmask, sizeof(dcrn->routes[dcrn->numroutes].netmask));
+  dcrn->routes[dcrn->numroutes].gw.s_addr = entry->route_gw.addr_ip;
+  /* Now determine which interface the route relates to */
+  u32 mask;
+  struct sockaddr_in *sin;
+  for(i = 0; i < dcrn->numifaces; i++) {
+    sin = (struct sockaddr_in *) &dcrn->ifaces[i].addr;
+    mask = htonl((unsigned long) (0-1) << (32 - dcrn->ifaces[i].netmask_bits));
+    if ((sin->sin_addr.s_addr & mask) == (entry->route_gw.addr_ip & mask)) {
+      dcrn->routes[dcrn->numroutes].device = &dcrn->ifaces[i];
+      break;
+    } 
+  }
+  if (i == dcrn->numifaces) {
+    error("WARNING: Unable to find appropriate interface for system route to %s\n", addr_ntoa(&entry->route_gw));
+    return 0;
+  }
+  dcrn->numroutes++;
+  return 0;
+}
+
+/* A trivial function used with qsort to sort the routes by netmask */
+static int nmaskcmp(const void *a, const void *b) {
+  struct sys_route *r1 = (struct sys_route *) a;
+  struct sys_route *r2 = (struct sys_route *) b;
+  if (r1->netmask == r2->netmask)
+    return 0;
+  if (ntohl(r1->netmask) > ntohl(r2->netmask))
+    return -1;
+  else return 1;
+}
+
 /* Parse the system routing table, converting each route into a
    sys_route entry.  Returns an array of sys_routes.  numroutes is set
    to the number of routes in the array.  The routing table is only
@@ -2354,12 +2412,34 @@ struct sys_route *getsysroutes(int *howmany) {
 	  routes = (struct sys_route *) realloc(routes, route_capacity * sizeof(struct sys_route));
 	}
       }
-    } else fatal("Need to write portable route gathering code");
+    } else {
+      struct dnet_collector_route_nfo dcrn;
+      dcrn.routes = routes;
+      dcrn.numroutes = numroutes;
+      dcrn.route_capacity = route_capacity;
+      dcrn.ifaces = ifaces;
+      dcrn.numifaces = numifaces;
+      route_t *dr = route_open();
+      if (!dr) fatal("%s: route_open() failed", __FUNCTION__);
+      if (route_loop(dr, collect_dnet_routes, &dcrn) != 0) {
+	fatal("%s: route_loop() failed", __FUNCTION__);
+      }
+      route_close(dr);
+      /* These values could have changed in the callback */
+      route_capacity = dcrn.route_capacity;
+      numroutes = dcrn.numroutes;
+      routes = dcrn.routes;
+    }
 
     /* Ensure that the route array is sorted by netmask */
     for(i=1; i < numroutes; i++) {
-      if (ntohl(routes[i].netmask) > ntohl(routes[i-1].netmask))
-	fatal("Uh-oh -- your route list isn't sorted by Netmask. Please notify fyodor@insecure.org\n");
+      if (ntohl(routes[i].netmask) > ntohl(routes[i-1].netmask)) 
+	break;
+    }
+
+    if (i < numroutes) {
+      /* they're not sorted ... better take care of that */
+      qsort(routes, numroutes, sizeof(routes[0]), nmaskcmp);
     }
   }
   if (!howmany) fatal("NULL howmany ptr passed to getsysroutes()");
