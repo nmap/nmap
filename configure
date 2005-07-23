@@ -5495,6 +5495,7 @@ fi
   no)
     { echo "$as_me:$LINENO: WARNING: YOU SAID NO...YOU SAID NO" >&5
 echo "$as_me: WARNING: YOU SAID NO...YOU SAID NO" >&2;}
+    have_libpcap=no
    ;;
   *)
     { echo "$as_me:$LINENO: WARNING: YOU SAID OTHER...YOU SAID OTHER" >&5
