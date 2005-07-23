@@ -293,6 +293,9 @@ AC_ARG_WITH(libpcap,
       AC_CHECK_LIB(pcap, pcap_datalink,
       [have_libpcap=yes ])])
     ;;
+  no)
+    echo "YOU SAID NO...YOU SAID NO"
+   ;;
   *)
     _cppflags=$CXXFLAGS
     _ldflags=$LDFLAGS
