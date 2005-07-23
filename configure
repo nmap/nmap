@@ -5279,6 +5279,8 @@ if test "${with_libpcap+set}" = set; then
   withval="$with_libpcap"
     case "$with_libpcap" in
   yes)
+    { echo "$as_me:$LINENO: WARNING: YOU SAID YES...YOU SAID YES" >&5
+echo "$as_me: WARNING: YOU SAID YES...YOU SAID YES" >&2;}
     if test "${ac_cv_header_pcap_h+set}" = set; then
   echo "$as_me:$LINENO: checking for pcap.h" >&5
 echo $ECHO_N "checking for pcap.h... $ECHO_C" >&6
@@ -5491,9 +5493,12 @@ fi
 
     ;;
   no)
-    echo "YOU SAID NO...YOU SAID NO"
+    { echo "$as_me:$LINENO: WARNING: YOU SAID NO...YOU SAID NO" >&5
+echo "$as_me: WARNING: YOU SAID NO...YOU SAID NO" >&2;}
    ;;
   *)
+    { echo "$as_me:$LINENO: WARNING: YOU SAID OTHER...YOU SAID OTHER" >&5
+echo "$as_me: WARNING: YOU SAID OTHER...YOU SAID OTHER" >&2;}
     _cppflags=$CXXFLAGS
     _ldflags=$LDFLAGS
 
