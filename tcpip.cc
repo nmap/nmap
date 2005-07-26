@@ -2154,6 +2154,12 @@ struct interface_info *getinterfaces(int *howmany) {
       printf("ifr = %X\n",(unsigned)(*(char **)&ifr));
 #endif
 
+      /* On some platforms (such as FreeBSD), the length of each ifr changes
+	 based on the sockaddr type used, so we get the next length now */
+#if HAVE_SOCKADDR_SA_LEN
+      len = ifr->ifr_addr.sa_len + sizeof(ifr->ifr_name);
+#endif 
+
       /* skip any device with no name */
       if (!*((char *)ifr))
         continue;
@@ -2233,10 +2239,6 @@ struct interface_info *getinterfaces(int *howmany) {
 	mydevs = (struct interface_info *) realloc(mydevs, sizeof(struct interface_info) * ii_capacity);
 	assert(mydevs);
       }
-#if HAVE_SOCKADDR_SA_LEN
-      /* len = MAX(sizeof(struct sockaddr), ifr->ifr_addr.sa_len);*/
-      len = ifr->ifr_addr.sa_len + sizeof(ifr->ifr_name);
-#endif 
       mydevs[numifaces].devname[0] = mydevs[numifaces].devfullname[0] = '\0';
     }
     free(buf);
@@ -2246,7 +2248,7 @@ struct interface_info *getinterfaces(int *howmany) {
   return mydevs;
 }
 #endif
-
+ 
 
 struct dnet_collector_route_nfo {
   struct sys_route *routes;
