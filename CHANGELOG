@@ -17,6 +17,9 @@ o Added the --spoof_mac option, which asks Nmap to use the given MAC
   "Apple", "0", "01:02:03:04:05:06", "deadbeefcafe", "0020F2", and
   "Cisco".
 
+o Fixed a but that would cause Nmap to ARP for a gateway MAC address
+  even when it was already in the system ARP cache.
+
 o Fixed a problem where Nmap compilation would use header files from
   the libpcap included with Nmap even when it was linking to a system
   libpcap.  Thanks to Solar Designer (solar(a)openwall.com) and Okan

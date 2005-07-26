@@ -1,4 +1,4 @@
-export NMAP_VERSION = 3.83.SOC3
+export NMAP_VERSION = 3.83.DC13
 NMAP_NAME= nmap
 NMAP_URL= http://www.insecure.org/nmap/
 NMAP_PLATFORM=@host@

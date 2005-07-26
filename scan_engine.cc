@@ -1930,7 +1930,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 
   if (USI->ethsd) {
     memcpy(eth.srcmac, hss->target->SrcMACAddress(), 6);
-    memcpy(eth.dstmac, hss->target->MACAddress(), 6);
+    memcpy(eth.dstmac, hss->target->NextHopMACAddress(), 6);
     eth.ethsd = USI->ethsd;
     eth.devname[0] = '\0';
     ethptr = &eth;
