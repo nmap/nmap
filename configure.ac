@@ -376,7 +376,7 @@ if test $have_libpcap = yes; then
 else
   if test "${LIBPCAP_INC+set}" = "set"; then
     LDFLAGS="-L$libpcapdir $_ldflags"
-    CXXFLAGS="$_cflags -I$libpcapdir"
+    CXXFLAGS="$_cflags -I$LIBPCAP_INC"
   else
     LDFLAGS="-L$libpcapdir $LDFLAGS"
     CXXFLAGS="$CXXFLAGS -I$libpcapdir"
