@@ -221,3 +221,26 @@ const char *MACPrefix2Corp(const u8 *prefix) {
   ent = findMACEntry(MacCharPrefix2Key(prefix));
   return (ent)? ent->vendor : NULL;
 }
+
+/* Takes a string and looks through the table for a vendor name which
+   contains that string.  Sets the first three bytes in mac_data and
+   returns true for the first matching entry found.  If no entries
+   match, leaves mac_data untouched and returns false.  Note that this
+   is not particularly efficient and so should be rewriteen if it is
+   called often */
+bool MACCorp2Prefix(const char *vendorstr, u8 *mac_data) {
+  if (!vendorstr) fatal("%s: vendorstr is NULL", __FUNCTION__);
+  if (!mac_data) fatal("%s: mac_data is NULL", __FUNCTION__);
+  if (!initialized) InitializeTable();
+
+  for(int i = 0; i < MacTable.table_capacity; i++ ) {
+    if (MacTable.table[i])
+      if (strcasestr(MacTable.table[i]->vendor, vendorstr)) {
+	mac_data[0] = MacTable.table[i]->prefix >> 16;
+	mac_data[1] = (MacTable.table[i]->prefix >> 8) & 0xFF;
+	mac_data[2] = MacTable.table[i]->prefix & 0xFF;
+	return true;
+      }
+  }
+  return false;
+}

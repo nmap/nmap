@@ -106,6 +106,7 @@
 #include "idle_scan.h"
 #include "timing.h"
 #include "NmapOps.h"
+#include "MACLookup.h"
 
 using namespace std;
 
@@ -233,6 +234,7 @@ int nmap_main(int argc, char *argv[]) {
 				source addresses? */
   unsigned int ideal_scan_group_sz = 0;
   char hostname[MAXHOSTNAMELEN + 1] = "";
+  const char *spoofmac = NULL;
   time_t timep;
   char mytime[128];
   struct sockaddr_storage ss;
@@ -288,6 +290,7 @@ int nmap_main(int argc, char *argv[]) {
       {"mtu", required_argument, 0, 0},
       {"append_output", no_argument, 0, 0},
       {"noninteractive", no_argument, 0, 0},
+      {"spoof_mac", required_argument, 0, 0},
       {"ttl", required_argument, 0, 0}, /* Time to live */
       {"allports", no_argument, 0, 0},
 #ifdef WIN32
@@ -409,6 +412,10 @@ int nmap_main(int argc, char *argv[]) {
 	o.append_output = 1;
       } else if (strcmp(long_options[option_index].name, "noninteractive") == 0) {
 	/* Do nothing */
+      } else if (strcmp(long_options[option_index].name, "spoof_mac") == 0) {
+	/* I need to deal with this later, once I'm sure that I have output
+	   files set up, --datadir, etc. */
+	spoofmac = optarg;
       } else if (strcmp(long_options[option_index].name, "allports") == 0) {
         o.override_excludeports = 1;
       } else if (strcmp(long_options[option_index].name, "scan_delay") == 0) {
@@ -824,6 +831,53 @@ int nmap_main(int argc, char *argv[]) {
 
   if ((o.pingscan || o.listscan) && ports) {
     fatal("You cannot use -F (fast scan) or -p (explicit port selection) with PING scan or LIST scan");
+  }
+
+  if (spoofmac) {
+    u8 mac_data[6];
+    int pos = 0; /* Next index of mac_data to fill in */
+    char tmphex[3];
+    /* A zero means set it all randomly.  Anything that is all digits
+       or colons is treated as a prefix, with remaining characters for
+       the 6-byte MAC (if any) chosen randomly.  Otherwise, it is
+       treated as a vendor string for lookup in nmap-mac-prefixes */
+    if (strcmp(spoofmac, "0") == 0) {
+      pos = 0;
+    } else {
+      const char *p = spoofmac;
+      while(*p) { 
+	if (*p == ':') p++;
+	if (isxdigit(*p) && isxdigit(*(p+1))) {
+	  if (pos >= 6) fatal("Bogus --spoof_mac value encountered (%s) -- only up to 6 bytes permitted", spoofmac);
+	  tmphex[0] = *p; tmphex[1] = *(p+1); tmphex[2] = '\0';
+	  mac_data[pos] = (u8) strtol(tmphex, NULL, 16);
+	  pos++;
+	  p += 2;
+	} else break;
+      }
+      if (*p) {
+	/* Failed to parse it as a MAC prefix -- treating as a vendor substring instead */
+	if (!MACCorp2Prefix(spoofmac, mac_data))
+	  fatal("Could not parse as a prefix nor find as a vendor substring the given --spoof_mac argument: %s.  If you are giving hex digits, there must be an even number of them.", spoofmac);
+	pos = 3;
+      }
+    }
+    if (pos < 6) {
+      get_random_bytes(mac_data + pos, 6 - pos);
+    }
+    /* Got the new MAC! */
+    const char *vend = MACPrefix2Corp(mac_data);
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, 
+	      "Spoofing MAC address %02X:%02X:%02X:%02X:%02X:%02X (%s)\n",
+	      mac_data[0], mac_data[1], mac_data[2], mac_data[3], mac_data[4],
+	      mac_data[5], vend? vend : "No registered vendor");
+    o.setSpoofMACAddress(mac_data);
+
+    /* If they want to spoof the MAC address, we should at least make
+       some effort to actually send raw ethernet frames rather than IP
+       packets (which would use the real IP */
+    if (o.sendpref != PACKET_SEND_IP_STRONG)
+      o.sendpref = PACKET_SEND_ETH_STRONG;
   }
 
   if (!ports) {

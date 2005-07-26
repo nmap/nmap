@@ -2,6 +2,21 @@
 
 UNRELEASED
 
+o Added the --spoof_mac option, which asks Nmap to use the given MAC
+  address for all of the raw ethernet frames it sends.  The MAC given
+  can take several formats.  If it is simply the string "0", Nmap
+  chooses a completely random MAC for the session.  If the given
+  string is an even number of hex digits (with the pairs optionally
+  separated by a colon), Nmap will use those as the MAC.  If less than
+  12 hex digits are provided, Nmap fills in the remainder of the 6
+  bytes with random values.  If the argument isn't a 0 or hex string,
+  Nmap looks through the nmap-mac-prefixes to find a vendor name
+  containing the given string (it is case insensitive).  If a match is
+  found, Nmap uses the vendor's OUI (3-byte prefix) and fills out the
+  remaining 3 bytes randomly.  Valid --spoof_mac argument examples are
+  "Apple", "0", "01:02:03:04:05:06", "deadbeefcafe", "0020F2", and
+  "Cisco".
+
 o Fixed a problem where Nmap compilation would use header files from
   the libpcap included with Nmap even when it was linking to a system
   libpcap.  Thanks to Solar Designer (solar(a)openwall.com) and Okan

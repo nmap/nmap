@@ -242,6 +242,7 @@ void NmapOps::Initialize() {
 #endif
   if (xsl_stylesheet) free(xsl_stylesheet);
   xsl_stylesheet = strdup(tmpxsl);
+  spoof_mac_set = false;
 }
 
 bool NmapOps::TCPScan() {
@@ -269,7 +270,7 @@ bool NmapOps::RawScan() {
 void NmapOps::ValidateOptions() {
 
   if (pingtype == PINGTYPE_UNKNOWN) {
-    if (isr00t && af() == AF_INET) pingtype = PINGTYPE_TCP|PINGTYPE_TCP_USE_ACK|PINGTYPE_ICMP_PING;
+    if (isr00t && af() == AF_INET) pingtype = DEFAULT_PING_TYPES;
     else pingtype = PINGTYPE_TCP; // if nonr00t or IPv6
     num_ping_ackprobes = 1;
     ping_ackprobes[0] = DEFAULT_TCP_PROBE_PORT;
@@ -479,4 +480,9 @@ void NmapOps::setMaxHostGroupSz(unsigned int sz) {
 void NmapOps::setXSLStyleSheet(char *xslname) {
   if (xsl_stylesheet) free(xsl_stylesheet);
   xsl_stylesheet = xslname? strdup(xslname) : NULL;
+}
+
+void NmapOps::setSpoofMACAddress(u8 *mac_data) {
+  memcpy(spoof_mac, mac_data, 6);
+  spoof_mac_set = true;
 }

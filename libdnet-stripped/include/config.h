@@ -2,7 +2,7 @@
 /* include/config.h.in.  Generated automatically from configure.in by autoheader.  */
 
 /* Define if arpreq struct has arp_dev. */
-/* #undef HAVE_ARPREQ_ARP_DEV */
+#define HAVE_ARPREQ_ARP_DEV 1
 
 /* Define if you have the Berkeley Packet Filter. */
 /* #undef HAVE_BSD_BPF */
@@ -11,7 +11,7 @@
 #define HAVE_DLFCN_H 1
 
 /* Define if you have the `err' function. */
-/* #undef HAVE_ERR */
+#define HAVE_ERR 1
 
 /* Define if you have the <fcntl.h> header file. */
 #define HAVE_FCNTL_H 1
@@ -44,13 +44,13 @@
 /* #undef HAVE_LIBNM */
 
 /* Define if you have the `nsl' library (-lnsl). */
-#define HAVE_LIBNSL 1
+/* #undef HAVE_LIBNSL */
 
 /* Define if you have the `resolv' library (-lresolv). */
 /* #undef HAVE_LIBRESOLV */
 
 /* Define if you have the `socket' library (-lsocket). */
-#define HAVE_LIBSOCKET 1
+/* #undef HAVE_LIBSOCKET */
 
 /* Define if you have the `str' library (-lstr). */
 /* #undef HAVE_LIBSTR */
@@ -59,7 +59,7 @@
 /* #undef HAVE_LIBWS2_32 */
 
 /* Define if you have the <linux/if_tun.h> header file. */
-/* #undef HAVE_LINUX_IF_TUN_H */
+#define HAVE_LINUX_IF_TUN_H 1
 
 /* Define if you have the <linux/ip_fwchains.h> header file. */
 /* #undef HAVE_LINUX_IP_FWCHAINS_H */
@@ -69,19 +69,19 @@
 
 /* Define if you have the <linux/netfilter_ipv4/ipchains_core.h> header file.
    */
-/* #undef HAVE_LINUX_NETFILTER_IPV4_IPCHAINS_CORE_H */
+#define HAVE_LINUX_NETFILTER_IPV4_IPCHAINS_CORE_H 1
 
 /* Define if you have Linux PF_PACKET sockets. */
-/* #undef HAVE_LINUX_PF_PACKET */
+#define HAVE_LINUX_PF_PACKET 1
 
 /* Define if you have the Linux /proc filesystem. */
-/* #undef HAVE_LINUX_PROCFS */
+#define HAVE_LINUX_PROCFS 1
 
 /* Define if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
 
 /* Define if you have the <netinet/in_var.h> header file. */
-#define HAVE_NETINET_IN_VAR_H 1
+/* #undef HAVE_NETINET_IN_VAR_H */
 
 /* Define if you have the <netinet/ip_compat.h> header file. */
 /* #undef HAVE_NETINET_IP_COMPAT_H */
@@ -96,13 +96,13 @@
 /* #undef HAVE_NETINET_IP_FW_H */
 
 /* Define if you have the <net/bpf.h> header file. */
-#define HAVE_NET_BPF_H 1
+/* #undef HAVE_NET_BPF_H */
 
 /* Define if you have the <net/if_arp.h> header file. */
 #define HAVE_NET_IF_ARP_H 1
 
 /* Define if you have the <net/if_dl.h> header file. */
-#define HAVE_NET_IF_DL_H 1
+/* #undef HAVE_NET_IF_DL_H */
 
 /* Define if you have the <net/if.h> header file. */
 #define HAVE_NET_IF_H 1
@@ -129,13 +129,13 @@
 #define HAVE_NET_ROUTE_H 1
 
 /* Define if you have cooked raw IP sockets. */
-#define HAVE_RAWIP_COOKED 1
+/* #undef HAVE_RAWIP_COOKED */
 
 /* Define if raw IP sockets require host byte ordering for ip_off, ip_len. */
 /* #undef HAVE_RAWIP_HOST_OFFLEN */
 
 /* Define if <net/route.h> has rt_msghdr struct. */
-#define HAVE_ROUTE_RT_MSGHDR 1
+/* #undef HAVE_ROUTE_RT_MSGHDR */
 
 /* Define if <netinet/in.h> has sockaddr_in6 struct. */
 #define HAVE_SOCKADDR_IN6 1
@@ -144,13 +144,13 @@
 /* #undef HAVE_SOCKADDR_SA_LEN */
 
 /* Define if you have the <stdint.h> header file. */
-/* #undef HAVE_STDINT_H */
+#define HAVE_STDINT_H 1
 
 /* Define if you have the <stdlib.h> header file. */
 #define HAVE_STDLIB_H 1
 
 /* Define if you have SNMP MIB2 STREAMS. */
-#define HAVE_STREAMS_MIB2 1
+/* #undef HAVE_STREAMS_MIB2 */
 
 /* Define if you have route(7) STREAMS. */
 /* #undef HAVE_STREAMS_ROUTE */
@@ -162,19 +162,19 @@
 #define HAVE_STRING_H 1
 
 /* Define if you have the `strlcat' function. */
-#define HAVE_STRLCAT 1
+/* #undef HAVE_STRLCAT */
 
 /* Define if you have the `strlcpy' function. */
-#define HAVE_STRLCPY 1
+/* #undef HAVE_STRLCPY */
 
 /* Define if you have the <stropts.h> header file. */
 #define HAVE_STROPTS_H 1
 
 /* Define if you have the `strsep' function. */
-/* #undef HAVE_STRSEP */
+#define HAVE_STRSEP 1
 
 /* Define if you have the <sys/bufmod.h> header file. */
-#define HAVE_SYS_BUFMOD_H 1
+/* #undef HAVE_SYS_BUFMOD_H */
 
 /* Define if you have the <sys/dlpihdr.h> header file. */
 /* #undef HAVE_SYS_DLPIHDR_H */
@@ -183,7 +183,7 @@
 /* #undef HAVE_SYS_DLPI_EXT_H */
 
 /* Define if you have the <sys/dlpi.h> header file. */
-#define HAVE_SYS_DLPI_H 1
+/* #undef HAVE_SYS_DLPI_H */
 
 /* Define if you have the <sys/ioctl.h> header file. */
 #define HAVE_SYS_IOCTL_H 1
@@ -198,13 +198,13 @@
 #define HAVE_SYS_SOCKET_H 1
 
 /* Define if you have the <sys/sockio.h> header file. */
-#define HAVE_SYS_SOCKIO_H 1
+/* #undef HAVE_SYS_SOCKIO_H */
 
 /* Define if you have the <sys/stat.h> header file. */
 #define HAVE_SYS_STAT_H 1
 
 /* Define if you have the <sys/sysctl.h> header file. */
-/* #undef HAVE_SYS_SYSCTL_H */
+#define HAVE_SYS_SYSCTL_H 1
 
 /* Define if you have the <sys/time.h> header file. */
 #define HAVE_SYS_TIME_H 1

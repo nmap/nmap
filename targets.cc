@@ -356,7 +356,9 @@ do {
 	  }
 	  hs->hostbatch[hidx]->setIfType(rnfo.ii.device_type);
 	  if (rnfo.ii.device_type == devt_ethernet) {
-	    hs->hostbatch[hidx]->setSrcMACAddress(rnfo.ii.mac);
+	    if (o.spoofMACAddress())
+	      hs->hostbatch[hidx]->setSrcMACAddress(o.spoofMACAddress());
+	    else hs->hostbatch[hidx]->setSrcMACAddress(rnfo.ii.mac);
 	  }
 	  hs->hostbatch[hidx]->setSourceSockAddr(&rnfo.srcaddr, sizeof(rnfo.srcaddr));
 	  if (hidx == 0) /* Because later ones can have different src addy and be cut off group */
@@ -430,8 +432,11 @@ if (hs->randomize) {
      initialize_timeout_info(&hs->hostbatch[i]->to);
      hs->hostbatch[i]->flags |= HOST_UP; /*hostbatch[i].up = 1;*/
    }
- } else if (!arpping_done) 
-   massping(hs->hostbatch, hs->current_batch_sz, ports, *pingtype);
+ } else if (!arpping_done)
+   if (*pingtype & PINGTYPE_ARP) /* A host that we can't arp scan ... maybe localhost */
+     massping(hs->hostbatch, hs->current_batch_sz, ports, DEFAULT_PING_TYPES);
+   else
+     massping(hs->hostbatch, hs->current_batch_sz, ports, *pingtype);
  
  return hs->hostbatch[hs->next_batch_no++];
 }

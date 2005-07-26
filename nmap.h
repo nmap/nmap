@@ -364,6 +364,7 @@ void *realloc();
 #define PINGTYPE_UDP  512
 #define PINGTYPE_ARP 1024
 
+#define DEFAULT_PING_TYPES PINGTYPE_TCP|PINGTYPE_TCP_USE_ACK|PINGTYPE_ICMP_PING
 /* TCP/IP ISN sequence prediction classes */
 #define SEQ_UNKNOWN 0
 #define SEQ_64K 1

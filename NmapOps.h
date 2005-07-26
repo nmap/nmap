@@ -220,6 +220,11 @@ class NmapOps {
      should be skipped */
   char *XSLStyleSheet() { return xsl_stylesheet; }
 
+  /* Sets the spoofed MAC address */
+  void setSpoofMACAddress(u8 *mac_data);
+  /* Gets the spoofed MAC address, but returns NULL if it hasn't been set */
+  const u8 *spoofMACAddress() { return spoof_mac_set? spoof_mac : NULL; }
+
   int max_ips_to_scan; // Used for Random input (-iR) to specify how 
                        // many IPs to try before stopping. 0 means unlimited.
   int extra_payload_length; /* These two are for --data_length op */
@@ -290,5 +295,7 @@ class NmapOps {
   bool pTrace; // Whether packet tracing has been enabled
   bool vTrace; // Whether version tracing has been enabled
   char *xsl_stylesheet;
+  u8 spoof_mac[6];
+  bool spoof_mac_set;
 };
   
