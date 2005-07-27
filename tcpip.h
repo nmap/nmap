@@ -248,16 +248,6 @@ typedef enum { devt_ethernet, devt_loopback, devt_p2p, devt_other  } devtype;
 #define TCPIP_DEBUGGING 0
 #endif
 
-#ifndef BSDFIX
-#if FREEBSD || BSDI || NETBSD || DEC
-#define BSDFIX(x) x
-#define BSDUFIX(x) x
-#else
-#define BSDFIX(x) htons(x)
-#define BSDUFIX(x) ntohs(x)
-#endif
-#endif
-
 /* Explicit Congestion Notification (rfc 2481/3168) */
 #ifndef TH_ECE
 #define TH_ECE        0x40

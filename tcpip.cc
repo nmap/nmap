@@ -968,8 +968,11 @@ int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetl
      must deal with it here rather than when building the packet,
      because they should be in NBO when I'm sending over raw
      ethernet */
-  ip->ip_len = BSDFIX(ip->ip_len);
-  ip->ip_off = BSDFIX(ip->ip_off);
+#if FREEBSD || BSDI || NETBSD || DEC
+  ip->ip_len = ntohs(ip->ip_len);
+  ip->ip_off = ntohs(ip->ip_off);
+#endif
+
   res = Sendto("send_ip_packet", sd, packet, packetlen, 0,
 	       (struct sockaddr *)&sock,  (int)sizeof(struct sockaddr_in));
   return res;
@@ -2707,7 +2710,8 @@ do {
     error("sendto in %s: sendto(%d, packet, %d, 0, %s, %d) => %s",
 	  functionname, sd, len, inet_ntoa(sin->sin_addr), tolen,
 	  strerror(err));
-    if (retries > 2 || err == EPERM || err == EACCES || err == EADDRNOTAVAIL)
+    if (retries > 2 || err == EPERM || err == EACCES || err == EADDRNOTAVAIL
+	|| err == EINVAL)
       return -1;
     sleeptime = 15 * (1 << (2 * retries));
     error("Sleeping %d seconds then retrying", sleeptime);

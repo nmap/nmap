@@ -395,16 +395,6 @@ void *realloc();
 #define MAXHOSTNAMELEN 64
 #endif
 
-#ifndef BSDFIX
-#if FREEBSD || BSDI || NETBSD
-#define BSDFIX(x) x
-#define BSDUFIX(x) x
-#else
-#define BSDFIX(x) htons(x)
-#define BSDUFIX(x) ntohs(x)
-#endif
-#endif /* BSDFIX */
-
 #ifndef recvfrom6_t
 #  define recvfrom6_t int
 #endif
