@@ -2,53 +2,6 @@
 
 UNRELEASED
 
-o Added the --spoof_mac option, which asks Nmap to use the given MAC
-  address for all of the raw ethernet frames it sends.  The MAC given
-  can take several formats.  If it is simply the string "0", Nmap
-  chooses a completely random MAC for the session.  If the given
-  string is an even number of hex digits (with the pairs optionally
-  separated by a colon), Nmap will use those as the MAC.  If less than
-  12 hex digits are provided, Nmap fills in the remainder of the 6
-  bytes with random values.  If the argument isn't a 0 or hex string,
-  Nmap looks through the nmap-mac-prefixes to find a vendor name
-  containing the given string (it is case insensitive).  If a match is
-  found, Nmap uses the vendor's OUI (3-byte prefix) and fills out the
-  remaining 3 bytes randomly.  Valid --spoof_mac argument examples are
-  "Apple", "0", "01:02:03:04:05:06", "deadbeefcafe", "0020F2", and
-  "Cisco".
-
-o Fixed a but that would cause Nmap to ARP for a gateway MAC address
-  even when it was already in the system ARP cache.
-
-o Fixed a problem where Nmap compilation would use header files from
-  the libpcap included with Nmap even when it was linking to a system
-  libpcap.  Thanks to Solar Designer (solar(a)openwall.com) and Okan
-  Demirmen (okan(a)demirmen.com) for reporting the problem.
-
-o Added configure option --with-libpcap=included to tell Nmap to use
-  the version of libpcap it ships with rather than any that may already be
-  installed on the system.  You can still use --with-libpcap=[dir] to
-  specify that a system libpcap be installed rather than the shipped
-  one.  By default, Nmap looks at both and decides which one is likely
-  to work best.  If you are having problems on Solaris, try
-  --with-libpcap=included .
-
-o Changed the --no-stylesheet option to --no_stylesheet to be
-  consistant with all of the other Nmap options.  Though I'm starting to
-  like hyphens a bit better than underscores and may change all of the
-  options to use hyphens instad at some point.
-
-o Applied a massive OS fingerprint update from Zhao Lei
-  (zhaolei(a)gmail.com).  About 350 fingerprints were added, and many
-  more were updated.  Notable additions include Mac OS X 10.4 (Tiger),
-  OpenBSD 3.7, FreeBSD 5.4, Windows Server 2003 SP1, Sony AIBO (along
-  with a new "robotic pet" device type category), the latest Linux 2.6
-  kernels Cisco routers with IOS 12.4, a ton of VoIP devices, Tru64
-  UNIX 5.1B, new Fortinet firewalls, AIX 5.3, NetBSD 2.0, Nokia IPSO
-  3.8.X, and Solaris 10.  Of course there are also tons of new
-  broadband routers, printers, WAPs and pretty much any other device
-  you can coax an ethernet cable (or wireless card) into!
-
 o Added the ability for Nmap to send and properly route raw ethernet
   packets cointaining IP datagrams rather than always sending the
   packets via raw sockets. This is particularly useful for Windows,
@@ -68,6 +21,59 @@ o Added ARP ping (-PR). Nmap can now send raw ethernet ARP requests to
   unless --send_ip was specified.  Example usage: nmap -sP -PR
   192.168.0.0/16 .  This is not yet supported on Windows.
 
+o Added the --spoof_mac option, which asks Nmap to use the given MAC
+  address for all of the raw ethernet frames it sends.  The MAC given
+  can take several formats.  If it is simply the string "0", Nmap
+  chooses a completely random MAC for the session.  If the given
+  string is an even number of hex digits (with the pairs optionally
+  separated by a colon), Nmap will use those as the MAC.  If less than
+  12 hex digits are provided, Nmap fills in the remainder of the 6
+  bytes with random values.  If the argument isn't a 0 or hex string,
+  Nmap looks through the nmap-mac-prefixes to find a vendor name
+  containing the given string (it is case insensitive).  If a match is
+  found, Nmap uses the vendor's OUI (3-byte prefix) and fills out the
+  remaining 3 bytes randomly.  Valid --spoof_mac argument examples are
+  "Apple", "0", "01:02:03:04:05:06", "deadbeefcafe", "0020F2", and
+  "Cisco".
+
+o Applied a massive OS fingerprint update from Zhao Lei
+  (zhaolei(a)gmail.com).  About 350 fingerprints were added, and many
+  more were updated.  Notable additions include Mac OS X 10.4 (Tiger),
+  OpenBSD 3.7, FreeBSD 5.4, Windows Server 2003 SP1, Sony AIBO (along
+  with a new "robotic pet" device type category), the latest Linux 2.6
+  kernels Cisco routers with IOS 12.4, a ton of VoIP devices, Tru64
+  UNIX 5.1B, new Fortinet firewalls, AIX 5.3, NetBSD 2.0, Nokia IPSO
+  3.8.X, and Solaris 10.  Of course there are also tons of new
+  broadband routers, printers, WAPs and pretty much any other device
+  you can coax an ethernet cable (or wireless card) into!
+
+o Integrated hundreds of nmap-service-probes signatures from Doug
+  Hoyte (doug(a)hcsw.org)
+
+o Added a distcc probes and a bunch of smtp matches from Dirk Mueller
+  (mueller(a)kde.org) to nmap-service-probes.  Also added AFS version
+  probe and matches from Lionel Cons (lionel.cons(a)cern.ch).  And
+  even more probes and matches from Martin Macok
+  (martin.macok(a)underground.cz)
+
+o Fixed a problem where Nmap compilation would use header files from
+  the libpcap included with Nmap even when it was linking to a system
+  libpcap.  Thanks to Solar Designer (solar(a)openwall.com) and Okan
+  Demirmen (okan(a)demirmen.com) for reporting the problem.
+
+o Added configure option --with-libpcap=included to tell Nmap to use
+  the version of libpcap it ships with rather than any that may already be
+  installed on the system.  You can still use --with-libpcap=[dir] to
+  specify that a system libpcap be installed rather than the shipped
+  one.  By default, Nmap looks at both and decides which one is likely
+  to work best.  If you are having problems on Solaris, try
+  --with-libpcap=included .
+
+o Changed the --no-stylesheet option to --no_stylesheet to be
+  consistant with all of the other Nmap options.  Though I'm starting to
+  like hyphens a bit better than underscores and may change all of the
+  options to use hyphens instad at some point.
+
 o Added "Exclude" directive to nmap-service-probes grammar which
   causes version detection to skip listed ports.  This is helpful for
   ports such as 9100.  Some printers simply print any data sent to
@@ -75,20 +81,32 @@ o Added "Exclude" directive to nmap-service-probes grammar which
   probes, etc.  If you really want to scan all ports, specify
   --allports.  This patch came from Doug Hoyte (doug(a)hcsw.org).
 
+o Added a stripped-down version of Dug Song's excellent libdnet
+  networking library (v. 1.10).  This helps with the new raw ethernet
+  features.  I made various changes, which are described in
+  libdnet-stripped/NMAP_MODIFICATIONS
+
 o Chagned the interesting ports array from a 65K-member array of
   pointers into an STL list.  This noticeable reduces memory usage in
   some cases, and should also give a slight runtime performance
   boost. This patch was written by Paul Tarjan (ptarjan(a)gmail.com).
 
-o Integrated a ton of nmap-service-probes fingerprints from Doug
-  Hoyte (doug(a)hcsw.org)
+o Removed the BSDFIX/BSDUFIX macros.  The underlying bug in
+  FreeBSD/NetBSD is still there though.  When an IP packet is sent
+  through a raw socket, these platforms require the total length and
+  fragmentation offset fields of an IP packet to be in host byte order
+  rather than network byte order, even though all the other fields
+  must be in NBO.  I believe that OpenBSD fixed this a while back.
+  Other platforms, such as Linux, Solaris, Mac OS X, and Windows take
+  all of the fields in network byte order.  While I removed the macro,
+  I still do the munging where required so that Nmap still works on
+  FreeBSD.
 
 o Integrated many nmap-service-probes changes from Bo Jiang
   (jiangbo(a)brandeis.edu)
 
-o Added a stripped-down version of Dug Song's excellent libdnet
-  networking library (v. 1.10).  This allows Nmap to send raw ethernet
-  frames for the new ARP ping feature.
+o Added some new RPC services to nmap-rpc thanks to a patch from
+  vlad902 (vlad902(a)gmail.com).
 
 o The OS fingerprint is now provided in XML output if debugging is
   enabled (-d) or verbosity is at least 2 (-v -v).  This patch was
@@ -98,12 +116,11 @@ o Fixed the way tcp connect scan (-sT) respons to ICMP network
   unreachable responses (patch by Richard Moore
   (rich(a)westpoint.ltd.uk).
 
-o Changed routethrough() to use libdnet rather than all of my custom
-  code.
-
 o Fixed a crash problem related to non-portable varargs (vsnprintf)
   usage. Reports of this crash came from Alan William Somers
   (somers(a)its.caltech.edu) and Christophe (chris.branch(a)gmx.de).
+  This patch was prevalent on Linux boxes running an Opteron/Athlon64
+  CPU in 64-bit mode.
 
 o Nmap distribution signing has changed. Release files are now signed
   with a new Nmap Project GPG key (KeyID 6B9355D0).  Fyodor has also
@@ -126,6 +143,11 @@ o Nmap distribution signing has changed. Release files are now signed
 o Update random host scan (-iR) to support the latest IANA-allocated
   ranges, thanks to patch by Chad Loder (cloder(a)loder.us).
 
+o Added 'leet ASCII art to the confugrator!  ARTIST NOTE: If you think
+  the ASCII art sucks, feel free to send me alternatives.  Note that
+  only people compiling the UNIX source code get this. (ASCII artist
+  unknown).
+
 o Updated GNU shtool (a helper program used during 'make install' to
   version 2.0.2, which fixes a predictable temporary filename
   weakness discovered by Eric Raymond.
@@ -142,9 +164,6 @@ o Added new --privileged command-line option and NMAP_PRIVILEGED
   flag or variable set, Nmap bails on UNIX if geteuid() is
   nonzero.
 
-o Added some new RPC services to nmap-rpc thanks to a patch from
-  vlad902 (vlad902(a)gmail.com).
-
 o Fixed Nmap compilation on Solaris x86 thanks to a patch from Simon
   Burr (simes(a)bpfh.net).
 
@@ -155,17 +174,6 @@ o ultra_scan() now sets pseudo-random ACK values (rather than 0) for
 o Added a bunch of RPC numbers from nmap-rpc maintainer Eilon Gishri
   (eilon(a)aristo.tau.ac.il)
 
-o Added 'leet ASCII art to the confugrator!  ARTIST NOTE: If you think
-  the ASCII art sucks, feel free to send me alternatives.  Note that
-  only people compiling the UNIX source code get this. (ASCII artist
-  unknown).
-
-o Added a distcc probes and a bunch of smtp matches from Dirk Mueller
-  (mueller(a)kde.org) to nmap-service-probes.  Also added AFS version
-  probe and matches from Lionel Cons (lionel.cons(a)cern.ch).  And
-  even more probes and matches from Martin Macok
-  (martin.macok(a)underground.cz)
-
 o Updated the Nmap version number, description, and similar fields
   that MS Visual Studio places in the binary.  This was done by editing
   mswin32/nmap.rc as suggested by Chris Paget (chrisp@ngssoftware.com)
@@ -174,17 +182,17 @@ o Fixed Nmap compilation on DragonFly BSD (and perhaps some other
   systems) by applying a short patch by Joerg Sonnenberger which omits
   the declaration of errno if it is a #define.
 
-o Increased the buffer size allocated for fingerprints to prevent Nmap
-  from running out and quitting (error message: "Assertion
-  `servicefpalloc - servicefplen > 8' failed".  Thanks to Mike Hatz
-  (mhatz(a)blackcat.com) for the report. [ Actually this was done in a
-  previous version, but I forgot which one ]
-
 o Fixed an integer overflow that prevented Nmap from scanning
   2,147,483,648 hosts in one expression (e.g. 0.0.0.0/1).  Problem
   noted by Justin Cranford (jcranford(a)n-able.com).  While /1 scans
   are now possible, don't expect them to finish during your bathroom
   break.  No matter how constipated you are.
+
+o Increased the buffer size allocated for fingerprints to prevent Nmap
+  from running out and quitting (error message: "Assertion
+  `servicefpalloc - servicefplen > 8' failed".  Thanks to Mike Hatz
+  (mhatz(a)blackcat.com) for the report. [ Actually this was done in a
+  previous version, but I forgot which one ]
 
 o Changed from CVS to Subversion source control system (which
   rocks!). Neither repository is public (I'm paranoid because both CVS
