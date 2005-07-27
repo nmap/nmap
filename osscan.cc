@@ -1806,7 +1806,7 @@ udp->uh_sum = realcheck;
      readudppacket(packet,1);
    }
 
-   if ((res = send_ip_packet(sd, NULL, packet, ip->ip_len)))
+   if ((res = send_ip_packet(sd, NULL, packet, ntohs(ip->ip_len))) == -1)
    {
      perror("send_ip_packet in send_closedupd_probe");
      return NULL;

@@ -3179,10 +3179,11 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
 
   if (o.verbose) {
     if (USI->gstats->num_hosts_timedout == 0)
-      log_write(LOG_STDOUT, "The %s took %.2fs to scan %lu total ports.\n",
+      log_write(LOG_STDOUT, "The %s took %.2fs to scan %lu total %s.\n",
 		scantype2str(scantype), 
 		TIMEVAL_MSEC_SUBTRACT(USI->now, USI->SPM->begin) / 1000.0, 
-		(unsigned long) USI->gstats->numprobes * Targets.size());
+		(unsigned long) USI->gstats->numprobes * Targets.size(), 
+		(scantype == ARP_SCAN)? "hosts" : "ports");
     else log_write(LOG_STDOUT, "Finished %s in %.2fs, but %d %s timed out.\n", 
 		   scantype2str(scantype), 
 		   TIMEVAL_MSEC_SUBTRACT(USI->now, USI->SPM->begin) / 1000.0,

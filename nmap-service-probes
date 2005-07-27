@@ -2119,16 +2119,16 @@ match domain m|^\x80\xf0\x80\x12\0\x01\0\0\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAA
 Probe TCP LPDString q|\x01default\n|
 ports 515
 match printer m|^\0$| d/printer/
-match printer m|^default: unknown printer\n$| p/Solaris lpd/ d/printer/ o/Solaris/
+match printer m|^default: unknown printer\n$| p/Solaris lpd/ o/Solaris/
 # Redhat Linux 7.3 LPRng-3.8.9
-match printer m|^\x01no connect permissions\n$| p/LPRng/ d/printer/
+match printer m|^\x01no connect permissions\n$| p/LPRng/
 # Microsoft Windows 2000 serverr LPD
-match printer m|^\x01\x01$| p/Microsoft lpd/ d/printer/
+match printer m|^\x01\x01$| p/Microsoft lpd/
 # Blackbox Terminal Server (IOLAN v4.03.00 a CDi)
 # Chase IOLAN terminal server lpd
 # Bay Networks MicroAnnex XL  Comm. Server R10.0
-match printer m|^\x01$| d/printer/
-match printer m|^[-.\w]+: lpsched: unknown printer\n$| p/SGI IRIX lprsrv/ d/printer/ o/IRIX/
+match printer m|^\x01$|
+match printer m|^[-.\w]+: lpsched: unknown printer\n$| p/SGI IRIX lprsrv/ o/IRIX/
 
 # Ldap bind request, version 2, null DN, AUTH_TYPE simple, null password
 ##############################NEXT PROBE##############################

@@ -1,6 +1,6 @@
 # Nmap Changelog ($Id$)
 
-UNRELEASED
+Nmap 3.83DC13
 
 o Added the ability for Nmap to send and properly route raw ethernet
   packets cointaining IP datagrams rather than always sending the
