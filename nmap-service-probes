@@ -116,38 +116,49 @@ match finger m|\r\n {4}Line {5,8}User {6,8}Host\(s\) {13,18}Idle +Location\r\n| 
 match ftp m|^220 ([-/.+\w]+) FTP server \(SecureTransport (\d[-.\w]+)\) ready\.\r\n| p/Tumbleweed SecureTransport ftpd/ h/$1/ v/$2/
 match ftp m|^220 3Com 3CDaemon FTP Server Version (\d[-.\w]+)\r\n| p/3Com 3CDaemon ftpd/ v/$1/
 # GuildFTP 0.999.9 on Windows
-match ftp m|^220-GuildFTPd FTP Server \(c\) 1997-2002\r\n220-Version (\d[-.\w]+)\r\n220 Please enter your name:\r\n| p/Guild ftpd/ v/$1/ o/Windows/
+match ftp m|^220-GuildFTPd FTP Server \(c\) \d\d\d\d(-\d\d\d\d)?\r\n220-Version (\d[-.\w]+)\r\n| p/Guild ftpd/ v/$2/ o/Windows/
+match ftp m|^220-.*\r\n220 Please enter your name:\r\n| p/GuildFTPd/ o/Windows/
 # Medusa Async V1.21 [experimental] on Linux 2.4
 match ftp m|^220 ([-/.+\w]+) FTP server \(Medusa Async V(\d[^\)]+)\) ready\.\r\n| p/Medusa Async ftpd/ h/$1/ v/$2/
 match ftp m|^220 ([-/.+\w]+)\((\d[-.\w]+)\) FTP server \(EPSON ([^\)]+)\) ready\.\r\n| p/Epson printer ftpd/ h/$1/ v/$2/ i/Epson $3/ d/printer/
-match ftp m|^220 ([-/.+\w]+) IBM TCP/IP for OS/2 - FTP Server ver \d+:\d+:\d+ on [A-Z]| p|IBM OS/2 ftpd| h/$1/ o|OS/2|
-match ftp m|^220 ([-/.+\w]+) Lexmark ([-/.+\w]+) FTP Server (\d[-.\w]+) ready\.\r\n| p/Lexmark printer ftpd/ v/$2/ i/Lexmark $3/ h/$1/ d/printer/
+match ftp m|^220 ([-/.+\w]+) IBM TCP/IP for OS/2 - FTP Server [Vv]er \d+:\d+:\d+ on [A-Z]| p|IBM OS/2 ftpd| h/$1/ o|OS/2|
+match ftp m|^220 ([-/.+\w]+) IBM TCP/IP f\xfcr OS/2 - FTP-Server [Vv]er \d+:\d+:\d+ .* bereit\.\r\n| p|IBM OS/2 ftpd| h/$1/ o|OS/2| i/German/
+match ftp m|^220 ([-/.+\w]+) Lexmark ([-/.+\w ]+) FTP Server (\d[-.\w]+) ready\.\r\n| p/Lexmark printer ftpd/ v/$2/ i/Lexmark $3/ h/$1/ d/printer/
+#atch ftp m|^220 LXK14ED59 Lexmark Optra SC 1275 FTP Server ([\d.]+) ready\.\r\n| p/Lexmark Optra SC 1275 ftpd/ v/$1/ d/printer/
 match ftp m|^220 Internet Rex (\d[-.\w ]+) \(([-/.+\w]+)\) FTP server awaiting your command\.\r\n| p/Internet Rex ftpd/ v/$1/ i/$2/
 match ftp m|^220 ([-.+\w]+) FTP server \(Version (\d[-.\w]+)\(([^\)]+)\) [A-Z][a-z][a-z] [A-Z].*200\d\) ready\.\r\n| p/HP-UX ftpd/ h/$1/ v/$2/ i/$3/ o/HP-UX/
 match ftp m|^530 Connection refused, unknown IP address\.\r\n$| p/Microsoft IIS ftpd/ i/IP address rejected/ o/Windows/
 match ftp m|^220 PizzaSwitch FTP server ready\r\n| p/Xylan PizzaSwitch ftpd/
 match ftp m|^220 ([-.+\w]+) IronPort FTP server \(V(\d[-.\w]+)\) ready\.\r\n| p/IronPort mail appliance ftpd/ h/$1/ v/$2/
 match ftp m|^220 WFTPD (\d[-.\w]+) service \(by Texas Imperial Software\) ready for new user\r\n| p/Texas Imperial Software WFTPD/ v/$1/ o/Windows/
+match ftp m|^220.*\r\n220 WFTPD (\d[-.\w]+) service \(by Texas Imperial Software\) ready for new user\r\n|s p/Texas Imperial Software WFTPD/ v/$1/ o/Windows/
 match ftp m|^220 ([-.+\w]+) FTP server \(Version (MICRO-[-.\w:#+ ]+)\) ready\.\r\n| p/Bay Networks MicroAnnex terminal server ftpd/ h/$1/ v/$2/ d/terminal server/
 match ftp m|^220 ([-.+\w]+) FTP server \(Digital UNIX Version (\d[-.\w]+)\) ready\.\r\n| p/Digital UNIX ftpd/ h/$1/ v/$2/ o/Unix/ o/DIGITAL UNIX/
 match ftp m|^220 ([-.+\w]+) FTP server \(Version [\d.]+\+Heimdal (\d[-+.\w ]+)\) ready\.\r\n| p/Heimdal Kerberized ftpd/ h/$1/ v/$2/ o/Unix/
 match ftp m|^500 OOPS: (could not bind listening IPv4 socket)\r\n$| p/vsftpd/ i/broken: $1/ o/Unix/
 match ftp m|^500 00PS: vsftpd: (.*)\r\n| p/vsftpd/ i/broken: $1/ o/Unix/
 match ftp m|^220-QTCP at ([-.\w]+)\r\n220| p|IBM OS/400 FTPd| o|OS/400| h/$1/
-match ftp m|^220-FileZilla Server version (\d[-.\w ]+)\r\n| p/FileZilla ftpd/ v/$1/ o/Windows/
+match ftp m|^220[- ]FileZilla Server version (\d[-.\w ]+)\r\n| p/FileZilla ftpd/ v/$1/ o/Windows/
+match ftp m|^220 ([\w-_.]+) running FileZilla Server version (\d[-.\w ]+)\r\n| p/FileZilla ftpd/ v/$2/ h/$1/ o/Windows/
+match ftp m|^220 FTP Server - FileZilla\r\n| p/FileZilla ftpd/ o/Windows/
+match ftp m|^220-Welcome to ([A-Z]+) FTP Service\.\r\n220 All unauthorized access is logged\.\r\n| p/FileZilla ftpd/ h/$1/ o/Windows/
+match ftp m|^220.*\r\n220[- ]FileZilla Server version (\d[-.\w ]+)\r\n|s p/FileZilla ftpd/ v/$1/ o/Windows/
 # Netgear RP114 switch with integrated ftp server
 # Netgear RP114
 match ftp m|^220 ([-\w]+)? FTP version 1\.0 ready at | p/Netgear broadband router ftpd/ v/1.0/ d/router/
 match ftp m|^220 ([-.\w]+) FTP server \(GNU inetutils (\d[-.\w ]+)\) ready\.\r\n| p/GNU Inetutils FTPd/ v/$2/ h/$1/
-match ftp m|^220 .* \(glftpd (\d[-.0-9a-zA-Z]+)_(\w+)(\+TLS)?\) ready\.\r\n| p/glFtpD/ v/$1/ i/$2/ o/Unix/
+match ftp m|^220 .* \(glftpd (\d[-.0-9a-zA-Z]+)_(\w+)(\+TLS)?\) ready\.\r\n| p/glFTPd/ v/$1/ i/$2/ o/Unix/
+match ftp m|^220 .* \(glFTPd (\d[-.0-9a-zA-Z]+)_(\w+) Linux\+TLS\) ready\.?\r\n| p/glFTPd/ v/$1/ i/$2/ o/Linux/
+match ftp m|^220 .* \(glFTPd (\d[-.0-9a-zA-Z]+) Linux\+TLS\) ready\.\r\n| p/glFTPd/ v/$1/ o/Linux/
 match ftp m|^220 ([-.\w]+) FTP server \(FirstClass v(\d[-.\w]+)\) ready\.\r\n| p/FirstClass FTP server/ h/$1/ v/$2/
 match ftp m|^220 ([-.\w]+) FTP server \(Compaq Tru64 UNIX Version (\d[-.\w]+)\) ready\.\r\n| p/Compaq Tru64 ftp server/ h/$1/ v/$2/ o/Tru64 UNIX/
 match ftp m|^220 AXIS ([-.\w]+) FTP Network Print Server V(\d[-.\w]+) [A-Z][a-z]| p/Axis network print server ftpd/ v/$2/ i/Model $1/ d/print server/
 match ftp m|^220 AXIS ([\d\w]+)V(\d\S+) (.*?) ready\.\n| p/AXIS $1 Webcam/ v/$2/ i/$3/ d/webcam/
 match ftp m|^220 Axis (\d+) Network Camera (\d\S+) (.*?) ready\.\n| p/Axis $1 Webcam/ v/$2/ i/$3/ d/webcam/
+match ftp m|^220 AXIS (\w+) Network Camera (\d\S+) \(.*\) ready\.\r\n| p/Axis $1 Webcam/ v/$2/ d/webcam/
 match ftp m|^220 AXIS (\d+) Video Server (\d\S+) (.*?) ready\.| p/AXIS $1 Video Server/ v/$2/ i/$3/
 match ftp m|^220-Cerberus FTP Server Personal Edition\r\n220-UNREGISTERED\r\n| p/Cerberus FTP Server/ i/Personal Edition; Unregistered/ o/Windows/
-match ftp m|^220-GuildFTPd FTP Server \(c\) 2001\r\n220-Version (\d[-.\w]+)\r\n220 Please enter your name:\r\n| p/GuildFTPd/ v/$1/ o/Windows/
+match ftp m|^220-Welcome to Cerberus FTP Server\r\n220 Created by Grant Averett\r\n| p/Cerberus ftpd/ o/Windows/
 match ftp m|^220 FTP print service:V-(\d[-.\w]+)/Use the network password for the ID if updating\.\r\n| p/Brother printer ftpd/ v/$1/ d/printer/
 match ftp m|^220- APC FTP server ready\.\r\n220 \r\n$| p/APC ftp server/ d/power device/
 match ftp m|^220 ([-\w]+) FTP server \(Version (\d.[.\d]+) ([A-Z][a-z]{2} [A-Z][a-z]{2} [0-9]+ [0-9:]+ .* [21][0-9]+)\) ready\.\r\n| p/HP-UX 10.x ftpd/ h/$1/ v/$2/ o/HP-UX/ i/$3/
@@ -155,16 +166,14 @@ match ftp m|^220 ([-\w]+) FTP server \(Version (\d[-.\w]+) [A-Z][a-z]{2} [A-Z][a
 match ftp m|^220[- ]Roxen FTP server running on Roxen (\d[-.\w]+)/Pike (\d[-.\w]+)\r\n| p/Roxen ftp server/ v/$1/ i/Pike $2/
 # Debian packaged oftpd 0.3.6-51 on Linux 2.6.0-test4 Debian
 match ftp m|^220 Service ready for new user\.\r\n| p/oftpd/ o/Unix/
-# ProFTPd 1.2.5
-match ftp m|^220  Server \(ProFTPD\) \[([-.\w]+)\]\r\n| p/ProFTPd/ h/$1/ o/Unix/
 # Mac OS X Client 10.2.6 built-in ftpd
 match ftp m|^220[ -].*FTP server \(lukemftpd (\d[-. \w]+)\) ready\.\r\n|s p/LukemFTPD/ v/$1/ i/Mac OS X uses lukemftpd derivative/
 match ftp m/^220.*Microsoft FTP Service \(Version (\d[^)]+)/ p/Microsoft ftpd/ v/$1/ o/Windows/
 # This lame version doesn't give a version number
 # Windows 2003
 match ftp m/^220[ -]Microsoft FTP Service\r\n/ p/Microsoft ftpd/ o/Windows/
-match ftp m/^220 Serv-U FTP Server v(\d\S+) for WinSock ready/ p/Serv-U ftpd/ v/$1/ o/Windows/
-match ftp m/^220 Serv-U FTP-Server v(\d\S+) for WinSock ready/ p/Serv-U ftpd/ v/$1/ o/Windows/
+match ftp m/^220[ -]Serv-U FTP[ -]Server v(\d\S+) ... WinSock ...../ p/Serv-U ftpd/ v/$1/ o/Windows/
+match ftp m|^220-Serv-U FTP Server for Winsock\r\n| p/Serv-U ftpd/ o/Windows/
 match ftp m/^220-Sambar FTP Server Version (\d\S+)\x0d\x0a/ p/Sambar ftpd/ v/$1/
 # Sambar server V5.3 on Windows NT
 match ftp m|^220-FTP Server ready\r\n220-Use USER user@host for native FTP proxy\r\n220 Your FTP Session will expire after 300 seconds of inactivity\.\r\n| p/Sambar ftpd/
@@ -173,17 +182,45 @@ match ftp m/^220.*Check Point FireWall-1 Secure FTP server running on/s p/Check 
 match ftp m/^220[- ].*FTP server \(Version (wu-[-.\w]+)/s p/WU-FTPD/ v/$1/ o/Unix/
 match ftp m|^220-\r\n220 ([-.\w]+) FTP server \(Version ([-.+\w()]+)\) ready\.\r\n$| p/WU-FTPD/ h/$1/ v/$2/ o/Unix/
 match ftp m|^220 ([-.\w]+) FTP server \(Version ([-.+\w()]+)\) ready\.\r\n$| p/WU-FTPD/ h/$1/ v/$2/ o/Unix/
+
+# ProFTPd 1.2.5
+match ftp m|^220  Server \(ProFTPD\) \[([-.\w]+)\]\r\n| p/ProFTPd/ h/$1/ o/Unix/
 match ftp m/^220 ProFTPD (\d\S+) Server/ p/ProFTPD/ v/$1/ o/Unix/
+match ftp m/^220 FTP Server \[([\w-_.]+)\]\r\n/ p/ProFTPD/ o/Unix/ h/$1/
+match ftp m|^220 ([\w-_.]+) FTP server ready\r\n| p/ProFTPD/ o/Unix/ h/$1/
 match ftp m/^220.*ProFTP[dD].*Server ready/ p/ProFTPD/ o/Unix/
+match ftp m|^220 ProFTP Server Ready\r\n| p/ProFTPD/ o/Unix/
+match ftp m|^220 Welcome @ my\.ftp\.org\r\n$| p/ProFTPD/ o/Unix/
+match ftp m|^220-.*\r\n220 ProFTPD ([\d.]+) Server|s p/ProFTPD/ v/$1/ o/Unix/
+match ftp m|^220 .* FTP Server \(ProFTPD ([\d.]+) on Red Hat linux ([\d.]+)\) ready\.\r\n| p/ProFTPD/ v/$1/ i/RedHat $2/ o/Linux/
+# Hope these aren't too general -Doug
+match ftp m|^220 ([\w-_.]+) FTP server ready!\r\n| p/ProFTPD/ o/Unix/ h/$1/
+match ftp m|^220 FTP Server ready\.\r\n$| p/ProFTPD/ o/Unix/
+
 match ftp m/^220.*NcFTPd Server / p/NcFTPd/ o/Unix/
 match ftp m/^220.*FTP server \(SunOS 5\.([789])\) ready/ p/Sun Solaris $1 ftpd/ o/Solaris/
 match ftp m/^220.*FTP server \(SunOS (\S+)\) ready/ p/Sun SunOS ftpd/ v/$1/ o/Solaris/
 match ftp m/^220-([-.\w]+) IBM FTP.*(V\d+R\d+)/ p|IBM OS/390 ftpd| h/$1/ v/$2/ o|OS/390|
+match ftp m|^220-IBM FTP, .*\.\r\n220 Connection will close if idle for more than 120 minutes\.\r\n| p|IBM OS/390 ftpd| o|OS/390|
 match ftp m/^220 VxWorks \((\d[^)]+)\) FTP server ready/ p/VxWorks ftpd/ v/$1/ o/VxWorks/
 match ftp m/^220 VxWorks \(VxWorks(\d[^)]+)\) FTP server ready/ p/VxWorks ftpd/ v/$1/ o/VxWorks/
+match ftp m|^220 VxWorks FTP server \(VxWorks ([\d.]+) - Secure NetLinx version \(([\d.]+)\)\) ready\.\r\n| p|AMX NetLinx A/V control system ftpd| v/$2/ i/VxWorks $1/ o/VxWorks/ d/media device/
+match ftp m|^220 ABB Robotics FTP server \(VxWorks ([\d.]+) rev ([\d.]+)\) ready\.\r\n| p/ABB Robotics ftpd/ i/VxWorks $1 rev $2  **A ROBOT**/ o/VxWorks/ d/specialized/
+
+# Pure-ftpd
 match ftp m/^220.*Welcome to .*Pure-?FTPd (\d\S+\s*)/ p/PureFTPd/ v/$1/
 match ftp m/^220.*Welcome to .*Pure-?FTPd[^(]+\r\n/ p/PureFTPd/
-match ftp m/^220.*Bienvenue sur .*Pure-?FTPd (\d[-.\w]+)/ p/PureFTPd/ v/$1/
+match ftp m|^220.*Bienvenue sur .*Pure-?FTPd.*\r\n| p/PureFTPd/ i/French/
+match ftp m/^220.*Bienvenue sur .*Pure-?FTPd (\d[-.\w]+)/ p/PureFTPd/ v/$1/ i/French/
+match ftp m|^220.*Velkommen til .*Pure-?FTPd.*\r\n| p/PureFTPd/ i/Danish/
+match ftp m|^220.*Bem-vindo.*Pure-?FTPd.*\r\n| p/PureFTPd/ i/Portugese/
+# pure-ftpd 1.0.12 on Linux 2.4
+match ftp m|^220[- ]FTP server ready\.\r\n.*214 Pure-FTPd - http://pureftpd\.org/?\r\n|s p/Pure-FTPd/
+# OpenBSD 3.4 beta running Pure-FTPd 1.0.16 with SSL/TLS
+match ftp m|^220---------- Welcome to Pure-FTPd \[privsep\] \[TLS\] ----------\r\n220-You are user number| p/Pure-FTPd/ i|with SSL/TLS|
+match ftp m|^220---------- .* Pure-FTPd ----------\r\n220-| p/Pure-FTPd/
+match ftp m|^220-.*214 Pure-FTPd - http://pureftpd\.org/\r\n|s p/Pure-FTPd/
+
 match ftp m/^220 ready, dude \(vsFTPd (\d[0-9.]+): beat me, break me\)\r\n/ p/vsFTPd/ v/$1/ o/Unix/
 match ftp m/^220 \(vsFTPd ([-.\w]+)\)\r\n$/ p/vsFTPd/ v/$1/ o/Unix/
 match ftp m/^220 TYPSoft FTP Server (\d\S+) ready\.\.\.\r\n/ p/TYPSoft ftpd/ v/$1/ o/Windows/
@@ -196,15 +233,13 @@ match ftp m|^220 ([-.\w]+) FTP server \(Version (\S+)/OpenBSD/Linux-ftpd-([-.\w]
 match ftp m/^220 Interscan Version ([-\w.]+)/i p/Interscan Viruswall ftpd/ v/$1/
 match ftp m|^220 InterScan FTP VirusWall NT (\d[-.\w]+) \(([-.\w]+) Mode\), Virus scan (\w+)\r\n$| p/Interscan VirusWall NT/ v/$1/ i/Virus scan $3; $2 mode/ o/Windows/
 match ftp m|^220 ([-.\w]+) FTP server \(Version ([-.\w]+)/OpenBSD\) ready\.\r\n$| p/OpenBSD ftpd/ h/$1/ v/$2/ o/OpenBSD/
-match ftp m|^220-Welcome to ([A-Z]+) FTP Service\.\r\n220 All unauthorized access is logged\.\r\n$| p/FileZilla ftpd/ h/$1/
 match ftp m|^220 ([-.\w]+) FTP server \(Version (6.0\w+)\) ready.\r\n| p/FreeBSD ftpd/ h/$1/ v/$2/ o/FreeBSD/
-# OpenBSD 3.4 beta running Pure-FTPd 1.0.16 with SSL/TLS
-match ftp m|^220---------- Welcome to Pure-FTPd \[privsep\] \[TLS\] ----------\r\n220-You are user number| p/Pure-FTPd/ i|with SSL/TLS|
-match ftp m|^220---------- .* Pure-FTPd ----------\r\n220-| p/Pure-FTPd/
+match ftp m|^220  FTP server \(Version ([\w.]+)\) ready\.\r\n| p/FreeBSD ftpd/ v/$1/ o/FreeBSD/
 # Trolltech Troll-FTPD 1.28 (Only runs on Linux)
 match ftp m|^220-Setting memory limit to 1024\+1024kbytes\r\n220-Local time is now \d+:\d+ and the load is [.\d]+\.\r\n220 You will be disconnected after \d+ seconds of inactivity.\r\n$| p/Trolltech Troll-FTPd/ o/Linux/
 
 match ftp m|^220  FTP server \(Hummingbird Ltd\. \(HCLFTPD\) Version (7.1.0.0)\) ready\.\r\n$| p/Hummingbird FTP server/ v/$1/
+match ftp m|^220  FTP server \(Hummingbird Communications Ltd\. \(HCLFTPD\) Version ([\d.]+)\) ready\.\r\n| p/Hummingbird FTP server/ v/$1/
 
 match ftp m|^220- .*\n220 ([-.\w]+) FTP server \(Version (.*)\) ready\.\r\n|s p/BSD ftpd/ h/$1/ v/$2/
 match ftp m|^220 ArGoSoft FTP Server for Windows NT/2000/XP, Version [\d.]+ \(([\d.]+)\)\r\n| p/ArGoSoft ftpd/ v/$1/ o/Windows/
@@ -229,19 +264,115 @@ match ftp m|^220 FTP Server \(Version 1.0\) ready.\r\n$| p/G-Net DSL Modem ftpd/
 # HP-UX B.11.00
 match ftp m|^220 ([-.\w ]+) FTP server \(Version (1.1.2[.\d]+) [A-Z][a-z]{2} [A-Z][a-z]{2} .*\) ready.\r\n| p/HP-UX ftpd/ h/$1/ v/$2/ o/HP-UX/
 # 220 mirrors.midco.net FTP server ready.
-match ftp m|^220-.*\r\n    WarFTPd (\d[-.\w]+) \([\w ]+\) Ready\r\n|s p/WarFTPd/ v/$1/
+# WarFTP Daemon 1.70 on Win2K
+match ftp m=^220-.*\r\n(220-|)    WarFTPd (\d[-.\w]+) \([\w ]+\) Ready\r\n=s p/WarFTPd/ v/$2/
+match ftp m|^220 ([-.+\w]+) FTP SERVICE ready\r\n500 Please enter a command\. Dunno how to interperet empty lines\.\.\.\r\n500 Please enter a command\. Dunno how to interperet empty lines\.\.\.\r\n$| p/WarFTPd/ h/$1/ o/Windows/
 match ftp m|^220 Welcome to Windows FTP Server| p|Windows Ftp Server| i|Not from Microsoft - http://srv.nease.net/|
 # UnixWare 7.11
 match ftp m|^220 ([\w-_.]+) FTP server \(BSDI Version ([\w.]+)\) ready\.\r\n| p|BSDI/Unixware ftpd| v/$2/ h/$1/
 match ftp m|^220  FTP server \(Hummingbird Ltd\. \(HCLFTPD\) Version ([\d.]+)\) ready\.\r\n| p/Hummingbird ftpd/ v/$1/
 match ftp m|^220 OpenFTPD server ready\. .*\.\r\n| p/OpenFTPD/
 match ftp m|^220 ([\w\d-_.]+) FTP server \(NetBSD-ftpd 200\d+\) ready\.\r\n| p/NetBSD ftpd/ o/NetBSD/
+match ftp m|^220-\r\n    Your connection logged!\r\n220 ([\w\d-_.]+) FTP server \(NetBSD-ftpd 200\d+\) ready\.\r\n| p/NetBSD ftpd/ o/NetBSD/ i/Connection logged/
 match ftp m|^220 CommuniGate Pro FTP Server ([\d.]+) ready\r\n| p/Communigate Pro ftpd/ v/$1/
 match ftp m|^220 CommuniGate Pro FTP Server ready\r\n| p/Communigate Pro ftpd/
 match ftp m|^421 Sorry you are not welcomed on this server\.\r\n$| p/BulletProof ftpd/ i/Banned/ o/Windows/
 match ftp m|^(220.*\r\n)?220 [Ee]valine FTP server \(Version:  Mac OS X|s p/Evaline ftpd/ o/Mac OS X/
+match ftp m|^220 WinGate Engine FTP Gateway ready\r\n| p/WinGate ftpd/ o/Windows/
+match ftp m|^220 Welcome to Quick 'n Easy FTP Server\r\n| p/Quick 'n Easy ftpd/ o/Windows/
+match ftp m|^421 Too many connections for this IP address, please try again later\.\r\n| p/Quick 'n Easy ftpd/ o/Windows/
+match ftp m|^220 Tornado-vxWorks \(VxWorks([\d.]+)\) FTP server ready\r\n| p/Tornado vxWorks ftpd/ v/$1/
+match ftp m|^220 [\w-_.]+ FTP server \(UNIX\(r\) System V Release 4\.0\) ready\.\r\n| p/UNIX System V Release 4.0 ftpd/
+match ftp m|^220 ([\w-_.]+) FTP Server \(Oracle XML DB/Oracle9i Enterprise Edition Release ([\d.]+) - Production\) ready\.\r\n| p/Oracle Enterprise XML DB ftpd/ v/$2/ h/$1/
+match ftp m|^220 ([\w-_.]+) FTP Server \(Oracle XML DB/Oracle Database 10g Enterprise Edition Release ([\d.]+) - Production\) ready\.\r\n| p/Oracle 10g Enterprise XML DB ftpd/ v/$2/ h/$1/
+match ftp m|^220 ([\w-_.]+) FTP Server \(Oracle XML DB/Personal Oracle9i Release ([\d.]+) - Production\) ready\.\r\n| p/Personal Oracle XML DB ftpd/ v/$1/ h/$1/
+match ftp m|^220 ([\w-_.]+) PacketShaper FTP server ready\.\r\n| p/PacketShaper ftpd/ h/$1/ o/Windows/
+match ftp m|^220 Axis 2100 Network Camera ([\d.]+) .* ready\.\r\n| p/Axis 2100 Network Camera ftpd/ v/$1/ d/webcam/
+match ftp m|^220 AXIS 205 version ([\d.]+) \(.*\) ready\.\r\n| p/AXIS 205 Network Video ftpd/ v/$1/ d/webcam/
+match ftp m|^220 WfFTP server\(([\w.]+)\) ready\.\r\n| p/Nortel WfFTP/ v/$1/ d/router/
+match ftp m|^220- (.*) WAR-FTPD ([\d-.]+) Ready\r\n220 Please enter your user name\.\r\n| p/WAR-FTPD/ v/$2/ i/Name $1/ o/Windows/
+match ftp m|^220 Canon EB-65 FTP Print Server V([\d.]+) .* ready\.\r\n| p/Canon EB-65 FTP Print Server/ v/$1/ d/print server/
+match ftp m|^500 OOPS: .*\r\n$| p/vsftpd/ i/Misconfigured/ o/Unix/
+match ftp m|^500 OOPS: vsftpd: both local and anonymous access disabled!\r\n| p/vsftpd/ i/Access denied/ o/Unix/
+match ftp m|^220 FTP Version ([\d.]+) on MPS100\r\n| p/Lantronix MPS100 ftpd/ v/$1/ d/print server/
+match ftp m|^220 bftpd ([\d.]+) at ([\w-_.]+) ready\.?\r\n| p/bftpd/ v/$1/ h/$2/
+match ftp m|^220 RICOH Aficio 1045 FTP server \(([\d.]+)\) ready\.\r\n| p/RICOH Aficio 1045 ftpd/ v/$1/ d/print server/
+match ftp m|^220 Welcome to Code-Crafters Ability FTP Server\.\r\n| p/Code-Crafters Ability ftpd/ o/Windows/
+match ftp m|^220 Welcome to Code-Crafters - Ability Server ([\d.]+)\.| p/Code-Crafters Ability ftpd/ v/$1/ o/Windows/
+match ftp m|^220 ([\w-_.]+)           FTP server \(ARM_BE - V([\w.]+)\) ready\.\r\n| p/NetComm NS4000 Network Camera/ h/$1/ i/ARM_BE $2/ d/webcam/
+match ftp m|^220 MikroTik FTP server \(MikroTik v([\d.]+)\) ready\r\n| p/MikroTik router ftpd/ v/$1/ d/router/
+match ftp m|^220 NetPresenz v([\d.]+) \(Unregistered\) awaits your command\.\r\n| p/NetPresenz/ v/$1/ i/Unregistered/ o/MacOS/
+match ftp m|^220 LP-8900-\w+ FTP server \(OEM FTPD version ([\d.]+)\) ready\.\r\n| p/EPSON Network Print Server ftpd/ i/runs OEM FTPD $1/ d/print server/
+match ftp m|^220 StylusPhoto750-AF6788 FTP server \(OEM FTPD version ([\d.]+)\) ready\.\r\n| p/Epson StylusPhoto750 ftpd/ i/runs OEM FTPD $1/ d/print server/
+match ftp m|^220 AL-C900-BB0200 FTP server \(OEM FTPD version ([\d.]+)\) ready\.\r\n| p/Epson AcuLaser C900 printer ftpd/ i/runs OEM FTPD $1/ d/printer/
+match ftp m|^220 FTP Version ([\d.]+) on MSS100\r\n| p/Lantronix MSS100 serial interface ftpd/ v/$1/ d/specialized/
+match ftp m|^503 Service Unavailable\r\n\r\n\0$| p/NFR BackOfficer Friendly ftp honeypot/
+match ftp m|^220 Matrix FTP server \(Server \w+#\d\) ready\.\r\n| p/Matrix ftpd/
+match ftp m|^220 Titan FTP Server ([\d.]+) Ready\.\r\n| p/Titan ftpd/ v/$1/ o/Windows/
+match ftp m|^421-\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+=\+\r\n421-The evaluation period for this Titan FTP Server has expired\.\r\n| p/Titan ftpd/ i/Evaluation period expired/ o/Windows/
+match ftp m|^220 ioFTPD \[www: http://www\.ioftpd\.com\] - \[version: ([\w-_. ]+)\] server ready\.\r\n| p/ioFTPD/ v/$1/ o/Windows/
+match ftp m|^220 CesarFTP ([\w.]+) Server Welcome !\r\n| p/CesarFTPd/ v/$1/ o/Windows/
+match ftp m|^220 CesarFTP ([\w.]+) \xb7\xfe\xce\xf1\xc6\xf7\xbb\xb6\xd3\xad !\r\n| p/CesarFTPd/ v/$1/ i/Chinese/ o/Windows/
+match ftp m|^220-This site is running the BisonWare BisonFTP server product V([\d.]+)\r\n| p/BisonWare BisonFTPd/ v/$1/ o/Windows/
+match ftp m=^220-Welcome to XBOX FileZilla( \(XBMC\)|)\r\n220-version: XBFileZilla version ([\d.]+), \(based on FileZilla Server ([\d.]+)\)\r\n220 http://sourceforge\.net/projects/xbfilezilla\r\n= p/XBFileZilla/ v/$2/ i/Based on FileZilla $3/
+match ftp m|^220 Session will be terminated after 600 seconds of inactivity\.\r\n| p/Cisco 3000 VPN ftpd/ o/IOS/ d/security-misc/
+match ftp m|^220-SlimFTPd ([\d.]+), by WhitSoft Development \(www\.whitsoftdev\.com\)\r\n| p/SlimFTPd/ v/$1/ o/Windows/
+match ftp m|^220 BlackMoon FTP Server Version ([\d.]+ Release \d+) - Build \d+\. Free Edition\. Service Ready\r\n| p/BlackMoon ftpd/ v/$1/ o/Windows/
+match ftp m|^220 netapp ftp server\r\n| p/netapp ftpd/
+match ftp m|^220 Oracle Internet File System FTP Server ready\r\n| p/Oracle Internet File System ftpd/
+match ftp m|^220 RICOH Aficio (\w+) FTP server \(([\d.]+)\) ready\.\r\n| p/Ricoh Aficio $1 printer ftpd/ v/$2/ d/printer/
+match ftp m|^220 NRG 2205/2238/2212 FTP server \(([\d.]+)\) ready\.\r\n| p|NRG 2205/2238/2212 copier ftpd| v/$1/ d/printer/
+match ftp m|^500 Sorry, no server available to handle request on 66\.90\.74\.155\.\r\n| p/proftpd/ i/Misconfigured/
+match ftp m|^220 mandelbrot FTP server \(Version ([\d.]+) \(NeXT ([\d.]+)\) .*\) ready\.\r\n| p/mandelbrot ftpd/ v/$1/ i/NeXT $2/ o/NeXTStep/
+# Microsoft Windows .NET Enterprise Server (build 3604-3790)
+match ftp m|^220 Net Administration Divisions FTP Server Ready\.\.\.\r\n| p/Net Administration Divisions ftpd/
+match ftp m|^220-\r\n220-\r\n220 Please enter your user name\.\r\n| p/MoreFTPd/
+match ftp m|^220 ([\w-_.]+) FTP server \(OSF/1 Version ([\d.]+)\) ready\.\r\n| p|OSF/1 ftpd| i|OSF/1 $2| h/$1/ o/Unix/
+match ftp m|^220 AXIS StorPoint CD E100 CD-ROM Server V([\d.]+) .*  ready\.\r\n| p/AXIS StorPoint E100 CD-ROM Server ftpd/ v/$1/ d/storage-misc/
+match ftp m|^220 Qtopia ([\d.]+) FTP Server\n| p/Qtopia ftpd/ v/$1/ d/PDA/
+match ftp m|^220 Gene6 FTP Server v([\d.]+)  \(Build \d+\).* ready\.\.\.\r\n| p/Gene6 ftpd/ v/$1/ o/Windows/
+match ftp m|^220 G6 FTP Server v([\d.]+) \(beta (\d+)\) ready \.\.\.\r\n| p/Gene6 ftpd/ v/$1 beta $2/ o/Windows/
+match ftp m|^220 sftpd/([\d.]+) Server \[[\w-_.]+\]\r\n| p/sftpd/ v/$1/
+match ftp m|^220-TYPSoft FTP Server ([\d.]+) ready\.\.\.\r\n| p/TYPSoft ftpd/ v/$1/ o/Windows/
+match ftp m|^220 Welcome to Pablo's FTP Server\r\n| p/Pablo's ftpd/ o/Windows/
+match ftp m|^220 PowerLogic FTP Server ready\.\r\n| p/PowerLogic embedded device ftpd/ d/specialized/
+match ftp m|^220 INTERMEC 540\+/542\+ FTP Printer Server V([\d.]+) .* ready\.\r\n| p|Intermec 540+/542+ printer ftpd| v/$1/ o/printer/
+match ftp m|^220 EthernetBoard OkiLAN 8100e Ver ([\d.]+) FTP server\.\r\n| p/OkiLAN 8100e print server/ v/$1/ d/print server/
+# SpeedStream 5660 ADSL modem/router
+match ftp m|^220 VxWorks \(ENI-ftpd ([\d.]+)\) FTP server ready\r\n| p/SpeedStream 5660 ADSL router/ i|Runs ENI-ftpd/$1 on VxWorks| d/router/
+match ftp m|^220--------------------------------------------------------------------------------\r\n220-This is the \"Banner\" message for the Mac OS X Server's FTP server process\.\r\n.*220 ([\w-_.]+) FTP server \(Version:  Mac OS X Server ([\d.]+) - \+GSSAPI\) ready\.\r\n|s p/Mac OS X Server ftpd/ i/MacOS X $2/ h/$1/
+match ftp m|^220 Welcome to U\.S\.Robotics SureConnect ADSL Ethernet/USB Router update FTP server v([\d.]+)\.\r\n| p/USR SureConnect ADSL router ftpd/ v/$1/ d/router/
+match ftp m|^220-Welcome to Xerver Free FTP Server ([\d.]+)\.\r\n220-\r\n220-You can login below now\.\r\n220 Features: \.\r\n| p/Xerver Free ftpd/ v/$1/
+match ftp m|^220 ([\w-_.]+) FTP server \(tnftpd (\d+)\) ready\.\r\n| p/tnftpd/ v/$2/ h/$1/
+match ftp m|^220 ([\w-_.]+) FTP server \(LundFTPD ([\d.]+) .*\) ready\.\r\n| p/LundFTPd/ v/$2/ h/$1/
+match ftp m|^220 HD316\r FTP server\(Version([\d.]+)\) ready\.\r\n| p/Panasonic HD316 Digital Disk Recorder/ v/$1/ d/storage-misc/
+match ftp m=^220 \w+ IBM Infoprint (Color |)(\d+) FTP Server ([\d.]+) ready\.\r\n= p/IBM Inforprint $1$2 ftpd/ v/$3/ d/printer/
+match ftp m|^220 ShareIt FTP Server ([\d.]+) \(WINCE\) Ready\.\r\n| p/ShareIt ftpd/ v/$1/ d/PDA/
+match ftp m|^220 StnyFtpd 0wns j0\n$| p/Unknown ftp backdoor/
+match ftp m|^220 ISOS FTP Server for Upgrade Purpose \(([\d.]+)\) ready\r\n| p/Billion 741ge ADSL router/ v/$1/ d/router/
+match ftp m|^220 PV11 FTP Server ready\r\n| p/Unknown wireless acces point ftpd/ i/Runs Phar Lap RTOS/ d/router/
+match ftp m|^220 Alize Session Manager FTP Server\r\n| p/Alcatel OmniPCX ftpd/ d/PBX/
+match ftp m|^220-FTP Server ready\r\n220-Welcome to the Sambar FTP Server\r\r\n| p/Sambar ftpd/
+match ftp m|^220 SINA FTPD \(Version ([\d-.]+)\).*\r\n| p/Sina ftpd/ v/$1/
+match ftp m|^220 DataHive FTP Server ([\d.]+) Ready\.\r\n| p/DataHive ftpd/ v/$1/
+match ftp m|^220--- AlterVista FTP, based on Pure-FTPd --\r\n| p/AlterVista ftpd/ i/Based on Pure-ftpd/
+match ftp m|^220 Welcome to the ADI Convergence Galaxy update FTP server v([\d.]+)\.\r\n| p/ADI Convergence Galaxy update ftpd/ v/$1/
+match ftp m|^421 You are not permitted to make this connection\.\r\n| p/Symantec Raptor Firewall ftpd/ d/firewall/
+match ftp m|^220 copier2FTP server ready\.\r\n| p/Konica Minolta Di3510 Copier ftpd/ d/printer/
+match ftp m|^220 DrayTek FTP version ([\d.]+)\r\n| p/DrayTek Vigor router ftpd/ v/$1/ d/router/
+match ftp m|^220 ([\w-_.]+) FTP server ready \(mod_ftpd/([\d.]+)\)\r\n| p/mod_ftpd/ v/$2/ h/$1/
+match ftp m|^220 The Avalaunch FTP system -- enter user name\r\n| p/Avalaunch ftpd/ i/XBox/
+match ftp m|^220 Server 47 FTP service\. Welcome\.\r\n| p/bftpd/ o/Unix/
+match ftp m%^220-loading\.\.\r\n220-\|           W e L c O m E @ SFXP\|=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\|\r\n% p/SwiftFXP/
+match ftp m|^220 Z-FTP\r\n| p/Z-FTPd/
+match ftp m|^220 DELL1700n Dell Laser Printer 1700n FTP Server ([\w.]+) ready\.\r\n| p/Dell 1700n laser printer ftpd/ v/$1/ d/printer/
+match ftp m|^220 Plan 9 FTP server ready\r\n| p/Plan 9 ftpd/ o/Plan9/
+match ftp m=^220-\+----------------------\[ UNREGISTERED VERSION \]-----------------------\+\r\n220-\|   This site is running unregistered copy of RaidenFTPD ftp server   \+\r\n= p/RaidenFTPd/ i/Unregistered/ o/Windows/
+match ftp m|^220.*\r\n220 ([\w-_.]+) FTP server \(Version:  Mac OS X Server ([\d.]+) - \+GSSAPI\) ready\.\r\n|s p/MacOS X Server ftpd/ i/MacOS X Server $2/ h/$1/
+match ftp m|^220 Fastream NETFile FTP Server( Ready)?\r\n| p/Fastream NETFile FTPd/ o/Windows/
 
 match ftp-proxy m|^220 Ftp service of Jana-Server ready\r\n| p/JanaServer ftp proxy/
+match ftp-proxy m|^220 FTP Gateway at Jana Server ready\r\n| p/JanaServer ftp proxy/
 match ftp-proxy m|^220 ([-.\w]+) FTP proxy \(Version (\d[-.\w]+)\) ready\.\r\n| p/Guantlet FTP proxy/ v/$1/
 # Frox FTP Proxy (frox-0.6.5) on Linux 2.2.X - http://frox.sourceforge.net/
 match ftp-proxy m|^220 Frox transparent ftp proxy\. Login with username\[@host\[:port\]\]\r\n| p/Frox ftp proxy/
@@ -251,6 +382,11 @@ match ftp-proxy m|^220 Secure Gateway FTP server ready\.\r\n| p/Symantec Enterpr
 match ftp-proxy m/^220-Sidewinder ftp proxy\.  You must login to the proxy first/ p/Sidewinder FTP proxy/
 match ftp-proxy m/^220-\r\x0a220-Sidewinder ftp proxy/s p/Sidewinder FTP proxy/
 match ftp-proxy m|^220 webshield2 FTP proxy ready\.\r\n| p/Webshield2 FTP proxy/ o/Windows/
+match ftp-proxy m|^220 WinProxy FTP Gateway ready, enter username@host\[:port\]\r\n| p/WinProxy FTP Gateway/ o/Windows/
+match ftp-proxy m|^220 Proxy602 Gateway ready, enter user@host\[:port\]\r\n| p/Proxy602 ftp proxy/ d/firewall/
+match ftp-proxy m|^220 Java FTP Proxy Server \(usage: USERID=user@site\) ready\.\r\n| p/Java FTP Proxy/
+match ftp-proxy m|^220 ([\w-_.]+) FTP proxy \(Version V([\d.]+)\) ready\.\r\n| p/Generic FTP proxy/ v/$2/ h/$1/
+match ftp-proxy m|^220 CoolProxy FTP server & firewall\r\n| p/CoolProxy ftp proxy/ o/Windows/
 # TODO kerio?
 #match ftp m|^421 Service not available \(The FTP server is not responding\.\)\n$| v/unknown FTP server//service not responding/
 match vdr m|220(\S+) SVDRP VideoDiskRecorder (\d[^\;]+);| p/VDR/ h/$1/ v/$2/ d/media device/
@@ -309,6 +445,7 @@ match imap m|^\* OK Welcome to Binc IMAP v(\d[-.\w]+)| p/Binc IMAPd/ v/$1/
 match imap m|^\* OK ([-.\w]+) IMAP4rev1 AppleMailServer (\d[-.\w]+) ready\r\n| p/AppleMailServer imapd/ h/$1/ v/$2/
 match imap m|^\* BYE Connection refused\r\n| p/Microsoft Exchange IMAP server/ i/refused/ o/Windows/
 match imap m/^\* OK IMAP4rev1 Server Classic Hamster (Vr.|Version) [\d.]+ \(Build ([\d.]+)\) greets you!\r\n/ p/Classic Hamster imapd/ v/$2/ o/Windows/
+match imap m|^\* OK ([\w-_.]+) Oracle Email Server esimap\t([\d.]+) \t  is ready\r\n| p/Oracle imapd/ v/$2/ h/$1/
 
 softmatch imap m/^\* OK [-.\w,:+ ]+imap[-.\w,:+ ]+\r\n$/i
 
@@ -418,6 +555,9 @@ match nntp m/^200 NNTP-Server Classic Hamster (Vr\.|Version) \d[-.\w ]+ \(Build 
 # Netware News Server
 match nntp m|^200 ([\w.-_]+) NetWare-News-Server/([\d.]+) 'LDNUM' NNRP ready \(posting ok\)\.\r\n| p/NetWare nntpd/ v/$2/ h/$1/
 match nntp m|^200 Leafnode NNTP daemon, version ([\w.]+) at ([\w-_.]+) \r\n| p/Leafnode nntpd/ v/$1/ h/$2/
+match nntp m|^20\d ([\w.-_]+) NNTPCache server V([\d.]+) \[see www\.nntpcache\.org\]| p/NNTPCache/ v/$2/ h/$1/
+match nntp m|^502 access denied <[\w-_.]+@[\w-_.]+>, you do not have connect permissions in the nntpcache\.access file\.\r\n| p/NNTPCache/ i/Access denied/
+
 softmatch nntp m|^200 [-\[\]\(\)!,/+:<>@.\w ]*nntp[-\[\]\(\)!,/+:<>@.\w ]*\r\n$|
 
 # Windows 2000 Server Windows Media Unicast Service (NsUnicast) - Nsum.exe
@@ -432,8 +572,6 @@ match pksd m|^usage: [/\w]*/etc/pksd\.conf conf_file\n$| p/PGP Public Key Server
 
 # UW POP2 server on Linux 2.4.18
 match pop2 m|^\+ POP2 [-\[\].\w]+ v(20[-.\w]+) server ready\r\n$| p/UW POP2 server/ v/$1/
-
-match pop3 m|^\+OK POP3 AnalogX Proxy (\d[-.\w]+) \(Release\) ready\.\n$| p/AnalogX POP3 proxy/ v/$1/
 
 # Novell Groupwise 6.0.1
 match pop3 m|^\+OK GroupWise POP3 server ready\r\n$| p/Novell GroupWise pop3d/ o/Unix/
@@ -461,7 +599,7 @@ match pop3 m|^\+OK ([\w\d-_]+\.[\w\d-_.]+) POP3 <\d{3,6}\.1[012]\d{8}@[-.\w]+>\r
 #  pop3d (GNU Mailutils 0.3) on Linux 2.4
 match pop3 m|^\+OK POP3 Ready <\d{3,6}\.1[012]\d{8}@\w+>\r\n| p/GNU Mailutils pop3d/
 # dovecot 0.99.10 on Linux 2.4
-match pop3 m|^\+OK dovecot ready\.\r\n| p/Dovecot pop3d/
+match pop3 m|^\+OK [Dd]ovecot ready\.\r\n| p/Dovecot pop3d/
 # teapop 0.3.5 on Linux 2.4
 match pop3 m|^\+OK Teapop \[v?(\d[-.\w ]+)\] - Teaspoon stirs around again .*\r\n| p/Teapop pop3d/ v/$1/
 # Qpopper v4.0.5 on Linux 2.4.19
@@ -471,13 +609,14 @@ match pop3 m|^\+OK POP3 server ready <Jana-Server>\r\n| p/Jana POP3 server/ o/Wi
 match pop3 m|^\+OK AppleMailServer (\d[-.\w]+) POP3 server at ([-.\w]+) ready <\d| p/AppleMailServer pop3d/ h/$1/ v/$2/
 match pop3 m|\+OK <10\d+\.\d+@([-.\w]+)> \[XMail (\d[-.\w]+) \(([-./\w]+)\) POP3 Server\] service ready; | p/XMail pop3 server/ h/$1/ v/$2/ o/$3/
 # Mail-Enable pop3 server 1.704
-match pop3 m|^\+OK Welcome to MailEnable POP3 Server\r\n| p/MailEnable POP3 Server/
+match pop3 m|^\+OK Welcome to MailEnable POP3 Server| p/MailEnable POP3 Server/
 match pop3 m|^\+OK ([-.\w]+) running Eudora Internet Mail Server (\d[-.\w]+) <.*>\r\n| p/Eudora Internet Mail Server pop3d/ h/$1/ v/$2/
 # Qpopper 4.0.3 on Linux
 # QPopper 4.0.4 FreeBSD
 match pop3 m|^\+OK ready  <\d{1,5}\.10\d{8}@([-.\w]+)>\r\n| p/Qualcomm Qpopper pop3d/ h/$1/
 match pop3 m|^\+OK POP3 Welcome to GNU POP3 Server Version (\d[-.\w]+) <.*>\r\n| p/GNU POP3 Server/ v/$1/
-match pop3 m|^\+OK eXtremail V(\d[-.\w]+) release (\d+) POP3 server ready <.*>\r\n| p/eXtremail pop3d/ v/$1.$2/
+match pop3 m|^\+OK eXtremail V(\d[-.\w]+) release (\d+) POP3 server ready <[\d.]+@([\w-_.]+)>\r\n| p/eXtremail pop3d/ v/$1 rel$2/ h/$3/
+match pop3 m|^\+OK eXtremail V(\d[-.\w]+) release (\d+) rev(\d+) POP3 server ready <[\d.]+@([\w-_.]+)>\r\n| p/eXtrememail pop3d/ v/$1 rel$2 rev$3/ h/$4/
 match pop3 m|^\+OK POP3 Welcome to vm-pop3d (\d[-.\w]+) <.*>\r\n| p/vm-pop3d/ v/$1/ i/derived from gnu-pop3d/
 # tpop3d v1.4.2 on Linux - http://www.ex-parrot.com/~chris/tpop3d/
 match pop3 m|^\+OK <[\da-f]{32}@([-.\w]+)>\r\n| p/tpop3d/ h/$1/
@@ -489,25 +628,33 @@ match pop3 m|^\+OK Lotus Notes POP3 server version ([-.\w]+) ready on | p/Lotus 
 match pop3 m|^\+OK POP3 hotwayd v(\d[-.\w]+) -> The POP3-HTTPMail Gateway\.| p/hotwayd pop3d/ v/$1/
 match pop3 m|^\+OK ([-.\w]+) POP3 service \(Netscape Messaging Server (\d[^(]+) \(built ([\w ]+)\)\)\r\n| p/Netscape Messenging Server pop3/ h/$1/ v/$2/ i/built on $3/
 match pop3 m/^\+OK ([-.\w]+) Cyrus POP3 v(\d[-.\w]+) server ready </ p/Cyrus pop3d/ h/$1/ v/$2/
+match pop3 m|^\+OK ([-.\w]+) Cyrus POP3 v(\d[-.\w]+)-Red Hat [\d-.]+ server ready <| h/$1/ v/$2/ i/Red Hat/ o/Linux/
 match pop3 m/^\+OK X1 NT-POP3 Server ([-\w.]+) \(IMail ([^)]+)\)\r\n/ p/IMail pop3d/ h/$1/ v/$2/
 match pop3 m/^\+OK POP3 \[cppop (\d[^]]+)\] at \[/ p/cppop pop3d/ v/$1/
+match pop3 m|^\+OK POP3 ([\w-_.]+) \[cppop (\d[^]]+)\] at \[| p/cppop pop3d/ v/$2/ h/$1/
+
+# MS Exchange
+match pop3 m|^\+OK Microsoft Exchange Server 2003 POP3 server version ([\d.]+) \(([\w-_.]+)\) ready\.\r\n| p/MS Exchange 2003 pop3d/ v/$1/ h/$2/ o/Windows/
 match pop3 m/^\+OK Microsoft Exchange 2000 POP3 server version (\S+).* ready\.\r\n/ p/MS Exchange 2000 pop3d/ v/$1/ o/Windows/
 match pop3 m/^\+OK Microsoft Exchange POP3 server version (\S+) ready\r\n/ p/MS Exchange pop3d/ v/$1/ o/Windows/
+match pop3 m|^\+OK Microsoft Exchange POP3 server version ([\d.]+) ready  <[\d.]+@([\w-_.]+)>\r\n| p/MS Exchange pop3d/ v/$1/ h/$2/ o/Windows/
 match pop3 m/^\+OK Der Microsoft Exchange POP3-Server \(Version ([\d\.]+)\) ist betriebsbereit\.\r\n/ p/MS Exchange pop3d/ v/$1/ i/German/ o/Windows/
+match pop3 m|^\+OK Der Microsoft Exchange Server 2003 POP3-Server, Version ([\d.]+) \(([\w-_.]+)\), steht zur Verf\xfcgung\.\r\n| p/MS Exchange 2003 pop3d/ v/$1/ h/$2/ i/German/
 match pop3 m/\+OK Microsoft Exchange POP3-server versie ([\d.]+) is gereed\.\r\n/ p/MS Exchange pop3d/ v/$1/ i/Dutch/
+match pop3 m|\+OK \xd1\xe5\xf0\xe2\xe5\xf0 Microsoft Exchange POP3 \xe2\xe5\xf0\xf1\xe8\xe8 ([\d.]+)  \xe3\xee\xf2\xee\xe2\r\n| p/MS Exchange pop3d/ v/$1/ i/Unknown language/
+match pop3 m|\+OK Microsoft Exchange POP3 kiszolg\xe1l\xf3 verzi\xf3 ([\d.]+) k\xe9sz\r\n| p/MS Exchange pop3d/ v/$1/ i/Hungarian/
+
 match pop3 m/^\+OK QPOP \(version ([^)]+)\) at .*starting\./ p/Qpop pop3d/ v/$1/
 match pop3 m/^\+OK QPOP Modified by Compaq \(version ([^)]+)\) at .*starting\./ p/QPop pop3d/ v/$1/
 match pop3 m/^\+OK Qpopper .*\(version ([^)]+)\) at .*starting\./ p/Qpopper pop3d/ v/$1/
 match pop3 m/^\+OK ([-.\w]+) POP3 server \(Netscape Mail Server v(\d[-.\w])\) ready/ p/Netscape Mail Server pop3d/ h/$1/ v/$2/
 match pop3 m/^\+OK Cubic Circle's v(\d[-.\w]+) .* POP3 ready/ p/Cubic Circle Cucipop pop3d/ v/$1/
-match pop3 m/^\+OK CCProxy (\S+) POP3 Service Ready\r\n/ p/CCProxy pop3d/ v/$1/
 match pop3 m/^\+OK ArGoSoft Mail Server Freeware, Version \S+ \(([^)]+)\)\r\n$/ p/ArGoSoft freeware pop3d/ v/$1/
 match pop3 m|^\+OK ArGoSoft Mail Server, Version [-.\w]+ \(([-.\w]+)\)\r\n$| p/ArGoSoft Mail Server pop3d/ v/$1/
 match pop3 m|^\+OK ArGoSoft Mail Server Pro for WinNT/2000/XP, Version [-.\w]+ \(([-.\w]+)\)\r\n$| p/ArGoSoft Mail Server Pro pop3d/ v/$1/ o/Windows/
 match pop3 m|^\+OK ([\w-.]+) ArGoSoft Mail Server Pro for WinNT/2000/XP, Version [\d.]+ \(([\d.]+)\)\r\n| p/ArGoSoft Pro/ v/$2/ h/$1/ o/Windows/
 match pop3 m/^\+OK ([-.\w]+) Execmail POP3 \((\d[^)]+)\)/ p/Execmail pop3d/ h/$1/ v/$2/
 match pop3 m/^\+OK MailSite POP3 Server (\S+) Ready </ p/MailSite pop3d/ v/$1/
-match pop3 m/^Proxy\+ POP3 server\. Insecure access - terminating\.\r\n/ p/Proxy+ pop3d/
 match pop3 m/^\+OK ([-.\w]+) POP MDaemon (\S+) ready <MDAEMON/ p/MDaemon pop3d/ h/$1/ v/$2/
 # qmail-pop3d 1.03-1
 match pop3 m/^\+OK <\d{1,5}\.10\d{8}@[-.\w]+>\r\n$/ p/qmail-pop3d/ o/Unix/
@@ -516,19 +663,88 @@ match pop3 m|^\+OK Hello there\.\r\n$| p/Courier pop3d/
 match pop3 m/^\+OK ([-.\w]+) VisNetic.MailServer.v([-.\w]+) POP3 / p/VisNetic MailServer pop3d/ h/$1/ v/$2/
 match pop3 m/^\+OK ([-.\w]+) POP3 server \(Post\.Office v([-.\w]+) release ([-.\w]+) with ZPOP version ([-.\w]+)\) ready / p|Post.Office pop3d| h|$1| v|$2 release $3| i|w/ZPOP $4|
 match pop3 m/^\+OK CommuniGate Pro POP3 Server ([-.\w]+) ready/ p/CommuniGate Pro/ v/$1/
+match pop3 m|^\+OK CommuniGate Pro POP3 Server ready <[\d.]+@([\w-_.]+)>\r\n| p/CommuniGate Pro/ h/$1/
 match pop3 m/^\+OK\r\n$/ p/Openwall popa3d/
 match pop3 m|^\+OK ([-.\w]+) MultiNet POP3 Server Process V(\S+) at| p/DEC OpenVMS MultiNet pop3d/ h/$1/ v/$2/
 match pop3 m|^\+OK <.*>, MercuryP/NLM v(\d[-.\w]+) ready.\r\n$| p/Mercury POP3 server/ v/$1/ o/Netware/
 match pop3 m|^\+OK Microsoft Windows POP3 Service Version 1.0 <| p/Microsoft Windows 2003 POP3 Service/ v/1.0/ o/Windows 2000/
-match pop3 m|^\+OK POP3 ([-.\w]+) v?(200\d\.[-.\w]+) server ready\r\n| p/UW Imap pop3 server/ h/$1/ v/$2/
+match pop3 m|^\+OK POP3 ([-.\w]+) v?(200\d\.[-.\w]+) server ready\r\n| p/UW Imap pop3d/ h/$1/ v/$2/
+match pop3 m|^\+OK POP3 v([\d.]+) server ready <[\w.]+@([\w-_.]+)>\r\n| p/UW Imap pop3d/ v/$1/ h/$2/
+match pop3 m|^\+OK POP3 \[([\w-_.]+)\] v([\d.]+) server ready\r\n| p/UW Imap pop3d/ h/$1/ v/$2/
 match pop3 m|^\+OK POP3 server ready <\w{11}>\r\n$| p/WebSTAR pop-3 server/
-match pop3 m|^\+OK TrendMicro IMSS (\d[-.\w ]+) POP3 Proxy at ([-.\w]+)\r\n| p/TrendMicro IMSS virus scanning POP3 proxy/ h/$1/ v/$2/
 match pop3 m|^\+OK Kerio MailServer (\d[-.\w]+) POP3 server ready <([-.\w@:]+)>\r\n$| p/Kerio MailServer POP3 Server/ v/$1/ i/$2/
 match pop3 m/^\+OK POP3-Server Classic Hamster (Vr\.|Version) [\d.]+ \(Build ([\d.]+)\) greets you! <.*>\r\n/ p/Classic Hamster pop3d/ v/$2/ o/Windows/
 match pop3 m|^\+OK Stalker POP3 Server ([\w.]+) at ([\w-_.]+) ready <.*>\r\n| p/Stalker pop3d/ v/$1/ h/$2/ o/Mac OS/
 match pop3 m|^\+OK ([\w-_.]+) POP3 service \(iPlanet Messaging Server ([\w-_.\s]+) \(built .*\)\)\r\n| p/iPlanet pop3d/ v/$2/ h/$2/
 match pop3 m|^\+OK Messaging Multiplexor \(iPlanet Messaging Server ([\w-_.\s]+) \(built .*\)\)\r\n| p/iPlanet messaging multiplexor/ v/$1/
+match pop3 m|^\+OK WinGate Engine POP3 Gateway ready\r\n| p/WinGate pop3d/ o/Windows/
+match pop3 m|^\+OK ([\w-_.]+) Oracle Email Server espop3\t([\d.]+) \t  is ready\r\n| p/Oracle pop3d/ v/$2/ h/$1/
+match pop3 m|^\+OK InterMail POP3 server ready\.\r\n| p/InterMail pop3d/
+match pop3 m|^\+OK WinRoute Pro ([\d.]+) POP3 server ready <[\w-_.]+@unspecified.host>\r\n| p/WinRoute Pro pop3/ v/$1/
+match pop3 m|^\+OK WinRoute Pro ([\d.]+) POP3 server ready <[\w-_.]+@([\w-_.]+)>\r\n| p/WinRoute Pro pop3/ v/$1/ h/$2/
+match pop3 m|^\+OK ([\w-_.]+) POP3 server \(Netscape Messaging Server - Version ([\d.]+)\) ready .*\r\n| p/Netscape Messaginging Server pop3d/ v/$2/ h/$1/
+match pop3 m|^\+OK [\w-_.]+ PopMax version ([\d. ]+) POP3 Mail Server Ready, Willing, and Waiting\r\n| p/MailMax PopMax pop3d/ v/$1/ o/Windows/
+match pop3 m|^\+OK POP3 Welcome to GNU POP3 ([\d-.]+) <[\d.]+@([\w-_.]+)>\r\n| p/GNU POP3/ v/$1/ h/$2/
+match pop3 m|^\+OK popserver ([\d.]+) pop3 server ready\r\n| p/LiberoPops pop3d/ v/$1/
+match pop3 m|^\+OK ([\w-_.]+) POP3 server \(JAMES POP3 Server ([\d.]+)\) ready \r\n| p/JAMES pop3d/ v/$2/ h/$1/
+match pop3 m|^\+OK ([\w-_.]+) NetMail POP3 Agent \$R...sion:   ([\d.]+)  \$\r\n| p/NetMail pop3d/ v/$2/ h/$1/
+match pop3 m|^\+OK POP3 server ready \(Worldmail ([\d.]+)\) <[\w.]+@([\w-_.]+)>\r\n| p/Eudora Worldmail pop3d/ v/$1/ h/$2/ o/Windows/
+match pop3 m|^\+OK ([\w-_.]+) POP MDaemon ([\d.]+) listo <MDAEMON-[\w.]+@[\w-_.]+>\r\n| p/MDaemon pop3d/ v/$2/ h/$1/ o/Windows/
+match pop3 m|^\+OK ([\w-_.]+) POP3 WorkgroupMail ([\d.]+) .*\r\n| p/WorkgroupMail pop3d/ v/$2/ h/$1/ o/Windows/
+match pop3 m|^\+OK POP3 server ready \(LSMTP v([\w.]+)\) <[\w.]+@([\w-_.]+)>\r\n| p/LSMTP pop3d/ v/$1/ h/$2/
+match pop3 m|^\+OK ([\w-_.]+) Mirapoint POP3 ([\d.]+) server ready\r\n| p/Mirapoint RazorGate pop3d/ v/$2/ h/$1/ d/security-misc/
+match pop3 m|^\+OK K9 - ([\d.]+) - http://keir\.net ready <[\w.]+>\r\n| p/K9 pop3d from keir.net/ v/$1/ o/Windows/
+match pop3 m|^\+OK MERCUR POP3-Server \(v([\d.]+) \w+\) for Windows NT ready <[\d.]+@([\w-_.]+)>\r\n| p/MERCUR pop3d/ v/$1/ i/Windows NT/ o/Windows/
+match pop3 m|^\+OK POP3 server ready QuickMail Pro Server for MacOS ([\d.]+) <[\w.]+@([\w-_.]+)>\r\n| p/QuickMail Pro pop3d/ v/$1/ h/$2/ o/Mac OS/
+match pop3 m|^\+OK ready\r\n| p/602LAN Suite pop3/ o/Windows/
+match pop3 m|^\+OK DvISE Mail Access Server Server ready \(Tobit Software, Germany\)\r\n| p/DvISE pop3d/
+match pop3 m|^\+OK POP3 ([\w-_.]+) \(Version ([\w-.]+)\) http://surgemail\.com\r\n| p/SurgeMail pop3d/ v/$2/ h/$1/
+match pop3 m|^\+OK ([\w-_.]+) running Eudora Internet Mail Server X ([\d.]+) <| p/Eudora Internet Mail Server X/ v/$2/ h/$1/ o/Mac OS X/
+match pop3 m|^\+OK <[\d.]+@([\w-_.]+)> \[XMail ([\d.]+) POP3 Server\] service ready; | p/XMail pop3d/ v/$2/ h/$1/
+match pop3 m|^\+OK <[\d.]+@([\w-_.]+)> \[XMail ([\d.]+) \(Linux/Ix86\) POP3 Server\] service ready; | p/XMail pop3d/ v/$2/ h/$1/ o/Linux/
+match pop3 m|^\+OK Samsung Contact POP3 interface ready on: ([\w-_.]+)\r\n| p/Samsung Contact pop3d/ h/$1/
+match pop3 m|^\+OK ([\w-_.]+) POP3 service \(Sun Java\(tm\) System Messaging Server ([\d.]+) \(built .*\) <| p/Sun Java System Messaging Server pop3d/ v/$2/ h/$1/
+match pop3 m|^\+OK POP3 Greetings from minipop ([\d.]+) <[\d.]+@([\w-_.]+)>\r\n| p/minipop pop3d/ v/$1/ h/$2/
+match pop3 m|^\+OK Hermes ([\w. ]+) POP3 Ready\. <[\d.]+@([\w-_.]+)>\r\n| p/Hermes pop3d/ v/$1/ h/$2/ o/Windows/
+match pop3 m|^\+OK ModusMail POP3 Server ([\d.]+) Ready <[\d.]+@([\w-_.]+)>\r\n| p/ModusMail pop3d/ v/$1/ h/$2/
+match pop3 m|^\+OK ([\w-_.]+) POP3 server \(DeskNow POP3 Server ([\d.]+)\) ready \r\n| p/DeskNow pop3d/ v/$2/ h/$1/
+match pop3 m|^\+OK POP3 SINA \(([\d-.]+)\) Server Ready\r\n| p/SINA pop3d/ v/$1/
+match pop3 m|^\+OK ([\w-_.]+) SpearMail POP3 server ready\r\n| p/Spearmail pop3d/ h/$1/ o/Windows/
+match pop3 m|^\+OK \]-:\^:-\[ \]-:\^:-\[ POP3| p/Merak Mail Server pop3d/ o/Windows/
+match pop3 m|^\+OK SCO POP3 server \(version ([\w-.]+)\) at ([\w-_.]+) starting\.\r\n| p/SCO pop3d/ v/$1/ h/$2/ o/SCO UNIX/
+match pop3 m|^\+OK POP3 on WebEasyMail \[([\d.]+)\] ready\.  http://www\.51webmail\.com\r\n| p/WebEasyMail pop3d/ v/$1/
+match pop3 m|^\+OK \(POP3\) hMailServer ([\w-.]+)\r\n| p/hMailServer pop3d/ v/$1/ o/Windows/
+match pop3 m|^\+OK Hi\r\n| p/Zoe Java pop3d/
 
+# These are fairly general
+match pop3 m|^\+OK POP3 Server ready\r\n$| p/zpop3d/
+match pop3 m|^\+OK POP3 server ([\w-_.]+) ready <[\d.]+@[\w-_.]+>\r\n| p/BVRP Software SLMAIL pop3d/ h/$1/
+match pop3 m|^\+OK ([\w-_.]+) POP3 Server \(Version ([\w.]+)\) ready at <.*>\r\n| p/BSD-based in.pop3d/ v/$2/ h/$1/
+match pop3 m|^\+OK popd-([\d.]+) ready \r\n| p/FreeBSD popd/ v/$1/
+match pop3 m|^\+OK POP3 server at ([\w-_.]+) ready <[\d.]+@| p/FirstClass pop3d/ h/$1/
+match pop3 m|^\+OK POP3 Server OK <[\d.]+@([\w-_.]+)>\r\n| p/Communigate Pro pop3d/ h/$1/
+match pop3 m|^-ERR Permission denied - closing connection\.\r\n$| p/Classic Hamster pop3d/ i/Permission denied/ o/Windows/
+match pop3 m|^\+OK ([\w-_.]+) <[\d.]+@[\w-_.]+>\r\n| p/IA MailServer pop3d/ h/$1/ o/Windows/
+match pop3 m|^\+OK <[\d.]+@([\w-_.]+)>\r\n| p/qmail pop3d/ h/$1/
+match pop3 m|^\+OK POP3 server ready <[\d.]+@([\w-_.]+)>\r\n| p/MailMax pop3/ h/$1/ o/Windows/
+match pop3 m|^\+OK ready  <[\d.]+@([\w-_.]+)>\r\n| p/qpopper/ h/$1/
+
+match pop3-proxy m|^\+OK POP3 AnalogX Proxy (\d[-.\w]+) \(Release\) ready\.\n$| p/AnalogX POP3 proxy/ v/$1/
+match pop3-proxy m/^\+OK CCProxy (\S+) POP3 Service Ready\r\n/ p/CCProxy pop3d/ v/$1/
+match pop3-proxy m/^Proxy\+ POP3 server\. Insecure access - terminating\.\r\n/ p/Proxy+ pop3d/
+match pop3-proxy m|^\+OK TrendMicro IMSS (\d[-.\w ]+) POP3 Proxy at ([-.\w]+)\r\n| p/TrendMicro IMSS virus scanning POP3 proxy/ h/$1/ v/$2/
+match pop3-proxy m|^\+OK Proxy-POP server \(DeleGate/([\d.]+) by ysato AT delegate DOT org\) at ([\w-_.]+) starting\.\r\n| p/DeleGate pop3 proxy/ v/$1/ h/$2/
+match pop3-proxy m|^\+OK Jana-Server POP3 ready <[\w.]+@([\w-_.]+)>\r\n| p/Jana-Server pop3 proxy/ h/$1/ o/Windows/
+match pop3-proxy m|^\+OK POP3 Y(ahoo)?POPs! proxy ready\r\n| p/YahooPOPs! pop3 proxy/
+match pop3-proxy m|^\+OK POP3 \(Spampal\) server ready \(USER command must include mailserver name\)\r\n| p/Spampal pop3 proxy/ o/Windows/
+match pop3-proxy m|^\+OK Mirapoint POP3PROXY ([\w-.]+) server ready\r\n| p/Mirapoint pop3 proxy/ v/$1/
+match pop3-proxy m|^\+OK AVG POP3 Proxy Server Beta - ([\d/.]+) \[[\d.]+\]\r\n| p/AVG pop3 proxy/ v/$1 Beta/ o/Windows/
+match pop3-proxy m|^\+OK AVG POP3 Proxy Server ([\d/.]+) \[[\d.]+\]\r\n| p/AVG pop3 proxy/ v/$1/ o/Windows/
+match pop3-proxy m|^\+OK FreePOPs/([\d.]+) pop3 server ready\r\n| p/FreePOPs pop3 proxy/ v/$1/
+match pop3-proxy m|^\+OK POP3 Spam Inspector Spam Filter Gateway Version ([\d.]+) Ready\.\r\n| p/Spam Inspector pop3 proxy/ v/$1/ o/Windows/
+match pop3-proxy m|^\+OK MailMarshal\(([\d.]+)\) POP3 server ready <[\d.]+@([\w-_.]+)>\r\n| p/MailMarshal pop3d/ v/$1/ h/$2/
+match pop3-proxy m|^\+OK HTML2POP3 server ready \(([\d.]+)\)\r\n| p/HTML2POP3 pop3 proxy/ v/$1/
+match pop3-proxy m|^\+OK ([\w-_.]+) POP3 proxy ready\r\n| p/pop3gwd pop3 proxy/ h/$1/
 
 softmatch pop3 m|^\+OK [-\[\]\(\)!,/+:<>@.\w ]+\r\n$|
 
@@ -538,12 +754,15 @@ softmatch pop3 m|^\+OK [-\[\]\(\)!,/+:<>@.\w ]+\r\n$|
 # poppassd 1.8.1
 match pop3pw m|^200 ([-.\w]+ )?poppassd v(\d[-.\w]+) hello, who are you\?\r\n| p|Poppassd| v|$2| i|http://echelon.pl/pubs/poppassd.html|
 match pop3pw m|^200 poppassd hello, who are you\?\r\n| p/poppassd/
+match pop3pw m|^200 poppassd v([\w.]+) for Digital Unix with C2 security Hello, who are you\?\r\n| p/poppassd/ i/Digital Unix with C2 security/ v/$1/ o/DIGITAL UNIX/
 match pop3pw m|^200 courierpassd v(\d[-.\w]+) hello, who are you\?\r\n| p/Courierpassd pop3 password change daemon/
 match pop3pw m|^200 ([-.+\w]+) MercuryW PopPass server ready\.\r\n| p|Mercury/32 poppass service| o|Windows| h|$1|
 match pop3pw m|^200 X1 NT-PWD Server ([-.+\w]+) \(IMail (\d[-.\w]+)\)\r\n| p/IPSwitch Imail pop3 password change daemon/ h/$1/ v/$2/ o/Windows/
 match pop3pw m|^200 CommuniGate Pro PWD Server (\d[-.\w]+) ready <| p/CommuniGate Pro pop3 password change daemon/ v/$1/
 match pop3pw m|^\+OK ApplePasswordServer (\d[-.\w]+) password server at | p/ApplePasswordServer pop3 password change daemon/ v/$1/
 match pop3pw m|^200 Stalker Internet Password Server ready\. V\.([\w.]+)\r\n| p/Stalker Mail Server password change daemon/ v/$1/ o/Mac OS/
+match pop3pw m|^550 Login failed - already \d+/\d+ users connected sorry \(use G_CON_PERIP_EXCEPT to bypass\) \(IP=[\d.]+\)\r\n| p/Qualcomm poppassd/ i/Maximum users connected/
+match pop3pw m|^200 hello and welcome to SchoolsNET SINA poppassd \[([\d-.]+)\]\r\n| p/SINA pop3pw/ v/$1/
 
 match pmud m|^pmud (\d[-.\w]+) \d+\n| p|pmud| i|http://sf.net/projects/apmud|
 match printer m|^lpd \[@([-.\w]+)\]: Print-services are not available to your host \([-.\w]+\)\.\n| p/BSD lpd/ i/Unauthorized host/ h/$1/
@@ -718,6 +937,9 @@ match smtp m|^220 \[([\w-_.]+)\] ESMTP amavisd-new service ready\r\n| p/amavisd 
 match smtp m/^220 SMTP-Server Classic Hamster (Vr\.|Version) [\d.]+ \(Build ([\d.]+)\)\r\n/ p/Classic Hamster smtpd/ v/$2/ o/Windows/
 match smtp m|^220-Stalker Internet Mail Server V.([\w.]+) is ready\.\r\n| p/Stalker smtpd/ v/$1/ o/Mac OS/
 match smtp m|^220 ([\w-_.]+) ESMTP MailMax ([\d.]+) [A-Z][a-z][a-z].*\r\n| p/MailMax smtpd/ v/$2/ h/$1/ o/Windows/
+match smtp m|^220 ([\w-_.]+) running IBM MVS SMTP CS V2R10 on .*\r\n| p/IBM MVS smtpd/ h/$1/ o/MVS/
+match smtp m|^220 [\w-_]+ ESMTP ([\w-_.]+) \(Debian/GNU\)\r\n| p/Postfix smtpd/ h/$1/ o/Linux/
+match smtp m|^220 ([\w-_.]+) ESMTP Oracle Email Server SMTP Inbound Server\t([\d.]+) \t  Ready\r\n| p/Oracle smtpd/ v/$2/ h/$1/
 
 
 
@@ -752,6 +974,7 @@ match ssh m/^SSH-([.\d]+)-(\d[-.\w]+) sshlib: WinSSHD (\d[-.\w]+)\r\n/ p/Bitvise
 match ssh m/^SSH-([.\d]+)-OpenSSH\n$/ p/OpenSSH/ i/protocol $1/ d/terminal server/
 match ssh m/^SSH-([.\d]+)-([.\d]+) Radware\n$/ p/Radware Linkproof SSH/ v/$2/ i/protocol $1/ d/terminal server/
 match ssh m|^SSH-1\.5-X\n| p/Cisco VPN Concentrator SSHd/ i/protocol 1.5/ d/terminal server/
+match ssh m|^SSH-([\d.]+)-NetScreen\r\n| p/NetScreen sshd/ i/protocol $1/ d/firewall/
 softmatch ssh m/^SSH-([.\d]+)-/
 
 # Redhat Linux 7.1 - HAHAHAHAHAHA!!!! I love this service :) 
@@ -882,7 +1105,8 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfe\x01\n\rlogin: $| p/Cayman-DSL r
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\xff\xfd\x1f\r\n\r\nUsername: $| p/Blue Coat telnetd/
 match telnet m|^\xff\xfb\x01@ Userid: | p/Shiva LanRover telnetd/
 # Netscreen ScreenOS 4.0.1r1.0 telnetd on a netscreen 5XT running firmware 4.0.1r1.0
-match telnet m|^\xff\xfd\x18\xff\xfb\x01\xff\xfe\x01Remote Management Console\r\n\r\nlogin: $| p/Netscreen ScreenOS telnetd/
+match telnet m|^\xff\xfd\x18\xff\xfb\x01(\xff\xfe\x01)?(\xff.\x03)?[\w ]*Remote Management Console\r\n(\r\n)?login: $| p/Netscreen ScreenOS telnetd/ d/firewall/
+
 # Note that openwall telnetd is derived from OpenBSD telnetd
 match telnet m|^\xff\xfd\x18\xff\xfd \xff\xfd#\xff\xfd'\xff\xfd\$$| p|Openwall GNU/*/Linux telnetd| o|Linux|
 match telnet m|^\xff\xfc\x01\r\nHP JetDirect\r\n\r\nPlease type \"\?\" for HELP, or \"/\" for current settings\r\n> $| p/HP Jet Direct printer telnetd/ d/printer/
@@ -900,6 +1124,11 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\n\r\nWelcome 
 match telnet m|^\xff\xfb\x01\xff\xfd\x18\nTelnet Service on the PrintServer\n\n\rPassword: | p/Hawking Print Server telnetd/ d/print server/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\n Welcome to OpenVMS \(TM\) Alpha Operating System, Version V([\d.]+)    \r\n\r\n\rUsername: | p/OpenVMS telnetd/ o/OpenVMS $1/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\x1b\[0;37;40m\x1b\[2J\x1b\[0;37;40m\x1b\[1m\x1b\[5;27HVertical Horizon Stack Manager\x1b\[0;37;40m\x1b\[1m\x1b\[10;26HEnterasys Networks, Incorporated| p/Enterasys Vertical Horizon Manager/ d/switch/
+match telnet m|^\xff\xfd\($| p|IBM OS/390 telnet| o|OS/390|
+match telnet m|^\xff\xfb\r\nRemotelyAnywhere Telnet Server v([\d.]+)\r\n.*\r\n\r\n([\w-_. ]+) login\r\nuser name: | p/RemotelyAnywhere telnetd/ v/$1/ i/Name $2/ o/Windows/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\nRICOH Maintenance Shell\.   ([\w:]+)\n\rUser access verification\.\n\rPassword:| p/RICHOH Maintenance telnetd/ i/MAC $1/ d/print server/
+match telnet m|^\r\nVxWorks login: \xff\xfb\x01$| p/VxWorks telnetd/ o/VxWorks/
+
 
 # tinc 1.0.2-2 on Linux
 match tinc m|^0 \w+ 17\n| p/tinc vpn daemon/
@@ -952,9 +1181,15 @@ match apc-agent m|^\xac\xed\0\x05$| p/APC PowerChute agent/ d/power device/
 # OpenH323 Gatekeeper 2.0.3
 match afs3-fileserver m|^\xff\xfd\x03\xff\xfb\x05Version:\r\nGatekeeper\(GNU\) Version\(([\d.]+)\) Ext\(.*\) Build\(.*\) Sys\(Linux .*\)\r\n\r\n| p/OpenH323 Gatekeeper/ v/$1/ o/Linux/
 
+match wingate-control m|^.\x01.[\x02\x03]\x01\d+\0$| p/WinGate Administration/ o/Windows/
+# Wingate redir: Probably not general enough
+match wingate m|^\0\n\0\0\x02\0\0\0\x01\0$| p/WinGate transparent redirection/ o/Windows/
+match mail-admin m|^OK0100 eXtremail V([\d.]+) release (\d+) REMote management \.\.\.\r\n| p/eXtremail remote management/ v/$1 release $2/
+match pppd m|^SuSE Meta pppd \(smpppd\), Version ([\d.]+)\r\n| p/SuSE Meta pppd/ v/$1/ o/Linux/
+
 ##############################NEXT PROBE##############################
 Probe TCP GenericLines q|\r\n\r\n|
-ports 21,23,43,98,110,113,119,199,505,540,628,1040,1248,1467,1501,2010,3128,3333,5432,5555,6112,6667-6670,8000,11965,30444
+ports 21,23,43,98,110,113,119,199,505,540,628,1040,1248,1467,1501,2010,3128,3333,5000,5432,5555,6112,6667-6670,8000,11965,30444
 
 # bnetd (PvPGN BnetD Mod version 1.5.0) on Debian GNU/Linux (sid)
 match bnetd m|^BOT or Telnet Connection from \[127\.0\.0\.1\]\r\n\r\nEnter your account name and password\.\r\nSorry, there is no guest account\.\r\n\r\nUsername: | p/PvPGN BnetD Mod/ v/1.5.0/
@@ -983,8 +1218,12 @@ match ftp m|^220 .*\r\n530 Please login with USER and PASS\.\r\n530 Please login
 match ftp m|^220 ([-.\w]+) FTP Server ready \.\.\.\r\n530 \r  : User not logged in\. Please login with USER and PASS first\.\r\n530 \r  : User not logged in\. Please login with USER and PASS first\.\r\n$| p/Bulletproof ftp server/ o/Windows/ h/$1/
 # BulletProof FTP 2.21 on Windows 2000 Server
 match ftp m|^220 ftp\r\n$| p/Bulletproof ftp server/ o/Windows/
-# WarFTP Daemon 1.70 on Win2K
-match ftp m|^220 ([-.+\w]+) FTP SERVICE ready\r\n500 Please enter a command\. Dunno how to interperet empty lines\.\.\.\r\n500 Please enter a command\. Dunno how to interperet empty lines\.\.\.\r\n$| p/WarFTPd/ h/$1/ o/Windows/
+match ftp m|^220 FTP server ready\.\r\n200 NOOP command successful\.\r\n| p/Tektronix Phaser ftpd/ d/printer/
+match ftp m|^220 \"Welcome to Bot FTP service\.\"\r\n331 Please specify the password\.\r\n230 Login successful\. Have fun\.\r\n| p/Unknown trojan ftpd/
+match ftp m|^220 OK\n226 OK\n| p/Sasser worm minimal ftpd/ o/Windows/
+match ftp m|^220 FTPd ([\d.]+)\r\n500 Bad command\r\n| p/USR8022 router ftpd/ v/$1/ d/router/
+match ftp m|^220 Telindus FTP server ready\.\r\n502 Command not implemented\.\r\n502 Command not implemented\.\r\n| p/Telindus ftpd/ d/router/
+
 # GKrellM System Monitor 2.1.15 on Linux
 match gkrellm m|^<error>\nBad connect string!| p/GKrellM System Monitor/
 
@@ -1048,6 +1287,9 @@ match pop3 m|^\+OK Solid POP3 server ready\r\n-ERR unknown command\r\n-ERR unkno
 match pop3 m|^\+OK POP3 server ready\r\n-ERR invalid command\r\n$| p/IBM OS 400 pop3d/ o|OS/400|
 # mailgate v3.5.177 on Win2K
 match pop3 m|^\+OK pop server ready\r\n$| p/MailGate pop3d/ o/Windows/
+# Perdition
+match pop3-proxy m|^\+OK POP3 Ready ([\w-_.]+) \w+\r\n-ERR Null command, mate\r\n| p/Perdition pop3 proxy/ h/$1/
+
 # Postgres 7.1.3
 match postgresql m|^EInvalid packet length\0$| p/PostgreSQL DB/
 # postgresql-7.2.3-5.73; linux 2.4.20-18.7 redhat 7.3
@@ -1089,10 +1331,14 @@ match webcache m|^HTTP/1\.0 400 Bad Request\r\nExpires: .*\r\nContent-Type: text
 # Not sure if this is netware specific (linux too?) -Doug
 match zenimaging m|^\xff\xff\xfb&$| p/Novell ZENworks Imaging Proxy/
 
+match ajp12 m|^Status: 400 Bad Request\r\nServlet-Error: Malformed data sent to JServ\r\n\r\n$| p/Jserv/
+
+match nuttcp m|^KO\nnuttcp-t: v([\d.]+): error scanning parameters\nmay be using older client version than server\n\r\nKO\n| p/nuttcp network throughput tester/ v/$1/
+
 
 ##############################NEXT PROBE##############################
 Probe TCP GetRequest q|GET / HTTP/1.0\r\n\r\n|
-ports 70,79,80-85,88,113,139,143,280,497,515,540,554,620,631,783,993,995,1220,1503,2030,3052,3128,3372,3531,3689,5000,5432,5800-5803,5900,6699,7070,8000-8010,8080-8085,8880-8888,9090,9999,10000,10005,11371,13722,15000,40193,4711
+ports 70,79,80-85,88,113,139,143,280,497,515,540,554,620,631,783,993,995,1220,1503,2030,3052,3128,3372,3531,3689,5000,5432,5800-5803,5900,6346,6699,7070,8000-8010,8080-8085,8880-8888,9090,9999,10000,10005,11371,13722,15000,40193,4711
 sslports 443
 
 # Kerio PF 4.0.11 unregistered - Service process (Port 44xxx?) on MS W2K SP4+
@@ -1130,6 +1376,8 @@ match finger m|^Login       Name               TTY         Idle    When    Where
 match finger m|^Information for user 'GET\+20\+2F\+20HTTP\+2F1\.0':\r\nUnknown user\.\r\n$| p/mlfingerd/
 # SGI IRIX 6.5.18f finger
 match finger m|^Login name: GET       \t\t\tIn real life: \?\?\?\r\n$| p/SGI IRIX fingerd/ o/IRIX/
+# Windows fingerd
+match finger m|^No such user\n$| p/Windows fingerd/ o/Windows/
 
 match gnutella m|^HTTP/1\.[01] 404 Not Found\r\nServer: gtk-gnutella/(\d[-.\w]+) \(([^\)\r\n]+)\)\r\n| p/gtk-gnutella P2P client/ v/$1/ i/$2/
 # LimeWire 3.5.8 on Suse Linux 8.1
@@ -1137,6 +1385,7 @@ match gnutella m|^HTTP/1\.1 406 Not Acceptable\r\n$| p/LimeWire Gnutella P2P cli
 match gnutella m|^HTTP/1\.0 200\r\nServer: Mutella\r\n| p/Mutella Gnutella P2P client/
 match gnutella m|^HTTP/1\.1 404 Not Found\r\nServer: giFT-Gnutella/(\d[-.\w]+)\r\n| p/GiFT P2P client gnutella module/ v/$1/
 match gnutella m|^HTTP/1\.1 200 OK\r\n.*\r\nServer: Shareaza (\d\S+)|s p/Shareaza/ v/$1/
+match gnutella m|^HTTP/1\.1 \d\d\d .*\r\n.*Server: BearShare ([\d.]+)\r\n|s p/BearShare Gnutella P2P client/ v/$1/
 match gopher m|^HTTP/1\.0 200 Ok\r\nMIME-Version: 1\.0\r\nServer: GopherWEB/(\d[-.\w]+)\r\n| p/Internet Gopher Server/ i/Gopher+ protocol; GopherWeb $1/
 
 match http m|^HTTP/1\.0 401 Unauthorized\r\nPragma: no-cache\r\nContent-type: text/html\r\nWWW-Authenticate: Basic realm=\"Login to the Router Web Configurator\"\r\n\r\n<html>\n  <head>\n  <title>401 Unauthorized</title>\n  </head>\n<body>\n\n<div align=\"center\">| p/Draytek Vigor aDSL router webadmin/ d/broadband router/
@@ -1238,7 +1487,10 @@ match http m|^HTTP/1\.0 200 OK\r\nServer: HomeSeer\r\n| p/HomeSeer Home Control 
 # Multitech MultiVoip 410 VoIP gateway
 match http m|^HTTP/1\.1 200 OK\r\nServer: RTXCweb Software (\d[-.\w]+)\r\nDate: .*\r\nContent-type: text/html\r\n\r\n<html>\r\n<head>\r\n<META HTTP-EQUIV=\"PRAGMA\" CONTENT=\"NO-CACHE\">\r\n<META HTTP-EQUIV=\"EXPIRES\" CONTENT=\"-1\">\r\n<script language = \"Javascript\">\r\nvar title_string = \" v \[Firmware - [\w ]+\]| p/Multitech MultiVoip VoIP gateway web interface/ i/Embedded webserver: RTXCweb $1/ d/VoIP adapter/
 # NetComm NB1300 ADSL Modem/Router
-match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: WindWeb/(\d[-.\w]+)\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"([-./\w ]+)\"\r\nContent-Type: text/html\r\n\r\nHasbani Web Server| p/WindWeb embedded webserver/ v/$1/ i/As on NetComm DSL modems; Realm: $2; Calls itself Hasbani Web Server/ d/broadband router/
+
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: WindWeb/(\d[-.\w]+)\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"([-./\w ]+)\"\r\nContent-Type: text/html\r\n\r\n| p/$2 router/ i/runs WindWeb $1/ d/broadband router/
+#atch http m|^HTTP/1\.1 \d\d\d .*\r\nServer: WindWeb/(\d[-.\w]+)\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"([-./\w ]+)\"\r\nContent-Type: text/html\r\n\r\nWeb Server Error Report:<HR>\n<H1>Server Error: 403 Forbidden</H1>\r\n<P><HR><H2>Access denied</H2><P><P><HR><H1>/doc/index\.htm</H1><P>
+
 match http m|^HTTP/1\.0 200 OK\r\nServer: SimpleServer:WWW/(\d[-.\w]+)\r\n| p/AnalogX SimpleServer httpd/ v/$1/ o/Windows/
 # Xitami - Try to match PHP first!
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nContent-Length: \d+\r\nX-Powered-By: ([-/.\w ]+)\r\nContent-Type: .*\r\nServer: Xitami\r\n| p/Xitami httpd/ i/$1/
@@ -1378,6 +1630,8 @@ match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: EHTTP/([.\d]+)\r\nWWW-Authen
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Virata-EmWeb/([-.\w]+)\r\n.*\r\n\r\n\n<!--\nFile name: index\.html\n\nThis is the 'parent' file that calls the individual child frames\. \nThis is the file that is first accessed when the user types http://<ipaddress> \nin the browser toolbar\. \n\nThe UI Architecture consists of a total of 4 frames\. This file calls 3 high-level |s p/HP LaserJet printer webadmin/ i/Virata-EmWeb embedded server $1/ d/printer/
 match http m|^HTTP/1\.0 \d{3} .*\r\nServer: CompaqHTTPServer/([.\w\d]+)\r\n|s p/Compaq Insight Manager HTTP server/ v/$1/
 match http m|^HTTP/1\.1 401 Authorization Required\r\nWWW-Authenticate: Basic realm="Linksys ([-.A-Z\d/ ]+)"\r\n| p/Linksys router web admin server/ i/device model $1/ d/router/
+match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: httpd\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"Cisco 32R54G\"\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n| p/Linksys wireless-G router/ v/WRT54G/ d/router/
+
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Insight Manager (\d)\r\n\r\n|s p/Compaq Insight Manager/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Length: \d+\r\nConnection: close\r\nPragma: no-cache\r\nCache-Control: no-cache, no-store, must-revalidate\r\nExpires: 0\r\nContent-Type: text/html\r\n\r\n| p/GNU Httptunnel/
 # Blue Coat Port 80 Security Appliance Model: Blue Coat SG400 Software Version: SGOS 2.1.6044 Software Release id: 19480 Service Pack 4
@@ -1399,7 +1653,11 @@ match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n.*Server: Allegro-S
 
 # iCal 3.6
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nMIME-Version: 1\.0\r\nServer: Wapapi/1\.1\r\nContent-Type: text/html\r\nContent-Length: \d+\r\n\r\n<html>\r\n<head><title>iCal Tutorial:  Introduction</title></head>| p/Brown Bear iCal web calendar/
-match http m|^HTTP/1\.1 401 Unauthorized\r\nDate: .*\r\nServer: (Virata-EmWeb/R6_0_1)\r\nWWW-Authenticate: Basic realm=\"Administration Tools\"\r\n\r\n401 Unauthorized\r\n$| p/Netscreen administrative web server/ i/runs $1/
+
+match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: (Virata-EmWeb/R6_0_1)\r\nWWW-Authenticate: Basic realm=\"Administration Tools\"\r\n\r\n401 Unauthorized\r\n$| p/Netscreen administrative web server/ i/runs $1/ d/firewall/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: (Virata-EmWeb/R6_0_1)\r\nContent-Type: text/html\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n\r\n.*<link rel=\"SHORTCUT ICON\" href=\"/favicon\.ico\">\n\n<title>Login</title>|s p/Netscreen administrative web server/ i/runs $1/ d/firewall/
+match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: (Web/R[\d_]+)\r\n.*Content-Type: text/html\r\n.*\r\n\r\n<html>\n<head>\n\n<script language=\"javascript\">\n|s p/Netscreen administrative web server/ i/runs $1/ d/firewall/
+
 # Phaser860 Printer
 match http m|^HTTP/1\.1 404 Not Found\r\nDate: .*\r\nAllow: GET, HEAD\r\nServer: Spyglass_MicroServer/(\d[-.\w]+)\r\nContent-Type: text/html\r\nContent-Length: \d+\r\n\r\n<HTML><HEAD><TITLE>Not Found</TITLE></HEAD>\r\n<BODY>The requested URL was not found\.</BODY></HTML>\r\n| p/Spyglass MicroServer embedded webserver/ v/$1/ d/printer/
 # Cisco Catalyst 3500-XL switch IOS 12.0(5)XU
@@ -1421,26 +1679,16 @@ match http m|^HTTP/1\.0 400 Bad Request\r\nServer: Rex/(9\.0\.0\.\d+)\r\n| p|Cha
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: Boa/(\d[-.\w]+)\r\n| p/Boa HTTPd/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: (\d[-.\w]+)\r\n.*<title>GNUMP3d |s p/GNUMP3d streaming server/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: Jetty/(\d[-.\w]+) \(([^)]+)\)\r\n| p/Jetty httpd/ v/$1/ i/$2/
-# No more HTTP softmatch because many services that I don't think are
-# best classified 'http' use http-like semantics (for example UPnP,
-# some https servers, etc).  Maybe I should make softmatch allow
-# future services that start with the service name, and relable all of
-# those.  Shrug.  For now it is gone.
-# softmatch http m|^HTTP/1.[01] \d\d\d|
-
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: WebSphere Application Server/(.+)\r\n| p/IBM WebSphere Application Server/ v/$1/
-
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: JRun Web Server\r\n| p/JRun Web Server/
 
 match http m|^401 Access denied\r\nWWW-Authenticate: Negotiate \r\nContent-length: 0\r\n\r\n| p/Microsoft IIS 5.0 WebDAV/ i/access denied/ o/Windows/
 
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\n.*Server: RomPager/([\w.]+) UPnP/([\w.]+)\r\n\r\n\n<html><head>.*<title>ZyXEL Prestige Router</title>|s p/ZyXEL Prestige Router/ i/Allegro RomPager $1; UPnP $2/ d/router/
-
-
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: RomPager/([-.\w/ ]+)\r\n|s p/Embedded Allegro RomPager webserver/ v/$1/ i/ZyXEL ZyWALL 2/
 
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: IDSL MailGate (\d[-.\w]+)\r\n| p/MailGate web proxy/ v/$1/
-match http m|^HTTP/1\.0 \d\d\d .*<TITLE>The AXIS 200 Home|s p/AXIS 200 Webcam/
+match http m|^HTTP/1\.0 \d\d\d .*<TITLE>The AXIS 200 Home|s p/AXIS 200/ d/webcam/
 
 match http m|^HTTP/1\.[01] 200 OK\nServer: Anti-Web V([\d.]+) \(([\w .-]+)\)\n| p/Anti-Web httpd/ v/$1/ i/Quote: $2/
 match http m|^HTTP/1\.0 200 OK\r\nServer: ArGoSoft Mail Server Pro for WinNT/2000/XP, Version [\d.]+ \(([\d.]+)\)\r\n| p/ArGoSoft Mail Server Pro httpd/ v/$1/ o/Windows/
@@ -1471,7 +1719,22 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Apache  -OOPS Development Organi
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Apache  -OOPS Development Organization-\r\n|s p/Apache - OOPS Devel Org/ i/$1/
 match http m|^HTTP/1\.0 200 OK\nDATE: .*\nPragma: no-cache\nServer: Delta UPSentry\n| p/Sentry Bulldog UPS httpd/
 match http m|^HTTP/1\.0 \d\d\d .*Server: Gatling/([\d.]+)\r\n|s p/Gatling httpd/ v/$1/
+# PolyCom ViewStation 128
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Viavideo-Web\r\n|s v/PolyCom ViewStation/ d/webcam/
+match http m|^HTTP/1\.1 400 Malformed Request\r\nServer: WinGate ([\d.]+) \(Build 995\)\r\n| p/WinGate httpd/ v/$1/ o/Windows/
+match http m|^HTTP/1\.0 \d\d\d .*\nDate: .*\nMIME-version: [\d.]+\nServer: Micro-HTTP/([\d.]+)\nContent-type: text/html\n.*Copyright Tektronix, Inc\.|s p/Tektronix printer httpd/ d/printer/ i|Micro-HTTP/$1|
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: IBM HTTP Server/([\w]+)\r\n| p/IBM httpd/ v/$1/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: SAlive/ ([\d.]+)\r\n|s p/Servers Alive network monitor/ v/$1/ o/Windows/
+match http m|^HTTP/1\.0 200 OK\r\nContent-Type:text/html\r\nContent-Length:\d+\r\n\n\n<HTML>\n<HEAD>\n<TITLE>Not Supported</TITLE>\n</HEAD>\n<body>\n\n<H1 ALIGN=CENTER>The Command sent is not Supported</H1>\n\n\n</BODY>\n</HTML>\n\n\0\0| p/NetWare FTP stats httpd/
+match http m|^HTTP/1\.1 \d\d\d .*\r\n.*Server: Abyss/([\d.]+) \(Win32\) AbyssLib/([\d.]+)\r\n\r\n|s p/Abyss httpd/ v/$1/ i|AbyssLib/$2| o/Windows/
 
+
+# No more HTTP softmatch because many services that I don't think are
+# best classified 'http' use http-like semantics (for example UPnP,
+# some https servers, etc).  Maybe I should make softmatch allow
+# future services that start with the service name, and relable all of
+# those.  Shrug.  For now it is gone.
+# softmatch http m|^HTTP/1.[01] \d\d\d|
 
 # While this response looks like a web admin port, I think the same port is used for the primary
 # proxy functionality.  This is version 3.0 final on Linux.
@@ -1561,6 +1824,7 @@ match omninames m|^GIOP\x01\0\x01\x06\0\0\0\0$| p/omniORB omniNames/ i/Corba nam
 match oracle-mts m|^HTTP/1\.0 200 OK\r\nContent-length: 7\r\n\r\nunknown$| p/Oracle MTS Recovery Service/
 
 match ssl/pop3 m|^-ERR \[SYS/PERM\] Fatal error: tls_start_servertls\(\) failed\r\n$| p/Cyrus pop3sd/
+match ssl/pop3 m|^-ERR Fatal error: pop3s: required OpenSSL options not present\r\n| p/Cyrus pop3sd/
 # Postgresql-server-7.3.2-3
 match postgresql m|^EFATAL:  invalid length of startup packet\n\0$| p/PostgreSQL/
 # Netware 6 NetWare/IP
@@ -1635,6 +1899,8 @@ match sunscreen-adm m|^\x01\0\0\0\0\0\0\0T\x03\0\0\0\0\0\x01\x1e\0\0\0\0\0\0;\0\
 # PopChartServer
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: PopChartServer ([\d.]+)\r\n|s p/PopChart Pro/ v/$1/
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: CordaServer \(PopChartServer compatible\) ([\d.]+)\r\n|s p/CordaServer/ v/$1/
+
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: WebSTAR/([\d.]+) ID/\d+\r\n|s p/WebSTAR/ v/$1/
 
 
 
@@ -1926,8 +2192,13 @@ match ftp m|^220 ([-.\w]+ )?FTP [sS]erver ready\.?\r\n214-The following commands
 # ProFTPD 1.2.8
 # proftpd 1.2.9 rc1
 match ftp m@^220 .*\r\n214-The following commands are recognized \(\* =>'s unimplemented\)\.\r\n(214-| )USER    PASS    ACCT\*   CWD     XCWD    CDUP    XCUP    SMNT\*   \r\n(214-| )QUIT    REIN\*   PORT    PASV    TYPE    STRU    MODE    RETR    \r\n(214-| )STOR    STOU    APPE    ALLO\*   REST    RNFR    RNTO    ABOR    \r\n(214-| )DELE    MDTM    RMD     XRMD    MKD     XMKD    PWD     XPWD    \r\n(214-| )SIZE@ p/ProFTPD/ v/1.2.8 - 1.2.9/ o/Unix/
+match ftp m@^220 .*\r\n214-The following commands are recognized \(\* =>'s unimplemented\)\.\r\n(214-| )USER    PASS    ACCT\*   CWD     XCWD    CDUP    XCUP    SMNT\*   \r\n(214-| )QUIT    REIN\*   PORT    PASV    EPRT    EPSV    TYPE    STRU    \r\n(214-| )MODE    RETR    STOR    STOU    APPE    ALLO\*   REST    RNFR    \r\n(214-| )RNTO    ABOR    DELE    MDTM    RMD     XRMD    MKD     XMKD    \r\n(214-| )PWD     XPWD    SIZE    LIST    NLST    SITE    SYST    STAT    \r\n@ p/ProFTPD/ v/1.2.8 - 1.2.9/ o/Unix/
 # proftpd 1.2.9rc1 on linux 2.4.19
 match ftp m|220 localhost FTP server ready\r\n214-The following commands are recognized \(\* =>'s unimplemented\)\.\r\n214-USER    PASS    ACCT\*   CWD     XCWD    CDUP    XCUP    SMNT\*   \r\n214-QUIT    REIN\*   PORT    PASV    TYPE    STRU    MODE    RETR    \r\n214-STOR    STOU    APPE    ALLO\*   REST    RNFR    RNTO    ABOR    \r\n214-DELE| p/ProFTPD/ v/1.2.9rc1/ o/Unix/
+# proftpd 1.2.10
+match ftp m|^220 .*\r\n214-The following commands are recognized \(\* =>'s unimplemented\):\r\n CWD     XCWD    CDUP    XCUP    SMNT\*   QUIT    PORT    PASV    \r\n EPRT    EPSV    ALLO\*   RNFR    RNTO    DELE    MDTM    RMD     \r\n XRMD    MKD     XMKD    PWD     XPWD    SIZE    SYST    HELP    \r\n NOOP    FEAT    OPTS    AUTH\*?   CCC\*    CONF\*   ENC\*    MIC\*    \r\n PBSZ\*?   PROT\*?   TYPE    STRU    MODE    RETR    STOR    STOU    \r\n|s p/ProFTPD/ v/1.2.10/
+match ftp m|^220 .*\r\n214-The following commands are recognized \(\* =>'s unimplemented\):\r\n CWD     XCWD    CDUP    XCUP    SMNT\*   QUIT    PORT    PASV    \r\n EPRT    EPSV    ALLO\*   RNFR    RNTO    DELE    MDTM    RMD     \r\n XRMD    MKD     XMKD    PWD     XPWD    SIZE    SYST    HELP    \r\n|s p/ProFTPD/
+
 # Solaris 8 ftpd
 match ftp m|^220 ([-.+\w]+) FTP server \(.*\) ready\.\r\n214-The following commands are recognized:\r\n   USER    EPRT    STRU    MAIL\*   ALLO    CWD     STAT\*   XRMD \r\n   PASS    LPRT    MODE    MSND\*   REST\*   XCWD    HELP    PWD \r\n   ACCT\*   EPSV    RETR    MSOM\*   RNFR    LIST    NOOP    XPWD \r\n   REIN\*   LPSV    STOR    MSAM\*   RNTO    NLST    MKD     CDUP \r\n| p/Sun Solaris ftpd/ h/$1/ o/Solaris/
 # Phaser860 printer
@@ -1936,12 +2207,22 @@ match ftp m|^220 FTP server ready\.\r\n214- The following commands are recognize
 match ftp m|^220 ([-.\w]+) FTP server ready\.\r\n214- The following commands are recognized \(\* =>'s unimplemented\)\.\r\n   USER    PORT    TYPE    MLFL\*   MRCP\*   DELE    SYST    RMD     STOU \r\n   PASS    LPRT    STRU    MAIL\*   ALLO    CWD     STAT    XRMD    SIZE \r\n   ACCT\*   EPRT    MODE    MSND\*   REST    XCWD    HELP    PWD     MDTM \r\n   SMNT\*   PASV    RETR    MSOM\*   RNFR    LIST    NOOP    XPWD \r| p/bsd-ftpd/ o/Linux/ h/$1/
 # Rhinosoft Serv-U FTP v.4.1 build 4.1.0.0 on Windows XP
 match ftp m|^220 .*\r\n214- The following commands are recognized \(\* => unimplemented\)\.\r\n   USER    PORT    RETR    ALLO    DELE    SITE    XMKD    CDUP    FEAT\r\n   PASS    PASV    STOR    REST    CWD     STAT    RMD     XCUP    OPTS\r\n   ACCT    TYPE    APPE    RNFR    XCWD    HELP    XRMD    STOU    AUTH\r\n   REIN    STRU    SMNT    RNTO    LIST    NOOP    PWD     SIZE    PBSZ\r\n| p/Rhinosoft Serv-U FTP/
-# pure-ftpd 1.0.12 on Linux 2.4
-match ftp m|^220[- ]FTP server ready\.\r\n.*214 Pure-FTPd - http://pureftpd\.org/?\r\n|s p/Pure-FTPd/
 # BulletProof FTP server 2.15 on Windows XP
 match ftp m|^220 .*\r\n530 Please login with USER and PASS first\.\r\n$| p/BulletProof FTPd/ o/Windows/
 # SGI IRIX 6.5.18f ftpd
 match ftp m|^220 ([-.\w]+) FTP server ready\.\r\n214- The following commands are recognized \(\* =>'s unimplemented\)\.\r\n   USER    PORT    STOR    MSAM\*   RNTO    NLST    MKD     CDUP \r\n   PASS    PASV    APPE    MRSQ\*   ABOR    SITE    XMKD    XCUP \r\n   ACCT\*   TYPE    MLFL\*   MRCP\*   DELE    SYST    RMD     STOU \r\n   SMNT\*   STRU    MAIL\*   ALLO    CWD     STAT    XRMD    SIZE \r\n   REIN\*   MODE    MSND\*   REST    XCWD    HELP    PWD     MDTM \r\n   QUIT    RETR    MSOM\*   RNFR    LIST    NOOP    XPWD \r\n214 Direct comments to | p/SGI IRIX ftpd/ h/$1/ o/IRIX/
+match ftp m|^421 Server is temporarily unavailable - please try again later\.\r\n421 Service closing control connection\.\r\n| p/Serv-U ftpd/ i/Server temporarily unavailable/ o/Windows/
+# FreeBSD 4.10 ftpd
+match ftp m|^220 FTP server ready\.\r\n214- The following commands are recognized \(\* =>'s unimplemented\)\.\r\n   USER    PORT    TYPE    MLFL\*   MRCP\*   DELE    SYST    RMD     STOU \r\n   PASS    LPRT    STRU    MAIL\*   ALLO    CWD     STAT    XRMD    SIZE \r\n   ACCT\*   EPRT    MODE    MSND\*   REST    XCWD    HELP    PWD     MDTM \r\n   SMNT\*   PASV    RETR    MSOM\*   RNFR    LIST    NOOP    XPWD \r\n   REIN\*   LPSV    STOR    MSAM\*   RNTO    NLST    MKD     CDUP \r\n   QUIT    EPSV    APPE    MRSQ\*   ABOR    SITE    XMKD    XCUP \r\n214 End\.\r\n| p/FreeBSD ftpd/
+match ftp m|^220 .*\r\n214-CesarFTP server ([\w.]+) supports the following commands:\r\n| p/CesarFTPd/ v/$1/
+match ftp m|^220 Private ftp server, anonymous login not allowed\.\r\n214-The following commands are recognized:\r\n   USER   PASS   QUIT   CWD    PWD    PORT   PASV   TYPE\r\n   LIST   REST   CDUP   RETR   STOR   SIZE   DELE   RMD \r\n   MKD    RNFR   RNTO   ABOR   SYST   NOOP   APPE   NLST\r\n   MDTM   XPWD   XCUP   XMKD   XRMD   NOP    EPSV   EPRT\r\n   AUTH   ADAT   PBSZ   PROT   FEAT   MODE   OPTS   HELP\r\n214 Have a nice day\.\r\n| p/FileZilla ftpd/ i/No anon login/ o/Windows/
+# OpenVMS 7.3-1
+match ftp m|^220 ([\w-_.]+) FTP Server \(Version ([\d.]+)\) Ready\.\r\n214-The following commands are recognized:\r\n   USER    TYPE    RETR    RNFR    NLST    PWD     ALLO    EPSV \r\n   PASS    STRU    STOR    RNTO    CWD     CDUP    SYST    QUIT \r\n   SITE    PORT    STOU    DELE    MKD     NOOP    STAT    HELP \r\n   MODE    EPRT    APPE    LIST    RMD     ABOR    PASV \r\n214 End of Help\.\r\n| p/OpenVMS ftpd/ v/$2/ h/$1/
+
+match ftp m|^220 Speak friend, and enter\r\n214-\r\n  ftpd\.bin - Round-robin File Transfer Server, version ([\w.]+)\r\n| p/ftpd.bin round-robin file server/ v/$1/
+match ftp m|^220 FTP server ready\.  \r\n214-Ethernet Interface\r\n    \r\n    To access help, cd to the help directory then enter a \"dir\" command\.\r\n    \r\n    \r\n| p/QMS Magicolor 2200 DeskLaser printer ftpd/ d/printer/
+match ftp m|^220 FTPU ready\.\r\n500 Sorry, no such command\.\r\n| p/NetGear DG632 router ftpd/ d/router/
+match ftp m|^220 ([\w-_.]+) FTP server \(UNIX_SV ([\d.]+)\) ready\.\r\n214-The following commands are recognized \(\* =>'s unimplemented\)\.\r\n   USER    PORT    STOR    MSAM\*   RNTO    NLST    MKD     CDUP \r\n   PASS    PASV    APPE    MRSQ\*   ABOR    SITE    XMKD    XCUP \r\n   ACCT\*   TYPE    MLFL\*   MRCP\*   DELE    SYST    RMD     STOU \r\n   SMNT\*   STRU    MAIL\*   ALLO    CWD     STAT    XRMD    SIZE \r\n   REIN\*   MODE    MSND\*   REST    XCWD    HELP    PWD     MDTM \r\n   QUIT    RETR    MSOM\*   RNFR    LIST    NOOP    XPWD \r\n| p/WU-FTPd/ i/UNIX_SV $2/ h/$1/ o/Unix/
 
 match finger m|^iFinger v(\d[-.\w]+)\n\n| p/IcculusFinger/ v/$1/
 
@@ -2119,16 +2400,16 @@ match domain m|^\x80\xf0\x80\x12\0\x01\0\0\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAA
 Probe TCP LPDString q|\x01default\n|
 ports 515
 match printer m|^\0$| d/printer/
-match printer m|^default: unknown printer\n$| p/Solaris lpd/ o/Solaris/
+match printer m|^default: unknown printer\n$| p/Solaris lpd/ d/printer/ o/Solaris/
 # Redhat Linux 7.3 LPRng-3.8.9
-match printer m|^\x01no connect permissions\n$| p/LPRng/
+match printer m|^\x01no connect permissions\n$| p/LPRng/ d/printer/
 # Microsoft Windows 2000 serverr LPD
-match printer m|^\x01\x01$| p/Microsoft lpd/
+match printer m|^\x01\x01$| p/Microsoft lpd/ d/printer/
 # Blackbox Terminal Server (IOLAN v4.03.00 a CDi)
 # Chase IOLAN terminal server lpd
 # Bay Networks MicroAnnex XL  Comm. Server R10.0
-match printer m|^\x01$|
-match printer m|^[-.\w]+: lpsched: unknown printer\n$| p/SGI IRIX lprsrv/ o/IRIX/
+match printer m|^\x01$| d/printer/
+match printer m|^[-.\w]+: lpsched: unknown printer\n$| p/SGI IRIX lprsrv/ d/printer/ o/IRIX/
 
 # Ldap bind request, version 2, null DN, AUTH_TYPE simple, null password
 ##############################NEXT PROBE##############################
