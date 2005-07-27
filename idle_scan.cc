@@ -461,15 +461,6 @@ void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
 	   SYN|ACK, but then are slightly less stealthy and have less chance
 	   of sneaking through the firewall.  Plus SYN|ACK is what they will
 	   be receiving back from the target */
-	/*	seq_response_num = (ntohl(tcp->th_ack) - 2 - sequence_base);
-		if (seq_response_num < 0 || seq_response_num >= probes_sent) {
-		if (o.debugging) {
-		error("Unable to associate IPID proxy probe response with sent packet (received ack: %lX; sequence base: %lX. Packet:", ntohl(tcp->th_ack), sequence_base);
-		readtcppacket((char *)ip,BSDUFIX(ip->ip_len));
-		}
-		seq_response_num = probes_returned;
-		}
-	*/
 	probes_returned++;
 	ipids[seq_response_num] = (u16) ntohs(ip->ip_id);
 	probe_returned[seq_response_num] = 1;

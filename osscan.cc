@@ -455,7 +455,7 @@ if (o.verbose && openport != (unsigned long) -1)
 	     /* BzzT! Value out of range */
 	     if (o.debugging) {
 	       error("Unable to associate os scan response with sent packet (received ack: %lX; sequence base: %lX. Packet:", (unsigned long) ntohl(tcp->th_ack), (unsigned long) sequence_base);
-	       readtcppacket((unsigned char *)ip,BSDUFIX(ip->ip_len));
+	       readtcppacket((unsigned char *)ip,ntohs(ip->ip_len));
 	     }
 	     seq_response_num = si->responses;
 	   }
