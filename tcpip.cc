@@ -441,15 +441,15 @@ const char *ippackethdrinfo(const u8 *packet, u32 len) {
   inet_ntop(AF_INET, &saddr, srchost, sizeof(srchost));
   inet_ntop(AF_INET, &daddr, dsthost, sizeof(dsthost));
 
-  frag_off = 8 * (BSDUFIX(ip->ip_off) & 8191) /* 2^13 - 1 */;
-  more_fragments = BSDUFIX(ip->ip_off) & IP_MF;
+  frag_off = 8 * (ntohs(ip->ip_off) & 8191) /* 2^13 - 1 */;
+  more_fragments = ntohs(ip->ip_off) & IP_MF;
   if (frag_off || more_fragments) {
     snprintf(fragnfo, sizeof(fragnfo), " frag offset=%d%s", frag_off, more_fragments ? "+" : "");
   }
   
 
   snprintf(ipinfo, sizeof(ipinfo), "ttl=%d id=%d iplen=%d%s", 
-	   ip->ip_ttl, ntohs(ip->ip_id), BSDUFIX(ip->ip_len), fragnfo);
+	   ip->ip_ttl, ntohs(ip->ip_id), ntohs(ip->ip_len), fragnfo);
 
   if (ip->ip_p == IPPROTO_TCP) {
     char tcpinfo[64] = "";
@@ -864,7 +864,7 @@ tcp->th_sum = in_cksum((unsigned short *)pseudo, sizeof(struct tcphdr) +
 memset(packet, 0, sizeof(struct ip)); 
 ip->ip_v = 4;
 ip->ip_hl = 5;
-ip->ip_len = BSDFIX(sizeof(struct ip) + sizeof(struct tcphdr) + optlen + datalen);
+ip->ip_len = htons(sizeof(struct ip) + sizeof(struct tcphdr) + optlen + datalen);
 get_random_bytes(&(ip->ip_id), 2);
 ip->ip_ttl = myttl;
 ip->ip_p = IPPROTO_TCP;
@@ -882,10 +882,10 @@ ip->ip_sum = in_cksum((unsigned short *)ip, sizeof(struct ip));
 
 if (TCPIP_DEBUGGING > 1) {
   log_write(LOG_STDOUT, "Raw TCP packet creation completed!  Here it is:\n");
-  readtcppacket(packet,BSDUFIX(ip->ip_len));
+  readtcppacket(packet,ntohs(ip->ip_len));
 }
 
- *packetlen = BSDUFIX(ip->ip_len);
+ *packetlen = ntohs(ip->ip_len);
  return packet;
 
 }
@@ -963,7 +963,14 @@ int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetl
     }
   }
   
-  res = Sendto("send_ip_packet", sd, packet, BSDUFIX(ip->ip_len), 0,
+  /* Equally bogus is that the IP total len and IP fragment offset
+     fields need to be in host byte order on certain BSD variants.  I
+     must deal with it here rather than when building the packet,
+     because they should be in NBO when I'm sending over raw
+     ethernet */
+  ip->ip_len = BSDFIX(ip->ip_len);
+  ip->ip_off = BSDFIX(ip->ip_off);
+  res = Sendto("send_ip_packet", sd, packet, packetlen, 0,
 	       (struct sockaddr *)&sock,  (int)sizeof(struct sockaddr_in));
   return res;
 }
@@ -996,10 +1003,10 @@ int send_frag_ip_packet(int sd, struct eth_nfo *eth, u8 *packet,
     // create fragments and send them
     for (int fragment = 1; fragment * mtu < datalen + mtu; fragment++) {
         fdatalen = (fragment * mtu <= datalen ? mtu : datalen % mtu);
-        ip->ip_len = BSDFIX(headerlen + fdatalen);
-        ip->ip_off = BSDFIX((fragment-1) * mtu / 8);
+        ip->ip_len = htons(headerlen + fdatalen);
+        ip->ip_off = htons((fragment-1) * mtu / 8);
         if ((fragment-1) * mtu + fdatalen < datalen)
-            ip->ip_off |= BSDFIX(IP_MF);
+            ip->ip_off |= htons(IP_MF);
 #if HAVE_IP_IP_SUM
         ip->ip_sum = in_cksum((unsigned short *)ip, headerlen);
 #endif
@@ -1105,8 +1112,8 @@ if (!packet) {
 
 bullshit.s_addr = ip->ip_src.s_addr; bullshit2.s_addr = ip->ip_dst.s_addr;
 /* this is gay */
-realfrag = BSDFIX(ntohs(ip->ip_off) & 8191 /* 2^13 - 1 */);
-tot_len = BSDFIX(ip->ip_len);
+realfrag = htons(ntohs(ip->ip_off) & 8191 /* 2^13 - 1 */);
+tot_len = htons(ip->ip_len);
 strncpy(sourcehost, inet_ntoa(bullshit), 16);
 i =  4 * (ntohs(ip->ip_hl) + ntohs(tcp->th_off));
 if (ip->ip_p== IPPROTO_TCP) {
@@ -1165,8 +1172,8 @@ if (!packet) {
 
 bullshit.s_addr = ip->ip_src.s_addr; bullshit2.s_addr = ip->ip_dst.s_addr;
 /* this is gay */
-realfrag = BSDFIX(ntohs(ip->ip_off) & 8191 /* 2^13 - 1 */);
-tot_len = BSDFIX(ip->ip_len);
+realfrag = htons(ntohs(ip->ip_off) & 8191 /* 2^13 - 1 */);
+tot_len = htons(ip->ip_len);
 strncpy(sourcehost, inet_ntoa(bullshit), 16);
 i =  4 * (ntohs(ip->ip_hl)) + 8;
 if (ip->ip_p== IPPROTO_UDP) {
@@ -1274,7 +1281,7 @@ u8 *build_udp_raw(struct in_addr *source, const struct in_addr *victim,
   /* Now for the ip header */
   ip->ip_v = 4;
   ip->ip_hl = 5;
-  ip->ip_len = BSDFIX(sizeof(struct ip) + sizeof(udphdr_bsd) + datalen);
+  ip->ip_len = htons(sizeof(struct ip) + sizeof(udphdr_bsd) + datalen);
   ip->ip_id = htons(ipid);
   ip->ip_ttl = myttl;
   ip->ip_p = IPPROTO_UDP;
@@ -1293,7 +1300,7 @@ u8 *build_udp_raw(struct in_addr *source, const struct in_addr *victim,
     readudppacket(packet,1);
   }
   
-  *packetlen = BSDUFIX(ip->ip_len);
+  *packetlen = ntohs(ip->ip_len);
   return packet;
 }
 
@@ -1348,7 +1355,7 @@ memset((char *) packet, 0, sizeof(struct ip));
 
 ip->ip_v = 4;
 ip->ip_hl = 5;
-ip->ip_len = BSDFIX(sizeof(struct ip) + datalen);
+ip->ip_len = htons(sizeof(struct ip) + datalen);
 ip->ip_id = htons(ipid);
 ip->ip_ttl = myttl;
 ip->ip_p = proto;
@@ -1368,10 +1375,10 @@ ip->ip_sum = in_cksum((unsigned short *)ip, sizeof(struct ip));
 
 if (TCPIP_DEBUGGING > 1) {
   printf("Raw IP packet creation completed!  Here it is:\n");
-  hdump(packet, BSDUFIX(ip->ip_len));
+  hdump(packet, ntohs(ip->ip_len));
 }
 
- *packetlen = BSDUFIX(ip->ip_len);
+ *packetlen = ntohs(ip->ip_len);
  return packet;
 }
 
@@ -2751,7 +2758,7 @@ int IPProbe::storePacket(u8 *ippacket, u32 len) {
   ipv4 = (struct ip *) packetbuf;
   assert(ipv4->ip_v == 4);
   assert(len >= 20);
-  assert(len == (u32) BSDUFIX(ipv4->ip_len));
+  assert(len == (u32) ntohs(ipv4->ip_len));
   if (ipv4->ip_p == IPPROTO_TCP) {
     if (len >= (unsigned) ipv4->ip_hl * 4 + 20)
       tcp = (struct tcphdr *) ((u8 *) ipv4 + ipv4->ip_hl * 4);

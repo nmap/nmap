@@ -1721,7 +1721,6 @@ int datalen = 300;
 unsigned char *data = packet + 28;
 unsigned short realcheck; /* the REAL checksum */
 int res;
-struct sockaddr_in sock;
 int decoy;
 struct pseudo_udp_hdr {
   struct in_addr source;
@@ -1751,13 +1750,6 @@ sethdrinclude(sd);
  for(decoy=0; decoy < o.numdecoys; decoy++) {
    source = &o.decoys[decoy];
 
-   /*do we even have to fill out this damn thing?  This is a raw packet, 
-     after all */
-   sock.sin_family = AF_INET;
-   sock.sin_port = htons(dport);
-   sock.sin_addr.s_addr = victim->s_addr;
-
-
    memset((char *) packet, 0, sizeof(struct ip) + sizeof(udphdr_bsd));
 
    udp->uh_sport = htons(sport);
@@ -1785,7 +1777,7 @@ udp->uh_sum = realcheck;
    /* Now for the ip header */
    ip->ip_v = 4;
    ip->ip_hl = 5;
-   ip->ip_len = BSDFIX(sizeof(struct ip) + sizeof(udphdr_bsd) + datalen);
+   ip->ip_len = htons(sizeof(struct ip) + sizeof(udphdr_bsd) + datalen);
    ip->ip_id = id;
    ip->ip_ttl = myttl;
    ip->ip_p = IPPROTO_UDP;
@@ -1813,19 +1805,12 @@ udp->uh_sum = realcheck;
      log_write(LOG_STDOUT, "Raw UDP packet creation completed!  Here it is:\n");
      readudppacket(packet,1);
    }
-   if (TCPIP_DEBUGGING > 1)     
-     log_write(LOG_STDOUT, "\nTrying sendto(%d , packet, %d, 0 , %s , %d)\n",
-	    sd, BSDUFIX(ip->ip_len), inet_ntoa(*victim),
-	    (int) sizeof(struct sockaddr_in));
 
-   if ((res = sendto(sd, (const char *) packet, BSDUFIX(ip->ip_len), 0,
-		     (struct sockaddr *)&sock, (int) sizeof(struct sockaddr_in))) == -1)
-     {
-       perror("sendto in send_udp_raw_decoys");
-       return NULL;
-     }
-
-   if (TCPIP_DEBUGGING > 1) log_write(LOG_STDOUT, "successfully sent %d bytes of raw_tcp!\n", res);
+   if ((res = send_ip_packet(sd, NULL, packet, ip->ip_len)))
+   {
+     perror("send_ip_packet in send_closedupd_probe");
+     return NULL;
+   }
  }
 
 return &upi;

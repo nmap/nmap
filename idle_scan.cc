@@ -227,7 +227,7 @@ int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
 	    }
 	    else if (o.debugging > 1) {
 	      error("Received unexpected response packet from %s during ipid zombie probing:", inet_ntoa(ip->ip_src));
-	      readtcppacket( (unsigned char *) ip,BSDUFIX(ip->ip_len));
+	      readtcppacket( (unsigned char *) ip,ntohs(ip->ip_len));
 	    }
 	    continue;
 	  }
