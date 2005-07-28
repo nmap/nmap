@@ -408,7 +408,7 @@ match http m|^HTTP/1.0 500\r\nContent-type: text/plain\r\n\r\nNo Scan Capable De
 # SMC Barricade 7004ABR
 match http m|^HTTP/1\.0 301 Moved\r\nLocation: http://\d+\.\d+\.\d+\.\d+:88\r\n| p/SMB Barricade broadband router/ i/simply redirects to real web admin port 88/ d/router/
 match hp-gsg m|^220 JetDirect GGW server \(version (\d[.\d]+)\) ready\r\n| p/HP JetDirect Generic Scan Gateway/ v/$1/ d/printer/
-match hylafax m|^220 ([-.\w]+) server \(HylaFAX \(tm\) Version (\d[-.\w]+)\) ready\.\r\n$| p/HylaFAX/ h/$1/ v/$2/ d/printer/
+match hylafax m|^220 ([-.\w]+) server \(HylaFAX \(tm\) Version (\d[-.\w]+)\) ready\.\r\n$| p/HylaFAX/ h/$1/ v/$2/ o/unix/
 # Hylafax 4.1.6 on Linux 2.4
 match hylafax m|^130 Warning, client address \"[\d.]+\" is not listed for host name \"([-.\w]+)\"\.\r\n| p/HylaFAX/ i/IP unauthorized/ h/$1/
 match ichat m|^\r\n                                Welcome To\r\n                             ichat ROOMS (\d[-.\w]+)\r\n==| p|^iChat Rooms| v|$1|
@@ -1496,7 +1496,7 @@ match http m|^HTTP/1\.0 200 OK\r\nServer: SimpleServer:WWW/(\d[-.\w]+)\r\n| p/An
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nContent-Length: \d+\r\nX-Powered-By: ([-/.\w ]+)\r\nContent-Type: .*\r\nServer: Xitami\r\n| p/Xitami httpd/ i/$1/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Xitami\r\n|s p/Xitami httpd/
 match http-admin m|^ERROR: Malformed startup string$| p/Xitami httpd admin port/
-match http m|^HTTP/1\.1 500 Server Error\r\nConnection: close\r\nContent-Length: \d+\r\nDate: .*\r\nServer: Radio UserLand/(\d[.\w ]+)-([-.\w ]+)\r\n\r\n| p/Radio Userland blog server/ v/$1/ i/$2/ d/printer/
+match http m|^HTTP/1\.1 500 Server Error\r\nConnection: close\r\nContent-Length: \d+\r\nDate: .*\r\nServer: Radio UserLand/(\d[.\w ]+)-([-.\w ]+)\r\n\r\n| p/Radio Userland blog server/ v/$1/ i/$2/ 
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: CANON HTTP Server Ver(\d[-.\w ]+)\r\n| p/Canon printer web interface/ v/$1/
 match http m|^HTTP/1\.1 302 Moved Temporarily\r\nPragma: no-cache\r\nLocation: /servlet/nodeinfo/\r\nExpires: .*\r\nCache-Control: post-check=0, pre-check=0\r\nConnection: close\r\nContent-type: \r\nServer: Fred (\d[-.\w]+) \(build (\d+)\) HTTP Servlets\r\n\r\n| p/Freenet Fred anonymous P2P/ v/$1 build $2/
 match http m|^HTTP/1\.0 200 Ok\r\nServer: diva_httpd\r\n| p/Eicon Diva ISDN card configuration server/
@@ -2399,17 +2399,17 @@ match domain m|^\x80\xf0\x80\x12\0\x01\0\0\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAA
 # ftp://ftp.rfc-editor.org/in-notes/rfc1179.txt
 Probe TCP LPDString q|\x01default\n|
 ports 515
-match printer m|^\0$| d/printer/
-match printer m|^default: unknown printer\n$| p/Solaris lpd/ d/printer/ o/Solaris/
+match printer m|^\0$| 
+match printer m|^default: unknown printer\n$| p/Solaris lpd/ o/Solaris/
 # Redhat Linux 7.3 LPRng-3.8.9
-match printer m|^\x01no connect permissions\n$| p/LPRng/ d/printer/
+match printer m|^\x01no connect permissions\n$| p/LPRng/
 # Microsoft Windows 2000 serverr LPD
-match printer m|^\x01\x01$| p/Microsoft lpd/ d/printer/
+match printer m|^\x01\x01$| p/Microsoft lpd/
 # Blackbox Terminal Server (IOLAN v4.03.00 a CDi)
 # Chase IOLAN terminal server lpd
 # Bay Networks MicroAnnex XL  Comm. Server R10.0
-match printer m|^\x01$| d/printer/
-match printer m|^[-.\w]+: lpsched: unknown printer\n$| p/SGI IRIX lprsrv/ d/printer/ o/IRIX/
+match printer m|^\x01$| 
+match printer m|^[-.\w]+: lpsched: unknown printer\n$| p/SGI IRIX lprsrv/ o/IRIX/
 
 # Ldap bind request, version 2, null DN, AUTH_TYPE simple, null password
 ##############################NEXT PROBE##############################

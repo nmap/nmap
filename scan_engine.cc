@@ -3183,7 +3183,7 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
 		scantype2str(scantype), 
 		TIMEVAL_MSEC_SUBTRACT(USI->now, USI->SPM->begin) / 1000.0, 
 		(unsigned long) USI->gstats->numprobes * Targets.size(), 
-		(scantype == ARP_SCAN)? "hosts" : "ports");
+		(scantype == PING_SCAN_ARP)? "hosts" : "ports");
     else log_write(LOG_STDOUT, "Finished %s in %.2fs, but %d %s timed out.\n", 
 		   scantype2str(scantype), 
 		   TIMEVAL_MSEC_SUBTRACT(USI->now, USI->SPM->begin) / 1000.0,

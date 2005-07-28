@@ -419,9 +419,10 @@ if (hs->randomize) {
  if ((o.sendpref & PACKET_SEND_ETH) && 
      hs->hostbatch[0]->ifType() == devt_ethernet) {
    for(i=0; i < hs->current_batch_sz; i++)
-     if (!setTargetNextHopMAC(hs->hostbatch[i]))
-       fatal("%s: Failed to determine dst MAC address for target %s", 
-	   __FUNCTION__, hs->hostbatch[hidx]->NameIP());
+     if (!(hs->hostbatch[i]->flags & HOST_DOWN))
+       if (!setTargetNextHopMAC(hs->hostbatch[i]))
+	 fatal("%s: Failed to determine dst MAC address for target %s", 
+	       __FUNCTION__, hs->hostbatch[hidx]->NameIP());
  }
 
  /* TODO: Maybe I should allow real ping scan of directly connected
