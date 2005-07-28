@@ -105,6 +105,9 @@ o Removed the BSDFIX/BSDUFIX macros.  The underlying bug in
 o Integrated many nmap-service-probes changes from Bo Jiang
   (jiangbo(a)brandeis.edu)
 
+o Added a bunch of RPC numbers from nmap-rpc maintainer Eilon Gishri
+  (eilon(a)aristo.tau.ac.il)
+
 o Added some new RPC services to nmap-rpc thanks to a patch from
   vlad902 (vlad902(a)gmail.com).
 
@@ -170,9 +173,6 @@ o Fixed Nmap compilation on Solaris x86 thanks to a patch from Simon
 o ultra_scan() now sets pseudo-random ACK values (rather than 0) for
   any TCP scans in which the initial probe packet has the ACK flag set.
   This would be the ACK, Xmas, Maimon, and Window scans.
-
-o Added a bunch of RPC numbers from nmap-rpc maintainer Eilon Gishri
-  (eilon(a)aristo.tau.ac.il)
 
 o Updated the Nmap version number, description, and similar fields
   that MS Visual Studio places in the binary.  This was done by editing
