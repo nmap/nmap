@@ -8,6 +8,7 @@
 
 #include "config.h"
 
+#include <winsock2.h>
 #include <ws2tcpip.h>
 
 #include <errno.h>
@@ -55,9 +56,9 @@ ip_send(ip_t *ip, const void *buf, size_t len)
 	
 	ip->sin.sin_addr.s_addr = hdr->ip_src;
 	
-	if ((len = sendto(ip->fd, (const char *)buf, len, 0,
+	if ((len = sendto(ip->fd, (const char *)buf, (int) len, 0,
 	    (struct sockaddr *)&ip->sin, sizeof(ip->sin))) != SOCKET_ERROR)
-		return (len);
+		return ((ssize_t) len);
 	
 	return (-1);
 }

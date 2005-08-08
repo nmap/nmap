@@ -23,7 +23,11 @@
   typedef u_short	uint16_t;
   typedef u_int		uint32_t;
 # ifndef __CYGWIN__
-  typedef long		ssize_t;
+  typedef unsigned int		ssize_t;
+# endif
+#if !defined(__GNUC__)
+#define snprintf _snprintf
+#define vsnprintf _vsnprintf
 # endif
 #else
 # include <sys/param.h>
@@ -118,8 +122,8 @@
 #  if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 #   define __flexarr	[]
 #  elif defined(_WIN32)
-/* MS VC++ */
-#   define __flexarr	[]
+/* MS VC++ -- using just [] may work, but gives a non-standard extension warning */
+#   define __flexarr	[1]
 #  else
 /* Some other non-C99 compiler. Approximate with [1]. */
 #   define __flexarr	[1]

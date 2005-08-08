@@ -6,8 +6,13 @@
  * $Id: arp-win32.c,v 1.12 2005/01/23 07:36:54 dugsong Exp $
  */
 
+#ifdef _WIN32
+#include "dnet_winconfig.h"
+#else
 #include "config.h"
+#endif
 
+#include <winsock2.h>
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
 

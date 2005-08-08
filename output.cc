@@ -502,7 +502,7 @@ log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "%d service%s unrecognized despite ret
       log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "%s\n", saved_servicefps[i]);
     }
   }
-
+  log_flush_all();
 }
 
 char* xml_convert (const char* str) {
@@ -737,6 +737,7 @@ void output_ports_to_machine_parseable_output(struct scan_lists *ports,
  if (protsscanned)
    output_rangelist_given_ports(LOG_MACHINE, ports->prots, protsscanned);
  log_write(LOG_MACHINE, ")\n");
+ log_flush_all();
 }
 
 /* Simple helper function for output_xml_scaninfo_records */
@@ -773,6 +774,7 @@ void output_xml_scaninfo_records(struct scan_lists *scanlist) {
     doscaninfo("udp", "udp", scanlist->udp_ports, scanlist->udp_count);
   if (o.ipprotscan) 
     doscaninfo("ipproto", "ip", scanlist->prots, scanlist->prot_count); 
+  log_flush_all();
 }
 
 /* Helper function to write the status and address/hostname info of a host 
@@ -787,6 +789,7 @@ static void write_xml_initial_hostinfo(Target *currenths,
   } else /* If machine is up, put blank hostname so front ends know that
 	    no name resolution is forthcoming */
     if (strcmp(status, "up") == 0) log_write(LOG_XML, "<hostnames />\n");
+  log_flush_all();
 }
 
 /* Writes host status info to the log streams (including STDOUT).  An
@@ -980,6 +983,7 @@ static void printosclassificationoutput(const struct OS_Classification_Results *
       log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "\n");
     }
   }
+  log_flush_all();
   return;
 }
 
@@ -1189,6 +1193,7 @@ void printosscanoutput(Target *currenths) {
        log_write(LOG_XML, " />\n");
      }
   }
+  log_flush_all();
 }
 
 
@@ -1288,7 +1293,7 @@ void printserviceinfooutput(Target *currenths) {
   }
 
   log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "\n");
-
+  log_flush_all();
 }
 
 
@@ -1324,7 +1329,7 @@ void printfinaloutput(int numhosts_scanned, int numhosts_up,
   log_write(LOG_NORMAL|LOG_MACHINE, "# Nmap run completed at %s -- %d %s (%d %s up) scanned in %.3f seconds\n", mytime, numhosts_scanned, (numhosts_scanned == 1)? "IP address" : "IP addresses", numhosts_up, (numhosts_up == 1)? "host" : "hosts", o.TimeSinceStartMS(&tv) / 1000.0 );
 
   log_write(LOG_XML, "</runstats></nmaprun>\n");
-
+  log_flush_all();
 }
 
 

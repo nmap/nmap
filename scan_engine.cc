@@ -105,6 +105,7 @@
 #include "scan_engine.h"
 #include "timing.h"
 #include "NmapOps.h"
+#include <dnet.h>
 #include <list>
 
 using namespace std;
@@ -727,7 +728,7 @@ HostScanStats::HostScanStats(Target *t, UltraScanInfo *UltraSI) {
   num_probes_waiting_retransmit = 0;
   lastping_sent = lastprobe_sent = lastrcvd = USI->now;
   lastping_sent_numprobes = 0;
-  bzero(&pingprobe, sizeof(pingprobe));
+  memset(&pingprobe, 0, sizeof(pingprobe));
   pingprobestate = PORT_UNKNOWN;
   nxtpseq = 1;
   max_successful_tryno = 0;

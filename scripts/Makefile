@@ -146,8 +146,9 @@ distro:
                         /usr/tmp/nmap-$(NMAP_VERSION)/libpcre
 
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/libdnet-stripped
-	cd ../$(LIBDNETDIR); cp -ra NMAP_MODIFICATIONS acconfig.h aclocal.m4 \
-              config configure configure.in dnet-config.in include INSTALL \
+	cd ../$(LIBDNETDIR); cp -ra NMAP_MODIFICATIONS \
+              libdnet-stripped.vcproj acconfig.h aclocal.m4 config \
+              configure configure.in dnet-config.in include INSTALL \
               libtool LICENSE Makefile Makefile.am Makefile.am.common \
               Makefile.in README src THANKS TODO \
               /usr/tmp/nmap-$(NMAP_VERSION)/libdnet-stripped

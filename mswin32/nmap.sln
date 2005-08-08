@@ -7,6 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nmap", "nmap.vcproj", "{361
 	ProjectSection(ProjectDependencies) = postProject
 		{CB578003-213B-4316-B5BC-2D71A081A65A} = {CB578003-213B-4316-B5BC-2D71A081A65A}
 		{5DE86C7A-DE72-4265-8807-4CA38F94F22A} = {5DE86C7A-DE72-4265-8807-4CA38F94F22A}
+		{5328E0BE-BC0A-4C2A-8CB9-CE00B61B9C4C} = {5328E0BE-BC0A-4C2A-8CB9-CE00B61B9C4C}
 		{F8D6D1E3-D4EA-402C-98AA-168E5309BAF4} = {F8D6D1E3-D4EA-402C-98AA-168E5309BAF4}
 		{B630C8F7-3138-43E8-89ED-78742FA2AC5F} = {B630C8F7-3138-43E8-89ED-78742FA2AC5F}
 	EndProjectSection
@@ -21,6 +22,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpcre", "..\libpcre\libpc
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nbase", "..\nbase\nbase.vcproj", "{B630C8F7-3138-43E8-89ED-78742FA2AC5F}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnet", "..\libdnet-stripped\libdnet-stripped.vcproj", "{5328E0BE-BC0A-4C2A-8CB9-CE00B61B9C4C}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -50,6 +55,10 @@ Global
 		{B630C8F7-3138-43E8-89ED-78742FA2AC5F}.Debug.Build.0 = Debug|Win32
 		{B630C8F7-3138-43E8-89ED-78742FA2AC5F}.Release.ActiveCfg = Release|Win32
 		{B630C8F7-3138-43E8-89ED-78742FA2AC5F}.Release.Build.0 = Release|Win32
+		{5328E0BE-BC0A-4C2A-8CB9-CE00B61B9C4C}.Debug.ActiveCfg = Debug|Win32
+		{5328E0BE-BC0A-4C2A-8CB9-CE00B61B9C4C}.Debug.Build.0 = Debug|Win32
+		{5328E0BE-BC0A-4C2A-8CB9-CE00B61B9C4C}.Release.ActiveCfg = Release|Win32
+		{5328E0BE-BC0A-4C2A-8CB9-CE00B61B9C4C}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

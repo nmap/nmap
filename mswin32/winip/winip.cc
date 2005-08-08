@@ -659,9 +659,11 @@ typedef DWORD (__stdcall *PGBI)(IPAddr, PDWORD);
 int win32_sendto(int sd, const char *packet, int len, 
    unsigned int flags, struct sockaddr *to, int tolen)
 {
+  /* COMMENTED OUT SINCE pcapsend* is obsolete -- need to use new Nmap infrastructure 
   if(sd == 501)
     return pcapsendraw(packet, len, to, tolen);
-  else return sendto(sd, packet, len, flags, to, tolen);
+  else */
+	  return sendto(sd, packet, len, flags, to, tolen);
 }
 
 int Sendto(char *functionname, int sd, const unsigned char *packet, int len, 
@@ -679,7 +681,9 @@ int win32_socket(int af, int type, int proto)
   if(type == SOCK_RAW && proto == IPPROTO_RAW)
     {
       winip_test(1);
-      pcapsend_init();
+      /* no longer using this pcapsend stuff
+	  pcapsend_init();
+	  */
       return 501;
     }
 

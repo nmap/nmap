@@ -230,7 +230,9 @@ extern "C" {
 #include <errno.h>
 #include <signal.h>
 #include <dnet.h>
-#include <netinet/ip_icmp.h> 
+#ifndef WIN32
+#include <netinet/ip_icmp.h>
+#endif
 
 typedef enum { devt_ethernet, devt_loopback, devt_p2p, devt_other  } devtype;
 
@@ -413,8 +415,6 @@ struct icmp
   u_int16_t icmp_cksum; /* ones complement checksum of struct */
   union
   {
-    u_char ih_pptr;             /* ICMP_PARAMPROB */
-    struct in_addr ih_gwaddr;   /* gateway address */
     struct ih_idseq             /* echo datagram */
     {
       u_int16_t icd_id;
@@ -436,8 +436,7 @@ struct icmp
       u_int16_t irt_lifetime;
     } ih_rtradv;
   } icmp_hun;
-#define icmp_pptr       icmp_hun.ih_pptr
-#define icmp_gwaddr     icmp_hun.ih_gwaddr
+  /* Removed icmp_pptr and icmp_gwaddr from union and #defines because they conflict with dnet */
 #define icmp_id         icmp_hun.ih_idseq.icd_id
 #define icmp_seq        icmp_hun.ih_idseq.icd_seq
 #define icmp_void       icmp_hun.ih_void

@@ -6,7 +6,11 @@
  * $Id: blob.c,v 1.4 2002/08/20 05:18:49 dugsong Exp $
  */
 
+#ifdef _WIN32
+#include "dnet_winconfig.h"
+#else
 #include "config.h"
+#endif
 
 #include <ctype.h>
 #include <stdarg.h>

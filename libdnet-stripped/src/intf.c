@@ -6,7 +6,11 @@
  * $Id: intf.c,v 1.55 2005/02/10 16:57:35 dugsong Exp $
  */
 
+#ifdef _WIN32
+#include "dnet_winconfig.h"
+#else
 #include "config.h"
+#endif
 
 #include <sys/param.h>
 #include <sys/types.h>

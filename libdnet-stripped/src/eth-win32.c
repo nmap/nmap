@@ -6,12 +6,16 @@
  * $Id: eth-win32.c,v 1.11 2005/02/15 06:37:06 dugsong Exp $
  */
 
+#ifdef _WIN32
+#include "dnet_winconfig.h"
+#else
 #include "config.h"
+#endif
 
-/* XXX - VC++ 6.0 bogosity */
-#define sockaddr_storage sockaddr
+/* XXX - VC++ 6.0 bogosity 
+#define sockaddr_storage sockaddr */
 #include <Packet32.h>
-#undef sockaddr_storage
+/* #undef sockaddr_storage */
 #include <Ntddndis.h>
 
 #include <errno.h>
@@ -40,7 +44,7 @@ eth_open(const char *device)
 	WCHAR *name, wbuf[2048];
 	ULONG wlen;
 	char *desc, *namea;
-	int i, j, alen;
+	int i, j, alen, rc;
 	OSVERSIONINFO osvi;
 	intf_t *intf;
 
@@ -56,13 +60,15 @@ eth_open(const char *device)
 	alen = sizeof(alist) / sizeof(alist[0]);
 	wlen = sizeof(wbuf) / sizeof(wbuf[0]);
 	
-	PacketGetAdapterNames((char *)wbuf, &wlen);
+	rc = PacketGetAdapterNames((char *)wbuf, &wlen);
+	if (rc == 0) return (NULL);
 
 	/* Determine Windows version */
 	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 	GetVersionEx(&osvi);
 
-	if ((osvi.dwPlatformId == VER_PLATFORM_WIN32_NT) &&
+	/* Added the 0 below for testing -- may need to find new expression */
+	if (0 && (osvi.dwPlatformId == VER_PLATFORM_WIN32_NT) &&
 	    (osvi.dwMajorVersion >= 4)) {
 		for (name = wbuf, i = 0; *name != '\0' && i < alen; i++) {
 			wcstombs(alist[i].name, name, sizeof(alist[0].name));
@@ -113,9 +119,9 @@ eth_open(const char *device)
 ssize_t
 eth_send(eth_t *eth, const void *buf, size_t len)
 {
-	PacketInitPacket(eth->pkt, (void *)buf, len);
+	PacketInitPacket(eth->pkt, (void *)buf, (UINT) len);
 	PacketSendPacket(eth->lpa, eth->pkt, TRUE);
-	return (len);
+	return ((ssize_t) len);
 }
 
 eth_t *

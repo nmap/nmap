@@ -6,7 +6,11 @@
  * $Id: ip-cooked.c,v 1.17 2005/01/25 21:30:40 dugsong Exp $
  */
 
+#ifdef _WIN32
+#include "dnet_winconfig.h"
+#else
 #include "config.h"
+#endif
 
 #ifndef _WIN32
 #include <netinet/in.h>

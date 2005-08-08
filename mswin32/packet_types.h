@@ -5,7 +5,6 @@
 
 
 typedef long n_long;
-typedef short n_short;
 typedef long n_time;
 
 

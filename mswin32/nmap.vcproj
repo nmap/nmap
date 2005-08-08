@@ -22,7 +22,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..;../nbase;../libpcre;winip;..\nsock\include;&quot;pcap-include&quot;"
+				AdditionalIncludeDirectories=".;..;../nbase;../libpcre;winip;..\nsock\include;&quot;pcap-include&quot;;&quot;..\libdnet-stripped\include&quot;"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -39,11 +39,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib iphlpapi.lib wpcap.lib packet.lib nsock.lib libpcre.lib nbase.lib $(NOINHERIT)"
+				AdditionalDependencies="nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib $(NOINHERIT)"
 				OutputFile=".\Debug/nmap.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="winip;lib;..\libpcre;..\nsock;..\nbase"
+				AdditionalLibraryDirectories="lib;..\libpcre;..\nsock;..\nbase;&quot;..\libdnet-stripped&quot;"
 				IgnoreDefaultLibraryNames=""
 				DelayLoadDLLs="packet.dll,wpcap.dll,iphlpapi.dll"
 				GenerateDebugInformation="TRUE"
@@ -87,7 +87,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories=".;..;../nbase;../libpcre;winip;..\nsock\include;&quot;pcap-include&quot;"
+				AdditionalIncludeDirectories=".;..;../nbase;../libpcre;winip;..\nsock\include;&quot;pcap-include&quot;;&quot;..\libdnet-stripped\include&quot;"
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
@@ -103,11 +103,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib iphlpapi.lib wpcap.lib packet.lib nsock.lib libpcre.lib nbase.lib $(NOINHERIT)"
+				AdditionalDependencies="ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib $(NOINHERIT)"
 				OutputFile=".\Release/nmap.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="winip;lib;..\libpcre;..\nsock;..\nbase"
+				AdditionalLibraryDirectories="lib;..\libpcre;..\nsock;..\nbase;&quot;..\libdnet-stripped&quot;"
 				IgnoreDefaultLibraryNames=""
 				DelayLoadDLLs="packet.dll,iphlpapi.dll,wpcap.dll"
 				ProgramDatabaseFile=".\Release/nmap.pdb"
@@ -244,28 +244,6 @@
 					RelativePath="nmap.rc">
 				</File>
 				<File
-					RelativePath="winip\pcapsend.c">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="0"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-							BasicRuntimeChecks="3"
-							CompileAs="2"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="1"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-							CompileAs="2"/>
-					</FileConfiguration>
-				</File>
-				<File
 					RelativePath="winip\rawrecv.c">
 					<FileConfiguration
 						Name="Debug|Win32">
@@ -337,26 +315,7 @@
 					RelativePath="winfix.cc">
 				</File>
 				<File
-					RelativePath="winip\winip.c">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="0"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-							BasicRuntimeChecks="3"
-							CompileAs="2"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="1"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-							CompileAs="2"/>
-					</FileConfiguration>
+					RelativePath=".\winip\winip.cc">
 				</File>
 			</Filter>
 		</Filter>

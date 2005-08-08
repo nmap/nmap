@@ -49,15 +49,15 @@ struct icmp {
 		u_char ih_pptr;			/* ICMP_PARAMPROB */
 		struct in_addr ih_gwaddr;	/* ICMP_REDIRECT */
 		struct ih_idseq {
-			n_short	icd_id;
-			n_short	icd_seq;
+			u_short	icd_id;
+			u_short	icd_seq;
 		} ih_idseq;
 		int ih_void;
 
 		/* ICMP_UNREACH_NEEDFRAG -- Path MTU Discovery (RFC1191) */
 		struct ih_pmtu {
-			n_short ipm_void;    
-			n_short ipm_nextmtu;
+			u_short ipm_void;    
+			u_short ipm_nextmtu;
 		} ih_pmtu;
 	} icmp_hun;
 #define	icmp_pptr	icmp_hun.ih_pptr
@@ -69,9 +69,9 @@ struct icmp {
 #define	icmp_nextmtu	icmp_hun.ih_pmtu.ipm_nextmtu
 	union {
 		struct id_ts {
-			n_time its_otime;
-			n_time its_rtime;
-			n_time its_ttime;
+			u_int32_t its_otime;
+			u_int32_t its_rtime;
+			u_int32_t its_ttime;
 		} id_ts;
 		struct id_ip  {
 			struct ip idi_ip;

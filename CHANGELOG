@@ -2564,6 +2564,9 @@ o Added XML output (-oX).  Hopefully this will help those of you
   emphasize that XML is now the preferred machine-readable output
   format.  But don't worry if your tool uses -oM , that format (and
   the deprecated -oM flag) won't go away any time soon (if ever).
+  Thanks to Stou Sandalski (tangui(a)cell2000.net) and Fredrick Paul
+  Eisele (phreed(a)gmail.com) for sending proposals that inspired the
+  format used.
 
 o Applied patch from Stefan Rapp (s.rapp(a)hrz.uni-dortmund.de) which
   fixes a variable argument integer promotion problem in the new

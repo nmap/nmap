@@ -6,8 +6,14 @@
  * $Id: route-win32.c,v 1.12 2005/02/15 07:11:32 dugsong Exp $
  */
 
+#ifdef _WIN32
+#include "dnet_winconfig.h"
+#else
 #include "config.h"
+#endif
 
+#include <winsock2.h>
+#include <windows.h>
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
 

@@ -6,17 +6,23 @@
  * $Id: intf-win32.c,v 1.24 2005/02/15 06:37:06 dugsong Exp $
  */
 
+#ifdef _WIN32
+#include "dnet_winconfig.h"
+#else
 #include "config.h"
+#endif
 
+#include <winsock2.h>
+#include <windows.h>
 #include <iphlpapi.h>
 
+#include <dnet.h>
 #include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "dnet.h"
 
 struct ifcombo {
 	DWORD		*idx;
@@ -150,7 +156,7 @@ _ifrow_to_entry(intf_t *intf, MIB_IFROW *ifrow, struct intf_entry *entry)
 			}
 		}
 	}
-	entry->intf_len = (u_char *)ap - (u_char *)entry;
+	entry->intf_len = (unsigned int) ((u_char *)ap - (u_char *)entry);
 }
 
 static int

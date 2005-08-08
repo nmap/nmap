@@ -186,6 +186,7 @@ typedef struct _IP_ADAPTER_ORDER_MAP
 // of the ip_option_information structure.  See RFC 791 for a complete
 // description of each.
 //
+/* THESE ARE DEFINED IN DNET -- SO EXCLUDED
 #define IP_OPT_EOL      0          // End of list option
 #define IP_OPT_NOP      1          // No operation
 #define IP_OPT_SECURITY 0x82       // Security option
@@ -195,6 +196,7 @@ typedef struct _IP_ADAPTER_ORDER_MAP
 #define IP_OPT_TS       0x44       // Timestamp
 #define IP_OPT_SID      0x88       // Stream ID (obsolete)
 #define IP_OPT_ROUTER_ALERT 0x94  // Router Alert Option
+*/
 
 #define MAX_OPT_SIZE    40         // Maximum length of IP options in bytes
 

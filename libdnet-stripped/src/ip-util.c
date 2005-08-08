@@ -6,7 +6,11 @@
  * $Id: ip-util.c,v 1.9 2005/02/17 02:55:56 dugsong Exp $
  */
 
+#ifdef _WIN32
+#include "dnet_winconfig.h"
+#else
 #include "config.h"
+#endif
 
 #include <errno.h>
 #include <stdlib.h>
@@ -36,10 +40,10 @@ ip_add_option(void *buf, size_t len, int proto,
 		hl = tcp->th_off << 2;
 		p = (u_char *)tcp + hl;
 	}
-	datalen = ntohs(ip->ip_len) - (p - (u_char *)buf);
+	datalen = ntohs(ip->ip_len) - (int) (p - (u_char *)buf);
 	
 	/* Compute padding to next word boundary. */
-	if ((padlen = 4 - (optlen % 4)) == 4)
+	if ((padlen = (int) (4 - (optlen % 4))) == 4)
 		padlen = 0;
 
 	/* XXX - IP_HDR_LEN_MAX == TCP_HDR_LEN_MAX */
@@ -66,13 +70,13 @@ ip_add_option(void *buf, size_t len, int proto,
 	optlen += padlen;
 	
 	if (proto == IP_PROTO_IP)
-		ip->ip_hl = (p - (u_char *)ip) >> 2;
+		ip->ip_hl = (uint8_t) (p - (u_char *)ip) >> 2;
 	else if (proto == IP_PROTO_TCP)
-		tcp->th_off = (p - (u_char *)tcp) >> 2;
+		tcp->th_off = (uint8_t) (p - (u_char *)tcp) >> 2;
 
-	ip->ip_len = htons(ntohs(ip->ip_len) + optlen);
+	ip->ip_len = htons(ntohs(ip->ip_len) + (unsigned short) optlen);
 	
-	return (optlen);
+	return ((ssize_t) optlen);
 }
 
 void
@@ -103,7 +107,7 @@ ip_checksum(void *buf, size_t len)
 		if (len >= TCP_HDR_LEN) {
 			tcp->th_sum = 0;
 			sum = ip_cksum_add(tcp, len, 0) +
-			    htons(ip->ip_p + len);
+			    htons(ip->ip_p + (unsigned short) len);
 			sum = ip_cksum_add(&ip->ip_src, 8, sum);
 			tcp->th_sum = ip_cksum_carry(sum);
 		}
@@ -113,7 +117,7 @@ ip_checksum(void *buf, size_t len)
 		if (len >= UDP_HDR_LEN) {
 			udp->uh_sum = 0;
 			sum = ip_cksum_add(udp, len, 0) +
-			    htons(ip->ip_p + len);
+			    htons(ip->ip_p + (unsigned short) len);
 			sum = ip_cksum_add(&ip->ip_src, 8, sum);
 			udp->uh_sum = ip_cksum_carry(sum);
 			if (!udp->uh_sum)
@@ -136,7 +140,7 @@ ip_cksum_add(const void *buf, size_t len, int cksum)
 	uint16_t *sp = (uint16_t *)buf;
 	int n, sn;
 	
-	sn = len / 2;
+	sn = (int) len / 2;
 	n = (sn + 15) / 16;
 
 	/* XXX - unroll loop using Duff's device. */

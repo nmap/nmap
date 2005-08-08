@@ -425,7 +425,7 @@ PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=F%UCK=E%ULEN=134%DAT=E)
 # Aethra Vega Star Gold (Videoconferencing appliance)
 # Aethra Video Conference System Vega Pro S running pSOSystem
 Fingerprint Aethra Vega Conference System
-Class Aethra | embedded || webcom
+Class Aethra | embedded || webcam
 TSeq(Class=RI%gcd=<6%SI=<2F97016&>79D33%IPID=I%TS=U)
 T1(DF=N%W=7FFF%ACK=S++%Flags=AS%Ops=ME)
 T2(Resp=N)
@@ -1888,7 +1888,7 @@ PU(Resp=N)
 
 # Audio Codes MP-104 - VoIP Gateway FXO (version 4.0.282.350)
 Fingerprint AudioCodes MP-104 VoIP Gateway FXO
-Class AudioCodes | embedded || VOIP Gateway
+Class AudioCodes | embedded || VoIP gateway
 TSeq(Class=TD%gcd=<3D094%SI=<1E%IPID=I%TS=1000HZ)
 T1(DF=N%W=20F4%ACK=S++%Flags=AS%Ops=MNWNNT)
 T2(Resp=N)
@@ -1901,7 +1901,7 @@ PU(Resp=N)
 
 # AudioCodes MP-108 FXS (iptele gateway) version: 4.40.162.274
 Fingerprint AudioCodes MP-108 VoIP Gateway FXS
-Class AudioCodes | embedded || VOIP Gateway
+Class AudioCodes | embedded || VoIP gateway
 TSeq(Class=TD%gcd=<3D094%SI=<1E%IPID=I%TS=1000HZ)
 T1(DF=N%W=209D%ACK=S++%Flags=AS%Ops=MENWNNT)
 T2(Resp=N)
@@ -3567,7 +3567,7 @@ PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 # telephone to be used as a voice-over-IP phone.  There is a
 # variation, the ATA 188 that has a pass-through port, much like the
 # Cisco 7960 phone.
-Fingerprint Cisco ATA 186 POTS<->VOIP phone gateway device
+Fingerprint Cisco ATA 186 POTS<->VoIP phone gateway device
 Class Cisco | embedded || VoIP adapter
 TSeq(Class=TD%gcd=<A0000%SI=<1E%IPID=I%TS=U)
 T1(DF=N%W=3E80%ACK=S++%Flags=AS%Ops=M)
@@ -8062,7 +8062,7 @@ T6(DF=Y%W=C00|1000%ACK=S++%Flags=AR%Ops=)
 T7(DF=Y%W=800|C00|400%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-# Grandstream BudgeTone101 VOIP phone, firmware 1.0.4.50
+# Grandstream BudgeTone101 VoIP phone, firmware 1.0.4.50
 Fingerprint Grandstream BT-101 IP phone
 Class GrandStream | embedded || VoIP phone
 TSeq(Class=C%Val=75DFD55D%IPID=I%TS=U)
@@ -8252,7 +8252,7 @@ PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=F%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 # HP Deskjet 6127, firmware FD4R019A
 Fingerprint HP Deskjet 6127 printer or InkJet 1200 printer server
 Class HP | embedded || printer
-Class HP | embedded || printer server
+Class HP | embedded || print server
 TSeq(Class=TD%gcd=<3D094%SI=<14%IPID=I%TS=1000HZ)
 T1(DF=Y|N%W=8E5%ACK=S++%Flags=AS%Ops=MENWNNT)
 T2(Resp=N)
@@ -9797,7 +9797,7 @@ PU(Resp=N)
 
 # innovaphone 200 V4.00 sr4 IP200[02-4283], Bootcode[205], HW[202] 2048/8192
 # innovaphone IP400 V4.00 hotfix IP400[02-4253], Bootcode[315], HW[102] 2048/4096
-Fingerprint innovaphone IP200/IP400 VOIP phone/gateway
+Fingerprint innovaphone IP200/IP400 VoIP phone/gateway
 Class innovaphone | embedded || telecom-misc
 TSeq(Class=TD%gcd=<714%SI=<14%IPID=I%TS=U)
 T1(DF=N%W=FA0|2800%ACK=S++%Flags=AS%Ops=M)
@@ -10174,7 +10174,7 @@ T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 Fingerprint KIRK Wireless Server 600
-Class KIRK | embedded || VoIP Gateway
+Class KIRK | embedded || VoIP gateway
 TSeq(Class=TD%gcd=<714%SI=<14%IPID=I%TS=U)
 T1(DF=N%W=2800%ACK=S++%Flags=AS%Ops=ME)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
@@ -10845,8 +10845,8 @@ PU(Resp=N)
 # Linksys BEFSR81v2 Router with firmware 2.45.10
 # Linksys EtherFast Cable/DSL Router (Model: BEFSR41 Ver 2)(Updated Firmware ver. 1.46.02, Aug 03+2004)
 # Linksys Wireless-B Broadband Router BEFW11S4 Firmware v.1.50.14
-# Linksys RT31P2  VOIP router (Vonage; firmware version 1.28.00; internal interface)
-Fingerprint Linksys BEFW11S4/BEFSR41/BEFSR81/WRK54G broadband router or RT31P2 VOIP router
+# Linksys RT31P2  VoIP router (Vonage; firmware version 1.28.00; internal interface)
+Fingerprint Linksys BEFW11S4/BEFSR41/BEFSR81/WRK54G broadband router or RT31P2 VoIP router
 Class Linksys | embedded || WAP
 TSeq(Class=TD%gcd=<FF%SI=<1E%IPID=I%TS=U)
 T1(DF=N%W=16D0%ACK=S++%Flags=AS%Ops=M)
@@ -16213,7 +16213,7 @@ T5(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=O%Flags=R%Ops=)
 
-Fingerprint MultiTech MultiVOIP Version 2.01A Firmware
+Fingerprint MultiTech MultiVoIP Version 2.01A Firmware
 Class MultiTech | embedded || telecom-misc
 TSeq(Class=TD%gcd=<714%SI=<14)
 T1(DF=N%W=600%ACK=S++%Flags=AS%Ops=M)
@@ -16251,7 +16251,7 @@ PU(Resp=Y%DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
 
 # Multi-Tech Voice over IP Box. Model number (MultiVoip 2410)
 Fingerprint MultiTech MultiVoip 2410
-Class MultiTech | embedded || VOIP Gateway
+Class MultiTech | embedded || VoIP gateway
 TSeq(Class=TD%gcd=<1F502%SI=<1E%TS=U)
 T1(DF=N%W=2000%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=Y%DF=N%W=400|800%ACK=S%Flags=AR%Ops=WNMETL)
@@ -19808,13 +19808,13 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=0%UCK=E%ULEN=134%DAT=E)
 
-# Sipura SPA-2000 VOIP Firmware version 2.09d
-# SPA-841 VOIP Phone (SIP) with firmware 0.9.5
+# Sipura SPA-2000 VoIP Firmware version 2.09d
+# SPA-841 VoIP Phone (SIP) with firmware 0.9.5
 # Sipura SPA SPA-1000 Software Version: 1.0.33 Hardware Version: 2.0.1
 # Sipura SPA-2000 VoIP Adapter
 # Sipura SPA-2000  Software Version: 2.0.10(d)   IP Phone Adaptor
 # Sipura SPA-3000, firmware 2.0.13(GWg)
-Fingerprint Sipura SPA-841/1000/2000/3000 POTS<->VOIP gateway
+Fingerprint Sipura SPA-841/1000/2000/3000 POTS<->VoIP gateway
 Class Sipura | embedded || VoIP adapter
 TSeq(Class=TR%gcd=<6%IPID=I%TS=U)
 T1(DF=N%W=3E80%ACK=S++%Flags=AS%Ops=M)
@@ -20907,7 +20907,7 @@ PU(DF=N%TOS=0%IPLEN=70%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 # Signal Network Technology Co, Ltd, VoIP appliance model sp100x running firmware version SP100X3.0.1
 Fingerprint CPV Telsey broadband + voip residential gateway or Signal SP100x VoIP appliance
 Class Telsey | embedded || broadband router
-Class Signal | embedded || VoIP Gateway
+Class Signal | embedded || VoIP gateway
 TSeq(Class=TD%gcd=<138C%SI=<1E%IPID=I%TS=U)
 T1(DF=N%W=578%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=N)

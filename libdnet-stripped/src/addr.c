@@ -8,7 +8,11 @@
  * $Id: addr.c,v 1.33 2005/01/23 07:36:54 dugsong Exp $
  */
 
+#ifdef _WIN32
+#include "dnet_winconfig.h"
+#else
 #include "config.h"
+#endif
 
 #include <sys/types.h>
 #ifdef HAVE_NET_IF_H

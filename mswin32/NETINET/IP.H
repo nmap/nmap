@@ -145,10 +145,10 @@ struct	ip_timestamp {
 		ipt_flg:4;		/* flags, see below */
 #endif
 	union ipt_timestamp {
-		n_long	ipt_time[1];
+		u_int32_t	ipt_time[1];
 		struct	ipt_ta {
 			struct in_addr ipt_addr;
-			n_long ipt_time;
+			u_int32_t ipt_time;
 		} ipt_ta[1];
 	} ipt_timestamp;
 };

@@ -1716,7 +1716,7 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
   do {
 #ifdef WIN32
     gettimeofday(&tv_end, NULL);
-    to_left = MAX(1, (to_usec - TIMEVAL_SUBTRACT(tv_end, tv_start)) / 1000);
+    long to_left = MAX(1, (to_usec - TIMEVAL_SUBTRACT(tv_end, tv_start)) / 1000);
     // Set the timeout (BUGBUG: this is cheating)
     PacketSetReadTimeout(pd->adapter, to_left);
 #endif
@@ -2106,28 +2106,146 @@ return -1;
 }
 #endif /* WIN32 */
 
-#ifndef WIN32 /* ifdef'd out for now because 'doze apparently doesn't
-		         support ioctl() */
+struct dnet_collector_route_nfo {
+  struct sys_route *routes;
+  int numroutes;
+  int capacity; /* Capacity of routes or ifaces, depending on context */
+  struct interface_info *ifaces;
+  int numifaces;
+};
+
+int collect_dnet_routes(const struct route_entry *entry, void *arg) {
+  struct dnet_collector_route_nfo *dcrn = (struct dnet_collector_route_nfo *) arg;
+  int i;
+
+  /* Make sure that it is the proper type of route ... */
+  if (entry->route_dst.addr_type != ADDR_TYPE_IP || entry->route_gw.addr_type != ADDR_TYPE_IP)
+    return 0; /* Not interested in IPv6 routes at the moment ... */
+  
+  /* Make sure we have room for the new route */
+  if (dcrn->numroutes >= dcrn->capacity) {
+    dcrn->capacity <<= 2;
+    dcrn->routes = (struct sys_route *) realloc(dcrn->routes, 
+						dcrn->capacity * sizeof(struct sys_route));
+  }
+  
+  /* Now for the important business */
+  dcrn->routes[dcrn->numroutes].dest = entry->route_dst.addr_ip;
+  addr_btom(entry->route_dst.addr_bits, &dcrn->routes[dcrn->numroutes].netmask, sizeof(dcrn->routes[dcrn->numroutes].netmask));
+  dcrn->routes[dcrn->numroutes].gw.s_addr = entry->route_gw.addr_ip;
+  /* Now determine which interface the route relates to */
+  u32 mask;
+  struct sockaddr_in *sin;
+  for(i = 0; i < dcrn->numifaces; i++) {
+    sin = (struct sockaddr_in *) &dcrn->ifaces[i].addr;
+    mask = htonl((unsigned long) (0-1) << (32 - dcrn->ifaces[i].netmask_bits));
+    if ((sin->sin_addr.s_addr & mask) == (entry->route_gw.addr_ip & mask)) {
+      dcrn->routes[dcrn->numroutes].device = &dcrn->ifaces[i];
+      break;
+    } 
+  }
+  if (i == dcrn->numifaces) {
+    error("WARNING: Unable to find appropriate interface for system route to %s\n", addr_ntoa(&entry->route_gw));
+    return 0;
+  }
+  dcrn->numroutes++;
+  return 0;
+}
+
+int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
+  struct dnet_collector_route_nfo *dcrn = (struct dnet_collector_route_nfo *) arg;
+  int i;
+  int numifaces = dcrn->numifaces;
+
+    /* Make sure we have room for the new route */
+   if (dcrn->numifaces >= dcrn->capacity) {
+    dcrn->capacity <<= 2;
+    dcrn->ifaces = (struct interface_info *) realloc(dcrn->ifaces, 
+						dcrn->capacity * sizeof(struct interface_info));
+   }
+   if (entry->intf_addr.addr_type == ADDR_TYPE_IP) {
+	addr_ntos(&entry->intf_addr, (struct sockaddr *) &dcrn->ifaces[numifaces].addr);
+	dcrn->ifaces[numifaces].netmask_bits = entry->intf_addr.addr_bits;
+   } else {
+	   for(i=0; i < (int) entry->intf_alias_num; i++) {
+		   if (entry->intf_alias_addrs[i].addr_type == ADDR_TYPE_IP) {
+			   addr_ntos(&entry->intf_alias_addrs[i], (struct sockaddr *) &dcrn->ifaces[numifaces].addr);
+			   dcrn->ifaces[numifaces].netmask_bits = entry->intf_alias_addrs[i].addr_bits;
+			   break;
+		   }
+		   if (i == (int) entry->intf_alias_num)
+			   return 0; /* No IPv4 addresses found for this interface */
+	   }
+   }
+
+   /* OK, address/netmask found.  Let's get the name */
+   Strncpy(dcrn->ifaces[numifaces].devname, entry->intf_name, sizeof(dcrn->ifaces[numifaces].devname));
+   Strncpy(dcrn->ifaces[numifaces].devfullname, entry->intf_name, sizeof(dcrn->ifaces[numifaces].devfullname));
+
+   /* Interface type */
+   if (entry->intf_type & INTF_TYPE_ETH) {
+	   dcrn->ifaces[numifaces].device_type = devt_ethernet;
+	   /* Collect the MAC address since this is ethernet */
+	   memcpy(dcrn->ifaces[numifaces].mac, &entry->intf_link_addr.addr_eth.data, 6);
+   }
+   else if (entry->intf_type & INTF_TYPE_LOOPBACK)
+	   dcrn->ifaces[numifaces].device_type = devt_loopback;
+   else if (entry->intf_type & INTF_TYPE_TUN)
+	   dcrn->ifaces[numifaces].device_type = devt_p2p;
+   else dcrn->ifaces[numifaces].device_type = devt_other;
+   
+   /* Is the interface up and running? */
+   dcrn->ifaces[numifaces].device_up = (entry->intf_flags & INTF_FLAG_UP)? true : false;
+
+   /* For the rest of the information, we must open the interface directly ... */
+   dcrn->numifaces++;
+   return 0;
+}
+
 struct interface_info *getinterfaces(int *howmany) {
   static bool initialized = 0;
   static struct interface_info *mydevs;
   static int numifaces = 0;
   int ii_capacity = 0;
-  int sd, len, rc;
-  char *p;
-  u8 *buf;
-  int bufsz;
+#if WIN32
+struct dnet_collector_route_nfo dcrn;
+intf_t *it;
+#else //!WIN32
+int sd;
   struct ifconf ifc;
   struct ifreq *ifr;
   struct ifreq tmpifr;
+#endif
+  int len, rc;
+  char *p;
+  u8 *buf;
+  int bufsz;
   struct sockaddr_in *sin;
   u16 ifflags;
+
   if (!initialized) {
     initialized = 1;
 
     ii_capacity = 16;
     mydevs = (struct interface_info *) safe_zalloc(sizeof(struct interface_info) * ii_capacity);
 
+#if WIN32
+/* On Win32 we just use Dnet to determine the interface list */
+
+      dcrn.routes = NULL;
+      dcrn.numroutes = 0;
+      dcrn.capacity = ii_capacity; // I'm reusing this struct for ii now
+      dcrn.ifaces = mydevs;
+      dcrn.numifaces = 0;
+	  it = intf_open();
+	  if (!it) fatal("%s: intf_open() failed", __FUNCTION__);
+	  if (intf_loop(it, collect_dnet_interfaces, &dcrn) != 0)
+		  fatal("%s: intf_loop() failed", __FUNCTION__);
+	  intf_close(it);	
+	  mydevs = dcrn.ifaces;
+	  numifaces = dcrn.numifaces;
+	  ii_capacity = dcrn.capacity;
+#else // !Win32
     /* Dummy socket for ioctl */
     sd = socket(AF_INET, SOCK_DGRAM, 0);
     if (sd < 0) pfatal("socket in getinterfaces");
@@ -2253,58 +2371,13 @@ struct interface_info *getinterfaces(int *howmany) {
     }
     free(buf);
     close(sd);
+#endif //!WIN32
   }
   if (howmany) *howmany = numifaces;
   return mydevs;
 }
-#endif
  
 
-struct dnet_collector_route_nfo {
-  struct sys_route *routes;
-  int numroutes;
-  int route_capacity;
-  struct interface_info *ifaces;
-  int numifaces;
-};
-
-int collect_dnet_routes(const struct route_entry *entry, void *arg) {
-  struct dnet_collector_route_nfo *dcrn = (struct dnet_collector_route_nfo *) arg;
-  int i;
-
-  /* Make sure that it is the proper type of route ... */
-  if (entry->route_dst.addr_type != ADDR_TYPE_IP || entry->route_gw.addr_type != ADDR_TYPE_IP)
-    return 0; /* Not interested in IPv6 routes at the moment ... */
-  
-  /* Make sure we have room for the new route */
-  if (dcrn->numroutes >= dcrn->route_capacity) {
-    dcrn->route_capacity <<= 2;
-    dcrn->routes = (struct sys_route *) realloc(dcrn->routes, 
-						dcrn->route_capacity * sizeof(struct sys_route));
-  }
-  
-  /* Now for the important business */
-  dcrn->routes[dcrn->numroutes].dest = entry->route_dst.addr_ip;
-  addr_btom(entry->route_dst.addr_bits, &dcrn->routes[dcrn->numroutes].netmask, sizeof(dcrn->routes[dcrn->numroutes].netmask));
-  dcrn->routes[dcrn->numroutes].gw.s_addr = entry->route_gw.addr_ip;
-  /* Now determine which interface the route relates to */
-  u32 mask;
-  struct sockaddr_in *sin;
-  for(i = 0; i < dcrn->numifaces; i++) {
-    sin = (struct sockaddr_in *) &dcrn->ifaces[i].addr;
-    mask = htonl((unsigned long) (0-1) << (32 - dcrn->ifaces[i].netmask_bits));
-    if ((sin->sin_addr.s_addr & mask) == (entry->route_gw.addr_ip & mask)) {
-      dcrn->routes[dcrn->numroutes].device = &dcrn->ifaces[i];
-      break;
-    } 
-  }
-  if (i == dcrn->numifaces) {
-    error("WARNING: Unable to find appropriate interface for system route to %s\n", addr_ntoa(&entry->route_gw));
-    return 0;
-  }
-  dcrn->numroutes++;
-  return 0;
-}
 
 /* A trivial function used with qsort to sort the routes by netmask */
 static int nmaskcmp(const void *a, const void *b) {
@@ -2429,7 +2502,7 @@ struct sys_route *getsysroutes(int *howmany) {
       struct dnet_collector_route_nfo dcrn;
       dcrn.routes = routes;
       dcrn.numroutes = numroutes;
-      dcrn.route_capacity = route_capacity;
+      dcrn.capacity = route_capacity;
       dcrn.ifaces = ifaces;
       dcrn.numifaces = numifaces;
       route_t *dr = route_open();
@@ -2439,7 +2512,7 @@ struct sys_route *getsysroutes(int *howmany) {
       }
       route_close(dr);
       /* These values could have changed in the callback */
-      route_capacity = dcrn.route_capacity;
+      route_capacity = dcrn.capacity;
       numroutes = dcrn.numroutes;
       routes = dcrn.routes;
     }

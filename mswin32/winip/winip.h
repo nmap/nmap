@@ -64,8 +64,13 @@ frame-relay(32)
 
   */
 
-#include <pcap.h>
+#include <winsock2.h>
+#include <windows.h>
+#include <ws2tcpip.h>
+#include <iphlpapi.h>
 
+
+/*
 #define IF_other 1
 #define IF_regular1822 2
 #define IF_hdh1822 3
@@ -98,8 +103,7 @@ frame-relay(32)
 #define IF_ds3 30
 #define IF_sip 31
 #define IF_frame_relay 32
-
-#include <windows.h>
+*/
 
 #ifndef EXTERNC
 # ifdef __cplusplus
@@ -109,16 +113,15 @@ frame-relay(32)
 # endif
 #endif
 
-
-//	change to <iphlpapi.h> if you have the SDK
-#include "iphlpapi.h"
-
 //	windows-specific options
+
+#include <pcap.h>
 struct winops {
 	int norawsock, nopcap, forcerawsock, listinterfaces, nt4route, noiphlpapi, trace;
 };
 
-EXTERNC struct winops wo;
+/* struct winops wo;
+ */
 
 /* Sets a pcap filter function -- makes SOCK_RAW reads easier */
 typedef int (*PFILTERFN)(const char *packet, unsigned int len); /* 1 to keep */
@@ -172,9 +175,9 @@ EXTERNC int get_best_route(DWORD dest, PMIB_IPFORWARDROW r);
 
 
 //	pcapsend interface
-EXTERNC void pcapsend_init();
+void pcapsend_init();
 EXTERNC pcap_t *my_real_pcap_open_live(const char *device, int snaplen, int promisc, int to_ms);
-EXTERNC int pcapsendraw(const char *packet, int len, 
+int pcapsendraw(const char *packet, int len, 
 						struct sockaddr *to, int tolen);
 
 //	rawrecv interface

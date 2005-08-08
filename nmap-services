@@ -1981,6 +1981,7 @@ pcanywheredata    5631/tcp   #
 pcanywherestat    5632/tcp   # 
 pcanywherestat    5632/udp   # 
 canna             5680/tcp   # Canna (Japanese Input)
+activesync        5679/tcp   # Microsoft ActiveSync PDY synchronization
 proshareaudio     5713/tcp   # proshare conf audio
 proshareaudio     5713/udp   # proshare conf audio
 prosharevideo     5714/tcp   # proshare conf video

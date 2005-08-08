@@ -320,7 +320,7 @@ void Port::setServiceProbeResults(enum serviceprobestate sres,
 
   if (hostname) {
     slen = strlen(hostname);
-    if (slen > 128) slen = 128;
+    if (slen > 64) slen = 64;
     serviceprobe_hostname = (char *) safe_malloc(slen + 1);
     memcpy(serviceprobe_hostname, hostname, slen);
     serviceprobe_hostname[slen] = '\0';
