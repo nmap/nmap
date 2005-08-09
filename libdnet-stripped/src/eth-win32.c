@@ -14,14 +14,18 @@
 
 /* XXX - VC++ 6.0 bogosity 
 #define sockaddr_storage sockaddr */
-#include <Packet32.h>
+/* #include <Packet32.h> */
 /* #undef sockaddr_storage */
-#include <Ntddndis.h>
+/* #include <Ntddndis.h> */
 
 #include <errno.h>
 #include <stdlib.h>
 
 #include "dnet.h"
+#include <winsock2.h>
+#include "pcap.h"
+#include <Packet32.h>
+#include <Ntddndis.h>
 
 struct eth_handle {
 	LPADAPTER	 lpa;
@@ -36,75 +40,76 @@ struct adapter {
 /* XXX */
 extern const char *intf_get_desc(intf_t *intf, const char *device);
 
+
 eth_t *
 eth_open(const char *device)
 {
 	eth_t *eth;
-	struct adapter alist[16];
-	WCHAR *name, wbuf[2048];
-	ULONG wlen;
-	char *desc, *namea;
-	int i, j, alen, rc;
-	OSVERSIONINFO osvi;
+	int i;
 	intf_t *intf;
+	struct intf_entry ie;
+	pcap_if_t *pcapdevs;
+	pcap_if_t *pdev;
+	char pname[64];
+	struct sockaddr_in devip;
+	pcap_addr_t *pa;
 
 	if ((intf = intf_open()) == NULL)
 		return (NULL);
 	
-	device = intf_get_desc(intf, device);
+	pname[0] = '\0';
+	memset(&ie, 0, sizeof(ie));
+	strlcpy(ie.intf_name, device, sizeof(ie.intf_name));
+	if (intf_get(intf, &ie) != 0) {
 	intf_close(intf);
-
-	if (device == NULL)
-		return (NULL);
-	
-	alen = sizeof(alist) / sizeof(alist[0]);
-	wlen = sizeof(wbuf) / sizeof(wbuf[0]);
-	
-	rc = PacketGetAdapterNames((char *)wbuf, &wlen);
-	if (rc == 0) return (NULL);
-
-	/* Determine Windows version */
-	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	GetVersionEx(&osvi);
-
-	/* Added the 0 below for testing -- may need to find new expression */
-	if (0 && (osvi.dwPlatformId == VER_PLATFORM_WIN32_NT) &&
-	    (osvi.dwMajorVersion >= 4)) {
-		for (name = wbuf, i = 0; *name != '\0' && i < alen; i++) {
-			wcstombs(alist[i].name, name, sizeof(alist[0].name));
-			while (*name++ != '\0')
-				;
+		return NULL;
 		}
-		for (desc = (char *)name + 2, j = 0; *desc != '\0' && j < alen;
-		    j++) {
-			alist[j].desc = desc;
-			while (*desc++ != '\0')
-				;
-		}
+	intf_close(intf);
+	
+	/* Find the first IPv4 address for ie */
+	if (ie.intf_addr.addr_type == ADDR_TYPE_IP) {
+		addr_ntos(&ie.intf_addr, (struct sockaddr *) &devip);
 	} else {
-		for (namea = (char *)wbuf, i = 0; *namea != '\0' && i < alen;
-		    i++) {
-			strlcpy(alist[i].name, namea, sizeof(alist[0].name));
-			while (*namea++ != '\0')
-				;
+		for(i=0; i < (int) ie.intf_alias_num; i++) {
+			if (ie.intf_alias_addrs[i].addr_type == ADDR_TYPE_IP) {
+				addr_ntos(&ie.intf_alias_addrs[i], (struct sockaddr *) &devip);
+				break;
 		}
-		for (desc = namea + 1, j = 0; *desc != '\0' && j < alen; j++) {
-			alist[j].desc = desc;
-			while (*desc++ != '\0')
-				;
-		}
+			if (i == ie.intf_alias_num)
+				return NULL; // Failed to find IPv4 address, which is currently a requirement
 	}
-	for (i = 0; i < j; i++) {
-		if (strcmp(device, alist[i].desc) == 0)
+	}
+
+	/* Next we must find the pcap device name corresponding to the device.
+	   The device description used to be compared with those from PacketGetAdapterNames(), but
+	   that was unrelaible because dnet and pcap sometimes give different descriptions.  For example, 
+	   dnet gave me "AMD PCNET Family PCI Ethernet Adapter - Packet Scheduler Miniport" for one of my 
+	   adapters (in vmware), while pcap described it as "VMware Accelerated AMD PCNet Adapter (Microsoft's
+	   Packet Scheduler)". Plus,  Packet* functions aren't really supported for external use by the 
+	   WinPcap folks.  So I have rewritten this to compare interface addresses (which has its own 
+	   problems -- what if you want to listen an an interface with no IP address set?) --Fyodor */
+	if (pcap_findalldevs(&pcapdevs, NULL) == -1)
+		return NULL;
+
+	for(pdev=pcapdevs; pdev && !pname[0]; pdev = pdev->next) {
+		for (pa=pdev->addresses; pa && !pname[0]; pa = pa->next) {
+			if (pa->addr->sa_family != AF_INET)
+				continue;
+			if (((struct sockaddr_in *)pa->addr)->sin_addr.s_addr == devip.sin_addr.s_addr) {
+				strlcpy(pname, pdev->name, sizeof(pname)); /* Found it -- Yay! */
 			break;
 	}
-	if (i == j)
-		return (NULL);
+		}
+	}
+
+	pcap_freealldevs(pcapdevs);
+
+	if (!pname[0]) return NULL; /* Found no matching interface */
 	
 	if ((eth = calloc(1, sizeof(*eth))) == NULL)
 		return (NULL);
 	
-	if ((eth->lpa = PacketOpenAdapter(alist[i].name)) == NULL ||
+	if ((eth->lpa = PacketOpenAdapter(pname)) == NULL ||
 	    eth->lpa->hFile == INVALID_HANDLE_VALUE)
 		return (eth_close(eth));
 

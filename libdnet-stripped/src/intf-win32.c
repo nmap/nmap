@@ -87,10 +87,10 @@ _ifcombo_add(struct ifcombo *ifc, DWORD idx)
 		if (ifc->idx) {
 			ifc->max *= 2;
 			ifc->idx = realloc(ifc->idx,
-			    sizeof(ifc->idx[0] * ifc->max));
+			    sizeof(ifc->idx[0]) * ifc->max);
 		} else {
 			ifc->max = 8;
-			ifc->idx = malloc(sizeof(ifc->idx[0] * ifc->max));
+			ifc->idx = malloc(sizeof(ifc->idx[0]) * ifc->max);
 		}
 	}
 	ifc->idx[ifc->cnt++] = idx;
@@ -254,7 +254,6 @@ intf_get_desc(intf_t *intf, const char *name)
 	if (GetIfEntry(&ifrow) != NO_ERROR)
 		return (NULL);
 
-	strlcpy(desc, ifrow.bDescr, sizeof(desc));
 	
 	return (desc);
 }

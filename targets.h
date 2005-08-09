@@ -167,17 +167,17 @@ int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[],
 		     int pingtype, struct timeval *time,  struct pingtune *pt,
 		     struct timeout_info *to, int id, struct pingtech *ptech, 
 		     struct scan_lists *ports);
-int sendpingqueries(int sd, int rawsd, Target *target,  
+int sendpingqueries(int sd, int rawsd, eth_t *ethsd, Target *target,  
 		  u16 seq, unsigned short id, struct scanstats *ss, 
 		  struct timeval *time, int pingtype, struct pingtech ptech);
-int sendpingquery(int sd, int rawsd, Target *target,  
+int sendpingquery(int sd, int rawsd, eth_t *ethsd, Target *target,  
 		  u16 seq, unsigned short id, struct scanstats *ss, 
 		  struct timeval *time, int pingtype, struct pingtech ptech);
-int sendrawtcpudppingqueries(int rawsd, Target *target, int pingtype,
+int sendrawtcpudppingqueries(int rawsd, eth_t *ethsd, Target *target, int pingtype,
 			  u16 seq, struct timeval *time, struct pingtune *pt);
-int sendrawtcppingquery(int rawsd, Target *target, int pingtype, u16 probe_port,
+int sendrawtcppingquery(int rawsd, struct eth_nfo *eth, Target *target, int pingtype, u16 probe_port,
 			u16 seq, struct timeval *time, struct pingtune *pt);
-int sendrawudppingquery(int rawsd, Target *target, u16 probe_port,
+int sendrawudppingquery(int rawsd, struct eth_nfo *eth, Target *target, u16 probe_port,
 			u16 seq, struct timeval *time, struct pingtune *pt);
 int sendconnecttcpqueries(Target *hostbatch[], struct tcpqueryinfo *tqi, Target *target,
 			  u16 seq, struct timeval *time, struct pingtune *pt, struct timeout_info *to, int max_sockets);

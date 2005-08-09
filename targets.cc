@@ -469,6 +469,7 @@ int sd_blocking = 1;
 struct sockaddr_in sock;
 u16 seq = 0;
 int sd = -1, rawsd = -1, rawpingsd = -1;
+eth_t *ethsd = NULL;
 struct timeval *time;
 struct timeval start, end;
 unsigned short id;
@@ -588,6 +589,13 @@ if (!to.srtt && !to.rttvar && !to.timeout) {
 
 /* Init our raw socket */
 if (o.numdecoys > 1 || ptech.rawtcpscan || ptech.rawicmpscan || ptech.rawudpscan) {
+	if ((o.sendpref & PACKET_SEND_ETH) && hostbatch[0]->ifType() == devt_ethernet) {
+		/* We'll send ethernet packets with dnet */
+		ethsd = eth_open(hostbatch[0]->deviceName());
+		if (ethsd == NULL)
+			fatal("dnet: Failed to open device %s", hostbatch[0]->deviceName());
+		rawsd = -1; rawpingsd = -1;
+	} else {
   if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
     pfatal("socket trobles in massping");
   broadcast_socket(rawsd);
@@ -595,16 +603,14 @@ if (o.numdecoys > 1 || ptech.rawtcpscan || ptech.rawicmpscan || ptech.rawudpscan
   sethdrinclude(rawsd);
 #endif
 
- 
   if ((rawpingsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
     pfatal("socket trobles in massping");
   broadcast_socket(rawpingsd);
 #ifndef WIN32
   sethdrinclude(rawpingsd);
 #endif
-
 }
- else { rawsd = -1; rawpingsd = -1; }
+} else { rawsd = -1; rawpingsd = -1; }
 
 if (ptech.rawicmpscan || ptech.rawtcpscan || ptech.rawudpscan) {
   /* we need a pcap descript0r! */
@@ -662,11 +668,11 @@ gettimeofday(&start, NULL);
 	 gettimeofday(&time[(seq - pt.seq_offset) & 0xFFFF], NULL);
 
 	 if (ptech.icmpscan || ptech.rawicmpscan)
-	   sendpingqueries(sd, rawpingsd, hostbatch[hostnum],  
+	   sendpingqueries(sd, rawpingsd, ethsd, hostbatch[hostnum],  
 			   seq, id, &ss, time, pingtype, ptech);
        
 	 if (ptech.rawtcpscan || ptech.rawudpscan) 
-	   sendrawtcpudppingqueries(rawsd, hostbatch[hostnum], pingtype, seq, time, &pt);
+	   sendrawtcpudppingqueries(rawsd, ethsd, hostbatch[hostnum], pingtype, seq, time, &pt);
 
 	 else if (ptech.connecttcpscan) {
 	   sendconnecttcpqueries(hostbatch, &tqi, hostbatch[hostnum], seq, time, &pt, &to, max_sockets);
@@ -717,6 +723,7 @@ gettimeofday(&start, NULL);
  if (sd >= 0) close(sd);
  if (rawsd >= 0) close(rawsd);
  if (rawpingsd >= 0) close(rawpingsd);
+ if (ethsd) eth_close(ethsd);
  free(time);
  if (pd) pcap_close(pd);
  if (o.debugging) 
@@ -818,35 +825,45 @@ int sendconnecttcpquery(Target *hostbatch[], struct tcpqueryinfo *tqi,
 return 0;
 }
 
-int sendrawtcpudppingqueries(int rawsd, Target *target, int pingtype, u16 seq, 
+int sendrawtcpudppingqueries(int rawsd, eth_t *ethsd, Target *target, int pingtype, u16 seq, 
 			  struct timeval *time, struct pingtune *pt) {
   int i;
+  struct eth_nfo eth;
+  struct eth_nfo *ethptr = NULL;
+
+  if (ethsd) {
+	  memcpy(eth.srcmac, target->SrcMACAddress(), 6);
+	  memcpy(eth.dstmac, target->NextHopMACAddress(), 6);
+	  eth.ethsd = ethsd;
+	  eth.devname[0] = '\0';
+	  ethptr = &eth;
+  } else ethptr = NULL;
 
   if (pingtype & PINGTYPE_UDP) {
     for( i=0; i<o.num_ping_udpprobes; i++ ) {
       if (i > 0 && o.scan_delay) enforce_scan_delay(NULL);
-      sendrawudppingquery(rawsd, target, o.ping_udpprobes[i], seq, time, pt);
+      sendrawudppingquery(rawsd, ethptr, target, o.ping_udpprobes[i], seq, time, pt);
     }
   }
 
   if (pingtype & PINGTYPE_TCP_USE_ACK) {
     for( i=0; i<o.num_ping_ackprobes; i++ ) {
       if (i > 0 && o.scan_delay) enforce_scan_delay(NULL);
-      sendrawtcppingquery(rawsd, target, PINGTYPE_TCP_USE_ACK, o.ping_ackprobes[i], seq, time, pt);
+      sendrawtcppingquery(rawsd, ethptr, target, PINGTYPE_TCP_USE_ACK, o.ping_ackprobes[i], seq, time, pt);
     }
   }
 
   if (pingtype & PINGTYPE_TCP_USE_SYN) {
     for( i=0; i<o.num_ping_synprobes; i++ ) {
       if (i > 0 && o.scan_delay) enforce_scan_delay(NULL);
-      sendrawtcppingquery(rawsd, target, PINGTYPE_TCP_USE_SYN, o.ping_synprobes[i], seq, time, pt);
+      sendrawtcppingquery(rawsd, ethptr, target, PINGTYPE_TCP_USE_SYN, o.ping_synprobes[i], seq, time, pt);
     }
   }
 
   return 0;
 }
 
-int sendrawudppingquery(int rawsd, Target *target, u16 probe_port,
+int sendrawudppingquery(int rawsd, struct eth_nfo *eth, Target *target, u16 probe_port,
 			u16 seq, struct timeval *time, struct pingtune *pt) {
 int trynum = 0;
 unsigned short sportbase;
@@ -859,13 +876,13 @@ else {
 
  o.decoys[o.decoyturn].s_addr = target->v4source().s_addr;
  
- send_udp_raw_decoys( rawsd, NULL, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, seq, o.extra_payload, o.extra_payload_length);
+ send_udp_raw_decoys( rawsd, eth, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, seq, o.extra_payload, o.extra_payload_length);
 
 
  return 0;
 }
 
-int sendrawtcppingquery(int rawsd, Target *target, int pingtype, u16 probe_port,
+int sendrawtcppingquery(int rawsd, struct eth_nfo *eth, Target *target, int pingtype, u16 probe_port,
 			u16 seq, struct timeval *time, struct pingtune *pt) {
 int trynum = 0;
 int myseq;
@@ -883,37 +900,37 @@ else {
  o.decoys[o.decoyturn].s_addr = target->v4source().s_addr;
 
  if (pingtype & PINGTYPE_TCP_USE_SYN) {   
-   send_tcp_raw_decoys( rawsd, NULL, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, myseq, myack, TH_SYN, 0, NULL, 0, o.extra_payload, 
+   send_tcp_raw_decoys( rawsd, eth, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, myseq, myack, TH_SYN, 0, NULL, 0, o.extra_payload, 
 			o.extra_payload_length);
  } else {
-   send_tcp_raw_decoys( rawsd, NULL, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, myseq, myack, TH_ACK, 0, NULL, 0, o.extra_payload, 
+   send_tcp_raw_decoys( rawsd, eth, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, myseq, myack, TH_ACK, 0, NULL, 0, o.extra_payload, 
 			o.extra_payload_length);
  }
 
  return 0;
 }
 
-int sendpingqueries(int sd, int rawsd, Target *target,  
+int sendpingqueries(int sd, int rawsd, eth_t *ethsd, Target *target,  
 		  u16 seq, unsigned short id, struct scanstats *ss, 
 		    struct timeval *time, int pingtype, struct pingtech ptech) {
   if (pingtype & PINGTYPE_ICMP_PING) {
     if (o.scan_delay) enforce_scan_delay(NULL);
-    sendpingquery(sd, rawsd, target, seq, id, ss, time, PINGTYPE_ICMP_PING, ptech);
+    sendpingquery(sd, rawsd, ethsd, target, seq, id, ss, time, PINGTYPE_ICMP_PING, ptech);
   }
   if (pingtype & PINGTYPE_ICMP_MASK) {
     if (o.scan_delay) enforce_scan_delay(NULL);
-    sendpingquery(sd, rawsd, target, seq, id, ss, time, PINGTYPE_ICMP_MASK, ptech);
+    sendpingquery(sd, rawsd, ethsd, target, seq, id, ss, time, PINGTYPE_ICMP_MASK, ptech);
 
   }
   if (pingtype & PINGTYPE_ICMP_TS) {
     if (o.scan_delay) enforce_scan_delay(NULL);
-    sendpingquery(sd, rawsd, target, seq, id, ss, time, PINGTYPE_ICMP_TS, ptech);
+    sendpingquery(sd, rawsd, ethsd, target, seq, id, ss, time, PINGTYPE_ICMP_TS, ptech);
   }
 
   return 0;
 }
 
-int sendpingquery(int sd, int rawsd, Target *target,  
+int sendpingquery(int sd, int rawsd, eth_t *ethsd, Target *target,  
 		  u16 seq, unsigned short id, struct scanstats *ss, 
 		  struct timeval *time, int pingtype, struct pingtech ptech) {
 struct ppkt {
@@ -930,7 +947,17 @@ int icmplen=0;
 int decoy;
 int res;
 struct sockaddr_in sock;
+struct eth_nfo eth;
+struct eth_nfo *ethptr = NULL;
 char *ping = (char *) &pingpkt;
+
+if (ethsd) {
+    memcpy(eth.srcmac, target->SrcMACAddress(), 6);
+    memcpy(eth.dstmac, target->NextHopMACAddress(), 6);
+    eth.ethsd = ethsd;
+    eth.devname[0] = '\0';
+    ethptr = &eth;
+} else ethptr = NULL;
 
  if (pingtype & PINGTYPE_ICMP_PING) {
    icmplen = 8; 
@@ -995,7 +1022,7 @@ if (ptech.icmpscan) {
        fprintf(stderr, "sendto: %s\n", strerror(sock_err));
      }
    } else {
-     send_ip_raw( rawsd, NULL, &o.decoys[decoy], target->v4hostip(), o.ttl, IPPROTO_ICMP, ping, icmplen);
+     send_ip_raw( rawsd, ethptr, &o.decoys[decoy], target->v4hostip(), o.ttl, IPPROTO_ICMP, ping, icmplen);
    }
  }
 
