@@ -18,7 +18,7 @@
  * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @(#) $Header$ (LBL)
+ * @(#) $Header: /tcpdump/master/libpcap/Win32/Include/ip6_misc.h,v 1.4 2004/07/06 23:45:29 risso Exp $ (LBL)
  */
 
 /*
@@ -58,8 +58,12 @@ struct in6_addr
 #endif /* __MINGW32__ */
 
 
-#ifdef __MINGW32__
+#if (defined WIN32) || (defined __MINGW32__)
 typedef unsigned short	sa_family_t;
+#endif
+
+
+#ifdef __MINGW32__
 
 #define	__SOCKADDR_COMMON(sa_prefix) \
   sa_family_t sa_prefix##family

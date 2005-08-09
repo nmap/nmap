@@ -120,7 +120,8 @@ typedef struct NetType
 
   The program will be injected in the kernel by the PacketSetBPF() function and applied to every incoming packet. 
 */
-struct bpf_program {
+struct bpf_program 
+{
 	UINT bf_len;				///< Indicates the number of instructions of the program, i.e. the number of struct bpf_insn that will follow.
 	struct bpf_insn *bf_insns;	///< A pointer to the first instruction of the program.
 };
@@ -130,7 +131,8 @@ struct bpf_program {
 
   bpf_insn contains a single instruction for the BPF register-machine. It is used to send a filter program to the driver.
 */
-struct bpf_insn {
+struct bpf_insn 
+{
 	USHORT	code;		///< Instruction type and addressing mode.
 	UCHAR 	jt;			///< Jump if true
 	UCHAR 	jf;			///< Jump if false
@@ -142,7 +144,8 @@ struct bpf_insn {
 
   It is used by packet.dll to return statistics about a capture session.
 */
-struct bpf_stat {
+struct bpf_stat 
+{
 	UINT bs_recv;		///< Number of packets that the driver received from the network adapter 
 						///< from the beginning of the current capture. This value includes the packets 
 						///< lost by the driver.
@@ -159,7 +162,8 @@ struct bpf_stat {
 
   This structure defines the header associated with every packet delivered to the application.
 */
-struct bpf_hdr {
+struct bpf_hdr 
+{
 	struct timeval	bh_tstamp;	///< The timestamp associated with the captured packet. 
 								///< It is stored in a TimeVal structure.
 	UINT	bh_caplen;			///< Length of captured portion. The captured portion <b>can be different</b>
@@ -220,6 +224,8 @@ typedef WAN_ADAPTER *PWAN_ADAPTER; ///< Describes an opened wan (dialup, VPN...)
 #define INFO_FLAG_NDISWAN_ADAPTER	1	///< Flag for ADAPTER_INFO: this is a NdisWan adapter
 #define INFO_FLAG_DAG_CARD			2	///< Flag for ADAPTER_INFO: this is a DAG card
 #define INFO_FLAG_DAG_FILE			6	///< Flag for ADAPTER_INFO: this is a DAG file
+#define INFO_FLAG_DONT_EXPORT		8	///< Flag for ADAPTER_INFO: when this flag is set, the adapter will not be listed or openend by winpcap. This allows to prevent exporting broken network adapters, like for example FireWire ones.
+
 /*!
   \brief Contains comprehensive information about a network adapter.
 
@@ -363,12 +369,17 @@ extern "C" {
  *  @}
  */
 
+// The following is used to check the adapter name in PacketOpenAdapterNPF and prevent 
+// opening of firewire adapters 
+#define FIREWIRE_SUBSTR L"1394"
+
 void PacketPopulateAdaptersInfoList();
 PWCHAR SChar2WChar(PCHAR string);
 PCHAR WChar2SChar(PWCHAR string);
 BOOL PacketGetFileVersion(LPTSTR FileName, PCHAR VersionBuff, UINT VersionBuffLen);
 PADAPTER_INFO PacketFindAdInfo(PCHAR AdapterName);
 BOOLEAN PacketUpdateAdInfo(PCHAR AdapterName);
+BOOLEAN IsFireWire(TCHAR *AdapterDesc);
 
 
 //---------------------------------------------------------------------------
