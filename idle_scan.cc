@@ -123,11 +123,6 @@
 
 extern NmapOps o;
 
-/*  predefined filters -- I need to kill these globals at some point. */
-extern unsigned long flt_dsthost, flt_srchost;
-extern unsigned short flt_baseport;
-
-
 struct idle_proxy_info {
   Target host; /* contains name, IP, source IP, timing info, etc. */
   int seqclass; /* IPID sequence class (IPID_SEQ_* defined in nmap.h) */
@@ -391,12 +386,9 @@ void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   snprintf(filter, sizeof(filter), "tcp and src host %s and dst host %s and src port %hu", p, q, proxy->probe_port);
  free(p); 
  free(q);
- set_pcap_filter(proxy->host.deviceName(), proxy->pd, flt_icmptcp, filter);
+ set_pcap_filter(proxy->host.deviceName(), proxy->pd,  filter);
 /* Windows nonsense -- I am not sure why this is needed, but I should
    get rid of it at sometime */
-
- flt_srchost = proxy->host.v4source().s_addr;
- flt_dsthost = proxy->host.v4host().s_addr;
 
  sequence_base = get_random_u32();
 

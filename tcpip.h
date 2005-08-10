@@ -662,7 +662,8 @@ void readippacket(const u8 *packet, int readdata);
    of a TCP packet*/
 int readtcppacket(const u8 *packet, int readdata);
 int readudppacket(const u8 *packet, int readdata);
-/* Convert an IP address to the device (IE ppp0 eth0) using that address */
+/* Convert an IP address to the device (IE ppp0 eth0) using that address.  Dev passed in must be at least 
+    32 bytes long */
 int ipaddr2devname( char *dev, const struct in_addr *addr );
 /* And vice versa */
 int devname2ipaddr(char *dev, struct in_addr *addr);
@@ -796,7 +797,7 @@ int recvtime(int sd, char *buf, int len, int seconds, int *timedout);
 /* Sets a pcap filter function -- makes SOCK_RAW reads easier */
 #ifndef WINIP_H
 typedef int (*PFILTERFN)(const char *packet, unsigned int len); /* 1 to keep */
-void set_pcap_filter(const char *device, pcap_t *pd, PFILTERFN filter, char *bpf, ...);
+void set_pcap_filter(const char *device, pcap_t *pd, char *bpf, ...);
 #endif
 
 /* Just accept everything ... TODO: Need a better approach than this flt_ 

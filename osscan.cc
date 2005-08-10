@@ -117,10 +117,6 @@
 #endif
 
 extern NmapOps o;
-/*  predefined filters -- I need to kill these globals at some pont. */
-extern unsigned long flt_dsthost, flt_srchost;
-extern unsigned short flt_baseport;
-
 
 FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
 FingerPrint *FP = NULL, *FPtmp = NULL;
@@ -209,12 +205,9 @@ oshardtimeout = MAX(500000, 5 * target->to.timeout);
 if (o.debugging > 1)
    log_write(LOG_STDOUT, "Wait time is %dms\n", (ossofttimeout +500)/1000);
 
- flt_srchost = target->v4host().s_addr;
- flt_dsthost = target->v4source().s_addr;
-
 snprintf(filter, sizeof(filter), "dst host %s and (icmp or (tcp and src host %s))", inet_ntoa(target->v4source()), target->targetipstr());
  
- set_pcap_filter(target->deviceName(), pd, flt_icmptcp, filter);
+ set_pcap_filter(target->deviceName(), pd, filter);
  target->osscan_performed = 1; /* Let Nmap know that we did try an OS scan */
 
  /* Lets find an open port to use */
@@ -1897,10 +1890,6 @@ current_testno++;
    overwrite our ip_id */
 #if !defined(SOLARIS) && !defined(SUNOS) && !defined(IRIX) && !defined(HPUX)
 
-#ifdef WIN32
-if(!winip_corruption_possible()) {
-#endif
-
 /* Now lets see how they treated the ID we sent ... */
 AVs[current_testno].attribute = "RID";
 if (ntohs(ip2->ip_id) == 0)
@@ -1910,10 +1899,6 @@ else if (ip2->ip_id == upi->ipid)
 else strcpy(AVs[current_testno].value, "F"); /* They fucked it up */
 
 current_testno++;
-
-#ifdef WIN32
-}
-#endif
 
 #endif
 

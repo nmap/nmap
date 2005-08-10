@@ -101,6 +101,7 @@
 #include "nmap.h"
 #include "nbase.h"
 #include "NmapOps.h"
+#include "winfix.h"
 
 NmapOps o;
 
@@ -185,7 +186,6 @@ void NmapOps::Initialize() {
 # endif // __amigaos__
 #else
   isr00t = 1;
-  winip_init();	/* wrapper for all win32 initialization */
 #endif
   debugging = DEBUGGING;
   verbose = DEBUGGING;
@@ -356,7 +356,7 @@ void NmapOps::ValidateOptions() {
 #ifndef WIN32
       fatal("You requested a scan type which requires r00t privileges, and you do not have them.\n");
 #else
-      winip_barf(0);
+      win_barf(0);
 #endif
     }
     
@@ -364,7 +364,7 @@ void NmapOps::ValidateOptions() {
 #ifndef WIN32
       fatal("Sorry, but you've got to be r00t to use decoys, boy!");
 #else
-      winip_barf(0);
+      win_barf(0);
 #endif
     }
     
@@ -372,7 +372,7 @@ void NmapOps::ValidateOptions() {
 #ifndef WIN32
       fatal("Sorry, but fragscan requires r00t privileges\n");
 #else
-      winip_barf(0);
+      win_barf(0);
 #endif
     }
     
@@ -380,7 +380,7 @@ void NmapOps::ValidateOptions() {
 #ifndef WIN32
       fatal("TCP/IP fingerprinting (for OS scan) requires root privileges which you do not appear to possess.  Sorry, dude.\n");
 #else
-      winip_barf(0);
+      win_barf(0);
 #endif
     }
   }

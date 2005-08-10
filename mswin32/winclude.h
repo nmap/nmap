@@ -92,11 +92,7 @@
                                 // later release may set console handlers
 */
 
-void win32_pcap_close(pcap_t *pd);
-
 /* non-functioning stub function */
 int fork();
-
-#define pcap_close(pd) win32_pcap_close(pd)
 
 #endif /* WINCLUDE_H */

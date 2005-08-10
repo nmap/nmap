@@ -501,9 +501,6 @@ static void init_ultra_timing_vals(ultra_timing_vals *timing,
    this as a DROPPED PACKET */
 void ultrascan_adjust_times(UltraScanInfo *USI, HostScanStats *hss, 
 		       UltraProbe *probe, struct timeval *rcvdtime);
-/*  predefined filters -- I need to kill these globals at some pont. */
-extern unsigned long flt_dsthost, flt_srchost;
-extern unsigned short flt_baseport;
 
 /* Take a buffer, buf, of size bufsz (32 bytes is sufficient) and 
    writes a short description of the probe (arg1) into buf.  It also returns 
@@ -2960,9 +2957,6 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
   filterlen = 0;
 
   USI->pd = my_pcap_open_live(Targets[0]->deviceName(), 100,  (o.spoofsource)? 1 : 0, 2);
-  /* Windows nonsense */
-  flt_srchost = Targets[0]->v4host().s_addr;
-  flt_dsthost = Targets[0]->v4source().s_addr;
 
   if (USI->tcp_scan || USI->udp_scan) {
     if (doIndividual)
@@ -2999,7 +2993,7 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
     filterlen = len;
   } else assert(0); /* Other scan types? */
   if (o.debugging > 2) printf("Pcap filter: %s\n", pcap_filter);
-  set_pcap_filter(Targets[0]->deviceName(), USI->pd, flt_all, pcap_filter);
+  set_pcap_filter(Targets[0]->deviceName(), USI->pd, pcap_filter);
   /* pcap_setnonblock(USI->pd, 1, NULL); */
   
   return;

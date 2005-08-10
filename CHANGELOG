@@ -2,6 +2,10 @@
 
 Nmap 3.83DC13
 
+o Removed WinIP library (and all Windows raw sockets code) since MS
+  has gone and broken raw sockets.  Maybe packet receipt via raw
+  sockets will come back at some point.
+
 o Added the ability for Nmap to send and properly route raw ethernet
   packets cointaining IP datagrams rather than always sending the
   packets via raw sockets. This is particularly useful for Windows,

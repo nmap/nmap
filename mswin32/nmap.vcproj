@@ -25,7 +25,7 @@
 				AdditionalIncludeDirectories=".;..;../nbase;../libpcre;winip;..\nsock\include;&quot;pcap-include&quot;;&quot;..\libdnet-stripped\include&quot;"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="5"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderFile=".\Debug/nmap.pch"
 				AssemblerListingLocation=".\Debug/"
@@ -90,7 +90,7 @@
 				AdditionalIncludeDirectories=".;..;../nbase;../libpcre;winip;..\nsock\include;&quot;pcap-include&quot;;&quot;..\libdnet-stripped\include&quot;"
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE"
 				StringPooling="TRUE"
-				RuntimeLibrary="0"
+				RuntimeLibrary="4"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderFile=".\Release/nmap.pch"
@@ -219,103 +219,10 @@
 				Name="Windows"
 				Filter="">
 				<File
-					RelativePath="winip\MibAccess.cpp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="0"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-							BasicRuntimeChecks="3"
-							CompileAs="2"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="1"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-							CompileAs="2"/>
-					</FileConfiguration>
-				</File>
-				<File
 					RelativePath="nmap.rc">
 				</File>
 				<File
-					RelativePath="winip\rawrecv.c">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="0"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-							BasicRuntimeChecks="3"
-							CompileAs="2"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="1"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-							CompileAs="2"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="winip\snmp95.cpp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="0"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-							ExceptionHandling="FALSE"
-							BasicRuntimeChecks="3"
-							CompileAs="2"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="1"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-							ExceptionHandling="FALSE"
-							CompileAs="2"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="winip\snmpapi.cpp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="0"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-							BasicRuntimeChecks="3"
-							CompileAs="2"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							Optimization="1"
-							AdditionalIncludeDirectories=""
-							PreprocessorDefinitions=""
-							CompileAs="2"/>
-					</FileConfiguration>
-				</File>
-				<File
 					RelativePath="winfix.cc">
-				</File>
-				<File
-					RelativePath=".\winip\winip.cc">
 				</File>
 			</Filter>
 		</Filter>
@@ -351,6 +258,9 @@
 			</File>
 			<File
 				RelativePath="..\nmap_winconfig.h">
+			</File>
+			<File
+				RelativePath="..\NmapOps.h">
 			</File>
 			<File
 				RelativePath="..\NmapOutputTable.h">
@@ -404,13 +314,10 @@
 					RelativePath="winip\iphlpapi.h">
 				</File>
 				<File
-					RelativePath="winip\MibAccess.h">
-				</File>
-				<File
 					RelativePath=".\winclude.h">
 				</File>
 				<File
-					RelativePath="winip\winip.h">
+					RelativePath=".\winfix.h">
 				</File>
 			</Filter>
 			<Filter

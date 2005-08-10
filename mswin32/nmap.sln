@@ -1,11 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "iphlpapi", "winip\iphlpapi.vcproj", "{CB578003-213B-4316-B5BC-2D71A081A65A}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nmap", "nmap.vcproj", "{361719F0-AB42-4C93-9DE8-7D2144B96625}"
 	ProjectSection(ProjectDependencies) = postProject
-		{CB578003-213B-4316-B5BC-2D71A081A65A} = {CB578003-213B-4316-B5BC-2D71A081A65A}
 		{5DE86C7A-DE72-4265-8807-4CA38F94F22A} = {5DE86C7A-DE72-4265-8807-4CA38F94F22A}
 		{5328E0BE-BC0A-4C2A-8CB9-CE00B61B9C4C} = {5328E0BE-BC0A-4C2A-8CB9-CE00B61B9C4C}
 		{F8D6D1E3-D4EA-402C-98AA-168E5309BAF4} = {F8D6D1E3-D4EA-402C-98AA-168E5309BAF4}
@@ -35,10 +30,6 @@ Global
 		Release = Release
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
-		{CB578003-213B-4316-B5BC-2D71A081A65A}.Debug.ActiveCfg = Debug|Win32
-		{CB578003-213B-4316-B5BC-2D71A081A65A}.Debug.Build.0 = Debug|Win32
-		{CB578003-213B-4316-B5BC-2D71A081A65A}.Release.ActiveCfg = Release|Win32
-		{CB578003-213B-4316-B5BC-2D71A081A65A}.Release.Build.0 = Release|Win32
 		{361719F0-AB42-4C93-9DE8-7D2144B96625}.Debug.ActiveCfg = Debug|Win32
 		{361719F0-AB42-4C93-9DE8-7D2144B96625}.Debug.Build.0 = Debug|Win32
 		{361719F0-AB42-4C93-9DE8-7D2144B96625}.Release.ActiveCfg = Release|Win32

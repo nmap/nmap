@@ -10,6 +10,9 @@ o Renamed configure.in to configure.ac, which is the name now
   recommended by the autoconf project.
 
 o Removed the .cvsignore file, all 'CVS' directories, the 'packaging' directory, and the install-sh script.
+
+o Rewrote Win32 version of eth_open() as the previous verson didn't
+  work on any of my Windows machines.
   
 o Added the gcc debugging flag (-g) to aclocal.m4 if gcc is being used:
 --- libpcap-0.8.3/aclocal.m4    2003-11-16 01:45:51.000000000 -0800

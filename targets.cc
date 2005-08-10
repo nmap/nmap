@@ -114,11 +114,6 @@ extern NmapOps o;
 enum pingstyle { pingstyle_unknown, pingstyle_rawtcp, pingstyle_rawudp, pingstyle_connecttcp, 
 		 pingstyle_icmp };
 
-/*  predefined filters -- I need to kill these globals at some pont. */
-extern unsigned long flt_dsthost, flt_srchost;
-extern unsigned short flt_baseport;
-
-
 /* Gets the host number (index) of target in the hostbatch array of
  pointers.  Note that the target MUST EXIST in the array or all
  heck will break loose. */
@@ -622,16 +617,13 @@ if (ptech.rawicmpscan || ptech.rawtcpscan || ptech.rawudpscan) {
    = 104 byte snaplen */
   pd = my_pcap_open_live(hostbatch[0]->deviceName(), 104, o.spoofsource, 20);
 
-  flt_dsthost = hostbatch[0]->v4source().s_addr;
-  flt_baseport = sportbase;
-
   snprintf(filter, sizeof(filter), "(icmp and dst host %s) or ((tcp or udp) and dst host %s and ( dst port %d or dst port %d or dst port %d or dst port %d or dst port %d))", 
 	   inet_ntoa(hostbatch[0]->v4source()),
 	   inet_ntoa(hostbatch[0]->v4source()),
 	   sportbase , sportbase + 1, sportbase + 2, sportbase + 3, 
 	   sportbase + 4);
 
-  set_pcap_filter(hostbatch[0]->deviceName(), pd, flt_icmptcp_5port, filter); 
+  set_pcap_filter(hostbatch[0]->deviceName(), pd, filter); 
 }
 
  blockinc = (int) (0.9999 + 8.0 / probes_per_host);

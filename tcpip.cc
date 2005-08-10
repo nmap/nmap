@@ -137,10 +137,6 @@ extern NmapOps o;
 extern void CloseLibs(void);
 #endif
 
-/*  predefined filters -- I need to kill these globals at some pont. */
-extern unsigned long flt_dsthost, flt_srchost;
-extern unsigned short flt_baseport;
-
 #ifdef WIN32
 #include "mswin32/winip/winip.h"
 
@@ -155,14 +151,12 @@ int if2nameindex(int ifi);
 
 static PacketCounter PktCt;
 
-#ifndef WIN32 /* Already defined in wintcpip.c for now */
 void sethdrinclude(int sd) {
 #ifdef IP_HDRINCL
 int one = 1;
 setsockopt(sd, IPPROTO_IP, IP_HDRINCL, (const char *) &one, sizeof(one));
 #endif
 }
-#endif /* WIN32 */
 
 // Takes a protocol number like IPPROTO_TCP, IPPROTO_UDP, or
 // IPPROTO_TCP and returns a ascii representation (or "unknown" if it
@@ -650,60 +644,84 @@ char dev[128];
   return 0;
 }
 
-/* Calls pcap_open_live and spits out an error (and quits) if the call
-   fails.  So a valid pcap_t will always be returned.  Note that the
-   Windows/UNIX versions are separate since they differ so much.
-   Also, the actual my_pcap_open_live() for Windows is in
-   mswin32/winip/winip.c.  It calls the function below if pcap is
-   being used, otherwise it uses Windows raw sockets. */
 #ifdef WIN32
-pcap_t *my_real_pcap_open_live(const char *device, int snaplen, int promisc, int to_ms) 
-{
-  char err0r[PCAP_ERRBUF_SIZE];
-  pcap_t *pt;
-  const WINIP_IF *ifentry;
-  int ifi = name2ifi(device);
+/* Convert a dnet interface name into the long pcap style.  This also caches the data
+to speed things up.  Fills out pcapdev (up to pcapdevlen) and returns true if it finds anything.
+Otherwise returns false.  This is only necessary on Windows.*/
+bool DnetName2PcapName(const char *dnetdev, char *pcapdev, int pcapdevlen) {
+	static struct NameCorrelationCache {
+		char dnetd[64];
+		char pcapd[128];
+	} *NCC = NULL;
+	static int NCCsz = 0;
+	static int NCCcapacity = 0;
+	int i;
+	char tmpdev[128];
   
-  if(ifi == -1)
-    fatal("my_real_pcap_open_live: invalid device %s\n", device);
-  
-  if(o.debugging > 1)
-    printf("Trying to open %s for receive with winpcap.\n", device);
-  
-  ifentry = ifi2ifentry(ifi);
-  
-  //	check for bogus interface
-  if(!ifentry->pcapname)
-    {
-      fatal("my_real_pcap_open_live: called with non-pcap interface %s!\n",
-	    device);
+	// Init the cache if not done yet
+	if (!NCC) {
+		NCCcapacity = 5;
+		NCC = (struct NameCorrelationCache *) safe_zalloc(NCCcapacity * sizeof(*NCC));
+		NCCsz = 0;
     }
   
-  if (!((pt = pcap_open_live(ifentry->pcapname, snaplen, promisc, to_ms, err0r)))) 	
-    fatal("pcap_open_live: %s");
+	// First check if the name is already in the cache
+	for(i=0; i < NCCsz; i++) {
+		if (strcmp(NCC[i].dnetd, dnetdev) == 0) {
+			Strncpy(pcapdev, NCC[i].pcapd, pcapdevlen);
+			return true;
+		}
+	}
 	  
-	  
-  //	This should help
-  pcap_setmintocopy(pt, 1);
+	// OK, so it isn't in the cache.  Let's ask dnet for it.
+/* Converts a dnet interface name (ifname) to its pcap equivalent, which is stored in
+pcapdev (up to a length of pcapdevlen).  Returns 0 and fills in pcapdev if successful. */
+	if (intf_get_pcap_devname(dnetdev, tmpdev, sizeof(tmpdev)) != 0)
+		return false;
   
-  return pt;
+	// We've got it.  Let's add it to the cache
+	if (NCCsz >= NCCcapacity) {
+		NCCcapacity <<= 2;
+		NCC = (struct NameCorrelationCache *) safe_realloc(NCC, NCCcapacity * sizeof(*NCC));
+	}
+	Strncpy(NCC[NCCsz].dnetd, dnetdev, sizeof(NCC[0].dnetd));
+	Strncpy(NCC[NCCsz].pcapd, tmpdev, sizeof(NCC[0].pcapd));
+	NCCsz++;
+	Strncpy(pcapdev, tmpdev, pcapdevlen);
+	return true;
 }
+#endif
 
-#else // !WIN32
 pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc, 
 			  int to_ms) 
 {
   char err0r[PCAP_ERRBUF_SIZE];
   pcap_t *pt;
-  if (!((pt = pcap_open_live(device, snaplen, promisc, to_ms, err0r)))) {
+  char pcapdev[128];
+#ifdef WIN32
+/* Nmap normally uses device names obtained through dnet for interfaces, but Pcap has its own
+naming system.  So the conversion is done here */
+  if (!DnetName2PcapName(device, pcapdev, sizeof(pcapdev))) {
+       /* Oh crap -- couldn't find the corresponding dev apparently.  Let's just go with what we have then ... */
+       Strncpy(pcapdev, device, sizeof(pcapdev));
+  }
+#else
+  Strncpy(pcapdev, device, sizeof(pcapdev));
+#endif
+  if (!((pt = pcap_open_live(pcapdev, snaplen, promisc, to_ms, err0r)))) {
     fatal("pcap_open_live: %s\nThere are several possible reasons for this, depending on your operating system:\n"
           "LINUX: If you are getting Socket type not supported, try modprobe af_packet or recompile your kernel with SOCK_PACKET enabled.\n"
           "*BSD:  If you are getting device not configured, you need to recompile your kernel with Berkeley Packet Filter support.  If you are getting No such file or directory, try creating the device (eg cd /dev; MAKEDEV <device>; or use mknod).\n"
           "SOLARIS:  If you are trying to scan localhost and getting '/dev/lo0: No such file or directory', complain to Sun.  I don't think Solaris can support advanced localhost scans.  You can probably use \"-P0 -sT localhost\" though.\n\n", err0r);
   }
+
+#ifdef WIN32
+  /* We want any responses back ASAP */
+   pcap_setmintocopy(pt, 1);
+#endif
+
   return pt;
 }
-#endif // WIN32
 
 /* Standard BSD internet checksum routine */
 unsigned short in_cksum(u16 *ptr,int nbytes) {
@@ -1446,13 +1464,6 @@ static unsigned int alignedbufsz=0;
 static int warning = 0;
 if (linknfo) { memset(linknfo, 0, sizeof(*linknfo)); }
 
-#ifdef WIN32
-long to_left;
-
-// We use WinXP raw packet support when available
- if (-2 == (long) pd) return rawrecv_readip(pd, len, to_usec, rcvdtime);
-#endif
-
 if (!pd) fatal("NULL packet device passed to readip_pcap");
 
  if (to_usec < 0) {
@@ -1539,7 +1550,7 @@ if (!pd) fatal("NULL packet device passed to readip_pcap");
  do {
 #ifdef WIN32
    gettimeofday(&tv_end, NULL);
-   to_left = MAX(1, (to_usec - TIMEVAL_SUBTRACT(tv_end, tv_start)) / 1000);
+   long to_left = MAX(1, (to_usec - TIMEVAL_SUBTRACT(tv_end, tv_start)) / 1000);
    // Set the timeout (BUGBUG: this is cheating)
    PacketSetReadTimeout(pd->adapter, to_left);
 #endif
@@ -1848,7 +1859,7 @@ bool doArp(const char *dev, const u8 *srcmac,
 
   /* Start listening */
   pd = my_pcap_open_live(dev, 50, 1, 25);
-  set_pcap_filter(dev, pd, flt_all, "arp and ether dst host %02X:%02X:%02X:%02X:%02X:%02X", srcmac[0], srcmac[1], srcmac[2], srcmac[3], srcmac[4], srcmac[5]);
+  set_pcap_filter(dev, pd, "arp and ether dst host %02X:%02X:%02X:%02X:%02X:%02X", srcmac[0], srcmac[1], srcmac[2], srcmac[3], srcmac[4], srcmac[5]);
 
   /* Prepare probe and sending stuff */
   ethsd = eth_open(dev);
@@ -1964,11 +1975,9 @@ bool setTargetNextHopMAC(Target *target) {
   return false;
 } 
 
-#ifndef WIN32 /* Windows version of next few functions is currently 
-                 in wintcpip.c.  Should be merged at some point. */
 /* Set a pcap filter */
 void set_pcap_filter(const char *device,
-		     pcap_t *pd, PFILTERFN filter, char *bpf, ...)
+		     pcap_t *pd, char *bpf, ...)
 {
   va_list ap;
   char buf[3072];
@@ -2002,70 +2011,7 @@ void set_pcap_filter(const char *device,
     fatal("Failed to set the pcap filter: %s\n", pcap_geterr(pd));
 }
 
-#endif /* WIN32 */
-
-/* This is ugly :(.  We need to get rid of these at some point */
-unsigned long flt_dsthost, flt_srchost;	/* _net_ order */
-unsigned short flt_baseport;	/*	_host_ order */
-
-/* Just accept everything ... TODO: Need a better approach than this flt_ 
-   stuff */
-int flt_all(const char *packet, unsigned int len) {
-  return 1;
-}
-
-int flt_icmptcp(const char *packet, unsigned int len)
-{
-  struct ip* ip = (struct ip*)packet;
-  if(ip->ip_dst.s_addr != flt_dsthost) return 0;
-  if(ip->ip_p == IPPROTO_ICMP) return 1;
-  if(ip->ip_src.s_addr != flt_srchost) return 0;
-  if(ip->ip_p == IPPROTO_TCP) return 1;
-  return 0;
-}
-
-int flt_icmptcp_2port(const char *packet, unsigned int len)
-{
-  unsigned short dport;
-  struct ip* ip = (struct ip*)packet;
-  if(ip->ip_dst.s_addr != flt_dsthost) return 0;
-  if(ip->ip_p == IPPROTO_ICMP) return 1;
-  if(ip->ip_src.s_addr != flt_srchost) return 0;
-  if(ip->ip_p == IPPROTO_TCP)
-    {
-      struct tcphdr* tcp = (struct tcphdr *) (((char *) ip) + 4 * ip->ip_hl);
-      if(len < (unsigned) 4 * ip->ip_hl + 4) return 0;
-	  dport = ntohs(tcp->th_dport);
-      if(dport == flt_baseport || dport == flt_baseport + 1)
-	return 1;
-    }
-  
-  return 0;
-}
-
-int flt_icmptcp_5port(const char *packet, unsigned int len)
-{
-  unsigned short dport;
-  struct ip* ip = (struct ip*)packet;
-  if(ip->ip_dst.s_addr != flt_dsthost) return 0;
-  if(ip->ip_p == IPPROTO_ICMP) return 1;
-  if(ip->ip_p == IPPROTO_TCP)
-    {
-      struct tcphdr* tcp = (struct tcphdr *) (((char *) ip) + 4 * ip->ip_hl);
-      if(len < (unsigned) 4 * ip->ip_hl + 4) return 0;
-      dport = ntohs(tcp->th_dport);
-      if(dport >= flt_baseport && dport <= flt_baseport + 4) return 1;
-    }
-  
-  return 0;
-}
-
-
-#ifndef WIN32 /* Currently the Windows code for next few functions is 
-                 in wintcpip.c -- should probably be merged at some
-				 point.  The dev passed in must be at least 
-				 16 bytes long */
-
+/* The 'dev' passed in must be at least 32 bytes long */
 int ipaddr2devname( char *dev, const struct in_addr *addr ) {
 struct interface_info *mydevs;
 int numdevs;
@@ -2081,7 +2027,7 @@ for(i=0; i < numdevs; i++) {
   if (sin->sin_family != AF_INET)
     continue;
   if (addr->s_addr == sin->sin_addr.s_addr) {
-    Strncpy(dev, mydevs[i].devname, 16);
+    Strncpy(dev, mydevs[i].devname, 32);
     return 0;
   }
 }
@@ -2104,7 +2050,7 @@ for(i=0; i < numdevs; i++) {
 }
 return -1;
 }
-#endif /* WIN32 */
+
 
 struct dnet_collector_route_nfo {
   struct sys_route *routes;
@@ -2766,8 +2712,6 @@ if (echots) *echots = 0;
 return 0;
 }
 
-#ifndef WIN32 // An alternative version of this function is defined in 
-              // mswin32/winip/winip.c
 int Sendto(char *functionname, int sd, const unsigned char *packet, int len, 
 	   unsigned int flags, struct sockaddr *to, int tolen) {
 
@@ -2783,6 +2727,9 @@ do {
     error("sendto in %s: sendto(%d, packet, %d, 0, %s, %d) => %s",
 	  functionname, sd, len, inet_ntoa(sin->sin_addr), tolen,
 	  strerror(err));
+#if WIN32
+	return -1;
+#else
     if (retries > 2 || err == EPERM || err == EACCES || err == EADDRNOTAVAIL
 	|| err == EINVAL)
       return -1;
@@ -2790,6 +2737,7 @@ do {
     error("Sleeping %d seconds then retrying", sleeptime);
     fflush(stderr);
     sleep(sleeptime);
+#endif
   }
   retries++;
 } while( res == -1);
@@ -2798,7 +2746,6 @@ do {
 
 return res;
 }
-#endif
 
 IPProbe::IPProbe() {
   packetbuflen = 0;

@@ -107,6 +107,7 @@
 #include "timing.h"
 #include "NmapOps.h"
 #include "MACLookup.h"
+#include "winfix.h"
 
 using namespace std;
 
@@ -226,9 +227,6 @@ int nmap_main(int argc, char *argv[]) {
   Target *currenths;
   vector<Target *> Targets;
   char *proberr;
-#if WIN32
-  bool skip_winip_init = false;
-#endif
   char emptystring[1];
   int sourceaddrwarning = 0; /* Have we warned them yet about unguessable
 				source addresses? */
@@ -293,17 +291,6 @@ int nmap_main(int argc, char *argv[]) {
       {"spoof_mac", required_argument, 0, 0},
       {"ttl", required_argument, 0, 0}, /* Time to live */
       {"allports", no_argument, 0, 0},
-#ifdef WIN32
-      {"win_list_interfaces", no_argument, 0, 0},
-      {"win_norawsock", no_argument, 0, 0}, 
-      {"win_forcerawsock", no_argument, 0, 0}, 
-      {"win_nopcap", no_argument, 0, 0}, 
-      {"win_nt4route", no_argument, 0, 0}, 
-      {"win_noiphlpapi", no_argument, 0, 0}, 
-      {"win_help", no_argument, 0, 0},
-      {"win_trace", no_argument, 0, 0},
-      {"win_skip_winip_init", no_argument, 0, 0},
-#endif
       {0, 0, 0, 0}
     };
 
@@ -380,34 +367,6 @@ int nmap_main(int argc, char *argv[]) {
 	}
       } else if (strcmp(long_options[option_index].name, "datadir") == 0) {
 	o.datadir = strdup(optarg);
-#ifdef WIN32
-      } else if (strcmp(long_options[option_index].name, "win_list_interfaces") == 0 ) { 
-	wo.listinterfaces = 1; 
-      } else if (strcmp(long_options[option_index].name, "win_norawsock") == 0 ) { 
-	wo.norawsock = 1; 
-      } else if (strcmp(long_options[option_index].name, "win_forcerawsock") == 0 ) { 
-	wo.forcerawsock = 1; 
-      } else if (strcmp(long_options[option_index].name, "win_nopcap") == 0 ) { 
-	wo.nopcap = 1; 
-      } else if (strcmp(long_options[option_index].name, "win_nt4route") == 0 ) { 
-	wo.nt4route = 1; 
-      } else if (strcmp(long_options[option_index].name, "win_noiphlpapi") == 0 ) { 
-	wo.noiphlpapi = 1; 
-      } else if (strcmp(long_options[option_index].name, "win_trace") == 0 ) { 
-	wo.trace++; 
-      } else if (strcmp(long_options[option_index].name, "win_skip_winip_init") == 0 ) { 
-	skip_winip_init = true;
-      } else if (strcmp(long_options[option_index].name, "win_help") == 0 ) { 
-	printf("Windows-specific options:\n\n"); 
-	printf(" --win_list_interfaces : list all network interfaces\n"); 
-	printf(" --win_norawsock       : disable raw socket support\n"); 
-	printf(" --win_forcerawsock    : try raw sockets even on non-W2K systems\n"); 
-	printf(" --win_nopcap          : disable winpcap support\n"); 
-	printf(" --win_nt4route        : test nt4 route code\n"); 
-	printf(" --win_noiphlpapi      : test response to lack of iphlpapi.dll\n"); 
-	printf(" --win_trace           : trace through raw IP initialization\n");
-	exit(0);
-#endif
       } else if (strcmp(long_options[option_index].name, "append_output") == 0) {
 	o.append_output = 1;
       } else if (strcmp(long_options[option_index].name, "noninteractive") == 0) {
@@ -776,8 +735,7 @@ int nmap_main(int argc, char *argv[]) {
   }
 
 #ifdef WIN32
-  if (!skip_winip_init)
-    winip_postopt_init();
+    win_init();
 #endif
 
 #if HAVE_SIGNAL

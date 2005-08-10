@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "pcap.h"
 
 struct ifcombo {
 	DWORD		*idx;
@@ -257,6 +258,75 @@ intf_get_desc(intf_t *intf, const char *name)
 	
 	return (desc);
 }
+
+/* Converts a dnet interface name (ifname) to its pcap equivalent, which is stored in
+pcapdev (up to a length of pcapdevlen).  Returns 0 and fills in pcapdev if successful. */
+int intf_get_pcap_devname(const char *ifname, char *pcapdev, int pcapdevlen) {
+	int i;
+	intf_t *intf;
+	struct intf_entry ie;
+	pcap_if_t *pcapdevs;
+	pcap_if_t *pdev;
+	char pname[128];
+	struct sockaddr_in devip;
+	pcap_addr_t *pa;
+
+	if ((intf = intf_open()) == NULL)
+		return -1;
+	
+	pname[0] = '\0';
+	memset(&ie, 0, sizeof(ie));
+	strlcpy(ie.intf_name, ifname, sizeof(ie.intf_name));
+	if (intf_get(intf, &ie) != 0) {
+		intf_close(intf);
+		return -1;
+	}
+	intf_close(intf);
+	
+	/* Find the first IPv4 address for ie */
+	if (ie.intf_addr.addr_type == ADDR_TYPE_IP) {
+		addr_ntos(&ie.intf_addr, (struct sockaddr *) &devip);
+	} else {
+		for(i=0; i < (int) ie.intf_alias_num; i++) {
+			if (ie.intf_alias_addrs[i].addr_type == ADDR_TYPE_IP) {
+				addr_ntos(&ie.intf_alias_addrs[i], (struct sockaddr *) &devip);
+				break;
+			}
+		}
+		if (i == ie.intf_alias_num)
+			return -1; // Failed to find IPv4 address, which is currently a requirement
+	}
+
+	/* Next we must find the pcap device name corresponding to the device.
+	   The device description used to be compared with those from PacketGetAdapterNames(), but
+	   that was unrelaible because dnet and pcap sometimes give different descriptions.  For example, 
+	   dnet gave me "AMD PCNET Family PCI Ethernet Adapter - Packet Scheduler Miniport" for one of my 
+	   adapters (in vmware), while pcap described it as "VMware Accelerated AMD PCNet Adapter (Microsoft's
+	   Packet Scheduler)". Plus,  Packet* functions aren't really supported for external use by the 
+	   WinPcap folks.  So I have rewritten this to compare interface addresses (which has its own 
+	   problems -- what if you want to listen an an interface with no IP address set?) --Fyodor */
+	if (pcap_findalldevs(&pcapdevs, NULL) == -1)
+		return -1;
+
+	for(pdev=pcapdevs; pdev && !pname[0]; pdev = pdev->next) {
+		for (pa=pdev->addresses; pa && !pname[0]; pa = pa->next) {
+			if (pa->addr->sa_family != AF_INET)
+				continue;
+			if (((struct sockaddr_in *)pa->addr)->sin_addr.s_addr == devip.sin_addr.s_addr) {
+				strlcpy(pname, pdev->name, sizeof(pname)); /* Found it -- Yay! */
+			break;
+	}
+		}
+	}
+
+	pcap_freealldevs(pcapdevs);
+	if (pname[0]) {
+		strlcpy(pcapdev, pname, pcapdevlen);
+		return 0;
+	}
+	return -1;
+}
+
 
 int
 intf_get_src(intf_t *intf, struct intf_entry *entry, struct addr *src)
