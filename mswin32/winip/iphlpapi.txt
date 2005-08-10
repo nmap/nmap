@@ -1,3 +1,0 @@
-iphlpapi.lib was created in such a way that is not copyright Microsoft.
-
-Run iphlpapi.bat to rebuild it.
