@@ -101,7 +101,9 @@
 #include "nmap.h"
 #include "nbase.h"
 #include "NmapOps.h"
+#ifdef WIN32
 #include "winfix.h"
+#endif
 
 NmapOps o;
 
@@ -268,7 +270,11 @@ bool NmapOps::RawScan() {
 
 
 void NmapOps::ValidateOptions() {
-
+#ifdef WIN32
+	const char *privreq = "that WinPcap version 3.1 or higher and iphlpapi.dll be installed. You seem to be missing one or both of these.  Winpcap is available from http://www.winpcap.org.  iphlpapi.dll comes with Win98 and later operating sytems and NT 4.0 with SP4 or greater.  For previous windows versions, you may be able to take iphlpapi.dll from anotyer system and place it in your system32 dir (e.g. c:\\windows\\system32)";
+#else
+	const char *privreq = "root privileges";
+#endif
   if (pingtype == PINGTYPE_UNKNOWN) {
     if (isr00t && af() == AF_INET) pingtype = DEFAULT_PING_TYPES;
     else pingtype = PINGTYPE_TCP; // if nonr00t or IPv6
@@ -353,35 +359,19 @@ void NmapOps::ValidateOptions() {
 #endif
     
     if (ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|synscan|udpscan|windowscan|xmasscan) {
-#ifndef WIN32
-      fatal("You requested a scan type which requires r00t privileges, and you do not have them.\n");
-#else
-      win_barf(0);
-#endif
+      fatal("You requested a scan type which requires %s.  Sorry dude.\n", privreq);
     }
     
     if (numdecoys > 0) {
-#ifndef WIN32
-      fatal("Sorry, but you've got to be r00t to use decoys, boy!");
-#else
-      win_barf(0);
-#endif
+      fatal("Sorry, but decoys (-D) require %s.\n", privreq);
     }
     
     if (fragscan) {
-#ifndef WIN32
-      fatal("Sorry, but fragscan requires r00t privileges\n");
-#else
-      win_barf(0);
-#endif
+      fatal("Sorry, but fragscan requires %s\n", privreq);
     }
     
     if (osscan) {
-#ifndef WIN32
-      fatal("TCP/IP fingerprinting (for OS scan) requires root privileges which you do not appear to possess.  Sorry, dude.\n");
-#else
-      win_barf(0);
-#endif
+      fatal("TCP/IP fingerprinting (for OS scan) requires %s.  Sorry, dude.\n", privreq);
     }
   }
   

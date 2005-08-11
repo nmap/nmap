@@ -103,7 +103,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib $(NOINHERIT)"
+				AdditionalDependencies="nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib $(NOINHERIT)"
 				OutputFile=".\Release/nmap.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"

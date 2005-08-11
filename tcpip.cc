@@ -138,8 +138,6 @@ extern void CloseLibs(void);
 #endif
 
 #ifdef WIN32
-#include "mswin32/winip/winip.h"
-
 #include "pcap-int.h"
 
 void nmapwin_init();

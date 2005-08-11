@@ -123,10 +123,9 @@ int os_scan(Target *target);
 FingerPrint *get_fingerprint(Target *target, struct seq_info *si);
 struct AVal *fingerprint_iptcppacket(struct ip *ip, int mss, unsigned int syn);
 struct AVal *fingerprint_portunreach(struct ip *ip, struct udpprobeinfo *upi);
-struct udpprobeinfo *send_closedudp_probe(int rawsd, 
-					  const struct in_addr *dest,
+struct udpprobeinfo *send_closedudp_probe(int sd, struct eth_nfo *eth,
+					  const struct in_addr *victim,
 					  u16 sport, u16 dport);
-
 unsigned int get_gcd_n_ulong(int numvalues, unsigned int *values);
 unsigned int euclid_gcd(unsigned int a, unsigned int b);
 char *fp2ascii(FingerPrint *FP);

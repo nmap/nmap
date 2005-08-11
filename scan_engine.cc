@@ -690,7 +690,7 @@ bool GroupScanStats::sendOK() {
      don't give us a proper pcap time.  Also for connect scans, since
      we don't get an exact response time with them either. */
   if (USI->scantype == CONNECT_SCAN || !pcap_recv_timeval_valid()) {
-    int to_ms = (int) MAX(to.srtt * .75 / 1000, 20);
+    int to_ms = (int) MAX(to.srtt * .75 / 1000, 50);
     if (TIMEVAL_MSEC_SUBTRACT(USI->now, last_wait) > to_ms)
       return false;
   }
@@ -2276,6 +2276,7 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
   recvfrom6_t optlen = sizeof(int);
   char buf[128];
   int numGoodSD = 0;
+  int err = 0;
 #ifdef LINUX
   int res;
   struct sockaddr_storage sin,sout;
@@ -2294,15 +2295,17 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
     timeout.tv_sec = timeleft / 1000;
     timeout.tv_usec = (timeleft % 1000) * 1000;
 
-    if (CSI->numSDs)
+	if (CSI->numSDs) {
       selectres = select(CSI->maxValidSD + 1, &fds_rtmp, &fds_wtmp, 
 			 &fds_xtmp, &timeout);
+	  err = socket_errno();
+	}
     else {
       /* Apparently Windows returns an WSAEINVAL if you select without watching any SDs.  Lame.  We'll usleep instead in that case */
       usleep(timeleft * 1000);
       selectres = 0;
     }
-  } while (selectres == -1 && socket_errno() == EINTR);
+  } while (selectres == -1 && err == EINTR);
 
   gettimeofday(&USI->now, NULL);
   
@@ -3139,9 +3142,17 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
 		stype scantype) {
   UltraScanInfo *USI = NULL;
   time_t starttime;
+
   if (Targets.size() == 0) {
     return;
   }
+
+#ifdef WIN32
+  if (scantype != CONNECT_SCAN && Targets[0]->ifType() == devt_loopback) {
+    log_write(LOG_STDOUT, "Skipping %s against %s because Windows does not support scanning your own machine (localhost) this way.\n", scantype2str(scantype), Targets[0]->NameIP());
+    return;
+  }
+#endif
 
   startTimeOutClocks(Targets);
   USI = new UltraScanInfo(Targets, ports, scantype);

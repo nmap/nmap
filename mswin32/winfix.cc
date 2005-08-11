@@ -132,17 +132,6 @@ int pcap_avail = 0;
 static void win_cleanup(void);
 static char pcaplist[4096];
 
-void win_barf(const char *msg)
-{
-  if(msg) printf("%s\n\n", msg);
-  printf("\nYour system doesn't have iphlpapi.dll\n\nIf you have Win95, "
-  "maybe you could grab it from a Win98 system\n"
-  "If you have NT4, you need service pack 4 or higher\n"
-  "If you have NT3.51, try grabbing it from an NT4 system\n"
-  "Otherwise, your system has problems ;-)\n");
-  exit(0);
-}
-
 void win_init()
 {
 	//   variables

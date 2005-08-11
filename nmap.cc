@@ -107,7 +107,9 @@
 #include "timing.h"
 #include "NmapOps.h"
 #include "MACLookup.h"
+#ifdef WIN32
 #include "winfix.h"
+#endif
 
 using namespace std;
 
@@ -791,6 +793,12 @@ int nmap_main(int argc, char *argv[]) {
     fatal("You cannot use -F (fast scan) or -p (explicit port selection) with PING scan or LIST scan");
   }
 
+#ifdef WIN32
+  if (o.sendpref & PACKET_SEND_IP) {
+	  error("WARNING: raw IP (rather than raw ethernet) packet sending attempted on Windows. This probably won't work.  Consider --send_eth next time.\n");
+
+  }
+#endif
   if (spoofmac) {
     u8 mac_data[6];
     int pos = 0; /* Next index of mac_data to fill in */
@@ -1190,7 +1198,7 @@ int nmap_main(int argc, char *argv[]) {
       // Should be host parallelized.  Though rarely takes a huge amt. of time.
       if (o.osscan) 
 	os_scan(currenths);
-      
+
     /* Now I can do the output and such for each host */
       log_write(LOG_XML, "<host>");
       write_host_status(currenths, resolve_all);

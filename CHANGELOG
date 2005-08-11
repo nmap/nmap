@@ -1,10 +1,6 @@
 # Nmap Changelog ($Id$)
 
-Nmap 3.83DC13
-
-o Removed WinIP library (and all Windows raw sockets code) since MS
-  has gone and broken raw sockets.  Maybe packet receipt via raw
-  sockets will come back at some point.
+Nmap 3.84ALPHA1
 
 o Added the ability for Nmap to send and properly route raw ethernet
   packets cointaining IP datagrams rather than always sending the
@@ -85,10 +81,14 @@ o Added "Exclude" directive to nmap-service-probes grammar which
   probes, etc.  If you really want to scan all ports, specify
   --allports.  This patch came from Doug Hoyte (doug(a)hcsw.org).
 
-o Added a stripped-down version of Dug Song's excellent libdnet
-  networking library (v. 1.10).  This helps with the new raw ethernet
-  features.  I made various changes, which are described in
+o Added a stripped-down and heavily modified version of Dug Song's
+  libdnet networking library (v. 1.10).  This helps with the new raw
+  ethernet features.  My changes are described in
   libdnet-stripped/NMAP_MODIFICATIONS
+
+o Removed WinIP library (and all Windows raw sockets code) since MS
+  has gone and broken raw sockets.  Maybe packet receipt via raw
+  sockets will come back at some point.
 
 o Chagned the interesting ports array from a 65K-member array of
   pointers into an STL list.  This noticeable reduces memory usage in
@@ -114,6 +114,15 @@ o Added a bunch of RPC numbers from nmap-rpc maintainer Eilon Gishri
 
 o Added some new RPC services to nmap-rpc thanks to a patch from
   vlad902 (vlad902(a)gmail.com).
+
+o Fixed a bug where Nmap would quit on Windows whenever it encountered
+  a raw scan of localhost (including the local ethernet interface
+  address), even when that was just one address out of a whole network
+  being scanned.  Now Nmap just warns that it is skipping raw scans when
+  it encounters the local IP, but continues on to scan the rest of the
+  network.  Raw scans do not currently work against local IP addresses
+  because Winpcap doesn't support reading/writing localhost interfaces
+  due to limitations of Windows.
 
 o The OS fingerprint is now provided in XML output if debugging is
   enabled (-d) or verbosity is at least 2 (-v -v).  This patch was

@@ -761,4 +761,4 @@ AC_OUTPUT(Makefile)
 if test -f docs/leet-nmap-ascii-art.txt; then
 	cat docs/leet-nmap-ascii-art.txt
 fi
-echo "Configuration complete.  Type make to compile."
+echo "Configuration complete.  Type make (or gmake on some *BSD machines) to compile."

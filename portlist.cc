@@ -609,56 +609,61 @@ Port *PortList::nextPort(Port *afterthisport,
 			 bool allow_portzero) {
   
   /* These two are chosen because they come right "before" port 1/tcp */
-  unsigned int current_proto = IPPROTO_TCP;
-  map<u16,Port*>::iterator iter = tcp_ports.begin();
-
-if (afterthisport) {
-  current_proto = afterthisport->proto;
+  map<u16,Port*>::iterator iter;
   
-  // This will advacne to one after the current
-  while (iter != tcp_ports.end() && iter->second->portno <= afterthisport->portno) {
-    iter++;
-  }
-} 
-
-/* if (afterthisport) 
-   printf("Next Port After %d, %d\n", afterthisport->portno, iter->second->portno); fflush(0);
-*/
-
- if (!allow_portzero && iter->second && iter->second->portno == 0) iter++;
- 
-
-/* First we look for TCP ports ... */
-if (current_proto == IPPROTO_TCP) {
-  if ((allowed_protocol == 0 || allowed_protocol == IPPROTO_TCP) && 
-      current_proto == IPPROTO_TCP)
-    while (iter != tcp_ports.end()) {
-      if (!allowed_state || iter->second->state == allowed_state) {
-	//printf("Returning %d\n", iter->second->portno);
-	return iter->second;
+  if (afterthisport) {
+    if (afterthisport->proto == IPPROTO_TCP) {
+      iter = tcp_ports.find(afterthisport->portno);
+      assert(iter != tcp_ports.end());
+      iter++;
+      while(iter != tcp_ports.end()) {
+	if (!allowed_state || iter->second->state == allowed_state)
+	  return iter->second;
+	iter++;
       }
+      /* No more TCP ports ... */
+      if (allowed_protocol != 0)
+	return NULL;
+      
+      iter = udp_ports.begin();
+    } else {
+      assert(afterthisport->proto == IPPROTO_UDP);
+      iter = udp_ports.find(afterthisport->portno);
+      assert(iter != udp_ports.end());
       iter++;
     }
-  
-  /*  Uh-oh.  We have tried all tcp ports, lets move to udp */
-  current_proto = IPPROTO_UDP;
-  iter = udp_ports.begin();
-}
-
-if ((allowed_protocol == 0 || allowed_protocol == IPPROTO_UDP) && 
-    current_proto == IPPROTO_UDP) {
-  while (iter != udp_ports.end()) {
-    if (!allowed_state || iter->second->state == allowed_state) {
-      //printf("Returning %d\n", iter->second->portno);
-      return iter->second;
+    while(iter != udp_ports.end()) {
+      if (!allowed_state || iter->second->state == allowed_state)
+	return iter->second;
+      iter++;
     }
-    iter++;
+    return NULL;
+  } 
+
+  // First-time call - try TCP ports first
+  if (allowed_protocol == 0 || allowed_protocol == IPPROTO_TCP) {
+    iter = tcp_ports.begin();
+    while (iter != tcp_ports.end()) {
+      if (!allowed_state || iter->second->state == allowed_state)
+	return iter->second;
+      iter++;
+    }
   }
+  
+  // Maybe we'll have better luck with UDP
+  if (allowed_protocol == 0 || allowed_protocol == IPPROTO_UDP) {
+    iter = udp_ports.begin();
+    while (iter != udp_ports.end()) {
+      if (!allowed_state || iter->second->state == allowed_state)
+	return iter->second;
+      iter++;
+    }
+  }
+  
+  // Nuthing found
+  return NULL;
 }
 
-/*  No more ports */
-return NULL;
-}
 
 // Move some popular TCP ports to the beginning of the portlist, because
 // that can speed up certain scans.  You should have already done any port

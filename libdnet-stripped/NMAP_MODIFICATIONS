@@ -31,9 +31,15 @@ o A number of portability changes to remove errors/warnings during
 o Added libdnet-stripped.vcproj -- A Visual Studio.Net project file
   for dnet.
 
-o Changed eth_open() in eth-win32.c to more frequently consider the
-results of PacketGetAdapterNames() to be in single-char format rather
-than 2-byte wide characters.
+o Rewrote eth_open() for Win32 as its technique for translating from
+  a dnet-named interface to a pcap-named one did not work on any of my
+  systems.
+
+o Added intf_get_pcap_devname() function for Win32.  This tries to
+  convert a dnet if name into its pcap equivalent.  It is a hack, but
+  arguably better than the hacks that were there before.  The main
+  down side is that it won't work with interfaces that don't have an
+  IPv4 address configured.
 
 o Made some code changes to intf.c (the patch below).  This does the following:
 

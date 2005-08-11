@@ -159,7 +159,7 @@ int seq_response_num; /* response # for sequencing */
 double avg_ts_hz = 0.0; /* Avg. amount that timestamps incr. each second */
 struct link_header linkhdr;
 struct eth_nfo eth;
- struct eth_nfo *ethptr; // for passing to send_ functions 
+struct eth_nfo *ethptr; // for passing to send_ functions 
 
 if (target->timedOut(NULL))
   return NULL;
@@ -302,7 +302,7 @@ if (o.verbose && openport != (unsigned long) -1)
    /* Test 8 */
    if (!FPtests[8]) {
      if (o.scan_delay) enforce_scan_delay(NULL);
-     upi = send_closedudp_probe(rawsd, target->v4hostip(), o.magic_port, closedport);
+     upi = send_closedudp_probe(rawsd, ethptr, target->v4hostip(), o.magic_port, closedport);
    }
    gettimeofday(&t1, NULL);
    timeout = 0;
@@ -1170,6 +1170,13 @@ int bestaccidx;
  if (target->timedOut(NULL))
    return 1;
  
+#ifdef WIN32
+  if (target->ifType() == devt_loopback) {
+    log_write(LOG_STDOUT, "Skipping OS Scan against %s because it doesn't work against your own machine (localhsot)\n", target->NameIP());
+    return 1;
+  }
+#endif
+
  if (o.debugging > 2) {
    starttimems = o.TimeSinceStartMS();
    log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID, "Initiating OS Detection against %s at %.3fs\n", target->targetipstr(), starttimems / 1000.0);
@@ -1699,7 +1706,8 @@ return AVs;
 }
 
 
-struct udpprobeinfo *send_closedudp_probe(int sd, const struct in_addr *victim,
+struct udpprobeinfo *send_closedudp_probe(int sd, struct eth_nfo *eth,
+					  const struct in_addr *victim,
 					  u16 sport, u16 dport) {
 
 static struct udpprobeinfo upi;
@@ -1729,82 +1737,78 @@ memset(data, patternbyte, datalen);
 while(!id) id = get_random_uint();
 
 /* check that required fields are there and not too silly */
-if ( !victim || !sport || !dport || sd < 0) {
+if ( !victim || !sport || !dport || (!eth && sd < 0)) {
   fprintf(stderr, "send_closedudp_probe: One or more of your parameters suck!\n");
   return NULL;
 }
 
 if (!myttl)  myttl = (time(NULL) % 14) + 51;
-/* It was a tough decision whether to do this here for every packet
-   or let the calling function deal with it.  In the end I grudgingly decided
-   to do it here and potentially waste a couple microseconds... */
-sethdrinclude(sd); 
 
- for(decoy=0; decoy < o.numdecoys; decoy++) {
-   source = &o.decoys[decoy];
+for(decoy=0; decoy < o.numdecoys; decoy++) {
+  source = &o.decoys[decoy];
 
-   memset((char *) packet, 0, sizeof(struct ip) + sizeof(udphdr_bsd));
+  memset((char *) packet, 0, sizeof(struct ip) + sizeof(udphdr_bsd));
 
-   udp->uh_sport = htons(sport);
-   udp->uh_dport = htons(dport);
-   udp->uh_ulen = htons(8 + datalen);
+  udp->uh_sport = htons(sport);
+  udp->uh_dport = htons(dport);
+  udp->uh_ulen = htons(8 + datalen);
 
-   /* Now the psuedo header for checksuming */
-   pseudo->source.s_addr = source->s_addr;
-   pseudo->dest.s_addr = victim->s_addr;
-   pseudo->proto = IPPROTO_UDP;
-   pseudo->length = htons(sizeof(udphdr_bsd) + datalen);
-
-   /* OK, now we should be able to compute a valid checksum */
-realcheck = in_cksum((unsigned short *)pseudo, 20 /* pseudo + UDP headers */ +
- datalen);
+  /* Now the psuedo header for checksuming */
+  pseudo->source.s_addr = source->s_addr;
+  pseudo->dest.s_addr = victim->s_addr;
+  pseudo->proto = IPPROTO_UDP;
+  pseudo->length = htons(sizeof(udphdr_bsd) + datalen);
+  
+  /* OK, now we should be able to compute a valid checksum */
+  realcheck = in_cksum((unsigned short *)pseudo, 20 /* pseudo + UDP headers */ +
+		       datalen);
 #if STUPID_SOLARIS_CHECKSUM_BUG
- udp->uh_sum = sizeof(udphdr_bsd) + datalen;
+  udp->uh_sum = sizeof(udphdr_bsd) + datalen;
 #else
-udp->uh_sum = realcheck;
+  udp->uh_sum = realcheck;
 #endif
 
-   /* Goodbye, pseudo header! */
-   memset(pseudo, 0, sizeof(*pseudo));
-
-   /* Now for the ip header */
-   ip->ip_v = 4;
-   ip->ip_hl = 5;
-   ip->ip_len = htons(sizeof(struct ip) + sizeof(udphdr_bsd) + datalen);
-   ip->ip_id = id;
-   ip->ip_ttl = myttl;
-   ip->ip_p = IPPROTO_UDP;
-   ip->ip_src.s_addr = source->s_addr;
-   ip->ip_dst.s_addr= victim->s_addr;
-
-   upi.ipck = in_cksum((unsigned short *)ip, sizeof(struct ip));
+  /* Goodbye, pseudo header! */
+  memset(pseudo, 0, sizeof(*pseudo));
+  
+  /* Now for the ip header */
+  ip->ip_v = 4;
+  ip->ip_hl = 5;
+  ip->ip_len = htons(sizeof(struct ip) + sizeof(udphdr_bsd) + datalen);
+  ip->ip_id = id;
+  ip->ip_ttl = myttl;
+  ip->ip_p = IPPROTO_UDP;
+  ip->ip_src.s_addr = source->s_addr;
+  ip->ip_dst.s_addr= victim->s_addr;
+  
+  upi.ipck = in_cksum((unsigned short *)ip, sizeof(struct ip));
 #if HAVE_IP_IP_SUM
-   ip->ip_sum = upi.ipck;
+  ip->ip_sum = upi.ipck;
 #endif
-
-   /* OK, now if this is the real she-bang (ie not a decoy) then
-      we stick all the inph0 in our upi */
-   if (decoy == o.decoyturn) {   
-     upi.iptl = 28 + datalen;
-     upi.ipid = id;
-     upi.sport = sport;
-     upi.dport = dport;
-     upi.udpck = realcheck;
-     upi.udplen = 8 + datalen;
-     upi.patternbyte = patternbyte;
-     upi.target.s_addr = ip->ip_dst.s_addr;
-   }
-   if (TCPIP_DEBUGGING > 1) {
-     log_write(LOG_STDOUT, "Raw UDP packet creation completed!  Here it is:\n");
-     readudppacket(packet,1);
-   }
-
-   if ((res = send_ip_packet(sd, NULL, packet, ntohs(ip->ip_len))) == -1)
-   {
-     perror("send_ip_packet in send_closedupd_probe");
-     return NULL;
-   }
- }
+  
+  /* OK, now if this is the real she-bang (ie not a decoy) then
+     we stick all the inph0 in our upi */
+  if (decoy == o.decoyturn) {   
+    upi.iptl = 28 + datalen;
+    upi.ipid = id;
+    upi.sport = sport;
+    upi.dport = dport;
+    upi.udpck = realcheck;
+    upi.udplen = 8 + datalen;
+    upi.patternbyte = patternbyte;
+    upi.target.s_addr = ip->ip_dst.s_addr;
+  }
+  if (TCPIP_DEBUGGING > 1) {
+    log_write(LOG_STDOUT, "Raw UDP packet creation completed!  Here it is:\n");
+    readudppacket(packet,1);
+  }
+  
+  if ((res = send_ip_packet(sd, eth, packet, ntohs(ip->ip_len))) == -1)
+    {
+      perror("send_ip_packet in send_closedupd_probe");
+      return NULL;
+    }
+}
 
 return &upi;
 

@@ -423,7 +423,7 @@ if (hs->randomize) {
  /* TODO: Maybe I should allow real ping scan of directly connected
     ethernet hosts? */
  /* Then we do the mass ping (if required - IP-level pings) */
- if (*pingtype == PINGTYPE_NONE) {
+ if (*pingtype == PINGTYPE_NONE || hs->hostbatch[0]->ifType() == devt_loopback) {
    for(i=0; i < hs->current_batch_sz; i++)  {
      initialize_timeout_info(&hs->hostbatch[i]->to);
      hs->hostbatch[i]->flags |= HOST_UP; /*hostbatch[i].up = 1;*/
@@ -1073,7 +1073,7 @@ while(pt->block_unaccounted) {
 	        case ECONNREFUSED:
 	        case EAGAIN:
 #ifdef WIN32
-//		  case WSAENOTCONN:	//	needed?  this fails around here on my system
+			case WSAENOTCONN:
 #endif
 		  if (sock_err == EAGAIN && o.verbose) {
 		    log_write(LOG_STDOUT, "Machine %s MIGHT actually be listening on probe port %d\n", hostbatch[hostindex]->targetipstr(), o.ping_synprobes[p]);

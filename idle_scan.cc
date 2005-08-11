@@ -962,6 +962,11 @@ void idle_scan(Target *target, u16 *portarray, int numports,
   if (target->timedOut(NULL))
     return;
 
+  if (target->ifType() == devt_loopback) {
+    log_write(LOG_STDOUT, "Skipping Idle Scan against %s -- you can't idle scan your own machine (localhost).\n", target->NameIP());
+    return;
+  }
+
   target->startTimeOutClock(NULL);
 
   /* If this is the first call,  */

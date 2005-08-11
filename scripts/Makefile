@@ -79,7 +79,7 @@ distro:
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/mswin32
 	cd ../mswin32; cp -ra *.[hHcC] *.cc ARPA NET NETINET RPC icon1.ico \
                     ifaddrlist.h lib libpcap-note.txt nmap.rc \
-                    nmap_performance.reg nmap.sln nmap.vcproj winip pcap-include \
+                    nmap_performance.reg nmap.sln nmap.vcproj pcap-include \
                     /usr/tmp/nmap-$(NMAP_VERSION)/mswin32
 
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/$(LIBPCAPDIR)
