@@ -2012,6 +2012,7 @@ void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
     case ECONNRESET:
     case ECONNREFUSED: // weird to get this on a connected socket (shrug) but 
                        // BSD sometimes gives it
+    case ECONNABORTED:
       // Jerk hung up on us.  Probably didn't like our probe.  We treat it as with EOF above.
       if (probe->isNullProbe()) {
 	// TODO:  Perhaps should do further verification before making this assumption

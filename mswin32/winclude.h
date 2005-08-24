@@ -65,6 +65,9 @@
 #ifndef WINCLUDE_H
 #define WINCLUDE_H
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "nbase.h"
 
 #include <gnuc.h>

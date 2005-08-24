@@ -126,6 +126,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void fatal(const char *fmt, ...)
      __attribute__ ((format (printf, 1, 2)));
 void error(const char *fmt, ...)
@@ -134,5 +138,10 @@ void pfatal(const char *err, ...)
      __attribute__ ((format (printf, 1, 2)));
 void gh_perror(const char *err, ...)
      __attribute__ ((format (printf, 1, 2)));
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* NMAP_ERROR_H */
 

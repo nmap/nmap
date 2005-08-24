@@ -358,10 +358,10 @@ function timestamp2date(stamp)
     	<xsl:with-param name="stamp"><xsl:value-of select="$end" /></xsl:with-param>
     </xsl:call-template>.
 	<xsl:choose>
-        <xsl:when test="debugging/@level = '0'">Debbuging was disabled, </xsl:when>
-        <xsl:otherwise>Debugging was enabeld, </xsl:otherwise>
+        <xsl:when test="debugging/@level = '0'">Debugging was disabled, </xsl:when>
+        <xsl:otherwise>Debugging was enabled, </xsl:otherwise>
     </xsl:choose>
-    the verbosing level was <xsl:value-of select="verbose/@level" />.
+    the verbosity level was <xsl:value-of select="verbose/@level" />.
 
     </p>
 	<xsl:apply-templates/>

@@ -195,6 +195,10 @@ void printosscanoutput(Target *currenths);
    service scan (if it was performed) */
 void printserviceinfooutput(Target *currenths);
 
+/* Print a detailed list of Nmap interfaces and routes to
+   normal/skiddy/stdout output */
+int print_iflist(void);
+
 /* Prints the statistics and other information that goes at the very end
    of an Nmap run */
 void printfinaloutput(int numhosts_scanned, int numhosts_up, 

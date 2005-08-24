@@ -136,7 +136,7 @@ NmapOutputTable::~NmapOutputTable() {
   if (tableout) free(tableout);
 }
 
-void NmapOutputTable::addItem(unsigned int row, unsigned int column, bool copy, char *item, 
+void NmapOutputTable::addItem(unsigned int row, unsigned int column, bool copy, const char *item, 
 			      int itemlen) {
   struct NmapOutputTableCell *cell;
 
@@ -160,7 +160,7 @@ void NmapOutputTable::addItem(unsigned int row, unsigned int column, bool copy, 
     memcpy(cell->str, item, itemlen);
     cell->str[itemlen] = '\0';
   } else {
-    cell->str = item;
+    cell->str = (char *) item;
   }
   cell->weAllocated = copy;
 

@@ -129,7 +129,7 @@ class NmapOutputTable {
   // Copy specifies whether we must make a copy of item.  Otherwise we'll just save the
   // ptr (and you better not free it until this table is destroyed ).  Skip the itemlen parameter if you
   // don't know (and the function will use strlen).
-  void addItem(unsigned int row, unsigned int column, bool copy, char *item, int itemlen = -1);
+  void addItem(unsigned int row, unsigned int column, bool copy, const char *item, int itemlen = -1);
   // Like addItem except this version takes a prinf-style format string followed by varargs
   void addItemFormatted(unsigned int row, unsigned int column, const char *fmt, ...)
     __attribute__ ((format (printf, 4, 5)));

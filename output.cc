@@ -199,6 +199,79 @@ static int getServiceXMLBuf(struct serviceDeductions *sd, char *xmlbuf,
   return 0;
 }
 
+/* Print a detailed list of Nmap interfaces and routes to
+   normal/skiddy/stdout output */
+int print_iflist(void) {
+  int numifs = 0, numroutes = 0;
+  struct interface_info *iflist;
+  struct sys_route *routes;
+  NmapOutputTable *Tbl = NULL;
+  iflist = getinterfaces(&numifs);
+  int i;
+  /* First let's handle interfaces ... */
+  if (numifs == 0) {
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "INTERFACES: NONE FOUND(!)\n");
+  } else {
+    int devcol=0, shortdevcol=1, ipcol=2, typecol = 3, upcol = 4, maccol = 5;
+    Tbl = new NmapOutputTable( numifs+1, 6 );
+    Tbl->addItem(0, devcol, false, "DEV", 3);
+    Tbl->addItem(0, shortdevcol, false, "(SHORT)", 7);
+    Tbl->addItem(0, ipcol, false, "IP/MASK", 7);
+    Tbl->addItem(0, typecol, false, "TYPE", 4);
+    Tbl->addItem(0, upcol, false, "UP", 2);
+    Tbl->addItem(0, maccol, false, "MAC", 3);
+    for(i=0; i < numifs; i++) {
+      Tbl->addItem(i+1, devcol, false, iflist[i].devfullname);
+      Tbl->addItemFormatted(i+1, shortdevcol, "(%s)", iflist[i].devname);
+      Tbl->addItemFormatted(i+1, ipcol, "%s/%d", inet_ntop_ez(&(iflist[i].addr), sizeof(iflist[i].addr)), iflist[i].netmask_bits);
+      if (iflist[i].device_type == devt_ethernet) {
+	Tbl->addItem(i+1, typecol, false, "ethernet");
+	Tbl->addItemFormatted(i+1, maccol, "%02X:%02X:%02X:%02X:%02X:%02X",  iflist[i].mac[0], iflist[i].mac[1], iflist[i].mac[2], iflist[i].mac[3], iflist[i].mac[4], iflist[i].mac[5]);	
+      }
+      else if (iflist[i].device_type == devt_loopback)
+	Tbl->addItem(i+1, typecol, false, "loopback");
+      else if (iflist[i].device_type == devt_p2p)
+	Tbl->addItem(i+1, typecol, false, "point2point");
+      else Tbl->addItem(i+1, typecol, false, "other");
+      Tbl->addItem(i+1, upcol, false, (iflist[i].device_up? "up" : "down"));
+    }
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "************************INTERFACES************************\n");
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "%s\n", Tbl->printableTable(NULL));
+    log_flush_all();
+    delete Tbl;
+  }
+
+  /* OK -- time to handle routes */
+  routes = getsysroutes(&numroutes);
+  u32 mask_nbo;
+  u16 nbits;
+  struct in_addr ia;
+  if (numroutes == 0) {
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "ROUTES: NONE FOUND(!)\n");
+  } else {
+    int dstcol=0, devcol=1, gwcol=2;
+    Tbl = new NmapOutputTable( numroutes+1, 3 );
+    Tbl->addItem(0, dstcol, false, "DST/MASK", 8);
+    Tbl->addItem(0, devcol, false, "DEV", 3);
+    Tbl->addItem(0, gwcol, false, "GATEWAY", 7);
+    for(i=0; i < numroutes; i++) {
+      mask_nbo = htonl(routes[i].netmask);
+      addr_mtob(&mask_nbo, sizeof(mask_nbo), &nbits);
+      assert(nbits <= 32);
+      ia.s_addr = routes[i].dest;
+      Tbl->addItemFormatted(i+1, dstcol, "%s/%d", inet_ntoa(ia), nbits);
+      Tbl->addItem(i+1, devcol, false, routes[i].device->devfullname);
+      if (routes[i].gw.s_addr != 0)
+	Tbl->addItem(i+1, gwcol, true, inet_ntoa(routes[i].gw));
+    }
+        log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "**************************ROUTES**************************\n");
+	log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "%s\n", Tbl->printableTable(NULL));
+	log_flush_all();
+	delete Tbl;
+  }
+  return 0;
+}
+
 /* Fills in namebuf (as long as there is space in buflen) with the
    Name nmap normal output will use to describe the port.  This takes
    into account to confidence level, any SSL tunneling, etc.  Truncates
@@ -208,7 +281,6 @@ static void getNmapServiceName(struct serviceDeductions *sd, int state,
   char *dst = namebuf;
   int lenremaining = buflen;
   int len;
-
   if (buflen < 1) return;
 
   if (sd->service_tunnel == SERVICE_TUNNEL_SSL) {
@@ -1048,18 +1120,20 @@ void printosscanoutput(Target *currenths) {
     printosclassificationoutput(currenths->FPR->getOSClassification(), 
 				o.osscan_guess || !currenths->FPR->fingerprintSuitableForSubmission());
     
-    if (currenths->FPR->overall_results == OSSCAN_SUCCESS && currenths->FPR->num_perfect_matches <= 8) {
+    if (currenths->FPR->overall_results == OSSCAN_SUCCESS && (currenths->FPR->num_perfect_matches <= 8 || o.debugging)) {
       if (currenths->FPR->num_perfect_matches > 0) {
         char *p;
 	log_write(LOG_MACHINE,"\tOS: %s",  currenths->FPR->prints[0]->OS_name);
-	log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"100\" />\n", 
-		  p = xml_convert(currenths->FPR->prints[0]->OS_name));
+	log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"100\" line=\"%d\" />\n", 
+		  p = xml_convert(currenths->FPR->prints[0]->OS_name), 
+		  currenths->FPR->prints[0]->line);
         free(p);
 	i = 1;
 	while(currenths->FPR->accuracy[i] == 1 ) {
 	  log_write(LOG_MACHINE,"|%s", currenths->FPR->prints[i]->OS_name);
-	  log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"100\" />\n", 
-		    p = xml_convert(currenths->FPR->prints[i]->OS_name));
+	  log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"100\" line=\"%d\" />\n", 
+		    p = xml_convert(currenths->FPR->prints[i]->OS_name),
+		    currenths->FPR->prints[i]->line);
           free(p);
 	  i++;
 	}
@@ -1090,9 +1164,10 @@ void printosscanoutput(Target *currenths) {
 		currenths->FPR->accuracy[0] - 0.10; i++) {
             char *p;
 	    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,", %s (%d%%)", currenths->FPR->prints[i]->OS_name, (int) (currenths->FPR->accuracy[i] * 100));
-	    log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"%d\" />\n", 
+	    log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"%d\" line=\"%d\"/>\n", 
 		      p = xml_convert(currenths->FPR->prints[i]->OS_name),  
-		      (int) (currenths->FPR->accuracy[i] * 100));
+		      (int) (currenths->FPR->accuracy[i] * 100), 
+		      currenths->FPR->prints[i]->line);
             free(p);
 	  }
 	  log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "\n");
@@ -1117,7 +1192,7 @@ void printosscanoutput(Target *currenths) {
       } else {
 	log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No OS matches for host (test conditions non-ideal).\nTCP/IP fingerprint:\n%s\n", mergeFPs(currenths->FPR->FPs, currenths->FPR->numFPs, currenths->FPR->osscan_opentcpport, currenths->FPR->osscan_closedtcpport, currenths->MACAddress()));
       }
-    } else if (currenths->FPR->overall_results == OSSCAN_TOOMANYMATCHES || currenths->FPR->num_perfect_matches > 8)
+    } else if (currenths->FPR->overall_results == OSSCAN_TOOMANYMATCHES || (currenths->FPR->num_perfect_matches > 8 && !o.debugging))
       {
 	log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"Too many fingerprints match this host to give specific OS details\n");
 	if (o.debugging || o.verbose) {
@@ -1215,6 +1290,7 @@ void printserviceinfooutput(Target *currenths) {
   char hostname_tbl[MAX_SERVICE_INFO_FIELDS][MAXHOSTNAMELEN];
   char ostype_tbl[MAX_SERVICE_INFO_FIELDS][64];
   char devicetype_tbl[MAX_SERVICE_INFO_FIELDS][64];
+  char *delim;
 
   for (i=0; i<MAX_SERVICE_INFO_FIELDS; i++)
     hostname_tbl[i][0] = ostype_tbl[i][0] = devicetype_tbl[i][0] = '\0';
@@ -1271,25 +1347,29 @@ void printserviceinfooutput(Target *currenths) {
 
   log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "Service Info:");
 
+  delim = " ";
   if (numhostnames) {
-    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, " Host%s: %s", numhostnames==1? "" : "s", &hostname_tbl[0][0]);
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "%sHost%s: %s", delim, numhostnames==1? "" : "s", &hostname_tbl[0][0]);
     for (i=1; i<MAX_SERVICE_INFO_FIELDS; i++)
       if (hostname_tbl[i][0])
         log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, ", %s", &hostname_tbl[i][0]);
+    delim="; ";
   }
 
   if (numostypes) {
-    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "  OS%s: %s", numostypes==1? "" : "s", &ostype_tbl[0][0]);
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "%sOS%s: %s", delim, numostypes==1? "" : "s", &ostype_tbl[0][0]);
     for (i=1; i<MAX_SERVICE_INFO_FIELDS; i++)
       if (ostype_tbl[i][0])
         log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, ", %s", &ostype_tbl[i][0]);
+    delim="; ";
   }
 
   if (numdevicetypes) {
-    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "  Device%s: %s", numdevicetypes==1? "" : "s", &devicetype_tbl[0][0]);
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "%sDevice%s: %s", delim, numdevicetypes==1? "" : "s", &devicetype_tbl[0][0]);
     for (i=1; i<MAX_SERVICE_INFO_FIELDS; i++)
       if (devicetype_tbl[i][0])
         log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, ", %s", &devicetype_tbl[i][0]);
+    delim="; ";
   }
 
   log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "\n");

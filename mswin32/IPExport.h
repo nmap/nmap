@@ -216,5 +216,3 @@ typedef struct _IP_ADAPTER_ORDER_MAP
 
 
 #endif // IP_EXPORT_INCLUDED
-
-

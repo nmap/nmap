@@ -669,9 +669,13 @@ int ipaddr2devname( char *dev, const struct in_addr *addr );
 int devname2ipaddr(char *dev, struct in_addr *addr);
 /* Where the above 2 functions get their info */
 struct interface_info *getinterfaces(int *howmany);
-/* Check whether an IP address appears to be directly connected to an
-   interface on the computer (e.g. on the same ethernet network rather
-   than having to route).  Returns 1 if yes, -1 if maybe, 0 if not. */
+/* Parse the system routing table, converting each route into a
+   sys_route entry.  Returns an array of sys_routes.  numroutes is set
+   to the number of routes in the array.  The routing table is only
+   read the first time this is called -- later results are cached.
+   The returned route array is sorted by netmask with the most
+   specific matches first. */
+struct sys_route *getsysroutes(int *howmany);
 void sethdrinclude(int sd);
 
 /* Fill buf (up to buflen -- truncate if necessary but always

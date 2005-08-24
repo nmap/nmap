@@ -171,7 +171,7 @@ void win_init()
 		if(o.debugging > 2) printf("***WinIP***  trying to initialize winpcap 2.1\n");
 		PacketGetAdapterNames(pcaplist, &len);
 		if(o.debugging)
-			printf("***WinIP***  winpcap present, dynamic linked to: %s\n", pcap_lib_version());
+			printf("Winpcap present, dynamic linked to: %s\n", pcap_lib_version());
 	}
 #ifdef _MSC_VER
 	__except(GetExceptionCode() == DLI_ERROR)

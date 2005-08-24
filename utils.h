@@ -102,15 +102,15 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#ifdef WIN32
-#include "mswin32\winclude.h"
-#else
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
+#ifdef WIN32
+#include "mswin32\winclude.h"
+#else
 #include <sys/types.h>
 
 #if HAVE_NETINET_IN_H

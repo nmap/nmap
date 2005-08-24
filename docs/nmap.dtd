@@ -202,6 +202,7 @@
 <!ATTLIST osmatch
 			name		CDATA		#REQUIRED
 			accuracy	%attr_numeric;	#REQUIRED
+			line    	%attr_numeric;	#REQUIRED
 >
 
 <!ELEMENT uptime	EMPTY >

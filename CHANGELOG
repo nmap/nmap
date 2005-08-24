@@ -1,5 +1,30 @@
 # Nmap Changelog ($Id$)
 
+o Added --iflist argument which prints a list of system interfaces and
+  routes detected by Nmap.
+
+o Fixed a protocol scan (-sO) problem which led to the error message:
+  "Error compiling our pcap filter: syntax error".  Thanks to Michel
+  Arboi (michel(a)arboi.fr.eu.org) for reporting the problem.
+
+o Fixed an Nmap version detection crash on Windows which led to the
+  error message "Unexpected error in NSE_TYPE_READ callback.  Error
+  code: 10053 (Unknown error)".  Thanks to Srivatsan
+  (srivatsanp(a)adventnet.com) for reporting the problem.
+
+o Fixed some misspellings in docs/nmap.xml reported by Tom Sellers
+  (TSellers(a)trustmark.com).
+
+o Updated random scan (ip_is_reserved()) to reflect the latest IANA
+  assignments.  This patch was sent in by Felix Groebert
+  (felix(a)groebert.org).
+
+o Applied some changes from  Gisle Vanem (giva(a)bgnett.no) to make
+  Nmap compile with Cygwin.
+
+o XML "osmatch" element now has a "line" attribute giving the
+  reference fingerprint line number in nmap-os-fingerprints.
+
 Nmap 3.84ALPHA1
 
 o Added the ability for Nmap to send and properly route raw ethernet
@@ -10,7 +35,7 @@ o Added the ability for Nmap to send and properly route raw ethernet
   platform, though you can override it with the new --send_eth and
   --send_ip options.
 
-o Added ARP ping (-PR). Nmap can now send raw ethernet ARP requests to
+o Added ARP scanning (-PR). Nmap can now send raw ethernet ARP requests to
   determine whether hosts on a LAN are up, rather than relying on
   higher-level IP packets (which can only be sent after a successful
   ARP request and reply anyway).  This is much faster and more
@@ -19,7 +44,7 @@ o Added ARP ping (-PR). Nmap can now send raw ethernet ARP requests to
   same LAN as the scanning machine.  It is now used automatically for
   any hosts that are detected to be on a local ethernet network,
   unless --send_ip was specified.  Example usage: nmap -sP -PR
-  192.168.0.0/16 .  This is not yet supported on Windows.
+  192.168.0.0/16 .
 
 o Added the --spoof_mac option, which asks Nmap to use the given MAC
   address for all of the raw ethernet frames it sends.  The MAC given
@@ -56,6 +81,11 @@ o Added a distcc probes and a bunch of smtp matches from Dirk Mueller
   even more probes and matches from Martin Macok
   (martin.macok(a)underground.cz)
 
+o Nmap on Windows now compiles/links with the new WinPcap 3.1
+  header/lib files. So please upgrade to 3.1 from
+  http://www.winpcap.org before installing this version of Nmap.
+  While older versions may still work, they aren't supported with Nmap.
+
 o Fixed a problem where Nmap compilation would use header files from
   the libpcap included with Nmap even when it was linking to a system
   libpcap.  Thanks to Solar Designer (solar(a)openwall.com) and Okan
@@ -88,7 +118,10 @@ o Added a stripped-down and heavily modified version of Dug Song's
 
 o Removed WinIP library (and all Windows raw sockets code) since MS
   has gone and broken raw sockets.  Maybe packet receipt via raw
-  sockets will come back at some point.
+  sockets will come back at some point.  As part of this removal, the
+  Windows-specific --win_help, --win_list_interfaces, --win_norawsock,
+  --win_forcerawsock, --win_nopcap, --win_nt4route, --win_noiphlpapi,
+  and --win_trace options have been removed.
 
 o Chagned the interesting ports array from a 65K-member array of
   pointers into an STL list.  This noticeable reduces memory usage in

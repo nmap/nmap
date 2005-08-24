@@ -2953,9 +2953,6 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
 	fatal("ran out of space in dst_hosts");
       filterlen += len;
     }
-    len = snprintf(dst_hosts + filterlen, sizeof(dst_hosts) - filterlen, ")))");
-    if (len < 0 || len + filterlen >= (int) sizeof(dst_hosts))
-      fatal("ran out of space in dst_hosts");
   }
   filterlen = 0;
 
@@ -2964,7 +2961,7 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
   if (USI->tcp_scan || USI->udp_scan) {
     if (doIndividual)
       len = snprintf(pcap_filter, sizeof(pcap_filter), 
-		     "dst host %s and (icmp or (%s and (%s", 
+		     "dst host %s and (icmp or (%s and (%s)))", 
 		     inet_ntoa(Targets[0]->v4source()), 
 		     (USI->tcp_scan)? "tcp" : "udp", dst_hosts);
     else len = snprintf(pcap_filter, sizeof(pcap_filter), 
@@ -2977,7 +2974,7 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
   } else if (USI->prot_scan) {
     if (doIndividual)
       len = snprintf(pcap_filter, sizeof(pcap_filter), 
-		     "dst host %s and (icmp or (%s", 
+		     "dst host %s and (icmp or (%s))", 
 		     inet_ntoa(Targets[0]->v4source()), dst_hosts);
     else	
       len = snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s",

@@ -1689,7 +1689,7 @@ bool NmapArpCache(int command, struct sockaddr_storage *ss, u8 *mac) {
    in 6 bytes), senderIP, and rcvdtime (can be NULL if you don't care)
    and returns 1.  If it times out and reads no arp requests, returns
    0.  to_usec is the timeout period in microseconds.  Use 0 to avoid
-   blocking to the extent possible, and -1 to block forever.  Returns
+   blocking to the extent possible.  Returns
    -1 or exits if ther is an error. */
 int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
 		       long to_usec, struct timeval *rcvdtime) {
@@ -1706,7 +1706,7 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
   if (to_usec < 0) {
     if (!warning) {
       warning = 1;
-      error("WARNING: Negative timeout value (%lu) passed to readip_pcap() -- using 0", to_usec);
+      error("WARNING: Negative timeout value (%lu) passed to %s() -- using 0", to_usec, __FUNCTION__);
     }
     to_usec = 0;
   }
@@ -1724,15 +1724,18 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
 
   do {
 #ifdef WIN32
-    gettimeofday(&tv_end, NULL);
-    long to_left = MAX(1, (to_usec - TIMEVAL_SUBTRACT(tv_end, tv_start)) / 1000);
-    // Set the timeout (BUGBUG: this is cheating)
-    PacketSetReadTimeout(pd->adapter, to_left);
+    if (to_usec == 0)
+      PacketSetReadTimeout(pd->adapter, 1);
+    else {
+      gettimeofday(&tv_end, NULL);
+      long to_left = MAX(1, (to_usec - TIMEVAL_SUBTRACT(tv_end, tv_start)) / 1000);
+      // Set the timeout (BUGBUG: this is cheating)
+      PacketSetReadTimeout(pd->adapter, to_left);
+    }
 #endif
 
     p = (u8 *) pcap_next(pd, &head);
 
-    
     if (p && head.caplen >= 42) { /* >= because Ethernet padding makes 60 */
       /* frame type 0x0806 (arp), hw type eth (0x0001), prot ip (0x0800),
 	 hw size (0x06), prot size (0x04) */

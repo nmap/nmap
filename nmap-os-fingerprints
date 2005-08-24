@@ -11569,7 +11569,7 @@ PU(DF=N%TOS=0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E|F%ULEN=134%DAT=E)
 # Linux 2.6.4 i686
 # Linux gentoo 2.6.7-gentoo-r11 i686
 # Linux gentoo 2.6.11-gentoo-r9
-Fingerprint Linux 2.4.18 - 2.6.11
+Fingerprint Linux 2.4.7 - 2.6.11
 Class Linux | Linux | 2.4.X | general purpose
 Class Linux | Linux | 2.5.X | general purpose
 Class Linux | Linux | 2.6.X | general purpose
@@ -11835,20 +11835,6 @@ T5(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=Y%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
-
-# Red Hat Enterprise Linux AS release 3.90 (Nahant), Kernel 2.6.8-1.528.2.10smp on an i686
-Fingerprint Linux 2.4.20 or 2.6.8
-Class Linux | Linux | 2.4.X | general purpose
-Class Linux | Linux | 2.6.X | general purpose
-TSeq(Class=RI%gcd=<6%SI=<28E2CAC&>68A83%IPID=Z%TS=1000HZ)
-T1(DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
-T2(Resp=N)
-T3(Resp=Y%DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
-T4(DF=Y%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=Y%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-PU(DF=N%TOS=0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 Fingerprint Linux 2.4.20 x86
 Class Linux | Linux | 2.4.X | general purpose
@@ -12254,21 +12240,6 @@ T6(DF=Y%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Linux kernel 2.4.26-1.ll.rh90.ccrma from RedHat 9.0
-# Linux kernel 2.6.5-63255U10_3cl (i686(X86)) from Conectiva Linux 10
-Fingerprint Linux 2.4.26 or 2.6.5
-Class Linux | Linux | 2.4.X | general purpose
-Class Linux | Linux | 2.6.X | general purpose
-TSeq(Class=RI%gcd=<6%SI=<247BECA&>5659F%IPID=Z%TS=1000HZ)
-T1(DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
-T2(Resp=N)
-T3(Resp=Y%DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
-T4(DF=Y%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=Y%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-PU(DF=N%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=F%UCK=F%ULEN=134%DAT=E)
-
 Fingerprint Linux 2.4.26-gentoo-r6 w/grsec
 Class Linux | Linux | 2.4.X | general purpose
 TSeq(Class=TR%gcd=<6%IPID=RD%TS=100HZ)
@@ -12333,19 +12304,6 @@ T5(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=800|1000|C00%ACK=S%Flags=AR%Ops=WNMETL)
 T7(DF=N%W=1000|400%ACK=S++%Flags=AR%Ops=WNMETL)
 PU(DF=N%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
-
-# Linux 2.4.3-2.10.1smp (RedHat 7.0.98 Wolverine)
-Fingerprint Linux 2.4.3 SMP (RedHat)
-Class Linux | Linux | 2.4.X | general purpose
-TSeq(Class=RI%gcd=<6%SI=<2E7A750&>76F8A%IPID=Z%TS=1000HZ)
-T1(DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
-T2(Resp=N)
-T3(Resp=Y%DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
-T4(DF=Y%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=Y%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-PU(DF=Y%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Linux kernel 2.4.30 (vanilla)
 Fingerprint Linux 2.4.30
@@ -12414,7 +12372,7 @@ PU(DF=N%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Linux Athena 2.6.3-1-686 #2 Tue Feb 24 20:24:38 EST 2004 i686 GNU/Linux
 # Linux 2.4.7 (RedHat 7.3 on SPARC)  
-Fingerprint Linux 2.4.7 through 2.6.3
+Fingerprint Linux 2.4.7 - 2.6.11
 Class Linux | Linux | 2.4.X | general purpose
 Class Linux | Linux | 2.6.X | general purpose
 TSeq(Class=RI%gcd=<6%SI=<1682210&>399B1%IPID=Z%TS=1000HZ)
@@ -12492,7 +12450,7 @@ T6(DF=Y%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=D0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint Linux 2.6.0 (x86)
+Fingerprint Linux 2.6.0 - 2.6.11
 Class Linux | Linux | 2.6.X | general purpose
 TSeq(Class=RI%gcd=<6%SI=<34CD71A&>861AC%IPID=Z%TS=1000HZ)
 T1(DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
@@ -12515,19 +12473,6 @@ T5(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=Y%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
-# Linux 2.6.0-test5 x86
-Fingerprint Linux 2.6.0-test5 - 2.6.0 (x86)
-Class Linux | Linux | 2.6.X | general purpose
-TSeq(Class=RI%gcd=<6%SI=<29CB5CE&>6ADE5%IPID=Z%TS=1000HZ)
-T1(DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
-T2(Resp=N)
-T3(Resp=Y%DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
-T4(DF=Y%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=Y%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-PU(DF=N%TOS=0|80%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
 
 # Linux 2.6.0-test5 x86
 Fingerprint Linux 2.6.0-test5 x86
@@ -12610,7 +12555,7 @@ PU(DF=N%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 # Linux 2.6.10 #1 Wed Jan 5 12:36:35 CET 2005 i686 unknown  Debian 3.0r2
 # linux gentoo kernel 2.6.10
 # Linux kernel 2.6.10-custom (x86) from Debian GNU/Linux 3.1
-Fingerprint Linux 2.6.10
+Fingerprint Linux 2.6.0 - 2.6.11
 Class Linux | Linux | 2.6.X | general purpose
 TSeq(Class=RI%gcd=<6%SI=<1A5ABDA&>43761%IPID=Z%TS=1000HZ)
 T1(DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
@@ -12706,7 +12651,7 @@ PU(DF=N%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 # Linux 2.6.3-gentoo-r1 #5 Wed Apr 7 13:48:31 EDT 2004 i686 Pentium III (Coppermine) GenuineIntel GNU/Linux
 # Gentoo 1.4.16; Kernel 2.6.7
 # Linux sarge 2.6.8-2-386 #1 Thu May 19 17:40:50 JST 2005 i686 GNU/Linux
-Fingerprint Linux 2.6.3 - 2.6.8
+Fingerprint Linux 2.6.0 - 2.6.11
 Class Linux | Linux | 2.6.X | general purpose
 TSeq(Class=RI%gcd=<6%SI=<16883CC&>1CD61%IPID=Z%TS=1000HZ)
 T1(DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
@@ -12980,7 +12925,7 @@ PU(DF=N%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
 
 # Linux 2.6.8.1-12mdk #1 i686 Intel(R) Xeon(TM) CPU 2.80GHz unknown GNU/Linux
 # Linux 2.6.8-1-k7 #1 i686 GNU/Linux
-Fingerprint Linux 2.6.8
+Fingerprint Linux 2.6.0 - 2.6.11
 Class Linux | Linux | 2.6.X | general purpose
 TSeq(Class=RI%gcd=<6%SI=<18C0F36&>3F49D%IPID=Z%TS=1000HZ)
 T1(DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
@@ -13036,7 +12981,7 @@ PU(DF=N%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 # Linux 2.6.11-gentoo-r2-ck1
 # Linux 2.6.11-gentoo-r4 #1 i686 P4CPU+2.40GHz GenuineIntel GNU/Linux Gentoo Base System version 1.4.16
 # Linux 2.6.11-gentoo-r9-nymph #1i686 Pentium III (Coppermine) GenuineIntel GNU/Linux
-Fingerprint Linux 2.6.8 - 2.6.11
+Fingerprint Linux 2.6.0 - 2.6.11
 Class Linux | Linux | 2.6.X | general purpose
 TSeq(Class=RI%gcd=<6%SI=<1F96C34&>50AA5%IPID=Z%TS=1000HZ)
 T1(DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
@@ -13064,7 +13009,7 @@ PU(DF=N%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
 
 # Linux 2.6.9 #1 i686
 # Linux kernel 2.6.9 (PIII-80Mhz)
-Fingerprint Linux 2.6.9
+Fingerprint Linux 2.6.0 - 2.6.11
 Class Linux | Linux | 2.6.X | general purpose
 TSeq(Class=RI%gcd=<6%SI=<2AB93AA&>6D5A3%IPID=Z%TS=1000HZ)
 T1(DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
@@ -13097,30 +13042,6 @@ TSeq(Class=RI%gcd=<6%SI=<1BA9D60&>26DF4%IPID=Z%TS=1000HZ)
 T1(DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
 T2(Resp=Y%DF=Y%W=0%ACK=S%Flags=AR%Ops=)
 T3(Resp=Y%DF=Y%W=0%ACK=O%Flags=AR%Ops=)
-T4(DF=Y%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=Y%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-PU(DF=N%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
-Fingerprint Linux kernel 2.6.4 (x86)
-Class Linux | Linux | 2.6.X | general purpose
-TSeq(Class=RI%gcd=<6%SI=<16FCF2E&>297DE%IPID=Z%TS=1000HZ)
-T1(DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
-T2(Resp=N)
-T3(Resp=Y%DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
-T4(DF=Y%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=Y%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-PU(DF=N%TOS=20%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
-
-Fingerprint Linux kernel 2.6.4 (X86)
-Class Linux | Linux | 2.6.X | general purpose
-TSeq(Class=RI%gcd=<A%SI=<1E2EBD0&>198DF%IPID=Z%TS=1000HZ)
-T1(DF=Y%W=1680%ACK=S++%Flags=AS%Ops=MNNTNW)
-T2(Resp=Y%DF=Y%W=0%ACK=S%Flags=AR%Ops=)
-T3(Resp=Y%DF=Y%W=1680%ACK=S++%Flags=AS%Ops=MNNTNW)
 T4(DF=Y%W=0%ACK=O%Flags=R%Ops=)
 T5(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=Y%W=0%ACK=O%Flags=R%Ops=)

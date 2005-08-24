@@ -240,6 +240,7 @@ int nmap_main(int argc, char *argv[]) {
   struct sockaddr_storage ss;
   size_t sslen;
   int option_index;
+  bool iflist = false;
   struct option long_options[] =
     {
       {"version", no_argument, 0, 'V'},
@@ -247,9 +248,11 @@ int nmap_main(int argc, char *argv[]) {
       {"datadir", required_argument, 0, 0},
       {"debug", optional_argument, 0, 'd'},
       {"help", no_argument, 0, 'h'},
+      {"iflist", no_argument, 0, 0},
       {"max_parallelism", required_argument, 0, 'M'},
       {"min_parallelism", required_argument, 0, 0},
       {"timing", required_argument, 0, 'T'},
+      {"timing", no_argument, 0, 0},
       {"max_rtt_timeout", required_argument, 0, 0},
       {"min_rtt_timeout", required_argument, 0, 0},
       {"initial_rtt_timeout", required_argument, 0, 0},
@@ -351,6 +354,8 @@ int nmap_main(int argc, char *argv[]) {
 	if (o.scanflags < 0) {
 	  fatal("--scanflags option must be a number between 0 and 255 (inclusive) or a string like \"URGPSHFIN\".");
 	}
+      } else if (strcmp(long_options[option_index].name, "iflist") == 0 ) {
+	iflist = true;
       } else if (strcmp(long_options[option_index].name, "min_parallelism") == 0 ) {
 	o.min_parallelism = atoi(optarg); 
 	if (o.min_parallelism < 1) fatal("Argument to --min_parallelism must be at least 1!");
@@ -774,7 +779,10 @@ int nmap_main(int argc, char *argv[]) {
     if (o.verbose && tm->tm_mon == 8 && tm->tm_mday == 1) {
       log_write(LOG_STDOUT|LOG_SKID, "Happy %dth Birthday to Nmap, may it live to be %d!\n", tm->tm_year - 97, tm->tm_year + 3 );
     }
-
+    if (iflist) {
+      print_iflist();
+      exit(0);
+    }
   }
 
   if ((o.pingscan || o.listscan) && fastscan) {
@@ -1536,11 +1544,6 @@ struct scan_lists *getpts(char *origexpr) {
 }
 
 void printusage(char *name, int rc) {
-#ifdef WIN32
-#define WIN32_PRINTF "  --win_help Windows-specific features\n"
-#else
-#define WIN32_PRINTF
-#endif
   printf(
 	 "Nmap %s Usage: nmap [Scan Type(s)] [Options] <host or net list>\n"
 	 "Some Common Scan Types ('*' options require root privileges)\n"
@@ -1565,7 +1568,6 @@ void printusage(char *name, int rc) {
 	 "  -iL <inputfile> Get targets from file; Use '-' for stdin\n"
 	 "* -S <your_IP>/-e <devicename> Specify source address or network interface\n"
 	 "  --interactive Go into interactive mode (then press h for help)\n"
-         WIN32_PRINTF
 	 "Example: nmap -v -sS -O www.my.com 192.168.0.0/16 '192.88-90.*.*'\n"
 	 "SEE THE MAN PAGE FOR MANY MORE OPTIONS, DESCRIPTIONS, AND EXAMPLES \n", NMAP_VERSION);
   exit(rc);
@@ -1699,31 +1701,15 @@ char *tsseqclass2ascii(int seqclass) {
  * 2001 (www.junk.org is an example of a new address in this range).
  *
  * Check <http://www.iana.org/assignments/ipv4-address-space> for
- * the most recent assigments.
+ * the most recent assigments and
+ * <http://www.cymru.com/Documents/bogon-bn-nonagg.txt> for bogon
+ * netblocks.
  */
 
 int ip_is_reserved(struct in_addr *ip)
 {
   char *ipc = (char *) &(ip->s_addr);
   unsigned char i1 = ipc[0], i2 = ipc[1], i3 = ipc[2], i4 = ipc[3];
-
-  /* 224-239/8 is all multicast stuff */
-  /* 240-255/8 is IANA reserved */
-  if (i1 >= 224)
-    return 1;
-
-  /* 096-123/8 is IANA reserved */
-  /* 127/8 is reserved for loopback */
-  if (i1 >= 96 && i1 <= 123)
-    return 1;
-
-  /* 073-079/8 is IANA reserved */
-  if (i1 >= 73 && i1 <= 79)
-    return 1;
-
-  /* 089-095/8 is IANA reserved */
-  if (i1 >= 83 && i1 <= 95)
-    return 1;
 
   /* do all the /7's and /8's with a big switch statement, hopefully the
    * compiler will be able to optimize this a little better using a jump table
@@ -1744,27 +1730,50 @@ int ip_is_reserved(struct in_addr *ip)
     case 36:        /* 036/8 is IANA reserved       */
     case 37:        /* 037/8 is IANA reserved       */
     case 39:        /* 039/8 is IANA reserved       */
-    case 41:        /* 041/8 is IANA reserved       */
     case 42:        /* 042/8 is IANA reserved       */
+    case 49:        /* 049/8 is IANA reserved       */
+    case 50:        /* 050/8 is IANA reserved       */
     case 55:        /* misc. U.S.A. Armed forces    */
-    case 127:       /* localhost */
-    case 197:
+    case 127:       /* 127/8 is reserved for loopback */
+    case 197:       /* 197/8 is IANA reserved       */
+    case 223:       /* 223/8 is IANA reserved       */
       return 1;
     default:
       break;
     }
 
+
+  /* 077-079/8 is IANA reserved */
+  if (i1 >= 77 && i1 <= 79)
+    return 1;
+
+  /* 092-123/8 is IANA reserved */
+  if (i1 >= 92 && i1 <= 123)
+    return 1;
+
   /* 172.16.0.0/12 is reserved for private nets by RFC1819 */
   if (i1 == 172 && i2 >= 16 && i2 <= 31)
     return 1;
 
+  /* 173-187/8 is IANA reserved */
+  if (i1 >= 173 && i1 <= 187)
+    return 1;
+
   /* 192.168.0.0/16 is reserved for private nets by RFC1819 */
   /* 192.0.2.0/24 is reserved for documentation and examples */
+  /* 192.88.99.0/24 is used as 6to4 Relay anycast prefix by RFC3068 */
   if (i1 == 192) {
     if (i2 == 168)
       return 1;
-    else if (i2 == 0 && i3 == 2)
+    if (i2 == 0 && i3 == 2)
       return 1;
+    if (i2 == 88 && i3 == 99)
+      return 1;
+  }
+
+  /* 198.18.0.0/15 is used for benchmark tests by RFC2544 */
+  if (i1 == 198 && i2 == 18 && i3 >= 1 && i3 <= 64) {
+    return 1;
   }
 
   /* reserved for DHCP clients seeking addresses, not routable outside LAN */
@@ -1774,6 +1783,11 @@ int ip_is_reserved(struct in_addr *ip)
   /* believe it or not, 204.152.64.0/23 is some bizarre Sun proprietary
    * clustering thing */
   if (i1 == 204 && i2 == 152 && (i3 == 64 || i3 == 65))
+    return 1;
+
+  /* 224-239/8 is all multicast stuff */
+  /* 240-255/8 is IANA reserved */
+  if (i1 >= 224)
     return 1;
 
   /* 255.255.255.255, note we already tested for i1 in this range */
