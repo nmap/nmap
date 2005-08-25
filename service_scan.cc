@@ -1169,7 +1169,7 @@ ServiceProbe *AllProbes::getProbeByName(const char *name, int proto) {
 // scan protocols.
 int AllProbes::isExcluded(unsigned short port, int proto) {
   unsigned short *p=NULL;
-  int count=-1;
+  int count=-1,i;
 
   if (proto == IPPROTO_TCP) {
     p = excludedports->tcp_ports;
@@ -1181,8 +1181,9 @@ int AllProbes::isExcluded(unsigned short port, int proto) {
     fatal("Bad proto number (%d) specified in AllProbes::isExcluded", proto);
   }
 
-  for (;count >= 0;count--)
-    if (p[count] == port) return 1;
+  for (i=0; i<count; i++)
+    if (p[i] == port)
+           return 1;
 
   return 0;
 }

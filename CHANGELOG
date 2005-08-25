@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$)
 
+o Fixed a crash found during certain UDP version scans.  The crash was
+  discovered and reported by Ron (iago(a)valhallalegends.com) and fixed
+  by Doug Hoyte (doug(a)hcsw.com).
+
 o Added --iflist argument which prints a list of system interfaces and
   routes detected by Nmap.
 

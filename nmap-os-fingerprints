@@ -396,7 +396,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=F%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 
-# Actiontec wireless ready DSL Gateway - Model R1520SU
+# Actiontec Wireless ready DSL Gateway - Model R1520SU
 # Actiontec 1520 DSL gateway with GlobespanVirata chipset hardware version RD6700 BSP v1.1 (ISOS 8.2) / He100/2xx CSP v2.3, firmware version 8.2.0.16
 Fingerprint Actiontec 1520 DSL gateway firmware 8.2.0.16
 Class Actiontec | embedded || broadband router
@@ -460,7 +460,7 @@ T6(Resp=Y%DF=N%W=1F4%ACK=S%Flags=AR%Ops=)
 T7(Resp=Y%DF=N%W=1F4%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint Aironet AP4800E v8.07 - Aironet (Cisco?) 11 Mbps wireless access point
+Fingerprint Aironet AP4800E v8.07 - Aironet (Cisco?) 11 Mbps Wireless access point
 Class Aironet | embedded || WAP
 TSeq(Class=TR%gcd=<6)
 T1(DF=N%W=1000%ACK=S++%Flags=AS%Ops=)
@@ -1052,7 +1052,7 @@ PU(DF=Y|N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 # OKI Phaser B6300N laser printer
 # Netgear 7000 Series Managed Switch (GSM7324) (strang ops)
 # Westel Versalink 327W, Wireless DSL Modem/Router
-Fingerprint Embedded device (Apple WAP, Dell bridge, OKI printer, Westel broadband router)
+Fingerprint Embedded device (Apple WAP, Dell bridge, OKI printer, Westel Broadband router)
 Class Apple | embedded || WAP
 Class Dell | embedded || storage-misc
 Class Okidata | embedded || printer
@@ -1273,7 +1273,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 
-Fingerprint Mac OSX 10.4.1
+Fingerprint Apple Mac OS X 10.4.1 (Tiger)
 Class Apple | Mac OS X | 10.3.X | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I%TS=2HZ)
 T1(DF=Y%W=FFFF%ACK=S++%Flags=A%Ops=NNT)
@@ -2011,10 +2011,10 @@ T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
 # AXIS NetEye Camera Server V1.20
-# Axis NPS 53X Printer Server V4.26 Jul 01 1995
+# AXIS NPS 53X Printer Server V4.26 Jul 01 1995
 # AXIS StorPoint CD-ROM server V 4.20
 # AXIS Camera 200pV1.41
-Fingerprint AXIS Stack -- CD-ROM Server or Print Server or Camera Server
+Fingerprint AXIS Stack -- CD-ROM server or print server or camera server
 Class AXIS | embedded || fileserver
 Class AXIS | embedded || print server
 Class AXIS | embedded || webcam
@@ -2067,7 +2067,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint AXIs 540 Ethernet print server ver 5.48
+Fingerprint AXIS 540 Ethernet Print Server ver 5.48
 Class AXIS | embedded || print server
 TSeq(Class=TD%gcd=<80004%SI=<1E%IPID=I%TS=U)
 T1(DF=N%W=1000%ACK=S++%Flags=AS%Ops=M)
@@ -2079,7 +2079,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint Axis 540 print server
+Fingerprint AXIS 540 Print Server
 Class AXIS | embedded || print server
 T1(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
@@ -2091,7 +2091,7 @@ T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
 # AXIS 540/542 print server v5.30 Jan 24 1997
-Fingerprint AXIS 540/542 print server v5.30
+Fingerprint AXIS 540/542 Print Server v5.30
 Class AXIS | embedded || print server
 TSeq(Class=C)
 T1(Resp=Y%DF=N%W=1000%ACK=S++%Flags=AS%Ops=M)
@@ -2103,7 +2103,7 @@ T6(Resp=Y%DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=Y%DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint Axis print server firmware 7.0.2
+Fingerprint AXIS Print Server firmware 7.0.2
 Class AXIS | embedded || print server
 TSeq(Class=TR%gcd=<6%IPID=I%TS=U)
 T1(DF=N%W=100%ACK=S++%Flags=AS%Ops=ME)
@@ -2115,7 +2115,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint Axis 200+ Web Camera running OS v1.42
+Fingerprint AXIS 200+ Web Camera running OS v1.42
 Class AXIS | embedded || webcam
 T1(DF=N%W=100%ACK=S++%Flags=AS%Ops=ME)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
@@ -2125,7 +2125,7 @@ T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 
-Fingerprint Axis 2120 network camera
+Fingerprint AXIS 2120 network camera
 Class AXIS | embedded || webcam
 TSeq(Class=TR%gcd=<6%IPID=I%TS=U)
 T1(DF=N%W=3FE0%ACK=S++%Flags=AS%Ops=ME)
@@ -2176,7 +2176,7 @@ T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
 # The AXIS 2100 Network Camera Operating System, Linux/CRIS, is based on the Linux 2.0 kernel with non-MMU CPU patches from uClinux. The HTTP server used is based on Boa. The source code for the Linux/CRIS kernel, Boa and more is available at http://developer.axis.com/.
-Fingerprint Axis 2100 Network Camera running Linux/CRIS v2.32
+Fingerprint AXIS 2100 Network Camera running Linux/CRIS v2.32
 Class AXIS | Linux || webcam
 TSeq(Class=TR%gcd=<6%IPID=I%TS=U)
 T1(DF=N%W=FAF0%ACK=S++%Flags=APS%Ops=M)
@@ -2476,7 +2476,7 @@ T7(DF=N%W=0%ACK=O%Flags=R%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # BIANCA/BRICK-XS version V.6.2 Rev. 5 from 2003/05/26 00:00:00
-Fingerprint BinTEC BIANCA/BRIK-XS broadband router V. 6.X
+Fingerprint BinTEC BIANCA/BRIK-XS Broadband router V. 6.X
 Class BinTec | embedded || broadband router
 TSeq(Class=RI%gcd=<6%SI=<54E5C&>C09%IPID=I%TS=U)
 T1(DF=N%W=1000%ACK=S++%Flags=AS%Ops=M)
@@ -2627,7 +2627,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint BreezeCOM BreezeACCESS wireless bridge
+Fingerprint BreezeCOM BreezeACCESS Wireless bridge
 Class BreezeCOM | embedded || bridge
 TSeq(Class=RI%gcd=<6%SI=<988&>4%IPID=I%TS=U)
 T1(DF=Y%W=5DC%ACK=S++%Flags=AS%Ops=)
@@ -2946,7 +2946,7 @@ T6(Resp=Y%DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(Resp=N)
 
-# Canon inkjet printer iP4000R with wireless interface
+# Canon inkjet printer iP4000R with Wireless interface
 Fingerprint Canon Pixmar IP4000R printer
 Class Canon | embedded || printer
 TSeq(Class=TD%gcd=<20004%SI=<1E%IPID=I%TS=U)
@@ -3236,7 +3236,7 @@ T7(DF=N%W=C00|1000|400%ACK=S++%Flags=AR%Ops=WNMETL)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Cisco AIR-WGB340 V8.38 Workgroup Bridge 340
-Fingerprint Cisco AIR-WGB340 V8.38 wireless workgroup bridge 340
+Fingerprint Cisco AIR-WGB340 V8.38 Wireless workgroup bridge 340
 Class Cisco | embedded || bridge
 TSeq(Class=TR%gcd=<6%IPID=I%TS=U)
 T1(DF=N%W=1F4|1000%ACK=S++%Flags=AR|AS%Ops=)
@@ -3924,8 +3924,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(Resp=N)
 
-# CIsco 2600 router running IOS 12.2(3)
-Fingerprint CIsco 2600 router running IOS 12.2(3)
+# CISCO 2600 router running IOS 12.2(3)
+Fingerprint Cisco 2600 router running IOS 12.2(3)
 Class Cisco | IOS | 12.X | router
 TSeq(Class=TD|RI%gcd=<8%SI=<F302&>249%IPID=Z%TS=U)
 T1(DF=N%W=1020%ACK=S++%Flags=AS%Ops=ME)
@@ -3938,7 +3938,7 @@ T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # CISCO 2610 router running IOS 12.2(21a)
-Fingerprint CISCO 2610 router running IOS 12.2(21a)
+Fingerprint Cisco 2610 router running IOS 12.2(21a)
 Class Cisco | IOS | 12.X | router
 TSeq(Class=TR%gcd=<6%IPID=Z%TS=U)
 T1(DF=N%W=1020%ACK=S++%Flags=AS%Ops=ME)
@@ -5357,7 +5357,7 @@ T7(Resp=Y%DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
 # D-Link Internetwork Operating System Software 2630 Series Software, Version 1.3.1J (FULL), RELEASE SOFTWARE
-Fingerprint D-Link 2630 broadband router
+Fingerprint D-Link 2630 Broadband router
 Class D-Link | embedded || broadband router
 TSeq(Class=TD%gcd=<2DC04%SI=<1E%IPID=I%TS=U)
 T1(DF=N%W=848%ACK=S++%Flags=AS%Ops=M)
@@ -5369,7 +5369,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# D-Link DI-713P wireless router (firmware 2.60 build 6a)
+# D-Link DI-713P Wireless router (firmware 2.60 build 6a)
 # 704P Ethernet Broadband Gateway
 Fingerprint D-Link 704P Broadband Gateway or DI-713P WAP
 Class D-Link | embedded || broadband router
@@ -5383,7 +5383,7 @@ T6(DF=N%W=800|C00%ACK=S%Flags=AR%Ops=)
 T7(DF=N%W=800|C00%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint D-Link DI-604 broadband router
+Fingerprint D-Link DI-604 Broadband router
 Class D-Link | embedded || broadband router
 TSeq(Class=RI%gcd=<68%SI=<13A6&>16%IPID=BI%TS=U)
 T1(DF=N%W=16D0%ACK=S++%Flags=AS%Ops=M)
@@ -5674,7 +5674,7 @@ PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 # D-Link DL-707 Cable/DSL Router
 # USR8022 Wireless Cable/DSL Router with firmware V3.1
 # Tonze IP-W314E  22 Mbps Wireless All-In-One Broadband Router
-Fingerprint D-Link, SMC, Tonze, or US Robotics wireless broadband router
+Fingerprint D-Link, SMC, Tonze, or US Robotics Wireless Broadband router
 Class D-Link | embedded || WAP
 TSeq(Class=TD%gcd=<130%SI=<1E%IPID=RD|I%TS=U)
 T1(DF=N%W=400|800|C00|1000%ACK=S++%Flags=AR%Ops=)
@@ -5688,7 +5688,7 @@ PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # D-Link Wireless Access Point (WAP) DRC-1000AP - v3.2.28
 # 3Com 11Mpbs Wireless LAN Access Point 2000 (Firmware 1.2)
-Fingerprint wireless access point (WAP): D-Link DRC-1000AP or 3Com Access Point 2000
+Fingerprint Wireless access point (WAP): D-Link DRC-1000AP or 3Com Access Point 2000
 Class D-Link | embedded || WAP
 TSeq(Class=TR%gcd=<6%IPID=I%TS=U)
 T1(DF=N%W=1000%ACK=S++%Flags=AS%Ops=ME)
@@ -6599,7 +6599,7 @@ T6(Resp=N)
 T7(Resp=N)
 PU(DF=N%TOS=C%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint Edimax BR-6004 broadband router
+Fingerprint Edimax BR-6004 Broadband router
 Class Edimax | embedded || broadband router
 TSeq(Class=i800%IPID=I%TS=2HZ)
 T1(DF=N%W=402E%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -7964,7 +7964,7 @@ T6(Resp=N)
 T7(Resp=N)
 PU(Resp=N)
 
-Fingerprint Genius print server
+Fingerprint Genius Print Server
 Class Genius | embedded || print server
 T1(DF=N%W=400%ACK=S++%Flags=APS%Ops=M)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
@@ -8168,7 +8168,7 @@ PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 # Hawking Print Server PN7117
 # Zero One Tech Printserver ZOT-PS-11 (firmware 5.4.2049)
 # EUSSO Technologies UPS1211-B print server
-Fingerprint Print Server: Zero One Tech 3000, Hawking PN7117, or EUSSO UPS1211-B
+Fingerprint Print server: Zero One Tech 3000, Hawking PN7117, or EUSSO UPS1211-B
 Class Hawking | embedded || print server
 Class Zero One | embedded || print server
 Class EUSSO | embedded || print server
@@ -8265,7 +8265,7 @@ PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E|F%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # HP JetDirect Card (J4169A) in an HP LaserJet 8150/8550
 # HP LaserJet 2200 with JetDirect (J6057A)
-# HP wireless JetDirect EIO card - 680n
+# HP Wireless JetDirect EIO card - 680n
 Fingerprint HP JetDirect Card in a LaserJet printer
 Class HP | embedded || printer
 TSeq(Class=64K%IPID=I%TS=U)
@@ -8721,7 +8721,7 @@ PU(DF=N|Y%TOS=0%IPLEN=70%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # HP9000 Model 804 K450 running HP-UX 11.00
 # Mac OS9
-Fingerprint Mac OS 9, or HP-UX 11.00
+Fingerprint Apple Mac OS 9, or HP-UX 11.00
 Class HP | HP-UX | 11.X | general purpose
 Class Apple | Mac OS | 9.X | general purpose
 TSeq(Class=RI%gcd=<6%SI=<4F254&>C95)
@@ -9834,7 +9834,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=R%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 
-Fingerprint Intel NetportExpress 10 3-port print server
+Fingerprint Intel NetportExpress 10 3-port Print Server
 Class Intel | embedded || print server
 TSeq(Class=64K%IPID=I%TS=U)
 T1(DF=N%W=848%ACK=S++%Flags=AS%Ops=ME)
@@ -9847,7 +9847,7 @@ T7(DF=N%W=0%ACK=S%Flags=R%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 
 # Intel NetportExpress(tm) 10/100 3-port ROM: V05.10a
-Fingerprint Intel NetportExpress 10/100 3-port print server
+Fingerprint Intel NetportExpress 10/100 3-port Print Server
 Class Intel | embedded || print server
 TSeq(Class=64K)
 T1(Resp=Y%DF=N%W=424%ACK=S++%Flags=AS%Ops=ME)
@@ -9859,7 +9859,7 @@ T6(Resp=Y%DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=Y%DF=N%W=0%ACK=S%Flags=R%Ops=)
 PU(Resp=Y%DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=0%ULEN=134%DAT=E)
 
-Fingerprint Intel NetportExpress PRO print server V04.33a
+Fingerprint Intel NetportExpress PRO Print Server V04.33a
 Class Intel | embedded || print server
 TSeq(Class=TD%gcd=1%SI=0)
 T1(Resp=Y%DF=N%W=400|800|C00|1000%ACK=S++%Flags=AR%Ops=)
@@ -9871,7 +9871,7 @@ T6(Resp=Y%DF=N%W=400|800|C00|1000%ACK=O%Flags=R%Ops=)
 T7(Resp=Y%DF=N%W=400|800|C00|1000%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint Intel NetportExpress XL print server
+Fingerprint Intel NetportExpress XL Print Server
 Class Intel | embedded || print server
 TSeq(Class=TD%gcd=<14%SI=<1E%IPID=I%TS=U)
 T1(DF=N%W=400%ACK=S++%Flags=AS%Ops=M)
@@ -10367,7 +10367,7 @@ T6(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=0%ULEN=134%DAT=E)
 
-Fingerprint Lantronix EPS1 print server version V3.5/1(970325)
+Fingerprint Lantronix EPS1 Print Server version V3.5/1(970325)
 Class Lantronix | Punix || print server
 TSeq(Class=RI%gcd=<6%SI=>FF&<FFFF)
 T1(DF=N%W=E00%ACK=S++%Flags=AS%Ops=M)
@@ -10392,7 +10392,7 @@ T6(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=D%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=0%ULEN=134%DAT=E)
 
-Fingerprint Lantronix EPS2 print server Version V3.5/2(970721)
+Fingerprint Lantronix EPS2 Print Server Version V3.5/2(970721)
 Class Lantronix | Punix || print server
 TSeq(Class=RI|TD%gcd=<6)
 T1(Resp=Y%DF=N%W=E00%ACK=S++%Flags=AS%Ops=M)
@@ -10429,7 +10429,7 @@ T6(Resp=N)
 T7(Resp=N)
 PU(Resp=N)
 
-Fingerprint Fingerprint LevelOne WBR-3406TX wireless broadband router
+Fingerprint Fingerprint LevelOne WBR-3406TX Wireless Broadband router
 Class Level One | embedded || broadband router
 TSeq(Class=TD%gcd=<68%SI=<1E%IPID=BI%TS=U)
 T1(DF=N%W=1540|1638%ACK=S++%Flags=AS%Ops=M)
@@ -10441,8 +10441,8 @@ T6(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-# LevelOne wireless router WBR-3403TX
-Fingerprint LevelOne WBR-3403TX wireless broadband router
+# LevelOne Wireless router WBR-3403TX
+Fingerprint LevelOne WBR-3403TX Wireless Broadband router
 Class Level One | embedded || broadband router
 TSeq(Class=RI%gcd=<6%SI=<102C870&>295B1%IPID=Z%TS=1000HZ)
 T1(DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
@@ -10635,8 +10635,8 @@ T6(DF=Y%W=2000%ACK=S%Flags=R%Ops=)
 T7(DF=Y%W=2000%ACK=S%Flags=R%Ops=)
 PU(Resp=N)
 
-# Linksys WET-11 wireless Ethernet bridge running firmware rev. 1.43
-Fingerprint Linksys WET-11 wireless Ethernet bridge
+# Linksys WET-11 Wireless Ethernet bridge running firmware rev. 1.43
+Fingerprint Linksys WET-11 Wireless Ethernet bridge
 Class Linksys | embedded || bridge
 TSeq(Class=RI%gcd=<6%SI=<2C30D0&>52F7%IPID=I%TS=U)
 T1(DF=N%W=800%ACK=S++%Flags=AS%Ops=M)
@@ -10661,7 +10661,7 @@ T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(Resp=N)
 
 # Linksys EtherFast Cable/DSL Router with 4-port switch BEFSR41 ver. 3; firmware: 1.44.3, FEB 13 2003
-Fingerprint Linksys BEFSR41 broadband router
+Fingerprint Linksys BEFSR41 Broadband router
 Class Linksys | embedded || broadband router
 TSeq(Class=TD%gcd=<18%SI=<1E%IPID=Z%TS=U)
 T1(DF=N%W=400|800|C00|1000%ACK=S++%Flags=AR%Ops=)
@@ -10712,7 +10712,7 @@ T7(DF=N%W=400|800|C00|1000%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Linksys BEFW11S4 DSL/Cable Router with Firmware 1.45z
-Fingerprint Linksys BEFW11S4 wireless DSL/Cable Router
+Fingerprint Linksys BEFW11S4 Wireless DSL/Cable Router
 Class Linksys | embedded || broadband router
 TSeq(Class=TR%gcd=<6%IPID=I)
 T1(DF=Y%W=4009%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -10725,7 +10725,7 @@ T7(DF=N%W=400|800%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
 # Linksys BEFW11S4 firmware revision 1.45.10
-Fingerprint Linksys BEFW11S4 wireless DSL/Cable Router
+Fingerprint Linksys BEFW11S4 Wireless DSL/Cable Router
 Class Linksys | embedded || broadband router
 TSeq(Class=TR%gcd=<6%IPID=I)
 T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -10741,7 +10741,7 @@ PU(Resp=N)
 # Linksys BEFW11S4 802.11B WAP
 # Linksys BEFSR41 firmware ver. 1.40.2
 # Linksys Router: BEFW11S4 v2/v3
-Fingerprint Linksys BEFW11S4/WRT-54G wireless broadband router or BEFSR41 Cable/DSL router
+Fingerprint Linksys BEFW11S4/WRT-54G Wireless Broadband router or BEFSR41 Cable/DSL router
 Class Linksys | embedded || broadband router
 TSeq(Class=TD|RI%gcd=<400%SI=<62C%IPID=Z|RD%TS=U)
 T1(DF=N%W=400|800|C00|1000%ACK=S++%Flags=AR%Ops=)
@@ -10791,7 +10791,7 @@ T6(DF=N%W=400|1000%ACK=S%Flags=AR%Ops=WNMETL)
 T7(DF=N%W=1000|800%ACK=S%Flags=AR%Ops=WNMETL)
 PU(DF=N%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint Linksys EtherFast print server
+Fingerprint Linksys EtherFast Print Server
 Class Linksys | embedded || print server
 T1(DF=N%W=0|C80%ACK=S++%Flags=AR|APS%Ops=|M)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
@@ -10802,7 +10802,7 @@ T6(DF=N%W=0%ACK=S%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint Linksys EtherFast print server
+Fingerprint Linksys EtherFast Print Server
 Class Linksys | embedded || print server
 TSeq(Class=TD%gcd=<1A866%SI=<14%IPID=I%TS=U)
 T1(DF=N%W=400%ACK=S++%Flags=APS%Ops=M)
@@ -10814,7 +10814,7 @@ T6(DF=N%W=0%ACK=S%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint Linksys PSUS4 USB Printserver and switch
+Fingerprint Linksys PSUS4 USB Print Server and switch
 Class Linksys | embedded || print server
 TSeq(Class=TD%gcd=<1A866%SI=<14%IPID=I%TS=U)
 T1(DF=N%W=111C%ACK=S++%Flags=AS%Ops=M)
@@ -10826,7 +10826,7 @@ T6(DF=N%W=0%ACK=S%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint Linksys WPS54GU2 wireless print server
+Fingerprint Linksys WPS54GU2 Wireless Print Server
 Class Linksys | embedded || print server
 TSeq(Class=TD%gcd=<1A866%SI=<1E%IPID=I%TS=U)
 T1(DF=N%W=111C%ACK=S++%Flags=APS|A%Ops=M|)
@@ -10846,7 +10846,7 @@ PU(Resp=N)
 # Linksys EtherFast Cable/DSL Router (Model: BEFSR41 Ver 2)(Updated Firmware ver. 1.46.02, Aug 03+2004)
 # Linksys Wireless-B Broadband Router BEFW11S4 Firmware v.1.50.14
 # Linksys RT31P2  VoIP router (Vonage; firmware version 1.28.00; internal interface)
-Fingerprint Linksys BEFW11S4/BEFSR41/BEFSR81/WRK54G broadband router or RT31P2 VoIP router
+Fingerprint Linksys BEFW11S4/BEFSR41/BEFSR81/WRK54G Broadband router or RT31P2 VoIP router
 Class Linksys | embedded || WAP
 TSeq(Class=TD%gcd=<FF%SI=<1E%IPID=I%TS=U)
 T1(DF=N%W=16D0%ACK=S++%Flags=AS%Ops=M)
@@ -10872,7 +10872,7 @@ T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Planet embedded WAP-1965
-# Linksys WAP11 wireless AP v2.2 firmware 1.06
+# Linksys WAP11 Wireless AP v2.2 firmware 1.06
 # D-Link DWL-900+ with Firmware Version 2.57, Wed, 30 Apr 2003
 # D-Link DWL - 2000 AP (WAP) firmware 2.04
 Fingerprint Linksys, D-Link, or Planet WAP
@@ -13413,7 +13413,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E|F%ULEN=134%DAT=E)
 
-# Microsoft Windows 2003 server edition, no service packs
+# Microsoft Windows 2003 Server Edition, no service packs
 Fingerprint Microsoft Windows 2003 Server
 Class Microsoft | Windows | 2003/.NET | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I)
@@ -13500,7 +13500,7 @@ T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=15C%RID=E|F%RIPCK=F%UCK=0%ULEN=134%DAT=E)
 
 # Microsoft Windows Server 2003, Enterprise Edition, no service packs, (build 3790.srv03_rtm.030324-2048)
-# Microsoft Windows XP Professional (English) w/SP2 with latest updates through Nov. 24, 2004
+# Microsoft Windows XP Professional (English) SP2 with latest updates through Nov. 24, 2004
 Fingerprint Microsoft Windows 2003 Server Enterprise Edition or XP Pro SP2
 Class Microsoft | Windows | 2003/.NET | general purpose
 Class Microsoft | Windows | NT/2K/XP | general purpose
@@ -13515,7 +13515,7 @@ T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Microsoft Windows.NET Enterprise Server (build 3615 beta)
-# Windows .NET standard server build 3604
+# Windows .NET Standard Server build 3604
 # Microsoft Windows 2003 Standard Build V5.2.3790 build 3790
 # Microsoft Windows 2003 Server - Web edition - all available critical fixes as of 15th feb 2004
 # Windows 2003 Standard Edition RTM
@@ -13536,13 +13536,13 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E|F%UCK=E|F%ULEN=134%DAT=E)
 
-# Microsoft Windows XP pro (French) version:2002 sp2
+# Microsoft Windows XP Pro (French) version:2002 SP2
 # Microsoft Windows Server 2003 version 5.2 (Build 3790.srv03_gdr.040410-1234)
 # Microsoft Windows Server 2003 Enterprise Edition (Trial Version downloaded from Microsoft as at 06/03
 # Microsoft Windows 2003 Server Enterprise Edition (German) build 3790.srv03_rtm.030324-2048
 # Microsoft Windows .NET Standard Server RC#2 (build 3718)
 # Microsoft Windows XP Professional version 2002 service pack 2
-# Microsoft Windows XP Home (English) w/SP2 Version 5.1 (Build 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2)
+# Microsoft Windows XP Home Edition (English) SP2 Version 5.1 (Build 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2)
 # Microsoft Windows XP Home /SP2 Polish Edition
 Fingerprint Microsoft Windows 2003 Server or XP SP2
 Class Microsoft | Windows | 2003/.NET | general purpose
@@ -13589,7 +13589,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Microsoft Windows server 2003 sp1 [Version 5.2.3790]
+# Microsoft Windows Server 2003 SP1 [Version 5.2.3790]
 # Windows 2003 Service Pack 1 32 Bit Running on Abit Mobo AMD64
 Fingerprint MIcrosoft Windows 2003 Server SP1
 Class Microsoft | Windows | 2003/.NET | general purpose
@@ -13844,8 +13844,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Windows 98 SE, no service packs, on AMD Sempron 2.4 GHz
-Fingerprint Microsoft Windows 98 SE
+# Windows 98SE, no service packs, on AMD Sempron 2.4 GHz
+Fingerprint Microsoft Windows 98SE
 Class Microsoft | Windows | 95/98/ME | general purpose
 TSeq(Class=RI%gcd=<6%SI=<1AA4&>D%IPID=RPI%TS=U)
 T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=M)
@@ -13882,7 +13882,7 @@ T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Microsoft Windows 98 4.10.2222.A
-# "Windows 98 Second Edition, patched up to date" (1/25/03)
+# "Windows 98SE, patched up to date" (1/25/03)
 Fingerprint Microsoft Windows 98SE
 Class Microsoft | Windows | 95/98/ME | general purpose
 TSeq(Class=TD%gcd=<A%SI=<46%IPID=RPI|RD|BI%TS=U)
@@ -13908,7 +13908,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Windows 98 Second Edition (build 2222)
+# Windows 98SE (build 2222)
 Fingerprint Microsoft Windows 98SE
 Class Microsoft | Windows | 95/98/ME | general purpose
 TSeq(Class=TD%gcd=<6%SI=<46%IPID=RPI|RD|BI%TS=U)
@@ -13959,8 +13959,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N|Y)
 
-# Win 98 SE, 4.10.2222 A (fully WindowsUpdated)
-# Windows 98 Second Edition build 4.10.2222 A
+# Win 98SE, 4.10.2222 A (fully WindowsUpdated)
+# Windows 98SE build 4.10.2222 A
 # Microsoft Windows 98SE, Version 4.10.2222
 # Windows 98SE 4.10.2222 A  Compaq OEM version Patched as of 1/2005
 Fingerprint Microsoft Windows 98SE 4.10.2222
@@ -14001,7 +14001,7 @@ T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Microsoft Windows Millenium Edition - no service packs
-Fingerprint Microsoft Windows Millennium Edition
+Fingerprint Microsoft Windows Millennium Edition (Me)
 Class Microsoft | Windows | 95/98/ME | general purpose
 TSeq(Class=RI%gcd=<6%SI=<2B05C&>2D1%IPID=I)
 T1(DF=N%W=16D0%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -14043,17 +14043,17 @@ PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 # Windows Me or Windows 2000 RC1 through final release
 # Microsoft Windows 2000 Advanced Server
 # Windows 2000 with SP2 and long fat pipe (RFC 1323)
-# Windows 2000 Pro Service Pack 3
+# Windows 2000 Professional Service Pack 3
 # Windows 2000 5.00.2195 Service Pack 2 and latest hotfixes
-# Windows 2000 Pro (x86)
+# Windows 2000 Professional (x86)
 # Compaq ProLiant DL-380G2 running Windows 2000 with SP3 and all the current patch sets (2/3/03)
-# Windows XP Pro version 2002 on PC Intel processor
+# Windows XP Professional version 2002 on PC Intel processor
 # Windows XP Build 2600
-# XP Pro 5.1 (build 2600).. all patches up to June 20, 2002
-# Fingerprint Microsoft Windows XP Pro with all current updates to May 2002
+# XP Professional 5.1 (build 2600).. all patches up to June 20, 2002
+# Fingerprint Microsoft Windows XP Professional with all current updates to May 2002
 # Windows 2000 Version 5.0 Build (2195: Service Pack 3)
 #  Windows 2000 Advanced Server SP3
-Fingerprint Microsoft Windows Millennium Edition (Me), Windows 2000 Pro or Advanced Server, or Windows XP
+Fingerprint Microsoft Windows Millennium Edition (Me), Windows 2000 Professional or Advanced Server, or Windows XP
 Class Microsoft | Windows | 95/98/ME | general purpose
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<FFFFF&>49C%IPID=I%TS=0)
@@ -14081,9 +14081,9 @@ T7(DF=N%W=0%ACK=S++|S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E|F%ULEN=134%DAT=E)
 
 # Microsoft Windows XP Professional (English) w/ SP2 (Build 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2)
-# Widows XP Professional (English UK) w/SP2 - latest patches as of 20 Dec 2004 - build 2600.xpsp_sp2_rtm.040803-2158
-# Microsoft Windows XP Home (French) w/SP2 build 2600.xpsp_sp2_rtm.040803-2158
-# Microsoft Windows XP Profesional (English) w/SP2 Ver 5.1 build 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2
+# Widows XP Professional (English UK) SP2 - latest patches as of 20 Dec 2004 - build 2600.xpsp_sp2_rtm.040803-2158
+# Microsoft Windows XP Home Edition (French) SP2 build 2600.xpsp_sp2_rtm.040803-2158
+# Microsoft Windows XP Profesional (English) SP2 Ver 5.1 build 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2
 Fingerprint Microsoft Widows XP SP2
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I%TS=U)
@@ -14134,7 +14134,7 @@ T7(DF=N%W=400|C00%ACK=S++%Flags=AR%Ops=WNMETL)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E|F%RIPCK=E%UCK=F%ULEN=134%DAT=E)
 
 # Windows 2000 Advanced Server Service Pack 4 With ALL updates as of October 9th 2003 Winver: Version 5 build 2195 SP4
-Fingerprint Microsoft Windows 2000 AS SP4
+Fingerprint Microsoft Windows 2000 Advanced Server SP4
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<1FD06&>42A)
 T1(DF=N%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -14146,7 +14146,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E|F%ULEN=134%DAT=E)
 
-Fingerprint Microsoft Windows 2000 AS SP4
+Fingerprint Microsoft Windows 2000 Advanced Server SP4
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<7CE98&>6B7)
 T1(DF=Y%W=402E%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -14159,7 +14159,7 @@ T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=80%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
 
 # Windows 2000 Advanced Server Version 5.0 (Build 2195: Service Pack 4)
-Fingerprint Microsoft Windows 2000 AS SP4
+Fingerprint Microsoft Windows 2000 Advanced Server SP4
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I)
 T1(DF=Y%W=402E%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -14171,7 +14171,7 @@ T6(DF=N%W=400|800|C00%ACK=S%Flags=AR%Ops=WNMETL)
 T7(DF=N%W=1000|C00%ACK=S++%Flags=AR%Ops=WNMETL)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
 
-Fingerprint Microsoft Windows 2000 Pro
+Fingerprint Microsoft Windows 2000 Professional
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<1C476&>472)
 T1(DF=Y|N%W=2238%ACK=S++%Flags=AS%Ops=M)
@@ -14183,9 +14183,9 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0|20|80%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E|F%ULEN=134%DAT=E)
 
-# Microsoft Windows 2000 Pro (Russian) SP2 with some antiworm patches (MS04-011 etc.), firewalled with wipfw (http://wipfw.sourceforge.net) dropping TCP_SYNFIN
-# MS Windows 2000 Professional Rus with SP2 with only Sasser etc. patches
-Fingerprint Microsoft Windows 2000 Pro (Russian) SP2
+# Microsoft Windows 2000 Professional (Russian) SP2 with some antiworm patches (MS04-011 etc.), firewalled with wipfw (http://wipfw.sourceforge.net) dropping TCP_SYNFIN
+# Microsoft Windows 2000 Professional Rus with SP2 with only Sasser etc. patches
+Fingerprint Microsoft Windows 2000 Professional (Russian) SP2
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<3073C&>393)
 T1(DF=Y%W=402E%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -14197,7 +14197,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint Microsoft Windows 2000 Pro RC1 or Windows 2000 Advanced Server Beta3
+Fingerprint Microsoft Windows 2000 Professional RC1 or Windows 2000 Advanced Server Beta3
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<8%SI=<27D922&>65EE)
 T1(DF=Y%W=402E|2017%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -14210,8 +14210,8 @@ T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Microsoft Windows NT 5 Beta2 or Beta3
-# Microsoft Windows 2000 Pro Edition (English) Build 2195 with SP2 - x86
-Fingerprint Microsoft Windows 2000 Pro SP2
+# Microsoft Windows 2000 Professional Edition (English) Build 2195 with SP2 - x86
+Fingerprint Microsoft Windows 2000 Professional SP2
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TD%gcd=<6%SI=<1000)
 T1(DF=Y%W=402E%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -14223,8 +14223,8 @@ T6(DF=N%W=0%ACK=S++|O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Windows 2000 Pro Build 2195 Service Pack 3
-Fingerprint Microsoft Windows 2000 Pro SP3
+# Windows 2000 Professional Build 2195 Service Pack 3
+Fingerprint Microsoft Windows 2000 Professional SP3
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<1BB0C&>2DC%IPID=I%TS=U)
 T1(DF=Y%W=1F8C|9448%ACK=S++%Flags=AS%Ops=M)
@@ -14238,10 +14238,10 @@ PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # base one msg 170, 666
 # Windows 2000 Professional SP4 fully patched as of 10/20/04
-# Microsoft Windows 2000 Pro SP4 and latest Windows Update as of December 8th, 2004
-# Microsoft Windows 2000 Pro Version: 5.0.2195 Service Pack 4 Build 2195
+# Microsoft Windows 2000 Professional SP4 and latest Windows Update as of December 8th, 2004
+# Microsoft Windows 2000 Professional Version: 5.0.2195 Service Pack 4 Build 2195
 # Microsoft 2000 Professional SP4  CPU AMD
-Fingerprint Microsoft Windows 2000 Pro SP4
+Fingerprint Microsoft Windows 2000 Professional SP4
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR|RI%gcd=<6%SI=<2B0D4&>22E%IPID=I)
 T1(DF=Y%W=2238|7D78|8753|9FFF|FC94%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -14253,8 +14253,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# MS Windows 2000 Professional w/SP4 build 2195
-Fingerprint Microsoft Windows 2000 Pro SP4
+# Microsoft Windows 2000 Professional SP4 build 2195
+Fingerprint Microsoft Windows 2000 Professional SP4
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<29B6C&>2EF%IPID=I%TS=U)
 T1(DF=Y%W=FB06|FF70%ACK=S++%Flags=AS%Ops=MNW)
@@ -14353,8 +14353,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Microsoft Windows 2000 server with SP4 and Windows Update patches as of January 14, 2005.
-# Microsoft Windows 2000 server with SP4 and latest Update Patches as of January 10 2005
+# Microsoft Windows 2000 Server with SP4 and Windows Update patches as of January 14, 2005.
+# Microsoft Windows 2000 Server with SP4 and latest Update Patches as of January 10 2005
 Fingerprint Microsoft Windows 2000 Server SP4
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<E76A8&>110C)
@@ -14380,7 +14380,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=F%UCK=F%ULEN=134%DAT=E)
 
-Fingerprint Microsoft Windows 2000 server SP4
+Fingerprint Microsoft Windows 2000 Server SP4
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<DDB08&>6AA%IPID=I)
 T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -14392,8 +14392,8 @@ T6(DF=N%W=1000|800%ACK=S%Flags=AR%Ops=WNMETL)
 T7(DF=N%W=C00|800%ACK=S++%Flags=AR%Ops=WNMETL)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E|F%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Windows 2000 server SP4 with all current patches april 9th 2005
-Fingerprint Microsoft Windows 2000 server SP4
+# Windows 2000 Server SP4 with all current patches april 9th 2005
+Fingerprint Microsoft Windows 2000 Server SP4
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<1C3B8&>157%IPID=I)
 T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -14421,9 +14421,9 @@ T6(DF=N%W=400|800|C00|1000%ACK=S%Flags=AR%Ops=WNMETL)
 T7(DF=N%W=400|800|C00|1000%ACK=S++%Flags=AR%Ops=WNMETL)
 PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E|F%RIPCK=E%UCK=E|F%ULEN=134%DAT=E)
 
-# Microsoft Windows 2000 server with SP4 and no other updates
+# Microsoft Windows 2000 Server with SP4 and no other updates
 # Windows 2000 Server SP 4 + ALL patches at 25 Sep. 2003
-# Windows XP Pro SP1 and latest Windows Update patches as of Oct 04, 2004
+# Windows XP Professional SP1 and latest Windows Update patches as of Oct 04, 2004
 Fingerprint Microsoft Windows 2000 Server SP4 or XP SP1
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<2B430&>5AD%IPID=I)
@@ -14510,8 +14510,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Microsoft Windows 2000 Pro SP2
-# Microsoft Windows XP Pro SP1
+# Microsoft Windows 2000 Professional SP2
+# Microsoft Windows XP Professional SP1
 # Microsoft Windows XP Professional, ver. 5.1 Build 2600.xpclnt_qfe.010827-1803
 Fingerprint Microsoft Windows 2000 SP2 or XP or XP SP1
 Class Microsoft | Windows | NT/2K/XP | general purpose
@@ -14539,7 +14539,7 @@ T6(DF=N%W=1000|C00%ACK=S%Flags=AR%Ops=WNMETL)
 T7(DF=N%W=400|1000|800%ACK=S++%Flags=AR%Ops=WNMETL)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E|F%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Microsoft Windows 2000 Pro with SP3 and latest Windows Update
+# Microsoft Windows 2000 Professional with SP3 and latest Windows Update
 # patches as of August 22, 2003 - Laptop using G-Trans PCMCIA CDMA
 # Wireless card.
 Fingerprint Microsoft Windows 2000 SP3
@@ -14666,7 +14666,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=80%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
 
-# MS Windows 2000: v5.00.2195: SP4
+# Microsoft Windows 2000: v5.00.2195: SP4
 Fingerprint Microsoft Windows 2000 SP4
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR%gcd=<6)
@@ -14692,7 +14692,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
 
-# Windows 2000 Pro 5.00.2195 SP4 incl. latest Hotfixes till 30.12.2004
+# Windows 2000 Professional 5.00.2195 SP4 incl. latest Hotfixes till 30.12.2004
 # Microsoft Windows 2000 build 2195 SP 4
 Fingerprint Microsoft Windows 2000 SP4
 Class Microsoft | Windows | NT/2K/XP | general purpose
@@ -14706,7 +14706,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Microsoft Windows 2000 build 2195 sp4 with update patches through 4/22/2004
+# Microsoft Windows 2000 build 2195 SP4 with update patches through 4/22/2004
 Fingerprint Microsoft Windows 2000 SP4
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<1BFDA&>357%IPID=I%TS=U)
@@ -14783,7 +14783,7 @@ T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Microsoft Windows 2000 SP4 and latest Windows Update patches as of Sept 26, 2003 running BlackICE
-# Microsoft Windows XP Pro with SP1 and latest Windows Update patches as of September 01, 2003
+# Microsoft Windows XP Professional with SP1 and latest Windows Update patches as of September 01, 2003
 Fingerprint Microsoft Windows 2000 SP4 or Windows XP SP1
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<1E58A2&>1517)
@@ -14797,12 +14797,12 @@ T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # base on msg 2213(-2210), 2378, 2473, 2476, 2174, 2153, 1942, 1955
-# Microsoft Windows 2000 Pro (German) with SP4 build 2195 and latest Windows Update patches (2005.5.19)
+# Microsoft Windows 2000 Professional (German) with SP4 build 2195 and latest Windows Update patches (2005.5.19)
 # Windows 2000 terminal version 5.0 build 2195 service pack 4
-# Microsoft Windows 2000 Pro SP4 and latest Windows Update patches (2005.6.11)
-# Microsoft Windows 2000 server with SP4 and latest Windows Update patches as of May 17, 2005
+# Microsoft Windows 2000 Professional SP4 and latest Windows Update patches (2005.6.11)
+# Microsoft Windows 2000 Server with SP4 and latest Windows Update patches as of May 17, 2005
 # Windows XP Professional Version 2002 Service Pack 1
-# Microsoft Windows 2000 advanved server SP4
+# Microsoft Windows 2000 Advanced Server SP4
 Fingerprint Microsoft Windows 2000 SP4 or XP SP1
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I)
@@ -14818,7 +14818,7 @@ PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 # Microsoft Windows Server 2003 Standard Edition
 # Microsoft Windows 2003 standard edition Version 5.2 (Build 3790.srv03_gdr.040410-1234)
 # Microsoft Windows 2003 Server with SP1
-# Windows server 2003 enterprise sp1 + hotfixes (build 3790.srv30_sp1_rtm.050324-1447 : Service Pack 1)
+# Windows Server 2003 Enterprise SP1 + hotfixes (build 3790.srv30_sp1_rtm.050324-1447 : Service Pack 1)
 # Windows 2003 Enterprise SP1 Version 5.2 (Build 3790.srv03_sp1_rc1.041202-1618 : +Service Pack 1, v.1)
 # Microsoft Windows XP Professional /w SP2 build 2600.xpsp_sp2_rtm.040803-2158
 # Microsoft Windows 2003 Standard Edition SP1 Updated through June 19th 2005
@@ -14837,7 +14837,7 @@ T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 #  Microsoft Windows 2000 with Service Pack 3
-# Microsoft Windows XP Pro with SP1 and latest Windows Update patches as of February 1st, 2003
+# Microsoft Windows XP Professional with SP1 and latest Windows Update patches as of February 1st, 2003
 Fingerprint Microsoft Windows Millennium Edition (Me), Windows 2000, or Windows XP
 Class Microsoft | Windows | NT/2K/XP | general purpose
 Class Microsoft | Windows | 95/98/ME | general purpose
@@ -15050,8 +15050,8 @@ T6(DF=N%W=400|800%ACK=S%Flags=AR%Ops=)
 T7(DF=N%W=800|C00%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-# Microsoft Windows XP Home (English) w/SP2 build 2600.xps_p2_gdr.050301:1519
-Fingerprint Microsoft Windows XP Home (English) w/SP2
+# Microsoft Windows XP Home Edition (English) SP2 build 2600.xps_p2_gdr.050301:1519
+Fingerprint Microsoft Windows XP Home Edition (English) SP2
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR%gcd=<6)
 T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -15064,7 +15064,7 @@ T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=F%RIPCK=E%UCK=F%ULEN=134%DAT=E)
 
 # Microsoft Windows XP Version 5.1 Home German SP2 (Build 2600.xpsp_sp2_rtm.040803-2158 : SP2), latest Updates as of Oct 27, 2004
-Fingerprint Microsoft Windows XP Home (German) SP2
+Fingerprint Microsoft Windows XP Home Edition (German) SP2
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I)
 T1(DF=N%W=805C%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -15088,9 +15088,9 @@ T6(DF=N%W=0%ACK=O%Flags=AR%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Microsoft Windows XP Home (German) w/SP1
+# Microsoft Windows XP Home Edition (German) SP1
 # ver 5.1 build 2600.xpsp2.030422-1633 : SP 1; German version
-# Microsoft Windows XP Home (German) w/SP1 
+# Microsoft Windows XP Home Edition (German) SP1 
 Fingerprint Microsoft Windows XP Home Edition (German) SP1
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<129062&>775%IPID=I)
@@ -15103,8 +15103,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E|F%ULEN=134%DAT=E)
 
-# Microsoft Windows XP Home (English) w/SP1 Version 5.1.2600.1106 build 2600 xpsp.1.020828-1-920
-Fingerprint Microsoft Windows XP Home SP1
+# Microsoft Windows XP Home Edition (English) SP1 Version 5.1.2600.1106 build 2600 xpsp.1.020828-1-920
+Fingerprint Microsoft Windows XP Home Edition SP1
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<163E6&>31F%IPID=I)
 T1(DF=Y%W=FD5C%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -15116,9 +15116,9 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Microsoft Windows XP Home (Italian) w/SP1 build 2600.xpclnt_qfe.021108-2107
-# Windows XP Home w/SP2
-Fingerprint Microsoft Windows XP Home w/SP1 or w/SP2
+# Microsoft Windows XP Home Edition (Italian) SP1 build 2600.xpclnt_qfe.021108-2107
+# Windows XP Home Edition SP2
+Fingerprint Microsoft Windows XP Home Edition SP1 or SP2
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<2522E&>381%IPID=I%TS=U)
 T1(DF=Y%W=1FE0%ACK=S++%Flags=AS%Ops=M)
@@ -15130,7 +15130,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Windows XP Pro WITHOUT ANY service packs
+# Windows XP Professional WITHOUT ANY service packs
 # Windows XP SP1
 Fingerprint Microsoft Windows XP Pro
 Class Microsoft | Windows | NT/2K/XP | general purpose
@@ -15157,7 +15157,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
 
-# Microsoft Windows XP Prof Corporate (German) w/SP1 + all Security Updates as of Febr. 10, 2004
+# Microsoft Windows XP Prof Corporate (German) SP1 + all Security Updates as of Febr. 10, 2004
 Fingerprint Microsoft Windows XP Pro (German) SP1
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<15BA8&>2DA%IPID=I%TS=U)
@@ -15195,7 +15195,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=20%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Fingerprint Microsoft Windows XP Pro (Spanish) w/SP2
+# Fingerprint Microsoft Windows XP Pro (Spanish) SP2
 Fingerprint Microsoft Windows XP Pro (Spanish) SP2
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR%gcd=<6)
@@ -15208,7 +15208,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint Microsoft Windows XP Pro or Windows 2000 Pro SP2+
+Fingerprint Microsoft Windows XP Pro or Windows 2000 Professional SP2+
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<16%SI=<25AEE&>6B%IPID=I)
 T1(DF=N%W=402E|7D78|FAF0%ACK=S++|O%Flags=AS|A%Ops=MNWNNT|NNT)
@@ -15233,7 +15233,7 @@ T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Windows XP Professionnel (5.1) Service Pack 2
-Fingerprint Microsoft Windows XP Pro SP 2
+Fingerprint Microsoft Windows XP Pro SP2
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I)
 T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -15245,7 +15245,7 @@ T6(DF=N%W=800|400%ACK=S%Flags=AR%Ops=WNMETL)
 T7(DF=N%W=400|800%ACK=S++%Flags=AR%Ops=WNMETL)
 PU(Resp=N)
 
-# Microaodr Windows XP Professional with SP! and latest Windows Update patches as of June 1, 2005
+# Microaodr Windows XP Pro with SP! and latest Windows Update patches as of June 1, 2005
 Fingerprint Microsoft Windows XP Pro SP1
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I%TS=U)
@@ -15260,7 +15260,7 @@ PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # bsed on msg 2236, 1304
 # Microsoft R Windows Version 5.1 (Build 2600.xpsp2.040919-1003 : Service Pack 1)
-# MS Windows XP version 5.1 (no. 2600 xpsp2.040919-1003: Service Pack 1)
+# Microsoft Windows XP version 5.1 (no. 2600 xpsp2.040919-1003: Service Pack 1)
 Fingerprint Microsoft Windows XP Pro SP1
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<2553A&>42E%IPID=I)
@@ -15285,9 +15285,9 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E|F%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Microsoft Windows XP Pro Edition Version 5.1 Build (2600.xpsp2.030422-1633: Service Pack 1)
-# Microsoft Windows XP Pro w/SP1 and latest patches as of Jan 31,2004
-# Microsoft Windows XP Professional (Italian) w/SP1 build 2600.xpsp2.030422-1633# Microsoft Windows XP Pro (Spanish) w/SP1 (Build 2600.xpsp2.030422-1633 : Service Pack 1) Intel
+# Microsoft Windows XP Professional Edition Version 5.1 Build (2600.xpsp2.030422-1633: Service Pack 1)
+# Microsoft Windows XP Professional SP1 and latest patches as of Jan 31,2004
+# Microsoft Windows XP Professional (Italian) SP1 build 2600.xpsp2.030422-1633# Microsoft Windows XP Pro (Spanish) SP1 (Build 2600.xpsp2.030422-1633 : Service Pack 1) Intel
 Fingerprint Microsoft Windows XP Pro SP1
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<29446&>49E%IPID=I)
@@ -15325,7 +15325,7 @@ T7(Resp=N)
 PU(DF=N%TOS=58%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
 
 # Windows XP Version 5.1 (Build 2600.xpsp2.030422-1633: Service pack 1)
-# Windows XP Pro With serice pack 1... English..   2600.xpsp1.020828-1920
+# Windows XP Professional With serice pack 1... English..   2600.xpsp1.020828-1920
 Fingerprint Microsoft Windows XP Pro SP1
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<9A6AA&>18A0%IPID=I%TS=U)
@@ -15338,9 +15338,9 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Windows XP Pro Version 5.1 (Build 2600.xpsp2.030422-1633: Service Pack1)
+# Windows XP Professional Version 5.1 (Build 2600.xpsp2.030422-1633: Service Pack1)
 # Windows XP SP1 running ZoneAlarm
-# Microsoft Windows XP Pro Version 5.1 (Build 2600.xpsp2_gdr.040517-1325: Service Pack 1)
+# Microsoft Windows XP Professional Version 5.1 (Build 2600.xpsp2_gdr.040517-1325: Service Pack 1)
 Fingerprint Microsoft Windows XP Pro SP1
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<63826&>D28%IPID=I%TS=U)
@@ -15377,7 +15377,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Windows Xp Pro Service Pack 1 version 5.1 - Build  2600
+# Windows Xp Professional Service Pack 1 version 5.1 - Build  2600
 # Microsoft Windows XP version 5.1 (build 2600.xpsp2.030422-1633 : Service Pack 1)
 Fingerprint Microsoft Windows XP Pro SP1
 Class Microsoft | Windows | NT/2K/XP | general purpose
@@ -15418,8 +15418,8 @@ PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Windows XP Professional 2002 - Service Pack 1 - Hotfixes
 # Windows XP Profesional build 2600.xpsp2.030422-1633: Service Pack 1
-# Windows XP Professional w/SP1 build 2600.xpsp1.030422-166: Service Pack 1
-# Windows XP Pro (Italian) build 2600 with SP1 and latest Windows Update patches as of middle Sept. 2004 circa
+# Windows XP Professional SP1 build 2600.xpsp1.030422-166: Service Pack 1
+# Windows XP Professional (Italian) build 2600 with SP1 and latest Windows Update patches as of middle Sept. 2004 circa
 # Microsoft Windows 2000 SP4 all updates as of Apr 17 2004
 Fingerprint Microsoft Windows XP Pro SP1 or 2000 SP4
 Class Microsoft | Windows | NT/2K/XP | general purpose
@@ -15433,7 +15433,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Microsoft Windows XP Pro SP1
+# Microsoft Windows XP Professional SP1
 # Microsoft Windows 2000 Advanced Server with Service Pack 3
 Fingerprint Microsoft Windows XP Pro SP1 or Windows 2000 Advanced Server SP3
 Class Microsoft | Windows | NT/2K/XP | general purpose
@@ -15447,7 +15447,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0|5C%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Windows XP Pro Build 2600.xpsp1.020828-1920 with Windows Services for UNIX 3.0 installed
+# Windows XP Professional Build 2600.xpsp1.020828-1920 with Windows Services for UNIX 3.0 installed
 # Windows 2000 Advanced Server with SP3
 # Microsoft Windows 2000 Server version 5.0 build 2195 Service Pack 3
 # Windows 2000 SP3
@@ -15463,20 +15463,20 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Microsoft Windows XP Pro w/ SP1 V5.1.2600 and most WU patches as of 4/20/05
+# Microsoft Windows XP Professional w/ SP1 V5.1.2600 and most WU patches as of 4/20/05
 # Microsoft Windows XP Professional 5.1.2600 Service Pack 1 Build 2600
-# Microsoft Windows XP Home (English) with Service Pack 2
-# Windows XP Pro (Version 5.1 - Build 2600.xpsp2.050301-1526: Service Pack 1)
+# Microsoft Windows XP Home Edition (English) with Service Pack 2
+# Windows XP Professional (Version 5.1 - Build 2600.xpsp2.050301-1526: Service Pack 1)
 # version 5.1 build 2600 xpsp2 040919-1003 service pack 1
 # Windows 2000 SP4 Version 5.0 (Build 2195: Service Pack 4) on a 2 GHz Pentium 4
 # Microsoft Windows 2000 s/SP4 build 5.00.2195
-# Microsoft Windows 2000 Pro 5.00.2195 SP4 - all patches as of 02 Jun 2005 (OEM)
+# Microsoft Windows 2000 Professional 5.00.2195 SP4 - all patches as of 02 Jun 2005 (OEM)
 # Windows 2000 Advanced Server SP4 and patches as of June 17 2004
 # Microsoft Windows 2000 Professional (v5.0, Build 2195, SP4), all current hotfixes applied 7th June
 # Microsoft Windows 2000 Professional with SP4 and latest Windows Update patches as of June 21, 2005
 # Microsoft Windows 2000 Advanced SP4 running Sphinx a-Wall
-# Microsoft Windows XP Pro w/SP1a build 2600.xpsp2.050301-1526
-# Microsoft Windows XP Professional (German) w/SP1 build 2600.xpsp1.050301-1526
+# Microsoft Windows XP Professional SP1a build 2600.xpsp2.050301-1526
+# Microsoft Windows XP Professional (German) SP1 build 2600.xpsp1.050301-1526
 Fingerprint Microsoft Windows XP Pro SP1/SP2 or 2000 SP4
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I)
@@ -15489,7 +15489,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Microsoft Windows XP Pro Service Pack 2 Build 5 1 2600
+# Microsoft Windows XP Professional Service Pack 2 Build 5 1 2600
 Fingerprint Microsoft Windows XP Pro SP2
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I)
@@ -15502,7 +15502,7 @@ T6(DF=Y%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=N)
 PU(DF=N%TOS=20%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
 
-# Microsoft Windows Version 5.1 (Build 2600.xpsp_sp2_trm.040803-2158 : Service Paxk 2) (XP Pro +SP2 + Hotfix)
+# Microsoft Windows Version 5.1 (Build 2600.xpsp_sp2_trm.040803-2158 : Service Paxk 2) (XP Professional +SP2 + Hotfix)
 Fingerprint Microsoft Windows XP Pro SP2
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I)
@@ -15515,8 +15515,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
 
-# Windows xp Pro SP2 German (Build 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2) with Agnitum Outpost Firewall Pro ver.+2.1.303.4009 (314)
-# Microsoft Windows XP Professional Version 2002 w/SP2 build 5.1.2600 latest MS patches as of Feb 9, 2005
+# Windows xp Professional SP2 German (Build 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2) with Agnitum Outpost Firewall Pro ver.+2.1.303.4009 (314)
+# Microsoft Windows XP Professional Version 2002 SP2 build 5.1.2600 latest MS patches as of Feb 9, 2005
 Fingerprint Microsoft Windows XP Pro SP2
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I)
@@ -15529,7 +15529,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Fingerprint Microsoft Windows XP Professional w/SP2 and latest updates
+# Fingerprint Microsoft Windows XP Professional SP2 and latest updates
 Fingerprint Microsoft Windows XP Pro SP2
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I)
@@ -15570,7 +15570,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E|F%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Windows XP Pro SP2: Version 5.1 (Build 2600.xpsp_sp2_rtm.040803-2158: Service Pack 2 (firewall disabled)
+# Windows XP Professional SP2: Version 5.1 (Build 2600.xpsp_sp2_rtm.040803-2158: Service Pack 2 (firewall disabled)
 Fingerprint Microsoft Windows XP Pro SP2 (firewall disabled)
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR%IPID=I%TS=0)
@@ -15583,11 +15583,11 @@ T6(Resp=Y%DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=N)
 PU(Resp=Y%DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Microsoft Windows XP PRO CORP. ED. Version 5.1 (Build 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2)
+# Microsoft Windows XP Professional CORP. ED. Version 5.1 (Build 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2)
 # Microsoft Windows 2003 Enterprize Edition (version 5.2 (build 3790.srv03_gdr.040410-1234))
-# Microsoft Windows XP Pro SP2 5.1.2600 SP2 Build 2600, Athlon x86, no firewall
+# Microsoft Windows XP Professional SP2 5.1.2600 SP2 Build 2600, Athlon x86, no firewall
 # Windows 2003 Enterprise Server 5.2 build 3790, srv03_gdr.040410-1234  as of Feb 22, 2003
-# Mircosoft Windows Server 2003 Enterprise w/sp1 build 3790.srv03_sp1_rtm.050324-1447
+# Mircosoft Windows Server 2003 Enterprise SP1 build 3790.srv03_sp1_rtm.050324-1447
 Fingerprint Microsoft Windows XP Pro SP2 or 2003 Server Enterprise Edition
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I%TS=U)
@@ -15664,8 +15664,8 @@ T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Microsoft Windows XP SP1 (Build 2600.XP SP2.030422-1633:Service Pack 1)
-# Microsoft Windows XP Pro with SP1 and latest Windows Update patches as of Oct 12, 2003 except Q817778
-# Windows 2000 Pro with SP4 and latest Windows Update patches as of november 25th, 2003
+# Microsoft Windows XP Professional with SP1 and latest Windows Update patches as of Oct 12, 2003 except Q817778
+# Windows 2000 Professional with SP4 and latest Windows Update patches as of november 25th, 2003
 Fingerprint Microsoft Windows XP SP1 or Windows 2000 SP4
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<18DEE&>24B%IPID=I)
@@ -15691,9 +15691,9 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=F0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# MS Windows XP SP2 (English) Build 2600.xpsp2_rtm.040803-2158
+# Microsoft Windows XP SP2 (English) Build 2600.xpsp2_rtm.040803-2158
 # Microsoft Windows XP Professional Version 5.1 (Build 2600.xpsp2_gdr.050301-1519 : Service Pack 2)
-# Microsoft Windows XP Pro (Spanizh) with SP2 and latest Windows Update patches as June 5,+2005
+# Microsoft Windows XP Professional (Spanizh) with SP2 and latest Windows Update patches as June 5,+2005
 Fingerprint Microsoft Windows XP SP2
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I)
@@ -15706,7 +15706,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# windows XP Pro SP2 and latest updates as of 3/7/05
+# windows XP Professional SP2 and latest updates as of 3/7/05
 # Microsoft Windows XP version 5.1 600.xpsp_sp2_rtm.040803-2158 : service pack 2
 Fingerprint Microsoft Windows XP SP2
 Class Microsoft | Windows | NT/2K/XP | general purpose
@@ -15722,7 +15722,7 @@ PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
 
 # base on msg 570, 1033
 # Windows XP SP2 (firewall off).  Version 5.1 (Build 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2)
-# Microsoft Windows Windows XP Corporate (French) w/SP2 build 2600.xpsp_sp2_rtm.040803-2158 on Intel Pentium 4 1.2 GHz
+# Microsoft Windows Windows XP Corporate (French) SP2 build 2600.xpsp_sp2_rtm.040803-2158 on Intel Pentium 4 1.2 GHz
 Fingerprint Microsoft Windows XP SP2
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I)
@@ -15735,12 +15735,12 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Microsoft Windows XP Home (English) w/SP2 build 2600.xpsp_sp2_rtm.040803-2158
-# Microsoft Windows XP Home (English) w/SP2 build 2600.xpsp_sp2_rtm.040803-2158
-# Microsoft Windows XP Pro with SP2 (Version 5.1 Build 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2)
+# Microsoft Windows XP Home Edition (English) SP2 build 2600.xpsp_sp2_rtm.040803-2158
+# Microsoft Windows XP Home Edition (English) SP2 build 2600.xpsp_sp2_rtm.040803-2158
+# Microsoft Windows XP Professional with SP2 (Version 5.1 Build 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2)
 # Microsoft Windows XP Professional SP2 (Build 2600.xpsp_sp2_rtm.040803-2158)
-# Microsoft Windows XP Pro w/SP2
-# Windows XP sp2 (build 2600.xpsp_sp2_gdr.050301-1519 : Service Pack 2)
+# Microsoft Windows XP Professional SP2
+# Windows XP SP2 (build 2600.xpsp_sp2_gdr.050301-1519 : Service Pack 2)
 Fingerprint Microsoft Windows XP SP2
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I%TS=U|0)
@@ -15753,17 +15753,17 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Microsoft Windows XP Pro Build 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2
-# Microsoft Windows XP Professional w/SP2 build 2600.xpsp_sp2_rtm.040803-2158
-# Microsoft Windows XP Professional w/SP2 and latest Windows Updates patches as of Dec 15, 2004
+# Microsoft Windows XP Professional Build 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2
+# Microsoft Windows XP Professional SP2 build 2600.xpsp_sp2_rtm.040803-2158
+# Microsoft Windows XP Professional SP2 and latest Windows Updates patches as of Dec 15, 2004
 # Windows Version 5.1 (Build 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2)
 # Microsoft Windows XP Professional (Build 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2)
-# Microsoft Windows XP Professional (Spanish) w/SP2 build 2600.xpsp_sp2_trm.040803-2158
+# Microsoft Windows XP Professional (Spanish) SP2 build 2600.xpsp_sp2_trm.040803-2158
 # Windows Server 2003 Standard edition, Microsoft windows vers.5.2 build 3790.srv03_rtm.030324-2048
 # Microsoft Windows XP Professional Version 2002 Service Pack 2
 # Windows 2003 Server Standard Edition germany
 # Microsoft Windows Server 2003 EE Version 5.2 (Build 3790.srv03_gdr.040410-1234)
-# Microsoft Windows XP home (hebrew) with SP2
+# Microsoft Windows XP Home Edition (hebrew) with SP2
 Fingerprint Microsoft Windows XP SP2 or 2003 Server
 Class Microsoft | Windows | NT/2K/XP | general purpose
 Class Microsoft | Windows | 2003/.NET | general purpose
@@ -15791,8 +15791,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Micrososoft Windows Version 5.1 (Build 2600.XPSP_SP2_GDR.050301-1519 : Service Pack 2)
-Fingerprint Micrososoft Windows XP SP2
+# Microsoft Windows Version 5.1 (Build 2600.XPSP_SP2_GDR.050301-1519 : Service Pack 2)
+Fingerprint Microsoft Windows XP SP2
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I)
 T1(DF=Y%W=402E%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -15805,8 +15805,8 @@ T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Microsoft Windows Version 5.1 Build 2600.xpsp2.030825-2117: Service Pack 1
-# Microsoft Windows XP Pro SP1 build 2600, latest windows updates (march 27, 2005)
-Fingerprint MS Windows XP Pro SP1
+# Microsoft Windows XP Professional SP1 build 2600, latest windows updates (march 27, 2005)
+Fingerprint Microsoft Windows XP Pro SP1
 Class Microsoft | Windows | NT/2K/XP | general purpose
 TSeq(Class=RI%gcd=<6%SI=<1B1AC&>29E%IPID=I%TS=U)
 T1(DF=N%W=2000|4000%ACK=S++%Flags=AS%Ops=M)
@@ -15872,7 +15872,7 @@ T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E|F%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Windows 2000 Pro, Build 2195 SP4
-Fingerprint Microsoft Windows 2000 Pro SP4
+Fingerprint Microsoft Windows 2000 Professional SP4
 Class Microsoft | Windows || general purpose
 TSeq(Class=RI%gcd=<6%SI=<457D6&>35E%IPID=I)
 T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -15908,7 +15908,7 @@ T6(DF=Y%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=164%RIPTL=148%RID=E|F%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint MS Windows 2000 Server SP3
+Fingerprint Microsoft Windows 2000 Server SP3
 Class Microsoft | Windows || general purpose
 TSeq(Class=RI%gcd=<6%SI=<30714&>2A7%IPID=I)
 T1(DF=Y%W=2DA0%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -16111,7 +16111,7 @@ T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=F%UCK=0%ULEN=134%DAT=E)
 
 # Motorola SURFboard SBG1000-0.1.3.0-SCM05-NOSH
-Fingerprint Motorola SURFboard SBG1000 broadband router
+Fingerprint Motorola SURFboard SBG1000 Broadband router
 Class Motorola | VxWorks || broadband router
 TSeq(Class=64K%IPID=I%TS=U)
 T1(DF=N%W=4000%ACK=S++%Flags=AS%Ops=MNW)
@@ -16837,7 +16837,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=N)
 PU(Resp=N)
 
-Fingerprint Netgear WGR614 wireless router
+Fingerprint Netgear WGR614 Wireless router
 Class Netgear | embedded || broadband router
 TSeq(Class=TR%gcd=<6%IPID=I%TS=U)
 T1(DF=N%W=2000%ACK=S++%Flags=AS%Ops=M)
@@ -16850,9 +16850,9 @@ T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
 
 # Netgear FM114P ProSafe Wireless Firewall with Print Server
-# netgear wgr614 v4 wireless router
+# netgear wgr614 v4 Wireless router
 # REPOTEC IP515H Cable Router / Print Server
-Fingerprint Netgear wireless router or Netgear FM114P/REPOTEC IP515H Router & Print Server
+Fingerprint Netgear Wireless router or Netgear FM114P/REPOTEC IP515H Router & Print Server
 Class Netgear | embedded || broadband router
 TSeq(Class=TD%gcd=<404%SI=<1E%IPID=I%TS=U)
 T1(DF=N%W=C00%ACK=S++%Flags=AS%Ops=M)
@@ -16865,7 +16865,7 @@ T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
 # Netgear PS101 print server with firmware 6026
-Fingerprint Netgear PS101 print server
+Fingerprint Netgear PS101 Print Server
 Class Netgear | embedded || print server
 T1(DF=N%W=5B4%ACK=S++%Flags=APS%Ops=M)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
@@ -16877,7 +16877,7 @@ T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
 # Netgear Printer Server PS110 firmware version: 6017
-Fingerprint Netgear PS110 print server
+Fingerprint Netgear PS110 Print Server
 Class Netgear | embedded || print server
 TSeq(Class=TD%gcd=<1A866%SI=<14%IPID=I%TS=U)
 T1(DF=N%W=5EA%ACK=S++%Flags=APS%Ops=M)
@@ -18643,7 +18643,7 @@ T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Proxim Stratum MP FW: 7_8_18;  managed via HTTP and only relevant data is (I guess) the firmware version: FW: 7_8_18
-Fingerprint Proxim Stratum MP wireless bridge
+Fingerprint Proxim Stratum MP Wireless bridge
 Class Proxim | embedded || bridge
 TSeq(Class=TD%gcd=<61AC%SI=<46%IPID=I%TS=1000HZ)
 T1(DF=N%W=209D%ACK=S++%Flags=AS%Ops=MENWNNT)
@@ -18892,7 +18892,7 @@ T6(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint Ringdale RP21 Print server
+Fingerprint Ringdale RP21 Print Server
 Class Ringdale | embedded || print server
 TSeq(Class=TR%gcd=<6)
 T1(DF=N%W=200%ACK=S++%Flags=AS%Ops=M)
@@ -18929,7 +18929,7 @@ T6(DF=N%W=C00|400%ACK=S%Flags=AR%Ops=WNMETL)
 T7(DF=N%W=800|400|1000%ACK=S++%Flags=AR%Ops=WNMETL)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=134%RID=E|F%RIPCK=F%UCK=0%ULEN=134%DAT=E)
 
-Fingerprint RoadLanner broadband router BRL-04FW 6.15.02r Build 0091 L:01
+Fingerprint RoadLanner Broadband router BRL-04FW 6.15.02r Build 0091 L:01
 Class RoadLanner | embedded || broadband router
 TSeq(Class=TD%gcd=<6E004%SI=<14%IPID=I%TS=1000HZ)
 T1(DF=N%W=400%ACK=S++%Flags=AS%Ops=MTWL)
@@ -19556,9 +19556,9 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=15C%RID=E%RIPCK=F%UCK=0%ULEN=134%DAT=E)
 
-# Siemens Santis 50 wireless adsl router / Firmware version: 5.0.0.11 CPU: Helium 210-80
-# A wireless router which functions as a gateway to the internet.
-Fingerprint Siemens Santis 50 wireless adsl router
+# Siemens Santis 50 Wireless adsl router / Firmware version: 5.0.0.11 CPU: Helium 210-80
+# A Wireless router which functions as a gateway to the internet.
+Fingerprint Siemens Santis 50 Wireless adsl router
 Class Siemens | embedded || broadband router
 TSeq(Class=RI%gcd=<6%SI=<F776&>8E%IPID=I%TS=U)
 T1(DF=N%W=1FFE%ACK=S++%Flags=AS%Ops=ME)
@@ -19840,8 +19840,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=Y%TOS=0%IPLEN=8E%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Sonicwall Pro 200 Firmware Version 6.4.2.0
-Fingerprint Sonicwall Pro 200 firewall
+# SonicWall Pro 200 Firmware Version 6.4.2.0
+Fingerprint SonicWall Pro 200 firewall
 Class SonicWall | embedded || firewall
 TSeq(Class=TR%gcd=<6%IPID=I)
 T1(DF=N|Y%W=0|402E%ACK=S++%Flags=AR|AS%Ops=|MNWNNT)
@@ -19852,8 +19852,8 @@ T5(DF=N%W=C00%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=C00|400|1000%ACK=S++%Flags=AR%Ops=)
 T7(DF=N%W=1000|C00|800%ACK=S++%Flags=AR%Ops=)
 
-# SonicWALL 4060 firewall running SonicOS Enhaced 2.5
-Fingerprint SonicWALL 4060 firewall
+# SonicWall 4060 firewall running SonicOS Enhaced 2.5
+Fingerprint SonicWall 4060 firewall
 Class SonicWall | SonicOS || firewall
 TSeq(Class=TR%gcd=<6%IPID=I%TS=U)
 T1(DF=N%W=4000%ACK=S++%Flags=AS%Ops=MNW)
@@ -19918,8 +19918,8 @@ T6(DF=N%W=400%ACK=S++%Flags=AR%Ops=)
 T7(DF=N%W=400%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-# SonicWALL SOHO3 (CPU: Toshiba 3927 H2 / 133 Mhz) Firmware version: 6.6.0.6 ROM version: 6.2.0.0
-Fingerprint SonicWALL SOHO3 firewall
+# SonicWall SOHO3 (CPU: Toshiba 3927 H2 / 133 Mhz) Firmware version: 6.6.0.6 ROM version: 6.2.0.0
+Fingerprint SonicWall SOHO3 firewall
 Class SonicWall | SonicOS || firewall
 TSeq(Class=RI%gcd=<6%SI=<708FA&>904%IPID=I%TS=U)
 T1(DF=N%W=2000%ACK=S++%Flags=AS%Ops=MNW)
@@ -19956,10 +19956,10 @@ T6(DF=N%W=1000|800%ACK=S++%Flags=AR%Ops=)
 T7(DF=N%W=1000|C00%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-# SonicWALL TZ170 Firewall with SonicOS
+# SonicWall TZ170 Firewall with SonicOS
 # SonicWall FZ170 Unrestricted (firewall/VPN appliances)  with SonicOS 2.6
-# SonicOS 3.0.0.4-41s on SonicWALL TZ 170
-Fingerprint SonicWALL TZ170 Firewall
+# SonicOS 3.0.0.4-41s on SonicWall TZ 170
+Fingerprint SonicWall TZ170 Firewall
 Class SonicWall | SonicOS || firewall
 TSeq(Class=64K%IPID=I%TS=2HZ)
 T1(DF=N%W=4000%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -19995,7 +19995,7 @@ T6(Resp=Y%DF=N%W=400%ACK=S++%Flags=AR%Ops=)
 T7(Resp=Y%DF=N%W=400%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint SONY AIBO ERS-7 running AIBO MInd 2
+Fingerprint Sony AIBO ERS-7 running AIBO MInd 2
 Class Sony | embedded || robotic pet
 TSeq(Class=TR|TD%gcd=<186A4%SI=<64%IPID=I%TS=U)
 T1(DF=N%W=2000%ACK=S++%Flags=AS%Ops=M)
@@ -20031,7 +20031,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint SONY NewsOS 6.1.2
+Fingerprint Sony NewsOS 6.1.2
 Class Sony | NewsOS || general purpose
 TSeq(Class=64K%gcd=<6%SI=<14)
 T1(DF=Y%W=CDFF%ACK=S++%Flags=AS%Ops=MEWL)
@@ -20563,7 +20563,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=N)
 PU(Resp=N)
 
-Fingerprint Symbol/Spectrum24 wireless AP
+Fingerprint Symbol/Spectrum24 Wireless AP
 Class Symbol | embedded || WAP
 TSeq(Class=TD%gcd=<68%SI=<1E%IPID=I%TS=U)
 T1(Resp=N)
@@ -20601,7 +20601,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint Tainet WANpro 2000i broadband router
+Fingerprint Tainet WANpro 2000i Broadband router
 Class Tainet | embedded || broadband router
 TSeq(Class=64K%IPID=I%TS=U)
 T1(DF=N%W=1000%ACK=S++%Flags=AS%Ops=)
@@ -20638,7 +20638,7 @@ T6(DF=N%W=0%ACK=S%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint Tallycom+ printserver
+Fingerprint Tallycom+ Print Server
 Class Tally | embedded || printer
 TSeq(Class=i800%IPID=I%TS=U)
 T1(DF=N%W=1C20%ACK=S++%Flags=AS%Ops=M)
@@ -20826,7 +20826,7 @@ T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=70%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Signal Network Technology Co, Ltd, VoIP appliance model sp100x running firmware version SP100X3.0.1
-Fingerprint CPV Telsey broadband + voip residential gateway or Signal SP100x VoIP appliance
+Fingerprint CPV Telsey Broadband + voip residential gateway or Signal SP100x VoIP appliance
 Class Telsey | embedded || broadband router
 Class Signal | embedded || VoIP gateway
 TSeq(Class=TD%gcd=<138C%SI=<1E%IPID=I%TS=U)
@@ -21008,7 +21008,7 @@ T7(Resp=Y%DF=N%W=0%ACK=O%Flags=R%Ops=WNMETL)
 PU(Resp=Y%DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=F%UCK=0%ULEN=134%DAT=E)
 
 # U.S. Robotics Broadband Router (Model # 8000-02, Version V2.5)
-Fingerprint US Robotics broadband router (model #8000-02)
+Fingerprint US Robotics Broadband router (model #8000-02)
 Class US Robotics | embedded || WAP
 TSeq(Class=TD%gcd=<130%SI=<1E%IPID=BI%TS=U)
 T1(DF=N%W=800%ACK=S++%Flags=AR%Ops=)
@@ -21020,7 +21020,7 @@ T6(DF=N%W=800%ACK=S%Flags=AR%Ops=)
 T7(DF=N%W=800%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint US Robotics USR8022 broadband wireless router (WAP)
+Fingerprint US Robotics USR8022 Broadband Wireless router (WAP)
 Class US Robotics | embedded || WAP
 TSeq(Class=TD|RI%gcd=<68%SI=<636%IPID=I%TS=U)
 T1(DF=N%W=800|400|C00%ACK=S++%Flags=AR%Ops=)
@@ -21120,7 +21120,7 @@ T7(Resp=N)
 PU(Resp=N)
 
 # Watchguard Firebox II version 7.00 build 2448
-Fingerprint Watchguard Firebox II version 7.00
+Fingerprint WatchGuard Firebox II version 7.00
 Class WatchGuard | embedded || firewall
 TSeq(Class=TR%gcd=<6%IPID=I%TS=U)
 T1(DF=N%W=3FE0%ACK=S++%Flags=BAS%Ops=ME)
@@ -21133,7 +21133,7 @@ T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E|F%ULEN=134%DAT=E)
 
 # Watchguard SOHO 6tc, Firewall 6.3.2 Feb 27 2004 build 1, Boot ROM 5.6
-Fingerprint Watchguard Firebox SOHO 6tc firewall
+Fingerprint WatchGuard Firebox SOHO 6tc firewall
 Class WatchGuard | embedded || firewall
 TSeq(Class=TR%gcd=<6%IPID=RD%TS=U)
 T1(DF=N%W=1540%ACK=S++%Flags=AS%Ops=M)
@@ -21158,7 +21158,7 @@ T6(DF=N%W=400|800|C00|1000%ACK=S%Flags=AR%Ops=)
 T7(DF=N%W=400|800|C00|1000%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint Watchguard Firebox X700
+Fingerprint WatchGuard Firebox X700
 Class WatchGuard | embedded || firewall
 TSeq(Class=RI|TR%gcd=<6%SI=<2FFF7A6%IPID=Z|I%TS=100HZ|U)
 T1(DF=Y|N%W=16A0|3FE0%ACK=S++%Flags=AS|BAS%Ops=MNNTNW|ME)
@@ -21243,7 +21243,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E|F%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 
-Fingerprint XCD Xconnect print server, firmware version CC8S-3.58 (98.09.21)
+Fingerprint XCD Xconnect Print Server, firmware version CC8S-3.58 (98.09.21)
 Class XCD | embedded || print server
 TSeq(Class=TD%gcd=<272A%SI=<1E)
 T1(DF=N%W=3F6%ACK=S++%Flags=AS%Ops=ME)
@@ -21487,7 +21487,7 @@ T6(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint ZoomAir IG-4165 wireless gateway (WAP)
+Fingerprint ZoomAir IG-4165 Wireless gateway (WAP)
 Class ZoomAir | embedded || WAP
 TSeq(Class=TD%gcd=<68%SI=<1E%IPID=I%TS=U)
 T1(DF=N%W=1000%ACK=S++%Flags=AR%Ops=)
@@ -21499,8 +21499,8 @@ T6(DF=N%W=1000%ACK=S%Flags=AR%Ops=)
 T7(DF=N%W=1000%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint Hardware: Zyxel Prestige broadband router
-Class Zyxel | ZyNOS || broadband router
+Fingerprint Hardware: ZyXel Prestige Broadband router
+Class ZyXel | ZyNOS || broadband router
 T1(DF=N%W=0%ACK=S++%Flags=BAR%Ops=)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
 T3(Resp=Y%DF=N%W=0%ACK=S++%Flags=AR%Ops=)
@@ -21510,8 +21510,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint Zyxel 944S Prestige router
-Class Zyxel | ZyNOS || broadband router
+Fingerprint ZyXel 944S Prestige router
+Class ZyXel | ZyNOS || broadband router
 T1(DF=N%W=0%ACK=S++%Flags=BAR%Ops=)
 T2(Resp=N)
 T3(Resp=N)
@@ -21521,8 +21521,8 @@ T6(DF=N%W=400|800|C00%ACK=S%Flags=AR%Ops=)
 T7(Resp=N)
 PU(Resp=N)
 
-Fingerprint ZyXEL P480 ISDN router running ZyNOS v2.42(O.00)
-Class Zyxel | ZyNOS || broadband router
+Fingerprint ZyXel P480 ISDN router running ZyNOS v2.42(O.00)
+Class ZyXel | ZyNOS || broadband router
 TSeq(Class=TD%gcd=<2004%SI=<1E)
 T1(DF=N%W=2000%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
@@ -21533,9 +21533,9 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(Resp=N)
 
-# Zyxel Prestige 642R-11 (analog ADSL router) ZyNOS F/W Version: V2.50(AJ.9)
-Fingerprint Zyxel Prestige 642R-11 ASDL router running ZyNOS
-Class Zyxel | ZyNOS || broadband router
+# ZyXel Prestige 642R-11 (analog ADSL router) ZyNOS F/W Version: V2.50(AJ.9)
+Fingerprint ZyXel Prestige 642R-11 ASDL router running ZyNOS
+Class ZyXel | ZyNOS || broadband router
 TSeq(Class=TD%gcd=<F0004%SI=<14%IPID=I%TS=U)
 T1(DF=N%W=400%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=N)
@@ -21546,8 +21546,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint ZyXEL Prestige 643 router
-Class Zyxel | ZyNOS || broadband router
+Fingerprint ZyXel Prestige 643 router
+Class ZyXel | ZyNOS || broadband router
 T1(DF=N%W=0%ACK=S++%Flags=BAR%Ops=)
 T2(Resp=N)
 T3(Resp=Y%DF=N%W=0%ACK=S++%Flags=AR%Ops=)
@@ -21557,10 +21557,10 @@ T6(Resp=N)
 T7(Resp=N)
 PU(Resp=N)
 
-# ZyXEL Prestige 700 broadband router
+# ZyXel Prestige 700 broadband router
 # Netgear MR314 Cable/Wireless Router
-Fingerprint ZyXEL Prestige 700/Netgear MR314 broadband router
-Class Zyxel | ZyNOS || broadband router
+Fingerprint ZyXel Prestige 700/Netgear MR314 Broadband router
+Class ZyXel | ZyNOS || broadband router
 T1(DF=N%W=0%ACK=S++%Flags=BAR%Ops=)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
 T3(Resp=Y%DF=N%W=0%ACK=S++%Flags=AR%Ops=)
@@ -21570,8 +21570,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint ZyXEL Prestige 791R
-Class Zyxel | ZyNOS || broadband router
+Fingerprint ZyXel Prestige 791R
+Class ZyXel | ZyNOS || broadband router
 TSeq(Class=i800%IPID=I%TS=U)
 T1(DF=N%W=400%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
@@ -21582,12 +21582,12 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Zyxel P128imh or P480 router (ZyNOS)
+# ZyXel P128imh or P480 router (ZyNOS)
 # ZyNOS F/W Version: V2.50(AJ.7) | 2/28/2002
-# Zyxel Prestige 645-R11 adsl router
+# ZyXel Prestige 645-R11 adsl router
 # Intel Express 8100 Router ISDN
-Fingerprint Zyxel ZyNOS based broadband router (ZyNOS) or Intel Express ISDN router
-Class Zyxel | ZyNOS || broadband router
+Fingerprint ZyXel ZyNOS based Broadband router (ZyNOS) or Intel Express ISDN router
+Class ZyXel | ZyNOS || broadband router
 Class Intel | embedded || broadband router
 TSeq(Class=TD%gcd=1000|2000|5000|4000|6000|8000|A000|78000|1A4000%SI=<FF%IPID=I%TS=U)
 T1(DF=N%W=400%ACK=S++%Flags=AS%Ops=M)
@@ -21599,9 +21599,9 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Zyxel ZyWALL 1 running ZyNOS Version V3.60(WD.3) | 05/24/2004
-Fingerprint Zyxel ZyWALL 1 firewall
-Class Zyxel | ZyNOS || firewall
+# ZyXel ZyWALL 1 running ZyNOS Version V3.60(WD.3) | 05/24/2004
+Fingerprint ZyXel ZyWALL 1 firewall
+Class ZyXel | ZyNOS || firewall
 TSeq(Class=TD%gcd=<2004%SI=<46%IPID=I%TS=U)
 T1(DF=N%W=B680%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=N)
@@ -21612,9 +21612,9 @@ T6(Resp=N)
 T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Zyxel Zywall 10W (Firmware V3.62(WH.7))
-Fingerprint Zyxel Zywall 10W firewall
-Class Zyxel | ZyNOS || firewall
+# ZyXel Zywall 10W (Firmware V3.62(WH.7))
+Fingerprint ZyXel Zywall 10W firewall
+Class ZyXel | ZyNOS || firewall
 TSeq(Class=TD%gcd=<2004%SI=<3C%IPID=I%TS=U)
 T1(DF=N%W=5780%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=N)
@@ -21625,9 +21625,9 @@ T6(Resp=N)
 T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# ZyXEL ZyWALL 50 running ZyNOS V3.52(WC.2)C0 | 05/02/2003
-Fingerprint Zyxel ZyWALL 50 (ZyNOS 3.52)
-Class Zyxel | ZyNOS || firewall
+# ZyXel ZyWALL 50 running ZyNOS V3.52(WC.2)C0 | 05/02/2003
+Fingerprint ZyXel ZyWALL 50 (ZyNOS 3.52)
+Class ZyXel | ZyNOS || firewall
 TSeq(Class=TD%gcd=<F0004%SI=<1E%IPID=I%TS=U)
 T1(DF=N%W=B680%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=N)
@@ -21638,9 +21638,9 @@ T6(Resp=N)
 T7(Resp=N)
 PU(Resp=N)
 
-# ZyNOS version: V3.50(DT.5) | 07/06/2004 on a Zyxel ES-3024 switch
-Fingerprint Zyxel switch ES-3024 ZyNOS V3.50
-Class Zyxel | ZyNOS || switch
+# ZyNOS version: V3.50(DT.5) | 07/06/2004 on a ZyXel ES-3024 switch
+Fingerprint ZyXel switch ES-3024 ZyNOS V3.50
+Class ZyXel | ZyNOS || switch
 TSeq(Class=i800%IPID=I%TS=U)
 T1(DF=N%W=5780%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
@@ -21651,9 +21651,9 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# ZyXel ZyAir B-4000 wireless Lan Access Point with 4 port switch running ZyNOS
-Fingerprint ZyXel ZyAir B-4000 wireless Lan Access Point
-Class Zyxel | ZyNOS || WAP
+# ZyXel ZyAir B-4000 Wireless Lan Access Point with 4 port switch running ZyNOS
+Fingerprint ZyXel ZyAir B-4000 Wireless Lan Access Point
+Class ZyXel | ZyNOS || WAP
 T1(DF=N%W=1000%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=Y%DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T3(Resp=Y%DF=N%W=1000%ACK=S++%Flags=AS%Ops=M)
