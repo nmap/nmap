@@ -1638,7 +1638,6 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\x1b\[2J\x1b\[0;0H\x1b\[K\x1b\[7mTelnet 
 match telnet m|^Telnet server disabled\r\n$| p/F5 BigIP load balancer telnetd/ i/telnet disabled/ d/load balancer/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n login: | p/Linksys WRT54G router telnetd/ i/Sveasoft firmware/ d/router/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\(none\) login: | p/BusyBox telnetd/
-match telnet m|^\xff\xfb\x03\xff\xfb\x01$| p/Nokia M1112 router telnetd/ d/router/
 match telnet m|^\xff\xfb\x01Copyright \(C\) \d+ by Compaq Computer Corp\. \r\n\rlogin: | p/Compaq 5450 switch telnetd/ d/switch/
 match telnet m|^\n\r\n\rTHIS IS A MUD BASED ON\.\.\.\.\.\n\r\n\r                                ROM Version (.*)\n| p/ROM-based MUD/ v/$1/
 match telnet m|^\r\n.*Based\(loosely\) on CircleMUD ([\d.]+)|s p/CircleMUD-based MUD telnetd/ v/$1/
@@ -1954,6 +1953,14 @@ match solfe m|^\x02\0\x01\xfb\xff\xfb\xff\xff\xff\xff\xffNOSUP| p/HP PNM Solid F
 match sstp m|^SSTP/([\d.]+) 400 Bad Request\r\n\r\n\0$| p/Sakura Script Transfer Protocol/ i/Protocol $1/
 
 match smux m|^A\x01\x02$| p/Linux SNMP multiplexer/ o/Linux/
+# This could go into the NULL probe, but the problem is that it is a prefix
+
+# of what other routers (at least HP JetDirect printer telentd) send.
+# And at least the JD sends the string below first, before it send the
+# rest in other packets.  So it is best to capture this one here in
+# GenericLines.
+match telnet m|^\xff\xfb\x03\xff\xfb\x01$| p/Nokia M1112 router telnetd/ d/router/
+
 # Solaris 9
 match uucp m|^login: Please enter user name: Password: $| p/Solaris uucpd/ o/Solaris/
 # SunOS 4

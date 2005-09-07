@@ -1,12 +1,38 @@
 # Nmap Changelog ($Id$)
 
-o Fixed crash when Nmap is compiled using gcc 4.X by adding the
-  --fno-strict-aliasing option when that compiler is detected.  Thanks
-  to Greg Darke (starstuff(a)optusnet.com.au) for discovering that
-  this option fixes (hides) the problem and to Duilio J. Protti
-  (dprotti(a)flowgate.net) for writing the configure patch to detect
-  gcc 4 and add the option.  A better fix is to identify and rewrite
-  lines that violate C99 alias rules, and we are looking into that.
+o Added the ability for Nmap to send and properly route raw ethernet
+  packets cointaining IP datagrams rather than always sending the
+  packets via raw sockets. This is particularly useful for Windows,
+  since Microsoft has disabled raw socket support in XP for no good
+  reason.  Nmap tries to choose the best method at runtime based on
+  platform, though you can override it with the new --send_eth and
+  --send_ip options.
+
+o Added ARP scanning (-PR). Nmap can now send raw ethernet ARP requests to
+  determine whether hosts on a LAN are up, rather than relying on
+  higher-level IP packets (which can only be sent after a successful
+  ARP request and reply anyway).  This is much faster and more
+  reliable (not subject to IP-level firewalling) than IP-based probes.
+  The downside is that it only works when the target machine is on the
+  same LAN as the scanning machine.  It is now used automatically for
+  any hosts that are detected to be on a local ethernet network,
+  unless --send_ip was specified.  Example usage: nmap -sP -PR
+  192.168.0.0/16 .
+
+o Added the --spoof_mac option, which asks Nmap to use the given MAC
+  address for all of the raw ethernet frames it sends.  The MAC given
+  can take several formats.  If it is simply the string "0", Nmap
+  chooses a completely random MAC for the session.  If the given
+  string is an even number of hex digits (with the pairs optionally
+  separated by a colon), Nmap will use those as the MAC.  If less than
+  12 hex digits are provided, Nmap fills in the remainder of the 6
+  bytes with random values.  If the argument isn't a 0 or hex string,
+  Nmap looks through the nmap-mac-prefixes to find a vendor name
+  containing the given string (it is case insensitive).  If a match is
+  found, Nmap uses the vendor's OUI (3-byte prefix) and fills out the
+  remaining 3 bytes randomly.  Valid --spoof_mac argument examples are
+  "Apple", "0", "01:02:03:04:05:06", "deadbeefcafe", "0020F2", and
+  "Cisco".
 
 o Applied an enormous nmap-service-probes (version detection) update
   from SoC student Doug Hoyte (doug(a)hcsw.org).  Version 3.81 had
@@ -15,6 +41,59 @@ o Applied an enormous nmap-service-probes (version detection) update
   tripled!  This should make your -sV scans quicker and more
   accurate.  Thanks also go to the (literally) thousands of you who
   submitted service fingerprints.  Keep them coming!
+
+o Applied a massive OS fingerprint update from Zhao Lei
+  (zhaolei(a)gmail.com).  About 350 fingerprints were added, and many
+  more were updated.  Notable additions include Mac OS X 10.4 (Tiger),
+  OpenBSD 3.7, FreeBSD 5.4, Windows Server 2003 SP1, Sony AIBO (along
+  with a new "robotic pet" device type category), the latest Linux 2.6
+  kernels Cisco routers with IOS 12.4, a ton of VoIP devices, Tru64
+  UNIX 5.1B, new Fortinet firewalls, AIX 5.3, NetBSD 2.0, Nokia IPSO
+  3.8.X, and Solaris 10.  Of course there are also tons of new
+  broadband routers, printers, WAPs and pretty much any other device
+  you can coax an ethernet cable (or wireless card) into!
+
+o Added 'leet ASCII art to the confugrator!  ARTIST NOTE: If you think
+  the ASCII art sucks, feel free to send me alternatives.  Note that
+  only people compiling the UNIX source code get this. (ASCII artist
+  unknown).
+
+o Nmap on Windows now compiles/links with the new WinPcap 3.1
+  header/lib files. So please upgrade to 3.1 from
+  http://www.winpcap.org before installing this version of Nmap.
+  While older versions may still work, they aren't supported with Nmap.
+
+o Nmap distribution signing has changed. Release files are now signed
+  with a new Nmap Project GPG key (KeyID 6B9355D0).  Fyodor has also
+  generated a new key for himself (KeyID 33599B5F).  The Nmap key has
+  been signed by Fyodor's new key, which has been signed by Fyodor's
+  old key so that you know they are legit.  The new keys are available
+  at http://www.insecure.org/nmap/data/nmap_gpgkeys.txt , as
+  docs/nmap_gpgkeys.txt in the Nmap source tarball, and on the public
+  keyserver network.  Here are the fingerprints:
+    pub  1024D/33599B5F 2005-04-24
+         Key fingerprint = BB61 D057 C0D7 DCEF E730  996C 1AF6 EC50 3359 9B5F
+    uid  Fyodor <fyodor@insecure.org>
+    sub  2048g/D3C2241C 2005-04-24
+
+    pub  1024D/6B9355D0 2005-04-24
+         Key fingerprint = 436D 66AB 9A79 8425 FDA0  E3F8 01AF 9F03 6B93 55D0
+    uid  Nmap Project Signing Key (http://www.insecure.org/)
+    sub  2048g/A50A6A94 2005-04-24
+
+o Fixed a crash problem related to non-portable varargs (vsnprintf)
+  usage. Reports of this crash came from Alan William Somers
+  (somers(a)its.caltech.edu) and Christophe (chris.branch(a)gmx.de).
+  This patch was prevalent on Linux boxes running an Opteron/Athlon64
+  CPU in 64-bit mode.
+
+o Fixed crash when Nmap is compiled using gcc 4.X by adding the
+  --fno-strict-aliasing option when that compiler is detected.  Thanks
+  to Greg Darke (starstuff(a)optusnet.com.au) for discovering that
+  this option fixes (hides) the problem and to Duilio J. Protti
+  (dprotti(a)flowgate.net) for writing the configure patch to detect
+  gcc 4 and add the option.  A better fix is to identify and rewrite
+  lines that violate C99 alias rules, and we are looking into that.
 
 o Added "rarity" feature to Nmap version detection.  This causes
   obscure probes to be skipped when they are unlikely to help.  Each
@@ -55,6 +134,13 @@ o Fixed crash with certain --excludefile or
   (dprotti(a)flowgate.net) for debugging the issue and sending the
   patch.
 
+o Updated random scan (ip_is_reserved()) to reflect the latest IANA
+  assignments.  This patch was sent in by Felix Groebert
+  (felix(a)groebert.org).
+
+o Included new Russian man page translation by
+  locco_bozi(a)Safe-mail.net
+
 o Applied pach from Steve Martin (smartin(a)stillsecure.com) which
   standardizes many OS names and corrects typos in nmap-os-fingerprints.
 
@@ -77,73 +163,17 @@ o Fixed an Nmap version detection crash on Windows which led to the
 o Fixed some misspellings in docs/nmap.xml reported by Tom Sellers
   (TSellers(a)trustmark.com).
 
-o Updated random scan (ip_is_reserved()) to reflect the latest IANA
-  assignments.  This patch was sent in by Felix Groebert
-  (felix(a)groebert.org).
-
 o Applied some changes from  Gisle Vanem (giva(a)bgnett.no) to make
   Nmap compile with Cygwin.
 
 o XML "osmatch" element now has a "line" attribute giving the
   reference fingerprint line number in nmap-os-fingerprints.
 
-Nmap 3.84ALPHA1
-
-o Added the ability for Nmap to send and properly route raw ethernet
-  packets cointaining IP datagrams rather than always sending the
-  packets via raw sockets. This is particularly useful for Windows,
-  since Microsoft has disabled raw socket support in XP for no good
-  reason.  Nmap tries to choose the best method at runtime based on
-  platform, though you can override it with the new --send_eth and
-  --send_ip options.
-
-o Added ARP scanning (-PR). Nmap can now send raw ethernet ARP requests to
-  determine whether hosts on a LAN are up, rather than relying on
-  higher-level IP packets (which can only be sent after a successful
-  ARP request and reply anyway).  This is much faster and more
-  reliable (not subject to IP-level firewalling) than IP-based probes.
-  The downside is that it only works when the target machine is on the
-  same LAN as the scanning machine.  It is now used automatically for
-  any hosts that are detected to be on a local ethernet network,
-  unless --send_ip was specified.  Example usage: nmap -sP -PR
-  192.168.0.0/16 .
-
-o Added the --spoof_mac option, which asks Nmap to use the given MAC
-  address for all of the raw ethernet frames it sends.  The MAC given
-  can take several formats.  If it is simply the string "0", Nmap
-  chooses a completely random MAC for the session.  If the given
-  string is an even number of hex digits (with the pairs optionally
-  separated by a colon), Nmap will use those as the MAC.  If less than
-  12 hex digits are provided, Nmap fills in the remainder of the 6
-  bytes with random values.  If the argument isn't a 0 or hex string,
-  Nmap looks through the nmap-mac-prefixes to find a vendor name
-  containing the given string (it is case insensitive).  If a match is
-  found, Nmap uses the vendor's OUI (3-byte prefix) and fills out the
-  remaining 3 bytes randomly.  Valid --spoof_mac argument examples are
-  "Apple", "0", "01:02:03:04:05:06", "deadbeefcafe", "0020F2", and
-  "Cisco".
-
-o Applied a massive OS fingerprint update from Zhao Lei
-  (zhaolei(a)gmail.com).  About 350 fingerprints were added, and many
-  more were updated.  Notable additions include Mac OS X 10.4 (Tiger),
-  OpenBSD 3.7, FreeBSD 5.4, Windows Server 2003 SP1, Sony AIBO (along
-  with a new "robotic pet" device type category), the latest Linux 2.6
-  kernels Cisco routers with IOS 12.4, a ton of VoIP devices, Tru64
-  UNIX 5.1B, new Fortinet firewalls, AIX 5.3, NetBSD 2.0, Nokia IPSO
-  3.8.X, and Solaris 10.  Of course there are also tons of new
-  broadband routers, printers, WAPs and pretty much any other device
-  you can coax an ethernet cable (or wireless card) into!
-
 o Added a distcc probes and a bunch of smtp matches from Dirk Mueller
   (mueller(a)kde.org) to nmap-service-probes.  Also added AFS version
   probe and matches from Lionel Cons (lionel.cons(a)cern.ch).  And
   even more probes and matches from Martin Macok
   (martin.macok(a)underground.cz)
-
-o Nmap on Windows now compiles/links with the new WinPcap 3.1
-  header/lib files. So please upgrade to 3.1 from
-  http://www.winpcap.org before installing this version of Nmap.
-  While older versions may still work, they aren't supported with Nmap.
 
 o Fixed a problem where Nmap compilation would use header files from
   the libpcap included with Nmap even when it was linking to a system
@@ -172,7 +202,7 @@ o Added "Exclude" directive to nmap-service-probes grammar which
 
 o Added a stripped-down and heavily modified version of Dug Song's
   libdnet networking library (v. 1.10).  This helps with the new raw
-  ethernet features.  My changes are described in
+  ethernet features.  My (extensive) changes are described in
   libdnet-stripped/NMAP_MODIFICATIONS
 
 o Removed WinIP library (and all Windows raw sockets code) since MS
@@ -224,37 +254,8 @@ o Fixed the way tcp connect scan (-sT) respons to ICMP network
   unreachable responses (patch by Richard Moore
   (rich(a)westpoint.ltd.uk).
 
-o Fixed a crash problem related to non-portable varargs (vsnprintf)
-  usage. Reports of this crash came from Alan William Somers
-  (somers(a)its.caltech.edu) and Christophe (chris.branch(a)gmx.de).
-  This patch was prevalent on Linux boxes running an Opteron/Athlon64
-  CPU in 64-bit mode.
-
-o Nmap distribution signing has changed. Release files are now signed
-  with a new Nmap Project GPG key (KeyID 6B9355D0).  Fyodor has also
-  generated a new key for himself (KeyID 33599B5F).  The Nmap key has
-  been signed by Fyodor's new key, which has been signed by Fyodor's
-  old key so that you know they are legit.  The new keys are available
-  at http://www.insecure.org/nmap/data/nmap_gpgkeys.txt , as
-  docs/nmap_gpgkeys.txt in the Nmap source tarball, and on the public
-  keyserver network.  Here are the fingerprints:
-    pub  1024D/33599B5F 2005-04-24
-         Key fingerprint = BB61 D057 C0D7 DCEF E730  996C 1AF6 EC50 3359 9B5F
-    uid  Fyodor <fyodor@insecure.org>
-    sub  2048g/D3C2241C 2005-04-24
-
-    pub  1024D/6B9355D0 2005-04-24
-         Key fingerprint = 436D 66AB 9A79 8425 FDA0  E3F8 01AF 9F03 6B93 55D0
-    uid  Nmap Project Signing Key (http://www.insecure.org/)
-    sub  2048g/A50A6A94 2005-04-24
-
 o Update random host scan (-iR) to support the latest IANA-allocated
   ranges, thanks to patch by Chad Loder (cloder(a)loder.us).
-
-o Added 'leet ASCII art to the confugrator!  ARTIST NOTE: If you think
-  the ASCII art sucks, feel free to send me alternatives.  Note that
-  only people compiling the UNIX source code get this. (ASCII artist
-  unknown).
 
 o Updated GNU shtool (a helper program used during 'make install' to
   version 2.0.2, which fixes a predictable temporary filename

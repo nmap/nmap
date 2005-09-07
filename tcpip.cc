@@ -1990,7 +1990,9 @@ void set_pcap_filter(const char *device,
 #endif
   char err0r[256];
   
-  if (pcap_lookupnet(device, &localnet, &netmask, err0r) < 0)
+  // Cast below is becaue OpenBSD apparently has a version that takes a
+  // non-const device (hopefully they don't actually write to it).
+  if (pcap_lookupnet( (char *) device, &localnet, &netmask, err0r) < 0)
     fatal("Failed to lookup subnet/netmask for device (%s): %s", device, err0r);
   
   va_start(ap, bpf);
