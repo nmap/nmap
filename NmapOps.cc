@@ -225,6 +225,7 @@ void NmapOps::Initialize() {
   osscan = 0;
   servicescan = 0;
   override_excludeports = 0;
+  version_intensity = 7;
   pingtype = PINGTYPE_UNKNOWN;
   listscan = pingscan = allowall = ackscan = bouncescan = connectscan = 0;
   rpcscan = nullscan = xmasscan = fragscan = synscan = windowscan = 0;

@@ -1,5 +1,63 @@
 # Nmap Changelog ($Id$)
 
+o Fixed crash when Nmap is compiled using gcc 4.X by adding the
+  --fno-strict-aliasing option when that compiler is detected.  Thanks
+  to Greg Darke (starstuff(a)optusnet.com.au) for discovering that
+  this option fixes (hides) the problem and to Duilio J. Protti
+  (dprotti(a)flowgate.net) for writing the configure patch to detect
+  gcc 4 and add the option.  A better fix is to identify and rewrite
+  lines that violate C99 alias rules, and we are looking into that.
+
+o Applied an enormous nmap-service-probes (version detection) update
+  from SoC student Doug Hoyte (doug(a)hcsw.org).  Version 3.81 had
+  1064 match lines covering 195 service protocols.  Now we have 2865
+  match lines covering 359 protocols!  So the database size has nearly
+  tripled!  This should make your -sV scans quicker and more
+  accurate.  Thanks also go to the (literally) thousands of you who
+  submitted service fingerprints.  Keep them coming!
+
+o Added "rarity" feature to Nmap version detection.  This causes
+  obscure probes to be skipped when they are unlikely to help.  Each
+  probe now has a "rarity" value.  Probes that detect dozens of
+  services such as GenericLines and GetRequest have rarity values of
+  1, while the WWWOFFLEctrlstat and mydoom probes have a rarity of 9.
+  When interrogating a port, Nmap always tries probes registered to
+  that port number.  So even WWWOFFLEctrlstat will be tried against
+  port 8081 and mydoom will be tried against open ports between 3127
+  and 3198.  If none of the registered ports find a match, Nmap tries
+  probes that have a rarity less than or equal to its current
+  intensity level.  The intensity level defaults to 7 (so that most of
+  the probes are done).  You can set the intensity level with the new
+  --version_intensity option.  Alternatively, you can just use
+  --version_light or --version_all which set the intensity to 2 (only
+  try the most important probes and ones registered to the port
+  number) and 9 (try all probes), respectively.  --version_light is
+  much faster than default version detection, but also a bit less
+  likely to find a match.  This feature was designed and implemented
+  by Doug Hoyte (doug(a)hcsw.org).
+
+o Added a "fallback" feature to the nmap-service-probes database.
+  This allows a probe to "inherit" match lines from other probes.  It
+  is currently only used for the HTTPOptions, RTSPRequest, and
+  SSLSessionReq probes to inherit all of the match lines from
+  GetRequest.  Some servers don't respond to the Nmap GetRequest (for
+  example because it doesn't include a Host: line) but they do respond
+  to some of those other 3 probes in ways that GetRequest match lines
+  are general enough to match.  The fallback construct allows us to
+  benefit from these matches without repeating hundreds of signatures
+  in the file.  This is another feature designed and implemented
+  by Doug Hoyte (doug(a)hcsw.org).
+
+o Fixed crash with certain --excludefile or
+  --exclude arguments.  Thanks to Kurt Grutzmacher
+  (grutz(a)jingojango.net) and pijn trein (ptrein(a)gmail.com) for
+  reporting the problem, and to Duilio J. Protti
+  (dprotti(a)flowgate.net) for debugging the issue and sending the
+  patch.
+
+o Applied pach from Steve Martin (smartin(a)stillsecure.com) which
+  standardizes many OS names and corrects typos in nmap-os-fingerprints.
+
 o Fixed a crash found during certain UDP version scans.  The crash was
   discovered and reported by Ron (iago(a)valhallalegends.com) and fixed
   by Doug Hoyte (doug(a)hcsw.com).
@@ -75,9 +133,6 @@ o Applied a massive OS fingerprint update from Zhao Lei
   3.8.X, and Solaris 10.  Of course there are also tons of new
   broadband routers, printers, WAPs and pretty much any other device
   you can coax an ethernet cable (or wireless card) into!
-
-o Integrated hundreds of nmap-service-probes signatures from Doug
-  Hoyte (doug(a)hcsw.org)
 
 o Added a distcc probes and a bunch of smtp matches from Dirk Mueller
   (mueller(a)kde.org) to nmap-service-probes.  Also added AFS version

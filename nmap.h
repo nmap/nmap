@@ -304,6 +304,7 @@ void *realloc();
 
 #define MAX_DECOYS 128 /* How many decoys are allowed? */
 
+#define MAXFALLBACKS 20 /* How many comma separated fallbacks are allowed in the service-probes file? */
 
 /* Default maximum send delay between probes to the same host */
 #ifndef MAX_TCP_SCAN_DELAY

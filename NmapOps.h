@@ -246,6 +246,7 @@ class NmapOps {
 
   // Version Detection Options
   int override_excludeports;
+  int version_intensity;
 
   struct in_addr decoys[MAX_DECOYS];
   int osscan_limit; /* Skip OS Scan if no open or no closed TCP ports */

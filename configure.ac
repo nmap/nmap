@@ -47,6 +47,44 @@ if test $CXXPROG = "MISSING"; then
   AC_MSG_ERROR([Could not locate a C++ compiler. If it exists, add it to your PATH or give configure the CXX=path_to_compiler argument.  Otherwise, install a C++ compiler such as g++ or install a binary package of Nmap (see http://www.insecure.org/nmap/nmap_download.html ))])
 fi
 
+nmap_gcc_mayor_version=0
+AC_MSG_CHECKING([whether the compiler is gcc 4 or greater])
+if test x"$GXX" = xno; then
+  AC_MSG_RESULT([no])
+else
+  # On some distros, there are snapshots available as gcc4
+  if test -z "$ac_cv_prog_CC" || test x"$CC" = xgcc4; then
+    our_gcc="$CC"
+  else
+    our_gcc="$ac_cv_prog_CC"
+  fi
+  # new mayor versions must be added here
+  case `$our_gcc --version | sed -e 's,\..*,.,' -e q` in
+    *4.)
+      nmap_gcc_mayor_version=4
+      ;;
+    *3)
+      nmap_gcc_mayor_version=3
+      ;;
+    *2)
+      nmap_gcc_mayor_version=2
+      ;;
+    *1)
+      nmap_gcc_mayor_version=1
+      ;;
+  esac
+  if test "$nmap_gcc_mayor_version" -ge 4; then
+    AC_MSG_RESULT([yes])
+  else
+    AC_MSG_RESULT([no])
+  fi
+fi
+
+# Remember that all following tests will run with this CXXFLAGS by default
+if test "$nmap_gcc_mayor_version" -ge 4; then
+  CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
+fi
+
 dnl AC_PROG_INSTALL
 dnl AC_PATH_PROG(MAKEDEPEND, makedepend)
 

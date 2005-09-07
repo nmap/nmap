@@ -827,10 +827,16 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, int subjectlen,
 
 
 ServiceProbe::ServiceProbe() {
+  int i;
   probename = NULL;
   probestring = NULL;
   totalwaitms = DEFAULT_SERVICEWAITMS;
   probestringlen = 0; probeprotocol = -1;
+  // The default rarity level for a probe without a rarity
+  // directive - should almost never have to be relied upon.
+  rarity = 5;
+  fallbackStr = NULL;
+  for (i=0; i<MAXFALLBACKS+1; i++) fallbacks[i] = NULL;
 }
 
 ServiceProbe::~ServiceProbe() {
@@ -842,6 +848,8 @@ ServiceProbe::~ServiceProbe() {
   for(vi = matches.begin(); vi != matches.end(); vi++) {
     delete *vi;
   }
+
+  if (fallbackStr) free(fallbackStr);
 }
 
 void ServiceProbe::setName(const char *name) {
@@ -1003,6 +1011,22 @@ bool ServiceProbe::serviceIsPossible(const char *sname) {
   return false;
 }
 
+
+// Takes a string following a Rarity directive in the probes file.
+// The string should contain a single integer between 1 and 9. The
+// default rarity is 5. This function will bail if the string is invalid.
+void ServiceProbe::setRarity(const char *portstr, int lineno) {
+  int tp;
+
+  tp = atoi(portstr);
+
+  if (tp < 1 || tp > 9)
+    fatal("ServiceProbe::setRarity: Rarity directive on line %d of nmap-service-probes must be between 1 and 9", lineno);
+
+  rarity = tp;
+}
+
+
   // Takes a match line in a probe description and adds it to the
   // list of matches for this probe.  This function should be passed
   // the whole line starting with "match" or "softmatch" in
@@ -1071,6 +1095,10 @@ void parse_nmap_service_probe_file(AllProbes *AP, char *filename) {
 	newProbe->setProbablePorts(SERVICE_TUNNEL_NONE, line + 6, lineno);
       } else if (strncmp(line, "sslports ", 9) == 0) {
 	newProbe->setProbablePorts(SERVICE_TUNNEL_SSL, line + 9, lineno);
+      } else if (strncmp(line, "rarity ", 7) == 0) {
+	newProbe->setRarity(line + 7, lineno);
+      } else if (strncmp(line, "fallback ", 9) == 0) {
+	newProbe->fallbackStr = strdup(line + 9);
       } else if (strncmp(line, "totalwaitms ", 12) == 0) {
 	long waitms = strtol(line + 12, NULL, 10);
 	if (waitms < 100 || waitms > 300000)
@@ -1093,6 +1121,8 @@ void parse_nmap_service_probe_file(AllProbes *AP, char *filename) {
   }
   
   fclose(fp);
+
+  AP->compileFallbacks();
 }
 
 // Parses the nmap-service-probes file, and adds each probe to
@@ -1189,6 +1219,65 @@ int AllProbes::isExcluded(unsigned short port, int proto) {
 }
 
 
+// Before this function is called, the fallbacks exist as unparsed
+// comma-separated strings in the fallbackStr field of each probe.
+// This function fills out the fallbacks array in each probe with
+// an ordered list of pointers to which probes to try. This is both for
+// efficiency and to deal with odd cases like the NULL probe and falling
+// back to probes later in the file. This function also free()s all the
+// fallbackStrs.
+void AllProbes::compileFallbacks() {
+  vector<ServiceProbe *>::iterator curr;
+  char *tp;
+  int i;
+
+  curr = probes.begin();
+
+  // The NULL probe is a special case:
+  nullProbe->fallbacks[0] = nullProbe;
+
+  while (curr != probes.end()) {
+
+    if ((*curr)->fallbackStr == NULL) {
+      // A non-NULL probe without a fallback directive. We
+      // just use "Itself,NULL" unless it's UDP, then just "Itself".
+
+      (*curr)->fallbacks[0] = *curr;
+      if ((*curr)->getProbeProtocol() == IPPROTO_TCP)
+        (*curr)->fallbacks[1] = nullProbe;
+    } else {
+      // A non-NULL probe *with* a fallback directive. We use:
+      // TCP: "Itself,<directive1>,...,<directiveN>,NULL"
+      // UDP: "Itself,<directive1>,...,<directiveN>"
+
+      (*curr)->fallbacks[0] = *curr;
+      i = 1;
+      tp = strtok((*curr)->fallbackStr, ",\r\n\t "); // \r and \n because string will be terminated with them
+
+      while (tp != NULL && i<(MAXFALLBACKS-1)) {
+        (*curr)->fallbacks[i] = getProbeByName(tp, (*curr)->getProbeProtocol());
+	if ((*curr)->fallbacks[i] == NULL)
+          fatal("AllProbes::compileFallbacks: Unknown fallback specified in Probe %s: '%s'", (*curr)->getName(), tp);
+	i++;
+	tp = strtok(NULL, ",\r\n\t ");
+      }
+
+      if (i == MAXFALLBACKS-1)
+        fatal("AllProbes::compileFallbacks: MAXFALLBACKS exceeded on probe '%s'", (*curr)->getName());
+
+      if ((*curr)->getProbeProtocol() == IPPROTO_TCP)
+        (*curr)->fallbacks[i] = nullProbe;
+    }
+
+    if ((*curr)->fallbackStr) free((*curr)->fallbackStr);
+    (*curr)->fallbackStr = NULL;
+
+    curr++;
+  }
+
+}
+
+
 
 ServiceNFO::ServiceNFO(AllProbes *newAP) {
   target = NULL;
@@ -1282,7 +1371,7 @@ void ServiceNFO::addToServiceFingerprint(const char *probeName, const u8 *resp,
   if (servicefplen == 0) {
     timep = time(NULL);
     ltime = localtime(&timep);
-    servicefplen = snprintf(servicefp, spaceleft, "SF-Port%hu-%s:V=%s%s%%D=%d/%d%%Time=%X%%P=%s", portno, proto2ascii(proto, true), NMAP_VERSION, (tunnel == SERVICE_TUNNEL_SSL)? "%T=SSL" : "", ltime->tm_mon + 1, ltime->tm_mday, (int) timep, NMAP_PLATFORM);
+    servicefplen = snprintf(servicefp, spaceleft, "SF-Port%hu-%s:V=%s%s%%I=%d%%D=%d/%d%%Time=%X%%P=%s", portno, proto2ascii(proto, true), NMAP_VERSION, (tunnel == SERVICE_TUNNEL_SSL)? "%T=SSL" : "", o.version_intensity, ltime->tm_mon + 1, ltime->tm_mday, (int) timep, NMAP_PLATFORM);
   }
 
   // Note that we give the total length of the response, even though we 
@@ -1421,9 +1510,11 @@ bool dropdown = false;
    while (current_probe != AP->probes.end()) {
      // The protocol must be right, it must be a nonmatching port ('cause we did those),
      // and we better either have no soft match yet, or the soft service match must
-     // be available via this probe.
+     // be available via this probe. Also, the Probe's rarity must be <= to our
+     // version detection intensity level.
      if ((proto == (*current_probe)->getProbeProtocol()) && 
 	 !(*current_probe)->portIsProbable(tunnel, portno) &&
+	 (*current_probe)->getRarity() <= o.version_intensity &&
 	 (!softMatchFound || (*current_probe)->serviceIsPossible(probe_matched))) {
        // Valid, probe.  Let's do it!
        return *current_probe;
@@ -1893,7 +1984,7 @@ void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
   const u8 *readstr;
   int readstrlen;
   const struct MatchDetails *MD;
-  bool nullprobecheat = false; // We cheated and found a match in the NULL probe to a non-null-probe response
+  int fallbackDepth=0;
 
   assert(type == NSE_TYPE_READ);
 
@@ -1906,17 +1997,10 @@ void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
     svc->appendtocurrentproberesponse(readstr, readstrlen);
     // now get the full version
     readstr = svc->getcurrentproberesponse(&readstrlen);
-    // Now let us try to match it.
-    MD = probe->testMatch(readstr, readstrlen);
 
-    // Sometimes a service doesn't respond quickly enough to the NULL
-    // scan, even though it would have match.  In that case, Nmap can
-    // end up tediously going through every probe without finding a
-    // match.  So we test the NULL probe matches if the probe-specific
-    // matches fail
-    if (!MD && !probe->isNullProbe() && probe->getProbeProtocol() == IPPROTO_TCP && svc->AP->nullProbe) {
-      MD = svc->AP->nullProbe->testMatch(readstr, readstrlen);
-      nullprobecheat = true;
+    for (MD = NULL; probe->fallbacks[fallbackDepth] != NULL; fallbackDepth++) {
+      MD = (probe->fallbacks[fallbackDepth])->testMatch(readstr, readstrlen);
+      if (MD && MD->serviceName) break; // Found one!
     }
 
     if (MD && MD->serviceName) {
@@ -1930,14 +2014,16 @@ void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
       } else {
 	if (o.debugging > 1)
 	  if (MD->product || MD->version || MD->info)
-	    printf("Service scan %smatch: %s:%hi is %s%s.  Version: |%s|%s|%s|\n", nullprobecheat? "NULL-CHEAT " : "", 
+	    printf("Service scan match (Probe %s matched with %s): %s:%hi is %s%s.  Version: |%s|%s|%s|\n",
+                   probe->getName(), (*probe->fallbacks[fallbackDepth]).getName(),
 		   svc->target->NameIP(), svc->portno, (svc->tunnel == SERVICE_TUNNEL_SSL)? "SSL/" : "", 
 		   MD->serviceName, (MD->product)? MD->product : "", (MD->version)? MD->version : "", 
 		   (MD->info)? MD->info : "");
 	  else
-	    printf("Service scan %s%s match: %s:%hi is %s%s\n", nullprobecheat? "NULL-CHEAT " : "", 
-		   (MD->isSoft)? "soft" : "hard", svc->target->NameIP(), 
-		   svc->portno, (svc->tunnel == SERVICE_TUNNEL_SSL)? "SSL/" : "", MD->serviceName);
+	    printf("Service scan %s match (Probe %s matched with %s): %s:%hi is %s%s\n",
+                   (MD->isSoft)? "soft" : "hard",
+                   probe->getName(), (*probe->fallbacks[fallbackDepth]).getName(),
+		   svc->target->NameIP(), svc->portno, (svc->tunnel == SERVICE_TUNNEL_SSL)? "SSL/" : "", MD->serviceName);
 	svc->probe_matched = MD->serviceName;
 	if (MD->product)
 	  Strncpy(svc->product_matched, MD->product, sizeof(svc->product_matched));

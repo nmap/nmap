@@ -305,8 +305,8 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
  * returns: number of hosts skipped */
 int TargetGroup::skip_range(_octet_nums octet) {
   unsigned long hosts_skipped = 0, /* number of hosts skipped */
-      oct = 0,           /* octect number */
-      i;                 /* simple lcv */
+      oct = 0;           /* octect number */
+      int i = 0;                 /* simple lcv */
 
   /* This function is only supported for RANGES! */
   if (targets_type != IPV4_RANGES)

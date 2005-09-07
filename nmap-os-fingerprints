@@ -8619,6 +8619,21 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
+# HP9000 Model 804 K450 running HP-UX 11.00
+# Mac OS9
+Fingerprint Apple Mac OS 9, or HP-UX 11.00
+Class HP | HP-UX | 11.X | general purpose
+Class Apple | Mac OS | 9.X | general purpose
+TSeq(Class=RI%gcd=<6%SI=<4F254&>C95)
+T1(DF=N%W=8000%ACK=S++%Flags=AS%Ops=MEWNNNT)
+T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
+T3(Resp=Y%DF=N%W=8000%ACK=S++%Flags=AS%Ops=MEWNNNT)
+T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
+PU(Resp=Y%DF=N%TOS=0%IPLEN=70%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
 # HP-UX B.11.00
 # HP-UX B.11.11
 Fingerprint HP-UX 11
@@ -8718,21 +8733,6 @@ T5(DF=N|Y%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N|Y%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N|Y%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N|Y%TOS=0%IPLEN=70%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
-# HP9000 Model 804 K450 running HP-UX 11.00
-# Mac OS9
-Fingerprint Apple Mac OS 9, or HP-UX 11.00
-Class HP | HP-UX | 11.X | general purpose
-Class Apple | Mac OS | 9.X | general purpose
-TSeq(Class=RI%gcd=<6%SI=<4F254&>C95)
-T1(DF=N%W=8000%ACK=S++%Flags=AS%Ops=MEWNNNT)
-T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
-T3(Resp=Y%DF=N%W=8000%ACK=S++%Flags=AS%Ops=MEWNNNT)
-T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
-PU(Resp=Y%DF=N%TOS=0%IPLEN=70%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # HP-UX 7.0 B 9000/375
 Fingerprint HP-UX 7.0
@@ -13844,19 +13844,6 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# Windows 98SE, no service packs, on AMD Sempron 2.4 GHz
-Fingerprint Microsoft Windows 98SE
-Class Microsoft | Windows | 95/98/ME | general purpose
-TSeq(Class=RI%gcd=<6%SI=<1AA4&>D%IPID=RPI%TS=U)
-T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=M)
-T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
-T3(Resp=Y%DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=M)
-T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
 Fingerprint Microsoft Windows 98 SP1
 Class Microsoft | Windows | 95/98/ME | general purpose
 TSeq(Class=TD%gcd=<5%SI=<20)
@@ -13875,6 +13862,19 @@ TSeq(Class=TD%gcd=<6%SI=<32%IPID=BI%TS=U)
 T1(DF=Y%W=270F|5FA0%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
 T3(Resp=Y%DF=Y%W=270F|5FA0%ACK=S++%Flags=AS%Ops=M)
+T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
+# Windows 98SE, no service packs, on AMD Sempron 2.4 GHz
+Fingerprint Microsoft Windows 98SE
+Class Microsoft | Windows | 95/98/ME | general purpose
+TSeq(Class=RI%gcd=<6%SI=<1AA4&>D%IPID=RPI%TS=U)
+T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=M)
+T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
+T3(Resp=Y%DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=M)
 T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
@@ -15050,6 +15050,18 @@ T6(DF=N%W=400|800%ACK=S%Flags=AR%Ops=)
 T7(DF=N%W=800|C00%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
+Fingerprint Microsoft Windows XP Home Edition
+Class Microsoft | Windows | NT/2K/XP | general purpose
+TSeq(Class=RI%gcd=<6%SI=<23C4E&>330%IPID=I%TS=U)
+T1(DF=Y%W=F424%ACK=S++%Flags=AS%Ops=MNW)
+T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
+T3(Resp=Y%DF=Y%W=F424%ACK=S++%Flags=AS%Ops=MNW)
+T4(DF=N%W=0%ACK=O%Flags=AR%Ops=)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=0%ACK=O%Flags=AR%Ops=)
+T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
 # Microsoft Windows XP Home Edition (English) SP2 build 2600.xps_p2_gdr.050301:1519
 Fingerprint Microsoft Windows XP Home Edition (English) SP2
 Class Microsoft | Windows | NT/2K/XP | general purpose
@@ -15062,31 +15074,6 @@ T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=1000|800%ACK=S%Flags=AR%Ops=WNMETL)
 T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=F%RIPCK=E%UCK=F%ULEN=134%DAT=E)
-
-# Microsoft Windows XP Version 5.1 Home German SP2 (Build 2600.xpsp_sp2_rtm.040803-2158 : SP2), latest Updates as of Oct 27, 2004
-Fingerprint Microsoft Windows XP Home Edition (German) SP2
-Class Microsoft | Windows | NT/2K/XP | general purpose
-TSeq(Class=TR%gcd=<6%IPID=I)
-T1(DF=N%W=805C%ACK=S++%Flags=AS%Ops=MNWNNT)
-T2(Resp=N)
-T3(Resp=N)
-T4(Resp=N)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T7(Resp=N)
-PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
-Fingerprint Microsoft Windows XP Home Edition
-Class Microsoft | Windows | NT/2K/XP | general purpose
-TSeq(Class=RI%gcd=<6%SI=<23C4E&>330%IPID=I%TS=U)
-T1(DF=Y%W=F424%ACK=S++%Flags=AS%Ops=MNW)
-T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
-T3(Resp=Y%DF=Y%W=F424%ACK=S++%Flags=AS%Ops=MNW)
-T4(DF=N%W=0%ACK=O%Flags=AR%Ops=)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=0%ACK=O%Flags=AR%Ops=)
-T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Microsoft Windows XP Home Edition (German) SP1
 # ver 5.1 build 2600.xpsp2.030422-1633 : SP 1; German version
@@ -15102,6 +15089,19 @@ T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E|F%ULEN=134%DAT=E)
+
+# Microsoft Windows XP Version 5.1 Home German SP2 (Build 2600.xpsp_sp2_rtm.040803-2158 : SP2), latest Updates as of Oct 27, 2004
+Fingerprint Microsoft Windows XP Home Edition (German) SP2
+Class Microsoft | Windows | NT/2K/XP | general purpose
+TSeq(Class=TR%gcd=<6%IPID=I)
+T1(DF=N%W=805C%ACK=S++%Flags=AS%Ops=MNWNNT)
+T2(Resp=N)
+T3(Resp=N)
+T4(Resp=N)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T7(Resp=N)
+PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Microsoft Windows XP Home Edition (English) SP1 Version 5.1.2600.1106 build 2600 xpsp.1.020828-1-920
 Fingerprint Microsoft Windows XP Home Edition SP1
@@ -15231,19 +15231,6 @@ T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
-# Windows XP Professionnel (5.1) Service Pack 2
-Fingerprint Microsoft Windows XP Pro SP2
-Class Microsoft | Windows | NT/2K/XP | general purpose
-TSeq(Class=TR%gcd=<6%IPID=I)
-T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
-T2(Resp=Y%DF=N%W=C00|800|400%ACK=S%Flags=AR%Ops=WNMETL)
-T3(Resp=Y%DF=N%W=C00|800|400%ACK=S++%Flags=AR%Ops=WNMETL)
-T4(DF=N%W=400|1000%ACK=S%Flags=AR%Ops=WNMETL)
-T5(DF=N%W=C00%ACK=S++%Flags=AR%Ops=WNMETL)
-T6(DF=N%W=800|400%ACK=S%Flags=AR%Ops=WNMETL)
-T7(DF=N%W=400|800%ACK=S++%Flags=AR%Ops=WNMETL)
-PU(Resp=N)
 
 # Microaodr Windows XP Pro with SP! and latest Windows Update patches as of June 1, 2005
 Fingerprint Microsoft Windows XP Pro SP1
@@ -15416,6 +15403,20 @@ T6(DF=N%W=C00|400|800%ACK=S%Flags=R%Ops=WNMETL)
 T7(DF=N%W=1000|800%ACK=S%Flags=R%Ops=WNMETL)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
+# Microsoft Windows Version 5.1 Build 2600.xpsp2.030825-2117: Service Pack 1
+# Microsoft Windows XP Professional SP1 build 2600, latest windows updates (march 27, 2005)
+Fingerprint Microsoft Windows XP Pro SP1
+Class Microsoft | Windows | NT/2K/XP | general purpose
+TSeq(Class=RI%gcd=<6%SI=<1B1AC&>29E%IPID=I%TS=U)
+T1(DF=N%W=2000|4000%ACK=S++%Flags=AS%Ops=M)
+T2(Resp=N)
+T3(Resp=N)
+T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T7(Resp=N)
+PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
 # Windows XP Professional 2002 - Service Pack 1 - Hotfixes
 # Windows XP Profesional build 2600.xpsp2.030422-1633: Service Pack 1
 # Windows XP Professional SP1 build 2600.xpsp1.030422-166: Service Pack 1
@@ -15488,6 +15489,19 @@ T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
+# Windows XP Professionnel (5.1) Service Pack 2
+Fingerprint Microsoft Windows XP Pro SP2
+Class Microsoft | Windows | NT/2K/XP | general purpose
+TSeq(Class=TR%gcd=<6%IPID=I)
+T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
+T2(Resp=Y%DF=N%W=C00|800|400%ACK=S%Flags=AR%Ops=WNMETL)
+T3(Resp=Y%DF=N%W=C00|800|400%ACK=S++%Flags=AR%Ops=WNMETL)
+T4(DF=N%W=400|1000%ACK=S%Flags=AR%Ops=WNMETL)
+T5(DF=N%W=C00%ACK=S++%Flags=AR%Ops=WNMETL)
+T6(DF=N%W=800|400%ACK=S%Flags=AR%Ops=WNMETL)
+T7(DF=N%W=400|800%ACK=S++%Flags=AR%Ops=WNMETL)
+PU(Resp=N)
 
 # Microsoft Windows XP Professional Service Pack 2 Build 5 1 2600
 Fingerprint Microsoft Windows XP Pro SP2
@@ -15753,6 +15767,19 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
+# Microsoft Windows Version 5.1 (Build 2600.XPSP_SP2_GDR.050301-1519 : Service Pack 2)
+Fingerprint Microsoft Windows XP SP2
+Class Microsoft | Windows | NT/2K/XP | general purpose
+TSeq(Class=TR%gcd=<6%IPID=I)
+T1(DF=Y%W=402E%ACK=S++%Flags=AS%Ops=MNWNNT)
+T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
+T3(Resp=Y%DF=Y%W=402E%ACK=S++%Flags=AS%Ops=MNWNNT)
+T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T5(DF=Y%W=402E%ACK=S++%Flags=AS%Ops=MNWNNT)
+T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
 # Microsoft Windows XP Professional Build 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2
 # Microsoft Windows XP Professional SP2 build 2600.xpsp_sp2_rtm.040803-2158
 # Microsoft Windows XP Professional SP2 and latest Windows Updates patches as of Dec 15, 2004
@@ -15790,33 +15817,6 @@ T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
-# Microsoft Windows Version 5.1 (Build 2600.XPSP_SP2_GDR.050301-1519 : Service Pack 2)
-Fingerprint Microsoft Windows XP SP2
-Class Microsoft | Windows | NT/2K/XP | general purpose
-TSeq(Class=TR%gcd=<6%IPID=I)
-T1(DF=Y%W=402E%ACK=S++%Flags=AS%Ops=MNWNNT)
-T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
-T3(Resp=Y%DF=Y%W=402E%ACK=S++%Flags=AS%Ops=MNWNNT)
-T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=Y%W=402E%ACK=S++%Flags=AS%Ops=MNWNNT)
-T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
-# Microsoft Windows Version 5.1 Build 2600.xpsp2.030825-2117: Service Pack 1
-# Microsoft Windows XP Professional SP1 build 2600, latest windows updates (march 27, 2005)
-Fingerprint Microsoft Windows XP Pro SP1
-Class Microsoft | Windows | NT/2K/XP | general purpose
-TSeq(Class=RI%gcd=<6%SI=<1B1AC&>29E%IPID=I%TS=U)
-T1(DF=N%W=2000|4000%ACK=S++%Flags=AS%Ops=M)
-T2(Resp=N)
-T3(Resp=N)
-T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T7(Resp=N)
-PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # HP Jornada running Windows CE 2.11 (Handheld/PC Pro 3.0) running on StrongARM 1100
 Fingerprint HP Jornada running Microsoft Windows CE 2.11 (Handheld/PC Pro 3.0 PDA)
@@ -15896,18 +15896,6 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint Microsoft Windows Longhorn eval build 4051
-Class Microsoft | Windows || general purpose
-TSeq(Class=TR%gcd=<6%IPID=I%TS=100HZ)
-T1(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-T2(Resp=Y%DF=Y%W=0%ACK=S%Flags=AR%Ops=)
-T3(Resp=Y%DF=Y%W=0%ACK=O%Flags=AR%Ops=)
-T4(DF=Y%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=Y%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
-PU(DF=N%TOS=0%IPLEN=164%RIPTL=148%RID=E|F%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
 Fingerprint Microsoft Windows 2000 Server SP3
 Class Microsoft | Windows || general purpose
 TSeq(Class=RI%gcd=<6%SI=<30714&>2A7%IPID=I)
@@ -15919,6 +15907,18 @@ T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
+Fingerprint Microsoft Windows Longhorn eval build 4051
+Class Microsoft | Windows || general purpose
+TSeq(Class=TR%gcd=<6%IPID=I%TS=100HZ)
+T1(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
+T2(Resp=Y%DF=Y%W=0%ACK=S%Flags=AR%Ops=)
+T3(Resp=Y%DF=Y%W=0%ACK=O%Flags=AR%Ops=)
+T4(DF=Y%W=0%ACK=O%Flags=R%Ops=)
+T5(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=Y%W=0%ACK=O%Flags=R%Ops=)
+T7(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
+PU(DF=N%TOS=0%IPLEN=164%RIPTL=148%RID=E|F%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 Fingerprint MikroTik RouterOS 2.7.20
 Class MikroTik | RouterOS || software router

@@ -296,6 +296,9 @@ int nmap_main(int argc, char *argv[]) {
       {"spoof_mac", required_argument, 0, 0},
       {"ttl", required_argument, 0, 0}, /* Time to live */
       {"allports", no_argument, 0, 0},
+      {"version_intensity", required_argument, 0, 0},
+      {"version_light", no_argument, 0, 0},
+      {"version_all", no_argument, 0, 0},
       {0, 0, 0, 0}
     };
 
@@ -384,6 +387,14 @@ int nmap_main(int argc, char *argv[]) {
 	spoofmac = optarg;
       } else if (strcmp(long_options[option_index].name, "allports") == 0) {
         o.override_excludeports = 1;
+      } else if (strcmp(long_options[option_index].name, "version_intensity") == 0) {
+	o.version_intensity = atoi(optarg);
+	if (o.version_intensity < 0 || o.version_intensity > 9)
+		fatal("version_intensity must be between 0 and 9");
+      } else if (strcmp(long_options[option_index].name, "version_light") == 0) {
+        o.version_intensity = 2;
+      } else if (strcmp(long_options[option_index].name, "version_all") == 0) {
+        o.version_intensity = 9;
       } else if (strcmp(long_options[option_index].name, "scan_delay") == 0) {
 	o.scan_delay = atoi(optarg);
 	if (o.scan_delay <= 0) {

@@ -267,6 +267,14 @@ class ServiceProbe {
   // be detected by the matches in this probe;
   bool serviceIsPossible(const char *sname);
 
+  // Takes a string following a Rarity directive in the probes file.
+  // The string should contain a single integer between 1 and 9. The
+  // default rarity is 5. This function will bail if the string is invalid.
+  void setRarity(const char *portstr, int lineno);
+
+  // Simply returns the rarity of this probe
+  const int getRarity() { return rarity; }
+
   // Takes a match line in a probe description and adds it to the
   // list of matches for this probe.  This function should be passed
   // the whole line starting with "match" or "softmatch" in
@@ -286,6 +294,9 @@ class ServiceProbe {
   // return NULL if there are no match lines at all in this probe.
   const struct MatchDetails *testMatch(const u8 *buf, int buflen);
 
+  char *fallbackStr;
+  ServiceProbe *fallbacks[MAXFALLBACKS+1];
+
  private:
   void setPortVector(std::vector<u16> *portv, const char *portstr, 
 				 int lineno);
@@ -295,6 +306,7 @@ class ServiceProbe {
   int probestringlen;
   std::vector<u16> probableports;
   std::vector<u16> probablesslports;
+  int rarity;
   std::vector<const char *> detectedServices;
   int probeprotocol;
   std::vector<ServiceProbeMatch *> matches; // first-ever use of STL in Nmap!
@@ -309,6 +321,15 @@ public:
   ServiceProbe *getProbeByName(const char *name, int proto);
   std::vector<ServiceProbe *> probes; // All the probes except nullProbe
   ServiceProbe *nullProbe; // No probe text - just waiting for banner
+
+  // Before this function is called, the fallbacks exist as unparsed
+  // comma-separated strings in the fallbackStr field of each probe.
+  // This function fills out the fallbacks array in each probe with
+  // an ordered list of pointers to which probes to try. This is both for
+  // efficiency and to deal with odd cases like the NULL probe and falling
+  // back to probes later in the file. This function also free()s all the
+  // fallbackStrs.
+  void compileFallbacks();
 
   int isExcluded(unsigned short port, int proto);
   struct scan_lists *excludedports;
