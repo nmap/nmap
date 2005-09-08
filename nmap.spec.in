@@ -3,9 +3,11 @@
 %define release 1
 %define prefix /usr
 
-# to not build the frontend, add:
+# To not build the frontend, add:
 #   --define "buildfe 0"
 # ...to the rpm build command-line
+# To build a static rpm, add:
+# --define "static 1"
 
 %if "%{buildfe}" != "0"
 %define buildfe 1
@@ -54,7 +56,11 @@ be installed before installing nmap-frontend.
 export CFLAGS="$RPM_OPT_FLAGS"
 export CXXFLAGS="$RPM_OPT_FLAGS"
 ./configure --prefix=%{prefix} --mandir=%{prefix}/share/man --without-openssl
-make 
+%if "%{static}" == "1"
+make static
+%else
+make
+%endif
 
 %install
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT

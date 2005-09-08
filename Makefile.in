@@ -35,7 +35,7 @@ LIBS =  @LIBNBASE_LIBS@ @LIBNSOCK_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ @OPENSSL_L
 SHTOOL = ./shtool
 INSTALL = $(SHTOOL) install 
 MAKEDEPEND = @MAKEDEPEND@
-export RPMTDIR=$(HOME)/rpmdir
+export RPMTDIR=$(HOME)/rpm
 
 # DESTDIR is used by some package maintainers to install Nmap under
 # its usual directory structure into a different tree.  See the 
@@ -95,6 +95,10 @@ nmapfe/nmapfe:
 	@if test -f nmapfe/Makefile; then echo "Building NmapFE graphical frontend"; cd nmapfe && $(MAKE) VERSION=$(NMAP_VERSION) STATIC=$(STATIC); else echo "NmapFE will not be made -- your system lacks the capabilities (perhaps GTK) for this graphical frontend.  You can still run command-line nmap!"; fi
 #	-cd nmapfe; test -f Makefile && $(MAKE) VERSION=$(NMAP_VERSION) STATIC=$(STATIC);
 #	@echo "END OF SECTION WHERE FAILURES ARE OK"
+
+# Make a statically compiled binary for portability between distributions
+static:
+	$(MAKE) STATIC=-static
 
 # Make the Nmap tarball
 distro:

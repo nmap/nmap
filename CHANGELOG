@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$)
 
+Nmap 3.90
+
 o Added the ability for Nmap to send and properly route raw ethernet
   packets cointaining IP datagrams rather than always sending the
   packets via raw sockets. This is particularly useful for Windows,
@@ -62,6 +64,11 @@ o Nmap on Windows now compiles/links with the new WinPcap 3.1
   header/lib files. So please upgrade to 3.1 from
   http://www.winpcap.org before installing this version of Nmap.
   While older versions may still work, they aren't supported with Nmap.
+
+o The official Nmap RPM files are now compiled staticly for better
+  compatability with other systems.  X86_64 (AMD Athlon64/Opteron)
+  binaries are now available in addition to the standard i386.  NmapFE
+  RPMs are no longer distributed by Insecure.Org.
 
 o Nmap distribution signing has changed. Release files are now signed
   with a new Nmap Project GPG key (KeyID 6B9355D0).  Fyodor has also
@@ -272,6 +279,9 @@ o Added new --privileged command-line option and NMAP_PRIVILEGED
   perform raw packet or ethernet frame manipulation.  Without this
   flag or variable set, Nmap bails on UNIX if geteuid() is
   nonzero.
+
+o Changed the RPM spec file so that if you define "static" to 1 (by
+  passing --define "static 1" to rpmbuild), static binaries are built.
 
 o Fixed Nmap compilation on Solaris x86 thanks to a patch from Simon
   Burr (simes(a)bpfh.net).
