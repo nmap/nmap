@@ -1,5 +1,23 @@
 # Nmap Changelog ($Id$)
 
+o Fixed a crash on Windows when you -P0 scan an unused IP on a local
+  network (or a range that contains unused IPs).  This could also
+  happen on UNIX if you specified the new --send_eth option.  Thanks
+  to Jim Carras (JFCECL(a)engr.psu.edu) for reporting the problem.
+
+o Fixed compilation on OpenBSD by applying a patch from Okan Demirmen
+  (okan(a)demirmen.com), who maintains Nmap in the OpenBSD Ports
+  collection.
+
+o Updated nmap-mac-prefixes to include OUIs assigned by the IEEE since
+  April.
+
+o Updated the included libpcre (used for version detection) from
+  version 4.3 to 6.3.  A libpcre securty issue was fixed in 6.3, but
+  that issue never affected Nmap.
+
+o Updated the included libpcap from 0.8.3 to 0.9.3.
+
 Nmap 3.90
 
 o Added the ability for Nmap to send and properly route raw ethernet
@@ -60,12 +78,24 @@ o Added 'leet ASCII art to the confugrator!  ARTIST NOTE: If you think
   only people compiling the UNIX source code get this. (ASCII artist
   unknown).
 
+o Added OS, device type, and hostname detection using the service
+  detection framework.  Many services print a hostname, which may be
+  different than DNS.  The services often give more away as well.  If
+  Nmap detects IIS, it reports an OS family of "Windows".  If it sees
+  HP JetDirect telnetd, it reports a device type of "printer".  Rather
+  than try to combine TCP/IP stack fingerprinting and service OS
+  fingerprinting, they are both printed.  After all, they could
+  legitimately be different.  An IP that gives a stack fingerprint
+  match of "Linksys WRT54G broadband router" and a service fingerprint
+  of Windows based on Kazaa running is likely a common NAT setup rather
+  than an Nmap mistake.
+
 o Nmap on Windows now compiles/links with the new WinPcap 3.1
   header/lib files. So please upgrade to 3.1 from
   http://www.winpcap.org before installing this version of Nmap.
   While older versions may still work, they aren't supported with Nmap.
 
-o The official Nmap RPM files are now compiled staticly for better
+o The official Nmap RPM files are now compiled statically for better
   compatability with other systems.  X86_64 (AMD Athlon64/Opteron)
   binaries are now available in addition to the standard i386.  NmapFE
   RPMs are no longer distributed by Insecure.Org.

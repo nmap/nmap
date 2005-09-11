@@ -100,16 +100,58 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath=".\get.c">
+				RelativePath=".\pcre_chartables.c">
 			</File>
 			<File
-				RelativePath=".\maketables.c">
+				RelativePath=".\pcre_compile.c">
 			</File>
 			<File
-				RelativePath=".\pcre.c">
+				RelativePath=".\pcre_config.c">
 			</File>
 			<File
-				RelativePath=".\study.c">
+				RelativePath=".\pcre_dfa_exec.c">
+			</File>
+			<File
+				RelativePath=".\pcre_exec.c">
+			</File>
+			<File
+				RelativePath=".\pcre_fullinfo.c">
+			</File>
+			<File
+				RelativePath=".\pcre_get.c">
+			</File>
+			<File
+				RelativePath=".\pcre_globals.c">
+			</File>
+			<File
+				RelativePath=".\pcre_info.c">
+			</File>
+			<File
+				RelativePath=".\pcre_maketables.c">
+			</File>
+			<File
+				RelativePath=".\pcre_printint.c">
+			</File>
+			<File
+				RelativePath=".\pcre_refcount.c">
+			</File>
+			<File
+				RelativePath=".\pcre_study.c">
+			</File>
+			<File
+				RelativePath=".\pcre_tables.c">
+			</File>
+			<File
+				RelativePath=".\pcre_try_flipped.c">
+			</File>
+			<File
+				RelativePath=".\pcre_version.c">
+			</File>
+			<File
+				RelativePath=".\pcre_xclass.c">
+			</File>
+			<File
+				RelativePath=".\pcreposix.c">
 			</File>
 		</Filter>
 		<Filter
@@ -117,13 +159,22 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath=".\internal.h">
+				RelativePath=".\pcre.h">
+			</File>
+			<File
+				RelativePath=".\pcre_internal.h">
 			</File>
 			<File
 				RelativePath=".\pcre_win.h">
 			</File>
 			<File
 				RelativePath=".\pcre_winconfig.h">
+			</File>
+			<File
+				RelativePath=".\pcreposix.h">
+			</File>
+			<File
+				RelativePath=".\ucp.h">
 			</File>
 		</Filter>
 		<Filter

@@ -1607,7 +1607,8 @@ if (timedout) {
    gettimeofday(&tv_end, NULL);
    *rcvdtime = tv_end;
 #else
-   *rcvdtime = head.ts;
+   rcvdtime->tv_sec = head.ts.tv_sec;
+   rcvdtime->tv_usec = head.ts.tv_usec;
    assert(head.ts.tv_sec);
 #endif
  }
@@ -1778,7 +1779,8 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
     gettimeofday(&tv_end, NULL);
     *rcvdtime = tv_end;
 #else
-    *rcvdtime = head.ts;
+    rcvdtime->tv_sec = head.ts.tv_sec;
+    rcvdtime->tv_usec = head.ts.tv_usec;
     assert(head.ts.tv_sec);
 #endif
   }

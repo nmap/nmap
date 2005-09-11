@@ -135,15 +135,17 @@ distro:
                         *.c *.h CHANGELOG /usr/tmp/nmap-$(NMAP_VERSION)/nbase
 
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/libpcre
-	cd ../libpcre; cp -ra AUTHORS chartables.c config.guess config.in \
-                        config.sub configure configure.ac COPYING dftables.c \
-                        get.c INSTALL install-sh internal.h libpcre.vcproj \
-                        LICENCE ltmain.sh Makefile.in maketables.c makevp.bat \
-                        mkinstalldirs NEWS NMAP_MODIFICATIONS NON-UNIX-USE \
-                        pcre.c pcre-config.in pcre.def pcre.h pcre.in \
-                        pcre_win.h pcre_winconfig.h pcreposix.c pcreposix.h \
-                        perltest printint.c README study.c \
-                        /usr/tmp/nmap-$(NMAP_VERSION)/libpcre
+	cd ../libpcre; cp -ra AUTHORS config.guess config.in config.sub \
+               configure configure.ac dftables.c INSTALL install-sh \
+               libpcre.vcproj LICENCE Makefile.in makevp.bat mkinstalldirs \
+               NMAP_MODIFICATIONS NON-UNIX-USE pcre_chartables.c \
+               pcre_compile.c pcre_config.c pcre_dfa_exec.c pcre_exec.c \
+               pcre_fullinfo.c pcre_get.c pcre_globals.c pcre.h pcre.in \
+               pcre_info.c pcre_internal.h pcre_maketables.c pcreposix.c \
+               pcreposix.h pcre_printint.c pcre_refcount.c pcre_study.c \
+               pcre_tables.c pcre_try_flipped.c pcre_version.c \
+               pcre_winconfig.h pcre_xclass.c README ucp.h \
+               /usr/tmp/nmap-$(NMAP_VERSION)/libpcre
 
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/libdnet-stripped
 	cd ../$(LIBDNETDIR); cp -ra NMAP_MODIFICATIONS \
