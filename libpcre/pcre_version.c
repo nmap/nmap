@@ -1,43 +1,14 @@
-PCRE LICENCE
-------------
+/*************************************************
+*      Perl-Compatible Regular Expressions       *
+*************************************************/
 
-PCRE is a library of functions to support regular expressions whose syntax
+/* PCRE is a library of functions to support regular expressions whose syntax
 and semantics are as close as possible to those of the Perl 5 language.
 
-Release 6 of PCRE is distributed under the terms of the "BSD" licence, as
-specified below. The documentation for PCRE, supplied in the "doc"
-directory, is distributed under the same terms as the software itself.
+                       Written by Philip Hazel
+           Copyright (c) 1997-2005 University of Cambridge
 
-The basic library functions are written in C and are freestanding. Also
-included in the distribution is a set of C++ wrapper functions.
-
-
-THE BASIC LIBRARY FUNCTIONS
----------------------------
-
-Written by:       Philip Hazel
-Email local part: ph10
-Email domain:     cam.ac.uk
-
-University of Cambridge Computing Service,
-Cambridge, England. Phone: +44 1223 334714.
-
-Copyright (c) 1997-2005 University of Cambridge
-All rights reserved.
-
-
-THE C++ WRAPPER FUNCTIONS
--------------------------
-
-Contributed by:   Google Inc.
-
-Copyright (c) 2005, Google Inc.
-All rights reserved.
-
-
-THE "BSD" LICENCE
------------------
-
+-----------------------------------------------------------------------------
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -48,10 +19,9 @@ modification, are permitted provided that the following conditions are met:
       notice, this list of conditions and the following disclaimer in the
       documentation and/or other materials provided with the distribution.
 
-    * Neither the name of the University of Cambridge nor the name of Google
-      Inc. nor the names of their contributors may be used to endorse or
-      promote products derived from this software without specific prior
-      written permission.
+    * Neither the name of the University of Cambridge nor the names of its
+      contributors may be used to endorse or promote products derived from
+      this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -64,5 +34,28 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
+-----------------------------------------------------------------------------
+*/
 
-End
+
+/* This module contains the external function pcre_version(), which returns a
+string that identifies the PCRE version that is in use. */
+
+
+#include "pcre_internal.h"
+
+
+/*************************************************
+*          Return version string                 *
+*************************************************/
+
+#define STRING(a)  # a
+#define XSTRING(s) STRING(s)
+
+EXPORT const char *
+pcre_version(void)
+{
+return XSTRING(PCRE_MAJOR) "." XSTRING(PCRE_MINOR) " " XSTRING(PCRE_DATE);
+}
+
+/* End of pcre_version.c */

@@ -7,7 +7,7 @@ o rm -rf doc testdata pcretest.c pcregrep.c pcredemo.c ChangeLog
 
 o Renamed configure.in to configure.ac
 
-o Removed Runtest, Runtest.in
+o Removed RunGrepTest.in, Runtest.in
 
 o Removed pcretest and pcregrep from the Makefile.in all target:
 
@@ -29,5 +29,16 @@ o Stripped down Makefile and configure.ac substantially to remove
   worries about building libpcre.a (which is now build in the libpcre
   directory rather than in libpcre/.libs ).
 
+o removed libpcre.pc.in
 
 o Regenerated configure script by running 'aclocal; autoconf'
+
+o Get rid of C++ wrapper, which included this step:
+  rm -f pcrecpp.cc pcrecpp_unittest.cc pcre_scanner.cc  pcre_scanner_unittest.cc pcre_stringpiece.cc  pcre_stringpiece_unittest.cc pcrecpp.h pcrecpp.h.in pcre_scanner.h pcre_stringpiece.h pcre_stringpiece.h.in
+
+o Removed COPYING file as there is already a LICENSE file with exactly
+  the same contents.
+
+o Removed pcre_ucp_findchar.c and ucptable.c
+
+o Added this NMAP_MODIFICATIONS file

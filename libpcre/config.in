@@ -11,11 +11,25 @@ memmove(), change the definition of HAVE_BCOPY instead of HAVE_MEMMOVE. If your
 system has neither bcopy() nor memmove(), leave them both as 0; an emulation
 function will be used. */
 
-/* Define to empty if the keyword does not work. */
+/* If you are compiling for a system that uses EBCDIC instead of ASCII
+character codes, define this macro as 1. On systems that can use "configure",
+this can be done via --enable-ebcdic. */
+
+#ifndef EBCDIC
+#define EBCDIC 0
+#endif
+
+/* If you are compiling for a system that needs some magic to be inserted
+before the definition of an exported function, define this macro to contain the
+relevant magic. It apears at the start of every exported function. */
+
+#define EXPORT
+
+/* Define to empty if the "const" keyword does not work. */
 
 #undef const
 
-/* Define to `unsigned' if <stddef.h> doesn't define size_t. */
+/* Define to "unsigned" if <stddef.h> doesn't define size_t. */
 
 #undef size_t
 
@@ -66,5 +80,28 @@ default default. */
 #ifndef MATCH_LIMIT
 #define MATCH_LIMIT 10000000
 #endif
+
+/* When calling PCRE via the POSIX interface, additional working storage is
+required for holding the pointers to capturing substrings because PCRE requires
+three integers per substring, whereas the POSIX interface provides only two. If
+the number of expected substrings is small, the wrapper function uses space on
+the stack, because this is faster than using malloc() for each call. The
+threshold above which the stack is no longer use is defined by POSIX_MALLOC_
+THRESHOLD. On Unix systems, "configure" can be used to override this default.
+*/
+
+#ifndef POSIX_MALLOC_THRESHOLD
+#define POSIX_MALLOC_THRESHOLD 10
+#endif
+
+/* PCRE uses recursive function calls to handle backtracking while matching.
+This can sometimes be a problem on systems that have stacks of limited size.
+Define NO_RECURSE to get a version that doesn't use recursion in the match()
+function; instead it creates its own stack by steam using pcre_recurse_malloc
+to get memory. For more detail, see comments and other stuff just above the
+match() function. On Unix systems, "configure" can be used to set this in the
+Makefile (use --disable-stack-for-recursion). */
+
+/* #define NO_RECURSE */
 
 /* End */

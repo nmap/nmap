@@ -309,7 +309,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT RANLIB ac_ct_RANLIB CPP EGREP BUILD_EXEEXT BUILD_OBJEXT CC_FOR_BUILD CFLAGS_FOR_BUILD HAVE_MEMMOVE HAVE_STRERROR LINK_SIZE MATCH_LIMIT NEWLINE PCRE_MAJOR PCRE_MINOR PCRE_DATE PCRE_VERSION PCRE_LIB_VERSION PCRE_POSIXLIB_VERSION POSIX_MALLOC_THRESHOLD UTF8 POSIX_OBJ POSIX_LOBJ POSIX_LIB LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT RANLIB ac_ct_RANLIB CPP EGREP pcre_have_long_long pcre_have_ulong_long BUILD_EXEEXT BUILD_OBJEXT CC_FOR_BUILD CFLAGS_FOR_BUILD EBCDIC HAVE_MEMMOVE HAVE_STRERROR LINK_SIZE MATCH_LIMIT NEWLINE NO_RECURSE PCRE_MAJOR PCRE_MINOR PCRE_DATE PCRE_VERSION PCRE_LIB_VERSION PCRE_POSIXLIB_VERSION POSIX_MALLOC_THRESHOLD UCP UTF8 POSIX_OBJ POSIX_LOBJ POSIX_LIB LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -841,8 +841,11 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-utf8           enable UTF8 support
+  --enable-unicode-properties  enable Unicode properties support
   --enable-newline-is-cr  use CR as the newline character
   --enable-newline-is-lf  use LF as the newline character
+  --enable-ebcdic         assume EBCDIC coding rather than ASCII
+  --disable-stack-for-recursion  disable use of stack recursion when matching
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -1306,9 +1309,9 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-PCRE_MAJOR=4
+PCRE_MAJOR=6
 PCRE_MINOR=3
-PCRE_DATE=21-May-2003
+PCRE_DATE=15-Aug-2005
 PCRE_VERSION=${PCRE_MAJOR}.${PCRE_MINOR}
 
 
@@ -2249,6 +2252,7 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
+
 if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}ranlib", so it can be a program name with args.
 set dummy ${ac_tool_prefix}ranlib; ac_word=$2
@@ -2333,6 +2337,7 @@ fi
 
 CC_FOR_BUILD=${CC_FOR_BUILD:-'$(CC)'}
 CFLAGS_FOR_BUILD=${CFLAGS_FOR_BUILD:-'$(CFLAGS)'}
+CPPFLAGS_FOR_BUILD=${CFLAGS_FOR_BUILD:-'$(CPPFLAGS)'}
 BUILD_EXEEXT=${BUILD_EXEEXT:-'$(EXEEXT)'}
 BUILD_OBJEXT=${BUILD_OBJEXT:-'$(OBJEXT)'}
 
@@ -3152,11 +3157,150 @@ _ACEOF
 fi
 
 
+echo "$as_me:$LINENO: checking for long long" >&5
+echo $ECHO_N "checking for long long... $ECHO_C" >&6
+if test "${ac_cv_type_long_long+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+$ac_includes_default
+int
+main ()
+{
+if ((long long *) 0)
+  return 0;
+if (sizeof (long long))
+  return 0;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_type_long_long=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_type_long_long=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_type_long_long" >&5
+echo "${ECHO_T}$ac_cv_type_long_long" >&6
+if test $ac_cv_type_long_long = yes; then
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_LONG_LONG 1
+_ACEOF
+
+pcre_have_long_long="1"
+else
+  pcre_have_long_long="0"
+fi
+
+echo "$as_me:$LINENO: checking for unsigned long long" >&5
+echo $ECHO_N "checking for unsigned long long... $ECHO_C" >&6
+if test "${ac_cv_type_unsigned_long_long+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+$ac_includes_default
+int
+main ()
+{
+if ((unsigned long long *) 0)
+  return 0;
+if (sizeof (unsigned long long))
+  return 0;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_type_unsigned_long_long=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_type_unsigned_long_long=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_type_unsigned_long_long" >&5
+echo "${ECHO_T}$ac_cv_type_unsigned_long_long" >&6
+if test $ac_cv_type_unsigned_long_long = yes; then
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_UNSIGNED_LONG_LONG 1
+_ACEOF
+
+pcre_have_ulong_long="1"
+else
+  pcre_have_ulong_long="0"
+fi
 
 
 
 
-for ac_func in bcopy memmove strerror
+
+
+
+
+
+
+for ac_func in bcopy memmove strerror strtoq strtoll
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 echo "$as_me:$LINENO: checking for $ac_func" >&5
@@ -3269,6 +3413,16 @@ fi
 fi;
 
 
+# Check whether --enable-unicode-properties or --disable-unicode-properties was given.
+if test "${enable_unicode_properties+set}" = set; then
+  enableval="$enable_unicode_properties"
+  if test "$enableval" = "yes"; then
+  UCP=-DSUPPORT_UCP
+fi
+
+fi;
+
+
 # Check whether --enable-newline-is-cr or --disable-newline-is-cr was given.
 if test "${enable_newline_is_cr+set}" = set; then
   enableval="$enable_newline_is_cr"
@@ -3284,6 +3438,26 @@ if test "${enable_newline_is_lf+set}" = set; then
   enableval="$enable_newline_is_lf"
   if test "$enableval" = "yes"; then
   NEWLINE=-DNEWLINE=10
+fi
+
+fi;
+
+
+# Check whether --enable-ebcdic or --disable-ebcdic was given.
+if test "${enable_ebcdic+set}" = set; then
+  enableval="$enable_ebcdic"
+  if test "$enableval" == "yes"; then
+  EBCDIC=-DEBCDIC=1
+fi
+
+fi;
+
+
+# Check whether --enable-stack-for-recursion or --disable-stack-for-recursion was given.
+if test "${enable_stack_for_recursion+set}" = set; then
+  enableval="$enable_stack_for_recursion"
+  if test "$enableval" = "no"; then
+  NO_RECURSE=-DNO_RECURSE
 fi
 
 fi;
@@ -3317,6 +3491,13 @@ if test "${with_match_limit+set}" = set; then
 fi;
 
 
+if test "$UCP" != "" ; then
+  UTF8=-DSUPPORT_UTF8
+fi
+
+
+
+
 
 
 
@@ -3341,14 +3522,14 @@ fi;
 
 
 if test "x$enable_shared" = "xno" ; then
-    cat >>confdefs.h <<\_ACEOF
+
+cat >>confdefs.h <<\_ACEOF
 #define PCRE_STATIC 1
 _ACEOF
 
 fi
 
-                              ac_config_files="$ac_config_files Makefile pcre.h:pcre.in pcre-config:pcre-config.in"
-          ac_config_commands="$ac_config_commands default"
+                    ac_config_files="$ac_config_files Makefile pcre.h:pcre.in"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -3766,9 +3947,6 @@ $config_files
 Configuration headers:
 $config_headers
 
-Configuration commands:
-$config_commands
-
 Report bugs to <bug-autoconf@gnu.org>."
 _ACEOF
 
@@ -3878,8 +4056,6 @@ do
   # Handling of arguments.
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
   "pcre.h" ) CONFIG_FILES="$CONFIG_FILES pcre.h:pcre.in" ;;
-  "pcre-config" ) CONFIG_FILES="$CONFIG_FILES pcre-config:pcre-config.in" ;;
-  "default" ) CONFIG_COMMANDS="$CONFIG_COMMANDS default" ;;
   "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h:config.in" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -3894,7 +4070,6 @@ done
 if $ac_need_defaults; then
   test "${CONFIG_FILES+set}" = set || CONFIG_FILES=$config_files
   test "${CONFIG_HEADERS+set}" = set || CONFIG_HEADERS=$config_headers
-  test "${CONFIG_COMMANDS+set}" = set || CONFIG_COMMANDS=$config_commands
 fi
 
 # Have a temporary directory for convenience.  Make it in the build tree
@@ -3977,15 +4152,19 @@ s,@RANLIB@,$RANLIB,;t t
 s,@ac_ct_RANLIB@,$ac_ct_RANLIB,;t t
 s,@CPP@,$CPP,;t t
 s,@EGREP@,$EGREP,;t t
+s,@pcre_have_long_long@,$pcre_have_long_long,;t t
+s,@pcre_have_ulong_long@,$pcre_have_ulong_long,;t t
 s,@BUILD_EXEEXT@,$BUILD_EXEEXT,;t t
 s,@BUILD_OBJEXT@,$BUILD_OBJEXT,;t t
 s,@CC_FOR_BUILD@,$CC_FOR_BUILD,;t t
 s,@CFLAGS_FOR_BUILD@,$CFLAGS_FOR_BUILD,;t t
+s,@EBCDIC@,$EBCDIC,;t t
 s,@HAVE_MEMMOVE@,$HAVE_MEMMOVE,;t t
 s,@HAVE_STRERROR@,$HAVE_STRERROR,;t t
 s,@LINK_SIZE@,$LINK_SIZE,;t t
 s,@MATCH_LIMIT@,$MATCH_LIMIT,;t t
 s,@NEWLINE@,$NEWLINE,;t t
+s,@NO_RECURSE@,$NO_RECURSE,;t t
 s,@PCRE_MAJOR@,$PCRE_MAJOR,;t t
 s,@PCRE_MINOR@,$PCRE_MINOR,;t t
 s,@PCRE_DATE@,$PCRE_DATE,;t t
@@ -3993,6 +4172,7 @@ s,@PCRE_VERSION@,$PCRE_VERSION,;t t
 s,@PCRE_LIB_VERSION@,$PCRE_LIB_VERSION,;t t
 s,@PCRE_POSIXLIB_VERSION@,$PCRE_POSIXLIB_VERSION,;t t
 s,@POSIX_MALLOC_THRESHOLD@,$POSIX_MALLOC_THRESHOLD,;t t
+s,@UCP@,$UCP,;t t
 s,@UTF8@,$UTF8,;t t
 s,@POSIX_OBJ@,$POSIX_OBJ,;t t
 s,@POSIX_LOBJ@,$POSIX_LOBJ,;t t
@@ -4453,124 +4633,6 @@ echo "$as_me: error: cannot create directory \"$ac_dir\"" >&2;}
     cat $tmp/config.h
     rm -f $tmp/config.h
   fi
-done
-_ACEOF
-cat >>$CONFIG_STATUS <<\_ACEOF
-
-#
-# CONFIG_COMMANDS section.
-#
-for ac_file in : $CONFIG_COMMANDS; do test "x$ac_file" = x: && continue
-  ac_dest=`echo "$ac_file" | sed 's,:.*,,'`
-  ac_source=`echo "$ac_file" | sed 's,[^:]*:,,'`
-  ac_dir=`(dirname "$ac_dest") 2>/dev/null ||
-$as_expr X"$ac_dest" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
-	 X"$ac_dest" : 'X\(//\)[^/]' \| \
-	 X"$ac_dest" : 'X\(//\)$' \| \
-	 X"$ac_dest" : 'X\(/\)' \| \
-	 .     : '\(.\)' 2>/dev/null ||
-echo X"$ac_dest" |
-    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
-  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
-  	  /^X\(\/\/\)$/{ s//\1/; q; }
-  	  /^X\(\/\).*/{ s//\1/; q; }
-  	  s/.*/./; q'`
-  { if $as_mkdir_p; then
-    mkdir -p "$ac_dir"
-  else
-    as_dir="$ac_dir"
-    as_dirs=
-    while test ! -d "$as_dir"; do
-      as_dirs="$as_dir $as_dirs"
-      as_dir=`(dirname "$as_dir") 2>/dev/null ||
-$as_expr X"$as_dir" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
-	 X"$as_dir" : 'X\(//\)[^/]' \| \
-	 X"$as_dir" : 'X\(//\)$' \| \
-	 X"$as_dir" : 'X\(/\)' \| \
-	 .     : '\(.\)' 2>/dev/null ||
-echo X"$as_dir" |
-    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
-  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
-  	  /^X\(\/\/\)$/{ s//\1/; q; }
-  	  /^X\(\/\).*/{ s//\1/; q; }
-  	  s/.*/./; q'`
-    done
-    test ! -n "$as_dirs" || mkdir $as_dirs
-  fi || { { echo "$as_me:$LINENO: error: cannot create directory \"$ac_dir\"" >&5
-echo "$as_me: error: cannot create directory \"$ac_dir\"" >&2;}
-   { (exit 1); exit 1; }; }; }
-
-  ac_builddir=.
-
-if test "$ac_dir" != .; then
-  ac_dir_suffix=/`echo "$ac_dir" | sed 's,^\.[\\/],,'`
-  # A "../" for each directory in $ac_dir_suffix.
-  ac_top_builddir=`echo "$ac_dir_suffix" | sed 's,/[^\\/]*,../,g'`
-else
-  ac_dir_suffix= ac_top_builddir=
-fi
-
-case $srcdir in
-  .)  # No --srcdir option.  We are building in place.
-    ac_srcdir=.
-    if test -z "$ac_top_builddir"; then
-       ac_top_srcdir=.
-    else
-       ac_top_srcdir=`echo $ac_top_builddir | sed 's,/$,,'`
-    fi ;;
-  [\\/]* | ?:[\\/]* )  # Absolute path.
-    ac_srcdir=$srcdir$ac_dir_suffix;
-    ac_top_srcdir=$srcdir ;;
-  *) # Relative path.
-    ac_srcdir=$ac_top_builddir$srcdir$ac_dir_suffix
-    ac_top_srcdir=$ac_top_builddir$srcdir ;;
-esac
-
-# Do not use `cd foo && pwd` to compute absolute paths, because
-# the directories may not exist.
-case `pwd` in
-.) ac_abs_builddir="$ac_dir";;
-*)
-  case "$ac_dir" in
-  .) ac_abs_builddir=`pwd`;;
-  [\\/]* | ?:[\\/]* ) ac_abs_builddir="$ac_dir";;
-  *) ac_abs_builddir=`pwd`/"$ac_dir";;
-  esac;;
-esac
-case $ac_abs_builddir in
-.) ac_abs_top_builddir=${ac_top_builddir}.;;
-*)
-  case ${ac_top_builddir}. in
-  .) ac_abs_top_builddir=$ac_abs_builddir;;
-  [\\/]* | ?:[\\/]* ) ac_abs_top_builddir=${ac_top_builddir}.;;
-  *) ac_abs_top_builddir=$ac_abs_builddir/${ac_top_builddir}.;;
-  esac;;
-esac
-case $ac_abs_builddir in
-.) ac_abs_srcdir=$ac_srcdir;;
-*)
-  case $ac_srcdir in
-  .) ac_abs_srcdir=$ac_abs_builddir;;
-  [\\/]* | ?:[\\/]* ) ac_abs_srcdir=$ac_srcdir;;
-  *) ac_abs_srcdir=$ac_abs_builddir/$ac_srcdir;;
-  esac;;
-esac
-case $ac_abs_builddir in
-.) ac_abs_top_srcdir=$ac_top_srcdir;;
-*)
-  case $ac_top_srcdir in
-  .) ac_abs_top_srcdir=$ac_abs_builddir;;
-  [\\/]* | ?:[\\/]* ) ac_abs_top_srcdir=$ac_top_srcdir;;
-  *) ac_abs_top_srcdir=$ac_abs_builddir/$ac_top_srcdir;;
-  esac;;
-esac
-
-
-  { echo "$as_me:$LINENO: executing $ac_dest commands" >&5
-echo "$as_me: executing $ac_dest commands" >&6;}
-  case $ac_dest in
-    default ) chmod a+x pcre-config ;;
-  esac
 done
 _ACEOF
 

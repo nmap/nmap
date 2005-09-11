@@ -7,14 +7,49 @@ The latest release of PCRE is always available from
 
 Please read the NEWS file if you are upgrading from a previous release.
 
-PCRE has its own native API, but a set of "wrapper" functions that are based on
-the POSIX API are also supplied in the library libpcreposix. Note that this
-just provides a POSIX calling interface to PCRE: the regular expressions
-themselves still follow Perl syntax and semantics. The header file
-for the POSIX-style functions is called pcreposix.h. The official POSIX name is
-regex.h, but I didn't want to risk possible problems with existing files of
-that name by distributing it that way. To use it with an existing program that
-uses the POSIX API, it will have to be renamed or pointed at by a link.
+
+The PCRE APIs
+-------------
+
+PCRE is written in C, and it has its own API. The distribution now includes a
+set of C++ wrapper functions, courtesy of Google Inc. (see the pcrecpp man page
+for details).
+
+Also included are a set of C wrapper functions that are based on the POSIX
+API. These end up in the library called libpcreposix. Note that this just
+provides a POSIX calling interface to PCRE: the regular expressions themselves
+still follow Perl syntax and semantics. The header file for the POSIX-style
+functions is called pcreposix.h. The official POSIX name is regex.h, but I
+didn't want to risk possible problems with existing files of that name by
+distributing it that way. To use it with an existing program that uses the
+POSIX API, it will have to be renamed or pointed at by a link.
+
+If you are using the POSIX interface to PCRE and there is already a POSIX regex
+library installed on your system, you must take care when linking programs to
+ensure that they link with PCRE's libpcreposix library. Otherwise they may pick
+up the "real" POSIX functions of the same name.
+
+
+Documentation for PCRE
+----------------------
+
+If you install PCRE in the normal way, you will end up with an installed set of
+man pages whose names all start with "pcre". The one that is called "pcre"
+lists all the others. In addition to these man pages, the PCRE documentation is
+supplied in two other forms; however, as there is no standard place to install
+them, they are left in the doc directory of the unpacked source distribution.
+These forms are:
+
+  1. Files called doc/pcre.txt, doc/pcregrep.txt, and doc/pcretest.txt. The
+     first of these is a concatenation of the text forms of all the section 3
+     man pages except those that summarize individual functions. The other two
+     are the text forms of the section 1 man pages for the pcregrep and
+     pcretest commands. Text forms are provided for ease of scanning with text
+     editors or similar tools.
+
+  2. A subdirectory called doc/html contains all the documentation in HTML
+     form, hyperlinked in various ways, and rooted in a file called
+     doc/index.html.
 
 
 Contributions by users of PCRE
@@ -41,7 +76,7 @@ INSTALL.
 
 Most commonly, people build PCRE within its own distribution directory, and in
 this case, on many systems, just running "./configure" is sufficient, but the
-usual methods of changing standard defaults are available. For example,
+usual methods of changing standard defaults are available. For example:
 
 CFLAGS='-O2 -Wall' ./configure --prefix=/opt/local
 
@@ -59,10 +94,22 @@ cd /build/pcre/pcre-xxx
 There are some optional features that can be included or omitted from the PCRE
 library. You can read more about them in the pcrebuild man page.
 
+. If you want to suppress the building of the C++ wrapper library, you can add
+  --disable-cpp to the "configure" command. Otherwise, when "configure" is run,
+  will try to find a C++ compiler and C++ header files, and if it succeeds, it
+  will try to build the C++ wrapper.
+
 . If you want to make use of the support for UTF-8 character strings in PCRE,
   you must add --enable-utf8 to the "configure" command. Without it, the code
   for handling UTF-8 is not included in the library. (Even when included, it
   still has to be enabled by an option at run time.)
+
+. If, in addition to support for UTF-8 character strings, you want to include
+  support for the \P, \p, and \X sequences that recognize Unicode character
+  properties, you must add --enable-unicode-properties to the "configure"
+  command. This adds about 90K to the size of the library (in the form of a
+  property table); only the basic two-letter properties such as Lu are
+  supported.
 
 . You can build PCRE to recognized CR or NL as the newline character, instead
   of whatever your compiler uses for "\n", by adding --newline-is-cr or
@@ -78,7 +125,7 @@ library. You can read more about them in the pcrebuild man page.
 
   on the "configure" command.
 
-. PCRE has a counter which can be set to limit the amount of resources it uses.
+. PCRE has a counter that can be set to limit the amount of resources it uses.
   If the limit is exceeded during a match, the match fails. The default is ten
   million. You can change the default by setting, for example,
 
@@ -96,51 +143,91 @@ library. You can read more about them in the pcrebuild man page.
   is a representation of the compiled pattern, and this changes with the link
   size.
 
-The "configure" script builds five files:
+. You can build PCRE so that its internal match() function that is called from
+  pcre_exec() does not call itself recursively. Instead, it uses blocks of data
+  from the heap via special functions pcre_stack_malloc() and pcre_stack_free()
+  to save data that would otherwise be saved on the stack. To build PCRE like
+  this, use
 
+  --disable-stack-for-recursion
+
+  on the "configure" command. PCRE runs more slowly in this mode, but it may be
+  necessary in environments with limited stack sizes. This applies only to the
+  pcre_exec() function; it does not apply to pcre_dfa_exec(), which does not
+  use deeply nested recursion.
+
+The "configure" script builds eight files for the basic C library:
+
+. pcre.h is the header file for C programs that call PCRE
+. Makefile is the makefile that builds the library
+. config.h contains build-time configuration options for the library
+. pcre-config is a script that shows the settings of "configure" options
+. libpcre.pc is data for the pkg-config command
 . libtool is a script that builds shared and/or static libraries
-. Makefile is built by copying Makefile.in and making substitutions.
-. config.h is built by copying config.in and making substitutions.
-. pcre-config is built by copying pcre-config.in and making substitutions.
-. RunTest is a script for running tests
+. RunTest is a script for running tests on the library
+. RunGrepTest is a script for running tests on the pcregrep command
 
-Once "configure" has run, you can run "make". It builds two libraries called
+In addition, if a C++ compiler is found, the following are also built:
+
+. pcrecpp.h is the header file for programs that call PCRE via the C++ wrapper
+. pcre_stringpiece.h is the header for the C++ "stringpiece" functions
+
+The "configure" script also creates config.status, which is an executable
+script that can be run to recreate the configuration, and config.log, which
+contains compiler output from tests that "configure" runs.
+
+Once "configure" has run, you can run "make". It builds two libraries, called
 libpcre and libpcreposix, a test program called pcretest, and the pcregrep
-command. You can use "make install" to copy these, the public header files
-pcre.h and pcreposix.h, and the man pages to appropriate live directories on
-your system, in the normal way.
+command. If a C++ compiler was found on your system, it also builds the C++
+wrapper library, which is called libpcrecpp, and some test programs called
+pcrecpp_unittest, pcre_scanner_unittest, and pcre_stringpiece_unittest.
+
+The command "make test" runs all the appropriate tests. Details of the PCRE
+tests are given in a separate section of this document, below.
+
+You can use "make install" to copy the libraries, the public header files
+pcre.h, pcreposix.h, pcrecpp.h, and pcre_stringpiece.h (the last two only if
+the C++ wrapper was built), and the man pages to appropriate live directories
+on your system, in the normal way.
+
+If you want to remove PCRE from your system, you can run "make uninstall".
+This removes all the files that "make install" installed. However, it does not
+remove any directories, because these are often shared with other programs.
+
+
+Retrieving configuration information on Unix-like systems
+---------------------------------------------------------
 
 Running "make install" also installs the command pcre-config, which can be used
 to recall information about the PCRE configuration and installation. For
-example,
+example:
 
   pcre-config --version
 
 prints the version number, and
 
- pcre-config --libs
+  pcre-config --libs
 
 outputs information about where the library is installed. This command can be
 included in makefiles for programs that use PCRE, saving the programmer from
 having to remember too many details.
 
+The pkg-config command is another system for saving and retrieving information
+about installed libraries. Instead of separate commands for each library, a
+single command is used. For example:
 
-Cross-compiling PCRE on a Unix-like system
-------------------------------------------
+  pkg-config --cflags pcre
 
-PCRE needs to compile and run an auxiliary program as part of the building
-process. Obviously, if the real compilation is for some other system, it can't
-use the same CC and CFLAGS values when it is doing this. For cross compilation,
-therefore, you must set CC_FOR_BUILD to the local host's compiler, and you can
-set flags in CFLAGS_FOR_BUILD if you need to.
+The data is held in *.pc files that are installed in a directory called
+pkgconfig.
 
 
 Shared libraries on Unix-like systems
 -------------------------------------
 
-The default distribution builds PCRE as two shared libraries and two static
-libraries, as long as the operating system supports shared libraries. Shared
-library support relies on the "libtool" script which is built as part of the
+The default distribution builds PCRE as shared libraries and static libraries,
+as long as the operating system supports shared libraries. Shared library
+support relies on the "libtool" script which is built as part of the
 "configure" process.
 
 The libtool script is used to compile and link both shared and static
@@ -153,7 +240,7 @@ installed themselves. However, the versions left in the source directory still
 use the uninstalled libraries.
 
 To build PCRE using static libraries only you must use --disable-shared when
-configuring it. For example
+configuring it. For example:
 
 ./configure --prefix=/usr/gnu --disable-shared
 
@@ -169,17 +256,21 @@ order to cross-compile PCRE for some other host. However, during the building
 process, the dftables.c source file is compiled *and run* on the local host, in
 order to generate the default character tables (the chartables.c file). It
 therefore needs to be compiled with the local compiler, not the cross compiler.
-You can do this by specifying HOST_CC (and if necessary HOST_CFLAGS) when
-calling the "configure" command. If they are not specified, they default to the
-values of CC and CFLAGS.
+You can do this by specifying CC_FOR_BUILD (and if necessary CFLAGS_FOR_BUILD;
+there are also CXX_FOR_BUILD and CXXFLAGS_FOR_BUILD for the C++ wrapper)
+when calling the "configure" command. If they are not specified, they default
+to the values of CC and CFLAGS.
 
 
 Building on non-Unix systems
 ----------------------------
 
-For a non-Unix system, read the comments in the file NON-UNIX-USE. PCRE has
-been compiled on Windows systems and on Macintoshes, but I don't know the
-details because I don't use those systems. It should be straightforward to
+For a non-Unix system, read the comments in the file NON-UNIX-USE, though if
+the system supports the use of "configure" and "make" you may be able to build
+PCRE in the same way as for Unix systems.
+
+PCRE has been compiled on Windows systems and on Macintoshes, but I don't know
+the details because I don't use those systems. It should be straightforward to
 build PCRE on any system that has a Standard C compiler, because it uses only
 Standard C functions.
 
@@ -188,15 +279,21 @@ Testing PCRE
 ------------
 
 To test PCRE on a Unix system, run the RunTest script that is created by the
-configuring process. (This can also be run by "make runtest", "make check", or
-"make test".) For other systems, see the instruction in NON-UNIX-USE.
+configuring process. There is also a script called RunGrepTest that tests the
+options of the pcregrep command. If the C++ wrapper library is build, three
+test programs called pcrecpp_unittest, pcre_scanner_unittest, and
+pcre_stringpiece_unittest are provided.
 
-The script runs the pcretest test program (which is documented in its own man
-page) on each of the testinput files (in the testdata directory) in turn,
-and compares the output with the contents of the corresponding testoutput file.
-A file called testtry is used to hold the output from pcretest. To run pcretest
-on just one of the test files, give its number as an argument to RunTest, for
-example:
+Both the scripts and all the program tests are run if you obey "make runtest",
+"make check", or "make test". For other systems, see the instructions in
+NON-UNIX-USE.
+
+The RunTest script runs the pcretest test program (which is documented in its
+own man page) on each of the testinput files (in the testdata directory) in
+turn, and compares the output with the contents of the corresponding testoutput
+file. A file called testtry is used to hold the main output from pcretest
+(testsavedregex is also used as a working file). To run pcretest on just one of
+the test files, give its number as an argument to RunTest, for example:
 
   RunTest 2
 
@@ -222,13 +319,13 @@ bug in PCRE.
 
 The third set of tests checks pcre_maketables(), the facility for building a
 set of character tables for a specific locale and using them instead of the
-default tables. The tests make use of the "fr" (French) locale. Before running
-the test, the script checks for the presence of this locale by running the
-"locale" command. If that command fails, or if it doesn't include "fr" in the
-list of available locales, the third test cannot be run, and a comment is
-output to say why. If running this test produces instances of the error
+default tables. The tests make use of the "fr_FR" (French) locale. Before
+running the test, the script checks for the presence of this locale by running
+the "locale" command. If that command fails, or if it doesn't include "fr_FR"
+in the list of available locales, the third test cannot be run, and a comment
+is output to say why. If running this test produces instances of the error
 
-  ** Failed to set locale "fr"
+  ** Failed to set locale "fr_FR"
 
 in the comparison output, it means that locale is not available on your system,
 despite being listed by "locale". This does not mean that PCRE is broken.
@@ -239,19 +336,28 @@ running "configure". This file can be also fed directly to the perltest script,
 provided you are running Perl 5.8 or higher. (For Perl 5.6, a small patch,
 commented in the script, can be be used.)
 
-The fifth and final file tests error handling with UTF-8 encoding, and internal
-UTF-8 features of PCRE that are not relevant to Perl.
+The fifth test checks error handling with UTF-8 encoding, and internal UTF-8
+features of PCRE that are not relevant to Perl.
+
+The sixth and test checks the support for Unicode character properties. It it
+not run automatically unless PCRE is built with Unicode property support. To to
+this you must set --enable-unicode-properties when running "configure".
+
+The seventh, eighth, and ninth tests check the pcre_dfa_exec() alternative
+matching function, in non-UTF-8 mode, UTF-8 mode, and UTF-8 mode with Unicode
+property support, respectively. The eighth and ninth tests are not run
+automatically unless PCRE is build with the relevant support.
 
 
 Character tables
 ----------------
 
-PCRE uses four tables for manipulating and identifying characters. The final
-argument of the pcre_compile() function is a pointer to a block of memory
-containing the concatenated tables. A call to pcre_maketables() can be used to
-generate a set of tables in the current locale. If the final argument for
-pcre_compile() is passed as NULL, a set of default tables that is built into
-the binary is used.
+PCRE uses four tables for manipulating and identifying characters whose values
+are less than 256. The final argument of the pcre_compile() function is a
+pointer to a block of memory containing the concatenated tables. A call to
+pcre_maketables() can be used to generate a set of tables in the current
+locale. If the final argument for pcre_compile() is passed as NULL, a set of
+default tables that is built into the binary is used.
 
 The source file called chartables.c contains the default set of tables. This is
 not supplied in the distribution, but is built by the program dftables
@@ -291,17 +397,46 @@ The distribution should contain the following files:
     headers:
 
   dftables.c            auxiliary program for building chartables.c
-  get.c                 )
-  maketables.c          )
-  study.c               ) source of
-  pcre.c                )   the functions
+
   pcreposix.c           )
-  printint.c            )
+  pcre_compile.c        )
+  pcre_config.c         )
+  pcre_dfa_exec.c       )
+  pcre_exec.c           )
+  pcre_fullinfo.c       )
+  pcre_get.c            ) sources for the functions in the library,
+  pcre_globals.c        )   and some internal functions that they use
+  pcre_info.c           )
+  pcre_maketables.c     )
+  pcre_ord2utf8.c       )
+  pcre_printint.c       )
+  pcre_study.c          )
+  pcre_tables.c         )
+  pcre_try_flipped.c    )
+  pcre_ucp_findchar.c   )
+  pcre_valid_utf8.c     )
+  pcre_version.c        )
+  pcre_xclass.c         )
+
+  ucp_findchar.c        )
+  ucp.h                 ) source for the code that is used for
+  ucpinternal.h         )   Unicode property handling
+  ucptable.c            )
+  ucptypetable.c        )
+
   pcre.in               "source" for the header for the external API; pcre.h
                           is built from this by "configure"
   pcreposix.h           header for the external POSIX wrapper API
-  internal.h            header for internal use
+  pcre_internal.h       header for internal use
   config.in             template for config.h, which is built by configure
+
+  pcrecpp.h.in          "source" for the header file for the C++ wrapper
+  pcrecpp.cc            )
+  pcre_scanner.cc       ) source for the C++ wrapper library
+
+  pcre_stringpiece.h.in "source" for pcre_stringpiece.h, the header for the
+                          C++ stringpiece functions
+  pcre_stringpiece.cc   source for the C++ stringpiece functions
 
 (B) Auxiliary files:
 
@@ -315,6 +450,7 @@ The distribution should contain the following files:
   NON-UNIX-USE          notes on building PCRE on non-Unix systems
   README                this file
   RunTest.in            template for a Unix shell script for running tests
+  RunGrepTest.in        template for a Unix shell script for pcregrep tests
   config.guess          ) files used by libtool,
   config.sub            )   used only when building a shared library
   configure             a configuring shell script (built by autoconf)
@@ -327,31 +463,32 @@ The distribution should contain the following files:
   doc/pcretest.txt      plain text documentation of test program
   doc/perltest.txt      plain text documentation of Perl test program
   install-sh            a shell script for installing files
+  libpcre.pc.in         "source" for libpcre.pc for pkg-config
   ltmain.sh             file used to build a libtool script
+  mkinstalldirs         script for making install directories
   pcretest.c            comprehensive test program
   pcredemo.c            simple demonstration of coding calls to PCRE
   perltest              Perl test program
   pcregrep.c            source of a grep utility that uses PCRE
   pcre-config.in        source of script which retains PCRE information
-  testdata/testinput1   test data, compatible with Perl
-  testdata/testinput2   test data for error messages and non-Perl things
-  testdata/testinput3   test data for locale-specific tests
-  testdata/testinput4   test data for UTF-8 tests compatible with Perl
-  testdata/testinput5   test data for other UTF-8 tests
-  testdata/testoutput1  test results corresponding to testinput1
-  testdata/testoutput2  test results corresponding to testinput2
-  testdata/testoutput3  test results corresponding to testinput3
-  testdata/testoutput4  test results corresponding to testinput4
-  testdata/testoutput5  test results corresponding to testinput5
+  pcrecpp_unittest.c           )
+  pcre_scanner_unittest.c      ) test programs for the C++ wrapper
+  pcre_stringpiece_unittest.c  )
+  testdata/testinput*   test data for main library tests
+  testdata/testoutput*  expected test results
+  testdata/grep*        input and output for pcregrep tests
 
 (C) Auxiliary files for Win32 DLL
 
-  dll.mk
+  libpcre.def
+  libpcreposix.def
   pcre.def
 
 (D) Auxiliary file for VPASCAL
 
   makevp.bat
 
-Philip Hazel <ph10@cam.ac.uk>
-February 2003
+Philip Hazel
+Email local part: ph10
+Email domain: cam.ac.uk
+August 2005
