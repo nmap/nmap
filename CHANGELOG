@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$)
 
+Nmap 3.91
+
 o Fixed a crash on Windows when you -P0 scan an unused IP on a local
   network (or a range that contains unused IPs).  This could also
   happen on UNIX if you specified the new --send_eth option.  Thanks
@@ -16,7 +18,10 @@ o Updated the included libpcre (used for version detection) from
   version 4.3 to 6.3.  A libpcre securty issue was fixed in 6.3, but
   that issue never affected Nmap.
 
-o Updated the included libpcap from 0.8.3 to 0.9.3.
+o Updated the included libpcap from 0.8.3 to 0.9.3.  I also changed
+  the directory name in the Nmap tarball from libpcap-possiblymodified
+  to just libpcap.  As usual, the modifications are described in the
+  NMAP_MODIFICATIONS in that directory.
 
 Nmap 3.90
 

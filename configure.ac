@@ -27,7 +27,7 @@ if test "$user_localdirs" = 1; then
    fi
 fi
 
-libpcapdir=libpcap-possiblymodified
+libpcapdir=libpcap
 AC_SUBST(libpcapdir)
 
 pcredir=libpcre

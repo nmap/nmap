@@ -1,10 +1,13 @@
+NOTE: This has been upgraded to pcap 0.9.3 since the instructions
+below were written.  That upgrade was done by applying a diff
+between pcap 0.8.3 and 0.9.3 to the Nmap libpcap dir.
 
 Nmap currently includes a modified version of the tcpdump.org release
 of libpcap version 0.8.3 (released March 30, 2004).  My
 (fyodor@insecure.org) modifications are as follows:
 
 o Included this file, renamed directory from libpcap-0.8.3 to
-  libpcap-possiblymodified.
+  libpcap.
 
 o Renamed configure.in to configure.ac, which is the name now
   recommended by the autoconf project.
@@ -16,7 +19,7 @@ o Rewrote Win32 version of eth_open() as the previous verson didn't
   
 o Added the gcc debugging flag (-g) to aclocal.m4 if gcc is being used:
 --- libpcap-0.8.3/aclocal.m4    2003-11-16 01:45:51.000000000 -0800
-+++ libpcap-possiblymodified/aclocal.m4 2004-07-31 22:34:47.000000000 -0700
++++ libpcap/aclocal.m4 2004-07-31 22:34:47.000000000 -0700
 @@ -1,4 +1,4 @@
 -dnl @(#) $Header$ (LBL)
 +dnl @(#) $Header$ (LBL)
@@ -49,7 +52,7 @@ o Changed pcap-linux.c by adding a select() call guarding recvfrom()
   to insure that it returns after the timeout period specified in
   pcap_open_live() rather than blocking forever.
 --- libpcap-0.8.3/pcap-linux.c  2003-11-21 02:20:46.000000000 -0800
-+++ libpcap-possiblymodified/pcap-linux.c       2004-07-31 22:34:47.000000000 -0700
++++ libpcap/pcap-linux.c       2004-07-31 22:34:47.000000000 -0700
 @@ -27,7 +27,7 @@
  
  #ifndef lint
@@ -106,7 +109,7 @@ o Eliminated Lex/Yacc requirement (I now ship the generated .c files).
 
    o Changes to Makefile.in
 --- libpcap-0.8.3/Makefile.in   2003-12-14 17:42:23.000000000 -0800
-+++ libpcap-possiblymodified/Makefile.in        2004-07-31 22:34:47.000000000 -0700
++++ libpcap/Makefile.in        2004-07-31 22:34:47.000000000 -0700
 @@ -17,7 +17,7 @@
  #  WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
  #  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -138,7 +141,7 @@ o Eliminated Lex/Yacc requirement (I now ship the generated .c files).
  
   o Ripped LEX/YACC detection code from configure.in:
 --- libpcap-0.8.3/configure.in  2004-03-28 13:43:34.000000000 -0800
-+++ libpcap-possiblymodified/configure.ac       2004-07-31 22:34:47.000000000 -0700
++++ libpcap/configure.ac       2004-07-31 22:34:47.000000000 -0700
 @@ -1,4 +1,4 @@
 -dnl @(#) $Header$ (LBL)
 +dnl @(#) $Header$ (LBL)
@@ -243,3 +246,4 @@ Ben Harris (bjh21(a)cam.ac.uk)
  
         /*
 
+o Removed packaging/pcap.spec because it conflicted with the Nmap spec file when building RPMs from the tarball.
