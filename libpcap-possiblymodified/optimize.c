@@ -32,6 +32,7 @@ static const char rcsid[] _U_ =
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
+#include <string.h>
 
 #include <errno.h>
 
@@ -47,10 +48,24 @@ static const char rcsid[] _U_ =
 extern int dflag;
 #endif
 
+#if defined(MSDOS) && !defined(__DJGPP__)
+extern int _w32_ffs (int mask);
+#define ffs _w32_ffs
+#endif
+
+/*
+ * Represents a deleted instruction.
+ */
+#define NOP -1
+
+/*
+ * Register numbers for use-def values.
+ * 0 through BPF_MEMWORDS-1 represent the corresponding scratch memory
+ * location.  A_ATOM is the accumulator and X_ATOM is the index
+ * register.
+ */
 #define A_ATOM BPF_MEMWORDS
 #define X_ATOM (BPF_MEMWORDS+1)
-
-#define NOP -1
 
 /*
  * This define is used to represent *both* the accumulator and
@@ -419,6 +434,17 @@ atomdef(s)
 	return -1;
 }
 
+/*
+ * Compute the sets of registers used, defined, and killed by 'b'.
+ *
+ * "Used" means that a statement in 'b' uses the register before any
+ * statement in 'b' defines it, i.e. it uses the value left in
+ * that register by a predecessor block of this block.
+ * "Defined" means that a statement in 'b' defines it.
+ * "Killed" means that a statement in 'b' defines it before any
+ * statement in 'b' uses it, i.e. it kills the value left in that
+ * register by a predecessor block of this block.
+ */
 static void
 compute_local_ud(b)
 	struct block *b;
@@ -452,8 +478,26 @@ compute_local_ud(b)
 			def |= ATOMMASK(atom);
 		}
 	}
-	if (!ATOMELEM(def, A_ATOM) && BPF_CLASS(b->s.code) == BPF_JMP)
+	if (BPF_CLASS(b->s.code) == BPF_JMP) {
+		/*
+		 * XXX - what about RET?
+		 */
+		atom = atomuse(&b->s);
+		if (atom >= 0) {
+			if (atom == AX_ATOM) {
+				if (!ATOMELEM(def, X_ATOM))
+					use |= ATOMMASK(X_ATOM);
+				if (!ATOMELEM(def, A_ATOM))
 		use |= ATOMMASK(A_ATOM);
+			}
+			else if (atom < N_ATOMS) {
+				if (!ATOMELEM(def, atom))
+					use |= ATOMMASK(atom);
+			}
+			else
+				abort();
+		}
+	}
 
 	b->def = def;
 	b->kill = kill;
@@ -664,13 +708,21 @@ opt_peep(b)
 		return;
 
 	last = s;
-	while (1) {
+	for (/*empty*/; /*empty*/; s = next) {
+		/*
+		 * Skip over nops.
+		 */
 		s = this_op(s);
 		if (s == 0)
-			break;
+			break;	/* nothing left in the block */
+
+		/*
+		 * Find the next real instruction after that one
+		 * (skipping nops).
+		 */
 		next = this_op(s->next);
 		if (next == 0)
-			break;
+			break;	/* no next instruction */
 		last = next;
 
 		/*
@@ -707,29 +759,38 @@ opt_peep(b)
 			 * any local dependencies.
 			 */
 			if (ATOMELEM(b->out_use, X_ATOM))
-				break;
+				continue;
 
+			/*
+			 * Check that the instruction following the ldi
+			 * is an addx, or it's an ldxms with an addx
+			 * following it (with 0 or more nops between the
+			 * ldxms and addx).
+			 */
 			if (next->s.code != (BPF_LDX|BPF_MSH|BPF_B))
 				add = next;
 			else
 				add = this_op(next->next);
 			if (add == 0 || add->s.code != (BPF_ALU|BPF_ADD|BPF_X))
-				break;
+				continue;
 
+			/*
+			 * Check that a tax follows that (with 0 or more
+			 * nops between them).
+			 */
 			tax = this_op(add->next);
 			if (tax == 0 || tax->s.code != (BPF_MISC|BPF_TAX))
-				break;
+				continue;
 
+			/*
+			 * Check that an ild follows that (with 0 or more
+			 * nops between them).
+			 */
 			ild = this_op(tax->next);
 			if (ild == 0 || BPF_CLASS(ild->s.code) != BPF_LD ||
 			    BPF_MODE(ild->s.code) != BPF_IND)
-				break;
+				continue;
 			/*
-			 * XXX We need to check that X is not
-			 * subsequently used.  We know we can eliminate the
-			 * accumulator modifications since it is defined
-			 * by the last stmt of this sequence.
-			 *
 			 * We want to turn this sequence:
 			 *
 			 * (004) ldi     #0x2		{s}
@@ -746,6 +807,16 @@ opt_peep(b)
 			 * (007) nop
 			 * (008) ild     [x+2]
 			 *
+			 * XXX We need to check that X is not
+			 * subsequently used, because we want to change
+			 * what'll be in it after this sequence.
+			 *
+			 * We know we can eliminate the accumulator
+			 * modifications earlier in the sequence since
+			 * it is defined by the last stmt of this sequence
+			 * (i.e., the last statement of the sequence loads
+			 * a value into the accumulator, so we can eliminate
+			 * earlier operations on the accumulator).
 			 */
 			ild->s.k += s->s.k;
 			s->s.code = NOP;
@@ -753,19 +824,29 @@ opt_peep(b)
 			tax->s.code = NOP;
 			done = 0;
 		}
-		s = next;
 	}
 	/*
-	 * If we have a subtract to do a comparison, and the X register
-	 * is a known constant, we can merge this value into the
-	 * comparison.
+	 * If the comparison at the end of a block is an equality
+	 * comparison against a constant, and nobody uses the value
+	 * we leave in the A register at the end of a block, and
+	 * the operation preceding the comparison is an arithmetic
+	 * operation, we can sometime optimize it away.
 	 */
-	if (BPF_OP(b->s.code) == BPF_JEQ) {
-		if (last->s.code == (BPF_ALU|BPF_SUB|BPF_X) &&
+	if (b->s.code == (BPF_JMP|BPF_JEQ|BPF_K) &&
 		    !ATOMELEM(b->out_use, A_ATOM)) {
+	    	/*
+	    	 * We can optimize away certain subtractions of the
+	    	 * X register.
+	    	 */
+		if (last->s.code == (BPF_ALU|BPF_SUB|BPF_X)) {
 			val = b->val[X_ATOM];
 			if (vmap[val].is_const) {
 				/*
+				 * If we have a subtract to do a comparison,
+				 * and the X register is a known constant,
+				 * we can merge this value into the
+				 * comparison:
+				 *
 				 * sub x  ->	nop
 				 * jeq #y	jeq #(x+y)
 				 */
@@ -774,37 +855,45 @@ opt_peep(b)
 				done = 0;
 			} else if (b->s.k == 0) {
 				/*
-				 * sub #x  ->	nop
-				 * jeq #0	jeq #x
+				 * If the X register isn't a constant,
+				 * and the comparison in the test is
+				 * against 0, we can compare with the
+				 * X register, instead:
+				 *
+				 * sub x  ->	nop
+				 * jeq #0	jeq x
 				 */
 				last->s.code = NOP;
-				b->s.code = BPF_CLASS(b->s.code) |
-					BPF_OP(b->s.code) | BPF_X;
+				b->s.code = BPF_JMP|BPF_JEQ|BPF_X;
 				done = 0;
 			}
 		}
 		/*
-		 * Likewise, a constant subtract can be simplified.
+		 * Likewise, a constant subtract can be simplified:
+		 *
+		 * sub #x ->	nop
+		 * jeq #y ->	jeq #(x+y)
 		 */
-		else if (last->s.code == (BPF_ALU|BPF_SUB|BPF_K) &&
-			 !ATOMELEM(b->out_use, A_ATOM)) {
-
+		else if (last->s.code == (BPF_ALU|BPF_SUB|BPF_K)) {
 			last->s.code = NOP;
 			b->s.k += last->s.k;
 			done = 0;
 		}
-	}
 	/*
+		 * And, similarly, a constant AND can be simplified
+		 * if we're testing against 0, i.e.:
+		 *
 	 * and #k	nop
 	 * jeq #0  ->	jset #k
 	 */
-	if (last->s.code == (BPF_ALU|BPF_AND|BPF_K) &&
-	    !ATOMELEM(b->out_use, A_ATOM) && b->s.k == 0) {
+		else if (last->s.code == (BPF_ALU|BPF_AND|BPF_K) &&
+		    b->s.k == 0) {
 		b->s.k = last->s.k;
 		b->s.code = BPF_JMP|BPF_K|BPF_JSET;
 		last->s.code = NOP;
 		done = 0;
 		opt_not(b);
+	}
 	}
 	/*
 	 * jset #0        ->   never
@@ -1102,7 +1191,7 @@ opt_blk(b, do_stmts)
 	struct slist *s;
 	struct edge *p;
 	int i;
-	bpf_int32 aval;
+	bpf_int32 aval, xval;
 
 #if 0
 	for (s = b->stmts; s && s->next; s = s->next)
@@ -1114,16 +1203,30 @@ opt_blk(b, do_stmts)
 
 	/*
 	 * Initialize the atom values.
-	 * If we have no predecessors, everything is undefined.
-	 * Otherwise, we inherent our values from our predecessors.
-	 * If any register has an ambiguous value (i.e. control paths are
-	 * merging) give it the undefined value of 0.
 	 */
 	p = b->in_edges;
-	if (p == 0)
+	if (p == 0) {
+		/*
+		 * We have no predecessors, so everything is undefined
+		 * upon entry to this block.
+		 */
 		memset((char *)b->val, 0, sizeof(b->val));
-	else {
+	} else {
+		/*
+		 * Inherit values from our predecessors.
+		 *
+		 * First, get the values from the predecessor along the
+		 * first edge leading to this node.
+		 */
 		memcpy((char *)b->val, (char *)p->pred->val, sizeof(b->val));
+		/*
+		 * Now look at all the other nodes leading to this node.
+		 * If, for the predecessor along that edge, a register
+		 * has a different value from the one we have (i.e.,
+		 * control paths are merging, and the merging paths
+		 * assign different values to that register), give the
+		 * register the undefined value of 0.
+		 */
 		while ((p = p->next) != NULL) {
 			for (i = 0; i < N_ATOMS; ++i)
 				if (b->val[i] != p->pred->val[i])
@@ -1131,17 +1234,36 @@ opt_blk(b, do_stmts)
 		}
 	}
 	aval = b->val[A_ATOM];
+	xval = b->val[X_ATOM];
 	for (s = b->stmts; s; s = s->next)
 		opt_stmt(&s->s, b->val, do_stmts);
 
 	/*
 	 * This is a special case: if we don't use anything from this
-	 * block, and we load the accumulator with value that is
-	 * already there, or if this block is a return,
+	 * block, and we load the accumulator or index register with a
+	 * value that is already there, or if this block is a return,
 	 * eliminate all the statements.
+	 *
+	 * XXX - what if it does a store?
+	 *
+	 * XXX - why does it matter whether we use anything from this
+	 * block?  If the accumulator or index register doesn't change
+	 * its value, isn't that OK even if we use that value?
+	 *
+	 * XXX - if we load the accumulator with a different value,
+	 * and the block ends with a conditional branch, we obviously
+	 * can't eliminate it, as the branch depends on that value.
+	 * For the index register, the conditional branch only depends
+	 * on the index register value if the test is against the index
+	 * register value rather than a constant; if nothing uses the
+	 * value we put into the index register, and we're not testing
+	 * against the index register's value, and there aren't any
+	 * other problems that would keep us from eliminating this
+	 * block, can we eliminate it?
 	 */
 	if (do_stmts &&
-	    ((b->out_use == 0 && aval != 0 &&b->val[A_ATOM] == aval) ||
+	    ((b->out_use == 0 && aval != 0 && b->val[A_ATOM] == aval &&
+	      xval != 0 && b->val[X_ATOM] == xval) ||
 	     BPF_CLASS(b->s.code) == BPF_RET)) {
 		if (b->stmts != 0) {
 			b->stmts = 0;
@@ -1212,9 +1334,9 @@ fold_edge(child, ep)
 
 	if (oval0 == oval1)
 		/*
-		 * The operands are identical, so the
-		 * result is true if a true branch was
-		 * taken to get here, otherwise false.
+		 * The operands of the branch instructions are
+		 * identical, so the result is true if a true
+		 * branch was taken to get here, otherwise false.
 		 */
 		return sense ? JT(child) : JF(child);
 
@@ -1222,8 +1344,16 @@ fold_edge(child, ep)
 		/*
 		 * At this point, we only know the comparison if we
 		 * came down the true branch, and it was an equality
-		 * comparison with a constant.  We rely on the fact that
-		 * distinct constants have distinct value numbers.
+		 * comparison with a constant.
+		 *
+		 * I.e., if we came down the true branch, and the branch
+		 * was an equality comparison with a constant, we know the
+		 * accumulator contains that constant.  If we came down
+		 * the false branch, or the comparison wasn't with a
+		 * constant, we don't know what was in the accumulator.
+		 *
+		 * We rely on the fact that distinct constants have distinct
+		 * value numbers.
 		 */
 		return JF(child);
 

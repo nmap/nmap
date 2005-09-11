@@ -205,6 +205,29 @@ pcap_read_snit(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 }
 
 static int
+pcap_inject_snit(pcap_t *p, const void *buf, size_t size)
+{
+	struct strbuf ctl, data;
+	
+	/*
+	 * XXX - can we just do
+	 *
+	ret = write(pd->f, buf, size);
+	 */
+	ctl.len = sizeof(*sa);	/* XXX - what was this? */
+	ctl.buf = (char *)sa;
+	data.buf = buf;
+	data.len = size;
+	ret = putmsg(p->fd, &ctl, &data);
+	if (ret == -1) {
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "send: %s",
+		    pcap_strerror(errno));
+		return (-1);
+	}
+	return (ret);
+}
+
+static int
 nit_setflags(int fd, int promisc, int to_ms, char *ebuf)
 {
 	bpf_u_int32 flags;
@@ -238,15 +261,6 @@ nit_setflags(int fd, int promisc, int to_ms, char *ebuf)
 	return (0);
 }
 
-static void
-pcap_close_snit(pcap_t *p)
-{
-	if (p->buffer != NULL)
-		free(p->buffer);
-	if (p->fd >= 0)
-		close(p->fd);
-}
-
 pcap_t *
 pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
     char *ebuf)
@@ -271,6 +285,22 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 		snaplen = 96;
 
 	memset(p, 0, sizeof(*p));
+	/*
+	 * Initially try a read/write open (to allow the inject
+	 * method to work).  If that fails due to permission
+	 * issues, fall back to read-only.  This allows a
+	 * non-root user to be granted specific access to pcap
+	 * capabilities via file permissions.
+	 *
+	 * XXX - we should have an API that has a flag that
+	 * controls whether to open read-only or read-write,
+	 * so that denial of permission to send (or inability
+	 * to send, if sending packets isn't supported on
+	 * the device in question) can be indicated at open
+	 * time.
+	 */
+	p->fd = fd = open(dev, O_RDWR);
+	if (fd < 0 && errno == EACCES)
 	p->fd = fd = open(dev, O_RDONLY);
 	if (fd < 0) {
 		snprintf(ebuf, PCAP_ERRBUF_SIZE, "%s: %s", dev,
@@ -344,13 +374,35 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 	 */
 	p->selectable_fd = p->fd;
 
+	/*
+	 * This is (presumably) a real Ethernet capture; give it a
+	 * link-layer-type list with DLT_EN10MB and DLT_DOCSIS, so
+	 * that an application can let you choose it, in case you're
+	 * capturing DOCSIS traffic that a Cisco Cable Modem
+	 * Termination System is putting out onto an Ethernet (it
+	 * doesn't put an Ethernet header onto the wire, it puts raw
+	 * DOCSIS frames out on the wire inside the low-level
+	 * Ethernet framing).
+	 */
+	p->dlt_list = (u_int *) malloc(sizeof(u_int) * 2);
+	/*
+	 * If that fails, just leave the list empty.
+	 */
+	if (p->dlt_list != NULL) {
+		p->dlt_list[0] = DLT_EN10MB;
+		p->dlt_list[1] = DLT_DOCSIS;
+		p->dlt_count = 2;
+	}
+
 	p->read_op = pcap_read_snit;
+	p->inject_op = pcap_inject_snit;
 	p->setfilter_op = install_bpf_program;	/* no kernel filtering */
+	p->setdirection_op = NULL;	/* Not implemented. */
 	p->set_datalink_op = NULL;	/* can't change data link type */
 	p->getnonblock_op = pcap_getnonblock_fd;
 	p->setnonblock_op = pcap_setnonblock_fd;
 	p->stats_op = pcap_stats_snit;
-	p->close_op = pcap_close_snit;
+	p->close_op = pcap_close_common;
 
 	return (p);
  bad:

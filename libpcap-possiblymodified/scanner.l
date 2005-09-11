@@ -183,6 +183,7 @@ igmp		return IGMP;
 igrp		return IGRP;
 pim		return PIM;
 vrrp		return VRRP;
+radio		return RADIO;
 
 ip6		{
 #ifdef INET6
@@ -234,6 +235,7 @@ host		return HOST;
 net		return NET;
 mask		return NETMASK;
 port		return PORT;
+portrange	return PORTRANGE;
 proto		return PROTO;
 protochain	{
 #ifdef NO_PROTOCHAIN
@@ -260,6 +262,7 @@ inbound		return INBOUND;
 outbound	return OUTBOUND;
 
 vlan		return VLAN;
+mpls		return MPLS;
 
 lane		return LANE;
 llc		return LLC;
@@ -282,6 +285,11 @@ rnr|rulenum	return PF_RNR;
 srnr|subrulenum	return PF_SRNR;
 reason		return PF_REASON;
 action		return PF_ACTION;
+
+sio		return SIO;
+opc		return OPC;
+dpc		return DPC;
+sls		return SLS;
 
 [ \r\n\t]		;
 [+\-*/:\[\]!<>()&|=]	return yytext[0];

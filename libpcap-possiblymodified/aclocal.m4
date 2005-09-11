@@ -166,8 +166,13 @@ AC_DEFUN(AC_LBL_C_INIT,
 # at least some versions of HP's C compiler can inline that, but can't
 # inline a function that returns a struct pointer.
 #
+# Make sure we use the V_CCOPT flags, because some of those might
+# disable inlining.
+#
 AC_DEFUN(AC_LBL_C_INLINE,
     [AC_MSG_CHECKING(for inline)
+    save_CFLAGS="$CFLAGS"
+    CFLAGS="$V_CCOPT"
     AC_CACHE_VAL(ac_cv_lbl_inline, [
 	ac_cv_lbl_inline=""
 	ac_lbl_cc_inline=no
@@ -195,6 +200,7 @@ AC_DEFUN(AC_LBL_C_INLINE,
 	if test "$ac_lbl_cc_inline" = yes ; then
 	    ac_cv_lbl_inline=$ac_lbl_inline
 	fi])
+    CFLAGS="$save_CFLAGS"
     if test ! -z "$ac_cv_lbl_inline" ; then
 	AC_MSG_RESULT($ac_cv_lbl_inline)
     else
@@ -822,23 +828,20 @@ dnl
 AC_DEFUN(AC_LBL_LIBRARY_NET, [
     # Most operating systems have gethostbyname() in the default searched
     # libraries (i.e. libc):
-    AC_CHECK_FUNC(gethostbyname, ,
-	# Some OSes (eg. Solaris) place it in libnsl:
-	AC_LBL_CHECK_LIB(nsl, gethostbyname, , 
+    # Some OSes (eg. Solaris) place it in libnsl
 	    # Some strange OSes (SINIX) have it in libsocket:
-	    AC_LBL_CHECK_LIB(socket, gethostbyname, ,
-		# Unfortunately libsocket sometimes depends on libnsl.
-		# AC_CHECK_LIB's API is essentially broken so the
-		# following ugliness is necessary:
-		AC_LBL_CHECK_LIB(socket, gethostbyname,
-		    LIBS="-lsocket -lnsl $LIBS",
-		    AC_CHECK_LIB(resolv, gethostbyname),
-		    -lnsl))))
-    AC_CHECK_FUNC(socket, , AC_CHECK_LIB(socket, socket, ,
-	AC_LBL_CHECK_LIB(socket, socket, LIBS="-lsocket -lnsl $LIBS", ,
-	    -lnsl)))
+    AC_SEARCH_LIBS(gethostbyname, nsl socket resolv)
+    # Unfortunately libsocket sometimes depends on libnsl and
+    # AC_SEARCH_LIBS isn't up to the task of handling dependencies like this.
+    if test "$ac_cv_search_gethostbyname" = "no"
+    then
+	AC_CHECK_LIB(socket, gethostbyname,
+                     LIBS="-lsocket -lnsl $LIBS", , -lnsl)
+    fi
+    AC_SEARCH_LIBS(socket, socket, ,
+	AC_CHECK_LIB(socket, socket, LIBS="-lsocket -lnsl $LIBS", , -lnsl))
     # DLPI needs putmsg under HPUX so test for -lstr while we're at it
-    AC_CHECK_LIB(str, putmsg)
+    AC_SEARCH_LIBS(putmsg, str)
     ])
 
 dnl
@@ -848,10 +851,10 @@ dnl
 AC_DEFUN(AC_C___ATTRIBUTE__, [
 AC_MSG_CHECKING(for __attribute__)
 AC_CACHE_VAL(ac_cv___attribute__, [
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE(
+  AC_LANG_SOURCE([[
 #include <stdlib.h>
-],
-[
+
 static void foo(void) __attribute__ ((noreturn));
 
 static void
@@ -859,7 +862,13 @@ foo(void)
 {
   exit(1);
 }
-],
+
+int
+main(int argc, char **argv)
+{
+  foo();
+}
+  ]]),
 ac_cv___attribute__=yes,
 ac_cv___attribute__=no)])
 if test "$ac_cv___attribute__" = "yes"; then

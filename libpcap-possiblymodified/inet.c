@@ -46,13 +46,14 @@ static const char rcsid[] _U_ =
 #else /* WIN32 */
 
 #include <sys/param.h>
+#ifndef MSDOS
 #include <sys/file.h>
+#endif
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #ifdef HAVE_SYS_SOCKIO_H
 #include <sys/sockio.h>
 #endif
-#include <sys/time.h>				/* concession to AIX */
 
 struct mbuf;		/* Squelch compiler warnings on some platforms for */
 struct rtentry;		/* declarations in <net/if.h> */
@@ -66,16 +67,13 @@ struct rtentry;		/* declarations in <net/if.h> */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef WIN32
+#if !defined(WIN32) && !defined(__BORLANDC__)
 #include <unistd.h>
-#endif /* WIN32 */
+#endif /* !WIN32 && !__BORLANDC__ */
 #ifdef HAVE_LIMITS_H
 #include <limits.h>
 #else
 #define INT_MAX		2147483647
-#endif
-#ifdef HAVE_IFADDRS_H
-#include <ifaddrs.h>
 #endif
 
 #include "pcap-int.h"
@@ -132,8 +130,31 @@ int
 add_or_find_if(pcap_if_t **curdev_ret, pcap_if_t **alldevs, const char *name,
     u_int flags, const char *description, char *errbuf)
 {
+	pcap_t *p;
 	pcap_if_t *curdev, *prevdev, *nextdev;
 	int this_instance;
+
+	/*
+	 * Can we open this interface for live capture?
+	 *
+	 * We do this check so that interfaces that ae supplied
+	 * by the interface enumeration mechanism we're using
+	 * but that don't support packet capture aren't included
+	 * in the list.  An example of this is loopback interfaces
+	 * on Solaris; we don't just omit loopback interfaces
+	 * becaue you *can* capture on loopback interfaces on some
+	 * OSes.
+	 */
+	p = pcap_open_live(name, 68, 0, 0, errbuf);
+	if (p == NULL) {
+		/*
+		 * No.  Don't bother including it.
+		 * Don't treat this as an error, though.
+		 */
+		*curdev_ret = NULL;
+		return (0);
+	}
+	pcap_close(p);
 
 	/*
 	 * Is there already an entry in the list for this interface?
@@ -282,7 +303,7 @@ add_or_find_if(pcap_if_t **curdev_ret, pcap_if_t **alldevs, const char *name,
 }
 
 int
-add_addr_to_iflist(pcap_if_t **alldevs, char *name, u_int flags,
+add_addr_to_iflist(pcap_if_t **alldevs, const char *name, u_int flags,
     struct sockaddr *addr, size_t addr_size,
     struct sockaddr *netmask, size_t netmask_size,
     struct sockaddr *broadaddr, size_t broadaddr_size,
@@ -394,7 +415,7 @@ add_addr_to_iflist(pcap_if_t **alldevs, char *name, u_int flags,
 }
 
 int
-pcap_add_if(pcap_if_t **devlist, char *name, u_int flags,
+pcap_add_if(pcap_if_t **devlist, const char *name, u_int flags,
     const char *description, char *errbuf)
 {
 	pcap_if_t *curdev;
@@ -450,7 +471,7 @@ pcap_freealldevs(pcap_if_t *alldevs)
 	}
 }
 
-#ifndef WIN32
+#if !defined(WIN32) && !defined(MSDOS)
 
 /*
  * Return the name of a network interface attached to the system, or NULL
@@ -518,6 +539,9 @@ pcap_lookupnet(device, netp, maskp, errbuf)
 #ifdef HAVE_DAG_API
 	    || strstr(device, "dag") != NULL
 #endif
+#ifdef HAVE_SEPTEL_API
+	    || strstr(device, "septel") != NULL
+#endif
 	    ) {
 		*netp = *maskp = 0;
 		return 0;
@@ -574,7 +598,7 @@ pcap_lookupnet(device, netp, maskp, errbuf)
 	return (0);
 }
 
-#else /* WIN32 */
+#elif defined(WIN32)
 
 /*
  * Return the name of a network interface attached to the system, or NULL
@@ -597,9 +621,10 @@ pcap_lookupdev(errbuf)
 		ULONG NameLength = 8192;
 		static char AdaptersName[8192];
 		
-		PacketGetAdapterNames(AdaptersName,&NameLength);
-		
+		if (PacketGetAdapterNames(AdaptersName,&NameLength) )
 		return (AdaptersName);
+		else
+			return NULL;
 	} else {
 		/*
 		 * Windows NT (NT 4.0, W2K, WXP). Convert the names to UNICODE for backward compatibility
@@ -617,7 +642,15 @@ pcap_lookupdev(errbuf)
 			return NULL;
 		}
 
-		PacketGetAdapterNames((PTSTR)TAdaptersName,&NameLength);
+		if ( !PacketGetAdapterNames((PTSTR)TAdaptersName,&NameLength) )
+		{
+			(void)snprintf(errbuf, PCAP_ERRBUF_SIZE,
+				"PacketGetAdapterNames: %s",
+				pcap_win32strerror());
+			free(TAdaptersName);
+			return NULL;
+		}
+
 
 		tAstr = (char*)TAdaptersName;
 		tUstr = (WCHAR*)AdaptersName;
@@ -646,6 +679,7 @@ pcap_lookupdev(errbuf)
 			tAstr += strlen(tAstr) + 1;
 		}
 
+		free(TAdaptersName);
 		return (char *)(AdaptersName);
 	}	
 }
@@ -653,7 +687,7 @@ pcap_lookupdev(errbuf)
 
 int
 pcap_lookupnet(device, netp, maskp, errbuf)
-	const register char *device;
+	register const char *device;
 	register bpf_u_int32 *netp, *maskp;
 	register char *errbuf;
 {
@@ -690,4 +724,4 @@ pcap_lookupnet(device, netp, maskp, errbuf)
 	return (0);
 }
 
-#endif /* WIN32 */
+#endif /* !WIN32 && !MSDOS */

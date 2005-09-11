@@ -295,6 +295,8 @@ timestamp resolution if it finds it's running on a SS-1).
 FILES
 -----
 CHANGES		- description of differences between releases
+ChmodBPF/*	- Mac OS X startup item to set ownership and permissions
+		  on /dev/bpf*
 CREDITS		- people that have helped libpcap along
 FILES		- list of files exported as part of the distribution
 INSTALL.txt	- this file
@@ -305,6 +307,8 @@ README.aix	- notes on using libpcap on AIX
 README.dag	- notes on using libpcap to capture on Endace DAG devices
 README.hpux	- notes on using libpcap on HP-UX
 README.linux	- notes on using libpcap on Linux
+README.macosx	- notes on using libpcap on Mac OS X
+README.septel   - notes on using libpcap to capture on Intel/Septel devices
 README.tru64	- notes on using libpcap on Digital/Tru64 UNIX
 README.Win32	- notes on using libpcap on Win32 systems (with WinPcap)
 SUNOS4		- pre-SunOS 4.1 replacement kernel nit modules
@@ -336,7 +340,9 @@ inet.c		- network routines
 install-sh	- BSD style install script
 lbl/os-*.h	- OS-dependent defines and prototypes
 llc.h		- 802.2 LLC SAP definitions
+missing/*	- replacements for missing library functions
 mkdep		- construct Makefile dependency list
+msdos/*		- drivers for MS-DOS capture support
 nametoaddr.c	- hostname to address routines
 nlpid.h		- OSI network layer protocol identifier definitions
 net		- symlink to bpf/net
@@ -347,6 +353,8 @@ pcap-bpf.h	- BPF definitions
 pcap-dag.c	- Endace DAG device capture support
 pcap-dag.h	- Endace DAG device capture support
 pcap-dlpi.c	- Data Link Provider Interface support
+pcap-dos.c	- MS-DOS capture support
+pcap-dos.h	- headers for MS-DOS capture support
 pcap-enet.c	- enet support
 pcap-int.h	- internal libpcap definitions
 pcap-linux.c	- Linux packet socket support
@@ -356,6 +364,8 @@ pcap-nit.h	- SunOS Network Interface Tap definitions
 pcap-null.c	- dummy monitor support (allows offline use of libpcap)
 pcap-pf.c	- Ultrix and Digital/Tru64 UNIX Packet Filter support
 pcap-pf.h	- Ultrix and Digital/Tru64 UNIX Packet Filter definitions
+pcap-septel.c   - INTEL/Septel device capture support
+pcap-septel.h   - INTEL/Septel device capture support
 pcap-stdinc.h	- includes and #defines for compiling on Win32 systems
 pcap-snit.c	- SunOS 4.x STREAMS-based Network Interface Tap support
 pcap-snoop.c	- IRIX Snoop network monitoring support
@@ -369,6 +379,5 @@ rawss7.h	- information on DLT_ types for SS7
 savefile.c	- offline support
 scanner.l	- filter string scanner
 sll.h		- definitions for Linux cooked mode fake link-layer header
-snprintf.c	- snprintf and vsnprintf for platforms that lack them
 sunatmpos.h	- definitions for SunATM capturing
 Win32		- headers and routines for building on Win32 systems

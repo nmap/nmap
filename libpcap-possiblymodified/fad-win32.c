@@ -155,8 +155,7 @@ pcap_add_if_win32(pcap_if_t **devlist, char *name, const char *desc,
 	/*
 	 * Add an entry for this interface, with no addresses.
 	 */
-	if (add_or_find_if(&curdev, devlist, (char *)name, 0, (char *)desc,
-	    errbuf) == -1) {
+	if (add_or_find_if(&curdev, devlist, name, 0, desc, errbuf) == -1) {
 		/*
 		 * Failure.
 		 */
@@ -221,14 +220,30 @@ pcap_findalldevs(pcap_if_t **alldevsp, char *errbuf)
 	pcap_if_t *devlist = NULL;
 	int ret = 0;
 	const char *desc;
-	char AdaptersName[8192];
-	ULONG NameLength = 8192;
+	char *AdaptersName;
+	ULONG NameLength;
 	char *name;
 	
+	PacketGetAdapterNames(NULL, &NameLength);
+
+	if (NameLength > 0)
+		AdaptersName = (char*) malloc(NameLength);
+	else
+	{
+		*alldevsp = NULL;
+		return 0;
+	}
+	if (AdaptersName == NULL)
+	{
+		snprintf(errbuf, PCAP_ERRBUF_SIZE, "Cannot allocate enough memory to list the adapters.");
+		return (-1);
+	}			
+
 	if (!PacketGetAdapterNames(AdaptersName, &NameLength)) {
 		snprintf(errbuf, PCAP_ERRBUF_SIZE,
 			"PacketGetAdapterNames: %s",
 			pcap_win32strerror());
+		free(AdaptersName);
 		return (-1);
 	}
 	
@@ -264,8 +279,7 @@ pcap_findalldevs(pcap_if_t **alldevsp, char *errbuf)
 	/*
 	 * Add an entry for this interface.
 	 */
-	if (pcap_add_if_win32(&devlist, name, desc,
-			errbuf) == -1) {
+		if (pcap_add_if_win32(&devlist, name, desc, errbuf) == -1) {
 			/*
 			* Failure.
 			*/
@@ -287,5 +301,6 @@ pcap_findalldevs(pcap_if_t **alldevsp, char *errbuf)
 	}
 	
 	*alldevsp = devlist;
+	free(AdaptersName);
 	return (ret);
 }

@@ -37,12 +37,57 @@ cards and will not capture from the native OS packet stream.
 
 ----------------------------------------------------------------------
 
+Libpcap when built for DAG cards against dag-2.5.1 or later releases:
+
+Timeouts are supported. pcap_dispatch() will return after to_ms milliseconds
+regardless of how many packets are received. If to_ms is zero pcap_dispatch()
+will block waiting for data indefinitely.
+
+pcap_dispatch() will block on and process a minimum of 64kB of data (before
+filtering) for efficiency. This can introduce high latencies on quiet
+interfaces unless a timeout value is set. The timeout expiring will override
+the 64kB minimum causing pcap_dispatch() to process any available data and
+return.
+
+pcap_setnonblock is supported. When nonblock is set, pcap_dispatch() will
+check once for available data, process any data available up to count, then
+return immediately.
+
+pcap_findalldevs() is supported, e.g. dag0, dag1...
+
+Some DAG cards can provide more than one 'stream' of received data.
+This can be data from different physical ports, or separated by filtering
+or load balancing mechanisms. Receive streams have even numbers, e.g.
+dag0:0, dag0:2 etc. Specifying transmit streams for capture is not supported.
+
+pcap_setfilter() is supported, BPF programs run in userspace.
+
+pcap_setdirection() is not supported. Only received traffic is captured.
+DAG cards normally do not have IP or link layer addresses assigned as
+they are used to passively monitor links.
+
+pcap_breakloop() is supported.
+
+pcap_datalink() and pcap_list_datalinks() are supported. The DAG card does
+not attempt to set the correct datalink type automatically where more than
+one type is possible.
+
+pcap_stats() is supported. ps_drop is the number of packets dropped due to
+RX stream buffer overflow, this count is before filters are applied (it will
+include packets that would have been dropped by the filter). The RX stream
+buffer size is user configurable outside libpcap, typically 16-512MB.
+
+pcap_get_selectable_fd() is not supported, DAG cards do not support
+poll/select methods.
+
+pcap_inject() and pcap_sendpacket() are not supported.
+
+----------------------------------------------------------------------
+
 Please submit bug reports via <support@endace.com>.
 
-Please also visit our Web pages at:
+Please also visit our Web site at:
 
         http://www.endace.com/
-        http://dag.cs.waikato.ac.nz/
 
 For more information about Endace DAG cards contact <sales@endace.com>.
-

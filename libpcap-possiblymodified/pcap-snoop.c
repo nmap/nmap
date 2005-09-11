@@ -63,8 +63,8 @@ pcap_read_snoop(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 {
 	int cc;
 	register struct snoopheader *sh;
-	register int datalen;
-	register int caplen;
+	register u_int datalen;
+	register u_int caplen;
 	register u_char *cp;
 
 again:
@@ -97,6 +97,16 @@ again:
 	}
 	sh = (struct snoopheader *)p->buffer;
 	datalen = sh->snoop_packetlen;
+
+	/*
+	 * XXX - Sigh, snoop_packetlen is a 16 bit quantity.  If we
+	 * got a short length, but read a full sized snoop pakcet,
+	 * assume we overflowed and add back the 64K...
+	 */
+	if (cc == (p->snapshot + sizeof(struct snoopheader)) &&
+	    (datalen < p->snapshot))
+		datalen += (64 * 1024);
+
 	caplen = (datalen < p->snapshot) ? datalen : p->snapshot;
 	cp = (u_char *)(sh + 1) + p->offset;		/* XXX */
 
@@ -124,6 +134,24 @@ again:
 	}
 	return (0);
 }
+
+static int
+pcap_inject_snoop(pcap_t *p, const void *buf, size_t size)
+{
+	int ret;
+
+	/*
+	 * XXX - libnet overwrites the source address with what I
+	 * presume is the interface's address; is that required?
+	 */
+	ret = write(p->fd, buf, size);
+	if (ret == -1) {
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "send: %s",
+		    pcap_strerror(errno));
+		return (-1);
+	}
+	return (ret);
+}                           
 
 static int
 pcap_stats_snoop(pcap_t *p, struct pcap_stat *ps)
@@ -163,15 +191,6 @@ pcap_stats_snoop(pcap_t *p, struct pcap_stat *ps)
 	 */
 	*ps = p->md.stat;
 	return (0);
-}
-
-static void
-pcap_close_snoop(pcap_t *p)
-{
-	if (p->buffer != NULL)
-		free(p->buffer);
-	if (p->fd >= 0)
-		close(p->fd);
 }
 
 /* XXX can't disable promiscuous */
@@ -237,6 +256,35 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 		p->linktype = DLT_EN10MB;
 		p->offset = RAW_HDRPAD(sizeof(struct ether_header));
 		ll_hdrlen = sizeof(struct ether_header);
+		/*
+		 * This is (presumably) a real Ethernet capture; give it a
+		 * link-layer-type list with DLT_EN10MB and DLT_DOCSIS, so
+		 * that an application can let you choose it, in case you're
+		 * capturing DOCSIS traffic that a Cisco Cable Modem
+		 * Termination System is putting out onto an Ethernet (it
+		 * doesn't put an Ethernet header onto the wire, it puts raw
+		 * DOCSIS frames out on the wire inside the low-level
+		 * Ethernet framing).
+		 *
+		 * XXX - are there any sorts of "fake Ethernet" that have
+		 * Ethernet link-layer headers but that *shouldn't offer
+		 * DLT_DOCSIS as a Cisco CMTS won't put traffic onto it
+		 * or get traffic bridged onto it?  "el" is for ATM LANE
+		 * Ethernet devices, so that might be the case for them;
+		 * the same applies for "qaa" classical IP devices.  If
+		 * "fa" devices are for FORE SPANS, that'd apply to them
+		 * as well; what are "cip" devices - some other ATM
+		 * Classical IP devices?
+		 */
+		p->dlt_list = (u_int *) malloc(sizeof(u_int) * 2);
+		/*
+		 * If that fails, just leave the list empty.
+		 */
+		if (p->dlt_list != NULL) {
+			p->dlt_list[0] = DLT_EN10MB;
+			p->dlt_list[1] = DLT_DOCSIS;
+			p->dlt_count = 2;
+		}
 	} else if (strncmp("ipg", device, 3) == 0 ||
 		   strncmp("rns", device, 3) == 0 ||	/* O2/200/2000 FDDI */
 		   strncmp("xpi", device, 3) == 0) {
@@ -329,16 +377,23 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 	p->selectable_fd = p->fd;
 
 	p->read_op = pcap_read_snoop;
+	p->inject_op = pcap_inject_snoop;
 	p->setfilter_op = install_bpf_program;	/* no kernel filtering */
+	p->setdirection_op = NULL;	/* Not implemented. */
 	p->set_datalink_op = NULL;	/* can't change data link type */
 	p->getnonblock_op = pcap_getnonblock_fd;
 	p->setnonblock_op = pcap_setnonblock_fd;
 	p->stats_op = pcap_stats_snoop;
-	p->close_op = pcap_close_snoop;
+	p->close_op = pcap_close_common;
 
 	return (p);
  bad:
 	(void)close(fd);
+	/*
+	 * Get rid of any link-layer type list we allocated.
+	 */
+	if (p->dlt_list != NULL)
+		free(p->dlt_list);
 	free(p);
 	return (NULL);
 }

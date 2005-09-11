@@ -1,4 +1,13 @@
-@(#) $Header$ (LBL)
+@(#) $Header: /tcpdump/master/libpcap/CHANGES,v 1.59.2.3 2005/07/11 20:09:47 mcr Exp $ (LBL)
+
+Tue. 	July 5, 2005.  ken@xelerance.com. Summary for 0.9.x libpcap
+
+	Fixes for compiling on nearly every platform,
+		including improved 64bit support
+	MSDOS Support
+	Add support for sending packets
+	OpenBSD pf format support
+	IrDA capture (Linux only)
 
 Tue.   March 30, 2004. mcr@sandelman.ottawa.on.ca. Summary for 3.8.3 release
 

@@ -102,6 +102,27 @@ struct rtentry;		/* declarations in <net/if.h> */
 #endif /* HAVE_SOCKADDR_SA_LEN */
 #endif /* SA_LEN */
 
+/*
+ * This is also fun.
+ *
+ * There is no ioctl that returns the amount of space required for all
+ * the data that SIOCGIFCONF could return, and if a buffer is supplied
+ * that's not large enough for all the data SIOCGIFCONF could return,
+ * on at least some platforms it just returns the data that'd fit with
+ * no indication that there wasn't enough room for all the data, much
+ * less an indication of how much more room is required.
+ *
+ * The only way to ensure that we got all the data is to pass a buffer
+ * large enough that the amount of space in the buffer *not* filled in
+ * is greater than the largest possible entry.
+ *
+ * We assume that's "sizeof(ifreq.ifr_name)" plus 255, under the assumption
+ * that no address is more than 255 bytes (on systems where the "sa_len"
+ * field in a "struct sockaddr" is 1 byte, e.g. newer BSDs, that's the
+ * case, and addresses are unlikely to be bigger than that in any case).
+ */
+#define MAX_SA_LEN	255
+
 #ifdef HAVE_PROC_NET_DEV
 /*
  * Get from "/proc/net/dev" all interfaces listed there; if they're
@@ -255,6 +276,9 @@ pcap_findalldevs(pcap_if_t **alldevsp, char *errbuf)
 	struct ifconf ifc;
 	char *buf = NULL;
 	unsigned buf_size;
+#if defined (HAVE_SOLARIS) || defined (HAVE_HPUX10_20_OR_LATER)
+	char *p, *q;
+#endif
 	struct ifreq ifrflags, ifrnetmask, ifrbroadaddr, ifrdstaddr;
 	struct sockaddr *netmask, *broadaddr, *dstaddr;
 	size_t netmask_size, broadaddr_size, dstaddr_size;
@@ -272,9 +296,10 @@ pcap_findalldevs(pcap_if_t **alldevsp, char *errbuf)
 
 	/*
 	 * Start with an 8K buffer, and keep growing the buffer until
-	 * we get the entire interface list or fail to get it for some
-	 * reason other than EINVAL (which is presumed here to mean
-	 * "buffer is too small").
+	 * we have more than "sizeof(ifrp->ifr_name) + MAX_SA_LEN"
+	 * bytes left over in the buffer or we fail to get the
+	 * interface list for some reason other than EINVAL (which is
+	 * presumed here to mean "buffer is too small").
 	 */
 	buf_size = 8192;
 	for (;;) {
@@ -297,7 +322,8 @@ pcap_findalldevs(pcap_if_t **alldevsp, char *errbuf)
 			free(buf);
 			return (-1);
 		}
-		if (ifc.ifc_len < buf_size)
+		if (ifc.ifc_len < buf_size &&
+		    (buf_size - ifc.ifc_len) > sizeof(ifrp->ifr_name) + MAX_SA_LEN)
 			break;
 		free(buf);
 		buf_size *= 2;
@@ -322,6 +348,28 @@ pcap_findalldevs(pcap_if_t **alldevsp, char *errbuf)
 			ifnext = ifrp + 1;
 		else
 			ifnext = (struct ifreq *)((char *)ifrp + n);
+
+		/*
+		 * XXX - The 32-bit compatibility layer for Linux on IA-64
+		 * is slightly broken. It correctly converts the structures
+		 * to and from kernel land from 64 bit to 32 bit but 
+		 * doesn't update ifc.ifc_len, leaving it larger than the 
+		 * amount really used. This means we read off the end 
+		 * of the buffer and encounter an interface with an 
+		 * "empty" name. Since this is highly unlikely to ever 
+		 * occur in a valid case we can just finish looking for 
+		 * interfaces if we see an empty name.
+		 */
+		if (!(*ifrp->ifr_name))
+			break;
+
+		/*
+		 * Skip entries that begin with "dummy".
+		 * XXX - what are these?  Is this Linux-specific?
+		 * Are there platforms on which we shouldn't do this?
+		 */
+		if (strncmp(ifrp->ifr_name, "dummy", 5) == 0)
+			continue;
 
 		/*
 		 * Get the flags for this interface, and skip it if it's
@@ -448,6 +496,34 @@ pcap_findalldevs(pcap_if_t **alldevsp, char *errbuf)
 			dstaddr = NULL;
 			dstaddr_size = 0;
 		}
+
+#if defined (HAVE_SOLARIS) || defined (HAVE_HPUX10_20_OR_LATER)
+		/*
+		 * If this entry has a colon followed by a number at
+		 * the end, it's a logical interface.  Those are just
+		 * the way you assign multiple IP addresses to a real
+		 * interface, so an entry for a logical interface should
+		 * be treated like the entry for the real interface;
+		 * we do that by stripping off the ":" and the number.
+		 */
+		p = strchr(ifrp->ifr_name, ':');
+		if (p != NULL) {
+			/*
+			 * We have a ":"; is it followed by a number?
+			 */
+			q = p + 1;
+			while (isdigit((unsigned char)*q))
+				q++;
+			if (*q == '\0') {
+				/*
+				 * All digits after the ":" until the end.
+				 * Strip off the ":" and everything after
+				 * it.
+				 */
+				*p = '\0';
+			}
+		}
+#endif
 
 		/*
 		 * Add information for this address to the list.

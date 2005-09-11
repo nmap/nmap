@@ -53,12 +53,19 @@ static const char rcsid[] _U_ =
 
 #ifndef WIN32
 #ifdef HAVE_ETHER_HOSTTON
+/*
+ * XXX - do we need any of this if <netinet/if_ether.h> doesn't declare
+ * ether_hostton()?
+ */
 #ifdef HAVE_NETINET_IF_ETHER_H
 struct mbuf;		/* Squelch compiler warnings on some platforms for */
 struct rtentry;		/* declarations in <net/if.h> */
 #include <net/if.h>	/* for "struct ifnet" in "struct arpcom" on Solaris */
 #include <netinet/if_ether.h>
 #endif /* HAVE_NETINET_IF_ETHER_H */
+#ifdef NETINET_ETHER_H_DECLARES_ETHER_HOSTTON
+#include <netinet/ether.h>
+#endif /* NETINET_ETHER_H_DECLARES_ETHER_HOSTTON */
 #endif /* HAVE_ETHER_HOSTTON */
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -67,7 +74,7 @@ struct rtentry;		/* declarations in <net/if.h> */
 #include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>
-#include <memory.h>
+#include <string.h>
 #include <stdio.h>
 
 #include "pcap-int.h"
@@ -124,6 +131,7 @@ pcap_nametoaddrinfo(const char *name)
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = PF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;	/*not really*/
+	hints.ai_protocol = IPPROTO_TCP;	/*not really*/
 	error = getaddrinfo(name, NULL, &hints, &res);
 	if (error)
 		return NULL;
@@ -208,6 +216,51 @@ pcap_nametoport(const char *name, int *port, int *proto)
 	return 0;
 }
 
+/*
+ * Convert a string in the form PPP-PPP, where correspond to ports, to
+ * a starting and ending port in a port range.
+ * Return 0 on failure.
+ */
+int
+pcap_nametoportrange(const char *name, int *port1, int *port2, int *proto)
+{
+	u_int p1, p2;
+	char *off, *cpy;
+	int save_proto;
+
+	if (sscanf(name, "%d-%d", &p1, &p2) != 2) {
+		if ((cpy = strdup(name)) == NULL)
+			return 0;
+
+		if ((off = strchr(cpy, '-')) == NULL) {
+			free(cpy);
+			return 0;
+		}
+
+		*off = '\0';
+
+		if (pcap_nametoport(cpy, port1, proto) == 0) {
+			free(cpy);
+			return 0;
+		}
+		save_proto = *proto;
+
+		if (pcap_nametoport(off + 1, port2, proto) == 0) {
+			free(cpy);
+			return 0;
+		}
+
+		if (*proto != save_proto)
+			*proto = PROTO_UNDEF;
+	} else {
+		*port1 = p1;
+		*port2 = p2;
+		*proto = PROTO_UNDEF;
+	}
+
+	return 1;
+}
+
 int
 pcap_nametoproto(const char *str)
 {
@@ -258,6 +311,30 @@ int
 pcap_nametoeproto(const char *s)
 {
 	struct eproto *p = eproto_db;
+
+	while (p->s != 0) {
+		if (strcmp(p->s, s) == 0)
+			return p->p;
+		p += 1;
+	}
+	return PROTO_UNDEF;
+}
+
+#include "llc.h"
+
+/* Static data base of LLC values. */
+static struct eproto llc_db[] = {
+	{ "iso", LLCSAP_ISONS },
+	{ "stp", LLCSAP_8021D },
+	{ "ipx", LLCSAP_IPX },
+	{ "netbeui", LLCSAP_NETBEUI },
+	{ (char *)0, 0 }
+};
+
+int
+pcap_nametollc(const char *s)
+{
+	struct eproto *p = llc_db;
 
 	while (p->s != 0) {
 		if (strcmp(p->s, s) == 0)
@@ -380,18 +457,13 @@ pcap_ether_hostton(const char *name)
 }
 #else
 
-/*
- * XXX - perhaps this should, instead, be declared in "lbl/os-XXX.h" files,
- * for those OS versions that don't declare it, rather than being declared
- * here?  That way, for example, we could declare it on FreeBSD 2.x (which
- * doesn't declare it), but not on FreeBSD 3.x (which declares it like
- * this) or FreeBSD 4.x (which declares it with its first argument as
- * "const char *", so no matter how we declare it here, it'll fail to
- * compile on one of 3.x or 4.x).
- */
-#if !defined(sgi) && !defined(__NetBSD__) && !defined(__FreeBSD__) && \
-       !defined(_UNICOSMP)
-extern int ether_hostton(char *, struct ether_addr *);
+#if !defined(HAVE_DECL_ETHER_HOSTTON) || !HAVE_DECL_ETHER_HOSTTON
+#ifndef HAVE_STRUCT_ETHER_ADDR
+struct ether_addr {
+	unsigned char ether_addr_octet[6];
+};
+#endif
+extern int ether_hostton(const char *, struct ether_addr *);
 #endif
 
 /* Use the os supplied routines */

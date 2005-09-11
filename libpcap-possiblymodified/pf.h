@@ -64,7 +64,7 @@ enum	{ PF_PASS=0, PF_DROP=1, PF_SCRUB=2, PF_NAT=3, PF_NONAT=4,
 
 struct pfloghdr {
 	u_int8_t	length;
-	sa_family_t	af;
+	u_int8_t	af;
 	u_int8_t	action;
 	u_int8_t	reason;
 	char		ifname[IFNAMSIZ];

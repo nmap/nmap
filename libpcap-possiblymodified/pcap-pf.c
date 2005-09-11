@@ -129,10 +129,7 @@ pcap_read_pf(pcap_t *pc, int cnt, pcap_handler callback, u_char *user)
 	 */
 	n = 0;
 #ifdef PCAP_FDDIPAD
-	if (pc->linktype == DLT_FDDI)
-		pad = pcap_fddipad;
-	else
-		pad = 0;
+	pad = pc->fddipad;
 #endif
 	while (cc > 0) {
 		/*
@@ -182,10 +179,6 @@ pcap_read_pf(pcap_t *pc, int cnt, pcap_handler callback, u_char *user)
 		inc = ENALIGN(buflen + sp->ens_stamplen);
 		cc -= inc;
 		bp += inc;
-#ifdef PCAP_FDDIPAD
-		p += pad;
-		buflen -= pad;
-#endif
 		pc->md.TotPkts++;
 		pc->md.TotDrops += sp->ens_dropped;
 		pc->md.TotMissed = sp->ens_ifoverflows;
@@ -195,6 +188,14 @@ pcap_read_pf(pcap_t *pc, int cnt, pcap_handler callback, u_char *user)
 		/*
 		 * Short-circuit evaluation: if using BPF filter
 		 * in kernel, no need to do it now.
+		 *
+#ifdef PCAP_FDDIPAD
+		 * Note: the filter code was generated assuming
+		 * that pc->fddipad was the amount of padding
+		 * before the header, as that's what's required
+		 * in the kernel, so we run the filter before
+		 * skipping that padding.
+#endif
 		 */
 		if (fcode == NULL ||
 		    bpf_filter(fcode, p, sp->ens_count, buflen)) {
@@ -205,6 +206,10 @@ pcap_read_pf(pcap_t *pc, int cnt, pcap_handler callback, u_char *user)
 			h.len = sp->ens_count - pad;
 #else
 			h.len = sp->ens_count;
+#endif
+#ifdef PCAP_FDDIPAD
+			p += pad;
+			buflen -= pad;
 #endif
 			h.caplen = buflen;
 			(*callback)(user, &h, p);
@@ -218,6 +223,20 @@ pcap_read_pf(pcap_t *pc, int cnt, pcap_handler callback, u_char *user)
 	pc->cc = 0;
 	return (n);
 }
+
+static int
+pcap_inject_pf(pcap_t *p, const void *buf, size_t size)
+{
+	int ret;
+
+	ret = write(p->fd, buf, size);
+	if (ret == -1) {
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "send: %s",
+		    pcap_strerror(errno));
+		return (-1);
+	}
+	return (ret);
+}                           
 
 static int
 pcap_stats_pf(pcap_t *p, struct pcap_stat *ps)
@@ -265,14 +284,13 @@ pcap_stats_pf(pcap_t *p, struct pcap_stat *ps)
 	return (0);
 }
 
-static void
-pcap_close_pf(pcap_t *p)
-{
-	if (p->buffer != NULL)
-		free(p->buffer);
-	if (p->fd >= 0)
-		close(p->fd);
-}
+/*
+ * We include the OS's <net/bpf.h>, not our "pcap-bpf.h", so we probably
+ * don't get DLT_DOCSIS defined.
+ */
+#ifndef DLT_DOCSIS
+#define DLT_DOCSIS	143
+#endif
 
 pcap_t *
 pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
@@ -291,13 +309,27 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 		return (0);
 	}
 	memset(p, 0, sizeof(*p));
-
 	/*
+	 * Initially try a read/write open (to allow the inject
+	 * method to work).  If that fails due to permission
+	 * issues, fall back to read-only.  This allows a
+	 * non-root user to be granted specific access to pcap
+	 * capabilities via file permissions.
+	 *
+	 * XXX - we should have an API that has a flag that
+	 * controls whether to open read-only or read-write,
+	 * so that denial of permission to send (or inability
+	 * to send, if sending packets isn't supported on
+	 * the device in question) can be indicated at open
+	 * time.
+	 *
 	 * XXX - we assume here that "pfopen()" does not, in fact, modify
 	 * its argument, even though it takes a "char *" rather than a
 	 * "const char *" as its first argument.  That appears to be
 	 * the case, at least on Digital UNIX 4.0.
 	 */
+	p->fd = pfopen(device, O_RDWR);
+	if (p->fd == -1 && errno == EACCES)
 	p->fd = pfopen(device, O_RDONLY);
 	if (p->fd < 0) {
 		snprintf(ebuf, PCAP_ERRBUF_SIZE, "pf open: %s: %s\n\
@@ -340,6 +372,25 @@ your system may not be properly configured; see the packetfilter(4) man page\n",
 	case ENDT_10MB:
 		p->linktype = DLT_EN10MB;
 		p->offset = 2;
+		/*
+		 * This is (presumably) a real Ethernet capture; give it a
+		 * link-layer-type list with DLT_EN10MB and DLT_DOCSIS, so
+		 * that an application can let you choose it, in case you're
+		 * capturing DOCSIS traffic that a Cisco Cable Modem
+		 * Termination System is putting out onto an Ethernet (it
+		 * doesn't put an Ethernet header onto the wire, it puts raw
+		 * DOCSIS frames out on the wire inside the low-level
+		 * Ethernet framing).
+		 */
+		p->dlt_list = (u_int *) malloc(sizeof(u_int) * 2);
+		/*
+		 * If that fails, just leave the list empty.
+		 */
+		if (p->dlt_list != NULL) {
+			p->dlt_list[0] = DLT_EN10MB;
+			p->dlt_list[1] = DLT_DOCSIS;
+			p->dlt_count = 2;
+		}
 		break;
 
 	case ENDT_FDDI:
@@ -396,9 +447,13 @@ your system may not be properly configured; see the packetfilter(4) man page\n",
 	}
 	/* set truncation */
 #ifdef PCAP_FDDIPAD
-	if (p->linktype == DLT_FDDI)
+	if (p->linktype == DLT_FDDI) {
+		p->fddipad = PCAP_FDDIPAD;
+
 		/* packetfilter includes the padding in the snapshot */
-		snaplen += pcap_fddipad;
+		snaplen += PCAP_FDDIPAD;
+	} else
+		p->fddipad = 0;
 #endif
 	if (ioctl(p->fd, EIOCTRUNCATE, (caddr_t)&snaplen) < 0) {
 		snprintf(ebuf, PCAP_ERRBUF_SIZE, "EIOCTRUNCATE: %s",
@@ -440,17 +495,24 @@ your system may not be properly configured; see the packetfilter(4) man page\n",
 	p->selectable_fd = p->fd;
 
 	p->read_op = pcap_read_pf;
+	p->inject_op = pcap_inject_pf;
 	p->setfilter_op = pcap_setfilter_pf;
+	p->setdirection_op = NULL;	/* Not implemented. */
 	p->set_datalink_op = NULL;	/* can't change data link type */
 	p->getnonblock_op = pcap_getnonblock_fd;
 	p->setnonblock_op = pcap_setnonblock_fd;
 	p->stats_op = pcap_stats_pf;
-	p->close_op = pcap_close_pf;
+	p->close_op = pcap_close_common;
 
 	return (p);
  bad:
 	if (p->fd >= 0)
 		close(p->fd);
+	/*
+	 * Get rid of any link-layer type list we allocated.
+	 */
+	if (p->dlt_list != NULL)
+		free(p->dlt_list);
 	free(p);
 	return (NULL);
 }
@@ -506,6 +568,16 @@ pcap_setfilter_pf(pcap_t *p, struct bpf_program *fp)
 			 */
 			fprintf(stderr, "tcpdump: Using kernel BPF filter\n");
 			p->md.use_bpf = 1;
+
+			/*
+			 * Discard any previously-received packets,
+			 * as they might have passed whatever filter
+			 * was formerly in effect, but might not pass
+			 * this filter (BIOCSETF discards packets buffered
+			 * in the kernel, so you can lose packets in any
+			 * case).
+			 */
+			p->cc = 0;
 			return (0);
 		}
 

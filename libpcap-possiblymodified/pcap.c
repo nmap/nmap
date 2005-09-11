@@ -49,7 +49,7 @@ static const char rcsid[] _U_ =
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && !defined(__BORLANDC__)
 #include <unistd.h>
 #endif
 #include <fcntl.h>
@@ -57,6 +57,10 @@ static const char rcsid[] _U_ =
 
 #ifdef HAVE_OS_PROTO_H
 #include "os-proto.h"
+#endif
+
+#ifdef MSDOS
+#include "pcap-dos.h"
 #endif
 
 #include "pcap-int.h"
@@ -275,6 +279,22 @@ pcap_set_datalink(pcap_t *p, int dlt)
 			break;
 	if (i >= p->dlt_count)
 		goto unsupported;
+	if (p->dlt_count == 2 && p->dlt_list[0] == DLT_EN10MB &&
+	    dlt == DLT_DOCSIS) {
+		/*
+		 * This is presumably an Ethernet device, as the first
+		 * link-layer type it offers is DLT_EN10MB, and the only
+		 * other type it offers is DLT_DOCSIS.  That means that
+		 * we can't tell the driver to supply DOCSIS link-layer
+		 * headers - we're just pretending that's what we're
+		 * getting, as, presumably, we're capturing on a dedicated
+		 * link to a Cisco Cable Modem Termination System, and
+		 * it's putting raw DOCSIS frames on the wire inside low-level
+		 * Ethernet framing.
+		 */
+		p->linktype = dlt;
+		return (0);
+	}
 	if (p->set_datalink_op(p, dlt) == -1)
 		return (-1);
 	p->linktype = dlt;
@@ -311,7 +331,7 @@ static struct dlt_choice dlt_choices[] = {
 	DLT_CHOICE(DLT_SLIP, "SLIP"),
 	DLT_CHOICE(DLT_PPP, "PPP"),
 	DLT_CHOICE(DLT_FDDI, "FDDI"),
-	DLT_CHOICE(DLT_ATM_RFC1483, "RFC 1483 IP-over-ATM"),
+	DLT_CHOICE(DLT_ATM_RFC1483, "RFC 1483 LLC-encapsulated ATM"),
 	DLT_CHOICE(DLT_RAW, "Raw IP"),
 	DLT_CHOICE(DLT_SLIP_BSDOS, "BSD/OS SLIP"),
 	DLT_CHOICE(DLT_PPP_BSDOS, "BSD/OS PPP"),
@@ -332,8 +352,27 @@ static struct dlt_choice dlt_choices[] = {
 	DLT_CHOICE(DLT_IEEE802_11_RADIO, "802.11 plus BSD radio information header"),
 	DLT_CHOICE(DLT_APPLE_IP_OVER_IEEE1394, "Apple IP-over-IEEE 1394"),
 	DLT_CHOICE(DLT_ARCNET_LINUX, "Linux ARCNET"),
+	DLT_CHOICE(DLT_DOCSIS, "DOCSIS"),
 	DLT_CHOICE(DLT_LINUX_IRDA, "Linux IrDA"),
 	DLT_CHOICE(DLT_IEEE802_11_RADIO_AVS, "802.11 plus AVS radio information header"),
+        DLT_CHOICE(DLT_SYMANTEC_FIREWALL, "Symantec Firewall"),
+        DLT_CHOICE(DLT_JUNIPER_ATM1, "Juniper ATM1 PIC"),
+        DLT_CHOICE(DLT_JUNIPER_ATM2, "Juniper ATM2 PIC"),
+        DLT_CHOICE(DLT_JUNIPER_MLPPP, "Juniper Multi-Link PPP"),
+ 	DLT_CHOICE(DLT_PPP_PPPD, "PPP for pppd, with direction flag"),
+ 	DLT_CHOICE(DLT_JUNIPER_PPPOE, "Juniper PPPoE"),
+ 	DLT_CHOICE(DLT_JUNIPER_PPPOE_ATM, "Juniper PPPoE/ATM"),
+ 	DLT_CHOICE(DLT_GPRS_LLC, "GPRS LLC"),
+ 	DLT_CHOICE(DLT_GPF_T, "GPF-T"),
+ 	DLT_CHOICE(DLT_GPF_F, "GPF-F"),
+ 	DLT_CHOICE(DLT_JUNIPER_PIC_PEER, "Juniper PIC Peer"),
+ 	DLT_CHOICE(DLT_JUNIPER_MLFR, "Juniper Multi-Link Frame Relay"),
+	DLT_CHOICE(DLT_ERF_ETH,	"Ethernet with Endace ERF header"),
+	DLT_CHOICE(DLT_ERF_POS, "Packet-over-SONET with Endace ERF header"),
+        DLT_CHOICE(DLT_JUNIPER_GGSN, "Juniper GGSN PIC"),
+        DLT_CHOICE(DLT_JUNIPER_ES, "Juniper Encryption Services PIC"),
+        DLT_CHOICE(DLT_JUNIPER_MONITOR, "Juniper Passive Monitor PIC"),
+        DLT_CHOICE(DLT_JUNIPER_SERVICES, "Juniper Advanced Services PIC"),
 	DLT_CHOICE_SENTINEL
 };
 
@@ -502,7 +541,7 @@ pcap_fileno(pcap_t *p)
 #endif
 }
 
-#ifndef WIN32
+#if !defined(WIN32) && !defined(MSDOS)
 int
 pcap_get_selectable_fd(pcap_t *p)
 {
@@ -535,7 +574,7 @@ pcap_getnonblock(pcap_t *p, char *errbuf)
  * We don't look at "p->nonblock", in case somebody tweaked the FD
  * directly.
  */
-#ifndef WIN32
+#if !defined(WIN32) && !defined(MSDOS)
 int
 pcap_getnonblock_fd(pcap_t *p, char *errbuf)
 {
@@ -560,7 +599,7 @@ pcap_setnonblock(pcap_t *p, int nonblock, char *errbuf)
 	return p->setnonblock_op(p, nonblock, errbuf);
 }
 
-#ifndef WIN32
+#if !defined(WIN32) && !defined(MSDOS)
 /*
  * Set non-blocking mode, under the assumption that it's just the
  * standard POSIX non-blocking flag.  (This can be called by the
@@ -603,6 +642,7 @@ pcap_win32strerror(void)
 	DWORD error;
 	static char errbuf[PCAP_ERRBUF_SIZE+1];
 	int errlen;
+	char *p;
 
 	error = GetLastError();
 	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, error, 0, errbuf,
@@ -617,6 +657,8 @@ pcap_win32strerror(void)
 		errbuf[errlen - 1] = '\0';
 		errbuf[errlen - 2] = '\0';
 	}
+	p = strchr(errbuf, '\0');
+	snprintf (p, sizeof(errbuf)-(p-errbuf), " (%lu)", error);
 	return (errbuf);
 }
 #endif
@@ -647,6 +689,23 @@ pcap_setfilter(pcap_t *p, struct bpf_program *fp)
 	return p->setfilter_op(p, fp);
 }
 
+/*
+ * Set direction flag, which controls whether we accept only incoming
+ * packets, only outgoing packets, or both.
+ * Note that, depending on the platform, some or all direction arguments
+ * might not be supported.
+ */
+int
+pcap_setdirection(pcap_t *p, pcap_direction_t d)
+{
+	if (p->setdirection_op == NULL) {
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		    "Setting direction is not implemented on this platform");
+		return -1;
+	} else
+		return p->setdirection_op(p, d);
+}
+
 int
 pcap_stats(pcap_t *p, struct pcap_stat *ps)
 {
@@ -654,15 +713,26 @@ pcap_stats(pcap_t *p, struct pcap_stat *ps)
 }
 
 static int
-pcap_stats_dead(pcap_t *p, struct pcap_stat *ps)
+pcap_stats_dead(pcap_t *p, struct pcap_stat *ps _U_)
 {
 	snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
 	    "Statistics aren't available from a pcap_open_dead pcap_t");
 	return (-1);
 }
 
+void
+pcap_close_common(pcap_t *p)
+{
+	if (p->buffer != NULL)
+		free(p->buffer);
+#if !defined(WIN32) && !defined(MSDOS)
+	if (p->fd >= 0)
+		close(p->fd);
+#endif
+}
+
 static void
-pcap_close_dead(pcap_t *p)
+pcap_close_dead(pcap_t *p _U_)
 {
 	/* Nothing to do. */
 }
@@ -681,6 +751,30 @@ pcap_open_dead(int linktype, int snaplen)
 	p->stats_op = pcap_stats_dead;
 	p->close_op = pcap_close_dead;
 	return p;
+}
+
+/*
+ * API compatible with WinPcap's "send a packet" routine - returns -1
+ * on error, 0 otherwise.
+ *
+ * XXX - what if we get a short write?
+ */
+int
+pcap_sendpacket(pcap_t *p, const u_char *buf, int size)
+{
+	if (p->inject_op(p, buf, size) == -1)
+		return (-1);
+	return (0);
+}
+
+/*
+ * API compatible with OpenBSD's "send a packet" routine - returns -1 on
+ * error, number of bytes written otherwise.
+ */
+int
+pcap_inject(pcap_t *p, const void *buf, size_t size)
+{
+	return (p->inject_op(p, buf, size));
 }
 
 void
@@ -705,26 +799,32 @@ pcap_close(pcap_t *p)
  * was linked, or even weirder things, such as the string being the one
  * from the library but being truncated).
  */
+#ifdef HAVE_VERSION_H
+#include "version.h"
+#else
+static const char pcap_version_string[] = "libpcap version 0.9[.x]";
+#endif
+
 #ifdef WIN32
 /*
  * XXX - it'd be nice if we could somehow generate the WinPcap and libpcap
  * version numbers when building WinPcap.  (It'd be nice to do so for
  * the packet.dll version number as well.)
  */
-static const char wpcap_version_string[] = "3.0";
+static const char wpcap_version_string[] = "3.1";
 static const char pcap_version_string_fmt[] =
-    "WinPcap version %s, based on libpcap version 0.8";
+    "WinPcap version %s, based on %s";
 static const char pcap_version_string_packet_dll_fmt[] =
-    "WinPcap version %s (packet.dll version %s), based on libpcap version 0.8";
-static char *pcap_version_string;
+    "WinPcap version %s (packet.dll version %s), based on %s";
+static char *full_pcap_version_string;
 
 const char *
 pcap_lib_version(void)
 {
 	char *packet_version_string;
-	size_t pcap_version_string_len;
+	size_t full_pcap_version_string_len;
 
-	if (pcap_version_string == NULL) {
+	if (full_pcap_version_string == NULL) {
 		/*
 		 * Generate the version string.
 		 */
@@ -735,12 +835,15 @@ pcap_lib_version(void)
 			 * string are the same; just report the WinPcap
 			 * version.
 			 */
-			pcap_version_string_len =
-			    (sizeof pcap_version_string_fmt - 2) +
-			    strlen(wpcap_version_string);
-			pcap_version_string = malloc(pcap_version_string_len);
-			sprintf(pcap_version_string, pcap_version_string_fmt,
-			    wpcap_version_string);
+			full_pcap_version_string_len =
+			    (sizeof pcap_version_string_fmt - 4) +
+			    strlen(wpcap_version_string) +
+			    strlen(pcap_version_string);
+			full_pcap_version_string =
+			    malloc(full_pcap_version_string_len);
+			sprintf(full_pcap_version_string,
+			    pcap_version_string_fmt, wpcap_version_string,
+			    pcap_version_string);
 		} else {
 			/*
 			 * WinPcap version string and packet.dll version
@@ -749,20 +852,48 @@ pcap_lib_version(void)
 			 * same version of WinPcap), so we report both
 			 * versions.
 			 */
-			pcap_version_string_len =
-			    (sizeof pcap_version_string_packet_dll_fmt - 4) +
+			full_pcap_version_string_len =
+			    (sizeof pcap_version_string_packet_dll_fmt - 6) +
 			    strlen(wpcap_version_string) +
-			    strlen(packet_version_string);
-			pcap_version_string = malloc(pcap_version_string_len);
-			sprintf(pcap_version_string,
+			    strlen(packet_version_string) +
+			    strlen(pcap_version_string);
+			full_pcap_version_string = malloc(full_pcap_version_string_len);
+
+			sprintf(full_pcap_version_string,
 			    pcap_version_string_packet_dll_fmt,
-			    wpcap_version_string, packet_version_string);
+			    wpcap_version_string, packet_version_string,
+			    pcap_version_string);
 		}
 	}
-	return (pcap_version_string);
+	return (full_pcap_version_string);
 }
-#else
-#include "version.h"
+
+#elif defined(MSDOS)
+
+static char *full_pcap_version_string;
+
+const char *
+pcap_lib_version (void)
+{
+	char *packet_version_string;
+	size_t full_pcap_version_string_len;
+	static char dospfx[] = "DOS-";
+
+	if (full_pcap_version_string == NULL) {
+		/*
+		 * Generate the version string.
+		 */
+		full_pcap_version_string_len =
+		    sizeof dospfx + strlen(pcap_version_string);
+		full_pcap_version_string =
+		    malloc(full_pcap_version_string_len);
+		strcpy(full_pcap_version_string, dospfx);
+		strcat(full_pcap_version_string, pcap_version_string);
+	}
+	return (full_pcap_version_string);
+}
+
+#else /* UN*X */
 
 const char *
 pcap_lib_version(void)

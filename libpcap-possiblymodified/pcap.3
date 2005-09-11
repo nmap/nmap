@@ -39,7 +39,9 @@ pcap_t *pcap_open_live(const char *device, int snaplen,
 int promisc, int to_ms, char *errbuf)
 pcap_t *pcap_open_dead(int linktype, int snaplen)
 pcap_t *pcap_open_offline(const char *fname, char *errbuf)
+pcap_t *pcap_fopen_offline(FILE *fp, char *errbuf)
 pcap_dumper_t *pcap_dump_open(pcap_t *p, const char *fname)
+pcap_dumper_t *pcap_dump_fopen(pcap_t *p, FILE *fp)
 .ft
 .LP
 .ft B
@@ -57,6 +59,10 @@ bpf_u_int32 *maskp, char *errbuf)
 .ft
 .LP
 .ft B
+typedef void (*pcap_handler)(u_char *user, const struct pcap_pkthdr *h,
+.ti +8
+			     const u_char *bytes);
+.ft B
 int pcap_dispatch(pcap_t *p, int cnt,
 .ti +8
 pcap_handler callback, u_char *user)
@@ -73,7 +79,8 @@ int pcap_compile(pcap_t *p, struct bpf_program *fp,
 .ti +8
 char *str, int optimize, bpf_u_int32 netmask)
 int pcap_setfilter(pcap_t *p, struct bpf_program *fp)
-void pcap_freecode(struct bpf_program *);
+void pcap_freecode(struct bpf_program *)
+int pcap_setdirection(pcap_t *p, pcap_direction_t d)
 .ft
 .LP
 .ft B
@@ -85,6 +92,11 @@ const u_char **pkt_data)
 .LP
 .ft B
 void pcap_breakloop(pcap_t *)
+.ft
+.LP
+.ft B
+int pcap_inject(pcap_t *p, const void *buf, size_t size)
+int pcap_sendpacket(pcap_t *p, const u_char *buf, int size)
 .ft
 .LP
 .ft B
@@ -101,7 +113,7 @@ int pcap_minor_version(pcap_t *p)
 int pcap_stats(pcap_t *p, struct pcap_stat *ps)
 FILE *pcap_file(pcap_t *p)
 int pcap_fileno(pcap_t *p)
-int pcap_get_selectable_fd(pcap_t *p)
+int pcap_get_selectable_fd(pcap_t *p);
 void pcap_perror(pcap_t *p, char *prefix)
 char *pcap_geterr(pcap_t *p)
 char *pcap_strerror(int error)
@@ -111,6 +123,7 @@ const char *pcap_lib_version(void)
 .ft B
 void pcap_close(pcap_t *p)
 int pcap_dump_flush(pcap_dumper_t *p)
+long pcap_dump_ftell(pcap_dumper_t *p)
 FILE *pcap_dump_file(pcap_dumper_t *p)
 void pcap_dump_close(pcap_dumper_t *p)
 .ft
@@ -128,6 +141,7 @@ in
 .BR pcap_open_live() ,
 .BR pcap_open_dead() ,
 .BR pcap_open_offline() ,
+.BR pcap_fopen_offline() ,
 .BR pcap_setnonblock() ,
 .BR pcap_getnonblock() ,
 .BR pcap_findalldevs() ,
@@ -206,9 +220,16 @@ and
 .BR tcpslice(1) .
 The name "-" in a synonym for
 .BR stdin .
+Alternatively, you may call
+.B pcap_fopen_offline()
+to read dumped data from an existing open stream
+.IR fp .
+Note that on Windows, that stream should be opened in binary mode.
 .I errbuf
 is used to return error text and is only set when
 .B pcap_open_offline()
+or
+.B pcap_fopen_offline()
 fails and returns
 .BR NULL .
 .PP
@@ -226,12 +247,17 @@ struct as returned by
 or
 .BR pcap_open_live() .
 .I fname
-specifies the name of the file to open.
+specifies the name of the file to open. Alternatively, you may call
+.B pcap_dump_fopen()
+to write data to an existing open stream
+.IR fp .
+Note that on Windows, that stream should be opened in binary mode.
 If
 .B NULL
 is returned,
 .B pcap_geterr()
 can be used to get the error text.
+.PP
 .PP
 .B pcap_setnonblock()
 puts a capture descriptor, opened with
@@ -353,6 +379,13 @@ to by
 .BR addr ;
 may be null if the interface isn't a point-to-point interface
 .RE
+.PP
+Note that not all the addresses in the list of addresses are
+necessarily IPv4 or IPv6 addresses - you must check the
+.B sa_family
+member of the
+.B "struct sockaddr"
+before interpreting the contents of the address.
 .PP
 .B \-1
 is returned on failure, in which case
@@ -628,6 +661,45 @@ the flag is cleared, so a subsequent call will resume reading packets.
 If a positive number is returned, the flag is not cleared, so a
 subsequent call will return \-2 and clear the flag.
 .PP
+.B pcap_inject()
+sends a raw packet through the network interface;
+.I buf
+points to the data of the packet, including the link-layer header, and
+.I size
+is the number of bytes in the packet.
+It returns the number of bytes written on success.  A return of \-1
+indicates an error in which case
+.B pcap_perror()
+or
+.B pcap_geterr()
+may be used to display the error text.
+Note that, even if you successfully open the network interface, you
+might not have permission to send packets on it, or it might not support
+sending packets; as
+.I pcap_open_live()
+doesn't have a flag to indicate whether to open for capturing, sending,
+or capturing and sending, you cannot request an open that supports
+sending and be notified at open time whether sending will be possible.
+Note also that some devices might not support sending packets.
+.PP
+Note that, on some platforms, the link-layer header of the packet that's
+sent might not be the same as the link-layer header of the packet
+supplied to
+.BR pcap_inject() ,
+as the source link-layer address, if the header contains such an
+address, might be changed to be the address assigned to the interface on
+which the packet it sent, if the platform doesn't support sending
+completely raw and unchanged packets.
+.PP
+.B pcap_sendpacket()
+is like
+.BR pcap_inject() ,
+but it returns 0 on success and \-1 on failure.
+.RB ( pcap_inject()
+comes from OpenBSD;
+.B pcap_sendpacket()
+comes from WinPcap.  Both are provided for compatibility.)
+.PP
 .B pcap_dump()
 outputs a packet to the ``savefile'' opened with
 .BR pcap_dump_open() .
@@ -706,6 +778,31 @@ struct generated by
 when that BPF program is no longer needed, for example after it
 has been made the filter program for a pcap structure by a call to
 .BR pcap_setfilter() .
+.PP
+.B pcap_setdirection()
+is used to specify a direction that packets will be captured.
+.I pcap_direction_t 
+is one of the constants
+.BR PCAP_D_IN ,
+.B PCAP_D_OUT
+or 
+.BR PCAP_D_INOUT .
+.B PCAP_D_IN
+will only capture packets received by the device,
+.B PCAP_D_OUT
+will only capture packets sent by the device and
+.B PCAP_D_INOUT
+will capture packets received by or sent by the device.
+.B PCAP_D_INOUT
+is the default setting if this function is not called.  This isn't
+necessarily supported on all platforms; some platforms might return an
+error, and some other platforms might not support
+.BR PCAP_D_OUT .
+This operation is not supported if a ``savefile'' is being read.
+.B \-1
+is returned on failure,
+.B 0
+is returned on success.
 .PP
 .B pcap_datalink()
 returns the link layer type; link layer types it can return include:
@@ -1163,6 +1260,15 @@ written with
 but not yet written to the ``savefile'' will be written.
 .B \-1
 is returned on error, 0 on success.
+.PP
+.B pcap_dump_ftell()
+returns the current file position for the ``savefile'', representing the
+number of bytes written by
+.B pcap_dump_open()
+and
+.BR pcap_dump() .
+.B \-1
+is returned on error.
 .PP
 .B pcap_dump_close()
 closes the ``savefile.''

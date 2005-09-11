@@ -1,3 +1,7 @@
+For HP-UX 11i (11.11) and later, there are no known issues with
+promiscuous mode under HP-UX.  If you are using a earlier version of
+HP-UX and cannot upgrade, please continue reading.
+
 HP-UX patches to fix packet capture problems
 
 Note that packet-capture programs such as tcpdump may, on HP-UX, not be
@@ -181,6 +185,10 @@ An additional note, from Jost Martin, for HP-UX 10.20:
 	permissions !) and make a sequencing-symlink
 	/sbin/rc2.d/S350hack_ip_stack pointing to this script. 
 		Now all this is done on every reboot.
+
+According to Rick Jones, the global promiscuous switch also has to be
+turned on for HP-UX 11.00, but not for 11i - and, in fact, the switch
+doesn't even exist on 11i.
 
 Here's the "hack_ip_stack" script:
 

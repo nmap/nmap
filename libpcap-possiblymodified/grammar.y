@@ -33,7 +33,6 @@ static const char rcsid[] _U_ =
 #include <pcap-stdinc.h>
 #else /* WIN32 */
 #include <sys/types.h>
-#include <sys/time.h>
 #include <sys/socket.h>
 #endif /* WIN32 */
 
@@ -49,7 +48,6 @@ struct rtentry;
 #endif /* WIN32 */
 
 #include <stdio.h>
-#include <strings.h>
 
 #include "pcap-int.h"
 
@@ -99,6 +97,7 @@ pcap_parse()
 	struct {
 		struct qual q;
 		int atmfieldtype;
+		int mtp3fieldtype;
 		struct block *b;
 	} blk;
 	struct block *rblk;
@@ -114,9 +113,12 @@ pcap_parse()
 %type	<i>	atmtype atmmultitype
 %type	<blk>	atmfield
 %type	<blk>	atmfieldvalue atmvalue atmlistvalue
+%type   <blk>   mtp3field
+%type   <blk>   mtp3fieldvalue mtp3value mtp3listvalue
+
 
 %token  DST SRC HOST GATEWAY
-%token  NET NETMASK PORT LESS GREATER PROTO PROTOCHAIN CBYTE
+%token  NET NETMASK PORT PORTRANGE LESS GREATER PROTO PROTOCHAIN CBYTE
 %token  ARP RARP IP SCTP TCP UDP ICMP IGMP IGRP PIM VRRP
 %token  ATALK AARP DECNET LAT SCA MOPRC MOPDL
 %token  TK_BROADCAST TK_MULTICAST
@@ -128,7 +130,7 @@ pcap_parse()
 %token	LSH RSH
 %token  LEN
 %token  IPV6 ICMPV6 AH ESP
-%token	VLAN
+%token	VLAN MPLS
 %token  ISO ESIS CLNP ISIS L1 L2 IIH LSP SNP CSNP PSNP 
 %token  STP
 %token  IPX
@@ -136,6 +138,8 @@ pcap_parse()
 %token	LANE LLC METAC BCC SC ILMIC OAMF4EC OAMF4SC
 %token	OAM OAMF4 CONNECTMSG METACONNECT
 %token	VPI VCI
+%token	RADIO
+%token  SIO OPC DPC SLS
 
 %type	<s> ID
 %type	<e> EID
@@ -256,6 +260,7 @@ rterm:	  head id		{ $$ = $2; }
 	| atmtype		{ $$.b = gen_atmtype_abbrev($1); $$.q = qerr; }
 	| atmmultitype		{ $$.b = gen_atmmulti_abbrev($1); $$.q = qerr; }
 	| atmfield atmvalue	{ $$.b = $2.b; $$.q = qerr; }
+	| mtp3field mtp3value	{ $$.b = $2.b; $$.q = qerr; }
 	;
 /* protocol level qualifiers */
 pqual:	  pname
@@ -273,6 +278,7 @@ dqual:	  SRC			{ $$ = Q_SRC; }
 aqual:	  HOST			{ $$ = Q_HOST; }
 	| NET			{ $$ = Q_NET; }
 	| PORT			{ $$ = Q_PORT; }
+	| PORTRANGE		{ $$ = Q_PORTRANGE; }
 	;
 /* non-directional address type qualifiers */
 ndaqual:  GATEWAY		{ $$ = Q_GATEWAY; }
@@ -314,6 +320,7 @@ pname:	  LINK			{ $$ = Q_LINK; }
 	| STP			{ $$ = Q_STP; }
 	| IPX			{ $$ = Q_IPX; }
 	| NETBEUI		{ $$ = Q_NETBEUI; }
+	| RADIO			{ $$ = Q_RADIO; }
 	;
 other:	  pqual TK_BROADCAST	{ $$ = gen_broadcast($1); }
 	| pqual TK_MULTICAST	{ $$ = gen_multicast($1); }
@@ -324,6 +331,8 @@ other:	  pqual TK_BROADCAST	{ $$ = gen_broadcast($1); }
 	| OUTBOUND		{ $$ = gen_inbound(1); }
 	| VLAN pnum		{ $$ = gen_vlan($2); }
 	| VLAN			{ $$ = gen_vlan(-1); }
+	| MPLS pnum		{ $$ = gen_mpls($2); }
+	| MPLS			{ $$ = gen_mpls(-1); }
 	| pfvar			{ $$ = $1; }
 	;
 
@@ -413,18 +422,41 @@ atmfield: VPI			{ $$.atmfieldtype = A_VPI; }
 	| VCI			{ $$.atmfieldtype = A_VCI; }
 	;
 atmvalue: atmfieldvalue
-	| relop NUM		{ $$.b = gen_atmfield_code($<blk>0.atmfieldtype, (u_int)$2, (u_int)$1, 0); }
-	| irelop NUM		{ $$.b = gen_atmfield_code($<blk>0.atmfieldtype, (u_int)$2, (u_int)$1, 1); }
+	| relop NUM		{ $$.b = gen_atmfield_code($<blk>0.atmfieldtype, (bpf_int32)$2, (bpf_u_int32)$1, 0); }
+	| irelop NUM		{ $$.b = gen_atmfield_code($<blk>0.atmfieldtype, (bpf_int32)$2, (bpf_u_int32)$1, 1); }
 	| paren atmlistvalue ')' { $$.b = $2.b; $$.q = qerr; }
 	;
 atmfieldvalue: NUM {
 	$$.atmfieldtype = $<blk>0.atmfieldtype;
 	if ($$.atmfieldtype == A_VPI ||
 	    $$.atmfieldtype == A_VCI)
-		$$.b = gen_atmfield_code($$.atmfieldtype, (u_int) $1, BPF_JEQ, 0);
+		$$.b = gen_atmfield_code($$.atmfieldtype, (bpf_int32) $1, BPF_JEQ, 0);
 	}
 	;
 atmlistvalue: atmfieldvalue
 	| atmlistvalue or atmfieldvalue { gen_or($1.b, $3.b); $$ = $3; }
+	;
+	/* MTP3 field types quantifier */
+mtp3field: SIO			{ $$.mtp3fieldtype = M_SIO; }
+	| OPC			{ $$.mtp3fieldtype = M_OPC; }
+	| DPC			{ $$.mtp3fieldtype = M_DPC; }
+	| SLS                   { $$.mtp3fieldtype = M_SLS; }
+	;
+mtp3value: mtp3fieldvalue
+	| relop NUM		{ $$.b = gen_mtp3field_code($<blk>0.mtp3fieldtype, (u_int)$2, (u_int)$1, 0); }
+	| irelop NUM		{ $$.b = gen_mtp3field_code($<blk>0.mtp3fieldtype, (u_int)$2, (u_int)$1, 1); }
+	| paren mtp3listvalue ')' { $$.b = $2.b; $$.q = qerr; }
+	;
+mtp3fieldvalue: NUM {
+	$$.mtp3fieldtype = $<blk>0.mtp3fieldtype;
+	if ($$.mtp3fieldtype == M_SIO ||
+	    $$.mtp3fieldtype == M_OPC ||
+	    $$.mtp3fieldtype == M_DPC ||
+	    $$.mtp3fieldtype == M_SLS )
+		$$.b = gen_mtp3field_code($$.mtp3fieldtype, (u_int) $1, BPF_JEQ, 0);
+	}
+	;
+mtp3listvalue: mtp3fieldvalue
+	| mtp3listvalue or mtp3fieldvalue { gen_or($1.b, $3.b); $$ = $3; }
 	;
 %%

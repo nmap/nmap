@@ -84,6 +84,10 @@ static const char rcsid[] _U_ =
 #include "pcap-dag.h"
 #endif /* HAVE_DAG_API */
 	  
+#ifdef HAVE_SEPTEL_API
+#include "pcap-septel.h"
+#endif /* HAVE_SEPTEL_API */
+	  
 #include <errno.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -189,8 +193,10 @@ static int live_open_old(pcap_t *, const char *, int, int, char *);
 static int live_open_new(pcap_t *, const char *, int, int, char *);
 static int pcap_read_linux(pcap_t *, int, pcap_handler, u_char *);
 static int pcap_read_packet(pcap_t *, pcap_handler, u_char *);
+static int pcap_inject_linux(pcap_t *, const void *, size_t);
 static int pcap_stats_linux(pcap_t *, struct pcap_stat *);
 static int pcap_setfilter_linux(pcap_t *, struct bpf_program *);
+static int pcap_setdirection_linux(pcap_t *, pcap_direction_t);
 static void pcap_close_linux(pcap_t *);
 
 /*
@@ -243,6 +249,12 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 		return dag_open_live(device, snaplen, promisc, to_ms, ebuf);
 	}
 #endif /* HAVE_DAG_API */
+
+#ifdef HAVE_SEPTEL_API
+	if (strstr(device, "septel")) {
+		return septel_open_live(device, snaplen, promisc, to_ms, ebuf);
+	}
+#endif /* HAVE_SEPTEL_API */
 
         /* Allocate a handle for this session. */
 
@@ -405,7 +417,9 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 	handle->selectable_fd = handle->fd;
 
 	handle->read_op = pcap_read_linux;
+	handle->inject_op = pcap_inject_linux;
 	handle->setfilter_op = pcap_setfilter_linux;
+	handle->setdirection_op = pcap_setdirection_linux;
 	handle->set_datalink_op = NULL;	/* can't change data link type */
 	handle->getnonblock_op = pcap_getnonblock_fd;
 	handle->setnonblock_op = pcap_setnonblock_fd;
@@ -529,19 +543,37 @@ pcap_read_packet(pcap_t *handle, pcap_handler callback, u_char *userdata)
 	}
 
 #ifdef HAVE_PF_PACKET_SOCKETS
+	if (!handle->md.sock_packet) {
+		/*
+		 * Do checks based on packet direction.
+		 * We can only do this if we're using PF_PACKET; the
+		 * address returned for SOCK_PACKET is a "sockaddr_pkt"
+		 * which lacks the relevant packet type information.
+		 */
+		if (from.sll_pkttype == PACKET_OUTGOING) {
+			/*
+			 * Outgoing packet.
+			 * If this is from the loopback device, reject it;
+			 * we'll see the packet as an incoming packet as well,
+			 * and we don't want to see it twice.
+			 */
+			if (from.sll_ifindex == handle->md.lo_ifindex)
+				return 0;
+
 	/*
-	 * If this is from the loopback device, reject outgoing packets;
-	 * we'll see the packet as an incoming packet as well, and
-	 * we don't want to see it twice.
-	 *
-	 * We can only do this if we're using PF_PACKET; the address
-	 * returned for SOCK_PACKET is a "sockaddr_pkt" which lacks
-	 * the relevant packet type information.
-	 */
-	if (!handle->md.sock_packet &&
-	    from.sll_ifindex == handle->md.lo_ifindex &&
-	    from.sll_pkttype == PACKET_OUTGOING)
+			 * If the user only wants incoming packets, reject it.
+			 */
+			if (handle->direction == PCAP_D_IN)
+				return 0;
+		} else {
+			/*
+			 * Incoming packet.
+			 * If the user only wants outgoing packets, reject it.
+			 */
+			if (handle->direction == PCAP_D_OUT)
 		return 0;
+		}
+	}
 #endif
 
 #ifdef HAVE_PF_PACKET_SOCKETS
@@ -699,6 +731,49 @@ pcap_read_packet(pcap_t *handle, pcap_handler callback, u_char *userdata)
 	return 1;
 }
 
+static int
+pcap_inject_linux(pcap_t *handle, const void *buf, size_t size)
+{
+	int ret;
+
+#ifdef HAVE_PF_PACKET_SOCKETS
+	if (!handle->md.sock_packet) {
+		/* PF_PACKET socket */
+		if (handle->md.ifindex == -1) {
+			/*
+			 * We don't support sending on the "any" device.
+			 */
+			strlcpy(handle->errbuf,
+			    "Sending packets isn't supported on the \"any\" device",
+			    PCAP_ERRBUF_SIZE);
+			return (-1);
+		}
+
+		if (handle->md.cooked) {
+			/*
+			 * We don't support sending on the "any" device.
+			 *
+			 * XXX - how do you send on a bound cooked-mode
+			 * socket?
+			 * Is a "sendto()" required there?
+			 */
+			strlcpy(handle->errbuf,
+			    "Sending packets isn't supported in cooked mode",
+			    PCAP_ERRBUF_SIZE);
+			return (-1);
+		}
+	}
+#endif
+
+	ret = send(handle->fd, buf, size, 0);
+	if (ret == -1) {
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "send: %s",
+		    pcap_strerror(errno));
+		return (-1);
+	}
+	return (ret);
+}                           
+
 /*
  *  Get the statistics for the given packet capture handle.
  *  Reports the number of dropped packets iff the kernel supports
@@ -744,9 +819,13 @@ pcap_stats_linux(pcap_t *handle, struct pcap_stat *stats)
 		 * platforms, but the best approximation is to return
 		 * "tp_packets" as the count of packets and "tp_drops"
 		 * as the count of drops.
+		 *
+		 * Keep a running total because each call to 
+		 *    getsockopt(handle->fd, SOL_PACKET, PACKET_STATISTICS, ....
+		 * resets the counters to zero.
 		 */
-		handle->md.stat.ps_recv = kstats.tp_packets;
-		handle->md.stat.ps_drop = kstats.tp_drops;
+		handle->md.stat.ps_recv += kstats.tp_packets;
+		handle->md.stat.ps_drop += kstats.tp_drops;
 	}
 	else
 	{
@@ -812,6 +891,11 @@ pcap_platform_finddevs(pcap_if_t **alldevsp, char *errbuf)
 	if (dag_platform_finddevs(alldevsp, errbuf) < 0)
 		return (-1);
 #endif /* HAVE_DAG_API */
+
+#ifdef HAVE_SEPTEL_API
+	if (septel_platform_finddevs(alldevsp, errbuf) < 0)
+		return (-1);
+#endif /* HAVE_SEPTEL_API */
 
 	return (0);
 }
@@ -953,6 +1037,28 @@ pcap_setfilter_linux(pcap_t *handle, struct bpf_program *filter)
 }
 
 /*
+ * Set direction flag: Which packets do we accept on a forwarding
+ * single device? IN, OUT or both?
+ */
+static int
+pcap_setdirection_linux(pcap_t *handle, pcap_direction_t d)
+{
+#ifdef HAVE_PF_PACKET_SOCKETS
+	if (!handle->md.sock_packet) {
+		handle->direction = d;
+		return 0;
+	}
+#endif
+	/*
+	 * We're not using PF_PACKET sockets, so we can't determine
+	 * the direction of the packet.
+	 */
+	snprintf(handle->errbuf, sizeof(handle->errbuf),
+	    "Setting direction is not supported on SOCK_PACKET sockets");
+	return -1;
+}
+
+/*
  *  Linux uses the ARP hardware type to identify the type of an
  *  interface. pcap uses the DLT_xxx constants for this. This
  *  function takes a pointer to a "pcap_t", and an ARPHRD_xxx
@@ -975,6 +1081,34 @@ static void map_arphrd_to_dlt(pcap_t *handle, int arptype, int cooked_ok)
 	switch (arptype) {
 
 	case ARPHRD_ETHER:
+		/*
+		 * This is (presumably) a real Ethernet capture; give it a
+		 * link-layer-type list with DLT_EN10MB and DLT_DOCSIS, so
+		 * that an application can let you choose it, in case you're
+		 * capturing DOCSIS traffic that a Cisco Cable Modem
+		 * Termination System is putting out onto an Ethernet (it
+		 * doesn't put an Ethernet header onto the wire, it puts raw
+		 * DOCSIS frames out on the wire inside the low-level
+		 * Ethernet framing).
+		 *
+		 * XXX - are there any sorts of "fake Ethernet" that have
+		 * ARPHRD_ETHER but that *shouldn't offer DLT_DOCSIS as
+		 * a Cisco CMTS won't put traffic onto it or get traffic
+		 * bridged onto it?  ISDN is handled in "live_open_new()",
+		 * as we fall back on cooked mode there; are there any
+		 * others?
+		 */
+		handle->dlt_list = (u_int *) malloc(sizeof(u_int) * 2);
+		/*
+		 * If that fails, just leave the list empty.
+		 */
+		if (handle->dlt_list != NULL) {
+			handle->dlt_list[0] = DLT_EN10MB;
+			handle->dlt_list[1] = DLT_DOCSIS;
+			handle->dlt_count = 2;
+		}
+		/* FALLTHROUGH */
+
 	case ARPHRD_METRICOM:
 	case ARPHRD_LOOPBACK:
 		handle->linktype = DLT_EN10MB;
@@ -1190,6 +1324,9 @@ static void map_arphrd_to_dlt(pcap_t *handle, int arptype, int cooked_ok)
 		handle->linktype = DLT_IP_OVER_FC;
 		break;
 
+#ifndef ARPHRD_IRDA
+#define ARPHRD_IRDA	783
+#endif
 	case ARPHRD_IRDA:
 		/* Don't expect IP packet out of this interfaces... */
 		handle->linktype = DLT_LINUX_IRDA;
@@ -1216,7 +1353,7 @@ live_open_new(pcap_t *handle, const char *device, int promisc,
 	      int to_ms, char *ebuf)
 {
 #ifdef HAVE_PF_PACKET_SOCKETS
-	int			sock_fd = -1, device_id, arptype;
+	int			sock_fd = -1, arptype;
 	int			err;
 	int			fatal_err = 0;
 	struct packet_mreq	mr;
@@ -1305,6 +1442,17 @@ live_open_new(pcap_t *handle, const char *device, int promisc,
 				}
 				handle->md.cooked = 1;
 
+				/*
+				 * Get rid of any link-layer type list
+				 * we allocated - this only supports cooked
+				 * capture.
+				 */
+				if (handle->dlt_list != NULL) {
+					free(handle->dlt_list);
+					handle->dlt_list = NULL;
+					handle->dlt_count = 0;
+				}
+
 				if (handle->linktype == -1) {
 					/*
 					 * Warn that we're falling back on
@@ -1325,11 +1473,12 @@ live_open_new(pcap_t *handle, const char *device, int promisc,
 					handle->linktype = DLT_LINUX_SLL;
 			}
 
-			device_id = iface_get_id(sock_fd, device, ebuf);
-			if (device_id == -1)
+			handle->md.ifindex = iface_get_id(sock_fd, device, ebuf);
+			if (handle->md.ifindex == -1)
 				break;
 
-			if ((err = iface_bind(sock_fd, device_id, ebuf)) < 0) {
+			if ((err = iface_bind(sock_fd, handle->md.ifindex,
+			    ebuf)) < 0) {
 				if (err == -2)
 					fatal_err = 1;
 				break;
@@ -1342,14 +1491,15 @@ live_open_new(pcap_t *handle, const char *device, int promisc,
 			handle->linktype = DLT_LINUX_SLL;
 
 			/*
-			 * XXX - squelch GCC complaints about
-			 * uninitialized variables; if we can't
-			 * select promiscuous mode on all interfaces,
-			 * we should move the code below into the
-			 * "if (device)" branch of the "if" and
-			 * get rid of the next statement.
+			 * We're not bound to a device.
+			 * XXX - true?  Or true only if we're using
+			 * the "any" device?
+			 * For now, we're using this as an indication
+			 * that we can't transmit; stop doing that only
+			 * if we figure out how to transmit in cooked
+			 * mode.
 			 */
-			device_id = -1;
+			handle->md.ifindex = -1;
 		}
 
 		/*
@@ -1373,7 +1523,7 @@ live_open_new(pcap_t *handle, const char *device, int promisc,
 
 		if (device && promisc) {
 			memset(&mr, 0, sizeof(mr));
-			mr.mr_ifindex = device_id;
+			mr.mr_ifindex = handle->md.ifindex;
 			mr.mr_type    = PACKET_MR_PROMISC;
 			if (setsockopt(sock_fd, SOL_PACKET,
 				PACKET_ADD_MEMBERSHIP, &mr, sizeof(mr)) == -1)
@@ -1395,9 +1545,14 @@ live_open_new(pcap_t *handle, const char *device, int promisc,
 	if (sock_fd != -1)
 		close(sock_fd);
 
-	if (fatal_err)
+	if (fatal_err) {
+		/*
+		 * Get rid of any link-layer type list we allocated.
+		 */
+		if (handle->dlt_list != NULL)
+			free(handle->dlt_list);
 		return -2;
-	else
+	} else
 		return 0;
 #else
 	strncpy(ebuf,
@@ -1573,10 +1728,7 @@ static void	pcap_close_linux( pcap_t *handle )
 	if (handle->md.device != NULL)
 		free(handle->md.device);
 	handle->md.device = NULL;
-	if (handle->buffer != NULL)
-		free(handle->buffer);
-	if (handle->fd >= 0)
-		close(handle->fd);
+	pcap_close_common(handle);
 }
 
 /*

@@ -60,8 +60,13 @@ extern "C" {
 /* BSD style release date */
 #define BPF_RELEASE 199606
 
+#ifdef MSDOS /* must be 32-bit */
+typedef long          bpf_int32;
+typedef unsigned long bpf_u_int32;
+#else
 typedef	int bpf_int32;
 typedef	u_int bpf_u_int32;
+#endif
 
 /*
  * Alignment macros.  BPF_WORDALIGN rounds up to the next 
@@ -121,7 +126,7 @@ struct bpf_version {
  * These are the types that are the same on all platforms, and that
  * have been defined by <net/bpf.h> for ages.
  */
-#define DLT_NULL	0	/* no link-layer encapsulation */
+#define DLT_NULL	0	/* BSD loopback encapsulation */
 #define DLT_EN10MB	1	/* Ethernet (10Mb) */
 #define DLT_EN3MB	2	/* Experimental Ethernet (3Mb) */
 #define DLT_AX25	3	/* Amateur Radio AX.25 */
@@ -142,7 +147,7 @@ struct bpf_version {
  * XXX - DLT_ATM_RFC1483 is 13 in BSD/OS, and DLT_RAW is 14 in BSD/OS,
  * but I don't know what the right #define is for BSD/OS.
  */
-#define DLT_ATM_RFC1483	11	/* LLC/SNAP encapsulated atm */
+#define DLT_ATM_RFC1483	11	/* LLC-encapsulated ATM */
 
 #ifdef __OpenBSD__
 #define DLT_RAW		14	/* raw IP */
@@ -173,6 +178,12 @@ struct bpf_version {
  */
 
 #define DLT_ATM_CLIP	19	/* Linux Classical-IP over ATM */
+
+/*
+ * Apparently Redback uses this for its SmartEdge 400/800.  I hope
+ * nobody else decided to use it, too.
+ */
+#define DLT_REDBACK_SMARTEDGE	32
 
 /*
  * These values are defined by NetBSD; other platforms should refrain from
@@ -352,10 +363,11 @@ struct bpf_version {
 #define DLT_AURORA              126     /* Xilinx Aurora link layer */
 
 /*
- * BSD header for 802.11 plus a number of bits of link-layer information
- * including radio information.
+ * Header for 802.11 plus a number of bits of link-layer information
+ * including radio information, used by some recent BSD drivers as
+ * well as the madwifi Atheros driver for Linux.
  */
-#define DLT_IEEE802_11_RADIO	127	/* 802.11 plus BSD radio header */
+#define DLT_IEEE802_11_RADIO	127	/* 802.11 plus radiotap radio header */
 
 /*
  * Reserved for the TZSP encapsulation, as per request from
@@ -413,11 +425,16 @@ struct bpf_version {
 #define DLT_APPLE_IP_OVER_IEEE1394	138
 
 /*
- * 139 through 142 are reserved for SS7.
+ * Various SS7 encapsulations, as per a request from Jeff Morriss
+ * <jeff.morriss[AT]ulticom.com> and subsequent discussions.
  */
+#define DLT_MTP2_WITH_PHDR	139	/* pseudo-header with various info, followed by MTP2 */
+#define DLT_MTP2		140	/* MTP2, without pseudo-header */
+#define DLT_MTP3		141	/* MTP3, without pseudo-header or MTP2 */
+#define DLT_SCCP		142	/* SCCP, without pseudo-header or MTP2 or MTP3 */
 
 /*
- * Reserved for DOCSIS MAC frames.
+ * DOCSIS MAC frames.
  */
 #define DLT_DOCSIS		143
 
@@ -493,8 +510,8 @@ struct bpf_version {
  *
  *	http://www.shaftnet.org/~pizza/software/capturefrm.txt
  *
- * but could and arguably should also be used by non-AVS Linux
- * 802.11 drivers; that may happen in the future.
+ * but it might be used by some non-AVS drivers now or in the
+ * future.
  */
 #define DLT_IEEE802_11_RADIO_AVS 163	/* 802.11 plus AVS radio header */
 
@@ -505,6 +522,78 @@ struct bpf_version {
  * QOS profiles, etc..
  */
 #define DLT_JUNIPER_MONITOR     164
+
+/*
+ * Reserved for BACnet MS/TP.
+ */
+#define DLT_BACNET_MS_TP	165
+
+/*
+ * Another PPP variant as per request from Karsten Keil <kkeil@suse.de>.
+ *
+ * This is used in some OSes to allow a kernel socket filter to distinguish
+ * between incoming and outgoing packets, on a socket intended to
+ * supply pppd with outgoing packets so it can do dial-on-demand and
+ * hangup-on-lack-of-demand; incoming packets are filtered out so they
+ * don't cause pppd to hold the connection up (you don't want random
+ * input packets such as port scans, packets from old lost connections,
+ * etc. to force the connection to stay up).
+ *
+ * The first byte of the PPP header (0xff03) is modified to accomodate
+ * the direction - 0x00 = IN, 0x01 = OUT.
+ */
+#define DLT_PPP_PPPD		166
+
+/*
+ * Names for backwards compatibility with older versions of some PPP
+ * software; new software should use DLT_PPP_PPPD.
+ */
+#define DLT_PPP_WITH_DIRECTION	DLT_PPP_PPPD
+#define DLT_LINUX_PPP_WITHDIRECTION	DLT_PPP_PPPD
+
+/*
+ * Juniper-private data link type, as per request from
+ * Hannes Gredler <hannes@juniper.net>.  The DLT_s are used
+ * for passing on chassis-internal metainformation such as
+ * QOS profiles, cookies, etc..
+ */
+#define DLT_JUNIPER_PPPOE       167
+#define DLT_JUNIPER_PPPOE_ATM   168
+
+#define DLT_GPRS_LLC		169	/* GPRS LLC */
+#define DLT_GPF_T		170	/* GPF-T (ITU-T G.7041/Y.1303) */
+#define DLT_GPF_F		171	/* GPF-F (ITU-T G.7041/Y.1303) */
+
+/*
+ * Requested by Oolan Zimmer <oz@gcom.com> for use in Gcom's T1/E1 line
+ * monitoring equipment.
+ */
+#define DLT_GCOM_T1E1		172
+#define DLT_GCOM_SERIAL		173
+
+/*
+ * Juniper-private data link type, as per request from
+ * Hannes Gredler <hannes@juniper.net>.  The DLT_ is used
+ * for internal communication to Physical Interface Cards (PIC)
+ */
+#define DLT_JUNIPER_PIC_PEER    174
+
+/*
+ * Link types requested by Gregor Maier <gregor@endace.com> of Endace
+ * Measurement Systems.  They add an ERF header (see
+ * http://www.endace.com/support/EndaceRecordFormat.pdf) in front of
+ * the link-layer header.
+ */
+#define DLT_ERF_ETH		175	/* Ethernet */
+#define DLT_ERF_POS		176	/* Packet-over-SONET */
+
+/*
+ * Requested by Daniele Orlandi <daniele@orlandi.com> for raw LAPD
+ * for vISDN (http://www.orlandi.com/visdn/).  Its link-layer header
+ * includes additional information before the LAPD header, so it's
+ * not necessarily a generic LAPD header.
+ */
+#define DLT_LINUX_LAPD		177
 
 /*
  * The instruction encodings.

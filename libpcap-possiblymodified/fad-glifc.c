@@ -89,6 +89,9 @@ pcap_findalldevs(pcap_if_t **alldevsp, char *errbuf)
 	struct lifconf ifc;
 	char *buf = NULL;
 	unsigned buf_size;
+#ifdef HAVE_SOLARIS
+	char *p, *q;
+#endif
 	struct lifreq ifrflags, ifrnetmask, ifrbroadaddr, ifrdstaddr;
 	struct sockaddr *netmask, *broadaddr, *dstaddr;
 	int ret = 0;
@@ -173,6 +176,36 @@ pcap_findalldevs(pcap_if_t **alldevsp, char *errbuf)
 			fd = fd6;
 		else
 			fd = fd4;
+
+		/*
+		 * Skip entries that begin with "dummy".
+		 * XXX - what are these?  Is this Linux-specific?
+		 * Are there platforms on which we shouldn't do this?
+		 */
+		if (strncmp(ifrp->lifr_name, "dummy", 5) == 0)
+			continue;
+
+#ifdef HAVE_SOLARIS
+		/*
+		 * Skip entries that have a ":" followed by a number
+		 * at the end - those are Solaris virtual interfaces
+		 * on which you can't capture.
+		 */
+		p = strchr(ifrp->lifr_name, ':');
+		if (p != NULL) {
+			/*
+			 * We have a ":"; is it followed by a number?
+			 */
+			while (isdigit((unsigned char)*p))
+				p++;
+			if (*p == '\0') {
+				/*
+				 * All digits after the ":" until the end.
+				 */
+				continue;
+			}
+		}
+#endif
 
 		/*
 		 * Get the flags for this interface, and skip it if it's
@@ -283,6 +316,34 @@ pcap_findalldevs(pcap_if_t **alldevsp, char *errbuf)
 				dstaddr = (struct sockaddr *)&ifrdstaddr.lifr_dstaddr;
 		} else
 			dstaddr = NULL;
+
+#ifdef HAVE_SOLARIS
+		/*
+		 * If this entry has a colon followed by a number at
+		 * the end, it's a logical interface.  Those are just
+		 * the way you assign multiple IP addresses to a real
+		 * interface, so an entry for a logical interface should
+		 * be treated like the entry for the real interface;
+		 * we do that by stripping off the ":" and the number.
+		 */
+		p = strchr(ifrp->lifr_name, ':');
+		if (p != NULL) {
+			/*
+			 * We have a ":"; is it followed by a number?
+			 */
+			q = p + 1;
+			while (isdigit((unsigned char)*q))
+				q++;
+			if (*q == '\0') {
+				/*
+				 * All digits after the ":" until the end.
+				 * Strip off the ":" and everything after
+				 * it.
+				 */
+				*p = '\0';
+			}
+		}
+#endif
 
 		/*
 		 * Add information for this address to the list.

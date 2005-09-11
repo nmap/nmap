@@ -46,6 +46,7 @@ CCOPT = @V_CCOPT@
 INCLS = -I. @V_INCLS@
 DEFS = @DEFS@ @V_DEFS@
 LIBS = @V_LIBS@
+DYEXT = @DYEXT@
 
 # Standard CFLAGS
 CFLAGS = $(CCOPT) $(INCLS) $(DEFS)
@@ -103,6 +104,24 @@ libpcap.a: $(OBJ)
 	ar rc $@ $(OBJ) $(LIBS)
 	$(RANLIB) $@
 
+shared: libpcap.$(DYEXT)
+
+#
+# XXX - this works with GNU ld, but won't necessarily work with native
+# ld on, for example, various SVR4-flavored platforms, or Digital UNIX.
+#
+libpcap.so: $(OBJ)
+	@rm -f $@
+	ld -shared -o $@.`cat VERSION` $(OBJ)
+
+# the following rule succeeds, but the result is untested.
+libpcap.dylib: $(OBJ)
+	rm -f libpcap*.dylib
+	$(CC) -dynamiclib -undefined error -o libpcap.`cat VERSION`.dylib $(OBJ) \
+		-install_name $(libdir)/libpcap.0.dylib -compatibility_version `cat VERSION` \
+		-current_version `cat VERSION`
+
+
 scanner.c: $(srcdir)/scanner.l
 	@rm -f $@
 	$(LEX) -t $< > $$$$.$@; mv $$$$.$@ $@
@@ -151,7 +170,7 @@ bpf_filter.c: $(srcdir)/bpf/net/bpf_filter.c
 bpf_filter.o: bpf_filter.c
 	$(CC) $(CFLAGS) -c bpf_filter.c
 
-install:
+install: libpcap.a 
 	[ -d $(DESTDIR)$(libdir) ] || \
 	    (mkdir -p $(DESTDIR)$(libdir); chmod 755 $(DESTDIR)$(libdir))
 	$(INSTALL_DATA) libpcap.a $(DESTDIR)$(libdir)/libpcap.a
@@ -168,6 +187,13 @@ install:
 	$(INSTALL_DATA) $(srcdir)/pcap.3 \
 	    $(DESTDIR)$(mandir)/man3/pcap.3
 
+install-shared: install-shared-$(DYEXT)
+install-shared-so: libpcap.so
+	$(INSTALL_PROGRAM) libpcap.so.`cat VERSION` $(DESTDIR)$(libdir)/libpcap.so.`cat VERSION`
+install-shared-dylib: libpcap.dylib
+	$(INSTALL_PROGRAM) libpcap.`cat VERSION`.dylib $(DESTDIR)$(libdir)/libpcap.`cat VERSION`.dylib
+	VER=`cat VERSION`; cd $(DESTDIR)$(libdir) && ln -sf libpcap.$$VER.dylib libpcap.0.dylib;  ln -sf libpcap.0.dylib libpcap.dylib
+
 uninstall:
 	rm -f $(DESTDIR)$(libdir)/libpcap.a
 	rm -f $(DESTDIR)$(includedir)/pcap.h
@@ -176,16 +202,21 @@ uninstall:
 	rm -f $(DESTDIR)$(mandir)/man3/pcap.3
 
 clean:
-	rm -f $(CLEANFILES)
+	rm -f $(CLEANFILES) libpcap*.dylib libpcap.so*
 
-distclean:
-	rm -f $(CLEANFILES) Makefile config.cache config.log config.status \
+distclean: clean
+	rm -f Makefile config.cache config.log config.status \
 	    config.h gnuc.h os-proto.h bpf_filter.c stamp-h stamp-h.in
+	rm -rf autom4te.cache
 
 tags: $(TAGFILES)
 	ctags -wtd $(TAGFILES)
 
-tar:
+packaging/pcap.spec: packaging/pcap.spec.in VERSION
+	RPMVERSION=`cat VERSION | sed s/-.*//g`; \
+		sed -e s/@VERSION@/$$RPMVERSION/ -e s/@NAME@/libpcap-`cat VERSION`/ $<   > $@
+
+tar: Makefile packaging/pcap.spec
 	@cwd=`pwd` ; dir=`basename $$cwd` ; name=libpcap-`cat VERSION` ; \
 	    list="" ; tar="tar chf" ; \
 	    for i in `cat FILES` ; do list="$$list $$name/$$i" ; done; \
@@ -193,11 +224,16 @@ tar:
 	    "rm -f ../$$name; ln -s $$dir ../$$name" ; \
 	     rm -f ../$$name; ln -s $$dir ../$$name ; \
 	    echo \
-	    "(cd .. ; $$tar - [lots of files]) | compress > /tmp/$$name.tar.Z" ; \
-	     (cd .. ; $$tar - $$list) | compress > /tmp/$$name.tar.Z ; \
+	    "(cd .. ; $$tar - [lots of files]) | gzip -c > /tmp/$$name.tar.gz" ; \
+	     (cd .. ; $$tar - $$list) | gzip -c > /tmp/$$name.tar.gz ; \
 	    echo \
 	    "rm -f ../$$name" ; \
 	     rm -f ../$$name
 
 depend:	$(GENSRC) $(GENHDR) bpf_filter.c
 	./mkdep -c $(CC) $(DEFS) $(INCLS) $(SRC)
+
+Makefile: Makefile.in config.status
+	./config.status
+	@echo your Makefile was out of date, now run $(MAKE) again
+	exit 1

@@ -102,6 +102,12 @@
 #ifndef ETHERTYPE_IPV6
 #define ETHERTYPE_IPV6		0x86dd
 #endif
+#ifndef ETHERTYPE_MPLS
+#define ETHERTYPE_MPLS          0x8847
+#endif
+#ifndef ETHERTYPE_MPLS_MULTI
+#define ETHERTYPE_MPLS_MULTI    0x8848
+#endif
 #ifndef	ETHERTYPE_LOOPBACK
 #define	ETHERTYPE_LOOPBACK	0x9000
 #endif
