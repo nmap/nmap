@@ -428,7 +428,7 @@ if (hs->randomize) {
  /* Then we do the mass ping (if required - IP-level pings) */
  if ((*pingtype == PINGTYPE_NONE && !arpping_done) || hs->hostbatch[0]->ifType() == devt_loopback) {
    for(i=0; i < hs->current_batch_sz; i++)  {
-     if (hs->hostbatch[i]->timedOut(&now)) {
+     if (!hs->hostbatch[i]->timedOut(&now)) {
        initialize_timeout_info(&hs->hostbatch[i]->to);
        hs->hostbatch[i]->flags |= HOST_UP; /*hostbatch[i].up = 1;*/
      }
@@ -1178,7 +1178,7 @@ int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[], int pingtype,
   int dotimeout = 1;
   int newstate = HOST_DOWN;
   int foundsomething;
-  unsigned short newport;
+  unsigned short newport = 0;
   int newportstate; /* Hack so that in some specific cases we can determine the 
 		       state of a port and even skip the real scan */
   u32 trynum = 0xFFFFFF;
@@ -1206,7 +1206,6 @@ int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[], int pingtype,
   else sportbase = o.magic_port + 20;
 
   gettimeofday(&start, NULL);
-  newport = 0;
   newportstate = PORT_UNKNOWN;
 
   while(pt->block_unaccounted > 0 && !timeout) {

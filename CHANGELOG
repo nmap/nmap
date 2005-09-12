@@ -14,8 +14,9 @@ o Patched libdnet to include sys/uio.h in src/tun-linux.c.  This is
 
 o Fixed a crash which could occur when a ridiculously short
   --host_timeout was specified on Windows (or on UNIX if --send_eth was
-  specified).  Thanks to Ole Morten Grodaas (grodaas(a)gmail.com) for
-  discovering the problem.
+  specified).  Nmap now also prints a warning if you specify a
+  host_timeout of less than 1 second.  Thanks to Ole Morten Grodaas
+  (grodaas(a)gmail.com) for discovering the problem.
 
 Nmap 3.91
 
