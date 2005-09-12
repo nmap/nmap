@@ -298,6 +298,7 @@ struct intf_entry *ifentry;
  u32 ifbuf[200] ;
  struct route_nfo rnfo;
  bool arpping_done = false;
+ struct timeval now;
 
  ifentry = (struct intf_entry *) ifbuf; 
  ifentry->intf_len = sizeof(ifbuf); // TODO: May want to use a larger buffer if interface aliases prove important.
@@ -411,11 +412,12 @@ if (hs->randomize) {
    arpping_done = true;
  }
  
+ gettimeofday(&now, NULL);
  if ((o.sendpref & PACKET_SEND_ETH) && 
      hs->hostbatch[0]->ifType() == devt_ethernet) {
    for(i=0; i < hs->current_batch_sz; i++)
      if (!(hs->hostbatch[i]->flags & HOST_DOWN) && 
-	 !hs->hostbatch[i]->timedOut())
+	 !hs->hostbatch[i]->timedOut(&now))
        if (!setTargetNextHopMAC(hs->hostbatch[i]))
 	 fatal("%s: Failed to determine dst MAC address for target %s", 
 	       __FUNCTION__, hs->hostbatch[hidx]->NameIP());
@@ -426,7 +428,7 @@ if (hs->randomize) {
  /* Then we do the mass ping (if required - IP-level pings) */
  if ((*pingtype == PINGTYPE_NONE && !arpping_done) || hs->hostbatch[0]->ifType() == devt_loopback) {
    for(i=0; i < hs->current_batch_sz; i++)  {
-     if (hs->hostbatch[i]->timedOut()) {
+     if (hs->hostbatch[i]->timedOut(&now)) {
        initialize_timeout_info(&hs->hostbatch[i]->to);
        hs->hostbatch[i]->flags |= HOST_UP; /*hostbatch[i].up = 1;*/
      }

@@ -1,8 +1,21 @@
 # Nmap Changelog ($Id$)
 
+Nmap 3.92
+
+o Modified Libpcap's configure.ac to compile with the
+  --fno-strict-aliasing option if gcc 4.X is used.  This prevents when
+  said compiler is used.  This was done for Nmap in 3.90, but is
+  apparently needed for pcap too.  Thanks to Craig Humphrey
+  (Craig.Humphrey(a)chapmantripp.com) for the discovery.
+
 o Patched libdnet to include sys/uio.h in src/tun-linux.c.  This is
   apparently necessary on some Glibc 2.1 systems.  Thanks to Rob Foehl
   (rwf(a)loonybin.net) for the patch.
+
+o Fixed a crash which could occur when a ridiculously short
+  --host_timeout was specified on Windows (or on UNIX if --send_eth was
+  specified).  Thanks to Ole Morten Grodaas (grodaas(a)gmail.com) for
+  discovering the problem.
 
 Nmap 3.91
 
