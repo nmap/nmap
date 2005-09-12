@@ -13,6 +13,7 @@
 
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <sys/uio.h>
 
 #include <linux/if.h>
 #include <linux/if_tun.h>

@@ -370,6 +370,9 @@ int nmap_main(int argc, char *argv[]) {
 	if (o.host_timeout <= 200) {
 	  fatal("host_timeout is given in milliseconds and must be greater than 200");
 	}
+	if (o.host_timeout <= 1000) {
+	  error("host_timeout is given in milliseconds, so you specified less than a second (%dms). This is allowed but not recommended.". o.host_timeout);
+	}
       } else if (strcmp(long_options[option_index].name, "ttl") == 0) {
 	o.ttl = atoi(optarg);
 	if (o.ttl < 0 || o.ttl > 255) {

@@ -414,7 +414,8 @@ if (hs->randomize) {
  if ((o.sendpref & PACKET_SEND_ETH) && 
      hs->hostbatch[0]->ifType() == devt_ethernet) {
    for(i=0; i < hs->current_batch_sz; i++)
-     if (!(hs->hostbatch[i]->flags & HOST_DOWN))
+     if (!(hs->hostbatch[i]->flags & HOST_DOWN) && 
+	 !hs->hostbatch[i]->timedOut())
        if (!setTargetNextHopMAC(hs->hostbatch[i]))
 	 fatal("%s: Failed to determine dst MAC address for target %s", 
 	       __FUNCTION__, hs->hostbatch[hidx]->NameIP());
@@ -425,8 +426,10 @@ if (hs->randomize) {
  /* Then we do the mass ping (if required - IP-level pings) */
  if ((*pingtype == PINGTYPE_NONE && !arpping_done) || hs->hostbatch[0]->ifType() == devt_loopback) {
    for(i=0; i < hs->current_batch_sz; i++)  {
-     initialize_timeout_info(&hs->hostbatch[i]->to);
-     hs->hostbatch[i]->flags |= HOST_UP; /*hostbatch[i].up = 1;*/
+     if (hs->hostbatch[i]->timedOut()) {
+       initialize_timeout_info(&hs->hostbatch[i]->to);
+       hs->hostbatch[i]->flags |= HOST_UP; /*hostbatch[i].up = 1;*/
+     }
    }
  } else if (!arpping_done)
    if (*pingtype & PINGTYPE_ARP) /* A host that we can't arp scan ... maybe localhost */

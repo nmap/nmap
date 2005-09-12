@@ -741,6 +741,39 @@ AC_LBL_HP_PPA_INFO_T_DL_MODULE_ID_1
 
 AC_LBL_UNALIGNED_ACCESS
 
+pcap_gcc_major_version=0
+AC_MSG_CHECKING([whether the compiler is gcc 4 or greater])
+if test x"$GCC" = xno; then
+  AC_MSG_RESULT([no])
+else
+  # new major versions must be added here
+  case `$CC --version | sed -e 's,\..*,.,' -e q` in
+    *4.)
+      pcap_gcc_major_version=4
+      ;;
+    *3.)
+      pcap_gcc_major_version=3
+      ;;
+    *2.)
+      pcap_gcc_major_version=2
+      ;;
+    *1.)
+      pcap_gcc_major_version=1
+      ;;
+  esac
+  if test "$pcap_gcc_major_version" -ge 4; then
+    AC_MSG_RESULT([yes])
+  else
+    AC_MSG_RESULT([no - $pcap_gcc_major_version ; $CC ; $GCC])
+  fi
+fi
+
+# Remember that all following tests will run with this CXXFLAGS by default
+if test "$pcap_gcc_major_version" -ge 4; then
+  V_CCOPT="$V_CCOPT -fno-strict-aliasing"
+fi
+
+
 #
 # Makefile.in includes rules to generate version.h, so we assume
 # that it will be generated if autoconf is used.

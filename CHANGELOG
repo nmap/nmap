@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$)
 
+o Patched libdnet to include sys/uio.h in src/tun-linux.c.  This is
+  apparently necessary on some Glibc 2.1 systems.  Thanks to Rob Foehl
+  (rwf(a)loonybin.net) for the patch.
+
 Nmap 3.91
 
 o Fixed a crash on Windows when you -P0 scan an unused IP on a local

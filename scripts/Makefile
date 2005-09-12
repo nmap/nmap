@@ -71,19 +71,33 @@ distro:
 	$(MAKE) -C .. clean
 	cd .. && rm -f $(LIBPCAPDIR)/config.cache $(LIBPCAPDIR)/Makefile
 	cd .. && unix2dos README-WIN32
-	cd .. && cp -ra $(SRCS) $(DEPS) $(DATAFILES) nmapfe.desktop \
+	cd .. && cp -a $(SRCS) $(DEPS) $(DATAFILES) nmapfe.desktop \
          configure.ac config.h.in aclocal.m4 nmap_winconfig.h Makefile.in \
          configure shtool install-sh config.guess \
          nmap-$(NMAP_VERSION)-1.spec config.sub INSTALL README-WIN32 COPYING \
          COPYING.OpenSSL CHANGELOG HACKING /usr/tmp/nmap-$(NMAP_VERSION)
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/mswin32
-	cd ../mswin32; cp -ra *.[hHcC] *.cc ARPA NET NETINET RPC icon1.ico \
-                    ifaddrlist.h lib libpcap-note.txt nmap.rc \
-                    nmap_performance.reg nmap.sln nmap.vcproj pcap-include \
-                    /usr/tmp/nmap-$(NMAP_VERSION)/mswin32
-
+	cd ../mswin32; cp -a --parents ARPA/NAMESER.H ARPA/TFTP.H icon1.ico \
+           ifaddrlist.h IPExport.h lib/Packet.lib lib/Wpcap.lib \
+           libpcap-note.txt NET/if_arp.h NETINET/UDP.H NETINET/IF_ETHER.H \
+           NETINET/IP.H NETINET/TCPIP.H NETINET/IP_ICMP.H NETINET/IN_SYSTM.H \
+           NETINET/TCP.H NETINET/TCP_VAR.H NETINET/UDP_VAR.H NETINET/IP_VAR.H \
+           nmap_performance.reg nmap.rc nmap.sln nmap.vcproj packet_types.h \
+           pcap-include/remote-ext.h pcap-include/memory_t.h \
+           pcap-include/pcap-stdinc.h pcap-include/pcap.h \
+           pcap-include/semaphore.h pcap-include/Gnuc.h \
+           pcap-include/count_packets.h pcap-include/Devioctl.h \
+           pcap-include/bucket_lookup.h pcap-include/ip6_misc.h \
+           pcap-include/bittypes.h pcap-include/time_calls.h \
+           pcap-include/pthread.h pcap-include/Win32-Extensions.h \
+           pcap-include/Packet32.h pcap-include/normal_lookup.h \
+           pcap-include/pcap-bpf.h pcap-include/sched.h \
+           pcap-include/Ntddpack.h pcap-include/tme.h \
+           pcap-include/tcp_session.h pcap-include/pcap-int.h \
+           resource.h RPC/Rpc_cut.h winclude.h winfix.cc winfix.h \
+           /usr/tmp/nmap-$(NMAP_VERSION)/mswin32
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/$(LIBPCAPDIR)
-	cd ../$(LIBPCAPDIR); cp -ra --parents acconfig.h aclocal.m4 arcnet.h \
+	cd ../$(LIBPCAPDIR); cp -a --parents acconfig.h aclocal.m4 arcnet.h \
             atmuni31.h bpf/net/bpf.h bpf/net/bpf_filter.c \
             bpf_dump.c bpf_image.c CHANGES \
             ChmodBPF/ChmodBPF ChmodBPF/StartupParameters.plist config.guess \
@@ -99,7 +113,7 @@ distro:
             msdos/pkt_rx1.s msdos/common.dj msdos/makefile msdos/pktdrvr.c \
             msdos/readme.dos msdos/ndis_0.asm msdos/makefile.dj nametoaddr.c \
             nlpid.h NMAP_MODIFICATIONS optimize.c packaging/pcap.spec.in \
-            packaging/pcap.spec pcap1.h pcap.3 pcap-bpf.c pcap-bpf.h pcap.c \
+            pcap1.h pcap.3 pcap-bpf.c pcap-bpf.h pcap.c \
             pcap-dag.c pcap-dag.h pcap-dlpi.c pcap-dos.c pcap-dos.h \
             pcap-enet.c pcap.h pcap-int.h pcap-linux.c pcap-namedb.h \
             pcap-nit.c pcap-nit.h pcap-null.c pcap-pf.c pcap-pf.h \
@@ -121,7 +135,7 @@ distro:
             Win32/Prj/libpcap.dsp \
             /usr/tmp/nmap-$(NMAP_VERSION)/$(LIBPCAPDIR)
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/docs
-	cd ../docs; cp -ra README nmap_gpgkeys.txt \
+	cd ../docs; cp -a README nmap_gpgkeys.txt \
                     nmap-fingerprinting-article.txt \
                     nmap.deprecated.txt nmap.usage.txt nmap_doc.html \
                     nmap_manpage-de.html nmap_manpage-es.html \
@@ -133,18 +147,18 @@ distro:
                     nmap_spanish.1 nmap_russian.1 xnmap.1 nmap.dtd nmap.xsl \
                     leet-nmap-ascii-art.txt /usr/tmp/nmap-$(NMAP_VERSION)/docs
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/nmapfe
-	cd ../nmapfe; cp -ra Makefile.in aclocal.m4 configure configure.ac \
+	cd ../nmapfe; cp -a Makefile.in aclocal.m4 configure configure.ac \
 	              nmapfe.c nmapfe.h nmapfe_sig.c nmapfe_sig.h \
 	              nmapfe_error.c nmapfe_error.h NmapFE.dsp nmapfe.dsw \
 	              /usr/tmp/nmap-$(NMAP_VERSION)/nmapfe
 
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/nbase
-	cd ../$(NBASEDIR); cp -ra Makefile.in aclocal.m4 configlocal.m4 \
+	cd ../$(NBASEDIR); cp -a Makefile.in aclocal.m4 configlocal.m4 \
                         nbase.vcproj configure configure.ac nbase_config.h.in \
                         *.c *.h CHANGELOG /usr/tmp/nmap-$(NMAP_VERSION)/nbase
 
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/libpcre
-	cd ../libpcre; cp -ra AUTHORS config.guess config.in config.sub \
+	cd ../libpcre; cp -a AUTHORS config.guess config.in config.sub \
                configure configure.ac dftables.c INSTALL install-sh \
                libpcre.vcproj LICENCE Makefile.in makevp.bat mkinstalldirs \
                NMAP_MODIFICATIONS NON-UNIX-USE pcre_chartables.c \
@@ -157,28 +171,48 @@ distro:
                /usr/tmp/nmap-$(NMAP_VERSION)/libpcre
 
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/libdnet-stripped
-	cd ../$(LIBDNETDIR); cp -ra NMAP_MODIFICATIONS \
-              libdnet-stripped.vcproj acconfig.h aclocal.m4 config \
-              configure configure.in dnet-config.in include INSTALL \
-              libtool LICENSE Makefile Makefile.am Makefile.am.common \
-              Makefile.in README src THANKS TODO \
-              /usr/tmp/nmap-$(NMAP_VERSION)/libdnet-stripped
-
+	cd ../$(LIBDNETDIR); cp -a --parents acconfig.h aclocal.m4 \
+            config/missing config/mkinstalldirs \
+            config/acinclude.m4 config/install-sh \
+            config/config.sub config/ltmain.sh config/config.guess \
+            configure configure.in dnet-config.in include/dnet/rand.h \
+            include/dnet/ip6.h include/dnet/ip.h include/dnet/route.h \
+            include/dnet/icmp.h include/dnet/blob.h include/dnet/udp.h \
+            include/dnet/os.h include/dnet/eth.h include/dnet/fw.h \
+            include/dnet/intf.h include/dnet/Makefile.in include/dnet/tcp.h \
+            include/dnet/arp.h include/dnet/Makefile.am include/dnet/tun.h \
+            include/dnet/addr.h include/Makefile.in include/dnet.h \
+            include/stamp-h1 include/dnet_winconfig.h include/Makefile.am \
+            include/queue.h include/stamp-h.in include/config.h.in \
+            include/err.h INSTALL libdnet-stripped.vcproj LICENSE \
+            Makefile.am Makefile.am.common Makefile.in NMAP_MODIFICATIONS \
+            README src/fw-ipf.c src/route-none.c src/ip-cooked.c \
+            src/arp-win32.c src/ip-util.c src/route-win32.c src/fw-none.c \
+            src/eth-linux.c src/route-bsd.c src/route-linux.c src/fw-pf.c \
+            src/tun-bsd.c src/strlcat.c src/tun-none.c src/memcmp.c \
+            src/route-hpux.c src/addr-util.c src/eth-ndd.c src/ip6.c \
+            src/intf.c src/Makefile.in src/addr.c src/eth-dlpi.c \
+            src/fw-ipchains.c src/rand.c src/tun-solaris.c src/intf-win32.c \
+            src/eth-none.c src/ip.c src/fw-pktfilter.c src/ip-win32.c \
+            src/fw-ipfw.c src/arp-ioctl.c src/arp-none.c src/Makefile.am \
+            src/eth-bsd.c src/strsep.c src/err.c src/strlcpy.c src/blob.c \
+            src/eth-win32.c src/eth-snoop.c src/eth-pfilt.c src/tun-linux.c \
+            src/arp-bsd.c THANKS TODO \
+            /usr/tmp/nmap-$(NMAP_VERSION)/libdnet-stripped
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/nsock
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/nsock/include
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/nsock/src
 	cp ../nsock/nsock.vcproj /usr/tmp/nmap-$(NMAP_VERSION)/nsock/
-	cd ../nsock/include; cp -ra nsock.h /usr/tmp/nmap-$(NMAP_VERSION)/nsock/include/
-	cd ../nsock/src; cp -ra  aclocal.m4 config.guess config.sub \
-                            configure configure.ac error.c error.h \
-                            filespace.c filespace.h gh_list.c gh_list.h \
-                            install-sh Makefile.in netutils.c netutils.h \
-                            nsock_config.h.in nsock_connect.c nsock_core.c \
-                            nsock_event.c nsock_internal.h nsock_iod.c \
-                            nsock_pool.c nsock_read.c nsock_ssl.h \
-                            nsock_ssl.c nsock_timers.c \
-                            nsock_write.c nsock_utils.c nsock_utils.h \
-                            /usr/tmp/nmap-$(NMAP_VERSION)/nsock/src/
+	cd ../nsock; cp -a --parents  include/nsock.h nsock.vcproj \
+           src/nsock_utils.c src/aclocal.m4 src/error.h src/netutils.c \
+           src/gh_list.h src/nsock_internal.h src/nsock_write.c \
+           src/nsock_core.c src/nsock_pool.c src/configure src/Makefile.in \
+           src/filespace.h src/nsock_utils.h src/install-sh src/config.sub \
+           src/nsock_timers.c src/nsock_read.c src/nsock_iod.c \
+           src/nsock_ssl.c src/config.guess src/filespace.c src/nsock_ssl.h \
+           src/configure.ac src/nsock_config.h.in src/nsock_connect.c \
+           src/nsock_event.c src/gh_list.c src/error.c src/netutils.h TODO \
+           /usr/tmp/nmap-$(NMAP_VERSION)/nsock/
 
 	rm -f /usr/tmp/nmap-$(NMAP_VERSION)/nbase/nbase_config.h 
 # Kill the SVN/CVS crap

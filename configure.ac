@@ -47,7 +47,7 @@ if test $CXXPROG = "MISSING"; then
   AC_MSG_ERROR([Could not locate a C++ compiler. If it exists, add it to your PATH or give configure the CXX=path_to_compiler argument.  Otherwise, install a C++ compiler such as g++ or install a binary package of Nmap (see http://www.insecure.org/nmap/nmap_download.html ))])
 fi
 
-nmap_gcc_mayor_version=0
+nmap_gcc_major_version=0
 AC_MSG_CHECKING([whether the compiler is gcc 4 or greater])
 if test x"$GXX" = xno; then
   AC_MSG_RESULT([no])
@@ -58,22 +58,22 @@ else
   else
     our_gcc="$ac_cv_prog_CC"
   fi
-  # new mayor versions must be added here
+  # new major versions must be added here
   case `$our_gcc --version | sed -e 's,\..*,.,' -e q` in
     *4.)
-      nmap_gcc_mayor_version=4
+      nmap_gcc_major_version=4
       ;;
-    *3)
-      nmap_gcc_mayor_version=3
+    *3.)
+      nmap_gcc_major_version=3
       ;;
-    *2)
-      nmap_gcc_mayor_version=2
+    *2.)
+      nmap_gcc_major_version=2
       ;;
-    *1)
-      nmap_gcc_mayor_version=1
+    *1.)
+      nmap_gcc_major_version=1
       ;;
   esac
-  if test "$nmap_gcc_mayor_version" -ge 4; then
+  if test "$nmap_gcc_major_version" -ge 4; then
     AC_MSG_RESULT([yes])
   else
     AC_MSG_RESULT([no])
@@ -81,7 +81,7 @@ else
 fi
 
 # Remember that all following tests will run with this CXXFLAGS by default
-if test "$nmap_gcc_mayor_version" -ge 4; then
+if test "$nmap_gcc_major_version" -ge 4; then
   CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
 fi
 
