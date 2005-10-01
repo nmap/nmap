@@ -449,7 +449,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len) {
     tcp = (struct tcphdr *)  (packet + ip->ip_hl * 4);
     if (frag_off > 8 || len < (u32) ip->ip_hl * 4 + 8) 
       snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? ?? %s (incomplete)", srchost, dsthost, ipinfo);
-    else if (frag_off == 8 && len >= (u32) ip->ip_hl * 4 + 8) {// we can get TCP flags nad ACKn
+    else if (frag_off == 8 && len >= (u32) ip->ip_hl * 4 + 8) {// we can get TCP flags and ACKn
       tcp = (struct tcphdr *)((u8 *) tcp - frag_off); // ugly?
       p = tflags;
       /* These are basically in tcpdump order */
@@ -1281,7 +1281,7 @@ u8 *build_udp_raw(struct in_addr *source, const struct in_addr *victim,
   if (data)
     memcpy(packet + sizeof(struct ip) + sizeof(udphdr_bsd), data, datalen);
   
-  /* Now the psuedo header for checksuming */
+  /* Now the pseudo header for checksuming */
   pseudo->source.s_addr = source->s_addr;
   pseudo->dest.s_addr = victim->s_addr;
   pseudo->proto = IPPROTO_UDP;
@@ -1620,7 +1620,7 @@ if (timedout) {
  return alignedbuf;
 }
  
-// Returns whether the packet receive time value obtaned from libpcap
+// Returns whether the packet receive time value obtained from libpcap
 // (and thus by readip_pcap()) should be considered valid.  When
 // invalid (Windows and Amiga), readip_pcap returns the time you called it.
 bool pcap_recv_timeval_valid() {
@@ -1633,7 +1633,7 @@ bool pcap_recv_timeval_valid() {
 
 
 /* A trivial functon that maintains a cache of IP to MAC Address
-   entries.  If the command is ARPCACHE_GEt, this func looks for the
+   entries.  If the command is ARPCACHE_GET, this func looks for the
    IPv4 address in ss and fills in the 'mac' parameter and returns
    true if it is found.  Otherwise (not found), the function returns
    false.  If the command is ARPCACHE_SET, the function adds an entry
@@ -1932,7 +1932,7 @@ bool setTargetNextHopMAC(Target *target) {
   if (target->ifType() != devt_ethernet)
     return false; /* Duh. */
 
-  /* First check if we alread have it, duh. */
+  /* First check if we already have it, duh. */
   if (target->NextHopMACAddress())
     return true;
 
@@ -2226,8 +2226,8 @@ int sd;
     printf("Size of struct ifreq: %d\n", sizeof(struct ifreq));
 #endif
 
-    for(; ifr && *((u8 *)ifr) && ((u8 *)ifr) < buf + ifc.ifc_len; 
-	((*(char **)&ifr) += len )) {
+    for(; ifr && ifr->ifr_name[0] && ((char *)ifr) < buf + ifc.ifc_len;
+	ifr = (struct ifreq *)(((char *)ifr) + len)) {
 #if TCPIP_DEBUGGING
       printf("ifr_name size = %d\n", sizeof(ifr->ifr_name));
       printf("ifr = %X\n",(unsigned)(*(char **)&ifr));
@@ -2635,7 +2635,7 @@ void broadcast_socket(int sd) {
   }
 }
 
-/* Do a receive (recv()) on a socket and stick the results (upt to
+/* Do a receive (recv()) on a socket and stick the results (up to
    len) into buf .  Give up after 'seconds'.  Returns the number of
    bytes read (or -1 in the case of an error.  It only does one recv
    (it will not keep going until len bytes are read).  If timedout is

@@ -130,7 +130,7 @@ class NmapOutputTable {
   // ptr (and you better not free it until this table is destroyed ).  Skip the itemlen parameter if you
   // don't know (and the function will use strlen).
   void addItem(unsigned int row, unsigned int column, bool copy, const char *item, int itemlen = -1);
-  // Like addItem except this version takes a prinf-style format string followed by varargs
+  // Like addItem except this version takes a printf-style format string followed by varargs
   void addItemFormatted(unsigned int row, unsigned int column, const char *fmt, ...)
     __attribute__ ((format (printf, 4, 5)));
   // Returns the maximum size neccessary to create a printableTable() (the 
@@ -140,8 +140,8 @@ class NmapOutputTable {
   // This function sticks the entire table into a character buffer.
   // Note that the buffer is likely to be reused if you call the
   // function again, and it will also be invalidated if you free the
-  // Table.  if size is not NULL, it will be filled with the size of
-  // the ASCII table in bytes (not including the terminating NUL
+  // table. If size is not NULL, it will be filled with the size of
+  // the ASCII table in bytes (not including the terminating NUL)
   char *printableTable(int *size);
 
  private:
@@ -158,8 +158,8 @@ class NmapOutputTable {
   int *itemsInRow; 
   unsigned int numRows;  
   unsigned int numColumns;
-  char *tableout; // If printableTable() is called, we returnthis
-  int tableoutsz; // Amount of space ALLOCATED for tableoutsz.  Includes space allocated for NUL.
+  char *tableout; // If printableTable() is called, we return this
+  int tableoutsz; // Amount of space ALLOCATED for tableout.  Includes space allocated for NUL.
 };
 
 

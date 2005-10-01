@@ -308,7 +308,7 @@ public:
      Timedout probes are often marked as such (and sometimes
      considered a drop), but kept in the list juts in case they come
      really late.  But after probeExpire(), I don't waste time keeping
-     them around. Givein in MICROseconds */
+     them around. Give in MICROseconds */
   unsigned long probeExpire();
 /* Returns OK if sending a new probe to this host is OK (to avoid
    flooding). If when is non-NULL, fills it with the time that sending
@@ -775,9 +775,9 @@ unsigned long HostScanStats::probeTimeout() {
 
   /* How long I'll wait until completely giving up on a probe.
      Timedout probes are often marked as such (and sometimes
-     considered a drop), but kept in the list juts in case they come
+     considered a drop), but kept in the list just in case they come
      really late.  But after probeExpire(), I don't waste time keeping
-     them around. Givein in MICROseconds */
+     them around. Give in MICROseconds */
 unsigned long HostScanStats::probeExpire() {
   if (USI->scantype == CONNECT_SCAN)
     return probeTimeout(); /* timedout probes close socket -- late resp. impossible */

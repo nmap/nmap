@@ -323,7 +323,7 @@ struct route_nfo {
   struct interface_info ii;
 
 /* true if the target is directly connected on the network (no routing
-   required. */
+   required). */
   bool direct_connect; 
 
 /* This is the source address that should be used by the packets.  It

@@ -151,7 +151,7 @@ class TargetGroup {
   struct in_addr currentaddr;
   struct in_addr endaddr;
 
-  // These three are for the '138.[1-7,16,91-95,200-].12.1 style (IPV4_RANGES)
+  // These three are for the '138.[1-7,16,91-95,200-].12.1' style (IPV4_RANGES)
   u8 addresses[4][256];
   unsigned int current[4];
   u8 last[4];  
@@ -172,7 +172,7 @@ class HostGroupState {
   int current_batch_sz; /* The number of VALID members of hostbatch[] */
   int next_batch_no; /* The index of the next hostbatch[] member to be given 
 			back to the user */
-  int randomize; /* Whether each bach should be "shuffled" prior to the ping 
+  int randomize; /* Whether each batch should be "shuffled" prior to the ping 
 		    scan (they will also be out of order when given back one
 		    at a time to the client program */
   char **target_expressions; /* An array of target expression strings, passed

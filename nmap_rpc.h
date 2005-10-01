@@ -111,7 +111,7 @@
 #include "utils.h"
 #include "timing.h"
 
-/* rpc related #defines */
+/* rpc related #define's */
 #define RECORD_MARKING 4        /* length of recoder marking (bytes)     */
 
 /* defines used to check RPC answers */

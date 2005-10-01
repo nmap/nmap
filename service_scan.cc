@@ -1,6 +1,6 @@
 
 /***************************************************************************
- * service_scan.h -- Routines used for service fingerprinting to determine *
+ * service_scan.cc -- Routines used for service fingerprinting to determine *
  * what application-level protocol is listening on a given port            *
  * (e.g. snmp, http, ftp, smtp, etc.)                                      *
  *                                                                         *
@@ -140,7 +140,7 @@ public:
   ~ServiceNFO();
 
   // If a service response to a given probeName, this function adds
-  // the resonse the the fingerprint for that service.  The
+  // the response the the fingerprint for that service.  The
   // fingerprint can be printed when nothing matches the service.  You
   // can obtain the fingerprint (if any) via getServiceFingerprint();
   void addToServiceFingerprint(const char *probeName, const u8 *resp, 
@@ -207,8 +207,8 @@ public:
           
 private:
   // Adds a character to servicefp.  Takes care of word wrapping if
-  // neccessary at the given (wrapat) column.  Chars will only be
-  // written if there is enough space.  Oherwise it exits.
+  // necessary at the given (wrapat) column.  Chars will only be
+  // written if there is enough space.  Otherwise it exits.
   void addServiceChar(char c, int wrapat);
   // Like addServiceChar, but for a whole zero-terminated string
   void addServiceString(char *s, int wrapat);
@@ -974,7 +974,7 @@ void ServiceProbe::setPortVector(vector<u16> *portv, const char *portstr,
   // SERVICE_TUNNEL_SSL.  Otherwise use SERVICE_TUNNEL_NONE.  The line
   // number is requested because this function will bail with an error
   // (giving the line number) if it fails to parse the string.  Ports
-  // are a comma seperated list of prots and ranges
+  // are a comma seperated list of ports and ranges
   // (e.g. 53,80,6000-6010).
 void ServiceProbe::setProbablePorts(enum service_tunnel_type tunnel,
 				    const char *portstr, int lineno) {
@@ -1201,6 +1201,8 @@ int AllProbes::isExcluded(unsigned short port, int proto) {
   unsigned short *p=NULL;
   int count=-1,i;
 
+  if (!excludedports) return 0;
+
   if (proto == IPPROTO_TCP) {
     p = excludedports->tcp_ports;
     count = excludedports->tcp_count;
@@ -1312,8 +1314,8 @@ ServiceNFO::~ServiceNFO() {
 }
 
   // Adds a character to servicefp.  Takes care of word wrapping if
-  // neccessary at the given (wrapat) column.  Chars will only be
-  // written if there is enough space.  Oherwise it exits.
+  // necessary at the given (wrapat) column.  Chars will only be
+  // written if there is enough space.  Otherwise it exits.
 void ServiceNFO::addServiceChar(char c, int wrapat) {
 
   if (servicefpalloc - servicefplen < 6)

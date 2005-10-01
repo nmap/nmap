@@ -182,7 +182,7 @@ get_random_bytes(&sequence_base, sizeof(unsigned int));
   } else {
     /* Init our raw socket */
     if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
-      pfatal("socket trobles in get_fingerprint");
+      pfatal("socket troubles in get_fingerprint");
     unblock_socket(rawsd);
     broadcast_socket(rawsd);
 #ifndef WIN32
@@ -390,7 +390,7 @@ if (o.verbose && openport != (unsigned long) -1)
      t1 = seq_send_times[seq_packets_sent];
      seq_packets_sent++;
    
-     /* Now we collect  the replies */
+     /* Now we collect the replies */
      while(si->responses < seq_packets_sent && !timeout) {
        
        if (seq_packets_sent == NUM_SEQ_SAMPLES)
@@ -929,7 +929,7 @@ double compare_fingerprints(FingerPrint *referenceFP, FingerPrint *observedFP,
 }
 
 /* Takes a fingerprint and looks for matches inside reference_FPs[].
-   The results are stored in in FPR (which must point to an instantiated
+   The results are stored in FPR (which must point to an instantiated
    FingerPrintResults class) -- results will be reverse-sorted by
    accuracy.  No results below accuracy_threshhold will be included.
    The max matches returned is the maximum that fits in a
@@ -1172,7 +1172,7 @@ int bestaccidx;
  
 #ifdef WIN32
   if (target->ifType() == devt_loopback) {
-    log_write(LOG_STDOUT, "Skipping OS Scan against %s because it doesn't work against your own machine (localhsot)\n", target->NameIP());
+    log_write(LOG_STDOUT, "Skipping OS Scan against %s because it doesn't work against your own machine (localhost)\n", target->NameIP());
     return 1;
   }
 #endif
@@ -1753,7 +1753,7 @@ for(decoy=0; decoy < o.numdecoys; decoy++) {
   udp->uh_dport = htons(dport);
   udp->uh_ulen = htons(8 + datalen);
 
-  /* Now the psuedo header for checksuming */
+  /* Now the pseudo header for checksuming */
   pseudo->source.s_addr = source->s_addr;
   pseudo->dest.s_addr = victim->s_addr;
   pseudo->proto = IPPROTO_UDP;
@@ -2012,7 +2012,7 @@ int ipid_sequence(int numSamples, u16 *ipids, int islocalhost) {
 	if (ipid_diffs[i] % 256 == 0) /* Stupid MS */
 	  ipid_diffs[i] -= 256;
 	else
-	  ipid_diffs[i]--; /* Because on localhost the RST sent back ues an IPID */
+	  ipid_diffs[i]--; /* Because on localhost the RST sent back use an IPID */
       }
     }
   }

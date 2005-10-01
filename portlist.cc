@@ -178,8 +178,8 @@ static void populateFullVersionString(struct serviceDeductions *sd) {
 }
 
 
-// pass in an allocated struct serviceDeductions (don't wory about
-// initializing, and you don't have to free any inernal ptrs.  See the
+// pass in an allocated struct serviceDeductions (don't worry about
+// initializing, and you don't have to free any internal ptrs.  See the
 // serviceDeductions definition for the fields that are populated.
 // Returns 0 if at least a name is available.
 int Port::getServiceDeductions(struct serviceDeductions *sd) {
@@ -258,7 +258,7 @@ int Port::getServiceDeductions(struct serviceDeductions *sd) {
 // will be NULL if unavailable. Note that this function makes its
 // own copy of sname and product/version/extrainfo.  This function
 // also takes care of truncating the version strings to a
-// 'reasonable' length if neccessary, and cleaning up any unprinable
+// 'reasonable' length if neccessary, and cleaning up any unprintable
 // chars. (these tests are to avoid annoying DOS (or other) attacks
 // by malicious services).  The fingerprint should be NULL unless
 // one is available and the user should submit it.  tunnel must be
@@ -547,7 +547,7 @@ int PortList::removePort(u16 portno, u8 protocol) {
 }
 
   /* Saves an identification string for the target containing these
-     ports (an IP addrss might be a good example, but set what you
+     ports (an IP address might be a good example, but set what you
      want).  Only used when printing new port updates.  Optional.  A
      copy is made. */
 void PortList::setIdStr(const char *id) {

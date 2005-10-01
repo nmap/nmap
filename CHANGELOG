@@ -1,10 +1,24 @@
 # Nmap Changelog ($Id$)
 
-Nmap 3.92
+
+o Fixed a possible aliasing problem in tcpip.cc by applying a patch sent in by
+  Gwenole Beauchesne (gbeauchesne(a)mandriva.com).  This problem
+  shouldn't have had any effect on users since we already include the
+  -fno-strict-aliasing option whenever gcc 4 is detected, but it
+  brings us closer to being able to remove that option.
+
+o Fixed a bug that caused Nmap to crash if an nmap-service-probes file
+  was used which didn't contain the Exclude directive.
+
+o Fixed a bunch of typos and misspellings throughout the Nmap source
+  code (mostly in comments).  This was a 625-line patch by Saint Xavier
+  (skyxav(a)skynet.be).
+
+Nmap 3.93
 
 o Modified Libpcap's configure.ac to compile with the
-  --fno-strict-aliasing option if gcc 4.X is used.  This prevents when
-  said compiler is used.  This was done for Nmap in 3.90, but is
+  -fno-strict-aliasing option if gcc 4.X is used.  This prevents
+  crashes when said compiler is used.  This was done for Nmap in 3.90, but is
   apparently needed for pcap too.  Thanks to Craig Humphrey
   (Craig.Humphrey(a)chapmantripp.com) for the discovery.
 
@@ -148,7 +162,7 @@ o Fixed a crash problem related to non-portable varargs (vsnprintf)
   CPU in 64-bit mode.
 
 o Fixed crash when Nmap is compiled using gcc 4.X by adding the
-  --fno-strict-aliasing option when that compiler is detected.  Thanks
+  -fno-strict-aliasing option when that compiler is detected.  Thanks
   to Greg Darke (starstuff(a)optusnet.com.au) for discovering that
   this option fixes (hides) the problem and to Duilio J. Protti
   (dprotti(a)flowgate.net) for writing the configure patch to detect

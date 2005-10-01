@@ -374,7 +374,7 @@ do {
 		  hs->hostbatch[hidx]->deviceName()) != 0 
 	  || hs->hostbatch[hidx]->directlyConnected() != hs->hostbatch[0]->directlyConnected())) {
 	/* Cancel everything!  This guy must go in the next group and we are
-	   outtof here */
+	   out of here */
 	hs->current_expression.return_last_host();
 	delete hs->hostbatch[hidx];
 	goto batchfull;
@@ -384,7 +384,7 @@ do {
 
   if (hs->current_batch_sz < hs->max_batch_sz &&
       hs->next_expression < hs->num_expressions) {
-    /* We are going to have to plop in another expression. */
+    /* We are going to have to pop in another expression. */
     while(hs->current_expression.parse_expr(hs->target_expressions[hs->next_expression++], o.af()) != 0) 
       if (hs->next_expression >= hs->num_expressions)
 	break;
@@ -1554,7 +1554,7 @@ int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[], int pingtype,
     if (newport && newportstate != PORT_UNKNOWN) {
       /* OK, we can add it, but that is only appropriate if this is one
 	 of the ports the user ASKED for */
-      /* This was for the old turbo mode -- which I no longer support now that ultra_scan() can handle parallel hosts.  Maybe I'll brign it back someday */
+      /* This was for the old turbo mode -- which I no longer support now that ultra_scan() can handle parallel hosts.  Maybe I'll bring it back someday */
       /*
       if (ports && ports->tcp_count == 1 && ports->tcp_ports[0] == newport)
 	hostbatch[hostnum]->ports.addPort(newport, IPPROTO_TCP, NULL, 
@@ -1812,7 +1812,7 @@ int dumpExclude(TargetGroup *exclude_group) {
     exclude_group[i++].rewind();
   }
 
-  /* return debuggin to what it was */
+  /* return debugging to what it was */
   o.debugging = debug_save; 
   return 1;
 }

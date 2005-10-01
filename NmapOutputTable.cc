@@ -170,7 +170,7 @@ void NmapOutputTable::addItem(unsigned int row, unsigned int column, bool copy, 
   return;
 }
 
-// Like addItem except this version takes a prinf-style format string 
+// Like addItem except this version takes a printf-style format string 
 // followed by varargs
 void NmapOutputTable::addItemFormatted(unsigned int row, 
 					  unsigned int column, 
@@ -211,8 +211,8 @@ int NmapOutputTable::printableSize() {
  // This function sticks the entire table into a character buffer.
  // Note that the buffer is likely to be reused if you call the
  // function again, and it will also be invalidated if you free the
- // Table.  if size is not NULL, it will be filled with the size of
- // the ASCII table in bytes (not including the terminating NUL
+ // table. If size is not NULL, it will be filled with the size of
+ // the ASCII table in bytes (not including the terminating NUL)
 
 char *NmapOutputTable::printableTable(int *size) {
   unsigned int col, row;

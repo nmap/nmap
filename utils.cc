@@ -438,7 +438,7 @@ unsigned int gcd_n_uint(int nvals, unsigned int *val)
    into an argv[] style char **, which it sets the argv parameter to.
    The function returns the number of items filled up in the array
    (argc), or -1 in the case of an error.  This function allocates
-   memmory for argv and thus it must be freed -- use argv_parse_free()
+   memory for argv and thus it must be freed -- use argv_parse_free()
    for that.  If arg_parse returns <1, then argv does not need to be freed.
    The returned arrays are always terminated with a NULL pointer */
 int arg_parse(const char *command, char ***argv) {

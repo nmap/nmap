@@ -163,7 +163,7 @@ const struct in_addr *NmapOps::v4sourceip() {
 }
 
 // Number of milliseconds since getStartTime().  The current time is an
-// optional argument to avoid an extre gettimeofday() call.
+// optional argument to avoid an extra gettimeofday() call.
 int NmapOps::TimeSinceStartMS(struct timeval *now) {
   struct timeval tv;
   if (!now)
@@ -209,7 +209,7 @@ void NmapOps::Initialize() {
   min_rtt_timeout = MIN_RTT_TIMEOUT;
   initial_rtt_timeout = INITIAL_RTT_TIMEOUT;
   min_host_group_sz = 1;
-  max_host_group_sz = 100000; // don't want to be restrictive unles user sets
+  max_host_group_sz = 100000; // don't want to be restrictive unless user sets
   max_tcp_scan_delay = MAX_TCP_SCAN_DELAY;
   max_udp_scan_delay = MAX_UDP_SCAN_DELAY;
   max_ips_to_scan = 0;
@@ -436,7 +436,7 @@ void NmapOps::setMaxRttTimeout(int rtt)
 
 void NmapOps::setMinRttTimeout(int rtt) 
 { 
-  if (rtt < 0) fatal("NmapOps::setMaxRttTimeout(): minimum round trip time must be at least 0");
+  if (rtt < 0) fatal("NmapOps::setMinRttTimeout(): minimum round trip time must be at least 0");
   min_rtt_timeout = rtt; 
   if (rtt > max_rtt_timeout) max_rtt_timeout = rtt;  
   if (rtt > initial_rtt_timeout) initial_rtt_timeout = rtt;
@@ -444,7 +444,7 @@ void NmapOps::setMinRttTimeout(int rtt)
 
 void NmapOps::setInitialRttTimeout(int rtt) 
 { 
-  if (rtt <= 0) fatal("NmapOps::setMaxRttTimeout(): initial round trip time must be greater than 0");
+  if (rtt <= 0) fatal("NmapOps::setInitialRttTimeout(): initial round trip time must be greater than 0");
   initial_rtt_timeout = rtt; 
   if (rtt > max_rtt_timeout) max_rtt_timeout = rtt;  
   if (rtt < min_rtt_timeout) min_rtt_timeout = rtt;

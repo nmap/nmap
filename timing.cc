@@ -198,7 +198,7 @@ void adjust_timeouts2(const struct timeval *sent,
   } */
 }
 
-/* Sleeps if necessary to ensure that it isn't called twice withen less
+/* Sleeps if necessary to ensure that it isn't called twice within less
    time than o.send_delay.  If it is passed a non-null tv, the POST-SLEEP
    time is recorded in it */
 void enforce_scan_delay(struct timeval *tv) {
@@ -253,7 +253,7 @@ ScanProgressMeter::~ScanProgressMeter() {
 }
 
 /* Decides whether a timing report is likely to even be
-   printed.  There are stringint limitations on how often they are
+   printed.  There are stringent limitations on how often they are
    printed, as well as the verbosity level that must exist.  So you
    might as well check this before spending much time computing
    progress info.  now can be NULL if caller doesn't have the current

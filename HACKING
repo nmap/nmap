@@ -113,7 +113,7 @@ and just send us the patch: file.c.patch.
 Credits
 -------
 
-I got the idea for this HACKING file from GNet (
-http://www.eecs.umich.edu/~dhelder/misc/gnet/ ) and followed the
+I got the idea for this HACKING file from GNet 
+(http://www.gnetlibrary.org/) and followed the
 general structure of their HACKING file.
 

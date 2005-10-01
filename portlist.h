@@ -184,7 +184,7 @@ class Port {
   Port();
   ~Port();
 
-  // pass in an allocated struct serviceDeductions (don't wory about initializing, and
+  // pass in an allocated struct serviceDeductions (don't worry about initializing, and
   // you don't have to free any internal ptrs.  See the serviceDeductions definition for
   // the fields that are populated.  Returns 0 if at least a name is available.
   int getServiceDeductions(struct serviceDeductions *sd);

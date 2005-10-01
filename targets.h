@@ -110,7 +110,7 @@
 #endif /* WIN32 */
 #endif /* HAVE_CONFIG_H */
 
-/* This contains pretty much everythign we need ... */
+/* This contains pretty much everything we need ... */
 #if HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif

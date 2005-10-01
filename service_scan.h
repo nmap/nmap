@@ -237,7 +237,7 @@ class ServiceProbe {
 
   // obtains the probe string (in raw binary form) and the length.  The string will be 
   // NUL-terminated, but there may be other \0 in the string, so the termination is only
-  // done for easo of printing ASCII probes in debugging cases.
+  // done for ease of printing ASCII probes in debugging cases.
   const u8 *getProbeString(int *stringlen) { *stringlen = probestringlen; return probestring; }
   void setProbeString(const u8 *ps, int stringlen);
 
@@ -254,7 +254,7 @@ class ServiceProbe {
   // SERVICE_TUNNEL_SSL.  Otherwise use SERVICE_TUNNEL_NONE.  The line
   // number is requested because this function will bail with an error
   // (giving the line number) if it fails to parse the string.  Ports
-  // are a comma seperated list of prots and ranges
+  // are a comma seperated list of ports and ranges
   // (e.g. 53,80,6000-6010).
   void setProbablePorts(enum service_tunnel_type tunnel,
 			const char *portstr, int lineno);

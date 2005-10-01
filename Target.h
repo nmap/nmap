@@ -151,7 +151,7 @@ class Target {
      order
   */
   void setHostName(char *name);
-  /* Generates the a printable string consisting of the host's IP
+  /* Generates a printable string consisting of the host's IP
      address and hostname (if available).  Eg "www.insecure.org
      (64.71.184.53)" or "fe80::202:e3ff:fe14:1102".  The name is
      written into the buffer provided, which is also returned.  Results

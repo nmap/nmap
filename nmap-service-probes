@@ -249,8 +249,8 @@ match ftp m|^220 ([\w-_.]+) FTP server ready!\r\n| p/ProFTPD/ o/Unix/ h/$1/
 match ftp m|^220 FTP Server ready\.\r\n$| p/ProFTPD/ o/Unix/
 
 match ftp m/^220.*NcFTPd Server / p/NcFTPd/ o/Unix/
-match ftp m/^220.*FTP server \(SunOS 5\.([789])\) ready/ p/Sun Solaris $1 ftpd/ o/Solaris/
-match ftp m/^220.*FTP server \(SunOS (\S+)\) ready/ p/Sun SunOS ftpd/ v/$1/ o/Solaris/
+match ftp m/^220 ([\w-_.]+) FTP server \(SunOS 5\.([789])\) ready/ p/Sun Solaris $2 ftpd/ o/Solaris/ h/$1/
+match ftp m/^220 ([\w-_.]+) FTP server \(SunOS (\S+)\) ready/ p/Sun SunOS ftpd/ v/$2/ o/Solaris/ h/$1/
 match ftp m/^220-([-.\w]+) IBM FTP.*(V\d+R\d+)/ p|IBM OS/390 ftpd| h/$1/ v/$2/ o|OS/390|
 match ftp m|^220-IBM FTP, .*\.\r\n220 Connection will close if idle for more than 120 minutes\.\r\n| p|IBM OS/390 ftpd| o|OS/390|
 match ftp m/^220 VxWorks \((\d[^)]+)\) FTP server ready/ p/VxWorks ftpd/ v/$1/ o/VxWorks/
@@ -612,7 +612,7 @@ match irc-proxy m|^:dircproxy NOTICE AUTH :Looking up your hostname\.\.\.\r\n:di
 # dirkproxy (modificated dircproxy)
 match irc-proxy m|^:dirkproxy NOTICE AUTH :Looking up your hostname\.\.\.\r\n:dirkproxy NOTICE AUTH :Got your hostname\.\r\n| p/dirkproxy/
 # Unreal IRCD Server version 3.2 beta 17
-match irc m|(^:[-.\w]+) NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\n| p/Unreal ircd/ h/$1/
+match irc m|^:([-.\w]+) NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\n| p/Unreal ircd/ h/$1/
 
 # dancer-ircd 1.0.31+maint8-1
 match irc m|^NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\nNOTICE AUTH :\*\*\* Checking ident\r\nNOTICE AUTH :\*\*\* No identd \(auth\) response\r\nNOTICE AUTH :\*\*\* Found your hostname\r\n$| p/Dancer ircd/

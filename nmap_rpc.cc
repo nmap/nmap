@@ -206,7 +206,7 @@ int get_rpc_procs(unsigned long **programs, unsigned long *num_programs) {
 
 /* Send an RPC query to the specified host/port on the specified protocol
    looking for the specified RPC program.  We cache our sending sockets
-   to avoid recreating and (with TCP) reconnect() ing them each time */
+   to avoid recreating and (with TCP) reconnect()'ing them each time */
 int send_rpc_query(const struct in_addr *target_host, unsigned short portno,
 		   int ipproto, unsigned long program, int scan_offset, 
 		   int trynum) {
@@ -399,7 +399,7 @@ int rpc_are_we_done(char *msg, int msg_len, Target *target,
    
   if (current->state != PORT_TESTING && current->state != PORT_CLOSED &&
       current->state != PORT_FILTERED) {
-    error("Supposed scan_offset refers to port in state %s (should be testing,closed, or filtered)", statenum2str(current->state));
+    error("Supposed scan_offset refers to port in state %s (should be testing, closed, or filtered)", statenum2str(current->state));
     rsi->rpc_status = RPC_STATUS_NOT_RPC;
     ss->numqueries_outstanding = 0;
     return 1;

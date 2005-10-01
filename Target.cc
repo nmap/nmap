@@ -281,7 +281,7 @@ void Target::setHostName(char *name) {
     }
     p = hostname = strdup(name);
     while (*p) {
-      // I think only a-z A-Z 0-9 . and - are allowed, but I'l be a little more
+      // I think only a-z A-Z 0-9 . and - are allowed, but I'll be a little more
       // generous.
       if (!isalnum(*p) && !strchr(".-+=:_~*", *p)) {
 	log_write(LOG_STDOUT, "Illegal character(s) in hostname -- replacing with '*'\n");
@@ -292,11 +292,11 @@ void Target::setHostName(char *name) {
   }
 }
 
- /* Generates the a printable string consisting of the host's IP
+ /* Generates a printable string consisting of the host's IP
      address and hostname (if available).  Eg "www.insecure.org
      (64.71.184.53)" or "fe80::202:e3ff:fe14:1102".  The name is
      written into the buffer provided, which is also returned.  Results
-     that do not fit in bufflen will be truncated. */
+     that do not fit in buflen will be truncated. */
 const char *Target::NameIP(char *buf, size_t buflen) {
   assert(buf);
   assert(buflen > 8);

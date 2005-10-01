@@ -160,7 +160,7 @@ static int parse_scanflags(char *arg) {
 static int parse_bounce_argument(struct ftpinfo *ftp, char *url) {
   char *p = url,*q, *s;
 
-  if ((q = strrchr(url, '@'))) /*we have username and/or pass */ {
+  if ((q = strrchr(url, '@'))) { /*we have username and/or pass */
     *(q++) = '\0';
     if ((s = strchr(q, ':')))
       { /* has portno */
@@ -309,7 +309,7 @@ int nmap_main(int argc, char *argv[]) {
   }
   fakeargv[argc] = NULL;
 
-  emptystring[0] = '\0'; /* It wouldn't be an emptystring w/o this ;) */
+  emptystring[0] = '\0'; /* It wouldn't be an empty string w/o this ;) */
 
   if (argc < 2 ) printusage(argv[0], -1);
   Targets.reserve(100);
@@ -532,7 +532,7 @@ int nmap_main(int argc, char *argv[]) {
 	  if (resolve(p, &o.decoys[o.numdecoys])) {
 	    o.numdecoys++;
 	  } else {
-	    fatal("Failed to resolve decoy host: %s (must be hostname or IP address", optarg);
+	    fatal("Failed to resolve decoy host: %s (must be hostname or IP address)", optarg);
 	  }
 	}
 	if (q) {

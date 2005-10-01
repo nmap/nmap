@@ -179,7 +179,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
     if (strchr(hostexp, ':'))
       fatal("Invalid host expression: %s -- colons only allowed in IPv6 addresses, and then you need the -6 switch", hostexp);
 
-    /*strauct in_addr current_in;*/
+    /*struct in_addr current_in;*/
     addy[0] = addy[1] = addy[2] = addy[3] = addy[4] = NULL;
     addy[0] = r = hostexp;
     /* First we break the expression up into the four parts of the IP address
@@ -281,7 +281,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
     hints.ai_family = PF_INET6;
     rc = getaddrinfo(hostexp, NULL, &hints, &result);
     if (rc != 0) {
-      fprintf(stderr, "Failed to resolve given IPv6 hostname/IP: %s.  Note that you can't use '/mask' or '[1-4,7,100-]' style ranges for IPv6.  Error cod %d: %s\n", hostexp, rc, gai_strerror(rc));
+      fprintf(stderr, "Failed to resolve given IPv6 hostname/IP: %s.  Note that you can't use '/mask' or '[1-4,7,100-]' style ranges for IPv6.  Error code %d: %s\n", hostexp, rc, gai_strerror(rc));
       free(hostexp);
       if (result) freeaddrinfo(result);
       return 1;
@@ -355,7 +355,7 @@ int TargetGroup::skip_range(_octet_nums octet) {
 }
 
  /* Grab the next host from this expression (if any) and uptdates its internal
-    state to reflect the the IP was given out.  Returns 0 and
+    state to reflect that the IP was given out.  Returns 0 and
     fills in ss if successful.  ss must point to a pre-allocated
     sockaddr_storage structure */
 int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
@@ -416,7 +416,7 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
       }
     }
     if (octet == -1) {
-      /* It didn't find anything to bump up, I muast have taken the last IP */
+      /* It didn't find anything to bump up, I must have taken the last IP */
       assert(ipsleft == 1);
       /* So I set current to last with the very final octet up one ... */
       /* Note that this may make current[3] == 256 */
@@ -486,7 +486,7 @@ int TargetGroup::return_last_host() {
 /* Lookahead is the number of hosts that can be
    checked (such as ping scanned) in advance.  Randomize causes each
    group of up to lookahead hosts to be internally shuffled around.
-   The target_expressions array MUST REMAIN VALID IN MEMMORY as long as
+   The target_expressions array MUST REMAIN VALID IN MEMORY as long as
    this class instance is used -- the array is NOT copied.
  */
 HostGroupState::HostGroupState(int lookahead, int rnd, 
