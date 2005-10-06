@@ -395,9 +395,6 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   while(isspace(*matchtext)) matchtext++;
     if (*matchtext == '\0' || *matchtext == '\r' || *matchtext == '\n') break;
 
-    if (isSoft)
-      fatal("ServiceProbeMatch::InitMatch: illegal trailing garbage on line %d of nmap-service-probes - note that softmatch lines cannot have a version specifier.", lineno);
-
     modechar = *(matchtext++);
     if (*matchtext == 0 || *matchtext == '\r' || *matchtext == '\n')
       fatal("ServiceProbeMatch::InitMatch: parse error on line %d of nmap-service-probes", lineno);
@@ -2143,6 +2140,22 @@ void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
   return;
 }
 
+
+// This is used in processResults to determine whether a FP
+// should be printed based on type of match, version intensity, etc.
+
+int shouldWePrintFingerprint(ServiceNFO *svc) {
+  // Never print FP if hardmatched
+  if (svc->probe_state == PROBESTATE_FINISHED_HARDMATCHED)
+    return 0;
+
+  // If we were called with a version_intensity less than
+  // the default, don't bother printing.
+  if (o.version_intensity < 7) return 0;
+
+  return 1;
+}
+
 // This is passed a completed ServiceGroup which contains the scanning results for every service.
 // The function iterates through each finished service and adds the results to Target structure for
 // Nmap to output later.
@@ -2151,7 +2164,7 @@ static void processResults(ServiceGroup *SG) {
 list<ServiceNFO *>::iterator svc;
 
  for(svc = SG->services_finished.begin(); svc != SG->services_finished.end(); svc++) {
-   if ((*svc)->probe_state == PROBESTATE_FINISHED_HARDMATCHED) {
+   if ((*svc)->probe_state != PROBESTATE_FINISHED_NOMATCH) {
      (*svc)->port->setServiceProbeResults((*svc)->probe_state, 
 					  (*svc)->probe_matched,
 					  (*svc)->tunnel,
@@ -2161,16 +2174,8 @@ list<ServiceNFO *>::iterator svc;
 					  *(*svc)->hostname_matched? (*svc)->hostname_matched : NULL, 
 					  *(*svc)->ostype_matched? (*svc)->ostype_matched : NULL, 
 					  *(*svc)->devicetype_matched? (*svc)->devicetype_matched : NULL, 
-					  NULL);
-
-   } else if ((*svc)->probe_state == PROBESTATE_FINISHED_SOFTMATCHED) {
-    (*svc)->port->setServiceProbeResults((*svc)->probe_state, 
-					  (*svc)->probe_matched,
-					 (*svc)->tunnel,
-					  NULL, NULL, NULL, NULL, NULL, NULL, 
-					 (*svc)->getServiceFingerprint(NULL));
-
-   }  else if ((*svc)->probe_state == PROBESTATE_FINISHED_NOMATCH) {
+					  shouldWePrintFingerprint(*svc) ? (*svc)->getServiceFingerprint(NULL) : NULL);
+   }  else {
      if ((*svc)->getServiceFingerprint(NULL))
        (*svc)->port->setServiceProbeResults((*svc)->probe_state, NULL,
 					    (*svc)->tunnel, NULL, NULL, NULL, NULL, NULL, NULL,

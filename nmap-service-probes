@@ -452,6 +452,8 @@ match ftp-proxy m|^220 ([\w-_.]+) \(NetCache\) .*\r\n| p/NetApp NetCache ftp pro
 #match ftp m|^421 Service not available \(The FTP server is not responding\.\)\n$| v/unknown FTP server//service not responding/
 match vdr m|^220 (\S+) SVDRP VideoDiskRecorder (\d[^\;]+);| p/VDR/ h/$1/ v/$2/ d/media device/
 
+softmatch ftp m/^220 ([-.\w]+) [-.\w ]+ftp.*\r\n$/i h/$1/
+softmatch ftp m/^220-([-.\w]+) [-.\w ]+ftp.*\r\n220/i h/$1/
 softmatch ftp m/^220 [-.\w ]+ftp.*\r\n$/i
 softmatch ftp m/^220-[-.\w ]+ftp.*\r\n220/i
 softmatch ftp m/^220[- ].*ftp server.*\r\n/i
@@ -573,6 +575,7 @@ match imap m|^\* OK IMAP4rev1 server ready at \d\d/\d\d/\d\d \d\d:\d\d:\d\d \r\n
 match imap m|^\* OK IMAP4 Ready ([\w-_.]+) \w+\r\n| p/Perdition imapd/ h/$1/
 match imap m|^\* OK ([\w-_.]+) IMAP server ready\r\n| p/hMailServer imapd/ h/$1/ o/Windows/
 
+softmatch imap m/^\* OK ([-.\w]+) [-.\w,:+ ]+imap[-.\w,:+ ]+\r\n$/i h/$1/
 softmatch imap m/^\* OK [-.\w,:+ ]+imap[-.\w,:+ ]+\r\n$/i
 
 match imap-proxy m|^\* OK IMAP4 proxy ready\r\n| p/imap proxy/
@@ -1351,7 +1354,7 @@ match ssh m|^SSH-2\.0-RomCliSecure_([\d.]+)\r\n| p/Adtran Netvanta RomCliSecure 
 match ssh m|^SSH-2\.0-([\d.]+) sshlib: GlobalScape\r\n| p/GlobalScape CuteFTP sshd/ v/$1/ o/Windows/
 match ssh m|^SSH-2\.0-APSSH_([\w.]+)\n| p/APSSHd/ v/$1/ i/protocol 2.0/
 
-softmatch ssh m/^SSH-([.\d]+)-/
+softmatch ssh m/^SSH-([.\d]+)-/ i/protocol $1/
 
 match soldat m|^Soldat Admin Connection Established\.\.\.\r\nAdmin connected\.\r\n| p/Soldat multiplayer-game server/
 match solproxy m|^The solproxy is used by [\d.]+\n\rThe client is closed!\n\r| p/Dell Serial Over LAN proxy/

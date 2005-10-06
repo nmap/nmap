@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$)
 
+o Version detection softmatches (when Nmap determines the service
+  protocol such as smtp but isn't able to determine the app name such as
+  Postfix) can now parse out the normal match line fields such as
+  hostname, device type, and extra info.  For example, we may not know
+  what vendor created an sshd, but we can still parse out the protocol
+  number.  This was a patch from  Doug Hoyte (doug(a)hcsw.org).
 
 o Fixed a possible aliasing problem in tcpip.cc by applying a patch sent in by
   Gwenole Beauchesne (gbeauchesne(a)mandriva.com).  This problem
