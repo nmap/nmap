@@ -474,16 +474,6 @@ GtkAdjustment *adjust;
   gtk_table_attach_defaults(GTK_TABLE(table), opt.RPCInfo, 0, 1, 0, 1);
   gtk_widget_show(opt.RPCInfo);
 
-
-  opt.IdentdInfo = gtk_check_button_new_with_label("Identd Info");
-  gtk_signal_connect(GTK_OBJECT(opt.IdentdInfo), "released",
-			GTK_SIGNAL_FUNC(validate_option_change), NULL);
-  if (opt.scanValue != CONNECT_SCAN)
-    gtk_widget_set_sensitive(GTK_WIDGET(opt.IdentdInfo), FALSE);
-  gtk_table_attach_defaults(GTK_TABLE(table), opt.IdentdInfo, 1, 2, 0, 1);
-  gtk_widget_show(opt.IdentdInfo);
-
-
   opt.OSInfo = gtk_check_button_new_with_label("OS Detection");
   gtk_signal_connect(GTK_OBJECT(opt.OSInfo), "released",
 		     GTK_SIGNAL_FUNC(display_nmap_command_cb), NULL);

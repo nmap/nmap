@@ -470,10 +470,6 @@ static int command_size = 0;
       GTK_TOGGLE_BUTTON(opt.VersionInfo)->active)
     strcat(command, "-sV ");
 
-  if (GTK_WIDGET_SENSITIVE(opt.IdentdInfo) &&
-      GTK_TOGGLE_BUTTON(opt.IdentdInfo)->active)
-    strcat(command, "-I ");
-
   if (GTK_WIDGET_SENSITIVE(opt.OSInfo) &&
       GTK_TOGGLE_BUTTON(opt.OSInfo)->active)
     strcat(command, "-O ");
@@ -800,10 +796,6 @@ void scanType_changed_fcb(int *variable, guint action, GtkWidget *w)
       gtk_widget_set_sensitive(GTK_WIDGET(opt.useDecoy), TRUE);
       gtk_widget_set_sensitive(GTK_WIDGET(opt.Decoy), TRUE);
     }
-    if (action != CONNECT_SCAN)
-      gtk_widget_set_sensitive(GTK_WIDGET(opt.IdentdInfo), FALSE);
-    else
-      gtk_widget_set_sensitive(GTK_WIDGET(opt.IdentdInfo), TRUE);
 
     if ((action != ACK_SCAN) && (action != MAIMON_SCAN) && (action != FIN_SCAN) &&
         (action != SYN_SCAN) && (action != NULL_SCAN) && (action != XMAS_SCAN) &&

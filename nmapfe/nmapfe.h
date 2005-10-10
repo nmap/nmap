@@ -253,7 +253,6 @@ struct NmapFEoptions {
   guint protportValue;
   /* optional scan extensions */
   GtkWidget *RPCInfo;
-  GtkWidget *IdentdInfo;
   GtkWidget *OSInfo;
   GtkWidget *VersionInfo;
   /* ping types */

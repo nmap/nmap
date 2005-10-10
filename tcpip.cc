@@ -2226,7 +2226,7 @@ int sd;
     printf("Size of struct ifreq: %d\n", sizeof(struct ifreq));
 #endif
 
-    for(; ifr && ifr->ifr_name[0] && ((char *)ifr) < buf + ifc.ifc_len;
+    for(; ifr && ifr->ifr_name[0] && ((u8 *)ifr) < buf + ifc.ifc_len;
 	ifr = (struct ifreq *)(((char *)ifr) + len)) {
 #if TCPIP_DEBUGGING
       printf("ifr_name size = %d\n", sizeof(ifr->ifr_name));

@@ -20,6 +20,15 @@ o Fixed a bunch of typos and misspellings throughout the Nmap source
   code (mostly in comments).  This was a 625-line patch by Saint Xavier
   (skyxav(a)skynet.be).
 
+o Removed Identd scan support from NmapFE since Nmap no longer
+  supports it.  Thanks to Jonathan Dieter (jdieter99(a)gmx.net) for the
+  patch.
+
+o Integrated all of the September version detection fingerprint
+  submissions.  This was done by Version Detection Czar Doug Hoyte
+  (doug(a)hcsw.org) and resulted in 86 new match lines.  Please keep
+  those submissions coming!
+
 Nmap 3.93
 
 o Modified Libpcap's configure.ac to compile with the
@@ -412,7 +421,7 @@ o Nmap now ships with and installs (in the same directory as other
   any machine regardless of whether/where the XSL is installed.  For
   privacy reasons (avoid loading of an external URL when you view
   results), Nmap uses the local filesystem by default.  If you would
-  like the latest version of the stylesheet load from the web when
+  like the latest version of the stylesheet loaded from the web when
   rendering, specify 
   --stylesheet http://www.insecure.org/nmap/data/nmap.xsl .
 
