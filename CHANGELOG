@@ -24,10 +24,19 @@ o Removed Identd scan support from NmapFE since Nmap no longer
   supports it.  Thanks to Jonathan Dieter (jdieter99(a)gmx.net) for the
   patch.
 
+o Made the version detection "ports" directive (in
+  nmap-service-probes) more comprehensive.  This should speed up scans a
+  bit.  The patch was done by Doug Hoyte (doug(a)hcsw.org).
+
 o Integrated all of the September version detection fingerprint
   submissions.  This was done by Version Detection Czar Doug Hoyte
   (doug(a)hcsw.org) and resulted in 86 new match lines.  Please keep
   those submissions coming!
+
+o Fixed a divide-by-zero crash when you specify rather bogus
+  command-line arguments (a TCP scan with zero tcp ports).  Thanks to
+  Bart Dopheide (dopheide(a)fmf.nl) for identifying the problem and
+  sending a patch.
 
 Nmap 3.93
 

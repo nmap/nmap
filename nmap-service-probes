@@ -66,6 +66,7 @@ match bittorent m|^\x13BitTorrent protocol\0\0\0\0\0\0\0\0| p/Bittorrent P2P cli
 match bmc-softwarepatrol m|^\0\0\0\x17i\x02\x03..\0\x05\x02\0\x04\x02\x04\x03..\0\x03\x04\0\0\0\0\x01\x01\0| p/BMC Software Patrol Agent/
 match buildservice m|^200 HELLO - BuildForge Agent v([\d.]+)\n| p/BuildForge Agent/ v/$1/
 match buildservice m|^\$\0\0\0\$\0\0\x000RAR\0 \0\0.\xe2\x02\0\xc4G\x0f\0\0\0\0\0\0\0\0\0\0\0\0\0|s p/Xoreax IncrediBuild/ o/Windows/
+match bzfs m|BZFS\d{4}\0| p/BZFlag game server/
 
 match cddbp m|^201 ([\w-_.]+) CDDBP server v([\w-.]+) ready at .*\r\n| p/freedb cddbp server/ v/$2/ h/$1/
 match chargen m|^!"#\$%\&'\(\)\*\+,-\./0123456789:;<=>\?\@ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\\\]\^_`abcdefgh\r\n"#\$%\&'\(\)\*\+,-\./0123456789:;<=>\?\@ABCDEF| p/Linux chargen/ o/Linux/
@@ -137,6 +138,7 @@ match dict m|^220 ([-.\w]+) dictd ([-.\w/]+) on ([-.+ \w]+) <auth\.mime>| p/dict
 match directconnect m/^\$MyNick ([-.\w]+)|\$Lock/ p/Direct Connect P2P/ i/User: $1/ o/Windows/
 match directconnect m|^\r\nDConnect Daemon v([\d.]+)\r\nlogin: | p/Direct Connect P2P/ v/$1/ o/Windows/
 match directconenct m=<Hub-Security> Your IP is temporarily banned for (\d+) minutes\.\|= p/Shadows DirectConnect hub/ i/Banned for $1 minutes/
+match directconnect m=<Hub-Security> You are being banned for (\d+) minutes \(by SDCH Anti Hammering\)\.\|= p/Shadows DirectConnect hub/ i/Banned for $1 minutes/
 match directconnect m=<Hub-Security> You are being redirected to ([\d.]+)\|\$ForceMove [\d.]+\|= p/PtokaX directconnect hub/ i/Redirected to $1/
 match directconnect-admin m=^\r\nOpen DC Hub, version ([\d.]+), administrators port\.\r\nAll commands begin with '\$' and end with '\|'\.\r\nPlease supply administrators passord\.\r\n= p/OpenDCHub directconenct hub admin port/ v/$1/ o/Unix/
 match directupdate m|^OK Welcome <[\d.]+> on DirectUpdate server ([\d.]+)\r\n| p/DirectUpdate dynamic IP updater/ v/$1/
@@ -990,8 +992,6 @@ match pop3-proxy m|^\+OK HTML2POP3 server ready \(([\d.]+)\)\r\n| p/HTML2POP3 po
 match pop3-proxy m|^\+OK ([\w-_.]+) POP3 proxy ready\r\n| p/pop3gwd pop3 proxy/ h/$1/
 match pop3-proxy m|^\+OK AVG POP3 Proxy Server <[\d.]+@([\w-_.]+)> ([\d.]+)/[\d.]+ \[[\d.]+\]\r\n| p/GriSoft anti-virus pop3 proxy/ v/$2/ h/$1/ o/Windows/
 
-softmatch pop3 m|^\+OK [-\[\]\(\)!,/+:<>@.\w ]+\r\n$|
-
 # http://echelon.pl/pubs/poppassd.html
 # you give it username, present password and new password, and
 # it changes the password of the user.
@@ -1007,6 +1007,8 @@ match pop3pw m|^\+OK ApplePasswordServer (\d[-.\w]+) password server at | p/Appl
 match pop3pw m|^200 Stalker Internet Password Server ready\. V\.([\w.]+)\r\n| p/Stalker Mail Server password change daemon/ v/$1/ o/Mac OS/
 match pop3pw m|^550 Login failed - already \d+/\d+ users connected sorry \(use G_CON_PERIP_EXCEPT to bypass\) \(IP=[\d.]+\)\r\n| p/Qualcomm poppassd/ i/Maximum users connected/
 match pop3pw m|^200 hello and welcome to SchoolsNET SINA poppassd \[([\d-.]+)\]\r\n| p/SINA pop3pw/ v/$1/
+
+softmatch pop3 m|^\+OK [-\[\]\(\)!,/+:<>@.\w ]+\r\n$|
 
 match pmud m|^pmud (\d[-.\w]+) \d+\n| p|pmud| i|http://sf.net/projects/apmud|
 match printer m|^lpd \[@([-.\w]+)\]: Print-services are not available to your host \([-.\w]+\)\.\n| p/BSD lpd/ i/Unauthorized host/ h/$1/
@@ -1784,7 +1786,7 @@ match tunnelvision m|^HELLO Welcome to Tunnel Vision \(([\d.]+)\)\n| p/Tunnel Vi
 ##############################NEXT PROBE##############################
 Probe TCP GenericLines q|\r\n\r\n|
 rarity 1
-ports 21,23,35,43,79,98,110,113,119,199,214,449,505,510,540,616,628,666,731,1040-1043,1080,1212,1220,1248,1302,1400,1432,1467,1501,1666,2010,2600,3000,3005,3128,3333,3940,5000,5400,5432,5555,5570,6112,6667-6670,7144,7145,8000,8138,9801,15000,11965,11211,26214,26470,31416,30444,56667
+ports 21,23,35,43,79,98,110,113,119,199,214,264,449,505,510,540,587,616,628,666,731,1000,1040-1043,1080,1212,1220,1248,1302,1400,1432,1467,1501,1666,2010,2600,3000,3005,3128,3310,3333,3940,5000,5400,5432,5555,5570,6112,6667-6670,7144,7145,7780,8000,8138,9801,11371,11965,11211,13720,15000,19150,26214,26470,31416,30444,56667
 
 match abc m|^Feedback\nError=You need unique ID to command ABC!| p/ABC Torrent http interface/
 match antivir m|^\0\0\x80\0$| p/drweb anti-virus/
@@ -2063,7 +2065,7 @@ match xns m|^HELLO XBOX!$| p/Relax XBOX file server/ d/game console/
 ##############################NEXT PROBE##############################
 Probe TCP GetRequest q|GET / HTTP/1.0\r\n\r\n|
 rarity 1
-ports 1,70,79,80-85,88,113,139,143,280,497,505,514,515,540,554,620,631,783,993,995,1080,1220,1234,1311,1314,1503,1830,2030,2160,2525,2715,3052,3128,3280,3372,3531,3689,4660,5000,5060,5222,5269,5432,5800-5803,5900,6346,6544,6600,6699,6969,7007,7070,7776,8000-8010,8080-8085,8880-8888,9001,9030,9050,9080,9090,9999,10000,10005,11371,13666,13722,15000,40193,50000,55555,4711
+ports 1,70,79,80-85,88,113,139,143,280,497,505,514,515,540,554,620,631,783,888,898,900,901,993,995,1080,1214,1220,1234,1311,1314,1503,1830,1900,2001,2002,2030,2064,2160,2525,2715,2869,3000,3052,3128,3280,3372,3531,3689,4000,4660,5000,5060,5222,5269,5432,5800-5803,5900,6103,6346,6544,6600,6699,6969,7007,7070,7776,8000-8010,8080-8085,8118,8181,8443,8880-8888,9001,9030,9050,9080,9090,9999,10000,10005,11371,13666,13722,14534,15000,18264,40193,50000,55555,4711
 sslports 443
 
 # Kerio PF 4.0.11 unregistered - Service process (Port 44xxx?) on MS W2K SP4+
@@ -2965,6 +2967,9 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nPragma: no-cach\r\nContent-Type: text/html;
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Kerio MailServer ([\d.]+) patch (\d+)\r\n\r\n|s p/Kerio MailServer http config/ v/$1 patch $2/ o/Windows/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: VOIP\r\nWWW-Authenticate: Digest realm=\"VOIP\", nonce=\"\w+\", opaque=\"\w+\",| p/ACT VoIP phone http config/ d/VoIP phone/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: KHAPI/([\d.]+) \(Linux\)\r\n|s p/KHAPI httpd/ v/$1/ o/Linux/
+# HP OpenView ITO agent (probably version 7.25) on Windows, port 383
+# Moved from RTSPRequest because fallback can take care of it
+match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/html\r\nServer: Microsoft-HTTPAPI/([\d.]+)\r\n| p/Microsoft HTTPAPI httpd/ v/$1/ o/Windows/
 
 
 
@@ -3261,7 +3266,7 @@ match honeypot m|^HTTP/1\.0 401 Unauthorized\r\n\r\n<BODY><HTML><H1>401 - Author
 ##############################NEXT PROBE##############################
 Probe TCP HTTPOptions q|OPTIONS / HTTP/1.0\r\n\r\n|
 rarity 4
-ports 80,443,641,5232,6000,10000,10031
+ports 80-85,2301,443,631,641,3128,5232,6000,8080,8888,9999,10000,10031,37435,49400
 fallback GetRequest
 # IRIX 6.5.18f Distributed GL Daemon dgld
 match dgld m|^OPTI$| p/IRIX Distributed GL Daemon/ o/IRIX/
@@ -3318,7 +3323,7 @@ match tgcmd m|^\d+ \d+ \d+,Invalid command\.\n$| p/tgcmd.exe support daemon/ o/W
 ##############################NEXT PROBE##############################
 Probe TCP RTSPRequest q|OPTIONS / RTSP/1.0\r\n\r\n|
 rarity 5
-ports 80,554,3372,5000,8080
+ports 80,554,3052,3372,5000,7070,8080,10000
 fallback GetRequest
 match rtsp m|^RTSP/1\.0 200 OK\r\nCSeq: 0\r\nDate: .*\r\nServer: RealServer Version (\d[-.\w]+) \(win32\)\r\n| p/Realserver RTSP/ v/$1/ o/Windows/
 match rtsp m|^RTSP/1\.0 200 OK\r\n.*Server: RealMedia EncoderServer Version (\d[-.\w]+) \(win32\)\r\n|s p/RealMedia EncoderServer/ v/$1/ o/Windows/
@@ -3335,9 +3340,6 @@ match rtsp-proxy m|^RTSP/1\.0 200 OK\r\n.*Via: [\d.]+ ([\w-_.]+) \(NetCache NetA
 match powerchute m|^RTSP/1\.0 400 Bad request\r\nContent-type: text/html\r\n\r\n| p/APC PowerChute Agent/ d/power-device/
 match msdtc m|^ERROR\n$|s p/Microsoft Distributed Transaction Coordinator/ i/error/ o/Windows/
 
-# HP OpenView ITO agent (probably version 7.25) on Windows, port 383
-match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/html\r\nServer: Microsoft-HTTPAPI/([\d.]+)\r\n| p/Microsoft HTTPAPI httpd/ v/$1/ o/Windows/
-
 # This probe sends an RPC "Null command" to the port for service
 # 100000 (portmapper).
 # Some of these numbers are abitrary (such as ID).  I could consider
@@ -3347,7 +3349,7 @@ match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/html\r\nServer: Mi
 ##############################NEXT PROBE##############################
 Probe TCP RPCCheck q|\x80\0\0\x28\x72\xFE\x1D\x13\0\0\0\0\0\0\0\x02\0\x01\x86\xA0\0\x01\x97\x7C\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|
 rarity 4
-ports 81,111,199,514,544,1433,4045,4999,7000,32750-32810,38978
+ports 81,111,199,514,544,1433,2049,4045,4999,7000,32750-32810,38978
 # Microsoft SQLServer 6.5 on WinNT 4.0 SP6a
 # Microsoft SQL Server 6.5 on WinNT 4.0
 match ms-sql-s m|^\x04\x01\0C..\0\0\xaa\0\0\0/\x0f\xa2\x01\x0e.. Login failed\r\n\x14Microsoft SQL Server\0\0\0\xfd\0\xfd\0\0\0\0\0\x02$| p/Microsoft SQLServer/ v/6.5/ o/Windows/
@@ -3372,7 +3374,7 @@ match sarad m|^NO LOGIN\0$| p/British National Corpud sarad/
 ##############################NEXT PROBE##############################
 Probe UDP RPCCheck q|\x72\xFE\x1D\x13\0\0\0\0\0\0\0\x02\0\x01\x86\xA0\0\x01\x97\x7C\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|
 rarity 1
-ports 88,111,500,517,518,4045,10080,12203,27960,32750-32810,38978
+ports 17,88,111,500,517,518,4045,10080,12203,27960,32750-32810,38978
 
 match amanda m|^Amanda ([\d.]+) NAK HANDLE  SEQ 0\nERROR expected \"Amanda\", got \"r\xfe\x1d\x13\"\n| p/Amanda backup service/ v/$1/ o/Unix/
 match rpc m|^\x72\xFE\x1D\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01|
@@ -3438,7 +3440,7 @@ match domain m|^\0\x06\x85\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\
 ##############################NEXT PROBE##############################
 Probe TCP DNSVersionBindReq q|\0\x1E\0\x06\x01\0\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03|
 rarity 3
-ports 53,512,513,543,544,1029,1521,2105,2967,5555,6543,7008
+ports 53,135,512-514,543,544,1029,13783,1521,2105,2967,5520,5530,5555,6543,7000,7008
 match domain m|\x07version\x04bind.*[\x03-\x14]([-\w._ ]{3,20})$|s p/ISC Bind/ v/$1/
 match domain m|\x07version\x04bind.*[\x03-\x14]BIND ([-\w._]{3,20})$|s p/ISC Bind/ v/$1/
 # ISC Bind 9.1.3
@@ -3619,7 +3621,7 @@ match netbios-ns m|^\x80\xf0\x85\x80\0\x01\0\0\0\0\0\0 CKAAAAAAAAAAAAAAAAAAAAAAA
 ##############################NEXT PROBE##############################
 Probe UDP Help q|help\r\n\r\n|
 rarity 3
-ports 7,13,37
+ports 7,13,37,42
 match chargen m|@ABCDEFGHIJKLMNOPQRSTUVWXYZ|
 match echo m|^help\r\n\r\n$|
 # Solaris 8, 9
@@ -3638,7 +3640,7 @@ match http m|^HTTP/1\.0 \d{3} .*\r\nServer: CompaqHTTPServer/([.\w\d]+)\r\n|s p/
 ##############################NEXT PROBE##############################
 Probe TCP Help q|HELP\r\n|
 rarity 3
-ports 1,7,21,25,79,113,2401,3000,2627,6666,22490
+ports 1,7,21,25,79,113,515,587,2401,2627,3000,3493,6666-6670,22490
 sslports 465
 totalwaitms 7500
 
@@ -3795,7 +3797,7 @@ Probe TCP SSLSessionReq q|\x16\x03\0\0S\x01\0\0O\x03\0?G\xd7\xf7\xba,\xee\xea\xb
 match memcache m|^ERROR\r\nERROR\r\n$| p/memcached/
 
 rarity 3
-ports 443,444,548,636,1241,1311,2000,8009
+ports 443,444,548,636,993,1241,1311,2000,4444,5550,7272,8009,9001
 fallback GetRequest
 
 # Apple Filing Protocol (AFP) over TCP on Mac OS X
@@ -3842,7 +3844,7 @@ match ssl m|^\x16\x03\0\0\*\x02\0\0&\x03\0B| p/Tor over SSL/
 ##############################NEXT PROBE##############################
 Probe TCP SMBProgNeg q|\0\0\0\xa4\xff\x53\x4d\x42\x72\0\0\0\0\x08\x01\x40\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x40\x06\0\0\x01\0\0\x81\0\x02PC NETWORK PROGRAM 1.0\0\x02MICROSOFT NETWORKS 1.03\0\x02MICROSOFT NETWORKS 3.0\0\x02LANMAN1.0\0\x02LM1.2X002\0\x02Samba\0\x02NT LANMAN 1.0\0\x02NT LM 0.12\0|
 rarity 4
-ports 42,88,135,139,445,1031,1112,3006,3900,5432,5555,5600,7461,9102,9103,18182,27000
+ports 42,88,135,139,445,660,1025,1027,1031,1112,3006,3900,5432,5555,5600,7461,9102,9103,18182,27000-27010
 
 # I hate making it this general, but it seems like the only pattern
 # that matches everything. -Doug
@@ -3919,7 +3921,7 @@ match opsec-ufp m|^\0\0\0\x0c\x01\x01\0\x04r\0\0\0$| p/Check-Point NG firewall/
 ##############################NEXT PROBE##############################
 Probe TCP X11Probe q|\x6C\0\x0B\0\0\0\0\0\0\0\0\0|
 rarity 4
-ports 80,443,497,5302,6000-6020,7100,7101,8000
+ports 80,443,497,1550,5302,6000-6020,7000,7100,7101,8000
 # retroclient 6.5.108 on Linux
 match dantzretrospect m|^\0\xca\0\0\0\0\0\x04\0\0\0\0\0\0\x02\($| p/Dantz Retrospect backup client/
 match font-service m|^\0\0\x02\0\0\0\0\0\0\0\0\0\x06\0\0\0\0@\x0c\0p\x17\0\0X Consortium\x01\n\x01\0\x05\0\0\0....\0\0..\0\0\0\0$|s p/Sun Solaris fs.auto/ o/Solaris/
@@ -4003,8 +4005,8 @@ match rbnb m|^EXM {EXC \0\x1fcom\.rbnb\.api\.SerializeExceptionMSG \0JUnrecogniz
 ##############################NEXT PROBE##############################
 Probe TCP LDAPBindReq q|\x30\x0c\x02\x01\x01\x60\x07\x02\x01\x02\x04\0\x80\0|
 rarity 6
-ports 256,257,389,3892
-sslports 636,637
+ports 256,257,389,390,1702,3268,3892
+sslports 636,637,3269
 
 match fw1-secureremote m|^[AQ]\0\0\0\0\0\0[^\0]| p/Checkpoint Firewall1 SecureRemote/ d/firewall/
 match fw1-log m|^\0\0\0\t51000000\0\0\0\0[^\0]| p/Checkpoint Firewall1 logging service/ d/firewall/
@@ -4059,7 +4061,7 @@ match landesk-rc m|^TNMP.\0\0\0TNME.\0\0\0USER.\x07\x04\0\x08\0.{9}\0P\0\x03\0U\
 ##############################NEXT PROBE##############################
 Probe TCP TerminalServer q|\x03\0\0\x0b\x06\xe0\0\0\0\0\0|
 rarity 6
-ports 515,1028,1068,1720,3389
+ports 515,1028,1068,1503,1720,2040,3389
 # \x03 is queue status command for LPD service.  Should be terminated
 # by \n, but apparently some dumb lpds allow \0.  For now I will keep
 # 515 in the common ports line, I suppose

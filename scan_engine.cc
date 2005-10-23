@@ -1216,7 +1216,7 @@ int determineScanGroupSize(int hosts_scanned_so_far,
   if (o.UDPScan())
     groupsize = 50;
   else if (o.TCPScan()) {
-    groupsize = MAX(1024 / ports->tcp_count, 30);
+    groupsize = MAX(1024 / (ports->tcp_count ? ports->tcp_count : 1), 30);
     if (ports->tcp_count > 1000 && hosts_scanned_so_far == 0 && 
 	o.timing_level < 4)
       groupsize = 5; // Give quick results for the very first batch

@@ -278,9 +278,9 @@ int nmap_main(int argc, char *argv[]) {
       {"randomize_hosts", no_argument, 0, 0},
       {"osscan_limit", no_argument, 0, 0}, /* skip OSScan if no open ports */
       {"osscan_guess", no_argument, 0, 0}, /* More guessing flexability */
+      {"fuzzy", no_argument, 0, 0}, /* Alias for osscan_guess */
       {"packet_trace", no_argument, 0, 0}, /* Display all packets sent/rcv */
       {"version_trace", no_argument, 0, 0}, /* Display -sV related activity */
-      {"fuzzy", no_argument, 0, 0}, /* Alias for osscan_guess */
       {"data_length", required_argument, 0, 0},
       {"send_eth", no_argument, 0, 0},
       {"send_ip", no_argument, 0, 0},
@@ -316,7 +316,7 @@ int nmap_main(int argc, char *argv[]) {
 
   /* OK, lets parse these args! */
   optind = 1; /* so it can be called multiple times */
-  while((arg = getopt_long_only(argc,fakeargv,"6Ab:D:d::e:Ffg:hIi:M:m:NnOo:P:p:qRrS:s:T:Vv", long_options, &option_index)) != EOF) {
+  while((arg = getopt_long_only(argc,fakeargv,"6Ab:D:d::e:Ffg:hIi:M:m:nOo:P:p:qRrS:s:T:Vv", long_options, &option_index)) != EOF) {
     switch(arg) {
     case 0:
       if (strcmp(long_options[option_index].name, "max_rtt_timeout") == 0) {
@@ -451,7 +451,7 @@ int nmap_main(int argc, char *argv[]) {
       } else if (strcmp(long_options[option_index].name, "oS") == 0) {
 	kiddiefilename = optarg;
       } else if (strcmp(long_options[option_index].name, "oH") == 0) {
-	fatal("HTML output is not yet supported");
+	fatal("HTML output is not directly supported, though Nmap includes an XSL for transforming XML output into HTML.  See the man page.");
       } else if (strcmp(long_options[option_index].name, "oX") == 0) {
 	xmlfilename = optarg;
       } else if (strcmp(long_options[option_index].name, "oA") == 0) {
