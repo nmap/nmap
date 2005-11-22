@@ -1183,6 +1183,7 @@ supfiledbg        1127/tcp   # SUP debugging
 cce3x             1139/tcp   # ClearCommerce Engine 3.x ( www.clearcommerce.com)
 nfa               1155/tcp   # Network File Access
 nfa               1155/udp   # Network File Access
+lsnr              1158/tcp   # Oracle DB listener
 phone             1167/udp   # conference calling
 skkserv           1178/tcp   # SKK (kanji input)
 lupa              1212/tcp   # 
@@ -1977,6 +1978,7 @@ sdxauthd          5540/udp   # ACE/Server services
 sdadmind          5550/tcp   # ACE/Server services
 freeciv           5555/tcp   #
 rplay             5555/udp   # 
+isqlplus          5560/tcp   # Oracle web enabled SQL interface (version 10g+)
 pcanywheredata    5631/tcp   # 
 pcanywherestat    5632/tcp   # 
 pcanywherestat    5632/udp   # 

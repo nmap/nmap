@@ -1733,7 +1733,7 @@ int hostInExclude(struct sockaddr *checksock, size_t checksocklen,
         }
 	else {
 	  exclude_group[i++].rewind();
-	  continue;
+	  break;
 	}
       } 
       /* For ranges we need to be a little more slick, if we don't find a match

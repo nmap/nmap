@@ -1,25 +1,79 @@
-Nmap 3.93 Usage: nmap [Scan Type(s)] [Options] <host or net list>
-Some Common Scan Types ('*' options require root privileges)
-* -sS TCP SYN stealth port scan (default if privileged (root))
-  -sT TCP connect() port scan (default for unprivileged users)
-* -sU UDP port scan
-  -sP ping scan (Find any reachable machines)
-* -sF,-sX,-sN Stealth FIN, Xmas, or Null scan (experts only)
-  -sV Version scan probes open ports determining service & app names/versions
-  -sR RPC scan (use with other scan types)
-Some Common Options (none are required, most can be combined):
-* -O Use TCP/IP fingerprinting to guess remote operating system
-  -p <range> ports to scan.  Example range: 1-1024,1080,6666,31337
-  -F Only scans ports listed in nmap-services
-  -v Verbose. Its use is recommended.  Use twice for greater effect.
-  -P0 Don't ping hosts (needed to scan www.microsoft.com and others)
-* -Ddecoy_host1,decoy2[,...] Hide scan using many decoys
-  -6 scans via IPv6 rather than IPv4
-  -T <Paranoid|Sneaky|Polite|Normal|Aggressive|Insane> General timing policy
-  -n/-R Never do DNS resolution/Always resolve [default: sometimes resolve]
-  -oN/-oX/-oG <logfile> Output normal/XML/grepable scan logs to <logfile>
-  -iL <inputfile> Get targets from file; Use '-' for stdin
-* -S <your_IP>/-e <devicename> Specify source address or network interface
-  --interactive Go into interactive mode (then press h for help)
-Example: nmap -v -sS -O www.my.com 192.168.0.0/16 '192.88-90.*.*'
-SEE THE MAN PAGE FOR MANY MORE OPTIONS, DESCRIPTIONS, AND EXAMPLES 
+Nmap 3.94 ( http://www.insecure.org/nmap/ )
+Usage: nmap [Scan Type(s)] [Options] {target specification}
+TARGET SPECIFICATION:
+  Can pass hostnames, IP addresses, networks, etc.
+  Ex: scanme.nmap.org, microsoft.com/24, 192.168.0.1; 10.0.0-255.1-254
+  -iL <inputfilename>: Input from list of hosts/networks
+  -iR <num hosts>: Choose random targets
+  --exclude <host1[,host2][,host3],...>: Exclude hosts/networks
+  --excludefile <exclude_file>: Exclude list from file
+HOST DISCOVERY:
+  -sL: List Scan - simply list targets to scan
+  -sP: Ping Scan - go no further than determining if host is online
+  -P0: Treat all hosts as online -- skip host discovery
+  -PS/PA/PU [portlist]: TCP SYN/ACK or UDP discovery to given ports
+  -PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes
+  -n/-R: Never do DNS resolution/Always resolve [default: sometimes]
+SCAN TECHNIQUES:
+  -sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans
+  -sN/sF/sX: TCP Null, FIN, and Xmas scans
+  --scanflags <flags>: Customize TCP scan flags
+  -sI <zombie host[:probeport]>: Idlescan
+  -sO: IP protocol scan
+  -b <ftp relay host>: FTP bounce scan
+PORT SPECIFICATION AND SCAN ORDER:
+  -p <port ranges>: Only scan specified ports
+    Ex: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080
+  -F: Fast - Scan only the ports listed in the nmap-services file)
+  -r: Scan ports consecutively - don't randomize
+SERVICE/VERSION DETECTION:
+  -sV: Probe open ports to determine service/version info
+  --version_light: Limit to most likely probes for faster identification
+  --version_all: Try every single probe for version detection
+  --version_trace: Show detailed version scan activity (for debugging)
+OS DETECTION:
+  -O: Enable OS detection
+  --osscan_limit: Limit OS detection to promising targets
+  --osscan_guess: Guess OS more aggressively
+TIMING AND PERFORMANCE:
+  -T[0-6]: Set timing template (higher is faster)
+  --min_hostgroup/max_hostgroup <msec>: Parallel host scan group sizes
+  --min_parallelism/max_parallelism <msec>: Probe parallelization
+  --min_rtt_timeout/max_rtt_timeout/initial_rtt_timeout <msec>: Specifies
+      probe round trip time.
+  --host_timeout <msec>: Give up on target after this long
+  --scan_delay/--max_scan_delay <msec>: Adjust delay between probes
+FIREWALL/IDS EVASION AND SPOOFING:
+  -f; --mtu <val>: fragment packets (optionally w/given MTU)
+  -D <decoy1,decoy2[,ME],...>: Cloak a scan with decoys
+  -S <IP_Address>: Spoof source address
+  -e <iface>: Use specified interface
+  -g/--source_port <portnum>: Use given port number
+  --data_length <num>: Append random data to sent packets
+  --ttl <val>: Set IP time-to-live field
+  --spoof_mac <mac address/prefix/vendor name>: Spoof your MAC address
+OUTPUT:
+  -oN/-oX/-oS/-oG <file>: Output scan in normal, XML, s|<rIpt kIddi3,
+     and Grepable format, respectively, to the given filename.
+  -oA <basename>: Output in the three major formats at once
+  -v: Increase verbosity level (use twice for more effect)
+  -d[level]: Set or increase debugging level (Up to 9 is meaningful)
+  --packet_trace: Show all packets sent and received
+  --iflist: Print host interfaces and routes (for debugging)
+  --append_output: Append to rather than clobber specified output files
+  --resume <filename>: Resume an aborted scan
+  --stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML
+  --no_stylesheet: Prevent associating of XSL stylesheet w/XML output
+MISC:
+  -6: Enable IPv6 scanning
+  -A: Enables OS detection and Version detection
+  --datadir <dirname>: Specify custom Nmap data file location
+  --send_eth/--send_ip: Send using raw ethernet frames or IP packets
+  --privileged: Assume that the user is fully privileged
+  -V: Print version number
+  -h: Print this help summary page.
+EXAMPLES:
+  nmap -v -A scanme.nmap.org
+  nmap -v -sP 192.168.0.0/16 10.0.0.0/8
+  nmap -v -iR 10000 -P0 -p 80
+SEE THE MAN PAGE FOR MANY MORE OPTIONS, DESCRIPTIONS, AND EXAMPLES

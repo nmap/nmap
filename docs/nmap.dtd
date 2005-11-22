@@ -1,50 +1,44 @@
-<!-- 
-     nmap.dtd
-     This is the DTD for nmap's XML output (-oX) format.
-     $Id$
+<!--
+    nmap.dtd
+    This is the DTD for nmap's XML output (-oX) format.
+    $Id$
 
-     Originally written by:
-     William McVey <wam@cisco.com> <wam+nmap@wamber.net>
+    Originally written by:
+    William McVey <wam@cisco.com> <wam+nmap@wamber.net>
 
-     Now maintained by Fyodor <fyodor@insecure.org> as part of Nmap.     
+    Now maintained by Fyodor <fyodor@insecure.org> as part of Nmap.     
 
-     To validate using this file, simply add a DOCTYPE line similar to:
-     <!DOCTYPE nmaprun SYSTEM "nmap.dtd">
-     to the nmap output immediately below the prologue (the first line).  This
-     should allow you to run a validating parser against the output (so long
-     as the dtd is in your parser's dtd search path).
+    To validate using this file, simply add a DOCTYPE line similar to:
+    <!DOCTYPE nmaprun SYSTEM "nmap.dtd">
+    to the nmap output immediately below the prologue (the first line).  This
+    should allow you to run a validating parser against the output (so long
+    as the dtd is in your parser's dtd search path).
 
-     Bugs:
-     Most of the elements are "locked" into the specific order that nmap
-     generates, when there really is no need for a specific ordering.
-     This is primarily because I don't know the xml DTD construct to
-     specify "one each of this list of elements, in any order".  If there
-     is a construct similar to SGML's '&' operator, please let me know.
+    Bugs:
+    Most of the elements are "locked" into the specific order that nmap
+    generates, when there really is no need for a specific ordering.
+    This is primarily because I don't know the xml DTD construct to
+    specify "one each of this list of elements, in any order".  If there
+    is a construct similar to SGML's '&' operator, please let me know.
 
-     Since the work to write this DTD was done as part of WAM's
-     job duties for the Cisco Secure Consulting Services group
-     (http://www.cisco.com/go/securityconsulting), the following copyright 
-     needs to be included in this and any other derived works.
-
-#   Copyright (c) 2001 by Cisco systems, Inc.
-# 
-#   Permission to use, copy, modify, and distribute modified and
-#   unmodified copies of this software for any purpose and without fee is
-#   hereby granted, provided that (a) this copyright and permission notice
-#   appear on all copies of the software and supporting documentation, (b)
-#   the name of Cisco Systems, Inc. not be used in advertising or
-#   publicity pertaining to distribution of the program without specific
-#   prior permission, and (c) notice be given in supporting documentation
-#   that use, modification, copying and distribution is by permission of
-#   Cisco Systems, Inc.
-#
-#   Cisco Systems, Inc. makes no representations about the suitability
-#   of this software for any purpose.  THIS SOFTWARE IS PROVIDED ``AS
-#   IS'' AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
-#   WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-#   FITNESS FOR A PARTICULAR PURPOSE.
-#
-
+    Portions Copyright (c) 2001-2005 Insecure.Com LLC
+    Portions Copyright (c) 2001 by Cisco systems, Inc.
+ 
+    Permission to use, copy, modify, and distribute modified and
+    unmodified copies of this software for any purpose and without fee is
+    hereby granted, provided that (a) this copyright and permission notice
+    appear on all copies of the software and supporting documentation, (b)
+    the name of Cisco Systems, Inc. not be used in advertising or
+    publicity pertaining to distribution of the program without specific
+    prior permission, and (c) notice be given in supporting documentation
+    that use, modification, copying and distribution is by permission of
+    Cisco Systems, Inc.
+ 
+    Cisco Systems, Inc. makes no representations about the suitability
+    of this software for any purpose.  THIS SOFTWARE IS PROVIDED ``AS
+    IS'' AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+    WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+    FITNESS FOR A PARTICULAR PURPOSE.
 -->
 
 <!-- parameter entities to specify common "types" used elsewhere in the DTD -->

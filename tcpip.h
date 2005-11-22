@@ -286,7 +286,7 @@ class PacketTrace {
      direction must be PacketTrace::SENT or PacketTrace::RCVD .
      Optional 'now' argument makes this function slightly more
      efficient by avoiding a gettimeofday() call. */
-  static void PacketTrace::traceArp(pdirection pdir, const u8 *frame, u32 len,
+  static void traceArp(pdirection pdir, const u8 *frame, u32 len,
 				    struct timeval *now);
 };
 

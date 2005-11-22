@@ -1,5 +1,36 @@
 # Nmap Changelog ($Id$)
 
+UNRELEASED
+
+o Wrote a new man page from scratch.  It is much more comprehensive
+  (more than twice as long) and (IMHO) better organized than the
+  previous one.  Read it online at http://www.insecure.org/nmap/man/
+  or docs/nmap.1 from the Nmap distribution.  Let me know if you have
+  any ideas for improving it.  I am also looking for translations.  If
+  you are interested in translating to a language not already found at
+  http://www.insecure.org/nmap/nmap_documentation.html , please mail
+  Fyodor for the DocBook XML source to translate.
+
+o Removed foreign translations of the old man page from the
+  distribution.  Included the following contributed translations
+  (nroff format) of the new man page:
+    Brazilian Portuguese by Lucien Raven (lucienraven(a)yahoo.com.br)
+
+o Wrote a new "help screen", which you get when running Nmap without
+  arguments.  It is also reproduced in the man page and at
+  http://www.insecure.org/nmap/data/nmap.usage.txt .  I gave up trying
+  to fit it within a 25-line, 80-column terminal window.  It is now 78
+  lines and summarizes all but the most obscure Nmap options.
+
+o Fixed a problem which caused UDP version scanning to fail to print
+  the matched service.  Thanks to Martin Macok
+  (martin.macok(a)underground.cz) for reporting the problem and Doug
+  Hoyte (doug(a)hcsw.org) for fixing it.
+
+o Fixed a crash occured when the --exclude option was used with
+  netmasks on certain platforms.  Thanks to Adam
+  (nmapuser(a)globalmegahost.com) for reporting the problem.
+
 o Version detection softmatches (when Nmap determines the service
   protocol such as smtp but isn't able to determine the app name such as
   Postfix) can now parse out the normal match line fields such as
@@ -20,6 +51,11 @@ o Fixed a bunch of typos and misspellings throughout the Nmap source
   code (mostly in comments).  This was a 625-line patch by Saint Xavier
   (skyxav(a)skynet.be).
 
+o Nmap now accepts target list files in Windows end-of-line format (\r\n)
+  as well as standard UNIX format (\n) on all platforms.  Passing a
+  Windows style file to Nmap on UNIX didn't work before unless you ran
+  dos2unix first.
+
 o Removed Identd scan support from NmapFE since Nmap no longer
   supports it.  Thanks to Jonathan Dieter (jdieter99(a)gmx.net) for the
   patch.
@@ -37,6 +73,10 @@ o Fixed a divide-by-zero crash when you specify rather bogus
   command-line arguments (a TCP scan with zero tcp ports).  Thanks to
   Bart Dopheide (dopheide(a)fmf.nl) for identifying the problem and
   sending a patch.
+
+o Fixed a minor syntax error in tcpip.h that was causing problems with
+  GCC 4.1.  Thanks to Dirk Mueller (dmuell(a)gmx.net) for reporting
+  the problem and sending a fix.
 
 Nmap 3.93
 

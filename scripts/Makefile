@@ -25,9 +25,12 @@ servicematch: dummy
 
 web:
 	test x$(wroot) != x
-	cd ../docs && cp -a nmap_gpgkeys.txt nmap_manpage*.html nmap*.1 \
+	make -C $(wroot)/nmapguide manhtml manxml man manxlate
+	cp $(wroot)/nmapguide/nmap.1 ../docs
+	cd ../docs && cp -a nmap_gpgkeys.txt nmap_manpage-*.html nmap*.1 \
                             xnmap.1 nmap.usage.txt nmap.dtd nmap.xsl \
                             leet-nmap-ascii-art.txt $(wroot)/nmap/data/
+	cp $(wroot)/nmapguide/build/man-built.xml $(wroot)/nmap/data/
 	./sort-prints.pl ../nmap-os-fingerprints > nos && mv nos ../nmap-os-fingerprints
 	./produceosclasschoosebox.pl ../nmap-os-fingerprints > $(wroot)/nmap/data/os-classes.txt
 	cd .. && cp -a CHANGELOG HACKING COPYING COPYING.OpenSSL INSTALL \
@@ -48,20 +51,8 @@ distro:
 	../nmap -h > /dev/null    #Make sure nmap exists
 	rm -f ../docs/nmap.usage.txt	
 	../nmap -h > ../docs/nmap.usage.txt 
-	rm -f ../docs/nmap_manpage.html
-# nodepage option is included in man2html because of bug in that program which causes it to
-# drop lines if you let it try to delete page breaks
-	nroff -man ../docs/nmap.1 | man2html -nodepage -title 'Nmap network security scanner man page' > ../docs/nmap_manpage.html
-	nroff -man ../docs/nmap_french.1 | man2html -nodepage -title 'Nmap network security scanner man page (French translation)' > ../docs/nmap_manpage-fr.html
-	nroff -man ../docs/nmap_german.1 | man2html -nodepage -title 'Nmap network security scanner man page (German translation)' > ../docs/nmap_manpage-de.html
-	nroff -man ../docs/nmap_italian.1 | man2html -nodepage -title 'Nmap network security scanner man page (Italian translation)' > ../docs/nmap_manpage-it.html
-	nroff -man ../docs/nmap_latvian.1 | man2html -nodepage -title 'Nmap network security scanner man page (Latvian translation)' > ../docs/nmap_manpage-lv.html
-	nroff -Tlatin1 -man ../docs/nmap_lithuanian.1 | man2html -nodepage -title 'Nmap network security scanner man page (Lithuanian translation)' > ../docs/nmap_manpage-lt.html
-	nroff -man ../docs/nmap_russian.1 | man2html -nodepage -title 'Nmap network security scanner man page (Russian translation)' > ../docs/nmap_manpage-ru.html
-# We need a content-type for the Lithuanian version
-	sr '<HEAD>' '<HEAD><META http-equiv="Content-Type" content="text/html; charset=windows-1257">' ../docs/nmap_manpage-lt.html
-	nroff -man ../docs/nmap_portuguese.1 | man2html -nodepage -title 'Nmap network security scanner man page (Portuguese translation)' > ../docs/nmap_manpage-pt.html
-	nroff -man ../docs/nmap_spanish.1 | man2html -nodepage -title 'Nmap network security scanner man page (Spanish translation)' > ../docs/nmap_manpage-es.html
+	make -C $(wroot)/nmapguide man manxlate
+	cp $(wroot)/nmapguide/nmap.1 ../docs
 	rm -rf /usr/tmp/nmap-$(NMAP_VERSION)
 	mkdir /usr/tmp/nmap-$(NMAP_VERSION)
 # Make the RPM .spec file
@@ -137,15 +128,11 @@ distro:
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/docs
 	cd ../docs; cp -a README nmap_gpgkeys.txt \
                     nmap-fingerprinting-article.txt \
-                    nmap.deprecated.txt nmap.usage.txt nmap_doc.html \
-                    nmap_manpage-de.html nmap_manpage-es.html \
-                    nmap_manpage-fr.html nmap_manpage-it.html \
-                    nmap_manpage-lt.html nmap_manpage-pt.html \
-                    nmap_manpage-ru.html nmap_manpage.html \
-                    nmap.1 nmapfe.1 nmap_french.1 nmap_german.1 \
-                    nmap_italian.1 nmap_lithuanian.1 nmap_portuguese.1 \
-                    nmap_spanish.1 nmap_russian.1 xnmap.1 nmap.dtd nmap.xsl \
-                    leet-nmap-ascii-art.txt /usr/tmp/nmap-$(NMAP_VERSION)/docs
+                    nmap.deprecated.txt nmap.usage.txt  \
+                    nmap.1 nmapfe.1 xnmap.1 nmap.dtd nmap.xsl \
+                    leet-nmap-ascii-art.txt \
+                    $(wroot)/nmap/data/man-xlate/man-*.1 \
+                    /usr/tmp/nmap-$(NMAP_VERSION)/docs
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/nmapfe
 	cd ../nmapfe; cp -a Makefile.in aclocal.m4 configure configure.ac \
 	              nmapfe.c nmapfe.h nmapfe_sig.c nmapfe_sig.h \

@@ -1652,8 +1652,18 @@ ServiceGroup::~ServiceGroup() {
    PORT_OPEN. */
 static void adjustPortStateIfNeccessary(ServiceNFO *svc) {
 
+  char host[128];
+
   if (svc->port->state == PORT_OPENFILTERED) {
-    svc->target->ports.addPort(svc->portno, svc->proto, NULL, PORT_OPEN);
+    svc->port->state = PORT_OPEN;
+
+    if (o.verbose || o.debugging > 1) {
+      svc->target->NameIP(host, sizeof(host));
+
+      log_write(LOG_STDOUT, "Discovered open|filtered port %hu/%s on %s is actually open\n",
+         svc->portno, proto2ascii(svc->proto), host);
+      log_flush(LOG_STDOUT);
+    }
   }
 
   return;

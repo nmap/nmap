@@ -1,5 +1,5 @@
 export NMAP_VERSION = 3.94
-NMAP_NAME= nmap
+NMAP_NAME= Nmap
 NMAP_URL= http://www.insecure.org/nmap/
 NMAP_PLATFORM=@host@
 prefix = @prefix@
