@@ -1732,7 +1732,6 @@ int hostInExclude(struct sockaddr *checksock, size_t checksocklen,
 	  return 1;
         }
 	else {
-	  exclude_group[i++].rewind();
 	  break;
 	}
       } 
