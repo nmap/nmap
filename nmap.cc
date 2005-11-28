@@ -286,6 +286,7 @@ int nmap_main(int argc, char *argv[]) {
       {"send_ip", no_argument, 0, 0},
       {"stylesheet", required_argument, 0, 0},
       {"no_stylesheet", no_argument, 0, 0},
+      {"webxml", no_argument, 0, 0},
       {"rH", no_argument, 0, 0},
       {"vv", no_argument, 0, 0},
       {"ff", no_argument, 0, 0},
@@ -443,6 +444,8 @@ int nmap_main(int argc, char *argv[]) {
 	o.setXSLStyleSheet(optarg);
       } else if (strcmp(long_options[option_index].name, "no_stylesheet") == 0) {
 	o.setXSLStyleSheet(NULL);
+      } else if (strcmp(long_options[option_index].name, "webxml") == 0) {
+	o.setXSLStyleSheet("http://www.insecure.org/nmap/data/nmap.xsl");
       } else if (strcmp(long_options[option_index].name, "oN") == 0) {
 	normalfilename = optarg;
       } else if (strcmp(long_options[option_index].name, "oG") == 0 ||
@@ -1624,6 +1627,7 @@ printf("%s %s ( %s )\n"
        "  --append_output: Append to rather than clobber specified output files\n"
        "  --resume <filename>: Resume an aborted scan\n"
        "  --stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML\n"
+       "  --webxml: Reference stylesheet from Insecure.Org for more portable XML\n"
        "  --no_stylesheet: Prevent associating of XSL stylesheet w/XML output\n"
        "MISC:\n"
        "  -6: Enable IPv6 scanning\n"

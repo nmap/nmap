@@ -322,47 +322,41 @@ do {
       hs->hostbatch[hidx] = new Target();
       hs->hostbatch[hidx]->setTargetSockAddr(&ss, sslen);
 
-      /* Lets figure out what device this IP uses ... */
-      if (o.spoofsource) {
-	o.SourceSockAddr(&ss, &sslen);
-	hs->hostbatch[hidx]->setSourceSockAddr(&ss, sslen);
-	hs->hostbatch[hidx]->setDeviceNames(o.device, o.device);
-      } else {
-	/* We figure out the source IP/device IFF
-	   1) We are r00t AND
-	   2) We are doing tcp or udp pingscan OR
-	   3) We are doing a raw-mode portscan or osscan OR
-	   4) We are on windows and doing ICMP ping */
-	if (o.isr00t && o.af() == AF_INET && 
-	    ((*pingtype & (PINGTYPE_TCP|PINGTYPE_UDP|PINGTYPE_ARP)) || o.RawScan()
+      /* We figure out the source IP/device IFF
+	 1) We are r00t AND
+	 2) We are doing tcp or udp pingscan OR
+	 3) We are doing a raw-mode portscan or osscan OR
+	 4) We are on windows and doing ICMP ping */
+      if (o.isr00t && o.af() == AF_INET && 
+	  ((*pingtype & (PINGTYPE_TCP|PINGTYPE_UDP|PINGTYPE_ARP)) || o.RawScan()
 #ifdef WIN32
-         || (*pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))
+	   || (*pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))
 #endif // WIN32
-		 )) {
-	  hs->hostbatch[hidx]->TargetSockAddr(&ss, &sslen);
-	  if (!route_dst(&ss, &rnfo)) {
-	    fatal("%s: failed to determine route to %s", __FUNCTION__, hs->hostbatch[hidx]->NameIP());
-	  }
-	  if (rnfo.direct_connect) {
-	    hs->hostbatch[hidx]->setDirectlyConnected(true);
-	  } else {
-	    hs->hostbatch[hidx]->setDirectlyConnected(false);
-	    hs->hostbatch[hidx]->setNextHop(&rnfo.nexthop, 
-					    sizeof(rnfo.nexthop));
-	  }
-	  hs->hostbatch[hidx]->setIfType(rnfo.ii.device_type);
-	  if (rnfo.ii.device_type == devt_ethernet) {
-	    if (o.spoofMACAddress())
-	      hs->hostbatch[hidx]->setSrcMACAddress(o.spoofMACAddress());
-	    else hs->hostbatch[hidx]->setSrcMACAddress(rnfo.ii.mac);
-	  }
-	  hs->hostbatch[hidx]->setSourceSockAddr(&rnfo.srcaddr, sizeof(rnfo.srcaddr));
-	  if (hidx == 0) /* Because later ones can have different src addy and be cut off group */
-	    o.decoys[o.decoyturn] = hs->hostbatch[hidx]->v4source();
-	  hs->hostbatch[hidx]->setDeviceNames(rnfo.ii.devname, rnfo.ii.devfullname);
-	  //	  printf("Target %s %s directly connected, goes through local iface %s, which %s ethernet\n", hs->hostbatch[hidx]->NameIP(), hs->hostbatch[hidx]->directlyConnected()? "IS" : "IS NOT", hs->hostbatch[hidx]->deviceName(), (hs->hostbatch[hidx]->ifType() == devt_ethernet)? "IS" : "IS NOT");
+	   )) {
+	hs->hostbatch[hidx]->TargetSockAddr(&ss, &sslen);
+	if (!route_dst(&ss, &rnfo)) {
+	  fatal("%s: failed to determine route to %s", __FUNCTION__, hs->hostbatch[hidx]->NameIP());
 	}
+	if (rnfo.direct_connect) {
+	  hs->hostbatch[hidx]->setDirectlyConnected(true);
+	} else {
+	  hs->hostbatch[hidx]->setDirectlyConnected(false);
+	  hs->hostbatch[hidx]->setNextHop(&rnfo.nexthop, 
+					  sizeof(rnfo.nexthop));
+	}
+	hs->hostbatch[hidx]->setIfType(rnfo.ii.device_type);
+	if (rnfo.ii.device_type == devt_ethernet) {
+	  if (o.spoofMACAddress())
+	    hs->hostbatch[hidx]->setSrcMACAddress(o.spoofMACAddress());
+	  else hs->hostbatch[hidx]->setSrcMACAddress(rnfo.ii.mac);
+	}
+	hs->hostbatch[hidx]->setSourceSockAddr(&rnfo.srcaddr, sizeof(rnfo.srcaddr));
+	if (hidx == 0) /* Because later ones can have different src addy and be cut off group */
+	  o.decoys[o.decoyturn] = hs->hostbatch[hidx]->v4source();
+	hs->hostbatch[hidx]->setDeviceNames(rnfo.ii.devname, rnfo.ii.devfullname);
+	//	  printf("Target %s %s directly connected, goes through local iface %s, which %s ethernet\n", hs->hostbatch[hidx]->NameIP(), hs->hostbatch[hidx]->directlyConnected()? "IS" : "IS NOT", hs->hostbatch[hidx]->deviceName(), (hs->hostbatch[hidx]->ifType() == devt_ethernet)? "IS" : "IS NOT");
       }
+      
 
       /* In some cases, we can only allow hosts that use the same
 	 device in a group.  Similarly, we don't mix

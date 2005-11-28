@@ -2327,7 +2327,48 @@ int sd;
   if (howmany) *howmany = numifaces;
   return mydevs;
 }
- 
+
+/* Looks for an interface assigned to the given IP (ss), and returns
+   the interface_info for the first one found.  If non found, returns NULL */
+struct interface_info *getInterfaceByIP(struct sockaddr_storage *ss) {
+  struct sockaddr_in *sin = (struct sockaddr_in *) ss;
+  struct sockaddr_in *ifsin;
+  struct interface_info *ifaces;
+  int numifaces = 0;
+  int ifnum;
+
+  if (sin->sin_family != AF_INET)
+    fatal("%s called with non-IPv4 address", __FUNCTION__);
+
+  ifaces = getinterfaces(&numifaces);
+
+  for(ifnum=0; ifnum < numifaces; ifnum++) {
+    ifsin = (struct sockaddr_in *) &ifaces[ifnum].addr;
+    if (ifsin->sin_family != AF_INET) continue;
+    if (sin->sin_addr.s_addr == ifsin->sin_addr.s_addr)
+      return &ifaces[ifnum];
+  }
+  return NULL;
+}
+
+/* Looks for an interface with the given name (iname), and returns the
+   corresponding interface_info if found.  Will accept a match of
+   devname or devfullname.  Returns NULL if none found */
+struct interface_info *getInterfaceByName(char *iname) {
+  struct interface_info *ifaces;
+  int numifaces = 0;
+  int ifnum;
+
+  ifaces = getinterfaces(&numifaces);
+
+  for(ifnum=0; ifnum < numifaces; ifnum++) {
+    if (strcmp(ifaces[ifnum].devfullname, iname) == 0 ||
+	strcmp(ifaces[ifnum].devname, iname) == 0)
+      return &ifaces[ifnum];
+  }
+
+  return NULL;
+}
 
 
 /* A trivial function used with qsort to sort the routes by netmask */
@@ -2488,11 +2529,15 @@ struct sys_route *getsysroutes(int *howmany) {
    source address and interface necessary to route to this address.
    If no route is found, false is returned and rnfo is undefined.  If
    a route is found, true is returned and rnfo is filled in with all
-   of the routing details */
+   of the routing details.  This function takes into account -S and -e
+   options set by user (o.spoofsource, o.device) */
 bool route_dst(const struct sockaddr_storage *const dst, struct route_nfo *rnfo) {
   struct interface_info *ifaces;
+  struct interface_info *iface = NULL;
   int numifaces = 0;
   struct sys_route *routes;
+  struct sockaddr_storage spoofss;
+  size_t spoofsslen;
   int numroutes = 0;
   int ifnum;
   int i;
@@ -2503,6 +2548,41 @@ bool route_dst(const struct sockaddr_storage *const dst, struct route_nfo *rnfo)
 
   if (dstsin->sin_family != AF_INET)
     fatal("Sorry -- route_dst currently only supports IPv4");
+
+  /* First let us deal with the case where a user requested a specific spoofed IP/dev */
+  if (o.spoofsource || *o.device) {
+    if (o.spoofsource) {
+      o.SourceSockAddr(&spoofss, &spoofsslen);
+	if (!*o.device) {
+	  /* Look up the device corresponding to src IP, if any ... */
+	  iface = getInterfaceByIP(&spoofss);
+	}
+    }
+
+    if (*o.device) {
+      iface = getInterfaceByName(o.device);
+      if (!iface) 
+	fatal("Could not find interface %s which was specified by -e", o.device);
+    }
+
+    if (iface) {
+      /* Is it directly connected? */
+      mask = htonl((unsigned long) (0-1) << (32 - iface->netmask_bits));
+      ifsin = (struct sockaddr_in *) &(iface->addr);
+      if ((ifsin->sin_addr.s_addr & mask) == (dstsin->sin_addr.s_addr & mask))
+	rnfo->direct_connect = 1;
+      else rnfo->direct_connect = 0;
+      memcpy(&rnfo->ii, iface, sizeof(rnfo->ii));
+      if (o.spoofsource)
+	memcpy(&rnfo->srcaddr, &spoofss, sizeof(rnfo->srcaddr));
+      else
+	memcpy(&rnfo->srcaddr, &(iface->addr), sizeof(rnfo->srcaddr));
+      return true;
+    }
+    /* Control will get here if -S was specified to a non-interface
+       IP, but no interface was specified with -e.  We will try to
+       determine the proper interface in that case */
+  }
 
   ifaces = getinterfaces(&numifaces);
   /* I suppose that I'll first determine whether it is a direct connect instance */
@@ -2520,7 +2600,10 @@ bool route_dst(const struct sockaddr_storage *const dst, struct route_nfo *rnfo)
 	rnfo->direct_connect = true;
 	memcpy(&rnfo->ii, &ifaces[i], sizeof(rnfo->ii));
 	/* But the source address we want to use is the target addy */
-	memcpy(&rnfo->srcaddr, &ifaces[ifnum].addr, sizeof(rnfo->srcaddr));
+	if (o.spoofsource)
+	  memcpy(&rnfo->srcaddr, &spoofss, sizeof(rnfo->srcaddr));
+	else
+	  memcpy(&rnfo->srcaddr, &ifaces[ifnum].addr, sizeof(rnfo->srcaddr));
 	return true;
       }
       /* Hmmm ... no localhost -- I guess I'll just try using the device 
@@ -2530,7 +2613,10 @@ bool route_dst(const struct sockaddr_storage *const dst, struct route_nfo *rnfo)
     if ((ifsin->sin_addr.s_addr & mask) == (dstsin->sin_addr.s_addr & mask)) {
       rnfo->direct_connect = 1;
       memcpy(&rnfo->ii, &ifaces[ifnum], sizeof(rnfo->ii));
-      memcpy(&rnfo->srcaddr, &ifaces[ifnum].addr, sizeof(rnfo->srcaddr));
+      if (o.spoofsource)
+	memcpy(&rnfo->srcaddr, &spoofss, sizeof(rnfo->srcaddr));
+      else
+	memcpy(&rnfo->srcaddr, &ifaces[ifnum].addr, sizeof(rnfo->srcaddr));
       return true;
     }
   }
@@ -2545,7 +2631,10 @@ bool route_dst(const struct sockaddr_storage *const dst, struct route_nfo *rnfo)
 	(dstsin->sin_addr.s_addr & routes[i].netmask)) {
       /* Yay, found a matching route. */
       memcpy(&rnfo->ii, routes[i].device, sizeof(rnfo->ii));
-      memcpy(&rnfo->srcaddr, &routes[i].device->addr, sizeof(rnfo->srcaddr));
+      if (o.spoofsource)
+	memcpy(&rnfo->srcaddr, &spoofss, sizeof(rnfo->srcaddr));
+      else
+	memcpy(&rnfo->srcaddr, &routes[i].device->addr, sizeof(rnfo->srcaddr));
       ifsin = (struct sockaddr_in *) &rnfo->nexthop;
       ifsin->sin_family = AF_INET;
       ifsin->sin_addr.s_addr = routes[i].gw.s_addr;

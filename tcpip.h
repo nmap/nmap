@@ -545,8 +545,10 @@ int resolve(char *hostname, struct in_addr *ip);
    source address and interface necessary to route to this address.
    If no route is found, false is returned and rnfo is undefined.  If
    a route is found, true is returned and rnfo is filled in with all
-   of the routing details */
+   of the routing details.  This function takes into account -S and -e
+   options set by user (o.spoofsource, o.device) */
 bool route_dst(const struct sockaddr_storage *const dst, struct route_nfo *rnfo);
+
 /* Determines what interface packets destined to 'dest' should be
    routed through.  It can also discover the appropriate next hop (if
    any) for ethernet routing.  If direct_connect is passed in, it will
@@ -667,8 +669,16 @@ int readudppacket(const u8 *packet, int readdata);
 int ipaddr2devname( char *dev, const struct in_addr *addr );
 /* And vice versa */
 int devname2ipaddr(char *dev, struct in_addr *addr);
-/* Where the above 2 functions get their info */
+/* Looks for an interface assigned to the given IP (ss), and returns
+   the interface_info for the first one found.  If non found, returns NULL */
+struct interface_info *getInterfaceByIP(struct sockaddr_storage *ss);
+/* Looks for an interface with the given name (iname), and returns the
+   corresponding interface_info if found.  Will accept a match of
+   devname or devfullname.  Returns NULL if none found */
+struct interface_info *getInterfaceByName(char *iname);
+/* Where the above 4 functions get their info */
 struct interface_info *getinterfaces(int *howmany);
+
 /* Parse the system routing table, converting each route into a
    sys_route entry.  Returns an array of sys_routes.  numroutes is set
    to the number of routes in the array.  The routing table is only

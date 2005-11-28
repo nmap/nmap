@@ -27,9 +27,20 @@ o Fixed a problem which caused UDP version scanning to fail to print
   (martin.macok(a)underground.cz) for reporting the problem and Doug
   Hoyte (doug(a)hcsw.org) for fixing it.
 
+o Added the --webxml option, which does the same thing as 
+  --stylesheet http://www.insecure.org/nmap/data/nmap.xsl , without
+  requiring you to remember the exact URL or type that whole thing.
+
 o Fixed a crash occured when the --exclude option was used with
   netmasks on certain platforms.  Thanks to Adam
-  (nmapuser(a)globalmegahost.com) for reporting the problem.
+  (nmapuser(a)globalmegahost.com) for reporting the problem and to
+  Greg Darke (starstuff(a)optusnet.com.au) for sending a patch (I
+  modified the patch a bit to make it more efficient).
+
+o Fixed (I hope) a problem with the -S and -e options (spoof/set
+  source address, and set interface by name, respectively).  The problem
+  report and a partial patch were sent by Richard Birkett
+  (richard(a)musicbox.net).
 
 o Version detection softmatches (when Nmap determines the service
   protocol such as smtp but isn't able to determine the app name such as

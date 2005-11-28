@@ -36,7 +36,7 @@ OS DETECTION:
   --osscan_limit: Limit OS detection to promising targets
   --osscan_guess: Guess OS more aggressively
 TIMING AND PERFORMANCE:
-  -T[0-6]: Set timing template (higher is faster)
+  -T[0-5]: Set timing template (higher is faster)
   --min_hostgroup/max_hostgroup <msec>: Parallel host scan group sizes
   --min_parallelism/max_parallelism <msec>: Probe parallelization
   --min_rtt_timeout/max_rtt_timeout/initial_rtt_timeout <msec>: Specifies
@@ -63,6 +63,7 @@ OUTPUT:
   --append_output: Append to rather than clobber specified output files
   --resume <filename>: Resume an aborted scan
   --stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML
+  --webxml: Reference stylesheet from Insecure.Org for more portable XML
   --no_stylesheet: Prevent associating of XSL stylesheet w/XML output
 MISC:
   -6: Enable IPv6 scanning
