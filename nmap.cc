@@ -295,6 +295,7 @@ int nmap_main(int argc, char *argv[]) {
       {"append_output", no_argument, 0, 0},
       {"noninteractive", no_argument, 0, 0},
       {"spoof_mac", required_argument, 0, 0},
+      {"thc", no_argument, 0, 0},  
       {"ttl", required_argument, 0, 0}, /* Time to live */
       {"allports", no_argument, 0, 0},
       {"version_intensity", required_argument, 0, 0},
@@ -314,6 +315,9 @@ int nmap_main(int argc, char *argv[]) {
 
   if (argc < 2 ) printusage(argv[0], -1);
   Targets.reserve(100);
+#ifdef WIN32
+  win_pre_init();
+#endif
 
   /* OK, lets parse these args! */
   optind = 1; /* so it can be called multiple times */
@@ -465,6 +469,9 @@ int nmap_main(int argc, char *argv[]) {
 	machinefilename = strdup(buf);
 	snprintf(buf, sizeof(buf), "%s.xml", optarg);
 	xmlfilename = strdup(buf);
+      } else if (strcmp(long_options[option_index].name, "thc") == 0) {
+	printf("!!Greets to Van Hauser, Plasmoid, Skyper and the rest of THC!!\n");
+	exit(0);
       }
       else if (strcmp(long_options[option_index].name, "iL") == 0) {
 	if (inputfd) {
