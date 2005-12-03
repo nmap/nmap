@@ -2798,6 +2798,9 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	    break;
 	  }
 	  switch(icmp->icmp_code) {
+	  case 0: /* Network unreachable */
+	    newstate = PORT_FILTERED;
+	    break;
 	  case 1: /* Host Unreachable */
 	    newstate = PORT_FILTERED;
 	    break;

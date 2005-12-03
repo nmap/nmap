@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$)
 
+o Better handle ICMP type 3, code 0 (network unreachable) responses to
+  port scan packets.  These are rarely seen when scanning hosts that
+are actually online, but are still worth handling.
+
 o Fixed a problem with the -S and option on Windows reporting "Failed
   to resolve/decode supposed IPv4 source address".  The -D (decoy)
   option was probably broken on that platform too.  Thanks to kx
