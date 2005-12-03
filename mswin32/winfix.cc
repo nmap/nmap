@@ -132,6 +132,23 @@ int pcap_avail = 0;
 static void win_cleanup(void);
 static char pcaplist[4096];
 
+/* The code that has no preconditions to being called, so it can be
+   executed before even Nmap options parsing (so o.debugging and the
+   like don't need to be used.  Its main function is to do
+   WSAStartup() as some of the option parsing code does DNS
+   resolution */
+void win_pre_init() {
+	WORD werd;
+	WSADATA data;
+
+	werd = MAKEWORD( 2, 2 );
+	if( (WSAStartup(werd, &data)) !=0 )
+		fatal("failed to start winsock.\n");
+}
+
+/* Requires that win_pre_init() has already been called, also that
+   options processing has been done so that o.debugging is
+   available */
 void win_init()
 {
 	//   variables
@@ -141,12 +158,7 @@ void win_init()
 	PMIB_IPADDRTABLE pIp = 0;
 	int i;
 	int numipsleft;
-	WORD werd;
-	WSADATA data;
 
-	werd = MAKEWORD( 2, 2 );
-	if( (WSAStartup(werd, &data)) !=0 )
-		fatal("failed to start winsock.\n");
 
 	ver.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
 	if(!GetVersionEx((LPOSVERSIONINFO)&ver))

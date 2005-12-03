@@ -1392,7 +1392,8 @@ void printfinaloutput(int numhosts_scanned, int numhosts_up,
   
   if (numhosts_scanned == 0)
     fprintf(stderr, "WARNING: No targets were specified, so 0 hosts scanned.\n");
-  if (numhosts_scanned == 1 && numhosts_up == 0 && !o.listscan)
+  if (numhosts_scanned == 1 && numhosts_up == 0 && !o.listscan && 
+      o.pingtype != PINGTYPE_NONE)
     log_write(LOG_STDOUT, "Note: Host seems down. If it is really up, but blocking our ping probes, try -P0\n");
   /*  log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"\n"); */
   log_write(LOG_STDOUT|LOG_SKID, "Nmap finished: %d %s (%d %s up) scanned in %.3f seconds\n", numhosts_scanned, (numhosts_scanned == 1)? "IP address" : "IP addresses", numhosts_up, (numhosts_up == 1)? "host" : "hosts",  o.TimeSinceStartMS(&tv) / 1000.0);

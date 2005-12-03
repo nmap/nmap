@@ -1,20 +1,41 @@
 # Nmap Changelog ($Id$)
 
-UNRELEASED
+o Fixed a problem with the -S and option on Windows reporting "Failed
+  to resolve/decode supposed IPv4 source address".  The -D (decoy)
+  option was probably broken on that platform too.  Thanks to kx
+  (kxmail(a)gmail.com) for reporting the problem and tracking down a
+  potential solution.
 
-o Wrote a new man page from scratch.  It is much more comprehensive
-  (more than twice as long) and (IMHO) better organized than the
-  previous one.  Read it online at http://www.insecure.org/nmap/man/
-  or docs/nmap.1 from the Nmap distribution.  Let me know if you have
-  any ideas for improving it.  I am also looking for translations.  If
-  you are interested in translating to a language not already found at
-  http://www.insecure.org/nmap/nmap_documentation.html , please mail
-  Fyodor for the DocBook XML source to translate.
+o Applied some trivial fixes so that Nmap compiles with Visual C++
+  2005 Express, which is free from Microsoft at
+  http://msdn.microsoft.com/vstudio/express/visualc/ .  Thanks to kx
+  (kxmail(a)gmail.com) and Sina Bahram (sbahram(a)nc.rr.com)
 
 o Removed foreign translations of the old man page from the
   distribution.  Included the following contributed translations
   (nroff format) of the new man page:
     Brazilian Portuguese by Lucien Raven (lucienraven(a)yahoo.com.br)
+    Portuguese (Portugal) by José Domingos (jd_pt(a)yahoo.com) and 
+                             Andreia Gaita (shana.ufie(a)gmail.com).
+
+o Modified libdnet-stripped/src/eth-bsd.c to allow for up to 128 bpf
+  devices rather than 32.  This prevents errors like "Failed to open
+  ethernet interface (fxp0)" when there are more than 32 interface
+  aliases.  Thanks to Krok (krok(a)void.ru) for reporting the problem
+  and even sending a patch.
+
+o Added --thc option (undocumented)
+
+o A fix to libpcre/pcre.h that should help compilation on Visual
+  Studio Express.  Thanks to kx (kxmail(a)gmail.com) for reporting the problem.
+
+3.94ALPHA1
+
+o Wrote a new man page from scratch.  It is much more comprehensive
+  (more than twice as long) and (IMHO) better organized than the
+  previous one.  Read it online at http://www.insecure.org/nmap/man/
+  or docs/nmap.1 from the Nmap distribution.  Let me know if you have
+  any ideas for improving it.
 
 o Wrote a new "help screen", which you get when running Nmap without
   arguments.  It is also reproduced in the man page and at
@@ -22,10 +43,21 @@ o Wrote a new "help screen", which you get when running Nmap without
   to fit it within a 25-line, 80-column terminal window.  It is now 78
   lines and summarizes all but the most obscure Nmap options.
 
+o Version detection softmatches (when Nmap determines the service
+  protocol such as smtp but isn't able to determine the app name such as
+  Postfix) can now parse out the normal match line fields such as
+  hostname, device type, and extra info.  For example, we may not know
+  what vendor created an sshd, but we can still parse out the protocol
+  number.  This was a patch from  Doug Hoyte (doug(a)hcsw.org).
+
 o Fixed a problem which caused UDP version scanning to fail to print
   the matched service.  Thanks to Martin Macok
   (martin.macok(a)underground.cz) for reporting the problem and Doug
   Hoyte (doug(a)hcsw.org) for fixing it.
+
+o Made the version detection "ports" directive (in
+  nmap-service-probes) more comprehensive.  This should speed up scans a
+  bit.  The patch was done by Doug Hoyte (doug(a)hcsw.org).
 
 o Added the --webxml option, which does the same thing as 
   --stylesheet http://www.insecure.org/nmap/data/nmap.xsl , without
@@ -37,17 +69,10 @@ o Fixed a crash occured when the --exclude option was used with
   Greg Darke (starstuff(a)optusnet.com.au) for sending a patch (I
   modified the patch a bit to make it more efficient).
 
-o Fixed (I hope) a problem with the -S and -e options (spoof/set
+o Fixed a problem with the -S and -e options (spoof/set
   source address, and set interface by name, respectively).  The problem
   report and a partial patch were sent by Richard Birkett
   (richard(a)musicbox.net).
-
-o Version detection softmatches (when Nmap determines the service
-  protocol such as smtp but isn't able to determine the app name such as
-  Postfix) can now parse out the normal match line fields such as
-  hostname, device type, and extra info.  For example, we may not know
-  what vendor created an sshd, but we can still parse out the protocol
-  number.  This was a patch from  Doug Hoyte (doug(a)hcsw.org).
 
 o Fixed a possible aliasing problem in tcpip.cc by applying a patch sent in by
   Gwenole Beauchesne (gbeauchesne(a)mandriva.com).  This problem
@@ -70,10 +95,6 @@ o Nmap now accepts target list files in Windows end-of-line format (\r\n)
 o Removed Identd scan support from NmapFE since Nmap no longer
   supports it.  Thanks to Jonathan Dieter (jdieter99(a)gmx.net) for the
   patch.
-
-o Made the version detection "ports" directive (in
-  nmap-service-probes) more comprehensive.  This should speed up scans a
-  bit.  The patch was done by Doug Hoyte (doug(a)hcsw.org).
 
 o Integrated all of the September version detection fingerprint
   submissions.  This was done by Version Detection Czar Doug Hoyte

@@ -45,7 +45,7 @@ eth_open(const char *device)
 	int i;
 
 	if ((e = calloc(1, sizeof(*e))) != NULL) {
-		for (i = 0; i < 32; i++) {
+		for (i = 0; i < 128; i++) {
 			snprintf(file, sizeof(file), "/dev/bpf%d", i);
 			e->fd = open(file, O_WRONLY);
 			if (e->fd != -1 || errno != EBUSY)

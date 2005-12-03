@@ -41,6 +41,20 @@ o Added intf_get_pcap_devname() function for Win32.  This tries to
   down side is that it won't work with interfaces that don't have an
   IPv4 address configured.
 
+o Increase the number of available bpf devices from 32 to 128.  Patch:
+--- eth-bsd.c   (revision 2774)
++++ eth-bsd.c   (working copy)
+@@ -45,7 +45,7 @@
+        int i;
+ 
+        if ((e = calloc(1, sizeof(*e))) != NULL) {
+-               for (i = 0; i < 32; i++) {
++               for (i = 0; i < 128; i++) {
+                        snprintf(file, sizeof(file), "/dev/bpf%d", i);
+                        e->fd = open(file, O_WRONLY);
+                        if (e->fd != -1 || errno != EBUSY)
+
+
 o Made some code changes to intf.c (the patch below).  This does the following:
 
   o Preserve the alias qualifier from interface name in more cases
@@ -150,3 +164,6 @@ diff -Nruw old/src/intf.c nmap-3.83.new/src/intf.c
                 if (_intf_get_noalias(intf, entry) < 0)
                         return (-1);
                 if (_intf_get_aliases(intf, entry) < 0)
+
+
+
