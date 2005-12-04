@@ -330,6 +330,7 @@ if (num_elem < 2)
  
  for(i= num_elem - 1; i > 0 ; i--) {
    num = get_random_ushort() % (i + 1);
+   if (i == num) continue;
    tmp = arr[i];
    arr[i] = arr[num];
    arr[num] = tmp;
