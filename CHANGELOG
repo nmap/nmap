@@ -1,8 +1,10 @@
 # Nmap Changelog ($Id$)
 
-o Better handle ICMP type 3, code 0 (network unreachable) responses to
-  port scan packets.  These are rarely seen when scanning hosts that
-are actually online, but are still worth handling.
+3.94ALPHA2
+
+o Put Nmap on a diet, with changes to the core port scanning routine
+  (ultra_scan) to substantially reduce memory consumption, particularly
+  when tens of thousands of ports are scanned.
 
 o Fixed a problem with the -S and option on Windows reporting "Failed
   to resolve/decode supposed IPv4 source address".  The -D (decoy)
@@ -10,7 +12,11 @@ o Fixed a problem with the -S and option on Windows reporting "Failed
   (kxmail(a)gmail.com) for reporting the problem and tracking down a
   potential solution.
 
-o Applied some trivial fixes so that Nmap compiles with Visual C++
+o Better handle ICMP type 3, code 0 (network unreachable) responses to
+  port scan packets.  These are rarely seen when scanning hosts that
+  are actually online, but are still worth handling.
+
+o Applied some small fixes so that Nmap compiles with Visual C++
   2005 Express, which is free from Microsoft at
   http://msdn.microsoft.com/vstudio/express/visualc/ .  Thanks to kx
   (kxmail(a)gmail.com) and Sina Bahram (sbahram(a)nc.rr.com)
@@ -22,16 +28,13 @@ o Removed foreign translations of the old man page from the
     Portuguese (Portugal) by José Domingos (jd_pt(a)yahoo.com) and 
                              Andreia Gaita (shana.ufie(a)gmail.com).
 
+o Added --thc option (undocumented)
+
 o Modified libdnet-stripped/src/eth-bsd.c to allow for up to 128 bpf
   devices rather than 32.  This prevents errors like "Failed to open
   ethernet interface (fxp0)" when there are more than 32 interface
   aliases.  Thanks to Krok (krok(a)void.ru) for reporting the problem
   and even sending a patch.
-
-o Added --thc option (undocumented)
-
-o A fix to libpcre/pcre.h that should help compilation on Visual
-  Studio Express.  Thanks to kx (kxmail(a)gmail.com) for reporting the problem.
 
 3.94ALPHA1
 

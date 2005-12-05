@@ -434,6 +434,7 @@ PortList::~PortList() {
 int PortList::addPort(u16 portno, u8 protocol, char *owner, int state) {
   Port *current = NULL;
   map < u16, Port* > *portarray = NULL;  // This has to be a pointer so that we change the original and not a copy
+  map <u16, Port *>::iterator pt;
   char msg[128];
 
   assert(state < PORT_HIGHEST_STATE);
@@ -457,7 +458,7 @@ int PortList::addPort(u16 portno, u8 protocol, char *owner, int state) {
     fatal("addPort: attempt to add port number %d with illegal state %d\n", portno, state);
 
   if (protocol == IPPROTO_TCP) {
-     portarray = &tcp_ports;
+    portarray = &tcp_ports;
   } else if (protocol == IPPROTO_UDP) {
     portarray = &udp_ports;
   } else if (protocol == IPPROTO_IP) {
@@ -465,10 +466,11 @@ int PortList::addPort(u16 portno, u8 protocol, char *owner, int state) {
     portarray = &ip_prots;
   } else fatal("addPort: attempted port insertion with invalid protocol");
 
-  if (portarray->find(portno) == portarray->end()) {
+  pt = portarray->find(portno);
+  if (pt != portarray->end()) {
     /* We must discount our statistics from the old values.  Also warn
        if a complete duplicate */
-    current = (*portarray)[portno];    
+    current = pt->second;
     if (o.debugging && current->state == state && (!owner || !*owner)) {
       error("Duplicate port (%hu/%s)\n", portno, proto2ascii(protocol));
     } 
@@ -502,15 +504,6 @@ int PortList::addPort(u16 portno, u8 protocol, char *owner, int state) {
     current->owner = strdup(owner);
   }
   
-  /*
-  printf("\nCurrent Port List\n");
-  
-  for(map<u16,Port*>::iterator iter = (*portarray).begin(); iter != (*portarray).end(); iter++)
-    printf("(%d %d) ", iter->first, iter->second->portno);
-  printf("\n");
-  */
-  
-
   return 0; /*success */
 }
 
@@ -561,15 +554,24 @@ void PortList::setIdStr(const char *id) {
 }
 
 Port *PortList::lookupPort(u16 portno, u8 protocol) {
+  map <u16, Port *>::iterator pt;
+  if (protocol == IPPROTO_TCP) {
+    pt = tcp_ports.find(portno);
+    if (pt != tcp_ports.end())
+      return pt->second;
+  }
 
-  if (protocol == IPPROTO_TCP)
-    return tcp_ports[portno];
+  else if (protocol == IPPROTO_UDP) {
+    pt = udp_ports.find(portno);
+    if (pt != udp_ports.end())
+      return pt->second;
+  }
 
-  if (protocol == IPPROTO_UDP)
-    return udp_ports[portno];
-
-  if (protocol == IPPROTO_IP)
-    return ip_prots[portno];
+  else if (protocol == IPPROTO_IP) {
+    pt = ip_prots.find(portno);
+    if (pt != ip_prots.end())
+      return pt->second;
+  }
 
   return NULL;
 }

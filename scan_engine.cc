@@ -251,11 +251,14 @@ public:
    port number*/
   void setConnect(u16 portno);
   /* Pass an arp packet, including ethernet header. Must be 42bytes */
-  // REMOVED setARP because UNUSED
-  //  void setARP(u8 *arppkt, u32 arplen);
+  void setARP(u8 *arppkt, u32 arplen);
   // The 4 accessors below all return in HOST BYTE ORDER
-  u16 sport(); // source port used if TCP or UDP
-  u16 dport();  // destination port used if TCP or UDP
+// source port used if TCP or UDP
+  u16 sport() {
+    return (mypspec.proto == IPPROTO_TCP)? probes.IP.pd.tcp.sport : probes.IP.pd.udp.sport; }
+  // destination port used if TCP or UDP
+  u16 dport() { 
+    return (mypspec.proto == IPPROTO_TCP)? mypspec.pd.tcp.dport : mypspec.pd.udp.dport; }
   u16 ipid() { return probes.IP.ipid; }
   u32 tcpseq(); // TCP sequence number if protocol is TCP
   /* Number, such as IPPROTO_TCP, IPPROTO_UDP, etc. */
@@ -575,7 +578,7 @@ private:
 extern void CloseLibs(void);
 #endif
 
-void ultrascan_port_pspec_update(UltraScanInfo *USI, HostScanStats *hss, 
+bool ultrascan_port_pspec_update(UltraScanInfo *USI, HostScanStats *hss, 
 				 const probespec *pspec, int newstate);
 
 /* Whether this is storing timing stats for a whole group or an
@@ -661,15 +664,14 @@ UltraProbe::~UltraProbe() {
 }
 
 /* Pass an arp packet, including ethernet header. Must be 42bytes */
-/* Removed -- unused
+
 void UltraProbe::setARP(u8 *arppkt, u32 arplen) {
   type = UP_ARP;
-  probes.AP = new ArpProbe;
-  probes.AP->storePacket(arppkt, arplen);
+  /*  probes.AP = new ArpProbe;
+      probes.AP->storePacket(arppkt, arplen); */
   mypspec.type = PS_ARP;
   return;
 }
-*/
 
  /* Sets this UltraProbe as type UP_IP and creates & initializes the
      internal IPProbe.  The relevent probespec is necessary for setIP
@@ -700,32 +702,6 @@ void UltraProbe::setIP(u8 *ippacket, u32 iplen, const probespec *pspec) {
 
   mypspec = *pspec;
   return;
-}
-
-u16 UltraProbe::sport() {
-  switch(mypspec.proto) {
-  case IPPROTO_TCP:
-    return probes.IP.pd.tcp.sport;
-  case IPPROTO_UDP:
-    return probes.IP.pd.udp.sport;
-  default:
-    fatal("Bogus port number request to %s -- type is %s", __FUNCTION__, 
-	  pspectype2ascii(mypspec.type));
-  }
-  return 0; // Unreached
-}
-
-u16 UltraProbe::dport() {
-  switch(mypspec.proto) {
-  case IPPROTO_TCP:
-    return mypspec.pd.tcp.dport;
-  case IPPROTO_UDP:
-    return mypspec.pd.udp.dport;
-  default:
-    fatal("Bogus port number request to %s -- type is %s", __FUNCTION__, 
-	  pspectype2ascii(mypspec.type));
-  }
-  return 0; // Unreached
 }
 
 u32 UltraProbe::tcpseq() {
@@ -1450,7 +1426,7 @@ static int get_next_target_probe(UltraScanInfo *USI, HostScanStats *hss,
     if (hss->next_portidx >= USI->ports->udp_count)
       return -1;
     pspec->type = PS_UDP;
-    pspec->proto = IPPROTO_TCP;
+    pspec->proto = IPPROTO_UDP;
     pspec->pd.udp.dport = USI->ports->udp_ports[hss->next_portidx++];
 
     return 0;
@@ -1823,8 +1799,9 @@ static void ultrascan_host_update(UltraScanInfo *USI, HostScanStats *hss,
 }
 
 /* Like ultrascan_port_probe_update(), except it is called with just a
-   probespec rather than a whole UltraProbe. */
-void ultrascan_port_pspec_update(UltraScanInfo *USI, HostScanStats *hss, 
+   probespec rather than a whole UltraProbe.  Returns true if the port
+   was added or at least the state was changed.  */
+bool ultrascan_port_pspec_update(UltraScanInfo *USI, HostScanStats *hss, 
 				 const probespec *pspec, int newstate) {
   u16 portno;
   u8 proto = 0;
@@ -1923,6 +1900,7 @@ void ultrascan_port_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
       hss->pingprobestate = newstate;
     }
   }
+  return oldstate != newstate;
 }
 
 /* This function is called when a new status is determined for a port.
@@ -1936,34 +1914,16 @@ static void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
  					list<UltraProbe *>::iterator probeI,
 					int newstate, struct timeval *rcvdtime) {
   UltraProbe *probe = *probeI;
-  int oldstate = PORT_TESTING;
-  Port *currentp;
-  u16 portno;
-  u8 proto = 0;
   const probespec *pspec = probe->pspec();
+  bool changed = false;
 
   if (rcvdtime) ultrascan_adjust_times(USI, hss, probe, rcvdtime);
 
-  /* First figure out the current state */
-  if (USI->prot_scan) {
-    proto = IPPROTO_IP;
-    portno = pspec->proto;
-  } else if (pspec->type == PS_TCP) {
-    proto = IPPROTO_TCP;
-    portno = pspec->pd.tcp.dport;
-  } else if (pspec->type == PS_UDP) {
-    proto = IPPROTO_TCP;
-    portno = pspec->pd.udp.dport;
-  } else assert(0);
-  currentp = hss->target->ports.lookupPort(portno, proto);
-  if (currentp)
-    oldstate = currentp->state;
-
-  ultrascan_port_pspec_update(USI, hss, pspec, newstate);
+  changed = ultrascan_port_pspec_update(USI, hss, pspec, newstate);
 
   /* The rcvdtime check is because this func is called that way when
      we give up on a probe because of too many retransmissions. */
-  if (oldstate != newstate && probe->tryno > hss->max_successful_tryno
+  if (changed && probe->tryno > hss->max_successful_tryno
       && rcvdtime) {
     hss->max_successful_tryno = probe->tryno;
     if (o.debugging)
@@ -2104,8 +2064,7 @@ static UltraProbe *sendArpScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   probe->tryno = tryno;
   probe->pingseq = pingseq;
   /* First build the probe */
-  // never used, so why do it?
-  //  probe->setARP(frame, sizeof(frame));
+  probe->setARP(frame, sizeof(frame));
   
   /* Now that the probe has been sent, add it to the Queue for this host */
   hss->probes_outstanding.push_back(probe);
@@ -2809,7 +2768,6 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   struct sockaddr_in sin;
   list<UltraProbe *>::iterator probeI;
   UltraProbe *probe = NULL;
-  IPProbe *ipp;
   unsigned int trynum = 0;
   unsigned int pingseq = 0;
   bool goodseq;
@@ -2833,6 +2791,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       break;
     } else if (!ip)
       continue;
+
     if (TIMEVAL_SUBTRACT(USI->now, *stime) > 200000) {
       /* While packets are still being received, I'll be generous and give
 	 an extra 1/5 sec.  But we have to draw the line somewhere */
@@ -2889,8 +2848,10 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       setTargetMACIfAvailable(hss->target, &linkhdr, ip, 0);
       probeI = hss->probes_outstanding.end();
       listsz = hss->num_probes_outstanding();
-      goodone = false;
+      u16 tsp = ntohs(tcp->th_sport);
 
+      goodone = false;
+      
       for(probenum = 0; probenum < listsz && !goodone; probenum++) {
 	probeI--;
 	probe = *probeI;
@@ -2902,7 +2863,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 
 	/* Ensure the connection info matches.  No ntohs()-style
 	   conversion necc. b/c all in net bo */
-	if (probe->dport() != ntohs(tcp->th_sport) ||
+	if (probe->dport() != tsp ||
 	    probe->sport() != ntohs(tcp->th_dport) ||
 	    hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
 	  continue;
@@ -3006,10 +2967,10 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       for(probenum = 0; probenum < listsz && !goodone; probenum++) {
 	probeI--;
 	probe = *probeI;
-	assert(ipp->af == AF_INET);
+	assert(o.af() == AF_INET);
 	if (probe->protocol() != ip2->ip_p || 
 	    hss->target->v4sourceip()->s_addr != ip2->ip_src.s_addr || 
-	    hss->target->v4host().s_addr != ip2->ip_dst.s_addr)
+	    hss->target->v4hostip()->s_addr != ip2->ip_dst.s_addr)
 	  continue;
 
 	/* Checking IPID is a little more complex because you can't always count on it */
@@ -3060,7 +3021,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	    break;
 	  case 3: /* Port unreach */
 	    if (USI->scantype == UDP_SCAN && 
-		ipp->ipv4->ip_dst.s_addr == ip->ip_src.s_addr)
+		hss->target->v4hostip()->s_addr == ip->ip_src.s_addr)
 	      newstate = PORT_CLOSED;
 	    else newstate = PORT_FILTERED;
 	    break;
