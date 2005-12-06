@@ -291,6 +291,21 @@ void NmapOps::ValidateOptions() {
     //    if (verbose) error("No tcp, udp, or ICMP scantype specified, assuming %s scan. Use -sP if you really don't want to portscan (and just want to see what hosts are up).", synscan? "SYN Stealth" : "vanilla tcp connect()");
   }
 
+  if ((pingtype & PINGTYPE_TCP) && (!o.isr00t || o.af() != AF_INET)) {
+    /* We will have to do a connect() style ping */
+    if (num_ping_synprobes && num_ping_ackprobes) {
+      fatal("Cannot use both SYN and ACK ping probes if you are nonroot or using IPv6");
+    }
+    
+    if (num_ping_ackprobes > 0) { 
+      memcpy(ping_synprobes, ping_ackprobes, num_ping_ackprobes * sizeof(*ping_synprobes));
+      num_ping_synprobes = num_ping_ackprobes;
+      num_ping_ackprobes = 0;
+    }
+    pingtype &= ~PINGTYPE_TCP_USE_ACK;
+    pingtype |= PINGTYPE_TCP_USE_SYN;
+  }
+
   if (pingtype != PINGTYPE_NONE && spoofsource) {
     error("WARNING:  If -S is being used to fake your source address, you may also have to use -e <iface> and -P0 .  If you are using it to specify your real source address, you can ignore this warning.");
   }
@@ -312,18 +327,6 @@ void NmapOps::ValidateOptions() {
    fatal("Sorry, UDP Ping (-PU) only works if you are root (because we need to read raw responses off the wire) and only for IPv4 (cause fyodor is too lazy right now to add IPv6 support and nobody has sent a patch)");
  }
 
- if ((pingtype & PINGTYPE_TCP) && (!o.isr00t || o.af() != AF_INET)) {
-   /* We will have to do a connect() style ping */
-   if (num_ping_synprobes && num_ping_ackprobes) {
-     fatal("Cannot use both SYN and ACK ping probes if you are nonroot or using IPv6");
-   }
-
-   if (num_ping_ackprobes > 0) { 
-     memcpy(ping_synprobes, ping_ackprobes, num_ping_ackprobes * sizeof(*ping_synprobes));
-     num_ping_synprobes = num_ping_ackprobes;
-     num_ping_ackprobes = 0;
-   }
- }
 
  if (ipprotscan + (TCPScan() || UDPScan()) + listscan + pingscan > 1) {
    fatal("Sorry, the IPProtoscan, Listscan, and Pingscan (-sO, -sL, -sP) must currently be used alone rather than combined with other scan types.");

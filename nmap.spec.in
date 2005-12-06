@@ -41,8 +41,8 @@ devices are also supported, including the Sharp Zaurus and the iPAQ.
 %package frontend
 Summary: Gtk+ frontend for nmap
 Group: Applications/System
-Requires: nmap, gtk+
-BuildPreReq: gtk+-devel
+Requires: nmap, gtk2
+BuildPreReq: gtk2-devel
 Version: %{version}
 %description frontend
 This package includes nmapfe, a Gtk+ frontend for nmap. The nmap package must

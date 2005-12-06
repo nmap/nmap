@@ -7694,8 +7694,8 @@ fi
 
 
 if test "${with_nmapfe}" = "yes"; then
-# Extract the first word of "gtk-config", so it can be a program name with args.
-set dummy gtk-config; ac_word=$2
+# Extract the first word of "pkg-config", so it can be a program name with args.
+set dummy pkg-config; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_path_GTK_CONFIG+set}" = set; then
@@ -7742,11 +7742,11 @@ echo "${ECHO_T}no" >&6
   { echo "$as_me:$LINENO: WARNING: Gtk+ has not been installed -> nmapfe will not be made" >&5
 echo "$as_me: WARNING: Gtk+ has not been installed -> nmapfe will not be made" >&2;}
 else
-  GTK_NEEDED_MAJOR=1
-  GTK_NEEDED_MINOR=2
-  GTK_NEEDED_MICRO=7
+  GTK_NEEDED_MAJOR=2
+  GTK_NEEDED_MINOR=4
+  GTK_NEEDED_MICRO=0
   GTK_MINVERSION=$GTK_NEEDED_MAJOR.$GTK_NEEDED_MINOR.$GTK_NEEDED_MICRO
-  ver=`gtk-config --version`
+  ver=`pkg-config --modversion gtk+-2.0`
     major=`echo $ver|sed 's/\([0-9]*\).\([0-9]*\).\([0-9]*\)/\1/'`
   minor=`echo $ver|sed 's/\([0-9]*\).\([0-9]*\).\([0-9]*\)/\2/'`
   micro=`echo $ver|sed 's/\([0-9]*\).\([0-9]*\).\([0-9]*\)/\3/'`

@@ -211,7 +211,8 @@ distro:
 # Make the actual RPM
 # Note -- on newer systems rpmbuild -ta is needed instead.
 #	rpm -ta /usr/tmp/nmap-$(NMAP_VERSION).tgz
-	rpmbuild -ta --define "buildfe 0" --define "static 1" /usr/tmp/nmap-$(NMAP_VERSION).tgz
+#	rpmbuild -ta --define "buildfe 0" --define "static 1" /usr/tmp/nmap-$(NMAP_VERSION).tgz
+	rpmbuild -ta --define "static 1" /usr/tmp/nmap-$(NMAP_VERSION).tgz
 	cp -f $(RPMTDIR)/RPMS/x86_64/nmap-$(NMAP_VERSION)-1.x86_64.rpm /usr/tmp
 #	cp -f $(RPMTDIR)/RPMS/i386/nmap-$(NMAP_VERSION)-1.i386.rpm /usr/tmp
 #	cp -f $(RPMTDIR)/RPMS/i386/nmap-frontend-$(NMAP_VERSION)-1.i386.rpm /usr/tmp

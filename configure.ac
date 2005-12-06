@@ -750,17 +750,17 @@ fi
 
 if test "${with_nmapfe}" = "yes"; then
 dnl Check for GTK+
-AC_PATH_PROG(GTK_CONFIG, gtk-config, no)
+AC_PATH_PROG(GTK_CONFIG, pkg-config, no)
 AC_MSG_CHECKING(If you have GTK+ installed)
 if test "$GTK_CONFIG" = "no" ; then
   AC_MSG_RESULT([no])
   AC_MSG_WARN([Gtk+ has not been installed -> nmapfe will not be made])
 else
-  GTK_NEEDED_MAJOR=1
-  GTK_NEEDED_MINOR=2
-  GTK_NEEDED_MICRO=7
+  GTK_NEEDED_MAJOR=2
+  GTK_NEEDED_MINOR=4
+  GTK_NEEDED_MICRO=0
   GTK_MINVERSION=$GTK_NEEDED_MAJOR.$GTK_NEEDED_MINOR.$GTK_NEEDED_MICRO
-  ver=`gtk-config --version`
+  ver=`pkg-config --modversion gtk+-2.0`
   dnl Extract the information.
   major=`echo $ver|sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\1/'`
   minor=`echo $ver|sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\2/'`

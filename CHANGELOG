@@ -1,5 +1,18 @@
 # Nmap Changelog ($Id$)
 
+o Updated NmapFE to build with GTK2 rather than obsolete GTK1.  Thanks
+  to Mike Basinger (dbasinge(a)speakeasy.net) and Meethune Bhowmick
+  (meethune(a)oss-institute.org) for developing the
+  patch.  I made some changes as well to prevent compilation warnings.
+  The new NmapFE now seems to work, though I do get "Gtk-CRITICAL"
+  assertion error messages.  If someone has time to look into this, that
+  would be appreciated.
+
+o Fixed a problem that prevented the command "nmap -sT -PT <targets>"
+  from working from a non-privileged user account.  The -PT option
+  doesn't change default behavior in this case, but Nmap should (and now
+  does) allow it.
+
 o Applied another VS 2005 compatability patch from KX (kxmail(a)gmail.com).
 
 o Fixed a compilation problem on Mac OS X and perhaps other platforms

@@ -629,6 +629,8 @@ int nmap_main(int argc, char *argv[]) {
 	}
       }
       else if (*optarg == 'T' || *optarg == 'A') {
+	/* NmapOps::ValidateOptions() takes care of changing this
+	   to SYN if not root or if IPv6 */
 	o.pingtype |= (PINGTYPE_TCP|PINGTYPE_TCP_USE_ACK);
 	if (isdigit((int) *(optarg+1))) {
 	  o.num_ping_ackprobes = numberlist2array(optarg+1, o.ping_ackprobes, sizeof(o.ping_ackprobes), &proberr);

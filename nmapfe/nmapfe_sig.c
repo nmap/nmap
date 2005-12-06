@@ -272,7 +272,7 @@ void openLog(char *filename)
 
 void okButton_clicked_cb(GtkWidget *window, GtkButton *button)
 {
-char *selected = gtk_file_selection_get_filename(GTK_FILE_SELECTION(window));
+const char *selected = gtk_file_selection_get_filename(GTK_FILE_SELECTION(window));
 void (*action)() = gtk_object_get_data(GTK_OBJECT(window), "NmapFE_action");
 GtkEntry *entry = gtk_object_get_data(GTK_OBJECT(window), "NmapFE_entry");
 char *filename = gtk_object_get_data(GTK_OBJECT(window), "NmapFE_filename");
@@ -453,7 +453,7 @@ static int command_size = 0;
   } else if (opt.scanValue == SYN_SCAN) {
     strcat(command, "-sS ");
   } else if ((opt.scanValue == BOUNCE_SCAN) || (opt.scanValue == IDLE_SCAN)) {
-  char *val = gtk_entry_get_text(GTK_ENTRY(opt.scanRelay));
+  const char *val = gtk_entry_get_text(GTK_ENTRY(opt.scanRelay));
 
     if (val) {   
       strcat(command, (opt.scanValue == IDLE_SCAN) ? "-sI " : "-b ");
@@ -480,7 +480,7 @@ static int command_size = 0;
     else if (opt.protportValue == ALL_PROTPORT)
       strcat(command, "-p- ");
     else if (opt.protportValue == GIVEN_PROTPORT) {
-    char *val = gtk_entry_get_text(GTK_ENTRY(opt.protportRange));
+    const char *val = gtk_entry_get_text(GTK_ENTRY(opt.protportRange));
 
     if (val && *val) {   
         strcat(command, "-p ");
@@ -504,7 +504,7 @@ static int command_size = 0;
       strcat(command, "-PM ");
     if (GTK_WIDGET_SENSITIVE(opt.tcpPing) &&
         GTK_TOGGLE_BUTTON(opt.tcpPing)->active) {
-    char *val = gtk_entry_get_text(GTK_ENTRY(opt.tcpPingPorts));
+    const char *val = gtk_entry_get_text(GTK_ENTRY(opt.tcpPingPorts));
 
       strcat(command, "-PT");
       if (val && *val)
@@ -513,7 +513,7 @@ static int command_size = 0;
   }
     if (GTK_WIDGET_SENSITIVE(opt.synPing) &&
         GTK_TOGGLE_BUTTON(opt.synPing)->active) {
-    char *val = gtk_entry_get_text(GTK_ENTRY(opt.synPingPorts));
+    const char *val = gtk_entry_get_text(GTK_ENTRY(opt.synPingPorts));
 
       strcat(command, "-PS");
       if (val && *val)
@@ -522,7 +522,7 @@ static int command_size = 0;
     }
     if (GTK_WIDGET_SENSITIVE(opt.udpPing) &&
         GTK_TOGGLE_BUTTON(opt.udpPing)->active) {
-    char *val = gtk_entry_get_text(GTK_ENTRY(opt.udpPingPorts));
+    const char *val = gtk_entry_get_text(GTK_ENTRY(opt.udpPingPorts));
 
       strcat(command, "-PU");
       if (val && *val)   
@@ -591,7 +591,7 @@ static int command_size = 0;
 
   if (GTK_WIDGET_SENSITIVE(opt.useDecoy) &&
       GTK_TOGGLE_BUTTON(opt.useDecoy)->active) {
-  char *val = gtk_entry_get_text(GTK_ENTRY(opt.Decoy));
+  const char *val = gtk_entry_get_text(GTK_ENTRY(opt.Decoy));
 
     if (val && *val) {   
       strcat(command, "-D ");
@@ -602,7 +602,7 @@ static int command_size = 0;
 
   if (GTK_WIDGET_SENSITIVE(opt.useSourceDevice) &&
       GTK_TOGGLE_BUTTON(opt.useSourceDevice)->active) {
-  char *val = gtk_entry_get_text(GTK_ENTRY(opt.SourceDevice));
+  const char *val = gtk_entry_get_text(GTK_ENTRY(opt.SourceDevice));
 
     if (val && *val) {   
       strcat(command, "-e ");
@@ -613,7 +613,7 @@ static int command_size = 0;
 
   if (GTK_WIDGET_SENSITIVE(opt.useSourceIP) &&
       GTK_TOGGLE_BUTTON(opt.useSourceIP)->active) {
-  char *val = gtk_entry_get_text(GTK_ENTRY(opt.SourceIP));
+  const char *val = gtk_entry_get_text(GTK_ENTRY(opt.SourceIP));
 
     if (val && *val) {   
       strcat(command, "-S ");
@@ -624,7 +624,7 @@ static int command_size = 0;
 
   if (GTK_WIDGET_SENSITIVE(opt.useSourcePort) &&
       GTK_TOGGLE_BUTTON(opt.useSourcePort)->active) {
-  char *val = gtk_entry_get_text(GTK_ENTRY(opt.SourcePort));
+  const char *val = gtk_entry_get_text(GTK_ENTRY(opt.SourcePort));
 
     if (val && *val) {   
       strcat(command, "-g ");
@@ -647,7 +647,7 @@ static int command_size = 0;
 
   if (GTK_WIDGET_SENSITIVE(opt.useInputFile) &&
       GTK_TOGGLE_BUTTON(opt.useInputFile)->active) {
-  char *val = gtk_entry_get_text(GTK_ENTRY(opt.inputFilename));
+  const char *val = gtk_entry_get_text(GTK_ENTRY(opt.inputFilename));
 
     if (val && *val) {   
       strcat(command, "-iL ");
@@ -658,7 +658,7 @@ static int command_size = 0;
 
   if (GTK_WIDGET_SENSITIVE(opt.useOutputFile) &&
       GTK_TOGGLE_BUTTON(opt.useOutputFile)->active) {
-  char *val = gtk_entry_get_text(GTK_ENTRY(opt.outputFilename));
+  const char *val = gtk_entry_get_text(GTK_ENTRY(opt.outputFilename));
 
     if (val && *val) {   
       if (opt.outputFormatValue == NORMAL_OUTPUT)
@@ -710,7 +710,7 @@ void display_nmap_command_cb(GtkWidget *target_option, void *ignored)
 void browseButton_pressed_cb(GtkWidget *widget, GtkWidget *text)
 {
 static char filename[FILENAME_MAX+1] = "";
-char *name = gtk_entry_get_text(GTK_ENTRY(text));
+const char *name = gtk_entry_get_text(GTK_ENTRY(text));
 
   if (name && *name) {
     strncpy(filename, name, FILENAME_MAX);

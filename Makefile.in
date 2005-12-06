@@ -1,4 +1,4 @@
-export NMAP_VERSION = 3.94ALPHA2
+export NMAP_VERSION = 3.94ALPHA3
 NMAP_NAME= Nmap
 NMAP_URL= http://www.insecure.org/nmap/
 NMAP_PLATFORM=@host@
@@ -92,7 +92,7 @@ nmapfe/nmapfe:
 #	@echo "FAILURES HERE ARE OK -- THEY JUST MEAN YOU CANNOT USE nmapfe"
 #	-rm -f nmapfe/Makefile
 #	-cd nmapfe; ./configure;
-	@if test -f nmapfe/Makefile; then echo "Building NmapFE graphical frontend"; cd nmapfe && $(MAKE) VERSION=$(NMAP_VERSION) STATIC=$(STATIC); else echo "NmapFE will not be made -- your system lacks the capabilities (perhaps GTK) for this graphical frontend.  You can still run command-line nmap!"; fi
+	@if test -f nmapfe/Makefile; then echo "Building NmapFE graphical frontend"; cd nmapfe && $(MAKE) VERSION=$(NMAP_VERSION); else echo "NmapFE will not be made -- your system lacks the capabilities (perhaps GTK) for this graphical frontend.  You can still run command-line nmap!"; fi
 #	-cd nmapfe; test -f Makefile && $(MAKE) VERSION=$(NMAP_VERSION) STATIC=$(STATIC);
 #	@echo "END OF SECTION WHERE FAILURES ARE OK"
 
