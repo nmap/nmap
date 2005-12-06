@@ -258,6 +258,11 @@ typedef enum { devt_ethernet, devt_loopback, devt_p2p, devt_other  } devtype;
 #define TH_CWR        0x80
 #endif
 
+#ifndef INET_ADDRSTRLEN
+#define INET_ADDRSTRLEN 16
+#endif
+
+
 /* Used for tracing all packets sent or received (eg the
    --packet_trace option) */
 class PacketTrace {

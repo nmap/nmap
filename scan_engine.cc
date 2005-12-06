@@ -680,7 +680,7 @@ void UltraProbe::setARP(u8 *arppkt, u32 arplen) {
 void UltraProbe::setIP(u8 *ippacket, u32 iplen, const probespec *pspec) {
   struct ip *ipv4 = (struct ip *) ippacket;
   struct tcphdr *tcp = NULL;
-  struct udphdr_bsd *udp = NULL;
+  udphdr_bsd *udp = NULL;
 
   type = UP_IP;
   if (ipv4->ip_v != 4)

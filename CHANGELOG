@@ -1,5 +1,16 @@
 # Nmap Changelog ($Id$)
 
+o Applied another VS 2005 compatability patch from KX (kxmail(a)gmail.com).
+
+o Fixed a compilation problem on Mac OS X and perhaps other platforms
+  with a one-line fix to scan_engine.cc.  Thanks to Felix Gröbert
+  (felix(a)groebert.org) for notifying me of the problem.
+
+o Define INET_ADDRSTRLEN in tcpip.h if the system doesn't define it
+  for us.  This apparently aids compilation on Solaris 2.6 and 7.
+  Thanks to Albert Chin (nmap-hackers(a)mlists.thewrittenword.com) for
+  sending the patch..
+
 3.94ALPHA2
 
 o Put Nmap on a diet, with changes to the core port scanning routine
@@ -8,7 +19,7 @@ o Put Nmap on a diet, with changes to the core port scanning routine
 
 o Fixed a problem with the -S and option on Windows reporting "Failed
   to resolve/decode supposed IPv4 source address".  The -D (decoy)
-  option was probably broken on that platform too.  Thanks to kx
+  option was probably broken on that platform too.  Thanks to KX
   (kxmail(a)gmail.com) for reporting the problem and tracking down a
   potential solution.
 
@@ -18,7 +29,7 @@ o Better handle ICMP type 3, code 0 (network unreachable) responses to
 
 o Applied some small fixes so that Nmap compiles with Visual C++
   2005 Express, which is free from Microsoft at
-  http://msdn.microsoft.com/vstudio/express/visualc/ .  Thanks to kx
+  http://msdn.microsoft.com/vstudio/express/visualc/ .  Thanks to KX
   (kxmail(a)gmail.com) and Sina Bahram (sbahram(a)nc.rr.com)
 
 o Removed foreign translations of the old man page from the
