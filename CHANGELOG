@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$)
 
+o Fixed a crash in IPID Idle scan.  Thanks to Ron
+  (iago(a)valhallalegends.com>, Bakeman (bakeman(a)physics.unr.edu),
+  and others for reporting the problem.
+
 3.94ALPHA3
 
 o Updated NmapFE to build with GTK2 rather than obsolete GTK1.  Thanks

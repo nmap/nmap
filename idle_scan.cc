@@ -311,7 +311,6 @@ void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
 
   for(i=0; i < NUM_IPID_PROBES; i++) probe_returned[i] = 0;
 
-  //   memset(proxy, 0, sizeof(*proxy));
   initialize_proxy_struct(proxy);
   initialize_timeout_info(&proxy->host.to);
 
