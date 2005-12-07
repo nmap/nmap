@@ -263,6 +263,16 @@ int ipid_distance(int seqclass , u16 startid, u16 endid) {
 
 }
 
+static void initialize_proxy_struct(struct idle_proxy_info *proxy) {
+  proxy->seqclass = proxy->latestid = proxy->probe_port = 0;
+  proxy->max_groupsz = proxy->min_groupsz = 0;
+  proxy->current_groupsz = 0;
+  proxy->senddelay = 0; 
+  proxy->max_senddelay = 0;
+  proxy->pd = NULL;
+  proxy->rawsd = -1;
+  proxy->ethptr = NULL;
+}
 
 /* takes a proxy name/IP, resolves it if neccessary, tests it for IPID
    suitability, and fills out an idle_proxy_info structure.  If the
@@ -301,7 +311,8 @@ void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
 
   for(i=0; i < NUM_IPID_PROBES; i++) probe_returned[i] = 0;
 
-  memset(proxy, 0, sizeof(*proxy));
+  //   memset(proxy, 0, sizeof(*proxy));
+  initialize_proxy_struct(proxy);
   initialize_timeout_info(&proxy->host.to);
 
   proxy->max_groupsz = (o.max_parallelism)? o.max_parallelism : 100;
