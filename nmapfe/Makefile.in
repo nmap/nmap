@@ -74,8 +74,7 @@ PROGRAMS =  $(bin_PROGRAMS)
 
 DEFS = @DEFS@ -DVERSION=\"$(VERSION)\" -DHAVE_CONFIG_H=1 -I$(srcdir) 
 CPPFLAGS = @CPPFLAGS@
-STATIC =
-LDFLAGS = @LDFLAGS@ $(STATIC)
+LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 nmapfe_OBJECTS =  nmapfe.o nmapfe_sig.o nmapfe_error.o
 nmapfe_LDADD = $(LDADD)

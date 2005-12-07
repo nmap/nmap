@@ -215,6 +215,6 @@ distro:
 	rpmbuild -ta --define "static 1" /usr/tmp/nmap-$(NMAP_VERSION).tgz
 	cp -f $(RPMTDIR)/RPMS/x86_64/nmap-$(NMAP_VERSION)-1.x86_64.rpm /usr/tmp
 #	cp -f $(RPMTDIR)/RPMS/i386/nmap-$(NMAP_VERSION)-1.i386.rpm /usr/tmp
-#	cp -f $(RPMTDIR)/RPMS/i386/nmap-frontend-$(NMAP_VERSION)-1.i386.rpm /usr/tmp
+	cp -f $(RPMTDIR)/RPMS/i386/nmap-frontend-$(NMAP_VERSION)-1.x86_64.rpm /usr/tmp
 	cp -f $(RPMTDIR)/SRPMS/nmap-$(NMAP_VERSION)-1.src.rpm /usr/tmp
 	rm -rf /usr/tmp/nmap-$(NMAP_VERSION)

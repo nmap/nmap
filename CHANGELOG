@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$)
 
+3.94ALPHA3
+
 o Updated NmapFE to build with GTK2 rather than obsolete GTK1.  Thanks
   to Mike Basinger (dbasinge(a)speakeasy.net) and Meethune Bhowmick
   (meethune(a)oss-institute.org) for developing the
@@ -8,16 +10,16 @@ o Updated NmapFE to build with GTK2 rather than obsolete GTK1.  Thanks
   assertion error messages.  If someone has time to look into this, that
   would be appreciated.
 
+o Fixed a compilation problem on Mac OS X and perhaps other platforms
+  with a one-line fix to scan_engine.cc.  Thanks to Felix Gröbert
+  (felix(a)groebert.org) for notifying me of the problem.
+
 o Fixed a problem that prevented the command "nmap -sT -PT <targets>"
   from working from a non-privileged user account.  The -PT option
   doesn't change default behavior in this case, but Nmap should (and now
   does) allow it.
 
 o Applied another VS 2005 compatability patch from KX (kxmail(a)gmail.com).
-
-o Fixed a compilation problem on Mac OS X and perhaps other platforms
-  with a one-line fix to scan_engine.cc.  Thanks to Felix Gröbert
-  (felix(a)groebert.org) for notifying me of the problem.
 
 o Define INET_ADDRSTRLEN in tcpip.h if the system doesn't define it
   for us.  This apparently aids compilation on Solaris 2.6 and 7.
