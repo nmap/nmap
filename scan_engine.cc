@@ -1821,7 +1821,7 @@ bool ultrascan_port_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
     proto = IPPROTO_TCP;
     portno = pspec->pd.tcp.dport;
   } else if (pspec->type == PS_UDP) {
-    proto = IPPROTO_TCP;
+    proto = IPPROTO_UDP;
     portno = pspec->pd.udp.dport;
   } else assert(0);
   
@@ -3780,6 +3780,14 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
 	    /*	if (!testinglist) testinglist = current; */
 	    ss.numqueries_outstanding++;
 	    gettimeofday(&current->sent[0], NULL);
+	    if (send_rpc_query(target->v4hostip(), 
+			       rsi.rpc_current_port->portno,
+			       rsi.rpc_current_port->proto, current->portno,
+			       current - scan, current->trynum) == -1) {
+	      /* Futz, I'll give up on this guy ... */
+	      rsi.rpc_status = RPC_STATUS_NOT_RPC;
+	      break;
+	    }
 	    if (senddelay) usleep(senddelay);
 	  }
 	}

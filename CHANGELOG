@@ -1,8 +1,18 @@
 # Nmap Changelog ($Id$)
 
+3.95
+
 o Fixed a crash in IPID Idle scan.  Thanks to Ron
   (iago(a)valhallalegends.com>, Bakeman (bakeman(a)physics.unr.edu),
   and others for reporting the problem.
+
+o Fixed an inefficiency in RPC scan that could slow things down and
+  also sometimes resulted in the spurious warning message: "Unable to
+  find listening socket in get_rpc_results"
+
+o Fixed a 3.94ALPHA3 bug that caused UDP scan results to be listed as
+  TCP ports instead.  Thanks to Justin M Cacak (jcacak(a)nebraska.edu)
+  for reporting the problem.
 
 3.94ALPHA3
 
