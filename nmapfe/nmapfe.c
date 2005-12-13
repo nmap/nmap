@@ -132,26 +132,60 @@
 /* Keep this global */
 struct NmapFEoptions opt;
 
+void openLog(char *);
+static void LogOpen_callback    (void);
+static void LogSave_callback    (void);
+static void LogAppend_callback  (void);
+static void Help_callback       (void);
+static void Version_callback    (void);
+static void About_callback      (void);
+static void Quit_callback       (void);
+static void Colourize_callback  (GtkAction *action, GtkRadioAction *current);
 
-static GtkItemFactoryEntry mainMenuEntries[] = {
-  { "/_File",             NULL, NULL,         FILE_MENU,        "<Branch>" },
-  { "/File/Open Log",     NULL, mainMenu_fcb, FILEOPEN_MENU,    NULL },
-  { "/File/Save Log",     NULL, mainMenu_fcb, FILESAVE_MENU,    NULL },
-  { "/File/-",            NULL, NULL,         SEP_MENU,         "<Separator>" },
-  { "/File/Quit",         NULL, mainMenu_fcb, FILEQUIT_MENU,    NULL },
-  { "/_View",             NULL, NULL,         VIEW_MENU,        "<Branch>" },
-  { "/View/Black&White",  NULL, mainMenu_fcb, VIEWMONO_MENU,    "<RadioItem>" },
-  { "/View/Coloured",     NULL, mainMenu_fcb, VIEWCOLOR_MENU,   "/View/Black&White" },
-  { "/View/-",            NULL, NULL,         SEP_MENU,         "<Separator>" },
-  { "/View/Append Log",   NULL, mainMenu_fcb, VIEWAPPEND_MENU,  "<CheckItem>" },
-  { "/_Help",             NULL, NULL,         HELP_MENU,        "<LastBranch>" },
-  { "/Help/Help",         NULL, mainMenu_fcb, HELPHELP_MENU,    NULL },
-  { "/Help/Nmap Version", NULL, mainMenu_fcb, HELPVERSION_MENU, NULL },
-  { "/Help/-",            NULL, NULL,         SEP_MENU,         "<Separator>" },
-  { "/Help/About ...",    NULL, mainMenu_fcb, HELPABOUT_MENU,   NULL },
-  { NULL, NULL, NULL, NO_MENU, NULL }
+GtkWidget *main_win;
+
+static GtkActionEntry menu_entries[] = {
+    { "FileMenu",   NULL, "_File" }, /* File menu */
+    { "LogOpen",    NULL, "_Open Log",  NULL, "Open log file", LogOpen_callback },
+    { "LogSave",    NULL, "_Save Log",  NULL, "Save log file", LogSave_callback },
+    { "Quit",       NULL, "_Quit",      NULL, "Quit the program", Quit_callback },
+    { "ViewMenu",   NULL, "_View" }, /* View menu */
+    { "HelpMenu",   NULL, "_Help" }, /* Help menu */
+    { "Help",       NULL, "_Help",              NULL, NULL, Help_callback },
+    { "Version",    NULL, "_Nmap version",      NULL, NULL, Version_callback },
+    { "About",      NULL, "_About NMapFE...",   NULL, NULL, About_callback }
+};
+static GtkToggleActionEntry menu_entries_toggle[] = {
+    { "LogAppend",  NULL,   "Append log",       NULL, NULL, LogAppend_callback }
+};
+static GtkRadioActionEntry menu_entries_radio[] = {
+    { "View_RGB",   NULL,   "Coloured",         NULL, NULL, 1},
+    { "View_BW",    NULL,   "Black & White",    NULL, NULL, 2}
 };
 
+static const char *menu_description =
+    "<ui>"
+    "   <menubar name='MainMenu'>"
+    "       <menu action='FileMenu'>"
+    "           <menuitem action='LogOpen' />"
+    "           <menuitem action='LogSave' />"
+    "           <separator/>"
+    "           <menuitem action='Quit' />"
+    "       </menu>"
+    "       <menu action='ViewMenu'>"
+    "           <menuitem action='View_RGB' />"
+    "           <menuitem action='View_BW' />"
+    "           <separator/>"
+    "           <menuitem action='LogAppend' />"
+    "       </menu>"
+    "       <menu action='HelpMenu'>"
+    "           <menuitem action='Help' />"
+    "           <menuitem action='Version' />"
+    "           <separator/>"
+    "           <menuitem action='About' />"
+    "       </menu>"
+    "   </menubar>"
+    "</ui>";
 
 static GtkItemFactoryEntry userScanEntries[] = {
   { "/Connect Scan",           NULL, scanType_changed_fcb, CONNECT_SCAN, NULL },
@@ -228,7 +262,116 @@ static GtkItemFactoryEntry outputFormatEntries[] = {
   { NULL, NULL, NULL, NO_OUTPUT, NULL }
 };
 
+static void 
+LogOpen_callback (void) {
+    static char filename[FILENAME_MAX+1] = "";
+    gtk_widget_show(create_fileSelection("Open Log", filename, openLog, NULL));
+}
+static void
+LogSave_callback (void) {
+    static char filename[FILENAME_MAX+1] = "";
+    gtk_widget_show(create_fileSelection("Save Log", filename, openLog, NULL));
+}
+static void
+Quit_callback (void) {
+    stop_scan();
+    gtk_main_quit();
+}
+static void 
+Colourize_callback (GtkAction *action, GtkRadioAction *current) {
+    opt.viewValue = gtk_radio_action_get_current_value(current);
+}
+static void 
+LogAppend_callback (void) {
+    opt.appendLog = !opt.appendLog;
+}
+static void
+Version_callback (void) {
+    execute("nmap -V");
+}
+static void
+Help_callback (void) {
+    gtk_widget_show(create_helpDialog());
+}
+static void
+About_callback (void) {
+#if GTK_CHECK_VERSION(2,6,0)
+    static const gchar *authors[] = 
+    {
+        "Nmap is written by Fyodor <fyodor(a)insecure.org>",
+        "with the help of many-many others."
+        "\n",
+        "NmapFE originally written by Zach Smith <key(a)aye.net>",
+        "GUI rework by:",
+        "   Peter Marschall <peter(a)adpm.de>",
+        "Ported to GTK2 by:",
+        "   Mike Basinger <dbasinge(a)speakeasy.net>",
+        "   Meethune Bhowmick <meethune(a)oss-institute.org>",
+        NULL
+    };
+    gtk_show_about_dialog ( GTK_WINDOW(main_win),
+            "authors",      authors,
+            "comments",     "Frontend for Nmap security scanner",
+            "name",         "Nmap & NmapFE",
+            "version",      VERSION,
+            "website",      "http://www.insecure.org/nmap",
+            NULL);
+#else
+  GtkWidget *aboutDialog;
+  GtkWidget *vbox;
+  GtkWidget *notebook;
+  GtkWidget *text;
+  GtkWidget *label;
 
+  aboutDialog = gtk_dialog_new_with_buttons("About NmapFE & Nmap",
+					   NULL,
+					   GTK_DIALOG_MODAL,
+					   GTK_STOCK_OK,
+					   GTK_RESPONSE_NONE,
+					   NULL);
+					   
+  g_signal_connect_swapped (aboutDialog,
+			   "response", 
+			   G_CALLBACK (gtk_widget_destroy),
+			   aboutDialog);
+
+  gtk_widget_set_usize(aboutDialog, 200, 200);
+  gtk_window_position(GTK_WINDOW(aboutDialog), GTK_WIN_POS_CENTER);
+
+  vbox = GTK_DIALOG(aboutDialog)->vbox;
+
+  notebook = gtk_notebook_new();
+  gtk_box_pack_start(GTK_BOX(vbox), notebook, TRUE, TRUE, 0);
+
+  label = gtk_label_new("NmapFE");
+  text = gtk_label_new("Author: Zach Smith\n"
+		       "EMail: key@aye.net\n"
+		       "http://a.linuxbox.com\n"
+		       "Written in: C/GTK\n"
+		       "\n"
+		       "GUI rewritten by:\n"
+		       "Author: Peter Marschall\n"
+                       "EMail: peter@adpm.de");
+
+  gtk_widget_show(label);
+  gtk_widget_show(text);
+  gtk_notebook_append_page(GTK_NOTEBOOK(notebook), text, label);
+
+  label = gtk_label_new("Nmap");
+  text = gtk_label_new("Author: Fyodor\n"
+		       "EMail: fyodor@insecure.org\n"
+		       "http://www.insecure.org/nmap\n"
+		       "Written in: C++");
+
+  gtk_widget_show(label);
+  gtk_widget_show(text);
+  gtk_notebook_append_page(GTK_NOTEBOOK(notebook), text, label);
+
+  gtk_widget_show_all(aboutDialog);
+
+#endif
+    
+}
 
 /* Returns a menubar widget made from the above menu */
 static GtkWidget *new_factory_menu(GtkWidget  *window, GtkType menuType,
@@ -265,7 +408,6 @@ GtkItemFactoryEntry *end = entries;
 
 GtkWidget* create_main_win()
 {
-  GtkWidget *main_win;
   GtkWidget *main_vbox;
   GtkWidget *menubar;
 GtkWidget *hbox;
@@ -278,6 +420,12 @@ GtkWidget *nbpage;
 GtkWidget *frame;
 GtkWidget *table;
 GtkAdjustment *adjust;
+
+  GtkAccelGroup *accel_group;
+  GtkActionGroup *action_group;
+  GtkUIManager *ui_manager;
+
+  GError *error;
 
   /* initialize our options */
   opt.viewValue = 1;
@@ -305,7 +453,7 @@ GtkAdjustment *adjust;
   gtk_window_set_title(GTK_WINDOW(main_win), "Nmap Front End v" VERSION);
   gtk_window_position (GTK_WINDOW (main_win), GTK_WIN_POS_CENTER);
   gtk_signal_connect (GTK_OBJECT (main_win), "delete_event",
-		     GTK_SIGNAL_FUNC(exitNmapFE_cb), NULL);
+		     GTK_SIGNAL_FUNC(Quit_callback), NULL);
   
   
 /* vertical box for menu bar, input, output and status fields */
@@ -313,17 +461,34 @@ GtkAdjustment *adjust;
   gtk_container_add (GTK_CONTAINER (main_win), main_vbox);
   gtk_widget_show (main_vbox);
 
+  action_group = gtk_action_group_new ("MenuActions");
+  gtk_action_group_add_actions (action_group, menu_entries, 
+          G_N_ELEMENTS (menu_entries), main_win);
+  gtk_action_group_add_radio_actions (action_group, menu_entries_radio, 
+          G_N_ELEMENTS (menu_entries_radio), 0, 
+          G_CALLBACK(Colourize_callback), main_win);
+  
+  gtk_action_group_add_toggle_actions (action_group, menu_entries_toggle, 
+          G_N_ELEMENTS (menu_entries_toggle), main_win);
+
+  ui_manager = gtk_ui_manager_new ();
+  gtk_ui_manager_insert_action_group (ui_manager, action_group, 0);
+
+  error = NULL;
+  if (!gtk_ui_manager_add_ui_from_string (ui_manager, menu_description, -1, &error)) {
+      g_message ("building menus failed: %s", error->message);
+      g_error_free (error);
+      exit (EXIT_FAILURE);
+  }
 
   /* main menu */
-  menubar = new_factory_menu(main_win, GTK_TYPE_MENU_BAR, "<mainMenu>",
-                             mainMenuEntries, NULL);
-  gtk_box_pack_start (GTK_BOX (main_vbox), menubar, FALSE, TRUE, 0);
-  if (opt.uid == 0) {
-  GtkWidget *w = gtk_item_factory_get_widget_by_action(gtk_item_factory_from_widget(menubar),
-                                                       VIEWCOLOR_MENU);
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(w), TRUE);
-  }
+  menubar = gtk_ui_manager_get_widget (ui_manager, "/MainMenu");
+  gtk_box_pack_start (GTK_BOX (main_vbox), menubar, 
+          FALSE, TRUE, 0);
   gtk_widget_show (menubar);
+  /*  Install the accelerator table in the main window  */
+  accel_group = gtk_ui_manager_get_accel_group (ui_manager);
+  gtk_window_add_accel_group (GTK_WINDOW (main_win), accel_group);
 
 /* upper hbox for horizontal alignment */
   hbox = gtk_hbox_new(FALSE, 5);
@@ -350,7 +515,7 @@ GtkAdjustment *adjust;
   button = gtk_button_new_with_label("Exit");
   /*gtk_object_set(GTK_OBJECT(button), "width", 48, NULL);*/
   gtk_signal_connect(GTK_OBJECT(button), "clicked",
-                     GTK_SIGNAL_FUNC(exitNmapFE_cb), NULL);
+                     GTK_SIGNAL_FUNC(Quit_callback), NULL);
   gtk_box_pack_end(GTK_BOX(hbox), button, FALSE, FALSE, 0);
   gtk_widget_show(button);
 
@@ -398,6 +563,7 @@ GtkAdjustment *adjust;
   gtk_table_attach_defaults(GTK_TABLE(table), opt.scanType, 0, 4, 0, 1);
   gtk_widget_show(opt.scanType);
 
+  
   opt.scanRelayLabel = gtk_label_new("Relay Host:");
   gtk_label_set_justify(GTK_LABEL(opt.scanRelayLabel), GTK_JUSTIFY_LEFT);
   if ((opt.scanValue != BOUNCE_SCAN) && (opt.scanValue != IDLE_SCAN))
@@ -1195,66 +1361,6 @@ GtkAdjustment *adjust;
 
   return main_win;
 }
-
-
-GtkWidget* create_aboutDialog()
-{
-GtkWidget *aboutDialog;
-GtkWidget *vbox;
-GtkWidget *notebook;
-GtkWidget *text;
-GtkWidget *label;
-
- aboutDialog = gtk_dialog_new_with_buttons("About NmapFE & Nmap",
-					   NULL,
-					   GTK_DIALOG_MODAL,
-					   GTK_STOCK_OK,
-					   GTK_RESPONSE_NONE,
-					   NULL);
-					   
-
- g_signal_connect_swapped (aboutDialog,
-			   "response", 
-			   G_CALLBACK (gtk_widget_destroy),
-			   aboutDialog);
-
-  gtk_widget_set_usize(aboutDialog, 200, 200);
-  gtk_window_position(GTK_WINDOW(aboutDialog), GTK_WIN_POS_CENTER);
-
-  vbox = GTK_DIALOG(aboutDialog)->vbox;
-
-  notebook = gtk_notebook_new();
-  gtk_box_pack_start(GTK_BOX(vbox), notebook, TRUE, TRUE, 0);
-
-  label = gtk_label_new("NmapFE");
-  text = gtk_label_new("Author: Zach Smith\n"
-		       "EMail: key@aye.net\n"
-		       "http://a.linuxbox.com\n"
-		       "Written in: C/GTK\n"
-		       "\n"
-		       "GUI rewritten by:\n"
-		       "Author: Peter Marschall\n"
-                       "EMail: peter@adpm.de");
-
-  gtk_widget_show(label);
-  gtk_widget_show(text);
-  gtk_notebook_append_page(GTK_NOTEBOOK(notebook), text, label);
-
-  label = gtk_label_new("Nmap");
-  text = gtk_label_new("Author: Fyodor\n"
-		       "EMail: fyodor@insecure.org\n"
-		       "http://www.insecure.org/nmap\n"
-		       "Written in: C++");
-
-  gtk_widget_show(label);
-  gtk_widget_show(text);
-  gtk_notebook_append_page(GTK_NOTEBOOK(notebook), text, label);
-
-  gtk_widget_show(notebook);
-
-  return(aboutDialog);
-}
-
 
 GtkWidget* create_fileSelection(const char *title, char *filename, void (*action)(), GtkEntry *entry)
 {

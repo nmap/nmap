@@ -1,5 +1,19 @@
 # Nmap Changelog ($Id$)
 
+o Improved the NmapFE port to GTK2 so it better-conforms to the new
+  API and you don't get as many annoying messages in your terminal
+  window.  Thanks to Priit Laes (amd(a)store20.com) for writing these
+  excellent patches.
+
+o Made some changes to allow source port zero scans (-g0).  Nmap used
+  to refused to do this, but now it just gives a warning that it may not
+  work on all systems.  It seems to work fine on my Linux box.  Thanks
+  to Bill Dale (bill_dale(a)bellsouth.net) for suggesting this feature.
+
+o Fixed Nmap so it doesn't crash when you ask it to resume a previous
+  scan, but pass in a bogus file rather than actual Nmap output.  Thanks
+  to Piotr Sobolewski (piotr_sobolewski(a)o2.pl) for the fix.
+
 3.95
 
 o Fixed a crash in IPID Idle scan.  Thanks to Ron

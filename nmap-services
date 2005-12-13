@@ -105,10 +105,10 @@ tacacs-ds         65/tcp     # TACACS-Database Service
 tacacs-ds         65/udp     # TACACS-Database Service
 sql*net           66/tcp     # Oracle SQL*NET
 sql*net           66/udp     # Oracle SQL*NET
-dhcpserver       67/tcp     # DHCP/Bootstrap Protocol Server
-dhcpserver       67/udp     # DHCP/Bootstrap Protocol Server
-dhcpclient       68/tcp     # DHCP/Bootstrap Protocol Client
-dhcpclient        68/udp     # DHCP/Bootstrap Protocol Client
+dhcps             67/tcp     # DHCP/Bootstrap Protocol Server
+dhcps             67/udp     # DHCP/Bootstrap Protocol Server
+dhcpc             68/tcp     # DHCP/Bootstrap Protocol Client
+dhcpc             68/udp     # DHCP/Bootstrap Protocol Client
 tftp              69/tcp     # Trivial File Transfer
 tftp              69/udp     # Trivial File Transfer
 gopher            70/tcp     # 
@@ -1155,6 +1155,7 @@ iad2              1031/udp   # BBN IAD
 iad3              1032/tcp   # BBN IAD
 iad3              1032/udp   # BBN IAD
 netinfo           1033/tcp   # Netinfo is apparently on many OS X boxes.
+activesync-notify 1034/udp   # Windows Mobile device ActiveSync Notifications
 netsaint          1040/tcp   # Netsaint status daemon
 boinc-client      1043/tcp   # BOINC Client Control
 boinc-client      1043/udp   # BOINC Client Control
@@ -1835,6 +1836,7 @@ www-dev           2784/tcp   # world wide web - development
 www-dev           2784/udp   # world wide web - development
 corbaloc          2809/tcp   # Corba
 extensisportfolio 2903/tcp   # Portfolio Server by Extensis Product Group
+wap-push          2948/udp   # Windows Mobile devices often have this
 symantec-av       2967/udp   # Symantec AntiVirus (rtvscan.exe)
 iss-realsec       2998/tcp   # ISS RealSecure IDS Remote Console Admin port
 ppp               3000/tcp   # User-level ppp daemon, or chili!soft asp
@@ -2101,6 +2103,8 @@ cucme-1           7648/udp   # cucme live video/audio server
 cucme-2           7649/udp   # cucme live video/audio server
 cucme-3           7650/udp   # cucme live video/audio server
 cucme-4           7651/udp   # cucme live video/audio server
+nsrexecd          7937/tcp   # Legato NetWorker
+lgtomapper        7938/tcp   # Legato portmapper
 http-alt          8000/tcp   # A common alternative http port
 ajp12             8007/tcp   # Apache JServ Protocol 1.x
 ajp13             8009/tcp   # Apache JServ Protocol 1.3

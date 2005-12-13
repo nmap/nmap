@@ -91,7 +91,7 @@ match complex-link m|^\x06\x07\xd0\0\x01\0\0\0\x01\0\x02\x07\xd0\0\x01\0\0\x01\x
 # CompTek AquaGateKeeper (Telephony package) http://aqua.comptek.ru
 match H.323/Q.931 m|^\x03\0\0.*@| p/CompTek AquaGateKeeper/
 # Cisco router running IOS 12.1.5-12.2.13a
-match H.323/Q.931 m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f$| p/Cisco router/ d/router/ o/IOS/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f$| p/Cisco router/ d/router/ o/IOS/
 
 match cvspserver m|^no repository configured in /| p/CVS pserver/ i/broken/
 match cvspserver m|^/usr/sbin/cvs-pserver: line \d+: .*cvs: No such file or directory\n| p/CVS pserver/ i/broken/
@@ -275,8 +275,8 @@ match ftp m|^220---------- Welcome to Pure-FTPd \[privsep\] \[TLS\] ----------\r
 match ftp m|^220---------- .* Pure-FTPd ----------\r\n220-| p/Pure-FTPd/
 match ftp m|^220-.*214 Pure-FTPd - http://pureftpd\.org/\r\n|s p/Pure-FTPd/
 
-match ftp m/^220 ready, dude \(vsFTPd (\d[0-9.]+): beat me, break me\)\r\n/ p/vsFTPd/ v/$1/ o/Unix/
-match ftp m/^220 \(vsFTPd ([-.\w]+)\)\r\n$/ p/vsFTPd/ v/$1/ o/Unix/
+match ftp m/^220 ready, dude \(vsFTPd (\d[0-9.]+): beat me, break me\)\r\n/ p/vsftpd/ v/$1/ o/Unix/
+match ftp m/^220 \(vsFTPd ([-.\w]+)\)\r\n$/ p/vsftpd/ v/$1/ o/Unix/
 match ftp m/^220 TYPSoft FTP Server (\d\S+) ready\.\.\.\r\n/ p/TYPSoft ftpd/ v/$1/ o/Windows/
 match ftp m/^220-MegaBit Gear (\S+).*FTP server ready/ p/MegaBit Gear ftpd/ v/$1/
 match ftp m/^220.*WS_FTP Server (\d\S+)/ p/WS FTPd/ v/$1/ o/Windows/
@@ -1835,8 +1835,8 @@ match ftp m|^220 FTP server ready\.\r\n530 access denied\.\r\n| p/Intel NetportE
 match ftp m|^220 FTP server ready\.\r\n501 Command not supported\.\r\n$| p/D-Link Printer Server ftpd/ d/print server/
 match ftp m|^220 ([-.\w]+) FTP server ready\.\r\n530 Please login with USER and PASS\.\r\n530 Please login with USER and PASS\.\r\n$| p/Solaris ftpd/ h/$1/ o/Solaris/
 # vsftpd (Very Secure FTP Daemon) 1.0.0 on linux with custom ftpd_banner
-# We'll have to see if this match is unique enough
-match ftp m|^220 .*\r\n530 Please login with USER and PASS\.\r\n530 Please login with USER and PASS\.\r\n|s p/vsFTPd/ i/customized banner/
+# We'll have to see if this match is unique enough ... no, it is not enough
+match ftp m|^220 .*\r\n530 Please login with USER and PASS\.\r\n530 Please login with USER and PASS\.\r\n|s p/vsftpd or WU-FTPD/
 match ftp m|^220 ([-.\w]+) FTP Server ready \.\.\.\r\n530 \r  : User not logged in\. Please login with USER and PASS first\.\r\n530 \r  : User not logged in\. Please login with USER and PASS first\.\r\n$| p/Bulletproof ftp server/ o/Windows/ h/$1/
 # BulletProof FTP 2.21 on Windows 2000 Server
 match ftp m|^220 ftp\r\n$| p/Bulletproof ftp server/ o/Windows/

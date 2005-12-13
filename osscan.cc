@@ -118,6 +118,116 @@
 
 extern NmapOps o;
 
+/* Note that a sport of 0 really will (try to) use zero as the source
+   port rather than choosing a random one */
+struct udpprobeinfo *send_closedudp_probe(int sd, struct eth_nfo *eth,
+					  const struct in_addr *victim,
+					  u16 sport, u16 dport) {
+
+static struct udpprobeinfo upi;
+static int myttl = 0;
+static u8 patternbyte = 0;
+static u16 id = 0; 
+u8 packet[328]; /* 20 IP hdr + 8 UDP hdr + 300 data */
+struct ip *ip = (struct ip *) packet;
+udphdr_bsd *udp = (udphdr_bsd *) (packet + sizeof(struct ip));
+struct in_addr *source;
+int datalen = 300;
+unsigned char *data = packet + 28;
+unsigned short realcheck; /* the REAL checksum */
+int res;
+int decoy;
+struct pseudo_udp_hdr {
+  struct in_addr source;
+  struct in_addr dest;        
+  u8 zero;
+  u8 proto;        
+  u16 length;
+} *pseudo = (struct pseudo_udp_hdr *) ((char *)udp - 12) ;
+
+if (!patternbyte) patternbyte = (get_random_uint() % 60) + 65;
+memset(data, patternbyte, datalen);
+
+while(!id) id = get_random_uint();
+
+/* check that required fields are there and not too silly */
+if ( !victim || !dport || (!eth && sd < 0)) {
+  fprintf(stderr, "send_closedudp_probe: One or more of your parameters suck!\n");
+  return NULL;
+}
+
+if (!myttl)  myttl = (time(NULL) % 14) + 51;
+
+for(decoy=0; decoy < o.numdecoys; decoy++) {
+  source = &o.decoys[decoy];
+
+  memset((char *) packet, 0, sizeof(struct ip) + sizeof(udphdr_bsd));
+
+  udp->uh_sport = htons(sport);
+  udp->uh_dport = htons(dport);
+  udp->uh_ulen = htons(8 + datalen);
+
+  /* Now the pseudo header for checksuming */
+  pseudo->source.s_addr = source->s_addr;
+  pseudo->dest.s_addr = victim->s_addr;
+  pseudo->proto = IPPROTO_UDP;
+  pseudo->length = htons(sizeof(udphdr_bsd) + datalen);
+  
+  /* OK, now we should be able to compute a valid checksum */
+  realcheck = in_cksum((unsigned short *)pseudo, 20 /* pseudo + UDP headers */ +
+		       datalen);
+#if STUPID_SOLARIS_CHECKSUM_BUG
+  udp->uh_sum = sizeof(udphdr_bsd) + datalen;
+#else
+  udp->uh_sum = realcheck;
+#endif
+
+  /* Goodbye, pseudo header! */
+  memset(pseudo, 0, sizeof(*pseudo));
+  
+  /* Now for the ip header */
+  ip->ip_v = 4;
+  ip->ip_hl = 5;
+  ip->ip_len = htons(sizeof(struct ip) + sizeof(udphdr_bsd) + datalen);
+  ip->ip_id = id;
+  ip->ip_ttl = myttl;
+  ip->ip_p = IPPROTO_UDP;
+  ip->ip_src.s_addr = source->s_addr;
+  ip->ip_dst.s_addr= victim->s_addr;
+  
+  upi.ipck = in_cksum((unsigned short *)ip, sizeof(struct ip));
+#if HAVE_IP_IP_SUM
+  ip->ip_sum = upi.ipck;
+#endif
+  
+  /* OK, now if this is the real she-bang (ie not a decoy) then
+     we stick all the inph0 in our upi */
+  if (decoy == o.decoyturn) {   
+    upi.iptl = 28 + datalen;
+    upi.ipid = id;
+    upi.sport = sport;
+    upi.dport = dport;
+    upi.udpck = realcheck;
+    upi.udplen = 8 + datalen;
+    upi.patternbyte = patternbyte;
+    upi.target.s_addr = ip->ip_dst.s_addr;
+  }
+  if (TCPIP_DEBUGGING > 1) {
+    log_write(LOG_STDOUT, "Raw UDP packet creation completed!  Here it is:\n");
+    readudppacket(packet,1);
+  }
+  
+  if ((res = send_ip_packet(sd, eth, packet, ntohs(ip->ip_len))) == -1)
+    {
+      perror("send_ip_packet in send_closedupd_probe");
+      return NULL;
+    }
+}
+
+return &upi;
+}
+
+
 FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
 FingerPrint *FP = NULL, *FPtmp = NULL;
 FingerPrint *FPtests[9];
@@ -1705,114 +1815,6 @@ for(i=0; i < count; i++) {
 return AVs;
 }
 
-
-struct udpprobeinfo *send_closedudp_probe(int sd, struct eth_nfo *eth,
-					  const struct in_addr *victim,
-					  u16 sport, u16 dport) {
-
-static struct udpprobeinfo upi;
-static int myttl = 0;
-static u8 patternbyte = 0;
-static u16 id = 0; 
-u8 packet[328]; /* 20 IP hdr + 8 UDP hdr + 300 data */
-struct ip *ip = (struct ip *) packet;
-udphdr_bsd *udp = (udphdr_bsd *) (packet + sizeof(struct ip));
-struct in_addr *source;
-int datalen = 300;
-unsigned char *data = packet + 28;
-unsigned short realcheck; /* the REAL checksum */
-int res;
-int decoy;
-struct pseudo_udp_hdr {
-  struct in_addr source;
-  struct in_addr dest;        
-  u8 zero;
-  u8 proto;        
-  u16 length;
-} *pseudo = (struct pseudo_udp_hdr *) ((char *)udp - 12) ;
-
-if (!patternbyte) patternbyte = (get_random_uint() % 60) + 65;
-memset(data, patternbyte, datalen);
-
-while(!id) id = get_random_uint();
-
-/* check that required fields are there and not too silly */
-if ( !victim || !sport || !dport || (!eth && sd < 0)) {
-  fprintf(stderr, "send_closedudp_probe: One or more of your parameters suck!\n");
-  return NULL;
-}
-
-if (!myttl)  myttl = (time(NULL) % 14) + 51;
-
-for(decoy=0; decoy < o.numdecoys; decoy++) {
-  source = &o.decoys[decoy];
-
-  memset((char *) packet, 0, sizeof(struct ip) + sizeof(udphdr_bsd));
-
-  udp->uh_sport = htons(sport);
-  udp->uh_dport = htons(dport);
-  udp->uh_ulen = htons(8 + datalen);
-
-  /* Now the pseudo header for checksuming */
-  pseudo->source.s_addr = source->s_addr;
-  pseudo->dest.s_addr = victim->s_addr;
-  pseudo->proto = IPPROTO_UDP;
-  pseudo->length = htons(sizeof(udphdr_bsd) + datalen);
-  
-  /* OK, now we should be able to compute a valid checksum */
-  realcheck = in_cksum((unsigned short *)pseudo, 20 /* pseudo + UDP headers */ +
-		       datalen);
-#if STUPID_SOLARIS_CHECKSUM_BUG
-  udp->uh_sum = sizeof(udphdr_bsd) + datalen;
-#else
-  udp->uh_sum = realcheck;
-#endif
-
-  /* Goodbye, pseudo header! */
-  memset(pseudo, 0, sizeof(*pseudo));
-  
-  /* Now for the ip header */
-  ip->ip_v = 4;
-  ip->ip_hl = 5;
-  ip->ip_len = htons(sizeof(struct ip) + sizeof(udphdr_bsd) + datalen);
-  ip->ip_id = id;
-  ip->ip_ttl = myttl;
-  ip->ip_p = IPPROTO_UDP;
-  ip->ip_src.s_addr = source->s_addr;
-  ip->ip_dst.s_addr= victim->s_addr;
-  
-  upi.ipck = in_cksum((unsigned short *)ip, sizeof(struct ip));
-#if HAVE_IP_IP_SUM
-  ip->ip_sum = upi.ipck;
-#endif
-  
-  /* OK, now if this is the real she-bang (ie not a decoy) then
-     we stick all the inph0 in our upi */
-  if (decoy == o.decoyturn) {   
-    upi.iptl = 28 + datalen;
-    upi.ipid = id;
-    upi.sport = sport;
-    upi.dport = dport;
-    upi.udpck = realcheck;
-    upi.udplen = 8 + datalen;
-    upi.patternbyte = patternbyte;
-    upi.target.s_addr = ip->ip_dst.s_addr;
-  }
-  if (TCPIP_DEBUGGING > 1) {
-    log_write(LOG_STDOUT, "Raw UDP packet creation completed!  Here it is:\n");
-    readudppacket(packet,1);
-  }
-  
-  if ((res = send_ip_packet(sd, eth, packet, ntohs(ip->ip_len))) == -1)
-    {
-      perror("send_ip_packet in send_closedupd_probe");
-      return NULL;
-    }
-}
-
-return &upi;
-
-}
 
 struct AVal *fingerprint_portunreach(struct ip *ip, struct udpprobeinfo *upi) {
 struct icmp *icmp;

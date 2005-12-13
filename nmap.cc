@@ -565,7 +565,7 @@ int nmap_main(int argc, char *argv[]) {
     case 'g': 
       o.magic_port = atoi(optarg);
       o.magic_port_set = 1;
-      if (!o.magic_port) fatal("-g needs nonzero argument");
+      if (o.magic_port == 0) error("WARNING: a source port of zero may not work on all systems.");
       break;    
     case 'h': printusage(argv[0], 0); break;
     case '?': printusage(argv[0], -1); break;
@@ -1322,8 +1322,9 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
   filestr[filelen - 1] = '\0';
 
   /* First goal is to find the nmap args */
-  p = strstr(filestr, " as: ");
-  p += 5;
+  if ((p = strstr(filestr, " as: ")))
+    p += 5;
+  else fatal("Unable to parse supposed log file %s.  Are you sure this is an Nmap output file?", fname);
   while(*p && !isspace((int) *p))
     p++;
   if (!*p) fatal("Unable to parse supposed log file %s.  Sorry", fname);

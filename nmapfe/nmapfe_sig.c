@@ -199,15 +199,6 @@ GtkWidget *main_win;
   return 0;
 }
 
-
-void exitNmapFE_cb(GtkButton *button, void *ignored)
-{
-  /* First we want to kill the Nmap process that is running */
-  stop_scan();
-  gtk_main_quit();
-}
-
-
 void scanButton_toggled_cb(GtkButton *button, void *ignored)
 {
   if(GTK_TOGGLE_BUTTON(button)->active) {
@@ -719,46 +710,6 @@ const char *name = gtk_entry_get_text(GTK_ENTRY(text));
 
   gtk_widget_show(create_fileSelection("Select File", filename, NULL, GTK_ENTRY(text)));
 }
-
-
-void mainMenu_fcb(int *variable, guint action, GtkWidget *w)
-{
-static char filename[FILENAME_MAX+1] = "";
-
-  switch (action) {
-    case FILEOPEN_MENU:
-      gtk_widget_show(create_fileSelection("Open Log", filename, openLog, NULL));
-      break;
-    case FILESAVE_MENU:
-      gtk_widget_show(create_fileSelection("Save Log", filename, saveLog, NULL));
-      break;
-    case FILEQUIT_MENU:
-      stop_scan();
-      gtk_main_quit();
-      break;
-    case VIEWMONO_MENU:
-      opt.viewValue = 0;
-      break;
-    case VIEWCOLOR_MENU:
-      opt.viewValue = 1;
-      break;
-    case VIEWAPPEND_MENU:
-      opt.appendLog = (GTK_CHECK_MENU_ITEM(w)->active) ? TRUE : FALSE;
-      break;
-    case HELPHELP_MENU:
-      gtk_widget_show(create_helpDialog());
-      break;
-    case HELPVERSION_MENU:
-      execute("nmap -V");
-      break;
-    case HELPABOUT_MENU:
-      gtk_widget_show(create_aboutDialog());
-      break;
-    default:
-      break;
-  }
-}
-
 
 void scanType_changed_fcb(int *variable, guint action, GtkWidget *w)
 {	
@@ -1294,7 +1245,7 @@ void on_verb_activate(GtkMenuItem *menuitem, gpointer user_data)
    into an argv[] style char **, which it sets the argv parameter to.
    The function returns the number of items filled up in the array
    (argc), or -1 in the case of an error.  This function allocates
-   memmory for argv and thus it must be freed -- use argv_parse_free()
+   memory for argv and thus it must be freed -- use argv_parse_free()
    for that.  If arg_parse returns <1, then argv does not need to be freed.
    The returned arrays are always terminated with a NULL pointer */
 int arg_parse(const char *command, char ***argv)
