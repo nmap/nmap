@@ -2571,7 +2571,22 @@ bool route_dst(const struct sockaddr_storage *const dst, struct route_nfo *rnfo)
       ifsin = (struct sockaddr_in *) &(iface->addr);
       if ((ifsin->sin_addr.s_addr & mask) == (dstsin->sin_addr.s_addr & mask))
 	rnfo->direct_connect = 1;
-      else rnfo->direct_connect = 0;
+      else {
+	rnfo->direct_connect = 0;
+	/* must find the next hop by checking route table ... */
+	routes = getsysroutes(&numroutes);
+	/* Now we simply go through the list and take the first match */
+	for(i=0; i < numroutes; i++) {
+	  if (strcmp(routes[i].device->devname, iface->devname) == 0 && 
+	      (routes[i].dest & routes[i].netmask) == 
+	      (dstsin->sin_addr.s_addr & routes[i].netmask)) {
+	    /* Yay, found a matching route. */
+	    ifsin = (struct sockaddr_in *) &rnfo->nexthop;
+	    ifsin->sin_family = AF_INET;
+	    ifsin->sin_addr.s_addr = routes[i].gw.s_addr;
+	  }
+	}
+      }
       memcpy(&rnfo->ii, iface, sizeof(rnfo->ii));
       if (o.spoofsource)
 	memcpy(&rnfo->srcaddr, &spoofss, sizeof(rnfo->srcaddr));
