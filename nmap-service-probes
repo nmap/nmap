@@ -1319,6 +1319,8 @@ match smtp-proxy m|^554 ([\d.]+) ([\w-_.]+) No mail service\r\n| p/Symantec SGS 
 match smtp-proxy m|^220 ([\w-_.]+) ESMTP Scalix SMTP Relay ([\d.]+); .*\r\n| p/Scalix smtp relay/ v/$2/ h/$1/
 match smtp-proxy m|^220 Traffic Inspector SMTP Gate \(SPAM protected\), ver\. ([\d.]+), ready at.*\r\n| p/Smart-Soft spam filtering smtp-proxy/ v/$1/ o/Windows/
 
+match fw1-topology m|^Q\0\0\0$| p/Checkpoint FW1 Topology/ d/firewall/
+
 
 softmatch smtp m|^220[\s-].*?E?SMTP[^\r]*\r\n|
 
@@ -1783,6 +1785,7 @@ match honeypot m|^Microsoft Windows XP \[Version [\d.]+\]\n\(C\) Copyright 1985-
 match tunnelvision m|^HELLO Welcome to Tunnel Vision \(([\d.]+)\)\n| p/Tunnel Vision VPN info/ v/$1/
 
 
+match domain m|^\x80\xf0\x80\x12\0\x01\0\0\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01| p/Microsoft DNS/ o/Windows/
 ##############################NEXT PROBE##############################
 Probe TCP GenericLines q|\r\n\r\n|
 rarity 1
@@ -3634,8 +3637,6 @@ match time m|^[\xc0-\xc5]...$|
 match nameserver m|^help\r\n\r\n\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01| p/Solaris Internet Name Server/ i/IEN 116/ o/Solaris/
 match nameserver m|^\x03\x03\x02$| p/Solaris Internet Name Server/ i/IEN 116/ o/Solaris/
 match nameserver m|^\0\x06\x01\0\0\x01\0\0\x03\x03\x02$| p/Solaris Internet Name Server/ i/IEN 116/ o/Solaris/
-
-match http m|^HTTP/1\.0 \d{3} .*\r\nServer: CompaqHTTPServer/([.\w\d]+)\r\n|s p/Compaq Insight Manager HTTP server/ v/$1/
 
 ##############################NEXT PROBE##############################
 Probe TCP Help q|HELP\r\n|

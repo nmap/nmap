@@ -264,6 +264,7 @@ int nmap_main(int argc, char *argv[]) {
       {"host_timeout", required_argument, 0, 0},
       {"scan_delay", required_argument, 0, 0},
       {"max_scan_delay", required_argument, 0, 0},
+      {"max_retries", required_argument, 0, 0},
       {"oA", required_argument, 0, 0},  
       {"oN", required_argument, 0, 0},
       {"oM", required_argument, 0, 0},  
@@ -418,6 +419,11 @@ int nmap_main(int argc, char *argv[]) {
 	}
 	o.setMaxTCPScanDelay(scand);
 	o.setMaxUDPScanDelay(scand);
+      } else if (strcmp(long_options[option_index].name, "max_retries") == 0) {
+        int num_retrans = atoi(optarg);
+        if (num_retrans < 0)
+          fatal("max_retransmissions must be positive");
+        o.setMaxRetransmissions(num_retrans);
       } else if (strcmp(long_options[option_index].name, "randomize_hosts") == 0
 		 || strcmp(long_options[option_index].name, "rH") == 0) {
 	o.randomize_hosts = 1;
@@ -748,6 +754,7 @@ int nmap_main(int argc, char *argv[]) {
 	o.setMaxRttTimeout(1250);
 	o.setInitialRttTimeout(500);
         o.setMaxTCPScanDelay(10);
+        o.setMaxRetransmissions(6);
       } else if (*optarg == '5' || (strcasecmp(optarg, "Insane") == 0)) {
 	o.timing_level = 5;
 	o.setMinRttTimeout(50);
@@ -755,6 +762,7 @@ int nmap_main(int argc, char *argv[]) {
 	o.setInitialRttTimeout(250);
 	o.host_timeout = 900000;
         o.setMaxTCPScanDelay(5);
+        o.setMaxRetransmissions(2);
       } else {
 	fatal("Unknown timing mode (-T argment).  Use either \"Paranoid\", \"Sneaky\", \"Polite\", \"Normal\", \"Aggressive\", \"Insane\" or a number from 0 (Paranoid) to 5 (Insane)");
       }
@@ -1611,10 +1619,11 @@ printf("%s %s ( %s )\n"
        "  --osscan_guess: Guess OS more aggressively\n"
        "TIMING AND PERFORMANCE:\n"
        "  -T[0-5]: Set timing template (higher is faster)\n"
-       "  --min_hostgroup/max_hostgroup <msec>: Parallel host scan group sizes\n"
+       "  --min_hostgroup/max_hostgroup <size>: Parallel host scan group sizes\n"
        "  --min_parallelism/max_parallelism <msec>: Probe parallelization\n"
        "  --min_rtt_timeout/max_rtt_timeout/initial_rtt_timeout <msec>: Specifies\n"
        "      probe round trip time.\n"
+       "  --max_retries <tries>: Caps number of port scan probe retransmissions.\n"
        "  --host_timeout <msec>: Give up on target after this long\n"
        "  --scan_delay/--max_scan_delay <msec>: Adjust delay between probes\n"
        "FIREWALL/IDS EVASION AND SPOOFING:\n"

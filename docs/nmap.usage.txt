@@ -1,4 +1,4 @@
-Nmap 3.95 ( http://www.insecure.org/nmap/ )
+Nmap 3.96ALPHA1 ( http://www.insecure.org/nmap/ )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -37,10 +37,11 @@ OS DETECTION:
   --osscan_guess: Guess OS more aggressively
 TIMING AND PERFORMANCE:
   -T[0-5]: Set timing template (higher is faster)
-  --min_hostgroup/max_hostgroup <msec>: Parallel host scan group sizes
+  --min_hostgroup/max_hostgroup <size>: Parallel host scan group sizes
   --min_parallelism/max_parallelism <msec>: Probe parallelization
   --min_rtt_timeout/max_rtt_timeout/initial_rtt_timeout <msec>: Specifies
       probe round trip time.
+  --max_retries <tries>: Caps number of port scan probe retransmissions.
   --host_timeout <msec>: Give up on target after this long
   --scan_delay/--max_scan_delay <msec>: Adjust delay between probes
 FIREWALL/IDS EVASION AND SPOOFING:

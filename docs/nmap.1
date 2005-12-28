@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "12/11/2005" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "12/19/2005" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -39,11 +39,11 @@ when it cannot determine which of the two states describe a port. The port table
 In addition to the interesting ports table, Nmap can provide further information on targets, including reverse DNS names, operating system guesses, device types, and MAC addresses.
 .PP
 A typical Nmap scan is shown in
-Example\ 15.1, \(lqA representative Nmap scan\(rq. The only Nmap arguments used in this example are
+Example\ 14.1, \(lqA representative Nmap scan\(rq. The only Nmap arguments used in this example are
 \fB\-A\fR, to enable OS and version detection,
 \fB\-T4\fR
 for faster execution, and then the two target hostnames.
-Example\ 15.1.\ A representative Nmap scan.sp
+Example\ 14.1.\ A representative Nmap scan.sp
 .nf
 # nmap \-A \-T4 scanme.nmap.org playground
 
@@ -735,7 +735,7 @@ One of my highest Nmap development priorities has always been performance. A def
 .PP
 Techniques for improving scan times include omitting non\-critical tests, and upgrading to the latest version of Nmap (performance enhancements are made frequently). Optimizing timing parameters can also make a substantial difference. Those options are listed below.
 .TP
-\fB\-\-min_hostgroup <milliseconds>\fR; \fB\-\-max_hostgroup <milliseconds>\fR (Adjust parallel scan group sizes)
+\fB\-\-min_hostgroup <numhosts>\fR; \fB\-\-max_hostgroup <numhosts>\fR (Adjust parallel scan group sizes)
 Nmap has the ability to port scan or version scan multiple hosts in parallel. Nmap does this by dividing the target IP space into groups and then scanning one group at a time. In general, larger groups are more efficient. The downside is that host results can't be provided until the whole group is finished. So if Nmap started out with a group size of 50, the user would not receive any reports (except for the updates offered in verbose mode) until the first 50 hosts are completed.
 .sp
 By default, Nmap takes a compromise approach to this conflict. It starts out with a group size as low as five so the first results come quickly and then increases the groupsize to as high as 1024. The exact default numbers depend on the options given. For efficiency reasons, Nmap uses larger group sizes for UDP or few\-port TCP scans.
@@ -778,6 +778,19 @@ and triple or quadruple it for the
 .sp
 \fB\-\-min_rtt_timeout\fR
 is a rarely used option that could be useful when a network is so unreliable that even Nmap's default is too aggressive. Since Nmap only reduces the timeout down to the minimum when the network seems to be reliable, this need is unusual and should be reported as a bug to the nmap\-dev mailing list.
+.TP
+\fB\-\-max_retries <numtries>\fR (Specify the maximum number of port scan probe retransmissions)
+When Nmap receives no response to a port scan probe, it could mean the port is filtered. Or maybe the probe or response was simply lost on the network. It is also possible that the target host has rate limiting enabled that temporarily blocked the response. So Nmap tries again by retransmitting the initial probe. If Nmap detects poor network reliability, it may try many more times before giving up on a port. While this benefits accuracy, it also lengthen scan times. When performance is critical, scans may be sped up by limiting the number of retransmissions allowed. You can even specify
+\fB\-\-max_retries 0\fR
+to prevent any retransmissions, though that is rarely recommended.
+.sp
+The default (with no
+\fB\-T\fR
+template) is to allow ten retransmissions. If a network seems reliable and the target hosts aren't rate limiting, Nmap usually only does one retransmission. So most target scans aren't even affected by dropping
+\fB\-\-max_retries\fR
+to a low value such as three. Such values can substantially speed scans of slow (rate limited) hosts. You usually lose some information when Nmap gives up on ports early, though that may be preferable to letting the
+\fB\-\-host_timeout\fR
+expire and losing all information about the target.
 .TP
 \fB\-\-host_timeout <milliseconds>\fR (Give up on slow target hosts)
 Some hosts simply take a
@@ -840,11 +853,11 @@ are similar but they only wait 15 seconds and 0.4 seconds, respectively, between
 is Nmap's default behavior, which includes parallelization.
 \fBT4\fR
 does the equivalent of
-\fB\-\-max_rtt_timeout 1250 \-\-initial_rtt_timeout 500\fR
+\fB\-\-max_rtt_timeout 1250 \-\-initial_rtt_timeout 500 \-\-max_retries 6\fR
 and sets the maximum TCP scan delay to 10 milliseconds.
 \fBT5\fR
 does the equivalent of
-\fB\-\-max_rtt_timeout 300 \-\-min_rtt_timeout 50 \-\-initial_rtt_timeout 250 \-\-host_timeout 900000\fR
+\fB\-\-max_rtt_timeout 300 \-\-min_rtt_timeout 50 \-\-initial_rtt_timeout 250 \-\-max_retries 2 \-\-host_timeout 900000\fR
 as well as setting the maximum TCP scan delay to 5ms.
 .SH "FIREWALL/IDS EVASION AND SPOOFING"
 .PP
@@ -1283,7 +1296,7 @@ Fyodor
 Hundreds of people have made valuable contributions to Nmap over the years. These are detailed in the
 \fICHANGELOG\fR
 file which is distributed with Nmap and also available from
-\fI\%http://www.insecure.org/nmap/nmap_changelog.html\fR.
+\fI\%http://www.insecure.org/nmap/changelog.html\fR.
 .SH "LEGAL NOTICES"
 .SS "Nmap Copyright and Licensing"
 .PP

@@ -1,5 +1,14 @@
 # Nmap Changelog ($Id$)
 
+o Added --max_retries option for capping the maximum number of
+  retransmissions the port scan engine will do. The value may be as low
+  as 0 (no retransmits).  A low value can increase spead, though at the
+  risk of losing accuracy.  The -T4 option now allows up to 6 retries,
+  and -T5 allows 2.  Thanks to Martin Macok
+  (martin.macok(a)underground.cz) for writing the initial patch, which I
+  changed quite a bit.  I also updated the docs to reflect this neat
+  new option.
+
 o Improved the NmapFE port to GTK2 so it better-conforms to the new
   API and you don't get as many annoying messages in your terminal
   window.  Thanks to Priit Laes (amd(a)store20.com) for writing these

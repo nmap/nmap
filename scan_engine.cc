@@ -1139,7 +1139,7 @@ static void init_perf_values(struct ultra_scan_performance_vars *perf) {
   perf->group_drop_cwnd_divisor = 2.0;
   perf->group_drop_ccthresh_divisor = (o.timing_level < 4)? 2.0 : 1.5;
   perf->host_drop_ccthresh_divisor = (o.timing_level < 4)? 2.0 : 1.5;
-  perf->tryno_cap = 12;
+  perf->tryno_cap = o.getMaxRetransmissions();
 }
 
 /* Order of initializations in this function CAN BE IMPORTANT, so be careful
@@ -3283,7 +3283,7 @@ void processData(UltraScanInfo *USI) {
 	  if (tryno_capped && lastRetryCappedWarning != USI) {
 	    /* Perhaps I should give this on a per-host basis.  Oh
 	       well, hopefully it is rare anyway. */
-	    printf("Warning: Giving up on some ports due to excessive retransmissions\n");
+	    printf("Warning: Finishing early because retransmission cap hit.\n");
 	    lastRetryCappedWarning = USI;
 	  }
 	  continue;
