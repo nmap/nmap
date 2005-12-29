@@ -167,3 +167,18 @@ diff -Nruw old/src/intf.c nmap-3.83.new/src/intf.c
 
 
 
+o Consider Windows interfaces to be down if they are disconnected, unreachable, or otherwise non-operational:
+
+--- intf-win32.c        (revision 2976)
++++ intf-win32.c        (working copy)
+@@ -116,7 +116,9 @@
+
+        /* Get interface flags. */
+        entry->intf_flags = 0;
+-       if (ifrow->dwAdminStatus == MIB_IF_ADMIN_STATUS_UP)
++       if (ifrow->dwAdminStatus == MIB_IF_ADMIN_STATUS_UP &&
++           (ifrow->dwOperStatus == MIB_IF_OPER_STATUS_OPERATIONAL ||
++            ifrow->dwOperStatus == MIB_IF_OPER_STATUS_CONNECTED))
+                entry->intf_flags |= INTF_FLAG_UP;
+        if (ifrow->dwType == MIB_IF_TYPE_LOOPBACK)
+                entry->intf_flags |= INTF_FLAG_LOOPBACK;

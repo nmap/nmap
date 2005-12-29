@@ -22610,7 +22610,7 @@ esac
 
 elif test "$ac_cv_header_netinet_ip_fw_h" = yes ; then
           case "$host_os" in
-     *freebsd5*)
+     *freebsd5* | *kfreebsd*)
 	case $LIBOBJS in
     "fw-none.$ac_objext"   | \
   *" fw-none.$ac_objext"   | \
@@ -22783,14 +22783,26 @@ esac
 
 elif test "$ac_cv_header_net_if_tun_h" = yes ; then
 	if test "$ac_cv_header_stropts_h" = yes ; then
-		case $LIBOBJS in
+           case "$host_os" in
+           *kfreebsd*)
+               case $LIBOBJS in
+    "tun-bsd.$ac_objext"   | \
+  *" tun-bsd.$ac_objext"   | \
+    "tun-bsd.$ac_objext "* | \
+  *" tun-bsd.$ac_objext "* ) ;;
+  *) LIBOBJS="$LIBOBJS tun-bsd.$ac_objext" ;;
+esac
+;;
+           *)
+               case $LIBOBJS in
     "tun-solaris.$ac_objext"   | \
   *" tun-solaris.$ac_objext"   | \
     "tun-solaris.$ac_objext "* | \
   *" tun-solaris.$ac_objext "* ) ;;
   *) LIBOBJS="$LIBOBJS tun-solaris.$ac_objext" ;;
 esac
-
+;;
+           esac
 	else
 		case $LIBOBJS in
     "tun-bsd.$ac_objext"   | \

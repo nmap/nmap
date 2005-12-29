@@ -127,11 +127,10 @@ distro:
             /usr/tmp/nmap-$(NMAP_VERSION)/$(LIBPCAPDIR)
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/docs
 	cd ../docs; cp -a README nmap_gpgkeys.txt \
-                    nmap-fingerprinting-article.txt \
-                    nmap.deprecated.txt nmap.usage.txt  \
+                    nmap.usage.txt  \
                     nmap.1 nmapfe.1 xnmap.1 nmap.dtd nmap.xsl \
                     leet-nmap-ascii-art.txt \
-                    $(wroot)/nmap/data/man-xlate/man-*.1 \
+                    $(wroot)/nmap/data/man-xlate/nmap-man.xml \
                     /usr/tmp/nmap-$(NMAP_VERSION)/docs
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/nmapfe
 	cd ../nmapfe; cp -a Makefile.in aclocal.m4 configure configure.ac \
@@ -209,8 +208,6 @@ distro:
 	cd /usr/tmp; tar cjf nmap-$(NMAP_VERSION).tar.bz2 nmap-$(NMAP_VERSION)
 	cd /usr/tmp; tar czf nmap-$(NMAP_VERSION).tgz nmap-$(NMAP_VERSION)
 # Make the actual RPM
-# Note -- on newer systems rpmbuild -ta is needed instead.
-#	rpm -ta /usr/tmp/nmap-$(NMAP_VERSION).tgz
 #	rpmbuild -ta --define "buildfe 0" --define "static 1" /usr/tmp/nmap-$(NMAP_VERSION).tgz
 	rpmbuild -ta --define "static 1" /usr/tmp/nmap-$(NMAP_VERSION).tgz
 	cp -f $(RPMTDIR)/RPMS/x86_64/nmap-$(NMAP_VERSION)-1.x86_64.rpm /usr/tmp

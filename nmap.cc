@@ -198,6 +198,7 @@ static int parse_bounce_argument(struct ftpinfo *ftp, char *url) {
 int nmap_main(int argc, char *argv[]) {
   char *p, *q;
   int i, arg;
+  long l;
   unsigned int targetno;
   size_t j, argvlen;
   FILE *inputfd = NULL, *excludefd = NULL;
@@ -326,23 +327,23 @@ int nmap_main(int argc, char *argv[]) {
     switch(arg) {
     case 0:
       if (strcmp(long_options[option_index].name, "max_rtt_timeout") == 0) {
-	o.setMaxRttTimeout(atoi(optarg));
-	if (o.maxRttTimeout() < 5) {
-	  fatal("max_rtt_timeout is given in milliseconds and must be at least 5");
-	}       
-        if (o.maxRttTimeout() < 20) {
-	  error("WARNING: You specified a round-trip time timeout (%d ms) that is EXTRAORDINARILY SMALL.  Accuracy may suffer.", o.maxRttTimeout());
+	l = tval2msecs(optarg);
+	if (l < 5) fatal("Bogus --max_rtt_timeout argument specified, must be at least 5");
+        if (l < 20) {
+	  error("WARNING: You specified a round-trip time timeout (%ld ms) that is EXTRAORDINARILY SMALL.  Accuracy may suffer.", l);
 	}
+	o.setMaxRttTimeout(l);
       } else if (strcmp(long_options[option_index].name, "min_rtt_timeout") == 0) {
-	o.setMinRttTimeout(atoi(optarg));
-	if (o.minRttTimeout() > 50000) {
+	l = tval2msecs(optarg);
+	if (l < 0) fatal("Bogus --min_rtt_timeout argument specified");
+	if (l > 50000) {
 	  error("Warning:  min_rtt_timeout is given in milliseconds, your value seems pretty large.");
 	}
+	o.setMinRttTimeout(l);
       } else if (strcmp(long_options[option_index].name, "initial_rtt_timeout") == 0) {
-	o.setInitialRttTimeout(atoi(optarg));
-	if (o.initialRttTimeout() <= 0) {
-	  fatal("initial_rtt_timeout must be greater than 0");
-	}
+	l = tval2msecs(optarg);
+	if (l <= 0) fatal("Bogus --initial_rtt_timeout argument specified.  Must be positive");
+	o.setInitialRttTimeout(l);
       } else if (strcmp(long_options[option_index].name, "excludefile") == 0) {
         excludefd = fopen(optarg, "r");
         if (!excludefd) {
@@ -369,14 +370,12 @@ int nmap_main(int argc, char *argv[]) {
 	o.min_parallelism = atoi(optarg); 
 	if (o.min_parallelism < 1) fatal("Argument to --min_parallelism must be at least 1!");
 	if (o.min_parallelism > 100) {
-	  error("Warning: Your --min_parallelism option is absurdly high! Don't complain to Fyodor if all hell breaks loose!");
+	  error("Warning: Your --min_parallelism option is pretty high! Don't complain to Fyodor if all hell breaks loose!");
 	}
-      } else if (strcmp(long_options[option_index].name, "host_timeout") == 0) {
-	o.host_timeout = strtoul(optarg, NULL, 10);
-	if (o.host_timeout <= 200) {
-	  fatal("host_timeout is given in milliseconds and must be greater than 200");
-	}
-	if (o.host_timeout <= 1000) {
+      } else if (strcmp(long_options[option_index].name, "host_timeout") == 0) {	l = tval2msecs(optarg);
+	if (l <= 200) fatal("--host_timeout must be at least 200 milliseconds");
+	o.host_timeout = l;
+	if (o.host_timeout < 1000) {
 	  error("host_timeout is given in milliseconds, so you specified less than a second (%lims). This is allowed but not recommended.", o.host_timeout);
 	}
       } else if (strcmp(long_options[option_index].name, "ttl") == 0) {
@@ -405,20 +404,17 @@ int nmap_main(int argc, char *argv[]) {
       } else if (strcmp(long_options[option_index].name, "version_all") == 0) {
         o.version_intensity = 9;
       } else if (strcmp(long_options[option_index].name, "scan_delay") == 0) {
-	o.scan_delay = atoi(optarg);
-	if (o.scan_delay <= 0) {
-	  fatal("scan_delay must be greater than 0");
-	}
+	l = tval2msecs(optarg);
+	if (l < 0) fatal("Bogus --scan_delay argument specified.");
+	o.scan_delay = l;
 	if (o.scan_delay > o.maxTCPScanDelay()) o.setMaxTCPScanDelay(o.scan_delay);
 	if (o.scan_delay > o.maxUDPScanDelay()) o.setMaxUDPScanDelay(o.scan_delay);
 	o.max_parallelism = 1;
       } else if (strcmp(long_options[option_index].name, "max_scan_delay") == 0) {
-	unsigned int scand = atoi(optarg);
-	if (scand < 0) {
-	  fatal("max_scan_delay must be greater than 0");
-	}
-	o.setMaxTCPScanDelay(scand);
-	o.setMaxUDPScanDelay(scand);
+	l = tval2msecs(optarg);
+	if (l < 0) fatal("--max_scan_delay cannot be negative.");
+	o.setMaxTCPScanDelay(l);
+	o.setMaxUDPScanDelay(l);
       } else if (strcmp(long_options[option_index].name, "max_retries") == 0) {
         int num_retrans = atoi(optarg);
         if (num_retrans < 0)

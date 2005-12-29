@@ -2134,14 +2134,14 @@ int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
    Strncpy(dcrn->ifaces[numifaces].devfullname, entry->intf_name, sizeof(dcrn->ifaces[numifaces].devfullname));
 
    /* Interface type */
-   if (entry->intf_type & INTF_TYPE_ETH) {
+   if (entry->intf_type == INTF_TYPE_ETH) {
 	   dcrn->ifaces[numifaces].device_type = devt_ethernet;
 	   /* Collect the MAC address since this is ethernet */
 	   memcpy(dcrn->ifaces[numifaces].mac, &entry->intf_link_addr.addr_eth.data, 6);
    }
-   else if (entry->intf_type & INTF_TYPE_LOOPBACK)
+   else if (entry->intf_type == INTF_TYPE_LOOPBACK)
 	   dcrn->ifaces[numifaces].device_type = devt_loopback;
-   else if (entry->intf_type & INTF_TYPE_TUN)
+   else if (entry->intf_type == INTF_TYPE_TUN)
 	   dcrn->ifaces[numifaces].device_type = devt_p2p;
    else dcrn->ifaces[numifaces].device_type = devt_other;
    

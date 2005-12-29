@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$)
 
+UNRELEASED
+
 o Added --max_retries option for capping the maximum number of
   retransmissions the port scan engine will do. The value may be as low
   as 0 (no retransmits).  A low value can increase spead, though at the
@@ -9,15 +11,62 @@ o Added --max_retries option for capping the maximum number of
   changed quite a bit.  I also updated the docs to reflect this neat
   new option.
 
+o Many of the Nmap low-level timing options take a value in
+  milliseconds.  You can now append an 's', 'm', or 'h' to the value
+  to give it in seconds, minutes, or hours instead.  So you can specify a
+  45 minute host timeout with --host_timeout 45m rather than specifying
+  --host_timeout 2700000 and hoping you did the math right and have the 
+  correct number of zeros.  This also now works for the
+  --min_rtt_timeout, --max_rtt_timeout, --initial_rtt_timeout,
+  --scan_delay, and --max_scan_delay options.
+
+o Debian GNU/kFreeBSD is now supported thanks to a patch to libdnet's
+  configure.in by Petr Salinger (Petr.Salinger(a)t-systems.cz).
+
+o Tried to update to the latest autoconf only to find that there
+  hasn't been a new version in more than two years :(.  I was able to
+  find new config.sub and config.guess files at
+  http://cvs.savannah.gnu.org/viewcvs/config/config/ , so I updated to
+  those.
+
 o Improved the NmapFE port to GTK2 so it better-conforms to the new
   API and you don't get as many annoying messages in your terminal
   window.  Thanks to Priit Laes (amd(a)store20.com) for writing these
   excellent patches.
 
+o Fixed a problem which led to the error message "Failed to determine
+  dst MAC address for target" when you try to run Nmap using a
+  dialup/PPP adapter on Windows rather than a real ethernet card.  Due
+  to Microsoft breaking raw sockets, No longer supports dialup adapters, but
+  it should now give you a clearer error message than the "dst MAC
+  address" nonsense.
+
+o Fixed a problem with the -e option when run on Windows (or UNIX with
+  --send_eth) when run on an ethernet network against an external
+  (routed) host.  You would get the message "NmapArpCache() can only
+  take IPv4 addresses.  Sorry".  Thanks to KX (kxmail(a)gmail.com) for
+  helping to track down the problem.
+
 o Made some changes to allow source port zero scans (-g0).  Nmap used
   to refused to do this, but now it just gives a warning that it may not
   work on all systems.  It seems to work fine on my Linux box.  Thanks
   to Bill Dale (bill_dale(a)bellsouth.net) for suggesting this feature.
+
+o Made a change to libdnet so that Windows interfaces are listed as
+  down if they are disconnected, unplugged, or otherwise unavailable.
+
+o Ceased including foreign translations in the Nmap tarball as they
+  take up too much space.  HTML versions can be found at
+  http://www.insecure.org/nmap/docs.html , while XML and NROFF versions
+  are available from http://www.insecure.org/nmap/data/man-xlate/ .
+
+o Changed INSTALL and README-WIN32 files to mostly just reference the
+  new Nmap Install Guide at http://www.insecure.org/nmap/install/ .
+
+o Included docs/nmap-man.xml in the tarball distribution, which is the
+  DocBook XML source for the Nmap man page.  Patches to Nmap that are
+  user-visible should include patches to the man page XML source rather
+  than the Nroff source.
 
 o Fixed Nmap so it doesn't crash when you ask it to resume a previous
   scan, but pass in a bogus file rather than actual Nmap output.  Thanks

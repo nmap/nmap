@@ -4,9 +4,7 @@ Ideally, you should be able to just type:
 make
 make install
 
-If you have questions, comments or problems feel free to email
-me (with detailed information on the platform you are running on
-and all the output from ./configure and make as well as config.log if 
-one was generated) --fyodor@insecure.org
+For far more in-depth compilation, installation, and removal notes,
+read the Nmap Install Guide at http://www.insecure.org/nmap/install/ .
 
 
