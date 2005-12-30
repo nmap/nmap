@@ -2190,9 +2190,6 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-#AM_PATH_GTK(1.0.0,
-#            [LIBS="$LIBS $GTK_LIBS" CFLAGS="$CFLAGS $GTK_CFLAGS"],
-#            AC_MSG_ERROR(Cannot find GTK: Is gtk-config in path?))
 
 # Check whether --enable-gtktest or --disable-gtktest was given.
 if test "${enable_gtktest+set}" = set; then
@@ -2411,7 +2408,7 @@ fi
   if test "x$no_gtk" = x ; then
      echo "$as_me:$LINENO: result: yes (version $gtk_config_major_version.$gtk_config_minor_version.$gtk_config_micro_version)" >&5
 echo "${ECHO_T}yes (version $gtk_config_major_version.$gtk_config_minor_version.$gtk_config_micro_version)" >&6
-     LIBS="$LIBS $GTK_LIBS" CFLAGS="$CFLAGS $GTK_CFLAGS -DGTK_ENABLE_BROKEN"
+     LIBS="$LIBS $GTK_LIBS" CFLAGS="$CFLAGS $GTK_CFLAGS"
   else
      echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6

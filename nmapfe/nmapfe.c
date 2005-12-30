@@ -133,6 +133,7 @@
 struct NmapFEoptions opt;
 
 void openLog(char *);
+void saveLog(char *);
 static void LogOpen_callback    (void);
 static void LogSave_callback    (void);
 static void LogAppend_callback  (void);
@@ -270,7 +271,7 @@ LogOpen_callback (void) {
 static void
 LogSave_callback (void) {
     static char filename[FILENAME_MAX+1] = "";
-    gtk_widget_show(create_fileSelection("Save Log", filename, openLog, NULL));
+    gtk_widget_show(create_fileSelection("Save Log", filename, saveLog, NULL));
 }
 static void
 Quit_callback (void) {
@@ -1323,19 +1324,42 @@ GtkAdjustment *adjust;
 
  /* text widget with scroll bar */
    {
-     GtkWidget *sw;
-     sw = gtk_scrolled_window_new(NULL, NULL);
-     gtk_box_pack_start(GTK_BOX(main_vbox), sw, TRUE, TRUE, 5);
+       GtkWidget *sw;
+       GtkWidget *view;
 
-     opt.output = gtk_text_new(NULL, NULL);
-    gtk_container_add(GTK_CONTAINER(sw),opt.output);
-    gtk_text_set_word_wrap(GTK_TEXT(opt.output), 1);
-    gtk_widget_set_usize(opt.output, 500, 248);
-    gtk_widget_show(opt.output);
-    gtk_widget_realize(opt.output);
+       sw = gtk_scrolled_window_new(NULL, NULL);
+       gtk_box_pack_start(GTK_BOX(main_vbox), sw, TRUE, TRUE, 5);
+
+       view = gtk_text_view_new();
+       opt.buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view));
+
+       /* Create tag definitions for text coloring */
+       gtk_text_buffer_create_tag(opt.buffer, "normal",
+               "family", "monospace", NULL);
+       gtk_text_buffer_create_tag(opt.buffer, "bold",
+               "family", "monospace", 
+               "weight", PANGO_WEIGHT_BOLD, NULL);
+       gtk_text_buffer_create_tag(opt.buffer, "red",
+               "family", "monospace", 
+               "weight", PANGO_WEIGHT_BOLD,
+               "foreground", "red", NULL);
+       gtk_text_buffer_create_tag(opt.buffer, "blue",
+               "family", "monospace", 
+               "weight", PANGO_WEIGHT_BOLD,
+               "foreground", "blue", NULL);
+       gtk_text_buffer_create_tag(opt.buffer, "green",
+               "family", "monospace", 
+               "weight", PANGO_WEIGHT_BOLD,
+               "foreground", "green", NULL);
+
+       gtk_container_add(GTK_CONTAINER(sw), view);
+       gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view), GTK_WRAP_WORD);
+       gtk_widget_set_usize(view, 500, 248);
+       gtk_widget_show(view);
+       gtk_widget_realize(view);
         
-    gtk_widget_show(sw);
-  }
+       gtk_widget_show(sw);
+   }
 
 
 /* status hbox at bottom */

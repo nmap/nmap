@@ -173,30 +173,35 @@ extern char **environ;
 
 
 
-int main (int argc, char *argv[])
+int 
+main (int   argc, 
+      char *argv[])
 {
-GtkWidget *main_win;
+    GtkWidget *main_win;
+    GtkTextIter iter;
 
-  gtk_set_locale();
-  gtk_init(&argc, &argv);
+    gtk_set_locale();
+    gtk_init(&argc, &argv);
 
 #ifndef WIN32
-  signal(SIGPIPE, SIG_IGN);
-  opt.uid = getuid();
+    signal(SIGPIPE, SIG_IGN);
+    opt.uid = getuid();
 #else
-  opt.uid = 0; /* With Windows (in general), every user is a Super User! */
+    opt.uid = 0; /* With Windows (in general), every user is a Super User! */
 #endif
 
-  main_win = create_main_win();
-  gtk_widget_show(main_win);
+    main_win = create_main_win();
+    gtk_widget_show(main_win);
 
-  gtk_text_insert(GTK_TEXT(opt.output), NULL, NULL, NULL,
-		  (opt.uid == 0)
-		   ? "You are root - All options granted."
-		   : "You are *NOT* root - Some options aren't available.", -1);
+    gtk_text_buffer_get_end_iter (opt.buffer, &iter);
+    gtk_text_buffer_insert_with_tags_by_name (opt.buffer, &iter, 
+            (opt.uid == 0)
+            ? "You are root - All options granted."
+            : "You are *NOT* root - Some options aren't available.", -1, 
+            "normal", NULL);
 
-  gtk_main();
-  return 0;
+    gtk_main();
+    return 0;
 }
 
 void scanButton_toggled_cb(GtkButton *button, void *ignored)
@@ -204,8 +209,8 @@ void scanButton_toggled_cb(GtkButton *button, void *ignored)
   if(GTK_TOGGLE_BUTTON(button)->active) {
   char *command = build_command();
 
-    if(!(opt.appendLog))
-      kill_output(NULL);
+  if(!(opt.appendLog))
+          gtk_text_buffer_set_text (GTK_TEXT_BUFFER(opt.buffer), "\0", -1);
 
     nmap_pid = execute(command);
 }
@@ -214,26 +219,29 @@ void scanButton_toggled_cb(GtkButton *button, void *ignored)
     static char string[256];
 
       strcpy(string, "CANCELLED!\n\n");
-      print_line(GTK_TEXT(opt.output), string);
+      print_line(GTK_TEXT_BUFFER(opt.buffer), string);
 }
 }
 }
 
 
-void saveLog(char *filename)
+void 
+saveLog (char *filename)
 {
-  if (filename && *filename) {
-  FILE *file;
+    GtkTextIter start, end;
+    if (filename && *filename) {
+        FILE *file;
+        if ((file = fopen(filename, "w"))) {
+            gtk_text_buffer_get_start_iter(opt.buffer, &start);
+            gtk_text_buffer_get_end_iter(opt.buffer, &end);
+            gchar *text = gtk_text_buffer_get_text(opt.buffer,
+                    &start, &end, FALSE);
 
-    if ((file = fopen(filename, "w"))) {
-    char *text = gtk_editable_get_chars(GTK_EDITABLE(opt.output), 0, -1);
-
-      fputs(text, file);
-      fclose(file);
-
-      free(text);
-}
-}
+            fputs(text, file);
+            fclose(file);
+            free(text);
+        }
+    }
 }
 
 
@@ -242,18 +250,15 @@ void openLog(char *filename)
   if (filename && *filename) {
   FILE *file;
      
-    if (!opt.appendLog)
-      kill_output(NULL);
+  if (!opt.appendLog) 
+          gtk_text_buffer_set_text (GTK_TEXT_BUFFER(opt.buffer), "\0", -1);
 	
     if((file = fopen(filename, "r"))) {
     char buf[BUFSIZ+1];
 
-      gtk_text_freeze(GTK_TEXT(opt.output));
-
-      while(fgets(buf, BUFSIZ, file) != NULL)
-        print_line(GTK_TEXT(opt.output), buf);
-
-      gtk_text_thaw(GTK_TEXT(opt.output));
+      while(fgets(buf, BUFSIZ, file) != NULL) {
+        print_line(GTK_TEXT_BUFFER(opt.buffer), buf);
+      }
 
       fclose(file);
     }
@@ -276,13 +281,6 @@ char *filename = gtk_object_get_data(GTK_OBJECT(window), "NmapFE_filename");
     if (entry)
       gtk_entry_set_text(GTK_ENTRY(entry), filename);
   }
-}
-
-
-void kill_output()
-{
-  gtk_text_backward_delete(GTK_TEXT(opt.output),
-                           gtk_text_get_length(GTK_TEXT(opt.output)));
 }
 
 
@@ -1026,102 +1024,89 @@ char *next_token(char *buf, char *token, int tokensz)
 }
 
 
-void print_line(GtkText *gtktext, char *line)
+void 
+print_line (GtkTextBuffer *buffer, 
+            char          *line)
 {
-/* Get fonts ready */
-GdkFont *fixed = gdk_fontset_load ("-misc-fixed-medium-r-*-*-*-120-*-*-*-*-*-*");
-GdkFont *bold = gdk_fontset_load("-misc-fixed-bold-r-normal-*-*-120-*-*-*-*-*-*");
-
-GdkColormap *cmap = gdk_colormap_get_system();
-GdkColor red, blue, green;
-
-  red.red = 0xffff;
-  red.green = 0;
-  red.blue = 0;	
-  if (!gdk_color_alloc(cmap, &red))
-    g_error("couldn't allocate red");
-  
-  blue.red = 0;
-  blue.green = 0;
-  blue.blue = 0xffff;	
-  if (!gdk_color_alloc(cmap, &blue))
-    g_error("couldn't allocate blue");
-  
-  green.red = 0x0000;
-  green.green = 0xffff;
-  green.blue = 0x0000;	
-  if (!gdk_color_alloc(cmap, &green))
-    g_error("couldn't allocate green");
+  GtkTextIter iter;
+  gtk_text_buffer_get_end_iter (buffer, &iter);
   
   if (opt.viewValue == 1) {
-  char token[BUFSIZ+1];
-  char *str;
+      char token[BUFSIZ+1];
+      char *str;
 
-    while (((str = next_token(line, token, sizeof(token) / sizeof(*token))) != NULL) && (*str != '\0')) {
-      /********* CATCH STUFF ****************************/
-      if (strstr(str, "http://") ||
-          strstr(str, "PORT") ||
-          strstr(str, "PROTOCOL") ||
-          strstr(str, "STATE") ||
-          strstr(str, "SERVICE") ||
-          strstr(str, "VERSION") ||
-          strstr(str, "(RPC)") ||
-          strstr(str, "OWNER") ||
-	  strstr(str, "fingerprint")) {
-	gtk_text_insert(gtktext, bold, NULL, NULL, str, -1);
-      /********* BEGIN PORT COLOR CODING ****************/
-      }else if (strstr(str, "sftp") ||
-		strstr(str, "mftp") ||
-	  	strstr(str, "bftp") ||
-	  	strstr(str, "tftp") ||
-	  	strstr(str, "ftp") ||
-	  	strstr(str, "NetBus") ||
-	  	strstr(str, "kshell") ||
-	  	strstr(str, "shell") ||
-	  	strstr(str, "klogin") ||
-	  	strstr(str, "login") ||
-	  	strstr(str, "rtelnet") ||
-	  	strstr(str, "telnet") ||
-	  	strstr(str, "exec") ||
-	  	strstr(str, "ssh") ||
-	  	strstr(str, "linuxconf")) {
-	gtk_text_insert(gtktext, bold, &red, NULL, str, -1);
-      }else if (strstr(str, "imap2") ||
-	  	strstr(str, "pop-3") ||
-	  	strstr(str, "imap3") ||
-	  	strstr(str, "smtps") ||
-	  	strstr(str, "smtp") ||
-	  	strstr(str, "pop-2")) {
-	gtk_text_insert(GTK_TEXT(opt.output), bold, &blue, NULL, str, -1);
-      }else if (strstr(str, "systat") ||
-	  	strstr(str, "netstat") ||
-	  	strstr(str, "cfingerd") ||
-	  	strstr(str, "finger") ||
-	  	strstr(str, "netbios") ||
-	  	strstr(str, "X11") ||
-	  	strstr(str, "nfs") ||
-	  	strstr(str, "sunrpc") ||
-	  	strstr(str, "kpasswds") ||
-	  	strstr(str, "https") ||
-	  	strstr(str, "http")) {
-	gtk_text_insert(gtktext, bold, NULL, NULL, str, -1);
+      while (((str = next_token(line, token, sizeof(token) / sizeof(*token))) != NULL) && (*str != '\0')) {
+          /* Catch stuff */
+          if (strstr(str, "http://") ||
+                  strstr(str, "PORT") ||
+                  strstr(str, "PROTOCOL") ||
+                  strstr(str, "STATE") ||
+                  strstr(str, "SERVICE") ||
+                  strstr(str, "VERSION") ||
+                  strstr(str, "(RPC)") ||
+                  strstr(str, "OWNER") ||
+                  strstr(str, "fingerprint")) {
+              gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, str, -1,
+                      "bold", NULL);
+              /* Color the ports... */
+          } else if (strstr(str, "sftp") ||
+                  strstr(str, "mftp") ||
+                  strstr(str, "bftp") ||
+                  strstr(str, "tftp") ||
+                  strstr(str, "ftp") ||
+                  strstr(str, "NetBus") ||
+                  strstr(str, "kshell") ||
+                  strstr(str, "shell") ||
+                  strstr(str, "klogin") ||
+                  strstr(str, "login") ||
+                  strstr(str, "rtelnet") ||
+                  strstr(str, "telnet") ||
+                  strstr(str, "exec") ||
+                  strstr(str, "ssh") ||
+                  strstr(str, "linuxconf")) {
+              gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, str, -1,
+                      "red", NULL);
+          } else if (strstr(str, "imap2") ||
+                  strstr(str, "pop-3") ||
+                  strstr(str, "imap3") ||
+                  strstr(str, "smtps") ||
+                  strstr(str, "smtp") ||
+                  strstr(str, "pop-2")) {
+              gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, str, -1,
+                      "blue", NULL);
+          } else if (strstr(str, "systat") ||
+                  strstr(str, "netstat") ||
+                  strstr(str, "cfingerd") ||
+                  strstr(str, "finger") ||
+                  strstr(str, "netbios") ||
+                  strstr(str, "X11") ||
+                  strstr(str, "nfs") ||
+                  strstr(str, "sunrpc") ||
+                  strstr(str, "kpasswds") ||
+                  strstr(str, "https") ||
+                  strstr(str, "http")) {
+              gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, str, -1,
+                      "bold", NULL);
       /******* BEGIN OS COLOR CODING *****************/		
-      }else if (strstr(str, "Linux") ||
-	  	strstr(str, "FreeBSD") ||
-	  	strstr(str, "Win") ||
-	  	strstr(str, "MacOS") ||
-	  	strstr(str, "OpenBSD") ||
-	  	strstr(str, "IRIX") ||
-	        strstr(str, "Windows")) {
-	gtk_text_insert(gtktext, bold, &green, NULL, str, -1);
-      }else{ 
-	gtk_text_insert(gtktext, fixed, NULL, NULL, str, -1); 
+              /* Color the Operating systems */
+          } else if (strstr(str, "Linux") ||
+                  strstr(str, "FreeBSD") ||
+                  strstr(str, "Win") ||
+                  strstr(str, "MacOS") ||
+                  strstr(str, "OpenBSD") ||
+                  strstr(str, "IRIX") ||
+                  strstr(str, "Windows")) {
+              gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, str, -1,
+                      "green", NULL);
+          } else { 
+              gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, str, -1,
+                      "normal", NULL);
+          }
       }
-    }
-  } /* END VIEW_TYPE == 1 IF */
-		
-  else
-    gtk_text_insert(gtktext, fixed, NULL, NULL, line, -1);
+  } else {
+      gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, line, -1,
+            "normal", NULL);
+  }
 }
 
 
@@ -1155,7 +1140,7 @@ int count;
          (str != buf) && (str != NULL);
          str = next_line(buf, sizeof(buf) / sizeof(*buf), line)) {
       buflen = strlen(buf);
-      print_line(GTK_TEXT(opt.output), str);
+      print_line(opt.buffer, str);
     }  
   } 
 
@@ -1166,7 +1151,7 @@ int count;
 
     while ((str = next_line(buf, sizeof(buf) / sizeof(*buf), line)) != NULL) {
       buflen = strlen(buf);
-      print_line(GTK_TEXT(opt.output), str);
+      print_line(opt.buffer, str);
         if (str == buf)
           break;
     }

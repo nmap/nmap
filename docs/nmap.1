@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "12/19/2005" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "12/29/2005" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -129,10 +129,11 @@ OS DETECTION:
   \-\-osscan_guess: Guess OS more aggressively
 TIMING AND PERFORMANCE:
   \-T[0\-5]: Set timing template (higher is faster)
-  \-\-min_hostgroup/max_hostgroup <msec>: Parallel host scan group sizes
+  \-\-min_hostgroup/max_hostgroup <size>: Parallel host scan group sizes
   \-\-min_parallelism/max_parallelism <msec>: Probe parallelization
   \-\-min_rtt_timeout/max_rtt_timeout/initial_rtt_timeout <msec>: Specifies
       probe round trip time.
+  \-\-max_retries <tries>: Caps number of port scan probe retransmissions.
   \-\-host_timeout <msec>: Give up on target after this long
   \-\-scan_delay/\-\-max_scan_delay <msec>: Adjust delay between probes
 FIREWALL/IDS EVASION AND SPOOFING:
@@ -747,7 +748,7 @@ and Nmap will try to keep group sizes above that level. Nmap may have to use sma
 .sp
 The primary use of these options is to specify a large minimum group size so that the full scan runs more quickly. A common choice is 256 to scan a network in Class C sized chunks. For a scan with many ports, exceeding that number is unlikely to help much. For scans of just a few port numbers, host group sizes of 2048 or more may be helpful.
 .TP
-\fB\-\-min_parallelism <milliseconds>\fR; \fB\-\-max_parallelism <milliseconds>\fR (Adjust probe parallelization)
+\fB\-\-min_parallelism <numprobes>\fR; \fB\-\-max_parallelism <numprobes>\fR (Adjust probe parallelization)
 These options control the total number of probes that may be outstanding for a host group. They are used for port scanning and host discovery. By default, Nmap calculates an ever\-changing ideal parallelism based on network performance. If packets are being dropped, Nmap slows down and allows fewer outstanding probes. The ideal probe number slowly rises as the network proves itself worthy. These options place minimum or maximum bounds on that variable. By default, the ideal parallelism can drop to 1 if the network proves unreliable and rise to several hundred in perfect conditions.
 .sp
 The most common usage is to set
@@ -760,10 +761,14 @@ option is sometimes set to one to prevent Nmap from sending more than one probe 
 \fB\-\-scan_delay\fR
 (discussed later), although the latter usually serves the purpose well enough by itself.
 .TP
-\fB\-\-min_rtt_timeout <milliseconds>\fR, \fB\-\-max_rtt_timeout <milliseconds>\fR, \fB\-\-initial_rtt_timeout <milliseconds>\fR (Adjust probe timeouts)
+\fB\-\-min_rtt_timeout <time>\fR, \fB\-\-max_rtt_timeout <time>\fR, \fB\-\-initial_rtt_timeout <time>\fR (Adjust probe timeouts)
 Nmap maintains a running timeout value for determining how long it will wait for a probe response before giving up or retransmitting the probe. This is calculated based on the response times of previous probes. If the network latency shows itself to be significant and variable, this timeout can grow to several seconds. It also starts at a conservative (high) level and may stay that way for a while when Nmap scans unresponsive hosts.
 .sp
-These options take a value in milliseconds. Specifying a lower
+These options take a value in milliseconds, or you can append
+s,
+m, or
+h
+to the argument to specify a time in seconds, minutes, or hours. Specifying a lower
 \fB\-\-max_rtt_timeout\fR
 and
 \fB\-\-initial_rtt_timeout\fR
@@ -792,17 +797,33 @@ to a low value such as three. Such values can substantially speed scans of slow 
 \fB\-\-host_timeout\fR
 expire and losing all information about the target.
 .TP
-\fB\-\-host_timeout <milliseconds>\fR (Give up on slow target hosts)
+\fB\-\-host_timeout <time>\fR (Give up on slow target hosts)
 Some hosts simply take a
 \fIlong\fR
 time to scan. This may be due to poorly performing or unreliable networking hardware or software, packet rate limiting, or a restrictive firewall. The slowest few percent of the scanned hosts can eat up a majority of the scan time. Sometimes it is best to cut your losses and skip those hosts initially. This can be done by specifying
 \fB\-\-host_timeout\fR
-with the number of milliseconds you are willing to wait. I often specify 1800000 to ensure that Nmap doesn't waste more than half an hour on a single host. Note that Nmap may be scanning other hosts at the same time during that half an hour as well, so it isn't a complete loss. A host that times out is skipped. No port table, OS detection, or version detection results are printed for that host.
+with the number of milliseconds you are willing to wait. Alternatively, you can append
+s,
+m, or
+h
+to the argument to specify a timeout in seconds, minutes, or hours. I often specify
+30m
+to ensure that Nmap doesn't waste more than half an hour on a single host. Note that Nmap may be scanning other hosts at the same time during that half an hour as well, so it isn't a complete loss. A host that times out is skipped. No port table, OS detection, or version detection results are printed for that host.
 .TP
-\fB\-\-scan_delay <milliseconds>\fR; \fB\-\-max_scan_delay <milliseconds>\fR (Adjust delay between probes)
-This option causes Nmap to wait at least the given number of milliseconds between each probe it sends to a given host. This is particularly useful in the case of rate limiting. Solaris machines (among many others) will usually respond to UDP scan probe packets with only one ICMP message per second. Any more than that sent by Nmap will be wasteful. A
+\fB\-\-scan_delay <time>\fR; \fB\-\-max_scan_delay <time>\fR (Adjust delay between probes)
+This option causes Nmap to wait at least the given number of milliseconds between each probe it sends to a given host. As with many other timing options, you can append
+s,
+m, or
+h
+to the argument to specify a delay in seconds, minutes, or hours instead. This is particularly useful in the case of rate limiting. Solaris machines (among many others) will usually respond to UDP scan probe packets with only one ICMP message per second. Any more than that sent by Nmap will be wasteful. A
 \fB\-\-scan_delay\fR
-of 1000 will keep Nmap at that slow rate. Nmap tries to detect rate limiting and adjust the scan delay accordingly, but it doesn't hurt to specify it explicitly if you already know what rate works best.
+of
+1s
+will keep Nmap at that slow rate. Nmap tries to detect rate limiting and adjust the scan delay accordingly, but it doesn't hurt to specify it explicitly if you already know what rate works best.
+.sp
+When Nmap adjusts the scan delay upward to cope with rate limiting, the scan slows down dramatically. The
+\fB\-\-max_scan_delay\fR
+option specifies the largest delay that Nmap will allow. Setting this value too low can lead to wasteful packet retransmissions and possible missed ports when the target implements strict rate limiting.
 .sp
 Another use of
 \fB\-\-scan_delay\fR

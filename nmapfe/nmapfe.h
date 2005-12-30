@@ -234,7 +234,7 @@ enum {
 
 struct NmapFEoptions {
   GtkWidget *scanButton;
-  GtkWidget *output;
+  GtkTextBuffer *buffer;
   GtkWidget *targetHost;
   GtkWidget *commandEntry;
   gboolean appendLog;

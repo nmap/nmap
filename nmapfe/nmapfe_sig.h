@@ -122,8 +122,7 @@
 #include "nmapfe_error.h"
 
 gboolean stop_scan();
-void print_line(GtkText *gtktext, char *line);
-void kill_output();
+void print_line(GtkTextBuffer *gtktext, char *line);
 gint read_data(gpointer data);
 
 void entry_toggle_checkbox (GtkWidget *entry, GtkWidget *checkbox);
