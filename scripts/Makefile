@@ -130,7 +130,7 @@ distro:
                     nmap.usage.txt  \
                     nmap.1 nmapfe.1 xnmap.1 nmap.dtd nmap.xsl \
                     leet-nmap-ascii-art.txt \
-                    $(wroot)/nmap/data/man-xlate/nmap-man.xml \
+                    $(wroot)/nmap/data/nmap-man.xml \
                     /usr/tmp/nmap-$(NMAP_VERSION)/docs
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/nmapfe
 	cd ../nmapfe; cp -a Makefile.in aclocal.m4 configure configure.ac \
