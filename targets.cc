@@ -108,6 +108,7 @@
 #include "TargetGroup.h"
 #include "Target.h"
 #include "scan_engine.h"
+#include "tty.h"
 
 using namespace std;
 extern NmapOps o;
@@ -1203,6 +1204,8 @@ int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[], int pingtype,
   newportstate = PORT_UNKNOWN;
 
   while(pt->block_unaccounted > 0 && !timeout) {
+    keyWasPressed(); // Check for status message printing
+
     tmpto = myto;
 
     if (pd) {

@@ -151,12 +151,15 @@ class ScanProgressMeter {
    or not a line was printed.*/
   bool printStatsIfNeccessary(double perc_done, const struct timeval *now);
 
+  /* Prints an estimate of when this scan will complete. */
+  bool printStats(double perc_done, const struct timeval *now);
+
   struct timeval begin; /* When this ScanProgressMeter was instantiated */
  private:
   struct timeval last_print_test; /* Last time printStatsIfNeccessary was called */
   struct timeval last_print; /* The most recent time the ETC was printed */
-  struct timeval last_est; /* The latest PRINTED estimate */
   char *scantypestr;
+  struct timeval last_est; /* The latest PRINTED estimate */
 };
 
 #endif /* NMAP_TIMING_H */

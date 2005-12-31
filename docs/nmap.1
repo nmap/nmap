@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "12/29/2005" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "12/30/2005" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -1233,9 +1233,14 @@ Prints the Nmap version number and exits.
 \fB\-h\fR; \fB\-\-help\fR (Print help summary page)
 Prints a short help screen with the most common command flags. Running Nmap without any arguments does the same thing.
 .SH "RUNTIME INTERACTION"
-.PP
-This feature does not yet exist in Nmap. I need to either add it or remove this section
-.PP
+.sp
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+\fBNote\fR
+The runtime interaction feature is not yet
+    supported on Windows..PP
 During the execution of nmap, all key presses are captured. This allows you to interact with the program without aborting and restarting it. Certain special keys will change options, while any other keys will print out a status message telling you about the scan. The convention is that
 \fIlowercase letters increase\fR
 the amount of printing, and

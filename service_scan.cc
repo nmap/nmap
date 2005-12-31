@@ -105,6 +105,9 @@
 #include "timing.h"
 #include "NmapOps.h"
 #include "nsock.h"
+
+#include "tty.h"
+
 #if HAVE_OPENSSL
 #include <openssl/ssl.h>
 #endif
@@ -1809,6 +1812,14 @@ static int scanThroughTunnel(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
 
 /* Prints completion estimates and the like when appropriate */
 static void considerPrintingStats(ServiceGroup *SG) {
+   /* Check for status requests */
+   if (keyWasPressed()) {
+      SG->SPM->printStats(SG->services_finished.size() /
+                          ((double)SG->services_remaining.size() + SG->services_in_progress.size() + 
+                           SG->services_finished.size()), nsock_gettimeofday());
+   }
+
+
   /* Perhaps this should be made more complex, but I suppose it should be
      good enough for now. */
   if (SG->SPM->mayBePrinted(nsock_gettimeofday())) {
@@ -1950,6 +1961,14 @@ void servicescan_write_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
 
   SG = (ServiceGroup *) nsp_getud(nsp);
   nsi = nse_iod(nse);
+
+  // Check if a status message was requsted
+  if (keyWasPressed()) {
+     SG->SPM->printStats(SG->services_finished.size() /
+                         ((double)SG->services_remaining.size() + SG->services_in_progress.size() + 
+                          SG->services_finished.size()), nsock_gettimeofday());
+  }
+  
 
   if (svc->target->timedOut(nsock_gettimeofday())) {
     end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, nsi);

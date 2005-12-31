@@ -1,4 +1,16 @@
-# Nmap Changelog ($Id$)
+# Nmap Changelog ($Id$); -*-text-*-
+UNRELEASED
+
+o Added real time status reporting, as documented at
+  http://www.insecure.org/nmap/man/man-runtime-interaction.html .
+  While Nmap is running, you can now press 'v' to increase verbosity,
+  'd' to increase the debugging level, 'p' to enable packet tracing,
+  or the capital versions (V,D,P) to do the opposite.  Any other key
+  (such as enter) will print out a status message giving the estimated
+  time until scan completion.  This only works on UNIX for now.  Do we
+  have any volunteers to add Windows support?  This feature was
+  created by Paul Tarjan (ptarjan(a)stanford.edu) as part of the
+  Google Summer of Code.
 
 3.96BETA1
 

@@ -1376,27 +1376,38 @@ void printserviceinfooutput(Target *currenths) {
   log_flush_all();
 }
 
+/* Prints a status message while the program is running */
+void printStatusMessage() {
+  // Pre-computations
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  int time = (int) (o.TimeSinceStartMS(&tv) / 1000.0);
+  
+  log_write(LOG_STDOUT, 
+	    "Stats: %d:%02d:%02d elapsed; %d hosts completed (%d up), %d undergoing %s\n", 
+	    time/60/24, time/60 % 24, time % 60, o.numhosts_scanned, 
+	    o.numhosts_up, o.numhosts_scanning, scantype2str(o.scantype));
+}
+
 
 /* Prints the statistics and other information that goes at the very end
    of an Nmap run */
-void printfinaloutput(int numhosts_scanned, int numhosts_up, 
-		      time_t starttime) {
+void printfinaloutput() {
   time_t timep;
-  int i;
   char mytime[128];
   struct timeval tv;
   char statbuf[128];
+
   gettimeofday(&tv, NULL);
   timep = time(NULL);
-  i = timep - starttime;
   
-  if (numhosts_scanned == 0)
+  if (o.numhosts_scanned == 0)
     fprintf(stderr, "WARNING: No targets were specified, so 0 hosts scanned.\n");
-  if (numhosts_scanned == 1 && numhosts_up == 0 && !o.listscan && 
+  if (o.numhosts_scanned == 1 && o.numhosts_up == 0 && !o.listscan && 
       o.pingtype != PINGTYPE_NONE)
     log_write(LOG_STDOUT, "Note: Host seems down. If it is really up, but blocking our ping probes, try -P0\n");
   /*  log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"\n"); */
-  log_write(LOG_STDOUT|LOG_SKID, "Nmap finished: %d %s (%d %s up) scanned in %.3f seconds\n", numhosts_scanned, (numhosts_scanned == 1)? "IP address" : "IP addresses", numhosts_up, (numhosts_up == 1)? "host" : "hosts",  o.TimeSinceStartMS(&tv) / 1000.0);
+  log_write(LOG_STDOUT|LOG_SKID, "Nmap finished: %d %s (%d %s up) scanned in %.3f seconds\n", o.numhosts_scanned, (o.numhosts_scanned == 1)? "IP address" : "IP addresses", o.numhosts_up, (o.numhosts_up == 1)? "host" : "hosts",  o.TimeSinceStartMS(&tv) / 1000.0);
   if (o.verbose && o.isr00t && o.RawScan()) 
     log_write(LOG_STDOUT|LOG_SKID, "               %s\n", 
 	      getFinalPacketStats(statbuf, sizeof(statbuf)));
@@ -1404,10 +1415,10 @@ void printfinaloutput(int numhosts_scanned, int numhosts_up,
   Strncpy(mytime, ctime(&timep), sizeof(mytime));
   chomp(mytime);
   
-  log_write(LOG_XML, "<runstats><finished time=\"%lu\" timestr=\"%s\"/><hosts up=\"%d\" down=\"%d\" total=\"%d\" />\n", (unsigned long) timep, mytime, numhosts_up, numhosts_scanned - numhosts_up, numhosts_scanned);
+  log_write(LOG_XML, "<runstats><finished time=\"%lu\" timestr=\"%s\"/><hosts up=\"%d\" down=\"%d\" total=\"%d\" />\n", (unsigned long) timep, mytime, o.numhosts_up, o.numhosts_scanned - o.numhosts_up, o.numhosts_scanned);
 
-  log_write(LOG_XML, "<!-- Nmap run completed at %s; %d %s (%d %s up) scanned in %.3f seconds -->\n", mytime, numhosts_scanned, (numhosts_scanned == 1)? "IP address" : "IP addresses", numhosts_up, (numhosts_up == 1)? "host" : "hosts",  o.TimeSinceStartMS(&tv) / 1000.0 );
-  log_write(LOG_NORMAL|LOG_MACHINE, "# Nmap run completed at %s -- %d %s (%d %s up) scanned in %.3f seconds\n", mytime, numhosts_scanned, (numhosts_scanned == 1)? "IP address" : "IP addresses", numhosts_up, (numhosts_up == 1)? "host" : "hosts", o.TimeSinceStartMS(&tv) / 1000.0 );
+  log_write(LOG_XML, "<!-- Nmap run completed at %s; %d %s (%d %s up) scanned in %.3f seconds -->\n", mytime, o.numhosts_scanned, (o.numhosts_scanned == 1)? "IP address" : "IP addresses", o.numhosts_up, (o.numhosts_up == 1)? "host" : "hosts",  o.TimeSinceStartMS(&tv) / 1000.0 );
+  log_write(LOG_NORMAL|LOG_MACHINE, "# Nmap run completed at %s -- %d %s (%d %s up) scanned in %.3f seconds\n", mytime, o.numhosts_scanned, (o.numhosts_scanned == 1)? "IP address" : "IP addresses", o.numhosts_up, (o.numhosts_up == 1)? "host" : "hosts", o.TimeSinceStartMS(&tv) / 1000.0 );
 
   log_write(LOG_XML, "</runstats></nmaprun>\n");
   log_flush_all();

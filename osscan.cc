@@ -104,6 +104,7 @@
 #include "osscan.h"
 #include "timing.h"
 #include "NmapOps.h"
+#include "tty.h"
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -1280,6 +1281,8 @@ int bestaccidx;
  if (target->timedOut(NULL))
    return 1;
  
+o.scantype = OS_SCAN;
+
 #ifdef WIN32
   if (target->ifType() == devt_loopback) {
     log_write(LOG_STDOUT, "Skipping OS Scan against %s because it doesn't work against your own machine (localhost)\n", target->NameIP());
@@ -1312,6 +1315,11 @@ int bestaccidx;
    gettimeofday(&now, NULL);
    if (target->timedOut(&now))
      return 1;
+
+   // Check if a status message is requested
+   if (keyWasPressed()) {
+      // Do nothing because the keyWasPressed Method prints out the basic status line
+   }
 
    target->FPR->FPs[itry] = get_fingerprint(target, &si[itry]); 
 

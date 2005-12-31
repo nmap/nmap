@@ -282,6 +282,13 @@ class NmapOps {
   FILE *nmap_stdout; /* Nmap standard output */
   int ttl; // Time to live
   char *datadir;
+
+  // Statistics Options set in nmap.cc
+  int numhosts_scanned;
+  int numhosts_up;
+  int numhosts_scanning;
+  stype scantype;
+
  private:
   int max_rtt_timeout;
   int min_rtt_timeout;

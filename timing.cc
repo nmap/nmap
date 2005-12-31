@@ -264,6 +264,8 @@ ScanProgressMeter::~ScanProgressMeter() {
 bool ScanProgressMeter::mayBePrinted(const struct timeval *now) {
   struct timeval tv;
 
+  return true;
+  
   if (!o.verbose)
     return false;
 
@@ -299,12 +301,9 @@ bool ScanProgressMeter::printStatsIfNeccessary(double perc_done,
   long time_used_ms;
   long time_needed_ms;
   long time_left_ms;
-  long sec_left;
   long prev_est_time_left_ms; /* Time left as per prev. estimate */
   long change_abs_ms; /* absolute value of change */
   bool printit = false;
-  time_t timet;
-  struct tm *ltime;
 
   if (!now) {
     gettimeofday(&tvtmp, NULL);
@@ -346,6 +345,33 @@ bool ScanProgressMeter::printStatsIfNeccessary(double perc_done,
   }
 
   if (printit) {
+     return printStats(perc_done, now);
+  } 
+  return false;
+}
+
+
+/* Prints an estimate of when this scan will complete.  */
+bool ScanProgressMeter::printStats(double perc_done, 
+                                   const struct timeval *now) {
+  struct timeval tvtmp;
+  long time_used_ms;
+  long time_needed_ms;
+  long time_left_ms;
+  long sec_left;
+  time_t timet;
+  struct tm *ltime;
+
+  if (!now) {
+    gettimeofday(&tvtmp, NULL);
+    now = (const struct timeval *) &tvtmp;
+  }
+  
+  /* OK, now lets estimate the time to finish */
+  time_used_ms = TIMEVAL_MSEC_SUBTRACT(*now, begin);
+  time_needed_ms = (int) ((double) time_used_ms / perc_done);
+  time_left_ms = time_needed_ms - time_used_ms;
+
     /* Here we go! */
     last_print = *now;
     TIMEVAL_MSEC_ADD(last_est, *now, time_left_ms);
@@ -359,7 +385,9 @@ bool ScanProgressMeter::printStatsIfNeccessary(double perc_done,
 	      (sec_left % 3600) / 60, sec_left % 60);
     log_flush(LOG_STDOUT);
     return true;
-  } 
-  return false;
 }
+
+
+
+
 

@@ -199,10 +199,12 @@ void printserviceinfooutput(Target *currenths);
    normal/skiddy/stdout output */
 int print_iflist(void);
 
+/* Prints a status message while the program is running */
+void printStatusMessage();
+
 /* Prints the statistics and other information that goes at the very end
    of an Nmap run */
-void printfinaloutput(int numhosts_scanned, int numhosts_up, 
-		      time_t starttime);
+void printfinaloutput();
 
 char* xml_convert (const char* str);
 #endif /* OUTPUT_H */

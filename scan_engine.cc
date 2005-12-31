@@ -105,8 +105,10 @@
 #include "scan_engine.h"
 #include "timing.h"
 #include "NmapOps.h"
+#include "tty.h"
 #include <dnet.h>
 #include <list>
+
 
 using namespace std;
 extern NmapOps o;
@@ -2404,7 +2406,7 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
 
 /* Print occasional remaining time estimates, as well as
    debugging information */
-static void printAnyStats(UltraScanInfo *USI) {
+void printAnyStats(UltraScanInfo *USI) {
 
   list<HostScanStats *>::iterator hostI;
   HostScanStats *hss;
@@ -3333,6 +3335,7 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
 		stype scantype) {
   UltraScanInfo *USI = NULL;
   time_t starttime;
+  o.scantype = scantype;
 
   if (Targets.size() == 0) {
     return;
@@ -3375,6 +3378,34 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
     gettimeofday(&USI->now, NULL);
     // printf("TRACE: Finished waitForResponses() at %.4fs\n", o.TimeSinceStartMS(&USI->now) / 1000.0);
     processData(USI);
+
+    if (keyWasPressed()) {
+       /* Get the Completion percent */
+       
+       list<HostScanStats *>::iterator hostI;
+       HostScanStats *host = NULL;
+       int maxtries;
+       double thishostpercdone;
+       double avgdone = USI->gstats->numtargets - USI->numIncompleteHosts();
+       /* next for the partially finished hosts */
+       for(hostI = USI->incompleteHosts.begin(); 
+           hostI != USI->incompleteHosts.end(); hostI++) {
+          host = *hostI;
+          maxtries = host->allowedTryno(NULL, NULL) + 1;
+          // This is inexact (maxtries - 1) because of numprobes_sent includes
+          // at least one try of ports_finished.
+          thishostpercdone = host->ports_finished * (maxtries -1) + host->numprobes_sent;
+          thishostpercdone /= maxtries * USI->gstats->numprobes;
+          if (thishostpercdone >= .9999) thishostpercdone = .9999;
+          avgdone += thishostpercdone;
+       }
+       avgdone /= USI->gstats->numtargets;
+              
+       USI->SPM->printStats(avgdone, NULL); // This prints something like SYN Stealth Scan Timing: About 1.14% done; ETC: 15:01 (0:43:23 remaining);
+       
+       log_flush(LOG_STDOUT);
+
+    }
   }
 
   if (o.verbose) {
@@ -3391,6 +3422,7 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
 		   (USI->gstats->num_hosts_timedout == 1)? "host" : "hosts");
   }
   delete USI;
+  USI = NULL;
 }
 
 /* FTP bounce attack scan.  This function is rather lame and should be
@@ -3398,6 +3430,8 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
    allow FTP bounce scan, I should really allow SOCKS proxy scan.  */
 void bounce_scan(Target *target, u16 *portarray, int numports,
 		 struct ftpinfo *ftp) {
+   o.scantype = BOUNCE_SCAN;
+
   time_t starttime;
   int res , sd = ftp->sd,  i=0;
   const char *t = (const char *)target->v4hostip(); 
@@ -3566,6 +3600,8 @@ void reverse_testing_order(struct portinfolist *pil, struct portinfo *scanarray)
    scan.  Now ultra_scan() does all of those, except for RPC scan,
    which is the only pos_scan now supported.  */
 void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
+   o.scantype = scantype;
+
   struct scanstats ss;
   int senddelay = 0;
   int rpcportsscanned = 0;
@@ -3696,6 +3732,7 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
     rsi.rpc_status = RPC_STATUS_UNKNOWN;
     rpcportsscanned++;
   
+
     // This initial message is way down here because we don't want to print it if
     // no RPC ports need scanning.
     if (o.verbose && !printedinitialmsg) {
@@ -3707,6 +3744,11 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
     
     while(pil.testinglist != NULL)  /* While we have live queries or more ports to scan */
       {
+         
+         if (keyWasPressed()) {
+            // We can print out some status here if we want
+         }
+
 	/* Check the possible retransmissions first */
 	gettimeofday(&now, NULL);
       

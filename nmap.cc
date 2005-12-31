@@ -107,6 +107,7 @@
 #include "timing.h"
 #include "NmapOps.h"
 #include "MACLookup.h"
+#include "tty.h"
 #ifdef WIN32
 #include "winfix.h"
 #endif
@@ -205,15 +206,12 @@ int nmap_main(int argc, char *argv[]) {
   char *host_spec = NULL, *exclude_spec = NULL;
   short fastscan=0, randomize=1, resolve_all=0;
   short quashargv = 0;
-  int numhosts_scanned = 0;
   char **host_exp_group;
   char *idleProxy = NULL; /* The idle host used to "Proxy" an Idlescan */
   int num_host_exp_groups = 0;
   char *machinefilename = NULL, *kiddiefilename = NULL, 
     *normalfilename = NULL, *xmlfilename = NULL;
   HostGroupState *hstate = NULL;
-  int numhosts_up = 0;
-  int starttime;
   char *endptr = NULL;
   struct scan_lists *ports = NULL;
   TargetGroup *exclude_group = NULL;
@@ -775,6 +773,8 @@ int nmap_main(int argc, char *argv[]) {
     win_init();
 #endif
 
+  tty_init(); // Put the keyboard in raw mode
+
 #if HAVE_SIGNAL
   if (!o.debugging)
     signal(SIGSEGV, sigdie); 
@@ -1034,8 +1034,6 @@ int nmap_main(int argc, char *argv[]) {
       shortfry(ports->prots, ports->prot_count); 
   }
   
-  starttime = time(NULL);
-  
   /* Time to create a hostgroup state object filled with all the requested
      machines */
   host_exp_group = (char **) safe_malloc(o.ping_group_sz * sizeof(char *));
@@ -1057,7 +1055,7 @@ int nmap_main(int argc, char *argv[]) {
 	(host_spec = grab_next_host_spec(inputfd, argc, fakeargv))) {
     host_exp_group[num_host_exp_groups++] = strdup(host_spec);
     // For purposes of random scan
-    if (o.max_ips_to_scan && o.max_ips_to_scan <= numhosts_scanned + num_host_exp_groups)
+    if (o.max_ips_to_scan && o.max_ips_to_scan <= o.numhosts_scanned + num_host_exp_groups)
       break;
   }
 
@@ -1067,7 +1065,7 @@ int nmap_main(int argc, char *argv[]) {
 			      host_exp_group, num_host_exp_groups);
 
   do {
-    ideal_scan_group_sz = determineScanGroupSize(numhosts_scanned, ports);
+    ideal_scan_group_sz = determineScanGroupSize(o.numhosts_scanned, ports);
     while(Targets.size() < ideal_scan_group_sz) {
       currenths = nexthost(hstate, exclude_group, ports, &(o.pingtype));
       if (!currenths) {
@@ -1078,7 +1076,7 @@ int nmap_main(int argc, char *argv[]) {
 	num_host_exp_groups = 0;
 	/* Now grab any new expressions */
 	while(num_host_exp_groups < o.ping_group_sz && 
-	      (!o.max_ips_to_scan ||  o.max_ips_to_scan > numhosts_scanned + num_host_exp_groups) &&
+	      (!o.max_ips_to_scan ||  o.max_ips_to_scan > o.numhosts_scanned + num_host_exp_groups) &&
 	      (host_spec = grab_next_host_spec(inputfd, argc, fakeargv))) {
 	  // For purposes of random scan
 	  host_exp_group[num_host_exp_groups++] = strdup(host_spec);
@@ -1094,10 +1092,10 @@ int nmap_main(int argc, char *argv[]) {
 	if (!currenths)
 	  break;
       }
-      numhosts_scanned++;
+      o.numhosts_scanned++;
     
       if (currenths->flags & HOST_UP && !o.listscan) 
-	numhosts_up++;
+	o.numhosts_up++;
     
       /* Lookup the IP */
       if (((currenths->flags & HOST_UP) || resolve_all) && !o.noresolve) {
@@ -1162,7 +1160,7 @@ int nmap_main(int argc, char *argv[]) {
 	if (Targets.size() > 0 && 
 	    strcmp(Targets[Targets.size() - 1]->deviceName(), currenths->deviceName())) {
 	  returnhost(hstate);
-	  numhosts_scanned--; numhosts_up--;
+	  o.numhosts_scanned--; o.numhosts_up--;
 	  break;
 	}
 	o.decoys[o.decoyturn] = currenths->v4source();
@@ -1173,12 +1171,17 @@ int nmap_main(int argc, char *argv[]) {
     if (Targets.size() == 0)
       break; /* Couldn't find any more targets */
     
+    // Set the variable for status printing
+    o.numhosts_scanning = Targets.size();
+    
     // Our source must be set in decoy list because nexthost() call can
     // change it (that issue really should be fixed when possible)
     if (o.af() == AF_INET && o.RawScan())
       o.decoys[o.decoyturn] = Targets[0]->v4source();
     
     /* I now have the group for scanning in the Targets vector */
+
+    // Ultra_scan sets o.scantype for us so we don't have to worry
     if (o.synscan)
       ultra_scan(Targets, ports, SYN_SCAN);
     
@@ -1212,17 +1215,26 @@ int nmap_main(int argc, char *argv[]) {
     /* These lame functions can only handle one target at a time */
     for(targetno = 0; targetno < Targets.size(); targetno++) {
       currenths = Targets[targetno];
-      if (o.idlescan) idle_scan(currenths, ports->tcp_ports, 
+      if (o.idlescan) {
+         o.scantype = IDLE_SCAN;
+         keyWasPressed(); // Check if a status message should be printed
+         idle_scan(currenths, ports->tcp_ports, 
 				ports->tcp_count, idleProxy);
+      }
       if (o.bouncescan) {
+         o.scantype = BOUNCE_SCAN;
+         keyWasPressed(); // Check if a status message should be printed
 	if (ftp.sd <= 0) ftp_anon_connect(&ftp);
 	if (ftp.sd > 0) bounce_scan(currenths, ports->tcp_ports, 
 				    ports->tcp_count, &ftp);
       }
     }
 
-    if (o.servicescan)
+    if (o.servicescan) {
+      o.scantype = SERVICE_SCAN; 
+      keyWasPressed(); // Check if a status message should be printed
       service_scan(Targets);
+    }
 
     for(targetno = 0; targetno < Targets.size(); targetno++) {
       currenths = Targets[targetno];
@@ -1234,8 +1246,9 @@ int nmap_main(int argc, char *argv[]) {
       if (o.servicescan || o.rpcscan)  pos_scan(currenths, NULL, 0, RPC_SCAN);
 
       // Should be host parallelized.  Though rarely takes a huge amt. of time.
-      if (o.osscan) 
+      if (o.osscan) {
 	os_scan(currenths);
+      }
 
     /* Now I can do the output and such for each host */
       log_write(LOG_XML, "<host>");
@@ -1266,7 +1279,7 @@ int nmap_main(int argc, char *argv[]) {
       delete currenths;
       Targets.pop_back();
     }
-  } while(!o.max_ips_to_scan || o.max_ips_to_scan > numhosts_scanned);
+  } while(!o.max_ips_to_scan || o.max_ips_to_scan > o.numhosts_scanned);
   
   delete hstate;
   if (exclude_group)
@@ -1280,7 +1293,7 @@ int nmap_main(int argc, char *argv[]) {
   num_host_exp_groups = 0;
   free(host_exp_group);
 
-  printfinaloutput(numhosts_scanned, numhosts_up, starttime);
+  printfinaloutput();
 
   if (ports) {
     free(ports->tcp_ports);
@@ -1932,6 +1945,10 @@ char *scantype2str(stype scantype) {
   case IPPROT_SCAN: return "IPProto Scan"; break;
   case PING_SCAN: return "Ping Scan"; break;
   case PING_SCAN_ARP: return "ARP Ping Scan"; break;
+  case IDLE_SCAN: return "Idle Scan"; break;
+  case BOUNCE_SCAN: return "Bounce Scan"; break;
+  case SERVICE_SCAN: return "Service Scan"; break;
+  case OS_SCAN: return "OS Scan"; break;
   default: assert(0); break;
   }
 
