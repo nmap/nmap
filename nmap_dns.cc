@@ -1143,7 +1143,7 @@ void nmap_mass_rdns_core(Target **targets, int num_targets) {
   nsp_delete(dnspool);
 
   if (cname_reqs.size() && o.debugging)
-    log_write(LOG_STDOUT, "Performing system_dns for %d domain names that use CNAMEs\n", cname_reqs.size());
+    log_write(LOG_STDOUT, "Performing system_dns for %d domain names that use CNAMEs\n", (int) cname_reqs.size());
 
   SPM = new ScanProgressMeter("System CNAME DNS resolution");
 
