@@ -130,8 +130,10 @@ pcre_dist_clean:
 	-cd $(LIBPCREDIR) && $(MAKE) distclean
 dnet_dist_clean:
 	-cd $(LIBDNETDIR) && $(MAKE) distclean
+nmapfe_dist_clean:
+	-cd nmapfe && $(MAKE) distclean
 
-distclean: my_clean my_distclean @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@
+distclean: my_clean my_distclean @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ nmapfe_dist_clean
 
 my_distclean:
 	rm -f Makefile Makefile.bak config.h stamp-h stamp-h.in \
