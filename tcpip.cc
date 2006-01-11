@@ -875,6 +875,11 @@ else tcp->th_win = htons(1024 * (myttl % 4 + 1)); /* Who cares */
 tcp->th_sum = in_cksum((unsigned short *)pseudo, sizeof(struct tcphdr) + 
 		       optlen + sizeof(struct pseudo_header) + datalen);
 #endif
+
+if ( o.badsum )
+  --tcp->th_sum,
+
+
 /* Now for the ip header */
 
 memset(packet, 0, sizeof(struct ip)); 
@@ -1093,6 +1098,9 @@ pingpkt.seq = seq;
 pingpkt.checksum = 0;
 pingpkt.checksum = in_cksum((unsigned short *)ping, icmplen);
 
+if ( o.badsum )
+  --pingpkt.checksum;
+
 return build_ip_raw(source, victim, o.ttl, IPPROTO_ICMP, get_random_u16(),
 		    ping, icmplen, packetlen);
 }
@@ -1293,6 +1301,9 @@ u8 *build_udp_raw(struct in_addr *source, const struct in_addr *victim,
 #else
   udp->uh_sum = in_cksum((unsigned short *)pseudo, 20 /* pseudo + UDP headers */ + datalen);
 #endif
+  
+  if ( o.badsum )
+    --udp->uh_sum;
   
   /* Goodbye, pseudo header! */
   memset(pseudo, 0, sizeof(*pseudo));
@@ -2296,7 +2307,7 @@ int sd;
 	eth_addr_t ethaddr;
 
 	if (!ethsd) 
-	  fatal("%s: Failed to open ethernet interface (%s)", __FUNCTION__,
+	  fatal("%s: Failed to open ethernet interface (%s). A possible cause on BSD operating systems is running out of BPF devices (see http://seclists.org/lists/nmap-dev/2006/Jan-Mar/0014.html).", __FUNCTION__,
 		mydevs[numifaces].devname);
 	if (eth_get(ethsd, &ethaddr) != 0) 
 	  fatal("%s: Failed to obtain MAC address for ethernet interface (%s)",

@@ -196,7 +196,7 @@ esac
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS(string.h getopt.h strings.h memory.h sys/param.h sys/sockio.h bstring.h sys/time.h pwd.h unistd.h )
+AC_CHECK_HEADERS(string.h getopt.h strings.h memory.h sys/param.h sys/sockio.h bstring.h sys/time.h sys/stat.h fcntl.h termios.h pwd.h unistd.h )
 AC_CHECK_HEADERS(netinet/in.h)
 AC_CHECK_HEADERS(sys/socket.h)
 AC_CHECK_HEADERS([net/if.h],[],[],

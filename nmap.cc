@@ -204,7 +204,7 @@ int nmap_main(int argc, char *argv[]) {
   size_t j, argvlen;
   FILE *inputfd = NULL, *excludefd = NULL;
   char *host_spec = NULL, *exclude_spec = NULL;
-  short fastscan=0, randomize=1, resolve_all=0;
+  short fastscan=0, randomize=1;
   short quashargv = 0;
   char **host_exp_group;
   char *idleProxy = NULL; /* The idle host used to "Proxy" an Idlescan */
@@ -296,11 +296,14 @@ int nmap_main(int argc, char *argv[]) {
       {"noninteractive", no_argument, 0, 0},
       {"spoof_mac", required_argument, 0, 0},
       {"thc", no_argument, 0, 0},  
+      {"badsum", no_argument, 0, 0},  
       {"ttl", required_argument, 0, 0}, /* Time to live */
       {"allports", no_argument, 0, 0},
       {"version_intensity", required_argument, 0, 0},
       {"version_light", no_argument, 0, 0},
       {"version_all", no_argument, 0, 0},
+      {"system_dns", no_argument, 0, 0},
+      {"dns_servers", required_argument, 0, 0},
       {0, 0, 0, 0}
     };
 
@@ -448,6 +451,10 @@ int nmap_main(int argc, char *argv[]) {
 	o.setXSLStyleSheet(optarg);
       } else if (strcmp(long_options[option_index].name, "no_stylesheet") == 0) {
 	o.setXSLStyleSheet(NULL);
+      } else if (strcmp(long_options[option_index].name, "system_dns") == 0) {
+        o.mass_dns = false;
+      } else if (strcmp(long_options[option_index].name, "dns_servers") == 0) {
+        o.dns_servers = strdup(optarg);
       } else if (strcmp(long_options[option_index].name, "webxml") == 0) {
 	o.setXSLStyleSheet("http://www.insecure.org/nmap/data/nmap.xsl");
       } else if (strcmp(long_options[option_index].name, "oN") == 0) {
@@ -472,6 +479,8 @@ int nmap_main(int argc, char *argv[]) {
       } else if (strcmp(long_options[option_index].name, "thc") == 0) {
 	printf("!!Greets to Van Hauser, Plasmoid, Skyper and the rest of THC!!\n");
 	exit(0);
+      } else if (strcmp(long_options[option_index].name, "badsum") == 0) {
+	o.badsum = 1;
       }
       else if (strcmp(long_options[option_index].name, "iL") == 0) {
 	if (inputfd) {
@@ -542,7 +551,7 @@ int nmap_main(int argc, char *argv[]) {
 	  if (resolve(p, &o.decoys[o.numdecoys])) {
 	    o.numdecoys++;
 	  } else {
-	    fatal("Failed to resolve decoy host: %s (must be hostname or IP address)", optarg);
+	    fatal("Failed to resolve decoy host: %s (must be hostname or IP address)", p);
 	  }
 	}
 	if (q) {
@@ -682,7 +691,7 @@ int nmap_main(int argc, char *argv[]) {
 	fatal("Your port specification string is not parseable");
       break;
     case 'q': quashargv++; break;
-    case 'R': resolve_all++; break;
+    case 'R': o.resolve_all++; break;
     case 'r': 
       randomize = 0;
       break;
@@ -758,7 +767,7 @@ int nmap_main(int argc, char *argv[]) {
         o.setMaxTCPScanDelay(5);
         o.setMaxRetransmissions(2);
       } else {
-	fatal("Unknown timing mode (-T argment).  Use either \"Paranoid\", \"Sneaky\", \"Polite\", \"Normal\", \"Aggressive\", \"Insane\" or a number from 0 (Paranoid) to 5 (Insane)");
+	fatal("Unknown timing mode (-T argument).  Use either \"Paranoid\", \"Sneaky\", \"Polite\", \"Normal\", \"Aggressive\", \"Insane\" or a number from 0 (Paranoid) to 5 (Insane)");
       }
       break;
     case 'V': 
@@ -1097,20 +1106,10 @@ int nmap_main(int argc, char *argv[]) {
       if (currenths->flags & HOST_UP && !o.listscan) 
 	o.numhosts_up++;
     
-      /* Lookup the IP */
-      if (((currenths->flags & HOST_UP) || resolve_all) && !o.noresolve) {
-	if (currenths->TargetSockAddr(&ss, &sslen) != 0)
-	  fatal("Failed to get target socket address.");
-	if (getnameinfo((struct sockaddr *)&ss, sslen, hostname, 
-			sizeof(hostname), NULL, 0, NI_NAMEREQD) == 0) {
-	  currenths->setHostName(hostname);
-	}
-      }
-    
       if (o.pingscan || o.listscan) {
 	/* We're done with the hosts */
 	log_write(LOG_XML, "<host>");
-	write_host_status(currenths, resolve_all);
+	write_host_status(currenths, o.resolve_all);
 	printmacinfo(currenths);
 	//	if (currenths->flags & HOST_UP)
 	//  log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"\n");
@@ -1252,7 +1251,7 @@ int nmap_main(int argc, char *argv[]) {
 
     /* Now I can do the output and such for each host */
       log_write(LOG_XML, "<host>");
-      write_host_status(currenths, resolve_all);
+      write_host_status(currenths, o.resolve_all);
       if (currenths->timedOut(NULL)) {
 	log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"Skipping host %s due to host timeout\n", 
 		  currenths->NameIP(hostname, sizeof(hostname)));
@@ -1605,6 +1604,8 @@ printf("%s %s ( %s )\n"
        "  -PS/PA/PU [portlist]: TCP SYN/ACK or UDP discovery to given ports\n"
        "  -PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes\n"
        "  -n/-R: Never do DNS resolution/Always resolve [default: sometimes]\n"
+       "  --dns_servers <serv1[,serv2],...>: Specify custom DNS servers\n"
+       "  --system_dns: Use OS's DNS resolver\n"
        "SCAN TECHNIQUES:\n"
        "  -sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans\n"
        "  -sN/sF/sX: TCP Null, FIN, and Xmas scans\n"
@@ -1644,6 +1645,7 @@ printf("%s %s ( %s )\n"
        "  --data_length <num>: Append random data to sent packets\n"
        "  --ttl <val>: Set IP time-to-live field\n"
        "  --spoof_mac <mac address/prefix/vendor name>: Spoof your MAC address\n"
+       "  --badsum: Send packets with a bogus TCP/UDP checksum\n"
        "OUTPUT:\n"
        "  -oN/-oX/-oS/-oG <file>: Output scan in normal, XML, s|<rIpt kIddi3,\n"
        "     and Grepable format, respectively, to the given filename.\n"

@@ -26,6 +26,7 @@ if (! -d "$distdir/sigs/" ) {
 opendir DISTDIR, $distdir or die "Could not open distdir: $distdir\n";
 
 foreach $file (readdir DISTDIR) {
+    if ($file eq "favicon.ico") { next; }
     if (-f "$distdir/$file") {
 	my $sigfile = "$distdir/sigs/$file.gpg.txt";
 	my $digfile = "$distdir/sigs/$file.digest.txt";

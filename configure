@@ -3549,7 +3549,10 @@ done
 
 
 
-for ac_header in string.h getopt.h strings.h memory.h sys/param.h sys/sockio.h bstring.h sys/time.h pwd.h unistd.h
+
+
+
+for ac_header in string.h getopt.h strings.h memory.h sys/param.h sys/sockio.h bstring.h sys/time.h sys/stat.h fcntl.h termios.h pwd.h unistd.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if eval "test \"\${$as_ac_Header+set}\" = set"; then

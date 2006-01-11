@@ -1,4 +1,4 @@
-export NMAP_VERSION = 3.96BETA2
+export NMAP_VERSION = 3.97Shmoo
 NMAP_NAME= Nmap
 NMAP_URL= http://www.insecure.org/nmap/
 NMAP_PLATFORM=@host@
@@ -46,11 +46,11 @@ TARGET = nmap
 TARGETNMAPFE=@TARGETNMAPFE@
 INSTALLNMAPFE=@INSTALLNMAPFE@
 
-export SRCS = main.cc nmap.cc targets.cc tcpip.cc nmap_error.cc utils.cc idle_scan.cc osscan.cc output.cc scan_engine.cc timing.cc charpool.cc services.cc protocols.cc nmap_rpc.cc portlist.cc NmapOps.cc TargetGroup.cc Target.cc FingerPrintResults.cc service_scan.cc NmapOutputTable.cc MACLookup.cc tty.cc @COMPAT_SRCS@
+export SRCS = main.cc nmap.cc targets.cc tcpip.cc nmap_error.cc utils.cc idle_scan.cc osscan.cc output.cc scan_engine.cc timing.cc charpool.cc services.cc protocols.cc nmap_rpc.cc portlist.cc NmapOps.cc TargetGroup.cc Target.cc FingerPrintResults.cc service_scan.cc NmapOutputTable.cc MACLookup.cc tty.cc nmap_dns.cc @COMPAT_SRCS@
 
-OBJS = main.o nmap.o targets.o tcpip.o nmap_error.o utils.o idle_scan.o osscan.o output.o scan_engine.o timing.o charpool.o services.o protocols.o nmap_rpc.o portlist.o NmapOps.o TargetGroup.o Target.o FingerPrintResults.o service_scan.o NmapOutputTable.o MACLookup.o tty.o @COMPAT_OBJS@
+OBJS = main.o nmap.o targets.o tcpip.o nmap_error.o utils.o idle_scan.o osscan.o output.o scan_engine.o timing.o charpool.o services.o protocols.o nmap_rpc.o portlist.o NmapOps.o TargetGroup.o Target.o FingerPrintResults.o service_scan.o NmapOutputTable.o MACLookup.o tty.o nmap_dns.o @COMPAT_OBJS@
 
-export DEPS = nmap.h nmap_amigaos.h nmap_error.h targets.h idle_scan.h osscan.h output.h scan_engine.h timing.h tcpip.h utils.h global_structures.h charpool.h services.h protocols.h nmap_rpc.h portlist.h NmapOps.h TargetGroup.h Target.h FingerPrintResults.h service_scan.h NmapOutputTable.h MACLookup.h tty.h
+export DEPS = nmap.h nmap_amigaos.h nmap_error.h targets.h idle_scan.h osscan.h output.h scan_engine.h timing.h tcpip.h utils.h global_structures.h charpool.h services.h protocols.h nmap_rpc.h portlist.h NmapOps.h TargetGroup.h Target.h FingerPrintResults.h service_scan.h NmapOutputTable.h MACLookup.h tty.h nmap_dns.h
 
 
 # %.o : %.cc -- nope this is a GNU extension

@@ -108,6 +108,7 @@
 #include "TargetGroup.h"
 #include "Target.h"
 #include "scan_engine.h"
+#include "nmap_dns.h"
 #include "tty.h"
 
 using namespace std;
@@ -433,6 +434,8 @@ if (hs->randomize) {
      massping(hs->hostbatch, hs->current_batch_sz, ports, DEFAULT_PING_TYPES);
    else
      massping(hs->hostbatch, hs->current_batch_sz, ports, *pingtype);
+ 
+ if (!o.noresolve) nmap_mass_rdns(hs->hostbatch, hs->current_batch_sz);
  
  return hs->hostbatch[hs->next_batch_no++];
 }
@@ -981,6 +984,9 @@ pingpkt.id = id;
 pingpkt.seq = seq;
 pingpkt.checksum = 0;
 pingpkt.checksum = in_cksum((unsigned short *)ping, icmplen);
+if ( o.badsum )
+  pingpkt.checksum--;
+
 
 /* Now for our sock */
 if (ptech.icmpscan) {

@@ -247,6 +247,9 @@ void NmapOps::Initialize() {
   if (xsl_stylesheet) free(xsl_stylesheet);
   xsl_stylesheet = strdup(tmpxsl);
   spoof_mac_set = false;
+  mass_dns = true;
+  resolve_all = 0;
+  dns_servers = NULL;
 }
 
 bool NmapOps::TCPScan() {
@@ -428,6 +431,9 @@ void NmapOps::ValidateOptions() {
   if (af() == AF_INET6 && (numdecoys|osscan|bouncescan|fragscan|ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|rpcscan|synscan|udpscan|windowscan|xmasscan)) {
     fatal("Sorry -- IPv6 support is currently only available for connect() scan (-sT), ping scan (-sP), and list scan (-sL).  Further support is under consideration.");
   }
+
+  if (af() != AF_INET) mass_dns = false;
+
 }
   
 void NmapOps::setMaxRttTimeout(int rtt) 

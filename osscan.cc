@@ -183,6 +183,9 @@ for(decoy=0; decoy < o.numdecoys; decoy++) {
   udp->uh_sum = realcheck;
 #endif
 
+  if ( o.badsum )
+    udp->uh_sum++;
+
   /* Goodbye, pseudo header! */
   memset(pseudo, 0, sizeof(*pseudo));
   

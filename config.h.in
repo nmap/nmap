@@ -143,6 +143,12 @@
 
 #undef HAVE_SYS_SOCKIO_H
 
+#undef HAVE_SYS_STAT_H
+
+#undef HAVE_FCNTL_H
+
+#undef HAVE_TERMIOS_H
+
 #undef HAVE_PCRE_H
 
 #undef HAVE_PCRE_PCRE_H

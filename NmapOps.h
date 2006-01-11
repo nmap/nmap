@@ -281,7 +281,11 @@ class NmapOps {
   FILE *logfd[LOG_TYPES];
   FILE *nmap_stdout; /* Nmap standard output */
   int ttl; // Time to live
+  int badsum;
   char *datadir;
+  bool mass_dns;
+  int resolve_all;
+  char *dns_servers;
 
   // Statistics Options set in nmap.cc
   int numhosts_scanned;

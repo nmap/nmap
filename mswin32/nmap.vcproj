@@ -39,7 +39,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib $(NOINHERIT)"
+				AdditionalDependencies="nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib advapi32.lib $(NOINHERIT)"
 				OutputFile=".\Debug/nmap.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
@@ -103,7 +103,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib $(NOINHERIT)"
+				AdditionalDependencies="nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib advapi32.lib $(NOINHERIT)"
 				OutputFile=".\Release/nmap.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -163,6 +163,9 @@
 			</File>
 			<File
 				RelativePath="..\nmap.cc">
+			</File>
+			<File
+				RelativePath="..\nmap_dns.cc">
 			</File>
 			<File
 				RelativePath="..\nmap_error.cc">
@@ -252,6 +255,9 @@
 			</File>
 			<File
 				RelativePath="..\nmap.h">
+			</File>
+			<File
+				RelativePath="..\nmap_dns.h">
 			</File>
 			<File
 				RelativePath="..\nmap_error.h">

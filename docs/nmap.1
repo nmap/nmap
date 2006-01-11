@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "12/30/2005" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "01/09/2006" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -106,6 +106,8 @@ HOST DISCOVERY:
   \-PS/PA/PU [portlist]: TCP SYN/ACK or UDP discovery to given ports
   \-PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes
   \-n/\-R: Never do DNS resolution/Always resolve [default: sometimes]
+  \-\-dns_servers <serv1[,serv2],...>: Specify custom DNS servers
+  \-\-system_dns: Use OS's DNS resolver
 SCAN TECHNIQUES:
   \-sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans
   \-sN/sF/sX: TCP Null, FIN, and Xmas scans
@@ -145,6 +147,7 @@ FIREWALL/IDS EVASION AND SPOOFING:
   \-\-data_length <num>: Append random data to sent packets
   \-\-ttl <val>: Set IP time\-to\-live field
   \-\-spoof_mac <mac address/prefix/vendor name>: Spoof your MAC address
+  \-\-badsum: Send packets with a bogus TCP/UDP checksum
 OUTPUT:
   \-oN/\-oX/\-oS/\-oG <file>: Output scan in normal, XML, s|<rIpt kIddi3,
      and Grepable format, respectively, to the given filename.
@@ -360,6 +363,11 @@ do reverse DNS resolution on the target IP addresses. Normally this is only perf
 .TP
 \fB\-\-system_dns\fR (Use system DNS resolver)
 By default, Nmap resolves IP addresses by sending queries directly to the name servers configured on your host and then listening for responses. Many requests (often dozens) are performed in parallel for performance. Specify this option if you wish to use your system resolver instead (one IP at a time via the getnameinfo() call). This is slower and rarely useful unless there is a bug in the Nmap DNS code \-\- please contact us if that is the case. The system resolver is always used for IPv6 scans.
+.TP
+\fB\-\-dns_servers <server1[,server2],...> \fR (Servers to use for reverse DNS queries)
+Normally Nmap will try to determine the DNS servers from your resolv.conf file (UNIX) or the registry (Win32). Alternatively, you may use this option to specify your own servers. This option is not honored if you are using
+\fB\-\-system_dns\fR
+or an IPv6 scan. Using multiple DNS servers is often faster than querying just one.
 .SH "PORT SCANNING BASICS"
 .PP
 While Nmap has grown in functionality over the years, it began as an efficient port scanner, and that remains its core function. The simple command
@@ -982,6 +990,10 @@ Apple,
 deadbeefcafe,
 0020F2, and
 Cisco.
+.TP
+\fB\-\-badsum\fR (Send packets with bogus TCP/UDP checksums)
+Asks Nmap to use an invalid TCP or UDP checksum for packets sent to target hosts. Since virtually all host IP stacks properly drop these packets, any responses received are likely coming from a firewall or IDS that didn't bother to verify the checksum. For more details on this technique, see
+\fI\%http://www.phrack.org/phrack/60/p60\-0x0c.txt\fR
 .SH "OUTPUT"
 .PP
 Any security tools is only as useful as the output it generates. Complex tests and algorithms are of little value if they aren't presented in an organized and comprehensible fashion. Given the number of ways Nmap is used by people and other software, no single format can please everyone. So Nmap offers several formats, including the interactive mode for humans to read directly and XML for easy parsing by software.
@@ -1239,8 +1251,9 @@ Prints a short help screen with the most common command flags. Running Nmap with
 .nr an-break-flag 1
 .br
 \fBNote\fR
-The runtime interaction feature is not yet
-    supported on Windows..PP
+.PP
+The runtime interaction feature is not yet supported on Windows.
+.PP
 During the execution of nmap, all key presses are captured. This allows you to interact with the program without aborting and restarting it. Certain special keys will change options, while any other keys will print out a status message telling you about the scan. The convention is that
 \fIlowercase letters increase\fR
 the amount of printing, and
