@@ -558,7 +558,7 @@ void read_evt_handler(nsock_pool nsp, nsock_event evt, void *nothing) {
       if (ia.s_addr == 0) return;
 
       curbuf = advance_past_dns_name(buf, buflen, curbuf, &nameloc);
-      if (curbuf == -1 || curbuf >= buflen) return;
+      if (curbuf == -1 || curbuf > buflen) return;
 
       if (encoded_name_to_normal(buf+nameloc, outbuf, sizeof(outbuf)) == -1) return;
 
