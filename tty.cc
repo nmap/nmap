@@ -96,7 +96,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef WIN32
 #include "config.h"
+#endif
 
 #include <sys/types.h>
 #if HAVE_SYS_STAT_H

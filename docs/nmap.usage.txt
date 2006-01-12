@@ -1,4 +1,4 @@
-Nmap 3.96BETA3 ( http://www.insecure.org/nmap/ )
+Nmap 3.97Shmoo ( http://www.insecure.org/nmap/ )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -30,8 +30,9 @@ PORT SPECIFICATION AND SCAN ORDER:
   -r: Scan ports consecutively - don't randomize
 SERVICE/VERSION DETECTION:
   -sV: Probe open ports to determine service/version info
-  --version_light: Limit to most likely probes for faster identification
-  --version_all: Try every single probe for version detection
+  --version_intensity <level>: Set from 0 (light) to 9 (try all probes)
+  --version_light: Limit to most likely probes (intensity 2)
+  --version_all: Try every single probe (intensity 9)
   --version_trace: Show detailed version scan activity (for debugging)
 OS DETECTION:
   -O: Enable OS detection
