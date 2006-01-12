@@ -1,18 +1,6 @@
 # Nmap Changelog ($Id$); -*-text-*-
 3.97Shmoo
 
-o Reverse DNS resolution is now done in parallel rather than one at a
-  time.  All scans of large networks (particularly list, ping and
-  just-a-few-ports scans) should benefit substantially from this
-  change.  If you encounter any problems, please let us know.  The new
-  --system_dns option was added so you can use the (slow) system
-  resolver if you prefer that for some reason.  You can specify a
-  comma separated list of DNS server IP addresses for Nmap to use with
-  the new --dns_servers option.  Otherwise, Nmap looks in
-  /etc/resolve.conf (UNIX) or the system registry (Windows) to obtain
-  the nameservers already configured for your system.  This excellent
-  patch was written by Doug Hoyte (doug(a)hcsw.org).
-
 o Added run time interaction as documented at
   http://www.insecure.org/nmap/man/man-runtime-interaction.html .
   While Nmap is running, you can now press 'v' to increase verbosity,
@@ -24,6 +12,18 @@ o Added run time interaction as documented at
   change a handful of UNIX-specific termio calls with the Windows
   equivalents.  This feature was created by Paul Tarjan
   (ptarjan(a)stanford.edu) as part of the Google Summer of Code.
+
+o Reverse DNS resolution is now done in parallel rather than one at a
+  time.  All scans of large networks (particularly list, ping and
+  just-a-few-ports scans) should benefit substantially from this
+  change.  If you encounter any problems, please let us know.  The new
+  --system_dns option was added so you can use the (slow) system
+  resolver if you prefer that for some reason.  You can specify a
+  comma separated list of DNS server IP addresses for Nmap to use with
+  the new --dns_servers option.  Otherwise, Nmap looks in
+  /etc/resolve.conf (UNIX) or the system registry (Windows) to obtain
+  the nameservers already configured for your system.  This excellent
+  patch was written by Doug Hoyte (doug(a)hcsw.org).
 
 o Added the --badsum option, which causes Nmap to use invalid TCP or
   UDP checksums for packets sent to target hosts. Since

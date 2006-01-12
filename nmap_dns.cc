@@ -286,28 +286,32 @@ static u16 id_counter;
 static ScanProgressMeter *SPM;
 
 
-//------------------- Prototypes ---------------------
+//------------------- Prototypes and macros ---------------------
 
 void close_dns_servers();
 void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v);
 void do_possible_writes();
+int deal_with_timedout_reads();
 
+#define ACTION_FINISHED 0
+#define ACTION_CNAME_LIST 1
+#define ACTION_TIMEOUT 2
 
 
 
 //------------------- Misc code --------------------- 
 
 void output_summary() {
-  int tp = stat_ok + stat_nx + stat_sf + stat_dropped;
+  int tp = stat_ok + stat_nx + stat_dropped;
   struct timeval now;
 
   memcpy(&now, nsock_gettimeofday(), sizeof(struct timeval));
 
   if (o.debugging && (tp%SUMMARY_DELAY == 0))
-    log_write(LOG_STDOUT, "mass_rdns: %.2fs %d/%d [#: %lu, OK: %d, NX: %d, SF: %d, DR: %d, TR: %d]\n",
+    log_write(LOG_STDOUT, "mass_rdns: %.2fs %d/%d [#: %lu, OK: %d, NX: %d, DR: %d, SF: %d, TR: %d]\n",
                     TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
                     tp, stat_actual,
-                    servs.size(), stat_ok, stat_nx, stat_sf, stat_dropped, stat_trans);
+                    servs.size(), stat_ok, stat_nx, stat_dropped, stat_sf, stat_trans);
 
 }
 
@@ -326,7 +330,7 @@ void check_capacities(dns_server *tpserv) {
 // After processing a DNS response, we search through the IPs we're
 // looking for and update their results as necessary.
 // Returns non-zero if this matches a query we're looking for
-int process_result(u32 ia, char *result, int needs_system_dns) {
+int process_result(u32 ia, char *result, int action, u16 id) {
   std::list<dns_server *>::iterator servI;
   std::list<request *>::iterator reqI;
   dns_server *tpserv;
@@ -338,19 +342,26 @@ int process_result(u32 ia, char *result, int needs_system_dns) {
     for(reqI = tpserv->in_process.begin(); reqI != tpserv->in_process.end(); reqI++) {
       tpreq = *reqI;
 
-      if ((u32) (tpreq->targ->v4host().s_addr) == ia) {
+      if (id == tpreq->id) {
+
+        if (ia != 0 && (u32) (tpreq->targ->v4host().s_addr) != ia) continue;
+
+        if (action == ACTION_CNAME_LIST || action == ACTION_FINISHED) {
         tpserv->capacity += CAPACITY_UP_STEP;
         check_capacities(tpserv);
 
         if (result) tpreq->targ->setHostName(result);
         tpserv->in_process.remove(tpreq);
         tpserv->reqs_on_wire--;
+
         total_reqs--;
 
-        if (needs_system_dns)
-          cname_reqs.push_back(tpreq);
-        else
-        delete tpreq;
+          if (action == ACTION_CNAME_LIST) cname_reqs.push_back(tpreq);
+          if (action == ACTION_FINISHED) delete tpreq;
+        } else {
+          memcpy(&tpreq->timeout, nsock_gettimeofday(), sizeof(struct timeval));
+          deal_with_timedout_reads();
+        }
 
         do_possible_writes();
 
@@ -457,6 +468,7 @@ void read_evt_handler(nsock_pool nsp, nsock_event evt, void *nothing) {
   int i, nameloc, rdlen, atype, aclass;
   int errcode=0;
   int queries, answers;
+  u16 packet_id;
 
   if (total_reqs >= 1)
     nsock_read(nsp, nse_iod(evt), read_evt_handler, -1, NULL);
@@ -473,6 +485,8 @@ void read_evt_handler(nsock_pool nsp, nsock_event evt, void *nothing) {
 
   // Size of header is 12, and we must have additional data as well
   if (buflen <= 12) return;
+
+  packet_id = (buf[1] & 0xFF) + ((buf[0] & 0xFF) << 8);
 
   // Check that this is a response, standard query, and that no truncation was performed
   // 0xFA == 11111010 (we're not concerned with AA or RD bits)
@@ -493,10 +507,25 @@ void read_evt_handler(nsock_pool nsp, nsock_event evt, void *nothing) {
   // If the domain doesn't resolve (NXDOMAIN or SERVFAIL) we should have
   // 1+ queries and 0 answers:
   if (errcode) {
-    if (queries <= 0 || answers > 0) return;
-  } else {
-    if (queries <= 0 || answers <= 0) return;
+    int found;
+
+    // NXDomain means we're finished (doesn't exist for sure)
+    // but SERVFAIL might just mean a server timeout
+    found = process_result(0, NULL, errcode == 3 ? ACTION_FINISHED : ACTION_TIMEOUT, packet_id);
+
+    if (errcode == 2 && found) {
+      if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: SERVFAIL <id = %d>\n", packet_id);
+      stat_sf++;
+    } else if (errcode == 3 && found) {
+      if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: NXDOMAIN <id = %d>\n", packet_id);
+      output_summary();
+      stat_nx++;
   }
+
+    return;
+  }
+
+  if (queries <= 0 || answers <= 0) return;
 
   curbuf = 12;
 
@@ -509,30 +538,7 @@ void read_evt_handler(nsock_pool nsp, nsock_event evt, void *nothing) {
     // Make sure we have the QTYPE and QCLASS fields
     if (curbuf + 4 >= buflen) return;
     curbuf += 4;
-
-    if (errcode) {
-      struct in_addr ia;
-      int found;
-
-      ia.s_addr = parse_inaddr_arpa(buf+nameloc, buflen-nameloc);
-      if (ia.s_addr == 0) return;
-
-      found = process_result(ia.s_addr, NULL, 0);
-
-      if (errcode == 2 && found) {
-        if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: SERVFAIL <%s>\n", inet_ntoa(ia));
-        output_summary();
-        stat_sf++;
-      } else if (errcode == 3 && found) {
-        if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: NXDOMAIN <%s>\n", inet_ntoa(ia));
-        output_summary();
-        stat_nx++;
       }
-    }
-  }
-
-  // No answers if NXDOMAIN/SERVFAIL
-  if (errcode) return;
 
   // We're now at the ANSWER section
 
@@ -562,7 +568,7 @@ void read_evt_handler(nsock_pool nsp, nsock_event evt, void *nothing) {
 
       if (encoded_name_to_normal(buf+nameloc, outbuf, sizeof(outbuf)) == -1) return;
 
-      if (process_result(ia.s_addr, outbuf, 0)) {
+      if (process_result(ia.s_addr, outbuf, ACTION_FINISHED, packet_id)) {
         if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: OK MATCHED <%s> to <%s>\n", inet_ntoa(ia), outbuf);
         output_summary();
         stat_ok++;
@@ -575,7 +581,7 @@ void read_evt_handler(nsock_pool nsp, nsock_event evt, void *nothing) {
       if (ia.s_addr == 0) return;
 
       if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: CNAME found for <%s>\n", inet_ntoa(ia));
-      process_result(ia.s_addr, NULL, 1);
+      process_result(ia.s_addr, NULL, ACTION_CNAME_LIST, packet_id);
     } else {
       if (rdlen < 0 || rdlen + curbuf >= buflen) return;
       curbuf += rdlen;
@@ -662,7 +668,7 @@ int deal_with_timedout_reads() {
   memcpy(&now, nsock_gettimeofday(), sizeof(struct timeval));
 
   if (keyWasPressed())
-    SPM->printStats((double) (stat_ok + stat_nx + stat_sf + stat_dropped) / stat_actual, &now);
+    SPM->printStats((double) (stat_ok + stat_nx + stat_dropped) / stat_actual, &now);
 
   for(servI = servs.begin(); servI != servs.end(); servI++) {
     tpserv = *servI;
@@ -1006,6 +1012,7 @@ void nmap_mass_rdns_core(Target **targets, int num_targets) {
   int timeout;
   char *tpname;
   int i;
+  bool lasttrace = false;
 
   if (o.mass_dns == false) {
     Target *currenths;
@@ -1115,7 +1122,7 @@ void nmap_mass_rdns_core(Target **targets, int num_targets) {
   if ((dnspool = nsp_new(NULL)) == NULL)
     fatal("Unable to create nsock pool in nmap_mass_rdns_core()");
 
-  if (o.packetTrace())
+  if ((lasttrace = o.packetTrace()))
     nsp_settrace(dnspool, 5, o.getStartTime());
   
   connect_dns_servers();
@@ -1133,6 +1140,13 @@ void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
     if (total_reqs <= 0) break;
 
+    /* Because this can change with runtime interaction */
+    if (o.packetTrace() != lasttrace) {
+      lasttrace = !lasttrace;
+      if (lasttrace)
+	nsp_settrace(dnspool, 5, o.getStartTime());
+      else nsp_settrace(dnspool, 0, o.getStartTime());
+    }
     nsock_loop(dnspool, timeout);
   }
 
@@ -1198,12 +1212,12 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
       // #:  Number of DNS servers used
       // OK: Number of fully reverse resolved queries
       // NX: Number of confirmations of 'No such reverse domain eXists'
-      // SF: Number of IPs that got 'Server Failure's
       // DR: Dropped IPs (no valid responses were received)
+      // SF: Number of IPs that got 'Server Failure's
       // TR: Total number of transmissions necessary. The number of domains is ideal, higher is worse
-      log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs. Mode: Async [#: %lu, OK: %d, NX: %d, SF: %d, DR: %d, TR: %d, CN: %d]\n",
+      log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs. Mode: Async [#: %lu, OK: %d, NX: %d, DR: %d, SF: %d, TR: %d, CN: %d]\n",
                     stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
-                    servs.size(), stat_ok, stat_nx, stat_sf, stat_dropped, stat_trans, stat_cname);
+                    servs.size(), stat_ok, stat_nx, stat_dropped, stat_sf, stat_trans, stat_cname);
     } else {
       log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs. Mode: System [OK: %d, ??: %d]\n",
                     stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,

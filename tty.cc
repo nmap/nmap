@@ -211,13 +211,14 @@ bool keyWasPressed()
        o.verbose++;
        log_write(LOG_STDOUT, "Verbosity Increased to %d.\n", o.verbose);
     } else if (c == 'V') {
-       o.verbose--;
+       if (o.verbose > 0)
+	 o.verbose--;
        log_write(LOG_STDOUT, "Verbosity Decreased to %d.\n", o.verbose);
     } else if (c == 'd') {
        o.debugging++;
        log_write(LOG_STDOUT, "Debugging Increased to %d.\n", o.debugging);
     } else if (c == 'D') {
-       o.debugging--;
+       if (o.debugging > 0) o.debugging--;
        log_write(LOG_STDOUT, "Debugging Decreased to %d.\n", o.debugging);
     } else if (c == 'p') {
        o.setPacketTrace(true);

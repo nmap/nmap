@@ -264,8 +264,6 @@ ScanProgressMeter::~ScanProgressMeter() {
 bool ScanProgressMeter::mayBePrinted(const struct timeval *now) {
   struct timeval tv;
 
-  return true;
-  
   if (!o.verbose)
     return false;
 
