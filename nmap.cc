@@ -249,21 +249,30 @@ int nmap_main(int argc, char *argv[]) {
       {"help", no_argument, 0, 'h'},
       {"iflist", no_argument, 0, 0},
       {"max_parallelism", required_argument, 0, 'M'},
+      {"max-parallelism", required_argument, 0, 'M'},
       {"min_parallelism", required_argument, 0, 0},
+      {"min-parallelism", required_argument, 0, 0},
       {"timing", required_argument, 0, 'T'},
       {"timing", no_argument, 0, 0},
       {"max_rtt_timeout", required_argument, 0, 0},
-      {"min_rtt_timeout", required_argument, 0, 0},
+      {"min-rtt-timeout", required_argument, 0, 0},
       {"initial_rtt_timeout", required_argument, 0, 0},
+      {"initial-rtt-timeout", required_argument, 0, 0},
       {"excludefile", required_argument, 0, 0},
       {"exclude", required_argument, 0, 0},
       {"max_hostgroup", required_argument, 0, 0},
+      {"max-hostgroup", required_argument, 0, 0},
       {"min_hostgroup", required_argument, 0, 0},
+      {"min-hostgroup", required_argument, 0, 0},
       {"scanflags", required_argument, 0, 0},
       {"host_timeout", required_argument, 0, 0},
+      {"host-timeout", required_argument, 0, 0},
       {"scan_delay", required_argument, 0, 0},
+      {"scan-delay", required_argument, 0, 0},
       {"max_scan_delay", required_argument, 0, 0},
+      {"max-scan-delay", required_argument, 0, 0},
       {"max_retries", required_argument, 0, 0},
+      {"max-retries", required_argument, 0, 0},
       {"oA", required_argument, 0, 0},  
       {"oN", required_argument, 0, 0},
       {"oM", required_argument, 0, 0},  
@@ -275,17 +284,27 @@ int nmap_main(int argc, char *argv[]) {
       {"iR", required_argument, 0, 0},
       {"sI", required_argument, 0, 0},  
       {"source_port", required_argument, 0, 'g'},
+      {"source-port", required_argument, 0, 'g'},
       {"randomize_hosts", no_argument, 0, 0},
+      {"randomize-hosts", no_argument, 0, 0},
       {"osscan_limit", no_argument, 0, 0}, /* skip OSScan if no open ports */
+      {"osscan-limit", no_argument, 0, 0}, /* skip OSScan if no open ports */
       {"osscan_guess", no_argument, 0, 0}, /* More guessing flexability */
+      {"osscan-guess", no_argument, 0, 0}, /* More guessing flexability */
       {"fuzzy", no_argument, 0, 0}, /* Alias for osscan_guess */
       {"packet_trace", no_argument, 0, 0}, /* Display all packets sent/rcv */
+      {"packet-trace", no_argument, 0, 0}, /* Display all packets sent/rcv */
       {"version_trace", no_argument, 0, 0}, /* Display -sV related activity */
+      {"version-trace", no_argument, 0, 0}, /* Display -sV related activity */
       {"data_length", required_argument, 0, 0},
+      {"data-length", required_argument, 0, 0},
       {"send_eth", no_argument, 0, 0},
+      {"send-eth", no_argument, 0, 0},
       {"send_ip", no_argument, 0, 0},
+      {"send-ip", no_argument, 0, 0},
       {"stylesheet", required_argument, 0, 0},
       {"no_stylesheet", no_argument, 0, 0},
+      {"no-stylesheet", no_argument, 0, 0},
       {"webxml", no_argument, 0, 0},
       {"rH", no_argument, 0, 0},
       {"vv", no_argument, 0, 0},
@@ -293,17 +312,23 @@ int nmap_main(int argc, char *argv[]) {
       {"privileged", no_argument, 0, 0},
       {"mtu", required_argument, 0, 0},
       {"append_output", no_argument, 0, 0},
+      {"append-output", no_argument, 0, 0},
       {"noninteractive", no_argument, 0, 0},
       {"spoof_mac", required_argument, 0, 0},
+      {"spoof-mac", required_argument, 0, 0},
       {"thc", no_argument, 0, 0},  
       {"badsum", no_argument, 0, 0},  
       {"ttl", required_argument, 0, 0}, /* Time to live */
       {"allports", no_argument, 0, 0},
       {"version_intensity", required_argument, 0, 0},
+      {"version-intensity", required_argument, 0, 0},
       {"version_light", no_argument, 0, 0},
+      {"version-light", no_argument, 0, 0},
       {"version_all", no_argument, 0, 0},
+      {"version-all", no_argument, 0, 0},
       {"system_dns", no_argument, 0, 0},
       {"dns_servers", required_argument, 0, 0},
+      {"dns-servers", required_argument, 0, 0},
       {0, 0, 0, 0}
     };
 
@@ -327,23 +352,23 @@ int nmap_main(int argc, char *argv[]) {
   while((arg = getopt_long_only(argc,fakeargv,"6Ab:D:d::e:Ffg:hIi:M:m:nOo:P:p:qRrS:s:T:Vv", long_options, &option_index)) != EOF) {
     switch(arg) {
     case 0:
-      if (strcmp(long_options[option_index].name, "max_rtt_timeout") == 0) {
+      if (optcmp(long_options[option_index].name, "max-rtt-timeout") == 0) {
 	l = tval2msecs(optarg);
-	if (l < 5) fatal("Bogus --max_rtt_timeout argument specified, must be at least 5");
+	if (l < 5) fatal("Bogus --max-rtt-timeout argument specified, must be at least 5");
         if (l < 20) {
 	  error("WARNING: You specified a round-trip time timeout (%ld ms) that is EXTRAORDINARILY SMALL.  Accuracy may suffer.", l);
 	}
 	o.setMaxRttTimeout(l);
-      } else if (strcmp(long_options[option_index].name, "min_rtt_timeout") == 0) {
+      } else if (optcmp(long_options[option_index].name, "min-rtt-timeout") == 0) {
 	l = tval2msecs(optarg);
-	if (l < 0) fatal("Bogus --min_rtt_timeout argument specified");
+	if (l < 0) fatal("Bogus --min-rtt-timeout argument specified");
 	if (l > 50000) {
-	  error("Warning:  min_rtt_timeout is given in milliseconds, your value seems pretty large.");
+	  error("Warning:  min-rtt-timeout is given in milliseconds, your value seems pretty large.");
 	}
 	o.setMinRttTimeout(l);
-      } else if (strcmp(long_options[option_index].name, "initial_rtt_timeout") == 0) {
+      } else if (optcmp(long_options[option_index].name, "initial-rtt-timeout") == 0) {
 	l = tval2msecs(optarg);
-	if (l <= 0) fatal("Bogus --initial_rtt_timeout argument specified.  Must be positive");
+	if (l <= 0) fatal("Bogus --initial-rtt-timeout argument specified.  Must be positive");
 	o.setInitialRttTimeout(l);
       } else if (strcmp(long_options[option_index].name, "excludefile") == 0) {
         excludefd = fopen(optarg, "r");
@@ -354,12 +379,12 @@ int nmap_main(int argc, char *argv[]) {
 	if (excludefd)
 	  fatal("--excludefile and --exclude options are mutually exclusive.");
 	exclude_spec = strdup(optarg);
-      } else if (strcmp(long_options[option_index].name, "max_hostgroup") == 0) {
+      } else if (optcmp(long_options[option_index].name, "max-hostgroup") == 0) {
 	o.setMaxHostGroupSz(atoi(optarg));
-      } else if (strcmp(long_options[option_index].name, "min_hostgroup") == 0) {
+      } else if (optcmp(long_options[option_index].name, "min-hostgroup") == 0) {
 	o.setMinHostGroupSz(atoi(optarg));
 	if (atoi(optarg) > 100)
-	  error("Warning: You specified a highly aggressive --min_hostgroup.");
+	  error("Warning: You specified a highly aggressive --min-hostgroup.");
       } else if (strcmp(long_options[option_index].name, "scanflags") == 0) {
 	o.scanflags = parse_scanflags(optarg);
 	if (o.scanflags < 0) {
@@ -367,17 +392,17 @@ int nmap_main(int argc, char *argv[]) {
 	}
       } else if (strcmp(long_options[option_index].name, "iflist") == 0 ) {
 	iflist = true;
-      } else if (strcmp(long_options[option_index].name, "min_parallelism") == 0 ) {
+      } else if (optcmp(long_options[option_index].name, "min-parallelism") == 0 ) {
 	o.min_parallelism = atoi(optarg); 
-	if (o.min_parallelism < 1) fatal("Argument to --min_parallelism must be at least 1!");
+	if (o.min_parallelism < 1) fatal("Argument to --min-parallelism must be at least 1!");
 	if (o.min_parallelism > 100) {
-	  error("Warning: Your --min_parallelism option is pretty high! Don't complain to Fyodor if all hell breaks loose!");
+	  error("Warning: Your --min-parallelism option is pretty high!  This can hurt reliability.");
 	}
-      } else if (strcmp(long_options[option_index].name, "host_timeout") == 0) {	l = tval2msecs(optarg);
-	if (l <= 200) fatal("--host_timeout must be at least 200 milliseconds");
+      } else if (optcmp(long_options[option_index].name, "host-timeout") == 0) {	l = tval2msecs(optarg);
+	if (l <= 200) fatal("--host-timeout must be at least 200 milliseconds");
 	o.host_timeout = l;
 	if (o.host_timeout < 1000) {
-	  error("host_timeout is given in milliseconds, so you specified less than a second (%lims). This is allowed but not recommended.", o.host_timeout);
+	  error("host-timeout is given in milliseconds, so you specified less than a second (%lims). This is allowed but not recommended.", o.host_timeout);
 	}
       } else if (strcmp(long_options[option_index].name, "ttl") == 0) {
 	o.ttl = atoi(optarg);
@@ -386,74 +411,74 @@ int nmap_main(int argc, char *argv[]) {
 	}
       } else if (strcmp(long_options[option_index].name, "datadir") == 0) {
 	o.datadir = strdup(optarg);
-      } else if (strcmp(long_options[option_index].name, "append_output") == 0) {
+      } else if (optcmp(long_options[option_index].name, "append-output") == 0) {
 	o.append_output = 1;
       } else if (strcmp(long_options[option_index].name, "noninteractive") == 0) {
 	/* Do nothing */
-      } else if (strcmp(long_options[option_index].name, "spoof_mac") == 0) {
+      } else if (optcmp(long_options[option_index].name, "spoof-mac") == 0) {
 	/* I need to deal with this later, once I'm sure that I have output
 	   files set up, --datadir, etc. */
 	spoofmac = optarg;
       } else if (strcmp(long_options[option_index].name, "allports") == 0) {
         o.override_excludeports = 1;
-      } else if (strcmp(long_options[option_index].name, "version_intensity") == 0) {
+      } else if (optcmp(long_options[option_index].name, "version-intensity") == 0) {
 	o.version_intensity = atoi(optarg);
 	if (o.version_intensity < 0 || o.version_intensity > 9)
-		fatal("version_intensity must be between 0 and 9");
-      } else if (strcmp(long_options[option_index].name, "version_light") == 0) {
+		fatal("version-intensity must be between 0 and 9");
+      } else if (optcmp(long_options[option_index].name, "version-light") == 0) {
         o.version_intensity = 2;
-      } else if (strcmp(long_options[option_index].name, "version_all") == 0) {
+      } else if (optcmp(long_options[option_index].name, "version-all") == 0) {
         o.version_intensity = 9;
-      } else if (strcmp(long_options[option_index].name, "scan_delay") == 0) {
+      } else if (optcmp(long_options[option_index].name, "scan-delay") == 0) {
 	l = tval2msecs(optarg);
-	if (l < 0) fatal("Bogus --scan_delay argument specified.");
+	if (l < 0) fatal("Bogus --scan-delay argument specified.");
 	o.scan_delay = l;
 	if (o.scan_delay > o.maxTCPScanDelay()) o.setMaxTCPScanDelay(o.scan_delay);
 	if (o.scan_delay > o.maxUDPScanDelay()) o.setMaxUDPScanDelay(o.scan_delay);
 	o.max_parallelism = 1;
-      } else if (strcmp(long_options[option_index].name, "max_scan_delay") == 0) {
+      } else if (optcmp(long_options[option_index].name, "max-scan-delay") == 0) {
 	l = tval2msecs(optarg);
-	if (l < 0) fatal("--max_scan_delay cannot be negative.");
+	if (l < 0) fatal("--max-scan-delay cannot be negative.");
 	o.setMaxTCPScanDelay(l);
 	o.setMaxUDPScanDelay(l);
-      } else if (strcmp(long_options[option_index].name, "max_retries") == 0) {
+      } else if (optcmp(long_options[option_index].name, "max-retries") == 0) {
         int num_retrans = atoi(optarg);
         if (num_retrans < 0)
-          fatal("max_retransmissions must be positive");
+          fatal("max-retransmissions must be positive");
         o.setMaxRetransmissions(num_retrans);
-      } else if (strcmp(long_options[option_index].name, "randomize_hosts") == 0
+      } else if (optcmp(long_options[option_index].name, "randomize-hosts") == 0
 		 || strcmp(long_options[option_index].name, "rH") == 0) {
 	o.randomize_hosts = 1;
 	o.ping_group_sz = PING_GROUP_SZ * 4;
-      } else if (strcmp(long_options[option_index].name, "osscan_limit")  == 0) {
+      } else if (optcmp(long_options[option_index].name, "osscan-limit")  == 0) {
 	o.osscan_limit = 1;
-      } else if (strcmp(long_options[option_index].name, "osscan_guess")  == 0
+      } else if (optcmp(long_options[option_index].name, "osscan-guess")  == 0
                  || strcmp(long_options[option_index].name, "fuzzy") == 0) {
 	o.osscan_guess = 1;
-      } else if (strcmp(long_options[option_index].name, "packet_trace") == 0) {
+      } else if (optcmp(long_options[option_index].name, "packet-trace") == 0) {
 	o.setPacketTrace(true);
-      } else if (strcmp(long_options[option_index].name, "version_trace") == 0) {
+      } else if (optcmp(long_options[option_index].name, "version-trace") == 0) {
 	o.setVersionTrace(true);
 	o.debugging++;
-      } else if (strcmp(long_options[option_index].name, "data_length") == 0) {
+      } else if (optcmp(long_options[option_index].name, "data-length") == 0) {
 	o.extra_payload_length = atoi(optarg);
 	if (o.extra_payload_length < 0) {
-	  fatal("data_length must be greater than 0");
+	  fatal("data-length must be greater than 0");
 	} else if (o.extra_payload_length > 0) {
 	  o.extra_payload = (char *) safe_malloc(o.extra_payload_length);
 	  get_random_bytes(o.extra_payload, o.extra_payload_length);
 	}
-      } else if (strcmp(long_options[option_index].name, "send_eth") == 0) {
+      } else if (optcmp(long_options[option_index].name, "send-eth") == 0) {
 	o.sendpref = PACKET_SEND_ETH_STRONG;
-      } else if (strcmp(long_options[option_index].name, "send_ip") == 0) {
+      } else if (optcmp(long_options[option_index].name, "send-ip") == 0) {
 	o.sendpref = PACKET_SEND_IP_STRONG;
       } else if (strcmp(long_options[option_index].name, "stylesheet") == 0) {
 	o.setXSLStyleSheet(optarg);
-      } else if (strcmp(long_options[option_index].name, "no_stylesheet") == 0) {
+      } else if (optcmp(long_options[option_index].name, "no-stylesheet") == 0) {
 	o.setXSLStyleSheet(NULL);
-      } else if (strcmp(long_options[option_index].name, "system_dns") == 0) {
+      } else if (strcmp(long_options[option_index].name, "system-dns") == 0) {
         o.mass_dns = false;
-      } else if (strcmp(long_options[option_index].name, "dns_servers") == 0) {
+      } else if (optcmp(long_options[option_index].name, "dns-servers") == 0) {
         o.dns_servers = strdup(optarg);
       } else if (strcmp(long_options[option_index].name, "webxml") == 0) {
 	o.setXSLStyleSheet("http://www.insecure.org/nmap/data/nmap.xsl");
@@ -599,7 +624,7 @@ int nmap_main(int argc, char *argv[]) {
       o.max_parallelism = atoi(optarg); 
       if (o.max_parallelism < 1) fatal("Argument to -M must be at least 1!");
       if (o.max_parallelism > 900) {
-	error("Warning: Your max_parallelism (-M) option is absurdly high! Don't complain to Fyodor if all hell breaks loose!");
+	error("Warning: Your max-parallelism (-M) option is extraordinarily high, which can hurt reliability");
       }
       break;
     case 'm': 
@@ -842,7 +867,7 @@ int nmap_main(int argc, char *argv[]) {
 
 #ifdef WIN32
   if (o.sendpref & PACKET_SEND_IP) {
-	  error("WARNING: raw IP (rather than raw ethernet) packet sending attempted on Windows. This probably won't work.  Consider --send_eth next time.\n");
+	  error("WARNING: raw IP (rather than raw ethernet) packet sending attempted on Windows. This probably won't work.  Consider --send-eth next time.\n");
 
   }
 #endif
@@ -861,7 +886,7 @@ int nmap_main(int argc, char *argv[]) {
       while(*p) { 
 	if (*p == ':') p++;
 	if (isxdigit(*p) && isxdigit(*(p+1))) {
-	  if (pos >= 6) fatal("Bogus --spoof_mac value encountered (%s) -- only up to 6 bytes permitted", spoofmac);
+	  if (pos >= 6) fatal("Bogus --spoof-mac value encountered (%s) -- only up to 6 bytes permitted", spoofmac);
 	  tmphex[0] = *p; tmphex[1] = *(p+1); tmphex[2] = '\0';
 	  mac_data[pos] = (u8) strtol(tmphex, NULL, 16);
 	  pos++;
@@ -871,7 +896,7 @@ int nmap_main(int argc, char *argv[]) {
       if (*p) {
 	/* Failed to parse it as a MAC prefix -- treating as a vendor substring instead */
 	if (!MACCorp2Prefix(spoofmac, mac_data))
-	  fatal("Could not parse as a prefix nor find as a vendor substring the given --spoof_mac argument: %s.  If you are giving hex digits, there must be an even number of them.", spoofmac);
+	  fatal("Could not parse as a prefix nor find as a vendor substring the given --spoof-mac argument: %s.  If you are giving hex digits, there must be an even number of them.", spoofmac);
 	pos = 3;
       }
     }
@@ -1352,13 +1377,13 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
     fatal("Unable to parse supposed log file %s.  Perhaps the Nmap execution had not finished at least one host?  In that case there is no use \"resuming\"", fname);
 
 
-  strcpy(nmap_arg_buffer, "nmap --append_output ");
+  strcpy(nmap_arg_buffer, "nmap --append-output ");
   if ((q-p) + 21 + 1 >= (int) sizeof(nmap_arg_buffer)) fatal("0verfl0w");
   memcpy(nmap_arg_buffer + 21, p, q-p);
   nmap_arg_buffer[21 + q-p] = '\0';
 
-  if (strstr(nmap_arg_buffer, "--randomize_hosts") != NULL) {
-    error("WARNING:  You are attempting to resume a scan which used --randomize_hosts.  Some hosts in the last randomized batch make be missed and others may be repeated once");
+  if (strstr(nmap_arg_buffer, "--randomize-hosts") != NULL) {
+    error("WARNING:  You are attempting to resume a scan which used --randomize-hosts.  Some hosts in the last randomized batch make be missed and others may be repeated once");
   }
 
   *myargc = arg_parse(nmap_arg_buffer, myargv);
@@ -1604,8 +1629,8 @@ printf("%s %s ( %s )\n"
        "  -PS/PA/PU [portlist]: TCP SYN/ACK or UDP discovery to given ports\n"
        "  -PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes\n"
        "  -n/-R: Never do DNS resolution/Always resolve [default: sometimes]\n"
-       "  --dns_servers <serv1[,serv2],...>: Specify custom DNS servers\n"
-       "  --system_dns: Use OS's DNS resolver\n"
+       "  --dns-servers <serv1[,serv2],...>: Specify custom DNS servers\n"
+       "  --system-dns: Use OS's DNS resolver\n"
        "SCAN TECHNIQUES:\n"
        "  -sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans\n"
        "  -sN/sF/sX: TCP Null, FIN, and Xmas scans\n"
@@ -1620,32 +1645,32 @@ printf("%s %s ( %s )\n"
        "  -r: Scan ports consecutively - don't randomize\n"
        "SERVICE/VERSION DETECTION:\n"
        "  -sV: Probe open ports to determine service/version info\n"
-       "  --version_intensity <level>: Set from 0 (light) to 9 (try all probes)\n"
-       "  --version_light: Limit to most likely probes (intensity 2)\n"
-       "  --version_all: Try every single probe (intensity 9)\n"
-       "  --version_trace: Show detailed version scan activity (for debugging)\n"
+       "  --version-intensity <level>: Set from 0 (light) to 9 (try all probes)\n"
+       "  --version-light: Limit to most likely probes (intensity 2)\n"
+       "  --version-all: Try every single probe (intensity 9)\n"
+       "  --version-trace: Show detailed version scan activity (for debugging)\n"
        "OS DETECTION:\n"
        "  -O: Enable OS detection\n"
-       "  --osscan_limit: Limit OS detection to promising targets\n"
-       "  --osscan_guess: Guess OS more aggressively\n"
+       "  --osscan-limit: Limit OS detection to promising targets\n"
+       "  --osscan-guess: Guess OS more aggressively\n"
        "TIMING AND PERFORMANCE:\n"
        "  -T[0-5]: Set timing template (higher is faster)\n"
-       "  --min_hostgroup/max_hostgroup <size>: Parallel host scan group sizes\n"
-       "  --min_parallelism/max_parallelism <msec>: Probe parallelization\n"
-       "  --min_rtt_timeout/max_rtt_timeout/initial_rtt_timeout <msec>: Specifies\n"
+       "  --min-hostgroup/max-hostgroup <size>: Parallel host scan group sizes\n"
+       "  --min-parallelism/max-parallelism <msec>: Probe parallelization\n"
+       "  --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout <msec>: Specifies\n"
        "      probe round trip time.\n"
-       "  --max_retries <tries>: Caps number of port scan probe retransmissions.\n"
-       "  --host_timeout <msec>: Give up on target after this long\n"
-       "  --scan_delay/--max_scan_delay <msec>: Adjust delay between probes\n"
+       "  --max-retries <tries>: Caps number of port scan probe retransmissions.\n"
+       "  --host-timeout <msec>: Give up on target after this long\n"
+       "  --scan-delay/--max-scan-delay <msec>: Adjust delay between probes\n"
        "FIREWALL/IDS EVASION AND SPOOFING:\n"
        "  -f; --mtu <val>: fragment packets (optionally w/given MTU)\n"
        "  -D <decoy1,decoy2[,ME],...>: Cloak a scan with decoys\n"
        "  -S <IP_Address>: Spoof source address\n"
        "  -e <iface>: Use specified interface\n"
-       "  -g/--source_port <portnum>: Use given port number\n"
-       "  --data_length <num>: Append random data to sent packets\n"
+       "  -g/--source-port <portnum>: Use given port number\n"
+       "  --data-length <num>: Append random data to sent packets\n"
        "  --ttl <val>: Set IP time-to-live field\n"
-       "  --spoof_mac <mac address/prefix/vendor name>: Spoof your MAC address\n"
+       "  --spoof-mac <mac address/prefix/vendor name>: Spoof your MAC address\n"
        "  --badsum: Send packets with a bogus TCP/UDP checksum\n"
        "OUTPUT:\n"
        "  -oN/-oX/-oS/-oG <file>: Output scan in normal, XML, s|<rIpt kIddi3,\n"
@@ -1653,18 +1678,18 @@ printf("%s %s ( %s )\n"
        "  -oA <basename>: Output in the three major formats at once\n"
        "  -v: Increase verbosity level (use twice for more effect)\n"
        "  -d[level]: Set or increase debugging level (Up to 9 is meaningful)\n"
-       "  --packet_trace: Show all packets sent and received\n"
+       "  --packet-trace: Show all packets sent and received\n"
        "  --iflist: Print host interfaces and routes (for debugging)\n"
-       "  --append_output: Append to rather than clobber specified output files\n"
+       "  --append-output: Append to rather than clobber specified output files\n"
        "  --resume <filename>: Resume an aborted scan\n"
        "  --stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML\n"
        "  --webxml: Reference stylesheet from Insecure.Org for more portable XML\n"
-       "  --no_stylesheet: Prevent associating of XSL stylesheet w/XML output\n"
+       "  --no-stylesheet: Prevent associating of XSL stylesheet w/XML output\n"
        "MISC:\n"
        "  -6: Enable IPv6 scanning\n"
        "  -A: Enables OS detection and Version detection\n"
        "  --datadir <dirname>: Specify custom Nmap data file location\n"
-       "  --send_eth/--send_ip: Send using raw ethernet frames or IP packets\n"
+       "  --send-eth/--send-ip: Send using raw ethernet frames or IP packets\n"
        "  --privileged: Assume that the user is fully privileged\n"
        "  -V: Print version number\n"
        "  -h: Print this help summary page.\n"
@@ -1684,13 +1709,13 @@ waits for nmap to finish.  Results are printed to the\n\
 screen (of course you can still use file output commands).\n\
 ! <command>   -- runs shell command given in the foreground\n\
 x             -- Exit Nmap\n\
-f [--spoof <fakeargs>] [--nmap_path <path>] <nmap args>\n\
+f [--spoof <fakeargs>] [--nmap-path <path>] <nmap args>\n\
 -- Executes nmap in the background (results are NOT\n\
 printed to the screen).  You should generally specify a\n\
 file for results (with -oX, -oG, or -oN).  If you specify\n\
 fakeargs with --spoof, Nmap will try to make those\n\
 appear in ps listings.  If you wish to execute a special\n\
-version of Nmap, specify --nmap_path.\n\
+version of Nmap, specify --nmap-path.\n\
 n -h          -- Obtain help with Nmap syntax\n\
 h             -- Prints this help screen.\n\
 Examples:\n\
@@ -1705,18 +1730,6 @@ char *seqreport(struct seq_info *seq) {
   int i;
 
   snprintf(report, sizeof(report), "TCP Sequence Prediction: Class=%s\n                         Difficulty=%d (%s)\n", seqclass2ascii(seq->seqclass), seq->index, seqidx2difficultystr(seq->index));
-  if (o.verbose > 1 || o.debugging ) {
-    p = tmp;
-    strcpy(p, "TCP ISN Seq. Numbers: ");
-    p += 22;
-    for(i=0; i < seq->responses; i++) {
-      if (p - tmp + 20 > ((int) sizeof(tmp)))
-	fatal("0verfl0w Error #234112");
-      p += snprintf(p, 16, "%X ", seq->seqs[i]);
-    }
-    *--p = '\n';
-    strcat(report, tmp);
-  }
   return report;
 }
 
@@ -1911,7 +1924,7 @@ char *grab_next_host_spec(FILE *inputfd, int argc, char **fakeargv) {
     do {
       ip.s_addr = get_random_u32();
     } while (ip_is_reserved(&ip));
-    strcpy(host_spec, inet_ntoa(ip));
+    Strncpy(host_spec, inet_ntoa(ip), sizeof(host_spec));
   } else if (!inputfd) {
     return( (optind < argc)?  fakeargv[optind++] : NULL);
   } else { 

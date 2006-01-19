@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
-3.97Shmoo
+
+o The 26 Nmap commands that previously included an underscore
+  (--max_rtt_timeout, --senc_eth, --host_timeout, etc.) have been
+  renamed to use a hyphen in the preferred format
+  (i.e. --max-rtt-timeout).  Underscores are still supported for
+  backwared compatability.
 
 o Added run time interaction as documented at
   http://www.insecure.org/nmap/man/man-runtime-interaction.html .

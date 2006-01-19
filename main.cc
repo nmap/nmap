@@ -164,6 +164,7 @@ int main(int argc, char *argv[], char *envp[]) {
   int interactivemode = 0;
   int fd;
   struct timeval tv;
+  int arglen = 0;
 
 #ifdef __amigaos__
 	if(!OpenLibs()) {
@@ -299,15 +300,16 @@ int main(int argc, char *argv[], char *envp[]) {
 	      fatal("Bad arguments to f!");
 	    }	    
 	    strncpy(fakeargs, myargv[i], sizeof(fakeargs));
-	  } else if (strcasecmp(myargv[i], "--nmap_path") == 0) {
+	  } else if (optcmp(myargv[i], "--nmap-path") == 0) {
 	    if (++i > myargc -1) {
 	      fatal("Bad arguments to f!");
 	    }	    
 	    strncpy(nmappath, myargv[i], sizeof(nmappath));
 	  } else {
-	    if (strlen(nmapargs) + strlen(myargv[i]) + 1 < sizeof(nmapargs)) {
+	    arglen = strlen(nmapargs);
+	    if (arglen + strlen(myargv[i]) + 1 < sizeof(nmapargs)) {
 	      strcat(nmapargs, " ");
-	      strcat(nmapargs, myargv[i]);
+	      strncat(nmapargs, myargv[i], arglen - 1);
 	    } else fatal("Arguments too long.");
 	  }	 
 	}
@@ -344,7 +346,7 @@ int main(int argc, char *argv[], char *envp[]) {
 	  }
 	}
 	if (!*nmappath) {
-	  fatal("Could not find Nmap -- you must add --nmap_path argument");
+	  fatal("Could not find Nmap -- you must add --nmap-path argument");
 	}       
 
 	/* We should be courteous and give Nmap reasonable signal defaults */

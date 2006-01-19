@@ -113,7 +113,7 @@
 // Attempts to resolve host names in parallel using a set
 // of DNS servers. DNS servers are found here:
 //
-//    --dns_servers <serv1[,serv2],...>   (all platforms - overrides everything else)
+//    --dns-servers <serv1[,serv2],...>   (all platforms - overrides everything else)
 //
 //    /etc/resolv.conf   (only on unix)
 //
@@ -208,7 +208,7 @@ int read_timeouts[][4] = {
 #define CAPACITY_MIN 10
 #define CAPACITY_MAX 200
 #define CAPACITY_UP_STEP 2
-#define CAPACITY_MINOR_DOWN_SCALE 0.95
+#define CAPACITY_MINOR_DOWN_SCALE 0.9
 #define CAPACITY_MAJOR_DOWN_SCALE 0.7
 
 // Each request will try to resolve on at most this many servers:
@@ -311,8 +311,7 @@ void output_summary() {
     log_write(LOG_STDOUT, "mass_rdns: %.2fs %d/%d [#: %lu, OK: %d, NX: %d, DR: %d, SF: %d, TR: %d]\n",
                     TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
                     tp, stat_actual,
-                    servs.size(), stat_ok, stat_nx, stat_dropped, stat_sf, stat_trans);
-
+                    (unsigned long) servs.size(), stat_ok, stat_nx, stat_dropped, stat_sf, stat_trans);
 }
 
 
@@ -1217,7 +1216,7 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
       // TR: Total number of transmissions necessary. The number of domains is ideal, higher is worse
       log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs. Mode: Async [#: %lu, OK: %d, NX: %d, DR: %d, SF: %d, TR: %d, CN: %d]\n",
                     stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
-                    servs.size(), stat_ok, stat_nx, stat_dropped, stat_sf, stat_trans, stat_cname);
+                    (unsigned long) servs.size(), stat_ok, stat_nx, stat_dropped, stat_sf, stat_trans, stat_cname);
     } else {
       log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs. Mode: System [OK: %d, ??: %d]\n",
                     stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,

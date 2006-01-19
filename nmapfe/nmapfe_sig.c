@@ -527,31 +527,31 @@ static int command_size = 0;
   if (GTK_TOGGLE_BUTTON(opt.startRtt)->active) {
   int val = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(opt.startRttTime));
 
-    sprintf(command+strlen(command), "--initial_rtt_timeout %d ", val);
+    sprintf(command+strlen(command), "--initial-rtt-timeout %d ", val);
   }
 
   if (GTK_TOGGLE_BUTTON(opt.minRtt)->active) {
   int val = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(opt.minRttTime));
 
-    sprintf(command+strlen(command), "--min_rtt_timeout %d ", val);
+    sprintf(command+strlen(command), "--min-rtt-timeout %d ", val);
     }
 
   if (GTK_TOGGLE_BUTTON(opt.maxRtt)->active) {
   int val = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(opt.maxRttTime));
 
-    sprintf(command+strlen(command), "--max_rtt_timeout %d ", val);
+    sprintf(command+strlen(command), "--max-rtt-timeout %d ", val);
   }
 
   if (GTK_TOGGLE_BUTTON(opt.hostTimeout)->active) {
   int val = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(opt.hostTimeoutTime));
 
-    sprintf(command+strlen(command), "--host_timeout %d ", val);
+    sprintf(command+strlen(command), "--host-timeout %d ", val);
     }
 
   if (GTK_TOGGLE_BUTTON(opt.scanDelay)->active) {
   int val = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(opt.scanDelayTime));
 
-    sprintf(command+strlen(command), "--scan_delay %d ", val);
+    sprintf(command+strlen(command), "--scan-delay %d ", val);
   }
 
   if (GTK_TOGGLE_BUTTON(opt.ipv4Ttl)->active) {
@@ -563,7 +563,7 @@ static int command_size = 0;
   if (GTK_TOGGLE_BUTTON(opt.minPar)->active) {
   int val = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(opt.minParSocks));
 
-    sprintf(command+strlen(command), "--min_parallelism %d ", val);
+    sprintf(command+strlen(command), "--min-parallelism %d ", val);
     }
 
   if (GTK_TOGGLE_BUTTON(opt.maxPar)->active) {
@@ -664,7 +664,7 @@ static int command_size = 0;
       strcat(command, " ");
 
       if (GTK_TOGGLE_BUTTON(opt.outputAppend)->active)
-        strcat(command, "--append_output ");
+        strcat(command, "--append-output ");
     }
   }
  

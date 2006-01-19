@@ -425,7 +425,7 @@ void NmapOps::ValidateOptions() {
   }
 
   if (max_parallelism && min_parallelism && (min_parallelism > max_parallelism)) {
-    fatal("--min_parallelism must be less than or equal to --max_parallelism");
+    fatal("--min-parallelism must be less than or equal to --max-parallelism");
   }
   
   if (af() == AF_INET6 && (numdecoys|osscan|bouncescan|fragscan|ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|rpcscan|synscan|udpscan|windowscan|xmasscan)) {

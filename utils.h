@@ -190,6 +190,12 @@ template<class T> T box(T bmin, T bmax, T bnum) {
 void hdump(unsigned char *packet, unsigned int len);
 void lamont_hdump(char *cp, unsigned int length);
 
+/* Compare a canonical option name (e.g. "max-scan-delay") with a
+   user-generated option such as "max_scan_delay" and returns 0 if the
+   two values are considered equivalant (for example, - and _ are
+   considered to be the same), nonzero otherwise. */
+int optcmp(const char *canonical, const char *instance);
+
 /* Scramble the contents of an array*/
 void genfry(unsigned char *arr, int elem_sz, int num_elem);
 void shortfry(unsigned short *arr, int num_elem);

@@ -579,7 +579,9 @@ log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "%d service%s unrecognized despite ret
 
 char* xml_convert (const char* str) {
   char *temp, ch=0, prevch = 0, *p;
-  temp = (char *) malloc(strlen(str)*6+1);
+  int strl = strlen(str);
+  temp = (char *) malloc(strl*6+1);
+  char *end = temp + strl * 6 + 1;
   for (p = temp;(prevch = ch, ch = *str);str++) {
     char *a;
     switch (ch) {
@@ -607,7 +609,8 @@ char* xml_convert (const char* str) {
       *p++ = ch;
       continue;
     }
-    strcpy(p,a); p += strlen(a);
+    assert(end - p > 1);
+    Strncpy(p,a, end - p - 1); p += strlen(a); // SAFE
   }
   *p = 0;
   temp = (char *) realloc(temp,strlen(temp)+1);
@@ -1016,10 +1019,16 @@ static void printosclassificationoutput(const struct OS_Classification_Results *
 	if (strcmp(fullfamily[familyno], tmpbuf) == 0) {
 	  // got a match ... do we need to add the generation?
 	  if (OSR->OSC[classno]->OS_Generation && !strstr(familygenerations[familyno], OSR->OSC[classno]->OS_Generation)) {
+	    int flen = strlen(familygenerations[familyno]);
 	    // We add it, preceded by | if something is already there
-	    if (strlen(familygenerations[familyno]) + 2 + strlen(OSR->OSC[classno]->OS_Generation) >= 48) fatal("buffer 0verfl0w of familygenerations");
-	    if (*familygenerations[familyno]) strcat(familygenerations[familyno], "|");
-	    strcat(familygenerations[familyno], OSR->OSC[classno]->OS_Generation);
+	    if (flen + 2 + strlen(OSR->OSC[classno]->OS_Generation) >= 
+		sizeof(familygenerations[familyno])) 
+	      fatal("buffer 0verfl0w of familygenerations");
+	    if (*familygenerations[familyno]) 
+	      strcat(familygenerations[familyno], "|");
+	    strncat(familygenerations[familyno], 
+		    OSR->OSC[classno]->OS_Generation, 
+		    sizeof(familygenerations[familyno]) - flen);
 	  }
 	  break;
 	}
