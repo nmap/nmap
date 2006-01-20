@@ -709,12 +709,29 @@ const char *name = gtk_entry_get_text(GTK_ENTRY(text));
   gtk_widget_show(create_fileSelection("Select File", filename, NULL, GTK_ENTRY(text)));
 }
 
-void scanType_changed_fcb(int *variable, guint action, GtkWidget *w)
+void scanType_cb 
+(GtkComboBox *w, gpointer data)
 {	
-  if ((variable != NULL) && (w != NULL)) {
-    *variable = action;
+    Entry *user = data;
+    gint i = 0, j, k;
 
-    if ((action == PING_SCAN) || (action == LIST_SCAN)) {
+    j = gtk_combo_box_get_active(w);
+
+    if (opt.uid == 0) {
+        k = j;
+    } else {
+        for (k = 0; user[k].scantype; k++) {
+            if (user[k].rootonly != TRUE) {
+                if (i == j) {
+                    break;
+                }
+                i++;
+            }
+        }
+    }
+    opt.scanValue = user[k].scantype;
+
+    if ((opt.scanValue == PING_SCAN) || (opt.scanValue == LIST_SCAN)) {
       // gtk_widget_set_sensitive(GTK_WIDGET(opt.protportFrame), FALSE);
       gtk_widget_set_sensitive(GTK_WIDGET(opt.protportType), FALSE);
       gtk_widget_set_sensitive(GTK_WIDGET(opt.protportLabel), FALSE);
@@ -730,7 +747,8 @@ void scanType_changed_fcb(int *variable, guint action, GtkWidget *w)
       gtk_widget_set_sensitive(GTK_WIDGET(opt.OSInfo), TRUE);
     }
 
-    if ((action == PING_SCAN) || (action == LIST_SCAN) || (action == PROT_SCAN)) {
+    if ((opt.scanValue == PING_SCAN) || 
+            (opt.scanValue == LIST_SCAN) || (opt.scanValue == PROT_SCAN)) {
       gtk_widget_set_sensitive(GTK_WIDGET(opt.RPCInfo), FALSE);
       gtk_widget_set_sensitive(GTK_WIDGET(opt.VersionInfo), FALSE);
     } else {
@@ -738,7 +756,7 @@ void scanType_changed_fcb(int *variable, guint action, GtkWidget *w)
       gtk_widget_set_sensitive(GTK_WIDGET(opt.VersionInfo), TRUE);
     }
 
-    if ((action == CONNECT_SCAN) || (action == BOUNCE_SCAN)) {
+    if ((opt.scanValue == CONNECT_SCAN) || (opt.scanValue == BOUNCE_SCAN)) {
       gtk_widget_set_sensitive(GTK_WIDGET(opt.useDecoy), FALSE);
       gtk_widget_set_sensitive(GTK_WIDGET(opt.Decoy), FALSE);
     } else if (opt.uid == 0) {
@@ -746,16 +764,17 @@ void scanType_changed_fcb(int *variable, guint action, GtkWidget *w)
       gtk_widget_set_sensitive(GTK_WIDGET(opt.Decoy), TRUE);
     }
 
-    if ((action != ACK_SCAN) && (action != MAIMON_SCAN) && (action != FIN_SCAN) &&
-        (action != SYN_SCAN) && (action != NULL_SCAN) && (action != XMAS_SCAN) &&
-        (action != WIN_SCAN))
+    if ((opt.scanValue != ACK_SCAN) && 
+            (opt.scanValue != MAIMON_SCAN) && (opt.scanValue != FIN_SCAN) &&
+            (opt.scanValue != SYN_SCAN) && (opt.scanValue != NULL_SCAN) && 
+            (opt.scanValue != XMAS_SCAN) && (opt.scanValue != WIN_SCAN))
       gtk_widget_set_sensitive(GTK_WIDGET(opt.useFragments), FALSE);
     else if (opt.uid == 0)
       gtk_widget_set_sensitive(GTK_WIDGET(opt.useFragments), TRUE);
 
-    if ((action == BOUNCE_SCAN) || (action == IDLE_SCAN)) {
+    if ((opt.scanValue == BOUNCE_SCAN) || (opt.scanValue == IDLE_SCAN)) {
       gtk_label_set_text(GTK_LABEL(opt.scanRelayLabel), 
-                         (action == BOUNCE_SCAN) ? "Bounce Host:" : "Zombie Host:");
+                         (opt.scanValue == BOUNCE_SCAN) ? "Bounce Host:" : "Zombie Host:");
       gtk_widget_set_sensitive(GTK_WIDGET(opt.scanRelayLabel), TRUE);
       gtk_widget_set_sensitive(GTK_WIDGET(opt.scanRelay), TRUE);
       gtk_widget_grab_focus(GTK_WIDGET(opt.scanRelay));
@@ -766,8 +785,7 @@ void scanType_changed_fcb(int *variable, guint action, GtkWidget *w)
     }
 
     gtk_object_set(GTK_OBJECT(opt.protportFrame), "label",
-                   (action == PROT_SCAN) ? "Scanned Protocols" : "Scanned Ports", NULL);
-  }
+                   (opt.scanValue == PROT_SCAN) ? "Scanned Protocols" : "Scanned Ports", NULL);
 
   display_nmap_command();
 }

@@ -143,6 +143,8 @@ static void About_callback      (void);
 static void Quit_callback       (void);
 static void Colourize_callback  (GtkAction *action, GtkRadioAction *current);
 
+void scanType_cb                (GtkComboBox *widget, gpointer data);
+
 GtkWidget *main_win;
 
 static GtkActionEntry menu_entries[] = {
@@ -188,31 +190,24 @@ static const char *menu_description =
     "   </menubar>"
     "</ui>";
 
-static GtkItemFactoryEntry userScanEntries[] = {
-  { "/Connect Scan",           NULL, scanType_changed_fcb, CONNECT_SCAN, NULL },
-  { "/Ping Sweep",             NULL, scanType_changed_fcb, PING_SCAN,    NULL },
-  { "/Host List",              NULL, scanType_changed_fcb, LIST_SCAN,    NULL },
-  { "/FTP Bounce Attack",      NULL, scanType_changed_fcb, BOUNCE_SCAN,  NULL },
-  { NULL, NULL, NULL, NO_SCAN, NULL }
+static Entry scanentries[] = {
+    { "SYN Stealth Scan",       SYN_SCAN,       TRUE },
+    { "Connect Scan",           CONNECT_SCAN,   FALSE },
+    { "ACK Stealth Scan",       ACK_SCAN,       TRUE },
+    { "FIN|ACK Stealth Scan",   MAIMON_SCAN,    TRUE },
+    { "FIN Stealth Scan",       FIN_SCAN,       TRUE },
+    { "NULL Stealth Scan",      NULL_SCAN,      TRUE },
+    { "XMas Tree Stealth Scan", XMAS_SCAN,      TRUE },
+    { "TCP Window Scan",        WIN_SCAN,       TRUE },
+    { "UDP Port Scan",          UDP_SCAN,       TRUE },
+    { "IP Protocol Scan",       PROT_SCAN,      TRUE },
+    { "Ping Sweep",             PING_SCAN,      FALSE },
+    { "Host List",              LIST_SCAN,      FALSE },
+    { "FTP Bounce Attack",      BOUNCE_SCAN,    FALSE },
+    { "Idle Scan",              IDLE_SCAN,      TRUE },
+    { NULL,                     0,              FALSE }
 };
 
-static GtkItemFactoryEntry rootScanEntries[] = {
-  { "/Connect Scan",           NULL, scanType_changed_fcb, CONNECT_SCAN, NULL },
-  { "/SYN Stealth Scan",       NULL, scanType_changed_fcb, SYN_SCAN,     NULL },
-  { "/ACK Stealth Scan",       NULL, scanType_changed_fcb, ACK_SCAN,     NULL },
-  { "/FIN|ACK Stealth Scan",   NULL, scanType_changed_fcb, MAIMON_SCAN,  NULL },
-  { "/FIN Stealth Scan",       NULL, scanType_changed_fcb, FIN_SCAN,     NULL },
-  { "/NULL Stealth Scan",      NULL, scanType_changed_fcb, NULL_SCAN,    NULL },
-  { "/XMas Tree Stealth Scan", NULL, scanType_changed_fcb, XMAS_SCAN,    NULL },
-  { "/TCP Window Scan",        NULL, scanType_changed_fcb, WIN_SCAN,     NULL },
-  { "/UDP Port Scan",          NULL, scanType_changed_fcb, UDP_SCAN,     NULL },
-  { "/IP Protocol Scan",       NULL, scanType_changed_fcb, PROT_SCAN,    NULL },
-  { "/Ping Sweep",             NULL, scanType_changed_fcb, PING_SCAN,    NULL },
-  { "/Host List",              NULL, scanType_changed_fcb, LIST_SCAN,    NULL },
-  { "/FTP Bounce Attack",      NULL, scanType_changed_fcb, BOUNCE_SCAN,  NULL },
-  { "/Idle Scan",              NULL, scanType_changed_fcb, IDLE_SCAN,    NULL },
-  { NULL, NULL, NULL, NO_SCAN, NULL }
-};
 
 
 static GtkItemFactoryEntry throttleEntries[] = {
@@ -373,7 +368,23 @@ About_callback (void) {
 #endif
     
 }
+static GtkTreeModel *
+create_dropdown_store(Entry *data, gboolean is_root)
+{
+    GtkTreeIter     iter;
+    GtkTreeStore    *store;
+    gint i;
+    
+    store = gtk_tree_store_new (1, G_TYPE_STRING);
 
+    for (i = 0; data[i].scan; i++) {
+        if (is_root || (data[i].rootonly == is_root)) {
+            gtk_tree_store_append(store, &iter, NULL);
+            gtk_tree_store_set(store, &iter, 0, data[i].scan, -1);
+        }
+    }
+    return GTK_TREE_MODEL (store);
+}
 /* Returns a menubar widget made from the above menu */
 static GtkWidget *new_factory_menu(GtkWidget  *window, GtkType menuType,
                                    const gchar *name, GtkItemFactoryEntry *entries,
@@ -553,17 +564,33 @@ GtkAdjustment *adjust;
   gtk_table_set_row_spacings(GTK_TABLE(table), 5);
   gtk_container_add(GTK_CONTAINER(frame), table);
 
-  opt.scanType = new_factory_menu(NULL, GTK_TYPE_OPTION_MENU, "<scanMenu>",
-                                  (opt.uid == 0) ? rootScanEntries : userScanEntries,
-                                   &opt.scanValue);
-  opt.scanValue = (opt.uid == 0) ? SYN_SCAN : CONNECT_SCAN;
-  gtk_option_menu_set_history(GTK_OPTION_MENU(opt.scanType),
-                              opt.scanValue - SCAN_OFFSET);
-  
-  /*gtk_object_set(GTK_OBJECT(opt.scanType), "height", 26, NULL);*/
-  gtk_table_attach_defaults(GTK_TABLE(table), opt.scanType, 0, 4, 0, 1);
-  gtk_widget_show(opt.scanType);
+  /* Create "Scan Type" combobox */
+  {
+      GtkCellRenderer *renderer;
+      GtkTreeModel    *model;
+      model = create_dropdown_store (scanentries, 
+              (opt.uid == 0) ? TRUE : FALSE);
+      opt.scanType = gtk_combo_box_new_with_model (model);
+      g_object_unref (model);
 
+      opt.scanValue = (opt.uid == 0) ? SYN_SCAN : CONNECT_SCAN;
+
+      gtk_table_attach_defaults (GTK_TABLE(table), opt.scanType, 0, 4, 0, 1);
+      gtk_widget_show (opt.scanType);
+
+      renderer = gtk_cell_renderer_text_new ();
+      gtk_cell_layout_pack_start (
+              GTK_CELL_LAYOUT (opt.scanType), renderer, TRUE);
+      gtk_cell_layout_set_attributes (
+              GTK_CELL_LAYOUT (opt.scanType), renderer,
+              "text", 0,
+              NULL);
+      g_object_unref(renderer);
+
+      g_signal_connect(G_OBJECT(opt.scanType), "changed",
+              G_CALLBACK (scanType_cb), scanentries);
+      
+  }
   
   opt.scanRelayLabel = gtk_label_new("Relay Host:");
   gtk_label_set_justify(GTK_LABEL(opt.scanRelayLabel), GTK_JUSTIFY_LEFT);
@@ -1380,6 +1407,11 @@ GtkAdjustment *adjust;
   gtk_widget_show(hbox);
 
   gtk_widget_show(main_vbox);
+
+  /* Set default values here because now we can be sure that all the
+   * widgets have been created.
+   */
+  gtk_combo_box_set_active(GTK_COMBO_BOX (opt.scanType), 0);
 
   display_nmap_command();
 

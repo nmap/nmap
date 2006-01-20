@@ -121,6 +121,12 @@
 
 /* #define DEBUG(str) { fprintf(stderr, str); fflush(stderr); } */
 
+typedef struct {
+    gchar       *scan;
+    gint        scantype;
+    gboolean    rootonly;
+} Entry;
+
 
 /* main menu entries */
 enum {
