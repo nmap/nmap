@@ -209,44 +209,39 @@ static Entry scanentries[] = {
 };
 
 
-
-static GtkItemFactoryEntry throttleEntries[] = {
-  { "/Paranoid Throttling",  NULL, throttleType_changed_fcb, PARANOID_THROTTLE,  NULL },
-  { "/Sneaky Throttling",    NULL, throttleType_changed_fcb, SNEAKY_THROTTLE,    NULL },
-  { "/Polite Throttling",    NULL, throttleType_changed_fcb, POLITE_THROTTLE,    NULL },
-  { "/Normal Throttling",    NULL, throttleType_changed_fcb, NORMAL_THROTTLE,    NULL },
-  { "/Agressive Throttling", NULL, throttleType_changed_fcb, AGRESSIVE_THROTTLE, NULL },
-  { "/Insane Throttling",    NULL, throttleType_changed_fcb, INSANE_THROTTLE,    NULL },
-  { NULL, NULL, NULL, NO_THROTTLE, NULL }
+static gchar *throttleEntries[] = {
+    "Paranoid Throttling",
+    "Sneaky Throttling",
+    "Polite Throttling",
+    "Normal Throttling",
+    "Aggressive Throttling",
+    "Insane Throttling",
+    NULL
 };
 
-
-static GtkItemFactoryEntry resolveEntries[] = {
-  { "/Always",        NULL, resolveType_changed_fcb, ALWAYS_RESOLVE,  NULL },
-  { "/When Required", NULL, resolveType_changed_fcb, DEFAULT_RESOLVE, NULL },
-  { "/Never",         NULL, resolveType_changed_fcb, NEVER_RESOLVE,   NULL },
-  { NULL, NULL, NULL, NO_RESOLVE, NULL }
+static gchar *resolveEntries[] = {
+    "Always",
+    "When Required",
+    "Never",
+    NULL
 };
 
-
-static GtkItemFactoryEntry protportEntries[] = {
-  { "/Default",         NULL, protportType_changed_fcb, DEFAULT_PROTPORT,   NULL },
-  { "/All",         NULL, protportType_changed_fcb, ALL_PROTPORT,   NULL },
-  { "/Most Important [fast]", NULL, protportType_changed_fcb, FAST_PROTPORT,  NULL },
-  { "/Range Given Below",     NULL, protportType_changed_fcb, GIVEN_PROTPORT, NULL },
-  { NULL, NULL, NULL, NO_PROTPORT, NULL }
+static gchar *protportEntries[] = {
+    "Default",
+    "All",
+    "Most Important [fast]",
+    "Range Given Below",
+    NULL
 };
 
-
-static GtkItemFactoryEntry verboseEntries[] = {
-  { "/Quiet",         NULL, verboseType_changed_fcb, QUIET_VERBOSE, NULL },
-  { "/Verbose",       NULL, verboseType_changed_fcb, V1_VERBOSE,    NULL },
-  { "/Very Verbose",  NULL, verboseType_changed_fcb, V2_VERBOSE,    NULL },
-  { "/Debug",         NULL, verboseType_changed_fcb, D1_VERBOSE,    NULL },
-  { "/Verbose Debug", NULL, verboseType_changed_fcb, D2_VERBOSE,    NULL },
-  { NULL, NULL, NULL, NO_VERBOSE, NULL }
+static gchar *verboseEntries[] = {
+    "Quiet",
+    "Verbose",
+    "Very Verbose",
+    "Debug",
+    "Verbose Debug",
+    NULL
 };
-
 
 static GtkItemFactoryEntry outputFormatEntries[] = {
   { "/Normal",       NULL, outputFormatType_changed_fcb, NORMAL_OUTPUT, NULL },
@@ -613,43 +608,47 @@ GtkAdjustment *adjust;
   gtk_widget_show(frame);
 
 
-  opt.protportFrame = gtk_frame_new("Scanned Ports");
-  // gtk_box_pack_start(GTK_BOX(nbpage), opt.protportFrame, FALSE, FALSE, 0);
-  gtk_table_attach_defaults(GTK_TABLE(nbpage), opt.protportFrame, 2, 3, 0, 3);
+  /* Scanned ports frame */
+  {
+    gint i;
+    opt.protportFrame = gtk_frame_new("Scanned Ports");
+    gtk_table_attach_defaults(GTK_TABLE(nbpage), opt.protportFrame, 2, 3, 0, 3);
 
-  table = gtk_table_new(2, 2, FALSE);
-  gtk_container_set_border_width(GTK_CONTAINER(table), 5);
-  gtk_table_set_col_spacings(GTK_TABLE(table), 5);
-  gtk_table_set_row_spacings(GTK_TABLE(table), 5);
-  gtk_container_add(GTK_CONTAINER(opt.protportFrame), table);
+    table = gtk_table_new(2, 2, FALSE);
+    gtk_container_set_border_width(GTK_CONTAINER(table), 5);
+    gtk_table_set_col_spacings(GTK_TABLE(table), 5);
+    gtk_table_set_row_spacings(GTK_TABLE(table), 5);
+    gtk_container_add(GTK_CONTAINER(opt.protportFrame), table);
 
-  opt.protportType = new_factory_menu(NULL, GTK_TYPE_OPTION_MENU, "<protportMenu>",
-                                      protportEntries, &opt.protportValue);
-  gtk_option_menu_set_history(GTK_OPTION_MENU(opt.protportType),
-                              opt.protportValue - PROTPORT_OFFSET);
-  /*  gtk_object_set(GTK_OBJECT(opt.protportType), "height", 26, NULL);*/
-  gtk_table_attach_defaults(GTK_TABLE(table), opt.protportType, 0, 2, 0, 1);
-  gtk_widget_show(opt.protportType);
+    opt.protportType = gtk_combo_box_new_text();
+    
+    for(i = 0; protportEntries[i]; i++) {
+        gtk_combo_box_append_text(GTK_COMBO_BOX(opt.protportType), protportEntries[i]);
+    }
 
-  opt.protportLabel = gtk_label_new("Range:");
-  gtk_label_set_justify(GTK_LABEL(opt.protportLabel), GTK_JUSTIFY_LEFT);
-  if (opt.protportValue != GIVEN_PROTPORT)
-    gtk_widget_set_sensitive(GTK_WIDGET(opt.protportLabel), FALSE);
-  gtk_table_attach_defaults(GTK_TABLE(table), opt.protportLabel, 0, 1, 1, 2);
-  gtk_widget_show(opt.protportLabel);
+    g_signal_connect(G_OBJECT(opt.protportType), "changed",
+            G_CALLBACK (protportType_cb), NULL);
+    
+    gtk_table_attach_defaults(GTK_TABLE(table), opt.protportType, 0, 2, 0, 1);
 
-  opt.protportRange = gtk_entry_new();
-  gtk_entry_set_max_length(GTK_ENTRY(opt.protportRange), 256);
-  /*gtk_object_set(GTK_OBJECT(opt.protportRange), "width", 100, NULL);*/
-  gtk_signal_connect(GTK_OBJECT(opt.protportRange), "changed",
-                     GTK_SIGNAL_FUNC(display_nmap_command_cb), NULL);
-  if (opt.protportValue != GIVEN_PROTPORT)
-    gtk_widget_set_sensitive(GTK_WIDGET(opt.protportRange), FALSE);
-  gtk_table_attach_defaults(GTK_TABLE(table), opt.protportRange, 1, 2, 1, 2);
-  gtk_widget_show(opt.protportRange);
+    opt.protportLabel = gtk_label_new("Range:");
+    gtk_label_set_justify(GTK_LABEL(opt.protportLabel), GTK_JUSTIFY_LEFT);
+    if (opt.protportValue != GIVEN_PROTPORT)
+        gtk_widget_set_sensitive(GTK_WIDGET(opt.protportLabel), FALSE);
+    gtk_table_attach_defaults(GTK_TABLE(table), opt.protportLabel, 0, 1, 1, 2);
+    gtk_widget_show(opt.protportLabel);
+    
+    opt.protportRange = gtk_entry_new();
+    gtk_entry_set_max_length(GTK_ENTRY(opt.protportRange), 256);
+    /*gtk_object_set(GTK_OBJECT(opt.protportRange), "width", 100, NULL);*/
+    gtk_signal_connect(GTK_OBJECT(opt.protportRange), "changed",
+            GTK_SIGNAL_FUNC(display_nmap_command_cb), NULL);
+    if (opt.protportValue != GIVEN_PROTPORT)
+        gtk_widget_set_sensitive(GTK_WIDGET(opt.protportRange), FALSE);
+    gtk_table_attach_defaults(GTK_TABLE(table), opt.protportRange, 1, 2, 1, 2);
 
-  gtk_widget_show(table);
-  gtk_widget_show(opt.protportFrame);
+    gtk_widget_show_all(opt.protportFrame);
+  }
 
 
   frame = gtk_frame_new("Scan Extensions");
@@ -832,22 +831,30 @@ GtkAdjustment *adjust;
   gtk_container_set_border_width(GTK_CONTAINER(nbpage), 5);
 
 
-  frame = gtk_frame_new("Throttling & Timeouts");
-  gtk_box_pack_start(GTK_BOX(nbpage), frame, FALSE, FALSE, 0);
+  /* Throttling & Timeouts combobox */
+  {
+    gint i;
+    
+    frame = gtk_frame_new("Throttling & Timeouts");
+    gtk_box_pack_start(GTK_BOX(nbpage), frame, FALSE, FALSE, 0);
 
-  table = gtk_table_new(5, 6, FALSE);
-  gtk_container_set_border_width(GTK_CONTAINER(table), 5);
-  gtk_table_set_col_spacing(GTK_TABLE(table), 1, 15);
-  gtk_container_add(GTK_CONTAINER(frame), table);
+    table = gtk_table_new(5, 6, FALSE);
+    gtk_container_set_border_width(GTK_CONTAINER(table), 5);
+    gtk_table_set_col_spacing(GTK_TABLE(table), 1, 15);
+    gtk_container_add(GTK_CONTAINER(frame), table);
 
+    opt.throttleType = gtk_combo_box_new_text ();
 
-  opt.throttleType = new_factory_menu(NULL, GTK_TYPE_OPTION_MENU, "<throttleMenu>",
-                                      throttleEntries, &opt.throttleValue);
-  gtk_option_menu_set_history(GTK_OPTION_MENU(opt.throttleType),
-                              opt.throttleValue - THROTTLE_OFFSET);
-  /*gtk_object_set(GTK_OBJECT(opt.throttleType), "height", 24, NULL);*/
-  gtk_table_attach_defaults(GTK_TABLE(table), opt.throttleType, 0, 2, 0, 1);
-  gtk_widget_show(opt.throttleType);
+    for (i = 0; throttleEntries[i]; i++) {
+        gtk_combo_box_append_text(GTK_COMBO_BOX(opt.throttleType), throttleEntries[i]);
+    }
+
+    g_signal_connect(G_OBJECT(opt.throttleType), "changed",
+            G_CALLBACK (throttleType_cb), NULL);
+
+    gtk_table_attach_defaults(GTK_TABLE(table), opt.throttleType, 0, 2, 0, 1);
+    gtk_widget_show(opt.throttleType);
+  }
 
 
   opt.ipv4Ttl = gtk_check_button_new_with_label("IPv4 TTL");
@@ -1164,43 +1171,53 @@ GtkAdjustment *adjust;
   gtk_container_set_border_width(GTK_CONTAINER(nbpage), 5);
   gtk_table_set_col_spacings(GTK_TABLE(nbpage), 5);
 
+  /* Reverse DNS Resolution frame */
+  {
+    gint i;
 
-  frame = gtk_frame_new("Reverse DNS Resolution");
-  gtk_table_attach_defaults(GTK_TABLE(nbpage), frame, 0, 1, 0, 1);
+    frame = gtk_frame_new("Reverse DNS Resolution");
+    gtk_table_attach_defaults(GTK_TABLE(nbpage), frame, 0, 1, 0, 1);
 
-  vbox = gtk_vbox_new(FALSE, 5);
-  gtk_container_set_border_width(GTK_CONTAINER(vbox), 5);
-  gtk_container_add(GTK_CONTAINER(frame), vbox);
+    vbox = gtk_vbox_new(FALSE, 5);
+    gtk_container_set_border_width(GTK_CONTAINER(vbox), 5);
+    gtk_container_add(GTK_CONTAINER(frame), vbox);
 
-  opt.resolveType = new_factory_menu(NULL, GTK_TYPE_OPTION_MENU, "<resolveMenu>",
-                                    resolveEntries, &opt.resolveValue);
-  gtk_option_menu_set_history(GTK_OPTION_MENU(opt.resolveType),
-                              opt.resolveValue - RESOLVE_OFFSET);
-  /*gtk_object_set(GTK_OBJECT(opt.resolveType), "height", 24, NULL);*/
-  gtk_box_pack_start(GTK_BOX(vbox), opt.resolveType, TRUE, FALSE, 0);
-  gtk_widget_show(opt.resolveType);
+    opt.resolveType = gtk_combo_box_new_text();
 
-  gtk_widget_show(vbox);
-  gtk_widget_show(frame);
+    for (i = 0; resolveEntries[i]; i++) {
+      gtk_combo_box_append_text(GTK_COMBO_BOX(opt.resolveType), resolveEntries[i]);
+    }
 
+    g_signal_connect(G_OBJECT(opt.resolveType), "changed",
+            G_CALLBACK (resolveType_cb), NULL);
 
-  frame = gtk_frame_new("Verbosity");
-  gtk_table_attach_defaults(GTK_TABLE(nbpage), frame, 0, 1, 1, 2);
+    gtk_box_pack_start(GTK_BOX(vbox), opt.resolveType, TRUE, FALSE, 0);
+    gtk_widget_show_all(frame);
+  }
 
-  vbox = gtk_vbox_new(FALSE, 5);
-  gtk_container_set_border_width(GTK_CONTAINER(vbox), 5);
-  gtk_container_add(GTK_CONTAINER(frame), vbox);
+  /* Verbosity frame */
+  {
+    gint i;
 
-  opt.verboseType = new_factory_menu(NULL, GTK_TYPE_OPTION_MENU, "<verboseMenu>",
-                                    verboseEntries, &opt.verboseValue);
-  gtk_option_menu_set_history(GTK_OPTION_MENU(opt.verboseType),
-                              opt.verboseValue - VERBOSE_OFFSET);
-  /*  gtk_object_set(GTK_OBJECT(opt.verboseType), "height", 24, NULL);*/
-  gtk_box_pack_start(GTK_BOX(vbox), opt.verboseType, TRUE, FALSE, 0);
-  gtk_widget_show(opt.verboseType);
+    frame = gtk_frame_new("Verbosity");
+    gtk_table_attach_defaults(GTK_TABLE(nbpage), frame, 0, 1, 1, 2);
 
-  gtk_widget_show(vbox);
-  gtk_widget_show(frame);
+    vbox = gtk_vbox_new(FALSE, 5);
+    gtk_container_set_border_width(GTK_CONTAINER(vbox), 5);
+    gtk_container_add(GTK_CONTAINER(frame), vbox);
+
+    opt.verboseType = gtk_combo_box_new_text();
+
+    for (i = 0; verboseEntries[i]; i++) {
+      gtk_combo_box_append_text(GTK_COMBO_BOX(opt.verboseType), verboseEntries[i]);
+    }
+
+    g_signal_connect(G_OBJECT(opt.verboseType), "changed",
+            G_CALLBACK (verboseType_cb), NULL);
+
+    gtk_box_pack_start(GTK_BOX(vbox), opt.verboseType, TRUE, FALSE, 0);
+    gtk_widget_show_all (frame);
+  }
 
 
   frame = gtk_frame_new("Source");
@@ -1411,7 +1428,13 @@ GtkAdjustment *adjust;
   /* Set default values here because now we can be sure that all the
    * widgets have been created.
    */
+  /* First Notebook - Scan */
   gtk_combo_box_set_active(GTK_COMBO_BOX (opt.scanType), 0);
+  /* Third Notebook - Timing */
+  gtk_combo_box_set_active(GTK_COMBO_BOX (opt.throttleType), opt.throttleValue);
+  /* Fifth Notebook - Options */
+  gtk_combo_box_set_active(GTK_COMBO_BOX (opt.resolveType), opt.resolveValue);
+  gtk_combo_box_set_active(GTK_COMBO_BOX (opt.verboseType), opt.verboseValue);
 
   display_nmap_command();
 

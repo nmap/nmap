@@ -522,7 +522,7 @@ static int command_size = 0;
 
 
   if ((opt.throttleValue != NO_THROTTLE) && (opt.throttleValue != NORMAL_THROTTLE))
-    sprintf(command+strlen(command), "-T%u ", opt.throttleValue-THROTTLE_OFFSET);
+    sprintf(command+strlen(command), "-T%u ", opt.throttleValue);
 
   if (GTK_TOGGLE_BUTTON(opt.startRtt)->active) {
   int val = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(opt.startRttTime));
@@ -834,52 +834,40 @@ gboolean status = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ping_button));
 }
 
 
-/* callback for factory generated menu items: set variable to action */
-void throttleType_changed_fcb(int *variable, guint action, GtkWidget *w)
+void throttleType_cb (GtkComboBox *w, gpointer data)
 {	
-  if ((variable != NULL) && (w != NULL)) {
-    *variable = action;
-
+    opt.throttleValue = gtk_combo_box_get_active(w);
     display_nmap_command();
-  }
 }
 
 
-/* callback for factory generated menu items: set variable to action */
-void resolveType_changed_fcb(int *variable, guint action, GtkWidget *w)
+void resolveType_cb (GtkComboBox *w, gpointer data)
 {
-  if ((variable != NULL) && (w != NULL)) {
-    *variable = action;
-
+    opt.resolveValue = gtk_combo_box_get_active(w);
     display_nmap_command();
-      } 
 }
 
 
-/* callback for factory generated menu items: set variable to action */
-void protportType_changed_fcb(int *variable, guint action, GtkWidget *w)
+void protportType_cb(GtkComboBox *w, gpointer d)
 {
-  if ((variable != NULL) && (w != NULL)) {
-    *variable = action;
+    opt.protportValue = gtk_combo_box_get_active(w);
 
-    gtk_widget_set_sensitive(GTK_WIDGET(opt.protportLabel), (action == GIVEN_PROTPORT));
-    gtk_widget_set_sensitive(GTK_WIDGET(opt.protportRange), (action == GIVEN_PROTPORT));
-    if (action == GIVEN_PROTPORT)
+    gtk_widget_set_sensitive(GTK_WIDGET(opt.protportLabel), 
+            (opt.protportValue == GIVEN_PROTPORT));
+    gtk_widget_set_sensitive(GTK_WIDGET(opt.protportRange), 
+            (opt.protportValue == GIVEN_PROTPORT));
+    if (opt.protportValue == GIVEN_PROTPORT)
       gtk_widget_grab_focus(GTK_WIDGET(opt.protportRange));
 
     display_nmap_command();
-  }
 }
 
 
 /* callback for factory generated menu items: set variable to action */
-void verboseType_changed_fcb(int *variable, guint action, GtkWidget *w)
+void verboseType_cb(GtkComboBox *w, gpointer d)
 {
-  if ((variable != NULL) && (w != NULL)) {
-    *variable = action;
-
+  opt.verboseValue = gtk_combo_box_get_active(w);
   display_nmap_command();
-}
 }
 
 

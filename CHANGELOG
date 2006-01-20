@@ -39,6 +39,10 @@ o Added the --badsum option, which causes Nmap to use invalid TCP or
   author of that paper, Ed3f (ed3f(a)antifork.org), is also the author
   of this patch.
 
+o More excellent NmapFE patches from Priit Laes (amd(a)store20.com)
+  were applied to remove deprecated GTK API calls which could cause
+  compilation failures and also "Gtk-CRITICAL" warning messages.
+
 3.96BETA1
 
 o Added --max_retries option for capping the maximum number of

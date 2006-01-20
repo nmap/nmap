@@ -129,11 +129,10 @@ void entry_toggle_checkbox (GtkWidget *entry, GtkWidget *checkbox);
 void entry_toggle_ping_checkbox(GtkWidget *entry, GtkWidget *checkbox);
 
 void mainMenu_fcb(int *variable, guint action, GtkWidget *w);
-void scanType_changed_fcb(int *variable, guint action, GtkWidget *w);
-void throttleType_changed_fcb(int *variable, guint action, GtkWidget *w);
-void resolveType_changed_fcb(int *variable, guint action, GtkWidget *w);
-void protportType_changed_fcb(int *variable, guint action, GtkWidget *w);
-void verboseType_changed_fcb(int *variable, guint action, GtkWidget *w);
+void throttleType_cb (GtkComboBox *, gpointer);
+void resolveType_cb (GtkComboBox *, gpointer);
+void protportType_cb (GtkComboBox *, gpointer);
+void verboseType_cb (GtkComboBox *, gpointer);
 void outputFormatType_changed_fcb(int *variable, guint action, GtkWidget *w);
 
 void pingButton_toggled_cb(GtkWidget *ping_button, void *ignored);
