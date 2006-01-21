@@ -209,16 +209,15 @@ enum {
 };
 
 
-/* define this > 0 to be able to use the comfortable callback */
-#define OUTPUT_OFFSET 1
-
 /* output format options */
 enum {
-  NO_OUTPUT,
-  NORMAL_OUTPUT = OUTPUT_OFFSET,
+  NORMAL_OUTPUT,
   GREP_OUTPUT,
   XML_OUTPUT,
   ALL_OUTPUT,
+#if GTK_CHECK_VERSION(2,6,0)
+  SEPARATOR,
+#endif
   SKIDS_OUTPUT
 };
 

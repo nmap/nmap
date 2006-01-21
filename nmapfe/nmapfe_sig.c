@@ -269,9 +269,9 @@ void openLog(char *filename)
 void okButton_clicked_cb(GtkWidget *window, GtkButton *button)
 {
 const char *selected = gtk_file_selection_get_filename(GTK_FILE_SELECTION(window));
-void (*action)() = gtk_object_get_data(GTK_OBJECT(window), "NmapFE_action");
-GtkEntry *entry = gtk_object_get_data(GTK_OBJECT(window), "NmapFE_entry");
-char *filename = gtk_object_get_data(GTK_OBJECT(window), "NmapFE_filename");
+void (*action)() = g_object_get_data(G_OBJECT(window), "NmapFE_action");
+GtkEntry *entry = g_object_get_data(G_OBJECT(window), "NmapFE_entry");
+char *filename = g_object_get_data(G_OBJECT(window), "NmapFE_filename");
 
   if (filename && selected) {
     strncpy(filename, selected, FILENAME_MAX);
@@ -387,7 +387,7 @@ int pid = execute_unix(command);
 #endif /* WIN32 */
 
 /* timer for calling our read function to poll for new data 8 times per second */
- gtk_timeout_add(125, read_data, NULL);
+ g_timeout_add(125, read_data, NULL);
 
   return(pid);
 }
@@ -784,7 +784,7 @@ void scanType_cb
       gtk_widget_set_sensitive(GTK_WIDGET(opt.scanRelay), FALSE);
     }
 
-    gtk_object_set(GTK_OBJECT(opt.protportFrame), "label",
+    g_object_set(G_OBJECT(opt.protportFrame), "label",
                    (opt.scanValue == PROT_SCAN) ? "Scanned Protocols" : "Scanned Ports", NULL);
 
   display_nmap_command();
@@ -872,13 +872,10 @@ void verboseType_cb(GtkComboBox *w, gpointer d)
 
 
 /* callback for factory generated menu items: set variable to action */
-void outputFormatType_changed_fcb(int *variable, guint action, GtkWidget *w)
+void outputFormatType_cb(GtkComboBox *w, gpointer d)
 {
-  if ((variable != NULL) && (w != NULL)) {
-    *variable = action;
-
-    display_nmap_command();
-  }
+  opt.outputFormatValue = gtk_combo_box_get_active(w);
+  display_nmap_command();
 }
 
 
@@ -1176,7 +1173,7 @@ int count;
     nmap_pid = 0;
     buflen = 0;
     buf[buflen] = '\0';
-    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(opt.scanButton), 0);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(opt.scanButton), 0);
     return 0;
   }
 #else
@@ -1189,7 +1186,7 @@ int count;
     }
     buflen = 0;
     buf[buflen] = '\0';
-    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(opt.scanButton), 0);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(opt.scanButton), 0);
     return 0;
   }
 #endif /* waitpid unix/windoze selector */

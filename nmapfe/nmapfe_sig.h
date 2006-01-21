@@ -133,7 +133,7 @@ void throttleType_cb (GtkComboBox *, gpointer);
 void resolveType_cb (GtkComboBox *, gpointer);
 void protportType_cb (GtkComboBox *, gpointer);
 void verboseType_cb (GtkComboBox *, gpointer);
-void outputFormatType_changed_fcb(int *variable, guint action, GtkWidget *w);
+void outputFormatType_cb (GtkComboBox *, gpointer);
 
 void pingButton_toggled_cb(GtkWidget *ping_button, void *ignored);
 void toggle_button_set_sensitive_cb(GtkWidget *master, GtkWidget *slave);
