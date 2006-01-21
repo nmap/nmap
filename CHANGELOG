@@ -1,10 +1,5 @@
 # Nmap Changelog ($Id$); -*-text-*-
-
-o The 26 Nmap commands that previously included an underscore
-  (--max_rtt_timeout, --senc_eth, --host_timeout, etc.) have been
-  renamed to use a hyphen in the preferred format
-  (i.e. --max-rtt-timeout).  Underscores are still supported for
-  backwared compatability.
+3.98BETA1
 
 o Added run time interaction as documented at
   http://www.insecure.org/nmap/man/man-runtime-interaction.html .
@@ -39,9 +34,35 @@ o Added the --badsum option, which causes Nmap to use invalid TCP or
   author of that paper, Ed3f (ed3f(a)antifork.org), is also the author
   of this patch.
 
+o The 26 Nmap commands that previously included an underscore
+  (--max_rtt_timeout, --send_eth, --host_timeout, etc.) have been
+  renamed to use a hyphen in the preferred format
+  (i.e. --max-rtt-timeout).  Underscores are still supported for
+  backwared compatability.
+
 o More excellent NmapFE patches from Priit Laes (amd(a)store20.com)
-  were applied to remove deprecated GTK API calls which could cause
-  compilation failures and also "Gtk-CRITICAL" warning messages.
+  were applied to remove all deprecated GTK API calls.  This also
+  eliminates the annoying Gtk-Critical and Gtk-WARNING runtime messages.
+
+o Changed the way the __attribute__ compiler extension is detected so
+  that it works with the latest Fedora Core 4 updates (and perhaps other
+  systems).  Thanks to Duilio Protti (dprotti(a)fceia.unr.edu.ar) for
+  writing the patch.  The compilation error message this fixes was
+  usually something like: "nmap.o(.rodata+0x17c): undefined reference
+  to `__gthrw_pthread_cancel(unsigned long)"
+
+o Added some exception handling code to mswin32/winfix.cc to prevent
+  Nmap from crashing mysteriously when you have WinPcap 3.0 or earlier
+  (instead of the required 3.1).  It now prints an error message instead
+  asking you to upgrade, then reduces functionality to connect()-only
+  mode.
+
+o Stripped the firewall API out of the libdnet included with Nmap
+  because Nmap doesn't use it anyway.  This saves space and reduces the
+  likelyhood of compilation errors and warnings.
+
+o Modified the previously useless --noninteractive option so that it
+  deactivates runtime interaction.
 
 3.96BETA1
 

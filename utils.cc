@@ -215,9 +215,11 @@ char *chomp(char *string) {
    considered to be the same), nonzero otherwise. */
 int optcmp(const char *a, const char *b) {
   while(*a && *b) {
-    if ((*a == '_' || *a == '-') && (*b != '_' && *b != '-'))
-      return 1;
-    if (*a != *b)
+    if (*a == '_' || *a == '-') {
+      if (*b != '_' && *b != '-')
+	return 1;
+    }
+    else if (*a != *b)
       return 1;
     a++; b++;
   }

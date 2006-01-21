@@ -199,11 +199,19 @@ static int tty_getchar()
 	return -1;
 }
 
-/* This is the best method here. It will catch all of the predefined keypresses and interpret them, and it will also tell you if you should print anything. A value of true being returned means a nonstandard key has been pressed and the calling method should print a status message */
+/* This is the best method here. It will catch all of the predefined
+   keypresses and interpret them, and it will also tell you if you
+   should print anything. A value of true being returned means a
+   nonstandard key has been pressed and the calling method should
+   print a status message */
+
 bool keyWasPressed()
 {
   int c;
-  
+
+  if (o.noninteractive)
+    return false;
+
   if ((c = tty_getchar()) >= 0) {
     // Eat any extra keys (so they can't queue up and print forever)
     while (tty_getchar() >= 0); 

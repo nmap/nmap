@@ -250,6 +250,7 @@ void NmapOps::Initialize() {
   mass_dns = true;
   resolve_all = 0;
   dns_servers = NULL;
+  noninteractive = false;
 }
 
 bool NmapOps::TCPScan() {

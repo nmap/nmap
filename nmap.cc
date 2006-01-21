@@ -227,6 +227,7 @@ int nmap_main(int argc, char *argv[]) {
   char **fakeargv;
   Target *currenths;
   vector<Target *> Targets;
+  char *portlist = NULL; /* Ports list specified by user */
   char *proberr;
   char emptystring[1];
   int sourceaddrwarning = 0; /* Have we warned them yet about unguessable
@@ -414,7 +415,7 @@ int nmap_main(int argc, char *argv[]) {
       } else if (optcmp(long_options[option_index].name, "append-output") == 0) {
 	o.append_output = 1;
       } else if (strcmp(long_options[option_index].name, "noninteractive") == 0) {
-	/* Do nothing */
+	o.noninteractive = true;
       } else if (optcmp(long_options[option_index].name, "spoof-mac") == 0) {
 	/* I need to deal with this later, once I'm sure that I have output
 	   files set up, --datadir, etc. */
@@ -709,11 +710,9 @@ int nmap_main(int argc, char *argv[]) {
       }
       break;
     case 'p': 
-      if (ports)
+      if (ports || portlist)
 	fatal("Only 1 -p option allowed, separate multiple ranges with commas.");
-      ports = getpts(optarg);
-      if (!ports)
-	fatal("Your port specification string is not parseable");
+      portlist = strdup(optarg);
       break;
     case 'q': quashargv++; break;
     case 'R': o.resolve_all++; break;
@@ -851,6 +850,14 @@ int nmap_main(int argc, char *argv[]) {
 
   if ((o.pingscan || o.listscan) && fastscan) {
     fatal("The fast scan (-F) is incompatible with ping scan");
+  }
+
+  if (portlist) {
+    ports = getpts(portlist);
+    if (!ports)
+      fatal("Your port specification string is not parseable");
+    free(portlist);
+    portlist = NULL;
   }
 
   if (fastscan && ports) {
@@ -1488,7 +1495,14 @@ struct scan_lists *getpts(char *origexpr) {
   int i;
   int tcpportcount = 0, udpportcount = 0, protcount = 0;
   struct scan_lists *ports;
-  int range_type = SCAN_TCP_PORT|SCAN_UDP_PORT|SCAN_PROTOCOLS;
+  int range_type = 0;
+
+  if (o.TCPScan())
+    range_type |= SCAN_TCP_PORT;
+  else if (o.UDPScan())
+    range_type |= SCAN_UDP_PORT;
+  else if (o.ipprotscan)
+    range_type |= SCAN_PROTOCOLS;
 
   porttbl = (u8 *) safe_zalloc(65536);
 
@@ -1725,9 +1739,6 @@ f --spoof \"/usr/local/bin/pico -z hello.c\" -sS -oN e.log example.com/24\n\n");
 
 char *seqreport(struct seq_info *seq) {
   static char report[512];
-  char tmp[256];
-  char *p;
-  int i;
 
   snprintf(report, sizeof(report), "TCP Sequence Prediction: Class=%s\n                         Difficulty=%d (%s)\n", seqclass2ascii(seq->seqclass), seq->index, seqidx2difficultystr(seq->index));
   return report;

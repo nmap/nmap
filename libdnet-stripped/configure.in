@@ -240,30 +240,9 @@ else
 	AC_LIBOBJ([eth-none])
 fi
 
-dnl Check for firewall interface.
-if test "$ac_cv_header_Iphlpapi_h" = yes ; then
-        AC_LIBOBJ([fw-pktfilter])
-elif test "$ac_cv_header_net_pfvar_h" = yes ; then
-	AC_LIBOBJ([fw-pf])
-elif test "$ac_cv_header_netinet_ip_fw_h" = yes ; then
-     dnl XXX - ipfw2 support later...
-     case "$host_os" in
-     *freebsd5* | *kfreebsd*)
-	AC_LIBOBJ([fw-none]) ;;
-     *)
-	AC_LIBOBJ([fw-ipfw]) ;;
-     esac
-elif test "$ac_cv_header_netinet_ip_fil_h" = yes ; then
-	AC_LIBOBJ([fw-ipf])
-elif test "$ac_cv_header_linux_ip_fw_h" = yes ; then
-	AC_LIBOBJ([fw-ipchains])
-elif test "$ac_cv_header_linux_ip_fwchains_h" = yes ; then
-	AC_LIBOBJ([fw-ipchains])
-elif test "$ac_cv_header_linux_netfilter_ipv4_ipchains_core_h" = yes ; then
-	AC_LIBOBJ([fw-ipchains])
-else
-	AC_LIBOBJ([fw-none])
-fi
+dnl Using fw-none since Nmap doesn't need any of the firewall-related rules
+dnl --Fyodor
+AC_LIBOBJ([fw-none])
 
 dnl Check for network interface interface.
 if test "$ac_cv_header_Iphlpapi_h" = yes ; then

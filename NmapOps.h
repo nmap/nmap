@@ -292,6 +292,7 @@ class NmapOps {
   int numhosts_up;
   int numhosts_scanning;
   stype scantype;
+  bool noninteractive;
 
  private:
   int max_rtt_timeout;

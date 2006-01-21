@@ -22590,83 +22590,7 @@ esac
 
 fi
 
-if test "$ac_cv_header_Iphlpapi_h" = yes ; then
-        case $LIBOBJS in
-    "fw-pktfilter.$ac_objext"   | \
-  *" fw-pktfilter.$ac_objext"   | \
-    "fw-pktfilter.$ac_objext "* | \
-  *" fw-pktfilter.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS fw-pktfilter.$ac_objext" ;;
-esac
-
-elif test "$ac_cv_header_net_pfvar_h" = yes ; then
-	case $LIBOBJS in
-    "fw-pf.$ac_objext"   | \
-  *" fw-pf.$ac_objext"   | \
-    "fw-pf.$ac_objext "* | \
-  *" fw-pf.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS fw-pf.$ac_objext" ;;
-esac
-
-elif test "$ac_cv_header_netinet_ip_fw_h" = yes ; then
-          case "$host_os" in
-     *freebsd5* | *kfreebsd*)
-	case $LIBOBJS in
-    "fw-none.$ac_objext"   | \
-  *" fw-none.$ac_objext"   | \
-    "fw-none.$ac_objext "* | \
-  *" fw-none.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS fw-none.$ac_objext" ;;
-esac
- ;;
-     *)
-	case $LIBOBJS in
-    "fw-ipfw.$ac_objext"   | \
-  *" fw-ipfw.$ac_objext"   | \
-    "fw-ipfw.$ac_objext "* | \
-  *" fw-ipfw.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS fw-ipfw.$ac_objext" ;;
-esac
- ;;
-     esac
-elif test "$ac_cv_header_netinet_ip_fil_h" = yes ; then
-	case $LIBOBJS in
-    "fw-ipf.$ac_objext"   | \
-  *" fw-ipf.$ac_objext"   | \
-    "fw-ipf.$ac_objext "* | \
-  *" fw-ipf.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS fw-ipf.$ac_objext" ;;
-esac
-
-elif test "$ac_cv_header_linux_ip_fw_h" = yes ; then
-	case $LIBOBJS in
-    "fw-ipchains.$ac_objext"   | \
-  *" fw-ipchains.$ac_objext"   | \
-    "fw-ipchains.$ac_objext "* | \
-  *" fw-ipchains.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS fw-ipchains.$ac_objext" ;;
-esac
-
-elif test "$ac_cv_header_linux_ip_fwchains_h" = yes ; then
-	case $LIBOBJS in
-    "fw-ipchains.$ac_objext"   | \
-  *" fw-ipchains.$ac_objext"   | \
-    "fw-ipchains.$ac_objext "* | \
-  *" fw-ipchains.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS fw-ipchains.$ac_objext" ;;
-esac
-
-elif test "$ac_cv_header_linux_netfilter_ipv4_ipchains_core_h" = yes ; then
-	case $LIBOBJS in
-    "fw-ipchains.$ac_objext"   | \
-  *" fw-ipchains.$ac_objext"   | \
-    "fw-ipchains.$ac_objext "* | \
-  *" fw-ipchains.$ac_objext "* ) ;;
-  *) LIBOBJS="$LIBOBJS fw-ipchains.$ac_objext" ;;
-esac
-
-else
-	case $LIBOBJS in
+case $LIBOBJS in
     "fw-none.$ac_objext"   | \
   *" fw-none.$ac_objext"   | \
     "fw-none.$ac_objext "* | \
@@ -22674,7 +22598,6 @@ else
   *) LIBOBJS="$LIBOBJS fw-none.$ac_objext" ;;
 esac
 
-fi
 
 if test "$ac_cv_header_Iphlpapi_h" = yes ; then
 	case $LIBOBJS in

@@ -172,15 +172,15 @@ distro:
             include/queue.h include/stamp-h.in include/config.h.in \
             include/err.h INSTALL libdnet-stripped.vcproj LICENSE \
             Makefile.am Makefile.am.common Makefile.in NMAP_MODIFICATIONS \
-            README src/fw-ipf.c src/route-none.c src/ip-cooked.c \
+            README src/route-none.c src/ip-cooked.c \
             src/arp-win32.c src/ip-util.c src/route-win32.c src/fw-none.c \
-            src/eth-linux.c src/route-bsd.c src/route-linux.c src/fw-pf.c \
+            src/eth-linux.c src/route-bsd.c src/route-linux.c \
             src/tun-bsd.c src/strlcat.c src/tun-none.c src/memcmp.c \
             src/route-hpux.c src/addr-util.c src/eth-ndd.c src/ip6.c \
             src/intf.c src/Makefile.in src/addr.c src/eth-dlpi.c \
-            src/fw-ipchains.c src/rand.c src/tun-solaris.c src/intf-win32.c \
-            src/eth-none.c src/ip.c src/fw-pktfilter.c src/ip-win32.c \
-            src/fw-ipfw.c src/arp-ioctl.c src/arp-none.c src/Makefile.am \
+            src/rand.c src/tun-solaris.c src/intf-win32.c \
+            src/eth-none.c src/ip.c src/ip-win32.c \
+            src/arp-ioctl.c src/arp-none.c src/Makefile.am \
             src/eth-bsd.c src/strsep.c src/err.c src/strlcpy.c src/blob.c \
             src/eth-win32.c src/eth-snoop.c src/eth-pfilt.c src/tun-linux.c \
             src/arp-bsd.c THANKS TODO \

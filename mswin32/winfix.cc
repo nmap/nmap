@@ -174,22 +174,22 @@ void win_init()
 
 	//   Try to initialize winpcap
 #ifdef _MSC_VER
-	__try
+	try
 #endif
 	{
 		ULONG len = sizeof(pcaplist);
 
 		pcap_avail = 1;
-		if(o.debugging > 2) printf("***WinIP***  trying to initialize winpcap 2.1\n");
+		if(o.debugging > 2) printf("***WinIP***  trying to initialize winpcap 3.1\n");
 		PacketGetAdapterNames(pcaplist, &len);
 		if(o.debugging)
 			printf("Winpcap present, dynamic linked to: %s\n", pcap_lib_version());
 	}
 #ifdef _MSC_VER
-	__except(GetExceptionCode() == DLI_ERROR)
+	catch(...)
 	{
 		pcap_avail = 0;
-		printf("WARNING: Failed to locate Winpcap. Nmap may not function properly until this is installed!  WinPcap is freely available from http://winpcap.polito.it.\n");
+		printf("WARNING: Failed to locate/load Winpcap. Nmap may not function properly until version 3.1 or later is installed!  WinPcap is freely available from http://winpcap.polito.it.\n");
 	}
 #endif
 
@@ -199,10 +199,14 @@ void win_init()
 #if defined(_MSC_VER) && _MSC_VER >= 1300
 	if(pcap_avail)
 	{
+		try {
 		if(FAILED(__HrLoadAllImportsForDll("wpcap.dll")))
 		{
 			error("WARNING: your winpcap is too old to use.  Nmap may not function.\n");
 			pcap_avail = 0;
+		}
+		} catch (...) {
+			error("WARNING: Could not import all necessary WinPcap functions.  You may need to upgrade to version 3.1 or higher from http://www.winpcap.org.  Resorting to connect() mode -- Nmap may not function completely");
 		}
 	}
 #endif
@@ -260,7 +264,7 @@ static FARPROC WINAPI winip_dli_fail_hook(unsigned code, PDelayLoadInfo info)
    printf(" failed to load dll: %s\n", info->szDll);
    if(!stricmp(info->szDll, "wpcap.dll"))
      printf(" this is most likely because you have"
-     " winpcap 2.0 (2.1 or later is required)\n"
+     " winpcap 2.0 (3.1 or later is required)\n"
      "Get it from http://netgroup-serv.polito.it/winpcap\n");
    break;
 

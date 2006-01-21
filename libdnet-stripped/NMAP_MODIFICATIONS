@@ -9,6 +9,9 @@ o Removed the following directories:
 o Removed all filenames from EXTRA_libdnet_la_SOURCES sources, as
   they aren't needed with GNU automake 1.9.2
 
+o Removed the fw-* files except for fw-none because Nmap doesn't use
+  the firewall API.  Changed configure.in to always use fw-non.
+
 o Removed files in now-removed dires that were reference from
   configure.in:318
 
