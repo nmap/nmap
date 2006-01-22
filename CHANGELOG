@@ -26,13 +26,13 @@ o Reverse DNS resolution is now done in parallel rather than one at a
   patch was written by Doug Hoyte (doug(a)hcsw.org).
 
 o Added the --badsum option, which causes Nmap to use invalid TCP or
-  UDP checksums for packets sent to target hosts. Since
-  virtually all host IP stacks properly drop these packets, any
-  responses received are likely coming from a firewall or IDS that
-  didn't bother to verify the checksum. For more details on this
-  technique, see http://www.phrack.org/phrack/60/p60-0x0c.txt .  The
-  author of that paper, Ed3f (ed3f(a)antifork.org), is also the author
-  of this patch.
+  UDP checksums for packets sent to target hosts. Since virtually all
+  host IP stacks properly drop these packets, any responses received
+  are likely coming from a firewall or IDS that didn't bother to
+  verify the checksum. For more details on this technique, see
+  http://www.phrack.org/phrack/60/p60-0x0c.txt .  The author of that
+  paper, Ed3f (ed3f(a)antifork.org), is also the author of this patch
+  (which I changed it a bit).
 
 o The 26 Nmap commands that previously included an underscore
   (--max_rtt_timeout, --send_eth, --host_timeout, etc.) have been
@@ -55,7 +55,9 @@ o Added some exception handling code to mswin32/winfix.cc to prevent
   Nmap from crashing mysteriously when you have WinPcap 3.0 or earlier
   (instead of the required 3.1).  It now prints an error message instead
   asking you to upgrade, then reduces functionality to connect()-only
-  mode.
+  mode.  I couldn't get it working with the C++ standard try/catch()
+  blocks, but as soon as I used the nonstandard MS conventions
+  (__try/__except(), everything worked fine. Shrug.
 
 o Stripped the firewall API out of the libdnet included with Nmap
   because Nmap doesn't use it anyway.  This saves space and reduces the

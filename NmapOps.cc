@@ -234,6 +234,7 @@ void NmapOps::Initialize() {
   force = append_output = 0;
   memset(logfd, 0, sizeof(FILE *) * LOG_TYPES);
   ttl = -1;
+  badsum = 0;
   nmap_stdout = stdout;
   gettimeofday(&start_time, NULL);
   pTrace = vTrace = false;

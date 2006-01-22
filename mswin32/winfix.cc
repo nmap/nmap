@@ -118,12 +118,6 @@
 #define DLI_ERROR VcppException(ERROR_SEVERITY_ERROR, ERROR_MOD_NOT_FOUND)
 #endif
 
-/*   delay-load hooks only for troubleshooting   */
-#ifdef _MSC_VER
-static int dli_done = 0;
-static FARPROC WINAPI winip_dli_fail_hook(unsigned code, PDelayLoadInfo info);
-#endif
-
 extern NmapOps o;
 
 int pcap_avail = 0;
@@ -173,51 +167,28 @@ void win_init()
 
 
 	//   Try to initialize winpcap
-#ifdef _MSC_VER
-	try
-#endif
+	__try
 	{
 		ULONG len = sizeof(pcaplist);
 
 		pcap_avail = 1;
 		if(o.debugging > 2) printf("***WinIP***  trying to initialize winpcap 3.1\n");
 		PacketGetAdapterNames(pcaplist, &len);
-		if(o.debugging)
-			printf("Winpcap present, dynamic linked to: %s\n", pcap_lib_version());
-	}
-#ifdef _MSC_VER
-	catch(...)
-	{
-		pcap_avail = 0;
-		printf("WARNING: Failed to locate/load Winpcap. Nmap may not function properly until version 3.1 or later is installed!  WinPcap is freely available from http://winpcap.polito.it.\n");
-	}
-#endif
 
-	//   Check for a wpcap.dll (so we don't crash on old winpcap
-	//   But only with VC++.NET, since old versions do not
-	//   provide this functionality :(
-#if defined(_MSC_VER) && _MSC_VER >= 1300
-	if(pcap_avail)
-	{
-		try {
 		if(FAILED(__HrLoadAllImportsForDll("wpcap.dll")))
 		{
 			error("WARNING: your winpcap is too old to use.  Nmap may not function.\n");
 			pcap_avail = 0;
 		}
-		} catch (...) {
+		if(o.debugging)
+			printf("Winpcap present, dynamic linked to: %s\n", pcap_lib_version());
+	} __except (1) {
 			error("WARNING: Could not import all necessary WinPcap functions.  You may need to upgrade to version 3.1 or higher from http://www.winpcap.org.  Resorting to connect() mode -- Nmap may not function completely");
+		pcap_avail=0;
 		}
-	}
-#endif
 
 	o.isr00t = pcap_avail;
 	atexit(win_cleanup);
-
-	//   Mark load as complete so that dli errors are handled
-#ifdef _MSC_VER
-	dli_done = 1;
-#endif
 }
 
 
@@ -225,68 +196,6 @@ static void win_cleanup(void)
 {
   WSACleanup();
 }
-
-typedef DWORD (__stdcall *PGBI)(IPAddr, PDWORD);
-
-#ifdef _MSC_VER
-static FARPROC WINAPI winip_dli_fail_hook(unsigned code, PDelayLoadInfo info)
-{
-  if(o.debugging)
-    {
-      printf("***WinIP***  delay load error:\n");
-      switch(code)
- {
- case dliFailLoadLib:
-   printf(" failed to load dll: %s\n", info->szDll);
-   break;
-
- case dliFailGetProc:
-   printf(" failed to load ");
-   if(info->dlp.fImportByName)
-     printf("function %s", info->dlp.szProcName + 2);
-   else printf("ordinal %d", info->dlp.dwOrdinal);
-   printf(" in dll %s\n", info->szDll);
-   break;
-
- default:
-   printf(" unknown error\n");
-   break;
- }
-    }
-
-  if(dli_done)
-    {
-      printf("******* Unexpected delay-load failure *******\n");
-
-      switch(code)
- {
- case dliFailLoadLib:
-   printf(" failed to load dll: %s\n", info->szDll);
-   if(!stricmp(info->szDll, "wpcap.dll"))
-     printf(" this is most likely because you have"
-     " winpcap 2.0 (3.1 or later is required)\n"
-     "Get it from http://netgroup-serv.polito.it/winpcap\n");
-   break;
-
- case dliFailGetProc:
-   printf(" failed to load ");
-   if(info->dlp.fImportByName)
-     printf("function %s", info->dlp.szProcName + 2);
-   else printf("ordinal %d", info->dlp.dwOrdinal);
-   printf(" in dll %s\n", info->szDll);
-   break;
-
- default:
-   printf(" unknown error\n");
-   break;
-  }
-    }
-
-  return 0;
-}
-#endif // _MSC_VER
-
-
 
 int my_close(int sd)
 {

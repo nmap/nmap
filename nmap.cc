@@ -328,6 +328,7 @@ int nmap_main(int argc, char *argv[]) {
       {"version_all", no_argument, 0, 0},
       {"version-all", no_argument, 0, 0},
       {"system_dns", no_argument, 0, 0},
+      {"system-dns", no_argument, 0, 0},
       {"dns_servers", required_argument, 0, 0},
       {"dns-servers", required_argument, 0, 0},
       {0, 0, 0, 0}

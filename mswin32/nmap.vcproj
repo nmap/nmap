@@ -49,6 +49,7 @@
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Debug/nmap.pdb"
 				SubSystem="1"
+				OptimizeForWindows98="1"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -109,7 +110,7 @@
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="lib;..\libpcre;..\nsock;..\nbase;&quot;..\libdnet-stripped&quot;"
 				IgnoreDefaultLibraryNames=""
-				DelayLoadDLLs="packet.dll,iphlpapi.dll,wpcap.dll"
+				DelayLoadDLLs="packet.dll,wpcap.dll,iphlpapi.dll"
 				ProgramDatabaseFile=".\Release/nmap.pdb"
 				SubSystem="1"
 				OptimizeForWindows98="1"
@@ -229,6 +230,18 @@
 				</File>
 				<File
 					RelativePath="winfix.cc">
+					<FileConfiguration
+						Name="Debug|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							ExceptionHandling="TRUE"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							ExceptionHandling="TRUE"/>
+					</FileConfiguration>
 				</File>
 			</Filter>
 		</Filter>
