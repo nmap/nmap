@@ -877,11 +877,9 @@ tcp->th_sum = in_cksum((unsigned short *)pseudo, sizeof(struct tcphdr) +
 #endif
 
 if ( o.badsum )
-  --tcp->th_sum,
-
+  --tcp->th_sum;
 
 /* Now for the ip header */
-
 memset(packet, 0, sizeof(struct ip)); 
 ip->ip_v = 4;
 ip->ip_hl = 5;
@@ -1390,10 +1388,10 @@ ip->ip_id = htons(ipid);
 ip->ip_ttl = myttl;
 ip->ip_p = proto;
 ip->ip_src.s_addr = source->s_addr;
-#ifdef WIN32
+// #ifdef WIN32
 // TODO: Should this be removed? I'm not sure why this is here -- Fyodor
-if(source->s_addr == victim->s_addr) ip->ip_src.s_addr++;
-#endif
+// if(source->s_addr == victim->s_addr) ip->ip_src.s_addr++;
+// #endif
 ip->ip_dst.s_addr = victim->s_addr;
 #if HAVE_IP_IP_SUM
 ip->ip_sum = in_cksum((unsigned short *)ip, sizeof(struct ip));
