@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "01/22/2006" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "01/23/2006" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -106,8 +106,8 @@ HOST DISCOVERY:
   \-PS/PA/PU [portlist]: TCP SYN/ACK or UDP discovery to given ports
   \-PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes
   \-n/\-R: Never do DNS resolution/Always resolve [default: sometimes]
-  \-\-dns_servers <serv1[,serv2],...>: Specify custom DNS servers
-  \-\-system_dns: Use OS's DNS resolver
+  \-\-dns\-servers <serv1[,serv2],...>: Specify custom DNS servers
+  \-\-system\-dns: Use OS's DNS resolver
 SCAN TECHNIQUES:
   \-sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans
   \-sN/sF/sX: TCP Null, FIN, and Xmas scans
@@ -122,8 +122,9 @@ PORT SPECIFICATION AND SCAN ORDER:
   \-r: Scan ports consecutively \- don't randomize
 SERVICE/VERSION DETECTION:
   \-sV: Probe open ports to determine service/version info
-  \-\-version\-light: Limit to most likely probes for faster identification
-  \-\-version\-all: Try every single probe for version detection
+  \-\-version\-intensity <level>: Set from 0 (light) to 9 (try all probes)
+  \-\-version\-light: Limit to most likely probes (intensity 2)
+  \-\-version\-all: Try every single probe (intensity 9)
   \-\-version\-trace: Show detailed version scan activity (for debugging)
 OS DETECTION:
   \-O: Enable OS detection
@@ -133,11 +134,11 @@ TIMING AND PERFORMANCE:
   \-T[0\-5]: Set timing template (higher is faster)
   \-\-min\-hostgroup/max\-hostgroup <size>: Parallel host scan group sizes
   \-\-min\-parallelism/max\-parallelism <msec>: Probe parallelization
-  \-\-min_rtt_timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Specifies
+  \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Specifies
       probe round trip time.
   \-\-max\-retries <tries>: Caps number of port scan probe retransmissions.
   \-\-host\-timeout <msec>: Give up on target after this long
-  \-\-scan\-delay/\-\-max_scan\-delay <msec>: Adjust delay between probes
+  \-\-scan\-delay/\-\-max\-scan\-delay <msec>: Adjust delay between probes
 FIREWALL/IDS EVASION AND SPOOFING:
   \-f; \-\-mtu <val>: fragment packets (optionally w/given MTU)
   \-D <decoy1,decoy2[,ME],...>: Cloak a scan with decoys
@@ -160,7 +161,7 @@ OUTPUT:
   \-\-resume <filename>: Resume an aborted scan
   \-\-stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML
   \-\-webxml: Reference stylesheet from Insecure.Org for more portable XML
-  \-\-no_stylesheet: Prevent associating of XSL stylesheet w/XML output
+  \-\-no\-stylesheet: Prevent associating of XSL stylesheet w/XML output
 MISC:
   \-6: Enable IPv6 scanning
   \-A: Enables OS detection and Version detection
@@ -1239,13 +1240,6 @@ to activate this mode and then type
 h
 for help. This option is rarely used because proper shells are usually more familiar and feature\-complete. This option includes a bang (!) operator for executing shell commands, which is one of many reasons not to install Nmap setuid root.
 .TP
-\fB\-\-noninteractive\fR (For running Nmap from a program)
-This option may be specified when Nmap is run by a program rather than an actual user watching the screen directly. The only difference at this time is that Runtime Interaction (described in
-the section called \(lqRUNTIME INTERACTION\(rq) is disabled. Despite the confusingly similar name, this option is
-\fInot\fR
-simply the opposite of
-\fB\-\-interactive\fR.
-.TP
 \fB\-V\fR; \fB\-\-version\fR (Print version number)
 Prints the Nmap version number and exits.
 .TP
@@ -1265,9 +1259,7 @@ During the execution of nmap, all key presses are captured. This allows you to i
 \fIlowercase letters increase\fR
 the amount of printing, and
 \fIuppercase letters decrease\fR
-the printing. This functionality can be disabled by specifying the
-\fB\-\-noninteractive\fR
-option.
+the printing.
 .TP
 \fBv\fR / \fBV\fR
 Increase / Decrease the Verbosity

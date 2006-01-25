@@ -85,6 +85,7 @@ distro:
            pcap-include/pcap-bpf.h pcap-include/sched.h \
            pcap-include/Ntddpack.h pcap-include/tme.h \
            pcap-include/tcp_session.h pcap-include/pcap-int.h \
+           nsis/AddToPath.nsh nsis/Nmap.nsi \
            resource.h RPC/Rpc_cut.h winclude.h winfix.cc winfix.h \
            /usr/tmp/nmap-$(NMAP_VERSION)/mswin32
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/$(LIBPCAPDIR)

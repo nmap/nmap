@@ -116,10 +116,12 @@
 #include <stdlib.h>
 
 #ifdef WIN32
+#include <conio.h>
+
 // We currently just have stub functions for Win32 that don't actually
 // do anything.  Any volunteers to add real support?
 void tty_init() { return; }
-bool keyWasPressed() { return false; }
+bool keyWasPressed() { return _kbhit(); }
 void tty_done() { return; }
 
 #else

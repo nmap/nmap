@@ -1,4 +1,33 @@
 # Nmap Changelog ($Id$); -*-text-*-
+3.99
+
+o Created a Windows executable installer using the open source NSIS
+  (Nullsoft Scriptable Install System).  It handles Pcap installation,
+  registry performance changes, and adding Nmap to your cmd.exe
+  executable path.  The installer source files are in mswin32/nsis/ .
+  Thanks to Google SoC student Bo Jiang (jiangbo(a)brandeis.edu) for
+  creating the initial version.
+
+o Added runtime interaction support to Windows, thanks to a 2-line
+  (wow) patch from Gisle Vanem (giva(a)bgnett.no)
+
+o Fixed a backward compatibility bug in which Nmap didn't recognize
+  the --min_rtt_timeout option (it only recognized the newly
+  hyphenated --min-rtt-timeout).  Thanks to Joshua D. Abraham
+  (jabra(a)ccs.neu.edu) for the bug report.
+
+o Fixed compilation to again work with gcc-derivatives such as
+  MingW. Thanks to Gisle Vanem (giva(a)bgnett.no) for sending the
+  patches
+
+o Integrated all remaining 2005 service submissions.  The DB now has
+  surpassed 3,000 signatures for the first time.  There now are 3,153
+  signatures for 381 service protocols.  Those protocols span the
+  gamut from abc, acap, afp, and afs to zebedee, zebra, and
+  zenimaging.  It even covers obscure protocols such as http, ftp,
+  smtp, and ssh :).  Thanks to Version Detection Czar Doug Hoyte for
+  his excellent work on this.
+
 3.98BETA1
 
 o Added run time interaction as documented at
@@ -38,7 +67,7 @@ o The 26 Nmap commands that previously included an underscore
   (--max_rtt_timeout, --send_eth, --host_timeout, etc.) have been
   renamed to use a hyphen in the preferred format
   (i.e. --max-rtt-timeout).  Underscores are still supported for
-  backwared compatability.
+  backward compatibility.
 
 o More excellent NmapFE patches from Priit Laes (amd(a)store20.com)
   were applied to remove all deprecated GTK API calls.  This also
@@ -61,7 +90,7 @@ o Added some exception handling code to mswin32/winfix.cc to prevent
 
 o Stripped the firewall API out of the libdnet included with Nmap
   because Nmap doesn't use it anyway.  This saves space and reduces the
-  likelyhood of compilation errors and warnings.
+  likelihood of compilation errors and warnings.
 
 o Modified the previously useless --noninteractive option so that it
   deactivates runtime interaction.
@@ -70,7 +99,7 @@ o Modified the previously useless --noninteractive option so that it
 
 o Added --max_retries option for capping the maximum number of
   retransmissions the port scan engine will do. The value may be as low
-  as 0 (no retransmits).  A low value can increase spead, though at the
+  as 0 (no retransmits).  A low value can increase speed, though at the
   risk of losing accuracy.  The -T4 option now allows up to 6 retries,
   and -T5 allows 2.  Thanks to Martin Macok
   (martin.macok(a)underground.cz) for writing the initial patch, which I
@@ -172,7 +201,7 @@ o Fixed a problem that prevented the command "nmap -sT -PT <targets>"
   doesn't change default behavior in this case, but Nmap should (and now
   does) allow it.
 
-o Applied another VS 2005 compatability patch from KX (kxmail(a)gmail.com).
+o Applied another VS 2005 compatibility patch from KX (kxmail(a)gmail.com).
 
 o Define INET_ADDRSTRLEN in tcpip.h if the system doesn't define it
   for us.  This apparently aids compilation on Solaris 2.6 and 7.
@@ -249,7 +278,7 @@ o Added the --webxml option, which does the same thing as
   --stylesheet http://www.insecure.org/nmap/data/nmap.xsl , without
   requiring you to remember the exact URL or type that whole thing.
 
-o Fixed a crash occured when the --exclude option was used with
+o Fixed a crash occurred when the --exclude option was used with
   netmasks on certain platforms.  Thanks to Adam
   (nmapuser(a)globalmegahost.com) for reporting the problem and to
   Greg Darke (starstuff(a)optusnet.com.au) for sending a patch (I
@@ -329,7 +358,7 @@ o Updated nmap-mac-prefixes to include OUIs assigned by the IEEE since
   April.
 
 o Updated the included libpcre (used for version detection) from
-  version 4.3 to 6.3.  A libpcre securty issue was fixed in 6.3, but
+  version 4.3 to 6.3.  A libpcre security issue was fixed in 6.3, but
   that issue never affected Nmap.
 
 o Updated the included libpcap from 0.8.3 to 0.9.3.  I also changed
@@ -340,7 +369,7 @@ o Updated the included libpcap from 0.8.3 to 0.9.3.  I also changed
 Nmap 3.90
 
 o Added the ability for Nmap to send and properly route raw ethernet
-  packets cointaining IP datagrams rather than always sending the
+  packets containing IP datagrams rather than always sending the
   packets via raw sockets. This is particularly useful for Windows,
   since Microsoft has disabled raw socket support in XP for no good
   reason.  Nmap tries to choose the best method at runtime based on
@@ -392,7 +421,7 @@ o Applied a massive OS fingerprint update from Zhao Lei
   broadband routers, printers, WAPs and pretty much any other device
   you can coax an ethernet cable (or wireless card) into!
 
-o Added 'leet ASCII art to the confugrator!  ARTIST NOTE: If you think
+o Added 'leet ASCII art to the configurator!  ARTIST NOTE: If you think
   the ASCII art sucks, feel free to send me alternatives.  Note that
   only people compiling the UNIX source code get this. (ASCII artist
   unknown).
@@ -415,7 +444,7 @@ o Nmap on Windows now compiles/links with the new WinPcap 3.1
   While older versions may still work, they aren't supported with Nmap.
 
 o The official Nmap RPM files are now compiled statically for better
-  compatability with other systems.  X86_64 (AMD Athlon64/Opteron)
+  compatibility with other systems.  X86_64 (AMD Athlon64/Opteron)
   binaries are now available in addition to the standard i386.  NmapFE
   RPMs are no longer distributed by Insecure.Org.
 
@@ -497,7 +526,7 @@ o Updated random scan (ip_is_reserved()) to reflect the latest IANA
 o Included new Russian man page translation by
   locco_bozi(a)Safe-mail.net
 
-o Applied pach from Steve Martin (smartin(a)stillsecure.com) which
+o Applied patch from Steve Martin (smartin(a)stillsecure.com) which
   standardizes many OS names and corrects typos in nmap-os-fingerprints.
 
 o Fixed a crash found during certain UDP version scans.  The crash was
@@ -545,9 +574,9 @@ o Added configure option --with-libpcap=included to tell Nmap to use
   --with-libpcap=included .
 
 o Changed the --no-stylesheet option to --no_stylesheet to be
-  consistant with all of the other Nmap options.  Though I'm starting to
+  consistent with all of the other Nmap options.  Though I'm starting to
   like hyphens a bit better than underscores and may change all of the
-  options to use hyphens instad at some point.
+  options to use hyphens instead at some point.
 
 o Added "Exclude" directive to nmap-service-probes grammar which
   causes version detection to skip listed ports.  This is helpful for
@@ -568,7 +597,7 @@ o Removed WinIP library (and all Windows raw sockets code) since MS
   --win_forcerawsock, --win_nopcap, --win_nt4route, --win_noiphlpapi,
   and --win_trace options have been removed.
 
-o Chagned the interesting ports array from a 65K-member array of
+o Changed the interesting ports array from a 65K-member array of
   pointers into an STL list.  This noticeable reduces memory usage in
   some cases, and should also give a slight runtime performance
   boost. This patch was written by Paul Tarjan (ptarjan(a)gmail.com).
@@ -606,7 +635,7 @@ o The OS fingerprint is now provided in XML output if debugging is
   enabled (-d) or verbosity is at least 2 (-v -v).  This patch was
   sent by Okan Demirmen (okan(a)demirmen.com)
 
-o Fixed the way tcp connect scan (-sT) respons to ICMP network
+o Fixed the way tcp connect scan (-sT) response to ICMP network
   unreachable responses (patch by Richard Moore
   (rich(a)westpoint.ltd.uk).
 
@@ -618,7 +647,7 @@ o Updated GNU shtool (a helper program used during 'make install' to
   weakness discovered by Eric Raymond.
 
 o Removed addport element from XML DTD, since it is no longer used
-  (sugested by Lionel Cons (lionel.cons(a)cern.ch)
+  (suggested by Lionel Cons (lionel.cons(a)cern.ch)
 
 o Added new --privileged command-line option and NMAP_PRIVILEGED
   environmental variable.  Either of these tell Nmap to assume that
@@ -714,7 +743,7 @@ o Fixed (I hope) an error which would cause the Windows version of
   (Unknown error)".  Problem reported by "Tony Golding"
   (biz(a)tonygolding.com).
 
-o Added new "closed|filtered" state.  This is used for Idlescan, since
+o Added new "closed|filtered" state.  This is used for Idle scan, since
   that scan method can't distinguish between those two states.  Nmap
   previously just used "closed", but this is more accurate.
 
@@ -977,7 +1006,7 @@ o Nmap now estimates completion times for almost all port scan types
 
 o Added --exclude option, which lets you specify a comma-separated
   list of targets (hosts, ranges, netblocks) that should be excluded
-  from the scan.  This is useful to keep from scannig yourself, your
+  from the scan.  This is useful to keep from scanning yourself, your
   ISP, particularly sensitive hosts, etc.  The new --excludefile reads
   the list (newline-delimited) from a given file.  All the work was
   done by Mark-David McLaughlin (mdmcl(a)cisco.com> and William McVey
@@ -1017,11 +1046,11 @@ o Enabled MAC address reporting when using the Windows version
 
 o Workaround crippled raw sockets on Microsoft Windows XP SP2 scans.
   I applied a patch by Andy Lutomirski (luto(a)stanford.edu) which
-  causes Nmap to default to winpcap sends instead.  The winpcap send
+  causes Nmap to default to WinPcap sends instead.  The WinPcap send
   functionality was already there for versions of Windows such as NT and
   Win98 that never supported Raw Sockets in the first place.
 
-o Changed how Nmap sends Arp requests on Windows to use the iphlpapi
+o Changed how Nmap sends ARP requests on Windows to use the iphlpapi
   SendARP() function rather than creating it raw and reading the
   response from the Windows ARP cache.  This works around a
   (reasonable) feature of Windows Firewall which ignored such
@@ -1053,7 +1082,7 @@ o Updated nmapfe.desktop file to provide better NmapFE desktop support
 o Further nmapfe.desktop changes to better fit the freedesktop
   standard.  The patch came from Murphy (m3rf(a)swimmingnoodle.com).
 
-o Fixed capitalization (with a perl script) of many over-capitalized
+o Fixed capitalization (with a Perl script) of many over-capitalized
   vendor names in nmap-mac-prefixes.
 
 o Ensured that MAC address vendor names are always escaped in XML
@@ -1084,7 +1113,7 @@ o Fixed various crashes and assertion failures related to the new
   (bill.petersen(a)alcatel.com).
 
 o Fixed some minor memory leaks relating to ping and list scanning as
-  well as the Nmap output table.  These were found with valgrind (
+  well as the Nmap output table.  These were found with Valgrind (
   http://valgrind.kde.org/ ).
 
 o Provide limited --packet_trace support for TCP connect() (-sT)
@@ -1093,14 +1122,14 @@ o Provide limited --packet_trace support for TCP connect() (-sT)
 o Fixed compilation on certain Solaris machines thanks to a patch by
   Tom Duffy (tduffy(a)sun.com)
 
-o Fixed some warnings that crop up when compiling nbase C files with a
+o Fixed some warnings that crop up when compiling Nbase C files with a
   C++ compiler.  Thanks to Gisle Vanem (giva(a)bgnett.no) for sending
   the patch.
 
 o Tweaked the License blurb on source files and in the man page.  It
   clarifies some issues and includes a new GPL exception that
   explicitly allows linking with the OpenSSL library.  Some people
-  believe that the GPL and OpenSSL licenses are incompatable without
+  believe that the GPL and OpenSSL licenses are incompatible without
   this special exception.
 
 o Fixed some serious runtime portability issues on *BSD systems.

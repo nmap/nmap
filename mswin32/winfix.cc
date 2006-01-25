@@ -167,7 +167,9 @@ void win_init()
 
 
 	//   Try to initialize winpcap
+#ifdef _MSC_VER
 	__try
+#endif
 	{
 		ULONG len = sizeof(pcaplist);
 
@@ -175,17 +177,22 @@ void win_init()
 		if(o.debugging > 2) printf("***WinIP***  trying to initialize winpcap 3.1\n");
 		PacketGetAdapterNames(pcaplist, &len);
 
+#ifdef _MSC_VER
 		if(FAILED(__HrLoadAllImportsForDll("wpcap.dll")))
 		{
 			error("WARNING: your winpcap is too old to use.  Nmap may not function.\n");
 			pcap_avail = 0;
 		}
+#endif
 		if(o.debugging)
 			printf("Winpcap present, dynamic linked to: %s\n", pcap_lib_version());
-	} __except (1) {
+	}
+#ifdef _MSC_VER
+	__except (1) {
 			error("WARNING: Could not import all necessary WinPcap functions.  You may need to upgrade to version 3.1 or higher from http://www.winpcap.org.  Resorting to connect() mode -- Nmap may not function completely");
 		pcap_avail=0;
 		}
+#endif
 
 	o.isr00t = pcap_avail;
 	atexit(win_cleanup);

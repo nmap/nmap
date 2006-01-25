@@ -256,6 +256,8 @@ int nmap_main(int argc, char *argv[]) {
       {"timing", required_argument, 0, 'T'},
       {"timing", no_argument, 0, 0},
       {"max_rtt_timeout", required_argument, 0, 0},
+      {"max-rtt-timeout", required_argument, 0, 0},
+      {"min_rtt_timeout", required_argument, 0, 0},
       {"min-rtt-timeout", required_argument, 0, 0},
       {"initial_rtt_timeout", required_argument, 0, 0},
       {"initial-rtt-timeout", required_argument, 0, 0},
