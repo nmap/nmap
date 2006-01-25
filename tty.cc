@@ -121,7 +121,10 @@
 // We currently just have stub functions for Win32 that don't actually
 // do anything.  Any volunteers to add real support?
 void tty_init() { return; }
-bool keyWasPressed() { return _kbhit(); }
+bool keyWasPressed() { 
+  return false;
+  //return _kbhit(); 
+}
 void tty_done() { return; }
 
 #else

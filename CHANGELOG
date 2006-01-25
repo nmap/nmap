@@ -8,9 +8,6 @@ o Created a Windows executable installer using the open source NSIS
   Thanks to Google SoC student Bo Jiang (jiangbo(a)brandeis.edu) for
   creating the initial version.
 
-o Added runtime interaction support to Windows, thanks to a 2-line
-  (wow) patch from Gisle Vanem (giva(a)bgnett.no)
-
 o Fixed a backward compatibility bug in which Nmap didn't recognize
   the --min_rtt_timeout option (it only recognized the newly
   hyphenated --min-rtt-timeout).  Thanks to Joshua D. Abraham
