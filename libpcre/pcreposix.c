@@ -131,7 +131,7 @@ static const char *const pstring[] = {
 *          Translate error code to string        *
 *************************************************/
 
-EXPORT size_t
+PCRE_EXPORT size_t
 regerror(int errcode, const regex_t *preg, char *errbuf, size_t errbuf_size)
 {
 const char *message, *addmessage;
@@ -166,7 +166,7 @@ return length + addlength;
 *           Free store held by a regex           *
 *************************************************/
 
-EXPORT void
+PCRE_EXPORT void
 regfree(regex_t *preg)
 {
 (pcre_free)(preg->re_pcre);
@@ -189,7 +189,7 @@ Returns:      0 on success
               various non-zero codes on failure
 */
 
-EXPORT int
+PCRE_EXPORT int
 regcomp(regex_t *preg, const char *pattern, int cflags)
 {
 const char *errorptr;
@@ -225,7 +225,7 @@ ints. However, if the number of possible capturing brackets is small, use a
 block of store on the stack, to reduce the use of malloc/free. The threshold is
 in a macro that can be changed at configure time. */
 
-EXPORT int
+PCRE_EXPORT int
 regexec(const regex_t *preg, const char *string, size_t nmatch,
   regmatch_t pmatch[], int eflags)
 {

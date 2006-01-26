@@ -130,9 +130,6 @@
 				RelativePath=".\pcre_maketables.c">
 			</File>
 			<File
-				RelativePath=".\pcre_printint.c">
-			</File>
-			<File
 				RelativePath=".\pcre_refcount.c">
 			</File>
 			<File

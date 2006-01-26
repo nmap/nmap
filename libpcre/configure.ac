@@ -18,10 +18,10 @@ dnl A safety precaution
 
 AC_PREREQ(2.57)
 
-dnl Arrange to build config.h from config.in. Note that pcre.h is
+dnl Arrange to build config.h from config.h.in. Note that pcre.h is
 dnl built differently, as it is just a "substitution" file.
 dnl Manual says this macro should come right after AC_INIT.
-AC_CONFIG_HEADER(config.h:config.in)
+AC_CONFIG_HEADER(config.h)
 
 dnl Provide the current PCRE version information. Do not use numbers
 dnl with leading zeros for the minor version, as they end up in a C
@@ -30,8 +30,8 @@ dnl digits for minor numbers less than 10. There are unlikely to be
 dnl that many releases anyway.
 
 PCRE_MAJOR=6
-PCRE_MINOR=3
-PCRE_DATE=15-Aug-2005
+PCRE_MINOR=4
+PCRE_DATE=05-Sep-2005
 PCRE_VERSION=${PCRE_MAJOR}.${PCRE_MINOR}
 
 dnl Default values for miscellaneous macros
@@ -201,4 +201,4 @@ if test "x$enable_shared" = "xno" ; then
 fi
 
 dnl This must be last; it determines what files are written as well as config.h
-AC_OUTPUT(Makefile pcre.h:pcre.in)
+AC_OUTPUT(Makefile pcre.h:pcre.h.in)

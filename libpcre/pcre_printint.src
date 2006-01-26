@@ -38,12 +38,15 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-/* This module contains an PCRE private debugging function for printing out the
+/* This module contains a PCRE private debugging function for printing out the
 internal form of a compiled regular expression, along with some supporting
-local functions. */
+local functions. This source file is used in two places:
 
+(1) It is #included by pcre_compile.c when it is compiled in debugging mode
+(DEBUG defined in pcre_internal.h). It is not included in production compiles.
 
-#include "pcre_internal.h"
+(2) It is always #included by pcretest.c, which can be asked to print out a
+compiled regex for debugging purposes. */
 
 
 static const char *OP_names[] = { OP_NAME_LIST };
@@ -121,8 +124,8 @@ return "??";
 /* Make this function work for a regex with integers either byte order.
 However, we assume that what we are passed is a compiled regex. */
 
-EXPORT void
-_pcre_printint(pcre *external_re, FILE *f)
+static void
+pcre_printint(pcre *external_re, FILE *f)
 {
 real_pcre *re = (real_pcre *)external_re;
 uschar *codestart, *code;
@@ -448,4 +451,4 @@ for(;;)
   }
 }
 
-/* End of pcre_printint.c */
+/* End of pcre_printint.src */

@@ -53,8 +53,6 @@ enum {
   ucp_Zs     /* Space separator */
 };
 
-extern int ucp_findchar(const int, int *, int *);
-
 #endif
 
 /* End of ucp.h */

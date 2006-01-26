@@ -23,7 +23,7 @@ this can be done via --enable-ebcdic. */
 before the definition of an exported function, define this macro to contain the
 relevant magic. It apears at the start of every exported function. */
 
-#define EXPORT
+#define PCRE_EXPORT
 
 /* Define to empty if the "const" keyword does not work. */
 

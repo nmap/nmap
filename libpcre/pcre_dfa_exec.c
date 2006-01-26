@@ -758,7 +758,7 @@ for (;;)
       if (clen > 0)
         {
         int rqdtype, category;
-        category = ucp_findchar(c, &chartype, &othercase);
+        category = _pcre_ucp_findchar(c, &chartype, &othercase);
         rqdtype = code[1];
         if (rqdtype >= 128)
           {
@@ -865,7 +865,7 @@ for (;;)
       if (count > 0) { ADD_ACTIVE(state_offset + 3, 0); }
       if (clen > 0)
         {
-        int category = ucp_findchar(c, &chartype, &othercase);
+        int category = _pcre_ucp_findchar(c, &chartype, &othercase);
         int rqdtype = code[2];
         if ((d == OP_PROP) ==
             (rqdtype == ((rqdtype >= 128)? (category + 128) : chartype)))
@@ -878,7 +878,7 @@ for (;;)
       case OP_EXTUNI_EXTRA + OP_TYPEMINPLUS:
       count = current_state->count;  /* Already matched */
       if (count > 0) { ADD_ACTIVE(state_offset + 2, 0); }
-      if (clen > 0 && ucp_findchar(c, &chartype, &othercase) != ucp_M)
+      if (clen > 0 && _pcre_ucp_findchar(c, &chartype, &othercase) != ucp_M)
         {
         const uschar *nptr = ptr + clen;
         int ncount = 0;
@@ -887,7 +887,7 @@ for (;;)
           int nd;
           int ndlen = 1;
           GETCHARLEN(nd, nptr, ndlen);
-          if (ucp_findchar(nd, &chartype, &othercase) != ucp_M) break;
+          if (_pcre_ucp_findchar(nd, &chartype, &othercase) != ucp_M) break;
           ncount++;
           nptr += ndlen;
           }
@@ -911,7 +911,7 @@ for (;;)
       ADD_ACTIVE(state_offset + 3, 0);
       if (clen > 0)
         {
-        int category = ucp_findchar(c, &chartype, &othercase);
+        int category = _pcre_ucp_findchar(c, &chartype, &othercase);
         int rqdtype = code[2];
         if ((d == OP_PROP) ==
             (rqdtype == ((rqdtype >= 128)? (category + 128) : chartype)))
@@ -932,7 +932,7 @@ for (;;)
       QS2:
 
       ADD_ACTIVE(state_offset + 2, 0);
-      if (clen > 0 && ucp_findchar(c, &chartype, &othercase) != ucp_M)
+      if (clen > 0 && _pcre_ucp_findchar(c, &chartype, &othercase) != ucp_M)
         {
         const uschar *nptr = ptr + clen;
         int ncount = 0;
@@ -941,7 +941,7 @@ for (;;)
           int nd;
           int ndlen = 1;
           GETCHARLEN(nd, nptr, ndlen);
-          if (ucp_findchar(nd, &chartype, &othercase) != ucp_M) break;
+          if (_pcre_ucp_findchar(nd, &chartype, &othercase) != ucp_M) break;
           ncount++;
           nptr += ndlen;
           }
@@ -958,7 +958,7 @@ for (;;)
       count = current_state->count;  /* Number already matched */
       if (clen > 0)
         {
-        int category = ucp_findchar(c, &chartype, &othercase);
+        int category = _pcre_ucp_findchar(c, &chartype, &othercase);
         int rqdtype = code[4];
         if ((d == OP_PROP) ==
             (rqdtype == ((rqdtype >= 128)? (category + 128) : chartype)))
@@ -978,7 +978,7 @@ for (;;)
       if (codevalue != OP_EXTUNI_EXTRA + OP_TYPEEXACT)
         { ADD_ACTIVE(state_offset + 4, 0); }
       count = current_state->count;  /* Number already matched */
-      if (clen > 0 && ucp_findchar(c, &chartype, &othercase) != ucp_M)
+      if (clen > 0 && _pcre_ucp_findchar(c, &chartype, &othercase) != ucp_M)
         {
         const uschar *nptr = ptr + clen;
         int ncount = 0;
@@ -987,7 +987,7 @@ for (;;)
           int nd;
           int ndlen = 1;
           GETCHARLEN(nd, nptr, ndlen);
-          if (ucp_findchar(nd, &chartype, &othercase) != ucp_M) break;
+          if (_pcre_ucp_findchar(nd, &chartype, &othercase) != ucp_M) break;
           ncount++;
           nptr += ndlen;
           }
@@ -1022,11 +1022,11 @@ for (;;)
 
           /* If we have Unicode property support, we can use it to test the
           other case of the character, if there is one. The result of
-          ucp_findchar() is < 0 if the char isn't found, and othercase is
+          _pcre_ucp_findchar() is < 0 if the char isn't found, and othercase is
           returned as zero if there isn't another case. */
 
 #ifdef SUPPORT_UCP
-          if (ucp_findchar(c, &chartype, &othercase) < 0)
+          if (_pcre_ucp_findchar(c, &chartype, &othercase) < 0)
 #endif
             othercase = -1;
 
@@ -1050,7 +1050,7 @@ for (;;)
       to wait for them to pass before continuing. */
 
       case OP_EXTUNI:
-      if (clen > 0 && ucp_findchar(c, &chartype, &othercase) != ucp_M)
+      if (clen > 0 && _pcre_ucp_findchar(c, &chartype, &othercase) != ucp_M)
         {
         const uschar *nptr = ptr + clen;
         int ncount = 0;
@@ -1058,7 +1058,7 @@ for (;;)
           {
           int nclen = 1;
           GETCHARLEN(c, nptr, nclen);
-          if (ucp_findchar(c, &chartype, &othercase) != ucp_M) break;
+          if (_pcre_ucp_findchar(c, &chartype, &othercase) != ucp_M) break;
           ncount++;
           nptr += nclen;
           }
@@ -1096,7 +1096,7 @@ for (;;)
           if (utf8 && c >= 128)
             {
 #ifdef SUPPORT_UCP
-            if (ucp_findchar(d, &chartype, &otherd) < 0) otherd = -1;
+            if (_pcre_ucp_findchar(d, &chartype, &otherd) < 0) otherd = -1;
 #endif  /* SUPPORT_UCP */
             }
           else
@@ -1123,7 +1123,7 @@ for (;;)
           if (utf8 && c >= 128)
             {
 #ifdef SUPPORT_UCP
-            if (ucp_findchar(c, &chartype, &otherd) < 0) otherd = -1;
+            if (_pcre_ucp_findchar(c, &chartype, &otherd) < 0) otherd = -1;
 #endif  /* SUPPORT_UCP */
             }
           else
@@ -1150,7 +1150,7 @@ for (;;)
           if (utf8 && c >= 128)
             {
 #ifdef SUPPORT_UCP
-            if (ucp_findchar(c, &chartype, &otherd) < 0) otherd = -1;
+            if (_pcre_ucp_findchar(c, &chartype, &otherd) < 0) otherd = -1;
 #endif  /* SUPPORT_UCP */
             }
           else
@@ -1181,7 +1181,7 @@ for (;;)
           if (utf8 && c >= 128)
             {
 #ifdef SUPPORT_UCP
-            if (ucp_findchar(d, &chartype, &otherd) < 0) otherd = -1;
+            if (_pcre_ucp_findchar(d, &chartype, &otherd) < 0) otherd = -1;
 #endif  /* SUPPORT_UCP */
             }
           else
@@ -1424,7 +1424,6 @@ for (;;)
       /*-----------------------------------------------------------------*/
       case OP_ONCE:
         {
-        const uschar *endcode;
         int local_offsets[2];
         int local_workspace[1000];
 
@@ -1446,7 +1445,6 @@ for (;;)
           const uschar *end_subpattern = code;
           int charcount = local_offsets[1] - local_offsets[0];
           int next_state_offset, repeat_state_offset;
-          BOOL is_repeated;
 
           do { end_subpattern += GET(end_subpattern, 1); }
             while (*end_subpattern == OP_ALT);
@@ -1613,7 +1611,7 @@ Returns:          > 0 => number of match offset pairs placed in offsets
                  < -1 => some kind of unexpected problem
 */
 
-EXPORT int
+PCRE_EXPORT int
 pcre_dfa_exec(const pcre *argument_re, const pcre_extra *extra_data,
   const char *subject, int length, int start_offset, int options, int *offsets,
   int offsetcount, int *workspace, int wscount)

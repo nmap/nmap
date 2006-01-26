@@ -80,7 +80,7 @@ SectionEnd
 
 Section "WinPcap 3.1" SecWinPcap
   File winpcap_3_1.exe
-  Exec "$INSTDIR\WinPcap_3_1.exe"
+  Exec '"$INSTDIR\WinPcap_3_1.exe"'
   Delete "$INSTDIR\Winpcap_3_1.exe"
 SectionEnd
 

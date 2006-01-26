@@ -145,14 +145,14 @@ distro:
                         *.c *.h CHANGELOG /usr/tmp/nmap-$(NMAP_VERSION)/nbase
 
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/libpcre
-	cd ../libpcre; cp -a AUTHORS config.guess config.in config.sub \
+	cd ../libpcre; cp -a AUTHORS config.guess config.h.in config.sub \
                configure configure.ac dftables.c INSTALL install-sh \
                libpcre.vcproj LICENCE Makefile.in makevp.bat mkinstalldirs \
                NMAP_MODIFICATIONS NON-UNIX-USE pcre_chartables.c \
                pcre_compile.c pcre_config.c pcre_dfa_exec.c pcre_exec.c \
-               pcre_fullinfo.c pcre_get.c pcre_globals.c pcre.h pcre.in \
+               pcre_fullinfo.c pcre_get.c pcre_globals.c pcre.h pcre.h.in \
                pcre_info.c pcre_internal.h pcre_maketables.c pcreposix.c \
-               pcreposix.h pcre_printint.c pcre_refcount.c pcre_study.c \
+               pcreposix.h pcre_printint.src pcre_refcount.c pcre_study.c \
                pcre_tables.c pcre_try_flipped.c pcre_version.c \
                pcre_winconfig.h pcre_xclass.c README ucp.h \
                /usr/tmp/nmap-$(NMAP_VERSION)/libpcre

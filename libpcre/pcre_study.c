@@ -401,7 +401,7 @@ Returns:    pointer to a pcre_extra block, with study_data filled in and the
             NULL on error or if no optimization possible
 */
 
-EXPORT pcre_extra *
+PCRE_EXPORT pcre_extra *
 pcre_study(const pcre *external_re, int options, const char **errorptr)
 {
 uschar start_bits[32];

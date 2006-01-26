@@ -1,5 +1,31 @@
 # Nmap Changelog ($Id$); -*-text-*-
+3.999
+
+o Added runtime interaction support to Windows, thanks to patches from
+  Andrew Lutomirski (luto(a)myrealbox.com) and Gisle Vanem (giva(a)bgnett.no).
+
+o Changed a couple lines of tcpip.cc (put certain IP header fields in
+  host byte order rather than NBO) to (hopefully) support Mac OS X on
+  Intel.  Thanks to Kurt Grutzmacher (grutz(a)jingojango.net) for the
+  patch.
+
+o Upgraded the included LibPCRE from version 6.3 to 6.4.  There was a
+  report of version detection crashes on the new Intel-based MACs with
+  6.3.
+
+o Fixed an issue in which the installer would malfunction in rare
+  issues when installing to a directory with spaces in it.  Thanks to
+  Thierry Zoller (Thierry(a)Zoller.lu) for the report.
+
 3.99
+
+o Integrated all remaining 2005 service submissions.  The DB now has
+  surpassed 3,000 signatures for the first time.  There now are 3,153
+  signatures for 381 service protocols.  Those protocols span the
+  gamut from abc, acap, afp, and afs to zebedee, zebra, and
+  zenimaging.  It even covers obscure protocols such as http, ftp,
+  smtp, and ssh :).  Thanks to Version Detection Czar Doug Hoyte for
+  his excellent work on this.
 
 o Created a Windows executable installer using the open source NSIS
   (Nullsoft Scriptable Install System).  It handles Pcap installation,
@@ -16,14 +42,6 @@ o Fixed a backward compatibility bug in which Nmap didn't recognize
 o Fixed compilation to again work with gcc-derivatives such as
   MingW. Thanks to Gisle Vanem (giva(a)bgnett.no) for sending the
   patches
-
-o Integrated all remaining 2005 service submissions.  The DB now has
-  surpassed 3,000 signatures for the first time.  There now are 3,153
-  signatures for 381 service protocols.  Those protocols span the
-  gamut from abc, acap, afp, and afs to zebedee, zebra, and
-  zenimaging.  It even covers obscure protocols such as http, ftp,
-  smtp, and ssh :).  Thanks to Version Detection Czar Doug Hoyte for
-  his excellent work on this.
 
 3.98BETA1
 

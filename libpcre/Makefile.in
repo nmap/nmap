@@ -122,7 +122,6 @@ OBJ = pcre_chartables.@OBJEXT@ \
   pcre_globals.@OBJEXT@ \
   pcre_info.@OBJEXT@ \
   pcre_maketables.@OBJEXT@ \
-  pcre_printint.@OBJEXT@ \
   pcre_refcount.@OBJEXT@ \
   pcre_study.@OBJEXT@ \
   pcre_tables.@OBJEXT@ \
@@ -184,11 +183,6 @@ pcre_maketables.@OBJEXT@: Makefile config.h pcre.h \
 		$(top_srcdir)/pcre_internal.h $(top_srcdir)/pcre_maketables.c
 		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(POSIX_MALLOC_THRESHOLD) \
 		$(top_srcdir)/pcre_maketables.c
-
-pcre_printint.@OBJEXT@: Makefile config.h pcre.h \
-		$(top_srcdir)/pcre_internal.h $(top_srcdir)/pcre_printint.c
-		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(POSIX_MALLOC_THRESHOLD) \
-		$(top_srcdir)/pcre_printint.c
 
 pcre_refcount.@OBJEXT@:   Makefile config.h pcre.h \
 		$(top_srcdir)/pcre_internal.h $(top_srcdir)/pcre_refcount.c

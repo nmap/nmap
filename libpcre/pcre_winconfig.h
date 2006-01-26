@@ -1,4 +1,4 @@
-#define EXPORT
+#define PCRE_EXPORT
 #define HAVE_STRERROR 1
 #define HAVE_MEMMOVE  1
 

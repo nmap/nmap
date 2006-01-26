@@ -94,7 +94,7 @@ Returns:           the new block if is is indeed a byte-flipped regex
                    NULL if it is not
 */
 
-EXPORT real_pcre *
+PCRE_EXPORT real_pcre *
 _pcre_try_flipped(const real_pcre *re, real_pcre *internal_re,
   const pcre_study_data *study, pcre_study_data *internal_study)
 {

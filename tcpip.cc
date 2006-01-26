@@ -987,7 +987,7 @@ int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetl
      must deal with it here rather than when building the packet,
      because they should be in NBO when I'm sending over raw
      ethernet */
-#if FREEBSD || BSDI || NETBSD || DEC
+#if FREEBSD || BSDI || NETBSD || DEC || MACOSX
   ip->ip_len = ntohs(ip->ip_len);
   ip->ip_off = ntohs(ip->ip_off);
 #endif

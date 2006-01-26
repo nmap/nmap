@@ -46,7 +46,7 @@ configure.in.
   write pcre.h
 
 (3) Compile dftables.c as a stand-alone program, and then run it with
-the single argument "chartables.c". This generates a set of standard
+the single argument "pcre_chartables.c". This generates a set of standard
 character tables and writes them to that file.
 
   rem Mark Tetrode's commands

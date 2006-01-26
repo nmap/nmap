@@ -43,6 +43,11 @@ modules, but which are not relevant to the exported API. This includes some
 functions whose names all begin with "_pcre_". */
 
 /* Get the definitions provided by running "configure" */
+
+#ifndef PCRE_INTERNAL_H
+#define PCRE_INTERNAL_H
+
+
 #ifndef WIN32
 #include "config.h"
 #else
@@ -51,9 +56,9 @@ functions whose names all begin with "_pcre_". */
 
 /* Define DEBUG to get debugging output on stdout. */
 
-/****
+#if 0
 #define DEBUG
-****/
+#endif
 
 /* Use a macro for debugging printing, 'cause that eliminates the use of #ifdef
 inline, and there are *still* stupid compilers about that don't like indented
@@ -116,9 +121,12 @@ Unix, where it is defined in sys/types, so use "uschar" instead. */
 
 typedef unsigned char uschar;
 
-/* Include the public PCRE header */
+/* Include the public PCRE header and the definitions of UCP character
+   property values. */
 
 #include "pcre.h"
+#include "ucp.h"
+
 
 /* Include the (copy of) the public ucp header, changing the external name into a private one. This does no harm, even if we aren't compiling UCP support. */
 
@@ -865,7 +873,7 @@ total length. */
 #define tables_length (ctypes_offset + 256)
 
 /* Layout of the UCP type table that translates property names into codes for
-ucp_findchar(). */
+pcre_ucp_findchar(). */
 
 typedef struct {
   const char *name;
@@ -898,11 +906,12 @@ one of the exported public functions. They have to be "external" in the C
 sense, but are not part of the PCRE public API. */
 
 extern int         _pcre_ord2utf8(int, uschar *);
-extern void        _pcre_printint(pcre *, FILE *);
 extern real_pcre * _pcre_try_flipped(const real_pcre *, real_pcre *,
                      const pcre_study_data *, pcre_study_data *);
 extern int         _pcre_ucp_findchar(const int, int *, int *);
 extern int         _pcre_valid_utf8(const uschar *, int);
 extern BOOL        _pcre_xclass(int, const uschar *);
+
+#endif
 
 /* End of pcre_internal.h */

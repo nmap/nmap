@@ -115,16 +115,18 @@
 #endif
 #include <stdlib.h>
 
+#include "output.h"
+#include "tty.h"
+#include "NmapOps.h"
+
+extern NmapOps o;
+
 #ifdef WIN32
 #include <conio.h>
 
-// We currently just have stub functions for Win32 that don't actually
-// do anything.  Any volunteers to add real support?
+// Microsoft's runtime makes this fairly simple. :)
 void tty_init() { return; }
-bool keyWasPressed() { 
-  return false;
-  //return _kbhit(); 
-}
+static int tty_getchar() { return _kbhit() ? getch() : -1; }
 void tty_done() { return; }
 
 #else
@@ -140,12 +142,6 @@ extern int tcgetattr(int fd, struct termios *termios_p);
 extern int tcsetattr(int fd, int actions, struct termios *termios_p);
 #endif
 #endif
-
-#include "output.h"
-#include "tty.h"
-#include "NmapOps.h"
-
-extern NmapOps o;
 
 static int tty_fd = 0;
 static struct termios saved_ti;
@@ -204,6 +200,20 @@ static int tty_getchar()
 	return -1;
 }
 
+void tty_done()
+{
+	int fd;
+
+	if (!tty_fd) return;
+
+	fd = tty_fd; tty_fd = 0;
+	tcsetattr(fd, TCSANOW, &saved_ti);
+
+	close(fd);
+}
+
+#endif  //!win32
+
 /* This is the best method here. It will catch all of the predefined
    keypresses and interpret them, and it will also tell you if you
    should print anything. A value of true being returned means a
@@ -248,17 +258,3 @@ bool keyWasPressed()
   }
   return false;
 }
-
-void tty_done()
-{
-	int fd;
-
-	if (!tty_fd) return;
-
-	fd = tty_fd; tty_fd = 0;
-	tcsetattr(fd, TCSANOW, &saved_ti);
-
-	close(fd);
-}
-
-#endif  //!win32
