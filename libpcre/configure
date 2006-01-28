@@ -1305,13 +1305,13 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-          ac_config_headers="$ac_config_headers config.h:config.in"
+          ac_config_headers="$ac_config_headers config.h"
 
 
 
 PCRE_MAJOR=6
-PCRE_MINOR=3
-PCRE_DATE=15-Aug-2005
+PCRE_MINOR=4
+PCRE_DATE=05-Sep-2005
 PCRE_VERSION=${PCRE_MAJOR}.${PCRE_MINOR}
 
 
@@ -3529,7 +3529,7 @@ _ACEOF
 
 fi
 
-                    ac_config_files="$ac_config_files Makefile pcre.h:pcre.in"
+                    ac_config_files="$ac_config_files Makefile pcre.h:pcre.h.in"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -4055,8 +4055,8 @@ do
   case "$ac_config_target" in
   # Handling of arguments.
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-  "pcre.h" ) CONFIG_FILES="$CONFIG_FILES pcre.h:pcre.in" ;;
-  "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h:config.in" ;;
+  "pcre.h" ) CONFIG_FILES="$CONFIG_FILES pcre.h:pcre.h.in" ;;
+  "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
    { (exit 1); exit 1; }; };;

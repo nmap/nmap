@@ -1,4 +1,19 @@
 # Nmap Changelog ($Id$); -*-text-*-
+3.9999
+
+o Generated a new libpcre/configure to cope with changes in LibPCRE
+  6.4
+
+o Updated nmap-mac-prefixes to reflect the latest OUI DB from the IEEE
+  (http://standards.ieee.org/regauth/oui/oui.txt)
+
+o Updated nmap-protocols with the latest IEEE internet protocols
+  assignments (http://www.iana.org/assignments/protocol-numbers).
+
+o Updated the Nmap version number and related fields that MS Visual
+  Studio places in the binary.  This was done by editing
+  mswin32/nmap.rc.
+
 3.999
 
 o Added runtime interaction support to Windows, thanks to patches from
@@ -139,9 +154,9 @@ o Improved the NmapFE port to GTK2 so it better-conforms to the new
 o Fixed a problem which led to the error message "Failed to determine
   dst MAC address for target" when you try to run Nmap using a
   dialup/PPP adapter on Windows rather than a real ethernet card.  Due
-  to Microsoft breaking raw sockets, No longer supports dialup adapters, but
-  it should now give you a clearer error message than the "dst MAC
-  address" nonsense.
+  to Microsoft breaking raw sockets, Nmap no longer supports dialup
+  adapters, but it should now give you a clearer error message than
+  the "dst MAC address" nonsense.
 
 o Debian GNU/kFreeBSD is now supported thanks to a patch to libdnet's
   configure.in by Petr Salinger (Petr.Salinger(a)t-systems.cz).
@@ -159,7 +174,7 @@ o Fixed a problem with the -e option when run on Windows (or UNIX with
   helping to track down the problem.
 
 o Made some changes to allow source port zero scans (-g0).  Nmap used
-  to refused to do this, but now it just gives a warning that it may not
+  to refuse to do this, but now it just gives a warning that it may not
   work on all systems.  It seems to work fine on my Linux box.  Thanks
   to Bill Dale (bill_dale(a)bellsouth.net) for suggesting this feature.
 
@@ -779,7 +794,7 @@ o Change IP protocol scan (-sO) so that a response from the target
   unreachable means "closed", and most other ICMP error messages mean
   "filtered".
 
-o Patched a Winpcap issue that prevented read timeouts from being
+o Patched a libpcap issue that prevented read timeouts from being
   honored on Solaris (thus slowing down Nmap substantially).  The
   problem report and patch were sent in by Ben Harris
   (bjh21(a)cam.ac.uk).
