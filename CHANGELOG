@@ -1,4 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
+4.00
+
+o Added the '?' command to the runtime interaction system.  It prints a
+  list of accepted commands.  Thanks to Andrew Lutomirski
+  (luto(a)myrealbox.com) for the patch.
+
 3.9999
 
 o Generated a new libpcre/configure to cope with changes in LibPCRE

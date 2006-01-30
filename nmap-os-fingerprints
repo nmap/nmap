@@ -1256,23 +1256,6 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=0%ULEN=134%DAT=E)
 
-# Apple Mac OS X 10.4.0 (Tiger) - Darwin Kernel Version 8.0.0
-# Apple Macintosh PowerBook G4 15" Titanium, Mac OS X 10.4.0 (Tiger) build 8A428
-# Mac OS X 10.4 Darwin 8.0.0 Darwin Kernel Version 8.0.0: Sat Mar 26 14:15:22 PST 2005;
-# Fingerprint Apple Mac OS X 10.4.0 Build 8a428 Darwin Kernel Version 8.0.0. Power Macintosh powerpc Hardware is PB G4
-# Darwin 8.1.0 Kernel Version 8.1.0 (Apple Mac OS 10.4.1 Tiger)
-Fingerprint Apple Mac OS X 10.4.0 - 10.4.1 (Tiger)
-Class Apple | Mac OS X | 10.3.X | general purpose
-TSeq(Class=TR%gcd=<6%IPID=I%TS=2HZ)
-T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
-T2(Resp=N)
-T3(Resp=N)
-T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
-PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=0%UCK=0%ULEN=134%DAT=E)
-
 Fingerprint Apple Mac OS X 10.4.1 (Tiger)
 Class Apple | Mac OS X | 10.3.X | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I%TS=2HZ)
@@ -1298,6 +1281,23 @@ T5(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=Y%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
+# Apple Mac OS X 10.4.0 (Tiger) - Darwin Kernel Version 8.0.0
+# Apple Macintosh PowerBook G4 15" Titanium, Mac OS X 10.4.0 (Tiger) build 8A428
+# Mac OS X 10.4 Darwin 8.0.0 Darwin Kernel Version 8.0.0: Sat Mar 26 14:15:22 PST 2005;
+# Fingerprint Apple Mac OS X 10.4.0 Build 8a428 Darwin Kernel Version 8.0.0. Power Macintosh powerpc Hardware is PB G4
+# Darwin 8.1.0 Kernel Version 8.1.0 (Apple Mac OS 10.4.1 Tiger)
+Fingerprint Apple Mac OS X 10.4.0 - 10.4.4 (Tiger)
+Class Apple | Mac OS X | 10.4.X | general purpose
+TSeq(Class=TR%gcd=<6%IPID=I%TS=2HZ)
+T1(DF=Y%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
+T2(Resp=N)
+T3(Resp=N)
+T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
+PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 
 Fingerprint Apple Mac OS 7.0-7.1 With MacTCP 1.1.1 - 2.0.6
 Class Apple | Mac OS | 7.X | general purpose

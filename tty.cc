@@ -251,6 +251,15 @@ bool keyWasPressed()
     } else if (c == 'P') {
        o.setPacketTrace(false);
        log_write(LOG_STDOUT, "Packet Tracing disabled\n.");
+    } else if (c == '?') {
+      log_write(LOG_STDOUT,
+		"Interactive keyboard commands:\n"
+		"?               Display this information\n"
+		"v/V             Increase/decrease verbosity\n"
+		"d/D             Increase/decrease debugging\n"
+		"p/P             Enable/disable packet tracing\n"
+		"anything else   Print status\n"
+                "More help: http://www.insecure.org/nmap/man/man-runtime-interaction.html\n");
     } else {
        printStatusMessage();
        return true;

@@ -104,7 +104,7 @@
 #ifndef NMAP_WINCONFIG_H
 #define NMAP_WINCONFIG_H
 
-#define NMAP_VERSION "3.9999"
+#define NMAP_VERSION "4.00"
 #define NMAP_NAME "Nmap"
 #define NMAP_URL "http://www.insecure.org/nmap"
 #define NMAP_PLATFORM "i686-pc-windows-windows"
