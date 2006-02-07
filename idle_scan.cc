@@ -191,7 +191,7 @@ int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
 		 proxy->probe_port,
 		 seq_base + (packet_send_count++ * 500) + 1, ack, 
 		 TH_SYN|TH_ACK, 0, 
-		 NULL, 0, NULL, 0);
+		 (u8 *) "\x02\x04\x05\xb4", 4, NULL, 0);
     sent++;
     tries++;
 
@@ -417,8 +417,8 @@ void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
     send_tcp_raw(proxy->rawsd, proxy->ethptr, proxy->host.v4sourceip(), 
 		 proxy->host.v4hostip(), o.ttl, 
 		 o.magic_port + probes_sent + 1, proxy->probe_port, 
-		 sequence_base + probes_sent + 1, 0, TH_SYN|TH_ACK, 
-		 ack, NULL, 0, NULL, 0);
+		 sequence_base + probes_sent + 1, ack, TH_SYN|TH_ACK, 
+		 0, (u8 *) "\x02\x04\x05\xb4", 4, NULL, 0);
     gettimeofday(&probe_send_times[probes_sent], NULL);
     probes_sent++;
 
@@ -525,7 +525,7 @@ void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
 		   proxy->host.v4hostip(), 
 		   o.ttl, o.magic_port, proxy->probe_port, 
 		   sequence_base + probes_sent + 1, 0, TH_SYN|TH_ACK, 
-		   ack, NULL, 0, NULL, 0);
+		   ack, (u8 *) "\x02\x04\x05\xb4", 4, NULL, 0);
 
     }
 
@@ -679,7 +679,7 @@ int idlescan_countopen2(struct idle_proxy_info *proxy,
     send_tcp_raw(proxy->rawsd, eth.ethsd? &eth : NULL, proxy->host.v4hostip(), 
 		 target->v4hostip(),
 		 o.ttl, proxy->probe_port, ports[pr0be], seq, 0, TH_SYN, 0,
-		 NULL, 0, o.extra_payload, o.extra_payload_length);
+		 (u8 *) "\x02\x04\x05\xb4", 4, o.extra_payload, o.extra_payload_length);
   }
   gettimeofday(&end, NULL);
 

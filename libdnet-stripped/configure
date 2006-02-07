@@ -22707,7 +22707,7 @@ esac
 elif test "$ac_cv_header_net_if_tun_h" = yes ; then
 	if test "$ac_cv_header_stropts_h" = yes ; then
            case "$host_os" in
-           *kfreebsd*)
+           *kfreebsd* | *dragonfly*)
                case $LIBOBJS in
     "tun-bsd.$ac_objext"   | \
   *" tun-bsd.$ac_objext"   | \

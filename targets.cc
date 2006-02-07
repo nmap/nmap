@@ -895,7 +895,7 @@ else {
  o.decoys[o.decoyturn].s_addr = target->v4source().s_addr;
 
  if (pingtype & PINGTYPE_TCP_USE_SYN) {   
-   send_tcp_raw_decoys( rawsd, eth, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, myseq, myack, TH_SYN, 0, NULL, 0, o.extra_payload, 
+   send_tcp_raw_decoys( rawsd, eth, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, myseq, myack, TH_SYN, 0, (u8 *) "\x02\x04\x05\xb4", 4, o.extra_payload, 
 			o.extra_payload_length);
  } else {
    send_tcp_raw_decoys( rawsd, eth, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, myseq, myack, TH_ACK, 0, NULL, 0, o.extra_payload, 

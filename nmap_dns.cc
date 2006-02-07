@@ -102,7 +102,7 @@
 // on large number of IP addresses. Nmap supports 2 different
 // methods of accomplishing this:
 //
-// System Resolver (specified using --system_dns):
+// System Resolver (specified using --system-dns):
 // Performs sequential getnameinfo() calls on all the IPs.
 // As reliable as your system resolver, almost guaranteed
 // to be portable, but intolerably slow for scans of hundreds
@@ -385,7 +385,7 @@ u32 parse_inaddr_arpa(unsigned char *buf, int maxlen) {
   u32 ip=0;
   int i, j;
 
-  for (i=3; i>=0; i--) {
+  for (i=0; i<=3; i++) {
     if (maxlen <= 0) return 0;
 
     if (buf[0] < 1 || buf[0] > 3) return 0;
@@ -402,7 +402,7 @@ u32 parse_inaddr_arpa(unsigned char *buf, int maxlen) {
   if (maxlen < 14) return 0; // length of the following string
   if (strcasecmp((char *) buf, "\x07in-addr\004arpa\0")) return 0;
 
-  return ip;
+  return ntohl(ip);
 }
 
 
@@ -620,7 +620,7 @@ void put_dns_packet_on_wire(request *req) {
   u32 ip;
   struct timeval now, timeout;
 
-  ip = (u32) req->targ->v4host().s_addr;
+  ip = (u32) ntohl(req->targ->v4host().s_addr);
 
   packet[0] = (req->id >> 8) & 0xFF;
   packet[1] = req->id & 0xFF;
@@ -629,10 +629,10 @@ void put_dns_packet_on_wire(request *req) {
   memcpy(packet+plen, "\x01\x00\x00\x01\x00\x00\x00\x00\x00\x00", 10);
   plen += 10;
 
-  plen += add_integer_to_dns_packet(packet+plen, (ip>>24) & 0xFF);
-  plen += add_integer_to_dns_packet(packet+plen, (ip>>16) & 0xFF);
-  plen += add_integer_to_dns_packet(packet+plen, (ip>>8) & 0xFF);
   plen += add_integer_to_dns_packet(packet+plen, ip & 0xFF);
+  plen += add_integer_to_dns_packet(packet+plen, (ip>>8) & 0xFF);
+  plen += add_integer_to_dns_packet(packet+plen, (ip>>16) & 0xFF);
+  plen += add_integer_to_dns_packet(packet+plen, (ip>>24) & 0xFF);
 
   memcpy(packet+plen, "\x07in-addr\004arpa\x00\x00\x0c\x00\x01", 18);
   plen += 18;
@@ -683,7 +683,7 @@ int deal_with_timedout_reads() {
       if (tp > 0 && tp < min_timeout) min_timeout = tp;
 
       if (tp <= 0) {
-        tpserv->capacity = (int) (tpserv->capacity * CAPACITY_MINOR_DOWN_SCALE);;
+        tpserv->capacity = (int) (tpserv->capacity * CAPACITY_MINOR_DOWN_SCALE);
         check_capacities(tpserv);
         tpserv->in_process.erase(reqI);
         tpserv->reqs_on_wire--;
@@ -874,7 +874,7 @@ void parse_resolvdotconf() {
 
   fp = fopen("/etc/resolv.conf", "r");
   if (fp == NULL) {
-    fatal("Unable to open /etc/resolv.conf. Try using --system_dns or specify valid servers with --dns_servers");
+    fatal("Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers");
   }
 
   while (fgets(buf, sizeof(buf), fp)) {
@@ -903,7 +903,7 @@ void parse_resolvdotconf() {
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
                    "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters",
                     0, KEY_READ, &hKey) != ERROR_SUCCESS)
-    fatal("Error opening registry to read DNS servers. Try using --system_dns or specify valid servers with --dns_servers");
+    fatal("Error opening registry to read DNS servers. Try using --system-dns or specify valid servers with --dns-servers");
 
   sz = sizeof(buf);
   if (RegQueryValueEx(hKey, "NameServer", NULL, NULL, (LPBYTE) buf, (LPDWORD) &sz) == ERROR_SUCCESS)
@@ -1055,7 +1055,7 @@ void nmap_mass_rdns_core(Target **targets, int num_targets) {
     else parse_resolvdotconf();
 
     if (servs.size() == 0)
-      fatal("Unable to determine any DNS servers. Try using --system_dns or specify valid servers with --dns_servers");
+      fatal("Unable to determine any DNS servers. Try using --system-dns or specify valid servers with --dns_servers");
   }
 
 
@@ -1156,7 +1156,7 @@ void nmap_mass_rdns_core(Target **targets, int num_targets) {
   nsp_delete(dnspool);
 
   if (cname_reqs.size() && o.debugging)
-    log_write(LOG_STDOUT, "Performing system_dns for %d domain names that use CNAMEs\n", (int) cname_reqs.size());
+    log_write(LOG_STDOUT, "Performing system-dns for %d domain names that use CNAMEs\n", (int) cname_reqs.size());
 
   SPM = new ScanProgressMeter("System CNAME DNS resolution");
 

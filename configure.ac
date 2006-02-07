@@ -181,7 +181,7 @@ case "$host" in
     AC_DEFINE(PCAP_TIMEOUT_IGNORED)  # libpcap doesn't even LOOK at
                                      # the timeout you give it under Linux
     ;;
-  *-freebsd* | *-kfreebsd*-gnu)
+  *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*)
     AC_DEFINE(FREEBSD)
     ;;
   *-bsdi*)

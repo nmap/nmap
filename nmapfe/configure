@@ -2715,7 +2715,7 @@ _ACEOF
   # libpcap doesn't even LOOK at
                                      # the timeout you give it under Linux
     ;;
-  *-freebsd* | *-kfreebsd*-gnu)
+  *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*)
     cat >>confdefs.h <<\_ACEOF
 #define FREEBSD 1
 _ACEOF

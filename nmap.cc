@@ -480,7 +480,7 @@ int nmap_main(int argc, char *argv[]) {
 	o.setXSLStyleSheet(optarg);
       } else if (optcmp(long_options[option_index].name, "no-stylesheet") == 0) {
 	o.setXSLStyleSheet(NULL);
-      } else if (strcmp(long_options[option_index].name, "system-dns") == 0) {
+      } else if (optcmp(long_options[option_index].name, "system-dns") == 0) {
         o.mass_dns = false;
       } else if (optcmp(long_options[option_index].name, "dns-servers") == 0) {
         o.dns_servers = strdup(optarg);

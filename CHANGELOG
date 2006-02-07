@@ -1,9 +1,41 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o Fixed a bug that would cause bogus reverse-DNS resolution on
+  big-endian machines.  Thanks to Doug Hoyte, Seth Miller, Tony Doan,
+  and Andrew Lutomirsky for helping to debug and patch the problem.
+
+o Fixed an important memory leak in the raw ethernet sending system.
+  Thanks to Ganga Bhavani (GBhavani(a)everdreamcorp.com) for
+  identifying the bug and sending a patch.
+
+o Fixed --system-dns option so that --system_dns works too.  Error
+  messages were changed to reflect the former (preferred) name.
+  Thanks to Sean Swift (sean.swift(a)bradford.gov.uk) and Peter
+  VanEeckhoutte (Peter.VanEeckhoutte(a)saraleefoodseurope.com) for
+  reporting the problem.
+
+o Whenever Nmap sends packets with the SYN bit set (except for OS
+  detection), it now includes the maximum segment size (MSS) tcp
+  option with a value of 1460.  This makes it stand out less as almost
+  all hosts set at least this option.  Thanks to Juergen Schmidt
+  (ju(a)heisec.de) for the suggestion.
+
+o Minor changes to recognize DragonFly BSD in configure
+  scripts. Thanks to Joerg Sonnenberger (joerg(a)britannica.bec.de)
+  for sending the patch.
+
+o Fixed a minor bug in an error message starting with "eth_send of ARP
+  packet returned".  Thanks to J.W. Hoogervorst
+  (J.W.Hoogervorst(a)uva.nl) for finding this.
+
 4.00
 
 o Added the '?' command to the runtime interaction system.  It prints a
   list of accepted commands.  Thanks to Andrew Lutomirski
   (luto(a)myrealbox.com) for the patch.
+
+o See the announcement at
+  http://www.insecure.org/stf/Nmap-4.00-Release.html for high-level
+  changes since 3.50.
 
 3.9999
 
@@ -706,7 +738,7 @@ o ultra_scan() now sets pseudo-random ACK values (rather than 0) for
 
 o Updated the Nmap version number, description, and similar fields
   that MS Visual Studio places in the binary.  This was done by editing
-  mswin32/nmap.rc as suggested by Chris Paget (chrisp@ngssoftware.com)
+  mswin32/nmap.rc as suggested by Chris Paget (chrisp(a)ngssoftware.com)
 
 o Fixed Nmap compilation on DragonFly BSD (and perhaps some other
   systems) by applying a short patch by Joerg Sonnenberger which omits
@@ -825,7 +857,7 @@ o Nmap now prints a warning message on Windows if Winpcap is not found
 
 o Added an NTP probe and matches to the version detection database
   (nmap-service-probes) thanks to a submission from Martin
-  Macok (martin.macok@underground.cz).
+  Macok (martin.macok(a)underground.cz).
 
 o Applied several Nmap service detection database updates sent in by
   Martin Macok (martin.macok(a)underground.cz).
@@ -1141,7 +1173,7 @@ o Removed (addport) tags from XML output.  They used to provide open
   once scanning of a target is complete.
 
 o Configure script now detects GNU/k*BSD systems (whatever those are),
-  thanks to patch from Robert Millan (rmh@debian.org)
+  thanks to patch from Robert Millan (rmh(a)debian.org)
 
 o Fixed various crashes and assertion failures related to the new
   ultra_scan() system, that were found by Arturo "Buanzo" Busleiman

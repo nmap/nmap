@@ -936,7 +936,7 @@ int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetl
   struct ip *ip = (struct ip *) packet;
   struct tcphdr *tcp = NULL;
   udphdr_bsd *udp;
-  u8 *eth_frame;
+  u8 *eth_frame = NULL;
   eth_t *ethsd;
   bool ethsd_opened = false;
   assert(packet);
@@ -960,6 +960,8 @@ int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetl
     PacketTrace::trace(PacketTrace::SENT, packet, packetlen); 
     if (ethsd_opened)
       eth_close(ethsd);
+    free(eth_frame);
+    eth_frame = NULL;
     return res;
   }
 

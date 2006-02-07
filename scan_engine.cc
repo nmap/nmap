@@ -2060,7 +2060,8 @@ static UltraProbe *sendArpScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   gettimeofday(&USI->now, NULL);
   hss->lastprobe_sent = probe->sent = USI->now;
   if ((rc = eth_send(USI->ethsd, frame, sizeof(frame))) != sizeof(frame)) {
-    error("WARNING:  eth_send of ARP packet returned %u rather than expected %d\n", rc, (int) sizeof(frame));
+    int err = socket_errno();
+    error("WARNING:  eth_send of ARP packet returned %i rather than expected %d (errno=%i: %s)\n", rc, (int) sizeof(frame), err, strerror(err));
   }
   PacketTrace::traceArp(PacketTrace::SENT, (u8 *) frame, sizeof(frame), &USI->now);
   probe->tryno = tryno;
@@ -2091,6 +2092,8 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   u16 ipid = get_random_u16();
   struct eth_nfo eth;
   struct eth_nfo *ethptr = NULL;
+  u8 *tcpops = NULL;
+  u16 tcpopslen = 0;
 
   if (USI->ethsd) {
     memcpy(eth.srcmac, hss->target->SrcMACAddress(), 6);
@@ -2117,10 +2120,15 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
     if (pspec->pd.tcp.flags & TH_ACK)
 	  ack = rand();
 
+    if (pspec->pd.tcp.flags & TH_SYN) {
+      tcpops = (u8 *) "\x02\x04\x05\xb4";
+      tcpopslen = 4;
+    }
+
     for(decoy = 0; decoy < o.numdecoys; decoy++) {
       packet = build_tcp_raw(&o.decoys[decoy], hss->target->v4hostip(), o.ttl, 
 			     ipid, sport, pspec->pd.tcp.dport, seq, ack, 
-			     pspec->pd.tcp.flags, 0, NULL, 0, 
+			     pspec->pd.tcp.flags, 0, tcpops, tcpopslen,
 			     o.extra_payload, o.extra_payload_length, 
 			     &packetlen);
       if (decoy == o.decoyturn) {

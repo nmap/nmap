@@ -232,7 +232,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
 	else if (*r != '*' && *r != ',' && *r != '-' && !isdigit((int)*r)) 
 	  fatal("Invalid character in  host specification.  Note in particular that square brackets [] are no longer allowed.  They were redundant and can simply be removed.");
       }
-      if (i != 3) fatal("Target host specification is illegal -- not enough dots in IP");
+      if (i != 3) fatal("Invalid target host specification: %s", target_expr);
       
       for(i=0; i < 4; i++) {
 	j=0;
