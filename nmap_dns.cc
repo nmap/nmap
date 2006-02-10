@@ -861,6 +861,63 @@ void close_dns_servers() {
 
 }
 
+#ifdef WIN32
+void win32_read_registry(char *controlset) {
+  HKEY hKey;
+  HKEY hKey2;
+  char keybasebuf[2048];
+  char buf[2048], keyname[2048], *p;
+  DWORD sz, i;
+
+  snprintf(keybasebuf, sizeof(keybasebuf), "SYSTEM\\%s\\Services\\Tcpip\\Parameters", controlset);
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keybasebuf,
+                    0, KEY_READ, &hKey) != ERROR_SUCCESS)
+    fatal("Error opening registry to read DNS servers. Try using --system-dns or specify valid servers with --dns-servers");
+
+  sz = sizeof(buf);
+  if (RegQueryValueEx(hKey, "NameServer", NULL, NULL, (LPBYTE) buf, (LPDWORD) &sz) == ERROR_SUCCESS)
+    add_dns_server(buf);
+
+  sz = sizeof(buf);
+  if (RegQueryValueEx(hKey, "DhcpNameServer", NULL, NULL, (LPBYTE) buf, (LPDWORD) &sz) == ERROR_SUCCESS)
+    add_dns_server(buf);
+
+  RegCloseKey(hKey);
+
+  snprintf(keybasebuf, sizeof(keybasebuf), "SYSTEM\\%s\\Services\\Tcpip\\Parameters\\Interfaces", controlset);
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keybasebuf,
+                    0, KEY_ENUMERATE_SUB_KEYS, &hKey) == ERROR_SUCCESS) {
+
+    sz = sizeof(buf);
+    for (i=0; RegEnumKeyEx(hKey, i, buf, &sz, NULL, NULL, NULL, NULL) != ERROR_NO_MORE_ITEMS; i++) {
+
+      snprintf(keyname, sizeof(keyname), "SYSTEM\\%s\\Services\\Tcpip\\Parameters\\Interfaces\\%s", controlset, buf);
+
+      if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keyname,
+                        0, KEY_READ, &hKey2) == ERROR_SUCCESS) {
+
+        sz = sizeof(buf);
+        if (RegQueryValueEx(hKey2, "DhcpNameServer", NULL, NULL, (LPBYTE) buf, (LPDWORD) &sz) == ERROR_SUCCESS)
+          add_dns_server(buf);
+
+        sz = sizeof(buf);
+        if (RegQueryValueEx(hKey2, "NameServer", NULL, NULL, (LPBYTE) buf, (LPDWORD) &sz) == ERROR_SUCCESS)
+          add_dns_server(buf);
+
+        RegCloseKey(hKey2);
+      }
+
+      sz = sizeof(buf);
+    }
+
+    RegCloseKey(hKey);
+
+  }
+
+}
+#endif
+
+
 
 // Parses /etc/resolv.conf (unix) or the registry (win32) and adds
 // all the nameservers found via the add_dns_server() function.
@@ -894,60 +951,9 @@ void parse_resolvdotconf() {
   fclose(fp);
 
 #else
-
-  HKEY hKey;
-  HKEY hKey2;
-  char buf[2048], keyname[2048], *p;
-  long sz, i;
-
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                   "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters",
-                    0, KEY_READ, &hKey) != ERROR_SUCCESS)
-    fatal("Error opening registry to read DNS servers. Try using --system-dns or specify valid servers with --dns-servers");
-
-  sz = sizeof(buf);
-  if (RegQueryValueEx(hKey, "NameServer", NULL, NULL, (LPBYTE) buf, (LPDWORD) &sz) == ERROR_SUCCESS)
-    add_dns_server(buf);
-
-  sz = sizeof(buf);
-  if (RegQueryValueEx(hKey, "DhcpNameServer", NULL, NULL, (LPBYTE) buf, (LPDWORD) &sz) == ERROR_SUCCESS)
-    add_dns_server(buf);
-
-  RegCloseKey(hKey);
-
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                   "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces",
-                    0, KEY_READ, &hKey) == ERROR_SUCCESS) {
-
-    for (i=0; sz = sizeof(buf) && RegEnumKeyEx(hKey, i, buf, (LPDWORD) &sz, NULL, NULL, NULL, NULL) != ERROR_NO_MORE_ITEMS; i++) {
-
-      snprintf(keyname, sizeof(keyname), "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\%s", buf);
-
-	  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                        keyname,
-                        0, KEY_READ, &hKey2) == ERROR_SUCCESS) {
-
-        sz = sizeof(buf);
-        if (RegQueryValueEx(hKey2, "DhcpNameServer", NULL, NULL, (LPBYTE) buf, (LPDWORD) &sz) == ERROR_SUCCESS)
-          add_dns_server(buf);
-
-        sz = sizeof(buf);
-        if (RegQueryValueEx(hKey2, "NameServer", NULL, NULL, (LPBYTE) buf, (LPDWORD) &sz) == ERROR_SUCCESS)
-          add_dns_server(buf);
-
-        RegCloseKey(hKey2);
-      }
-
-    }
-
-    RegCloseKey(hKey);
-
-  }
-
+  win32_read_registry("CurrentControlSet");
 #endif
-
 }
-
 
 
 void parse_etchosts(char *fname) {

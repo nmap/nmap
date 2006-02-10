@@ -19,6 +19,9 @@ o Whenever Nmap sends packets with the SYN bit set (except for OS
   all hosts set at least this option.  Thanks to Juergen Schmidt
   (ju(a)heisec.de) for the suggestion.
 
+o Applied a patch for a Windows "interface reading bug" from Doug
+  Hoyte.
+
 o Minor changes to recognize DragonFly BSD in configure
   scripts. Thanks to Joerg Sonnenberger (joerg(a)britannica.bec.de)
   for sending the patch.
@@ -873,7 +876,7 @@ o The XML nmaprun element now has a startstr attribute which gives the
 o Fixed a memory leak that would generally consume several hundred
   bytes per down host scanned.  While the effect for most scans is
   negligible, it was overwhelming when Scott Carlson
-  (Scott.Carlson(a)schwab.com) tried to scan 24 million IPs
+  (Scott.Carlson(a)schwab.com) tried to scan 16.8 million IPs
   (10.0.0.0/8).  Thanks to him for reporting the problem.  Also thanks
   to Valgrind ( http://valgrind.kde.org ) for making it easy to debug.
 

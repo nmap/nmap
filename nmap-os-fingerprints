@@ -4015,18 +4015,6 @@ T6(DF=N%W=400|800|C00|1000%ACK=S%Flags=AR%Ops=)
 T7(DF=N%W=400|800|C00|1000%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=C0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint Cisco 3600 router running IOS 12.2(6c)
-Class Cisco | IOS | 12.X | router
-TSeq(Class=TR%gcd=<6%IPID=Z%TS=U)
-T1(DF=N%W=1020%ACK=S++%Flags=AS%Ops=ME)
-T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
-T3(Resp=Y%DF=N%W=1020%ACK=S++%Flags=AS%Ops=M)
-T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
-PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
-
 # Cisco 3660, IOS 12.0(6r)T
 Fingerprint Cisco 3660 running IOS 12.0(6r)T
 Class Cisco | IOS | 12.X | router
@@ -4078,18 +4066,6 @@ T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(Resp=N)
-
-Fingerprint Cisco 5200 router running IOS v12.0(15)
-Class Cisco | IOS | 12.X | router
-TSeq(Class=TR%gcd=<6%IPID=Z%TS=U)
-T1(DF=N%W=1020%ACK=S++%Flags=AS%Ops=M)
-T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
-T3(Resp=Y%DF=N%W=1020%ACK=S++%Flags=AS%Ops=M)
-T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
-T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
-T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
-PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 Fingerprint Cisco 7200 router running IOS 12.1(14)E6
 Class Cisco | IOS | 12.X | router
@@ -4330,6 +4306,22 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=20|C0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
+# Cisco WS-C4006
+# Cisco 7120-4T1 ISO 12.2
+# CISCO 2950C
+# Cisco 3600
+Fingerprint Cisco router running IOS 12.2
+Class Cisco | IOS | 12.X | router
+TSeq(Class=TR%gcd=<6%IPID=Z%TS=U)
+T1(DF=N%W=1020%ACK=S++%Flags=AS%Ops=ME)
+T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
+T3(Resp=Y%DF=N%W=1020%ACK=S++%Flags=AS%Ops=M)
+T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
+PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
 # Cisco 2621 running IOS 12.2.8T
 # Cisco SOHO 77 running IOS 12.2(8)T
 Fingerprint Cisco router running IOS 12.2(8)T
@@ -4377,6 +4369,20 @@ T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0|C0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
+
+# Cisco 5200 router IOS v12.0(15)
+# Cisco 2924C
+Fingerprint Cisco router running IOS v12.0(15)
+Class Cisco | IOS | 12.X | router
+TSeq(Class=TR%gcd=<6%IPID=Z%TS=U)
+T1(DF=N%W=1020%ACK=S++%Flags=AS%Ops=M)
+T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
+T3(Resp=Y%DF=N%W=1020%ACK=S++%Flags=AS%Ops=M)
+T4(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T5(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
+T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
+T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
+PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # IOS (tm) SOHO91 Software (SOHO91-K9OY6-M), Version 12.3(2)XC, EARLY DEPLOYMENT RELEASE SOFTWARE (fc1) (Cisco SOHO 91 Secure router)
 Fingerprint Cisco SOHO 91 secure router running IOS 12.3
