@@ -1,4 +1,4 @@
-export NMAP_VERSION = 4.00
+export NMAP_VERSION = 4.01
 NMAP_NAME= Nmap
 NMAP_URL= http://www.insecure.org/nmap/
 NMAP_PLATFORM=@host@

@@ -1658,7 +1658,7 @@ static void adjustPortStateIfNeccessary(ServiceNFO *svc) {
   char host[128];
 
   if (svc->port->state == PORT_OPENFILTERED) {
-    svc->port->state = PORT_OPEN;
+    svc->target->ports.addPort(svc->portno, svc->proto, NULL, PORT_OPEN);
 
     if (o.verbose || o.debugging > 1) {
       svc->target->NameIP(host, sizeof(host));

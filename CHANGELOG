@@ -1,4 +1,6 @@
 # Nmap Changelog ($Id$); -*-text-*-
+Nmap 4.01
+
 o Fixed a bug that would cause bogus reverse-DNS resolution on
   big-endian machines.  Thanks to Doug Hoyte, Seth Miller, Tony Doan,
   and Andrew Lutomirsky for helping to debug and patch the problem.
@@ -13,14 +15,20 @@ o Fixed --system-dns option so that --system_dns works too.  Error
   VanEeckhoutte (Peter.VanEeckhoutte(a)saraleefoodseurope.com) for
   reporting the problem.
 
+o Fixed a crash which would report this message:
+  "NmapOutputTable.cc:143: void NmapOutputTable::addItem(unsigned int,
+  unsigned int, bool, const char*, int): Assertion `row < numRows'
+  failed."  Thanks to Jake Schneider (Jake.Schneider(a)dynetics.com) for
+  reporting and helping to debug the problem.
+
 o Whenever Nmap sends packets with the SYN bit set (except for OS
   detection), it now includes the maximum segment size (MSS) tcp
   option with a value of 1460.  This makes it stand out less as almost
   all hosts set at least this option.  Thanks to Juergen Schmidt
   (ju(a)heisec.de) for the suggestion.
 
-o Applied a patch for a Windows "interface reading bug" from Doug
-  Hoyte.
+o Applied a patch for a Windows interface reading bug in the aDNS
+  subsystem from Doug Hoyte.
 
 o Minor changes to recognize DragonFly BSD in configure
   scripts. Thanks to Joerg Sonnenberger (joerg(a)britannica.bec.de)
@@ -30,7 +38,7 @@ o Fixed a minor bug in an error message starting with "eth_send of ARP
   packet returned".  Thanks to J.W. Hoogervorst
   (J.W.Hoogervorst(a)uva.nl) for finding this.
 
-4.00
+Nmap 4.00
 
 o Added the '?' command to the runtime interaction system.  It prints a
   list of accepted commands.  Thanks to Andrew Lutomirski
@@ -40,7 +48,7 @@ o See the announcement at
   http://www.insecure.org/stf/Nmap-4.00-Release.html for high-level
   changes since 3.50.
 
-3.9999
+Nmap 3.9999
 
 o Generated a new libpcre/configure to cope with changes in LibPCRE
   6.4
@@ -55,7 +63,7 @@ o Updated the Nmap version number and related fields that MS Visual
   Studio places in the binary.  This was done by editing
   mswin32/nmap.rc.
 
-3.999
+Nmap 3.999
 
 o Added runtime interaction support to Windows, thanks to patches from
   Andrew Lutomirski (luto(a)myrealbox.com) and Gisle Vanem (giva(a)bgnett.no).
@@ -73,7 +81,7 @@ o Fixed an issue in which the installer would malfunction in rare
   issues when installing to a directory with spaces in it.  Thanks to
   Thierry Zoller (Thierry(a)Zoller.lu) for the report.
 
-3.99
+Nmap 3.99
 
 o Integrated all remaining 2005 service submissions.  The DB now has
   surpassed 3,000 signatures for the first time.  There now are 3,153
@@ -99,7 +107,7 @@ o Fixed compilation to again work with gcc-derivatives such as
   MingW. Thanks to Gisle Vanem (giva(a)bgnett.no) for sending the
   patches
 
-3.98BETA1
+Nmap 3.98BETA1
 
 o Added run time interaction as documented at
   http://www.insecure.org/nmap/man/man-runtime-interaction.html .
@@ -166,7 +174,7 @@ o Stripped the firewall API out of the libdnet included with Nmap
 o Modified the previously useless --noninteractive option so that it
   deactivates runtime interaction.
 
-3.96BETA1
+Nmap 3.96BETA1
 
 o Added --max_retries option for capping the maximum number of
   retransmissions the port scan engine will do. The value may be as low
@@ -239,7 +247,7 @@ o Fixed Nmap so it doesn't crash when you ask it to resume a previous
   scan, but pass in a bogus file rather than actual Nmap output.  Thanks
   to Piotr Sobolewski (piotr_sobolewski(a)o2.pl) for the fix.
 
-3.95
+Nmap 3.95
 
 o Fixed a crash in IPID Idle scan.  Thanks to Ron
   (iago(a)valhallalegends.com>, Bakeman (bakeman(a)physics.unr.edu),
@@ -253,7 +261,7 @@ o Fixed a 3.94ALPHA3 bug that caused UDP scan results to be listed as
   TCP ports instead.  Thanks to Justin M Cacak (jcacak(a)nebraska.edu)
   for reporting the problem.
 
-3.94ALPHA3
+Nmap 3.94ALPHA3
 
 o Updated NmapFE to build with GTK2 rather than obsolete GTK1.  Thanks
   to Mike Basinger (dbasinge(a)speakeasy.net) and Meethune Bhowmick
@@ -279,7 +287,7 @@ o Define INET_ADDRSTRLEN in tcpip.h if the system doesn't define it
   Thanks to Albert Chin (nmap-hackers(a)mlists.thewrittenword.com) for
   sending the patch..
 
-3.94ALPHA2
+Nmap 3.94ALPHA2
 
 o Put Nmap on a diet, with changes to the core port scanning routine
   (ultra_scan) to substantially reduce memory consumption, particularly
@@ -315,7 +323,7 @@ o Modified libdnet-stripped/src/eth-bsd.c to allow for up to 128 bpf
   aliases.  Thanks to Krok (krok(a)void.ru) for reporting the problem
   and even sending a patch.
 
-3.94ALPHA1
+Nmap 3.94ALPHA1
 
 o Wrote a new man page from scratch.  It is much more comprehensive
   (more than twice as long) and (IMHO) better organized than the
