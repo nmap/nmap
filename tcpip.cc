@@ -527,40 +527,42 @@ const char *ippackethdrinfo(const u8 *packet, u32 len) {
     case 0:
       strcpy(icmptype, "Echo reply"); break;
     case 3:
-      if (ping->code == 0)
-	strcpy(icmptype, "network unreachable");
-      else if (ping->code == 1)
-	strcpy(icmptype, "host unreachable");
-      else if (ping->code == 2)
-	strcpy(icmptype, "protocol unreachable");
-      else if (ping->code == 3)
-	strcpy(icmptype, "port unreachable");
-      else if (ping->code == 4)
-	strcpy(icmptype, "fragmentation required");
-      else if (ping->code == 5)
-	strcpy(icmptype, "source route failed");
-      else if (ping->code == 6)
-	strcpy(icmptype, "destination network unknown");
-      else if (ping->code == 7)
-	strcpy(icmptype, "destination host unknown");
-      else if (ping->code == 8)
-	strcpy(icmptype, "source host isolated");
-      else if (ping->code == 9)
-	strcpy(icmptype, "destination network administratively prohibited");
-      else if (ping->code == 10)
-	strcpy(icmptype, "destination host administratively prohibited");
-      else if (ping->code == 11)
-	strcpy(icmptype, "network unreachable for TOS");
-      else if (ping->code == 12)
-	strcpy(icmptype, "host unreachable for TOS");
-      else if (ping->code == 13)
-	strcpy(icmptype, "communication administratively prohibited by filtering");
-      else if (ping->code == 14)
-	strcpy(icmptype, "host precedence violation");
-      else if (ping->code == 15)
-	strcpy(icmptype, "precedence cutoff in effect");
-      else
-	strcpy(icmptype, "unknown unreachable code");
+      switch (ping->code) {
+      case 0:
+	strcpy(icmptype, "network unreachable"); break;
+      case 1:
+	strcpy(icmptype, "host unreachable"); break;
+      case 2:
+	strcpy(icmptype, "protocol unreachable"); break;
+      case 3:
+	strcpy(icmptype, "port unreachable"); break;
+      case 4:
+	strcpy(icmptype, "fragmentation required"); break;
+      case 5:
+	strcpy(icmptype, "source route failed"); break;
+      case 6:
+	strcpy(icmptype, "destination network unknown"); break;
+      case 7:
+	strcpy(icmptype, "destination host unknown"); break;
+      case 8:
+	strcpy(icmptype, "source host isolated"); break;
+      case 9:
+	strcpy(icmptype, "destination network administratively prohibited"); break;
+      case 10:
+	strcpy(icmptype, "destination host administratively prohibited"); break;
+      case 11:
+	strcpy(icmptype, "network unreachable for TOS"); break;
+      case 12:
+	strcpy(icmptype, "host unreachable for TOS"); break;
+      case 13:
+	strcpy(icmptype, "communication administratively prohibited by filtering"); break;
+      case 14:
+	strcpy(icmptype, "host precedence violation"); break;
+      case 15:
+	strcpy(icmptype, "precedence cutoff in effect"); break;
+      default:
+	strcpy(icmptype, "unknown unreachable code"); break;
+      }
       break;
     case 4:
       strcpy(icmptype, "source quench"); break;
@@ -696,6 +698,7 @@ pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc,
   char err0r[PCAP_ERRBUF_SIZE];
   pcap_t *pt;
   char pcapdev[128];
+  int failed = 0;
 #ifdef WIN32
 /* Nmap normally uses device names obtained through dnet for interfaces, but Pcap has its own
 naming system.  So the conversion is done here */
@@ -706,12 +709,21 @@ naming system.  So the conversion is done here */
 #else
   Strncpy(pcapdev, device, sizeof(pcapdev));
 #endif
-  if (!((pt = pcap_open_live(pcapdev, snaplen, promisc, to_ms, err0r)))) {
-    fatal("pcap_open_live: %s\nThere are several possible reasons for this, depending on your operating system:\n"
+  do {
+    pt = pcap_open_live(pcapdev, snaplen, promisc, to_ms, err0r);
+    if (!pt) {
+      failed++;
+      if (failed >= 3) {
+fatal("Call to pcap_open_live(%s, %d, %d, %d) failed three times. Reported error: %s\nThere are several possible reasons for this, depending on your operating system:\n"
           "LINUX: If you are getting Socket type not supported, try modprobe af_packet or recompile your kernel with SOCK_PACKET enabled.\n"
           "*BSD:  If you are getting device not configured, you need to recompile your kernel with Berkeley Packet Filter support.  If you are getting No such file or directory, try creating the device (eg cd /dev; MAKEDEV <device>; or use mknod).\n"
-          "SOLARIS:  If you are trying to scan localhost and getting '/dev/lo0: No such file or directory', complain to Sun.  I don't think Solaris can support advanced localhost scans.  You can probably use \"-P0 -sT localhost\" though.\n\n", err0r);
-  }
+          "SOLARIS:  If you are trying to scan localhost and getting '/dev/lo0: No such file or directory', complain to Sun.  I don't think Solaris can support advanced localhost scans.  You can probably use \"-P0 -sT localhost\" though.\n\n", pcapdev, snaplen, promisc, to_ms, err0r);
+      } else {
+	error("pcap_open_live(%s, %d, %d, %d) FAILLED. Reported error: %s.  Will wait %d seconds then retry.", pcapdev, snaplen, promisc, to_ms, err0r, (int) pow(5, failed));	
+      }
+      sleep((int) pow(5, failed));
+    }
+  } while (!pt);
 
 #ifdef WIN32
   /* We want any responses back ASAP */
@@ -2728,7 +2740,7 @@ int block_socket(int sd) {
 #ifdef WIN32
   unsigned long options=0;
   if(sd == 501) return 1;
-  ioctlsocket(sd, FIONBIO, (unsigned long *)&options);
+  ioctlsocket(sd, FIONBIO, &options);
 #else
   int options;
   options = (~O_NONBLOCK) & fcntl(sd, F_GETFL);

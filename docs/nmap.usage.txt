@@ -1,4 +1,4 @@
-Nmap 4.01 ( http://www.insecure.org/nmap/ )
+Nmap 4.02Alpha1 ( http://www.insecure.org/nmap/ )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -39,14 +39,16 @@ OS DETECTION:
   --osscan-limit: Limit OS detection to promising targets
   --osscan-guess: Guess OS more aggressively
 TIMING AND PERFORMANCE:
+  Options which take <time> are in milliseconds, unless you append 's'
+  (seconds), 'm' (minutes), or 'h' (hours) to the value (e.g. 30m).
   -T[0-5]: Set timing template (higher is faster)
   --min-hostgroup/max-hostgroup <size>: Parallel host scan group sizes
-  --min-parallelism/max-parallelism <msec>: Probe parallelization
-  --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout <msec>: Specifies
+  --min-parallelism/max-parallelism <time>: Probe parallelization
+  --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout <time>: Specifies
       probe round trip time.
   --max-retries <tries>: Caps number of port scan probe retransmissions.
-  --host-timeout <msec>: Give up on target after this long
-  --scan-delay/--max-scan-delay <msec>: Adjust delay between probes
+  --host-timeout <time>: Give up on target after this long
+  --scan-delay/--max-scan-delay <time>: Adjust delay between probes
 FIREWALL/IDS EVASION AND SPOOFING:
   -f; --mtu <val>: fragment packets (optionally w/given MTU)
   -D <decoy1,decoy2[,ME],...>: Cloak a scan with decoys

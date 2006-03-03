@@ -1313,6 +1313,7 @@ int nmap_main(int argc, char *argv[]) {
       delete currenths;
       Targets.pop_back();
     }
+    o.numhosts_scanning = 0;
   } while(!o.max_ips_to_scan || o.max_ips_to_scan > o.numhosts_scanned);
   
   delete hstate;
@@ -1671,14 +1672,16 @@ printf("%s %s ( %s )\n"
        "  --osscan-limit: Limit OS detection to promising targets\n"
        "  --osscan-guess: Guess OS more aggressively\n"
        "TIMING AND PERFORMANCE:\n"
+       "  Options which take <time> are in milliseconds, unless you append 's'\n"
+       "  (seconds), 'm' (minutes), or 'h' (hours) to the value (e.g. 30m).\n"
        "  -T[0-5]: Set timing template (higher is faster)\n"
        "  --min-hostgroup/max-hostgroup <size>: Parallel host scan group sizes\n"
-       "  --min-parallelism/max-parallelism <msec>: Probe parallelization\n"
-       "  --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout <msec>: Specifies\n"
+       "  --min-parallelism/max-parallelism <time>: Probe parallelization\n"
+       "  --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout <time>: Specifies\n"
        "      probe round trip time.\n"
        "  --max-retries <tries>: Caps number of port scan probe retransmissions.\n"
-       "  --host-timeout <msec>: Give up on target after this long\n"
-       "  --scan-delay/--max-scan-delay <msec>: Adjust delay between probes\n"
+       "  --host-timeout <time>: Give up on target after this long\n"
+       "  --scan-delay/--max-scan-delay <time>: Adjust delay between probes\n"
        "FIREWALL/IDS EVASION AND SPOOFING:\n"
        "  -f; --mtu <val>: fragment packets (optionally w/given MTU)\n"
        "  -D <decoy1,decoy2[,ME],...>: Cloak a scan with decoys\n"

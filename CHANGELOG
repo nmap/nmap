@@ -1,4 +1,32 @@
 # Nmap Changelog ($Id$); -*-text-*-
+Nmap 4.02ALPHA1
+
+o Fixed a flaw in the scan engine which could (in rare cases)
+  lead to a deadlock situation that prevents a scan from completing.
+  Thanks to Ganga Bhavani (GBhavani(a)everdreamcorp.com) for reporting
+  and helping to debug the problem.
+
+o If the pcap_open_live() call (initiates sniffing) fails, Nmap now
+  tries up to two more times after waiting a little while. This is
+  attempt to work around a rare bug on Windows in which the
+  pcap_open_live() fails for unknown reasons.
+
+o Fixed a flaw in the runtime interaction in which Nmap would include
+  hosts currently being scanned in the number of hosts "completed"
+  statistic.
+
+o Fixed a crash in OS scan which could occur on Windows when a DHCP
+  lease issue causes the system to lose its IP address.  Nmap still
+  quits, but at least it gives a proper error message now.  Thanks to
+  Ganga Bhavani (GBhavani(a)everdreamcorp.com) for the patch.
+
+o Applied more than half a dozen small code cleanup patches from
+  Kris Katterjohn (kjak(a)ispwest.com).
+
+o Modified the configure script to accept CXX when specified as an
+  absolute path rather than just the executable name.  Thanks to
+  Daniel Roethlisberger (daniel(a)roe.ch) for this patch.
+
 Nmap 4.01
 
 o Fixed a bug that would cause bogus reverse-DNS resolution on

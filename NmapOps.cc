@@ -177,17 +177,13 @@ void NmapOps::Initialize() {
   char tmpxsl[MAXPATHLEN];
 
   setaf(AF_INET);
-#ifndef WIN32
-# ifdef __amigaos__
-    isr00t = 1;
-# else
-    if (getenv("NMAP_PRIVILEGED"))
-      isr00t = 1;
-    else
-      isr00t = !(geteuid());
-# endif // __amigaos__
-#else
+#if defined WIN32 || defined __amigaos__
   isr00t = 1;
+#else
+  if (getenv("NMAP_PRIVILEGED"))
+    isr00t = 1;
+  else
+    isr00t = !(geteuid());
 #endif
   debugging = DEBUGGING;
   verbose = DEBUGGING;

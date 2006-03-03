@@ -291,6 +291,9 @@ get_random_bytes(&sequence_base, sizeof(unsigned int));
    memcpy(eth.srcmac, target->SrcMACAddress(), 6);
    memcpy(eth.dstmac, target->NextHopMACAddress(), 6);
    eth.ethsd = eth_open(target->deviceName());
+   if (eth.ethsd == NULL)
+     fatal("%s: Failed to open ethernet device (%s)", __FUNCTION__, target->deviceName());
+
    rawsd = -1;
    ethptr = &eth;
   } else {

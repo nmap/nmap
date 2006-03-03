@@ -42,7 +42,7 @@ AC_PROG_CXX
  if test -n "$GXX"; then
       CXXFLAGS="$CXXFLAGS -Wall "
  fi
-AC_CHECK_PROG(CXXPROG, "$CXX", "AVAILABLE", "MISSING")
+AC_CHECK_PROG(CXXPROG, "$CXX", "AVAILABLE", "MISSING", "$PATH":/)
 if test $CXXPROG = "MISSING"; then
   AC_MSG_ERROR([Could not locate a C++ compiler. If it exists, add it to your PATH or give configure the CXX=path_to_compiler argument.  Otherwise, install a C++ compiler such as g++ or install a binary package of Nmap (see http://www.insecure.org/nmap/nmap_download.html ))])
 fi

@@ -431,7 +431,7 @@ int encoded_name_to_normal(unsigned char *buf, char *output, int outputsize){
 
 // Takes a pointer to the start of a DNS name inside a packet. It makes
 // sure that there is enough space in the name, deals with compression, etc.
-int advance_past_dns_name(unsigned char *buf, int buflen, int curbuf, 
+int advance_past_dns_name(u8 *buf, int buflen, int curbuf, 
 			  int *nameloc) {
   int compression=0;
 
@@ -443,7 +443,7 @@ int advance_past_dns_name(unsigned char *buf, int buflen, int curbuf,
 
     // Compression is OK
     compression = curbuf+2;
-    curbuf = ((buf[curbuf+1] & 0xFF) + ((buf[curbuf] & 0xFF) << 8)) & 0x3FFF;
+    curbuf = (buf[curbuf+1] + (buf[curbuf] << 8)) & 0x3FFF;
     if (curbuf < 0 || curbuf >= buflen) return -1;
   }
 
@@ -462,7 +462,7 @@ int advance_past_dns_name(unsigned char *buf, int buflen, int curbuf,
 // Nsock read handler. One nsock read for each DNS server exists at each
 // time. This function uses various helper functions as defined above.
 void read_evt_handler(nsock_pool nsp, nsock_event evt, void *nothing) {
-  unsigned char *buf;
+  u8 *buf;
   int buflen, curbuf=0;
   int i, nameloc, rdlen, atype, aclass;
   int errcode=0;
@@ -485,7 +485,7 @@ void read_evt_handler(nsock_pool nsp, nsock_event evt, void *nothing) {
   // Size of header is 12, and we must have additional data as well
   if (buflen <= 12) return;
 
-  packet_id = (buf[1] & 0xFF) + ((buf[0] & 0xFF) << 8);
+  packet_id = buf[1] + (buf[0] << 8);
 
   // Check that this is a response, standard query, and that no truncation was performed
   // 0xFA == 11111010 (we're not concerned with AA or RD bits)
@@ -493,14 +493,14 @@ void read_evt_handler(nsock_pool nsp, nsock_event evt, void *nothing) {
 
   // Check that Recursion is available, the zero field is all zeros
   // and there is no error condition:
-  if ((buf[3] & 0xFF) != 0x80) {
+  if (buf[3] != 0x80) {
     if ((buf[3] & 0xF) == 2) errcode = 2;
     else if ((buf[3] & 0xF) == 3) errcode = 3;
     else return;
   }
 
-  queries = (buf[5] & 0xFF) + ((buf[4] & 0xFF) << 8);
-  answers = (buf[7] & 0xFF) + ((buf[6] & 0xFF) << 8);
+  queries = buf[5] + (buf[4] << 8);
+  answers = buf[7] + (buf[6] << 8);
 
   // With a normal resolution, we should have 1+ queries and 1+ answers.
   // If the domain doesn't resolve (NXDOMAIN or SERVFAIL) we should have
@@ -549,9 +549,9 @@ void read_evt_handler(nsock_pool nsp, nsock_event evt, void *nothing) {
     // RDLENGTH (2) fields
     if (curbuf + 10 >= buflen) return;
 
-    atype = (buf[curbuf+1] & 0xFF) + ((buf[curbuf+0] & 0xFF) << 8);
-    aclass = (buf[curbuf+3] & 0xFF) + ((buf[curbuf+2] & 0xFF) << 8);
-    rdlen = (buf[curbuf+9] & 0xFF) + ((buf[curbuf+8] & 0xFF) << 8);
+    atype = buf[curbuf+1] + (buf[curbuf+0] << 8);
+    aclass = buf[curbuf+3] + (buf[curbuf+2] << 8);
+    rdlen = buf[curbuf+9] + (buf[curbuf+8] << 8);
     curbuf += 10;
 
     if (atype == 12 && aclass == 1) {

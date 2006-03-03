@@ -16065,7 +16065,8 @@ PU(Resp=N)
 # Motorola Surfboard Cable modem Software Version: SB5100-2.3.1.3-SCM00-NOSHHardware Version: 3MIB+Version: IIGUI Version: 1.0VxWorks Version: 5.4
 # Motorola Cable Modem SB5100E SW_REV: SB5100E-2.3.1.3-SCM01-NOSH
 # Motorola SB5100 Surfboard 5100 Cable Modem vSB5100-2.3.1.6-SCM01-NOSH
-Fingerprint Motorola Cable Modem SB5100/CG4500E or Thomson Cable Modem TCM390
+# Thomson Cable Modem TCM410
+Fingerprint Motorola (SB5100/CG4500E) or Thomson (TCM390/TCM410) Cable Modem
 Class Motorola | VxWorks || broadband router
 TSeq(Class=64K%IPID=I%TS=U)
 T1(DF=N%W=2000%ACK=S++%Flags=AS%Ops=MNW)
