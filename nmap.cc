@@ -331,6 +331,8 @@ int nmap_main(int argc, char *argv[]) {
       {"version-all", no_argument, 0, 0},
       {"system_dns", no_argument, 0, 0},
       {"system-dns", no_argument, 0, 0},
+      {"log_errors", no_argument, 0, 0},
+      {"log-errors", no_argument, 0, 0},
       {"dns_servers", required_argument, 0, 0},
       {"dns-servers", required_argument, 0, 0},
       {0, 0, 0, 0}
@@ -484,6 +486,8 @@ int nmap_main(int argc, char *argv[]) {
         o.mass_dns = false;
       } else if (optcmp(long_options[option_index].name, "dns-servers") == 0) {
         o.dns_servers = strdup(optarg);
+      } else if (optcmp(long_options[option_index].name, "log-errors") == 0) {
+        o.log_errors = 1;
       } else if (strcmp(long_options[option_index].name, "webxml") == 0) {
 	o.setXSLStyleSheet("http://www.insecure.org/nmap/data/nmap.xsl");
       } else if (strcmp(long_options[option_index].name, "oN") == 0) {
@@ -1700,6 +1704,7 @@ printf("%s %s ( %s )\n"
        "  -d[level]: Set or increase debugging level (Up to 9 is meaningful)\n"
        "  --packet-trace: Show all packets sent and received\n"
        "  --iflist: Print host interfaces and routes (for debugging)\n"
+       "  --log-errors: Log errors/warnings to the normal-format output file\n"
        "  --append-output: Append to rather than clobber specified output files\n"
        "  --resume <filename>: Resume an aborted scan\n"
        "  --stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML\n"

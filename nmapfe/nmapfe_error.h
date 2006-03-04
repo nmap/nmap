@@ -118,6 +118,5 @@
 void fatal(char *fmt, ...);
 void error(char *fmt, ...);
 void pfatal(char *err, ...);
-void gh_perror(char *err, ...);
 #endif /* NMAPFE_ERROR_H */
 

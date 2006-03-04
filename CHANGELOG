@@ -1,6 +1,18 @@
 # Nmap Changelog ($Id$); -*-text-*-
 Nmap 4.02ALPHA1
 
+o Added the --log-errors option, which causes most warnings and error
+  messages that are printed to interactive-mode output (stdout/stderr)
+  to also be printed to the normal-format output file (if you
+  specified one).  This will not work for most errors related to bad
+  command-line arguments, as Nmap may not have initialized its output
+  files yet.  In addition, some Nmap error/warning messages use a
+  different system that does not yet support this option.
+
+o Rewrote much of the Nmap results output functions to be more
+  efficient and support --log-errors.  I hope I didn't break
+  anything.
+
 o Fixed a flaw in the scan engine which could (in rare cases)
   lead to a deadlock situation that prevents a scan from completing.
   Thanks to Ganga Bhavani (GBhavani(a)everdreamcorp.com) for reporting

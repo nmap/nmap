@@ -148,14 +148,3 @@ void pfatal(char *err, ...) {
 	fflush(stderr);
 	exit(1);
 }
-
-
-void gh_perror(char *err, ...) {
-	va_list  ap;va_start(ap, err);
-	fflush(stdout);
-	vfprintf(stderr, err, ap);
-	va_end(ap);
-	perror(" ");
-	fflush(stderr);
-	return;
-}

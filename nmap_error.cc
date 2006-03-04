@@ -99,6 +99,10 @@
 /* $Id$ */
 
 #include "nmap_error.h"
+#include "output.h"
+#include "NmapOps.h"
+
+extern NmapOps o;
 
 #ifdef WIN32
 #include <windows.h>
@@ -109,55 +113,102 @@ extern void CloseLibs(void);
 #endif
 
 void fatal(const char *fmt, ...) {
-va_list  ap;
-va_start(ap, fmt);
-fflush(stdout);
-vfprintf(stderr, fmt, ap);
-fprintf(stderr, "\nQUITTING!\n");
-fflush(stderr);
-va_end(ap);
-exit(1);
+  va_list  ap;
+  va_start(ap, fmt);
+  log_vwrite(LOG_STDERR, fmt, ap);
+  va_end(ap);
+  if (o.log_errors) {
+    va_start(ap, fmt);
+    log_vwrite(LOG_NORMAL, fmt, ap);
+    va_end(ap);
+  }
+  log_write(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, "QUITTING!\n");
+  exit(1);
 }
 
 void error(const char *fmt, ...) {
-va_list  ap;
-va_start(ap, fmt);
-fflush(stdout);
-vfprintf(stderr, fmt, ap);
-fprintf(stderr, "\n");
-fflush(stderr);
-va_end(ap);
-return;
+  va_list  ap;
+
+  va_start(ap, fmt);
+  log_vwrite(LOG_STDERR, fmt, ap);
+  va_end(ap);
+  
+  if (o.log_errors) {
+    va_start(ap, fmt);
+    log_vwrite(LOG_NORMAL, fmt, ap);
+    va_end(ap);
+  }
+  
+  return;
 }
 
 void pfatal(const char *err, ...) {
 #ifdef WIN32
-	int lasterror =0;
-	char *errstr = NULL;
+  int lasterror =0;
+  char *errstr = NULL;
 #endif
-	va_list  ap;va_start(ap, err);
-	fflush(stdout);
-	vfprintf(stderr, err, ap);
-	va_end(ap);
+  va_list ap;
+  
+  va_start(ap, err);
+  log_vwrite(LOG_STDERR, err, ap);
+  va_end(ap);
+
+  if (o.log_errors) {
+    va_start(ap, err);
+    log_vwrite(LOG_NORMAL, err, ap);
+    va_end(ap);
+  }
+
 #ifdef WIN32
-	lasterror = GetLastError();
-	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM, NULL, lasterror, MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT),
+  lasterror = GetLastError();
+  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM, 
+		NULL, lasterror, MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT),
 		(LPTSTR) &errstr,  0, NULL);
-	fprintf(stderr, ": %s (%d)\n", errstr, lasterror);
-	HeapFree(GetProcessHeap(), 0, errstr);
+  log_write(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, ": %s (%d)\n", 
+	    errstr, lasterror);
+  HeapFree(GetProcessHeap(), 0, errstr);
 #else
-	perror(" ");
+  log_write(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, ": %s (%d)\n", 
+	    strerror(errno), errno);
 #endif /* WIN32 perror() compatability switch */
-	fflush(stderr);
-	exit(1);
+  if (o.log_errors) log_flush(LOG_STDOUT);
+  fflush(stderr);
+  exit(1);
 }
 
+/* This function is the Nmap version of perror.  It is just copy and
+   pasted from pfatal(), except the exit has been replaced with a
+   return. */
 void gh_perror(const char *err, ...) {
-va_list  ap;va_start(ap, err);
-fflush(stdout);
-vfprintf(stderr, err, ap);
-va_end(ap);
-perror(" ");
-fflush(stderr);
-return;
+#ifdef WIN32
+  int lasterror =0;
+  char *errstr = NULL;
+#endif
+  va_list ap;
+  
+  va_start(ap, err);
+  log_vwrite(LOG_STDERR, err, ap);
+  va_end(ap);
+
+  if (o.log_errors) {
+    va_start(ap, err);
+    log_vwrite(LOG_NORMAL, err, ap);
+    va_end(ap);
+  }
+
+#ifdef WIN32
+  lasterror = GetLastError();
+  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM, 
+		NULL, lasterror, MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR) &errstr,  0, NULL);
+  log_write(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, ": %s (%d)\n", 
+	    errstr, lasterror);
+  HeapFree(GetProcessHeap(), 0, errstr);
+#else
+  log_write(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, ": %s (%d)\n", 
+	    strerror(errno), errno);
+#endif /* WIN32 perror() compatability switch */
+  if (o.log_errors) log_flush(LOG_STDOUT);
+  fflush(stderr);
+  return;
 }

@@ -278,7 +278,7 @@ class NmapOps {
   int noresolve;
   int force; /* force nmap to continue on even when the outcome seems somewhat certain */
   int append_output; /* Append to any output files rather than overwrite */
-  FILE *logfd[LOG_TYPES];
+  FILE *logfd[LOG_NUM_FILES];
   FILE *nmap_stdout; /* Nmap standard output */
   int ttl; // Time to live
   int badsum;
@@ -286,6 +286,7 @@ class NmapOps {
   bool mass_dns;
   int resolve_all;
   char *dns_servers;
+  bool log_errors;
 
   // Statistics Options set in nmap.cc
   int numhosts_scanned;

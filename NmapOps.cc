@@ -228,7 +228,7 @@ void NmapOps::Initialize() {
   rpcscan = nullscan = xmasscan = fragscan = synscan = windowscan = 0;
   maimonscan = idlescan = finscan = udpscan = ipprotscan = noresolve = 0;
   force = append_output = 0;
-  memset(logfd, 0, sizeof(FILE *) * LOG_TYPES);
+  memset(logfd, 0, sizeof(FILE *) * LOG_NUM_FILES);
   ttl = -1;
   badsum = 0;
   nmap_stdout = stdout;
@@ -245,6 +245,7 @@ void NmapOps::Initialize() {
   xsl_stylesheet = strdup(tmpxsl);
   spoof_mac_set = false;
   mass_dns = true;
+  log_errors = false;
   resolve_all = 0;
   dns_servers = NULL;
   noninteractive = false;

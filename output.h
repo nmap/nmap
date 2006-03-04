@@ -106,17 +106,18 @@
 #ifndef OUTPUT_H
 #define OUTPUT_H
 
-#define LOG_TYPES 5
-#define LOG_MASK 31
+#define LOG_NUM_FILES 4 /* # of values that actual files (they must come first */
+#define LOG_FILE_MASK 15 /* The mask for log typs in the file array */
 #define LOG_NORMAL 1
 #define LOG_MACHINE 2
-#define LOG_HTML 4
-#define LOG_SKID 8
-#define LOG_XML 16
+#define LOG_SKID 4
+#define LOG_XML 8
 #define LOG_STDOUT 1024
-#define LOG_SKID_NOXLT 2048
+#define LOG_STDERR 2048
+#define LOG_SKID_NOXLT 4096
+#define LOG_MAX LOG_SKID_NOXLT /* The maximum log type value */
 
-#define LOG_NAMES {"normal", "machine", "HTML", "$Cr!pT |<!dd!3", "XML"}
+#define LOG_NAMES {"normal", "machine", "$Cr!pT |<!dd!3", "XML"}
 
 #include "portlist.h"
 #include "tcpip.h"
@@ -142,6 +143,14 @@ void print_MAC_XML_Info(Target *currenths);
    Remember to watch out for format string bugs. */
 void log_write(int logt, const char *fmt, ...)
      __attribute__ ((format (printf, 2, 3)));
+
+/* This is the workhorse of the logging functions.  Usually it is
+   called through log_write(), but it can be called directly if you
+   are dealing with a vfprintf-style va_list.  Unlike log_write, YOU
+   CAN ONLY CALL THIS WITH ONE LOG TYPE (not a bitmask full of them).
+   In addition, YOU MUST SANDWHICH EACH EXECUTION IF THIS CALL BETWEEN
+   va_start() AND va_end() calls. */
+void log_vwrite(int logt, const char *fmt, va_list ap);
 
 /* Close the given log stream(s) */
 void log_close(int logt);

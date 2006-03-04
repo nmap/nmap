@@ -116,7 +116,45 @@ namespace std {};
 using namespace std;
 
 extern NmapOps o;
-static char *logtypes[LOG_TYPES]=LOG_NAMES;
+static char *logtypes[LOG_NUM_FILES]=LOG_NAMES;
+
+/* Used in creating skript kiddie style output.  |<-R4d! */
+void skid_output(char *s)
+{
+  int i;
+  for (i=0;s[i];i++)
+    if (rand()%2==0)
+      /* Substitutions commented out are not known to me, but maybe look nice */
+      switch(s[i])
+	{
+	case 'A': s[i]='4'; break;
+	  /*	case 'B': s[i]='8'; break;
+	 	case 'b': s[i]='6'; break;
+	        case 'c': s[i]='k'; break;
+	        case 'C': s[i]='K'; break; */
+	case 'e':
+	case 'E': s[i]='3'; break;
+	case 'i':
+	case 'I': s[i]="!|1"[rand()%3]; break;
+	  /*      case 'k': s[i]='c'; break;
+	        case 'K': s[i]='C'; break;*/
+	case 'o':
+	case 'O': s[i]='0'; break;
+	case 's':
+	case 'S': 
+	  if (s[i+1] && !isalnum((int) s[i+1])) 
+	    s[i] = 'z';
+	  else s[i] = '$';
+	  break;
+	case 'z': s[i]='s'; break;
+	case 'Z': s[i]='S'; break;
+	}  
+    else
+      {
+	if (s[i]>='A' && s[i]<='Z' && (rand()%3==0)) s[i]+='a'-'A';
+	else if (s[i]>='a' && s[i]<='z' && (rand()%3==0)) s[i]-='a'-'A';
+      }
+}
 
 
 // Creates an XML <service> element for the information given in
@@ -617,53 +655,100 @@ char* xml_convert (const char* str) {
   return temp;
 }
 
+/* This is the workhorse of the logging functions.  Usually it is
+   called through log_write(), but it can be called directly if you
+   are dealing with a vfprintf-style va_list.  Unlike log_write, YOU
+   CAN ONLY CALL THIS WITH ONE LOG TYPE (not a bitmask full of them).
+   In addition, YOU MUST SANDWHICH EACH EXECUTION IF THIS CALL BETWEEN
+   va_start() AND va_end() calls. */
+void log_vwrite(int logt, const char *fmt, va_list ap) {
+  static char *writebuf = NULL;;
+  int writebuflen = 8192;
+  bool skid_noxlate = false;
+  int rc = 0;
+  int len;
+  int fileidx = 0;
+  int l;
+
+  if (!writebuf)
+    writebuf = (char *) safe_malloc(writebuflen);
+
+  if (logt == LOG_SKID_NOXLT) {
+    logt = LOG_SKID;
+    skid_noxlate = true;
+  }
+
+  switch(logt) {
+  case LOG_STDOUT: 
+    vfprintf(o.nmap_stdout, fmt, ap);
+    break;
+
+  case LOG_STDERR: 
+    fflush(stdout); // Otherwise some systems will print stderr out of order
+    vfprintf(stderr, fmt, ap);
+    break;
+
+  case LOG_NORMAL:
+  case LOG_MACHINE:
+  case LOG_SKID:
+  case LOG_XML:
+    l = logt;
+    fileidx = 0;
+    while ((l&1)==0) { fileidx++; l>>=1; }
+    assert(fileidx < LOG_NUM_FILES);
+    if (o.logfd[fileidx]) {
+      len = vsnprintf(writebuf, writebuflen, fmt, ap);
+      if (len == 0) { 
+	return;
+      } else if (len < 0) {
+	fprintf(stderr, "vnsprintf returned %d in %s -- bizarre. Quitting.\n", len, __FUNCTION__);
+	exit(1);
+      } else if (len >= writebuflen) {
+	fprintf(stderr, "%s: write buffer not large enough -- need to increase from %d to at least %d (logt == %d).  Please email this message to fyodor@insecure.org.  Quitting.\n", __FUNCTION__, writebuflen, len, logt);
+	exit(1);
+      }
+      if (logt == LOG_SKID && !skid_noxlate)
+	skid_output(writebuf);
+      rc = fwrite(writebuf,len,1,o.logfd[fileidx]);
+      if (rc != 1) {
+	fprintf(stderr, "Failed to write %d bytes of data to (logt==%d) stream. fwrite returned %d.  Quitting.\n", len, logt, rc);
+	exit(1);
+      }
+    }
+    break;
+
+  default:
+    fprintf(stderr, "log_vwrite(): Passed unknown log type (%d).  Note that this function, unlike log_write, can only handle one log type at a time (no bitmasks)\n", logt);
+    exit(1);
+  }
+
+  return;
+}
+
 /* Write some information (printf style args) to the given log stream(s).
  Remember to watch out for format string bugs.  */
 void log_write(int logt, const char *fmt, ...)
 {
   va_list  ap;
-  int i,l=logt,skid=1;
-  char b[4096];
-  char *buf = b;
-  int bufsz = sizeof(b);
-  bool buf_alloced = false;
-  int rc = 0;
+  assert(logt > 0);
 
-  if (l & LOG_STDOUT) {
-    va_start(ap, fmt);
-    vfprintf(o.nmap_stdout, fmt, ap);
-    va_end(ap);
-    l-=LOG_STDOUT;
-  }
-  if (l & LOG_SKID_NOXLT) { skid=0; l -= LOG_SKID_NOXLT; l |= LOG_SKID; }
-  if (l<0 || l>LOG_MASK) return;
-  for (i=0;l;l>>=1,i++)
-    {
-      if (!o.logfd[i] || !(l&1)) continue;
-      while(1) {
-	va_start(ap, fmt);
-	rc = vsnprintf(buf,bufsz, fmt, ap);
-	va_end(ap);
-	if (rc >= 0 && rc < bufsz)
-	  break; // Successful
-	// D'oh!  Apparently not enough space - lets try a bigger buffer
-	bufsz = (rc > bufsz)? rc + 1 : bufsz * 2;
-	buf = (char *) safe_realloc(buf_alloced? buf : NULL, bufsz);
-	buf_alloced = true;
-      } 
-      if (skid && ((1<<i)&LOG_SKID)) skid_output(buf);
-      fwrite(buf,1,strlen(buf),o.logfd[i]);
+  if (!fmt || !*fmt) return;
+
+  for (int l = 1; l <= LOG_MAX; l <<= 1) {
+    if (logt & l) {
+      va_start(ap, fmt);
+      log_vwrite(l, fmt, ap);
+      va_end(ap);
     }
-
-  if (buf_alloced)
-    free(buf);
+  }
+  return;
 }
 
 /* Close the given log stream(s) */
 void log_close(int logt)
 {
   int i;
-  if (logt<0 || logt>LOG_MASK) return;
+  if (logt<0 || logt>LOG_FILE_MASK) return;
   for (i=0;logt;logt>>=1,i++) if (o.logfd[i] && (logt&1)) fclose(o.logfd[i]);
 }
 
@@ -676,10 +761,16 @@ void log_flush(int logt) {
     fflush(o.nmap_stdout);
     logt -= LOG_STDOUT;
   }
+
+  if (logt & LOG_STDERR) {
+    fflush(stderr);
+    logt -= LOG_STDERR;
+  }
+
   if (logt & LOG_SKID_NOXLT)
     fatal("You are not allowed to log_flush() with LOG_SKID_NOXLT");
 
-  if (logt<0 || logt>LOG_MASK) return;
+  if (logt<0 || logt>LOG_FILE_MASK) return;
 
   for (i=0;logt;logt>>=1,i++)
     {
@@ -694,7 +785,7 @@ void log_flush(int logt) {
 void log_flush_all() {
   int fileno;
 
-  for(fileno = 0; fileno < LOG_TYPES; fileno++) {
+  for(fileno = 0; fileno < LOG_NUM_FILES; fileno++) {
     if (o.logfd[fileno]) fflush(o.logfd[fileno]);
   }
   fflush(stdout);
@@ -707,7 +798,7 @@ void log_flush_all() {
 int log_open(int logt, int append, char *filename)
 {
   int i=0;
-  if (logt<=0 || logt>LOG_MASK) return -1;
+  if (logt<=0 || logt>LOG_FILE_MASK) return -1;
   while ((logt&1)==0) { i++; logt>>=1; }
   if (o.logfd[i]) fatal("Only one %s output filename allowed",logtypes[i]);
   if (*filename == '-' && *(filename + 1) == '\0')
@@ -729,43 +820,6 @@ int log_open(int logt, int append, char *filename)
   return 1;
 }
 
-/* Used in creating skript kiddie style output.  |<-R4d! */
-void skid_output(char *s)
-{
-  int i;
-  for (i=0;s[i];i++)
-    if (rand()%2==0)
-      /* Substitutions commented out are not known to me, but maybe look nice */
-      switch(s[i])
-	{
-	case 'A': s[i]='4'; break;
-	  /*	case 'B': s[i]='8'; break;
-	 	case 'b': s[i]='6'; break;
-	        case 'c': s[i]='k'; break;
-	        case 'C': s[i]='K'; break; */
-	case 'e':
-	case 'E': s[i]='3'; break;
-	case 'i':
-	case 'I': s[i]="!|1"[rand()%3]; break;
-	  /*      case 'k': s[i]='c'; break;
-	        case 'K': s[i]='C'; break;*/
-	case 'o':
-	case 'O': s[i]='0'; break;
-	case 's':
-	case 'S': 
-	  if (s[i+1] && !isalnum((int) s[i+1])) 
-	    s[i] = 'z';
-	  else s[i] = '$';
-	  break;
-	case 'z': s[i]='s'; break;
-	case 'Z': s[i]='S'; break;
-	}  
-    else
-      {
-	if (s[i]>='A' && s[i]<='Z' && (rand()%3==0)) s[i]+='a'-'A';
-	else if (s[i]>='a' && s[i]<='z' && (rand()%3==0)) s[i]-='a'-'A';
-      }
-}
 
 /* The items in ports should be
    in sequential order for space savings and easier to read output.  Outputs
@@ -786,7 +840,8 @@ char outpbuf[128];
 	 strcat(outpbuf, ",");
        sprintf(outpbuf + strlen(outpbuf), "%hu", port);
      }
-     log_write(logt, "%s", outpbuf);
+     if (*outpbuf)
+       log_write(logt, "%s", outpbuf);
      range_start = port;
    }
    previous_port = port;

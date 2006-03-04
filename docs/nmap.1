@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "03/02/2006" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "03/03/2006" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -1138,6 +1138,9 @@ instead.
 .TP
 \fB\-\-iflist\fR (List interfaces and routes)
 Prints the interface list and system routes as detected by Nmap. This is useful for debugging routing problems or device mischaracterization (such as Nmap treating a PPP connection as Ethernet).
+.TP
+\fB\-\-log\-errors\fR (Log errors/warnings to normal mode output file)
+Warnings and errors printed by Nmap usually go only to the screen (interactive output), leaving any specified normal\-fomat output files uncluttered. But when you do want to see those messages in the normal output file you specified, add this option. It is useful when you aren't watching the interactive output or are trying to debug a problem. The messages will also still appear in interactive mode. This will not work for most errors related to bad command\-line arguments, as Nmap may not have initialized its output files yet. In addition, some Nmap error/warning messages use a different system that does not yet support this option. An alternative to using this option is redirecting interactive output (including the standard error stream) to a file. While most UNIX shells make that approach easy, it can be difficult on Windows.
 .PP
 \fBMiscellaneous output options\fR
 .TP
