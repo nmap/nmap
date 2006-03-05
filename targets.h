@@ -163,45 +163,12 @@ struct pingtech {
 };
 
 
-int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[], 
-		     int pingtype, struct timeval *time,  struct pingtune *pt,
-		     struct timeout_info *to, int id, struct pingtech *ptech, 
-		     struct scan_lists *ports);
-int sendpingqueries(int sd, int rawsd, eth_t *ethsd, Target *target,  
-		  u16 seq, unsigned short id, struct scanstats *ss, 
-		  struct timeval *time, int pingtype, struct pingtech ptech);
-int sendpingquery(int sd, int rawsd, eth_t *ethsd, Target *target,  
-		  u16 seq, unsigned short id, struct scanstats *ss, 
-		  struct timeval *time, int pingtype, struct pingtech ptech);
-int sendrawtcpudppingqueries(int rawsd, eth_t *ethsd, Target *target, int pingtype,
-			  u16 seq, struct timeval *time, struct pingtune *pt);
-int sendrawtcppingquery(int rawsd, struct eth_nfo *eth, Target *target, int pingtype, u16 probe_port,
-			u16 seq, struct timeval *time, struct pingtune *pt);
-int sendrawudppingquery(int rawsd, struct eth_nfo *eth, Target *target, u16 probe_port,
-			u16 seq, struct timeval *time, struct pingtune *pt);
-int sendconnecttcpqueries(Target *hostbatch[], struct tcpqueryinfo *tqi, Target *target,
-			  u16 seq, struct timeval *time, struct pingtune *pt, struct timeout_info *to, int max_sockets);
-int sendconnecttcpquery(Target *hostbatch[], struct tcpqueryinfo *tqi, Target *target, int probe_port_num,
-			u16 seq, struct timeval *time, struct pingtune *pt, struct timeout_info *to, int max_sockets);
-int get_connecttcpscan_results(struct tcpqueryinfo *tqi, 
-			       Target *hostbatch[], 
-			       struct timeval *time, struct pingtune *pt, 
-			       struct timeout_info *to);
-char *readhoststate(int state);
-void massping(Target *hostbatch[], int numhosts, 
-		struct scan_lists *ports, int pingtype);
-void hoststructfry(Target *hostbatch[], int nelem);
 /* Ports is the list of ports the user asked to be scanned (0 terminated),
    you can just pass NULL (it is only a stupid optimization that needs it) */
 Target *nexthost(HostGroupState *hs, TargetGroup *exclude_group, 
 		 struct scan_lists *ports, int *pingtype);
 /* loads an exclude file into a excluded target list */
 TargetGroup* load_exclude(FILE *fExclude, char *szExclude);
-/* is the host we're passed in one that
- * should be excluded?
- */
-int hostInExclude(struct sockaddr *checksock, size_t checksocklen, 
-		  TargetGroup *exclude_group);
 /* a debugging routine to dump an exclude list to stdout. */
 int dumpExclude(TargetGroup*exclude_group);
 /* Returns the last host obtained by nexthost.  It will be given again the next

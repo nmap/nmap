@@ -136,9 +136,6 @@ void printportoutput(Target *currenths, PortList *plist);
    in a certain place to conform to DTD. */
 void printmacinfo(Target *currenths);
 
-/* Prints the MAC address (if discovered) to XML output */
-void print_MAC_XML_Info(Target *currenths);
-
 /* Write some information (printf style args) to the given log stream(s).
    Remember to watch out for format string bugs. */
 void log_write(int logt, const char *fmt, ...)
@@ -168,22 +165,12 @@ void log_flush_all();
    it already exists.  If the file does not exist, it will be created */
 int log_open(int logt, int append, char *filename);
 
-/* Used in creating skript kiddie style output.  |<-R4d! */
-void skid_output(char *s);
-
 /* Output the list of ports scanned to the top of machine parseable
    logs (in a comment, unfortunately).  The items in ports should be
    in sequential order for space savings and easier to read output */
 void output_ports_to_machine_parseable_output(struct scan_lists *ports, 
 					      int tcpscan, int udpscan,
 					      int protscan);
-
-/* The items in ports should be
-   in sequential order for space savings and easier to read output.  Outputs
-   the rangelist to the log stream given (such as LOG_MACHINE or LOG_XML) */
-void output_rangelist_given_ports(int logt, unsigned short *ports,
-				  int numports);
-
 
 /* Similar to output_ports_to_machine_parseable_output, this function
    outputs the XML version, which is scaninfo records of each scan

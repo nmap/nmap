@@ -576,9 +576,6 @@ private:
 
 };
 
-bool ultrascan_port_pspec_update(UltraScanInfo *USI, HostScanStats *hss, 
-				 const probespec *pspec, int newstate);
-
 /* Whether this is storing timing stats for a whole group or an
    individual host */
 enum ultra_timing_type { TIMING_HOST, TIMING_GROUP };
@@ -590,11 +587,6 @@ static void init_ultra_timing_vals(ultra_timing_vals *timing,
 				   int num_hosts_in_group, 
 				   struct ultra_scan_performance_vars *perf,
 				   struct timeval *now);
-/* Adjust various timing variables based on pcket receipt.  Pass
-   rcvdtime = NULL if you have given up on a probe and want to count
-   this as a DROPPED PACKET */
-void ultrascan_adjust_times(UltraScanInfo *USI, HostScanStats *hss, 
-		       UltraProbe *probe, struct timeval *rcvdtime);
 
 /* Take a buffer, buf, of size bufsz (32 bytes is sufficient) and 
    writes a short description of the probe (arg1) into buf.  It also returns 
@@ -1495,189 +1487,10 @@ void HostScanStats::destroyOutstandingProbe(list<UltraProbe *>::iterator probeI)
   delete probe;
 }
 
- /* Mark an outstanding probe as timedout.  Adjusts stats
-     accordingly.  For connect scans, this closes the socket. */
-void HostScanStats::markProbeTimedout(list<UltraProbe *>::iterator probeI) {
-  UltraProbe *probe = *probeI;
-  assert(!probe->timedout);
-  assert(!probe->retransmitted);
-  probe->timedout = true;
-  assert(num_probes_active > 0);
-  num_probes_active--;
-  assert(USI->gstats->num_probes_active > 0);
-  USI->gstats->num_probes_active--;
-  if (probe->isPing()) {
-    ultrascan_adjust_times(USI, this, probe, NULL);
-    /* I'll leave it in the queue in case some response ever does
-       come */
-  } else num_probes_waiting_retransmit++;
-
-  if (probe->type == UltraProbe::UP_CONNECT && probe->CP()->sd >= 0 ) {
-    /* Free the socket as that is a valuable resource, though it is a shame
-       late responses will not be permitted */
-    USI->gstats->CSI->clearSD(probe->CP()->sd);
-    close(probe->CP()->sd);
-    probe->CP()->sd = -1;
-  }
-}
-
-bool HostScanStats::completed() {
-  return num_probes_active == 0 && num_probes_waiting_retransmit == 0 && 
-    probe_bench.empty() && retry_stack.empty() && freshPortsLeft() == 0;
-}
-
-/* Encode the trynum into a 32-bit value.  A simple checksum is also included
-   to verify whether a received version is correct. */
-static u32 seq32_encode(UltraScanInfo *USI, unsigned int trynum, 
-			unsigned int pingseq) {
-  u32 seq = 0;
-  u16 nfo;
-
-  /* We'll let pingseq and trynum each be 8 bits */
-  nfo = (pingseq << 8) + trynum;
-  seq = (nfo << 16) + nfo; /* Mirror the data to ensure it is reconstructed correctly */
-  /* Obfuscate it a little */
-  seq = seq ^ USI->seqmask;
-  return seq;
-}
-
-/* This function provides the proper cwnd and ccthresh to use.  It may
-   differ from versions in timing member var because when no responses
-   have been received for this host, may look at others in the group.
-   For CHANGING this host's timing, use the timing memberval
-   instead. */
-void HostScanStats::getTiming(struct ultra_timing_vals *tmng) {
-  assert(tmng);
-
-  /* Use the per-host value if a pingport has been found or very few probes
-     have been sent */
-  if (pingprobestate != PORT_UNKNOWN || numprobes_sent < 80) {
-    *tmng = timing;
-    return;
-  }
-
-  /* Otherwise, use the global cwnd stats if it has sufficient responses */
-  if (USI->gstats->timing.num_updates > 1) {
-    *tmng = USI->gstats->timing;
-    return;
-  }
-
-  /* Last resort is to use canned values */
-  tmng->cwnd = USI->perf.host_initial_cwnd;
-  tmng->ccthresh = USI->perf.initial_ccthresh;
-  tmng->num_updates = 0;
-  return;
-}
-
-  /* Boost the scan delay for this host, usually because too many packet
-     drops were detected. */
-void HostScanStats::boostScanDelay() {
-  unsigned int maxAllowed = (USI->tcp_scan)? o.maxTCPScanDelay() : o.maxUDPScanDelay();
-  if (sdn.delayms == 0)
-    sdn.delayms = (USI->udp_scan)? 50 : 5; // In many cases, a pcap wait takes a minimum of 80ms, so this matters little :(
-  else sdn.delayms = MIN(sdn.delayms * 2, MAX(sdn.delayms, 1000));
-  sdn.delayms = MIN(sdn.delayms, maxAllowed); 
-  sdn.last_boost = USI->now;
-  sdn.droppedRespSinceDelayChanged = 0;
-  sdn.goodRespSinceDelayChanged = 0;
-}
-
-/* Dismiss all probe attempts on bench -- the ports are marked
-     'filtered' or whatever is appropriate for having no response */
-void HostScanStats::dismissBench() {
-  int newstate;
-
-  if (probe_bench.empty()) return;
-  newstate = scantype_no_response_means(USI->scantype);
-  while(!probe_bench.empty()) {
-    ultrascan_port_pspec_update(USI, this, &probe_bench.back(), newstate);
-    probe_bench.pop_back();
-  }
-  bench_tryno = 0;
-}
-
-/* Move all members of bench to retry_stack for probe retransmission */
-void HostScanStats::retransmitBench() {
-  int newstate;
-  if (probe_bench.empty()) return;
-
-  /* Move all contents of probe_bench to the end of retry_stack, updating retry_stack_tries accordingly */
-  retry_stack.insert(retry_stack.end(), probe_bench.begin(), probe_bench.end());
-  retry_stack_tries.insert(retry_stack_tries.end(), probe_bench.size(), 
-			   bench_tryno);
-  assert(retry_stack.size() == retry_stack_tries.size());
-  probe_bench.erase(probe_bench.begin(), probe_bench.end());
-  newstate = scantype_no_response_means(USI->scantype);
-  bench_tryno = 0;
-}
-
- /* Moves the given probe from the probes_outstanding list, to
-     probe_bench, and decrements num_probes_waiting_retransmit
-     accordingly */
-void HostScanStats::moveProbeToBench(list<UltraProbe *>::iterator probeI) {
-  UltraProbe *probe = *probeI;
-  if (!probe_bench.empty()) 
-    assert(bench_tryno == probe->tryno);
-  else {
-    bench_tryno = probe->tryno;
-    probe_bench.reserve(128);
-  }
-  probe_bench.push_back(*probe->pspec());
-  probes_outstanding.erase(probeI);
-  num_probes_waiting_retransmit--;
-  delete probe;
-}
-
-/* Undoes seq32_encode.  Returns true if the checksum is correct and
-   thus trynum was decoded properly.  In that case, trynum (if not
-   null) is filled with the decoded value.  If pingseq is not null, it
-   is filled with the scanping sequence number, which is 0 if this is
-   not a ping. */
-
-static bool seq32_decode(UltraScanInfo *USI, u32 seq, unsigned int *trynum,
-			 unsigned int *pingseq) {
-  if (trynum) *trynum = 0;
-  if (pingseq) *pingseq = 0;
-
-  /* Undo the mask xor */
-  seq = seq ^ USI->seqmask;
-  /* Check that both sides are the same */
-  if ((seq >> 16) != (seq & 0xFFFF))
-    return false;
-
-  if (trynum) 
-    *trynum = seq & 0xFF;
-
-  if (pingseq)
-    *pingseq = (seq & 0xFF00) >> 8;
-
-  return true;
-}
-
-/* Sometimes the trynumber and/or pingseq are stored in a source
-   portnumber of probes instead.  This takes a port number in HOST
-   BYTE ORDER.  Returns true if the numbers seem reasonable, false if
-   they are bogus. */
-bool sport_decode(UltraScanInfo *USI, u16 portno, unsigned int *trynum, 
-		  unsigned int *pingseq) {
-  int tryval;
-  tryval = portno - o.magic_port;
-  if (tryval <= USI->perf.tryno_cap) {
-    if (pingseq) *pingseq = 0;
-    if (trynum) *trynum = tryval;
-  } else {
-    if (pingseq) *pingseq = tryval - USI->perf.tryno_cap;
-    if (trynum) *trynum = 0;
-  }
-  if (tryval > USI->perf.tryno_cap + 256)
-    return false;
-  return true;
-}
-
 /* Adjust various timing variables based on pcket receipt.  Pass
    rcvdtime = NULL if you have given up on a probe and want to count
    this as a DROPPED PACKET */
-void ultrascan_adjust_times(UltraScanInfo *USI, HostScanStats *hss, 
+static void ultrascan_adjust_times(UltraScanInfo *USI, HostScanStats *hss, 
 		       UltraProbe *probe, struct timeval *rcvdtime) {
 
   int ping_magnifier = (probe->isPing())? USI->perf.ping_magnifier : 1;
@@ -1762,48 +1575,87 @@ void ultrascan_adjust_times(UltraScanInfo *USI, HostScanStats *hss,
   }
 }
 
-/* Called when a ping response is discovered. */
-static void ultrascan_ping_update(UltraScanInfo *USI, HostScanStats *hss, 
-				  list<UltraProbe *>::iterator probeI,
-				  struct timeval *rcvdtime) {
-  ultrascan_adjust_times(USI, hss, *probeI, rcvdtime);
-  hss->destroyOutstandingProbe(probeI);
+ /* Mark an outstanding probe as timedout.  Adjusts stats
+     accordingly.  For connect scans, this closes the socket. */
+void HostScanStats::markProbeTimedout(list<UltraProbe *>::iterator probeI) {
+  UltraProbe *probe = *probeI;
+  assert(!probe->timedout);
+  assert(!probe->retransmitted);
+  probe->timedout = true;
+  assert(num_probes_active > 0);
+  num_probes_active--;
+  assert(USI->gstats->num_probes_active > 0);
+  USI->gstats->num_probes_active--;
+  if (probe->isPing()) {
+    ultrascan_adjust_times(USI, this, probe, NULL);
+    /* I'll leave it in the queue in case some response ever does
+       come */
+  } else num_probes_waiting_retransmit++;
+
+  if (probe->type == UltraProbe::UP_CONNECT && probe->CP()->sd >= 0 ) {
+    /* Free the socket as that is a valuable resource, though it is a shame
+       late responses will not be permitted */
+    USI->gstats->CSI->clearSD(probe->CP()->sd);
+    close(probe->CP()->sd);
+    probe->CP()->sd = -1;
+  }
 }
 
+bool HostScanStats::completed() {
+  return num_probes_active == 0 && num_probes_waiting_retransmit == 0 && 
+    probe_bench.empty() && retry_stack.empty() && freshPortsLeft() == 0;
+}
 
-/* Called when a new status is determined for host in hss (eg. it is
-   found to be up or down by a ping/ping_arp scan.  The probe that led
-   to this new decision is in probeI.  This function needs to update
-   timing information and other stats as appropriate.If rcvdtime is
-   NULL, packet stats are not updated. */
-static void ultrascan_host_update(UltraScanInfo *USI, HostScanStats *hss, 
-				  list<UltraProbe *>::iterator probeI,
-				  int newstate, struct timeval *rcvdtime) {
-  UltraProbe *probe = *probeI;
-  if (rcvdtime) ultrascan_adjust_times(USI, hss, probe, rcvdtime);
+/* Encode the trynum into a 32-bit value.  A simple checksum is also included
+   to verify whether a received version is correct. */
+static u32 seq32_encode(UltraScanInfo *USI, unsigned int trynum, 
+			unsigned int pingseq) {
+  u32 seq = 0;
+  u16 nfo;
 
-  /* Adjust the target flags to note the new state. */
-  if ((hss->target->flags & HOST_UP) == 0) {
-    if (newstate == HOST_UP) {
-      /* Clear any HOST_DOWN or HOST_FIREWALLED flags */
-      hss->target->flags &= ~(HOST_DOWN|HOST_FIREWALLED);
-      hss->target->flags |= HOST_UP;
-    } else if (newstate == HOST_DOWN) {
-      hss->target->flags &= ~HOST_FIREWALLED;
-      hss->target->flags |= HOST_DOWN;
-    } else assert(0);
+  /* We'll let pingseq and trynum each be 8 bits */
+  nfo = (pingseq << 8) + trynum;
+  seq = (nfo << 16) + nfo; /* Mirror the data to ensure it is reconstructed correctly */
+  /* Obfuscate it a little */
+  seq = seq ^ USI->seqmask;
+  return seq;
+}
+
+/* This function provides the proper cwnd and ccthresh to use.  It may
+   differ from versions in timing member var because when no responses
+   have been received for this host, may look at others in the group.
+   For CHANGING this host's timing, use the timing memberval
+   instead. */
+void HostScanStats::getTiming(struct ultra_timing_vals *tmng) {
+  assert(tmng);
+
+  /* Use the per-host value if a pingport has been found or very few probes
+     have been sent */
+  if (pingprobestate != PORT_UNKNOWN || numprobes_sent < 80) {
+    *tmng = timing;
+    return;
   }
 
-  /* Kill outstanding probes */
-  while(!hss->probes_outstanding.empty())
-    hss->destroyOutstandingProbe(hss->probes_outstanding.begin());
+  /* Otherwise, use the global cwnd stats if it has sufficient responses */
+  if (USI->gstats->timing.num_updates > 1) {
+    *tmng = USI->gstats->timing;
+    return;
+  }
+
+  /* Last resort is to use canned values */
+  tmng->cwnd = USI->perf.host_initial_cwnd;
+  tmng->ccthresh = USI->perf.initial_ccthresh;
+  tmng->num_updates = 0;
+  return;
 }
 
 /* Like ultrascan_port_probe_update(), except it is called with just a
    probespec rather than a whole UltraProbe.  Returns true if the port
    was added or at least the state was changed.  */
-bool ultrascan_port_pspec_update(UltraScanInfo *USI, HostScanStats *hss, 
-				 const probespec *pspec, int newstate) {
+static bool ultrascan_port_pspec_update(UltraScanInfo *USI, 
+					HostScanStats *hss, 
+					const probespec *pspec,
+					int newstate) {
   u16 portno;
   u8 proto = 0;
   int oldstate = PORT_TESTING;
@@ -1903,6 +1755,150 @@ bool ultrascan_port_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
   }
   return oldstate != newstate;
 }
+
+  /* Boost the scan delay for this host, usually because too many packet
+     drops were detected. */
+void HostScanStats::boostScanDelay() {
+  unsigned int maxAllowed = (USI->tcp_scan)? o.maxTCPScanDelay() : o.maxUDPScanDelay();
+  if (sdn.delayms == 0)
+    sdn.delayms = (USI->udp_scan)? 50 : 5; // In many cases, a pcap wait takes a minimum of 80ms, so this matters little :(
+  else sdn.delayms = MIN(sdn.delayms * 2, MAX(sdn.delayms, 1000));
+  sdn.delayms = MIN(sdn.delayms, maxAllowed); 
+  sdn.last_boost = USI->now;
+  sdn.droppedRespSinceDelayChanged = 0;
+  sdn.goodRespSinceDelayChanged = 0;
+}
+
+/* Dismiss all probe attempts on bench -- the ports are marked
+     'filtered' or whatever is appropriate for having no response */
+void HostScanStats::dismissBench() {
+  int newstate;
+
+  if (probe_bench.empty()) return;
+  newstate = scantype_no_response_means(USI->scantype);
+  while(!probe_bench.empty()) {
+    ultrascan_port_pspec_update(USI, this, &probe_bench.back(), newstate);
+    probe_bench.pop_back();
+  }
+  bench_tryno = 0;
+}
+
+/* Move all members of bench to retry_stack for probe retransmission */
+void HostScanStats::retransmitBench() {
+  int newstate;
+  if (probe_bench.empty()) return;
+
+  /* Move all contents of probe_bench to the end of retry_stack, updating retry_stack_tries accordingly */
+  retry_stack.insert(retry_stack.end(), probe_bench.begin(), probe_bench.end());
+  retry_stack_tries.insert(retry_stack_tries.end(), probe_bench.size(), 
+			   bench_tryno);
+  assert(retry_stack.size() == retry_stack_tries.size());
+  probe_bench.erase(probe_bench.begin(), probe_bench.end());
+  newstate = scantype_no_response_means(USI->scantype);
+  bench_tryno = 0;
+}
+
+ /* Moves the given probe from the probes_outstanding list, to
+     probe_bench, and decrements num_probes_waiting_retransmit
+     accordingly */
+void HostScanStats::moveProbeToBench(list<UltraProbe *>::iterator probeI) {
+  UltraProbe *probe = *probeI;
+  if (!probe_bench.empty()) 
+    assert(bench_tryno == probe->tryno);
+  else {
+    bench_tryno = probe->tryno;
+    probe_bench.reserve(128);
+  }
+  probe_bench.push_back(*probe->pspec());
+  probes_outstanding.erase(probeI);
+  num_probes_waiting_retransmit--;
+  delete probe;
+}
+
+/* Undoes seq32_encode.  Returns true if the checksum is correct and
+   thus trynum was decoded properly.  In that case, trynum (if not
+   null) is filled with the decoded value.  If pingseq is not null, it
+   is filled with the scanping sequence number, which is 0 if this is
+   not a ping. */
+
+static bool seq32_decode(UltraScanInfo *USI, u32 seq, unsigned int *trynum,
+			 unsigned int *pingseq) {
+  if (trynum) *trynum = 0;
+  if (pingseq) *pingseq = 0;
+
+  /* Undo the mask xor */
+  seq = seq ^ USI->seqmask;
+  /* Check that both sides are the same */
+  if ((seq >> 16) != (seq & 0xFFFF))
+    return false;
+
+  if (trynum) 
+    *trynum = seq & 0xFF;
+
+  if (pingseq)
+    *pingseq = (seq & 0xFF00) >> 8;
+
+  return true;
+}
+
+/* Sometimes the trynumber and/or pingseq are stored in a source
+   portnumber of probes instead.  This takes a port number in HOST
+   BYTE ORDER.  Returns true if the numbers seem reasonable, false if
+   they are bogus. */
+static bool sport_decode(UltraScanInfo *USI, u16 portno, unsigned int *trynum, 
+		  unsigned int *pingseq) {
+  int tryval;
+  tryval = portno - o.magic_port;
+  if (tryval <= USI->perf.tryno_cap) {
+    if (pingseq) *pingseq = 0;
+    if (trynum) *trynum = tryval;
+  } else {
+    if (pingseq) *pingseq = tryval - USI->perf.tryno_cap;
+    if (trynum) *trynum = 0;
+  }
+  if (tryval > USI->perf.tryno_cap + 256)
+    return false;
+  return true;
+}
+
+
+/* Called when a ping response is discovered. */
+static void ultrascan_ping_update(UltraScanInfo *USI, HostScanStats *hss, 
+				  list<UltraProbe *>::iterator probeI,
+				  struct timeval *rcvdtime) {
+  ultrascan_adjust_times(USI, hss, *probeI, rcvdtime);
+  hss->destroyOutstandingProbe(probeI);
+}
+
+
+/* Called when a new status is determined for host in hss (eg. it is
+   found to be up or down by a ping/ping_arp scan.  The probe that led
+   to this new decision is in probeI.  This function needs to update
+   timing information and other stats as appropriate.If rcvdtime is
+   NULL, packet stats are not updated. */
+static void ultrascan_host_update(UltraScanInfo *USI, HostScanStats *hss, 
+				  list<UltraProbe *>::iterator probeI,
+				  int newstate, struct timeval *rcvdtime) {
+  UltraProbe *probe = *probeI;
+  if (rcvdtime) ultrascan_adjust_times(USI, hss, probe, rcvdtime);
+
+  /* Adjust the target flags to note the new state. */
+  if ((hss->target->flags & HOST_UP) == 0) {
+    if (newstate == HOST_UP) {
+      /* Clear any HOST_DOWN or HOST_FIREWALLED flags */
+      hss->target->flags &= ~(HOST_DOWN|HOST_FIREWALLED);
+      hss->target->flags |= HOST_UP;
+    } else if (newstate == HOST_DOWN) {
+      hss->target->flags &= ~HOST_FIREWALLED;
+      hss->target->flags |= HOST_DOWN;
+    } else assert(0);
+  }
+
+  /* Kill outstanding probes */
+  while(!hss->probes_outstanding.empty())
+    hss->destroyOutstandingProbe(hss->probes_outstanding.begin());
+}
+
 
 /* This function is called when a new status is determined for a port.
    the port in the probeI of host hss is now in newstate.  This
@@ -2276,7 +2272,7 @@ static void doAnyRetryStackRetransmits(UltraScanInfo *USI) {
 /* Sends a ping probe to the host.  Assumes that caller has already
    checked that sending is OK w/congestion control and that pingprobe is
    available */
-void sendPingProbe(UltraScanInfo *USI, HostScanStats *hss) {
+static void sendPingProbe(UltraScanInfo *USI, HostScanStats *hss) {
   if (o.debugging > 1) {
     char tmpbuf[32];
     printf("Ultrascan PING SENT to %s [%s]\n", hss->target->targetipstr(), 
@@ -2413,7 +2409,7 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
 
 /* Print occasional remaining time estimates, as well as
    debugging information */
-void printAnyStats(UltraScanInfo *USI) {
+static void printAnyStats(UltraScanInfo *USI) {
 
   list<HostScanStats *>::iterator hostI;
   HostScanStats *hss;
@@ -2665,7 +2661,7 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
    match, or if matching seems to be broken for one reason or
    another.  You can send in HBO or NBO, just as
    long as the two values are in the same byte order. */
-bool allow_ipid_match(u16 ipid_sent, u16 ipid_rcvd) {
+static bool allow_ipid_match(u16 ipid_sent, u16 ipid_rcvd) {
   static int numvalid = 0;
   static int numbogus = 0;
 
@@ -3220,7 +3216,7 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
 
 /* Go through the data structures, making appropriate changes (such as expiring
    probes, noting when hosts are complete, etc. */
-void processData(UltraScanInfo *USI) {
+static void processData(UltraScanInfo *USI) {
   list<HostScanStats *>::iterator hostI;
   list<UltraProbe *>::iterator probeI, nextProbeI;
   HostScanStats *host = NULL;
@@ -3568,7 +3564,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
    way got overloaded and dropped the last X packets, they are
    likely to get through (and flag us a problem if responsive)
    if we let them go first in the next round */
-void reverse_testing_order(struct portinfolist *pil, struct portinfo *scanarray) {
+static void reverse_testing_order(struct portinfolist *pil, struct portinfo *scanarray) {
   int currentidx, nextidx;
   struct portinfo *current;
 

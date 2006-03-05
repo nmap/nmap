@@ -103,11 +103,13 @@
 #include "NmapOps.h"
 
 extern NmapOps o;
-static int protocols_initialized = 0;
 static int numipprots = 0;
 static struct protocol_list *protocol_table[PROTOCOL_TABLE_SIZE];
 
 static int nmap_protocols_init() {
+  static int protocols_initialized = 0;
+  if (protocols_initialized) return 0;
+
   char filename[512];
   FILE *fp;
   char protocolname[128];
@@ -179,9 +181,8 @@ static int nmap_protocols_init() {
 struct protoent *nmap_getprotbynum(int num) {
   struct protocol_list *current;
 
-  if (!protocols_initialized)
-    if (nmap_protocols_init() == -1)
-      return NULL;
+  if (nmap_protocols_init() == -1)
+    return NULL;
 
   for(current = protocol_table[num % PROTOCOL_TABLE_SIZE];
       current; current = current->next) {
@@ -202,9 +203,8 @@ struct scan_lists *getdefaultprots(void) {
   int bucket;
   int protsneeded = 256;
 
-  if (!protocols_initialized)
-    if (nmap_protocols_init() == -1)
-      fatal("getdefaultprots(): Couldn't get protocol numbers");
+  if (nmap_protocols_init() == -1)
+    fatal("getdefaultprots(): Couldn't get protocol numbers");
   
   scanlist = (struct scan_lists *) safe_zalloc(sizeof(struct scan_lists));
   scanlist->prots = (unsigned short *) safe_zalloc((protsneeded) * sizeof(unsigned short));
@@ -224,9 +224,8 @@ struct scan_lists *getfastprots(void) {
   int bucket;
   int protsneeded = 0;
 
-  if (!protocols_initialized)
-    if (nmap_protocols_init() == -1)
-      fatal("Getfastprots: Couldn't get protocol numbers");
+  if (nmap_protocols_init() == -1)
+    fatal("Getfastprots: Couldn't get protocol numbers");
   
   memset(usedprots, 0, sizeof(usedprots));
 

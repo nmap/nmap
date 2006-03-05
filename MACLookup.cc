@@ -117,8 +117,6 @@ struct MAC_hash_table {
   struct MAC_entry **table;
 } MacTable;
 
-static int initialized = 0;
-
 static inline int MacCharPrefix2Key(const u8 *prefix) {
   return (prefix[0] << 16) + (prefix[1] << 8) + prefix[2];
 }
@@ -130,7 +128,8 @@ static inline int MACTableHash(int prefix, int table_capacity) {
   return prefix % table_capacity;
 }
 
-void InitializeTable() {
+void mac_prefix_init() {
+  static int initialized = 0;
   if (initialized) return;
   initialized = 1;
   char filename[256];
@@ -196,7 +195,7 @@ void InitializeTable() {
 }
 
 
-struct MAC_entry *findMACEntry(int prefix) {
+static struct MAC_entry *findMACEntry(int prefix) {
   int pos = MACTableHash(prefix, MacTable.table_capacity);
 
   while (MacTable.table[pos]) {
@@ -216,7 +215,7 @@ const char *MACPrefix2Corp(const u8 *prefix) {
   struct MAC_entry *ent;
 
   if (!prefix) fatal("MACPrefix2Corp called with a NULL prefix");
-  if (!initialized) InitializeTable();
+  mac_prefix_init();
 
   ent = findMACEntry(MacCharPrefix2Key(prefix));
   return (ent)? ent->vendor : NULL;
@@ -231,7 +230,7 @@ const char *MACPrefix2Corp(const u8 *prefix) {
 bool MACCorp2Prefix(const char *vendorstr, u8 *mac_data) {
   if (!vendorstr) fatal("%s: vendorstr is NULL", __FUNCTION__);
   if (!mac_data) fatal("%s: mac_data is NULL", __FUNCTION__);
-  if (!initialized) InitializeTable();
+  mac_prefix_init();
 
   for(int i = 0; i < MacTable.table_capacity; i++ ) {
     if (MacTable.table[i])

@@ -127,7 +127,7 @@ extern NmapOps o;
 // Microsoft's runtime makes this fairly simple. :)
 void tty_init() { return; }
 static int tty_getchar() { return _kbhit() ? getch() : -1; }
-void tty_done() { return; }
+static void tty_done() { return; }
 
 #else
 #if !defined(O_NONBLOCK) && defined(O_NDELAY)
@@ -145,33 +145,6 @@ extern int tcsetattr(int fd, int actions, struct termios *termios_p);
 
 static int tty_fd = 0;
 static struct termios saved_ti;
-
-void tty_init()
-{
-	int fd;
-	struct termios ti;
-
-	if ((fd = open("/dev/tty", O_RDONLY | O_NONBLOCK)) < 0) return;
-
-#ifndef __CYGWIN32__
-	if (tcgetpgrp(fd) != getpid()) {
-		close(fd); return;
-	}
-#endif
-
-	tcgetattr(fd, &ti);
-	if (tty_fd == 0)
-	  saved_ti = ti;
-	ti.c_lflag &= ~(ICANON | ECHO);
-	ti.c_cc[VMIN] = 1;
-	ti.c_cc[VTIME] = 0;
-	tcsetattr(fd, TCSANOW, &ti);
-
-	if (tty_fd == 0) 
-	  tty_fd = fd;
-	
-	atexit(tty_done);
-}
 
 static int tty_getchar()
 {
@@ -200,7 +173,7 @@ static int tty_getchar()
 	return -1;
 }
 
-void tty_done()
+static void tty_done()
 {
 	int fd;
 
@@ -212,14 +185,45 @@ void tty_done()
 	close(fd);
 }
 
+/*
+ * Initializes the terminal for unbuffered non-blocking input. Also
+ * registers tty_done() via atexit().  You need to call this before
+ * you ever call keyWasPressed().
+ */
+void tty_init()
+{
+	int fd;
+	struct termios ti;
+
+	if ((fd = open("/dev/tty", O_RDONLY | O_NONBLOCK)) < 0) return;
+
+#ifndef __CYGWIN32__
+	if (tcgetpgrp(fd) != getpid()) {
+		close(fd); return;
+	}
+#endif
+
+	tcgetattr(fd, &ti);
+	if (tty_fd == 0)
+	  saved_ti = ti;
+	ti.c_lflag &= ~(ICANON | ECHO);
+	ti.c_cc[VMIN] = 1;
+	ti.c_cc[VTIME] = 0;
+	tcsetattr(fd, TCSANOW, &ti);
+
+	if (tty_fd == 0) 
+	  tty_fd = fd;
+	
+	atexit(tty_done);
+}
+
 #endif  //!win32
 
-/* This is the best method here. It will catch all of the predefined
+/* Catches all of the predefined
    keypresses and interpret them, and it will also tell you if you
    should print anything. A value of true being returned means a
    nonstandard key has been pressed and the calling method should
    print a status message */
-
 bool keyWasPressed()
 {
   int c;

@@ -341,8 +341,5 @@ public:
    Targets specified. */
 int service_scan(std::vector<Target *> &Targets);
 
-// Parses the given nmap-service-probes file into the AP class
-void parse_nmap_service_probe_file(AllProbes *AP, char *filename);
-
 #endif /* SERVICE_SCAN_H */
 

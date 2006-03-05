@@ -119,7 +119,7 @@ extern NmapOps o;
 static char *logtypes[LOG_NUM_FILES]=LOG_NAMES;
 
 /* Used in creating skript kiddie style output.  |<-R4d! */
-void skid_output(char *s)
+static void skid_output(char *s)
 {
   int i;
   for (i=0;s[i];i++)
@@ -824,7 +824,7 @@ int log_open(int logt, int append, char *filename)
 /* The items in ports should be
    in sequential order for space savings and easier to read output.  Outputs
    the rangelist to the log stream given (such as LOG_MACHINE or LOG_XML) */
-void output_rangelist_given_ports(int logt, unsigned short *ports,
+static void output_rangelist_given_ports(int logt, unsigned short *ports,
 						    int numports) {
 int i, previous_port = -2, range_start = -2, port;
 char outpbuf[128];
@@ -905,6 +905,26 @@ void output_xml_scaninfo_records(struct scan_lists *scanlist) {
   if (o.ipprotscan) 
     doscaninfo("ipproto", "ip", scanlist->prots, scanlist->prot_count); 
   log_flush_all();
+}
+
+/* Prints the MAC address (if discovered) to XML output */
+static void print_MAC_XML_Info(Target *currenths) {
+  const u8 *mac = currenths->MACAddress();
+  char macascii[32];
+  char vendorstr[128];
+  char *xml_mac = NULL;
+
+  if (mac) {
+    const char *macvendor = MACPrefix2Corp(mac);
+    snprintf(macascii, sizeof(macascii), "%02X:%02X:%02X:%02X:%02X:%02X",
+	     mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    if (macvendor) {
+      xml_mac = xml_convert(macvendor);
+      snprintf(vendorstr, sizeof(vendorstr), " vendor=\"%s\"", xml_mac);
+      free(xml_mac);
+    } else vendorstr[0] = '\0';
+    log_write(LOG_XML, "<address addr=\"%s\" addrtype=\"mac\"%s />\n", macascii, vendorstr);
+  }
 }
 
 /* Helper function to write the status and address/hostname info of a host 
@@ -1139,25 +1159,6 @@ void printmacinfo(Target *currenths) {
   }
 }
 
-/* Prints the MAC address (if discovered) to XML output */
-void print_MAC_XML_Info(Target *currenths) {
-  const u8 *mac = currenths->MACAddress();
-  char macascii[32];
-  char vendorstr[128];
-  char *xml_mac = NULL;
-
-  if (mac) {
-    const char *macvendor = MACPrefix2Corp(mac);
-    snprintf(macascii, sizeof(macascii), "%02X:%02X:%02X:%02X:%02X:%02X",
-	     mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-    if (macvendor) {
-      xml_mac = xml_convert(macvendor);
-      snprintf(vendorstr, sizeof(vendorstr), " vendor=\"%s\"", xml_mac);
-      free(xml_mac);
-    } else vendorstr[0] = '\0';
-    log_write(LOG_XML, "<address addr=\"%s\" addrtype=\"mac\"%s />\n", macascii, vendorstr);
-  }
-}
 
 
 /* Prints the formatted OS Scan output to stdout, logfiles, etc (but only

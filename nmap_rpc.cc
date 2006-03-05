@@ -106,7 +106,6 @@
 #include "NmapOps.h"
 
 extern NmapOps o;
-static int services_initialized = 0;
 static struct rpc_info ri;
 static int udp_rpc_socket = -1;
 static int tcp_rpc_socket = -1;
@@ -119,13 +118,16 @@ static size_t tcp_readlen=0; /* used in get_rpc_results but can be reset in
 			    send_rpc_query */
 
 static void rpc_services_init() {
+  static int services_initialized = 0;
+  if (services_initialized) return;
+  services_initialized = 1;
+
   char filename[512];
   FILE *fp;
   char *tmpptr, *p;
   char line[1024];
   int lineno = 0;
 
-  services_initialized = 1;
   ri.num_alloc = 256;
   ri.num_used = 0;
   ri.names = (char **) cp_alloc(ri.num_alloc * sizeof(char *));
@@ -182,9 +184,7 @@ static void rpc_services_init() {
 char *nmap_getrpcnamebynum(unsigned long num) {
   int i;
 
-  if (!services_initialized) {
-    rpc_services_init();
-  }
+  rpc_services_init();
 
   for(i=0; i < ri.num_used; i++) {
     if (ri.numbers[i] == num)
@@ -194,9 +194,7 @@ char *nmap_getrpcnamebynum(unsigned long num) {
 }
 
 int get_rpc_procs(unsigned long **programs, unsigned long *num_programs) {
-  if (!services_initialized) {
-    rpc_services_init();
-  }
+  rpc_services_init();
   
   *programs = ri.numbers;
   *num_programs = ri.num_used;
@@ -332,7 +330,7 @@ int send_rpc_query(const struct in_addr *target_host, unsigned short portno,
   return 0;
 }
 
-int rpc_are_we_done(char *msg, int msg_len, Target *target, 
+static int rpc_are_we_done(char *msg, int msg_len, Target *target, 
 		    struct portinfo *scan, struct scanstats *ss, 
 		    struct portinfolist *pil, struct rpcscaninfo *rsi) {
 

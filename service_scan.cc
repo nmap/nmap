@@ -259,7 +259,6 @@ void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *mydata);
 void servicescan_write_handler(nsock_pool nsp, nsock_event nse, void *mydata);
 void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *mydata);
 void end_svcprobe(nsock_pool nsp, enum serviceprobestate probe_state, ServiceGroup *SG, ServiceNFO *svc, nsock_iod nsi);
-int launchSomeServiceProbes(nsock_pool nsp, ServiceGroup *SG);
 
 ServiceProbeMatch::ServiceProbeMatch() {
   deflineno = -1;
@@ -1044,7 +1043,7 @@ void ServiceProbe::addMatch(const char *match, int lineno) {
 }
 
 // Parses the given nmap-service-probes file into the AP class
-void parse_nmap_service_probe_file(AllProbes *AP, char *filename) {
+static void parse_nmap_service_probe_file(AllProbes *AP, char *filename) {
   ServiceProbe *newProbe;
   char line[2048];
   int lineno = 0;
@@ -1135,6 +1134,17 @@ void parse_nmap_service_probes(AllProbes *AP) {
   }
 
   parse_nmap_service_probe_file(AP, filename);
+}
+
+static AllProbes *service_scan_init(void)
+{
+  static AllProbes *AP;
+
+  if (AP) return AP;
+  AP = new AllProbes();
+  parse_nmap_service_probes(AP);
+
+  return AP;
 }
 
 // If the buf (of length buflen) matches one of the regexes in this
@@ -1892,6 +1902,52 @@ void end_svcprobe(nsock_pool nsp, enum serviceprobestate probe_state, ServiceGro
   return;
 }
 
+// This function consults the ServiceGroup to determine whether any
+// more probes can be launched at this time.  If so, it determines the
+// appropriate ones and then starts them up.
+static int launchSomeServiceProbes(nsock_pool nsp, ServiceGroup *SG) {
+  ServiceNFO *svc;
+  ServiceProbe *nextprobe;
+  struct sockaddr_storage ss;
+  size_t ss_len;
+
+  while (SG->services_in_progress.size() < SG->ideal_parallelism &&
+	 !SG->services_remaining.empty()) {
+    // Start executing a probe from the new list and move it to in_progress
+    svc = SG->services_remaining.front();
+    if (svc->target->timedOut(nsock_gettimeofday())) {
+      end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, NULL);
+      continue;
+    }
+    nextprobe = svc->nextProbe(true);
+    // We start by requesting a connection to the target
+    if ((svc->niod = nsi_new(nsp, svc)) == NULL) {
+      fatal("Failed to allocate Nsock I/O descriptor in launchSomeServiceProbes()");
+    }
+    if (o.debugging > 1) {
+      printf("Starting probes against new service: %s:%hi (%s)\n", svc->target->targetipstr(), svc->portno, proto2ascii(svc->proto));
+    }
+    svc->target->TargetSockAddr(&ss, &ss_len);
+    if (svc->proto == IPPROTO_TCP)
+      nsock_connect_tcp(nsp, svc->niod, servicescan_connect_handler, 
+			DEFAULT_CONNECT_TIMEOUT, svc, 
+			(struct sockaddr *)&ss, ss_len,
+			svc->portno);
+    else {
+      assert(svc->proto == IPPROTO_UDP);
+      nsock_connect_udp(nsp, svc->niod, servicescan_connect_handler, 
+			svc, (struct sockaddr *) &ss, ss_len,
+			svc->portno);
+    }
+    // Now remove it from the remaining service list
+    SG->services_remaining.pop_front();
+    // And add it to the in progress list
+    SG->services_in_progress.push_back(svc);
+  }
+  return 0;
+}
+
+
 void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
   nsock_iod nsi = nse_iod(nse);
   enum nse_status status = nse_status(nse);
@@ -2172,8 +2228,7 @@ void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
 
 // This is used in processResults to determine whether a FP
 // should be printed based on type of match, version intensity, etc.
-
-int shouldWePrintFingerprint(ServiceNFO *svc) {
+static int shouldWePrintFingerprint(ServiceNFO *svc) {
   // Never print FP if hardmatched
   if (svc->probe_state == PROBESTATE_FINISHED_HARDMATCHED)
     return 0;
@@ -2213,52 +2268,6 @@ list<ServiceNFO *>::iterator svc;
  }
 }
 
-
-// This function consults the ServiceGroup to determine whether any
-// more probes can be launched at this time.  If so, it determines the
-// appropriate ones and then starts them up.
-int launchSomeServiceProbes(nsock_pool nsp, ServiceGroup *SG) {
-  ServiceNFO *svc;
-  ServiceProbe *nextprobe;
-  struct sockaddr_storage ss;
-  size_t ss_len;
-
-  while (SG->services_in_progress.size() < SG->ideal_parallelism &&
-	 !SG->services_remaining.empty()) {
-    // Start executing a probe from the new list and move it to in_progress
-    svc = SG->services_remaining.front();
-    if (svc->target->timedOut(nsock_gettimeofday())) {
-      end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, NULL);
-      continue;
-    }
-    nextprobe = svc->nextProbe(true);
-    // We start by requesting a connection to the target
-    if ((svc->niod = nsi_new(nsp, svc)) == NULL) {
-      fatal("Failed to allocate Nsock I/O descriptor in launchSomeServiceProbes()");
-    }
-    if (o.debugging > 1) {
-      printf("Starting probes against new service: %s:%hi (%s)\n", svc->target->targetipstr(), svc->portno, proto2ascii(svc->proto));
-    }
-    svc->target->TargetSockAddr(&ss, &ss_len);
-    if (svc->proto == IPPROTO_TCP)
-      nsock_connect_tcp(nsp, svc->niod, servicescan_connect_handler, 
-			DEFAULT_CONNECT_TIMEOUT, svc, 
-			(struct sockaddr *)&ss, ss_len,
-			svc->portno);
-    else {
-      assert(svc->proto == IPPROTO_UDP);
-      nsock_connect_udp(nsp, svc->niod, servicescan_connect_handler, 
-			svc, (struct sockaddr *) &ss, ss_len,
-			svc->portno);
-    }
-    // Now remove it from the remaining service list
-    SG->services_remaining.pop_front();
-    // And add it to the in progress list
-    SG->services_in_progress.push_back(svc);
-  }
-  return 0;
-}
-
 /* Start the timeout clocks of any targets that have probes.  Assumes
    that this is called before any probes have been launched (so they
    are all in services_remaining */
@@ -2281,7 +2290,7 @@ static void startTimeOutClocks(ServiceGroup *SG) {
 // We iterate through SG->services_remaining and remove any with port/protocol
 // pairs that are excluded. We use AP->isExcluded() to determine which ports
 // are excluded.
-void remove_excluded_ports(AllProbes *AP, ServiceGroup *SG) {
+static void remove_excluded_ports(AllProbes *AP, ServiceGroup *SG) {
   list<ServiceNFO *>::iterator i, nxt;
   ServiceNFO *svc;
 
@@ -2311,7 +2320,7 @@ void remove_excluded_ports(AllProbes *AP, ServiceGroup *SG) {
    Targets specified. */
 int service_scan(vector<Target *> &Targets) {
   // int service_scan(Target *targets[], int num_targets)
-  static AllProbes *AP;
+  AllProbes *AP;
   ServiceGroup *SG;
   nsock_pool nsp;
   struct timeval now;
@@ -2323,10 +2332,7 @@ int service_scan(vector<Target *> &Targets) {
   if (Targets.size() == 0)
     return 1;
 
-  if (!AP) {
-    AP = new AllProbes();
-    parse_nmap_service_probes(AP);
-  }
+  AP = service_scan_init();
 
 
   // Now I convert the targets into a new ServiceGroup

@@ -121,7 +121,7 @@ extern NmapOps o;
 
 /* Note that a sport of 0 really will (try to) use zero as the source
    port rather than choosing a random one */
-struct udpprobeinfo *send_closedudp_probe(int sd, struct eth_nfo *eth,
+static struct udpprobeinfo *send_closedudp_probe(int sd, struct eth_nfo *eth,
 					  const struct in_addr *victim,
 					  u16 sport, u16 dport) {
 
@@ -216,10 +216,6 @@ for(decoy=0; decoy < o.numdecoys; decoy++) {
     upi.patternbyte = patternbyte;
     upi.target.s_addr = ip->ip_dst.s_addr;
   }
-  if (TCPIP_DEBUGGING > 1) {
-    log_write(LOG_STDOUT, "Raw UDP packet creation completed!  Here it is:\n");
-    readudppacket(packet,1);
-  }
   
   if ((res = send_ip_packet(sd, eth, packet, ntohs(ip->ip_len))) == -1)
     {
@@ -231,652 +227,7 @@ for(decoy=0; decoy < o.numdecoys; decoy++) {
 return &upi;
 }
 
-
-FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
-FingerPrint *FP = NULL, *FPtmp = NULL;
-FingerPrint *FPtests[9];
-struct AVal *seq_AVs;
-u16 lastipid=0; /* For catching duplicate packets */
-int last;
-u32 timestamp = 0; /* TCP timestamp we receive back */
-struct ip *ip;
-struct tcphdr *tcp;
-struct icmp *icmp;
-struct timeval t1,t2;
-int i;
-pcap_t *pd = NULL;
-int rawsd;
-int tries = 0;
-int newcatches;
-int current_port = 0;
-int testsleft;
-int testno;
-int  timeout;
-int avnum;
-unsigned int sequence_base;
-unsigned long openport;
-unsigned int bytes;
-unsigned int closedport = 31337;
-Port *tport = NULL;
-char filter[512];
-double seq_inc_sum = 0;
-unsigned int  seq_avg_inc = 0;
-struct udpprobeinfo *upi = NULL;
-u32 seq_gcd = 1;
-u32 seq_diffs[NUM_SEQ_SAMPLES];
-u32 ts_diffs[NUM_SEQ_SAMPLES];
-unsigned long time_usec_diffs[NUM_SEQ_SAMPLES];
-struct timeval seq_send_times[NUM_SEQ_SAMPLES];
-int ossofttimeout, oshardtimeout;
-int seq_packets_sent = 0;
-int seq_response_num; /* response # for sequencing */
-double avg_ts_hz = 0.0; /* Avg. amount that timestamps incr. each second */
-struct link_header linkhdr;
-struct eth_nfo eth;
-struct eth_nfo *ethptr; // for passing to send_ functions 
-
-if (target->timedOut(NULL))
-  return NULL;
-
-/* The seqs must start out as zero for the si struct */
-memset(si->seqs, 0, sizeof(si->seqs));
-si->ipid_seqclass = IPID_SEQ_UNKNOWN;
-si->ts_seqclass = TS_SEQ_UNKNOWN;
-si->lastboot = 0;
-
-/* Init our fingerprint tests to each be NULL */
-memset(FPtests, 0, sizeof(FPtests)); 
-get_random_bytes(&sequence_base, sizeof(unsigned int));
- if ((o.sendpref & PACKET_SEND_ETH) &&  target->ifType() == devt_ethernet) {
-   memcpy(eth.srcmac, target->SrcMACAddress(), 6);
-   memcpy(eth.dstmac, target->NextHopMACAddress(), 6);
-   eth.ethsd = eth_open(target->deviceName());
-   if (eth.ethsd == NULL)
-     fatal("%s: Failed to open ethernet device (%s)", __FUNCTION__, target->deviceName());
-
-   rawsd = -1;
-   ethptr = &eth;
-  } else {
-    /* Init our raw socket */
-    if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
-      pfatal("socket troubles in get_fingerprint");
-    unblock_socket(rawsd);
-    broadcast_socket(rawsd);
-#ifndef WIN32
-    sethdrinclude(rawsd);
-#endif
-    ethptr = NULL;
-    eth.ethsd = NULL;
-  }
-
- /* Now for the pcap opening nonsense ... */
- /* Note that the snaplen is 152 = 64 byte max IPhdr + 24 byte max link_layer
-  * header + 64 byte max TCP header.  Had to up it for UDP test
-  */
-
-ossofttimeout = MAX(200000, target->to.timeout);
-oshardtimeout = MAX(500000, 5 * target->to.timeout);
-
- pd = my_pcap_open_live(target->deviceName(), /*650*/ 8192,  (o.spoofsource)? 1 : 0, (ossofttimeout + 500)/ 1000);
-
-if (o.debugging > 1)
-   log_write(LOG_STDOUT, "Wait time is %dms\n", (ossofttimeout +500)/1000);
-
-snprintf(filter, sizeof(filter), "dst host %s and (icmp or (tcp and src host %s))", inet_ntoa(target->v4source()), target->targetipstr());
- 
- set_pcap_filter(target->deviceName(), pd, filter);
- target->osscan_performed = 1; /* Let Nmap know that we did try an OS scan */
-
- /* Lets find an open port to use */
- openport = (unsigned long) -1;
- target->FPR->osscan_opentcpport = -1;
- target->FPR->osscan_closedtcpport = -1;
- tport = NULL;
- if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_OPEN, false))) {
-   openport = tport->portno;
-   target->FPR->osscan_opentcpport = tport->portno;
- }
- 
- /* Now we should find a closed port */
- if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_CLOSED, false))) {
-   closedport = tport->portno;
-   target->FPR->osscan_closedtcpport = tport->portno;
- } else if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_UNFILTERED, false))) {
-   /* Well, we will settle for unfiltered */
-   closedport = tport->portno;
- } else {
-   closedport = (get_random_uint() % 14781) + 30000;
- }
-
-if (o.verbose && openport != (unsigned long) -1)
-  log_write(LOG_STDOUT, "For OSScan assuming port %lu is open, %d is closed, and neither are firewalled\n", openport, closedport);
-
- current_port = o.magic_port + NUM_SEQ_SAMPLES +1;
- 
- /* Now lets do the NULL packet technique */
- testsleft = (openport == (unsigned long) -1)? 4 : 8;
- FPtmp = NULL;
- tries = 0;
- do { 
-   newcatches = 0;
-   if (openport != (unsigned long) -1) {   
-     /* Test 1 */
-     if (!FPtests[1]) {     
-       if (o.scan_delay) enforce_scan_delay(NULL);
-       send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
-			   current_port, openport, sequence_base, 0, 
-			   TH_ECE|TH_SYN, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
-     }
-     
-     /* Test 2 */
-     if (!FPtests[2]) {     
-       if (o.scan_delay) enforce_scan_delay(NULL);
-       send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
-			   current_port +1, 
-			   openport, sequence_base, 0,0, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
-     }
-
-     /* Test 3 */
-     if (!FPtests[3]) {     
-       if (o.scan_delay) enforce_scan_delay(NULL);
-       send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, current_port +2, 
-			   openport, sequence_base, 0,TH_SYN|TH_FIN|TH_URG|TH_PUSH, 0,(u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
-     }
-
-     /* Test 4 */
-     if (!FPtests[4]) {     
-       if (o.scan_delay) enforce_scan_delay(NULL);
-       send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
-			   current_port +3, 
-			   openport, sequence_base, 0,TH_ACK, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
-     }
-   }
-   
-   /* Test 5 */
-   if (!FPtests[5]) {   
-     if (o.scan_delay) enforce_scan_delay(NULL);
-     send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
-			 current_port +4,
-			 closedport, sequence_base, 0,TH_SYN, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
-   }
-
-     /* Test 6 */
-   if (!FPtests[6]) {   
-     if (o.scan_delay) enforce_scan_delay(NULL);
-     send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
-			 current_port +5, 
-			 closedport, sequence_base, 0,TH_ACK, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
-   }
-
-     /* Test 7 */
-   if (!FPtests[7]) {
-     if (o.scan_delay) enforce_scan_delay(NULL);   
-     send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
-			 current_port +6, 
-			 closedport, sequence_base, 0,TH_FIN|TH_PUSH|TH_URG, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
-   }
-
-   /* Test 8 */
-   if (!FPtests[8]) {
-     if (o.scan_delay) enforce_scan_delay(NULL);
-     upi = send_closedudp_probe(rawsd, ethptr, target->v4hostip(), o.magic_port, closedport);
-   }
-   gettimeofday(&t1, NULL);
-   timeout = 0;
-
-   /* Insure we haven't overrun our allotted time ... */
-   if (target->timedOut(&t1))
-     goto osscan_timedout;
-
-   while(( ip = (struct ip*) readip_pcap(pd, &bytes, oshardtimeout, NULL, &linkhdr)) && !timeout) {
-     gettimeofday(&t2, NULL);
-     if (TIMEVAL_SUBTRACT(t2,t1) > oshardtimeout) {
-       timeout = 1;
-     }
-
-     if (target->timedOut(&t2))
-       goto osscan_timedout;
-
-     if (bytes < (4 * ip->ip_hl) + 4U || bytes < 20)
-       continue;
-     setTargetMACIfAvailable(target, &linkhdr, ip, 0);
-     if (ip->ip_p == IPPROTO_TCP) {
-       tcp = ((struct tcphdr *) (((char *) ip) + 4 * ip->ip_hl));
-       testno = ntohs(tcp->th_dport) - current_port + 1;
-       if (testno <= 0 || testno > 7)
-	 continue;
-       if (o.debugging > 1)
-	 log_write(LOG_STDOUT, "Got packet for test number %d\n", testno);
-       if (FPtests[testno]) continue;
-       testsleft--;
-       newcatches++;
-       FPtests[testno] = (FingerPrint *) safe_zalloc(sizeof(FingerPrint));
-       FPtests[testno]->results = fingerprint_iptcppacket(ip, 265, sequence_base);
-       FPtests[testno]->name = (testno == 1)? "T1" : (testno == 2)? "T2" : (testno == 3)? "T3" : (testno == 4)? "T4" : (testno == 5)? "T5" : (testno == 6)? "T6" : (testno == 7)? "T7" : "PU";
-     } else if (ip->ip_p == IPPROTO_ICMP) {
-       icmp = ((struct icmp *)  (((char *) ip) + 4 * ip->ip_hl));
-       /* It must be a destination port unreachable */
-       if (icmp->icmp_type != 3 || icmp->icmp_code != 3) {
-	 /* This ain't no stinking port unreachable! */
-	 continue;
-       }
-       if (bytes < (unsigned int) ntohs(ip->ip_len)) {
-	 error("We only got %d bytes out of %d on our ICMP port unreachable packet, skipping", bytes, ntohs(ip->ip_len));
-	 continue;
-       }
-       if (FPtests[8]) continue;
-       FPtests[8] = (FingerPrint *) safe_zalloc(sizeof(FingerPrint));
-       FPtests[8]->results = fingerprint_portunreach(ip, upi);
-       if (FPtests[8]->results) {       
-	 FPtests[8]->name = "PU";
-	 testsleft--;
-	 newcatches++;
-       } else {
-	 free(FPtests[8]);
-	 FPtests[8] = NULL;
-       }
-     }
-    if (testsleft == 0)
-      break;
-   }     
- } while ( testsleft > 0 && (tries++ < 5 && (newcatches || tries == 1)));
-
- si->responses = 0;
- timeout = 0; 
- gettimeofday(&t1,NULL);
- /* Next we send our initial NUM_SEQ_SAMPLES SYN packets  */
- if (openport != (unsigned long) -1) {
-   seq_packets_sent = 0;
-   while (seq_packets_sent < NUM_SEQ_SAMPLES) {
-     if (o.scan_delay) enforce_scan_delay(NULL);
-     if (seq_packets_sent > 0) {
-       gettimeofday(&t1, NULL);
-       int remaining_us = 110000 - TIMEVAL_SUBTRACT(t1, seq_send_times[seq_packets_sent - 1]);
-       if (remaining_us > 0) {
-	 /* Need to spend at least .5 seconds in sending all packets to
-	    reliably detect 2HZ timestamp sequencing */
-	 usleep(remaining_us);
-       }
-     }
-     send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
-			 o.magic_port + seq_packets_sent + 1, 
-			 openport, 
-			 sequence_base + seq_packets_sent + 1, 0, 
-			 TH_SYN, 0 , (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
-     gettimeofday(&seq_send_times[seq_packets_sent], NULL);
-     t1 = seq_send_times[seq_packets_sent];
-     seq_packets_sent++;
-   
-     /* Now we collect the replies */
-     while(si->responses < seq_packets_sent && !timeout) {
-       
-       if (seq_packets_sent == NUM_SEQ_SAMPLES)
-	 ip = (struct ip*) readip_pcap(pd, &bytes, oshardtimeout, NULL, &linkhdr);
-       else ip = (struct ip*) readip_pcap(pd, &bytes, 10, NULL, &linkhdr);
-       
-       gettimeofday(&t2, NULL);
-       /*     error("DEBUG: got a response (len=%d):\n", bytes);  */
-       /*     lamont_hdump((unsigned char *) ip, bytes); */
-       /* Insure we haven't overrun our allotted time ... */
-       if (target->timedOut(&t2))
-	 goto osscan_timedout;
-
-       if (!ip) { 
-	 if (seq_packets_sent < NUM_SEQ_SAMPLES)
-	   break;
-	 if (TIMEVAL_SUBTRACT(t2,t1) > ossofttimeout)
-	   timeout = 1;
-	 continue; 
-       } else if (TIMEVAL_SUBTRACT(t2,t1) > oshardtimeout) {
-	 timeout = 1;
-       }		  
-       if (lastipid != 0 && ip->ip_id == lastipid) {
-	 /* Probably a duplicate -- this happens sometimes when scanning localhost */
-	 continue;
-       }
-       lastipid = ip->ip_id;
-
-       if (bytes < (4 * ip->ip_hl) + 4U || bytes < 20)
-	 continue;
-       setTargetMACIfAvailable(target, &linkhdr, ip, 0);
-       if (ip->ip_p == IPPROTO_TCP) {
-	 /*       readtcppacket((char *) ip, ntohs(ip->ip_len));  */
-	 tcp = ((struct tcphdr *) (((char *) ip) + 4 * ip->ip_hl));
-	 if (ntohs(tcp->th_dport) < o.magic_port || 
-	     ntohs(tcp->th_dport) - o.magic_port > NUM_SEQ_SAMPLES || 
-	     ntohs(tcp->th_sport) != openport) {
-	   continue;
-	 }
-	 if ((tcp->th_flags & TH_RST)) {
-	   /*	 readtcppacket((char *) ip, ntohs(ip->ip_len));*/	 
-	   if (si->responses == 0) {	 
-	     fprintf(stderr, "WARNING:  RST from port %lu -- is this port really open?\n", openport);
-	     /* We used to quit in this case, but left-overs from a SYN
-		scan or lame-ass TCP wrappers can cause this! */
-	   } 
-	   continue;
-	 } else if ((tcp->th_flags & (TH_SYN|TH_ACK)) == (TH_SYN|TH_ACK)) {
-	   /*	error("DEBUG: response is SYN|ACK to port %hu\n", ntohs(tcp->th_dport)); */
-	   /*readtcppacket((char *)ip, ntohs(ip->ip_len));*/
-	   /* We use the ACK value to match up our sent with rcv'd packets */
-	   seq_response_num = (ntohl(tcp->th_ack) - 2 - 
-			       sequence_base); 
-	   if (seq_response_num < 0 || seq_response_num >= seq_packets_sent) {
-	     /* BzzT! Value out of range */
-	     if (o.debugging) {
-	       error("Unable to associate os scan response with sent packet (received ack: %lX; sequence base: %lX. Packet:", (unsigned long) ntohl(tcp->th_ack), (unsigned long) sequence_base);
-	       readtcppacket((unsigned char *)ip,ntohs(ip->ip_len));
-	     }
-	     seq_response_num = si->responses;
-	   }
-	   if (si->seqs[seq_response_num] == 0) {
-	     /* New response found! */
-	     si->responses++;
-	     si->seqs[seq_response_num] = ntohl(tcp->th_seq); /* TCP ISN */
-	     si->ipids[seq_response_num] = ntohs(ip->ip_id);
-	     if ((gettcpopt_ts(tcp, &timestamp, NULL) == 0))
-	       si->ts_seqclass = TS_SEQ_UNSUPPORTED;
-	     else {
-	       if (timestamp == 0) {
-		 si->ts_seqclass = TS_SEQ_ZERO;
-	       }
-	     }
-	     si->timestamps[seq_response_num] = timestamp;
-	     /*           printf("Response #%d -- ipid=%hu ts=%i\n", seq_response_num, ntohs(ip->ip_id), timestamp); */
-	     if (si->responses > 1) {
-	       seq_diffs[si->responses-2] = MOD_DIFF(ntohl(tcp->th_seq), si->seqs[si->responses-2]);
-	     }
-	   }
-	 }
-       }
-     }
-   }
-
-   /* Now we make sure there are no gaps in our response array ... */
-   for(i=0, si->responses=0; i < seq_packets_sent; i++) {
-     if (si->seqs[i] != 0) /* We found a good one */ {
-       if (si->responses < i) {
-	 si->seqs[si->responses] = si->seqs[i];
-	 si->ipids[si->responses] = si->ipids[i];
-	 si->timestamps[si->responses] = si->timestamps[i];
-	 seq_send_times[si->responses] = seq_send_times[i];
-       }
-       if (si->responses > 0) {
-	 seq_diffs[si->responses - 1] = MOD_DIFF(si->seqs[si->responses], si->seqs[si->responses - 1]);
-	 ts_diffs[si->responses - 1] = MOD_DIFF(si->timestamps[si->responses], si->timestamps[si->responses - 1]);
-	 time_usec_diffs[si->responses - 1] = TIMEVAL_SUBTRACT(seq_send_times[si->responses], seq_send_times[si->responses - 1]);
-	 if (!time_usec_diffs[si->responses - 1]) time_usec_diffs[si->responses - 1]++; /* We divide by this later */
-	 /*	 printf("MOD_DIFF_USHORT(%hu, %hu) == %hu\n", si->ipids[si->responses], si->ipids[si->responses - 1], MOD_DIFF_USHORT(si->ipids[si->responses], si->ipids[si->responses - 1])); */
-       }
-
-       si->responses++;
-     } /* Otherwise nothing good in this slot to copy */
-   }
-     
-
-   si->ipid_seqclass = ipid_sequence(si->responses, si->ipids, 
-				     islocalhost(target->v4hostip()));
-
-   /* Now we look at TCP Timestamp sequence prediction */
-   /* Battle plan:
-      1) Compute average increments per second, and variance in incr. per second 
-      2) If any are 0, set to constant
-      3) If variance is high, set to random incr. [ skip for now ]
-      4) if ~10/second, set to appropriate thing
-      5) Same with ~100/sec
-   */
-   if (si->ts_seqclass == TS_SEQ_UNKNOWN && si->responses >= 2) {
-     avg_ts_hz = 0.0;
-     for(i=0; i < si->responses - 1; i++) {
-       double dhz;
-
-       dhz = (double) ts_diffs[i] / (time_usec_diffs[i] / 1000000.0);
-       /*       printf("ts incremented by %d in %li usec -- %fHZ\n", ts_diffs[i], time_usec_diffs[i], dhz); */
-       avg_ts_hz += dhz / ( si->responses - 1);
-     }
-
-     if (o.debugging)
-       printf("The avg TCP TS HZ is: %f\n", avg_ts_hz);
-     
-     if (avg_ts_hz > 0 && avg_ts_hz < 3.9) { /* relatively wide range because sampling time so short and frequency so slow */
-       si->ts_seqclass = TS_SEQ_2HZ;
-       si->lastboot = seq_send_times[0].tv_sec - (si->timestamps[0] / 2); 
-     }
-     else if (avg_ts_hz > 85 && avg_ts_hz < 115) {
-       si->ts_seqclass = TS_SEQ_100HZ;
-       si->lastboot = seq_send_times[0].tv_sec - (si->timestamps[0] / 100); 
-     }
-     else if (avg_ts_hz > 900 && avg_ts_hz < 1100) {
-       si->ts_seqclass = TS_SEQ_1000HZ;
-       si->lastboot = seq_send_times[0].tv_sec - (si->timestamps[0] / 1000); 
-     }
-     if (si->lastboot && (seq_send_times[0].tv_sec - si->lastboot > 63072000))
-       {
-	 /* Up 2 years?  Perhaps, but they're probably lying. */
-	 if (o.debugging) {
-	   error("Ignoring claimed uptime of %lu days", 
-		 (seq_send_times[0].tv_sec - si->lastboot) / 86400);
-	 }
-	 si->lastboot = 0;
-       }
-   }
-   
-   /* Time to look at the TCP ISN predictability */
-   if (si->responses >= 4 && o.scan_delay <= 1000) {
-     seq_gcd = gcd_n_uint(si->responses -1, seq_diffs);
-     /*     printf("The GCD is %u\n", seq_gcd);*/
-     if (seq_gcd) {     
-       for(i=0; i < si->responses - 1; i++)
-	 seq_diffs[i] /= seq_gcd;
-       for(i=0; i < si->responses - 1; i++) {     
-	 if (MOD_DIFF(si->seqs[i+1],si->seqs[i]) > 50000000) {
-	   si->seqclass = SEQ_TR;
-	   si->index = 9999999;
-	   /*	 printf("Target is a TR box\n");*/
-	   break;
-	 }	
-	 seq_avg_inc += seq_diffs[i];
-       }
-     }
-     if (seq_gcd == 0) {
-       si->seqclass = SEQ_CONSTANT;
-       si->index = 0;
-     } else if (seq_gcd % 64000 == 0) {
-       si->seqclass = SEQ_64K;
-       /*       printf("Target is a 64K box\n");*/
-       si->index = 1;
-     } else if (seq_gcd % 800 == 0) {
-       si->seqclass = SEQ_i800;
-       /*       printf("Target is a i800 box\n");*/
-       si->index = 10;
-     } else if (si->seqclass == SEQ_UNKNOWN) {
-       seq_avg_inc = (unsigned int) ((0.5) + seq_avg_inc / (si->responses - 1));
-       /*       printf("seq_avg_inc=%u\n", seq_avg_inc);*/
-       for(i=0; i < si->responses -1; i++)       {     
-
-	 /*	 printf("The difference is %u\n", seq_diffs[i]);
-		 printf("Adding %u^2=%e", MOD_DIFF(seq_diffs[i], seq_avg_inc), pow(MOD_DIFF(seq_diffs[i], seq_avg_inc), 2));*/
-	 /* pow() seems F#@!#$!ed up on some Linux systems so I will
-	    not use it for now 
-  	    seq_inc_sum += pow(MOD_DIFF(seq_diffs[i], seq_avg_inc), 2);
-	 */	 
-	 
-	 seq_inc_sum += ((double)(MOD_DIFF(seq_diffs[i], seq_avg_inc)) * ((double)MOD_DIFF(seq_diffs[i], seq_avg_inc)));
-	 /*	 seq_inc_sum += pow(MOD_DIFF(seq_diffs[i], seq_avg_inc), 2);*/
-
-       }
-       /*       printf("The sequence sum is %e\n", seq_inc_sum);*/
-       seq_inc_sum /= (si->responses - 1);
-
-       /* Some versions of Linux libc seem to have broken pow ... so we
-	  avoid it */
-#ifdef LINUX       
-       si->index = (unsigned int) (0.5 + sqrt(seq_inc_sum));
-#else
-       si->index = (unsigned int) (0.5 + pow(seq_inc_sum, 0.5));
-#endif
-
-       /*       printf("The sequence index is %d\n", si->index);*/
-       if (si->index < 75) {
-	 si->seqclass = SEQ_TD;
-	 /*	 printf("Target is a Micro$oft style time dependant box\n");*/
-       }
-       else {
-	 si->seqclass = SEQ_RI;
-	 /*	 printf("Target is a random incremental box\n");*/
-       }
-     }
-     FPtests[0] = (FingerPrint *) safe_zalloc(sizeof(FingerPrint));
-     FPtests[0]->name = "TSeq";
-     seq_AVs = (struct AVal *) safe_zalloc(sizeof(struct AVal) * 5);
-     FPtests[0]->results = seq_AVs;
-     avnum = 0;
-     seq_AVs[avnum].attribute = "Class";
-     switch(si->seqclass) {
-     case SEQ_CONSTANT:
-       strcpy(seq_AVs[avnum].value, "C");
-       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-       seq_AVs[avnum].attribute= "Val";     
-       sprintf(seq_AVs[avnum].value, "%X", si->seqs[0]);
-       break;
-     case SEQ_64K:
-       strcpy(seq_AVs[avnum].value, "64K");      
-       break;
-     case SEQ_i800:
-       strcpy(seq_AVs[avnum].value, "i800");
-       break;
-     case SEQ_TD:
-       strcpy(seq_AVs[avnum].value, "TD");
-       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-       seq_AVs[avnum].attribute= "gcd";     
-       sprintf(seq_AVs[avnum].value, "%X", seq_gcd);
-       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-       seq_AVs[avnum].attribute="SI";
-       sprintf(seq_AVs[avnum].value, "%X", si->index);
-       break;
-     case SEQ_RI:
-       strcpy(seq_AVs[avnum].value, "RI");
-       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-       seq_AVs[avnum].attribute= "gcd";     
-       sprintf(seq_AVs[avnum].value, "%X", seq_gcd);
-       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-       seq_AVs[avnum].attribute="SI";
-       sprintf(seq_AVs[avnum].value, "%X", si->index);
-       break;
-     case SEQ_TR:
-       strcpy(seq_AVs[avnum].value, "TR");
-       break;
-     }
-
-     /* IP ID Class */
-     switch(si->ipid_seqclass) {
-     case IPID_SEQ_CONSTANT:
-       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-       seq_AVs[avnum].attribute = "IPID";
-       strcpy(seq_AVs[avnum].value, "C");
-       break;
-     case IPID_SEQ_INCR:
-       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-       seq_AVs[avnum].attribute = "IPID";
-       strcpy(seq_AVs[avnum].value, "I");
-       break;
-     case IPID_SEQ_BROKEN_INCR:
-       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-       seq_AVs[avnum].attribute = "IPID";
-       strcpy(seq_AVs[avnum].value, "BI");
-       break;
-     case IPID_SEQ_RPI:
-       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-       seq_AVs[avnum].attribute = "IPID";
-       strcpy(seq_AVs[avnum].value, "RPI");
-       break;
-     case IPID_SEQ_RD:
-       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-       seq_AVs[avnum].attribute = "IPID";
-       strcpy(seq_AVs[avnum].value, "RD");
-       break;
-     case IPID_SEQ_ZERO:
-       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-       seq_AVs[avnum].attribute = "IPID";
-       strcpy(seq_AVs[avnum].value, "Z");
-       break;
-     }
-
-     /* TCP Timestamp option sequencing */
-     switch(si->ts_seqclass) {
-     case TS_SEQ_ZERO:
-       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-       seq_AVs[avnum].attribute = "TS";
-       strcpy(seq_AVs[avnum].value, "0");
-       break;
-     case TS_SEQ_2HZ:
-       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-       seq_AVs[avnum].attribute = "TS";
-       strcpy(seq_AVs[avnum].value, "2HZ");
-       break;
-     case TS_SEQ_100HZ:
-       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-       seq_AVs[avnum].attribute = "TS";
-       strcpy(seq_AVs[avnum].value, "100HZ");
-       break;
-     case TS_SEQ_1000HZ:
-       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-       seq_AVs[avnum].attribute = "TS";
-       strcpy(seq_AVs[avnum].value, "1000HZ");
-       break;
-     case TS_SEQ_UNSUPPORTED:
-       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-       seq_AVs[avnum].attribute = "TS";
-       strcpy(seq_AVs[avnum].value, "U");
-       break;
-     }
-   }
-   else {
-     log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID,"Insufficient responses for TCP sequencing (%d), OS detection may be less accurate\n", si->responses);
-   }
- } else {
- }
-
-for(i=0; i < 9; i++) {
-  if (i > 0 && !FPtests[i] && ((openport != (unsigned long) -1) || i > 4)) {
-    /* We create a Resp (response) attribute with value of N (no) because
-       it is important here to note whether responses were or were not 
-       received */
-    FPtests[i] = (FingerPrint *) safe_zalloc(sizeof(FingerPrint));
-    seq_AVs = (struct AVal *) safe_zalloc(sizeof(struct AVal));
-    seq_AVs->attribute = "Resp";
-    strcpy(seq_AVs->value, "N");
-    seq_AVs->next = NULL;
-    FPtests[i]->results = seq_AVs;
-    FPtests[i]->name =  (i == 1)? "T1" : (i == 2)? "T2" : (i == 3)? "T3" : (i == 4)? "T4" : (i == 5)? "T5" : (i == 6)? "T6" : (i == 7)? "T7" : "PU";
-  }
-}
- last = -1;
- FP = NULL;
- for(i=0; i < 9 ; i++) {
-   if (!FPtests[i]) continue; 
-   if (!FP) FP = FPtests[i];
-   if (last > -1) {
-     FPtests[last]->next = FPtests[i];    
-   }
-   last = i;
- }
- if (last) FPtests[last]->next = NULL;
- 
- osscan_timedout:
- if (target->timedOut(NULL))
-   FP = NULL;
- if (rawsd >= 0)
-   close(rawsd);
- if (ethptr) {
-   eth_close(ethptr->ethsd);
- }
- pcap_close(pd);
- return FP;
-}
-
-
-struct AVal *fingerprint_iptcppacket(struct ip *ip, int mss, u32 syn) {
+static struct AVal *fingerprint_iptcppacket(struct ip *ip, int mss, u32 syn) {
   struct AVal *AVs;
   int length;
   int opcode;
@@ -980,6 +331,800 @@ struct AVal *fingerprint_iptcppacket(struct ip *ip, int mss, u32 syn) {
   return AVs;
 }
 
+
+static struct AVal *fingerprint_portunreach(struct ip *ip, struct udpprobeinfo *upi) {
+  struct icmp *icmp;
+  struct ip *ip2;
+  int numtests = 10;
+  unsigned short checksum;
+  unsigned short *checksumptr;
+  udphdr_bsd *udp;
+  struct AVal *AVs;
+  int i;
+  int current_testno = 0;
+  unsigned char *datastart, *dataend;
+
+  /* The very first thing we do is make sure this is the correct
+     response */
+  if (ip->ip_p != IPPROTO_ICMP) {
+    error("fingerprint_portunreach handed a non-ICMP packet!");
+    return NULL;
+  }
+
+  if (ip->ip_src.s_addr != upi->target.s_addr)
+    return NULL;  /* Not the person we sent to */
+
+  icmp = ((struct icmp *)  (((char *) ip) + 4 * ip->ip_hl));
+  if (icmp->icmp_type != 3 || icmp->icmp_code != 3)
+    return NULL; /* Not a port unreachable */
+
+  ip2 = (struct ip*) ((char *)icmp + 8);
+  udp = (udphdr_bsd *) ((char *)ip2 + 20);
+
+  /* The ports better match as well ... */
+  if (ntohs(udp->uh_sport) != upi->sport || ntohs(udp->uh_dport) != upi->dport) {
+    return NULL;
+  }
+
+  /* Create the Avals */
+  AVs = (struct AVal *) safe_zalloc(numtests * sizeof(struct AVal));
+
+  /* Link them together */
+  for(i=0; i < numtests - 1; i++)
+    AVs[i].next = &AVs[i+1];
+
+  /* First of all, if we got this far the response was yes */
+  AVs[current_testno].attribute = "Resp";
+  strcpy(AVs[current_testno].value, "Y");
+
+  current_testno++;
+
+  /* Now let us do an easy one, Don't fragment */
+  AVs[current_testno].attribute = "DF";
+  if(ntohs(ip->ip_off) & 0x4000) {
+    strcpy(AVs[current_testno].value,"Y");
+  } else strcpy(AVs[current_testno].value, "N");
+
+  current_testno++;
+
+  /* Now lets do TOS of the response (note, I've never seen this be
+     useful */
+  AVs[current_testno].attribute = "TOS";
+  sprintf(AVs[current_testno].value, "%hX", ip->ip_tos);
+
+  current_testno++;
+
+  /* Now we look at the IP datagram length that was returned, some
+     machines send more of the original packet back than others */
+  AVs[current_testno].attribute = "IPLEN";
+  sprintf(AVs[current_testno].value, "%hX", ntohs(ip->ip_len));
+
+  current_testno++;
+
+  /* OK, lets check the returned IP length, some systems @$@ this
+     up */
+  AVs[current_testno].attribute = "RIPTL";
+  sprintf(AVs[current_testno].value, "%hX", ntohs(ip2->ip_len));
+
+  current_testno++;
+
+  /* This next test doesn't work on Solaris because the lamers
+     overwrite our ip_id */
+#if !defined(SOLARIS) && !defined(SUNOS) && !defined(IRIX) && !defined(HPUX)
+
+  /* Now lets see how they treated the ID we sent ... */
+  AVs[current_testno].attribute = "RID";
+  if (ntohs(ip2->ip_id) == 0)
+    strcpy(AVs[current_testno].value, "0");
+  else if (ip2->ip_id == upi->ipid)
+    strcpy(AVs[current_testno].value, "E"); /* The "expected" value */
+  else strcpy(AVs[current_testno].value, "F"); /* They fucked it up */
+
+  current_testno++;
+
+#endif
+
+  /* Let us see if the IP checksum we got back computes */
+
+  AVs[current_testno].attribute = "RIPCK";
+  /* Thanks to some machines not having struct ip member ip_sum we
+     have to go with this BS */
+  checksumptr = (unsigned short *)   ((char *) ip2 + 10);
+  checksum =   *checksumptr;
+
+  if (checksum == 0)
+    strcpy(AVs[current_testno].value, "0");
+  else {
+    *checksumptr = 0;
+    if (in_cksum((unsigned short *)ip2, 20) == checksum) {
+      strcpy(AVs[current_testno].value, "E"); /* The "expected" value */
+    } else {
+      strcpy(AVs[current_testno].value, "F"); /* They fucked it up */
+    }
+    *checksumptr = checksum;
+  }
+
+  current_testno++;
+
+  /* UDP checksum */
+  AVs[current_testno].attribute = "UCK";
+  if (udp->uh_sum == 0)
+    strcpy(AVs[current_testno].value, "0");
+  else if (udp->uh_sum == upi->udpck)
+    strcpy(AVs[current_testno].value, "E"); /* The "expected" value */
+  else strcpy(AVs[current_testno].value, "F"); /* They fucked it up */
+
+  current_testno++;
+
+  /* UDP length ... */
+  AVs[current_testno].attribute = "ULEN";
+  sprintf(AVs[current_testno].value, "%hX", ntohs(udp->uh_ulen));
+
+  current_testno++;
+
+  /* Finally we ensure the data is OK */
+  datastart = ((unsigned char *)udp) + 8;
+  dataend = (unsigned char *)  ip + ntohs(ip->ip_len);
+
+  while(datastart < dataend) {
+    if (*datastart != upi->patternbyte) break;
+    datastart++;
+  }
+  AVs[current_testno].attribute = "DAT";
+  if (datastart < dataend)
+    strcpy(AVs[current_testno].value, "F"); /* They fucked it up */
+  else  
+    strcpy(AVs[current_testno].value, "E");
+
+  AVs[current_testno].next = NULL;
+
+  return AVs;
+}
+
+static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
+  FingerPrint *FP = NULL, *FPtmp = NULL;
+  FingerPrint *FPtests[9];
+  struct AVal *seq_AVs;
+  u16 lastipid=0; /* For catching duplicate packets */
+  int last;
+  u32 timestamp = 0; /* TCP timestamp we receive back */
+  struct ip *ip;
+  struct tcphdr *tcp;
+  struct icmp *icmp;
+  struct timeval t1,t2;
+  int i;
+  pcap_t *pd = NULL;
+  int rawsd;
+  int tries = 0;
+  int newcatches;
+  int current_port = 0;
+  int testsleft;
+  int testno;
+  int  timeout;
+  int avnum;
+  unsigned int sequence_base;
+  unsigned long openport;
+  unsigned int bytes;
+  unsigned int closedport = 31337;
+  Port *tport = NULL;
+  char filter[512];
+  double seq_inc_sum = 0;
+  unsigned int  seq_avg_inc = 0;
+  struct udpprobeinfo *upi = NULL;
+  u32 seq_gcd = 1;
+  u32 seq_diffs[NUM_SEQ_SAMPLES];
+  u32 ts_diffs[NUM_SEQ_SAMPLES];
+  unsigned long time_usec_diffs[NUM_SEQ_SAMPLES];
+  struct timeval seq_send_times[NUM_SEQ_SAMPLES];
+  int ossofttimeout, oshardtimeout;
+  int seq_packets_sent = 0;
+  int seq_response_num; /* response # for sequencing */
+  double avg_ts_hz = 0.0; /* Avg. amount that timestamps incr. each second */
+  struct link_header linkhdr;
+  struct eth_nfo eth;
+  struct eth_nfo *ethptr; // for passing to send_ functions 
+
+  if (target->timedOut(NULL))
+    return NULL;
+
+  /* The seqs must start out as zero for the si struct */
+  memset(si->seqs, 0, sizeof(si->seqs));
+  si->ipid_seqclass = IPID_SEQ_UNKNOWN;
+  si->ts_seqclass = TS_SEQ_UNKNOWN;
+  si->lastboot = 0;
+
+  /* Init our fingerprint tests to each be NULL */
+  memset(FPtests, 0, sizeof(FPtests)); 
+  get_random_bytes(&sequence_base, sizeof(unsigned int));
+  if ((o.sendpref & PACKET_SEND_ETH) &&  target->ifType() == devt_ethernet) {
+    memcpy(eth.srcmac, target->SrcMACAddress(), 6);
+    memcpy(eth.dstmac, target->NextHopMACAddress(), 6);
+    eth.ethsd = eth_open(target->deviceName());
+    if (eth.ethsd == NULL)
+      fatal("%s: Failed to open ethernet device (%s)", __FUNCTION__, target->deviceName());
+
+    rawsd = -1;
+    ethptr = &eth;
+  } else {
+    /* Init our raw socket */
+    if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
+      pfatal("socket troubles in get_fingerprint");
+    unblock_socket(rawsd);
+    broadcast_socket(rawsd);
+#ifndef WIN32
+    sethdrinclude(rawsd);
+#endif
+    ethptr = NULL;
+    eth.ethsd = NULL;
+  }
+
+  /* Now for the pcap opening nonsense ... */
+  /* Note that the snaplen is 152 = 64 byte max IPhdr + 24 byte max link_layer
+   * header + 64 byte max TCP header.  Had to up it for UDP test
+   */
+
+  ossofttimeout = MAX(200000, target->to.timeout);
+  oshardtimeout = MAX(500000, 5 * target->to.timeout);
+
+  pd = my_pcap_open_live(target->deviceName(), /*650*/ 8192,  (o.spoofsource)? 1 : 0, (ossofttimeout + 500)/ 1000);
+
+  if (o.debugging > 1)
+    log_write(LOG_STDOUT, "Wait time is %dms\n", (ossofttimeout +500)/1000);
+
+  snprintf(filter, sizeof(filter), "dst host %s and (icmp or (tcp and src host %s))", inet_ntoa(target->v4source()), target->targetipstr());
+ 
+  set_pcap_filter(target->deviceName(), pd, filter);
+  target->osscan_performed = 1; /* Let Nmap know that we did try an OS scan */
+
+  /* Lets find an open port to use */
+  openport = (unsigned long) -1;
+  target->FPR->osscan_opentcpport = -1;
+  target->FPR->osscan_closedtcpport = -1;
+  tport = NULL;
+  if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_OPEN, false))) {
+    openport = tport->portno;
+    target->FPR->osscan_opentcpport = tport->portno;
+  }
+ 
+  /* Now we should find a closed port */
+  if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_CLOSED, false))) {
+    closedport = tport->portno;
+    target->FPR->osscan_closedtcpport = tport->portno;
+  } else if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_UNFILTERED, false))) {
+    /* Well, we will settle for unfiltered */
+    closedport = tport->portno;
+  } else {
+    closedport = (get_random_uint() % 14781) + 30000;
+  }
+
+  if (o.verbose && openport != (unsigned long) -1)
+    log_write(LOG_STDOUT, "For OSScan assuming port %lu is open, %d is closed, and neither are firewalled\n", openport, closedport);
+
+  current_port = o.magic_port + NUM_SEQ_SAMPLES +1;
+ 
+  /* Now lets do the NULL packet technique */
+  testsleft = (openport == (unsigned long) -1)? 4 : 8;
+  FPtmp = NULL;
+  tries = 0;
+  do { 
+    newcatches = 0;
+    if (openport != (unsigned long) -1) {   
+      /* Test 1 */
+      if (!FPtests[1]) {     
+	if (o.scan_delay) enforce_scan_delay(NULL);
+	send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
+			    current_port, openport, sequence_base, 0, 
+			    TH_ECE|TH_SYN, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
+      }
+     
+      /* Test 2 */
+      if (!FPtests[2]) {     
+	if (o.scan_delay) enforce_scan_delay(NULL);
+	send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
+			    current_port +1, 
+			    openport, sequence_base, 0,0, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
+      }
+
+      /* Test 3 */
+      if (!FPtests[3]) {     
+	if (o.scan_delay) enforce_scan_delay(NULL);
+	send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, current_port +2, 
+			    openport, sequence_base, 0,TH_SYN|TH_FIN|TH_URG|TH_PUSH, 0,(u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
+      }
+
+      /* Test 4 */
+      if (!FPtests[4]) {     
+	if (o.scan_delay) enforce_scan_delay(NULL);
+	send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
+			    current_port +3, 
+			    openport, sequence_base, 0,TH_ACK, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
+      }
+    }
+   
+    /* Test 5 */
+    if (!FPtests[5]) {   
+      if (o.scan_delay) enforce_scan_delay(NULL);
+      send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
+			  current_port +4,
+			  closedport, sequence_base, 0,TH_SYN, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
+    }
+
+    /* Test 6 */
+    if (!FPtests[6]) {   
+      if (o.scan_delay) enforce_scan_delay(NULL);
+      send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
+			  current_port +5, 
+			  closedport, sequence_base, 0,TH_ACK, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
+    }
+
+    /* Test 7 */
+    if (!FPtests[7]) {
+      if (o.scan_delay) enforce_scan_delay(NULL);   
+      send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
+			  current_port +6, 
+			  closedport, sequence_base, 0,TH_FIN|TH_PUSH|TH_URG, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
+    }
+
+    /* Test 8 */
+    if (!FPtests[8]) {
+      if (o.scan_delay) enforce_scan_delay(NULL);
+      upi = send_closedudp_probe(rawsd, ethptr, target->v4hostip(), o.magic_port, closedport);
+    }
+    gettimeofday(&t1, NULL);
+    timeout = 0;
+
+    /* Insure we haven't overrun our allotted time ... */
+    if (target->timedOut(&t1))
+      goto osscan_timedout;
+
+    while(( ip = (struct ip*) readip_pcap(pd, &bytes, oshardtimeout, NULL, &linkhdr)) && !timeout) {
+      gettimeofday(&t2, NULL);
+      if (TIMEVAL_SUBTRACT(t2,t1) > oshardtimeout) {
+	timeout = 1;
+      }
+
+      if (target->timedOut(&t2))
+	goto osscan_timedout;
+
+      if (bytes < (4 * ip->ip_hl) + 4U || bytes < 20)
+	continue;
+      setTargetMACIfAvailable(target, &linkhdr, ip, 0);
+      if (ip->ip_p == IPPROTO_TCP) {
+	tcp = ((struct tcphdr *) (((char *) ip) + 4 * ip->ip_hl));
+	testno = ntohs(tcp->th_dport) - current_port + 1;
+	if (testno <= 0 || testno > 7)
+	  continue;
+	if (o.debugging > 1)
+	  log_write(LOG_STDOUT, "Got packet for test number %d\n", testno);
+	if (FPtests[testno]) continue;
+	testsleft--;
+	newcatches++;
+	FPtests[testno] = (FingerPrint *) safe_zalloc(sizeof(FingerPrint));
+	FPtests[testno]->results = fingerprint_iptcppacket(ip, 265, sequence_base);
+	FPtests[testno]->name = (testno == 1)? "T1" : (testno == 2)? "T2" : (testno == 3)? "T3" : (testno == 4)? "T4" : (testno == 5)? "T5" : (testno == 6)? "T6" : (testno == 7)? "T7" : "PU";
+      } else if (ip->ip_p == IPPROTO_ICMP) {
+	icmp = ((struct icmp *)  (((char *) ip) + 4 * ip->ip_hl));
+	/* It must be a destination port unreachable */
+	if (icmp->icmp_type != 3 || icmp->icmp_code != 3) {
+	  /* This ain't no stinking port unreachable! */
+	  continue;
+	}
+	if (bytes < (unsigned int) ntohs(ip->ip_len)) {
+	  error("We only got %d bytes out of %d on our ICMP port unreachable packet, skipping", bytes, ntohs(ip->ip_len));
+	  continue;
+	}
+	if (FPtests[8]) continue;
+	FPtests[8] = (FingerPrint *) safe_zalloc(sizeof(FingerPrint));
+	FPtests[8]->results = fingerprint_portunreach(ip, upi);
+	if (FPtests[8]->results) {       
+	  FPtests[8]->name = "PU";
+	  testsleft--;
+	  newcatches++;
+	} else {
+	  free(FPtests[8]);
+	  FPtests[8] = NULL;
+	}
+      }
+      if (testsleft == 0)
+	break;
+    }     
+  } while ( testsleft > 0 && (tries++ < 5 && (newcatches || tries == 1)));
+
+  si->responses = 0;
+  timeout = 0; 
+  gettimeofday(&t1,NULL);
+  /* Next we send our initial NUM_SEQ_SAMPLES SYN packets  */
+  if (openport != (unsigned long) -1) {
+    seq_packets_sent = 0;
+    while (seq_packets_sent < NUM_SEQ_SAMPLES) {
+      if (o.scan_delay) enforce_scan_delay(NULL);
+      if (seq_packets_sent > 0) {
+	gettimeofday(&t1, NULL);
+	int remaining_us = 110000 - TIMEVAL_SUBTRACT(t1, seq_send_times[seq_packets_sent - 1]);
+	if (remaining_us > 0) {
+	  /* Need to spend at least .5 seconds in sending all packets to
+	     reliably detect 2HZ timestamp sequencing */
+	  usleep(remaining_us);
+	}
+      }
+      send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
+			  o.magic_port + seq_packets_sent + 1, 
+			  openport, 
+			  sequence_base + seq_packets_sent + 1, 0, 
+			  TH_SYN, 0 , (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
+      gettimeofday(&seq_send_times[seq_packets_sent], NULL);
+      t1 = seq_send_times[seq_packets_sent];
+      seq_packets_sent++;
+   
+      /* Now we collect the replies */
+      while(si->responses < seq_packets_sent && !timeout) {
+       
+	if (seq_packets_sent == NUM_SEQ_SAMPLES)
+	  ip = (struct ip*) readip_pcap(pd, &bytes, oshardtimeout, NULL, &linkhdr);
+	else ip = (struct ip*) readip_pcap(pd, &bytes, 10, NULL, &linkhdr);
+       
+	gettimeofday(&t2, NULL);
+	/*     error("DEBUG: got a response (len=%d):\n", bytes);  */
+	/*     lamont_hdump((unsigned char *) ip, bytes); */
+	/* Insure we haven't overrun our allotted time ... */
+	if (target->timedOut(&t2))
+	  goto osscan_timedout;
+
+	if (!ip) { 
+	  if (seq_packets_sent < NUM_SEQ_SAMPLES)
+	    break;
+	  if (TIMEVAL_SUBTRACT(t2,t1) > ossofttimeout)
+	    timeout = 1;
+	  continue; 
+	} else if (TIMEVAL_SUBTRACT(t2,t1) > oshardtimeout) {
+	  timeout = 1;
+	}		  
+	if (lastipid != 0 && ip->ip_id == lastipid) {
+	  /* Probably a duplicate -- this happens sometimes when scanning localhost */
+	  continue;
+	}
+	lastipid = ip->ip_id;
+
+	if (bytes < (4 * ip->ip_hl) + 4U || bytes < 20)
+	  continue;
+	setTargetMACIfAvailable(target, &linkhdr, ip, 0);
+	if (ip->ip_p == IPPROTO_TCP) {
+	  /*       readtcppacket((char *) ip, ntohs(ip->ip_len));  */
+	  tcp = ((struct tcphdr *) (((char *) ip) + 4 * ip->ip_hl));
+	  if (ntohs(tcp->th_dport) < o.magic_port || 
+	      ntohs(tcp->th_dport) - o.magic_port > NUM_SEQ_SAMPLES || 
+	      ntohs(tcp->th_sport) != openport) {
+	    continue;
+	  }
+	  if ((tcp->th_flags & TH_RST)) {
+	    /*	 readtcppacket((char *) ip, ntohs(ip->ip_len));*/	 
+	    if (si->responses == 0) {	 
+	      fprintf(stderr, "WARNING:  RST from port %lu -- is this port really open?\n", openport);
+	      /* We used to quit in this case, but left-overs from a SYN
+		 scan or lame-ass TCP wrappers can cause this! */
+	    } 
+	    continue;
+	  } else if ((tcp->th_flags & (TH_SYN|TH_ACK)) == (TH_SYN|TH_ACK)) {
+	    /*	error("DEBUG: response is SYN|ACK to port %hu\n", ntohs(tcp->th_dport)); */
+	    /*readtcppacket((char *)ip, ntohs(ip->ip_len));*/
+	    /* We use the ACK value to match up our sent with rcv'd packets */
+	    seq_response_num = (ntohl(tcp->th_ack) - 2 - 
+				sequence_base); 
+	    if (seq_response_num < 0 || seq_response_num >= seq_packets_sent) {
+	      /* BzzT! Value out of range */
+	      if (o.debugging) {
+		error("Unable to associate os scan response with sent packet (received ack: %lX; sequence base: %lX. Packet:", (unsigned long) ntohl(tcp->th_ack), (unsigned long) sequence_base);
+		readtcppacket((unsigned char *)ip,ntohs(ip->ip_len));
+	      }
+	      seq_response_num = si->responses;
+	    }
+	    if (si->seqs[seq_response_num] == 0) {
+	      /* New response found! */
+	      si->responses++;
+	      si->seqs[seq_response_num] = ntohl(tcp->th_seq); /* TCP ISN */
+	      si->ipids[seq_response_num] = ntohs(ip->ip_id);
+	      if ((gettcpopt_ts(tcp, &timestamp, NULL) == 0))
+		si->ts_seqclass = TS_SEQ_UNSUPPORTED;
+	      else {
+		if (timestamp == 0) {
+		  si->ts_seqclass = TS_SEQ_ZERO;
+		}
+	      }
+	      si->timestamps[seq_response_num] = timestamp;
+	      /*           printf("Response #%d -- ipid=%hu ts=%i\n", seq_response_num, ntohs(ip->ip_id), timestamp); */
+	      if (si->responses > 1) {
+		seq_diffs[si->responses-2] = MOD_DIFF(ntohl(tcp->th_seq), si->seqs[si->responses-2]);
+	      }
+	    }
+	  }
+	}
+      }
+    }
+
+    /* Now we make sure there are no gaps in our response array ... */
+    for(i=0, si->responses=0; i < seq_packets_sent; i++) {
+      if (si->seqs[i] != 0) /* We found a good one */ {
+	if (si->responses < i) {
+	  si->seqs[si->responses] = si->seqs[i];
+	  si->ipids[si->responses] = si->ipids[i];
+	  si->timestamps[si->responses] = si->timestamps[i];
+	  seq_send_times[si->responses] = seq_send_times[i];
+	}
+	if (si->responses > 0) {
+	  seq_diffs[si->responses - 1] = MOD_DIFF(si->seqs[si->responses], si->seqs[si->responses - 1]);
+	  ts_diffs[si->responses - 1] = MOD_DIFF(si->timestamps[si->responses], si->timestamps[si->responses - 1]);
+	  time_usec_diffs[si->responses - 1] = TIMEVAL_SUBTRACT(seq_send_times[si->responses], seq_send_times[si->responses - 1]);
+	  if (!time_usec_diffs[si->responses - 1]) time_usec_diffs[si->responses - 1]++; /* We divide by this later */
+	  /*	 printf("MOD_DIFF_USHORT(%hu, %hu) == %hu\n", si->ipids[si->responses], si->ipids[si->responses - 1], MOD_DIFF_USHORT(si->ipids[si->responses], si->ipids[si->responses - 1])); */
+	}
+
+	si->responses++;
+      } /* Otherwise nothing good in this slot to copy */
+    }
+     
+
+    si->ipid_seqclass = ipid_sequence(si->responses, si->ipids, 
+				      islocalhost(target->v4hostip()));
+
+    /* Now we look at TCP Timestamp sequence prediction */
+    /* Battle plan:
+       1) Compute average increments per second, and variance in incr. per second 
+       2) If any are 0, set to constant
+       3) If variance is high, set to random incr. [ skip for now ]
+       4) if ~10/second, set to appropriate thing
+       5) Same with ~100/sec
+    */
+    if (si->ts_seqclass == TS_SEQ_UNKNOWN && si->responses >= 2) {
+      avg_ts_hz = 0.0;
+      for(i=0; i < si->responses - 1; i++) {
+	double dhz;
+
+	dhz = (double) ts_diffs[i] / (time_usec_diffs[i] / 1000000.0);
+	/*       printf("ts incremented by %d in %li usec -- %fHZ\n", ts_diffs[i], time_usec_diffs[i], dhz); */
+	avg_ts_hz += dhz / ( si->responses - 1);
+      }
+
+      if (o.debugging)
+	printf("The avg TCP TS HZ is: %f\n", avg_ts_hz);
+     
+      if (avg_ts_hz > 0 && avg_ts_hz < 3.9) { /* relatively wide range because sampling time so short and frequency so slow */
+	si->ts_seqclass = TS_SEQ_2HZ;
+	si->lastboot = seq_send_times[0].tv_sec - (si->timestamps[0] / 2); 
+      }
+      else if (avg_ts_hz > 85 && avg_ts_hz < 115) {
+	si->ts_seqclass = TS_SEQ_100HZ;
+	si->lastboot = seq_send_times[0].tv_sec - (si->timestamps[0] / 100); 
+      }
+      else if (avg_ts_hz > 900 && avg_ts_hz < 1100) {
+	si->ts_seqclass = TS_SEQ_1000HZ;
+	si->lastboot = seq_send_times[0].tv_sec - (si->timestamps[0] / 1000); 
+      }
+      if (si->lastboot && (seq_send_times[0].tv_sec - si->lastboot > 63072000))
+	{
+	  /* Up 2 years?  Perhaps, but they're probably lying. */
+	  if (o.debugging) {
+	    error("Ignoring claimed uptime of %lu days", 
+		  (seq_send_times[0].tv_sec - si->lastboot) / 86400);
+	  }
+	  si->lastboot = 0;
+	}
+    }
+   
+    /* Time to look at the TCP ISN predictability */
+    if (si->responses >= 4 && o.scan_delay <= 1000) {
+      seq_gcd = gcd_n_uint(si->responses -1, seq_diffs);
+      /*     printf("The GCD is %u\n", seq_gcd);*/
+      if (seq_gcd) {     
+	for(i=0; i < si->responses - 1; i++)
+	  seq_diffs[i] /= seq_gcd;
+	for(i=0; i < si->responses - 1; i++) {     
+	  if (MOD_DIFF(si->seqs[i+1],si->seqs[i]) > 50000000) {
+	    si->seqclass = SEQ_TR;
+	    si->index = 9999999;
+	    /*	 printf("Target is a TR box\n");*/
+	    break;
+	  }	
+	  seq_avg_inc += seq_diffs[i];
+	}
+      }
+      if (seq_gcd == 0) {
+	si->seqclass = SEQ_CONSTANT;
+	si->index = 0;
+      } else if (seq_gcd % 64000 == 0) {
+	si->seqclass = SEQ_64K;
+	/*       printf("Target is a 64K box\n");*/
+	si->index = 1;
+      } else if (seq_gcd % 800 == 0) {
+	si->seqclass = SEQ_i800;
+	/*       printf("Target is a i800 box\n");*/
+	si->index = 10;
+      } else if (si->seqclass == SEQ_UNKNOWN) {
+	seq_avg_inc = (unsigned int) ((0.5) + seq_avg_inc / (si->responses - 1));
+	/*       printf("seq_avg_inc=%u\n", seq_avg_inc);*/
+	for(i=0; i < si->responses -1; i++)       {     
+
+	  /*	 printf("The difference is %u\n", seq_diffs[i]);
+		 printf("Adding %u^2=%e", MOD_DIFF(seq_diffs[i], seq_avg_inc), pow(MOD_DIFF(seq_diffs[i], seq_avg_inc), 2));*/
+	  /* pow() seems F#@!#$!ed up on some Linux systems so I will
+	     not use it for now 
+	     seq_inc_sum += pow(MOD_DIFF(seq_diffs[i], seq_avg_inc), 2);
+	  */	 
+	 
+	  seq_inc_sum += ((double)(MOD_DIFF(seq_diffs[i], seq_avg_inc)) * ((double)MOD_DIFF(seq_diffs[i], seq_avg_inc)));
+	  /*	 seq_inc_sum += pow(MOD_DIFF(seq_diffs[i], seq_avg_inc), 2);*/
+
+	}
+	/*       printf("The sequence sum is %e\n", seq_inc_sum);*/
+	seq_inc_sum /= (si->responses - 1);
+
+	/* Some versions of Linux libc seem to have broken pow ... so we
+	   avoid it */
+#ifdef LINUX       
+	si->index = (unsigned int) (0.5 + sqrt(seq_inc_sum));
+#else
+	si->index = (unsigned int) (0.5 + pow(seq_inc_sum, 0.5));
+#endif
+
+	/*       printf("The sequence index is %d\n", si->index);*/
+	if (si->index < 75) {
+	  si->seqclass = SEQ_TD;
+	  /*	 printf("Target is a Micro$oft style time dependant box\n");*/
+	}
+	else {
+	  si->seqclass = SEQ_RI;
+	  /*	 printf("Target is a random incremental box\n");*/
+	}
+      }
+      FPtests[0] = (FingerPrint *) safe_zalloc(sizeof(FingerPrint));
+      FPtests[0]->name = "TSeq";
+      seq_AVs = (struct AVal *) safe_zalloc(sizeof(struct AVal) * 5);
+      FPtests[0]->results = seq_AVs;
+      avnum = 0;
+      seq_AVs[avnum].attribute = "Class";
+      switch(si->seqclass) {
+      case SEQ_CONSTANT:
+	strcpy(seq_AVs[avnum].value, "C");
+	seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+	seq_AVs[avnum].attribute= "Val";     
+	sprintf(seq_AVs[avnum].value, "%X", si->seqs[0]);
+	break;
+      case SEQ_64K:
+	strcpy(seq_AVs[avnum].value, "64K");      
+	break;
+      case SEQ_i800:
+	strcpy(seq_AVs[avnum].value, "i800");
+	break;
+      case SEQ_TD:
+	strcpy(seq_AVs[avnum].value, "TD");
+	seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+	seq_AVs[avnum].attribute= "gcd";     
+	sprintf(seq_AVs[avnum].value, "%X", seq_gcd);
+	seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+	seq_AVs[avnum].attribute="SI";
+	sprintf(seq_AVs[avnum].value, "%X", si->index);
+	break;
+      case SEQ_RI:
+	strcpy(seq_AVs[avnum].value, "RI");
+	seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+	seq_AVs[avnum].attribute= "gcd";     
+	sprintf(seq_AVs[avnum].value, "%X", seq_gcd);
+	seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+	seq_AVs[avnum].attribute="SI";
+	sprintf(seq_AVs[avnum].value, "%X", si->index);
+	break;
+      case SEQ_TR:
+	strcpy(seq_AVs[avnum].value, "TR");
+	break;
+      }
+
+      /* IP ID Class */
+      switch(si->ipid_seqclass) {
+      case IPID_SEQ_CONSTANT:
+	seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+	seq_AVs[avnum].attribute = "IPID";
+	strcpy(seq_AVs[avnum].value, "C");
+	break;
+      case IPID_SEQ_INCR:
+	seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+	seq_AVs[avnum].attribute = "IPID";
+	strcpy(seq_AVs[avnum].value, "I");
+	break;
+      case IPID_SEQ_BROKEN_INCR:
+	seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+	seq_AVs[avnum].attribute = "IPID";
+	strcpy(seq_AVs[avnum].value, "BI");
+	break;
+      case IPID_SEQ_RPI:
+	seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+	seq_AVs[avnum].attribute = "IPID";
+	strcpy(seq_AVs[avnum].value, "RPI");
+	break;
+      case IPID_SEQ_RD:
+	seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+	seq_AVs[avnum].attribute = "IPID";
+	strcpy(seq_AVs[avnum].value, "RD");
+	break;
+      case IPID_SEQ_ZERO:
+	seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+	seq_AVs[avnum].attribute = "IPID";
+	strcpy(seq_AVs[avnum].value, "Z");
+	break;
+      }
+
+      /* TCP Timestamp option sequencing */
+      switch(si->ts_seqclass) {
+      case TS_SEQ_ZERO:
+	seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+	seq_AVs[avnum].attribute = "TS";
+	strcpy(seq_AVs[avnum].value, "0");
+	break;
+      case TS_SEQ_2HZ:
+	seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+	seq_AVs[avnum].attribute = "TS";
+	strcpy(seq_AVs[avnum].value, "2HZ");
+	break;
+      case TS_SEQ_100HZ:
+	seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+	seq_AVs[avnum].attribute = "TS";
+	strcpy(seq_AVs[avnum].value, "100HZ");
+	break;
+      case TS_SEQ_1000HZ:
+	seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+	seq_AVs[avnum].attribute = "TS";
+	strcpy(seq_AVs[avnum].value, "1000HZ");
+	break;
+      case TS_SEQ_UNSUPPORTED:
+	seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+	seq_AVs[avnum].attribute = "TS";
+	strcpy(seq_AVs[avnum].value, "U");
+	break;
+      }
+    }
+    else {
+      log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID,"Insufficient responses for TCP sequencing (%d), OS detection may be less accurate\n", si->responses);
+    }
+  } else {
+  }
+
+  for(i=0; i < 9; i++) {
+    if (i > 0 && !FPtests[i] && ((openport != (unsigned long) -1) || i > 4)) {
+      /* We create a Resp (response) attribute with value of N (no) because
+	 it is important here to note whether responses were or were not 
+	 received */
+      FPtests[i] = (FingerPrint *) safe_zalloc(sizeof(FingerPrint));
+      seq_AVs = (struct AVal *) safe_zalloc(sizeof(struct AVal));
+      seq_AVs->attribute = "Resp";
+      strcpy(seq_AVs->value, "N");
+      seq_AVs->next = NULL;
+      FPtests[i]->results = seq_AVs;
+      FPtests[i]->name =  (i == 1)? "T1" : (i == 2)? "T2" : (i == 3)? "T3" : (i == 4)? "T4" : (i == 5)? "T5" : (i == 6)? "T6" : (i == 7)? "T7" : "PU";
+    }
+  }
+  last = -1;
+  FP = NULL;
+  for(i=0; i < 9 ; i++) {
+    if (!FPtests[i]) continue; 
+    if (!FP) FP = FPtests[i];
+    if (last > -1) {
+      FPtests[last]->next = FPtests[i];    
+    }
+    last = i;
+  }
+  if (last) FPtests[last]->next = NULL;
+ 
+ osscan_timedout:
+  if (target->timedOut(NULL))
+    FP = NULL;
+  if (rawsd >= 0)
+    close(rawsd);
+  if (ethptr) {
+    eth_close(ethptr->ethsd);
+  }
+  pcap_close(pd);
+  return FP;
+}
+
+
 // Prints a note if observedFP has a classification and it is not in referenceFP
 // Returns 0 if they match, nonzero otherwise
 static int compareclassifications(FingerPrint *referenceFP, 
@@ -1008,6 +1153,105 @@ static int compareclassifications(FingerPrint *referenceFP,
   if (verbose)
     printf("Warning: Classification of observed fingerprint does not appear in reference fingerprint.\n");
   return 1;
+}
+
+static struct AVal *getattrbyname(struct AVal *AV, const char *name) {
+  if (!AV) return NULL;
+  do {
+    if (!strcmp(AV->attribute, name))
+      return AV;
+    AV = AV->next;
+  } while(AV);
+  return NULL;
+}
+
+static struct AVal *gettestbyname(FingerPrint *FP, const char *name) {
+
+  if (!FP) return NULL;
+  do {
+    if (!strcmp(FP->name, name))
+      return FP->results;
+    FP = FP->next;
+  } while(FP);
+  return NULL;
+}
+
+/* Returns true if perfect match -- if num_subtests &
+   num_subtests_succeeded are non_null it ADDS THE NEW VALUES to what
+   is already there.  So initialize them to zero first if you only
+   want to see the results from this match.  if shortcircuit is zero,
+   it does all the tests, otherwise it returns when the first one
+   fails. */
+static int AVal_match(struct AVal *reference, struct AVal *fprint, unsigned long *num_subtests, unsigned long *num_subtests_succeeded, int shortcut) {
+  struct AVal *current_ref;
+  struct AVal *current_fp;
+  unsigned int number;
+  unsigned int val;
+  char *p, *q;  /* OHHHH YEEEAAAAAHHHH!#!@#$!% */
+  char valcpy[512];
+  char *endptr;
+  int andexp, orexp, expchar, numtrue;
+  int testfailed;
+  int subtests = 0, subtests_succeeded=0;
+
+  for(current_ref = reference; current_ref; current_ref = current_ref->next) {
+    current_fp = getattrbyname(fprint, current_ref->attribute);    
+    if (!current_fp) continue;
+    /* OK, we compare an attribute value in  current_fp->value to a 
+       potentially large expression in current_ref->value.  The syntax uses
+       < (less than), > (greather than), + (non-zero), | (or), and & (and) 
+       No parenthesis are allowed and an expression cannot have | AND & */
+    numtrue = andexp = orexp = 0; testfailed = 0;
+    Strncpy(valcpy, current_ref->value, sizeof(valcpy));
+    p = valcpy;
+    if (strchr(current_ref->value, '|')) {
+      orexp = 1; expchar = '|';
+    } else {
+      andexp = 1; expchar = '&';
+    }
+    do {
+      q = strchr(p, expchar);
+      if (q) *q = '\0';
+      if (strcmp(p, "+") == 0) {
+	if (!*current_fp->value) { if (andexp) { testfailed=1; break; } }
+	else {
+	  val = strtol(current_fp->value, &endptr, 16);
+	  if (val == 0 || *endptr) { if (andexp) { testfailed=1; break; } }
+	  else { numtrue++; if (orexp) break; }
+	}
+      } else if (*p == '<' && isxdigit((int) p[1])) {
+	if (!*current_fp->value) { if (andexp) { testfailed=1; break; } }
+	number = strtol(p + 1, &endptr, 16);
+	val = strtol(current_fp->value, &endptr, 16);
+	if (val >= number || *endptr) { if (andexp)  { testfailed=1; break; } }
+	else { numtrue++; if (orexp) break; }
+      } else if (*p == '>' && isxdigit((int) p[1])) {
+	if (!*current_fp->value) { if (andexp) { testfailed=1; break; } }
+	number = strtol(p + 1, &endptr, 16);
+	val = strtol(current_fp->value, &endptr, 16);
+	if (val <= number || *endptr) { if (andexp) { testfailed=1; break; } }
+	else { numtrue++; if (orexp) break; }
+      }
+      else {
+	if (strcmp(p, current_fp->value))
+	  { if (andexp) { testfailed=1; break; } }
+	else { numtrue++; if (orexp) break; }
+      }
+      if (q) p = q + 1;
+    } while(q);
+      if (numtrue == 0) testfailed=1;
+      subtests++;
+      if (testfailed) {
+	if (shortcut) {
+	  if (num_subtests) *num_subtests += subtests;
+	  return 0;
+	}
+      } else subtests_succeeded++;
+      /* Whew, we made it past one Attribute alive , on to the next! */
+  }
+  if (num_subtests) *num_subtests += subtests;
+  if (num_subtests_succeeded) *num_subtests_succeeded += subtests_succeeded;
+  return (subtests == subtests_succeeded)? 1 : 0;
 }
 
 /* Compares 2 fingerprints -- a referenceFP (can have expression
@@ -1155,108 +1399,6 @@ void match_fingerprint(FingerPrint *FP, FingerPrintResults *FPR,
   return;
 }
 
-struct AVal *gettestbyname(FingerPrint *FP, const char *name) {
-
-  if (!FP) return NULL;
-  do {
-    if (!strcmp(FP->name, name))
-      return FP->results;
-    FP = FP->next;
-  } while(FP);
-  return NULL;
-}
-
-struct AVal *getattrbyname(struct AVal *AV, const char *name) {
-
-  if (!AV) return NULL;
-  do {
-    if (!strcmp(AV->attribute, name))
-      return AV;
-    AV = AV->next;
-  } while(AV);
-  return NULL;
-}
-
-
-/* Returns true if perfect match -- if num_subtests &
-   num_subtests_succeeded are non_null it ADDS THE NEW VALUES to what
-   is already there.  So initialize them to zero first if you only
-   want to see the results from this match.  if shortcircuit is zero,
-   it does all the tests, otherwise it returns when the first one
-   fails. */
-int AVal_match(struct AVal *reference, struct AVal *fprint, unsigned long *num_subtests, unsigned long *num_subtests_succeeded, int shortcut) {
-  struct AVal *current_ref;
-  struct AVal *current_fp;
-  unsigned int number;
-  unsigned int val;
-  char *p, *q;  /* OHHHH YEEEAAAAAHHHH!#!@#$!% */
-  char valcpy[512];
-  char *endptr;
-  int andexp, orexp, expchar, numtrue;
-  int testfailed;
-  int subtests = 0, subtests_succeeded=0;
-
-  for(current_ref = reference; current_ref; current_ref = current_ref->next) {
-    current_fp = getattrbyname(fprint, current_ref->attribute);    
-    if (!current_fp) continue;
-    /* OK, we compare an attribute value in  current_fp->value to a 
-       potentially large expression in current_ref->value.  The syntax uses
-       < (less than), > (greather than), + (non-zero), | (or), and & (and) 
-       No parenthesis are allowed and an expression cannot have | AND & */
-    numtrue = andexp = orexp = 0; testfailed = 0;
-    Strncpy(valcpy, current_ref->value, sizeof(valcpy));
-    p = valcpy;
-    if (strchr(current_ref->value, '|')) {
-      orexp = 1; expchar = '|';
-    } else {
-      andexp = 1; expchar = '&';
-    }
-    do {
-      q = strchr(p, expchar);
-      if (q) *q = '\0';
-      if (strcmp(p, "+") == 0) {
-	if (!*current_fp->value) { if (andexp) { testfailed=1; break; } }
-	else {
-	  val = strtol(current_fp->value, &endptr, 16);
-	  if (val == 0 || *endptr) { if (andexp) { testfailed=1; break; } }
-	  else { numtrue++; if (orexp) break; }
-	}
-      } else if (*p == '<' && isxdigit((int) p[1])) {
-	if (!*current_fp->value) { if (andexp) { testfailed=1; break; } }
-	number = strtol(p + 1, &endptr, 16);
-	val = strtol(current_fp->value, &endptr, 16);
-	if (val >= number || *endptr) { if (andexp)  { testfailed=1; break; } }
-	else { numtrue++; if (orexp) break; }
-      } else if (*p == '>' && isxdigit((int) p[1])) {
-	if (!*current_fp->value) { if (andexp) { testfailed=1; break; } }
-	number = strtol(p + 1, &endptr, 16);
-	val = strtol(current_fp->value, &endptr, 16);
-	if (val <= number || *endptr) { if (andexp) { testfailed=1; break; } }
-	else { numtrue++; if (orexp) break; }
-      }
-      else {
-	if (strcmp(p, current_fp->value))
-	  { if (andexp) { testfailed=1; break; } }
-	else { numtrue++; if (orexp) break; }
-      }
-      if (q) p = q + 1;
-    } while(q);
-      if (numtrue == 0) testfailed=1;
-      subtests++;
-      if (testfailed) {
-	if (shortcut) {
-	  if (num_subtests) *num_subtests += subtests;
-	  return 0;
-	}
-      } else subtests_succeeded++;
-      /* Whew, we made it past one Attribute alive , on to the next! */
-  }
-  if (num_subtests) *num_subtests += subtests;
-  if (num_subtests_succeeded) *num_subtests_succeeded += subtests_succeeded;
-  return (subtests == subtests_succeeded)? 1 : 0;
-}
-
-
 void freeFingerPrint(FingerPrint *FP) {
 FingerPrint *currentFP;
 FingerPrint *nextFP;
@@ -1389,7 +1531,7 @@ o.scantype = OS_SCAN;
    top of a fingerprint.  Gives info which might be useful when the
    FPrint is submitted (eg Nmap version, etc).  Result is written (up
    to ostrlen) to the ostr var passed in */
-void WriteSInfo(char *ostr, int ostrlen, int openport, int closedport, 
+static void WriteSInfo(char *ostr, int ostrlen, int openport, int closedport, 
 		const u8 *mac) {
   struct tm *ltime;
   time_t timep;
@@ -1406,6 +1548,7 @@ void WriteSInfo(char *ostr, int ostrlen, int openport, int closedport,
 	   NMAP_VERSION, NMAP_PLATFORM, ltime->tm_mon + 1, ltime->tm_mday, 
 	   (int) timep, openport, closedport, macbuf);
 }
+
 
 char *mergeFPs(FingerPrint *FPs[], int numFPs, int openport, int closedport, 
 	       const u8 *mac) {
@@ -1514,8 +1657,8 @@ return str;
 /* Parse a 'Class' line found in the fingerprint file into the current
    FP.  Classno is the number of 'class' lines found so far in the
    current fingerprint.  The function quits if there is a parse error */
-
-void parse_classline(FingerPrint *FP, char *thisline, int lineno, int *classno) {
+static void parse_classline(FingerPrint *FP, char *thisline, int lineno, 
+			    int *classno) {
   char *p, *q;
 
   fflush(stdout);
@@ -1612,6 +1755,42 @@ void parse_classline(FingerPrint *FP, char *thisline, int lineno, int *classno) 
   (*classno)++;
   FP->num_OS_Classifications++;
 
+}
+
+static struct AVal *str2AVal(char *str) {
+  int i = 1;
+  int count = 1;
+  char *q = str, *p=str;
+  struct AVal *AVs;
+  if (!*str) return NULL;
+
+  /* count the AVals */
+  while((q = strchr(q, '%'))) {
+    count++;
+    q++;
+  }
+
+  AVs = (struct AVal *) safe_zalloc(count * sizeof(struct AVal));
+  for(i=0; i < count; i++) {
+    q = strchr(p, '=');
+    if (!q) {
+      fatal("Parse error with AVal string (%s) in nmap-os-fingerprints file", str);
+    }
+    *q = '\0';
+    AVs[i].attribute = strdup(p);
+    p = q+1;
+    if (i != count - 1) {
+      q = strchr(p, '%');
+      if (!q) {
+	fatal("Parse error with AVal string (%s) in nmap-os-fingerprints file", str);
+      }
+      *q = '\0';
+      AVs[i].next = &AVs[i+1];
+    }
+    Strncpy(AVs[i].value, p, sizeof(AVs[i].value)); 
+    p = q + 1;
+  }
+  return AVs;
 }
 
 /* Parses a single fingerprint from the memory region given.  If a
@@ -1791,192 +1970,6 @@ if (nmap_fetchfile(filename, sizeof(filename), "nmap-os-fingerprints") == -1){
 }
 
 return parse_fingerprint_file(filename);
-}
-
-struct AVal *str2AVal(char *str) {
-int i = 1;
-int count = 1;
-char *q = str, *p=str;
-struct AVal *AVs;
-if (!*str) return NULL;
-
-/* count the AVals */
-while((q = strchr(q, '%'))) {
-  count++;
-  q++;
-}
-
-AVs = (struct AVal *) safe_zalloc(count * sizeof(struct AVal));
-for(i=0; i < count; i++) {
-  q = strchr(p, '=');
-  if (!q) {
-    fatal("Parse error with AVal string (%s) in nmap-os-fingerprints file", str);
-  }
-  *q = '\0';
-  AVs[i].attribute = strdup(p);
-  p = q+1;
-  if (i != count - 1) {
-    q = strchr(p, '%');
-    if (!q) {
-      fatal("Parse error with AVal string (%s) in nmap-os-fingerprints file", str);
-    }
-    *q = '\0';
-    AVs[i].next = &AVs[i+1];
-  }
-  Strncpy(AVs[i].value, p, sizeof(AVs[i].value)); 
-  p = q + 1;
-}
-return AVs;
-}
-
-
-struct AVal *fingerprint_portunreach(struct ip *ip, struct udpprobeinfo *upi) {
-struct icmp *icmp;
-struct ip *ip2;
-int numtests = 10;
-unsigned short checksum;
-unsigned short *checksumptr;
-udphdr_bsd *udp;
-struct AVal *AVs;
-int i;
-int current_testno = 0;
-unsigned char *datastart, *dataend;
-
-/* The very first thing we do is make sure this is the correct
-   response */
-if (ip->ip_p != IPPROTO_ICMP) {
-  error("fingerprint_portunreach handed a non-ICMP packet!");
-  return NULL;
-}
-
-if (ip->ip_src.s_addr != upi->target.s_addr)
-  return NULL;  /* Not the person we sent to */
-
-icmp = ((struct icmp *)  (((char *) ip) + 4 * ip->ip_hl));
-if (icmp->icmp_type != 3 || icmp->icmp_code != 3)
-  return NULL; /* Not a port unreachable */
-
-ip2 = (struct ip*) ((char *)icmp + 8);
-udp = (udphdr_bsd *) ((char *)ip2 + 20);
-
-/* The ports better match as well ... */
-if (ntohs(udp->uh_sport) != upi->sport || ntohs(udp->uh_dport) != upi->dport) {
-  return NULL;
-}
-
-/* Create the Avals */
-AVs = (struct AVal *) safe_zalloc(numtests * sizeof(struct AVal));
-
-/* Link them together */
-for(i=0; i < numtests - 1; i++)
-  AVs[i].next = &AVs[i+1];
-
-/* First of all, if we got this far the response was yes */
-AVs[current_testno].attribute = "Resp";
-strcpy(AVs[current_testno].value, "Y");
-
-current_testno++;
-
-/* Now let us do an easy one, Don't fragment */
-AVs[current_testno].attribute = "DF";
-  if(ntohs(ip->ip_off) & 0x4000) {
-    strcpy(AVs[current_testno].value,"Y");
-  } else strcpy(AVs[current_testno].value, "N");
-
-current_testno++;
-
-/* Now lets do TOS of the response (note, I've never seen this be
-   useful */
-AVs[current_testno].attribute = "TOS";
-sprintf(AVs[current_testno].value, "%hX", ip->ip_tos);
-
-current_testno++;
-
-/* Now we look at the IP datagram length that was returned, some
-   machines send more of the original packet back than others */
-AVs[current_testno].attribute = "IPLEN";
-sprintf(AVs[current_testno].value, "%hX", ntohs(ip->ip_len));
-
-current_testno++;
-
-/* OK, lets check the returned IP length, some systems @$@ this
-   up */
-AVs[current_testno].attribute = "RIPTL";
-sprintf(AVs[current_testno].value, "%hX", ntohs(ip2->ip_len));
-
-current_testno++;
-
-/* This next test doesn't work on Solaris because the lamers
-   overwrite our ip_id */
-#if !defined(SOLARIS) && !defined(SUNOS) && !defined(IRIX) && !defined(HPUX)
-
-/* Now lets see how they treated the ID we sent ... */
-AVs[current_testno].attribute = "RID";
-if (ntohs(ip2->ip_id) == 0)
-  strcpy(AVs[current_testno].value, "0");
-else if (ip2->ip_id == upi->ipid)
-  strcpy(AVs[current_testno].value, "E"); /* The "expected" value */
-else strcpy(AVs[current_testno].value, "F"); /* They fucked it up */
-
-current_testno++;
-
-#endif
-
-/* Let us see if the IP checksum we got back computes */
-
-AVs[current_testno].attribute = "RIPCK";
-/* Thanks to some machines not having struct ip member ip_sum we
-   have to go with this BS */
-checksumptr = (unsigned short *)   ((char *) ip2 + 10);
-checksum =   *checksumptr;
-
-if (checksum == 0)
-  strcpy(AVs[current_testno].value, "0");
-else {
-  *checksumptr = 0;
-  if (in_cksum((unsigned short *)ip2, 20) == checksum) {
-    strcpy(AVs[current_testno].value, "E"); /* The "expected" value */
-  } else {
-    strcpy(AVs[current_testno].value, "F"); /* They fucked it up */
-  }
-  *checksumptr = checksum;
-}
-
-current_testno++;
-
-/* UDP checksum */
-AVs[current_testno].attribute = "UCK";
-if (udp->uh_sum == 0)
-  strcpy(AVs[current_testno].value, "0");
-else if (udp->uh_sum == upi->udpck)
-  strcpy(AVs[current_testno].value, "E"); /* The "expected" value */
-else strcpy(AVs[current_testno].value, "F"); /* They fucked it up */
-
-current_testno++;
-
-/* UDP length ... */
-AVs[current_testno].attribute = "ULEN";
-sprintf(AVs[current_testno].value, "%hX", ntohs(udp->uh_ulen));
-
-current_testno++;
-
-/* Finally we ensure the data is OK */
-datastart = ((unsigned char *)udp) + 8;
-dataend = (unsigned char *)  ip + ntohs(ip->ip_len);
-
-while(datastart < dataend) {
-  if (*datastart != upi->patternbyte) break;
-  datastart++;
-}
-AVs[current_testno].attribute = "DAT";
-if (datastart < dataend)
-  strcpy(AVs[current_testno].value, "F"); /* They fucked it up */
-else  
-  strcpy(AVs[current_testno].value, "E");
-
-AVs[current_testno].next = NULL;
-
-return AVs;
 }
 
 /* This function takes an array of "numSamples" IP IDs and analyzes

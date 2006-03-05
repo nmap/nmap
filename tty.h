@@ -97,15 +97,15 @@
  ***************************************************************************/
 
 /*
- * Initializes the terminal for unbuffered non-blocking input. Also registers
- * tty_done() via atexit().
+ * Initializes the terminal for unbuffered non-blocking input. Also
+ * registers tty_done() via atexit().  You need to call this before
+ * you ever call keyWasPressed().
  */
 void tty_init();
 
-/*
- * Restores the terminal parameters and closes the file descriptor.
- */
-void tty_done();
-
-/* This is the best method here. It will catch all of the predefined keypresses and interpret them, and it will also tell you if you should print anything. A value of true being returned means a nonstandard key has been pressed and the calling method should print a status message */
+/* Catches all of the predefined keypresses and interpret them, and it
+   will also tell you if you should print anything. A value of true
+   being returned means a nonstandard key has been pressed and the
+   calling method should print a status message */
 bool keyWasPressed();
+

@@ -1,4 +1,14 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o Made some changes to various Nmap initialization functions which
+  help ALT Linux (altlinux.org) developers run Nmap in a chroot
+  environment.  Thanks to Dmitry V. Levin (ldv(a)altlinux.org) for the
+  patch.
+
+o Cleaned up the code a bit by making a bunch (nearly 100) global
+  symols (mostly function calls) static.  I was also able to removed
+  some unused functions.  Thanks to Dmitry V. Levin (ldv(a)altlinux.org)
+  for sending a list of candidate symbols.
+
 Nmap 4.02ALPHA1
 
 o Added the --log-errors option, which causes most warnings and error

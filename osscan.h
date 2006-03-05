@@ -120,11 +120,6 @@
 
 /**********************  PROTOTYPES  ***********************************/
 int os_scan(Target *target);
-FingerPrint *get_fingerprint(Target *target, struct seq_info *si);
-struct AVal *fingerprint_iptcppacket(struct ip *ip, int mss, unsigned int syn);
-struct AVal *fingerprint_portunreach(struct ip *ip, struct udpprobeinfo *upi);
-unsigned int get_gcd_n_ulong(int numvalues, unsigned int *values);
-unsigned int euclid_gcd(unsigned int a, unsigned int b);
 char *fp2ascii(FingerPrint *FP);
 
 /* Parses a single fingerprint from the memory region given.  If a
@@ -151,29 +146,12 @@ double compare_fingerprints(FingerPrint *referenceFP, FingerPrint *observedFP,
    FingerPrintResults class.  */
 void match_fingerprint(FingerPrint *FP, FingerPrintResults *FPR, 
 		       FingerPrint **reference_FPs, double accuracy_threshold);
-struct AVal *str2AVal(char *p);
-struct AVal *gettestbyname(FingerPrint *FP, const char *name);
 
 /* Returns true if perfect match -- if num_subtests & num_subtests_succeeded are non_null it updates them.  if shortcircuit is zero, it does all the tests, otherwise it returns when the first one fails */
-
-/* Returns true if perfect match -- if num_subtests &
-   num_subtests_succeeded are non_null it ADDS THE NEW VALUES to what
-   is already there.  So initialize them to zero first if you only
-   want to see the results from this match.  if shortcircuit is zero,
-   it does all the tests, otherwise it returns when the first one
-   fails */
-int AVal_match(struct AVal *reference, struct AVal *fprint, unsigned long *num_subtests, unsigned long *num_subtests_succeeded, int shortcut);
 
 void freeFingerPrint(FingerPrint *FP);
 char *mergeFPs(FingerPrint *FPs[], int numFPs, int openport, int closedport,
 	       const u8 *mac);
-
-/* Writes an informational "Test" result suitable for including at the
-   top of a fingerprint.  Gives info which might be useful when the
-   FPrint is submitted (eg Nmap version, etc).  Result is written (up
-   to ostrlen) to the ostr var passed in */
-void WriteSInfo(char *ostr, int ostrlen, int openport, int closedport, 
-		const u8 *mac);
 
 /* This function takes an array of "numSamples" IP IDs and analyzes
  them to determine their sequenceability classification.  It returns

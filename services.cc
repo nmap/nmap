@@ -103,12 +103,14 @@
 #include "NmapOps.h"
 
 extern NmapOps o;
-static int services_initialized = 0;
 static int numtcpports = 0;
 static int numudpports = 0;
 static struct service_list *service_table[SERVICE_TABLE_SIZE];
 
 static int nmap_services_init() {
+  static int services_initialized = 0;
+  if (services_initialized) return 0;
+
   char filename[512];
   FILE *fp;
   char servicename[128], proto[16];
@@ -216,9 +218,8 @@ static int nmap_services_init() {
 struct servent *nmap_getservbyport(int port, const char *proto) {
   struct service_list *current;
 
-  if (!services_initialized)
-    if (nmap_services_init() == -1)
-      return NULL;
+  if (nmap_services_init() == -1)
+    return NULL;
 
   for(current = service_table[port % SERVICE_TABLE_SIZE];
       current; current = current->next) {
@@ -244,9 +245,8 @@ struct scan_lists *getdefaultports(int tcpscan, int udpscan) {
   int tcpportsneeded = 0;
   int udpportsneeded = 0;
 
-  if (!services_initialized)
-    if (nmap_services_init() == -1)
-      fatal("Getfastports: Couldn't get port numbers");
+  if (nmap_services_init() == -1)
+    fatal("Getfastports: Couldn't get port numbers");
   
   usedports = (u8 *) safe_zalloc(sizeof(*usedports) * 65536);
 
@@ -308,9 +308,8 @@ struct scan_lists *getfastports(int tcpscan, int udpscan) {
   int tcpportsneeded = 0;
   int udpportsneeded = 0;
 
-  if (!services_initialized)
-    if (nmap_services_init() == -1)
-      fatal("Getfastports: Couldn't get port numbers");
+  if (nmap_services_init() == -1)
+    fatal("Getfastports: Couldn't get port numbers");
   
   usedports = (u8 *) safe_zalloc(sizeof(*usedports) * 65536);
 

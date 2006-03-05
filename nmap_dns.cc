@@ -199,7 +199,7 @@ extern NmapOps o;
 
 // In milliseconds
 // Each row MUST be terminated with -1
-int read_timeouts[][4] = {
+static int read_timeouts[][4] = {
   { 4000, 4000, 5000, -1 }, // 1 server
   { 2500, 4000,   -1, -1 }, // 2 servers
   { 2500, 3000,   -1, -1 }, // 3+ servers
@@ -275,7 +275,6 @@ static std::list<request *> cname_reqs;
 static int total_reqs;
 static nsock_pool dnspool=NULL;
 
-static int etchosts_filled=0;
 static std::list<host_elem *> etchosts[HASH_TABLE_SIZE];
 
 static int stat_actual, stat_ok, stat_nx, stat_sf, stat_trans, stat_dropped, stat_cname;
@@ -288,10 +287,7 @@ static ScanProgressMeter *SPM;
 
 //------------------- Prototypes and macros ---------------------
 
-void close_dns_servers();
-void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v);
-void do_possible_writes();
-int deal_with_timedout_reads();
+void put_dns_packet_on_wire(request *req);
 
 #define ACTION_FINISHED 0
 #define ACTION_CNAME_LIST 1
@@ -301,7 +297,7 @@ int deal_with_timedout_reads();
 
 //------------------- Misc code --------------------- 
 
-void output_summary() {
+static void output_summary() {
   int tp = stat_ok + stat_nx + stat_dropped;
   struct timeval now;
 
@@ -314,22 +310,206 @@ void output_summary() {
                     (unsigned long) servs.size(), stat_ok, stat_nx, stat_dropped, stat_sf, stat_trans);
 }
 
-
-void check_capacities(dns_server *tpserv) {
+static void check_capacities(dns_server *tpserv) {
   if (tpserv->capacity < CAPACITY_MIN) tpserv->capacity = CAPACITY_MIN;
   if (tpserv->capacity > CAPACITY_MAX) tpserv->capacity = CAPACITY_MAX;
   if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "CAPACITY <%s> = %d\n", tpserv->hostname, tpserv->capacity);
 }
 
+// Closes all nsis created in connect_dns_servers()
+static void close_dns_servers() {
+  std::list<dns_server *>::iterator serverI;
+
+  for(serverI = servs.begin(); serverI != servs.end(); serverI++) {
+    if ((*serverI)->connected) {
+      nsi_delete((*serverI)->nsd, NSOCK_PENDING_SILENT);
+      (*serverI)->connected = 0;
+      (*serverI)->to_process.clear();
+      (*serverI)->in_process.clear();
+    }
+  }
+}
 
 
+// Inserts an integer (endian non-specifically) into a DNS packet.
+// Returns number of bytes written
+static int add_integer_to_dns_packet(char *packet, int c) {
+  char tpnum[4];
+  int tplen;
 
-//------------------- Read handling code ---------------------
+  sprintf(tpnum, "%d", c);
+  tplen = strlen(tpnum);
+  packet[0] = (char) tplen;
+  memcpy(packet+1, tpnum, tplen);
+
+  return tplen+1;
+}
+
+// Puts as many packets on the line as capacity will allow
+static void do_possible_writes() {
+  std::list<dns_server *>::iterator servI;
+  dns_server *tpserv;
+  request *tpreq;
+
+  for(servI = servs.begin(); servI != servs.end(); servI++) {
+    tpserv = *servI;
+
+    if (tpserv->write_busy == 0 && tpserv->reqs_on_wire < tpserv->capacity) {
+      tpreq = NULL;
+      if (!tpserv->to_process.empty()) {
+        tpreq = tpserv->to_process.front();
+        tpserv->to_process.pop_front();
+      } else if (!new_reqs.empty()) {
+        tpreq = new_reqs.front();
+        tpreq->first_server = tpreq->curr_server = tpserv;
+        new_reqs.pop_front();
+      }
+
+      if (tpreq) {
+        if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: TRANSMITTING for <%s> (server <%s>)\n", tpreq->targ->targetipstr() , tpserv->hostname);
+        stat_trans++;
+        put_dns_packet_on_wire(tpreq);
+      }
+    }
+  }
+}
+
+// nsock write handler
+static void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
+  request *req = (request *) req_v;
+
+  req->curr_server->write_busy = 0;
+  req->curr_server->in_process.push_front(req);
+
+  do_possible_writes();
+}
+
+// Takes a DNS request structure and actually puts it on the wire
+// (calls nsock_write()). Does various other tasks like recording
+// the time for the timeout.
+void put_dns_packet_on_wire(request *req) {
+  char packet[512];
+  int plen=0;
+  u32 ip;
+  struct timeval now, timeout;
+
+  ip = (u32) ntohl(req->targ->v4host().s_addr);
+
+  packet[0] = (req->id >> 8) & 0xFF;
+  packet[1] = req->id & 0xFF;
+  plen += 2;
+
+  memcpy(packet+plen, "\x01\x00\x00\x01\x00\x00\x00\x00\x00\x00", 10);
+  plen += 10;
+
+  plen += add_integer_to_dns_packet(packet+plen, ip & 0xFF);
+  plen += add_integer_to_dns_packet(packet+plen, (ip>>8) & 0xFF);
+  plen += add_integer_to_dns_packet(packet+plen, (ip>>16) & 0xFF);
+  plen += add_integer_to_dns_packet(packet+plen, (ip>>24) & 0xFF);
+
+  memcpy(packet+plen, "\x07in-addr\004arpa\x00\x00\x0c\x00\x01", 18);
+  plen += 18;
+
+  req->curr_server->write_busy = 1;
+  req->curr_server->reqs_on_wire++;
+
+  memcpy(&now, nsock_gettimeofday(), sizeof(struct timeval));
+  TIMEVAL_MSEC_ADD(timeout, now, read_timeouts[read_timeout_index][req->tries]);
+  memcpy(&req->timeout, &timeout, sizeof(struct timeval));
+
+  req->tries++;
+
+  nsock_write(dnspool, req->curr_server->nsd, write_evt_handler, WRITE_TIMEOUT, req, packet, plen);
+}
+
+// Processes DNS packets that have timed out
+// Returns time until next read timeout
+static int deal_with_timedout_reads() {
+  std::list<dns_server *>::iterator servI;
+  std::list<dns_server *>::iterator servItemp;
+  std::list<request *>::iterator reqI;
+  std::list<request *>::iterator nextI;
+  dns_server *tpserv;
+  request *tpreq;
+  struct timeval now;
+  int tp, min_timeout = INT_MAX;
+
+  memcpy(&now, nsock_gettimeofday(), sizeof(struct timeval));
+
+  if (keyWasPressed())
+    SPM->printStats((double) (stat_ok + stat_nx + stat_dropped) / stat_actual, &now);
+
+  for(servI = servs.begin(); servI != servs.end(); servI++) {
+    tpserv = *servI;
+
+    nextI = tpserv->in_process.begin();
+    if (nextI == tpserv->in_process.end()) continue;
+
+    do {
+      reqI = nextI++;
+      tpreq = *reqI;
+
+      tp = TIMEVAL_MSEC_SUBTRACT(tpreq->timeout, now);
+      if (tp > 0 && tp < min_timeout) min_timeout = tp;
+
+      if (tp <= 0) {
+        tpserv->capacity = (int) (tpserv->capacity * CAPACITY_MINOR_DOWN_SCALE);
+        check_capacities(tpserv);
+        tpserv->in_process.erase(reqI);
+        tpserv->reqs_on_wire--;
+
+        // If we've tried this server enough times, move to the next one
+        if (read_timeouts[read_timeout_index][tpreq->tries] == -1) {
+          tpserv->capacity = (int) (tpserv->capacity * CAPACITY_MAJOR_DOWN_SCALE);
+          check_capacities(tpserv);
+
+          servItemp = servI;
+          servItemp++;
+
+          if (servItemp == servs.end()) servItemp = servs.begin();
+
+          tpreq->curr_server = *servItemp;
+          tpreq->tries = 0;
+          tpreq->servers_tried++;
+
+          if (tpreq->curr_server == tpreq->first_server || tpreq->servers_tried == SERVERS_TO_TRY) {
+            // Either give up on the IP
+            // or, for maximum reliability, put the server back into processing
+            // Note it's possible that this will never terminate.
+            // FIXME: Find a good compromise
+
+            // **** We've already tried all servers... give up
+            if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: *DR*OPPING <%s>\n", tpreq->targ->targetipstr());
+
+            output_summary();
+            stat_dropped++;
+            total_reqs--;
+            delete tpreq;
+
+            // **** OR We start at the back of this server's queue
+            //(*servItemp)->to_process.push_back(tpreq);
+          } else {
+            (*servItemp)->to_process.push_back(tpreq);
+          }
+        } else {
+          tpserv->to_process.push_back(tpreq);
+        }
+
+    }
+
+    } while (nextI != tpserv->in_process.end());
+
+  }
+
+  if (min_timeout > 500) return 500;
+  else return min_timeout;
+
+}
 
 // After processing a DNS response, we search through the IPs we're
 // looking for and update their results as necessary.
 // Returns non-zero if this matches a query we're looking for
-int process_result(u32 ia, char *result, int action, u16 id) {
+static int process_result(u32 ia, char *result, int action, u16 id) {
   std::list<dns_server *>::iterator servI;
   std::list<request *>::iterator reqI;
   dns_server *tpserv;
@@ -381,7 +561,7 @@ int process_result(u32 ia, char *result, int action, u16 id) {
 // encoded string inside a packet.
 // maxlen is the very maximum length (in total bytes)
 // that should be processed
-u32 parse_inaddr_arpa(unsigned char *buf, int maxlen) {
+static u32 parse_inaddr_arpa(unsigned char *buf, int maxlen) {
   u32 ip=0;
   int i, j;
 
@@ -431,7 +611,7 @@ int encoded_name_to_normal(unsigned char *buf, char *output, int outputsize){
 
 // Takes a pointer to the start of a DNS name inside a packet. It makes
 // sure that there is enough space in the name, deals with compression, etc.
-int advance_past_dns_name(u8 *buf, int buflen, int curbuf, 
+static int advance_past_dns_name(u8 *buf, int buflen, int curbuf, 
 			  int *nameloc) {
   int compression=0;
 
@@ -458,10 +638,9 @@ int advance_past_dns_name(u8 *buf, int buflen, int curbuf,
   else return curbuf+1;
 }
 
-
 // Nsock read handler. One nsock read for each DNS server exists at each
 // time. This function uses various helper functions as defined above.
-void read_evt_handler(nsock_pool nsp, nsock_event evt, void *nothing) {
+static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *nothing) {
   u8 *buf;
   int buflen, curbuf=0;
   int i, nameloc, rdlen, atype, aclass;
@@ -592,205 +771,14 @@ void read_evt_handler(nsock_pool nsp, nsock_event evt, void *nothing) {
 }
 
 
-
-
-//------------------- Write handling code ---------------------
-
-// Inserts an integer (endian non-specifically) into a DNS packet.
-// Returns number of bytes written
-int add_integer_to_dns_packet(char *packet, int c) {
-  char tpnum[4];
-  int tplen;
-
-  sprintf(tpnum, "%d", c);
-  tplen = strlen(tpnum);
-  packet[0] = (char) tplen;
-  memcpy(packet+1, tpnum, tplen);
-
-  return tplen+1;
-}
-
-
-// Takes a DNS request structure and actually puts it on the wire
-// (calls nsock_write()). Does various other tasks like recording
-// the time for the timeout.
-void put_dns_packet_on_wire(request *req) {
-  char packet[512];
-  int plen=0;
-  u32 ip;
-  struct timeval now, timeout;
-
-  ip = (u32) ntohl(req->targ->v4host().s_addr);
-
-  packet[0] = (req->id >> 8) & 0xFF;
-  packet[1] = req->id & 0xFF;
-  plen += 2;
-
-  memcpy(packet+plen, "\x01\x00\x00\x01\x00\x00\x00\x00\x00\x00", 10);
-  plen += 10;
-
-  plen += add_integer_to_dns_packet(packet+plen, ip & 0xFF);
-  plen += add_integer_to_dns_packet(packet+plen, (ip>>8) & 0xFF);
-  plen += add_integer_to_dns_packet(packet+plen, (ip>>16) & 0xFF);
-  plen += add_integer_to_dns_packet(packet+plen, (ip>>24) & 0xFF);
-
-  memcpy(packet+plen, "\x07in-addr\004arpa\x00\x00\x0c\x00\x01", 18);
-  plen += 18;
-
-  req->curr_server->write_busy = 1;
-  req->curr_server->reqs_on_wire++;
-
-  memcpy(&now, nsock_gettimeofday(), sizeof(struct timeval));
-  TIMEVAL_MSEC_ADD(timeout, now, read_timeouts[read_timeout_index][req->tries]);
-  memcpy(&req->timeout, &timeout, sizeof(struct timeval));
-
-  req->tries++;
-
-  nsock_write(dnspool, req->curr_server->nsd, write_evt_handler, WRITE_TIMEOUT, req, packet, plen);
-}
-
-
-
-
-// Processes DNS packets that have timed out
-// Returns time until next read timeout
-int deal_with_timedout_reads() {
-  std::list<dns_server *>::iterator servI;
-  std::list<dns_server *>::iterator servItemp;
-  std::list<request *>::iterator reqI;
-  std::list<request *>::iterator nextI;
-  dns_server *tpserv;
-  request *tpreq;
-  struct timeval now;
-  int tp, min_timeout = INT_MAX;
-
-  memcpy(&now, nsock_gettimeofday(), sizeof(struct timeval));
-
-  if (keyWasPressed())
-    SPM->printStats((double) (stat_ok + stat_nx + stat_dropped) / stat_actual, &now);
-
-  for(servI = servs.begin(); servI != servs.end(); servI++) {
-    tpserv = *servI;
-
-    nextI = tpserv->in_process.begin();
-    if (nextI == tpserv->in_process.end()) continue;
-
-    do {
-      reqI = nextI++;
-      tpreq = *reqI;
-
-      tp = TIMEVAL_MSEC_SUBTRACT(tpreq->timeout, now);
-      if (tp > 0 && tp < min_timeout) min_timeout = tp;
-
-      if (tp <= 0) {
-        tpserv->capacity = (int) (tpserv->capacity * CAPACITY_MINOR_DOWN_SCALE);
-        check_capacities(tpserv);
-        tpserv->in_process.erase(reqI);
-        tpserv->reqs_on_wire--;
-
-        // If we've tried this server enough times, move to the next one
-        if (read_timeouts[read_timeout_index][tpreq->tries] == -1) {
-          tpserv->capacity = (int) (tpserv->capacity * CAPACITY_MAJOR_DOWN_SCALE);
-          check_capacities(tpserv);
-
-          servItemp = servI;
-          servItemp++;
-
-          if (servItemp == servs.end()) servItemp = servs.begin();
-
-          tpreq->curr_server = *servItemp;
-          tpreq->tries = 0;
-          tpreq->servers_tried++;
-
-          if (tpreq->curr_server == tpreq->first_server || tpreq->servers_tried == SERVERS_TO_TRY) {
-            // Either give up on the IP
-            // or, for maximum reliability, put the server back into processing
-            // Note it's possible that this will never terminate.
-            // FIXME: Find a good compromise
-
-            // **** We've already tried all servers... give up
-            if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: *DR*OPPING <%s>\n", tpreq->targ->targetipstr());
-
-            output_summary();
-            stat_dropped++;
-            total_reqs--;
-            delete tpreq;
-
-            // **** OR We start at the back of this server's queue
-            //(*servItemp)->to_process.push_back(tpreq);
-          } else {
-            (*servItemp)->to_process.push_back(tpreq);
-          }
-        } else {
-          tpserv->to_process.push_back(tpreq);
-        }
-
-    }
-
-    } while (nextI != tpserv->in_process.end());
-
-  }
-
-  if (min_timeout > 500) return 500;
-  else return min_timeout;
-
-}
-
-
-// Puts as many packets on the line as capacity will allow
-void do_possible_writes() {
-  std::list<dns_server *>::iterator servI;
-  dns_server *tpserv;
-  request *tpreq;
-
-  for(servI = servs.begin(); servI != servs.end(); servI++) {
-    tpserv = *servI;
-
-    if (tpserv->write_busy == 0 && tpserv->reqs_on_wire < tpserv->capacity) {
-      tpreq = NULL;
-      if (!tpserv->to_process.empty()) {
-        tpreq = tpserv->to_process.front();
-        tpserv->to_process.pop_front();
-      } else if (!new_reqs.empty()) {
-        tpreq = new_reqs.front();
-        tpreq->first_server = tpreq->curr_server = tpserv;
-        new_reqs.pop_front();
-      }
-
-      if (tpreq) {
-        if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "mass_rdns: TRANSMITTING for <%s> (server <%s>)\n", tpreq->targ->targetipstr() , tpserv->hostname);
-        stat_trans++;
-        put_dns_packet_on_wire(tpreq);
-      }
-    }
-
-  }
-
-}
-
-
-// nsock write handler
-void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
-  request *req = (request *) req_v;
-
-  req->curr_server->write_busy = 0;
-  req->curr_server->in_process.push_front(req);
-
-  do_possible_writes();
-}
-  
-
-
-//------------------- DNS Server handling code ---------------------
-
 // nsock connect handler - Empty because it doesn't really need to do anything...
-void connect_evt_handler(nsock_pool nsp, nsock_event evt, void *servers) {
+static void connect_evt_handler(nsock_pool nsp, nsock_event evt, void *servers) {
 }
 
 
 // Adds DNS servers to the dns_server list. They can be separated by
 // commas or spaces - NOTE this doesn't actually do any connecting!
-void add_dns_server(char *ipaddrs) {
+static void add_dns_server(char *ipaddrs) {
   std::list<dns_server *>::iterator servI;
   dns_server *tpserv;
   char *hostname;
@@ -845,21 +833,6 @@ void connect_dns_servers() {
 
 }
 
-
-// Closes all nsis created in connect_dns_servers()
-void close_dns_servers() {
-  std::list<dns_server *>::iterator serverI;
-
-  for(serverI = servs.begin(); serverI != servs.end(); serverI++) {
-    if ((*serverI)->connected) {
-      nsi_delete((*serverI)->nsd, NSOCK_PENDING_SILENT);
-      (*serverI)->connected = 0;
-      (*serverI)->to_process.clear();
-      (*serverI)->in_process.clear();
-    }
-  }
-
-}
 
 #ifdef WIN32
 void win32_read_registry(char *controlset) {
@@ -921,7 +894,7 @@ void win32_read_registry(char *controlset) {
 
 // Parses /etc/resolv.conf (unix) or the registry (win32) and adds
 // all the nameservers found via the add_dns_server() function.
-void parse_resolvdotconf() {
+static void parse_resolvdotconf() {
 
 #ifndef WIN32
 
@@ -956,7 +929,7 @@ void parse_resolvdotconf() {
 }
 
 
-void parse_etchosts(char *fname) {
+static void parse_etchosts(char *fname) {
   FILE *fp;
   char buf[2048], hname[256], ipaddrstr[16], *tp;
   struct in_addr ia;
@@ -990,7 +963,7 @@ void parse_etchosts(char *fname) {
 }
 
 
-char *lookup_etchosts(u32 ip) {
+static char *lookup_etchosts(u32 ip) {
   std::list<host_elem *>::iterator hostI;
   host_elem *tpelem;
 
@@ -1003,13 +976,41 @@ char *lookup_etchosts(u32 ip) {
 }
 
 
+static void etchosts_init(void) {
+  static int initialized = 0;
+  if (initialized) return;
+  initialized = 1;
+
+#ifdef WIN32
+  char windows_dir[1024];
+  char tpbuf[2048];
+  int has_backslash;
+
+  if (!GetWindowsDirectory(windows_dir, sizeof(windows_dir)))
+    fatal("Failed to determine your windows directory");
+
+  // If it has a backslash it's C:\, otherwise something like C:\WINNT
+  has_backslash = (windows_dir[strlen(windows_dir)-1] == '\\');
+
+  // Windows 95/98/Me:
+  snprintf(tpbuf, sizeof(tpbuf), "%s%shosts", windows_dir, has_backslash ? "" : "\\");
+  parse_etchosts(tpbuf);
+
+  // Windows NT/2000/XP/2K3:
+  snprintf(tpbuf, sizeof(tpbuf), "%s%ssystem32\\drivers\\etc\\hosts", windows_dir, has_backslash ? "" : "\\");
+  parse_etchosts(tpbuf);
+
+#else
+  parse_etchosts("/etc/hosts");
+#endif
+}
 
 
 //------------------- Main loops ---------------------
 
 
 // Actual main loop
-void nmap_mass_rdns_core(Target **targets, int num_targets) {
+static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
   Target **hostI;
   std::list<request *>::iterator reqI;
@@ -1066,32 +1067,7 @@ void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
 
   // If necessary, set up the /etc/hosts hashtable
-  if (etchosts_filled == 0) {
-    #ifdef WIN32
-    char windows_dir[1024];
-    char tpbuf[2048];
-    int has_backslash;
-
-    if (!GetWindowsDirectory(windows_dir, sizeof(windows_dir)))
-      fatal("Failed to determine your windows directory");
-
-    // If it has a backslash it's C:\, otherwise something like C:\WINNT
-    has_backslash = (windows_dir[strlen(windows_dir)-1] == '\\');
-
-    // Windows 95/98/Me:
-    snprintf(tpbuf, sizeof(tpbuf), "%s%shosts", windows_dir, has_backslash ? "" : "\\");
-    parse_etchosts(tpbuf);
-
-    // Windows NT/2000/XP/2K3:
-    snprintf(tpbuf, sizeof(tpbuf), "%s%ssystem32\\drivers\\etc\\hosts", windows_dir, has_backslash ? "" : "\\");
-    parse_etchosts(tpbuf);
-
-    #else
-    parse_etchosts("/etc/hosts");
-    #endif
-
-    etchosts_filled = 1;
-  }
+  etchosts_init();
 
 
   total_reqs = 0;

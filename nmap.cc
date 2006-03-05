@@ -192,6 +192,240 @@ static int parse_bounce_argument(struct ftpinfo *ftp, char *url) {
   return 1;
 }
 
+static void printusage(char *name, int rc) {
+
+printf("%s %s ( %s )\n"
+       "Usage: nmap [Scan Type(s)] [Options] {target specification}\n"
+       "TARGET SPECIFICATION:\n"
+       "  Can pass hostnames, IP addresses, networks, etc.\n"
+       "  Ex: scanme.nmap.org, microsoft.com/24, 192.168.0.1; 10.0.0-255.1-254\n"
+       "  -iL <inputfilename>: Input from list of hosts/networks\n"
+       "  -iR <num hosts>: Choose random targets\n"
+       "  --exclude <host1[,host2][,host3],...>: Exclude hosts/networks\n"
+       "  --excludefile <exclude_file>: Exclude list from file\n"
+       "HOST DISCOVERY:\n"
+       "  -sL: List Scan - simply list targets to scan\n"
+       "  -sP: Ping Scan - go no further than determining if host is online\n"
+       "  -P0: Treat all hosts as online -- skip host discovery\n"
+       "  -PS/PA/PU [portlist]: TCP SYN/ACK or UDP discovery to given ports\n"
+       "  -PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes\n"
+       "  -n/-R: Never do DNS resolution/Always resolve [default: sometimes]\n"
+       "  --dns-servers <serv1[,serv2],...>: Specify custom DNS servers\n"
+       "  --system-dns: Use OS's DNS resolver\n"
+       "SCAN TECHNIQUES:\n"
+       "  -sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans\n"
+       "  -sN/sF/sX: TCP Null, FIN, and Xmas scans\n"
+       "  --scanflags <flags>: Customize TCP scan flags\n"
+       "  -sI <zombie host[:probeport]>: Idlescan\n"
+       "  -sO: IP protocol scan\n"
+       "  -b <ftp relay host>: FTP bounce scan\n"
+       "PORT SPECIFICATION AND SCAN ORDER:\n"
+       "  -p <port ranges>: Only scan specified ports\n"
+       "    Ex: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080\n"
+       "  -F: Fast - Scan only the ports listed in the nmap-services file)\n"
+       "  -r: Scan ports consecutively - don't randomize\n"
+       "SERVICE/VERSION DETECTION:\n"
+       "  -sV: Probe open ports to determine service/version info\n"
+       "  --version-intensity <level>: Set from 0 (light) to 9 (try all probes)\n"
+       "  --version-light: Limit to most likely probes (intensity 2)\n"
+       "  --version-all: Try every single probe (intensity 9)\n"
+       "  --version-trace: Show detailed version scan activity (for debugging)\n"
+       "OS DETECTION:\n"
+       "  -O: Enable OS detection\n"
+       "  --osscan-limit: Limit OS detection to promising targets\n"
+       "  --osscan-guess: Guess OS more aggressively\n"
+       "TIMING AND PERFORMANCE:\n"
+       "  Options which take <time> are in milliseconds, unless you append 's'\n"
+       "  (seconds), 'm' (minutes), or 'h' (hours) to the value (e.g. 30m).\n"
+       "  -T[0-5]: Set timing template (higher is faster)\n"
+       "  --min-hostgroup/max-hostgroup <size>: Parallel host scan group sizes\n"
+       "  --min-parallelism/max-parallelism <time>: Probe parallelization\n"
+       "  --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout <time>: Specifies\n"
+       "      probe round trip time.\n"
+       "  --max-retries <tries>: Caps number of port scan probe retransmissions.\n"
+       "  --host-timeout <time>: Give up on target after this long\n"
+       "  --scan-delay/--max-scan-delay <time>: Adjust delay between probes\n"
+       "FIREWALL/IDS EVASION AND SPOOFING:\n"
+       "  -f; --mtu <val>: fragment packets (optionally w/given MTU)\n"
+       "  -D <decoy1,decoy2[,ME],...>: Cloak a scan with decoys\n"
+       "  -S <IP_Address>: Spoof source address\n"
+       "  -e <iface>: Use specified interface\n"
+       "  -g/--source-port <portnum>: Use given port number\n"
+       "  --data-length <num>: Append random data to sent packets\n"
+       "  --ttl <val>: Set IP time-to-live field\n"
+       "  --spoof-mac <mac address/prefix/vendor name>: Spoof your MAC address\n"
+       "  --badsum: Send packets with a bogus TCP/UDP checksum\n"
+       "OUTPUT:\n"
+       "  -oN/-oX/-oS/-oG <file>: Output scan in normal, XML, s|<rIpt kIddi3,\n"
+       "     and Grepable format, respectively, to the given filename.\n"
+       "  -oA <basename>: Output in the three major formats at once\n"
+       "  -v: Increase verbosity level (use twice for more effect)\n"
+       "  -d[level]: Set or increase debugging level (Up to 9 is meaningful)\n"
+       "  --packet-trace: Show all packets sent and received\n"
+       "  --iflist: Print host interfaces and routes (for debugging)\n"
+       "  --log-errors: Log errors/warnings to the normal-format output file\n"
+       "  --append-output: Append to rather than clobber specified output files\n"
+       "  --resume <filename>: Resume an aborted scan\n"
+       "  --stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML\n"
+       "  --webxml: Reference stylesheet from Insecure.Org for more portable XML\n"
+       "  --no-stylesheet: Prevent associating of XSL stylesheet w/XML output\n"
+       "MISC:\n"
+       "  -6: Enable IPv6 scanning\n"
+       "  -A: Enables OS detection and Version detection\n"
+       "  --datadir <dirname>: Specify custom Nmap data file location\n"
+       "  --send-eth/--send-ip: Send using raw ethernet frames or IP packets\n"
+       "  --privileged: Assume that the user is fully privileged\n"
+       "  -V: Print version number\n"
+       "  -h: Print this help summary page.\n"
+       "EXAMPLES:\n"
+       "  nmap -v -A scanme.nmap.org\n"
+       "  nmap -v -sP 192.168.0.0/16 10.0.0.0/8\n"
+       "  nmap -v -iR 10000 -P0 -p 80\n"
+       "SEE THE MAN PAGE FOR MANY MORE OPTIONS, DESCRIPTIONS, AND EXAMPLES\n", NMAP_NAME, NMAP_VERSION, NMAP_URL);
+  exit(rc);
+}
+
+/**
+ * Returns 1 if this is a reserved IP address, where "reserved" means
+ * either a private address, non-routable address, or even a non-reserved
+ * but unassigned address which has an extremely high probability of being
+ * black-holed.
+ *
+ * We try to optimize speed when ordering the tests. This optimization
+ * assumes that all byte values are equally likely in the input.
+ *
+ * Warning: This function could easily become outdated if the IANA
+ * starts to assign some more IPv4 ranges to RIPE, etc. as they have
+ * started doing this year (2001), for example 80.0.0.0/4 used to be
+ * completely unassigned until they gave 80.0.0.0/7 to RIPE in April
+ * 2001 (www.junk.org is an example of a new address in this range).
+ *
+ * Check <http://www.iana.org/assignments/ipv4-address-space> for
+ * the most recent assigments and
+ * <http://www.cymru.com/Documents/bogon-bn-nonagg.txt> for bogon
+ * netblocks.
+ */
+static int ip_is_reserved(struct in_addr *ip)
+{
+  char *ipc = (char *) &(ip->s_addr);
+  unsigned char i1 = ipc[0], i2 = ipc[1], i3 = ipc[2], i4 = ipc[3];
+
+  /* do all the /7's and /8's with a big switch statement, hopefully the
+   * compiler will be able to optimize this a little better using a jump table
+   * or what have you
+   */
+  switch (i1)
+    {
+    case 0:         /* 000/8 is IANA reserved       */
+    case 1:         /* 001/8 is IANA reserved       */
+    case 2:         /* 002/8 is IANA reserved       */
+    case 5:         /* 005/8 is IANA reserved       */
+    case 6:         /* USA Army ISC                 */
+    case 7:         /* used for BGP protocol        */
+    case 10:        /* the infamous 10.0.0.0/8      */
+    case 23:        /* 023/8 is IANA reserved       */
+    case 27:        /* 027/8 is IANA reserved       */
+    case 31:        /* 031/8 is IANA reserved       */
+    case 36:        /* 036/8 is IANA reserved       */
+    case 37:        /* 037/8 is IANA reserved       */
+    case 39:        /* 039/8 is IANA reserved       */
+    case 42:        /* 042/8 is IANA reserved       */
+    case 49:        /* 049/8 is IANA reserved       */
+    case 50:        /* 050/8 is IANA reserved       */
+    case 55:        /* misc. U.S.A. Armed forces    */
+    case 127:       /* 127/8 is reserved for loopback */
+    case 197:       /* 197/8 is IANA reserved       */
+    case 223:       /* 223/8 is IANA reserved       */
+      return 1;
+    default:
+      break;
+    }
+
+
+  /* 077-079/8 is IANA reserved */
+  if (i1 >= 77 && i1 <= 79)
+    return 1;
+
+  /* 092-123/8 is IANA reserved */
+  if (i1 >= 92 && i1 <= 123)
+    return 1;
+
+  /* 172.16.0.0/12 is reserved for private nets by RFC1819 */
+  if (i1 == 172 && i2 >= 16 && i2 <= 31)
+    return 1;
+
+  /* 173-187/8 is IANA reserved */
+  if (i1 >= 173 && i1 <= 187)
+    return 1;
+
+  /* 192.168.0.0/16 is reserved for private nets by RFC1819 */
+  /* 192.0.2.0/24 is reserved for documentation and examples */
+  /* 192.88.99.0/24 is used as 6to4 Relay anycast prefix by RFC3068 */
+  if (i1 == 192) {
+    if (i2 == 168)
+      return 1;
+    if (i2 == 0 && i3 == 2)
+      return 1;
+    if (i2 == 88 && i3 == 99)
+      return 1;
+  }
+
+  /* 198.18.0.0/15 is used for benchmark tests by RFC2544 */
+  if (i1 == 198 && i2 == 18 && i3 >= 1 && i3 <= 64) {
+    return 1;
+  }
+
+  /* reserved for DHCP clients seeking addresses, not routable outside LAN */
+  if (i1 == 169 && i2 == 254)
+    return 1;
+
+  /* believe it or not, 204.152.64.0/23 is some bizarre Sun proprietary
+   * clustering thing */
+  if (i1 == 204 && i2 == 152 && (i3 == 64 || i3 == 65))
+    return 1;
+
+  /* 224-239/8 is all multicast stuff */
+  /* 240-255/8 is IANA reserved */
+  if (i1 >= 224)
+    return 1;
+
+  /* 255.255.255.255, note we already tested for i1 in this range */
+  if (i2 == 255 && i3 == 255 && i4 == 255)
+    return 1;
+
+  return 0;
+}
+
+static char *grab_next_host_spec(FILE *inputfd, int argc, char **fakeargv) {
+  static char host_spec[1024];
+  unsigned int host_spec_index;
+  int ch;
+  struct in_addr ip;
+
+  if (o.generate_random_ips) {
+    do {
+      ip.s_addr = get_random_u32();
+    } while (ip_is_reserved(&ip));
+    Strncpy(host_spec, inet_ntoa(ip), sizeof(host_spec));
+  } else if (!inputfd) {
+    return( (optind < argc)?  fakeargv[optind++] : NULL);
+  } else { 
+    host_spec_index = 0;
+    while((ch = getc(inputfd)) != EOF) {
+      if (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t' || ch == '\0') {
+	if (host_spec_index == 0) continue;
+	host_spec[host_spec_index] = '\0';
+	return host_spec;
+      } else if (host_spec_index < sizeof(host_spec) / sizeof(char) -1) {
+	host_spec[host_spec_index++] = (char) ch;
+      } else fatal("One of the host_specifications from your input file is too long (> %d chars)", (int) sizeof(host_spec));
+    }
+    host_spec[host_spec_index] = '\0';
+  }
+  if (!*host_spec) return NULL;
+  return host_spec;
+}
+
 int nmap_main(int argc, char *argv[]) {
   char *p, *q;
   int i, arg;
@@ -1629,98 +1863,6 @@ struct scan_lists *getpts(char *origexpr) {
   return ports;
 }
 
-void printusage(char *name, int rc) {
-
-printf("%s %s ( %s )\n"
-       "Usage: nmap [Scan Type(s)] [Options] {target specification}\n"
-       "TARGET SPECIFICATION:\n"
-       "  Can pass hostnames, IP addresses, networks, etc.\n"
-       "  Ex: scanme.nmap.org, microsoft.com/24, 192.168.0.1; 10.0.0-255.1-254\n"
-       "  -iL <inputfilename>: Input from list of hosts/networks\n"
-       "  -iR <num hosts>: Choose random targets\n"
-       "  --exclude <host1[,host2][,host3],...>: Exclude hosts/networks\n"
-       "  --excludefile <exclude_file>: Exclude list from file\n"
-       "HOST DISCOVERY:\n"
-       "  -sL: List Scan - simply list targets to scan\n"
-       "  -sP: Ping Scan - go no further than determining if host is online\n"
-       "  -P0: Treat all hosts as online -- skip host discovery\n"
-       "  -PS/PA/PU [portlist]: TCP SYN/ACK or UDP discovery to given ports\n"
-       "  -PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes\n"
-       "  -n/-R: Never do DNS resolution/Always resolve [default: sometimes]\n"
-       "  --dns-servers <serv1[,serv2],...>: Specify custom DNS servers\n"
-       "  --system-dns: Use OS's DNS resolver\n"
-       "SCAN TECHNIQUES:\n"
-       "  -sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans\n"
-       "  -sN/sF/sX: TCP Null, FIN, and Xmas scans\n"
-       "  --scanflags <flags>: Customize TCP scan flags\n"
-       "  -sI <zombie host[:probeport]>: Idlescan\n"
-       "  -sO: IP protocol scan\n"
-       "  -b <ftp relay host>: FTP bounce scan\n"
-       "PORT SPECIFICATION AND SCAN ORDER:\n"
-       "  -p <port ranges>: Only scan specified ports\n"
-       "    Ex: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080\n"
-       "  -F: Fast - Scan only the ports listed in the nmap-services file)\n"
-       "  -r: Scan ports consecutively - don't randomize\n"
-       "SERVICE/VERSION DETECTION:\n"
-       "  -sV: Probe open ports to determine service/version info\n"
-       "  --version-intensity <level>: Set from 0 (light) to 9 (try all probes)\n"
-       "  --version-light: Limit to most likely probes (intensity 2)\n"
-       "  --version-all: Try every single probe (intensity 9)\n"
-       "  --version-trace: Show detailed version scan activity (for debugging)\n"
-       "OS DETECTION:\n"
-       "  -O: Enable OS detection\n"
-       "  --osscan-limit: Limit OS detection to promising targets\n"
-       "  --osscan-guess: Guess OS more aggressively\n"
-       "TIMING AND PERFORMANCE:\n"
-       "  Options which take <time> are in milliseconds, unless you append 's'\n"
-       "  (seconds), 'm' (minutes), or 'h' (hours) to the value (e.g. 30m).\n"
-       "  -T[0-5]: Set timing template (higher is faster)\n"
-       "  --min-hostgroup/max-hostgroup <size>: Parallel host scan group sizes\n"
-       "  --min-parallelism/max-parallelism <time>: Probe parallelization\n"
-       "  --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout <time>: Specifies\n"
-       "      probe round trip time.\n"
-       "  --max-retries <tries>: Caps number of port scan probe retransmissions.\n"
-       "  --host-timeout <time>: Give up on target after this long\n"
-       "  --scan-delay/--max-scan-delay <time>: Adjust delay between probes\n"
-       "FIREWALL/IDS EVASION AND SPOOFING:\n"
-       "  -f; --mtu <val>: fragment packets (optionally w/given MTU)\n"
-       "  -D <decoy1,decoy2[,ME],...>: Cloak a scan with decoys\n"
-       "  -S <IP_Address>: Spoof source address\n"
-       "  -e <iface>: Use specified interface\n"
-       "  -g/--source-port <portnum>: Use given port number\n"
-       "  --data-length <num>: Append random data to sent packets\n"
-       "  --ttl <val>: Set IP time-to-live field\n"
-       "  --spoof-mac <mac address/prefix/vendor name>: Spoof your MAC address\n"
-       "  --badsum: Send packets with a bogus TCP/UDP checksum\n"
-       "OUTPUT:\n"
-       "  -oN/-oX/-oS/-oG <file>: Output scan in normal, XML, s|<rIpt kIddi3,\n"
-       "     and Grepable format, respectively, to the given filename.\n"
-       "  -oA <basename>: Output in the three major formats at once\n"
-       "  -v: Increase verbosity level (use twice for more effect)\n"
-       "  -d[level]: Set or increase debugging level (Up to 9 is meaningful)\n"
-       "  --packet-trace: Show all packets sent and received\n"
-       "  --iflist: Print host interfaces and routes (for debugging)\n"
-       "  --log-errors: Log errors/warnings to the normal-format output file\n"
-       "  --append-output: Append to rather than clobber specified output files\n"
-       "  --resume <filename>: Resume an aborted scan\n"
-       "  --stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML\n"
-       "  --webxml: Reference stylesheet from Insecure.Org for more portable XML\n"
-       "  --no-stylesheet: Prevent associating of XSL stylesheet w/XML output\n"
-       "MISC:\n"
-       "  -6: Enable IPv6 scanning\n"
-       "  -A: Enables OS detection and Version detection\n"
-       "  --datadir <dirname>: Specify custom Nmap data file location\n"
-       "  --send-eth/--send-ip: Send using raw ethernet frames or IP packets\n"
-       "  --privileged: Assume that the user is fully privileged\n"
-       "  -V: Print version number\n"
-       "  -h: Print this help summary page.\n"
-       "EXAMPLES:\n"
-       "  nmap -v -A scanme.nmap.org\n"
-       "  nmap -v -sP 192.168.0.0/16 10.0.0.0/8\n"
-       "  nmap -v -iR 10000 -P0 -p 80\n"
-       "SEE THE MAN PAGE FOR MANY MORE OPTIONS, DESCRIPTIONS, AND EXAMPLES\n", NMAP_NAME, NMAP_VERSION, NMAP_URL);
-  exit(rc);
-}
 
 void printinteractiveusage() {
   printf(
@@ -1819,148 +1961,7 @@ char *tsseqclass2ascii(int seqclass) {
 }
 
 
-/**
- * Returns 1 if this is a reserved IP address, where "reserved" means
- * either a private address, non-routable address, or even a non-reserved
- * but unassigned address which has an extremely high probability of being
- * black-holed.
- *
- * We try to optimize speed when ordering the tests. This optimization
- * assumes that all byte values are equally likely in the input.
- *
- * Warning: This function could easily become outdated if the IANA
- * starts to assign some more IPv4 ranges to RIPE, etc. as they have
- * started doing this year (2001), for example 80.0.0.0/4 used to be
- * completely unassigned until they gave 80.0.0.0/7 to RIPE in April
- * 2001 (www.junk.org is an example of a new address in this range).
- *
- * Check <http://www.iana.org/assignments/ipv4-address-space> for
- * the most recent assigments and
- * <http://www.cymru.com/Documents/bogon-bn-nonagg.txt> for bogon
- * netblocks.
- */
 
-int ip_is_reserved(struct in_addr *ip)
-{
-  char *ipc = (char *) &(ip->s_addr);
-  unsigned char i1 = ipc[0], i2 = ipc[1], i3 = ipc[2], i4 = ipc[3];
-
-  /* do all the /7's and /8's with a big switch statement, hopefully the
-   * compiler will be able to optimize this a little better using a jump table
-   * or what have you
-   */
-  switch (i1)
-    {
-    case 0:         /* 000/8 is IANA reserved       */
-    case 1:         /* 001/8 is IANA reserved       */
-    case 2:         /* 002/8 is IANA reserved       */
-    case 5:         /* 005/8 is IANA reserved       */
-    case 6:         /* USA Army ISC                 */
-    case 7:         /* used for BGP protocol        */
-    case 10:        /* the infamous 10.0.0.0/8      */
-    case 23:        /* 023/8 is IANA reserved       */
-    case 27:        /* 027/8 is IANA reserved       */
-    case 31:        /* 031/8 is IANA reserved       */
-    case 36:        /* 036/8 is IANA reserved       */
-    case 37:        /* 037/8 is IANA reserved       */
-    case 39:        /* 039/8 is IANA reserved       */
-    case 42:        /* 042/8 is IANA reserved       */
-    case 49:        /* 049/8 is IANA reserved       */
-    case 50:        /* 050/8 is IANA reserved       */
-    case 55:        /* misc. U.S.A. Armed forces    */
-    case 127:       /* 127/8 is reserved for loopback */
-    case 197:       /* 197/8 is IANA reserved       */
-    case 223:       /* 223/8 is IANA reserved       */
-      return 1;
-    default:
-      break;
-    }
-
-
-  /* 077-079/8 is IANA reserved */
-  if (i1 >= 77 && i1 <= 79)
-    return 1;
-
-  /* 092-123/8 is IANA reserved */
-  if (i1 >= 92 && i1 <= 123)
-    return 1;
-
-  /* 172.16.0.0/12 is reserved for private nets by RFC1819 */
-  if (i1 == 172 && i2 >= 16 && i2 <= 31)
-    return 1;
-
-  /* 173-187/8 is IANA reserved */
-  if (i1 >= 173 && i1 <= 187)
-    return 1;
-
-  /* 192.168.0.0/16 is reserved for private nets by RFC1819 */
-  /* 192.0.2.0/24 is reserved for documentation and examples */
-  /* 192.88.99.0/24 is used as 6to4 Relay anycast prefix by RFC3068 */
-  if (i1 == 192) {
-    if (i2 == 168)
-      return 1;
-    if (i2 == 0 && i3 == 2)
-      return 1;
-    if (i2 == 88 && i3 == 99)
-      return 1;
-  }
-
-  /* 198.18.0.0/15 is used for benchmark tests by RFC2544 */
-  if (i1 == 198 && i2 == 18 && i3 >= 1 && i3 <= 64) {
-    return 1;
-  }
-
-  /* reserved for DHCP clients seeking addresses, not routable outside LAN */
-  if (i1 == 169 && i2 == 254)
-    return 1;
-
-  /* believe it or not, 204.152.64.0/23 is some bizarre Sun proprietary
-   * clustering thing */
-  if (i1 == 204 && i2 == 152 && (i3 == 64 || i3 == 65))
-    return 1;
-
-  /* 224-239/8 is all multicast stuff */
-  /* 240-255/8 is IANA reserved */
-  if (i1 >= 224)
-    return 1;
-
-  /* 255.255.255.255, note we already tested for i1 in this range */
-  if (i2 == 255 && i3 == 255 && i4 == 255)
-    return 1;
-
-  return 0;
-
-}
-
-char *grab_next_host_spec(FILE *inputfd, int argc, char **fakeargv) {
-  static char host_spec[1024];
-  unsigned int host_spec_index;
-  int ch;
-  struct in_addr ip;
-
-  if (o.generate_random_ips) {
-    do {
-      ip.s_addr = get_random_u32();
-    } while (ip_is_reserved(&ip));
-    Strncpy(host_spec, inet_ntoa(ip), sizeof(host_spec));
-  } else if (!inputfd) {
-    return( (optind < argc)?  fakeargv[optind++] : NULL);
-  } else { 
-    host_spec_index = 0;
-    while((ch = getc(inputfd)) != EOF) {
-      if (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t' || ch == '\0') {
-	if (host_spec_index == 0) continue;
-	host_spec[host_spec_index] = '\0';
-	return host_spec;
-      } else if (host_spec_index < sizeof(host_spec) / sizeof(char) -1) {
-	host_spec[host_spec_index++] = (char) ch;
-      } else fatal("One of the host_specifications from your input file is too long (> %d chars)", (int) sizeof(host_spec));
-    }
-    host_spec[host_spec_index] = '\0';
-  }
-  if (!*host_spec) return NULL;
-  return host_spec;
-}
 
 /* Just a routine for obtaining a string for printing based on the scantype */
 char *scantype2str(stype scantype) {
@@ -2147,6 +2148,13 @@ void sigdie(int signo) {
   exit(1);
 }
 
+static int fileexistsandisreadable(char *pathname) {
+  FILE *fp;
+  /* We check this the easy way! */
+  fp = fopen(pathname, "r");
+  if (fp) fclose(fp);
+  return (fp == NULL)? 0 : 1;
+}
 
 int nmap_fetchfile(char *filename_returned, int bufferlen, char *file) {
   char *dirptr;
@@ -2260,11 +2268,4 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, char *file) {
 
 }
 
-int fileexistsandisreadable(char *pathname) {
-  FILE *fp;
-  /* We check this the easy way! */
-  fp = fopen(pathname, "r");
-  if (fp) fclose(fp);
-  return (fp == NULL)? 0 : 1;
-}
 

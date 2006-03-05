@@ -130,6 +130,20 @@ static inline int gethostnum(Target *hostbatch[], Target *target) {
   return 0; // Unreached
 }
 
+char *readhoststate(int state) {
+  switch(state) {
+  case HOST_UP:
+    return "HOST_UP";
+  case HOST_DOWN:
+    return "HOST_DOWN";
+  case HOST_FIREWALLED:
+    return "HOST_FIREWALLED";
+  default:
+    return "UNKNOWN/COMBO";
+  }
+  return NULL;
+}
+
 /* Internal function to update the state of machine (up/down/etc) based on
    ping results */
 static int hostupdate(Target *hostbatch[], Target *target, 
@@ -278,7 +292,7 @@ static void arpping(Target *hostbatch[], int num_hosts,
   return;
 }
 
-void hoststructfry(Target *hostbatch[], int nelem) {
+static void hoststructfry(Target *hostbatch[], int nelem) {
   genfry((unsigned char *)hostbatch, sizeof(Target *), nelem);
   return;
 }
@@ -290,875 +304,87 @@ void returnhost(HostGroupState *hs) {
   hs->next_batch_no--;
 }
 
-Target *nexthost(HostGroupState *hs, TargetGroup *exclude_group,
-			    struct scan_lists *ports, int *pingtype) {
-int hidx = 0;
-int i;
-struct sockaddr_storage ss;
-size_t sslen;
-struct intf_entry *ifentry;
- u32 ifbuf[200] ;
- struct route_nfo rnfo;
- bool arpping_done = false;
- struct timeval now;
+/* Is the host passed as Target to be excluded, much of this logic had  (mdmcl)
+ * to be rewritten from wam's original code to allow for the objects */
+static int hostInExclude(struct sockaddr *checksock, size_t checksocklen, 
+		  TargetGroup *exclude_group) {
+  unsigned long tmpTarget; /* ip we examine */
+  int i=0;                 /* a simple index */
+  char targets_type;       /* what is the address type of the Target Group */
+  struct sockaddr_storage ss; 
+  struct sockaddr_in *sin = (struct sockaddr_in *) &ss;
+  size_t slen;             /* needed for funct but not used */
+  unsigned long mask = 0;  /* our trusty netmask, which we convert to nbo */
+  struct sockaddr_in *checkhost;
 
- ifentry = (struct intf_entry *) ifbuf; 
- ifentry->intf_len = sizeof(ifbuf); // TODO: May want to use a larger buffer if interface aliases prove important.
-if (hs->next_batch_no < hs->current_batch_sz) {
-  /* Woop!  This is easy -- we just pass back the next host struct */
-  return hs->hostbatch[hs->next_batch_no++];
-}
-/* Doh, we need to refresh our array */
-/* for(i=0; i < hs->max_batch_sz; i++) hs->hostbatch[i] = new Target(); */
+  if ((TargetGroup *)0 == exclude_group)
+    return 0;
 
-hs->current_batch_sz = hs->next_batch_no = 0;
-do {
-  /* Grab anything we have in our current_expression */
-  while (hs->current_batch_sz < hs->max_batch_sz && 
-	 hs->current_expression.get_next_host(&ss, &sslen) == 0)
-    {
-      if (hostInExclude((struct sockaddr *)&ss, sslen, exclude_group)) {
-	continue; /* Skip any hosts the user asked to exclude */
-      }
-      hidx = hs->current_batch_sz;
-      hs->hostbatch[hidx] = new Target();
-      hs->hostbatch[hidx]->setTargetSockAddr(&ss, sslen);
+  assert(checksocklen >= sizeof(struct sockaddr_in));
+  checkhost = (struct sockaddr_in *) checksock;
+  if (checkhost->sin_family != AF_INET)
+    checkhost = NULL;
 
-      /* We figure out the source IP/device IFF
-	 1) We are r00t AND
-	 2) We are doing tcp or udp pingscan OR
-	 3) We are doing a raw-mode portscan or osscan OR
-	 4) We are on windows and doing ICMP ping */
-      if (o.isr00t && o.af() == AF_INET && 
-	  ((*pingtype & (PINGTYPE_TCP|PINGTYPE_UDP|PINGTYPE_ARP)) || o.RawScan()
-#ifdef WIN32
-	   || (*pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))
-#endif // WIN32
-	   )) {
-	hs->hostbatch[hidx]->TargetSockAddr(&ss, &sslen);
-	if (!route_dst(&ss, &rnfo)) {
-	  fatal("%s: failed to determine route to %s", __FUNCTION__, hs->hostbatch[hidx]->NameIP());
+  /* First find out what type of addresses are in the target group */
+  targets_type = exclude_group[i].get_targets_type();
+
+  /* Lets go through the targets until we reach our uninitialized placeholder */
+  while (exclude_group[i].get_targets_type() != TargetGroup::TYPE_NONE)
+  { 
+    /* while there are still hosts in the target group */
+    while (exclude_group[i].get_next_host(&ss, &slen) == 0) {
+      tmpTarget = sin->sin_addr.s_addr; 
+
+      /* For Netmasks simply compare the network bits and move to the next
+       * group if it does not compare, we don't care about the individual addrs */
+      if (targets_type == TargetGroup::IPV4_NETMASK) {
+        mask = htonl((unsigned long) (0-1) << 32-exclude_group[i].get_mask());
+        if ((tmpTarget & mask) == (checkhost->sin_addr.s_addr & mask)) {
+	  exclude_group[i].rewind();
+	  return 1;
+        }
+	else {
+	  break;
 	}
-	if (rnfo.direct_connect) {
-	  hs->hostbatch[hidx]->setDirectlyConnected(true);
-	} else {
-	  hs->hostbatch[hidx]->setDirectlyConnected(false);
-	  hs->hostbatch[hidx]->setNextHop(&rnfo.nexthop, 
-					  sizeof(rnfo.nexthop));
-	}
-	hs->hostbatch[hidx]->setIfType(rnfo.ii.device_type);
-	if (rnfo.ii.device_type == devt_ethernet) {
-	  if (o.spoofMACAddress())
-	    hs->hostbatch[hidx]->setSrcMACAddress(o.spoofMACAddress());
-	  else hs->hostbatch[hidx]->setSrcMACAddress(rnfo.ii.mac);
-	}
-	hs->hostbatch[hidx]->setSourceSockAddr(&rnfo.srcaddr, sizeof(rnfo.srcaddr));
-	if (hidx == 0) /* Because later ones can have different src addy and be cut off group */
-	  o.decoys[o.decoyturn] = hs->hostbatch[hidx]->v4source();
-	hs->hostbatch[hidx]->setDeviceNames(rnfo.ii.devname, rnfo.ii.devfullname);
-	//	  printf("Target %s %s directly connected, goes through local iface %s, which %s ethernet\n", hs->hostbatch[hidx]->NameIP(), hs->hostbatch[hidx]->directlyConnected()? "IS" : "IS NOT", hs->hostbatch[hidx]->deviceName(), (hs->hostbatch[hidx]->ifType() == devt_ethernet)? "IS" : "IS NOT");
-      }
-      
-
-      /* In some cases, we can only allow hosts that use the same
-	 device in a group.  Similarly, we don't mix
-	 directly-connected boxes with those that aren't */
-      if (o.af() == AF_INET && o.isr00t && hidx > 0 && 
-	  hs->hostbatch[hidx]->deviceName() && 
-	  (hs->hostbatch[hidx]->v4source().s_addr != hs->hostbatch[0]->v4source().s_addr || 
-	   strcmp(hs->hostbatch[0]->deviceName(), 
-		  hs->hostbatch[hidx]->deviceName()) != 0 
-	  || hs->hostbatch[hidx]->directlyConnected() != hs->hostbatch[0]->directlyConnected())) {
-	/* Cancel everything!  This guy must go in the next group and we are
-	   out of here */
-	hs->current_expression.return_last_host();
-	delete hs->hostbatch[hidx];
-	goto batchfull;
-      }
-      hs->current_batch_sz++;
-}
-
-  if (hs->current_batch_sz < hs->max_batch_sz &&
-      hs->next_expression < hs->num_expressions) {
-    /* We are going to have to pop in another expression. */
-    while(hs->current_expression.parse_expr(hs->target_expressions[hs->next_expression++], o.af()) != 0) 
-      if (hs->next_expression >= hs->num_expressions)
-	break;
-  } else break;
-} while(1);
-
- batchfull:
- 
-if (hs->current_batch_sz == 0)
-  return NULL;
-
-/* OK, now we have our complete batch of entries.  The next step is to
-   randomize them (if requested) */
-if (hs->randomize) {
-  hoststructfry(hs->hostbatch, hs->current_batch_sz);
-}
-
-/* First I'll do the ARP ping if all of the machines in the group are
-   directly connected over ethernet.  I may need the MAC addresses
-   later anyway. */
- if (hs->hostbatch[0]->ifType() == devt_ethernet && 
-     hs->hostbatch[0]->directlyConnected() && 
-     o.sendpref != PACKET_SEND_IP_STRONG) {
-   arpping(hs->hostbatch, hs->current_batch_sz, ports);
-   arpping_done = true;
- }
- 
- gettimeofday(&now, NULL);
- if ((o.sendpref & PACKET_SEND_ETH) && 
-     hs->hostbatch[0]->ifType() == devt_ethernet) {
-   for(i=0; i < hs->current_batch_sz; i++)
-     if (!(hs->hostbatch[i]->flags & HOST_DOWN) && 
-	 !hs->hostbatch[i]->timedOut(&now))
-       if (!setTargetNextHopMAC(hs->hostbatch[i]))
-	 fatal("%s: Failed to determine dst MAC address for target %s", 
-	       __FUNCTION__, hs->hostbatch[hidx]->NameIP());
- }
-
- /* TODO: Maybe I should allow real ping scan of directly connected
-    ethernet hosts? */
- /* Then we do the mass ping (if required - IP-level pings) */
- if ((*pingtype == PINGTYPE_NONE && !arpping_done) || hs->hostbatch[0]->ifType() == devt_loopback) {
-   for(i=0; i < hs->current_batch_sz; i++)  {
-     if (!hs->hostbatch[i]->timedOut(&now)) {
-       initialize_timeout_info(&hs->hostbatch[i]->to);
-       hs->hostbatch[i]->flags |= HOST_UP; /*hostbatch[i].up = 1;*/
-     }
-   }
- } else if (!arpping_done)
-   if (*pingtype & PINGTYPE_ARP) /* A host that we can't arp scan ... maybe localhost */
-     massping(hs->hostbatch, hs->current_batch_sz, ports, DEFAULT_PING_TYPES);
-   else
-     massping(hs->hostbatch, hs->current_batch_sz, ports, *pingtype);
- 
- if (!o.noresolve) nmap_mass_rdns(hs->hostbatch, hs->current_batch_sz);
- 
- return hs->hostbatch[hs->next_batch_no++];
-}
-
-
-void massping(Target *hostbatch[], int num_hosts, 
-              struct scan_lists *ports, int pingtype) {
-static struct timeout_info to = {0,0,0};
-static double gsize = (double) LOOKAHEAD;
-int hostnum;
-struct pingtune pt;
-struct scanstats ss;
-struct timeval begin_select;
-struct pingtech ptech;
-struct tcpqueryinfo tqi;
-int max_block_size = 70;
-struct ppkt {
-  unsigned char type;
-  unsigned char code;
-  unsigned short checksum;
-  unsigned short id;
-  unsigned short seq;
-};
-int elapsed_time;
-int blockinc;
-int probes_per_host = 0; /* Number of probes done for each host (eg
-                            ping packet plus two TCP ports would be 3) */
-int sd_blocking = 1;
-struct sockaddr_in sock;
-u16 seq = 0;
-int sd = -1, rawsd = -1, rawpingsd = -1;
-eth_t *ethsd = NULL;
-struct timeval *time;
-struct timeval start, end;
-unsigned short id;
-pcap_t *pd = NULL;
-char filter[512];
-unsigned short sportbase;
-int max_sockets = 0;
-int p;
-int group_start, group_end, direction; /* For going forward or backward through
-					       grouplen */
-memset((char *)&ptech, 0, sizeof(ptech));
-
-memset((char *) &pt, 0, sizeof(pt)); 
-
-pt.up_this_block = 0;
-pt.block_unaccounted = LOOKAHEAD;
-pt.down_this_block = 0;
-pt.num_responses = 0;
-pt.max_tries = 5; /* Maximum number of tries for a block */
-pt.group_start = 0;
-pt.block_tries = 0; /* How many tries this block has gone through */
-pt.seq_offset = get_random_u16(); // For distinguishing between received packets from this execution vs. concurrent nmaps
-
-/* What port should we send from? */
-if (o.magic_port_set) sportbase = o.magic_port;
-else sportbase = o.magic_port + 20;
-
-/* What kind of scans are we doing? */
- if ((pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS)) && 
-     hostbatch[0]->v4source().s_addr) 
-  ptech.rawicmpscan = 1;
-else if (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS)) 
-  ptech.icmpscan = 1;
-if (pingtype & PINGTYPE_UDP) 
-  ptech.rawudpscan = 1;
-if (pingtype & PINGTYPE_TCP) {
-  if (o.isr00t && o.af() == AF_INET)
-    ptech.rawtcpscan = 1;
-  else ptech.connecttcpscan = 1;
-}
-
- probes_per_host = 0;
- if (pingtype & PINGTYPE_ICMP_PING) probes_per_host++;
- if (pingtype & PINGTYPE_ICMP_MASK) probes_per_host++;
- if (pingtype & PINGTYPE_ICMP_TS) probes_per_host++;
- probes_per_host += o.num_ping_synprobes + o.num_ping_ackprobes + o.num_ping_udpprobes;
-
-pt.min_group_size = MAX(3, MAX(o.min_parallelism, 16) / probes_per_host);
-
- /* I think max_parallelism mostly relates to # of probes in parallel against
-    a single machine.  So I only use it to go down to 15 here */
-pt.group_size = (o.max_parallelism)? MIN(MAX(o.max_parallelism,15), gsize) : gsize;
-/* Make sure we have at least the minimum parallelism level */
-pt.group_size = MAX(pt.group_size, o.min_parallelism);
-/* Reduce the group size proportionally to number of probes sent per host */
-pt.group_size = MAX(pt.min_group_size, 0.9999 + pt.group_size / probes_per_host);
-max_block_size /= probes_per_host;
-
-/* TODO: I need to move ping scanning to ultra_scan or fix this
-   function to handle scan_delay the way ultra scan does (limit the
-   amount of time between probes sent to the SAME machine.  This func
-   does the opposite -- sends same-box probes immediately and waits to
-   go on to the next machine. */
- if (o.scan_delay > 1000) {
-   pt.group_size = max_block_size = 1;
- }
-
-time = (struct timeval *) safe_zalloc(sizeof(struct timeval) * ((pt.max_tries) * num_hosts));
-id = (unsigned short) get_random_uint();
-
-if (ptech.connecttcpscan)  {
-  /* I think max_parallelism mostly relates to # of probes in parallel against
-      a given machine.  So I won't go below 15 here because of it */
-  max_sockets = MAX(1, max_sd() - 4);
-  if (o.max_parallelism) {
-    max_block_size = MIN(50, MAX(o.max_parallelism, 15) / probes_per_host);
-  } else {
-    max_block_size = MIN(50, max_sockets / probes_per_host);
-  }
-  max_block_size = MAX(1, max_block_size);
-  if (o.scan_delay > 1000)
-    max_block_size = 1;
-  pt.group_size = MIN(pt.group_size, max_block_size);
-  memset((char *)&tqi, 0, sizeof(tqi));
-
-  for(p=0; p < o.num_ping_synprobes; p++) {
-    tqi.sockets[p] = (int *) safe_malloc(sizeof(int) * (pt.max_tries) * num_hosts);
-    memset(tqi.sockets[p], 255, sizeof(int) * (pt.max_tries) * num_hosts);
-  }
-  FD_ZERO(&(tqi.fds_r));
-  FD_ZERO(&(tqi.fds_w));
-  FD_ZERO(&(tqi.fds_x));
-  tqi.sockets_out = 0;
-  tqi.maxsd = 0;
-}
-
-if (ptech.icmpscan) {
-  sd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
-  if (sd < 0) pfatal("Socket trouble in massping"); 
-  unblock_socket(sd);
-#ifndef WIN32
-  sethdrinclude(sd);
-#endif
-  sd_blocking = 0;
-  if (num_hosts > 10)
-    max_rcvbuf(sd);
-  broadcast_socket(sd);
-} else sd = -1;
-
-
-/* if to timeout structure hasn't been initialized yet */
-if (!to.srtt && !to.rttvar && !to.timeout) {
-  /*  to.srtt = 800000;
-      to.rttvar = 500000; */ /* we will init these when we get real data */
-  initialize_timeout_info(&to);
-}
-
-/* Init our raw socket */
-if (o.numdecoys > 1 || ptech.rawtcpscan || ptech.rawicmpscan || ptech.rawudpscan) {
-	if ((o.sendpref & PACKET_SEND_ETH) && hostbatch[0]->ifType() == devt_ethernet) {
-		/* We'll send ethernet packets with dnet */
-		ethsd = eth_open(hostbatch[0]->deviceName());
-		if (ethsd == NULL)
-			fatal("dnet: Failed to open device %s", hostbatch[0]->deviceName());
-		rawsd = -1; rawpingsd = -1;
-	} else {
-  if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
-    pfatal("socket trobles in massping");
-  broadcast_socket(rawsd);
-#ifndef WIN32
-  sethdrinclude(rawsd);
-#endif
-
-  if ((rawpingsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
-    pfatal("socket trobles in massping");
-  broadcast_socket(rawpingsd);
-#ifndef WIN32
-  sethdrinclude(rawpingsd);
-#endif
-}
-} else { rawsd = -1; rawpingsd = -1; }
-
-if (ptech.rawicmpscan || ptech.rawtcpscan || ptech.rawudpscan) {
-  /* we need a pcap descript0r! */
-  /* MAX snaplen needed = 
-     24 bytes max link_layer header
-     64 bytes max IPhdr
-     16 bytes of the TCP header
-     ---
-   = 104 byte snaplen */
-  pd = my_pcap_open_live(hostbatch[0]->deviceName(), 104, o.spoofsource, 20);
-
-  snprintf(filter, sizeof(filter), "(icmp and dst host %s) or ((tcp or udp) and dst host %s and ( dst port %d or dst port %d or dst port %d or dst port %d or dst port %d))", 
-	   inet_ntoa(hostbatch[0]->v4source()),
-	   inet_ntoa(hostbatch[0]->v4source()),
-	   sportbase , sportbase + 1, sportbase + 2, sportbase + 3, 
-	   sportbase + 4);
-
-  set_pcap_filter(hostbatch[0]->deviceName(), pd, filter); 
-}
-
- blockinc = (int) (0.9999 + 8.0 / probes_per_host);
-
-memset((char *)&sock,0,sizeof(sock));
-gettimeofday(&start, NULL);
-
- pt.group_end = (int) MIN(pt.group_start + pt.group_size -1, num_hosts -1);
- 
- while(pt.group_start < num_hosts) { /* while we have hosts left to scan */
-   do { /* one block */
-     pt.up_this_block = 0;
-     pt.down_this_block = 0;
-     pt.block_unaccounted = 0;
-
-     /* Sometimes a group gets too big for the network path and a
-        router (especially things like cable/DSL modems) will drop our
-        packets after a certain number have been sent.  If we just
-        retry the exact same group, we are likely to get exactly the
-        same behavior (missing later hosts).  So we reverse the order
-        for each try */
-     direction = (pt.block_tries % 2 == 0)? 1 : -1;
-     if (direction == 1) { group_start = pt.group_start; group_end = pt.group_end; }
-     else { group_start = pt.group_end; group_end = pt.group_start; }
-     for(hostnum = group_start; hostnum != group_end + direction; hostnum += direction) {      
-       /* If (we don't know whether the host is up yet) ... */
-       if (!(hostbatch[hostnum]->flags & HOST_UP) && !hostbatch[hostnum]->wierd_responses && !(hostbatch[hostnum]->flags & HOST_DOWN)) {  
-	 /* Send a ping queries to it */
-	 seq = hostnum * pt.max_tries + pt.block_tries + pt.seq_offset;
-	 if (ptech.icmpscan && !sd_blocking) { 
-	   block_socket(sd); sd_blocking = 1; 
-	 }
-	 pt.block_unaccounted++;
-	 gettimeofday(&time[(seq - pt.seq_offset) & 0xFFFF], NULL);
-
-	 if (ptech.icmpscan || ptech.rawicmpscan)
-	   sendpingqueries(sd, rawpingsd, ethsd, hostbatch[hostnum],  
-			   seq, id, &ss, time, pingtype, ptech);
-       
-	 if (ptech.rawtcpscan || ptech.rawudpscan) 
-	   sendrawtcpudppingqueries(rawsd, ethsd, hostbatch[hostnum], pingtype, seq, time, &pt);
-
-	 else if (ptech.connecttcpscan) {
-	   sendconnecttcpqueries(hostbatch, &tqi, hostbatch[hostnum], seq, time, &pt, &to, max_sockets);
-	 }
-       }
-     } /* for() loop */
-     /* OK, we have sent our ping packets ... now we wait for responses */
-     gettimeofday(&begin_select, NULL);
-     do {
-       if (ptech.icmpscan && sd_blocking ) { 
-	 unblock_socket(sd); sd_blocking = 0; 
-       }
-       if(ptech.icmpscan || ptech.rawicmpscan || ptech.rawtcpscan || ptech.rawudpscan) {       
-	 get_ping_results(sd, pd, hostbatch, pingtype, time, &pt, &to, id, 
-			  &ptech, ports);
-       }
-       if (ptech.connecttcpscan) {
-	 get_connecttcpscan_results(&tqi, hostbatch, time, &pt, &to);
-       }
-       gettimeofday(&end, NULL);
-       elapsed_time = TIMEVAL_SUBTRACT(end, begin_select);
-     } while( elapsed_time < to.timeout);
-     /* try again if a new box was found but some are still unaccounted for and
-	we haven't run out of retries.  Always retry at least once.
-     */
-     pt.dropthistry = 0;
-     pt.block_tries++;
-   } while ((pt.up_this_block > 0 || pt.block_tries == 1) && pt.block_unaccounted > 0 && pt.block_tries < pt.max_tries);
-
-   if (o.debugging)
-     log_write(LOG_STDOUT, "Finished block: srtt: %d rttvar: %d timeout: %d block_tries: %d up_this_block: %d down_this_block: %d group_sz: %d\n", to.srtt, to.rttvar, to.timeout, pt.block_tries, pt.up_this_block, pt.down_this_block, pt.group_end - pt.group_start + 1);
-
-   if (pt.block_tries == 2 && pt.up_this_block == 0 && pt.down_this_block == 0)
-     /* Then it did not miss any hosts (that we know of)*/
-       pt.group_size = MIN(pt.group_size + blockinc, max_block_size);
-   
-   /* Move to next block */
-   pt.block_tries = 0;
-   pt.group_start = pt.group_end +1;
-   pt.group_end = (int) MIN(pt.group_start + pt.group_size -1, num_hosts -1);
-   /*   pt.block_unaccounted = pt.group_end - pt.group_start + 1;   */
- }
-
- if (sd >= 0) close(sd);
- if (ptech.connecttcpscan)
-   for(p=0; p < o.num_ping_synprobes; p++)
-     free(tqi.sockets[p]);
- if (sd >= 0) close(sd);
- if (rawsd >= 0) close(rawsd);
- if (rawpingsd >= 0) close(rawpingsd);
- if (ethsd) eth_close(ethsd);
- free(time);
- if (pd) pcap_close(pd);
- if (o.debugging) 
-   log_write(LOG_STDOUT, "massping done:  num_hosts: %d  num_responses: %d\n", num_hosts, pt.num_responses);
- gsize = pt.group_size;
- return;
-}
-
-int sendconnecttcpqueries(Target *hostbatch[], struct tcpqueryinfo *tqi,
-			Target *target, u16 seq, 
-			struct timeval *time, struct pingtune *pt, 
-			struct timeout_info *to, int max_sockets) {
-  int i;
-
-  for( i=0; i<o.num_ping_synprobes; i++ ) {
-    if (i > 0 && o.scan_delay) enforce_scan_delay(NULL);
-    sendconnecttcpquery(hostbatch, tqi, target, i, seq, time, pt, to, max_sockets);
-  }
-
-  return 0;
-}
-
-int sendconnecttcpquery(Target *hostbatch[], struct tcpqueryinfo *tqi,
-			Target *target, int probe_port_num, u16 seq, 
-			struct timeval *time, struct pingtune *pt, 
-			struct timeout_info *to, int max_sockets) {
-
-  int res,sock_err,i;
-  int tmpsd;
-  int hostnum, trynum;
-  struct sockaddr_storage sock;
-  struct sockaddr_in *sin = (struct sockaddr_in *) &sock;
-  struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) &sock;
-  size_t socklen;
-  
-  seq -= pt->seq_offset; // Because connect() pingscan doesn't send it over the wire
-  trynum = seq % pt->max_tries;
-  hostnum = seq / pt->max_tries;
-
-  assert(tqi->sockets_out <= max_sockets);
-  if (tqi->sockets_out == max_sockets) {
-    /* We've got to free one! */
-    for(i=0; i < trynum; i++) {
-      tmpsd = hostnum * pt->max_tries + i;
-      if (tqi->sockets[probe_port_num][tmpsd] >= 0) {
-	if (o.debugging) 
-	  log_write(LOG_STDOUT, "sendconnecttcpquery: Scavenging a free socket due to serious shortage\n");
-	close(tqi->sockets[probe_port_num][tmpsd]);
-	tqi->sockets[probe_port_num][tmpsd] = -1;
-	tqi->sockets_out--;
-	break;
-      }
-    }
-    if (i == trynum)
-      fatal("sendconnecttcpquery: Could not scavenge a free socket!");
-  }
-    
-  /* Since we know we now have a free s0cket, lets take it */
-  assert(tqi->sockets[probe_port_num][seq] == -1);
-  tqi->sockets[probe_port_num][seq] =  socket(o.af(), SOCK_STREAM, IPPROTO_TCP);
-  if (tqi->sockets[probe_port_num][seq] == -1) 
-    fatal("Socket creation in sendconnecttcpquery");
-  tqi->maxsd = MAX(tqi->maxsd, tqi->sockets[probe_port_num][seq]);
-  tqi->sockets_out++;
-  unblock_socket(tqi->sockets[probe_port_num][seq]);
-  init_socket(tqi->sockets[probe_port_num][seq]);
-
-  if (target->TargetSockAddr(&sock, &socklen) != 0)
-    fatal("Unable to get target sock in sendconnecttcpquery");
-
-  if (sin->sin_family == AF_INET)
-    sin->sin_port = htons(o.ping_synprobes[probe_port_num]);
-#if HAVE_IPV6
-  else sin6->sin6_port = htons(o.ping_synprobes[probe_port_num]);
-#endif //HAVE_IPV6
-
-  res = connect(tqi->sockets[probe_port_num][seq],(struct sockaddr *)&sock, socklen);
-  sock_err = socket_errno();
-
-  if ((res != -1 || sock_err == ECONNREFUSED)) {
-    /* This can happen on localhost, successful/failing connection immediately
-       in non-blocking mode */
-      hostupdate(hostbatch, target, HOST_UP, 1, trynum, to, 
-		 &time[seq], NULL, pt, tqi, pingstyle_connecttcp);
-    if (tqi->maxsd == tqi->sockets[probe_port_num][seq]) tqi->maxsd--;
-  }
-  else if (sock_err == ENETUNREACH) {
-    if (o.debugging) 
-      error("Got ENETUNREACH from sendconnecttcpquery connect()");
-    hostupdate(hostbatch, target, HOST_DOWN, 1, trynum, to, 
-	       &time[seq], NULL, pt, tqi, pingstyle_connecttcp);
-  }
-  else {
-    /* We'll need to select() and wait it out */
-    FD_SET(tqi->sockets[probe_port_num][seq], &(tqi->fds_r));
-    FD_SET(tqi->sockets[probe_port_num][seq], &(tqi->fds_w));
-    FD_SET(tqi->sockets[probe_port_num][seq], &(tqi->fds_x));
-  }
-return 0;
-}
-
-int sendrawtcpudppingqueries(int rawsd, eth_t *ethsd, Target *target, int pingtype, u16 seq, 
-			  struct timeval *time, struct pingtune *pt) {
-  int i;
-  struct eth_nfo eth;
-  struct eth_nfo *ethptr = NULL;
-
-  if (ethsd) {
-	  memcpy(eth.srcmac, target->SrcMACAddress(), 6);
-	  memcpy(eth.dstmac, target->NextHopMACAddress(), 6);
-	  eth.ethsd = ethsd;
-	  eth.devname[0] = '\0';
-	  ethptr = &eth;
-  } else ethptr = NULL;
-
-  if (pingtype & PINGTYPE_UDP) {
-    for( i=0; i<o.num_ping_udpprobes; i++ ) {
-      if (i > 0 && o.scan_delay) enforce_scan_delay(NULL);
-      sendrawudppingquery(rawsd, ethptr, target, o.ping_udpprobes[i], seq, time, pt);
-    }
-  }
-
-  if (pingtype & PINGTYPE_TCP_USE_ACK) {
-    for( i=0; i<o.num_ping_ackprobes; i++ ) {
-      if (i > 0 && o.scan_delay) enforce_scan_delay(NULL);
-      sendrawtcppingquery(rawsd, ethptr, target, PINGTYPE_TCP_USE_ACK, o.ping_ackprobes[i], seq, time, pt);
-    }
-  }
-
-  if (pingtype & PINGTYPE_TCP_USE_SYN) {
-    for( i=0; i<o.num_ping_synprobes; i++ ) {
-      if (i > 0 && o.scan_delay) enforce_scan_delay(NULL);
-      sendrawtcppingquery(rawsd, ethptr, target, PINGTYPE_TCP_USE_SYN, o.ping_synprobes[i], seq, time, pt);
-    }
-  }
-
-  return 0;
-}
-
-int sendrawudppingquery(int rawsd, struct eth_nfo *eth, Target *target, u16 probe_port,
-			u16 seq, struct timeval *time, struct pingtune *pt) {
-int trynum = 0;
-unsigned short sportbase;
-
-if (o.magic_port_set) sportbase = o.magic_port;
-else { 
-  sportbase = o.magic_port + 20;
-  trynum = seq % pt->max_tries;
-}
-
- o.decoys[o.decoyturn].s_addr = target->v4source().s_addr;
- 
- send_udp_raw_decoys( rawsd, eth, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, seq, o.extra_payload, o.extra_payload_length);
-
-
- return 0;
-}
-
-int sendrawtcppingquery(int rawsd, struct eth_nfo *eth, Target *target, int pingtype, u16 probe_port,
-			u16 seq, struct timeval *time, struct pingtune *pt) {
-int trynum = 0;
-int myseq;
-unsigned short sportbase;
-unsigned long myack;
-
-if (o.magic_port_set) sportbase = o.magic_port;
-else { 
-  sportbase = o.magic_port + 20;
-  trynum = seq % pt->max_tries;
-}
-
- myseq = (get_random_uint() << 22) + (seq << 6) + 0x1E; /* (response & 0x3F) better be 0x1E or 0x1F */
- myack = (get_random_uint() << 22) + (seq << 6) + 0x1E; /* (response & 0x3F) better be 0x1E or 0x1F */
- o.decoys[o.decoyturn].s_addr = target->v4source().s_addr;
-
- if (pingtype & PINGTYPE_TCP_USE_SYN) {   
-   send_tcp_raw_decoys( rawsd, eth, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, myseq, myack, TH_SYN, 0, (u8 *) "\x02\x04\x05\xb4", 4, o.extra_payload, 
-			o.extra_payload_length);
- } else {
-   send_tcp_raw_decoys( rawsd, eth, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, myseq, myack, TH_ACK, 0, NULL, 0, o.extra_payload, 
-			o.extra_payload_length);
- }
-
- return 0;
-}
-
-int sendpingqueries(int sd, int rawsd, eth_t *ethsd, Target *target,  
-		  u16 seq, unsigned short id, struct scanstats *ss, 
-		    struct timeval *time, int pingtype, struct pingtech ptech) {
-  if (pingtype & PINGTYPE_ICMP_PING) {
-    if (o.scan_delay) enforce_scan_delay(NULL);
-    sendpingquery(sd, rawsd, ethsd, target, seq, id, ss, time, PINGTYPE_ICMP_PING, ptech);
-  }
-  if (pingtype & PINGTYPE_ICMP_MASK) {
-    if (o.scan_delay) enforce_scan_delay(NULL);
-    sendpingquery(sd, rawsd, ethsd, target, seq, id, ss, time, PINGTYPE_ICMP_MASK, ptech);
-
-  }
-  if (pingtype & PINGTYPE_ICMP_TS) {
-    if (o.scan_delay) enforce_scan_delay(NULL);
-    sendpingquery(sd, rawsd, ethsd, target, seq, id, ss, time, PINGTYPE_ICMP_TS, ptech);
-  }
-
-  return 0;
-}
-
-int sendpingquery(int sd, int rawsd, eth_t *ethsd, Target *target,  
-		  u16 seq, unsigned short id, struct scanstats *ss, 
-		  struct timeval *time, int pingtype, struct pingtech ptech) {
-struct ppkt {
-  u8 type;
-  u8 code;
-  u16 checksum;
-  u16 id;
-  u16 seq;
-  u8 data[1500]; /* Note -- first 4-12 bytes can be used for ICMP header */
-} pingpkt;
-u32 *datastart = (u32 *) pingpkt.data;
-int datalen = sizeof(pingpkt.data); 
-int icmplen=0;
-int decoy;
-int res;
-struct sockaddr_in sock;
-struct eth_nfo eth;
-struct eth_nfo *ethptr = NULL;
-char *ping = (char *) &pingpkt;
-
-if (ethsd) {
-    memcpy(eth.srcmac, target->SrcMACAddress(), 6);
-    memcpy(eth.dstmac, target->NextHopMACAddress(), 6);
-    eth.ethsd = ethsd;
-    eth.devname[0] = '\0';
-    ethptr = &eth;
-} else ethptr = NULL;
-
- if (pingtype & PINGTYPE_ICMP_PING) {
-   icmplen = 8; 
-   pingpkt.type = 8;
- }
- else if (pingtype & PINGTYPE_ICMP_MASK) {
-   icmplen = 12;
-   *datastart++ = 0;
-   datalen -= 4;
-   pingpkt.type = 17;
- }
- else if (pingtype & PINGTYPE_ICMP_TS) {   
-   icmplen = 20;
-   memset(datastart, 0, 12);
-   datastart += 12;
-   datalen -= 12;
-   pingpkt.type = 13;
- }
- else fatal("sendpingquery: unknown pingtype: %d", pingtype);
-
- if (o.extra_payload_length > 0) {
-   icmplen += MIN(datalen, o.extra_payload_length);
-   memset(datastart, 0, MIN(datalen, o.extra_payload_length));
- }
-/* Fill out the ping packet */
-
-pingpkt.code = 0;
-pingpkt.id = id;
-pingpkt.seq = seq;
-pingpkt.checksum = 0;
-pingpkt.checksum = in_cksum((unsigned short *)ping, icmplen);
-if ( o.badsum )
-  pingpkt.checksum--;
-
-
-/* Now for our sock */
-if (ptech.icmpscan) {
-  memset((char *)&sock, 0, sizeof(sock));
-  sock.sin_family= AF_INET;
-  sock.sin_addr = target->v4host();
-  
-  o.decoys[o.decoyturn].s_addr = target->v4source().s_addr;
-}
-
- for (decoy = 0; decoy < o.numdecoys; decoy++) {
-   if (ptech.icmpscan && decoy == o.decoyturn) {
-      int sock_err = 0;
-
-     /* FIXME: If EHOSTUNREACH (Windows does that) then we were
-	probably unable to obtain an arp response from the machine.
-	We should just consider the host down rather than ignoring
-	the error */
-     // Can't currently do the tracer because 'ping' has no IP header
-     //     PacketTrace::trace(PacketTrace::SENT, (u8 *) ping, icmplen); 
-     if ((res = sendto(sd,(char *) ping,icmplen,0,(struct sockaddr *)&sock,
-		       sizeof(struct sockaddr))) != icmplen && 
-                       (sock_err = socket_errno()) != EHOSTUNREACH
-#ifdef WIN32
-        // Windows (correctly) returns this if we scan an address that is
-        // known to be nonsensical (e.g. myip & mysubnetmask)
-	&& sock_err != WSAEADDRNOTAVAIL
-#endif 
-		       ) {
-       fprintf(stderr, "sendto in sendpingquery returned %d (should be 8)!\n", res);
-       fprintf(stderr, "sendto: %s\n", strerror(sock_err));
-     }
-   } else {
-     send_ip_raw( rawsd, ethptr, &o.decoys[decoy], target->v4hostip(), o.ttl, IPPROTO_ICMP, ping, icmplen);
-   }
- }
-
- return 0;
-}
-
-int get_connecttcpscan_results(struct tcpqueryinfo *tqi, 
-			       Target *hostbatch[], 
-			       struct timeval *time, struct pingtune *pt, 
-			       struct timeout_info *to) {
-
-int res, res2;
-int tm;
-struct timeval myto, start, end;
-int hostindex;
-int trynum, newstate = HOST_DOWN;
-int seq;
-int p;
-char buf[256];
-int foundsomething = 0;
-fd_set myfds_r,myfds_w,myfds_x;
-gettimeofday(&start, NULL);
- 
-while(pt->block_unaccounted) {
-  /* OK so there is a little fudge factor, SUE ME! */
-  myto.tv_sec  = to->timeout / 1000000; 
-  myto.tv_usec = to->timeout % 1000000;
-  foundsomething = 0;
-  myfds_r = tqi->fds_r;
-  myfds_w = tqi->fds_w;
-  myfds_x = tqi->fds_x;
-  res = select(tqi->maxsd + 1, &myfds_r, &myfds_w, &myfds_x, &myto);
-  if (res > 0) {
-    for(hostindex = pt->group_start; hostindex <= pt->group_end; hostindex++) {
-      for(trynum=0; trynum <= pt->block_tries; trynum++) {
-	seq = hostindex * pt->max_tries + trynum;
-	for(p=0; p < o.num_ping_synprobes; p++) {
-	  if (tqi->sockets[p][seq] >= 0) {
-	    if (o.debugging > 1) {
-	      if (FD_ISSET(tqi->sockets[p][seq], &(myfds_r))) {
-	        log_write(LOG_STDOUT, "WRITE selected for machine %s\n", hostbatch[hostindex]->targetipstr());  
-	      }
-	      if ( FD_ISSET(tqi->sockets[p][seq], &myfds_w)) {
-	        log_write(LOG_STDOUT, "READ selected for machine %s\n", hostbatch[hostindex]->targetipstr()); 
-	      }
-	      if  ( FD_ISSET(tqi->sockets[p][seq], &myfds_x)) {
-	        log_write(LOG_STDOUT, "EXC selected for machine %s\n", hostbatch[hostindex]->targetipstr());
-	      }
-	    }
-	    if (FD_ISSET(tqi->sockets[p][seq], &myfds_r) || FD_ISSET(tqi->sockets[p][seq], &myfds_w) ||  FD_ISSET(tqi->sockets[p][seq], &myfds_x)) {
-	      foundsomething = 0;
-	      res2 = recv(tqi->sockets[p][seq], buf, sizeof(buf) - 1, 0);
-	      if (res2 == -1) {
-  	        int sock_err = socket_errno();
-	        switch(sock_err) {
-	        case ECONNREFUSED:
-	        case EAGAIN:
-#ifdef WIN32
-			case WSAENOTCONN:
-#endif
-		  if (sock_err == EAGAIN && o.verbose) {
-		    log_write(LOG_STDOUT, "Machine %s MIGHT actually be listening on probe port %d\n", hostbatch[hostindex]->targetipstr(), o.ping_synprobes[p]);
-		  }
-		  foundsomething = 1;
-		  newstate = HOST_UP;	
-		  break;
-	        case ENETDOWN:
-	        case ENETUNREACH:
-	        case ENETRESET:
-	        case ECONNABORTED:
-	        case ETIMEDOUT:
-	        case EHOSTDOWN:
-	        case EHOSTUNREACH:
-		  foundsomething = 1;
-		  newstate = HOST_DOWN;
-		  break;
-	        default:
-		  snprintf (buf, sizeof(buf), "Strange read error from %s", hostbatch[hostindex]->targetipstr());
-		  fprintf(stderr, "%s: %s\n", buf, strerror(sock_err));
-		  break;
-	        }
-	      } else { 
-	        foundsomething = 1;
-	        newstate = HOST_UP;
-	        if (o.verbose) {	      
-		    log_write(LOG_STDOUT, "Machine %s is actually LISTENING on probe port %d\n",
-			   hostbatch[hostindex]->targetipstr(), 
-			   o.ping_synprobes[p]);
-	        }
-	      }
-	      if (foundsomething) {
-	        hostupdate(hostbatch, hostbatch[hostindex], newstate, 1, trynum,
-			 to,  &time[seq], NULL, pt, tqi, pingstyle_connecttcp);
-	      /*	      break;*/
-	      }
-	    }
-	  }
+      } 
+      /* For ranges we need to be a little more slick, if we don't find a match
+       * we should skip the rest of the addrs in the octet, thank wam for this
+       * optimization */
+      else if (targets_type == TargetGroup::IPV4_RANGES) {
+        if (tmpTarget == checkhost->sin_addr.s_addr) {
+          exclude_group[i].rewind();
+          return 1;
+        }
+        else { /* note these are in network byte order */
+	  if ((tmpTarget & 0x000000ff) != (checkhost->sin_addr.s_addr & 0x000000ff))
+            exclude_group[i].skip_range(TargetGroup::FIRST_OCTET); 
+	  else if ((tmpTarget & 0x0000ff00) != (checkhost->sin_addr.s_addr & 0x0000ff00))
+            exclude_group[i].skip_range(TargetGroup::SECOND_OCTET); 
+	  else if ((tmpTarget & 0x00ff0000) != (checkhost->sin_addr.s_addr & 0x00ff0000))
+            exclude_group[i].skip_range(TargetGroup::THIRD_OCTET); 
+
+          continue;
         }
       }
-    }
-  }
-  gettimeofday(&end, NULL);
-  tm = TIMEVAL_SUBTRACT(end,start);  
-  if (tm > (30 * to->timeout)) {
-    error("WARNING: getconnecttcpscanresults is taking way too long, skipping");
-    break;
-  }
-  if (res == 0 &&  tm > to->timeout) break; 
-}
-
-/* OK, now we have to kill all outstanding queries to make room for
-   the next group :( I'll miss these little guys. */
- for(hostindex = pt->group_start; hostindex <= pt->group_end; hostindex++) { 
-      for(trynum=0; trynum <= pt->block_tries; trynum++) {
-	seq = hostindex * pt->max_tries + trynum;
-	for(p=0; p < o.num_ping_synprobes; p++) {
-	  if ( tqi->sockets[p][seq] >= 0) {
-	    tqi->sockets_out--;
-	    close(tqi->sockets[p][seq]);
-	    tqi->sockets[p][seq] = -1;
-	  }
-	}
+#if HAVE_IPV6
+      else if (targets_type == TargetGroup::IPV6_ADDRESS) {
+        fatal("exclude file not supported for IPV6 -- If it is important to you, send a mail to fyodor@insecure.org so I can guage support\n");
       }
- }
- tqi->maxsd = 0;
- assert(tqi->sockets_out == 0);
- FD_ZERO(&(tqi->fds_r));
- FD_ZERO(&(tqi->fds_w));
- FD_ZERO(&(tqi->fds_x));
-	 
-return 0;
+#endif
+    }
+    exclude_group[i++].rewind();
+  }
+
+  /* we did not find the host */
+  return 0;
 }
 
 
-int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[], int pingtype, 
-		     struct timeval *time,  struct pingtune *pt, 
-		     struct timeout_info *to, int id, struct pingtech *ptech, 
-		     struct scan_lists *ports) {
+static int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[], 
+			    int pingtype, struct timeval *time,
+			    struct pingtune *pt, struct timeout_info *to, 
+			    int id, struct pingtech *ptech, 
+			    struct scan_lists *ports) {
   fd_set fd_r, fd_x;
   struct timeval myto, tmpto, start, rcvdtime;
   unsigned int bytes;
@@ -1568,20 +794,435 @@ int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[], int pingtype,
   return 0;
 }
 
-char *readhoststate(int state) {
-  switch(state) {
-  case HOST_UP:
-    return "HOST_UP";
-  case HOST_DOWN:
-    return "HOST_DOWN";
-  case HOST_FIREWALLED:
-    return "HOST_FIREWALLED";
-  default:
-    return "UNKNOWN/COMBO";
+
+static int sendconnecttcpquery(Target *hostbatch[], struct tcpqueryinfo *tqi,
+			Target *target, int probe_port_num, u16 seq, 
+			struct timeval *time, struct pingtune *pt, 
+			struct timeout_info *to, int max_sockets) {
+
+  int res,sock_err,i;
+  int tmpsd;
+  int hostnum, trynum;
+  struct sockaddr_storage sock;
+  struct sockaddr_in *sin = (struct sockaddr_in *) &sock;
+  struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) &sock;
+  size_t socklen;
+  
+  seq -= pt->seq_offset; // Because connect() pingscan doesn't send it over the wire
+  trynum = seq % pt->max_tries;
+  hostnum = seq / pt->max_tries;
+
+  assert(tqi->sockets_out <= max_sockets);
+  if (tqi->sockets_out == max_sockets) {
+    /* We've got to free one! */
+    for(i=0; i < trynum; i++) {
+      tmpsd = hostnum * pt->max_tries + i;
+      if (tqi->sockets[probe_port_num][tmpsd] >= 0) {
+	if (o.debugging) 
+	  log_write(LOG_STDOUT, "sendconnecttcpquery: Scavenging a free socket due to serious shortage\n");
+	close(tqi->sockets[probe_port_num][tmpsd]);
+	tqi->sockets[probe_port_num][tmpsd] = -1;
+	tqi->sockets_out--;
+	break;
+      }
+    }
+    if (i == trynum)
+      fatal("sendconnecttcpquery: Could not scavenge a free socket!");
   }
-  return NULL;
+    
+  /* Since we know we now have a free s0cket, lets take it */
+  assert(tqi->sockets[probe_port_num][seq] == -1);
+  tqi->sockets[probe_port_num][seq] =  socket(o.af(), SOCK_STREAM, IPPROTO_TCP);
+  if (tqi->sockets[probe_port_num][seq] == -1) 
+    fatal("Socket creation in sendconnecttcpquery");
+  tqi->maxsd = MAX(tqi->maxsd, tqi->sockets[probe_port_num][seq]);
+  tqi->sockets_out++;
+  unblock_socket(tqi->sockets[probe_port_num][seq]);
+  init_socket(tqi->sockets[probe_port_num][seq]);
+
+  if (target->TargetSockAddr(&sock, &socklen) != 0)
+    fatal("Unable to get target sock in sendconnecttcpquery");
+
+  if (sin->sin_family == AF_INET)
+    sin->sin_port = htons(o.ping_synprobes[probe_port_num]);
+#if HAVE_IPV6
+  else sin6->sin6_port = htons(o.ping_synprobes[probe_port_num]);
+#endif //HAVE_IPV6
+
+  res = connect(tqi->sockets[probe_port_num][seq],(struct sockaddr *)&sock, socklen);
+  sock_err = socket_errno();
+
+  if ((res != -1 || sock_err == ECONNREFUSED)) {
+    /* This can happen on localhost, successful/failing connection immediately
+       in non-blocking mode */
+      hostupdate(hostbatch, target, HOST_UP, 1, trynum, to, 
+		 &time[seq], NULL, pt, tqi, pingstyle_connecttcp);
+    if (tqi->maxsd == tqi->sockets[probe_port_num][seq]) tqi->maxsd--;
+  }
+  else if (sock_err == ENETUNREACH) {
+    if (o.debugging) 
+      error("Got ENETUNREACH from sendconnecttcpquery connect()");
+    hostupdate(hostbatch, target, HOST_DOWN, 1, trynum, to, 
+	       &time[seq], NULL, pt, tqi, pingstyle_connecttcp);
+  }
+  else {
+    /* We'll need to select() and wait it out */
+    FD_SET(tqi->sockets[probe_port_num][seq], &(tqi->fds_r));
+    FD_SET(tqi->sockets[probe_port_num][seq], &(tqi->fds_w));
+    FD_SET(tqi->sockets[probe_port_num][seq], &(tqi->fds_x));
+  }
+return 0;
 }
 
+static int sendconnecttcpqueries(Target *hostbatch[], struct tcpqueryinfo *tqi,
+			Target *target, u16 seq, 
+			struct timeval *time, struct pingtune *pt, 
+			struct timeout_info *to, int max_sockets) {
+  int i;
+
+  for( i=0; i<o.num_ping_synprobes; i++ ) {
+    if (i > 0 && o.scan_delay) enforce_scan_delay(NULL);
+    sendconnecttcpquery(hostbatch, tqi, target, i, seq, time, pt, to, max_sockets);
+  }
+
+  return 0;
+}
+
+int sendrawudppingquery(int rawsd, struct eth_nfo *eth, Target *target, u16 probe_port,
+			u16 seq, struct timeval *time, struct pingtune *pt) {
+int trynum = 0;
+unsigned short sportbase;
+
+if (o.magic_port_set) sportbase = o.magic_port;
+else { 
+  sportbase = o.magic_port + 20;
+  trynum = seq % pt->max_tries;
+}
+
+ o.decoys[o.decoyturn].s_addr = target->v4source().s_addr;
+ 
+ send_udp_raw_decoys( rawsd, eth, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, seq, o.extra_payload, o.extra_payload_length);
+
+
+ return 0;
+}
+
+int sendrawtcppingquery(int rawsd, struct eth_nfo *eth, Target *target, int pingtype, u16 probe_port,
+			u16 seq, struct timeval *time, struct pingtune *pt) {
+int trynum = 0;
+int myseq;
+unsigned short sportbase;
+unsigned long myack;
+
+if (o.magic_port_set) sportbase = o.magic_port;
+else { 
+  sportbase = o.magic_port + 20;
+  trynum = seq % pt->max_tries;
+}
+
+ myseq = (get_random_uint() << 22) + (seq << 6) + 0x1E; /* (response & 0x3F) better be 0x1E or 0x1F */
+ myack = (get_random_uint() << 22) + (seq << 6) + 0x1E; /* (response & 0x3F) better be 0x1E or 0x1F */
+ o.decoys[o.decoyturn].s_addr = target->v4source().s_addr;
+
+ if (pingtype & PINGTYPE_TCP_USE_SYN) {   
+   send_tcp_raw_decoys( rawsd, eth, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, myseq, myack, TH_SYN, 0, (u8 *) "\x02\x04\x05\xb4", 4, o.extra_payload, 
+			o.extra_payload_length);
+ } else {
+   send_tcp_raw_decoys( rawsd, eth, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, myseq, myack, TH_ACK, 0, NULL, 0, o.extra_payload, 
+			o.extra_payload_length);
+ }
+
+ return 0;
+}
+
+int sendrawtcpudppingqueries(int rawsd, eth_t *ethsd, Target *target, int pingtype, u16 seq, 
+			  struct timeval *time, struct pingtune *pt) {
+  int i;
+  struct eth_nfo eth;
+  struct eth_nfo *ethptr = NULL;
+
+  if (ethsd) {
+	  memcpy(eth.srcmac, target->SrcMACAddress(), 6);
+	  memcpy(eth.dstmac, target->NextHopMACAddress(), 6);
+	  eth.ethsd = ethsd;
+	  eth.devname[0] = '\0';
+	  ethptr = &eth;
+  } else ethptr = NULL;
+
+  if (pingtype & PINGTYPE_UDP) {
+    for( i=0; i<o.num_ping_udpprobes; i++ ) {
+      if (i > 0 && o.scan_delay) enforce_scan_delay(NULL);
+      sendrawudppingquery(rawsd, ethptr, target, o.ping_udpprobes[i], seq, time, pt);
+    }
+  }
+
+  if (pingtype & PINGTYPE_TCP_USE_ACK) {
+    for( i=0; i<o.num_ping_ackprobes; i++ ) {
+      if (i > 0 && o.scan_delay) enforce_scan_delay(NULL);
+      sendrawtcppingquery(rawsd, ethptr, target, PINGTYPE_TCP_USE_ACK, o.ping_ackprobes[i], seq, time, pt);
+    }
+  }
+
+  if (pingtype & PINGTYPE_TCP_USE_SYN) {
+    for( i=0; i<o.num_ping_synprobes; i++ ) {
+      if (i > 0 && o.scan_delay) enforce_scan_delay(NULL);
+      sendrawtcppingquery(rawsd, ethptr, target, PINGTYPE_TCP_USE_SYN, o.ping_synprobes[i], seq, time, pt);
+    }
+  }
+
+  return 0;
+}
+
+
+static int sendpingquery(int sd, int rawsd, eth_t *ethsd, Target *target,  
+		  u16 seq, unsigned short id, struct scanstats *ss, 
+		  struct timeval *time, int pingtype, struct pingtech ptech) {
+struct ppkt {
+  u8 type;
+  u8 code;
+  u16 checksum;
+  u16 id;
+  u16 seq;
+  u8 data[1500]; /* Note -- first 4-12 bytes can be used for ICMP header */
+} pingpkt;
+u32 *datastart = (u32 *) pingpkt.data;
+int datalen = sizeof(pingpkt.data); 
+int icmplen=0;
+int decoy;
+int res;
+struct sockaddr_in sock;
+struct eth_nfo eth;
+struct eth_nfo *ethptr = NULL;
+char *ping = (char *) &pingpkt;
+
+if (ethsd) {
+    memcpy(eth.srcmac, target->SrcMACAddress(), 6);
+    memcpy(eth.dstmac, target->NextHopMACAddress(), 6);
+    eth.ethsd = ethsd;
+    eth.devname[0] = '\0';
+    ethptr = &eth;
+} else ethptr = NULL;
+
+ if (pingtype & PINGTYPE_ICMP_PING) {
+   icmplen = 8; 
+   pingpkt.type = 8;
+ }
+ else if (pingtype & PINGTYPE_ICMP_MASK) {
+   icmplen = 12;
+   *datastart++ = 0;
+   datalen -= 4;
+   pingpkt.type = 17;
+ }
+ else if (pingtype & PINGTYPE_ICMP_TS) {   
+   icmplen = 20;
+   memset(datastart, 0, 12);
+   datastart += 12;
+   datalen -= 12;
+   pingpkt.type = 13;
+ }
+ else fatal("sendpingquery: unknown pingtype: %d", pingtype);
+
+ if (o.extra_payload_length > 0) {
+   icmplen += MIN(datalen, o.extra_payload_length);
+   memset(datastart, 0, MIN(datalen, o.extra_payload_length));
+ }
+/* Fill out the ping packet */
+
+pingpkt.code = 0;
+pingpkt.id = id;
+pingpkt.seq = seq;
+pingpkt.checksum = 0;
+pingpkt.checksum = in_cksum((unsigned short *)ping, icmplen);
+if ( o.badsum )
+  pingpkt.checksum--;
+
+
+/* Now for our sock */
+if (ptech.icmpscan) {
+  memset((char *)&sock, 0, sizeof(sock));
+  sock.sin_family= AF_INET;
+  sock.sin_addr = target->v4host();
+  
+  o.decoys[o.decoyturn].s_addr = target->v4source().s_addr;
+}
+
+ for (decoy = 0; decoy < o.numdecoys; decoy++) {
+   if (ptech.icmpscan && decoy == o.decoyturn) {
+      int sock_err = 0;
+
+     /* FIXME: If EHOSTUNREACH (Windows does that) then we were
+	probably unable to obtain an arp response from the machine.
+	We should just consider the host down rather than ignoring
+	the error */
+     // Can't currently do the tracer because 'ping' has no IP header
+     //     PacketTrace::trace(PacketTrace::SENT, (u8 *) ping, icmplen); 
+     if ((res = sendto(sd,(char *) ping,icmplen,0,(struct sockaddr *)&sock,
+		       sizeof(struct sockaddr))) != icmplen && 
+                       (sock_err = socket_errno()) != EHOSTUNREACH
+#ifdef WIN32
+        // Windows (correctly) returns this if we scan an address that is
+        // known to be nonsensical (e.g. myip & mysubnetmask)
+	&& sock_err != WSAEADDRNOTAVAIL
+#endif 
+		       ) {
+       fprintf(stderr, "sendto in sendpingquery returned %d (should be 8)!\n", res);
+       fprintf(stderr, "sendto: %s\n", strerror(sock_err));
+     }
+   } else {
+     send_ip_raw( rawsd, ethptr, &o.decoys[decoy], target->v4hostip(), o.ttl, IPPROTO_ICMP, ping, icmplen);
+   }
+ }
+
+ return 0;
+}
+
+static int sendpingqueries(int sd, int rawsd, eth_t *ethsd, Target *target,  
+		  u16 seq, unsigned short id, struct scanstats *ss, 
+		    struct timeval *time, int pingtype, struct pingtech ptech) {
+  if (pingtype & PINGTYPE_ICMP_PING) {
+    if (o.scan_delay) enforce_scan_delay(NULL);
+    sendpingquery(sd, rawsd, ethsd, target, seq, id, ss, time, PINGTYPE_ICMP_PING, ptech);
+  }
+  if (pingtype & PINGTYPE_ICMP_MASK) {
+    if (o.scan_delay) enforce_scan_delay(NULL);
+    sendpingquery(sd, rawsd, ethsd, target, seq, id, ss, time, PINGTYPE_ICMP_MASK, ptech);
+
+  }
+  if (pingtype & PINGTYPE_ICMP_TS) {
+    if (o.scan_delay) enforce_scan_delay(NULL);
+    sendpingquery(sd, rawsd, ethsd, target, seq, id, ss, time, PINGTYPE_ICMP_TS, ptech);
+  }
+
+  return 0;
+}
+
+
+int get_connecttcpscan_results(struct tcpqueryinfo *tqi, 
+			       Target *hostbatch[], 
+			       struct timeval *time, struct pingtune *pt, 
+			       struct timeout_info *to) {
+
+int res, res2;
+int tm;
+struct timeval myto, start, end;
+int hostindex;
+int trynum, newstate = HOST_DOWN;
+int seq;
+int p;
+char buf[256];
+int foundsomething = 0;
+fd_set myfds_r,myfds_w,myfds_x;
+gettimeofday(&start, NULL);
+ 
+while(pt->block_unaccounted) {
+  /* OK so there is a little fudge factor, SUE ME! */
+  myto.tv_sec  = to->timeout / 1000000; 
+  myto.tv_usec = to->timeout % 1000000;
+  foundsomething = 0;
+  myfds_r = tqi->fds_r;
+  myfds_w = tqi->fds_w;
+  myfds_x = tqi->fds_x;
+  res = select(tqi->maxsd + 1, &myfds_r, &myfds_w, &myfds_x, &myto);
+  if (res > 0) {
+    for(hostindex = pt->group_start; hostindex <= pt->group_end; hostindex++) {
+      for(trynum=0; trynum <= pt->block_tries; trynum++) {
+	seq = hostindex * pt->max_tries + trynum;
+	for(p=0; p < o.num_ping_synprobes; p++) {
+	  if (tqi->sockets[p][seq] >= 0) {
+	    if (o.debugging > 1) {
+	      if (FD_ISSET(tqi->sockets[p][seq], &(myfds_r))) {
+	        log_write(LOG_STDOUT, "WRITE selected for machine %s\n", hostbatch[hostindex]->targetipstr());  
+	      }
+	      if ( FD_ISSET(tqi->sockets[p][seq], &myfds_w)) {
+	        log_write(LOG_STDOUT, "READ selected for machine %s\n", hostbatch[hostindex]->targetipstr()); 
+	      }
+	      if  ( FD_ISSET(tqi->sockets[p][seq], &myfds_x)) {
+	        log_write(LOG_STDOUT, "EXC selected for machine %s\n", hostbatch[hostindex]->targetipstr());
+	      }
+	    }
+	    if (FD_ISSET(tqi->sockets[p][seq], &myfds_r) || FD_ISSET(tqi->sockets[p][seq], &myfds_w) ||  FD_ISSET(tqi->sockets[p][seq], &myfds_x)) {
+	      foundsomething = 0;
+	      res2 = recv(tqi->sockets[p][seq], buf, sizeof(buf) - 1, 0);
+	      if (res2 == -1) {
+  	        int sock_err = socket_errno();
+	        switch(sock_err) {
+	        case ECONNREFUSED:
+	        case EAGAIN:
+#ifdef WIN32
+			case WSAENOTCONN:
+#endif
+		  if (sock_err == EAGAIN && o.verbose) {
+		    log_write(LOG_STDOUT, "Machine %s MIGHT actually be listening on probe port %d\n", hostbatch[hostindex]->targetipstr(), o.ping_synprobes[p]);
+		  }
+		  foundsomething = 1;
+		  newstate = HOST_UP;	
+		  break;
+	        case ENETDOWN:
+	        case ENETUNREACH:
+	        case ENETRESET:
+	        case ECONNABORTED:
+	        case ETIMEDOUT:
+	        case EHOSTDOWN:
+	        case EHOSTUNREACH:
+		  foundsomething = 1;
+		  newstate = HOST_DOWN;
+		  break;
+	        default:
+		  snprintf (buf, sizeof(buf), "Strange read error from %s", hostbatch[hostindex]->targetipstr());
+		  fprintf(stderr, "%s: %s\n", buf, strerror(sock_err));
+		  break;
+	        }
+	      } else { 
+	        foundsomething = 1;
+	        newstate = HOST_UP;
+	        if (o.verbose) {	      
+		    log_write(LOG_STDOUT, "Machine %s is actually LISTENING on probe port %d\n",
+			   hostbatch[hostindex]->targetipstr(), 
+			   o.ping_synprobes[p]);
+	        }
+	      }
+	      if (foundsomething) {
+	        hostupdate(hostbatch, hostbatch[hostindex], newstate, 1, trynum,
+			 to,  &time[seq], NULL, pt, tqi, pingstyle_connecttcp);
+	      /*	      break;*/
+	      }
+	    }
+	  }
+        }
+      }
+    }
+  }
+  gettimeofday(&end, NULL);
+  tm = TIMEVAL_SUBTRACT(end,start);  
+  if (tm > (30 * to->timeout)) {
+    error("WARNING: getconnecttcpscanresults is taking way too long, skipping");
+    break;
+  }
+  if (res == 0 &&  tm > to->timeout) break; 
+}
+
+/* OK, now we have to kill all outstanding queries to make room for
+   the next group :( I'll miss these little guys. */
+ for(hostindex = pt->group_start; hostindex <= pt->group_end; hostindex++) { 
+      for(trynum=0; trynum <= pt->block_tries; trynum++) {
+	seq = hostindex * pt->max_tries + trynum;
+	for(p=0; p < o.num_ping_synprobes; p++) {
+	  if ( tqi->sockets[p][seq] >= 0) {
+	    tqi->sockets_out--;
+	    close(tqi->sockets[p][seq]);
+	    tqi->sockets[p][seq] = -1;
+	  }
+	}
+      }
+ }
+ tqi->maxsd = 0;
+ assert(tqi->sockets_out == 0);
+ FD_ZERO(&(tqi->fds_r));
+ FD_ZERO(&(tqi->fds_w));
+ FD_ZERO(&(tqi->fds_x));
+	 
+return 0;
+}
 
 
 /* loads an exclude file into an exclude target list  (mdmcl) */
@@ -1695,81 +1336,6 @@ TargetGroup* load_exclude(FILE *fExclude, char *szExclude) {
   return excludelist;
 }
 
-/* Is the host passed as Target to be excluded, much of this logic had  (mdmcl)
- * to be rewritten from wam's original code to allow for the objects */
-int hostInExclude(struct sockaddr *checksock, size_t checksocklen, 
-		  TargetGroup *exclude_group) {
-  unsigned long tmpTarget; /* ip we examine */
-  int i=0;                 /* a simple index */
-  char targets_type;       /* what is the address type of the Target Group */
-  struct sockaddr_storage ss; 
-  struct sockaddr_in *sin = (struct sockaddr_in *) &ss;
-  size_t slen;             /* needed for funct but not used */
-  unsigned long mask = 0;  /* our trusty netmask, which we convert to nbo */
-  struct sockaddr_in *checkhost;
-
-  if ((TargetGroup *)0 == exclude_group)
-    return 0;
-
-  assert(checksocklen >= sizeof(struct sockaddr_in));
-  checkhost = (struct sockaddr_in *) checksock;
-  if (checkhost->sin_family != AF_INET)
-    checkhost = NULL;
-
-  /* First find out what type of addresses are in the target group */
-  targets_type = exclude_group[i].get_targets_type();
-
-  /* Lets go through the targets until we reach our uninitialized placeholder */
-  while (exclude_group[i].get_targets_type() != TargetGroup::TYPE_NONE)
-  { 
-    /* while there are still hosts in the target group */
-    while (exclude_group[i].get_next_host(&ss, &slen) == 0) {
-      tmpTarget = sin->sin_addr.s_addr; 
-
-      /* For Netmasks simply compare the network bits and move to the next
-       * group if it does not compare, we don't care about the individual addrs */
-      if (targets_type == TargetGroup::IPV4_NETMASK) {
-        mask = htonl((unsigned long) (0-1) << 32-exclude_group[i].get_mask());
-        if ((tmpTarget & mask) == (checkhost->sin_addr.s_addr & mask)) {
-	  exclude_group[i].rewind();
-	  return 1;
-        }
-	else {
-	  break;
-	}
-      } 
-      /* For ranges we need to be a little more slick, if we don't find a match
-       * we should skip the rest of the addrs in the octet, thank wam for this
-       * optimization */
-      else if (targets_type == TargetGroup::IPV4_RANGES) {
-        if (tmpTarget == checkhost->sin_addr.s_addr) {
-          exclude_group[i].rewind();
-          return 1;
-        }
-        else { /* note these are in network byte order */
-	  if ((tmpTarget & 0x000000ff) != (checkhost->sin_addr.s_addr & 0x000000ff))
-            exclude_group[i].skip_range(TargetGroup::FIRST_OCTET); 
-	  else if ((tmpTarget & 0x0000ff00) != (checkhost->sin_addr.s_addr & 0x0000ff00))
-            exclude_group[i].skip_range(TargetGroup::SECOND_OCTET); 
-	  else if ((tmpTarget & 0x00ff0000) != (checkhost->sin_addr.s_addr & 0x00ff0000))
-            exclude_group[i].skip_range(TargetGroup::THIRD_OCTET); 
-
-          continue;
-        }
-      }
-#if HAVE_IPV6
-      else if (targets_type == TargetGroup::IPV6_ADDRESS) {
-        fatal("exclude file not supported for IPV6 -- If it is important to you, send a mail to fyodor@insecure.org so I can guage support\n");
-      }
-#endif
-    }
-    exclude_group[i++].rewind();
-  }
-
-  /* we did not find the host */
-  return 0;
-}
-
 /* A debug routine to dump some information to stdout.                  (mdmcl)
  * Invoked if debugging is set to 3 or higher
  * I had to make signigicant changes from wam's code. Although wam
@@ -1819,3 +1385,438 @@ int dumpExclude(TargetGroup *exclude_group) {
   return 1;
 }
  
+static void massping(Target *hostbatch[], int num_hosts, 
+              struct scan_lists *ports, int pingtype) {
+  static struct timeout_info to = {0,0,0};
+  static double gsize = (double) LOOKAHEAD;
+  int hostnum;
+  struct pingtune pt;
+  struct scanstats ss;
+  struct timeval begin_select;
+  struct pingtech ptech;
+  struct tcpqueryinfo tqi;
+  int max_block_size = 70;
+  struct ppkt {
+    unsigned char type;
+    unsigned char code;
+    unsigned short checksum;
+    unsigned short id;
+    unsigned short seq;
+  };
+  int elapsed_time;
+  int blockinc;
+  int probes_per_host = 0; /* Number of probes done for each host (eg
+			      ping packet plus two TCP ports would be 3) */
+  int sd_blocking = 1;
+  struct sockaddr_in sock;
+  u16 seq = 0;
+  int sd = -1, rawsd = -1, rawpingsd = -1;
+  eth_t *ethsd = NULL;
+  struct timeval *time;
+  struct timeval start, end;
+  unsigned short id;
+  pcap_t *pd = NULL;
+  char filter[512];
+  unsigned short sportbase;
+  int max_sockets = 0;
+  int p;
+  int group_start, group_end, direction; /* For going forward or backward through
+					    grouplen */
+  memset((char *)&ptech, 0, sizeof(ptech));
+
+  memset((char *) &pt, 0, sizeof(pt)); 
+
+  pt.up_this_block = 0;
+  pt.block_unaccounted = LOOKAHEAD;
+  pt.down_this_block = 0;
+  pt.num_responses = 0;
+  pt.max_tries = 5; /* Maximum number of tries for a block */
+  pt.group_start = 0;
+  pt.block_tries = 0; /* How many tries this block has gone through */
+  pt.seq_offset = get_random_u16(); // For distinguishing between received packets from this execution vs. concurrent nmaps
+
+  /* What port should we send from? */
+  if (o.magic_port_set) sportbase = o.magic_port;
+  else sportbase = o.magic_port + 20;
+
+  /* What kind of scans are we doing? */
+  if ((pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS)) && 
+      hostbatch[0]->v4source().s_addr) 
+    ptech.rawicmpscan = 1;
+  else if (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS)) 
+    ptech.icmpscan = 1;
+  if (pingtype & PINGTYPE_UDP) 
+    ptech.rawudpscan = 1;
+  if (pingtype & PINGTYPE_TCP) {
+    if (o.isr00t && o.af() == AF_INET)
+      ptech.rawtcpscan = 1;
+    else ptech.connecttcpscan = 1;
+  }
+
+  probes_per_host = 0;
+  if (pingtype & PINGTYPE_ICMP_PING) probes_per_host++;
+  if (pingtype & PINGTYPE_ICMP_MASK) probes_per_host++;
+  if (pingtype & PINGTYPE_ICMP_TS) probes_per_host++;
+  probes_per_host += o.num_ping_synprobes + o.num_ping_ackprobes + o.num_ping_udpprobes;
+
+  pt.min_group_size = MAX(3, MAX(o.min_parallelism, 16) / probes_per_host);
+
+  /* I think max_parallelism mostly relates to # of probes in parallel against
+     a single machine.  So I only use it to go down to 15 here */
+  pt.group_size = (o.max_parallelism)? MIN(MAX(o.max_parallelism,15), gsize) : gsize;
+  /* Make sure we have at least the minimum parallelism level */
+  pt.group_size = MAX(pt.group_size, o.min_parallelism);
+  /* Reduce the group size proportionally to number of probes sent per host */
+  pt.group_size = MAX(pt.min_group_size, 0.9999 + pt.group_size / probes_per_host);
+  max_block_size /= probes_per_host;
+
+  /* TODO: I need to move ping scanning to ultra_scan or fix this
+     function to handle scan_delay the way ultra scan does (limit the
+     amount of time between probes sent to the SAME machine.  This func
+     does the opposite -- sends same-box probes immediately and waits to
+     go on to the next machine. */
+  if (o.scan_delay > 1000) {
+    pt.group_size = max_block_size = 1;
+  }
+
+  time = (struct timeval *) safe_zalloc(sizeof(struct timeval) * ((pt.max_tries) * num_hosts));
+  id = (unsigned short) get_random_uint();
+
+  if (ptech.connecttcpscan)  {
+    /* I think max_parallelism mostly relates to # of probes in parallel against
+       a given machine.  So I won't go below 15 here because of it */
+    max_sockets = MAX(1, max_sd() - 4);
+    if (o.max_parallelism) {
+      max_block_size = MIN(50, MAX(o.max_parallelism, 15) / probes_per_host);
+    } else {
+      max_block_size = MIN(50, max_sockets / probes_per_host);
+    }
+    max_block_size = MAX(1, max_block_size);
+    if (o.scan_delay > 1000)
+      max_block_size = 1;
+    pt.group_size = MIN(pt.group_size, max_block_size);
+    memset((char *)&tqi, 0, sizeof(tqi));
+
+    for(p=0; p < o.num_ping_synprobes; p++) {
+      tqi.sockets[p] = (int *) safe_malloc(sizeof(int) * (pt.max_tries) * num_hosts);
+      memset(tqi.sockets[p], 255, sizeof(int) * (pt.max_tries) * num_hosts);
+    }
+    FD_ZERO(&(tqi.fds_r));
+    FD_ZERO(&(tqi.fds_w));
+    FD_ZERO(&(tqi.fds_x));
+    tqi.sockets_out = 0;
+    tqi.maxsd = 0;
+  }
+
+  if (ptech.icmpscan) {
+    sd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
+    if (sd < 0) pfatal("Socket trouble in massping"); 
+    unblock_socket(sd);
+#ifndef WIN32
+    sethdrinclude(sd);
+#endif
+    sd_blocking = 0;
+    if (num_hosts > 10)
+      max_rcvbuf(sd);
+    broadcast_socket(sd);
+  } else sd = -1;
+
+
+  /* if to timeout structure hasn't been initialized yet */
+  if (!to.srtt && !to.rttvar && !to.timeout) {
+    /*  to.srtt = 800000;
+	to.rttvar = 500000; */ /* we will init these when we get real data */
+    initialize_timeout_info(&to);
+  }
+
+  /* Init our raw socket */
+  if (o.numdecoys > 1 || ptech.rawtcpscan || ptech.rawicmpscan || ptech.rawudpscan) {
+    if ((o.sendpref & PACKET_SEND_ETH) && hostbatch[0]->ifType() == devt_ethernet) {
+      /* We'll send ethernet packets with dnet */
+      ethsd = eth_open(hostbatch[0]->deviceName());
+      if (ethsd == NULL)
+	fatal("dnet: Failed to open device %s", hostbatch[0]->deviceName());
+      rawsd = -1; rawpingsd = -1;
+    } else {
+      if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
+	pfatal("socket trobles in massping");
+      broadcast_socket(rawsd);
+#ifndef WIN32
+      sethdrinclude(rawsd);
+#endif
+
+      if ((rawpingsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
+	pfatal("socket trobles in massping");
+      broadcast_socket(rawpingsd);
+#ifndef WIN32
+      sethdrinclude(rawpingsd);
+#endif
+    }
+  } else { rawsd = -1; rawpingsd = -1; }
+
+  if (ptech.rawicmpscan || ptech.rawtcpscan || ptech.rawudpscan) {
+    /* we need a pcap descript0r! */
+    /* MAX snaplen needed = 
+       24 bytes max link_layer header
+       64 bytes max IPhdr
+       16 bytes of the TCP header
+       ---
+       = 104 byte snaplen */
+    pd = my_pcap_open_live(hostbatch[0]->deviceName(), 104, o.spoofsource, 20);
+
+    snprintf(filter, sizeof(filter), "(icmp and dst host %s) or ((tcp or udp) and dst host %s and ( dst port %d or dst port %d or dst port %d or dst port %d or dst port %d))", 
+	     inet_ntoa(hostbatch[0]->v4source()),
+	     inet_ntoa(hostbatch[0]->v4source()),
+	     sportbase , sportbase + 1, sportbase + 2, sportbase + 3, 
+	     sportbase + 4);
+
+    set_pcap_filter(hostbatch[0]->deviceName(), pd, filter); 
+  }
+
+  blockinc = (int) (0.9999 + 8.0 / probes_per_host);
+
+  memset((char *)&sock,0,sizeof(sock));
+  gettimeofday(&start, NULL);
+
+  pt.group_end = (int) MIN(pt.group_start + pt.group_size -1, num_hosts -1);
+ 
+  while(pt.group_start < num_hosts) { /* while we have hosts left to scan */
+    do { /* one block */
+      pt.up_this_block = 0;
+      pt.down_this_block = 0;
+      pt.block_unaccounted = 0;
+
+      /* Sometimes a group gets too big for the network path and a
+	 router (especially things like cable/DSL modems) will drop our
+	 packets after a certain number have been sent.  If we just
+	 retry the exact same group, we are likely to get exactly the
+	 same behavior (missing later hosts).  So we reverse the order
+	 for each try */
+      direction = (pt.block_tries % 2 == 0)? 1 : -1;
+      if (direction == 1) { group_start = pt.group_start; group_end = pt.group_end; }
+      else { group_start = pt.group_end; group_end = pt.group_start; }
+      for(hostnum = group_start; hostnum != group_end + direction; hostnum += direction) {      
+	/* If (we don't know whether the host is up yet) ... */
+	if (!(hostbatch[hostnum]->flags & HOST_UP) && !hostbatch[hostnum]->wierd_responses && !(hostbatch[hostnum]->flags & HOST_DOWN)) {  
+	  /* Send a ping queries to it */
+	  seq = hostnum * pt.max_tries + pt.block_tries + pt.seq_offset;
+	  if (ptech.icmpscan && !sd_blocking) { 
+	    block_socket(sd); sd_blocking = 1; 
+	  }
+	  pt.block_unaccounted++;
+	  gettimeofday(&time[(seq - pt.seq_offset) & 0xFFFF], NULL);
+
+	  if (ptech.icmpscan || ptech.rawicmpscan)
+	    sendpingqueries(sd, rawpingsd, ethsd, hostbatch[hostnum],  
+			    seq, id, &ss, time, pingtype, ptech);
+       
+	  if (ptech.rawtcpscan || ptech.rawudpscan) 
+	    sendrawtcpudppingqueries(rawsd, ethsd, hostbatch[hostnum], pingtype, seq, time, &pt);
+
+	  else if (ptech.connecttcpscan) {
+	    sendconnecttcpqueries(hostbatch, &tqi, hostbatch[hostnum], seq, time, &pt, &to, max_sockets);
+	  }
+	}
+      } /* for() loop */
+      /* OK, we have sent our ping packets ... now we wait for responses */
+      gettimeofday(&begin_select, NULL);
+      do {
+	if (ptech.icmpscan && sd_blocking ) { 
+	  unblock_socket(sd); sd_blocking = 0; 
+	}
+	if(ptech.icmpscan || ptech.rawicmpscan || ptech.rawtcpscan || ptech.rawudpscan) {       
+	  get_ping_results(sd, pd, hostbatch, pingtype, time, &pt, &to, id, 
+			   &ptech, ports);
+	}
+	if (ptech.connecttcpscan) {
+	  get_connecttcpscan_results(&tqi, hostbatch, time, &pt, &to);
+	}
+	gettimeofday(&end, NULL);
+	elapsed_time = TIMEVAL_SUBTRACT(end, begin_select);
+      } while( elapsed_time < to.timeout);
+      /* try again if a new box was found but some are still unaccounted for and
+	 we haven't run out of retries.  Always retry at least once.
+      */
+      pt.dropthistry = 0;
+      pt.block_tries++;
+    } while ((pt.up_this_block > 0 || pt.block_tries == 1) && pt.block_unaccounted > 0 && pt.block_tries < pt.max_tries);
+
+    if (o.debugging)
+      log_write(LOG_STDOUT, "Finished block: srtt: %d rttvar: %d timeout: %d block_tries: %d up_this_block: %d down_this_block: %d group_sz: %d\n", to.srtt, to.rttvar, to.timeout, pt.block_tries, pt.up_this_block, pt.down_this_block, pt.group_end - pt.group_start + 1);
+
+    if (pt.block_tries == 2 && pt.up_this_block == 0 && pt.down_this_block == 0)
+      /* Then it did not miss any hosts (that we know of)*/
+      pt.group_size = MIN(pt.group_size + blockinc, max_block_size);
+   
+    /* Move to next block */
+    pt.block_tries = 0;
+    pt.group_start = pt.group_end +1;
+    pt.group_end = (int) MIN(pt.group_start + pt.group_size -1, num_hosts -1);
+    /*   pt.block_unaccounted = pt.group_end - pt.group_start + 1;   */
+  }
+
+  if (sd >= 0) close(sd);
+  if (ptech.connecttcpscan)
+    for(p=0; p < o.num_ping_synprobes; p++)
+      free(tqi.sockets[p]);
+  if (sd >= 0) close(sd);
+  if (rawsd >= 0) close(rawsd);
+  if (rawpingsd >= 0) close(rawpingsd);
+  if (ethsd) eth_close(ethsd);
+  free(time);
+  if (pd) pcap_close(pd);
+  if (o.debugging) 
+    log_write(LOG_STDOUT, "massping done:  num_hosts: %d  num_responses: %d\n", num_hosts, pt.num_responses);
+  gsize = pt.group_size;
+  return;
+}
+
+Target *nexthost(HostGroupState *hs, TargetGroup *exclude_group,
+			    struct scan_lists *ports, int *pingtype) {
+int hidx = 0;
+int i;
+struct sockaddr_storage ss;
+size_t sslen;
+struct intf_entry *ifentry;
+ u32 ifbuf[200] ;
+ struct route_nfo rnfo;
+ bool arpping_done = false;
+ struct timeval now;
+
+ ifentry = (struct intf_entry *) ifbuf; 
+ ifentry->intf_len = sizeof(ifbuf); // TODO: May want to use a larger buffer if interface aliases prove important.
+if (hs->next_batch_no < hs->current_batch_sz) {
+  /* Woop!  This is easy -- we just pass back the next host struct */
+  return hs->hostbatch[hs->next_batch_no++];
+}
+/* Doh, we need to refresh our array */
+/* for(i=0; i < hs->max_batch_sz; i++) hs->hostbatch[i] = new Target(); */
+
+hs->current_batch_sz = hs->next_batch_no = 0;
+do {
+  /* Grab anything we have in our current_expression */
+  while (hs->current_batch_sz < hs->max_batch_sz && 
+	 hs->current_expression.get_next_host(&ss, &sslen) == 0)
+    {
+      if (hostInExclude((struct sockaddr *)&ss, sslen, exclude_group)) {
+	continue; /* Skip any hosts the user asked to exclude */
+      }
+      hidx = hs->current_batch_sz;
+      hs->hostbatch[hidx] = new Target();
+      hs->hostbatch[hidx]->setTargetSockAddr(&ss, sslen);
+
+      /* We figure out the source IP/device IFF
+	 1) We are r00t AND
+	 2) We are doing tcp or udp pingscan OR
+	 3) We are doing a raw-mode portscan or osscan OR
+	 4) We are on windows and doing ICMP ping */
+      if (o.isr00t && o.af() == AF_INET && 
+	  ((*pingtype & (PINGTYPE_TCP|PINGTYPE_UDP|PINGTYPE_ARP)) || o.RawScan()
+#ifdef WIN32
+	   || (*pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))
+#endif // WIN32
+	   )) {
+	hs->hostbatch[hidx]->TargetSockAddr(&ss, &sslen);
+	if (!route_dst(&ss, &rnfo)) {
+	  fatal("%s: failed to determine route to %s", __FUNCTION__, hs->hostbatch[hidx]->NameIP());
+	}
+	if (rnfo.direct_connect) {
+	  hs->hostbatch[hidx]->setDirectlyConnected(true);
+	} else {
+	  hs->hostbatch[hidx]->setDirectlyConnected(false);
+	  hs->hostbatch[hidx]->setNextHop(&rnfo.nexthop, 
+					  sizeof(rnfo.nexthop));
+	}
+	hs->hostbatch[hidx]->setIfType(rnfo.ii.device_type);
+	if (rnfo.ii.device_type == devt_ethernet) {
+	  if (o.spoofMACAddress())
+	    hs->hostbatch[hidx]->setSrcMACAddress(o.spoofMACAddress());
+	  else hs->hostbatch[hidx]->setSrcMACAddress(rnfo.ii.mac);
+	}
+	hs->hostbatch[hidx]->setSourceSockAddr(&rnfo.srcaddr, sizeof(rnfo.srcaddr));
+	if (hidx == 0) /* Because later ones can have different src addy and be cut off group */
+	  o.decoys[o.decoyturn] = hs->hostbatch[hidx]->v4source();
+	hs->hostbatch[hidx]->setDeviceNames(rnfo.ii.devname, rnfo.ii.devfullname);
+	//	  printf("Target %s %s directly connected, goes through local iface %s, which %s ethernet\n", hs->hostbatch[hidx]->NameIP(), hs->hostbatch[hidx]->directlyConnected()? "IS" : "IS NOT", hs->hostbatch[hidx]->deviceName(), (hs->hostbatch[hidx]->ifType() == devt_ethernet)? "IS" : "IS NOT");
+      }
+      
+
+      /* In some cases, we can only allow hosts that use the same
+	 device in a group.  Similarly, we don't mix
+	 directly-connected boxes with those that aren't */
+      if (o.af() == AF_INET && o.isr00t && hidx > 0 && 
+	  hs->hostbatch[hidx]->deviceName() && 
+	  (hs->hostbatch[hidx]->v4source().s_addr != hs->hostbatch[0]->v4source().s_addr || 
+	   strcmp(hs->hostbatch[0]->deviceName(), 
+		  hs->hostbatch[hidx]->deviceName()) != 0 
+	  || hs->hostbatch[hidx]->directlyConnected() != hs->hostbatch[0]->directlyConnected())) {
+	/* Cancel everything!  This guy must go in the next group and we are
+	   out of here */
+	hs->current_expression.return_last_host();
+	delete hs->hostbatch[hidx];
+	goto batchfull;
+      }
+      hs->current_batch_sz++;
+}
+
+  if (hs->current_batch_sz < hs->max_batch_sz &&
+      hs->next_expression < hs->num_expressions) {
+    /* We are going to have to pop in another expression. */
+    while(hs->current_expression.parse_expr(hs->target_expressions[hs->next_expression++], o.af()) != 0) 
+      if (hs->next_expression >= hs->num_expressions)
+	break;
+  } else break;
+} while(1);
+
+ batchfull:
+ 
+if (hs->current_batch_sz == 0)
+  return NULL;
+
+/* OK, now we have our complete batch of entries.  The next step is to
+   randomize them (if requested) */
+if (hs->randomize) {
+  hoststructfry(hs->hostbatch, hs->current_batch_sz);
+}
+
+/* First I'll do the ARP ping if all of the machines in the group are
+   directly connected over ethernet.  I may need the MAC addresses
+   later anyway. */
+ if (hs->hostbatch[0]->ifType() == devt_ethernet && 
+     hs->hostbatch[0]->directlyConnected() && 
+     o.sendpref != PACKET_SEND_IP_STRONG) {
+   arpping(hs->hostbatch, hs->current_batch_sz, ports);
+   arpping_done = true;
+ }
+ 
+ gettimeofday(&now, NULL);
+ if ((o.sendpref & PACKET_SEND_ETH) && 
+     hs->hostbatch[0]->ifType() == devt_ethernet) {
+   for(i=0; i < hs->current_batch_sz; i++)
+     if (!(hs->hostbatch[i]->flags & HOST_DOWN) && 
+	 !hs->hostbatch[i]->timedOut(&now))
+       if (!setTargetNextHopMAC(hs->hostbatch[i]))
+	 fatal("%s: Failed to determine dst MAC address for target %s", 
+	       __FUNCTION__, hs->hostbatch[hidx]->NameIP());
+ }
+
+ /* TODO: Maybe I should allow real ping scan of directly connected
+    ethernet hosts? */
+ /* Then we do the mass ping (if required - IP-level pings) */
+ if ((*pingtype == PINGTYPE_NONE && !arpping_done) || hs->hostbatch[0]->ifType() == devt_loopback) {
+   for(i=0; i < hs->current_batch_sz; i++)  {
+     if (!hs->hostbatch[i]->timedOut(&now)) {
+       initialize_timeout_info(&hs->hostbatch[i]->to);
+       hs->hostbatch[i]->flags |= HOST_UP; /*hostbatch[i].up = 1;*/
+     }
+   }
+ } else if (!arpping_done)
+   if (*pingtype & PINGTYPE_ARP) /* A host that we can't arp scan ... maybe localhost */
+     massping(hs->hostbatch, hs->current_batch_sz, ports, DEFAULT_PING_TYPES);
+   else
+     massping(hs->hostbatch, hs->current_batch_sz, ports, *pingtype);
+ 
+ if (!o.noresolve) nmap_mass_rdns(hs->hostbatch, hs->current_batch_sz);
+ 
+ return hs->hostbatch[hs->next_batch_no++];
+}

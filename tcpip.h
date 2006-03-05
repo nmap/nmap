@@ -629,11 +629,6 @@ u8 *build_ip_raw(const struct in_addr *source, const struct in_addr *victim,
 int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, 
 		   unsigned int packetlen);
 
-/* Create and send all fragments of the pre-built packet */
-/* mtu = MTU - ipv4_headerlen */
-int send_frag_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, 
-			unsigned int packetlen, unsigned int mtu);
-
 /* Decoy versions of the raw packet sending functions ... */
 int send_tcp_raw_decoys( int sd, struct eth_nfo *eth, 
 			 const struct in_addr *victim, int ttl,
@@ -656,15 +651,6 @@ pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc,
 // invalid (Windows and Amiga), readip_pcap returns the time you called it.
 bool pcap_recv_timeval_valid();
 
-/* Returns a buffer of ASCII information about a packet that may look
-   like "TCP 127.0.0.1:50923 > 127.0.0.1:3 S ttl=61 id=39516 iplen=40
-   seq=625950769" or "ICMP PING (0/1) ttl=61 id=39516 iplen=40".
-   Since this is a static buffer, don't use threads or call twice
-   within (say) printf().  And certainly don't try to free() it!  The
-   returned buffer is NUL-terminated */
-const char *ippackethdrinfo(const u8 *packet, u32 len);
-/* Shows the most important fields of an IP packet (including dissecting TCP/UDP headers.  packet should point to the beginning of the IP header  */
-void readippacket(const u8 *packet, int readdata);
 /* A simple function I wrote to help in debugging, shows the important fields
    of a TCP packet*/
 int readtcppacket(const u8 *packet, int readdata);
@@ -726,8 +712,6 @@ bool setTargetNextHopMAC(Target *target);
 
 int islocalhost(const struct in_addr * const addr);
 int unblock_socket(int sd);
-int Sendto(char *functionname, int sd, const unsigned char *packet, int len, 
-	   unsigned int flags, struct sockaddr *to, int tolen);
 
 // Takes a protocol number like IPPROTO_TCP, IPPROTO_UDP, or
 // IPPROTO_TCP and returns a ascii representation (or "unknown" if it
@@ -744,19 +728,6 @@ int get_link_offset(char *device);
 char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec, 
 		  struct timeval *rcvdtime, struct link_header *linknfo);
 
-/* A trivial functon that maintains a cache of IP to MAC Address
-   entries.  If the command is ARPCACHE_GEt, this func looks for the
-   IPv4 address in ss and fills in the 'mac' parameter and returns
-   true if it is found.  Otherwise (not found), the function returns
-   false.  If the command is ARPCACHE_SET, the function adds an entry
-   with the given ip (ss) and mac address.  An existing entry for the
-   IP ss will be overwritten with the new MAC address.  true is always
-   returned for the set command. */
-#define ARPCACHE_GET 1
-#define ARPCACHE_SET 2
-bool NmapArpCache(int command, struct sockaddr_storage *ss, u8 *mac);
-
-
 /* Attempts to read one IPv4/Ethernet ARP reply packet from the pcap
    descriptor pd.  If it receives one, fills in sendermac (must pass
    in 6 bytes), senderIP, and rcvdtime (can be NULL if you don't care)
@@ -766,15 +737,6 @@ bool NmapArpCache(int command, struct sockaddr_storage *ss, u8 *mac);
    -1 or exits if ther is an error. */
 int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
 		       long to_usec, struct timeval *rcvdtime);
-
-/* Issues an ARP request for the MAC of targetss (which will be placed
-   in targetmac if obtained) from the source IP (srcip) and source mac
-   (srcmac) given.  "The request is ussued using device dev to the
-   broadcast MAC address.  The transmission is attempted up to 3
-   times.  If none of these elicit a response, false will be returned.
-   If the mac is determined, true is returned. */
-bool doArp(const char *dev, u8 *srcmac, struct sockaddr_storage *srcip, 
-	   struct sockaddr_storage *targetip, u8 *targetmac);
 
 #ifndef HAVE_INET_ATON
 int inet_aton(register const char *, struct in_addr *);

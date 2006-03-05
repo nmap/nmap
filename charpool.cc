@@ -107,11 +107,13 @@ static char *charpool[16];
 static int currentcharpool;
 static int currentcharpoolsz;
 static char *nextchar;
-static int charpool_initialized = 0;
 
 #define ALIGN_ON sizeof(char *)
 
 static int cp_init(void) {
+  static int charpool_initialized = 0;
+  if (charpool_initialized) return 0;
+
   /* Create our char pool */
   currentcharpool = 0;
   currentcharpoolsz = 16384;
@@ -135,7 +137,7 @@ void *cp_alloc(int sz) {
   char *p;
   int modulus;
 
-  if (!charpool_initialized) cp_init();
+  cp_init();
 
   if ((modulus = sz % ALIGN_ON))
     sz += ALIGN_ON - modulus;
@@ -159,8 +161,7 @@ char *q;
 char *end;
 int modulus;
 
- if (!charpool_initialized) 
-   cp_init();
+ cp_init();
 
  end = charpool[currentcharpool] + currentcharpoolsz;
  q = nextchar;

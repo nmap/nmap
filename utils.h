@@ -207,11 +207,6 @@ char *chomp(char *string);
 // is sent.  Returns -1 if there is an error, or len if the full length was sent.
 int Send(int sd, const void *msg, size_t len, int flags);
 
-ssize_t Write(int fd, const void *buf, size_t count);
-
-unsigned long gcd_ulong(unsigned long a, unsigned long b);
-unsigned int gcd_uint(unsigned int a, unsigned int b);
-unsigned long gcd_n_ulong(long nvals, unsigned long *val);
 unsigned int gcd_n_uint(int nvals, unsigned int *val);
 
 int arg_parse(const char *command, char ***argv);

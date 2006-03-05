@@ -154,7 +154,7 @@ struct idle_proxy_info {
    Proxy timing is adjusted, but proxy->latestid is NOT ADJUSTED --
    you'll have to do that yourself.   Probes_sent is set to the number
    of probe packets sent during execution */
-int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
+static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
 		     int *probes_rcvd) {
   struct timeval tv_end;
   int tries = 0;
@@ -248,7 +248,7 @@ int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
    one, assuming the given IPID Sequencing class.  Returns -1 if the
    distance cannot be determined */
 
-int ipid_distance(int seqclass , u16 startid, u16 endid) {
+static int ipid_distance(int seqclass , u16 startid, u16 endid) {
   if (seqclass == IPID_SEQ_INCR)
     return endid - startid;
   
@@ -279,7 +279,7 @@ static void initialize_proxy_struct(struct idle_proxy_info *proxy) {
    proxy is determined to be unsuitable, the function whines and exits
    the program */
 #define NUM_IPID_PROBES 6
-void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
+static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
 			  const struct in_addr *first_target) {
   int probes_sent = 0, probes_returned = 0;
   int hardtimeout = 9000000; /* Generally don't wait more than 9 secs total */
@@ -378,7 +378,7 @@ void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
     proxy->ethptr = &proxy->eth;
   } else {
     if ((proxy->rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
-      pfatal("socket trobles in get_fingerprint");
+      pfatal("socket trobles in %s", __FUNCTION__);
     unblock_socket(proxy->rawsd);
     broadcast_socket(proxy->rawsd);
 #ifndef WIN32
@@ -560,7 +560,7 @@ void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
    count of 'testcount' while the 'realcount' is as given.  If the
    testcount was correct, timing is made more aggressive, while it is
    slowed down in the case of an error */
-void adjust_idle_timing(struct idle_proxy_info *proxy, 
+static void adjust_idle_timing(struct idle_proxy_info *proxy, 
 			Target *target, int testcount, 
 			int realcount) {
 
@@ -622,7 +622,7 @@ void adjust_idle_timing(struct idle_proxy_info *proxy,
    They can be NULL if you don't want to use them.  The purpose is for
    timing adjustments if the numbers turn out to be accurate */
 
-int idlescan_countopen2(struct idle_proxy_info *proxy, 
+static int idlescan_countopen2(struct idle_proxy_info *proxy, 
 			Target *target, u16 *ports, int numports,
 			struct timeval *sent_time, struct timeval *rcv_time) 
 {
@@ -777,7 +777,7 @@ int idlescan_countopen2(struct idle_proxy_info *proxy,
 /* The job of this function is to use the Idlescan technique to count
    the number of open ports in the given list.  Under the covers, this
    function just farms out the hard work to another function */
-int idlescan_countopen(struct idle_proxy_info *proxy, 
+static int idlescan_countopen(struct idle_proxy_info *proxy, 
 		       Target *target, u16 *ports, int numports,
 		       struct timeval *sent_time, struct timeval *rcv_time) {
   int tries = 0;
@@ -818,7 +818,7 @@ int idlescan_countopen(struct idle_proxy_info *proxy,
 /* Recursively Idlescans scans a group of ports using a depth-first
    divide-and-conquer strategy to find the open one(s) */
 
-int idle_treescan(struct idle_proxy_info *proxy, Target *target,
+static int idle_treescan(struct idle_proxy_info *proxy, Target *target,
 		 u16 *ports, int numports, int expectedopen) {
 
   int firstHalfSz = (numports + 1)/2;
