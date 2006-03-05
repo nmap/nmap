@@ -147,7 +147,4 @@ struct addrinfo {
   struct addrinfo	*ai_next;	/* next structure in linked list */
 };
 
-
-#define exit(x); {CloseLibs();exit(x);}
-
 #endif /* _NMAP_AMIGAOS_H_ */

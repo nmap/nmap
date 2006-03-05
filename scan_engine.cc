@@ -576,10 +576,6 @@ private:
 
 };
 
-#ifdef __amigaos__
-extern void CloseLibs(void);
-#endif
-
 bool ultrascan_port_pspec_update(UltraScanInfo *USI, HostScanStats *hss, 
 				 const probespec *pspec, int newstate);
 

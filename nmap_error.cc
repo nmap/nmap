@@ -108,10 +108,6 @@ extern NmapOps o;
 #include <windows.h>
 #endif /* WIN32 */
 
-#ifdef __amigaos__
-extern void CloseLibs(void);
-#endif
-
 void fatal(const char *fmt, ...) {
   va_list  ap;
   va_start(ap, fmt);

@@ -133,10 +133,6 @@
 
 extern NmapOps o;
 
-#ifdef __amigaos__
-extern void CloseLibs(void);
-#endif
-
 #ifdef WIN32
 #include "pcap-int.h"
 

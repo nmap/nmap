@@ -117,19 +117,20 @@
 struct Library *SocketBase = NULL, *MiamiBase = NULL, *MiamiBPFBase = NULL, *MiamiPCapBase = NULL;
 static const char ver[] = "$VER:" NMAP_NAME " v"NMAP_VERSION " [Amiga.sf]";
 
-BOOL OpenLibs(void) {
- if(!(    MiamiBase = OpenLibrary(MIAMINAME,21))) return FALSE;
- if(!(   SocketBase = OpenLibrary("bsdsocket.library", 4))) return FALSE;
- if(!( MiamiBPFBase = OpenLibrary(MIAMIBPFNAME,3))) return FALSE;
- if(!(MiamiPCapBase = OpenLibrary(MIAMIPCAPNAME,5))) return FALSE;
-return TRUE;
-}
-
-void CloseLibs(void) {
+static void CloseLibs(void) {
   if ( MiamiPCapBase ) CloseLibrary( MiamiPCapBase );
   if ( MiamiBPFBase  ) CloseLibrary(  MiamiBPFBase );
   if (  SocketBase   ) CloseLibrary(   SocketBase  );
   if (   MiamiBase   ) CloseLibrary(   MiamiBase   );
+}
+
+static BOOL OpenLibs(void) {
+ if(!(    MiamiBase = OpenLibrary(MIAMINAME,21))) return FALSE;
+ if(!(   SocketBase = OpenLibrary("bsdsocket.library", 4))) return FALSE;
+ if(!( MiamiBPFBase = OpenLibrary(MIAMIBPFNAME,3))) return FALSE;
+ if(!(MiamiPCapBase = OpenLibrary(MIAMIPCAPNAME,5))) return FALSE;
+ atexit(CloseLibs);
+ return TRUE;
 }
 #endif
 
@@ -401,9 +402,6 @@ int main(int argc, char *argv[], char *envp[]) {
     }
     arg_parse_free(myargv);
   }
-#ifdef __amigaos__
-  CloseLibs();
-#endif
   return 0;
 
 }

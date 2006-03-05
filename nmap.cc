@@ -119,10 +119,6 @@ extern char *optarg;
 extern int optind;
 extern NmapOps o;  /* option structure */
 
-#ifdef __amigaos__
-extern void CloseLibs(void);
-#endif
-
 /* parse the --scanflags argument.  It can be a number >=0 or a string consisting of TCP flag names like "URGPSHFIN".  Returns -1 if the argument is invalid. */
 static int parse_scanflags(char *arg) {
   int flagval = 0;
