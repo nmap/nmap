@@ -105,7 +105,7 @@
 #include "scan_engine.h"
 #include "timing.h"
 #include "NmapOps.h"
-#include "tty.h"
+#include "nmap_tty.h"
 #include <dnet.h>
 #include <list>
 

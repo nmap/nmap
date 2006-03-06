@@ -107,7 +107,7 @@
 #include "timing.h"
 #include "NmapOps.h"
 #include "MACLookup.h"
-#include "tty.h"
+#include "nmap_tty.h"
 #ifdef WIN32
 #include "winfix.h"
 #endif

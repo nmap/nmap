@@ -106,7 +106,7 @@
 #include "NmapOps.h"
 #include "nsock.h"
 
-#include "tty.h"
+#include "nmap_tty.h"
 
 #if HAVE_OPENSSL
 #include <openssl/ssl.h>

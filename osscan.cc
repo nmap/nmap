@@ -104,7 +104,7 @@
 #include "osscan.h"
 #include "timing.h"
 #include "NmapOps.h"
-#include "tty.h"
+#include "nmap_tty.h"
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>

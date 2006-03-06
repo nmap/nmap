@@ -109,7 +109,7 @@
 #include "Target.h"
 #include "scan_engine.h"
 #include "nmap_dns.h"
-#include "tty.h"
+#include "nmap_tty.h"
 
 using namespace std;
 extern NmapOps o;

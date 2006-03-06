@@ -161,7 +161,7 @@
 #include "nmap_dns.h"
 #include "nsock.h"
 #include "utils.h"
-#include "tty.h"
+#include "nmap_tty.h"
 
 extern NmapOps o;
 
