@@ -491,7 +491,7 @@ match ftp-proxy m|^220 Welcome to ([\w-_.]+) Ftp Proxy Service\.\r\n| p/Proxy Su
 # TODO kerio?
 #match ftp m|^421 Service not available \(The FTP server is not responding\.\)\n$| v/unknown FTP server//service not responding/
 match vdr m|^220 (\S+) SVDRP VideoDiskRecorder (\d[^\;]+);| p/VDR/ h/$1/ v/$2/ d/media device/
-
+softmatch ftp m/^220 Welcome to ([-.\w]+) FTP.*\r\n$/i h/$1/
 softmatch ftp m/^220 ([-.\w]+) [-.\w ]+ftp.*\r\n$/i h/$1/
 softmatch ftp m/^220-([-.\w]+) [-.\w ]+ftp.*\r\n220/i h/$1/
 softmatch ftp m/^220 [-.\w ]+ftp.*\r\n$/i
