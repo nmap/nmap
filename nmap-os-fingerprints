@@ -12987,7 +12987,7 @@ T7(Resp=N)
 PU(DF=Y%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Linux ubuntu 2.6.8.1-5-386 #1 Sat Feb 12 00:19:31 UTC 2005 i686 GNU/Linux
-Fingerprint Linux 2.6.8 (ubuntu)
+Fingerprint Linux 2.6.8 (Ubuntu)
 Class Linux | Linux | 2.6.X | general purpose
 TSeq(Class=RI%gcd=<6%SI=<10F66C0&>2B6A6%IPID=Z%TS=1000HZ)
 T1(DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
@@ -13597,7 +13597,7 @@ PU(DF=N%TOS=0%IPLEN=B0%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 # Microsoft Windows Server 2003 SP1 [Version 5.2.3790]
 # Windows 2003 Service Pack 1 32 Bit Running on Abit Mobo AMD64
-Fingerprint MIcrosoft Windows 2003 Server SP1
+Fingerprint Microsoft Windows 2003 Server SP1
 Class Microsoft | Windows | 2003/.NET | general purpose
 TSeq(Class=TR%gcd=<6%IPID=I)
 T1(DF=N%W=FC00%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -20002,7 +20002,7 @@ T6(Resp=Y%DF=N%W=400%ACK=S++%Flags=AR%Ops=)
 T7(Resp=Y%DF=N%W=400%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint Sony AIBO ERS-7 running AIBO MInd 2
+Fingerprint Sony AIBO ERS-7 running AIBO Mind 2
 Class Sony | embedded || robotic pet
 TSeq(Class=TR|TD%gcd=<186A4%SI=<64%IPID=I%TS=U)
 T1(DF=N%W=2000%ACK=S++%Flags=AS%Ops=M)

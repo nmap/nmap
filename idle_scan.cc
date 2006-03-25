@@ -371,7 +371,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
 	    __FUNCTION__);
     memcpy(proxy->eth.srcmac, proxy->host.SrcMACAddress(), 6);
     memcpy(proxy->eth.dstmac, proxy->host.NextHopMACAddress(), 6);
-    proxy->eth.ethsd = eth_open(proxy->host.deviceName());
+    proxy->eth.ethsd = eth_open_cached(proxy->host.deviceName());
     if (proxy->eth.ethsd == NULL)
       fatal("%s: Failed to open ethernet device (%s)", __FUNCTION__, proxy->host.deviceName());
     proxy->rawsd = -1;
@@ -666,7 +666,7 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
 	    __FUNCTION__);
     memcpy(eth.srcmac, target->SrcMACAddress(), 6);
     memcpy(eth.dstmac, target->NextHopMACAddress(), 6);
-    eth.ethsd = eth_open(target->deviceName());
+    eth.ethsd = eth_open_cached(target->deviceName());
     if (eth.ethsd == NULL)
       fatal("%s: Failed to open ethernet device (%s)", __FUNCTION__, target->deviceName());
   } else eth.ethsd = NULL;
@@ -768,7 +768,7 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
     if (rcv_time) *rcv_time = latestchange;
   }
   if (newipid > 0) proxy->latestid = newipid;
-  if (eth.ethsd) { eth_close(eth.ethsd); eth.ethsd = NULL; }
+  if (eth.ethsd) { eth.ethsd = NULL; } /* don't need to close it due to caching */
   return openports;
 }
 

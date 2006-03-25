@@ -198,7 +198,6 @@ void *realloc();
 #include <unistd.h>
 #endif
 #include <fcntl.h>
-#include <sys/socket.h>
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -650,6 +649,19 @@ pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc,
 // (and thus by readip_pcap()) should be considered valid.  When
 // invalid (Windows and Amiga), readip_pcap returns the time you called it.
 bool pcap_recv_timeval_valid();
+
+/* A simple function that caches the eth_t from dnet for one device,
+   to avoid opening, closing, and re-opening it thousands of tims.  If
+   you give a different device, this function will close the first
+   one.  Thus this should never be used by programs that need to deal
+   with multiple devices at once.  In addition, you MUST NEVER
+   eth_close() A DEVICE OBTAINED FROM THIS FUNCTION.  Instead, you can
+   call eth_close_cached() to close whichever device (if any) is
+   cached.  Returns NULL if it fails to open the device. */
+eth_t *eth_open_cached(const char *device);
+
+/* See the description for eth_open_cached */
+void eth_close_cached();
 
 /* A simple function I wrote to help in debugging, shows the important fields
    of a TCP packet*/

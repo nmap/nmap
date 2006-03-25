@@ -118,7 +118,7 @@ void fatal(const char *fmt, ...) {
     log_vwrite(LOG_NORMAL, fmt, ap);
     va_end(ap);
   }
-  log_write(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, "QUITTING!\n");
+  log_write(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, "\nQUITTING!\n");
   exit(1);
 }
 
@@ -134,7 +134,7 @@ void error(const char *fmt, ...) {
     log_vwrite(LOG_NORMAL, fmt, ap);
     va_end(ap);
   }
-  
+  log_write(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, "\n");
   return;
 }
 

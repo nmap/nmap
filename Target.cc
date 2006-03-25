@@ -277,8 +277,6 @@ void Target::setHostName(char *name) {
     hostname = NULL;
   }
   if (name) {
-    if (strchr(name, '%')) {
-    }
     p = hostname = strdup(name);
     while (*p) {
       // I think only a-z A-Z 0-9 . and - are allowed, but I'll be a little more

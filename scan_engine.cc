@@ -106,7 +106,6 @@
 #include "timing.h"
 #include "NmapOps.h"
 #include "nmap_tty.h"
-#include <dnet.h>
 #include <list>
 
 
@@ -1093,7 +1092,7 @@ UltraScanInfo::~UltraScanInfo() {
   delete SPM;
   if (rawsd >= 0) { close(rawsd); rawsd = -1; }
   if (pd) { pcap_close(pd); pd = NULL; }
-  if (ethsd) { eth_close(ethsd); ethsd = NULL; }
+  if (ethsd) { ethsd = NULL; /* NO need to eth_close it due to caching */ }
 }
 
  /* A circular buffer of the incompleteHosts.  nextIncompleteHost() gives
@@ -1204,7 +1203,7 @@ void UltraScanInfo::Init(vector<Target *> &Targets, struct scan_lists *pts, styp
     if (ping_scan_arp || ((o.sendpref & PACKET_SEND_ETH) && 
 			  Targets[0]->ifType() == devt_ethernet)) {
       /* We'll send ethernet packets with dnet */
-      ethsd = eth_open(Targets[0]->deviceName());
+      ethsd = eth_open_cached(Targets[0]->deviceName());
       if (ethsd == NULL)
 	fatal("dnet: Failed to open device %s", Targets[0]->deviceName());
       rawsd = -1;

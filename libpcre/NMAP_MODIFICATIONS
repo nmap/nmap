@@ -67,3 +67,40 @@ o Remove some junk that deals with dynamic linking of pcre:
  /* For other operating systems, we use the standard "extern". */
  
  #ifndef PCRE_DATA_SCOPE
+
+
+o Applied this patch from Kurt Grutzmacher (grutz(a)jingojango.net)
+which adds the -fno-thread-jumps option when compiled on Mac OS X
+intel:
+
+--- ../nmap-4.02Alpha2.orig/libpcre/configure.ac        2006-03-10 12:48:
+34.000000000 -0800
++++ libpcre/configure.ac        2006-03-10 12:49:33.000000000 -0800
+@@ -169,6 +169,18 @@
+   UTF8=-DSUPPORT_UTF8
+ fi
+
++dnl MacOSX on Intel Hack to remove thread-jumps
++AC_CANONICAL_HOST
++
++case "$host" in
++  i386-apple-darwin*)
++     macosx=yes
++     AC_DEFINE(MACOSX)
++     needs_cpp_precomp=yes
++     CFLAGS="$CFLAGS -fno-thread-jumps"
++     ;;
++esac
++
+ dnl "Export" these variables
+
+ AC_SUBST(BUILD_EXEEXT)
+@@ -191,6 +203,7 @@
+ AC_SUBST(POSIX_MALLOC_THRESHOLD)
+ AC_SUBST(UCP)
+ AC_SUBST(UTF8)
++AC_SUBST(CFLAGS)
+
+ AC_SUBST(POSIX_OBJ)
+ AC_SUBST(POSIX_LOBJ)
+

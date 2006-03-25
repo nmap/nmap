@@ -126,7 +126,7 @@ extern NmapOps o;
 
 // Microsoft's runtime makes this fairly simple. :)
 void tty_init() { return; }
-static int tty_getchar() { return _kbhit() ? getch() : -1; }
+static int tty_getchar() { return _kbhit() ? _getch() : -1; }
 static void tty_done() { return; }
 
 #else

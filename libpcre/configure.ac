@@ -169,6 +169,18 @@ if test "$UCP" != "" ; then
   UTF8=-DSUPPORT_UTF8
 fi
 
+dnl MacOSX on Intel Hack to remove thread-jumps
+AC_CANONICAL_HOST
+
+case "$host" in
+  i386-apple-darwin*)
+     macosx=yes
+     AC_DEFINE(MACOSX)
+     needs_cpp_precomp=yes
+     CFLAGS="$CFLAGS -fno-thread-jumps"
+     ;;
+esac
+
 dnl "Export" these variables
 
 AC_SUBST(BUILD_EXEEXT)
@@ -191,6 +203,7 @@ AC_SUBST(PCRE_POSIXLIB_VERSION)
 AC_SUBST(POSIX_MALLOC_THRESHOLD)
 AC_SUBST(UCP)
 AC_SUBST(UTF8)
+AC_SUBST(CFLAGS)
 
 AC_SUBST(POSIX_OBJ)
 AC_SUBST(POSIX_LOBJ)

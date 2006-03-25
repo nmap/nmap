@@ -1533,7 +1533,7 @@ static void massping(Target *hostbatch[], int num_hosts,
   if (o.numdecoys > 1 || ptech.rawtcpscan || ptech.rawicmpscan || ptech.rawudpscan) {
     if ((o.sendpref & PACKET_SEND_ETH) && hostbatch[0]->ifType() == devt_ethernet) {
       /* We'll send ethernet packets with dnet */
-      ethsd = eth_open(hostbatch[0]->deviceName());
+      ethsd = eth_open_cached(hostbatch[0]->deviceName());
       if (ethsd == NULL)
 	fatal("dnet: Failed to open device %s", hostbatch[0]->deviceName());
       rawsd = -1; rawpingsd = -1;
@@ -1662,7 +1662,7 @@ static void massping(Target *hostbatch[], int num_hosts,
   if (sd >= 0) close(sd);
   if (rawsd >= 0) close(rawsd);
   if (rawpingsd >= 0) close(rawpingsd);
-  if (ethsd) eth_close(ethsd);
+  /* No need to close ethsd due to caching */
   free(time);
   if (pd) pcap_close(pd);
   if (o.debugging) 

@@ -139,8 +139,6 @@
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
-#include <signal.h>
-
 
 #ifdef WIN32
 #include <windows.h>
@@ -1241,7 +1239,7 @@ int arg_parse(const char *command, char ***argv)
 char **myargv = NULL;
 int argc = 0;
 char mycommand[4096];
-unsigned char *start, *end;
+char *start, *end;
 char oldend;
 
   *argv = NULL;

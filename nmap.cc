@@ -459,7 +459,6 @@ int nmap_main(int argc, char *argv[]) {
   vector<Target *> Targets;
   char *portlist = NULL; /* Ports list specified by user */
   char *proberr;
-  char emptystring[1];
   int sourceaddrwarning = 0; /* Have we warned them yet about unguessable
 				source addresses? */
   unsigned int ideal_scan_group_sz = 0;
@@ -574,8 +573,6 @@ int nmap_main(int argc, char *argv[]) {
     fakeargv[i] = strdup(argv[i]);
   }
   fakeargv[argc] = NULL;
-
-  emptystring[0] = '\0'; /* It wouldn't be an empty string w/o this ;) */
 
   if (argc < 2 ) printusage(argv[0], -1);
   Targets.reserve(100);
@@ -1571,6 +1568,8 @@ int nmap_main(int argc, char *argv[]) {
     free(ports);
   }
 
+  eth_close_cached();
+
   /* Free fake argv */
   for(i=0; i < argc; i++)
     free(fakeargv[i]);
@@ -2105,6 +2104,8 @@ void reaper(int signo) {
 void sigdie(int signo) {
   int abt = 0;
 
+  fflush(stdout);
+
   switch(signo) {
   case SIGINT:
     fprintf(stderr, "caught SIGINT signal, cleaning up\n");
@@ -2141,19 +2142,29 @@ void sigdie(int signo) {
     abt = 1;
     break;
   }
-  fflush(stdout);
+
   fflush(stderr);
   log_close(LOG_MACHINE|LOG_NORMAL|LOG_SKID);
   if (abt) abort();
   exit(1);
 }
 
+#ifndef S_IRUSR
+#define S_IRUSR 00400
+#endif
+
+/* Returns true (nonzero) if the file pathname given exists and is
+   readable by the executing process.  Returns zero if it is not */
 static int fileexistsandisreadable(char *pathname) {
-  FILE *fp;
-  /* We check this the easy way! */
-  fp = fopen(pathname, "r");
-  if (fp) fclose(fp);
-  return (fp == NULL)? 0 : 1;
+  struct stat st;
+
+  if (stat(pathname, &st) == -1)
+    return 0;
+
+  if (!(st.st_mode & S_IFDIR) && (st.st_mode & S_IRUSR))
+    return 1;
+
+  return 0;
 }
 
 int nmap_fetchfile(char *filename_returned, int bufferlen, char *file) {

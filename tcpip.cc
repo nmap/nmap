@@ -145,6 +145,10 @@ int if2nameindex(int ifi);
 
 static PacketCounter PktCt;
 
+/* These two are for eth_open_cached() and eth_close_cached() */
+static char etht_cache_device_name[64];
+static eth_t *etht_cache_device = NULL;
+
 void sethdrinclude(int sd) {
 #ifdef IP_HDRINCL
 int one = 1;
@@ -178,9 +182,9 @@ static char *ll2shortascii(unsigned long long bytes, char *buf, int buflen) {
   if (buflen < 2 || !buf) fatal("Bogus parameter passed to ll2shortascii");
 
   if (bytes > 1000000) {
-    snprintf(buf, buflen, "%.3gMB", bytes / 1000000.0);
+    snprintf(buf, buflen, "%.3fMB", bytes / 1000000.0);
   } else if (bytes > 10000) {
-    snprintf(buf, buflen, "%.3gKB", bytes / 1000.0);
+    snprintf(buf, buflen, "%.3fKB", bytes / 1000.0);
   } else snprintf(buf, buflen, "%uB", (unsigned int) bytes);
     
   return buf;
@@ -714,7 +718,7 @@ fatal("Call to pcap_open_live(%s, %d, %d, %d) failed three times. Reported error
           "*BSD:  If you are getting device not configured, you need to recompile your kernel with Berkeley Packet Filter support.  If you are getting No such file or directory, try creating the device (eg cd /dev; MAKEDEV <device>; or use mknod).\n"
           "SOLARIS:  If you are trying to scan localhost and getting '/dev/lo0: No such file or directory', complain to Sun.  I don't think Solaris can support advanced localhost scans.  You can probably use \"-P0 -sT localhost\" though.\n\n", pcapdev, snaplen, promisc, to_ms, err0r);
       } else {
-	error("pcap_open_live(%s, %d, %d, %d) FAILLED. Reported error: %s.  Will wait %d seconds then retry.", pcapdev, snaplen, promisc, to_ms, err0r, (int) pow(5, failed));	
+	error("pcap_open_live(%s, %d, %d, %d) FAILED. Reported error: %s.  Will wait %d seconds then retry.", pcapdev, snaplen, promisc, to_ms, err0r, (int) pow(5, failed));	
       }
       sleep((int) pow(5, failed));
     }
@@ -781,6 +785,46 @@ int resolve(char *hostname, struct in_addr *ip) {
     return 1;
   }
   return 0;
+}
+
+/* A simple function that caches the eth_t from dnet for one device,
+   to avoid opening, closing, and re-opening it thousands of tims.  If
+   you give a different device, this function will close the first
+   one.  Thus this should never be used by programs that need to deal
+   with multiple devices at once.  In addition, you MUST NEVER
+   eth_close() A DEVICE OBTAINED FROM THIS FUNCTION.  Instead, you can
+   call eth_close_cached() to close whichever device (if any) is
+   cached.  Returns NULL if it fails to open the device. */
+eth_t *eth_open_cached(const char *device) {
+  if (!device) fatal("eth_open_cached() called with NULL device name!");
+  if (!*device) fatal("eth_open_cached() called with empty device name!");
+
+  if (strcmp(device, etht_cache_device_name) == 0) {
+    /* Yay, we have it cached. */
+    return etht_cache_device;
+  }
+
+  if (*etht_cache_device_name) {
+    eth_close(etht_cache_device);
+    etht_cache_device_name[0] = '\0';
+    etht_cache_device = NULL;
+  }
+
+  etht_cache_device = eth_open(device);
+  if (etht_cache_device)
+    Strncpy(etht_cache_device_name, device, sizeof(etht_cache_device_name));
+
+  return etht_cache_device;
+}
+
+/* See the description for eth_open_cached */
+void eth_close_cached() {
+  if (etht_cache_device) {
+    eth_close(etht_cache_device);
+    etht_cache_device = NULL;
+    etht_cache_device_name[0] = '\0';
+  }
+  return;
 }
 
 int send_tcp_raw_decoys( int sd, struct eth_nfo *eth, 
@@ -1039,15 +1083,14 @@ int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetl
     memcpy(eth_frame + 14, packet, packetlen);
     eth_pack_hdr(eth_frame, eth->dstmac, eth->srcmac, ETH_TYPE_IP);
     if (!eth->ethsd) {
-      ethsd = eth_open(eth->devname);
+      ethsd = eth_open_cached(eth->devname);
       if (!ethsd) 
 	fatal("send_ip_packet: Failed to open ethernet device (%s)", eth->devname);
       ethsd_opened = true;
     } else ethsd = eth->ethsd;
     res = eth_send(ethsd, eth_frame, 14 + packetlen);
     PacketTrace::trace(PacketTrace::SENT, packet, packetlen); 
-    if (ethsd_opened)
-      eth_close(ethsd);
+    /* No need to close ethsd due to caching */
     free(eth_frame);
     eth_frame = NULL;
     return res;
@@ -1906,7 +1949,7 @@ static bool doArp(const char *dev, const u8 *srcmac,
   set_pcap_filter(dev, pd, "arp and ether dst host %02X:%02X:%02X:%02X:%02X:%02X", srcmac[0], srcmac[1], srcmac[2], srcmac[3], srcmac[4], srcmac[5]);
 
   /* Prepare probe and sending stuff */
-  ethsd = eth_open(dev);
+  ethsd = eth_open_cached(dev);
   if (!ethsd) fatal("%s: failed to open device %s", __FUNCTION__, dev);
   eth_pack_hdr(frame, ETH_ADDR_BROADCAST, *srcmac, ETH_TYPE_ARP);
   arp_pack_hdr_ethip(frame + ETH_HDR_LEN, ARP_OP_REQUEST, *srcmac, 
@@ -1948,7 +1991,7 @@ static bool doArp(const char *dev, const u8 *srcmac,
 
   /* OK - let's close up shop ... */
   pcap_close(pd);
-  eth_close(ethsd);
+  /* No need to close ethsd due to caching */
   return foundit;
 }
 
@@ -2144,6 +2187,7 @@ static int collect_dnet_routes(const struct route_entry *entry, void *arg) {
   return 0;
 }
 
+#if WIN32
 static int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
   struct dnet_collector_route_nfo *dcrn = (struct dnet_collector_route_nfo *) arg;
   int i;
@@ -2193,6 +2237,7 @@ static int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
    dcrn->numifaces++;
    return 0;
 }
+#endif /* WIN32 */
 
 struct interface_info *getinterfaces(int *howmany) {
   static bool initialized = 0;
@@ -2333,7 +2378,7 @@ int sd;
 	  memcpy(mydevs[numifaces].mac, &tmpifr.ifr_addr.sa_data, 6);
 #else
 	/* Let's just let libdnet handle it ... */
-	eth_t *ethsd = eth_open(mydevs[numifaces].devname);
+	eth_t *ethsd = eth_open_cached(mydevs[numifaces].devname);
 	eth_addr_t ethaddr;
 
 	if (!ethsd) 

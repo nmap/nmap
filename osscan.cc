@@ -539,7 +539,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
   if ((o.sendpref & PACKET_SEND_ETH) &&  target->ifType() == devt_ethernet) {
     memcpy(eth.srcmac, target->SrcMACAddress(), 6);
     memcpy(eth.dstmac, target->NextHopMACAddress(), 6);
-    eth.ethsd = eth_open(target->deviceName());
+    eth.ethsd = eth_open_cached(target->deviceName());
     if (eth.ethsd == NULL)
       fatal("%s: Failed to open ethernet device (%s)", __FUNCTION__, target->deviceName());
 
@@ -1117,9 +1117,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
     FP = NULL;
   if (rawsd >= 0)
     close(rawsd);
-  if (ethptr) {
-    eth_close(ethptr->ethsd);
-  }
+  /* No need to close ethptr->ethsd due to caching */
   pcap_close(pd);
   return FP;
 }

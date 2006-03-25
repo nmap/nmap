@@ -106,8 +106,6 @@
 
 #undef HAVE_STRUCT_IP
 
-#undef HAVE_USLEEP
-
 #undef HAVE_NANOSLEEP
 
 #undef HAVE_STRUCT_ICMP
@@ -149,8 +147,6 @@
 
 #undef HAVE_TERMIOS_H
 
-#undef HAVE_PCRE_H
-
 #undef HAVE_PCRE_PCRE_H
 
 #undef BSD_NETWORKING
@@ -159,11 +155,7 @@
 
 #undef HAVE_STRCASESTR
 
-#undef HAVE_GETOPT_LONG
-
 #undef IN_ADDR_DEEPSTRUCT
-
-#undef HAVE_NETINET_IN_SYSTEM_H
 
 #undef HAVE_SOCKADDR_SA_LEN
 

@@ -175,6 +175,9 @@
 				RelativePath="..\nmap_rpc.cc">
 			</File>
 			<File
+				RelativePath="..\nmap_tty.cc">
+			</File>
+			<File
 				RelativePath="..\NmapOps.cc">
 			</File>
 			<File
@@ -215,9 +218,6 @@
 			</File>
 			<File
 				RelativePath="..\timing.cc">
-			</File>
-			<File
-				RelativePath="..\tty.cc">
 			</File>
 			<File
 				RelativePath="..\utils.cc">
@@ -279,6 +279,9 @@
 				RelativePath="..\nmap_rpc.h">
 			</File>
 			<File
+				RelativePath="..\nmap_tty.h">
+			</File>
+			<File
 				RelativePath="..\nmap_winconfig.h">
 			</File>
 			<File
@@ -322,9 +325,6 @@
 			</File>
 			<File
 				RelativePath="..\timing.h">
-			</File>
-			<File
-				RelativePath="..\tty.h">
 			</File>
 			<File
 				RelativePath="..\utils.h">

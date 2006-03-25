@@ -1,13 +1,47 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
+o Updated the LibPCRE build system to add the -fno-thread-jumps option
+  to gcc when compiling on the new Intel-based Apple Mac OS X systems.
+  Hopefully this resolves the version detection crashes that several
+  people have reported on such systems.  Thanks to Kurt Grutzmacher
+  (grutz(a)jingojango.net) for sending the configure.ac patch.
+
+Nmap 4.02ALPHA2
+
+o Updated to a newer XSL stylesheet (for XML to HTML output
+  tranformation) by Benjamin Erb.  This new version includes IP
+  address sorting, removal of javascript requirements, some new
+  address, hostname, and Nmap version information, and various minor
+  tweaks and fixes.
+
+o Cleaned up the Amiga port code to use atexit() rather than the
+  previous macro hack.  Thanks to Kris Katterjohn (kjak(a)ispwest.com)
+  for the patch.  Applied maybe half a dozen new other code cleanup
+  patches from him as well.
+
 o Made some changes to various Nmap initialization functions which
-  help ALT Linux (altlinux.org) developers run Nmap in a chroot
-  environment.  Thanks to Dmitry V. Levin (ldv(a)altlinux.org) for the
-  patch.
+  help ALT Linux (altlinux.org) and Owl (openwall.com) developers run
+  Nmap in a chroot environment.  Thanks to Dmitry V. Levin
+  (ldv(a)altlinux.org) for the patch.
 
 o Cleaned up the code a bit by making a bunch (nearly 100) global
   symols (mostly function calls) static.  I was also able to removed
-  some unused functions.  Thanks to Dmitry V. Levin (ldv(a)altlinux.org)
-  for sending a list of candidate symbols.
+  some unused functions and superfluous config.h.in defines.  Thanks
+  to Dmitry V. Levin (ldv(a)altlinux.org) for sending a list of
+  candidate symbols.
+
+o Nmap now tests for the existence of data files using stat(2) rather
+  than testing whether they can be opened for reading (with fopen).
+  This is because some device files (tape drives, etc.) may react badly
+  to being opened at all.  Thanks to Dmitry V. Levin
+  (ldv(a)altlinux.org) for the suggestion.
+
+o Changed Nmap to cache interface information rather than opening and
+  closing it (with dnet's eth_open and eth_close functions) all the
+  time.
+
+o Applied a one-character Visual Studio 2005 compatability patch from
+  kx (kxmail(a)gmail.com).  It changed getch() into _getch() on Windows.
 
 Nmap 4.02ALPHA1
 

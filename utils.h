@@ -117,7 +117,6 @@
 #include <netinet/in.h>
 #endif
 
-#include <sys/time.h>
 #include <assert.h>
 #include <sys/mman.h>
 #include "config.h"
@@ -226,12 +225,6 @@ long tval2msecs(char *tspec);
    stored in newlen.  If parsing fails, NULL is returned, otherwise
    str is returned. */
 char *cstring_unescape(char *str, unsigned int *len);
-
-#ifndef HAVE_USLEEP
-#ifdef HAVE_NANOSLEEP
-void usleep(unsigned long usec);
-#endif
-#endif
 
 #ifndef HAVE_STRERROR
 char *strerror(int errnum);

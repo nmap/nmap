@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "03/03/2006" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "03/08/2006" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -131,14 +131,16 @@ OS DETECTION:
   \-\-osscan\-limit: Limit OS detection to promising targets
   \-\-osscan\-guess: Guess OS more aggressively
 TIMING AND PERFORMANCE:
+  Options which take <time> are in milliseconds, unless you append 's'
+  (seconds), 'm' (minutes), or 'h' (hours) to the value (e.g. 30m).
   \-T[0\-5]: Set timing template (higher is faster)
   \-\-min\-hostgroup/max\-hostgroup <size>: Parallel host scan group sizes
-  \-\-min\-parallelism/max\-parallelism <msec>: Probe parallelization
-  \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Specifies
+  \-\-min\-parallelism/max\-parallelism <time>: Probe parallelization
+  \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <time>: Specifies
       probe round trip time.
   \-\-max\-retries <tries>: Caps number of port scan probe retransmissions.
-  \-\-host\-timeout <msec>: Give up on target after this long
-  \-\-scan\-delay/\-\-max\-scan\-delay <msec>: Adjust delay between probes
+  \-\-host\-timeout <time>: Give up on target after this long
+  \-\-scan\-delay/\-\-max\-scan\-delay <time>: Adjust delay between probes
 FIREWALL/IDS EVASION AND SPOOFING:
   \-f; \-\-mtu <val>: fragment packets (optionally w/given MTU)
   \-D <decoy1,decoy2[,ME],...>: Cloak a scan with decoys
@@ -157,6 +159,7 @@ OUTPUT:
   \-d[level]: Set or increase debugging level (Up to 9 is meaningful)
   \-\-packet\-trace: Show all packets sent and received
   \-\-iflist: Print host interfaces and routes (for debugging)
+  \-\-log\-errors: Log errors/warnings to the normal\-format output file
   \-\-append\-output: Append to rather than clobber specified output files
   \-\-resume <filename>: Resume an aborted scan
   \-\-stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML
@@ -180,7 +183,9 @@ EXAMPLES:
 .PP
 Everything on the Nmap command\-line that isn't an option (or option argument) is treated as a target host specification. The simplest case is to specify a target IP address or hostname for scanning.
 .PP
-Sometimes you wish to scan a whole network of adjacent hosts. For this, Nmap supports CIDR\-style addressing. You can append /\fInumbits\fR
+Sometimes you wish to scan a whole network of adjacent hosts. For this, Nmap supports CIDR\-style addressing. You can append
+
+/\fInumbits\fR
 to an IP address or hostname and Nmap will scan every IP address for which the first
 \fInumbits\fR
 are the same as for the reference IP or hostname given. For example, 192.168.10.0/24 would scan the 256 hosts between 192.168.10.0 (binary:
@@ -243,7 +248,13 @@ options (which select ping types) can be combined. You can increase your odds of
 \fB\-P*\fR
 options, because it is almost always faster and more effective.
 .PP
-The following options control host discovery.
+By default, Nmap does host discovery and then performs a port scan against each host it determines is online. This is true even if you specify non\-default host discovery types such as UDP probes (\fB\-PU\fR). Read about the
+\fB\-sP\fR
+option to learn how to perform
+\fIonly\fR
+host discovery, or use
+\fB\-P0\fR
+to skip host discovery and port scan all target hosts. The following options control host discovery:
 .TP
 \fB\-sL\fR (List Scan)
 The list scan is a degenerate form of host discovery that simply lists each host of the network(s) specified, without sending any packets to the target hosts. By default, Nmap still does reverse\-DNS resolution on the hosts to learn their names. It is often surprising how much useful information simple hostnames give out. For example,
@@ -415,7 +426,7 @@ While Nmap attempts to produce accurate results, keep in mind that all of its in
 This section documents the dozen or so port scan techniques supported by Nmap. Only one method may be used at a time, except that UDP scan (\fB\-sU\fR) may be combined with any one of the TCP scan types. As a memory aid, port scan type options are of the form
 \fB\-s\fR\fB\fIC\fR\fR, where
 \fIC\fR
-is a prominent character in the scan name, usually the first. The one exception to this is the deprecated FTP bounce scan (\fB\-b\fR). By default, Nmap performs a SYN Scan, though it substitutes a Connect() scan if the user does not have proper privileges to send raw packets (requires root access on UNIX) or if IPv6 targets were specified. Of the scans listed in this section, unprivileged users can only execute connect() and ftp bounce scans.
+is a prominent character in the scan name, usually the first. The one exception to this is the deprecated FTP bounce scan (\fB\-b\fR). By default, Nmap performs a SYN Scan, though it substitutes a connect scan if the user does not have proper privileges to send raw packets (requires root access on UNIX) or if IPv6 targets were specified. Of the scans listed in this section, unprivileged users can only execute connect and ftp bounce scans.
 .TP
 \fB\-sS\fR (TCP SYN scan)
 SYN scan is the default and most popular scan option for good reasons. It can be performed quickly, scanning thousands of ports per second on a fast network not hampered by intrusive firewalls. SYN scan is relatively unobtrusive and stealthy, since it never completes TCP connections. It also works against any compliant TCP stack rather than depending on idiosyncrasies of specific platforms as Nmap's Fin/Null/Xmas, Maimon and Idle scans do. It also allows clear, reliable differentiation between the
@@ -426,8 +437,8 @@ states.
 .sp
 This technique is often referred to as half\-open scanning, because you don't open a full TCP connection. You send a SYN packet, as if you are going to open a real connection and then wait for a response. A SYN/ACK indicates the port is listening (open), while a RST (reset) is indicative of a non\-listener. If no response is received after several retransmissions, the port is marked as filtered. The port is also marked filtered if an ICMP unreachable error (type 3, code 1,2, 3, 9, 10, or 13) is received.
 .TP
-\fB\-sT\fR (TCP connect() scan)
-TCP Connect() scan is the default TCP scan type when SYN scan is not an option. This is the case when a user does not have raw packet privileges or is scanning IPv6 networks. Instead of writing raw packets as most other scan types do, Nmap asks the underlying operating system to establish a connection with the target machine and port by issuing the
+\fB\-sT\fR (TCP connect scan)
+TCP connect scan is the default TCP scan type when SYN scan is not an option. This is the case when a user does not have raw packet privileges or is scanning IPv6 networks. Instead of writing raw packets as most other scan types do, Nmap asks the underlying operating system to establish a connection with the target machine and port by issuing the
 connect()
 system call. This is the same high\-level system call that web browsers, P2P clients, and most other network\-enabled applications use to establish a connection. It is part of a programming interface known as the Berkeley Sockets API. Rather than read raw packet responses off the wire, Nmap uses this API to obtain status information on each connection attempt.
 .sp
@@ -450,7 +461,7 @@ filtered. Occasionally, a service will respond with a UDP packet, proving that i
 open. If no response is received after retransmissions, the port is classified as
 open|filtered. This means that the port could be open, or perhaps packet filters are blocking the communication. Versions scan (\fB\-sV\fR) can be used to help differentiate the truly open ports from the filtered ones.
 .sp
-A big challenge with UDP scanning is doing it quickly. Open and filtered ports rarely send any response, leaving Nmap to time out and then conduct retransmissions just in case the probe or response were lost. Closed ports are often an even bigger problem. They usually send back an ICMP port unreachable error. But unlike the RST packets sent by closed TCP ports in response to a SYN or Connect scan, many hosts rate limit ICMP port unreachable messages by default. Linux and Solaris are particularly strict about this. For example, the Linux 2.4.20 kernel limits destination unreachable messages to one per second (in
+A big challenge with UDP scanning is doing it quickly. Open and filtered ports rarely send any response, leaving Nmap to time out and then conduct retransmissions just in case the probe or response were lost. Closed ports are often an even bigger problem. They usually send back an ICMP port unreachable error. But unlike the RST packets sent by closed TCP ports in response to a SYN or connect scan, many hosts rate limit ICMP port unreachable messages by default. Linux and Solaris are particularly strict about this. For example, the Linux 2.4.20 kernel limits destination unreachable messages to one per second (in
 \fInet/ipv4/icmp.c\fR).
 .sp
 Nmap detects rate limiting and slows down accordingly to avoid flooding the network with useless packets that the target machine will drop. Unfortunately, a Linux\-style limit of one packet per second makes a 65,536\-port scan take more than 18 hours. Ideas for speeding your UDP scans up include scanning more hosts in parallel, doing a quick scan of just the popular ports first, scanning from behind the firewall, and using
@@ -821,7 +832,7 @@ with the maximum amoung of time you are willing to wait. I often specify
 30m
 to ensure that Nmap doesn't waste more than half an hour on a single host. Note that Nmap may be scanning other hosts at the same time during that half an hour as well, so it isn't a complete loss. A host that times out is skipped. No port table, OS detection, or version detection results are printed for that host.
 .TP
-\fB\-\-scan\-delay <time>\fR; \fB\-\-max_scan\-delay <time>\fR (Adjust delay between probes)
+\fB\-\-scan\-delay <time>\fR; \fB\-\-max\-scan\-delay <time>\fR (Adjust delay between probes)
 This option causes Nmap to wait at least the given amount of time between each probe it sends to a given host. This is particularly useful in the case of rate limiting. Solaris machines (among many others) will usually respond to UDP scan probe packets with only one ICMP message per second. Any more than that sent by Nmap will be wasteful. A
 \fB\-\-scan\-delay\fR
 of
@@ -927,7 +938,7 @@ ME, nmap will put you in a random position.
 .sp
 Note that the hosts you use as decoys should be up or you might accidentally SYN flood your targets. Also it will be pretty easy to determine which host is scanning if only one is actually up on the network. You might want to use IP addresses instead of names (so the decoy networks don't see you in their nameserver logs).
 .sp
-Decoys are used both in the initial ping scan (using ICMP, SYN, ACK, or whatever) and during the actual port scanning phase. Decoys are also used during remote OS detection (\fB\-O\fR). Decoys do not work with version detection or TCP connect() scan.
+Decoys are used both in the initial ping scan (using ICMP, SYN, ACK, or whatever) and during the actual port scanning phase. Decoys are also used during remote OS detection (\fB\-O\fR). Decoys do not work with version detection or TCP connect scan.
 .sp
 It is worth noting that using too many decoys may slow your scan and potentially even make it less accurate. Also, some ISPs will filter out your spoofed packets, but many do not restrict spoofed IP packets at all.
 .TP
@@ -1103,6 +1114,7 @@ As with XML output, this man page does not allow for documenting the entire form
 \fI\%http://www.unspecific.com/nmap\-oG\-output\fR.
 .TP
 \fB\-oA <basename>\fR (Output to all formats)
+
 As a convenience, you may specify
 \fB\-oA \fR\fB\fIbasename\fR\fR
 to store scan results in normal, XML, and grepable formats at once. They are stored in
@@ -1188,7 +1200,7 @@ directive is omitted.
 This section describes some important (and not\-so\-important) options that don't really fit anywhere else.
 .TP
 \fB\-6\fR (Enable IPv6 scanning)
-Since 2002, Nmap has offered IPv6 support for its most popular features. In particular, ping scanning (TCP\-only), connect() scanning, and version detection all support IPv6. The command syntax is the same as usual except that you also add the
+Since 2002, Nmap has offered IPv6 support for its most popular features. In particular, ping scanning (TCP\-only), connect scanning, and version detection all support IPv6. The command syntax is the same as usual except that you also add the
 \fB\-6\fR
 option. Of course, you must use IPv6 syntax if you specify an address rather than a hostname. An address might look like
 3ffe:7501:4819:2000:210:f3ff:fe03:14d0, so hostnames are recommended. The output looks the same as usual, with the IPv6 address on the

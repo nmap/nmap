@@ -174,10 +174,6 @@ void *realloc();
 /* BSDI needs this to insure the correct struct ip */
 #undef _IP_VHL
 
-#if HAVE_STRINGS_H
-#include <strings.h>
-#endif
-
 #include <stdio.h>
 
 #if HAVE_RPC_TYPES_H
@@ -472,6 +468,5 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv);
 #ifndef HAVE_INET_ATON
 int inet_aton(register const char *, struct in_addr *);
 #endif
-
 
 #endif /* NMAP_H */
