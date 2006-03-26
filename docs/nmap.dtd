@@ -166,14 +166,11 @@
 			rpcnum		%attr_numeric;	#IMPLIED
 			lowver		%attr_numeric;	#IMPLIED
 			highver		%attr_numeric;	#IMPLIED
->
-
-
-<!-- these elements are written by output.c: printosscanoutput() -->
-
                         hostname        CDATA           #IMPLIED
                         ostype          CDATA           #IMPLIED
                         devicetype      CDATA           #IMPLIED
+>
+
 <!ELEMENT os		( portused* , osclass*, osmatch* ) >
 
 <!ELEMENT portused	EMPTY >
