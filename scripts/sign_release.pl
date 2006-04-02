@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/perl -w
 
 sub usage() {
     print "sign_release.pl <distdir>\n";

@@ -6,6 +6,11 @@ o Updated the LibPCRE build system to add the -fno-thread-jumps option
   people have reported on such systems.  Thanks to Kurt Grutzmacher
   (grutz(a)jingojango.net) for sending the configure.ac patch.
 
+o Increased a write buffer length to avoid Nmap from quitting with the
+  message "log_vwrite: write buffer not large enough -- need to
+  increase".  Thanks to Dave (dmarcher(a)pobox.com) for reporting the
+  issue.
+
 Nmap 4.02ALPHA2
 
 o Updated to a newer XSL stylesheet (for XML to HTML output

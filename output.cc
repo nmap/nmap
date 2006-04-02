@@ -663,7 +663,7 @@ char* xml_convert (const char* str) {
    va_start() AND va_end() calls. */
 void log_vwrite(int logt, const char *fmt, va_list ap) {
   static char *writebuf = NULL;;
-  int writebuflen = 8192;
+  int writebuflen = 65536;
   bool skid_noxlate = false;
   int rc = 0;
   int len;

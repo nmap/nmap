@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "03/08/2006" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "04/01/2006" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -39,11 +39,11 @@ when it cannot determine which of the two states describe a port. The port table
 In addition to the interesting ports table, Nmap can provide further information on targets, including reverse DNS names, operating system guesses, device types, and MAC addresses.
 .PP
 A typical Nmap scan is shown in
-Example\ 14.1, \(lqA representative Nmap scan\(rq. The only Nmap arguments used in this example are
+Example\ 13.1, \(lqA representative Nmap scan\(rq. The only Nmap arguments used in this example are
 \fB\-A\fR, to enable OS and version detection,
 \fB\-T4\fR
 for faster execution, and then the two target hostnames.
-Example\ 14.1.\ A representative Nmap scan.sp
+Example\ 13.1.\ A representative Nmap scan.sp
 .nf
 # nmap \-A \-T4 scanme.nmap.org playground
 
@@ -749,7 +749,7 @@ or
 \fB\-A\fR.
 .TP
 \fB\-\-osscan\-guess\fR; \fB\-\-fuzzy\fR (Guess OS detection results)
-When Nmap is unable to detect a perfect OS match, it sometimes offers up near\-matches as possibilities. The match has to be very close for Nmap to do this by default. Either of these (equivalent) options make Nmap guess more aggressively.
+When Nmap is unable to detect a perfect OS match, it sometimes offers up near\-matches as possibilities. The match has to be very close for Nmap to do this by default. Either of these (equivalent) options make Nmap guess more aggressively. Nmap will still tell you when an imperfect match is printed and display its confidence level (percentage) for each guess.
 .SH "TIMING AND PERFORMANCE"
 .PP
 One of my highest Nmap development priorities has always been performance. A default scan (\fBnmap \fR\fB\fIhostname\fR\fR) of a host on my local network takes a fifth of a second. That is barely enough time to blink, but adds up when you are scanning tens or hundreds of thousands of hosts. Moreover, certain scan options such as UDP scanning and version detection can increase scan times substantially. So can certain firewall configurations, particularly response rate limiting. While Nmap utilizes parallelism and many advanced algorithms to accelerate these scans, the user has ultimate control over how Nmap runs. Expert users carefully craft Nmap commands to obtain only the information they care about while meeting their time constraints.
@@ -974,7 +974,7 @@ options (they are equivalent) to exploit these weaknesses. Simply provide a port
 flag because Nmap relies on system libraries to handle those. Most TCP scans, including SYN scan, support the option completely, as does UDP scan.
 .TP
 \fB\-\-data\-length <number>\fR (Append random data to sent packets)
-Normally Nmap sends minimalist packets containing only a header. So its TCP packets are generally 40 bytes and ICMP echo requests are just 28. This option tells Nmap to append the given number of random bytes to most of the packets it sends. OS detection (\fB\-O\fR) packets are not affected, but most pinging and portscan packets are. This slows things down, but can make a scan slightly less conspicuous.
+Normally Nmap sends minimalist packets containing only a header. So its TCP packets are generally 40 bytes and ICMP echo requests are just 28. This option tells Nmap to append the given number of random bytes to most of the packets it sends. OS detection (\fB\-O\fR) packets are not affected because accuracy there requires probe consistency, but most pinging and portscan packets support this. It slows things down a little, but can make a scan slightly less conspicuous.
 .TP
 \fB\-\-ttl <value>\fR (Set IP time\-to\-live field)
 Sets the IPv4 time\-to\-live field in sent packets to the given value.
