@@ -18,7 +18,7 @@ Name: %{name}
 Version: %{version}
 Release: %{release}
 Epoch: 2
-Copyright: GPL
+License: http://www.insecure.org/nmap/man/man-legal.html
 Group: Applications/System
 Source0: http://www.insecure.org/nmap/dist/%{name}-%{version}.tgz
 URL: http://www.insecure.org/nmap/

@@ -35,4 +35,8 @@ default default. */
 
 // This is set by configure on other platforms -Fyodor
 #define POSIX_MALLOC_THRESHOLD 10
+
+/* Without this, Windows will give us all sorts of crap about using functions
+   like strcpy() even if they are done safely */
+#define _CRT_SECURE_NO_DEPRECATE 1
 /* End */

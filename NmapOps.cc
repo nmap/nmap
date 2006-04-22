@@ -433,6 +433,10 @@ void NmapOps::ValidateOptions() {
 
   if (af() != AF_INET) mass_dns = false;
 
+  /* Prevent performance values from getting out of whack */
+  if (min_parallelism > max_parallelism)
+    max_parallelism = min_parallelism;
+
 }
   
 void NmapOps::setMaxRttTimeout(int rtt) 

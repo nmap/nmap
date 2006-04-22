@@ -166,10 +166,11 @@ static int getServiceXMLBuf(struct serviceDeductions *sd, char *xmlbuf,
   char rpcbuf[128];
   char *xml_product = NULL, *xml_version = NULL, *xml_extrainfo = NULL;
   char *xml_hostname = NULL, *xml_ostype = NULL, *xml_devicetype = NULL;
+  char *xml_servicefp = NULL, *xml_servicefp_temp = NULL;
 
   if (xmlbuflen < 1) return -1;
-  xmlbuf[0] = '\0';
-  if (!sd->name) return 0;
+  xmlbuf[0] = '\0';  
+  if (!sd->name && !sd->service_fp) return 0;
 
   if (sd->product) {
     xml_product = xml_convert(sd->product);
@@ -219,6 +220,16 @@ static int getServiceXMLBuf(struct serviceDeductions *sd, char *xmlbuf,
     versionxmlstring += '\"';
   }
 
+  if (sd->service_fp) {
+    xml_servicefp_temp = xml_convert(sd->service_fp);
+    xml_servicefp = xml_sf_convert(xml_servicefp_temp);
+    versionxmlstring += " servicefp=\"";
+    versionxmlstring += xml_servicefp;
+    free(xml_servicefp_temp); xml_servicefp_temp = NULL;
+    free(xml_servicefp); xml_servicefp = NULL;
+    versionxmlstring += '\"';
+  }
+
   if (o.rpcscan && sd->rpc_status == RPC_STATUS_GOOD_PROG) {
     snprintf(rpcbuf, sizeof(rpcbuf), 
 	     " rpcnum=\"%li\" lowver=\"%i\" highver=\"%i\" proto=\"rpc\"", 
@@ -227,7 +238,7 @@ static int getServiceXMLBuf(struct serviceDeductions *sd, char *xmlbuf,
 
   snprintf(xmlbuf, xmlbuflen, 
 	   "<service name=\"%s\"%s %smethod=\"%s\" conf=\"%d\"%s />", 
-	   sd->name,
+	   sd->name? sd->name : "unknown",
 	   versionxmlstring.c_str(),
 	   (sd->service_tunnel == SERVICE_TUNNEL_SSL)? "tunnel=\"ssl\" " : "",
 	   (sd->dtype == SERVICE_DETECTION_TABLE)? "table" : "probed", 
@@ -357,7 +368,7 @@ void printportoutput(Target *currenths, PortList *plist) {
   char rpcinfo[64];
   char rpcmachineinfo[64];
   char portinfo[64];
-  char xmlbuf[512];
+  char xmlbuf[2560];
   char grepvers[256];
   char grepown[64];
   char *p;
@@ -723,6 +734,37 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
   }
 
   return;
+}
+
+/* Remove all "\nSF:" from fingerprints */
+char* xml_sf_convert (const char* str) {
+  char *temp = (char *) safe_malloc(strlen(str) + 1);
+  char *dst = temp, *src = (char *)str;
+  char *ampptr = 0;
+  int charcount = 0;
+
+  while(*src && charcount < 2035) { /* 2048 - 14 */
+    if (strncmp(src, "\nSF:", 4) == 0) {
+      src += 4;
+      continue;
+    }
+    /* Needed so "&something;" is not truncated midway */
+    if (*src == '&') {
+      ampptr = dst;
+    }
+    else if (*src == ';') {
+      ampptr = 0;
+    }
+    *dst++ = *src++;
+    charcount++;
+  }
+  if (ampptr != 0) {
+    *ampptr = '\0';
+  }
+  else {
+    *dst = '\0';
+  }
+  return temp;
 }
 
 /* Write some information (printf style args) to the given log stream(s).

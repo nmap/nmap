@@ -85,9 +85,12 @@ distro:
            pcap-include/pcap-bpf.h pcap-include/sched.h \
            pcap-include/Ntddpack.h pcap-include/tme.h \
            pcap-include/tcp_session.h pcap-include/pcap-int.h \
-           nsis/AddToPath.nsh nsis/Nmap.nsi \
-           resource.h RPC/Rpc_cut.h winclude.h winfix.cc winfix.h \
-           /usr/tmp/nmap-$(NMAP_VERSION)/mswin32
+           winpcap/daemon_mgm.exe winpcap/LICENSE winpcap/NetMonInstaller.exe \
+           winpcap/npf_mgm.exe winpcap/npf.sys winpcap/Packet.dll \
+           winpcap/pthreadVC.dll winpcap/rpcapd.exe winpcap/WanPacket.dll \
+           winpcap/winpcap-nmap.nsi winpcap/wpcap.dll nsis/AddToPath.nsh \
+           nsis/Nmap.nsi resource.h RPC/Rpc_cut.h winclude.h winfix.cc \
+           winfix.h Makefile /usr/tmp/nmap-$(NMAP_VERSION)/mswin32
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/$(LIBPCAPDIR)
 	cd ../$(LIBPCAPDIR); cp -a --parents acconfig.h aclocal.m4 arcnet.h \
             atmuni31.h bpf/net/bpf.h bpf/net/bpf_filter.c \

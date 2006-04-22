@@ -100,6 +100,10 @@
 
 /* $Id$ */
 
+#ifdef WIN32
+#include "nmap_winconfig.h"
+#endif
+
 #include <dnet.h>
 
 #include "scan_engine.h"
@@ -1232,7 +1236,8 @@ void UltraScanInfo::Init(vector<Target *> &Targets, struct scan_lists *pts, styp
      again if they are).  when will be now, if the function returns
      true */
 bool UltraScanInfo::sendOK(struct timeval *when) {
-  struct timeval lowhtime, tmptv;
+  struct timeval lowhtime = {0};
+  struct timeval tmptv;
   list<HostScanStats *>::iterator host;
   bool ggood = false;
   bool hgood = false;
@@ -3227,7 +3232,7 @@ static void processData(UltraScanInfo *USI) {
   int expire_us = 0;
 
   bool tryno_capped = false, tryno_mayincrease = false;
-  struct timeval tv_start;
+  struct timeval tv_start = {0};
   if (o.debugging) {
     gettimeofday(&USI->now, NULL);
     tv_start = USI->now;

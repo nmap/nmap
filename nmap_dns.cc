@@ -150,6 +150,9 @@
 // * Figure out best way to estimate completion time
 //   and display it in a ScanProgressMeter 
 
+#ifdef WIN32
+#include "nmap_winconfig.h"
+#endif
 
 #include <stdlib.h>
 #include <limits.h>

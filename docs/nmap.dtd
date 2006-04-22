@@ -66,7 +66,7 @@
 <!-- I don't know exactly what these are, but the values were enumerated via:
      grep "conf=" *
 --> 
-<!ENTITY % service_confs  "( 3 | 5 | 10)" >
+<!ENTITY % service_confs  "( 0 | 3 | 5 | 10)" >
 
 <!-- This element was started in nmap.c:nmap_main().
      It represents to the topmost element of the output document.
@@ -169,9 +169,10 @@
                         hostname        CDATA           #IMPLIED
                         ostype          CDATA           #IMPLIED
                         devicetype      CDATA           #IMPLIED
+                        servicefp       CDATA           #IMPLIED
 >
 
-<!ELEMENT os		( portused* , osclass*, osmatch* ) >
+<!ELEMENT os		( portused* , osclass*, osmatch*, osfingerprint* ) >
 
 <!ELEMENT portused	EMPTY >
 <!ATTLIST portused
@@ -194,6 +195,11 @@
 			name		CDATA		#REQUIRED
 			accuracy	%attr_numeric;	#REQUIRED
 			line    	%attr_numeric;	#REQUIRED
+>
+
+<!ELEMENT osfingerprint	EMPTY >
+<!ATTLIST osfingerprint
+			fingerprint	CDATA		#REQUIRED
 >
 
 <!ELEMENT uptime	EMPTY >

@@ -99,6 +99,10 @@
 
 /* $Id$ */
 
+#ifdef WIN32
+#include "nmap_winconfig.h"
+#endif
+
 #include "NmapOutputTable.h"
 #include "utils.h"
 

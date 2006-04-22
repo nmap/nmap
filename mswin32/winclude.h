@@ -65,6 +65,8 @@
 #ifndef WINCLUDE_H
 #define WINCLUDE_H
 
+#include "nmap_winconfig.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 

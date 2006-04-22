@@ -276,3 +276,7 @@ int	strlcpy(char *, const char *, int);
 #ifndef HAVE_STRSEP
 char	*strsep(char **, const char *);
 #endif
+
+/* Without this, Windows will give us all sorts of crap about using functions
+   like strcpy() even if they are done safely */
+#define _CRT_SECURE_NO_DEPRECATE 1

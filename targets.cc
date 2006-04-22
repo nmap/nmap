@@ -1797,7 +1797,7 @@ if (hs->randomize) {
 	 !hs->hostbatch[i]->timedOut(&now))
        if (!setTargetNextHopMAC(hs->hostbatch[i]))
 	 fatal("%s: Failed to determine dst MAC address for target %s", 
-	       __FUNCTION__, hs->hostbatch[hidx]->NameIP());
+	       __FUNCTION__, hs->hostbatch[i]->NameIP());
  }
 
  /* TODO: Maybe I should allow real ping scan of directly connected

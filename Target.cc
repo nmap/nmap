@@ -99,6 +99,11 @@
  ***************************************************************************/
 
 /* $Id$ */
+
+#ifdef WIN32
+#include "nmap_winconfig.h"
+#endif
+
 #include <dnet.h>
 
 #include "Target.h"

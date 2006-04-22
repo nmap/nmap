@@ -2243,6 +2243,8 @@ ciscopop          45000/udp  # Cisco Postoffice Protocol for Cisco Secure IDS
 dbbrowse          47557/tcp  # Databeam Corporation
 dbbrowse          47557/udp  # Databeam Corporation
 compaqdiag        49400/tcp  # Compaq Web-based management
+iiimsf            50000/tcp  # Internet/Intranet Input Method Server Framework
+iiimsf            50002/tcp  # Internet/Intranet Input Method Server Framework
 bo2k              54320/tcp  # Back Orifice 2K Default Port
 bo2k              54321/udp  # Back Orifice 2K Default Port
 netprowler-manager 61439/tcp

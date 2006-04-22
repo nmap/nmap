@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "04/01/2006" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "04/22/2006" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -840,7 +840,7 @@ of
 will keep Nmap at that slow rate. Nmap tries to detect rate limiting and adjust the scan delay accordingly, but it doesn't hurt to specify it explicitly if you already know what rate works best.
 .sp
 When Nmap adjusts the scan delay upward to cope with rate limiting, the scan slows down dramatically. The
-\fB\-\-max_scan\-delay\fR
+\fB\-\-max\-scan\-delay\fR
 option specifies the largest delay that Nmap will allow. Setting this value too low can lead to wasteful packet retransmissions and possible missed ports when the target implements strict rate limiting.
 .sp
 Another use of

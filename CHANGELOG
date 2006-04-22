@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 4.03
+
 o Updated the LibPCRE build system to add the -fno-thread-jumps option
   to gcc when compiling on the new Intel-based Apple Mac OS X systems.
   Hopefully this resolves the version detection crashes that several
@@ -10,6 +12,28 @@ o Increased a write buffer length to avoid Nmap from quitting with the
   message "log_vwrite: write buffer not large enough -- need to
   increase".  Thanks to Dave (dmarcher(a)pobox.com) for reporting the
   issue.
+
+o Made some portability fixes to keep Nmap compiling with the newest
+  Visual Studio 2005.  Thanks to KX (kxmail(a)gmail.com) for
+  suggesting them.
+
+o Service fingerprints are now provided in the XML output whenever
+  they would appear in the interactive output (i.e. when a service
+  respons with data but is unrecognized).  They are shown in a new
+  'servicefp' attribute to the 'service' tag.  Thanks to Brandon Enright
+  (bmenrigh(a)ucsd.edu) for sending the patch.
+
+o WinPcap 3.1 binaries are now shipped in the Nmap tarball, along with
+  a customized (for Nmap) installer written by Doug Hoyte.  That new
+  WinPcap installer is now used in the Nmap self-installer.
+
+o Fixed (I hope) a problem where aggresive --min-parallelization
+  option values could cause Nmap to quit with the message "box(300, 100,
+  15) called (min,max,num)".  Thanks to  Richard van den Berg
+  (richard.vandenberg(a)ins.com) for reporting the problem.
+
+o Fixed a rare crash bug thanks to a report and patch from Ganga
+  Bhavani (GBhavani(a)everdreamcorp.com)
 
 Nmap 4.02ALPHA2
 
