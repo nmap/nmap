@@ -373,10 +373,10 @@
     <i><xsl:value-of select="@args" /></i><br/>
     The process stopped at <xsl:value-of select="$end" />.
 	<xsl:choose>
-        <xsl:when test="debugging/@level = '0'">Debbuging was disabled, </xsl:when>
+        <xsl:when test="debugging/@level = '0'">Debuging was disabled, </xsl:when>
         <xsl:otherwise>Debugging was enabeld, </xsl:otherwise>
     </xsl:choose>
-    the verbosing level was <xsl:value-of select="verbose/@level" />.
+    the verbosity level was <xsl:value-of select="verbose/@level" />.
 
     </p>
     <xsl:apply-templates select="host">

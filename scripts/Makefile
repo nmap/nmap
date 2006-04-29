@@ -96,7 +96,7 @@ distro:
             atmuni31.h bpf/net/bpf.h bpf/net/bpf_filter.c \
             bpf_dump.c bpf_image.c CHANGES \
             ChmodBPF/ChmodBPF ChmodBPF/StartupParameters.plist config.guess \
-            config.h config.h.in config.log config.status config.sub \
+            config.h config.h.in config.sub \
             configure configure.ac CREDITS doc/pcap.txt doc/pcap.xml \
             doc/pcap.html etherent.c ethertype.h fad-getad.c fad-gifc.c \
             fad-glifc.c fad-null.c fad-win32.c FILES gencode.c gencode.h \

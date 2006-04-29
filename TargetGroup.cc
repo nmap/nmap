@@ -199,9 +199,16 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
     if (netmask != 32 || namedhost) {
       targets_type = IPV4_NETMASK;
       if (!inet_aton(target_net, &(startaddr))) {
-	if ((target = gethostbyname(target_net)))
+	if ((target = gethostbyname(target_net))) {
+          int count=0;
+
 	  memcpy(&(startaddr), target->h_addr_list[0], sizeof(struct in_addr));
-	else {
+
+          while (target->h_addr_list[count]) count++;
+
+          if (count > 1)
+             error("Warning: Hostname %s resolves to %d IPs. Using %s.", target_net, count, inet_ntoa(*((struct in_addr *)target->h_addr_list[0])));
+	} else {
 	  fprintf(stderr, "Failed to resolve given hostname/IP: %s.  Note that you can't use '/mask' AND '[1-4,7,100-]' style IP ranges\n", target_net);
 	  free(hostexp);
 	  return 1;
