@@ -1427,7 +1427,7 @@ int bestaccidx;
  if (target->timedOut(NULL))
    return 1;
  
-o.scantype = OS_SCAN;
+o.current_scantype = OS_SCAN;
 
 #ifdef WIN32
   if (target->ifType() == devt_loopback) {

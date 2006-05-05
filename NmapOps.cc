@@ -249,6 +249,7 @@ void NmapOps::Initialize() {
   resolve_all = 0;
   dns_servers = NULL;
   noninteractive = false;
+  current_scantype = STYPE_UNKNOWN;
 }
 
 bool NmapOps::TCPScan() {

@@ -1493,7 +1493,7 @@ void printStatusMessage() {
   log_write(LOG_STDOUT, 
 	    "Stats: %d:%02d:%02d elapsed; %d hosts completed (%d up), %d undergoing %s\n", 
 	    time/60/24, time/60 % 24, time % 60, o.numhosts_scanned - o.numhosts_scanning, 
-	    o.numhosts_up, o.numhosts_scanning, scantype2str(o.scantype));
+	    o.numhosts_up, o.numhosts_scanning, scantype2str(o.current_scantype));
 }
 
 

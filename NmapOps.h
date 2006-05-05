@@ -292,7 +292,7 @@ class NmapOps {
   int numhosts_scanned;
   int numhosts_up;
   int numhosts_scanning;
-  stype scantype;
+  stype current_scantype;
   bool noninteractive;
 
  private:

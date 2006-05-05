@@ -3342,7 +3342,7 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
 		stype scantype) {
   UltraScanInfo *USI = NULL;
   time_t starttime;
-  o.scantype = scantype;
+  o.current_scantype = scantype;
 
   if (Targets.size() == 0) {
     return;
@@ -3437,7 +3437,7 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
    allow FTP bounce scan, I should really allow SOCKS proxy scan.  */
 void bounce_scan(Target *target, u16 *portarray, int numports,
 		 struct ftpinfo *ftp) {
-   o.scantype = BOUNCE_SCAN;
+   o.current_scantype = BOUNCE_SCAN;
 
   time_t starttime;
   int res , sd = ftp->sd,  i=0;
@@ -3607,7 +3607,7 @@ static void reverse_testing_order(struct portinfolist *pil, struct portinfo *sca
    scan.  Now ultra_scan() does all of those, except for RPC scan,
    which is the only pos_scan now supported.  */
 void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
-   o.scantype = scantype;
+   o.current_scantype = scantype;
 
   struct scanstats ss;
   int senddelay = 0;

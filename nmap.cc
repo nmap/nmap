@@ -1342,6 +1342,7 @@ int nmap_main(int argc, char *argv[]) {
   do {
     ideal_scan_group_sz = determineScanGroupSize(o.numhosts_scanned, ports);
     while(Targets.size() < ideal_scan_group_sz) {
+      o.current_scantype = HOST_DISCOVERY;
       currenths = nexthost(hstate, exclude_group, ports, &(o.pingtype));
       if (!currenths) {
 	/* Try to refill with any remaining expressions */
@@ -1481,13 +1482,13 @@ int nmap_main(int argc, char *argv[]) {
     for(targetno = 0; targetno < Targets.size(); targetno++) {
       currenths = Targets[targetno];
       if (o.idlescan) {
-         o.scantype = IDLE_SCAN;
+         o.current_scantype = IDLE_SCAN;
          keyWasPressed(); // Check if a status message should be printed
          idle_scan(currenths, ports->tcp_ports, 
 				ports->tcp_count, idleProxy);
       }
       if (o.bouncescan) {
-         o.scantype = BOUNCE_SCAN;
+         o.current_scantype = BOUNCE_SCAN;
          keyWasPressed(); // Check if a status message should be printed
 	if (ftp.sd <= 0) ftp_anon_connect(&ftp);
 	if (ftp.sd > 0) bounce_scan(currenths, ports->tcp_ports, 
@@ -1496,7 +1497,7 @@ int nmap_main(int argc, char *argv[]) {
     }
 
     if (o.servicescan) {
-      o.scantype = SERVICE_SCAN; 
+      o.current_scantype = SERVICE_SCAN; 
       keyWasPressed(); // Check if a status message should be printed
       service_scan(Targets);
     }
@@ -1966,6 +1967,8 @@ char *tsseqclass2ascii(int seqclass) {
 char *scantype2str(stype scantype) {
 
   switch(scantype) {
+  case STYPE_UNKNOWN: return "Unknown Scan Type"; break;
+  case HOST_DISCOVERY: return "Host Discovery"; break;
   case ACK_SCAN: return "ACK Scan"; break;
   case SYN_SCAN: return "SYN Stealth Scan"; break;
   case FIN_SCAN: return "FIN Scan"; break;
