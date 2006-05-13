@@ -1191,22 +1191,25 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
 
   gettimeofday(&now, NULL);
 
-  if (o.verbose || o.debugging) {
-    if (o.mass_dns) {
-      // #:  Number of DNS servers used
-      // OK: Number of fully reverse resolved queries
-      // NX: Number of confirmations of 'No such reverse domain eXists'
-      // DR: Dropped IPs (no valid responses were received)
-      // SF: Number of IPs that got 'Server Failure's
-      // TR: Total number of transmissions necessary. The number of domains is ideal, higher is worse
-      log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs. Mode: Async [#: %lu, OK: %d, NX: %d, DR: %d, SF: %d, TR: %d, CN: %d]\n",
-                    stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
-                    (unsigned long) servs.size(), stat_ok, stat_nx, stat_dropped, stat_sf, stat_trans, stat_cname);
-    } else {
-      log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs. Mode: System [OK: %d, ??: %d]\n",
-                    stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
-                    stat_ok, stat_actual - stat_ok);
+  if (stat_actual > 0) {
+    if (o.debugging) {
+      if (o.mass_dns) {
+	// #:  Number of DNS servers used
+	// OK: Number of fully reverse resolved queries
+	// NX: Number of confirmations of 'No such reverse domain eXists'
+	// DR: Dropped IPs (no valid responses were received)
+	// SF: Number of IPs that got 'Server Failure's
+	// TR: Total number of transmissions necessary. The number of domains is ideal, higher is worse
+	log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs. Mode: Async [#: %lu, OK: %d, NX: %d, DR: %d, SF: %d, TR: %d, CN: %d]\n",
+		  stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
+		  (unsigned long) servs.size(), stat_ok, stat_nx, stat_dropped, stat_sf, stat_trans, stat_cname);
+      } else {
+	log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs. Mode: System [OK: %d, ??: %d]\n",
+		  stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
+		  stat_ok, stat_actual - stat_ok);
+      }
+    } else if (o.verbose) {
+      log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs.\n", stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0);
     }
   }
-
 }
