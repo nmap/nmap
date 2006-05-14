@@ -118,6 +118,8 @@
 #define PORT_HIGHEST_STATE 9 /* ***IMPORTANT -- BUMP THIS UP WHEN STATES ARE 
 				ADDED *** */
  
+#define TCPANDUDP IPPROTO_MAX
+
 #define CONF_NONE 0
 #define CONF_LOW 1
 #define CONF_HIGH 2
@@ -248,10 +250,22 @@ class Port {
 };
 
 
+/* Needed enums to address some arrays. This values
+ * should never be used directly. Use INPROTO2PORTLISTPROTO macro */
+enum portlist_proto {	// PortList Protocols
+  PORTLIST_PROTO_TCP	= 0,
+  PORTLIST_PROTO_UDP	= 1,
+  PORTLIST_PROTO_IP	= 2,
+  PORTLIST_PROTO_MAX	= 3
+};
+
 class PortList {
  public:
   PortList();
   ~PortList();
+  /* Set ports that will be scanned for each protocol. This function
+   * must be called before any PortList object will be created. */
+  static void initializePortMap(int protocol, u16 *ports, int portcount);
   /* Add a new port to this list.  If the state has changed, it is
      OK to call this function to effect the change */
   int addPort(u16 portno, u8 protocol, char *owner, int state);
@@ -261,38 +275,48 @@ class PortList {
      want).  Only used when printing new port updates.  Optional.  A
      copy is made. */
   void setIdStr(const char *id);
-/* A function for iterating through the ports.  Give NULL for the
+  /* A function for iterating through the ports.  Give NULL for the
    first "afterthisport".  Then supply the most recent returned port
    for each subsequent call.  When no more matching ports remain, NULL
    will be returned.  To restrict returned ports to just one protocol,
-   specify IPPROTO_TCP or IPPROTO_UDP for allowed_protocol.  A 0 for
-   allowed_protocol matches either.  allowed_state works in the same
-   fashion as allowed_protocol. This function returns ports in numeric
+   specify IPPROTO_TCP or IPPROTO_UDP for allowed_protocol. A TCPANDUDP
+   for allowed_protocol matches either. A 0 for allowed_state matches 
+   all possible states. This function returns ports in numeric
    order from lowest to highest, except that if you ask for both TCP &
    UDP, every TCP port will be returned before we start returning UDP
    ports */
    Port *nextPort(Port *afterthisport, 
-  	          u8 allowed_protocol, int allowed_state, 
-		  bool allow_portzero);
+  	          int allowed_protocol, int allowed_state);
 
-  Port *lookupPort(u16 portno, u8 protocol);
+  /* Get Port structure from PortList structure.*/
+  Port *getPortEntry(u16 portno, u8 protocol);
+  /* Set Port structure to PortList structure.*/
+  void  setPortEntry(u16 portno, u8 protocol, Port *port);
 
-  int state_counts[PORT_HIGHEST_STATE]; /* How many ports in list are in each
-					   state */
-  int state_counts_udp[PORT_HIGHEST_STATE];
-  int state_counts_tcp[PORT_HIGHEST_STATE];
-  int state_counts_ip[PORT_HIGHEST_STATE];
-  int getIgnoredPortState(); /* The state of the port we ignore for output */
   int numports; /* Total number of ports in list in ANY state */
-  // map<int,char*> foomap;
-  std::map < u16, Port *> udp_ports;
-  std::map < u16, Port* > tcp_ports;
-  std::map < u16, Port* > ip_prots;
+
+  /* Get number of ports in this state. This a sum for protocols. */
+  int getStateCounts(int state);
+  /* Get number of ports in this state for requested protocol. */
+  int getStateCounts(int protocol, int state);
+
+  /* The state of the port we ignore for output */
+  int getIgnoredPortState();
+  
  private:
   /* A string identifying the system these ports are on.  Just used for 
      printing open ports, if it is set with setIdStr() */
   char *idstr;
-
+  /* Number of ports in each state per each protocol */
+  int state_counts_proto[PORTLIST_PROTO_MAX][PORT_HIGHEST_STATE];
+  Port **port_list[PORTLIST_PROTO_MAX];
+ protected:
+  /* Mapps port_number to index in port_list array.
+   * Only functions: getPortEntry, setPortEntry, initializePortMap and 
+   * nextPort should access this structure directly. */
+  static u16 *port_map[PORTLIST_PROTO_MAX];
+  /* Number of allocated elements in port_list per each protocol. */
+  static int port_list_count[PORTLIST_PROTO_MAX];
 };
 
 #endif

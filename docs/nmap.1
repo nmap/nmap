@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "04/22/2006" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "05/10/2006" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -377,9 +377,9 @@ do reverse DNS resolution on the target IP addresses. Normally this is only perf
 By default, Nmap resolves IP addresses by sending queries directly to the name servers configured on your host and then listening for responses. Many requests (often dozens) are performed in parallel for performance. Specify this option if you wish to use your system resolver instead (one IP at a time via the getnameinfo() call). This is slower and rarely useful unless there is a bug in the Nmap DNS code \-\- please contact us if that is the case. The system resolver is always used for IPv6 scans.
 .TP
 \fB\-\-dns\-servers <server1[,server2],...> \fR (Servers to use for reverse DNS queries)
-Normally Nmap will try to determine the DNS servers from your resolv.conf file (UNIX) or the registry (Win32). Alternatively, you may use this option to specify your own servers. This option is not honored if you are using
+By default Nmap will try to determine your DNS servers (for rDNS resolution) from your resolv.conf file (UNIX) or the registry (Win32). Alternatively, you may use this option to specify alternate servers. This option is not honored if you are using
 \fB\-\-system\-dns\fR
-or an IPv6 scan. Using multiple DNS servers is often faster than querying just one.
+or an IPv6 scan. Using multiple DNS servers is often faster and more stealthy than querying just one. The best performance is often obtained by specifying all of the authoritative servers for the target IP space.
 .SH "PORT SCANNING BASICS"
 .PP
 While Nmap has grown in functionality over the years, it began as an efficient port scanner, and that remains its core function. The simple command

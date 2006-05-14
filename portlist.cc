@@ -396,46 +396,53 @@ void Port::setRPCProbeResults(int rpcs, unsigned long rpcp,
   }
 }
 
+/*****************************************************************************/
+/* Convert protocol name from in.h to enum portlist_proto.
+ * So IPPROTO_TCP will be changed to PORTLIST_PROTO_TCP and so on. */
+#define INPROTO2PORTLISTPROTO(p)		\
+  ((p)==IPPROTO_TCP ? PORTLIST_PROTO_TCP :	\
+   (p)==IPPROTO_UDP ? PORTLIST_PROTO_UDP :	\
+   PORTLIST_PROTO_IP)
+
+
 PortList::PortList() {
-  memset(state_counts, 0, sizeof(state_counts));
-  memset(state_counts_udp, 0, sizeof(state_counts_udp));
-  memset(state_counts_tcp, 0, sizeof(state_counts_tcp));
-  memset(state_counts_ip, 0, sizeof(state_counts_ip));
+  int proto;
+  memset(state_counts_proto, 0, sizeof(state_counts_proto));
+  memset(port_list, 0, sizeof(port_list));
+
+  for(proto=0; proto < PORTLIST_PROTO_MAX; proto++) {
+    if(port_list_count[proto] > 0)
+      port_list[proto] = (Port**) safe_zalloc(sizeof(Port*)*port_list_count[proto]);
+  }
+
   numports = 0;
   idstr = NULL;
 }
 
 PortList::~PortList() {
-
-  for(map<u16,Port*>::iterator iter = tcp_ports.begin(); iter != tcp_ports.end(); iter++)
-     {
-        delete iter->second;
-     }
-  
-
-  for(map<u16,Port*>::iterator iter = udp_ports.begin(); iter != udp_ports.end(); iter++)
-     {
-        delete iter->second;
-     }
-
-  for(map<u16,Port*>::iterator iter = ip_prots.begin(); iter != ip_prots.end(); iter++)
-     {
-        delete iter->second;
-     }
+  int proto, i;
 
   if (idstr) { 
     free(idstr);
     idstr = NULL;
   }
 
+  for(proto=0; proto < PORTLIST_PROTO_MAX; proto++) { // for every protocol
+    if(port_list[proto]) {
+      for(i=0; i < port_list_count[proto]; i++) { // free every Port 
+        if(port_list[proto][i]) 
+          delete port_list[proto][i];
+      }
+      free(port_list[proto]);
+    }
+  }
 }
 
 
 int PortList::addPort(u16 portno, u8 protocol, char *owner, int state) {
-  Port *current = NULL;
-  map < u16, Port* > *portarray = NULL;  // This has to be a pointer so that we change the original and not a copy
-  map <u16, Port *>::iterator pt;
+  Port *current;
   char msg[128];
+  int proto = INPROTO2PORTLISTPROTO(protocol);
 
   assert(state < PORT_HIGHEST_STATE);
 
@@ -451,52 +458,33 @@ int PortList::addPort(u16 portno, u8 protocol, char *owner, int state) {
   }
 
 
-/* Make sure state is OK */
+  /* Make sure state is OK */
   if (state != PORT_OPEN && state != PORT_CLOSED && state != PORT_FILTERED &&
       state != PORT_UNFILTERED && state != PORT_OPENFILTERED && 
       state != PORT_CLOSEDFILTERED)
     fatal("addPort: attempt to add port number %d with illegal state %d\n", portno, state);
 
-  if (protocol == IPPROTO_TCP) {
-    portarray = &tcp_ports;
-  } else if (protocol == IPPROTO_UDP) {
-    portarray = &udp_ports;
-  } else if (protocol == IPPROTO_IP) {
-    assert(portno < 256);
-    portarray = &ip_prots;
-  } else fatal("addPort: attempted port insertion with invalid protocol");
+  assert(protocol!=IPPROTO_IP || portno<256);
 
-  pt = portarray->find(portno);
-  if (pt != portarray->end()) {
+  current = getPortEntry(portno, protocol);
+  if (current) {
     /* We must discount our statistics from the old values.  Also warn
        if a complete duplicate */
-    current = pt->second;
     if (o.debugging && current->state == state && (!owner || !*owner)) {
       error("Duplicate port (%hu/%s)\n", portno, proto2ascii(protocol));
     } 
-    state_counts[current->state]--;
-    if (current->proto == IPPROTO_TCP) {
-      state_counts_tcp[current->state]--;
-    } else if (current->proto == IPPROTO_UDP) {
-      state_counts_udp[current->state]--;
-    } else
-      state_counts_ip[current->state]--;
+    state_counts_proto[proto][current->state]--;
   } else {
     current = new Port();
-    (*portarray)[portno] = current;
-    numports++;
     current->portno = portno;
+    current->proto = protocol;
+    numports++;
+    
+    setPortEntry(portno, protocol, current);
   }
   
-  state_counts[state]++;
   current->state = state;
-  if (protocol == IPPROTO_TCP) {
-    state_counts_tcp[state]++;
-  } else if (protocol == IPPROTO_UDP) {
-    state_counts_udp[state]++;
-  } else
-    state_counts_ip[state]++;
-  current->proto = protocol;
+  state_counts_proto[proto][state]++;
 
   if (owner && *owner) {
     if (current->owner)
@@ -512,21 +500,11 @@ int PortList::removePort(u16 portno, u8 protocol) {
 
   printf("Removed %d\n", portno);
 
-  if (protocol == IPPROTO_TCP) {
-   answer = tcp_ports[portno];
-   tcp_ports.erase(portno);
-  }
-
-  if (protocol == IPPROTO_UDP) {  
-    answer = udp_ports[portno];
-    udp_ports.erase(portno);
-  } else if (protocol == IPPROTO_IP) {
-    answer = ip_prots[portno];
-    ip_prots.erase(portno);
-  }
-
+  answer = getPortEntry(portno, protocol);
   if (!answer)
     return -1;
+
+  setPortEntry(portno, protocol, NULL);
 
   if (o.verbose) {  
     log_write(LOG_STDOUT, "Deleting port %hu/%s, which we thought was %s\n",
@@ -534,6 +512,10 @@ int PortList::removePort(u16 portno, u8 protocol) {
 	      statenum2str(answer->state));
     log_flush(LOG_STDOUT);
   }    
+
+  /* Discount statistics */
+  state_counts_proto[INPROTO2PORTLISTPROTO(protocol)][answer->state]--;
+  numports--;
 
   delete answer;
   return 0;
@@ -553,117 +535,167 @@ void PortList::setIdStr(const char *id) {
   snprintf(idstr, len, " on %s", id);
 }
 
-Port *PortList::lookupPort(u16 portno, u8 protocol) {
-  map <u16, Port *>::iterator pt;
-  if (protocol == IPPROTO_TCP) {
-    pt = tcp_ports.find(portno);
-    if (pt != tcp_ports.end())
-      return pt->second;
-  }
 
-  else if (protocol == IPPROTO_UDP) {
-    pt = udp_ports.find(portno);
-    if (pt != udp_ports.end())
-      return pt->second;
-  }
-
-  else if (protocol == IPPROTO_IP) {
-    pt = ip_prots.find(portno);
-    if (pt != ip_prots.end())
-      return pt->second;
-  }
-
-  return NULL;
+int PortList::getStateCounts(int protocol, int state){
+  return(state_counts_proto[INPROTO2PORTLISTPROTO(protocol)][state]);
 }
 
-int PortList::getIgnoredPortState() {
-  int ignored = PORT_UNKNOWN;
-  int ignoredNum = 0;
-  int i;
-  for(i=0; i < PORT_HIGHEST_STATE; i++) {
-    if (i == PORT_OPEN || i == PORT_UNKNOWN || i == PORT_TESTING || 
-	i == PORT_FRESH) continue; /* Cannot be ignored */
-    if (state_counts[i] > ignoredNum) {
-      ignored = i;
-      ignoredNum = state_counts[i];
-    }
-  }
-
-  if (state_counts[ignored] < 15)
-    ignored = PORT_UNKNOWN;
-
-  return ignored;
+int PortList::getStateCounts(int state){
+  int sum=0, proto;
+  for(proto=0; proto < PORTLIST_PROTO_MAX; proto++)
+    sum += state_counts_proto[proto][state];
+  return(sum);
 }
 
-/* A function for iterating through the ports.  Give NULL for the
+  /* A function for iterating through the ports.  Give NULL for the
    first "afterthisport".  Then supply the most recent returned port
    for each subsequent call.  When no more matching ports remain, NULL
    will be returned.  To restrict returned ports to just one protocol,
-   specify IPPROTO_TCP or IPPROTO_UDP for allowed_protocol.  A 0 for
-   allowed_protocol matches either.  allowed_state works in the same
-   fashion as allowed_protocol. This function returns ports in numeric
+   specify IPPROTO_TCP or IPPROTO_UDP for allowed_protocol. A TCPANDUDP
+   for allowed_protocol matches either. A 0 for allowed_state matches 
+   all possible states. This function returns ports in numeric
    order from lowest to highest, except that if you ask for both TCP &
    UDP, every TCP port will be returned before we start returning UDP
-   ports.  */
-
+   ports */
 Port *PortList::nextPort(Port *afterthisport, 
-			 u8 allowed_protocol, int allowed_state, 
-			 bool allow_portzero) {
+			 int allowed_protocol, int allowed_state) {
+  int proto;
+  int mapped_pno;
+  Port *port;
   
-  /* These two are chosen because they come right "before" port 1/tcp */
-  map<u16,Port*>::iterator iter;
+  if(afterthisport) {
+    proto = INPROTO2PORTLISTPROTO(afterthisport->proto);
+    assert(port_map[proto]!=NULL); // Hmm, it's not posible to handle port that doesn't have anything in map
+    assert(afterthisport->proto!=IPPROTO_IP || afterthisport->portno<256);
+    mapped_pno = port_map[proto][afterthisport->portno];
+    mapped_pno++; //  we're interested in next port after current
+  }else { // running for the first time
+    if(allowed_protocol == TCPANDUDP)	// if both protocols, then first search TCP
+      proto = INPROTO2PORTLISTPROTO(IPPROTO_TCP);
+    else
+      proto = INPROTO2PORTLISTPROTO(allowed_protocol);
+    mapped_pno = 0;
+  }
   
-  if (afterthisport) {
-    if (afterthisport->proto == IPPROTO_TCP) {
-      iter = tcp_ports.find(afterthisport->portno);
-      assert(iter != tcp_ports.end());
-      iter++;
-      while(iter != tcp_ports.end()) {
-	if (!allowed_state || iter->second->state == allowed_state)
-	  return iter->second;
-	iter++;
-      }
-      /* No more TCP ports ... */
-      if (allowed_protocol != 0)
-	return NULL;
+  if(port_list[proto] != NULL) {
+    for(;mapped_pno < port_list_count[proto]; mapped_pno++) {
+      port = port_list[proto][mapped_pno];
+      if(port && (allowed_state==0 || port->state==allowed_state))
+        return(port);
+    }
+  }
+  
+  /* if all protocols, than after TCP search UDP */
+  if(allowed_protocol == TCPANDUDP && proto == INPROTO2PORTLISTPROTO(IPPROTO_TCP))
+    return(nextPort(NULL, IPPROTO_UDP, allowed_state));
+  
+  return(NULL); 
+}
       
-      iter = udp_ports.begin();
-    } else {
-      assert(afterthisport->proto == IPPROTO_UDP);
-      iter = udp_ports.find(afterthisport->portno);
-      assert(iter != udp_ports.end());
-      iter++;
-    }
-    while(iter != udp_ports.end()) {
-      if (!allowed_state || iter->second->state == allowed_state)
-	return iter->second;
-      iter++;
-    }
-    return NULL;
-  } 
+Port *PortList::getPortEntry(u16 portno, u8 protocol) {
+  int proto = INPROTO2PORTLISTPROTO(protocol);
+  int mapped_pno;
 
-  // First-time call - try TCP ports first
-  if (allowed_protocol == 0 || allowed_protocol == IPPROTO_TCP) {
-    iter = tcp_ports.begin();
-    while (iter != tcp_ports.end()) {
-      if (!allowed_state || iter->second->state == allowed_state)
-	return iter->second;
-      iter++;
+  assert(protocol!=IPPROTO_IP || portno<256);
+  if(port_map[proto]==NULL || port_list[proto]==NULL)
+    fatal("getPortEntry(%i,%i): you're trying to access uninitialized protocol", portno, protocol);
+  mapped_pno = port_map[proto][portno];
+
+  assert(mapped_pno < port_list_count[proto]);
+  assert(mapped_pno >= 0);
+  
+  /* The ugly hack: we allow only port 0 to be mapped to 0 position */
+  if(mapped_pno==0 && portno!=0) {
+    error("WARNING: getPortEntry(%i,%i): this port was not mapped", portno, protocol);
+    return(NULL);
+  }else
+    return(port_list[proto][mapped_pno]);
+}
+
+void PortList::setPortEntry(u16 portno, u8 protocol, Port *port) {
+  int proto = INPROTO2PORTLISTPROTO(protocol);
+  int mapped_pno;
+
+  assert(protocol!=IPPROTO_IP || portno<256);
+  if(port_map[proto]==NULL || port_list[proto]==NULL)
+    fatal("setPortEntry(%i,%i): you're trying to access uninitialized protocol", portno, protocol);
+  mapped_pno = port_map[proto][portno];
+
+  assert(mapped_pno < port_list_count[proto]);
+  assert(mapped_pno >= 0);
+  
+  /* The ugly hack: we allow only port 0 to be mapped to 0 position */
+  if(mapped_pno==0 && portno!=0) {
+    error("WARNING: setPortEntry(%i,%i): this port was not mapped", portno, protocol);
+    return;
+  }
+  
+  port_list[proto][mapped_pno] = port;
+}
+
+
+u16 *PortList::port_map[PORTLIST_PROTO_MAX];
+int PortList::port_list_count[PORTLIST_PROTO_MAX];
+
+/* This function must be runned before any PortList object is created.
+ * It must be runned for every used protocol. The data in "ports" 
+ * should be sorted. */
+void PortList::initializePortMap(int protocol, u16 *ports, int portcount) {
+  int i;
+  int unused_zero;	// aren't we using 0 port?
+  int ports_max = (protocol == IPPROTO_IP) ? 256 : 65536;
+  int proto = INPROTO2PORTLISTPROTO(protocol);
+  
+  if(port_map[proto]!=NULL)
+    fatal("initializePortMap: portmap for protocol %i already initialized", protocol);
+
+  assert(port_list_count[proto]==0);
+  
+  /* this memory will never be freed, but this is the way it has to be. */
+  port_map[proto] = (u16*) safe_zalloc(sizeof(u16)*ports_max);
+
+  /* Is zero port to be unused? */
+  if(portcount==0 || ports[0]!=0)
+    unused_zero = 1;
+  else
+    unused_zero = 0;
+  
+  /* The ugly hack: if we don't use 0 port, than we need one more extra element. */
+  port_list_count[proto] = portcount + unused_zero;
+  
+  for(i=0; i < portcount; i++) {
+    /* The ugly hack: if we don't use 0 port, than we must start counting from 1 */
+    port_map[proto][ports[i]] = i + unused_zero; // yes, this is the key line
+  }
+  /* So now port_map should have such structure (lets scan 2nd,4th and 6th port):
+   * 	port_map[0,0,1,0,2,0,3,...]	        <- indexes to port_list structure
+   * 	port_list[0,port_2,port_4,port_6]
+   * But if we scan 0, 2, and 4 port:
+   * 	port_map[0,0,1,0,2,...]		// yes, this 0 in first place isn't mistake
+   * 	port_list[port_0,port_2,port_4] 
+   * And in both cases we scan three ports. Ugly, isn't it? :) */
+}
+
+
+/* Choose the state that is not so important to print on the user's screen. */
+int PortList::getIgnoredPortState() {
+  int ignored = PORT_UNKNOWN;
+  int ignoredNum = 0;
+  int i, s;
+  for(i=0; i < PORT_HIGHEST_STATE; i++) {
+    if (i == PORT_OPEN || i == PORT_UNKNOWN || i == PORT_TESTING ||
+        i == PORT_FRESH) continue; /* Cannot be ignored */
+    s = getStateCounts(i);
+    if (s > ignoredNum) {
+      ignored = i;
+      ignoredNum = s;
     }
   }
   
-  // Maybe we'll have better luck with UDP
-  if (allowed_protocol == 0 || allowed_protocol == IPPROTO_UDP) {
-    iter = udp_ports.begin();
-    while (iter != udp_ports.end()) {
-      if (!allowed_state || iter->second->state == allowed_state)
-	return iter->second;
-      iter++;
-    }
-  }
-  
-  // Nuthing found
-  return NULL;
+  if (ignoredNum < 15)
+    ignored = PORT_UNKNOWN;
+
+  return ignored;
 }
 
 

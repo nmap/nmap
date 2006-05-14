@@ -1606,8 +1606,7 @@ ServiceGroup::ServiceGroup(vector<Target *> &Targets, AllProbes *AP) {
       num_hosts_timedout++;
       continue;
     }
-    while((nxtport = Targets[targetno]->ports.nextPort(nxtport, 0, PORT_OPEN,
-			      true))) {
+    while((nxtport = Targets[targetno]->ports.nextPort(nxtport, TCPANDUDP, PORT_OPEN))) {
       svc = new ServiceNFO(AP);
       svc->target = Targets[targetno];
       svc->portno = nxtport->portno;
@@ -1625,8 +1624,7 @@ ServiceGroup::ServiceGroup(vector<Target *> &Targets, AllProbes *AP) {
     if (Targets[targetno]->timedOut(&now)) {
       continue;
     }
-    while((nxtport = Targets[targetno]->ports.nextPort(nxtport, 0, 
-						       PORT_OPENFILTERED, true))) {
+    while((nxtport = Targets[targetno]->ports.nextPort(nxtport, TCPANDUDP, PORT_OPENFILTERED))) {
       svc = new ServiceNFO(AP);
       svc->target = Targets[targetno];
       svc->portno = nxtport->portno;

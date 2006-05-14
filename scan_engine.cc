@@ -1683,7 +1683,7 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
   } else assert(0);
   
   /* First figure out the current state */
-  currentp = hss->target->ports.lookupPort(portno, proto);
+  currentp = hss->target->ports.getPortEntry(portno, proto);
   if (!currentp) {
     oldstate = PORT_TESTING;
     hss->ports_finished++;
@@ -3632,8 +3632,8 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
   if (scantype != RPC_SCAN)
     fatal("pos_scan now handles only rpc scan");
 
-  if (target->ports.state_counts[PORT_OPEN] == 0 && 
-      (o.servicescan || target->ports.state_counts[PORT_OPENFILTERED] == 0))
+  if (target->ports.getStateCounts(PORT_OPEN) == 0 && 
+      (o.servicescan || target->ports.getStateCounts(PORT_OPENFILTERED) == 0))
     return; // RPC Scan only works against already known-open ports
 
   if (o.debugging)
@@ -3708,11 +3708,11 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
     /* Make sure we have ports left to scan */
     while(1) {
       if (doingOpenFiltered) {
-	rsi.rpc_current_port = target->ports.nextPort(rsi.rpc_current_port, 0, 
-						      PORT_OPENFILTERED, true);
+	rsi.rpc_current_port = target->ports.nextPort(rsi.rpc_current_port, TCPANDUDP, 
+						      PORT_OPENFILTERED);
       } else {
 	rsi.rpc_current_port = target->ports.nextPort(rsi.rpc_current_port,
-						      0, PORT_OPEN, true);
+						      TCPANDUDP, PORT_OPEN);
 	if (!rsi.rpc_current_port && !o.servicescan) {
 	  doingOpenFiltered = true;
 	  continue;

@@ -1,10 +1,29 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Integrated all of your submissions (about a thousand) from the first
+  quarter of this year!  Please keep 'em coming!  The DB has increased
+  from 3,153 signatures representing 381 protocols in 4.03 to 3,441
+  signatures representing 401 protocols.  No other tool comes close!
+  Many of the already existing match lines were improved too.  Thanks
+  to Version Detection Czar Doug Hoyte for doing this.
+
+o Fixed a couple possible memory leaks reported by Ted Kremenek
+ (kremenek(a)cs.stanford.edu) from the Stanford University sofware
+ static analysis lab ("Checker" project).
+
 o Nmap now prints a warning when you specify a target name which
   resolves to multiple IP addresses.  Nmap proceeds to scan only the
   first of those addresses (as it always has done).  Thanks to Doug
   Hoyte for the patch.  The warning looks like this:
   Warning: Hostname google.com resolves to 3 IPs. Using 66.102.7.99.
+
+o Changed the PortList class to use much more efficient data
+  structures and algorithms which take advantage of Nmap-specific
+  behavior patterns.  Thanks to majek04 (majek(a)forest.one.pl) for
+  the patch.
+
+o Disallow --host-timeout values of less than 1500ms, print a warning
+  for values less than 15s.
 
 Nmap 4.03
 

@@ -380,10 +380,9 @@ void printportoutput(Target *currenths, PortList *plist) {
   struct protoent *proto;
   Port *current;
   int numignoredports;
-  int portno;
   char hostname[1200];
   int istate = plist->getIgnoredPortState();
-  numignoredports = plist->state_counts[istate];
+  numignoredports = plist->getStateCounts(istate);
   struct serviceDeductions sd;
   NmapOutputTable *Tbl = NULL;
   int portcol = -1; // port or IP protocol #
@@ -437,13 +436,13 @@ void printportoutput(Target *currenths, PortList *plist) {
   if (o.servicescan || o.rpcscan)
     versioncol = colno++;
 
-  numrows = plist->state_counts[PORT_CLOSED] + 
-    plist->state_counts[PORT_OPEN] + plist->state_counts[PORT_FILTERED] + 
-    plist->state_counts[PORT_UNFILTERED] + 
-    plist->state_counts[PORT_OPENFILTERED] + 
-    plist->state_counts[PORT_CLOSEDFILTERED];
+  numrows = plist->getStateCounts(PORT_CLOSED) + 
+    plist->getStateCounts(PORT_OPEN) + plist->getStateCounts(PORT_FILTERED) + 
+    plist->getStateCounts(PORT_UNFILTERED) + 
+    plist->getStateCounts(PORT_OPENFILTERED) + 
+    plist->getStateCounts(PORT_CLOSEDFILTERED);
   if (istate != PORT_UNKNOWN)
-    numrows -=  plist->state_counts[istate];
+    numrows -=  plist->getStateCounts(istate);
   assert(numrows > 0);
   numrows++; // The header counts as a row
 
@@ -463,12 +462,10 @@ void printportoutput(Target *currenths, PortList *plist) {
 
   log_write(LOG_MACHINE,"\t%s: ", (o.ipprotscan)? "Protocols" : "Ports" );
   
-  current = NULL;
   rowno = 1;
   if (o.ipprotscan) {
-    for (portno = 0; portno < 256; portno++) {
-      if (!plist->ip_prots[portno]) continue;
-      current = plist->ip_prots[portno];
+    current = NULL;
+    while( (current=plist->nextPort(current, IPPROTO_IP, 0))!=NULL ) {
       if (current->state != istate) {
 	if (!first) log_write(LOG_MACHINE,", ");
 	else first = 0;
@@ -476,7 +473,7 @@ void printportoutput(Target *currenths, PortList *plist) {
 	proto = nmap_getprotbynum(htons(current->portno));
 	snprintf(portinfo, sizeof(portinfo), "%-24s",
 		 proto?proto->p_name: "unknown");
-	Tbl->addItemFormatted(rowno, portcol, "%d", portno);
+	Tbl->addItemFormatted(rowno, portcol, "%d", current->portno);
 	Tbl->addItem(rowno, statecol, true, state);
 	Tbl->addItem(rowno, servicecol, true, portinfo);
 	log_write(LOG_MACHINE,"%d/%s/%s/", current->portno, state, 
@@ -489,20 +486,8 @@ void printportoutput(Target *currenths, PortList *plist) {
       }
     }
   } else {
-    map<u16,Port*>::iterator tcpIter = plist->tcp_ports.begin();
-    map<u16,Port*>::iterator udpIter = plist->udp_ports.begin();
-
-    while (tcpIter != plist->tcp_ports.end() || udpIter != plist->udp_ports.end()) {
-
-      // If the udp iterator is at the end, then we always read from tcp and vica-versa
-      if (tcpIter != plist->tcp_ports.end() && (udpIter == plist->udp_ports.end() || tcpIter->first <= udpIter->first)) {
-	current = tcpIter->second;
-	tcpIter++;
-      } else {
-	current = udpIter->second;
-	udpIter++;
-      }
-
+    current = NULL;
+    while( (current=plist->nextPort(current, TCPANDUDP, 0))!=NULL ) {
       if (current->state != istate) {    
 	if (!first) log_write(LOG_MACHINE,", ");
 	else first = 0;
@@ -605,8 +590,8 @@ void printportoutput(Target *currenths, PortList *plist) {
     
   }
   /*  log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"\n"); */
-  if (plist->state_counts[istate] > 0)
-    log_write(LOG_MACHINE, "\tIgnored State: %s (%d)", statenum2str(istate), plist->state_counts[istate]);
+  if (plist->getStateCounts(istate) > 0)
+    log_write(LOG_MACHINE, "\tIgnored State: %s (%d)", statenum2str(istate), plist->getStateCounts(istate));
   log_write(LOG_XML, "</ports>\n");
 
   // Now we write the table for the user
@@ -1402,7 +1387,7 @@ void printserviceinfooutput(Target *currenths) {
   for (i=0; i<MAX_SERVICE_INFO_FIELDS; i++)
     hostname_tbl[i][0] = ostype_tbl[i][0] = devicetype_tbl[i][0] = '\0';
 
-  while ((p = currenths->ports.nextPort(p, 0, PORT_OPEN, false))) {
+  while ((p = currenths->ports.nextPort(p, TCPANDUDP, PORT_OPEN))) {
     // The following 2 lines (from portlist.h) tell us that we don't
     // need to worry about free()ing anything in the serviceDeductions struct.
       // pass in an allocated struct serviceDeductions (don't wory about initializing, and

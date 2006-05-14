@@ -632,10 +632,10 @@ int nmap_main(int argc, char *argv[]) {
 	  error("Warning: Your --min-parallelism option is pretty high!  This can hurt reliability.");
 	}
       } else if (optcmp(long_options[option_index].name, "host-timeout") == 0) {	l = tval2msecs(optarg);
-	if (l <= 200) fatal("--host-timeout must be at least 200 milliseconds");
+	if (l <= 1500) fatal("--host-timeout must be greater than 1500 milliseconds");
 	o.host_timeout = l;
-	if (o.host_timeout < 1000) {
-	  error("host-timeout is given in milliseconds, so you specified less than a second (%lims). This is allowed but not recommended.", o.host_timeout);
+	if (o.host_timeout < 15000) {
+	  error("host-timeout is given in milliseconds, so you specified less than 15 seconds (%lims). This is allowed but not recommended.", o.host_timeout);
 	}
       } else if (strcmp(long_options[option_index].name, "ttl") == 0) {
 	o.ttl = atoi(optarg);
@@ -1109,7 +1109,6 @@ int nmap_main(int argc, char *argv[]) {
 #ifdef WIN32
   if (o.sendpref & PACKET_SEND_IP) {
 	  error("WARNING: raw IP (rather than raw ethernet) packet sending attempted on Windows. This probably won't work.  Consider --send-eth next time.\n");
-
   }
 #endif
   if (spoofmac) {
@@ -1297,6 +1296,14 @@ int nmap_main(int argc, char *argv[]) {
   if (o.debugging > 1) log_write(LOG_STDOUT, "The max # of sockets we are using is: %d\n", o.max_parallelism);
 
 
+  /* Before we randomize the ports scanned, we must initialize PortList class. */
+  if (o.ipprotscan)
+    PortList::initializePortMap(IPPROTO_IP,  ports->prots, ports->prot_count);
+  if (o.TCPScan())
+    PortList::initializePortMap(IPPROTO_TCP, ports->tcp_ports, ports->tcp_count);
+  if (o.UDPScan())
+    PortList::initializePortMap(IPPROTO_UDP, ports->udp_ports, ports->udp_count);
+  
   if  (randomize) {
     if (ports->tcp_count) {
       shortfry(ports->tcp_ports, ports->tcp_count); 
