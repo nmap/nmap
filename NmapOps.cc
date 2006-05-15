@@ -214,6 +214,7 @@ void NmapOps::Initialize() {
   extra_payload = NULL;
   scan_delay = 0;
   scanflags = -1;
+  defeat_rst_ratelimit = 0;
   resume_ip.s_addr = 0;
   osscan_limit = 0;
   osscan_guess = 0;
@@ -415,6 +416,10 @@ void NmapOps::ValidateOptions() {
   
   if (osscan && pingscan) {
     fatal("WARNING:  OS Scan is unreliable with a ping scan.  You need to use a scan type along with it, such as -sS, -sT, -sF, etc instead of -sP");
+  }
+
+  if (defeat_rst_ratelimit && !synscan) {
+      fatal("Option --defeat-rst-ratelimit works only with a SYN scan (-sS)");
   }
   
   if (resume_ip.s_addr && generate_random_ips)

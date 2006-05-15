@@ -676,26 +676,82 @@ void PortList::initializePortMap(int protocol, u16 *ports, int portcount) {
    * And in both cases we scan three ports. Ugly, isn't it? :) */
 }
 
+  /* Cycles through the 0 or more "ignored" ports which should be
+   consolidated for Nmap output.  They are returned sorted by the
+   number of prots in the state, starting with the most common.  It
+   should first be called with PORT_UNKNOWN to obtain the most popular
+   ignored state (if any).  Then call with that state to get the next
+   most popular one.  Returns the state if there is one, but returns
+   PORT_UNKNOWN if there are no (more) states which qualify for
+   consolidation */
+int PortList::nextIgnoredState(int prevstate) {
 
-/* Choose the state that is not so important to print on the user's screen. */
-int PortList::getIgnoredPortState() {
-  int ignored = PORT_UNKNOWN;
-  int ignoredNum = 0;
-  int i, s;
-  for(i=0; i < PORT_HIGHEST_STATE; i++) {
-    if (i == PORT_OPEN || i == PORT_UNKNOWN || i == PORT_TESTING ||
-        i == PORT_FRESH) continue; /* Cannot be ignored */
-    s = getStateCounts(i);
-    if (s > ignoredNum) {
-      ignored = i;
-      ignoredNum = s;
-    }
-  }
+  int beststate = PORT_UNKNOWN;
   
-  if (ignoredNum < 15)
-    ignored = PORT_UNKNOWN;
+  for(int state=0; state < PORT_HIGHEST_STATE; state++) {
+    /* The state must be ignored */
+    if (!isIgnoredState(state)) 
+      continue;
 
-  return ignored;
+    /* We can't give the same state again ... */
+    if (state == prevstate) continue;
+
+    /* If a previous state was given, we must have fewer ports than
+       that one, or be tied but be a larger state number */
+    if (prevstate != PORT_UNKNOWN && 
+	(getStateCounts(state) > getStateCounts(prevstate) ||
+	 (getStateCounts(state) == getStateCounts(prevstate) && state <= prevstate)))
+      continue;
+
+    /* We only qualify if we have more ports than the current best */
+    if (beststate != PORT_UNKNOWN && getStateCounts(beststate) >= getStateCounts(state))
+      continue;
+
+    /* Yay!  We found the best state so far ... */
+    beststate = state;
+  }
+
+  return beststate;
+}
+
+/* Returns true if a state should be ignored (consolidated), false otherwise */
+bool PortList::isIgnoredState(int state) {
+
+  if (o.debugging > 2)
+    return false;
+
+  if (state == PORT_OPEN || state == PORT_UNKNOWN || state == PORT_TESTING ||
+      state == PORT_FRESH)
+    return false; /* Cannot be ignored */
+
+  int max_per_state = 25; // Ignore states with more ports than this
+  /* We will show more ports when verbosity is requested */
+  if (o.verbose || o.debugging)
+    max_per_state *= (o.verbose + 50 * o.debugging);
+  
+  if (getStateCounts(state) > max_per_state)
+    return true;
+
+  return false;
+}
+
+int PortList::numIgnoredStates() {
+  int numstates = 0;
+  for(int state=0; state < PORT_HIGHEST_STATE; state++) {
+    if (isIgnoredState(state))
+      numstates++;
+  }
+  return numstates;
+}
+
+int PortList::numIgnoredPorts() {
+
+  int numports = 0;
+  for(int state=0; state < PORT_HIGHEST_STATE; state++) {
+    if (isIgnoredState(state))
+      numports += getStateCounts(state);
+  }
+  return numports;
 }
 
 

@@ -7,20 +7,52 @@ o Integrated all of your submissions (about a thousand) from the first
   Many of the already existing match lines were improved too.  Thanks
   to Version Detection Czar Doug Hoyte for doing this.
 
+o Nmap now allows multiple ingored port states.  If a 65K-port scan
+  had, 64K filtered ports, 1K closed ports, and a few dozen open
+  ports, Nmap used to list the dozen open ones among a thousand lines
+  of closed ports.  Now Nmap will give reports like "Not shown: 64330
+  filtered ports, 1000 closed ports" or "All 2051 scanned ports on
+  192.168.0.69 are closed (1051) or filtered (1000)", and omit all of
+  those ports from the table.  Open ports are never ignored.  XML
+  output can now have multiple <extraports> directive (one for each
+  ignored state).  The number of ports in a single state before it is
+  consolidated defaults to 26 or more, though that number increases as
+  you add -v or -d options.  With -d3 or higher, no ports will be
+  consolidated.  The XML output should probably be augmented to give
+  the extraports directive 'ip', 'tcp', and 'udp' attributes which
+  specify the corresponding port numbers in the given state in the
+  same listing format as the nmaprun.scaninfo.services attribute, but
+  that part hasn't yet been implemented.  If you absoultely need the
+  exact port numbers for each state in the XML, use -d3 for now.
+
+o Nmap now ignores certain ICMP error message rate limiting (rather
+  than slowing down to accomidate it) in cases such as SYN scan where
+  an ICMP message and no response mean the same thing (port filtered).
+  This is currently only done at timing level Aggressive (-T4) or
+  higher, though we may make it the default if we don't hear problems
+  with it.  In addition, the --defeat-rst-ratelimit option has been
+  added, which causes Nmap not to slow down to accomidate RST rate
+  limits when encountered.  For a SYN scan, this may cause closed
+  ports to be labeled 'filtered' becuase Nmap refused to slow down
+  enough to correspond to the rate limiting.  Learn more about this
+  new option at http://www.insecure.org/nmap/man/ .  Thanks to Martin
+  Macok (martin.macok(a)underground.cz) for writing the patch that
+  these changes were based on.
+
 o Fixed a couple possible memory leaks reported by Ted Kremenek
  (kremenek(a)cs.stanford.edu) from the Stanford University sofware
  static analysis lab ("Checker" project).
+
+o Changed the PortList class to use much more efficient data
+  structures and algorithms which take advantage of Nmap-specific
+  behavior patterns.  Thanks to Marek Majkowski
+  (majek(a)forest.one.pl) for the patch.
 
 o Nmap now prints a warning when you specify a target name which
   resolves to multiple IP addresses.  Nmap proceeds to scan only the
   first of those addresses (as it always has done).  Thanks to Doug
   Hoyte for the patch.  The warning looks like this:
   Warning: Hostname google.com resolves to 3 IPs. Using 66.102.7.99.
-
-o Changed the PortList class to use much more efficient data
-  structures and algorithms which take advantage of Nmap-specific
-  behavior patterns.  Thanks to majek04 (majek(a)forest.one.pl) for
-  the patch.
 
 o Disallow --host-timeout values of less than 1500ms, print a warning
   for values less than 15s.

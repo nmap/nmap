@@ -497,6 +497,8 @@ int nmap_main(int argc, char *argv[]) {
       {"min_hostgroup", required_argument, 0, 0},
       {"min-hostgroup", required_argument, 0, 0},
       {"scanflags", required_argument, 0, 0},
+      {"defeat_rst_ratelimit", no_argument, 0, 0},
+      {"defeat-rst-ratelimit", no_argument, 0, 0},
       {"host_timeout", required_argument, 0, 0},
       {"host-timeout", required_argument, 0, 0},
       {"scan_delay", required_argument, 0, 0},
@@ -669,6 +671,8 @@ int nmap_main(int argc, char *argv[]) {
 	if (o.scan_delay > o.maxTCPScanDelay()) o.setMaxTCPScanDelay(o.scan_delay);
 	if (o.scan_delay > o.maxUDPScanDelay()) o.setMaxUDPScanDelay(o.scan_delay);
 	o.max_parallelism = 1;
+      } else if (optcmp(long_options[option_index].name, "defeat-rst-ratelimit") == 0) {
+        o.defeat_rst_ratelimit = 1;
       } else if (optcmp(long_options[option_index].name, "max-scan-delay") == 0) {
 	l = tval2msecs(optarg);
 	if (l < 0) fatal("--max-scan-delay cannot be negative.");

@@ -379,10 +379,7 @@ void printportoutput(Target *currenths, PortList *plist) {
   int first = 1;
   struct protoent *proto;
   Port *current;
-  int numignoredports;
   char hostname[1200];
-  int istate = plist->getIgnoredPortState();
-  numignoredports = plist->getStateCounts(istate);
   struct serviceDeductions sd;
   NmapOutputTable *Tbl = NULL;
   int portcol = -1; // port or IP protocol #
@@ -393,23 +390,38 @@ void printportoutput(Target *currenths, PortList *plist) {
   int colno = 0;
   unsigned int rowno;
   int numrows;
+  int numignoredports = plist->numIgnoredPorts();
+
   vector<const char *> saved_servicefps;
 
-  //cout << numignoredports << " " << plist->numports << endl;
-  assert(numignoredports <= plist->numports);
-
-
-  log_write(LOG_XML, "<ports><extraports state=\"%s\" count=\"%d\" />\n", 
-	    statenum2str(istate), 
-	    numignoredports);
+  log_write(LOG_XML, "<ports>");
+  int prevstate = PORT_UNKNOWN;
+  int istate;
+  while ((istate = plist->nextIgnoredState(prevstate)) != PORT_UNKNOWN) {
+    log_write(LOG_XML, "<extraports state=\"%s\" count=\"%d\" />\n", 
+	    statenum2str(istate), plist->getStateCounts(istate));
+    prevstate = istate;
+  }
 
   if (numignoredports == plist->numports) {
     log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,
-              "%s %d scanned %s on %s %s: %s\n",
+              "%s %d scanned %s on %s %s ",
 	      (numignoredports == 1)? "The" : "All", numignoredports,
 	      (numignoredports == 1)? "port" : "ports", 
 	      currenths->NameIP(hostname, sizeof(hostname)), 
-	      (numignoredports == 1)? "is" : "are", statenum2str(istate));
+	      (numignoredports == 1)? "is" : "are");
+    if (plist->numIgnoredStates() == 1) {
+      log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, statenum2str(plist->nextIgnoredState(PORT_UNKNOWN)));
+    } else {
+      prevstate = PORT_UNKNOWN;
+      while ((istate = plist->nextIgnoredState(prevstate)) != PORT_UNKNOWN) {
+	if (prevstate != PORT_UNKNOWN) log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, " or ");
+	log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "%s (%d)", statenum2str(istate), plist->getStateCounts(istate));
+	prevstate = istate;
+      }
+    }
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "\n");
+
     log_write(LOG_MACHINE,"Host: %s (%s)\tStatus: Up", 
 	      currenths->targetipstr(), currenths->HostName());
     log_write(LOG_XML, "</ports>\n");
@@ -422,9 +434,18 @@ void printportoutput(Target *currenths, PortList *plist) {
   log_write(LOG_MACHINE,"Host: %s (%s)", currenths->targetipstr(), 
 	    currenths->HostName());
   
-  if (numignoredports > 0) {
-    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"(The %d %s%s scanned but not shown below %s in state: %s)\n", numignoredports, o.ipprotscan?"protocol":"port", (numignoredports == 1)? "" : "s", (numignoredports == 1)? "is" : "are", statenum2str(istate));
+  /* Show line like:
+     Not shown: 3995 closed ports, 514 filtered ports
+     if appropriate (note that states are reverse-sorted by # of ports) */
+  prevstate = PORT_UNKNOWN;
+  while ((istate = plist->nextIgnoredState(prevstate)) != PORT_UNKNOWN) {
+    if (prevstate == PORT_UNKNOWN) 
+      log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "Not shown: ");
+    else log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, ", ");
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "%d %s %s", plist->getStateCounts(istate), statenum2str(istate), o.ipprotscan? "protocols": "ports");
+    prevstate = istate;
   }
+  if (prevstate != PORT_UNKNOWN) log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "\n");
 
   /* OK, now it is time to deal with the service table ... */
   colno = 0;
@@ -436,13 +457,8 @@ void printportoutput(Target *currenths, PortList *plist) {
   if (o.servicescan || o.rpcscan)
     versioncol = colno++;
 
-  numrows = plist->getStateCounts(PORT_CLOSED) + 
-    plist->getStateCounts(PORT_OPEN) + plist->getStateCounts(PORT_FILTERED) + 
-    plist->getStateCounts(PORT_UNFILTERED) + 
-    plist->getStateCounts(PORT_OPENFILTERED) + 
-    plist->getStateCounts(PORT_CLOSEDFILTERED);
-  if (istate != PORT_UNKNOWN)
-    numrows -=  plist->getStateCounts(istate);
+  numrows = plist->numports - numignoredports;
+
   assert(numrows > 0);
   numrows++; // The header counts as a row
 
@@ -466,7 +482,7 @@ void printportoutput(Target *currenths, PortList *plist) {
   if (o.ipprotscan) {
     current = NULL;
     while( (current=plist->nextPort(current, IPPROTO_IP, 0))!=NULL ) {
-      if (current->state != istate) {
+      if (!plist->isIgnoredState(current->state)) {
 	if (!first) log_write(LOG_MACHINE,", ");
 	else first = 0;
 	state = statenum2str(current->state);
@@ -488,7 +504,7 @@ void printportoutput(Target *currenths, PortList *plist) {
   } else {
     current = NULL;
     while( (current=plist->nextPort(current, TCPANDUDP, 0))!=NULL ) {
-      if (current->state != istate) {    
+      if (!plist->isIgnoredState(current->state)) {
 	if (!first) log_write(LOG_MACHINE,", ");
 	else first = 0;
 	strcpy(protocol,(current->proto == IPPROTO_TCP)? "tcp": "udp");

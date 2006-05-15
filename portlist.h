@@ -300,9 +300,22 @@ class PortList {
   /* Get number of ports in this state for requested protocol. */
   int getStateCounts(int protocol, int state);
 
-  /* The state of the port we ignore for output */
-  int getIgnoredPortState();
-  
+  /* Cycles through the 0 or more "ignored" ports which should be
+   consolidated for Nmap output.  They are returned sorted by the
+   number of prots in the state, starting with the most common.  It
+   should first be called with PORT_UNKNOWN to obtain the most popular
+   ignored state (if any).  Then call with that state to get the next
+   most popular one.  Returns the state if there is one, but returns
+   PORT_UNKNOWN if there are no (more) states which qualify for
+   consolidation */
+  int nextIgnoredState(int prevstate);
+
+  /* Returns true if a state should be ignored (consolidated), false otherwise */
+  bool isIgnoredState(int state);
+
+  int numIgnoredStates();
+  int numIgnoredPorts();
+
  private:
   /* A string identifying the system these ports are on.  Just used for 
      printing open ports, if it is set with setIdStr() */
