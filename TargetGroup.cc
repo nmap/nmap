@@ -198,7 +198,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
       }
     if (netmask != 32 || namedhost) {
       targets_type = IPV4_NETMASK;
-      if (!inet_aton(target_net, &(startaddr))) {
+      if (!inet_pton(AF_INET, target_net, &(startaddr))) {
 	if ((target = gethostbyname(target_net))) {
           int count=0;
 

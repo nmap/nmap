@@ -39,14 +39,26 @@ o Nmap now ignores certain ICMP error message rate limiting (rather
   Macok (martin.macok(a)underground.cz) for writing the patch that
   these changes were based on.
 
-o Fixed a couple possible memory leaks reported by Ted Kremenek
- (kremenek(a)cs.stanford.edu) from the Stanford University sofware
- static analysis lab ("Checker" project).
-
 o Changed the PortList class to use much more efficient data
   structures and algorithms which take advantage of Nmap-specific
   behavior patterns.  Thanks to Marek Majkowski
   (majek(a)forest.one.pl) for the patch.
+
+o Fixed a bug which prevented certain TCP+UDP scan commands, such as
+  "nmap -sSU -p1-65535 localhost" from scanning both TCP and UDP.
+  Instead they gave the error message "WARNING: UDP scan was requested,
+  but no udp ports were specified.  Skipping this scan type".  Thanks to
+  Doug Hoyte for the patch.
+
+o Nmap has traditionally required you to specify -T* timing options
+  before any more granular options like --max-rtt-timeout, otherwise the
+  general timing option would overwrite the value from your more
+  specific request.  This has now been fixed so that the more specific
+  options always have precendence.  Thanks to Doug Hoyte for this patch.
+
+o Fixed a couple possible memory leaks reported by Ted Kremenek
+ (kremenek(a)cs.stanford.edu) from the Stanford University sofware
+ static analysis lab ("Checker" project).
 
 o Nmap now prints a warning when you specify a target name which
   resolves to multiple IP addresses.  Nmap proceeds to scan only the
@@ -56,6 +68,10 @@ o Nmap now prints a warning when you specify a target name which
 
 o Disallow --host-timeout values of less than 1500ms, print a warning
   for values less than 15s.
+
+o Changed all instances of inet_aton() into calls to inet_pton()
+  instead.  This allowed us to remove inet_aton.c from nbase.  Thanks to
+  KX (kxmail(a)gmail.com) for the patch.
 
 Nmap 4.03
 

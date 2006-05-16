@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "05/10/2006" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "05/15/2006" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -846,6 +846,23 @@ option specifies the largest delay that Nmap will allow. Setting this value too 
 Another use of
 \fB\-\-scan\-delay\fR
 is to evade threshold based intrusion detection and prevention systems (IDS/IPS).
+.TP
+\fB\-\-defeat\-rst\-ratelimit\fR
+Many hosts have long used rate limiting to reduce the number of ICMP error messages (such as port\-unreachable errors) they send. Some systems now apply similar rate limits to the RST (reset) packets they generate. This can slow Nmap down dramatically as it adjusts its timing to reflect those rate limits. You can tell Nmap to ignore those rate limits (for port scans such as SYN scan which
+\fIdon't\fR
+treat nonresponsive ports as
+open) by specifying
+\fB\-\-defeat\-rst\-ratelimit\fR.
+.sp
+Using this option can reduce accuracy, as some ports will appear nonresponse because Nmap didn't wait long enough for a rate\-limited RST response. With a SYN scan, the non\-response results in the port being labeled
+filtered
+rather than the
+closed
+state we see when RST packets are received. This optional is useful when you only care about open ports, and distinguishing between
+closed
+and
+filtered
+ports isn't worth the extra time.
 .TP
 \fB\-T <Paranoid|Sneaky|Polite|Normal|Aggressive|Insane>\fR (Set a timing template)
 While the fine grained timing controls discussed in the previous section are powerful and effective, some people find them confusing. Moreover, choosing the appropriate values can sometimes take more time than the scan you are trying to optimize. So Nmap offers a simpler approach, with six timing templates. You can specify them with the

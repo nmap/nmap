@@ -780,7 +780,7 @@ int resolve(char *hostname, struct in_addr *ip) {
   if (!hostname || !*hostname)
     fatal("NULL or zero-length hostname passed to resolve()");
 
-  if (inet_aton(hostname, ip))
+  if (inet_pton(AF_INET, hostname, ip))
     return 1; /* damn, that was easy ;) */
   if ((h = gethostbyname(hostname))) {
     memcpy(ip, h->h_addr_list[0], sizeof(struct in_addr));

@@ -470,6 +470,16 @@ int nmap_main(int argc, char *argv[]) {
   size_t sslen;
   int option_index;
   bool iflist = false;
+
+  // Pre-specified timing parameters.
+  // These are stored here during the parsing of the arguments so that we can
+  // set the defaults specified by any timing template options (-T2, etc) BEFORE
+  // any of these. In other words, these always take precedence over the templates.
+  int pre_max_parallelism=-1, pre_scan_delay=-1, pre_max_scan_delay=-1;
+  int pre_init_rtt_timeout=-1, pre_min_rtt_timeout=-1, pre_max_rtt_timeout=-1;
+  int pre_max_retries=-1;
+  long pre_host_timeout=-1;
+
   struct option long_options[] =
     {
       {"version", no_argument, 0, 'V'},
@@ -593,18 +603,18 @@ int nmap_main(int argc, char *argv[]) {
         if (l < 20) {
 	  error("WARNING: You specified a round-trip time timeout (%ld ms) that is EXTRAORDINARILY SMALL.  Accuracy may suffer.", l);
 	}
-	o.setMaxRttTimeout(l);
+        pre_max_rtt_timeout = l;
       } else if (optcmp(long_options[option_index].name, "min-rtt-timeout") == 0) {
 	l = tval2msecs(optarg);
 	if (l < 0) fatal("Bogus --min-rtt-timeout argument specified");
 	if (l > 50000) {
 	  error("Warning:  min-rtt-timeout is given in milliseconds, your value seems pretty large.");
 	}
-	o.setMinRttTimeout(l);
+        pre_min_rtt_timeout = l;
       } else if (optcmp(long_options[option_index].name, "initial-rtt-timeout") == 0) {
 	l = tval2msecs(optarg);
 	if (l <= 0) fatal("Bogus --initial-rtt-timeout argument specified.  Must be positive");
-	o.setInitialRttTimeout(l);
+        pre_init_rtt_timeout = l;
       } else if (strcmp(long_options[option_index].name, "excludefile") == 0) {
         excludefd = fopen(optarg, "r");
         if (!excludefd) {
@@ -634,9 +644,9 @@ int nmap_main(int argc, char *argv[]) {
 	  error("Warning: Your --min-parallelism option is pretty high!  This can hurt reliability.");
 	}
       } else if (optcmp(long_options[option_index].name, "host-timeout") == 0) {	l = tval2msecs(optarg);
-	if (l <= 1500) fatal("--host-timeout must be greater than 1500 milliseconds");
-	o.host_timeout = l;
-	if (o.host_timeout < 15000) {
+	if (l <= 1500) fatal("--host-timeout is specified in milliseconds unless you qualify it by appending 's', 'm', 'h', or 'd'.  The value must be greater than 1500 milliseconds");
+	pre_host_timeout = l;
+	if (l < 15000) {
 	  error("host-timeout is given in milliseconds, so you specified less than 15 seconds (%lims). This is allowed but not recommended.", o.host_timeout);
 	}
       } else if (strcmp(long_options[option_index].name, "ttl") == 0) {
@@ -667,22 +677,17 @@ int nmap_main(int argc, char *argv[]) {
       } else if (optcmp(long_options[option_index].name, "scan-delay") == 0) {
 	l = tval2msecs(optarg);
 	if (l < 0) fatal("Bogus --scan-delay argument specified.");
-	o.scan_delay = l;
-	if (o.scan_delay > o.maxTCPScanDelay()) o.setMaxTCPScanDelay(o.scan_delay);
-	if (o.scan_delay > o.maxUDPScanDelay()) o.setMaxUDPScanDelay(o.scan_delay);
-	o.max_parallelism = 1;
+	pre_scan_delay = l;
       } else if (optcmp(long_options[option_index].name, "defeat-rst-ratelimit") == 0) {
         o.defeat_rst_ratelimit = 1;
       } else if (optcmp(long_options[option_index].name, "max-scan-delay") == 0) {
 	l = tval2msecs(optarg);
 	if (l < 0) fatal("--max-scan-delay cannot be negative.");
-	o.setMaxTCPScanDelay(l);
-	o.setMaxUDPScanDelay(l);
+	pre_max_scan_delay = l;
       } else if (optcmp(long_options[option_index].name, "max-retries") == 0) {
-        int num_retrans = atoi(optarg);
-        if (num_retrans < 0)
+        int pre_max_retries = atoi(optarg);
+        if (pre_max_retries < 0)
           fatal("max-retransmissions must be positive");
-        o.setMaxRetransmissions(num_retrans);
       } else if (optcmp(long_options[option_index].name, "randomize-hosts") == 0
 		 || strcmp(long_options[option_index].name, "rH") == 0) {
 	o.randomize_hosts = 1;
@@ -860,9 +865,9 @@ int nmap_main(int argc, char *argv[]) {
       }
       break;  
     case 'M': 
-      o.max_parallelism = atoi(optarg); 
-      if (o.max_parallelism < 1) fatal("Argument to -M must be at least 1!");
-      if (o.max_parallelism > 900) {
+      pre_max_parallelism = atoi(optarg); 
+      if (pre_max_parallelism < 1) fatal("Argument to -M must be at least 1!");
+      if (pre_max_parallelism > 900) {
 	error("Warning: Your max-parallelism (-M) option is extraordinarily high, which can hurt reliability");
       }
       break;
@@ -1051,6 +1056,26 @@ int nmap_main(int argc, char *argv[]) {
     signal(SIGSEGV, sigdie); 
 #endif
 
+  // After the arguments are fully processed we now make any of the timing
+  // tweaks the user might've specified:
+  if (pre_max_parallelism != -1) o.max_parallelism = pre_max_parallelism;
+  if (pre_scan_delay != -1) {
+    o.scan_delay = pre_scan_delay;
+    if (o.scan_delay > o.maxTCPScanDelay()) o.setMaxTCPScanDelay(o.scan_delay);
+    if (o.scan_delay > o.maxUDPScanDelay()) o.setMaxUDPScanDelay(o.scan_delay);
+    o.max_parallelism = 1;
+  }
+  if (pre_max_scan_delay != -1) {
+    o.setMaxTCPScanDelay(pre_max_scan_delay);
+    o.setMaxUDPScanDelay(pre_max_scan_delay);
+  }
+  if (pre_init_rtt_timeout != -1) o.setInitialRttTimeout(pre_init_rtt_timeout);
+  if (pre_min_rtt_timeout != -1) o.setMinRttTimeout(pre_min_rtt_timeout);
+  if (pre_max_rtt_timeout != -1) o.setMaxRttTimeout(pre_max_rtt_timeout);
+  if (pre_max_retries != -1) o.setMaxRetransmissions(pre_max_retries);
+  if (pre_host_timeout != -1) o.host_timeout = pre_host_timeout;
+
+
   if (o.osscan)
     o.reference_FPs = parse_fingerprint_reference_file();
 
@@ -1216,7 +1241,7 @@ int nmap_main(int argc, char *argv[]) {
 
   /* If he wants to bounce off of an ftp site, that site better damn well be reachable! */
   if (o.bouncescan) {
-    if (!inet_aton(ftp.server_name, &ftp.server)) {
+	  if (!inet_pton(AF_INET, ftp.server_name, &ftp.server)) {
       if ((target = gethostbyname(ftp.server_name)))
 	memcpy(&ftp.server, target->h_addr_list[0], 4);
       else {
@@ -1658,7 +1683,7 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
     q = strchr(found, ' ');
     if (!q) fatal("Unable to parse supposed log file %s.  Sorry", fname);
     *q = '\0';
-    if (inet_aton(found, &lastip) == 0)
+    if (inet_pton(AF_INET, found, &lastip) == 0)
       fatal("Unable to parse supposed log file %s.  Sorry", fname);
     *q = ' ';
   } else {
@@ -1686,7 +1711,7 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
       q = strchr(found, ')');
       if (!q) fatal("Unable to parse supposed log file %s.  Sorry", fname);
       *q = '\0';
-      if (inet_aton(found, &lastip) == 0)
+      if (inet_pton(AF_INET, found, &lastip) == 0)
 	fatal("Unable to parse ip (%s) supposed log file %s.  Sorry", found, fname);
       *q = ')';
     } else {
@@ -1748,9 +1773,9 @@ struct scan_lists *getpts(char *origexpr) {
 
   if (o.TCPScan())
     range_type |= SCAN_TCP_PORT;
-  else if (o.UDPScan())
+  if (o.UDPScan())
     range_type |= SCAN_UDP_PORT;
-  else if (o.ipprotscan)
+  if (o.ipprotscan)
     range_type |= SCAN_PROTOCOLS;
 
   porttbl = (u8 *) safe_zalloc(65536);

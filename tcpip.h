@@ -750,10 +750,6 @@ char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
 int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
 		       long to_usec, struct timeval *rcvdtime);
 
-#ifndef HAVE_INET_ATON
-int inet_aton(register const char *, struct in_addr *);
-#endif
-
 /* Examines the given tcp packet and obtains the TCP timestamp option
    information if available.  Note that the CALLER must ensure that
    "tcp" contains a valid header (in particular the th_off must be the

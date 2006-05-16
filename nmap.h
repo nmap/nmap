@@ -464,9 +464,4 @@ const char *seqidx2difficultystr(unsigned long idx);
 int nmap_fetchfile(char *filename_returned, int bufferlen, char *file);
 int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv);
 
-/* From glibc 2.0.6 because Solaris doesn't seem to have this function */
-#ifndef HAVE_INET_ATON
-int inet_aton(register const char *, struct in_addr *);
-#endif
-
 #endif /* NMAP_H */
