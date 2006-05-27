@@ -73,6 +73,22 @@ o Changed all instances of inet_aton() into calls to inet_pton()
   instead.  This allowed us to remove inet_aton.c from nbase.  Thanks to
   KX (kxmail(a)gmail.com) for the patch.
 
+o When debugging (-d) is specified, Nmap now prints a report on the
+  timing variables in use.  Thanks to Doug Hoyte for the patch.  The
+  report loos like this:
+  ---------- Timing report ----------
+    hostgroups: min 1, max 100000
+    rtt-timeouts: init 250, min 50, max 300
+    scan-delay: TCP 5, UDP 1000
+    parallelism: min 0, max 0
+    max-retries: 2, host-timeout 900000
+  -----------------------------------
+
+o Modified the WinPcap installer file to explicitly uninstall an
+  existing WinPcap (if you select that you wish to replace it) rather
+  than just overwriting the old version.  Thanks to Doug Hoyte for
+  making this change.
+
 Nmap 4.03
 
 o Updated the LibPCRE build system to add the -fno-thread-jumps option

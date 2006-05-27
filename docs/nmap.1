@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "05/15/2006" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "05/27/2006" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -875,9 +875,9 @@ These templates allow the user to specify how aggressive they wish to be, while 
 \fB\-T4\fR
 prohibits the dynamic scan delay from exceeding 10ms for TCP ports and
 \fB\-T5\fR
-caps that value at 5 milliseconds. Templates can be used in combination with fine grained controls, as long as the template is specified first. Otherwise the standard values for the template may override the values you specify. I recommend using
+caps that value at 5 milliseconds. Templates can be used in combination with fine grained controls, and the fine\-grained controls will you specify will take precedence over the timing template default for that parameter. I recommend using
 \fB\-T4\fR
-when scanning reasonably modern and reliable networks. Keep that option (at the beginning of the command line) even when you add fine grained controls so that you benefit from those extra minor optimizations that it enables.
+when scanning reasonably modern and reliable networks. Keep that option even when you add fine grained controls so that you benefit from those extra minor optimizations that it enables.
 .sp
 If you are on a decent broadband or ethernet connection, I would recommend always using
 \fB\-T4\fR. Some people love

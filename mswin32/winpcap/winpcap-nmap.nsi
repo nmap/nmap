@@ -44,6 +44,7 @@ Function .onInit
 
   do_silent:
     SetSilent silent
+    IfFileExists "$SYSDIR\wpcap.dll" finish
     return
 
   no_silent:
@@ -77,6 +78,13 @@ Function .onInit
     quit
 
   finish:
+    ReadRegStr $0 "HKLM" "Software\WinPcap" ""
+
+    IfFileExists "$0\Uninstall.exe" run_uninstaller
+    return
+
+  run_uninstaller:
+    ExecWait '"$0\Uninstall.exe"'
 
 FunctionEnd
 

@@ -1491,6 +1491,7 @@ match sourceoffice m|^250\r\nProtocol-Version:(\d[.\d]+)\r\nMessage-ID:\d+\r\nDa
 match ssh m|^\0\0\0\$\0\0\0\0\x01\0\0\0\x1bNo host key is configured!\n\r!\"v| p/Foundry Networks switch sshd/ i/broken: No host key configured/
 match ssh m|^SSH-(\d[\d.]+)-SSF-(\d[-.\w]+)\n| p/SSF French SSH/ v/$2/ i/protocol $1/
 match ssh m|^SSH-(\d[\d.]+)-lshd_(\d[-.\w]+) lsh - a free ssh\r\n\0\0| p/lshd secure shell/ v/$2/ i/protocol $1/
+match ssh m/^SSH-([.\d]+)-OpenSSH[_-](\S+ Debian-7ubuntu3)/i o/Linux/ p/OpenSSH/ v/$2/ i/protocol $1/
 match ssh m/^SSH-([.\d]+)-OpenSSH[_-]([\S ]+)/i p/OpenSSH/ v/$2/ i/protocol $1/
 match ssh m/^SSH-([.\d]+)-Sun_SSH_(\S+)/ p/SunSSH/ v/$2/ i/protocol $1/
 match ssh m/^SSH-([.\d]+)-meow roototkt by rebel/ p/meow SSH ROOTKIT/ i/protocol $1/
@@ -4587,6 +4588,13 @@ match gadu m|^UDAG$| p/Kadu polish IM client/
 # Skype - Protocol seems to spew out 14 random characters upon
 # connection. Luckily, this shouldn't conflict any other X11 services.
 match skype m|^.{14}$|s p/Skype VoIP data channel/
+
+
+##############################NEXT PROBE##############################
+Probe TCP FourOhFourRequest q|GET /nice%20ports%2C/Tri%6Eity.txt%2ebak HTTP/1.0\r\n\r\n|
+rarity 6
+ports 80-85,88,8000-8010,8080-8085,8880-8888
+fallback GetRequest
 
 
 ##############################NEXT PROBE##############################
