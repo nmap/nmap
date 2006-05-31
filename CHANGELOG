@@ -89,6 +89,15 @@ o Modified the WinPcap installer file to explicitly uninstall an
   than just overwriting the old version.  Thanks to Doug Hoyte for
   making this change.
 
+o Added some P2P application ports to the nmap-services file.  Thanks
+  to Martin Macok for the patch.
+
+o The write buffer length increased in 4.03 was increased even further
+  when the debugging or verbosity levels are more than 2 (e.g. -d3).
+  Thanks to Brandon Enright (bmenrigh(a)ucsd.edu) for the patch.  The
+  goal is to prevent you from ever seeing the fatal error:
+  "log_vwrite: write buffer not large enough -- need to increase"
+
 Nmap 4.03
 
 o Updated the LibPCRE build system to add the -fno-thread-jumps option
@@ -132,7 +141,7 @@ o Fixed (I hope) a problem where aggressive --min-parallelization
 o Fixed a rare crash bug thanks to a report and patch from Ganga
   Bhavani (GBhavani(a)everdreamcorp.com)
 
-o Increased a write buffer length to avoid Nmap from quitting with the
+o Increased a write buffer length to keep Nmap from quitting with the
   message "log_vwrite: write buffer not large enough -- need to
   increase".  Thanks to Dave (dmarcher(a)pobox.com) for reporting the
   issue.

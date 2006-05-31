@@ -18119,7 +18119,7 @@ PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=F%RIPCK=F%UCK=E%ULEN=134%DAT=E)
 # OpenBSD 3.6-stable on SPARC
 # OpenBSD 3.6 GENERIC#304 sparc64
 # OpenBSD 3.7 GENERIC#50 i386
-Fingerprint OpenBSD 3.5 - 3.7
+Fingerprint OpenBSD 3.5 - 3.9
 Class OpenBSD | OpenBSD | 3.X | general purpose
 TSeq(Class=TR%gcd=<6%IPID=RD%TS=2HZ)
 T1(DF=Y%W=4000%ACK=S++%Flags=AS%Ops=MNWNNT)

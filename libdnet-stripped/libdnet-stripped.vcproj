@@ -1,95 +1,145 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="8.00"
 	Name="dnet"
 	ProjectGUID="{5328E0BE-BC0A-4C2A-8CB9-CE00B61B9C4C}"
-	Keyword="Win32Proj">
+	Keyword="Win32Proj"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="."
 			IntermediateDirectory="Debug"
 			ConfigurationType="4"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="include;&quot;..\mswin32\pcap-include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
-				MinimalRebuild="TRUE"
+				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="5"
+				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="4"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/libdnet-stripped.lib"/>
+				OutputFile="$(OutDir)/libdnet-stripped.lib"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="."
 			IntermediateDirectory="Release"
 			ConfigurationType="4"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="include;&quot;..\mswin32\pcap-include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
-				RuntimeLibrary="4"
+				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/libdnet-stripped.lib"/>
+				OutputFile="$(OutDir)/libdnet-stripped.lib"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -98,104 +148,136 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			>
 			<File
-				RelativePath=".\src\addr-util.c">
+				RelativePath=".\src\addr-util.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\addr.c">
+				RelativePath=".\src\addr.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\arp-win32.c">
+				RelativePath=".\src\arp-win32.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\err.c">
+				RelativePath=".\src\err.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\eth-win32.c">
+				RelativePath=".\src\eth-win32.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\intf-win32.c">
+				RelativePath=".\src\intf-win32.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\ip-util.c">
+				RelativePath=".\src\ip-util.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\ip-win32.c">
+				RelativePath=".\src\ip-win32.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\ip6.c">
+				RelativePath=".\src\ip6.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\route-win32.c">
+				RelativePath=".\src\route-win32.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\strlcat.c">
+				RelativePath=".\src\strlcat.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\strlcpy.c">
+				RelativePath=".\src\strlcpy.c"
+				>
 			</File>
 			<File
-				RelativePath=".\src\strsep.c">
+				RelativePath=".\src\strsep.c"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
 			<File
-				RelativePath=".\include\dnet\addr.h">
+				RelativePath=".\include\dnet\addr.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\dnet\arp.h">
+				RelativePath=".\include\dnet\arp.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\config.h">
+				RelativePath=".\include\config.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\dnet.h">
+				RelativePath=".\include\dnet.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\err.h">
+				RelativePath=".\include\err.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\dnet\eth.h">
+				RelativePath=".\include\dnet\eth.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\dnet\icmp.h">
+				RelativePath=".\include\dnet\icmp.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\dnet\intf.h">
+				RelativePath=".\include\dnet\intf.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\dnet\ip.h">
+				RelativePath=".\include\dnet\ip.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\dnet\ip6.h">
+				RelativePath=".\include\dnet\ip6.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\dnet\os.h">
+				RelativePath=".\include\dnet\os.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\queue.h">
+				RelativePath=".\include\queue.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\dnet\route.h">
+				RelativePath=".\include\dnet\route.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\dnet\tcp.h">
+				RelativePath=".\include\dnet\tcp.h"
+				>
 			</File>
 			<File
-				RelativePath=".\include\dnet\udp.h">
+				RelativePath=".\include\dnet\udp.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
 		</Filter>
 		<File
-			RelativePath=".\ReadMe.txt">
+			RelativePath=".\ReadMe.txt"
+			>
 		</File>
 	</Files>
 	<Globals>

@@ -79,9 +79,9 @@ SectionEnd
 
 
 Section "WinPcap 3.1" SecWinPcap
-  File winpcap-nmap-3.1.A.exe
-  Exec '"$INSTDIR\winpcap-nmap-3.1.A.exe"'
-  Delete "$INSTDIR\winpcap-nmap-3.1.A.exe"
+  File winpcap-nmap-3.1.B.exe
+  Exec '"$INSTDIR\winpcap-nmap-3.1.B.exe"'
+  Delete "$INSTDIR\winpcap-nmap-3.1.B.exe"
 SectionEnd
 
 

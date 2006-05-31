@@ -7,7 +7,7 @@
 Name "winpcap-nmap-3.1"
 
 ; The file to write
-OutFile "winpcap-nmap-3.1.A.exe"
+OutFile "winpcap-nmap-3.1.B.exe"
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\WinPcap

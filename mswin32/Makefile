@@ -1,7 +1,9 @@
 MAKENSIS=/c/apps/NSIS/makensis.exe
+VCEXPRESS="/c/Program Files/Microsoft Visual Studio 8/Common7/IDE/VCExpress.exe"
 NMAP_VERSION:=$(shell grep "export NMAP_VERSION " ../Makefile.in | cut "-d " -f4)
 
 winbuild:
+	$(VCEXPRESS) nmap.sln /build release /log nmapbuild.log	
 	$(MAKENSIS) winpcap/winpcap-nmap.nsi
 	rm -rf nmap-$(NMAP_VERSION)
 	mkdir nmap-$(NMAP_VERSION)
@@ -11,3 +13,7 @@ winbuild:
 	cp nsis/AddToPath.nsh nsis/Nmap.nsi nmap-$(NMAP_VERSION)
 	$(MAKENSIS) nmap-$(NMAP_VERSION)/Nmap.nsi
 	mv nmap-$(NMAP_VERSION)/NmapInstaller.exe nmap-$(NMAP_VERSION)-setup.exe
+
+clean:
+	$(VCEXPRESS) nmap.sln /clean
+	rm -rf Debug Release nmapbuild.log

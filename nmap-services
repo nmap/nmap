@@ -1852,6 +1852,7 @@ squid-http        3128/tcp   #
 squid-ipc         3130/udp   #
 vmodem            3141/tcp   # 
 vmodem            3141/udp   # 
+kademlia          3246/udp   # Kademlia P2P (mlnet)
 ccmail            3264/tcp   # cc:mail/lotus
 ccmail            3264/udp   # cc:mail/lotus
 globalcatLDAP     3268/tcp   # Global Catalog LDAP
@@ -1890,6 +1891,7 @@ remoteanything    3998/udp   # neoworx remote-anything reserved
 remoteanything    3999/tcp   # neoworx remote-anything slave file browser
 remoteanything    4000/tcp   # neoworx remote-anything slave remote control
 icq               4000/udp   # AOL ICQ instant messaging clent-server communication
+mlchat-proxy      4002/tcp   # mlnet - MLChat P2P chat proxy
 netcheque         4008/tcp   # NetCheque accounting
 netcheque         4008/udp   # NetCheque accounting
 lockd             4045/tcp   # 
@@ -1914,6 +1916,8 @@ sae-urn           4500/udp   #
 fax               4557/tcp   # FlexFax FAX transmission service
 hylafax           4559/tcp   # HylaFAX client-server protocol
 mosmig            4660/tcp   # OpenMOSix MIGrates local processes
+edonkey           4662/tcp   # eDonkey file sharing (Donkey)
+edonkey           4666/udp   # eDonkey file sharing (Donkey)
 rfa               4672/tcp   # remote file access server
 rfa               4672/udp   # remote file access server
 squid-htcp        4827/udp   # Squid proxy HTCP port
@@ -2048,6 +2052,9 @@ montage-lm        6147/udp   # Montage License Manager
 ricardo-lm        6148/tcp   # Ricardo North America License Manager
 ricardo-lm        6148/udp   # Ricardo North America License Manager
 gnutella          6346/tcp   # Gnutella file sharing protocol
+gnutella          6346/udp   # Gnutella file sharing protocol
+gnutella2         6347/tcp   # Gnutella2 file sharing protocol
+gnutella2         6347/udp   # Gnutella2 file sharing protocol
 crystalreports    6400/tcp   # Seagate Crystal Reports
 crystalenterprise 6401/tcp   # Seagate Crystal Enterprise
 mythtv            6543/tcp
@@ -2063,6 +2070,7 @@ analogx           6588/tcp   # AnalogX HTTP proxy port
 irc-serv          6666/tcp   # internet relay chat server
 irc               6667/tcp   # Internet Relay Chat
 irc               6668/tcp   # Internet Relay Chat
+bittorent-tracker 6881/tcp   # BitTorrent tracker
 acmsoda           6969/tcp   #
 acmsoda           6969/udp   #
 napster           6699/tcp   # Napster File (MP3) sharing  software
@@ -2156,6 +2164,8 @@ VeritasNetbackup  13722/tcp  # bpjava-msvc   client
 VeritasNetbackup  13782/tcp  # bpcd          client
 VeritasNetbackup  13783/tcp  # vopied        client
 swgps             15126/tcp  # Nortel Java S/WGPS Global Payment Solutions for US credit card authorizations
+overnet           16444/tcp  # Overnet file sharing
+overnet           16444/udp  # Overnet file sharing
 subseven          16959/tcp  # Subseven trojan
 isode-dua         17007/tcp  # 
 isode-dua         17007/udp  # 
