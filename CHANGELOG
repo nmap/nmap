@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 4.04BETA1
+
 o Integrated all of your submissions (about a thousand) from the first
   quarter of this year!  Please keep 'em coming!  The DB has increased
   from 3,153 signatures representing 381 protocols in 4.03 to 3,441
@@ -38,6 +40,21 @@ o Nmap now ignores certain ICMP error message rate limiting (rather
   new option at http://www.insecure.org/nmap/man/ .  Thanks to Martin
   Macok (martin.macok(a)underground.cz) for writing the patch that
   these changes were based on.
+
+o Moved my Nmap development environment to Visual C++ 2005 Express
+  edition.  In typical "MS Upgrade Treadmill" fashion, Visual Studio
+  2003 users will no longer be able to compile Nmap using the new
+  solution files.  The compilation, installation, and execution
+  instructions at
+  http://www.insecure.org/nmap/install/inst-windows.html have been
+  upgraded.  
+
+o Automated my Windows build system so that I just have to type a
+  single make command in the mswin32 directory.  Thanks to Scott
+  Worley (smw(a)pobox.com>, Shane & Jenny Walters
+  (yfisaqt(a)waltersinamerica.com), and Alex Prinsier
+  (aphexer(a)mailhaven.com) for reading my appeal in the 4.03
+  CHANGELOG and assisting.
 
 o Changed the PortList class to use much more efficient data
   structures and algorithms which take advantage of Nmap-specific
