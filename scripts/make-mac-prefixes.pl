@@ -58,6 +58,7 @@ print OUTFILE "# \$Id" . ": \$ generated with make-mac-prefixes.pl\n";
 print OUTFILE "# Original data comes from http://standards.ieee.org/regauth/oui/oui.txt\n";
 print OUTFILE "# These values are known as Organizationally Unique Identifiers (OUIs)\n";
 print OUTFILE "# See http://standards.ieee.org/faqs/OUI.html\n";
+print OUTFILE "# We have added a few unregistered OUIs at the end.\n";
 
 while($ln = <INFILE>) {
     if ($ln =~ /\s*([0-9a-fA-F]{2})-([0-9a-fA-F]{2})-([0-9a-fA-F]{2})\s+\(hex\)\s+(\S.*)$/) { 
@@ -72,3 +73,6 @@ while($ln = <INFILE>) {
     }
 #    else { print "failed to match: $ln"; }
 }
+
+# Now add a few extras which aren't oficially registered ...
+    print OUTFILE "525400 QEMU\nB0C420 Bochs\n";

@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Updated nmap-mac-prefixes to reflect the latest OUI DB from the IEEE
+  (http://standards.ieee.org/regauth/oui/oui.txt) as of May 31, 2006.
+  Also added a couple unregistered OUI's (for QEMU and Bochs)
+  suggested by Robert Millan (rmh(a)aybabtu.com).
+
 Nmap 4.04BETA1
 
 o Integrated all of your submissions (about a thousand) from the first
