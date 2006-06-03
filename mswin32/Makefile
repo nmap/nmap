@@ -3,6 +3,7 @@ VCEXPRESS="/c/Program Files/Microsoft Visual Studio 8/Common7/IDE/VCExpress.exe"
 NMAP_VERSION:=$(shell grep "export NMAP_VERSION " ../Makefile.in | cut "-d " -f4)
 
 winbuild:
+# VCExpress.exe is devenv.com with the commercial Visual Studio suite instead of VC++ Express
 	$(VCEXPRESS) nmap.sln /build release /log nmapbuild.log	
 	$(MAKENSIS) winpcap/winpcap-nmap.nsi
 	rm -rf nmap-$(NMAP_VERSION)
