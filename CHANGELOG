@@ -5,6 +5,23 @@ o Updated nmap-mac-prefixes to reflect the latest OUI DB from the IEEE
   Also added a couple unregistered OUI's (for QEMU and Bochs)
   suggested by Robert Millan (rmh(a)aybabtu.com).
 
+o Fixed a bug which could cause false "open" ports when doing a UDP
+  scan of localhost. This usually only happened when you scan tens of
+  thousands of ports (e.g. -p- option).
+
+o Fixed a bug in service detection which could lead to a crash when
+  "--version-intensity 0" was used with a UDP scan.  Thanks to Makoto
+  Shiotsuki (shio(a)st.rim.or.jp) for reporting the problem and Doug
+  Hoyte for producing a patch.
+
+o Made some AIX and HP-UX portability fixes to Libdnet and NmapFE.
+  These were sent in by Peter O'Gorman
+  (nmap-dev(a)mlists.thewrittenword.com).
+
+o Changed mass_dns system to print a warning if it can't find any
+  available DNS servers, but not quit like it used to.  Thanks to Doug
+  Hoyte for the patch.
+
 Nmap 4.04BETA1
 
 o Integrated all of your submissions (about a thousand) from the first

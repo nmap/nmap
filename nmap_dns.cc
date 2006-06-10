@@ -285,6 +285,7 @@ static struct timeval starttv;
 static int read_timeout_index;
 static u16 id_counter;
 
+static int firstrun=1;
 static ScanProgressMeter *SPM;
 
 
@@ -847,8 +848,10 @@ void win32_read_registry(char *controlset) {
 
   snprintf(keybasebuf, sizeof(keybasebuf), "SYSTEM\\%s\\Services\\Tcpip\\Parameters", controlset);
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keybasebuf,
-                    0, KEY_READ, &hKey) != ERROR_SUCCESS)
-    fatal("Error opening registry to read DNS servers. Try using --system-dns or specify valid servers with --dns-servers");
+                    0, KEY_READ, &hKey) != ERROR_SUCCESS) {
+    if (firstrun) error("mass_dns: warning: Error opening registry to read DNS servers. Try using --system-dns or specify valid servers with --dns-servers");
+    return;
+  }
 
   sz = sizeof(buf);
   if (RegQueryValueEx(hKey, "NameServer", NULL, NULL, (LPBYTE) buf, (LPDWORD) &sz) == ERROR_SUCCESS)
@@ -907,7 +910,8 @@ static void parse_resolvdotconf() {
 
   fp = fopen("/etc/resolv.conf", "r");
   if (fp == NULL) {
-    fatal("Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers");
+    if (firstrun) error("mass_dns: warning: Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers");
+    return;
   }
 
   while (fgets(buf, sizeof(buf), fp)) {
@@ -1064,8 +1068,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
     if (o.dns_servers) add_dns_server(o.dns_servers);
     else parse_resolvdotconf();
 
-    if (servs.size() == 0)
-      fatal("Unable to determine any DNS servers. Try using --system-dns or specify valid servers with --dns_servers");
+    if (servs.size() == 0 && firstrun) error("mass_dns: warning: Unable to determine any DNS servers. Reverse DNS is disabled. Try using --system-dns or specify valid servers with --dns_servers");
   }
 
 
@@ -1099,7 +1102,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
     total_reqs++;
   }
 
-  if (total_reqs == 0) return;
+  if (total_reqs == 0 || servs.size() == 0) return;
 
   // And finally, do it!
 
@@ -1212,4 +1215,6 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
       log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs.\n", stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0);
     }
   }
+
+  firstrun=0;
 }

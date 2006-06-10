@@ -17,7 +17,9 @@
 #define TCP_HDR_LEN_MAX	(TCP_HDR_LEN + TCP_OPT_LEN_MAX)
 
 #ifndef __GNUC__
+#ifndef __attribute__
 # define __attribute__(x)
+#endif
 # pragma pack(1)
 #endif
 

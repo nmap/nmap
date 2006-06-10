@@ -16,7 +16,9 @@
 #define ARP_ETHIP_LEN	20	/* base ARP message length */
 
 #ifndef __GNUC__
+#ifndef __attribute__
 # define __attribute__(x)
+#endif
 # pragma pack(1)
 #endif
 

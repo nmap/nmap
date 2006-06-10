@@ -25,7 +25,9 @@ typedef struct ip6_addr {
 } ip6_addr_t;
 
 #ifndef __GNUC__
+#ifndef __attribute__
 # define __attribute__(x)
+#endif
 # pragma pack(1)
 #endif
 

@@ -383,7 +383,7 @@ arp_loop(arp_t *r, arp_handler callback, void *arg)
 	}
 	return (ret);
 }
-#elif defined(HAVE_NET_RADIX_H)
+#elif defined(HAVE_NET_RADIX_H) && !defined(_AIX)
 /* XXX - Tru64, others? */
 #include <netinet/if_ether.h>
 #include <nlist.h>

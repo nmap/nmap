@@ -230,9 +230,10 @@ saveLog (char *filename)
     if (filename && *filename) {
         FILE *file;
         if ((file = fopen(filename, "w"))) {
+	  gchar *text;
             gtk_text_buffer_get_start_iter(opt.buffer, &start);
             gtk_text_buffer_get_end_iter(opt.buffer, &end);
-            gchar *text = gtk_text_buffer_get_text(opt.buffer,
+            text = gtk_text_buffer_get_text(opt.buffer,
                     &start, &end, FALSE);
 
             fputs(text, file);
@@ -267,7 +268,7 @@ void openLog(char *filename)
 void okButton_clicked_cb(GtkWidget *window, GtkButton *button)
 {
 const char *selected = gtk_file_selection_get_filename(GTK_FILE_SELECTION(window));
-void (*action)() = g_object_get_data(G_OBJECT(window), "NmapFE_action");
+void (*action)() = (void (*)())g_object_get_data(G_OBJECT(window), "NmapFE_action");
 GtkEntry *entry = g_object_get_data(G_OBJECT(window), "NmapFE_entry");
 char *filename = g_object_get_data(G_OBJECT(window), "NmapFE_filename");
 
