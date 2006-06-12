@@ -3637,7 +3637,8 @@ match lcdproc m|^huh\? Invalid command \"GET\"\n$| p/LCDProc screen interface da
 
 match mosmig m|^GET \0\0\0\0TP/1\.0\r\n$| p/OpenMosix Process Migration Service/ o/Linux/
 
-match msdtc m|^...\0..$|s p/Microsoft Distributed Transaction Coordinator/ o/Windows/
+# Wrongly matches SSH in some cases
+# match msdtc m|^...\0..$|s p/Microsoft Distributed Transaction Coordinator/ o/Windows/
 match msdtc m|^ERROR\n$|s p/Microsoft Distributed Transaction Coordinator/ i/error/ o/Windows/
 
 # MLDonkey 2.5

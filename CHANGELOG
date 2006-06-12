@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 4.10
+
 o Updated nmap-mac-prefixes to reflect the latest OUI DB from the IEEE
   (http://standards.ieee.org/regauth/oui/oui.txt) as of May 31, 2006.
   Also added a couple unregistered OUI's (for QEMU and Bochs)
@@ -17,6 +19,14 @@ o Fixed a bug in service detection which could lead to a crash when
 o Made some AIX and HP-UX portability fixes to Libdnet and NmapFE.
   These were sent in by Peter O'Gorman
   (nmap-dev(a)mlists.thewrittenword.com).
+
+o When you do a UDP+TCP scan, the TCP ports are now shown first (in
+  numerical order), followed by the UDP ports (also in order).  This
+  contrasts with the old format which showed all ports together in
+  numerical order, regardless of protocol.  This was at first a "bug",
+  but then I started thinking this behavior may be better.  If you
+  have a preference for one format or the other, please post your
+  reasons to nmap-dev.
 
 o Changed mass_dns system to print a warning if it can't find any
   available DNS servers, but not quit like it used to.  Thanks to Doug
