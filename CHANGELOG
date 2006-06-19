@@ -41,7 +41,7 @@ o Integrated all of your submissions (about a thousand) from the first
   Many of the already existing match lines were improved too.  Thanks
   to Version Detection Czar Doug Hoyte for doing this.
 
-o Nmap now allows multiple ingored port states.  If a 65K-port scan
+o Nmap now allows multiple ignored port states.  If a 65K-port scan
   had, 64K filtered ports, 1K closed ports, and a few dozen open
   ports, Nmap used to list the dozen open ones among a thousand lines
   of closed ports.  Now Nmap will give reports like "Not shown: 64330

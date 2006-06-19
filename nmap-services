@@ -1157,7 +1157,7 @@ iad3              1032/udp   # BBN IAD
 netinfo           1033/tcp   # Netinfo is apparently on many OS X boxes.
 activesync-notify 1034/udp   # Windows Mobile device ActiveSync Notifications
 netsaint          1040/tcp   # Netsaint status daemon
-boinc-client      1043/tcp   # BOINC Client Control
+boinc-client      1043/tcp   # BOINC Client Control or Microsoft IIS
 boinc-client      1043/udp   # BOINC Client Control
 java-or-OTGfileshare 1050/tcp # J2EE nameserver, also OTG, also called Disk/Application extender. Could also be MiniCommand backdoor OTGlicenseserv
 nim               1058/tcp   # 
@@ -2213,6 +2213,7 @@ heretic2          28910/udp  # Heretic 2 game server
 Trinoo_Register   31335/udp  # Trinoo distributed attack tool Bcast Daemon registration port
 BackOrifice       31337/udp  # cDc Back Orifice remote admin tool
 Elite             31337/tcp  # Sometimes interesting stuff can be found here
+boinc-client      31416/tcp  # BOINC Client Control
 omad              32768/udp  # OpenMosix Autodiscovery Daemon
 sometimes-rpc3    32770/tcp  # Sometimes an RPC port on my Solaris box
 sometimes-rpc4    32770/udp  # Sometimes an RPC port on my Solaris box

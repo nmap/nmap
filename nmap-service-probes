@@ -3053,7 +3053,7 @@ match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: \r\nDate: .*\r\nWWW-Authenti
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: NetPort Software ([\d.]+)\r\n.*<TITLE>Connection Information</TITLE><!-- Copyright\(C\) \d+ Efficient Ne..orks -->|s p/Efficient Networks Speedstream DSL router http config/ d/router/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: NetPort Software ([\d.]+)\r\n| i/NetPort embedded httpd $1/
 match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/html\r\nDate: .*\r\nContent-Length: \d+\r\nVia: [\d.]+ Application and Content Networking System Software ([\d.]+)\r\n| p/Cisco ACNS http cache/ v/$1/ o/IOS/
-match http m|^HTTP/1\.0 \d\d\d .*.*<a href=\"http://www\.cisco\.com/\">Application and Content Networking System Software ([\d.]+)</a>\)\n</BODY></HTML>\n|s p/Cisco ACNS httpd/ v/$1/ o/IOS/
+match http m|^HTTP/1\.0 \d\d\d .*<a href=\"http://www\.cisco\.com/\">Application and Content Networking System Software ([\d.]+)</a>\)\n</BODY></HTML>\n|s p/Cisco ACNS httpd/ v/$1/ o/IOS/
 match http m|^HTTP/1\.0 \d\d\d .*<title>VLC media player</title>\n|s p/VLC media player http interface/
 match http m|^HTTP/1\.0 \d\d\d .*<a href=\"http://www\.videolan\.org/\">VLC media player ([\d.]+)[^<]+</a> \(http interface\)</h2>\n|s p/VLC media player http interface/ v/$1/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: \r\nContent-Type: text/html\r\nDate: .*\r\nLast-Modified: .*\r\nAccept-Ranges: bytes\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"WebAdmin\"\r\n\r\n<HTML>\n<HEAD><TITLE>401 Unauthorized</TITLE></HEAD>\n<BODY BGCOLOR=\"#cc9999\" TEXT=\"#000000\" LINK=\"#2020ff\" VLINK=\"#4040cc\">\n| p/ActionTec DSL http config/ d/broadband router/
