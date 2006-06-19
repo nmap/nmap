@@ -851,11 +851,6 @@ ServiceProbe::~ServiceProbe() {
   if (fallbackStr) free(fallbackStr);
 }
 
-void ServiceProbe::setName(const char *name) {
-  if (probename) free(probename);
-  probename = strdup(name);
-}
-
   // Parses the "probe " line in the nmap-service-probes file.  Pass the rest of the line
   // after "probe ".  The format better be:
   // [TCP|UDP] [probename] q|probetext|

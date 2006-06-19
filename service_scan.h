@@ -218,7 +218,6 @@ class ServiceProbe {
   ServiceProbe();
   ~ServiceProbe();
   const char *getName() { return probename; }
-  void setName(const char *name); // a copy of name will be made and stored
   // Returns true if this is the "null" probe, meaning it sends no probe and
   // only listens for a banner.  Only TCP services have this.
   bool isNullProbe() { return (probestringlen == 0); }
