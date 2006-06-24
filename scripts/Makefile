@@ -62,8 +62,8 @@ distro:
 	$(MAKE) -C .. clean
 	cd .. && rm -f $(LIBPCAPDIR)/config.cache $(LIBPCAPDIR)/Makefile
 	cd .. && unix2dos README-WIN32
-	cd .. && cp -a $(SRCS) $(DEPS) $(DATAFILES) nmapfe.desktop \
-         configure.ac config.h.in aclocal.m4 nmap_winconfig.h Makefile.in \
+	cd .. && cp -a $(SRCS) $(HDRS) $(DATAFILES) nmapfe.desktop \
+         configure.ac config.h.in aclocal.m4 Makefile.in \
          configure shtool install-sh config.guess \
          nmap-$(NMAP_VERSION)-1.spec config.sub INSTALL README-WIN32 COPYING \
          COPYING.OpenSSL CHANGELOG HACKING /usr/tmp/nmap-$(NMAP_VERSION)
