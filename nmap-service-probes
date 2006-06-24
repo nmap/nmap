@@ -1488,59 +1488,100 @@ match snpp m|^220 QuickPage v(\d[-.\w]+) SNPP server ready at | p/QuickPage SNPP
 match sourceoffice m|^200\r\nProtocol-Version:(\d[.\d]+)\r\nMessage-ID:\d+\r\nDatabase .*\r\nContent-Length:\d+\r\n\r\n(\w:\\.*ini)\r\n\r\n| p/Sourcegear SourceOffSite/ i/Protocol $1; INI file: $2/
 match sourceoffice m|^250\r\nProtocol-Version:(\d[.\d]+)\r\nMessage-ID:\d+\r\nDatabase .*\r\nContent-Length:\d+\r\nKey Length:(\d+)\r\n\r\n.*(\w:\\.*ini)\r\n\r\n|s p/Sourcegear SourceOffSite/ i/Protocol $1; Key len: $2; INI file: $3/
 
+
 match ssh m|^\0\0\0\$\0\0\0\0\x01\0\0\0\x1bNo host key is configured!\n\r!\"v| p/Foundry Networks switch sshd/ i/broken: No host key configured/
 match ssh m|^SSH-(\d[\d.]+)-SSF-(\d[-.\w]+)\n| p/SSF French SSH/ v/$2/ i/protocol $1/
 match ssh m|^SSH-(\d[\d.]+)-lshd_(\d[-.\w]+) lsh - a free ssh\r\n\0\0| p/lshd secure shell/ v/$2/ i/protocol $1/
-match ssh m/^SSH-([.\d]+)-OpenSSH[_-](\S+ Debian-7ubuntu3)/i o/Linux/ p/OpenSSH/ v/$2/ i/protocol $1/
-match ssh m/^SSH-([.\d]+)-OpenSSH[_-]([\S ]+)/i p/OpenSSH/ v/$2/ i/protocol $1/
 match ssh m/^SSH-([.\d]+)-Sun_SSH_(\S+)/ p/SunSSH/ v/$2/ i/protocol $1/
 match ssh m/^SSH-([.\d]+)-meow roototkt by rebel/ p/meow SSH ROOTKIT/ i/protocol $1/
-match ssh m/^SSH-([.\d]+)-(\d+\.\d+\.\d+) SSH Secure Shell/ p/F-Secure SSH Secure Shell/ v/$2/ i/protocol $1/
-match ssh m|^sshd: SSH Secure Shell (\d[-.\w]+) on ([-.\w]+)\nSSH-(\d[.\d]+)-| p/F-Secure SSH Secure Shell/ v/$1/ i/on $2; protocol $3/
-match ssh m|^sshd: SSH Secure Shell (\d[-.\w]+) \(([^\r\n\)]+)\) on ([-.\w]+)\nSSH-(\d[.\d]+)-| p/F-Secure SSH Secure Shell/ v/$1/ i/$2; on $3; protocol $4/
-match ssh m|^sshd2\[\d+\]: .*\r\nSSH-(\d[\d.]+)-(\d[-.\w]+) SSH Secure Shell \(([^\r\n\)]+)\)\r\n| p/F-Secure SSH Secure Shell/ v/$2/ i/protocol $1/
-match ssh m/^SSH-([.\d]+)-(\d+\.\d+\.[-.\w]+)/ p/SSH/ v/$2/ i/protocol $1/
 # Akamai hosted systems tend to run this - found on www.microsoft.com
 match ssh m|^SSH-(\d[.\d]*)-AKAMAI-I\n$| p/Akamai-I SSH/ i/protocol $1/
 match ssh m|^SSH-(\d[.\d]*)-Server-V\n$| p/Akamai-I SSH/ i/protocol $1/
 match ssh m|^SSH-(\d[.\d]*)-Server-VI\n$| p/Akamai-I SSH/ i/protocol $1/
 match ssh m|^SSH-(\d[.\d]+)-Cisco-(\d[.\d]+)\n$| p/Cisco SSH/ v/$2/ i/protocol $1/
 match ssh m|^\r\nDestination server does not have Ssh activated\.\r\nContact Cisco Systems, Inc to purchase a\r\nlicense key to activate Ssh\.\r\n| p/Cisco CSS SSH/ i/Unlicensed/
-match ssh m|^SSH-(\d[.\d]+)-SSH Protocol Compatible Server SCS (\d[-.\w]+)\n| p/NetScreen SCS sshd/ v/$2/ i/protocol $1/
-match ssh m|^SSH-(\d[.\d]+)-VShell_(\d[._\d]+) VShell\r\n$| p/VanDyke VShell/ v/$SUBST(2,"_",".")/ i/protocol $1/
-match ssh m|^SSH-2\.0-0\.0 \r\n| p/VanDyke VShell/ i/version info hidden/
-match ssh m/^SSH-([.\d]+)-(\d[-.\w]+) sshlib: WinSSHD (\d[-.\w]+)\r\n/ p/Bitvise WinSSHD/ v/$3/ i/protocol $1/ o/Windows/
-match ssh m/^SSH-([.\d]+)-(\d[-.\w]+) sshlib: WinSSHD\r\n/ p/Bitvise WinSSHD/ i/protocol $1; server version hidden/ o/Windows/
+match ssh m|^SSH-(\d[.\d]+)-VShell_(\d[._\d]+) VShell\r\n$| p/VanDyke VShell sshd/ v/$SUBST(2,"_",".")/ i/protocol $1/
+match ssh m|^SSH-2\.0-0\.0 \r\n| p/VanDyke VShell sshd/ i/version info hidden; protocol 2.0/
+match ssh m|^SSH-([\d.]+)-([\d.]+) VShell\r\n| p/VanDyke VShell/ v/$2/ i/protocol $1/
+match ssh m/^SSH-([.\d]+)-(\d[-.\w]+) sshlib: WinSSHD (\d[-.\w]+)\r\n/ p/Bitvise WinSSHD/ v/$3/ i/sshlib $2; protocol $1/ o/Windows/
+match ssh m/^SSH-([.\d]+)-(\d[-.\w]+) sshlib: WinSSHD\r\n/ p/Bitvise WinSSHD/ i/sshlib $2; protocol $1; server version hidden/ o/Windows/
 # Cisco VPN 3000 Concentrator
 # Cisco VPN Concentrator 3005 - Cisco Systems, Inc./VPN 3000 Concentrator Version 4.0.1.B Jun 20 2003
 match ssh m/^SSH-([.\d]+)-OpenSSH\n$/ p/OpenSSH/ i/protocol $1/ d/terminal server/
-match ssh m/^SSH-([.\d]+)-([.\d]+) Radware\n$/ p/Radware Linkproof SSH/ v/$2/ i/protocol $1/ d/terminal server/
 match ssh m|^SSH-1\.5-X\n| p/Cisco VPN Concentrator SSHd/ i/protocol 1.5/ d/terminal server/
 match ssh m|^SSH-([\d.]+)-NetScreen\r\n| p/NetScreen sshd/ i/protocol $1/ d/firewall/
-match ssh m|^SSH-1\.5-FucKiT RootKit by Cyrax\n| p/FucKiT RootKit sshd/ i/protocol 1.5/ o/Linux/
+match ssh m|^SSH-1\.5-FucKiT RootKit by Cyrax\n| p/FucKiT RootKit sshd/ i/**BACKDOOR** protocol 1.5/ o/Linux/
 match ssh m|^SSH-2\.0-dropbear_([\w.]+)\r\n| p/Dropbear sshd/ v/$1/ i/protocol 2.0/
 match ssh m|^Access to service sshd from [\w-_.]+@[\w-_.]+ has been denied\.\r\n| p/libwrap'd OpenSSH/ i/Access denied/
 match ssh m|^SSH-2\.0-FortiSSH_([\d.]+)\n| p/FortiSSH/ v/$1/ i/protocol 2.0/
 match ssh m|^SSH-([\d.]+)-cryptlib\r?\n| p/APC AOS cryptlib sshd/ i/protocol $1/ o/AOS/
-match ssh m|^SSH-2\.0-1\.0 Radware SSH \r\n| p/Radware sshd/ i|protocols 1.0/2.0| d/firewall/
-match ssh m|^SSH-1\.5-By-ICE_4_All \( Hackers Not Allowed! \)\n| p/ICE_4_All backdoor sshd/ i/protocol 1.5/
-match ssh m|^SSH-2\.0-mpSSH_([\d.]+)\n| p/mpSSH/ v/$1/ i/protocol 2.0/
-# This is a strange one. The linksys WRT45G pretends to be OpenSSH,
-# but doesn't do a great job:
-match ssh m|^SSH-2\.0-OpenSSH\r\n| p/Linksys WRT45G modified dropbear sshd/ i/protocol 2.0/ d/router/
+match ssh m/^SSH-([.\d]+)-([.\d]+) Radware\n$/ p/Radware Linkproof SSH/ v/$2/ i/protocol $1/ d/terminal server/
+match ssh m|^SSH-2\.0-1\.0 Radware SSH \r\n| p/Radware sshd/ i|protocol 2.0| d/firewall/
+match ssh m|^SSH-([\d.]+)-Radware_([\d.]+)\r\n| p/Radware sshd/ v/$2/ i/protocol $1/ d/firewall/
+match ssh m|^SSH-1\.5-By-ICE_4_All \( Hackers Not Allowed! \)\n| p/ICE_4_All backdoor sshd/ i/**BACKDOOR** protocol 1.5/
+match ssh m|^SSH-2\.0-mpSSH_([\d.]+)\n| p/HP Integrated Lights Out mpSSH/ v/$1/ i/protocol 2.0/
 match ssh m|^SSH-2\.0-Unknown\n| p/Allot Netenforcer OpenSSH/ i/protocol 2.0/
 match ssh m|^SSH-2\.0-FrSAR ([\d.]+) TRUEX COMPT 32/64\r\n| p/FrSAR truex compt sshd/ v/$1/ i/protocol 2.0/
-match ssh m|^SSH-2\.0-(\d+)\n| p/Netpilot config access/ v/$1/ i/protocol 2.0/
-match ssh m|^SSH-2\.0-RomCliSecure_([\d.]+)\r\n| p/Adtran Netvanta RomCliSecure sshd/ v/$1/ i/protocol 2.0/
-match ssh m|^SSH-2\.0-([\d.]+) sshlib: GlobalScape\r\n| p/GlobalScape CuteFTP sshd/ v/$1/ o/Windows/
+match ssh m|^SSH-2\.0-(\d{8,12})\n| p/Netpilot config access/ v/$1/ i/protocol 2.0/
+match ssh m|^SSH-([\d.]+)-RomCliSecure_([\d.]+)\r\n| p/Adtran Netvanta RomCliSecure sshd/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-([\d.]+) sshlib: GlobalScape\r\n| p/GlobalScape CuteFTP sshd/ i/sshlib $2; protocol $1/ o/Windows/
 match ssh m|^SSH-2\.0-APSSH_([\w.]+)\n| p/APSSHd/ v/$1/ i/protocol 2.0/
 match ssh m|^SSH-2\.0-Twisted\r\n| p/Kojoney SSH honeypot/ i/protocol 2.0/
 match ssh m|^SSH-2\.0-Mocana SSH \r\n| p/Mocanada embedded SSH/ i/protocol 2.0/
 match ssh m|^SSH-1\.99-InteropSecShell_([\d.]+)\n| p/InteropSystems SSH/ v/$1/ i/protocol 1.99/ o/Windows/
 match ssh m|^SSH-2\.0-WeOnlyDo(-wodFTPD)? ([\d.]+)\r\n| p/WeOnlyDo sshd/ v/$2/ i/protocol 2.0/ o/Windows/
 match ssh m|^SSH-2\.0-PGP\n| p/PHP Universal sshd/ i/protocol 2.0/
+match ssh m|^SSH-([\d.]+)-libssh-([\w-.]+)\r\n| p/libssh/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-HUAWEI-VRP([\d.]+)\n| p/HUAWEI VRP sshd/ v/$2/ i/protocol $1/ o/VRP/ d/router/
+match ssh m|^SSH-([\d.]+)-VRP-([\d.]+)\n| p/HUAWEI VRP sshd/ v/$2/ i/protocol $1/ o/VRP/ d/router/
+match ssh m|^SSH-([\d.]+)-lancom\r\n| p/lancom sshd/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-xxxxxxx\n| p|Fortinet VPN/firewall sshd| i/protocol $1/ d/firewall/
+match ssh m|^SSH-([\d.]+)-AOS_SSH\n| p/AOS sshd/ i/protocol $1/ o/AOS/
+match ssh m|^SSH-([\d.]+)-RedlineNetworksSSH_([\d.]+) Derived_From_OpenSSH-([\d.])+\n| p/RedLineNetworks sshd/ v/$2/ i/Derived from OpenSSH $3; protocol $1/
+match ssh m|^SSH-([\d.]+)-DLink Corp\. SSH server ver ([\d.]+)\n| p/DLink sshd/ v/$2/ i/protocol $1/ d/router/
+match ssh m|^SSH-([\d.]+)-FreSSH\.([\d.]+)\n| p/FreSSH/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-Neteyes-C-Series_([\d.]+)\r\n| p/Neteyes C Series load balancer sshd/ v/$2/ i/protocol $1/ d/load balancer/
+match ssh m|^SSH-([\d.]+)-IPSSH-([\d.]+)\r\n| p/Cisco IPSSHd/ v/$2/ i/protocol $1/ d/router/ o/IOS/
+match ssh m|^SSH-([\d.]+)-DigiSSH_([\d.]+)\n| p/Digi CM sshd/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-0 Tasman Networks Inc\.\n| p/Tasman router sshd/ i/protocol $1/ d/router/
+match ssh m|^SSH-([\d.]+)-([\w.]+)rad\n| p/Rad Java SFTPd/ v/$2/ i/protocol $1/
+# This is a strange one. The linksys WRT45G pretends to be OpenSSH,
+# but doesn't do a great job:
+match ssh m|^SSH-2\.0-OpenSSH\r\n| p/Linksys WRT45G modified dropbear sshd/ i/protocol 2.0/ d/router/
+
+# F-Secure/WRQ
+match ssh m|^SSH-([\d.]+)-([\d.]+) F-Secure SSH Windows NT Server\r\n| p/F-Secure WinNT sshd/ v/$2/ i/protocol $1/ o/Windows/
+match ssh m|^SSH-([\d.]+)-([\d.]+) dss F-SECURE SSH\r\n| p/F-Secure sshd/ v/$2/ i/dss-only; protocol $1/
+match ssh m|^SSH-([\d.]+)-([\d.]+) F-SECURE SSH.*\r\n| p/F-Secure sshd/ v/$2/ i/protocol $1/
+
+# SCS
+match ssh m|^SSH-(\d[.\d]+)-SSH Protocol Compatible Server SCS (\d[-.\w]+)\n| p/SCS NetScreen sshd/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-SSH Compatible Server\n| p/SCS NetScreen sshd/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-([\d.]+) SSH Secure Shell Tru64 UNIX\r\n| p/SCS sshd/ v/$2/ i/protocol $1/ o/Tru64 Unix/
+match ssh m/^SSH-([.\d]+)-(\d+\.\d+\.\d+) SSH Secure Shell/ p/SCS sshd/ v/$2/ i/protocol $1/
+match ssh m|^sshd: SSH Secure Shell (\d[-.\w]+) on ([-.\w]+)\nSSH-(\d[.\d]+)-| p/SCS SSH Secure Shell/ v/$1/ i/on $2; protocol $3/
+match ssh m|^sshd: SSH Secure Shell (\d[-.\w]+) \(([^\r\n\)]+)\) on ([-.\w]+)\nSSH-(\d[.\d]+)-| p/SCS sshd/ v/$1/ i/$2; on $3; protocol $4/
+match ssh m|^sshd2\[\d+\]: .*\r\nSSH-(\d[\d.]+)-(\d[-.\w]+) SSH Secure Shell \(([^\r\n\)]+)\)\r\n| p/SCS sshd/ v/$2/ i/protocol $1/
+match ssh m/^SSH-([.\d]+)-(\d+\.\d+\.[-.\w]+)/ p/SCS sshd/ v/$2/ i/protocol $1/
+
+# OpenSSH
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)[ -]Debian[ -]([^\r\n]ubuntu[\d.]+)\n| p/OpenSSH/ v/$2 Debian $3/ i/protocol $1/ o/Linux/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)[ -]Debian[ -]([^\r\n]+)\n| p/OpenSSH/ v/$2 Debian $3/ i/protocol $1/ o/Linux/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) FreeBSD-([\d]+)\n| p/OpenSSH/ v/$2/ i/FreeBSD $3; protocol $1/ o/FreeBSD/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) FreeBSD localisations (\d+)\n| p/OpenSSH/ v/$2/ i/FreeBSD $3; protocol $1/ o/FreeBSD/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) miniBSD-([\d]+)\n| p/OpenSSH/ v/$2/ i/MiniBSD $3; protocol $1/ o/MiniBSD/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) NetBSD_Secure_Shell-([\d]+)\n| p/OpenSSH/ v/$2/ i/NetBSD $3; protocol $1/ o/NetBSD/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)_Mikrotik_v([\d.]+)\n| p/OpenSSH/ v/$2 mikrotik $3/ i/protocol $1/ d/router/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) in RemotelyAnywhere ([\d.]+)\n| p/OpenSSH/ v/$2/ i/RemotelyAnywhere $3; protocol $1/ o/Windows/
+
+# Choose 1 of the following:
+# 1) Match all OpenSSHs:
+#match ssh m/^SSH-([.\d]+)-OpenSSH[_-]([\S ]+)/i p/OpenSSH/ v/$2/ i/protocol $1/
+# 2) Don't match unknown SSHs (and generate fingerprints)
+match ssh m/^SSH-([.\d]+)-OpenSSH[_-]([\w.]+)\n/i p/OpenSSH/ v/$2/ i/protocol $1/
 
 softmatch ssh m/^SSH-([.\d]+)-/ i/protocol $1/
+
 
 match soldat m|^Soldat Admin Connection Established\.\.\.\r\nAdmin connected\.\r\n| p/Soldat multiplayer-game server/
 match solproxy m|^The solproxy is used by [\d.]+\n\rThe client is closed!\n\r| p/Dell Serial Over LAN proxy/
@@ -3464,6 +3505,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: MacroMaker\r\n| p/MacroMaker httpd/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: NI Service Locator/([\d.]+) \(SLServer\)\r\n| p/National Instruments LabVIEW service locator httpd/ v/$1/
 match http m|^HTTP/1\.1 406 Not Acceptable\r\nServer: Phex ([\d.]+)\r\n\r\n| p/Phex HTML-Shared File Export httpd/ v/$1/
 match http m|^HTTP/1\.0 200 NoPhrase\r\n.*\r\n<HTML>\r\n<HEAD>\r\n<TITLE>\[JMX RI/([\d.]+)\] Agent View</TITLE>|s p/Sun Java Management Extensions Reference Installation httpd/ v/$1/
+match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nLast-Modified: .*\r\nETag: \"[\w_]+\"\r\nAccept-Ranges: bytes\r\nContent-Length: 79\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n<html>\n<script language=javascript>\n\ntop\.location=\"/login\";\n\n</script>\n</html>\n| p|Fortinet VPN/firewall http config| d/firewall/
 
 
 # Maybe too generic?
@@ -3661,7 +3703,7 @@ match postgresql m|^EFATAL:  invalid length of startup packet\n\0$| p/PostgreSQL
 match postgrey m|^action=dunno\n\n$| p/Postfix Greylist Daemon/
 match powerchute m|^server=&type=0&id=&count=1&oid=[\d.]+&value=&error=4\n| p/APC Powerchute/ d/power-device/
 
-match rendezvous m|^HTTP/1\.1 400 Bad Request\r\nDate: .*\r\nDAAP-Server: iTunes/(\d[-.\w]+) \((.*)\)\r\n| p/Apple iTunes/ v/$1/ i/on $2/
+match rendezvous m|^HTTP/1\.1 400 Bad Request\r\nDate: .*\r\nDAAP-Server: iTunes/(\d[-.\w]+) \((.*)\)\r\n| p/Apple iTunes/ v/$1/ o/$2/
 match rfidquery m|^Error 0 parse error\n\nError 0 parse error\n\nError 0 parse error\n\nError 0 parse error\n\nError 0 parse error\n\nError 0 parse error\n\nError 0 parse error\n\n$| p/Mercury3 RFID Query protocol/
 match rtsp m|^RTSP/1.0 400 Bad Request\r\nServer: DSS/([-.\w]+) \[(v\d+)]-(\w+)\r\n| p/DarwinStreamingServer/ v/$1/ i/$2 on $3/
 match rtsp m|^RTSP/1\.0 400 Bad Request\r\nServer: QTSS/(\d[\d.]+ \[v\d+\]-Win32)\r\nCseq: \r\n| p/Apple QuickTime Streaming Server/ v/$1/ o/Windows/
@@ -4756,6 +4798,35 @@ match ntp m|^\xdc[\x00-\x0f]..............................................$|s p/
 
 # Solaris Internet Name Server (42/udp), see ien116.txt
 match nameserver m|^help\r\n\r\n\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01| p/Solaris Internet Name Server/ i/IEN 116/ o/Solaris/
+
+
+# These first two probes only serve to determine the NTP version
+# Nessus uses.  The third will match even a newer one, but just show
+# the NTP as 1.0.  So we give the highest rarity to these first two
+# probes so they will usually only be used for port 1241.  But the
+# third is left with a lower rarity to catch Nessus running on
+# non-default ports.
+##############################NEXT PROBE##############################
+Probe TCP NessusTPv12 q|< NTP/1.2 >\n|
+rarity 9
+ports 1241
+sslports 1241
+match nessusd m|< NTP/1.2 >\n| p/Nessus Daemon/ i/NTP v1.2/
+
+##############################NEXT PROBE##############################
+Probe TCP NessusTPv11 q|< NTP/1.1 >\n|
+rarity 9
+ports 1241
+sslports 1241
+match nessusd m|< NTP/1.1 >\n| p/Nessus Daemon/ i/NTP v1.1/
+
+##############################NEXT PROBE##############################
+Probe TCP NessusTPv10 q|< NTP/1.0 >\n|
+rarity 6
+ports 1241
+sslports 1241
+match nessusd m|< NTP/1.0 >\n| p/Nessus Daemon/ i/NTP v1.0/
+
 
 ##############################NEXT PROBE##############################
 Probe UDP SNMPv1public q|0\x82\0/\x02\x01\0\x04\x06public\xa0\x82\0\x20\x02\x04\x4c\x33\xa7\x56\x02\x01\0\x02\x01\0\x30\x82\0\x10\x30\x82\0\x0c\x06\x08\x2b\x06\x01\x02\x01\x01\x05\0\x05\0|

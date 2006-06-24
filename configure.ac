@@ -140,6 +140,9 @@ case "$host" in
     ;;
   *-hpux*)
     AC_DEFINE(HPUX)
+    # To link with libnet and NM (/usr/lib/libnm.sl) library
+    # on HP-UX 11.11 (other versions?) Mikhail Zakharov (zmey20000@yahoo.com)
+    AC_CHECK_LIB(nm, open_mib)
     ;;
   *-solaris2.0*)  
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)

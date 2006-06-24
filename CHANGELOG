@@ -1,4 +1,27 @@
 # Nmap Changelog ($Id$); -*-text-*-
+Nmap 4.11
+
+o Added a dozens of more detailed SSH version detection signatures, thanks
+  to a SSH huge survey and integration effort by Doug Hoyte.  The
+  results of his large-scale SSH scan are posted at 
+  http://seclists.org/nmap-dev/2006/Apr-Jun/0393.html .
+
+o Fixed the Nmap Makefile (actually Makefile.in) to correctly handle
+  include file dependencies.  So if a .h file is changed, all of the
+  .cc files which depend on it will be recompiled.  Thanks to Diman
+  Todorov (diman(a)xover.mud.at) for the patch.
+
+o Fixed a compilation problem on solaris and possibly other platforms.
+  The error message looked like "No rule to make target `inet_aton.o',
+  needed by `libnbase.a'".  Thanks to Matt Selsky
+  (selsky(a)columbia.edu) for the patch.
+
+o Applied a patch which helps with HP-UX compilation by linking in the
+  nm library (-lnm).  Thanks to Zakharov Mikhail
+  (zmey20000(a)yahoo.com) for the patch.
+
+o Added version detection probes for detecting the Nessus daemon.
+  Thanks to Adam Vartanian (flooey(a)gmail.com) for sending the patch.
 
 Nmap 4.10
 

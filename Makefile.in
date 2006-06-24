@@ -1,4 +1,4 @@
-export NMAP_VERSION = 4.10
+export NMAP_VERSION = 4.11
 NMAP_NAME= Nmap
 NMAP_URL= http://www.insecure.org/nmap/
 NMAP_PLATFORM=@host@
@@ -49,9 +49,6 @@ INSTALLNMAPFE=@INSTALLNMAPFE@
 export SRCS = main.cc nmap.cc targets.cc tcpip.cc nmap_error.cc utils.cc idle_scan.cc osscan.cc output.cc scan_engine.cc timing.cc charpool.cc services.cc protocols.cc nmap_rpc.cc portlist.cc NmapOps.cc TargetGroup.cc Target.cc FingerPrintResults.cc service_scan.cc NmapOutputTable.cc MACLookup.cc nmap_tty.cc nmap_dns.cc @COMPAT_SRCS@
 
 OBJS = main.o nmap.o targets.o tcpip.o nmap_error.o utils.o idle_scan.o osscan.o output.o scan_engine.o timing.o charpool.o services.o protocols.o nmap_rpc.o portlist.o NmapOps.o TargetGroup.o Target.o FingerPrintResults.o service_scan.o NmapOutputTable.o MACLookup.o nmap_tty.o nmap_dns.o @COMPAT_OBJS@
-
-export DEPS = nmap.h nmap_amigaos.h nmap_error.h targets.h idle_scan.h osscan.h output.h scan_engine.h timing.h tcpip.h utils.h global_structures.h charpool.h services.h protocols.h nmap_rpc.h portlist.h NmapOps.h TargetGroup.h Target.h FingerPrintResults.h service_scan.h NmapOutputTable.h MACLookup.h nmap_tty.h nmap_dns.h
-
 
 # %.o : %.cc -- nope this is a GNU extension
 .cc.o:
@@ -111,6 +108,7 @@ web:
 clean: @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nmapfe_clean nsock_clean nbase_clean my_clean
 
 my_clean:
+	rm -f dependencies.mk
 	rm -f $(OBJS) $(TARGET) config.cache
 pcap_clean:
 	-cd $(LIBPCAPDIR) && $(MAKE) clean
@@ -138,9 +136,6 @@ distclean: my_clean my_distclean @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_
 my_distclean:
 	rm -f Makefile Makefile.bak config.h stamp-h stamp-h.in \
 	         config.cache config.log config.status
-
-depend:
-	$(MAKEDEPEND) -s "# DO NOT DELETE" -- $(DEFS) -- $(SRCS)
 
 install-nmap: $(TARGET)
 	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1 $(DESTDIR)$(nmapdatadir)
@@ -171,16 +166,16 @@ uninstall:
 ${srcdir}/configure: configure.ac 
 	cd ${srcdir} && autoconf
 
-# autoheader might not change config.h.in, so touch a stamp file.
-${srcdir}/config.h.in: stamp-h.in
-${srcdir}/stamp-h.in: configure.ac acconfig.h \
-	config.h.top config.h.bot
-	cd ${srcdir} && autoheader
-	echo timestamp > ${srcdir}/stamp-h.in
-
-config.h: stamp-h
-stamp-h: config.h.in config.status
-	./config.status
+## autoheader might not change config.h.in, so touch a stamp file.
+#${srcdir}/config.h.in: stamp-h.in
+#${srcdir}/stamp-h.in: configure.ac acconfig.h \
+#	config.h.top config.h.bot
+#	cd ${srcdir} && autoheader
+#	echo timestamp > ${srcdir}/stamp-h.in
+#
+#config.h: stamp-h
+#stamp-h: config.h.in config.status
+#	./config.status
 
 Makefile: Makefile.in config.status
 	./config.status
@@ -188,11 +183,6 @@ Makefile: Makefile.in config.status
 config.status: configure
 	./config.status --recheck
 
-# DO NOT DELETE -- Needed by makedepend
-
-
-
-
-
-
-
+makefile.dep:
+	$(CXX) -MM $(CXXFLAGS) $(CPPFLAGS) $(SRCS) > $@
+include makefile.dep
