@@ -148,6 +148,7 @@ install-nmap: $(TARGET)
 	$(INSTALL) -c -m 644 nmap-services $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 nmap-rpc $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 nmap-os-fingerprints $(DESTDIR)$(nmapdatadir)/
+	$(INSTALL) -c -m 644 nmap-os-db $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 nmap-service-probes $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 nmap-protocols $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 nmap-mac-prefixes $(DESTDIR)$(nmapdatadir)/

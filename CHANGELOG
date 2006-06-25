@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 4.20ALPHA2
+
+o Included nmap-os-db (the new OS detection DB) within the release.  Oops!
+
 Nmap 4.20ALPHA1
 
 o Integrated initial 2nd generation OS detection patch!  The system is
