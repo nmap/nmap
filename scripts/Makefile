@@ -47,7 +47,7 @@ distro:
 	cd .. && ./configure
 	cd ../$(LIBPCAPDIR) && ./configure
 	$(MAKE) -C .. clean
-	$(MAKE) -C ..
+	$(MAKE) -C .. -j3
 	../nmap -h > /dev/null    #Make sure nmap exists
 	rm -f ../docs/nmap.usage.txt	
 	../nmap -h > ../docs/nmap.usage.txt 

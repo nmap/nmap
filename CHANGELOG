@@ -1,6 +1,6 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-Nmap 4.20SOC-ALPHA1
+Nmap 4.20ALPHA1
 
 o Integrated initial 2nd generation OS detection patch!  The system is
   documented at http://insecure.org/nmap/osdetect/ .  Thanks to Zhao Lei
