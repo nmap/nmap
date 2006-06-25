@@ -264,6 +264,29 @@ int Port::getServiceDeductions(struct serviceDeductions *sd) {
 // one is available and the user should submit it.  tunnel must be
 // SERVICE_TUNNEL_NULL (normal) or SERVICE_TUNNEL_SSL (means ssl was
 // detected and we tried to tunnel through it ).
+
+char* Port::cstringSanityCheck(const char* string, int len) {
+	char* result;
+  int slen;
+  unsigned char *p;
+
+  if(!string)
+	  return NULL;
+
+  slen = strlen(string);
+  if (slen > len) slen = len;
+  result = (char *) safe_malloc(slen + 1);
+  memcpy(result, string, slen);
+  result[slen] = '\0';
+  p = (unsigned char *) result;
+  while(*p) {
+    if (!isprint((int)*p)) *p = '.';
+    p++;
+  }
+
+	return result;
+}
+
 void Port::setServiceProbeResults(enum serviceprobestate sres, 
 				  const char *sname,	
 				  enum service_tunnel_type tunnel, 
@@ -272,91 +295,17 @@ void Port::setServiceProbeResults(enum serviceprobestate sres,
 				  const char *ostype, const char *devicetype,
 				  const char *fingerprint) {
 
-  int slen;
   serviceprobe_results = sres;
-  unsigned char *p;
   serviceprobe_tunnel = tunnel;
   if (sname) serviceprobe_service = strdup(sname);
   if (fingerprint) serviceprobe_fp = strdup(fingerprint);
 
-  if (product) {
-    slen = strlen(product);
-    if (slen > 64) slen = 64;
-    serviceprobe_product = (char *) safe_malloc(slen + 1);
-    memcpy(serviceprobe_product, product, slen);
-    serviceprobe_product[slen] = '\0';
-    p = (unsigned char *) serviceprobe_product;
-    while(*p) {
-      if (!isprint((int)*p)) *p = '.';
-      p++;
-    }
-  }
-
-  if (version) {
-    slen = strlen(version);
-    if (slen > 64) slen = 64;
-    serviceprobe_version = (char *) safe_malloc(slen + 1);
-    memcpy(serviceprobe_version, version, slen);
-    serviceprobe_version[slen] = '\0';
-    p = (unsigned char *) serviceprobe_version;
-    while(*p) {
-      if (!isprint((int)*p)) *p = '.';
-      p++;
-    }
-  }
-
-  if (extrainfo) {
-    slen = strlen(extrainfo);
-    if (slen > 128) slen = 128;
-    serviceprobe_extrainfo = (char *) safe_malloc(slen + 1);
-    memcpy(serviceprobe_extrainfo, extrainfo, slen);
-    serviceprobe_extrainfo[slen] = '\0';
-    p = (unsigned char *) serviceprobe_extrainfo;
-    while(*p) {
-      if (!isprint((int)*p)) *p = '.';
-      p++;
-    }
-  }
-
-  if (hostname) {
-    slen = strlen(hostname);
-    if (slen > 64) slen = 64;
-    serviceprobe_hostname = (char *) safe_malloc(slen + 1);
-    memcpy(serviceprobe_hostname, hostname, slen);
-    serviceprobe_hostname[slen] = '\0';
-    p = (unsigned char *) serviceprobe_hostname;
-    while(*p) {
-      if (!isprint((int)*p)) *p = '.';
-      p++;
-    }
-  }
-
-  if (ostype) {
-    slen = strlen(ostype);
-    if (slen > 64) slen = 64;
-    serviceprobe_ostype = (char *) safe_malloc(slen + 1);
-    memcpy(serviceprobe_ostype, ostype, slen);
-    serviceprobe_ostype[slen] = '\0';
-    p = (unsigned char *) serviceprobe_ostype;
-    while(*p) {
-      if (!isprint((int)*p)) *p = '.';
-      p++;
-    }
-  }
-  
-  if (devicetype) {
-    slen = strlen(devicetype);
-    if (slen > 64) slen = 64;
-    serviceprobe_devicetype = (char *) safe_malloc(slen + 1);
-    memcpy(serviceprobe_devicetype, devicetype, slen);
-    serviceprobe_devicetype[slen] = '\0';
-    p = (unsigned char *) serviceprobe_devicetype;
-    while(*p) {
-      if (!isprint((int)*p)) *p = '.';
-      p++;
-    }
-  }
-
+	serviceprobe_product = cstringSanityCheck(product, 64);
+	serviceprobe_version = cstringSanityCheck(version, 64);
+	serviceprobe_extrainfo = cstringSanityCheck(extrainfo, 128);
+	serviceprobe_hostname = cstringSanityCheck(hostname, 64);
+	serviceprobe_ostype = cstringSanityCheck(ostype, 64);
+	serviceprobe_devicetype = cstringSanityCheck(devicetype, 64);
 }
 
 /* Sets the results of an RPC scan.  if rpc_status is not

@@ -1,4 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
+o portlist.cc was refactored to remove some code duplication.  Thanks
+  to Diman Todorov for the patch.
+
 Nmap 4.11
 
 o Added a dozens of more detailed SSH version detection signatures, thanks
