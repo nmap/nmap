@@ -2,7 +2,12 @@
 
 Nmap 4.20ALPHA2
 
-o Included nmap-os-db (the new OS detection DB) within the release.  Oops!
+o Included nmap-os-db (the new OS detection DB) within the release.
+  Oops!  Thanks to Brandon Enright (bmenrigh(a)ucsd.edu) for catching
+  this problem with 4.20ALPHA1.
+
+o Added a fix for the crash in the new OS detection which would come
+  with the message "Probe doesn't exist! Probe type: 1. Probe subid: 1"
 
 Nmap 4.20ALPHA1
 
