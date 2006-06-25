@@ -2136,9 +2136,9 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
     }
 
     for(decoy = 0; decoy < o.numdecoys; decoy++) {
-      packet = build_tcp_raw(&o.decoys[decoy], hss->target->v4hostip(), o.ttl, 
-			     ipid, sport, pspec->pd.tcp.dport, seq, ack, 
-			     pspec->pd.tcp.flags, 0, tcpops, tcpopslen,
+      packet = build_tcp_raw(&o.decoys[decoy], hss->target->v4hostip(), o.ttl, false,
+							 ipid, sport, pspec->pd.tcp.dport, seq, ack, 0,
+							 pspec->pd.tcp.flags, 0, 0, tcpops, tcpopslen,
 			     o.extra_payload, o.extra_payload_length, 
 			     &packetlen);
       if (decoy == o.decoyturn) {
@@ -2166,15 +2166,15 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
       switch(pspec->proto) {
 
       case IPPROTO_TCP:
-	packet = build_tcp_raw(&o.decoys[decoy], hss->target->v4hostip(), o.ttl, 
+	packet = build_tcp_raw(&o.decoys[decoy], hss->target->v4hostip(), o.ttl, false,
 			       ipid, sport, o.magic_port, get_random_u32(), 
-			       get_random_u32(), TH_ACK, 0, NULL,
+			       get_random_u32(), 0, TH_ACK, 0, 0, NULL,
 			       0, o.extra_payload, o.extra_payload_length, 
 			       &packetlen);
 	break;
       case IPPROTO_ICMP:
 	packet = build_icmp_raw(&o.decoys[decoy], hss->target->v4hostip(), o.ttl,
-				ipid, 0, 0, 8, 0, o.extra_payload,
+				ipid, 0, false, 0, 0, 8, 0, o.extra_payload,
 				o.extra_payload_length, &packetlen);
 	break;
       case IPPROTO_UDP:
@@ -2186,7 +2186,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 	break;
       default:
 	packet = build_ip_raw(&o.decoys[decoy], hss->target->v4hostip(), o.ttl, 
-			      pspec->proto, ipid, 
+			      pspec->proto, ipid, 0, false,
 			      o.extra_payload, o.extra_payload_length, 
 			      &packetlen);
 	break;

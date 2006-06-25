@@ -102,6 +102,7 @@
 
 #include "nmap.h"
 #include "osscan.h"
+#include "osscan2.h"
 #include "scan_engine.h"
 #include "idle_scan.h"
 #include "timing.h"
@@ -594,7 +595,7 @@ int nmap_main(int argc, char *argv[]) {
 
   /* OK, lets parse these args! */
   optind = 1; /* so it can be called multiple times */
-  while((arg = getopt_long_only(argc,fakeargv,"6Ab:D:d::e:Ffg:hIi:M:m:nOo:P:p:qRrS:s:T:Vv", long_options, &option_index)) != EOF) {
+  while((arg = getopt_long_only(argc,fakeargv,"6Ab:D:d::e:Ffg:hIi:M:m:nO::o:P:p:qRrS:s:T:Vv", long_options, &option_index)) != EOF) {
     switch(arg) {
     case 0:
       if (optcmp(long_options[option_index].name, "max-rtt-timeout") == 0) {
@@ -797,7 +798,7 @@ int nmap_main(int argc, char *argv[]) {
     case 'A':
       o.servicescan = true;
       if (o.isr00t)
-	o.osscan++; 
+		o.osscan = OS_SCAN_DEFAULT;
       break;
     case 'b': 
       o.bouncescan++;
@@ -876,7 +877,15 @@ int nmap_main(int argc, char *argv[]) {
       break;
     case 'n': o.noresolve++; break;
     case 'O': 
-      o.osscan++; 
+      if (!optarg)
+		o.osscan = OS_SCAN_DEFAULT;
+      else if (*optarg == '1')
+		o.osscan = OS_SCAN_SYS_1_ONLY;
+	  else if (*optarg == '2')
+		o.osscan = OS_SCAN_SYS_2_ONLY;
+      else {
+	fatal("Use -O for new osscan engine, -O1 for old osscan engine.");
+      }
       break;
     case 'o':
       normalfilename = optarg;
@@ -1076,8 +1085,10 @@ int nmap_main(int argc, char *argv[]) {
   if (pre_host_timeout != -1) o.host_timeout = pre_host_timeout;
 
 
-  if (o.osscan)
-    o.reference_FPs = parse_fingerprint_reference_file();
+  if (o.osscan == OS_SCAN_SYS_1_ONLY)
+    o.reference_FPs1 = parse_fingerprint_reference_file("nmap-os-fingerprints");
+  else
+    o.reference_FPs = parse_fingerprint_reference_file("nmap-os-db");
 
   o.ValidateOptions();
 
@@ -1548,6 +1559,9 @@ int nmap_main(int argc, char *argv[]) {
       service_scan(Targets);
     }
 
+    if (o.osscan != OS_SCAN_SYS_1_ONLY)
+	  os_scan_2(Targets);
+
     for(targetno = 0; targetno < Targets.size(); targetno++) {
       currenths = Targets[targetno];
     
@@ -1558,7 +1572,7 @@ int nmap_main(int argc, char *argv[]) {
       if (o.servicescan || o.rpcscan)  pos_scan(currenths, NULL, 0, RPC_SCAN);
 
       // Should be host parallelized.  Though rarely takes a huge amt. of time.
-      if (o.osscan) {
+      if (o.osscan == OS_SCAN_SYS_1_ONLY) {
 	os_scan(currenths);
       }
 
@@ -1980,6 +1994,10 @@ char *ipidclass2ascii(int seqclass) {
     return "Random positive increments";
   case IPID_SEQ_ZERO:
     return "All zeros";
+  case IPID_SEQ_LINUX:
+	return "Linux way";
+  case IPID_SEQ_VBP:
+	return "Different counters by <src, dest, protocol>";
   case IPID_SEQ_UNKNOWN:
     return "Busy server or unknown class";
   default:

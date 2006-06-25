@@ -275,8 +275,6 @@ void *realloc();
 /* If reads of a UDP port keep returning EAGAIN (errno 13), do we want to 
    count the port as valid? */
 #define RISKY_UDP_SCAN 0
-/* How many syn packets do we send to TCP sequence a host? */
-#define NUM_SEQ_SAMPLES 6
  /* This ideally should be a port that isn't in use for any protocol on our machine or on the target */ 
 #define MAGIC_PORT 49724
 /* How many udp sends without a ICMP port unreachable error does it take before we consider the port open? */
@@ -366,6 +364,19 @@ void *realloc();
 #define PINGTYPE_ARP 1024
 
 #define DEFAULT_PING_TYPES PINGTYPE_TCP|PINGTYPE_TCP_USE_ACK|PINGTYPE_ICMP_PING
+
+/* OS scan */
+#define OS_SCAN_DEFAULT 9
+#define OS_SCAN_SYS_1_ONLY 1
+#define OS_SCAN_SYS_2_ONLY 2
+
+/* How many syn packets do we send to TCP sequence a host? */
+#define NUM_SEQ_SAMPLES 6
+
+/* The max length of each line of the subject fingerprint when
+   wrapped. */
+#define FP_RESULT_WRAP_LINE_LEN 74
+
 /* TCP/IP ISN sequence prediction classes */
 #define SEQ_UNKNOWN 0
 #define SEQ_64K 1
@@ -381,7 +392,8 @@ void *realloc();
 #define TS_SEQ_2HZ 2
 #define TS_SEQ_100HZ 3
 #define TS_SEQ_1000HZ 4
-#define TS_SEQ_UNSUPPORTED 5 /* System didn't send back a timestamp */
+#define TS_SEQ_OTHER_NUM 5
+#define TS_SEQ_UNSUPPORTED 6 /* System didn't send back a timestamp */
 
 #define IPID_SEQ_UNKNOWN 0
 #define IPID_SEQ_INCR 1  /* simple increment by one each time */
@@ -392,6 +404,14 @@ void *realloc();
 #define IPID_SEQ_RD 4 /* Appears to select IPID using a "random" distributions (meaning it can go up or down) */
 #define IPID_SEQ_CONSTANT 5 /* Contains 1 or more sequential duplicates */
 #define IPID_SEQ_ZERO 6 /* Every packet that comes back has an IP.ID of 0 (eg Linux 2.4 does this) */
+#define IPID_SEQ_LINUX 7 /* Different IPID counter in different TCP
+							session but set zero in the TCP
+							negotiation process. And different IPID
+							counter in different protocol. Found in
+							linux 2.6. */
+#define IPID_SEQ_VBP 8 /* Different IPID counter for different <host,
+						  dest, protocol> triple. */
+
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN 64
 #endif

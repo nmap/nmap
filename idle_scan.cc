@@ -187,10 +187,10 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
 
     /* Time to send the pr0be!*/
     send_tcp_raw(proxy->rawsd, proxy->ethptr, proxy->host.v4sourceip(), 
-		 proxy->host.v4hostip(), o.ttl, base_port + tries,
+				 proxy->host.v4hostip(), o.ttl, false, base_port + tries,
 		 proxy->probe_port,
-		 seq_base + (packet_send_count++ * 500) + 1, ack, 
-		 TH_SYN|TH_ACK, 0, 
+				 seq_base + (packet_send_count++ * 500) + 1, ack, 0,
+				 TH_SYN|TH_ACK, 0, 0,
 		 (u8 *) "\x02\x04\x05\xb4", 4, NULL, 0);
     sent++;
     tries++;
@@ -417,10 +417,10 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
        think I'll use TH_SYN, although it is a tough call. */
     /* We can't use decoys 'cause that would screw up the IPIDs */
     send_tcp_raw(proxy->rawsd, proxy->ethptr, proxy->host.v4sourceip(), 
-		 proxy->host.v4hostip(), o.ttl, 
+				 proxy->host.v4hostip(), o.ttl, false,
 		 o.magic_port + probes_sent + 1, proxy->probe_port, 
-		 sequence_base + probes_sent + 1, ack, TH_SYN|TH_ACK, 
-		 0, (u8 *) "\x02\x04\x05\xb4", 4, NULL, 0);
+				 sequence_base + probes_sent + 1, ack, 0, TH_SYN|TH_ACK, 
+				 0, 0, (u8 *) "\x02\x04\x05\xb4", 4, NULL, 0);
     gettimeofday(&probe_send_times[probes_sent], NULL);
     probes_sent++;
 
@@ -525,9 +525,9 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
       if (probes_sent) usleep(50000);
       send_tcp_raw(proxy->rawsd, proxy->ethptr, first_target, 
 		   proxy->host.v4hostip(), 
-		   o.ttl, o.magic_port, proxy->probe_port, 
-		   sequence_base + probes_sent + 1, 0, TH_SYN|TH_ACK, 
-		   ack, (u8 *) "\x02\x04\x05\xb4", 4, NULL, 0);
+				   o.ttl, false,o.magic_port, proxy->probe_port, 
+				   sequence_base + probes_sent + 1, ack, 0, TH_SYN|TH_ACK, 
+				   0, 0, (u8 *) "\x02\x04\x05\xb4", 4, NULL, 0);
 
     }
 
@@ -682,7 +682,7 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
        about this more. */
     send_tcp_raw(proxy->rawsd, eth.ethsd? &eth : NULL, proxy->host.v4hostip(), 
 		 target->v4hostip(),
-		 o.ttl, proxy->probe_port, ports[pr0be], seq, 0, TH_SYN, 0,
+				 o.ttl, false, proxy->probe_port, ports[pr0be], seq, 0, 0, TH_SYN, 0, 0,
 		 (u8 *) "\x02\x04\x05\xb4", 4, o.extra_payload, o.extra_payload_length);
   }
   gettimeofday(&end, NULL);

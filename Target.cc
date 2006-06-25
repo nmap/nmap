@@ -120,6 +120,8 @@ Target::Target() {
 void Target::Initialize() {
   hostname = NULL;
   memset(&seq, 0, sizeof(seq));
+  distance = -1;
+  FPR1 = NULL;
   FPR = NULL;
   osscan_performed = 0;
   wierd_responses = flags = 0;
@@ -161,8 +163,8 @@ void Target::FreeInternal() {
     nameIPBuf = NULL;
   }
 
+  if (FPR1) delete FPR1;
   if (FPR) delete FPR;
-
 }
 
 /*  Creates a "presentation" formatted string out of the IPv4/IPv6 address.

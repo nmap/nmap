@@ -129,7 +129,7 @@ char *fp2ascii(FingerPrint *FP);
  which some partial fingerpritns are OK. */
 FingerPrint *parse_single_fingerprint(char *fprint_orig);
 FingerPrint **parse_fingerprint_file(char *fname);
-FingerPrint **parse_fingerprint_reference_file();
+FingerPrint **parse_fingerprint_reference_file(char *dbname);
 
 /* Compares 2 fingerprints -- a referenceFP (can have expression
    attributes) with an observed fingerprint (no expressions).  If
@@ -150,8 +150,7 @@ void match_fingerprint(FingerPrint *FP, FingerPrintResults *FPR,
 /* Returns true if perfect match -- if num_subtests & num_subtests_succeeded are non_null it updates them.  if shortcircuit is zero, it does all the tests, otherwise it returns when the first one fails */
 
 void freeFingerPrint(FingerPrint *FP);
-char *mergeFPs(FingerPrint *FPs[], int numFPs, int openport, int closedport,
-	       const u8 *mac);
+char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP, const struct in_addr * const addr, int distance, const u8 *mac, int openTcpPort, int closedTcpPort, int closedUdpPort, bool wrapit);
 
 /* This function takes an array of "numSamples" IP IDs and analyzes
  them to determine their sequenceability classification.  It returns

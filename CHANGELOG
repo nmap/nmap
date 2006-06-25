@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 4.20SOC-ALPHA1
+
+o Integrated initial 2nd generation OS detection patch!  The system is
+  documented at http://insecure.org/nmap/osdetect/ .  Thanks to Zhao Lei
+  for helping with the coding and design.
+
 o portlist.cc was refactored to remove some code duplication.  Thanks
   to Diman Todorov for the patch.
 

@@ -110,7 +110,8 @@ FingerPrintResults::FingerPrintResults() {
   overall_results = OSSCAN_NOMATCHES;
   memset(accuracy, 0, sizeof(accuracy));
   isClassified = false;
-  osscan_opentcpport = osscan_closedtcpport = -1;
+  osscan_opentcpport = osscan_closedtcpport = osscan_closedudpport = -1;
+  distance = -1;
   memset(FPs, 0, sizeof(FPs));
   numFPs = goodFP = 0;
 }
@@ -139,7 +140,12 @@ bool FingerPrintResults::fingerprintSuitableForSubmission() {
   if (o.scan_delay > 500) // This can screw up the sequence timing
     return false;
 
-  if (osscan_opentcpport < 0 || osscan_closedtcpport < 0 ) // then results won't be complete
+  if (osscan_opentcpport < 0 || osscan_closedtcpport < 0 || osscan_closedudpport < 0)
+	/* The results won't be complete */
+    return false;
+
+  if (distance > 5)
+	/* Too far away from us. */
     return false;
 
   return true;

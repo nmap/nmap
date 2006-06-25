@@ -215,7 +215,9 @@ class Target {
   const char *deviceFullName() { return *devfullname? devfullname : NULL; }
 
   struct seq_info seq;
-  FingerPrintResults *FPR;
+  int distance;
+  FingerPrintResults *FPR1; /* FP results get by the old OS scan system. */
+  FingerPrintResults *FPR; /* FP results get by the new OS scan system. */
   int osscan_performed; /* nonzero if an osscan was performed */
   PortList ports;
   /*

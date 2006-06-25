@@ -216,6 +216,12 @@ struct seq_info {
   time_t lastboot; /* 0 means unknown */
 };
 
+/* Different kinds of Ipids. */
+struct ipid_info {
+  int tcp_ipids[NUM_SEQ_SAMPLES];
+  int icmp_ipids[NUM_SEQ_SAMPLES];
+};
+
 /* The various kinds of port/protocol scans we can have
  * Each element is to point to an array of port/protocol numbers
  */

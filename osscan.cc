@@ -578,18 +578,19 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
 
   /* Lets find an open port to use */
   openport = (unsigned long) -1;
-  target->FPR->osscan_opentcpport = -1;
-  target->FPR->osscan_closedtcpport = -1;
+  target->FPR1->osscan_opentcpport = -1;
+  target->FPR1->osscan_closedtcpport = -1;
+  target->FPR1->osscan_closedudpport = -1;
   tport = NULL;
   if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_OPEN))) {
     openport = tport->portno;
-    target->FPR->osscan_opentcpport = tport->portno;
+    target->FPR1->osscan_opentcpport = tport->portno;
   }
  
   /* Now we should find a closed port */
   if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_CLOSED))) {
     closedport = tport->portno;
-    target->FPR->osscan_closedtcpport = tport->portno;
+    target->FPR1->osscan_closedtcpport = tport->portno;
   } else if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_UNFILTERED))) {
     /* Well, we will settle for unfiltered */
     closedport = tport->portno;
@@ -612,57 +613,58 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
       /* Test 1 */
       if (!FPtests[1]) {     
 	if (o.scan_delay) enforce_scan_delay(NULL);
-	send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
-			    current_port, openport, sequence_base, 0, 
-			    TH_ECE|TH_SYN, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
+       send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false,
+			   current_port, openport, sequence_base, 0, 0,
+			   TH_ECE|TH_SYN, 0, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000", 20, NULL, 0);
       }
      
       /* Test 2 */
       if (!FPtests[2]) {     
 	if (o.scan_delay) enforce_scan_delay(NULL);
-	send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
-			    current_port +1, 
-			    openport, sequence_base, 0,0, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
+       send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false,
+			   current_port +1, openport, sequence_base, 0, 0,
+			   0, 0,  0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
       }
 
       /* Test 3 */
       if (!FPtests[3]) {     
 	if (o.scan_delay) enforce_scan_delay(NULL);
-	send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, current_port +2, 
-			    openport, sequence_base, 0,TH_SYN|TH_FIN|TH_URG|TH_PUSH, 0,(u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
+       send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false,
+			   current_port +2, openport, sequence_base, 0, 0,
+			   TH_SYN|TH_FIN|TH_URG|TH_PUSH, 0, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
       }
 
       /* Test 4 */
       if (!FPtests[4]) {     
 	if (o.scan_delay) enforce_scan_delay(NULL);
-	send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
-			    current_port +3, 
-			    openport, sequence_base, 0,TH_ACK, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
+       send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false,
+			   current_port +3, openport, sequence_base, 0, 0,
+			   TH_ACK, 0, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
       }
     }
    
     /* Test 5 */
     if (!FPtests[5]) {   
       if (o.scan_delay) enforce_scan_delay(NULL);
-      send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
-			  current_port +4,
-			  closedport, sequence_base, 0,TH_SYN, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
+     send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false,
+			 current_port +4, closedport, sequence_base, 0, 0,
+			 TH_SYN, 0, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
     }
 
     /* Test 6 */
     if (!FPtests[6]) {   
       if (o.scan_delay) enforce_scan_delay(NULL);
-      send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
-			  current_port +5, 
-			  closedport, sequence_base, 0,TH_ACK, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
+     send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false,
+			 current_port +5, closedport, sequence_base, 0, 0,
+			 TH_ACK, 0, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
     }
 
     /* Test 7 */
     if (!FPtests[7]) {
       if (o.scan_delay) enforce_scan_delay(NULL);   
-      send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
-			  current_port +6, 
-			  closedport, sequence_base, 0,TH_FIN|TH_PUSH|TH_URG, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
+     send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false,
+			 current_port +6, closedport, sequence_base, 0, 0,
+			 TH_FIN|TH_PUSH|TH_URG, 0, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
     }
 
     /* Test 8 */
@@ -747,11 +749,11 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
 	  usleep(remaining_us);
 	}
       }
-      send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, 
+     send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false,
 			  o.magic_port + seq_packets_sent + 1, 
 			  openport, 
-			  sequence_base + seq_packets_sent + 1, 0, 
-			  TH_SYN, 0 , (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
+			 sequence_base + seq_packets_sent + 1, 0, 0,
+			 TH_SYN, 0, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
       gettimeofday(&seq_send_times[seq_packets_sent], NULL);
       t1 = seq_send_times[seq_packets_sent];
       seq_packets_sent++;
@@ -1183,9 +1185,9 @@ static struct AVal *gettestbyname(FingerPrint *FP, const char *name) {
 static int AVal_match(struct AVal *reference, struct AVal *fprint, unsigned long *num_subtests, unsigned long *num_subtests_succeeded, int shortcut) {
   struct AVal *current_ref;
   struct AVal *current_fp;
-  unsigned int number;
+  unsigned int number, number1;
   unsigned int val;
-  char *p, *q;  /* OHHHH YEEEAAAAAHHHH!#!@#$!% */
+  char *p, *q, *q1;  /* OHHHH YEEEAAAAAHHHH!#!@#$!% */
   char valcpy[512];
   char *endptr;
   int andexp, orexp, expchar, numtrue;
@@ -1196,9 +1198,9 @@ static int AVal_match(struct AVal *reference, struct AVal *fprint, unsigned long
     current_fp = getattrbyname(fprint, current_ref->attribute);    
     if (!current_fp) continue;
     /* OK, we compare an attribute value in  current_fp->value to a 
-       potentially large expression in current_ref->value.  The syntax uses
-       < (less than), > (greather than), + (non-zero), | (or), and & (and) 
-       No parenthesis are allowed and an expression cannot have | AND & */
+       potentially large expression in current_ref->value.  The syntax
+       uses < (less than), > (greather than), + (non-zero), | (or), -
+       (range), and & (and).  No parenthesis are allowed */
     numtrue = andexp = orexp = 0; testfailed = 0;
     Strncpy(valcpy, current_ref->value, sizeof(valcpy));
     p = valcpy;
@@ -1229,8 +1231,17 @@ static int AVal_match(struct AVal *reference, struct AVal *fprint, unsigned long
 	val = strtol(current_fp->value, &endptr, 16);
 	if (val <= number || *endptr) { if (andexp) { testfailed=1; break; } }
 	else { numtrue++; if (orexp) break; }
+      } else if (((q1 = strchr(p, '-')) != NULL) && isxdigit((int) p[0]) && isxdigit((int) q1[1])) {
+		if (!*current_fp->value) { if (andexp) { testfailed=1; break; } }
+		*q1 = '\0'; number = strtol(p, NULL, 16);
+		number1 = strtol(q1 + 1, NULL, 16);
+		if(number1 < number && o.debugging) {
+		  error("Range error in reference aval: %s=%s\n", current_ref->attribute, current_ref->value);
       }
-      else {
+		val = strtol(current_fp->value, &endptr, 16);
+		if (val < number || val > number1 || *endptr) { if (andexp)  { testfailed=1; break; } }
+		else { numtrue++; if (orexp) break; }
+	  } else {
 	if (strcmp(p, current_fp->value))
 	  { if (andexp) { testfailed=1; break; } }
 	else { numtrue++; if (orexp) break; }
@@ -1322,7 +1333,7 @@ void match_fingerprint(FingerPrint *FP, FingerPrintResults *FPR,
 
     acc = compare_fingerprints(current_os, FP, 0);
 
-    /*    error("Comp to %s: %li/%li=%f", o.reference_FPs[i]->OS_name, num_subtests_succeeded, num_subtests, acc); */
+    /*    error("Comp to %s: %li/%li=%f", o.reference_FPs1[i]->OS_name, num_subtests_succeeded, num_subtests, acc); */
     if (acc >= FPR_entrance_requirement || acc == 1.0) {
 
       state = 0;
@@ -1441,8 +1452,8 @@ o.current_scantype = OS_SCAN;
    log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID, "Initiating OS Detection against %s at %.3fs\n", target->targetipstr(), starttimems / 1000.0);
  }
 
- if (target->FPR == NULL)
-   target->FPR = new FingerPrintResults;
+ if (target->FPR1 == NULL)
+   target->FPR1 = new FingerPrintResults;
 
  memset(si, 0, sizeof(si));
  if (target->ports.getStateCounts(IPPROTO_TCP, PORT_OPEN) == 0 ||
@@ -1467,10 +1478,10 @@ o.current_scantype = OS_SCAN;
       // Do nothing because the keyWasPressed Method prints out the basic status line
    }
 
-   target->FPR->FPs[itry] = get_fingerprint(target, &si[itry]); 
+   target->FPR1->FPs[itry] = get_fingerprint(target, &si[itry]); 
 
-   match_fingerprint(target->FPR->FPs[itry], &FP_matches[itry], 
-		     o.reference_FPs, OSSCAN_GUESS_THRESHOLD);
+   match_fingerprint(target->FPR1->FPs[itry], &FP_matches[itry], 
+		     o.reference_FPs1, OSSCAN_GUESS_THRESHOLD);
    if (FP_matches[itry].overall_results == OSSCAN_SUCCESS && 
        FP_matches[itry].num_perfect_matches > 0)
      break;
@@ -1478,13 +1489,13 @@ o.current_scantype = OS_SCAN;
      sleep(2);
  }
 
- target->FPR->numFPs = (itry == 3)? 3 : itry + 1;
- memcpy(&(target->seq), &si[target->FPR->numFPs - 1], sizeof(struct seq_info));
+ target->FPR1->numFPs = (itry == 3)? 3 : itry + 1;
+ memcpy(&(target->seq), &si[target->FPR1->numFPs - 1], sizeof(struct seq_info));
 
  /* Now lets find the best match */
  bestacc = 0;
  bestaccidx = 0;
- for(itry=0; itry < target->FPR->numFPs; itry++) {
+ for(itry=0; itry < target->FPR1->numFPs; itry++) {
    if (FP_matches[itry].overall_results == OSSCAN_SUCCESS &&
        FP_matches[itry].num_matches > 0 &&
        FP_matches[itry].accuracy[0] > bestacc) {
@@ -1496,27 +1507,27 @@ o.current_scantype = OS_SCAN;
  }
 
 
- for(i=0; i < target->FPR->numFPs; i++) {
+ for(i=0; i < target->FPR1->numFPs; i++) {
    if (i == bestaccidx)
      continue;
    if (o.debugging) {
-     error("Failed exact match #%d (0-based):\n%s", i, fp2ascii(target->FPR->FPs[i]));
+     error("Failed exact match #%d (0-based):\n%s", i, fp2ascii(target->FPR1->FPs[i]));
    }
  }
 
- if (target->FPR->numFPs > 1 && target->FPR->overall_results == OSSCAN_SUCCESS &&
-     target->FPR->accuracy[0] == 1.0) {
-   if (o.verbose) error("WARNING:  OS didn't match until the try #%d", target->FPR->numFPs);
+ if (target->FPR1->numFPs > 1 && target->FPR1->overall_results == OSSCAN_SUCCESS &&
+     target->FPR1->accuracy[0] == 1.0) {
+   if (o.verbose) error("WARNING:  OS didn't match until the try #%d", target->FPR1->numFPs);
  } 
 
- target->FPR->goodFP = bestaccidx;
+ target->FPR1->goodFP = bestaccidx;
 
- // Now we redo the match, since target->FPR has various data (such as
- // target->FPR->numFPs) which is not in FP_matches[bestaccidx].  This is
+ // Now we redo the match, since target->FPR1 has various data (such as
+ // target->FPR1->numFPs) which is not in FP_matches[bestaccidx].  This is
  // kinda ugly.
- if (target->FPR->goodFP >= 0)
-   match_fingerprint(target->FPR->FPs[target->FPR->goodFP], target->FPR, 
-		     o.reference_FPs, OSSCAN_GUESS_THRESHOLD);
+ if (target->FPR1->goodFP >= 0)
+   match_fingerprint(target->FPR1->FPs[target->FPR1->goodFP], target->FPR1, 
+		     o.reference_FPs1, OSSCAN_GUESS_THRESHOLD);
 
  if (o.debugging > 2) {
    log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID, "Completed OS Detection against %s at %.3fs (took %.3fs)\n", target->targetipstr(), o.TimeSinceStartMS() / 1000.0, (o.TimeSinceStartMS() - starttimems) / 1000.0);
@@ -1529,34 +1540,55 @@ o.current_scantype = OS_SCAN;
    top of a fingerprint.  Gives info which might be useful when the
    FPrint is submitted (eg Nmap version, etc).  Result is written (up
    to ostrlen) to the ostr var passed in */
-static void WriteSInfo(char *ostr, int ostrlen, int openport, int closedport, 
-		const u8 *mac) {
+static void WriteSInfo(char *ostr, int ostrlen, bool isGoodFP,
+				const struct in_addr * const addr, int distance, const u8 *mac,
+				int openTcpPort, int closedTcpPort, int closedUdpPort) {
   struct tm *ltime;
   time_t timep;
+  char dsbuf[8], otbuf[8], ctbuf[8], cubuf[8];
   char macbuf[16];
   timep = time(NULL);
   ltime = localtime(&timep);
 
+  otbuf[0] = '\0';
+  if(openTcpPort != -1)
+	snprintf(otbuf, sizeof(otbuf), "%d", openTcpPort);
+  ctbuf[0] = '\0';
+  if(closedTcpPort != -1)
+	snprintf(ctbuf, sizeof(ctbuf), "%d", closedTcpPort);
+  cubuf[0] = '\0';
+  if(closedUdpPort != -1)
+	snprintf(cubuf, sizeof(cubuf), "%d", closedUdpPort);
+  
+  dsbuf[0] = '\0';
+  if(distance != -1) {
+	snprintf(dsbuf, sizeof(dsbuf), "%%DS=%d", distance);
+  }
+  
   macbuf[0] = '\0';
   if (mac)
-    snprintf(macbuf, sizeof(macbuf), "%%M=%02X%02X%02X", mac[0], mac[1], 
-	     mac[2]);
+    snprintf(macbuf, sizeof(macbuf), "%%M=%02X%02X%02X", mac[0], mac[1], mac[2]);
 
-  snprintf(ostr, ostrlen, "SInfo(V=%s%%P=%s%%D=%d/%d%%Tm=%X%%O=%d%%C=%d%s)\n", 
-	   NMAP_VERSION, NMAP_PLATFORM, ltime->tm_mon + 1, ltime->tm_mday, 
-	   (int) timep, openport, closedport, macbuf);
+  snprintf(ostr, ostrlen, "SCAN(V=%s%%D=%d/%d%%OT=%s%%CT=%s%%CU=%s%%PV=%c%s%%G=%c%s%%TM=%X%%P=%s)",
+		   NMAP_VERSION, ltime->tm_mon + 1, ltime->tm_mday,
+		   otbuf, ctbuf, cubuf, isipprivate(addr)?'Y':'N', dsbuf, isGoodFP?'Y':'N',
+		   macbuf, (int) timep, NMAP_PLATFORM);
 }
 
 
-char *mergeFPs(FingerPrint *FPs[], int numFPs, int openport, int closedport, 
-	       const u8 *mac) {
+char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP,
+			   const struct in_addr * const addr, int distance, const u8 *mac,
+			   int openTcpPort, int closedTcpPort, int closedUdpPort, bool wrapit) {
 static char str[10240];
+  static char wrapstr[10240];
+  
 struct AVal *AV;
 FingerPrint *currentFPs[32];
 char *p = str;
 int i;
 int changed;
 char *end = str + sizeof(str) - 1; /* Last byte allowed to write into */
+  
 if (numFPs <=0) return "(None)";
 if (numFPs > 32) return "(Too many)";
   
@@ -1568,9 +1600,10 @@ for(i=0; i < numFPs; i++) {
   currentFPs[i] = FPs[i];
 }
 
-/* Lets start by writing the fake "Info" test for submitting fingerprints */
- WriteSInfo(str, sizeof(str), openport, closedport, mac); 
+  /* Lets start by writing the fake "SCAN" test for submitting fingerprints */
+  WriteSInfo(str, sizeof(str), isGoodFP, addr, distance, mac, openTcpPort, closedTcpPort, closedUdpPort);
  p = p + strlen(str);
+  if (!wrapit) *p++ = '\n';
 
 do {
   changed = 0;
@@ -1599,6 +1632,8 @@ do {
 	  if(*(p-1) != '(')
 	    p--; /* Kill the final & */
 	  *p++ = ')';
+			
+			if(!wrapit)
 	  *p++ = '\n';
 	}
       /* Now prepare for the next one */
@@ -1608,9 +1643,34 @@ do {
 } while(changed);
 
 *p = '\0';
-return str;
-}
 
+  if(!wrapit) {
+return str;
+  } else {
+	/* Wrap the str. */
+	int len;
+	char *p1 = wrapstr;
+	end = wrapstr + sizeof(wrapstr) - 1;
+
+	p = str;
+
+	while(*p && end-p1 >= 3) {
+	  len = 0;
+	  strcpy(p1, "OS:"); p1 += 3; len +=3;
+	  while(*p && len <= FP_RESULT_WRAP_LINE_LEN && end-p1 > 0) {
+		*p1++=*p++; len++;
+	  }
+	  if(end-p1<=0) {
+		fatal("Wrapped result too long!\n");
+		break;
+	  }
+	  *p1++ = '\n';
+}
+	*p1 = '\0';
+
+	return wrapstr;
+  }
+}
 
 char *fp2ascii(FingerPrint *FP) {
 static char str[2048];
@@ -1953,18 +2013,17 @@ while(fgets(line, sizeof(line), fp)) {
   /* printf("Read in fingerprint:\n%s\n", fp2ascii(FPs[numrecords])); */
   numrecords++;
   if (numrecords >= max_records)
-    fatal("Too many OS fingerprints -- 0verfl0w");
+    fatal("Too many OS fingerprints -- 0verflow");
 }
 fclose(fp);
 FPs[numrecords] = NULL; 
 return FPs;
 }
 
-FingerPrint **parse_fingerprint_reference_file() {
+FingerPrint **parse_fingerprint_reference_file(char *dbname) {
 char filename[256];
-
-if (nmap_fetchfile(filename, sizeof(filename), "nmap-os-fingerprints") == -1){
-  fatal("OS scan requested but I cannot find nmap-os-fingerprints file.  It should be in %s, ~/.nmap/ or .", NMAPDATADIR);
+if (nmap_fetchfile(filename, sizeof(filename), dbname) == -1){
+    fatal("OS scan requested but I cannot find %s file.  It should be in %s, ~/.nmap/ or .", dbname, NMAPDATADIR);
 }
 
 return parse_fingerprint_file(filename);

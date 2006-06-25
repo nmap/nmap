@@ -137,10 +137,14 @@ class FingerPrintResults {
    any perfect (accuracy 1.0) matches, only those will be returned */
   const struct OS_Classification_Results *getOSClassification();
 
-  int osscan_opentcpport; /* Open port used for scannig (if one found -- 
+  int osscan_opentcpport; /* Open TCP port used for scannig (if one found -- 
 			  otherwise -1) */
-  int osscan_closedtcpport; /* Closed port used for scannig (if one found -- 
+  int osscan_closedtcpport; /* Closed TCP port used for scannig (if one found -- 
 			    otherwise -1) */
+  int osscan_closedudpport;  /* Closed UDP port used for scannig (if one found -- 
+			    otherwise -1) */
+  int distance; /* How "far" is this FP gotten from? */
+  
   FingerPrint *FPs[10]; /* Fingerprint data obtained from host */
   int numFPs;
   int goodFP;

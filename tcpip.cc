@@ -645,6 +645,31 @@ char dev[128];
   return 0;
 }
 
+int isipprivate(const struct in_addr * const addr) {
+  char *ipc;
+  unsigned char i1, i2;
+  
+  if(!addr) return 0;
+  
+  ipc = (char *) &(addr->s_addr);
+  i1 = ipc[0];
+  i2 = ipc[1];
+
+  /* 10.0.0.0/8 */
+  if (i1 == 10)
+	return 1;
+
+  /* 172.16.0.0/12 */
+  if (i1 == 172 && i2 >= 16 && i2 <= 31)
+    return 1;
+
+  /* 192.168.0.0/16 */
+  if (i1 == 192 && i2 == 168)
+	return 1;
+
+  return 0;
+}
+
 #ifdef WIN32
 /* Convert a dnet interface name into the long pcap style.  This also caches the data
 to speed things up.  Fills out pcapdev (up to pcapdevlen) and returns true if it finds anything.
@@ -830,16 +855,16 @@ void eth_close_cached() {
 }
 
 int send_tcp_raw_decoys( int sd, struct eth_nfo *eth, 
-			 const struct in_addr *victim, int ttl,
-			 u16 sport, u16 dport, u32 seq, u32 ack, u8 flags,
-			 u16 window, u8 *options, int optlen, char *data,
+			 const struct in_addr *victim, int ttl, bool df,
+			 u16 sport, u16 dport, u32 seq, u32 ack, u8 reserved, u8 flags,
+			 u16 window, u16 urp, u8 *options, int optlen, char *data,
 			 u16 datalen) 
 {
   int decoy;
 
   for(decoy = 0; decoy < o.numdecoys; decoy++) 
-    if (send_tcp_raw(sd, eth, &o.decoys[decoy], victim, ttl, sport, dport, 
-		     seq, ack, flags, window, options, optlen, data, 
+    if (send_tcp_raw(sd, eth, &o.decoys[decoy], victim, ttl, df, sport, dport, 
+		     seq, ack, reserved, flags, window, urp, options, optlen, data, 
 		     datalen) == -1)
       return -1;
 
@@ -853,9 +878,9 @@ int send_tcp_raw_decoys( int sd, struct eth_nfo *eth,
    finished with the packet.  The packet length is returned in
    packetlen, which must be a valid int pointer. */
 u8 *build_tcp_raw(const struct in_addr *source, 
-		  const struct in_addr *victim, int ttl, 
-		  u16 ipid, u16 sport, u16 dport, u32 seq, u32 ack, u8 flags,
-		  u16 window, u8 *options, int optlen, char *data, 
+		  const struct in_addr *victim, int ttl, u16 ipid, bool df,
+		  u16 sport, u16 dport, u32 seq, u32 ack, u8 reserved, u8 flags,
+		  u16 window, u16 urp, u8 *options, int optlen, char *data, 
 		  u16 datalen, u32 *packetlen) {
 
 struct pseudo_header { 
@@ -907,12 +932,18 @@ if (ack)
 /*else if (flags & TH_ACK)
   tcp->th_ack = rand() + rand();*/
 
+if (reserved)
+  tcp->th_x2 = reserved & 0x0F;
 tcp->th_off = 5 + (optlen /4) /*words*/;
 tcp->th_flags = flags;
 
 if (window)
   tcp->th_win = htons(window);
 else tcp->th_win = htons(1024 * (myttl % 4 + 1)); /* Who cares */
+
+/* Urgend pointer */
+if (urp)
+  tcp->th_urp = htons(urp);
 
  /* We should probably copy the data over too */
  if (data && datalen)
@@ -941,6 +972,7 @@ get_random_bytes(&(ip->ip_id), 2);
 ip->ip_ttl = myttl;
 ip->ip_p = IPPROTO_TCP;
 ip->ip_id = ipid;
+if(df) ip->ip_off |= htons(IP_DF);
 ip->ip_src.s_addr = source->s_addr;
 #ifdef WIN32
 // I'm not sure why this is --Fyodor
@@ -959,16 +991,16 @@ ip->ip_sum = in_cksum((unsigned short *)ip, sizeof(struct ip));
 
 /* You need to call sethdrinclude(sd) on the sending sd before calling this */
 int send_tcp_raw( int sd, struct eth_nfo *eth, const struct in_addr *source, 
-		  const struct in_addr *victim, int ttl, 
-		  u16 sport, u16 dport, u32 seq, u32 ack, u8 flags,
-		  u16 window, u8 *options, int optlen, char *data, 
+		  const struct in_addr *victim, int ttl, bool df,
+		  u16 sport, u16 dport, u32 seq, u32 ack, u8 reserved, u8 flags,
+		  u16 window, u16 urp, u8 *options, int optlen, char *data, 
 		  u16 datalen) 
 {
   unsigned int packetlen;
   int res = -1;
 
-  u8 *packet = build_tcp_raw(source, victim, ttl, get_random_u16(), sport, 
-			     dport, seq, ack, flags, window, options, optlen, 
+  u8 *packet = build_tcp_raw(source, victim, ttl, get_random_u16(), df, sport, 
+			     dport, seq, ack, reserved, flags, window, urp, options, optlen, 
 			     data, datalen, &packetlen);
   if (!packet) return -1;
   res = send_ip_packet(sd, eth, packet, packetlen);
@@ -1134,7 +1166,7 @@ int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetl
    finished with the packet.  The packet length is returned in
    packetlen, which must be a valid int pointer. */
 u8 *build_icmp_raw(const struct in_addr *source, const struct in_addr *victim, 
-		   int ttl, u16 ipid, u16 seq, unsigned short id, u8 ptype, 
+		   int ttl, u16 ipid, u8 tos, bool df, u16 seq, unsigned short id, u8 ptype, 
 		   u8 pcode, char *data, u16 datalen, u32 *packetlen) {
 
 struct ppkt {
@@ -1153,7 +1185,7 @@ char *ping = (char *) &pingpkt;
  pingpkt.type = ptype;
  pingpkt.code = pcode;
 
- if (ptype == 8 && pcode == 0) /* echo request */ {
+ if (ptype == 8) /* echo request */ {
    icmplen = 8;
  } else if (ptype == 13 && pcode == 0) /* ICMP timestamp req */ {
    icmplen = 20;
@@ -1173,7 +1205,6 @@ char *ping = (char *) &pingpkt;
  }
 /* Fill out the ping packet */
 
-pingpkt.code = 0;
 pingpkt.id = id;
 pingpkt.seq = seq;
 pingpkt.checksum = 0;
@@ -1182,7 +1213,7 @@ pingpkt.checksum = in_cksum((unsigned short *)ping, icmplen);
 if ( o.badsum )
   --pingpkt.checksum;
 
-return build_ip_raw(source, victim, o.ttl, IPPROTO_ICMP, get_random_u16(),
+return build_ip_raw(source, victim, o.ttl, IPPROTO_ICMP, get_random_u16(), tos, df,
 		    ping, icmplen, packetlen);
 }
 
@@ -1420,7 +1451,7 @@ int send_udp_raw( int sd, struct eth_nfo *eth, struct in_addr *source,
    finished with the packet.  The packet length is returned in
    packetlen, which must be a valid int pointer. */
 u8 *build_ip_raw(const struct in_addr *source, const struct in_addr *victim, 
-		 int ttl, u8 proto, u16 ipid, char *data, u16 datalen, 
+		 int ttl, u8 proto, u16 ipid, u8 tos, bool df, char *data, u16 datalen, 
 		 u32 *packetlen) 
 {
 
@@ -1448,8 +1479,10 @@ memset((char *) packet, 0, sizeof(struct ip));
 
 ip->ip_v = 4;
 ip->ip_hl = 5;
+ip->ip_tos = tos;
 ip->ip_len = htons(sizeof(struct ip) + datalen);
 ip->ip_id = htons(ipid);
+if(df) ip->ip_off |= htons(IP_DF);
 ip->ip_ttl = myttl;
 ip->ip_p = proto;
 ip->ip_src.s_addr = source->s_addr;
@@ -1480,7 +1513,7 @@ int send_ip_raw( int sd, struct eth_nfo *eth, struct in_addr *source,
   int res = -1;
 
   u8 *packet = build_ip_raw(source, victim, ttl, proto, get_random_u16(), 
-			    data, datalen, &packetlen);
+  			    IP_TOS_DEFAULT, false, data, datalen, &packetlen);
   if (!packet) return -1;
 
   res = send_ip_packet(sd, eth, packet, packetlen);
