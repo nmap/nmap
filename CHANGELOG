@@ -1,4 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
+Nmap 4.20ALPHA3
+
+o Added back Win32 support thanks to a patch by kx (kxmail(a)gmail.com)
 
 Nmap 4.20ALPHA2
 

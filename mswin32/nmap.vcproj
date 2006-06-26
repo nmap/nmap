@@ -264,6 +264,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\osscan2.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\output.cc"
 				>
 			</File>
@@ -402,6 +406,10 @@
 			</File>
 			<File
 				RelativePath="..\osscan.h"
+				>
+			</File>
+			<File
+				RelativePath="..\osscan2.h"
 				>
 			</File>
 			<File
@@ -590,7 +598,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -600,7 +608,31 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
+						Outputs="$(TargetDir)$(InputName)"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\nmap-os-db"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Copying $(InputName) to output directory..."
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
+						Outputs="$(TargetDir)$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Copying $(InputName) to output directory..."
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -614,7 +646,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -624,7 +656,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -638,7 +670,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -648,7 +680,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -662,7 +694,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -672,7 +704,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -686,7 +718,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -696,7 +728,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -710,7 +742,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -720,7 +752,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -733,9 +765,9 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
-						Outputs="$(TargetDir)$(InputName)"
+						Description="Copying $(InputName).xsl to output directory..."
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName).xsl&quot; &gt; nul"
+						Outputs="$(TargetDir)$(InputName).xsl"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -744,8 +776,8 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName).xsl to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName).xsl&quot; &gt; nul&#x0D;&#x0A;"
-						Outputs="$(TargetDir)$(InputName)"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName).xsl&quot; &gt; nul"
+						Outputs="$(TargetDir)$(InputName).xsl"
 					/>
 				</FileConfiguration>
 			</File>
