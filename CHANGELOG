@@ -1,7 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 Nmap 4.20ALPHA3
 
-o Added back Win32 support thanks to a patch by kx (kxmail(a)gmail.com)
+o Added back Win32 support thanks to a patch by kx
+
+o Fix a problem which caused OS detection to be done in some cases
+  even if the user didn't request it.  Thanks to Diman Todorov for the
+  fix.
 
 Nmap 4.20ALPHA2
 
