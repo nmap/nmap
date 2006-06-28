@@ -1948,6 +1948,19 @@ n -sS -O -v example.com/24\n\
 f --spoof \"/usr/local/bin/pico -z hello.c\" -sS -oN e.log example.com/24\n\n");
 }
 
+char *seqreport1(struct seq_info *seq) {
+  static char report[512];
+
+  snprintf(report, sizeof(report), "TCP Sequence Prediction: Class=%s\n                         Difficulty=%d (%s)\n", seqclass2ascii(seq->seqclass), seq->index, seqidx2difficultystr1(seq->index));
+  return report;
+}
+
+/* Convert a TCP sequence prediction difficulty index like 1264386
+   into a difficulty string like "Worthy Challenge */
+const char *seqidx2difficultystr1(unsigned long idx) {
+  return  (idx < 10)? "Trivial joke" : (idx < 80)? "Easy" : (idx < 3000)? "Medium" : (idx < 5000)? "Formidable" : (idx < 100000)? "Worthy challenge" : "Good luck!";
+}
+
 char *seqreport(struct seq_info *seq) {
   static char report[512];
 
@@ -1958,8 +1971,9 @@ char *seqreport(struct seq_info *seq) {
 /* Convert a TCP sequence prediction difficulty index like 1264386
    into a difficulty string like "Worthy Challenge */
 const char *seqidx2difficultystr(unsigned long idx) {
-  return  (idx < 10)? "Trivial joke" : (idx < 80)? "Easy" : (idx < 3000)? "Medium" : (idx < 5000)? "Formidable" : (idx < 100000)? "Worthy challenge" : "Good luck!";
+  return  (idx < 3)? "Trivial joke" : (idx < 6)? "Easy" : (idx < 11)? "Medium" : (idx < 12)? "Formidable" : (idx < 16)? "Worthy challenge" : "Good luck!";
 }
+
 
 char *seqclass2ascii(int seqclass) {
   switch(seqclass) {

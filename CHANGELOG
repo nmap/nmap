@@ -3,6 +3,11 @@ Nmap 4.20ALPHA3
 
 o Added back Win32 support thanks to a patch by kx
 
+o Fixed the English translation of TCP sequence difficulty reported by
+  Brandon Enright, and also removed fingerprint printing for 1st
+  generation fingerprints (I don't really want to deal with those
+  anymore).  Thanks to Zhao Lei for writing this patch.
+
 o Fix a problem which caused OS detection to be done in some cases
   even if the user didn't request it.  Thanks to Diman Todorov for the
   fix.

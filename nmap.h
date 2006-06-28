@@ -474,6 +474,7 @@ char *scantype2str(stype scantype);
 void sigdie(int signo);
 void reaper(int signo);
 char *seqreport(struct seq_info *seq);
+char *seqreport1(struct seq_info *seq);
 char *seqclass2ascii(int clas);
 char *ipidclass2ascii(int seqclass);
 char *tsseqclass2ascii(int seqclass);
@@ -481,6 +482,7 @@ char *tsseqclass2ascii(int seqclass);
 /* Convert a TCP sequence prediction difficulty index like 1264386
    into a difficulty string like "Worthy Challenge */
 const char *seqidx2difficultystr(unsigned long idx);
+const char *seqidx2difficultystr1(unsigned long idx);
 int nmap_fetchfile(char *filename_returned, int bufferlen, char *file);
 int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv);
 
