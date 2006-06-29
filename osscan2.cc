@@ -722,7 +722,7 @@ HostOsScan::HostOsScan(Target *t) {
   } else {
     /* Init our raw socket */
     if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
-      pfatal("socket trobles in get_fingerprint");
+      pfatal("socket troubles in get_fingerprint");
     unblock_socket(rawsd);
     broadcast_socket(rawsd);
 #ifndef WIN32
