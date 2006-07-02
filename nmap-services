@@ -2163,6 +2163,8 @@ VeritasNetbackup  13721/tcp  # bpdbm         server
 VeritasNetbackup  13722/tcp  # bpjava-msvc   client
 VeritasNetbackup  13782/tcp  # bpcd          client
 VeritasNetbackup  13783/tcp  # vopied        client
+bo2k              14141/tcp  # Back Orifice 2K BoPeep mouse/keyboard input
+bo2k              15151/tcp  # Back Orifice 2K BoPeep video output
 swgps             15126/tcp  # Nortel Java S/WGPS Global Payment Solutions for US credit card authorizations
 overnet           16444/tcp  # Overnet file sharing
 overnet           16444/udp  # Overnet file sharing

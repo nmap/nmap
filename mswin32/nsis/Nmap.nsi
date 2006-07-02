@@ -55,6 +55,7 @@ Section "Nmap Core Files" SecCore
   File COPYING
   File nmap-mac-prefixes
   File nmap-os-fingerprints
+  File nmap-os-db
   File nmap-protocols
   File nmap-rpc
   File nmap-service-probes
@@ -117,6 +118,7 @@ Section "Uninstall"
   Delete "$INSTDIR\COPYING"
   Delete "$INSTDIR\nmap-mac-prefixes"
   Delete "$INSTDIR\nmap-os-fingerprints"
+  Delete "$INSTDIR\nmap-os-db"
   Delete "$INSTDIR\nmap-protocols"
   Delete "$INSTDIR\nmap-rpc"
   Delete "$INSTDIR\nmap-service-probes"

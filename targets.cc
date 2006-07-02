@@ -1539,14 +1539,14 @@ static void massping(Target *hostbatch[], int num_hosts,
       rawsd = -1; rawpingsd = -1;
     } else {
       if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
-	pfatal("socket trobles in massping");
+	pfatal("socket troubles in massping");
       broadcast_socket(rawsd);
 #ifndef WIN32
       sethdrinclude(rawsd);
 #endif
 
       if ((rawpingsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
-	pfatal("socket trobles in massping");
+	pfatal("socket troubles in massping");
       broadcast_socket(rawpingsd);
 #ifndef WIN32
       sethdrinclude(rawpingsd);

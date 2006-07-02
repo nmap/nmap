@@ -688,7 +688,7 @@ int nmap_main(int argc, char *argv[]) {
 	if (l < 0) fatal("--max-scan-delay cannot be negative.");
 	pre_max_scan_delay = l;
       } else if (optcmp(long_options[option_index].name, "max-retries") == 0) {
-        int pre_max_retries = atoi(optarg);
+        pre_max_retries = atoi(optarg);
         if (pre_max_retries < 0)
           fatal("max-retransmissions must be positive");
       } else if (optcmp(long_options[option_index].name, "randomize-hosts") == 0

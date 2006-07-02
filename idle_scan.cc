@@ -378,7 +378,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
     proxy->ethptr = &proxy->eth;
   } else {
     if ((proxy->rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
-      pfatal("socket trobles in %s", __FUNCTION__);
+      pfatal("socket troubles in %s", __FUNCTION__);
     unblock_socket(proxy->rawsd);
     broadcast_socket(proxy->rawsd);
 #ifndef WIN32

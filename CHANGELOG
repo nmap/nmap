@@ -1,4 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
+Nmap 4.20ALPHA4
+
+o Updated the Windows binary distributions (self-installer and .zip)
+  to include the new 2nd generation OS detection DB (nmap-os-db).
+  Thanks to Sina Bahram for reporting the problem.
+
+o Fixed the --max-retries option, which wasn't being honored.  Thanks
+  to Jon Passki (jon.passki(a)hursk.com) for the patch.
+
 Nmap 4.20ALPHA3
 
 o Added back Win32 support thanks to a patch by kx
