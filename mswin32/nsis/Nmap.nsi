@@ -85,6 +85,10 @@ Section "WinPcap 3.1" SecWinPcap
   Delete "$INSTDIR\winpcap-nmap-3.1.B.exe"
 SectionEnd
 
+Section "Networking Changes" SecPerfRegistryMods
+  File nmap_performance.reg
+  Exec 'regedt32 /S "$INSTDIR\nmap_performance.reg"'
+SectionEnd
 
 ;--------------------------------
 ;Descriptions
@@ -93,12 +97,14 @@ SectionEnd
   LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executables and script files"
   LangString DESC_SecRegisterPath ${LANG_ENGLISH} "Registers Nmap path to System path"
   LangString DESC_SecWinPcap ${LANG_ENGLISH} "Installs WinPcap 3.1"
+  LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows networking parameters to improve performance of TCP connect scans."
 
   ;Assign language strings to sections
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
     !insertmacro MUI_DESCRIPTION_TEXT ${SecCore} $(DESC_SecCore)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecRegisterPath} $(DESC_SecRegisterPath)
     !insertmacro MUI_DESCRIPTION_TEXT ${SecWinPcap} $(DESC_SecWinPcap)
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecPerfRegistryMods} $(DESC_SecPerfRegistryMods)
   !insertmacro MUI_FUNCTION_DESCRIPTION_END
 ;--------------------------------
 ;Uninstaller Section

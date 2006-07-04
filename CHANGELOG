@@ -9,6 +9,10 @@ o Added IP options support.  This allows you to specify loose/strict
   further details on using these advanced options.  Thanks to Marek Majkowski
   (majek(a)forest.one.pl) for this patch.
 
+o Updated the Windows installer to give an option checkbox for
+  performing the Nmap performance registry changes.  The default is to
+  do so.  Thanks to Adam Vartanian (flooey(a)gmail.com) for the patch.
+
 o Applied several code cleanup patches from Marek Majkowski.
 
 o Fixed a bug related to bogus completion time estimates when you
