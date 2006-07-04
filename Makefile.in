@@ -16,6 +16,7 @@ export NSOCKDIR=@NSOCKDIR@
 CC = @CC@
 CXX = @CXX@
 CCOPT = 
+DBGFLAGS = 
 LIBPCAPDIR = @libpcapdir@
 LIBPCREDIR = @LIBPCREDIR@
 export LIBDNETDIR = @LIBDNETDIR@
@@ -23,12 +24,12 @@ DEFS = @DEFS@ -DNMAP_VERSION=\"$(NMAP_VERSION)\" -DNMAP_NAME=\"$(NMAP_NAME)\" -D
 # For mtrace debugging -- see MTRACE define in main.cc for instructions
 # Should only be enabled during debugging and not in any real release.
 # DEFS += -DMTRACE=1
-CXXFLAGS = @CXXFLAGS@ $(CCOPT) $(DEFS)
+CXXFLAGS = @CXXFLAGS@ $(DBGFLAGS) $(CCOPT) $(DEFS)
 CPPFLAGS = @CPPFLAGS@
 # CFLAGS = $(CXXFLAGS)
 # CFLAGS = $(DEFS) $(INCLS)
 STATIC =
-LDFLAGS = @LDFLAGS@ $(STATIC)
+LDFLAGS = @LDFLAGS@ $(DBGFLAGS) $(STATIC)
 LIBS =  @LIBNBASE_LIBS@ @LIBNSOCK_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ @OPENSSL_LIBS@ @LIBDNET_LIBS@ @LIBS@
 # LIBS =  -lefence @LIBS@
 # LIBS =  -lrmalloc @LIBS@
@@ -36,6 +37,7 @@ SHTOOL = ./shtool
 INSTALL = $(SHTOOL) install 
 MAKEDEPEND = @MAKEDEPEND@
 export RPMTDIR=$(HOME)/rpm
+
 
 # DESTDIR is used by some package maintainers to install Nmap under
 # its usual directory structure into a different tree.  See the 
@@ -99,6 +101,9 @@ nmapfe/nmapfe:
 static:
 	$(MAKE) STATIC=-static
 
+debug:
+	$(MAKE) DBGFLAGS="-O0 -g -pg -ftest-coverage -fprofile-arcs"
+
 # Make the Nmap tarball
 distro:
 	cd scripts && $(MAKE) distro
@@ -132,6 +137,8 @@ dnet_dist_clean:
 	-cd $(LIBDNETDIR) && $(MAKE) distclean
 nmapfe_dist_clean:
 	-cd nmapfe && $(MAKE) distclean
+debugclean:
+	rm -f *.gcov *.gcda *.gcno gmon.out
 
 distclean: my_clean my_distclean @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ nmapfe_dist_clean
 

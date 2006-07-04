@@ -240,11 +240,6 @@ typedef enum { devt_ethernet, devt_loopback, devt_p2p, devt_other  } devtype;
 #include "nmap.h"
 #include "global_structures.h"
 
-
-#ifndef DEBUGGING
-#define DEBUGGING 0
-#endif
-
 #ifndef TCPIP_DEBUGGING
 #define TCPIP_DEBUGGING 0
 #endif
@@ -476,55 +471,6 @@ struct icmp
 };
 #endif /* HAVE_STRUCT_ICMP */
 
-/* Represents a single probe packet, such as a SYN to port 80 or an
-   ICMP netmask request packet. Values are still in network byte order. */
-class IPProbe {
- public:
-  IPProbe();
-  ~IPProbe();
-/* Takes an IP packet and stores _a copy_ of it, in this Probe,
-   adjusting proper header pointers and such */
-  int storePacket(u8 *ippacket, u32 len);
-  u32 packetbuflen; /* Length of the whole packet */
-  u8 *packetbuf; /* The packet itself */
-  struct ip *ipv4; /* IP header of packet */
-  struct icmp *icmp; /* icmp, tcp, and udp are NULL if the packet has no such header */
-  struct tcphdr *tcp;
-  udphdr_bsd *udp;
-
-  u8 af; /* AF_INET or AF_INET6 */
-  /* Resets everything to NULL.  Frees packetbuf if it is filled.  You
-     can reuse a Probe by calling Reset() and then a new
-     storePacket(). */
-  void Reset(); 
- private:
-
-};
-
-/* Handles an *IPv4* Arp probe */
-class ArpProbe {
- public:
-  ArpProbe();
-  ~ArpProbe();
-/* Takes an ARP packet and stores _a copy_ of it, in this Probe,
-   adjusting proper header pointers and such.  Then length better
-   equal 42! */
-  int storePacket(u8 *arppacket, u32 len);
-  u32 packetbuflen; /* Length of the whole packet */
-  u8 *packetbuf; /* The packet itself */
-  struct in_addr *ipquery; /* IP address this ARP seeks */
-  /* Resets everything to NULL.  Frees packetbuf if it is filled.  You
-     can reuse a Probe by calling Reset() and then a new
-     storePacket(). */
-  void Reset(); 
- private:
-
-};
-
- /* This ideally should be a port that isn't in use for any protocol on our machine or on the target */
-#define MAGIC_PORT 49724
-#define TVAL2LONG(X)  X.tv_sec * 1e6 + X.tv_usec
-#define SA struct sockaddr
 
 /* Prototypes */
 /* Converts an IP address given in a sockaddr_storage to an IPv4 or

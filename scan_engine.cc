@@ -661,8 +661,6 @@ UltraProbe::~UltraProbe() {
 
 void UltraProbe::setARP(u8 *arppkt, u32 arplen) {
   type = UP_ARP;
-  /*  probes.AP = new ArpProbe;
-      probes.AP->storePacket(arppkt, arplen); */
   mypspec.type = PS_ARP;
   return;
 }

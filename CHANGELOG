@@ -9,6 +9,8 @@ o Added IP options support.  This allows you to specify loose/strict
   further details on using these advanced options.  Thanks to Marek Majkowski
   (majek(a)forest.one.pl) for this patch.
 
+o Applied several code cleanup patches from Marek Majkowski.
+
 o Fixed a bug related to bogus completion time estimates when you
   request an estimate (through runtime interaction) right when Nmap is
   starting.a subsystem (such as a port scan or version detection).

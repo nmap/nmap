@@ -252,6 +252,8 @@ void NmapOps::Initialize() {
   dns_servers = NULL;
   noninteractive = false;
   current_scantype = STYPE_UNKNOWN;
+  release_memory = false;
+
 }
 
 bool NmapOps::TCPScan() {
@@ -431,7 +433,7 @@ void NmapOps::ValidateOptions() {
   }
 
   if (max_parallelism && min_parallelism && (min_parallelism > max_parallelism)) {
-    fatal("--min-parallelism must be less than or equal to --max-parallelism");
+    fatal("--min-parallelism=%i must be less than or equal to --max-parallelism=%i",min_parallelism,max_parallelism);
   }
   
   if (af() == AF_INET6 && (numdecoys|osscan|bouncescan|fragscan|ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|rpcscan|synscan|udpscan|windowscan|xmasscan)) {

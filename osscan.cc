@@ -1719,6 +1719,7 @@ static void parse_classline(FingerPrint *FP, char *thisline, int lineno,
 			    int *classno) {
   char *p, *q;
 
+// Wtf????
   fflush(stdout);
 
   if (!thisline || strncmp(thisline, "Class ", 6) == 1) {
