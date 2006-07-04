@@ -17,6 +17,11 @@ o Fixed a bug related to bogus completion time estimates when you
   Thanks to Diman Todorov for reporting the problem and Doug Hoyte for
   writing a fix.
 
+o Nmap no longer gets random numbers from OpenSSL when it is available
+  because that turned out to be slower than Nmap's other methods
+  (e.g. /dev/urandom on Linux, /dev/arandom on OpenBSD, etc.).  Thanks
+  to Marek Majkowski for reporting the problem.
+
 Nmap 4.20ALPHA4
 
 o Updated the Windows binary distributions (self-installer and .zip)
