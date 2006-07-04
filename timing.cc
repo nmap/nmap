@@ -378,9 +378,18 @@ bool ScanProgressMeter::printStats(double perc_done,
     assert(ltime);
 
     sec_left = time_left_ms / 1000;
-    log_write(LOG_STDOUT, "%s Timing: About %.2f%% done; ETC: %02d:%02d (%li:%02li:%02li remaining)\n", 
-	      scantypestr, perc_done * 100, ltime->tm_hour, ltime->tm_min, sec_left / 3600, 
-	      (sec_left % 3600) / 60, sec_left % 60);
+
+    // If we're less than 1% done we probably don't have enough
+    // data for decent timing estimates. Also with perc_done == 0
+    // these elements will be nonsensical.
+    if (perc_done < 0.01)
+      log_write(LOG_STDOUT, "%s Timing: About %.2f%% done\n", 
+                scantypestr, perc_done * 100);
+    else
+      log_write(LOG_STDOUT, "%s Timing: About %.2f%% done; ETC: %02d:%02d (%li:%02li:%02li remaining)\n", 
+                scantypestr, perc_done * 100, ltime->tm_hour, ltime->tm_min, sec_left / 3600, 
+                (sec_left % 3600) / 60, sec_left % 60);
+
     log_flush(LOG_STDOUT);
     return true;
 }

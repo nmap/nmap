@@ -1118,7 +1118,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
   read_timeout_index = MIN(sizeof(read_timeouts)/sizeof(read_timeouts[0]), servs.size()) - 1;
 
-  SPM = new ScanProgressMeter("System DNS resolution");
+  SPM = new ScanProgressMeter("Parallel DNS resolution");
 
   while (total_reqs > 0) {
     timeout = deal_with_timedout_reads();

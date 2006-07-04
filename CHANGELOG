@@ -1,4 +1,20 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
+o Added IP options support.  This allows you to specify loose/strict
+  source routing, route/timestamp recording, or any other IP option.
+  Keep in mind that these options are so rarely used that many routers
+  fail to support them or even (especially with source routing) drop the
+  packets.  The related --ip-fake-dst option is needed when using source
+  routed packets (you set it to the first hop).  See the man page for
+  further details on using these advanced options.  Thanks to Marek Majkowski
+  (majek(a)forest.one.pl) for this patch.
+
+o Fixed a bug related to bogus completion time estimates when you
+  request an estimate (through runtime interaction) right when Nmap is
+  starting.a subsystem (such as a port scan or version detection).
+  Thanks to Diman Todorov for reporting the problem and Doug Hoyte for
+  writing a fix.
+
 Nmap 4.20ALPHA4
 
 o Updated the Windows binary distributions (self-installer and .zip)
