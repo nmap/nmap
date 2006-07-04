@@ -816,6 +816,21 @@ static void add_dns_server(char *ipaddrs) {
 
 }
 
+void free_dns_servers() {
+  std::list<dns_server *>::iterator servI;
+  dns_server *tpserv;
+
+  for(servI = servs.begin(); servI != servs.end();servI++){
+    tpserv = *servI;
+    if(tpserv){
+      if(tpserv->hostname)
+        free(tpserv->hostname);
+      delete tpserv;
+    }
+  }
+  servs.clear();
+}
+
 
 // Creates a new nsi for each DNS server
 void connect_dns_servers() {
@@ -969,6 +984,23 @@ static void parse_etchosts(char *fname) {
   fclose(fp);
 }
 
+void free_etchosts() {
+  host_elem *he;
+  std::list<host_elem *>::iterator hi;
+  int i;
+
+  for(i=0; i < HASH_TABLE_SIZE; i++){
+    for(hi = etchosts[i].begin(); hi != etchosts[i].end(); hi++) {
+      he = *hi;
+      if(he) {
+        free(he->name);
+        delete he;
+      }
+    }
+    etchosts[i].clear();
+  }
+}
+
 
 static char *lookup_etchosts(u32 ip) {
   std::list<host_elem *>::iterator hostI;
@@ -1058,6 +1090,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
       }
     }
 
+    SPM->endTask(NULL, NULL);
     delete SPM;
 
     return;
@@ -1137,6 +1170,8 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
     nsock_loop(dnspool, timeout);
   }
 
+  SPM->endTask(NULL, NULL);
+
   delete SPM;
 
   close_dns_servers();
@@ -1172,6 +1207,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
   }
 
+  SPM->endTask(NULL, NULL);
   delete SPM;
 
   cname_reqs.clear();

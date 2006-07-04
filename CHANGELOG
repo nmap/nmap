@@ -13,7 +13,22 @@ o Updated the Windows installer to give an option checkbox for
   performing the Nmap performance registry changes.  The default is to
   do so.  Thanks to Adam Vartanian (flooey(a)gmail.com) for the patch.
 
+o Nmap now provides progress statistics in the XML output in verbose
+  mode.  Here are some examples of the format (etc is "estimated time
+  until completion) and times are in unix time_t (seconds since 1970) format:
+  <taskbegin task="SYN Stealth Scan" time="1151384685" />
+  <taskprogress task="SYN Stealth Scan" time="1151384715"
+                percent="13.85" remaining="187" etc="1151384902" />
+  <taskend task="SYN Stealth Scan" time="1151384776" />
+  <taskbegin task="Service scan" time="1151384776" />
+  <taskend task="Service scan" time="1151384788" />
+  Thanks to Adam Vartanian (flooey(a)gmail.com) for the patch.
+
 o Applied several code cleanup patches from Marek Majkowski.
+
+o Added --release-memory option, which causes Nmap to release all
+  accessible memory buffers before quitting (rather than let the OS do
+  it).  This is only useful for debugging memory leaks.
 
 o Fixed a bug related to bogus completion time estimates when you
   request an estimate (through runtime interaction) right when Nmap is

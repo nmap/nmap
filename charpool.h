@@ -107,4 +107,7 @@
 
 void *cp_alloc(int sz);
 char *cp_strdup(const char *src);
+
+void cp_free(void);
+
 #endif

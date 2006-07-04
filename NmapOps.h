@@ -300,6 +300,7 @@ class NmapOps {
   stype current_scantype;
   bool noninteractive;
 
+  bool release_memory;	/* suggest to release memory before quitting. used to find memory leaks. */
  private:
   int max_rtt_timeout;
   int min_rtt_timeout;

@@ -965,6 +965,9 @@ void idle_scan(Target *target, u16 *portarray, int numports,
   int portidx = 0; /* Used for splitting the port array into chunks */
   int portsleft;
   time_t starttime;
+  char scanname[32];
+  snprintf(scanname, sizeof(scanname), "Idlescan against %s", target->NameIP());
+  ScanProgressMeter SPM(scanname);
 
   if (numports == 0) return; /* nothing to scan for */
   if (!proxyName) fatal("Idlescan requires a proxy host");
@@ -988,9 +991,6 @@ void idle_scan(Target *target, u16 *portarray, int numports,
     initialize_idleproxy(&proxy, proxyName, target->v4hostip());
   }
 
-  if (o.debugging || o.verbose) {
-    log_write(LOG_STDOUT, "Initiating Idlescan against %s\n", target->NameIP());
-  }
   starttime = time(NULL);
 
   /* If we don't have timing infoz for the new target, we'll use values 
@@ -1019,11 +1019,9 @@ void idle_scan(Target *target, u16 *portarray, int numports,
   }
 
 
-  if (o.verbose) {
-    long timediff = time(NULL) - starttime;
-    log_write(LOG_STDOUT, "The Idlescan took %ld %s to scan %d ports.\n", 
-	      timediff, (timediff == 1)? "second" : "seconds", numports);
-  }
+  char additional_info[14];
+  snprintf(additional_info, sizeof(additional_info), "%d ports", numports);
+  SPM.endTask(NULL, additional_info);
 
   /* Now we go through the ports which were not determined were scanned
      but not determined to be open, and add them in the "closed" state */

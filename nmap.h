@@ -452,6 +452,7 @@ int ftp_anon_connect(struct ftpinfo *ftp);
 /* port manipulators */
 void getprobepts(char *expr);
 struct scan_lists *getpts(char *expr); /* someone stole the name getports()! */
+void free_scan_lists(struct scan_lists *ports);
 int getidentinfoz(struct in_addr target, u16 localport, u16 remoteport,
 		  char *owner, int ownersz);
 
@@ -466,6 +467,8 @@ int listen_icmp(int icmpsock, unsigned short outports[],
 
 /* Renamed main so that interactive mode could preprocess when neccessary */
 int nmap_main(int argc, char *argv[]);
+
+void nmap_free_mem();
 
 /* general helper functions */
 int parse_targets(struct targets *targets, char *h);

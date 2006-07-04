@@ -794,7 +794,6 @@ static int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[],
   return 0;
 }
 
-
 static int sendconnecttcpquery(Target *hostbatch[], struct tcpqueryinfo *tqi,
 			Target *target, int probe_port_num, u16 seq, 
 			struct timeval *time, struct pingtune *pt, 

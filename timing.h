@@ -154,12 +154,17 @@ class ScanProgressMeter {
   /* Prints an estimate of when this scan will complete. */
   bool printStats(double perc_done, const struct timeval *now);
 
+  /* Prints that this task is complete. */
+  bool endTask(const struct timeval *now, const char *additional_info) { return beginOrEndTask(now, additional_info, false); }
+
   struct timeval begin; /* When this ScanProgressMeter was instantiated */
  private:
   struct timeval last_print_test; /* Last time printStatsIfNeccessary was called */
   struct timeval last_print; /* The most recent time the ETC was printed */
   char *scantypestr;
   struct timeval last_est; /* The latest PRINTED estimate */
+
+  bool beginOrEndTask(const struct timeval *now, const char *additional_info, bool beginning);
 };
 
 #endif /* NMAP_TIMING_H */

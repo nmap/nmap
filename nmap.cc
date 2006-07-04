@@ -109,6 +109,7 @@
 #include "NmapOps.h"
 #include "MACLookup.h"
 #include "nmap_tty.h"
+#include "nmap_dns.h"
 #ifdef WIN32
 #include "winfix.h"
 #endif
@@ -491,6 +492,8 @@ int nmap_main(int argc, char *argv[]) {
       {"debug", optional_argument, 0, 'd'},
       {"help", no_argument, 0, 'h'},
       {"iflist", no_argument, 0, 0},
+      {"release_memory", no_argument, 0, 0},
+      {"release-memory", no_argument, 0, 0},
       {"max_parallelism", required_argument, 0, 'M'},
       {"max-parallelism", required_argument, 0, 'M'},
       {"min_parallelism", required_argument, 0, 0},
@@ -640,6 +643,8 @@ int nmap_main(int argc, char *argv[]) {
 	}
       } else if (strcmp(long_options[option_index].name, "iflist") == 0 ) {
 	iflist = true;
+      } else if (strcmp(long_options[option_index].name, "release-memory") == 0 ) {
+	o.release_memory = true;
       } else if (optcmp(long_options[option_index].name, "min-parallelism") == 0 ) {
 	o.min_parallelism = atoi(optarg); 
 	if (o.min_parallelism < 1) fatal("Argument to --min-parallelism must be at least 1!");
@@ -1626,23 +1631,35 @@ int nmap_main(int argc, char *argv[]) {
 
   printfinaloutput();
 
-  if (ports) {
-    free(ports->tcp_ports);
-    free(ports->udp_ports);
-    free(ports->prots);
-    free(ports);
-  }
+  free_scan_lists(ports);
 
   eth_close_cached();
 
-  /* Free fake argv */
-  for(i=0; i < argc; i++)
-    free(fakeargv[i]);
-  free(fakeargv);
+  if(o.release_memory || o.interactivemode) {
+    /* Free fake argv */
+    for(i=0; i < argc; i++)
+      free(fakeargv[i]);
+    free(fakeargv);
 
+    nmap_free_mem();
+  }
   return 0;
 }      
       
+// Free some global memory allocations.
+// This is used for detecting memory leaks.
+void nmap_free_mem() {
+  PortList::freePortMap();
+  cp_free();
+  free_dns_servers();
+  free_etchosts();
+  if(o.reference_FPs){
+    free_fingerprint_file(o.reference_FPs);
+    o.reference_FPs = NULL;
+  }
+  AllProbes::service_scan_free();
+  
+}
 
 /* Reads in a (normal or machine format) Nmap log file and gathers enough
    state to allow Nmap to continue where it left off.  The important things
@@ -1927,6 +1944,14 @@ struct scan_lists *getpts(char *origexpr) {
   return ports;
 }
 
+void free_scan_lists(struct scan_lists *ports) {
+  if (ports) {
+    free(ports->tcp_ports);
+    free(ports->udp_ports);
+    free(ports->prots);
+    free(ports);
+  }
+}
 
 void printinteractiveusage() {
   printf(

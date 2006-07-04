@@ -243,6 +243,7 @@ ScanProgressMeter::ScanProgressMeter(char *stypestr) {
   last_print_test = begin;
   memset(&last_print, 0, sizeof(last_print));
   memset(&last_est, 0, sizeof(last_print));
+  beginOrEndTask(&begin, NULL, true);
 }
 
 ScanProgressMeter::~ScanProgressMeter() {
@@ -382,19 +383,57 @@ bool ScanProgressMeter::printStats(double perc_done,
     // If we're less than 1% done we probably don't have enough
     // data for decent timing estimates. Also with perc_done == 0
     // these elements will be nonsensical.
-    if (perc_done < 0.01)
+    if (perc_done < 0.01) {
       log_write(LOG_STDOUT, "%s Timing: About %.2f%% done\n", 
                 scantypestr, perc_done * 100);
-    else
+      log_flush(LOG_STDOUT);
+    } else {
       log_write(LOG_STDOUT, "%s Timing: About %.2f%% done; ETC: %02d:%02d (%li:%02li:%02li remaining)\n", 
                 scantypestr, perc_done * 100, ltime->tm_hour, ltime->tm_min, sec_left / 3600, 
                 (sec_left % 3600) / 60, sec_left % 60);
-
-    log_flush(LOG_STDOUT);
+      log_write(LOG_XML, "<taskprogress task=\"%s\" time=\"%lu\" percent=\"%.2f\" remaining=\"%li\" etc=\"%lu\" />\n",
+		scantypestr, (unsigned long) now->tv_sec,
+		perc_done * 100, sec_left, (unsigned long) last_est.tv_sec);
+      log_flush(LOG_STDOUT|LOG_XML);
+    }
     return true;
 }
 
+/* Indicates that the task is beginning or ending, and that a message should
+   be generated if appropriate.  Returns whether a message was printed.
+   now may be NULL, if the caller doesn't have the current time handy.
+   additional_info may be NULL if no additional information is necessary. */
+bool ScanProgressMeter::beginOrEndTask(const struct timeval *now, const char *additional_info, bool beginning) {
+  struct timeval tvtmp;
+  struct tm *tm;
+  time_t tv_sec;
 
+  if (!o.verbose) {
+    return false;
+  }
 
+  if (!now) {
+    gettimeofday(&tvtmp, NULL);
+    now = (const struct timeval *) &tvtmp;
+  }
 
-
+  tv_sec = now->tv_sec;
+  tm = localtime(&tv_sec);
+  if (beginning) {
+    log_write(LOG_STDOUT, "Initiating %s at %02d:%02d", scantypestr, tm->tm_hour, tm->tm_min);
+    if (additional_info) {
+      log_write(LOG_STDOUT, " (%s)", additional_info);
+    }
+    log_write(LOG_STDOUT, "\n");
+    log_write(LOG_XML, "<taskbegin task=\"%s\" time=\"%lu\" />\n", scantypestr, (unsigned long) now->tv_sec);
+  } else {
+    log_write(LOG_STDOUT, "Completed %s at %02d:%02d, %.2fs elapsed", scantypestr, tm->tm_hour, tm->tm_min, TIMEVAL_MSEC_SUBTRACT(*now, begin) / 1000.0);
+    if (additional_info) {
+      log_write(LOG_STDOUT, " (%s)", additional_info);
+    }
+    log_write(LOG_STDOUT, "\n");
+    log_write(LOG_XML, "<taskend task=\"%s\" time=\"%lu\" />\n", scantypestr, (unsigned long) now->tv_sec);
+  }
+  log_flush(LOG_STDOUT|LOG_XML);
+  return true;
+}

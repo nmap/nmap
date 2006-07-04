@@ -45,6 +45,7 @@
 <!ENTITY % attr_numeric "CDATA" >
 <!ENTITY % attr_ipaddr "CDATA" >
 <!ENTITY % attr_numeric "CDATA" >
+<!ENTITY % attr_percent "CDATA" >
 <!ENTITY % attr_type "(ipv4 | ipv6 | mac)" >
 
 <!ENTITY % host_states "(up|down|unknown|skipped)" >
@@ -71,7 +72,7 @@
 <!-- This element was started in nmap.c:nmap_main().
      It represents to the topmost element of the output document.
 -->
-<!ELEMENT nmaprun      (scaninfo*, verbose, debugging, host*, runstats) >
+<!ELEMENT nmaprun      (scaninfo*, verbose, debugging, ((taskbegin, taskprogress*, taskend) | host)*, runstats) >
 <!ATTLIST nmaprun
 			scanner		(nmap)		#REQUIRED
 			args		CDATA		#IMPLIED
@@ -98,13 +99,37 @@
 <!ELEMENT debugging 	EMPTY >
 <!ATTLIST debugging	level		%attr_numeric;	#IMPLIED >
 
+<!-- this element is written in timing.c:beginOrEndTask() -->
+<!ELEMENT taskbegin	EMPTY >
+<!ATTLIST taskbegin
+			task		CDATA		#REQUIRED
+			time		%attr_numeric;	#REQUIRED
+>
+
+<!-- this element is written in timing.c:printStats() -->
+<!ELEMENT taskprogress	EMPTY >
+<!ATTLIST taskprogress
+			task		CDATA		#REQUIRED
+			time		%attr_numeric;	#REQUIRED
+			percent		%attr_percent;	#REQUIRED
+			remaining	%attr_numeric;	#REQUIRED
+			etc		%attr_numeric;	#REQUIRED
+>
+
+<!-- this element is written in timing.c:beginOrEndTask() -->
+<!ELEMENT taskend	EMPTY >
+<!ATTLIST taskend
+			task		CDATA		#REQUIRED
+			time		%attr_numeric;	#REQUIRED
+>
+
 <!-- 
      this element is started in nmap.c:nmap_main() and filled by
      output.c:write_host_status(), output.c:printportoutput(), and
      output.c:printosscanoutput()
 -->
 <!ELEMENT host		( status, address , (address | hostnames |
-                          smurf | ports | os | uptime | 
+                          smurf | ports | os | distance | uptime | 
                           tcpsequence | ipidsequence | tcptssequence )* ) >
 
 
@@ -200,6 +225,11 @@
 <!ELEMENT osfingerprint	EMPTY >
 <!ATTLIST osfingerprint
 			fingerprint	CDATA		#REQUIRED
+>
+
+<!ELEMENT distance	EMPTY >
+<!ATTLIST distance
+			value		%attr_numeric;	#REQUIRED
 >
 
 <!ELEMENT uptime	EMPTY >

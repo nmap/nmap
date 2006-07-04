@@ -305,6 +305,7 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   const char *pcre_errptr = NULL;
   int pcre_erroffset = 0;
   unsigned int tmpbuflen = 0;
+  char **curr_tmp = NULL;
 
   if (isInitialized) fatal("Sorry ... ServiceProbeMatch::InitMatch does not yet support reinitializion");
   if (!matchtext || !*matchtext) 
@@ -414,13 +415,27 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
       tmptemplate[tmpbuflen] = '\0';
     }
 
-    if (modechar == 'p') product_template = tmptemplate;
-    else if (modechar == 'v') version_template = tmptemplate;
-    else if (modechar == 'i') info_template = tmptemplate;
-    else if (modechar == 'h') hostname_template = tmptemplate;
-    else if (modechar == 'o') ostype_template = tmptemplate;
-    else if (modechar == 'd') devicetype_template = tmptemplate;
-    else fatal("ServiceProbeMatch::InitMatch: Unknown template specifier '%c' on line %d of nmap-service-probes", modechar, lineno);
+    switch(modechar){
+    case 'p': curr_tmp = &product_template; break;
+    case 'v': curr_tmp = &version_template; break;
+    case 'i': curr_tmp = &info_template; break;
+    case 'h': curr_tmp = &hostname_template; break;
+    case 'o': curr_tmp = &ostype_template; break;
+    case 'd': curr_tmp = &devicetype_template; break;
+    default:
+    	fatal("ServiceProbeMatch::InitMatch: Unknown template specifier '%c' on line %d of nmap-service-probes", modechar, lineno);
+    }
+    if(*curr_tmp){
+      if(o.debugging)
+        error("WARNING: Template \"%c/%s/\" replaced with \"%c/%s/\" on line %d of nmap-service-probes",
+        	modechar,
+    	  	*curr_tmp,
+        	modechar,
+    	  	tmptemplate,
+    	  	lineno);
+    	free(*curr_tmp);
+      }
+    *curr_tmp = tmptemplate;
 
     matchtext = p + 1;
   }
@@ -1133,16 +1148,25 @@ void parse_nmap_service_probes(AllProbes *AP) {
   parse_nmap_service_probe_file(AP, filename);
 }
 
-static AllProbes *service_scan_init(void)
+AllProbes *AllProbes::global_AP;
+AllProbes *AllProbes::service_scan_init(void)
 {
-  static AllProbes *AP;
+  if(global_AP)
+    return global_AP;
+  global_AP = new AllProbes();
+  parse_nmap_service_probes(global_AP);
 
-  if (AP) return AP;
-  AP = new AllProbes();
-  parse_nmap_service_probes(AP);
-
-  return AP;
+  return global_AP;
 }
+
+void AllProbes::service_scan_free(void)
+{
+  if(global_AP){
+    delete global_AP;
+    global_AP = NULL;
+  }
+}
+
 
 // If the buf (of length buflen) matches one of the regexes in this
 // ServiceProbe, returns the details of the match (service name,
@@ -1175,8 +1199,12 @@ AllProbes::~AllProbes() {
   vector<ServiceProbe *>::iterator vi;
 
   // Delete all the ServiceProbe's inside the probes vector
-  for(vi = probes.begin(); vi != probes.end(); vi++)
+  for(vi = probes.begin(); vi != probes.end(); vi++) {
     delete *vi;
+  }
+  if(nullProbe)
+    delete nullProbe;
+  free_scan_lists(excludedports);
 }
 
   // Tries to find the probe in this AllProbes class which have the
@@ -2338,7 +2366,7 @@ int service_scan(vector<Target *> &Targets) {
   if (Targets.size() == 0)
     return 1;
 
-  AP = service_scan_init();
+  AP = AllProbes::service_scan_init();
 
 
   // Now I convert the targets into a new ServiceGroup
@@ -2361,16 +2389,15 @@ int service_scan(vector<Target *> &Targets) {
   starttime = time(NULL);
   if (o.verbose) {
     char targetstr[128];
-    struct tm *tm = localtime(&starttime);
     bool plural = (Targets.size() != 1);
     if (!plural) {
       (*(Targets.begin()))->NameIP(targetstr, sizeof(targetstr));
     } else snprintf(targetstr, sizeof(targetstr), "%u hosts", (unsigned) Targets.size());
 
-    log_write(LOG_STDOUT, "Initiating service scan against %u %s on %s at %02d:%02d\n", 
+    log_write(LOG_STDOUT, "Scanning %u %s on %s\n", 
 	      (unsigned) SG->services_remaining.size(), 
 	      (SG->services_remaining.size() == 1)? "service" : "services", 
-	      targetstr, tm->tm_hour, tm->tm_min);
+	      targetstr);
   }
 
   // Lets create a nsock pool for managing all the concurrent probes
@@ -2399,18 +2426,16 @@ int service_scan(vector<Target *> &Targets) {
   nsp_delete(nsp);
 
   if (o.verbose) {
-    gettimeofday(&now, NULL);
+    char additional_info[128];
     if (SG->num_hosts_timedout == 0)
-      log_write(LOG_STDOUT, "The service scan took %.2fs to scan %u %s on %u %s.\n", 
-		TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0, 
+      snprintf(additional_info, sizeof(additional_info), "%u %s on %u %s",
 		(unsigned) SG->services_finished.size(),  
 		(SG->services_finished.size() == 1)? "service" : "services", 
 		(unsigned) Targets.size(), (Targets.size() == 1)? "host" : "hosts");
-    else log_write(LOG_STDOUT, 
-		   "Finished service scan in %.2fs, but %d %s timed out.\n", 
-		   TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0, 
+    else snprintf(additional_info, sizeof(additional_info), "%u %s timed out", 
 		   SG->num_hosts_timedout, 
 		   (SG->num_hosts_timedout == 1)? "host" : "hosts");
+    SG->SPM->endTask(NULL, additional_info);
   }
 
   // Yeah - done with the service scan.  Now I go through the results

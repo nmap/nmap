@@ -122,6 +122,16 @@ static int cp_init(void) {
   return 0;
 }
 
+void cp_free(void) {
+  int ccp;
+  for(ccp=0; ccp <= currentcharpool; ccp++)
+    if(charpool[ccp]){
+      free(charpool[ccp]);
+      charpool[ccp] = NULL;
+  }
+  currentcharpool = 0;
+}
+
 static inline void cp_grow(void) {
   /* Doh!  We've got to make room */
   if (++currentcharpool > 15) {

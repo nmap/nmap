@@ -268,6 +268,9 @@ class PortList {
   /* Set ports that will be scanned for each protocol. This function
    * must be called before any PortList object will be created. */
   static void initializePortMap(int protocol, u16 *ports, int portcount);
+  /* Free memory used by port_map. It should be done somewhere before quitting*/
+  static void PortList::freePortMap();
+  
   /* Add a new port to this list.  If the state has changed, it is
      OK to call this function to effect the change */
   int addPort(u16 portno, u8 protocol, char *owner, int state);

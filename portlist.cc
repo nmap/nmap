@@ -582,6 +582,17 @@ void PortList::setPortEntry(u16 portno, u8 protocol, Port *port) {
   port_list[proto][mapped_pno] = port;
 }
 
+/* Just free memory used by PortList::port_map[]. Should be done somewhere 
+ * before closing nmap. */
+void PortList::freePortMap(){
+  int proto;
+  for(proto=0; proto < PORTLIST_PROTO_MAX; proto++)
+    if(port_map[proto]){
+      free(port_map[proto]);
+      port_map[proto] = NULL;
+  }
+}
+  
 
 u16 *PortList::port_map[PORTLIST_PROTO_MAX];
 int PortList::port_list_count[PORTLIST_PROTO_MAX];

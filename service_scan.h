@@ -332,6 +332,11 @@ public:
 
   int isExcluded(unsigned short port, int proto);
   struct scan_lists *excludedports;
+  
+  static AllProbes *service_scan_init(void);
+  static void service_scan_free(void);
+protected:
+  static AllProbes *global_AP;
 };
 
 /**********************  PROTOTYPES  ***********************************/

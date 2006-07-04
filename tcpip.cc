@@ -2118,6 +2118,7 @@ void set_pcap_filter(const char *device,
     fatal("Error compiling our pcap filter: %s\n", pcap_geterr(pd));
   if (pcap_setfilter(pd, &fcode) < 0 )
     fatal("Failed to set the pcap filter: %s\n", pcap_geterr(pd));
+  pcap_freecode(&fcode);
 }
 
 /* The 'dev' passed in must be at least 32 bytes long */

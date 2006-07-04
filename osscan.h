@@ -131,6 +131,8 @@ FingerPrint *parse_single_fingerprint(char *fprint_orig);
 FingerPrint **parse_fingerprint_file(char *fname);
 FingerPrint **parse_fingerprint_reference_file(char *dbname);
 
+void free_fingerprint_file(FingerPrint **FPs);
+
 /* Compares 2 fingerprints -- a referenceFP (can have expression
    attributes) with an observed fingerprint (no expressions).  If
    verbose is nonzero, differences will be printed.  The comparison

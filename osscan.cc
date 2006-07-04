@@ -1925,6 +1925,33 @@ FingerPrint *parse_single_fingerprint(char *fprint_orig) {
   return FP;
 }
 
+
+void free_fingerprint_file(FingerPrint **FPs) {
+  FingerPrint **current;
+  FingerPrint *c, *d;
+  struct AVal *avc;
+  struct AVal *avd;
+
+  for(current = FPs; *current != NULL; current++){
+    for(c = *current; c; c=d){
+      d = c->next;
+      if(c->name)
+        free((void*)c->name); //strdup
+      if(c->results){
+      	for(avc = c->results; avc; avc = avd) {
+      	  avd = avc->next;
+      	  if(avc->attribute)
+      	    free(avc->attribute);
+      	}
+      	free(c->results);
+      }
+      free(c);
+    }
+  }
+  free(FPs);
+}
+
+
 FingerPrint **parse_fingerprint_file(char *fname) {
 FingerPrint **FPs;
 FingerPrint *current;

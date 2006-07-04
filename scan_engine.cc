@@ -3358,7 +3358,6 @@ static void startTimeOutClocks(vector<Target *> &Targets) {
 void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports, 
 		stype scantype) {
   UltraScanInfo *USI = NULL;
-  time_t starttime;
   o.current_scantype = scantype;
 
   if (Targets.size() == 0) {
@@ -3377,14 +3376,11 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
 
   if (o.verbose) {
     char targetstr[128];
-    struct tm *tm;
     bool plural = (Targets.size() != 1);
     if (!plural) {
       (*(Targets.begin()))->NameIP(targetstr, sizeof(targetstr));
     } else snprintf(targetstr, sizeof(targetstr), "%d hosts", (int) Targets.size());
-    starttime = USI->now.tv_sec;
-    tm = localtime(&starttime);
-    log_write(LOG_STDOUT, "Initiating %s against %s [%d port%s%s] at %02d:%02d\n", scantype2str(scantype), targetstr, USI->gstats->numprobes, (USI->gstats->numprobes != 1)? "s" : "", plural? "/host" : "", tm->tm_hour, tm->tm_min);
+    log_write(LOG_STDOUT, "Scanning %s [%d port%s%s]\n", targetstr, USI->gstats->numprobes, (USI->gstats->numprobes != 1)? "s" : "", plural? "/host" : "");
   }
 
   begin_sniffer(USI, Targets);
@@ -3433,17 +3429,15 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
   }
 
   if (o.verbose) {
+    char additional_info[128];
     if (USI->gstats->num_hosts_timedout == 0)
-      log_write(LOG_STDOUT, "The %s took %.2fs to scan %lu total %s.\n",
-		scantype2str(scantype), 
-		TIMEVAL_MSEC_SUBTRACT(USI->now, USI->SPM->begin) / 1000.0, 
+      snprintf(additional_info, sizeof(additional_info), "%lu total %s",
 		(unsigned long) USI->gstats->numprobes * Targets.size(), 
 		(scantype == PING_SCAN_ARP)? "hosts" : "ports");
-    else log_write(LOG_STDOUT, "Finished %s in %.2fs, but %d %s timed out.\n", 
-		   scantype2str(scantype), 
-		   TIMEVAL_MSEC_SUBTRACT(USI->now, USI->SPM->begin) / 1000.0,
+    else snprintf(additional_info, sizeof(additional_info), "%d %s timed out",
 		   USI->gstats->num_hosts_timedout, 
 		   (USI->gstats->num_hosts_timedout == 1)? "host" : "hosts");
+    USI->SPM->endTask(NULL, additional_info);
   }
   delete USI;
   USI = NULL;
@@ -3629,7 +3623,6 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
   struct scanstats ss;
   int senddelay = 0;
   int rpcportsscanned = 0;
-  bool printedinitialmsg = false;
   int tries = 0;
   time_t starttime;
   struct timeval starttm;
@@ -3642,6 +3635,8 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
   unsigned long j;
   struct serviceDeductions sd;
   bool doingOpenFiltered = false;
+
+  ScanProgressMeter *SPM = NULL;
 
   if (target->timedOut(NULL))
     return;
@@ -3759,11 +3754,10 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
 
     // This initial message is way down here because we don't want to print it if
     // no RPC ports need scanning.
-    if (o.verbose && !printedinitialmsg) {
-      struct tm *tm = localtime(&starttime);
-      assert(tm);
-      log_write(LOG_STDOUT, "Initiating %s against %s at %02d:%02d\n", scantype2str(scantype), target->NameIP(hostname, sizeof(hostname)), tm->tm_hour, tm->tm_min);
-      printedinitialmsg = true;
+    if (!SPM) {
+      char scanname[32];
+      snprintf(scanname, sizeof(scanname), "%s against %s", scantype2str(scantype), target->NameIP());
+      SPM = new ScanProgressMeter(scanname);
     }
     
     while(pil.testinglist != NULL)  /* While we have live queries or more ports to scan */
@@ -3919,13 +3913,18 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
   }
 
   numports = rpcportsscanned;
-  if (o.verbose && numports > 0) {
-    gettimeofday(&now, NULL);
-    log_write(LOG_STDOUT, "The %s took %.2fs to scan %d ports on %s.\n", scantype2str(scantype), TIMEVAL_MSEC_SUBTRACT(now, starttm) / 1000.0, numports, target->NameIP());
+  if (SPM && o.verbose && (numports > 0)) {
+    char scannedportsstr[14];
+    snprintf(scannedportsstr, sizeof(scannedportsstr), "%d %s", numports, (numports > 1)? "ports" : "port");
+    SPM->endTask(NULL, scannedportsstr);
   }
  posscan_timedout:
   target->stopTimeOutClock(NULL);
   free(scan);
   close_rpc_query_sockets();
+  if (SPM) {
+    delete SPM;
+    SPM = NULL;
+  }
   return;
 }
