@@ -3631,7 +3631,6 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
   struct timeval now;
   struct connectsockinfo csi;
   struct rpcscaninfo rsi;
-  char hostname[1200];
   unsigned long j;
   struct serviceDeductions sd;
   bool doingOpenFiltered = false;
