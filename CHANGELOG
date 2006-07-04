@@ -1,17 +1,6 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o Added IP options support.  This allows you to specify loose/strict
-  source routing, route/timestamp recording, or any other IP option.
-  Keep in mind that these options are so rarely used that many routers
-  fail to support them or even (especially with source routing) drop the
-  packets.  The related --ip-fake-dst option is needed when using source
-  routed packets (you set it to the first hop).  See the man page for
-  further details on using these advanced options.  Thanks to Marek Majkowski
-  (majek(a)forest.one.pl) for this patch.
-
-o Updated the Windows installer to give an option checkbox for
-  performing the Nmap performance registry changes.  The default is to
-  do so.  Thanks to Adam Vartanian (flooey(a)gmail.com) for the patch.
+Nmap 4.20ALPHA4
 
 o Nmap now provides progress statistics in the XML output in verbose
   mode.  Here are some examples of the format (etc is "estimated time
@@ -23,6 +12,10 @@ o Nmap now provides progress statistics in the XML output in verbose
   <taskbegin task="Service scan" time="1151384776" />
   <taskend task="Service scan" time="1151384788" />
   Thanks to Adam Vartanian (flooey(a)gmail.com) for the patch.
+
+o Updated the Windows installer to give an option checkbox for
+  performing the Nmap performance registry changes.  The default is to
+  do so.  Thanks to Adam Vartanian (flooey(a)gmail.com) for the patch.
 
 o Applied several code cleanup patches from Marek Majkowski.
 
@@ -40,8 +33,6 @@ o Nmap no longer gets random numbers from OpenSSL when it is available
   because that turned out to be slower than Nmap's other methods
   (e.g. /dev/urandom on Linux, /dev/arandom on OpenBSD, etc.).  Thanks
   to Marek Majkowski for reporting the problem.
-
-Nmap 4.20ALPHA4
 
 o Updated the Windows binary distributions (self-installer and .zip)
   to include the new 2nd generation OS detection DB (nmap-os-db).
