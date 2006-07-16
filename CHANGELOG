@@ -4,7 +4,7 @@ Nmap 4.20ALPHA4
 
 o Nmap now provides progress statistics in the XML output in verbose
   mode.  Here are some examples of the format (etc is "estimated time
-  until completion) and times are in unix time_t (seconds since 1970) format:
+  until completion) and times are in UNIX time_t (seconds since 1970) format:
   <taskbegin task="SYN Stealth Scan" time="1151384685" />
   <taskprogress task="SYN Stealth Scan" time="1151384715"
                 percent="13.85" remaining="187" etc="1151384902" />

@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "06/29/2006" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "07/04/2006" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -127,7 +127,9 @@ SERVICE/VERSION DETECTION:
   \-\-version\-all: Try every single probe (intensity 9)
   \-\-version\-trace: Show detailed version scan activity (for debugging)
 OS DETECTION:
-  \-O: Enable OS detection
+  \-O: Enable OS detection (try 2nd generation, then 1st if that fails)
+  \-O1: Only use the old (1st generation) OS detection system
+  \-O2: Only use the new OS detection system (no fallback)
   \-\-osscan\-limit: Limit OS detection to promising targets
   \-\-osscan\-guess: Guess OS more aggressively
 TIMING AND PERFORMANCE:
@@ -730,8 +732,8 @@ or
 \(lqincremental\(rq
 class, which means that they increment the ID field in the IP header for each packet they send. This makes them vulnerable to several advanced information gathering and spoofing attacks.
 .PP
-A paper documenting the workings, usage, and customization of version detection is available in more than a dozen languages at
-\fI\%http://www.insecure.org/nmap/nmap\-fingerprinting\-article.html\fR.
+A paper documenting the workings, usage, and customization of OS detection is available in more than a dozen languages at
+\fI\%http://www.insecure.org/nmap/osdetect/\fR.
 .PP
 OS detection is enabled and controlled with the following options:
 .TP
@@ -1262,6 +1264,9 @@ Tells Nmap to simply assume that it is privileged enough to perform raw socket s
 \fB\-\-privileged\fR
 is useful with Linux kernel capabilities and similar systems that may be configured to allow unprivileged users to perform raw\-packet scans. Be sure to provide this option flag before any flags for options that require privileges (SYN scan, OS detection, etc.). The NMAP_PRIVILEGED variable may be set as an equivalent alternative to
 \fB\-\-privileged\fR.
+.TP
+\fB\-\-release\-memory\fR (Release memory before quitting)
+This option is only useful for memory\-leak debugging. It causes Nmap to release allocated memory just before it quits so that actual memory leaks are easier to spot. Normally Nmap skips this as the OS does this anyway upon process termination.
 .TP
 \fB\-\-interactive\fR (Start in interactive mode)
 Starts Nmap in interactive mode, which offers an interactive Nmap prompt allowing easy launching of multiple scans (either synchronously or in the background). This is useful for people who scan from multi\-user systems as they often want to test their security without letting everyone else on the system know exactly which systems they are scanning. Use
