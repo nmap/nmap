@@ -85,7 +85,7 @@ Section "WinPcap 3.1" SecWinPcap
   Delete "$INSTDIR\winpcap-nmap-3.1.B.exe"
 SectionEnd
 
-Section "Network Performance Improvements (Registry Changes)" SecPerfRegistryMods
+Section "Improve Performance" SecPerfRegistryMods
   File nmap_performance.reg
   Exec 'regedt32 /S "$INSTDIR\nmap_performance.reg"'
 SectionEnd
