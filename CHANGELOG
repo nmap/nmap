@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Integrated all 2nd quarter service detection fingerprint
+  submissions.  Please keep them coming!  We now have 3,671 signatures
+  representing 415 protocols.   Thanks to version detection czar Doug
+  Hoyte for doing this.
+
 Nmap 4.20ALPHA4
 
 o Nmap now provides progress statistics in the XML output in verbose
