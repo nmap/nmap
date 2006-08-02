@@ -9,6 +9,9 @@ o Integrated all 2nd quarter service detection fingerprint
   representing 415 protocols.   Thanks to version detection czar Doug
   Hoyte for doing this.
 
+o Cleaned up Nmap DNS reporting to be a little more useful and
+  concise.  Thanks to Doug Hoyte for the patch.
+
 Nmap 4.20ALPHA4
 
 o Nmap now provides progress statistics in the XML output in verbose

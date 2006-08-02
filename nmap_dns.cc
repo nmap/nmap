@@ -1058,6 +1058,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
   char *tpname;
   int i;
   bool lasttrace = false;
+  char spmobuf[1024];
 
   if (o.mass_dns == false) {
     Target *currenths;
@@ -1071,8 +1072,9 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
       if (((currenths->flags & HOST_UP) || o.resolve_all) && !o.noresolve) stat_actual++;
     }
 
-    SPM = new ScanProgressMeter("System DNS resolution");
-    
+    snprintf(spmobuf, sizeof(spmobuf), "System DNS resolution of %d host%s.", num_targets, num_targets-1 ? "s" : "");
+    SPM = new ScanProgressMeter(spmobuf);
+
     for(i=0, hostI = targets; hostI < targets+num_targets; hostI++, i++) {
       currenths = *hostI;
 	
@@ -1151,7 +1153,8 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
   read_timeout_index = MIN(sizeof(read_timeouts)/sizeof(read_timeouts[0]), servs.size()) - 1;
 
-  SPM = new ScanProgressMeter("Parallel DNS resolution");
+  snprintf(spmobuf, sizeof(spmobuf), "Parallel DNS resolution of %d host%s.", num_targets, num_targets-1 ? "s" : "");
+  SPM = new ScanProgressMeter(spmobuf);
 
   while (total_reqs > 0) {
     timeout = deal_with_timedout_reads();
@@ -1171,7 +1174,6 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
   }
 
   SPM->endTask(NULL, NULL);
-
   delete SPM;
 
   close_dns_servers();
@@ -1181,34 +1183,37 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
   if (cname_reqs.size() && o.debugging)
     log_write(LOG_STDOUT, "Performing system-dns for %d domain names that use CNAMEs\n", (int) cname_reqs.size());
 
-  SPM = new ScanProgressMeter("System CNAME DNS resolution");
+  if (cname_reqs.size()) {
+    snprintf(spmobuf, sizeof(spmobuf), "System CNAME DNS resolution of %d host%s.", cname_reqs.size(), cname_reqs.size()-1 ? "s" : "");
+    SPM = new ScanProgressMeter(spmobuf);
 
-  for(i=0, reqI = cname_reqs.begin(); reqI != cname_reqs.end(); reqI++, i++) {
-    struct sockaddr_storage ss;
-    size_t sslen;
-    char hostname[MAXHOSTNAMELEN + 1] = "";
+    for(i=0, reqI = cname_reqs.begin(); reqI != cname_reqs.end(); reqI++, i++) {
+      struct sockaddr_storage ss;
+      size_t sslen;
+      char hostname[MAXHOSTNAMELEN + 1] = "";
 
-    if (keyWasPressed())
-      SPM->printStats((double) i / cname_reqs.size(), NULL);
+      if (keyWasPressed())
+        SPM->printStats((double) i / cname_reqs.size(), NULL);
 
-    tpreq = *reqI;
+      tpreq = *reqI;
 
-    if (tpreq->targ->TargetSockAddr(&ss, &sslen) != 0)
-      fatal("Failed to get target socket address.");
+      if (tpreq->targ->TargetSockAddr(&ss, &sslen) != 0)
+        fatal("Failed to get target socket address.");
 
-    if (getnameinfo((struct sockaddr *)&ss, sslen, hostname,
-                    sizeof(hostname), NULL, 0, NI_NAMEREQD) == 0) {
-      stat_ok++;
-      stat_cname++;
-      tpreq->targ->setHostName(hostname);
+      if (getnameinfo((struct sockaddr *)&ss, sslen, hostname,
+                      sizeof(hostname), NULL, 0, NI_NAMEREQD) == 0) {
+        stat_ok++;
+        stat_cname++;
+        tpreq->targ->setHostName(hostname);
+      }
+
+      delete tpreq;
+
     }
 
-    delete tpreq;
-
+    SPM->endTask(NULL, NULL);
+    delete SPM;
   }
-
-  SPM->endTask(NULL, NULL);
-  delete SPM;
 
   cname_reqs.clear();
 
@@ -1231,7 +1236,7 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
   gettimeofday(&now, NULL);
 
   if (stat_actual > 0) {
-    if (o.debugging) {
+    if (o.debugging || o.verbose >= 3) {
       if (o.mass_dns) {
 	// #:  Number of DNS servers used
 	// OK: Number of fully reverse resolved queries
@@ -1247,8 +1252,6 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
 		  stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
 		  stat_ok, stat_actual - stat_ok);
       }
-    } else if (o.verbose) {
-      log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs.\n", stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0);
     }
   }
 
