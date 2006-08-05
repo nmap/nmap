@@ -1096,7 +1096,7 @@ int nmap_main(int argc, char *argv[]) {
 
   if (o.osscan == OS_SCAN_SYS_1_ONLY)
     o.reference_FPs1 = parse_fingerprint_reference_file("nmap-os-fingerprints");
-  else
+  else if (o.osscan == OS_SCAN_DEFAULT || o.osscan == OS_SCAN_SYS_2_ONLY)
     o.reference_FPs = parse_fingerprint_reference_file("nmap-os-db");
 
   o.ValidateOptions();

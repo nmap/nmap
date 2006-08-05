@@ -1,4 +1,4 @@
-#!/usr/bin/perl  
+#!/usr/bin/perl
 
 sub max($$) {
     my ($a, $b) = @_;
@@ -35,19 +35,20 @@ while(<>) {
 		}
     }
 
-    elsif ($line =~ /SEQ\(CL=([^%\)]+)(%SP=([^%]+)%GCD=([^%\)]+))?(%Val=([A-F0-9]+))?(%IPID=([^%\)]+))?(%TS=([^%\)]+))?\)/) {
+    elsif ($line =~ /SEQ\(CL=([^%\)]+)(%SP=([^%]+)%GCD=([^%\)]+))?(%Val=([0-9A-F]+))?(%IPID=([^%\)]+))?(%TS=([^%\)]+))?\)/) {
+		# SEQ
         $cls = $1;
 		if ($cls ne "C") {
-			$si = $3;
+			$sp = $3;
 			$gcd = hex($4);
 		} else { $cval=$6; }
         $ipid = $8;
         $ts = $10;
-		if (index($fp{tseq}{cls}, $cls) == -1) {
-			if ($fp{tseq}{cls}) {
-				$fp{tseq}{cls} = $fp{tseq}{cls} . qq^|$cls^;
+		if (!($fp{seq}{cls} =~ /(^|\|)$cls($|\|)/)) {
+			if ($fp{seq}{cls}) {
+				$fp{seq}{cls} = $fp{seq}{cls} . qq^|$cls^;
 			} else {
-				$fp{tseq}{cls} = $cls;
+				$fp{seq}{cls} = $cls;
 			}
 		}
 
@@ -55,126 +56,122 @@ while(<>) {
 			print "*******************************************************\n" .
 				"* WARNING: CONSTANT ISN type -- check if value changes*\n" .
 				"*******************************************************\n";
-			if (index($fp{tseq}{cval}, $cval) == -1) {
-				if ($fp{tseq}{cval}) {
-					$fp{tseq}{cval} = $fp{tseq}{cval} . qq^|$cval^;
+			if (!($fp{seq}{cval} =~ /(^|\|)$cval($|\|)/)) {
+				if ($fp{seq}{cval}) {
+					$fp{seq}{cval} = $fp{seq}{cval} . qq^|$cval^;
 				} else {
-					$fp{tseq}{cval} = $cval;
+					$fp{seq}{cval} = $cval;
 				}
 			}
 		} else {
-			if ($fp{tseq}{gcd} =~ /<([0-9A-F]+)/) {
+			if ($fp{seq}{gcd} =~ /<([0-9A-F]+)/) {
 				$oldgcd = hex($1);
 			} else { $oldgcd = 6; }
 			
 			$newgcd = max($oldgcd, $gcd * 2 + 4);
-			$fp{tseq}{gcd} = sprintf ("<%X", $newgcd);
+			$fp{seq}{gcd} = sprintf ("<%X", $newgcd);
 			
 			$newhighlim = $newlowlim = -1;
-			if ($si =~ /<([0-9A-Fa-f]+)/) { $newhighlim = hex($1); }
-			if ($si =~ />([0-9A-Fa-f]+)/) { $newlowlim = hex($1); }
+			if ($sp =~ /([0-9A-F]+)-([0-9A-F]+)/) {
+				$newlowlim = hex($1);
+				$newhighlim = hex($2);
+			} elsif ($sp =~ /<([0-9A-F]+)/) {
+				$newhighlim = hex($1);
+			}
+
+			# print "newhighlim: $newhighlim newlowlim: $newlowlim\n";
 			
-			if ($fp{tseq}{si} =~ /<([0-9A-F]+)/) {
-				$oldhighlim = hex($1);
-			} else { $oldhighlim = 0; }
-
-			if ($fp{tseq}{si} =~ />([0-9A-F]+)/) {
+			$oldhighlim = $oldlowlim = 0;
+			if ($fp{seq}{sp} =~ /([0-9A-F]+)-([0-9A-F]+)/) {
 				$oldlowlim = hex($1);
-			} else { $oldlowlim = 0; }
-
-			if ($fp{tseq}{si} =~ /^([0-9A-F]+)/) {
+				$oldhighlim = hex($2);
+			} elsif ($fp{seq}{sp} =~ /<([0-9A-F]+)/) {
+				$oldhighlim = hex($1);
+			} elsif ($fp{seq}{sp} =~ /^([0-9A-F]+)/) {
 				$oldhighlim = $oldlowlim = hex($1);
 			}
 
+			# print "oldhighlim: $oldhighlim oldlowlim: $oldlowlim\n";
+
 			if ($oldlowlim) {
-				
 				if ($newlowlim != -1) { $newlowlim = max(0, min($oldlowlim, $newlowlim)); } 
-				else { $newlowlim = max(0, min($oldlowlim, hex($si) / 10 - 20)); }
-			} else { if ($newlowlim == -1) { $newlowlim = max(0, hex($si) / 10 - 20); } }
-			
-			if ($newhighlim == -1) { 
-				$newhighlim = max($oldhighlim, hex($si) * 10 + 20);
-			} else { $newhighlim = max($oldhighlim, $newhighlim); }
-			
-#        print "oldhighlim: $oldhighlim oldlowlim: $oldlowlim newhighlim: $newhighlim newlowlim: $newlowlim oldsi: $fp{tseq}{si}";
-			if ($newlowlim > 0) {
-				$fp{tseq}{si} = sprintf("%X-%X", $newhighlim, $newlowlim);
+				else { $newlowlim = max(0, min($oldlowlim, hex($sp) - 3)); }
 			} else {
-				$fp{tseq}{si} = sprintf("<%X", $newhighlim);
+				if ($newlowlim == -1) { $newlowlim = max(0, hex($sp) - 3); }
+			}
+
+			if ($newhighlim == -1) { 
+				$newhighlim = max($oldhighlim, hex($sp) + 3);
+			} else {
+				$newhighlim = max($oldhighlim, $newhighlim);
+			}
+
+			# print "oldhighlim: $oldhighlim oldlowlim: $oldlowlim newhighlim: $newhighlim newlowlim: $newlowlim oldsp: $fp{seq}{sp}";
+
+			if ($newlowlim > 0) {
+				$fp{seq}{sp} = sprintf("%X-%X", $newlowlim, $newhighlim);
+			} else {
+				$fp{seq}{sp} = sprintf("<%X", $newhighlim);
 			}
 			
-#        print " newsi: $fp{tseq}{si}\n";
+			# print " newsp: $fp{seq}{sp}\n";
+
 		}
 
-        if (index($fp{tseq}{ipid}, $ipid) == -1) {
-            if ($fp{tseq}{ipid}) {
-                $fp{tseq}{ipid} = $fp{tseq}{ipid} . qq^|$ipid^;
+	    if (!($fp{seq}{ipid} =~ /(^|\|)$ipid($|\|)/)) {
+            if ($fp{seq}{ipid}) {
+                $fp{seq}{ipid} = $fp{seq}{ipid} . qq^|$ipid^;
             } else {
-                $fp{tseq}{ipid} = $ipid;
+                $fp{seq}{ipid} = $ipid;
             }
         }
 
-        if (index($fp{tseq}{ts}, $ts) == -1) {
-            if ($fp{tseq}{ts}) {
-                $fp{tseq}{ts} = $fp{tseq}{ts} . qq^|$ts^;
+	    if (!($fp{seq}{ts} =~ /(^|\|)$ts($|\|)/)) {
+            if ($fp{seq}{ts}) {
+                $fp{seq}{ts} = $fp{seq}{ts} . qq^|$ts^;
             } else {
-                $fp{tseq}{ts} = $ts;
+                $fp{seq}{ts} = $ts;
             }
         }
 
     } elsif ($line =~ /^OPS/) {
-		$o1 = $o2 = $o3 = $o4 = $o5= $o6 = "";
-		if ($line =~ /O1=([0-9A-Z]*)/) {
-			$o1 = $1;
-			if (!$o1) { $o1 = "NULL"; }
+		# OPS
+		foreach $num (1 .. 6) {
+			$o = "";
+			$oi = "o$num";
+			if ($line =~ /[(%]O$num=([0-9A-Z|]*)/) {
+				$o = $1;
+				if (!$o) { $o = "NULL"; }
+			}
+
+			if (!($fp{ops}{$oi} =~ /(^|\|)$o($|\|)/)) {
+				if ($fp{ops}{$oi}) {
+					$fp{ops}{$oi} = $fp{ops}{$oi} . qq^|$o^;
+				} else {
+					$fp{ops}{$oi} = $o;
+				}
+			}
 		}
-		if ($line =~ /O2=([0-9A-Z]*)/) {
-			$o2 = $1;
-			if (!$o2) { $o2 = "NULL"; }
+	}  elsif ($line =~ /^WIN/) {
+		# WIN
+		foreach $num (1 .. 6) {
+			$w = "";
+			$wi = "w$num";
+			if ($line =~ /[(%]W$num=([0-9A-F|]*)/) {
+				$w = $1;
+				if (!$w) { $w = "NULL"; }
+			}
+
+			if (!($fp{win}{$wi} =~ /(^|\|)$w($|\|)/)) {
+				if ($fp{win}{$wi}) {
+					$fp{win}{$wi} = $fp{win}{$wi} . qq^|$w^;
+				} else {
+					$fp{win}{$wi} = $w;
+				}
+			}
 		}
-		if ($line =~ /O3=([0-9A-Z]*)/) {
-			$o3 = $1;
-			if (!$o3) { $o3 = "NULL"; }
-		}
-		if ($line =~ /O4=([0-9A-Z]*)/) {
-			$o4 = $1;
-			if (!$o4) { $o4 = "NULL"; }
-		}
-		if ($line =~ /O5=([0-9A-Z]*)/) {
-			$o5 = $1;
-			if (!$o5) { $o5 = "NULL"; }
-		}
-		if ($line =~ /O6=([0-9A-Z]*)/) {
-			$o6 = $1;
-			if (!$o6) { $o6 = "NULL"; }
-		}
-	} elsif ($line =~ /^WIN/) {
-		$w1 = $w2 = $w3 = $w4 = $w5= $w6 = "";
-		if ($line =~ /W1=([0-9A-F]+)/) {
-			$w1 = $1;
-			if (!$w1) { $w1 = "NULL"; }
-		}
-		if ($line =~ /W2=([0-9A-F]+)/) {
-			$w2 = $1;
-			if (!$w2) { $w2 = "NULL"; }
-		}
-		if ($line =~ /W3=([0-9A-F]+)/) {
-			$w3 = $1;
-			if (!$w3) { $w3 = "NULL"; }
-		}
-		if ($line =~ /W4=([0-9A-F]+)/) {
-			$w4 = $1;
-			if (!$w4) { $w4 = "NULL"; }
-		}
-		if ($line =~ /W5=([0-9A-F]+)/) {
-			$w5 = $1;
-			if (!$w5) { $w5 = "NULL"; }
-		}
-		if ($line =~ /W6=([0-9A-F]+)/) {
-			$w6 = $1;
-			if (!$w6) { $w6 = "NULL"; }
-		}
-	} elsif ($line =~ /^ECN/) {
+	}  elsif ($line =~ /^ECN/) {
+		# ECN
 		$resp = $df = $ttl = $cc = $quirk = "";
 
 		if ($line =~ /R=([NY])/) {
@@ -183,115 +180,100 @@ while(<>) {
 		if ($line =~ /[(%]DF=([NY])/) {
 			$df = $1;
 		}
-		if ($line =~ /[(%]TG+=([0-9A-F]+)/) {
+		if ($line =~ /[(%]TG?=([0-9A-F]+)/) {
 			$ttl = $1;
+			if (!$ttl) { $ttl = "NULL"; }
 		}
 		if ($line =~ /[(%]CC=([NY])/) {
 			$cc = $1;
 		}
-		if ($line =~ /[(%]Q=([RU]*)/) {
+		if ($line =~ /[(%]Q=(R?U?)/) {
 			$quirk = $1;
-		}		
-	} elsif ($line =~ /^T1)/) {
-		$test = "T1";
-		$resp = $df = $ttl = $seq = $ack = $flags = $rd = $quirk = "";
-
-		if ($line =~ /Resp=([NY])/) {
-			$resp = $1;
-		}
-		if ($line =~ /[(%]DF=([NY])/) {
-			$df = $1;
-		}
-		if ($line =~ /[(%]W=([^%]+)/) {
-			$w = $1;
-			if (!$w) { $w = "NULL"; }
-		}
-		if ($line =~ /[(%]ACK=([^%]+)/) {
-			$ack = $1;
-		}
-		if ($line =~ /[(%]Flags=([^%]*)/) {
-			$flags = $1;
-			if (!$flags) { $flags = "NULL"; }
-		}
-		if ($line =~ /Ops=([A-Z|]*)/) {
-			$ops = $1;
-			if (!$ops) { $ops = "NULL"; }
+			if (!$quirk) { $quirk = "NULL"; }
 		}
 
 		if ($resp eq "Y" or !$resp) {
-			$fp{$test}{resp} = "Y";
-			if ($df and index($fp{$test}{df}, $df) == -1) {
-				if ($fp{$test}{df}) {
-					$fp{$test}{df} .= qq^|$df^;
+			$fp{ecn}{resp} = "Y";
+			if ($df and !($fp{ecn}{df} =~ /(^|\|)$df($|\|)/)) {
+				if ($fp{ecn}{df}) {
+					$fp{ecn}{df} .= qq^|$df^;
 				} else {
-					$fp{$test}{df} = $df;
+					$fp{ecn}{df} = $df;
 				}
 			}
 
-			if (index($fp{$test}{w}, $w) == -1) {
-				if ($fp{$test}{w}) {
-					$fp{$test}{w} = $fp{$test}{w} . qq^|$w^;
+			if (!($fp{ecn}{ttl} =~ /(^|\|)$ttl($|\|)/)) {
+				if ($fp{ecn}{ttl}) {
+					$fp{ecn}{ttl} = $fp{ecn}{ttl} . qq^|$ttl^;
 				} else {
-					$fp{$test}{w} = $w;
+					$fp{ecn}{ttl} = $ttl;
 				}
 			}
 
-			if ($ack and index($fp{$test}{ack}, $ack) == -1) {
-				if ($fp{$test}{ack}) {
-					$fp{$test}{ack} = $fp{$test}{ack} . qq^|$ack^;
+			if ($cc and !($fp{ecn}{cc} =~ /(^|\|)$cc($|\|)/)) {
+				if ($fp{ecn}{cc}) {
+					$fp{ecn}{cc} .= qq^|$cc^;
 				} else {
-					$fp{$test}{ack} = $ack;
+					$fp{ecn}{cc} = $cc;
 				}
 			}
 
-			if (!($fp{$test}{flags} =~ /(^|\|)$flags($|\|)/)) {
-				if ($fp{$test}{flags}) {
-					$fp{$test}{flags} = $fp{$test}{flags} . qq^|$flags^;
+			if (!($fp{ecn}{quirk} =~ /(^|\|)$quirk($|\|)/)) {
+				if ($fp{ecn}{quirk}) {
+					$fp{ecn}{quirk} .= qq^|$quirk^;
 				} else {
-					$fp{$test}{flags} = $flags;
+					$fp{ecn}{quirk} = $quirk;
 				}
-			} 
+			}
 
-			if (!($fp{$test}{ops} =~ /(^|\|)$ops($|\|)/)) {
-				if ($fp{$test}{ops}) {
-					$fp{$test}{ops} = $fp{$test}{ops} . qq^|$ops^;
-				} else {
-					$fp{$test}{ops} = $ops;
-				}
-			}	    
-		} elsif ($fp{$test}{resp} ne "Y") {
-			$fp{$test}{resp} = "N";
+		} elsif ($fp{ecn}{resp} ne "Y") {
+			$fp{ecn}{resp} = "N";
 		}
-    } elsif ($line =~ /^T([2-7])/) {
+	} elsif ($line =~ /^T([1-7])/) {
 		$num = $1;
 		$test = "T$num";
-		$resp = $df = $w = $ack = $flags = $ops = "";
+		$resp = $df = $ttl = $win = $seq = $ack = $flags = $ops = $rd = $quirk = "";
 
-		if ($line =~ /Resp=([NY])/) {
+		if ($line =~ /R=([NY])/) {
 			$resp = $1;
 		}
 		if ($line =~ /[(%]DF=([NY])/) {
 			$df = $1;
 		}
-		if ($line =~ /[(%]W=([^%]+)/) {
-			$w = $1;
-			if (!$w) { $w = "NULL"; }
+		if ($line =~ /[(%]TG?=([0-9A-F]+)/) {
+			$ttl = $1;
+			if (!$ttl) { $ttl = "NULL"; }
 		}
-		if ($line =~ /[(%]ACK=([^%]+)/) {
+		if ($num != 1 and $line =~ /[(%]W=([0-9A-F|]*)/) {		
+			$win = $1;
+			if (!$win) { $win = "NULL"; }
+		}
+		if ($line =~ /[(%]S=([^%]+)/) {
+			$seq = $1;
+		}
+		if ($line =~ /[(%]A=([^%]+)/) {
 			$ack = $1;
 		}
-		if ($line =~ /[(%]Flags=([^%]*)/) {
+		if ($line =~ /[(%]F=([^%]*)/) {
 			$flags = $1;
 			if (!$flags) { $flags = "NULL"; }
 		}
-		if ($line =~ /Ops=([A-Z|]*)/) {
+		if ($num != 1 and $line =~ /[(%]O=([0-9A-Z|]*)/) {		
 			$ops = $1;
 			if (!$ops) { $ops = "NULL"; }
+		}
+		if ($line =~ /[(%]RD=([0-9A-F]*)/) {
+			$rd = $1;
+			if (!$rd) { $rd = "NULL"; }
+		}
+		if ($line =~ /[(%]Q=(R?U?)/) {
+			$quirk = $1;
+			if (!$quirk) { $quirk = "NULL"; }
 		}
 
 		if ($resp eq "Y" or !$resp) {
 			$fp{$test}{resp} = "Y";
-			if ($df and index($fp{$test}{df}, $df) == -1) {
+			if ($df and !($fp{$test}{df} =~ /(^|\|)$df($|\|)/)) {
 				if ($fp{$test}{df}) {
 					$fp{$test}{df} .= qq^|$df^;
 				} else {
@@ -299,17 +281,33 @@ while(<>) {
 				}
 			}
 
-			if (index($fp{$test}{w}, $w) == -1) {
-				if ($fp{$test}{w}) {
-					$fp{$test}{w} = $fp{$test}{w} . qq^|$w^;
+			if (!($fp{$test}{ttl} =~ /(^|\|)$ttl($|\|)/)) {
+				if ($fp{$test}{ttl}) {
+					$fp{$test}{ttl} = $fp{$test}{ttl} . qq^|$ttl^;
 				} else {
-					$fp{$test}{w} = $w;
+					$fp{$test}{ttl} = $ttl;
 				}
 			}
 
-			if ($ack and index($fp{$test}{ack}, $ack) == -1) {
+			if ($num != 1 and !($fp{$test}{win} =~ /(^|\|)$win($|\|)/)) {
+				if ($fp{$test}{win}) {
+					$fp{$test}{win} = $fp{$test}{win} . qq^|$win^;
+				} else {
+					$fp{$test}{win} = $win;
+				}
+			}
+
+			if ($seq and !($fp{$test}{seq} =~ /(^|\|)$seq($|\|)/)) {
+				if ($fp{$test}{seq}) {
+					$fp{$test}{seq} .= qq^|$seq^;
+				} else {
+					$fp{$test}{seq} = $seq;
+				}
+			}
+
+			if ($ack and !($fp{$test}{ack} =~ /(^|\|)$ack($|\|)/)) {
 				if ($fp{$test}{ack}) {
-					$fp{$test}{ack} = $fp{$test}{ack} . qq^|$ack^;
+					$fp{$test}{ack} .= qq^|$ack^;
 				} else {
 					$fp{$test}{ack} = $ack;
 				}
@@ -321,36 +319,61 @@ while(<>) {
 				} else {
 					$fp{$test}{flags} = $flags;
 				}
-			} 
+			}
 
-			if (!($fp{$test}{ops} =~ /(^|\|)$ops($|\|)/)) {
+			if ($num != 1 and !($fp{$test}{ops} =~ /(^|\|)$ops($|\|)/)) {
 				if ($fp{$test}{ops}) {
 					$fp{$test}{ops} = $fp{$test}{ops} . qq^|$ops^;
 				} else {
 					$fp{$test}{ops} = $ops;
 				}
-			}	    
+			}
+
+			if (!($fp{$test}{rd} =~ /(^|\|)$rd($|\|)/)) {
+				if ($fp{$test}{rd}) {
+					$fp{$test}{rd} = $fp{$test}{rd} . qq^|$rd^;
+				} else {
+					$fp{$test}{rd} = $rd;
+				}
+			}
+
+			if (!($fp{$test}{quirk} =~ /(^|\|)$quirk($|\|)/)) {
+				if ($fp{$test}{quirk}) {
+					$fp{$test}{quirk} .= qq^|$quirk^;
+				} else {
+					$fp{$test}{quirk} = $quirk;
+				}
+			}
+
 		} elsif ($fp{$test}{resp} ne "Y") {
 			$fp{$test}{resp} = "N";
 		}
-    } elsif ($line =~ /^PU/) {
-		$resp = $df = $tos = $iplen = $riptl = $rid = $ripck = $uck = $ulen = $dat = "";
+    } elsif ($line =~ /^U1/) {
+		$resp = $df = $ttl = $tos = $ipl = $un = $ripl = $rid = $ripck = $ruck = $rul = $rud = "";
 
-		if ($line =~ /Resp=([NY])/) {
+		if ($line =~ /R=([NY])/) {
 			$resp = $1;
 		}
 		if ($line =~ /[(%]DF=([NY])/) {
 			$df = $1;
+		}
+		if ($line =~ /[(%]TG?=([0-9A-F]+)/) {
+			$ttl = $1;
+			if (!$ttl) { $ttl = "NULL"; }
 		}
 		if ($line =~ /[(%]TOS=([^%]+)/) {
 			$tos = $1;
 			if (!$tos) { $tos = "NULL"; }
 		}
-		if ($line =~ /[(%]IPLEN=([^%]+)/) {
-			$iplen = $1;
+		if ($line =~ /[(%]IPL=([^%]+)/) {
+			$ipl = $1;
 		}
-		if ($line =~ /[(%]RIPTL=([^%]+)/) {
-			$riptl = $1;
+		if ($line =~ /[(%]UN=([0-9A-F]*)/) {
+			$un = $1;
+			if (!$un) { $un = "NULL"; }
+		}
+		if ($line =~ /[(%]RIPL=([^%]+)/) {
+			$ripl = $1;
 		}
 		if ($line =~ /[(%]RID=([^%]+)/) {
 			$rid = $1;
@@ -359,102 +382,194 @@ while(<>) {
 			$ripck = $1;
 			if (!$ripck) { $ripck = "NULL"; }
 		}
-		if ($line =~ /[(%]UCK=([^%]+)/) {
-			$uck = $1;
-			if (!$uck) { $uck = "NULL"; }
+		if ($line =~ /[(%]RUCK=([^%]+)/) {
+			$ruck = $1;
+			if (!$ruck) { $ruck = "NULL"; }
 		}
-		if ($line =~ /[(%]ULEN=([^%]+)/) {
-			$ulen = $1;
+		if ($line =~ /[(%]RUL=([^%]+)/) {
+			$rul = $1;
 		}
-		if ($line =~ /[(%]DAT=([A-Z|]+)/) {
-			$dat = $1;
+		if ($line =~ /[(%]RUD=([A-Z|]+)/) {
+			$rud = $1;
 		}
 
 		if ($resp eq "Y" or !$resp) {
-			$fp{pu}{resp} = "Y";
+			$fp{u1}{resp} = "Y";
 
-			if ($df and index($fp{pu}{df}, $df) == -1) {
-				if ($fp{pu}{df}) {
-					$fp{pu}{df} = $fp{pu}{df} . qq^|$df^;
+			if ($df and index($fp{u1}{df}, $df) == -1) {
+				if ($fp{u1}{df}) {
+					$fp{u1}{df} = $fp{u1}{df} . qq^|$df^;
 				} else {
-					$fp{pu}{df} = $df;
+					$fp{u1}{df} = $df;
 				}
 			}
 
-			if ($tos and index($fp{pu}{tos}, $tos) == -1) {
-				if ($fp{pu}{tos}) {
-					$fp{pu}{tos} = $fp{pu}{tos} . qq^|$tos^;
+			if (!($fp{u1}{ttl} =~ /(^|\|)$ttl($|\|)/)) {
+				if ($fp{u1}{ttl}) {
+					$fp{u1}{ttl} = $fp{u1}{ttl} . qq^|$ttl^;
 				} else {
-					$fp{pu}{tos} = $tos;
+					$fp{u1}{ttl} = $ttl;
 				}
 			}
 
-			if ($iplen and index($fp{pu}{iplen}, $iplen) == -1) {
-				if ($fp{pu}{iplen}) {
-					$fp{pu}{iplen} = $fp{pu}{iplen} . qq^|$iplen^;
+			if ($tos and index($fp{u1}{tos}, $tos) == -1) {
+				if ($fp{u1}{tos}) {
+					$fp{u1}{tos} = $fp{u1}{tos} . qq^|$tos^;
 				} else {
-					$fp{pu}{iplen} = $iplen;
+					$fp{u1}{tos} = $tos;
 				}
 			}
 
-
-			if ($riptl and index($fp{pu}{riptl}, $riptl) == -1) {
-				if ($fp{pu}{riptl}) {
-					$fp{pu}{riptl} = $fp{pu}{riptl} . qq^|$riptl^;
+			if ($ipl and index($fp{u1}{ipl}, $ipl) == -1) {
+				if ($fp{u1}{ipl}) {
+					$fp{u1}{ipl} = $fp{u1}{ipl} . qq^|$ipl^;
 				} else {
-					$fp{pu}{riptl} = $riptl;
+					$fp{u1}{ipl} = $ipl;
 				}
 			}
 
-			if ($rid and index($fp{pu}{rid}, $rid) == -1) {
-				if ($fp{pu}{rid}) {
-					$fp{pu}{rid} = $fp{pu}{rid} . qq^|$rid^;
+			if ($un and index($fp{u1}{un}, $un) == -1) {
+				if ($fp{u1}{un}) {
+					$fp{u1}{un} = $fp{u1}{un} . qq^|$un^;
 				} else {
-					$fp{pu}{rid} = $rid;
+					$fp{u1}{un} = $un;
 				}
 			}
 
-
-			if ($ripck and index($fp{pu}{ripck}, $ripck) == -1) {
-				if ($fp{pu}{ripck}) {
-					$fp{pu}{ripck} = $fp{pu}{ripck} . qq^|$ripck^;
+			if ($ripl and index($fp{u1}{ripl}, $ripl) == -1) {
+				if ($fp{u1}{ripl}) {
+					$fp{u1}{ripl} = $fp{u1}{ripl} . qq^|$ripl^;
 				} else {
-					$fp{pu}{ripck} = $ripck;
+					$fp{u1}{ripl} = $ripl;
 				}
 			}
 
-
-			if ($uck and index($fp{pu}{uck}, $uck) == -1) {
-				if ($fp{pu}{uck}) {
-					$fp{pu}{uck} = $fp{pu}{uck} . qq^|$uck^;
+			if ($rid and index($fp{u1}{rid}, $rid) == -1) {
+				if ($fp{u1}{rid}) {
+					$fp{u1}{rid} = $fp{u1}{rid} . qq^|$rid^;
 				} else {
-					$fp{pu}{uck} = $uck;
+					$fp{u1}{rid} = $rid;
 				}
 			}
 
-			if ($ulen and index($fp{pu}{ulen}, $ulen) == -1) {
-				if ($fp{pu}{ulen}) {
-					$fp{pu}{ulen} = $fp{pu}{ulen} . qq^|$ulen^;
+			if ($ripck and index($fp{u1}{ripck}, $ripck) == -1) {
+				if ($fp{u1}{ripck}) {
+					$fp{u1}{ripck} = $fp{u1}{ripck} . qq^|$ripck^;
 				} else {
-					$fp{pu}{ulen} = $ulen;
+					$fp{u1}{ripck} = $ripck;
 				}
 			}
 
-
-			if ($dat and index($fp{pu}{dat}, $dat) == -1) {
-				if ($fp{pu}{dat}) {
-					$fp{pu}{dat} = $fp{pu}{dat} . qq^|$dat^;
+			if ($ruck and index($fp{u1}{ruck}, $ruck) == -1) {
+				if ($fp{u1}{ruck}) {
+					$fp{u1}{ruck} = $fp{u1}{ruck} . qq^|$ruck^;
 				} else {
-					$fp{pu}{dat} = $dat;
+					$fp{u1}{ruck} = $ruck;
 				}
 			}
 
-		} elsif ($fp{pu}{resp} ne "Y") {
-			$fp{pu}{resp} = "N";
+			if ($rul and index($fp{u1}{rul}, $rul) == -1) {
+				if ($fp{u1}{rul}) {
+					$fp{u1}{rul} = $fp{u1}{rul} . qq^|$rul^;
+				} else {
+					$fp{u1}{rul} = $rul;
+				}
+			}
+
+			if ($rud and index($fp{u1}{rud}, $rud) == -1) {
+				if ($fp{u1}{rud}) {
+					$fp{u1}{rud} = $fp{u1}{rud} . qq^|$rud^;
+				} else {
+					$fp{u1}{rud} = $rud;
+				}
+			}
+
+		} elsif ($fp{u1}{resp} ne "Y") {
+			$fp{u1}{resp} = "N";
 		}
-    }       
-}
+    } elsif ($line =~ /^IE/) {
+		$resp = $dfi = $ttl = $tosi = $cd = $si = $dli = "";
 
+		if ($line =~ /R=([NY])/) {
+			$resp = $1;
+		}
+		if ($line =~ /[(%]DFI=([^%]+)/) {
+			$dfi = $1;
+		}
+		if ($line =~ /[(%]TG?=([0-9A-F]+)/) {
+			$ttl = $1;
+			if (!$ttl) { $ttl = "NULL"; }
+		}
+		if ($line =~ /[(%]TOSI=([^%]+)/) {
+			$tosi = $1;
+			if (!$tosi) { $tosi = "NULL"; }
+		}
+		if ($line =~ /[(%]CD=([^%]+)/) {
+			$cd = $1;
+		}
+		if ($line =~ /[(%]SI=([^%]+)/) {
+			$si = $1;
+		}
+		if ($line =~ /[(%]DLI=([A-Z|]+)/) {
+			$dli = $1;
+		}
+
+		if ($resp eq "Y" or !$resp) {
+			$fp{ie}{resp} = "Y";
+
+			if ($dfi and index($fp{ie}{dfi}, $dfi) == -1) {
+				if ($fp{ie}{dfi}) {
+					$fp{ie}{dfi} = $fp{ie}{dfi} . qq^|$dfi^;
+				} else {
+					$fp{ie}{dfi} = $dfi;
+				}
+			}
+
+			if (!($fp{ie}{ttl} =~ /(^|\|)$ttl($|\|)/)) {
+				if ($fp{ie}{ttl}) {
+					$fp{ie}{ttl} = $fp{ie}{ttl} . qq^|$ttl^;
+				} else {
+					$fp{ie}{ttl} = $ttl;
+				}
+			}
+
+			if ($tosi and index($fp{ie}{tosi}, $tosi) == -1) {
+				if ($fp{ie}{tosi}) {
+					$fp{ie}{tosi} = $fp{ie}{tosi} . qq^|$tosi^;
+				} else {
+					$fp{ie}{tosi} = $tosi;
+				}
+			}
+
+			if ($cd and index($fp{ie}{cd}, $cd) == -1) {
+				if ($fp{ie}{cd}) {
+					$fp{ie}{cd} = $fp{ie}{cd} . qq^|$cd^;
+				} else {
+					$fp{ie}{cd} = $cd;
+				}
+			}
+
+			if ($si and index($fp{ie}{si}, $si) == -1) {
+				if ($fp{ie}{si}) {
+					$fp{ie}{si} = $fp{ie}{si} . qq^|$si^;
+				} else {
+					$fp{ie}{si} = $si;
+				}
+			}
+
+			if ($dli and index($fp{ie}{dli}, $dli) == -1) {
+				if ($fp{ie}{dli}) {
+					$fp{ie}{dli} = $fp{ie}{dli} . qq^|$dli^;
+				} else {
+					$fp{ie}{dli} = $dli;
+				}
+			}
+
+		} elsif ($fp{ie}{resp} ne "Y") {
+			$fp{ie}{resp} = "N";
+		}
+    }
+}
 
 # OK, now it is time to print out the merged Fprint ...
 
@@ -466,58 +581,112 @@ print "Fingerprint $fp{os}\n";
 if ($fp{class}) { print $fp{class}; }
 else { print "Class \n"; }
 
-if ($fp{tseq}{cls}) {
-    print("TSeq(Class=$fp{tseq}{cls}");
-    if ($fp{tseq}{cls} ne "64K" and $fp{tseq}{cls} ne "i800" 
-		and $fp{tseq}{cls} ne "C") {
-		if ($fp{tseq}{gcd}) {
-			print "%gcd=$fp{tseq}{gcd}";
-		}
-		if ($fp{tseq}{cls} ne "TR") {
-			if ($fp{tseq}{si}) {
-				print "%SI=$fp{tseq}{si}";
+# SEQ
+if ($fp{seq}{cls}) {
+    print("SEQ(CL=$fp{seq}{cls}");
+    if ($fp{seq}{cls} ne "64K" and $fp{seq}{cls} ne "i800"
+		and $fp{seq}{cls} ne "C") {
+		if ($fp{seq}{cls} ne "TR") {
+			if ($fp{seq}{sp}) {
+				print "%SP=$fp{seq}{sp}";
 			}
 		}
+		if ($fp{seq}{gcd}) {
+			print "%GCD=$fp{seq}{gcd}";
+		}
     }
-    if ($fp{tseq}{cval}) {print "%Val=$fp{tseq}{cval}"; }
-    if ($fp{tseq}{ipid}) { print "%IPID=$fp{tseq}{ipid}"; }
-    if ($fp{tseq}{ts}) { print "%TS=$fp{tseq}{ts}"; }
+    if ($fp{seq}{cval}) {print "%Val=$fp{seq}{cval}"; }
+    if ($fp{seq}{ipid}) { print "%IPID=$fp{seq}{ipid}"; }
+    if ($fp{seq}{ts}) { print "%TS=$fp{seq}{ts}"; }
     print ")\n";
 }
 
-foreach $t (1 .. 7) {
-    $test = "T$t";
-    if ($fp{$test}{resp} eq "Y") {
-		print "$test(";
-		if ($t == 2 or $t == 3) {
-			print "Resp=Y%";
-		}
-		$fp{$test}{flags} =~ s/NULL//;
-		$fp{$test}{ops} =~ s/NULL//;
-		$fp{$test}{w} =~ s/NULL/0/;
-		print "DF=$fp{$test}{df}%W=$fp{$test}{w}%ACK=$fp{$test}{ack}%Flags=$fp{$test}{flags}%Ops=$fp{$test}{ops})\n";
-    } else {
-		print "$test(Resp=N)\n";
-    }
+# OPS
+if ($fp{ops}{o1}) {
+	$fp{ops}{o1} =~ s/NULL//;
+	print "OPS(O1=$fp{ops}{o1}";
+	foreach $num (2 .. 6) {
+		$oi = "o$num";
+		$fp{ops}{$oi} =~ s/NULL//;
+		print "%O$num=$fp{ops}{$oi}";
+	}
+    print ")\n";
 }
 
-if ($fp{pu}{resp} eq "Y") {
-    print "PU(";
-    $fp{pu}{tos} =~ s/NULL/0/;
-    $fp{pu}{uck} =~ s/NULL/0/;
-    $fp{pu}{ripck} =~ s/NULL/0/;
-    if ($fp{pu}{rid}) {
-		$rid = "RID=$fp{pu}{rid}\%";
-    } else { $ridwarning = 1; $rid = "RID=G\%"; }
-    print "DF=$fp{pu}{df}%TOS=$fp{pu}{tos}%IPLEN=$fp{pu}{iplen}%RIPTL=$fp{pu}{riptl}%${rid}RIPCK=$fp{pu}{ripck}%UCK=$fp{pu}{uck}%ULEN=$fp{pu}{ulen}%DAT=$fp{pu}{dat})\n";
+# WIN
+if ($fp{win}{w1}) {
+	$fp{win}{w1} =~ s/NULL/0/;
+	print "WIN(W1=$fp{win}{w1}";
+	foreach $num (2 .. 6) {
+		$wi = "w$num";
+		$fp{win}{$wi} =~ s/NULL/0/;
+		print "%W$num=$fp{win}{$wi}";
+	}
+    print ")\n";
+}
+
+# ECN
+if ($fp{ecn}{resp} eq "Y") {
+	print "ECN(R=Y%";
+	$fp{ecn}{ttl} =~ s/NULL/0/;
+	$fp{ecn}{quirk} =~ s/NULL//;
+	print "DF=$fp{ecn}{df}%T=$fp{ecn}{ttl}%TG=$fp{ecn}{ttl}%CC=$fp{ecn}{cc}%Q=$fp{ecn}{quirk})\n";
 } else {
-    print "PU(Resp=N)\n";    
+	print "ECN(R=N)\n";
+}
+
+# T1-T7
+foreach $t (1 .. 7) {
+	$test = "T$t";
+	if ($fp{$test}{resp} eq "Y") {
+		print "$test(R=Y%";
+		$fp{$test}{ttl} =~ s/NULL/0/;
+		$fp{$test}{win} =~ s/NULL/0/;
+		$fp{$test}{flags} =~ s/NULL//;
+		$fp{$test}{ops} =~ s/NULL//;
+		$fp{$test}{rd} =~ s/NULL/0/;
+		$fp{$test}{quirk} =~ s/NULL//;
+		if ($t == 1) {
+			print "DF=$fp{$test}{df}%T=$fp{$test}{ttl}%TG=$fp{$test}{ttl}%S=$fp{$test}{seq}%A=$fp{$test}{ack}%F=$fp{$test}{flags}%RD=$fp{$test}{rd}%Q=$fp{$test}{quirk})\n";
+		} else {
+			print "DF=$fp{$test}{df}%T=$fp{$test}{ttl}%TG=$fp{$test}{ttl}%W=$fp{$test}{win}%S=$fp{$test}{seq}%A=$fp{$test}{ack}%F=$fp{$test}{flags}%O=$fp{$test}{ops}%RD=$fp{$test}{rd}%Q=$fp{$test}{quirk})\n";
+		}
+	} else {
+		print "$test(R=N)\n";
+	}
+}
+
+# U1
+if ($fp{u1}{resp} eq "Y") {
+    print "U1(";
+	$fp{u1}{ttl} =~ s/NULL/0/;
+    $fp{u1}{tos} =~ s/NULL/0/;
+    $fp{u1}{uck} =~ s/NULL/0/;
+    $fp{u1}{un} =~ s/NULL/0/;
+	$fp{u1}{ripck} =~ s/NULL/0/;
+    $fp{u1}{ruck} =~ s/NULL/0/;
+    if ($fp{u1}{rid}) {
+		$rid = "RID=$fp{u1}{rid}\%";
+    } else { $ridwarning = 1; $rid = "RID=G\%"; }
+    print "DF=$fp{u1}{df}%T=$fp{u1}{ttl}%TG=$fp{u1}{ttl}%TOS=$fp{u1}{tos}%IPL=$fp{u1}{ipl}%UN=$fp{u1}{un}%RIPL=$fp{u1}{ripl}%${rid}RIPCK=$fp{u1}{ripck}%RUCK=$fp{u1}{ruck}%RUL=$fp{u1}{rul}%RUD=$fp{u1}{rud})\n";
+} else {
+    print "U1(R=N)\n";    
+}
+
+# IE
+if ($fp{ie}{resp} eq "Y") {
+    print "IE(";
+	$fp{ie}{ttl} =~ s/NULL/0/;
+    $fp{ie}{tosi} =~ s/NULL/0/;
+    print "DFI=$fp{ie}{dfi}%T=$fp{ie}{ttl}%TG=$fp{ie}{ttl}%TOSI=$fp{ie}{tosi}%CD=$fp{ie}{cd}%SI=$fp{ie}{si}%DLI=$fp{ie}{dli})\n";
+} else {
+    print "IE(R=N)\n";    
 }
 
 if ($ridwarning == 1) {
     $ridwarning = 0;
     print "*******************************************************\n" .
-		"* WARNING: Missing PU RID value -- this is normal for *\n" .
+		"* WARNING: Missing U1 RID value -- this is normal for *\n" .
 		"* hosts submitted by Solaris or Windows boxes.  You   *\n" .
 		"* may want to get RID from similar fingerprints       *\n" .
 		"*******************************************************\n";

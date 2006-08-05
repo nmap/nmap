@@ -144,6 +144,7 @@ class FingerPrintResults {
   int osscan_closedudpport;  /* Closed UDP port used for scannig (if one found -- 
 			    otherwise -1) */
   int distance; /* How "far" is this FP gotten from? */
+  int distance_guess; /* How "far" is this FP gotten from? by guessing based on ttl. */
   
   FingerPrint *FPs[10]; /* Fingerprint data obtained from host */
   int numFPs;

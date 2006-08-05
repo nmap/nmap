@@ -1254,15 +1254,8 @@ void printosscanoutput(Target *currenths) {
 	}
   }
 
-  if (islocalhost(currenths->v4hostip())) {
-	/* scanning localhost */
-	distance = 0;
-  } else if (currenths->MACAddress()) {
-	/* on the same network segment */
-	distance = 1;
-  } else if (currenths->distance!=-1) {
+  if (currenths->distance != -1)
 	distance = currenths->distance;
-  }
 
     log_write(LOG_XML, "<os>");
   if (FPR->osscan_opentcpport > 0) {
@@ -1333,7 +1326,7 @@ void printosscanoutput(Target *currenths) {
 	  }
 	  log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "\n");
 	}
-	  if (FPR->fingerprintSuitableForSubmission() && osscanSys == 2) {
+	  if (osscanSys == 2 && FPR->fingerprintSuitableForSubmission()) {
 		log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No exact OS matches for host (If you know what OS is running on it, see http://www.insecure.org/cgi-bin/nmap-submit.cgi).\nTCP/IP fingerprint:\n%s\n",
 				  mergeFPs(FPR->FPs, FPR->numFPs, true,
 						   currenths->v4hostip(), distance, currenths->MACAddress(),
@@ -1356,7 +1349,7 @@ void printosscanoutput(Target *currenths) {
 	  log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"OS Fingerprint:\n%s\n", fp2ascii(FPR->FPs[FPR->goodFP]));
       }
   } else if (FPR->overall_results == OSSCAN_NOMATCHES) {
-	if (FPR->fingerprintSuitableForSubmission() && osscanSys == 2) {
+	if (osscanSys == 2 && FPR->fingerprintSuitableForSubmission()) {
 	  log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No OS matches for host (If you know what OS is running on it, see http://www.insecure.org/cgi-bin/nmap-submit.cgi).\nTCP/IP fingerprint:\n%s\n",
 				mergeFPs(FPR->FPs, FPR->numFPs, true,
 						 currenths->v4hostip(), distance, currenths->MACAddress(),

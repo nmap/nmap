@@ -89,11 +89,11 @@ while($nxtline = <OSFILE>) {
     }
 
     if ($state eq "fprint-tests") {
-	if ($nxtline =~ /^(TSeq|T[1-7]|PU)\(.*\)(\s*\#.*)?$/) {
+	if ($nxtline =~ /^(SEQ|OPS|WIN|ECN|T[1-7]|U1|IE)\(.*\)(\s*\#.*)?$/) {
 	    $newFP{data} .= "$nxtline";
 	    next;
 	}
-	die "ERROR: Parse error on $osfile:$lineno -- expected a Tseq, T1-T7, or PU test line";
+	die "ERROR: Parse error on $osfile:$lineno -- expected a SEQ, OPS, WIN, ECN, T1-T7, U1 or IE test line";
     }
 }
 

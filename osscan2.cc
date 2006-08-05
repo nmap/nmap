@@ -158,7 +158,22 @@ public:
   Target *target; /* the Target */
   struct seq_info si;
   struct ipid_info ipid;
-  int distance; /* hop count between us and the target */
+
+  /*
+   * distance, distance_guess: hop count between us and the target.
+   *
+   * Possible values of distance:
+   *   0: when scan self;
+   *   1: when scan a target on the same network segment;
+   * >=1: not self, not same network and nmap has got the icmp reply to the U1 probe.
+   *  -1: none of the above situations.
+   *
+   * Possible values of distance_guess:
+   *  -1: nmap fails to get a valid ttl by all kinds of probes.
+   * >=1: a guessing value based on ttl.
+   */
+  int distance;
+  int distance_guess;
 
 private:
   /* Ports of the targets used in os fingerprinting. */  
@@ -453,6 +468,7 @@ HostOsScanStats::HostOsScanStats(Target * t) {
   icmpEchoReply = NULL;
 
   distance = -1;
+  distance_guess = -1;
 }
 
 HostOsScanStats::~HostOsScanStats() {
@@ -1324,6 +1340,8 @@ void HostOsScan::makeFP(HostOsScanStats *hss) {
   FingerPrint *FP;
   struct AVal *pAV;
   
+  int ttl;
+  
   if(!hss->FP_TSeq)
     makeTSeqFP(hss);
 
@@ -1350,14 +1368,19 @@ void HostOsScan::makeFP(HostOsScanStats *hss) {
 	  /* Replace TTL with initial TTL. */
 	  for(pAV = hss->FPtests[i]->results; pAV; pAV = pAV->next) {
 		if(pAV->attribute == "T") {
+		  ttl = atoi(pAV->value);
 		  /* found TTL item */
+
+		  if(hss->distance_guess == -1)
+			hss->distance_guess = get_initial_ttl_guess(ttl) - ttl;
+
 		  if(hss->distance != -1) {
 			/* We've gotten response for the UDP probe and thus have the "true" hop count. */
-			sprintf(pAV->value, "%hX", atoi(pAV->value) + hss->distance);
+			sprintf(pAV->value, "%hX", ttl + hss->distance);
 		  } else {
 			/* Guess the initial TTL value */
 			pAV->attribute = "TG";
-			sprintf(pAV->value, "%hX", get_initial_ttl_guess(atoi(pAV->value)));
+			sprintf(pAV->value, "%hX", get_initial_ttl_guess(ttl));
 		  }
 		  break;
 		}
@@ -1523,8 +1546,8 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
       hss->si.index = (unsigned int) (0.5 + pow(seq_inc_sum, 0.5));
 #endif
 
+	  /*	  printf("The sequence index is %d\n", hss->si.index);*/
 	  hss->si.index = (unsigned int) (0.5 + log((float)hss->si.index)/log(2.0));
-		
       /*       printf("The sequence index is %d\n", hss->si.index);*/
       if (hss->si.index < 6) {
         hss->si.seqclass = SEQ_TD;
@@ -1610,13 +1633,13 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
       seq_AVs[avnum].attribute = "IPID";
       strcpy(seq_AVs[avnum].value, "Z");
       break;
-	case IPID_SEQ_LINUX:
+    case IPID_SEQ_LINUX:
       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
       seq_AVs[avnum].attribute = "IPID";
       strcpy(seq_AVs[avnum].value, "L");
       break;
-	case IPID_SEQ_VBP:
-	  seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+    case IPID_SEQ_VBP:
+      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
       seq_AVs[avnum].attribute = "IPID";
       strcpy(seq_AVs[avnum].value, "VBP");
       break;	  
@@ -3311,6 +3334,7 @@ static void doTUITests(OsScanInfo *OSI, HostOsScan *HOS) {
 static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
   list<HostOsScanInfo *>::iterator hostI;
   HostOsScanInfo *hsi = NULL;
+  int distance = -1;
 
   for(hostI = OSI->incompleteHosts.begin(); 
       hostI != OSI->incompleteHosts.end(); hostI++) {
@@ -3336,9 +3360,20 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
       hsi->isCompleted = true;
     }
 
-	if(hsi->hss->distance != -1)
-	  hsi->target->distance = hsi->target->FPR->distance = hsi->hss->distance;
+	if (islocalhost(hsi->target->v4hostip())) {
+	  /* scanning localhost */
+	  distance = 0;
+	} else if (hsi->target->MACAddress()) {
+	  /* on the same network segment */
+	  distance = 1;
+	} else if (hsi->hss->distance!=-1) {
+	  distance = hsi->hss->distance;
+	}
+	
+	hsi->target->distance = hsi->target->FPR->distance = distance;
+	hsi->target->FPR->distance_guess = hsi->hss->distance_guess;
   }
+  
   OSI->removeCompletedHosts();
 }
 
@@ -3397,28 +3432,17 @@ static void printFP(OsScanInfo *OSI) {
   list<HostOsScanInfo *>::iterator hostI;
   HostOsScanInfo *hsi = NULL;
   FingerPrintResults *FPR;
-  int distance = -1;
   
   for(hostI = OSI->incompleteHosts.begin(); 
       hostI != OSI->incompleteHosts.end(); hostI++) {
     hsi = *hostI;
 	FPR = hsi->target->FPR;
 
-	if (islocalhost(hsi->target->v4hostip())) {
-	  /* scanning localhost */
-	  distance = 0;
-	} else if (hsi->target->MACAddress()) {
-	  /* on the same network segment */
-	  distance = 1;
-	} else if (hsi->target->distance!=-1) {
-	  distance = hsi->target->distance;
-	}
-
 	log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,
 			  "No OS matches for %s by new os scan system.\n\nTCP/IP fingerprint:\n%s",
 			  hsi->target->targetipstr(),
 			  mergeFPs(FPR->FPs, FPR->numFPs, true,
-					   hsi->target->v4hostip(), distance, hsi->target->MACAddress(),
+					   hsi->target->v4hostip(), hsi->target->distance, hsi->target->MACAddress(),
 					   FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
 					   false));
   }
