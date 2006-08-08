@@ -13,7 +13,7 @@ using namespace std;
 extern NmapOps o;
 
 /* 7 options:
- *  0~5: six options for TSeq/TOps/TWin/T1 probes.
+ *  0~5: six options for SEQ/OPS/WIN/T1 probes.
  *  6:   T2~T7 probes.
  *
  * option 0: WScale (10), Nop, MSS (1460), Timestamp, Nop, Nop, SackP, Nop, Nop
@@ -2103,7 +2103,7 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
 
   struct icmp *icmp;
   struct ip *ip2;
-  int numtests = 12;
+  int numtests;
   unsigned short checksum;
   unsigned short *checksumptr;
   udphdr_bsd *udp;
@@ -2111,6 +2111,14 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
   int i;
   int current_testno = 0;
   unsigned char *datastart, *dataend;
+
+#if !defined(SOLARIS) && !defined(SUNOS) && !defined(IRIX) && !defined(HPUX)
+  numtests = 12;
+#else
+  /* We don't do RID test under these operating systems, thus the
+        number of test is 1 less. */
+  numtests = 11;
+#endif
 
   if (hss->FP_TUdp) return false;
   

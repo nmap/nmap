@@ -674,9 +674,10 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *nothing) {
   // 0xFA == 11111010 (we're not concerned with AA or RD bits)
   if ((buf[2] & 0xFA) != 0x80) return;
 
-  // Check that Recursion is available, the zero field is all zeros
-  // and there is no error condition:
-  if (buf[3] != 0x80) {
+  // Check that the zero field is all zeros and there is no error condition.
+  // We don't care if recursion is available or not since we might be querying
+  // an authoritative DNS server.
+  if (buf[3] != 0x80 && buf[3] != 0) {
     if ((buf[3] & 0xF) == 2) errcode = 2;
     else if ((buf[3] & 0xF) == 3) errcode = 3;
     else return;

@@ -1,6 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o Applied a couple of nsock bugfixes from Diman Todorov.  These don't
+o Worked with Zhao to improve the new OS detection system with
+  better algorithms and bug fixes.
+
+o Applied some nsock bugfixes from Diman Todorov.  These don't
   affect the current version of Nmap, but are important for his upcoming
   Nmap Scripting Engine.
 
@@ -8,6 +11,10 @@ o Integrated all 2nd quarter service detection fingerprint
   submissions.  Please keep them coming!  We now have 3,671 signatures
   representing 415 protocols.   Thanks to version detection czar Doug
   Hoyte for doing this.
+
+o Fixed a bug in the rDNS system which prevented us from querying
+  certain authoritative DNS servers which have recursion explicitly
+  disabled.  Thanks to Doug Hoyte for the patch.
 
 o Cleaned up Nmap DNS reporting to be a little more useful and
   concise.  Thanks to Doug Hoyte for the patch.
