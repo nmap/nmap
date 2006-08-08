@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "08/01/2006" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "08/07/2006" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -260,8 +260,8 @@ to skip host discovery and port scan all target hosts. The following options con
 .TP
 \fB\-sL\fR (List Scan)
 The list scan is a degenerate form of host discovery that simply lists each host of the network(s) specified, without sending any packets to the target hosts. By default, Nmap still does reverse\-DNS resolution on the hosts to learn their names. It is often surprising how much useful information simple hostnames give out. For example,
-fw.chi.playboy.com
-is the firewall for the Chicago office of Playboy Enterprises. Nmap also reports the total number of IP addresses at the end. The list scan is a good sanity check to ensure that you have proper IP addresses for your targets. If the hosts sport domain names you do not recognize, it is worth investigating further to prevent scanning the wrong company's network.
+fw.chi
+is the name of one company's Chicago firewall. Nmap also reports the total number of IP addresses at the end. The list scan is a good sanity check to ensure that you have proper IP addresses for your targets. If the hosts sport domain names you do not recognize, it is worth investigating further to prevent scanning the wrong company's network.
 .sp
 Since the idea is to simply print a list of target hosts, options for higher level functionality such as port scanning, OS detection, or ping scanning cannot be combined with this. If you wish to disable ping scanning while still performing such higher level functionality, read up on the
 \fB\-P0\fR
@@ -368,20 +368,24 @@ or
 \fB\-n\fR (No DNS resolution)
 Tells Nmap to
 \fInever\fR
-do reverse DNS resolution on the active IP addresses it finds. Since DNS is often slow, this speeds things up.
+do reverse DNS resolution on the active IP addresses it finds. Since DNS can be slow even with Nmap's built\-in parallel stub resolver, this option can slash scanning times.
 .TP
 \fB\-R\fR (DNS resolution for all targets)
 Tells Nmap to
 \fIalways\fR
-do reverse DNS resolution on the target IP addresses. Normally this is only performed when a machine is found to be alive.
+do reverse DNS resolution on the target IP addresses. Normally reverse DNS is only performed against responsive (online) hosts.
 .TP
 \fB\-\-system\-dns\fR (Use system DNS resolver)
-By default, Nmap resolves IP addresses by sending queries directly to the name servers configured on your host and then listening for responses. Many requests (often dozens) are performed in parallel for performance. Specify this option if you wish to use your system resolver instead (one IP at a time via the getnameinfo() call). This is slower and rarely useful unless there is a bug in the Nmap DNS code \-\- please contact us if that is the case. The system resolver is always used for IPv6 scans.
+By default, Nmap resolves IP addresses by sending queries directly to the name servers configured on your host and then listening for responses. Many requests (often dozens) are performed in parallel to improve performance. Specify this option to use your system resolver instead (one IP at a time via the getnameinfo() call). This is slower and rarely useful unless you find a bug in the Nmap parallel resolver (please let us know if you do). The system resolver is always used for IPv6 scans.
 .TP
 \fB\-\-dns\-servers <server1[,server2],...> \fR (Servers to use for reverse DNS queries)
 By default Nmap will try to determine your DNS servers (for rDNS resolution) from your resolv.conf file (UNIX) or the registry (Win32). Alternatively, you may use this option to specify alternate servers. This option is not honored if you are using
 \fB\-\-system\-dns\fR
-or an IPv6 scan. Using multiple DNS servers is often faster and more stealthy than querying just one. The best performance is often obtained by specifying all of the authoritative servers for the target IP space.
+or an IPv6 scan. Using multiple DNS servers is often faster, especially if you choose authoritative servers for your target IP space. This option can also improve stealth, as your requests can be bounced off just about any recursive DNS server on the internet.
+.sp
+This option also comes in handy when scanning private networks. Sometimes only a few name servers provide proper rDNS information, and you may not even know where they are. You can scan the network for port 53 (perhaps with version detection), then try Nmap list scans (\fB\-sL\fR) specifying each name server one at a time with
+\fB\-\-dns\-servers\fR
+until you find one which works.
 .SH "PORT SCANNING BASICS"
 .PP
 While Nmap has grown in functionality over the years, it began as an efficient port scanner, and that remains its core function. The simple command

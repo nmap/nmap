@@ -1969,7 +1969,8 @@ hacl-local        5304/udp   #
 hacl-test         5305/tcp   # 
 hacl-test         5305/udp   # 
 cfengine          5308/tcp   # 
-cfengine          5308/udp   # 
+cfengine          5308/udp   #
+zeroconf          5353/udp   # Mac OS X Bonjour/Zeroconf port 
 pcduo-old         5400/tcp   # RemCon PC-Duo - old port
 pcduo             5405/tcp   # RemCon PC-Duo - new port
 omid              5428/udp   # OpenMosix Info Dissemination

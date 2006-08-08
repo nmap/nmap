@@ -1247,7 +1247,8 @@ match rpd m|^\+host=cashew version=([\d.]+) uptime=[\d+:]+ audio-bits=\d+ audio-
 # Simple Asynchronous File Transfer (SAFT)
 match saft m|^220 ([\w-.]+) SAFT server \(sendfiled ([\w.]+) on ([\w]+)\) ready\.\r\n| p/sendfiled/ v/$2/ h/$1/ o/$3/
 match scanager m|^\*\*\* ITSO_DB_FAIL \*\*\* invalid request\r\n| p/Indiana University Scanager DB/
-match sdmsvc m|^[\xaa\xff]$| p/LANDesk Software Distribution/ i/sdmsvc.exe/ o/Windows/
+# This sdmsvc was matching HP printers.  May be bogus, so removed.
+# match sdmsvc m|^[\xaa\xff]$| p/LANDesk Software Distribution/ i/sdmsvc.exe/ o/Windows/
 # http://www.ietf.org/internet-drafts/draft-martin-managesieve-04.txt
 match sieve m|^NO Fatal error: Error initializing actions\r\n$| p|Cyrus timsieved| i|included w/cyrus imap|
 match sieve m|^\"IMPLEMENTATION\" \"Cyrus timsieved v([\d.]+)-Red Hat [\d.-]+\"\r\n| p|Cyrus timsieved| v/$1/ i|Red Hat; included w/cyrus imap| o/Linux/
