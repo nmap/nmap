@@ -137,13 +137,17 @@ dnet_dist_clean:
 	-cd $(LIBDNETDIR) && $(MAKE) distclean
 nmapfe_dist_clean:
 	-cd nmapfe && $(MAKE) distclean
+nbase_dist_clean:
+	-cd $(NBASEDIR) && $(MAKE) distclean
+nsock_dist_clean:
+	-cd $(NSOCKDIR)/src && $(MAKE) distclean
 debugclean:
 	rm -f *.gcov *.gcda *.gcno gmon.out
 
-distclean: my_clean my_distclean @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ nmapfe_dist_clean
+distclean: my_clean my_distclean @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ nmapfe_dist_clean nbase_dist_clean nsock_dist_clean
 
 my_distclean:
-	rm -f Makefile Makefile.bak config.h stamp-h stamp-h.in \
+	rm -f Makefile Makefile.bak makefile.dep config.h stamp-h stamp-h.in \
 	         config.cache config.log config.status
 
 install-nmap: $(TARGET)

@@ -404,13 +404,6 @@ void *realloc();
 #define IPID_SEQ_RD 4 /* Appears to select IPID using a "random" distributions (meaning it can go up or down) */
 #define IPID_SEQ_CONSTANT 5 /* Contains 1 or more sequential duplicates */
 #define IPID_SEQ_ZERO 6 /* Every packet that comes back has an IP.ID of 0 (eg Linux 2.4 does this) */
-#define IPID_SEQ_LINUX 7 /* Different IPID counter in different TCP
-							session but set zero in the TCP
-							negotiation process. And different IPID
-							counter in different protocol. Found in
-							linux 2.6. */
-#define IPID_SEQ_VBP 8 /* Different IPID counter for different <host,
-						  dest, protocol> triple. */
 
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN 64

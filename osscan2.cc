@@ -12,28 +12,31 @@
 using namespace std;
 extern NmapOps o;
 
-/* 7 options:
+/* 8 options:
  *  0~5: six options for SEQ/OPS/WIN/T1 probes.
- *  6:   T2~T7 probes.
+ *  6:   ECN probe.
+ *  7:   T2~T7 probes.
  *
- * option 0: WScale (10), Nop, MSS (1460), Timestamp, Nop, Nop, SackP, Nop, Nop
- * option 1: MSS (1400), WScale (0), Nop, SackP, Nop, Nop, T, Nop, Nop
- * option 2: T, Nop, Nop, SackP, Nop, Nop, WScale (5), Nop, MSS (640)
- * option 3: SackP, Nop, Nop, T, Nop, Nop, WScale (10), Nop
- * option 4: MSS (536), SackP, Nop, Nop, T, Nop, Nop, WScale (10), Nop
- * option 5: MSS (265), T, Nop, Nop, SackP, Nop, End
- * option 6: WScale (10), Nop, MSS (265), T, SackP
+ * option 0: WScale (10), Nop, MSS (1460), Timestamp, SackP
+ * option 1: MSS (1400), WScale (0), Nop, SackP, T
+ * option 2: T, Nop, Nop, WScale (5), Nop, MSS (640)
+ * option 3: SackP, T, WScale (10), Nop
+ * option 4: MSS (536), SackP, T, WScale (10), Nop
+ * option 5: MSS (265), SackP, Nop, Nop, T, Nop, End
+ * option 6: WScale (10), Nop, MSS (1460), SackP, Nop, Nop
+ * option 7: WScale (10), Nop, MSS (265), T, SackP
  */
 static struct {
   u8* val;
   int len;
-} prbOpts[NUM_SEQ_SAMPLES + 1] = {
-  {(u8*) "\003\003\012\001\002\004\005\264\010\012\377\377\377\377\000\000\000\000\001\001\004\002\001\001", 24},
-  {(u8*) "\002\004\005\170\003\003\000\001\004\002\001\001\010\012\377\377\377\377\000\000\000\000\001\001", 24},
-  {(u8*) "\010\012\377\377\377\377\000\000\000\000\001\001\004\002\001\001\003\003\005\001\002\004\002\200", 24},
-  {(u8*) "\004\002\001\001\010\012\377\377\377\377\000\000\000\000\001\001\003\003\012\001", 20},
-  {(u8*) "\002\004\002\030\004\002\001\001\010\012\377\377\377\377\000\000\000\000\001\001\003\003\012\001", 24},
-  {(u8*) "\002\004\001\011\010\012\377\377\377\377\000\000\000\000\001\001\004\002\001\000", 20},
+} prbOpts[NUM_SEQ_SAMPLES + 2] = {
+  {(u8*) "\003\003\012\001\002\004\005\264\010\012\377\377\377\377\000\000\000\000\004\002", 20},
+  {(u8*) "\002\004\005\170\003\003\000\001\004\002\010\012\377\377\377\377\000\000\000\000", 20},
+  {(u8*) "\010\012\377\377\377\377\000\000\000\000\001\001\003\003\005\001\002\004\002\200", 20},
+  {(u8*) "\004\002\010\012\377\377\377\377\000\000\000\000\003\003\012\001", 16},
+  {(u8*) "\002\004\002\030\004\002\010\012\377\377\377\377\000\000\000\000\003\003\012\001", 20},
+  {(u8*) "\002\004\001\011\004\002\001\001\010\012\377\377\377\377\000\000\000\000\001\000", 20},
+  {(u8*) "\003\003\012\001\002\004\005\264\004\002\001\001", 12},
   {(u8*) "\003\003\012\001\002\004\001\011\010\012\377\377\377\377\000\000\000\000\004\002", 20}
 };
 
@@ -1129,7 +1132,7 @@ void HostOsScan::sendTEcnProbe(HostOsScanStats *hss) {
   
   send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
                       tcpPortBase + NUM_SEQ_SAMPLES + 6, hss->openTCPPort, tcpSeqBase, 0, 8,
-                      TH_CWR|TH_ECE|TH_SYN, 0, 63479, NULL , 0, NULL, 0);
+                      TH_CWR|TH_ECE|TH_SYN, 0, 63479, prbOpts[6].val, prbOpts[6].len, NULL, 0);
 }
 
 void HostOsScan::sendT1_7Probe(HostOsScanStats *hss, int probeNo) {
@@ -1149,37 +1152,37 @@ void HostOsScan::sendT1_7Probe(HostOsScanStats *hss, int probeNo) {
     if(hss->openTCPPort == (unsigned long)-1) return;
     send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, true,
                         port_base + 1, hss->openTCPPort, tcpSeqBase, tcpAck, 0,
-                        0, 0, 0, prbOpts[6].val, prbOpts[6].len, NULL, 0);
+                        0, 0, 0, prbOpts[7].val, prbOpts[7].len, NULL, 0);
     break;
   case 2: /* T3 */
     if(hss->openTCPPort == (unsigned long)-1) return;
     send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
                         port_base + 2, hss->openTCPPort, tcpSeqBase, tcpAck, 0,
-                        TH_SYN|TH_FIN|TH_URG|TH_PUSH, 0, 0, prbOpts[6].val, prbOpts[6].len, NULL, 0);
+                        TH_SYN|TH_FIN|TH_URG|TH_PUSH, 0, 0, prbOpts[7].val, prbOpts[7].len, NULL, 0);
     break;
   case 3: /* T4 */
     if(hss->openTCPPort == (unsigned long)-1) return;
     send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, true,
                         port_base + 3, hss->openTCPPort, tcpSeqBase, tcpAck, 0,
-                        TH_ACK, 0, 0, prbOpts[6].val, prbOpts[6].len, NULL, 0);
+                        TH_ACK, 0, 0, prbOpts[7].val, prbOpts[7].len, NULL, 0);
     break;
   case 4: /* T5 */
     if(hss->closedTCPPort == (unsigned long)-1) return;
     send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
                         port_base + 4, hss->closedTCPPort, tcpSeqBase, tcpAck, 0,
-                        TH_SYN, 0, 0, prbOpts[6].val, prbOpts[6].len, NULL, 0);
+                        TH_SYN, 0, 0, prbOpts[7].val, prbOpts[7].len, NULL, 0);
     break;
   case 5: /* T6 */
     if(hss->closedTCPPort == (unsigned long)-1) return;
     send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, true,
                         port_base + 5, hss->closedTCPPort, tcpSeqBase, tcpAck, 0,
-                        TH_ACK, 0, 0, prbOpts[6].val, prbOpts[6].len, NULL, 0);
+                        TH_ACK, 0, 0, prbOpts[7].val, prbOpts[7].len, NULL, 0);
     break;
   case 6: /* T7 */
     if(hss->closedTCPPort == (unsigned long)-1) return;
     send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
                         port_base + 6, hss->closedTCPPort, tcpSeqBase, tcpAck, 0,
-                        TH_FIN|TH_PUSH|TH_URG, 0, 0, prbOpts[6].val, prbOpts[6].len, NULL, 0);
+                        TH_FIN|TH_PUSH|TH_URG, 0, 0, prbOpts[7].val, prbOpts[7].len, NULL, 0);
     break;
   }
 }
@@ -1213,7 +1216,6 @@ bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int l
   bool isPktUseful = false;
   list<OFProbe *>::iterator probeI;
   OFProbe *probe;
-  int icmp_ipid_no = 0;
 
   if (len < 20 || len < (4 * ip->ip_hl) + 4U)
     return false;
@@ -1283,11 +1285,15 @@ bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int l
     if (icmp->icmp_type == ICMP_ECHOREPLY) {
       testno = icmp->icmp_id - icmpEchoId;
 	  if (testno==0 || testno==1) {
-		icmp_ipid_no = testno;
 		isPktUseful = processTIcmpResp(hss, ip, testno);
 		if(isPktUseful) {
 		  probeI = hss->getActiveProbe(OFP_TICMP, testno);
 		}
+
+		if(isPktUseful && probeI != hss->probesActive.end() && !(*probeI)->retransmitted) { /* Retransmitted ipid is useless. */
+		  hss->ipid.icmp_ipids[testno] = ntohs(ip->ip_id);
+		  /* printf("icmp ipid = %d\n", ntohs(ip->ip_id)); */
+		}		
 	  }
     }
 
@@ -1303,13 +1309,8 @@ bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int l
       if(isPktUseful) {
         probeI = hss->getActiveProbe(OFP_TUDP, 0);
       }
-	  icmp_ipid_no = 3;	  
     }
 
-    if(isPktUseful && probeI != hss->probesActive.end() && !(*probeI)->retransmitted) { /* Retransmitted ipid is useless. */
-      hss->ipid.icmp_ipids[icmp_ipid_no] = ntohs(ip->ip_id);
-      /* printf("icmp ipid = %d\n", ntohs(ip->ip_id)); */
-    }
   }
 
   if (isPktUseful && probeI != hss->probesActive.end()) {
@@ -1418,6 +1419,9 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   unsigned int  seq_avg_inc = 0;
   double avg_ts_hz = 0.0; /* Avg. amount that timestamps incr. each second */
   u32 seq_gcd = 1;
+  int tcp_ipid_seqclass; /* TCP IPID SEQ TYPE defines in nmap.h */
+  int icmp_ipid_seqclass; /* ICMP IPID SEQ TYPE defines in nmap.h */
+  int good_tcp_ipid_num, good_icmp_ipid_num;
 
   struct AVal *seq_AVs;
 
@@ -1442,8 +1446,6 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   
   hss->si.responses = j; /* Just an ensurance */
   
-  hss->si.ipid_seqclass = get_ipid_sequence(&hss->ipid, islocalhost(hss->target->v4hostip()));
-
   /* Now we look at TCP Timestamp sequence prediction */
   /* Battle plan:
      1) Compute average increments per second, and variance in incr. per second 
@@ -1561,7 +1563,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
 
     hss->FP_TSeq = (FingerPrint *) safe_zalloc(sizeof(FingerPrint));
     hss->FP_TSeq->name = "SEQ";
-    seq_AVs = (struct AVal *) safe_zalloc(sizeof(struct AVal) * 5);
+    seq_AVs = (struct AVal *) safe_zalloc(sizeof(struct AVal) * 7);
     hss->FP_TSeq->results = seq_AVs;
     avnum = 0;
     seq_AVs[avnum].attribute = "CL";
@@ -1601,49 +1603,125 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
       break;
     }
 
-    /* IP ID Class */
-    switch(hss->si.ipid_seqclass) {
+	good_tcp_ipid_num = 0;
+	good_icmp_ipid_num = 0;
+
+	for(i=0; i < NUM_SEQ_SAMPLES; i++) {
+	  if (hss->ipid.tcp_ipids[i] != -1) {
+		if (good_tcp_ipid_num < i) {
+		  hss->ipid.tcp_ipids[good_tcp_ipid_num] = hss->ipid.tcp_ipids[i];
+		}
+		good_tcp_ipid_num++;
+	  }
+
+	  if (hss->ipid.icmp_ipids[i] != -1) {
+		if (good_icmp_ipid_num < i) {
+		  hss->ipid.icmp_ipids[good_icmp_ipid_num] = hss->ipid.icmp_ipids[i];
+		}
+		good_icmp_ipid_num++;
+	  }
+	}
+
+	if (good_tcp_ipid_num >= 3) {
+	  tcp_ipid_seqclass = get_ipid_sequence(good_tcp_ipid_num, hss->ipid.tcp_ipids, islocalhost(hss->target->v4hostip()));
+	} else {
+	  tcp_ipid_seqclass = IPID_SEQ_UNKNOWN;
+	}
+	/* Only print tcp ipid seqclass in the final report. */
+	hss->si.ipid_seqclass = tcp_ipid_seqclass;
+
+	if (good_icmp_ipid_num >= 2) {
+	  icmp_ipid_seqclass = get_ipid_sequence(good_icmp_ipid_num, hss->ipid.icmp_ipids, islocalhost(hss->target->v4hostip()));
+	} else {
+	  icmp_ipid_seqclass = IPID_SEQ_UNKNOWN;
+	}
+
+    /* TI: TCP IP ID sequence generation algorithm */
+    switch(tcp_ipid_seqclass) {
     case IPID_SEQ_CONSTANT:
       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = "IPID";
-      strcpy(seq_AVs[avnum].value, "C");
+      seq_AVs[avnum].attribute = "TI";
+      sprintf(seq_AVs[avnum].value, "%X", hss->ipid.tcp_ipids[0]);
       break;
     case IPID_SEQ_INCR:
       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = "IPID";
+      seq_AVs[avnum].attribute = "TI";
       strcpy(seq_AVs[avnum].value, "I");
       break;
     case IPID_SEQ_BROKEN_INCR:
       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = "IPID";
+      seq_AVs[avnum].attribute = "TI";
       strcpy(seq_AVs[avnum].value, "BI");
       break;
     case IPID_SEQ_RPI:
       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = "IPID";
-      strcpy(seq_AVs[avnum].value, "RPI");
+      seq_AVs[avnum].attribute = "TI";
+      strcpy(seq_AVs[avnum].value, "RI");
       break;
     case IPID_SEQ_RD:
       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = "IPID";
+      seq_AVs[avnum].attribute = "TI";
       strcpy(seq_AVs[avnum].value, "RD");
       break;
     case IPID_SEQ_ZERO:
       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = "IPID";
+      seq_AVs[avnum].attribute = "TI";
       strcpy(seq_AVs[avnum].value, "Z");
       break;
-    case IPID_SEQ_LINUX:
+    }
+
+    /* II: ICMP IP ID sequence generation algorithm */
+    switch(icmp_ipid_seqclass) {
+    case IPID_SEQ_CONSTANT:
       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = "IPID";
-      strcpy(seq_AVs[avnum].value, "L");
+      seq_AVs[avnum].attribute = "II";
+      sprintf(seq_AVs[avnum].value, "%X", hss->ipid.icmp_ipids[0]);
       break;
-    case IPID_SEQ_VBP:
+    case IPID_SEQ_INCR:
       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = "IPID";
-      strcpy(seq_AVs[avnum].value, "VBP");
+      seq_AVs[avnum].attribute = "II";
+      strcpy(seq_AVs[avnum].value, "I");
+      break;
+    case IPID_SEQ_BROKEN_INCR:
+      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+      seq_AVs[avnum].attribute = "II";
+      strcpy(seq_AVs[avnum].value, "BI");
+      break;
+    case IPID_SEQ_RPI:
+      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+      seq_AVs[avnum].attribute = "II";
+      strcpy(seq_AVs[avnum].value, "RI");
+      break;
+    case IPID_SEQ_RD:
+      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+      seq_AVs[avnum].attribute = "II";
+      strcpy(seq_AVs[avnum].value, "RD");
+      break;
+    case IPID_SEQ_ZERO:
+      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+      seq_AVs[avnum].attribute = "II";
+      strcpy(seq_AVs[avnum].value, "Z");
       break;	  
     }
+
+	/* SS: Shared IP ID sequence boolean */
+	if ( (tcp_ipid_seqclass == IPID_SEQ_INCR ||
+		  tcp_ipid_seqclass == IPID_SEQ_BROKEN_INCR ||
+		  tcp_ipid_seqclass == IPID_SEQ_RPI) &&
+		 (icmp_ipid_seqclass == IPID_SEQ_INCR ||
+		  icmp_ipid_seqclass == IPID_SEQ_BROKEN_INCR ||
+		  icmp_ipid_seqclass == IPID_SEQ_RPI)) {
+	  /* Both are incremental. Thus we have "SS" test. Check if they
+		 are in the same sequence. */
+      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+      seq_AVs[avnum].attribute = "SS";
+	  int avg = (hss->ipid.tcp_ipids[good_tcp_ipid_num-1] - hss->ipid.tcp_ipids[0]) / (good_tcp_ipid_num - 1);
+	  if ( hss->ipid.icmp_ipids[0] < hss->ipid.tcp_ipids[good_tcp_ipid_num-1] + 3 * avg) {
+		strcpy(seq_AVs[avnum].value, "S");
+	  } else {
+		strcpy(seq_AVs[avnum].value, "O");
+	  }
+	}
 
     /* TCP Timestamp option sequencing */
     switch(hss->si.ts_seqclass) {
@@ -1867,9 +1945,10 @@ bool HostOsScan::processTEcnResp(HostOsScanStats *hss, struct ip *ip) {
   struct AVal *AVs;
   int i;
   char *p;
-  int numtests = 5;
+  int numtests = 7;
   int current_testno = 0;
   struct tcphdr *tcp = ((struct tcphdr *) (((char *) ip) + 4 * ip->ip_hl));
+  bool opsParseResult;
 
   if (hss->FP_TEcn) return false;
   
@@ -1900,6 +1979,25 @@ bool HostOsScan::processTEcnResp(HostOsScanStats *hss, struct ip *ip) {
 
   current_testno++;
 
+  /* TCP Window size */
+  AVs[current_testno].attribute = "W";
+  sprintf(AVs[current_testno].value, "%hX", ntohs(tcp->th_win));
+	
+  current_testno++;
+
+  /* Now for the TCP options ... */
+  AVs[current_testno].attribute = "O";
+  opsParseResult = get_tcpopt_string(tcp, this->tcpMss,
+									 AVs[current_testno].value,
+									 sizeof(AVs[current_testno].value));
+  if (!opsParseResult) {
+	if (o.debugging) 
+	  error("Option parse error for ECN response from %s.", hss->target->targetipstr());
+	AVs[current_testno].value[0] = '\0';
+  }
+
+  current_testno++;
+	 
   /* Explicit Congestion Notification support test */
   AVs[current_testno].attribute = "CC";
   if ((tcp->th_flags & TH_ECE) && (tcp->th_flags & TH_CWR))
@@ -2837,80 +2935,98 @@ int get_initial_ttl_guess(u8 ttl) {
     return 255;
 }
 
-/* New ipid incremental type judging function.
- * Judge by tcp ipid, icmp echo reply ipid, icmp destination unreachable ipid.
- */
-int get_ipid_sequence(struct ipid_info *ipid, int islocalhost) {
+int get_ipid_sequence(int numSamples, int *ipids, int islocalhost) {
+  u16 ipid_diffs[32];
   int i;
-  u16 ipid_tcp[NUM_SEQ_SAMPLES];  /* tcp */
-  u16 ipid_icmp[NUM_SEQ_SAMPLES]; /* icmp */
-  int num_tcp = 0;
-  int num_icmp = 0;
-  int class_tcp = IPID_SEQ_UNKNOWN;
-  int class_icmp = IPID_SEQ_UNKNOWN;
-  int diff = 0; /* gap between icmp ipid and tcp ipid. */
+  int allipideqz = 1;  /* Flag that means "All IP.IDs returned during
+						  sequencing are zero.  This is unset if we
+						  find a nonzero */
+  int j,k;
 
-  int result = IPID_SEQ_UNKNOWN;
+  assert(numSamples < (int) (sizeof(ipid_diffs) / 2));
+  if (numSamples < 2) return IPID_SEQ_UNKNOWN;
 
-  for(i = 0; i < NUM_SEQ_SAMPLES; i++) {
-    /* tcp ipids. */
-    if(ipid->tcp_ipids[i] != -1) {
-      ipid_tcp[num_tcp++] = u16(ipid->tcp_ipids[i]);
+  for(i = 1; i < numSamples; i++) {
+    if (ipids[i-1] != 0 || ipids[i] != 0) 
+      allipideqz = 0; /* All IP.ID values do *NOT* equal zero */
+
+	if (ipids[i-1] <= ipids[i]) {
+	  ipid_diffs[i-1] = ipids[i] - ipids[i-1];
+	} else {
+	  ipid_diffs[i-1] = u16(ipids[i] - ipids[i-1] + 65536);
     }
 
-    /* icmp ipids. */
-    if(ipid->icmp_ipids[i] != -1) {
-      ipid_icmp[num_icmp++] = u16(ipid->icmp_ipids[i]);
-    }
-
+	/* Random */
+    if (numSamples > 2 && ipid_diffs[i-1] > 20000)
+      return IPID_SEQ_RD;
   }
 
-  if(num_tcp >= 2) class_tcp = ipid_sequence(num_tcp, ipid_tcp, islocalhost);
-  if(num_icmp >= 2) class_icmp = ipid_sequence(num_icmp, ipid_icmp, islocalhost);
+  /* ZERO */
+  if (allipideqz) return IPID_SEQ_ZERO;
 
-  /*  printf("class_tcp = %d, class_icmp = %d.\n", class_tcp, class_icmp); */
+  if (islocalhost) {
+    int allgto = 1; /* ALL diffs greater than one */
 
-  if(num_tcp>0 && num_icmp>0) diff = ipid_icmp[0] - ipid_tcp[num_tcp-1];
-
-  switch (class_tcp) {
-
-  case IPID_SEQ_ZERO:
-    if(class_icmp == IPID_SEQ_INCR)
-      /* Different IPID counter in different TCP session but set zero
-       * in the TCP negotiation process. And different IPID counter in
-       * different protocol. Found in linux 2.6.
-       */
-      result = IPID_SEQ_LINUX;
-    else if(num_icmp>0 && ipid_icmp[num_icmp]!=0)
-      /* not all zero. */
-      result = IPID_SEQ_UNKNOWN;
-    break;
-
-  case IPID_SEQ_INCR:
-    if(class_icmp == IPID_SEQ_INCR) {
-	  if(diff>=1 && diff<=9) {
-        /* all ipids are incremental */
-        result = IPID_SEQ_INCR;
-      } else {
-        /* different ipid counter in tcp, icmp */
-        result = IPID_SEQ_VBP;
-      }   
-    } else {
-	  result = IPID_SEQ_UNKNOWN;
+    for(i=0; i < numSamples - 1; i++) {
+      if (ipid_diffs[i] < 2) {
+		allgto = 0; break;
+      }
 	}
-    break;
 
-  case IPID_SEQ_UNKNOWN:
-	/* use class_icmp */
-	result = class_icmp;
-	break;
-	
-  default:
-    result = class_tcp;
+    if (allgto) {
+      for(i=0; i < numSamples - 1; i++) {
+		if (ipid_diffs[i] % 256 == 0) /* Stupid MS */
+		  ipid_diffs[i] -= 256;
+		else
+		  ipid_diffs[i]--; /* Because on localhost the RST sent back use an IPID */
+      }
+    }
+  }
+
+  /* Constant */
+  j = 1; /* j is a flag meaning "all differences seen are zero" */
+  for(i=0; i < numSamples - 1; i++) {
+	if (ipid_diffs[i] != 0) {
+	  j = 0;
     break;
+	}
+  }
+  if (j) {
+	return IPID_SEQ_CONSTANT;
+  }
+
+  /* Random Positive Increments */
+  for(i=0; i < numSamples - 1; i++) {
+    if (ipid_diffs[i] > 1000 &&
+		(ipid_diffs[i] % 256 != 0 ||
+		 (ipid_diffs[i] % 256 == 0 && ipid_diffs[i] >= 25600))) {
+      return IPID_SEQ_RPI;
+      }   
+	}
+
+  j = 1; /* j is a flag meaning "all differences seen are < 10" */
+  k = 1; /* k is a flag meaning "all difference seen are multiples of
+			256 and no greater than 5120" */
+  for(i=0; i < numSamples - 1; i++) {
+    if (k && (ipid_diffs[i] > 5120 || ipid_diffs[i] % 256 != 0)) {
+      k = 0;
+    }
+	
+    if (j && ipid_diffs[i] > 9) {
+      j = 0;
+	}
   }
   
-  return result;
+  /* Broken Increment */
+  if (k == 1) {
+	return IPID_SEQ_BROKEN_INCR;
+  }
+
+  /* Incremental */
+  if (j == 1)
+	return IPID_SEQ_INCR;
+
+  return IPID_SEQ_UNKNOWN;
 }
 
 /* This is the function for tuning the major values that affect

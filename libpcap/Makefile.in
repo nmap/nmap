@@ -206,7 +206,7 @@ clean:
 
 distclean: clean
 	rm -f Makefile config.cache config.log config.status \
-	    config.h gnuc.h os-proto.h bpf_filter.c stamp-h stamp-h.in
+	    config.h gnuc.h os-proto.h bpf_filter.c stamp-h stamp-h.in net
 	rm -rf autom4te.cache
 
 tags: $(TAGFILES)

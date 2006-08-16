@@ -2038,10 +2038,6 @@ char *ipidclass2ascii(int seqclass) {
     return "Random positive increments";
   case IPID_SEQ_ZERO:
     return "All zeros";
-  case IPID_SEQ_LINUX:
-	return "Linux way";
-  case IPID_SEQ_VBP:
-	return "Different counters by <src, dest, protocol>";
   case IPID_SEQ_UNKNOWN:
     return "Busy server or unknown class";
   default:

@@ -1,5 +1,4 @@
 # Nmap Changelog ($Id$); -*-text-*-
-
 o Worked with Zhao to improve the new OS detection system with
   better algorithms and bug fixes.
 
@@ -18,6 +17,10 @@ o Fixed a bug in the rDNS system which prevented us from querying
 
 o Cleaned up Nmap DNS reporting to be a little more useful and
   concise.  Thanks to Doug Hoyte for the patch.
+
+o Fixed the 'distclean' make target to be more comprehensive.  Thanks
+  to Thomas Buchanan (Thomas.Buchanan(a)thecompassgrp.net) for the
+  patch.
 
 Nmap 4.20ALPHA4
 

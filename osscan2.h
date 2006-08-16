@@ -19,7 +19,7 @@ int send_icmp_echo_probe(int sd, struct eth_nfo *eth, const struct in_addr *vict
 			 u8 tos, bool df, u8 pcode, unsigned short id, u16 seq, u16 datalen);
 
 int get_initial_ttl_guess(u8 ttl);
-int get_ipid_sequence(struct ipid_info *ipid, int islocalhost);
+int get_ipid_sequence(int numSamples, int *ipids, int islocalhost);
 
 #endif /*OSSCAN2_H*/
 
