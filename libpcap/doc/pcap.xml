@@ -1,0 +1,746 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<?rfc toc="yes"?>
+<rfc ipr="full2026" docname="draft-libpcap-dump-format-00.txt">
+   <front>
+       <title>PCAP New Generation Dump File Format</title>
+       <author initials="L." surname="Degioanni" fullname="Loris Degioanni">
+         <organization>Politecnico di Torino</organization>
+         <address>
+            <postal>
+               <street>Corso Duca degli Abruzzi, 24</street>
+               <city>Torino</city>
+               <code>10129</code>
+               <country>Italy</country>
+            </postal>
+            <phone>+39 011 564 7008</phone>
+            <email>loris.degioanni@polito.it</email>
+            <uri>http://netgroup.polito.it/loris/</uri>
+         </address>
+      </author>
+       <author initials="F." surname="Risso" fullname="Fulvio Risso">
+         <organization>Politecnico di Torino</organization>
+         <address>
+            <postal>
+               <street>Corso Duca degli Abruzzi, 24</street>
+               <city>Torino</city>
+               <code>10129</code>
+               <country>Italy</country>
+            </postal>
+            <phone>+39 011 564 7008</phone>
+            <email>fulvio.risso@polito.it</email>
+            <uri>http://netgroup.polito.it/fulvio.risso/</uri>
+         </address>
+      </author>
+
+   <!-- Other authors go here -->
+
+      <date month="March" year="2004"/>
+      <area>General</area>
+<!--
+       <workgroup>
+-->
+      <keyword>Internet-Draft</keyword>
+      <keyword>Libpcap, dump file format</keyword>
+         <abstract>
+<t>This document describes a format to dump captured packets on a file. This format is extensible and it is currently proposed for implementation in the libpcap/WinPcap packet capture library.</t>
+         </abstract>
+<!--
+      <note ...>
+-->
+   </front>
+   <middle>
+
+<section title="Objectives">
+<t>The problem of exchanging packet traces becomes more and more critical every day; unfortunately, no standard solutions exist for this task right now. One of the most accepted packet interchange formats is the one defined by libpcap, which is rather old and does not fit for some of the nowadays applications especially in terms of extensibility.</t>
+<t>This document proposes a new format for dumping packet traces. The following goals are being pursued:</t>
+<list style="symbols">
+<t>Extensibility: aside of some common functionalities, third parties should be able to enrich the information embedded in the file with proprietary extensions, which will be ignored by tools that are not able to understand them.</t>
+<t>Portability: a capture trace must contain all the information needed to read data independently from network, hardware and operating system of the machine that made the capture.</t>
+<t>Merge/Append data: it should be possible to add data at the end of a given file, and the resulting file must still be readable.</t>
+</list>
+
+</section>
+
+
+<section title="General File Structure">
+
+<section anchor="sectionblock" title="General Block Structure">
+<t>A capture file is organized in blocks, that are appended one to another to form the file. All the blocks share a common format, which is shown in <xref target="formatblock"/>.</t>
+
+<figure anchor="formatblock" title="Basic block structure.">
+<artwork>
+    0                   1                   2                   3   
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                          Block Type                           |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                      Block Total Length                       |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   /                          Block Body                           /
+   /          /* variable length, aligned to 32 bits */            /
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                      Block Total Length                       |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</artwork>
+</figure>
+
+<t>The fields have the following meaning:</t>
+
+<list style="symbols">
+<t>Block Type (32 bits): unique value that identifies the block. Values whose Most Significant Bit (MSB) is equal to 1 are reserved for local use. They allow to save private data to the file and to extend the file format.</t>
+<t>Block Total Length: total size of this block, in bytes. For instance, a block that does not have a body has a length of 12 bytes.</t>
+<t>Block Body: content of the block.</t>
+<t>Block Total Length: total size of this block, in bytes. This field is duplicated for permitting backward file navigation.</t>
+</list>
+
+<t>This structure, shared among all blocks, makes easy to process a file and to skip unneeded or unknown blocks. Blocks can be nested one inside the others (NOTE: needed?). Some of the blocks are mandatory, i.e. a dump file is not valid if they are not present, other are optional.</t>
+<t>The structure of the blocks allows to define other blocks if needed. A parser that does non understand them can simply ignore their content.</t>
+</section>
+
+<section title="Block Types">
+<t>The currently defined blocks are the following:</t>
+<list style="numbers">
+<t>Section Header Block: it defines the most important characteristics of the capture file.</t>
+<t>Interface Description Block: it defines the most important characteristics of the interface(s) used for capturing traffic.</t>
+<t>Packet Block: it contains a single captured packet, or a portion of it.</t>
+<t>Simple Packet Block: it contains a single captured packet, or a portion of it, with only a minimal set of information about it.</t>
+<t>Name Resolution Block: it defines the mapping from numeric addresses present in the packet dump and the canonical name counterpart.</t>
+<t>Capture Statistics Block: it defines how to store some statistical data (e.g. packet dropped, etc) which can be useful to undestand the conditions in which the capture has been made.</t>
+<t>Compression Marker Block: TODO</t>
+<t>Encryption Marker Block: TODO</t>
+<t>Fixed Length Marker Block: TODO</t>
+</list>
+
+<t>The following blocks instead are considered interesting but the authors believe that they deserve more in-depth discussion before being defined:</t>
+<list style="numbers">
+<t>Further Packet Blocks</t>
+<t>Directory Block</t>
+<t>Traffic Statistics and Monitoring Blocks</t>
+<t>Alert and Security Blocks</t>
+</list>
+
+<t>TODO Currently standardized Block Type codes are specified in Appendix 1.</t>
+
+</section>
+
+<section title="Block Hierarchy and Precedence">
+<t>The file must begin with a Section Header Block. However, more than one Section Header Block can be present on the dump, each one covering the data following it till the next one (or the end of file). A Section includes the data delimited by two Section Header Blocks (or by a Section Header Block and the end of the file), including the first Section Header Block.</t>
+<t>In case an application cannot read a Section because of different version number, it must skip everything until the next Section Header Block. Note that, in order to properly skip the blocks until the next section, all blocks must have the fields Type and Length at the beginning. This is a mandatory requirement that must be maintained in future versions of the block format.</t>
+<t><xref target="fssample-SHB"/> shows two valid files: the first has a typical configuration, with a single Section Header that covers the whole file. The second one contains three headers, and is normally the result of file concatenation. An application that understands only version 1.0 of the file format skips the intermediate section and restart processing the packets after the third Section Header.</t>
+
+<figure anchor="fssample-SHB" title="File structure example: the Section Header Block.">
+<artwork>
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   | SHB v1.0  |                      Data                         |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   Typical configuration with a single Section Header Block 
+
+
+   |--   1st Section   --|--   2nd Section   --|--  3rd Section  --|
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   | SHB v1.0  |  Data   | SHB V1.1  |  Data   | SHB V1.0  |  Data |  
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   Configuration with three different Section Header Blocks
+</artwork>
+</figure>
+
+<t>NOTE: TO BE COMPLETED with some examples of other blocks</t>
+
+</section>
+
+<section title="Data format">
+<t>Data contained in each section will always be saved according to the characteristics (little endian / big endian) of the dumping machine. This refers to all fields that are saved as numbers and that span over two or more bytes.</t>
+<t>The approach of having each section saved in the native format of the generating host is more efficient because it avoids translation of data when reading / writing on the host itself, which is the most common case when generating/processing capture dumps.</t>
+<t>TODO Probably we have to specify something more here. Is what we're saying enough to avoid any kind of ambiguity?.</t>
+</section>
+
+</section>
+
+
+
+
+<section title="Block Definition">
+<t>This section details the format of the body of the blocks currently defined.</t>
+
+<section anchor="sectionshb" title="Section Header Block (mandatory)">
+<t>The Section Header Block is mandatory. It identifies the beginning of a section of the capture dump file. Its format is shown in <xref target="formatSHB"/>.</t>
+<figure anchor="formatSHB" title="Section Header Block format.">
+<artwork>
+    0                   1                   2                   3   
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                            Magic                              |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |              Major            |             Minor             |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   /                                                               / 
+   /                      Options (variable)                       / 
+   /                                                               / 
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</artwork>
+</figure>
+
+<t>The meaning of the fields is:</t>
+<list style="symbols">
+<t>Magic: magic number, whose value is the hexadecimal number 0x1A2B3C4D. This number can be used to distinguish section that have been saved on little-endian machines from the one saved on big-endian machines.</t>
+<t>Major: number of the current mayor version of the format. Current value is 1.</t>
+<t>Minor: number of the current minor version of the format. Current value is 0.</t>
+<t>Options: optionally, a list of options (formatted according to the rules defined in <xref target="sectionopt"/>) can be present.</t>
+</list>
+
+<t>Aside form the options defined in <xref target="sectionopt"/>, the following options are valid within this block:</t>
+
+<texttable anchor="InterfaceOptions1">
+  <ttcol>Name</ttcol>
+  <ttcol>Code</ttcol>
+  <ttcol>Length</ttcol>
+  <ttcol>Description</ttcol>
+
+  <c>Hardware</c>
+  <c>2</c>
+  <c>variable</c>
+  <c>An ascii string containing the description of the hardware used to create this section.</c>
+
+  <c>Operating System</c>
+  <c>3</c>
+  <c>variable</c>
+  <c>An ascii string containing the name of the operating system used to create this section.</c>
+
+  <c>User Application</c>
+  <c>3</c>
+  <c>variable</c>
+  <c>An ascii string containing the name of the application used to create this section.</c>
+</texttable>
+
+
+<t>The Section Header Block does not contain data but it rather identifies a list of blocks (interfaces, packets) that are logically correlated. This block does not contain any reference to the size of the section it is currently delimiting, therefore the reader cannot skip a whole section at once. In case a section must be skipped, the user has to repeatedly skip all the blocks contained within it; this makes the parsing of the file slower but it permits to append several capture dumps at the same file.</t>
+</section>
+
+<section anchor="sectionidb" title="Interface Description Block (mandatory)">
+<t>The Interface Description Block is mandatory. This block is needed to specify the characteristics of the network interface on which the capture has been made. In order to properly associate the captured data to the corresponding interface, the Interface Description Block must be defined before any other block that uses it; therefore, this block is usually placed immediately after the Section Header Block.</t>
+
+<t>An Interface Description Block is valid only inside the section which it belongs to. The structure of a Interface Description Block is shown in <xref target="formatidb"/>.</t>
+
+<figure anchor="formatidb" title="Interface Description Block format.">
+<artwork>
+    0                   1                   2                   3   
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |          Interface ID         |           LinkType            |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                            SnapLen                            |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   /                                                               / 
+   /                      Options (variable)                       / 
+   /                                                               / 
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ </artwork>
+</figure>
+
+<t>The meaning of the fields is:</t>
+<list style="symbols">
+<t>Interface ID: a progressive number that identifies uniquely any interface inside current section. Two Interface Description Blocks can have the same Interface ID only if they are in different sections of the file. The Interface ID is referenced by the packet blocks.</t>
+<t>LinkType: a value that defines the link layer type of this interface.</t>
+<t>SnapLen: maximum number of bytes dumped from each packet. The portion of each packet that exceeds this value will not be stored in the file.</t>
+<t>Options: optionally, a list of options (formatted according to the rules defined in <xref target="sectionopt"/>) can be present.</t>
+</list>
+
+<t>In addition to the options defined in <xref target="sectionopt"/>, the following options are valid within this block:</t>
+
+<texttable anchor="InterfaceOptions2">
+  <ttcol>Name</ttcol>
+  <ttcol>Code</ttcol>
+  <ttcol>Length</ttcol>
+  <ttcol>Description</ttcol>
+
+  <c>if_name</c>
+  <c>2</c>
+  <c>Variable</c>
+  <c>Name of the device used to capture data.</c>
+
+  <c>if_IPv4addr</c>
+  <c>3</c>
+  <c>8</c>
+  <c>Interface network address and netmask.</c>
+
+  <c>if_IPv6addr</c>
+  <c>4</c>
+  <c>17</c>
+  <c>Interface network address and prefix length (stored in the last byte).</c>
+
+  <c>if_MACaddr</c>
+  <c>5</c>
+  <c>6</c>
+  <c>Interface Hardware MAC address (48 bits).</c>
+
+  <c>if_EUIaddr</c>
+  <c>6</c>
+  <c>8</c>
+  <c>Interface Hardware EUI address (64 bits), if available.</c>
+
+  <c>if_speed</c>
+  <c>7</c>
+  <c>8</c>
+  <c>Interface speed (in bps).</c>
+
+  <c>if_tsaccur</c>
+  <c>8</c>
+  <c>1</c>
+  <c>Precision of timestamps. If the Most Significant Bit is equal to zero, the remaining bits indicates the accuracy as as a negative power of 10 (e.g. 6 means microsecond accuracy). If the Most Significant Bit is equal to zero, the remaining bits indicates the accuracy as as negative power of 2 (e.g. 10 means 1/1024 of second). If this option is not present, a precision of 10^-6 is assumed.</c>
+
+  <c>if_tzone</c>
+  <c>9</c>
+  <c>4</c>
+  <c>Time zone for GMT support (TODO: specify better).</c>
+  
+  <c>if_flags</c>
+  <c>10</c>
+  <c>4</c>
+  <c>Interface flags. (TODO: specify better. Possible flags: promiscuous, inbound/outbound, traffic filtered during capture).</c>
+
+  <c>if_filter</c>
+  <c>11</c>
+  <c>variable</c>
+  <c>The filter (e.g. "capture only TCP traffic") used to capture traffic. The first byte of the Option Data keeps a code of the filter used (e.g. if this is a libpcap string, or BPF bytecode, and more). More details about this format will be presented in Appendix XXX (TODO).</c>
+
+  <c>if_opersystem</c>
+  <c>12</c>
+  <c>variable</c>
+  <c>An ascii string containing the name of the operating system of the machine that hosts this interface. This can be different from the same information that can be contained by the Section Header Block (<xref target="sectionshb"/>) because the capture can have been done on a remote machine.</c>
+
+</texttable>
+
+</section>
+
+
+
+<section anchor="sectionpb" title="Packet Block (optional)">
+<t>A Packet Block is the standard container for storing the packets coming from the network. The Packet Block is optional because packets can be stored either by means of this block or the Simple Packet Block, which can be used to speed up dump generation. The format of a packet block is shown in <xref target="formatpb"/>.</t>
+
+<figure anchor="formatpb" title="Packet Block format.">
+<artwork>
+    0                   1                   2                   3   
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |         Interface ID          |          Drops Count          |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                        Timestamp (High)                       |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                        Timestamp (Low)                        |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                         Captured Len                          |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                          Packet Len                           |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   |                          Packet Data                          |
+   |                                                               |
+   |              /* variable length, byte-aligned */              |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   /                                                               / 
+   /                      Options (variable)                       / 
+   /                                                               / 
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</artwork>
+</figure>
+
+<t>The Packet Block has the following fields:</t>
+
+<list style="symbols">
+<t>Interface ID: Specifies the interface this packet comes from, and corresponds to the ID of one of the Interface Description Blocks present in this section of the file (see <xref target="formatidb"/>).</t>
+<t>Drops Count: a local drop counter. It specified the number of packets lost (by the interface and the operating system) between this packet and the preceding one. The value xFFFF (in hexadecimal) is reserved for those systems in which this information is not available.</t>
+<t>Timestamp (High): the most significative part of the timestamp. in standard Unix format, i.e. from 1/1/1970.</t>
+<t>Timestamp (Low): the less significative part of the timestamp. The way to interpret this field is specified by the 'ts_accur' option (see <xref target="formatidb"/>) of the Interface Description block referenced by this packet. If the Interface Description block does not contain a 'ts_accur' option, then this field is expressed in microseconds.</t>
+<t>Captured Len: number of bytes captured from the packet (i.e. the length of the Packet Data field). It will be the minimum value among the actual Packet Length and the snapshot length (defined in <xref target="formatidb"/>).</t>
+<t>Packet Len: actual length of the packet when it was transmitted on the network. Can be different from Captured Len if the user wants only a snapshot of the packet.</t>
+<t>Packet Data: the data coming from the network, including link-layer headers. The length of this field is Captured Len. The format of the link-layer headers depends on the LinkType field specified in the Interface Description Block (see <xref target="sectionidb"/>) and it is specified in Appendix XXX (TODO).</t>
+<t>Options: optionally, a list of options (formatted according to the rules defined in <xref target="sectionopt"/>) can be present.</t>
+</list>
+
+<t></t>
+</section>
+
+
+<section title="Simple Packet Block (optional)">
+<t>The Simple Packet Block is a lightweight container for storing the packets coming from the network. Its presence is optional.</t>
+<t>A Simple Packet Block is similar to a Packet Block (see <xref target="sectionpb"/>), but it is smaller, simpler to process and contains only a minimal set of information. This block is preferred to the standard Packet Block when performance or space occupation are critical factors, such as in sustained traffic dump applications. A capture file can contain both Packet Blocks and Simple Packet Blocks: for example, a capture tool could switch from Packet Blocks to Simple Packet Blocks when the hardware resources become critical.</t>
+<t>The Simple Packet Block does not contain the Interface ID field. Therefore, it must be assumed that all the Simple Packet Blocks have been captured on the interface previously specified in the Interface Description Block.</t>
+<t><xref target="formatpbs"/> shows the format of the Simple Packet Block.</t>
+
+<figure anchor="formatpbs" title="Simple Packet Block format.">
+<artwork>
+    0                   1                   2                   3   
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                          Packet Len                           |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   |                          Packet Data                          |
+   |                                                               |
+   |              /* variable length, byte-aligned */              |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ </artwork>
+</figure>
+
+<t>The Packet Block has the following fields:</t>
+<list style="symbols">
+<t>Packet Len: actual length of the packet when it was transmitted on the network. Can be different from captured len if the packet has been truncated.</t>
+<t>Packet data: the data coming from the network, including link-layers headers. The length of this field can be derived from the field Block Total Length, present in the Block Header.</t>
+</list>
+
+<t>The Simple Packet Block does not contain the timestamp because this is one of the most costly operations on PCs. Additionally, there are applications that do not require it; e.g. an Intrusion Detection System is interested in packets, not in their timestamp.</t>
+
+<t>The Simple Packet Block is very efficient in term of disk space: a snapshot of length 100 bytes requires only 16 bytes of overhead, which corresponds to an efficiency of more than 86%.</t>
+
+</section>
+
+
+
+<section title="Name Resolution Block (optional)">
+<t>The Name Resolution Block is used to support the correlation of numeric addresses (present in the captured packets) and their corresponding canonical names and it is optional. Having the literal names saved in the file, this prevents the need of a name resolution in a delayed time, when the association between names and addresses can be different from the one in use at capture time. Moreover, The Name Resolution Block avoids the need of issuing a lot of DNS requests every time the trace capture is opened, and allows to have name resolution also when reading the capture with a machine not connected to the network.</t>
+<t>The format of the Name Resolution Block is shown in <xref target="formatnrb"/>.</t>
+
+<figure anchor="formatnrb" title="Name Resolution Block format.">
+<artwork>
+    0                   1                   2                   3   
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |      Record Type              |         Record Length         | 
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                       Record Value                            |
+   |              /* variable length, byte-aligned */              |
+   |               + + + + + + + + + + + + + + + + + + + + + + + + +
+   |               |               |               |               |
+   +-+-+-+-+-+-+-+-+ + + + + + + + + + + + + + + + + + + + + + + + +
+             . . . other records . . .
+   |  Record Type == end_of_recs   |  Record Length == 00          |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   /                                                               / 
+   /                      Options (variable)                       / 
+   /                                                               / 
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ </artwork>
+</figure>
+
+<t>A Name Resolution Block is a zero-terminated list of records (in the TLV format), each of which contains an association between a network address and a name. There are three possible types of records:</t>
+
+<texttable anchor="nrrecords">
+  <ttcol>Name</ttcol>
+  <ttcol>Code</ttcol>
+  <ttcol>Length</ttcol>
+  <ttcol>Description</ttcol>
+
+  <c>end_of_recs</c>
+  <c>0</c>
+  <c>0</c>
+  <c>End of records</c>
+
+  <c>ip4_rec</c>
+  <c>1</c>
+  <c>Variable</c>
+  <c>Specifies an IPv4 address (contained in the first 4 bytes), followed by one or more zero-terminated strings containing the DNS entries for that address.</c>
+
+  <c>ip6_rec</c>
+  <c>1</c>
+  <c>Variable</c>
+  <c>Specifies an IPv6 address (contained in the first 16 bytes), followed by one or more zero-terminated strings containing the DNS entries for that address.</c>
+</texttable>
+
+<t>After the list or Name Resolution Records, optionally, a list of options (formatted according to the rules defined in <xref target="sectionopt"/>) can be present.</t>
+
+<t>A Name Resolution Block is normally placed at the beginning of the file, but no assumptions can be taken about its position. Name Resolution Blocks can be added in a second time by tools that process the file, like network analyzers.</t>
+
+<t>In addiction to the options defined in <xref target="sectionopt"/>, the following options are valid within this block:</t>
+
+<texttable>
+  <ttcol>Name</ttcol>
+  <ttcol>Code</ttcol>
+  <ttcol>Length</ttcol>
+  <ttcol>Description</ttcol>
+
+  <c>ns_dnsname</c>
+  <c>2</c>
+  <c>Variable</c>
+  <c>An ascii string containing the name of the machine (DNS server) used to perform the name resolution.</c>
+</texttable>
+
+</section>
+
+
+<section title="Interface Statistics Block (optional)">
+<t>The Interface Statistics Block contains the capture statistics for a given interface and it is optional. The statistics are referred to the interface defined in the current Section identified by the Interface ID field.</t>
+<t>The format of the Interface Statistics Block is shown in <xref target="formatisb"/>.</t>
+
+<figure anchor="formatisb" title="Interface Statistics Block format.">
+<artwork>
+    0                   1                   2                   3   
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                         IfRecv                                |
+   |                          (high + low)                         |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                         IfDrop                                |
+   |                          (high + low)                         |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                         FilterAccept                          |
+   |                          (high + low)                         |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                         OSDrop                                |
+   |                          (high + low)                         |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                         UsrDelivered                          |
+   |                          (high + low)                         |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |          Interface ID         |           Reserved            |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   /                                                               / 
+   /                      Options (variable)                       / 
+   /                                                               / 
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ </artwork>
+</figure>
+
+<t>The fields have the following meaning:</t>
+
+<list style="symbols">
+<t>IfRecv: number of packets received from the interface during the capture. This number is reported as a 64 bits value, in which the most significat bits are located in the first four bytes of the field.</t>
+<t>IfDrop: number of packets dropped by the interface during the capture due to lack of resources.</t>
+<t>FilterAccept: number of packets accepeted by filter during current capture.</t>
+<t>OSDrop: number of packets dropped by the operating system during the capture.</t>
+<t>UsrDelivered: number of packets delivered to the user. UsrDelivered can be different from the value 'FilterAccept - OSDropped' because some packets could still lay in the OS buffers when the capture ended.</t>
+<t>Interface ID: reference to an Interface Description Block.</t>
+<t>Reserved: Reserved to future use.</t>
+<t>Options: optionally, a list of options (formatted according to the rules defined in <xref target="sectionopt"/>) can be present.</t>
+</list>
+
+<t>In addiction to the options defined in <xref target="sectionopt"/>, the following options are valid within this block:</t>
+
+<texttable>
+  <ttcol>Name</ttcol>
+  <ttcol>Code</ttcol>
+  <ttcol>Length</ttcol>
+  <ttcol>Description</ttcol>
+
+  <c>isb_starttime</c>
+  <c>2</c>
+  <c>8</c>
+  <c>Time in which the capture started; time will be stored in two blocks of four bytes each, containing the timestamp in seconds and nanoseconds.</c>
+
+  <c>isb_endtime</c>
+  <c>3</c>
+  <c>8</c>
+  <c>Time in which the capture started; time will be stored in two blocks of four bytes each, containing the timestamp in seconds and nanoseconds.</c>
+</texttable>
+
+</section>
+</section>
+
+
+
+<section anchor="sectionopt" title="Options">
+<t>Almost all blocks have the possibility to embed optional fields. Optional fields can be used to insert some information that may be useful when reading data, but that it is not really needed for packet processing. Therefore, each tool can be either read the content of the optional fields (if any), or skip them at once.</t>
+<t>Skipping all the optional fields at once is straightforward because most of the blocks have a fixed length, therefore the field Block Length (present in the General Block Structure, see  <xref target="sectionblock"/>) can be used to skip everything till the next block.</t>
+
+<t>Options are a list of Type - Length - Value fields, each one containing a single value:</t>
+
+<list style="symbols">
+<t>Option Type (2 bytes): it contains the code that specifies the type of the current TLV record. Option types whose Most Significant Bit is equal to one are reserved for local use; therefore, there is no guarantee that the code used is unique among all capture files (generated by other applications). In case of vendor-specific extensions that have to be identified uniquely, vendors must request an Option Code whose MSB is equal to zero.</t>
+<t>Option Length (2 bytes): it contains the length of the following 'Option Value' field.</t>
+<t>Option Value (variable length): it contains the value of the given option. The length of this field as been specified by the Option Length field.</t>
+</list>
+
+<t>Options may be repeated several times (e.g. an interface that has several IP addresses associated to it). The option list is terminated by a special code which is the 'End of Option'.</t>
+
+<t>The format of the optional fields is shown in <xref target="formatopt"/>.</t>
+
+<figure anchor="formatopt" title="Options format.">
+<artwork>
+    0                   1                   2                   3   
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |      Option Code              |         Option Length         | 
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                       Option Value                            |
+   |              /* variable length, byte-aligned */              |
+   |               + + + + + + + + + + + + + + + + + + + + + + + + +
+   |               /               /               /               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   /                                                               /
+   /                 . . . other options . . .                     /
+   /                                                               /
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |   Option Code == opt_endofopt  |  Option Length == 0          |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ </artwork>
+</figure>
+
+<t>The following codes can always be present in any optional field:</t>
+
+<texttable>
+  <ttcol>Name</ttcol>
+  <ttcol>Code</ttcol>
+  <ttcol>Length</ttcol>
+  <ttcol>Description</ttcol>
+
+  <c>opt_endofopt</c>
+  <c>0</c>
+  <c>0</c>
+  <c>End of options: it is used to delimit the end of the optional fields. This block cannot be repeated within a given list of options.</c>
+
+  <c>opt_comment</c>
+  <c>1</c>
+  <c>variable</c>
+  <c>Comment: it is an ascii string containing a comment that is associated to the current block.</c>
+</texttable>
+
+</section>
+
+
+
+
+<section title="Experimental Blocks (deserved to a further investigation)">
+
+<section title="Other Packet Blocks (experimental)">
+<t>Can some other packet blocks (besides the two described in the previous paragraphs) be useful?</t>
+</section>
+
+<section title="Compression Block (experimental)">
+<t>The Compression Block is optional. A file can contain an arbitrary number of these blocks. A Compression Block, as the name says, is used to store compressed data. Its format is shown in <xref target="formatcb"/>.</t>
+
+<figure anchor="formatcb" title="Compression Block format.">
+<artwork>
+    0                   1                   2                   3   
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |  Compr. Type  |                                               |
+   +-+-+-+-+-+-+-+-+                                               |
+   |                                                               |
+   |                       Compressed Data                         |
+   |                                                               |
+   |              /* variable length, byte-aligned */              |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ </artwork>
+</figure>
+
+<t>The fields have the following meaning:</t>
+
+<list style="symbols">
+<t>Compression Type: specifies the compression algorithm. Possible values for this field are 0 (uncompressed), 1 (Lempel Ziv), 2 (Gzip), other?? Probably some kind of dumb and fast compression algorithm could be effective with some types of traffic (for example web), but which?</t>
+<t>Compressed Data: data of this block. Once decompressed, it is made of other blocks.</t>
+</list>
+
+</section>
+
+
+<section title="Encryption Block (experimental)">
+<t>The Encryption Block is optional. A file can contain an arbitrary number of these blocks. An Encryption Block is used to sotre encrypted data. Its format is shown in <xref target="formateb"/>.</t>
+
+<figure anchor="formateb" title="Encryption Block format.">
+<artwork>
+    0                   1                   2                   3   
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |   Encr. Type  |                                               |
+   +-+-+-+-+-+-+-+-+                                               |
+   |                                                               |
+   |                       Compressed Data                         |
+   |                                                               |
+   |              /* variable length, byte-aligned */              |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ </artwork>
+</figure>
+
+<t>The fields have the following meaning:</t>
+<list style="symbols">
+<t>Compression Type: specifies the encryption algorithm. Possible values for this field are ??? NOTE: this block should probably contain other fields, depending on the encryption algorithm. To be define precisely.</t>
+<t>Encrypted Data: data of this block. Once decripted, it consists of other blocks.</t>
+</list>
+
+</section>
+
+
+<section title="Fixed Length Block (experimental)">
+<t>The Fixed Length Block is optional. A file can contain an arbitrary number of these blocks. A Fixed Length Block can be used to optimize the access to the file. Its format is shown in <xref target="formatflm"/>.
+A Fixed Length Block stores records with constant size. It contains a set of Blocks (normally Packet Blocks or Simple Packet Blocks), of wihich it specifies the size. Knowing this size a priori helps to scan the file and to load some portions of it without truncating a block, and is particularly useful with cell-based networks like ATM.</t>
+
+<figure anchor="formatflm" title="Fixed Length Block format.">
+<artwork>
+    0                   1                   2                   3   
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |          Cell Size            |                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
+   |                                                               |
+   |                        Fixed Size Data                        |
+   |                                                               |
+   |              /* variable length, byte-aligned */              |
+   |                                                               |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ </artwork>
+</figure>
+
+<t>The fields have the following meaning:</t>
+<list style="symbols">
+<t>Cell size: the size of the blocks contained in the data field.</t>
+<t>Fixed Size Data: data of this block.</t>
+</list>
+
+</section>
+
+<section title="Directory Block (experimental)">
+<t>If present, this block contains the following information:</t>
+<list style="symbols">
+<t>number of indexed packets (N)</t>
+<t>table with position and length of any indexed packet (N entries)</t>
+</list>
+
+<t>A directory block must be followed by at least N packets, otherwise it must be considered invalid. It can be used to efficiently load portions of the file to memory and to support operations on memory mapped files. This block can be added by tools like network analyzers as a consequence of file processing.</t>
+</section>
+
+<section title="Traffic Statistics and Monitoring Blocks (experimental)">
+<t>One or more blocks could be defined to contain network statistics or traffic monitoring information. They could be use to store data collected from RMON or Netflow probes, or from other network monitoring tools.</t>
+</section>
+
+<section title="Event/Security Block (experimental)">
+<t>This block could be used to store events. Events could contain generic information (for example network load over 50%, server down...) or security alerts. An event could be:</t>
+
+<list style="symbols">
+<t>skipped, if the application doesn't know how to do with it</t>
+<t>processed independently by the packets. In other words, the applications skips the packets and processes only the alerts</t>
+<t>processed in relation to packets: for example, a security tool could load only the packets of the file that are near a security alert; a monitorg tool could skip the packets captured while the server was down.</t>
+</list>
+
+</section>
+
+</section>
+
+
+
+
+<section title="Conclusions">
+<t>The file format proposed in this document should be very versatile and satisfy a wide range of applications.
+In the simplest case, it can contain a raw dump of the network data, made of a series of Simple Packet Blocks.
+In the most complex case, it can be used as a repository for heterogeneous information.
+In every case, the file remains easy to parse and an application can always skip the data it is not interested in; at the same time, different applications can share the file, and each of them can benfit of the information produced by the others.
+Two or more files can be concatenated obtaining another valid file.</t>
+</section>
+
+
+<section title="Most important open issues">
+<list style="symbols">
+<t>Data, in the file, must be byte or word aligned? Currently, the structure of this document is not consistent with respect to this point.</t>
+</list>
+</section>
+
+</middle>
+
+</rfc>
