@@ -1,4 +1,0 @@
-{
-  Description     = "Change BPF permissions";
-  Provides        = ("Non-root permission to capture or send raw packets");
-}
