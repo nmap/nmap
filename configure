@@ -5880,7 +5880,6 @@ extern char pcap_version[];
 int main() {
   int major, minor1, minor2;
   sscanf(pcap_version,"%d.%d.%d", &major, &minor1, &minor2);
-  printf("The pcap version is %s -> %d.%d.%d\n", pcap_version, major, minor1, minor2);
   if (major > 0)
     exit(0);
   if (minor1 < 9)
