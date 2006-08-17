@@ -204,3 +204,5 @@ is in use.  Here is that patch:
  # Makefile.in includes rules to generate version.h, so we assume
  # that it will be generated if autoconf is used.
 
+o Ran autoconf to regenerate configure (I ship those with the Nmap
+  tarball rather than generating them at build time).

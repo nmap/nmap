@@ -1,4 +1,4 @@
-Nmap 4.20ALPHA4 ( http://www.insecure.org/nmap/ )
+Nmap 4.20ALPHA5 ( http://www.insecure.org/nmap/ )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -18,6 +18,7 @@ HOST DISCOVERY:
   --system-dns: Use OS's DNS resolver
 SCAN TECHNIQUES:
   -sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans
+  -sU: UDP Scan
   -sN/sF/sX: TCP Null, FIN, and Xmas scans
   --scanflags <flags>: Customize TCP scan flags
   -sI <zombie host[:probeport]>: Idlescan
@@ -36,8 +37,8 @@ SERVICE/VERSION DETECTION:
   --version-trace: Show detailed version scan activity (for debugging)
 OS DETECTION:
   -O: Enable OS detection (try 2nd generation, then 1st if that fails)
-  -O1: Only use the old (1st generation) OS detection system
   -O2: Only use the new OS detection system (no fallback)
+  -O1: Only use the old (1st generation) OS detection system
   --osscan-limit: Limit OS detection to promising targets
   --osscan-guess: Guess OS more aggressively
 TIMING AND PERFORMANCE:

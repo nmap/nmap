@@ -356,9 +356,9 @@ AC_ARG_WITH(libpcap,
   esac]
 )
 
-if test $linux = yes; then
-  have_libpcap=no
-fi
+#if test $linux = yes; then
+#  have_libpcap=no
+#fi
 
 if test $needs_cpp_precomp = yes; then
   CXXFLAGS="-no-cpp-precomp $CXXFLAGS"

@@ -58,7 +58,7 @@ distro:
 # Make the RPM .spec file
 	sed -e s/\@VERSION\@/$(NMAP_VERSION)/g ../nmap.spec.in > ../nmap-$(NMAP_VERSION)-1.spec
 # Canonicalize and sort Nmap OS fingerprint DB
-	sort-prints.pl ../nmap-os-fingerprints > nos && mv nos ../nmap-os-fingerprints
+#	sort-prints.pl ../nmap-os-fingerprints > nos && mv nos ../nmap-os-fingerprints
 	$(MAKE) -C .. clean
 	cd .. && rm -f $(LIBPCAPDIR)/config.cache $(LIBPCAPDIR)/Makefile
 	cd .. && unix2dos README-WIN32
@@ -92,43 +92,43 @@ distro:
            nsis/Nmap.nsi resource.h RPC/Rpc_cut.h winclude.h winfix.cc \
            winfix.h Makefile /usr/tmp/nmap-$(NMAP_VERSION)/mswin32
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/$(LIBPCAPDIR)
-	cd ../$(LIBPCAPDIR); cp -a --parents acconfig.h aclocal.m4 arcnet.h \
-            atmuni31.h bpf/net/bpf.h bpf/net/bpf_filter.c \
-            bpf_dump.c bpf_image.c CHANGES \
-            ChmodBPF/ChmodBPF ChmodBPF/StartupParameters.plist config.guess \
-            config.h config.h.in config.sub \
-            configure configure.ac CREDITS doc/pcap.txt doc/pcap.xml \
-            doc/pcap.html etherent.c ethertype.h fad-getad.c fad-gifc.c \
-            fad-glifc.c fad-null.c fad-win32.c FILES gencode.c gencode.h \
-            grammar.c grammar.y inet.c install-sh INSTALL.txt lbl/os-sunos4.h \
-            lbl/os-ultrix4.h lbl/os-aix4.h lbl/os-osf4.h lbl/os-hpux11.h \
-            lbl/os-osf5.h lbl/os-solaris2.h LICENSE llc.h Makefile.in \
-            missing/snprintf.c mkdep msdos/makefile.wc msdos/bin2c.c \
-            msdos/pkt_rx0.asm msdos/pktdrvr.h msdos/ndis2.h msdos/ndis2.c \
-            msdos/pkt_rx1.s msdos/common.dj msdos/makefile msdos/pktdrvr.c \
-            msdos/readme.dos msdos/ndis_0.asm msdos/makefile.dj nametoaddr.c \
-            nlpid.h NMAP_MODIFICATIONS optimize.c packaging/pcap.spec.in \
-            pcap1.h pcap.3 pcap-bpf.c pcap-bpf.h pcap.c \
-            pcap-dag.c pcap-dag.h pcap-dlpi.c pcap-dos.c pcap-dos.h \
-            pcap-enet.c pcap.h pcap-int.h pcap-linux.c pcap-namedb.h \
-            pcap-nit.c pcap-nit.h pcap-null.c pcap-pf.c pcap-pf.h \
-            pcap-septel.c pcap-septel.h pcap-snit.c pcap-snoop.c \
-            pcap-stdinc.h pcap-win32.c pf.h ppp.h README README.aix \
-            README.dag README.hpux README.linux README.macosx README.septel \
-            README.tru64 README.Win32 savefile.c scanner.c scanner.l sll.h \
-            sunatmpos.h SUNOS4/nit_if.o.sun4c.4.0.3c SUNOS4/nit_if.o.sun3 \
-            SUNOS4/nit_if.o.sparc TODO tokdefs.h VERSION version.h \
-            Win32/Include/addrinfo.h Win32/Include/Gnuc.h \
-            Win32/Include/arpa/nameser.h Win32/Include/cdecl_ext.h \
-            Win32/Include/ip6_misc.h Win32/Include/bittypes.h \
-            Win32/Include/net/if.h Win32/Include/net/paths.h \
-            Win32/Include/net/netdb.h Win32/Include/sockstorage.h \
-            Win32/Include/inetprivate.h Win32/Src/getservent.c \
-            Win32/Src/getaddrinfo.c Win32/Src/ffs.c Win32/Src/getnetbynm.c \
-            Win32/Src/inet_net.c Win32/Src/getnetent.c Win32/Src/getopt.c \
-            Win32/Src/inet_aton.c Win32/Src/inet_pton.c Win32/Prj/libpcap.dsw \
-            Win32/Prj/libpcap.dsp \
-            /usr/tmp/nmap-$(NMAP_VERSION)/$(LIBPCAPDIR)
+	cd ../$(LIBPCAPDIR); cp -dp --parents acconfig.h aclocal.m4 arcnet.h \
+           atmuni31.h bpf_dump.c bpf_image.c CHANGES \
+           config.guess config.h.in config.sub configure configure.ac \
+           CREDITS etherent.c ethertype.h fad-getad.c fad-gifc.c \
+           fad-glifc.c fad-null.c fad-win32.c FILES gencode.c gencode.h \
+           grammar.c grammar.y inet.c install-sh INSTALL.txt LICENSE \
+           llc.h Makefile.in mkdep nametoaddr.c net nlpid.h \
+           NMAP_MODIFICATIONS optimize.c pcap1.h pcap.3 pcap-bpf.c \
+           pcap-bpf.h pcap.c pcap-dag.c pcap-dag.h pcap-dlpi.c pcap-dos.c \
+           pcap-dos.h pcap-enet.c pcap.h pcap-int.h pcap-linux.c \
+           pcap-namedb.h pcap-nit.c pcap-nit.h pcap-null.c pcap-pf.c \
+           pcap-pf.h pcap-septel.c pcap-septel.h pcap-snit.c pcap-snoop.c \
+           pcap-stdinc.h pcap-win32.c pf.h ppp.h README README.aix \
+           README.dag README.hpux README.linux README.macosx README.septel \
+           README.tru64 README.Win32 savefile.c scanner.c scanner.l sll.h \
+           sunatmpos.h TODO tokdefs.h VERSION version.h \
+           ChmodBPF/ChmodBPF ChmodBPF/StartupParameters.plist \
+           doc/pcap.html doc/pcap.txt doc/pcap.xml lbl/os-aix4.h \
+           lbl/os-hpux11.h lbl/os-osf4.h lbl/os-osf5.h lbl/os-solaris2.h \
+           lbl/os-sunos4.h lbl/os-ultrix4.h missing/snprintf.c \
+           msdos/bin2c.c msdos/common.dj msdos/makefile msdos/makefile.dj \
+           msdos/makefile.wc msdos/ndis_0.asm msdos/ndis2.c msdos/ndis2.h \
+           msdos/pktdrvr.c msdos/pktdrvr.h msdos/pkt_rx0.asm msdos/pkt_rx1.s \
+           msdos/readme.dos SUNOS4/nit_if.o.sparc \
+           SUNOS4/nit_if.o.sun3 SUNOS4/nit_if.o.sun4c.4.0.3c \
+           bpf/net/bpf_filter.c Win32/Include/addrinfo.h \
+           Win32/Include/bittypes.h Win32/Include/cdecl_ext.h \
+           Win32/Include/Gnuc.h Win32/Include/inetprivate.h \
+           Win32/Include/ip6_misc.h \
+           Win32/Include/sockstorage.h Win32/Prj/libpcap.dsp \
+           Win32/Prj/libpcap.dsw Win32/Src/ffs.c Win32/Src/getaddrinfo.c \
+           Win32/Src/getnetbynm.c Win32/Src/getnetent.c Win32/Src/getopt.c \
+           Win32/Src/getservent.c Win32/Src/inet_aton.c Win32/Src/inet_net.c \
+           Win32/Src/inet_pton.c Win32/Include/arpa/nameser.h \
+           Win32/Include/net/if.h Win32/Include/net/netdb.h \
+           Win32/Include/net/paths.h \
+           /usr/tmp/nmap-$(NMAP_VERSION)/$(LIBPCAPDIR)
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/docs
 	cd ../docs; cp -a README nmap_gpgkeys.txt \
                     nmap.usage.txt  \

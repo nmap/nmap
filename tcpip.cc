@@ -1557,11 +1557,13 @@ unsigned int offset = 0;
 struct pcap_pkthdr head;
 char *p;
 int datalink;
+int pcap_descriptor=-1; // -1 means we CANNOT select()
 int timedout = 0;
 struct timeval tv_start, tv_end;
 static char *alignedbuf = NULL;
 static unsigned int alignedbufsz=0;
 static int warning = 0;
+
 if (linknfo) { memset(linknfo, 0, sizeof(*linknfo)); }
 
 if (!pd) fatal("NULL packet device passed to readip_pcap");
@@ -1647,6 +1649,14 @@ if (!pd) fatal("NULL packet device passed to readip_pcap");
  if (to_usec > 0) {
    gettimeofday(&tv_start, NULL);
  }
+
+// Add other systems here if they don't support select()able pcap descriptors
+#ifdef WIN32
+ pcap_descriptor = -1;
+#else
+ pcap_descriptor = pcap_get_selectable_fd(pd);
+#endif
+
  do {
 #ifdef WIN32
    gettimeofday(&tv_end, NULL);
@@ -1655,7 +1665,32 @@ if (!pd) fatal("NULL packet device passed to readip_pcap");
    PacketSetReadTimeout(pd->adapter, to_left);
 #endif
 
-   p = (char *) pcap_next(pd, &head);
+   p = NULL;
+   if (pcap_descriptor != -1) {
+     fd_set rfds;
+     struct timeval sel_tv;
+     int rv=0;
+
+     FD_ZERO(&rfds);
+     FD_SET(pcap_descriptor, &rfds);
+
+     sel_tv.tv_sec = to_usec/1000000;
+     sel_tv.tv_usec = to_usec%1000000;
+
+     rv = select(pcap_descriptor+1, &rfds, NULL, NULL, to_usec ? &sel_tv : NULL);
+
+     if (rv == -1) {
+       fatal("Your system does not support select()ing on pcap devices (%s). PLEASE REPORT THIS ALONG WITH DETAILED SYSTEM INFORMATION TO THE nmap-dev MAILING LIST!", strerror(errno));
+     } else if (rv == 0) {
+       timedout = 1;
+     } else {
+       p = (char *) pcap_next(pd, &head);
+     }
+   } else {
+     // THIS CALL CAN BLOCK INAPPROPRIATLEY! (ie, will block until it sees another
+     // packet - to_usec notwithstanding) Use the select() code if possible.
+     p = (char *) pcap_next(pd, &head);
+   }
 
    if (p) {
      if (head.caplen <= offset) {
@@ -1805,6 +1840,7 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
   int timedout = 0;
   int badcounter = 0;
   struct timeval tv_start, tv_end;
+  int pcap_descriptor = -1;
 
   if (!pd) fatal("NULL packet device passed to readarp_reply_pcap");
 
@@ -1839,7 +1875,39 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
     }
 #endif
 
-    p = (u8 *) pcap_next(pd, &head);
+// Add other systems here if they don't support select()able pcap descriptors
+#ifdef WIN32
+    pcap_descriptor = -1;
+#else
+    pcap_descriptor = pcap_get_selectable_fd(pd);
+#endif
+
+   p = NULL;
+   if (pcap_descriptor != -1) {
+     fd_set rfds;
+     struct timeval sel_tv;
+     int rv=0;
+
+     FD_ZERO(&rfds);
+     FD_SET(pcap_descriptor, &rfds);
+
+     sel_tv.tv_sec = to_usec/1000000;
+     sel_tv.tv_usec = to_usec%1000000;
+
+     rv = select(pcap_descriptor+1, &rfds, NULL, NULL, to_usec ? &sel_tv : NULL);
+
+     if (rv == -1) {
+       fatal("Your system does not support select()ing on pcap devices (%s). PLEASE REPORT THIS ALONG WITH DETAILED SYSTEM INFORMATION TO THE nmap-dev MAILING LIST!", strerror(errno));
+     } else if (rv == 0) {
+       timedout = 1;
+     } else {
+       p = (u8 *) pcap_next(pd, &head);
+     }
+   } else {
+     // THIS CALL CAN BLOCK INAPPROPRIATLEY! (ie, will block until it sees another
+     // packet - to_usec notwithstanding) Use the select() code if possible.
+     p = (u8 *) pcap_next(pd, &head);
+   }
 
     if (p && head.caplen >= 42) { /* >= because Ethernet padding makes 60 */
       /* frame type 0x0806 (arp), hw type eth (0x0001), prot ip (0x0800),

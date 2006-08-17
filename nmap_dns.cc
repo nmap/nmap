@@ -1185,7 +1185,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
     log_write(LOG_STDOUT, "Performing system-dns for %d domain names that use CNAMEs\n", (int) cname_reqs.size());
 
   if (cname_reqs.size()) {
-    snprintf(spmobuf, sizeof(spmobuf), "System CNAME DNS resolution of %d host%s.", cname_reqs.size(), cname_reqs.size()-1 ? "s" : "");
+    snprintf(spmobuf, sizeof(spmobuf), "System CNAME DNS resolution of %u host%s.", (unsigned) cname_reqs.size(), cname_reqs.size()-1 ? "s" : "");
     SPM = new ScanProgressMeter(spmobuf);
 
     for(i=0, reqI = cname_reqs.begin(); reqI != cname_reqs.end(); reqI++, i++) {
