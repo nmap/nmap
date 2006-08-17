@@ -381,25 +381,15 @@ if test $have_libpcap = yes; then
 #include <stdio.h>
 extern char pcap_version[];
 int main() {
-  int major, minor;
-  sscanf(pcap_version,"%d.%d", &major, &minor);
+  int major, minor1, minor2;
+  sscanf(pcap_version,"%d.%d.%d", &major, &minor1, &minor2);
   if (major > 0) 
     exit(0);
-  if (minor > 4)
-    exit(0);
-  if (minor < 4)
+  if (minor1 < 9)
     exit(1);
-  if (pcap_version[3] > 'a')
-    exit(0);
-  if (pcap_version[3] == 'a') {
-    if(!sscanf(&pcap_version[4], "%d", &minor))
-      exit(1);
-    if (minor >= 6)
-      exit(0);
-    else
-      exit(1);
-  }
-  exit(1);
+  if (minor2 < 4)
+    exit(1);
+  exit(0);
 }],
 [AC_MSG_RESULT(yes); have_libpcap=yes],
 [AC_MSG_RESULT(no); have_libpcap=no],

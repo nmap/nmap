@@ -5,13 +5,15 @@ o Worked with Zhao to improve the new OS detection system with
   better algorithms and bug fixes.
 
 o Nmap now uses the (relatively) new libpcap pcap_get_selectable_fd
-  API on systems which support it.  This means that we no longer need to
-  hack the included Pcap to better support Linux.  So Nmap will now link
-  with an existing system libpcap by default on that platform if one is
-  detected.
+  API on systems which support it.  This means that we no longer need
+  to hack the included Pcap to better support Linux.  So Nmap will now
+  link with an existing system libpcap by default on that platform if
+  one is detected.  Thanks to Doug Hoyte for the patch.
 
 o Updated the included libpcap from 0.9.3 to 0.9.4.  The changes I
-  made are in libpcap/NMAP_MODIFICATIONS .
+  made are in libpcap/NMAP_MODIFICATIONS .  By default, Nmap will now
+  use the included libpcap unless version 0.9.4 or greater is already
+  installed on the system.
 
 o Applied some nsock bugfixes from Diman Todorov.  These don't
   affect the current version of Nmap, but are important for his upcoming
