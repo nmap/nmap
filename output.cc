@@ -1396,7 +1396,7 @@ void printosscanoutput(Target *currenths) {
      }
 
   if (distance!=-1) {
-	log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "Network Distance: %d hops\n", distance);
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "Network Distance: %d hop%s\n", distance, (distance == 1)? "" : "s");
 	log_write(LOG_XML, "<distance value=\"%d\" />\n", distance);
   }
 	 

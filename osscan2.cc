@@ -509,36 +509,67 @@ void HostOsScanStats::initScanStats() {
   Port *tport = NULL;
   int i;
 
-  /* Lets find an open port to use */
+  /* Lets find an open port to use if we don't already have one */
   openTCPPort = (unsigned long) -1;
-  target->FPR->osscan_opentcpport = -1;
+  /*  target->FPR->osscan_opentcpport = -1;
   target->FPR->osscan_closedtcpport = -1;
-  target->FPR->osscan_closedudpport = -1;
+  target->FPR->osscan_closedudpport = -1; */
   
-  if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_OPEN))) {
+  if (target->FPR->osscan_opentcpport > 0)
+    openTCPPort = target->FPR->osscan_opentcpport;
+  else if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_OPEN))) {
     openTCPPort = tport->portno;
-    target->FPR->osscan_opentcpport = tport->portno;
+    /* If it is zero, let's try another one if there is one ) */
+    if (tport->portno == 0)
+      if ((tport = target->ports.nextPort(tport, IPPROTO_TCP, PORT_OPEN)))
+	openTCPPort = tport->portno;
+       
+    target->FPR->osscan_opentcpport = openTCPPort;
   }
 
   /* Now we should find a closed port */
-  if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_CLOSED))) {
+  if (target->FPR->osscan_closedtcpport > 0)
+    closedTCPPort = target->FPR->osscan_closedtcpport;
+  else if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_CLOSED))) {
     closedTCPPort = tport->portno;
-    target->FPR->osscan_closedtcpport = tport->portno;
+
+    /* If it is zero, let's try another one if there is one ) */
+    if (tport->portno == 0)
+      if ((tport = target->ports.nextPort(tport, IPPROTO_TCP, PORT_CLOSED)))
+	closedTCPPort = tport->portno;
+
+    target->FPR->osscan_closedtcpport = closedTCPPort;
   } else if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_UNFILTERED))) {
     /* Well, we will settle for unfiltered */
     closedTCPPort = tport->portno;
+    /* But again we'd prefer not to have zero */
+    if (tport->portno == 0)
+      if ((tport = target->ports.nextPort(tport, IPPROTO_TCP, PORT_UNFILTERED)))
+	closedTCPPort = tport->portno;
   } else {
+    /* We'll just have to pick one at random :( */
     closedTCPPort = (get_random_uint() % 14781) + 30000;
   }
 
   /* Now we should find a closed udp port */
-  if ((tport = target->ports.nextPort(NULL, IPPROTO_UDP, PORT_CLOSED))) {
+  if (target->FPR->osscan_closedudpport > 0)
+    closedUDPPort = target->FPR->osscan_closedudpport;
+  else if ((tport = target->ports.nextPort(NULL, IPPROTO_UDP, PORT_CLOSED))) {
     closedUDPPort = tport->portno;
-	target->FPR->osscan_closedudpport = tport->portno;
+    /* Not zero, if possible */
+    if (tport->portno == 0)
+      if ((tport = target->ports.nextPort(tport, IPPROTO_UDP, PORT_CLOSED)))
+	closedUDPPort = tport->portno;
+    target->FPR->osscan_closedudpport = closedUDPPort;
   } else if ((tport = target->ports.nextPort(NULL, IPPROTO_UDP, PORT_UNFILTERED))) {
     /* Well, we will settle for unfiltered */
     closedUDPPort = tport->portno;
+    /* But not zero, please */
+    if (tport->portno == 0)
+      if ((tport = target->ports.nextPort(NULL, IPPROTO_UDP, PORT_UNFILTERED)))
+	closedUDPPort = tport->portno;
   } else {
+    /* Pick one at random.  Shrug. */
     closedUDPPort = (get_random_uint() % 14781) + 30000;
   }
 
@@ -1205,7 +1236,8 @@ void HostOsScan::sendTUdpProbe(HostOsScanStats *hss, int probeNo) {
   
   if(hss->closedUDPPort == (unsigned long)-1) return;
   send_closedudp_probe_2(hss->upi, rawsd, ethptr, hss->target->v4hostip(),
-						 this->udpttl, udpPortBase + probeNo, hss->closedUDPPort);
+			 this->udpttl, udpPortBase + probeNo, 
+			 hss->closedUDPPort);
 }
 
 bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int len, struct timeval *rcvdtime) {
@@ -2246,6 +2278,10 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
   strcpy(AVs[current_testno].value, "Y");
 
   current_testno++;
+
+  /* Also, we now know that the port we reached was closed */
+  if (hss->target->FPR->osscan_closedudpport == -1)
+    hss->target->FPR->osscan_closedudpport = hss->upi.dport;
 
   /* Now let us do an easy one, Don't fragment */
   AVs[current_testno].attribute = "DF";
@@ -3496,6 +3532,7 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
 	
 	hsi->target->distance = hsi->target->FPR->distance = distance;
 	hsi->target->FPR->distance_guess = hsi->hss->distance_guess;
+
   }
   
   OSI->removeCompletedHosts();
@@ -3563,12 +3600,13 @@ static void printFP(OsScanInfo *OSI) {
 	FPR = hsi->target->FPR;
 
 	log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,
-			  "No OS matches for %s by new os scan system.\n\nTCP/IP fingerprint:\n%s",
-			  hsi->target->targetipstr(),
-			  mergeFPs(FPR->FPs, FPR->numFPs, true,
-					   hsi->target->v4hostip(), hsi->target->distance, hsi->target->MACAddress(),
-					   FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
-					   false));
+		  "No OS matches for %s by new os scan system.\n\nTCP/IP fingerprint:\n%s",
+		  hsi->target->targetipstr(),
+		  mergeFPs(FPR->FPs, FPR->numFPs, true,
+			   hsi->target->v4hostip(), hsi->target->distance, 
+			   hsi->target->MACAddress(),
+			   FPR->osscan_opentcpport, FPR->osscan_closedtcpport, 
+			   FPR->osscan_closedudpport, false));
   }
 }
 

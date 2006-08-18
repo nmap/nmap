@@ -136,36 +136,29 @@ const struct OS_Classification_Results *FingerPrintResults::getOSClassification(
 
   /* Are the attributes of this fingerprint good enough to warrant submission to the official DB? */
 bool FingerPrintResults::fingerprintSuitableForSubmission() {
+
   if (o.scan_delay > 500) // This can screw up the sequence timing
     return false;
 
-  if (osscan_opentcpport < 0 || osscan_closedtcpport < 0 )
+  if (osscan_opentcpport <= 0 || osscan_closedtcpport <= 0 )
 	/* The results won't be complete */
     return false;
 
-  if (osscan_closedudpport > 0) {
   if (distance > 5)
-	/* Too far away from us. */
+    /* Too far away from us. */
+    return false;
+
+  if (osscan_closedudpport == 0)
+    return false; /* Too much risk of goofy results */
+
+  if (osscan_closedudpport < 0 && !o.udpscan) {
+    /* If we didn't get a U1 response, that might be just
+       because we didn't search for an open port rather than
+       because this OS doesn't respond to that sort of probe.
+       So we don't print FP if U1 response is lacking AND no UDP
+       scan was performed. */
     return false;
   }
-  else {
-	if(!o.udpscan) {
-	  /* not performed a udp scan at all. */
-	  return false;
-	}
-	else {
-	  /* does have performed a udp scan but fails to find a closed udp port. */
-	  if(distance != 0 && distance != 1 && distance_guess > 5) {
-		/*
-		  distance != 0: not scanning self.
-		  distance != 1: not scanning the host on the same network segment.
-		  distance_guess > 5: it seems that the target is too far away from us.
-		*/
-		return false;
-	  }
-	}
-  }
-
   return true;
 }
 
