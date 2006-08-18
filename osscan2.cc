@@ -9,6 +9,16 @@
 #define NUM_FPTESTS    13
 #define MAX_SCAN_ROUND 3
 
+// The minimum (and target) amount of time to wait between probes
+// sent to a single host, in milliseconds.
+#define OS_PROBE_DELAY 25
+
+// The minimum (and target) amount of time to wait between sequencing
+// probes sent to a single host, in milliseconds.  It is important
+// that the seq probes (which involves 5 gaps) take more than 500ms so
+// we can detect timestamps which increase at a frequency of 2Hz.
+#define OS_SEQ_PROBE_DELAY 110
+
 using namespace std;
 extern NmapOps o;
 
@@ -451,7 +461,7 @@ HostOsScanStats::HostOsScanStats(Target * t) {
   closedUDPPort = (unsigned int)-1;
 
   num_probes_sent = 0;
-  sendDelayMs = o.scan_delay;
+  sendDelayMs = MAX(o.scan_delay, OS_PROBE_DELAY);
   lastProbeSent = now;
   
   /* timing */
@@ -1013,13 +1023,11 @@ bool HostOsScan::hostSeqSendOK(HostOsScanStats *hss, struct timeval *when) {
 
   packTime = TIMEVAL_SUBTRACT(now, hss->lastProbeSent);
   
-  /* The meaning of 110000: Need to spend at least .5 seconds in
-   * sending all packets to reliably detect 2HZ timestamp sequencing.
-   *
-   * If the user insist a sendDelayMs larger than 110ms, use it. But
+  /*
+   * If the user insist a larger sendDelayMs, use it. But
    * the seq result may be inaccurate.
    */
-  maxWait = MAX(110000, hss->sendDelayMs * 1000);
+  maxWait = MAX(OS_SEQ_PROBE_DELAY * 1000, hss->sendDelayMs * 1000);
   if (packTime < maxWait) {
     if (when) { TIMEVAL_ADD(*when, hss->lastProbeSent, maxWait); }
     return false;
@@ -1140,7 +1148,8 @@ void HostOsScan::sendTSeqProbe(HostOsScanStats *hss, int probeNo) {
   send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
                       tcpPortBase + probeNo, hss->openTCPPort,
                       tcpSeqBase + probeNo, tcpAck, 0,
-                      TH_SYN, 0, 0, prbOpts[probeNo].val, prbOpts[probeNo].len, NULL, 0);
+                      TH_SYN, 0, 0, prbOpts[probeNo].val, prbOpts[probeNo].len,
+		      NULL, 0);
 
   hss->seq_send_times[probeNo] = now;  
 }

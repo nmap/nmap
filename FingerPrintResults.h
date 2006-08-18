@@ -131,10 +131,12 @@ class FingerPrintResults {
   int overall_results; /* OSSCAN_TOOMANYMATCHES, OSSCAN_NOMATCHES, 
 			  OSSCAN_SUCCESS, etc */
 
-  /* Ensures that the results are available and then returns them.  You should only call
-   this AFTER all matching has been completed (because results are cached and won't change
-   if new prints[] are added.)  All OS Classes in the results will be unique, and if there are 
-   any perfect (accuracy 1.0) matches, only those will be returned */
+  /* Ensures that the results are available and then returns them.
+   You should only call this AFTER all matching has been completed
+   (because results are cached and won't change if new prints[] are
+   added.)  All OS Classes in the results will be unique, and if there
+   are any perfect (accuracy 1.0) matches, only those will be
+   returned */
   const struct OS_Classification_Results *getOSClassification();
 
   int osscan_opentcpport; /* Open TCP port used for scannig (if one found -- 
