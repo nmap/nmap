@@ -901,7 +901,7 @@ assert(victim);
 assert(source);
 
 if (optlen % 4) {
-  fatal("build_tcp_raw() called with an option length argument of %d which is illegal because it is not divisible by 4", optlen);
+  fatal("build_tcp_raw() called with an option length argument of %d which is illegal because it is not divisible by 4.  Just add \\0 padding to the end.", optlen);
 }
 
 /* Time to live */
@@ -1164,10 +1164,12 @@ int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetl
    packet contents, and then returns that buffer.  The packet is not
    actually sent by this function.  Caller must delete the buffer when
    finished with the packet.  The packet length is returned in
-   packetlen, which must be a valid int pointer. */
+   packetlen, which must be a valid int pointer.  The id/seq will be converted
+   to network byte order (if it differs from HBO) */
 u8 *build_icmp_raw(const struct in_addr *source, const struct in_addr *victim, 
-		   int ttl, u16 ipid, u8 tos, bool df, u16 seq, unsigned short id, u8 ptype, 
-		   u8 pcode, char *data, u16 datalen, u32 *packetlen) {
+		   int ttl, u16 ipid, u8 tos, bool df, u16 seq, 
+		   unsigned short id, u8 ptype, u8 pcode, char *data, 
+		   u16 datalen, u32 *packetlen) {
 
 struct ppkt {
   u8 type;
@@ -1205,8 +1207,8 @@ char *ping = (char *) &pingpkt;
  }
 /* Fill out the ping packet */
 
-pingpkt.id = id;
-pingpkt.seq = seq;
+ pingpkt.id = htons(id);
+ pingpkt.seq = htons(seq);
 pingpkt.checksum = 0;
 pingpkt.checksum = in_cksum((unsigned short *)ping, icmplen);
 

@@ -549,12 +549,14 @@ u8 *build_udp_raw(struct in_addr *source, const struct in_addr *victim,
  		  int ttl, u16 sport, u16 dport, u16 ipid, char *data, 
 		  u16 datalen, u32 *packetlen);
 
-/* Builds an ICMP packet (including an IP header) by packing the fields
-   with the given information.  It allocates a new buffer to store the
-   packet contents, and then returns that buffer.  The packet is not
-   actually sent by this function.  Caller must delete the buffer when
-   finished with the packet.  The packet length is returned in
-   packetlen, which must be a valid int pointer. */
+/* Builds an ICMP packet (including an IP header) by packing the
+   fields with the given information.  It allocates a new buffer to
+   store the packet contents, and then returns that buffer.  The
+   packet is not actually sent by this function.  Caller must delete
+   the buffer when finished with the packet.  The packet length is
+   returned in packetlen, which must be a valid int pointer. The
+   id/seq will be converted to network byte order (if it differs from
+   HBO) */
 u8 *build_icmp_raw(const struct in_addr *source, const struct in_addr *victim, 
 		   int ttl, u16 ipid, u8 tos, bool df, u16 seq, unsigned short id, u8 ptype, 
 		   u8 pcode, char *data, u16 datalen, u32 *packetlen);

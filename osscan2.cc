@@ -1,4 +1,105 @@
 
+/***************************************************************************
+ * osscan2.cc -- Routines used for 2nd Generation OS detection via         *
+ * TCP/IP fingerprinting.  * For more information on how this works in     *
+ * Nmap, see http://insecure.org/nmap/osdetect/                            *
+ *                                                                         *
+ ***********************IMPORTANT NMAP LICENSE TERMS************************
+ *                                                                         *
+ * The Nmap Security Scanner is (C) 1996-2004 Insecure.Com LLC. Nmap       *
+ * is also a registered trademark of Insecure.Com LLC.  This program is    *
+ * free software; you may redistribute and/or modify it under the          *
+ * terms of the GNU General Public License as published by the Free        *
+ * Software Foundation; Version 2.  This guarantees your right to use,     *
+ * modify, and redistribute this software under certain conditions.  If    *
+ * you wish to embed Nmap technology into proprietary software, we may be  *
+ * willing to sell alternative licenses (contact sales@insecure.com).      *
+ * Many security scanner vendors already license Nmap technology such as  *
+ * our remote OS fingerprinting database and code, service/version         *
+ * detection system, and port scanning code.                               *
+ *                                                                         *
+ * Note that the GPL places important restrictions on "derived works", yet *
+ * it does not provide a detailed definition of that term.  To avoid       *
+ * misunderstandings, we consider an application to constitute a           *
+ * "derivative work" for the purpose of this license if it does any of the *
+ * following:                                                              *
+ * o Integrates source code from Nmap                                      *
+ * o Reads or includes Nmap copyrighted data files, such as                *
+ *   nmap-os-fingerprints or nmap-service-probes.                          *
+ * o Executes Nmap and parses the results (as opposed to typical shell or  *
+ *   execution-menu apps, which simply display raw Nmap output and so are  *
+ *   not derivative works.)                                                * 
+ * o Integrates/includes/aggregates Nmap into a proprietary executable     *
+ *   installer, such as those produced by InstallShield.                   *
+ * o Links to a library or executes a program that does any of the above   *
+ *                                                                         *
+ * The term "Nmap" should be taken to also include any portions or derived *
+ * works of Nmap.  This list is not exclusive, but is just meant to        *
+ * clarify our interpretation of derived works with some common examples.  *
+ * These restrictions only apply when you actually redistribute Nmap.  For *
+ * example, nothing stops you from writing and selling a proprietary       *
+ * front-end to Nmap.  Just distribute it by itself, and point people to   *
+ * http://www.insecure.org/nmap/ to download Nmap.                         *
+ *                                                                         *
+ * We don't consider these to be added restrictions on top of the GPL, but *
+ * just a clarification of how we interpret "derived works" as it applies  *
+ * to our GPL-licensed Nmap product.  This is similar to the way Linus     *
+ * Torvalds has announced his interpretation of how "derived works"        *
+ * applies to Linux kernel modules.  Our interpretation refers only to     *
+ * Nmap - we don't speak for any other GPL products.                       *
+ *                                                                         *
+ * If you have any questions about the GPL licensing restrictions on using *
+ * Nmap in non-GPL works, we would be happy to help.  As mentioned above,  *
+ * we also offer alternative license to integrate Nmap into proprietary    *
+ * applications and appliances.  These contracts have been sold to many    *
+ * security vendors, and generally include a perpetual license as well as  *
+ * providing for priority support and updates as well as helping to fund   *
+ * the continued development of Nmap technology.  Please email             *
+ * sales@insecure.com for further information.                             *
+ *                                                                         *
+ * As a special exception to the GPL terms, Insecure.Com LLC grants        *
+ * permission to link the code of this program with any version of the     *
+ * OpenSSL library which is distributed under a license identical to that  *
+ * listed in the included Copying.OpenSSL file, and distribute linked      *
+ * combinations including the two. You must obey the GNU GPL in all        *
+ * respects for all of the code used other than OpenSSL.  If you modify    *
+ * this file, you may extend this exception to your version of the file,   *
+ * but you are not obligated to do so.                                     *
+ *                                                                         *
+ * If you received these files with a written license agreement or         *
+ * contract stating terms other than the terms above, then that            *
+ * alternative license agreement takes precedence over these comments.     *
+ *                                                                         *
+ * Source is provided to this software because we believe users have a     *
+ * right to know exactly what a program is going to do before they run it. *
+ * This also allows you to audit the software for security holes (none     *
+ * have been found so far).                                                *
+ *                                                                         *
+ * Source code also allows you to port Nmap to new platforms, fix bugs,    *
+ * and add new features.  You are highly encouraged to send your changes   *
+ * to fyodor@insecure.org for possible incorporation into the main         *
+ * distribution.  By sending these changes to Fyodor or one the            *
+ * Insecure.Org development mailing lists, it is assumed that you are      *
+ * offering Fyodor and Insecure.Com LLC the unlimited, non-exclusive right *
+ * to reuse, modify, and relicense the code.  Nmap will always be          *
+ * available Open Source, but this is important because the inability to   *
+ * relicense code has caused devastating problems for other Free Software  *
+ * projects (such as KDE and NASM).  We also occasionally relicense the    *
+ * code to third parties as discussed above.  If you wish to specify       *
+ * special license conditions of your contributions, just say so when you  *
+ * send them.                                                              *
+ *                                                                         *
+ * This program is distributed in the hope that it will be useful, but     *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+ * General Public License for more details at                              *
+ * http://www.gnu.org/copyleft/gpl.html , or in the COPYING file included  *
+ * with Nmap.                                                              *
+ *                                                                         *
+ ***************************************************************************/
+
+/* $Id: osscan.cc 3636 2006-07-04 23:04:56Z fyodor $ */
+
 #include "osscan.h"
 #include "osscan2.h"
 #include "timing.h"
@@ -25,7 +126,7 @@ extern NmapOps o;
 /* 8 options:
  *  0~5: six options for SEQ/OPS/WIN/T1 probes.
  *  6:   ECN probe.
- *  7:   T2~T7 probes.
+ *  7-12:   T2~T7 probes.
  *
  * option 0: WScale (10), Nop, MSS (1460), Timestamp, SackP
  * option 1: MSS (1400), WScale (0), Nop, SackP, T
@@ -34,21 +135,31 @@ extern NmapOps o;
  * option 4: MSS (536), SackP, T, WScale (10), Nop
  * option 5: MSS (265), SackP, Nop, Nop, T, Nop, End
  * option 6: WScale (10), Nop, MSS (1460), SackP, Nop, Nop
- * option 7: WScale (10), Nop, MSS (265), T, SackP
+ * option 7-11: WScale (10), Nop, MSS (265), T, SackP
+ * option 12: WScale (15), Nop, MSS (265), T, SackP
  */
 static struct {
   u8* val;
   int len;
-} prbOpts[NUM_SEQ_SAMPLES + 2] = {
+} prbOpts[] = {
   {(u8*) "\003\003\012\001\002\004\005\264\010\012\377\377\377\377\000\000\000\000\004\002", 20},
-  {(u8*) "\002\004\005\170\003\003\000\001\004\002\010\012\377\377\377\377\000\000\000\000", 20},
+  {(u8*) "\002\004\005\170\003\003\000\004\002\010\012\377\377\377\377\000\000\000\000\0", 20},
   {(u8*) "\010\012\377\377\377\377\000\000\000\000\001\001\003\003\005\001\002\004\002\200", 20},
-  {(u8*) "\004\002\010\012\377\377\377\377\000\000\000\000\003\003\012\001", 16},
-  {(u8*) "\002\004\002\030\004\002\010\012\377\377\377\377\000\000\000\000\003\003\012\001", 20},
-  {(u8*) "\002\004\001\011\004\002\001\001\010\012\377\377\377\377\000\000\000\000\001\000", 20},
+  {(u8*) "\004\002\010\012\377\377\377\377\000\000\000\000\003\003\012\0", 16},
+  {(u8*) "\002\004\002\030\004\002\010\012\377\377\377\377\000\000\000\000\003\003\012\0", 20},
+  {(u8*) "\002\004\001\011\004\002\010\012\377\377\377\377\000\000\000\000", 16},
   {(u8*) "\003\003\012\001\002\004\005\264\004\002\001\001", 12},
-  {(u8*) "\003\003\012\001\002\004\001\011\010\012\377\377\377\377\000\000\000\000\004\002", 20}
+  {(u8*) "\003\003\012\001\002\004\001\011\010\012\377\377\377\377\000\000\000\000\004\002", 20},
+  {(u8*) "\003\003\012\001\002\004\001\011\010\012\377\377\377\377\000\000\000\000\004\002", 20},
+  {(u8*) "\003\003\012\001\002\004\001\011\010\012\377\377\377\377\000\000\000\000\004\002", 20},
+  {(u8*) "\003\003\012\001\002\004\001\011\010\012\377\377\377\377\000\000\000\000\004\002", 20},
+  {(u8*) "\003\003\012\001\002\004\001\011\010\012\377\377\377\377\000\000\000\000\004\002", 20},
+  {(u8*) "\003\003\017\001\002\004\001\011\010\012\377\377\377\377\000\000\000\000\004\002", 20}
 };
+
+/* Numbering is the same as for prbOpts[] */
+u16 prbWindowSz[] = { 1, 63, 4, 4, 16, 512, 3, 128, 256, 1024, 31337, 32768, 65535 };
+
 
 /* A global now. Updated after potentially meaningful delays. This can
  * be used to save a call to gettimeofday()
@@ -1148,7 +1259,7 @@ void HostOsScan::sendTSeqProbe(HostOsScanStats *hss, int probeNo) {
   send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
                       tcpPortBase + probeNo, hss->openTCPPort,
                       tcpSeqBase + probeNo, tcpAck, 0,
-                      TH_SYN, 0, 0, prbOpts[probeNo].val, prbOpts[probeNo].len,
+                      TH_SYN, prbWindowSz[probeNo], 0, prbOpts[probeNo].val, prbOpts[probeNo].len,
 		      NULL, 0);
 
   hss->seq_send_times[probeNo] = now;  
@@ -1156,13 +1267,13 @@ void HostOsScan::sendTSeqProbe(HostOsScanStats *hss, int probeNo) {
 
 void HostOsScan::sendTOpsProbe(HostOsScanStats *hss, int probeNo) {
   assert(hss);
-  assert(probeNo>=0 && probeNo<6);
+  assert(probeNo>=0 && probeNo< NUM_SEQ_SAMPLES);
 
   if(hss->openTCPPort == (unsigned long)-1) return;
   
   send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
                       tcpPortBase + NUM_SEQ_SAMPLES + probeNo, hss->openTCPPort, tcpSeqBase,
-                      tcpAck, 0, TH_SYN, 0, 0, prbOpts[probeNo].val, prbOpts[probeNo].len, NULL, 0);
+                      tcpAck, 0, TH_SYN, prbWindowSz[probeNo], 0, prbOpts[probeNo].val, prbOpts[probeNo].len, NULL, 0);
 }
 
 void HostOsScan::sendTEcnProbe(HostOsScanStats *hss) {
@@ -1172,7 +1283,7 @@ void HostOsScan::sendTEcnProbe(HostOsScanStats *hss) {
   
   send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
                       tcpPortBase + NUM_SEQ_SAMPLES + 6, hss->openTCPPort, tcpSeqBase, 0, 8,
-                      TH_CWR|TH_ECE|TH_SYN, 0, 63479, prbOpts[6].val, prbOpts[6].len, NULL, 0);
+                      TH_CWR|TH_ECE|TH_SYN, prbWindowSz[6], 63477, prbOpts[6].val, prbOpts[6].len, NULL, 0);
 }
 
 void HostOsScan::sendT1_7Probe(HostOsScanStats *hss, int probeNo) {
@@ -1186,43 +1297,49 @@ void HostOsScan::sendT1_7Probe(HostOsScanStats *hss, int probeNo) {
     if(hss->openTCPPort == (unsigned long)-1) return;
     send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
                         port_base, hss->openTCPPort, tcpSeqBase, tcpAck, 0,
-                        TH_SYN, 0, 0, prbOpts[0].val, prbOpts[0].len, NULL, 0);
+                        TH_SYN, prbWindowSz[0], 0, prbOpts[0].val, 
+			prbOpts[0].len, NULL, 0);
     break;
   case 1: /* T2 */
     if(hss->openTCPPort == (unsigned long)-1) return;
     send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, true,
                         port_base + 1, hss->openTCPPort, tcpSeqBase, tcpAck, 0,
-                        0, 0, 0, prbOpts[7].val, prbOpts[7].len, NULL, 0);
+                        0, prbWindowSz[7], 0, prbOpts[7].val, prbOpts[7].len, NULL, 0);
     break;
   case 2: /* T3 */
     if(hss->openTCPPort == (unsigned long)-1) return;
     send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
                         port_base + 2, hss->openTCPPort, tcpSeqBase, tcpAck, 0,
-                        TH_SYN|TH_FIN|TH_URG|TH_PUSH, 0, 0, prbOpts[7].val, prbOpts[7].len, NULL, 0);
+                        TH_SYN|TH_FIN|TH_URG|TH_PUSH, prbWindowSz[8], 0, 
+			prbOpts[8].val, prbOpts[8].len, NULL, 0);
     break;
   case 3: /* T4 */
     if(hss->openTCPPort == (unsigned long)-1) return;
     send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, true,
                         port_base + 3, hss->openTCPPort, tcpSeqBase, tcpAck, 0,
-                        TH_ACK, 0, 0, prbOpts[7].val, prbOpts[7].len, NULL, 0);
+                        TH_ACK, prbWindowSz[9], 0, prbOpts[9].val, 
+			prbOpts[9].len, NULL, 0);
     break;
   case 4: /* T5 */
     if(hss->closedTCPPort == (unsigned long)-1) return;
     send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
                         port_base + 4, hss->closedTCPPort, tcpSeqBase, tcpAck, 0,
-                        TH_SYN, 0, 0, prbOpts[7].val, prbOpts[7].len, NULL, 0);
+                        TH_SYN, prbWindowSz[10], 0, prbOpts[10].val, 
+			prbOpts[10].len, NULL, 0);
     break;
   case 5: /* T6 */
     if(hss->closedTCPPort == (unsigned long)-1) return;
     send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, true,
                         port_base + 5, hss->closedTCPPort, tcpSeqBase, tcpAck, 0,
-                        TH_ACK, 0, 0, prbOpts[7].val, prbOpts[7].len, NULL, 0);
+                        TH_ACK, prbWindowSz[11], 0, prbOpts[11].val, 
+			prbOpts[11].len, NULL, 0);
     break;
   case 6: /* T7 */
     if(hss->closedTCPPort == (unsigned long)-1) return;
     send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
                         port_base + 6, hss->closedTCPPort, tcpSeqBase, tcpAck, 0,
-                        TH_FIN|TH_PUSH|TH_URG, 0, 0, prbOpts[7].val, prbOpts[7].len, NULL, 0);
+                        TH_FIN|TH_PUSH|TH_URG, prbWindowSz[12], 0, 
+			prbOpts[12].val, prbOpts[12].len, NULL, 0);
     break;
   }
 }
@@ -1324,7 +1441,7 @@ bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int l
 
     /* Is it an icmp echo reply? */
     if (icmp->icmp_type == ICMP_ECHOREPLY) {
-      testno = icmp->icmp_id - icmpEchoId;
+      testno = ntohs(icmp->icmp_id) - icmpEchoId;
 	  if (testno==0 || testno==1) {
 		isPktUseful = processTIcmpResp(hss, ip, testno);
 		if(isPktUseful) {
@@ -1644,39 +1761,39 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
       break;
     }
 
-	good_tcp_ipid_num = 0;
-	good_icmp_ipid_num = 0;
-
-	for(i=0; i < NUM_SEQ_SAMPLES; i++) {
-	  if (hss->ipid.tcp_ipids[i] != -1) {
-		if (good_tcp_ipid_num < i) {
-		  hss->ipid.tcp_ipids[good_tcp_ipid_num] = hss->ipid.tcp_ipids[i];
-		}
-		good_tcp_ipid_num++;
-	  }
-
-	  if (hss->ipid.icmp_ipids[i] != -1) {
-		if (good_icmp_ipid_num < i) {
-		  hss->ipid.icmp_ipids[good_icmp_ipid_num] = hss->ipid.icmp_ipids[i];
-		}
-		good_icmp_ipid_num++;
-	  }
+    good_tcp_ipid_num = 0;
+    good_icmp_ipid_num = 0;
+    
+    for(i=0; i < NUM_SEQ_SAMPLES; i++) {
+      if (hss->ipid.tcp_ipids[i] != -1) {
+	if (good_tcp_ipid_num < i) {
+	  hss->ipid.tcp_ipids[good_tcp_ipid_num] = hss->ipid.tcp_ipids[i];
 	}
-
-	if (good_tcp_ipid_num >= 3) {
-	  tcp_ipid_seqclass = get_ipid_sequence(good_tcp_ipid_num, hss->ipid.tcp_ipids, islocalhost(hss->target->v4hostip()));
-	} else {
-	  tcp_ipid_seqclass = IPID_SEQ_UNKNOWN;
+	good_tcp_ipid_num++;
+      }
+      
+      if (hss->ipid.icmp_ipids[i] != -1) {
+	if (good_icmp_ipid_num < i) {
+	  hss->ipid.icmp_ipids[good_icmp_ipid_num] = hss->ipid.icmp_ipids[i];
 	}
-	/* Only print tcp ipid seqclass in the final report. */
-	hss->si.ipid_seqclass = tcp_ipid_seqclass;
-
-	if (good_icmp_ipid_num >= 2) {
-	  icmp_ipid_seqclass = get_ipid_sequence(good_icmp_ipid_num, hss->ipid.icmp_ipids, islocalhost(hss->target->v4hostip()));
-	} else {
-	  icmp_ipid_seqclass = IPID_SEQ_UNKNOWN;
-	}
-
+	good_icmp_ipid_num++;
+      }
+    }
+    
+    if (good_tcp_ipid_num >= 3) {
+      tcp_ipid_seqclass = get_ipid_sequence(good_tcp_ipid_num, hss->ipid.tcp_ipids, islocalhost(hss->target->v4hostip()));
+    } else {
+      tcp_ipid_seqclass = IPID_SEQ_UNKNOWN;
+    }
+    /* Only print tcp ipid seqclass in the final report. */
+    hss->si.ipid_seqclass = tcp_ipid_seqclass;
+    
+    if (good_icmp_ipid_num >= 2) {
+      icmp_ipid_seqclass = get_ipid_sequence(good_icmp_ipid_num, hss->ipid.icmp_ipids, islocalhost(hss->target->v4hostip()));
+    } else {
+      icmp_ipid_seqclass = IPID_SEQ_UNKNOWN;
+    }
+    
     /* TI: TCP IP ID sequence generation algorithm */
     switch(tcp_ipid_seqclass) {
     case IPID_SEQ_CONSTANT:
@@ -2550,8 +2667,8 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, struct ip *ip, int reply
    * O. Other.
    */
   AVs[5].attribute = "SI";
-  value1 = icmp1->icmp_seq;
-  value2 = icmp2->icmp_seq;
+  value1 = ntohs(icmp1->icmp_seq);
+  value2 = ntohs(icmp2->icmp_seq);
   if (value1 == value2) {
     if (value1 == 0)
       strcpy(AVs[current_testno].value, "Z");
@@ -2840,8 +2957,9 @@ int OsScanInfo::removeCompletedHosts() {
   return hostsRemoved;
 }
 
-int send_icmp_echo_probe(int sd, struct eth_nfo *eth, const struct in_addr *victim,
-                         u8 tos, bool df, u8 pcode, unsigned short id, u16 seq, u16 datalen) {
+int send_icmp_echo_probe(int sd, struct eth_nfo *eth, 
+			 const struct in_addr *victim, u8 tos, bool df,
+			 u8 pcode, unsigned short id, u16 seq, u16 datalen) {
   u8 *packet = NULL;
   u32 packetlen = 0;
   int decoy;
@@ -2864,7 +2982,7 @@ int send_closedudp_probe_2(struct udpprobeinfo &upi, int sd,
                            struct eth_nfo *eth,  const struct in_addr *victim,
 						   int ttl, u16 sport, u16 dport) {
   static int myttl = 0;
-  static u8 patternbyte = 0x41; /* character 'A' */
+  static u8 patternbyte = 0x43; /* character 'C' */
   static u16 id = 0x1042; 
   u8 packet[328]; /* 20 IP hdr + 8 UDP hdr + 300 data */
   struct ip *ip = (struct ip *) packet;
