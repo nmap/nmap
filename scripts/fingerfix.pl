@@ -35,15 +35,17 @@ while(<>) {
 		}
     }
 
-    elsif ($line =~ /SEQ\(CL=([^%\)]+)(%SP=([^%]+)%GCD=([^%\)]+))?(%Val=([0-9A-F]+))?(%IPID=([^%\)]+))?(%TS=([^%\)]+))?\)/) {
+    elsif ($line =~ /SEQ\(CL=([^%\)]+)(%SP=([^%]+)%GCD=([^%\)]+))?(%Val=([0-9A-F]+))?(%TI=([^%\)]+))?(%II=([^%\)]+))?(%SS=([^%\)]+))?(%TS=([^%\)]+))?\)/) {
 		# SEQ
         $cls = $1;
 		if ($cls ne "C") {
 			$sp = $3;
 			$gcd = hex($4);
 		} else { $cval=$6; }
-        $ipid = $8;
-        $ts = $10;
+        $ti = $8;
+		$ii = $10;
+		$ss = $12;
+        $ts = $14;
 		if (!($fp{seq}{cls} =~ /(^|\|)$cls($|\|)/)) {
 			if ($fp{seq}{cls}) {
 				$fp{seq}{cls} = $fp{seq}{cls} . qq^|$cls^;
@@ -118,11 +120,27 @@ while(<>) {
 
 		}
 
-	    if (!($fp{seq}{ipid} =~ /(^|\|)$ipid($|\|)/)) {
-            if ($fp{seq}{ipid}) {
-                $fp{seq}{ipid} = $fp{seq}{ipid} . qq^|$ipid^;
+	    if (!($fp{seq}{ti} =~ /(^|\|)$ti($|\|)/)) {
+            if ($fp{seq}{ti}) {
+                $fp{seq}{ti} = $fp{seq}{ti} . qq^|$ti^;
             } else {
-                $fp{seq}{ipid} = $ipid;
+                $fp{seq}{ti} = $ti;
+            }
+        }
+
+	    if (!($fp{seq}{ii} =~ /(^|\|)$ii($|\|)/)) {
+            if ($fp{seq}{ii}) {
+                $fp{seq}{ii} = $fp{seq}{ii} . qq^|$ii^;
+            } else {
+                $fp{seq}{ii} = $ii;
+            }
+        }
+
+	    if (!($fp{seq}{ss} =~ /(^|\|)$ss($|\|)/)) {
+            if ($fp{seq}{ss}) {
+                $fp{seq}{ss} = $fp{seq}{ss} . qq^|$ss^;
+            } else {
+                $fp{seq}{ss} = $ss;
             }
         }
 
@@ -172,7 +190,7 @@ while(<>) {
 		}
 	}  elsif ($line =~ /^ECN/) {
 		# ECN
-		$resp = $df = $ttl = $cc = $quirk = "";
+		$resp = $df = $ttl = $win = $ops = $cc = $quirk = "";
 
 		if ($line =~ /R=([NY])/) {
 			$resp = $1;
@@ -183,6 +201,14 @@ while(<>) {
 		if ($line =~ /[(%]TG?=([0-9A-F]+)/) {
 			$ttl = $1;
 			if (!$ttl) { $ttl = "NULL"; }
+		}
+		if ($line =~ /[(%]W=([0-9A-F|]*)/) {
+			$win = $1;
+			if (!$win) { $win = "NULL"; }
+		}
+		if ($line =~ /[(%]O=([0-9A-Z|]*)/) {
+			$ops = $1;
+			if (!$ops) { $ops = "NULL"; }
 		}
 		if ($line =~ /[(%]CC=([NY])/) {
 			$cc = $1;
@@ -207,6 +233,22 @@ while(<>) {
 					$fp{ecn}{ttl} = $fp{ecn}{ttl} . qq^|$ttl^;
 				} else {
 					$fp{ecn}{ttl} = $ttl;
+				}
+			}
+
+			if (!($fp{ecn}{win} =~ /(^|\|)$win($|\|)/)) {
+				if ($fp{ecn}{win}) {
+					$fp{ecn}{win} = $fp{ecn}{win} . qq^|$win^;
+				} else {
+					$fp{ecn}{win} = $win;
+				}
+			}
+
+			if (!($fp{ecn}{ops} =~ /(^|\|)$ops($|\|)/)) {
+				if ($fp{ecn}{ops}) {
+					$fp{ecn}{ops} = $fp{ecn}{ops} . qq^|$ops^;
+				} else {
+					$fp{ecn}{ops} = $ops;
 				}
 			}
 
@@ -596,7 +638,9 @@ if ($fp{seq}{cls}) {
 		}
     }
     if ($fp{seq}{cval}) {print "%Val=$fp{seq}{cval}"; }
-    if ($fp{seq}{ipid}) { print "%IPID=$fp{seq}{ipid}"; }
+    if ($fp{seq}{ti}) { print "%TI=$fp{seq}{ti}"; }
+    if ($fp{seq}{ii}) { print "%II=$fp{seq}{ii}"; }
+    if ($fp{seq}{ss}) { print "%SS=$fp{seq}{ss}"; }
     if ($fp{seq}{ts}) { print "%TS=$fp{seq}{ts}"; }
     print ")\n";
 }
@@ -629,8 +673,10 @@ if ($fp{win}{w1}) {
 if ($fp{ecn}{resp} eq "Y") {
 	print "ECN(R=Y%";
 	$fp{ecn}{ttl} =~ s/NULL/0/;
+	$fp{ecn}{win} =~ s/NULL/0/;
+	$fp{ops}{win} =~ s/NULL//;
 	$fp{ecn}{quirk} =~ s/NULL//;
-	print "DF=$fp{ecn}{df}%T=$fp{ecn}{ttl}%TG=$fp{ecn}{ttl}%CC=$fp{ecn}{cc}%Q=$fp{ecn}{quirk})\n";
+	print "DF=$fp{ecn}{df}%T=$fp{ecn}{ttl}%TG=$fp{ecn}{ttl}%W=$fp{ecn}{win}%O=$fp{ecn}{ops}%CC=$fp{ecn}{cc}%Q=$fp{ecn}{quirk})\n";
 } else {
 	print "ECN(R=N)\n";
 }
