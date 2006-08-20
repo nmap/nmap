@@ -2,7 +2,7 @@
 4.20ALPHA5
 
 o Worked with Zhao to improve the new OS detection system with
-  better algorithms and bug fixes.
+  better algorithms, some probe changes, and some bug fixes.
 
 o Nmap now uses the (relatively) new libpcap pcap_get_selectable_fd
   API on systems which support it.  This means that we no longer need

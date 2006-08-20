@@ -262,6 +262,142 @@ void PacketTrace::traceArp(pdirection pdir, const u8 *frame, u32 len,
   return;
 }
 
+/* Get an ASCII information about a tcp option which is pointed by
+   optp, with a length of len. The result is stored in the result
+   buffer. The result may look like "<mss 1452,sackOK,timestamp
+   45848914 0,nop,wscale 7>" */
+static void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize) {
+  assert(optp);
+  assert(result);
+  char *p, ch;
+  u8 *q;
+  int opcode;
+  u16 tmpshort;
+  u32 tmpword1, tmpword2;
+
+  p = result; *p = '\0';
+  q = optp;
+  ch = '<';
+  
+  while(len > 0 && bufsize > 2) {
+	snprintf(p, bufsize, "%c", ch);
+	bufsize--;
+	p++;
+    opcode=*q++;	
+    if (!opcode) { /* End of List */
+	  
+	  snprintf(p, bufsize, "eol");
+	  bufsize -= strlen(p);
+	  p += strlen(p);
+	  
+      len--;
+	  
+    } else if (opcode == 1) { /* No Op */
+	  
+	  snprintf(p, bufsize, "nop");
+	  bufsize -= strlen(p);
+	  p += strlen(p);
+	  
+      len--;
+	  
+    } else if (opcode == 2) { /* MSS */
+	  
+      if(len<4)
+        break; /* MSS has 4 bytes */
+	  
+      q++;
+      memcpy(&tmpshort, q, 2);
+	  
+	  snprintf(p, bufsize, "mss %u", ntohs(tmpshort));
+	  bufsize -= strlen(p);
+	  p += strlen(p);
+
+      q += 2;
+      len -= 4;
+	  
+    } else if (opcode == 3) { /* Window Scale */
+	  
+      if(len<3)
+        break; /* Window Scale option has 3 bytes */
+	  
+      q++;
+
+	  snprintf(p, bufsize, "wsacle %u", *q);
+	  bufsize -= strlen(p);
+	  p += strlen(p); 
+	  
+      q++;
+      len -= 3;
+	  
+    } else if (opcode == 4) { /* SACK permitted */
+	  
+      if(len<2)
+        break; /* SACK permitted option has 2 bytes */
+	  
+	  snprintf(p, bufsize, "sackOK");
+	  bufsize -= strlen(p);
+	  p += strlen(p); 
+	  
+      q++;
+      len -= 2;
+	  
+    } else if (opcode == 5) { /* SACK */
+	  
+	  int sackoptlen = *q;
+	  if(len < sackoptlen)
+		break;
+	  
+	  q++;
+	  
+	  if((sackoptlen-2) % 8 != 0) {
+		snprintf(p, bufsize, "malformed sack");
+		bufsize -= strlen(p);
+		p += strlen(p); 
+	  } else {
+		snprintf(p, bufsize, "sack %d ", (sackoptlen-2)/8);
+		bufsize -= strlen(p);
+		p += strlen(p);
+		for(int i = 0; i < sackoptlen - 2; i += 8) {
+		  memcpy(&tmpword1, q + i, 4);
+		  memcpy(&tmpword2, q + i + 4, 4);
+		  snprintf(p, bufsize, "{%u:%u}", tmpword1, tmpword2);
+		  bufsize -= strlen(p);
+		  p += strlen(p);
+		}
+	  }
+
+	  q += sackoptlen-2;
+	  len -= sackoptlen;
+	  
+	} else if (opcode == 8) { /* Timestamp */
+
+      if(len<10)
+        break; /* Timestamp option has 10 bytes */
+
+      q++;
+      memcpy(&tmpword1, q, 4);
+      memcpy(&tmpword2, q+4, 4);
+
+	  snprintf(p, bufsize, "timestamp %u %u", ntohl(tmpword1), ntohl(tmpword2));
+	  bufsize -= strlen(p);
+	  p += strlen(p);
+
+	  q += 8;
+	  len -= 10;
+	  
+    }
+
+	ch = ',';
+  }
+
+  if(len > 0) {
+	*result = '\0';
+	return;
+  }
+
+  snprintf(p, bufsize, ">");
+}
+
 /* Returns a buffer of ASCII information about a packet that may look
    like "TCP 127.0.0.1:50923 > 127.0.0.1:3 S ttl=61 id=39516 iplen=40
    seq=625950769" or "ICMP PING (0/1) ttl=61 id=39516 iplen=40".
@@ -269,7 +405,7 @@ void PacketTrace::traceArp(pdirection pdir, const u8 *frame, u32 len,
    within (say) printf().  And certainly don't try to free() it!  The
    returned buffer is NUL-terminated */
 static const char *ippackethdrinfo(const u8 *packet, u32 len) {
-  static char protoinfo[256];
+  static char protoinfo[512];
   struct ip *ip = (struct ip *) packet;
   struct tcphdr *tcp;
   udphdr_bsd *udp;
@@ -279,7 +415,6 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
   struct in_addr saddr, daddr;
   int frag_off = 0, more_fragments = 0;
   char fragnfo[64] = "";
-  char tflags[10];
   if (ip->ip_v != 4)
     return "BOGUS!  IP Version in packet is not 4";
 
@@ -303,12 +438,15 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
 	   ip->ip_ttl, ntohs(ip->ip_id), ntohs(ip->ip_len), fragnfo);
 
   if (ip->ip_p == IPPROTO_TCP) {
+	char tflags[10];
     char tcpinfo[64] = "";
     char buf[32];
+	char tcpoptinfo[256] = "";
+	
     tcp = (struct tcphdr *)  (packet + ip->ip_hl * 4);
     if (frag_off > 8 || len < (u32) ip->ip_hl * 4 + 8) 
       snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? ?? %s (incomplete)", srchost, dsthost, ipinfo);
-    else if (frag_off == 8 && len >= (u32) ip->ip_hl * 4 + 8) {// we can get TCP flags and ACKn
+    else if (frag_off == 8) {// at least we can get TCP flags and ACKn
       tcp = (struct tcphdr *)((u8 *) tcp - frag_off); // ugly?
       p = tflags;
       /* These are basically in tcpdump order */
@@ -326,17 +464,25 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
       if (tcp->th_flags & TH_CWR) *p++ = 'C'; /* rfc 2481/3168 */
       *p++ = '\0';
 
-      snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? %s %s %s",
-	       srchost, dsthost, tflags, ipinfo, tcpinfo);
-    } else if (len < (u32) ip->ip_hl * 4 + 16) { // we can get ports an seq
+	  if((u32) tcp->th_off * 4 > sizeof(struct tcphdr)) {
+		// tcp options
+		if(len < (u32) ip->ip_hl * 4 + (u32) tcp->th_off * 4 - frag_off) {
+		  snprintf(tcpoptinfo, sizeof(tcpoptinfo), "option incomplete");
+		  
+		} else {
+		  tcppacketoptinfo((u8*) tcp + sizeof(struct tcphdr),
+					 tcp->th_off*4 - sizeof(struct tcphdr),
+					 tcpoptinfo, sizeof(tcpoptinfo));
+		}
+	  }
+
+      snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? %s %s %s %s",
+			   srchost, dsthost, tflags, ipinfo, tcpinfo, tcpoptinfo);
+    } else if (len < (u32) ip->ip_hl * 4 + 16) { // we can get ports and seq
       snprintf(tcpinfo, sizeof(tcpinfo), "seq=%lu (incomplete)", (unsigned long) ntohl(tcp->th_seq));
       snprintf(protoinfo, sizeof(protoinfo), "TCP %s:%d > %s:%d ?? %s %s",
 	       srchost, ntohs(tcp->th_sport), dsthost, ntohs(tcp->th_dport), ipinfo, tcpinfo);
-    } else if (len < (u32) ip->ip_hl * 4 + 16 && !frag_off) { // we can't get TCP flags
-      snprintf(protoinfo, sizeof(protoinfo), "TCP %s:%d > %s:%d ?? %s %s (incomplete)",
-	       srchost, ntohs(tcp->th_sport), dsthost, ntohs(tcp->th_dport),
-	       ipinfo, tcpinfo);
-    } else { // at least first 16 bytes of TCP header are there (everything we need)
+    } else { // at least first 16 bytes of TCP header are there
 
       snprintf(tcpinfo, sizeof(tcpinfo), "seq=%lu win=%hi", 
 	       (unsigned long) ntohl(tcp->th_seq),
@@ -358,9 +504,21 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
       if (tcp->th_flags & TH_CWR) *p++ = 'C'; /* rfc 2481/3168 */
       *p++ = '\0';
 
-      snprintf(protoinfo, sizeof(protoinfo), "TCP %s:%d > %s:%d %s %s %s",
+	  if((u32) tcp->th_off * 4 > sizeof(struct tcphdr)) {
+		// tcp options
+		if(len < (u32) ip->ip_hl * 4 + (u32) tcp->th_off * 4) {
+		  snprintf(tcpoptinfo, sizeof(tcpoptinfo), "option incomplete");
+		  
+		} else {
+		  tcppacketoptinfo((u8*) tcp + sizeof(struct tcphdr),
+					 tcp->th_off*4 - sizeof(struct tcphdr),
+					 tcpoptinfo, sizeof(tcpoptinfo));
+		}
+	  }
+
+      snprintf(protoinfo, sizeof(protoinfo), "TCP %s:%d > %s:%d %s %s %s %s",
 	       srchost, ntohs(tcp->th_sport), dsthost, ntohs(tcp->th_dport),
-	       tflags, ipinfo, tcpinfo);
+			   tflags, ipinfo, tcpinfo, tcpoptinfo);
     }
   } else if (ip->ip_p == IPPROTO_UDP && frag_off) {
       snprintf(protoinfo, sizeof(protoinfo), "UDP %s:?? > %s:?? fragment %s (incomplete)", srchost, dsthost, ipinfo);

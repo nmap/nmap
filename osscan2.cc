@@ -301,7 +301,7 @@ public:
 
 private:
   /* Ports of the targets used in os fingerprinting. */  
-  unsigned long openTCPPort, closedTCPPort, closedUDPPort;
+  int openTCPPort, closedTCPPort, closedUDPPort;
 
   /* Probe list used in tests. At first, probes are linked in
    * probesToSend; when a probe is sent, it will be removed from
@@ -567,9 +567,9 @@ HostOsScanStats::HostOsScanStats(Target * t) {
   target = t;
   FP = NULL;
 
-  openTCPPort = (unsigned int)-1;
-  closedTCPPort = (unsigned int)-1;
-  closedUDPPort = (unsigned int)-1;
+  openTCPPort = -1;
+  closedTCPPort = -1;
+  closedUDPPort = -1;
 
   num_probes_sent = 0;
   sendDelayMs = MAX(o.scan_delay, OS_PROBE_DELAY);
@@ -631,7 +631,7 @@ void HostOsScanStats::initScanStats() {
   int i;
 
   /* Lets find an open port to use if we don't already have one */
-  openTCPPort = (unsigned long) -1;
+  openTCPPort = -1;
   /*  target->FPR->osscan_opentcpport = -1;
   target->FPR->osscan_closedtcpport = -1;
   target->FPR->osscan_closedudpport = -1; */
@@ -694,8 +694,8 @@ void HostOsScanStats::initScanStats() {
     closedUDPPort = (get_random_uint() % 14781) + 30000;
   }
 
-  if (o.verbose && openTCPPort != (unsigned long) -1)
-    log_write(LOG_STDOUT, "OSScan against host %s: assuming TCP port %lu is open, %lu is closed, UDP port %lu is closed and none is firewalled\n",
+  if (o.verbose && openTCPPort != -1)
+    log_write(LOG_STDOUT, "OSScan against host %s: assuming TCP port %d is open, %d is closed, UDP port %d is closed and none is firewalled\n",
               target->targetipstr(), openTCPPort, closedTCPPort, closedUDPPort);
 
   FP = NULL;
@@ -933,7 +933,7 @@ void HostOsScan::reInitScanSystem() {
 void HostOsScan::buildSeqProbeList(HostOsScanStats *hss) {
   assert(hss);
   int i;
-  if(hss->openTCPPort == (unsigned long)-1) return;
+  if(hss->openTCPPort == -1) return;
   if(hss->FP_TSeq) return;
 
   for(i=0; i<NUM_SEQ_SAMPLES; i++)
@@ -989,7 +989,7 @@ void HostOsScan::buildTUIProbeList(HostOsScanStats *hss) {
     hss->addNewProbe(OFP_TUDP, 0);
   }
   
-  if(hss->openTCPPort != (unsigned long)-1) {
+  if(hss->openTCPPort != -1) {
     /* tops/twin probes. We send the probe again if we didn't get a
 	   response by the corresponding seq probe.
 	 */
@@ -1254,7 +1254,7 @@ void HostOsScan::sendTSeqProbe(HostOsScanStats *hss, int probeNo) {
   assert(hss);
   assert(probeNo >= 0 && probeNo < NUM_SEQ_SAMPLES);
 
-  if(hss->openTCPPort == (unsigned long)-1) return;
+  if(hss->openTCPPort == -1) return;
 
   send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
                       tcpPortBase + probeNo, hss->openTCPPort,
@@ -1269,21 +1269,24 @@ void HostOsScan::sendTOpsProbe(HostOsScanStats *hss, int probeNo) {
   assert(hss);
   assert(probeNo>=0 && probeNo< NUM_SEQ_SAMPLES);
 
-  if(hss->openTCPPort == (unsigned long)-1) return;
+  if(hss->openTCPPort == -1) return;
   
   send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
-                      tcpPortBase + NUM_SEQ_SAMPLES + probeNo, hss->openTCPPort, tcpSeqBase,
-                      tcpAck, 0, TH_SYN, prbWindowSz[probeNo], 0, prbOpts[probeNo].val, prbOpts[probeNo].len, NULL, 0);
+                      tcpPortBase + NUM_SEQ_SAMPLES + probeNo, 
+		      hss->openTCPPort, tcpSeqBase, tcpAck, 0, TH_SYN, 
+		      prbWindowSz[probeNo], 0, prbOpts[probeNo].val, 
+		      prbOpts[probeNo].len, NULL, 0);
 }
 
 void HostOsScan::sendTEcnProbe(HostOsScanStats *hss) {
   assert(hss);
   
-  if(hss->openTCPPort == (unsigned long)-1) return;
+  if(hss->openTCPPort == -1) return;
   
   send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
-                      tcpPortBase + NUM_SEQ_SAMPLES + 6, hss->openTCPPort, tcpSeqBase, 0, 8,
-                      TH_CWR|TH_ECE|TH_SYN, prbWindowSz[6], 63477, prbOpts[6].val, prbOpts[6].len, NULL, 0);
+                      tcpPortBase + NUM_SEQ_SAMPLES + 6, hss->openTCPPort,
+		      tcpSeqBase, 0, 8, TH_CWR|TH_ECE|TH_SYN, prbWindowSz[6], 
+		      63477, prbOpts[6].val, prbOpts[6].len, NULL, 0);
 }
 
 void HostOsScan::sendT1_7Probe(HostOsScanStats *hss, int probeNo) {
@@ -1294,51 +1297,51 @@ void HostOsScan::sendT1_7Probe(HostOsScanStats *hss, int probeNo) {
 
   switch(probeNo) {
   case 0: /* T1 */
-    if(hss->openTCPPort == (unsigned long)-1) return;
+    if(hss->openTCPPort == -1) return;
     send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
                         port_base, hss->openTCPPort, tcpSeqBase, tcpAck, 0,
                         TH_SYN, prbWindowSz[0], 0, prbOpts[0].val, 
 			prbOpts[0].len, NULL, 0);
     break;
   case 1: /* T2 */
-    if(hss->openTCPPort == (unsigned long)-1) return;
+    if(hss->openTCPPort == -1) return;
     send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, true,
                         port_base + 1, hss->openTCPPort, tcpSeqBase, tcpAck, 0,
                         0, prbWindowSz[7], 0, prbOpts[7].val, prbOpts[7].len, NULL, 0);
     break;
   case 2: /* T3 */
-    if(hss->openTCPPort == (unsigned long)-1) return;
+    if(hss->openTCPPort == -1) return;
     send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
                         port_base + 2, hss->openTCPPort, tcpSeqBase, tcpAck, 0,
                         TH_SYN|TH_FIN|TH_URG|TH_PUSH, prbWindowSz[8], 0, 
 			prbOpts[8].val, prbOpts[8].len, NULL, 0);
     break;
   case 3: /* T4 */
-    if(hss->openTCPPort == (unsigned long)-1) return;
+    if(hss->openTCPPort == -1) return;
     send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, true,
                         port_base + 3, hss->openTCPPort, tcpSeqBase, tcpAck, 0,
                         TH_ACK, prbWindowSz[9], 0, prbOpts[9].val, 
 			prbOpts[9].len, NULL, 0);
     break;
   case 4: /* T5 */
-    if(hss->closedTCPPort == (unsigned long)-1) return;
+    if(hss->closedTCPPort == -1) return;
     send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
-                        port_base + 4, hss->closedTCPPort, tcpSeqBase, tcpAck, 0,
-                        TH_SYN, prbWindowSz[10], 0, prbOpts[10].val, 
+                        port_base + 4, hss->closedTCPPort, tcpSeqBase, tcpAck,
+			0, TH_SYN, prbWindowSz[10], 0, prbOpts[10].val, 
 			prbOpts[10].len, NULL, 0);
     break;
   case 5: /* T6 */
-    if(hss->closedTCPPort == (unsigned long)-1) return;
+    if(hss->closedTCPPort == -1) return;
     send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, true,
-                        port_base + 5, hss->closedTCPPort, tcpSeqBase, tcpAck, 0,
-                        TH_ACK, prbWindowSz[11], 0, prbOpts[11].val, 
+                        port_base + 5, hss->closedTCPPort, tcpSeqBase, tcpAck,
+			0, TH_ACK, prbWindowSz[11], 0, prbOpts[11].val, 
 			prbOpts[11].len, NULL, 0);
     break;
   case 6: /* T7 */
-    if(hss->closedTCPPort == (unsigned long)-1) return;
+    if(hss->closedTCPPort == -1) return;
     send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
-                        port_base + 6, hss->closedTCPPort, tcpSeqBase, tcpAck, 0,
-                        TH_FIN|TH_PUSH|TH_URG, prbWindowSz[12], 0, 
+                        port_base + 6, hss->closedTCPPort, tcpSeqBase, tcpAck,
+			0, TH_FIN|TH_PUSH|TH_URG, prbWindowSz[12], 0, 
 			prbOpts[12].val, prbOpts[12].len, NULL, 0);
     break;
   }
@@ -1360,7 +1363,7 @@ void HostOsScan::sendTIcmpProbe(HostOsScanStats *hss, int probeNo) {
 void HostOsScan::sendTUdpProbe(HostOsScanStats *hss, int probeNo) {
   assert(hss);
   
-  if(hss->closedUDPPort == (unsigned long)-1) return;
+  if(hss->closedUDPPort == -1) return;
   send_closedudp_probe_2(hss->upi, rawsd, ethptr, hss->target->v4hostip(),
 			 this->udpttl, udpPortBase + probeNo, 
 			 hss->closedUDPPort);
@@ -1511,7 +1514,10 @@ void HostOsScan::makeFP(HostOsScanStats *hss) {
     makeTWinFP(hss);
   
   for(i=3; i < NUM_FPTESTS; i++) {
-    if (!hss->FPtests[i] && ((hss->openTCPPort != (unsigned long) -1) || i > 7)) {
+    if (!hss->FPtests[i] &&
+		((i>=3 && i<=7 && hss->openTCPPort !=  -1) ||
+		 (i>=8 && i<=10 && hss->target->FPR->osscan_closedtcpport != -1) ||
+		 i>=11)) {
       /* We create a Resp (response) attribute with value of N (no) because
          it is important here to note whether responses were or were not 
          received */
@@ -1976,7 +1982,7 @@ bool HostOsScan::processTSeqResp(HostOsScanStats *hss, struct ip *ip, int replyN
 
   if ((tcp->th_flags & TH_RST)) {
     if (hss->si.responses == 0) {     
-      fprintf(stderr, "WARNING:  RST from %s port %lu -- is this port really open?\n",
+      fprintf(stderr, "WARNING:  RST from %s port %d -- is this port really open?\n",
               hss->target->targetipstr(), hss->openTCPPort);
     }
     return false;
@@ -2476,7 +2482,7 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
   checksum =   *checksumptr;
 
   if (checksum == 0)
-    strcpy(AVs[current_testno].value, "0");
+    strcpy(AVs[current_testno].value, "Z");
   else {
     *checksumptr = 0;
     if (in_cksum((unsigned short *)ip2, 20) == checksum) {
