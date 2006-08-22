@@ -268,7 +268,6 @@ int Port::getServiceDeductions(struct serviceDeductions *sd) {
 char* Port::cstringSanityCheck(const char* string, int len) {
 	char* result;
   int slen;
-  unsigned char *p;
 
   if(!string)
 	  return NULL;
@@ -278,10 +277,7 @@ char* Port::cstringSanityCheck(const char* string, int len) {
   result = (char *) safe_malloc(slen + 1);
   memcpy(result, string, slen);
   result[slen] = '\0';
-  p = (unsigned char *) result;
-  while(*p) {
-    if (!isprint((int)*p)) *p = '.';
-    p++;
+  replacenonprintable(result, strlen(result), '.'); 
   }
 
 	return result;

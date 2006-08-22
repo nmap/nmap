@@ -254,8 +254,8 @@ static int ipid_distance(int seqclass , u16 startid, u16 endid) {
   
   if (seqclass == IPID_SEQ_BROKEN_INCR) {
     /* Convert to network byte order */
-    startid = (startid >> 8) + ((startid & 0xFF) << 8);
-    endid = (endid >> 8) + ((endid & 0xFF) << 8);
+    startid = htons(startid);
+    endid = htons(endid);
     return endid - startid;
   }
 

@@ -175,14 +175,12 @@ static int tty_getchar()
 
 static void tty_done()
 {
-	int fd;
-
 	if (!tty_fd) return;
 
-	fd = tty_fd; tty_fd = 0;
-	tcsetattr(fd, TCSANOW, &saved_ti);
+	tcsetattr(tty_fd, TCSANOW, &saved_ti);
 
-	close(fd);
+	close(tty_fd);
+	tty_fd = 0;
 }
 
 /*
@@ -192,28 +190,26 @@ static void tty_done()
  */
 void tty_init()
 {
-	int fd;
 	struct termios ti;
 
-	if ((fd = open("/dev/tty", O_RDONLY | O_NONBLOCK)) < 0) return;
+	if (tty_fd)
+		return;
+
+	if ((tty_fd = open("/dev/tty", O_RDONLY | O_NONBLOCK)) < 0) return;
 
 #ifndef __CYGWIN32__
-	if (tcgetpgrp(fd) != getpid()) {
-		close(fd); return;
+	if (tcgetpgrp(tty_fd) != getpid()) {
+		close(tty_fd); return;
 	}
 #endif
 
-	tcgetattr(fd, &ti);
-	if (tty_fd == 0)
-	  saved_ti = ti;
+	tcgetattr(tty_fd, &ti);
+	saved_ti = ti;
 	ti.c_lflag &= ~(ICANON | ECHO);
 	ti.c_cc[VMIN] = 1;
 	ti.c_cc[VTIME] = 0;
-	tcsetattr(fd, TCSANOW, &ti);
+	tcsetattr(tty_fd, TCSANOW, &ti);
 
-	if (tty_fd == 0) 
-	  tty_fd = fd;
-	
 	atexit(tty_done);
 }
 
@@ -251,10 +247,10 @@ bool keyWasPressed()
        log_write(LOG_STDOUT, "Debugging Decreased to %d.\n", o.debugging);
     } else if (c == 'p') {
        o.setPacketTrace(true);
-       log_write(LOG_STDOUT, "Packet Tracing enabled\n.");
+       log_write(LOG_STDOUT, "Packet Tracing enabled.\n");
     } else if (c == 'P') {
        o.setPacketTrace(false);
-       log_write(LOG_STDOUT, "Packet Tracing disabled\n.");
+       log_write(LOG_STDOUT, "Packet Tracing disabled.\n");
     } else if (c == '?') {
       log_write(LOG_STDOUT,
 		"Interactive keyboard commands:\n"

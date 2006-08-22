@@ -714,7 +714,7 @@ void PacketTrace::traceConnect(u8 proto, const struct sockaddr *sock,
     assert(sin->sin_family == AF_INET6);
     if (inet_ntop(sin->sin_family, (char *) &sin6->sin6_addr, targetipstr, 
 		  sizeof(targetipstr)) == NULL)
-      fatal("Failed to convert target IPv4 address to presentation format!?!");
+      fatal("Failed to convert target IPv6 address to presentation format!?!");
     targetport = ntohs(sin6->sin6_port);
 #else
     assert(0);

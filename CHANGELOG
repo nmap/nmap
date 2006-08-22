@@ -28,8 +28,14 @@ o Fixed a bug in the rDNS system which prevented us from querying
   certain authoritative DNS servers which have recursion explicitly
   disabled.  Thanks to Doug Hoyte for the patch.
 
+o --packet-trace now reports TCP options (thanks to Zhao Lei for the
+  patch).
+
 o Cleaned up Nmap DNS reporting to be a little more useful and
   concise.  Thanks to Doug Hoyte for the patch.
+
+o Applied a bunch of small internal cleanup patches by Kris Katterjohn
+  (kjak(a)ispwest.com).
 
 o Fixed the 'distclean' make target to be more comprehensive.  Thanks
   to Thomas Buchanan (Thomas.Buchanan(a)thecompassgrp.net) for the

@@ -2841,6 +2841,8 @@ OsScanInfo::OsScanInfo(vector<Target *> &Targets) {
 
   gettimeofday(&now, NULL);
   
+  numInitialTargets=0;
+  
   /* build up incompleteHosts list */
   for(targetno = 0; targetno < Targets.size(); targetno++) {
     /* check if Targets[targetno] is good to be scanned
