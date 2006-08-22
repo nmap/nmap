@@ -277,10 +277,8 @@ char* Port::cstringSanityCheck(const char* string, int len) {
   result = (char *) safe_malloc(slen + 1);
   memcpy(result, string, slen);
   result[slen] = '\0';
-  replacenonprintable(result, strlen(result), '.'); 
-  }
-
-	return result;
+  replacenonprintable(result, slen, '.'); 
+  return result;
 }
 
 void Port::setServiceProbeResults(enum serviceprobestate sres, 
