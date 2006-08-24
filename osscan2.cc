@@ -3819,6 +3819,14 @@ static int os_scan_2(vector<Target *> &Targets) {
   begin_sniffer(HOS, Targets); /* initial the pcap session handler in HOS */
   while(OSI->numIncompleteHosts() != 0 && itry < MAX_SCAN_ROUND) {
     if (itry > 0) sleep(1);
+    if (o.verbose) {
+      char targetstr[128];
+      bool plural = (OSI->numIncompleteHosts() != 1);
+      if (!plural) {
+	(*(OSI->incompleteHosts.begin()))->target->NameIP(targetstr, sizeof(targetstr));
+      } else snprintf(targetstr, sizeof(targetstr), "%d hosts", (int) OSI->numIncompleteHosts());
+      printf("%s OS detection against %s\n", (itry == 0)? "Initiating" : "Retrying", targetstr);
+    }
     startRound(OSI, HOS, itry);
     doSeqTests(OSI, HOS);
     doTUITests(OSI, HOS);
