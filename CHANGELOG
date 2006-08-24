@@ -19,6 +19,11 @@ o Applied some nsock bugfixes from Diman Todorov.  These don't
   affect the current version of Nmap, but are important for his upcoming
   Nmap Scripting Engine.
 
+o Fixed a bug which would occasionally cause Nmap to crash with the
+  message "log_vwrite: write buffer not large enough".  I thought I
+  conquered it in a previous release -- thanks to Doug Hoyte for finding a
+  corner case which proved me wrong.
+
 o Integrated all 2nd quarter service detection fingerprint
   submissions.  Please keep them coming!  We now have 3,671 signatures
   representing 415 protocols.   Thanks to version detection czar Doug

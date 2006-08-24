@@ -675,12 +675,14 @@ char* xml_convert (const char* str) {
    va_start() AND va_end() calls. */
 void log_vwrite(int logt, const char *fmt, va_list ap) {
   static char *writebuf = NULL;
-  int writebuflen = 65536;
+  int writebuflen = 8192;
   bool skid_noxlate = false;
   int rc = 0;
   int len;
   int fileidx = 0;
   int l;
+  va_list apcopy;
+
 
   /* Account for extended output under high debugging/verbosity */
   if (o.debugging > 2 || o.verbose > 2)
@@ -708,20 +710,29 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
   case LOG_MACHINE:
   case LOG_SKID:
   case LOG_XML:
+    va_copy(apcopy, ap); /* Needed in case we need to so a second vnsprintf */
     l = logt;
     fileidx = 0;
     while ((l&1)==0) { fileidx++; l>>=1; }
     assert(fileidx < LOG_NUM_FILES);
     if (o.logfd[fileidx]) {
       len = vsnprintf(writebuf, writebuflen, fmt, ap);
-      if (len == 0) { 
+      if (len == 0) {
+	va_end(apcopy);
 	return;
       } else if (len < 0) {
 	fprintf(stderr, "vnsprintf returned %d in %s -- bizarre. Quitting.\n", len, __FUNCTION__);
 	exit(1);
       } else if (len >= writebuflen) {
-	fprintf(stderr, "%s: write buffer not large enough -- need to increase from %d to at least %d (logt == %d).  Please email this message to fyodor@insecure.org.  Quitting.\n", __FUNCTION__, writebuflen, len, logt);
-	exit(1);
+	/* Didn't have enough space.  Expand writebuf and try again */
+	free(writebuf);
+	writebuflen = len + 1024;
+	writebuf = (char *) safe_malloc(writebuflen);
+	len = vsnprintf(writebuf, writebuflen, fmt, apcopy);
+	if (len <= 0 || len >= writebuflen) {
+	  fprintf(stderr, "%s: vnsprintf failed.  Even after increasing bufferlen to %d, vsnprintf returned %d (logt == %d).  Please email this message to fyodor@insecure.org.  Quitting.\n", __FUNCTION__, writebuflen, len, logt);
+	  exit(1);
+	}
       }
       if (logt == LOG_SKID && !skid_noxlate)
 	skid_output(writebuf);
@@ -730,6 +741,7 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
 	fprintf(stderr, "Failed to write %d bytes of data to (logt==%d) stream. fwrite returned %d.  Quitting.\n", len, logt, rc);
 	exit(1);
       }
+      va_end(apcopy);
     }
     break;
 
