@@ -706,10 +706,6 @@ void HostOsScanStats::initScanStats() {
     closedUDPPort = (get_random_uint() % 14781) + 30000;
   }
 
-  if (o.verbose && openTCPPort != -1)
-    log_write(LOG_STDOUT, "OSScan against host %s: assuming TCP port %d is open, %d is closed, UDP port %d is closed and none is firewalled\n",
-              target->targetipstr(), openTCPPort, closedTCPPort, closedUDPPort);
-
   FP = NULL;
   for (i=0; i<NUM_FPTESTS; i++)
 	FPtests[i] = NULL;
