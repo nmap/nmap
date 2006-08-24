@@ -675,7 +675,7 @@ char* xml_convert (const char* str) {
    va_start() AND va_end() calls. */
 void log_vwrite(int logt, const char *fmt, va_list ap) {
   static char *writebuf = NULL;
-  int writebuflen = 8192;
+  static int writebuflen = 8192;
   bool skid_noxlate = false;
   int rc = 0;
   int len;
@@ -683,10 +683,6 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
   int l;
   va_list apcopy;
 
-
-  /* Account for extended output under high debugging/verbosity */
-  if (o.debugging > 2 || o.verbose > 2)
-    writebuflen *= 8;
 
   if (!writebuf)
     writebuf = (char *) safe_malloc(writebuflen);
