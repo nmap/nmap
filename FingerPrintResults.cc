@@ -114,6 +114,7 @@ FingerPrintResults::FingerPrintResults() {
   distance = -1;
   distance_guess = -1;
   memset(FPs, 0, sizeof(FPs));
+  maxTimingRatio = 0;
   numFPs = goodFP = 0;
 }
 
@@ -134,22 +135,29 @@ const struct OS_Classification_Results *FingerPrintResults::getOSClassification(
   return &OSR;
 }
 
-  /* Are the attributes of this fingerprint good enough to warrant submission to the official DB? */
-bool FingerPrintResults::fingerprintSuitableForSubmission() {
+/* If the fingerprint is of potentially poor quality, we don't want to
+   print it and ask the user to submit it.  In that case, the reason
+   for skipping the FP is returned as a static string.  If the FP is
+   great and should be printed, NULL is returned. */
+const char *FingerPrintResults::OmitSubmissionFP() {
 
   if (o.scan_delay > 500) // This can screw up the sequence timing
-    return false;
+    return "Scan delay is greater than 500";
 
-  if (osscan_opentcpport <= 0 || osscan_closedtcpport <= 0 )
-	/* The results won't be complete */
-    return false;
+  if (o.timing_level > 4)
+    return "Timing level 5 (Insane) used";
+
+  if (osscan_opentcpport <= 0)
+    return "Missing an open TCP port so results incomplete";
+
+  if (osscan_closedtcpport <= 0)
+    return "Missing a closed TCP port so results incomplete";
 
   if (distance > 5)
-    /* Too far away from us. */
-    return false;
+    return "Host more than five network hops away";
 
-  if (osscan_closedudpport == 0)
-    return false; /* Too much risk of goofy results */
+  if (maxTimingRatio > 1.4)
+    return "maxTimingRatio is greater than 1.4";
 
   if (osscan_closedudpport < 0 && !o.udpscan) {
     /* If we didn't get a U1 response, that might be just
@@ -157,9 +165,10 @@ bool FingerPrintResults::fingerprintSuitableForSubmission() {
        because this OS doesn't respond to that sort of probe.
        So we don't print FP if U1 response is lacking AND no UDP
        scan was performed. */
-    return false;
+    return "Didn't receive UDP response. Please try again with -sU";
   }
-  return true;
+
+  return NULL;
 }
 
 

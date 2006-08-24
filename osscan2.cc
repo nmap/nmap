@@ -114,11 +114,15 @@
 // sent to a single host, in milliseconds.
 #define OS_PROBE_DELAY 25
 
-// The minimum (and target) amount of time to wait between sequencing
-// probes sent to a single host, in milliseconds.  It is important
-// that the seq probes (which involves 5 gaps) take more than 500ms so
-// we can detect timestamps which increase at a frequency of 2Hz.
-#define OS_SEQ_PROBE_DELAY 110
+// The target amount of time to wait between sequencing probes sent to
+// a single host, in milliseconds.  The ideal is 500ms because of the
+// common 2Hz timestamp frequencies.  Less than 500ms and we might not
+// see any change in the TS counter (and it gets less accurate even if
+// we do).  More than 500MS and we risk having two changes (and it
+// gets less accurate even if we have just one).  So we delay 100MS
+// between probes, leaving 500MS between 1st and 6th.
+
+#define OS_SEQ_PROBE_DELAY 100
 
 using namespace std;
 extern NmapOps o;
@@ -298,6 +302,13 @@ public:
    */
   int distance;
   int distance_guess;
+  
+  /* Returns the amount of time taken between sending 1st tseq probe
+     and the 1st ICMP probe divided by the amount of time it should
+     have taken.  Ratios far from 1 can cause bogus results.  Zero is
+     returned if we didn't send the tseq probes because there was no
+     open tcp port */
+  double timingRatio();
 
 private:
   /* Ports of the targets used in os fingerprinting. */  
@@ -355,6 +366,7 @@ private:
    */
   u16 lastipid;
   struct timeval seq_send_times[NUM_SEQ_SAMPLES];
+  struct timeval first_icmp_send_time;
 
   int TWinReplyNum; /* how many TWin replies are received. */
   int TOpsReplyNum; /* how many TOps replies are received. Actually it is the same with TOpsReplyNum. */
@@ -720,7 +732,8 @@ void HostOsScanStats::initScanStats() {
   }
   
   memset(&seq_send_times, 0, sizeof(seq_send_times));
-  
+  memset(&first_icmp_send_time, 0, sizeof(first_icmp_send_time));
+
   if (icmpEchoReply) {
     free(icmpEchoReply);
     icmpEchoReply = NULL;
@@ -778,6 +791,18 @@ void HostOsScanStats::moveProbeToUnSendList(list<OFProbe *>::iterator probeI) {
   probesToSend.push_back(*probeI);
   probesActive.erase(probeI);
 }
+
+ /* Compute the ratio of amount of time taken between sending 1st TSEQ
+    probe and 1st ICMP probe compared to the amount of time it should
+    have taken.  Ratios far from 1 can cause bogus results */
+double HostOsScanStats::timingRatio() {
+  if (openTCPPort < 0)
+    return 0;
+  int msec_ideal = OS_SEQ_PROBE_DELAY * 5 + OS_PROBE_DELAY;
+  int msec_taken = TIMEVAL_MSEC_SUBTRACT(first_icmp_send_time, seq_send_times[0]);
+  return (double) msec_taken / msec_ideal;
+}
+
 
 /* If there are pending probe timeouts, fills in when with the time of
  * the earliest one and returns true.  Otherwise returns false and
@@ -1351,6 +1376,7 @@ void HostOsScan::sendTIcmpProbe(HostOsScanStats *hss, int probeNo) {
   assert(hss);
   assert(probeNo>=0&&probeNo<2);
   if(probeNo==0) {
+    gettimeofday(&hss->first_icmp_send_time, NULL);
     send_icmp_echo_probe(rawsd, ethptr, hss->target->v4hostip(), IP_TOS_DEFAULT,
                          true, 9, icmpEchoId, icmpEchoSeq, 120);
   }
@@ -1651,7 +1677,8 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
     if (hss->si.lastboot && (hss->seq_send_times[0].tv_sec - hss->si.lastboot > 63072000)) {
       /* Up 2 years?  Perhaps, but they're probably lying. */
       if (o.debugging) {
-        error("Ignoring claimed uptime of %lu days", 
+        error("Ignoring claimed %s uptime of %lu days", 
+	      hss->target->targetipstr(),
               (hss->seq_send_times[0].tv_sec - hss->si.lastboot) / 86400);
       }
       hss->si.lastboot = 0;
@@ -3639,6 +3666,7 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
 
     hsi->FPs[roundNum] = hsi->hss->getFP();
     hsi->target->FPR->FPs[roundNum] = hsi->FPs[roundNum];
+    hsi->target->FPR->maxTimingRatio = MAX(hsi->target->FPR->maxTimingRatio, hsi->hss->timingRatio());
     match_fingerprint(hsi->FPs[roundNum], &hsi->FP_matches[roundNum],
                       o.reference_FPs, OSSCAN_GUESS_THRESHOLD);
 
@@ -3753,14 +3781,20 @@ static void doOsScan1(OsScanInfo *OSI) {
   
   for(hostI = OSI->incompleteHosts.begin(); 
       hostI != OSI->incompleteHosts.end(); hostI++) {
-	if(o.verbose) 
-	  log_write(LOG_STDOUT, "OSScan against host %s now falls back on the old OS scan system\n",
-				(*hostI)->target->targetipstr());
-    os_scan((*hostI)->target);
+    /* If the fingerprint found was so good that we want the user to
+       submit it, don't do gen1 os scan because the results might bias
+       the user into a wrong submission (or make the user less likely
+       to actually submit */
+    if ((*hostI)->target->FPR->OmitSubmissionFP()) {
+      os_scan((*hostI)->target);
+    }
   }
 }
 
-int os_scan_2(vector<Target *> &Targets) {
+
+
+/* You should call os_scan2 rather than this function */
+static int os_scan_2(vector<Target *> &Targets) {
   OsScanInfo *OSI;
   HostOsScan *HOS;
   int itry;
@@ -3783,12 +3817,15 @@ int os_scan_2(vector<Target *> &Targets) {
   startTimeOutClocks(OSI);
   
   itry = 0;
+
+
+
   begin_sniffer(HOS, Targets); /* initial the pcap session handler in HOS */
-  while(OSI->numIncompleteHosts() != 0 && itry<MAX_SCAN_ROUND) {
+  while(OSI->numIncompleteHosts() != 0 && itry < MAX_SCAN_ROUND) {
     if (itry > 0) sleep(1);
     startRound(OSI, HOS, itry);
-	doSeqTests(OSI, HOS);
-	doTUITests(OSI, HOS);
+    doSeqTests(OSI, HOS);
+    doTUITests(OSI, HOS);
     endRound(OSI, HOS, itry);
     itry++;
   }
@@ -3800,22 +3837,56 @@ int os_scan_2(vector<Target *> &Targets) {
 	stopTimeOutClocks(OSI);
   	
 	/* Find the most matching item in the db. */
-    findBestFPs(OSI, MAX_SCAN_ROUND);
+	findBestFPs(OSI, MAX_SCAN_ROUND);
 
 	/* Print the fp in debug mode.
 	   Normally let output.cc to print the FP. */
 	if(o.debugging > 1)
 	  printFP(OSI);
 	
-    /*
-	 * OK. Now let's fall back on the former os_scan engine which has
-     * a larger os-fingerprint db.
-     */
-	if(o.osscan != OS_SCAN_SYS_2_ONLY)
+	/*
+	 * For the incomplete hosts,  we fall back on the former os_scan engine which has
+	 * a larger os-fingerprint db.
+	 */
+	if(o.osscan != OS_SCAN_SYS_2_ONLY) {
+	  
 	  doOsScan1(OSI);
+	}
   }
 
   delete HOS;
   delete OSI;
   return 0;
 }
+
+/* This is the primary OS detection function.  If many Targets are
+   passed in (the threshold is based on timing level), they are
+   processed as smaller groups to improve accuracy  */
+void os_scan2(vector<Target *> &Targets) {
+  unsigned int max_os_group_sz = 20;
+  double fudgeratio = 1.2; /* Allow a slightly larger final group rather than finish with a tiny one */
+  vector<Target *> tmpTargets;
+  unsigned int startidx = 0;
+
+  if (o.timing_level == 4)
+    max_os_group_sz = (unsigned int) (max_os_group_sz * 1.5);
+
+  if (o.timing_level > 4 || Targets.size() <= max_os_group_sz * fudgeratio) {
+    os_scan_2(Targets);
+    return;
+  }
+
+  /* We need to split it up */
+  while(startidx < Targets.size()) {
+    int diff = Targets.size() - startidx;
+    if (diff > max_os_group_sz * fudgeratio) {
+      diff = max_os_group_sz;
+    }
+    tmpTargets.assign(Targets.begin() + startidx, 
+		      Targets.begin() + startidx + diff);
+    os_scan_2(tmpTargets);
+    startidx += diff;
+  }
+  return;
+}
+

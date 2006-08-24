@@ -147,14 +147,23 @@ class FingerPrintResults {
 			    otherwise -1) */
   int distance; /* How "far" is this FP gotten from? */
   int distance_guess; /* How "far" is this FP gotten from? by guessing based on ttl. */
-  
+
+  /* The largest ratio we have seen of time taken vs. target time
+     between sending 1st tseq probe and sending first ICMP echo probe.
+     Zero means we didn't see any ratios (the tseq probes weren't
+     sent), 1 is ideal, and larger values are undesirable from a
+     consistancy standpoint. */
+  double maxTimingRatio;
+
   FingerPrint *FPs[10]; /* Fingerprint data obtained from host */
   int numFPs;
   int goodFP;
 
-  /* Are the attributes of this fingerprint good enough to warrant submission to the official DB? */
-  bool fingerprintSuitableForSubmission(); 
-                                          
+/* If the fingerprint is of potentially poor quality, we don't want to
+   print it and ask the user to submit it.  In that case, the reason
+   for skipping the FP is returned as a static string.  If the FP is
+   great and should be printed, NULL is returned. */
+  const char *OmitSubmissionFP();
 
  private:
   bool isClassified; // Whether populateClassification() has been called

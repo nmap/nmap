@@ -1276,7 +1276,7 @@ void printosscanoutput(Target *currenths) {
 
     // If the FP can't be submitted anyway, might as well make a guess.
   printosclassificationoutput(FPR->getOSClassification(), 
-							  o.osscan_guess || !FPR->fingerprintSuitableForSubmission());
+							  o.osscan_guess || FPR->OmitSubmissionFP());
     
   if (FPR->overall_results == OSSCAN_SUCCESS && (FPR->num_perfect_matches <= 8 || o.debugging)) {
 	if (FPR->num_perfect_matches > 0) {
@@ -1312,28 +1312,31 @@ void printosscanoutput(Target *currenths) {
 	  }
 	}
       } else {
-	  if ((o.osscan_guess || !FPR->fingerprintSuitableForSubmission()) && FPR->num_matches > 0) {
+	  const char *reason = FPR->OmitSubmissionFP();
+	  if ((o.verbose > 1 || o.debugging) && reason)
+	    log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"OS fingerprint not ideal because: %s\n", reason);
+	  if ((o.osscan_guess || reason) && FPR->num_matches > 0) {
 	  /* Print the best guesses available */
-		log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"Aggressive OS guesses: %s (%d%%)", FPR->prints[0]->OS_name, (int) (FPR->accuracy[0] * 100));
-		for(i=1; i < 10 && FPR->num_matches > i && FPR->accuracy[i] > FPR->accuracy[0] - 0.10; i++) {
-            char *p;
-		  log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,", %s (%d%%)", FPR->prints[i]->OS_name, (int) (FPR->accuracy[i] * 100));
-	    log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"%d\" line=\"%d\"/>\n", 
-					p = xml_convert(FPR->prints[i]->OS_name),  
-					(int) (FPR->accuracy[i] * 100), 
-					FPR->prints[i]->line);
-            free(p);
+	    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"Aggressive OS guesses: %s (%d%%)", FPR->prints[0]->OS_name, (int) (FPR->accuracy[0] * 100));
+	    for(i=1; i < 10 && FPR->num_matches > i && FPR->accuracy[i] > FPR->accuracy[0] - 0.10; i++) {
+	      char *p;
+	      log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,", %s (%d%%)", FPR->prints[i]->OS_name, (int) (FPR->accuracy[i] * 100));
+	      log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"%d\" line=\"%d\"/>\n", 
+			p = xml_convert(FPR->prints[i]->OS_name),  
+			(int) (FPR->accuracy[i] * 100), 
+			FPR->prints[i]->line);
+	      free(p);
+	    }
+	    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "\n");
 	  }
-	  log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "\n");
-	}
-	  if (osscanSys == 2 && FPR->fingerprintSuitableForSubmission()) {
-		log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No exact OS matches for host (If you know what OS is running on it, see http://www.insecure.org/cgi-bin/nmap-submit.cgi).\nTCP/IP fingerprint:\n%s\n",
-				  mergeFPs(FPR->FPs, FPR->numFPs, true,
-						   currenths->v4hostip(), distance, currenths->MACAddress(),
-						   FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
-						   true));
-
-	} else {
+	  if (osscanSys == 2 && !reason) {
+	    log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No exact OS matches for host (If you know what OS is running on it, see http://www.insecure.org/cgi-bin/nmap-submit.cgi).\nTCP/IP fingerprint:\n%s\n",
+		      mergeFPs(FPR->FPs, FPR->numFPs, true,
+			       currenths->v4hostip(), distance, currenths->MACAddress(),
+			       FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
+			       true));
+	    
+	  } else {
 	  log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No exact OS matches for host (test conditions non-ideal).");
 	  if (o.verbose > 1)
 		  log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT, "\nTCP/IP fingerprint by osscan system #%d:\n%s",
@@ -1349,14 +1352,17 @@ void printosscanoutput(Target *currenths) {
 	  log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"OS Fingerprint:\n%s\n", fp2ascii(FPR->FPs[FPR->goodFP]));
       }
   } else if (FPR->overall_results == OSSCAN_NOMATCHES) {
-	if (osscanSys == 2 && FPR->fingerprintSuitableForSubmission()) {
+    const char *reason = FPR->OmitSubmissionFP();
+    if ((o.verbose > 1 || o.debugging) && reason)
+      log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"OS fingerprint not ideal because: %s\n", reason);
+    if (osscanSys == 2 && !reason) {
 	  log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No OS matches for host (If you know what OS is running on it, see http://www.insecure.org/cgi-bin/nmap-submit.cgi).\nTCP/IP fingerprint:\n%s\n",
 				mergeFPs(FPR->FPs, FPR->numFPs, true,
 						 currenths->v4hostip(), distance, currenths->MACAddress(),
 						 FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
 						 true));
       } else {
-	  log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No OS matches for host (test conditions non-ideal).\n");
+	  log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No OS matches for host\n");
 	  if (o.verbose > 1)
 		log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT, "\nTCP/IP fingerprint by osscan system #%d:\n%s",
 				  osscanSys, mergeFPs(FPR->FPs, FPR->numFPs, false,

@@ -138,7 +138,7 @@ static BOOL OpenLibs(void) {
 extern NmapOps o;  /* option structure */
 extern char **environ;
 
-int main(int argc, char *argv[], char *envp[]) {
+int main(int argc, char *argv[]) {
   /* The "real" main is nmap_main().  This function hijacks control at the
      beginning to do the following:
      1) Check if Nmap called under name listed in INTERACTIVE_NAMES or with
@@ -314,7 +314,7 @@ int main(int argc, char *argv[], char *envp[]) {
 	    } else fatal("Arguments too long.");
 	  }	 
 	}
-	/* First we stick our arguments into envp */
+
 	if (o.debugging) {
 	  error("Adding to environment: %s", nmapargs);
 	}

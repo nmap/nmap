@@ -1570,7 +1570,7 @@ int nmap_main(int argc, char *argv[]) {
     }
 
     if (o.osscan == OS_SCAN_DEFAULT || o.osscan == OS_SCAN_SYS_2_ONLY)
-	  os_scan_2(Targets);
+	  os_scan2(Targets);
 
     for(targetno = 0; targetno < Targets.size(); targetno++) {
       currenths = Targets[targetno];

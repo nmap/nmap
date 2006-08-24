@@ -111,7 +111,11 @@
 
 /**********************  PROTOTYPES  ***********************************/
 
-int os_scan_2(std::vector<Target *> &Targets);
+
+/* This is the primary OS detection function.  If many Targets are
+   passed in (the threshold is based on timing level), they are
+   processed as smaller groups to improve accuracy  */
+void os_scan2(std::vector<Target *> &Targets);
 
 int send_closedudp_probe_2(struct udpprobeinfo &upi, int sd,
                            struct eth_nfo *eth,  const struct in_addr *victim,

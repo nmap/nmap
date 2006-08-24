@@ -1447,9 +1447,9 @@ o.current_scantype = OS_SCAN;
   }
 #endif
 
- if (o.debugging > 2) {
+ if (o.verbose) {
    starttimems = o.TimeSinceStartMS();
-   log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID, "Initiating OS Detection against %s at %.3fs\n", target->targetipstr(), starttimems / 1000.0);
+   log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID, "Initiating gen1 OS Detection against %s at %.3fs\n", target->targetipstr(), starttimems / 1000.0);
  }
 
  if (target->FPR1 == NULL)
