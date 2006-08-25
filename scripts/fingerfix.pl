@@ -101,9 +101,9 @@ foreach $line (split /\n/, $printbuf) {
 	} else {
 	    if ($fp{seq}{gcd} =~ /<([0-9A-F]+)/) {
 		$oldgcd = hex($1);
-	    } else { $oldgcd = 6; }
+	    } else { $oldgcd = 3; }
 	    
-	    $newgcd = max($oldgcd, $gcd * 2 + 4);
+	    $newgcd = max($oldgcd, $gcd * 2 + 3);
 	    $fp{seq}{gcd} = sprintf ("<%X", $newgcd);
 	    
 	    $newhighlim = $newlowlim = -1;
@@ -143,7 +143,9 @@ foreach $line (split /\n/, $printbuf) {
 	    
 	    # print "oldhighlim: $oldhighlim oldlowlim: $oldlowlim newhighlim: $newhighlim newlowlim: $newlowlim oldsp: $fp{seq}{sp}";
 	    
-	    if ($newlowlim > 0) {
+	    if ($newlowlim eq $newhighlim) {
+		$fp{seq}{sp} = sprintf("%X", $newhighlim);
+	    } elsif ($newlowlim > 0) {
 		$fp{seq}{sp} = sprintf("%X-%X", $newlowlim, $newhighlim);
 	    } else {
 		$fp{seq}{sp} = sprintf("<%X", $newhighlim);
@@ -652,6 +654,7 @@ foreach $line (split /\n/, $printbuf) {
 # up a substantial amount of space in the file.
 # if ($fp{contrib}) { print "# Contributed by $fp{contrib}\n"; }
 
+print "ADJUSTED FINGERPRINT:\n";
 print "Fingerprint $fp{os}\n";
 if ($fp{class}) { print $fp{class}; }
 else { print "Class \n"; }
