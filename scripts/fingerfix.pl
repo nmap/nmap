@@ -130,13 +130,13 @@ foreach $line (split /\n/, $printbuf) {
 	    
 	    if ($oldlowlim) {
 		if ($newlowlim != -1) { $newlowlim = max(0, min($oldlowlim, $newlowlim)); } 
-		else { $newlowlim = max(0, min($oldlowlim, hex($sp))); }
+		else { $newlowlim = max(0, min($oldlowlim, hex($sp) - 2)); }
 	    } else {
-		if ($newlowlim == -1) { $newlowlim = max(0, hex($sp)); }
+		if ($newlowlim == -1) { $newlowlim = max(0, hex($sp) - 2); }
 	    }
 	    
 	    if ($newhighlim == -1) { 
-		$newhighlim = max($oldhighlim, hex($sp));
+		$newhighlim = max($oldhighlim, hex($sp) + 2);
 	    } else {
 		$newhighlim = max($oldhighlim, $newhighlim);
 	    }

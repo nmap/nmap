@@ -182,9 +182,11 @@ int readFP(FILE *filep, char *newFP, int newFPsz ) {
   
   /* Now we validate that all elements are present */
   p = newFP;
-  if (!strstr(p, "TSeq(") || !strstr(p, "T1(") || !strstr(p, "T2(") || 
+  if (!strstr(p, "SEQ(") || !strstr(p, "OPS(") || !strstr(p, "WIN(") || 
+	  !strstr(p, "ECN(") || !strstr(p, "T1(") || !strstr(p, "T2(") || 
       !strstr(p, "T3(") || !strstr(p, "T4(") || !strstr(p, "T5(") || 
-      !strstr(p, "T6(") || !strstr(p, "T7(") || !strstr(p, "PU(")) {
+      !strstr(p, "T6(") || !strstr(p, "T7(") || !strstr(p, "U1(") ||
+	  !strstr(p, "IE(")) {
     /* This ought to get my attention :) */
     printf("\n"
 	 "********************************************************\n"

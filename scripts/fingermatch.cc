@@ -190,11 +190,13 @@ int main(int argc, char *argv[]) {
   }
 
   /* Now we validate that all elements are present */
-  if (!strstr(fprint, "TSeq(") || !strstr(fprint, "T1(") || 
-      !strstr(fprint, "T2(") || !strstr(fprint, "T3(") || 
-      !strstr(fprint, "T4(") || !strstr(fprint, "T5(") || 
-      !strstr(fprint, "T6(") || !strstr(fprint, "T7(") ||
-      !strstr(fprint, "PU(")) {
+  if (!strstr(fprint, "SEQ(") || !strstr(fprint, "OPS(") ||
+	  !strstr(fprint, "WIN(") || !strstr(fprint, "ECN(") ||
+	  !strstr(fprint, "T1(") || !strstr(fprint, "T2(") || 
+      !strstr(fprint, "T3(") || !strstr(fprint, "T4(") ||
+	  !strstr(fprint, "T5(") || !strstr(fprint, "T6(") ||
+	  !strstr(fprint, "T7(") || !strstr(fprint, "U1(") ||
+	  !strstr(fprint, "IE(")) {  
     /* This ought to get my attention :) */
     printf("\n"
            "********************************************************\n"
