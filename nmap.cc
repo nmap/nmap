@@ -1979,7 +1979,7 @@ f --spoof \"/usr/local/bin/pico -z hello.c\" -sS -oN e.log example.com/24\n\n");
 char *seqreport1(struct seq_info *seq) {
   static char report[512];
 
-  snprintf(report, sizeof(report), "TCP Sequence Prediction: Class=%s\n                         Difficulty=%d (%s)\n", seqclass2ascii(seq->seqclass), seq->index, seqidx2difficultystr1(seq->index));
+  snprintf(report, sizeof(report), "TCP Sequence Prediction: Difficulty=%d (%s)\n", seq->index, seqidx2difficultystr1(seq->index));
   return report;
 }
 
@@ -1992,7 +1992,7 @@ const char *seqidx2difficultystr1(unsigned long idx) {
 char *seqreport(struct seq_info *seq) {
   static char report[512];
 
-  snprintf(report, sizeof(report), "TCP Sequence Prediction: Class=%s\n                         Difficulty=%d (%s)\n", seqclass2ascii(seq->seqclass), seq->index, seqidx2difficultystr(seq->index));
+  snprintf(report, sizeof(report), "TCP Sequence Prediction: Difficulty=%d (%s)\n", seq->index, seqidx2difficultystr(seq->index));
   return report;
 }
 

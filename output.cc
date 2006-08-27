@@ -1426,11 +1426,12 @@ void printosscanoutput(Target *currenths) {
 
        log_write(LOG_XML, "<tcpsequence index=\"%li\" class=\"%s\" difficulty=\"%s\" values=\"%s\" />\n", (long) currenths->seq.index, seqclass2ascii(currenths->seq.seqclass), seqidx2difficultystr(currenths->seq.index), numlst); 
        if (o.verbose) {
-		 if (osscanSys == 1)
-		   log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"%s", seqreport1(&(currenths->seq)));
-		 else if(osscanSys == 2)
-	 log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"%s", seqreport(&(currenths->seq)));
-	   }
+	 if (osscanSys == 1)
+	   log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"%s", seqreport1(&(currenths->seq)));
+	 else if(osscanSys == 2)
+	   log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"%s", seqreport(&(currenths->seq)));
+       }
+       
        log_write(LOG_MACHINE,"\tSeq Index: %d", currenths->seq.index);
      }
 

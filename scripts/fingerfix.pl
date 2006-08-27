@@ -68,93 +68,79 @@ foreach $line (split /\n/, $printbuf) {
     }
     
     # OK, time for the first real fingerprint line!  The SEQ line
-    elsif ($line =~ /SEQ\(CL=([^%\)]+)(%SP=([^%]+)%GCD=([^%\)]+))?(%Val=([0-9A-F]+))?(%TI=([^%\)]+))?(%II=([^%\)]+))?(%SS=([^%\)]+))?(%TS=([^%\)]+))?\)/) {
+    elsif ($line =~ /SEQ\(SP=([^%]+)%GCD=([^%\)]+)%ISR=([^%\)]+)(%TI=([^%\)]+))?(%II=([^%\)]+))?(%SS=([^%\)]+))?(%TS=([^%\)]+))?\)/) {
 	# SEQ
-        $cls = $1;
-	if ($cls ne "C") {
-	    $sp = $3;
-	    $gcd = hex($4);
-	} else { $cval=$6; }
-        $ti = $8;
-	$ii = $10;
-	$ss = $12;
-        $ts = $14;
-	if (!($fp{seq}{cls} =~ /(^|\|)$cls($|\|)/)) {
-	    if ($fp{seq}{cls}) {
-		$fp{seq}{cls} = $fp{seq}{cls} . qq^|$cls^;
-	    } else {
-		$fp{seq}{cls} = $cls;
-	    }
+	$sp = $1;
+	$gcd = hex($2);
+	$isr = $3;
+        $ti = $5;
+	$ii = $7;
+	$ss = $9;
+        $ts = $11;
+
+	if ($fp{seq}{gcd} =~ /<([0-9A-F]+)/) {
+	    $oldgcd = hex($1);
+	} else { $oldgcd = 3; }
+	
+	$newgcd = max($oldgcd, $gcd * 2 + 3);
+	$fp{seq}{gcd} = sprintf ("<%X", $newgcd);
+	
+	$newhighlim = $newlowlim = -1;
+	if ($sp =~ /([0-9A-F]+)-([0-9A-F]+)/) {
+	    $newlowlim = hex($1);
+	    $newhighlim = hex($2);
+	} elsif ($sp =~ /<([0-9A-F]+)/) {
+	    $newhighlim = hex($1);
 	}
 	
-	if ($cls eq "C") {
-	    print "*******************************************************\n" .
-		  "* WARNING: CONSTANT ISN type -- check if value changes*\n" .
-		  "*******************************************************\n";
-	    if (!($fp{seq}{cval} =~ /(^|\|)$cval($|\|)/)) {
-		if ($fp{seq}{cval}) {
-		    $fp{seq}{cval} = $fp{seq}{cval} . qq^|$cval^;
-		} else {
-		    $fp{seq}{cval} = $cval;
-		}
-	    }
+	# print "newhighlim: $newhighlim newlowlim: $newlowlim\n";
+	
+	$oldhighlim = $oldlowlim = 0;
+	if ($fp{seq}{sp} =~ /([0-9A-F]+)-([0-9A-F]+)/) {
+	    $oldlowlim = hex($1);
+	    $oldhighlim = hex($2);
+	} elsif ($fp{seq}{sp} =~ /<([0-9A-F]+)/) {
+	    $oldhighlim = hex($1);
+	} elsif ($fp{seq}{sp} =~ /^([0-9A-F]+)/) {
+	    $oldhighlim = $oldlowlim = hex($1);
+	}
+	
+        # print "oldhighlim: $oldhighlim oldlowlim: $oldlowlim\n";
+	
+	if ($oldlowlim) {
+	    if ($newlowlim != -1) { $newlowlim = max(0, min($oldlowlim, $newlowlim)); } 
+	    else { $newlowlim = max(0, min($oldlowlim, hex($sp))); }
 	} else {
-	    if ($fp{seq}{gcd} =~ /<([0-9A-F]+)/) {
-		$oldgcd = hex($1);
-	    } else { $oldgcd = 3; }
-	    
-	    $newgcd = max($oldgcd, $gcd * 2 + 3);
-	    $fp{seq}{gcd} = sprintf ("<%X", $newgcd);
-	    
-	    $newhighlim = $newlowlim = -1;
-	    if ($sp =~ /([0-9A-F]+)-([0-9A-F]+)/) {
-		$newlowlim = hex($1);
-		$newhighlim = hex($2);
-	    } elsif ($sp =~ /<([0-9A-F]+)/) {
-		$newhighlim = hex($1);
-	    }
-	    
-	    # print "newhighlim: $newhighlim newlowlim: $newlowlim\n";
-	    
-	    $oldhighlim = $oldlowlim = 0;
-	    if ($fp{seq}{sp} =~ /([0-9A-F]+)-([0-9A-F]+)/) {
-		$oldlowlim = hex($1);
-		$oldhighlim = hex($2);
-	    } elsif ($fp{seq}{sp} =~ /<([0-9A-F]+)/) {
-		$oldhighlim = hex($1);
-	    } elsif ($fp{seq}{sp} =~ /^([0-9A-F]+)/) {
-		$oldhighlim = $oldlowlim = hex($1);
-	    }
-	    
-	    # print "oldhighlim: $oldhighlim oldlowlim: $oldlowlim\n";
-	    
-	    if ($oldlowlim) {
-		if ($newlowlim != -1) { $newlowlim = max(0, min($oldlowlim, $newlowlim)); } 
-		else { $newlowlim = max(0, min($oldlowlim, hex($sp) - 2)); }
-	    } else {
-		if ($newlowlim == -1) { $newlowlim = max(0, hex($sp) - 2); }
-	    }
-	    
-	    if ($newhighlim == -1) { 
-		$newhighlim = max($oldhighlim, hex($sp) + 2);
-	    } else {
-		$newhighlim = max($oldhighlim, $newhighlim);
-	    }
-	    
-	    # print "oldhighlim: $oldhighlim oldlowlim: $oldlowlim newhighlim: $newhighlim newlowlim: $newlowlim oldsp: $fp{seq}{sp}";
-	    
-	    if ($newlowlim eq $newhighlim) {
-		$fp{seq}{sp} = sprintf("%X", $newhighlim);
-	    } elsif ($newlowlim > 0) {
-		$fp{seq}{sp} = sprintf("%X-%X", $newlowlim, $newhighlim);
-	    } else {
-		$fp{seq}{sp} = sprintf("<%X", $newhighlim);
-	    }
-	    
-	    # print " newsp: $fp{seq}{sp}\n";
-	    
+	    if ($newlowlim == -1) { $newlowlim = max(0, hex($sp)); }
 	}
 	
+	if ($newhighlim == -1) { 
+	    $newhighlim = max($oldhighlim, hex($sp));
+	} else {
+	    $newhighlim = max($oldhighlim, $newhighlim);
+	}
+	
+	# print "oldhighlim: $oldhighlim oldlowlim: $oldlowlim newhighlim: $newhighlim newlowlim: $newlowlim oldsp: $fp{seq}{sp}";
+	
+	if ($newlowlim eq $newhighlim) {
+	    $fp{seq}{sp} = sprintf("%X", $newhighlim);
+	} elsif ($newlowlim > 0) {
+	    $fp{seq}{sp} = sprintf("%X-%X", $newlowlim, $newhighlim);
+	} else {
+	    $fp{seq}{sp} = sprintf("<%X", $newhighlim);
+	}
+	
+	# print " newsp: $fp{seq}{sp}\n";
+	
+	
+	if (!($fp{seq}{isr} =~ /(^|\|)$isr($|\|)/)) {
+            if ($fp{seq}{isr}) {
+                $fp{seq}{isr} = $fp{seq}{isr} . qq^|$isr^;
+            } else {
+                $fp{seq}{isr} = $isr;
+            }
+        }
+
 	if (!($fp{seq}{ti} =~ /(^|\|)$ti($|\|)/)) {
             if ($fp{seq}{ti}) {
                 $fp{seq}{ti} = $fp{seq}{ti} . qq^|$ti^;
@@ -660,26 +646,19 @@ if ($fp{class}) { print $fp{class}; }
 else { print "Class \n"; }
 
 # SEQ
-if ($fp{seq}{cls}) {
-    print("SEQ(CL=$fp{seq}{cls}");
-    if ($fp{seq}{cls} ne "64K" and $fp{seq}{cls} ne "i800"
-	and $fp{seq}{cls} ne "C") {
-	if ($fp{seq}{cls} ne "TR") {
-	    if ($fp{seq}{sp}) {
-		print "%SP=$fp{seq}{sp}";
-	    }
-	}
-	if ($fp{seq}{gcd}) {
-	    print "%GCD=$fp{seq}{gcd}";
-	}
+if ($fp{seq}{sp}) {
+    print("SEQ(SP=$fp{seq}{sp}");
+    if ($fp{seq}{gcd}) {
+	print "%GCD=$fp{seq}{gcd}";
     }
-    if ($fp{seq}{cval}) {print "%Val=$fp{seq}{cval}"; }
+
+    if ($fp{seq}{isr}) { print "%ISR=$fp{seq}{isr}"; }
     if ($fp{seq}{ti}) { print "%TI=$fp{seq}{ti}"; }
     if ($fp{seq}{ii}) { print "%II=$fp{seq}{ii}"; }
     if ($fp{seq}{ss}) { print "%SS=$fp{seq}{ss}"; }
     if ($fp{seq}{ts}) { print "%TS=$fp{seq}{ts}"; }
     print ")\n";
-}
+} 
 
 # OPS
 if ($fp{ops}{o1}) {

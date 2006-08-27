@@ -1601,7 +1601,8 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   u32 ts_diffs[NUM_SEQ_SAMPLES];
   unsigned long time_usec_diffs[NUM_SEQ_SAMPLES];
   int avnum;
-  double seq_inc_sum = 0;
+  double seq_stddev = 0;
+  double seq_rate = 0;
   unsigned int  seq_avg_inc = 0;
   double avg_ts_hz = 0.0; /* Avg. amount that timestamps incr. each second */
   u32 seq_gcd = 1;
@@ -1683,113 +1684,77 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
    
   /* Time to look at the TCP ISN predictability */
   if (hss->si.responses >= 4 && o.scan_delay <= 1000) {
+
+    /* First calculate the GCD */
     seq_gcd = gcd_n_uint(hss->si.responses -1, seq_diffs);
-    /*     printf("The GCD is %u\n", seq_gcd);*/
-    if (seq_gcd) {     
+
+    if (!seq_gcd) {
+      /* Constant ISN */
+      seq_rate = 0;
+      seq_stddev = 0;
+      hss->si.index = 0;
+    } else {
+
+      /* First calculate the average counter rate */
+      for(i=0; i < hss->si.responses - 1; i++) {      
+	seq_rate += seq_diffs[i] / (TIMEVAL_MSEC_SUBTRACT(hss->seq_send_times[i+1], hss->seq_send_times[i]) / 1000.0);
+      }
+      seq_rate /= hss->si.responses - 1;
+      /* Finally we take a binary logarithm, multiply by 8, and round
+	 to get the final result */
+      seq_rate = log(seq_rate) / log(2);
+      seq_rate = (unsigned int) seq_rate * 8 + 0.5;
+
+      /* Now calculate the predictability index */
       for(i=0; i < hss->si.responses - 1; i++)
         seq_diffs[i] /= seq_gcd;
       for(i=0; i < hss->si.responses - 1; i++) {     
-        if (MOD_DIFF(hss->si.seqs[i+1],hss->si.seqs[i]) > 50000000) {
-          hss->si.seqclass = SEQ_TR;
-          hss->si.index = 0xFF;
-          /*   printf("Target is a TR box\n");*/
-          break;
-        } 
         seq_avg_inc += seq_diffs[i];
       }
-    }
-    if (seq_gcd == 0) {
-      hss->si.seqclass = SEQ_CONSTANT;
-      hss->si.index = 0;
-    } else if (seq_gcd % 64000 == 0) {
-      hss->si.seqclass = SEQ_64K;
-      /*       printf("Target is a 64K box\n");*/
-      hss->si.index = 1;
-    } else if (seq_gcd % 800 == 0) {
-      hss->si.seqclass = SEQ_i800;
-      /*       printf("Target is a i800 box\n");*/
-      hss->si.index = 3;
-    } else if (hss->si.seqclass == SEQ_UNKNOWN) {
       seq_avg_inc = (unsigned int) ((0.5) + seq_avg_inc / (hss->si.responses - 1));
-      /*       printf("seq_avg_inc=%u\n", seq_avg_inc);*/
       for(i=0; i < hss->si.responses -1; i++)       {     
-        /*     printf("The difference is %u\n", seq_diffs[i]);
-               printf("Adding %u^2=%e", MOD_DIFF(seq_diffs[i], seq_avg_inc), pow(MOD_DIFF(seq_diffs[i], seq_avg_inc), 2));*/
         /* pow() seems F#@!#$!ed up on some Linux systems so I will
            not use it for now 
-           seq_inc_sum += pow(MOD_DIFF(seq_diffs[i], seq_avg_inc), 2);
         */     
-     
-        seq_inc_sum += ((double)(MOD_DIFF(seq_diffs[i], seq_avg_inc)) * ((double)MOD_DIFF(seq_diffs[i], seq_avg_inc)));
-        /*     seq_inc_sum += pow(MOD_DIFF(seq_diffs[i], seq_avg_inc), 2);*/
-
+        seq_stddev += ((double)(MOD_DIFF(seq_diffs[i], seq_avg_inc)) * 
+		      ((double)MOD_DIFF(seq_diffs[i], seq_avg_inc)));
       }
-      /*       printf("The sequence sum is %e\n", seq_inc_sum);*/
-      seq_inc_sum /= (hss->si.responses - 1);
+      /* We divide by ((numelements in seq_diffs) - 1), which is
+	 (si.responses - 2), because that gives a better approx of
+	 std. dev when you're only looking at a subset of whole
+	 population. */
+      seq_stddev /= hss->si.responses - 2;
 
-      /* Some versions of Linux libc seem to have broken pow ... so we
-         avoid it */
+      /* Next we need to take the square root of this value */
 #ifdef LINUX       
-      hss->si.index = (unsigned int) (0.5 + sqrt(seq_inc_sum));
+      seq_stddev = (unsigned int) (0.5 + sqrt(seq_stddev));
 #else
-      hss->si.index = (unsigned int) (0.5 + pow(seq_inc_sum, 0.5));
+      seq_stddev = (unsigned int) (0.5 + pow(seq_stddev, 0.5));
 #endif
 
-	  /*	  printf("The sequence index is %d\n", hss->si.index);*/
-	  hss->si.index = (unsigned int) (0.5 + log((float)hss->si.index)/log(2.0));
-      /*       printf("The sequence index is %d\n", hss->si.index);*/
-      if (hss->si.index < 6) {
-        hss->si.seqclass = SEQ_TD;
-        /*     printf("Target is a Micro$oft style time dependant box\n");*/
-      }
-      else {
-        hss->si.seqclass = SEQ_RI;
-        /*     printf("Target is a random incremental box\n");*/
-      }
+      /* Finally we take a binary logarithm, multiply by 8, and round
+	 to get the final result */
+      seq_stddev = log(seq_stddev) / log(2);
+      hss->si.index = (int) (seq_stddev * 8 + 0.5);
     }
 
+    /* Time to generate the SEQ probe line of the fingerprint */
     hss->FP_TSeq = (FingerPrint *) safe_zalloc(sizeof(FingerPrint));
     hss->FP_TSeq->name = "SEQ";
     seq_AVs = (struct AVal *) safe_zalloc(sizeof(struct AVal) * 7);
     hss->FP_TSeq->results = seq_AVs;
     avnum = 0;
-    seq_AVs[avnum].attribute = "CL";
-    switch(hss->si.seqclass) {
-    case SEQ_CONSTANT:
-      strcpy(seq_AVs[avnum].value, "C");
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute= "Val";     
-      sprintf(seq_AVs[avnum].value, "%X", hss->si.seqs[0]);
-      break;
-    case SEQ_64K:
-      strcpy(seq_AVs[avnum].value, "64K");      
-      break;
-    case SEQ_i800:
-      strcpy(seq_AVs[avnum].value, "i800");
-      break;
-    case SEQ_TD:
-      strcpy(seq_AVs[avnum].value, "TD");
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute="SP";
-      sprintf(seq_AVs[avnum].value, "%X", hss->si.index);
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute= "GCD";
-      sprintf(seq_AVs[avnum].value, "%X", seq_gcd);
-      break;
-    case SEQ_RI:
-      strcpy(seq_AVs[avnum].value, "RI");
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute="SP";
-      sprintf(seq_AVs[avnum].value, "%X", hss->si.index);
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute= "GCD";     
-      sprintf(seq_AVs[avnum].value, "%X", seq_gcd);
-      break;
-    case SEQ_TR:
-      strcpy(seq_AVs[avnum].value, "TR");
-      break;
-    }
 
+    seq_AVs[avnum].attribute = "SP";
+    sprintf(seq_AVs[avnum].value, "%X", hss->si.index);
+    seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+    seq_AVs[avnum].attribute= "GCD";     
+    sprintf(seq_AVs[avnum].value, "%X", seq_gcd);
+    seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+    seq_AVs[avnum].attribute= "ISR";     
+    sprintf(seq_AVs[avnum].value, "%X", (unsigned int) seq_rate);
+
+    /* Now it is time to deal with IPIDs */
     good_tcp_ipid_num = 0;
     good_icmp_ipid_num = 0;
     
