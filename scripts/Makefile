@@ -2,8 +2,8 @@
 CC=gcc
 CPP=g++
 INCLUDE_FLAGS= -I.. -I../nbase -I../libpcap -I../libdnet-stripped/include/
-LINK_FLAGS=-L.. -L../nbase -L../libpcap -L../libdnet-stripped/src/.libs
-NMAP_OBJS=../osscan.o ../osscan2.o ../nmap_error.o ../utils.o ../tcpip.o ../output.o ../nmap.o ../scan_engine.o ../portlist.o ../timing.o ../nmap_rpc.o ../charpool.o ../services.o ../targets.o ../idle_scan.o ../MACLookup.o ../protocols.o ../FingerPrintResults.o ../NmapOps.o ../TargetGroup.o ../Target.o ../NmapOutputTable.o ../service_scan.o ../nmap_tty.o ../nmap_dns.o ../nsock/src/libnsock.a
+LINK_FLAGS=-L.. -L../nbase -L../libpcap 
+NMAP_OBJS=../osscan.o ../osscan2.o ../nmap_error.o ../utils.o ../tcpip.o ../output.o ../nmap.o ../scan_engine.o ../portlist.o ../timing.o ../nmap_rpc.o ../charpool.o ../services.o ../targets.o ../idle_scan.o ../MACLookup.o ../protocols.o ../FingerPrintResults.o ../NmapOps.o ../TargetGroup.o ../Target.o ../NmapOutputTable.o ../service_scan.o ../nmap_tty.o ../nmap_dns.o ../nsock/src/libnsock.a ../libdnet-stripped/src/.libs/libdnet.a
 DEFINES=-DHAVE_CONFIG_H=1
 DATAFILES = nmap-os-fingerprints nmap-os-db nmap-service-probes nmap-services nmap-rpc nmap-protocols nmap-mac-prefixes
 SHTOOL = ../shtool
@@ -15,13 +15,13 @@ all: fingermatch fingerdiff servicematch
 dummy:
 
 fingermatch: dummy
-	$(CPP) -g -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt -ldnet
+	$(CPP) -g -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt
 
 fingerdiff: dummy
-	$(CPP) -g -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt -ldnet
+	$(CPP) -g -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt
 
 servicematch: dummy
-	$(CPP) -g -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt -ldnet
+	$(CPP) -g -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt
 
 web:
 	test x$(wroot) != x

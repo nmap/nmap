@@ -37,7 +37,7 @@ while(<>) {
 
 if ($wrapped) {
     $printbuf = fpunwrap($printbuf);
-    print "Unwrapped fingerprint:\n$printbuf\n";
+    print "UNWRAPPED FINGERPRINT:\n$printbuf\n";
 }
 
 # At this point I have an unwrapped FP in $printbuf
