@@ -132,15 +132,56 @@ foreach $line (split /\n/, $printbuf) {
 	
 	# print " newsp: $fp{seq}{sp}\n";
 	
-	
-	if (!($fp{seq}{isr} =~ /(^|\|)$isr($|\|)/)) {
-            if ($fp{seq}{isr}) {
-                $fp{seq}{isr} = $fp{seq}{isr} . qq^|$isr^;
-            } else {
-                $fp{seq}{isr} = $isr;
-            }
-        }
 
+	# Treat ISR the same way as sp
+	$newhighlim = $newlowlim = -1;
+	if ($isr =~ /([0-9A-F]+)-([0-9A-F]+)/) {
+	    $newlowlim = hex($1);
+	    $newhighlim = hex($2);
+	} elsif ($isr =~ /<([0-9A-F]+)/) {
+	    $newhighlim = hex($1);
+	}
+	
+	# print "newhighlim: $newhighlim newlowlim: $newlowlim\n";
+	
+	$oldhighlim = $oldlowlim = 0;
+	if ($fp{seq}{isr} =~ /([0-9A-F]+)-([0-9A-F]+)/) {
+	    $oldlowlim = hex($1);
+	    $oldhighlim = hex($2);
+	} elsif ($fp{seq}{isr} =~ /<([0-9A-F]+)/) {
+	    $oldhighlim = hex($1);
+	} elsif ($fp{seq}{isr} =~ /^([0-9A-F]+)/) {
+	    $oldhighlim = $oldlowlim = hex($1);
+	}
+	
+        # print "oldhighlim: $oldhighlim oldlowlim: $oldlowlim\n";
+	
+	if ($oldlowlim) {
+	    if ($newlowlim != -1) { $newlowlim = max(0, min($oldlowlim, $newlowlim)); } 
+	    else { $newlowlim = max(0, min($oldlowlim, hex($isr))); }
+	} else {
+	    if ($newlowlim == -1) { $newlowlim = max(0, hex($isr)); }
+	}
+	
+	if ($newhighlim == -1) { 
+	    $newhighlim = max($oldhighlim, hex($isr));
+	} else {
+	    $newhighlim = max($oldhighlim, $newhighlim);
+	}
+	
+	# print "oldhighlim: $oldhighlim oldlowlim: $oldlowlim newhighlim: $newhighlim newlowlim: $newlowlim oldisr: $fp{seq}{isr}";
+	
+	if ($newlowlim eq $newhighlim) {
+	    $fp{seq}{isr} = sprintf("%X", $newhighlim);
+	} elsif ($newlowlim > 0) {
+	    $fp{seq}{isr} = sprintf("%X-%X", $newlowlim, $newhighlim);
+	} else {
+	    $fp{seq}{isr} = sprintf("<%X", $newhighlim);
+	}
+	
+	# print " newisr: $fp{seq}{isr}\n";
+	
+	
 	if (!($fp{seq}{ti} =~ /(^|\|)$ti($|\|)/)) {
             if ($fp{seq}{ti}) {
                 $fp{seq}{ti} = $fp{seq}{ti} . qq^|$ti^;
