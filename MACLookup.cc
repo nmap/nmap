@@ -128,7 +128,7 @@ static inline int MACTableHash(int prefix, int table_capacity) {
   return prefix % table_capacity;
 }
 
-void mac_prefix_init() {
+static void mac_prefix_init() {
   static int initialized = 0;
   if (initialized) return;
   initialized = 1;

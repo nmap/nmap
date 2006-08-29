@@ -887,8 +887,8 @@ static int sendconnecttcpqueries(Target *hostbatch[], struct tcpqueryinfo *tqi,
   return 0;
 }
 
-int sendrawudppingquery(int rawsd, struct eth_nfo *eth, Target *target, u16 probe_port,
-			u16 seq, struct timeval *time, struct pingtune *pt) {
+static int sendrawudppingquery(int rawsd, struct eth_nfo *eth, Target *target, u16 probe_port,
+			       u16 seq, struct timeval *time, struct pingtune *pt) {
 int trynum = 0;
 unsigned short sportbase;
 
@@ -910,8 +910,8 @@ else {
  return 0;
 }
 
-int sendrawtcppingquery(int rawsd, struct eth_nfo *eth, Target *target, int pingtype, u16 probe_port,
-			u16 seq, struct timeval *time, struct pingtune *pt) {
+static int sendrawtcppingquery(int rawsd, struct eth_nfo *eth, Target *target, int pingtype, u16 probe_port,
+			       u16 seq, struct timeval *time, struct pingtune *pt) {
 int trynum = 0;
 int myseq;
 unsigned short sportbase;
@@ -948,8 +948,8 @@ else {
  return 0;
 }
 
-int sendrawtcpudppingqueries(int rawsd, eth_t *ethsd, Target *target, int pingtype, u16 seq, 
-			  struct timeval *time, struct pingtune *pt) {
+static int sendrawtcpudppingqueries(int rawsd, eth_t *ethsd, Target *target, int pingtype, u16 seq, 
+				    struct timeval *time, struct pingtune *pt) {
   int i;
   struct eth_nfo eth;
   struct eth_nfo *ethptr = NULL;
@@ -1114,10 +1114,10 @@ static int sendpingqueries(int sd, int rawsd, eth_t *ethsd, Target *target,
 }
 
 
-int get_connecttcpscan_results(struct tcpqueryinfo *tqi, 
-			       Target *hostbatch[], 
-			       struct timeval *time, struct pingtune *pt, 
-			       struct timeout_info *to) {
+static int get_connecttcpscan_results(struct tcpqueryinfo *tqi, 
+				      Target *hostbatch[], 
+				      struct timeval *time, struct pingtune *pt, 
+				      struct timeout_info *to) {
 
 int res, res2;
 int tm;

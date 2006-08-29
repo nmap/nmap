@@ -203,5 +203,4 @@ void printStatusMessage();
 void printfinaloutput();
 
 char* xml_convert (const char* str);
-char* xml_sf_convert (const char* str);
 #endif /* OUTPUT_H */

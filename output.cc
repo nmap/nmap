@@ -156,6 +156,37 @@ static void skid_output(char *s)
       }
 }
 
+/* Remove all "\nSF:" from fingerprints */
+static char* xml_sf_convert (const char* str) {
+  char *temp = (char *) safe_malloc(strlen(str) + 1);
+  char *dst = temp, *src = (char *)str;
+  char *ampptr = 0;
+  int charcount = 0;
+
+  while(*src && charcount < 2035) { /* 2048 - 14 */
+    if (strncmp(src, "\nSF:", 4) == 0) {
+      src += 4;
+      continue;
+    }
+    /* Needed so "&something;" is not truncated midway */
+    if (*src == '&') {
+      ampptr = dst;
+    }
+    else if (*src == ';') {
+      ampptr = 0;
+    }
+    *dst++ = *src++;
+    charcount++;
+  }
+  if (ampptr != 0) {
+    *ampptr = '\0';
+  }
+  else {
+    *dst = '\0';
+  }
+  return temp;
+}
+
 
 // Creates an XML <service> element for the information given in
 // serviceDeduction.  It will be 0-length if none is neccessary.
@@ -747,37 +778,6 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
   }
 
   return;
-}
-
-/* Remove all "\nSF:" from fingerprints */
-char* xml_sf_convert (const char* str) {
-  char *temp = (char *) safe_malloc(strlen(str) + 1);
-  char *dst = temp, *src = (char *)str;
-  char *ampptr = 0;
-  int charcount = 0;
-
-  while(*src && charcount < 2035) { /* 2048 - 14 */
-    if (strncmp(src, "\nSF:", 4) == 0) {
-      src += 4;
-      continue;
-    }
-    /* Needed so "&something;" is not truncated midway */
-    if (*src == '&') {
-      ampptr = dst;
-    }
-    else if (*src == ';') {
-      ampptr = 0;
-    }
-    *dst++ = *src++;
-    charcount++;
-  }
-  if (ampptr != 0) {
-    *ampptr = '\0';
-  }
-  else {
-    *dst = '\0';
-  }
-  return temp;
 }
 
 /* Write some information (printf style args) to the given log stream(s).

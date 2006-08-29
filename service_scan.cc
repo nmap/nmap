@@ -255,10 +255,10 @@ struct substargs {
 };
 
 /********************   PROTOTYPES *******************/
-void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *mydata);
-void servicescan_write_handler(nsock_pool nsp, nsock_event nse, void *mydata);
-void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *mydata);
-void end_svcprobe(nsock_pool nsp, enum serviceprobestate probe_state, ServiceGroup *SG, ServiceNFO *svc, nsock_iod nsi);
+static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *mydata);
+static void servicescan_write_handler(nsock_pool nsp, nsock_event nse, void *mydata);
+static void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *mydata);
+static void end_svcprobe(nsock_pool nsp, enum serviceprobestate probe_state, ServiceGroup *SG, ServiceNFO *svc, nsock_iod nsi);
 
 ServiceProbeMatch::ServiceProbeMatch() {
   deflineno = -1;
@@ -1138,7 +1138,7 @@ void parse_nmap_service_probe_file(AllProbes *AP, char *filename) {
 
 // Parses the nmap-service-probes file, and adds each probe to
 // the already-created 'probes' vector.
-void parse_nmap_service_probes(AllProbes *AP) {
+static void parse_nmap_service_probes(AllProbes *AP) {
   char filename[256];
 
   if (nmap_fetchfile(filename, sizeof(filename), "nmap-service-probes") == -1){
@@ -1893,7 +1893,7 @@ static void handleHostIfDone(ServiceGroup *SG, Target *target) {
 // A simple helper function to cancel further work on a service and
 // set it to the given probe_state pass NULL for nsi if you don't want
 // it to be deleted (for example, if you already have done so).
-void end_svcprobe(nsock_pool nsp, enum serviceprobestate probe_state, ServiceGroup *SG, ServiceNFO *svc, nsock_iod nsi) {
+static void end_svcprobe(nsock_pool nsp, enum serviceprobestate probe_state, ServiceGroup *SG, ServiceNFO *svc, nsock_iod nsi) {
   list<ServiceNFO *>::iterator member;
   Target *target = svc->target;
 
@@ -1982,7 +1982,7 @@ static int launchSomeServiceProbes(nsock_pool nsp, ServiceGroup *SG) {
 }
 
 
-void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
+static void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
   nsock_iod nsi = nse_iod(nse);
   enum nse_status status = nse_status(nse);
   enum nse_type type = nse_type(nse);
@@ -2042,7 +2042,7 @@ void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *mydata) 
   return;
 }
 
-void servicescan_write_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
+static void servicescan_write_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
   enum nse_status status = nse_status(nse);
   nsock_iod nsi;
   ServiceNFO *svc = (ServiceNFO *)mydata;
@@ -2092,7 +2092,7 @@ void servicescan_write_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
   return;
 }
 
-void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
+static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
   nsock_iod nsi = nse_iod(nse);
   enum nse_status status = nse_status(nse);
   enum nse_type type = nse_type(nse);

@@ -291,7 +291,7 @@ static ScanProgressMeter *SPM;
 
 //------------------- Prototypes and macros ---------------------
 
-void put_dns_packet_on_wire(request *req);
+static void put_dns_packet_on_wire(request *req);
 
 #define ACTION_FINISHED 0
 #define ACTION_CNAME_LIST 1
@@ -391,7 +391,7 @@ static void write_evt_handler(nsock_pool nsp, nsock_event evt, void *req_v) {
 // Takes a DNS request structure and actually puts it on the wire
 // (calls nsock_write()). Does various other tasks like recording
 // the time for the timeout.
-void put_dns_packet_on_wire(request *req) {
+static void put_dns_packet_on_wire(request *req) {
   char packet[512];
   int plen=0;
   u32 ip;
@@ -593,7 +593,7 @@ static u32 parse_inaddr_arpa(unsigned char *buf, int maxlen) {
 // Turns a DNS packet encoded name (see the RFC) and turns it into
 // a normal decimal separated hostname.
 // ASSUMES NAME LENGTH/VALIDITY HAS ALREADY BEEN VERIFIED
-int encoded_name_to_normal(unsigned char *buf, char *output, int outputsize){
+static int encoded_name_to_normal(unsigned char *buf, char *output, int outputsize){
   while (buf[0]) {
     if (buf[0] >= outputsize-1) return -1;
     memcpy(output, buf+1, buf[0]);
@@ -834,7 +834,7 @@ void free_dns_servers() {
 
 
 // Creates a new nsi for each DNS server
-void connect_dns_servers() {
+static void connect_dns_servers() {
   std::list<dns_server *>::iterator serverI;
   dns_server *s;
 

@@ -2,7 +2,9 @@
 4.20ALPHA5
 
 o Worked with Zhao to improve the new OS detection system with
-  better algorithms, some probe changes, and some bug fixes.
+  better algorithms, some probe changes, and some bug fixes.  We're
+  now ready to start growing the new database!  If Nmap gives you
+  fingerprints, please submit them at the given URL.
 
 o Nmap now supports IP options with the new --ip-options flag.  You
   can specify any optiosn in hex, or use "R" (record route), "T"
@@ -12,6 +14,11 @@ o Nmap now supports IP options with the new --ip-options flag.  You
   information and examples, see http://insecure.org/nmap/man/ and
   http://seclists.org/nmap-dev/2006/q3/0052.html .  Thanks to Marek
   Majkowski for writing and sending the patch.
+
+o Integrated all 2nd quarter service detection fingerprint
+  submissions.  Please keep them coming!  We now have 3,671 signatures
+  representing 415 protocols.   Thanks to version detection czar Doug
+  Hoyte for doing this.
 
 o Nmap now uses the (relatively) new libpcap pcap_get_selectable_fd
   API on systems which support it.  This means that we no longer need
@@ -24,26 +31,23 @@ o Updated the included libpcap from 0.9.3 to 0.9.4.  The changes I
   use the included libpcap unless version 0.9.4 or greater is already
   installed on the system.
 
-o Applied some nsock bugfixes from Diman Todorov.  These don't
-  affect the current version of Nmap, but are important for his upcoming
-  Nmap Scripting Engine.
+o Applied some nsock bugfixes from Diman Todorov.  These don't affect
+  the current version of Nmap, but are important for his Nmap
+  Scripting Engine, which I hope to integrate into mainline Nmap in
+  September.
 
 o Fixed a bug which would occasionally cause Nmap to crash with the
   message "log_vwrite: write buffer not large enough".  I thought I
   conquered it in a previous release -- thanks to Doug Hoyte for finding a
   corner case which proved me wrong.
 
-o Integrated all 2nd quarter service detection fingerprint
-  submissions.  Please keep them coming!  We now have 3,671 signatures
-  representing 415 protocols.   Thanks to version detection czar Doug
-  Hoyte for doing this.
-
 o Fixed a bug in the rDNS system which prevented us from querying
   certain authoritative DNS servers which have recursion explicitly
   disabled.  Thanks to Doug Hoyte for the patch.
 
 o --packet-trace now reports TCP options (thanks to Zhao Lei for the
-  patch).
+  patch).  Thanks to the --ip-options addition also found in this
+  release, IP options are printed too.
 
 o Cleaned up Nmap DNS reporting to be a little more useful and
   concise.  Thanks to Doug Hoyte for the patch.
