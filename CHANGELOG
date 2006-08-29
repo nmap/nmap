@@ -10,7 +10,8 @@ o Nmap now supports IP options with the new --ip-options flag.  You
   (strict source route), or "L [route]" (loose source route).  Specify
   --packet-trace to display IP options of responses.  For further
   information and examples, see http://insecure.org/nmap/man/ and
-  http://seclists.org/nmap-dev/2006/q3/0052.html .
+  http://seclists.org/nmap-dev/2006/q3/0052.html .  Thanks to Marek
+  Majkowski for writing and sending the patch.
 
 o Nmap now uses the (relatively) new libpcap pcap_get_selectable_fd
   API on systems which support it.  This means that we no longer need
