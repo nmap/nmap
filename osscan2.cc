@@ -1697,14 +1697,14 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
     } else {
 
       /* First calculate the average counter rate */
-      for(i=0; i < hss->si.responses - 1; i++) {      
+      for(i=0; i < hss->si.responses - 1; i++) {
 	seq_rate += seq_diffs[i] / (TIMEVAL_MSEC_SUBTRACT(hss->seq_send_times[i+1], hss->seq_send_times[i]) / 1000.0);
       }
       seq_rate /= hss->si.responses - 1;
       /* Finally we take a binary logarithm, multiply by 8, and round
 	 to get the final result */
       seq_rate = log(seq_rate) / log(2);
-      seq_rate = (unsigned int) seq_rate * 8 + 0.5;
+      seq_rate = (unsigned int) (seq_rate * 8 + 0.5);
 
       /* Now calculate the predictability index */
       for(i=0; i < hss->si.responses - 1; i++)
