@@ -515,17 +515,25 @@ unsigned short in_cksum(u16 *ptr,int nbytes);
 
 /* Build and send a raw tcp packet.  If TTL is -1, a partially random
    (but likely large enough) one is chosen */
-int send_tcp_raw( int sd, struct eth_nfo *eth, const struct in_addr *source, 
-		  const struct in_addr *victim, int ttl, bool df,
-		  u16 sport, u16 dport, u32 seq, u32 ack, u8 reserved, u8 flags,
-		  u16 window, u16 urp, u8 *options, int optlen, char *data, 
-		  u16 datalen);
-int send_udp_raw( int sd, struct eth_nfo *eth, struct in_addr *source, 
-		  const struct in_addr *victim, int ttl, u16 sport, 
-		  u16 dport, u16 ipid, char *data, u16 datalen);
+int send_tcp_raw( int sd, struct eth_nfo *eth,
+		  const struct in_addr *source, const struct in_addr *victim, 
+		  int ttl, bool df,
+		  u8* ipopt, int ipoptlen,
+		  u16 sport, u16 dport,
+		  u32 seq, u32 ack, u8 reserved, u8 flags, u16 window, u16 urp,
+		  u8 *options, int optlen,
+		  char *data, u16 datalen);
+int send_udp_raw( int sd, struct eth_nfo *eth,
+		  struct in_addr *source, const struct in_addr *victim,
+		  int ttl, u16 ipid,
+		  u8* ipopt, int ipoptlen,
+		  u16 sport, u16 dport,
+		  char *data, u16 datalen);
 
-int send_ip_raw( int sd, struct eth_nfo *eth, struct in_addr *source, 
-		 const struct in_addr *victim, int ttl, u8 proto, 
+int send_ip_raw( int sd, struct eth_nfo *eth,
+		 struct in_addr *source, const struct in_addr *victim,
+		 u8 proto, int ttl,
+		 u8* ipopt, int ipoptlen,
 		 char *data, u16 datalen);
 
 /* Builds a TCP packet (including an IP header) by packing the fields
@@ -535,8 +543,12 @@ int send_ip_raw( int sd, struct eth_nfo *eth, struct in_addr *source,
    finished with the packet.  The packet length is returned in
    packetlen, which must be a valid int pointer. */
 u8 *build_tcp_raw(const struct in_addr *source, const struct in_addr *victim,
-		  int ttl, u16 ipid, bool df, u16 sport, u16 dport, u32 seq, u32 ack, u8 reserved,
-		  u8 flags, u16 window, u16 urp, u8 *options, int optlen, char *data, u16 datalen,
+		  int ttl, u16 ipid, u8 tos, bool df,
+		  u8* ipopt, int ipoptlen,
+		  u16 sport, u16 dport,
+		  u32 seq, u32 ack, u8 reserved, u8 flags, u16 window, u16 urp,
+		  u8 *options, int optlen,
+		  char *data, u16 datalen,
 		  u32 *packetlen);
 
 /* Builds a UDP packet (including an IP header) by packing the fields
@@ -546,8 +558,11 @@ u8 *build_tcp_raw(const struct in_addr *source, const struct in_addr *victim,
    finished with the packet.  The packet length is returned in
    packetlen, which must be a valid int pointer. */
 u8 *build_udp_raw(struct in_addr *source, const struct in_addr *victim,
- 		  int ttl, u16 sport, u16 dport, u16 ipid, char *data, 
-		  u16 datalen, u32 *packetlen);
+ 		  int ttl, u16 ipid, u8 tos, bool df,
+		  u8* ipopt, int ipoptlen,
+ 		  u16 sport, u16 dport, 
+ 		  char *data, u16 datalen,
+ 		  u32 *packetlen);
 
 /* Builds an ICMP packet (including an IP header) by packing the
    fields with the given information.  It allocates a new buffer to
@@ -558,8 +573,10 @@ u8 *build_udp_raw(struct in_addr *source, const struct in_addr *victim,
    id/seq will be converted to network byte order (if it differs from
    HBO) */
 u8 *build_icmp_raw(const struct in_addr *source, const struct in_addr *victim, 
-		   int ttl, u16 ipid, u8 tos, bool df, u16 seq, unsigned short id, u8 ptype, 
-		   u8 pcode, char *data, u16 datalen, u32 *packetlen);
+		   int ttl, u16 ipid, u8 tos, bool df,
+		   u8* ipopt, int ipoptlen,
+		   u16 seq, unsigned short id, u8 ptype, u8 pcode,
+		   char *data, u16 datalen, u32 *packetlen);
 
 /* Builds an IP packet (including an IP header) by packing the fields
    with the given information.  It allocates a new buffer to store the
@@ -568,7 +585,10 @@ u8 *build_icmp_raw(const struct in_addr *source, const struct in_addr *victim,
    finished with the packet.  The packet length is returned in
    packetlen, which must be a valid int pointer. */
 u8 *build_ip_raw(const struct in_addr *source, const struct in_addr *victim, 
-		 int ttl, u8 proto, u16 ipid, u8 tos, bool df, char *data, u16 datalen, 
+		 u8 proto,
+		 int ttl, u16 ipid, u8 tos, bool df,
+		 u8* ipopt, int ipoptlen,
+		 char *data, u16 datalen, 
 		 u32 *packetlen);
 
 /* Send a pre-built IPv4 packet */
@@ -577,15 +597,20 @@ int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet,
 
 /* Decoy versions of the raw packet sending functions ... */
 int send_tcp_raw_decoys( int sd, struct eth_nfo *eth, 
-			 const struct in_addr *victim, int ttl, bool df, 
-			 u16 sport, u16 dport, u32 seq, u32 ack, u8 reserved, u8 flags,
-			 u16 window, u16 urp, u8 *options, int optlen, char *data,
-			 u16 datalen);
+			 const struct in_addr *victim,
+			 int ttl, bool df, 
+			 u8* ipopt, int ipoptlen,
+			 u16 sport, u16 dport,
+			 u32 seq, u32 ack, u8 reserved, u8 flags, u16 window, u16 urp,
+			 u8 *options, int optlen,
+			 char *data, u16 datalen);
 
 int send_udp_raw_decoys( int sd, struct eth_nfo *eth, 
-			 const struct in_addr *victim, int ttl, 
-			 u16 sport, u16 dport, u16 ipid, char *data, 
-			 u16 datalen);
+			 const struct in_addr *victim,
+			 int ttl, u16 ipid,
+			 u8* ipops, int ip,
+			 u16 sport, u16 dport,
+			 char *data, u16 datalen);
 
 
 /* Calls pcap_open_live and spits out an error (and quits) if the call fails.

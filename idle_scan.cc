@@ -186,12 +186,14 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
     gettimeofday(&tv_sent[tries], NULL);
 
     /* Time to send the pr0be!*/
-    send_tcp_raw(proxy->rawsd, proxy->ethptr, proxy->host.v4sourceip(), 
-				 proxy->host.v4hostip(), o.ttl, false, base_port + tries,
-		 proxy->probe_port,
-				 seq_base + (packet_send_count++ * 500) + 1, ack, 0,
-				 TH_SYN|TH_ACK, 0, 0,
-		 (u8 *) "\x02\x04\x05\xb4", 4, NULL, 0);
+    send_tcp_raw(proxy->rawsd, proxy->ethptr,
+    		proxy->host.v4sourceip(), proxy->host.v4hostip(),
+    		o.ttl, false,
+    		o.ipoptions, o.ipoptionslen,
+    		base_port + tries, proxy->probe_port,
+		seq_base + (packet_send_count++ * 500) + 1, ack, 0, TH_SYN|TH_ACK, 0, 0,
+		(u8 *) "\x02\x04\x05\xb4", 4,
+		NULL, 0);
     sent++;
     tries++;
 
@@ -416,11 +418,14 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
        a response with the exact request for timing purposes.  So I
        think I'll use TH_SYN, although it is a tough call. */
     /* We can't use decoys 'cause that would screw up the IPIDs */
-    send_tcp_raw(proxy->rawsd, proxy->ethptr, proxy->host.v4sourceip(), 
-				 proxy->host.v4hostip(), o.ttl, false,
+    send_tcp_raw(proxy->rawsd, proxy->ethptr,
+    		proxy->host.v4sourceip(), proxy->host.v4hostip(),
+    		o.ttl, false,
+    		o.ipoptions, o.ipoptionslen,
 		 o.magic_port + probes_sent + 1, proxy->probe_port, 
-				 sequence_base + probes_sent + 1, ack, 0, TH_SYN|TH_ACK, 
-				 0, 0, (u8 *) "\x02\x04\x05\xb4", 4, NULL, 0);
+		sequence_base + probes_sent + 1, ack, 0, TH_SYN|TH_ACK, 0, 0,
+		(u8 *) "\x02\x04\x05\xb4",4,
+		NULL, 0);
     gettimeofday(&probe_send_times[probes_sent], NULL);
     probes_sent++;
 
@@ -523,11 +528,14 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   if (first_target) {  
     for (probes_sent = 0; probes_sent < 4; probes_sent++) {  
       if (probes_sent) usleep(50000);
-      send_tcp_raw(proxy->rawsd, proxy->ethptr, first_target, 
-		   proxy->host.v4hostip(), 
-				   o.ttl, false,o.magic_port, proxy->probe_port, 
-				   sequence_base + probes_sent + 1, ack, 0, TH_SYN|TH_ACK, 
-				   0, 0, (u8 *) "\x02\x04\x05\xb4", 4, NULL, 0);
+      send_tcp_raw(proxy->rawsd, proxy->ethptr,
+      		first_target, proxy->host.v4hostip(), 
+		o.ttl, false,
+		o.ipoptions, o.ipoptionslen,
+		o.magic_port, proxy->probe_port, 
+		sequence_base + probes_sent + 1, ack, 0, TH_SYN|TH_ACK, 0, 0,
+		(u8 *) "\x02\x04\x05\xb4",
+		4, NULL, 0);
 
     }
 
@@ -680,10 +688,13 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
        but doing it the straightforward way (using the same decoys as
        we use in probing the proxy box is risky.  I'll have to think
        about this more. */
-    send_tcp_raw(proxy->rawsd, eth.ethsd? &eth : NULL, proxy->host.v4hostip(), 
-		 target->v4hostip(),
-				 o.ttl, false, proxy->probe_port, ports[pr0be], seq, 0, 0, TH_SYN, 0, 0,
-		 (u8 *) "\x02\x04\x05\xb4", 4, o.extra_payload, o.extra_payload_length);
+    send_tcp_raw(proxy->rawsd, eth.ethsd? &eth : NULL,
+    		proxy->host.v4hostip(), target->v4hostip(),
+		o.ttl, false,
+		o.ipoptions, o.ipoptionslen,
+		proxy->probe_port, ports[pr0be], seq, 0, 0, TH_SYN, 0, 0,
+		(u8 *) "\x02\x04\x05\xb4", 4,
+		o.extra_payload, o.extra_payload_length);
   }
   gettimeofday(&end, NULL);
 

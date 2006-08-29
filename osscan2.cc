@@ -1277,7 +1277,7 @@ void HostOsScan::sendTSeqProbe(HostOsScanStats *hss, int probeNo) {
 
   if(hss->openTCPPort == -1) return;
 
-  send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
+  send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false, NULL, 0,
                       tcpPortBase + probeNo, hss->openTCPPort,
                       tcpSeqBase + probeNo, tcpAck, 0,
                       TH_SYN, prbWindowSz[probeNo], 0, prbOpts[probeNo].val, prbOpts[probeNo].len,
@@ -1292,7 +1292,7 @@ void HostOsScan::sendTOpsProbe(HostOsScanStats *hss, int probeNo) {
 
   if(hss->openTCPPort == -1) return;
   
-  send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
+  send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false, NULL, 0,
                       tcpPortBase + NUM_SEQ_SAMPLES + probeNo, 
 		      hss->openTCPPort, tcpSeqBase, tcpAck, 0, TH_SYN, 
 		      prbWindowSz[probeNo], 0, prbOpts[probeNo].val, 
@@ -1304,7 +1304,7 @@ void HostOsScan::sendTEcnProbe(HostOsScanStats *hss) {
   
   if(hss->openTCPPort == -1) return;
   
-  send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
+  send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false, NULL, 0,
                       tcpPortBase + NUM_SEQ_SAMPLES + 6, hss->openTCPPort,
 		      tcpSeqBase, 0, 8, TH_CWR|TH_ECE|TH_SYN, prbWindowSz[6], 
 		      63477, prbOpts[6].val, prbOpts[6].len, NULL, 0);
@@ -1319,51 +1319,52 @@ void HostOsScan::sendT1_7Probe(HostOsScanStats *hss, int probeNo) {
   switch(probeNo) {
   case 0: /* T1 */
     if(hss->openTCPPort == -1) return;
-    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
+    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false, NULL, 0,
                         port_base, hss->openTCPPort, tcpSeqBase, tcpAck, 0,
                         TH_SYN, prbWindowSz[0], 0, prbOpts[0].val, 
 			prbOpts[0].len, NULL, 0);
     break;
   case 1: /* T2 */
     if(hss->openTCPPort == -1) return;
-    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, true,
+    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, true, NULL, 0,
                         port_base + 1, hss->openTCPPort, tcpSeqBase, tcpAck, 0,
-                        0, prbWindowSz[7], 0, prbOpts[7].val, prbOpts[7].len, NULL, 0);
+                        0, prbWindowSz[7], 0, prbOpts[7].val, 
+                        prbOpts[7].len, NULL, 0);
     break;
   case 2: /* T3 */
     if(hss->openTCPPort == -1) return;
-    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
+    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false, NULL, 0,
                         port_base + 2, hss->openTCPPort, tcpSeqBase, tcpAck, 0,
-                        TH_SYN|TH_FIN|TH_URG|TH_PUSH, prbWindowSz[8], 0, 
-			prbOpts[8].val, prbOpts[8].len, NULL, 0);
+                        TH_SYN|TH_FIN|TH_URG|TH_PUSH, prbWindowSz[8], 0, prbOpts[8].val, 
+                        prbOpts[8].len, NULL, 0);
     break;
   case 3: /* T4 */
     if(hss->openTCPPort == -1) return;
-    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, true,
+    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, true, NULL, 0,
                         port_base + 3, hss->openTCPPort, tcpSeqBase, tcpAck, 0,
                         TH_ACK, prbWindowSz[9], 0, prbOpts[9].val, 
 			prbOpts[9].len, NULL, 0);
     break;
   case 4: /* T5 */
     if(hss->closedTCPPort == -1) return;
-    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
+    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false, NULL, 0,
                         port_base + 4, hss->closedTCPPort, tcpSeqBase, tcpAck,
 			0, TH_SYN, prbWindowSz[10], 0, prbOpts[10].val, 
 			prbOpts[10].len, NULL, 0);
     break;
   case 5: /* T6 */
     if(hss->closedTCPPort == -1) return;
-    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, true,
+    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, true, NULL, 0,
                         port_base + 5, hss->closedTCPPort, tcpSeqBase, tcpAck,
 			0, TH_ACK, prbWindowSz[11], 0, prbOpts[11].val, 
 			prbOpts[11].len, NULL, 0);
     break;
   case 6: /* T7 */
     if(hss->closedTCPPort == -1) return;
-    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false,
+    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false, NULL, 0,
                         port_base + 6, hss->closedTCPPort, tcpSeqBase, tcpAck,
-			0, TH_FIN|TH_PUSH|TH_URG, prbWindowSz[12], 0, 
-			prbOpts[12].val, prbOpts[12].len, NULL, 0);
+			0, TH_FIN|TH_PUSH|TH_URG, prbWindowSz[12], 0, prbOpts[12].val, 
+			prbOpts[12].len, NULL, 0);
     break;
   }
 }
@@ -2962,9 +2963,11 @@ int send_icmp_echo_probe(int sd, struct eth_nfo *eth,
   int res = -1;
 
   for(decoy = 0; decoy < o.numdecoys; decoy++) {
-    packet = build_icmp_raw(&o.decoys[decoy], victim, o.ttl,
-                            get_random_u16(), tos, df, seq, id, ICMP_ECHO, pcode, NULL,
-                            datalen, &packetlen);
+    packet = build_icmp_raw(&o.decoys[decoy], victim,
+    			    o.ttl, get_random_u16(), tos, df,
+    			    NULL, 0,
+    			    seq, id, ICMP_ECHO, pcode,
+    			    NULL, datalen, &packetlen);
     if(!packet) return -1;
     res = send_ip_packet(sd, eth, packet, packetlen);
     free(packet);

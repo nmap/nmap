@@ -226,6 +226,24 @@ long tval2msecs(char *tspec);
    str is returned. */
 char *cstring_unescape(char *str, unsigned int *len);
 
+/* This function converts zero-terminated 'txt' string to binary 'data'.
+   It is used to parse user input for ip options. Some examples of possible input
+   strings and results:
+   	'\x01*2\xA2'	-> [0x01,0x01,0xA2]	// with 'x' number is parsed in hex
+   	'\01\01\255'	-> [0x01,0x01,0xFF]	// without 'x' its in decimal
+   	'\x01\x00*2'	-> [0x01,0x00,0x00]	// '*' is copying char
+   	'R'		-> Record Route with 9 slots
+   	'S 192.168.0.1 172.16.0.1' -> Strict Route with 2 slots
+   	'L 192.168.0.1 172.16.0.1' -> Loose Route with 2 slots
+   	'T'		-> Record Timestamp with 9 slots
+   	'U'		-> Record Timestamp and Ip Address with 4 slots
+*/
+int parse_ip_options(char *txt, u8 *data, int datalen, int* firsthopoff, int* lasthopoff);
+
+void bintohexstr(char *buf, int buflen, char *src, int srclen);
+
+char* print_ip_options(u8* ipopt, int ipoptlen);
+
 #ifndef HAVE_STRERROR
 char *strerror(int errnum);
 #endif

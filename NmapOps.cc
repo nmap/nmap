@@ -252,6 +252,10 @@ void NmapOps::Initialize() {
   dns_servers = NULL;
   noninteractive = false;
   current_scantype = STYPE_UNKNOWN;
+  ipoptions = NULL;
+  ipoptionslen = 0;
+  ipopt_firsthop = 0;
+  ipopt_lasthop  = 0;  
   release_memory = false;
 
 }
@@ -446,6 +450,12 @@ void NmapOps::ValidateOptions() {
   if (min_parallelism > max_parallelism)
     max_parallelism = min_parallelism;
 
+  if(o.ipoptionslen && ! o.isr00t)
+    fatal("To use ip options you must be root.");
+
+  if(o.ipoptions && o.osscan)
+    error("WARNING: Ip options are NOT used while OS scanning!");
+    
 }
   
 void NmapOps::setMaxRttTimeout(int rtt) 

@@ -409,7 +409,7 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
   struct ip *ip = (struct ip *) packet;
   struct tcphdr *tcp;
   udphdr_bsd *udp;
-  char ipinfo[64];
+  char ipinfo[512];
   char srchost[INET6_ADDRSTRLEN], dsthost[INET6_ADDRSTRLEN];
   char *p;
   struct in_addr saddr, daddr;
@@ -434,8 +434,11 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
   }
   
 
-  snprintf(ipinfo, sizeof(ipinfo), "ttl=%d id=%d iplen=%d%s", 
-	   ip->ip_ttl, ntohs(ip->ip_id), ntohs(ip->ip_len), fragnfo);
+  snprintf(ipinfo, sizeof(ipinfo), "ttl=%d id=%d iplen=%d%s %s%s%s", 
+	  ip->ip_ttl, ntohs(ip->ip_id), ntohs(ip->ip_len), fragnfo,
+	  ip->ip_hl==5?"":"ipopts={",
+	  ip->ip_hl==5?"":print_ip_options((u8*)ip + sizeof(struct ip), MIN((ip->ip_hl-5)*4,len-sizeof(struct ip))),
+	  ip->ip_hl==5?"":"}");
 
   if (ip->ip_p == IPPROTO_TCP) {
 	char tflags[10];
@@ -1012,18 +1015,69 @@ void eth_close_cached() {
   return;
 }
 
+// fill ip header. no error check.
+// This function is also changing what's needed from host to network order.
+static inline int fill_ip_raw(
+	struct ip *ip, int packetlen, u8* ipopt, int ipoptlen,
+	int ip_tos, int ip_id, int ip_off, int ip_ttl, int ip_p,
+	const struct in_addr *ip_src, const struct in_addr *ip_dst)
+{
+  ip->ip_v   = 4;
+  ip->ip_hl  = 5 + (ipoptlen/4);
+  ip->ip_tos = ip_tos;
+  ip->ip_len = htons(packetlen);
+  ip->ip_id  = htons(ip_id);
+  ip->ip_off = htons(ip_off);
+  ip->ip_ttl = ip_ttl;
+  ip->ip_p   = ip_p;
+  ip->ip_src.s_addr = ip_src->s_addr;
+  ip->ip_dst.s_addr = ip_dst->s_addr;
+
+  if (ipoptlen)
+    memcpy((u8*)ip + sizeof(struct ip), ipopt, ipoptlen);
+    
+  // ip options source routing hack:
+  if(ipoptlen && o.ipopt_firsthop && o.ipopt_lasthop) {
+    u8* ipo = (u8*)ip + sizeof(struct ip);
+    struct in_addr *newdst = (struct in_addr *) &ipo[o.ipopt_firsthop];
+    struct in_addr *olddst = (struct in_addr *) &ipo[o.ipopt_lasthop];
+    // our destination is somewhere else :)
+    ip->ip_dst.s_addr = newdst->s_addr;
+    
+    // and last hop should be destination
+    olddst->s_addr    = ip_dst->s_addr;
+  }
+   
+
+  #if HAVE_IP_IP_SUM
+  ip->ip_sum = 0;
+  ip->ip_sum = in_cksum((unsigned short *)ip, sizeof(struct ip) + ipoptlen);
+  #endif
+  return(sizeof(struct ip) + ipoptlen);
+}
+
+
+
 int send_tcp_raw_decoys( int sd, struct eth_nfo *eth, 
-			 const struct in_addr *victim, int ttl, bool df,
-			 u16 sport, u16 dport, u32 seq, u32 ack, u8 reserved, u8 flags,
-			 u16 window, u16 urp, u8 *options, int optlen, char *data,
-			 u16 datalen) 
+			 const struct in_addr *victim,
+			 int ttl, bool df,
+			 u8* ipopt, int ipoptlen,
+			 u16 sport, u16 dport,
+			 u32 seq, u32 ack, u8 reserved, u8 flags, u16 window, u16 urp,
+			 u8 *options, int optlen,
+			 char *data, u16 datalen) 
 {
   int decoy;
 
   for(decoy = 0; decoy < o.numdecoys; decoy++) 
-    if (send_tcp_raw(sd, eth, &o.decoys[decoy], victim, ttl, df, sport, dport, 
-		     seq, ack, reserved, flags, window, urp, options, optlen, data, 
-		     datalen) == -1)
+    if (send_tcp_raw(sd, eth,
+    		&o.decoys[decoy], victim,
+    		ttl, df,
+    		ipopt, ipoptlen,
+    		sport, dport, 
+		seq, ack, reserved, flags, window, urp,
+		options, optlen,
+		data, datalen) == -1)
       return -1;
 
   return 0;
@@ -1035,11 +1089,13 @@ int send_tcp_raw_decoys( int sd, struct eth_nfo *eth,
    actually sent by this function.  Caller must delete the buffer when
    finished with the packet.  The packet length is returned in
    packetlen, which must be a valid int pointer. */
-u8 *build_tcp_raw(const struct in_addr *source, 
-		  const struct in_addr *victim, int ttl, u16 ipid, bool df,
-		  u16 sport, u16 dport, u32 seq, u32 ack, u8 reserved, u8 flags,
-		  u16 window, u16 urp, u8 *options, int optlen, char *data, 
-		  u16 datalen, u32 *packetlen) {
+u8 *build_tcp_raw(const struct in_addr *source, const struct in_addr *victim,
+                  int ttl, u16 ipid, u8 tos, bool df,
+		  u8 *ipopt, int ipoptlen, 
+		  u16 sport, u16 dport,
+		  u32 seq, u32 ack, u8 reserved, u8 flags, u16 window, u16 urp,
+		  u8 *tcpopt, int tcpoptlen,
+		  char *data, u16 datalen, u32 *outpacketlen) {
 
 struct pseudo_header { 
   /*for computing TCP checksum, see TCP/IP Illustrated p. 145 */
@@ -1049,18 +1105,22 @@ struct pseudo_header {
   u8 protocol;
   u16 length;
 };
-u8 *packet = (u8 *) safe_malloc(sizeof(struct ip) + sizeof(struct tcphdr) + optlen + datalen);
+int packetlen = sizeof(struct ip) + ipoptlen + 
+	sizeof(struct tcphdr) + tcpoptlen + datalen;
+u8 *packet = (u8 *) safe_malloc(packetlen);
 struct ip *ip = (struct ip *) packet;
-struct tcphdr *tcp = (struct tcphdr *) (packet + sizeof(struct ip));
-struct pseudo_header *pseudo =  (struct pseudo_header *) (packet + sizeof(struct ip) - sizeof(struct pseudo_header)); 
+struct tcphdr *tcp = (struct tcphdr *) ((u8*)ip + sizeof(struct ip) + ipoptlen);
+struct pseudo_header *pseudo = 
+	(struct pseudo_header *) ((u8*)tcp - sizeof(struct pseudo_header));
 static int myttl = 0;
 
 assert(victim);
 assert(source);
+assert(ipoptlen%4==0);
 
-if (optlen % 4) {
-  fatal("build_tcp_raw() called with an option length argument of %d which is illegal because it is not divisible by 4.  Just add \\0 padding to the end.", optlen);
-}
+if (tcpoptlen % 4)
+  fatal("build_tcp_raw() called with an option length argument of %d which is illegal because it is not divisible by 4. Just add \\0 padding to the end.", tcpoptlen);
+
 
 /* Time to live */
 if (ttl == -1) {
@@ -1069,19 +1129,19 @@ if (ttl == -1) {
   myttl = ttl;
 }
 
-memset((char *) packet, 0, sizeof(struct ip) + sizeof(struct tcphdr));
-
 pseudo->s_addy = source->s_addr;
 pseudo->d_addr = victim->s_addr;
+pseudo->zer0	= 0;
 pseudo->protocol = IPPROTO_TCP;
-pseudo->length = htons(sizeof(struct tcphdr) + optlen + datalen);
+pseudo->length	= htons(sizeof(struct tcphdr) + tcpoptlen + datalen);
 
+/* Fill tcp header */
+memset(tcp, 0, sizeof(struct tcphdr));
 tcp->th_sport = htons(sport);
 tcp->th_dport = htons(dport);
 if (seq) {
   tcp->th_seq = htonl(seq);
-}
-else if (flags & TH_SYN) {
+} else if (flags & TH_SYN) {
   get_random_bytes(&(tcp->th_seq), 4);
 }
 
@@ -1092,7 +1152,7 @@ if (ack)
 
 if (reserved)
   tcp->th_x2 = reserved & 0x0F;
-tcp->th_off = 5 + (optlen /4) /*words*/;
+tcp->th_off = 5 + (tcpoptlen /4) /*words*/;
 tcp->th_flags = flags;
 
 if (window)
@@ -1103,62 +1163,50 @@ else tcp->th_win = htons(1024 * (myttl % 4 + 1)); /* Who cares */
 if (urp)
   tcp->th_urp = htons(urp);
 
- /* We should probably copy the data over too */
- if (data && datalen)
-   memcpy(packet + sizeof(struct ip) + sizeof(struct tcphdr) + optlen, data, datalen);
- /* And the options */
- if (optlen) {
-   memcpy(packet + sizeof(struct ip) + sizeof(struct tcphdr), options, optlen);
- }
+/* And the options */
+if (tcpoptlen)
+  memcpy((u8*)tcp + sizeof(struct tcphdr), tcpopt, tcpoptlen);
+/* We should probably copy the data over too */
+if (data && datalen)
+  memcpy((u8*)tcp + sizeof(struct tcphdr) + tcpoptlen, data, datalen);
 
 #if STUPID_SOLARIS_CHECKSUM_BUG
- tcp->th_sum = sizeof(struct tcphdr) + optlen + datalen; 
+tcp->th_sum = sizeof(struct tcphdr) + tcpoptlen + datalen; 
 #else
 tcp->th_sum = in_cksum((unsigned short *)pseudo, sizeof(struct tcphdr) + 
-		       optlen + sizeof(struct pseudo_header) + datalen);
+		       tcpoptlen + sizeof(struct pseudo_header) + datalen);
 #endif
 
 if ( o.badsum )
   --tcp->th_sum;
 
-/* Now for the ip header */
-memset(packet, 0, sizeof(struct ip)); 
-ip->ip_v = 4;
-ip->ip_hl = 5;
-ip->ip_len = htons(sizeof(struct ip) + sizeof(struct tcphdr) + optlen + datalen);
-get_random_bytes(&(ip->ip_id), 2);
-ip->ip_ttl = myttl;
-ip->ip_p = IPPROTO_TCP;
-ip->ip_id = ipid;
-if(df) ip->ip_off |= htons(IP_DF);
-ip->ip_src.s_addr = source->s_addr;
-#ifdef WIN32
-// I'm not sure why this is --Fyodor
-if (source->s_addr == victim->s_addr) ip->ip_src.s_addr++;
-#endif
+  fill_ip_raw(ip, packetlen, ipopt, ipoptlen,
+  	tos, ipid, df?IP_DF:0, myttl, IPPROTO_TCP,
+  	source, victim);
 
-ip->ip_dst.s_addr= victim->s_addr;
-#if HAVE_IP_IP_SUM
-ip->ip_sum = in_cksum((unsigned short *)ip, sizeof(struct ip));
-#endif
-
- *packetlen = ntohs(ip->ip_len);
+  *outpacketlen = packetlen;
  return packet;
-
 }
 
 /* You need to call sethdrinclude(sd) on the sending sd before calling this */
-int send_tcp_raw( int sd, struct eth_nfo *eth, const struct in_addr *source, 
-		  const struct in_addr *victim, int ttl, bool df,
-		  u16 sport, u16 dport, u32 seq, u32 ack, u8 reserved, u8 flags,
-		  u16 window, u16 urp, u8 *options, int optlen, char *data, 
-		  u16 datalen) 
+int send_tcp_raw( int sd, struct eth_nfo *eth,
+		  const struct in_addr *source, const struct in_addr *victim,
+		  int ttl, bool df,
+		  u8* ipops, int ipoptlen,
+		  u16 sport, u16 dport,
+		  u32 seq, u32 ack, u8 reserved, u8 flags,u16 window, u16 urp,
+		  u8 *options, int optlen,
+		  char *data, u16 datalen) 
 {
   unsigned int packetlen;
   int res = -1;
 
-  u8 *packet = build_tcp_raw(source, victim, ttl, get_random_u16(), df, sport, 
-			     dport, seq, ack, reserved, flags, window, urp, options, optlen, 
+  u8 *packet = build_tcp_raw(source, victim,
+  			     ttl, get_random_u16(), IP_TOS_DEFAULT, df,
+  			     ipops, ipoptlen,
+  			     sport, dport,
+  			     seq, ack, reserved, flags, window, urp,
+  			     options, optlen, 
 			     data, datalen, &packetlen);
   if (!packet) return -1;
   res = send_ip_packet(sd, eth, packet, packetlen);
@@ -1325,9 +1373,10 @@ int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetl
    packetlen, which must be a valid int pointer.  The id/seq will be converted
    to network byte order (if it differs from HBO) */
 u8 *build_icmp_raw(const struct in_addr *source, const struct in_addr *victim, 
-		   int ttl, u16 ipid, u8 tos, bool df, u16 seq, 
-		   unsigned short id, u8 ptype, u8 pcode, char *data, 
-		   u16 datalen, u32 *packetlen) {
+		   int ttl, u16 ipid, u8 tos, bool df,
+		   u8 *ipopt, int ipoptlen,
+		   u16 seq, unsigned short id, u8 ptype, u8 pcode,
+		   char *data, u16 datalen, u32 *packetlen) {
 
 struct ppkt {
   u8 type;
@@ -1373,8 +1422,12 @@ pingpkt.checksum = in_cksum((unsigned short *)ping, icmplen);
 if ( o.badsum )
   --pingpkt.checksum;
 
-return build_ip_raw(source, victim, o.ttl, IPPROTO_ICMP, get_random_u16(), tos, df,
-		    ping, icmplen, packetlen);
+return build_ip_raw(source, victim,
+		    IPPROTO_ICMP,
+		    o.ttl, get_random_u16(), tos, df,
+		    ipopt, ipoptlen,
+		    ping, icmplen,
+		    packetlen);
 }
 
 
@@ -1485,14 +1538,17 @@ if (ip->ip_p== IPPROTO_UDP) {
 }
 
 int send_udp_raw_decoys( int sd, struct eth_nfo *eth, 
-			 const struct in_addr *victim, int ttl, 
-			 u16 sport, u16 dport, u16 ipid, char *data, 
-			 u16 datalen) {
+			 const struct in_addr *victim,
+			 int ttl, u16 ipid,
+			 u8* ipops, int ipoptlen,
+			 u16 sport, u16 dport,
+			 char *data, u16 datalen) {
   int decoy;
   
   for(decoy = 0; decoy < o.numdecoys; decoy++) 
-    if (send_udp_raw(sd, eth, &o.decoys[decoy], victim, ttl, sport, dport, ipid,
-		     data, datalen) == -1)
+    if (send_udp_raw(sd, eth, &o.decoys[decoy], victim,
+    		     ttl, ipid, ipops, ipoptlen,
+    		     sport, dport, data, datalen) == -1)
       return -1;
 
   return 0;
@@ -1506,30 +1562,30 @@ int send_udp_raw_decoys( int sd, struct eth_nfo *eth,
    finished with the packet.  The packet length is returned in
    packetlen, which must be a valid int pointer. */
 u8 *build_udp_raw(struct in_addr *source, const struct in_addr *victim,
- 		  int ttl, u16 sport, u16 dport, u16 ipid, char *data, 
-		  u16 datalen, u32 *packetlen) 
+                  int ttl, u16 ipid, u8 tos, bool df,
+		  u8 *ipopt, int ipoptlen, 
+ 		  u16 sport, u16 dport,
+ 		  char *data, u16 datalen, u32 *outpacketlen) 
 {
-  unsigned char *packet = (unsigned char *) safe_malloc(sizeof(struct ip) + sizeof(udphdr_bsd) + datalen);
+  int packetlen = sizeof(struct ip) + ipoptlen + sizeof(udphdr_bsd) + datalen;
+  u8 *packet = (u8 *) safe_malloc(packetlen);
   struct ip *ip = (struct ip *) packet;
-  udphdr_bsd *udp = (udphdr_bsd *) (packet + sizeof(struct ip));
+  udphdr_bsd *udp = (udphdr_bsd *) ((u8*)ip + sizeof(struct ip) + ipoptlen);
   static int myttl = 0;
   
   struct pseudo_udp_hdr {
     struct in_addr source;
     struct in_addr dest;        
-    u8 zero;
+    u8 zer0;
     u8 proto;        
     u16 length;
-  } *pseudo = (struct pseudo_udp_hdr *) ((char *)udp - 12) ;
+  } *pseudo = (struct pseudo_udp_hdr *) ((u8 *)udp - sizeof(struct pseudo_udp_hdr));
 
-  *packetlen = 0;
 
   /* check that required fields are there and not too silly */
-  if ( !victim) {
-    fprintf(stderr, "build_udp_raw: One or more of your parameters suck!\n");
-    free(packet);
-    return NULL;
-  }
+  assert(victim);
+  assert(source);
+  assert(ipoptlen%4==0);
   
   /* Time to live */
   if (ttl == -1) {
@@ -1538,19 +1594,19 @@ u8 *build_udp_raw(struct in_addr *source, const struct in_addr *victim,
     myttl = ttl;
   }
   
-  memset((char *) packet, 0, sizeof(struct ip) + sizeof(udphdr_bsd));
-  
   udp->uh_sport = htons(sport);
   udp->uh_dport = htons(dport);
-  udp->uh_ulen = htons(8 + datalen);
+  udp->uh_sum   = 0;
+  udp->uh_ulen  = htons(sizeof(udphdr_bsd) + datalen);
   
   /* We should probably copy the data over too */
   if (data)
-    memcpy(packet + sizeof(struct ip) + sizeof(udphdr_bsd), data, datalen);
+    memcpy((u8*)udp + sizeof(udphdr_bsd), data, datalen);
   
   /* Now the pseudo header for checksuming */
   pseudo->source.s_addr = source->s_addr;
   pseudo->dest.s_addr = victim->s_addr;
+  pseudo->zer0  = 0;
   pseudo->proto = IPPROTO_UDP;
   pseudo->length = htons(sizeof(udphdr_bsd) + datalen);
   
@@ -1564,39 +1620,28 @@ u8 *build_udp_raw(struct in_addr *source, const struct in_addr *victim,
   if ( o.badsum )
     --udp->uh_sum;
   
-  /* Goodbye, pseudo header! */
-  memset(pseudo, 0, sizeof(*pseudo));
+  fill_ip_raw(ip, packetlen, ipopt, ipoptlen,
+	tos, ipid, df?IP_DF:0, myttl, IPPROTO_UDP,
+	source, victim);
   
-  /* Now for the ip header */
-  ip->ip_v = 4;
-  ip->ip_hl = 5;
-  ip->ip_len = htons(sizeof(struct ip) + sizeof(udphdr_bsd) + datalen);
-  ip->ip_id = htons(ipid);
-  ip->ip_ttl = myttl;
-  ip->ip_p = IPPROTO_UDP;
-  ip->ip_src.s_addr = source->s_addr;
-#ifdef WIN32
-  // I'm not exactly sure why this is needed --Fyodor
-  if(source->s_addr == victim->s_addr) ip->ip_src.s_addr;
-#endif
-  ip->ip_dst.s_addr= victim->s_addr;
-#if HAVE_IP_IP_SUM
-  ip->ip_sum = in_cksum((unsigned short *)ip, sizeof(struct ip));
-#endif
-  
-  *packetlen = ntohs(ip->ip_len);
+  *outpacketlen = packetlen;
   return packet;
 }
 
-int send_udp_raw( int sd, struct eth_nfo *eth, struct in_addr *source, 
-		  const struct in_addr *victim,
- 		  int ttl, u16 sport, u16 dport, u16 ipid, char *data, 
-		  u16 datalen) 
+int send_udp_raw( int sd, struct eth_nfo *eth,
+		  struct in_addr *source, const struct in_addr *victim,
+ 		  int ttl, u16 ipid,
+ 		  u8* ipopt, int ipoptlen,
+ 		  u16 sport, u16 dport,
+ 		  char *data, u16 datalen) 
 {
   unsigned int packetlen;
   int res = -1;
-  u8 *packet = build_udp_raw(source, victim, ttl, sport, dport, ipid, data, 
-			     datalen, &packetlen);
+  u8 *packet = build_udp_raw(source, victim,
+  			     ttl, ipid, IP_TOS_DEFAULT, false,
+  			     ipopt, ipoptlen,
+  			     sport, dport,
+  			     data, datalen, &packetlen);
   if (!packet) return -1;
   res = send_ip_packet(sd, eth, packet, packetlen);
 
@@ -1611,20 +1656,21 @@ int send_udp_raw( int sd, struct eth_nfo *eth, struct in_addr *source,
    finished with the packet.  The packet length is returned in
    packetlen, which must be a valid int pointer. */
 u8 *build_ip_raw(const struct in_addr *source, const struct in_addr *victim, 
-		 int ttl, u8 proto, u16 ipid, u8 tos, bool df, char *data, u16 datalen, 
-		 u32 *packetlen) 
+		 u8 proto,
+		 int ttl, u16 ipid, u8 tos, bool df,
+		 u8 *ipopt, int ipoptlen,
+		 char *data, u16 datalen, 
+		 u32 *outpacketlen) 
 {
-
-unsigned char *packet = (unsigned char *) safe_malloc(sizeof(struct ip) + datalen);
+int packetlen = sizeof(struct ip) + ipoptlen + datalen;
+u8 *packet = (u8 *) safe_malloc(packetlen);
 struct ip *ip = (struct ip *) packet;
 static int myttl = 0;
 
 /* check that required fields are there and not too silly */
-if ( !victim) {
-  fprintf(stderr, "send_ip_raw: One or more of your parameters suck!\n");
-  free(packet);
-  return NULL;
-}
+assert(source);
+assert(victim);
+assert(ipoptlen%4==0);
 
 /* Time to live */
 if (ttl == -1) {
@@ -1633,47 +1679,34 @@ if (ttl == -1) {
 	        myttl = ttl;
 }
 
-memset((char *) packet, 0, sizeof(struct ip));
-
-/* Now for the ip header */
-
-ip->ip_v = 4;
-ip->ip_hl = 5;
-ip->ip_tos = tos;
-ip->ip_len = htons(sizeof(struct ip) + datalen);
-ip->ip_id = htons(ipid);
-if(df) ip->ip_off |= htons(IP_DF);
-ip->ip_ttl = myttl;
-ip->ip_p = proto;
-ip->ip_src.s_addr = source->s_addr;
-// #ifdef WIN32
-// TODO: Should this be removed? I'm not sure why this is here -- Fyodor
-// if(source->s_addr == victim->s_addr) ip->ip_src.s_addr++;
-// #endif
-ip->ip_dst.s_addr = victim->s_addr;
-#if HAVE_IP_IP_SUM
-ip->ip_sum = in_cksum((unsigned short *)ip, sizeof(struct ip));
-#endif
+  fill_ip_raw(ip, packetlen, ipopt, ipoptlen,
+	tos, ipid, df?IP_DF:0, myttl, proto,
+	source, victim);
 
  /* We should probably copy the data over too */
  if (data)
-   memcpy(packet + sizeof(struct ip), data, datalen);
+    memcpy((u8*)ip + sizeof(struct ip) + ipoptlen, data, datalen);
 
- *packetlen = ntohs(ip->ip_len);
+  *outpacketlen = packetlen;
  return packet;
 }
 
 
 /* You need to call sethdrinclude(sd) on the sending sd before calling this */
-int send_ip_raw( int sd, struct eth_nfo *eth, struct in_addr *source, 
-		 const struct in_addr *victim, int ttl, u8 proto, 
+int send_ip_raw( int sd, struct eth_nfo *eth,
+		 struct in_addr *source, const struct in_addr *victim,
+		 u8 proto, int ttl,
+		 u8* ipopt, int ipoptlen,		 
 		 char *data, u16 datalen) 
 {
   unsigned int packetlen;
   int res = -1;
 
-  u8 *packet = build_ip_raw(source, victim, ttl, proto, get_random_u16(), 
-  			    IP_TOS_DEFAULT, false, data, datalen, &packetlen);
+  u8 *packet = build_ip_raw(source, victim,
+    			    proto,
+  			    ttl, get_random_u16(), IP_TOS_DEFAULT, false,
+  			    ipopt, ipoptlen,
+  			    data, datalen, &packetlen);
   if (!packet) return -1;
 
   res = send_ip_packet(sd, eth, packet, packetlen);

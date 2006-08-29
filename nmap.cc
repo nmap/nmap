@@ -257,6 +257,7 @@ printf("%s %s ( %s )\n"
        "  -e <iface>: Use specified interface\n"
        "  -g/--source-port <portnum>: Use given port number\n"
        "  --data-length <num>: Append random data to sent packets\n"
+       "  --ip-options <options>: Send packets with specified ip options\n"
        "  --ttl <val>: Set IP time-to-live field\n"
        "  --spoof-mac <mac address/prefix/vendor name>: Spoof your MAC address\n"
        "  --badsum: Send packets with a bogus TCP/UDP checksum\n"
@@ -583,6 +584,8 @@ int nmap_main(int argc, char *argv[]) {
       {"log-errors", no_argument, 0, 0},
       {"dns_servers", required_argument, 0, 0},
       {"dns-servers", required_argument, 0, 0},
+      {"ip_options", required_argument, 0, 0},
+      {"ip-options", required_argument, 0, 0},
       {0, 0, 0, 0}
     };
 
@@ -792,6 +795,13 @@ int nmap_main(int argc, char *argv[]) {
         o.fragscan = atoi(optarg);
         if (o.fragscan <= 0 || o.fragscan % 8 != 0)
             fatal("Data payload MTU must be >0 and multiple of 8");
+      } else if (strcmp(long_options[option_index].name, "ip-options") == 0){
+        o.ipoptions    = (u8*) safe_malloc(4*10+1);
+        o.ipoptionslen = parse_ip_options(optarg, o.ipoptions, 4*10+1, &o.ipopt_firsthop, &o.ipopt_lasthop);
+        if(o.ipoptionslen > 4*10)
+          fatal("Ip options can't be more than 40 bytes long");
+        if(o.ipoptionslen %4 != 0)
+          fatal("Ip options must be multiple of 4 (read length is %i bytes)", o.ipoptionslen);
       } else {
 	fatal("Unknown long option (%s) given@#!$#$", long_options[option_index].name);
       }
@@ -1101,6 +1111,16 @@ int nmap_main(int argc, char *argv[]) {
     o.reference_FPs = parse_fingerprint_reference_file("nmap-os-db");
 
   o.ValidateOptions();
+
+  // print ip options
+  if((o.debugging || o.packetTrace()) && o.ipoptionslen){
+    char buf[256]; // 256 > 5*40
+    bintohexstr(buf, sizeof(buf), (char*)o.ipoptions, o.ipoptionslen);
+    if(o.ipoptionslen>=8)	// at least one ip address
+    log_write(LOG_STDOUT, "Binary ip options to be send:\n%s", buf);
+    log_write(LOG_STDOUT, "Parsed ip options to be send:\n%s\n", 
+    	print_ip_options(o.ipoptions, o.ipoptionslen));
+  }
 
   /* Open the log files, now that we know whether the user wants them appended
      or overwritten */

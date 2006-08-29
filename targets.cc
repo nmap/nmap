@@ -900,7 +900,11 @@ else {
 
  o.decoys[o.decoyturn].s_addr = target->v4source().s_addr;
  
- send_udp_raw_decoys( rawsd, eth, target->v4hostip(), o.ttl, sportbase + trynum, probe_port, seq, o.extra_payload, o.extra_payload_length);
+ send_udp_raw_decoys( rawsd, eth, target->v4hostip(),
+ 		      o.ttl, seq,
+ 		      o.ipoptions, o.ipoptionslen,
+ 		      sportbase + trynum, probe_port, 
+ 		      o.extra_payload, o.extra_payload_length);
 
 
  return 0;
@@ -924,11 +928,21 @@ else {
  o.decoys[o.decoyturn].s_addr = target->v4source().s_addr;
 
  if (pingtype & PINGTYPE_TCP_USE_SYN) {   
-   send_tcp_raw_decoys( rawsd, eth, target->v4hostip(), o.ttl, false, sportbase + trynum, probe_port, myseq, myack, 0, TH_SYN, 0, 0, (u8 *) "\x02\x04\x05\xb4", 4, o.extra_payload, 
-			o.extra_payload_length);
+   send_tcp_raw_decoys( rawsd, eth, target->v4hostip(),
+   			o.ttl, false,
+   			o.ipoptions, o.ipoptionslen,
+   			sportbase + trynum, probe_port,
+   			myseq, myack, 0, TH_SYN, 0, 0,
+   			(u8 *) "\x02\x04\x05\xb4", 4,
+   			o.extra_payload, o.extra_payload_length);
  } else {
-   send_tcp_raw_decoys( rawsd, eth, target->v4hostip(), o.ttl, false, sportbase + trynum, probe_port, myseq, myack, 0, TH_ACK, 0, 0, NULL, 0, o.extra_payload, 
-			o.extra_payload_length);
+   send_tcp_raw_decoys( rawsd, eth, target->v4hostip(),
+   			o.ttl, false,
+   			o.ipoptions, o.ipoptionslen,
+   			sportbase + trynum, probe_port,
+   			myseq, myack, 0, TH_ACK, 0, 0,
+   			NULL, 0,
+   			o.extra_payload, o.extra_payload_length);
  }
 
  return 0;
@@ -1068,7 +1082,11 @@ if (ptech.icmpscan) {
        fprintf(stderr, "sendto: %s\n", strerror(sock_err));
      }
    } else {
-     send_ip_raw( rawsd, ethptr, &o.decoys[decoy], target->v4hostip(), o.ttl, IPPROTO_ICMP, ping, icmplen);
+     send_ip_raw(rawsd, ethptr,
+     		&o.decoys[decoy], target->v4hostip(),
+     		IPPROTO_ICMP, o.ttl,
+     		o.ipoptions, o.ipoptionslen,
+     		ping, icmplen);
    }
  }
 

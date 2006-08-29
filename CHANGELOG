@@ -4,6 +4,14 @@
 o Worked with Zhao to improve the new OS detection system with
   better algorithms, some probe changes, and some bug fixes.
 
+o Nmap now supports IP options with the new --ip-options flag.  You
+  can specify any optiosn in hex, or use "R" (record route), "T"
+  (record timestamp), "U") (record route & timestamp), "S [route]"
+  (strict source route), or "L [route]" (loose source route).  Specify
+  --packet-trace to display IP options of responses.  For further
+  information and examples, see http://insecure.org/nmap/man/ and
+  http://seclists.org/nmap-dev/2006/q3/0052.html .
+
 o Nmap now uses the (relatively) new libpcap pcap_get_selectable_fd
   API on systems which support it.  This means that we no longer need
   to hack the included Pcap to better support Linux.  So Nmap will now

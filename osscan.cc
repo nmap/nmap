@@ -613,7 +613,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
       /* Test 1 */
       if (!FPtests[1]) {     
 	if (o.scan_delay) enforce_scan_delay(NULL);
-       send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false,
+       send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false, NULL, 0,
 			   current_port, openport, sequence_base, 0, 0,
 			   TH_ECE|TH_SYN, 0, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000", 20, NULL, 0);
       }
@@ -621,7 +621,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
       /* Test 2 */
       if (!FPtests[2]) {     
 	if (o.scan_delay) enforce_scan_delay(NULL);
-       send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false,
+       send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false, NULL, 0,
 			   current_port +1, openport, sequence_base, 0, 0,
 			   0, 0,  0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
       }
@@ -629,7 +629,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
       /* Test 3 */
       if (!FPtests[3]) {     
 	if (o.scan_delay) enforce_scan_delay(NULL);
-       send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false,
+       send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false, NULL, 0,
 			   current_port +2, openport, sequence_base, 0, 0,
 			   TH_SYN|TH_FIN|TH_URG|TH_PUSH, 0, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
       }
@@ -637,7 +637,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
       /* Test 4 */
       if (!FPtests[4]) {     
 	if (o.scan_delay) enforce_scan_delay(NULL);
-       send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false,
+       send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false, NULL, 0,
 			   current_port +3, openport, sequence_base, 0, 0,
 			   TH_ACK, 0, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
       }
@@ -646,7 +646,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
     /* Test 5 */
     if (!FPtests[5]) {   
       if (o.scan_delay) enforce_scan_delay(NULL);
-     send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false,
+     send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false, NULL, 0,
 			 current_port +4, closedport, sequence_base, 0, 0,
 			 TH_SYN, 0, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
     }
@@ -654,7 +654,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
     /* Test 6 */
     if (!FPtests[6]) {   
       if (o.scan_delay) enforce_scan_delay(NULL);
-     send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false,
+     send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false, NULL, 0,
 			 current_port +5, closedport, sequence_base, 0, 0,
 			 TH_ACK, 0, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
     }
@@ -662,7 +662,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
     /* Test 7 */
     if (!FPtests[7]) {
       if (o.scan_delay) enforce_scan_delay(NULL);   
-     send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false,
+     send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false, NULL, 0,
 			 current_port +6, closedport, sequence_base, 0, 0,
 			 TH_FIN|TH_PUSH|TH_URG, 0, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
     }
@@ -749,7 +749,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
 	  usleep(remaining_us);
 	}
       }
-     send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false,
+     send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false, NULL, 0,
 			  o.magic_port + seq_packets_sent + 1, 
 			  openport, 
 			 sequence_base + seq_packets_sent + 1, 0, 0,
