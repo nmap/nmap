@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "08/26/2006" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "08/30/2006" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -737,7 +737,7 @@ or
 \(lqincremental\(rq
 class, which means that they increment the ID field in the IP header for each packet they send. This makes them vulnerable to several advanced information gathering and spoofing attacks.
 .PP
-A paper documenting the workings, usage, and customization of OS detection is available in more than a dozen languages at
+A paper documenting the workings, usage, and customization of OS detection is available at
 \fI\%http://insecure.org/nmap/osdetect/\fR.
 .PP
 OS detection is enabled and controlled with the following options:
@@ -745,7 +745,23 @@ OS detection is enabled and controlled with the following options:
 \fB\-O\fR (Enable OS detection)
 Enables OS detection, as discussed above. Alternatively, you can use
 \fB\-A\fR
-to enable both OS detection and version detection.
+to enable both OS detection and version detection. 2nd generation OS detection is tried first. If that fails, Nmap will either print out the host fingerprint and ask you to submit it (if you are certain about what the target host is running), or Nmap will fall back to the 1st generation OS detection system in case its larger database has a match.
+.TP
+\fB\-O2\fR (2nd Generation OS Detection Only)
+Enables 2nd generation OS detection, but never falls back to the old (1st generation) system, even if it fails to find any match. This saves time and can reduce the number of packets sent to each target.
+.TP
+\fB\-O1\fR (1nd Generation OS Detection Only)
+Tells Nmap to only use the old OS detection system. If
+\fB\-O2\fR
+just gives you a fingerprint to submit, but you don't know what OS the target is running, try
+\fB\-O1\fR. But in that case,
+\fBdon't submit the fingeprint\fR
+as you don't know for sure whether
+\fB\-O1\fR
+guess correctly. If it was perfect, we wouldn't have bothered to create
+\fB\-O2\fR.
+.sp
+This option, and all other vestigates of the old OS detection system, will likely be removed in late 2006 or in 2007.
 .TP
 \fB\-\-osscan\-limit\fR (Limit OS detection to promising targets)
 OS detection is far more effective if at least one open and one closed TCP port are found. Set this option and Nmap will not even try OS detection against hosts that do not meet this criteria. This can save substantial time, particularly on
@@ -1000,6 +1016,32 @@ flag because Nmap relies on system libraries to handle those. Most TCP scans, in
 \fB\-\-data\-length <number>\fR (Append random data to sent packets)
 Normally Nmap sends minimalist packets containing only a header. So its TCP packets are generally 40 bytes and ICMP echo requests are just 28. This option tells Nmap to append the given number of random bytes to most of the packets it sends. OS detection (\fB\-O\fR) packets are not affected because accuracy there requires probe consistency, but most pinging and portscan packets support this. It slows things down a little, but can make a scan slightly less conspicuous.
 .TP
+\fB\-\-ip\-options <S|R [route]|L [route]|T|U ... >;\fR \fB\-\-ip\-options <hex string>\fR (Send packets with specified ip options)
+The
+[6]\&\fIIP protocol\fR
+offers several options which may be placed in packet headers. Unlike the ubiquitous TCP options, IP options are rarely seen due to practicality and security concerns. In fact, many Internet routers block the most dangerous options such as source routing. Yet options can still be useful in some cases for determining and manipulating the network route to target machines. For example, you may be able to use the record route option to determine a patch to a target even when more tranditional traceroute\-style approaches fail. Or if your packets are being dropped by a certain firewall, you may be able to specify a different route with the strict or loose source routing options.
+.sp
+The most powerful way to specify IP options is to simply pass in values as the argument to
+\fB\-\-ip\-options\fR. Precede each hex number with
+\\x
+then the two digits. You may repeat certain characters by following them with an asterisk and then the number of times you wish them to repeat. For example,
+\\x01\\x07\\x04\\x00*36\\x01
+is a hex string containing 36 NUL bytes.
+.sp
+Nmap also offers a shortcut mechanism for specifying options. Simply pass the letter
+R,
+T, or
+U
+to request record\-route, record\-timestamp, or both options together, respectively. Loose or strict source routing may be specified with an
+L
+or
+S
+followed by a space and then a space\-separated list of IP addresses.
+.sp
+If you wish to see the options in packets sent and received, specify
+\fB\-\-packet\-trace\fR. For more information and examples of using IP options with Nmap, see
+\fI\%http://seclists.org/nmap\-dev/2006/q3/0052.html\fR.
+.TP
 \fB\-\-ttl <value>\fR (Set IP time\-to\-live field)
 Sets the IPv4 time\-to\-live field in sent packets to the given value.
 .TP
@@ -1092,9 +1134,9 @@ be directed to the given filename. Nmap includes a document type definition (DTD
 \fI\%http://insecure.org/nmap/data/nmap.dtd\fR.
 .sp
 XML offers a stable format that is easily parsed by software. Free XML parsers are available for all major computer languages, including C/C++, Perl, Python, and Java. People have even written bindings for most of these languages to handle Nmap output and execution specifically. Examples are
-[6]\&\fINmap::Scanner\fR
+[7]\&\fINmap::Scanner\fR
 and
-[7]\&\fINmap::Parser\fR
+[8]\&\fINmap::Parser\fR
 in Perl CPAN. In almost all cases that a non\-trivial application interfaces with Nmap, XML is the preferred format.
 .sp
 The XML output references an XSL stylesheet which can be used to format the results as HTML. The easiest way to use this is simply to load the XML output in a web browser such as Firefox or IE. By default, this will only work on the machine you ran Nmap on (or a similarly configured one) due to the hard\-coded
@@ -1419,7 +1461,7 @@ If you received these files with a written license agreement or contract stating
 .SS "Creative Commons license for this Nmap guide"
 .PP
 This Nmap Reference Guide is (C) 2005 Insecure.Com LLC. It is hereby placed under version 2.5 of the
-[8]\&\fICreative Commons Attribution License\fR. This allows you redistribute and modify the work as you desire, as long as you credit the original source. Alternatively, you may choose to treat this document as falling under the same license as Nmap itself (discussed previously).
+[9]\&\fICreative Commons Attribution License\fR. This allows you redistribute and modify the work as you desire, as long as you credit the original source. Alternatively, you may choose to treat this document as falling under the same license as Nmap itself (discussed previously).
 .SS "Source code availability and community contributions"
 .PP
 Source is provided to this software because we believe users have a right to know exactly what a program is going to do before they run it. This also allows you to audit the software for security holes (none have been found so far).
@@ -1443,15 +1485,15 @@ Nmap should never be installed with special privileges (e.g. suid root) for secu
 .SS "Third\-Party Software"
 .PP
 This product includes software developed by the
-[9]\&\fIApache Software Foundation\fR. A modified version of the
-[10]\&\fILibpcap portable packet capture library\fR
+[10]\&\fIApache Software Foundation\fR. A modified version of the
+[11]\&\fILibpcap portable packet capture library\fR
 is distributed along with nmap. The Windows version of Nmap utilized the libpcap\-derived
-[11]\&\fIWinPcap library\fR
+[12]\&\fIWinPcap library\fR
 instead. Regular expression support is provided by the
-[12]\&\fIPCRE library\fR, which is open source software, written by Philip Hazel. Certain raw networking functions use the
-[13]\&\fILibdnet\fR
+[13]\&\fIPCRE library\fR, which is open source software, written by Philip Hazel. Certain raw networking functions use the
+[14]\&\fILibdnet\fR
 networking library, which was written by Dug Song. A modified version is distributed with Nmap. Nmap can optionally link with the
-[14]\&\fIOpenSSL cryptography toolkit\fR
+[15]\&\fIOpenSSL cryptography toolkit\fR
 for SSL version detection support. All of the third\-party software described in this paragraph is freely redistributable under BSD\-style software licenses.
 .SS "US Export Control Classification"
 .PP
@@ -1474,29 +1516,32 @@ US Export Control: Insecure.Com LLC believes that Nmap falls under US ECCN (expo
  5.\ RFC 959
 \%http://www.rfc\-editor.org/rfc/rfc959.txt
 .TP 4
- 6.\ Nmap::Scanner
+ 6.\ IP protocol
+\%http://www.ietf.org/rfc/rfc0791.txt
+.TP 4
+ 7.\ Nmap::Scanner
 \%http://sourceforge.net/projects/nmap\-scanner/
 .TP 4
- 7.\ Nmap::Parser
+ 8.\ Nmap::Parser
 \%http://www.nmapparser.com
 .TP 4
- 8.\ Creative Commons Attribution License
+ 9.\ Creative Commons Attribution License
 \%http://creativecommons.org/licenses/by/2.5/
 .TP 4
- 9.\ Apache Software Foundation
+10.\ Apache Software Foundation
 \%http://www.apache.org
 .TP 4
-10.\ Libpcap portable packet capture library
+11.\ Libpcap portable packet capture library
 \%http://www.tcpdump.org
 .TP 4
-11.\ WinPcap library
+12.\ WinPcap library
 \%http://www.winpcap.org
 .TP 4
-12.\ PCRE library
+13.\ PCRE library
 \%http://www.pcre.org
 .TP 4
-13.\ Libdnet
+14.\ Libdnet
 \%http://libdnet.sourceforge.net
 .TP 4
-14.\ OpenSSL cryptography toolkit
+15.\ OpenSSL cryptography toolkit
 \%http://www.openssl.org

@@ -409,7 +409,10 @@ foreach $line (split /\n/, $printbuf) {
 		}
 	    }
 
-	    if ($ack and !($fp{$test}{ack} =~ /(^|\|)$ack($|\|)/)) {
+	    # Quick hack to stop S+ from repeating endlessly ...
+	    $acktmp = $ack;
+	    $acktmp =~ s/\+/\\+/g;
+	    if ($acktmp and !($fp{$test}{ack} =~ /(^|\|)$acktmp($|\|)/)) {
 		if ($fp{$test}{ack}) {
 		    $fp{$test}{ack} .= qq^|$ack^;
 		} else {
