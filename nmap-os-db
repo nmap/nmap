@@ -57,7 +57,6 @@ T7(R=Y%DF=Y%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=40%TG=40%TOS=C0%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
-
 # Linux 2.6.16-1.2096_FC5 #1 SMP Wed Apr 19 05:14:26 EDT 2006 x86_64 x86_64 x86_64 GNU/Linux
 Fingerprint Linux 2.6.16-1.2096_FC5 (Fedora Core 5)
 Class Linux | Linux | 2.6.X | general purpose
