@@ -141,9 +141,12 @@
 #include "nmap.h"
 #include "global_structures.h"
 
+/* Arithmatic difference modulo 2^32 */
 #ifndef MOD_DIFF
-#define MOD_DIFF(a,b) ((unsigned long) (MIN((unsigned long)(a) - (unsigned long ) (b), (unsigned long )(b) - (unsigned long) (a))))
+#define MOD_DIFF(a,b) ((u32) (MIN((u32)(a) - (u32 ) (b), (u32 )(b) - (u32) (a))))
 #endif
+
+/* Arithmatic difference modulo 2^16 */
 #ifndef MOD_DIFF_USHORT
 #define MOD_DIFF_USHORT(a,b) ((MIN((unsigned short)((unsigned short)(a) - (unsigned short ) (b)), (unsigned short) ((unsigned short )(b) - (unsigned short) (a)))))
 #endif

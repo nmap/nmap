@@ -1275,7 +1275,7 @@ match service-monitor m|^\0\0\0\x18\0\0..\0\0..\xff\xff\xff\xff\xff\xff\xff\xff\
 match smtp-proxy m|^220 ([\w-_.]+) PGP Universal service ready \(proxied server greeted us with: (.*)\)\r\n| p/PGP Universal smtp proxy/ h/$1/ i/Proxied greeting: $2/
 
 match smtp m|^220 ([-/.+\w]+) MailGate ready for ESMTP on | p/MailGate smtpd/ h/$1/ o/Windows/
-match smtp m|^220 ([-/.+\w]+) ESMTP bitdefender| p/BitDefender anti-virus mail gateway/ h/$1/ o/Unix/ i/based on Postfix/
+match smtp m|^220 ([-/.+\w]+) ESMTP bitdefender| p/BitDefender anti-virus mail gateway/ h/$1/
 match smtp m|^220 ([-/.+\w]+) SMTP ready to roll\r\n| p/Hotmail Popper hotmail to smtp gateway/ h/$1/
 match smtp m|^220 ([-/.+\w]+) AvMailGate-(\d[-.\w]+)\r\n| p/AvMailGate smtp anti-virus mail gateway/ h/$1/ v/$2/
 match smtp m|^220 ([-/.+\w]+) Internet Rex ESMTP daemon at your service\.\r\n| p/Internet Rex smtpd/ h/$1/

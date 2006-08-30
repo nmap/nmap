@@ -579,6 +579,9 @@ HostOsScanStats::HostOsScanStats(Target * t) {
   target = t;
   FP = NULL;
 
+  bzero(&si, sizeof(si));
+  bzero(&ipid, sizeof(ipid));
+
   openTCPPort = -1;
   closedTCPPort = -1;
   closedUDPPort = -1;
@@ -1600,11 +1603,12 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   int i,j;
   u32 seq_diffs[NUM_SEQ_SAMPLES];
   u32 ts_diffs[NUM_SEQ_SAMPLES];
+  float seq_rates[NUM_SEQ_SAMPLES];
   unsigned long time_usec_diffs[NUM_SEQ_SAMPLES];
   int avnum;
   double seq_stddev = 0;
   double seq_rate = 0;
-  unsigned int  seq_avg_inc = 0;
+  double seq_avg_rate = 0;
   double avg_ts_hz = 0.0; /* Avg. amount that timestamps incr. each second */
   u32 seq_gcd = 1;
   int tcp_ipid_seqclass; /* TCP IPID SEQ TYPE defines in nmap.h */
@@ -1624,16 +1628,22 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
       }
       if (j > 0) {
         seq_diffs[j - 1] = MOD_DIFF(hss->si.seqs[j], hss->si.seqs[j - 1]);
+
         ts_diffs[j - 1] = MOD_DIFF(hss->si.timestamps[j], hss->si.timestamps[j - 1]);
         time_usec_diffs[j - 1] = TIMEVAL_SUBTRACT(hss->seq_send_times[j], hss->seq_send_times[j - 1]);
         if (!time_usec_diffs[j - 1]) time_usec_diffs[j - 1]++; /* We divide by this later */
+	/* Rate of ISN increase per second */
+	seq_rates[j - 1] = seq_diffs[j-1] * 1000000.0 / time_usec_diffs[j-1];
+	seq_avg_rate += seq_rates[j-1];
       }
       j++;
     } /* Otherwise nothing good in this slot to copy */
   }
   
-  hss->si.responses = j; /* Just an ensurance */
-  
+  hss->si.responses = j; /* Just for assurance */
+  seq_avg_rate /= hss->si.responses - 1;
+  seq_rate = seq_avg_rate;
+
   /* Now we look at TCP Timestamp sequence prediction */
   /* Battle plan:
      1) Compute average increments per second, and variance in incr. per second 
@@ -1652,8 +1662,8 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
       avg_ts_hz += dhz / ( hss->si.responses - 1);
     }
 
-    if (o.debugging)
-      printf("The avg TCP TS HZ of %s is: %f\n", hss->target->targetipstr(), avg_ts_hz);
+    /*    if (o.debugging)
+	  printf("The avg TCP TS HZ of %s is: %f\n", hss->target->targetipstr(), avg_ts_hz); */
 
 	if (avg_ts_hz > 0 && avg_ts_hz < 3.9) { /* relatively wide range because sampling time so short and frequency so slow */
       hss->si.ts_seqclass = TS_SEQ_2HZ;
@@ -1696,30 +1706,27 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
       hss->si.index = 0;
     } else {
 
-      /* First calculate the average counter rate */
-      for(i=0; i < hss->si.responses - 1; i++) {
-	seq_rate += seq_diffs[i] / (TIMEVAL_MSEC_SUBTRACT(hss->seq_send_times[i+1], hss->seq_send_times[i]) / 1000.0);
-      }
-      seq_rate /= hss->si.responses - 1;
       /* Finally we take a binary logarithm, multiply by 8, and round
 	 to get the final result */
       seq_rate = log(seq_rate) / log(2);
       seq_rate = (unsigned int) (seq_rate * 8 + 0.5);
 
-      /* Now calculate the predictability index */
-      for(i=0; i < hss->si.responses - 1; i++)
-        seq_diffs[i] /= seq_gcd;
+      /* Normally we don't divide by gcd in computing the rate stddev
+	 because otherwise we'll get an artificially low value about
+	 1/32 of the time if the responses all happen to be even.  On
+	 the other hand, if a system inherently uses a large gcd such
+	 as 64,000, we want to get rid of it.  So as a compromise, we
+	 divide by the gcd if it is at least 9 */
+
+      int div_gcd = 1;
+      if (seq_gcd > 9)
+	div_gcd = seq_gcd;
+
       for(i=0; i < hss->si.responses - 1; i++) {     
-        seq_avg_inc += seq_diffs[i];
+	double rtmp = seq_rates[i] / div_gcd - seq_avg_rate / div_gcd;
+	seq_stddev += rtmp * rtmp;
       }
-      seq_avg_inc = (unsigned int) ((0.5) + seq_avg_inc / (hss->si.responses - 1));
-      for(i=0; i < hss->si.responses -1; i++)       {     
-        /* pow() seems F#@!#$!ed up on some Linux systems so I will
-           not use it for now 
-        */     
-        seq_stddev += ((double)(MOD_DIFF(seq_diffs[i], seq_avg_inc)) * 
-		      ((double)MOD_DIFF(seq_diffs[i], seq_avg_inc)));
-      }
+
       /* We divide by ((numelements in seq_diffs) - 1), which is
 	 (si.responses - 2), because that gives a better approx of
 	 std. dev when you're only looking at a subset of whole
@@ -1749,7 +1756,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
     seq_AVs[avnum].attribute = "SP";
     sprintf(seq_AVs[avnum].value, "%X", hss->si.index);
     seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-    seq_AVs[avnum].attribute= "GCD";     
+    seq_AVs[avnum].attribute= "GCD";
     sprintf(seq_AVs[avnum].value, "%X", seq_gcd);
     seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
     seq_AVs[avnum].attribute= "ISR";     
@@ -1886,10 +1893,10 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
     case TS_SEQ_2HZ:
     case TS_SEQ_100HZ:
     case TS_SEQ_1000HZ:
-	case TS_SEQ_OTHER_NUM:
+    case TS_SEQ_OTHER_NUM:
       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
       seq_AVs[avnum].attribute = "TS";
-	  sprintf(seq_AVs[avnum].value, "%X", (unsigned int)(0.5 + log(avg_ts_hz)/log(2.0)));
+      sprintf(seq_AVs[avnum].value, "%X", (unsigned int)(0.5 + log(avg_ts_hz)/log(2.0)));
       break;
     case TS_SEQ_UNSUPPORTED:
       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
@@ -3115,7 +3122,7 @@ int get_ipid_sequence(int numSamples, int *ipids, int islocalhost) {
 	if (ipids[i-1] <= ipids[i]) {
 	  ipid_diffs[i-1] = ipids[i] - ipids[i-1];
 	} else {
-	  ipid_diffs[i-1] = u16(ipids[i] - ipids[i-1] + 65536);
+	  ipid_diffs[i-1] = (u16) (ipids[i] - ipids[i-1] + 65536);
     }
 
 	/* Random */
