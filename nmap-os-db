@@ -1,5 +1,5 @@
 # Nmap OS Fingerprinting 2nd Generation DB. -*- mode: fundamental; -*-
-# $Id: nmap-os-fingerprints 3408 2006-05-31 23:01:19Z fyodor $ 
+# $Id$ 
 #
 # Contributions to this database are welcome.  If Nmap obtains a new
 # fingerprint (and test conditions are favorable), it will print out a
