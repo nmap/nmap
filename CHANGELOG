@@ -1,10 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
 4.20ALPHA5
 
 o Worked with Zhao to improve the new OS detection system with
   better algorithms, some probe changes, and some bug fixes.  We're
   now ready to start growing the new database!  If Nmap gives you
-  fingerprints, please submit them at the given URL.
+  fingerprints, please submit them at the given URL.  The DB is still
+  extremely small.
 
 o Nmap now supports IP options with the new --ip-options flag.  You
   can specify any optiosn in hex, or use "R" (record route), "T"
