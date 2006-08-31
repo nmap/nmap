@@ -1,4 +1,4 @@
-Nmap 4.20ALPHA5 ( http://www.insecure.org/nmap/ )
+Nmap 4.20ALPHA5 ( http://insecure.org/nmap/ )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -36,7 +36,7 @@ SERVICE/VERSION DETECTION:
   --version-all: Try every single probe (intensity 9)
   --version-trace: Show detailed version scan activity (for debugging)
 OS DETECTION:
-  -O: Enable OS detection (try 2nd generation, then 1st if that fails)
+  -O: Enable OS detection (try 2nd generation w/fallback to 1st)
   -O2: Only use the new OS detection system (no fallback)
   -O1: Only use the old (1st generation) OS detection system
   --osscan-limit: Limit OS detection to promising targets
@@ -59,6 +59,7 @@ FIREWALL/IDS EVASION AND SPOOFING:
   -e <iface>: Use specified interface
   -g/--source-port <portnum>: Use given port number
   --data-length <num>: Append random data to sent packets
+  --ip-options <options>: Send packets with specified ip options
   --ttl <val>: Set IP time-to-live field
   --spoof-mac <mac address/prefix/vendor name>: Spoof your MAC address
   --badsum: Send packets with a bogus TCP/UDP checksum

@@ -737,7 +737,11 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
   case LOG_MACHINE:
   case LOG_SKID:
   case LOG_XML:
+#ifdef WIN32
+	  *apcopy = *ap;
+#else
     va_copy(apcopy, ap); /* Needed in case we need to so a second vnsprintf */
+#endif
     l = logt;
     fileidx = 0;
     while ((l&1)==0) { fileidx++; l>>=1; }

@@ -280,7 +280,8 @@ int main(int argc, char *argv[]) {
       nmap_main(myargc, myargv);
     } else if (*myargv[0] == '!') {
       cptr = strchr(command, '!');
-      system(cptr + 1);
+      int rc = system(cptr + 1);
+      if (rc < 1) printf("system() execution of command failed\n");
     } else if (*myargv[0] == 'd') {
       o.debugging++;
     } else if (strcasecmp(myargv[0], "f") == 0) {

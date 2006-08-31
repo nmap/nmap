@@ -579,8 +579,8 @@ HostOsScanStats::HostOsScanStats(Target * t) {
   target = t;
   FP = NULL;
 
-  bzero(&si, sizeof(si));
-  bzero(&ipid, sizeof(ipid));
+  memset(&si, 0, sizeof(si));
+  memset(&ipid, 0, sizeof(ipid));
 
   openTCPPort = -1;
   closedTCPPort = -1;
@@ -1708,7 +1708,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
 
       /* Finally we take a binary logarithm, multiply by 8, and round
 	 to get the final result */
-      seq_rate = log(seq_rate) / log(2);
+      seq_rate = log(seq_rate) / log(2.0);
       seq_rate = (unsigned int) (seq_rate * 8 + 0.5);
 
       /* Normally we don't divide by gcd in computing the rate stddev
@@ -1742,7 +1742,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
 
       /* Finally we take a binary logarithm, multiply by 8, and round
 	 to get the final result */
-      seq_stddev = log(seq_stddev) / log(2);
+      seq_stddev = log(seq_stddev) / log(2.0);
       hss->si.index = (int) (seq_stddev * 8 + 0.5);
     }
 
