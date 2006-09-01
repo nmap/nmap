@@ -157,7 +157,7 @@ const char *FingerPrintResults::OmitSubmissionFP() {
   // can cause asymetric routing which leads to wrong TTL information.
   // They can cause variable timing too.
   if (distance > 10)
-    return "Host more than fifteen network hops away";
+    return "Host more than ten network hops away";
 
   if (maxTimingRatio > 1.4)
     return "maxTimingRatio is greater than 1.4";
