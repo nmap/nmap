@@ -216,7 +216,7 @@ match ftp m|^220 ([-.+\w]+) IronPort FTP server \(V(\d[-.\w]+)\) ready\.\r\n| p/
 match ftp m|^220 WFTPD (\d[-.\w]+) service \(by Texas Imperial Software\) ready for new user\r\n| p/Texas Imperial Software WFTPD/ v/$1/ o/Windows/
 match ftp m|^220.*\r\n220 WFTPD (\d[-.\w]+) service \(by Texas Imperial Software\) ready for new user\r\n|s p/Texas Imperial Software WFTPD/ v/$1/ o/Windows/
 match ftp m|^220 ([-.+\w]+) FTP server \(Version (MICRO-[-.\w:#+ ]+)\) ready\.\r\n| p/Bay Networks MicroAnnex terminal server ftpd/ h/$1/ v/$2/ d/terminal server/
-match ftp m|^220 ([-.+\w]+) FTP server \(Digital UNIX Version (\d[-.\w]+)\) ready\.\r\n| p/Digital UNIX ftpd/ h/$1/ v/$2/ o/Unix/ o/DIGITAL UNIX/
+match ftp m|^220 ([-.+\w]+) FTP server \(Digital UNIX Version (\d[-.\w]+)\) ready\.\r\n| p/Digital UNIX ftpd/ h/$1/ v/$2/ o/DIGITAL UNIX/
 match ftp m|^220 ([-.+\w]+) FTP server \(Version [\d.]+\+Heimdal (\d[-+.\w ]+)\) ready\.\r\n| p/Heimdal Kerberized ftpd/ h/$1/ v/$2/ o/Unix/
 match ftp m|^500 OOPS: (could not bind listening IPv4 socket)\r\n$| p/vsftpd/ i/broken: $1/ o/Unix/
 match ftp m|^500 00PS: vsftpd: (.*)\r\n| p/vsftpd/ i/broken: $1/ o/Unix/
@@ -672,7 +672,7 @@ match imap m|^\* OK \[CAPABILITY IMAP4 IMAP4rev1 ACL QUOTA LITERAL\+ NAMESPACE U
 match imap m|^\* OK \[CAPABILITY IMAP4 IMAP4rev1 ACL QUOTA LITERAL\+ NAMESPACE UIDPLUS CHILDREN BINARY LANGUAGE XSENDER X-NETSCAPE XSERVERINFO AUTH=PLAIN STARTTLS\] Messaging Multiplexor \(Sun Java\(tm\) System Messaging Server (\d[\w-_.]+) \(built .*\)\)\r\n| p/Sun Java System Messaging Multiplexor imapd/ v/$1/
 match imap m|^\* OK ([\w-_.]+) IMAP4 service \(iPlanet Messaging Server ([\w. ]+) \(built .*\)\)\r\n| p/Sun iPlanet Messaging Server imapd/ v/$2/ i/HotFix $3/ h/$1/
 match imap m|^\* OK Anonymous Mail Server v([\d.]+) IMAP4rev1 .*\r\n| p/Anonymous Mail Server imapd/ v/$1/
-match imap m|^\* OK ([\w-_.]+) ModusMail IMAP4 Server ([\d.]+) ready\r\n| p/ModusMail imapd/ v/$2/ h/$1/ p/Windows/
+match imap m|^\* OK ([\w-_.]+) ModusMail IMAP4 Server ([\d.]+) ready\r\n| p/ModusMail imapd/ v/$2/ h/$1/ o/Windows/
 match imap m|^\* OK IMAP4rev1 Service at Jana-Server ready\r\n| p/JanaServer imapd/ o/Windows/
 match imap m|^\* OK \]-:\^:-\[ IMAP4rev1 .*\r\n| p/Merak Mail Server imapd/ o/Windows/
 match imap m|^\* OK ([\w-_.]+) IMAP4 Service ([\d.()]+) at .*\r\n| p/SCO imapd/ v/$2/ h/$1/ o/SCO UNIX/
@@ -1755,7 +1755,7 @@ match telnet m|^\r\n\r\nUser Access Verification\r\nPassword:\xff\xfb\x01$| p/Ci
 #  Cisco 2900 Catalyst switch, IOS 12.0(5)XU
 # Cisco 3600 router running IOS 12.X
 # Cisco 2600 IOS 12.0
-match telnet m/^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f.*User Access Verification\r\n\r\n(Username|Password): $/s p/Cisco telnetd/ o/IOS 12.X/ d/switch/ o/IOS/
+match telnet m/^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f.*User Access Verification\r\n\r\n(Username|Password): $/s p/Cisco IOS telnetd/ d/switch/ o/IOS/
 # Cisco Pix 501 PIX IOS 6.3(1) telnet
 match telnet m/^\xff\xfb\x03\xff\xfb\x01\xff\xfb\x03\xff\xfb\x01.*\r\nUser Access Verification\r\n\r\nPassword: /s p/Cisco telnetd/ o/IOS 6.X/ d/firewall/
 match telnet m|^\xff\xfb\x01\r\r\nUser Access Verification\r\r\n\r\r\nUsername:| p/Cisco PIX 500 series telnetd/ d/firewall/ o/IOS/
@@ -2503,7 +2503,7 @@ match finger m|^That user does not want to be fingered\.\n$| p/ffingerd/
 # OpenBSD 2.3
 match finger m|^finger: GET: no such user\.\nfinger: /: no such user\.\nfinger: HTTP/1\.0: no such user\.\n$| p|BSD/Linux fingerd|
 # Linux port of in.fingerd from OpenBSD network tools - started with -w to show welcome banner
-match finger m|^\r\nWelcome to Linux version (\d[-.\w]+) at ([-.\w]+) !\r\n\n.*\n\r\nfinger: GET: no such user\.|s p/OpenBSD fingerd/ i/ported to Linux; $2 users logged in/ o/Linux version $1/ h/$2/ o/Linux/
+match finger m|^\r\nWelcome to Linux version (\d[-.\w]+) at ([-.\w]+) !\r\n\n.*\n\r\nfinger: GET: no such user\.|s p/OpenBSD fingerd/ i/ported to Linux; $2 users logged in; Linux version $1/ h/$2/ o/Linux/
 # Redhat Linux from finger-server-0.17-9 RPM
 match finger m|^finger: GET: no such user.\r\nfinger: /: no such user.\r\nfinger: HTTP/1.0: no such user.\r\n$| p/Linux fingerd/ o/Linux/
 # NetBSD 1.6ZA (berkeley fingerd 8.1 sibling)
@@ -3115,9 +3115,9 @@ match http m|^HTTP/1\.0 \d\d\d .*\nServer: cpsrvd/([\d.]+)\r\n|s p/Control Panel
 match http m|^HTTP/1\.0 \d\d\d .*\nServer: cpaneld/([\d.]+)\n|s p/Control Panel httpd/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Embedded HTTP Server v([\w.]+)\r\nWWW-Authenticate: Basic realm=\"DWL-810\+\"\r\n| p/D-Link DWL-810+ switch http config/ i/Embedded httpd $1/ d/switch/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Embedded HTTP Server V([\w.]+)\r\nWWW-Authenticate: Basic realm=\"(DWL-[\w+-.]+)\"\r\n| p/D-Link $2 router http config/ i/Embedded httpd $1/ d/router/
-match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: Embedded HTTP Server ([\d.]+)    \r\nWWW-Authenticate: Basic realm=\"([^"]+)\"\r\nConnection: close\r\n\r\n<HTML><HEAD><TITLE>401 Unauthorized</TITLE></HEAD>\n<BODY BGCOLOR=\"#ffffff\"><H4>401 Unauthorized</H4></BODY></HTML>\n$| p/D-Link DWL-9000+ router http config/ i/Embedded httpd $1/ i/Name $2/ d/router/
+match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: Embedded HTTP Server ([\d.]+)    \r\nWWW-Authenticate: Basic realm=\"([^"]+)\"\r\nConnection: close\r\n\r\n<HTML><HEAD><TITLE>401 Unauthorized</TITLE></HEAD>\n<BODY BGCOLOR=\"#ffffff\"><H4>401 Unauthorized</H4></BODY></HTML>\n$| p/D-Link DWL-9000+ router http config/ i/Embedded httpd $1; Name $2/ d/router/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: Embedded HTTP Server ([\w.]+)\r\nWWW-Authenticate: Basic realm=\"AP0F1D85\"\r\nConnection: close\r\n\r\n<HTML><HEAD><TITLE>401 Unauthorized</TITLE></HEAD>\n<BODY BGCOLOR=\"#ffffff\"><H4>401 Unauthorized</H4></BODY></HTML>\n| p/Topcom skyracer 544 router http config/ d/router/
-match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: Embedded HTTP Server ([\d.]+)\r\nWWW-Authenticate: Basic realm=\"([^"]+)\".*\r\n\r\n<HTML><HEAD><TITLE>401 Unauthorized</TITLE></HEAD>\n<BODY BGCOLOR=\"#ffffff\"><H4>401 Unauthorized</H4></BODY></HTML>\n|s p/D-Link DWL-624 wireless router http config/ i/Embedded httpd $1/ i/Name $2/ d/router/
+match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: Embedded HTTP Server ([\d.]+)\r\nWWW-Authenticate: Basic realm=\"([^"]+)\".*\r\n\r\n<HTML><HEAD><TITLE>401 Unauthorized</TITLE></HEAD>\n<BODY BGCOLOR=\"#ffffff\"><H4>401 Unauthorized</H4></BODY></HTML>\n|s p/D-Link DWL-624 wireless router http config/ i/Embedded httpd $1; Name $2/ d/router/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nMIME-Version: [\d.]+\r\nServer: CERN/([\d.]+)\r\n.*alert\(\"\\r\\nThis version of your browser cannot support the router's configuration completely\. Please refer to the router's CD-ROM for upgrade information\.\"\);|s p/Edimax BR-6004 broadband router http config/ i/CERN httpd $1/ d/broadband router/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nConnection: close\r\nDate: .*\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nServer: Web-Server/([\d.]+)\r\n\r\n<HTML>\n<FRAMESET ROWS=\"82,40,\*\"| p/NRG copier http config/ i/Web-Server httpd $1/ d/printer/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Savant/([\d.]+)\r\n| p/Savant httpd/ v/$1/ o/Windows/
@@ -4121,7 +4121,7 @@ match rtsp m|^RTSP/1\.0 400 Bad Request\r\n\r\n$| p/Airtunes/ o/Mac OS X/
 match http m|^HTTP/1\.1 403 Forbidden\r\nContent-Type: text/html\r\nServer: Allegro-Software-RomPager/([\d.]+).*This object on the APC Management Web Server is protected and requires a secure socket connection\.|s p/APC http config/ i/Allegro RomPager httpd $1/ d/power-device/
 match http m|^HTTP/1\.1 400 Bad Request\r\nDate: .*\r\nServer: FineGround Performance Server\r\n| p/Fineground performance httpd/
 
-match rtsp-proxy m|^RTSP/1\.0 200 OK\r\n.*Via: [\d.]+ ([\w-_.]+) \(NetCache NetApp/([\w.]+)\)\r\n\r\n|s p/NetApp NetCache rtsp proxy/ v/$2/ v/$1/
+match rtsp-proxy m|^RTSP/1\.0 200 OK\r\n.*Via: [\d.]+ ([\w-_.]+) \(NetCache NetApp/([\w.]+)\)\r\n\r\n|s p/NetApp NetCache rtsp proxy/ h/$1/ v/$2/
 match rtsp-proxy m|^RTSP/1\.0 451 Parameter Not Understood\r\n\r\n$| p/RTSP Proxy Reference Implementation/
 
 match powerchute m|^RTSP/1\.0 400 Bad request\r\nContent-type: text/html\r\n\r\n| p/APC PowerChute Agent/ v/6.X/ d/power-device/
