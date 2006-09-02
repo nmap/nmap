@@ -140,9 +140,12 @@ const struct OS_Classification_Results *FingerPrintResults::getOSClassification(
    for skipping the FP is returned as a static string.  If the FP is
    great and should be printed, NULL is returned. */
 const char *FingerPrintResults::OmitSubmissionFP() {
+  static char reason[128];
 
-  if (o.scan_delay > 500) // This can screw up the sequence timing
-    return "Scan delay is greater than 500";
+  if (o.scan_delay > 500) { // This can screw up the sequence timing
+    snprintf(reason, sizeof(reason), "Scan delay (%d) is greater than 500", o.scan_delay);
+    return reason;
+  }
 
   if (o.timing_level > 4)
     return "Timing level 5 (Insane) used";
@@ -156,11 +159,15 @@ const char *FingerPrintResults::OmitSubmissionFP() {
   // I'm not sure this is really necessary, but maybe.  Large routes
   // can cause asymetric routing which leads to wrong TTL information.
   // They can cause variable timing too.
-  if (distance > 10)
-    return "Host more than ten network hops away";
+  if (distance > 10) {
+    snprintf(reason, sizeof(reason), "Host distance (%d network hops) is greater than ten", distance);
+    return reason;
+  }
 
-  if (maxTimingRatio > 1.4)
-    return "maxTimingRatio is greater than 1.4";
+  if (maxTimingRatio > 1.4) {
+    snprintf(reason, sizeof(reason), "maxTimingRatio (%f) is greater than 1.4");
+    return reason;
+  }
 
   if (osscan_closedudpport < 0 && !o.udpscan) {
     /* If we didn't get a U1 response, that might be just

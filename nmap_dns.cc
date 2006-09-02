@@ -569,9 +569,9 @@ static u32 parse_inaddr_arpa(unsigned char *buf, int maxlen) {
   u32 ip=0;
   int i, j;
 
-  for (i=0; i<=3; i++) {
-    if (maxlen <= 0) return 0;
+  if (maxlen <= 0) return 0;
 
+  for (i=0; i<=3; i++) {
     if (buf[0] < 1 || buf[0] > 3) return 0;
 
     maxlen -= buf[0] + 1;

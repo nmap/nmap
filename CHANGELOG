@@ -66,13 +66,14 @@ Nmap 4.20ALPHA4
 
 o Nmap now provides progress statistics in the XML output in verbose
   mode.  Here are some examples of the format (etc is "estimated time
-  until completion) and times are in UNIX time_t (seconds since 1970) format:
-  <taskbegin task="SYN Stealth Scan" time="1151384685" />
-  <taskprogress task="SYN Stealth Scan" time="1151384715"
-                percent="13.85" remaining="187" etc="1151384902" />
-  <taskend task="SYN Stealth Scan" time="1151384776" />
-  <taskbegin task="Service scan" time="1151384776" />
-  <taskend task="Service scan" time="1151384788" />
+  until completion) and times are in UNIX time_t (seconds since 1970)
+  format. Angle braces have been replaced by square braces:
+  [taskbegin task="SYN Stealth Scan" time="1151384685" /]
+  [taskprogress task="SYN Stealth Scan" time="1151384715"
+                percent="13.85" remaining="187" etc="1151384902" /]
+  [taskend task="SYN Stealth Scan" time="1151384776" /]
+  [taskbegin task="Service scan" time="1151384776" /]
+  [taskend task="Service scan" time="1151384788" /]
   Thanks to Adam Vartanian (flooey(a)gmail.com) for the patch.
 
 o Updated the Windows installer to give an option checkbox for
