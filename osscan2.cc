@@ -304,8 +304,7 @@ public:
   int distance_guess;
   
   /* Returns the amount of time taken between sending 1st tseq probe
-     and the 1st ICMP probe divided by the amount of time it should
-     have taken.  Ratios far from 1 can cause bogus results.  Zero is
+     and the last one.  Zero is
      returned if we didn't send the tseq probes because there was no
      open tcp port */
   double timingRatio();
@@ -366,7 +365,6 @@ private:
    */
   u16 lastipid;
   struct timeval seq_send_times[NUM_SEQ_SAMPLES];
-  struct timeval first_icmp_send_time;
 
   int TWinReplyNum; /* how many TWin replies are received. */
   int TOpsReplyNum; /* how many TOps replies are received. Actually it is the same with TOpsReplyNum. */
@@ -731,7 +729,6 @@ void HostOsScanStats::initScanStats() {
   }
   
   memset(&seq_send_times, 0, sizeof(seq_send_times));
-  memset(&first_icmp_send_time, 0, sizeof(first_icmp_send_time));
 
   if (icmpEchoReply) {
     free(icmpEchoReply);
@@ -797,8 +794,13 @@ void HostOsScanStats::moveProbeToUnSendList(list<OFProbe *>::iterator probeI) {
 double HostOsScanStats::timingRatio() {
   if (openTCPPort < 0)
     return 0;
-  int msec_ideal = OS_SEQ_PROBE_DELAY * 5 + OS_PROBE_DELAY;
-  int msec_taken = TIMEVAL_MSEC_SUBTRACT(first_icmp_send_time, seq_send_times[0]);
+  int msec_ideal = OS_SEQ_PROBE_DELAY * (NUM_SEQ_SAMPLES - 1);
+  int msec_taken = TIMEVAL_MSEC_SUBTRACT(seq_send_times[NUM_SEQ_SAMPLES -1 ], 
+					 seq_send_times[0]);
+  if (o.debugging) {
+    printf("OS detection timingRatio() == (%.3f - %.3f) * 1000 / %d == %.3f\n",
+	   seq_send_times[NUM_SEQ_SAMPLES - 1].tv_sec + seq_send_times[NUM_SEQ_SAMPLES - 1].tv_usec / 1000000.0, seq_send_times[0].tv_sec + (float) seq_send_times[0].tv_usec / 1000000.0, msec_ideal, (float) msec_taken / msec_ideal);
+  }
   return (double) msec_taken / msec_ideal;
 }
 
@@ -1376,7 +1378,6 @@ void HostOsScan::sendTIcmpProbe(HostOsScanStats *hss, int probeNo) {
   assert(hss);
   assert(probeNo>=0&&probeNo<2);
   if(probeNo==0) {
-    gettimeofday(&hss->first_icmp_send_time, NULL);
     send_icmp_echo_probe(rawsd, ethptr, hss->target->v4hostip(), IP_TOS_DEFAULT,
                          true, 9, icmpEchoId, icmpEchoSeq, 120);
   }
@@ -3637,7 +3638,8 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
 
     hsi->FPs[roundNum] = hsi->hss->getFP();
     hsi->target->FPR->FPs[roundNum] = hsi->FPs[roundNum];
-    hsi->target->FPR->maxTimingRatio = MAX(hsi->target->FPR->maxTimingRatio, hsi->hss->timingRatio());
+    double tr = hsi->hss->timingRatio();
+    hsi->target->FPR->maxTimingRatio = MAX(hsi->target->FPR->maxTimingRatio, tr);
     match_fingerprint(hsi->FPs[roundNum], &hsi->FP_matches[roundNum],
                       o.reference_FPs, OSSCAN_GUESS_THRESHOLD);
 

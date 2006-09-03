@@ -1,5 +1,15 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+4.20ALPHA6
+
+o Fixed a bug in 2nd generation OS detection which would (usually) prevent
+  fingerprints from being printed when systems don't respond to the 1st
+  ICMP echo probe (the one with bogus code value of 9).  Thanks to
+  Brandon Enright for reporting and helping me debug the problem.
+
+o Fixed some problematic Nmap version detection signatures which could
+  cause warning messages. Thanks to Brandon Enright for the initial patch.
+
 4.20ALPHA5
 
 o Worked with Zhao to improve the new OS detection system with

@@ -165,7 +165,7 @@ const char *FingerPrintResults::OmitSubmissionFP() {
   }
 
   if (maxTimingRatio > 1.4) {
-    snprintf(reason, sizeof(reason), "maxTimingRatio (%f) is greater than 1.4");
+    snprintf(reason, sizeof(reason), "maxTimingRatio (%e) is greater than 1.4", maxTimingRatio);
     return reason;
   }
 
