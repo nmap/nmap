@@ -3310,7 +3310,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nContent-Length: \d+\r\n.*<title>FRITZ!Box|s
 match http m|^HTTP/1\.0 \d\d\d .*\r\nContent-Length: \d+\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>404 Not Found \(ERR_NOT_FOUND\)</TITLE></HEAD><BODY><H1>404 Not Found</H1><BR>ERR_NOT_FOUND<HR><B>AR7 Webserver</B>| p/FRITZ!Box router http config/ i/TI AR7 chip/ d/router/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: WebCam2000/([\d.]+) \(Windows; http://www\.webcam2000\.info/\)\r\n| p/WebCam2000 httpd/ v/$1/ o/Windows/
 match http m|^HTTP/1\.0 \d\d\d .*\n.*\r\n\r\n<HTML>\n<HEAD><TITLE>OpenWrt</TITLE>|s p/OpenWrt BusyBox httpd/ d/WAP/
-match http m|^HTTP/1\.0 \d\d\d .*\n.*\r\n\r\n.*\n\t\t<title>OpenWrt Administrative Console</title>|s p/OpenWrt BusyBox httpd/ d/WAP/
+match http m|^HTTP/1\.0 \d\d\d .*\n\t\t<title>OpenWrt Administrative Console</title>|s p/OpenWrt BusyBox httpd/ d/WAP/
 match http m|^HTTP/1\.0 \d\d\d .*\n.*\t\t<meta http-equiv=\"refresh\" content=\"0; URL=/cgi-bin/webif\.sh\" />\n\t|s p/OpenWrt BusyBox httpd/ d/WAP/
 match http m|^HTTP/1\.0 \d\d\d .*\r\n\r\n.*var path='http://www\.axis\.com/cgi-bin/prodhelp\?prod=axis_(\d+)&ver=([\d.]+)|s p/AXIS $1 print server http config/ v/$2/
 match http m|^HTTP/1\.0 200 OK\r\nHTTP/1\.0 200 OK\r\nServer: ap\r\n.*<title>NetGear Remote Bridge Setup</title>|s p/NetGear ethernet Bridge http config/ d/bridge/
