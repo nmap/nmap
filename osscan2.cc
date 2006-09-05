@@ -1735,11 +1735,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
       seq_stddev /= hss->si.responses - 2;
 
       /* Next we need to take the square root of this value */
-#ifdef LINUX       
       seq_stddev = (unsigned int) (0.5 + sqrt(seq_stddev));
-#else
-      seq_stddev = (unsigned int) (0.5 + pow(seq_stddev, 0.5));
-#endif
 
       /* Finally we take a binary logarithm, multiply by 8, and round
 	 to get the final result */

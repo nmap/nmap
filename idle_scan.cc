@@ -5,7 +5,7 @@
  * completely blind scanning (eg no packets sent to the target from your   *
  * own IP address) and can also be used to penetrate firewalls and scope   *
  * out router ACLs.  This is one of the "advanced" scans meant for         *
- * epxerienced Nmap users.                                                 *
+ * experienced Nmap users.                                                 *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *

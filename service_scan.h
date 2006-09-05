@@ -253,7 +253,7 @@ class ServiceProbe {
   // SERVICE_TUNNEL_SSL.  Otherwise use SERVICE_TUNNEL_NONE.  The line
   // number is requested because this function will bail with an error
   // (giving the line number) if it fails to parse the string.  Ports
-  // are a comma seperated list of ports and ranges
+  // are a comma separated list of ports and ranges
   // (e.g. 53,80,6000-6010).
   void setProbablePorts(enum service_tunnel_type tunnel,
 			const char *portstr, int lineno);

@@ -1,4 +1,5 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o Applied some small internal cleanup patches by Kris Katterjohn.
 
 4.20ALPHA6
 

@@ -959,13 +959,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
 	/*       printf("The sequence sum is %e\n", seq_inc_sum);*/
 	seq_inc_sum /= (si->responses - 1);
 
-	/* Some versions of Linux libc seem to have broken pow ... so we
-	   avoid it */
-#ifdef LINUX       
 	si->index = (unsigned int) (0.5 + sqrt(seq_inc_sum));
-#else
-	si->index = (unsigned int) (0.5 + pow(seq_inc_sum, 0.5));
-#endif
 
 	/*       printf("The sequence index is %d\n", si->index);*/
 	if (si->index < 75) {

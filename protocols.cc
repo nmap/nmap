@@ -195,7 +195,7 @@ struct protoent *nmap_getprotbynum(int num) {
   
 }
 
-/* Be default we do all prots 0-255. */
+/* By default we do all prots 0-255. */
 struct scan_lists *getdefaultprots(void) {
   int protindex = 0;
   struct scan_lists *scanlist;

@@ -983,7 +983,7 @@ void ServiceProbe::setPortVector(vector<u16> *portv, const char *portstr,
   // SERVICE_TUNNEL_SSL.  Otherwise use SERVICE_TUNNEL_NONE.  The line
   // number is requested because this function will bail with an error
   // (giving the line number) if it fails to parse the string.  Ports
-  // are a comma seperated list of ports and ranges
+  // are a comma separated list of ports and ranges
   // (e.g. 53,80,6000-6010).
 void ServiceProbe::setProbablePorts(enum service_tunnel_type tunnel,
 				    const char *portstr, int lineno) {
@@ -1053,7 +1053,7 @@ void ServiceProbe::addMatch(const char *match, int lineno) {
 }
 
 // Parses the given nmap-service-probes file into the AP class
-/* Must NOT be static because I have externam maintenance tools (servicematch)
+/* Must NOT be static because I have external maintenance tools (servicematch)
   which use this */
 void parse_nmap_service_probe_file(AllProbes *AP, char *filename) {
   ServiceProbe *newProbe;

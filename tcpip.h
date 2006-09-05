@@ -505,7 +505,7 @@ bool route_dst(const struct sockaddr_storage *const dst, struct route_nfo *rnfo)
    be set to 1 if dst is directly connected on the ifentry network and
    0 if it requires routing.  If nexthop_ip is not NULL, and routing
    is required, the next hop is filled into nexthop_ip.  This function
-   returns false if no apporpiate interface or route was found and
+   returns false if no appropiate interface or route was found and
    true if it succeeds. */
 bool routethrough(const struct sockaddr_storage * const dest, 
 		  struct intf_entry *ifentry, 

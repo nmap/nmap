@@ -195,7 +195,7 @@ char *strerror(int errnum) {
 }
 #endif
 
-/* Like the perl equivialent -- It removes the terminating newline from string
+/* Like the perl equivalent -- It removes the terminating newline from string
    IF one exists.  It then returns the POSSIBLY MODIFIED string */
 char *chomp(char *string) {
   int len = strlen(string);
@@ -388,7 +388,7 @@ unsigned int gcd_n_uint(int nvals, unsigned int *val)
  }
 
 /* This function takes a command and the address of an uninitialized
-   char ** .  It parses the command (by seperating out whitespace)
+   char ** .  It parses the command (by separating out whitespace)
    into an argv[] style char **, which it sets the argv parameter to.
    The function returns the number of items filled up in the array
    (argc), or -1 in the case of an error.  This function allocates
