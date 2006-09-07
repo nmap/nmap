@@ -1,6 +1,6 @@
 
 /***************************************************************************
- * MACLookup.cc -- This relatively simple system handles looking up the    *
+ * MACLookup.h -- This relatively simple system handles looking up the     *
  * vendor registered to a MAC address using the nmap-mac-prefixes          *
  * database.                                                               *
  *                                                                         *

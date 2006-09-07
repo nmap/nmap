@@ -1,6 +1,6 @@
 
 /***************************************************************************
- * FingerPrintResults -- The FingerPrintResults class the results of OS    *
+ * FingerPrintResults.cc -- The FingerPrintResults class the results of OS *
  * fingerprint matching against a certain host.                            *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
