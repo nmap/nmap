@@ -1823,10 +1823,10 @@ company_id			Organization
 				Seoul  
 				KOREA, REPUBLIC OF
 
-00-01-19   (hex)		Action Controls Pty. Ltd.
-000119     (base 16)		Action Controls Pty. Ltd.
-				16/104 Ferntree Gully Road
-				Oakleigh 3166  
+00-01-19   (hex)		RTUnet (Australia)
+000119     (base 16)		RTUnet (Australia)
+				8/3-5 Gilda Court
+				Mulgrave Vic 3170
 				AUSTRALIA
 
 00-01-1A   (hex)		EEH DataLink GmbH
@@ -2528,11 +2528,10 @@ company_id			Organization
 				198-8577 JAPAN
 				JAPAN
 
-00-01-86   (hex)		DISCH GmbH
-000186     (base 16)		DISCH GmbH
-				Friedensplatz 3
-				91207 Lauf
-				GERMANY
+00-01-86   (hex)		Uwe Disch
+000186     (base 16)		Uwe Disch
+				Eichenhainstrasse 14
+				91207 Lauf a.d. Pegnitz
 				GERMANY
 
 00-01-87   (hex)		i2SE GmbH
@@ -2758,7 +2757,7 @@ company_id			Organization
 
 00-01-A9   (hex)		BMW AG
 0001A9     (base 16)		BMW AG
-				EE-223
+				Dipl.-Ing. Hajo Wetzel, EG-70
 				Knorrstr.147 80788 Munnich,
 				GERMANY
 				GERMANY
@@ -4669,9 +4668,8 @@ company_id			Organization
 
 00-02-C9   (hex)		Mellanox Technologies
 0002C9     (base 16)		Mellanox Technologies
-				3333 Bowers Ave.,
-				Suite 145
-				Santa Clara CA 95050
+				2900 Stender Way
+				Santa Clara CA 95054
 				UNITED STATES
 
 00-02-CA   (hex)		EndPoints, Inc.
@@ -6334,7 +6332,7 @@ company_id			Organization
 0003C9     (base 16)		TECOM Co., Ltd.
 				23, R&D Road 2
 				Science-Based Industrial Park
-				Hsin-Chu TAIWAN Hsin-Chu TAIWAN R.O.C.
+				Hsin-Chu  
 				TAIWAN, REPUBLIC OF CHINA
 
 00-03-CA   (hex)		MTS Systems Corp.
@@ -7752,10 +7750,11 @@ company_id			Organization
 				KOREA
 				KOREA, REPUBLIC OF
 
-00-04-9F   (hex)		Metrowerks
-00049F     (base 16)		Metrowerks
-				9801 Metric Blvd.
-				Austin TX 78758
+00-04-9F   (hex)		Freescale Semiconductor
+00049F     (base 16)		Freescale Semiconductor
+				7700 West Parmer Lane
+				MD PL59
+				Austin TX 78729
 				UNITED STATES
 
 00-04-A0   (hex)		Verity Instruments, Inc.
@@ -11572,9 +11571,12 @@ company_id			Organization
 				Chung-Li City, Taoyuan
 				TAIWAN, REPUBLIC OF CHINA
 
-00-06-F8   (hex)		PRIVATE
-0006F8     (base 16)		 
-				 
+00-06-F8   (hex)		CPU Technology, Inc.
+0006F8     (base 16)		CPU Technology, Inc.
+				5731 W. Las Positas Blvd.
+				Pleasanton CA 94588
+				UNITED STATES
+
 00-06-F9   (hex)		Mitsui Zosen Systems Research Inc.
 0006F9     (base 16)		Mitsui Zosen Systems Research Inc.
 				11-1, Uno 1-chome
@@ -11916,8 +11918,9 @@ company_id			Organization
 
 00-07-2F   (hex)		Intransa, Inc.
 00072F     (base 16)		Intransa, Inc.
-				1393 Geneva Dr.
-				Sunnyvale CA 94089-1121
+				2870 Zanker Rd.
+				Suite 200
+				San Jose CA 95134
 				UNITED STATES
 
 00-07-30   (hex)		Hutchison OPTEL Telecom Technology Co., Ltd.
@@ -12063,8 +12066,8 @@ company_id			Organization
 				Tel Aviv  61131
 				ISRAEL
 
-00-07-46   (hex)		Interlink BT, LLC
-000746     (base 16)		Interlink BT, LLC
+00-07-46   (hex)		TURCK, Inc.
+000746     (base 16)		TURCK, Inc.
 				3000 Campus Drive
 				Plymouth MN 55441
 				UNITED STATES
@@ -13159,9 +13162,9 @@ company_id			Organization
 				Sunnyvale CA 94085
 				UNITED STATES
 
-00-07-F3   (hex)		Think Engine Networks
-0007F3     (base 16)		Think Engine Networks
-				175 Maple St.
+00-07-F3   (hex)		Thinkengine Networks
+0007F3     (base 16)		Thinkengine Networks
+				100 Nickerson Road
 				Marlborough MA 01752
 				UNITED STATES
 
@@ -18177,8 +18180,8 @@ company_id			Organization
 
 00-0B-2F   (hex)		bplan GmbH
 000B2F     (base 16)		bplan GmbH
-				Adenauerallee 10
-				Oberursel 61440
+				Industriestraße 23
+				Steinbach 61449
 				GERMANY
 
 00-0B-30   (hex)		Beijing Gongye Science & Technology Co.,Ltd
@@ -25895,7 +25898,7 @@ company_id			Organization
 
 00-10-00   (hex)		CABLE TELEVISION LABORATORIES, INC.
 001000     (base 16)		CABLE TELEVISION LABORATORIES, INC.
-				400 CENTENNIAL PARKWAY
+				858 Coal Creek Circle
 				LOUISVILLE CO 80027
 				UNITED STATES
 
@@ -26191,10 +26194,11 @@ company_id			Organization
 				SAN JOSE CA 95134-1706
 				UNITED STATES
 
-00-10-30   (hex)		Wi-LAN, Inc.
-001030     (base 16)		Wi-LAN, Inc.
-				300-801 MANNING ROAD N.E.
-				CALGARY, ALBERTA T2E 8J5  
+00-10-30   (hex)		EION Inc.
+001030     (base 16)		EION Inc.
+				Deerfoot 17
+				#200, 2710 - 17th AVE SE
+				Calgary Alberta T2A 0P6
 				CANADA
 
 00-10-31   (hex)		OBJECTIVE COMMUNICATIONS, INC.
@@ -26824,8 +26828,8 @@ company_id			Organization
 				Calabasas Hills CA 91301
 				UNITED STATES
 
-00-10-95   (hex)		Thompson Inc.
-001095     (base 16)		Thompson Inc.
+00-10-95   (hex)		Thomson Inc.
+001095     (base 16)		Thomson Inc.
 				101 West 103rd Street
 				Indianapolis IN 46290-1102
 				UNITED STATES
@@ -28918,8 +28922,8 @@ company_id			Organization
 				Taipei  114
 				TAIWAN, REPUBLIC OF CHINA
 
-00-11-E3   (hex)		Broadband Access Products
-0011E3     (base 16)		Broadband Access Products
+00-11-E3   (hex)		Thomson, Inc.
+0011E3     (base 16)		Thomson, Inc.
 				Mail Stop INH 500
 				101 West 103rd Street
 				Indianapolis IN 46290
@@ -33630,8 +33634,8 @@ company_id			Organization
 				Aldermaston Berkshire RG7 8DA
 				UNITED KINGDOM
 
-00-14-CB   (hex)		GMP|Wireless Medicine,Inc.
-0014CB     (base 16)		GMP|Wireless Medicine,Inc.
+00-14-CB   (hex)		LifeSync Corporation
+0014CB     (base 16)		LifeSync Corporation
 				1 E Broward Boulevard, Suite 1701
 				Fort Lauderdale Florida 33301
 				UNITED STATES
@@ -35082,9 +35086,12 @@ company_id			Organization
 				paju-city gyeong gi 413-813
 				KOREA, REPUBLIC OF
 
-00-15-AF   (hex)		PRIVATE
-0015AF     (base 16)		 
-				 
+00-15-AF   (hex)		AzureWave Technologies, Inc.
+0015AF     (base 16)		AzureWave Technologies, Inc.
+				8F., No.94, Baozhong Rd., Xindian
+				Taipei  231
+				TAIWAN, REPUBLIC OF CHINA
+
 00-15-B0   (hex)		AUTOTELENET CO.,LTD
 0015B0     (base 16)		AUTOTELENET CO.,LTD
 				2F, 898-24, Hogye2-dong, Dongan-gu
@@ -37784,9 +37791,7 @@ company_id			Organization
 
 00-17-61   (hex)		ZKSoftware Inc.
 001761     (base 16)		ZKSoftware Inc.
-				TONGYE PLAZA 4F
-				FUTIAN District
-				ShenZhen  518000
+				Xinweizai, Bantian, Longgang district,Shenzhen China 518129
 				CHINA
 
 00-17-62   (hex)		Solar Technology, Inc.
@@ -38170,9 +38175,10 @@ company_id			Organization
 				Lisburn Co. Antrim BT28 2RB
 				UNITED KINGDOM
 
-00-17-9E   (hex)		Samsys Technologies Inc
-00179E     (base 16)		Samsys Technologies Inc
+00-17-9E   (hex)		Sirit Inc
+00179E     (base 16)		Sirit Inc
 				2525 Meridian Parkway
+				Suite 60
 				Durham NC 27713
 				UNITED STATES
 
@@ -39322,8 +39328,8 @@ company_id			Organization
 				Tel-Aviv  69710
 				ISRAEL
 
-00-18-54   (hex)		Airtube ,co.ltd
-001854     (base 16)		Airtube ,co.ltd
+00-18-54   (hex)		Argard Co., Ltd
+001854     (base 16)		Argard Co., Ltd
 				2571 Lardprao Rd.
 				wangthonglang Bangkok 10310
 				THAILAND
@@ -39343,7 +39349,7 @@ company_id			Organization
 00-18-57   (hex)		Unilever R&D
 001857     (base 16)		Unilever R&D
 				Bldg. 50
-				Sharbrook
+				Sharnbrook
 				Bedford Bedfordshire MK44 1LQ
 				UNITED KINGDOM
 
@@ -39618,6 +39624,1810 @@ company_id			Organization
 				Seo-Ku
 				Incheon  404-300
 				KOREA, REPUBLIC OF
+
+00-18-82   (hex)		Huawei Technologies Co., Ltd.
+001882     (base 16)		Huawei Technologies Co., Ltd.
+				F1-20,Section F,Huawei Base,Bantian, Longgang District
+				ShenZhen GuangDong 518129
+				CHINA
+
+00-18-83   (hex)		FORMOSA21 INC.
+001883     (base 16)		FORMOSA21 INC.
+				8F-6, NO.351, CHUNG SHAN RD., SEC.2
+				CHUNG HO CITY
+				TAIPEI  235
+				TAIWAN, REPUBLIC OF CHINA
+
+00-18-84   (hex)		FON
+001884     (base 16)		FON
+				Avda. Bruselas, n. 7, Planta 3, Alcobendas
+				Madrid 28100
+				SPAIN
+
+00-18-85   (hex)		Avigilon Corporation
+001885     (base 16)		Avigilon Corporation
+				Box 378, 101 - 1001 West Broadway
+				Vancouver BC V6H 4E4
+				CANADA
+
+00-18-86   (hex)		EL-TECH, INC.
+001886     (base 16)		EL-TECH, INC.
+				A-711, WOOLIM LION'S VALLEY, 371-28
+				GASAN-DONG, GEUMCHEON-GU,
+				SEOUL  150-834
+				KOREA, REPUBLIC OF
+
+00-18-87   (hex)		Metasystem SpA
+001887     (base 16)		Metasystem SpA
+				Via Oberdan 16
+				Reggio Emilia RE 42100
+				ITALY
+
+00-18-88   (hex)		GOTIVE a.s.
+001888     (base 16)		GOTIVE a.s.
+				Zámocká 34
+				Bratislava  81101
+				SLOVAKIA
+
+00-18-89   (hex)		WinNet Solutions Limited
+001889     (base 16)		WinNet Solutions Limited
+				Rm804, Kornhill Metro Tower, Quarry Bay
+				HK 852
+				HONG KONG
+
+00-18-8A   (hex)		Infinova LLC
+00188A     (base 16)		Infinova LLC
+				51 Stouts Lane, Unit 1 & 2
+				Monmouth Junction New Jersey 08852
+				UNITED STATES
+
+00-18-8B   (hex)		Dell
+00188B     (base 16)		Dell
+				One Dell Way
+				Round Rock Texas 78682
+				UNITED STATES
+
+00-18-8C   (hex)		Mobile Action Technology Inc.
+00188C     (base 16)		Mobile Action Technology Inc.
+				5F, No. 205-3, Sec. 3, Beishin Rd.
+				Shindian City, Taipei  231
+				TAIWAN, REPUBLIC OF CHINA
+
+00-18-8D   (hex)		Nokia Danmark A/S
+00188D     (base 16)		Nokia Danmark A/S
+				Frederikskaj
+				Copenhagen V  1790
+				DENMARK
+
+00-18-8E   (hex)		Ekahau, Inc.
+00188E     (base 16)		Ekahau, Inc.
+				Tallberginkatu 2
+				HELSINKI UUSIMAA 00180
+				FINLAND
+
+00-18-8F   (hex)		Montgomery Technology, Inc.
+00188F     (base 16)		Montgomery Technology, Inc.
+				800 East Commerce Street
+				Greenville AL 36037
+				UNITED STATES
+
+00-18-90   (hex)		RadioCOM, s.r.o.
+001890     (base 16)		RadioCOM, s.r.o.
+				Misikova 22
+				Bratislava  811 06
+				SLOVAKIA
+
+00-18-91   (hex)		Zhongshan General K-mate Electronics Co., Ltd
+001891     (base 16)		Zhongshan General K-mate Electronics Co., Ltd
+				3/F B1 Building, Fuwan Ind. Zone Sun Wen East Road
+				Zhongshan Guangdong 528403
+				CHINA
+
+00-18-92   (hex)		ads-tec GmbH
+001892     (base 16)		ads-tec GmbH
+				Raiffeisenstrasse 14
+				Leinfelden-Echterdingen Baden-Württemberg 70771
+				GERMANY
+
+00-18-93   (hex)		SHENZHEN PHOTON BROADBAND TECHNOLOGY CO.,LTD
+001893     (base 16)		SHENZHEN PHOTON BROADBAND TECHNOLOGY CO.,LTD
+				2/F Hivac BLD,2th Langshan Rd,North Hi-Tech Industrial
+				Shenzhen Guangdong 518057
+				CHINA
+
+00-18-94   (hex)		zimocom
+001894     (base 16)		zimocom
+				3~5F, BongUi Bldg, 76-1, Munjeong-dong
+				Songpagu
+				Seoul  138-200
+				KOREA, REPUBLIC OF
+
+00-18-95   (hex)		Hansun Technologies Inc.
+001895     (base 16)		Hansun Technologies Inc.
+				Room 301, Building 103, Wangjingkejiyuan, Chaoyang District
+				Beijing  100102
+				CHINA
+
+00-18-96   (hex)		Great Well Electronic LTD
+001896     (base 16)		Great Well Electronic LTD
+				The Third Industrial  Area
+				Guanlan Town
+				Shenzhen Guangdong 518110
+				CHINA
+
+00-18-97   (hex)		JESS-LINK PRODUCTS Co., LTD
+001897     (base 16)		JESS-LINK PRODUCTS Co., LTD
+				9F, No. 176, Jian-Yi Rd., Chung Ho City
+				Taipei County  235
+				TAIWAN, REPUBLIC OF CHINA
+
+00-18-98   (hex)		KINGSTATE ELECTRONICS CORPORATION
+001898     (base 16)		KINGSTATE ELECTRONICS CORPORATION
+				10F, No.69-11, Sec.2, Chung Cheng E. Rd.,
+				Tamshui Town
+				Taipei County  251
+				TAIWAN, REPUBLIC OF CHINA
+
+00-18-99   (hex)		ShenZhen jieshun Science&Technology Industry CO,LTD.
+001899     (base 16)		ShenZhen jieshun Science&Technology Industry CO,LTD.
+				China GuangDong state Shenzhen City Futian section NO17. Meilin Road
+				Shenzhen GuangDong 518049
+				CHINA
+
+00-18-9A   (hex)		HANA Micron Inc.
+00189A     (base 16)		HANA Micron Inc.
+				#95-1 Wonnam-Li, Umbong-Myeon
+				Chung-Nam, South Korea.
+				Asan-City Chung-Nam 336-864
+				KOREA, REPUBLIC OF
+
+00-18-9B   (hex)		Thomson Inc.
+00189B     (base 16)		Thomson Inc.
+				101 West 103rd Street
+				Indianapolis IN 46290-1102
+				UNITED STATES
+
+00-18-9C   (hex)		Weldex Corporation
+00189C     (base 16)		Weldex Corporation
+				6751 Katella Avenue
+				Cypress CA 90630
+				UNITED STATES
+
+00-18-9D   (hex)		Navcast Inc.
+00189D     (base 16)		Navcast Inc.
+				Suite 612, 6711 Mississauga Road
+				Mississauga ON m2r 1a3
+				CANADA
+
+00-18-9E   (hex)		OMNIKEY GmbH.
+00189E     (base 16)		OMNIKEY GmbH.
+				Ferihumerstrasse 13
+				Linz Upperaustria 4040
+				AUSTRIA
+
+00-18-9F   (hex)		Lenntek Corporation
+00189F     (base 16)		Lenntek Corporation
+				4F, 125 GuangMing 3rd. Road
+				Jhu Bei Hsin Chu 302
+				TAIWAN, REPUBLIC OF CHINA
+
+00-18-A0   (hex)		Cierma Ascenseurs
+0018A0     (base 16)		Cierma Ascenseurs
+				17 avenue guiglionda de saint agathe
+				Nice PACA 06300
+				FRANCE
+
+00-18-A1   (hex)		Tiqit Computers, Inc.
+0018A1     (base 16)		Tiqit Computers, Inc.
+				2215 Old Page Mill Rd
+				Palo Alto CA 94304
+				UNITED STATES
+
+00-18-A2   (hex)		XIP Technology AB
+0018A2     (base 16)		XIP Technology AB
+				PO Box 437
+				Jönköping Sweden SE- 551 16
+				SWEDEN
+
+00-18-A3   (hex)		ZIPPY TECHNOLOGY CORP.
+0018A3     (base 16)		ZIPPY TECHNOLOGY CORP.
+				10F, No. 50, Mincyuan Rd., Sindian City
+				Taipei  231
+				TAIWAN, REPUBLIC OF CHINA
+
+00-18-A4   (hex)		Motorola Mobile Devices
+0018A4     (base 16)		Motorola Mobile Devices
+				600 N. Hwy 45
+				Libertyville IL 60048
+				UNITED STATES
+
+00-18-A5   (hex)		ADigit Technologies Corp.
+0018A5     (base 16)		ADigit Technologies Corp.
+				Rm D302E,No.185 3F-2,Kur-Wong Road,
+				Lung-Tang,
+				Tao-yuan,  325
+				TAIWAN, REPUBLIC OF CHINA
+
+00-18-A6   (hex)		Persistent Systems, LLC
+0018A6     (base 16)		Persistent Systems, LLC
+				118 N. Howard St. #72
+				Baltimore MD 21201
+				UNITED STATES
+
+00-18-A7   (hex)		Yoggie Security Systems LTD.
+0018A7     (base 16)		Yoggie Security Systems LTD.
+				P.P.Box 156
+				Beth Halevy  42870
+				ISRAEL
+
+00-18-A8   (hex)		AnNeal Technology Inc.
+0018A8     (base 16)		AnNeal Technology Inc.
+				No.30-11, Wunhua Rd., Minsyong
+				Chiayi  621
+				TAIWAN, REPUBLIC OF CHINA
+
+00-18-A9   (hex)		Ethernet Direct Corporation
+0018A9     (base 16)		Ethernet Direct Corporation
+				19F,No.345 Chung Ho Road, Yung Ho City
+				Taipei  234
+				TAIWAN, REPUBLIC OF CHINA
+
+00-18-AA   (hex)		PRIVATE
+0018AA     (base 16)		 
+				 
+00-18-AB   (hex)		BEIJING LHWT MICROELECTRONICS INC.
+0018AB     (base 16)		BEIJING LHWT MICROELECTRONICS INC.
+				18/F,QUANTUM PLAZA,NO.27 ZHI CHUN RD.,HAI DIAN DISTRICT,BEIJING
+				CHINA
+
+00-18-AC   (hex)		Shanghai Jiao Da HISYS Technology Co. Ltd.
+0018AC     (base 16)		Shanghai Jiao Da HISYS Technology Co. Ltd.
+				7F Haoran HiTech Bldg., No.1954 Huashan Road
+				shanghai xuhui 200030
+				CHINA
+
+00-18-AD   (hex)		NIDEC SANKYO CORPORATION
+0018AD     (base 16)		NIDEC SANKYO CORPORATION
+				5329, Shimosuwa-machi, Suwa-gun
+				Nagano 393-8511
+				JAPAN
+
+00-18-AE   (hex)		Tongwei Video Technology CO.,LTD
+0018AE     (base 16)		Tongwei Video Technology CO.,LTD
+				4/F,HuaFeng Building,6006 Shennan Road
+				shenzhen guangdong 518026
+				CHINA
+
+00-18-AF   (hex)		Samsung Electronics Co., Ltd.
+0018AF     (base 16)		Samsung Electronics Co., Ltd.
+				#94-1, Imsoo-Dong
+				Gumi-City Gyeong-Buk 730-350
+				KOREA, REPUBLIC OF
+
+00-18-B0   (hex)		Nortel
+0018B0     (base 16)		Nortel
+				8200 Dixie Road
+				Suite 100
+				Brampton Ontario L6T 5P6
+				CANADA
+
+00-18-B1   (hex)		Blade Network Technologies
+0018B1     (base 16)		Blade Network Technologies
+				2350 Mission College Blvd. Suite 600
+				Santa Clara CA 95054
+				UNITED STATES
+
+00-18-B2   (hex)		ADEUNIS RF
+0018B2     (base 16)		ADEUNIS RF
+				283 Rue NEEL
+				CROLLES ISERE 38920
+				FRANCE
+
+00-18-B3   (hex)		TEC WizHome Co., Ltd.
+0018B3     (base 16)		TEC WizHome Co., Ltd.
+				18fl., In-Song bldg., 194-15,
+				Heohyun-Dong, 1Ga, Jung-Gu
+				Seoul  100-952
+				KOREA, REPUBLIC OF
+
+00-18-B4   (hex)		Dawon Media Inc.
+0018B4     (base 16)		Dawon Media Inc.
+				Rm503. woolim e-biz center 170-5, Guro3dong Gurogu,
+				Seoul  152-769
+				KOREA, REPUBLIC OF
+
+00-18-B5   (hex)		Magna Carta
+0018B5     (base 16)		Magna Carta
+				Naritaweg 126
+				Amsterdam Noord Holland 1043 CA
+				NETHERLANDS
+
+00-18-B6   (hex)		S3C, Inc.
+0018B6     (base 16)		S3C, Inc.
+				1010 Stewart Dr.
+				Sunnyvale California 94085
+				UNITED STATES
+
+00-18-B7   (hex)		D3 LED, LLC
+0018B7     (base 16)		D3 LED, LLC
+				380 Mountain Rd
+				Suite 1412
+				Union City NJ 07087
+				UNITED STATES
+
+00-18-B8   (hex)		New Voice International AG
+0018B8     (base 16)		New Voice International AG
+				St. Gallerstrasse 8
+				Lachen SZ 8853
+				SWITZERLAND
+
+00-18-B9   (hex)		Cisco Systems
+0018B9     (base 16)		Cisco Systems
+				80 West Tasman Dr.
+				SJ-M/1
+				San Jose CA 95134
+				UNITED STATES
+
+00-18-BA   (hex)		Cisco Systems
+0018BA     (base 16)		Cisco Systems
+				80 West Tasman Dr.
+				SJ-M/1
+				San Jose CA 95134
+				UNITED STATES
+
+00-18-BB   (hex)		Eliwell Controls srl
+0018BB     (base 16)		Eliwell Controls srl
+				Via dell'Industria, 15
+				Pieve d'Alpago Belluno 32010
+				ITALY
+
+00-18-BC   (hex)		ZAO NVP Bolid
+0018BC     (base 16)		ZAO NVP Bolid
+				Pionerskaya str., 4
+				Korolyov Moscow region 141070
+				RUSSIAN FEDERATION
+
+00-18-BD   (hex)		SHENZHEN DVBWORLD TECHNOLOGY CO., LTD.
+0018BD     (base 16)		SHENZHEN DVBWORLD TECHNOLOGY CO., LTD.
+				2ND FLOOR, BUILDING A, QINGHU XINQIAO INDUSTRY AREA,
+				LONGHUA, BAO AN DISTRICT
+				SHENZHEN GUANGDONG 518000
+				CHINA
+
+00-18-BE   (hex)		ANSA Corporation
+0018BE     (base 16)		ANSA Corporation
+				17F., No.738, Chung Cheng Rd.
+				Chung Ho City, Taipei County  235
+				TAIWAN, REPUBLIC OF CHINA
+
+00-18-BF   (hex)		Essence Technology Solution, Inc.
+0018BF     (base 16)		Essence Technology Solution, Inc.
+				B1, No. 207, Beisin Rd., Sec. 3
+				Sindian, Taipei County  231
+				TAIWAN, REPUBLIC OF CHINA
+
+00-18-C0   (hex)		Motorola CHS
+0018C0     (base 16)		Motorola CHS
+				6450 Sequence Drive
+				San Diego CA 92129
+				UNITED STATES
+
+00-18-C1   (hex)		Almitec Informática e Comércio Ltda.
+0018C1     (base 16)		Almitec Informática e Comércio Ltda.
+				461, Francisco de Morais St.
+				São Paulo  04714-010
+				BRAZIL
+
+00-18-C2   (hex)		Firetide, Inc
+0018C2     (base 16)		Firetide, Inc
+				16795 Lark Av, Suite 200
+				Los Gatos CA 95032
+				UNITED STATES
+
+00-18-C3   (hex)		C&S Microwave
+0018C3     (base 16)		C&S Microwave
+				Suntech City 8th floor, Sang Dae Won-Dong, Jung Won-Gu
+				Sungnam Gyunggi-Do 82
+				KOREA, REPUBLIC OF
+
+00-18-C4   (hex)		Raba Technologies LLC
+0018C4     (base 16)		Raba Technologies LLC
+				8830 Stanford Blvd Suite 205
+				Columbia Maryland 21045
+				UNITED STATES
+
+00-18-C5   (hex)		Nokia Danmark A/S
+0018C5     (base 16)		Nokia Danmark A/S
+				Frederikskaj
+				Copenhagen V  1790
+				DENMARK
+
+00-18-C6   (hex)		OPW Fuel Management Systems
+0018C6     (base 16)		OPW Fuel Management Systems
+				6900 Santa Fe Drive
+				Hodgkins Illinois 60525
+				UNITED STATES
+
+00-18-C7   (hex)		Real Time Automation
+0018C7     (base 16)		Real Time Automation
+				2825 N Mayfair Rd Ste 11
+				Wauwatosa WI 53222
+				UNITED STATES
+
+00-18-C8   (hex)		ISONAS Inc.
+0018C8     (base 16)		ISONAS Inc.
+				6325 Gunpark Drive
+				Suite 101
+				Boulder CO 80301
+				UNITED STATES
+
+00-18-C9   (hex)		EOps Technology Limited
+0018C9     (base 16)		EOps Technology Limited
+				Room 2001, Fairmont House,
+				8 Cotton Tree Drive, Central,
+				Hong Kong  
+				HONG KONG
+
+00-18-CA   (hex)		Viprinet GmbH
+0018CA     (base 16)		Viprinet GmbH
+				Basilikastrasse 3
+				Bingen am Rhein  55411
+				GERMANY
+
+00-18-CB   (hex)		Tecobest Technology Limited
+0018CB     (base 16)		Tecobest Technology Limited
+				53/F.,Block A,United Plaza,
+				No.5022,Bin He Road
+				Shenzhen Guangdong 518026
+				CHINA
+
+00-18-CC   (hex)		AXIOHM SAS
+0018CC     (base 16)		AXIOHM SAS
+				1 RUE D'ARCUEIL
+				MONTROUGE  92120
+				FRANCE
+
+00-18-CD   (hex)		Erae Electronics Industry Co., Ltd
+0018CD     (base 16)		Erae Electronics Industry Co., Ltd
+				#371-51, Gasan-dong
+				Geumchen-gu Seoul 153-803
+				KOREA, REPUBLIC OF
+
+00-18-CE   (hex)		Dreamtech Co., Ltd
+0018CE     (base 16)		Dreamtech Co., Ltd
+				#340-5, Yang-dang Ri, Jik-san Myeon
+				Cheon-an si Chung-Nam 330810
+				KOREA, REPUBLIC OF
+
+00-18-CF   (hex)		Baldor Electric Company
+0018CF     (base 16)		Baldor Electric Company
+				600 S. Zero St.
+				Fort Smith AR 72901
+				UNITED STATES
+
+00-18-D0   (hex)		@ROAD Inc
+0018D0     (base 16)		@ROAD Inc
+				47071 Bayside Parkway
+				Fremont California 94538
+				UNITED STATES
+
+00-18-D1   (hex)		Siemens Home & Office Comm. Devices
+0018D1     (base 16)		Siemens Home & Office Comm. Devices
+				4849 Alpha Rd.
+				Dallas Texas 75244
+				UNITED STATES
+
+00-18-D2   (hex)		High-Gain Antennas LLC
+0018D2     (base 16)		High-Gain Antennas LLC
+				11679 S. Cormorant Circle
+				Parker CO 80134
+				UNITED STATES
+
+00-18-D3   (hex)		TEAMCAST
+0018D3     (base 16)		TEAMCAST
+				Centre Espace Performance
+				Saint Gregoire  35769
+				FRANCE
+
+00-18-D4   (hex)		Unified Display Interface SIG
+0018D4     (base 16)		Unified Display Interface SIG
+				15201 SW Greenbrier Parkway
+				Beaverton Oregon 97006
+				UNITED STATES
+
+00-18-D5   (hex)		REIGNCOM
+0018D5     (base 16)		REIGNCOM
+				14F Kamco Yanjae Tower, 949-3
+				Dogok 1-dongm, Gangnam-gu
+				Seoul  135-739
+				KOREA, REPUBLIC OF
+
+00-18-D6   (hex)		Swirlnet A/S
+0018D6     (base 16)		Swirlnet A/S
+				Diplomvej 381
+				Lyngby  DK-2800
+				DENMARK
+
+00-18-D7   (hex)		Javad Navigation Systems Inc.
+0018D7     (base 16)		Javad Navigation Systems Inc.
+				1731 Technology Drive, Suite 680
+				San Jose CA 95110
+				UNITED STATES
+
+00-18-D8   (hex)		ARCH METER Corporation
+0018D8     (base 16)		ARCH METER Corporation
+				Rm. 805, Bldg. 53, No. 195, Sec. 4, Chung Hsing Rd., Chutung
+				Hsinchu  310
+				TAIWAN, REPUBLIC OF CHINA
+
+00-18-D9   (hex)		Santosha Internatonal, Inc
+0018D9     (base 16)		Santosha Internatonal, Inc
+				3843 S. Bristol St. #242
+				Santa Ana CA 92704
+				UNITED STATES
+
+00-18-DA   (hex)		AMBER wireless GmbH
+0018DA     (base 16)		AMBER wireless GmbH
+				Albin-Koebis-Str. 18
+				Koeln  51147
+				GERMANY
+
+00-18-DB   (hex)		EPL Technology Ltd
+0018DB     (base 16)		EPL Technology Ltd
+				LongDong,Longgang District
+				ShenZhen GuangDong 518116
+				CHINA
+
+00-18-DC   (hex)		Prostar Co., Ltd.
+0018DC     (base 16)		Prostar Co., Ltd.
+				A-703 Technotown, 250-3 Hagye-dong, Nowon-gu
+				Seoul  139-230
+				KOREA, REPUBLIC OF
+
+00-18-DD   (hex)		Silicondust Engineering Ltd
+0018DD     (base 16)		Silicondust Engineering Ltd
+				PO Box 74-299
+				Market Rd
+				Auckland  
+				NEW ZEALAND
+
+00-18-DE   (hex)		Intel Corporation
+0018DE     (base 16)		Intel Corporation
+				Lot 8, Jalan Hi-Tech 2/3
+				Kulim Hi-Tech Park
+				Kulim Kedah 09000
+				MALAYSIA
+
+00-18-DF   (hex)		The Morey Corporation
+0018DF     (base 16)		The Morey Corporation
+				100 Morey Drive
+				Woodridge IL 60517
+				UNITED STATES
+
+00-18-E0   (hex)		ANAVEO
+0018E0     (base 16)		ANAVEO
+				Les Carrés du parc
+				10 rue des Rosiéristes
+				CHAMPAGNE au MONT D'OR Rhône F-69410
+				FRANCE
+
+00-18-E1   (hex)		Verkerk Service Systemen
+0018E1     (base 16)		Verkerk Service Systemen
+				Molenvliet 1
+				Zwijndrecht Zuid-Holland NL-3335LH
+				NETHERLANDS
+
+00-18-E2   (hex)		Topdata Sistemas de Automacao Ltda
+0018E2     (base 16)		Topdata Sistemas de Automacao Ltda
+				Rua Dr Carvalho Chaves, 662
+				Curitiba PR 80.220-010
+				BRAZIL
+
+00-18-E3   (hex)		Visualgate Systems, Inc.
+0018E3     (base 16)		Visualgate Systems, Inc.
+				64 Bakersfield Street
+				Toronto Ontario M3J 2W7
+				CANADA
+
+00-18-E4   (hex)		YIGUANG
+0018E4     (base 16)		YIGUANG
+				3/FL.Industry zone,Fuxinlin,Hangcheng,Xixiang,Baoan
+				Shenzhen Guangdong 518126
+				CHINA
+
+00-18-E5   (hex)		Adhoco AG
+0018E5     (base 16)		Adhoco AG
+				Technopark
+				Jägerstr. 2
+				Winterthur ZH CH-8406 Wint
+				SWITZERLAND
+
+00-18-E6   (hex)		Computer Hardware Design SIA
+0018E6     (base 16)		Computer Hardware Design SIA
+				Dzelzavas 120i
+				Riga  LV-1021
+				LATVIA
+
+00-18-E7   (hex)		Cameo Communications, INC.
+0018E7     (base 16)		Cameo Communications, INC.
+				NO.42, Sec. 6, Mincyuan E. Rd.
+				Taipei  114
+				TAIWAN, REPUBLIC OF CHINA
+
+00-18-E8   (hex)		Hacetron Corporation
+0018E8     (base 16)		Hacetron Corporation
+				No. 542,
+				Sec.1, Yang-HU Rd,
+				Yang-Mei, Tao-Yuan, 326
+				TAIWAN, REPUBLIC OF CHINA
+
+00-18-E9   (hex)		Numata Corporation
+0018E9     (base 16)		Numata Corporation
+				8-2-39 nanko-higashi
+				Suminoe-ku
+				Osaka-shi Osaka-fu 559-0031
+				JAPAN
+
+00-18-EA   (hex)		Alltec GmbH
+0018EA     (base 16)		Alltec GmbH
+				An der Trave 27-31
+				Selmsdorf Mecklenburg-Vorpommern 23923
+				GERMANY
+
+00-18-EB   (hex)		BroVis Wireless Networks
+0018EB     (base 16)		BroVis Wireless Networks
+				19925 Stevens Creek Blvd
+				Cupertino CA 95014
+				UNITED STATES
+
+00-18-EC   (hex)		Welding Technology Corporation
+0018EC     (base 16)		Welding Technology Corporation
+				24775 Crestview Court
+				Farmington Hills MI 48335
+				UNITED STATES
+
+00-18-ED   (hex)		ACCUTECH INTERNATIONAL CO., LTD.
+0018ED     (base 16)		ACCUTECH INTERNATIONAL CO., LTD.
+				11F-4, No. 150,
+				CHIEN-YI ROAD,
+				CHUNG-HO CITY, TAIPEI HSIEN, 235
+				TAIWAN, REPUBLIC OF CHINA
+
+00-18-EE   (hex)		Videology Imaging Solutions, Inc.
+0018EE     (base 16)		Videology Imaging Solutions, Inc.
+				37 M Lark Industrial Parkway
+				Greenville RI 02828-3001
+				UNITED STATES
+
+00-18-EF   (hex)		Escape Communications, Inc.
+0018EF     (base 16)		Escape Communications, Inc.
+				2615 Pacific Coast Hwy
+				Ste 329
+				Hermosa Beach CA 90254
+				UNITED STATES
+
+00-18-F0   (hex)		JOYTOTO Co., Ltd.
+0018F0     (base 16)		JOYTOTO Co., Ltd.
+				3F Sungwoo Bldg. 717-3, Sooseo-Dong
+				Kangnam-Gu
+				Seoul  135-220
+				KOREA, REPUBLIC OF
+
+00-18-F1   (hex)		Chunichi Denshi Co.,LTD.
+0018F1     (base 16)		Chunichi Denshi Co.,LTD.
+				1 Denjiyama
+				Narumi cho Midori ku
+				Nagoya Aichi 458-8525
+				JAPAN
+
+00-18-F2   (hex)		Beijing Tianyu Communication Equipment Co., Ltd
+0018F2     (base 16)		Beijing Tianyu Communication Equipment Co., Ltd
+				27th Floor, Tengda Plaza
+				Xizhimengwai Street, Haidian District
+				Beijing  100044
+				CHINA
+
+00-18-F3   (hex)		ASUSTek COMPUTER INC.
+0018F3     (base 16)		ASUSTek COMPUTER INC.
+				No.5 Shing Yeh Street,Kwei Shan Hsiang,Tao Yuan
+				Taipei  333
+				TAIWAN, REPUBLIC OF CHINA
+
+00-18-F4   (hex)		EO TECHNICS Co., Ltd.
+0018F4     (base 16)		EO TECHNICS Co., Ltd.
+				864-4, Kwanyang 2-Dong
+				Dongan-Gu
+				Anyang Kyeonggi-Do 431-062
+				KOREA, REPUBLIC OF
+
+00-18-F5   (hex)		Shenzhen Streaming Video Technology Company Limited
+0018F5     (base 16)		Shenzhen Streaming Video Technology Company Limited
+				5/F, Block 3, Software Part No.1, Keji Middle 2 Road,
+				Shenzhen Hi-Tech Industrial Park
+				Shenzhen GaungDong 518057
+				CHINA
+
+00-18-F6   (hex)		Thomson Telecom Belgium
+0018F6     (base 16)		Thomson Telecom Belgium
+				Prins Boudewijnlaan 47
+				Edegem Antwerp B-2650
+				BELGIUM
+
+00-18-F7   (hex)		Kameleon Technologies
+0018F7     (base 16)		Kameleon Technologies
+				5 rue Frédéric Bastiat
+				Paris IDF 75008
+				FRANCE
+
+00-18-F8   (hex)		Cisco-Linksys LLC
+0018F8     (base 16)		Cisco-Linksys LLC
+				121 Theory Drive
+				Irvine CA 92612
+				UNITED STATES
+
+00-18-F9   (hex)		VVOND, Inc.
+0018F9     (base 16)		VVOND, Inc.
+				3000 Bridge Parkway
+				Suite 102
+				Redwood City CA 94065
+				UNITED STATES
+
+00-18-FA   (hex)		Yushin Precision Equipment Co.,Ltd.
+0018FA     (base 16)		Yushin Precision Equipment Co.,Ltd.
+				11-260 KOGAHONMACHI
+				FUSHIMI-KU
+				KYOTO  612-8492 JAP
+				JAPAN
+
+00-18-FB   (hex)		Compro Technology
+0018FB     (base 16)		Compro Technology
+				3/F No 12, Alley 6, Lane 45, Pao Shin Rd
+				Hsintien  231
+				TAIWAN, REPUBLIC OF CHINA
+
+00-18-FC   (hex)		Altec Electronic AG
+0018FC     (base 16)		Altec Electronic AG
+				Lenggenbachstrasse 3
+				Fahrweid Zürich CH-8951
+				SWITZERLAND
+
+00-18-FD   (hex)		Optimal Technologies International Inc.
+0018FD     (base 16)		Optimal Technologies International Inc.
+				12 Spanish Main Drive
+				PO Box F-42409/359
+				Freeport GBI 
+				BAHAMAS
+
+00-18-FE   (hex)		Hewlett Packard
+0018FE     (base 16)		Hewlett Packard
+				20555 State Highway 249
+				MS060308
+				Houston TX 77070
+				UNITED STATES
+
+00-18-FF   (hex)		PowerQuattro Co.
+0018FF     (base 16)		PowerQuattro Co.
+				János u. 175.
+				Budapest  H-1161
+				HUNGARY
+
+00-19-00   (hex)		Intelliverese - DBA Voicecom
+001900     (base 16)		Intelliverese - DBA Voicecom
+				5900 Windward Parkway
+				Suite 500
+				Alpharetta Georgia 30005
+				UNITED STATES
+
+00-19-01   (hex)		F1MEDIA
+001901     (base 16)		F1MEDIA
+				610, Keumkang Hightech ¥±, 138-1 Sangdaewon-Dong, Jungwon-Gu
+				Seongnam-Si Gyeonggi-Do 462-707
+				KOREA, REPUBLIC OF
+
+00-19-02   (hex)		Cambridge Consultants Ltd
+001902     (base 16)		Cambridge Consultants Ltd
+				Science Park
+				Milton Road
+				Cambridge Cambs CB4 0DW
+				UNITED KINGDOM
+
+00-19-03   (hex)		Bigfoot Networks Inc
+001903     (base 16)		Bigfoot Networks Inc
+				3925 West Braker Lane
+				Austin TX 78759
+				UNITED STATES
+
+00-19-04   (hex)		WB Electronics Sp. z o.o.
+001904     (base 16)		WB Electronics Sp. z o.o.
+				ul. Poznanska 129/133
+				Ozarow Mazowiecki Mazowieckie 05-850
+				POLAND
+
+00-19-05   (hex)		SCHRACK Seconet AG
+001905     (base 16)		SCHRACK Seconet AG
+				Eibesbrunnergasse 18
+				Wien Österreich 1122
+				AUSTRIA
+
+00-19-06   (hex)		Cisco Systems
+001906     (base 16)		Cisco Systems
+				80 West Tasman Dr.
+				SJ-M/1
+				San Jose CA 95134
+				UNITED STATES
+
+00-19-07   (hex)		Cisco Systems
+001907     (base 16)		Cisco Systems
+				80 West Tasman Dr.
+				SJ-M/1
+				San Jose CA 95134
+				UNITED STATES
+
+00-19-08   (hex)		Duaxes Corporation
+001908     (base 16)		Duaxes Corporation
+				2-5, Kasumigaseki 3-chome, Chiyoda-ku.
+				Tokyo Foreign 100-6014
+				JAPAN
+
+00-19-09   (hex)		Devi A/S
+001909     (base 16)		Devi A/S
+				Ulvehavevej 61
+				Vejle  7100
+				DENMARK
+
+00-19-0A   (hex)		HASWARE INC.
+00190A     (base 16)		HASWARE INC.
+				4-12-3 HIGASHI
+				KUNITACHI TOKYO 186-0002
+				JAPAN
+
+00-19-0B   (hex)		Southern Vision Systems, Inc.
+00190B     (base 16)		Southern Vision Systems, Inc.
+				8215 Madison Blvd, Suite 150
+				Madison AL 35758
+				UNITED STATES
+
+00-19-0C   (hex)		Encore Electronics, Inc.
+00190C     (base 16)		Encore Electronics, Inc.
+				18003 Cortney Ct.
+				City of Industry CA 91748
+				UNITED STATES
+
+00-19-0D   (hex)		IEEE 1394c
+00190D     (base 16)		IEEE 1394c
+				c/o Apple Computer
+				1 Infinite Loop, MS 305-2GM
+				Cupertino CA 95014
+				UNITED STATES
+
+00-19-0E   (hex)		Atech Technology Co., Ltd.
+00190E     (base 16)		Atech Technology Co., Ltd.
+				4 Fl., No. 103, Sec 2, Jiuzong Rd.
+				Taipei  114
+				TAIWAN, REPUBLIC OF CHINA
+
+00-19-0F   (hex)		Advansus Corp.
+00190F     (base 16)		Advansus Corp.
+				No.5 Shing Yeh Street, Kwei Hsiang
+				Taoyuan  333
+				TAIWAN, REPUBLIC OF CHINA
+
+00-19-10   (hex)		Knick Elektronische Messgeraete GmbH & Co. KG
+001910     (base 16)		Knick Elektronische Messgeraete GmbH & Co. KG
+				Beuckestr. 22
+				Berlin  14163
+				GERMANY
+
+00-19-11   (hex)		Just In Mobile Information Technologies (Shanghai) Co., Ltd.
+001911     (base 16)		Just In Mobile Information Technologies (Shanghai) Co., Ltd.
+				5th Floor, 2nd Area, Haiwangxing Building, 62 Xingguang Ave., N.High-Tech Park
+				Chongqing  401121
+				CHINA
+
+00-19-12   (hex)		Welcat Inc
+001912     (base 16)		Welcat Inc
+				East Tower 6F, Shinagawa Seaside, 4-12-8, Higashi Shinagawa, Shinagawa Section
+				Tokyo  140-0002
+				JAPAN
+
+00-19-13   (hex)		Chuang-Yi Network Equipment Co.Ltd.
+001913     (base 16)		Chuang-Yi Network Equipment Co.Ltd.
+				238 TianMuShan Rd., West Lake district
+				HangZhou ZheJiang 310000
+				CHINA
+
+00-19-14   (hex)		Winix Co., Ltd
+001914     (base 16)		Winix Co., Ltd
+				363 Angade Bldg., Yangjae-dong
+				Seocho-gu
+				Seoul  137-898
+				KOREA, REPUBLIC OF
+
+00-19-15   (hex)		TECOM Co., Ltd.
+001915     (base 16)		TECOM Co., Ltd.
+				23 R&D Road 2 Science Based Industrial Park
+				Hsin-Chu  300
+				TAIWAN, REPUBLIC OF CHINA
+
+00-19-16   (hex)		PayTec AG
+001916     (base 16)		PayTec AG
+				Rosengartenstrasse 3
+				Zollikerberg ZH 8125
+				SWITZERLAND
+
+00-19-17   (hex)		Posiflex Inc.
+001917     (base 16)		Posiflex Inc.
+				6, Wu-Chuan Road
+				Wu Ku
+				Taipei Hsien  248
+				TAIWAN, REPUBLIC OF CHINA
+
+00-19-18   (hex)		Interactive Wear AG
+001918     (base 16)		Interactive Wear AG
+				Petersbrunner Str. 3
+				Starnberg Bavaria 82319
+				GERMANY
+
+00-19-19   (hex)		ASTEL Inc.
+001919     (base 16)		ASTEL Inc.
+				59-7 Jang-dong Yusung-Gu
+				Daejeon Chungnam 305-343
+				KOREA, REPUBLIC OF
+
+00-19-1A   (hex)		IRLINK
+00191A     (base 16)		IRLINK
+				HanYoung B/D 6F, 4-6
+				Munjeong-dong, Sonpa-ku
+				SEOUL  138-824
+				KOREA, REPUBLIC OF
+
+00-19-1B   (hex)		Sputnik Engineering AG
+00191B     (base 16)		Sputnik Engineering AG
+				Höheweg 85
+				Biel-Bienne BE  2502
+				SWITZERLAND
+
+00-19-1C   (hex)		Sensicast Systems
+00191C     (base 16)		Sensicast Systems
+				220-3 Reservoir St
+				Needham MA 02494
+				UNITED STATES
+
+00-19-1D   (hex)		Nintendo Co.,Ltd.
+00191D     (base 16)		Nintendo Co.,Ltd.
+				11-1 HOKOTATE-CHO
+				KAMITOBA, MINAMI-KU
+				KYOTO  601-8501
+				JAPAN
+
+00-19-1E   (hex)		Beyondwiz Co., Ltd.
+00191E     (base 16)		Beyondwiz Co., Ltd.
+				3F, Daechang Bldg.,
+				8-2, Soonae-dong, Bundang-gu
+				Sungnam Kyungki-do 463-825
+				KOREA, REPUBLIC OF
+
+00-19-1F   (hex)		Microlink communications Inc.
+00191F     (base 16)		Microlink communications Inc.
+				8F , 31 , Hsintai Road , Chupei City , Hsinchu
+				Chupei Taiwan 302
+				TAIWAN, REPUBLIC OF CHINA
+
+00-19-20   (hex)		KUME electric Co.,Ltd.
+001920     (base 16)		KUME electric Co.,Ltd.
+				2-3-10,Minamisuita
+				Suita Osaka 564-0043
+				JAPAN
+
+00-19-21   (hex)		Elitegroup Computer System Co.
+001921     (base 16)		Elitegroup Computer System Co.
+				No.22,Alley 38,Lane 91, Sec. 1,Nei Hu Road.
+				Taipei  114
+				TAIWAN, REPUBLIC OF CHINA
+
+00-19-22   (hex)		CM Comandos Lineares
+001922     (base 16)		CM Comandos Lineares
+				Av Eng Alberto de Zagottis, 760
+				Jurubatuba
+				Sao Paulo SP 04675-085
+				BRAZIL
+
+00-19-23   (hex)		Phonex Korea Co., LTD.
+001923     (base 16)		Phonex Korea Co., LTD.
+				33-3, Geoyeo-Dong
+				Seoul Songpa-Gu 138-814
+				KOREA, REPUBLIC OF
+
+00-19-24   (hex)		LBNL  Engineering
+001924     (base 16)		LBNL  Engineering
+				1 Cyclotron Rd.
+				MS46R0125
+				Berkeley CA 94720
+				UNITED STATES
+
+00-19-25   (hex)		Intelicis Corporation
+001925     (base 16)		Intelicis Corporation
+				4633 Old Ironsides Drive, Suite 150
+				Santa Clara CA 95054
+				UNITED STATES
+
+00-19-26   (hex)		BitsGen Co., Ltd.
+001926     (base 16)		BitsGen Co., Ltd.
+				#502, Owner's Tower, #16-5, Sunea-dong
+				Bundang-gu Seongnam-si 463-825
+				KOREA, REPUBLIC OF
+
+00-19-27   (hex)		ImCoSys Ltd
+001927     (base 16)		ImCoSys Ltd
+				Bundesstrasse 5
+				Zug ZG 6300
+				SWITZERLAND
+
+00-19-28   (hex)		Siemens AG, Transportation Systems
+001928     (base 16)		Siemens AG, Transportation Systems
+				Werner-von-Siemens-Straße 67
+				Erlangen  91052
+				GERMANY
+
+00-19-29   (hex)		2M2B Montadora de Maquinas Bahia Brasil LTDA
+001929     (base 16)		2M2B Montadora de Maquinas Bahia Brasil LTDA
+				Rua Djalma dutra, 668, Sete Portas
+				Salvador Bahia 40240080
+				BRAZIL
+
+00-19-2A   (hex)		Antiope Associates
+00192A     (base 16)		Antiope Associates
+				18 Clay Street
+				Fair Haven New Jersey 07704
+				UNITED STATES
+
+00-19-2B   (hex)		Hexagram, Inc.
+00192B     (base 16)		Hexagram, Inc.
+				23905 Mercantile Rd
+				Beachwood OH 44122
+				UNITED STATES
+
+00-19-2C   (hex)		Motorola Mobile Devices
+00192C     (base 16)		Motorola Mobile Devices
+				600 N. Hwy 45
+				Libertyville IL 60048
+				UNITED STATES
+
+00-19-2D   (hex)		Nokia Corporation
+00192D     (base 16)		Nokia Corporation
+				Rensingstr. 15
+				Bochum NRW 44807
+				GERMANY
+
+00-19-2E   (hex)		Spectral Instruments, Inc.
+00192E     (base 16)		Spectral Instruments, Inc.
+				420 N Bonita Ave
+				Tucson AZ 85745
+				UNITED STATES
+
+00-19-2F   (hex)		Cisco Systems
+00192F     (base 16)		Cisco Systems
+				80 West Tasman Dr.
+				SJ-M/1
+				San Jose CA 95134
+				UNITED STATES
+
+00-19-30   (hex)		Cisco Systems
+001930     (base 16)		Cisco Systems
+				80 West Tasman Dr.
+				SJ-M/1
+				San Jose CA 95134
+				UNITED STATES
+
+00-19-31   (hex)		Balluff GmbH
+001931     (base 16)		Balluff GmbH
+				Schurwaldstr. 9
+				Neuhausen BW 73765
+				GERMANY
+
+00-19-32   (hex)		Gude Analog- und Digialsysteme GmbH
+001932     (base 16)		Gude Analog- und Digialsysteme GmbH
+				Eintrachstrasse 113
+				Cologne NRW 50668
+				GERMANY
+
+00-19-33   (hex)		Strix Systems, Inc.
+001933     (base 16)		Strix Systems, Inc.
+				26610 Agoura Road
+				Calabasas CA 91302
+				UNITED STATES
+
+00-19-34   (hex)		TRENDON TOUCH TECHNOLOGY CORP.
+001934     (base 16)		TRENDON TOUCH TECHNOLOGY CORP.
+				2F No.5, Alley 22, Lane 513, Rueiguang Rd., Neihu
+				Taipei City  114
+				TAIWAN, REPUBLIC OF CHINA
+
+00-19-35   (hex)		Duerr Dental GmbH & Co. KG
+001935     (base 16)		Duerr Dental GmbH & Co. KG
+				Hoepfigheimer Strasse 17
+				Bietigheim-Bissingen Baden-Wuerttemberg 74321
+				GERMANY
+
+00-19-36   (hex)		STERLITE OPTICAL TECHNOLOGIES LIMITED
+001936     (base 16)		STERLITE OPTICAL TECHNOLOGIES LIMITED
+				E-1,E-2,&E-3
+				MIDC , WALUJ
+				AURANGABAD MAHARASTRA 431136
+				INDIA
+
+00-19-37   (hex)		CommerceGuard AB
+001937     (base 16)		CommerceGuard AB
+				Gustavslundsv 151A
+				BROMMA  16714
+				SWEDEN
+
+00-19-38   (hex)		UMB Communications Co., Ltd.
+001938     (base 16)		UMB Communications Co., Ltd.
+				1010, 5, ACE Techno Tower, 197-22, Guro-dong, Guro-gu
+				Seoul  151-766
+				KOREA, REPUBLIC OF
+
+00-19-39   (hex)		Gigamips
+001939     (base 16)		Gigamips
+				5th Floor, Yangjae Building, 261, Yangjae-Dong
+				Seocho-Gu Seoul 137-130
+				KOREA, REPUBLIC OF
+
+00-19-3A   (hex)		OESOLUTIONS
+00193A     (base 16)		OESOLUTIONS
+				Technopark, 958-3 Daechon-Dong, Buk-Gu
+				Gwangju Buk-Gu 500-706
+				KOREA, REPUBLIC OF
+
+00-19-3B   (hex)		Deliberant LLC
+00193B     (base 16)		Deliberant LLC
+				1440 Dutch Valley Pl
+				Suite 105
+				Atlanta GA 30324
+				UNITED STATES
+
+00-19-3C   (hex)		HighPoint Technologies Incorporated
+00193C     (base 16)		HighPoint Technologies Incorporated
+				1161 Cadillac Court
+				Milpitas CA 95035
+				UNITED STATES
+
+00-19-3D   (hex)		GMC Guardian Mobility Corp.
+00193D     (base 16)		GMC Guardian Mobility Corp.
+				Suite 116
+				15 Capella court
+				Ottawa ON K2E 7X1
+				CANADA
+
+00-19-3E   (hex)		PIRELLI BROADBAND SOLUTIONS
+00193E     (base 16)		PIRELLI BROADBAND SOLUTIONS
+				VIALE SARCA 222
+				MILANO  20126
+				ITALY
+
+00-19-3F   (hex)		RDI technology(Shenzhen) Co.,LTD
+00193F     (base 16)		RDI technology(Shenzhen) Co.,LTD
+				Building C1&C2,  Xin Tang Industrial Zone,East BaiShiXia Village, Fuyong Town, Baoan District
+				SHENZHEN GUANGDONG province 518103
+				CHINA
+
+00-19-40   (hex)		Rackable Systems
+001940     (base 16)		Rackable Systems
+				1933 Milmont Drive
+				Milpitas CA 95035
+				UNITED STATES
+
+00-19-41   (hex)		Pitney Bowes, Inc
+001941     (base 16)		Pitney Bowes, Inc
+				35 Waterview Drive
+				MSC 26-21
+				Shelton CT 06484
+				UNITED STATES
+
+00-19-42   (hex)		ON SOFTWARE INTERNATIONAL LIMITED
+001942     (base 16)		ON SOFTWARE INTERNATIONAL LIMITED
+				9F, NO. 17, SEC. 1, CHENG-TE RD.
+				TAIPEI  103
+				TAIWAN, REPUBLIC OF CHINA
+
+00-19-43   (hex)		Belden
+001943     (base 16)		Belden
+				793 Fort Mill Highway
+				Fort Mill South Carolina 29715
+				UNITED STATES
+
+00-19-44   (hex)		Fossil Partners, L.P.
+001944     (base 16)		Fossil Partners, L.P.
+				2280 N. Greenville Ave.
+				Richardson TX 75082
+				UNITED STATES
+
+00-19-45   (hex)		Ten-Tec Inc.
+001945     (base 16)		Ten-Tec Inc.
+				1185 Dolly Parton Pkwy
+				Sevierville TN 37862
+				UNITED STATES
+
+00-19-46   (hex)		Cianet Industria e Comercio S/A
+001946     (base 16)		Cianet Industria e Comercio S/A
+				rod SC401, km01 Tecnopolis/Alfama 4o. Andar
+				Florianopolis Santa Catarina 88030-902
+				BRAZIL
+
+00-19-47   (hex)		Scientific Atlanta, A Cisco Company
+001947     (base 16)		Scientific Atlanta, A Cisco Company
+				5030 Sugarloaf Parkway
+				ATL 1.3.473
+				Lawrenceville GA 30044
+				UNITED STATES
+
+00-19-48   (hex)		AireSpider Networks
+001948     (base 16)		AireSpider Networks
+				1171 Montague Express Way
+				Milpitas CA 95035
+				UNITED STATES
+
+00-19-49   (hex)		TENTEL  COMTECH CO., LTD.
+001949     (base 16)		TENTEL  COMTECH CO., LTD.
+				3/F., NO. 42, LANE 80, SEC. 3, NAN-KANG RD.,
+				TAIPEI  115
+				TAIWAN, REPUBLIC OF CHINA
+
+00-19-4A   (hex)		TESTO AG
+00194A     (base 16)		TESTO AG
+				Testo Strasse 1
+				Lenzkirch Baden-Würtemberg 79853
+				GERMANY
+
+00-19-4B   (hex)		SAGEM COMMUNICATION
+00194B     (base 16)		SAGEM COMMUNICATION
+				27 RUE LEBLANC
+				PARIS  75512
+				FRANCE
+
+00-19-4C   (hex)		Fujian Stelcom information & Technology CO.,Ltd
+00194C     (base 16)		Fujian Stelcom information & Technology CO.,Ltd
+				4F,Building A,Start Science Park, No.68,Hongshanyuan Rd
+				Fuzhou Fujian 350002
+				CHINA
+
+00-19-4D   (hex)		Avago Technologies Sdn Bhd
+00194D     (base 16)		Avago Technologies Sdn Bhd
+				Bayan Lepas Free Industrial Zone
+				Bayan Lepas Penang 11900
+				MALAYSIA
+
+00-19-4E   (hex)		Ultra Electronics - TCS (Tactical Communication Systems)
+00194E     (base 16)		Ultra Electronics - TCS (Tactical Communication Systems)
+				600 Dr. Frederik Philips
+				St. Laurent Quebec H4M2S9
+				CANADA
+
+00-19-4F   (hex)		Nokia Danmark A/S
+00194F     (base 16)		Nokia Danmark A/S
+				Frederikskaj
+				Copenhagen V  DK-1790
+				DENMARK
+
+00-19-50   (hex)		Harman Multimedia
+001950     (base 16)		Harman Multimedia
+				8400 Balboa Blvd.
+				Northridge CA 91329
+				UNITED STATES
+
+00-19-51   (hex)		NETCONS, s.r.o.
+001951     (base 16)		NETCONS, s.r.o.
+				Staré Grunty 13
+				Bratislava Slovakia 841 04
+				SLOVAKIA
+
+00-19-52   (hex)		ACOGITO Co., Ltd
+001952     (base 16)		ACOGITO Co., Ltd
+				#501 Shinyoung Palace Tower, 246-2, Seohyun
+				Sungnam Kyunggi 463-824
+				KOREA, REPUBLIC OF
+
+00-19-53   (hex)		Chainleader Communications Corp.
+001953     (base 16)		Chainleader Communications Corp.
+				5F, No. 400, Sec. 2 Bade Rd.,
+				Taipei  105
+				TAIWAN, REPUBLIC OF CHINA
+
+00-19-54   (hex)		Leaf Corporation.
+001954     (base 16)		Leaf Corporation.
+				Amuze 1F
+				Higashi Naruse 35-10
+				Isehara City Kanagawa-Pref. 259-1117
+				JAPAN
+
+00-19-55   (hex)		Cisco Systems
+001955     (base 16)		Cisco Systems
+				80 West Tasman Dr.
+				SJ-M/1
+				San Jose CA 95134
+				UNITED STATES
+
+00-19-56   (hex)		Cisco Systems
+001956     (base 16)		Cisco Systems
+				80 West Tasman Dr.
+				SJ-M/1
+				San Jose CA 95134
+				UNITED STATES
+
+00-19-57   (hex)		Saafnet Canada Inc.
+001957     (base 16)		Saafnet Canada Inc.
+				107-1089 East Kent Ave (N)
+				Vancouver BC V5X 4V9
+				CANADA
+
+00-19-58   (hex)		Bluetooth SIG, Inc.
+001958     (base 16)		Bluetooth SIG, Inc.
+				500 108th Avenue NE
+				Suite 250
+				Bellevue WA 98004
+				UNITED STATES
+
+00-19-59   (hex)		Staccato Communications Inc.
+001959     (base 16)		Staccato Communications Inc.
+				6195 Lusk Blvd.
+				San Diego CA 92121
+				UNITED STATES
+
+00-19-5A   (hex)		Jenaer Antriebstechnik GmbH
+00195A     (base 16)		Jenaer Antriebstechnik GmbH
+				Buchaer Strasse 1
+				Jena Thueringen 07745
+				GERMANY
+
+00-19-5B   (hex)		D-Link Corporation
+00195B     (base 16)		D-Link Corporation
+				NO.289, Sinhu 3rd Rd.,
+				Neihu District, Taipei City 114
+				TAIWAN, REPUBLIC OF CHINA
+
+00-19-5C   (hex)		Innotech Corporation
+00195C     (base 16)		Innotech Corporation
+				3-17-6
+				Shin-Yokohama, Kohoku-ku
+				Yokohama Kanagawa 222-8580
+				JAPAN
+
+00-19-5D   (hex)		ShenZhen XinHuaTong Opto Electronics Co.,Ltd
+00195D     (base 16)		ShenZhen XinHuaTong Opto Electronics Co.,Ltd
+				5F,BaodaZhou,Shancheng Industrial Zone,BaoAn District
+				ShenZhen GuangDong 518108
+				CHINA
+
+00-19-5E   (hex)		Motorola CHS
+00195E     (base 16)		Motorola CHS
+				6450 Sequence Drive
+				San Diego CA 92121
+				UNITED STATES
+
+00-19-5F   (hex)		Valemount Networks Corporation
+00195F     (base 16)		Valemount Networks Corporation
+				1201- 5th Ave
+				PO Box 687
+				Valemount BC V0E2Z0
+				CANADA
+
+00-19-60   (hex)		DoCoMo Systems, Inc.
+001960     (base 16)		DoCoMo Systems, Inc.
+				Kokusaki Akasaka Bldg. 5F
+				2-4-5 Akasaka
+				Minato-ku Tokyo 107-0052
+				JAPAN
+
+00-19-61   (hex)		Blaupunkt GmbH
+001961     (base 16)		Blaupunkt GmbH
+				Robert-Bosch-Strasse 200
+				Hildesheim Hessen 31139
+				GERMANY
+
+00-19-62   (hex)		Commerciant, LP
+001962     (base 16)		Commerciant, LP
+				2901 Wilcrest
+				Suite 250
+				Houston Texas 77042
+				UNITED STATES
+
+00-19-63   (hex)		Sony Ericsson Mobile Communications AB
+001963     (base 16)		Sony Ericsson Mobile Communications AB
+				Nya Vattentornet
+				Lund Skåne 221 88
+				SWEDEN
+
+00-19-64   (hex)		Doorking Inc.
+001964     (base 16)		Doorking Inc.
+				120 Glasgow St.
+				Inglewood CA. 90301
+				UNITED STATES
+
+00-19-65   (hex)		YuHua TelTech (ShangHai) Co., Ltd.
+001965     (base 16)		YuHua TelTech (ShangHai) Co., Ltd.
+				YuHua R&D Building,27 xin jin qiao road,
+				Pudong,
+				SHANGHAI  201206
+				CHINA
+
+00-19-66   (hex)		Asiarock Technology Limited
+001966     (base 16)		Asiarock Technology Limited
+				P.O. Box957, Offshore Incorporations Centre
+				Road Town Tortola 
+				VIRGIN ISLANDS, BRITISH
+
+00-19-67   (hex)		TELDAT Sp.J.
+001967     (base 16)		TELDAT Sp.J.
+				Kijowska 44
+				NIP 554 19 26 042
+				Bydgoszcz woj. kujawsko-pomorskie 85-703
+				POLAND
+
+00-19-68   (hex)		Digital Video Networks(Shanghai) CO. LTD.
+001968     (base 16)		Digital Video Networks(Shanghai) CO. LTD.
+				9th Floor,Shenshi Building, No.511 Weihai Rd
+				Shanghai  200041
+				CHINA
+
+00-19-69   (hex)		Nortel
+001969     (base 16)		Nortel
+				8200 Dixie Road
+				Suite 100
+				Brampton Ontario L6T 5P6
+				CANADA
+
+00-19-6A   (hex)		MikroM GmbH
+00196A     (base 16)		MikroM GmbH
+				Dovestr. 1
+				Berlin  10587
+				GERMANY
+
+00-19-6B   (hex)		Danpex Corporation
+00196B     (base 16)		Danpex Corporation
+				2114 Ringwood Avenue
+				San Jose California 95131
+				UNITED STATES
+
+00-19-6C   (hex)		ETROVISION TECHNOLOGY
+00196C     (base 16)		ETROVISION TECHNOLOGY
+				2F, 19-5 San Chung Rd.,
+				Block C, Nan Kang Software Park, Nan Kang District,
+				TAIPEI  115
+				TAIWAN, REPUBLIC OF CHINA
+
+00-19-6D   (hex)		Raybit Systems Korea, Inc
+00196D     (base 16)		Raybit Systems Korea, Inc
+				Dream Tower 1221
+				923-14, Mokdong, Yangchunku
+				Seoul  158-718
+				KOREA, REPUBLIC OF
+
+00-19-6E   (hex)		Metacom (Pty) Ltd.
+00196E     (base 16)		Metacom (Pty) Ltd.
+				6 Ndabeni Business Park
+				Inyoni Str, Ndabeni
+				Cape Town Western Cape 7405
+				SOUTH AFRICA
+
+00-19-6F   (hex)		SensoPart GmbH
+00196F     (base 16)		SensoPart GmbH
+				Am Wiedenbach 1
+				Wieden Baden-Wuerttemberg D-79695
+				GERMANY
+
+00-19-70   (hex)		Z-Com, Inc.
+001970     (base 16)		Z-Com, Inc.
+				7F-2, NO.9, PROSPERITY 1ST RD.
+				SCIENCE-BASED INDUSTRIAL PARK
+				HSINCHU  300
+				TAIWAN, REPUBLIC OF CHINA
+
+00-19-71   (hex)		Guangzhou Unicomp Technology Co.,Ltd
+001971     (base 16)		Guangzhou Unicomp Technology Co.,Ltd
+				7/F,North Tower,Jinshan Building.No.248
+				Rd Wushan, Tianhe District
+				Guangzhou Guangdong 510630
+				CHINA
+
+00-19-72   (hex)		Plexus (Xiamen) Co.,ltd
+001972     (base 16)		Plexus (Xiamen) Co.,ltd
+				No.6 Xiangxing 2 Road
+				Xiangyu Free Trade Zone
+				Xiamen Fujian 361006
+				CHINA
+
+00-19-73   (hex)		Zeugma Systems
+001973     (base 16)		Zeugma Systems
+				Suite 250
+				13571 Commerce Parkway
+				Richmond BC V6V 2R2
+				CANADA
+
+00-19-74   (hex)		AboCom Systems, Inc.
+001974     (base 16)		AboCom Systems, Inc.
+				1F , No. 21, Yanfa 2nd Rd., SBIP
+				Hsinchu City Hsinchu 300
+				TAIWAN, REPUBLIC OF CHINA
+
+00-19-75   (hex)		Beijing Huisen networks technology Inc
+001975     (base 16)		Beijing Huisen networks technology Inc
+				Jia#2 of Xili of Baiyun road,Xicheng district
+				Beijing  100045
+				CHINA
+
+00-19-76   (hex)		Xipher Technologies, LLC
+001976     (base 16)		Xipher Technologies, LLC
+				156 River Road
+				Willington CT 06279
+				UNITED STATES
+
+00-19-77   (hex)		Aerohive Networks, Inc.
+001977     (base 16)		Aerohive Networks, Inc.
+				2045 Martin Ave
+				Suite 206
+				Santa Clara CA 95050
+				UNITED STATES
+
+00-19-78   (hex)		Datum Systems, Inc.
+001978     (base 16)		Datum Systems, Inc.
+				3666 Tiffani Ct.
+				Santa Cruz CA 95065
+				UNITED STATES
+
+00-19-79   (hex)		Nokia Danmark A/S
+001979     (base 16)		Nokia Danmark A/S
+				Frederikskaj
+				Copenhagen V  DK-1790
+				DENMARK
+
+00-19-7A   (hex)		MAZeT GmbH
+00197A     (base 16)		MAZeT GmbH
+				Goeschwitzer Str. 32
+				Jena  D-07745
+				GERMANY
+
+00-19-7B   (hex)		Picotest Corp.
+00197B     (base 16)		Picotest Corp.
+				8F-1, 286-9, Hsin-Ya Rd., 80673
+				Kaohsiung  80673
+				TAIWAN, REPUBLIC OF CHINA
+
+00-19-7C   (hex)		Riedel Communications GmbH
+00197C     (base 16)		Riedel Communications GmbH
+				Uellendahler Str. 353
+				Wuppertal NRW 42109
+				GERMANY
+
+00-19-7D   (hex)		Hon Hai Precision Ind. Co., Ltd
+00197D     (base 16)		Hon Hai Precision Ind. Co., Ltd
+				66, Chung Shan Rd.Tu-Cheng
+				Taipei Hsien  236
+				TAIWAN, REPUBLIC OF CHINA
+
+00-19-7E   (hex)		Hon Hai Precision Ind. Co., Ltd
+00197E     (base 16)		Hon Hai Precision Ind. Co., Ltd
+				66, Chung Shan Rd.Tu-Cheng
+				Taipei Hsien  236
+				TAIWAN, REPUBLIC OF CHINA
+
+00-19-7F   (hex)		PLANTRONICS, INC.
+00197F     (base 16)		PLANTRONICS, INC.
+				345 ENCINAL STREET
+				SANTA CRUZ CALIFORNIA 95060
+				UNITED STATES
+
+00-19-80   (hex)		Gridpoint Systems
+001980     (base 16)		Gridpoint Systems
+				308 Legget Drive
+				Ottawa Ontario K2K 1Y6
+				CANADA
+
+00-19-81   (hex)		Vivox Inc
+001981     (base 16)		Vivox Inc
+				40 Speen Street
+				Suite 402
+				Framingham MA 01701
+				UNITED STATES
+
+00-19-82   (hex)		SmarDTV
+001982     (base 16)		SmarDTV
+				531 Avenue du Serpolet
+				ZE Athélia 2
+				La Ciotat France 13 704
+				FRANCE
+
+00-19-83   (hex)		CCT R&D Limited
+001983     (base 16)		CCT R&D Limited
+				18/F CCT Telecom Building
+				11 Wo Shing Street
+				Fotan, Shatin N.T. 0000
+				HONG KONG
+
+00-19-84   (hex)		ESTIC Corporation
+001984     (base 16)		ESTIC Corporation
+				2-5-9 Hashibahigashino-cho
+				Moriguchi Osaka 570-0031
+				JAPAN
+
+00-19-85   (hex)		IT Watchdogs, Inc
+001985     (base 16)		IT Watchdogs, Inc
+				12885 Research, Suite 210B
+				Austin TX 78750
+				UNITED STATES
+
+00-19-86   (hex)		Cheng Hongjian
+001986     (base 16)		Cheng Hongjian
+				Rm.2305B.Sege Plaza,Huaqiang North Rd.,
+				Futian
+				Shenzhen Guangdong 518057
+				CHINA
+
+00-19-87   (hex)		Panasonic Mobile Communications Co., Ltd.
+001987     (base 16)		Panasonic Mobile Communications Co., Ltd.
+				600 Saedo-cho, Tsuzuki-ku,
+				Yokohama City Kanagawa Prefecture 224-8539
+				JAPAN
+
+00-19-88   (hex)		Wi2Wi, Inc
+001988     (base 16)		Wi2Wi, Inc
+				2107 N. 1st Street
+				Suite 540
+				San Jose CA 95131
+				UNITED STATES
+
+00-19-89   (hex)		Sonitrol Corporation
+001989     (base 16)		Sonitrol Corporation
+				1707 Orlando Central Pkwy.
+				Suite 500
+				Orlando FL 32809
+				UNITED STATES
+
+00-19-8A   (hex)		Northrop Grumman Systems Corp.
+00198A     (base 16)		Northrop Grumman Systems Corp.
+				7055 Troy Hill Drive
+				Elkridge Maryland 21075
+				UNITED STATES
+
+00-19-8B   (hex)		Novera Optics Korea, Inc.
+00198B     (base 16)		Novera Optics Korea, Inc.
+				463-1 Jeon Min Dong Yuseong Gu
+				Deajeon  305-811
+				KOREA, REPUBLIC OF
+
+00-19-8C   (hex)		iXSea
+00198C     (base 16)		iXSea
+				55 av auguste Renoir
+				Marly le Roi  78160
+				FRANCE
+
+00-19-8D   (hex)		Ocean Optics, Inc.
+00198D     (base 16)		Ocean Optics, Inc.
+				830 Douglas Ave
+				Dunedin FL 34698
+				UNITED STATES
+
+00-19-8E   (hex)		Oticon A/S
+00198E     (base 16)		Oticon A/S
+				Kongebakken 9
+				Smørum  2765
+				DENMARK
+
+00-19-8F   (hex)		Alcatel Bell N.V.
+00198F     (base 16)		Alcatel Bell N.V.
+				Copernicuslaan 50
+				Antwerp  B-2018
+				BELGIUM
+
+00-19-90   (hex)		ELM DATA Co., Ltd.
+001990     (base 16)		ELM DATA Co., Ltd.
+				2-15 TECHNO-PARK 1-CHOME
+				SHIMONOPPORO, ATSUBETSU-KU
+				SAPPORO HOKKAIDO 004-0015
+				JAPAN
+
+00-19-91   (hex)		avinfo
+001991     (base 16)		avinfo
+				Jiahuiyuan 703,Huaao Center,31# Zizhuyuan Road,
+				Haidian District
+				Beijing  100089
+				CHINA
+
+00-19-92   (hex)		Bluesocket, Inc
+001992     (base 16)		Bluesocket, Inc
+				10 North Ave
+				Burlington MA 01803
+				UNITED STATES
+
+00-19-93   (hex)		Changshu Switchgear MFG. Co.,Ltd. (Former Changshu Switchgea
+001993     (base 16)		Changshu Switchgear MFG. Co.,Ltd. (Former Changshu Switchgea
+				No. 8 Jianye Road
+				Changshu Jiangsu 215500
+				CHINA
+
+00-19-94   (hex)		Jorjin technologies inc.
+001994     (base 16)		Jorjin technologies inc.
+				9F-4, No.160, Sec.6, Min-Chuan E. Rd.,
+				Taipei  114
+				TAIWAN, REPUBLIC OF CHINA
+
+00-19-95   (hex)		Jurong Hi-Tech (Suzhou)Co.ltd
+001995     (base 16)		Jurong Hi-Tech (Suzhou)Co.ltd
+				275,Xing Long Street£¬Suzhou Indudtrial Park
+				Suzhou Jiang Su 215021
+				CHINA
+
+00-19-96   (hex)		TurboChef Technologies Inc.
+001996     (base 16)		TurboChef Technologies Inc.
+				4240 International Parkway
+				Suite 105
+				Carrollton Texas 75007
+				UNITED STATES
+
+00-19-97   (hex)		Soft Device Sdn Bhd
+001997     (base 16)		Soft Device Sdn Bhd
+				67-2 Jalan 2/27F
+				KLSC Wangsa Maju
+				Kuala Lumpur WP 53300
+				MALAYSIA
+
+00-19-98   (hex)		SATO CORPORATION
+001998     (base 16)		SATO CORPORATION
+				1-207,ONARI-CHO,
+				OMIYA-KU
+				SAITAMA-SHI SAITAMA 330-0852
+				JAPAN
+
+00-19-99   (hex)		Fujitsu Siemens Computers
+001999     (base 16)		Fujitsu Siemens Computers
+				Buergermeister-Ulrich-Strasse 100
+				Augsburg  86199
+				GERMANY
+
+00-19-9A   (hex)		EDO-EVI
+00199A     (base 16)		EDO-EVI
+				7065 Columbia Gateway Dr.
+				Columbia MD 21046
+				UNITED STATES
+
+00-19-9B   (hex)		Diversified Technical Systems, Inc.
+00199B     (base 16)		Diversified Technical Systems, Inc.
+				909 Electric Avenue
+				Suite 206
+				Seal Beach California 90740
+				UNITED STATES
+
+00-19-9C   (hex)		CTRING
+00199C     (base 16)		CTRING
+				#514, World Meridian Venture Center II
+				Gasna-dong
+				Keumcheon-gu Seoul 153-803
+				KOREA, REPUBLIC OF
+
+00-19-9D   (hex)		V, Inc.
+00199D     (base 16)		V, Inc.
+				320A Kalmus Dr.
+				Costa Mesa CA 92626
+				UNITED STATES
+
+00-19-9E   (hex)		SHOWADENSHI ELECTRONICS,INC.
+00199E     (base 16)		SHOWADENSHI ELECTRONICS,INC.
+				1978 HIROOKA-NOMURA
+				SHIOJIRI-CITY NAGANO-PREF. 399-0702
+				JAPAN
+
+00-19-9F   (hex)		DKT A/S
+00199F     (base 16)		DKT A/S
+				Fanoevej 6
+				Kr. Saaby  DK-4060
+				DENMARK
+
+00-19-A0   (hex)		NIHON DATA SYSTENS, INC.
+0019A0     (base 16)		NIHON DATA SYSTENS, INC.
+				6-9, Koyo-cho naka
+				Higashinada-ku
+				Kobe-shi Hyogo 658-0032
+				JAPAN
 
 00-1C-7C   (hex)		PERQ SYSTEMS CORPORATION
 001C7C     (base 16)		PERQ SYSTEMS CORPORATION
@@ -42920,10 +44730,9 @@ company_id			Organization
 				CANADA L3R 0E1
 				CANADA
 
-00-40-03   (hex)		WESTINGHOUSE PROCESS CONTROL
-004003     (base 16)		WESTINGHOUSE PROCESS CONTROL
-				DIVISION
-				200 BETA DRIVE
+00-40-03   (hex)		Emerson Process Management Power & Water Solutions, Inc.
+004003     (base 16)		Emerson Process Management Power & Water Solutions, Inc.
+				200 Beta Drive
 				PITTSBURGH PA 15238
 				UNITED STATES
 
@@ -44943,12 +46752,11 @@ company_id			Organization
 				LAS VEGAS NV 89119
 				UNITED STATES
 
-00-50-40   (hex)		Panasonic Electric Works Laboratory of America, Inc./SLC Lab
-005040     (base 16)		Panasonic Electric Works Laboratory of America, Inc./SLC Lab
-				4525 South Wasatch Blvd.
-				Suite 100
-				SALT LAKE CITY UT 84124
-				UNITED STATES
+00-50-40   (hex)		Matsushita Electric Works, Ltd.
+005040     (base 16)		Matsushita Electric Works, Ltd.
+				1668, Fujikata
+				Tsu-shi Mie-ken 514-8555
+				JAPAN
 
 00-50-41   (hex)		CTX OPTO ELECTRONIC CORP.
 005041     (base 16)		CTX OPTO ELECTRONIC CORP.
@@ -46064,9 +47872,12 @@ company_id			Organization
 				LAKE FOREST CA 92630
 				UNITED STATES
 
-00-50-F9   (hex)		PRIVATE
-0050F9     (base 16)		 
-				 
+00-50-F9   (hex)		SENSORMATIC ACD
+0050F9     (base 16)		SENSORMATIC ACD
+				70 WESTVIEW STREET
+				LEXINGTON MA 02173
+				UNITED STATES
+
 00-50-FA   (hex)		OXTEL, LTD.
 0050FA     (base 16)		OXTEL, LTD.
 				THE MARKET PLACE
@@ -49208,10 +51019,10 @@ company_id			Organization
 				SEATTLE WA 98115
 				UNITED STATES
 
-00-80-E5   (hex)		MYLEX CORPORATION
-0080E5     (base 16)		MYLEX CORPORATION
-				34551 ARDENWOOD BLVD.
-				FREMONT CA 94555-3607
+00-80-E5   (hex)		LSI Logic Corporation
+0080E5     (base 16)		LSI Logic Corporation
+				3718 N. Rock Road
+				Wichita KS 67226-1397
 				UNITED STATES
 
 00-80-E6   (hex)		PEER NETWORKS, INC.
@@ -57358,7 +59169,7 @@ company_id			Organization
 00E0A9     (base 16)		FUNAI ELECTRIC CO., LTD.
 				7-1, NAKAGAITO 7-CHOME, DAITO
 				OSAKA  574  
-				JORDAN
+				JAPAN
 
 00-E0-AA   (hex)		ELECTROSONIC LTD.
 00E0AA     (base 16)		ELECTROSONIC LTD.

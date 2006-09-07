@@ -75,4 +75,4 @@ while($ln = <INFILE>) {
 }
 
 # Now add a few extras which aren't oficially registered ...
-    print OUTFILE "525400 QEMU\nB0C420 Bochs\n";
+    print OUTFILE "525400 QEMU Virtual NIC\nB0C420 Bochs Virtual NIC\nDEADCA PearPC Virtual NIC\n";

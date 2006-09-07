@@ -2276,19 +2276,17 @@ void sigdie(int signo) {
   exit(1);
 }
 
-#ifndef S_IRUSR
-#define S_IRUSR 00400
-#endif
-
-/* Returns true (nonzero) if the file pathname given exists and is
-   readable by the executing process.  Returns zero if it is not */
+/* Returns true (nonzero) if the file pathname given exists, is not
+ * a directory and is readable by the executing process.  Returns
+ * zero if it is not
+ */
 static int fileexistsandisreadable(char *pathname) {
   struct stat st;
 
   if (stat(pathname, &st) == -1)
     return 0;
 
-  if (!(st.st_mode & S_IFDIR) && (st.st_mode & S_IRUSR))
+  if (!S_ISDIR(st.st_mode) && (access(pathname, R_OK) != -1))
     return 1;
 
   return 0;

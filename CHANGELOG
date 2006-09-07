@@ -1,4 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
+4.20ALPHA7
+
+o Updated nmap-mac-prefixes to reflect the latest OUI DB from the IEEE
+  (http://standards.ieee.org/regauth/oui/oui.txt) as of September 6, 2006.
+  Also added the unregistered PearPC virtual NIC prefix, as suggested
+  by Robert Millan (rmh(a)aybabtu.com).
+
 o Applied some small internal cleanup patches by Kris Katterjohn.
 
 4.20ALPHA6
