@@ -143,7 +143,7 @@ int main(int argc, char *argv[]) {
   if (!testFP) fatal("Sorry -- failed to parse the so-called fingerprint you entered");
 
   if ((rc = remove_duplicate_tests(testFP))) {
- printf("[WARN] Adjusted fingerprint due to %d duplicated tests (we only look at the first).\n", rc);
+ printf("[WARN] Adjusted fingerprint due to %d duplicated tests (we only look at the one with the most attributes).\n", rc);
   }
 
   /* Now we find the matches! */

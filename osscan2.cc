@@ -1663,10 +1663,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
       avg_ts_hz += dhz / ( hss->si.responses - 1);
     }
 
-    /*    if (o.debugging)
-	  printf("The avg TCP TS HZ of %s is: %f\n", hss->target->targetipstr(), avg_ts_hz); */
-
-	if (avg_ts_hz > 0 && avg_ts_hz < 3.9) { /* relatively wide range because sampling time so short and frequency so slow */
+    if (avg_ts_hz > 0 && avg_ts_hz < 3.9) { /* relatively wide range because sampling time so short and frequency so slow */
       hss->si.ts_seqclass = TS_SEQ_2HZ;
       hss->si.lastboot = hss->seq_send_times[0].tv_sec - (hss->si.timestamps[0] / 2); 
     }
@@ -1678,11 +1675,11 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
       hss->si.ts_seqclass = TS_SEQ_1000HZ;
       hss->si.lastboot = hss->seq_send_times[0].tv_sec - (hss->si.timestamps[0] / 1000); 
     }
-	else if (avg_ts_hz > 0) {
-	  hss->si.ts_seqclass = TS_SEQ_OTHER_NUM;
+    else if (avg_ts_hz > 0) {
+      hss->si.ts_seqclass = TS_SEQ_OTHER_NUM;
       hss->si.lastboot = hss->seq_send_times[0].tv_sec - (hss->si.timestamps[0] / (unsigned int)(0.5 + avg_ts_hz));
-	}
-	
+    }
+    
     if (hss->si.lastboot && (hss->seq_send_times[0].tv_sec - hss->si.lastboot > 63072000)) {
       /* Up 2 years?  Perhaps, but they're probably lying. */
       if (o.debugging) {
@@ -1693,7 +1690,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
       hss->si.lastboot = 0;
     }
   }
-   
+  
   /* Time to look at the TCP ISN predictability */
   if (hss->si.responses >= 4 && o.scan_delay <= 1000) {
 
