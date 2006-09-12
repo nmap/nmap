@@ -1,9 +1,7 @@
-
 /***************************************************************************
- * fingermatch.cc -- A relatively simple utility for determining whether a *
- * given Nmap fingerprint matches (or comes close to matching) any of the  *
- * fingerprints in a collection such as the nmap-os-fingerprints file that *
- * ships with Nmap.                                                        *
+ * fingerlib.cc/.h -- Some misc. functions related to fingerprint parsing  *
+ * and the like to be used by integration-related programs such as         *
+ * fingerfix, fingermatch, and fingerdiff                                  *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
@@ -99,89 +97,225 @@
  *                                                                         *
  ***************************************************************************/
 
-/* $Id$ */
-
 
 #include "nbase.h"
 #include "nmap.h"
-#include "osscan.h"
 #include "fingerlib.h"
+#include "MACLookup.h"
 
-#define FINGERMATCH_GUESS_THRESHOLD 0.75 /* How low we will still show guesses for */
+static int checkFP(char *FP) {
+  char *p;
+  char macbuf[16];
+  u8 macprefix[3];
+  char tmp;
+  bool founderr = false;
+  int i;
 
-void usage() {
-  printf("Usage: fingermatch <fingerprintfilename>\n"
-         "(You will be prompted for the fingerprint data)\n"
-	 "\n");
-  exit(1);
+  // SCAN
+  p = strstr(FP, "SCAN(");
+  if(!p) {
+	founderr = true;
+	printf("[WARN] SCAN line is missing");
+  } else {
+	// SCAN.G: whether the fingerprint is good
+	p = strstr(FP, "%G=");
+	if(!p) p = strstr(FP, "(G=");
+	if(!p) {
+	  printf("[WARN] Attribute G is missing in SCAN line\n");
+	  founderr = true;
+	} else {
+	  tmp = *(p+3);
+	  if(tmp != 'Y') {
+		printf("[WARN] One fingerprint is not good\n");
+		founderr = true;
+	  }
+	}
+	
+	// SCAN.M: mac prefix of the target.
+	// if there is a MAC prefix, print the vendor name
+	p = strstr(FP, "%M=");
+	if(!p) p = strstr(FP, "(M=");
+	if(p) {
+	  p = p + 3;
+	  for(i = 0; i < 6; i++) {
+		if(!p[i] || !isxdigit(p[i])) {
+		  printf("[WARN] Invalid value (%s) occurs in SCAN.M\n", p);
+		  founderr = true;
+		  break;
+		}
+	  }
+	  if(!founderr) {
+		strncpy(macbuf, p, 6);
+		i = strtol(macbuf, NULL, 16);
+		macprefix[0] = i >> 16;
+		macprefix[1] = (i >> 8) & 0xFF;
+		macprefix[2] = i & 0xFF;
+		printf("[INFO] Vendor Info: %s\n", MACPrefix2Corp(macprefix));
+	  }
+	}
+  }
+
+  /* Now we validate that all elements are present */
+  p = FP;
+  if (!strstr(p, "SEQ(") || !strstr(p, "OPS(") || !strstr(p, "WIN(") || 
+	  !strstr(p, "ECN(") || !strstr(p, "T1(") || !strstr(p, "T2(") || 
+      !strstr(p, "T3(") || !strstr(p, "T4(") || !strstr(p, "T5(") || 
+      !strstr(p, "T6(") || !strstr(p, "T7(") || !strstr(p, "U1(") ||
+	  !strstr(p, "IE(")) {
+    /* This ought to get my attention :) */
+	founderr = true;
+    printf("[WARN] Fingerprint is missing at least 1 element\n");
+  }
+  
+  if(founderr) return -1;
+  return 0;
 }
 
-int main(int argc, char *argv[]) {
-  char *fingerfile = NULL;
-  FingerPrint **reference_FPs = NULL;
-  FingerPrint *testFP;
-  struct FingerPrintResults FPR;
-  char fprint[2048];
-  int i, rc;
-  char gen[128]; /* temporary buffer for os generation part of classification */
-  if (argc != 2)
-    usage();
 
-  /* First we read in the fingerprint file provided on the command line */
-  fingerfile = argv[1];
-  reference_FPs = parse_fingerprint_file(fingerfile);
-  if (reference_FPs == NULL) 
-    fatal("Could not open or parse Fingerprint file given on the command line: %s", fingerfile);
+/* Reads a fingerprint in from the filep file descriptor.  The FP may
+   be in wrapped or unwrapped format.  Wrapped prints are unrapped
+   before being returned in FP.  Returns -1 or exits if it fails. */
+int readFP(FILE *filep, char *FP, int FPsz ) {
+  char line[512];
+  int linelen = 0;
+  int lineno = 0;
+  char *p, *q;
+  char *oneFP;
+  char *dst = FP;
+  char tmp[16];
+  int i;
+  bool isInWrappedFP = false; // whether we are currently reading in a
+							  // wrapped fingerprint
+  
+  if(FPsz < 50) return -1;
+  FP[0] = '\0';
 
-  /* Now we read in the user-provided fingerprint */
-  printf("Enter the fingerprint you would like to match, followed by a blank single-dot line:\n");
+  while((fgets(line, sizeof(line), filep))) {
+	lineno++;
+	linelen = strlen(line);
+	p = line;
+    if (*p == '\n' || *p == '.') {
+	  // end of input
 
-  if (readFP(stdin, fprint, sizeof(fprint)) == -1)
-    fatal("[ERROR] Failed to read in supposed fingerprint from stdin\n");
+	  if(isInWrappedFP) {
+		// We have just completed reading in a wrapped fp. Because a
+		// wrapped fp is submitted by user, so we check if there is a
+		// SCAN line in it. If yes, look inside the scan line.
+		*dst = '\0';
+		checkFP(oneFP);
+		isInWrappedFP = false;
+	  }	  
+	  break;
+	}
+	while(*p && isspace(*p)) p++;
+    if (*p == '#') 
+      continue; // skip the comment line
 
-  testFP = parse_single_fingerprint(fprint);
-  if (!testFP) fatal("Sorry -- failed to parse the so-called fingerprint you entered");
+    if (dst - FP + linelen >= FPsz - 5)
+      fatal("[ERRO] Overflow!\n");
+	
+	if(strncmp(p, "OS:", 3) == 0) {
+	  // the line is start with "OS:"
+	  if(!isInWrappedFP) {
+		// just enter a wrapped fp area
+		oneFP = dst;
+		isInWrappedFP = true;
+	  }
+	  p += 3;
+	  while(*p != '\r' && *p != '\n') {
+		*dst++ = toupper(*p);
+		if(*p == ')') *dst++ = '\n';
+		p++;
+	  }
+	  continue;
+	}
 
-  if ((rc = remove_duplicate_tests(testFP))) {
- printf("\n**WARNING**: Adjusted fingerprint due to %d duplicated tests (we only look at the first).", rc);
+	// this line is not start with "OS:"
+	if(isInWrappedFP) {
+	  // We have just completed reading in a wrapped fp. Because a
+	  // wrapped fp is submitted by user, so we check if there is a
+	  // SCAN line in it. If yes, look inside the scan line.
+	  *dst = '\0';
+	  checkFP(oneFP);
+	  isInWrappedFP = false;
+	}
+
+	q = p; i = 0;
+	while(q && *q && i<12)
+	  tmp[i++] = toupper(*q++);
+	tmp[i] = '\0';
+	if(strncmp(tmp, "FINGERPRINT", 11) == 0) {
+	  q = p + 11;
+	  while(*q && isspace(*q)) q++;
+	  if (*q) { // this fingeprint line is not empty
+		strncpy(dst, "Fingerprint", 11);
+		dst += 11;
+		p += 11;
+		while(*p) *dst++ = *p++;
+	  }
+	  continue;
+	} else if(strncmp(tmp, "CLASS", 5) == 0) {
+	  q = p + 5;
+	  while(*q && isspace(*q)) q++;
+	  if (*q) {// this class line is not empty
+		strncpy(dst, "Class", 5);
+		dst += 5;
+		p += 5;
+		while(*p) *dst++ = *p++;
+	  }
+	  continue;
+	} else if(strchr(p, '(')) {
+	  while(*p) *dst++ = toupper(*p++);
+	} else {
+	  printf("[WARN] Skip bogus line: %s\n", p);
+	  continue;
+	}
   }
 
-  /* Now we find the matches! */
-  match_fingerprint(testFP, &FPR, reference_FPs, FINGERMATCH_GUESS_THRESHOLD);
+  // Now we validate that all elements are present. Though this maybe
+  // redundant because we have checked it for those wrapped FPs, it
+  // doesn't hurt to give a duplicated warning here.
+  p = FP;
+  if (!strstr(p, "SEQ(") || !strstr(p, "OPS(") || !strstr(p, "WIN(") || 
+	  !strstr(p, "ECN(") || !strstr(p, "T1(") || !strstr(p, "T2(") || 
+      !strstr(p, "T3(") || !strstr(p, "T4(") || !strstr(p, "T5(") || 
+      !strstr(p, "T6(") || !strstr(p, "T7(") || !strstr(p, "U1(") ||
+	  !strstr(p, "IE(")) {
+    /* This ought to get my attention :) */
+    printf("[WARN] Fingerprint is missing at least 1 element\n");
+  }
+  
+  if (dst - FP < 1)
+    return -1;
+  return 0;
+}
 
-  switch(FPR.overall_results) {
-  case OSSCAN_NOMATCHES:
-    printf("**NO MATCHES** found for the entered fingerprint in %s\n", fingerfile);
-    break;
-  case OSSCAN_TOOMANYMATCHES:
-    printf("Found **TOO MANY EXACT MATCHES** to print for entered fingerprint in %s\n", fingerfile);
-    break;
-  case OSSCAN_SUCCESS:
-    if (FPR.num_perfect_matches > 0) {
-      printf("Found **%d PERFECT MATCHES** for entered fingerprint in %s:\n", FPR.num_perfect_matches, fingerfile);
-      printf("Accu Line# OS (classification)\n");      
-      for(i=0; i < FPR.num_matches && FPR.accuracy[i] == 1; i++) {
-	if (FPR.prints[i]->OS_class[0].OS_Generation)
-	  snprintf(gen, sizeof(gen), " %s ", FPR.prints[i]->OS_class[0].OS_Generation);
-	else gen[0] = '\0';	
-	printf("100%% %5d %s (%s | %s |%s| %s)\n", FPR.prints[i]->line, FPR.prints[i]->OS_name, FPR.prints[i]->OS_class[0].OS_Vendor, FPR.prints[i]->OS_class[0].OS_Family, gen, FPR.prints[i]->OS_class[0].Device_Type );
-      }
-    } else {
-      printf("No perfect matches found, **GUESSES AVAILABLE** for entered fingerprint in %s:\n", fingerfile);
-      printf("Accu Line# OS (classification)\n");
-      for(i=0; i < 10 && i < FPR.num_matches; i++) {
-	if (FPR.prints[i]->OS_class[0].OS_Generation)
-	  snprintf(gen, sizeof(gen), " %s ", FPR.prints[i]->OS_class[0].OS_Generation);
-	else gen[0] = '\0';	
-	printf("%3d%% %5d %s (%s | %s |%s| %s)\n", (int) (FPR.accuracy[i] * 100), FPR.prints[i]->line, FPR.prints[i]->OS_name, FPR.prints[i]->OS_class[0].OS_Vendor, FPR.prints[i]->OS_class[0].OS_Family, gen, FPR.prints[i]->OS_class[0].Device_Type );
+/* When Nmap prints a fingerprint for submission, it sometimes
+   includes duplicates of tests because 1 or more elements of that
+   test differ.  While this is important for things like fingerfix
+   (submission), other scripts can't handle it.  So this function
+   removes the duplicates.  Maybe it should have more smarts, but
+   currently it just keeps the first instance of each test.  Returns
+   the number of duplicate tests (0 if there were none). The function
+   quits and prints the problem if there is an error. */
+int remove_duplicate_tests(FingerPrint *FP) {
+  FingerPrint *outer = FP, *inner, *tmp;
+  int dupsfound = 0;
+  if (!FP) { fatal("NULL FP passed to %s", __FUNCTION__); }
+
+  for(outer = FP; outer; outer = outer->next) {
+    /* We check if this test has any duplicates forward in the list,
+       and if so, remove them */
+    for(inner = outer; inner->next; inner = inner->next) {
+      if (strcmp(outer->name, inner->next->name) == 0) {
+	/* DUPLICATE FOUND!  REMOVE IT */
+	dupsfound++;
+	tmp = inner->next;
+	inner->next = inner->next->next;
+	free(tmp);
       }
     }
-    printf("\n");
-    break;
-  default:
-    fatal("Bogus error.");
-    break;
   }
 
-  return 0;
+  return dupsfound;
 }

@@ -1,9 +1,7 @@
-
 /***************************************************************************
- * fingermatch.cc -- A relatively simple utility for determining whether a *
- * given Nmap fingerprint matches (or comes close to matching) any of the  *
- * fingerprints in a collection such as the nmap-os-fingerprints file that *
- * ships with Nmap.                                                        *
+ * fingerlib.cc/.h -- Some misc. functions related to fingerprint parsing  *
+ * and the like to be used by integration-related programs such as         *
+ * fingerfix, fingermatch, and fingerdiff                                  *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
@@ -99,89 +97,23 @@
  *                                                                         *
  ***************************************************************************/
 
-/* $Id$ */
+#ifndef FINGERLIB_H
+#define FINGERLIB_H
+
+/* Reads a fingerprint in from the filep file descriptor.  The FP may
+   be in wrapped or unwrapped format.  Wrapped prints are unrapped
+   before being returned in FP.  Returns -1 or exits if it fails. */
+int readFP(FILE *filep, char *FP, int FPsz );
+
+/* When Nmap prints a fingerprint for submission, it sometimes
+   includes duplicates of tests because 1 or more elements of that
+   test differ.  While this is important for things like fingerfix
+   (submission), other scripts can't handle it.  So this function
+   removes the duplicates.  Maybe it should have more smarts, but
+   currently it just keeps the first instance of each test.  Returns
+   the number of duplicate tests (0 if there were none). The function
+   quits and prints the problem if there is an error. */
+int remove_duplicate_tests(FingerPrint *FP);
 
 
-#include "nbase.h"
-#include "nmap.h"
-#include "osscan.h"
-#include "fingerlib.h"
-
-#define FINGERMATCH_GUESS_THRESHOLD 0.75 /* How low we will still show guesses for */
-
-void usage() {
-  printf("Usage: fingermatch <fingerprintfilename>\n"
-         "(You will be prompted for the fingerprint data)\n"
-	 "\n");
-  exit(1);
-}
-
-int main(int argc, char *argv[]) {
-  char *fingerfile = NULL;
-  FingerPrint **reference_FPs = NULL;
-  FingerPrint *testFP;
-  struct FingerPrintResults FPR;
-  char fprint[2048];
-  int i, rc;
-  char gen[128]; /* temporary buffer for os generation part of classification */
-  if (argc != 2)
-    usage();
-
-  /* First we read in the fingerprint file provided on the command line */
-  fingerfile = argv[1];
-  reference_FPs = parse_fingerprint_file(fingerfile);
-  if (reference_FPs == NULL) 
-    fatal("Could not open or parse Fingerprint file given on the command line: %s", fingerfile);
-
-  /* Now we read in the user-provided fingerprint */
-  printf("Enter the fingerprint you would like to match, followed by a blank single-dot line:\n");
-
-  if (readFP(stdin, fprint, sizeof(fprint)) == -1)
-    fatal("[ERROR] Failed to read in supposed fingerprint from stdin\n");
-
-  testFP = parse_single_fingerprint(fprint);
-  if (!testFP) fatal("Sorry -- failed to parse the so-called fingerprint you entered");
-
-  if ((rc = remove_duplicate_tests(testFP))) {
- printf("\n**WARNING**: Adjusted fingerprint due to %d duplicated tests (we only look at the first).", rc);
-  }
-
-  /* Now we find the matches! */
-  match_fingerprint(testFP, &FPR, reference_FPs, FINGERMATCH_GUESS_THRESHOLD);
-
-  switch(FPR.overall_results) {
-  case OSSCAN_NOMATCHES:
-    printf("**NO MATCHES** found for the entered fingerprint in %s\n", fingerfile);
-    break;
-  case OSSCAN_TOOMANYMATCHES:
-    printf("Found **TOO MANY EXACT MATCHES** to print for entered fingerprint in %s\n", fingerfile);
-    break;
-  case OSSCAN_SUCCESS:
-    if (FPR.num_perfect_matches > 0) {
-      printf("Found **%d PERFECT MATCHES** for entered fingerprint in %s:\n", FPR.num_perfect_matches, fingerfile);
-      printf("Accu Line# OS (classification)\n");      
-      for(i=0; i < FPR.num_matches && FPR.accuracy[i] == 1; i++) {
-	if (FPR.prints[i]->OS_class[0].OS_Generation)
-	  snprintf(gen, sizeof(gen), " %s ", FPR.prints[i]->OS_class[0].OS_Generation);
-	else gen[0] = '\0';	
-	printf("100%% %5d %s (%s | %s |%s| %s)\n", FPR.prints[i]->line, FPR.prints[i]->OS_name, FPR.prints[i]->OS_class[0].OS_Vendor, FPR.prints[i]->OS_class[0].OS_Family, gen, FPR.prints[i]->OS_class[0].Device_Type );
-      }
-    } else {
-      printf("No perfect matches found, **GUESSES AVAILABLE** for entered fingerprint in %s:\n", fingerfile);
-      printf("Accu Line# OS (classification)\n");
-      for(i=0; i < 10 && i < FPR.num_matches; i++) {
-	if (FPR.prints[i]->OS_class[0].OS_Generation)
-	  snprintf(gen, sizeof(gen), " %s ", FPR.prints[i]->OS_class[0].OS_Generation);
-	else gen[0] = '\0';	
-	printf("%3d%% %5d %s (%s | %s |%s| %s)\n", (int) (FPR.accuracy[i] * 100), FPR.prints[i]->line, FPR.prints[i]->OS_name, FPR.prints[i]->OS_class[0].OS_Vendor, FPR.prints[i]->OS_class[0].OS_Family, gen, FPR.prints[i]->OS_class[0].Device_Type );
-      }
-    }
-    printf("\n");
-    break;
-  default:
-    fatal("Bogus error.");
-    break;
-  }
-
-  return 0;
-}
+#endif /* FINGERLIB_H */
