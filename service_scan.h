@@ -341,6 +341,11 @@ protected:
 
 /**********************  PROTOTYPES  ***********************************/
 
+/* Parses the given nmap-service-probes file into the AP class Must
+   NOT be made static because I have external maintenance tools
+   (servicematch) which use this */
+void parse_nmap_service_probe_file(AllProbes *AP, char *filename);
+
 /* Execute a service fingerprinting scan against all open ports of the
    Targets specified. */
 int service_scan(std::vector<Target *> &Targets);

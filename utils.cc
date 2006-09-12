@@ -725,9 +725,11 @@ static inline char* STRAPP(char *fmt, ...) {
     bp = 0;
     return(buf);
   }
+  if (left <= 0)
+    return buf;
   va_list ap;
   va_start(ap, fmt);
-  bp += vsnprintf (buf+bp, (left>0 ? left : 0), fmt, ap);
+  bp += vsnprintf (buf+bp, left, fmt, ap);
   va_end(ap);
 
   return(buf);

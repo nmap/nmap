@@ -1175,8 +1175,15 @@ static struct AVal *gettestbyname(FingerPrint *FP, const char *name) {
    is already there.  So initialize them to zero first if you only
    want to see the results from this match.  if shortcircuit is zero,
    it does all the tests, otherwise it returns when the first one
-   fails. */
-static int AVal_match(struct AVal *reference, struct AVal *fprint, unsigned long *num_subtests, unsigned long *num_subtests_succeeded, int shortcut) {
+   fails.  If you want details of the match process printed, pass n
+   onzero for 'verbose'.  In that case, you may also pass in the group
+   name (SEQ, T1, etc) to have that extra info printed.  If you pass 0
+   for verbose, you might as well pass NULL for testGroupName as it
+   won't be used. */
+static int AVal_match(struct AVal *reference, struct AVal *fprint, 
+		      unsigned long *num_subtests, 
+		      unsigned long *num_subtests_succeeded, int shortcut,
+		      int verbose, const char *testGroupName) {
   struct AVal *current_ref;
   struct AVal *current_fp;
   unsigned int number, number1;
@@ -1249,6 +1256,10 @@ static int AVal_match(struct AVal *reference, struct AVal *fprint, unsigned long
 	  if (num_subtests) *num_subtests += subtests;
 	  return 0;
 	}
+	if (verbose) 
+	  printf("%s.%s: \"%s\" NOMATCH \"%s\"\n", testGroupName, 
+		 current_ref->attribute, current_fp->value, 
+		 current_ref->value);
       } else subtests_succeeded++;
       /* Whew, we made it past one Attribute alive , on to the next! */
   }
@@ -1278,11 +1289,7 @@ double compare_fingerprints(FingerPrint *referenceFP, FingerPrint *observedFP,
     if (currentObservedTest) {
       new_subtests = new_subtests_succeeded = 0;
       AVal_match(currentReferenceTest->results, currentObservedTest, 
-		 &new_subtests, &new_subtests_succeeded, 0);
-      if (verbose && new_subtests_succeeded < new_subtests) 
-	printf("Test %s differs in %li attributes\n", 
-	       currentReferenceTest->name, 
-	       new_subtests - new_subtests_succeeded);      
+		 &new_subtests, &new_subtests_succeeded, 0, verbose, currentReferenceTest->name);
       num_subtests += new_subtests;
       num_subtests_succeeded += new_subtests_succeeded;
     }
@@ -1609,7 +1616,7 @@ do {
       if (i == numFPs - 1 || !currentFPs[i+1] ||
 	  strcmp(currentFPs[i]->name, currentFPs[i+1]->name) != 0 ||
 	  AVal_match(currentFPs[i]->results,currentFPs[i+1]->results, NULL,
-		     NULL, 1) ==0)
+		     NULL, 1, 0, NULL) ==0)
 	{
 	  changed = 1;
 	  Strncpy(p, currentFPs[i]->name, end - p);

@@ -1052,9 +1052,9 @@ void ServiceProbe::addMatch(const char *match, int lineno) {
   matches.push_back(newmatch);
 }
 
-// Parses the given nmap-service-probes file into the AP class
-/* Must NOT be static because I have external maintenance tools (servicematch)
-  which use this */
+/* Parses the given nmap-service-probes file into the AP class Must
+   NOT be made static because I have external maintenance tools
+   (servicematch) which use this */
 void parse_nmap_service_probe_file(AllProbes *AP, char *filename) {
   ServiceProbe *newProbe;
   char line[2048];

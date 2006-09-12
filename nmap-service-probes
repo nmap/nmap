@@ -1550,9 +1550,9 @@ match ssh m|^SSH-(\d[\d.]+)-lshd_(\d[-.\w]+) lsh - a free ssh\r\n\0\0| p/lshd se
 match ssh m/^SSH-([.\d]+)-Sun_SSH_(\S+)/ p/SunSSH/ v/$2/ i/protocol $1/
 match ssh m/^SSH-([.\d]+)-meow roototkt by rebel/ p/meow SSH ROOTKIT/ i/protocol $1/
 # Akamai hosted systems tend to run this - found on www.microsoft.com
-match ssh m|^SSH-(\d[.\d]*)-AKAMAI-I\n$| p/Akamai-I SSH/ i/protocol $1/
-match ssh m|^SSH-(\d[.\d]*)-Server-V\n$| p/Akamai-I SSH/ i/protocol $1/
-match ssh m|^SSH-(\d[.\d]*)-Server-VI\n$| p/Akamai-I SSH/ i/protocol $1/
+match ssh m|^SSH-(\d[.\d]*)-(AKAMAI-I*)\n$| p/Akamai SSH/ v/$2/ i/protocol $1/
+match ssh m|^SSH-(\d[.\d]*)-(Server-V)\n$| p/Akamai SSH/ v/$2/ i/protocol $1/
+match ssh m|^SSH-(\d[.\d]*)-(Server-VI)\n$| p/Akamai SSH/ v/$2/ i/protocol $1/
 match ssh m|^SSH-(\d[.\d]+)-Cisco-(\d[.\d]+)\n$| p/Cisco SSH/ v/$2/ i/protocol $1/ o/IOS/
 match ssh m|^SSH-(\d[.\d]+)-CiscoIOS_([\d.]+)XA\n| p/Cisco SSH/ v/$2/ i/protocol $1; Chinese IOS XA/ o/IOS/
 match ssh m|^\r\nDestination server does not have Ssh activated\.\r\nContact Cisco Systems, Inc to purchase a\r\nlicense key to activate Ssh\.\r\n| p/Cisco CSS SSH/ i/Unlicensed/
