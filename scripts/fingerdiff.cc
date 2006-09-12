@@ -132,7 +132,7 @@ int main(int argc, char *argv[]) {
   char observedFPString[8192];
   char line[512];
   char *p, *endptr;
-  int i;
+  int i, rc;
   int done=0;
   FILE *fp;
 
@@ -182,8 +182,13 @@ int main(int argc, char *argv[]) {
   if (readFP(stdin, observedFPString, sizeof(observedFPString)) == -1)
     usage("Failed to read in supposed observed fingerprint from stdin\n");
 
+
   observedFP = parse_single_fingerprint(observedFPString);
   if (!observedFP) fatal("Sorry -- failed to parse the so-called reference fingerprint you entered");
+
+  if ((rc = remove_duplicate_tests(observedFP))) {
+    printf("[WARN] Adjusted fingerprint due to %d duplicated tests (we only look at the first).\n", rc);
+  }
 
   /* OK, now I've got the fingerprints -- I just need to compare them ... */
   accuracy = compare_fingerprints(referenceFP, observedFP, 1);

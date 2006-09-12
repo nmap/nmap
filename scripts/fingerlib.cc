@@ -290,6 +290,15 @@ int readFP(FILE *filep, char *FP, int FPsz ) {
   return 0;
 }
 
+static int count_attributes(struct AVal *res) {
+  int count = 0;
+  while(res) {
+    count++;
+    res = res->next;
+  }
+  return count;
+}
+
 /* When Nmap prints a fingerprint for submission, it sometimes
    includes duplicates of tests because 1 or more elements of that
    test differ.  While this is important for things like fingerfix
@@ -308,15 +317,18 @@ int remove_duplicate_tests(FingerPrint *FP) {
        and if so, remove them */
     for(inner = outer; inner->next; inner = inner->next) {
       if (strcmp(outer->name, inner->next->name) == 0) {
-	/* DUPLICATE FOUND!  REMOVE IT */
+	/* DUPLICATE FOUND!  REMOVE THE ONE W/THE FEWEST ATTRIBUTES */
+	int outeratts = count_attributes(outer->results);
+	int inneratts = count_attributes(inner->next->results);
+	if (inneratts > outeratts) {
+	  /* We do a swap of members because we can't change the address of 'FP' */
+	  outer->results = inner->next->results; /* MEMORY LEAK BUT THATS OK */
+	}
 	dupsfound++;
-	tmp = inner->next;
-	inner->next = inner->next->next;
-	free(tmp);
+	inner->next = inner->next->next; /* MEMORY LEAK, BUT THATS OK */
       }
       if (!inner->next) break;
     }
   }
-
   return dupsfound;
 }
