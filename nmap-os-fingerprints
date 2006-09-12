@@ -19339,7 +19339,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint SGI IRIX 6.4 - 6.5.3m  # Lamont Granquist (again :)
+Fingerprint SGI IRIX 6.4 - 6.5.3m
 Class SGI | IRIX | 6.X | general purpose
 TSeq(Class=RI|TD%gcd=28|50|78|A0|C8|F0|140%SI=<3E8)
 T1(DF=N%W=C000%ACK=S++%Flags=AS%Ops=MNWNNT)

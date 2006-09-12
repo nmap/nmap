@@ -140,7 +140,7 @@ static void mac_prefix_init() {
   int lineno = 0;
   struct MAC_entry *ME;
 
-  MacTable.table_capacity = 9521;
+  MacTable.table_capacity = 19037;
   MacTable.table_members = 0;
   MacTable.table = (struct MAC_entry **) safe_zalloc(MacTable.table_capacity * sizeof(struct MAC_entry *));
 

@@ -1,6 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 4.20ALPHA7
 
+o Did a bunch of Nmap 2nd generation fingerprint integration work.
+  Thanks to everyone who sent some in, though we still need a lot more.
+  Also thanks to Zhao for a bunch of help with the integration tools.
+  4.20ALPHA6 had 12 fingerprints, this new version has 42.  The old DB
+  (still included) has 1,684.
+
 o Updated nmap-mac-prefixes to reflect the latest OUI DB from the IEEE
   (http://standards.ieee.org/regauth/oui/oui.txt) as of September 6, 2006.
   Also added the unregistered PearPC virtual NIC prefix, as suggested

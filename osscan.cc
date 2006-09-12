@@ -1886,7 +1886,7 @@ FingerPrint *parse_single_fingerprint(char *fprint_orig) {
       p = thisline + 12;
       while(*p && isspace((int) *p)) p++;
 
-      q = strpbrk(p, "\n#");
+      q = strchr(p, '\n');
       if (!q) q = p + strlen(p);
       while(isspace(*(--q)))
 	;
