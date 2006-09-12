@@ -163,6 +163,49 @@ static void merge_gcd(struct AVal *result, char values[][AVLEN], int num) {
   }
 }
 
+  /* The "R" tests designate whether a response was
+	       received.  These can be tricky because packets (probe
+	       or response) may have been dropped on the network
+	       between the source and target host. So in a merge
+	       between an "N" and a "Y", the result is simply "Y".
+	       But if we are given an "R=N|Y" (which would have been
+	       done manually), we preserve it rather than dropping the
+	       N. */
+static void merge_response_element(const char *testname, struct AVal *result, 
+				   char values[][AVLEN], int num) {
+  bool yesrequired = false;
+  bool norequired = false;
+  bool foundno = false;
+  int i;
+
+  assert(num > 0);
+  
+  // look at the values
+  for(i = 0; i < num; i++) {
+    if (strcmp(values[i], "Y") == 0)
+      yesrequired = true;
+    else if (strcmp(values[i], "N|Y") == 0 || strcmp(values[i], "Y|N") == 0)
+      yesrequired = norequired = true;
+    else if (strcmp(values[i], "N") == 0)
+      foundno = true;
+    else fatal("[ERRO] Bogus R value \"%s\" discuvered (should be N, Y, or N|Y)", values[i]);
+  }
+
+  // Now decide on the results
+  if (yesrequired && norequired)
+    Strncpy(result->value, "N|Y", AVLEN);
+  else if (yesrequired) {
+    Strncpy(result->value, "Y", AVLEN);
+    if (foundno)
+      printf("[WARN] Ignoring test %s.%s \"N\" value because it was found \"Y\" in another instance\n", testname, result->attribute);
+  }
+  else
+    Strncpy(result->value, "N", AVLEN);
+
+
+  return;
+}
+
 static void merge_sp_or_isr(struct AVal *result, char values[][AVLEN], int num) {
   // Fingerfix should expand elements based on observed deviation.
   // So if a fingerprint comes in with SP=0x9C (and that is the only
@@ -273,7 +316,7 @@ int main(int argc, char *argv[]) {
   FingerPrint *observedFP;
   FingerPrint *resultFP;
   FingerPrint *resultFPLine, *observedFPLine;
-  char observedFPString[10240];
+  char observedFPString[8192];
   char resultTemplate[] = {"SEQ(SP=%GCD=%ISR=%TI=%II=%SS=%TS=)\n"
 						   "OPS(O1=%O2=%O3=%O4=%O5=%O6=)\n"
 						   "WIN(W1=%W2=%W3=%W4=%W5=%W6=)\n"
@@ -387,12 +430,22 @@ int main(int argc, char *argv[]) {
 		// SEQ.GCD
 		merge_gcd(resultAV, values, avnum);
 	  } else if(strcmp(resultFPLine->name, "SEQ") == 0 &&
-				(strcmp(resultAV->attribute, "SP") == 0 || strcmp(resultAV->attribute, "ISR") == 0)) {
-		// SEQ.SP or SEQ.ISR
-		merge_sp_or_isr(resultAV, values, avnum);
+		    (strcmp(resultAV->attribute, "SP") == 0 || strcmp(resultAV->attribute, "ISR") == 0)) {
+	    // SEQ.SP or SEQ.ISR
+	    merge_sp_or_isr(resultAV, values, avnum);
+	  } else if (strcmp(resultAV->attribute, "R") == 0) {
+	    /* The "R" tests designate whether a response was
+	       received.  These can be tricky because packets (probe
+	       or response) may have been dropped on the network
+	       between the source and target host. So in a merge
+	       between an "N" and a "Y", the result is simply "Y".
+	       But if we are given an "R=N|Y" (which would have been
+	       done manually), we preserve it rather than dropping the
+	       N. */
+	    merge_response_element(resultFPLine->name, resultAV, values, avnum);
 	  } else {
-		// common merge
-		sort_and_merge(resultAV, values, avnum, STR);
+	    // common merge
+	    sort_and_merge(resultAV, values, avnum, STR);
 	  }
 	}
 

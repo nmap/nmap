@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
   FingerPrint **reference_FPs = NULL;
   FingerPrint *testFP;
   struct FingerPrintResults FPR;
-  char fprint[2048];
+  char fprint[8192];
   int i, rc;
   char gen[128]; /* temporary buffer for os generation part of classification */
   if (argc != 2)

@@ -314,6 +314,7 @@ int remove_duplicate_tests(FingerPrint *FP) {
 	inner->next = inner->next->next;
 	free(tmp);
       }
+      if (!inner->next) break;
     }
   }
 

@@ -128,8 +128,8 @@ int main(int argc, char *argv[]) {
   double accuracy;
   char sourcefile[MAXPATHLEN];
   int sourceline=-1;
-  char referenceFPString[2048];
-  char observedFPString[2048];
+  char referenceFPString[8192];
+  char observedFPString[8192];
   char line[512];
   char *p, *endptr;
   int i;
