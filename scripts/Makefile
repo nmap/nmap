@@ -18,13 +18,13 @@ dummy:
 .cc.o: dummy
 	$(CXX) -c $(CXXFLAGS) $(INCLUDE_FLAGS) $(DEFINES) $< -o $@
 
-fingerfix: dummy
+fingerfix: dummy fingerlib.o
 	$(CXX) $(CXXFLAGS) -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc fingerlib.o $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt
 
-fingermatch: dummy
+fingermatch: dummy fingerlib.o
 	$(CXX) $(CXXFLAGS) -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc fingerlib.o $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt
 
-fingerdiff: dummy
+fingerdiff: dummy fingerlib.o
 	$(CXX) $(CXXFLAGS) -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc fingerlib.o $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt
 
 servicematch: dummy

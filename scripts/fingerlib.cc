@@ -194,25 +194,25 @@ int readFP(FILE *filep, char *FP, int FPsz ) {
 	lineno++;
 	linelen = strlen(line);
 	p = line;
-    if (*p == '\n' || *p == '.') {
+	if (*p == '\n' || *p == '.') {
 	  // end of input
+	  *dst = '\0';	  
 
 	  if(isInWrappedFP) {
-		// We have just completed reading in a wrapped fp. Because a
-		// wrapped fp is submitted by user, so we check if there is a
-		// SCAN line in it. If yes, look inside the scan line.
-		*dst = '\0';
-		checkFP(oneFP);
-		isInWrappedFP = false;
-	  }	  
+	    // We have just completed reading in a wrapped fp. Because a
+	    // wrapped fp is submitted by user, so we check if there is a
+	    // SCAN line in it. If yes, look inside the scan line.
+	    checkFP(oneFP);
+	    isInWrappedFP = false;
+	  }  
 	  break;
 	}
 	while(*p && isspace(*p)) p++;
-    if (*p == '#') 
-      continue; // skip the comment line
+	if (*p == '#') 
+	  continue; // skip the comment line
 
-    if (dst - FP + linelen >= FPsz - 5)
-      fatal("[ERRO] Overflow!\n");
+	if (dst - FP + linelen >= FPsz - 5)
+	  fatal("[ERRO] Overflow!\n");
 	
 	if(strncmp(p, "OS:", 3) == 0) {
 	  // the line is start with "OS:"
@@ -223,9 +223,9 @@ int readFP(FILE *filep, char *FP, int FPsz ) {
 	  }
 	  p += 3;
 	  while(*p != '\r' && *p != '\n') {
-		*dst++ = toupper(*p);
-		if(*p == ')') *dst++ = '\n';
-		p++;
+	    *dst++ = toupper(*p);
+	    if(*p == ')') *dst++ = '\n';
+	    p++;
 	  }
 	  continue;
 	}
