@@ -25,7 +25,7 @@ fingermatch: dummy
 	$(CXX) $(CXXFLAGS) -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc fingerlib.o $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt
 
 fingerdiff: dummy
-	$(CXX) $(CXXFLAGS) -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt
+	$(CXX) $(CXXFLAGS) -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc fingerlib.o $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt
 
 servicematch: dummy
 	$(CXX) $(CXXFLAGS) -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt
