@@ -10,9 +10,12 @@ SHTOOL = ../shtool
 LIBPCAPDIR=libpcap
 NBASEDIR=nbase
 
-all: fingermatch fingerdiff servicematch
+all: fingerfix fingermatch fingerdiff servicematch
 
 dummy:
+
+fingerfix: dummy
+	$(CPP) -g -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt
 
 fingermatch: dummy
 	$(CPP) -g -Wall $(INCLUDE_FLAGS) $(LINK_FLAGS) $(DEFINES) -o $@ $@.cc $(NMAP_OBJS) -lm -lnbase -lpcap -lpcre -lssl -lcrypt
