@@ -2276,6 +2276,12 @@ void sigdie(int signo) {
   exit(1);
 }
 
+#ifdef WIN32
+#define STAT_READABLE(st) st.st_mode & S_IREAD
+#else
+#define STAT_READABLE(st) st.st_mode & S_IRUSR
+#endif
+
 /* Returns true (nonzero) if the file pathname given exists, is not
  * a directory and is readable by the executing process.  Returns
  * zero if it is not
@@ -2286,7 +2292,7 @@ static int fileexistsandisreadable(char *pathname) {
   if (stat(pathname, &st) == -1)
     return 0;
 
-  if (!S_ISDIR(st.st_mode) && (access(pathname, R_OK) != -1))
+  if (!S_ISDIR(st.st_mode) && STAT_READABLE(st))
     return 1;
 
   return 0;
