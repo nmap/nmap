@@ -148,9 +148,6 @@ static int parse_scanflags(char *arg) {
     if (strcasestr(arg, "URG")) {
       flagval |= TH_URG;
     } 
-    if (strcasestr(arg, "SYN")) {
-      flagval |= TH_SYN;
-    }
   }
   return flagval;
 }
@@ -159,35 +156,29 @@ static int parse_scanflags(char *arg) {
 static int parse_bounce_argument(struct ftpinfo *ftp, char *url) {
   char *p = url,*q, *s;
 
-  if ((q = strrchr(url, '@'))) { /*we have username and/or pass */
-    *(q++) = '\0';
-    if ((s = strchr(q, ':')))
-      { /* has portno */
-	*(s++) = '\0';
-	strncpy(ftp->server_name, q, MAXHOSTNAMELEN);
-	ftp->port = atoi(s);
-      }
-    else  strncpy(ftp->server_name, q, MAXHOSTNAMELEN);
+  if ((q = strrchr(url, '@'))) { /* we have user and/or pass */
+    *q++ = '\0';
 
-    if ((s = strchr(p, ':'))) { /* User AND pass given */
-      *(s++) = '\0';
-      strncpy(ftp->user, p, 63);
+    if ((s = strchr(p, ':'))) { /* we have user AND pass */
+      *s++ = '\0';
       strncpy(ftp->pass, s, 255);
-    }
-    else { /* Username ONLY given */
+    } else { /* we ONLY have user */
       log_write(LOG_STDOUT, "Assuming %s is a username, and using the default password: %s\n",
-	      p, ftp->pass);
-      strncpy(ftp->user, p, 63);
+		p, ftp->pass);
     }
+
+    strncpy(ftp->user, p, 63);
+  } else {
+    q = url;
   }
-  else /* no username or password given */ 
-    if ((s = strchr(url, ':'))) { /* portno is given */
-      *(s++) = '\0';
-      strncpy(ftp->server_name, url, MAXHOSTNAMELEN);
-      ftp->port = atoi(s);
-    }
-    else  /* default case, no username, password, or portnumber */
-      strncpy(ftp->server_name, url, MAXHOSTNAMELEN);
+
+  /* q points to beginning of server name */
+  if ((s = strchr(q, ':'))) { /* we have portno */
+    *s++ = '\0';
+    ftp->port = atoi(s);
+  }
+
+  strncpy(ftp->server_name, q, MAXHOSTNAMELEN);
 
   ftp->user[63] = ftp->pass[255] = ftp->server_name[MAXHOSTNAMELEN] = 0;
 
@@ -437,7 +428,6 @@ int nmap_main(int argc, char *argv[]) {
   int i, arg;
   long l;
   unsigned int targetno;
-  size_t j, argvlen;
   FILE *inputfd = NULL, *excludefd = NULL;
   char *host_spec = NULL, *exclude_spec = NULL;
   short fastscan=0, randomize=1;
@@ -501,7 +491,6 @@ int nmap_main(int argc, char *argv[]) {
       {"min_parallelism", required_argument, 0, 0},
       {"min-parallelism", required_argument, 0, 0},
       {"timing", required_argument, 0, 'T'},
-      {"timing", no_argument, 0, 0},
       {"max_rtt_timeout", required_argument, 0, 0},
       {"max-rtt-timeout", required_argument, 0, 0},
       {"min_rtt_timeout", required_argument, 0, 0},
@@ -626,6 +615,8 @@ int nmap_main(int argc, char *argv[]) {
 	if (l <= 0) fatal("Bogus --initial-rtt-timeout argument specified.  Must be positive");
         pre_init_rtt_timeout = l;
       } else if (strcmp(long_options[option_index].name, "excludefile") == 0) {
+	if (exclude_spec)
+	  fatal("--excludefile and --exclude options are mutually exclusive.");
         excludefd = fopen(optarg, "r");
         if (!excludefd) {
           fatal("Failed to open exclude file %s for reading", optarg);
@@ -699,7 +690,7 @@ int nmap_main(int argc, char *argv[]) {
       } else if (optcmp(long_options[option_index].name, "max-retries") == 0) {
         pre_max_retries = atoi(optarg);
         if (pre_max_retries < 0)
-          fatal("max-retransmissions must be positive");
+          fatal("max-retries must be positive");
       } else if (optcmp(long_options[option_index].name, "randomize-hosts") == 0
 		 || strcmp(long_options[option_index].name, "rH") == 0) {
 	o.randomize_hosts = 1;
@@ -856,7 +847,7 @@ int nmap_main(int argc, char *argv[]) {
       }
       break;
     case 'e': 
-      strncpy(o.device, optarg,63); o.device[63] = '\0'; break;
+      Strncpy(o.device, optarg, sizeof(o.device)); break;
     case 'F': fastscan++; break;
     case 'f': o.fragscan += 8; break;
     case 'g': 
@@ -1341,16 +1332,13 @@ int nmap_main(int argc, char *argv[]) {
 
   /* more fakeargv junk, BTW malloc'ing extra space in argv[0] doesn't work */
   if (quashargv) {
-    argvlen = strlen(argv[0]);
-    if (argvlen < strlen(FAKE_ARGV))
+    size_t fakeargvlen = strlen(FAKE_ARGV), argvlen = strlen(argv[0]);
+    if (argvlen < fakeargvlen)
       fatal("If you want me to fake your argv, you need to call the program with a longer name.  Try the full pathname, or rename it fyodorssuperdedouperportscanner");
-    strncpy(argv[0], FAKE_ARGV, strlen(FAKE_ARGV));
-    for(j = strlen(FAKE_ARGV); j < argvlen; j++) argv[0][j] = '\0';
-    for(i=1; i < argc; i++) {
-      argvlen = strlen(argv[i]);
-      for(j=0; j <= argvlen; j++)
-	argv[i][j] = '\0';
-    }
+    strncpy(argv[0], FAKE_ARGV, fakeargvlen);
+    memset(&argv[0][fakeargvlen], '\0', strlen(&argv[0][fakeargvlen]));
+    for(i=1; i < argc; i++)
+      memset(argv[i], '\0', strlen(argv[i]));
   }
 
 #if defined(HAVE_SIGNAL) && defined(SIGPIPE)

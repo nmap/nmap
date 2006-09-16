@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "09/02/2006" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "09/12/2006" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -91,7 +91,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 \fI\%http://insecure.org/nmap/data/nmap.usage.txt\fR. It helps people remember the most common options, but is no substitute for the in\-depth documentation in the rest of this manual. Some obscure options aren't even included here.
 .PP
 .nf
-Nmap 4.20ALPHA5 ( http://insecure.org/nmap/ )
+Nmap 4.20ALPHA6 ( http://Insecure.Org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -197,7 +197,7 @@ are the same as for the reference IP or hostname given. For example, 192.168.10.
 11000000 10101000 00001010 00000000) and 192.168.10.255 (binary:
 11000000 10101000 00001010 11111111), inclusive. 192.168.10.40/24 would do exactly the same thing. Given that the host scanme.nmap.org is at the IP address 205.217.153.62, the specification scanme.nmap.org/16 would scan the 65,536 IP addresses between 205.217.0.0 and 205.217.255.255. The smallest allowed value is /1, which scans half the Internet. The largest value is 32, which scans just the named host or IP address because all address bits are fixed.
 .PP
-CIDR notation is short but not always flexible enough. For example, you might want to scan 192.168.0.0/16 but skip any IPs ending with .0 or .255 because they are commonly broadcast addresses. Nmap supports this through octet range addressing. Rather than specify a normal IP address, you can specify a comma separated list of numbers or ranges for each octet. For example, 192.168.0\-255.1\-254 will skip all addresses in the range that end in .0 and or .255. Ranges need not be limited to the final octects: the specifier 0\-255.0\-255.13.37 will perform an Internet\-wide scan for all IP addresses ending in 13.37. This sort of broad sampling can be useful for Internet surveys and research.
+CIDR notation is short but not always flexible enough. For example, you might want to scan 192.168.0.0/16 but skip any IPs ending with .0 or .255 because they are commonly broadcast addresses. Nmap supports this through octet range addressing. Rather than specify a normal IP address, you can specify a comma separated list of numbers or ranges for each octet. For example, 192.168.0\-255.1\-254 will skip all addresses in the range that end in .0 and or .255. Ranges need not be limited to the final octets: the specifier 0\-255.0\-255.13.37 will perform an Internet\-wide scan for all IP addresses ending in 13.37. This sort of broad sampling can be useful for Internet surveys and research.
 .PP
 IPv6 addresses can only be specified by their fully qualified IPv6 address or hostname. CIDR and octet ranges aren't supported for IPv6 because they are rarely useful.
 .PP

@@ -248,7 +248,7 @@ void PacketTrace::traceArp(pdirection pdir, const u8 *frame, u32 len,
 
   if (frame[21] == 1) /* arp REQUEST */ {
     inet_ntop(AF_INET, frame+38, who_has, sizeof(who_has));
-    inet_ntop(AF_INET, frame+28, tell, sizeof(who_has));
+    inet_ntop(AF_INET, frame+28, tell, sizeof(tell));
     snprintf(arpdesc, sizeof(arpdesc), "who-has %s tell %s", who_has, tell);
   } else { /* ARP REPLY */
     inet_ntop(AF_INET, frame+28, who_has, sizeof(who_has));
@@ -2771,6 +2771,8 @@ struct sys_route *getsysroutes(int *howmany) {
   struct sockaddr_in *sin;
   struct interface_info *ii;
 
+  if (!howmany) fatal("NULL howmany ptr passed to getsysroutes()");
+
   if (!routes) {
     routes = (struct sys_route *) safe_zalloc(route_capacity * sizeof(struct sys_route));
     ifaces = getinterfaces(&numifaces);
@@ -2888,7 +2890,7 @@ struct sys_route *getsysroutes(int *howmany) {
       qsort(routes, numroutes, sizeof(routes[0]), nmaskcmp);
     }
   }
-  if (!howmany) fatal("NULL howmany ptr passed to getsysroutes()");
+
   *howmany = numroutes;
   return routes;
 }
