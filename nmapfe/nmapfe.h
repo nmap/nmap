@@ -311,9 +311,7 @@ struct NmapFEoptions {
 };
 
 GtkWidget* create_main_win (void);
-GtkWidget* create_aboutDialog(void);
 GtkWidget* create_fileSelection(const char *title, char *filename, void (*action)(), GtkEntry *entry);
 GtkWidget* create_helpDialog(void);
-GtkWidget* create_machine_parse_selection (void);
 
 #endif /* NMAP_H */

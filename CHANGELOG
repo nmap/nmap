@@ -1,4 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
+o A dozen or so small patches to Nmap and NmapFE by Kris Katterjohn.
+
 4.20ALPHA7
 
 o Did a bunch of Nmap 2nd generation fingerprint integration work.

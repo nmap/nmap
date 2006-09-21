@@ -202,199 +202,39 @@ main (int   argc,
     return 0;
 }
 
-void scanButton_toggled_cb(GtkButton *button, void *ignored)
+// tokensz is the total size of token in characters
+static char *next_token(char *buf, char *token, int tokensz)
 {
-  if(GTK_TOGGLE_BUTTON(button)->active) {
-  char *command = build_command();
+  if ((buf != NULL) && (token != NULL)) {
+  int count = (strchr("\t ", *buf) != NULL)
+              ? strspn(buf, "\t ")
+              : strcspn(buf, "\t ");
 
-  if(!(opt.appendLog))
-          gtk_text_buffer_set_text (GTK_TEXT_BUFFER(opt.buffer), "\0", -1);
+    if (count > 0) {
+      char *bol = buf;
+    char *eol;
 
-    nmap_pid = execute(command);
-}
-  else {
-    if (stop_scan()) {
-    static char string[256];
+      count = MIN(count, tokensz - 1);
+      eol = buf+count;
 
-      strcpy(string, "CANCELLED!\n\n");
-      print_line(GTK_TEXT_BUFFER(opt.buffer), string);
-}
-}
-}
+      /* copy token  */
+      memcpy(token, buf, count);
+      token[count] = '\0';
 
+      /* remove token from str */
+      while (*eol != '\0')
+        *bol++ = *eol++;
+      *bol = '\0';
 
-void 
-saveLog (char *filename)
-{
-    GtkTextIter start, end;
-    if (filename && *filename) {
-        FILE *file;
-        if ((file = fopen(filename, "w"))) {
-	  gchar *text;
-            gtk_text_buffer_get_start_iter(opt.buffer, &start);
-            gtk_text_buffer_get_end_iter(opt.buffer, &end);
-            text = gtk_text_buffer_get_text(opt.buffer,
-                    &start, &end, FALSE);
-
-            fputs(text, file);
-            fclose(file);
-            free(text);
-        }
+      return(token);
     }
-}
-
-
-void openLog(char *filename)
-{
-  if (filename && *filename) {
-  FILE *file;
-     
-  if (!opt.appendLog) 
-          gtk_text_buffer_set_text (GTK_TEXT_BUFFER(opt.buffer), "\0", -1);
-	
-    if((file = fopen(filename, "r"))) {
-    char buf[BUFSIZ+1];
-
-      while(fgets(buf, BUFSIZ, file) != NULL) {
-        print_line(GTK_TEXT_BUFFER(opt.buffer), buf);
-      }
-
-      fclose(file);
-    }
+    return(buf);
   }
+  return(NULL);
 }
 
 
-void okButton_clicked_cb(GtkWidget *window, GtkButton *button)
-{
-const char *selected = gtk_file_selection_get_filename(GTK_FILE_SELECTION(window));
-void (*action)() = (void (*)())g_object_get_data(G_OBJECT(window), "NmapFE_action");
-GtkEntry *entry = g_object_get_data(G_OBJECT(window), "NmapFE_entry");
-char *filename = g_object_get_data(G_OBJECT(window), "NmapFE_filename");
-
-  if (filename && selected) {
-    strncpy(filename, selected, FILENAME_MAX);
-    filename[FILENAME_MAX-1] = '\0';
-    if (action)
-      (*action)(filename);
-    if (entry)
-      gtk_entry_set_text(GTK_ENTRY(entry), filename);
-  }
-}
-
-
-/* The idea of execute() is to create an Nmap process running in the background with its stdout
-    connected to a pipe we can poll many times per second to collect any new output.  Admittedly 
-	there are much more elegant ways to do this, but this is how it works now.  The functions
-	return the process ID of nmap.  This process is
-	different enough between windows & UNIX that I have two functions for doing it: */
-int execute_unix(char *command)
-{
-#ifdef WIN32
-  fatal("The execute_unix function should not be called from Windows!");
-  return -1;
-#else
-
-  /* Many thanks to Fyodor for helping with the piping */
-  if (pipe(pipes) == -1) {
-    perror("poopy pipe error");
-    exit(1);
-  }
-
-  if (!(pid = fork())) {
-    char **argv;
-    int argc;
-
-    argc = arg_parse(command, &argv);
-		
-    if (argc <= 0)
-      exit(1);
-    dup2(pipes[1], 1);
-    dup2(pipes[1], 2);
-    fcntl(pipes[0], F_SETFL, O_NDELAY);
-    if (execvp("nmap", argv) == -1) {
-      fprintf(stderr, "Nmap execution failed.  errno=%d (%s)\n", errno, strerror(errno));
-      exit(1);
-    }
-    /*exit(127);*/
-  }
-  if (pid == -1) {
-    fprintf(stderr, "fork() failed.  errno=%d (%s)", errno, strerror(errno));
-    pid = 0;
-    close(pipes[0]);
-    pipes[0] = -1;
-  }
-  close(pipes[1]);
-  pipes[1] = -1;
-
-  return(pid);
-
-#endif
-}
-
-
-/* Parts cribbed from _Win32 System Programming Second Edition_ pp 304 */
-int execute_win(char *command)
-{
-#ifndef WIN32
-  fatal("The execute_win function should ONLY be called from Windows!");
-  return -1;
-#else
-
-/* For pipes[] array:  0 == READ; 1 == WRITE */
-
-/* To ensure pipe handles are inheritable */
-SECURITY_ATTRIBUTES PipeSA = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };
-PROCESS_INFORMATION Nmap_Proc;
-STARTUPINFO Nmap_Start;
-
-  GetStartupInfo(&Nmap_Start);
-
-  /* Create our pipe for reading Nmap output */
-  if (!CreatePipe(&pipes[0], &pipes[1], &PipeSA, 8196))
-    pfatal("execute_win: Failed to create pipes!");
-
-  /* Insure that stdout/stderr for Nmap will go to our pipe */
-  Nmap_Start.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
-  Nmap_Start.hStdError = pipes[1];
-  Nmap_Start.hStdOutput = pipes[1];
-  Nmap_Start.dwFlags = STARTF_USESTDHANDLES;
-
-  /* Start up Nmap! */
-  if (!CreateProcess ( NULL, command, NULL, NULL, TRUE, 0, NULL, NULL, &Nmap_Start, &Nmap_Proc))
-    pfatal("execute_win: Failed to start Nmap process with command '%s'", command);
-
-  /* I don't care about the thread handle or the write pipe anymore */
-  CloseHandle(Nmap_Proc.hThread);
-   CloseHandle(pipes[1]);
-
-  /* I'm gonna squirrel away the Nmap process handle in a global variable.
-     All this nonsense needs to be redone */
-   NmapHandle = Nmap_Proc.hProcess;
-
-  return Nmap_Proc.dwProcessId;
-
-#endif
-}
-
-int execute(char *command)
-{
-#ifdef WIN32
-int pid = execute_win(command);
-#else
-int pid = execute_unix(command);
-#endif /* WIN32 */
-
-/* timer for calling our read function to poll for new data 8 times per second */
- g_timeout_add(125, read_data, NULL);
-
-  return(pid);
-}
-
-
-
-
-char *build_command()
+static char *build_command()
 {
 int size = 2560; /* this should be long enough ;-) */
 static char *command = NULL;
@@ -681,6 +521,436 @@ static int command_size = 0;
   return(command);
 }
 
+static void 
+print_line (GtkTextBuffer *buffer, 
+            char          *line)
+{
+  GtkTextIter iter;
+  gtk_text_buffer_get_end_iter (buffer, &iter);
+  
+  if (opt.viewValue == 1) {
+      char token[BUFSIZ+1];
+      char *str;
+
+      while (((str = next_token(line, token, sizeof(token) / sizeof(*token))) != NULL) && (*str != '\0')) {
+          /* Catch stuff */
+          if (strstr(str, "http://") ||
+                  strstr(str, "PORT") ||
+                  strstr(str, "PROTOCOL") ||
+                  strstr(str, "STATE") ||
+                  strstr(str, "SERVICE") ||
+                  strstr(str, "VERSION") ||
+                  strstr(str, "(RPC)") ||
+                  strstr(str, "OWNER") ||
+                  strstr(str, "fingerprint")) {
+              gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, str, -1,
+                      "bold", NULL);
+              /* Color the ports... */
+          } else if (strstr(str, "sftp") ||
+                  strstr(str, "mftp") ||
+                  strstr(str, "bftp") ||
+                  strstr(str, "tftp") ||
+                  strstr(str, "ftp") ||
+                  strstr(str, "NetBus") ||
+                  strstr(str, "kshell") ||
+                  strstr(str, "shell") ||
+                  strstr(str, "klogin") ||
+                  strstr(str, "login") ||
+                  strstr(str, "rtelnet") ||
+                  strstr(str, "telnet") ||
+                  strstr(str, "exec") ||
+                  strstr(str, "ssh") ||
+                  strstr(str, "linuxconf")) {
+              gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, str, -1,
+                      "red", NULL);
+          } else if (strstr(str, "imap2") ||
+                  strstr(str, "pop-3") ||
+                  strstr(str, "imap3") ||
+                  strstr(str, "smtps") ||
+                  strstr(str, "smtp") ||
+                  strstr(str, "pop-2")) {
+              gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, str, -1,
+                      "blue", NULL);
+          } else if (strstr(str, "systat") ||
+                  strstr(str, "netstat") ||
+                  strstr(str, "cfingerd") ||
+                  strstr(str, "finger") ||
+                  strstr(str, "netbios") ||
+                  strstr(str, "X11") ||
+                  strstr(str, "nfs") ||
+                  strstr(str, "sunrpc") ||
+                  strstr(str, "kpasswds") ||
+                  strstr(str, "https") ||
+                  strstr(str, "http")) {
+              gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, str, -1,
+                      "bold", NULL);
+      /******* BEGIN OS COLOR CODING *****************/		
+              /* Color the Operating systems */
+          } else if (strstr(str, "Linux") ||
+                  strstr(str, "FreeBSD") ||
+                  strstr(str, "Win") ||
+                  strstr(str, "MacOS") ||
+                  strstr(str, "OpenBSD") ||
+                  strstr(str, "IRIX") ||
+                  strstr(str, "Windows")) {
+              gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, str, -1,
+                      "green", NULL);
+          } else { 
+              gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, str, -1,
+                      "normal", NULL);
+          }
+      }
+  } else {
+      gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, line, -1,
+            "normal", NULL);
+  }
+}
+
+void scanButton_toggled_cb(GtkButton *button, void *ignored)
+{
+  if(GTK_TOGGLE_BUTTON(button)->active) {
+  char *command = build_command();
+
+  if(!(opt.appendLog))
+          gtk_text_buffer_set_text (GTK_TEXT_BUFFER(opt.buffer), "\0", -1);
+
+    nmap_pid = execute(command);
+}
+  else {
+    if (stop_scan()) {
+    static char string[256];
+
+      strcpy(string, "CANCELLED!\n\n");
+      print_line(GTK_TEXT_BUFFER(opt.buffer), string);
+}
+}
+}
+
+
+void 
+saveLog (char *filename)
+{
+    GtkTextIter start, end;
+    if (filename && *filename) {
+        FILE *file;
+        if ((file = fopen(filename, "w"))) {
+	  gchar *text;
+            gtk_text_buffer_get_start_iter(opt.buffer, &start);
+            gtk_text_buffer_get_end_iter(opt.buffer, &end);
+            text = gtk_text_buffer_get_text(opt.buffer,
+                    &start, &end, FALSE);
+
+            fputs(text, file);
+            fclose(file);
+            free(text);
+        }
+    }
+}
+
+
+void openLog(char *filename)
+{
+  if (filename && *filename) {
+  FILE *file;
+     
+  if (!opt.appendLog) 
+          gtk_text_buffer_set_text (GTK_TEXT_BUFFER(opt.buffer), "\0", -1);
+	
+    if((file = fopen(filename, "r"))) {
+    char buf[BUFSIZ+1];
+
+      while(fgets(buf, BUFSIZ, file) != NULL) {
+        print_line(GTK_TEXT_BUFFER(opt.buffer), buf);
+      }
+
+      fclose(file);
+    }
+  }
+}
+
+
+void okButton_clicked_cb(GtkWidget *window, GtkButton *button)
+{
+const char *selected = gtk_file_selection_get_filename(GTK_FILE_SELECTION(window));
+void (*action)() = (void (*)())g_object_get_data(G_OBJECT(window), "NmapFE_action");
+GtkEntry *entry = g_object_get_data(G_OBJECT(window), "NmapFE_entry");
+char *filename = g_object_get_data(G_OBJECT(window), "NmapFE_filename");
+
+  if (filename && selected) {
+    strncpy(filename, selected, FILENAME_MAX);
+    filename[FILENAME_MAX-1] = '\0';
+    if (action)
+      (*action)(filename);
+    if (entry)
+      gtk_entry_set_text(GTK_ENTRY(entry), filename);
+  }
+}
+
+/* split buf into first line and remainder by
+   copying the first line into line and stripping it from str;
+   return the first line from str or NULL if str contains no full line.
+   bufsz is the number of chars in buf.
+ */
+static char *next_line(char *buf, int bufsz, char *line)
+{
+  if ((buf != NULL) && (line != NULL)) {
+  char *eol = strchr(buf, '\n');
+
+    if (eol != NULL) {
+      char *bol = buf;
+    int linelen = MIN(bufsz - 1, eol - buf + 1); // we can't exceed buffer size
+
+      /* copy line including \n to line */
+      memcpy(line, buf, linelen);
+      line[linelen] = '\0';
+
+      eol = buf + linelen;
+
+      /* remove line from str */
+      while (*eol != '\0')
+	*bol++ = *eol++;
+      *bol = '\0';
+      
+      return(line);
+    }
+    return(buf);
+  }
+  return(NULL);
+}
+
+/* The read_from_pipe functions (UNIX & Win versions) do a non-blocking read from the pipe
+   given into the buffer given up to a maximum read length of bufsz.  The number of bytes 
+   read is returned.  -1 is returned in the case of heinous error.  Returned buffer is NOT
+   NUL terminated */
+#ifdef WIN32
+
+static int read_from_pipe(HANDLE pipe, char *buf, int bufsz)
+{
+int ret;
+int count = 0;
+
+/* First lets check if anything is ready for us.
+   Note: I don't know if this technique even works! */
+  ret = WaitForSingleObject(pipe, 0);
+  if ( ret == WAIT_OBJECT_0 ) {
+    /* Apparently the pipe is available for reading -- Read up to # of bytes in buffer */
+    if (!ReadFile(pipe, buf, bufsz, &count, NULL)) {
+      if (GetLastError() != ERROR_BROKEN_PIPE)
+	pfatal("ReadFile on Nmap process pipe failed!");
+    }
+  }
+  return count;
+}
+
+#else
+
+/* NOTE:  pipefd must be in O_NONBLOCK mode ( via fcntl ) */
+static int read_from_pipe(int pipefd, char *buf, int bufsz)
+{
+int count;
+
+  if (pipefd == -1) return -1;
+  count = read(pipefd, buf, bufsz);
+  if (count == -1 && errno != EINTR && errno != EAGAIN) {
+    pfatal("Failed to read from nmap process pipe");
+  }
+  return count;
+}
+
+#endif /* read_from_pipe Win32/UNIX selector */
+
+
+static gint read_data(gpointer data)
+{
+  static char buf[BUFSIZ+1] = "";
+  static int buflen = 0;
+  char line[BUFSIZ+1];
+int count;
+
+#ifdef WIN32
+  int rc;
+  char *p=NULL, *q=NULL;
+#endif /* WIN32 */
+
+  while((count = read_from_pipe(pipes[0], buf+buflen, sizeof(buf) - buflen - 1 )) > 0) {
+  char *str;
+
+    /* fprintf(stderr, "\nCount was %d\n", count); */
+    buflen += count;
+    buf[buflen] = '\0';
+
+#ifdef WIN32
+    /* For windows, I have to squeeze \r\n back into \n */
+    p = q = buf;
+    while(*q) { if (*q == '\r') q++; else *p++ = *q++; }
+    *p = '\0';
+#endif /* WIN32 */
+
+    for (str = next_line(buf, sizeof(buf) / sizeof(*buf), line); 
+         (str != buf) && (str != NULL);
+         str = next_line(buf, sizeof(buf) / sizeof(*buf), line)) {
+      buflen = strlen(buf);
+      print_line(opt.buffer, str);
+    }  
+  } 
+
+  /*  fprintf(stderr, "Below loop: Count was %d\n", count); */
+
+  if (buflen > 0) {
+  char *str;
+
+    while ((str = next_line(buf, sizeof(buf) / sizeof(*buf), line)) != NULL) {
+      buflen = strlen(buf);
+      print_line(opt.buffer, str);
+        if (str == buf)
+          break;
+    }
+  }
+
+#ifdef WIN32
+  if (nmap_pid) {
+    rc = WaitForSingleObject(NmapHandle, 0);
+    if (rc == WAIT_FAILED) {
+      pfatal("Failed in WaitForSingleObject to see if Nmap process has died");
+    }
+  }
+  if (!nmap_pid || rc == WAIT_OBJECT_0) {
+    CloseHandle(NmapHandle);
+    CloseHandle(pipes[0]);
+    nmap_pid = 0;
+    buflen = 0;
+    buf[buflen] = '\0';
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(opt.scanButton), 0);
+    return 0;
+  }
+#else
+  if (!nmap_pid || (waitpid(0, NULL, WNOHANG) == nmap_pid)) {
+    /* fprintf(stderr, "Program gone, dead, kablooey!\n"); */
+    nmap_pid = 0;
+    if (pipes[0] != -1) {
+      close(pipes[0]);
+      pipes[0] = -1;
+    }
+    buflen = 0;
+    buf[buflen] = '\0';
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(opt.scanButton), 0);
+    return 0;
+  }
+#endif /* waitpid unix/windoze selector */
+
+  return(1);	
+}
+
+
+/* The idea of execute() is to create an Nmap process running in the background with its stdout
+    connected to a pipe we can poll many times per second to collect any new output.  Admittedly 
+	there are much more elegant ways to do this, but this is how it works now.  The functions
+	return the process ID of nmap.  This process is
+	different enough between windows & UNIX that I have two functions for doing it: */
+static int execute_unix(char *command)
+{
+#ifdef WIN32
+  fatal("The execute_unix function should not be called from Windows!");
+  return -1;
+#else
+
+  /* Many thanks to Fyodor for helping with the piping */
+  if (pipe(pipes) == -1) {
+    perror("poopy pipe error");
+    exit(1);
+  }
+
+  if (!(pid = fork())) {
+    char **argv;
+    int argc;
+
+    argc = arg_parse(command, &argv);
+		
+    if (argc <= 0)
+      exit(1);
+    dup2(pipes[1], 1);
+    dup2(pipes[1], 2);
+    fcntl(pipes[0], F_SETFL, O_NDELAY);
+    if (execvp("nmap", argv) == -1) {
+      fprintf(stderr, "Nmap execution failed.  errno=%d (%s)\n", errno, strerror(errno));
+      exit(1);
+    }
+    /*exit(127);*/
+  }
+  if (pid == -1) {
+    fprintf(stderr, "fork() failed.  errno=%d (%s)", errno, strerror(errno));
+    pid = 0;
+    close(pipes[0]);
+    pipes[0] = -1;
+  }
+  close(pipes[1]);
+  pipes[1] = -1;
+
+  return(pid);
+
+#endif
+}
+
+
+/* Parts cribbed from _Win32 System Programming Second Edition_ pp 304 */
+static int execute_win(char *command)
+{
+#ifndef WIN32
+  fatal("The execute_win function should ONLY be called from Windows!");
+  return -1;
+#else
+
+/* For pipes[] array:  0 == READ; 1 == WRITE */
+
+/* To ensure pipe handles are inheritable */
+SECURITY_ATTRIBUTES PipeSA = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };
+PROCESS_INFORMATION Nmap_Proc;
+STARTUPINFO Nmap_Start;
+
+  GetStartupInfo(&Nmap_Start);
+
+  /* Create our pipe for reading Nmap output */
+  if (!CreatePipe(&pipes[0], &pipes[1], &PipeSA, 8196))
+    pfatal("execute_win: Failed to create pipes!");
+
+  /* Insure that stdout/stderr for Nmap will go to our pipe */
+  Nmap_Start.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+  Nmap_Start.hStdError = pipes[1];
+  Nmap_Start.hStdOutput = pipes[1];
+  Nmap_Start.dwFlags = STARTF_USESTDHANDLES;
+
+  /* Start up Nmap! */
+  if (!CreateProcess ( NULL, command, NULL, NULL, TRUE, 0, NULL, NULL, &Nmap_Start, &Nmap_Proc))
+    pfatal("execute_win: Failed to start Nmap process with command '%s'", command);
+
+  /* I don't care about the thread handle or the write pipe anymore */
+  CloseHandle(Nmap_Proc.hThread);
+   CloseHandle(pipes[1]);
+
+  /* I'm gonna squirrel away the Nmap process handle in a global variable.
+     All this nonsense needs to be redone */
+   NmapHandle = Nmap_Proc.hProcess;
+
+  return Nmap_Proc.dwProcessId;
+
+#endif
+}
+
+int execute(char *command)
+{
+#ifdef WIN32
+int pid = execute_win(command);
+#else
+int pid = execute_unix(command);
+#endif /* WIN32 */
+
+/* timer for calling our read function to poll for new data 8 times per second */
+ g_timeout_add(125, read_data, NULL);
+
+  return(pid);
+}
+
+
 void display_nmap_command()
 {
 char *command = build_command();
@@ -916,281 +1186,6 @@ gboolean status = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(target_option))
     gtk_entry_set_text(GTK_ENTRY(opt.targetHost), "");
 
   display_nmap_command();
-}
-
-
-/* The read_from_pipe functions (UNIX & Win versions) do a non-blocking read from the pipe
-   given into the buffer given up to a maximum read length of bufsz.  The number of bytes 
-   read is returned.  -1 is returned in the case of heinous error.  Returned buffer is NOT
-   NUL terminated */
-#ifdef WIN32
-
-static int read_from_pipe(HANDLE pipe, char *buf, int bufsz)
-{
-int ret;
-int count = 0;
-
-/* First lets check if anything is ready for us.
-   Note: I don't know if this technique even works! */
-  ret = WaitForSingleObject(pipe, 0);
-  if ( ret == WAIT_OBJECT_0 ) {
-    /* Apparently the pipe is available for reading -- Read up to # of bytes in buffer */
-    if (!ReadFile(pipe, buf, bufsz, &count, NULL)) {
-      if (GetLastError() != ERROR_BROKEN_PIPE)
-	pfatal("ReadFile on Nmap process pipe failed!");
-    }
-  }
-  return count;
-}
-
-#else
-
-/* NOTE:  pipefd must be in O_NONBLOCK mode ( via fcntl ) */
-static int read_from_pipe(int pipefd, char *buf, int bufsz)
-{
-int count;
-
-  if (pipefd == -1) return -1;
-  count = read(pipefd, buf, bufsz);
-  if (count == -1 && errno != EINTR && errno != EAGAIN) {
-    pfatal("Failed to read from nmap process pipe");
-  }
-  return count;
-}
-
-#endif /* read_from_pipe Win32/UNIX selector */
-
-
-/* split buf into first line and remainder by
-   copying the first line into line and stripping it from str;
-   return the first line from str or NULL if str contains no full line.
-   bufsz is the number of chars in buf.
- */
-char *next_line(char *buf, int bufsz, char *line)
-{
-  if ((buf != NULL) && (line != NULL)) {
-  char *eol = strchr(buf, '\n');
-
-    if (eol != NULL) {
-      char *bol = buf;
-    int linelen = MIN(bufsz - 1, eol - buf + 1); // we can't exceed buffer size
-
-      /* copy line including \n to line */
-      memcpy(line, buf, linelen);
-      line[linelen] = '\0';
-
-      eol = buf + linelen;
-
-      /* remove line from str */
-      while (*eol != '\0')
-	*bol++ = *eol++;
-      *bol = '\0';
-      
-      return(line);
-    }
-    return(buf);
-  }
-  return(NULL);
-}
-
-
-// tokensz is the total size of token in characters
-char *next_token(char *buf, char *token, int tokensz)
-{
-  if ((buf != NULL) && (token != NULL)) {
-  int count = (strchr("\t ", *buf) != NULL)
-              ? strspn(buf, "\t ")
-              : strcspn(buf, "\t ");
-
-    if (count > 0) {
-      char *bol = buf;
-    char *eol;
-
-      count = MIN(count, tokensz - 1);
-      eol = buf+count;
-
-      /* copy token  */
-      memcpy(token, buf, count);
-      token[count] = '\0';
-
-      /* remove token from str */
-      while (*eol != '\0')
-        *bol++ = *eol++;
-      *bol = '\0';
-
-      return(token);
-    }
-    return(buf);
-  }
-  return(NULL);
-}
-
-
-void 
-print_line (GtkTextBuffer *buffer, 
-            char          *line)
-{
-  GtkTextIter iter;
-  gtk_text_buffer_get_end_iter (buffer, &iter);
-  
-  if (opt.viewValue == 1) {
-      char token[BUFSIZ+1];
-      char *str;
-
-      while (((str = next_token(line, token, sizeof(token) / sizeof(*token))) != NULL) && (*str != '\0')) {
-          /* Catch stuff */
-          if (strstr(str, "http://") ||
-                  strstr(str, "PORT") ||
-                  strstr(str, "PROTOCOL") ||
-                  strstr(str, "STATE") ||
-                  strstr(str, "SERVICE") ||
-                  strstr(str, "VERSION") ||
-                  strstr(str, "(RPC)") ||
-                  strstr(str, "OWNER") ||
-                  strstr(str, "fingerprint")) {
-              gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, str, -1,
-                      "bold", NULL);
-              /* Color the ports... */
-          } else if (strstr(str, "sftp") ||
-                  strstr(str, "mftp") ||
-                  strstr(str, "bftp") ||
-                  strstr(str, "tftp") ||
-                  strstr(str, "ftp") ||
-                  strstr(str, "NetBus") ||
-                  strstr(str, "kshell") ||
-                  strstr(str, "shell") ||
-                  strstr(str, "klogin") ||
-                  strstr(str, "login") ||
-                  strstr(str, "rtelnet") ||
-                  strstr(str, "telnet") ||
-                  strstr(str, "exec") ||
-                  strstr(str, "ssh") ||
-                  strstr(str, "linuxconf")) {
-              gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, str, -1,
-                      "red", NULL);
-          } else if (strstr(str, "imap2") ||
-                  strstr(str, "pop-3") ||
-                  strstr(str, "imap3") ||
-                  strstr(str, "smtps") ||
-                  strstr(str, "smtp") ||
-                  strstr(str, "pop-2")) {
-              gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, str, -1,
-                      "blue", NULL);
-          } else if (strstr(str, "systat") ||
-                  strstr(str, "netstat") ||
-                  strstr(str, "cfingerd") ||
-                  strstr(str, "finger") ||
-                  strstr(str, "netbios") ||
-                  strstr(str, "X11") ||
-                  strstr(str, "nfs") ||
-                  strstr(str, "sunrpc") ||
-                  strstr(str, "kpasswds") ||
-                  strstr(str, "https") ||
-                  strstr(str, "http")) {
-              gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, str, -1,
-                      "bold", NULL);
-      /******* BEGIN OS COLOR CODING *****************/		
-              /* Color the Operating systems */
-          } else if (strstr(str, "Linux") ||
-                  strstr(str, "FreeBSD") ||
-                  strstr(str, "Win") ||
-                  strstr(str, "MacOS") ||
-                  strstr(str, "OpenBSD") ||
-                  strstr(str, "IRIX") ||
-                  strstr(str, "Windows")) {
-              gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, str, -1,
-                      "green", NULL);
-          } else { 
-              gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, str, -1,
-                      "normal", NULL);
-          }
-      }
-  } else {
-      gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, line, -1,
-            "normal", NULL);
-  }
-}
-
-
-gint read_data(gpointer data)
-{
-  static char buf[BUFSIZ+1] = "";
-  static int buflen = 0;
-  char line[BUFSIZ+1];
-int count;
-
-#ifdef WIN32
-  int rc;
-  char *p=NULL, *q=NULL;
-#endif /* WIN32 */
-
-  while((count = read_from_pipe(pipes[0], buf+buflen, sizeof(buf) - buflen - 1 )) > 0) {
-  char *str;
-
-    /* fprintf(stderr, "\nCount was %d\n", count); */
-    buflen += count;
-    buf[buflen] = '\0';
-
-#ifdef WIN32
-    /* For windows, I have to squeeze \r\n back into \n */
-    p = q = buf;
-    while(*q) { if (*q == '\r') q++; else *p++ = *q++; }
-    *p = '\0';
-#endif /* WIN32 */
-
-    for (str = next_line(buf, sizeof(buf) / sizeof(*buf), line); 
-         (str != buf) && (str != NULL);
-         str = next_line(buf, sizeof(buf) / sizeof(*buf), line)) {
-      buflen = strlen(buf);
-      print_line(opt.buffer, str);
-    }  
-  } 
-
-  /*  fprintf(stderr, "Below loop: Count was %d\n", count); */
-
-  if (buflen > 0) {
-  char *str;
-
-    while ((str = next_line(buf, sizeof(buf) / sizeof(*buf), line)) != NULL) {
-      buflen = strlen(buf);
-      print_line(opt.buffer, str);
-        if (str == buf)
-          break;
-    }
-  }
-
-#ifdef WIN32
-  if (nmap_pid) {
-    rc = WaitForSingleObject(NmapHandle, 0);
-    if (rc == WAIT_FAILED) {
-      pfatal("Failed in WaitForSingleObject to see if Nmap process has died");
-    }
-  }
-  if (!nmap_pid || rc == WAIT_OBJECT_0) {
-    CloseHandle(NmapHandle);
-    CloseHandle(pipes[0]);
-    nmap_pid = 0;
-    buflen = 0;
-    buf[buflen] = '\0';
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(opt.scanButton), 0);
-    return 0;
-  }
-#else
-  if (!nmap_pid || (waitpid(0, NULL, WNOHANG) == nmap_pid)) {
-    /* fprintf(stderr, "Program gone, dead, kablooey!\n"); */
-    nmap_pid = 0;
-    if (pipes[0] != -1) {
-      close(pipes[0]);
-      pipes[0] = -1;
-    }
-    buflen = 0;
-    buf[buflen] = '\0';
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(opt.scanButton), 0);
-    return 0;
-  }
-#endif /* waitpid unix/windoze selector */
-
-  return(1);	
 }
 
 gboolean stop_scan()

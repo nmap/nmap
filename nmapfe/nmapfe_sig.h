@@ -122,13 +122,7 @@
 #include "nmapfe_error.h"
 
 gboolean stop_scan();
-void print_line(GtkTextBuffer *gtktext, char *line);
-gint read_data(gpointer data);
 
-void entry_toggle_checkbox (GtkWidget *entry, GtkWidget *checkbox);
-void entry_toggle_ping_checkbox(GtkWidget *entry, GtkWidget *checkbox);
-
-void mainMenu_fcb(int *variable, guint action, GtkWidget *w);
 void throttleType_cb (GtkComboBox *, gpointer);
 void resolveType_cb (GtkComboBox *, gpointer);
 void protportType_cb (GtkComboBox *, gpointer);
@@ -142,7 +136,6 @@ void validate_option_change(GtkWidget *target_option, void *ignored);
 void browseButton_pressed_cb(GtkWidget *widget, GtkWidget *text);
 void display_nmap_command_cb(GtkWidget *target_option, void *ignored);
 void display_nmap_command();
-char *build_command();
 
 int execute(char *command);
 

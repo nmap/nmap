@@ -145,7 +145,7 @@ static void Colourize_callback  (GtkAction *action, GtkRadioAction *current);
 
 void scanType_cb                (GtkComboBox *widget, gpointer data);
 
-GtkWidget *main_win;
+static GtkWidget *main_win;
 
 static GtkActionEntry menu_entries[] = {
     { "FileMenu",   NULL, "_File" }, /* File menu */
