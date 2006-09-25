@@ -31,6 +31,13 @@ static void sort_and_merge(struct AVal *result, char values[][AVLEN], int num, S
   unsigned int val1, val2;
   int base;
   
+  /*  printf("MERGING %d values: ", num);
+      for (i = 0; i < num; i++) {
+      printf("%s ", values[i]);
+      }
+      printf("\n");
+  */
+
   // sort
   for(i = 0; i < num; i++) {
 	for(j = 1; j < num - i; j++) {
@@ -317,7 +324,7 @@ int main(int argc, char *argv[]) {
   FingerPrint *resultFP;
   FingerPrint *resultFPLine, *observedFPLine;
   char observedFPString[8192];
-  char observedFPString2[4096];
+  char observedFPString2[8192];
   char sourcefile[MAXPATHLEN];
   int sourceline=-1;
   char *p, *endptr;
@@ -375,9 +382,12 @@ int main(int argc, char *argv[]) {
   if (readFP(stdin, observedFPString, sizeof(observedFPString)) == -1)
     fatal("[ERRO] Failed to read in supposed fingerprint from stdin\n");
 
-  /* Now merge the observedFP and observedFP2 (if any) */
+  /* Now merge the observedFP and observedFP2 (if any).  We want the
+   file version to come first as that makes a difference for things
+   like SEQ.SP and SEQ.ISR merging */
   if (*observedFPString2) {
-    strncat(observedFPString, observedFPString2, sizeof(observedFPString));
+    strncat(observedFPString2, observedFPString, sizeof(observedFPString2));
+    Strncpy(observedFPString, observedFPString2, sizeof(observedFPString));
   }
 
   observedFP = parse_single_fingerprint(observedFPString);
@@ -431,28 +441,30 @@ int main(int argc, char *argv[]) {
 	  for(observedFPLine = observedFP; observedFPLine; observedFPLine = observedFPLine->next) {
 		if(strcmp(resultFPLine->name, observedFPLine->name) == 0) {
 		  for(observedAV = observedFPLine->results; observedAV; observedAV = observedAV->next) {
+		    //		    printf("Found %s.%s value: %s\n", observedFPLine->name, observedAV->attribute, observedAV->value);
+
 			if(strcmp(resultAV->attribute, observedAV->attribute) == 0) {
 			  // check if we have stored the same attribute value if
 			  // not, store it
 			  bool stored;
 			  char *p, *q;
 			  p = observedAV->value;
-			  while(p && *p) {
-				stored = false;
-				q = strchr(p, '|');
-				if(q) *q = '\0';
-				for(i = 0; i < avnum; i++) {
-				  if(strcmp(values[i], p) == 0) {
-					stored = true;
-					break;
-				  }
-				}
-				if(!stored) {
-				  strcpy(values[avnum++], p);
-				}
-				if(q) p = q + 1;
-				else break;
-			  }
+			  do {
+			    stored = false;
+			    q = strchr(p, '|');
+			    if(q) *q = '\0';
+			    for(i = 0; i < avnum; i++) {
+			      if(strcmp(values[i], p) == 0) {
+				stored = true;
+				break;
+			      }
+			    }
+			    if(!stored) {
+			      strcpy(values[avnum++], p);
+			    }
+			    if(q) p = q + 1;
+			    else break;
+			  } while (p && *p);
 			}
 		  }
 		}
@@ -469,7 +481,8 @@ int main(int argc, char *argv[]) {
 		// SEQ.GCD
 		merge_gcd(resultAV, values, avnum);
 	  } else if(strcmp(resultFPLine->name, "SEQ") == 0 &&
-		    (strcmp(resultAV->attribute, "SP") == 0 || strcmp(resultAV->attribute, "ISR") == 0)) {
+		    (strcmp(resultAV->attribute, "SP") == 0 || 
+		     strcmp(resultAV->attribute, "ISR") == 0)) {
 	    // SEQ.SP or SEQ.ISR
 	    merge_sp_or_isr(resultAV, values, avnum);
 	  } else if (strcmp(resultAV->attribute, "R") == 0) {
