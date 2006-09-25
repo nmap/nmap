@@ -8,8 +8,8 @@
 #define AVLEN 128
 
 void usage() {
-  printf("Usage: fingerdiff\n"
-         "(You will be prompted for the fingerprint data)\n\n");
+  printf("Usage: fingerdiff [filename:lineno]\n"
+         "If you pass a filename (e.g. ../nmap-os-db) and line number, that print will be merged with whatever you type as fingerprint data when prompted.\n\n");
 
   exit(1);
 }
@@ -317,6 +317,14 @@ int main(int argc, char *argv[]) {
   FingerPrint *resultFP;
   FingerPrint *resultFPLine, *observedFPLine;
   char observedFPString[8192];
+  char observedFPString2[4096];
+  char sourcefile[MAXPATHLEN];
+  int sourceline=-1;
+  char *p, *endptr;
+  FILE *fp;
+  int done = 0;
+  char line[512];
+  int i;
   char resultTemplate[] = {"SEQ(SP=%GCD=%ISR=%TI=%II=%SS=%TS=)\n"
 						   "OPS(O1=%O2=%O3=%O4=%O5=%O6=)\n"
 						   "WIN(W1=%W2=%W3=%W4=%W5=%W6=)\n"
@@ -332,8 +340,34 @@ int main(int argc, char *argv[]) {
 						   "IE(DFI=%T=%TG=%TOSI=%CD=%SI=%DLI=)\n"
   };
 
-  if (argc > 1)
+  if (argc != 1 && argc != 2)
     usage();
+
+  observedFPString2[0] = '\0';
+  if (argc == 2) {
+    Strncpy(sourcefile, argv[1], sizeof(sourcefile));
+    p = strchr(sourcefile, ':');
+    if (!p) fatal("[ERRO] Filename must be followed by a colon and then line number");
+    *p++ = '\0';
+    if (!*p) fatal("[ERRO] Bad command-line arg");
+    sourceline = strtol(p, &endptr, 10);
+    if (*endptr) {
+      error("could not parse line number (trailing garbage?)");
+    }
+    fp = fopen(sourcefile, "r");
+    done = 0; i = 1;
+    while(i < sourceline) {
+      if (fgets(line, sizeof(line), fp) == NULL)
+	fatal("[ERRO] Failed to read to line %d of %s", sourceline, sourcefile);
+      i++;
+    }
+
+    if (readFP(fp, observedFPString2, sizeof(observedFPString2)) == -1)
+      fatal("[ERRO] Failed to read in supposed fingerprint in %s line %d\n", sourcefile, sourceline);
+    fclose(fp);
+    printf("Read in referenceFP:\n%s\n", observedFPString2);
+  }
+  
 
   observedFPString[0] = '\0';
   printf("Enter the fingerprint(s) you want to fix, followed by a blank or single-dot line:\n");
@@ -341,9 +375,15 @@ int main(int argc, char *argv[]) {
   if (readFP(stdin, observedFPString, sizeof(observedFPString)) == -1)
     fatal("[ERRO] Failed to read in supposed fingerprint from stdin\n");
 
+  /* Now merge the observedFP and observedFP2 (if any) */
+  if (*observedFPString2) {
+    strncat(observedFPString, observedFPString2, sizeof(observedFPString));
+  }
+
   observedFP = parse_single_fingerprint(observedFPString);
   if (!observedFP) fatal("[ERRO] failed to parse the observed fingerprint you entered\n");
   // printf("%s", fp2ascii(observedFP));
+
   
   resultFP = parse_single_fingerprint(resultTemplate);
   // printf("%s", fp2ascii(resultFP));
@@ -352,7 +392,6 @@ int main(int argc, char *argv[]) {
   struct AVal *resultAV, *observedAV, *tmpAV;
   char values[16][AVLEN];
   int avnum;
-  int i;
 
   for(resultFPLine = resultFP; resultFPLine; resultFPLine = resultFPLine->next) {
 	// step 1:
