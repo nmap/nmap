@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap 2nd generation OS detection now has a more sophisticated
+  mechanism for guessing a target OS when there is no exact match in the
+  database (see http://insecure.org/nmap/osdetect/osdetect-guess.html )
+
 o A dozen or so small patches to Nmap and NmapFE by Kris Katterjohn.
 
 4.20ALPHA7

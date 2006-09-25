@@ -197,6 +197,13 @@ typedef struct FingerTest {
   struct FingerTest *next;
  } FingerPrint;
 
+/* This structure contains the important data from the fingerprint
+   database (nmap-os-db or nmap-os-fingerprints) */
+typedef struct FingerPrintDB {
+  FingerPrint **prints;
+  FingerPrint *MatchPoints;
+} FingerPrintDB;
+
 struct timeout_info {
   int srtt; /* Smoothed rtt estimate (microseconds) */
   int rttvar; /* Rout trip time variance */

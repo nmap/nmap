@@ -1176,16 +1176,20 @@ static struct AVal *gettestbyname(FingerPrint *FP, const char *name) {
    want to see the results from this match.  if shortcircuit is zero,
    it does all the tests, otherwise it returns when the first one
    fails.  If you want details of the match process printed, pass n
-   onzero for 'verbose'.  In that case, you may also pass in the group
-   name (SEQ, T1, etc) to have that extra info printed.  If you pass 0
-   for verbose, you might as well pass NULL for testGroupName as it
-   won't be used. */
-static int AVal_match(struct AVal *reference, struct AVal *fprint, 
+   onzero for 'verbose'.  If points is non-null, it is examined to
+   find the number of points for each test in the fprint AVal and use
+   that the increment num_subtests and num_subtests_succeeded
+   appropriately.  If it is NULL, each test is worth 1 point.  In that
+   case, you may also pass in the group name (SEQ, T1, etc) to have
+   that extra info printed.  If you pass 0 for verbose, you might as
+   well pass NULL for testGroupName as it won't be used. */
+static int AVal_match(struct AVal *reference, struct AVal *fprint, struct AVal *points,
 		      unsigned long *num_subtests, 
 		      unsigned long *num_subtests_succeeded, int shortcut,
 		      int verbose, const char *testGroupName) {
   struct AVal *current_ref;
   struct AVal *current_fp;
+  struct AVal *current_points;
   unsigned int number, number1;
   unsigned int val;
   char *p, *q, *q1;  /* OHHHH YEEEAAAAAHHHH!#!@#$!% */
@@ -1194,6 +1198,8 @@ static int AVal_match(struct AVal *reference, struct AVal *fprint,
   int andexp, orexp, expchar, numtrue;
   int testfailed;
   int subtests = 0, subtests_succeeded=0;
+  int pointsThisTest = 1;
+
 
   for(current_ref = reference; current_ref; current_ref = current_ref->next) {
     current_fp = getattrbyname(fprint, current_ref->attribute);    
@@ -1250,17 +1256,24 @@ static int AVal_match(struct AVal *reference, struct AVal *fprint,
       if (q) p = q + 1;
     } while(q);
       if (numtrue == 0) testfailed=1;
-      subtests++;
+      if (points) {
+	 current_points = getattrbyname(points, current_ref->attribute);
+	 if (!current_points) fatal("%s: Failed to find point amount for test %s.%s", __FUNCTION__, testGroupName? testGroupName : "", current_ref->attribute);
+	 pointsThisTest = strtol(current_points->value, &endptr, 10);
+	 if (pointsThisTest < 1)
+	   fatal("%s: Got bogus point amount (%s) for test %s.%s", __FUNCTION__, current_points->value, testGroupName? testGroupName : "", current_ref->attribute);
+      }
+      subtests += pointsThisTest;
       if (testfailed) {
 	if (shortcut) {
 	  if (num_subtests) *num_subtests += subtests;
 	  return 0;
 	}
 	if (verbose) 
-	  printf("%s.%s: \"%s\" NOMATCH \"%s\"\n", testGroupName, 
+	  printf("%s.%s: \"%s\" NOMATCH \"%s\" (%d point%s)\n", testGroupName, 
 		 current_ref->attribute, current_fp->value, 
-		 current_ref->value);
-      } else subtests_succeeded++;
+		 current_ref->value, pointsThisTest, (pointsThisTest == 1)? "point" : "points");
+      } else subtests_succeeded += pointsThisTest;
       /* Whew, we made it past one Attribute alive , on to the next! */
   }
   if (num_subtests) *num_subtests += subtests;
@@ -1271,11 +1284,13 @@ static int AVal_match(struct AVal *reference, struct AVal *fprint,
 /* Compares 2 fingerprints -- a referenceFP (can have expression
    attributes) with an observed fingerprint (no expressions).  If
    verbose is nonzero, differences will be printed.  The comparison
-   accuracy (between 0 and 1) is returned). */
+   accuracy (between 0 and 1) is returned).  If MatchPoints is not NULL, it is 
+   a special "fingerprints" which tells how many points each test is worth. */
 double compare_fingerprints(FingerPrint *referenceFP, FingerPrint *observedFP,
-			    int verbose) {
+			    FingerPrint *MatchPoints, int verbose) {
   FingerPrint *currentReferenceTest;
   struct AVal *currentObservedTest;
+  struct AVal *currentTestMatchPoints;
   unsigned long num_subtests = 0, num_subtests_succeeded = 0;
   unsigned long  new_subtests, new_subtests_succeeded;
   assert(referenceFP);
@@ -1288,7 +1303,13 @@ double compare_fingerprints(FingerPrint *referenceFP, FingerPrint *observedFP,
     currentObservedTest = gettestbyname(observedFP, currentReferenceTest->name);
     if (currentObservedTest) {
       new_subtests = new_subtests_succeeded = 0;
-      AVal_match(currentReferenceTest->results, currentObservedTest, 
+      if (MatchPoints) {
+	currentTestMatchPoints = gettestbyname(MatchPoints, currentReferenceTest->name);
+	if (!currentTestMatchPoints)
+	  fatal("%s: Failed to locate test %s in MatchPoints directive of fingerprint file", __FUNCTION__, currentReferenceTest->name);
+      } else currentTestMatchPoints = NULL;
+
+      AVal_match(currentReferenceTest->results, currentObservedTest, currentTestMatchPoints,
 		 &new_subtests, &new_subtests_succeeded, 0, verbose, currentReferenceTest->name);
       num_subtests += new_subtests;
       num_subtests_succeeded += new_subtests_succeeded;
@@ -1299,20 +1320,21 @@ double compare_fingerprints(FingerPrint *referenceFP, FingerPrint *observedFP,
   return (num_subtests)? (num_subtests_succeeded / (double) num_subtests) : 0; 
 }
 
-/* Takes a fingerprint and looks for matches inside reference_FPs[].
-   The results are stored in FPR (which must point to an instantiated
-   FingerPrintResults class) -- results will be reverse-sorted by
-   accuracy.  No results below accuracy_threshhold will be included.
-   The max matches returned is the maximum that fits in a
-   FingerPrintResults class.  */
+/* Takes a fingerprint and looks for matches inside the passed in
+   reference fingerprint DB.  The results are stored in in FPR (which
+   must point to an instantiated FingerPrintResults class) -- results
+   will be reverse-sorted by accuracy.  No results below
+   accuracy_threshhold will be included.  The max matches returned is
+   the maximum that fits in a FingerPrintResults class.  */
 void match_fingerprint(FingerPrint *FP, FingerPrintResults *FPR, 
-		      FingerPrint **reference_FPs, double accuracy_threshold) {
+		      FingerPrintDB *DB, double accuracy_threshold) {
 
   int i;
   double FPR_entrance_requirement = accuracy_threshold; /* accuracy must be 
 							   at least this big 
 							   to be added to the 
 							   list */
+  FingerPrint **reference_FPs = DB->prints;
   FingerPrint *current_os;
   double acc;
   int state;
@@ -1332,7 +1354,7 @@ void match_fingerprint(FingerPrint *FP, FingerPrintResults *FPR,
     current_os = reference_FPs[i];
     skipfp = 0;
 
-    acc = compare_fingerprints(current_os, FP, 0);
+    acc = compare_fingerprints(current_os, FP, DB->MatchPoints, 0);
 
     /*    error("Comp to %s: %li/%li=%f", o.reference_FPs1[i]->OS_name, num_subtests_succeeded, num_subtests, acc); */
     if (acc >= FPR_entrance_requirement || acc == 1.0) {
@@ -1615,7 +1637,7 @@ do {
 	 one is the same */
       if (i == numFPs - 1 || !currentFPs[i+1] ||
 	  strcmp(currentFPs[i]->name, currentFPs[i+1]->name) != 0 ||
-	  AVal_match(currentFPs[i]->results,currentFPs[i+1]->results, NULL,
+	  AVal_match(currentFPs[i]->results,currentFPs[i+1]->results, NULL, NULL,
 		     NULL, 1, 0, NULL) ==0)
 	{
 	  changed = 1;
@@ -1927,7 +1949,8 @@ FingerPrint *parse_single_fingerprint(char *fprint_orig) {
 }
 
 
-void free_fingerprint_file(FingerPrint **FPs) {
+void free_fingerprint_file(FingerPrintDB *DB) {
+  FingerPrint **FPs = DB->prints;
   FingerPrint **current;
   FingerPrint *c, *d;
   struct AVal *avc;
@@ -1950,21 +1973,47 @@ void free_fingerprint_file(FingerPrint **FPs) {
     }
   }
   free(FPs);
+
+  if (DB->MatchPoints) {
+    for(c = DB->MatchPoints; c; c=d){
+      d = c->next;
+      if(c->name)
+	free((void*)c->name); //strdup
+      if(c->results){
+	for(avc = c->results; avc; avc = avd) {
+	  avd = avc->next;
+	  if(avc->attribute)
+	    free(avc->attribute);
+	}
+	free(c->results);
+      }
+      free(c);
+    }
+    free(DB->MatchPoints);
+  }
+  free(DB);
 }
 
 
-FingerPrint **parse_fingerprint_file(char *fname) {
-FingerPrint **FPs;
+FingerPrintDB *parse_fingerprint_file(char *fname) {
+FingerPrintDB *DB = NULL;
 FingerPrint *current;
 FILE *fp;
 int max_records = 4096; 
 char line[512];
 int numrecords = 0;
 int lineno = 0;
+ bool parsingMatchPoints = false;
+
 int classno = 0; /* Number of Class lines dealt with so far */
+
+ DB = (FingerPrintDB *) safe_zalloc(sizeof(FingerPrintDB));
+
 char *p, *q; /* OH YEAH!!!! */
 
- FPs = (FingerPrint **) safe_zalloc(sizeof(FingerPrint *) * max_records); 
+ if (!DB) fatal("non-allocated DB passed to %s", __FUNCTION__);
+
+ DB->prints = (FingerPrint **) safe_zalloc(sizeof(FingerPrint *) * max_records); 
 
  fp = fopen(fname, "r");
  if (!fp) fatal("Unable to open Nmap fingerprint file: %s", fname);
@@ -1978,29 +2027,39 @@ while(fgets(line, sizeof(line), fp)) {
 
  fparse:
 
-  if (strncasecmp(line, "FingerPrint", 11)) {
+  if (strncasecmp(line, "FingerPrint", 11) == 0) {
+    parsingMatchPoints = false;
+  } else if (strncasecmp(line, "MatchPoints", 11) == 0) {
+    if (DB->MatchPoints) fatal("Found MatchPoints directive on line %d of %s even though it has previously been seen in the file", lineno, fname);
+    parsingMatchPoints = true;
+  } else {
     fprintf(stderr, "Parse error on line %d of nmap-os-fingerprints file: %s\n", lineno, line);
     continue;
   }
 
-  p = line + 12;
-  while(*p && isspace((int) *p)) p++;
+  current = (FingerPrint *) safe_zalloc(sizeof(FingerPrint));
 
-  q = strpbrk(p, "\n#");
-  if (!p) fatal("Parse error on line %d of fingerprint: %s", lineno, line);
+  if (parsingMatchPoints) {
+    current->OS_name = NULL;
+    DB->MatchPoints = current;
+  } else {
+    DB->prints[numrecords] = current;
+    p = line + 12;
+    while(*p && isspace((int) *p)) p++;
+    
+    q = strpbrk(p, "\n#");
+    if (!p) fatal("Parse error on line %d of fingerprint: %s", lineno, line);
 
-  while(isspace(*(--q)))
-    ;
+    while(isspace(*(--q)))
+      ;
 
-  if (q < p) fatal("Parse error on line %d of fingerprint: %s", lineno, line);
+    if (q < p) fatal("Parse error on line %d of fingerprint: %s", lineno, line);
 
-  FPs[numrecords] = (FingerPrint *) safe_zalloc(sizeof(FingerPrint));
-
-  FPs[numrecords]->OS_name = (char *) cp_alloc(q - p + 2);
-  memcpy(FPs[numrecords]->OS_name, p, q - p + 1);
-  FPs[numrecords]->OS_name[q - p + 1] = '\0';
+    current->OS_name = (char *) cp_alloc(q - p + 2);
+    memcpy(current->OS_name, p, q - p + 1);
+    current->OS_name[q - p + 1] = '\0';
+  }
       
-  current = FPs[numrecords];
   current->line = lineno;
   classno = 0;
 
@@ -2039,23 +2098,24 @@ while(fgets(line, sizeof(line), fp)) {
       current->results = str2AVal(p);
     }
   }
-  /* printf("Read in fingerprint:\n%s\n", fp2ascii(FPs[numrecords])); */
-  numrecords++;
+  /* printf("Read in fingerprint:\n%s\n", fp2ascii(DB->prints[numrecords])); */
+  if (!parsingMatchPoints)
+    numrecords++;
   if (numrecords >= max_records)
     fatal("Too many OS fingerprints -- 0verflow");
-}
-fclose(fp);
-FPs[numrecords] = NULL; 
-return FPs;
+ }
+ fclose(fp);
+ DB->prints[numrecords] = NULL; 
+ return DB;
 }
 
-FingerPrint **parse_fingerprint_reference_file(char *dbname) {
+FingerPrintDB *parse_fingerprint_reference_file(char *dbname) {
 char filename[256];
 if (nmap_fetchfile(filename, sizeof(filename), dbname) == -1){
     fatal("OS scan requested but I cannot find %s file.  It should be in %s, ~/.nmap/ or .", dbname, NMAPDATADIR);
 }
 
-return parse_fingerprint_file(filename);
+ return parse_fingerprint_file(filename);
 }
 
 /* This function takes an array of "numSamples" IP IDs and analyzes

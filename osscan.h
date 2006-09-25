@@ -114,6 +114,7 @@
 
 /* We won't even consider matches with a lower accuracy than this */
 #define OSSCAN_GUESS_THRESHOLD 0.85
+
 /**********************  STRUCTURES  ***********************************/
 
 /* moved to global_structures.h */
@@ -128,26 +129,31 @@ char *fp2ascii(FingerPrint *FP);
  complete since it is used by scripts such as scripts/fingerwatch for
  which some partial fingerpritns are OK. */
 FingerPrint *parse_single_fingerprint(char *fprint_orig);
-FingerPrint **parse_fingerprint_file(char *fname);
-FingerPrint **parse_fingerprint_reference_file(char *dbname);
 
-void free_fingerprint_file(FingerPrint **FPs);
+/* These functions take a file/db name and open+parse it, returning an
+   (allocated) FingerPrintDB containing the results.  They exit with
+   an error message in the case of error. */
+FingerPrintDB *parse_fingerprint_file(char *fname);
+FingerPrintDB *parse_fingerprint_reference_file(char *dbname);
+
+void free_fingerprint_file(FingerPrintDB *DB);
 
 /* Compares 2 fingerprints -- a referenceFP (can have expression
    attributes) with an observed fingerprint (no expressions).  If
    verbose is nonzero, differences will be printed.  The comparison
-   accuracy (between 0 and 1) is returned) */
+   accuracy (between 0 and 1) is returned).  If MatchPoints is not NULL, it is 
+   a special "fingerprints" which tells how many points each test is worth. */
 double compare_fingerprints(FingerPrint *referenceFP, FingerPrint *observedFP,
-			    int verbose);
+			    FingerPrint *MatchPoints, int verbose);
 
-/* Takes a fingerprint and looks for matches inside reference_FPs[].
-   The results are stored in in FPR (which must point to an instantiated
-   FingerPrintResults class) -- results will be reverse-sorted by
-   accuracy.  No results below accuracy_threshhold will be included.
-   The max matches returned is the maximum that fits in a
-   FingerPrintResults class.  */
+/* Takes a fingerprint and looks for matches inside the passed in
+   reference fingerprint DB.  The results are stored in in FPR (which
+   must point to an instantiated FingerPrintResults class) -- results
+   will be reverse-sorted by accuracy.  No results below
+   accuracy_threshhold will be included.  The max matches returned is
+   the maximum that fits in a FingerPrintResults class.  */
 void match_fingerprint(FingerPrint *FP, FingerPrintResults *FPR, 
-		       FingerPrint **reference_FPs, double accuracy_threshold);
+		       FingerPrintDB *DB, double accuracy_threshold);
 
 /* Returns true if perfect match -- if num_subtests & num_subtests_succeeded are non_null it updates them.  if shortcircuit is zero, it does all the tests, otherwise it returns when the first one fails */
 
