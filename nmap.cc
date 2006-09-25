@@ -1718,7 +1718,7 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
   nmap_arg_buffer[21 + q-p] = '\0';
 
   if (strstr(nmap_arg_buffer, "--randomize-hosts") != NULL) {
-    error("WARNING:  You are attempting to resume a scan which used --randomize-hosts.  Some hosts in the last randomized batch make be missed and others may be repeated once");
+    error("WARNING:  You are attempting to resume a scan which used --randomize-hosts.  Some hosts in the last randomized batch may be missed and others may be repeated once");
   }
 
   *myargc = arg_parse(nmap_arg_buffer, myargv);
