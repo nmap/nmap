@@ -1198,6 +1198,7 @@ hotline           1234/tcp   #
 nessus            1241/tcp   # Nessus or remote message server
 hermes            1248/tcp   # 
 hermes            1248/udp   # 
+ssserver          1270/tcp   # Sun StorEdge Configuration Service
 waste             1337/tcp   # Nullsoft WASTE encrypted P2P app
 alta-ana-lm       1346/tcp   # Alta Analytics License Manager
 alta-ana-lm       1346/udp   # Alta Analytics License Manager
