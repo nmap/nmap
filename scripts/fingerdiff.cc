@@ -128,6 +128,7 @@ int main(int argc, char *argv[]) {
   double accuracy;
   char sourcefile[MAXPATHLEN];
   int sourceline=-1;
+  FingerPrintDB *DB = NULL;
   char referenceFPString[8192];
   char observedFPString[8192];
   char line[512];
@@ -135,6 +136,7 @@ int main(int argc, char *argv[]) {
   int i, rc;
   int done=0;
   FILE *fp;
+  FingerPrint *MatchPoints = NULL;
 
   if (argc < 1 || argc > 2)
     usage(NULL);
@@ -162,6 +164,11 @@ int main(int argc, char *argv[]) {
     if (readFP(fp, referenceFPString, sizeof(referenceFPString)) == -1)
       usage("Failed to read in supposed fingerprint in %s line %d\n", sourcefile, sourceline);
     fclose(fp);
+
+    /* Try to parse the file as an nmap-DB to get the matchpoints */
+    DB = parse_fingerprint_file(sourcefile);
+    if (DB) MatchPoints = DB->MatchPoints;
+
     printf("STEP ONE: Reading REFERENCE FINGERPRINT from %s line %d:\n%s\n"
 	   ,sourcefile, sourceline, referenceFPString);    
   } else {
@@ -191,7 +198,7 @@ int main(int argc, char *argv[]) {
   }
 
   /* OK, now I've got the fingerprints -- I just need to compare them ... */
-  accuracy = compare_fingerprints(referenceFP, observedFP, 1);
+  accuracy = compare_fingerprints(referenceFP, observedFP, MatchPoints, 1);
   if (accuracy == 1)
     printf("PERFECT MATCH!\n");
   else printf("Accuracy of the two prints is %d%% -- see differences above.\n",

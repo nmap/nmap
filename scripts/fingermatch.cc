@@ -107,7 +107,7 @@
 #include "osscan.h"
 #include "fingerlib.h"
 
-#define FINGERMATCH_GUESS_THRESHOLD 0.75 /* How low we will still show guesses for */
+#define FINGERMATCH_GUESS_THRESHOLD 0.80 /* How low we will still show guesses for */
 
 void usage() {
   printf("Usage: fingermatch <fingerprintfilename>\n"
@@ -118,7 +118,7 @@ void usage() {
 
 int main(int argc, char *argv[]) {
   char *fingerfile = NULL;
-  FingerPrint **reference_FPs = NULL;
+  FingerPrintDB *reference_FPs = NULL;
   FingerPrint *testFP;
   struct FingerPrintResults FPR;
   char fprint[8192];
