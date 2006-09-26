@@ -208,7 +208,6 @@ enum {
   NO_VERBOSE
 };
 
-
 /* output format options */
 enum {
   NORMAL_OUTPUT,
@@ -229,7 +228,7 @@ struct NmapFEoptions {
   GtkWidget *commandEntry;
   gboolean appendLog;
   guint viewValue;
-  guint uid;
+  gboolean isr00t;
   /* scan types */
   GtkWidget *scanType;
   guint scanValue;
@@ -308,6 +307,7 @@ struct NmapFEoptions {
   GtkWidget *useFragments;
   GtkWidget *useIPv6;
   GtkWidget *useOrderedPorts;
+  GtkWidget *randomizeHosts;
 };
 
 GtkWidget* create_main_win (void);

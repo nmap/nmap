@@ -115,8 +115,13 @@
 #include <unistd.h>
 #endif
 
-void fatal(char *fmt, ...);
-void error(char *fmt, ...);
-void pfatal(char *err, ...);
+#ifndef __attribute__
+#define __attribute__(args)
+#endif
+
+void fatal(char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
+void error(char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
+void pfatal(char *err, ...) __attribute__ ((format (printf, 1, 2)));
+
 #endif /* NMAPFE_ERROR_H */
 

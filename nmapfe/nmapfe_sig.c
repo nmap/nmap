@@ -183,9 +183,9 @@ main (int   argc,
 
 #ifndef WIN32
     signal(SIGPIPE, SIG_IGN);
-    opt.uid = getuid();
+    opt.isr00t = !geteuid();
 #else
-    opt.uid = 0; /* With Windows (in general), every user is a Super User! */
+    opt.isr00t = 1; /* With Windows (in general), every user is a Super User! */
 #endif
 
     main_win = create_main_win();
@@ -193,7 +193,7 @@ main (int   argc,
 
     gtk_text_buffer_get_end_iter (opt.buffer, &iter);
     gtk_text_buffer_insert_with_tags_by_name (opt.buffer, &iter, 
-            (opt.uid == 0)
+            (opt.isr00t)
             ? "You are root - All options granted."
             : "You are *NOT* root - Some options aren't available.", -1, 
             "normal", NULL);
@@ -472,6 +472,10 @@ static int command_size = 0;
   if (GTK_WIDGET_SENSITIVE(opt.useOrderedPorts) &&
       GTK_TOGGLE_BUTTON(opt.useOrderedPorts)->active)
     strcat(command, "-r ");
+
+  if (GTK_WIDGET_SENSITIVE(opt.randomizeHosts) &&
+      GTK_TOGGLE_BUTTON(opt.randomizeHosts)->active)
+    strcat(command, "--randomize-hosts ");
 
   if (GTK_WIDGET_SENSITIVE(opt.useInputFile) &&
       GTK_TOGGLE_BUTTON(opt.useInputFile)->active) {
@@ -892,13 +896,10 @@ static int execute_unix(char *command)
 }
 
 
+#ifdef WIN32
 /* Parts cribbed from _Win32 System Programming Second Edition_ pp 304 */
 static int execute_win(char *command)
 {
-#ifndef WIN32
-  fatal("The execute_win function should ONLY be called from Windows!");
-  return -1;
-#else
 
 /* For pipes[] array:  0 == READ; 1 == WRITE */
 
@@ -933,8 +934,9 @@ STARTUPINFO Nmap_Start;
 
   return Nmap_Proc.dwProcessId;
 
-#endif
+
 }
+#endif /* WIN32 */
 
 int execute(char *command)
 {
@@ -986,7 +988,7 @@ void scanType_cb
 
     j = gtk_combo_box_get_active(w);
 
-    if (opt.uid == 0) {
+    if (opt.isr00t) {
         k = j;
     } else {
         for (k = 0; user[k].scantype; k++) {
@@ -1028,7 +1030,7 @@ void scanType_cb
     if ((opt.scanValue == CONNECT_SCAN) || (opt.scanValue == BOUNCE_SCAN)) {
       gtk_widget_set_sensitive(GTK_WIDGET(opt.useDecoy), FALSE);
       gtk_widget_set_sensitive(GTK_WIDGET(opt.Decoy), FALSE);
-    } else if (opt.uid == 0) {
+    } else if (opt.isr00t) {
       gtk_widget_set_sensitive(GTK_WIDGET(opt.useDecoy), TRUE);
       gtk_widget_set_sensitive(GTK_WIDGET(opt.Decoy), TRUE);
     }
@@ -1038,7 +1040,7 @@ void scanType_cb
             (opt.scanValue != SYN_SCAN) && (opt.scanValue != NULL_SCAN) && 
             (opt.scanValue != XMAS_SCAN) && (opt.scanValue != WIN_SCAN))
       gtk_widget_set_sensitive(GTK_WIDGET(opt.useFragments), FALSE);
-    else if (opt.uid == 0)
+    else if (opt.isr00t)
       gtk_widget_set_sensitive(GTK_WIDGET(opt.useFragments), TRUE);
 
     if ((opt.scanValue == BOUNCE_SCAN) || (opt.scanValue == IDLE_SCAN)) {
@@ -1070,7 +1072,7 @@ gboolean status = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ping_button));
     gtk_widget_set_sensitive(GTK_WIDGET(opt.tcpPing), !status);
     gtk_widget_set_sensitive(GTK_WIDGET(opt.tcpPingLabel), localstatus);
     gtk_widget_set_sensitive(GTK_WIDGET(opt.tcpPingPorts), localstatus);
-    if (opt.uid == 0) {
+    if (opt.isr00t) {
       gtk_widget_set_sensitive(GTK_WIDGET(opt.icmpechoPing), !status);
       gtk_widget_set_sensitive(GTK_WIDGET(opt.icmpmaskPing), !status);
       gtk_widget_set_sensitive(GTK_WIDGET(opt.icmptimePing), !status);
@@ -1090,11 +1092,11 @@ gboolean status = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ping_button));
     gtk_widget_set_sensitive(GTK_WIDGET(opt.tcpPingLabel), status);
     gtk_widget_set_sensitive(GTK_WIDGET(opt.tcpPingPorts), status);
   }
-  else if ((ping_button == opt.synPing) && (opt.uid == 0)) {
+  else if ((ping_button == opt.synPing) && (opt.isr00t)) {
     gtk_widget_set_sensitive(GTK_WIDGET(opt.synPingLabel), status);
     gtk_widget_set_sensitive(GTK_WIDGET(opt.synPingPorts), status);
   }
-  else if ((ping_button == opt.udpPing) && (opt.uid == 0)) {
+  else if ((ping_button == opt.udpPing) && (opt.isr00t)) {
     gtk_widget_set_sensitive(GTK_WIDGET(opt.udpPingLabel), status);
     gtk_widget_set_sensitive(GTK_WIDGET(opt.udpPingPorts), status);
   }
