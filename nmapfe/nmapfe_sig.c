@@ -417,6 +417,28 @@ static int command_size = 0;
   else if (opt.resolveValue == NEVER_RESOLVE)
     strcat(command, "-n ");		
 
+  if (GTK_TOGGLE_BUTTON(opt.verbose)->active) {
+  int val = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(opt.verboseValue));
+
+    if (val == 1)
+      strcat(command, "-v ");
+    else if (val == 2)
+      strcat(command, "-vv ");
+  }
+
+  if (GTK_TOGGLE_BUTTON(opt.debug)->active) {
+  int val = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(opt.debugValue));
+
+    if (val > 0) {
+      strcat(command, "-d");
+
+      if (val > 1)
+        sprintf(command+strlen(command), "%d", val);
+
+      strcat(command, " ");
+    }
+  }
+
   if (GTK_WIDGET_SENSITIVE(opt.useDecoy) &&
       GTK_TOGGLE_BUTTON(opt.useDecoy)->active) {
   const char *val = gtk_entry_get_text(GTK_ENTRY(opt.Decoy));
@@ -511,15 +533,6 @@ static int command_size = 0;
     }
   }
  
-  if (opt.verboseValue == V1_VERBOSE)
-    strcat(command, "-v ");
-  else if (opt.verboseValue == V2_VERBOSE)
-    strcat(command, "-vv ");
-  else if (opt.verboseValue == D1_VERBOSE)
-    strcat(command, "-d ");
-  else if (opt.verboseValue == D2_VERBOSE)
-    strcat(command, "-d2 ");
-
   strcat(command, gtk_entry_get_text(GTK_ENTRY(opt.targetHost)));
 
   return(command);
@@ -1131,14 +1144,6 @@ void protportType_cb(GtkComboBox *w, gpointer d)
       gtk_widget_grab_focus(GTK_WIDGET(opt.protportRange));
 
     display_nmap_command();
-}
-
-
-/* callback for factory generated menu items: set variable to action */
-void verboseType_cb(GtkComboBox *w, gpointer d)
-{
-  opt.verboseValue = gtk_combo_box_get_active(w);
-  display_nmap_command();
 }
 
 

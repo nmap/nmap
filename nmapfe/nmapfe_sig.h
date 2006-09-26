@@ -126,7 +126,6 @@ gboolean stop_scan();
 void throttleType_cb (GtkComboBox *, gpointer);
 void resolveType_cb (GtkComboBox *, gpointer);
 void protportType_cb (GtkComboBox *, gpointer);
-void verboseType_cb (GtkComboBox *, gpointer);
 void outputFormatType_cb (GtkComboBox *, gpointer);
 
 void pingButton_toggled_cb(GtkWidget *ping_button, void *ignored);

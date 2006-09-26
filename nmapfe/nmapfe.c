@@ -234,15 +234,6 @@ static gchar *protportEntries[] = {
     NULL
 };
 
-static gchar *verboseEntries[] = {
-    "Quiet",
-    "Verbose",
-    "Very Verbose",
-    "Debug",
-    "Verbose Debug",
-    NULL
-};
-
 static gchar *outputFormatEntries[] = {
     "Normal",
     "grep-able",
@@ -432,7 +423,6 @@ GtkAdjustment *adjust;
   opt.throttleValue = NORMAL_THROTTLE;
   opt.resolveValue = DEFAULT_RESOLVE;
   opt.protportValue = DEFAULT_PROTPORT;
-  opt.verboseValue = QUIET_VERBOSE;
   opt.outputFormatValue = NORMAL_OUTPUT;
 
 #ifdef WIN32
@@ -1212,29 +1202,48 @@ GtkAdjustment *adjust;
     gtk_widget_show_all(frame);
   }
 
-  /* Verbosity frame */
-  {
-    gint i;
+  /* Verbosity & Debugging frame */
+  frame = gtk_frame_new("Verbosity & Debugging Levels");
+  gtk_table_attach_defaults(GTK_TABLE(nbpage), frame, 0, 1, 1, 2);
 
-    frame = gtk_frame_new("Verbosity");
-    gtk_table_attach_defaults(GTK_TABLE(nbpage), frame, 0, 1, 1, 2);
+  table = gtk_table_new(2, 2, FALSE);
+  gtk_container_set_border_width(GTK_CONTAINER(table), 5);
+  gtk_container_add(GTK_CONTAINER(frame), table);
 
-    vbox = gtk_vbox_new(FALSE, 5);
-    gtk_container_set_border_width(GTK_CONTAINER(vbox), 5);
-    gtk_container_add(GTK_CONTAINER(frame), vbox);
+  opt.verbose = gtk_check_button_new_with_label("Verbosity");
+  gtk_table_attach_defaults(GTK_TABLE(table), opt.verbose, 0, 1, 0, 1);
+  gtk_widget_show(opt.verbose);
 
-    opt.verboseType = gtk_combo_box_new_text();
+  adjust = (GtkAdjustment *) gtk_adjustment_new(1.0, 1.0, 2.0, 1.0, 10.0, 10.0);
+  opt.verboseValue = gtk_spin_button_new(adjust, 1.0, 0);
+  gtk_spin_button_set_numeric(GTK_SPIN_BUTTON(opt.verboseValue), TRUE);
+  g_signal_connect(GTK_OBJECT(opt.verbose), "released",
+		   GTK_SIGNAL_FUNC(toggle_button_set_sensitive_cb), opt.verboseValue);
+  g_signal_connect(GTK_OBJECT(opt.verboseValue), "changed",
+		   GTK_SIGNAL_FUNC(display_nmap_command_cb), NULL);
+  if (!GTK_TOGGLE_BUTTON(opt.verbose)->active)
+    gtk_widget_set_sensitive(GTK_WIDGET(opt.verboseValue), FALSE);
+  gtk_table_attach_defaults(GTK_TABLE(table), opt.verboseValue, 1, 2, 0, 1);
+  gtk_widget_show(opt.verboseValue);
 
-    for (i = 0; verboseEntries[i]; i++) {
-      gtk_combo_box_append_text(GTK_COMBO_BOX(opt.verboseType), verboseEntries[i]);
-    }
+  opt.debug = gtk_check_button_new_with_label("Debugging");
+  gtk_table_attach_defaults(GTK_TABLE(table), opt.debug, 0, 1, 1, 2);
+  gtk_widget_show(opt.debug);
 
-    g_signal_connect(G_OBJECT(opt.verboseType), "changed",
-            G_CALLBACK (verboseType_cb), NULL);
+  adjust = (GtkAdjustment *) gtk_adjustment_new(1.0, 1.0, 9.0, 1.0, 10.0, 10.0);
+  opt.debugValue = gtk_spin_button_new(adjust, 1.0, 0);
+  gtk_spin_button_set_numeric(GTK_SPIN_BUTTON(opt.debugValue), TRUE);
+  g_signal_connect(GTK_OBJECT(opt.debug), "released",
+		   GTK_SIGNAL_FUNC(toggle_button_set_sensitive_cb), opt.debugValue);
+  g_signal_connect(GTK_OBJECT(opt.debugValue), "changed",
+		   GTK_SIGNAL_FUNC(display_nmap_command_cb), NULL);
+  if (!GTK_TOGGLE_BUTTON(opt.debug)->active)
+    gtk_widget_set_sensitive(GTK_WIDGET(opt.debugValue), FALSE);
+  gtk_table_attach_defaults(GTK_TABLE(table), opt.debugValue, 1, 2, 1, 2);
+  gtk_widget_show(opt.debugValue);
 
-    gtk_box_pack_start(GTK_BOX(vbox), opt.verboseType, TRUE, FALSE, 0);
-    gtk_widget_show_all (frame);
-  }
+  gtk_widget_show(table);
+  gtk_widget_show(frame);
 
 
   frame = gtk_frame_new("Source");
@@ -1460,7 +1469,6 @@ GtkAdjustment *adjust;
   gtk_combo_box_set_active(GTK_COMBO_BOX (opt.outputFormatType), opt.outputFormatValue);
   /* Fifth Notebook - Options */
   gtk_combo_box_set_active(GTK_COMBO_BOX (opt.resolveType), opt.resolveValue);
-  gtk_combo_box_set_active(GTK_COMBO_BOX (opt.verboseType), opt.verboseValue);
 
   display_nmap_command();
 

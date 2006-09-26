@@ -198,16 +198,6 @@ enum {
   NO_PROTPORT
 };
 
-/* verbosity options */
-enum {
-  QUIET_VERBOSE,
-  V1_VERBOSE,
-  V2_VERBOSE,
-  D1_VERBOSE,
-  D2_VERBOSE,
-  NO_VERBOSE
-};
-
 /* output format options */
 enum {
   NORMAL_OUTPUT,
@@ -291,9 +281,11 @@ struct NmapFEoptions {
   /* DNS options */
   GtkWidget *resolveType;
   guint resolveValue;
-  /* verbosity options */
-  GtkWidget *verboseType;
-  guint verboseValue;
+  /* verbosity/debugging options */
+  GtkWidget *verbose;
+  GtkWidget *verboseValue;
+  GtkWidget *debug;
+  GtkWidget *debugValue;
   /* source options */
   GtkWidget *useSourceDevice;
   GtkWidget *SourceDevice;
