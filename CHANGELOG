@@ -1,8 +1,17 @@
 # Nmap Changelog ($Id$); -*-text-*-
+4.20ALPHA8
+
+o Integrated the newly submitted OS fingerprints.  The DB now contains
+  56, up 33% from 42 in ALPHA7.  Please keep them coming!  We still only
+  have 3.33% as many signatures as the gen1 database.
 
 o Nmap 2nd generation OS detection now has a more sophisticated
   mechanism for guessing a target OS when there is no exact match in the
   database (see http://insecure.org/nmap/osdetect/osdetect-guess.html )
+
+o Rewrote mswin32/nmap.rc to remove cruft and hopefully reduce some
+  MFC-related compilation problems we've seen.  Thanks to KX
+  (kxmail(a)gmail.com) for doing this.
 
 o NmapFE now uses a spin button for verbosity and debugging options so
   that you can specify whatever verbosity (-v) or debugging (-d) level
