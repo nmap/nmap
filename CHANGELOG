@@ -11,6 +11,10 @@ o NmapFE now uses a spin button for verbosity and debugging options so
 
 o A dozen or so small patches to Nmap and NmapFE by Kris Katterjohn.
 
+o Removed libpcap/Win32 and libpcap/msdos as Nmap doesn't use them.
+  This reduces the Nmap tar.bz2 by about 50K.  Thanks to Kris Katterjohn
+  for the suggestion.
+
 4.20ALPHA7
 
 o Did a bunch of Nmap 2nd generation fingerprint integration work.

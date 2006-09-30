@@ -119,22 +119,9 @@ distro:
            doc/pcap.html doc/pcap.txt doc/pcap.xml lbl/os-aix4.h \
            lbl/os-hpux11.h lbl/os-osf4.h lbl/os-osf5.h lbl/os-solaris2.h \
            lbl/os-sunos4.h lbl/os-ultrix4.h missing/snprintf.c \
-           msdos/bin2c.c msdos/common.dj msdos/makefile msdos/makefile.dj \
-           msdos/makefile.wc msdos/ndis_0.asm msdos/ndis2.c msdos/ndis2.h \
-           msdos/pktdrvr.c msdos/pktdrvr.h msdos/pkt_rx0.asm msdos/pkt_rx1.s \
-           msdos/readme.dos SUNOS4/nit_if.o.sparc \
+           SUNOS4/nit_if.o.sparc \
            SUNOS4/nit_if.o.sun3 SUNOS4/nit_if.o.sun4c.4.0.3c \
-           bpf/net/bpf_filter.c Win32/Include/addrinfo.h \
-           Win32/Include/bittypes.h Win32/Include/cdecl_ext.h \
-           Win32/Include/Gnuc.h Win32/Include/inetprivate.h \
-           Win32/Include/ip6_misc.h \
-           Win32/Include/sockstorage.h Win32/Prj/libpcap.dsp \
-           Win32/Prj/libpcap.dsw Win32/Src/ffs.c Win32/Src/getaddrinfo.c \
-           Win32/Src/getnetbynm.c Win32/Src/getnetent.c Win32/Src/getopt.c \
-           Win32/Src/getservent.c Win32/Src/inet_aton.c Win32/Src/inet_net.c \
-           Win32/Src/inet_pton.c Win32/Include/arpa/nameser.h \
-           Win32/Include/net/if.h Win32/Include/net/netdb.h \
-           Win32/Include/net/paths.h \
+           bpf/net/bpf_filter.c \
            /usr/tmp/nmap-$(NMAP_VERSION)/$(LIBPCAPDIR)
 	$(SHTOOL) mkdir /usr/tmp/nmap-$(NMAP_VERSION)/docs
 	cd ../docs; cp -a README nmap_gpgkeys.txt \

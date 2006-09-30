@@ -15,6 +15,8 @@ o Removed the .cvsignore file, all 'CVS' directories, the 'packaging'
 o Updated config.sub and config.guess (in the distribution file they
   are just symlinks to the corresponding files in the nmap dir
 
+o Removed the Win32 and msdos directories as Nmap doesn't use them
+
 o Added the gcc debugging flag (-g) to aclocal.m4 if gcc is being used:
 --- libpcap-0.9.4/aclocal.m4    2005-04-20 20:42:09.000000000 -0700
 +++ libpcap/aclocal.m4  2006-08-16 15:27:46.000000000 -0700
