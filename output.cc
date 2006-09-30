@@ -1232,242 +1232,251 @@ void printosscanoutput(Target *currenths) {
   int distance = -1;
   
   if (!currenths->osscan_performed)
-	return;
-
+    return;
+  
   if (currenths->FPR == NULL && currenths->FPR1 == NULL) {
-	return;
+    return;
   } else if (currenths->FPR != NULL && currenths->FPR1 == NULL) {
-	osscanSys = 2;
-	FPR = currenths->FPR;
+    osscanSys = 2;
+    FPR = currenths->FPR;
   } else if (currenths->FPR == NULL && currenths->FPR1 != NULL) {
-	osscanSys = 1;
-	FPR = currenths->FPR1;
+    osscanSys = 1;
+    FPR = currenths->FPR1;
   }
   else {
-	/* Neither is NULL. This happens when new OS scan system fails to
-	   get a perfect match and falls back on the old OS scan
-	   system. */
-	if (currenths->FPR->num_perfect_matches > 0) {
-	  osscanSys = 2;
-	  FPR = currenths->FPR; /* Just an ensurance. */
-	} else if (currenths->FPR1->num_perfect_matches > 0) {
-	  osscanSys = 1;
-	  FPR = currenths->FPR1;
-	} else if (currenths->FPR->overall_results == OSSCAN_SUCCESS) {
-	  osscanSys = 2;
-	  FPR = currenths->FPR;
-	} else if (currenths->FPR1->overall_results == OSSCAN_SUCCESS) {
-	  osscanSys = 1;
-	  FPR = currenths->FPR1;
-	} else {
-	  /* Both fails. */
-	  osscanSys = 2;
-	  FPR = currenths->FPR;
-	}
-  }
-
-  if (currenths->distance != -1)
-	distance = currenths->distance;
-
-    log_write(LOG_XML, "<os>");
-  if (FPR->osscan_opentcpport > 0) {
-      log_write(LOG_XML, 
-		"<portused state=\"open\" proto=\"tcp\" portid=\"%hu\" />\n",
-			  FPR->osscan_opentcpport);
+    /* Neither is NULL. This happens when new OS scan system fails to
+       get a perfect match and falls back on the old OS scan
+       system. */
+    if (currenths->FPR->num_perfect_matches > 0) {
+      osscanSys = 2;
+      FPR = currenths->FPR; /* Just an ensurance. */
+    } else if (currenths->FPR1->num_perfect_matches > 0) {
+      osscanSys = 1;
+      FPR = currenths->FPR1;
+    } else if (currenths->FPR->overall_results == OSSCAN_SUCCESS) {
+      osscanSys = 2;
+      FPR = currenths->FPR;
+    } else if (currenths->FPR1->overall_results == OSSCAN_SUCCESS) {
+      osscanSys = 1;
+      FPR = currenths->FPR1;
+    } else {
+      /* Both fails. */
+      osscanSys = 2;
+      FPR = currenths->FPR;
     }
+  }
+  
+  if (currenths->distance != -1)
+    distance = currenths->distance;
+  
+  log_write(LOG_XML, "<os>");
+  if (FPR->osscan_opentcpport > 0) {
+    log_write(LOG_XML, 
+	      "<portused state=\"open\" proto=\"tcp\" portid=\"%hu\" />\n",
+	      FPR->osscan_opentcpport);
+  }
   if (FPR->osscan_closedtcpport > 0) {
-      log_write(LOG_XML, 
-		"<portused state=\"closed\" proto=\"tcp\" portid=\"%hu\" />\n",
-			  FPR->osscan_closedtcpport);
+    log_write(LOG_XML, 
+	      "<portused state=\"closed\" proto=\"tcp\" portid=\"%hu\" />\n",
+	      FPR->osscan_closedtcpport);
   }
   if (FPR->osscan_closedudpport > 0) {
-	log_write(LOG_XML, 
-			  "<portused state=\"closed\" proto=\"udp\" portid=\"%hu\" />\n",
-			  FPR->osscan_closedudpport);
-    }
-
-    // If the FP can't be submitted anyway, might as well make a guess.
+    log_write(LOG_XML, 
+	      "<portused state=\"closed\" proto=\"udp\" portid=\"%hu\" />\n",
+	      FPR->osscan_closedudpport);
+  }
+  
+  // If the FP can't be submitted anyway, might as well make a guess.
+  const char *reason = FPR->OmitSubmissionFP();
   printosclassificationoutput(FPR->getOSClassification(), 
-							  o.osscan_guess || FPR->OmitSubmissionFP());
-    
-  if (FPR->overall_results == OSSCAN_SUCCESS && (FPR->num_perfect_matches <= 8 || o.debugging)) {
-	if (FPR->num_perfect_matches > 0) {
-        char *p;
-	  log_write(LOG_MACHINE,"\tOS: %s",  FPR->prints[0]->OS_name);
+			      o.osscan_guess || reason);
+  
+  if (FPR->overall_results == OSSCAN_SUCCESS && 
+      (FPR->num_perfect_matches <= 8 || o.debugging)) {
+    if (FPR->num_perfect_matches > 0) {
+      char *p;
+      log_write(LOG_MACHINE,"\tOS: %s",  FPR->prints[0]->OS_name);
+      log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"100\" line=\"%d\" />\n", 
+		p = xml_convert(FPR->prints[0]->OS_name), 
+		FPR->prints[0]->line);
+      free(p);
+      i = 1;
+      while(FPR->accuracy[i] == 1 ) {
+	log_write(LOG_MACHINE,"|%s", FPR->prints[i]->OS_name);
 	log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"100\" line=\"%d\" />\n", 
-				p = xml_convert(FPR->prints[0]->OS_name), 
-				FPR->prints[0]->line);
-        free(p);
+		  p = xml_convert(FPR->prints[i]->OS_name),
+		  FPR->prints[i]->line);
+	free(p);
+	i++;
+      }
+      if (FPR->num_perfect_matches == 1)
+	log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,
+		  "OS details: %s", 
+		  FPR->prints[0]->OS_name);
+      
+      else {
+	log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,
+		  "OS details: %s", 
+		  FPR->prints[0]->OS_name);
 	i = 1;
-	  while(FPR->accuracy[i] == 1 ) {
-		log_write(LOG_MACHINE,"|%s", FPR->prints[i]->OS_name);
-	  log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"100\" line=\"%d\" />\n", 
-				  p = xml_convert(FPR->prints[i]->OS_name),
-				  FPR->prints[i]->line);
-          free(p);
+	while(FPR->accuracy[i] == 1) {
+	  log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,", %s", 
+		    FPR->prints[i]->OS_name);
 	  i++;
 	}
-	  if (FPR->num_perfect_matches == 1)
-	  log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,
-		    "OS details: %s", 
-				  FPR->prints[0]->OS_name);
+      }
+    } else {
+      if ((o.verbose > 1 || o.debugging) && reason)
+	log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,
+		  "OS fingerprint not ideal because: %s\n", reason);
+      if ((o.osscan_guess || reason) && FPR->num_matches > 0) {
+	/* Print the best guesses available */
+	log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"Aggressive OS guesses: %s (%d%%)", FPR->prints[0]->OS_name, (int) (FPR->accuracy[0] * 100));
+	for(i=1; i < 10 && FPR->num_matches > i && FPR->accuracy[i] > FPR->accuracy[0] - 0.10; i++) {
+	  char *p;
+	  log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,", %s (%d%%)", FPR->prints[i]->OS_name, (int) (FPR->accuracy[i] * 100));
+	  log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"%d\" line=\"%d\"/>\n", 
+		    p = xml_convert(FPR->prints[i]->OS_name),  
+		    (int) (FPR->accuracy[i] * 100), 
+		    FPR->prints[i]->line);
+	  free(p);
+	}
+	log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "\n");
+      }
+      if (osscanSys == 2 && !reason) {
+	log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No exact OS matches for host (If you know what OS is running on it, see http://insecure.org/nmap/submit/ ).\nTCP/IP fingerprint:\n%s\n",
+		  mergeFPs(FPR->FPs, FPR->numFPs, true,
+			   currenths->v4hostip(), distance, currenths->MACAddress(),
+			   FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
+			   true));
 	
-	else {
-	  log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,
-		    "OS details: %s", 
-				  FPR->prints[0]->OS_name);
-	  i = 1;
-		while(FPR->accuracy[i] == 1) {
-	    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,", %s", 
-					FPR->prints[i]->OS_name);
-	    i++;
-	  }
-	}
       } else {
-	  const char *reason = FPR->OmitSubmissionFP();
-	  if ((o.verbose > 1 || o.debugging) && reason)
-	    log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"OS fingerprint not ideal because: %s\n", reason);
-	  if ((o.osscan_guess || reason) && FPR->num_matches > 0) {
-	  /* Print the best guesses available */
-	    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"Aggressive OS guesses: %s (%d%%)", FPR->prints[0]->OS_name, (int) (FPR->accuracy[0] * 100));
-	    for(i=1; i < 10 && FPR->num_matches > i && FPR->accuracy[i] > FPR->accuracy[0] - 0.10; i++) {
-	      char *p;
-	      log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,", %s (%d%%)", FPR->prints[i]->OS_name, (int) (FPR->accuracy[i] * 100));
-	      log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"%d\" line=\"%d\"/>\n", 
-			p = xml_convert(FPR->prints[i]->OS_name),  
-			(int) (FPR->accuracy[i] * 100), 
-			FPR->prints[i]->line);
-	      free(p);
-	    }
-	    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "\n");
-	  }
-	  if (osscanSys == 2 && !reason) {
-	    log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No exact OS matches for host (If you know what OS is running on it, see http://insecure.org/nmap/submit/ ).\nTCP/IP fingerprint:\n%s\n",
-		      mergeFPs(FPR->FPs, FPR->numFPs, true,
-			       currenths->v4hostip(), distance, currenths->MACAddress(),
-			       FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
-			       true));
-	    
-	  } else {
 	  log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No exact OS matches for host (test conditions non-ideal).");
-	  if (o.verbose > 1)
-		  log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT, "\nTCP/IP fingerprint by osscan system #%d:\n%s",
-					osscanSys, mergeFPs(FPR->FPs, FPR->numFPs, false,
-							 currenths->v4hostip(), distance, currenths->MACAddress(),
-							 FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
-							 false));
-	}
+	  if (o.verbose > 1 || o.debugging)
+	    log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT, 
+		      "\nTCP/IP fingerprint by osscan system #%d:\n%s",
+		      osscanSys, mergeFPs(FPR->FPs, FPR->numFPs, false,
+					  currenths->v4hostip(), distance, currenths->MACAddress(),
+					  FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
+					  false));
       }
+    }
       
-      log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"\n");	  
-	if (FPR->goodFP >= 0 && (o.debugging || o.verbose > 1) && FPR->num_perfect_matches > 0 ) {
-	  log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"OS Fingerprint:\n%s\n", fp2ascii(FPR->FPs[FPR->goodFP]));
-      }
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"\n");	  
+    if (FPR->goodFP >= 0 && (o.debugging || o.verbose > 1) && 
+	FPR->num_perfect_matches > 0 ) {
+      log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"OS Fingerprint:\n%s\n",
+		mergeFPs(FPR->FPs, FPR->numFPs, !reason,
+			 currenths->v4hostip(), distance, currenths->MACAddress(),
+			 FPR->osscan_opentcpport, FPR->osscan_closedtcpport, 
+			 FPR->osscan_closedudpport, !reason));
+
+    }
   } else if (FPR->overall_results == OSSCAN_NOMATCHES) {
     const char *reason = FPR->OmitSubmissionFP();
     if ((o.verbose > 1 || o.debugging) && reason)
       log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"OS fingerprint not ideal because: %s\n", reason);
     if (osscanSys == 2 && !reason) {
-	  log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No OS matches for host (If you know what OS is running on it, see http://insecure.org/nmap/submit/ ).\nTCP/IP fingerprint:\n%s\n",
-				mergeFPs(FPR->FPs, FPR->numFPs, true,
-						 currenths->v4hostip(), distance, currenths->MACAddress(),
-						 FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
-						 true));
-      } else {
-	  log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No OS matches for host\n");
-	  if (o.verbose > 1)
-		log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT, "\nTCP/IP fingerprint by osscan system #%d:\n%s",
-				  osscanSys, mergeFPs(FPR->FPs, FPR->numFPs, false,
-						   currenths->v4hostip(), distance, currenths->MACAddress(),
-						   FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
-						   false));
-      }
-  } else if (FPR->overall_results == OSSCAN_TOOMANYMATCHES || (FPR->num_perfect_matches > 8 && !o.debugging)) {
-	log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"Too many fingerprints match this host to give specific OS details\n");
-	if (o.debugging || o.verbose) {
-		log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"TCP/IP fingerprint by osscan system #%d:\n%s",
-				  osscanSys, mergeFPs(FPR->FPs, FPR->numFPs, false,
-						   currenths->v4hostip(), distance, currenths->MACAddress(),
-						   FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
-						   false));
-	}
-      } else { assert(0); }
-   
-    if (o.debugging || o.verbose) {
-      log_write(LOG_XML,"<osfingerprint fingerprint=\"\n%s\" />\n", 
-			  mergeFPs(FPR->FPs, FPR->numFPs, false,
-					   currenths->v4hostip(), distance, currenths->MACAddress(),
-					   FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
-					   false));
+      log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No OS matches for host (If you know what OS is running on it, see http://insecure.org/nmap/submit/ ).\nTCP/IP fingerprint:\n%s\n",
+		mergeFPs(FPR->FPs, FPR->numFPs, true,
+			 currenths->v4hostip(), distance, currenths->MACAddress(),
+			 FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
+			 true));
+    } else {
+      log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No OS matches for host\n");
+      if (o.verbose > 1)
+	log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT, "\nTCP/IP fingerprint by osscan system #%d:\n%s",
+		  osscanSys, mergeFPs(FPR->FPs, FPR->numFPs, false,
+				      currenths->v4hostip(), distance, currenths->MACAddress(),
+				      FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
+				      false));
     }
-
-    log_write(LOG_XML, "</os>\n");
-
-     if (currenths->seq.lastboot) {
-       char tmbuf[128];
-       struct timeval tv;
-       gettimeofday(&tv, NULL);
-       strncpy(tmbuf, ctime(&(currenths->seq.lastboot)), sizeof(tmbuf));
-       chomp(tmbuf);
-	log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"Uptime: %.3f days (since %s)\n", (double) (tv.tv_sec - currenths->seq.lastboot) / 86400, tmbuf);
-       log_write(LOG_XML, "<uptime seconds=\"%li\" lastboot=\"%s\" />\n", tv.tv_sec - currenths->seq.lastboot, tmbuf);
-     }
-
+  } else if (FPR->overall_results == OSSCAN_TOOMANYMATCHES || (FPR->num_perfect_matches > 8 && !o.debugging)) {
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"Too many fingerprints match this host to give specific OS details\n");
+    if (o.debugging || o.verbose) {
+      log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"TCP/IP fingerprint by osscan system #%d:\n%s",
+		osscanSys, mergeFPs(FPR->FPs, FPR->numFPs, false,
+				    currenths->v4hostip(), distance, currenths->MACAddress(),
+				    FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
+				    false));
+    }
+  } else { assert(0); }
+  
+  if (o.debugging || o.verbose) {
+    log_write(LOG_XML,"<osfingerprint fingerprint=\"\n%s\" />\n", 
+	      mergeFPs(FPR->FPs, FPR->numFPs, false,
+		       currenths->v4hostip(), distance, currenths->MACAddress(),
+		       FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
+		       false));
+  }
+  
+  log_write(LOG_XML, "</os>\n");
+  
+  if (currenths->seq.lastboot) {
+    char tmbuf[128];
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    strncpy(tmbuf, ctime(&(currenths->seq.lastboot)), sizeof(tmbuf));
+    chomp(tmbuf);
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"Uptime: %.3f days (since %s)\n", (double) (tv.tv_sec - currenths->seq.lastboot) / 86400, tmbuf);
+    log_write(LOG_XML, "<uptime seconds=\"%li\" lastboot=\"%s\" />\n", tv.tv_sec - currenths->seq.lastboot, tmbuf);
+  }
+  
   if (distance!=-1) {
     log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "Network Distance: %d hop%s\n", distance, (distance == 1)? "" : "s");
-	log_write(LOG_XML, "<distance value=\"%d\" />\n", distance);
+    log_write(LOG_XML, "<distance value=\"%d\" />\n", distance);
   }
-	 
-     if (currenths->seq.responses > 3) {
-       p=numlst;
-       for(i=0; i < currenths->seq.responses; i++) {
-	 if (p - numlst > (int) (sizeof(numlst) - 15)) 
-	   fatal("STRANGE ERROR #3877 -- please report to fyodor@insecure.org\n");
-	 if (p != numlst) *p++=',';
-	 sprintf(p, "%X", currenths->seq.seqs[i]);
-	 while(*p) p++;
-       }
-
-       log_write(LOG_XML, "<tcpsequence index=\"%li\" class=\"%s\" difficulty=\"%s\" values=\"%s\" />\n", (long) currenths->seq.index, seqclass2ascii(currenths->seq.seqclass), seqidx2difficultystr(currenths->seq.index), numlst); 
-       if (o.verbose) {
-	 if (osscanSys == 1)
-	   log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"%s", seqreport1(&(currenths->seq)));
-	 else if(osscanSys == 2)
-	   log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"%s", seqreport(&(currenths->seq)));
-       }
-       
-       log_write(LOG_MACHINE,"\tSeq Index: %d", currenths->seq.index);
-     }
-
-     if (currenths->seq.responses > 2) {
-       p=numlst;
-       for(i=0; i < currenths->seq.responses; i++) {
-	 if (p - numlst > (int) (sizeof(numlst) - 15)) 
-	   fatal("STRANGE ERROR #3876 -- please report to fyodor@insecure.org\n");
-	 if (p != numlst) *p++=',';
-	 sprintf(p, "%hX", currenths->seq.ipids[i]);
-	 while(*p) p++;
-       }
-       log_write(LOG_XML, "<ipidsequence class=\"%s\" values=\"%s\" />\n", ipidclass2ascii(currenths->seq.ipid_seqclass), numlst);
-       if (o.verbose)
-	 log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"IPID Sequence Generation: %s\n", ipidclass2ascii(currenths->seq.ipid_seqclass));
-       log_write(LOG_MACHINE,"\tIPID Seq: %s", ipidclass2ascii(currenths->seq.ipid_seqclass));
-
-       p=numlst;
-       for(i=0; i < currenths->seq.responses; i++) {
-	 if (p - numlst > (int) (sizeof(numlst) - 15)) 
-	   fatal("STRANGE ERROR #3877 -- please report to fyodor@insecure.org\n");
-	 if (p != numlst) *p++=',';
-	 sprintf(p, "%X", currenths->seq.timestamps[i]);
-	 while(*p) p++;
-       }
-       
-       log_write(LOG_XML, "<tcptssequence class=\"%s\"", tsseqclass2ascii(currenths->seq.ts_seqclass));
-       if (currenths->seq.ts_seqclass != TS_SEQ_UNSUPPORTED) {
-	 log_write(LOG_XML, " values=\"%s\"", numlst);
-       }
-       log_write(LOG_XML, " />\n");
-     }
+  
+  if (currenths->seq.responses > 3) {
+    p=numlst;
+    for(i=0; i < currenths->seq.responses; i++) {
+      if (p - numlst > (int) (sizeof(numlst) - 15)) 
+	fatal("STRANGE ERROR #3877 -- please report to fyodor@insecure.org\n");
+      if (p != numlst) *p++=',';
+      sprintf(p, "%X", currenths->seq.seqs[i]);
+      while(*p) p++;
+    }
+    
+    log_write(LOG_XML, "<tcpsequence index=\"%li\" class=\"%s\" difficulty=\"%s\" values=\"%s\" />\n", (long) currenths->seq.index, seqclass2ascii(currenths->seq.seqclass), seqidx2difficultystr(currenths->seq.index), numlst); 
+    if (o.verbose) {
+      if (osscanSys == 1)
+	log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"%s", seqreport1(&(currenths->seq)));
+      else if(osscanSys == 2)
+	log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"%s", seqreport(&(currenths->seq)));
+    }
+    
+    log_write(LOG_MACHINE,"\tSeq Index: %d", currenths->seq.index);
+  }
+  
+  if (currenths->seq.responses > 2) {
+    p=numlst;
+    for(i=0; i < currenths->seq.responses; i++) {
+      if (p - numlst > (int) (sizeof(numlst) - 15)) 
+	fatal("STRANGE ERROR #3876 -- please report to fyodor@insecure.org\n");
+      if (p != numlst) *p++=',';
+      sprintf(p, "%hX", currenths->seq.ipids[i]);
+      while(*p) p++;
+    }
+    log_write(LOG_XML, "<ipidsequence class=\"%s\" values=\"%s\" />\n", ipidclass2ascii(currenths->seq.ipid_seqclass), numlst);
+    if (o.verbose)
+      log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"IPID Sequence Generation: %s\n", ipidclass2ascii(currenths->seq.ipid_seqclass));
+    log_write(LOG_MACHINE,"\tIPID Seq: %s", ipidclass2ascii(currenths->seq.ipid_seqclass));
+    
+    p=numlst;
+    for(i=0; i < currenths->seq.responses; i++) {
+      if (p - numlst > (int) (sizeof(numlst) - 15)) 
+	fatal("STRANGE ERROR #3877 -- please report to fyodor@insecure.org\n");
+      if (p != numlst) *p++=',';
+      sprintf(p, "%X", currenths->seq.timestamps[i]);
+      while(*p) p++;
+    }
+    
+    log_write(LOG_XML, "<tcptssequence class=\"%s\"", tsseqclass2ascii(currenths->seq.ts_seqclass));
+    if (currenths->seq.ts_seqclass != TS_SEQ_UNSUPPORTED) {
+      log_write(LOG_XML, " values=\"%s\"", numlst);
+    }
+    log_write(LOG_XML, " />\n");
+  }
   log_flush_all();
 }
 
