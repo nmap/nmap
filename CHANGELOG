@@ -4,6 +4,11 @@ o Nmap 2nd generation OS detection now has a more sophisticated
   mechanism for guessing a target OS when there is no exact match in the
   database (see http://insecure.org/nmap/osdetect/osdetect-guess.html )
 
+o NmapFE now uses a spin button for verbosity and debugging options so
+  that you can specify whatever verbosity (-v) or debugging (-d) level
+  you desire.  The --randomize-hosts option was also added to NmapFE.
+  Thanks to Kris Katterjohn for the patches.
+
 o A dozen or so small patches to Nmap and NmapFE by Kris Katterjohn.
 
 4.20ALPHA7

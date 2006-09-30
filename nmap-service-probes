@@ -31,7 +31,7 @@
 
 # The Exclude directive takes a comma separated list of ports.
 # The format is exactly the same as the -p switch.
-Exclude T:9100
+Exclude T:9100-9107
 
 # This is the NULL probe that just compares any banners given to us
 ##############################NEXT PROBE##############################

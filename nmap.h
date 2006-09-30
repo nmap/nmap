@@ -272,13 +272,6 @@ void *realloc();
 /* How many hosts do we ping in parallel to see if they are up? Note that this is
    divided by the num probes per host */
 #define LOOKAHEAD 30
-/* If reads of a UDP port keep returning EAGAIN (errno 13), do we want to 
-   count the port as valid? */
-#define RISKY_UDP_SCAN 0
- /* This ideally should be a port that isn't in use for any protocol on our machine or on the target */ 
-#define MAGIC_PORT 49724
-/* How many udp sends without a ICMP port unreachable error does it take before we consider the port open? */
-#define UDP_MAX_PORT_RETRIES 4
  /*How many seconds before we give up on a host being alive? */
 
 #define FAKE_ARGV "pine" /* What ps and w should show if you use -q */
@@ -327,7 +320,6 @@ void *realloc();
 #endif
 
 #define INITIAL_RTT_TIMEOUT 1000 /* Allow 1 second initially for packet responses */
-#define HOST_TIMEOUT    0 /* By default allow unlimited time to scan each host */
 
 #ifndef MAX_RETRANSMISSIONS
 #define MAX_RETRANSMISSIONS 10    /* 11 probes to port at maximum */

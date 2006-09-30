@@ -374,7 +374,7 @@
     The process stopped at <xsl:value-of select="$end" />.
 	<xsl:choose>
         <xsl:when test="debugging/@level = '0'">Debuging was disabled, </xsl:when>
-        <xsl:otherwise>Debugging was enabeld, </xsl:otherwise>
+        <xsl:otherwise>Debugging was enabled, </xsl:otherwise>
     </xsl:choose>
     the verbosity level was <xsl:value-of select="verbose/@level" />.
 

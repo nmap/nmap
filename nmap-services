@@ -2127,6 +2127,13 @@ sun-answerbook    8888/tcp   # Sun Answerbook HTTP server.  Or gnump3d streaming
 seosload          8892/tcp   # From the new Computer Associates eTrust ACX
 zeus-admin        9090/tcp   # Zeus admin server
 jetdirect         9100/tcp   # HP JetDirect card
+jetdirect         9101/tcp   # HP JetDirect card
+jetdirect         9102/tcp   # HP JetDirect card
+jetdirect         9103/tcp   # HP JetDirect card
+jetdirect         9104/tcp   # HP JetDirect card
+jetdirect         9105/tcp   # HP JetDirect card
+jetdirect         9106/tcp   # HP JetDirect card
+jetdirect         9107/tcp   # HP JetDirect card
 DragonIDSConsole  9111/tcp   # Dragon IDS Console 
 ms-sql2000        9152/tcp   #
 man               9535/tcp   # 
