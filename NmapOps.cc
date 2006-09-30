@@ -229,7 +229,7 @@ void NmapOps::Initialize() {
   listscan = pingscan = allowall = ackscan = bouncescan = connectscan = 0;
   rpcscan = nullscan = xmasscan = fragscan = synscan = windowscan = 0;
   maimonscan = idlescan = finscan = udpscan = ipprotscan = noresolve = 0;
-  force = append_output = 0;
+  append_output = 0;
   memset(logfd, 0, sizeof(FILE *) * LOG_NUM_FILES);
   ttl = -1;
   badsum = 0;

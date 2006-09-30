@@ -1369,7 +1369,7 @@ void printosscanoutput(Target *currenths) {
 		mergeFPs(FPR->FPs, FPR->numFPs, !reason,
 			 currenths->v4hostip(), distance, currenths->MACAddress(),
 			 FPR->osscan_opentcpport, FPR->osscan_closedtcpport, 
-			 FPR->osscan_closedudpport, !reason));
+			 FPR->osscan_closedudpport, true));
 
     }
   } else if (FPR->overall_results == OSSCAN_NOMATCHES) {

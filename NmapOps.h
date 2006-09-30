@@ -281,7 +281,6 @@ class NmapOps {
   int windowscan;
   int xmasscan;
   int noresolve;
-  int force; /* force nmap to continue on even when the outcome seems somewhat certain */
   int append_output; /* Append to any output files rather than overwrite */
   FILE *logfd[LOG_NUM_FILES];
   FILE *nmap_stdout; /* Nmap standard output */

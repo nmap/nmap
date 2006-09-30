@@ -430,25 +430,14 @@ void *realloc();
 /* print Interactive usage information */
 void printinteractiveusage();
 
-int check_ident_port(struct in_addr target);
-
 int ftp_anon_connect(struct ftpinfo *ftp);
 
 /* port manipulators */
-void getprobepts(char *expr);
 struct scan_lists *getpts(char *expr); /* someone stole the name getports()! */
 void free_scan_lists(struct scan_lists *ports);
-int getidentinfoz(struct in_addr target, u16 localport, u16 remoteport,
-		  char *owner, int ownersz);
 
 /* socket manipulation functions */
 void init_socket(int sd);
-
-/* RAW packet building/dissasembling stuff */
-int isup(struct in_addr target);
-int listen_icmp(int icmpsock, unsigned short outports[],
-		unsigned short numtries[], int *num_out,
-		struct in_addr target, PortList *ports);
 
 /* Renamed main so that interactive mode could preprocess when neccessary */
 int nmap_main(int argc, char *argv[]);
