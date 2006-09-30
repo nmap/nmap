@@ -38,7 +38,7 @@ web:
                             xnmap.1 nmap.usage.txt nmap.dtd nmap.xsl \
                             leet-nmap-ascii-art.txt $(wroot)/nmap/data/
 	cp $(wroot)/nmapguide/build/nmap-man.xml $(wroot)/nmap/data/nmap-man.xml
-#	./sort-prints.pl ../nmap-os-fingerprints > nos && mv nos ../nmap-os-fingerprints
+	./sort-prints.pl ../nmap-os-db > nos && mv nos ../nmap-os-db
 	./produceosclasschoosebox.pl ../nmap-os-fingerprints > $(wroot)/nmap/data/os-classes.txt
 	cd .. && cp -a CHANGELOG HACKING COPYING COPYING.OpenSSL INSTALL \
                        $(DATAFILES) README-WIN32 mswin32/nmap_performance.reg $(wroot)/nmap/data

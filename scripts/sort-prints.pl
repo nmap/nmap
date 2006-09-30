@@ -2,12 +2,21 @@
 
 sub usage() {
     print STDERR "Usage: sort-prints.pl <nmap-os-fingerprints file>\n" .
-	"Slurps up the given nmap-os-fingerprints file, sorts it appropriately (Class, then name string), then spits it out to stdout.  Some minor canonicalization is done too.\n\n";
+	"Slurps up the given nmap-os-fingerprints file, sorts it appropriately (headertext, then MatchPoints, then fingerprintes sorted by first class, then name string), then spits it out to stdout.  Some minor canonicalization is done too.\n\n";
     exit(0);
 }
 
 sub fprintsort {
-
+    if ($a->{type} eq "MatchPoints") {
+	if ($b->{type} eq "MatchPoints") { 
+	    print STDERR "ERROR: More than one MatchPoints section found in fingerprint DB\n";
+	    usage();
+	}
+	return -1;
+    }
+    if ($b->{type} eq "MatchPoints") {
+	return 1;
+    }
     lc($a->{firstClass}) cmp lc($b->{firstClass})
 	or 
     lc($a->{name}) cmp lc($b->{name});
@@ -65,9 +74,14 @@ while($nxtline = <OSFILE>) {
     } 
 
     if ($state eq "fprint-name") {
-	if ($nxtline =~ /^Fingerprint (\S.*\S)\s*$/) {
+	if ($nxtline =~ /^Fingerprint (\S.*\S)\s*$/i) {
 	    $newFP{name} = $1;
+	    $newFP{type} = "Fingerprint";
 	    $state = "fprint-class";
+	    next;
+	} elsif ($nxtline =~ /^MatchPoints/) {
+	    $newFP{type} = "MatchPoints";
+	    $state = "fprint-tests";
 	    next;
 	}
 	die "ERROR: Parse error on $osfile:$lineno -- expected Fingerprint directive";
@@ -120,9 +134,14 @@ foreach $print (@sortedprints) {
     if ($firstline) {
 	$firstline = 0;
     } else { print "\n"; }
+
     if ($print->{comments}) {
 	print $print->{comments};
     }
-    print "Fingerprint $print->{name}\n";
+    if ($print->{type} eq "MatchPoints") {
+	print "MatchPoints\n";
+    } else {
+	print "Fingerprint $print->{name}\n";
+    }
     print "$print->{data}";
 }
