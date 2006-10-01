@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "09/12/2006" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "09/30/2006" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -993,9 +993,9 @@ Another possible use of this flag is to spoof the scan to make the targets think
 \fIsomeone else\fR
 is scanning them. Imagine a company being repeatedly port scanned by a competitor! The
 \fB\-e\fR
-option would generally be required for this sort of usage, and
+option and
 \fB\-P0\fR
-would normally be advisable as well.
+are generally required for this sort of usage. Note that you usually won't receive reply packets back (they will be addressed to the IP you are spoofing), so Nmap won't produce useful reports.
 .TP
 \fB\-e <interface>\fR (Use specified interface)
 Tells Nmap what interface to send and receive packets on. Nmap should be able to detect this automatically, but it will tell you if it cannot.

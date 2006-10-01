@@ -1613,13 +1613,14 @@ void printfinaloutput() {
   if (o.numhosts_scanned == 1 && o.numhosts_up == 0 && !o.listscan && 
       o.pingtype != PINGTYPE_NONE)
     log_write(LOG_STDOUT, "Note: Host seems down. If it is really up, but blocking our ping probes, try -P0\n");
-
-  if (o.osscan && o.servicescan)
-    log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID, "OS and Service detection performed. Please report any incorrect results at http://insecure.org/nmap/submit/ .\n");
-  else if (o.osscan)
-    log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID, "OS detection performed. Please report any incorrect results at http://insecure.org/nmap/submit/ .\n");
-  else if (o.servicescan)
-    log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID, "Service detection performed. Please report any incorrect results at http://insecure.org/nmap/submit/ .\n");
+  else if (o.numhosts_up > 0) {
+    if (o.osscan && o.servicescan)
+      log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID, "OS and Service detection performed. Please report any incorrect results at http://insecure.org/nmap/submit/ .\n");
+    else if (o.osscan)
+      log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID, "OS detection performed. Please report any incorrect results at http://insecure.org/nmap/submit/ .\n");
+    else if (o.servicescan)
+      log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID, "Service detection performed. Please report any incorrect results at http://insecure.org/nmap/submit/ .\n");
+  }
 
   log_write(LOG_STDOUT|LOG_SKID, "Nmap finished: %d %s (%d %s up) scanned in %.3f seconds\n", o.numhosts_scanned, (o.numhosts_scanned == 1)? "IP address" : "IP addresses", o.numhosts_up, (o.numhosts_up == 1)? "host" : "hosts",  o.TimeSinceStartMS(&tv) / 1000.0);
   if (o.verbose && o.isr00t && o.RawScan()) 
