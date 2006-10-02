@@ -1,4 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
+o Nmap gen2 OS detection used to always do 2 retries if it fails to
+  find a match.  Now it normally does just 1 retry, but does 4 retries
+  if conditions are good enough to warrant fingerprint submission.  A
+  new --max-os-tries option lets you specify a or higher maximum
+  number of tries.
+
 4.20ALPHA8
 
 o Integrated the newly submitted OS fingerprints.  The DB now contains

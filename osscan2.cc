@@ -108,7 +108,10 @@
 #include <list>
 
 #define NUM_FPTESTS    13
-#define MAX_SCAN_ROUND 3
+/* The number of tries we normally do.  This may be increased if
+   the target looks like a good candidate for fingerprint submission, or fewer
+   if the user gave the --max-os-tries option */
+#define STANDARD_OS2_TRIES 2
 
 // The minimum (and target) amount of time to wait between probes
 // sent to a single host, in milliseconds.
@@ -506,9 +509,9 @@ public:
   
   Target *target; /* the Target */
   OsScanInfo *OSI; /* The OSI which contains this HostOsScanInfo */
-  FingerPrint *FPs[MAX_SCAN_ROUND]; /* Fingerprints of the host */
-  FingerPrintResults FP_matches[MAX_SCAN_ROUND]; /* Fingerprint-matching results */
-  struct seq_info si[MAX_SCAN_ROUND];
+  FingerPrint **FPs; /* Fingerprints of the host */
+  FingerPrintResults *FP_matches; /* Fingerprint-matching results */
+  struct seq_info *si;
   bool timedOut;
   bool isCompleted;
   HostOsScanStats *hss; /* Scan status of the host in one scan round */
@@ -2802,14 +2805,12 @@ bool HostOsScan::get_tcpopt_string(struct tcphdr *tcp, int mss, char *result, in
 }
 
 HostOsScanInfo::HostOsScanInfo(Target *t, OsScanInfo *OsSI) {
-  int i;
-
   target = t;
   OSI = OsSI;
 
-  for (i=0; i<MAX_SCAN_ROUND; i++)
-    FPs[i] = NULL;
-
+  FPs = (FingerPrint **) safe_zalloc(o.maxOSTries() * sizeof(FingerPrint *));
+  FP_matches = (FingerPrintResults *) safe_zalloc(o.maxOSTries() * sizeof(FingerPrintResults));
+  si = (struct seq_info *) safe_zalloc(o.maxOSTries() * sizeof(struct seq_info));
   timedOut = false;
   isCompleted = false;
 
@@ -2822,6 +2823,9 @@ HostOsScanInfo::HostOsScanInfo(Target *t, OsScanInfo *OsSI) {
 
 HostOsScanInfo::~HostOsScanInfo() {
   delete hss;
+  free(FPs);
+  free(FP_matches);
+  free(si);
 }
 
 OsScanInfo::OsScanInfo(vector<Target *> &Targets) {
@@ -3631,6 +3635,7 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
 
     hsi->FPs[roundNum] = hsi->hss->getFP();
     hsi->target->FPR->FPs[roundNum] = hsi->FPs[roundNum];
+    hsi->target->FPR->numFPs = roundNum + 1;
     double tr = hsi->hss->timingRatio();
     hsi->target->FPR->maxTimingRatio = MAX(hsi->target->FPR->maxTimingRatio, tr);
     match_fingerprint(hsi->FPs[roundNum], &hsi->FP_matches[roundNum],
@@ -3638,7 +3643,6 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
 
     if (hsi->FP_matches[roundNum].overall_results == OSSCAN_SUCCESS &&
         hsi->FP_matches[roundNum].num_perfect_matches > 0) {
-      hsi->target->FPR->numFPs = roundNum + 1;
       memcpy(&(hsi->target->seq), &hsi->hss->si, sizeof(struct seq_info));
       if (roundNum > 0) {
         if(o.verbose) error("WARNING:  OS didn't match until the try #%d", roundNum + 1);
@@ -3667,19 +3671,7 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
   OSI->removeCompletedHosts();
 }
 
-/* Stop the timeout clocks of the targets
- */
-static void stopTimeOutClocks(OsScanInfo *OSI) {
-  list<HostOsScanInfo *>::iterator hostI;
-
-  gettimeofday(&now, NULL);
-  for(hostI = OSI->incompleteHosts.begin(); 
-      hostI != OSI->incompleteHosts.end(); hostI++) {
-	(*hostI)->target->stopTimeOutClock(&now);
-  }
-}
-
-static void findBestFPs(OsScanInfo *OSI, int numFPs) {
+static void findBestFPs(OsScanInfo *OSI) {
   list<HostOsScanInfo *>::iterator hostI;
   HostOsScanInfo *hsi = NULL;
   int i;
@@ -3690,7 +3682,6 @@ static void findBestFPs(OsScanInfo *OSI, int numFPs) {
   for(hostI = OSI->incompleteHosts.begin(); 
       hostI != OSI->incompleteHosts.end(); hostI++) {
     hsi = *hostI;
-    hsi->target->FPR->numFPs = numFPs;
     memcpy(&(hsi->target->seq), &hsi->hss->si, sizeof(struct seq_info));
 
     /* Now lets find the best match */
@@ -3757,12 +3748,50 @@ static void doOsScan1(OsScanInfo *OSI) {
   }
 }
 
+/* Goes through every unmatched host in OSI.  If a host has completed
+   the maximum number of OS detection tries allowed for it without
+   matching, it is transferred to the passed in unMatchedHosts list.
+   Returns the number of hosts moved to unMatchedHosts. */
+static int expireUnmatchedHosts(OsScanInfo *OSI, 
+				list<HostOsScanInfo *> *unMatchedHosts) {
+  list<HostOsScanInfo *>::iterator hostI, nextHost;
+  int hostsRemoved = 0;
+  HostOsScanInfo *HOS;
+
+  gettimeofday(&now, NULL);
+  for(hostI = OSI->incompleteHosts.begin(); 
+      hostI != OSI->incompleteHosts.end(); hostI = nextHost) {
+    HOS = *hostI;
+    nextHost = hostI;
+    nextHost++;
+
+    int max_tries = o.maxOSTries(); /* The amt. if print is suitable for submission */
+    if (HOS->target->FPR->OmitSubmissionFP())
+      max_tries = min(max_tries, STANDARD_OS2_TRIES);
+
+    if (HOS->target->FPR->numFPs >= max_tries) {
+      /* We've done all the OS2 tries we're going to do ... move this
+	 to unMatchedHosts */
+      HOS->target->stopTimeOutClock(&now);
+      OSI->incompleteHosts.erase(hostI);
+      hostsRemoved++;
+      unMatchedHosts->push_back(HOS);
+    }
+  }
+  return hostsRemoved;
+}
 
 
-/* You should call os_scan2 rather than this function */
+/* You should call os_scan2 rather than this function, as that version handles
+   chunking so you don't do too many targets in parallel */
 static int os_scan_2(vector<Target *> &Targets) {
   OsScanInfo *OSI;
   HostOsScan *HOS;
+
+  // Hosts which haven't matched and have been removed from
+  // incompleteHosts because they have exceeded the number of
+  // retransmissions the host is allowed.
+  list<HostOsScanInfo *> unMatchedHosts;
   int itry;
 
   if (Targets.size() == 0) {
@@ -3787,45 +3816,48 @@ static int os_scan_2(vector<Target *> &Targets) {
 
 
   begin_sniffer(HOS, Targets); /* initial the pcap session handler in HOS */
-  while(OSI->numIncompleteHosts() != 0 && itry < MAX_SCAN_ROUND) {
+  while(OSI->numIncompleteHosts() != 0) {
     if (itry > 0) sleep(1);
+    if (itry == 3) usleep(1500000); /* Try waiting a little longer just in case it matters */
     if (o.verbose) {
       char targetstr[128];
       bool plural = (OSI->numIncompleteHosts() != 1);
       if (!plural) {
 	(*(OSI->incompleteHosts.begin()))->target->NameIP(targetstr, sizeof(targetstr));
       } else snprintf(targetstr, sizeof(targetstr), "%d hosts", (int) OSI->numIncompleteHosts());
-      printf("%s OS detection against %s\n", (itry == 0)? "Initiating" : "Retrying", targetstr);
+      printf("%s OS detection (try #%d) against %s\n", (itry == 0)? "Initiating" : "Retrying", itry + 1, targetstr);
     }
     startRound(OSI, HOS, itry);
     doSeqTests(OSI, HOS);
     doTUITests(OSI, HOS);
     endRound(OSI, HOS, itry);
+    expireUnmatchedHosts(OSI, &unMatchedHosts);
     itry++;
   }
+
+  /* Now move the unMatchedHosts array back to IncompleteHosts */
+  if (!unMatchedHosts.empty())
+    OSI->incompleteHosts.splice(OSI->incompleteHosts.begin(), unMatchedHosts);
   
-  if (OSI->numIncompleteHosts() > 0 && itry == MAX_SCAN_ROUND) {
+  if (OSI->numIncompleteHosts()) {
     /* For host that doesn't have a perfect match, we do the following
-	   things. */
+       things. */
 
-	stopTimeOutClocks(OSI);
-  	
-	/* Find the most matching item in the db. */
-	findBestFPs(OSI, MAX_SCAN_ROUND);
+    /* Find the most matching item in the db. */
+    findBestFPs(OSI);
 
-	/* Print the fp in debug mode.
-	   Normally let output.cc to print the FP. */
-	if(o.debugging > 1)
-	  printFP(OSI);
-	
-	/*
-	 * For the incomplete hosts,  we fall back on the former os_scan engine which has
-	 * a larger os-fingerprint db.
-	 */
-	if(o.osscan != OS_SCAN_SYS_2_ONLY) {
-	  
-	  doOsScan1(OSI);
-	}
+    /* Print the fp in debug mode.
+       Normally let output.cc to print the FP. */
+    if(o.debugging > 1)
+      printFP(OSI);
+    
+    /*
+     * For the incomplete hosts,  we fall back on the former os_scan engine which has
+     * a larger os-fingerprint db.
+     */
+    if(o.osscan != OS_SCAN_SYS_2_ONLY) {      
+      doOsScan1(OSI);
+    }
   }
 
   delete HOS;

@@ -288,7 +288,7 @@ IE(DFI=S%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Linux 2.4.20 #1473 Tue Nov 1 09:32:46 CET 2005 mips unknown, Sveasoft Firmware Version: Talisman/Basic 1.11-devsnap20051101, Linksys WRT54GS router
 Fingerprint Linksys WRT54GS WAP (Linux 2.4.20 kernel) running Sveasoft Firmware
-Class Class Linksys | Linux | 2.4.X | WAP
+Class Linksys | Linux | 2.4.X | WAP
 SEQ(SP=CA-CC%GCD=<7%ISR=CD-CF%TI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -309,8 +309,8 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # Linux  2.4.27-2-386 #1  i686 GNU/Linux
 # Linux  2.4.20-pre10-ac1 #1 SMP  i686 Pentium II (Deschutes) GNU/Linux
 Fingerprint Linux 2.4.20 - 2.4.31 or Linksys WRT54GL WAP (runs Linux)
-Class Class Linux | Linux | 2.4.X | general purpose
-Class Class Linksys | Linux | 2.4.X | WAP
+Class Linux | Linux | 2.4.X | general purpose
+Class Linksys | Linux | 2.4.X | WAP
 SEQ(SP=BD-CF%GCD=<5%ISR=C4-D4%TI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)

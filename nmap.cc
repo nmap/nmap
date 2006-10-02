@@ -486,6 +486,8 @@ int nmap_main(int argc, char *argv[]) {
       {"iflist", no_argument, 0, 0},
       {"release_memory", no_argument, 0, 0},
       {"release-memory", no_argument, 0, 0},
+      {"max_os_tries", required_argument, 0, 0},
+      {"max-os-tries", required_argument, 0, 0},
       {"max_parallelism", required_argument, 0, 'M'},
       {"max-parallelism", required_argument, 0, 'M'},
       {"min_parallelism", required_argument, 0, 0},
@@ -596,7 +598,12 @@ int nmap_main(int argc, char *argv[]) {
   while((arg = getopt_long_only(argc,fakeargv,"6Ab:D:d::e:Ffg:hIi:M:m:nO::o:P:p:qRrS:s:T:Vv", long_options, &option_index)) != EOF) {
     switch(arg) {
     case 0:
-      if (optcmp(long_options[option_index].name, "max-rtt-timeout") == 0) {
+      if (optcmp(long_options[option_index].name, "max-os-tries") == 0) {
+	l = tval2msecs(optarg);
+	if (l < 1 || l > 50) 
+	  fatal("Bogus --max-os-tries argument specified, must be between 1 and 50 (inclusive)");
+	o.setMaxOSTries(l);
+      } else if (optcmp(long_options[option_index].name, "max-rtt-timeout") == 0) {
 	l = tval2msecs(optarg);
 	if (l < 5) fatal("Bogus --max-rtt-timeout argument specified, must be at least 5");
         if (l < 20) {

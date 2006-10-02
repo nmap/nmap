@@ -155,7 +155,7 @@ class FingerPrintResults {
      consistancy standpoint. */
   double maxTimingRatio;
 
-  FingerPrint *FPs[10]; /* Fingerprint data obtained from host */
+  FingerPrint **FPs; /* Fingerprint data obtained from host */
   int numFPs;
   int goodFP;
 

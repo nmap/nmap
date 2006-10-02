@@ -190,6 +190,13 @@ class NmapOps {
   int max_parallelism; // 0 means it has not been set
   int min_parallelism; // 0 means it has not been set
 
+  /* The maximum number of OS detection (gen2) tries we will make
+     without any matches before giving up on a host.  We may well give
+     up after fewer tries anyway, particularly if the target isn't
+     ideal for unknown fingerprint submissions */
+  int maxOSTries() { return max_os_tries; }
+  void setMaxOSTries(int mot);
+
   /* These functions retrieve and set the Round Trip Time timeouts, in
    milliseconds.  The set versions do extra processing to insure sane
    values and to adjust each other to insure consistance (e.g. that
@@ -308,6 +315,7 @@ class NmapOps {
 
   bool release_memory;	/* suggest to release memory before quitting. used to find memory leaks. */
  private:
+  int max_os_tries;
   int max_rtt_timeout;
   int min_rtt_timeout;
   int initial_rtt_timeout;

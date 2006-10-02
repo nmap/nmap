@@ -202,6 +202,7 @@ void NmapOps::Initialize() {
   timing_level = 3;
   max_parallelism = 0;
   min_parallelism = 0;
+  max_os_tries = 5;
   max_rtt_timeout = MAX_RTT_TIMEOUT;
   min_rtt_timeout = MIN_RTT_TIMEOUT;
   initial_rtt_timeout = INITIAL_RTT_TIMEOUT;
@@ -457,7 +458,13 @@ void NmapOps::ValidateOptions() {
     error("WARNING: Ip options are NOT used while OS scanning!");
     
 }
-  
+
+void NmapOps::setMaxOSTries(int mot) {
+  if (mot <= 0) 
+    fatal("NmapOps::setMaxOSTries(): value must be at least 1");
+  max_os_tries = mot; 
+}
+
 void NmapOps::setMaxRttTimeout(int rtt) 
 { 
   if (rtt <= 0) fatal("NmapOps::setMaxRttTimeout(): maximum round trip time must be greater than 0");
