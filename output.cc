@@ -473,7 +473,12 @@ void printportoutput(Target *currenths, PortList *plist) {
     if (prevstate == PORT_UNKNOWN) 
       log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "Not shown: ");
     else log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, ", ");
-    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "%d %s %s", plist->getStateCounts(istate), statenum2str(istate), o.ipprotscan? "protocols": "ports");
+    char desc[32];
+    if (o.ipprotscan)
+      snprintf(desc, sizeof(desc), (plist->getStateCounts(istate) == 1)? "protocol" : "protocols");
+    else 
+      snprintf(desc, sizeof(desc), (plist->getStateCounts(istate) == 1)? "port" : "ports");
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "%d %s %s", plist->getStateCounts(istate), statenum2str(istate), desc);
     prevstate = istate;
   }
   if (prevstate != PORT_UNKNOWN) log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "\n");

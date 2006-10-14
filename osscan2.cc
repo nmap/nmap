@@ -2849,7 +2849,7 @@ OsScanInfo::OsScanInfo(vector<Target *> &Targets) {
 
 #ifdef WIN32
     if (Targets[targetno]->ifType() == devt_loopback) {
-      log_write(LOG_STDOUT, "Skipping OS Scan against %s because it doesn't work against your own machine (localhsot)\n", Targets[targetno]->NameIP());
+      log_write(LOG_STDOUT, "Skipping OS Scan against %s because it doesn't work against your own machine (localhost)\n", Targets[targetno]->NameIP());
       continue;
     }
 #endif

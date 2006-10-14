@@ -1,10 +1,19 @@
 # Nmap Changelog ($Id$); -*-text-*-
+4.20ALPHA9
+
+o Added --open option, which causes Nmap to show only open ports.
+  Ports in the states "open|closed" and "unfiltered" might be open, so
+  those are shown unless the host has an overwhelming number of them.
 
 o Nmap gen2 OS detection used to always do 2 retries if it fails to
   find a match.  Now it normally does just 1 retry, but does 4 retries
   if conditions are good enough to warrant fingerprint submission.  A
   new --max-os-tries option lets you specify a or higher maximum
   number of tries.
+
+o Fixed a confusing error message which occured when you specified a
+  ping scan or list scan, but also specified -p (which is only used for
+  port scans).  Thanks to Thomas Buchanan for the patch.
 
 4.20ALPHA8
 

@@ -258,6 +258,7 @@ printf("%s %s ( %s )\n"
        "  -oA <basename>: Output in the three major formats at once\n"
        "  -v: Increase verbosity level (use twice for more effect)\n"
        "  -d[level]: Set or increase debugging level (Up to 9 is meaningful)\n"
+       "  --open: Only show open (or possibly open) ports\n"
        "  --packet-trace: Show all packets sent and received\n"
        "  --iflist: Print host interfaces and routes (for debugging)\n"
        "  --log-errors: Log errors/warnings to the normal-format output file\n"
@@ -505,6 +506,7 @@ int nmap_main(int argc, char *argv[]) {
       {"max-hostgroup", required_argument, 0, 0},
       {"min_hostgroup", required_argument, 0, 0},
       {"min-hostgroup", required_argument, 0, 0},
+      {"open", no_argument, 0, 0},
       {"scanflags", required_argument, 0, 0},
       {"defeat_rst_ratelimit", no_argument, 0, 0},
       {"defeat-rst-ratelimit", no_argument, 0, 0},
@@ -638,6 +640,8 @@ int nmap_main(int argc, char *argv[]) {
 	o.setMinHostGroupSz(atoi(optarg));
 	if (atoi(optarg) > 100)
 	  error("Warning: You specified a highly aggressive --min-hostgroup.");
+      } else if (optcmp(long_options[option_index].name, "open") == 0) {
+	o.setOpenOnly(true);
       } else if (strcmp(long_options[option_index].name, "scanflags") == 0) {
 	o.scanflags = parse_scanflags(optarg);
 	if (o.scanflags < 0) {
@@ -1150,8 +1154,8 @@ int nmap_main(int argc, char *argv[]) {
     }
   }
 
-  if ((o.pingscan || o.listscan) && fastscan) {
-    fatal("The fast scan (-F) is incompatible with ping scan");
+  if ((o.pingscan || o.listscan) && (portlist || fastscan)) {
+    fatal("You cannot use -F (fast scan) or -p (explicit port selection) with PING scan or LIST scan");
   }
 
   if (portlist) {
@@ -1168,10 +1172,6 @@ int nmap_main(int argc, char *argv[]) {
     ports = getfastprots();
   } else if (fastscan) {
     ports = getfastports(o.TCPScan(), o.UDPScan());
-  }
-
-  if ((o.pingscan || o.listscan) && ports) {
-    fatal("You cannot use -F (fast scan) or -p (explicit port selection) with PING scan or LIST scan");
   }
 
 #ifdef WIN32

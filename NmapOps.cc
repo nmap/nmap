@@ -215,6 +215,7 @@ void NmapOps::Initialize() {
   extra_payload_length = 0;
   extra_payload = NULL;
   scan_delay = 0;
+  open_only = false;
   scanflags = -1;
   defeat_rst_ratelimit = 0;
   resume_ip.s_addr = 0;

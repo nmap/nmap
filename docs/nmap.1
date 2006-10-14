@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "09/30/2006" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "10/01/2006" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -91,7 +91,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 \fI\%http://insecure.org/nmap/data/nmap.usage.txt\fR. It helps people remember the most common options, but is no substitute for the in\-depth documentation in the rest of this manual. Some obscure options aren't even included here.
 .PP
 .nf
-Nmap 4.20ALPHA6 ( http://Insecure.Org )
+Nmap 4.20ALPHA8 ( http://Insecure.Org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -775,6 +775,11 @@ or
 .TP
 \fB\-\-osscan\-guess\fR; \fB\-\-fuzzy\fR (Guess OS detection results)
 When Nmap is unable to detect a perfect OS match, it sometimes offers up near\-matches as possibilities. The match has to be very close for Nmap to do this by default. Either of these (equivalent) options make Nmap guess more aggressively. Nmap will still tell you when an imperfect match is printed and display its confidence level (percentage) for each guess.
+.TP
+\fB\-\-max\-os\-tries\fR (Set the maximum number of OS detection tries against a target)
+When Nmap performs OS detection against a target and fails to find a perfect match, it usually repeats the attempt. By default, Nmap tries five times if conditions are favorable for OS fingerprint submission, and twice when conditions aren't so good. Specifying a lower
+\fB\-\-max\-os\-tries\fR
+value (such as 1) speeds Nmap up, though you miss out on retries which could potentially identify the OS. Alternatively, a high value may be set to allow even more retries when conditions are favorable. This is rarely done, except to generate better fingerprints for submission and integration into the Nmap OS database. This option only affects second generation OS detection (\fB\-O2\fR, the default) and not the old system (\fB\-O1\fR).
 .SH "TIMING AND PERFORMANCE"
 .PP
 One of my highest Nmap development priorities has always been performance. A default scan (\fBnmap \fR\fB\fIhostname\fR\fR) of a host on my local network takes a fifth of a second. That is barely enough time to blink, but adds up when you are scanning tens or hundreds of thousands of hosts. Moreover, certain scan options such as UDP scanning and version detection can increase scan times substantially. So can certain firewall configurations, particularly response rate limiting. While Nmap utilizes parallelism and many advanced algorithms to accelerate these scans, the user has ultimate control over how Nmap runs. Expert users carefully craft Nmap commands to obtain only the information they care about while meeting their time constraints.

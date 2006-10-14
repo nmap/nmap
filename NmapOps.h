@@ -167,6 +167,8 @@ class NmapOps {
   // setPacketTrace(false) has been called
   void setPacketTrace(bool pt) { pTrace = pt;  }
   void setVersionTrace(bool vt) { vTrace = vt;  }
+  bool openOnly() { return open_only; }
+  void setOpenOnly(bool oo) { open_only = oo; }
   int verbose;
   int randomize_hosts;
   int spoofsource; /* -S used */
@@ -242,6 +244,7 @@ class NmapOps {
   unsigned long host_timeout;
   /* Delay between probes, in milliseconds */
   unsigned int scan_delay;
+  bool open_only;
 
   int scanflags; /* if not -1, this value should dictate the TCP flags
 		    for the core portscaning routine (eg to change a

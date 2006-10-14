@@ -236,9 +236,8 @@ static char *next_token(char *buf, char *token, int tokensz)
 
 static char *build_command()
 {
-int size = 2560; /* this should be long enough ;-) */
 static char *command = NULL;
-static int command_size = 0;
+int command_size = 2560;
 
   /* Find how much to malloc() */
   // size = strlen(gtk_entry_get_text(GTK_ENTRY(opt.range_text))) +
@@ -250,8 +249,8 @@ static int command_size = 0;
   //   2560;
   /* We get 60 from the chars required for each option */
 
-  if (size > command_size)
-    command = realloc(command, size);
+  if (!command)
+    command = safe_malloc(command_size);
 
   strcpy(command, "nmap ");
  
