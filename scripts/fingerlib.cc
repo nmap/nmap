@@ -126,7 +126,7 @@ static int checkFP(char *FP) {
 	} else {
 	  tmp = *(p+3);
 	  if(tmp != 'Y') {
-		printf("[WARN] One fingerprint is not good\n");
+		printf("[WARN] One fingerprint is NOT GOOD (G=N)\n");
 		founderr = true;
 	  }
 	}

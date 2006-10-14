@@ -280,7 +280,9 @@ static void merge_sp_or_isr(struct AVal *result, char values[][AVLEN], int num) 
 		printf("[WARN] Zero value occurs in attribute SEQ.%s. A constant ISN sequence?\n", result->attribute);
 	  }
 	  if(i == 0) {
-		low = high = val1;
+	    /* Start it out with a variance of five in each direction */
+	    low = MAX(0, val1 - 5);
+	    high = val1 + 5;
 	  } else {
 		if(low == high && val1 != low) {
 		  // expand it in both directions

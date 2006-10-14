@@ -1270,7 +1270,7 @@ static int AVal_match(struct AVal *reference, struct AVal *fprint, struct AVal *
 	  return 0;
 	}
 	if (verbose) 
-	  printf("%s.%s: \"%s\" NOMATCH \"%s\" (%d point%s)\n", testGroupName, 
+	  printf("%s.%s: \"%s\" NOMATCH \"%s\" (%d %s)\n", testGroupName, 
 		 current_ref->attribute, current_fp->value, 
 		 current_ref->value, pointsThisTest, (pointsThisTest == 1)? "point" : "points");
       } else subtests_succeeded += pointsThisTest;

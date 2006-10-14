@@ -273,6 +273,7 @@ printf("%s %s ( %s )\n"
        "  --datadir <dirname>: Specify custom Nmap data file location\n"
        "  --send-eth/--send-ip: Send using raw ethernet frames or IP packets\n"
        "  --privileged: Assume that the user is fully privileged\n"
+       "  --unprivileged: Assume the user lacks raw socket privileges\n"
        "  -V: Print version number\n"
        "  -h: Print this help summary page.\n"
        "EXAMPLES:\n"
@@ -525,7 +526,7 @@ int nmap_main(int argc, char *argv[]) {
       {"oS", required_argument, 0, 0},
       {"oH", required_argument, 0, 0},  
       {"oX", required_argument, 0, 0},  
-      {"iL", required_argument, 0, 0},  
+      {"iL", required_argument, 0, 'i'},  
       {"iR", required_argument, 0, 0},
       {"sI", required_argument, 0, 0},  
       {"source_port", required_argument, 0, 'g'},
@@ -555,6 +556,7 @@ int nmap_main(int argc, char *argv[]) {
       {"vv", no_argument, 0, 0},
       {"ff", no_argument, 0, 0},
       {"privileged", no_argument, 0, 0},
+      {"unprivileged", no_argument, 0, 0},
       {"mtu", required_argument, 0, 0},
       {"append_output", no_argument, 0, 0},
       {"append-output", no_argument, 0, 0},
@@ -764,19 +766,6 @@ int nmap_main(int argc, char *argv[]) {
 	exit(0);
       } else if (strcmp(long_options[option_index].name, "badsum") == 0) {
 	o.badsum = 1;
-      }
-      else if (strcmp(long_options[option_index].name, "iL") == 0) {
-	if (inputfd) {
-	  fatal("Only one input filename allowed");
-	}
-	if (!strcmp(optarg, "-")) {
-	  inputfd = stdin;
-	} else {    
-	  inputfd = fopen(optarg, "r");
-	  if (!inputfd) {
-	    fatal("Failed to open input file %s for reading", optarg);
-	  }  
-	}
       } else if (strcmp(long_options[option_index].name, "iR") == 0) {
 	o.generate_random_ips = 1;
 	o.max_ips_to_scan = strtoul(optarg, &endptr, 10);
@@ -793,6 +782,8 @@ int nmap_main(int argc, char *argv[]) {
 	o.fragscan += 16; 
       } else if (strcmp(long_options[option_index].name, "privileged") == 0) {
 	o.isr00t = 1;
+      } else if (strcmp(long_options[option_index].name, "unprivileged") == 0) {
+	o.isr00t = 0;
       } else if (strcmp(long_options[option_index].name, "mtu") == 0) {
         o.fragscan = atoi(optarg);
         if (o.fragscan <= 0 || o.fragscan % 8 != 0)
