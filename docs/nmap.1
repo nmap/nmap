@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "10/01/2006" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "10/13/2006" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -39,11 +39,11 @@ when it cannot determine which of the two states describe a port. The port table
 In addition to the interesting ports table, Nmap can provide further information on targets, including reverse DNS names, operating system guesses, device types, and MAC addresses.
 .PP
 A typical Nmap scan is shown in
-Example\ 13.1, \(lqA representative Nmap scan\(rq. The only Nmap arguments used in this example are
+Example\ 14.1, \(lqA representative Nmap scan\(rq. The only Nmap arguments used in this example are
 \fB\-A\fR, to enable OS and version detection,
 \fB\-T4\fR
 for faster execution, and then the two target hostnames.
-Example\ 13.1.\ A representative Nmap scan.sp
+Example\ 14.1.\ A representative Nmap scan.sp
 .nf
 # nmap \-A \-T4 scanme.nmap.org playground
 
@@ -757,13 +757,13 @@ Tells Nmap to only use the old OS detection system. If
 \fB\-O2\fR
 just gives you a fingerprint to submit, but you don't know what OS the target is running, try
 \fB\-O1\fR. But in that case,
-\fBdon't submit the fingeprint\fR
+\fBdon't submit the fingerprint\fR
 as you don't know for sure whether
 \fB\-O1\fR
 guess correctly. If it was perfect, we wouldn't have bothered to create
 \fB\-O2\fR.
 .sp
-This option, and all other vestigates of the old OS detection system, will likely be removed in late 2006 or in 2007.
+This option, and all other vestiges of the old OS detection system, will likely be removed in late 2006 or in 2007.
 .TP
 \fB\-\-osscan\-limit\fR (Limit OS detection to promising targets)
 OS detection is far more effective if at least one open and one closed TCP port are found. Set this option and Nmap will not even try OS detection against hosts that do not meet this criteria. This can save substantial time, particularly on
@@ -858,7 +858,7 @@ Some hosts simply take a
 \fIlong\fR
 time to scan. This may be due to poorly performing or unreliable networking hardware or software, packet rate limiting, or a restrictive firewall. The slowest few percent of the scanned hosts can eat up a majority of the scan time. Sometimes it is best to cut your losses and skip those hosts initially. Specify
 \fB\-\-host\-timeout\fR
-with the maximum amoung of time you are willing to wait. I often specify
+with the maximum amount of time you are willing to wait. I often specify
 30m
 to ensure that Nmap doesn't waste more than half an hour on a single host. Note that Nmap may be scanning other hosts at the same time during that half an hour as well, so it isn't a complete loss. A host that times out is skipped. No port table, OS detection, or version detection results are printed for that host.
 .TP
@@ -1026,7 +1026,7 @@ Normally Nmap sends minimalist packets containing only a header. So its TCP pack
 \fB\-\-ip\-options <S|R [route]|L [route]|T|U ... >;\fR \fB\-\-ip\-options <hex string>\fR (Send packets with specified ip options)
 The
 [6]\&\fIIP protocol\fR
-offers several options which may be placed in packet headers. Unlike the ubiquitous TCP options, IP options are rarely seen due to practicality and security concerns. In fact, many Internet routers block the most dangerous options such as source routing. Yet options can still be useful in some cases for determining and manipulating the network route to target machines. For example, you may be able to use the record route option to determine a patch to a target even when more tranditional traceroute\-style approaches fail. Or if your packets are being dropped by a certain firewall, you may be able to specify a different route with the strict or loose source routing options.
+offers several options which may be placed in packet headers. Unlike the ubiquitous TCP options, IP options are rarely seen due to practicality and security concerns. In fact, many Internet routers block the most dangerous options such as source routing. Yet options can still be useful in some cases for determining and manipulating the network route to target machines. For example, you may be able to use the record route option to determine a path to a target even when more traditional traceroute\-style approaches fail. Or if your packets are being dropped by a certain firewall, you may be able to specify a different route with the strict or loose source routing options.
 .sp
 The most powerful way to specify IP options is to simply pass in values as the argument to
 \fB\-\-ip\-options\fR. Precede each hex number with
@@ -1221,6 +1221,27 @@ Causes Nmap to print a summary of every packet sent or received. This is often u
 \fB\-\-version\-trace\fR
 instead.
 .TP
+\fB\-\-open\fR (Show only open (or possibly open) ports)
+Sometimes you only care about ports you can actually connect to (open
+ones), and don't want results cluttered with
+closed,
+filtered, and
+closed|filtered
+ports. Output customization is normally done after the scan using tools such as
+grep,
+awk, and
+Perl, but this feature was added due to overwhelming requests. Specify
+\fB\-\-open\fR
+to only see
+open,
+open|filtered, and
+unfiltered
+ports. These three ports are treated just as they normally are, which means that
+open|filtered
+and
+unfiltered
+may be condensed into counts if there are an overwhelming number of them.
+.TP
 \fB\-\-iflist\fR (List interfaces and routes)
 Prints the interface list and system routes as detected by Nmap. This is useful for debugging routing problems or device mischaracterization (such as Nmap treating a PPP connection as Ethernet).
 .TP
@@ -1319,6 +1340,10 @@ Tells Nmap to simply assume that it is privileged enough to perform raw socket s
 is useful with Linux kernel capabilities and similar systems that may be configured to allow unprivileged users to perform raw\-packet scans. Be sure to provide this option flag before any flags for options that require privileges (SYN scan, OS detection, etc.). The NMAP_PRIVILEGED variable may be set as an equivalent alternative to
 \fB\-\-privileged\fR.
 .TP
+\fB\-\-unprivileged\fR (Assume that the user lacks raw socket privileges)
+This option is the opposite of
+\fB\-\-privileged\fR. It tells Nmap to treat the user as lacking network raw socket and sniffing privileges. This is useful for testing, debugging, or when the raw network functionality of your operating system is somehow broken.
+.TP
 \fB\-\-release\-memory\fR (Release memory before quitting)
 This option is only useful for memory\-leak debugging. It causes Nmap to release allocated memory just before it quits so that actual memory leaks are easier to spot. Normally Nmap skips this as the OS does this anyway upon process termination.
 .TP
@@ -1402,7 +1427,7 @@ This scans 4096 IPs for any webservers (without pinging them) and saves the outp
 .PP
 Like its author, Nmap isn't perfect. But you can help make it better by sending bug reports or even writing patches. If Nmap doesn't behave the way you expect, first upgrade to the latest version available from
 \fI\%http://insecure.org/nmap/\fR. If the problem persists, do some research to determine whether it has already been discovered and addressed. Try Googling the error message or browsing the Nmap\-dev archives at
-\fI\%http://seclists.org/\fR. Read this full munaual page as well. If nothing comes of this, mail a bug report to
+\fI\%http://seclists.org/\fR. Read this full munual page as well. If nothing comes of this, mail a bug report to
 <nmap\-dev@insecure.org>. Please include everything you have learned about the problem, as well as what version of Nmap you are running and what operating system version it is running on. Problem reports and Nmap usage questions sent to nmap\-dev@insecure.org are far more likely to be answered than those sent to Fyodor directly.
 .PP
 Code patches to fix bugs are even better than bug reports. Basic instructions for creating patch files with your changes are available at
