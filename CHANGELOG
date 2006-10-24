@@ -1,15 +1,26 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
+4.20ALPHA10
+
+o Integrated tons of new OS fingerprints.  The DB now contains 116
+  fingerprints, which is up 63% since the previous version.  Please keep
+  the submissions coming.
+
 4.20ALPHA9
 
-o Added --open option, which causes Nmap to show only open ports.
+o Integrated the newly submitted OS fingerprints. The DB now contains
+  71 fingerprints, up 27% from 56 in ALPHA8.  Please keep them coming!
+  We still only have 4.2% as many fingerprints as the gen1 database.
+
+o Added the --open option, which causes Nmap to show only open ports.
   Ports in the states "open|closed" and "unfiltered" might be open, so
   those are shown unless the host has an overwhelming number of them.
 
 o Nmap gen2 OS detection used to always do 2 retries if it fails to
   find a match.  Now it normally does just 1 retry, but does 4 retries
-  if conditions are good enough to warrant fingerprint submission.  A
-  new --max-os-tries option lets you specify a or higher maximum
-  number of tries.
+  if conditions are good enough to warrant fingerprint submission.
+  This should speed things up on average.  A new --max-os-tries option
+  lets you specify a higher lower maximum number of tries.
 
 o Added --unprivileged option, which is the opposite of --privileged.
   It tells Nmap to treat the user as lacking network raw socket and

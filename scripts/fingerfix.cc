@@ -562,7 +562,7 @@ int main(int argc, char *argv[]) {
 
   // OS Name
   if(observedFP->OS_name) {
-	printf("Fingerprint %s\n", observedFP->OS_name);
+    printf("# %s\nFingerprint %s\n", observedFP->OS_name, observedFP->OS_name);
   } else {
 	// print an empty fingerprint
 	printf("Fingerprint\n");

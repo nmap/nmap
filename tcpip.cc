@@ -2780,7 +2780,7 @@ struct sys_route *getsysroutes(int *howmany) {
     /* First let us try Linux-style /proc/net/route */
     routefp = fopen("/proc/net/route", "r");
     if (routefp) {
-      fgets(buf, sizeof(buf), routefp); /* Kill the first line (column headers) */
+      (void) fgets(buf, sizeof(buf), routefp); /* Kill the first line (column headers) */
       while(fgets(buf,sizeof(buf), routefp)) {
 	p = strtok(buf, " \t\n");
 	if (!p) {

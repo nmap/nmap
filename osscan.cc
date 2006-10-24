@@ -1145,7 +1145,7 @@ static int compareclassifications(FingerPrint *referenceFP,
     return 1;
   }
   if (verbose)
-    printf("Warning: Classification of observed fingerprint does not appear in reference fingerprint.\n");
+    printf("[WARN] Classification of observed fingerprint does not appear in reference fingerprint.\n");
   return 1;
 }
 
