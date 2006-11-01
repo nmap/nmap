@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "10/13/2006" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "10/23/2006" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -91,7 +91,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 \fI\%http://insecure.org/nmap/data/nmap.usage.txt\fR. It helps people remember the most common options, but is no substitute for the in\-depth documentation in the rest of this manual. Some obscure options aren't even included here.
 .PP
 .nf
-Nmap 4.20ALPHA8 ( http://Insecure.Org )
+Nmap 4.20ALPHA9 ( http://insecure.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -162,6 +162,7 @@ OUTPUT:
   \-oA <basename>: Output in the three major formats at once
   \-v: Increase verbosity level (use twice for more effect)
   \-d[level]: Set or increase debugging level (Up to 9 is meaningful)
+  \-\-open: Only show open (or possibly open) ports
   \-\-packet\-trace: Show all packets sent and received
   \-\-iflist: Print host interfaces and routes (for debugging)
   \-\-log\-errors: Log errors/warnings to the normal\-format output file
@@ -176,6 +177,7 @@ MISC:
   \-\-datadir <dirname>: Specify custom Nmap data file location
   \-\-send\-eth/\-\-send\-ip: Send using raw ethernet frames or IP packets
   \-\-privileged: Assume that the user is fully privileged
+  \-\-unprivileged: Assume the user lacks raw socket privileges
   \-V: Print version number
   \-h: Print this help summary page.
 EXAMPLES:
