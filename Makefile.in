@@ -106,11 +106,11 @@ debug:
 
 # Make the Nmap tarball
 distro:
-	cd scripts && $(MAKE) distro
+	cd dev && $(MAKE) distro
 
 # Update the web site
 web:
-	cd scripts && $(MAKE) web
+	cd dev && $(MAKE) web
 
 clean: @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nmapfe_clean nsock_clean nbase_clean my_clean
 
