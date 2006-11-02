@@ -9565,6 +9565,7 @@ AA0002 Digital Equipment
 AA0003 Digital Equipment
 AA0004 Digital Equipment
 ACDE48 Private
-525400 QEMU Virtual NIC
-B0C420 Bochs Virtual NIC
-DEADCA PearPC Virtual NIC
+525400 QEMU virtual NIC
+B0C420 Bochs virtual NIC
+DEADCA PearPC virtual NIC
+00FFD1 Cooperative Linux virtual NIC
