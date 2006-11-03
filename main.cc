@@ -136,7 +136,6 @@ static BOOL OpenLibs(void) {
 
 /* global options */
 extern NmapOps o;  /* option structure */
-extern char **environ;
 
 int main(int argc, char *argv[]) {
   /* The "real" main is nmap_main().  This function hijacks control at the
@@ -390,7 +389,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	/* OK, I think we are finally ready for the big exec() */
-	ret = execve(nmappath, fakeargv, environ);
+	ret = execv(nmappath, fakeargv);
 	if (ret == -1) {
 	  pfatal("Could not exec %s", nmappath);
 	}

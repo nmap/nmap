@@ -167,7 +167,6 @@ HANDLE pipes[2]; /* 0 == read; 1 == write */
 int pipes[2] = {-1,-1};
 #endif
 int verb = 0;
-extern char **environ;
 
 
 

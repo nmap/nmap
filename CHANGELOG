@@ -1,4 +1,15 @@
 # Nmap Changelog ($Id$); -*-text-*-
+4.20ALPHA11
+
+o Integrated all of your OS detection submissions, bringing the
+  database up to 149 fingerprints.  This is an increase of 28% from
+  ALPHA10.  Notable new new additions include FreeBSD 6.1, a bunch of
+  HP LaserJet printers, and HP-UX 11.11.  We also got a bunch of more
+  obscure submissions like Minix 3.1.2a and "Ember InSight Adapter for
+  programming EM2XX-family embedded devices".  I'm hoping that all the
+  obscure submissions mean that more of the mainstream systems are
+  being detected out of the box!  Please keep those submissions
+  (obscure or otherwise) coming!
 
 4.20ALPHA10
 
