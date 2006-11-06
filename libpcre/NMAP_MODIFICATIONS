@@ -1,4 +1,4 @@
-This directory conains a version of LibPCRE 4.3 that has been stripped
+This directory conains a version of LibPCRE 6.7 that has been stripped
 down to under half its original uncompressed size.  So if you want
 docs, tests and such, you should go to the PCRE website at
 http://www.pcre.org .  Here are the changes for the Nmap version:
@@ -104,3 +104,4 @@ intel:
  AC_SUBST(POSIX_OBJ)
  AC_SUBST(POSIX_LOBJ)
 
+o rm pcre_printint.src

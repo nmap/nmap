@@ -182,7 +182,7 @@ static void mac_prefix_init() {
     ME->vendor = cp_strdup(p);
 
     if (MacTable.table_members > MacTable.table_capacity * 0.8)
-      error("WARNING:  nmap-mac-prefixes has grown to more than 80\% of our hash table size.  MacTable.table_capacity should be increased");
+      error("WARNING:  nmap-mac-prefixes has grown to more than 80%% of our hash table size.  MacTable.table_capacity should be increased");
 
     // Now insert it into the table
     if (MacTable.table_members >= MacTable.table_capacity)

@@ -1167,7 +1167,7 @@ static void printosclassificationoutput(const struct OS_Classification_Results *
 	      strcat(familygenerations[familyno], "|");
 	    strncat(familygenerations[familyno], 
 		    OSR->OSC[classno]->OS_Generation, 
-		    sizeof(familygenerations[familyno]) - flen);
+		    sizeof(familygenerations[familyno]) - flen - 1);
 	  }
 	  break;
 	}

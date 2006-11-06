@@ -500,7 +500,7 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
 	*p++ = 'A';
 	snprintf(buf, sizeof(buf), " ack=%lu", 
 		 (unsigned long) ntohl(tcp->th_ack));
-	strncat(tcpinfo, buf, sizeof(tcpinfo));
+	strncat(tcpinfo, buf, sizeof(tcpinfo) - 1);
       }
       if (tcp->th_flags & TH_URG) *p++ = 'U';
       if (tcp->th_flags & TH_ECE) *p++ = 'E'; /* rfc 2481/3168 */
