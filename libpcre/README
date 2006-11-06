@@ -34,7 +34,7 @@ Documentation for PCRE
 ----------------------
 
 If you install PCRE in the normal way, you will end up with an installed set of
-man pages whose names all start with "pcre". The one that is called "pcre"
+man pages whose names all start with "pcre". The one that is just called "pcre"
 lists all the others. In addition to these man pages, the PCRE documentation is
 supplied in two other forms; however, as there is no standard place to install
 them, they are left in the doc directory of the unpacked source distribution.
@@ -68,6 +68,9 @@ others are pointers to URLs containing relevant files.
 Building PCRE on a Unix-like system
 -----------------------------------
 
+If you are using HP's ANSI C++ compiler (aCC), please see the special note
+in the section entitled "Using HP's ANSI C++ compiler (aCC)" below.
+
 To build PCRE on a Unix-like system, first run the "configure" command from the
 PCRE distribution directory, with your current directory set to the directory
 where you want the files to be created. This command is a standard GNU
@@ -91,6 +94,10 @@ into /source/pcre/pcre-xxx, but you want to build it in /build/pcre/pcre-xxx:
 cd /build/pcre/pcre-xxx
 /source/pcre/pcre-xxx/configure
 
+PCRE is written in C and is normally compiled as a C library. However, it is
+possible to build it as a C++ library, though the provided building apparatus
+does not have any features to support this.
+
 There are some optional features that can be included or omitted from the PCRE
 library. You can read more about them in the pcrebuild man page.
 
@@ -107,15 +114,17 @@ library. You can read more about them in the pcrebuild man page.
 . If, in addition to support for UTF-8 character strings, you want to include
   support for the \P, \p, and \X sequences that recognize Unicode character
   properties, you must add --enable-unicode-properties to the "configure"
-  command. This adds about 90K to the size of the library (in the form of a
+  command. This adds about 30K to the size of the library (in the form of a
   property table); only the basic two-letter properties such as Lu are
   supported.
 
-. You can build PCRE to recognized CR or NL as the newline character, instead
-  of whatever your compiler uses for "\n", by adding --newline-is-cr or
-  --newline-is-nl to the "configure" command, respectively. Only do this if you
-  really understand what you are doing. On traditional Unix-like systems, the
-  newline character is NL.
+. You can build PCRE to recognize either CR or LF or the sequence CRLF as
+  indicating the end of a line. Whatever you specify at build time is the
+  default; the caller of PCRE can change the selection at run time. The default
+  newline indicator is a single LF character (the Unix standard). You can
+  specify the default newline indicator by adding --newline-is-cr or
+  --newline-is-lf or --newline-is-crlf to the "configure" command,
+  respectively.
 
 . When called via the POSIX interface, PCRE uses malloc() to get additional
   storage for processing capturing parentheses if there are more than 10 of
@@ -134,6 +143,16 @@ library. You can read more about them in the pcrebuild man page.
   on the "configure" command. This is just the default; individual calls to
   pcre_exec() can supply their own value. There is discussion on the pcreapi
   man page.
+
+. There is a separate counter that limits the depth of recursive function calls
+  during a matching process. This also has a default of ten million, which is
+  essentially "unlimited". You can change the default by setting, for example,
+
+  --with-match-limit-recursion=500000
+
+  Recursive function calls use up the runtime stack; running out of stack can
+  cause programs to crash in strange ways. There is a discussion about stack
+  sizes in the pcrestack man page.
 
 . The default maximum compiled pattern size is around 64K. You can increase
   this by adding --with-link-size=3 to the "configure" command. You can
@@ -158,7 +177,6 @@ library. You can read more about them in the pcrebuild man page.
 
 The "configure" script builds eight files for the basic C library:
 
-. pcre.h is the header file for C programs that call PCRE
 . Makefile is the makefile that builds the library
 . config.h contains build-time configuration options for the library
 . pcre-config is a script that shows the settings of "configure" options
@@ -260,6 +278,22 @@ You can do this by specifying CC_FOR_BUILD (and if necessary CFLAGS_FOR_BUILD;
 there are also CXX_FOR_BUILD and CXXFLAGS_FOR_BUILD for the C++ wrapper)
 when calling the "configure" command. If they are not specified, they default
 to the values of CC and CFLAGS.
+
+
+Using HP's ANSI C++ compiler (aCC)
+----------------------------------
+
+Unless C++ support is disabled by specifiying the "--disable-cpp" option of the
+"configure" script, you *must* include the "-AA" option in the CXXFLAGS
+environment variable in order for the C++ components to compile correctly.
+
+Also, note that the aCC compiler on PA-RISC platforms may have a defect whereby
+needed libraries fail to get included when specifying the "-AA" compiler
+option. If you experience unresolved symbols when linking the C++ programs,
+use the workaround of specifying the following environment variable prior to
+running the "configure" script:
+
+  CXXLDFLAGS="-lstd_v2 -lCsup_v2"
 
 
 Building on non-Unix systems
@@ -409,28 +443,28 @@ The distribution should contain the following files:
   pcre_info.c           )
   pcre_maketables.c     )
   pcre_ord2utf8.c       )
-  pcre_printint.c       )
+  pcre_refcount.c       )
   pcre_study.c          )
   pcre_tables.c         )
   pcre_try_flipped.c    )
-  pcre_ucp_findchar.c   )
+  pcre_ucp_searchfuncs.c)
   pcre_valid_utf8.c     )
   pcre_version.c        )
   pcre_xclass.c         )
-
-  ucp_findchar.c        )
-  ucp.h                 ) source for the code that is used for
-  ucpinternal.h         )   Unicode property handling
   ucptable.c            )
-  ucptypetable.c        )
 
-  pcre.in               "source" for the header for the external API; pcre.h
-                          is built from this by "configure"
+  pcre_printint.src     ) debugging function that is #included in pcretest, and
+                        )   can also be #included in pcre_compile()
+
+  pcre.h                the public PCRE header file
   pcreposix.h           header for the external POSIX wrapper API
   pcre_internal.h       header for internal use
+  ucp.h                 ) headers concerned with
+  ucpinternal.h         )   Unicode property handling
   config.in             template for config.h, which is built by configure
 
-  pcrecpp.h.in          "source" for the header file for the C++ wrapper
+  pcrecpp.h             the header file for the C++ wrapper
+  pcrecpparg.h.in       "source" for another C++ header file
   pcrecpp.cc            )
   pcre_scanner.cc       ) source for the C++ wrapper library
 
@@ -453,8 +487,9 @@ The distribution should contain the following files:
   RunGrepTest.in        template for a Unix shell script for pcregrep tests
   config.guess          ) files used by libtool,
   config.sub            )   used only when building a shared library
+  config.h.in           "source" for the config.h header file
   configure             a configuring shell script (built by autoconf)
-  configure.in          the autoconf input used to build configure
+  configure.ac          the autoconf input used to build configure
   doc/Tech.Notes        notes on the encoding
   doc/*.3               man page sources for the PCRE functions
   doc/*.1               man page sources for pcregrep and pcretest
@@ -482,7 +517,6 @@ The distribution should contain the following files:
 
   libpcre.def
   libpcreposix.def
-  pcre.def
 
 (D) Auxiliary file for VPASCAL
 
@@ -491,4 +525,4 @@ The distribution should contain the following files:
 Philip Hazel
 Email local part: ph10
 Email domain: cam.ac.uk
-August 2005
+June 2006

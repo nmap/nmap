@@ -83,6 +83,7 @@ CXX = @CXX@
 CFLAGS = @CFLAGS@
 CXXFLAGS = @CXXFLAGS@
 LDFLAGS = @LDFLAGS@
+CXXLDFLAGS = @CXXLDFLAGS@
 
 CC_FOR_BUILD = @CC_FOR_BUILD@
 CFLAGS_FOR_BUILD = @CFLAGS_FOR_BUILD@
@@ -94,7 +95,7 @@ UCP = @UCP@
 NEWLINE = @NEWLINE@
 POSIX_MALLOC_THRESHOLD = @POSIX_MALLOC_THRESHOLD@
 LINK_SIZE = @LINK_SIZE@
-MATCH_LIMIT = @MATCH_LIMIT@
+MATCH_LIMIT = @MATCH_LIMIT@ @MATCH_LIMIT_RECURSION@
 NO_RECURSE = @NO_RECURSE@
 EBCDIC = @EBCDIC@
 
@@ -139,83 +140,83 @@ pcre_chartables.@OBJEXT@: pcre_chartables.c
 		 $(CC) -c $(CFLAGS) $(INCLS) $(DEFS) \
                  $(POSIX_MALLOC_THRESHOLD) pcre_chartables.c
 
-pcre_compile.@OBJEXT@: Makefile config.h pcre.h \
+pcre_compile.@OBJEXT@: Makefile config.h $(top_srcdir)/pcre.h \
 		$(top_srcdir)/pcre_internal.h $(top_srcdir)/pcre_compile.c
 		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(POSIX_MALLOC_THRESHOLD) \
 		$(top_srcdir)/pcre_compile.c
 
-pcre_config.@OBJEXT@:  Makefile config.h pcre.h \
+pcre_config.@OBJEXT@:  Makefile config.h $(top_srcdir)/pcre.h \
 		$(top_srcdir)/pcre_internal.h $(top_srcdir)/pcre_config.c
 		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(POSIX_MALLOC_THRESHOLD) \
 		$(top_srcdir)/pcre_config.c
 
-pcre_dfa_exec.@OBJEXT@: Makefile config.h pcre.h \
+pcre_dfa_exec.@OBJEXT@: Makefile config.h $(top_srcdir)/pcre.h \
 		$(top_srcdir)/pcre_internal.h $(top_srcdir)/pcre_dfa_exec.c
 		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(POSIX_MALLOC_THRESHOLD) \
 		$(top_srcdir)/pcre_dfa_exec.c
 
-pcre_exec.@OBJEXT@:    Makefile config.h pcre.h \
+pcre_exec.@OBJEXT@:    Makefile config.h $(top_srcdir)/pcre.h \
 		$(top_srcdir)/pcre_internal.h $(top_srcdir)/pcre_exec.c
 		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(POSIX_MALLOC_THRESHOLD) \
 		$(top_srcdir)/pcre_exec.c
 
-pcre_fullinfo.@OBJEXT@: Makefile config.h pcre.h \
+pcre_fullinfo.@OBJEXT@: Makefile config.h $(top_srcdir)/pcre.h \
 		$(top_srcdir)/pcre_internal.h $(top_srcdir)/pcre_fullinfo.c
 		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(POSIX_MALLOC_THRESHOLD) \
 		$(top_srcdir)/pcre_fullinfo.c
 
-pcre_get.@OBJEXT@:     Makefile config.h pcre.h \
+pcre_get.@OBJEXT@:     Makefile config.h $(top_srcdir)/pcre.h \
 		$(top_srcdir)/pcre_internal.h $(top_srcdir)/pcre_get.c
 		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(POSIX_MALLOC_THRESHOLD) \
 		$(top_srcdir)/pcre_get.c
 
-pcre_globals.@OBJEXT@: Makefile config.h pcre.h \
+pcre_globals.@OBJEXT@: Makefile config.h $(top_srcdir)/pcre.h \
 		$(top_srcdir)/pcre_internal.h $(top_srcdir)/pcre_globals.c
 		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(POSIX_MALLOC_THRESHOLD) \
 		$(top_srcdir)/pcre_globals.c
 
-pcre_info.@OBJEXT@:    Makefile config.h pcre.h \
+pcre_info.@OBJEXT@:    Makefile config.h $(top_srcdir)/pcre.h \
 		$(top_srcdir)/pcre_internal.h $(top_srcdir)/pcre_info.c
 		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(POSIX_MALLOC_THRESHOLD) \
 		$(top_srcdir)/pcre_info.c
 
-pcre_maketables.@OBJEXT@: Makefile config.h pcre.h \
+pcre_maketables.@OBJEXT@: Makefile config.h $(top_srcdir)/pcre.h \
 		$(top_srcdir)/pcre_internal.h $(top_srcdir)/pcre_maketables.c
 		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(POSIX_MALLOC_THRESHOLD) \
 		$(top_srcdir)/pcre_maketables.c
 
-pcre_refcount.@OBJEXT@:   Makefile config.h pcre.h \
+pcre_refcount.@OBJEXT@:   Makefile config.h $(top_srcdir)/pcre.h \
 		$(top_srcdir)/pcre_internal.h $(top_srcdir)/pcre_refcount.c
 		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(POSIX_MALLOC_THRESHOLD) \
 		$(top_srcdir)/pcre_refcount.c
 
-pcre_study.@OBJEXT@:   Makefile config.h pcre.h \
+pcre_study.@OBJEXT@:   Makefile config.h $(top_srcdir)/pcre.h \
 		$(top_srcdir)/pcre_internal.h $(top_srcdir)/pcre_study.c
 		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(POSIX_MALLOC_THRESHOLD) \
 		$(top_srcdir)/pcre_study.c
 
-pcre_tables.@OBJEXT@:  Makefile config.h pcre.h \
+pcre_tables.@OBJEXT@:  Makefile config.h $(top_srcdir)/pcre.h \
 		$(top_srcdir)/pcre_internal.h $(top_srcdir)/pcre_tables.c
 		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(POSIX_MALLOC_THRESHOLD) \
 		$(top_srcdir)/pcre_tables.c
 
-pcre_try_flipped.@OBJEXT@: Makefile config.h pcre.h \
+pcre_try_flipped.@OBJEXT@: Makefile config.h $(top_srcdir)/pcre.h \
 		$(top_srcdir)/pcre_internal.h $(top_srcdir)/pcre_try_flipped.c
 		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(POSIX_MALLOC_THRESHOLD) \
 		$(top_srcdir)/pcre_try_flipped.c
 
-pcre_version.@OBJEXT@: Makefile config.h pcre.h \
+pcre_version.@OBJEXT@: Makefile config.h $(top_srcdir)/pcre.h \
 		$(top_srcdir)/pcre_internal.h $(top_srcdir)/pcre_version.c
 		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(POSIX_MALLOC_THRESHOLD) \
 		$(top_srcdir)/pcre_version.c
 
-pcre_xclass.@OBJEXT@:  Makefile config.h pcre.h \
+pcre_xclass.@OBJEXT@:  Makefile config.h $(top_srcdir)/pcre.h \
 		$(top_srcdir)/pcre_internal.h $(top_srcdir)/pcre_xclass.c
 		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) $(POSIX_MALLOC_THRESHOLD) \
 		$(top_srcdir)/pcre_xclass.c
 
 pcreposix.@OBJEXT@:    $(top_srcdir)/pcreposix.c $(top_srcdir)/pcreposix.h \
-		  $(top_srcdir)/pcre_internal.h pcre.h config.h Makefile
+		  $(top_srcdir)/pcre_internal.h $(top_srcdir)/pcre.h config.h Makefile
 		@$(LTCOMPILE) $(POSIX_MALLOC_THRESHOLD) $(top_srcdir)/pcreposix.c
 
 $(TARGET):     $(OBJ)
@@ -231,7 +232,7 @@ pcre_chartables.c:   dftables@BUILD_EXEEXT@
 
 dftables.@BUILD_OBJEXT@:     $(top_srcdir)/dftables.c \
 		$(top_srcdir)/pcre_maketables.c $(top_srcdir)/pcre_internal.h \
-		pcre.h config.h Makefile
+		$(top_srcdir)/pcre.h config.h Makefile
 		$(CC) -c $(CFLAGS) $(INCLS) $(DEFS) -I. $(top_srcdir)/dftables.c
 
 dftables@BUILD_EXEEXT@:      dftables.@BUILD_OBJEXT@
@@ -247,7 +248,7 @@ clean:;         -rm -rf *.@OBJEXT@ *.lo *.a *.la .libs pcretest@EXEEXT@ pcre_str
 
 distclean:      clean
 		-rm -f pcre_chartables.c libtool pcre-config libpcre.pc \
-		pcre.h pcre_stringpiece.h pcrecpp.h \
+		pcre_stringpiece.h pcrecpparg.h \
 		dftables@EXEEXT@ RunGrepTest RunTest \
 		Makefile config.h config.status config.log config.cache
 

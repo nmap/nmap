@@ -272,6 +272,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
 ac_unique_file="dftables.c"
+ac_unique_file="pcre.h"
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>
@@ -309,7 +310,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT RANLIB ac_ct_RANLIB CPP EGREP pcre_have_long_long pcre_have_ulong_long build build_cpu build_vendor build_os host host_cpu host_vendor host_os BUILD_EXEEXT BUILD_OBJEXT CC_FOR_BUILD CFLAGS_FOR_BUILD EBCDIC HAVE_MEMMOVE HAVE_STRERROR LINK_SIZE MATCH_LIMIT NEWLINE NO_RECURSE PCRE_MAJOR PCRE_MINOR PCRE_DATE PCRE_VERSION PCRE_LIB_VERSION PCRE_POSIXLIB_VERSION POSIX_MALLOC_THRESHOLD UCP UTF8 POSIX_OBJ POSIX_LOBJ POSIX_LIB LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT RANLIB ac_ct_RANLIB CPP EGREP pcre_have_long_long pcre_have_ulong_long build build_cpu build_vendor build_os host host_cpu host_vendor host_os BUILD_EXEEXT BUILD_OBJEXT CC_FOR_BUILD CFLAGS_FOR_BUILD CXXLDFLAGS EBCDIC HAVE_MEMMOVE HAVE_STRERROR LINK_SIZE MATCH_LIMIT MATCH_LIMIT_RECURSION NEWLINE NO_RECURSE PCRE_LIB_VERSION PCRE_POSIXLIB_VERSION PCRE_VERSION POSIX_MALLOC_THRESHOLD UCP UTF8 POSIX_OBJ POSIX_LOBJ POSIX_LIB LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -848,15 +849,17 @@ Optional Features:
   --enable-unicode-properties  enable Unicode properties support
   --enable-newline-is-cr  use CR as the newline character
   --enable-newline-is-lf  use LF as the newline character
+  --enable-newline-is-crlf  use CRLF as the newline sequence
   --enable-ebcdic         assume EBCDIC coding rather than ASCII
   --disable-stack-for-recursion  disable use of stack recursion when matching
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-posix-malloc-threshold=5  threshold for POSIX malloc usage
+  --with-posix-malloc-threshold=10  threshold for POSIX malloc usage
   --with-link-size=2    internal link size (2, 3, or 4 allowed)
-  --with-match-limit=10000000      default limit on internal looping)
+  --with-match-limit=10000000  default limit on internal looping
+  --with-match-limit-recursion=10000000  default limit on internal recursion
 
 Some influential environment variables:
   CC          C compiler command
@@ -1309,14 +1312,9 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+
           ac_config_headers="$ac_config_headers config.h"
 
-
-
-PCRE_MAJOR=6
-PCRE_MINOR=4
-PCRE_DATE=05-Sep-2005
-PCRE_VERSION=${PCRE_MAJOR}.${PCRE_MINOR}
 
 
 POSIX_MALLOC_THRESHOLD=-DPOSIX_MALLOC_THRESHOLD=10
@@ -1324,6 +1322,12 @@ POSIX_MALLOC_THRESHOLD=-DPOSIX_MALLOC_THRESHOLD=10
 
 PCRE_LIB_VERSION=0:1:0
 PCRE_POSIXLIB_VERSION=0:0:0
+
+
+PCRE_MAJOR=`grep '#define PCRE_MAJOR' ${srcdir}/pcre.h | cut -c 29-`
+PCRE_MINOR=`grep '#define PCRE_MINOR' ${srcdir}/pcre.h | cut -c 29-`
+PCRE_PRERELEASE=`grep '#define PCRE_PRERELEASE' ${srcdir}/pcre.h | cut -c 29-`
+PCRE_VERSION=${PCRE_MAJOR}.${PCRE_MINOR}${PCRE_PRERELEASE}
 
 
 ac_ext=c
@@ -3447,6 +3451,16 @@ fi
 fi;
 
 
+# Check whether --enable-newline-is-crlf or --disable-newline-is-crlf was given.
+if test "${enable_newline_is_crlf+set}" = set; then
+  enableval="$enable_newline_is_crlf"
+  if test "$enableval" = "yes"; then
+  NEWLINE=-DNEWLINE=3338
+fi
+
+fi;
+
+
 # Check whether --enable-ebcdic or --disable-ebcdic was given.
 if test "${enable_ebcdic+set}" = set; then
   enableval="$enable_ebcdic"
@@ -3491,6 +3505,15 @@ fi;
 if test "${with_match_limit+set}" = set; then
   withval="$with_match_limit"
   MATCH_LIMIT=-DMATCH_LIMIT=$withval
+
+fi;
+
+
+
+# Check whether --with-match-limit-recursion or --without-match-limit-recursion was given.
+if test "${with_match_limit_recursion+set}" = set; then
+  withval="$with_match_limit_recursion"
+  MATCH_LIMIT_RECURSION=-DMATCH_LIMIT_RECURSION=$withval
 
 fi;
 
@@ -3617,7 +3640,6 @@ esac
 
 
 
-
 if test "x$enable_shared" = "xno" ; then
 
 cat >>confdefs.h <<\_ACEOF
@@ -3626,7 +3648,7 @@ _ACEOF
 
 fi
 
-                    ac_config_files="$ac_config_files Makefile pcre.h:pcre.h.in"
+          ac_config_files="$ac_config_files Makefile"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -4152,7 +4174,6 @@ do
   case "$ac_config_target" in
   # Handling of arguments.
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-  "pcre.h" ) CONFIG_FILES="$CONFIG_FILES pcre.h:pcre.h.in" ;;
   "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -4263,19 +4284,18 @@ s,@BUILD_EXEEXT@,$BUILD_EXEEXT,;t t
 s,@BUILD_OBJEXT@,$BUILD_OBJEXT,;t t
 s,@CC_FOR_BUILD@,$CC_FOR_BUILD,;t t
 s,@CFLAGS_FOR_BUILD@,$CFLAGS_FOR_BUILD,;t t
+s,@CXXLDFLAGS@,$CXXLDFLAGS,;t t
 s,@EBCDIC@,$EBCDIC,;t t
 s,@HAVE_MEMMOVE@,$HAVE_MEMMOVE,;t t
 s,@HAVE_STRERROR@,$HAVE_STRERROR,;t t
 s,@LINK_SIZE@,$LINK_SIZE,;t t
 s,@MATCH_LIMIT@,$MATCH_LIMIT,;t t
+s,@MATCH_LIMIT_RECURSION@,$MATCH_LIMIT_RECURSION,;t t
 s,@NEWLINE@,$NEWLINE,;t t
 s,@NO_RECURSE@,$NO_RECURSE,;t t
-s,@PCRE_MAJOR@,$PCRE_MAJOR,;t t
-s,@PCRE_MINOR@,$PCRE_MINOR,;t t
-s,@PCRE_DATE@,$PCRE_DATE,;t t
-s,@PCRE_VERSION@,$PCRE_VERSION,;t t
 s,@PCRE_LIB_VERSION@,$PCRE_LIB_VERSION,;t t
 s,@PCRE_POSIXLIB_VERSION@,$PCRE_POSIXLIB_VERSION,;t t
+s,@PCRE_VERSION@,$PCRE_VERSION,;t t
 s,@POSIX_MALLOC_THRESHOLD@,$POSIX_MALLOC_THRESHOLD,;t t
 s,@UCP@,$UCP,;t t
 s,@UTF8@,$UTF8,;t t
