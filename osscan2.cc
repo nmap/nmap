@@ -3256,7 +3256,7 @@ static void begin_sniffer(HostOsScan *HOS, vector<Target *> &Targets) {
   }
   filterlen = 0;
 
-  HOS->pd = my_pcap_open_live(Targets[0]->deviceName(), 8192,  (o.spoofsource)? 1 : 0, 2);
+  HOS->pd = my_pcap_open_live(Targets[0]->deviceName(), 8192,  (o.spoofsource)? 1 : 0, pcap_selectable_fd_valid()? 200 : 2);
 
   if (doIndividual)
     len = snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s and (icmp or (tcp and (%s", 

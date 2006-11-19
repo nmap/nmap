@@ -3209,7 +3209,7 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
   }
   filterlen = 0;
 
-  USI->pd = my_pcap_open_live(Targets[0]->deviceName(), 100,  (o.spoofsource)? 1 : 0, 2);
+  USI->pd = my_pcap_open_live(Targets[0]->deviceName(), 100,  (o.spoofsource)? 1 : 0, pcap_selectable_fd_valid()? 200 : 2);
 
   if (USI->tcp_scan || USI->udp_scan) {
     if (doIndividual)

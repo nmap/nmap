@@ -617,6 +617,11 @@ int send_udp_raw_decoys( int sd, struct eth_nfo *eth,
    So a valid pcap_t will always be returned. */
 pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc, 
 			  int to_ms);
+
+// Returns whether the system supports pcap_get_selectable_fd() properly
+bool pcap_selectable_fd_valid();
+
+
 // Returns whether the packet receive time value obtaned from libpcap
 // (and thus by readip_pcap()) should be considered valid.  When
 // invalid (Windows and Amiga), readip_pcap returns the time you called it.

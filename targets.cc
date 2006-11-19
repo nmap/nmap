@@ -1579,7 +1579,7 @@ static void massping(Target *hostbatch[], int num_hosts,
        16 bytes of the TCP header
        ---
        = 104 byte snaplen */
-    pd = my_pcap_open_live(hostbatch[0]->deviceName(), 104, o.spoofsource, 20);
+    pd = my_pcap_open_live(hostbatch[0]->deviceName(), 104, o.spoofsource, pcap_selectable_fd_valid()? 200 : 15);
 
     snprintf(filter, sizeof(filter), "(icmp and dst host %s) or ((tcp or udp) and dst host %s and ( dst port %d or dst port %d or dst port %d or dst port %d or dst port %d))", 
 	     inet_ntoa(hostbatch[0]->v4source()),

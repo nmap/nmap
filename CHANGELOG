@@ -1,4 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o Fixed (I hope) a bug related to Pcap capture on Mac OS X.  Thanks to
+  Christophe Thil for reporting the problem and to Kurt Grutzmacher
+  and Diman Todorov for helping to track it down.
+
 o Upgraded the included LibPCRE from version 6.4 to 6.7.  Thanks to
   Jochen Voß (voss(a)seehuhn.de) for the suggestion (he found some bugs
   in 6.4)

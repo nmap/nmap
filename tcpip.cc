@@ -1844,12 +1844,9 @@ if (!pd) fatal("NULL packet device passed to readip_pcap");
    gettimeofday(&tv_start, NULL);
  }
 
-// Add other systems here if they don't support select()able pcap descriptors
-#ifdef WIN32
  pcap_descriptor = -1;
-#else
- pcap_descriptor = pcap_get_selectable_fd(pd);
-#endif
+ if (pcap_selectable_fd_valid())  
+   pcap_descriptor = pcap_get_selectable_fd(pd);
 
  do {
 #ifdef WIN32
@@ -1950,6 +1947,16 @@ if (timedout) {
 
  return alignedbuf;
 }
+
+// Returns whether the system supports pcap_get_selectable_fd() properly
+bool pcap_selectable_fd_valid() {
+#if defined(WIN32) || defined(MACOSX)
+  return false;
+#endif
+  return true;
+}
+
+
  
 // Returns whether the packet receive time value obtained from libpcap
 // (and thus by readip_pcap()) should be considered valid.  When
@@ -2069,13 +2076,10 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
     }
 #endif
 
-// Add other systems here if they don't support select()able pcap descriptors
-#ifdef WIN32
-    pcap_descriptor = -1;
-#else
-    pcap_descriptor = pcap_get_selectable_fd(pd);
-#endif
-
+   pcap_descriptor = -1;
+   if (pcap_selectable_fd_valid())  
+     pcap_descriptor = pcap_get_selectable_fd(pd);
+    
    p = NULL;
    if (pcap_descriptor != -1) {
      fd_set rfds;
