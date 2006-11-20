@@ -1,7 +1,16 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
+4.20RC1
+
 o Fixed (I hope) a bug related to Pcap capture on Mac OS X.  Thanks to
   Christophe Thil for reporting the problem and to Kurt Grutzmacher
   and Diman Todorov for helping to track it down.
+
+o Integrated all of your OS detection submissions since ALPHA11.  The
+  DB has increased 27% to 189 signatures.  Notable additions include
+  the Apple Airport Express, Windows Vista RC1, OpenBSD 4.0, a Sony
+  TiVo device, and tons of broadband routers, printers, switches, and
+  Linux kernels.  Keep those submissions coming!
 
 o Upgraded the included LibPCRE from version 6.4 to 6.7.  Thanks to
   Jochen Voß (voss(a)seehuhn.de) for the suggestion (he found some bugs
