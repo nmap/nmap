@@ -1846,7 +1846,7 @@ if (!pd) fatal("NULL packet device passed to readip_pcap");
 
  pcap_descriptor = -1;
  if (pcap_selectable_fd_valid())  
-   pcap_descriptor = pcap_get_selectable_fd(pd);
+   pcap_descriptor = my_pcap_get_selectable_fd(pd);
 
  do {
 #ifdef WIN32
@@ -1956,6 +1956,20 @@ bool pcap_selectable_fd_valid() {
   return true;
 }
 
+/* Call this instead of pcap_get_selectable_fd directly (or your code
+   won't compile on Windows).  On systems which don't seem to support
+   the pcap_get_selectable_fd() function properly, returns -1,
+   otherwise simply calls pcap_selectable_fd and returns the
+   results.  If you just want to test whether the function is supported,
+   use pcap_selectable_fd_valid() instead. */
+int my_pcap_get_selectable_fd(pcap_t *p) {
+#if defined(WIN32) || defined(MACOSX)
+  return -1;
+#else
+  assert(pcap_selectable_fd_valid());
+  return pcap_get_selectable_fd(p);
+#endif
+}
 
  
 // Returns whether the packet receive time value obtained from libpcap
@@ -2078,7 +2092,7 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
 
    pcap_descriptor = -1;
    if (pcap_selectable_fd_valid())  
-     pcap_descriptor = pcap_get_selectable_fd(pd);
+     pcap_descriptor = my_pcap_get_selectable_fd(pd);
     
    p = NULL;
    if (pcap_descriptor != -1) {

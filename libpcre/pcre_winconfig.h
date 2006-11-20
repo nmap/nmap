@@ -33,6 +33,35 @@ default default. */
 #define MATCH_LIMIT 10000000
 #endif
 
+/* The above limit applies to all calls of match(), whether or not they
+increase the recursion depth. In some environments it is desirable to limit the
+depth of recursive calls of match() more strictly, in order to restrict the
+maximum amount of stack (or heap, if NO_RECURSE is defined) that is used. The
+value of MATCH_LIMIT_RECURSION applies only to recursive calls of match(). To
+have any useful effect, it must be less than the value of MATCH_LIMIT. There is
+a runtime method for setting a different limit. On systems that support it,
+"configure" can be used to override this default default. */
+
+#ifndef MATCH_LIMIT_RECURSION
+#define MATCH_LIMIT_RECURSION MATCH_LIMIT
+#endif
+
+/* These three limits are parameterized just in case anybody ever wants to
+change them. Care must be taken if they are increased, because they guard
+against integer overflow caused by enormously large patterns. */
+
+#ifndef MAX_NAME_SIZE
+#define MAX_NAME_SIZE 32
+#endif
+
+#ifndef MAX_NAME_COUNT
+#define MAX_NAME_COUNT 10000
+#endif
+
+#ifndef MAX_DUPLENGTH
+#define MAX_DUPLENGTH 30000
+#endif
+
 // This is set by configure on other platforms -Fyodor
 #define POSIX_MALLOC_THRESHOLD 10
 

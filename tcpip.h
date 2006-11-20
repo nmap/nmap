@@ -621,6 +621,13 @@ pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc,
 // Returns whether the system supports pcap_get_selectable_fd() properly
 bool pcap_selectable_fd_valid();
 
+/* Call this instead of pcap_get_selectable_fd directly (or your code
+   won't compile on Windows).  On systems which don't seem to support
+   the pcap_get_selectable_fd() function properly, returns -1,
+   otherwise simply calls pcap_selectable_fd and returns the
+   results.  If you just want to test whether the function is supported,
+   use pcap_selectable_fd_valid() instead. */
+int my_pcap_get_selectable_fd(pcap_t *p);
 
 // Returns whether the packet receive time value obtaned from libpcap
 // (and thus by readip_pcap()) should be considered valid.  When
