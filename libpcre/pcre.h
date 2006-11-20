@@ -58,8 +58,9 @@ circumstance. */
 #define PCRE_DATE           04-Jul-2006
 
 /* Win32 uses DLL by default; it needs special stuff for exported functions
-when building PCRE. */
+when building PCRE. -- COMMENTED OUT BECAUSE I COMPILE STATICALLY */
 
+/*
 #ifdef _WIN32
 #  ifdef PCRE_DEFINITION
 #    ifdef DLL_EXPORT
@@ -71,6 +72,7 @@ when building PCRE. */
 #    endif
 #  endif
 #endif
+*/
 
 /* Otherwise, we use the standard "extern". */
 

@@ -105,3 +105,24 @@ intel:
  AC_SUBST(POSIX_LOBJ)
 
 o rm pcre_printint.src
+
+o Comment out some build configuration lines from pcre.h because Nmap
+builds a static library:
+--- pcre.h      (revision 4133)
++++ pcre.h      (working copy)
+@@ -58,8 +58,9 @@
+ #define PCRE_DATE           04-Jul-2006
+
+ /* Win32 uses DLL by default; it needs special stuff for exported functions
+-when building PCRE. */
++when building PCRE. -- COMMENTED OUT BECAUSE I COMPILE STATICALLY */
+
++/*
+ #ifdef _WIN32
+ #  ifdef PCRE_DEFINITION
+ #    ifdef DLL_EXPORT
+@@ -71,6 +72,7 @@
+ #    endif
+ #  endif
+ #endif
++*/
