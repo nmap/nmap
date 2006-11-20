@@ -626,7 +626,7 @@ int parse_ip_options(char *txt, u8 *data, int datalen, int* firsthopoff, int* la
       if(*c==' ' || *c==',')
         break;
       n = buf;
-      while(*c=='.' || (*c>='0' && *c<='9') && n-buf <= ((int)sizeof(buf)-1))
+      while((*c=='.' || (*c>='0' && *c<='9')) && n-buf <= ((int)sizeof(buf)-1))
       	 *n++ = *c++;
       *n = '\0'; c--;
       if(d+4>=dataend)
