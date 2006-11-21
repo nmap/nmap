@@ -203,7 +203,9 @@ U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Apple Mac OS 10.4.8/ppc (Darwin tetralyre 8.8.0 Darwin Kernel Version 8.8.0: Fri Sep  8 17:18:57 PDT
-Fingerprint Apple Mac OS X 10.4.8 (Tiger, PPC)
+# Darwin 8.8.1 Darwin Kernel Version 8.8.1: Mon Sep 25
+19:42:00 PDT 2006; root:xnu-792.13.8.obj~1/RELEASE_I386 i386 i386
+Fingerprint Apple Mac OS X 10.4.8 (Tiger)
 Class Apple | Mac OS X | 10.4.X | general purpose
 SEQ(SP=FB-105%GCD=<7%ISR=FF-10B%TI=I%II=I%SS=S%TS=0|1)
 OPS(O1=M3FD8NW0NNT11SLL%O2=M3FD8NW0NNT11SLL%O3=M3FD8NW0NNT11%O4=M3FD8NW0NNT11SLL%O5=M3FD8NW0NNT11SLL%O6=M3FD8NNT11SLL)

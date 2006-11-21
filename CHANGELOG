@@ -13,7 +13,7 @@ o Integrated all of your OS detection submissions since ALPHA11.  The
   Linux kernels.  Keep those submissions coming!
 
 o Upgraded the included LibPCRE from version 6.4 to 6.7.  Thanks to
-  Jochen Voß (voss(a)seehuhn.de) for the suggestion (he found some bugs
+  Jochen Voss (voss(a)seehuhn.de) for the suggestion (he found some bugs
   in 6.4)
 
 4.20ALPHA11
