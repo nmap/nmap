@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
-4.20
+
+4.20RC2
+
+o Integrated all of your OS detection submissions since RC1.  The DB
+  has increased 13% to 214 fingerprints.  Please keep them coming!
+  New fingerprints include versions of z/OS, OpenBSD, Linux, AIX,
+  FreeBSD, Cisco CatOS, IPSO firewall, and a slew of printers and
+  misc. devices.  We also got our first Windows 95 fingerprint,
+  submitted anonymously of course :).
 
 o Fixed (I hope) the "getinterfaces: intf_loop() failed" error which
   was seen on Windows Vista.  The problem was apparently in
