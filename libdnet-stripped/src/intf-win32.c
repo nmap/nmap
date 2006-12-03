@@ -31,7 +31,7 @@ struct ifcombo {
 	int		 max;
 };
 
-#define MIB_IF_TYPE_MAX	 32	/* XXX - ipifcons.h */
+#define MIB_IF_TYPE_MAX		MAX_IF_TYPE	/* XXX - ipifcons.h */
 
 struct intf_handle {
 	struct ifcombo	 ifcombo[MIB_IF_TYPE_MAX];

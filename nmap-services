@@ -1844,6 +1844,8 @@ ppp               3000/tcp   # User-level ppp daemon, or chili!soft asp
 nessusd           3001/tcp   # Nessus Security Scanner (www.nessus.org) Daemon or chili!soft asp
 deslogin          3005/tcp   # encrypted symmetric telnet/login
 deslogind         3006/tcp   # 
+slnp              3025/tcp   # SLNP (Simple Library Network Protocol) by Sisis Informationssysteme GmbH
+slnp              3045/tcp   # SLNP (Simple Library Network Protocol) by Sisis Informationssysteme GmbH
 cfs               3049/tcp   # cryptographic file system (nfs) (proposed)
 cfs               3049/udp   # cryptographic file system (nfs)
 PowerChute        3052/tcp
@@ -1859,11 +1861,15 @@ ccmail            3264/udp   # cc:mail/lotus
 globalcatLDAP     3268/tcp   # Global Catalog LDAP
 globalcatLDAPssl  3269/tcp   # Global Catalog LDAP over ssl
 meetingmaker      3292/tcp   # Meeting maker time management software
+saprouter         3299/tcp   # SAProuter
 mysql             3306/tcp   # mySQL
 dec-notes         3333/tcp   # DEC Notes
 dec-notes         3333/udp   # DEC Notes
 msdtc             3372/tcp   # MS distributed transaction coordinator
 ms-term-serv      3389/tcp   # Microsoft Remote Display Protocol
+saposs            3397/tcp   # SAP Oss
+sapcomm           3398/tcp   # SAPcomm
+sapeps            3399/tcp   # SAP EPS
 squid-snmp        3401/udp   # Squid proxy SNMP port
 bmap              3421/tcp   # Bull Apprise portmapper
 bmap              3421/udp   # Bull Apprise portmapper
@@ -2119,6 +2125,7 @@ http-alt          8000/tcp   # A common alternative http port
 ajp12             8007/tcp   # Apache JServ Protocol 1.x
 ajp13             8009/tcp   # Apache JServ Protocol 1.3
 ftp-proxy         8021/tcp   # Common FTP proxy port
+slnp              8076/tcp   # SLNP (Simple Library Network Protocol) by Sisis Informationssysteme GmbH
 http-proxy        8080/tcp   # Common HTTP proxy/second web server port
 blackice-icecap   8081/tcp   # ICECap user console
 blackice-alerts   8082/tcp   # BlackIce Alerts sent to this port

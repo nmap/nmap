@@ -203,8 +203,7 @@ U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Apple Mac OS 10.4.8/ppc (Darwin tetralyre 8.8.0 Darwin Kernel Version 8.8.0: Fri Sep  8 17:18:57 PDT
-# Darwin 8.8.1 Darwin Kernel Version 8.8.1: Mon Sep 25
-19:42:00 PDT 2006; root:xnu-792.13.8.obj~1/RELEASE_I386 i386 i386
+# Darwin 8.8.1 Darwin Kernel Version 8.8.1: Mon Sep 25 19:42:00 PDT 2006; root:xnu-792.13.8.obj~1/RELEASE_I386 i386 i386
 Fingerprint Apple Mac OS X 10.4.8 (Tiger)
 Class Apple | Mac OS X | 10.4.X | general purpose
 SEQ(SP=FB-105%GCD=<7%ISR=FF-10B%TI=I%II=I%SS=S%TS=0|1)
@@ -638,7 +637,8 @@ IE(DFI=S%T=FF%TG=FF%TOSI=S%CD=S%SI=S|OS:S%DLI=S)
 
 # D-Link DI-624 wireless router rev. C, firmware 2.76 (24 Aug 2006)
 # D-Link DI-524 WAP Firmware 1.21
-Fingerprint D-Link DI-624 or DI-524 WAP
+# D-Link DI-604, firmware 3.52
+Fingerprint D-Link DI-524, DI-604, or DI-624 WAP
 Class D-Link | embedded || broadband router
 SEQ(SP=B-15%GCD=FA7F|1F4FE|2EF7D|3E9FC|4E47B|5DEFA%ISR=96-A0%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B0%O2=M5B0%O3=M5B0%O4=M5B0%O5=M5B0%O6=M5B0)

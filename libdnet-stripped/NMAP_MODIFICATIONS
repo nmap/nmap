@@ -297,3 +297,16 @@ Index: src/intf.c
                 return (-1);
         entry->intf_mtu = ifr.ifr_mtu;
 
+o Made the following change for Windows Vista support (thanks to Dan
+Griffin):
+--- old/intf-win32.c        2005-12-28 16:30:38.000000000 -0800
++++ intf-win32.c        2006-11-26 20:46:13.000000000 -0800
+@@ -31,7 +31,7 @@
+        int              max;
+ };
+
+-#define MIB_IF_TYPE_MAX         32     /* XXX - ipifcons.h */
++#define MIB_IF_TYPE_MAX                MAX_IF_TYPE     /* XXX - ipifcons.h */
+
+ struct intf_handle {
+        struct ifcombo   ifcombo[MIB_IF_TYPE_MAX];

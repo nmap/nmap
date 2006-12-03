@@ -487,7 +487,7 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
 	       srchost, ntohs(tcp->th_sport), dsthost, ntohs(tcp->th_dport), ipinfo, tcpinfo);
     } else { // at least first 16 bytes of TCP header are there
 
-      snprintf(tcpinfo, sizeof(tcpinfo), "seq=%lu win=%hi", 
+      snprintf(tcpinfo, sizeof(tcpinfo), "seq=%lu win=%hu", 
 	       (unsigned long) ntohl(tcp->th_seq),
 	       ntohs(tcp->th_win));
       p = tflags;
@@ -500,7 +500,7 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
 	*p++ = 'A';
 	snprintf(buf, sizeof(buf), " ack=%lu", 
 		 (unsigned long) ntohl(tcp->th_ack));
-	strncat(tcpinfo, buf, sizeof(tcpinfo) - 1);
+	strncat(tcpinfo, buf, sizeof(tcpinfo) - strlen(tcpinfo) - 1);
       }
       if (tcp->th_flags & TH_URG) *p++ = 'U';
       if (tcp->th_flags & TH_ECE) *p++ = 'E'; /* rfc 2481/3168 */

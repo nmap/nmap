@@ -1,4 +1,18 @@
 # Nmap Changelog ($Id$); -*-text-*-
+4.20
+
+o Fixed (I hope) the "getinterfaces: intf_loop() failed" error which
+  was seen on Windows Vista.  The problem was apparently in
+  intf-win32.c of libcnet (need to define MIB_IF_TYPE_MAX to
+  MAX_IF_TYPE rather than 32).  Thanks to Dan Griffin
+  (dan(a)jwsecure.com) for tracking this down!
+
+o Applied a couple minor bug fixes from Marek Majkowski to IP options
+  support (which he previously added) and packet tracing.
+
+o Incorporated SLNP (Simple Library Network Protocol) version
+  detection support.  Thanks to Tibor Csogor (tibi(a)tiborius.net) for
+  the patch.
 
 4.20RC1
 
