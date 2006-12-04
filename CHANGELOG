@@ -15,8 +15,9 @@ o Fixed (I hope) the "getinterfaces: intf_loop() failed" error which
   MAX_IF_TYPE rather than 32).  Thanks to Dan Griffin
   (dan(a)jwsecure.com) for tracking this down!
 
-o Applied a couple minor bug fixes from Marek Majkowski to IP options
-  support (which he previously added) and packet tracing.
+o Applied a couple minor bug fixes for IP options
+  support and packet tracing.  Thanks to Michal Luczaj
+  (regenrecht(a)o2.pl) for reporting them.
 
 o Incorporated SLNP (Simple Library Network Protocol) version
   detection support.  Thanks to Tibor Csogor (tibi(a)tiborius.net) for
