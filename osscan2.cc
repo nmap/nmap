@@ -526,6 +526,9 @@ public:
   OsScanInfo(vector<Target *> &Targets);
   ~OsScanInfo();
   
+  /* If you remove from this, you had better adjust nextI too (or call
+     resetHostIterator() afterward). Don't let this list get empty,
+     then add to it again, or you may mess up nextI (I'm not sure) */
   list<HostOsScanInfo *> incompleteHosts;
   unsigned int starttimems;
 
@@ -536,6 +539,11 @@ public:
      first host in the list.  If incompleteHosts is empty, returns
      NULL. */
   HostOsScanInfo *nextIncompleteHost();
+  /* Resets the host iterator used with nextIncompleteHost() to the
+     beginning.  If you remove a host from incompleteHosts, call this
+     right afterward */
+  void resetHostIterator() { nextI = incompleteHosts.begin(); }
+
   int removeCompletedHosts();
 private:
   unsigned int numInitialTargets;
@@ -1735,12 +1743,16 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
       seq_stddev /= hss->si.responses - 2;
 
       /* Next we need to take the square root of this value */
-      seq_stddev = (unsigned int) (0.5 + sqrt(seq_stddev));
+      seq_stddev = sqrt(seq_stddev);
 
       /* Finally we take a binary logarithm, multiply by 8, and round
 	 to get the final result */
-      seq_stddev = log(seq_stddev) / log(2.0);
-      hss->si.index = (int) (seq_stddev * 8 + 0.5);
+      if (seq_stddev <= 1)
+	hss->si.index = 0;
+      else {
+	seq_stddev = log(seq_stddev) / log(2.0);
+	hss->si.index = (int) (seq_stddev * 8 + 0.5);
+      }
     }
 
     /* Time to generate the SEQ probe line of the fingerprint */
@@ -3653,18 +3665,18 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
       hsi->isCompleted = true;
     }
 
-	if (islocalhost(hsi->target->v4hostip())) {
-	  /* scanning localhost */
-	  distance = 0;
-	} else if (hsi->target->MACAddress()) {
-	  /* on the same network segment */
-	  distance = 1;
-	} else if (hsi->hss->distance!=-1) {
-	  distance = hsi->hss->distance;
-	}
-	
-	hsi->target->distance = hsi->target->FPR->distance = distance;
-	hsi->target->FPR->distance_guess = hsi->hss->distance_guess;
+    if (islocalhost(hsi->target->v4hostip())) {
+      /* scanning localhost */
+      distance = 0;
+    } else if (hsi->target->MACAddress()) {
+      /* on the same network segment */
+      distance = 1;
+    } else if (hsi->hss->distance!=-1) {
+      distance = hsi->hss->distance;
+    }
+    
+    hsi->target->distance = hsi->target->FPR->distance = distance;
+    hsi->target->FPR->distance_guess = hsi->hss->distance_guess;
 
   }
   
@@ -3774,6 +3786,8 @@ static int expireUnmatchedHosts(OsScanInfo *OSI,
 	 to unMatchedHosts */
       HOS->target->stopTimeOutClock(&now);
       OSI->incompleteHosts.erase(hostI);
+      /* We need to adjust nextI if necessary */
+      OSI->resetHostIterator();
       hostsRemoved++;
       unMatchedHosts->push_back(HOS);
     }
@@ -3826,6 +3840,7 @@ static int os_scan_2(vector<Target *> &Targets) {
 	(*(OSI->incompleteHosts.begin()))->target->NameIP(targetstr, sizeof(targetstr));
       } else snprintf(targetstr, sizeof(targetstr), "%d hosts", (int) OSI->numIncompleteHosts());
       printf("%s OS detection (try #%d) against %s\n", (itry == 0)? "Initiating" : "Retrying", itry + 1, targetstr);
+      log_flush_all();
     }
     startRound(OSI, HOS, itry);
     doSeqTests(OSI, HOS);

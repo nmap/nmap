@@ -21078,7 +21078,7 @@ PU(Resp=N)
 
 # Vega 400 SIP Version: 10.02.07.1
 Fingerprint Vega 50/400
-Class VegaStream | embedded || VoIP gateway
+Class Vegastream | embedded || VoIP gateway
 TSeq(Class=TR%gcd=<6%IPID=I%TS=U)
 T1(DF=N%W=3E80%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)

@@ -177,7 +177,7 @@ const char *FingerPrintResults::OmitSubmissionFP() {
        because this OS doesn't respond to that sort of probe.
        So we don't print FP if U1 response is lacking AND no UDP
        scan was performed. */
-    return "Didn't receive UDP response. Please try again with -sU";
+    return "Didn't receive UDP response. Please try again with -sSU";
   }
 
   return NULL;

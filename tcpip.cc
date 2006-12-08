@@ -1268,14 +1268,23 @@ struct sockaddr_in *sin = (struct sockaddr_in *) to;
 int res;
 int retries = 0;
 int sleeptime = 0;
+static int numerrors = 0;
 
 do {
   if ((res = sendto(sd, (const char *) packet, len, flags, to, tolen)) == -1) {
     int err = socket_errno();
 
-    error("sendto in %s: sendto(%d, packet, %d, 0, %s, %d) => %s",
-	  functionname, sd, len, inet_ntoa(sin->sin_addr), tolen,
-	  strerror(err));
+    numerrors++;
+    if (o.debugging > 1 || numerrors <= 10) {
+      error("sendto in %s: sendto(%d, packet, %d, 0, %s, %d) => %s",
+	    functionname, sd, len, inet_ntoa(sin->sin_addr), tolen,
+	    strerror(err));
+      error("Offending packet: %s", ippackethdrinfo(packet, len));
+      if (numerrors == 10) {
+	error("Omitting future Sendto error messages now that %d have been shown.  Use -d2 if you really want to see them.", numerrors);
+      }
+    }
+
 #if WIN32
 	return -1;
 #else

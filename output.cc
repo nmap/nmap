@@ -1398,7 +1398,7 @@ void printosscanoutput(Target *currenths) {
     }
   } else if (FPR->overall_results == OSSCAN_TOOMANYMATCHES || (FPR->num_perfect_matches > 8 && !o.debugging)) {
     log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"Too many fingerprints match this host to give specific OS details\n");
-    if (o.debugging || o.verbose) {
+    if (o.debugging || o.verbose > 1) {
       log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"TCP/IP fingerprint by osscan system #%d:\n%s",
 		osscanSys, mergeFPs(FPR->FPs, FPR->numFPs, false,
 				    currenths->v4hostip(), distance, currenths->MACAddress(),
