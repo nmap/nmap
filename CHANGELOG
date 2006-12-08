@@ -1,13 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 4.20
 
+o Integrated the latest OS fingerprint submissions.  The 2nd
+  generation DB size has grown to 231 fingerprints.  Please keep them
+  coming!  New fingerprints include Mac OS X Server 10.5 pre-release,
+  NetBSD 4.99.4, Windows NT, and much more.
+
 o Fixed a segmentation fault in the new OS detection system
   which was reported by Craig Humphrey and Sebastian Garcia.
-
-o Integrated the latest OS fingerprint submissions.  The DB size has
-  grown to 231 fingerprints.  Please keep them coming!  New fingerprints
-  include Mac OS X Server 10.5 pre-release, NetBSD 4.99.4, Windows NT,
-  and much more.
 
 o Fixed a TCP sequence prediction difficulty indicator bug. The index
   is supposed to go from 0 ("trivial joke") to about 260 (OpenBSD).
