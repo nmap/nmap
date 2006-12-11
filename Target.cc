@@ -140,7 +140,17 @@ void Target::Initialize() {
   htn.msecs_used = 0;
   htn.toclock_running = false;
   interface_type = devt_other;
-  devname[0] = devfullname[0] = '\0';
+	devname[0] = '\0';
+	devfullname[0] = '\0';
+}
+
+
+const char * Target::deviceName() { 
+	return (devname[0] != '\0')? devname : NULL;
+}
+
+const char * Target::deviceFullName() { 
+	return (devfullname[0] != '\0')? devfullname : NULL; 
 }
 
 void Target::Recycle() {

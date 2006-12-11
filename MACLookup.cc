@@ -145,7 +145,7 @@ static void mac_prefix_init() {
   MacTable.table = (struct MAC_entry **) safe_zalloc(MacTable.table_capacity * sizeof(struct MAC_entry *));
 
   /* Now it is time to read in all of the entries ... */
-  if (nmap_fetchfile(filename, sizeof(filename), "nmap-mac-prefixes") == -1){
+  if (nmap_fetchfile(filename, sizeof(filename), "nmap-mac-prefixes") != 1){
     error("Cannot find nmap-mac-prefixes: Ethernet vendor corolation will not be performed");
     return;
   }

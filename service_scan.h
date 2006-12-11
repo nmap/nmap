@@ -107,6 +107,7 @@
 #include "global_structures.h"
 
 #include <vector>
+
 #ifdef HAVE_PCRE_PCRE_H
 # include <pcre/pcre.h>
 #else

@@ -117,6 +117,7 @@ FingerPrintResults::FingerPrintResults() {
      doesn't support maxOSTries() */
   FPs = (FingerPrint **) safe_zalloc(MAX(o.maxOSTries(), 10) * sizeof(FingerPrint *));
   maxTimingRatio = 0;
+  maxTimingRatio = 0;
   numFPs = goodFP = 0;
 }
 

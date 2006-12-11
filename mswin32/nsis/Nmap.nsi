@@ -29,7 +29,7 @@
 ;Pages
 
 ;  !insertmacro MUI_PAGE_LICENSE "${NSISDIR}\Docs\Modern UI\License.txt"
-  !insertmacro MUI_PAGE_LICENSE "COPYING"
+  !insertmacro MUI_PAGE_LICENSE "..\..\COPYING"
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_INSTFILES
@@ -51,20 +51,22 @@ Section "Nmap Core Files" SecCore
   RMDir /r $PROGRAMFILES\Nmap
   
   SetOverwrite on
-  File CHANGELOG
-  File COPYING
-  File nmap-mac-prefixes
-  File nmap-os-fingerprints
-  File nmap-os-db
-  File nmap-protocols
-  File nmap-rpc
-  File nmap-service-probes
-  File nmap-services
-  File nmap.exe
-  File nmap.xsl
-  File nmap_performance.reg
-  File README-WIN32
-  
+  File ..\..\CHANGELOG
+  File ..\..\COPYING
+  File ..\..\nmap-mac-prefixes
+  File ..\..\nmap-os-fingerprints
+  File ..\..\nmap-os-db
+  File ..\..\nmap-protocols
+  File ..\..\nmap-rpc
+  File ..\..\nmap-service-probes
+  File ..\..\nmap-services
+  File ..\Release\nmap.exe
+  File ..\..\docs\nmap.xsl
+	File ..\..\docs\nmap-nse-man.xml
+  File ..\nmap_performance.reg
+  File ..\..\README-WIN32
+  File /r ..\..\scripts
+ 
   ;Store installation folder
   WriteRegStr HKCU "Software\Nmap" "" $INSTDIR
   
@@ -80,13 +82,13 @@ SectionEnd
 
 
 Section "WinPcap 3.1" SecWinPcap
-  File winpcap-nmap-3.1.B.exe
+  File ..\winpcap\winpcap-nmap-3.1.B.exe
   Exec '"$INSTDIR\winpcap-nmap-3.1.B.exe"'
   Delete "$INSTDIR\winpcap-nmap-3.1.B.exe"
 SectionEnd
 
-Section "Improve Performance" SecPerfRegistryMods
-  File nmap_performance.reg
+Section "Network Performance Improvements (Registry Changes)" SecPerfRegistryMods
+  File ..\nmap_performance.reg
   Exec 'regedt32 /S "$INSTDIR\nmap_performance.reg"'
 SectionEnd
 

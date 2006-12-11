@@ -259,7 +259,12 @@ void NmapOps::Initialize() {
   ipopt_firsthop = 0;
   ipopt_lasthop  = 0;  
   release_memory = false;
-
+#ifndef NOLUA
+  script = 0;
+  scriptversion = 0;
+  scripttrace = 0;
+  scriptupdatedb = 0;
+#endif
 }
 
 bool NmapOps::TCPScan() {
@@ -525,3 +530,15 @@ void NmapOps::setSpoofMACAddress(u8 *mac_data) {
   memcpy(spoof_mac, mac_data, 6);
   spoof_mac_set = true;
 }
+
+#ifndef NOLUA
+void NmapOps::chooseScripts(char* argument) {
+	char *ap;
+
+	ap = strtok(argument, ",");
+	while(ap != NULL) {
+		chosenScripts.push_back(std::string(ap));
+		ap = strtok(NULL, ",");
+	}
+}
+#endif

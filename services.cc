@@ -121,7 +121,7 @@ static int nmap_services_init() {
   struct service_list *current, *previous;
   int res;
 
-  if (nmap_fetchfile(filename, sizeof(filename), "nmap-services") == -1) {
+  if (nmap_fetchfile(filename, sizeof(filename), "nmap-services") != 1) {
 #ifndef WIN32
     error("Unable to find nmap-services!  Resorting to /etc/services");
     strcpy(filename, "/etc/services");

@@ -1,4 +1,16 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
+o Integrated the Nmap Scripting Engine (NSE) into mainline Nmap.
+  Diman Todorov and I have been working on this for more than six months, and
+  we hope it will expand Nmap's capabilities in many cool ways.  We're
+  accepting (and writing) general purpose scripts to put into Nmap
+  proper, and you can also write personal scripts to deal with issues
+  specific to your environment.  The system is documented at
+  http://insecure.org/nmap/nse/ .
+
+o Updated nmap-mac-prefixes to reflect the latest OUI DB from the IEEE
+  (http://standards.ieee.org/regauth/oui/oui.txt) as of December 7.
+
 4.20
 
 o Integrated the latest OS fingerprint submissions.  The 2nd
@@ -11,9 +23,9 @@ o Fixed a segmentation fault in the new OS detection system
 
 o Fixed a TCP sequence prediction difficulty indicator bug. The index
   is supposed to go from 0 ("trivial joke") to about 260 (OpenBSD).
-  But some systems generated ISNs so insecurely, that Nmap went
+  But some systems generated ISNs so insecurely that Nmap went
   berserk and reported a negative difficulty index.  This generally
-  only affects some printers, crappy consumer devices, and Microsoft
+  only affects some printers, crappy cable modems, and Microsoft
   Windows (old versions).  Thanks to Sebastian Garcia for helping me
   track down the problem.
 
@@ -28,7 +40,7 @@ o Integrated all of your OS detection submissions since RC1.  The DB
 
 o Fixed (I hope) the "getinterfaces: intf_loop() failed" error which
   was seen on Windows Vista.  The problem was apparently in
-  intf-win32.c of libcnet (need to define MIB_IF_TYPE_MAX to
+  intf-win32.c of libdnet (need to define MIB_IF_TYPE_MAX to
   MAX_IF_TYPE rather than 32).  Thanks to Dan Griffin
   (dan(a)jwsecure.com) for tracking this down!
 

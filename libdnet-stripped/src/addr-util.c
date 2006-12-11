@@ -177,6 +177,8 @@ ip6_ntop(const ip6_addr_t *ip6, char *dst, size_t len)
 	struct { int base, len; } best, cur;
 	char *p = dst;
 	int i;
+
+	cur.len = best.len = 0;
 	
 	if (len < 46)
 		return (NULL);

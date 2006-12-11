@@ -42,9 +42,10 @@
 -->
 
 <!-- parameter entities to specify common "types" used elsewhere in the DTD -->
+<!ENTITY % attr_alpha "CDATA" >
 <!ENTITY % attr_numeric "CDATA" >
 <!ENTITY % attr_ipaddr "CDATA" >
-<!ENTITY % attr_numeric "CDATA" >
+<!ENTITY % attr_percent "CDATA" >
 <!ENTITY % attr_percent "CDATA" >
 <!ENTITY % attr_type "(ipv4 | ipv6 | mac)" >
 
@@ -130,8 +131,7 @@
 -->
 <!ELEMENT host		( status, address , (address | hostnames |
                           smurf | ports | os | distance | uptime | 
-                          tcpsequence | ipidsequence | tcptssequence )* ) >
-
+                          tcpsequence | ipidsequence | tcptssequence | hostscript)* ) >
 
 <!-- these elements are written by output.c:write_xml_initial_hostinfo() -->
 <!ELEMENT status	EMPTY >
@@ -166,7 +166,7 @@
 			count		%attr_numeric;  #REQUIRED	
 >
 
-<!ELEMENT port		(state , owner? , service? ) >
+<!ELEMENT port		(state , owner? , service?, script*) >
 <!ATTLIST port
 			protocol	%port_protocols;	#REQUIRED
 			portid		%attr_numeric;	#REQUIRED
@@ -195,6 +195,12 @@
                         ostype          CDATA           #IMPLIED
                         devicetype      CDATA           #IMPLIED
                         servicefp       CDATA           #IMPLIED
+>
+
+<!ELEMENT script	EMPTY >
+<!ATTLIST script	
+	id	CDATA	#REQUIRED
+	output	CDATA	#REQUIRED
 >
 
 <!ELEMENT os		( portused* , osclass*, osmatch*, osfingerprint* ) >
@@ -272,3 +278,5 @@
 			down		%attr_numeric;	"0"
 			total		%attr_numeric;	#REQUIRED
 >
+
+<!ELEMENT hostscript ( script+ )>

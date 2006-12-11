@@ -105,6 +105,11 @@
 
 #include "nmap.h"
 #include "FingerPrintResults.h"
+#include "nse_main.h"
+
+#ifndef INET6_ADDRSTRLEN
+#define INET6_ADDRSTRLEN 46
+#endif
 
 struct host_timeout_nfo {
   unsigned long msecs_used; /* How many msecs has this Target used? */
@@ -211,8 +216,8 @@ class Target {
    qualifier, while the full name may include it (e.g. "eth1:1").  If
    these are non-null, they will overwrite the stored version */
   void setDeviceNames(const char *name, const char *fullname);
-  const char *deviceName() { return *devname? devname : NULL; }
-  const char *deviceFullName() { return *devfullname? devfullname : NULL; }
+  const char *deviceName();
+  const char *deviceFullName();
 
   struct seq_info seq;
   int distance;
@@ -220,13 +225,14 @@ class Target {
   FingerPrintResults *FPR; /* FP results get by the new OS scan system. */
   int osscan_performed; /* nonzero if an osscan was performed */
   PortList ports;
-  /*
-  unsigned int up;
-  unsigned int down; */
+
+  // unsigned int up;
+  // unsigned int down;
   int wierd_responses; /* echo responses from other addresses, Ie a network broadcast address */
   unsigned int flags; /* HOST_UP, HOST_DOWN, HOST_FIREWALLED, HOST_BROADCAST (instead of HOST_BROADCAST use wierd_responses */
   struct timeout_info to;
 
+  ScriptResults scriptResults;
 
   private:
   char *hostname; // Null if unable to resolve or unset
@@ -237,16 +243,14 @@ class Target {
   struct sockaddr_storage targetsock, sourcesock, nexthopsock;
   size_t targetsocklen, sourcesocklen, nexthopsocklen;
   int directly_connected; // -1 = unset; 0 = no; 1 = yes
-#ifndef INET6_ADDRSTRLEN
-#define INET6_ADDRSTRLEN 46
-#endif
   char targetipstring[INET6_ADDRSTRLEN];
   char *nameIPBuf; /* for the NameIP(void) function to return */
   u8 MACaddress[6], SrcMACaddress[6], NextHopMACaddress[6];  
   bool MACaddress_set, SrcMACaddress_set, NextHopMACaddress_set;
   struct host_timeout_nfo htn;
   devtype interface_type;
-  char devname[32], devfullname[32];
+  char devname[32];
+	char devfullname[32];
 };
 
 #endif /* TARGET_H */

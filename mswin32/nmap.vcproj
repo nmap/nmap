@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="nmap"
 	ProjectGUID="{361719F0-AB42-4C93-9DE8-7D2144B96625}"
 	RootNamespace="nmap"
@@ -16,8 +16,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\Debug"
-			IntermediateDirectory=".\Debug"
+			OutputDirectory=".\$(ConfigurationName)"
+			IntermediateDirectory=".\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..;../nbase;../libpcre;winip;..\nsock\include;&quot;pcap-include&quot;;&quot;..\libdnet-stripped\include&quot;"
+				AdditionalIncludeDirectories="..\liblua;.;..;../nbase;../libpcre;winip;..\nsock\include;&quot;pcap-include&quot;;&quot;..\libdnet-stripped\include&quot;"
 				PreprocessorDefinitions="_DEBUG;WIN32;_CONSOLE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -71,11 +71,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib advapi32.lib $(NOINHERIT)"
-				OutputFile=".\Debug/nmap.exe"
+				AdditionalDependencies="liblua.lib nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib advapi32.lib $(NOINHERIT)"
+				OutputFile=".\Debug\nmap.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="lib;..\libpcre;..\nsock;..\nbase;&quot;..\libdnet-stripped&quot;"
+				AdditionalLibraryDirectories="lib;..\liblua;..\libpcre;..\nsock;..\nbase;&quot;..\libdnet-stripped&quot;"
 				IgnoreDefaultLibraryNames=""
 				DelayLoadDLLs="packet.dll,wpcap.dll,iphlpapi.dll"
 				GenerateDebugInformation="true"
@@ -107,6 +107,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="xcopy &quot;$(SolutionDir)..\scripts&quot; &quot;.\$(ConfigurationName)\scripts\&quot; /e /y"
 			/>
 		</Configuration>
 		<Configuration
@@ -138,9 +139,9 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="1"
+				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories=".;..;../nbase;../libpcre;winip;..\nsock\include;&quot;pcap-include&quot;;&quot;..\libdnet-stripped\include&quot;"
+				AdditionalIncludeDirectories=".;..;../liblua;../nbase;../libpcre;winip;..\nsock\include;&quot;pcap-include&quot;;&quot;..\libdnet-stripped\include&quot;"
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -166,11 +167,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib advapi32.lib $(NOINHERIT)"
+				AdditionalDependencies="liblua.lib nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib advapi32.lib $(NOINHERIT)"
 				OutputFile=".\Release/nmap.exe"
-				LinkIncremental="1"
+				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="lib;..\libpcre;..\nsock;..\nbase;&quot;..\libdnet-stripped&quot;"
+				AdditionalLibraryDirectories="lib;..\liblua;..\libpcre;..\nsock;..\nbase;&quot;..\libdnet-stripped&quot;"
 				IgnoreDefaultLibraryNames=""
 				DelayLoadDLLs="packet.dll,wpcap.dll,iphlpapi.dll"
 				ProgramDatabaseFile=".\Release/nmap.pdb"
@@ -201,6 +202,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="xcopy &quot;$(SolutionDir)..\scripts&quot; &quot;.\$(ConfigurationName)\scripts\&quot; /e /y"
 			/>
 		</Configuration>
 	</Configurations>
@@ -257,6 +259,38 @@
 			</File>
 			<File
 				RelativePath="..\NmapOutputTable.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_auxiliar.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_bitlib.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_debug.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_init.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_main.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_nmaplib.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_nsock.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_pcrelib.cc"
 				>
 			</File>
 			<File
@@ -405,6 +439,42 @@
 				>
 			</File>
 			<File
+				RelativePath="..\nse_auxiliar.h"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_bitlib.h"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_debug.h"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_init.h"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_macros.h"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_main.h"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_nmaplib.h"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_nsock.h"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_pcrelib.h"
+				>
+			</File>
+			<File
 				RelativePath="..\osscan.h"
 				>
 			</File>
@@ -434,10 +504,6 @@
 			</File>
 			<File
 				RelativePath="..\services.h"
-				>
-			</File>
-			<File
-				RelativePath="strings.h"
 				>
 			</File>
 			<File
@@ -598,7 +664,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -608,7 +674,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -622,7 +688,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -632,7 +698,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -646,7 +712,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -656,7 +722,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -670,7 +736,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -680,7 +746,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -694,7 +760,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -704,7 +770,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -718,7 +784,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -728,7 +794,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -742,7 +808,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -752,7 +818,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName) to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
 						Outputs="$(TargetDir)$(InputName)"
 					/>
 				</FileConfiguration>
@@ -766,7 +832,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName).xsl to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName).xsl&quot; &gt; nul"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName).xsl&quot; &gt; nul&#x0D;&#x0A;"
 						Outputs="$(TargetDir)$(InputName).xsl"
 					/>
 				</FileConfiguration>
@@ -776,7 +842,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Copying $(InputName).xsl to output directory..."
-						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName).xsl&quot; &gt; nul"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName).xsl&quot; &gt; nul&#x0D;&#x0A;"
 						Outputs="$(TargetDir)$(InputName).xsl"
 					/>
 				</FileConfiguration>

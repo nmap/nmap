@@ -2113,7 +2113,8 @@ while(fgets(line, sizeof(line), fp)) {
 
 FingerPrintDB *parse_fingerprint_reference_file(char *dbname) {
 char filename[256];
-if (nmap_fetchfile(filename, sizeof(filename), dbname) == -1){
+
+if (nmap_fetchfile(filename, sizeof(filename), dbname) != 1){
     fatal("OS scan requested but I cannot find %s file.  It should be in %s, ~/.nmap/ or .", dbname, NMAPDATADIR);
 }
 

@@ -310,3 +310,19 @@ Griffin):
 
  struct intf_handle {
         struct ifcombo   ifcombo[MIB_IF_TYPE_MAX];
+
+o Fix a compiler "may be used unitialized" warning:
+Index: addr-util.c
+===================================================================
+--- addr-util.c (revision 3855)
++++ addr-util.c (working copy)
+@@ -177,6 +177,8 @@
+        struct { int base, len; } best, cur;
+        char *p = dst;
+        int i;
++
++       cur.len = best.len = 0;
+
+        if (len < 46)
+                return (NULL);
+

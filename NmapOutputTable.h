@@ -118,6 +118,7 @@ struct NmapOutputTableCell {
   char *str;
   int strlength;
   bool weAllocated; // If we allocated str, we must free it.
+  bool fullrow;
 };
 
 class NmapOutputTable {
@@ -130,9 +131,12 @@ class NmapOutputTable {
   // ptr (and you better not free it until this table is destroyed ).  Skip the itemlen parameter if you
   // don't know (and the function will use strlen).
   void addItem(unsigned int row, unsigned int column, bool copy, const char *item, int itemlen = -1);
+  void addItem(unsigned int row, unsigned int column, bool fullrow, bool copy, const char *item, int itemlen = -1);
+
   // Like addItem except this version takes a printf-style format string followed by varargs
-  void addItemFormatted(unsigned int row, unsigned int column, const char *fmt, ...)
-    __attribute__ ((format (printf, 4, 5)));
+  void addItemFormatted(unsigned int row, unsigned int column, bool fullrow, const char *fmt, ...)
+	  __attribute__ ((format (printf, 4, 5)));
+
   // Returns the maximum size neccessary to create a printableTable() (the 
   // actual size could be less);
   int printableSize();

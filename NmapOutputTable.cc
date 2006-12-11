@@ -140,6 +140,20 @@ NmapOutputTable::~NmapOutputTable() {
   if (tableout) free(tableout);
 }
 
+void NmapOutputTable::addItem(unsigned int row, unsigned int column, bool fullrow,
+				bool copy, const char *item, int itemlen) {
+  struct NmapOutputTableCell *cell;
+  int mc = maxColLen[column];
+  
+  addItem(row, column, copy, item, itemlen);
+
+  maxColLen[column] = mc;
+  cell = getCellAddy(row, column);
+  cell->fullrow = fullrow;
+
+  return;
+}
+
 void NmapOutputTable::addItem(unsigned int row, unsigned int column, bool copy, const char *item, 
 			      int itemlen) {
   struct NmapOutputTableCell *cell;
@@ -174,11 +188,12 @@ void NmapOutputTable::addItem(unsigned int row, unsigned int column, bool copy, 
   return;
 }
 
-// Like addItem except this version takes a printf-style format string 
-// followed by varargs
 void NmapOutputTable::addItemFormatted(unsigned int row, 
-					  unsigned int column, 
+					  unsigned int column,
+					  bool fullrow,
 					  const char *fmt, ...) {
+  struct NmapOutputTableCell *cell;
+  int mc = maxColLen[column];
   unsigned int res;
   va_list ap; 
   va_start(ap,fmt);
@@ -189,24 +204,35 @@ void NmapOutputTable::addItemFormatted(unsigned int row,
   if (res > sizeof(buf))
     fatal("NmapOutputTable only supports adding up to 4096 to a cell via addItemFormatString.");
 
-  addItem(row, column, true, buf, res);
+  addItem(row, column, fullrow, true, buf, res);
 
-  return;
+  maxColLen[column] = mc;
+  cell = getCellAddy(row, column);
+  cell->fullrow = fullrow;
 }
 
 // Returns the maximum size neccessary to create a printableTable() (the 
 // actual size could be less);
 int NmapOutputTable::printableSize() {
 
+  struct NmapOutputTableCell *cell;
   int rowlen = 0;
   unsigned int i;
 
   for(i = 0; i < numColumns; i++) {
-    rowlen += maxColLen[i];
+    rowlen += maxColLen[i]; 
   }
 
   /* Add the delimeter between each column, and the final newline */
   rowlen += numColumns;
+
+  // if one of the fullrow tables is larger than the single column
+  // roles then the maximal rowlen needs to be adjusted.
+  for(i = 0; i < numRows; i++) {
+    cell = getCellAddy(i, 0);
+    if(cell->fullrow && cell->strlength > rowlen)
+      rowlen = cell->strlength;
+  }
   
   return rowlen * numRows;
 
@@ -235,18 +261,25 @@ char *NmapOutputTable::printableTable(int *size) {
 
   for(row = 0; row < numRows; row++) {
     validthisrow = 0;
-    for(col = 0; col < numColumns; col++) {
-      cell = getCellAddy(row, col);
-      clen = maxColLen[col];
-      if (cell->strlength > 0) {
-	memcpy(p, cell->str,  cell->strlength);
-	p += cell->strlength;
-	validthisrow++;
-      }
-      // No point leaving trailing spaces ...
-      if (validthisrow < itemsInRow[row]) {
-	for(i=cell->strlength; i <= clen; i++) // one extra because of space between columns
-	  *(p++) = ' ';
+
+    cell = getCellAddy(row, 0);
+    if(cell->fullrow && cell->strlength > 0) {
+      memcpy(p, cell->str,  cell->strlength);
+      p += cell->strlength;
+    } else {
+      for(col = 0; col < numColumns; col++) {
+        cell = getCellAddy(row, col);
+        clen = maxColLen[col];
+        if (cell->strlength > 0) {
+          memcpy(p, cell->str,  cell->strlength);
+          p += cell->strlength;
+          validthisrow++;
+        }
+        // No point leaving trailing spaces ...
+        if (validthisrow < itemsInRow[row]) {
+          for(i=cell->strlength; i <= clen; i++) // one extra because of space between columns
+            *(p++) = ' ';
+        }
       }
     }
     *(p++) = '\n';

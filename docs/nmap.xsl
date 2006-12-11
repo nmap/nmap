@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!-- =========================================================================
             nmap.xsl stylesheet version 0.9b
             last change: 2006-03-04
@@ -530,6 +529,19 @@
                 <td><xsl:value-of select="service/@version" /><xsl:text>&#xA0;</xsl:text></td>
                 <td><xsl:value-of select="service/@extrainfo" /><xsl:text>&#xA0;</xsl:text></td>
             </tr>
+	    <xsl:for-each select="script">
+		    <tr class="open">
+			    <td></td>
+			    <td>
+				    <xsl:value-of select="@id"/> <xsl:text>&#xA0;</xsl:text>
+			    </td>
+			    <td colspan="5">
+				    <xsl:value-of select="@output"/> <xsl:text>&#xA0;</xsl:text>
+			    </td>
+			    </tr>
+
+		    </xsl:for-each>
+
 		</xsl:when>
 		<xsl:when test="state/@state = 'filtered'">
             <tr class="filtered">
@@ -591,6 +603,25 @@
 <li>os match: <b><xsl:value-of select="@name" /> </b></li>
 <li>accuracy: <xsl:value-of select="@accuracy" />%</li>
 <li>reference fingerprint line number: <xsl:value-of select="@line" /></li>
+</xsl:template>
+<!-- ............................................................ -->
+
+<!-- Host Script Scan -->
+<!-- ............................................................ -->
+<xsl:template match="hostscript">
+	<table>
+	<xsl:for-each select="script">
+		<tr class="open">
+			<td>
+				<xsl:value-of select="@id"/> <xsl:text>&#xA0;</xsl:text>
+			</td>
+			<td>
+				<xsl:value-of select="@output"/> <xsl:text>&#xA0;</xsl:text>
+			</td>
+		</tr>
+
+	</xsl:for-each>
+	</table>
 </xsl:template>
 <!-- ............................................................ -->
 

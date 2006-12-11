@@ -302,11 +302,11 @@ int print_iflist(void) {
     Tbl->addItem(0, maccol, false, "MAC", 3);
     for(i=0; i < numifs; i++) {
       Tbl->addItem(i+1, devcol, false, iflist[i].devfullname);
-      Tbl->addItemFormatted(i+1, shortdevcol, "(%s)", iflist[i].devname);
-      Tbl->addItemFormatted(i+1, ipcol, "%s/%d", inet_ntop_ez(&(iflist[i].addr), sizeof(iflist[i].addr)), iflist[i].netmask_bits);
+      Tbl->addItemFormatted(i+1, shortdevcol, false, "(%s)", iflist[i].devname);
+      Tbl->addItemFormatted(i+1, ipcol, false, "%s/%d", inet_ntop_ez(&(iflist[i].addr), sizeof(iflist[i].addr)), iflist[i].netmask_bits);
       if (iflist[i].device_type == devt_ethernet) {
 	Tbl->addItem(i+1, typecol, false, "ethernet");
-	Tbl->addItemFormatted(i+1, maccol, "%02X:%02X:%02X:%02X:%02X:%02X",  iflist[i].mac[0], iflist[i].mac[1], iflist[i].mac[2], iflist[i].mac[3], iflist[i].mac[4], iflist[i].mac[5]);	
+	Tbl->addItemFormatted(i+1, maccol, false, "%02X:%02X:%02X:%02X:%02X:%02X",  iflist[i].mac[0], iflist[i].mac[1], iflist[i].mac[2], iflist[i].mac[3], iflist[i].mac[4], iflist[i].mac[5]);	
       }
       else if (iflist[i].device_type == devt_loopback)
 	Tbl->addItem(i+1, typecol, false, "loopback");
@@ -495,6 +495,13 @@ void printportoutput(Target *currenths, PortList *plist) {
 
   numrows = plist->numports - numignoredports;
 
+#ifndef NOLUA
+  int scriptrows = 0;
+  if(plist->numscriptresults > 0)
+    scriptrows = plist->numscriptresults;
+  numrows += scriptrows;
+#endif 
+
   assert(numrows > 0);
   numrows++; // The header counts as a row
 
@@ -525,7 +532,7 @@ void printportoutput(Target *currenths, PortList *plist) {
 	proto = nmap_getprotbynum(htons(current->portno));
 	snprintf(portinfo, sizeof(portinfo), "%-24s",
 		 proto?proto->p_name: "unknown");
-	Tbl->addItemFormatted(rowno, portcol, "%d", current->portno);
+	Tbl->addItemFormatted(rowno, portcol, false, "%d", current->portno);
 	Tbl->addItem(rowno, statecol, true, state);
 	Tbl->addItem(rowno, servicecol, true, portinfo);
 	log_write(LOG_MACHINE,"%d/%s/%s/", current->portno, state, 
@@ -635,8 +642,28 @@ void printportoutput(Target *currenths, PortList *plist) {
 	if (getServiceXMLBuf(&sd, xmlbuf, sizeof(xmlbuf)) == 0)
 	  if (*xmlbuf)
 	    log_write(LOG_XML, "%s", xmlbuf);
-	log_write(LOG_XML, "</port>\n");
+
 	rowno++;
+#ifndef NOLUA	
+	if(o.script) {
+		ScriptResults::iterator ssr_iter;
+
+		for(	ssr_iter = current->scriptResults.begin(); 
+			ssr_iter != current->scriptResults.end(); 
+			ssr_iter++) {
+			char* script_output = formatScriptOutput((*ssr_iter));
+	
+			Tbl->addItem(rowno, 0, true, true, script_output);
+			free(script_output);
+			log_write(LOG_XML, "<script id=\"%s\" output=\"%s\" />", 
+					(*ssr_iter).id, (*ssr_iter).output);
+			rowno++;
+		}
+		
+	}
+#endif
+
+	log_write(LOG_XML, "</port>\n");
       }
     }
     
@@ -661,6 +688,44 @@ log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "%d service%s unrecognized despite ret
     }
   }
   log_flush_all();
+}
+
+char* formatScriptOutput(struct script_scan_result ssr) {
+	char* c_result;
+	std::string result = std::string();
+	string::size_type pos;
+
+	int line = 0;
+#ifdef WIN32
+	char* sep = "\r\n";
+#else
+	char* sep = "\n";
+#endif
+	std::string line_prfx = "|  ";
+	
+	char* token = strtok(ssr.output, sep);
+
+	result += line_prfx + std::string(ssr.id) + ": ";
+
+	while(token != NULL) {
+		if(line > 0)
+			result += line_prfx;
+		result += std::string(token) + sep;
+		token = strtok(NULL, sep);
+		line++;
+	}
+
+	// fix the last line
+	pos = result.rfind(line_prfx);
+	result.replace(pos, 3, "|_ ");
+
+	// delete the unwanted trailing newline
+	pos = result.rfind(sep);
+	result.erase(pos, strlen(sep));
+	
+	c_result = strdup(result.c_str());
+
+	return c_result;
 }
 
 char* xml_convert (const char* str) {
@@ -1270,16 +1335,10 @@ void printosscanoutput(Target *currenths) {
       FPR = currenths->FPR;
     }
   }
-  
+
   if (currenths->distance != -1)
-    distance = currenths->distance;
-  
-  log_write(LOG_XML, "<os>");
-  if (FPR->osscan_opentcpport > 0) {
-    log_write(LOG_XML, 
-	      "<portused state=\"open\" proto=\"tcp\" portid=\"%hu\" />\n",
-	      FPR->osscan_opentcpport);
-  }
+	distance = currenths->distance;
+
   if (FPR->osscan_closedtcpport > 0) {
     log_write(LOG_XML, 
 	      "<portused state=\"closed\" proto=\"tcp\" portid=\"%hu\" />\n",
@@ -1356,6 +1415,7 @@ void printosscanoutput(Target *currenths) {
 			   true));
 	
       } else {
+
 	  log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No exact OS matches for host (test conditions non-ideal).");
 	  if (o.verbose > 1 || o.debugging)
 	    log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT, 
@@ -1377,6 +1437,7 @@ void printosscanoutput(Target *currenths) {
 			 FPR->osscan_closedudpport, true));
 
     }
+
   } else if (FPR->overall_results == OSSCAN_NOMATCHES) {
     const char *reason = FPR->OmitSubmissionFP();
     if ((o.verbose > 1 || o.debugging) && reason)
@@ -1588,6 +1649,23 @@ void printserviceinfooutput(Target *currenths) {
   log_flush_all();
 }
 
+void printhostscriptresults(Target *currenths) {
+	ScriptResults::iterator iter;
+	char* script_output; 
+	
+	if(currenths->scriptResults.size() > 0) {
+		log_write(LOG_XML, "<hostscript>");
+		log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "\nHost script results:\n");
+		for(iter = currenths->scriptResults.begin(); iter != currenths->scriptResults.end(); iter++) {
+			script_output = formatScriptOutput((*iter));
+			log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "%s\n", script_output);
+			log_write(LOG_XML, "<script id=\"%s\" output=\"%s\" />", 
+					(*iter).id, (*iter).output);
+		}
+		log_write(LOG_XML, "</hostscript>");
+	}
+}
+
 /* Prints a status message while the program is running */
 void printStatusMessage() {
   // Pre-computations
@@ -1613,7 +1691,7 @@ void printfinaloutput() {
   gettimeofday(&tv, NULL);
   timep = time(NULL);
 
-  if (o.numhosts_scanned == 0)
+  if (o.numhosts_scanned == 0 && o.scriptupdatedb == 0)
     fprintf(stderr, "WARNING: No targets were specified, so 0 hosts scanned.\n");
   if (o.numhosts_scanned == 1 && o.numhosts_up == 0 && !o.listscan && 
       o.pingtype != PINGTYPE_NONE)

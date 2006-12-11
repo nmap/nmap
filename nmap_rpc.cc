@@ -133,7 +133,7 @@ static void rpc_services_init() {
   ri.names = (char **) cp_alloc(ri.num_alloc * sizeof(char *));
   ri.numbers = (unsigned long *) cp_alloc(ri.num_alloc * sizeof(unsigned long));
 
-  if (nmap_fetchfile(filename, sizeof(filename), "nmap-rpc") == -1) {
+  if (nmap_fetchfile(filename, sizeof(filename), "nmap-rpc") != 1) {
     error("Unable to find nmap-rpc!  Resorting to /etc/rpc");
     strcpy(filename, "/etc/rpc");
   }

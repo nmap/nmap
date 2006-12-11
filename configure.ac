@@ -5,7 +5,7 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(nmap.cc)
 
 AC_ARG_WITH(localdirs,
-  [  --with-localdirs        Explicitly ask compiler to use /usr/local/{include,libs} if they exist ],
+AC_HELP_STRING([--with-localdirs], [Explicitly ask compiler to use /usr/local/{include,libs} if they exist ]),
   [ case "$with_localdirs" in
       yes)
         user_localdirs=1
@@ -248,7 +248,7 @@ test "${with_nmapfe+set}" != "set" && with_nmapfe=yes
  
 TARGETNMAPFE=nmapfe/nmapfe
 INSTALLNMAPFE=install-nmapfe
-AC_ARG_WITH(nmapfe, [  --without-nmapfe    skip nmapfe X-window GUI],
+AC_ARG_WITH(nmapfe, AC_HELP_STRING([--without-nmapfe], [skip nmapfe X-window GUI]),
  [  case "$with_nmapfe" in
   no)
     TARGETNMAPFE=""; INSTALLNMAPFE=""
@@ -263,7 +263,7 @@ use_openssl="yes"
 specialssldir=""
 
 AC_ARG_WITH(openssl,
-[  --with-openssl=DIR    Use optional openssl libs and includes from [DIR]/lib/ and [DIR]/include/openssl/)],
+AC_HELP_STRING([--with-openssl=DIR],[Use optional openssl libs and includes from [DIR]/lib/ and [DIR]/include/openssl/)]),
 [  case "$with_openssl" in
   yes)
     ;;
@@ -327,7 +327,8 @@ have_libpcap=no
 test "${with_libpcap+set}" != "set" && with_libpcap=yes
 
 AC_ARG_WITH(libpcap,
-[  --with-libpcap[=DIR]    Look for pcap in DIR/include and DIR/libs. Specify --with-libpcap=included to always use version included with Nmap],
+AC_HELP_STRING([--with-libpcap=DIR], [Look for pcap in DIR/include and DIR/libs.])
+AC_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap]),
 [  case "$with_libpcap" in
   yes)
     AC_CHECK_HEADER(pcap.h,[
@@ -428,7 +429,8 @@ LIBPCREDIR=libpcre
 
 # First we test whether they specified libpcre explicitly
 AC_ARG_WITH(libpcre,
-[  --with-libpcre=DIR    Use an existing (compiled) pcre lib from DIR/include and DIR/lib.  Specify --with-libpcre=included to always use the version included with Nmap],
+AC_HELP_STRING([--with-libpcre=DIR], [Use an existing (compiled) pcre lib from DIR/include and DIR/lib.])
+AC_HELP_STRING([--with-libpcre=included], [Always use the version included with Nmap]),
 [  case "$with_libpcre" in
   yes)
     ;;
@@ -480,7 +482,7 @@ LIBDNETDIR=libdnet-stripped
 
 # First we test whether they specified libdnet explicitly
 AC_ARG_WITH(libdnet,
-[  --with-libdnet=DIR    Use an existing (compiled) dnet lib from DIR/include and DIR/lib.],
+AC_HELP_STRING([--with-libdnet=DIR], [Use an existing (compiled) dnet lib from DIR/include and DIR/lib.]),
 [  case "$with_libdnet" in
   yes)
     ;;
@@ -514,6 +516,92 @@ AC_SUBST(LIBDNETDIR)
 AC_SUBST(DNET_DEPENDS)
 AC_SUBST(DNET_CLEAN)
 AC_SUBST(DNET_DIST_CLEAN)
+
+LIBLUADIR=liblua
+
+have_lua=no
+requested_included_lua=no
+no_lua=no
+
+# First we test whether they specified liblua explicitly
+AC_ARG_WITH(liblua, 
+AC_HELP_STRING([--with-liblua=DIR], [Use an existing (compiled) lua lib from DIR/include and DIR/lib.])
+AC_HELP_STRING([--with-liblua=included], [Use the liblua version included with Nmap])
+AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all of NSE from compilation)]),
+[  case "$with_liblua" in
+  yes)
+  ;;
+  included)
+    CXXFLAGS="-I$LIBLUADIR $CXXFLAGS"
+    LIBLUA_LIBS="$LIBLUADIR/liblua.a"
+    LUA_DEPENDS="$LIBLUADIR/liblua.a"
+    LUA_CLEAN="lua_clean"
+    LUA_DIST_CLEAN="lua_dist_clean"
+    have_lua=yes
+  ;;
+  no)
+    no_lua="yes"
+  ;;
+  *)
+    CXXFLAGS="-I$with_liblua/include $CXXFLAGS"
+    LDFLAGS="-L$with_liblua/lib $LDFLAGS"
+    have_lua=yes
+  ;;
+  esac]
+)
+
+# They don't want lua
+if test $no_lua == yes; then
+  CXXFLAGS="-DNOLUA $CXXFLAGS"
+  LIBLUA_LIBS=""
+  LUA_DEPENDS=""
+  LUA_CLEAN=""
+  LUA_DIST_CLEAN=""
+  INSTALLNSE=""
+
+else 
+
+  # If they didn't specify it, we try to find it
+  if test $have_lua != yes; then
+    AC_CHECK_HEADER(lua.h,
+      AC_CHECK_LIB(lua, lua_call, [have_lua=yes ]),
+      [AC_CHECK_HEADERS(lua/lua.h, 
+        [AC_CHECK_LIB(lua, lua_call, [have_lua=yes])]
+      )]
+    )
+  
+    AC_LANG_PUSH(C++)
+    AC_MSG_CHECKING([for lua version >= 501])
+    AC_RUN_IFELSE([ AC_LANG_PROGRAM(
+    	[[#include <lua.h>]], 
+    	[[if(LUA_VERSION_NUM < 501) return 1;]])], 
+    	have_lua=yes, have_lua=no)
+    AC_LANG_POP(C++)
+  
+    LIBLUA_LIBS="-llua"
+    LUA_DEPENDS=""
+    LUA_CLEAN=""
+    LUA_DIST_CLEAN=""
+  fi
+
+  # if we didn't find we use our own
+  if test $have_lua != yes; then
+    CXXFLAGS="-I$LIBLUADIR $CXXFLAGS"
+    LIBLUA_LIBS="$LIBLUADIR/liblua.a"
+    LUA_DEPENDS="$LIBLUADIR/liblua.a"
+    LUA_CLEAN="lua_clean"
+    LUA_DIST_CLEAN="lua_dist_clean"
+  fi
+
+  INSTALLNSE="install-nse"
+fi
+
+AC_SUBST(LIBLUA_LIBS)
+AC_SUBST(LIBLUADIR)
+AC_SUBST(LUA_DEPENDS)
+AC_SUBST(LUA_CLEAN)
+AC_SUBST(LUA_DIST_CLEAN)
+AC_SUBST(INSTALLNSE)
 
 dnl AC_HEADER_TIME
 
@@ -649,7 +737,7 @@ fi
 dnl Checks for library functions.
 dnl AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(bzero memcpy nanosleep strerror \
-strcasestr getopt_long_only)
+strcasestr inet_aton getopt_long_only)
 
 AC_LANG_PUSH(C++)
 AC_MSG_CHECKING([for usleep])
@@ -690,7 +778,7 @@ RECVFROM_ARG6_TYPE
 dnl AC_CHECK_FUNCS(gethostname gettimeofday select socket strdup strstr )
 
 AC_ARG_WITH(libnbase,
-[  --with-libnbase=DIR     Look for nbase include/libs in DIR],
+AC_HELP_STRING([--with-libnbase=DIR], [Look for nbase include/libs in DIR]),
 [  case "$with_libnbase" in
   yes)
     ;;
@@ -710,7 +798,7 @@ AC_SUBST(LIBNBASE_LIBS)
 
 NSOCKDIR="nsock"
 AC_ARG_WITH(libnsock,
-[  --with-libnsock=DIR     Compile and link to libnsock in DIR],
+AC_HELP_STRING([--with-libnsock=DIR], [Compile and link to libnsock in DIR]),
 [  case "$with_nsock" in
   yes)
     ;;

@@ -302,12 +302,20 @@ class NmapOps {
   char *dns_servers;
   bool log_errors;
 
+#ifndef NOLUA
+  int script;
+  int scriptversion;
+  int scripttrace;
+  int scriptupdatedb;
+  void chooseScripts(char* argument);
+  std::vector<std::string> chosenScripts;
+#endif
+
   /* ip options used in build_*_raw() */
   u8 *ipoptions;
   int ipoptionslen;
   int ipopt_firsthop;	// offset in ipoptions where is first hop for source/strict routing
   int ipopt_lasthop;	// offset in ipoptions where is space for targets ip for source/strict routing
-
 
   // Statistics Options set in nmap.cc
   int numhosts_scanned;

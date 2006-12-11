@@ -105,9 +105,9 @@
 extern NmapOps o;
 static int numipprots = 0;
 static struct protocol_list *protocol_table[PROTOCOL_TABLE_SIZE];
+static int protocols_initialized = 0;
 
 static int nmap_protocols_init() {
-  static int protocols_initialized = 0;
   if (protocols_initialized) return 0;
 
   char filename[512];
@@ -120,7 +120,7 @@ static int nmap_protocols_init() {
   struct protocol_list *current, *previous;
   int res;
 
-  if (nmap_fetchfile(filename, sizeof(filename), "nmap-protocols") == -1) {
+  if (nmap_fetchfile(filename, sizeof(filename), "nmap-protocols") != 1) {
     error("Unable to find nmap-protocols!  Resorting to /etc/protocol");
     strcpy(filename, "/etc/protocols");
   }
@@ -181,8 +181,9 @@ static int nmap_protocols_init() {
 struct protoent *nmap_getprotbynum(int num) {
   struct protocol_list *current;
 
-  if (nmap_protocols_init() == -1)
-    return NULL;
+	// nmap_protocols_init never returns -1 ?!
+  //if (nmap_protocols_init() == -1)
+  //  return NULL;
 
   for(current = protocol_table[num % PROTOCOL_TABLE_SIZE];
       current; current = current->next) {

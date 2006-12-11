@@ -1,4 +1,4 @@
-export NMAP_VERSION = 4.20
+export NMAP_VERSION = 4.21BETA1
 NMAP_NAME= Nmap
 NMAP_URL= http://insecure.org
 NMAP_PLATFORM=@host@
@@ -13,6 +13,7 @@ deskdir = $(prefix)/share/applications
 
 export NBASEDIR=@NBASEDIR@
 export NSOCKDIR=@NSOCKDIR@
+export LIBLUADIR = @LIBLUADIR@
 CC = @CC@
 CXX = @CXX@
 CCOPT = 
@@ -30,7 +31,7 @@ CPPFLAGS = @CPPFLAGS@
 # CFLAGS = $(DEFS) $(INCLS)
 STATIC =
 LDFLAGS = @LDFLAGS@ $(DBGFLAGS) $(STATIC)
-LIBS =  @LIBNBASE_LIBS@ @LIBNSOCK_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ @OPENSSL_LIBS@ @LIBDNET_LIBS@ @LIBS@
+LIBS =  @LIBNBASE_LIBS@ @LIBNSOCK_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ @OPENSSL_LIBS@ @LIBDNET_LIBS@ @LIBLUA_LIBS@ @LIBS@
 # LIBS =  -lefence @LIBS@
 # LIBS =  -lrmalloc @LIBS@
 SHTOOL = ./shtool
@@ -47,21 +48,21 @@ DESTDIR =
 TARGET = nmap
 TARGETNMAPFE=@TARGETNMAPFE@
 INSTALLNMAPFE=@INSTALLNMAPFE@
+INSTALLNSE=@INSTALLNSE@
 
-export SRCS = main.cc nmap.cc targets.cc tcpip.cc nmap_error.cc utils.cc idle_scan.cc osscan.cc osscan2.cc output.cc scan_engine.cc timing.cc charpool.cc services.cc protocols.cc nmap_rpc.cc portlist.cc NmapOps.cc TargetGroup.cc Target.cc FingerPrintResults.cc service_scan.cc NmapOutputTable.cc MACLookup.cc nmap_tty.cc nmap_dns.cc @COMPAT_SRCS@
+export SRCS = main.cc nmap.cc targets.cc tcpip.cc nmap_error.cc utils.cc idle_scan.cc osscan.cc osscan2.cc output.cc scan_engine.cc timing.cc charpool.cc services.cc protocols.cc nmap_rpc.cc portlist.cc NmapOps.cc TargetGroup.cc Target.cc FingerPrintResults.cc service_scan.cc NmapOutputTable.cc MACLookup.cc nmap_tty.cc nmap_dns.cc nse_main.cc nse_auxiliar.cc nse_nsock.cc nse_init.cc nse_nmaplib.cc nse_debug.cc nse_bitlib.cc nse_pcrelib.cc nse_string.cc @COMPAT_SRCS@
 
-export HDRS = charpool.h FingerPrintResults.h global_structures.h idle_scan.h MACLookup.h nmap_amigaos.h nmap_dns.h nmap_error.h nmap.h NmapOps.h NmapOutputTable.h nmap_rpc.h nmap_tty.h nmap_winconfig.h osscan.h osscan2.h output.h portlist.h protocols.h scan_engine.h service_scan.h services.h TargetGroup.h Target.h targets.h tcpip.h timing.h utils.h
+export HDRS = charpool.h FingerPrintResults.h global_structures.h idle_scan.h MACLookup.h nmap_amigaos.h nmap_dns.h nmap_error.h nmap.h NmapOps.h NmapOutputTable.h nmap_rpc.h nmap_tty.h nmap_winconfig.h osscan.h osscan2.h output.h portlist.h protocols.h scan_engine.h service_scan.h services.h TargetGroup.h Target.h targets.h tcpip.h timing.h utils.h nse_main.h nse_auxiliar.h nse_nsock.h nse_init.h nse_nmaplib.h nse_debug.h nse_macros.h nse_bitlib.h nse_pcrelib.h nse_string.h
 
-OBJS = main.o nmap.o targets.o tcpip.o nmap_error.o utils.o idle_scan.o osscan.o osscan2.o output.o scan_engine.o timing.o charpool.o services.o protocols.o nmap_rpc.o portlist.o NmapOps.o TargetGroup.o Target.o FingerPrintResults.o service_scan.o NmapOutputTable.o MACLookup.o nmap_tty.o nmap_dns.o @COMPAT_OBJS@
+OBJS = main.o nmap.o targets.o tcpip.o nmap_error.o utils.o idle_scan.o osscan.o osscan2.o output.o scan_engine.o timing.o charpool.o services.o protocols.o nmap_rpc.o portlist.o NmapOps.o TargetGroup.o Target.o FingerPrintResults.o service_scan.o NmapOutputTable.o MACLookup.o nmap_tty.o nmap_dns.o nse_main.o nse_auxiliar.o nse_nsock.o nse_init.o nse_nmaplib.o nse_debug.o nse_bitlib.o nse_pcrelib.o nse_string.o @COMPAT_OBJS@
 
 # %.o : %.cc -- nope this is a GNU extension
 .cc.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
-all: $(TARGET) $(TARGETNMAPFE)
-
-$(TARGET): $(DEPS) @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(OBJS)
-	@echo Compiling nmap
+all: $(TARGET) $(TARGETNMAPFE) 
+$(TARGET): $(DEPS) @LUA_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(OBJS)
+	echo Compiling nmap
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
@@ -85,6 +86,9 @@ $(NBASEDIR)/libnbase.a: $(NBASEDIR)/Makefile FORCE
 $(NSOCKDIR)/src/libnsock.a: $(NSOCKDIR)/src/Makefile FORCE
 	@echo Compiling libnsock;
 	cd $(NSOCKDIR)/src && $(MAKE)
+
+$(LIBLUADIR)/liblua.a: $(LIBLUADIR)/Makefile FORCE
+	@echo Compiling liblua; cd $(LIBLUADIR) && $(MAKE) posix
 
 #$(LIBPCAPDIR)/Makefile:
 #	@echo Configuring libpcap; cd $(LIBPCAPDIR); ./configure
@@ -112,7 +116,7 @@ distro:
 web:
 	cd dev && $(MAKE) web
 
-clean: @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nmapfe_clean nsock_clean nbase_clean my_clean
+clean: @LUA_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nmapfe_clean nsock_clean nbase_clean my_clean 
 
 my_clean:
 	rm -f dependencies.mk
@@ -129,6 +133,8 @@ nbase_clean:
 	-cd $(NBASEDIR) && $(MAKE) clean
 nsock_clean:
 	-cd $(NSOCKDIR)/src && $(MAKE) clean
+lua_clean:
+	-cd $(LIBLUADIR) && $(MAKE) clean
 pcap_dist_clean:
 	-cd $(LIBPCAPDIR) && $(MAKE) distclean
 pcre_dist_clean:
@@ -137,6 +143,8 @@ dnet_dist_clean:
 	-cd $(LIBDNETDIR) && $(MAKE) distclean
 nmapfe_dist_clean:
 	-cd nmapfe && $(MAKE) distclean
+lua_dist_clean:
+	-cd $(LIBLUADIR) && $(MAKE) clean
 nbase_dist_clean:
 	-cd $(NBASEDIR) && $(MAKE) distclean
 nsock_dist_clean:
@@ -144,7 +152,7 @@ nsock_dist_clean:
 debugclean:
 	rm -f *.gcov *.gcda *.gcno gmon.out
 
-distclean: my_clean my_distclean @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ nmapfe_dist_clean nbase_dist_clean nsock_dist_clean
+distclean: my_clean my_distclean @LUA_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ nmapfe_dist_clean 
 
 my_distclean:
 	rm -f Makefile Makefile.bak makefile.dep config.h stamp-h stamp-h.in \
@@ -169,7 +177,10 @@ install-nmapfe: $(TARGETNMAPFE)
 	@echo "If the next command fails -- you cannot use the X front end"
 	-test -f nmapfe/nmapfe && $(INSTALL) -c -m 755 -s nmapfe/nmapfe $(DESTDIR)$(bindir)/nmapfe && rm -f $(DESTDIR)$(bindir)/xnmap && $(SHTOOL) mkln -f -s $(DESTDIR)$(bindir)/nmapfe $(DESTDIR)$(bindir)/xnmap && $(INSTALL) -c -m 644 nmapfe.desktop $(DESTDIR)$(deskdir)/nmapfe.desktop && $(INSTALL) -c -m 644 docs/nmapfe.1 $(DESTDIR)$(mandir)/man1/nmapfe.1 && $(INSTALL) -c -m 644 docs/xnmap.1 $(DESTDIR)$(mandir)/man1/xnmap.1
 
-install: install-nmap $(INSTALLNMAPFE)
+install-nse: $(TARGET)
+	cp -r scripts/ $(DESTDIR)$(nmapdatadir)/
+
+install: install-nmap $(INSTALLNMAPFE) $(INSTALLNSE)
 
 uninstall:
 	rm -f $(bindir)/$(TARGET) $(bindir)/nmapfe $(bindir)/xnmap

@@ -1,4 +1,3 @@
-
 /***************************************************************************
  * nmap.cc -- Currently handles some of Nmap's port scanning features as   *
  * well as the command line user interface.  Note that the actual main()   *
@@ -110,6 +109,7 @@
 #include "MACLookup.h"
 #include "nmap_tty.h"
 #include "nmap_dns.h"
+#include "nse_main.h"
 #ifdef WIN32
 #include "winfix.h"
 #endif
@@ -224,6 +224,13 @@ printf("%s %s ( %s )\n"
        "  --version-light: Limit to most likely probes (intensity 2)\n"
        "  --version-all: Try every single probe (intensity 9)\n"
        "  --version-trace: Show detailed version scan activity (for debugging)\n"
+#ifndef NOLUA
+       "SCRIPT SCAN:\n"
+       "  -sC: equivalent to --script=safe,intrusive\n"
+       "  --script=<lua scripts>: <lua scripts> is a comma separated list of dirs or scripts\n"
+       "  --script-trace: Show all data sent and received\n"
+       "  --script-updatedb: Update the script database. Only performed if -sC or --script was also given.\n"
+#endif
        "OS DETECTION:\n"
        "  -O: Enable OS detection (try 2nd generation w/fallback to 1st)\n"
        "  -O2: Only use the new OS detection system (no fallback)\n"
@@ -579,6 +586,13 @@ int nmap_main(int argc, char *argv[]) {
       {"log-errors", no_argument, 0, 0},
       {"dns_servers", required_argument, 0, 0},
       {"dns-servers", required_argument, 0, 0},
+#ifndef NOLUA
+      {"script", required_argument, 0, 0},
+      {"script-trace", no_argument, 0, 0},
+      {"script_trace", no_argument, 0, 0},
+      {"script-updatedb", no_argument, 0, 0},
+      {"script_updatedb", no_argument, 0, 0},
+#endif
       {"ip_options", required_argument, 0, 0},
       {"ip-options", required_argument, 0, 0},
       {0, 0, 0, 0}
@@ -602,7 +616,17 @@ int nmap_main(int argc, char *argv[]) {
   while((arg = getopt_long_only(argc,fakeargv,"6Ab:D:d::e:Ffg:hIi:M:m:nO::o:P:p:qRrS:s:T:Vv", long_options, &option_index)) != EOF) {
     switch(arg) {
     case 0:
-      if (optcmp(long_options[option_index].name, "max-os-tries") == 0) {
+#ifndef NOLUA
+	if (optcmp(long_options[option_index].name, "script") == 0) {
+		o.script = 1;
+		o.chooseScripts(optarg);
+	} else if (optcmp(long_options[option_index].name, "script-trace") == 0) {
+		o.scripttrace = 1;
+	} else if (optcmp(long_options[option_index].name, "script-updatedb") == 0){
+		o.scriptupdatedb = 1;
+	} else
+#endif
+	if (optcmp(long_options[option_index].name, "max-rtt-timeout") == 0) {
 	l = tval2msecs(optarg);
 	if (l < 1 || l > 50) 
 	  fatal("Bogus --max-os-tries argument specified, must be between 1 and 50 (inclusive)");
@@ -715,6 +739,7 @@ int nmap_main(int argc, char *argv[]) {
 	o.osscan_guess = 1;
       } else if (optcmp(long_options[option_index].name, "packet-trace") == 0) {
 	o.setPacketTrace(true);
+	o.scripttrace = 1;
       } else if (optcmp(long_options[option_index].name, "version-trace") == 0) {
 	o.setVersionTrace(true);
 	o.debugging++;
@@ -808,6 +833,7 @@ int nmap_main(int argc, char *argv[]) {
       break;
     case 'A':
       o.servicescan = true;
+      o.script = 1;
       if (o.isr00t)
 		o.osscan = OS_SCAN_DEFAULT;
       break;
@@ -1000,8 +1026,10 @@ int nmap_main(int argc, char *argv[]) {
       while(*p) {
 	switch(*p) {
 	case 'A': o.ackscan = 1; break;
-	case 'B':  fatal("No scan type 'B', did you mean bounce scan (-b)?");
-	  break;
+	case 'B':  fatal("No scan type 'B', did you mean bounce scan (-b)?"); break;
+#ifndef NOLUA
+	case 'C':  o.script = 1; break;
+#endif
 	case 'F':  o.finscan = 1; break;
 	case 'L':  o.listscan = 1; o.pingtype = PINGTYPE_NONE; break;
 	case 'M':  o.maimonscan = 1; break;
@@ -1013,10 +1041,8 @@ int nmap_main(int argc, char *argv[]) {
 	case 'W':  o.windowscan = 1; break;
 	case 'T':  o.connectscan = 1; break;
 	case 'V':  o.servicescan = 1; break;
-	case 'U':  
-	  o.udpscan++;
-	  break;
-	case 'X':  o.xmasscan++;break;
+	case 'U':  o.udpscan++; break;
+	case 'X':  o.xmasscan++; break;
 	default:  error("Scantype %c not supported\n",*p); printusage(argv[0], -1); break;
 	}
 	p++;
@@ -1407,8 +1433,15 @@ int nmap_main(int argc, char *argv[]) {
       break;
   }
 
-  if (num_host_exp_groups == 0)
-    fatal("No target machines/networks specified!");
+ // if (num_host_exp_groups == 0)
+ //   fatal("No target machines/networks specified!");
+ 
+  if(o.scriptupdatedb) {
+	script_updatedb();
+	// disable warnings
+  	o.max_ips_to_scan = o.numhosts_scanned; 
+  }
+
   hstate = new HostGroupState(o.ping_group_sz, o.randomize_hosts,
 			      host_exp_group, num_host_exp_groups);
 
@@ -1488,6 +1521,7 @@ int nmap_main(int argc, char *argv[]) {
 	    }
 	  }
 	}
+
 	if (!currenths->deviceName())
 	  fatal("Do not have appropriate device name for target");
 	
@@ -1571,6 +1605,8 @@ int nmap_main(int argc, char *argv[]) {
 
     if (o.servicescan) {
       o.current_scantype = SERVICE_SCAN; 
+      o.scriptversion = 1;
+
       keyWasPressed(); // Check if a status message should be printed
       service_scan(Targets);
     }
@@ -1591,7 +1627,15 @@ int nmap_main(int argc, char *argv[]) {
       if (o.osscan == OS_SCAN_SYS_1_ONLY) {
 	os_scan(currenths);
       }
+		}
+#ifndef NOLUA
+    if(o.script || o.scriptversion) {
+	    script_scan(Targets);
+    }
+#endif
 
+    for(targetno = 0; targetno < Targets.size(); targetno++) {
+      currenths = Targets[targetno];
     /* Now I can do the output and such for each host */
       log_write(LOG_XML, "<host>");
       write_host_status(currenths, o.resolve_all);
@@ -1605,6 +1649,9 @@ int nmap_main(int argc, char *argv[]) {
 	printmacinfo(currenths);
 	printosscanoutput(currenths);
 	printserviceinfooutput(currenths);
+#ifndef NOLUA
+	printhostscriptresults(currenths);
+#endif
       }
     
       if (o.debugging) 
@@ -2096,6 +2143,7 @@ char *scantype2str(stype scantype) {
   case BOUNCE_SCAN: return "Bounce Scan"; break;
   case SERVICE_SCAN: return "Service Scan"; break;
   case OS_SCAN: return "OS Scan"; break;
+  case SCRIPT_SCAN: return "Script Scan"; break;
   default: assert(0); break;
   }
 
@@ -2272,7 +2320,7 @@ void sigdie(int signo) {
  * a directory and is readable by the executing process.  Returns
  * zero if it is not
  */
-static int fileexistsandisreadable(char *pathname) {
+int fileexistsandisreadable(char *pathname) {
   struct stat st;
 
   if (stat(pathname, &st) == -1)
@@ -2281,7 +2329,14 @@ static int fileexistsandisreadable(char *pathname) {
   if (!S_ISDIR(st.st_mode) && STAT_READABLE(st))
     return 1;
 
+  if ((st.st_mode & S_IFDIR) && STAT_READABLE(st))
+    return 2; 
+
   return 0;
+}
+
+int nmap_fileexistsandisreadable(char* pathname) {
+	return fileexistsandisreadable(pathname);
 }
 
 int nmap_fetchfile(char *filename_returned, int bufferlen, char *file) {
@@ -2305,16 +2360,14 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, char *file) {
   if (o.datadir) {
     res = snprintf(filename_returned, bufferlen, "%s/%s", o.datadir, file);
     if (res > 0 && res < bufferlen) {
-      if (fileexistsandisreadable(filename_returned))
-	foundsomething = 1;
+      foundsomething = fileexistsandisreadable(filename_returned);
     }
   }
 
   if (!foundsomething && (dirptr = getenv("NMAPDIR"))) {
     res = snprintf(filename_returned, bufferlen, "%s/%s", dirptr, file);
     if (res > 0 && res < bufferlen) {
-      if (fileexistsandisreadable(filename_returned))
-	foundsomething = 1;
+      foundsomething = fileexistsandisreadable(filename_returned);
     }
   }
 #ifndef WIN32
@@ -2323,8 +2376,7 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, char *file) {
     if (pw) {
       res = snprintf(filename_returned, bufferlen, "%s/.nmap/%s", pw->pw_dir, file);
       if (res > 0 && res < bufferlen) {
-	if (fileexistsandisreadable(filename_returned))
-	  foundsomething = 1;
+        foundsomething = fileexistsandisreadable(filename_returned);
       }
     }
     if (!foundsomething && getuid() != geteuid()) {
@@ -2332,8 +2384,7 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, char *file) {
       if (pw) {
 	res = snprintf(filename_returned, bufferlen, "%s/.nmap/%s", pw->pw_dir, file);
 	if (res > 0 && res < bufferlen) {
-	  if (fileexistsandisreadable(filename_returned))
-	    foundsomething = 1;
+          foundsomething = fileexistsandisreadable(filename_returned);
 	}
       }
     }
@@ -2348,18 +2399,16 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, char *file) {
 	  for(i = res - 1; i >= 0 && fnbuf[i] != '/' && fnbuf[i] != '\\'; i--);
 	  if(i >= 0) /* we found it */
 		  fnbuf[i] = 0;
-	  res = snprintf(filename_returned, bufferlen, "%s/%s", fnbuf, file);
+	  res = snprintf(filename_returned, bufferlen, "%s\\%s", fnbuf, file);
 	  if(res > 0 && res < bufferlen) {
-		  if (fileexistsandisreadable(filename_returned))
-            foundsomething = 1;
+		  foundsomething = fileexistsandisreadable(filename_returned);
       }
   }
 #endif
   if (!foundsomething) {
     res = snprintf(filename_returned, bufferlen, "%s/%s", NMAPDATADIR, file);
     if (res > 0 && res < bufferlen) {
-      if (fileexistsandisreadable(filename_returned))
-	foundsomething = 1;
+      foundsomething = fileexistsandisreadable(filename_returned);
     }
   }
   if (foundsomething && (*filename_returned != '.')) {    
@@ -2379,20 +2428,18 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, char *file) {
   if (!foundsomething) {
     res = snprintf(filename_returned, bufferlen, "./%s", file);
     if (res > 0 && res < bufferlen) {
-      if (fileexistsandisreadable(filename_returned))
-	foundsomething = 1;
+      foundsomething = fileexistsandisreadable(filename_returned);
     }
   }
 
   if (!foundsomething) {
     filename_returned[0] = '\0';
-    return -1;
   }
 
   if (o.debugging > 1)
     error("Fetchfile found %s\n", filename_returned);
 
-  return 0;
+  return foundsomething;
 
 }
 

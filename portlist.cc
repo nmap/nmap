@@ -1,4 +1,3 @@
-
 /***************************************************************************
  * portlist.cc -- Functions for manipulating various lists of ports        *
  * maintained internally by Nmap.                                          *
@@ -289,10 +288,18 @@ void Port::setServiceProbeResults(enum serviceprobestate sres,
 				  const char *ostype, const char *devicetype,
 				  const char *fingerprint) {
 
-  serviceprobe_results = sres;
-  serviceprobe_tunnel = tunnel;
-  if (sname) serviceprobe_service = strdup(sname);
-  if (fingerprint) serviceprobe_fp = strdup(fingerprint);
+	serviceprobe_results = sres;
+	serviceprobe_tunnel = tunnel;
+
+	if (sname) 
+		serviceprobe_service = strdup(sname);
+	else
+		sname = NULL;
+
+	if (fingerprint) 
+		serviceprobe_fp = strdup(fingerprint);
+	else 
+		serviceprobe_fp = NULL;
 
 	serviceprobe_product = cstringSanityCheck(product, 64);
 	serviceprobe_version = cstringSanityCheck(version, 64);
@@ -359,6 +366,7 @@ PortList::PortList() {
   }
 
   numports = 0;
+  numscriptresults = 0;
   idstr = NULL;
 }
 
