@@ -62,7 +62,6 @@ Section "Nmap Core Files" SecCore
   File ..\..\nmap-services
   File ..\Release\nmap.exe
   File ..\..\docs\nmap.xsl
-	File ..\..\docs\nmap-nse-man.xml
   File ..\nmap_performance.reg
   File ..\..\README-WIN32
   File /r ..\..\scripts

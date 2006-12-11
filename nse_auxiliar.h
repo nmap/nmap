@@ -32,6 +32,9 @@
 * RCS ID: $Id: auxiliar.h,v 1.9 2005/10/07 04:40:59 diego Exp $
 \*=========================================================================*/
 
+#include "nmap_winconfig.h"
+#include "nbase.h"
+
 extern "C" {
 #include "lua.h"
 #include "lualib.h"

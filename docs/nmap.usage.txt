@@ -1,4 +1,4 @@
-Nmap 4.20 ( http://insecure.org )
+Nmap 4.21ALPHA1 ( http://insecure.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -35,6 +35,11 @@ SERVICE/VERSION DETECTION:
   --version-light: Limit to most likely probes (intensity 2)
   --version-all: Try every single probe (intensity 9)
   --version-trace: Show detailed version scan activity (for debugging)
+SCRIPT SCAN:
+  -sC: equivalent to --script=safe,intrusive
+  --script=<lua scripts>: <lua scripts> is a comma separated list of dirs or scripts
+  --script-trace: Show all data sent and received
+  --script-updatedb: Update the script database. Only performed if -sC or --script was also given.
 OS DETECTION:
   -O: Enable OS detection (try 2nd generation w/fallback to 1st)
   -O2: Only use the new OS detection system (no fallback)
