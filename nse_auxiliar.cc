@@ -7,7 +7,7 @@
 *
 * RCS ID: $Id: auxiliar.c,v 1.14 2005/10/07 04:40:59 diego Exp $
 \*=========================================================================*/
-#include "nmap_winconfig.h"
+#include "nmap.h"
 #include <string.h>
 #include <stdio.h>
 
