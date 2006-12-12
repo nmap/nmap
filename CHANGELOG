@@ -1,4 +1,15 @@
 # Nmap Changelog ($Id$); -*-text-*-
+4.21ALPHA2
+
+o Fixed the way Nmap detects whether one of its data files (such as
+  nmap-services) exists and has permissions which allow it to be read.
+
+o Update IANA assignment IP list for random IP (-iR) generation.
+  Thanks to Kris Katterjohn for the patch.
+
+o Applied a few code cleanup patches from Kris Katterjohn.
+
+4.21ALPHA1
 
 o Integrated the Nmap Scripting Engine (NSE) into mainline Nmap.
   Diman Todorov and I have been working on this for more than six months, and

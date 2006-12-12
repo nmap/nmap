@@ -183,9 +183,6 @@ void *realloc();
 #include <netinet/ip.h>
 #define NETINET_IP_H
 #endif
-#ifndef __FAVOR_BSD
-#define __FAVOR_BSD
-#endif
 #ifndef NETINET_TCP_H  /* why the HELL does OpenBSD not do this? */
 #include <netinet/tcp.h>          /*#include <netinet/ip_tcp.h>*/
 #define NETINET_TCP_H
@@ -239,10 +236,6 @@ typedef enum { devt_ethernet, devt_loopback, devt_p2p, devt_other  } devtype;
 #include "utils.h"
 #include "nmap.h"
 #include "global_structures.h"
-
-#ifndef TCPIP_DEBUGGING
-#define TCPIP_DEBUGGING 0
-#endif
 
 /* Explicit Congestion Notification (rfc 2481/3168) */
 #ifndef TH_ECE
@@ -513,6 +506,10 @@ bool routethrough(const struct sockaddr_storage * const dest,
 
 unsigned short in_cksum(u16 *ptr,int nbytes);
 
+unsigned short magic_tcpudp_cksum(const struct in_addr *src,
+				  const struct in_addr *dst,
+				  u8 proto, u16 len, char *hstart);
+
 /* Build and send a raw tcp packet.  If TTL is -1, a partially random
    (but likely large enough) one is chosen */
 int send_tcp_raw( int sd, struct eth_nfo *eth,
@@ -770,16 +767,8 @@ int recvtime(int sd, char *buf, int len, int seconds, int *timedout);
 
 /* Sets a pcap filter function -- makes SOCK_RAW reads easier */
 #ifndef WINIP_H
-typedef int (*PFILTERFN)(const char *packet, unsigned int len); /* 1 to keep */
 void set_pcap_filter(const char *device, pcap_t *pd, char *bpf, ...);
 #endif
-
-/* Just accept everything ... TODO: Need a better approach than this flt_ 
-   stuff */
-int flt_all(const char *packet, unsigned int len);
-int flt_icmptcp(const char *packet, unsigned int len);
-int flt_icmptcp_2port(const char *packet, unsigned int len);
-int flt_icmptcp_5port(const char *packet, unsigned int len);
 
 #endif /*TCPIP_H*/
 

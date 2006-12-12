@@ -347,13 +347,12 @@ static int ip_is_reserved(struct in_addr *ip)
       break;
     }
 
-
-  /* 077-079/8 is IANA reserved */
-  if (i1 >= 77 && i1 <= 79)
+  /* 092-95/8 is IANA reserved */
+  if (i1 >= 92 && i1 <= 95)
     return 1;
 
-  /* 092-123/8 is IANA reserved */
-  if (i1 >= 92 && i1 <= 123)
+  /* 100-120/8 is IANA reserved */
+  if (i1 >= 100 && i1 <= 120)
     return 1;
 
   /* 172.16.0.0/12 is reserved for private nets by RFC1819 */
@@ -2310,26 +2309,21 @@ void sigdie(int signo) {
   exit(1);
 }
 
-#ifdef WIN32
-#define STAT_READABLE(st) st.st_mode & S_IREAD
-#else
-#define STAT_READABLE(st) st.st_mode & S_IRUSR
-#endif
-
-/* Returns true (nonzero) if the file pathname given exists, is not
- * a directory and is readable by the executing process.  Returns
- * zero if it is not
+/* Returns true (nonzero) if the file pathname given exists, is not a
+ * directory and is readable by the executing process.  Returns two if
+ * it is readable and is a directory.  Otherwise returns 0.
  */
+
 int fileexistsandisreadable(char *pathname) {
   struct stat st;
 
   if (stat(pathname, &st) == -1)
     return 0;
 
-  if (!S_ISDIR(st.st_mode) && STAT_READABLE(st))
+  if (!S_ISDIR(st.st_mode) && (access(pathname, R_OK) != -1))
     return 1;
 
-  if ((st.st_mode & S_IFDIR) && STAT_READABLE(st))
+  if ((st.st_mode & S_IFDIR) && (access(pathname, R_OK) != -1))
     return 2; 
 
   return 0;

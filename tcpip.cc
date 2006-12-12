@@ -957,6 +957,28 @@ answer = ~sum;          /* ones-complement, then truncate to 16 bits */
 return(answer);
 }
 
+/* for computing TCP/UDP checksums, see TCP/IP Illustrated p. 145 */
+unsigned short magic_tcpudp_cksum(const struct in_addr *src,
+				  const struct in_addr *dst,
+				  u8 proto, u16 len, char *hstart)
+{
+	struct pseudo {
+		struct in_addr src;
+		struct in_addr dst;        
+		u8 zero;
+		u8 proto;        
+		u16 length;
+	} *hdr = (struct pseudo *) (hstart - sizeof(struct pseudo));
+
+	hdr->src = *src;
+	hdr->dst = *dst;
+	hdr->zero = 0;
+	hdr->proto = proto;
+	hdr->length = htons(len);
+
+	return in_cksum((unsigned short *) hdr, len + sizeof(struct pseudo));
+}
+
 /* LEGACY resolve() function that only supports IPv4 -- see IPv6 version
    above.  Tries to resolve given hostname and stores
    result in ip .  returns 0 if hostname cannot
@@ -1098,21 +1120,11 @@ u8 *build_tcp_raw(const struct in_addr *source, const struct in_addr *victim,
 		  u8 *tcpopt, int tcpoptlen,
 		  char *data, u16 datalen, u32 *outpacketlen) {
 
-struct pseudo_header { 
-  /*for computing TCP checksum, see TCP/IP Illustrated p. 145 */
-  u32 s_addy;
-  u32 d_addr;
-  u8 zer0;
-  u8 protocol;
-  u16 length;
-};
 int packetlen = sizeof(struct ip) + ipoptlen + 
 	sizeof(struct tcphdr) + tcpoptlen + datalen;
 u8 *packet = (u8 *) safe_malloc(packetlen);
 struct ip *ip = (struct ip *) packet;
 struct tcphdr *tcp = (struct tcphdr *) ((u8*)ip + sizeof(struct ip) + ipoptlen);
-struct pseudo_header *pseudo = 
-	(struct pseudo_header *) ((u8*)tcp - sizeof(struct pseudo_header));
 static int myttl = 0;
 
 assert(victim);
@@ -1129,12 +1141,6 @@ if (ttl == -1) {
 } else {
   myttl = ttl;
 }
-
-pseudo->s_addy = source->s_addr;
-pseudo->d_addr = victim->s_addr;
-pseudo->zer0	= 0;
-pseudo->protocol = IPPROTO_TCP;
-pseudo->length	= htons(sizeof(struct tcphdr) + tcpoptlen + datalen);
 
 /* Fill tcp header */
 memset(tcp, 0, sizeof(struct tcphdr));
@@ -1174,8 +1180,9 @@ if (data && datalen)
 #if STUPID_SOLARIS_CHECKSUM_BUG
 tcp->th_sum = sizeof(struct tcphdr) + tcpoptlen + datalen; 
 #else
-tcp->th_sum = in_cksum((unsigned short *)pseudo, sizeof(struct tcphdr) + 
-		       tcpoptlen + sizeof(struct pseudo_header) + datalen);
+tcp->th_sum = magic_tcpudp_cksum(source, victim, IPPROTO_TCP,
+				 sizeof(struct tcphdr) + tcpoptlen + datalen,
+				 (char *) tcp);
 #endif
 
 if ( o.badsum )
@@ -1583,15 +1590,6 @@ u8 *build_udp_raw(struct in_addr *source, const struct in_addr *victim,
   udphdr_bsd *udp = (udphdr_bsd *) ((u8*)ip + sizeof(struct ip) + ipoptlen);
   static int myttl = 0;
   
-  struct pseudo_udp_hdr {
-    struct in_addr source;
-    struct in_addr dest;        
-    u8 zer0;
-    u8 proto;        
-    u16 length;
-  } *pseudo = (struct pseudo_udp_hdr *) ((u8 *)udp - sizeof(struct pseudo_udp_hdr));
-
-
   /* check that required fields are there and not too silly */
   assert(victim);
   assert(source);
@@ -1613,18 +1611,12 @@ u8 *build_udp_raw(struct in_addr *source, const struct in_addr *victim,
   if (data)
     memcpy((u8*)udp + sizeof(udphdr_bsd), data, datalen);
   
-  /* Now the pseudo header for checksuming */
-  pseudo->source.s_addr = source->s_addr;
-  pseudo->dest.s_addr = victim->s_addr;
-  pseudo->zer0  = 0;
-  pseudo->proto = IPPROTO_UDP;
-  pseudo->length = htons(sizeof(udphdr_bsd) + datalen);
-  
   /* OK, now we should be able to compute a valid checksum */
 #if STUPID_SOLARIS_CHECKSUM_BUG
   udp->uh_sum = sizeof(udphdr_bsd) + datalen;
 #else
-  udp->uh_sum = in_cksum((unsigned short *)pseudo, 20 /* pseudo + UDP headers */ + datalen);
+  udp->uh_sum = magic_tcpudp_cksum(source, victim, IPPROTO_UDP,
+				   sizeof(udphdr_bsd) + datalen, (char *) udp);
 #endif
   
   if ( o.badsum )
@@ -1961,8 +1953,9 @@ if (timedout) {
 bool pcap_selectable_fd_valid() {
 #if defined(WIN32) || defined(MACOSX)
   return false;
-#endif
+#else
   return true;
+#endif
 }
 
 /* Call this instead of pcap_get_selectable_fd directly (or your code
@@ -2614,20 +2607,21 @@ int sd;
     /* len = sizeof(SA); */
 #endif
 
-#if TCPIP_DEBUGGING
+    /* Debugging code
     printf("ifnet list length = %d\n",ifc.ifc_len);
     printf("sa_len = %d\n",len);
     hdump((unsigned char *) buf, ifc.ifc_len);
     printf("ifr = %X\n",(unsigned)(*(char **)&ifr));
     printf("Size of struct ifreq: %d\n", sizeof(struct ifreq));
-#endif
+    */
 
     for(; ifr && ifr->ifr_name[0] && ((u8 *)ifr) < buf + ifc.ifc_len;
 	ifr = (struct ifreq *)(((char *)ifr) + len)) {
-#if TCPIP_DEBUGGING
+
+      /* debugging code 
       printf("ifr_name size = %d\n", sizeof(ifr->ifr_name));
       printf("ifr = %X\n",(unsigned)(*(char **)&ifr));
-#endif
+      */
 
       /* On some platforms (such as FreeBSD), the length of each ifr changes
 	 based on the sockaddr type used, so we get the next length now */

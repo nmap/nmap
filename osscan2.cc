@@ -3009,13 +3009,6 @@ int send_closedudp_probe_2(struct udpprobeinfo &upi, int sd,
   unsigned short realcheck; /* the REAL checksum */
   int res;
   int decoy;
-  struct pseudo_udp_hdr {
-    struct in_addr source;
-    struct in_addr dest;        
-    u8 zero;
-    u8 proto;        
-    u16 length;
-  } *pseudo = (struct pseudo_udp_hdr *) ((char *)udp - 12) ;
 
   /* if (!patternbyte) patternbyte = (get_random_uint() % 60) + 65; */
   memset(data, patternbyte, datalen);
@@ -3043,24 +3036,15 @@ int send_closedudp_probe_2(struct udpprobeinfo &upi, int sd,
     udp->uh_dport = htons(dport);
     udp->uh_ulen = htons(8 + datalen);
 
-    /* Now the psuedo header for checksuming */
-    pseudo->source.s_addr = source->s_addr;
-    pseudo->dest.s_addr = victim->s_addr;
-    pseudo->proto = IPPROTO_UDP;
-    pseudo->length = htons(sizeof(udphdr_bsd) + datalen);
-  
     /* OK, now we should be able to compute a valid checksum */
-    realcheck = in_cksum((unsigned short *)pseudo, 20 /* pseudo + UDP headers */ +
-                         datalen);
+    realcheck = magic_tcpudp_cksum(source, victim, IPPROTO_UDP,
+				   sizeof(udphdr_bsd) + datalen, (char *) udp);
 #if STUPID_SOLARIS_CHECKSUM_BUG
     udp->uh_sum = sizeof(udphdr_bsd) + datalen;
 #else
     udp->uh_sum = realcheck;
 #endif
 
-    /* Goodbye, pseudo header! */
-    memset(pseudo, 0, sizeof(*pseudo));
-  
     /* Now for the ip header */
     ip->ip_v = 4;
     ip->ip_hl = 5;
@@ -3087,10 +3071,6 @@ int send_closedudp_probe_2(struct udpprobeinfo &upi, int sd,
       upi.udplen = 8 + datalen;
       upi.patternbyte = patternbyte;
       upi.target.s_addr = ip->ip_dst.s_addr;
-    }
-    if (TCPIP_DEBUGGING > 1) {
-      log_write(LOG_STDOUT, "Raw UDP packet creation completed!  Here it is:\n");
-      readudppacket(packet,1);
     }
   
     if ((res = send_ip_packet(sd, eth, packet, ntohs(ip->ip_len))) == -1)
