@@ -822,7 +822,7 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
 	va_end(apcopy);
 	return;
       } else if (len < 0) {
-	fprintf(stderr, "vnsprintf returned %d in %s -- bizarre. Quitting.\n", len, __FUNCTION__);
+	fprintf(stderr, "vsnprintf returned %d in %s -- bizarre. Quitting.\n", len, __FUNCTION__);
 	exit(1);
       } else if (len >= writebuflen) {
 	/* Didn't have enough space.  Expand writebuf and try again */
