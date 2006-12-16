@@ -3392,7 +3392,8 @@ U1(DF=N%T=FF%TG=FF%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=S%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Panasonic DP-3520 (color laser printer)
-Fingerprint Panasonic DP-3520 printer
+# Panasonic DP-3510 
+Fingerprint Panasonic DB-3500 series printer
 Class Panasonic | embedded || printer
 SEQ(SP=B-21%GCD=A|14|1E|28|32|3C%ISR=4B-55%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
@@ -4083,3 +4084,19 @@ T6(R=N)
 T7(R=N)
 U1(DF=N%T=FE%TG=FE%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=FE%TG=FE%TOSI=S%CD=S%SI=S%DLI=S)
+
+Fingerprint Captor Omni-Clock (employee timeclock)
+Class Captor | embedded || specialized
+SEQ(R=N)
+OPS(R=N)
+WIN(R=N)
+ECN(R=N)
+T1(R=N)
+T2(R=N)
+T3(R=N)
+T4(R=N)
+T5(R=Y%DF=N%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=N%T=40%TG=40%W=0%S=A%A=S%F=AR%O=%RD=0%Q=)
+T7(R=Y%DF=N%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
+IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
