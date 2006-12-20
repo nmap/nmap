@@ -1,8 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 4.21ALPHA2
 
-o New subversion repository -- actually just testing it now.  I hope 
-  it works!
+o Nmap now has a public Subversion (SVN) source code repository.  See
+  the announcement at http://seclists.org/nmap-dev/2006/q4/0253.html .
 
 o Fixed the way Nmap detects whether one of its data files (such as
   nmap-services) exists and has permissions which allow it to be read.
