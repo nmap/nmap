@@ -1,8 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 4.21ALPHA2
 
-o New subversion repository -- actually just testing it now.  Continuing
-  test.
+o New subversion repository -- actually just testing it now.  I hope it works.
 
 o Fixed the way Nmap detects whether one of its data files (such as
   nmap-services) exists and has permissions which allow it to be read.
