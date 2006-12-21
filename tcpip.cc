@@ -1732,6 +1732,39 @@ fcntl(sd, F_SETFL, options);
 return 1;
 }
 
+/* returns -1 if we can't use select() on the pcap device, 0 for timeout, and
+ * >0 for success. If select() fails we bail out because it couldn't work with
+ * the file descriptor we got from my_pcap_get_selectable_fd()
+ */
+int pcap_select(pcap_t *p, struct timeval *timeout)
+{
+	int fd, ret;
+	fd_set rfds;
+
+	if ((fd = my_pcap_get_selectable_fd(p)) == -1)
+		return -1;
+
+	FD_ZERO(&rfds);
+	FD_SET(fd, &rfds);
+
+	ret = select(fd + 1, &rfds, NULL, NULL, timeout);
+
+	if (ret == -1)
+		fatal("Your system does not support select()ing on pcap devices (%s). PLEASE REPORT THIS ALONG WITH DETAILED SYSTEM INFORMATION TO THE nmap-dev MAILING LIST!", strerror(errno));
+
+	return ret;
+}
+
+int pcap_select(pcap_t *p, long usecs)
+{
+	struct timeval tv;
+
+	tv.tv_sec = usecs / 1000000;
+	tv.tv_usec = usecs % 1000000;
+
+	return pcap_select(p, &tv);
+}
+
 /* Read an IP packet using libpcap .  We return the packet and take
    a pcap descripter and a pointer to the packet length (which we set
    in the function. If you want a maximum length returned, you
@@ -1752,7 +1785,6 @@ unsigned int offset = 0;
 struct pcap_pkthdr head;
 char *p;
 int datalink;
-int pcap_descriptor=-1; // -1 means we CANNOT select()
 int timedout = 0;
 struct timeval tv_start, tv_end;
 static char *alignedbuf = NULL;
@@ -1845,10 +1877,6 @@ if (!pd) fatal("NULL packet device passed to readip_pcap");
    gettimeofday(&tv_start, NULL);
  }
 
- pcap_descriptor = -1;
- if (pcap_selectable_fd_valid())  
-   pcap_descriptor = my_pcap_get_selectable_fd(pd);
-
  do {
 #ifdef WIN32
    gettimeofday(&tv_end, NULL);
@@ -1858,31 +1886,11 @@ if (!pd) fatal("NULL packet device passed to readip_pcap");
 #endif
 
    p = NULL;
-   if (pcap_descriptor != -1) {
-     fd_set rfds;
-     struct timeval sel_tv;
-     int rv=0;
 
-     FD_ZERO(&rfds);
-     FD_SET(pcap_descriptor, &rfds);
-
-     sel_tv.tv_sec = to_usec/1000000;
-     sel_tv.tv_usec = to_usec%1000000;
-
-     rv = select(pcap_descriptor+1, &rfds, NULL, NULL, to_usec ? &sel_tv : NULL);
-
-     if (rv == -1) {
-       fatal("Your system does not support select()ing on pcap devices (%s). PLEASE REPORT THIS ALONG WITH DETAILED SYSTEM INFORMATION TO THE nmap-dev MAILING LIST!", strerror(errno));
-     } else if (rv == 0) {
-       timedout = 1;
-     } else {
-       p = (char *) pcap_next(pd, &head);
-     }
-   } else {
-     // THIS CALL CAN BLOCK INAPPROPRIATLEY! (ie, will block until it sees another
-     // packet - to_usec notwithstanding) Use the select() code if possible.
+   if (pcap_select(pd, to_usec) == 0)
+     timedout = 1;
+   else
      p = (char *) pcap_next(pd, &head);
-   }
 
    if (p) {
      if (head.caplen <= offset) {
@@ -2057,7 +2065,6 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
   int timedout = 0;
   int badcounter = 0;
   struct timeval tv_start, tv_end;
-  int pcap_descriptor = -1;
 
   if (!pd) fatal("NULL packet device passed to readarp_reply_pcap");
 
@@ -2092,36 +2099,12 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
     }
 #endif
 
-   pcap_descriptor = -1;
-   if (pcap_selectable_fd_valid())  
-     pcap_descriptor = my_pcap_get_selectable_fd(pd);
-    
    p = NULL;
-   if (pcap_descriptor != -1) {
-     fd_set rfds;
-     struct timeval sel_tv;
-     int rv=0;
 
-     FD_ZERO(&rfds);
-     FD_SET(pcap_descriptor, &rfds);
-
-     sel_tv.tv_sec = to_usec/1000000;
-     sel_tv.tv_usec = to_usec%1000000;
-
-     rv = select(pcap_descriptor+1, &rfds, NULL, NULL, to_usec ? &sel_tv : NULL);
-
-     if (rv == -1) {
-       fatal("Your system does not support select()ing on pcap devices (%s). PLEASE REPORT THIS ALONG WITH DETAILED SYSTEM INFORMATION TO THE nmap-dev MAILING LIST!", strerror(errno));
-     } else if (rv == 0) {
-       timedout = 1;
-     } else {
-       p = (u8 *) pcap_next(pd, &head);
-     }
-   } else {
-     // THIS CALL CAN BLOCK INAPPROPRIATLEY! (ie, will block until it sees another
-     // packet - to_usec notwithstanding) Use the select() code if possible.
+   if (pcap_select(pd, to_usec) == 0)
+     timedout = 1;
+   else
      p = (u8 *) pcap_next(pd, &head);
-   }
 
     if (p && head.caplen >= 42) { /* >= because Ethernet padding makes 60 */
       /* frame type 0x0806 (arp), hw type eth (0x0001), prot ip (0x0800),

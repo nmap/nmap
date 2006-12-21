@@ -10,7 +10,7 @@ o Fixed the way Nmap detects whether one of its data files (such as
 o Update IANA assignment IP list for random IP (-iR) generation.
   Thanks to Kris Katterjohn for the patch.
 
-o Applied a few code cleanup patches from Kris Katterjohn.
+o Applied more code cleanup patches from Kris Katterjohn.
 
 4.21ALPHA1
 
