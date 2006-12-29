@@ -2315,18 +2315,31 @@ void sigdie(int signo) {
  */
 
 int fileexistsandisreadable(char *pathname) {
+	char *pathname_buf = strdup(pathname);
+	int status = -1;
+
+#ifdef WIN32
+	// stat on windows only works for "dir_name" not for "dir_name/" or "dir_name\\"
+	int pathname_len = strlen(pathname_buf);
+	char last_char = pathname_buf[pathname_len - 1];
+
+	if(	last_char == '/'
+		|| last_char == '\\')
+		pathname_buf[pathname_len - 1] = '\0';
+
+#endif
+
   struct stat st;
 
-  if (stat(pathname, &st) == -1)
-    return 0;
+  if (stat(pathname_buf, &st) == -1)
+    status = 0;
+  else if (!S_ISDIR(st.st_mode) && (access(pathname_buf, R_OK) != -1))
+    status =  1;
+  else if ((st.st_mode & S_IFDIR) && (access(pathname_buf, R_OK) != -1))
+    status =  2; 
 
-  if (!S_ISDIR(st.st_mode) && (access(pathname, R_OK) != -1))
-    return 1;
-
-  if ((st.st_mode & S_IFDIR) && (access(pathname, R_OK) != -1))
-    return 2; 
-
-  return 0;
+  free(pathname_buf);
+  return status;
 }
 
 int nmap_fileexistsandisreadable(char* pathname) {

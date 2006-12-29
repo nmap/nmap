@@ -30,6 +30,7 @@ int init_updatedb(lua_State* l);
 int init_pick_default_categories(std::vector<std::string>& chosenScripts);
 
 int check_extension(const char* ext, const char* path);
+std::string get_filename(std::string str);
 
 extern NmapOps o;
 
@@ -242,7 +243,7 @@ int init_updatedb(lua_State* l) {
 				fprintf(scriptdb,
 					"Entry{ category = \"%s\", filename = \"%s\" }\n",
 					lua_tostring(l, -1),
-					c_iter);
+					get_filename(std::string(c_iter)).c_str());
 				lua_pop(l, 1);
 			}
 			lua_pop(l, 1); // pop the categories table
@@ -345,12 +346,14 @@ end\n";
 	for(iter = files.begin(); iter != files.end(); iter++) {
 		c_iter = strdup((*iter).c_str());
 		type = init_fetchfile(script_path, sizeof(script_path), c_iter);
-		free(c_iter);
 
 		if(type != 1) {
 			error("%s: %s is not a file.", SCRIPT_ENGINE, c_iter);
 			return SCRIPT_ENGINE_ERROR;
 		}
+
+		free(c_iter);
+
 		SCRIPT_ENGINE_TRY(init_loadfile(l, script_path));
 	}
 
@@ -371,6 +374,15 @@ int init_fetchfile(char *path, size_t path_len, char* file) {
 	}
 
 	return type;
+}
+
+std::string get_filename(std::string str) {
+	int pos = MAX( (int) str.rfind('\\'), (int) str.rfind('/'));
+
+	if(pos > -1)
+		return str.substr(pos + 1);
+	else
+		return str;
 }
 
 /* This is simply the most portable way to check
@@ -456,7 +468,8 @@ int init_scandir(char* dirname, std::vector<std::string>& result, int files_or_d
 		}
 
 		// otherwise we add it to the results
-		path = std::string(dirname) + "\\" + std::string(entry.cFileName);
+		// we assume that dirname ends with a directory separator of some kind
+		path = std::string(dirname) + std::string(entry.cFileName);
 		result.push_back(path);
 		morefiles = FindNextFile(dir, &entry);
 	}
