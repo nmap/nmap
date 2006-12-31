@@ -2,6 +2,11 @@
 
 4.21ALPHA2
 
+o Integrated all of your Q32006 service fingerprint submissions.  The
+  nmap-service-probe DB grew from 3,671 signatures representing 415
+  service protocols to 3,877 signatures representing 426 services.  Big
+  thanks to version detection czar Doug Hoyte for doing this.
+
 o Nmap now has a public Subversion (SVN) source code repository.  See
   the announcement at http://seclists.org/nmap-dev/2006/q4/0253.html .
 
