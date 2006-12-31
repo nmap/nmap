@@ -372,7 +372,7 @@
     <i><xsl:value-of select="@args" /></i><br/>
     The process stopped at <xsl:value-of select="$end" />.
 	<xsl:choose>
-        <xsl:when test="debugging/@level = '0'">Debuging was disabled, </xsl:when>
+        <xsl:when test="debugging/@level = '0'">Debugging was disabled, </xsl:when>
         <xsl:otherwise>Debugging was enabled, </xsl:otherwise>
     </xsl:choose>
     the verbosity level was <xsl:value-of select="verbose/@level" />.
@@ -583,10 +583,13 @@
 <!-- os -->
 <!-- ............................................................ -->
 <xsl:template match="os">
-<xsl:if test="osmatch/@name != ''"><h3>remote operating system guess</h3></xsl:if>
-<ul>
-	<xsl:apply-templates/>
-</ul>
+	<h3>remote operating system guess</h3>
+		
+	<xsl:if test="count(osmatch) = 0"><p>Unable to identify operating system.</p></xsl:if>	
+
+	<ul>
+		<xsl:apply-templates/>
+	</ul>
 </xsl:template>
 <!-- ............................................................ -->
 
@@ -603,6 +606,22 @@
 <li>os match: <b><xsl:value-of select="@name" /> </b></li>
 <li>accuracy: <xsl:value-of select="@accuracy" />%</li>
 <li>reference fingerprint line number: <xsl:value-of select="@line" /></li>
+</xsl:template>
+<!-- ............................................................ -->
+
+<!-- osfingerprint -->
+<!-- ............................................................ -->
+<xsl:template match="osfingerprint">
+	<br /><br />
+	<li>Cannot determine exact operating system.  Fingerprint provided below.</li>
+	<table cellspacing="1">
+		<tr class="head">
+    		<td>Operating System fingerprint</td>
+		</tr>
+		<tr>
+			<td><xsl:value-of select="@fingerprint" /></td>
+		</tr>
+	</table>
 </xsl:template>
 <!-- ............................................................ -->
 
