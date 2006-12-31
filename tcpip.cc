@@ -1441,7 +1441,7 @@ if ( o.badsum )
 
 return build_ip_raw(source, victim,
 		    IPPROTO_ICMP,
-		    o.ttl, get_random_u16(), tos, df,
+		    ttl, get_random_u16(), tos, df,
 		    ipopt, ipoptlen,
 		    ping, icmplen,
 		    packetlen);

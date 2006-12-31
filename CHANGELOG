@@ -1,4 +1,5 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
 4.21ALPHA2
 
 o Nmap now has a public Subversion (SVN) source code repository.  See
@@ -11,6 +12,8 @@ o Update IANA assignment IP list for random IP (-iR) generation.
   Thanks to Kris Katterjohn for the patch.
 
 o Applied more code cleanup patches from Kris Katterjohn.
+
+o Applied some internal bugfix patches from Eddie Bell.
 
 4.21ALPHA1
 

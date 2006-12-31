@@ -180,11 +180,7 @@ static int nmap_protocols_init() {
 
 struct protoent *nmap_getprotbynum(int num) {
   struct protocol_list *current;
-
-	// nmap_protocols_init never returns -1 ?!
-  //if (nmap_protocols_init() == -1)
-  //  return NULL;
-
+  nmap_protocols_init();
   for(current = protocol_table[num % PROTOCOL_TABLE_SIZE];
       current; current = current->next) {
     if (num == current->protoent->p_proto)
