@@ -193,7 +193,7 @@ static char* xml_sf_convert (const char* str) {
 // returns 0 for success.
 static int getServiceXMLBuf(struct serviceDeductions *sd, char *xmlbuf, 
 		     unsigned int xmlbuflen) {
-  string versionxmlstring;
+  string versionxmlstring = "";
   char rpcbuf[128];
   char *xml_product = NULL, *xml_version = NULL, *xml_extrainfo = NULL;
   char *xml_hostname = NULL, *xml_ostype = NULL, *xml_devicetype = NULL;
