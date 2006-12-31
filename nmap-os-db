@@ -1580,7 +1580,8 @@ U1(DF=Y%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Lexmark Optra S 1855 Printer with Firmware Version 1.10.17 and Ethernet 10/100 MarkNet S Module
-Fingerprint Lexmark Optra S 1855 Printer
+# Lexmark Optra Se3455 with internal Lexmark network card.  Ethernet 10/100 MarkNet S print server firmware version 1.10.194
+Fingerprint Lexmark Optra S 1855 or Se3455 Printer
 Class Lexmark | embedded || printer
 SEQ(SP=E-18%GCD=1393|2726|3AB9|4E4C|61DF|7572%ISR=8A-94%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M280%O5=M218%O6=M218)
