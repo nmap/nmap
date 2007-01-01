@@ -201,7 +201,7 @@ main (int   argc,
     return 0;
 }
 
-// tokensz is the total size of token in characters
+/* tokensz is the total size of token in characters */
 static char *next_token(char *buf, char *token, int tokensz)
 {
   if ((buf != NULL) && (token != NULL)) {
@@ -238,15 +238,16 @@ static char *build_command()
 static char *command = NULL;
 int command_size = 2560;
 
-  /* Find how much to malloc() */
-  // size = strlen(gtk_entry_get_text(GTK_ENTRY(opt.range_text))) +
-  //   strlen(gtk_entry_get_text(GTK_ENTRY(opt.Decoy))) +
-  //   strlen(gtk_entry_get_text(GTK_ENTRY(opt.inputFilename))) +
-  //   strlen(gtk_entry_get_text(GTK_ENTRY(opt.SourceDevice)))+
-  //   strlen(gtk_entry_get_text(GTK_ENTRY(opt.scanRelay)))+
-  //   strlen(gtk_entry_get_text(GTK_ENTRY(opt.targetHost))) +
-  //   2560;
-  /* We get 60 from the chars required for each option */
+  /* Find how much to malloc()
+   * size = strlen(gtk_entry_get_text(GTK_ENTRY(opt.range_text))) +
+   *   strlen(gtk_entry_get_text(GTK_ENTRY(opt.Decoy))) +
+   *   strlen(gtk_entry_get_text(GTK_ENTRY(opt.inputFilename))) +
+   *   strlen(gtk_entry_get_text(GTK_ENTRY(opt.SourceDevice)))+
+   *   strlen(gtk_entry_get_text(GTK_ENTRY(opt.scanRelay)))+
+   *   strlen(gtk_entry_get_text(GTK_ENTRY(opt.targetHost))) +
+   *   2560;
+   * We get 60 from the chars required for each option
+   */
 
   if (!command)
     command = safe_malloc(command_size);
@@ -713,7 +714,7 @@ static char *next_line(char *buf, int bufsz, char *line)
 
     if (eol != NULL) {
       char *bol = buf;
-    int linelen = MIN(bufsz - 1, eol - buf + 1); // we can't exceed buffer size
+    int linelen = MIN(bufsz - 1, eol - buf + 1); /* we can't exceed buffer size */
 
       /* copy line including \n to line */
       memcpy(line, buf, linelen);
@@ -1014,13 +1015,13 @@ void scanType_cb
     opt.scanValue = user[k].scantype;
 
     if ((opt.scanValue == PING_SCAN) || (opt.scanValue == LIST_SCAN)) {
-      // gtk_widget_set_sensitive(GTK_WIDGET(opt.protportFrame), FALSE);
+      /* gtk_widget_set_sensitive(GTK_WIDGET(opt.protportFrame), FALSE); */
       gtk_widget_set_sensitive(GTK_WIDGET(opt.protportType), FALSE);
       gtk_widget_set_sensitive(GTK_WIDGET(opt.protportLabel), FALSE);
       gtk_widget_set_sensitive(GTK_WIDGET(opt.protportRange), FALSE);
       gtk_widget_set_sensitive(GTK_WIDGET(opt.OSInfo), FALSE);
     } else {
-      // gtk_widget_set_sensitive(GTK_WIDGET(opt.protportFrame), TRUE);
+      /* gtk_widget_set_sensitive(GTK_WIDGET(opt.protportFrame), TRUE); */
       gtk_widget_set_sensitive(GTK_WIDGET(opt.protportType), TRUE);
       gtk_widget_set_sensitive(GTK_WIDGET(opt.protportLabel),
                                (opt.protportValue == GIVEN_PROTPORT));

@@ -1,7 +1,7 @@
 
 /***************************************************************************
  * scanengine.h -- Includes much of the "engine" functions for scanning,   *
- * such as pos_scan and super_scan.  It also includes dependant functions  *
+ * such as pos_scan and ultra_scan.  It also includes dependant functions  *
  * such as those for collectiong SYN/connect scan responses.               *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
@@ -121,12 +121,6 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype);
    allow FTP bounce scan, I should really allow SOCKS proxy scan.  */
 void bounce_scan(Target *target, u16 *portarray, int numports,
 		 struct ftpinfo *ftp);
-
-/* Handles the scan types where no positive-acknowledgement of open
-   port is received (those scans are in pos_scan).  Super_scan
-   includes scans such as FIN/XMAS/NULL/Maimon/UDP and IP Proto scans */
-void super_scan(Target *target, u16 *portarray, int numports,
-		stype scantype);
 
 /* Determines an ideal number of hosts to be scanned (port scan, os
    scan, version detection, etc.) in parallel after the ping scan is

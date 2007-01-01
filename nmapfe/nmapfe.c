@@ -520,14 +520,14 @@ GtkAdjustment *adjust;
 
 /* Scan page (first in notebook) */
   nblabel = gtk_label_new("Scan");
-  // nbpage = gtk_vbox_new(FALSE, 5);
+  /* nbpage = gtk_vbox_new(FALSE, 5); */
   nbpage = gtk_table_new(5, 3, TRUE);
   gtk_table_set_col_spacings(GTK_TABLE(nbpage), 5);
   gtk_table_set_row_spacings(GTK_TABLE(nbpage), 5);
   gtk_container_set_border_width(GTK_CONTAINER(nbpage), 5);
 
   frame = gtk_frame_new("Scan Type");
-  // gtk_box_pack_start(GTK_BOX(nbpage), frame, FALSE, FALSE, 0);
+  /* gtk_box_pack_start(GTK_BOX(nbpage), frame, FALSE, FALSE, 0); */
   gtk_table_attach_defaults(GTK_TABLE(nbpage), frame, 0, 2, 0, 3);
 
   table = gtk_table_new(2, 4, FALSE);
@@ -629,7 +629,7 @@ GtkAdjustment *adjust;
 
 
   frame = gtk_frame_new("Scan Extensions");
-  // gtk_box_pack_start(GTK_BOX(nbpage), frame, FALSE, FALSE, 0);
+  /* gtk_box_pack_start(GTK_BOX(nbpage), frame, FALSE, FALSE, 0); */
   gtk_table_attach_defaults(GTK_TABLE(nbpage), frame, 0, 2, 3, 5);
 
   table = gtk_table_new(1, 4, FALSE);
@@ -674,20 +674,20 @@ GtkAdjustment *adjust;
 /* Discover/Ping page (second in notebook) */
   nblabel = gtk_label_new("Discover");
   nbpage = gtk_table_new(4, 4, FALSE);
-  // nbpage = gtk_vbox_new(FALSE, 5);
+  /* nbpage = gtk_vbox_new(FALSE, 5); */
   gtk_container_set_border_width(GTK_CONTAINER(nbpage), 5);
 
   opt.dontPing = gtk_check_button_new_with_label("Don't Ping");
   g_signal_connect(GTK_OBJECT(opt.dontPing), "released",
 		     GTK_SIGNAL_FUNC(pingButton_toggled_cb), opt.dontPing);
   gtk_table_attach_defaults(GTK_TABLE(nbpage), opt.dontPing, 0, 1, 0, 1);
-  // gtk_box_pack_start(GTK_BOX(nbpage), opt.dontPing, FALSE, FALSE, 0);
+  /* gtk_box_pack_start(GTK_BOX(nbpage), opt.dontPing, FALSE, FALSE, 0); */
   gtk_widget_show(opt.dontPing);
 
   
   frame = gtk_frame_new("Ping Types");
   gtk_table_attach_defaults(GTK_TABLE(nbpage), frame, 0, 3, 1, 4);
-  // gtk_box_pack_start(GTK_BOX(nbpage), frame, FALSE, FALSE, 0);
+  /* gtk_box_pack_start(GTK_BOX(nbpage), frame, FALSE, FALSE, 0); */
 
   table = gtk_table_new(3, 4, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(table), 5);
@@ -1037,7 +1037,7 @@ GtkAdjustment *adjust;
   nblabel = gtk_label_new("Files");
   nbpage = gtk_hbox_new(TRUE, 5);
   gtk_container_set_border_width(GTK_CONTAINER(nbpage), 5);
-  // gtk_table_set_col_spacings(GTK_TABLE(nbpage), 5);
+  /* gtk_table_set_col_spacings(GTK_TABLE(nbpage), 5); */
 
   frame = gtk_frame_new("Input File");
   gtk_box_pack_start(GTK_BOX(nbpage), frame, TRUE, TRUE, 0);
@@ -1251,7 +1251,7 @@ GtkAdjustment *adjust;
 
   table = gtk_table_new(4, 2, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(table), 5);
-  // gtk_table_set_col_spacings(GTK_TABLE(table), 5);
+  /* gtk_table_set_col_spacings(GTK_TABLE(table), 5); */
   gtk_container_add(GTK_CONTAINER(frame), table);
 
   opt.useSourceDevice = gtk_check_button_new_with_label("Device");

@@ -1,7 +1,7 @@
 
 /***************************************************************************
  * scanengine.cc -- Includes much of the "engine" functions for scanning,  *
- * such as pos_scan and super_scan.  It also includes dependant functions  *
+ * such as pos_scan and ultra_scan.  It also includes dependant functions  *
  * such as those for collectiong SYN/connect scan responses.               *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
