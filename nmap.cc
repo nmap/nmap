@@ -1902,8 +1902,12 @@ struct scan_lists *getpts(char *origexpr) {
     }
     else if (isdigit((int) *current_range)) {
       rangestart = strtol(current_range, &endptr, 10);
-      if (rangestart < 0 || rangestart > 65535) {
-	fatal("Ports to be scanned must be between 0 and 65535 inclusive");
+      if (o.ipprotscan) {
+        if (rangestart < 0 || rangestart > 255)
+	  fatal("Protocols to be scanned must be between 0 and 255 inclusive");
+      } else {
+        if (rangestart < 0 || rangestart > 65535)
+	  fatal("Ports to be scanned must be between 0 and 65535 inclusive");
       }
 /*      if (rangestart == 0) {
 	error("WARNING:  Scanning \"port 0\" is supported, but unusual.");
@@ -1924,8 +1928,12 @@ struct scan_lists *getpts(char *origexpr) {
 	rangeend = 65535;
       } else if (isdigit((int) *current_range)) {
 	rangeend = strtol(current_range, &endptr, 10);
-	if (rangeend < 0 || rangeend > 65535) {
-	  fatal("Ports to be scanned must be between 0 and 65535 inclusive");
+	if (o.ipprotscan) {
+	  if (rangeend < 0 || rangeend > 255)
+	    fatal("Protocols to be scanned must be between 0 and 255 inclusive");
+	} else {
+	  if (rangeend < 0 || rangeend > 65535)
+	    fatal("Ports to be scanned must be between 0 and 65535 inclusive");
 	}
 	current_range = endptr;
       } else {
@@ -1947,7 +1955,7 @@ struct scan_lists *getpts(char *origexpr) {
 	  tcpportcount++;
 	if (range_type & SCAN_UDP_PORT)
 	  udpportcount++;
-	if (range_type & SCAN_PROTOCOLS && rangestart < 256)
+	if (range_type & SCAN_PROTOCOLS)
 	  protcount++;
 	porttbl[rangestart] |= range_type;
       }
