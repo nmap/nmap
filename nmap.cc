@@ -738,7 +738,9 @@ int nmap_main(int argc, char *argv[]) {
 	o.osscan_guess = 1;
       } else if (optcmp(long_options[option_index].name, "packet-trace") == 0) {
 	o.setPacketTrace(true);
+#ifndef NOLUA
 	o.scripttrace = 1;
+#endif
       } else if (optcmp(long_options[option_index].name, "version-trace") == 0) {
 	o.setVersionTrace(true);
 	o.debugging++;
@@ -832,7 +834,9 @@ int nmap_main(int argc, char *argv[]) {
       break;
     case 'A':
       o.servicescan = true;
+#ifndef NOLUA
       o.script = 1;
+#endif
       if (o.isr00t)
 		o.osscan = OS_SCAN_DEFAULT;
       break;
@@ -1435,11 +1439,13 @@ int nmap_main(int argc, char *argv[]) {
  // if (num_host_exp_groups == 0)
  //   fatal("No target machines/networks specified!");
  
+#ifndef NOLUA
   if(o.scriptupdatedb) {
 	script_updatedb();
 	// disable warnings
   	o.max_ips_to_scan = o.numhosts_scanned; 
   }
+#endif
 
   hstate = new HostGroupState(o.ping_group_sz, o.randomize_hosts,
 			      host_exp_group, num_host_exp_groups);
@@ -1604,7 +1610,9 @@ int nmap_main(int argc, char *argv[]) {
 
     if (o.servicescan) {
       o.current_scantype = SERVICE_SCAN; 
+#ifndef NOLUA
       o.scriptversion = 1;
+#endif
 
       keyWasPressed(); // Check if a status message should be printed
       service_scan(Targets);

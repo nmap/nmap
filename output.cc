@@ -1691,7 +1691,11 @@ void printfinaloutput() {
   gettimeofday(&tv, NULL);
   timep = time(NULL);
 
-  if (o.numhosts_scanned == 0 && o.scriptupdatedb == 0)
+  if (o.numhosts_scanned == 0
+#ifndef NOLUA
+      && o.scriptupdatedb == 0
+#endif
+     )
     fprintf(stderr, "WARNING: No targets were specified, so 0 hosts scanned.\n");
   if (o.numhosts_scanned == 1 && o.numhosts_up == 0 && !o.listscan && 
       o.pingtype != PINGTYPE_NONE)

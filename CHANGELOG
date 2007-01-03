@@ -21,6 +21,9 @@ o Fix nmap.xsl (the transform for rendering Nmap XML results as HTML)
   to fix some bugs related to OS detection output.  Thanks to Tom
   Sellers for the patch.
 
+o Fixed a bug which prevented the --without-liblua compilation option
+  from working.  Thanks to Kris Katterjohn for the patch.
+
 o Applied a bunch of code cleanup patches from Kris Katterjohn.
 
 o Applied some internal bugfix patches from Eddie Bell.
