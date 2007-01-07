@@ -24,6 +24,10 @@ o Fix nmap.xsl (the transform for rendering Nmap XML results as HTML)
 o Fixed a bug which prevented the --without-liblua compilation option
   from working.  Thanks to Kris Katterjohn for the patch.
 
+o Fixed a bug which caused nmap --iflist to crash (and might have
+  caused crashes in other circumstances too).  Thanks to Kris
+  Katterjohn for the report and Diman Todorov for the fix.
+
 o Applied a bunch of code cleanup patches from Kris Katterjohn.
 
 o Applied some internal bugfix patches from Eddie Bell.
