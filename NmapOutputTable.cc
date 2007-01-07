@@ -147,10 +147,11 @@ void NmapOutputTable::addItem(unsigned int row, unsigned int column, bool fullro
   
   addItem(row, column, copy, item, itemlen);
 
-  maxColLen[column] = mc;
-  cell = getCellAddy(row, column);
-  cell->fullrow = fullrow;
-
+  if(fullrow) {
+    maxColLen[column] = mc;
+    cell = getCellAddy(row, column);
+    cell->fullrow = fullrow;
+  }
   return;
 }
 
@@ -206,9 +207,11 @@ void NmapOutputTable::addItemFormatted(unsigned int row,
 
   addItem(row, column, fullrow, true, buf, res);
 
-  maxColLen[column] = mc;
-  cell = getCellAddy(row, column);
-  cell->fullrow = fullrow;
+  if(fullrow) {
+    maxColLen[column] = mc;
+    cell = getCellAddy(row, column);
+    cell->fullrow = fullrow;
+  }
 }
 
 // Returns the maximum size neccessary to create a printableTable() (the 
