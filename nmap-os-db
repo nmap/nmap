@@ -477,9 +477,9 @@ T7(R=Y%DF=N%T=40%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=FF%TG=FF%TOS=0%IPL=38%UN=0%RIPL=15C%RID=1042%RIPCK=Z%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
-# Cannon 4000r printer
-Fingerprint Cannon 4000r printer
-Class Cannon | embedded || printer
+# Canon 4000r printer
+Fingerprint Canon 4000r printer
+Class Canon | embedded || printer
 SEQ(SP=E-2A%GCD=10000|20000|30000|40000|50000|60000%ISR=C6-D0%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M5B4%O4=M5B4%O5=M218%O6=M109)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
