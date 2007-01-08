@@ -339,7 +339,7 @@ int print_iflist(void) {
       addr_mtob(&mask_nbo, sizeof(mask_nbo), &nbits);
       assert(nbits <= 32);
       ia.s_addr = routes[i].dest;
-      Tbl->addItemFormatted(i+1, dstcol, "%s/%d", inet_ntoa(ia), nbits);
+      Tbl->addItemFormatted(i+1, dstcol, false, "%s/%d", inet_ntoa(ia), nbits);
       Tbl->addItem(i+1, devcol, false, routes[i].device->devfullname);
       if (routes[i].gw.s_addr != 0)
 	Tbl->addItem(i+1, gwcol, true, inet_ntoa(routes[i].gw));
