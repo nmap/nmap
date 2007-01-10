@@ -1006,6 +1006,8 @@ npmp-gui          611/tcp    #
 npmp-gui          611/udp    # 
 sco-dtmgr         617/tcp    # SCO Desktop Administration Server or Arkeia (www.akriea.com) backup software
 sco-dtmgr         617/udp    # SCO Desktop Administration Server
+apple-xsrvr-admin 625/tcp    # Apple Mac Xserver admin
+applie-imap-admin 626/tcp    # Applie IMAP mail admin
 qmqp              628/tcp    # Qmail Quick Mail Queueing
 ipp               631/tcp    # Internet Printing Protocol -- for one implementation see http://www.cups.org (Common UNIX Printing System)
 ginad             634/tcp    # 
@@ -1018,7 +1020,7 @@ pcnfs             640/udp    # PC-NFS DOS Authentication
 bwnfs             650/udp    # BW-NFS DOS Authentication
 mac-srvr-admin    660/tcp    # MacOS Server Admin
 mac-srvr-admin    660/udp    # MacOS Server Admin
-doom              666/tcp    # doom Id Software
+doom              666/tcp    # Id Software Doom
 doom              666/udp    # doom Id Software
 acap              674/tcp    # ACAP server of Communigate (www.stalker.com)
 resvc             691/tcp    # The Microsoft Exchange 2000 Server Routing Service          
@@ -1883,7 +1885,7 @@ track             3462/tcp   # software distribution
 peerenabler       3531/tcp   # P2PNetworking/PeerEnabler protocol
 peerenabler       3531/udp   # P2PNetworking/PeerEnabler protocol
 distccd           3632/tcp   # Distributed compiler daemon
-rendezvous        3689/tcp   # Rendezvous Zeroconf (used by Apple)
+rendezvous        3689/tcp   # Rendezvous Zeroconf (used by Apple/iTunes)
 udt_os            3900/tcp   # Unidata UDT OS
 udt_os            3900/udp   # Unidata UDT OS
 mapper-nodemgr    3984/tcp   # MAPPER network node manager
@@ -1909,6 +1911,7 @@ nuts_dem          4132/udp   # NUTS Daemon
 nuts_bootp        4133/tcp   # NUTS Bootp Server
 nuts_bootp        4133/udp   # NUTS Bootp Server
 wincim            4144/tcp   # pc windows compuserve.com protocol
+eims-admin        4199/tcp   # Eudora Internet Mail Service (EIMS) admin
 xtell             4224/tcp   # Xtell messenging server
 rwhois            4321/tcp   # Remote Who Is
 rwhois            4321/udp   # Remote Who Is
@@ -1939,6 +1942,7 @@ rfe               5002/tcp   # Radio Free Ethernet
 rfe               5002/udp   # Radio Free Ethernet
 filemaker         5003/tcp   # Filemaker Server - http://www.filemaker.com/ti/104289.html
 filemaker         5003/udp   # Filemaker Server - http://www.filemaker.com/ti/104289.html
+airport-admin     5009/tcp   # Apple AirPort WAP Administration
 telelpathstart    5010/tcp   # 
 telelpathstart    5010/udp   # 
 telelpathattack   5011/tcp   # 
@@ -1983,6 +1987,7 @@ pcduo             5405/tcp   # RemCon PC-Duo - new port
 omid              5428/udp   # OpenMosix Info Dissemination
 connect-proxy     5490/tcp   # Many HTTP CONNECT proxies 
 postgres          5432/tcp   # postgres database server
+hotline           5500/tcp   # Hotline file sharing client/server
 securid           5500/udp   # SecurID
 secureidprop      5510/tcp   # ACE/Server services
 sdlog             5520/tcp   # ACE/Server services
@@ -2078,6 +2083,8 @@ analogx           6588/tcp   # AnalogX HTTP proxy port
 irc-serv          6666/tcp   # internet relay chat server
 irc               6667/tcp   # Internet Relay Chat
 irc               6668/tcp   # Internet Relay Chat
+carracho          6700/tcp   # Carracho file sharing
+carracho          6701/tcp   # Carracho file sharing
 bittorent-tracker 6881/tcp   # BitTorrent tracker
 acmsoda           6969/tcp   #
 acmsoda           6969/udp   #
@@ -2130,6 +2137,7 @@ http-proxy        8080/tcp   # Common HTTP proxy/second web server port
 blackice-icecap   8081/tcp   # ICECap user console
 blackice-alerts   8082/tcp   # BlackIce Alerts sent to this port
 https-alt         8443/tcp   # Common alternative https port
+apple-iphoto      8770/tcp   # Applie iPhoto sharing
 sun-answerbook    8888/tcp   # Sun Answerbook HTTP server.  Or gnump3d streaming music server
 seosload          8892/tcp   # From the new Computer Associates eTrust ACX
 zeus-admin        9090/tcp   # Zeus admin server
@@ -2182,6 +2190,7 @@ VeritasNetbackup  13783/tcp  # vopied        client
 bo2k              14141/tcp  # Back Orifice 2K BoPeep mouse/keyboard input
 bo2k              15151/tcp  # Back Orifice 2K BoPeep video output
 swgps             15126/tcp  # Nortel Java S/WGPS Global Payment Solutions for US credit card authorizations
+osxwebadmin       16080/tcp  # Apple OS X WebAdmin
 overnet           16444/tcp  # Overnet file sharing
 overnet           16444/udp  # Overnet file sharing
 subseven          16959/tcp  # Subseven trojan

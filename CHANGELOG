@@ -1,5 +1,4 @@
 # Nmap Changelog ($Id$); -*-text-*-
-
 4.21ALPHA2
 
 o Integrated all of your Q32006 service fingerprint submissions.  The
@@ -13,6 +12,8 @@ o Nmap now has a public Subversion (SVN) source code repository.  See
 
 o Fixed the way Nmap detects whether one of its data files (such as
   nmap-services) exists and has permissions which allow it to be read.
+
+o Added a bunch of nmap-services port listings from Stephanie Wen.
 
 o Update IANA assignment IP list for random IP (-iR) generation.
   Thanks to Kris Katterjohn for the patch.
