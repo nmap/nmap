@@ -332,7 +332,7 @@ class PortList {
   int state_counts_proto[PORTLIST_PROTO_MAX][PORT_HIGHEST_STATE];
   Port **port_list[PORTLIST_PROTO_MAX];
  protected:
-  /* Mapps port_number to index in port_list array.
+  /* Maps port_number to index in port_list array.
    * Only functions: getPortEntry, setPortEntry, initializePortMap and 
    * nextPort should access this structure directly. */
   static u16 *port_map[PORTLIST_PROTO_MAX];

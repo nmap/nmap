@@ -1385,7 +1385,7 @@ int nmap_main(int argc, char *argv[]) {
     printf("--------------- Timing report ---------------\n");
     printf("  hostgroups: min %d, max %d\n", o.minHostGroupSz(), o.maxHostGroupSz());
     printf("  rtt-timeouts: init %d, min %d, max %d\n", o.initialRttTimeout(), o.minRttTimeout(), o.maxRttTimeout());
-    printf("  msx-scan-delay: TCP %d, UDP %d\n", o.maxTCPScanDelay(), o.maxUDPScanDelay());
+    printf("  max-scan-delay: TCP %d, UDP %d\n", o.maxTCPScanDelay(), o.maxUDPScanDelay());
     printf("  parallelism: min %d, max %d\n", o.min_parallelism, o.max_parallelism);
     printf("  max-retries: %d, host-timeout: %ld\n", o.getMaxRetransmissions(), o.host_timeout);
     printf("---------------------------------------------\n");
