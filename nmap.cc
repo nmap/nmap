@@ -616,7 +616,7 @@ int nmap_main(int argc, char *argv[]) {
     switch(arg) {
     case 0:
 #ifndef NOLUA
-	if (optcmp(long_options[option_index].name, "script") == 0) {
+	if (strcmp(long_options[option_index].name, "script") == 0) {
 		o.script = 1;
 		o.chooseScripts(optarg);
 	} else if (optcmp(long_options[option_index].name, "script-trace") == 0) {
@@ -665,7 +665,7 @@ int nmap_main(int argc, char *argv[]) {
 	o.setMinHostGroupSz(atoi(optarg));
 	if (atoi(optarg) > 100)
 	  error("Warning: You specified a highly aggressive --min-hostgroup.");
-      } else if (optcmp(long_options[option_index].name, "open") == 0) {
+      } else if (strcmp(long_options[option_index].name, "open") == 0) {
 	o.setOpenOnly(true);
       } else if (strcmp(long_options[option_index].name, "scanflags") == 0) {
 	o.scanflags = parse_scanflags(optarg);
@@ -814,7 +814,7 @@ int nmap_main(int argc, char *argv[]) {
         o.fragscan = atoi(optarg);
         if (o.fragscan <= 0 || o.fragscan % 8 != 0)
             fatal("Data payload MTU must be >0 and multiple of 8");
-      } else if (strcmp(long_options[option_index].name, "ip-options") == 0){
+      } else if (optcmp(long_options[option_index].name, "ip-options") == 0){
         o.ipoptions    = (u8*) safe_malloc(4*10+1);
         o.ipoptionslen = parse_ip_options(optarg, o.ipoptions, 4*10+1, &o.ipopt_firsthop, &o.ipopt_lasthop);
         if(o.ipoptionslen > 4*10)
