@@ -182,6 +182,8 @@ void NmapOps::Initialize() {
 #else
   if (getenv("NMAP_PRIVILEGED"))
     isr00t = 1;
+  else if (getenv("NMAP_UNPRIVILEGED"))
+    isr00t = 0;
   else
     isr00t = !(geteuid());
 #endif
