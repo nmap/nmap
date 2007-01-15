@@ -2325,14 +2325,14 @@ void sigdie(int signo) {
   exit(1);
 }
 
-/* Returns true (nonzero) if the file pathname given exists, is not a
- * directory and is readable by the executing process.  Returns two if
- * it is readable and is a directory.  Otherwise returns 0.
+/* Returns one if the file pathname given exists, is not a directory and
+ * is readable by the executing process.  Returns two if it is readable
+ * and is a directory.  Otherwise returns 0.
  */
 
 int fileexistsandisreadable(char *pathname) {
 	char *pathname_buf = strdup(pathname);
-	int status = -1;
+	int status = 0;
 
 #ifdef WIN32
 	// stat on windows only works for "dir_name" not for "dir_name/" or "dir_name\\"
@@ -2349,10 +2349,8 @@ int fileexistsandisreadable(char *pathname) {
 
   if (stat(pathname_buf, &st) == -1)
     status = 0;
-  else if (!S_ISDIR(st.st_mode) && (access(pathname_buf, R_OK) != -1))
-    status =  1;
-  else if ((st.st_mode & S_IFDIR) && (access(pathname_buf, R_OK) != -1))
-    status =  2; 
+  else if (access(pathname_buf, R_OK) != -1)
+    status = S_ISDIR(st.st_mode) ? 2 : 1;
 
   free(pathname_buf);
   return status;
