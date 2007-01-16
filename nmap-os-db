@@ -494,6 +494,22 @@ T7(R=Y%DF=N%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=40%TG=40%TOSI=Z%CD=Z%SI=S%DLI=S)
 
+Fingerprint Captor Omni-Clock (employee timeclock)
+Class Captor | embedded || specialized
+SEQ(R=N)
+OPS(R=N)
+WIN(R=N)
+ECN(R=N)
+T1(R=N)
+T2(R=N)
+T3(R=N)
+T4(R=N)
+T5(R=Y%DF=N%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=N%T=40%TG=40%W=0%S=A%A=S%F=AR%O=%RD=0%Q=)
+T7(R=Y%DF=N%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
+IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
+
 # Check Point VPN-1(TM) & FireWall-1(R) NGX (R60) HFA_03, Hotfix 603 - Build 015  & IPSO fw-001 4.1-BUILD016 releng 1515  05.19.2006-052320 i386
 # This is Check Point VPN-1(TM) & FireWall-1(R) NGX (R60) HFA_03, Hotfix 603 - Build 015
 # IPSO fw-001 4.1-BUILD016 releng 1515  05.19.2006-052320 i386
@@ -4085,19 +4101,3 @@ T6(R=N)
 T7(R=N)
 U1(DF=N%T=FE%TG=FE%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=FE%TG=FE%TOSI=S%CD=S%SI=S%DLI=S)
-
-Fingerprint Captor Omni-Clock (employee timeclock)
-Class Captor | embedded || specialized
-SEQ(R=N)
-OPS(R=N)
-WIN(R=N)
-ECN(R=N)
-T1(R=N)
-T2(R=N)
-T3(R=N)
-T4(R=N)
-T5(R=Y%DF=N%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=N%T=40%TG=40%W=0%S=A%A=S%F=AR%O=%RD=0%Q=)
-T7(R=Y%DF=N%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
-IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)

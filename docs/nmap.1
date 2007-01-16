@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "12/12/2006" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "01/16/2007" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -91,7 +91,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 \fI\%http://insecure.org/nmap/data/nmap.usage.txt\fR. It helps people remember the most common options, but is no substitute for the in\-depth documentation in the rest of this manual. Some obscure options aren't even included here.
 .PP
 .nf
-Nmap 4.20 ( http://insecure.org )
+Nmap 4.21ALPHA1 ( http://insecure.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -128,6 +128,11 @@ SERVICE/VERSION DETECTION:
   \-\-version\-light: Limit to most likely probes (intensity 2)
   \-\-version\-all: Try every single probe (intensity 9)
   \-\-version\-trace: Show detailed version scan activity (for debugging)
+SCRIPT SCAN:
+  \-sC: equivalent to \-\-script=safe,intrusive
+  \-\-script=<lua scripts>: <lua scripts> is a comma separated list of dirs or scripts
+  \-\-script\-trace: Show all data sent and received
+  \-\-script\-updatedb: Update the script database. Only performed if \-sC or \-\-script was also given.
 OS DETECTION:
   \-O: Enable OS detection (try 2nd generation w/fallback to 1st)
   \-O2: Only use the new OS detection system (no fallback)
@@ -1339,12 +1344,13 @@ option discussed previously.
 \fB\-\-privileged\fR (Assume that the user is fully privileged)
 Tells Nmap to simply assume that it is privileged enough to perform raw socket sends, packet sniffing, and similar operations that usually require root privileges on UNIX systems. By default Nmap quits if such operations are requested but geteuid() is not zero.
 \fB\-\-privileged\fR
-is useful with Linux kernel capabilities and similar systems that may be configured to allow unprivileged users to perform raw\-packet scans. Be sure to provide this option flag before any flags for options that require privileges (SYN scan, OS detection, etc.). The NMAP_PRIVILEGED variable may be set as an equivalent alternative to
+is useful with Linux kernel capabilities and similar systems that may be configured to allow unprivileged users to perform raw\-packet scans. Be sure to provide this option flag before any flags for options that require privileges (SYN scan, OS detection, etc.). The NMAP_PRIVILEGED environmental variable may be set as an equivalent alternative to
 \fB\-\-privileged\fR.
 .TP
 \fB\-\-unprivileged\fR (Assume that the user lacks raw socket privileges)
 This option is the opposite of
-\fB\-\-privileged\fR. It tells Nmap to treat the user as lacking network raw socket and sniffing privileges. This is useful for testing, debugging, or when the raw network functionality of your operating system is somehow broken.
+\fB\-\-privileged\fR. It tells Nmap to treat the user as lacking network raw socket and sniffing privileges. This is useful for testing, debugging, or when the raw network functionality of your operating system is somehow broken. The NMAP_UNPRIVILEGED environmental variable may be set as an equivalent alternative to
+\fB\-\-unprivileged\fR.
 .TP
 \fB\-\-release\-memory\fR (Release memory before quitting)
 This option is only useful for memory\-leak debugging. It causes Nmap to release allocated memory just before it quits so that actual memory leaks are easier to spot. Normally Nmap skips this as the OS does this anyway upon process termination.
