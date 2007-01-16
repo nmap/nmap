@@ -1906,7 +1906,7 @@ struct scan_lists *getpts(char *origexpr) {
 	continue;
     }
     if (*current_range == '-') {
-      rangestart = 1;
+      rangestart = o.ipprotscan ? 0 : 1;
     }
     else if (isdigit((int) *current_range)) {
       rangestart = strtol(current_range, &endptr, 10);
@@ -1933,7 +1933,7 @@ struct scan_lists *getpts(char *origexpr) {
       current_range++;
       if (!*current_range || *current_range == ',') {
 	/* Ended with a -, meaning up until the last possible port */
-	rangeend = 65535;
+	rangeend = o.ipprotscan ? 255 : 65535;
       } else if (isdigit((int) *current_range)) {
 	rangeend = strtol(current_range, &endptr, 10);
 	if (o.ipprotscan) {
