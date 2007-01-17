@@ -1447,6 +1447,66 @@ return build_ip_raw(source, victim,
 		    packetlen);
 }
 
+/* Builds an IGMP packet (including an IP header) by packing the fields
+   with the given information.  It allocates a new buffer to store the
+   packet contents, and then returns that buffer.  The packet is not
+   actually sent by this function.  Caller must delete the buffer when
+   finished with the packet.  The packet length is returned in packetlen,
+   which must be a valid int pointer.
+ */
+u8 *build_igmp_raw(const struct in_addr *source, const struct in_addr *victim, 
+		   int ttl, u16 ipid, u8 tos, bool df,
+		   u8 *ipopt, int ipoptlen,
+		   u8 ptype, u8 pcode,
+		   char *data, u16 datalen, u32 *packetlen) {
+ struct {
+   u8 igmp_type;
+   u8 igmp_code;
+   u16 igmp_cksum;
+   u32 var; /* changes between types, unused. usually group address. */
+   u8 data[1500];
+ } igmp;
+ u32 *datastart = (u32 *) igmp.data;
+ int dlen = sizeof(igmp.data); 
+ int igmplen = 0;
+ char *pkt = (char *) &igmp;
+
+ igmp.igmp_type = ptype;
+ igmp.igmp_code = pcode;
+
+ if (ptype == 0x11) { /* Membership Query */
+   igmplen = 8;
+ } else if (ptype == 0x12) { /* v1 Membership Report */
+   igmplen = 8;
+ } else if (ptype == 0x16) { /* v2 Membership Report */
+   igmplen = 8;
+ } else if (ptype == 0x17) { /* v2 Leave Group */
+   igmplen = 8;
+ } else if (ptype == 0x22) { /* v3 Membership Report */
+   igmplen = 8;
+ } else {
+   fatal("Unknown igmp type (%d) in build_igmp_raw", ptype);
+ }
+
+ if (datalen > 0) {
+   igmplen += MIN(dlen, datalen);
+   memset(datastart, 0, MIN(dlen, datalen));
+ }
+
+ igmp.igmp_cksum = 0;
+ igmp.igmp_cksum = in_cksum((unsigned short *)pkt, igmplen);
+
+ if (o.badsum)
+   --igmp.igmp_cksum;
+
+ return build_ip_raw(source, victim,
+		     IPPROTO_IGMP,
+		     ttl, get_random_u16(), tos, df,
+		     ipopt, ipoptlen,
+		     pkt, igmplen,
+		     packetlen);
+}
+
 
 /* A simple function I wrote to help in debugging, shows the important fields
    of a TCP packet*/

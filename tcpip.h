@@ -464,6 +464,10 @@ struct icmp
 };
 #endif /* HAVE_STRUCT_ICMP */
 
+/* Some systems might not have this */
+#ifndef IPPROTO_IGMP
+#define IPPROTO_IGMP 2
+#endif
 
 /* Prototypes */
 /* Converts an IP address given in a sockaddr_storage to an IPv4 or
@@ -573,6 +577,19 @@ u8 *build_icmp_raw(const struct in_addr *source, const struct in_addr *victim,
 		   int ttl, u16 ipid, u8 tos, bool df,
 		   u8* ipopt, int ipoptlen,
 		   u16 seq, unsigned short id, u8 ptype, u8 pcode,
+		   char *data, u16 datalen, u32 *packetlen);
+
+/* Builds an IGMP packet (including an IP header) by packing the fields
+   with the given information.  It allocates a new buffer to store the
+   packet contents, and then returns that buffer.  The packet is not
+   actually sent by this function.  Caller must delete the buffer when
+   finished with the packet.  The packet length is returned in packetlen,
+   which must be a valid int pointer.
+ */
+u8 *build_igmp_raw(const struct in_addr *source, const struct in_addr *victim, 
+		   int ttl, u16 ipid, u8 tos, bool df,
+		   u8* ipopt, int ipoptlen,
+		   u8 ptype, u8 pcode,
 		   char *data, u16 datalen, u32 *packetlen);
 
 /* Builds an IP packet (including an IP header) by packing the fields

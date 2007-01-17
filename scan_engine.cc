@@ -2186,6 +2186,14 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 				o.extra_payload, o.extra_payload_length,
 				&packetlen);
 	break;
+      case IPPROTO_IGMP:
+	packet = build_igmp_raw(&o.decoys[decoy], hss->target->v4hostip(),
+				o.ttl, ipid, IP_TOS_DEFAULT, false,
+				o.ipoptions, o.ipoptionslen,
+				0x11, 0,
+				o.extra_payload, o.extra_payload_length,
+				&packetlen);
+	break;
       case IPPROTO_UDP:
 	packet = build_udp_raw(&o.decoys[decoy], hss->target->v4hostip(),
 			       o.ttl, ipid, IP_TOS_DEFAULT, false,
