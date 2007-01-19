@@ -148,6 +148,18 @@ static int parse_scanflags(char *arg) {
     if (strcasestr(arg, "URG")) {
       flagval |= TH_URG;
     } 
+    if (strcasestr(arg, "ECE")) {
+      flagval |= TH_ECE;
+    } 
+    if (strcasestr(arg, "CWR")) {
+      flagval |= TH_CWR;
+    } 
+    if (strcasestr(arg, "ALL")) {
+      flagval = 255;
+    }
+    if (strcasestr(arg, "NONE")) {
+      flagval = 0;
+    }
   }
   return flagval;
 }
