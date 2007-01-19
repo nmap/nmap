@@ -159,7 +159,7 @@ setsockopt(sd, IPPROTO_IP, IP_HDRINCL, (const char *) &one, sizeof(one));
 }
 
 // Takes a protocol number like IPPROTO_TCP, IPPROTO_UDP, or
-// IPPROTO_TCP and returns a ascii representation (or "unknown" if it
+// IPPROTO_IP and returns a ascii representation (or "unknown" if it
 // doesn't recognize the number).  If uppercase is true, the returned
 // value will be in all uppercase letters.  You can skip this
 // parameter to use lowercase.

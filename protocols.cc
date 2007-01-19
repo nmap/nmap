@@ -121,7 +121,7 @@ static int nmap_protocols_init() {
   int res;
 
   if (nmap_fetchfile(filename, sizeof(filename), "nmap-protocols") != 1) {
-    error("Unable to find nmap-protocols!  Resorting to /etc/protocol");
+    error("Unable to find nmap-protocols!  Resorting to /etc/protocols");
     strcpy(filename, "/etc/protocols");
   }
 
