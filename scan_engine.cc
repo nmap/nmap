@@ -2957,6 +2957,13 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	    } else if (USI->scantype == ACK_SCAN) {
 	      newstate = PORT_UNFILTERED;
 	    } else newstate = PORT_CLOSED;
+	  } else if (probe->dport() == probe->sport() &&
+		     ip->ip_src.s_addr == ip->ip_dst.s_addr &&
+		     probe->ipid() == ntohs(ip->ip_id)) {
+	    /* Sometimes we get false results when scanning localhost with
+	       -p- because we scan localhost with src port = dst port and
+	       see our outgoing packet and think it is a response. */
+	    continue;
 	  } else {
 	    if (o.debugging)
 	      error("Received scan response with unexpected TCP flags: %d\n", tcp->th_flags);
@@ -3120,7 +3127,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	   see our outgoing packet and think it is a response. */
 	if (probe->dport() == probe->sport() && 
 	    ip->ip_src.s_addr == ip->ip_dst.s_addr && 
-	    probe->ipid() == ip->ip_id)
+	    probe->ipid() == ntohs(ip->ip_id))
 	  continue; /* We saw the packet we ourselves sent */
 
 	newstate = PORT_OPEN;
