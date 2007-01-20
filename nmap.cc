@@ -2469,7 +2469,7 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, char *file) {
     filename_returned[0] = '\0';
   }
 
-  if (o.debugging > 1)
+  if (foundsomething && o.debugging > 1)
     error("Fetchfile found %s\n", filename_returned);
 
   return foundsomething;
