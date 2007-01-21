@@ -230,9 +230,6 @@ void *realloc();
 
 #include <math.h>
 #include <assert.h>
-#ifndef __FAVOR_BSD
-#define __FAVOR_BSD
-#endif
 #ifndef NETINET_TCP_H  /* why does OpenBSD not do this? */
 #include <netinet/tcp.h>          /*#include <netinet/ip_tcp.h>*/
 #define NETINET_TCP_H
