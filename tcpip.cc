@@ -1679,8 +1679,10 @@ u8 *build_udp_raw(struct in_addr *source, const struct in_addr *victim,
 				   sizeof(udphdr_bsd) + datalen, (char *) udp);
 #endif
   
-  if ( o.badsum )
+  if ( o.badsum ) {
     --udp->uh_sum;
+    if (udp->uh_sum == 0) udp->uh_sum = 0xffff; // UDP checksum=0 means no checksum
+  }
   
   fill_ip_raw(ip, packetlen, ipopt, ipoptlen,
 	tos, ipid, df?IP_DF:0, myttl, IPPROTO_UDP,
