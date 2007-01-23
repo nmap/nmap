@@ -172,7 +172,7 @@ for(decoy=0; decoy < o.numdecoys; decoy++) {
 #endif
 
   if ( o.badsum ) {
-    udp->uh_sum++;
+    udp->uh_sum--;
     if (udp->uh_sum == 0) udp->uh_sum = 0xffff; // UDP checksum=0 means no checksum
   }
 
