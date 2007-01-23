@@ -168,7 +168,7 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
   int timedout = 0;
   int base_port;
   struct ip *ip;
-  struct tcphdr *tcp;
+  struct tcp_hdr *tcp;
   static u32 seq_base = 0;
   static u32 ack = 0;
   static int packet_send_count = 0; /* Total # of probes sent by this program -- to ensure that our sequence # always changes */
@@ -212,7 +212,7 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
 
 	if (ip->ip_p == IPPROTO_TCP) {
 
-	  tcp = ((struct tcphdr *) (((char *) ip) + 4 * ip->ip_hl));
+	  tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
 	  if (ntohs(tcp->th_dport) < base_port || ntohs(tcp->th_dport) - base_port >= tries  || ntohs(tcp->th_sport) != proxy->probe_port || ((tcp->th_flags & TH_RST) == 0)) {
 	    if (ntohs(tcp->th_dport) > o.magic_port && ntohs(tcp->th_dport) < (o.magic_port + 260)) {
 	      if (o.debugging) {
@@ -301,7 +301,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   struct timeval probe_send_times[NUM_IPID_PROBES], tmptv, rcvdtime;
   u16 lastipid = 0;
   struct ip *ip;
-  struct tcphdr *tcp;
+  struct tcp_hdr *tcp;
   int distance;
   u16 ipids[NUM_IPID_PROBES]; 
   u8 probe_returned[NUM_IPID_PROBES];
@@ -458,7 +458,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
 	continue;
 
       if (ip->ip_p == IPPROTO_TCP) {
-	tcp = ((struct tcphdr *) (((char *) ip) + 4 * ip->ip_hl));
+	tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
 	if (ntohs(tcp->th_dport) < (o.magic_port+1) || ntohs(tcp->th_dport) - o.magic_port > NUM_IPID_PROBES  || ntohs(tcp->th_sport) != proxy->probe_port || ((tcp->th_flags & TH_RST) == 0)) {
 	  if (o.debugging > 1) error("Received unexpected response packet from %s during initial ipid zombie testing", inet_ntoa(ip->ip_src));
 	  continue;

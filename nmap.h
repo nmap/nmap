@@ -159,8 +159,7 @@ void *realloc();
 #include <sys/param.h> /* Defines MAXHOSTNAMELEN on BSD*/
 #endif
 
-/* Linux uses these defines in netinet/ip.h and netinet/tcp.h to
-   use the correct struct ip and struct tcphdr */
+/* Linux uses these defines in netinet/ip.h to use the correct struct ip */
 #ifndef __FAVOR_BSD
 #define __FAVOR_BSD
 #endif
@@ -230,10 +229,6 @@ void *realloc();
 
 #include <math.h>
 #include <assert.h>
-#ifndef NETINET_TCP_H  /* why does OpenBSD not do this? */
-#include <netinet/tcp.h>          /*#include <netinet/ip_tcp.h>*/
-#define NETINET_TCP_H
-#endif
 
 #if HAVE_SYS_RESOURCE_H
 #include <sys/resource.h>

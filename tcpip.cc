@@ -407,8 +407,8 @@ static void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize) {
 static const char *ippackethdrinfo(const u8 *packet, u32 len) {
   static char protoinfo[512];
   struct ip *ip = (struct ip *) packet;
-  struct tcphdr *tcp;
-  udphdr_bsd *udp;
+  struct tcp_hdr *tcp;
+  struct udp_hdr *udp;
   char ipinfo[512];
   char srchost[INET6_ADDRSTRLEN], dsthost[INET6_ADDRSTRLEN];
   char *p;
@@ -446,11 +446,11 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
     char buf[32];
 	char tcpoptinfo[256] = "";
 	
-    tcp = (struct tcphdr *)  (packet + ip->ip_hl * 4);
+    tcp = (struct tcp_hdr *)  (packet + ip->ip_hl * 4);
     if (frag_off > 8 || len < (u32) ip->ip_hl * 4 + 8) 
       snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? ?? %s (incomplete)", srchost, dsthost, ipinfo);
     else if (frag_off == 8) {// at least we can get TCP flags and ACKn
-      tcp = (struct tcphdr *)((u8 *) tcp - frag_off); // ugly?
+      tcp = (struct tcp_hdr *)((u8 *) tcp - frag_off); // ugly?
       p = tflags;
       /* These are basically in tcpdump order */
       if (tcp->th_flags & TH_SYN) *p++ = 'S';
@@ -467,14 +467,14 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
       if (tcp->th_flags & TH_CWR) *p++ = 'C'; /* rfc 2481/3168 */
       *p++ = '\0';
 
-	  if((u32) tcp->th_off * 4 > sizeof(struct tcphdr)) {
+	  if((u32) tcp->th_off * 4 > sizeof(struct tcp_hdr)) {
 		// tcp options
 		if(len < (u32) ip->ip_hl * 4 + (u32) tcp->th_off * 4 - frag_off) {
 		  snprintf(tcpoptinfo, sizeof(tcpoptinfo), "option incomplete");
 		  
 		} else {
-		  tcppacketoptinfo((u8*) tcp + sizeof(struct tcphdr),
-					 tcp->th_off*4 - sizeof(struct tcphdr),
+		  tcppacketoptinfo((u8*) tcp + sizeof(struct tcp_hdr),
+					 tcp->th_off*4 - sizeof(struct tcp_hdr),
 					 tcpoptinfo, sizeof(tcpoptinfo));
 		}
 	  }
@@ -507,14 +507,14 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
       if (tcp->th_flags & TH_CWR) *p++ = 'C'; /* rfc 2481/3168 */
       *p++ = '\0';
 
-	  if((u32) tcp->th_off * 4 > sizeof(struct tcphdr)) {
+	  if((u32) tcp->th_off * 4 > sizeof(struct tcp_hdr)) {
 		// tcp options
 		if(len < (u32) ip->ip_hl * 4 + (u32) tcp->th_off * 4) {
 		  snprintf(tcpoptinfo, sizeof(tcpoptinfo), "option incomplete");
 		  
 		} else {
-		  tcppacketoptinfo((u8*) tcp + sizeof(struct tcphdr),
-					 tcp->th_off*4 - sizeof(struct tcphdr),
+		  tcppacketoptinfo((u8*) tcp + sizeof(struct tcp_hdr),
+					 tcp->th_off*4 - sizeof(struct tcp_hdr),
 					 tcpoptinfo, sizeof(tcpoptinfo));
 		}
 	  }
@@ -526,7 +526,7 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
   } else if (ip->ip_p == IPPROTO_UDP && frag_off) {
       snprintf(protoinfo, sizeof(protoinfo), "UDP %s:?? > %s:?? fragment %s (incomplete)", srchost, dsthost, ipinfo);
   } else if (ip->ip_p == IPPROTO_UDP) {
-    udp =  (udphdr_bsd *) (packet + sizeof(struct ip));
+    udp =  (struct udp_hdr *) (packet + sizeof(struct ip));
 
     snprintf(protoinfo, sizeof(protoinfo), "UDP %s:%d > %s:%d %s",
 	     srchost, ntohs(udp->uh_sport), dsthost, ntohs(udp->uh_dport),
@@ -1121,10 +1121,10 @@ u8 *build_tcp_raw(const struct in_addr *source, const struct in_addr *victim,
 		  char *data, u16 datalen, u32 *outpacketlen) {
 
 int packetlen = sizeof(struct ip) + ipoptlen + 
-	sizeof(struct tcphdr) + tcpoptlen + datalen;
+	sizeof(struct tcp_hdr) + tcpoptlen + datalen;
 u8 *packet = (u8 *) safe_malloc(packetlen);
 struct ip *ip = (struct ip *) packet;
-struct tcphdr *tcp = (struct tcphdr *) ((u8*)ip + sizeof(struct ip) + ipoptlen);
+struct tcp_hdr *tcp = (struct tcp_hdr *) ((u8*)ip + sizeof(struct ip) + ipoptlen);
 static int myttl = 0;
 
 assert(victim);
@@ -1143,7 +1143,7 @@ if (ttl == -1) {
 }
 
 /* Fill tcp header */
-memset(tcp, 0, sizeof(struct tcphdr));
+memset(tcp, 0, sizeof(struct tcp_hdr));
 tcp->th_sport = htons(sport);
 tcp->th_dport = htons(dport);
 if (seq) {
@@ -1172,16 +1172,16 @@ if (urp)
 
 /* And the options */
 if (tcpoptlen)
-  memcpy((u8*)tcp + sizeof(struct tcphdr), tcpopt, tcpoptlen);
+  memcpy((u8*)tcp + sizeof(struct tcp_hdr), tcpopt, tcpoptlen);
 /* We should probably copy the data over too */
 if (data && datalen)
-  memcpy((u8*)tcp + sizeof(struct tcphdr) + tcpoptlen, data, datalen);
+  memcpy((u8*)tcp + sizeof(struct tcp_hdr) + tcpoptlen, data, datalen);
 
 #if STUPID_SOLARIS_CHECKSUM_BUG
-tcp->th_sum = sizeof(struct tcphdr) + tcpoptlen + datalen; 
+tcp->th_sum = sizeof(struct tcp_hdr) + tcpoptlen + datalen; 
 #else
 tcp->th_sum = magic_tcpudp_cksum(source, victim, IPPROTO_TCP,
-				 sizeof(struct tcphdr) + tcpoptlen + datalen,
+				 sizeof(struct tcp_hdr) + tcpoptlen + datalen,
 				 (char *) tcp);
 #endif
 
@@ -1318,8 +1318,8 @@ int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetl
   struct sockaddr_in sock;
   int res;
   struct ip *ip = (struct ip *) packet;
-  struct tcphdr *tcp = NULL;
-  udphdr_bsd *udp;
+  struct tcp_hdr *tcp = NULL;
+  struct udp_hdr *udp;
   u8 *eth_frame = NULL;
   eth_t *ethsd;
   bool ethsd_opened = false;
@@ -1359,10 +1359,10 @@ int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetl
   if (packetlen >= 20) {
     sock.sin_addr.s_addr = ip->ip_dst.s_addr;
     if (ip->ip_p == IPPROTO_TCP && packetlen >= (unsigned int) ip->ip_hl * 4 + 20) {
-      tcp = (struct tcphdr *) ((u8 *) ip + ip->ip_hl * 4);
+      tcp = (struct tcp_hdr *) ((u8 *) ip + ip->ip_hl * 4);
       sock.sin_port = tcp->th_dport;
     } else if (ip->ip_p == IPPROTO_UDP && packetlen >= (unsigned int) ip->ip_hl * 4 + 8) {
-      udp = (udphdr_bsd *) ((u8 *) ip + ip->ip_hl * 4);
+      udp = (struct udp_hdr *) ((u8 *) ip + ip->ip_hl * 4);
       sock.sin_port = udp->uh_dport;
     }
   }
@@ -1513,8 +1513,8 @@ u8 *build_igmp_raw(const struct in_addr *source, const struct in_addr *victim,
 int readtcppacket(const u8 *packet, int readdata) {
 
 struct ip *ip = (struct ip *) packet;
-struct tcphdr *tcp = (struct tcphdr *) (packet + sizeof(struct ip));
-const unsigned char *data = packet +  sizeof(struct ip) + sizeof(struct tcphdr);
+struct tcp_hdr *tcp = (struct tcp_hdr *) (packet + sizeof(struct ip));
+const unsigned char *data = packet +  sizeof(struct ip) + sizeof(struct tcp_hdr);
 int tot_len;
 struct in_addr bullshit, bullshit2;
 char sourcehost[16];
@@ -1573,8 +1573,8 @@ return 0;
 int readudppacket(const u8 *packet, int readdata) {
 
 struct ip *ip = (struct ip *) packet;
-udphdr_bsd *udp = (udphdr_bsd *) (packet + sizeof(struct ip));
-const unsigned char *data = packet +  sizeof(struct ip) + sizeof(udphdr_bsd);
+struct udp_hdr *udp = (struct udp_hdr *) (packet + sizeof(struct ip));
+const unsigned char *data = packet +  sizeof(struct ip) + sizeof(struct udp_hdr);
 int tot_len;
 struct in_addr bullshit, bullshit2;
 char sourcehost[16];
@@ -1644,10 +1644,10 @@ u8 *build_udp_raw(struct in_addr *source, const struct in_addr *victim,
  		  u16 sport, u16 dport,
  		  char *data, u16 datalen, u32 *outpacketlen) 
 {
-  int packetlen = sizeof(struct ip) + ipoptlen + sizeof(udphdr_bsd) + datalen;
+  int packetlen = sizeof(struct ip) + ipoptlen + sizeof(struct udp_hdr) + datalen;
   u8 *packet = (u8 *) safe_malloc(packetlen);
   struct ip *ip = (struct ip *) packet;
-  udphdr_bsd *udp = (udphdr_bsd *) ((u8*)ip + sizeof(struct ip) + ipoptlen);
+  struct udp_hdr *udp = (struct udp_hdr *) ((u8*)ip + sizeof(struct ip) + ipoptlen);
   static int myttl = 0;
   
   /* check that required fields are there and not too silly */
@@ -1665,18 +1665,18 @@ u8 *build_udp_raw(struct in_addr *source, const struct in_addr *victim,
   udp->uh_sport = htons(sport);
   udp->uh_dport = htons(dport);
   udp->uh_sum   = 0;
-  udp->uh_ulen  = htons(sizeof(udphdr_bsd) + datalen);
+  udp->uh_ulen  = htons(sizeof(struct udp_hdr) + datalen);
   
   /* We should probably copy the data over too */
   if (data)
-    memcpy((u8*)udp + sizeof(udphdr_bsd), data, datalen);
+    memcpy((u8*)udp + sizeof(struct udp_hdr), data, datalen);
   
   /* OK, now we should be able to compute a valid checksum */
 #if STUPID_SOLARIS_CHECKSUM_BUG
-  udp->uh_sum = sizeof(udphdr_bsd) + datalen;
+  udp->uh_sum = sizeof(struct udp_hdr) + datalen;
 #else
   udp->uh_sum = magic_tcpudp_cksum(source, victim, IPPROTO_UDP,
-				   sizeof(udphdr_bsd) + datalen, (char *) udp);
+				   sizeof(struct udp_hdr) + datalen, (char *) udp);
 #endif
   
   if ( o.badsum ) {
@@ -3218,7 +3218,7 @@ int recvtime(int sd, char *buf, int len, int seconds, int *timedout) {
    parameters (if non-null) are filled with 0.  Remember that the
    correct way to check for errors is to look at the return value
    since a zero ts or echots could possibly be valid. */
-int gettcpopt_ts(struct tcphdr *tcp, u32 *timestamp, u32 *echots) {
+int gettcpopt_ts(struct tcp_hdr *tcp, u32 *timestamp, u32 *echots) {
 
   unsigned char *p;
   int len = 0;

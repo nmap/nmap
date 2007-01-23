@@ -466,8 +466,8 @@ private:
   void sendTIcmpProbe(HostOsScanStats *hss, int probeNo);
   /* Response process functions. */
   bool processTSeqResp(HostOsScanStats *hss, struct ip *ip, int replyNo);
-  bool processTOpsResp(HostOsScanStats *hss, struct tcphdr *tcp, int replyNo);
-  bool processTWinResp(HostOsScanStats *hss, struct tcphdr *tcp, int replyNo);
+  bool processTOpsResp(HostOsScanStats *hss, struct tcp_hdr *tcp, int replyNo);
+  bool processTWinResp(HostOsScanStats *hss, struct tcp_hdr *tcp, int replyNo);
   bool processTEcnResp(HostOsScanStats *hss, struct ip *ip);
   bool processT1_7Resp(HostOsScanStats *hss, struct ip *ip, int replyNo);
   bool processTUdpResp(HostOsScanStats *hss, struct ip *ip);
@@ -477,7 +477,7 @@ private:
   void makeTOpsFP(HostOsScanStats *hss);
   void makeTWinFP(HostOsScanStats *hss);
 
-  bool get_tcpopt_string(struct tcphdr *tcp, int mss, char *result, int maxlen);
+  bool get_tcpopt_string(struct tcp_hdr *tcp, int mss, char *result, int maxlen);
 
   int rawsd; /* raw socket descriptor */
   struct eth_nfo eth;
@@ -1409,7 +1409,7 @@ void HostOsScan::sendTUdpProbe(HostOsScanStats *hss, int probeNo) {
 
 bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int len, struct timeval *rcvdtime) {
   struct ip *ip2;
-  struct tcphdr *tcp;
+  struct tcp_hdr *tcp;
   struct icmp *icmp;
   int testno;
   bool isPktUseful = false;
@@ -1423,7 +1423,7 @@ bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int l
   
   if (ip->ip_p == IPPROTO_TCP) {
     if(len < 20) return false;
-    tcp = ((struct tcphdr *) (((char *) ip) + 4 * ip->ip_hl));
+    tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
     if(len < (unsigned int)(4 * tcp->th_off)) return false;
     testno = ntohs(tcp->th_dport) - tcpPortBase;
     
@@ -1973,7 +1973,7 @@ void HostOsScan::makeTWinFP(HostOsScanStats *hss) {
 bool HostOsScan::processTSeqResp(HostOsScanStats *hss, struct ip *ip, int replyNo) {
   assert(replyNo>=0 && replyNo<NUM_SEQ_SAMPLES);
 
-  struct tcphdr *tcp;
+  struct tcp_hdr *tcp;
   int seq_response_num;  /* response # for sequencing */
   u32 timestamp = 0; /* TCP timestamp we receive back */
 
@@ -1983,7 +1983,7 @@ bool HostOsScan::processTSeqResp(HostOsScanStats *hss, struct ip *ip, int replyN
   }
   hss->lastipid = ip->ip_id;
   
-  tcp = ((struct tcphdr *) (((char *) ip) + 4 * ip->ip_hl));
+  tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
 
   if ((tcp->th_flags & TH_RST)) {
     if (hss->si.responses == 0) {     
@@ -2035,7 +2035,7 @@ bool HostOsScan::processTSeqResp(HostOsScanStats *hss, struct ip *ip, int replyN
   return false;
 }
 
-bool HostOsScan::processTOpsResp(HostOsScanStats *hss, struct tcphdr *tcp, int replyNo) {
+bool HostOsScan::processTOpsResp(HostOsScanStats *hss, struct tcp_hdr *tcp, int replyNo) {
   assert(replyNo>=0 || replyNo<6);
   bool opsParseResult;
   
@@ -2077,7 +2077,7 @@ bool HostOsScan::processTOpsResp(HostOsScanStats *hss, struct tcphdr *tcp, int r
   return true;
 }
 
-bool HostOsScan::processTWinResp(HostOsScanStats *hss, struct tcphdr *tcp, int replyNo) {
+bool HostOsScan::processTWinResp(HostOsScanStats *hss, struct tcp_hdr *tcp, int replyNo) {
   assert(replyNo>=0 || replyNo<6);
   
   if (hss->FP_TWin || hss->TWin_AVs[replyNo]) return false;
@@ -2116,7 +2116,7 @@ bool HostOsScan::processTEcnResp(HostOsScanStats *hss, struct ip *ip) {
   char *p;
   int numtests = 7;
   int current_testno = 0;
-  struct tcphdr *tcp = ((struct tcphdr *) (((char *) ip) + 4 * ip->ip_hl));
+  struct tcp_hdr *tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
   bool opsParseResult;
 
   if (hss->FP_TEcn) return false;
@@ -2208,7 +2208,7 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, struct ip *ip, int replyN
   assert(replyNo>=0 && replyNo<7);
  
   int numtests;
-  struct tcphdr *tcp = ((struct tcphdr *) (((char *) ip) + 4 * ip->ip_hl));
+  struct tcp_hdr *tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
   struct AVal *AVs;
   int current_testno = 0;
   
@@ -2373,7 +2373,7 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
   int numtests;
   unsigned short checksum;
   unsigned short *checksumptr;
-  udphdr_bsd *udp;
+  struct udp_hdr *udp;
   struct AVal *AVs;
   int i;
   int current_testno = 0;
@@ -2395,7 +2395,7 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
   assert(icmp->icmp_type == 3 && icmp->icmp_code == 3);
   
   ip2 = (struct ip*)((char *)icmp + 8);
-  udp = (udphdr_bsd *)((char *)ip2 + 4 * ip->ip_hl);
+  udp = (struct udp_hdr *)((char *)ip2 + 4 * ip->ip_hl);
 
   /* The ports should match. */
   if (ntohs(udp->uh_sport) != hss->upi.sport || ntohs(udp->uh_dport) != hss->upi.dport) {
@@ -2728,7 +2728,7 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, struct ip *ip, int reply
   return true;
 }
 
-bool HostOsScan::get_tcpopt_string(struct tcphdr *tcp, int mss, char *result, int maxlen) {
+bool HostOsScan::get_tcpopt_string(struct tcp_hdr *tcp, int mss, char *result, int maxlen) {
   char *p,*q;
   u16 tmpshort;
   u32 tmpword;
@@ -2736,8 +2736,8 @@ bool HostOsScan::get_tcpopt_string(struct tcphdr *tcp, int mss, char *result, in
   int opcode;
 
   p = result;
-  length = (tcp->th_off * 4) - sizeof(struct tcphdr);
-  q = ((char *)tcp) + sizeof(struct tcphdr);
+  length = (tcp->th_off * 4) - sizeof(struct tcp_hdr);
+  q = ((char *)tcp) + sizeof(struct tcp_hdr);
 
   /*
    * Example parsed result: M5B4ST11NW2
@@ -3002,7 +3002,7 @@ int send_closedudp_probe_2(struct udpprobeinfo &upi, int sd,
   static u16 id = 0x1042; 
   u8 packet[328]; /* 20 IP hdr + 8 UDP hdr + 300 data */
   struct ip *ip = (struct ip *) packet;
-  udphdr_bsd *udp = (udphdr_bsd *) (packet + sizeof(struct ip));
+  struct udp_hdr *udp = (struct udp_hdr *) (packet + sizeof(struct ip));
   struct in_addr *source;
   int datalen = 300;
   unsigned char *data = packet + 28;
@@ -3030,7 +3030,7 @@ int send_closedudp_probe_2(struct udpprobeinfo &upi, int sd,
   for(decoy=0; decoy < o.numdecoys; decoy++) {
     source = &o.decoys[decoy];
 
-    memset((char *) packet, 0, sizeof(struct ip) + sizeof(udphdr_bsd));
+    memset((char *) packet, 0, sizeof(struct ip) + sizeof(struct udp_hdr));
 
     udp->uh_sport = htons(sport);
     udp->uh_dport = htons(dport);
@@ -3038,9 +3038,9 @@ int send_closedudp_probe_2(struct udpprobeinfo &upi, int sd,
 
     /* OK, now we should be able to compute a valid checksum */
     realcheck = magic_tcpudp_cksum(source, victim, IPPROTO_UDP,
-				   sizeof(udphdr_bsd) + datalen, (char *) udp);
+				   sizeof(struct udp_hdr) + datalen, (char *) udp);
 #if STUPID_SOLARIS_CHECKSUM_BUG
-    udp->uh_sum = sizeof(udphdr_bsd) + datalen;
+    udp->uh_sum = sizeof(struct udp_hdr) + datalen;
 #else
     udp->uh_sum = realcheck;
 #endif
@@ -3048,7 +3048,7 @@ int send_closedudp_probe_2(struct udpprobeinfo &upi, int sd,
     /* Now for the ip header */
     ip->ip_v = 4;
     ip->ip_hl = 5;
-    ip->ip_len = htons(sizeof(struct ip) + sizeof(udphdr_bsd) + datalen);
+    ip->ip_len = htons(sizeof(struct ip) + sizeof(struct udp_hdr) + datalen);
     ip->ip_id = id;
     ip->ip_ttl = myttl;
     ip->ip_p = IPPROTO_UDP;

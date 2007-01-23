@@ -397,8 +397,8 @@ static int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[],
     unsigned short seq;
   } *ping = NULL, *ping2 = NULL;
   char response[16536]; 
-  struct tcphdr *tcp;
-  udphdr_bsd *udp;
+  struct tcp_hdr *tcp;
+  struct udp_hdr *udp;
   struct ip *ip, *ip2;
   u32 hostnum = 0xFFFFFF; /* This ought to crash us if it is used uninitialized */
   int tm;
@@ -570,7 +570,7 @@ static int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[],
 	      error("Got ICMP error referring to TCP msg which we did not send");
 	    continue;
 	  }
-	  tcp = (struct tcphdr *) (((char *) ip2) + 4 * ip2->ip_hl);
+	  tcp = (struct tcp_hdr *) (((char *) ip2) + 4 * ip2->ip_hl);
 	  /* No need to check size here, the "+8" check a ways up takes care 
 	     of it */
 	  newport = ntohs(tcp->th_dport);
@@ -673,7 +673,7 @@ static int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[],
 	    error("TCP packet is only %d bytes, we can't get enough information from it\n", bytes);
             continue;
         }
-	tcp = (struct tcphdr *) (((char *) ip) + 4 * ip->ip_hl);
+	tcp = (struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl);
 	if (!(tcp->th_flags & TH_RST) && ((tcp->th_flags & (TH_SYN|TH_ACK)) != (TH_SYN|TH_ACK)))
 	  continue;
 	newport = ntohs(tcp->th_sport);
@@ -740,7 +740,7 @@ static int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[],
 	if (!ptech->rawudpscan) {
 	  continue;
 	}
-	udp = (udphdr_bsd *) (((char *) ip) + 4 * ip->ip_hl);
+	udp = (struct udp_hdr *) (((char *) ip) + 4 * ip->ip_hl);
 	newport = ntohs(udp->uh_sport);
 
 	trynum = ntohs(udp->uh_dport) - sportbase;

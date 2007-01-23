@@ -142,8 +142,7 @@ void *realloc();
 #include <sys/param.h> /* Defines MAXHOSTNAMELEN on BSD*/
 #endif
 
-/* Linux uses these defines in netinet/ip.h and netinet/tcp.h to
-   use the correct struct ip and struct tcphdr */
+/* Linux uses these defines in netinet/ip.h to use the correct struct ip */
 #ifndef __FAVOR_BSD
 #define __FAVOR_BSD 1
 #endif
@@ -182,14 +181,6 @@ void *realloc();
 #ifndef NETINET_IP_H  /* why the HELL does OpenBSD not do this? */
 #include <netinet/ip.h>
 #define NETINET_IP_H
-#endif
-#ifndef NETINET_TCP_H  /* why the HELL does OpenBSD not do this? */
-#include <netinet/tcp.h>          /*#include <netinet/ip_tcp.h>*/
-#define NETINET_TCP_H
-#endif
-#ifndef NETINET_UDP_H
-#include <netinet/udp.h>
-#define NETINET_UDP_H
 #endif
 #if HAVE_UNISTD_H
 #include <unistd.h>
@@ -236,14 +227,6 @@ typedef enum { devt_ethernet, devt_loopback, devt_p2p, devt_other  } devtype;
 #include "utils.h"
 #include "nmap.h"
 #include "global_structures.h"
-
-/* Explicit Congestion Notification (rfc 2481/3168) */
-#ifndef TH_ECE
-#define TH_ECE        0x40
-#endif
-#ifndef TH_CWR
-#define TH_CWR        0x80
-#endif
 
 #ifndef INET_ADDRSTRLEN
 #define INET_ADDRSTRLEN 16
@@ -374,18 +357,6 @@ struct ip
   };
 
 #endif /* HAVE_STRUCT_IP */
-
-#ifdef LINUX
-typedef struct udphdr_bsd {
-         unsigned short uh_sport;           /* source port */
-         unsigned short uh_dport;           /* destination port */
-         unsigned short uh_ulen;            /* udp length */
-         unsigned short uh_sum;             /* udp checksum */
-} udphdr_bsd;
-#else
- typedef struct udphdr udphdr_bsd;
-#endif 
-
 
 #ifndef HAVE_STRUCT_ICMP
 #define HAVE_STRUCT_ICMP
@@ -759,7 +730,7 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
    parameters (if non-null) are filled with 0.  Remember that the
    correct way to check for errors is to look at the return value
    since a zero ts or echots could possibly be valid. */
-int gettcpopt_ts(struct tcphdr *tcp, u32 *timestamp, u32 *echots);
+int gettcpopt_ts(struct tcp_hdr *tcp, u32 *timestamp, u32 *echots);
 
 /* Maximize the receive buffer of a socket descriptor (up to 500K) */
 void max_rcvbuf(int sd);

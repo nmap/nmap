@@ -132,7 +132,7 @@ static u8 patternbyte = 0;
 static u16 id = 0; 
 u8 packet[328]; /* 20 IP hdr + 8 UDP hdr + 300 data */
 struct ip *ip = (struct ip *) packet;
-udphdr_bsd *udp = (udphdr_bsd *) (packet + sizeof(struct ip));
+struct udp_hdr *udp = (struct udp_hdr *) (packet + sizeof(struct ip));
 struct in_addr *source;
 int datalen = 300;
 unsigned char *data = packet + 28;
@@ -156,7 +156,7 @@ if (!myttl)  myttl = (time(NULL) % 14) + 51;
 for(decoy=0; decoy < o.numdecoys; decoy++) {
   source = &o.decoys[decoy];
 
-  memset((char *) packet, 0, sizeof(struct ip) + sizeof(udphdr_bsd));
+  memset((char *) packet, 0, sizeof(struct ip) + sizeof(struct udp_hdr));
 
   udp->uh_sport = htons(sport);
   udp->uh_dport = htons(dport);
@@ -164,9 +164,9 @@ for(decoy=0; decoy < o.numdecoys; decoy++) {
 
   /* OK, now we should be able to compute a valid checksum */
   realcheck = magic_tcpudp_cksum(source, victim, IPPROTO_UDP,
-				 sizeof(udphdr_bsd) + datalen, (char *) udp);
+				 sizeof(struct udp_hdr) + datalen, (char *) udp);
 #if STUPID_SOLARIS_CHECKSUM_BUG
-  udp->uh_sum = sizeof(udphdr_bsd) + datalen;
+  udp->uh_sum = sizeof(struct udp_hdr) + datalen;
 #else
   udp->uh_sum = realcheck;
 #endif
@@ -179,7 +179,7 @@ for(decoy=0; decoy < o.numdecoys; decoy++) {
   /* Now for the ip header */
   ip->ip_v = 4;
   ip->ip_hl = 5;
-  ip->ip_len = htons(sizeof(struct ip) + sizeof(udphdr_bsd) + datalen);
+  ip->ip_len = htons(sizeof(struct ip) + sizeof(struct udp_hdr) + datalen);
   ip->ip_id = id;
   ip->ip_ttl = myttl;
   ip->ip_p = IPPROTO_UDP;
@@ -220,7 +220,7 @@ static struct AVal *fingerprint_iptcppacket(struct ip *ip, int mss, u32 syn) {
   int opcode;
   u16 tmpshort;
   char *p,*q;
-  struct tcphdr *tcp = ((struct tcphdr *) (((char *) ip) + 4 * ip->ip_hl));
+  struct tcp_hdr *tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
 
   AVs = (struct AVal *) malloc(6 * sizeof(struct AVal));
 
@@ -284,8 +284,8 @@ static struct AVal *fingerprint_iptcppacket(struct ip *ip, int mss, u32 syn) {
   AVs[5].attribute = "Ops";
   p = AVs[5].value;
   /* Partly swiped from /usr/src/linux/net/ipv4/tcp_input.c in Linux kernel */
-  length = (tcp->th_off * 4) - sizeof(struct tcphdr);
-  q = ((char *)tcp) + sizeof(struct tcphdr);
+  length = (tcp->th_off * 4) - sizeof(struct tcp_hdr);
+  q = ((char *)tcp) + sizeof(struct tcp_hdr);
 
   while(length > 0 &&
 	((p - AVs[5].value) < (int) (sizeof(AVs[5].value) - 3))) {
@@ -325,7 +325,7 @@ static struct AVal *fingerprint_portunreach(struct ip *ip, struct udpprobeinfo *
   int numtests = 10;
   unsigned short checksum;
   unsigned short *checksumptr;
-  udphdr_bsd *udp;
+  struct udp_hdr *udp;
   struct AVal *AVs;
   int i;
   int current_testno = 0;
@@ -346,7 +346,7 @@ static struct AVal *fingerprint_portunreach(struct ip *ip, struct udpprobeinfo *
     return NULL; /* Not a port unreachable */
 
   ip2 = (struct ip*) ((char *)icmp + 8);
-  udp = (udphdr_bsd *) ((char *)ip2 + 20);
+  udp = (struct udp_hdr *) ((char *)ip2 + 20);
 
   /* The ports better match as well ... */
   if (ntohs(udp->uh_sport) != upi->sport || ntohs(udp->uh_dport) != upi->dport) {
@@ -476,7 +476,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
   int last;
   u32 timestamp = 0; /* TCP timestamp we receive back */
   struct ip *ip;
-  struct tcphdr *tcp;
+  struct tcp_hdr *tcp;
   struct icmp *icmp;
   struct timeval t1,t2;
   int i;
@@ -679,7 +679,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
 	continue;
       setTargetMACIfAvailable(target, &linkhdr, ip, 0);
       if (ip->ip_p == IPPROTO_TCP) {
-	tcp = ((struct tcphdr *) (((char *) ip) + 4 * ip->ip_hl));
+	tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
 	testno = ntohs(tcp->th_dport) - current_port + 1;
 	if (testno <= 0 || testno > 7)
 	  continue;
@@ -779,7 +779,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
 	setTargetMACIfAvailable(target, &linkhdr, ip, 0);
 	if (ip->ip_p == IPPROTO_TCP) {
 	  /*       readtcppacket((char *) ip, ntohs(ip->ip_len));  */
-	  tcp = ((struct tcphdr *) (((char *) ip) + 4 * ip->ip_hl));
+	  tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
 	  if (ntohs(tcp->th_dport) < o.magic_port || 
 	      ntohs(tcp->th_dport) - o.magic_port > NUM_SEQ_SAMPLES || 
 	      ntohs(tcp->th_sport) != openport) {

@@ -671,8 +671,8 @@ void UltraProbe::setARP(u8 *arppkt, u32 arplen) {
      tcp packet could be PS_PROTO or PS_TCP). */
 void UltraProbe::setIP(u8 *ippacket, u32 iplen, const probespec *pspec) {
   struct ip *ipv4 = (struct ip *) ippacket;
-  struct tcphdr *tcp = NULL;
-  udphdr_bsd *udp = NULL;
+  struct tcp_hdr *tcp = NULL;
+  struct udp_hdr *udp = NULL;
 
   type = UP_IP;
   if (ipv4->ip_v != 4)
@@ -683,12 +683,12 @@ void UltraProbe::setIP(u8 *ippacket, u32 iplen, const probespec *pspec) {
   probes.IP.ipid = ntohs(ipv4->ip_id);
   if (ipv4->ip_p == IPPROTO_TCP) {
     assert (iplen >= (unsigned) ipv4->ip_hl * 4 + 20);    
-    tcp = (struct tcphdr *) ((u8 *) ipv4 + ipv4->ip_hl * 4);
+    tcp = (struct tcp_hdr *) ((u8 *) ipv4 + ipv4->ip_hl * 4);
     probes.IP.pd.tcp.sport = ntohs(tcp->th_sport);
     probes.IP.pd.tcp.seq = ntohl(tcp->th_seq);
   } else if (ipv4->ip_p == IPPROTO_UDP) {
     assert(iplen >= (unsigned) ipv4->ip_hl * 4 + 8);
-    udp = (udphdr_bsd *) ((u8 *) ipv4 + ipv4->ip_hl * 4);
+    udp = (struct udp_hdr *) ((u8 *) ipv4 + ipv4->ip_hl * 4);
     probes.IP.pd.udp.sport = ntohs(udp->uh_sport);
   }
 
@@ -2801,9 +2801,9 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   bool timedout = false;
   struct timeval rcvdtime;
   struct ip *ip = NULL, *ip2 = NULL;
-  struct tcphdr *tcp = NULL;
+  struct tcp_hdr *tcp = NULL;
   struct icmp *icmp = NULL;
-  udphdr_bsd *udp = NULL;
+  struct udp_hdr *udp = NULL;
   struct link_header linkhdr;
   unsigned int bytes;
   long to_usec;
@@ -2881,7 +2881,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
     if (ip->ip_p == IPPROTO_TCP && !USI->prot_scan) {
       if ((unsigned) ip->ip_hl * 4 + 20 > bytes)
 	continue;
-      tcp = (struct tcphdr *) ((u8 *) ip + ip->ip_hl * 4);
+      tcp = (struct tcp_hdr *) ((u8 *) ip + ip->ip_hl * 4);
       /* Now ensure this host is even in the incomplete list */
       memset(&sin, 0, sizeof(sin));
       sin.sin_addr.s_addr = ip->ip_src.s_addr;
@@ -3028,7 +3028,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	  continue;
 
 	if (ip2->ip_p == IPPROTO_TCP && !USI->prot_scan) {
-	  tcp = (struct tcphdr *) ((u8 *) ip2 + ip2->ip_hl * 4);
+	  tcp = (struct tcp_hdr *) ((u8 *) ip2 + ip2->ip_hl * 4);
 	  if (probe->protocol() != IPPROTO_TCP ||
 	      ntohs(tcp->th_sport) != probe->sport() || 
 	      ntohs(tcp->th_dport) != probe->dport() || 
@@ -3036,7 +3036,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	    continue;
 	} else if (ip2->ip_p == IPPROTO_UDP && !USI->prot_scan) {
 	  /* TODO: IPID verification */
-	  udp = (udphdr_bsd *) ((u8 *) ip2 + ip->ip_hl * 4);
+	  udp = (struct udp_hdr *) ((u8 *) ip2 + ip->ip_hl * 4);
 	  if (probe->protocol() != IPPROTO_UDP ||
 	      ntohs(udp->uh_sport) != probe->sport() || 
 	      ntohs(udp->uh_dport) != probe->dport())
@@ -3095,7 +3095,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
     } else if (ip->ip_p == IPPROTO_UDP && !USI->prot_scan) {
       if ((unsigned) ip->ip_hl * 4 + 8 > bytes)
 	continue;
-      udp = (udphdr_bsd *) ((u8 *) ip + ip->ip_hl * 4);
+      udp = (struct udp_hdr *) ((u8 *) ip + ip->ip_hl * 4);
       /* Search for this host on the incomplete list */
       memset(&sin, 0, sizeof(sin));
       sin.sin_addr.s_addr = ip->ip_src.s_addr;
