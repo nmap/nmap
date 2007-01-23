@@ -171,8 +171,10 @@ for(decoy=0; decoy < o.numdecoys; decoy++) {
   udp->uh_sum = realcheck;
 #endif
 
-  if ( o.badsum )
+  if ( o.badsum ) {
     udp->uh_sum++;
+    if (udp->uh_sum == 0) udp->uh_sum = 0xffff; // UDP checksum=0 means no checksum
+  }
 
   /* Now for the ip header */
   ip->ip_v = 4;
