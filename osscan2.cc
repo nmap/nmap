@@ -2449,7 +2449,7 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
 
   /* unused filed not zero in Destination Unreachable Message */
   AVs[current_testno].attribute = "UN";
-  sprintf(AVs[current_testno].value, "%hX", ntohl(icmp->icmp_hun.ih_void));
+  sprintf(AVs[current_testno].value, "%hX", ntohl(icmp->icmp_void));
 
   current_testno++;
 
