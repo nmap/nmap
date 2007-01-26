@@ -18,7 +18,7 @@ char* nse_printable(const void *data, unsigned int data_len) {
 	unsigned int i;
 
 	for(i = 0; i < data_len; i++) {
-		if(ISPRINT(c_data[i]))
+		if(nse_isprint(c_data[i]))
 			result[i] = c_data[i];
 		else
 			result[i] = NOT_PRINTABLE;
@@ -42,7 +42,7 @@ char* nse_hexify(const void *data, unsigned int data_len) {
 
 	// if more than 95% of all characters are printable, we don't hexify
 	for(i = 0; i < data_len; i++) {
-		if(ISPRINT(c_data[i]))
+		if(nse_isprint(c_data[i]))
 			printable_chars++;
 	}
 
