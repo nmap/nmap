@@ -688,7 +688,7 @@ AC_CACHE_CHECK(if struct icmp exists, ac_cv_struct_icmp_exists,
 #               include <netinet/in.h>               
 #               define __USE_BSD
 #               define __FAVOR_BSD
-#               define __BSD_SOURCE
+#               define _BSD_SOURCE
 #               include <netinet/ip.h>
 #               include <netinet/ip_icmp.h>],
                 [unsigned int i = sizeof(struct icmp)],
@@ -706,7 +706,7 @@ AC_CACHE_CHECK(if struct ip exists, ac_cv_struct_ip_exists,
 #               include <netinet/in.h>               
 #               define __USE_BSD
 #               define __FAVOR_BSD
-#               define __BSD_SOURCE
+#               define _BSD_SOURCE
 #               include <netinet/ip.h>],
                 [unsigned int i = sizeof(struct ip)],
         ac_cv_struct_ip_exists=yes,
@@ -723,7 +723,7 @@ AC_CACHE_CHECK(if struct ip has ip_sum member, ac_cv_ip_has_ip_sum,
 #               include <netinet/in.h>
 #               define __USE_BSD
 #               define __FAVOR_BSD
-#               define __BSD_SOURCE
+#               define _BSD_SOURCE
 #               include <netinet/ip.h>
 #               include <netinet/ip_icmp.h>],
                 [unsigned int i = sizeof(((struct ip *)0)->ip_sum)],

@@ -146,8 +146,8 @@ void *realloc();
 #ifndef __FAVOR_BSD
 #define __FAVOR_BSD 1
 #endif
-#ifndef __BSD_SOURCE
-#define __BSD_SOURCE 1
+#ifndef _BSD_SOURCE
+#define _BSD_SOURCE 1
 #endif
 #ifndef __USE_BSD
 #define __USE_BSD 1

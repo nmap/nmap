@@ -166,8 +166,8 @@ void *realloc();
 #ifndef __USE_BSD
 #define __USE_BSD
 #endif
-#ifndef __BSD_SOURCE
-#define __BSD_SOURCE
+#ifndef _BSD_SOURCE
+#define _BSD_SOURCE
 #endif
 
 /* BSDI needs this to insure the correct struct ip */
