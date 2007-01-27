@@ -1,6 +1,6 @@
 
 /***************************************************************************
- * output.c -- Handles the Nmap output system.  This currently involves    *
+ * output.h -- Handles the Nmap output system.  This currently involves    *
  * console-style human readable output, XML output, Script |<iddi3         *
  * output, and the legacy greppable output (used to be called "machine     *
  * readable").  I expect that future output forms (such as HTML) may be    *
