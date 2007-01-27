@@ -3090,7 +3090,11 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	    if (USI->scantype == UDP_SCAN && 
 		hss->target->v4hostip()->s_addr == ip->ip_src.s_addr)
 	      newstate = PORT_CLOSED;
-	    else newstate = PORT_FILTERED;
+	    else if (USI->scantype == IPPROT_SCAN && 
+		     hss->target->v4hostip()->s_addr == ip->ip_src.s_addr)
+	      newstate = PORT_OPEN;
+	    else
+	      newstate = PORT_FILTERED;
 	    break;
 	  case 9: /* dest. net admin prohibited */
 	  case 10: /* detst host admin prohibited */
