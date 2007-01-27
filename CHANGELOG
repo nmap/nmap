@@ -31,9 +31,10 @@ o Fixed a bug which caused nmap --iflist to crash (and might have
 
 o Applied a bunch of code cleanup patches from Kris Katterjohn.
 
-o Changed the IP protocol scan so that it sends actual IGMP headers when
-  scanning protocol number 2.  This makes it much more likely that the host
-  will respond, proving that it's "open".  [Kris]
+o Changed the IP protocol scan so that it sends actual IGMP and IPIP
+  (IP-in-IP encapsulation) headers when scanning protocol numbers 2
+  and 4, respectively.  This makes it much more likely that the host
+  will respond, proving that they're "open".  [Kris]
 
 o Fixed UDP scan so that it doesn't find it's own port when scanning
   localhost.  This was thought to be fixed in 4.10.  This also prevents a
