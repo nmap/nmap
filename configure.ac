@@ -736,8 +736,7 @@ fi
 
 dnl Checks for library functions.
 dnl AC_TYPE_SIGNAL
-AC_CHECK_FUNCS(bzero memcpy nanosleep strerror \
-strcasestr inet_aton getopt_long_only)
+AC_CHECK_FUNCS(bzero memcpy nanosleep strerror strcasestr getopt_long_only)
 
 AC_LANG_PUSH(C++)
 AC_MSG_CHECKING([for usleep])
