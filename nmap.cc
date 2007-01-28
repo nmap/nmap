@@ -637,7 +637,7 @@ int nmap_main(int argc, char *argv[]) {
 		o.scriptupdatedb = 1;
 	} else
 #endif
-	if (optcmp(long_options[option_index].name, "max-rtt-timeout") == 0) {
+	if (optcmp(long_options[option_index].name, "max-os-tries") == 0) {
 	l = tval2msecs(optarg);
 	if (l < 1 || l > 50) 
 	  fatal("Bogus --max-os-tries argument specified, must be between 1 and 50 (inclusive)");
