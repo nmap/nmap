@@ -36,10 +36,14 @@ o Changed the IP protocol scan so that it sends actual IGMP and IPIP
   and 4, respectively.  This makes it much more likely that the host
   will respond, proving that they're "open".  [Kris]
 
-o Fixed UDP scan so that it doesn't find it's own port when scanning
-  localhost.  This was thought to be fixed in 4.10.  This also prevents a
-  message being printed (with -d) about an unexpected packet for the same
-  reason when using the TCP scan.  [Kris]
+o Some scan types were fixed when used against localhost. The UDP Scan
+  doesn't find it's own port, the TCP Scan won't print a message (with -d)
+  about an unexpected packet (for the same reason), and the IPProto Scan
+  won't list every port as "open" when using --data-length >= 8.  [Kris]
+
+o The IPProto Scan should be more accurate when scanning protocol 17 (UDP).
+  ICMP Port Unreachables are now checked for, and UDP is listed as "open"
+  if it receives one rather than "open|filtered" or "filtered".  [Kris]
 
 o The --scanflags option now also accepts "ECE", "CWR", "ALL" and "NONE" as
   arguments.  [Kris]
