@@ -2885,8 +2885,13 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	    probe = *probeI;
 	    
 	    if (probe->protocol() == ip->ip_p) {
-	      /* We got a packet from the dst host in the protocol we looked for, so it
-		 must be open */
+	      /* if this is our probe we sent to localhost, then it doesn't count! */
+	      if (ip->ip_src.s_addr == ip->ip_dst.s_addr &&
+		  probe->ipid() == ntohs(ip->ip_id))
+	        continue;
+
+	      /* We got a packet from the dst host in the protocol we looked for, and
+		 it wasn't our probe to ourselves, so it must be open */
 	      newstate = PORT_OPEN;
 	      goodone = true;
 	    }
