@@ -16275,9 +16275,9 @@ T6(Resp=Y%DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(Resp=Y%DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=0%UCK=E%ULEN=134%DAT=E)
 
-# Necomm NB1300 ADSL Ethernet Modem/Router
-Fingerprint Necomm NB1300 DSL router
-Class Necomm | embedded || broadband router
+# Netcomm NB1300 ADSL Ethernet Modem/Router
+Fingerprint Netcomm NB1300 DSL router
+Class Netcomm | embedded || broadband router
 T1(DF=N%W=2000%ACK=S++%Flags=AS%Ops=MNWNNT)
 T2(Resp=N)
 T3(Resp=Y%DF=N%W=2000%ACK=O%Flags=A%Ops=NNT)
