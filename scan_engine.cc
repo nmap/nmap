@@ -2203,23 +2203,6 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 			       &packetlen);
 
 	break;
-      case IPPROTO_IPIP:
-	/* This is our inner IP header, followed by data */
-	packet = build_ip_raw(&o.decoys[decoy], hss->target->v4hostip(),
-			      IPPROTO_TCP, /* fake it */
-			      o.ttl, ipid, IP_TOS_DEFAULT, false,
-			      o.ipoptions, o.ipoptionslen,
-			      o.extra_payload, o.extra_payload_length, 
-			      &packetlen);
-
-	/* This is our outer IP header, followed by the inner header above */
-	packet = build_ip_raw(&o.decoys[decoy], hss->target->v4hostip(),
-			      pspec->proto,
-			      o.ttl, ipid, IP_TOS_DEFAULT, false,
-			      o.ipoptions, o.ipoptionslen,
-			      (char *) packet, packetlen,
-			      &packetlen);
-	break;
       default:
 	packet = build_ip_raw(&o.decoys[decoy], hss->target->v4hostip(),
 			      pspec->proto,
