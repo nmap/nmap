@@ -398,6 +398,9 @@ void NmapOps::ValidateOptions() {
     if (osscan) {
       fatal("TCP/IP fingerprinting (for OS scan) requires %s.  Sorry, dude.\n", privreq);
     }
+
+    if (o.ipoptionslen)
+      fatal("Sorry, using ip options requires %s.", privreq);
   }
   
   
@@ -458,9 +461,6 @@ void NmapOps::ValidateOptions() {
   /* Prevent performance values from getting out of whack */
   if (min_parallelism > max_parallelism)
     max_parallelism = min_parallelism;
-
-  if(o.ipoptionslen && ! o.isr00t)
-    fatal("To use ip options you must be root.");
 
   if(o.ipoptions && o.osscan)
     error("WARNING: Ip options are NOT used while OS scanning!");
