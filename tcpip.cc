@@ -1441,7 +1441,7 @@ if ( o.badsum )
 
 return build_ip_raw(source, victim,
 		    IPPROTO_ICMP,
-		    ttl, get_random_u16(), tos, df,
+		    ttl, ipid, tos, df,
 		    ipopt, ipoptlen,
 		    ping, icmplen,
 		    packetlen);
@@ -1501,7 +1501,7 @@ u8 *build_igmp_raw(const struct in_addr *source, const struct in_addr *victim,
 
  return build_ip_raw(source, victim,
 		     IPPROTO_IGMP,
-		     ttl, get_random_u16(), tos, df,
+		     ttl, ipid, tos, df,
 		     ipopt, ipoptlen,
 		     pkt, igmplen,
 		     packetlen);
