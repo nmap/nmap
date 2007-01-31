@@ -113,8 +113,6 @@
 
 #include <pcap.h>
 #include <packet32.h>
-#include <netinet/tcp.h>  
-#include <netinet/udp.h>  
 
 /* non-functioning stub function */
 int fork();
