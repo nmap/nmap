@@ -100,12 +100,6 @@ dnl AC_MSG_CHECKING(for const)
 dnl AC_TRY_COMPILE(, [const int foo = 0;], 
 dnl [AC_MSG_RESULT(yes); AC_DEFINE(HAVE_CONST)], [AC_MSG_RESULT(no)])
 
-dnl equiv to '#define inline' to 'inline', '__inline__', '__inline' or ''
-AC_C_INLINE
-if test -n "$sgi_cc"; then
-   AC_DEFINE(inline, )
-fi
-
 AC_SUBST(COMPAT_OBJS)
 AC_SUBST(COMPAT_SRCS)
 
@@ -196,6 +190,12 @@ case "$host" in
     needs_cpp_precomp=yes
     ;;
 esac
+
+dnl equiv to '#define inline' to 'inline', '__inline__', '__inline' or ''
+AC_C_INLINE
+if test -n "$sgi_cc"; then
+   AC_DEFINE(inline, )
+fi
 
 dnl Checks for header files.
 AC_HEADER_STDC
