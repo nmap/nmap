@@ -129,6 +129,13 @@ void tty_init() { return; }
 static int tty_getchar() { return _kbhit() ? _getch() : -1; }
 static void tty_done() { return; }
 
+static void tty_flush(void)
+{
+	static HANDLE stdinput = GetStdHandle(STD_INPUT_HANDLE);
+
+	FlushConsoleInputBuffer(stdinput);
+}
+
 #else
 #if !defined(O_NONBLOCK) && defined(O_NDELAY)
 #define O_NONBLOCK			O_NDELAY
@@ -183,6 +190,15 @@ static void tty_done()
 	tty_fd = 0;
 }
 
+static void tty_flush(void)
+{
+	/* we don't need to test for tty_fd==0 here because
+	 * this isn't called unless we succeeded
+	 */
+
+	tcflush(tty_fd, TCIFLUSH);
+}
+
 /*
  * Initializes the terminal for unbuffered non-blocking input. Also
  * registers tty_done() via atexit().  You need to call this before
@@ -228,8 +244,7 @@ bool keyWasPressed()
     return false;
 
   if ((c = tty_getchar()) >= 0) {
-    // Eat any extra keys (so they can't queue up and print forever)
-    while (tty_getchar() >= 0); 
+    tty_flush(); /* flush input queue */
 
     // printf("You pressed key '%c'!\n", c);
     if (c == 'v') {
