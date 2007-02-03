@@ -3073,7 +3073,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	      newstate = PORT_FILTERED;
 	    break;
 	  case 9: /* dest. net admin prohibited */
-	  case 10: /* detst host admin prohibited */
+	  case 10: /* dest host admin prohibited */
 	  case 13: /* communication admin. prohibited */
 	    newstate = PORT_FILTERED;
 	    break;
@@ -3140,7 +3140,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       ultrascan_port_probe_update(USI, hss, probeI, newstate, &rcvdtime);
   }
 
-  /* If prooicmphack is true, we are doing an IP proto scan and
+  /* If protoicmphack is true, we are doing an IP proto scan and
      discovered that ICMP is open.  This has to be done separately
      because an ICMP response ALSO frequently shows that some other
      protocol is closed/filtered.  So we let that other protocol stuff
