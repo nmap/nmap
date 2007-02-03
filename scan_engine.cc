@@ -2953,7 +2953,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	  goodone = true;
 	} else {
 	  /* Now that response has been matched to a probe, I interpret it */
-	  if (USI->scantype == SYN_SCAN && tcp->th_flags == (TH_SYN|TH_ACK)) {
+	  if (USI->scantype == SYN_SCAN && (tcp->th_flags & (TH_SYN|TH_ACK)) == (TH_SYN|TH_ACK)) {
 	    /* Yeah!  An open port */
 	    newstate = PORT_OPEN;
 	  } else if (tcp->th_flags & TH_RST) {
