@@ -272,7 +272,7 @@ o Cleaned up Nmap DNS reporting to be a little more useful and
   concise.  Thanks to Doug Hoyte for the patch.
 
 o Applied a bunch of small internal cleanup patches by Kris Katterjohn
-  (kjak(a)ispwest.com).
+  (katterjohn(a)gmail.com).
 
 o Fixed the 'distclean' make target to be more comprehensive.  Thanks
   to Thomas Buchanan (Thomas.Buchanan(a)thecompassgrp.net) for the
@@ -585,7 +585,7 @@ o Updated to a newer XSL stylesheet (for XML to HTML output
   tweaks and fixes.
 
 o Cleaned up the Amiga port code to use atexit() rather than the
-  previous macro hack.  Thanks to Kris Katterjohn (kjak(a)ispwest.com)
+  previous macro hack.  Thanks to Kris Katterjohn (katterjohn(a)gmail.com)
   for the patch.  Applied maybe half a dozen new other code cleanup
   patches from him as well.
 
@@ -646,7 +646,7 @@ o Fixed a crash in OS scan which could occur on Windows when a DHCP
   Ganga Bhavani (GBhavani(a)everdreamcorp.com) for the patch.
 
 o Applied more than half a dozen small code cleanup patches from
-  Kris Katterjohn (kjak(a)ispwest.com).
+  Kris Katterjohn (katterjohn(a)gmail.com).
 
 o Modified the configure script to accept CXX when specified as an
   absolute path rather than just the executable name.  Thanks to
