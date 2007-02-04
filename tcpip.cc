@@ -636,8 +636,8 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
     snprintf(protoinfo, sizeof(protoinfo), "ICMP %s > %s %s (type=%d/code=%d) %s",
 	     srchost, dsthost, icmptype, ping->type, ping->code, ipinfo);
   } else {
-    snprintf(protoinfo, sizeof(protoinfo), "Unknown protocol (%d): %s", 
-	     ip->ip_p, ipinfo);
+    snprintf(protoinfo, sizeof(protoinfo), "Unknown protocol (%d) %s > %s: %s", 
+	     ip->ip_p, srchost, dsthost, ipinfo);
   }    
 
   return protoinfo;
