@@ -172,7 +172,3 @@ class NmapOutputTable {
 
 #endif /* NMAPOUTPUTTABLE_H */
 
-
-
-
-

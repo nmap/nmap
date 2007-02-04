@@ -650,12 +650,3 @@ void close_rpc_query_sockets() {
   }
 }
 
-
-
-
-
-
-
-
-
-

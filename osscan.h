@@ -171,7 +171,3 @@ int ipid_sequence(int numSamples, u16 *ipids, int islocalhost);
 
 #endif /*OSSCAN_H*/
 
-
-
-
-

@@ -247,9 +247,3 @@ struct scan_lists *getfastprots(void) {
   return scanlist;
 }
 
-
-
-
-
-
-

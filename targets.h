@@ -176,12 +176,3 @@ int dumpExclude(TargetGroup*exclude_group);
 void returnhost(HostGroupState *hs);
 #endif /* TARGETS_H */
 
-
-
-
-
-
-
-
-
-

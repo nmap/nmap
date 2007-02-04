@@ -2476,4 +2476,3 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, char *file) {
 
 }
 
-

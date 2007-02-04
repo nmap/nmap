@@ -760,7 +760,3 @@ void set_pcap_filter(const char *device, pcap_t *pd, char *bpf, ...);
 
 #endif /*TCPIP_H*/
 
-
-
-
-

@@ -189,9 +189,3 @@ void close_rpc_query_sockets();
 
 #endif /* NMAP_RPC_H */
 
-
-
-
-
-
-

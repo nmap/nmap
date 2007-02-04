@@ -1726,5 +1726,3 @@ void printfinaloutput() {
   log_flush_all();
 }
 
-
-
