@@ -219,7 +219,6 @@ public:
   ConnectProbe();
   ~ConnectProbe();
   int sd; /* Socket descriptor used for connection.  -1 if not valid. */
-private:
 };
 
 struct IPExtraProbeData_tcp {
@@ -321,7 +320,6 @@ public:
   fd_set fds_except;
   int numSDs; /* Number of socket descriptors being watched */
   int maxSocketsAllowed; /* No more than this many sockets may be created @once */
-private:
 };
 
 /* These are ultra_scan() statistics for the whole group of Targets */
@@ -349,7 +347,6 @@ public:
   // number of hosts that timed out during scan, or were already timedout
   int num_hosts_timedout;
   ConnectScanInfo *CSI;
-private:
 };
 
 struct send_delay_nfo {

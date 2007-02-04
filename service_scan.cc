@@ -234,7 +234,6 @@ public:
   unsigned int ideal_parallelism; // Max (and desired) number of probes out at once.
   ScanProgressMeter *SPM;
   int num_hosts_timedout; // # of hosts timed out during (or before) scan
-  private:
 };
 
 #define SUBSTARGS_MAX_ARGS 5
