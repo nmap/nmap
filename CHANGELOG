@@ -16,7 +16,7 @@ o Fixed the way Nmap detects whether one of its data files (such as
 o Added a bunch of nmap-services port listings from Stephanie Wen.
 
 o Update IANA assignment IP list for random IP (-iR) generation.
-  Thanks to Kris Katterjohn for the patch.
+  Thanks to Kris Katterjohn and Mike Phipps for the patches.
 
 o Fix nmap.xsl (the transform for rendering Nmap XML results as HTML)
   to fix some bugs related to OS detection output.  Thanks to Tom
