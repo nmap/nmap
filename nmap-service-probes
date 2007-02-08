@@ -926,7 +926,7 @@ match nntp m|^200 NNTP Service 5\.00\.0984 Version: (5\.0\.2159.1) Posting Allow
 match nntp m|^200 NNTP Service Microsoft\xae Internet Services (\d[-.\w]+) Version: (\d[-.\w]+) Posting Allowed \r\n| p/Microsoft NNTP Service $1/ v/$2/ i/posting OK/ o/Windows/
 match nntp m|^502 Connection refused\r\n| p/Microsoft NNTP Service/ i/refused/ o/Windows/
 # Windows NT 4.0 SP5-SP6 
-match nntp m|^200 Microsoft Exchange Internet News Service Version (5\.5\.[.\d]+) \(posting allowed\)\r\n| p/Microsoft Exchange Internet News Service/ v/$1/ i/posting allowed/ o/Windows/
+match nntp m|^20[01] Microsoft Exchange Internet News Service Version (\d\.\d\.[.\d]+) \((.*)\)\r\n| p/Microsoft Exchange Internet News Service/ v/$1/ i/$2/ o/Windows/
 #match nntp m|^200 ([-.\w]+) InterNetNews NNRP server INN (\d[-.\w]+) ready \(posting ok\)\.\r\n| v/InterNetNews (INN)/$2/posting ok/ h/$1/
 match nntp m|^200 ([-.\w]+) InterNetNews NNRP server INN (\d[-.\w ]+) ready \(posting ok\)\.\r\n| p/InterNetNews (INN)/ h/$1/ v/$2/ i/posting ok/
 match nntp m|^200 ArGoSoft News Server for WinNT/2000/XP v ([\d.]+) ready\r\n| p/ArGoSoft nntpd/ v/$1/ o/Windows/
