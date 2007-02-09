@@ -363,8 +363,8 @@ static int ip_is_reserved(struct in_addr *ip)
   if (i1 >= 92 && i1 <= 95)
     return 1;
 
-  /* 100-120/8 is IANA reserved */
-  if (i1 >= 100 && i1 <= 120)
+  /* 100-115/8 is IANA reserved */
+  if (i1 >= 100 && i1 <= 115)
     return 1;
 
   /* 172.16.0.0/12 is reserved for private nets by RFC1819 */
