@@ -359,13 +359,13 @@ static int ip_is_reserved(struct in_addr *ip)
       break;
     }
 
-  /* 077-079/8 is IANA reserved */
-  if (i1 >= 77 && i1 <= 79)
-     return 1;
+  /* 092-95/8 is IANA reserved */
+  if (i1 >= 92 && i1 <= 95)
+    return 1;
 
-  /* 092-123/8 is IANA reserved */
-  if (i1 >= 92 && i1 <= 123)
-     return 1;
+  /* 100-120/8 is IANA reserved */
+  if (i1 >= 100 && i1 <= 120)
+    return 1;
 
   /* 172.16.0.0/12 is reserved for private nets by RFC1819 */
   if (i1 == 172 && i2 >= 16 && i2 <= 31)
