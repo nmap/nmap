@@ -974,7 +974,7 @@ int nmap_main(int argc, char *argv[]) {
 	if (isdigit((int) *(optarg+1))) {
 	  o.num_ping_ackprobes = numberlist2array(optarg+1, o.ping_ackprobes, sizeof(o.ping_ackprobes), &proberr);
 	  if (o.num_ping_ackprobes < 0) {
-	    fatal("Bogus argument to -PB: %s", proberr);
+	    fatal("Bogus argument to -PA: %s", proberr);
 	  }
 	}
 	if (o.num_ping_ackprobes == 0) {
