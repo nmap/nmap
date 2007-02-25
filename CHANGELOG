@@ -47,6 +47,9 @@ o The IPProto Scan should be more accurate when scanning protocol 17 (UDP).
 o The --scanflags option now also accepts "ECE", "CWR", "ALL" and "NONE" as
   arguments.  [Kris]
 
+o The --packet-trace option was added to NmapFE.  The Ordered Ports (-r)
+  option in now available to non-root users on NmapFE as well.  [Kris]
+
 o Applied some internal bugfix patches from Eddie Bell.
 
 4.21ALPHA1

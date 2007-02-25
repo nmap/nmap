@@ -300,6 +300,7 @@ struct NmapFEoptions {
   GtkWidget *useIPv6;
   GtkWidget *useOrderedPorts;
   GtkWidget *randomizeHosts;
+  GtkWidget *packetTrace;
 };
 
 GtkWidget* create_main_win (void);

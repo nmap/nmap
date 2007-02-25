@@ -1370,8 +1370,6 @@ GtkAdjustment *adjust;
   opt.useOrderedPorts = gtk_check_button_new_with_label("Ordered Ports");
   g_signal_connect(GTK_OBJECT(opt.useOrderedPorts), "released",
 			GTK_SIGNAL_FUNC(validate_option_change), NULL);
-  if (!opt.isr00t)
-    gtk_widget_set_sensitive(GTK_WIDGET(opt.useOrderedPorts), FALSE);
   gtk_box_pack_start(GTK_BOX(vbox), opt.useOrderedPorts, FALSE, TRUE, 0);
   gtk_widget_show(opt.useOrderedPorts);
 
@@ -1380,6 +1378,12 @@ GtkAdjustment *adjust;
 			GTK_SIGNAL_FUNC(validate_option_change), NULL);
   gtk_box_pack_start(GTK_BOX(vbox), opt.randomizeHosts, FALSE, TRUE, 0);
   gtk_widget_show(opt.randomizeHosts);
+
+  opt.packetTrace = gtk_check_button_new_with_label("Packet Trace");
+  g_signal_connect(GTK_OBJECT(opt.packetTrace), "released",
+			GTK_SIGNAL_FUNC(validate_option_change), NULL);
+  gtk_box_pack_start(GTK_BOX(vbox), opt.packetTrace, FALSE, TRUE, 0);
+  gtk_widget_show(opt.packetTrace);
 
   gtk_widget_show(vbox);
   gtk_widget_show(frame);

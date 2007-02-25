@@ -498,6 +498,10 @@ int command_size = 2560;
       GTK_TOGGLE_BUTTON(opt.randomizeHosts)->active)
     strcat(command, "--randomize-hosts ");
 
+  if (GTK_WIDGET_SENSITIVE(opt.packetTrace) &&
+      GTK_TOGGLE_BUTTON(opt.packetTrace)->active)
+    strcat(command, "--packet-trace ");
+
   if (GTK_WIDGET_SENSITIVE(opt.useInputFile) &&
       GTK_TOGGLE_BUTTON(opt.useInputFile)->active) {
   const char *val = gtk_entry_get_text(GTK_ENTRY(opt.inputFilename));
