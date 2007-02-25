@@ -29,15 +29,6 @@ static void L_lua_error(lua_State *L, const char *message)
 	status = lua_error(L);
 }
 
-static void *Lmalloc(lua_State *L, size_t size) 
-{
-	void *p = safe_malloc(size);
-	if(p == NULL)
-		L_lua_error(L, "malloc failed");
-
-	return p; 
-}
-
 static int get_startoffset(lua_State *L, int stackpos, size_t len)
 {
 	int startoffset = luaL_optint(L, stackpos, 1);
@@ -159,7 +150,7 @@ static int Lpcre_comp(lua_State *L)
 
 	pcre_fullinfo(ud->pr, ud->extra, PCRE_INFO_CAPTURECOUNT, &ud->ncapt);
 	/* need (2 ints per capture, plus one for substring match) * 3/2 */
-	ud->match = (int *) Lmalloc(L, (ud->ncapt + 1) * 3 * sizeof(int));
+	ud->match = (int *) safe_malloc((ud->ncapt + 1) * 3 * sizeof(int));
 
 	return 1;
 }
