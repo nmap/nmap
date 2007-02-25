@@ -731,7 +731,7 @@ char* formatScriptOutput(struct script_scan_result ssr) {
 char* xml_convert (const char* str) {
   char *temp, ch=0, prevch = 0, *p;
   int strl = strlen(str);
-  temp = (char *) malloc(strl*6+1);
+  temp = (char *) safe_malloc(strl*6+1);
   char *end = temp + strl * 6 + 1;
   for (p = temp;(prevch = ch, ch = *str);str++) {
     char *a;
@@ -764,7 +764,7 @@ char* xml_convert (const char* str) {
     Strncpy(p,a, end - p - 1); p += strlen(a); // SAFE
   }
   *p = 0;
-  temp = (char *) realloc(temp,strlen(temp)+1);
+  temp = (char *) safe_realloc(temp,strlen(temp)+1);
   return temp;
 }
 

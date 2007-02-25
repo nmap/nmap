@@ -1986,10 +1986,7 @@ if (timedout) {
  }
  *len = head.caplen - offset;
  if (*len > alignedbufsz) {
-   alignedbuf = (char *) realloc(alignedbuf, *len);
-   if (!alignedbuf) {
-     fatal("Unable to realloc %d bytes of mem", *len);
-   }
+   alignedbuf = (char *) safe_realloc(alignedbuf, *len);
    alignedbufsz = *len;
  }
  memcpy(alignedbuf, p, *len);
@@ -2508,8 +2505,8 @@ static int collect_dnet_routes(const struct route_entry *entry, void *arg) {
   /* Make sure we have room for the new route */
   if (dcrn->numroutes >= dcrn->capacity) {
     dcrn->capacity <<= 2;
-    dcrn->routes = (struct sys_route *) realloc(dcrn->routes, 
-						dcrn->capacity * sizeof(struct sys_route));
+    dcrn->routes = (struct sys_route *) safe_realloc(dcrn->routes, 
+						     dcrn->capacity * sizeof(struct sys_route));
   }
   
   /* Now for the important business */
@@ -2544,8 +2541,8 @@ static int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
     /* Make sure we have room for the new route */
    if (dcrn->numifaces >= dcrn->capacity) {
     dcrn->capacity <<= 2;
-    dcrn->ifaces = (struct interface_info *) realloc(dcrn->ifaces, 
-						dcrn->capacity * sizeof(struct interface_info));
+    dcrn->ifaces = (struct interface_info *) safe_realloc(dcrn->ifaces, 
+							  dcrn->capacity * sizeof(struct interface_info));
    }
    if (entry->intf_addr.addr_type == ADDR_TYPE_IP) {
 	addr_ntos(&entry->intf_addr, (struct sockaddr *) &dcrn->ifaces[numifaces].addr);
@@ -2750,7 +2747,7 @@ int sd;
       numifaces++;
       if (numifaces == ii_capacity)  {      
 	ii_capacity <<= 2;
-	mydevs = (struct interface_info *) realloc(mydevs, sizeof(struct interface_info) * ii_capacity);
+	mydevs = (struct interface_info *) safe_realloc(mydevs, sizeof(struct interface_info) * ii_capacity);
 	assert(mydevs);
       }
       mydevs[numifaces].devname[0] = mydevs[numifaces].devfullname[0] = '\0';
@@ -2924,7 +2921,7 @@ struct sys_route *getsysroutes(int *howmany) {
 	numroutes++;
 	if (numroutes >= route_capacity) {
 	  route_capacity <<= 2;
-	  routes = (struct sys_route *) realloc(routes, route_capacity * sizeof(struct sys_route));
+	  routes = (struct sys_route *) safe_realloc(routes, route_capacity * sizeof(struct sys_route));
 	}
       }
     } else {

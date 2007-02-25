@@ -222,7 +222,7 @@ static struct AVal *fingerprint_iptcppacket(struct ip *ip, int mss, u32 syn) {
   char *p,*q;
   struct tcp_hdr *tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
 
-  AVs = (struct AVal *) malloc(6 * sizeof(struct AVal));
+  AVs = (struct AVal *) safe_malloc(6 * sizeof(struct AVal));
 
   /* Link them together */
   AVs[0].next = &AVs[1];

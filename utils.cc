@@ -312,8 +312,8 @@ else if (num_elem < 65536)
   bpe = sizeof(unsigned short);
 else bpe = sizeof(unsigned int);
 
-bytes = (unsigned char *) malloc(bpe * num_elem);
-tmp = (unsigned char *) malloc(elem_sz);
+bytes = (unsigned char *) safe_malloc(bpe * num_elem);
+tmp = (unsigned char *) safe_malloc(elem_sz);
 
 get_random_bytes(bytes, bpe * num_elem);
 cptr = bytes;
@@ -406,7 +406,7 @@ int arg_parse(const char *command, char ***argv) {
   if (Strncpy(mycommand, command, 4096) == -1) {      
     return -1;
   }
-  myargv = (char **) malloc((MAX_PARSE_ARGS + 2) * sizeof(char *));
+  myargv = (char **) safe_malloc((MAX_PARSE_ARGS + 2) * sizeof(char *));
   memset(myargv, 0, (MAX_PARSE_ARGS+2) * sizeof(char *));
   myargv[0] = (char *) 0x123456; /* Integrity checker */
   myargv++;

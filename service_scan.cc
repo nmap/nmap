@@ -1601,8 +1601,7 @@ int ServiceNFO::currentprobe_timemsleft(const struct timeval *now) {
 }
 
 void ServiceNFO::appendtocurrentproberesponse(const u8 *respstr, int respstrlen) {
-  currentresp = (u8 *) realloc(currentresp, currentresplen + respstrlen);
-  assert(currentresp);
+  currentresp = (u8 *) safe_realloc(currentresp, currentresplen + respstrlen);
   memcpy(currentresp + currentresplen, respstr, respstrlen);
   currentresplen += respstrlen;
 }

@@ -373,7 +373,7 @@ int main(int argc, char *argv[]) {
 	  }
 	} else {
 	  fakeargc = 1;
-	  fakeargv = (char **) malloc(sizeof(char *) * 2);
+	  fakeargv = (char **) safe_malloc(sizeof(char *) * 2);
 	  fakeargv[0] = nmappath;
 	  fakeargv[1] = NULL;
 	}
