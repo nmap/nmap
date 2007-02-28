@@ -2748,7 +2748,6 @@ int sd;
       if (numifaces == ii_capacity)  {      
 	ii_capacity <<= 2;
 	mydevs = (struct interface_info *) safe_realloc(mydevs, sizeof(struct interface_info) * ii_capacity);
-	assert(mydevs);
       }
       mydevs[numifaces].devname[0] = mydevs[numifaces].devfullname[0] = '\0';
     }
