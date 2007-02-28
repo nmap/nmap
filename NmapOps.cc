@@ -293,7 +293,7 @@ bool NmapOps::RawScan() {
 
 void NmapOps::ValidateOptions() {
 #ifdef WIN32
-	const char *privreq = "that WinPcap version 3.1 or higher and iphlpapi.dll be installed. You seem to be missing one or both of these.  Winpcap is available from http://www.winpcap.org.  iphlpapi.dll comes with Win98 and later operating sytems and NT 4.0 with SP4 or greater.  For previous windows versions, you may be able to take iphlpapi.dll from anotyer system and place it in your system32 dir (e.g. c:\\windows\\system32)";
+	const char *privreq = "that WinPcap version 3.1 or higher and iphlpapi.dll be installed. You seem to be missing one or both of these.  Winpcap is available from http://www.winpcap.org.  iphlpapi.dll comes with Win98 and later operating sytems and NT 4.0 with SP4 or greater.  For previous windows versions, you may be able to take iphlpapi.dll from another system and place it in your system32 dir (e.g. c:\\windows\\system32)";
 #else
 	const char *privreq = "root privileges";
 #endif
