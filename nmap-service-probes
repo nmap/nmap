@@ -800,7 +800,6 @@ match irc-proxy m|^:.*!psyBNC@lam3rz\.de NOTICE \* :| p/psyBNC/
 match irc-proxy m|^:.*!psyBNC@[\w-_.]+ NOTICE \* :psyBNC on ([\w-_.]+)\r\n| p/psyBNC/ h/$1/
 match irc-proxy m|^:sbnc!sbnc@sbnc\.soohrt\.org NOTICE \* :Wellcum\r\n| p/sbnc/
 match irc-proxy m|^NOTICE AUTH :\*\*\* .*\r\nNOTICE AUTH :\*\*\* \[BNC ([\d.]+) | p/BNC irc-proxy/ v/$1/
-match irc-proxy m|^:Notice!notice@shroudbnc\.org NOTICE \* :\*\*\* shroudBNC([\d.]+) \$Revision: (\d+) \$| p/ShroudBNC/ v/$1 rev $2/
 
 match iscsi m|^\x1b\[2JStarWind iSCSI Target v([\d.]+) \(Build 0x\w+, Win32, Alcohol Edition\)\r\n| p/StarWind iSCSI/ v/$1/ o/Windows/
 
