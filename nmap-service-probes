@@ -2775,7 +2775,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: SimpleServer:WWW/(\d[-.\w]+)\r\n| p
 # Xitami - Try to match PHP first!
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nContent-Length: \d+\r\nX-Powered-By: ([-/.\w ]+)\r\nContent-Type: .*\r\nServer: Xitami\r\n| p/Xitami httpd/ i/$1/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Xitami\r\n|s p/Xitami httpd/
-match http-admin m|^ERROR: Malformed startup string$| p/Xitami httpd admin port/
+match http-mgmt m|^ERROR: Malformed startup string$| p/Xitami httpd admin port/
 match http m|^HTTP/1\.1 500 Server Error\r\nConnection: close\r\nContent-Length: \d+\r\nDate: .*\r\nServer: Radio UserLand/(\d[.\w ]+)-([-.\w ]+)\r\n\r\n| p/Radio Userland blog server/ v/$1/ i/$2/ 
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: (prod )?[Ff]red (\d[-.\w]+) \(build (\d+)\) HTTP Servlets\r\n\r\n|s p/Freenet Fred anonymous P2P/ v/$2 build $3/
 match http m|^HTTP/1\.0 200 Ok\r\nServer: diva_httpd\r\n| p/Eicon Diva ISDN card configuration server/
