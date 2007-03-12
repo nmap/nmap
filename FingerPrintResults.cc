@@ -159,11 +159,8 @@ const char *FingerPrintResults::OmitSubmissionFP() {
   if (osscan_closedtcpport <= 0)
     return "Missing a closed TCP port so results incomplete";
 
-  // I'm not sure this is really necessary, but maybe.  Large routes
-  // can cause asymetric routing which leads to wrong TTL information.
-  // They can cause variable timing too.
-  if (distance > 10) {
-    snprintf(reason, sizeof(reason), "Host distance (%d network hops) is greater than ten", distance);
+  if (distance > 5) {
+    snprintf(reason, sizeof(reason), "Host distance (%d network hops) is greater than five", distance);
     return reason;
   }
 
