@@ -1626,6 +1626,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   int tcp_ipid_seqclass; /* TCP IPID SEQ TYPE defines in nmap.h */
   int icmp_ipid_seqclass; /* ICMP IPID SEQ TYPE defines in nmap.h */
   int good_tcp_ipid_num, good_icmp_ipid_num;
+  int tsnewval = 0;
 
   struct AVal *seq_AVs;
 
@@ -1674,15 +1675,15 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
       avg_ts_hz += dhz / ( hss->si.responses - 1);
     }
 
-    if (avg_ts_hz > 0 && avg_ts_hz < 3.9) { /* relatively wide range because sampling time so short and frequency so slow */
+    if (avg_ts_hz > 0 && avg_ts_hz < 5.66) { /* relatively wide range because sampling time so short and frequency so slow */
       hss->si.ts_seqclass = TS_SEQ_2HZ;
       hss->si.lastboot = hss->seq_send_times[0].tv_sec - (hss->si.timestamps[0] / 2); 
     }
-    else if (avg_ts_hz > 85 && avg_ts_hz < 115) {
+    else if (avg_ts_hz > 70 && avg_ts_hz < 150) {
       hss->si.ts_seqclass = TS_SEQ_100HZ;
       hss->si.lastboot = hss->seq_send_times[0].tv_sec - (hss->si.timestamps[0] / 100);
     }
-    else if (avg_ts_hz > 900 && avg_ts_hz < 1100) {
+    else if (avg_ts_hz > 724 && avg_ts_hz < 1448) {
       hss->si.ts_seqclass = TS_SEQ_1000HZ;
       hss->si.lastboot = hss->seq_send_times[0].tv_sec - (hss->si.timestamps[0] / 1000); 
     }
@@ -1894,6 +1895,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
 
     /* TCP Timestamp option sequencing */
     switch(hss->si.ts_seqclass) {
+
     case TS_SEQ_ZERO:
       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
       seq_AVs[avnum].attribute = "TS";
@@ -1905,7 +1907,29 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
     case TS_SEQ_OTHER_NUM:
       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
       seq_AVs[avnum].attribute = "TS";
-      sprintf(seq_AVs[avnum].value, "%X", (unsigned int)(0.5 + log(avg_ts_hz)/log(2.0)));
+
+      /* Here we "cheat" a little to make the classes correspond more
+	 closely to common real-life frequencies (particularly 100)
+	 which aren't powers of two. */
+      if (avg_ts_hz <= 5.66) {
+	/* 1 would normally range from 1.4 - 2.82, but we expand that
+	   to 0 - 5.66, so we won't ever even get a value of 2.  Needs
+	   to be wide because our test is so fast that it is hard to
+	   match slow frequencies exactly.  */
+	tsnewval = 1;
+      } else if (avg_ts_hz > 70 && avg_ts_hz <= 150) {
+	/* mathematically 7 would be 90.51 - 181, but we change to 70-150 to 
+	   better align with common freq 100 */
+	tsnewval = 7;
+      } else if (avg_ts_hz > 150 && avg_ts_hz <= 350) {
+	/* would normally be 181 - 362.  Now aligns better with 200 */
+	tsnewval = 8;
+      } else {
+	/* Do a log base2 rounded to nearest int */
+	tsnewval = (unsigned int)(0.5 + log(avg_ts_hz)/log(2.0));
+      }
+
+      sprintf(seq_AVs[avnum].value, "%X", tsnewval);
       break;
     case TS_SEQ_UNSUPPORTED:
       seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;

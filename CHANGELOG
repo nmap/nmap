@@ -1,6 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 4.21ALPHA2
 
+o Improved the algorithm for classifying the TCP timestamp frequency
+for OS detection.  The new algorithm is described at
+http://insecure.org/nmap/osdetect/osdetect-methods.html#osdetect-ts .
+
 o Integrated all of your Q32006 service fingerprint submissions.  The
   nmap-service-probe DB grew from 3,671 signatures representing 415
   service protocols to 3,877 signatures representing 426 services.  Big
