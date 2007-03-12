@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "01/16/2007" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "03/11/2007" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -91,7 +91,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 \fI\%http://insecure.org/nmap/data/nmap.usage.txt\fR. It helps people remember the most common options, but is no substitute for the in\-depth documentation in the rest of this manual. Some obscure options aren't even included here.
 .PP
 .nf
-Nmap 4.21ALPHA1 ( http://insecure.org )
+Nmap 4.21ALPHA2 ( http://insecure.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -286,7 +286,7 @@ Systems administrators often find this option valuable as well. It can easily be
 .sp
 The
 \fB\-sP\fR
-option sends an ICMP echo request and a TCP packet to port 80 by default. When executed by an unprivileged user, a SYN packet is sent (using a
+option sends an ICMP echo request and a TCP packet to port 80 by default. When executed by an unprivileged user, only a SYN packet is sent (using a
 \fBconnect()\fR
 call) to port 80 on the target. When a privileged user tries to scan targets on a local ethernet network, ARP requests (\fB\-PR\fR) are used unless
 \fB\-\-send\-ip\fR

@@ -1,9 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
 4.21ALPHA2
 
-o Improved the algorithm for classifying the TCP timestamp frequency
-for OS detection.  The new algorithm is described at
-http://insecure.org/nmap/osdetect/osdetect-methods.html#osdetect-ts .
+o Performed a huge OS detection submission integration marathon.  More
+  than 500 submissions were processed, increasing the 2nd generation
+  OS DB size 65% to 381 fingerprints.  And many of the existing ones
+  were improved.  We still have a bit more than 500 submissions (sent
+  after January 16) to process.  Please keep those submissions coming!
 
 o Integrated all of your Q32006 service fingerprint submissions.  The
   nmap-service-probe DB grew from 3,671 signatures representing 415
@@ -12,7 +15,17 @@ o Integrated all of your Q32006 service fingerprint submissions.  The
   changes are described at http://hcsw.org/blog.pl?a=20&b=20 .
 
 o Nmap now has a public Subversion (SVN) source code repository.  See
-  the announcement at http://seclists.org/nmap-dev/2006/q4/0253.html .
+  the announcement at http://seclists.org/nmap-dev/2006/q4/0253.html
+  and then the updated usage instructions at
+  http://seclists.org/nmap-dev/2006/q4/0281.html .
+
+o Changed the IP protocol scan so that it sends proper IGMP headers when
+  scanning that protocol.  This makes it much more likely that the host
+  will respond, proving that it's "open".  [Kris]
+
+o Improved the algorithm for classifying the TCP timestamp frequency
+  for OS detection.  The new algorithm is described at
+  http://insecure.org/nmap/osdetect/osdetect-methods.html#osdetect-ts .
 
 o Fixed the way Nmap detects whether one of its data files (such as
   nmap-services) exists and has permissions which allow it to be read.
@@ -34,10 +47,6 @@ o Fixed a bug which caused nmap --iflist to crash (and might have
   Katterjohn for the report and Diman Todorov for the fix.
 
 o Applied a bunch of code cleanup patches from Kris Katterjohn.
-
-o Changed the IP protocol scan so that it sends actual IGMP headers when
-  scanning protocol number 2.  This makes it much more likely that the host
-  will respond, proving that it's "open".  [Kris]
 
 o Some scan types were fixed when used against localhost. The UDP Scan
   doesn't find it's own port, the TCP Scan won't print a message (with -d)
