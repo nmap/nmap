@@ -7234,7 +7234,7 @@ PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=F%RIPCK=E%UCK=0%ULEN=134%DAT=E)
 # DragonFly 1.1-Stable #0: Sun Nov 14 17:22:45 CET 2004
 # DragonFly 1.1-CURRENT (i386) build on 2004/12/03
 Fingerprint DragonFly 1.1-Stable (FreeBSD-4 fork)
-Class FreeBSD | FreeBSD | 4.x | general purpose
+Class FreeBSD | FreeBSD | 4.X | general purpose
 TSeq(Class=TR%gcd=<6%IPID=RD%TS=1000HZ)
 T1(DF=Y%W=E000%ACK=S++%Flags=AS%Ops=MNWNNT)
 T2(Resp=N)
