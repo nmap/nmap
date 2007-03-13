@@ -116,8 +116,6 @@
 # endif
 #endif
 
-u32 fake_seqs[6] = { 0x721CF9, 0x721D5F, 0x721DC5, 0x721E2B, 0x721E91, 0x721EF7 };
-
 extern NmapOps o;
 
 /* Note that a sport of 0 really will (try to) use zero as the source
@@ -810,8 +808,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
 	    if (si->seqs[seq_response_num] == 0) {
 	      /* New response found! */
 	      si->responses++;
-	      //	      si->seqs[seq_response_num] = ntohl(tcp->th_seq); /* TCP ISN */
-	      si->seqs[seq_response_num] = fake_seqs[seq_response_num]; /* TCP ISN */
+	      si->seqs[seq_response_num] = ntohl(tcp->th_seq); /* TCP ISN */
 	      si->ipids[seq_response_num] = ntohs(ip->ip_id);
 	      if ((gettcpopt_ts(tcp, &timestamp, NULL) == 0))
 		si->ts_seqclass = TS_SEQ_UNSUPPORTED;

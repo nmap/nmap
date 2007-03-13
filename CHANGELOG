@@ -27,6 +27,10 @@ o Nmap now has a public Subversion (SVN) source code repository.  See
   and then the updated usage instructions at
   http://seclists.org/nmap-dev/2006/q4/0281.html .
 
+o Fixed a major accuracy bug in gen1 OS detection (some debugging code
+  was accidentally left in).  Thanks to Richard van den Berg for finding
+  the problem.
+
 o Changed the IP protocol scan so that it sends proper IGMP headers when
   scanning that protocol.  This makes it much more likely that the host
   will respond, proving that it's "open".  [Kris]
