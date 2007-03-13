@@ -690,6 +690,57 @@
 </xsl:template>
 <!-- ............................................................ -->
 
+<!-- traceroute -->
+<!-- ............................................................ -->
+
+<xsl:template match="trace">
+  <h3>traceroute</h3>
+  <ul>
+      <li>port: <xsl:value-of select="@port" /></li>
+      <li>proto: <xsl:value-of select="@proto" /></li>
+       <xsl:for-each select="error">
+        <li>error: <xsl:value-of select="@errorstr"/></li>
+       </xsl:for-each>
+  </ul>
+  <table cellspacing="1">
+    <tr class="head">
+      <td>Hop</td>
+      <td>Rtt</td>
+      <td>IP</td>
+      <td>Host</td>
+    </tr>
+  <xsl:for-each select="hop">
+      <xsl:choose>
+          <xsl:when test="@rtt = '--'">
+      <tr class="filtered">
+          <td><xsl:value-of select="@ttl" /></td>
+          <td>--</td>
+          <td><xsl:value-of select="@ipaddr" /></td>
+          <td><xsl:value-of select="@host" /></td>
+        </tr>
+      </xsl:when>
+          <xsl:when test="@rtt > 0">
+        <tr class="open">
+          <td><xsl:value-of select="@ttl" /></td>
+          <td><xsl:value-of select="@rtt" /></td>
+          <td><xsl:value-of select="@ipaddr" /></td>
+          <td><xsl:value-of select="@host" /></td>
+        </tr>
+      </xsl:when>
+      <xsl:otherwise>
+        <tr class="closed">
+          <td><xsl:value-of select="@ttl" /></td>
+          <td></td><td></td><td></td>
+        </tr>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:for-each>
+  </table>
+</xsl:template>
+<!-- ............................................................ -->
+
+
+
 <!-- ipidsequence -->
 <!-- ............................................................ -->
 <xsl:template match="ipidsequence">

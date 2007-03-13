@@ -107,6 +107,7 @@
 #include "timing.h"
 #include "NmapOps.h"
 #include "MACLookup.h"
+#include "Traceroute.h"
 #include "nmap_tty.h"
 #include "nmap_dns.h"
 #include "nse_main.h"
@@ -225,6 +226,7 @@ printf("%s %s ( %s )\n"
        "  -sI <zombie host[:probeport]>: Idlescan\n"
        "  -sO: IP protocol scan\n"
        "  -b <ftp relay host>: FTP bounce scan\n"
+       "  --traceroute: Trace hop path to each host\n"
        "PORT SPECIFICATION AND SCAN ORDER:\n"
        "  -p <port ranges>: Only scan specified ports\n"
        "    Ex: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080\n"
@@ -461,6 +463,7 @@ int nmap_main(int argc, char *argv[]) {
   char *endptr = NULL;
   struct scan_lists *ports = NULL;
   TargetGroup *exclude_group = NULL;
+  Traceroute *troute = NULL;
   char myname[MAXHOSTNAMELEN + 1];
 #if (defined(IN_ADDR_DEEPSTRUCT) || defined( SOLARIS))
   /* Note that struct in_addr in solaris is 3 levels deep just to store an
@@ -584,6 +587,7 @@ int nmap_main(int argc, char *argv[]) {
       {"thc", no_argument, 0, 0},  
       {"badsum", no_argument, 0, 0},  
       {"ttl", required_argument, 0, 0}, /* Time to live */
+      {"traceroute", no_argument, 0, 0},
       {"allports", no_argument, 0, 0},
       {"version_intensity", required_argument, 0, 0},
       {"version-intensity", required_argument, 0, 0},
@@ -833,6 +837,8 @@ int nmap_main(int argc, char *argv[]) {
           fatal("Ip options can't be more than 40 bytes long");
         if(o.ipoptionslen %4 != 0)
           fatal("Ip options must be multiple of 4 (read length is %i bytes)", o.ipoptionslen);
+      } else if(strcmp(long_options[option_index].name, "traceroute") == 0) {
+	o.traceroute = true;
       } else {
 	fatal("Unknown long option (%s) given@#!$#$", long_options[option_index].name);
       }
@@ -1186,6 +1192,17 @@ int nmap_main(int argc, char *argv[]) {
     }
   }
 
+ if(o.traceroute && (o.idlescan || o.connectscan)) {
+    error("Warning: Traceroute does not support idle or connect scan, disabling...\n");
+    o.traceroute = 0;
+  }
+
+  if(o.traceroute && !o.isr00t) {
+    error("Warning: Traceroute has to be run as root, disabling...\n");
+    o.traceroute = 0;
+  }
+
+
   if ((o.pingscan || o.listscan) && (portlist || fastscan)) {
     fatal("You cannot use -F (fast scan) or -p (explicit port selection) with PING scan or LIST scan");
   }
@@ -1496,7 +1513,7 @@ int nmap_main(int argc, char *argv[]) {
       if (currenths->flags & HOST_UP && !o.listscan) 
 	o.numhosts_up++;
     
-      if (o.pingscan || o.listscan) {
+    if ((o.pingscan && !o.traceroute) || o.listscan) {
 	/* We're done with the hosts */
 	log_write(LOG_XML, "<host>");
 	write_host_status(currenths, o.resolve_all);
@@ -1569,6 +1586,33 @@ int nmap_main(int argc, char *argv[]) {
     if (o.af() == AF_INET && o.RawScan())
       o.decoys[o.decoyturn] = Targets[0]->v4source();
     
+    /* ping scan traceroutes */
+    if(o.traceroute && o.pingscan) {
+        /* Assume that all targets in a group use the same device */
+        troute = new Traceroute(Targets[0]->deviceName(), Targets[0]->ifType());
+        troute->trace(Targets);
+        troute->resolveHops();
+
+        /* print ping traceroutes, making sure the reference
+         * trace is first */
+        while(!Targets.empty()) {
+            currenths = *Targets.begin();
+            log_write(LOG_XML, "<host>");
+            write_host_status(currenths, o.resolve_all);
+            printmacinfo(currenths);
+            troute->outputTarget(currenths);
+            log_write(LOG_XML, "</host>\n");
+            log_write(LOG_STDOUT|LOG_SKID|LOG_PLAIN,"\n");
+            delete currenths;
+            Targets.erase(Targets.begin());
+        }
+        o.numhosts_scanning = 0;
+        log_flush_all();
+        delete troute;
+        troute = NULL;
+        continue;
+    }
+
     /* I now have the group for scanning in the Targets vector */
 
     // Ultra_scan sets o.scantype for us so we don't have to worry
@@ -1633,6 +1677,12 @@ int nmap_main(int argc, char *argv[]) {
     if (o.osscan == OS_SCAN_DEFAULT || o.osscan == OS_SCAN_SYS_2_ONLY)
 	  os_scan2(Targets);
 
+    if(o.traceroute) {
+        troute = new Traceroute(Targets[0]->deviceName(), Targets[0]->ifType());
+        troute->trace(Targets);
+        troute->resolveHops();
+    }
+
     for(targetno = 0; targetno < Targets.size(); targetno++) {
       currenths = Targets[targetno];
     
@@ -1673,6 +1723,9 @@ int nmap_main(int argc, char *argv[]) {
 #endif
       }
     
+    if(troute)
+        troute->outputTarget(currenths);
+
       if (o.debugging) 
 	log_write(LOG_STDOUT, "Final times for host: srtt: %d rttvar: %d  to: %d\n", 
 		  currenths->to.srtt, currenths->to.rttvar, currenths->to.timeout);
@@ -1690,6 +1743,9 @@ int nmap_main(int argc, char *argv[]) {
     o.numhosts_scanning = 0;
   } while(!o.max_ips_to_scan || o.max_ips_to_scan > o.numhosts_scanned);
   
+  if(troute)
+    delete troute;
+ 
   delete hstate;
   if (exclude_group)
     delete[] exclude_group;
@@ -2171,6 +2227,8 @@ char *scantype2str(stype scantype) {
   case SERVICE_SCAN: return "Service Scan"; break;
   case OS_SCAN: return "OS Scan"; break;
   case SCRIPT_SCAN: return "Script Scan"; break;
+  case TRACEROUTE: return "Traceroute" ; break;
+  case REF_TRACEROUTE: return "Reference Traceroute"; break;
   default: assert(0); break;
   }
 

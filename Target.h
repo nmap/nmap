@@ -231,11 +231,11 @@ class Target {
   int wierd_responses; /* echo responses from other addresses, Ie a network broadcast address */
   unsigned int flags; /* HOST_UP, HOST_DOWN, HOST_FIREWALLED, HOST_BROADCAST (instead of HOST_BROADCAST use wierd_responses */
   struct timeout_info to;
+  char *hostname; // Null if unable to resolve or unset
 
   ScriptResults scriptResults;
 
   private:
-  char *hostname; // Null if unable to resolve or unset
   void Initialize();
   void FreeInternal(); // Free memory allocated inside this object
  // Creates a "presentation" formatted string out of the IPv4/IPv6 address

@@ -98,7 +98,8 @@
 #include "Target.h"
 
 void nmap_mass_rdns(Target ** targets, int num_targets);
-void free_dns_servers();
+const char *lookup_cached_host(u32 ip);
 
+void free_dns_servers();
 void free_etchosts();
 

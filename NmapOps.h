@@ -301,6 +301,7 @@ class NmapOps {
   int resolve_all;
   char *dns_servers;
   bool log_errors;
+  bool traceroute;
 
 #ifndef NOLUA
   int script;

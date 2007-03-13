@@ -14,6 +14,14 @@ o Integrated all of your Q32006 service fingerprint submissions.  The
   thanks to version detection czar Doug Hoyte for doing this.  Notable
   changes are described at http://hcsw.org/blog.pl?a=20&b=20 .
 
+o Nmap now has traceroute support, thanks to an excellent patch by
+  Eddie Bell. The new system uses Nmap data to determine which sort of
+  packets are most likely to slip through the target network and
+  produce useful results.  The system is well optimized for speed and
+  bandwidth efficiency, and the clever output system avoids repeating
+  the same initial hops for each target system.  Enable this
+  functionality by specifying --traceroute.
+
 o Nmap now has a public Subversion (SVN) source code repository.  See
   the announcement at http://seclists.org/nmap-dev/2006/q4/0253.html
   and then the updated usage instructions at

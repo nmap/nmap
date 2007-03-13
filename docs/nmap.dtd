@@ -131,7 +131,8 @@
 -->
 <!ELEMENT host		( status, address , (address | hostnames |
                           smurf | ports | os | distance | uptime | 
-                          tcpsequence | ipidsequence | tcptssequence | hostscript)* ) >
+                          tcpsequence | ipidsequence | tcptssequence |
+                          hostscript | trace)* ) >
 
 <!-- these elements are written by output.c:write_xml_initial_hostinfo() -->
 <!ELEMENT status	EMPTY >
@@ -262,6 +263,25 @@
 <!ATTLIST tcptssequence
 			class		CDATA		#REQUIRED
 			values		CDATA		#IMPLIED
+>
+
+<!ELEMENT trace (hop*, error?) >
+<!ATTLIST trace
+      proto   CDATA   #REQUIRED
+      port    CDATA   #REQUIRED
+>
+
+<!ELEMENT hop EMPTY>
+<!ATTLIST hop
+      ttl     CDATA   #REQUIRED
+      rtt     CDATA   #IMPLIED
+      ipaddr  CDATA   #IMPLIED
+      host    CDATA   #IMPLIED
+>
+
+<!ELEMENT error EMPTY>
+<!ATTLIST error
+     errorstr   CDATA #IMPLIED
 >
 
 <!-- these elements are generated in output.c:printfinaloutput() -->
