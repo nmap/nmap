@@ -75,8 +75,6 @@ o The --scanflags option now also accepts "ECE", "CWR", "ALL" and "NONE" as
 o The --packet-trace option was added to NmapFE.  The Ordered Ports (-r)
   option in now available to non-root users on NmapFE as well.  [Kris]
 
-o Applied some internal bugfix patches from Eddie Bell.
-
 4.21ALPHA1
 
 o Integrated the Nmap Scripting Engine (NSE) into mainline Nmap.
