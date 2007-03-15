@@ -107,7 +107,7 @@
 #include "timing.h"
 #include "NmapOps.h"
 #include "MACLookup.h"
-#include "Traceroute.h"
+#include "traceroute.h"
 #include "nmap_tty.h"
 #include "nmap_dns.h"
 #include "nse_main.h"
