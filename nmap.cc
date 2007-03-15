@@ -1602,7 +1602,7 @@ int nmap_main(int argc, char *argv[]) {
             printmacinfo(currenths);
             troute->outputTarget(currenths);
             log_write(LOG_XML, "</host>\n");
-            log_write(LOG_STDOUT|LOG_SKID|LOG_PLAIN,"\n");
+            log_write(LOG_PLAIN,"\n");
             delete currenths;
             Targets.erase(Targets.begin());
         }
