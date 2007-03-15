@@ -335,6 +335,6 @@ class Traceroute {
      * returns finished(), which returns true
      * when all groups have finished or failed */
     bool readTraceResponses ();
-    bool finished (struct ip *ips);
+    bool finished ();
 
 };

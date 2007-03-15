@@ -398,9 +398,9 @@ Traceroute::readTraceResponses () {
     ip = (struct ip *) readip_pcap (pd, &bytes, 10000, &rcvdtime, &linkhdr);
 
     if (ip == NULL)
-        return finished (ip);
+        return finished ();
     if ((unsigned) ip->ip_hl * 4 + 20 > bytes)
-        return finished (ip);
+        return finished ();
 
     switch (ip->ip_p) {
     case IPPROTO_ICMP:
@@ -581,7 +581,7 @@ Traceroute::readTraceResponses () {
     default:
         ;
     }
-    return finished (ip);
+    return finished ();
 }
 
 /* Estimate how many hops away a host is by actively probing it.
@@ -768,14 +768,12 @@ Traceroute::sendProbe (TraceProbe * tp) {
 
 /* true if all groups have finished or failed */
 bool
-Traceroute::finished (struct ip *ips) {
+Traceroute::finished () {
     map < u32, TraceGroup * >::iterator it = TraceGroups.begin ();
     for (; it != TraceGroups.end (); ++it) {
         if (it->second->getState () == G_OK || it->second->getRemaining ())
             return false;
     }
-    if(ips)
-        free(ips);
     return true;
 }
 
