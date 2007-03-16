@@ -1,4 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o Fix a portability problem related to the new traceroute
+  functionality so that it compiles on Mac OS X.  Thanks to Christophe
+  Thil for reporting the problem and sending the 1-line fix.
+
 4.21ALPHA3
 
 o Just fixed a packaging problem with the 4.21ALPHA2 release (thanks

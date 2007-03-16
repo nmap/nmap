@@ -124,7 +124,7 @@
 
 #define NAMEIPLEN MAXHOSTNAMELEN+INET6_ADDRSTRLEN
 
-#ifdef WIN32
+#if defined(WIN32) || defined(MACOSX)
  #define ICMP_ECHOREPLY 0
  #define ICMP_DEST_UNREACH 3
  #define ICMP_ECHO 8
