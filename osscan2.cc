@@ -3661,7 +3661,7 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
         hsi->FP_matches[roundNum].num_perfect_matches > 0) {
       memcpy(&(hsi->target->seq), &hsi->hss->si, sizeof(struct seq_info));
       if (roundNum > 0) {
-        if(o.verbose) error("WARNING:  OS didn't match until the try #%d", roundNum + 1);
+        if(o.verbose) error("WARNING:  OS didn't match until try #%d", roundNum + 1);
       }
       hsi->target->FPR->goodFP = roundNum;
       match_fingerprint(hsi->target->FPR->FPs[roundNum], hsi->target->FPR, 

@@ -1525,7 +1525,7 @@ o.current_scantype = OS_SCAN;
 
  if (target->FPR1->numFPs > 1 && target->FPR1->overall_results == OSSCAN_SUCCESS &&
      target->FPR1->accuracy[0] == 1.0) {
-   if (o.verbose) error("WARNING:  OS didn't match until the try #%d", target->FPR1->numFPs);
+   if (o.verbose) error("WARNING:  OS didn't match until try #%d", target->FPR1->numFPs);
  } 
 
  target->FPR1->goodFP = bestaccidx;
