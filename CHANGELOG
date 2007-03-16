@@ -1,4 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
+4.21ALPHA3
+
+o Just fixed a packaging problem with the 4.21ALPHA2 release (thanks
+  to Alan Jones for reporting it).
 
 4.21ALPHA2
 

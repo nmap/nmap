@@ -834,7 +834,7 @@ Traceroute::trace (vector < Target * >&Targets) {
                  * otherwise it is equal to o.timing_level. If the timing level it 0 
                  * it is equal to 1 */
                 if (tg->getRemaining () >=
-                    tg->gotReply ? (!o.timing_level ? 1 : o.timing_level) : 2)
+                    (tg->gotReply ? (!o.timing_level ? 1 : o.timing_level) : 2))
                     continue;
             }
             if (tg->getState () != G_OK || !tg->hopDistance)
