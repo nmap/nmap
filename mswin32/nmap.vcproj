@@ -350,6 +350,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\traceroute.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\utils.cc"
 				>
 			</File>
@@ -528,6 +532,10 @@
 			</File>
 			<File
 				RelativePath="..\timing.h"
+				>
+			</File>
+			<File
+				RelativePath="..\traceroute.h"
 				>
 			</File>
 			<File
