@@ -1695,6 +1695,7 @@ match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)_Mikrotik_v([\d.]+)\n| p/OpenSSH/ v/$2
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) in RemotelyAnywhere ([\d.]+)\n| p/OpenSSH/ v/$2/ i/RemotelyAnywhere $3; protocol $1/ o/Windows/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)\+CAN-2004-0175\n| p/OpenSSH/ v/$2+CAN-2004-0175/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) NCSA_GSSAPI_20040818 KRB5\n| p/OpenSSH/ v/$2 NCSA_GSSAPI_20040818 KRB5/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)-(hpn[\dv]+)\n| p/OpenSSH/ v/$2-$3/ i/protocol $1/
 
 # Choose 1 of the following:
 # 1) Match all OpenSSHs:
