@@ -1,5 +1,5 @@
 /***************************************************************************
- * Traceroute.h -- Traces the route a packet takes to a host               *
+ * traceroute.h -- Traces the route a packet takes to a host               *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *

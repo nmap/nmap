@@ -1,5 +1,5 @@
 /***************************************************************************
- * Traceroute.cc -- Parallel multi-protocol traceroute feature             *
+ * traceroute.cc -- Parallel multi-protocol traceroute feature             *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
