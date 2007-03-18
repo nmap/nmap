@@ -218,7 +218,6 @@ Traceroute::Traceroute (const char *device_name, devtype type) {
 
     /* rely on each group using the same device */
     pd = my_pcap_open_live (device_name, 100, o.spoofsource ? 1 : 0, 2);
-    SPM = new ScanProgressMeter ("Traceroute");
 
     scaninfo.initial_proto = IPPROTO_IP;
     scaninfo.open_response = 0;
@@ -304,8 +303,6 @@ Traceroute::~Traceroute () {
         free(hops);
     for (; it != TraceGroups.end (); ++it)
         delete (it->second);
-    assert(SPM != NULL);
-    delete (SPM);
     if (ethsd)
         ethsd = NULL;
     close (fd);
@@ -789,6 +786,7 @@ Traceroute::trace (vector < Target * >&Targets) {
     TraceProbe *tp = NULL;
     TraceGroup *tg = NULL;
     Target *t = NULL;
+    ScanProgressMeter *SPM;
     u16 total_size, total_complete;
 
     if (o.af () == AF_INET6) {
@@ -815,6 +813,8 @@ Traceroute::trace (vector < Target * >&Targets) {
      * is populated with all Target object that are
      * legitimate to trace to */
     sendTTLProbes (Targets, valid_targets);
+
+    SPM = new ScanProgressMeter ("Traceroute");
 
     while (!readTraceResponses ()) {
         for (targ = valid_targets.begin (); targ != valid_targets.end (); ++targ) {
@@ -861,6 +861,8 @@ Traceroute::trace (vector < Target * >&Targets) {
             swap (total_complete, total_size);
         SPM->printStats (MIN ((double) total_complete / total_size, 0.99), NULL);
     }
+    SPM->endTask(NULL, NULL);
+    delete (SPM);
   }
 
 /* Resolves traceroute hops through nmaps

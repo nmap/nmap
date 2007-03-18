@@ -317,7 +317,6 @@ class Traceroute {
 
 
     struct scan_info scaninfo;
-    ScanProgressMeter *SPM;
     Target **hops;
     pcap_t *pd;
     eth_t *ethsd;

@@ -1,4 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o Fix a small bug in traceroute progress output which neglected printing
+  when it was completed.  This caused weirdness, especially when multiple
+  hosts were scanned.  [Kris]
+
 o Fix a portability problem related to the new traceroute
   functionality so that it compiles on Mac OS X.  Thanks to Christophe
   Thil for reporting the problem and sending the 1-line fix.
