@@ -2,7 +2,7 @@
 
 o Fix XML output so that the opening <os> tag is printed again.  The
   line which prints this was somehow removed when NSE was integrated.
-  Thanks to Joshua Abraham for reporthing the problem.
+  Thanks to Joshua Abraham for reporting the problem.
 
 o Fix a small bug in traceroute progress output which neglected printing
   when it was completed.  This caused weirdness, especially when multiple
