@@ -1339,6 +1339,7 @@ void printosscanoutput(Target *currenths) {
   if (currenths->distance != -1)
 	distance = currenths->distance;
 
+  log_write(LOG_XML, "<os>");
   if (FPR->osscan_closedtcpport > 0) {
     log_write(LOG_XML, 
 	      "<portused state=\"closed\" proto=\"tcp\" portid=\"%hu\" />\n",
