@@ -1035,7 +1035,7 @@ Traceroute::outputTarget (Target * t) {
     /* Traceroute header and footer */
     proto = nmap_getprotbynum(htons(tg->proto));
     if(o.ipprotscan || (o.pingscan && !(o.pingtype & PINGTYPE_TCP || o.pingtype & PINGTYPE_UDP))) 
-        log_write(LOG_PLAIN, "\nTRACEROUTE (using port %d/%s)\n", tg->proto, proto?proto->p_name:"unknown");
+        log_write(LOG_PLAIN, "\nTRACEROUTE (using proto %d/%s)\n", tg->proto, proto?proto->p_name:"unknown");
     else 
         log_write(LOG_PLAIN, "\nTRACEROUTE (using port %d/%s)\n", tg->dport, proto2ascii(tg->proto));
     log_write (LOG_PLAIN, "%s", Tbl->printableTable(NULL));
