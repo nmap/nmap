@@ -814,6 +814,9 @@ Traceroute::trace (vector < Target * >&Targets) {
      * legitimate to trace to */
     sendTTLProbes (Targets, valid_targets);
 
+    if (!valid_targets.size())
+        return;
+
     SPM = new ScanProgressMeter ("Traceroute");
 
     while (!readTraceResponses ()) {
