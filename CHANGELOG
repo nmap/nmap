@@ -1,14 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o Fix XML output so that the opening <os> tag is printed again.  The
+o Fixed XML output so that the opening <os> tag is printed again.  The
   line which prints this was somehow removed when NSE was integrated.
   Thanks to Joshua Abraham for reporting the problem.
 
-o Fix a small bug in traceroute progress output which neglected printing
-  when it was completed.  This caused weirdness, especially when multiple
-  hosts were scanned.  [Kris]
+o Fixed a small bug in traceroute progress output which didn't
+  properly indicate completion. [Kris]
 
-o Fix a portability problem related to the new traceroute
+o Fixed a portability problem related to the new traceroute
   functionality so that it compiles on Mac OS X.  Thanks to Christophe
   Thil for reporting the problem and sending the 1-line fix.
 
