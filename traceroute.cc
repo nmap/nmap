@@ -1061,7 +1061,9 @@ Traceroute::outputXMLTrace(TraceGroup * tg) {
     short ttl_count;
 
     /* XML traceroute header */
-    log_write(LOG_XML, "<trace port=\"%d\" ", tg->dport);
+    log_write(LOG_XML, "<trace ");
+    if ((o.pingscan && (o.pingtype & PINGTYPE_TCP || o.pingtype & PINGTYPE_UDP)) || (!o.ipprotscan && !o.pingscan))
+	log_write(LOG_XML, "port=\"%d\" ", tg->dport);
     if((proto = nmap_getprotbynum(htons(tg->proto))))
         log_write(LOG_XML, "proto=\"%s\"", proto->p_name);
     else

@@ -696,7 +696,11 @@
 <xsl:template match="trace">
   <h3>traceroute</h3>
   <ul>
-      <li>port: <xsl:value-of select="@port" /></li>
+      <xsl:choose>
+        <xsl:when test="@port">
+          <li>port: <xsl:value-of select="@port" /></li>
+        </xsl:when>
+      </xsl:choose>
       <li>proto: <xsl:value-of select="@proto" /></li>
        <xsl:for-each select="error">
         <li>error: <xsl:value-of select="@errorstr"/></li>
