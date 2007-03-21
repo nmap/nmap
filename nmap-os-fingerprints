@@ -3687,7 +3687,7 @@ T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 Fingerprint Cisco Cache Engine Web Proxy
-Class Cisco | embedded || web proxy
+Class Cisco | ACNS || web proxy
 TSeq(Class=RI%gcd=<6%SI=>FF&<FFFF)
 T1(DF=N%W=2017%ACK=S++%Flags=AS%Ops=MNW)
 T2(Resp=N)
