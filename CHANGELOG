@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+4.21ALPHA4
+
+o Performed another big OS detection run.  The DB has grown almost 10%
+  to 417 fingerprints.  All submissions up to February 6 have been
+  processed.  Please keep them coming!
+
 o Fixed XML output so that the opening <os> tag is printed again.  The
   line which prints this was somehow removed when NSE was integrated.
   Thanks to Joshua Abraham for reporting the problem.
