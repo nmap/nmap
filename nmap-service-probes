@@ -1051,6 +1051,7 @@ match pop3 m|^\+OK ([-.\w]+) Cyrus POP3 v(\d[-.\w]+)-OS X ([\d.]+) server ready 
 match pop3 m/^\+OK X1 NT-POP3 Server ([-\w.]+) \(IMail ([^)]+)\)\r\n/ p/IMail pop3d/ h/$1/ v/$2/
 match pop3 m/^\+OK POP3 \[cppop (\d[^]]+)\] at \[/ p/cppop pop3d/ v/$1/
 match pop3 m|^\+OK POP3 ([\w-_.]+) \[cppop (\d[^]]+)\] at \[| p/cppop pop3d/ v/$2/ h/$1/
+match pop3 m|^\+OK Gpop ready for requests from [\d\.]+ ([\w\d]+)| p/Google Gmail pop3d/ i/$1/
 
 # MS Exchange
 match pop3 m|^\+OK Microsoft Exchange Server 2003 POP3 server version ([\d.]+) \(([\w-_.]+)\) ready\.\r\n| p/MS Exchange 2003 pop3d/ v/$1/ h/$2/ o/Windows/
