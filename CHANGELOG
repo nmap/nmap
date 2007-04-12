@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Updated IANA assignment IP list for random IP (-iR) generation. [Kris]
+
 4.21ALPHA4
 
 o Performed another big OS detection run.  The DB has grown almost 10%

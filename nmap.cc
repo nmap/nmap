@@ -350,9 +350,12 @@ static int ip_is_reserved(struct in_addr *ip)
     case 37:        /* 037/8 is IANA reserved       */
     case 39:        /* 039/8 is IANA reserved       */
     case 42:        /* 042/8 is IANA reserved       */
+    case 46:        /* 046/8 is IANA reserved       */
     case 49:        /* 049/8 is IANA reserved       */
     case 50:        /* 050/8 is IANA reserved       */
     case 55:        /* misc. U.S.A. Armed forces    */
+    case 94:        /* 094/8 is IANA reserved       */
+    case 95:        /* 095/8 is IANA reserved       */
     case 127:       /* 127/8 is reserved for loopback */
     case 197:       /* 197/8 is IANA reserved       */
     case 223:       /* 223/8 is IANA reserved       */
@@ -360,10 +363,6 @@ static int ip_is_reserved(struct in_addr *ip)
     default:
       break;
     }
-
-  /* 092-95/8 is IANA reserved */
-  if (i1 >= 92 && i1 <= 95)
-    return 1;
 
   /* 100-115/8 is IANA reserved */
   if (i1 >= 100 && i1 <= 115)
