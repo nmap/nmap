@@ -1324,10 +1324,7 @@ TraceProbe::~TraceProbe () {
 }
 
 const char *TraceProbe::nameIP(void) {
-	if((hostnameip = (char *) safe_zalloc(NAMEIPLEN)) == NULL) {
-        perror("traceroute malloc()");
-        return NULL;
-    }
+	hostnameip = (char *) safe_zalloc(NAMEIPLEN);
 
 	if(hostname == NULL || *hostname == NULL)
 		snprintf(hostnameip, NAMEIPLEN, "%s", inet_ntoa(ipreplysrc));
