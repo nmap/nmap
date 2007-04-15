@@ -548,6 +548,7 @@ match ftp m|^220 Disk Station FTP server at ([\w-_.]+) ready\.\r\n| p/Synolgy NA
 match ftp m|^220  FTP Merak ([\d.-]+)\r\n| p/Merak ftpd/ v/$1/ o/Windows/
 match ftp m|^refused in\.ftpd from [\w-_.]+ logged\n| p/tcpwrapped ftpd/ i/refused/
 match ftp m|^220 Ipswitch Notification Server| p/Ipswitch notification ftpd/ o/Windows/
+match ftp m|^220-?\s+SSH-[\d.]+-([a-zA-Z]+)| p/FTP masquerading as $1/ i/**BACKDOOR**/
 
 match ftp-proxy m|^220 Ftp service of Jana-Server ready\r\n| p/JanaServer ftp proxy/ o/Windows/
 match ftp-proxy m|^220 FTP Gateway at Jana Server ready\r\n| p/JanaServer ftp proxy/ o/Windows/
