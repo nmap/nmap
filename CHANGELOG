@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug in Traceroute's output.  It occured when a traced host could
+  be fully consolidated, but only the first hop number was outputted. [Kris]
+
 o Updated IANA assignment IP list for random IP (-iR) generation. [Kris]
 
 4.21ALPHA4
