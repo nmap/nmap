@@ -1423,7 +1423,6 @@ TimeInfo::adjustTimeouts (struct timeval *received, u16 scan_delay) {
     if (to.rttvar > 2300000) {
         log_write (LOG_STDOUT, "RTTVAR has grown to over 2.3 seconds, decreasing to 2.0\n");
         to.rttvar = 2000000;
-        to.rttvar = 2000000;
     }
 
     /* It hurts to do this ... it really does ... but otherwise we are being
