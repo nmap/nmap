@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug which prevented the NSE scripts directory from appearing
+  in the Win32 .zip version of Nmap.
+
 o Fixed a bug in Traceroute's output.  It occured when a traced host could
   be fully consolidated, but only the first hop number was outputted. [Kris]
 
