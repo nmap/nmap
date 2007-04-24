@@ -1303,11 +1303,12 @@ TraceGroup::setHopDistance (u8 hop_distance, u8 ttl) {
     if (!this->hopDistance && ttl)
         this->hopDistance = ttl;
 
+    if (this->hopDistance >= MAX_TTL - 1)
+        this->hopDistance = MAX_TTL - 1;
+
     if (o.verbose)
         log_write (LOG_STDOUT, "%s: guessing hop distance at %d\n", IPStr (), this->hopDistance);
 
-    if (this->hopDistance >= MAX_TTL - 1)
-        this->hopDistance = MAX_TTL - 1;
     return this->hopDistance;
 }
 
