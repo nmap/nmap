@@ -2136,6 +2136,7 @@ slnp              8076/tcp   # SLNP (Simple Library Network Protocol) by Sisis I
 http-proxy        8080/tcp   # Common HTTP proxy/second web server port
 blackice-icecap   8081/tcp   # ICECap user console
 blackice-alerts   8082/tcp   # BlackIce Alerts sent to this port
+polipo            8123/tcp   # Polipo open source web proxy cache
 https-alt         8443/tcp   # Common alternative https port
 apple-iphoto      8770/tcp   # Apple iPhoto sharing
 sun-answerbook    8888/tcp   # Sun Answerbook HTTP server.  Or gnump3d streaming music server
