@@ -1229,19 +1229,13 @@ u8 TraceGroup::tableSize () {
             size--;
         last_probe = it->second;
     }
- 
-    /* If consolidation has been performed, we
-     * need to adjust the table size to reflect
-     * the consolidated nodes. */
-    if(pathCount > 1 && !o.debugging)
-        size--;
 
     /* no consolidation in debug mode */
     if(o.debugging)
         return size + pathCount;
     /* trace has been consolidated based on commonpath */
     if(pathCount > 1)
-        return size;
+        return size-(consolidation_start-pathCount);
     /* no common path elements have been used */
     return size;
 }
