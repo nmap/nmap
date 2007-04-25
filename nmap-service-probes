@@ -1879,7 +1879,8 @@ match telnet m|^\xff\xfb\x01\r\r\nUser Access Verification\r\r\n\r\r\nUsername:|
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\r\n\r\nCisco Systems Console\r\n| p/Cisco Catalyst switch telnetd/ d/switch/ o/IOS/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\n\r\nPassword required, but none set\r\n| p/Cisco router telnetd/ i/password required but not set/ d/router/
 match telnet m|^Access not permitted\. Closing connection\.\.\.\n$|s p/Cisco catalyst switch telnetd/ i/access denied/ d/switch/
-match telnet m|^\xff\xfd\x18$| p/Cisco microswitch telnetd/ d/switch/
+# The match below matches Cisco microswitch devices and also Edge-core ES3526XA
+match telnet m|^\xff\xfd\x18$| p|Cisco or Edge-core switch telnetd| d/switch/
 # OpenBSD 2.3
 # FreeBSD 5.1
 match telnet m|^\xff\xfd%$| p/BSD-derived telnetd/
