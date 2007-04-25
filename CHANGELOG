@@ -8,6 +8,10 @@ o Fixed a bug which prevented the NSE scripts directory from appearing
 o Fixed a bug in Traceroute's output.  It occured when a traced host could
   be fully consolidated, but only the first hop number was outputted. [Kris]
 
+o Fixed a Traceroute bug relating to scanning through the localhost
+  interface on Windows (which previously caused a crash).  Thanks to
+  Alan Jones for the report and Eddie Bell for the fix.
+
 o Updated IANA assignment IP list for random IP (-iR) generation. [Kris]
 
 4.21ALPHA4

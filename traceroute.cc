@@ -198,7 +198,11 @@ Traceroute::Traceroute (const char *device_name, devtype type) {
     fd = -1;
     ethsd = NULL;
     hops = NULL;
+    pd = NULL;
     total_size = 0;
+
+    if(type == devt_loopback) 
+        return;
 
     /* open various socks to send and read from on windows and 
      * unix */
@@ -305,8 +309,10 @@ Traceroute::~Traceroute () {
         delete (it->second);
     if (ethsd)
         ethsd = NULL;
-    close (fd);
-    pcap_close (pd);
+    if (fd != -1)
+        close (fd);
+    if(pd)
+        pcap_close (pd);
 }
 
 /* get an open or closed port from the portlist. Traceroute requires a positive response, 
