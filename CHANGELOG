@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a SIP (IP phone) probe from Matt Selsky to nmap-service-probes.
+
 o Fixed a bug which prevented the NSE scripts directory from appearing
   in the Win32 .zip version of Nmap.
 
