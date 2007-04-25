@@ -4815,6 +4815,7 @@ sslports 465
 totalwaitms 7500
 
 match smtp m|^220\s+(DP-\d+)\r\n250-Hello\r\n250-DSN\r\n| p/Panasonic smtpd/ v/$1/ i/Panasonic printer/ d/printer/
+match smtp m|^220 ESMTP service ready\r\n250\x20ok\r\n| p/Rustock smtp backdoor/ i/**BACKDOOR**/ o/Windows/
 
 ##############################NEXT PROBE##############################
 Probe TCP Help q|HELP\r\n|
