@@ -744,7 +744,7 @@ Traceroute::sendProbe (TraceProbe * tp) {
             packet = build_tcp_raw (&source, &tp->ipdst, tp->ttl, get_random_u16 (),
                                     get_random_u8 (), 0, NULL, 0, tp->sport, tp->dport,
                                     get_random_u32 (), ack, 0, scaninfo.scan_flags,
-                                    get_random_u16 (), 0, NULL, 0,
+                                    get_random_u16 (), 0, tcpopts, tcpoptslen,
                                     o.extra_payload, o.extra_payload_length, &packetlen);
             break;
         case IPPROTO_UDP:
