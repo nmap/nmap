@@ -8,6 +8,7 @@ categories = {"intrusive"}
 portrule = function(host, port)
 	if 	(	port.number == 443
 		or	port.service == "ssl/http"
+		or	port.service == "ssl"
 		or	port.service == "https")
 		and port.protocol == "tcp"
 		and port.state == "open"
