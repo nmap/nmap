@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a great NetBIOS name lookup NSE script (nbstat.nse) from
+  Brandon Enright.  This queries port 137/udp on Windows machines to
+  try and determine the Windows NetBIOS name, the MAC address, and
+  logged-in username.
+
 o Added a SIP (IP phone) probe from Matt Selsky to nmap-service-probes.
 
 o Fixed a bug which prevented the NSE scripts directory from appearing
