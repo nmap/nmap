@@ -535,7 +535,7 @@ Traceroute::readTraceResponses () {
             /* The probe was the reply from a ttl guess */
             if (tp->probeType () == PROBE_TTL) {
                 tg->setHopDistance (get_initial_ttl_guess (ip->ip_ttl), ip->ip_ttl);
-                tg->start_ttl = tg->ttl = --tg->hopDistance;
+                tg->start_ttl = tg->ttl = tg->hopDistance;
             } else {
                 tg->gotReply = true;
                 if (tg->start_ttl < tg->ttl)
@@ -574,7 +574,7 @@ Traceroute::readTraceResponses () {
         if (tp->probeType () == PROBE_TTL) {
             tg->setHopDistance (get_initial_ttl_guess (ip->ip_ttl), ip->ip_ttl);
             tg->setState (G_OK);
-            tg->start_ttl = tg->ttl = --tg->hopDistance;
+            tg->start_ttl = tg->ttl = tg->hopDistance;
         } else {
             tg->gotReply = true;
             if (tg->start_ttl < tg->ttl)
@@ -714,6 +714,11 @@ Traceroute::sendProbe (TraceProbe * tp) {
 
     if (tg->TraceProbes.find (tp->sport) == tg->TraceProbes.end ()) {
         tg->nextTTL ();
+
+        if (tg->ttl > MAX_TTL) {
+            tg->setState (G_ALIVE_TTL);
+            return -1;
+        }
         if (!tg->ttl || tg->gotReply && tg->noDistProbe) {
             tg->setState (G_FINISH);
             return 0;
@@ -727,8 +732,6 @@ Traceroute::sendProbe (TraceProbe * tp) {
         tp->timing.setState (P_OK);
     }
 
-    if (tg->TraceProbes.size () >= MAX_TTL)
-        tg->setState (G_TTL);
     tg->TraceProbes[tp->sport] = tp;
 
     for (decoy = 0; decoy < o.numdecoys; decoy++) {
@@ -1021,6 +1024,8 @@ Traceroute::outputTarget (Target * t) {
                 last_consolidation = true;
                 Tbl->addItemFormatted(row_count, HOP_COL, false, "%d", tp->ttl);
             }
+            else if(tg->getState() == G_DEAD_TTL && ttl_count == tg->hopDistance) 
+               Tbl->addItem (row_count, RTT_COL, false, "... 50");
             row_count--;
         } else if(!tp->timing.consolidated && last_consolidation) { 
             if(consol_count>1) 
@@ -1042,12 +1047,10 @@ Traceroute::outputTarget (Target * t) {
             Tbl->addItem (row_count, HOST_COL, true, tp->nameIP ());
         } else 
             Tbl->addItemFormatted (row_count, RTT_COL, false, "...");
-        }
 
     }
 
-    if(tg->getState() == G_TTL)
-         Tbl->addItem (row_count, RTT_COL, false, "... 50");
+    }
 
     /* Traceroute header and footer */
     proto = nmap_getprotbynum(htons(tg->proto));
@@ -1057,7 +1060,7 @@ Traceroute::outputTarget (Target * t) {
         log_write(LOG_PLAIN, "\nTRACEROUTE (using port %d/%s)\n", tg->dport, proto2ascii(tg->proto));
     log_write (LOG_PLAIN, "%s", Tbl->printableTable(NULL));
 
-    if(tg->getState() == G_TTL)
+    if(G_TTL(tg->getState()))
         log_write(LOG_PLAIN, "! maximum TTL reached (50)\n");
     else if(!tg->gotReply || (tp && (tp->ipreplysrc.s_addr != tg->ipdst)))
         log_write(LOG_PLAIN, "! destination not reached (%s)\n", inet_ntoa(tp->ipdst));
@@ -1120,7 +1123,7 @@ Traceroute::outputXMLTrace(TraceGroup * tg) {
         log_write(LOG_XML, "/>\n");
     }
 
-    if(tg->getState() == G_TTL)
+    if(G_TTL(tg->getState()))
         log_write(LOG_XML, "<error errorstr=\"maximum TTL reached\"/>\n");
     else if(!tg->gotReply || (tp && (tp->ipreplysrc.s_addr != tg->ipdst)))
         log_write(LOG_XML, "<error errorstr=\"destination not reached (%s)\"/>\n", inet_ntoa(tp->ipdst));
@@ -1183,6 +1186,9 @@ TraceGroup::retransmissions (vector < TraceProbe * >&retrans) {
             it->second->timing.setState (P_TIMEDOUT);
             decRemaining ();
 
+            if(it->second->ttl > MAX_TTL)
+                setState(G_DEAD_TTL);
+
             if ((++consecTimeouts) > 5 && maxRetransmissions > 2)
                 maxRetransmissions = 2;
             if (it->second->probeType () == PROBE_TTL) {
@@ -1235,6 +1241,10 @@ u8 TraceGroup::tableSize () {
             size--;
         last_probe = it->second;
     }
+
+    /* reached max ttl */
+    if(G_TTL(getState())) 
+        return size;
 
     /* no consolidation in debug mode */
     if(o.debugging)
@@ -1299,22 +1309,23 @@ TraceGroup::setHopDistance (u8 hop_distance, u8 ttl) {
 
     this->hopDistance = hop_distance;
 
-    if (hopDistance && ttl) {
-        this->hopDistance -= ttl;
-        /* Hop distance seems too small */
-        if (this->hopDistance <= 2)
-            this->hopDistance = hop_distance;
-    }
+    if(o.debugging)
+        log_write(LOG_STDOUT, "%s: hop distance parameters -> hg:%d ttl:%d\n", IPStr(), hop_distance, ttl);
 
-    if (!this->hopDistance && ttl)
+    if (this->hopDistance && ttl) 
+        this->hopDistance -= ttl;
+    else
         this->hopDistance = ttl;
 
-    if (this->hopDistance >= MAX_TTL - 1)
-        this->hopDistance = MAX_TTL - 1;
+    /* guess is too big */
+    if (this->hopDistance >= MAX_TTL)
+        this->hopDistance = MAX_TTL- 2;
+    /* guess is too small */
+    else if(this->hopDistance == 0)
+        this->hopDistance = 1;
 
     if (o.verbose)
         log_write (LOG_STDOUT, "%s: guessing hop distance at %d\n", IPStr (), this->hopDistance);
-
     return this->hopDistance;
 }
 

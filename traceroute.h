@@ -112,8 +112,11 @@
 
 /* Group states */
 #define G_OK P_OK
-#define G_TTL 3                 /* TTL has reached MAX_TTL */
-#define G_FINISH 4              /* tracing has complete successfully */
+#define G_DEAD_TTL 3            /* TTL has reached maximum value */
+#define G_ALIVE_TTL 4            /* TTL has reached maximum value */
+#define G_FINISH 5         /* tracing has complete successfully */
+
+#define G_TTL(x) (x == G_ALIVE_TTL || x == G_DEAD_TTL)
 
 #define MAX_TTL 50
 
