@@ -2,7 +2,7 @@
 -- See Nmap's COPYING file for licence details
 -- This is version 20070516.
 -- Changelog: + Added some strings to return in different places.
---            * Changed "HELO www.insecure.org" to "EHLO insecure.org".
+--            * Changed "HELO www.[ourdomain]" to "EHLO [ourdomain]".
 --            * Fixed some API differences
 --            * The "ourdomain" variable's contents are used instead of hardcoded "insecure.org". Settable by the user.
 --            * Fixed tags -> categories (reported by Jason DePriest to nmap-dev)
@@ -11,7 +11,7 @@ id="Open Relay SMTP"
 description="Checks to see if a SMTP server is an open relay"
 categories = {"intrusive"}
 
-ourdomain="insecure.org"
+ourdomain="scanme.org"
 
 portrule = function(host, port)
 	if 	(port.number == 25
