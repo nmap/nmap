@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Updated nmap-mac-prefixes to latest IEEE data as of 5/18/07. Also
+  removed some high (greater than 0x80) characters from some company
+  names because they were causing this error on Windows when Nmap is
+  compiled in Debug mode: 
+  isctype.c Line 56: Expression: (unsigned)(c + 1) <= 256".
+  Thanks to Sina Bahram for the initial report and Thomas Buchanan for
+  tracking down the problem.
+
 o Added a great NetBIOS name lookup NSE script (nbstat.nse) from
   Brandon Enright.  This queries port 137/udp on Windows machines to
   try and determine the Windows NetBIOS name, the MAC address, and
