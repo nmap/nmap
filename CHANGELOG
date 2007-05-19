@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug which caused port 0 to be improperly used for gen1 OS
+  detection in some cases when your scan includes port 0 (it isn't
+  included by default).  Thanks to Sebastian Wolfgarten for the report
+  and Kris Katterjohn for the fix.
+
 o Updated nmap-mac-prefixes to latest IEEE data as of 5/18/07. Also
   removed some high (greater than 0x80) characters from some company
   names because they were causing this error on Windows when Nmap is

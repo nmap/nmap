@@ -575,10 +575,21 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
   /* Now we should find a closed port */
   if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_CLOSED))) {
     closedport = tport->portno;
-    target->FPR1->osscan_closedtcpport = tport->portno;
+
+    /* Port 0 seems to screw things up, so try to get another if available */
+    if (tport->portno == 0)
+      if ((tport = target->ports.nextPort(tport, IPPROTO_TCP, PORT_CLOSED)))
+        closedport = tport->portno;
+
+    target->FPR1->osscan_closedtcpport = closedport;
   } else if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_UNFILTERED))) {
     /* Well, we will settle for unfiltered */
     closedport = tport->portno;
+
+    /* Port 0 seems to screw things up, so try to get another if available */
+    if (tport->portno == 0)
+      if ((tport = target->ports.nextPort(tport, IPPROTO_TCP, PORT_CLOSED)))
+        closedport = tport->portno;
   } else {
     closedport = (get_random_uint() % 14781) + 30000;
   }
