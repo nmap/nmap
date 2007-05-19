@@ -5832,23 +5832,6 @@ T7(R=Y%DF=Y%T=80%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=80%TG=80%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=80%TG=80%TOSI=S%CD=S%SI=S%DLI=S)
 
-# NTI EnviroMux-Mini (Firmware: 1.22) - http://www.nti1.com/ (Environment Monitoring System)
-Fingerprint NTI EnviroMux-Mini Environmental Monitoring System
-Class NTI | embedded || specialized
-SEQ(SP=0%GCD=8|10|18|20|28|30|388|710|A98|E20|11A8|1530%ISR=63-A1%TI=I%II=%TS=U)
-OPS(O1=M559%O2=M559%O3=M559%O4=M559%O5=M559%O6=M559)
-WIN(W1=1800%W2=1800%W3=1800%W4=1800%W5=1800%W6=1800)
-ECN(R=Y%DF=N%T=100%TG=100%W=1800%O=M559%CC=N%Q=)
-T1(R=Y%DF=N%T=100%TG=100%S=O%A=S+%F=AS%RD=0%Q=)
-T2(R=N)
-T3(R=Y%DF=N%T=100%TG=100%W=1800%S=O%A=S+%F=AS%O=M559%RD=0%Q=)
-T4(R=Y%DF=N%T=100%TG=100%W=OS:0%S=A%A=S%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=+N%T=100%TG=100%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=N%T=100%TG=100%W=0%S=A%A=S%F=R%O=%RD=0%Q=)
-T7(R=Y%DF=N%T=100%TG=100%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=100%TG=100%TOS=C0%IPL=38%UN=0%RIPL=4801%RID=1042%RIPCK=I%RUCK=G%RUL=G%RUD=G)
-IE(R=N)
-
 # Occam ONT ON2342 Firmware version: 1.1.5 Configuration version: 1.6.3 Build String: Sun Aug 20
 Fingerprint Occam ONT ON2342 Voice/Video over IP box
 Class Occam | embedded || VoIP gateway
