@@ -437,6 +437,14 @@ void NmapOps::ValidateOptions() {
     fatal("WARNING:  OS Scan is unreliable with a ping scan.  You need to use a scan type along with it, such as -sS, -sT, -sF, etc instead of -sP");
   }
 
+  if (servicescan && ipprotscan) {
+    error("WARNING: Disabling Service Scan (-sV) as it is incompatible with the IPProto Scan (-sO)");
+    servicescan = 0;
+  }
+
+  if (servicescan && pingscan)
+    servicescan = 0;
+
   if (defeat_rst_ratelimit && !synscan) {
       fatal("Option --defeat-rst-ratelimit works only with a SYN scan (-sS)");
   }

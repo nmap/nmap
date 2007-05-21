@@ -34,6 +34,13 @@ o Fixed a traceroute bug related to tracing between interfaces of a
   multi-homed host.  Thanks to David Fifield for reporting the problem
   and Eddie Bell for the fix.
 
+o Service detection (-sV) is now disabled when used with the IPProto Scan
+  (-sO).  Nmap would try to run the Service Scan after the IPProto Scan,
+  which would cause it to fail without outputting the protocol information,
+  or performing any other tasks (like Traceroute).  The Service Detection
+  line informing you where to send incorrect results is no longer outputted
+  when using the Service Scan with the Ping Scan (-sP) either. [Kris]
+
 o Updated IANA assignment IP list for random IP (-iR) generation. [Kris]
 
 4.21ALPHA4
