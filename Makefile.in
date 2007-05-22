@@ -177,8 +177,10 @@ install-nmapfe: $(TARGETNMAPFE)
 	@echo "If the next command fails -- you cannot use the X front end"
 	-test -f nmapfe/nmapfe && $(INSTALL) -c -m 755 -s nmapfe/nmapfe $(DESTDIR)$(bindir)/nmapfe && rm -f $(DESTDIR)$(bindir)/xnmap && $(SHTOOL) mkln -f -s $(DESTDIR)$(bindir)/nmapfe $(DESTDIR)$(bindir)/xnmap && $(INSTALL) -c -m 644 nmapfe.desktop $(DESTDIR)$(deskdir)/nmapfe.desktop && $(INSTALL) -c -m 644 docs/nmapfe.1 $(DESTDIR)$(mandir)/man1/nmapfe.1 && $(INSTALL) -c -m 644 docs/xnmap.1 $(DESTDIR)$(mandir)/man1/xnmap.1
 
+NSE_FILES = scripts/script.db scripts/*.nse
 install-nse: $(TARGET)
-	cp -r scripts/ $(DESTDIR)$(nmapdatadir)/
+	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(nmapdatadir)/scripts
+	cp -f $(NSE_FILES) $(DESTDIR)$(nmapdatadir)/scripts
 
 install: install-nmap $(INSTALLNMAPFE) $(INSTALLNSE)
 
