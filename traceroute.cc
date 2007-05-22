@@ -455,7 +455,7 @@ Traceroute::readTraceResponses () {
             case ICMP_PKT_FILTERED:
                 if (tp->probeType () == PROBE_TTL) {
                    tg->setHopDistance (o.ttl - ip2->ip_ttl, 0);
-                   tg->start_ttl = tg->ttl = --tg->hopDistance;
+                   tg->start_ttl = tg->ttl = tg->hopDistance;
                 } else {
                     tg->gotReply = true;
                     if (tg->start_ttl < tg->ttl)
@@ -468,7 +468,7 @@ Traceroute::readTraceResponses () {
                 icmp->icmp_type == ICMP_ADDRESSREPLY || icmp->icmp_type == ICMP_TIMESTAMPREPLY)) {
             if (tp->probeType () == PROBE_TTL) {
                 tg->setHopDistance (get_initial_ttl_guess (ip->ip_ttl), ip->ip_ttl);
-                tg->start_ttl = tg->ttl = --tg->hopDistance;
+                tg->start_ttl = tg->ttl = tg->hopDistance;
             } else {
                 tg->gotReply = true;
                 if (tg->start_ttl < tg->ttl)
@@ -1314,8 +1314,10 @@ TraceGroup::setHopDistance (u8 hop_distance, u8 ttl) {
 
     if (this->hopDistance && ttl) 
         this->hopDistance -= ttl;
-    else
+	else if(!this->hopDistance && ttl)
         this->hopDistance = ttl;
+    else
+        this->hopDistance = hop_distance;
 
     /* guess is too big */
     if (this->hopDistance >= MAX_TTL)
