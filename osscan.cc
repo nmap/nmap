@@ -490,7 +490,8 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
   unsigned int sequence_base;
   unsigned long openport;
   unsigned int bytes;
-  unsigned int closedport = 31337;
+  unsigned int closedtcpport = 31337;
+  unsigned int closedudpport = 31337;
   Port *tport = NULL;
   char filter[512];
   double seq_inc_sum = 0;
@@ -572,30 +573,52 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
     target->FPR1->osscan_opentcpport = tport->portno;
   }
  
-  /* Now we should find a closed port */
+  /* Now we should find a closed TCP port */
   if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_CLOSED))) {
-    closedport = tport->portno;
+    closedtcpport = tport->portno;
 
-    /* Port 0 seems to screw things up, so try to get another if available */
+    /* We'd prefer something non-zero */
     if (tport->portno == 0)
       if ((tport = target->ports.nextPort(tport, IPPROTO_TCP, PORT_CLOSED)))
-        closedport = tport->portno;
+        closedtcpport = tport->portno;
 
-    target->FPR1->osscan_closedtcpport = closedport;
+    target->FPR1->osscan_closedtcpport = closedtcpport;
   } else if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_UNFILTERED))) {
     /* Well, we will settle for unfiltered */
-    closedport = tport->portno;
+    closedtcpport = tport->portno;
+
+    /* We'd prefer something non-zero */
+    if (tport->portno == 0)
+      if ((tport = target->ports.nextPort(tport, IPPROTO_TCP, PORT_CLOSED)))
+        closedtcpport = tport->portno;
+  } else {
+    closedtcpport = (get_random_uint() % 14781) + 30000;
+  }
+
+  /* Now we should find a closed UDP port */
+  if ((tport = target->ports.nextPort(NULL, IPPROTO_UDP, PORT_CLOSED))) {
+    closedudpport = tport->portno;
 
     /* Port 0 seems to screw things up, so try to get another if available */
     if (tport->portno == 0)
-      if ((tport = target->ports.nextPort(tport, IPPROTO_TCP, PORT_CLOSED)))
-        closedport = tport->portno;
+      if ((tport = target->ports.nextPort(tport, IPPROTO_UDP, PORT_CLOSED)))
+        closedudpport = tport->portno;
+
+    target->FPR1->osscan_closedudpport = closedudpport;
+  } else if ((tport = target->ports.nextPort(NULL, IPPROTO_UDP, PORT_UNFILTERED))) {
+    /* Well, we will settle for unfiltered */
+    closedudpport = tport->portno;
+
+    /* Port 0 seems to screw things up, so try to get another if available */
+    if (tport->portno == 0)
+      if ((tport = target->ports.nextPort(tport, IPPROTO_UDP, PORT_CLOSED)))
+        closedudpport = tport->portno;
   } else {
-    closedport = (get_random_uint() % 14781) + 30000;
+    closedudpport = (get_random_uint() % 14781) + 30000;
   }
 
   if (o.verbose && openport != (unsigned long) -1)
-    log_write(LOG_STDOUT, "For OSScan assuming port %lu is open, %d is closed, and neither are firewalled\n", openport, closedport);
+    log_write(LOG_STDOUT, "For OSScan assuming port %lu is open, tcp/%d and udp/%d are closed, and neither are firewalled\n", openport, closedtcpport, closedudpport);
 
   current_port = o.magic_port + NUM_SEQ_SAMPLES +1;
  
@@ -643,7 +666,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
     if (!FPtests[5]) {   
       if (o.scan_delay) enforce_scan_delay(NULL);
      send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false, NULL, 0,
-			 current_port +4, closedport, sequence_base, 0, 0,
+			 current_port +4, closedtcpport, sequence_base, 0, 0,
 			 TH_SYN, 0, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
     }
 
@@ -651,7 +674,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
     if (!FPtests[6]) {   
       if (o.scan_delay) enforce_scan_delay(NULL);
      send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false, NULL, 0,
-			 current_port +5, closedport, sequence_base, 0, 0,
+			 current_port +5, closedtcpport, sequence_base, 0, 0,
 			 TH_ACK, 0, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
     }
 
@@ -659,14 +682,14 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
     if (!FPtests[7]) {
       if (o.scan_delay) enforce_scan_delay(NULL);   
      send_tcp_raw_decoys(rawsd, ethptr, target->v4hostip(), o.ttl, false, NULL, 0,
-			 current_port +6, closedport, sequence_base, 0, 0,
+			 current_port +6, closedtcpport, sequence_base, 0, 0,
 			 TH_FIN|TH_PUSH|TH_URG, 0, 0, (u8 *) "\003\003\012\001\002\004\001\011\010\012\077\077\077\077\000\000\000\000\000\000" , 20, NULL, 0);
     }
 
     /* Test 8 */
     if (!FPtests[8]) {
       if (o.scan_delay) enforce_scan_delay(NULL);
-      upi = send_closedudp_probe(rawsd, ethptr, target->v4hostip(), o.magic_port, closedport);
+      upi = send_closedudp_probe(rawsd, ethptr, target->v4hostip(), o.magic_port, closedudpport);
     }
     gettimeofday(&t1, NULL);
     timeout = 0;

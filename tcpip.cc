@@ -535,6 +535,8 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
       snprintf(protoinfo, sizeof(protoinfo), "ICMP %s > %s fragment %s (incomplete)", srchost, dsthost, ipinfo);
   } else if (ip->ip_p == IPPROTO_ICMP) {
     char icmptype[128];
+    char *ip2dst;
+    struct ip *ip2;
     struct ppkt {
       unsigned char type;
       unsigned char code;
@@ -547,41 +549,67 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
     case 0:
       strcpy(icmptype, "Echo reply"); break;
     case 3:
+      ip2 = (struct ip *) ((char *) ip + (ip->ip_hl * 4) + 8);
+      tcp = (struct tcp_hdr *) ((char *) ip2 + (ip2->ip_hl * 4));
+      udp = (struct udp_hdr *) ((char *) ip2 + (ip2->ip_hl * 4));
+      ip2dst = inet_ntoa(ip2->ip_dst);
       switch (ping->code) {
       case 0:
-	strcpy(icmptype, "network unreachable"); break;
+	snprintf(icmptype, sizeof icmptype, "network %s unreachable", ip2dst);
+	break;
       case 1:
-	strcpy(icmptype, "host unreachable"); break;
+	snprintf(icmptype, sizeof icmptype, "host %s unreachable", ip2dst);
+	break;
       case 2:
-	strcpy(icmptype, "protocol unreachable"); break;
+	snprintf(icmptype, sizeof icmptype, "protocol %u unreachable", ip2->ip_p);
+	break;
       case 3:
-	strcpy(icmptype, "port unreachable"); break;
+	if (ip2->ip_p == IPPROTO_UDP)
+	  snprintf(icmptype, sizeof icmptype, "port %u unreachable", ntohs(udp->uh_dport));
+	else if (ip2->ip_p == IPPROTO_TCP)
+	  snprintf(icmptype, sizeof icmptype, "port %u unreachable", ntohs(tcp->th_dport));
+	else
+	  strcpy(icmptype, "port unreachable");
+	break;
       case 4:
-	strcpy(icmptype, "fragmentation required"); break;
+	strcpy(icmptype, "fragmentation required");
+	break;
       case 5:
-	strcpy(icmptype, "source route failed"); break;
+	strcpy(icmptype, "source route failed");
+	break;
       case 6:
-	strcpy(icmptype, "destination network unknown"); break;
+	snprintf(icmptype, sizeof icmptype, "destination network %s unknown", ip2dst);
+	break;
       case 7:
-	strcpy(icmptype, "destination host unknown"); break;
+	snprintf(icmptype, sizeof icmptype, "destination host %s unknown", ip2dst);
+	break;
       case 8:
-	strcpy(icmptype, "source host isolated"); break;
+	strcpy(icmptype, "source host isolated");
+	break;
       case 9:
-	strcpy(icmptype, "destination network administratively prohibited"); break;
+	snprintf(icmptype, sizeof icmptype, "destination network %s administratively prohibited", ip2dst);
+	break;
       case 10:
-	strcpy(icmptype, "destination host administratively prohibited"); break;
+	snprintf(icmptype, sizeof icmptype, "destination host %s administratively prohibited", ip2dst);
+	break;
       case 11:
-	strcpy(icmptype, "network unreachable for TOS"); break;
+	snprintf(icmptype, sizeof icmptype, "network %s unreachable for TOS", ip2dst);
+	break;
       case 12:
-	strcpy(icmptype, "host unreachable for TOS"); break;
+	snprintf(icmptype, sizeof icmptype, "host %s unreachable for TOS", ip2dst);
+	break;
       case 13:
-	strcpy(icmptype, "communication administratively prohibited by filtering"); break;
+	strcpy(icmptype, "communication administratively prohibited by filtering");
+	break;
       case 14:
-	strcpy(icmptype, "host precedence violation"); break;
+	strcpy(icmptype, "host precedence violation");
+	break;
       case 15:
-	strcpy(icmptype, "precedence cutoff in effect"); break;
+	strcpy(icmptype, "precedence cutoff in effect");
+	break;
       default:
-	strcpy(icmptype, "unknown unreachable code"); break;
+	strcpy(icmptype, "unknown unreachable code");
+	break;
       }
       break;
     case 4:

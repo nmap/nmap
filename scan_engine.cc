@@ -1985,7 +1985,7 @@ static UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   CP = probe->CP();
   /* Initiate the connection */
   CP->sd = socket(o.af(), SOCK_STREAM, IPPROTO_TCP);
-  if (CP->sd == 1) pfatal("Socket creation in sendConnectScanProbe");
+  if (CP->sd == -1) pfatal("Socket creation in sendConnectScanProbe");
   unblock_socket(CP->sd);
   init_socket(CP->sd);
   if (hss->target->TargetSockAddr(&sock, &socklen) != 0) {
