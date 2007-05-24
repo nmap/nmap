@@ -5,6 +5,9 @@ o Fixed a bug which caused port 0 to be improperly used for gen1 OS
   included by default).  Thanks to Sebastian Wolfgarten for the report
   and Kris Katterjohn for the fix.
 
+o Improved how the Gen1 OS Detection system selects which UDP ports to
+  send probes to.  [Kris]
+
 o Updated nmap-mac-prefixes to latest IEEE data as of 5/18/07. Also
   removed some high (greater than 0x80) characters from some company
   names because they were causing this error on Windows when Nmap is
@@ -34,15 +37,10 @@ o Fixed a traceroute bug related to tracing between interfaces of a
   multi-homed host.  Thanks to David Fifield for reporting the problem
   and Eddie Bell for the fix.
 
-o Service detection (-sV) and OS detection (-O) are now disabled when used
-  with the IPProto Scan (-sO).  When Nmap would try to run the Service Scan
-  after the IPProto Scan, it would cause it to fail without outputting the
-  protocol information, or performing any other tasks (like Traceroute).
-  When trying to perform OS detection, it would use the protocol information
-  it got from the IPProto Scan to try to get the port numbers to use.  The
-  Service Detection line informing you where to send incorrect results is
-  no longer outputted when using the Service Scan with the Ping Scan (-sP)
-  either. [Kris]
+o Service detection (-sV) and OS detection (-O) are now (rightfully)
+  disabled when used with the IPProto Scan (-sO).  Using the Service
+  Scan like this led to premature exiting, and the OS Scan led to gross
+  inaccuracies.  [Kris]
 
 o Updated IANA assignment IP list for random IP (-iR) generation. [Kris]
 
