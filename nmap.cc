@@ -689,7 +689,7 @@ int nmap_main(int argc, char *argv[]) {
 	}
       } else if (strcmp(long_options[option_index].name, "iflist") == 0 ) {
 	iflist = true;
-      } else if (strcmp(long_options[option_index].name, "release-memory") == 0 ) {
+      } else if (optcmp(long_options[option_index].name, "release-memory") == 0 ) {
 	o.release_memory = true;
       } else if (optcmp(long_options[option_index].name, "min-parallelism") == 0 ) {
 	o.min_parallelism = atoi(optarg); 
