@@ -34,7 +34,7 @@ action = function(host, port)
 	socket = nmap.new_socket()
 
 	socket:connect(host.ip, port.number)
-	request = "GET /  HTTP/1.0\r\n\r\n"
+	request = "GET / HTTP/1.0\r\n\r\n"
 	socket:send(request)
 
 	result = ""
