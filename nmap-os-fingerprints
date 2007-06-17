@@ -1051,12 +1051,12 @@ PU(DF=Y|N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 # Apple AirPort Express (Apple Base Station V6.0)
 # OKI Phaser B6300N laser printer
 # Netgear 7000 Series Managed Switch (GSM7324) (strang ops)
-# Westel Versalink 327W, Wireless DSL Modem/Router
-Fingerprint Embedded device (Apple WAP, Dell bridge, OKI printer, Westel Broadband router)
+# Westell Versalink 327W, Wireless DSL Modem/Router
+Fingerprint Embedded device (Apple WAP, Dell bridge, OKI printer, Westell Broadband router)
 Class Apple | embedded || WAP
 Class Dell | embedded || storage-misc
 Class Okidata | embedded || printer
-Class Westel | embedded || broadband router
+Class Westell | embedded || broadband router
 TSeq(Class=RI%gcd=<6%SI=<A9830&>1000%TS=2HZ)
 T1(DF=Y%W=2000%ACK=S++%Flags=AS%Ops=MNWNNT)
 T2(Resp=N)
@@ -8034,7 +8034,7 @@ T7(DF=Y%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=C0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
 
 Fingerprint Grandstream HT-286 POTS<->VoIP phone gateway device
-Class Grandstream | embedded || VoIP adapter
+Class GrandStream | embedded || VoIP adapter
 TSeq(Class=C%Val=66559055%IPID=I%TS=U)
 T1(Resp=N)
 T2(Resp=Y%DF=Y%W=1000|800%ACK=S++%Flags=AR%Ops=)
@@ -10193,7 +10193,7 @@ PU(Resp=N)
 
 # Konica-Minolta magicolor2300DL printer controller f/w 02.83S engine f/w 4131.50G1.0900
 Fingerprint Konica-Minolta magicolor2300DL printer controller
-Class Konica | embedded || printer
+Class Konica Minolta | embedded || printer
 TSeq(Class=64K%IPID=I%TS=2HZ)
 T1(DF=N%W=1%ACK=S++%Flags=AS%Ops=MNWNNT)
 T2(Resp=N)
@@ -15973,7 +15973,7 @@ T7(DF=N%W=2000%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 Fingerprint Konica-Minolta Di3010 photocopier/printer/scanner
-Class Minolta | embedded || printer
+Class Konica Minolta | embedded || printer
 TSeq(Class=64K%IPID=I%TS=2HZ)
 T1(DF=N%W=FFFF%ACK=S++%Flags=AS%Ops=MNWNNT)
 T2(Resp=N)
@@ -15986,7 +15986,7 @@ PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 
 # Minolta Di183 printer/copy machine ROM Version 1.52
 Fingerprint Minolta Di183 printer/copier
-Class Minolta | embedded || printer
+Class Konica Minolta | embedded || printer
 TSeq(Class=64K%IPID=I%TS=U)
 T1(DF=N%W=1%ACK=S++%Flags=AS%Ops=MNW)
 T2(Resp=N)
@@ -15999,7 +15999,7 @@ PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 
 # VxWorks (for Destiny D8405 Pass 2 (Firmware build for Pass 1)) version 5.4.2.
 Fingerprint Minolta QMS Printer running VxWorks 5.4.2
-Class Minolta | VxWorks || printer
+Class Konica Minolta | VxWorks || printer
 TSeq(Class=64K%IPID=I%TS=2HZ)
 T1(DF=N%W=6000%ACK=S++%Flags=AS%Ops=MNWNNT)
 T2(Resp=N)
@@ -18541,7 +18541,7 @@ PU(DF=N%TOS=20%IPLEN=38%RIPTL=148%RID=E|F%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 #  Konica IP Controller Internal Print Server Module for Konica Multi-Purpose Printer/Fax/Scanner, Model KCA_018823
 Fingerprint Pitney Bowes photocopier, Konica printer/fax/scanner, or Toshiba E-Studio16 printer
 Class Pitney Bowes | embedded || printer
-Class Konica | embedded || printer
+Class Konica Minolta | embedded || printer
 Class Toshiba | embedded || printer
 T1(DF=N%W=1000%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
