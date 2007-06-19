@@ -701,7 +701,7 @@ int nmap_main(int argc, char *argv[]) {
 	if (l <= 1500) fatal("--host-timeout is specified in milliseconds unless you qualify it by appending 's', 'm', 'h', or 'd'.  The value must be greater than 1500 milliseconds");
 	pre_host_timeout = l;
 	if (l < 15000) {
-	  error("host-timeout is given in milliseconds, so you specified less than 15 seconds (%lims). This is allowed but not recommended.", o.host_timeout);
+	  error("host-timeout is given in milliseconds, so you specified less than 15 seconds (%lims). This is allowed but not recommended.", l);
 	}
       } else if (strcmp(long_options[option_index].name, "ttl") == 0) {
 	o.ttl = atoi(optarg);
