@@ -3109,7 +3109,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
         <listitem>
           <indexterm significance="normal"><primary>--servicedb</primary></indexterm>
           <para>Asks Nmap to use the specified services file rather than
-          the <filename moreinfo="nont">nmap-services</filename> data file that
+          the <filename>nmap-services</filename> data file that
           comes with Nmap.  See the description for <option>--datadir</option>
           for more information on Nmap's data files.</para>
         </listitem>
@@ -3122,7 +3122,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
         <listitem>
           <indexterm significance="normal"><primary>--versiondb</primary></indexterm>
 	  <para>Asks Nmap to use the specified service probes file rather than
-	  the <filename moreinfo="nont">nmap-service-probes</filename> data file
+	  the <filename>nmap-service-probes</filename> data file
 	  that comes with Nmap.  See the description for
 	  <option>--datadir</option> for more information on Nmap's data
 	  files.</para>
