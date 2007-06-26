@@ -14,6 +14,7 @@ deskdir = $(prefix)/share/applications
 export NBASEDIR=@NBASEDIR@
 export NSOCKDIR=@NSOCKDIR@
 export LIBLUADIR = @LIBLUADIR@
+export NDIR=$(shell pwd)
 CC = @CC@
 CXX = @CXX@
 CCOPT = 
