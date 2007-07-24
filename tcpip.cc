@@ -1831,8 +1831,6 @@ int pcap_select(pcap_t *p, struct timeval *timeout)
 	int fd, ret;
 	fd_set rfds;
 
-	again:
-
 	if ((fd = my_pcap_get_selectable_fd(p)) == -1)
 		return -1;
 
@@ -1841,12 +1839,8 @@ int pcap_select(pcap_t *p, struct timeval *timeout)
 
 	ret = select(fd + 1, &rfds, NULL, NULL, timeout);
 
-	if (ret == -1) {
-          if (errno == EINTR)
-	    goto again;
-	  else
-	    fatal("Your system does not support select()ing on pcap devices (%s). PLEASE REPORT THIS ALONG WITH DETAILED SYSTEM INFORMATION TO THE nmap-dev MAILING LIST!", strerror(errno));
-	} while (errno == EINTR);
+	if (ret == -1)
+		fatal("Your system does not support select()ing on pcap devices (%s). PLEASE REPORT THIS ALONG WITH DETAILED SYSTEM INFORMATION TO THE nmap-dev MAILING LIST!", strerror(errno));
 
 	return ret;
 }
