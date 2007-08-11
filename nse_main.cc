@@ -279,6 +279,8 @@ int process_mainloop(lua_State* l) {
 		}
 	}
 
+	progress.endTask(NULL, NULL);
+
 	return SCRIPT_ENGINE_SUCCESS;
 }
 

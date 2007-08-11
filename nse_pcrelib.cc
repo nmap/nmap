@@ -110,7 +110,6 @@ static const unsigned char *Lpcre_maketables(lua_State *L, int stackpos)
 	tables = pcre_maketables();              /* make tables with new locale */
 	(void)setlocale(LC_CTYPE, old_locale);         /* restore the old locale */
 
-	free(old_locale);
 	free(locale);
 	return tables;
 }
@@ -158,7 +157,7 @@ static void Lpcre_getargs(lua_State *L, pcre2 **pud, const char **text,
 		size_t *text_len)
 {
 	*pud = (pcre2 *)luaL_checkudata(L, 1, pcre_handle);
-	if(*pud != NULL)
+	if(*pud == NULL)
 		(void)luaL_argerror(L, 1, ("compiled regexp expected"));
 	*text = luaL_checklstring(L, 2, text_len);
 }
