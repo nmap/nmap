@@ -1,0 +1,277 @@
+id = "IRC Server Info"
+
+description = "Gets information from an IRC server by issuing STATS, LUSERS, etc queries."
+
+author = "Doug Hoyte"
+
+license = "See Nmap's COPYING"
+
+categories = {"discovery"}
+
+portrule = function(host, port) 
+  return (portnumber == 6667 or port.service == "irc")
+         and port.protocol == "tcp"
+         and port.state == "open"
+end
+
+
+
+init = function()
+  -- Start of MOTD, we'll take the server name from here
+  nmap.registry.ircserverinfo_375 = nmap.registry.ircserverinfo_375
+    or pcre.new("^:([\\w-_.]+) 375", 0, "C")
+
+  -- NICK already in use
+  nmap.registry.ircserverinfo_433 = nmap.registry.ircserverinfo_433
+    or pcre.new("^:[\\w-_.]+ 433", 0, "C")
+
+  -- PING/PONG
+  nmap.registry.ircserverinfo_ping = nmap.registry.ircserverinfo_ping
+    or pcre.new("^PING :(.+)", 0, "C")
+
+  -- Server version info
+  nmap.registry.ircserverinfo_351 = nmap.registry.ircserverinfo_351
+    or pcre.new("^:[\\w-_.]+ 351 \\w+ ([^:]+)", 0, "C")
+
+  -- Various bits of info
+  nmap.registry.ircserverinfo_251_efnet = nmap.registry.ircserverinfo_251_efnet
+    or pcre.new("^:[\\w-_.]+ 251 \\w+ :There are (\\d+) users and (\\d+) invisible on (\\d+) servers", 0, "C")
+
+  nmap.registry.ircserverinfo_251_ircnet = nmap.registry.ircserverinfo_251_ircnet
+    or pcre.new("^:[\\w-_.]+ 251 \\w+ :There are (\\d+) users and \\d+ services on (\\d+) servers", 0, "C")
+
+  nmap.registry.ircserverinfo_252 = nmap.registry.ircserverinfo_252
+    or pcre.new("^:[\\w-_.]+ 252 \\w+ (\\d+) :", 0, "C")
+
+  nmap.registry.ircserverinfo_254 = nmap.registry.ircserverinfo_254
+    or pcre.new("^:[\\w-_.]+ 254 \\w+ (\\d+) :", 0, "C")
+
+  nmap.registry.ircserverinfo_255_efnet = nmap.registry.ircserverinfo_255_efnet
+    or pcre.new("^:[\\w-_.]+ 255 \\w+ :I have (\\d+) clients and (\\d+) server", 0, "C")
+
+  nmap.registry.ircserverinfo_255_ircnet = nmap.registry.ircserverinfo_255_ircnet
+    or pcre.new("^:[\\w-_.]+ 255 \\w+ :I have (\\d+) users, \\d+ services and (\\d+) server", 0, "C")
+
+  nmap.registry.ircserverinfo_242 = nmap.registry.ircserverinfo_242
+    or pcre.new("^:[\\w-_.]+ 242 \\w+ :Server Up (\\d+ days, [\\d:]+)", 0, "C")
+
+  nmap.registry.ircserverinfo_352 = nmap.registry.ircserverinfo_352
+    or pcre.new("^:[\\w-_.]+ 352 \\w+ \\S+ (\\S+) ([\\w-_.]+)", 0, "C")
+
+  nmap.registry.ircserverinfo_error = nmap.registry.ircserverinfo_error
+    or pcre.new("^ERROR :(.*)", 0, "C")
+end
+
+
+
+
+
+action = function(host, port)
+  local status = 0
+  local line = ""
+  local sd = nmap.new_socket()
+  local curr_nick = random_nick()
+  local sver, shost, susers, sservers, schans, sircops, slusers, slservers, sup, serr
+  local myhost, myident
+  local s, e, t
+  local buf
+  local make_output = function()
+    local o = ""
+    if (not shost) then
+      if serr then
+        return "ERROR: " .. serr .. "\n"
+      else
+        return nil
+      end
+    end
+
+    o = o .. "Server: " .. shost .. "\n"
+    if sver then
+      o = o .. "Version: " .. sver .. "\n"
+    end
+    if sircops and susers and sservers and schans then
+      o = o .. "Servers/Ops/Chans/Users: " .. sservers .. "/" .. sircops .. "/" .. schans .. "/" .. susers .. "\n"
+    end
+    if slusers and slservers then
+      o = o .. "Lservers/Lusers: " .. slservers .. "/" .. slusers .. "\n"
+    end
+    if sup then
+      o = o .. "Uptime: " .. sup .. "\n"
+    end
+    if myhost and myident then
+      o = o .. "Source host: " .. myhost .. "\n"
+      if string.find(myident, "^~") then
+        o = o .. "Source ident: NONE or BLOCKED\n"
+      else
+        o = o .. "Source ident: OK " .. myident .. "\n"
+      end
+    end
+
+    return o
+  end
+
+  init()
+
+  sd:connect(host.ip, port.number)
+
+  sd:send("USER nmap +iw nmap :Nmap Wuz Here\nNICK " .. curr_nick .. "\n")
+
+  buf = make_buffer(sd, "\r?\n")
+
+  while true do
+    status, line = buf()
+    if (not status) then break end
+
+    -- This one lets us know we've connected, pre-PONGed, and got a NICK
+    s, e, t = nmap.registry.ircserverinfo_375:exec(line, 0, 0)
+    if (s) then
+      shost = string.sub(line, t[1], t[2])
+      sd:send("LUSERS\nVERSION\nSTATS u\nWHO " .. curr_nick .. "\nQUIT\n")
+    end
+
+    s, e, t = nmap.registry.ircserverinfo_433:exec(line, 0, 0)
+    if (s) then
+      curr_nick = random_nick()
+      sd:send("NICK " .. curr_nick .. "\n")
+    end
+
+    s, e, t = nmap.registry.ircserverinfo_ping:exec(line, 0, 0)
+    if (s) then
+      sd:send("PONG :" .. string.sub(line, t[1], t[2]) .. "\n")
+    end
+
+    s, e, t = nmap.registry.ircserverinfo_351:exec(line, 0, 0)
+    if (s) then
+      sver = string.sub(line, t[1], t[2])
+    end
+
+    s, e, t = nmap.registry.ircserverinfo_251_efnet:exec(line, 0, 0)
+    if (s) then
+      susers = (string.sub(line, t[1], t[2]) + string.sub(line, t[3], t[4]))
+      sservers = string.sub(line, t[5], t[6])
+    end
+
+    s, e, t = nmap.registry.ircserverinfo_251_ircnet:exec(line, 0, 0)
+    if (s) then
+      susers = string.sub(line, t[1], t[2])
+      sservers = string.sub(line, t[3], t[4])
+    end
+
+    s, e, t = nmap.registry.ircserverinfo_252:exec(line, 0, 0)
+    if (s) then
+      sircops = string.sub(line, t[1], t[2])
+    end
+
+    s, e, t = nmap.registry.ircserverinfo_254:exec(line, 0, 0)
+    if (s) then
+      schans = string.sub(line, t[1], t[2])
+    end
+
+    s, e, t = nmap.registry.ircserverinfo_255_efnet:exec(line, 0, 0)
+    if (s) then
+      slusers = string.sub(line, t[1], t[2])
+      slservers = string.sub(line, t[3], t[4])
+    end
+
+    s, e, t = nmap.registry.ircserverinfo_255_ircnet:exec(line, 0, 0)
+    if (s) then
+      slusers = string.sub(line, t[1], t[2])
+      slservers = string.sub(line, t[3], t[4])
+    end
+
+    s, e, t = nmap.registry.ircserverinfo_242:exec(line, 0, 0)
+    if (s) then
+      sup = string.sub(line, t[1], t[2])
+    end
+
+    s, e, t = nmap.registry.ircserverinfo_352:exec(line, 0, 0)
+    if (s) then
+      myident = string.sub(line, t[1], t[2])
+      myhost = string.sub(line, t[3], t[4])
+    end
+
+    s, e, t = nmap.registry.ircserverinfo_error:exec(line, 0, 0)
+    if (s) then
+      serr = string.sub(line, t[1], t[2])
+      return make_output()
+    end
+
+  end
+
+  return make_output()
+
+end
+
+
+
+
+-- Generic buffer implementation using lexical closures
+--
+-- Pass make_buffer a socket and a separator lua pattern [1]
+--
+-- Returns a function bound to your provided socket with behaviour identical
+-- to receive_lines() except it will return AT LEAST ONE [2] and AT MOST ONE "line".
+-- The data is returned WITHOUT the pattern/newline on the end.
+-- Empty "lines" ARE NOT RETURNED.
+--
+-- [1] Use the pattern "\r?\n" for regular newlines
+-- [2] Except where there is trailing "left over" data not terminated by a pattern
+--     (in which case you get the data anyways)
+--
+-- -Doug, June, 2007
+
+make_buffer = function(sd, sep)
+  local self, result
+  local buf = ""
+
+  self = function()
+    local i, j, status, value
+
+    i, j = string.find(buf, sep)
+
+    if i then
+      if i == 1 then  -- empty line
+        buf = string.sub(buf, j+1, -1)
+        return self() -- tail
+      else
+        value = string.sub(buf, 1, i-1)
+        buf = string.sub(buf, j+1, -1)
+        return true, value
+      end
+    end
+
+    if result then
+      if string.len(buf) > 0 then  -- left over data with no terminating pattern
+        value = buf
+        buf = ""
+        return true, value
+      end
+      return nil, result
+    end
+
+    status, value = sd:receive()
+
+    if status then
+      buf = buf .. value
+    else
+      result = value
+    end
+
+    return self() -- tail
+  end
+
+  return self
+end
+
+
+
+random_nick = function()
+  local nick = ""
+
+  -- NICKLEN is at least 9
+  for i = 0, 8, 1 do
+    nick = nick .. string.char(math.random(97, 122)) -- lowercase ascii
+  end
+
+  return nick
+end
