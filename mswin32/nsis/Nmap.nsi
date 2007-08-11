@@ -19,7 +19,16 @@
   
   ;Get installation folder from registry if available
   InstallDirRegKey HKCU "Software\Nmap" ""
-
+  
+  VIProductVersion 4.2.0.7
+  VIAddVersionKey /LANG=1033 "FileVersion" "4.20ALPHA7"
+  VIAddVersionKey /LANG=1033 "ProductName" "Nmap"
+  VIAddVersionKey /LANG=1033 "CompanyName" "Insecure.org"
+  VIAddVersionKey /LANG=1033 "InternalName" "NmapInstaller.exe"
+  VIAddVersionKey /LANG=1033 "LegalCopyright" "Copyright (c) Insecure.Com LLC (fyodor@insecure.org)"
+  VIAddVersionKey /LANG=1033 "LegalTrademark" "NMAP"
+  VIAddVersionKey /LANG=1033 "FileDescription" "Nmap installer"
+  
 ;--------------------------------
 ;Interface Settings
 
@@ -65,13 +74,20 @@ Section "Nmap Core Files" SecCore
   File ..\nmap_performance.reg
   File ..\..\README-WIN32
   File /r ..\..\scripts
+  File ..\icon1.ico
  
   ;Store installation folder
   WriteRegStr HKCU "Software\Nmap" "" $INSTDIR
   
   ;Create uninstaller
   WriteUninstaller "$INSTDIR\Uninstall.exe"
-
+  
+  ; Register Nmap with add/remove programs
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "DisplayName" "Nmap 4.20ALPHA7"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "DisplayIcon" '"$INSTDIR\icon1.ico"'
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "NoModify" 1
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "NoRepair" 1
 SectionEnd
 
 Section "Register Nmap Path" SecRegisterPath
@@ -79,11 +95,10 @@ Section "Register Nmap Path" SecRegisterPath
   Call AddToPath
 SectionEnd
 
-
-Section "WinPcap 3.1" SecWinPcap
-  File ..\winpcap\winpcap-nmap-3.1.B.exe
-  Exec '"$INSTDIR\winpcap-nmap-3.1.B.exe"'
-  Delete "$INSTDIR\winpcap-nmap-3.1.B.exe"
+Section "WinPcap 4.0" SecWinPcap
+  File ..\winpcap\winpcap-nmap-4.0.exe
+  Exec '"$INSTDIR\winpcap-nmap-4.0.exe"'
+  Delete "$INSTDIR\winpcap-nmap-4.0.exe"
 SectionEnd
 
 Section "Network Performance Improvements (Registry Changes)" SecPerfRegistryMods
@@ -97,7 +112,7 @@ SectionEnd
   ;Component strings
   LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executables and script files"
   LangString DESC_SecRegisterPath ${LANG_ENGLISH} "Registers Nmap path to System path so you can execute it from any directory"
-  LangString DESC_SecWinPcap ${LANG_ENGLISH} "Installs WinPcap 3.1 (required for most Nmap scans unless it is already installed)"
+  LangString DESC_SecWinPcap ${LANG_ENGLISH} "Installs WinPcap 4.0 (required for most Nmap scans unless it is already installed)"
   LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended."
 
   ;Assign language strings to sections
@@ -134,6 +149,7 @@ Section "Uninstall"
   Delete "$INSTDIR\nmap.xsl"
   Delete "$INSTDIR\nmap_performance.reg"
   Delete "$INSTDIR\README-WIN32"
+  Delete "$INSTDIR\icon1.ico"
 
   Delete "$INSTDIR\Uninstall.exe"
 
@@ -143,7 +159,7 @@ Section "Uninstall"
   DetailPrint "Deleting Registry Keys..."
   SetDetailsPrint listonly
   DeleteRegKey /ifempty HKCU "Software\Nmap"
-
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap"
   SetDetailsPrint textonly
   DetailPrint "Unregistering Nmap Path..."
   Push $INSTDIR
@@ -151,4 +167,3 @@ Section "Uninstall"
 
   SetDetailsPrint both
 SectionEnd
-

@@ -1,13 +1,14 @@
 ;; Custom winpcap for nmap
 ;; Started by Doug Hoyte, April 2006
+;; Updated to 4.0, June 2007
 
 ;--------------------------------
 
 ; The name of the installer
-Name "winpcap-nmap-3.1"
+Name "winpcap-nmap-4.0"
 
 ; The file to write
-OutFile "winpcap-nmap-3.1.B.exe"
+OutFile "winpcap-nmap-4.0.exe"
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\WinPcap
@@ -97,9 +98,6 @@ Section "" ;No components page, name is not important
   SetOutPath $INSTDIR
   
   ; Put file there
-  File daemon_mgm.exe
-  File NetMonInstaller.exe
-  File npf_mgm.exe
   File rpcapd.exe
   File LICENSE
 
@@ -120,7 +118,7 @@ Section "" ;No components page, name is not important
   WriteRegStr HKLM "Software\WinPcap" "" '"$INSTDIR"'
 
   ; Write the uninstall keys for Windows
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "DisplayName" "winpcap-nmap 3.1"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "DisplayName" "winpcap-nmap 4.0"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "UninstallString" '"$INSTDIR\uninstall.exe"'
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "NoRepair" 1
@@ -135,9 +133,6 @@ Section "Uninstall"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap"
   DeleteRegKey HKLM "Software\WinPcap"
 
-  Delete $INSTDIR\daemon_mgm.exe
-  Delete $INSTDIR\NetMonInstaller.exe
-  Delete $INSTDIR\npf_mgm.exe
   Delete $INSTDIR\rpcapd.exe
   Delete $INSTDIR\LICENSE
   Delete $INSTDIR\uninstall.exe
