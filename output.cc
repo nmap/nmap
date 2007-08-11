@@ -1807,3 +1807,98 @@ void printfinaloutput() {
   log_flush_all();
 }
 
+/* Returns the position of the last directory separator (slash, also backslash
+   on Win32) in a path. Returns -1 if none was found. */
+static int find_last_path_separator(const std::string& path) {
+#ifndef WIN32
+  const char *PATH_SEPARATORS = "/";
+#else
+  const char *PATH_SEPARATORS = "\\/";
+#endif
+
+  return path.find_last_of(PATH_SEPARATORS);
+}
+
+/* Returns the directory name part of a path (everything up to the last
+   directory separator. If there is no separator, returns ".". If there is only
+   one separator and it is the first character, returns "/". */
+static std::string get_dirname(const std::string& path) {
+  int i;
+
+  i = find_last_path_separator(path);
+  if (i == -1)
+    return ".";
+  else if (i == 0)
+    return "/";
+  else
+    return path.substr(0, i);
+}
+
+/* Returns the file name part of a path (everything after the last directory
+   separator). */
+static std::string get_filename(const std::string& path) {
+  int i;
+
+  i = find_last_path_separator(path);
+  if (i == -1)
+    return path;
+  else
+    return path.substr(i + 1);
+}
+
+/* A record consisting of a data file name ("nmap-services", "nmap-os-db",
+   etc.), and the directory and file in which is was found. This is a
+   broken-down version of what is stored in o.loaded_data_files. It is used in
+   printdatafilepaths. */
+struct data_file_record {
+  std::string data_file;
+  std::string dir;
+  std::string file;
+  /* Compares this record to another. First, compare the directory names, then
+     compare the file names. */
+  bool operator<(const struct data_file_record& other) {
+    int cmp;
+
+    cmp = dir.compare(other.dir);
+    if (cmp == 0)
+      cmp = file.compare(other.file);
+
+    return cmp < 0;
+  }
+};
+
+/* Prints the names of data files that were loaded and the paths at which they
+   were found. */
+void printdatafilepaths() {
+  std::list<struct data_file_record> df;
+  std::list<struct data_file_record>::iterator iter;
+  std::map<std::string, std::string>::iterator map_iter;
+
+  /* Copy the elements of o.loaded_data_files (each a (data file, path) pair) to
+     a list of data_file_records to make them easier to manipulate. */
+  for (map_iter = o.loaded_data_files.begin(); map_iter != o.loaded_data_files.end(); map_iter++) {
+    struct data_file_record r;
+    r.data_file = map_iter->first;
+    r.dir = get_dirname(map_iter->second);
+    r.file = get_filename(map_iter->second);
+    df.push_back(r);
+  }
+
+  /* Sort the list, first by directory name, then by file name. This ensures
+     that records with the same directory name are contiguous. */
+  df.sort();
+
+  /* Iterate over the list and display file names. */
+  iter = df.begin();
+  while (iter != df.end()) {
+    std::string dir = iter->dir;
+    /* Write the directory name. */
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "Read from %s:", dir.c_str());
+    /* Write files in that directory on the same line. */
+    while (iter != df.end() && iter->dir == dir) {
+      log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, " %s", iter->file.c_str());
+      iter++;
+    }
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, ".\n");
+  }
+}

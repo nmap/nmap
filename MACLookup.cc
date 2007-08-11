@@ -103,9 +103,12 @@
 
 /* Character pool memory allocation */
 #include "MACLookup.h"
+#include "NmapOps.h"
 #include "nmap.h"
 #include "nmap_error.h"
 #include "charpool.h"
+
+extern NmapOps o;
 
 struct MAC_entry {
   int prefix; /* -1 means none set */
@@ -156,6 +159,8 @@ static void mac_prefix_init() {
     error("Unable to open %s.  Ethernet vendor correlation will not be performed ", filename);
     return;
   }
+  /* Record where this data file was found. */
+  o.loaded_data_files["nmap-mac-prefixes"] = filename;
 
   while(fgets(line, sizeof(line), fp)) {
     lineno++;

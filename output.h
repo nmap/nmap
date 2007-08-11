@@ -205,5 +205,9 @@ void printStatusMessage();
    of an Nmap run */
 void printfinaloutput();
 
+/* Prints the names of data files that were loaded and the paths at which they
+   were found. */
+void printdatafilepaths();
+
 char* xml_convert (const char* str);
 #endif /* OUTPUT_H */

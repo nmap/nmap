@@ -1147,6 +1147,8 @@ static void parse_nmap_service_probes(AllProbes *AP) {
   }
 
   parse_nmap_service_probe_file(AP, filename);
+  /* Record where this data file was found. */
+  o.loaded_data_files["nmap-service-probes"] = filename;
 }
 
 AllProbes *AllProbes::global_AP;

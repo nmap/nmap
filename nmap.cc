@@ -1793,6 +1793,9 @@ int nmap_main(int argc, char *argv[]) {
   num_host_exp_groups = 0;
   free(host_exp_group);
 
+  if (o.verbose)
+    printdatafilepaths();
+
   printfinaloutput();
 
   free_scan_lists(ports);

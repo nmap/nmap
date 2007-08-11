@@ -309,6 +309,9 @@ class NmapOps {
      the file names defined in this map instead of searching for a matching
      file. */
   std::map<std::string, std::string> requested_data_files;
+  /* A map from data file names to the paths at which they were actually found.
+     Only files that were actually read should be in this map. */
+  std::map<std::string, std::string> loaded_data_files;
   bool mass_dns;
   int resolve_all;
   char *dns_servers;

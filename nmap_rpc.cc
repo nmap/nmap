@@ -147,6 +147,8 @@ static void rpc_services_init() {
   if (!fp) {
     fatal("Unable to open %s for reading rpc information", filename);
   }
+  /* Record where this data file was found. */
+  o.loaded_data_files["nmap-rpc"] = filename;
 
   while(fgets(line, sizeof(line), fp)) {
     lineno++;

@@ -133,6 +133,8 @@ static int nmap_protocols_init() {
   if (!fp) {
     fatal("Unable to open %s for reading protocol information", filename);
   }
+  /* Record where this data file was found. */
+  o.loaded_data_files["nmap-protocols"] = filename;
 
   memset(protocol_table, 0, sizeof(protocol_table));
   
