@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+4.22SOC2
+
+o NSE compilation fixes by Stoiko and Kris
+
 4.22SOC1
 
 o The UMIT graphical Nmap frontend is now included (as an ALPHA TEST
@@ -10,17 +14,6 @@ o The UMIT graphical Nmap frontend is now included (as an ALPHA TEST
   specify --without-umit to configure.  Please give UMIT a try (the
   executable is named umit) and let us know the results!  We hope to
   include UMIT in the Windows Nmap distributions soon.
-
-o The port selection mechanism was overhauled.  Nmap now knows
-  (roughly) how common various services are, so you can specify
-  options such as --top-ports 50 to scan the 50 most popular ports.
-  You can also use the new --port-ratio option to scan ports above a
-  given popularity level.  You can also now give the -p option service
-  names (such as 'http') and wildcards (such as http* to include
-  services such as https and http-mgmt).  There is also a bracket ([])
-  operator for scanning all known ports within a given range.  All
-  these changes, by Doug Hoyte, are described at
-  http://seclists.org/nmap-dev/2007/q2/0224.html .
 
 o Added more Nmap Scripting Engine scripts, bringing the total to 31.
   The new ones are bruteTelnet (Eddie Bell), SMTPcommands (Jason

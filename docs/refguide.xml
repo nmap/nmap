@@ -1456,27 +1456,6 @@ way.</para>
           instead.</para>
         </listitem>
       </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>--port-ratio &lt;decimal number between 0 and 1&gt;</option>
-        </term>
-        <listitem>
-        <indexterm><primary>--port-ratio</primary></indexterm>
-        <para>Scans all ports in <filename>nmap-services</filename> file with a ratio greater than the number specified as the argument. (new format <filename>nmap-services</filename> only.)</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>--top-ports &lt;integer of 1 or greater&gt;</option>
-        </term>
-        <listitem>
-        <indexterm><primary>--top-ports</primary></indexterm>
-        <para>Scans the N highest-ratio ports found in <filename>nmap-services</filename> file. (new format <filename>nmap-services</filename> only.)</para>
-        </listitem>
-      </varlistentry>
-
     </variablelist>
 
 </refsect1>
