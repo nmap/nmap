@@ -1,0 +1,45 @@
+How to upgrade nmap to a new winpcap release (2007)
+---------------------------------------------------
+
+1) Download the latest version of winpcap from www.winpcap.org and make a note of the version (E.G. 4.0)
+
+2) Remove all instances of winpcap then install the new version
+
+3) Copy the installed files from your system directory into the nmap winpcap directory.
+   The installed files at time of writing are npf.sys, Packet.dll, pthreadVC.dll,
+   WanPacket.dll, wpcap.dll and rpcapd.exe
+
+4) Open winpcap-install.nsi 
+
+	4a) change the version for the following lines:
+
+		Name "winpcap-nmap-X.X"
+		OutFile "winpcap-nmap-X.X.exe
+        	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "DisplayName" "winpcap-nmap X.X"
+
+	4b) Get the internal 'FileVersion' from wpcap.dll by looking at it's 
+            properties/version dialogue then set the following line to
+            that value
+
+		var /GLOBAL my_ver
+		StrCpy $my_ver "X.X.X.X"  <-- file version goes here
+
+5) Generate installer exe by compiling winpcap-nmap.nsi using the 'Nullsoft Scriptable
+   Install System' at http://nsis.sourceforge.net/.
+
+6) Give the installer a test, make sure the correct version appears in the installers
+   name and in add/remove programs. You may also want to try installing it when it is
+   already installed or an older version is installed
+
+7) Open mswin32/nsis/Nmap.nsi and update the references to the winpcap installer's name.
+   You should only have to change the version number. The section you need to look at 
+   starts like this 'Section "WinPcap X.X" SecWinPcap'
+
+8) Recompile Nmap.nsi in the same way as winpcap-nmap.nsi. Test it. You may want to try
+   it with nmap already installed and with different versions installed. Also check
+   everything appears in add/remove programs correctly
+
+9) Test nmap functionallity that uses winpcap. (E.G. Raw packet scans/raw packet pings
+   /traceroute) 
+
+10) Sit back and have a cup of coffee, you deserve it :)
