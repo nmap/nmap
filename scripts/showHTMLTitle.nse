@@ -14,20 +14,32 @@ categories = {"demo", "safe"}
 require "shortport"
 require "stdnse"
 
-portrule = shortport.port_or_service(80, "http")
-
---portrule = function(host, port) 
---	return shortport.port_or_service(port, 80, "http")
---end
+portrule = function(host, port)
+	if ( port.service=='http' 
+    or port.service=='https' )
+		and port.protocol == 'tcp'
+		and port.state == 'open'
+	then
+		return true;
+	else
+		return false;
+	end
+end
 
 action = function(host, port)
-	local url, socket, request, result, status, s, title
+	local url, socket, request, result, status, s, title, protocol
 
 	url = "http://" .. host.name
 
 	socket = nmap.new_socket()
 
-	socket:connect(host.ip, port.number)
+	if port.service == 'https' or port.version.service_tunnel == 'ssl' then
+		protocol = "ssl"
+	else
+		protocol = "tcp"
+	end
+
+	socket:connect(host.ip, port.number, protocol )
 	request = "GET / HTTP/1.0\r\n\r\n"
 	socket:send(request)
 
