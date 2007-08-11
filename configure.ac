@@ -201,7 +201,6 @@ AC_SUBST(INSTALLUMIT)
 # We test whether they specified openssl desires explicitly
 use_openssl="yes"
 specialssldir=""
-
 AC_ARG_WITH(openssl,
 AC_HELP_STRING([--with-openssl=DIR],[Use optional openssl libs and includes from [DIR]/lib/ and [DIR]/include/openssl/)]),
 [  case "$with_openssl" in
@@ -209,6 +208,7 @@ AC_HELP_STRING([--with-openssl=DIR],[Use optional openssl libs and includes from
     ;;
   no)
     use_openssl="no"
+    AC_SEARCH_LIBS(dlopen, dl)
     ;;
   *)
     specialssldir="$with_openssl"
