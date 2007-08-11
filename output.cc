@@ -883,13 +883,17 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
       if (len == 0) {
 	va_end(apcopy);
 	return;
-      } else if (len < 0) {
-	fatal("vsnprintf returned %d in %s -- bizarre. Quitting.", len, __func__);
-      } else if (len >= writebuflen) {
+      } else if (len < 0 || len >= writebuflen) {
 	/* Didn't have enough space.  Expand writebuf and try again */
-	free(writebuf);
-	writebuflen = len + 1024;
-	writebuf = (char *) safe_malloc(writebuflen);
+	if (len >= writebuflen) {
+	  writebuflen = len + 1024;
+	} else {
+	  /* Windows seems to just give -1 rather than the amount of space we 
+	     would need.  So lets just gulp up a huge amount in the hope it
+	     will be enough */
+	  writebuflen *= 100;
+	}
+	writebuf = (char *) safe_realloc(writebuf, writebuflen);
 	len = vsnprintf(writebuf, writebuflen, fmt, apcopy);
 	if (len <= 0 || len >= writebuflen) {
 	  fatal("%s: vnsprintf failed.  Even after increasing bufferlen to %d, vsnprintf returned %d (logt == %d).  Please email this message to fyodor@insecure.org.  Quitting.", __func__, writebuflen, len, logt);
