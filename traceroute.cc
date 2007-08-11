@@ -983,7 +983,7 @@ Traceroute::outputTarget (Target * t) {
             }
         }
 
-        /* If we cannot find a traceprobe we are probably still consolidating */
+ 	/* here we print the final hop for a trace that is fully consolidated */
         if ((it = tg->TraceProbes.find (ttl_count)) == tg->TraceProbes.end ()) {
 		if (common_consolidation && ttl_count == tg->hopDistance) {
 			if(ttl_count-2 == 1) {
@@ -992,14 +992,14 @@ Traceroute::outputTarget (Target * t) {
 			} else {
 				Tbl->addItemFormatted(row_count, RTT_COL, false, "--> %d", ttl_count-2);
 			}
+			common_consolidation = false;
 			break;
 		}
-
 		continue;
 	}
         /* Here we consolidate the probe that first matched the common path */
-        if (ttl_count <= tg->consolidation_start)
-            continue;
+        if (ttl_count < tg->consolidation_start) 
+              continue;
 
         tp = tg->TraceProbes[ttl_count];
 
@@ -1008,9 +1008,10 @@ Traceroute::outputTarget (Target * t) {
             if(ttl_count-1 == 1) {
                 Tbl->addItemFormatted(row_count, RTT_COL, false, "--", ttl_count-1);
                 Tbl->addItemFormatted(row_count, HOST_COL,false,  "%s", hostStr(commonPath[ttl_count-1]));
-            } else
+            } else {
                 Tbl->addItemFormatted(row_count, RTT_COL, false, "--> %d", ttl_count-1);
-                common_consolidation = false;
+	    }
+            common_consolidation = false;
         }
 
         row_count++;
