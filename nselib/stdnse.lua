@@ -1,3 +1,5 @@
+module(..., package.seeall)
+
 print_debug = function(...)
 	local verbosity = 1;
 	if ((#arg > 1) and (tonumber(arg[1]))) then

@@ -12,6 +12,7 @@ license = "See nmaps COPYING for licence"
 categories = {"demo", "safe"}
 
 require "shortport"
+require "stdnse"
 
 portrule = shortport.port_or_service(80, "http")
 
@@ -50,7 +51,7 @@ action = function(host, port)
 	if title ~= nil then
 		result = string.gsub(title , "[\n\r\t]", "")
 		if string.len(title) > 50 then
-			nmap.print_debug("showHTMLTitle.nse: Title got truncated!");	
+			stdnse.print_debug("showHTMLTitle.nse: Title got truncated!");	
 			result = string.sub(result, 1, 62) .. "..."
 		end
 	else
