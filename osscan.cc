@@ -1621,74 +1621,238 @@ static void WriteSInfo(char *ostr, int ostrlen, bool isGoodFP,
 		   macbuf, (int) timep, NMAP_PLATFORM);
 }
 
+/* Puts a textual representation of the chain of AVals beginning with AV in s.
+   No more than n bytes will be written. Unless n is 0, the string is always
+   null-terminated. Returns the number of bytes written, excluding the
+   terminator. */
+static int AVal2str(const struct AVal *AV, char *s, size_t n) {
+  char *p;
+  char *end;
+  size_t len;
 
+  if (AV == NULL) {
+    if (n > 0)
+      *s = '\0';
+    return 0;
+  }
+
+  p = s;
+  end = s + n - 1;
+  for ( ; AV != NULL; AV = AV->next) {
+    if (p >= end)
+      break;
+    /* Put a separator in front of every attribute-value pair but the first. */
+    if (p != s)
+      *p++ = '%';
+    len = MIN((ptrdiff_t) strlen(AV->attribute), end - p);
+    memcpy(p, AV->attribute, len);
+    p += len;
+    if (p >= end)
+      break;
+    *p++ = '=';
+    len = MIN((ptrdiff_t) strlen(AV->value), end - p);
+    memcpy(p, AV->value, len);
+    p += len;
+  }
+  *p = '\0';
+
+  return p - s;
+}
+
+static struct AVal *str2AVal(char *str) {
+  int i = 1;
+  int count = 1;
+  char *q = str, *p=str;
+  struct AVal *AVs;
+  if (!*str) return NULL;
+
+  /* count the AVals */
+  while((q = strchr(q, '%'))) {
+    count++;
+    q++;
+  }
+
+  AVs = (struct AVal *) safe_zalloc(count * sizeof(struct AVal));
+  for(i=0; i < count; i++) {
+    q = strchr(p, '=');
+    if (!q) {
+      fatal("Parse error with AVal string (%s) in nmap-os-fingerprints file", str);
+    }
+    *q = '\0';
+    AVs[i].attribute = strdup(p);
+    p = q+1;
+    if (i != count - 1) {
+      q = strchr(p, '%');
+      if (!q) {
+	fatal("Parse error with AVal string (%s) in nmap-os-fingerprints file", str);
+      }
+      *q = '\0';
+      AVs[i].next = &AVs[i+1];
+    }
+    Strncpy(AVs[i].value, p, sizeof(AVs[i].value)); 
+    p = q + 1;
+  }
+  return AVs;
+}
+
+/* Compare two AVal chains literally, without evaluating the value of either one
+   as an expression. This is used by mergeFPs. Unlike with AVal_match, it is
+   always the case that AVal_match_literal(a, b) == AVal_match_literal(b, a). */
+static bool AVal_match_literal(struct AVal *a, struct AVal *b) {
+  struct AVal *av_a, *av_b;
+
+  /* Check that b contains all the AVals in a, with the same values. */
+  for (av_a = a; av_a != NULL; av_a = av_a->next) {
+    av_b = getattrbyname(b, av_a->attribute);
+    if (av_b == NULL || strcmp(av_a->value, av_b->value) != 0)
+      return false;
+  }
+
+  /* Check that a contains all the AVals in b, with the same values. */
+  for (av_b = a; av_b != NULL; av_b = av_b->next) {
+    av_a = getattrbyname(a, av_b->attribute);
+    if (av_a == NULL || strcmp(av_a->value, av_b->value) != 0)
+      return false;
+  }
+
+  return true;
+}
+
+/* This is a less-than relation predicate that establishes the preferred order
+   of tests when they are displayed. Returns true if and only if the test a
+   should come before the test b. */
+static bool FingerTest_lessthan(const FingerTest* a, const FingerTest* b) {
+  const char *TEST_ORDER[] = {
+    "SEQ", "OPS", "WIN", "ECN",
+    "T1", "T2", "T3", "T4", "T5", "T6", "T7", "U1", "IE"
+  };
+  unsigned int i;
+
+  if (strcmp(a->name, b->name) == 0)
+    return false;
+
+  for (i = 0; i < sizeof(TEST_ORDER) / sizeof(*TEST_ORDER); i++) {
+    if (strcmp(a->name, TEST_ORDER[i]) == 0)
+      /* a came first, so it's less than. */
+      return true;
+    if (strcmp(b->name, TEST_ORDER[i]) == 0)
+      /* b came first, so a is not less than. */
+      return false;
+  }
+
+  /* This shouldn't happen. */
+  assert(false);
+
+  /* If neither was in the ordering list, just compare their names. */
+  return strcmp(a->name, b->name);
+}
+
+/* Merges the tests from several fingerprints into a character string
+   representation. Tests that are identical between more than one fingerprint
+   are included only once. If wrapit is true, the string is wrapped for
+   submission. */
 char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP,
 			   const struct in_addr * const addr, int distance, const u8 *mac,
 			   int openTcpPort, int closedTcpPort, int closedUdpPort, bool wrapit) {
-static char str[10240];
+  static char str[10240];
   static char wrapstr[10240];
-  
-struct AVal *AV;
-FingerPrint *currentFPs[32];
-char *p = str;
-int i;
-int changed;
-char *end = str + sizeof(str) - 1; /* Last byte allowed to write into */
-  
-if (numFPs <=0) return "(None)";
-if (numFPs > 32) return "(Too many)";
-  
-memset(str, 0, sizeof(str));
-for(i=0; i < numFPs; i++) {
-  if (FPs[i] == NULL) {
-    fatal("%s was handed a pointer to null fingerprint", __func__);
+
+  char *p;
+  int i;
+  char *end = str + sizeof(str) - 1; /* Last byte allowed to write into */
+  std::list<const FingerTest *> tests;
+  std::list<const FingerTest *>::iterator iter;
+  const FingerTest *ft;
+
+  if (numFPs <= 0)
+    return "(None)";
+  else if (numFPs > 32)
+    return "(Too many)";
+
+  /* Copy the tests from each fingerprint into a flat list. */
+  for (i = 0; i < numFPs; i++) {
+    for (ft = FPs[i]; ft != NULL; ft = ft->next)
+      tests.push_back(ft);
   }
-  currentFPs[i] = FPs[i];
-}
 
-  /* Lets start by writing the fake "SCAN" test for submitting fingerprints */
-  WriteSInfo(str, sizeof(str), isGoodFP, addr, distance, mac, openTcpPort, closedTcpPort, closedUdpPort);
- p = p + strlen(str);
-  if (!wrapit) *p++ = '\n';
+  /* Put the tests in the proper order and ensure that tests with identical
+     names are contiguous. */
+  tests.sort(FingerTest_lessthan);
 
-do {
-  changed = 0;
-  for(i = 0; i < numFPs; i++) {
-    assert (end - p > 100);
-    if (currentFPs[i]) {
-      /* This junk means do not print this one if the next
-	 one is the same */
-      if (i == numFPs - 1 || !currentFPs[i+1] ||
-	  strcmp(currentFPs[i]->name, currentFPs[i+1]->name) != 0 ||
-	  AVal_match(currentFPs[i]->results,currentFPs[i+1]->results, NULL, NULL,
-		     NULL, 1, 0, NULL) ==0)
-	{
-	  changed = 1;
-	  Strncpy(p, currentFPs[i]->name, end - p);
-	  p += strlen(currentFPs[i]->name);
-	  *p++='(';
-	  for(AV = currentFPs[i]->results; AV; AV = AV->next) {
-	    Strncpy(p, AV->attribute, end - p);
-	    p += strlen(AV->attribute);
-	    *p++='=';
-	    Strncpy(p, AV->value, end - p);
-	    p += strlen(AV->value);
-	    *p++ = '%';
-	  }
-	  if(*(p-1) != '(')
-	    p--; /* Kill the final & */
-	  *p++ = ')';
-			
-			if(!wrapit)
-	  *p++ = '\n';
-	}
-      /* Now prepare for the next one */
-      currentFPs[i] = currentFPs[i]->next;
+  /* Delete duplicate tests to ensure that all the tests are unique. One test is
+     a duplicate of the other if it has the same name as the first and the two
+     results lists match. */
+  for (iter = tests.begin(); iter != tests.end(); iter++) {
+    std::list<const FingerTest *>::iterator tmp_i, next;
+    tmp_i = iter;
+    tmp_i++;
+    while (tmp_i != tests.end() && strcmp((*iter)->name, (*tmp_i)->name) == 0) {
+      next = tmp_i;
+      next++;
+      if (AVal_match_literal((*iter)->results, (*tmp_i)->results)) {
+        /* This is a duplicate test. Remove it. */
+        tests.erase(tmp_i);
+      }
+      tmp_i = next;
     }
   }
-} while(changed);
 
-*p = '\0';
+  /* A safety check to make sure that no tests were lost in merging. */
+  for (i = 0; i < numFPs; i++) {
+    for (ft = FPs[i]; ft != NULL; ft = ft->next) {
+      for (iter = tests.begin(); iter != tests.end(); iter++) {
+        if (strcmp((*iter)->name, ft->name) == 0
+          && AVal_match_literal((*iter)->results, ft->results)) {
+            break;
+        }
+      }
+      if (iter == tests.end()) {
+        char buf[200];
+        AVal2str(ft->results, buf, sizeof(buf));
+        fatal("The test %s(%s) was somehow lost in %s.\n", ft->name, buf, __func__);
+      }
+    }
+  }
+
+  memset(str, 0, sizeof(str));
+
+  p = str;
+
+  /* Lets start by writing the fake "SCAN" test for submitting fingerprints */
+  WriteSInfo(p, sizeof(str), isGoodFP, addr, distance, mac, openTcpPort, closedTcpPort, closedUdpPort);
+  p = p + strlen(str);
+  if (!wrapit) *p++ = '\n';
+
+  assert(p <= end);
+
+  /* Append the string representation of each test to the result string. */
+  for (iter = tests.begin(); iter != tests.end(); iter++) {
+    size_t len;
+
+    ft = *iter;
+    len = MIN((ptrdiff_t) strlen(ft->name), (end - p));
+    memcpy(p, ft->name, len);
+    p += len;
+    if (p >= end)
+      break;
+    *p++ = '(';
+    len = AVal2str(ft->results, p, end - p + 1);
+    p += len;
+    if (p >= end)
+      break;
+    *p++ = ')';
+    if (!wrapit) {
+      if (p >= end)
+        break;
+      *p++ = '\n';
+    }
+  }
+
+  /* If we bailed out of the loop early it was because we ran out of space. */
+  if (iter != tests.end() || p > end)
+    fatal("Merged fingerprint too long in %s.\n", __func__);
+
+  *p = '\0';
 
   if(!wrapit) {
 return str;
@@ -1860,42 +2024,6 @@ static void parse_classline(FingerPrint *FP, char *thisline, int lineno,
   (*classno)++;
   FP->num_OS_Classifications++;
 
-}
-
-static struct AVal *str2AVal(char *str) {
-  int i = 1;
-  int count = 1;
-  char *q = str, *p=str;
-  struct AVal *AVs;
-  if (!*str) return NULL;
-
-  /* count the AVals */
-  while((q = strchr(q, '%'))) {
-    count++;
-    q++;
-  }
-
-  AVs = (struct AVal *) safe_zalloc(count * sizeof(struct AVal));
-  for(i=0; i < count; i++) {
-    q = strchr(p, '=');
-    if (!q) {
-      fatal("Parse error with AVal string (%s) in nmap-os-fingerprints file", str);
-    }
-    *q = '\0';
-    AVs[i].attribute = strdup(p);
-    p = q+1;
-    if (i != count - 1) {
-      q = strchr(p, '%');
-      if (!q) {
-	fatal("Parse error with AVal string (%s) in nmap-os-fingerprints file", str);
-      }
-      *q = '\0';
-      AVs[i].next = &AVs[i+1];
-    }
-    Strncpy(AVs[i].value, p, sizeof(AVs[i].value)); 
-    p = q + 1;
-  }
-  return AVs;
 }
 
 /* Parses a single fingerprint from the memory region given.  If a
