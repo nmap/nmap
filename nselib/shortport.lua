@@ -49,11 +49,25 @@ service = function(service, _proto, _state)
 	end
 end
 
-port_or_service = function(port, _service, proto, state)
-	local port_checker = portnumber(port, proto, state)
-	local service_checker = service(_service, proto, state)
+port_or_service = function(port, _service, proto, _state)
+	local state = _state or {"open"}
+	local state_table
+
+	if(type(state) == "string") then
+		state_table = {state}
+	elseif(type(state) == "table") then
+		state_table = state
+	end	
 
 	return function(host, port)
-		return port_checker(host, port) or service_checker(host, port)
+		for _, state in pairs(state_table) do
+			local port_checker = portnumber(port, proto, state)
+			local service_checker = service(_service, proto, state)
+			if (port_checker(host, port) or service_checker(host, port)) then
+				return true
+			end
+		end
+
+		return false
 	end
 end
