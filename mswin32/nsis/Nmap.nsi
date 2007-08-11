@@ -107,6 +107,13 @@ Section "Network Performance Improvements (Registry Changes)" SecPerfRegistryMod
   File ..\nmap_performance.reg 
   Exec 'regedt32 /S "$INSTDIR\nmap_performance.reg"' 
 SectionEnd 
+
+Section "UMIT (GUI frontend)" SecUmit
+  File /r ..\nmap-${VERSION}\umit
+  CreateShortCut "$DESKTOP\Nmap - UMIT GUI.lnk" "$INSTDIR\umit\umit.exe"
+  CreateDirectory "$SMPROGRAMS\Nmap"
+  CreateShortcut "$SMPROGRAMS\Nmap\Nmap - UMIT GUI.lnk" "$INSTDIR\umit\umit.exe"
+SectionEnd
  
 ;-------------------------------- 
 ;Descriptions 
@@ -166,6 +173,10 @@ Section "Uninstall"
   DetailPrint "Unregistering Nmap Path..." 
   Push $INSTDIR 
   Call un.RemoveFromPath 
+
+  Delete "$DESKTOP\Nmap - UMIT GUI.lnk"
+  Delete "$SMPROGRAMS\Nmap\Nmap - UMIT GUI.lnk"
+  RMDIR "$SMPROGRAMS\Nmap"
  
   SetDetailsPrint both 
 SectionEnd 
