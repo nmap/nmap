@@ -3088,7 +3088,7 @@ T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=E0%IPLEN=164%RIPTL=134%RID=E%RIPCK=F%UCK=0%ULEN=134%DAT=E)
 
 # Nokia IPSO 3.6 FCS 6 releng 1061  01.21.2003-230310 i386 w/ CheckPoint FW-1 NG FP 2, SSL & DNS hotfix and SmartDefense Supplemental
-Fingerprint Nokia IPSO 3.6 running CheckPoint FW-1 NG FP2
+Fingerprint Nokia IPSO 3.6 running Check Point FW-1 NG FP2
 Class Check Point | IPSO || firewall
 TSeq(Class=RI%gcd=<6%SI=<7A148&>A01%IPID=I%TS=2HZ)
 T1(DF=N%W=4000%ACK=S++%Flags=AS%Ops=MNWNNT)
@@ -4740,7 +4740,7 @@ PU(Resp=N)
 # Brocade Fibre Switch, Firmware 2.6.0
 # Cisco Aironet 340 WAP running v 12.03T of the firmware (and VxWorks OS)
 Fingerprint Cisco Aironet WAP, Brocade Fibre Switch, or Sun Remote System Console
-Class Cisco | vxworks || WAP
+Class Cisco | VxWorks || WAP
 Class Brocade | embedded || switch
 Class Sun | embedded || remote management
 TSeq(Class=64K%IPID=I%TS=U)
@@ -4878,7 +4878,7 @@ T6(DF=N%W=0%ACK=O%Flags=AR%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint Compaq Tru64 UNIX (formerly DIGITAL UNIX) 4.0e
+Fingerprint Compaq Tru64 UNIX (formerly Digital UNIX) 4.0e
 Class Compaq | Tru64 UNIX | 4.X | general purpose
 TSeq(Class=C)
 T1(DF=Y%W=805C%ACK=S++%Flags=AS%Ops=MNW)
@@ -5829,8 +5829,8 @@ T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=1C|0%IPLEN=38%RIPTL=148%RID=F%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 
 Fingerprint DEC OSF/1 V1.3A - 2.0
-Class DEC | DIGITAL UNIX | 1.X | general purpose
-Class DEC | DIGITAL UNIX | 2.X | general purpose
+Class DEC | Digital UNIX | 1.X | general purpose
+Class DEC | Digital UNIX | 2.X | general purpose
 TSeq(Class=64K)
 T1(DF=N%W=805C%ACK=S++%Flags=AS%Ops=MNW)
 T2(Resp=N)
@@ -5841,8 +5841,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=0%ULEN=134%DAT=E)
 
-Fingerprint DIGITAL UNIX OSF1 V 3.0,3.2,3.2C
-Class DEC | DIGITAL UNIX | 3.X | general purpose
+Fingerprint Digital UNIX OSF1 V 3.0,3.2,3.2C
+Class DEC | Digital UNIX | 3.X | general purpose
 TSeq(Class=64K)
 T1(DF=N%W=8000|805C%ACK=S++%Flags=AS%Ops=MNW)
 T2(Resp=N)
@@ -5853,8 +5853,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=0%ULEN=134%DAT=E)
 
-Fingerprint DEC DIGITAL UNIX OSF1 V 4.0-4.0F
-Class DEC | DIGITAL UNIX | 4.X | general purpose
+Fingerprint DEC Digital UNIX OSF1 V 4.0-4.0F
+Class DEC | Digital UNIX | 4.X | general purpose
 TSeq(Class=C|RI%gcd=<6)
 T1(DF=Y%W=805C|8000|70D5%ACK=S++%Flags=AS%Ops=MNW)
 T2(Resp=N)
@@ -5865,8 +5865,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E|F%RIPCK=E|F%UCK=0%ULEN=134%DAT=E)
 
-Fingerprint DIGITAL UNIX OSF1 V 4.0,4.0B,4.0D,4.0E,4.0F
-Class DEC | DIGITAL UNIX | 4.X | general purpose
+Fingerprint Digital UNIX OSF1 V 4.0,4.0B,4.0D,4.0E,4.0F
+Class DEC | Digital UNIX | 4.X | general purpose
 TSeq(Class=RI|TD|64K%gcd=<6)  # Boy, OSF1 comes in all colors!
 T1(DF=Y%W=805C|8000%ACK=S++%Flags=AS%Ops=MNW)
 T2(Resp=N)
@@ -5878,7 +5878,7 @@ T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(TOS=0%IPLEN=38%RIPTL=148%RID=E|F%RIPCK=E%UCK=0%ULEN=134%DAT=E)
 
 Fingerprint DEC OSF1 (AKA Compaq/DIGITAL Tru64 UNIX) Version 5.0.0
-Class DEC | DIGITAL UNIX | 5.X | general purpose
+Class DEC | Digital UNIX | 5.X | general purpose
 TSeq(Class=RI%gcd=<6%SI=<186794&>13E0%TS=U)
 T1(DF=N%W=FFFF%ACK=S++%Flags=AS%Ops=MNW)
 T2(Resp=N)
@@ -5890,7 +5890,7 @@ T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=0%ULEN=134%DAT=E)
 
 Fingerprint OSF/1 (AKA Compaq/DIGITAL Tru64 UNIX) 5.60
-Class DEC | DIGITAL UNIX | 5.X | general purpose
+Class DEC | Digital UNIX | 5.X | general purpose
 TSeq(Class=64K)
 T1(DF=N%W=8000%ACK=S++%Flags=AS%Ops=MNW)
 T2(Resp=N)
@@ -18501,8 +18501,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=F%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 
-Fingerprint Phillips ReplayTV 5000 DVR
-Class Phillips | embedded || media device
+Fingerprint Philips ReplayTV 5000 DVR
+Class Philips | embedded || media device
 TSeq(Class=64K%IPID=I%TS=2HZ)
 T1(DF=N%W=2000%ACK=S++%Flags=AS%Ops=MNWNNT)
 T2(Resp=N)
@@ -21225,8 +21225,8 @@ T6(DF=N%W=800%ACK=S%Flags=AR%Ops=)
 T7(DF=N%W=800%ACK=S%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint Winterm WYSE System Version 4.2.077
-Class Wyse | WYSE OS || terminal server
+Fingerprint Wyse Winterm System Version 4.2.077
+Class Wyse | Wyse OS || terminal server
 TSeq(Class=64K%IPID=I%TS=U)
 T1(DF=N%W=F000%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=N)
@@ -21238,8 +21238,8 @@ T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=F%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 
 # WYSE OS Firmware V4.2.137
-Fingerprint WYSE Winterm terminal server
-Class Wyse | WYSE OS || terminal server
+Fingerprint Wyse Winterm terminal server
+Class Wyse | Wyse OS || terminal server
 TSeq(Class=64K%IPID=I%TS=U)
 T1(DF=N%W=7800%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=N)

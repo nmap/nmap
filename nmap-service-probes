@@ -4754,9 +4754,9 @@ fallback GetRequest
 match rtsp m|^RTSP/1\.0 200 OK\r\nCSeq: 0\r\nDate: .*\r\nServer: RealServer Version (\d[-.\w]+) \(win32\)\r\n| p/Realserver RTSP/ v/$1/ o/Windows/
 match rtsp m|^RTSP/1\.0 200 OK\r\n.*Server: RealMedia EncoderServer Version (\d[-.\w]+) \(win32\)\r\n|s p/RealMedia EncoderServer/ v/$1/ o/Windows/
 match rtsp m|^RTSP/1\.0 200 OK\r\n.*Server: RealServer Version (\d[-.\w]+) \(([-.+\w]+)\)\r\n|s p/RealOne Server/ v/$1/ i/$2/
-match rtsp m|^RTSP/1\.0 200 OK\r\n.*Server: Helix (:?DNA )?Server Version ([\d.]+) \(win32\)\r\n|s p/Helix DNA Server/ v/$1/ o/Windows/
-match rtsp m|^RTSP/1\.0 \d\d\d .*\r\nServer: Helix (:?DNA )?Server Version ([\d.]+) \(linux-[^)\r\n]+\)|s p/Helix DNA Server/ v/$1/ o/Linux/
-match rtsp m|^RTSP/1\.0 \d\d\d .*\r\nServer: Helix (:?DNA )?Server Version ([\d.]+) \(sunos-([\d.]+)-sparc-server\)|s p/Helix DNA Server/ v/$1/ i/SunOS $2 sparc/ o/SunOS/
+match rtsp m|^RTSP/1\.0 200 OK\r\n.*Server: Helix [\w ]+Server Version ([\d.]+) \(win32\)\r\n|s p/Helix DNA Server/ v/$1/ o/Windows/
+match rtsp m|^RTSP/1\.0 \d\d\d .*\r\nServer: Helix [\w ]+Server Version ([\d.]+) \(linux-[^)\r\n]+\)|s p/Helix DNA Server/ v/$1/ o/Linux/
+match rtsp m|^RTSP/1\.0 \d\d\d .*\r\nServer: Helix [\w ]+Server Version ([\d.]+) \(sunos-([\d.]+)-sparc-server\)|s p/Helix DNA Server/ v/$1/ i/SunOS $2 sparc/ o/SunOS/
 
 match rtsp m|^RTSP/1\.0 \d\d\d .*\r\nServer: DSS/([\d.]+) \(Build/[\d.]+; Platform/Win32| p/Darwin Streaming Server/ v/$1/ o/Windows/
 match rtsp m|^RTSP/1\.0 \d\d\d .*\r\nServer: DSS/([\d.]+) \(Build/[\d.]+; Platform/Solaris| p/Darwin Streaming Server/ v/$1/ o/Solaris/
