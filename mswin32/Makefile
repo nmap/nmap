@@ -1,11 +1,13 @@
-MAKENSIS=/c/apps/NSIS/makensis.exe
+MAKENSIS="/c/apps/NSIS/makensis.exe"
 VCEXPRESS="/c/Program Files/Microsoft Visual Studio 8/Common7/IDE/VCExpress.exe"
 export NMAP_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
+export NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 LOGLOC=c:nmapbuild.log
 NSE_FILES = scripts/script.db scripts/*.nse
 
 winbuild:
 # VCExpress.exe is devenv.com with the commercial Visual Studio suite instead of VC++ Express
+	@./version-update.sh $(NMAP_VERSION) $(NMAP_NUM_VERSION)
 	$(VCEXPRESS) nmap.sln /build release /log $(LOGLOC)
 	$(MAKENSIS) winpcap/winpcap-nmap.nsi
 	rm -rf nmap-$(NMAP_VERSION)
