@@ -422,18 +422,22 @@ bool ScanProgressMeter::beginOrEndTask(const struct timeval *now, const char *ad
   tm = localtime(&tv_sec);
   if (beginning) {
     log_write(LOG_STDOUT, "Initiating %s at %02d:%02d", scantypestr, tm->tm_hour, tm->tm_min);
+    log_write(LOG_XML, "<taskbegin task=\"%s\" time=\"%lu\"", scantypestr, (unsigned long) now->tv_sec);
     if (additional_info) {
       log_write(LOG_STDOUT, " (%s)", additional_info);
+      log_write(LOG_XML, " extrainfo=\"%s\"", additional_info);
     }
     log_write(LOG_STDOUT, "\n");
-    log_write(LOG_XML, "<taskbegin task=\"%s\" time=\"%lu\" />\n", scantypestr, (unsigned long) now->tv_sec);
+    log_write(LOG_XML, " />\n");
   } else {
     log_write(LOG_STDOUT, "Completed %s at %02d:%02d, %.2fs elapsed", scantypestr, tm->tm_hour, tm->tm_min, TIMEVAL_MSEC_SUBTRACT(*now, begin) / 1000.0);
+    log_write(LOG_XML, "<taskend task=\"%s\" time=\"%lu\"", scantypestr, (unsigned long) now->tv_sec);
     if (additional_info) {
       log_write(LOG_STDOUT, " (%s)", additional_info);
+      log_write(LOG_XML, " extrainfo=\"%s\"", additional_info);
     }
     log_write(LOG_STDOUT, "\n");
-    log_write(LOG_XML, "<taskend task=\"%s\" time=\"%lu\" />\n", scantypestr, (unsigned long) now->tv_sec);
+    log_write(LOG_XML, " />\n");
   }
   log_flush(LOG_STDOUT|LOG_XML);
   return true;

@@ -105,6 +105,7 @@
 <!ATTLIST taskbegin
 			task		CDATA		#REQUIRED
 			time		%attr_numeric;	#REQUIRED
+			extrainfo	CDATA		#IMPLIED
 >
 
 <!-- this element is written in timing.c:printStats() -->
@@ -122,6 +123,7 @@
 <!ATTLIST taskend
 			task		CDATA		#REQUIRED
 			time		%attr_numeric;	#REQUIRED
+			extrainfo	CDATA		#IMPLIED
 >
 
 <!-- 
