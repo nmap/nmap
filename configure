@@ -3163,7 +3163,7 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
-include <stdio.h>
+#include <stdio.h>
 
 int
 main ()

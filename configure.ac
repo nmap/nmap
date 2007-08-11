@@ -76,7 +76,7 @@ fi
 # Remember that all following tests will run with this CXXFLAGS by default
 AC_MSG_CHECKING(for __func__)
 AC_TRY_COMPILE([
-include <stdio.h>
+#include <stdio.h>
 ],[printf ("%s", __func__);],
 have_func=yes, have_func=no)
 if test "x$have_func" = "xyes"; then

@@ -35,11 +35,14 @@ How to upgrade nmap to a new winpcap release (2007)
    You should only have to change the version number. The section you need to look at 
    starts like this 'Section "WinPcap X.X" SecWinPcap'
 
-8) Recompile Nmap.nsi in the same way as winpcap-nmap.nsi. Test it. You may want to try
+8) Download winpcap developer package and replace all files in mswin32/lib/ with the new 
+   versions inside the package
+
+9) Recompile Nmap.nsi in the same way as winpcap-nmap.nsi. Test it. You may want to try
    it with nmap already installed and with different versions installed. Also check
    everything appears in add/remove programs correctly
 
-9) Test nmap functionallity that uses winpcap. (E.G. Raw packet scans/raw packet pings
+10) Test nmap functionallity that uses winpcap. (E.G. Raw packet scans/raw packet pings
    /traceroute) 
 
-10) Sit back and have a cup of coffee, you deserve it :)
+11) Sit back and have a cup of coffee, you deserve it :)
