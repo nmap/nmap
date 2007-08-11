@@ -1819,6 +1819,170 @@ way.</para>
 
     </variablelist>
   </refsect1>
+	<refsect1 id='man-nse'> 
+	<title>NSE - Scripting extension to the Nmap network scanner</title> 
+	<indexterm> 
+	<primary>NSE - Scripting extension to the Nmap network scanner</primary> 
+	</indexterm>
+	<para> 
+	The Nmap Scripting Engine (NSE) combines the efficiency of Nmap's
+	network handling with the versatility of the lightweight scripting language
+	<ulink url="http://lua.org">lua</ulink>, thus providing innumerable
+	opportunities.  A more extensive documentation of the NSE (including its
+	API) can be found at: <ulink url="http://www.insecure.org/nmap/nse"/>. The
+	target of the NSE is to provide Nmap with a flexible infrastructure for
+	extending its capabilities and offering its users a simple way of creating
+	customized tests. Uses for the NSE include (but definitely are not limited
+	to): </para>
+   
+    <para> 
+    <emphasis>Enhanced Version-detection</emphasis> (category
+    <literal>version</literal>) - While Nmap already offers its Service and
+    Version detection system, which is unmatched in terms of efficiency and
+    scope, this power has its downside when it comes to services requiring more
+    complex probes. The Skype-Protocol version 2 for instance can be identified
+    by sending 2 independent probes to it, which the builtin system is not laid
+    out for: a simple NSE-script can do the job and update the port's service
+    information.  
+    </para>
+    
+    <para> 
+    <emphasis>Malware-detection</emphasis> (categories
+    <literal>malware</literal> and <literal>backdoor</literal>)- Both attackers
+    and worms often leave backdoors - be it in form of SMTP-servers listening on
+    uncommon ports mostly used by spammers for mail relay, or in form of an
+    FTP-server giving crackers access to critical data.  A few lines of lua code
+    can help to identify those loopholes easily.  
+    </para> 
+    <para> 
+    <emphasis>Vulnerability Detection</emphasis> (category
+    <literal>vulnerability</literal>)- NSE's capacity in detecting risks ranges
+    from checking for default passwords on Apache distributions to testing
+    whether a SMTP-server supports relaying mail from arbitrary domains. 
+    </para>
+    
+    <para>
+    <emphasis>Network Discovery and Information Gathering</emphasis>
+    (categories <literal>safe</literal>, <literal>intrusive</literal> and
+    <literal>discovery</literal>) - By providing you with a scripting language
+    and a really efficient asynchronous network API on the one hand and the
+    information gathered during earlier stages of a scan on the other hand the
+    NSE is suited to write "client" programs for the services listening on a
+    target machine. These "clients" may collect information like: listings of
+    available NFS/SMB/RPC shares, the number of channels of an irc-network or
+    currently logged on users. 
+    </para>
+    
+    <para> 
+    To reflect those different uses and to simplify the choice of which
+    scripts to run, each script contains a field associating it with one or more
+    of the above mentioned categories. To maintain the matching from scripts to
+    categories a file called <filename>script.db</filename> is installed along
+    with the distributed scripts. Therefore, if you, for example, want to see if
+    a machine is infected by any worm Nmap provides a script for you can simply
+    run <command>nmap --script=malware target-ip</command> and check the output
+    afterwards. The <literal>version</literal>-scripts are always run
+    implicitely when a script-scan is requested. The
+    <filename>script.db</filename> is a lua-script itself and can be updated
+    through the <option>--script-updatedb</option> option.  
+    </para>
+    
+    <para>
+    A NSE-script basically is a chunk of lua-code which has (among some
+    informational fields, like name, id and categories) 2 functions: a test
+    whether the particular script should be run against a certain host or port
+    (called a <literal>hostrule</literal> or <literal>portrule</literal>
+    respectively) and an <literal>action</literal> to be carried out if the test
+    returns true. Scripts have access to most information gathered by Nmap
+    during earlier stages. For each host this includes the ip,  hostname and (if
+    available) operating system. If a script is targeted at a port it has access
+    to the portnumber, the protocol (tcp, udp or ssl), the service running
+    behind that port, and optionally information from a version-scan.
+    NSE-scripts have by convention a <literal>.nse</literal>-extension. Although
+    you are not required to follow this for the moment, this may change in the
+    future. Nmap will issue a warning if a file has any other extension.
+    More extensive documentation on the NSE, including a description of its API
+    can be found at <ulink url="http://insecure.org/nmap/nse/" />.
+    </para>
+   
+	<variablelist>
+      <varlistentry>
+        <term><option>-sC</option></term>
+
+        <listitem>
+          <indexterm>
+            <primary>-sC</primary>
+          </indexterm>
+
+          <para>performs a script scan using the default set of scripts. it is 
+		  equivalent to <literal>--script=safe,intrusive</literal></para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>--script=&lt;script-categories|directory|filename&gt;</option></term>
+
+        <listitem>
+          <indexterm>
+            <primary>--script</primary>
+          </indexterm>
+		  <para> 
+		  gives you the opportunity to choose from a custom set of
+		  scripts. You can specify script-categories, single scripts and/or
+		  directories with scripts which are to be run against the target hosts
+		  instead of the default set. Nmap will try to interpret the arguments
+		  at first as categories and afterwards as files or directories in one
+		  of the following places 
+		  <filename>--datadir/</filename> ; 
+		  <filename>$(NMAPDIR)/</filename> ; 
+		  <filename>~user/nmap/</filename> (only on *nix-platforms); 
+          <filename>NMAPDATADIR/</filename> or  
+          <filename>./</filename> (optionally inside a 
+		  <filename>scripts/</filename> subdirectory).
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>--script-trace</option></term>
+
+        <listitem>
+          <indexterm>
+            <primary>--script-trace</primary>
+          </indexterm>
+          <para>
+		  This option does what <option>--packet-trace</option> does,
+          just one ISO layer higher. If this option is specified all incoming
+          and outgiong communication performed by a script is printed. The
+          displayed information includes the communication protocol, the
+          source, the target and the transmitted data. If more than 5% of all
+          transmitted data is not printable, then the trace output is in a hex
+          dump format.
+		  </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>--script-updatedb</option></term>
+
+        <listitem>
+          <indexterm>
+            <primary>--script-updatedb</primary>
+          </indexterm>
+          <para>
+		  updates the script database which stores a mapping from
+          category tags to filenames. The database is a lua script which is
+          interpreted once to choose a set of scripts from the categories 
+		  provided to the <option>--script</option> argument.  
+		  It should be run if you have changed the <literal>categories</literal>
+		  field of a script, if you have added new scripts or if you have 
+		  removed scripts from the <filename>scripts/</filename> directory.
+		  </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+  </refsect1>
 
    <refsect1 id='man-performance'>
     <title>Timing and Performance</title>

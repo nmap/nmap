@@ -258,7 +258,7 @@ printf("%s %s ( %s )\n"
        "  -sC: equivalent to --script=safe,intrusive\n"
        "  --script=<lua scripts>: <lua scripts> is a comma separated list of dirs or scripts\n"
        "  --script-trace: Show all data sent and received\n"
-       "  --script-updatedb: Update the script database. Only performed if -sC or --script was also given.\n"
+       "  --script-updatedb: Update the script database.\n"
 #endif
        "OS DETECTION:\n"
        "  -O: Enable OS detection (try 2nd generation w/fallback to 1st)\n"
