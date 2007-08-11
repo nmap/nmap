@@ -134,6 +134,8 @@ class NmapOutputTable {
   // ptr (and you better not free it until this table is destroyed ).  Skip the itemlen parameter if you
   // don't know (and the function will use strlen).
   void addItem(unsigned int row, unsigned int column, bool copy, const char *item, int itemlen = -1);
+  // Same as above but if fullrow is true, 'item' spans across all columns. The spanning starts from
+  // the column argument (ie. 0 will be the first column)
   void addItem(unsigned int row, unsigned int column, bool fullrow, bool copy, const char *item, int itemlen = -1);
 
   // Like addItem except this version takes a printf-style format string followed by varargs

@@ -170,6 +170,8 @@
  #define ICMP_PKT_FILTERED 13
 #endif
 
+class NmapOutputTable;
+
 /* various pieces of scan data used by
  * traceroute to find responsive ports
  * and match probes */
@@ -347,6 +349,7 @@ class Traceroute {
     pcap_t *pd;
     eth_t *ethsd;
     int fd, total_size;
+    struct in_addr ref_ipaddr;
 
     /* called by outputTarget to log XML data */
     void outputXMLTrace (TraceGroup * tg);
@@ -361,5 +364,9 @@ class Traceroute {
      * when all groups have finished or failed */
     bool readTraceResponses ();
     bool finished ();
+    /* add message to output table "hops 1 to X are the
+     * same as <reference ip>". This message should always
+     * come before none-consolidated hop output */
+    void addConsolidationMessage(NmapOutputTable *Tbl, unsigned short row_count, unsigned short ttl);
 
 };

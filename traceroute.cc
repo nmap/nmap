@@ -203,6 +203,7 @@ Traceroute::Traceroute (const char *device_name, devtype type) {
     hops = NULL;
     pd = NULL;
     total_size = 0;
+    memset(&ref_ipaddr, '\0', sizeof(struct in_addr));
 
     if(type == devt_loopback) 
         return;
@@ -497,9 +498,12 @@ Traceroute::readTraceResponses () {
             tg->setState (G_FINISH);
             tg->consolidation_start = tp->ttl+1;
             break;
-        } else if (commonPath[tp->ttl] == 0)
+        } else if (commonPath[tp->ttl] == 0) {
             commonPath[tp->ttl] = tp->ipreplysrc.s_addr;
-
+	    /* remember which host is the reference trace */
+	    if(tp->ttl == 1)
+		ref_ipaddr = tp->ipdst;
+	}
         break;
     case IPPROTO_TCP:
         if ((unsigned) ip->ip_hl * 4 + 20 > bytes)
@@ -654,7 +658,7 @@ Traceroute::sendTTLProbes (vector < Target * >&Targets, vector < Target * >&vali
             scaninfo.initial_proto = IPPROTO_IP;
         }
 
-        /* start of with a random source port and increment 
+        /* start off with a random source port and increment 
          * it for each probes sent. The source port is the
          * distinguishing value used to identify each probe */
         sport = get_random_u16 ();
@@ -664,7 +668,7 @@ Traceroute::sendTTLProbes (vector < Target * >&Targets, vector < Target * >&vali
         tg->sport++;
         TraceGroups[tg->ipdst] = tg;
 
-        /* OS fingerprint engine may already has the distance so
+        /* OS fingerprint engine may already have the distance so
          * we don't need to calculate it */
         if (t->distance != -1) {
             tg->setHopDistance (0, t->distance);
@@ -882,12 +886,12 @@ Traceroute::trace (vector < Target * >&Targets) {
 
 /* Resolves traceroute hops through nmaps
  * parallel caching rdns infrastructure.
- * The <hops> argument should be NULL and needs
+ * The <hops> class variable should be NULL and needs
  * freeing after the hostnames are finished 
  * with 
  *
  * N.B TraceProbes contain pointers into the Target
- * argument, if it is free'ed prematurely something
+ * structure, if it is free'ed prematurely something
  * nasty will happen */
 void Traceroute::resolveHops () {
     map<u32, TraceGroup *>::iterator tg_iter;
@@ -929,6 +933,24 @@ void Traceroute::resolveHops () {
     nmap_mass_rdns(hops, count);
 }
 
+void
+Traceroute::addConsolidationMessage(NmapOutputTable *Tbl, unsigned short row_count, unsigned short ttl) {
+	char mbuf[64];
+	int len;
+
+	assert(ref_ipaddr.s_addr);
+	char *ip = inet_ntoa(ref_ipaddr);
+
+	if(ttl == 1)
+		len = snprintf(mbuf, 64, "Hop 1 is the same as %s", ip);
+	else
+		len = snprintf(mbuf, 64, "Hops 1-%d are the same as %s", ttl, ip);
+
+	assert(len);
+	Tbl->addItem(row_count, HOP_COL, true, "-", 1);
+	Tbl->addItem(row_count, RTT_COL, true, true, mbuf, len);
+}
+
 /* print a trace in plain text format */
 void
 Traceroute::outputTarget (Target * t) {
@@ -957,7 +979,7 @@ Traceroute::outputTarget (Target * t) {
 
     /* clean up and consolidate traces */
     tg->consolidateHops ();
-    /* calculate length of table, post-consolidation */
+
     this->outputXMLTrace(tg);
 
     /* table headers */
@@ -980,7 +1002,6 @@ Traceroute::outputTarget (Target * t) {
                 Tbl->addItemFormatted(row_count, HOST_COL, false, "%s", hostStr(commonPath[ttl_count]));
             } else if(!common_consolidation) {
                 row_count++;
-                Tbl->addItemFormatted(row_count, HOP_COL, false, "%d", ttl_count);
                 common_consolidation = true;
             }
         }
@@ -992,7 +1013,7 @@ Traceroute::outputTarget (Target * t) {
 				Tbl->addItemFormatted(row_count, RTT_COL, false, "--");
 				Tbl->addItemFormatted(row_count, HOST_COL,false,  "%s", hostStr(commonPath[ttl_count-2]));
 			} else {
-				Tbl->addItemFormatted(row_count, RTT_COL, false, "--> %d", ttl_count-2);
+				addConsolidationMessage(Tbl, row_count, ttl_count-2);
 			}
 			common_consolidation = false;
 			break;
@@ -1011,7 +1032,7 @@ Traceroute::outputTarget (Target * t) {
                 Tbl->addItemFormatted(row_count, RTT_COL, false, "--", ttl_count-1);
                 Tbl->addItemFormatted(row_count, HOST_COL,false,  "%s", hostStr(commonPath[ttl_count-1]));
             } else {
-                Tbl->addItemFormatted(row_count, RTT_COL, false, "--> %d", ttl_count-1);
+		addConsolidationMessage(Tbl, row_count, ttl_count-1);
 	    }
             common_consolidation = false;
         }
@@ -1029,10 +1050,12 @@ Traceroute::outputTarget (Target * t) {
                Tbl->addItem (row_count, RTT_COL, false, "... 50");
             row_count--;
         } else if(!tp->timing.consolidated && last_consolidation) { 
+	    Tbl->addItem(row_count, HOST_COL, false, "no response", 11);
             if(consol_count>1) 
                 Tbl->addItemFormatted(row_count, RTT_COL, false, "... %d", tp->ttl-1);
             else
                 Tbl->addItemFormatted(row_count, RTT_COL, false, "...");
+
             row_count++;
             last_consolidation = false;
             consol_count = 0;
@@ -1047,8 +1070,7 @@ Traceroute::outputTarget (Target * t) {
             Tbl->addItem (row_count, RTT_COL, true, timebuf);
             Tbl->addItem (row_count, HOST_COL, true, tp->nameIP ());
         } else 
-            Tbl->addItemFormatted (row_count, RTT_COL, false, "...");
-
+           Tbl->addItemFormatted (row_count, RTT_COL, false, "...");
     }
 
     }
