@@ -744,6 +744,7 @@ int PortList::setStateReason(u16 portno, u8 proto, reason_t reason, u8 ttl, u32 
     answer->reason.reason_id = reason;
     answer->reason.ip_addr.s_addr = ip_addr;
 	answer->reason.ttl = ttl;
+    answer->reason.state = answer->state;
     setPortEntry(portno, proto, answer);
     return 0;
 }

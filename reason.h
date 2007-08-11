@@ -119,6 +119,7 @@ typedef struct port_reason {
 	reason_t reason_id;
 	struct in_addr ip_addr;
 	unsigned short ttl;
+	int state;
 } state_reason_t;
 
 /* used to calculate state reason summaries.
@@ -173,7 +174,7 @@ const char *reason_str(reason_t reason_id, unsigned int number);
 
 /* Displays reason summary messages */
 void print_state_summary(PortList *Ports, unsigned short type);
-void print_xml_state_summary(PortList *Ports);
+void print_xml_state_summary(PortList *Ports, int state);
 
 /* Build an output string based on reason and source ip address.
  * Uses static return value so previous values will be over

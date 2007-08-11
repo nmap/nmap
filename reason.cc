@@ -250,7 +250,7 @@ static int update_state_summary(state_reason_summary_t *head, reason_t reason_id
 
 /* Converts Port objects and their corrosponsing state_reason structures into
  * state_reason_summary structures using update_state_summary */
-static unsigned int get_state_summary(state_reason_summary_t *head, PortList *Ports) {
+static unsigned int get_state_summary(state_reason_summary_t *head, PortList *Ports, int state) {
 	Port *current = NULL;
 	state_reason_summary_t *reason;
 	unsigned int total = 0;
@@ -260,7 +260,7 @@ static unsigned int get_state_summary(state_reason_summary_t *head, PortList *Po
 		return 0;
 	reason = head;
 
-	while((current = Ports->nextPort(current, proto, 0)) != NULL) {
+	while((current = Ports->nextPort(current, proto, state)) != NULL) {
 		if(Ports->isIgnoredState(current->state)) {
 			total++;
 			update_state_summary(reason, current->reason.reason_id);
@@ -270,7 +270,7 @@ static unsigned int get_state_summary(state_reason_summary_t *head, PortList *Po
 }
 
 /* parse and sort reason summary for main print_* functions */
-static state_reason_summary_t *print_state_summary_internal(PortList *Ports) {
+static state_reason_summary_t *print_state_summary_internal(PortList *Ports, int state) {
 	state_reason_summary_t *reason_head;
 
 	if((reason_head = (state_reason_summary_t *)malloc(sizeof(state_reason_summary_t))) == NULL)  {
@@ -280,7 +280,7 @@ static state_reason_summary_t *print_state_summary_internal(PortList *Ports) {
 
 	state_reason_summary_init(reason_head);
 
-	if((get_state_summary(reason_head, Ports) < 1)) {
+	if((get_state_summary(reason_head, Ports, state) < 1)) {
 		state_reason_summary_dinit(reason_head);
 		return NULL;
 	}
@@ -316,7 +316,7 @@ void print_state_summary(PortList *Ports, unsigned short type) {
 	char *separator = ", ";
 	int states;
 
-	if((reason_head = print_state_summary_internal(Ports)) == NULL)
+	if((reason_head = print_state_summary_internal(Ports, 0)) == NULL)
 		return;
 	
 	if(type == STATE_REASON_EMPTY)
@@ -346,10 +346,10 @@ void print_state_summary(PortList *Ports, unsigned short type) {
 	state_reason_summary_dinit(reason_head);
 }
 
-void print_xml_state_summary(PortList *Ports) {
+void print_xml_state_summary(PortList *Ports, int state) {
 	state_reason_summary_t *reason_head, *currentr;
 
-	if((currentr = reason_head = print_state_summary_internal(Ports)) == NULL)
+	if((currentr = reason_head = print_state_summary_internal(Ports, state)) == NULL)
 		return;
 	
 	while(currentr != NULL) {

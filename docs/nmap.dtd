@@ -161,9 +161,9 @@
 
 <!-- these elements are written by output.c:printportoutput() -->
 
-<!ELEMENT ports		(extraports* , extrareasons*, port*) >
+<!ELEMENT ports		(extraports* , port*) >
 
-<!ELEMENT extraports	EMPTY >
+<!ELEMENT extraports	(extrareasons)* >
 <!ATTLIST extraports
 			state		%port_states;	#REQUIRED
 			count		%attr_numeric;  #REQUIRED	

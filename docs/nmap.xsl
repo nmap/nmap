@@ -505,15 +505,15 @@
     <xsl:if test="@count > 0">
 	    <p>The <xsl:value-of select="@count" /> ports scanned but not shown below are in state: <b><xsl:value-of select="@state" /></b></p>
     </xsl:if>
-</xsl:for-each>
 
-<ul>
-<xsl:for-each select="extrareasons">
-    <xsl:if test="@count > 0">
-	    <li><p><xsl:value-of select="@count" /> ports replied with: <b><xsl:value-of select="@reason" /></b></p></li>
-    </xsl:if>
+    <ul>
+    <xsl:for-each select="extrareasons">
+        <xsl:if test="@count > 0">
+            <li><p><xsl:value-of select="@count" /> ports replied with: <b><xsl:value-of select="@reason" /></b></p></li>
+        </xsl:if>
+    </xsl:for-each>
+    </ul>
 </xsl:for-each>
-</ul>
 
 <xsl:if test="count(port) > 0">
     <table cellspacing="1">

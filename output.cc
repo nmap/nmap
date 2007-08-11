@@ -456,12 +456,12 @@ void printportoutput(Target *currenths, PortList *plist) {
   int istate;
 
   while ((istate = plist->nextIgnoredState(prevstate)) != PORT_UNKNOWN) {
-    log_write(LOG_XML, "<extraports state=\"%s\" count=\"%d\" />\n", 
+    log_write(LOG_XML, "<extraports state=\"%s\" count=\"%d\">\n", 
 	    statenum2str(istate), plist->getStateCounts(istate));
+    print_xml_state_summary(plist, istate);
+    log_write(LOG_XML, "</extraports>\n");
     prevstate = istate;
   }
-
-  print_xml_state_summary(plist);
 
   if (numignoredports == plist->numports) {
     log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,
