@@ -20,8 +20,8 @@
   ;Get installation folder from registry if available 
   InstallDirRegKey HKCU "Software\Nmap" "" 
  
-  !define VERSION "4.21ALPHA5"  
-  VIProductVersion "4.21.0.5"
+  !define VERSION "4.22SOC2"  
+  VIProductVersion "4.22.0.2"
   VIAddVersionKey /LANG=1033 "FileVersion" "${VERSION}"
   VIAddVersionKey /LANG=1033 "ProductName" "Nmap" 
   VIAddVersionKey /LANG=1033 "CompanyName" "Insecure.org" 
@@ -46,12 +46,62 @@
    
   !insertmacro MUI_UNPAGE_CONFIRM 
   !insertmacro MUI_UNPAGE_INSTFILES 
+  Page custom shortcutsPage makeShortcuts
    
 ;-------------------------------- 
 ;Languages 
   
   !insertmacro MUI_LANGUAGE "English" 
- 
+
+;--------------------------------
+;Variables
+
+Var umitset
+
+;--------------------------------
+;Reserves
+
+ReserveFile "shortcuts.ini"
+!insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
+
+;--------------------------------
+;Functions
+
+Function .onInit
+  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "shortcuts.ini"
+FunctionEnd
+
+
+Function shortcutsPage
+  StrCmp $umitset "" skip
+
+  !insertmacro MUI_HEADER_TEXT "Create Shortcuts" ""
+  !insertmacro MUI_INSTALLOPTIONS_DISPLAY "shortcuts.ini"  
+
+  skip:
+FunctionEnd
+
+Function makeShortcuts
+  StrCmp $umitset "" skip
+
+  SetOutPath "$INSTDIR\umit"
+
+  ReadINIStr $0 "$PLUGINSDIR\shortcuts.ini" "Field 1" "State"
+  StrCmp $0 "0" skipdesktop
+  CreateShortCut "$DESKTOP\Nmap - UMIT GUI.lnk" "$INSTDIR\umit\umit.exe"
+
+  skipdesktop:
+
+  ReadINIStr $0 "$PLUGINSDIR\shortcuts.ini" "Field 2" "State"
+  StrCmp $0 "0" skipstartmenu
+  CreateDirectory "$SMPROGRAMS\Nmap"
+  CreateShortCut "$SMPROGRAMS\Nmap\Nmap - UMIT GUI.lnk" "$INSTDIR\umit\umit.exe"
+
+  skipstartmenu:
+
+  skip:
+FunctionEnd
+
 ;-------------------------------- 
 ;Installer Sections 
  
@@ -110,10 +160,9 @@ SectionEnd
 
 Section "UMIT (GUI frontend)" SecUmit
   File /r ..\nmap-${VERSION}\umit
-  CreateShortCut "$DESKTOP\Nmap - UMIT GUI.lnk" "$INSTDIR\umit\umit.exe"
-  CreateDirectory "$SMPROGRAMS\Nmap"
-  CreateShortcut "$SMPROGRAMS\Nmap\Nmap - UMIT GUI.lnk" "$INSTDIR\umit\umit.exe"
+  StrCpy $umitset "true"
 SectionEnd
+
  
 ;-------------------------------- 
 ;Descriptions 
