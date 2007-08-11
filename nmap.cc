@@ -2355,6 +2355,8 @@ char *tsseqclass2ascii(int seqclass) {
     return "100HZ";
   case TS_SEQ_1000HZ:
     return "1000HZ";
+  case TS_SEQ_OTHER_NUM:
+    return "other";
   case TS_SEQ_UNSUPPORTED:
     return "none returned (unsupported)";
   case TS_SEQ_UNKNOWN:
