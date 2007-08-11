@@ -3080,7 +3080,8 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	    newstate = PORT_FILTERED;
 	    break;
 	  case 2: /* protocol unreachable */
-	    if (USI->scantype == IPPROT_SCAN) {
+	    if (USI->scantype == IPPROT_SCAN && 
+		hss->target->v4hostip()->s_addr == ip->ip_src.s_addr) {
 	      newstate = PORT_CLOSED;
 	    } else
 	      newstate = PORT_FILTERED;
