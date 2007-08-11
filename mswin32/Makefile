@@ -5,6 +5,7 @@ export NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION'
 COMMA_VERSION=$(shell echo $(NMAP_NUM_VERSION) | tr '.' ',')
 LOGLOC=c:nmapbuild.log
 NSE_FILES = scripts/script.db scripts/*.nse
+NSE_LIB_FILES = nselib/*.lua nselib/*.dll
 
 winbuild:
 # VCExpress.exe is devenv.com with the commercial Visual Studio suite instead of VC++ Express
@@ -23,6 +24,8 @@ winbuild:
 	cd Release && cp -r ../../CHANGELOG ../../COPYING nmap-mac-prefixes nmap-os-fingerprints nmap-os-db nmap-protocols nmap-rpc nmap-service-probes nmap-services nmap.exe nmap.xsl ../nmap_performance.reg ../../README-WIN32 ../nmap-$(NMAP_VERSION)/
 	mkdir nmap-$(NMAP_VERSION)/scripts
 	cd Release && cp -f $(NSE_FILES) ../nmap-$(NMAP_VERSION)/scripts/
+	mkdir nmap-$(NMAP_VERSION)/nselib
+	cd Release && cp -f $(NSE_LIB_FILES) ../nmap-$(NMAP_VERSION)/nselib/
 	zip -r nmap-$(NMAP_VERSION)-win32.zip nmap-$(NMAP_VERSION)
 	cp winpcap/winpcap-nmap-*.exe nmap-$(NMAP_VERSION)
 	cp nsis/AddToPath.nsh nsis/Nmap.nsi nmap-$(NMAP_VERSION)

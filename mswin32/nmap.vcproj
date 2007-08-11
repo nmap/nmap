@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="nmap"
 	ProjectGUID="{361719F0-AB42-4C93-9DE8-7D2144B96625}"
 	RootNamespace="nmap"
@@ -107,7 +107,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy &quot;$(SolutionDir)..\scripts&quot; &quot;.\$(ConfigurationName)\scripts\&quot; /e /y"
+				CommandLine="xcopy &quot;$(SolutionDir)..\scripts&quot; &quot;.\$(ConfigurationName)\scripts\&quot; /e /y "
 			/>
 		</Configuration>
 		<Configuration
@@ -263,10 +263,6 @@
 			</File>
 			<File
 				RelativePath="..\nse_auxiliar.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\nse_bitlib.cc"
 				>
 			</File>
 			<File
@@ -452,10 +448,6 @@
 			</File>
 			<File
 				RelativePath="..\nse_auxiliar.h"
-				>
-			</File>
-			<File
-				RelativePath="..\nse_bitlib.h"
 				>
 			</File>
 			<File

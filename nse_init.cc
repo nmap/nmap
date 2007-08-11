@@ -4,7 +4,6 @@
 #include "nse_debug.h"
 
 // 3rd Party libs
-#include "nse_bitlib.h"
 #include "nse_pcrelib.h"
 
 #include "nbase.h"
@@ -45,7 +44,6 @@ int init_lua(lua_State* l) {
 		{LUA_STRLIBNAME, luaopen_string},
 		{LUA_MATHLIBNAME, luaopen_math},
 		{LUA_DBLIBNAME, luaopen_debug},
-		{NSE_BITLIBNAME, luaopen_bitlib},
 		{NSE_PCRELIBNAME, luaopen_pcrelib},
 		{NULL, NULL}
 	}; 
@@ -83,7 +81,12 @@ int init_setlualibpath(lua_State* l){
 	 * (which is read from the package-module) appended  - 
 	 * the path for C-modules is as above but it searches for shared libs (*.so)	*/
 	luapath= std::string(path) + "?.lua;"; 
-	luacpath= std::string(path) + "?.so;"; 
+#ifdef WIN32
+	luacpath= std::string(path) + "?.dll;";
+#else
+	luacpath= std::string(path) + "?.so;";
+#endif
+ 
 	lua_getglobal(l,"package");
 	if(!lua_istable(l,-1)){
 		error("%s: the lua global-variable package is not a table?!", SCRIPT_ENGINE);
