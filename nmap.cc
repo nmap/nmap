@@ -1446,13 +1446,13 @@ int nmap_main(int argc, char *argv[]) {
 
   // At this point we should fully know our timing parameters
   if (o.debugging) {
-    printf("--------------- Timing report ---------------\n");
-    printf("  hostgroups: min %d, max %d\n", o.minHostGroupSz(), o.maxHostGroupSz());
-    printf("  rtt-timeouts: init %d, min %d, max %d\n", o.initialRttTimeout(), o.minRttTimeout(), o.maxRttTimeout());
-    printf("  max-scan-delay: TCP %d, UDP %d\n", o.maxTCPScanDelay(), o.maxUDPScanDelay());
-    printf("  parallelism: min %d, max %d\n", o.min_parallelism, o.max_parallelism);
-    printf("  max-retries: %d, host-timeout: %ld\n", o.getMaxRetransmissions(), o.host_timeout);
-    printf("---------------------------------------------\n");
+    log_write(LOG_PLAIN, "--------------- Timing report ---------------\n");
+    log_write(LOG_PLAIN, "  hostgroups: min %d, max %d\n", o.minHostGroupSz(), o.maxHostGroupSz());
+    log_write(LOG_PLAIN, "  rtt-timeouts: init %d, min %d, max %d\n", o.initialRttTimeout(), o.minRttTimeout(), o.maxRttTimeout());
+    log_write(LOG_PLAIN, "  max-scan-delay: TCP %d, UDP %d\n", o.maxTCPScanDelay(), o.maxUDPScanDelay());
+    log_write(LOG_PLAIN, "  parallelism: min %d, max %d\n", o.min_parallelism, o.max_parallelism);
+    log_write(LOG_PLAIN, "  max-retries: %d, host-timeout: %ld\n", o.getMaxRetransmissions(), o.host_timeout);
+    log_write(LOG_PLAIN, "---------------------------------------------\n");
   }
 
   /* Before we randomize the ports scanned, we must initialize PortList class. */

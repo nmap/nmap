@@ -455,7 +455,7 @@ int PortList::addPort(u16 portno, u8 protocol, char *owner, int state) {
 int PortList::removePort(u16 portno, u8 protocol) {
   Port *answer = NULL;
 
-  printf("Removed %d\n", portno);
+  log_write(LOG_PLAIN, "Removed %d\n", portno);
 
   answer = getPortEntry(portno, protocol);
   if (!answer)

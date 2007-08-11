@@ -168,6 +168,9 @@ class NmapOps {
   int sendpref;
   bool packetTrace() { return (debugging >= 3)? true : pTrace;  }
   bool versionTrace() { return packetTrace()? true : vTrace;  }
+#ifndef NOLUA
+  bool scriptTrace() { return packetTrace()? true : scripttrace; }
+#endif
   // Note that packetTrace may turn on at high debug levels even if
   // setPacketTrace(false) has been called
   void setPacketTrace(bool pt) { pTrace = pt;  }

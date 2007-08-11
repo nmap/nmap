@@ -910,7 +910,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
       }
 
       if (o.debugging)
-	printf("The avg TCP TS HZ is: %f\n", avg_ts_hz);
+	log_write(LOG_PLAIN, "The avg TCP TS HZ is: %f\n", avg_ts_hz);
      
       if (avg_ts_hz > 0 && avg_ts_hz < 3.9) { /* relatively wide range because sampling time so short and frequency so slow */
 	si->ts_seqclass = TS_SEQ_2HZ;
@@ -1164,11 +1164,11 @@ static int compareclassifications(FingerPrint *referenceFP,
     }
   } else {
     if (verbose)
-      printf("Observed fingerprint lacks a classification\n");
+      log_write(LOG_PLAIN, "Observed fingerprint lacks a classification\n");
     return 1;
   }
   if (verbose)
-    printf("[WARN] Classification of observed fingerprint does not appear in reference fingerprint.\n");
+    log_write(LOG_PLAIN, "[WARN] Classification of observed fingerprint does not appear in reference fingerprint.\n");
   return 1;
 }
 
@@ -1293,9 +1293,9 @@ static int AVal_match(struct AVal *reference, struct AVal *fprint, struct AVal *
 	  return 0;
 	}
 	if (verbose) 
-	  printf("%s.%s: \"%s\" NOMATCH \"%s\" (%d %s)\n", testGroupName, 
-		 current_ref->attribute, current_fp->value, 
-		 current_ref->value, pointsThisTest, (pointsThisTest == 1)? "point" : "points");
+	  log_write(LOG_PLAIN, "%s.%s: \"%s\" NOMATCH \"%s\" (%d %s)\n", testGroupName, 
+		    current_ref->attribute, current_fp->value, 
+		    current_ref->value, pointsThisTest, (pointsThisTest == 1)? "point" : "points");
       } else subtests_succeeded += pointsThisTest;
       /* Whew, we made it past one Attribute alive , on to the next! */
   }

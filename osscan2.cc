@@ -782,7 +782,7 @@ list<OFProbe *>::iterator HostOsScanStats::getActiveProbe(OFProbeType type, int 
   if(probeI == probesActive.end()) {
     /* not found!? */ 
     if(o.debugging > 1)
-      printf("Probe doesn't exist! Probe type: %d. Probe subid: %d\n", type, subid);
+      log_write(LOG_PLAIN, "Probe doesn't exist! Probe type: %d. Probe subid: %d\n", type, subid);
     return probesActive.end();
   }
   
@@ -811,8 +811,8 @@ double HostOsScanStats::timingRatio() {
   int msec_taken = TIMEVAL_MSEC_SUBTRACT(seq_send_times[NUM_SEQ_SAMPLES -1 ], 
 					 seq_send_times[0]);
   if (o.debugging) {
-    printf("OS detection timingRatio() == (%.3f - %.3f) * 1000 / %d == %.3f\n",
-	   seq_send_times[NUM_SEQ_SAMPLES - 1].tv_sec + seq_send_times[NUM_SEQ_SAMPLES - 1].tv_usec / 1000000.0, seq_send_times[0].tv_sec + (float) seq_send_times[0].tv_usec / 1000000.0, msec_ideal, (float) msec_taken / msec_ideal);
+    log_write(LOG_PLAIN, "OS detection timingRatio() == (%.3f - %.3f) * 1000 / %d == %.3f\n",
+	      seq_send_times[NUM_SEQ_SAMPLES - 1].tv_sec + seq_send_times[NUM_SEQ_SAMPLES - 1].tv_usec / 1000000.0, seq_send_times[0].tv_sec + (float) seq_send_times[0].tv_usec / 1000000.0, msec_ideal, (float) msec_taken / msec_ideal);
   }
   return (double) msec_taken / msec_ideal;
 }
@@ -1283,8 +1283,8 @@ void HostOsScan::sendNextProbe(HostOsScanStats *hss) {
   hss->moveProbeToActiveList(probeI);
 
   if (o.debugging > 1) {
-    printf("Send probe (type: %s, subid: %d) to %s\n",
-           probe->typestr(), probe->subid, hss->target->targetipstr());
+    log_write(LOG_PLAIN, "Send probe (type: %s, subid: %d) to %s\n",
+              probe->typestr(), probe->subid, hss->target->targetipstr());
   }
   
 }
@@ -1521,8 +1521,8 @@ bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int l
       adjust_times(hss, probe, rcvdtime);
 
 	if(o.debugging > 1)
-	  printf("Got a valid response for probe (type: %s subid: %d) from %s\n",
-			 probe->typestr(), probe->subid, hss->target->targetipstr());
+	  log_write(LOG_PLAIN, "Got a valid response for probe (type: %s subid: %d) from %s\n",
+		    probe->typestr(), probe->subid, hss->target->targetipstr());
 
     /* delete the probe. */
     hss->removeActiveProbe(probeI);
@@ -3290,7 +3290,7 @@ static void begin_sniffer(HostOsScan *HOS, vector<Target *> &Targets) {
     fatal("ran out of space in pcap filter");
   filterlen = len;
     
-  if (o.debugging > 2) printf("Pcap filter: %s\n", pcap_filter);
+  if (o.debugging > 2) log_write(LOG_PLAIN, "Pcap filter: %s\n", pcap_filter);
   set_pcap_filter(Targets[0]->deviceName(), HOS->pd, pcap_filter);
   
   return;
@@ -3347,7 +3347,7 @@ static void doSeqTests(OsScanInfo *OSI, HostOsScan *HOS) {
   do {
     if(timeToSleep > 0) {
       if(o.debugging > 1) {
-        printf("Sleep %dus for next sequence probe\n", timeToSleep);
+        log_write(LOG_PLAIN, "Sleep %dus for next sequence probe\n", timeToSleep);
       }
       usleep(timeToSleep);
     }
@@ -3359,9 +3359,9 @@ static void doSeqTests(OsScanInfo *OSI, HostOsScan *HOS) {
     if(o.debugging > 2) {
 	  for(hostI = OSI->incompleteHosts.begin(); hostI != OSI->incompleteHosts.end(); hostI++) {
         hss = (*hostI)->hss;
-        printf("Host %s. ProbesToSend %d: \tProbesActive %d\n",
-               hss->target->targetipstr(), hss->numProbesToSend(),
-               hss->numProbesActive());
+        log_write(LOG_PLAIN, "Host %s. ProbesToSend %d: \tProbesActive %d\n",
+                  hss->target->targetipstr(), hss->numProbesToSend(),
+                  hss->numProbesActive());
       }
     }
     
@@ -3416,7 +3416,7 @@ static void doSeqTests(OsScanInfo *OSI, HostOsScan *HOS) {
       if(to_usec < 2000) to_usec = 2000;
       
       if(o.debugging > 2)
-        printf("pcap wait time is %ld.\n", to_usec);
+        log_write(LOG_PLAIN, "pcap wait time is %ld.\n", to_usec);
       
       ip = (struct ip*) readip_pcap(HOS->pd, &bytes, to_usec, &rcvdtime, &linkhdr);
     
@@ -3514,7 +3514,7 @@ static void doTUITests(OsScanInfo *OSI, HostOsScan *HOS) {
 
     if(timeToSleep > 0) {
       if(o.debugging > 1) {
-        printf("Time to sleep %d. Sleeping. \n", timeToSleep);
+        log_write(LOG_PLAIN, "Time to sleep %d. Sleeping. \n", timeToSleep);
       }
     
       usleep(timeToSleep);
@@ -3528,9 +3528,9 @@ static void doTUITests(OsScanInfo *OSI, HostOsScan *HOS) {
       for(hostI = OSI->incompleteHosts.begin(); 
           hostI != OSI->incompleteHosts.end(); hostI++) {
         hss = (*hostI)->hss;
-        printf("Host %s. ProbesToSend %d: \tProbesActive %d\n",
-               hss->target->targetipstr(), hss->numProbesToSend(),
-               hss->numProbesActive());
+        log_write(LOG_PLAIN, "Host %s. ProbesToSend %d: \tProbesActive %d\n",
+                  hss->target->targetipstr(), hss->numProbesToSend(),
+                  hss->numProbesActive());
       }
     }
     
@@ -3585,7 +3585,7 @@ static void doTUITests(OsScanInfo *OSI, HostOsScan *HOS) {
       if(to_usec < 2000) to_usec = 2000;
       
       if(o.debugging > 2)
-        printf("pcap wait time is %ld.\n", to_usec);
+        log_write(LOG_PLAIN, "pcap wait time is %ld.\n", to_usec);
       
       ip = (struct ip*) readip_pcap(HOS->pd, &bytes, to_usec, &rcvdtime, &linkhdr);
     
@@ -3849,7 +3849,7 @@ static int os_scan_2(vector<Target *> &Targets) {
       if (!plural) {
 	(*(OSI->incompleteHosts.begin()))->target->NameIP(targetstr, sizeof(targetstr));
       } else snprintf(targetstr, sizeof(targetstr), "%d hosts", (int) OSI->numIncompleteHosts());
-      printf("%s OS detection (try #%d) against %s\n", (itry == 0)? "Initiating" : "Retrying", itry + 1, targetstr);
+      log_write(LOG_PLAIN, "%s OS detection (try #%d) against %s\n", (itry == 0)? "Initiating" : "Retrying", itry + 1, targetstr);
       log_flush_all();
     }
     startRound(OSI, HOS, itry);

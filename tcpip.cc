@@ -1565,36 +1565,35 @@ strncpy(sourcehost, inet_ntoa(bullshit), 16);
 i =  4 * (ntohs(ip->ip_hl) + ntohs(tcp->th_off));
 if (ip->ip_p== IPPROTO_TCP) {
   if (realfrag) 
-    printf("Packet is fragmented, offset field: %u\n", realfrag);
+    log_write(LOG_PLAIN, "Packet is fragmented, offset field: %u\n", realfrag);
   else {
-    printf("TCP packet: %s:%d -> %s:%d (total: %d bytes)\n", sourcehost, 
-	   ntohs(tcp->th_sport), inet_ntoa(bullshit2), 
-	   ntohs(tcp->th_dport), tot_len);
-    printf("Flags: ");
-    if (!tcp->th_flags) printf("(none)");
-    if (tcp->th_flags & TH_RST) printf("RST ");
-    if (tcp->th_flags & TH_SYN) printf("SYN ");
-    if (tcp->th_flags & TH_ACK) printf("ACK ");
-    if (tcp->th_flags & TH_PUSH) printf("PSH ");
-    if (tcp->th_flags & TH_FIN) printf("FIN ");
-    if (tcp->th_flags & TH_URG) printf("URG ");
-    printf("\n");
+    log_write(LOG_PLAIN, "TCP packet: %s:%d -> %s:%d (total: %d bytes)\n", sourcehost, 
+	      ntohs(tcp->th_sport), inet_ntoa(bullshit2), 
+	      ntohs(tcp->th_dport), tot_len);
+    log_write(LOG_PLAIN, "Flags: ");
+    if (!tcp->th_flags) log_write(LOG_PLAIN, "(none)");
+    if (tcp->th_flags & TH_RST) log_write(LOG_PLAIN, "RST ");
+    if (tcp->th_flags & TH_SYN) log_write(LOG_PLAIN, "SYN ");
+    if (tcp->th_flags & TH_ACK) log_write(LOG_PLAIN, "ACK ");
+    if (tcp->th_flags & TH_PUSH) log_write(LOG_PLAIN, "PSH ");
+    if (tcp->th_flags & TH_FIN) log_write(LOG_PLAIN, "FIN ");
+    if (tcp->th_flags & TH_URG) log_write(LOG_PLAIN, "URG ");
+    log_write(LOG_PLAIN, "\n");
 
-    printf("ipid: %hu ttl: %hu ", ntohs(ip->ip_id), ip->ip_ttl);
+    log_write(LOG_PLAIN, "ipid: %hu ttl: %hu ", ntohs(ip->ip_id), ip->ip_ttl);
 
-    if (tcp->th_flags & (TH_SYN | TH_ACK)) printf("Seq: %u\tAck: %u\n", 
-						  (unsigned int) ntohl(tcp->th_seq), (unsigned int) ntohl(tcp->th_ack));
-    else if (tcp->th_flags & TH_SYN) printf("Seq: %u\n", (unsigned int) ntohl(tcp->th_seq));
-    else if (tcp->th_flags & TH_ACK) printf("Ack: %u\n", (unsigned int) ntohl(tcp->th_ack));
+    if (tcp->th_flags & (TH_SYN | TH_ACK)) log_write(LOG_PLAIN, "Seq: %u\tAck: %u\n", (unsigned int) ntohl(tcp->th_seq), (unsigned int) ntohl(tcp->th_ack));
+    else if (tcp->th_flags & TH_SYN) log_write(LOG_PLAIN, "Seq: %u\n", (unsigned int) ntohl(tcp->th_seq));
+    else if (tcp->th_flags & TH_ACK) log_write(LOG_PLAIN, "Ack: %u\n", (unsigned int) ntohl(tcp->th_ack));
   }
 }
 if (readdata && i < tot_len) {
-  printf("Data portion:\n");
+  log_write(LOG_PLAIN, "Data portion:\n");
   while(i < tot_len)  {
-    printf("%2X%c", data[i], ((i+1) %16)? ' ' : '\n');
+    log_write(LOG_PLAIN, "%2X%c", data[i], ((i+1) %16)? ' ' : '\n');
     i++;
   }
-  printf("\n");
+  log_write(LOG_PLAIN, "\n");
 }
 return 0;
 }
@@ -1625,22 +1624,22 @@ strncpy(sourcehost, inet_ntoa(bullshit), 16);
 i =  4 * (ntohs(ip->ip_hl)) + 8;
 if (ip->ip_p== IPPROTO_UDP) {
   if (realfrag) 
-    printf("Packet is fragmented, offset field: %u\n", realfrag);
+    log_write(LOG_PLAIN, "Packet is fragmented, offset field: %u\n", realfrag);
   else {
-    printf("UDP packet: %s:%d -> %s:%d (total: %d bytes)\n", sourcehost, 
-	   ntohs(udp->uh_sport), inet_ntoa(bullshit2), 
-	   ntohs(udp->uh_dport), tot_len);
+    log_write(LOG_PLAIN, "UDP packet: %s:%d -> %s:%d (total: %d bytes)\n", sourcehost, 
+	      ntohs(udp->uh_sport), inet_ntoa(bullshit2), 
+	      ntohs(udp->uh_dport), tot_len);
 
-    printf("ttl: %hu ", ip->ip_ttl);
+    log_write(LOG_PLAIN, "ttl: %hu ", ip->ip_ttl);
   }
 }
  if (readdata && i < tot_len) {
-   printf("Data portion:\n");
+   log_write(LOG_PLAIN, "Data portion:\n");
    while(i < tot_len)  {
-     printf("%2X%c", data[i], ((i+1)%16)? ' ' : '\n');
+     log_write(LOG_PLAIN, "%2X%c", data[i], ((i+1)%16)? ' ' : '\n');
      i++;
    }
-   printf("\n");
+   log_write(LOG_PLAIN, "\n");
  }
  return 0;
 }

@@ -1514,7 +1514,7 @@ static void ultrascan_adjust_times(UltraScanInfo *USI, HostScanStats *hss,
   if (probe->tryno > 0 || !rcvdtime) {
     /* A previous probe must have been lost ... */
     if (o.debugging > 1)
-      printf("Ultrascan DROPPED %sprobe packet to %s detected\n", probe->isPing()? "PING " : "", hss->target->targetipstr());
+      log_write(LOG_PLAIN, "Ultrascan DROPPED %sprobe packet to %s detected\n", probe->isPing()? "PING " : "", hss->target->targetipstr());
     // Drops often come in big batches, but we only want one decrease per batch.
     if (TIMEVAL_SUBTRACT(probe->sent, hss->timing.last_drop) > 0) {
       hss->timing.cwnd = USI->perf.low_cwnd;
@@ -1573,9 +1573,9 @@ static void ultrascan_adjust_times(UltraScanInfo *USI, HostScanStats *hss,
     unsigned int olddelay = hss->sdn.delayms;
     hss->boostScanDelay();
     if (o.verbose && hss->sdn.delayms != olddelay)
-      printf("Increasing send delay for %s from %d to %d due to %d out of %d dropped probes since last increase.\n", 
-	     hss->target->targetipstr(), olddelay, hss->sdn.delayms, oldbad, 
-	     oldbad + oldgood);
+      log_write(LOG_PLAIN, "Increasing send delay for %s from %d to %d due to %d out of %d dropped probes since last increase.\n", 
+		hss->target->targetipstr(), olddelay, hss->sdn.delayms, oldbad, 
+		oldbad + oldgood);
   }
 }
 
@@ -1750,7 +1750,7 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
 
     if (swappingport) {
       if (o.debugging > 1) 
-	printf("Changing ping technique for %s to %s\n", hss->target->targetipstr(), pspectype2ascii(pspec->type));
+	log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), pspectype2ascii(pspec->type));
       hss->pingprobe = *pspec;
       hss->pingprobestate = newstate;
     }
@@ -2310,8 +2310,8 @@ static void doAnyRetryStackRetransmits(UltraScanInfo *USI) {
 static void sendPingProbe(UltraScanInfo *USI, HostScanStats *hss) {
   if (o.debugging > 1) {
     char tmpbuf[32];
-    printf("Ultrascan PING SENT to %s [%s]\n", hss->target->targetipstr(), 
-	   probespec2ascii(&hss->pingprobe, tmpbuf, sizeof(tmpbuf)));
+    log_write(LOG_PLAIN, "Ultrascan PING SENT to %s [%s]\n", hss->target->targetipstr(), 
+	      probespec2ascii(&hss->pingprobe, tmpbuf, sizeof(tmpbuf)));
   }
   if (USI->scantype == CONNECT_SCAN) {
     sendConnectScanProbe(USI, hss, hss->pingprobe.pd.tcp.dport, 0, 
@@ -2452,25 +2452,25 @@ static void printAnyStats(UltraScanInfo *USI) {
 
   /* Print debugging states for each host being scanned */
   if (o.debugging > 2) {
-    printf("**TIMING STATS**: IP, probes active/freshportsleft/retry_stack/outstanding/retranwait/onbench, cwnd/ccthresh/delay, timeout/srtt/rttvar/\n");
-    printf("   Groupstats (%d/%d incomplete): %d/*/*/*/*/* %.2f/%d/* %d/%d/%d\n",
-	   USI->numIncompleteHosts(), USI->numInitialHosts(), 
-	   USI->gstats->num_probes_active, USI->gstats->timing.cwnd,
-	   USI->gstats->timing.ccthresh, USI->gstats->to.timeout, 
-	   USI->gstats->to.srtt, USI->gstats->to.rttvar);
+    log_write(LOG_PLAIN, "**TIMING STATS**: IP, probes active/freshportsleft/retry_stack/outstanding/retranwait/onbench, cwnd/ccthresh/delay, timeout/srtt/rttvar/\n");
+    log_write(LOG_PLAIN, "   Groupstats (%d/%d incomplete): %d/*/*/*/*/* %.2f/%d/* %d/%d/%d\n",
+	      USI->numIncompleteHosts(), USI->numInitialHosts(), 
+	      USI->gstats->num_probes_active, USI->gstats->timing.cwnd,
+	      USI->gstats->timing.ccthresh, USI->gstats->to.timeout, 
+	      USI->gstats->to.srtt, USI->gstats->to.rttvar);
 
     for(hostI = USI->incompleteHosts.begin(); 
 	hostI != USI->incompleteHosts.end(); hostI++) {
       hss = *hostI;
       hss->getTiming(&hosttm);
-      printf("   %s: %d/%d/%d/%d/%d/%d %.2f/%d/%d %li/%d/%d\n", hss->target->targetipstr(),
-	     hss->num_probes_active, hss->freshPortsLeft(), 
-	     (int) hss->retry_stack.size(),
-	     hss->num_probes_outstanding(), 
-	     hss->num_probes_waiting_retransmit, (int) hss->probe_bench.size(),
-	     hosttm.cwnd, hosttm.ccthresh, hss->sdn.delayms, 
-	     hss->probeTimeout(), hss->target->to.srtt, 
-	     hss->target->to.rttvar);
+      log_write(LOG_PLAIN, "   %s: %d/%d/%d/%d/%d/%d %.2f/%d/%d %li/%d/%d\n", hss->target->targetipstr(),
+		hss->num_probes_active, hss->freshPortsLeft(), 
+		(int) hss->retry_stack.size(),
+		hss->num_probes_outstanding(), 
+		hss->num_probes_waiting_retransmit, (int) hss->probe_bench.size(),
+		hosttm.cwnd, hosttm.ccthresh, hss->sdn.delayms, 
+		hss->probeTimeout(), hss->target->to.srtt, 
+		hss->target->to.rttvar);
     }
   }
 
@@ -2959,7 +2959,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	     be used in those cases where it happens.  Then I should make this just
    	     a debugging > X statement. */
 	  if (o.debugging)
-	    printf("Bad Sequence number from host %s.\n", inet_ntoa(ip->ip_src));
+	    log_write(LOG_PLAIN, "Bad Sequence number from host %s.\n", inet_ntoa(ip->ip_src));
 	  /* I'll just assume it is a response to this (most recent) probe. */
 	  if (probe->isPing()) {
 	    pingseq = probe->pingseq;
@@ -3305,7 +3305,7 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
       fatal("ran out of space in pcap filter");
     filterlen = len;
   } else assert(0); /* Other scan types? */
-  if (o.debugging > 2) printf("Pcap filter: %s\n", pcap_filter);
+  if (o.debugging > 2) log_write(LOG_PLAIN, "Pcap filter: %s\n", pcap_filter);
   set_pcap_filter(Targets[0]->deviceName(), USI->pd, pcap_filter);
   /* pcap_setnonblock(USI->pd, 1, NULL); */
   
@@ -3386,7 +3386,7 @@ static void processData(UltraScanInfo *USI) {
 	  if (tryno_capped && lastRetryCappedWarning != USI) {
 	    /* Perhaps I should give this on a per-host basis.  Oh
 	       well, hopefully it is rare anyway. */
-	    printf("Warning: Giving up on port early because retransmission cap hit.\n");
+	    log_write(LOG_PLAIN, "Warning: Giving up on port early because retransmission cap hit.\n");
 	    lastRetryCappedWarning = USI;
 	  }
 	  continue;
@@ -3415,7 +3415,7 @@ static void processData(UltraScanInfo *USI) {
     long tv_diff;
     gettimeofday(&USI->now, NULL);
     tv_diff = TIMEVAL_MSEC_SUBTRACT(USI->now, tv_start);
-    if (tv_diff > 30) printf("%s took %lims\n", __func__, tv_diff);
+    if (tv_diff > 30) log_write(LOG_PLAIN, "%s took %lims\n", __func__, tv_diff);
   }
 }
 

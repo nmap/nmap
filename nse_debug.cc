@@ -1,16 +1,17 @@
 #include "nse_debug.h"
+#include "output.h"
 
 void l_dumpStack(lua_State* l) {
 	int stack_height = lua_gettop(l);
 	int i;
 	
-	printf("-== Stack Dump Begin ==-\n");
+	log_write(LOG_PLAIN, "-== Stack Dump Begin ==-\n");
 	for(i = -1; i >= 0 - stack_height; i--) {
-		printf("%d: ", i);
+		log_write(LOG_PLAIN, "%d: ", i);
 		l_dumpValue(l, i);
 	}
 
-	printf("-== Stack Dump End ==-\n");
+	log_write(LOG_PLAIN, "-== Stack Dump End ==-\n");
 }
 
 void l_dumpValue(lua_State* l, int i) {
@@ -20,19 +21,19 @@ void l_dumpValue(lua_State* l, int i) {
 		l_dumpFunction(l, i);
 	else if(lua_isstring(l, i)) {
 		lua_pushvalue(l, i);
-		printf("string '%s'\n", lua_tostring(l, -1));
+		log_write(LOG_PLAIN, "string '%s'\n", lua_tostring(l, -1));
 		lua_pop(l, 1);
 	}
 	else if(lua_isboolean(l, i))
-		printf("boolean: %s", lua_toboolean(l, i) ? "true\n" : "false\n"); 
+		log_write(LOG_PLAIN, "boolean: %s", lua_toboolean(l, i) ? "true\n" : "false\n"); 
 	else if(lua_isnumber(l, i))
-		printf("number: %g\n", lua_tonumber(l, i));
+		log_write(LOG_PLAIN, "number: %g\n", lua_tonumber(l, i));
 	else
-		printf("%s\n", lua_typename(l, lua_type(l, i)));
+		log_write(LOG_PLAIN, "%s\n", lua_typename(l, lua_type(l, i)));
 }
 
 void l_dumpTable(lua_State *l, int index) {
-	printf("table\n");
+	log_write(LOG_PLAIN, "table\n");
 	lua_pushnil(l);
 
 	if (index<0) --index;
@@ -47,12 +48,12 @@ void l_dumpTable(lua_State *l, int index) {
 void l_dumpFunction(lua_State* l, int index) {
 //	lua_Debug ar;
 
-	printf("function\n");	
+	log_write(LOG_PLAIN, "function\n");	
 
 //	lua_pushvalue(l, index);
 //	lua_getinfo(l, ">n", &ar);
 //	
-//	printf("\tname: %s %s\n", ar.namewhat, ar.name);
+//	log_write(LOG_PLAIN, "\tname: %s %s\n", ar.namewhat, ar.name);
 	fflush(stdout);
 }
 

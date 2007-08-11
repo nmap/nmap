@@ -76,7 +76,9 @@ int l_nsock_open(lua_State* l) {
 	auxiliar_newclass(l, "nsock", l_nsock);
 
         nsp = nsp_new(NULL);
-	nsp_settrace(nsp, o.debugging, o.getStartTime());
+
+	if (o.scriptTrace())
+		nsp_settrace(nsp, 5, o.getStartTime());
 
 	return NSOCK_WRAPPER_SUCCESS;
 }
@@ -183,7 +185,7 @@ error:
 void l_nsock_connect_handler(nsock_pool nsp, nsock_event nse, void *lua_state) {
 	lua_State* l = (lua_State*) lua_state;
 
-	if(o.scripttrace) {
+	if(o.scriptTrace()) {
 		l_nsock_trace(nse_iod(nse), "CONNECT", TO);
 	}
 
@@ -206,7 +208,7 @@ static int l_nsock_send(lua_State* l) {
 		return 2;	
 	}
 
-	if(o.scripttrace) {
+	if(o.scriptTrace()) {
 		hexified = nse_hexify((const void*)string, string_len);
 		l_nsock_trace(udata->nsiod, hexified, TO);
 		free(hexified);
@@ -279,7 +281,7 @@ void l_nsock_receive_handler(nsock_pool nsp, nsock_event nse, void *lua_state) {
 	if(l_nsock_checkstatus(l, nse) == NSOCK_WRAPPER_SUCCESS) {
 		rcvd_string = nse_readbuf(nse, &rcvd_len);
 
-		if(o.scripttrace) {
+		if(o.scriptTrace()) {
 			hexified = nse_hexify((const void*) rcvd_string, (size_t) rcvd_len);
 			l_nsock_trace(nse_iod(nse), hexified, FROM);
 			free(hexified);
@@ -407,7 +409,7 @@ static int l_nsock_close(lua_State* l) {
 		return 2;	
 	}
 
-	if(o.scripttrace) {
+	if(o.scriptTrace()) {
 		l_nsock_trace(udata->nsiod, "CLOSE", TO);
 	}
 

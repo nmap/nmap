@@ -152,17 +152,17 @@ int wildtest(char *wild, char *test) {
 void hdump(unsigned char *packet, unsigned int len) {
 unsigned int i=0, j=0;
 
-printf("Here it is:\n");
+log_write(LOG_PLAIN, "Here it is:\n");
 
 for(i=0; i < len; i++){
   j = (unsigned) (packet[i]);
-  printf("%-2X ", j);
+  log_write(LOG_PLAIN, "%-2X ", j);
   if (!((i+1)%16))
-    printf("\n");
+    log_write(LOG_PLAIN, "\n");
   else if (!((i+1)%4))
-    printf("  ");
+    log_write(LOG_PLAIN, "  ");
 }
-printf("\n");
+log_write(LOG_PLAIN, "\n");
 }
 
 /* A better version of hdump, from Lamont Granquist.  Modified slightly
@@ -180,7 +180,7 @@ void lamont_hdump(char *cp, unsigned int length) {
   int nshorts, nshorts2;
   int padding;
   
-  printf("\n\t");
+  log_write(LOG_PLAIN, "\n\t");
   padding = 0;
   sp = (u_short *)bp;
   ap = (u_char *)bp;
@@ -190,44 +190,44 @@ void lamont_hdump(char *cp, unsigned int length) {
   j = 0;
   while(1) {
     while (--nshorts >= 0) {
-      printf(" %04x", ntohs(*sp));
+      log_write(LOG_PLAIN, " %04x", ntohs(*sp));
       sp++;
       if ((++i % 8) == 0)
         break;
     }
     if (nshorts < 0) {
       if ((length & 1) && (((i-1) % 8) != 0)) {
-        printf(" %02x  ", *(u_char *)sp);
+        log_write(LOG_PLAIN, " %02x  ", *(u_char *)sp);
         padding++;
       }
       nshorts = (8 - (nshorts2 - nshorts));
       while(--nshorts >= 0) {
-        printf("     ");
+        log_write(LOG_PLAIN, "     ");
       }
-      if (!padding) printf("     ");
+      if (!padding) log_write(LOG_PLAIN, "     ");
     }
-    printf("  ");
+    log_write(LOG_PLAIN, "  ");
 
     while (--nshorts2 >= 0) {
-      printf("%c%c", asciify[*ap], asciify[*(ap+1)]);
+      log_write(LOG_PLAIN, "%c%c", asciify[*ap], asciify[*(ap+1)]);
       ap += 2;
       if ((++j % 8) == 0) {
-        printf("\n\t");
+        log_write(LOG_PLAIN, "\n\t");
         break;
       }
     }
     if (nshorts2 < 0) {
       if ((length & 1) && (((j-1) % 8) != 0)) {
-        printf("%c", asciify[*ap]);
+        log_write(LOG_PLAIN, "%c", asciify[*ap]);
       }
       break;
     }
   }
   if ((length & 1) && (((i-1) % 8) == 0)) {
-    printf(" %02x", *(u_char *)sp);
-    printf("                                       %c", asciify[*ap]);
+    log_write(LOG_PLAIN, " %02x", *(u_char *)sp);
+    log_write(LOG_PLAIN, "                                       %c", asciify[*ap]);
   }
-  printf("\n");
+  log_write(LOG_PLAIN, "\n");
 }
 
 #ifndef HAVE_STRERROR
@@ -1059,7 +1059,7 @@ char *mmapfile(char *fname, int *length, int openflags)
  CloseHandle (fd);
 
  if (o.debugging > 2)
-  printf ("%s(): fd %08lX, gmap %08lX, fileptr %08lX, length %d\n",
+  log_write(LOG_PLAIN, "%s(): fd %08lX, gmap %08lX, fileptr %08lX, length %d\n",
     __func__, (DWORD)fd, (DWORD)gmap, (DWORD)fileptr, *length);
 
 	return fileptr;

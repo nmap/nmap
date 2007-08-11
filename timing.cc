@@ -225,7 +225,7 @@ void enforce_scan_delay(struct timeval *tv) {
   time_diff = TIMEVAL_MSEC_SUBTRACT(now, lastcall);
   if (time_diff < (int) o.scan_delay) {  
     if (o.debugging > 1) {
-      printf("Sleeping for %d milliseconds in %s()\n", o.scan_delay - time_diff, __func__);
+      log_write(LOG_PLAIN, "Sleeping for %d milliseconds in %s()\n", o.scan_delay - time_diff, __func__);
     }
     usleep((o.scan_delay - time_diff) * 1000);
     gettimeofday(&lastcall, NULL);

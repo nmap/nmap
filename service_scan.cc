@@ -1949,7 +1949,7 @@ static int launchSomeServiceProbes(nsock_pool nsp, ServiceGroup *SG) {
 
     if (nextprobe == NULL) {
       if (warn_no_scanning && o.debugging) {
-        printf("Service scan: Not probing some ports due to low intensity\n");
+        log_write(LOG_PLAIN, "Service scan: Not probing some ports due to low intensity\n");
         warn_no_scanning=0;
       }
       end_svcprobe(nsp, PROBESTATE_FINISHED_NOMATCH, SG, svc, NULL);
@@ -1961,7 +1961,7 @@ static int launchSomeServiceProbes(nsock_pool nsp, ServiceGroup *SG) {
       fatal("Failed to allocate Nsock I/O descriptor in %s()", __func__);
     }
     if (o.debugging > 1) {
-      printf("Starting probes against new service: %s:%hi (%s)\n", svc->target->targetipstr(), svc->portno, proto2ascii(svc->proto));
+      log_write(LOG_PLAIN, "Starting probes against new service: %s:%hi (%s)\n", svc->target->targetipstr(), svc->portno, proto2ascii(svc->proto));
     }
     svc->target->TargetSockAddr(&ss, &ss_len);
     if (svc->proto == IPPROTO_TCP)
@@ -2134,16 +2134,16 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
       } else {
 	if (o.debugging > 1)
 	  if (MD->product || MD->version || MD->info)
-	    printf("Service scan match (Probe %s matched with %s): %s:%hi is %s%s.  Version: |%s|%s|%s|\n",
-                   probe->getName(), (*probe->fallbacks[fallbackDepth]).getName(),
-		   svc->target->NameIP(), svc->portno, (svc->tunnel == SERVICE_TUNNEL_SSL)? "SSL/" : "", 
-		   MD->serviceName, (MD->product)? MD->product : "", (MD->version)? MD->version : "", 
-		   (MD->info)? MD->info : "");
+	    log_write(LOG_PLAIN, "Service scan match (Probe %s matched with %s): %s:%hi is %s%s.  Version: |%s|%s|%s|\n",
+                      probe->getName(), (*probe->fallbacks[fallbackDepth]).getName(),
+		      svc->target->NameIP(), svc->portno, (svc->tunnel == SERVICE_TUNNEL_SSL)? "SSL/" : "", 
+		      MD->serviceName, (MD->product)? MD->product : "", (MD->version)? MD->version : "", 
+		      (MD->info)? MD->info : "");
 	  else
-	    printf("Service scan %s match (Probe %s matched with %s): %s:%hi is %s%s\n",
-                   (MD->isSoft)? "soft" : "hard",
-                   probe->getName(), (*probe->fallbacks[fallbackDepth]).getName(),
-		   svc->target->NameIP(), svc->portno, (svc->tunnel == SERVICE_TUNNEL_SSL)? "SSL/" : "", MD->serviceName);
+	    log_write(LOG_PLAIN, "Service scan %s match (Probe %s matched with %s): %s:%hi is %s%s\n",
+                      (MD->isSoft)? "soft" : "hard",
+                      probe->getName(), (*probe->fallbacks[fallbackDepth]).getName(),
+		      svc->target->NameIP(), svc->portno, (svc->tunnel == SERVICE_TUNNEL_SSL)? "SSL/" : "", MD->serviceName);
 	svc->probe_matched = MD->serviceName;
 	if (MD->product)
 	  Strncpy(svc->product_matched, MD->product, sizeof(svc->product_matched));
@@ -2337,7 +2337,7 @@ static void remove_excluded_ports(AllProbes *AP, ServiceGroup *SG) {
     svc = *i;
     if (AP->isExcluded(svc->portno, svc->proto)) {
 
-      if (o.debugging) printf("EXCLUDING %d/%s\n", svc->portno, svc->proto==IPPROTO_TCP ? "tcp" : "udp");
+      if (o.debugging) log_write(LOG_PLAIN, "EXCLUDING %d/%s\n", svc->portno, svc->proto==IPPROTO_TCP ? "tcp" : "udp");
 
       svc->port->setServiceProbeResults(PROBESTATE_EXCLUDED, NULL, 
 					SERVICE_TUNNEL_NONE,
@@ -2375,7 +2375,7 @@ int service_scan(vector<Target *> &Targets) {
   SG = new ServiceGroup(Targets, AP);
 
   if (o.override_excludeports) {
-    if (o.debugging || o.verbose) printf("Overriding exclude ports option! Some undesirable ports may be version scanned!\n");
+    if (o.debugging || o.verbose) log_write(LOG_PLAIN, "Overriding exclude ports option! Some undesirable ports may be version scanned!\n");
   } else {
     remove_excluded_ports(AP, SG);
   }
