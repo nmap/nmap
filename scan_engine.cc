@@ -2688,8 +2688,13 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
 	  if (probe->isPing())
 	    ultrascan_ping_update(USI, host, probeI, &USI->now);
 	  else {
-        host->target->ports.setStateReason(probe->dport(), probe->protocol(), current_reason, 0, 0);
+            /* Save these values so we can use them after
+               ultrascan_port_probe_update deletes probe. */
+            u8 protocol = probe->protocol();
+            u16 dport = probe->dport();
+
 	    ultrascan_port_probe_update(USI, host, probeI, newstate, &USI->now);
+        host->target->ports.setStateReason(dport, protocol, current_reason, 0, 0);
       }
 	}
       }
@@ -3158,13 +3163,18 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
     if (probe->isPing())
       ultrascan_ping_update(USI, hss, probeI, &rcvdtime);
     else {
+      /* Save these values so we can use them after ultrascan_port_probe_update
+         deletes probe. */
+      u8 protocol = probe->protocol();
+      u16 dport = probe->dport();
+
+      ultrascan_port_probe_update(USI, hss, probeI, newstate, &rcvdtime);
       if(USI->prot_scan)  
-         hss->target->ports.setStateReason(probe->protocol(), IPPROTO_IP, 
+         hss->target->ports.setStateReason(protocol, IPPROTO_IP, 
                                           current_reason, ip->ip_ttl, reason_sip);
       else
-         hss->target->ports.setStateReason(probe->dport(), probe->protocol(),
+         hss->target->ports.setStateReason(dport, protocol,
                                            current_reason, ip->ip_ttl, reason_sip);    
-	  ultrascan_port_probe_update(USI, hss, probeI, newstate, &rcvdtime);
     }
   }
 
