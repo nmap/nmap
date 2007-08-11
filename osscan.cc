@@ -1740,8 +1740,10 @@ static bool FingerTest_lessthan(const FingerTest* a, const FingerTest* b) {
       return false;
   }
 
-  /* This shouldn't happen. */
-  assert(false);
+  /* If neither test name was recognized, it probably indicates an error in
+     another part of the code. */
+  fatal("%s received two unknown test lines \"%s\" and \"%s\".\n", __func__,
+    a->name, b->name);
 
   /* If neither was in the ordering list, just compare their names. */
   return strcmp(a->name, b->name);
