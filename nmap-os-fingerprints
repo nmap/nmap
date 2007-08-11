@@ -3057,10 +3057,10 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RID=F%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 
-# Nokia IPSO 3.2 Running Checkpoint Firewall-1
-# IPSO 3.5-FCS8 releng 1020  Running Checkpoint FW-1 NG FP2
-Fingerprint Nokia IPSO 3.2-3.5 Running Checkpoint Firewall-1 or NG FP2
-Class Checkpoint | IPSO || firewall
+# Nokia IPSO 3.2 Running Check Point Firewall-1
+# IPSO 3.5-FCS8 releng 1020  Running Check Point FW-1 NG FP2
+Fingerprint Nokia IPSO 3.2-3.5 Running Check Point Firewall-1 or NG FP2
+Class Check Point | IPSO || firewall
 TSeq(Class=RI%gcd=<6%SI=<E4656&>2476)
 T1(DF=N%W=4000%ACK=O|S++%Flags=A|AS%Ops=NNT|MNWNNT)
 T2(Resp=N)
@@ -3076,7 +3076,7 @@ PU(DF=Y|N%TOS=E0|0%IPLEN=164|38%RIPTL=134|148%RID=E%RIPCK=E%UCK=0|E%ULEN=134%DAT
 # Nokia IPSO 3.2-fcs4 releng 783 (FreeBSD Based)
 # Nokia IPSO 4.3.1-FCS5
 Fingerprint Nokia IPSO 3.2-4.3.1-FCS5 Running checkpoint FW1
-Class Checkpoint | IPSO || firewall
+Class Check Point | IPSO || firewall
 TSeq(Class=RI%gcd=<6%SI=<77DC6&>1319)
 T1(DF=N%W=4000%ACK=O|S++%Flags=A|AS%Ops=NNT|MNWNNT)
 T2(Resp=N)
@@ -3089,7 +3089,7 @@ PU(DF=N%TOS=E0%IPLEN=164%RIPTL=134%RID=E%RIPCK=F%UCK=0%ULEN=134%DAT=E)
 
 # Nokia IPSO 3.6 FCS 6 releng 1061  01.21.2003-230310 i386 w/ CheckPoint FW-1 NG FP 2, SSL & DNS hotfix and SmartDefense Supplemental
 Fingerprint Nokia IPSO 3.6 running CheckPoint FW-1 NG FP2
-Class Checkpoint | IPSO || firewall
+Class Check Point | IPSO || firewall
 TSeq(Class=RI%gcd=<6%SI=<7A148&>A01%IPID=I%TS=2HZ)
 T1(DF=N%W=4000%ACK=S++%Flags=AS%Ops=MNWNNT)
 T2(Resp=N)
@@ -3100,8 +3100,8 @@ T6(Resp=N)
 T7(Resp=N)
 PU(DF=N%TOS=E0%IPLEN=164%RIPTL=148%RID=E%RIPCK=E%UCK=0%ULEN=134%DAT=E)
 
-Fingerprint Checkpoint Firewall-1 NG on Sun Solaris 8
-Class Checkpoint | Solaris | 8 | firewall
+Fingerprint Check Point Firewall-1 NG on Sun Solaris 8
+Class Check Point | Solaris | 8 | firewall
 TSeq(Class=RI%gcd=<6%SI=<6C82C&>E51%IPID=I%TS=100HZ)
 T1(DF=Y%W=60DA%ACK=S++%Flags=AS%Ops=NNTNWM)
 T2(Resp=N)
@@ -3113,7 +3113,7 @@ T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
 Fingerprint Check Point FireWall-1 4.0 SP-5 (IPSO build)
-Class Checkpoint | Windows | NT/2K/XP | firewall
+Class Check Point | Windows | NT/2K/XP | firewall
 TSeq(Class=RI%gcd=<6%SI=<18358&>3CB)
 T1(DF=N%W=4000%ACK=O|S++%Flags=A|AS%Ops=NNT|MNWNNT)
 T2(Resp=N)
@@ -3124,8 +3124,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint Checkpoint Firewall-1 on Windows NT 4.0 Server SP4-SP5
-Class Checkpoint | Windows | NT/2K/XP | firewall
+Fingerprint Check Point Firewall-1 on Windows NT 4.0 Server SP4-SP5
+Class Check Point | Windows | NT/2K/XP | firewall
 TSeq(Class=TD%gcd=<8%SI=<154)
 T1(DF=Y%W=2017%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=N)
@@ -3136,9 +3136,9 @@ T6(Resp=N)
 T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=F%ULEN=134%DAT=E)
 
-# Checkpoint Firewall-1/VPN-1 SecurePlatform NG, running FeaturePack 3
-Fingerprint Checkpoint SecurePlatform NG FP3
-Class Checkpoint | Windows | NT/2K/XP | firewall
+# Check Point Firewall-1/VPN-1 SecurePlatform NG, running FeaturePack 3
+Fingerprint Check Point SecurePlatform NG FP3
+Class Check Point | Windows | NT/2K/XP | firewall
 TSeq(Class=RI%gcd=<6%SI=<1C6F042&>48C8B%IPID=Z%TS=U)
 T1(DF=Y%W=16D0%ACK=S++%Flags=AS%Ops=MNW)
 T2(Resp=N)
@@ -3534,12 +3534,12 @@ PU(DF=Y%TOS=0%IPLEN=38%RIPTL=148%RID=E|F%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 # Trancell WebRamp router or Xylan OmniSwitch 3.2.X.X - 3.4.X.X
 # Epson Stylus Color 1520C with 100BTX-NIC from Epson
 # Cisco 6509 WS-C6509 Software, Version NmpSW: 5.3(3)CSX
-# SonicWall firewall appliance 10meg firmware 3.3.1
-Fingerprint Router/Switch/Printer/Firewall (LanPlex 2500/Cisco Catalyst 5505/Cisco 6509/Trancell Webramp/Xylan OmniSwitch)/Epson Stylus (100BTX-NIC HP Secure Web Console, SonicWall firewall appliance 3.3.1)
+# SonicWALL firewall appliance 10meg firmware 3.3.1
+Fingerprint Router/Switch/Printer/Firewall (LanPlex 2500/Cisco Catalyst 5505/Cisco 6509/Trancell Webramp/Xylan OmniSwitch)/Epson Stylus (100BTX-NIC HP Secure Web Console, SonicWALL firewall appliance 3.3.1)
 Class Cisco | embedded || switch
 Class Xylan | embedded || switch
 Class Epson | embedded || printer
-Class SonicWall | SonicOS || firewall
+Class SonicWALL | SonicOS || firewall
 Class Trancell | embedded || router
 TSeq(Class=64K)
 T1(DF=N%W=1000%ACK=S++%Flags=AS%Ops=M)
@@ -16011,7 +16011,7 @@ T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E|F%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 
 Fingerprint Mirapoint messaging server M1000 (OS v 1.0.0)
-Class MiraPoint | embedded || general purpose
+Class Mirapoint | embedded || general purpose
 TSeq(Class=RI%gcd=<6)
 T1(DF=Y%W=403D%ACK=S++%Flags=AS%Ops=MNWNNT)
 T2(Resp=N)
@@ -16022,8 +16022,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=Y%TOS=0%IPLEN=38%RIPTL=148%RIPCK=F%UCK=0%ULEN=134%DAT=E)
 
-Fingerprint MiraPoint messaging server v3.1
-Class MiraPoint | embedded || general purpose
+Fingerprint Mirapoint messaging server v3.1
+Class Mirapoint | embedded || general purpose
 TSeq(Class=RI%gcd=<6%SI=<DCCC6&>C2B%IPID=I%TS=100HZ)
 T1(DF=Y%W=403D%ACK=S++%Flags=AS%Ops=MNWNNT)
 T2(Resp=N)
@@ -17059,7 +17059,7 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint Netscreen 5GT Plus running ScreenOS 4.0.0r5.3
+Fingerprint NetScreen 5GT Plus running ScreenOS 4.0.0r5.3
 Class NetScreen | ScreenOS || firewall
 TSeq(Class=TR%gcd=<6%TS=U)
 T1(DF=N%W=1000%ACK=S++%Flags=AS%Ops=M)
@@ -17071,8 +17071,8 @@ T6(Resp=N)
 T7(Resp=N)
 PU(Resp=N)
 
-Fingerprint Netscreen 5XP firewall+vpn (OS 3.0.1r2)
-Class Netscreen | ScreenOS || firewall
+Fingerprint NetScreen 5XP firewall+vpn (OS 3.0.1r2)
+Class NetScreen | ScreenOS || firewall
 TSeq(Class=TD%gcd=1000%SI=<FF)
 T1(Resp=Y%DF=N%W=1000%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=N)
@@ -17083,8 +17083,8 @@ T6(Resp=N)
 T7(Resp=N)
 PU(Resp=N)
 
-Fingerprint Netscreen 5XP firewall+vpn (os 4.0.3r2.0)
-Class Netscreen | ScreenOS || firewall
+Fingerprint NetScreen 5XP firewall+vpn (os 4.0.3r2.0)
+Class NetScreen | ScreenOS || firewall
 TSeq(Class=TR%gcd=<6)
 T1(DF=N%W=1000%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=N)
@@ -18613,8 +18613,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0|80%IPLEN=70%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint PolyCom ViewStation video-conferencing system (firmware v7.2)
-Class PolyCom | embedded || webcam
+Fingerprint Polycom ViewStation video-conferencing system (firmware v7.2)
+Class Polycom | embedded || webcam
 TSeq(Class=TR%gcd=<6%IPID=I%TS=U)
 T1(DF=N%W=5B40%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=N)
@@ -18976,7 +18976,7 @@ PU(DF=Y|N%TOS=0%IPLEN=38%RIPTL=1C%RID=E%RIPCK=0%UCK=E%ULEN=134%DAT=E)
 
 # Scientific Atlanta Explorer 4200 - Digital Cable Box
 Fingerprint Scientific Atlanta Explorer 4200 Digital Cable Box
-Class Scientific-Atlanta | embedded || media device
+Class Scientific Atlanta | embedded || media device
 TSeq(Class=64K%IPID=I%TS=2HZ)
 T1(DF=N%W=209D%ACK=S++%Flags=AS%Ops=MNWNNT)
 T2(Resp=N)
@@ -18989,7 +18989,7 @@ PU(DF=N%TOS=68%IPLEN=38%RIPTL=148%RID=E%RIPCK=F%UCK=0%ULEN=134%DAT=E)
 
 # Scientific Atlanta PowerVu Program Receiver Model D9850/9010, Version: 1.51 2004-02-06 14:45:06
 Fingerprint Scientific Atlanta PowerVu Program Receiver Model D9850/9010
-Class Scientific-Atlanta | embedded || media device
+Class Scientific Atlanta | embedded || media device
 TSeq(Class=TD%gcd=<3D094%SI=<1E%IPID=I%TS=1000HZ)
 T1(DF=N%W=209D%ACK=S++%Flags=AS%Ops=MENWNNT)
 T2(Resp=N)
@@ -19847,9 +19847,9 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 PU(DF=Y%TOS=0%IPLEN=8E%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# SonicWall Pro 200 Firmware Version 6.4.2.0
-Fingerprint SonicWall Pro 200 firewall
-Class SonicWall | embedded || firewall
+# SonicWALL Pro 200 Firmware Version 6.4.2.0
+Fingerprint SonicWALL Pro 200 firewall
+Class SonicWALL | embedded || firewall
 TSeq(Class=TR%gcd=<6%IPID=I)
 T1(DF=N|Y%W=0|402E%ACK=S++%Flags=AR|AS%Ops=|MNWNNT)
 T2(Resp=Y%DF=N%W=C00%ACK=S++%Flags=AR%Ops=)
@@ -19859,9 +19859,9 @@ T5(DF=N%W=C00%ACK=S++%Flags=AR%Ops=)
 T6(DF=N%W=C00|400|1000%ACK=S++%Flags=AR%Ops=)
 T7(DF=N%W=1000|C00|800%ACK=S++%Flags=AR%Ops=)
 
-# SonicWall 4060 firewall running SonicOS Enhaced 2.5
-Fingerprint SonicWall 4060 firewall
-Class SonicWall | SonicOS || firewall
+# SonicWALL 4060 firewall running SonicOS Enhaced 2.5
+Fingerprint SonicWALL 4060 firewall
+Class SonicWALL | SonicOS || firewall
 TSeq(Class=TR%gcd=<6%IPID=I%TS=U)
 T1(DF=N%W=4000%ACK=S++%Flags=AS%Ops=MNW)
 T2(Resp=Y%DF=N%W=400|800|C00|1000%ACK=S++%Flags=AR%Ops=)
@@ -19874,8 +19874,8 @@ PU(Resp=N)
 
 # base on msg 2615
 # PRO 3060 Standard SonicOS Standard 3.1.0.1-60s
-Fingerprint SonicWall PRO 3060 firewall
-Class SonicWall | SonicOS || firewall
+Fingerprint SonicWALL PRO 3060 firewall
+Class SonicWALL | SonicOS || firewall
 TSeq(Class=64K%IPID=I%TS=U)
 T1(DF=N%W=4000%ACK=S++%Flags=AS%Ops=MNW)
 T2(Resp=N)
@@ -19888,8 +19888,8 @@ PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=F%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 
 # Cisco 350 Access Point, software rev 12.02T1
 # Accelerated Networks VoDSL - But what sort of device?
-Fingerprint SonicWall SOHO firewall, Enterasys Matrix E1, or Accelerated Networks VoDSL, or Cisco 350 Access Point
-Class SonicWall | SonicOS || firewall
+Fingerprint SonicWALL SOHO firewall, Enterasys Matrix E1, or Accelerated Networks VoDSL, or Cisco 350 Access Point
+Class SonicWALL | SonicOS || firewall
 Class Enterasys | embedded || switch
 Class Cisco | embedded || WAP
 TSeq(Class=64K)
@@ -19902,8 +19902,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 
-Fingerprint SonicWall SOHO-3 firewall
-Class SonicWall | SonicOS || firewall
+Fingerprint SonicWALL SOHO-3 firewall
+Class SonicWALL | SonicOS || firewall
 T1(DF=N%W=1000%ACK=S++%Flags=AR%Ops=)
 T2(Resp=Y%DF=N%W=1000%ACK=S++%Flags=AR%Ops=)
 T3(Resp=Y%DF=N%W=1000%ACK=S++%Flags=AR%Ops=)
@@ -19913,8 +19913,8 @@ T6(DF=N%W=1000%ACK=S++%Flags=AR%Ops=)
 T7(DF=N%W=1000%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint SonicWall SOHO-3 firewall
-Class SonicWall | SonicOS || firewall
+Fingerprint SonicWALL SOHO-3 firewall
+Class SonicWALL | SonicOS || firewall
 TSeq(Class=TR%gcd=<6%IPID=Z%TS=100HZ)
 T1(DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
 T2(Resp=Y%DF=N%W=400%ACK=S++%Flags=AR%Ops=)
@@ -19925,9 +19925,9 @@ T6(DF=N%W=400%ACK=S++%Flags=AR%Ops=)
 T7(DF=N%W=400%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-# SonicWall SOHO3 (CPU: Toshiba 3927 H2 / 133 Mhz) Firmware version: 6.6.0.6 ROM version: 6.2.0.0
-Fingerprint SonicWall SOHO3 firewall
-Class SonicWall | SonicOS || firewall
+# SonicWALL SOHO3 (CPU: Toshiba 3927 H2 / 133 Mhz) Firmware version: 6.6.0.6 ROM version: 6.2.0.0
+Fingerprint SonicWALL SOHO3 firewall
+Class SonicWALL | SonicOS || firewall
 TSeq(Class=RI%gcd=<6%SI=<708FA&>904%IPID=I%TS=U)
 T1(DF=N%W=2000%ACK=S++%Flags=AS%Ops=MNW)
 T2(Resp=N)
@@ -19938,9 +19938,9 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 
-# SonicWall TZ 170 SonicOS 2.5.0.2 Enhanced
-Fingerprint SonicWall TZ 170
-Class SonicWall | SonicOS || firewall
+# SonicWALL TZ 170 SonicOS 2.5.0.2 Enhanced
+Fingerprint SonicWALL TZ 170
+Class SonicWALL | SonicOS || firewall
 TSeq(Class=TR%gcd=<6%IPID=I%TS=2HZ)
 T1(DF=N%W=4000%ACK=S++%Flags=AS%Ops=MNWNNT)
 T2(Resp=Y%DF=N%W=C00|400%ACK=S++%Flags=AR%Ops=)
@@ -19951,8 +19951,8 @@ T6(DF=N%W=800|1000|C00%ACK=S++%Flags=AR%Ops=)
 T7(DF=N%W=1000|800|C00%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint SonicWall TZ 170 Firewall
-Class SonicWall | SonicOS || firewall
+Fingerprint SonicWALL TZ 170 Firewall
+Class SonicWALL | SonicOS || firewall
 TSeq(Class=TR%gcd=<6%IPID=Z%TS=100HZ)
 T1(DF=Y%W=16A0%ACK=S++%Flags=AS%Ops=MNNTNW)
 T2(Resp=Y%DF=N%W=C00|400|1000%ACK=S++%Flags=AR%Ops=)
@@ -19963,11 +19963,11 @@ T6(DF=N%W=1000|800%ACK=S++%Flags=AR%Ops=)
 T7(DF=N%W=1000|C00%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-# SonicWall TZ170 Firewall with SonicOS
-# SonicWall FZ170 Unrestricted (firewall/VPN appliances)  with SonicOS 2.6
-# SonicOS 3.0.0.4-41s on SonicWall TZ 170
-Fingerprint SonicWall TZ170 Firewall
-Class SonicWall | SonicOS || firewall
+# SonicWALL TZ170 Firewall with SonicOS
+# SonicWALL FZ170 Unrestricted (firewall/VPN appliances)  with SonicOS 2.6
+# SonicOS 3.0.0.4-41s on SonicWALL TZ 170
+Fingerprint SonicWALL TZ170 Firewall
+Class SonicWALL | SonicOS || firewall
 TSeq(Class=64K%IPID=I%TS=2HZ)
 T1(DF=N%W=4000%ACK=S++%Flags=AS%Ops=MNWNNT)
 T2(Resp=N)
@@ -19978,8 +19978,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E|F%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 
-Fingerprint SonicWall/10 firewall
-Class SonicWall | SonicOS || firewall
+Fingerprint SonicWALL/10 firewall
+Class SonicWALL | SonicOS || firewall
 TSeq(Class=TR)
 T1(Resp=Y%DF=N%W=7FE0%ACK=S++%Flags=AS%Ops=ME)
 T2(Resp=Y%DF=N%W=1000%ACK=S++%Flags=AR%Ops=)
@@ -19990,8 +19990,8 @@ T6(Resp=Y%DF=N%W=1000%ACK=S++%Flags=AR%Ops=)
 T7(Resp=Y%DF=N%W=1000%ACK=S++%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint SonicWall/10 firewall
-Class SonicWall | SonicOS || firewall
+Fingerprint SonicWALL/10 firewall
+Class SonicWALL | SonicOS || firewall
 TSeq(Class=TR)
 T1(Resp=Y%DF=Y%W=2017%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=Y%DF=N%W=400%ACK=S++%Flags=AR%Ops=)
@@ -21226,7 +21226,7 @@ T7(DF=N%W=800%ACK=S%Flags=AR%Ops=)
 PU(Resp=N)
 
 Fingerprint Winterm WYSE System Version 4.2.077
-Class WYSE | WYSE OS || terminal server
+Class Wyse | WYSE OS || terminal server
 TSeq(Class=64K%IPID=I%TS=U)
 T1(DF=N%W=F000%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=N)
@@ -21239,7 +21239,7 @@ PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=F%RIPCK=0%UCK=0%ULEN=134%DAT=E)
 
 # WYSE OS Firmware V4.2.137
 Fingerprint WYSE Winterm terminal server
-Class WYSE | WYSE OS || terminal server
+Class Wyse | WYSE OS || terminal server
 TSeq(Class=64K%IPID=I%TS=U)
 T1(DF=N%W=7800%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=N)
@@ -21506,8 +21506,8 @@ T6(DF=N%W=1000%ACK=S%Flags=AR%Ops=)
 T7(DF=N%W=1000%ACK=S++%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint Hardware: ZyXel Prestige Broadband router
-Class ZyXel | ZyNOS || broadband router
+Fingerprint Hardware: ZyXEL Prestige Broadband router
+Class ZyXEL | ZyNOS || broadband router
 T1(DF=N%W=0%ACK=S++%Flags=BAR%Ops=)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
 T3(Resp=Y%DF=N%W=0%ACK=S++%Flags=AR%Ops=)
@@ -21517,8 +21517,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(Resp=N)
 
-Fingerprint ZyXel 944S Prestige router
-Class ZyXel | ZyNOS || broadband router
+Fingerprint ZyXEL 944S Prestige router
+Class ZyXEL | ZyNOS || broadband router
 T1(DF=N%W=0%ACK=S++%Flags=BAR%Ops=)
 T2(Resp=N)
 T3(Resp=N)
@@ -21528,8 +21528,8 @@ T6(DF=N%W=400|800|C00%ACK=S%Flags=AR%Ops=)
 T7(Resp=N)
 PU(Resp=N)
 
-Fingerprint ZyXel P480 ISDN router running ZyNOS v2.42(O.00)
-Class ZyXel | ZyNOS || broadband router
+Fingerprint ZyXEL P480 ISDN router running ZyNOS v2.42(O.00)
+Class ZyXEL | ZyNOS || broadband router
 TSeq(Class=TD%gcd=<2004%SI=<1E)
 T1(DF=N%W=2000%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
@@ -21540,9 +21540,9 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(Resp=N)
 
-# ZyXel Prestige 642R-11 (analog ADSL router) ZyNOS F/W Version: V2.50(AJ.9)
-Fingerprint ZyXel Prestige 642R-11 ASDL router running ZyNOS
-Class ZyXel | ZyNOS || broadband router
+# ZyXEL Prestige 642R-11 (analog ADSL router) ZyNOS F/W Version: V2.50(AJ.9)
+Fingerprint ZyXEL Prestige 642R-11 ASDL router running ZyNOS
+Class ZyXEL | ZyNOS || broadband router
 TSeq(Class=TD%gcd=<F0004%SI=<14%IPID=I%TS=U)
 T1(DF=N%W=400%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=N)
@@ -21553,8 +21553,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint ZyXel Prestige 643 router
-Class ZyXel | ZyNOS || broadband router
+Fingerprint ZyXEL Prestige 643 router
+Class ZyXEL | ZyNOS || broadband router
 T1(DF=N%W=0%ACK=S++%Flags=BAR%Ops=)
 T2(Resp=N)
 T3(Resp=Y%DF=N%W=0%ACK=S++%Flags=AR%Ops=)
@@ -21564,10 +21564,10 @@ T6(Resp=N)
 T7(Resp=N)
 PU(Resp=N)
 
-# ZyXel Prestige 700 broadband router
+# ZyXEL Prestige 700 broadband router
 # Netgear MR314 Cable/Wireless Router
-Fingerprint ZyXel Prestige 700/Netgear MR314 Broadband router
-Class ZyXel | ZyNOS || broadband router
+Fingerprint ZyXEL Prestige 700/Netgear MR314 Broadband router
+Class ZyXEL | ZyNOS || broadband router
 T1(DF=N%W=0%ACK=S++%Flags=BAR%Ops=)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
 T3(Resp=Y%DF=N%W=0%ACK=S++%Flags=AR%Ops=)
@@ -21577,8 +21577,8 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-Fingerprint ZyXel Prestige 791R
-Class ZyXel | ZyNOS || broadband router
+Fingerprint ZyXEL Prestige 791R
+Class ZyXEL | ZyNOS || broadband router
 TSeq(Class=i800%IPID=I%TS=U)
 T1(DF=N%W=400%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
@@ -21589,12 +21589,12 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# ZyXel P128imh or P480 router (ZyNOS)
+# ZyXEL P128imh or P480 router (ZyNOS)
 # ZyNOS F/W Version: V2.50(AJ.7) | 2/28/2002
-# ZyXel Prestige 645-R11 adsl router
+# ZyXEL Prestige 645-R11 adsl router
 # Intel Express 8100 Router ISDN
-Fingerprint ZyXel ZyNOS based Broadband router (ZyNOS) or Intel Express ISDN router
-Class ZyXel | ZyNOS || broadband router
+Fingerprint ZyXEL ZyNOS based Broadband router (ZyNOS) or Intel Express ISDN router
+Class ZyXEL | ZyNOS || broadband router
 Class Intel | embedded || broadband router
 TSeq(Class=TD%gcd=1000|2000|5000|4000|6000|8000|A000|78000|1A4000%SI=<FF%IPID=I%TS=U)
 T1(DF=N%W=400%ACK=S++%Flags=AS%Ops=M)
@@ -21606,9 +21606,9 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# ZyXel ZyWALL 1 running ZyNOS Version V3.60(WD.3) | 05/24/2004
-Fingerprint ZyXel ZyWALL 1 firewall
-Class ZyXel | ZyNOS || firewall
+# ZyXEL ZyWALL 1 running ZyNOS Version V3.60(WD.3) | 05/24/2004
+Fingerprint ZyXEL ZyWALL 1 firewall
+Class ZyXEL | ZyNOS || firewall
 TSeq(Class=TD%gcd=<2004%SI=<46%IPID=I%TS=U)
 T1(DF=N%W=B680%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=N)
@@ -21619,9 +21619,9 @@ T6(Resp=N)
 T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# ZyXel Zywall 10W (Firmware V3.62(WH.7))
-Fingerprint ZyXel Zywall 10W firewall
-Class ZyXel | ZyNOS || firewall
+# ZyXEL Zywall 10W (Firmware V3.62(WH.7))
+Fingerprint ZyXEL Zywall 10W firewall
+Class ZyXEL | ZyNOS || firewall
 TSeq(Class=TD%gcd=<2004%SI=<3C%IPID=I%TS=U)
 T1(DF=N%W=5780%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=N)
@@ -21632,9 +21632,9 @@ T6(Resp=N)
 T7(Resp=N)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# ZyXel ZyWALL 50 running ZyNOS V3.52(WC.2)C0 | 05/02/2003
-Fingerprint ZyXel ZyWALL 50 (ZyNOS 3.52)
-Class ZyXel | ZyNOS || firewall
+# ZyXEL ZyWALL 50 running ZyNOS V3.52(WC.2)C0 | 05/02/2003
+Fingerprint ZyXEL ZyWALL 50 (ZyNOS 3.52)
+Class ZyXEL | ZyNOS || firewall
 TSeq(Class=TD%gcd=<F0004%SI=<1E%IPID=I%TS=U)
 T1(DF=N%W=B680%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=N)
@@ -21645,9 +21645,9 @@ T6(Resp=N)
 T7(Resp=N)
 PU(Resp=N)
 
-# ZyNOS version: V3.50(DT.5) | 07/06/2004 on a ZyXel ES-3024 switch
-Fingerprint ZyXel switch ES-3024 ZyNOS V3.50
-Class ZyXel | ZyNOS || switch
+# ZyNOS version: V3.50(DT.5) | 07/06/2004 on a ZyXEL ES-3024 switch
+Fingerprint ZyXEL switch ES-3024 ZyNOS V3.50
+Class ZyXEL | ZyNOS || switch
 TSeq(Class=i800%IPID=I%TS=U)
 T1(DF=N%W=5780%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=Y%DF=N%W=0%ACK=S%Flags=AR%Ops=)
@@ -21658,9 +21658,9 @@ T6(DF=N%W=0%ACK=O%Flags=R%Ops=)
 T7(DF=N%W=0%ACK=S%Flags=AR%Ops=)
 PU(DF=N%TOS=0%IPLEN=38%RIPTL=148%RID=E%RIPCK=E%UCK=E%ULEN=134%DAT=E)
 
-# ZyXel ZyAir B-4000 Wireless Lan Access Point with 4 port switch running ZyNOS
-Fingerprint ZyXel ZyAir B-4000 Wireless Lan Access Point
-Class ZyXel | ZyNOS || WAP
+# ZyXEL ZyAir B-4000 Wireless Lan Access Point with 4 port switch running ZyNOS
+Fingerprint ZyXEL ZyAir B-4000 Wireless Lan Access Point
+Class ZyXEL | ZyNOS || WAP
 T1(DF=N%W=1000%ACK=S++%Flags=AS%Ops=M)
 T2(Resp=Y%DF=N%W=0%ACK=S++%Flags=AR%Ops=)
 T3(Resp=Y%DF=N%W=1000%ACK=S++%Flags=AS%Ops=M)

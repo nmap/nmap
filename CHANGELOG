@@ -8,7 +8,8 @@ o The UMIT graphical Nmap frontend is now included (as an ALPHA TEST
   and has many huge advantages over NmapFE.  It installs from the Nmap
   source tarballs as part of the "make install" process unless you
   specify --without-umit to configure.  Please give UMIT a try (the
-  executable is named umit) and let us know the results!
+  executable is named umit) and let us know the results!  We hope to
+  include UMIT in the Windows Nmap distributions soon.
 
 o The port selection mechanism was overhauled.  Nmap now knows
   (roughly) how common various services are, so you can specify
