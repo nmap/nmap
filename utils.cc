@@ -128,8 +128,8 @@ int wildtest(char *wild, char *test) {
       if (wild[1] == '\0') return 1;
 
       for(i=0; test[i]!='\0'; i++)
-        if ((wild[1] == test[i]  ||  wild[1] == '?')
-             &&  wildtest(wild+1, test+i) == 1) return 1;
+        if ((tolower((int)wild[1]) == tolower((int)test[i]) || wild[1] == '?')
+            &&  wildtest(wild+1, test+i) == 1) return 1;
 
       return 0;
     }

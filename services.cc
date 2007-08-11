@@ -174,6 +174,9 @@ static int nmap_services_init() {
     if (res == 3) {
       ratio = 0;
     } else if (res == 5) {
+      if (ratio_n < 0 || ratio_d < 0)
+        fatal("%s:%d contains an invalid negative value", filename, lineno);
+
       if (ratio_n > ratio_d)
         fatal("%s:%d has a ratio %g. All ratios must be < 1", filename, lineno, (double)ratio_n/ratio_d);
 
