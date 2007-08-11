@@ -96,10 +96,10 @@ Section "Register Nmap Path" SecRegisterPath
   Call AddToPath 
 SectionEnd 
  
-Section "WinPcap 4.0" SecWinPcap 
-  File ..\winpcap\winpcap-nmap-4.0.exe 
-  Exec '"$INSTDIR\winpcap-nmap-4.0.exe"' 
-  Delete "$INSTDIR\winpcap-nmap-4.0.exe" 
+Section "WinPcap 4.01" SecWinPcap 
+  File ..\winpcap\winpcap-nmap-4.01.exe 
+  Exec '"$INSTDIR\winpcap-nmap-4.01.exe"' 
+  Delete "$INSTDIR\winpcap-nmap-4.01.exe" 
 SectionEnd 
  
 Section "Network Performance Improvements (Registry Changes)" SecPerfRegistryMods 

@@ -1,14 +1,17 @@
 ;; Custom winpcap for nmap
 ;; Started by Doug Hoyte, April 2006
+
+;; Eddie Bell
 ;; Updated to 4.0, June 2007
+;; Updated to 4.01, July 2007
 
 ;--------------------------------
 
 ; The name of the installer
-Name "winpcap-nmap-4.0"
+Name "winpcap-nmap-4.01"
 
 ; The file to write
-OutFile "winpcap-nmap-4.0.exe"
+OutFile "winpcap-nmap-4.01.exe"
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\WinPcap
@@ -40,7 +43,8 @@ UninstPage instfiles
 Function .onInit
   var /GLOBAL inst_ver
   var /GLOBAL my_ver
-
+  StrCpy $my_ver "4.0.0.901" 
+  
   IfSilent do_silent no_silent
 
   do_silent:
@@ -61,13 +65,6 @@ Function .onInit
     IntOp $R4 $R1 / 0x00010000
     IntOp $R5 $R1 & 0x0000FFFF
     StrCpy $inst_ver "$R2.$R3.$R4.$R5"
-
-    GetDllVersion "wpcap.dll" $R0 $R1
-    IntOp $R2 $R0 / 0x00010000
-    IntOp $R3 $R0 & 0x0000FFFF
-    IntOp $R4 $R1 / 0x00010000
-    IntOp $R5 $R1 & 0x0000FFFF
-    StrCpy $my_ver "$R2.$R3.$R4.$R5"
 
     StrCmp $inst_ver $my_ver same_ver
 
@@ -118,7 +115,7 @@ Section "" ;No components page, name is not important
   WriteRegStr HKLM "Software\WinPcap" "" '"$INSTDIR"'
 
   ; Write the uninstall keys for Windows
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "DisplayName" "winpcap-nmap 4.0"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "DisplayName" "winpcap-nmap 4.01"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "UninstallString" '"$INSTDIR\uninstall.exe"'
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "NoRepair" 1

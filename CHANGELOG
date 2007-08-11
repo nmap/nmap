@@ -2,6 +2,9 @@
 
 4.22SOC1
 
+o Upgraded from WinPcap 4.0 to WinPcap 4.01 and fixed a versioning
+  error [Eddie]
+
 o The port selection mechanism was overhauled.  Nmap now knows
   (roughly) how common various services are, so you can specify
   options such as --top-ports 50 to scan the 50 most popular ports.

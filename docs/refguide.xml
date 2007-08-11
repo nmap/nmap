@@ -692,7 +692,19 @@ Traceroute works by sending packets with a low TTL (time-to-live) in an attempt 
 </listitem>
 </varlistentry>
 
+<varlistentry>
+ <term>
+  <option>--reason</option> (Host and port state reasons)
+ </term>
+ <listitem>
+   <indexterm significance="normal"><primary>--reason</primary></indexterm>
+   <indexterm significance="normal"><primary>Host and port state reasons</primary></indexterm>
 
+<para>
+Shows the reason each port is set to a specific state and the reason each host is up or down. This option displays the type of the packet that determined a port or hosts state. For example, A RST packet from a closed port or an echo reply from an alive host. The information nmap can provide is determined by the type of scan or ping. The SYN scan and SYN ping (\fB\-sS and -PT\fR) are very detailed. Whilst the TCP connect scan and ping (\fB\-sT\fR) are limited by the implementation of connect(). This feature is automatically enabled by the debug flag (\fB\-d\fR) and the results are stored in XML log files even if this option is not specified.
+</para>
+</listitem>
+</varlistentry>
 
       <varlistentry>
         <term>
