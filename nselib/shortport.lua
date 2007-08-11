@@ -1,4 +1,4 @@
-module('shortport', package.seeall)
+module(..., package.seeall)
 
 portnumber = function(port, _proto, _state)
 	local port_table;

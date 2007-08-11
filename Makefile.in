@@ -40,7 +40,7 @@ LIBS =  @LIBNBASE_LIBS@ @LIBNSOCK_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ @OPENSSL_L
 # LIBS =  -lrmalloc @LIBS@
 SHTOOL = ./shtool
 INSTALL = $(SHTOOL) install 
-MAKEDEPEND = @MAKEDEPEND@
+# MAKEDEPEND = @MAKEDEPEND@
 export RPMTDIR=$(HOME)/rpm
 
 
@@ -55,9 +55,9 @@ INSTALLNMAPFE=@INSTALLNMAPFE@
 INSTALLNSE=@INSTALLNSE@
 
 ifneq (@LIBLUA_LIBS@,)
-NSE_SRC=nse_main.cc nse_auxiliar.cc nse_nsock.cc nse_init.cc nse_nmaplib.cc nse_debug.cc nse_pcrelib.cc nse_string.cc nse_bitlib.cc
-NSE_HDRS=nse_main.h nse_auxiliar.h nse_nsock.h nse_init.h nse_nmaplib.h nse_debug.h nse_macros.h nse_pcrelib.h nse_string.h nse_bitlib.h
-NSE_OBJS=nse_main.o nse_auxiliar.o nse_nsock.o nse_init.o nse_nmaplib.o nse_debug.o nse_pcrelib.o nse_string.o nse_bitlib.o
+NSE_SRC=nse_main.cc nse_auxiliar.cc nse_nsock.cc nse_init.cc nse_nmaplib.cc nse_debug.cc nse_pcrelib.cc nse_string.cc 
+NSE_HDRS=nse_main.h nse_auxiliar.h nse_nsock.h nse_init.h nse_nmaplib.h nse_debug.h nse_macros.h nse_pcrelib.h nse_string.h
+NSE_OBJS=nse_main.o nse_auxiliar.o nse_nsock.o nse_init.o nse_nmaplib.o nse_debug.o nse_pcrelib.o nse_string.o
 NSESTDLIB=nsestdlib
 endif
 
