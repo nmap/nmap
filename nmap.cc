@@ -2031,7 +2031,7 @@ struct scan_lists *getpts(char *origexpr) {
              range_type,    // Defaults to TCP/UDP/Protos
              &portwarning); // No, we haven't warned them about dup ports yet
 
-  if ( 0 == (ports->tcp_count + ports->udp_count + ports->prot_count))
+  if (range_type != 0 && 0 == (ports->tcp_count + ports->udp_count + ports->prot_count))
     fatal("No ports specified -- If you really don't want to scan any ports use ping scan...");
 
   if (ports->tcp_count) {
