@@ -3110,8 +3110,10 @@ overwhelming requests.  Specify <option>--open</option> to only see
           <indexterm significance="normal"><primary>--servicedb</primary></indexterm>
           <para>Asks Nmap to use the specified services file rather than
           the <filename>nmap-services</filename> data file that
-          comes with Nmap.  See the description for <option>--datadir</option>
-          for more information on Nmap's data files.</para>
+          comes with Nmap.  Using this option also causes a fast scan
+          (<option>-F</option>) to be used. See the description for
+          <option>--datadir</option> for more information on Nmap's data
+          files.</para>
         </listitem>
       </varlistentry>
 
