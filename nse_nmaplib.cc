@@ -1,5 +1,3 @@
-#ifndef NOLUA
-
 #include "nse_nmaplib.h"
 #include "nse_nsock.h"
 #include "nse_macros.h"
@@ -439,4 +437,3 @@ static int l_exc_newtry(lua_State *l) {
 	return 1;
 }
 
-#endif /* NOLUA */

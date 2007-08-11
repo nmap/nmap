@@ -1,5 +1,3 @@
-#ifndef NOLUA
-
 /*=========================================================================*\
 * Auxiliar routines for class hierarchy manipulation
 * LuaSocket toolkit
@@ -132,4 +130,3 @@ void *auxiliar_getclassudata(lua_State *L, const char *classname, int objidx) {
     return luaL_checkudata(L, objidx, classname);
 }
 
-#endif /* NOLUA */

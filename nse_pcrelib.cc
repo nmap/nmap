@@ -2,7 +2,6 @@
 /* Reuben Thomas   nov00-18dec04 */
 /* Shmuel Zeigerman   may04-18dec04 */
 
-#ifndef NOLUA
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -374,4 +373,3 @@ LUALIB_API int luaopen_pcrelib(lua_State *L)
 	return 1;
 }
 
-#endif /* NOLUA */

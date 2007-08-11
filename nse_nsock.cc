@@ -1,5 +1,3 @@
-#ifndef NOLUA 
-
 #include "nse_nsock.h"
 #include "nse_auxiliar.h"
 #include "nse_macros.h"
@@ -426,4 +424,3 @@ static int l_nsock_set_timeout(lua_State* l) {
 	return 0;
 }
 
-#endif /* NOLUA */

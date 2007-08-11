@@ -1,5 +1,3 @@
-#ifndef NOLUA
-
 #include "nse_debug.h"
 
 void l_dumpStack(lua_State* l) {
@@ -58,4 +56,3 @@ void l_dumpFunction(lua_State* l, int index) {
 	fflush(stdout);
 }
 
-#endif /* NOLUA */

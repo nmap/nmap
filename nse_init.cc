@@ -1,5 +1,3 @@
-#ifndef NOLUA
-
 #include "nse_init.h"
 #include "nse_nmaplib.h"
 #include "nse_macros.h"
@@ -650,4 +648,3 @@ int init_loadfile(lua_State* l, char* filename) {
 	return SCRIPT_ENGINE_SUCCESS;
 }
 
-#endif /* NOLUA */

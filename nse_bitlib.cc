@@ -7,7 +7,6 @@
  * warranty.
  * the most recent copy can be found at http://rrt.sc3d.org/Software/Lua/
  **/
-#ifndef NOLUA
 
 extern "C" {
 #include "lauxlib.h"
@@ -74,4 +73,3 @@ LUALIB_API int luaopen_bitlib (lua_State *L) {
   return 1;
 }
 
-#endif /* NOLUA */

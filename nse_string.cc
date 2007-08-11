@@ -1,5 +1,3 @@
-#ifndef NOLUA
-
 #include "nse_string.h"
 
 #include "nbase.h"
@@ -81,4 +79,3 @@ char* nse_hexify(const void *data, unsigned int data_len) {
 	return strdup(osDump.str().c_str());
 }
 
-#endif

@@ -1,5 +1,3 @@
-#ifndef NOLUA
-
 #include "nse_main.h"
 
 extern "C" {
@@ -588,4 +586,3 @@ int process_preparethread(lua_State* l, struct run_record rr, struct thread_reco
 }
 
 
-#endif /* NOLUA */
