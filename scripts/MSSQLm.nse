@@ -12,21 +12,9 @@ license = "See nmaps COPYING for licence"
 categories = {"discovery", "intrusive"}
 
 require('stdnse')
+require "shortport"
 
-portrule = function(host, port) 
-	if 
-		(	port.number == 1433
-			or port.number == 1434 )
-		and port.protocol == "udp"
-		-- if we only run against open or open|filtered ports anyway, leave next two lines commented
-		-- and ( port.state == "open"
-		-- or port.state == "open|filtered" )
-	then
-		return true
-	else
-		return false
-	end
-end
+portrule = shortport.portnumber({1433, 1434}, "udp", {"open", "open|filtered"})
 
 action = function(host, port)
 

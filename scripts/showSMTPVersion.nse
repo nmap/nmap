@@ -8,22 +8,9 @@ license = "See nmaps COPYING for licence"
 
 categories = {"demo"}
 
-portrule = function(host, port) 
-	local decision
-	
-	if 
-		(	port.number == 25
-			or port.service == "smtp")
-		and port.protocol == "tcp" 
-		and port.state == "open"
-	then
-		decision = true
-	else
-		decision = false
-	end
+require "shortport"
 
-	return decision
-end
+portrule = shortport.port_or_service(25, "smtp")
 
 action = function(host, port)
 	

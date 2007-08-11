@@ -5,20 +5,9 @@ license = "See nmaps COPYING for licence"
 
 categories = {"intrusive"}
 
-portrule = function(host, port)
-	if 	(	port.number == 443
-		or	port.service == "ssl/http"
-		or	port.service == "ssl"
-		or	port.service == "https")
-		and port.protocol == "tcp"
-		and port.state == "open"
-	then
-		return true
-	else
-		return false
-	end
+require "shortport"
 
-end
+portrule = shortport.port_or_service(443, {"ssl/http", "ssl", "https"})
 
 hex2dec = function(hex)
 

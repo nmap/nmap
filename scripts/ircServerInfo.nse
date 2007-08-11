@@ -9,14 +9,9 @@ license = "See Nmap's COPYING"
 categories = {"discovery"}
 
 require("stdnse")
+require "shortport"
 
-portrule = function(host, port) 
-  return (portnumber == 6667 or port.service == "irc")
-         and port.protocol == "tcp"
-         and port.state == "open"
-end
-
-
+portrule = shortport.port_or_service(6667, "irc")
 
 init = function()
   -- Start of MOTD, we'll take the server name from here

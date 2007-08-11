@@ -4,17 +4,9 @@ author = "Brandon Enright <bmenrigh@ucsd.edu>"
 license = "See nmaps COPYING for licence"
 categories = {"intrusive"}
 
-portrule = function(host, port)
-	if 	(port.number == 22
-		or port.service == "ssh")
-		and port.protocol == "tcp"
-		and port.state == "open"
-	then
-		return true
-	else
-		return false
-	end
-end
+require "shortport"
+
+portrule = shortport.port_or_service(22, "ssh")
 
 action = function(host, port)
 	local socket = nmap.new_socket()

@@ -8,17 +8,9 @@ license = "See nmaps COPYING for licence"
 
 categories = {"intrusive"}
 
-portrule = function(host, port)
-	if 	(port.number == 21
-		or port.service == "ftp")
-		and port.protocol == "tcp"
-		and port.state == "open"
-	then
-		return true
-	else
-		return false
-	end
-end
+require "shortport"
+
+portrule = shortport.port_or_service(21, "ftp")
 
 action = function(host, port)
 	local socket = nmap.new_socket()

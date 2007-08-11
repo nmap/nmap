@@ -9,15 +9,9 @@ license = "See nmap's COPYING for license"
 
 categories = {"safe", "discovery"}
 
-portrule = function(host, port)
-	if port.number == 4569 and 
-	   port.protocol == "udp" 
-	then
-		return true
-	else
-		return false
-	end
-end
+require "shortport"
+
+portrule = shortport.portnumber(4569, "udp")
 
 action = function(host, port)
 	local soc = nmap.new_socket()

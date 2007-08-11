@@ -11,19 +11,9 @@ license = "See nmaps COPYING for licence"
 
 categories = {"discovery", "safe"}
 
-portrule = function(host, port) 
-	if 
-		port.number == 161
-		and port.protocol == "udp"
-		-- if we only run against open or open|filtered ports anyway, leave next two lines commented
-		-- and ( port.state == "open"
-		-- or port.state == "open|filtered" )
-	then
-		return true
-	else
-		return false
-	end
-end
+require "shortport"
+
+portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 
 action = function(host, port)
 

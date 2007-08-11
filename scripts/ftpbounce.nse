@@ -5,16 +5,9 @@ license="See nmaps COPYING for licence"
 
 categories = {"intrusive"}
 
-portrule = function(host, port)
-	if 	port.service == "ftp"
-		and port.protocol == "tcp"
-		and port.state == "open"
-	then
-		return true
-	else
-		return false
-	end
-end
+require "shortport"
+
+portrule = shortport.service("ftp")
 
 line_iterate = function(s)
 	local line

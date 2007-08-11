@@ -8,17 +8,9 @@ license = "See nmaps COPYING for licence"
 
 categories = {"discovery"}
 
-portrule = function(host, port)
-	if 	(port.number == 79 
-		or port.service == "finger")
-		and port.protocol == "tcp"
-		and port.state == "open"
-	then
-		return true
-	else
-		return false
-	end
-end
+require "shortport"
+
+portrule = shortport.port_or_service(79, "finger")
 
 action = function(host, port)
 	local socket = nmap.new_socket()

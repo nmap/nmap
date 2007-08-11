@@ -9,21 +9,9 @@ license = "See nmaps COPYING for licence"
 
 categories = {"backdoor"}
 
-portrule = function(host, port) 
-	local decision
-	if 
-		(	port.number == 8888
-			or port.service == "auth")
-		and port.protocol == "tcp" 
-		and port.state == "open"
-	then
-		decision = true
-	else
-		decision = false
-	end
+require "shortport"
 
-	return decision
-end
+portrule = shortport.port_or_service(8888, "auth")
 
 action = function(host, port)
 	local status = 0

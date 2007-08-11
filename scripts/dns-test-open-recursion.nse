@@ -9,16 +9,9 @@ license = "See nmaps COPYING for licence"
 categories = {"intrusive"}
 
 require "bit"
+require "shortport"
 
-portrule = function(host, port)
-	if 	port.number == 53
-		and port.protocol == "udp"
-	then
-		return true
-	else
-		return false
-	end
-end
+portrule = shortport.portnumber(53, "udp")
 
 action = function(host, port)
 

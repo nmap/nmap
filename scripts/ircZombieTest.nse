@@ -9,19 +9,9 @@ license = "See nmaps COPYING for licence"
 
 categories = {"malware"}
 
-portrule = function(host, port) 
-	if 
-		(	port.number == 113
-			or port.service == "auth")
-		and port.protocol == "tcp" 
-		and port.state == "open"
-	then
-		return true
-	else
-		return false
-	end
+require "shortport"
 
-end
+portrule = shortport.port_or_service(113, "auth")
 
 action = function(host, port)
 	local status = 0

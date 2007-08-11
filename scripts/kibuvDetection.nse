@@ -16,25 +16,9 @@ license = "See nmaps COPYING for licence"
 
 categories = {"malware"}
 
-portrule = function(host, port) 
-	local decision
-	if 
-		(	port.number == 7955
-			or
-			port.number == 14920
-			or
-			port.number == 42260) 
-		and port.service == "ftp"
-		and port.protocol == "tcp" 
-		and port.state == "open"
-	then
-		decision = true
-	else
-		decision = false
-	end
+require "shortport"
 
-	return decision
-end
+portrule = shortport.port_or_service({7955, 14920, 42260}, "ftp")
 
 action = function(host, port)
 	local socket = nmap.new_socket()

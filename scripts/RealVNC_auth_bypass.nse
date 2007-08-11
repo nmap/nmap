@@ -5,17 +5,9 @@ license = "See nmaps COPYING for licence"
 
 categories = {"backdoor"}
 
-portrule = function(host, port)
-	if 	(port.number == 5900
-		or port.service == "vnc")
-		and port.protocol == "tcp"
-		and port.state == "open"
-	then
-		return true
-	else
-		return false
-	end
-end
+require "shortport"
+
+portrule = shortport.port_or_service(5900, "vnc")
 
 action = function(host, port)
 	local socket = nmap.new_socket()

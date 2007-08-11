@@ -14,18 +14,11 @@ id="Open Relay SMTP"
 description="Checks to see if a SMTP server is an open relay"
 categories = {"demo"}
 
+require "shortport"
+
 ourdomain="scanme.org"
 
-portrule = function(host, port)
-	if 	(port.number == 25
-		or port.service == "smtp")
-		and port.protocol == "tcp"
-	then
-		return true
-	else
-		return false
-	end
-end
+portrule = shortport.port_or_service(25, "smtp")
 
 action = function(host, port)
 	local socket = nmap.new_socket()

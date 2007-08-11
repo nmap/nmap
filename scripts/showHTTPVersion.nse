@@ -17,24 +17,9 @@ categories = {""}
 
 runlevel = 1.0
 
-portrule = function(host, port)
+require "shortport"
 
-
-	if 
-		-- remove next line if you really want to run this script
-		false and
-		(	port.number == 80
-		or port.service == "http" )
-		and port.protocol == "tcp" 
-		and port.state == "open"
-		-- and host.name ~= nil 
-		-- and string.match(host.name, "www.+") 
-	then
-		return true
-	else
-		return false
-	end
-end
+portrule = shortport.port_or_service(80, "http")
 
 action = function(host, port)
 

@@ -12,19 +12,9 @@ author = "Jason DePriest <jrdepriest@gmail.com>"
 license = "See nmaps COPYING for licence"
 categories = {"discovery", "intrusive"}
 
-portrule = function(host, port)
-	if (port.number == 25
-		or port.number == 587
-		or port.number == 465
-		or port.service == "smtp")
-		and port.state == "open"
-		and port.protocol == "tcp"
-	then
-		return true
-	else
-		return false
-	end
-end
+require "shortport"
+
+portrule = shortport.port_or_service({25, 587, 465}, "smtp")
 
 action = function(host, port)
 

@@ -10,17 +10,9 @@ license = "See nmaps COPYING for licence"
 
 categories = {"vulnerability"}
 
-portrule = function(host, port) 
-	if 	port.number == 21
-		and port.service == "ftp"
-		and port.protocol == "tcp" 
-		and port.state == "open"
-	then
-		return true
-	else
-		return false
-	end
-end
+require "shortport"
+
+portrule = shortport.port_or_service(21, "ftp")
 
 login = function(socket, user, pass)
 	res = ""

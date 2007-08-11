@@ -9,17 +9,9 @@ license = "See nmaps COPYING for licence"
 
 categories = {"demo"}
 
-portrule = function(host, port) 
-	if 
-		port.service == "ssh"
-		and port.protocol == "tcp" 
-		and port.state == "open" 
-	then
-		return true
-	else
-		return false
-	end
-end
+require "shortport"
+
+portrule = shortport.service("ssh")
 
 action = function(host, port)
 	local result, socket

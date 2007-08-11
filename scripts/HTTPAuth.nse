@@ -13,19 +13,9 @@ license = "See nmaps COPYING for licence"
 -- categories = {"safe"}
 categories = {"intrusive"}
 
-portrule = function(host, port)
-       if
-               (       port.number == 80
-                       or port.number == 8080
-                       or port.service == "http")
-               and port.protocol == "tcp"
-               and port.state == "open"
-       then
-               return true
-       else
-               return false
-       end
-end
+require "shortport"
+
+portrule = shortport.port_or_service({80, 8080}, "http")
 
 action = function(host, port)
        local socket

@@ -9,16 +9,9 @@ license = "See nmaps COPYING for licence"
 
 categories = {"demo"}
 
-portrule = function(host, port)
-	if 	port.number == 7
-		and port.service == "echo"
-		and port.protocol == "udp"
-	then
-		return true
-	else
-		return false
-	end
-end
+require "shortport"
+
+portrule = shortport.port_or_service(7, "echo", "udp")
 
 action = function(host, port)
 	local echostr = "hello there"
