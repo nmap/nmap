@@ -626,6 +626,7 @@ int nmap_main(int argc, char *argv[]) {
       {"script_trace", no_argument, 0, 0},
       {"script-updatedb", no_argument, 0, 0},
       {"script_updatedb", no_argument, 0, 0},
+	  {"script-args",required_argument,0,0},
 #endif
       {"ip_options", required_argument, 0, 0},
       {"ip-options", required_argument, 0, 0},
@@ -654,7 +655,9 @@ int nmap_main(int argc, char *argv[]) {
 	if (strcmp(long_options[option_index].name, "script") == 0) {
 		o.script = 1;
 		o.chooseScripts(optarg);
-	} else if (optcmp(long_options[option_index].name, "script-trace") == 0) {
+	} else if(strcmp(long_options[option_index].name,"script-args")==0){
+		o.scriptargs=strdup(optarg);
+	}else if (optcmp(long_options[option_index].name, "script-trace") == 0) {
 		o.scripttrace = 1;
 	} else if (optcmp(long_options[option_index].name, "script-updatedb") == 0){
 		o.scriptupdatedb = 1;

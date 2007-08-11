@@ -324,6 +324,7 @@ class NmapOps {
 
 #ifndef NOLUA
   int script;
+  char *scriptargs;
   int scriptversion;
   int scripttrace;
   int scriptupdatedb;

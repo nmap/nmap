@@ -19,6 +19,7 @@
 
 #include <algorithm>
 int init_setlualibpath(lua_State* l);
+int init_parseargs(lua_State* l);
 int init_loadfile(lua_State* l, char* filename);
 int init_loaddir(lua_State* l, char* dirname);
 int init_loadcategories(lua_State* l, std::vector<std::string> categories, std::vector<std::string> &unusedTags);
@@ -59,7 +60,8 @@ int init_lua(lua_State* l) {
 	SCRIPT_ENGINE_TRY(set_nmaplib(l));
 	lua_setglobal(l, "nmap");
 	SCRIPT_ENGINE_TRY(init_setlualibpath(l));
-
+	/* add the provided commandline args to the registry */
+	SCRIPT_ENGINE_TRY(init_parseargs(l));
 	return SCRIPT_ENGINE_SUCCESS;
 }
 
@@ -111,6 +113,58 @@ int init_setlualibpath(lua_State* l){
 	/*pop the two strings (luapath and luacpath) and the package table off 
 	 * the stack */
 	lua_pop(l,3);
+	return SCRIPT_ENGINE_SUCCESS;
+}
+
+int init_parseargs(lua_State* l){
+	const char* tmp;
+	std::string processed_args = std::string("nmap.registry.args={");
+	//try the easy way:
+	if(o.scriptargs==NULL){ //if no arguments are provided we're done
+		return SCRIPT_ENGINE_SUCCESS;
+	}
+	//prepare passed string for loading
+	lua_getglobal(l,"string");
+	lua_getfield(l,-1,"gsub");
+	lua_pushvalue(l,-1);
+	lua_pushstring(l,o.scriptargs);
+	lua_pushstring(l,"=([^{},$]+)");
+	lua_pushstring(l,"=\"%1\"");
+	if(lua_pcall(l,3,1,0)!=0){
+		error("error parsing --script-args");
+		return SCRIPT_ENGINE_ERROR;
+	}
+	processed_args.append(lua_tostring(l,-1));
+	lua_pushstring(l,"%b{}");
+	lua_pushstring(l,"");
+	if(lua_pcall(l,3,1,0)!=0){
+		error("error parsing --script-args");
+		return SCRIPT_ENGINE_ERROR;
+	}
+	tmp=lua_tostring(l,-1);
+	lua_getfield(l,-2,"find");
+	lua_pushvalue(l,-2);
+	lua_pushstring(l,"[{}]");
+	if(lua_pcall(l,2,1,0)!=0){
+		error("error parsing --script-args");
+		return SCRIPT_ENGINE_ERROR;
+	}
+	if(!lua_isnil(l,-1)){
+		error("unbalanced brackets inside script-options!!\n");
+		return SCRIPT_ENGINE_ERROR;
+	}
+	processed_args.push_back('}');
+	lua_settop(l,0); //clear stack
+
+	tmp = processed_args.c_str();
+	luaL_loadbuffer(l,tmp,strlen(tmp),"Script-Arguments");
+	if(lua_pcall(l,0,0,0)!=0){
+		error("error loading --script-args: %s",lua_tostring(l,-1));
+		return SCRIPT_ENGINE_ERROR;
+	}
+	//lua_getglobal(l,"nmap");
+	//l_dumpStack(l);
+
 	return SCRIPT_ENGINE_SUCCESS;
 }
 

@@ -3,6 +3,8 @@
 #include "nse_macros.h"
 #include "nse_string.h"
 
+#include "nse_debug.h"
+
 #include "nsock.h"
 #include "nmap_error.h"
 #include "NmapOps.h"
@@ -19,6 +21,9 @@
 #define NSOCK_WRAPPER			"NSOCK WRAPPER"
 #define NSOCK_WRAPPER_SUCCESS		0 
 #define NSOCK_WRAPPER_ERROR		2 
+
+#define NSOCK_WRAPPER_BUFFER_OK 1
+#define NSOCK_WRAPPER_BUFFER_MOREREAD 2
 
 #define FROM 	1
 #define TO 	2
@@ -40,10 +45,14 @@ static int l_nsock_get_info(lua_State* l);
 static int l_nsock_gc(lua_State* l);
 static int l_nsock_close(lua_State* l);
 static int l_nsock_set_timeout(lua_State* l);
+static int l_nsock_receive_buf(lua_State* l);
 
 void l_nsock_connect_handler(nsock_pool nsp, nsock_event nse, void *lua_state);
 void l_nsock_send_handler(nsock_pool nsp, nsock_event nse, void *lua_state);
 void l_nsock_receive_handler(nsock_pool nsp, nsock_event nse, void *lua_state);
+void l_nsock_receive_buf_handler(nsock_pool nsp, nsock_event nse, void *lua_state);
+
+int l_nsock_check_buf(lua_State* l);
 
 int l_nsock_checkstatus(lua_State* l, nsock_event nse);
 
@@ -57,6 +66,7 @@ static luaL_reg l_nsock [] = {
 	{"receive", l_nsock_receive},
 	{"receive_lines", l_nsock_receive_lines},
 	{"receive_bytes", l_nsock_receive_bytes},
+	{"receive_buf", l_nsock_receive_buf},
 	{"get_info", l_nsock_get_info},
 	{"close", l_nsock_close},
 	{"set_timeout", l_nsock_set_timeout},
@@ -70,7 +80,12 @@ struct l_nsock_udata {
 	int timeout;
 	nsock_iod nsiod;
 	void *ssl_session;
+	/*used for buffered reading */
+	int bufidx; /*index inside lua's registry */
+	int bufused;
 };
+
+void l_nsock_clear_buf(lua_State* l, l_nsock_udata* udata);
 
 int l_nsock_open(lua_State* l) {
 	auxiliar_newclass(l, "nsock", l_nsock);
@@ -90,6 +105,8 @@ int l_nsock_new(lua_State* l) {
 	udata->nsiod = NULL;
 	udata->ssl_session = NULL;
 	udata->timeout = DEFAULT_TIMEOUT;
+	udata->bufidx = LUA_NOREF;
+	udata->bufused= 0;
 	return 1;
 }
 
@@ -135,6 +152,7 @@ static int l_nsock_connect(lua_State* l) {
 	struct addrinfo *dest;
 	int error_id;
 	
+	l_nsock_clear_buf(l, udata);
 
 	error_id = getaddrinfo(addr, NULL, NULL, &dest);
 	if (error_id) {
@@ -201,6 +219,8 @@ static int l_nsock_send(lua_State* l) {
 	const char* string = luaL_checkstring(l, 2);
 	size_t string_len = lua_objlen (l, 2);
 	char* hexified;
+	
+	l_nsock_clear_buf(l,udata); 
 
 	if(udata->nsiod == NULL) {
 		lua_pushboolean(l, false);
@@ -230,6 +250,7 @@ void l_nsock_send_handler(nsock_pool nsp, nsock_event nse, void *lua_state) {
 
 static int l_nsock_receive(lua_State* l) {
 	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	l_nsock_clear_buf(l, udata);
 
 	if(udata->nsiod == NULL) {
 		lua_pushboolean(l, false);
@@ -246,6 +267,8 @@ static int l_nsock_receive_lines(lua_State* l) {
 	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
 	int nlines = (int) luaL_checknumber(l, 2);
 
+	l_nsock_clear_buf(l, udata);
+	
 	if(udata->nsiod == NULL) {
 		lua_pushboolean(l, false);
 		lua_pushstring(l, "Trying to receive lines through a closed socket\n");
@@ -260,6 +283,8 @@ static int l_nsock_receive_lines(lua_State* l) {
 static int l_nsock_receive_bytes(lua_State* l) {
 	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
 	int nbytes = (int) luaL_checknumber(l, 2);
+	
+	l_nsock_clear_buf(l, udata);
 
 	if(udata->nsiod == NULL) {
 		lua_pushboolean(l, false);
@@ -402,6 +427,8 @@ static int l_nsock_gc(lua_State* l){
 }
 static int l_nsock_close(lua_State* l) {
 	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	
+	l_nsock_clear_buf(l, udata);
 
 	if(udata->nsiod == NULL) {
 		lua_pushboolean(l, false);
@@ -436,3 +463,182 @@ static int l_nsock_set_timeout(lua_State* l) {
 	return 0;
 }
 
+/* buffered I/O */
+static int l_nsock_receive_buf(lua_State* l) {
+	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	if(lua_gettop(l)==2){ 
+		/*we were called with 2 arguments only - push the default third one*/
+		lua_pushboolean(l,true);
+	}
+	if(udata->nsiod == NULL) {
+		lua_pushboolean(l, false);
+		lua_pushstring(l, "Trying to receive through a closed socket\n");
+		return 2;	
+	}
+	if(udata->bufused==0){
+		lua_pushstring(l,"");
+		udata->bufidx = luaL_ref(l, LUA_REGISTRYINDEX);
+		udata->bufused=1;
+		nsock_read(nsp, udata->nsiod, l_nsock_receive_buf_handler, udata->timeout, l);
+	}else if(udata->bufused==-1){ /*error message is inside the buffer*/
+		lua_pushboolean(l,false); 
+		lua_rawgeti(l, LUA_REGISTRYINDEX, udata->bufidx);
+		return 2;
+	}else{ /*buffer contains already some data */
+		/*we keep track here of how many calls to receive_buf are made */
+		udata->bufused++; 
+		if(l_nsock_check_buf(l)==NSOCK_WRAPPER_BUFFER_MOREREAD){
+			/*if we didn't have enough data in the buffer another nsock_read()
+			 * was scheduled - its callback will put us in running state again
+			 */
+			return lua_yield(l,3);
+		}
+		return 2;
+	}
+	/*yielding with 3 arguments since we need them when the callback arrives */
+	return lua_yield(l, 3);
+}
+
+void l_nsock_receive_buf_handler(nsock_pool nsp, nsock_event nse, void *lua_state) {
+	lua_State* l = (lua_State*) lua_state;
+	char* rcvd_string;
+	int rcvd_len = 0;
+	char* hexified;
+	int tmpidx;
+	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	if(l_nsock_checkstatus(l, nse) == NSOCK_WRAPPER_SUCCESS) {
+		
+		//l_nsock_checkstatus pushes true on the stack in case of success
+		// we do this on our own here
+		lua_pop(l,1);
+
+		rcvd_string = nse_readbuf(nse, &rcvd_len);
+		
+		if(o.scriptTrace()) {
+			hexified = nse_hexify((const void*) rcvd_string, (size_t) rcvd_len);
+			l_nsock_trace(nse_iod(nse), hexified, FROM);
+			free(hexified);
+		}
+		/* push the buffer and what we received from nsock on the stack and
+		 * concatenate both*/
+		lua_rawgeti(l, LUA_REGISTRYINDEX, udata->bufidx);
+		lua_pushlstring(l, rcvd_string, rcvd_len);
+		lua_concat (l, 2);
+		luaL_unref(l, LUA_REGISTRYINDEX, udata->bufidx);
+		udata->bufidx = luaL_ref(l, LUA_REGISTRYINDEX);
+		if(l_nsock_check_buf(l)==NSOCK_WRAPPER_BUFFER_MOREREAD){
+		/*if there wasn't enough data in the buffer and we've issued another
+		 * nsock_read() the next callback will schedule the script for running
+		 */
+			return;
+		}
+		process_waiting2running((lua_State*) lua_state, 2);
+	} else {
+		if(udata->bufused>1){ 
+		/*error occured after we read into some data into the buffer
+		 * behave as if there was no error and push the rest of the buffer 
+		 * and clean the buffer afterwards
+		 */
+			/*save the error message inside the buffer*/
+			tmpidx=luaL_ref(l, LUA_REGISTRYINDEX); 
+			/*pop the status (==false) of the stack*/
+			lua_pop(l,1);
+			lua_pushboolean(l, true);
+			lua_rawgeti(l, LUA_REGISTRYINDEX, udata->bufidx);
+			l_nsock_clear_buf(l, udata);
+			udata->bufidx=tmpidx;
+			udata->bufused=-1;
+			process_waiting2running((lua_State*) lua_state, 2);
+		}else{ /*buffer should be empty */
+			process_waiting2running((lua_State*) lua_state, 2);
+		}
+	}
+}
+
+int l_nsock_check_buf(lua_State* l ){
+	l_nsock_udata* udata;
+	size_t startpos, endpos, bufsize;
+	const char *tmpbuf;
+	int tmpidx;
+	int keeppattern;
+	/*should we return the string including the pattern or without it */
+	keeppattern= lua_toboolean(l,-1);
+	lua_pop(l,1);
+	udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	if(lua_isfunction(l,2)){
+		lua_pushvalue(l,2);
+		lua_rawgeti(l, LUA_REGISTRYINDEX, udata->bufidx); /* the buffer is the only argument to the function */
+		if(lua_pcall(l,1,2,0)!=0){
+			lua_pushboolean(l,false);
+			lua_pushfstring(l,"Error inside splitting-function: %s\n", lua_tostring(l,-1));
+			return NSOCK_WRAPPER_BUFFER_OK;
+			//luaL_error(l,"Error inside splitting-function, given as argument to nsockobj:receive_buf: %s\n", lua_tostring(l,-1));
+		}
+	}else if(lua_isstring(l,2)){
+		lua_getglobal(l,"string");
+		lua_getfield(l,-1,"find");
+		lua_remove(l, -2); /*drop the string-table, since we don't need it! */
+		lua_rawgeti(l, LUA_REGISTRYINDEX, udata->bufidx); 
+		lua_pushvalue(l,2); /*the pattern we are searching for */
+		if(lua_pcall(l,2,2,0)!=0){
+			lua_pushboolean(l,false);
+			lua_pushstring(l,"error in string.find (nsockobj:receive_buf)!");
+			return NSOCK_WRAPPER_BUFFER_OK;
+		}
+	}else{
+			lua_pushboolean(l,false);
+			lua_pushstring(l,"expected either a function or a string!");
+			return NSOCK_WRAPPER_BUFFER_OK;
+			//luaL_argerror(l,2,"expected either a function or a string!");
+	}
+	/*the stack contains on top the indices where we want to seperate */
+	if(lua_isnil(l,-1)){ /*not found anything try to read more data*/
+		lua_pop(l,2);
+		nsock_read(nsp, udata->nsiod, l_nsock_receive_buf_handler, udata->timeout, l);
+		lua_pushboolean(l,keeppattern);
+		return NSOCK_WRAPPER_BUFFER_MOREREAD;
+	}else{
+		startpos = (size_t) lua_tointeger(l, -2);
+		endpos = (size_t) lua_tointeger(l, -1);
+		lua_settop(l,0); /* clear the stack for returning */
+		if(startpos>endpos){
+			lua_pushboolean(l,false);
+			lua_pushstring(l,"delimter has negative size!");
+			return NSOCK_WRAPPER_BUFFER_OK;
+		}else if(startpos==endpos){
+			/* if the delimter has a size of zero we keep it, since otherwise 
+			 * retured string would be trucated
+			 */
+			keeppattern=1; 
+		}
+		lua_settop(l,0); /* clear the stack for returning */
+		lua_rawgeti(l, LUA_REGISTRYINDEX, udata->bufidx); 
+		tmpbuf = lua_tolstring(l, -1, &bufsize);
+		lua_pop(l,1); /* pop the buffer off the stack, should be safe since it 
+		it is still in the registry */
+		if(tmpbuf==NULL){
+		 fatal("%s: In: %s:%i The buffer is not a string?! - please report this to nmap-dev@insecure.org.", SCRIPT_ENGINE, __FILE__, __LINE__);
+		}
+		/*first push the remains of the buffer */
+		lua_pushlstring(l,tmpbuf+endpos,(bufsize-endpos));
+		tmpidx = luaL_ref(l,LUA_REGISTRYINDEX);
+		lua_pushboolean(l,true);
+		if(keeppattern){
+			lua_pushlstring(l,tmpbuf,endpos);
+		}else{
+			lua_pushlstring(l,tmpbuf,startpos-1);
+		}
+		luaL_unref(l,LUA_REGISTRYINDEX,udata->bufidx);
+		udata->bufidx=tmpidx;
+		l_dumpStack(l);
+		return NSOCK_WRAPPER_BUFFER_OK;
+	}
+	assert(0);
+	return 1;//unreachable
+}
+
+void l_nsock_clear_buf(lua_State* l, l_nsock_udata* udata){
+	luaL_unref (l, LUA_REGISTRYINDEX, udata->bufidx); 
+	udata->bufidx=LUA_NOREF;
+	udata->bufused=0;
+}
