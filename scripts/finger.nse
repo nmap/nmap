@@ -38,7 +38,7 @@ action = function(host, port)
 	status, results = socket:receive_lines(100)
 	socket:close()
 
-	if status then
+	if not(status) then
 		return results
 	end
 end
