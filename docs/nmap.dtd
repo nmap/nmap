@@ -132,7 +132,7 @@
 <!ELEMENT host		( status, address , (address | hostnames |
                           smurf | ports | os | distance | uptime | 
                           tcpsequence | ipidsequence | tcptssequence |
-                          hostscript | trace)* ) >
+                          hostscript | trace)*, times ) >
 
 <!-- these elements are written by output.c:write_xml_initial_hostinfo() -->
 <!ELEMENT status	EMPTY >
@@ -295,6 +295,13 @@
 <!ELEMENT error EMPTY>
 <!ATTLIST error
      errorstr   CDATA #IMPLIED
+>
+
+<!ELEMENT times EMPTY>
+<!ATTLIST times
+	srtt	CDATA	#REQUIRED
+	rttvar	CDATA	#REQUIRED
+	to	CDATA	#REQUIRED
 >
 
 <!-- these elements are generated in output.c:printfinaloutput() -->

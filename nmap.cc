@@ -1764,6 +1764,8 @@ int nmap_main(int argc, char *argv[]) {
       if (o.debugging) 
 	log_write(LOG_STDOUT, "Final times for host: srtt: %d rttvar: %d  to: %d\n", 
 		  currenths->to.srtt, currenths->to.rttvar, currenths->to.timeout);
+      log_write(LOG_XML, "<times srtt=\"%d\" rttvar=\"%d\" to=\"%d\" />\n",
+		currenths->to.srtt, currenths->to.rttvar, currenths->to.timeout);
       log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT|LOG_MACHINE,"\n");
       log_write(LOG_XML, "</host>\n");
     }
