@@ -1,15 +1,18 @@
 -- Arturo 'Buanzo' Busleiman <buanzo@buanzo.com.ar> / www.buanzo.com.ar / linux-consulting.buanzo.com.ar
 -- See Nmap's COPYING file for licence details
 -- This is version 20070516.
--- Changelog: + Added some strings to return in different places.
---            * Changed "HELO www.[ourdomain]" to "EHLO [ourdomain]".
---            * Fixed some API differences
---            * The "ourdomain" variable's contents are used instead of hardcoded "insecure.org". Settable by the user.
---            * Fixed tags -> categories (reported by Jason DePriest to nmap-dev)
+-- Changelog: 
+--   * I changed it to the "demo" category until we figure out what
+--     to do about using real hostnames. -Fyodor
+--   + Added some strings to return in different places.
+--   * Changed "HELO www.[ourdomain]" to "EHLO [ourdomain]".
+--   * Fixed some API differences
+--   * The "ourdomain" variable's contents are used instead of hardcoded "insecure.org". Settable by the user.
+--   * Fixed tags -> categories (reported by Jason DePriest to nmap-dev)
 
 id="Open Relay SMTP"
 description="Checks to see if a SMTP server is an open relay"
-categories = {"intrusive"}
+categories = {"demo"}
 
 ourdomain="scanme.org"
 
