@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "03/20/2007" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "07/04/2007" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -91,7 +91,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 \fI\%http://insecure.org/nmap/data/nmap.usage.txt\fR. It helps people remember the most common options, but is no substitute for the in\-depth documentation in the rest of this manual. Some obscure options aren't even included here.
 .PP
 .nf
-Nmap 4.21ALPHA2 ( http://insecure.org )
+Nmap 4.21ALPHA4 ( http://insecure.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -118,7 +118,6 @@ SCAN TECHNIQUES:
   \-sO: IP protocol scan
   \-b <ftp relay host>: FTP bounce scan
   \-\-traceroute: Trace hop path to each host
-  \-\-reason: Display the reason a port is in a particular state
 PORT SPECIFICATION AND SCAN ORDER:
   \-p <port ranges>: Only scan specified ports
     Ex: \-p22; \-p1\-65535; \-p U:53,111,137,T:21\-25,80,139,8080
@@ -381,9 +380,6 @@ or
 Traceroutes are performed post\-scan using information from the scan results to determine the port and protocol most likely to reach the target. It works with all scan types except connect scans (\-sT) and idle scans (\-sI). All traces use nmap's dynamic timing model and are performed in parallel.
 .sp
 Traceroute works by sending packets with a low TTL (time\-to\-live) in an attempt to illicit ICMP TTL_EXCCEDED messages from intermediate hops between the scanner and the target host. Standard traceroute implementation start with a TTL of 1 and increment the TTL until the destination host is reached. Nmap's traceroute starts with a high TTL and then decrements the TTL until it reaches 0. Doing it backwards lets nmap employ clever caching algorithms to speed up traces over multiple hosts. On average nmap sends 5\-10 fewer packets per host, depending on network conditions. If a single subnet is being scanned (i.e. 192.168.0.0/24) nmap may only have to send a single packet to most hosts.
-.TP
-\fB\-\-reason\fR (Host and port state reasons)
-Shows the reason each port is set to a specific state and the reason each host is up or down. This option displays the type of the packet that determined a port or hosts state. For example, A RST packet from a closed port or an echo reply from an alive host. The information nmap can provide is determined by the type of scan or ping. The SYN scan and SYN ping (\fB\-sS and -PT\fR) are very detailed. Whilst the TCP connect scan and ping (\fB\-sT\fR) are limited by the implementation of connect(). This feature is automatically enabled by the debug flag (\fB\-d\fR) and the results are stored in XML log files even if this option is not specified.
 .TP
 \fB\-n\fR (No DNS resolution)
 Tells Nmap to
@@ -672,8 +668,10 @@ file which comes with nmap (or the protocols file for
 \fB\-sO\fR). This is much faster than scanning all 65535 ports on a host. Because this list contains so many TCP ports (more than 1200), the speed difference from a default TCP scan (about 1650 ports) isn't dramatic. The difference can be enormous if you specify your own tiny
 \fInmap\-services\fR
 file using the
+\fB\-\-servicedb\fR
+or
 \fB\-\-datadir\fR
-option.
+options.
 .TP
 \fB\-r\fR (Don't randomize ports)
 By default, Nmap randomizes the scanned port order (except that certain commonly accessible ports are moved near the beginning for efficiency reasons). This randomization is normally desirable, but you can specify
@@ -998,7 +996,7 @@ ME
 as one of the decoys to represent the position for your real IP address. If you put
 ME
 in the 6th position or later, some common port scan detectors (such as Solar Designer's excellent scanlogd) are unlikely to show your IP address at all. If you don't use
-ME, nmap will put you in a random position.
+ME, nmap will put you in a random position. You can also use RND to generate a random, non\-reserved IP address, or RND:<number> to generate <number> addresses.
 .sp
 Note that the hosts you use as decoys should be up or you might accidentally SYN flood your targets. Also it will be pretty easy to determine which host is scanning if only one is actually up on the network. You might want to use IP addresses instead of names (so the decoy networks don't see you in their nameserver logs).
 .sp
@@ -1333,7 +1331,11 @@ Nmap obtains some special data at runtime in files named
 \fInmap\-protocols\fR,
 \fInmap\-rpc\fR,
 \fInmap\-mac\-prefixes\fR, and
-\fInmap\-os\-fingerprints\fR. Nmap first searches these files in the directory specified with the
+\fInmap\-os\-fingerprints\fR. If the location of any of these files has been specified (using the
+\fB\-\-servicedb\fR
+or
+\fB\-\-versiondb\fR
+options), that location is used for that file. After that, Nmap searches these files in the directory specified with the
 \fB\-\-datadir\fR
 option (if any). Any files not found there, are searched for in the directory specified by the NMAPDIR environmental variable. Next comes
 \fI~/.nmap\fR
@@ -1342,6 +1344,20 @@ for real and effective UIDs (POSIX systems only) or location of the Nmap executa
 or
 \fI/usr/share/nmap\fR
 . As a last resort, Nmap will look in the current directory.
+.TP
+\fB\-\-servicedb <services file>\fR (Specify custom services file)
+Asks Nmap to use the specified services file rather than the
+\fInmap\-services\fR
+data file that comes with Nmap. Using this option also causes a fast scan (\fB\-F\fR) to be used. See the description for
+\fB\-\-datadir\fR
+for more information on Nmap's data files.
+.TP
+\fB\-\-versiondb <service probes file>\fR (Specify custom service probes file)
+Asks Nmap to use the specified service probes file rather than the
+\fInmap\-service\-probes\fR
+data file that comes with Nmap. See the description for
+\fB\-\-datadir\fR
+for more information on Nmap's data files.
 .TP
 \fB\-\-send\-eth\fR (Use raw ethernet sending)
 Asks Nmap to send packets at the raw ethernet (data link) layer rather than the higher IP (network) layer. By default, Nmap chooses the one which is generally best for the platform it is running on. Raw sockets (IP layer) are generally most efficient for UNIX machines, while ethernet frames are required for Windows operation since Microsoft disabled raw socket support. Nmap still uses raw IP packets on UNIX despite this option when there is no other choice (such as non\-ethernet connections).
@@ -1544,7 +1560,8 @@ instead. Regular expression support is provided by the
 [14]\&\fILibdnet\fR
 networking library, which was written by Dug Song. A modified version is distributed with Nmap. Nmap can optionally link with the
 [15]\&\fIOpenSSL cryptography toolkit\fR
-for SSL version detection support. All of the third\-party software described in this paragraph is freely redistributable under BSD\-style software licenses.
+for SSL version detection support. The Nmap Scripting Engine uses an embedded version of the
+[16]\&\fILua programming language\fR. All of the third\-party software described in this paragraph is freely redistributable under BSD\-style software licenses.
 .SS "US Export Control Classification"
 .PP
 US Export Control: Insecure.Com LLC believes that Nmap falls under US ECCN (export control classification number) 5D992. This category is called
@@ -1595,3 +1612,6 @@ US Export Control: Insecure.Com LLC believes that Nmap falls under US ECCN (expo
 .TP 4
 15.\ OpenSSL cryptography toolkit
 \%http://www.openssl.org
+.TP 4
+16.\ Lua programming language
+\%http://www.lua.org

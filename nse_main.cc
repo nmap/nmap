@@ -93,10 +93,7 @@ int script_updatedb() {
 		goto finishup;
 	}
 
-	SCRIPT_ENGINE_DEBUGGING(
-		log_write(LOG_STDOUT, "%s: Rule database successfully updated.\n", 
-			SCRIPT_ENGINE);
-	)
+	log_write(LOG_STDOUT, "NSE script database updated successfully.\n");
 
 finishup:
 	lua_close(l);

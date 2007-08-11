@@ -71,7 +71,7 @@ Function .onInit
 
     StrCmp $inst_ver $my_ver same_ver
 
-    MessageBox MB_YESNO|MB_ICONQUESTION "WinPcap version $inst_ver exists on this system. Replace with version $my_ver" IDYES finish
+    MessageBox MB_YESNO|MB_ICONQUESTION "WinPcap version $inst_ver exists on this system. Replace with version $my_ver?" IDYES finish
     quit
 
   same_ver:

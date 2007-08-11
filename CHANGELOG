@@ -1,5 +1,78 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+4.22SOC1
+
+o The port selection mechanism was overhauled.  Nmap now knows
+  (roughly) how common various services are, so you can specify
+  options such as --top-ports 50 to scan the 50 most popular ports.
+  You can also use the new --port-ratio option to scan ports above a
+  given popularity level.  You can also now give the -p option service
+  names (such as 'http') and wildcards (such as http* to include
+  services such as https and http-mgmt).  There is also a bracket ([])
+  operator for scanning all known ports within a given range.  All
+  these changes, by Doug Hoyte, are described at
+  http://seclists.org/nmap-dev/2007/q2/0224.html .
+
+o Added more Nmap Scripting Engine scripts, bringing the total to 31.
+  The new ones are bruteTelnet (Eddie Bell), SMTPcommands (Jason
+  DePriest), iax2Detect (Jason), nbstat (Brandon Enright),
+  SNMPsysdescr (Thomas Buchanan), HTTPAuth (Thomas), finger (Eddie),
+  ircServerInfo (Doug Hoyte), and MSSQLm (Thomas Buchanan).
+
+o Added the --reason option which explains WHY Nmap assigned a port
+  status.  For example, a port could be listed as "filtered" because
+  no response was received, or because an ICMP network unreachable
+  message was received. [ Eddie ]
+
+o Integrated all of your 2nd generation OS detection submissions,
+  increasing the database size by 68% since 4.21ALPHA4 to 699
+  fingerprints.  The 2nd generation database is now nearly half (42%)
+  the size of the original.  Please keep those submissions coming so
+  that we can do another integration round before the SoC program ends
+  on August 20!  Thanks to David Fifield for doing most of the
+  integration work!
+
+o Integrated version detection submissions.  The database has grown by
+  more than 350 signatures since 4.21ALPHA4.  Nmap now has 4,236
+  signatures for 432 service protocols.  As usual, Doug Hoyte deserves
+  credit for the integration marathon, which he describes at
+  http://hcsw.org/blog.pl .
+
+o Added the NSE library (nselib) which is a library of useful
+  functions (which can be implemented in LUA or as loadable C/C++
+  modules) for use by NSE scripts.  We already have libraries for bit
+  operations (bit), list operations (listop), URL fetching and
+  manipulation (url), activation rules (shortport), and miscelaneous
+  commonly useful functions (stdnse).  Stoiko added the underlying
+  functionality, though numerous people contributed to the library
+  routines.
+
+o Added --servicedb and --versiondb command-line options which allow
+  you to specify a custom Nmap services (port to port number translation
+  and port frequency) file or version detection database. [ David
+  Fifield ]
+
+o The build dependencies were dramatically reduced by removing
+  unneccessary header includes and moving header includes from .h
+  files to .cc as well as adding some forward declarations.  This
+  reduced the number of makefile.dep dependencies from 1469 to 605.
+  This should make Nmap compilation faster and prevent some
+  portability problems. [David Fifield]
+
+o Upgraded from WinPcap 3.1 to WinPcap 4.0 [Eddie]
+
+o In verbose mode, Nmap now reports where it obtains data files (such as
+  nmap-services) from. [David Fifield]
+
+o Canonicalized a bunch of OS classes, device types, etc. in the OS
+  detection and version scanning databases so they are named
+  consistently. [Doug]
+
+o If we get a ICMP Protocol Unreachable from a host other than our
+  target during a port scan, we set the state to 'filtered' rather than
+  'closed'. This is consistent with how port unreachable errors work for
+  udp scan. [Kris]
+
 o Relocated OSScan warning message (could not find 1 closed and 1 open
   port). Now output.cc prints the warning along with a targets OSScan 
   results. [Eddie]
@@ -8,6 +81,33 @@ o Fixed a bug which caused port 0 to be improperly used for gen1 OS
   detection in some cases when your scan includes port 0 (it isn't
   included by default).  Thanks to Sebastian Wolfgarten for the report
   and Kris Katterjohn for the fix.
+
+o The --iflist table now provides Winpcap device names on
+  Windows. [Eddie]
+
+o The Nmap reference guide (man page) Docbook XML source is now in the
+  SVN repository at svn://svn.insecure.org/nmap/docs/refguide.xml .
+
+o NSE now has garbage collection so that if you forget to close a
+  socket before exiting a script, it is closed for you. [Stoiko]
+
+o The <portused> tag in XML output now provides the open TCP port used
+  for OS detection as well as the closed TCP and UDP ports which were
+  reported previously. [Kris]
+
+o XML output now has a <times> tag for reporting final time
+  information which was already printed in normal output in verbose
+  mode (round trip time, rtt variance, timeout, etc.) [Kris]
+
+o Changed the XML output format so that the <extrareasons> tag (part
+  of Eddie's --reason patch) falls within the <extraports> tag. [Kris]
+
+o Nmap now provides more consise OS fingerprints for submission thanks
+  to better merging. [David Fifield]
+
+o A number of changes were made to the Windows build system to handle
+  version numbers, publisher field, add/remove program support,
+  etc. [Eddie]
 
 o Improved how the Gen1 OS Detection system selects which UDP ports to
   send probes to.  [Kris]
@@ -20,11 +120,6 @@ o Updated nmap-mac-prefixes to latest IEEE data as of 5/18/07. Also
   Thanks to Sina Bahram for the initial report and Thomas Buchanan for
   tracking down the problem.
 
-o Added a great NetBIOS name lookup NSE script (nbstat.nse) from
-  Brandon Enright.  This queries port 137/udp on Windows machines to
-  try and determine the Windows NetBIOS name, the MAC address, and
-  logged-in username.
-
 o Added a SIP (IP phone) probe from Matt Selsky to nmap-service-probes.
 
 o Fixed a bug which prevented the NSE scripts directory from appearing
@@ -32,6 +127,9 @@ o Fixed a bug which prevented the NSE scripts directory from appearing
 
 o Fixed a bug in Traceroute's output.  It occured when a traced host could
   be fully consolidated, but only the first hop number was outputted. [Kris]
+
+o The new "rnd" option to -D allows you to ask Nmap to generate random
+  decoy IPs rather having to specify them all yourself. [Kris]
 
 o Fixed a Traceroute bug relating to scanning through the localhost
   interface on Windows (which previously caused a crash).  Thanks to

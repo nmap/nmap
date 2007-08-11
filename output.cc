@@ -1894,7 +1894,7 @@ void printdatafilepaths() {
   } else if (num_dirs == 1 && o.verbose && !o.debugging) {
     /* If all the files were from the same directory and we're in verbose mode,
        print a brief message unless we are also in debugging mode. */
-    log_write(LOG_PLAIN, "Read data files from: %s.\n", dir.c_str());
+    log_write(LOG_PLAIN, "Read data files from: %s\n", dir.c_str());
   } else if (num_dirs == 1 && o.debugging || num_dirs > 1) {
     /* If files were read from more than one directory, or if they were read
        from one directory and we are in debugging mode, display all the files

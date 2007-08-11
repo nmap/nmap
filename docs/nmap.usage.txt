@@ -1,4 +1,4 @@
-Nmap 4.21ALPHA4 ( http://insecure.org )
+Nmap 4.22SOC1 ( http://insecure.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -29,8 +29,10 @@ SCAN TECHNIQUES:
 PORT SPECIFICATION AND SCAN ORDER:
   -p <port ranges>: Only scan specified ports
     Ex: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080
-  -F: Fast - Scan only the ports listed in the nmap-services file)
+  -F: Fast mode - Scan fewer ports than the default scan
   -r: Scan ports consecutively - don't randomize
+  --top-ports <number>: Scan <number> most common ports
+  --port-ratio <ratio>: Scan ports more common than <ratio>
 SERVICE/VERSION DETECTION:
   -sV: Probe open ports to determine service/version info
   --version-intensity <level>: Set from 0 (light) to 9 (try all probes)
