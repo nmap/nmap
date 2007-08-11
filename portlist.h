@@ -104,6 +104,7 @@
 #include <map>
 #include "nbase.h"
 #include "nse_main.h"
+#include "reason.h"
 
 /* port states */
 #define PORT_UNKNOWN 0
@@ -180,8 +181,6 @@ struct serviceDeductions {
 
 };
 
-
-
 class Port {
  public:
   Port();
@@ -223,6 +222,7 @@ class Port {
   char *owner;
   int state; 
   int confidence; /* How sure are we about the state? */
+  state_reason_t reason;
 
   ScriptResults scriptResults;
 
@@ -299,6 +299,8 @@ class PortList {
   Port *getPortEntry(u16 portno, u8 protocol);
   /* Set Port structure to PortList structure.*/
   void  setPortEntry(u16 portno, u8 protocol, Port *port);
+
+  int setStateReason(u16 portno, u8 proto, reason_t reason, u8 ttl, u32 ip_addr);
 
   int numports; /* Total number of ports in list in ANY state */
   int numscriptresults; /* Total number of scripts which produced output */

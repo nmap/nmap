@@ -118,6 +118,7 @@ SCAN TECHNIQUES:
   \-sO: IP protocol scan
   \-b <ftp relay host>: FTP bounce scan
   \-\-traceroute: Trace hop path to each host
+  \-\-reason: Display the reason a port is in a particular state
 PORT SPECIFICATION AND SCAN ORDER:
   \-p <port ranges>: Only scan specified ports
     Ex: \-p22; \-p1\-65535; \-p U:53,111,137,T:21\-25,80,139,8080
@@ -394,6 +395,9 @@ Example\ 14.3.\ Reference consolidation (hop cache).sp
   1 \-\-> 6    Hop 1 to 6 have been taken from the reference trace
  
 .fi
+.TP
+\fB\-\-reason\fR (Host and port state reasons)
+Shows the reason each port is set to a specific state and the reason each host is up or down. This option displays the type of the packet that determined a port or hosts state. For example, A RST packet from a closed port or an echo reply from an alive host. The information nmap can provide is determined by the type of scan or ping. The SYN scan and SYN ping (\fB\-sS and -PT\fR) are very detailed. Whilst the TCP connect scan and ping (\fB\-sT\fR) are limited by the implementation of connect(). This feature is automatically enabled by the debug flag (\fB\-d\fR) and the results are stored in XML log files even if this option is not specified.
 .TP
 \fB\-n\fR (No DNS resolution)
 Tells Nmap to

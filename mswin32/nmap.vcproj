@@ -318,6 +318,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\reason.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\scan_engine.cc"
 				>
 			</File>
@@ -504,6 +508,10 @@
 			</File>
 			<File
 				RelativePath="..\protocols.h"
+				>
+			</File>
+			<File
+				RelativePath="..\reason.h"
 				>
 			</File>
 			<File

@@ -227,6 +227,7 @@ printf("%s %s ( %s )\n"
        "  -sO: IP protocol scan\n"
        "  -b <ftp relay host>: FTP bounce scan\n"
        "  --traceroute: Trace hop path to each host\n"
+       "  --reason: Display the reason a port is in a particular state\n"
        "PORT SPECIFICATION AND SCAN ORDER:\n"
        "  -p <port ranges>: Only scan specified ports\n"
        "    Ex: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080\n"
@@ -589,6 +590,7 @@ int nmap_main(int argc, char *argv[]) {
       {"badsum", no_argument, 0, 0},  
       {"ttl", required_argument, 0, 0}, /* Time to live */
       {"traceroute", no_argument, 0, 0},
+      {"reason", no_argument, 0, 0},
       {"allports", no_argument, 0, 0},
       {"version_intensity", required_argument, 0, 0},
       {"version-intensity", required_argument, 0, 0},
@@ -852,6 +854,8 @@ int nmap_main(int argc, char *argv[]) {
           fatal("Ip options must be multiple of 4 (read length is %i bytes)", o.ipoptionslen);
       } else if(strcmp(long_options[option_index].name, "traceroute") == 0) {
 	o.traceroute = true;
+      } else if(strcmp(long_options[option_index].name, "reason") == 0) {
+     o.reason = true;
       } else {
 	fatal("Unknown long option (%s) given@#!$#$", long_options[option_index].name);
       }
@@ -907,6 +911,7 @@ int nmap_main(int argc, char *argv[]) {
       else {
 	o.debugging++; o.verbose++;
       }
+      o.reason = true;
       break;
     case 'e': 
       Strncpy(o.device, optarg, sizeof(o.device)); break;

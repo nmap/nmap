@@ -125,6 +125,7 @@ Port::Port() {
   serviceprobe_hostname = serviceprobe_ostype = serviceprobe_devicetype = NULL;
   serviceprobe_tunnel = SERVICE_TUNNEL_NONE;
   serviceprobe_fp = NULL;
+  state_reason_init(&reason);
 }
 
 Port::~Port() {
@@ -442,7 +443,9 @@ int PortList::addPort(u16 portno, u8 protocol, char *owner, int state) {
       free(current->owner);
     current->owner = strdup(owner);
   }
-  
+ 
+  if(state == PORT_FILTERED || state == PORT_OPENFILTERED)
+  	setStateReason(portno, protocol, ER_NORESPONSE, 0, 0); 
   return 0; /*success */
 }
 
@@ -726,6 +729,21 @@ int PortList::numIgnoredPorts() {
   return numports;
 }
 
+int PortList::setStateReason(u16 portno, u8 proto, reason_t reason, u8 ttl, u32 ip_addr) {
+    Port *answer = NULL;
+
+    if(!(answer = getPortEntry(portno, proto))) 
+       	return -1;
+    if(reason > ER_MAX)
+        return -1;
+
+    /* set new reason and increment its count */
+    answer->reason.reason_id = reason;
+    answer->reason.ip_addr.s_addr = ip_addr;
+	answer->reason.ttl = ttl;
+    setPortEntry(portno, proto, answer);
+    return 0;
+}
 
 // Move some popular TCP ports to the beginning of the portlist, because
 // that can speed up certain scans.  You should have already done any port

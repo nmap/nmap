@@ -1040,7 +1040,9 @@ void idle_scan(Target *target, u16 *portarray, int numports,
     if (target->ports.getPortEntry(portarray[portidx], IPPROTO_TCP) == NULL) {
       target->ports.addPort(portarray[portidx], IPPROTO_TCP, NULL,
 	      PORT_CLOSEDFILTERED);
-    }
+	  target->ports.setStateReason(portarray[portidx], IPPROTO_TCP, ER_NOIPIDCHANGE, 0, 0);
+    } else 
+      target->ports.setStateReason(portarray[portidx], IPPROTO_TCP, ER_IPIDCHANGE, 0, 0);
   }
 
   target->stopTimeOutClock(NULL);

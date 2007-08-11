@@ -108,6 +108,7 @@
 #include "NmapOps.h"
 #include "NmapOutputTable.h"
 #include "MACLookup.h"
+#include "reason.h"
 
 #include <string>
 
@@ -417,6 +418,7 @@ void printportoutput(Target *currenths, PortList *plist) {
   int statecol = -1; // port/protocol state
   int servicecol = -1; // service or protocol name
   int versioncol = -1;
+  int reasoncol = -1;
   //  int ownercol = -1; // Used for ident scan
   int colno = 0;
   unsigned int rowno;
@@ -428,11 +430,14 @@ void printportoutput(Target *currenths, PortList *plist) {
   log_write(LOG_XML, "<ports>");
   int prevstate = PORT_UNKNOWN;
   int istate;
+
   while ((istate = plist->nextIgnoredState(prevstate)) != PORT_UNKNOWN) {
     log_write(LOG_XML, "<extraports state=\"%s\" count=\"%d\" />\n", 
 	    statenum2str(istate), plist->getStateCounts(istate));
     prevstate = istate;
   }
+
+  print_xml_state_summary(plist);
 
   if (numignoredports == plist->numports) {
     log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,
@@ -451,6 +456,8 @@ void printportoutput(Target *currenths, PortList *plist) {
 	prevstate = istate;
       }
     }
+    if(o.reason) 
+		print_state_summary(plist, STATE_REASON_EMPTY);
     log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "\n");
 
     log_write(LOG_MACHINE,"Host: %s (%s)\tStatus: Up", 
@@ -481,13 +488,19 @@ void printportoutput(Target *currenths, PortList *plist) {
     log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "%d %s %s", plist->getStateCounts(istate), statenum2str(istate), desc);
     prevstate = istate;
   }
+
   if (prevstate != PORT_UNKNOWN) log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "\n");
+
+  if(o.reason) 
+		print_state_summary(plist, STATE_REASON_FULL);
 
   /* OK, now it is time to deal with the service table ... */
   colno = 0;
   portcol = colno++;
   statecol = colno++;
   servicecol = colno++;
+  if(o.reason)
+	reasoncol = colno++;
   /*  if (o.identscan)
       ownercol = colno++; */
   if (o.servicescan || o.rpcscan)
@@ -511,11 +524,12 @@ void printportoutput(Target *currenths, PortList *plist) {
   if (o.ipprotscan)
     Tbl->addItem(0, portcol, false, "PROTOCOL", 8);
   else Tbl->addItem(0, portcol, false, "PORT", 4);
-
   Tbl->addItem(0, statecol, false, "STATE", 5);
   Tbl->addItem(0, servicecol, false, "SERVICE", 7);
   if (versioncol > 0)
     Tbl->addItem(0, versioncol, false, "VERSION", 7);
+  if(reasoncol > 0)
+	Tbl->addItem(0, reasoncol, false, "REASON", 6);
   /*  if (ownercol > 0)
       Tbl->addItem(0, ownercol, false, "OWNER", 5); */
 
@@ -528,16 +542,24 @@ void printportoutput(Target *currenths, PortList *plist) {
       if (!plist->isIgnoredState(current->state)) {
 	if (!first) log_write(LOG_MACHINE,", ");
 	else first = 0;
+	if(o.reason) 
+		Tbl->addItem(rowno, reasoncol, true, port_reason_str(current->reason));
 	state = statenum2str(current->state);
 	proto = nmap_getprotbynum(htons(current->portno));
-	snprintf(portinfo, sizeof(portinfo), "%-24s",
+	snprintf(portinfo, sizeof(portinfo), "%s",
 		 proto?proto->p_name: "unknown");
 	Tbl->addItemFormatted(rowno, portcol, false, "%d", current->portno);
 	Tbl->addItem(rowno, statecol, true, state);
 	Tbl->addItem(rowno, servicecol, true, portinfo);
 	log_write(LOG_MACHINE,"%d/%s/%s/", current->portno, state, 
 		  (proto)? proto->p_name : "");
-	log_write(LOG_XML, "<port protocol=\"ip\" portid=\"%d\"><state state=\"%s\" />", current->portno, state);
+	log_write(LOG_XML, "<port protocol=\"ip\" portid=\"%d\"><state state=\"%s\" reason=\"%s\" reason_ttl=\"%d\"",
+       current->portno, state, reason_str(current->reason.reason_id, SINGULAR), current->reason.ttl);
+
+	if(current->reason.ip_addr.s_addr)
+		log_write(LOG_XML, " reason_ip=\"%s\"", inet_ntoa(current->reason.ip_addr));
+	log_write(LOG_XML, "/>");
+
 	if (proto && proto->p_name && *proto->p_name)
 	  log_write(LOG_XML, "\n<service name=\"%s\" conf=\"8\" method=\"table\" />", proto->p_name);
 	log_write(LOG_XML, "</port>\n");
@@ -595,6 +617,9 @@ void printportoutput(Target *currenths, PortList *plist) {
 	Tbl->addItem(rowno, portcol, true, portinfo);
 	Tbl->addItem(rowno, statecol, false, state);
 	Tbl->addItem(rowno, servicecol, true, serviceinfo);
+	if(o.reason) 
+		Tbl->addItem(rowno, reasoncol, true, port_reason_str(current->reason));
+
 	/*	if (current->owner)
 		Tbl->addItem(rowno, ownercol, true, current->owner); */
 	if (*sd.fullversion)
@@ -635,7 +660,11 @@ void printportoutput(Target *currenths, PortList *plist) {
 		  protocol, grepown, serviceinfo, rpcmachineinfo, grepvers);    
 	
 	log_write(LOG_XML, "<port protocol=\"%s\" portid=\"%d\">", protocol, current->portno);
-	log_write(LOG_XML, "<state state=\"%s\" />", state);
+	log_write(LOG_XML, "<state state=\"%s\" reason=\"%s\" reason_ttl=\"%d\"", state, 
+                       reason_str(current->reason.reason_id, SINGULAR), current->reason.ttl);
+	if(current->reason.ip_addr.s_addr)
+		log_write(LOG_XML, " reason_ip=\"%s\"", inet_ntoa(current->reason.ip_addr));
+	log_write(LOG_XML, "/>");
 	if (current->owner && *current->owner) {
 	  log_write(LOG_XML, "<owner name=\"%s\" />", current->owner);
 	}
@@ -1061,7 +1090,8 @@ static void print_MAC_XML_Info(Target *currenths) {
 static void write_xml_initial_hostinfo(Target *currenths,
 				  const char *status) {
   
-  log_write(LOG_XML, "<status state=\"%s\" />\n<address addr=\"%s\" addrtype=\"%s\" />\n", status,currenths->targetipstr(), (o.af() == AF_INET)? "ipv4" : "ipv6");
+  log_write(LOG_XML,"<status state=\"%s\" reason=\"%s\"/>\n", status, reason_str(currenths->reason.reason_id, SINGULAR));
+  log_write(LOG_XML,"<address addr=\"%s\" addrtype=\"%s\" />\n", currenths->targetipstr(), (o.af() == AF_INET)? "ipv4" : "ipv6");
   print_MAC_XML_Info(currenths);
   if (*currenths->HostName()) {
     log_write(LOG_XML, "<hostnames><hostname name=\"%s\" type=\"PTR\" /></hostnames>\n", currenths->HostName());
@@ -1077,6 +1107,7 @@ static void write_xml_initial_hostinfo(Target *currenths,
    for all hosts (even down ones) to be resolved */
 void write_host_status(Target *currenths, int resolve_all) {
   char hostname[1200];
+  char reasonbuf[512];
 
   if (o.listscan) {
     /* write "unknown" to stdout, machine, and xml */
@@ -1107,10 +1138,16 @@ void write_host_status(Target *currenths, int resolve_all) {
   } 
 
   else if (o.pingscan) {
+
+	if(o.reason && currenths->flags & HOST_UP)
+		snprintf(reasonbuf, 512, "%s.\n", target_reason_str(currenths));
+	else
+		snprintf(reasonbuf, 512, ".\n");
+	
     write_xml_initial_hostinfo(currenths, 
 			       (currenths->flags & HOST_UP)? "up" : "down");
     if (currenths->flags & HOST_UP) {
-      log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"Host %s appears to be up.\n", currenths->NameIP(hostname, sizeof(hostname)));
+      log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"Host %s appears to be up%s", currenths->NameIP(hostname, sizeof(hostname)), reasonbuf);
       log_write(LOG_MACHINE,"Host: %s (%s)\tStatus: Up\n", currenths->targetipstr(), currenths->HostName());
     } else if (o.verbose || resolve_all) {
       if (resolve_all)

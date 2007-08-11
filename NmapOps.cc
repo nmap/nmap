@@ -241,6 +241,7 @@ void NmapOps::Initialize() {
   nmap_stdout = stdout;
   gettimeofday(&start_time, NULL);
   pTrace = vTrace = false;
+  reason = false;
   if (datadir) free(datadir);
   datadir = NULL;
 #if WIN32

@@ -415,6 +415,7 @@ static int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[],
   unsigned long tmpl;
   unsigned short sportbase;
   struct link_header linkhdr;
+  reason_t currentr = ER_NORESPONSE;
 
   FD_ZERO(&fd_r);
   FD_ZERO(&fd_x);
@@ -484,6 +485,10 @@ static int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[],
            error("Supposed ping packet is only %d bytes long!", bytes);
 	continue;
       }
+
+	  if((currentr = (ping->type+ER_ICMPTYPE_MOD)) == ER_DESTUNREACH)
+		currentr = ping->type+ER_ICMPCODE_MOD;
+
       /* Echo reply, Timestamp reply, or Address Mask Reply */
       if  ( (ping->type == 0 || ping->type == 14 || ping->type == 18)
 	    && !ping->code && ping->id == id) {
@@ -731,10 +736,16 @@ static int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[],
 	if (pingtype & PINGTYPE_TCP_USE_SYN) {
 	  if (tcp->th_flags & TH_RST) {
 	    newportstate = PORT_CLOSED;
+		currentr = ER_RESETPEER;
 	  } else if ((tcp->th_flags & (TH_SYN|TH_ACK)) == (TH_SYN|TH_ACK)) {
 	    newportstate = PORT_OPEN;
+		currentr = ER_SYNACK;
 	  }
 	}
+    else if(pingtype & PINGTYPE_TCP_USE_ACK) {
+      if(tcp->th_flags & TH_RST)
+        currentr = ER_RESETPEER;
+    }
       } else if (ip->ip_p == IPPROTO_UDP) {
 
 	if (!ptech->rawudpscan) {
@@ -763,6 +774,7 @@ static int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[],
 	}	
 
 	sequence = hostnum * pt->max_tries + trynum;
+	currentr = ER_UDPRESPONSE;
 
 	if (o.debugging) 
 	  log_write(LOG_STDOUT, "In response to UDP-ping, we got UDP packet back from %s port %hi (hostnum = %d trynum = %d\n", inet_ntoa(ip->ip_src), htons(udp->uh_sport), hostnum, trynum);
@@ -779,6 +791,11 @@ static int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[],
 		 trynum, to, &time[sequence], &rcvdtime, pt, NULL, pingstyle);
       if (newstate == HOST_UP && ip && bytes >= 20)
 	setTargetMACIfAvailable(hostbatch[hostnum], &linkhdr, ip, 0);
+
+     hostbatch[hostnum]->reason.reason_id = currentr;
+     hostbatch[hostnum]->reason.ttl = ip->ip_ttl;
+     if(ip->ip_src.s_addr != hostbatch[hostnum]->v4host().s_addr)
+       hostbatch[hostnum]->reason.ip_addr.s_addr = ip->ip_src.s_addr;
     }
     if (newport && newportstate != PORT_UNKNOWN) {
       /* OK, we can add it, but that is only appropriate if this is one
@@ -1164,6 +1181,9 @@ while(pt->block_unaccounted) {
   	        int sock_err = socket_errno();
 	        switch(sock_err) {
 	        case ECONNREFUSED:
+			  foundsomething = 1;
+		      newstate = HOST_UP;	
+		      hostbatch[hostindex]->reason.reason_id = ER_CONREFUSED;
 	        case EAGAIN:
 #ifdef WIN32
 			case WSAENOTCONN:
@@ -1173,14 +1193,24 @@ while(pt->block_unaccounted) {
 		  }
 		  foundsomething = 1;
 		  newstate = HOST_UP;	
+          hostbatch[hostindex]->reason.reason_id = ER_CONACCEPT;
 		  break;
 	        case ENETDOWN:
 	        case ENETUNREACH:
+              hostbatch[hostindex]->reason.reason_id = ER_NETUNREACH;
+              foundsomething = 1;
+              newstate = HOST_DOWN;
+              break;
+		    case EHOSTUNREACH:
+              hostbatch[hostindex]->reason.reason_id = ER_HOSTUNREACH;
+              foundsomething = 1;
+              newstate = HOST_DOWN;
+              break;
 	        case ENETRESET:
 	        case ECONNABORTED:
 	        case ETIMEDOUT:
 	        case EHOSTDOWN:
-	        case EHOSTUNREACH:
+              hostbatch[hostindex]->reason.reason_id = ER_NORESPONSE;
 		  foundsomething = 1;
 		  newstate = HOST_DOWN;
 		  break;
@@ -1190,6 +1220,7 @@ while(pt->block_unaccounted) {
 		  break;
 	        }
 	      } else { 
+            hostbatch[hostindex]->reason.reason_id = ER_SYNACK;
 	        foundsomething = 1;
 	        newstate = HOST_UP;
 	        if (o.verbose) {	      
@@ -1825,6 +1856,7 @@ if (hs->randomize) {
      if (!hs->hostbatch[i]->timedOut(&now)) {
        initialize_timeout_info(&hs->hostbatch[i]->to);
        hs->hostbatch[i]->flags |= HOST_UP; /*hostbatch[i].up = 1;*/
+	   hs->hostbatch[i]->reason.reason_id = ER_LOCALHOST;
      }
    }
  } else if (!arpping_done)

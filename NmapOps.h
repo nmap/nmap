@@ -304,6 +304,7 @@ class NmapOps {
   char *dns_servers;
   bool log_errors;
   bool traceroute;
+  bool reason;
 
 #ifndef NOLUA
   int script;

@@ -106,6 +106,7 @@
 #include "nmap.h"
 #include "FingerPrintResults.h"
 #include "nse_main.h"
+#include "reason.h"
 
 #ifndef INET6_ADDRSTRLEN
 #define INET6_ADDRSTRLEN 46
@@ -234,6 +235,7 @@ class Target {
   char *hostname; // Null if unable to resolve or unset
 
   ScriptResults scriptResults;
+  state_reason_t reason;
 
   private:
   void Initialize();

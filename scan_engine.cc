@@ -103,15 +103,13 @@
 #ifdef WIN32
 #include "nmap_winconfig.h"
 #endif
-
+#include "reason.h"
 #include <dnet.h>
-
 #include "scan_engine.h"
 #include "timing.h"
 #include "NmapOps.h"
 #include "nmap_tty.h"
 #include <list>
-
 
 using namespace std;
 extern NmapOps o;
@@ -1710,7 +1708,7 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
     break;
   case PORT_FILTERED:
     if (newstate != PORT_FILTERED) {
-      if (!noresp_open_scan || newstate != PORT_OPEN)
+      if (!noresp_open_scan || newstate != PORT_OPEN) 
 	hss->target->ports.addPort(portno, proto, NULL, newstate);
     }
     break;
@@ -1732,6 +1730,7 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
     break;
   }
 
+  
   /* Consider changing the ping port */
   if (hss->pingprobestate != newstate) {
     /* TODO: UDP scan and such will have different preferences -- add them */
@@ -2521,6 +2520,7 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
   int numGoodSD = 0;
   int err = 0;
   u16 pport = 0;
+  reason_t current_reason = ER_NORESPONSE;
 #ifdef LINUX
   int res;
   struct sockaddr_storage sin,sout;
@@ -2639,27 +2639,35 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
 #else
 	  newstate = PORT_OPEN;
 #endif
+      current_reason = (newstate == PORT_OPEN) ? ER_CONACCEPT : ER_CONREFUSED;
 	  break;
 	case EACCES:
 	  /* Apparently this can be caused by dest unreachable admin
 	     prohibited messages sent back, at least from IPv6
 	     hosts */
 	  newstate = PORT_FILTERED;
+      current_reason = ER_ADMINPROHIBITED;
 	  break;
 	case ECONNREFUSED:
 	  newstate = PORT_CLOSED;
+      current_reason = ER_CONREFUSED;
 	  break;
 #ifdef ENOPROTOOPT
 	case ENOPROTOOPT:
 #endif
 	case EHOSTUNREACH:
+      current_reason = ER_HOSTUNREACH;
+      newstate = PORT_FILTERED;
+      break;
 	case ETIMEDOUT:
 	case EHOSTDOWN:
 	case ENETUNREACH:
+    
 	  /* It could be the host is down, or it could be firewalled.  We
 	     will go on the safe side & assume port is closed ... on second
 	     thought, lets go firewalled! and see if it causes any trouble */
 	  newstate = PORT_FILTERED;
+      current_reason = ER_NORESPONSE;
 	  break;
 	case ENETDOWN:
 	case ENETRESET:
@@ -2676,8 +2684,10 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
 	if (newstate != PORT_UNKNOWN) {
 	  if (probe->isPing())
 	    ultrascan_ping_update(USI, host, probeI, &USI->now);
-	  else
+	  else {
 	    ultrascan_port_probe_update(USI, host, probeI, newstate, &USI->now);
+        host->target->ports.setStateReason(probe->dport(), probe->protocol(), current_reason, 0, 0);
+      }
 	}
       }
     }
@@ -2768,6 +2778,7 @@ static bool get_arp_result(UltraScanInfo *USI, struct timeval *stime) {
       if (!hss) continue;
       /* Add found HW address for target */
       hss->target->setMACAddress(rcvdmac);
+	  hss->target->reason.reason_id = ER_ARPRESPONSE;
 
       if (hss->probes_outstanding.empty()) {
 	continue;
@@ -2798,6 +2809,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   bool timedout = false;
   struct timeval rcvdtime;
   struct ip *ip = NULL, *ip2 = NULL;
+  struct ip *ip_icmp = NULL;
   struct tcp_hdr *tcp = NULL;
   struct icmp *icmp = NULL;
   struct udp_hdr *udp = NULL;
@@ -2819,6 +2831,8 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
      the icmp probe is made */
   static bool protoscanicmphack = false;
   static struct sockaddr_in protoscanicmphackaddy;
+  reason_t current_reason = ER_NORESPONSE;
+  u32 reason_sip = 0;
   gettimeofday(&USI->now, NULL);
 
   do {
@@ -2856,6 +2870,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	if (ip->ip_p == IPPROTO_ICMP) {
 	  protoscanicmphack = true;
 	  protoscanicmphackaddy = sin;
+	  ip_icmp = ip;
 	} else {
 	  probeI = hss->probes_outstanding.end();
 	  listsz = hss->num_probes_outstanding();
@@ -2873,6 +2888,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	      /* We got a packet from the dst host in the protocol we looked for, and
 		 it wasn't our probe to ourselves, so it must be open */
 	      newstate = PORT_OPEN;
+          current_reason = ER_PROTORESPONSE;
 	      goodone = true;
 	    }
 	  }
@@ -2953,7 +2969,9 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	  if (USI->scantype == SYN_SCAN && (tcp->th_flags & (TH_SYN|TH_ACK)) == (TH_SYN|TH_ACK)) {
 	    /* Yeah!  An open port */
 	    newstate = PORT_OPEN;
+        current_reason = ER_SYNACK;
 	  } else if (tcp->th_flags & TH_RST) {
+        current_reason = ER_RESETPEER;
 	    if (USI->scantype == WINDOW_SCAN ) {
 	      newstate = (tcp->th_win)? PORT_OPEN : PORT_CLOSED;
 	    } else if (USI->scantype == ACK_SCAN) {
@@ -3082,6 +3100,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 		  sizeof(struct ip));
 	    break;
 	  }
+      current_reason = icmp->icmp_code+ER_ICMPCODE_MOD;
 	  if (newstate == PORT_UNKNOWN) break;
 	  goodone = true;
 	}
@@ -3125,16 +3144,25 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	  continue; /* We saw the packet we ourselves sent */
 
 	newstate = PORT_OPEN;
+    current_reason = ER_UDPRESPONSE;
 	goodone = true;
       }
     } else continue; /* Unexpected protocol */
   } while (!goodone && !timedout);
 
   if (goodone) {
+    reason_sip = (ip->ip_src.s_addr == hss->target->v4hostip()->s_addr) ? 0 : ip->ip_src.s_addr;
     if (probe->isPing())
       ultrascan_ping_update(USI, hss, probeI, &rcvdtime);
-    else
+    else {
       ultrascan_port_probe_update(USI, hss, probeI, newstate, &rcvdtime);
+      if(USI->prot_scan)  
+         hss->target->ports.setStateReason(probe->protocol(), IPPROTO_IP, 
+                                          current_reason, ip->ip_ttl, reason_sip);
+      else
+         hss->target->ports.setStateReason(probe->dport(), probe->protocol(),
+                                           current_reason, ip->ip_ttl, reason_sip);    
+    }
   }
 
   /* If protoicmphack is true, we are doing an IP proto scan and
@@ -3155,8 +3183,17 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	    if (probe->protocol() == IPPROTO_ICMP) {
 	      if (probe->isPing())
 		ultrascan_ping_update(USI, hss, probeI, NULL);
-	      else
+	      else {
 		ultrascan_port_probe_update(USI, hss, probeI, PORT_OPEN, NULL);
+		icmp = (struct icmp *) ((char *)ip_icmp + 4 * ip_icmp->ip_hl);
+		reason_sip = (ip_icmp->ip_src.s_addr == protoscanicmphackaddy.sin_addr.s_addr) ? 0 : ip_icmp->ip_src.s_addr;
+		if(!icmp->icmp_code && !icmp->icmp_type) 
+			hss->target->ports.setStateReason(IPPROTO_ICMP, IPPROTO_IP, ER_ECHOREPLY, 
+                                              ip_icmp->ip_ttl, reason_sip);
+		else 
+			hss->target->ports.setStateReason(IPPROTO_ICMP, IPPROTO_IP, icmp->icmp_type+ER_ICMPCODE_MOD, 
+                                              ip_icmp->ip_ttl, reason_sip);
+	      } 
 	      if (!goodone) goodone = true;
 	      break;
 	    }

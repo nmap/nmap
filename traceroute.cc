@@ -1314,7 +1314,7 @@ TraceGroup::setHopDistance (u8 hop_distance, u8 ttl) {
 
     if (this->hopDistance && ttl) 
         this->hopDistance -= ttl;
-	else if(!this->hopDistance && ttl)
+    else if(!this->hopDistance && ttl)
         this->hopDistance = ttl;
     else
         this->hopDistance = hop_distance;

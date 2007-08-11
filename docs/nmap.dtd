@@ -136,7 +136,9 @@
 
 <!-- these elements are written by output.c:write_xml_initial_hostinfo() -->
 <!ELEMENT status	EMPTY >
-<!ATTLIST status	state		%host_states;	#REQUIRED >
+<!ATTLIST status	state		%host_states;	#REQUIRED 
+		  reason	CDATA		#REQUIRED 
+ >
 
 <!ELEMENT address	EMPTY >
 <!ATTLIST address	
@@ -159,12 +161,18 @@
 
 <!-- these elements are written by output.c:printportoutput() -->
 
-<!ELEMENT ports		(extraports* , port*) >
+<!ELEMENT ports		(extraports* , extrareasons*, port*) >
 
 <!ELEMENT extraports	EMPTY >
 <!ATTLIST extraports
 			state		%port_states;	#REQUIRED
 			count		%attr_numeric;  #REQUIRED	
+>
+
+<!ELEMENT extrareasons EMPTY >
+<!ATTLIST extrareasons
+			reason		CDATA	#REQUIRED
+			count		CDATA	#REQUIRED
 >
 
 <!ELEMENT port		(state , owner? , service?, script*) >
@@ -174,7 +182,12 @@
 >
 
 <!ELEMENT state		EMPTY >
-<!ATTLIST state		state		%port_states;	#REQUIRED >
+<!ATTLIST state
+		state		%port_states;	#REQUIRED 
+		reason		CDATA	#REQUIRED
+		reason_ttl	CDATA	#REQUIRED			
+		reason_ip	CDATA	#IMPLIED
+>
 
 <!ELEMENT owner		EMPTY >
 <!ATTLIST owner		name		CDATA		#REQUIRED >

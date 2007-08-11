@@ -459,11 +459,19 @@
         </xsl:otherwise>
     </xsl:choose>
 
+	<h3>ping results</h3>
+	<ul><li><xsl:value-of select="status/@reason"/>
+    <xsl:if test="status/@reasonsrc">
+    	<xsl:text> from </xsl:text>
+    	<xsl:value-of select="status/@reasonsrc"/>
+    </xsl:if></li></ul>
+
     <xsl:if test="count(address) > 0">    
         <h3>address</h3>
         <ul>
             <xsl:for-each select="address">
                 <li><xsl:value-of select="@addr"/> (<xsl:value-of select="@addrtype"/>)</li>                
+				
             </xsl:for-each>
         </ul>
     </xsl:if>
@@ -499,12 +507,21 @@
     </xsl:if>
 </xsl:for-each>
 
+<ul>
+<xsl:for-each select="extrareasons">
+    <xsl:if test="@count > 0">
+	    <li><p><xsl:value-of select="@count" /> ports replied with: <b><xsl:value-of select="@reason" /></b></p></li>
+    </xsl:if>
+</xsl:for-each>
+</ul>
+
 <xsl:if test="count(port) > 0">
     <table cellspacing="1">
     <tr class="head">
         <td colspan="2">Port</td>
         <td>State</td>
         <td>Service</td>
+        <td>Reason</td>
         <td>Product</td>
         <td>Version</td>
         <td>Extra info</td>
@@ -525,6 +542,12 @@
                 <td><xsl:value-of select="@protocol" /></td>
                 <td><xsl:value-of select="state/@state" /></td>
                 <td><xsl:value-of select="service/@name" /><xsl:text>&#xA0;</xsl:text></td>
+				<td><xsl:value-of select="state/@reason"/>
+ 				    <xsl:if test="state/@reason_ip">
+                      <xsl:text> from </xsl:text>
+                      <xsl:value-of select="state/@reason_ip"/>
+                   </xsl:if>
+				</td>
                 <td><xsl:value-of select="service/@product" /><xsl:text>&#xA0;</xsl:text></td>
                 <td><xsl:value-of select="service/@version" /><xsl:text>&#xA0;</xsl:text></td>
                 <td><xsl:value-of select="service/@extrainfo" /><xsl:text>&#xA0;</xsl:text></td>
@@ -549,6 +572,12 @@
                 <td><xsl:value-of select="@protocol" /></td>
                 <td><xsl:value-of select="state/@state" /></td>
                 <td><xsl:value-of select="service/@name" /><xsl:text>&#xA0;</xsl:text></td>
+				<td><xsl:value-of select="state/@reason"/>
+ 				    <xsl:if test="state/@reason_ip">
+                      <xsl:text> from </xsl:text>
+                      <xsl:value-of select="state/@reason_ip"/>
+                   </xsl:if>
+				</td>
                 <td><xsl:value-of select="service/@product" /><xsl:text>&#xA0;</xsl:text></td>
                 <td><xsl:value-of select="service/@version" /><xsl:text>&#xA0;</xsl:text></td>
                 <td><xsl:value-of select="service/@extrainfo" /><xsl:text>&#xA0;</xsl:text></td>
@@ -560,6 +589,12 @@
                 <td><xsl:value-of select="@protocol" /></td>
                 <td><xsl:value-of select="state/@state" /></td>
                 <td><xsl:value-of select="service/@name" /><xsl:text>&#xA0;</xsl:text></td>
+				<td><xsl:value-of select="state/@reason"/>
+ 				    <xsl:if test="state/@reason_ip">
+                      <xsl:text> from </xsl:text>
+                      <xsl:value-of select="state/@reason_ip"/>
+                   </xsl:if>
+				</td>
                 <td><xsl:value-of select="service/@product" /><xsl:text>&#xA0;</xsl:text></td>
                 <td><xsl:value-of select="service/@version" /><xsl:text>&#xA0;</xsl:text></td>
                 <td><xsl:value-of select="service/@extrainfo" /><xsl:text>&#xA0;</xsl:text></td>
@@ -571,6 +606,12 @@
                 <td><xsl:value-of select="@protocol" /></td>
                 <td><xsl:value-of select="state/@state" /></td>
                 <td><xsl:value-of select="service/@name" /><xsl:text>&#xA0;</xsl:text></td>
+                <td><xsl:value-of select="state/@reason"/>
+ 				    <xsl:if test="state/@reason_ip">
+                      <xsl:text> from </xsl:text>
+                      <xsl:value-of select="state/@reason_ip"/>
+                   </xsl:if>
+				</td>
                 <td><xsl:value-of select="service/@product" /><xsl:text>&#xA0;</xsl:text></td>
                 <td><xsl:value-of select="service/@version" /><xsl:text>&#xA0;</xsl:text></td>
                 <td><xsl:value-of select="service/@extrainfo" /><xsl:text>&#xA0;</xsl:text></td>

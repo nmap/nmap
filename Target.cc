@@ -104,9 +104,8 @@
 #include "nmap_winconfig.h"
 #endif
 
-#include <dnet.h>
-
 #include "Target.h"
+#include <dnet.h>
 #include "osscan.h"
 #include "nbase.h"
 #include "NmapOps.h"
@@ -142,6 +141,7 @@ void Target::Initialize() {
   interface_type = devt_other;
 	devname[0] = '\0';
 	devfullname[0] = '\0';
+  state_reason_init(&reason);
 }
 
 
