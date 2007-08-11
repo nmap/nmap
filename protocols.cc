@@ -178,9 +178,40 @@ static int nmap_protocols_init() {
 }
 
 
+/* Adds protocols whose names match mask to porttbl.
+ * Increases the prot_count in ports by the number of protocols added.
+ * Returns the number of protocols added.
+ */
+
+
+int addprotocolsfromservmask(char *mask, u8 *porttbl, struct scan_lists *ports) {
+  struct protocol_list *current;
+  int bucket, t=0;
+
+  if (!protocols_initialized && nmap_protocols_init() == -1)
+    fatal("addprotocolsfromservmask: Couldn't get protocol numbers");
+
+  for(bucket = 0; bucket < PROTOCOL_TABLE_SIZE; bucket++) {
+    for(current = protocol_table[bucket % PROTOCOL_TABLE_SIZE]; current; current = current->next) {
+      if (wildtest(mask, current->protoent->p_name)) {
+        porttbl[ntohs(current->protoent->p_proto)] |= SCAN_PROTOCOLS;
+        ports->prot_count++;
+        t++;
+      }
+    }
+  }
+
+  return t;
+
+}
+
+
 struct protoent *nmap_getprotbynum(int num) {
   struct protocol_list *current;
-  nmap_protocols_init();
+
+  if (nmap_protocols_init() == -1)
+    return NULL;
+
   for(current = protocol_table[num % PROTOCOL_TABLE_SIZE];
       current; current = current->next) {
     if (num == current->protoent->p_proto)
@@ -189,61 +220,4 @@ struct protoent *nmap_getprotbynum(int num) {
 
   /* Couldn't find it ... oh well. */
   return NULL;
-  
 }
-
-/* By default we do all prots 0-255. */
-struct scan_lists *getdefaultprots(void) {
-  int protindex = 0;
-  struct scan_lists *scanlist;
-  /*struct protocol_list *current;*/
-  int bucket;
-  int protsneeded = 256;
-
-  if (nmap_protocols_init() == -1)
-    fatal("getdefaultprots(): Couldn't get protocol numbers");
-  
-  scanlist = (struct scan_lists *) safe_zalloc(sizeof(struct scan_lists));
-  scanlist->prots = (unsigned short *) safe_zalloc((protsneeded) * sizeof(unsigned short));
-  scanlist->prot_count = protsneeded;
-
-  for(bucket = 0; bucket < protsneeded; bucket++) {
-    scanlist->prots[protindex++] = bucket;
-  }
-  return scanlist;
-}
-
-struct scan_lists *getfastprots(void) {
-  int protindex = 0;
-  struct scan_lists *scanlist;
-  char usedprots[256];
-  struct protocol_list *current;
-  int bucket;
-  int protsneeded = 0;
-
-  if (nmap_protocols_init() == -1)
-    fatal("Getfastprots: Couldn't get protocol numbers");
-  
-  memset(usedprots, 0, sizeof(usedprots));
-
-  for(bucket = 0; bucket < PROTOCOL_TABLE_SIZE; bucket++) {  
-    for(current = protocol_table[bucket % PROTOCOL_TABLE_SIZE];
-	current; current = current->next) {
-      if (!usedprots[ntohs(current->protoent->p_proto)])
-	usedprots[ntohs(current->protoent->p_proto)] = 1;
-	protsneeded++;
-    }
-  }
-
-  scanlist = (struct scan_lists *) safe_zalloc(sizeof(struct scan_lists));
-  scanlist->prots = (unsigned short *) safe_zalloc((protsneeded ) * sizeof(unsigned short));
-  scanlist->prot_count = protsneeded;
-
-  for(bucket = 0; bucket < 256; bucket++) {
-    if (usedprots[bucket])
-      scanlist->prots[protindex++] = bucket;
-  }
-
-  return scanlist;
-}
-

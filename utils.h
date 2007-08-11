@@ -189,6 +189,8 @@ template<class T> T box(T bmin, T bmax, T bnum) {
   return bnum;
 }
 
+int wildtest(char *wild, char *test);
+
 void hdump(unsigned char *packet, unsigned int len);
 void lamont_hdump(char *cp, unsigned int length);
 

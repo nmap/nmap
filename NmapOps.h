@@ -172,6 +172,7 @@ class NmapOps {
   int verbose;
   int randomize_hosts;
   int spoofsource; /* -S used */
+  int fastscan;
   char device[64];
   int interactivemode;
   int ping_group_sz;
@@ -191,6 +192,7 @@ class NmapOps {
   int timing_level; // 0-5, corresponding to Paranoid, Sneaky, Polite, Normal, Aggressive, Insane
   int max_parallelism; // 0 means it has not been set
   int min_parallelism; // 0 means it has not been set
+  double topportlevel; // -1 means it has not been set
 
   /* The maximum number of OS detection (gen2) tries we will make
      without any matches before giving up on a host.  We may well give

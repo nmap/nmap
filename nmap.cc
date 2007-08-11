@@ -230,8 +230,10 @@ printf("%s %s ( %s )\n"
        "PORT SPECIFICATION AND SCAN ORDER:\n"
        "  -p <port ranges>: Only scan specified ports\n"
        "    Ex: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080\n"
-       "  -F: Fast - Scan only the ports listed in the nmap-services file)\n"
+       "  -F: Fast mode - Scan fewer ports than the default scan\n"
        "  -r: Scan ports consecutively - don't randomize\n"
+       "  --top-ports <number>: Scan <number> most common ports\n"
+       "  --port-ratio <ratio>: Scan ports more common than <ratio>\n"
        "SERVICE/VERSION DETECTION:\n"
        "  -sV: Probe open ports to determine service/version info\n"
        "  --version-intensity <level>: Set from 0 (light) to 9 (try all probes)\n"
@@ -451,7 +453,7 @@ int nmap_main(int argc, char *argv[]) {
   unsigned int targetno;
   FILE *inputfd = NULL, *excludefd = NULL;
   char *host_spec = NULL, *exclude_spec = NULL;
-  short fastscan=0, randomize=1;
+  short randomize=1;
   short quashargv = 0;
   char **host_exp_group;
   char *idleProxy = NULL; /* The idle host used to "Proxy" an Idlescan */
@@ -600,6 +602,8 @@ int nmap_main(int argc, char *argv[]) {
       {"log-errors", no_argument, 0, 0},
       {"dns_servers", required_argument, 0, 0},
       {"dns-servers", required_argument, 0, 0},
+      {"port-ratio", required_argument, 0, 0},
+      {"top-ports", required_argument, 0, 0},
 #ifndef NOLUA
       {"script", required_argument, 0, 0},
       {"script-trace", no_argument, 0, 0},
@@ -829,6 +833,16 @@ int nmap_main(int argc, char *argv[]) {
         o.fragscan = atoi(optarg);
         if (o.fragscan <= 0 || o.fragscan % 8 != 0)
             fatal("Data payload MTU must be >0 and multiple of 8");
+      } else if (strcmp(long_options[option_index].name, "port-ratio") == 0) {
+        char *ptr;
+        o.topportlevel = strtod(optarg, &ptr);
+        if (!ptr || o.topportlevel < 0 || o.topportlevel >= 1)
+          fatal("--port-ratio should be between [0 and 1)");
+      } else if (strcmp(long_options[option_index].name, "top-ports") == 0) {
+        char *ptr;
+        o.topportlevel = strtod(optarg, &ptr);
+        if (!ptr || o.topportlevel < 1 || ((double)((int)o.topportlevel)) != o.topportlevel)
+          fatal("--top-ports should be an integer 1 or greater");
       } else if (optcmp(long_options[option_index].name, "ip-options") == 0){
         o.ipoptions    = (u8*) safe_malloc(4*10+1);
         o.ipoptionslen = parse_ip_options(optarg, o.ipoptions, 4*10+1, &o.ipopt_firsthop, &o.ipopt_lasthop);
@@ -896,7 +910,7 @@ int nmap_main(int argc, char *argv[]) {
       break;
     case 'e': 
       Strncpy(o.device, optarg, sizeof(o.device)); break;
-    case 'F': fastscan++; break;
+    case 'F': o.fastscan++; break;
     case 'f': o.fragscan += 8; break;
     case 'g': 
       o.magic_port = atoi(optarg);
@@ -1202,25 +1216,29 @@ int nmap_main(int argc, char *argv[]) {
   }
 
 
-  if ((o.pingscan || o.listscan) && (portlist || fastscan)) {
+  if ((o.pingscan || o.listscan) && (portlist || o.fastscan))
     fatal("You cannot use -F (fast scan) or -p (explicit port selection) with PING scan or LIST scan");
+
+  if (portlist && o.fastscan)
+    fatal("You cannot use -F (fast scan) with -p (explicit port selection) but see --top-ports and --port-ratio to fast scan a range of ports");
+
+  if (o.ipprotscan) {
+    if (portlist) ports = getpts(portlist);
+    else ports = getpts((char *) (o.fastscan ? "[P:0-]" : "0-"));  // Default protocols to scan
+  } else {
+    ports = gettoppts(o.topportlevel, portlist);
   }
 
+  if (portlist && !ports)
+    fatal("Your port specification string is not parseable");
+
   if (portlist) {
-    ports = getpts(portlist);
-    if (!ports)
-      fatal("Your port specification string is not parseable");
     free(portlist);
     portlist = NULL;
   }
 
-  if (fastscan && ports) {
-    fatal("You can specify fast scan (-F) or explicitly select individual ports (-p), but not both");
-  } else if (fastscan && o.ipprotscan) {
-    ports = getfastprots();
-  } else if (fastscan) {
-    ports = getfastports(o.TCPScan(), o.UDPScan());
-  }
+  // Uncomment the following line to use the common lisp port spec test suite
+  //printf("port spec: (%d %d %d)\n", ports->tcp_count, ports->udp_count, ports->prot_count); exit(0);
 
 #ifdef WIN32
   if (o.sendpref & PACKET_SEND_IP) {
@@ -1272,14 +1290,6 @@ int nmap_main(int argc, char *argv[]) {
        packets (which would use the real IP */
     if (o.sendpref != PACKET_SEND_IP_STRONG)
       o.sendpref = PACKET_SEND_ETH_STRONG;
-  }
-
-  if (!ports) {
-    if (o.ipprotscan) {
-      ports = getdefaultprots();
-    } else {
-      ports = getdefaultports(o.TCPScan(), o.UDPScan());
-    }
   }
 
   /* By now, we've got our port lists.  Give the user a warning if no 
@@ -1930,19 +1940,74 @@ void init_socket(int sd) {
     }
 }
 
-/* Convert a string like "-100,200-1024,3000-4000,60000-" into an array 
-   of port numbers. Note that one trailing comma is OK -- this is actually
-   useful for machine generated lists */
+
+
+/* Convert a string like "-100,n*tp,200-1024,3000-4000,[60000-]" into an array
+ * of port numbers. Note that one trailing comma is OK -- this is actually
+ * useful for machine generated lists
+ *
+ * Fyodor - Wrote original
+ * William McVey - Added T:, U:, P: directives
+ * Doug Hoyte - Added [], name lookups, and wildcard expansion
+ *
+ * getpts() handles []
+ * Any port ranges included inside square brackets will have all
+ * their ports looked up in nmap-services or nmap-protocols
+ * and will only be included if they are found.
+ * Returns a scan_list* with all the ports that should be scanned.
+ *
+ * getpts() handles service/protocol name lookups and wildcard expansion.
+ * The service name can be specified instead of the port number.
+ * For example, "ssh" can be used instead of "22". You can use wildcards
+ * like "*" and "?". See the function wildtest() for the exact details.
+ * For example,
+ *
+ * nmap -p http* host
+ *
+ * Will scan http (80), http-mgmt (280), http-proxy (8080), https (443), etc.
+ *
+ * Matching is case INsensitive but the first character in a match MUST
+ * be lowercase so it doesn't conflict with the T:, U:, and P: directives.
+ *
+ * getpts() is unable to match service names that start with a digit
+ * like 3com-tsmux (106/udp). Use a pattern like "?com-*" instead.
+ *
+ * BE CAREFUL ABOUT SHELL EXPANSIONS!!!
+ * If you are trying to match the services nmsp (537/tcp) and nms (1429/tcp)
+ * and you execute the command
+ *
+ * ./nmap -p nm* host
+ *
+ * You will see
+ *
+ * Found no matches for the service mask 'nmap' and your specified protocols
+ * QUITTING!
+ *
+ * This is because nm* was expanded to the name of the binary file nmap in
+ * the current directory by your shell. When unsure, quote your port strings
+ * to be safe:
+ *
+ * ./nmap -p 'nm*' host
+ *
+ * getpts() is smart enough to keep the T: U: and P: directives nested
+ * and working in a logical manner. For instance,
+ *
+ * nmap -sTU -p [U:1025-],1-1024 host
+ *
+ * Will scan UDP ports 1025 and up that are found in the service file
+ * and all TCP/UDP ports below <= 1024. Notice that the U doesn't affect
+ * the outer part of the port expression. It's "closed".
+ */
+
+static void getpts_aux(char *origexpr, int nested, u8 *porttbl, struct scan_lists *ports, int range_type, int 
+*portwarning);
+
 struct scan_lists *getpts(char *origexpr) {
   u8 *porttbl;
-  int portwarning = 0; /* have we warned idiot about dup ports yet? */
-  long rangestart = -2343242, rangeend = -9324423;
-  char *current_range;
-  char *endptr;
-  int i;
-  int tcpportcount = 0, udpportcount = 0, protcount = 0;
   struct scan_lists *ports;
   int range_type = 0;
+  int portwarning = 0;
+  int i, tcpi, udpi, proti;
 
   if (o.TCPScan())
     range_type |= SCAN_TCP_PORT;
@@ -1952,11 +2017,58 @@ struct scan_lists *getpts(char *origexpr) {
     range_type |= SCAN_PROTOCOLS;
 
   porttbl = (u8 *) safe_zalloc(65536);
+  ports = (struct scan_lists *) safe_zalloc(sizeof(struct scan_lists));
+
+  getpts_aux(origexpr,      // Pass on the expression
+             0,             // Don't start off nested
+             porttbl,       // Our allocated port table
+             ports,         // The destination structure - passed so we can track the number of tcp/udp/prot ports
+             range_type,    // Defaults to TCP/UDP/Protos
+             &portwarning); // No, we haven't warned them about dup ports yet
+
+  if ( 0 == (ports->tcp_count + ports->udp_count + ports->prot_count))
+    fatal("No ports specified -- If you really don't want to scan any ports use ping scan...");
+
+  if (ports->tcp_count) {
+    ports->tcp_ports = (unsigned short *)safe_zalloc(ports->tcp_count * sizeof(unsigned short));
+  }
+  if (ports->udp_count) {
+    ports->udp_ports = (unsigned short *)safe_zalloc(ports->udp_count * sizeof(unsigned short));
+  }
+  if (ports->prot_count) {
+    ports->prots = (unsigned short *)safe_zalloc(ports->prot_count * sizeof(unsigned short));
+  }
+
+  for(i=tcpi=udpi=proti=0; i <= 65535; i++) {
+    if (porttbl[i] & SCAN_TCP_PORT)
+      ports->tcp_ports[tcpi++] = i;
+    if (porttbl[i] & SCAN_UDP_PORT)
+      ports->udp_ports[udpi++] = i;
+    if (porttbl[i] & SCAN_PROTOCOLS && i < 256)
+      ports->prots[proti++] = i;
+  }
+
+  free(porttbl);
+
+  return ports;
+
+}
+
+
+/* getpts() (see above) is a wrapper for this function */
+
+static void getpts_aux(char *origexpr, int nested, u8 *porttbl, struct scan_lists *ports, int range_type, int *portwarning) {
+  long rangestart = -2343242, rangeend = -9324423;
+  char *current_range;
+  char *endptr;
+  char servmask[128];  // A protocol name can be up to 127 chars + nul byte
+  int i;
 
   current_range = origexpr;
   do {
     while(isspace((int) *current_range))
       current_range++; /* I don't know why I should allow spaces here, but I will */
+
     if (*current_range == 'T' && *++current_range == ':') {
 	current_range++;
 	range_type = SCAN_TCP_PORT;
@@ -1972,7 +2084,26 @@ struct scan_lists *getpts(char *origexpr) {
 	range_type = SCAN_PROTOCOLS;
 	continue;
     }
-    if (*current_range == '-') {
+    if (*current_range == '[') {
+      if (nested)
+        fatal("Can't nest [] brackets in -p switch");
+
+      getpts_aux(++current_range, 1, porttbl, ports, range_type, portwarning);
+
+      // Skip past the ']'. This is OK because we can't nest []s
+      while(*current_range != ']') current_range++;
+      current_range++;
+
+      // Skip over a following ',' so we're ready to keep parsing
+      if (*current_range == ',') current_range++;
+
+      continue;
+    } else if (*current_range == ']') {
+      if (!nested)
+        fatal("Unexpected ] character in -p switch");
+
+      return;
+    } else if (*current_range == '-') {
       rangestart = o.ipprotscan ? 0 : 1;
     }
     else if (isdigit((int) *current_range)) {
@@ -1984,21 +2115,38 @@ struct scan_lists *getpts(char *origexpr) {
         if (rangestart < 0 || rangestart > 65535)
 	  fatal("Ports to be scanned must be between 0 and 65535 inclusive");
       }
-/*      if (rangestart == 0) {
-	error("WARNING:  Scanning \"port 0\" is supported, but unusual.");
-      } */
       current_range = endptr;
       while(isspace((int) *current_range)) current_range++;
+    } else if (islower((int) *current_range) || *current_range == '*' || *current_range == '?') {
+      i = 0;
+
+      while (*current_range && !isspace((int)*current_range) && *current_range != ',' && *current_range != ']') {
+        servmask[i++] = *(current_range++);
+        if (i >= ((int)sizeof(servmask)-1))
+          fatal("A service mask in the -p switch is either malformed or too long");
+      }
+
+      if (*current_range && *current_range != ']') current_range++; // We want the '] character to be picked up on the next pass
+      servmask[i] = '\0'; // Finish the string
+
+      i = addportsfromservmask(servmask, porttbl, ports, range_type);
+      if (range_type & SCAN_PROTOCOLS) i += addprotocolsfromservmask(servmask, porttbl, ports);
+
+      if (i == 0)
+        fatal("Found no matches for the service mask '%s' and your specified protocols", servmask);
+
+      continue;
+
     } else {
       fatal("Error #485: Your port specifications are illegal.  Example of proper form: \"-100,200-1024,T:3000-4000,U:60000-\"");
     }
     /* Now I have a rangestart, time to go after rangeend */
-    if (!*current_range || *current_range == ',') {
+    if (!*current_range || *current_range == ',' || *current_range == ']') {
       /* Single port specification */
       rangeend = rangestart;
     } else if (*current_range == '-') {
       current_range++;
-      if (!*current_range || *current_range == ',') {
+      if (!*current_range || *current_range == ',' || *current_range == ']') {
 	/* Ended with a -, meaning up until the last possible port */
 	rangeend = o.ipprotscan ? 255 : 65535;
       } else if (isdigit((int) *current_range)) {
@@ -2021,24 +2169,45 @@ struct scan_lists *getpts(char *origexpr) {
     /* Now I have a rangestart and a rangeend, so I can add these ports */
     while(rangestart <= rangeend) {
       if (porttbl[rangestart] & range_type) {
-	if (!portwarning) {
+        if (!(*portwarning)) {
 	  error("WARNING:  Duplicate port number(s) specified.  Are you alert enough to be using Nmap?  Have some coffee or Jolt(tm).");
-	  portwarning++;
+          (*portwarning)++;
 	} 
       } else {      
-	if (range_type & SCAN_TCP_PORT)
-	  tcpportcount++;
-	if (range_type & SCAN_UDP_PORT)
-	  udpportcount++;
-	if (range_type & SCAN_PROTOCOLS)
-	  protcount++;
-	porttbl[rangestart] |= range_type;
+        if (nested) {
+          if ((range_type & SCAN_TCP_PORT) &&
+              nmap_getservbyport(htons(rangestart), "tcp")) {
+            ports->tcp_count++;
+            porttbl[rangestart] |= SCAN_TCP_PORT;
+          }
+          if ((range_type & SCAN_UDP_PORT) &&
+              nmap_getservbyport(htons(rangestart), "udp")) {
+            ports->udp_count++;
+            porttbl[rangestart] |= SCAN_UDP_PORT;
+          }
+          if ((range_type & SCAN_PROTOCOLS) &&
+              nmap_getprotbynum(htons(rangestart))) {
+            ports->prot_count++;
+            porttbl[rangestart] |= SCAN_PROTOCOLS;
+          }
+        } else {
+          if (range_type & SCAN_TCP_PORT)
+            ports->tcp_count++;
+          if (range_type & SCAN_UDP_PORT)
+            ports->udp_count++;
+          if (range_type & SCAN_PROTOCOLS && rangestart < 256)
+            ports->prot_count++;
+          porttbl[rangestart] |= range_type;
+        }
       }
       rangestart++;
     }
     
     /* Find the next range */
     while(isspace((int) *current_range)) current_range++;
+
+    if (*current_range == ']') return;
+
     if (*current_range && *current_range != ',') {
       fatal("Error #488: Your port specifications are illegal.  Example of proper form: \"-100,200-1024,3000-4000,60000-\"");
     }
@@ -2046,45 +2215,13 @@ struct scan_lists *getpts(char *origexpr) {
       current_range++;
   } while(current_range && *current_range);
 
-  if ( 0 == (tcpportcount + udpportcount + protcount))
-    fatal("No ports specified -- If you really don't want to scan any ports use ping scan...");
-
-  ports = (struct scan_lists *) safe_zalloc(sizeof(struct scan_lists));
-
-  if (tcpportcount) {
-    ports->tcp_ports = (unsigned short *)safe_zalloc(tcpportcount * sizeof(unsigned short));
-  }
-  if (udpportcount) {
-    ports->udp_ports = (unsigned short *)safe_zalloc(udpportcount * sizeof(unsigned short));
-  }
-  if (protcount) {
-    ports->prots = (unsigned short *)safe_zalloc(protcount * sizeof(unsigned short));
-  }
-  ports->tcp_count = tcpportcount;
-  ports->udp_count = udpportcount;
-  ports->prot_count = protcount;
-
-  tcpportcount=0;
-  udpportcount=0;
-  protcount=0;
-  for(i=0; i <= 65535; i++) {
-    if (porttbl[i] & SCAN_TCP_PORT)
-      ports->tcp_ports[tcpportcount++] = i;
-    if (porttbl[i] & SCAN_UDP_PORT)
-      ports->udp_ports[udpportcount++] = i;
-    if (porttbl[i] & SCAN_PROTOCOLS && i < 256)
-      ports->prots[protcount++] = i;
-  }
-
-  free(porttbl);
-  return ports;
 }
 
 void free_scan_lists(struct scan_lists *ports) {
   if (ports) {
-    free(ports->tcp_ports);
-    free(ports->udp_ports);
-    free(ports->prots);
+    if (ports->tcp_ports) free(ports->tcp_ports);
+    if (ports->udp_ports) free(ports->udp_ports);
+    if (ports->prots) free(ports->prots);
     free(ports);
   }
 }

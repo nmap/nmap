@@ -192,6 +192,7 @@ void NmapOps::Initialize() {
   randomize_hosts = 0;
   sendpref = PACKET_SEND_NOPREF;
   spoofsource = 0;
+  fastscan = 0;
   device[0] = '\0';
   interactivemode = 0;
   ping_group_sz = PING_GROUP_SZ;
@@ -261,6 +262,7 @@ void NmapOps::Initialize() {
   ipopt_firsthop = 0;
   ipopt_lasthop  = 0;  
   release_memory = false;
+  topportlevel = -1;
 #ifndef NOLUA
   script = 0;
   scriptversion = 0;

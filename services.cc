@@ -106,9 +106,11 @@ extern NmapOps o;
 static int numtcpports = 0;
 static int numudpports = 0;
 static struct service_list *service_table[SERVICE_TABLE_SIZE];
+static struct service_list *sorted_services = NULL;
+static int services_initialized = 0;
+static int ratio_format = 0; // 0 = /etc/services no-ratio format. 1 = new nmap format
 
 static int nmap_services_init() {
-  static int services_initialized = 0;
   if (services_initialized) return 0;
 
   char filename[512];
@@ -118,8 +120,10 @@ static int nmap_services_init() {
   char *p;
   char line[1024];
   int lineno = 0;
-  struct service_list *current, *previous;
+  struct service_list *current, *previous, *sp;
   int res;
+  double ratio;
+  int ratio_n, ratio_d;
 
   if (nmap_fetchfile(filename, sizeof(filename), "nmap-services") != 1) {
 #ifndef WIN32
@@ -159,12 +163,27 @@ static int nmap_services_init() {
       p++;
     if (*p == '#')
       continue;
-    res = sscanf(line, "%127s %hu/%15s", servicename, &portno, proto);
-    if (res !=3)
+
+    res = sscanf(line, "%127s %hu/%15s %d/%d", servicename, &portno, proto, &ratio_n, &ratio_d);
+
+    if (res == 3) {
+      ratio = 0;
+    } else if (res == 5) {
+      if (ratio_n > ratio_d)
+        fatal("%s:%d has a ratio %g. All ratios must be < 1", filename, lineno, (double)ratio_n/ratio_d);
+
+      if (ratio_d == 0)
+        fatal("%s:%d has a ratio denominator of 0 causing a division by 0 error", filename, lineno);
+
+      ratio = (double)ratio_n / ratio_d;
+      ratio_format = 1;
+    } else {
       continue;
+    }
+
     portno = htons(portno);
 
-    /* Now we make sure our services doesn't have duplicates */
+    /* Now we make sure our service table doesn't have duplicates */
     for(current = service_table[portno % SERVICE_TABLE_SIZE], previous = NULL;
 	current; current = current->next) {
       if (portno == (u16) current->servent->s_port &&
@@ -198,6 +217,7 @@ static int nmap_services_init() {
 
     current = (struct service_list *) cp_alloc(sizeof(struct service_list));
     current->servent = (struct servent *) cp_alloc(sizeof(struct servent));
+    current->ratio = ratio;
     current->next = NULL;
     if (previous == NULL) {
       service_table[portno % SERVICE_TABLE_SIZE] = current;
@@ -208,11 +228,73 @@ static int nmap_services_init() {
     current->servent->s_port = portno;
     current->servent->s_proto = cp_strdup(proto);
     current->servent->s_aliases = NULL;
+
+    sp = (struct service_list *) cp_alloc(sizeof(struct service_list));
+    sp->servent = current->servent;
+    sp->ratio = current->ratio;
+    sp->next = NULL;
+
+    if (sorted_services == NULL || sorted_services->ratio < sp->ratio) {
+      sp->next = sorted_services;
+      sorted_services = sp;
+    } else
+      for (current=sorted_services;;current=current->next) {
+        if (current->next == NULL) {
+          current->next = sp;
+          break;
+        } else if (current->next->ratio < sp->ratio) {
+          sp->next = current->next;
+          current->next = sp;
+          break;
+        }
+      }
+
   }
+
   fclose(fp);
   services_initialized = 1;
   return 0;
 }
+
+
+  
+/* Adds ports whose names match mask and one or more protocols
+ * specified by range_type to porttbl. Increases the respective
+ * protocol counts in ports.
+ * Returns the number of ports added in total.
+ */
+
+int addportsfromservmask(char *mask, u8 *porttbl, struct scan_lists *ports, int range_type) {
+  struct service_list *current;
+  int bucket,t=0;
+
+  if (!services_initialized && nmap_services_init() == -1)
+    fatal("addportsfromservmask: Couldn't get port numbers");
+  
+  for(bucket = 0; bucket < SERVICE_TABLE_SIZE; bucket++) {
+    for(current = service_table[bucket % SERVICE_TABLE_SIZE]; current; current = current->next) {
+      if (wildtest(mask, current->servent->s_name)) {
+
+        if ((range_type & SCAN_TCP_PORT) && strcmp(current->servent->s_proto, "tcp") == 0) {
+          porttbl[ntohs(current->servent->s_port)] |= SCAN_TCP_PORT;
+          ports->tcp_count++;
+          t++;
+        }
+
+        if ((range_type & SCAN_UDP_PORT) && strcmp(current->servent->s_proto, "udp") == 0) {
+          porttbl[ntohs(current->servent->s_port)] |= SCAN_UDP_PORT;
+          ports->udp_count++;
+          t++;
+        }
+
+      }
+    }
+  }
+
+  return t;
+
+}
+
 
 
 struct servent *nmap_getservbyport(int port, const char *proto) {
@@ -222,7 +304,7 @@ struct servent *nmap_getservbyport(int port, const char *proto) {
     return NULL;
 
   for(current = service_table[port % SERVICE_TABLE_SIZE];
-      current; current = current->next) {
+	current; current = current->next) {
     if (((u16) port == (u16) current->servent->s_port) &&
 	strcmp(proto, current->servent->s_proto) == 0)
       return current->servent;
@@ -230,123 +312,152 @@ struct servent *nmap_getservbyport(int port, const char *proto) {
 
   /* Couldn't find it ... oh well. */
   return NULL;
-  
+
 }
 
-/* Be default we do all ports 1-1024 as well as any higher ports
-   that are in the services file */
-struct scan_lists *getdefaultports(int tcpscan, int udpscan) {
-  int tcpportindex = 0;
-  int udpportindex = 0;
-  struct scan_lists *ports;
-  u8 *usedports;
+
+
+static int port_compare(const void *a, const void *b) {
+  unsigned short ua = *((unsigned short *) a), ub = *((unsigned short *) b);
+  if (ua > ub) return 1;
+  else return -1;
+}
+
+
+
+// is_port_member() returns true if serv is an element of ptsdata.
+// This could be implemented MUCH more efficiently but it should only be
+// called when you use a non-default top-ports or port-ratio value TOGETHER WITH
+// a -p portlist.
+
+static int is_port_member(struct scan_lists *ptsdata, struct service_list *serv) {
+  int i;
+
+  if (serv->servent->s_proto[0] == 't') {
+    for (i=0; i<ptsdata->tcp_count; i++)
+      if (ntohs(serv->servent->s_port) == ptsdata->tcp_ports[i]) return 1;
+  } else {
+    for (i=0; i<ptsdata->udp_count; i++)
+      if (ntohs(serv->servent->s_port) == ptsdata->udp_ports[i]) return 1;
+  }
+
+  return 0;
+}
+
+// gettoppts() returns a scan_list with the most common ports scanned by
+// Nmap according to the ratios specified in the nmap-services file.
+//
+// If level is below 1.0 then we treat it as a minimum ratio and we
+// add all ports with ratios above level.
+//
+// If level is 1 or above, we treat it as a "top ports" directive
+// and return the N highest ratio ports (where N==level).
+//
+// This function doesn't support IP protocol scan so only call this
+// function if o.TCPScan() || o.UDPScan()
+
+struct scan_lists *gettoppts(double level, char *portlist) {
+  int ti=0, ui=0;
+  struct scan_lists *sl, *ptsdata=NULL;
   struct service_list *current;
-  int bucket;
-  int tcpportsneeded = 0;
-  int udpportsneeded = 0;
 
-  if (nmap_services_init() == -1)
-    fatal("Getfastports: Couldn't get port numbers");
-  
-  usedports = (u8 *) safe_zalloc(sizeof(*usedports) * 65536);
+  if (!services_initialized && nmap_services_init() == -1)
+    fatal("gettoppts: Couldn't get port numbers");
 
-  for(bucket = 1; bucket < 1025; bucket++) {  
-    if (tcpscan) {
-      usedports[bucket] |= SCAN_TCP_PORT;
-      tcpportsneeded++;
-    }
-    if (udpscan) {
-      usedports[bucket] |= SCAN_UDP_PORT;
-      udpportsneeded++;
-    }
+  if (ratio_format == 0) {
+    if (level != -1)
+      fatal("Unable to use --top-ports or --port-ratio with an old style (no-ratio) services file");
+
+    if (portlist)
+      return getpts(portlist);
+    else if (o.fastscan)
+      return getpts("[-]");
+    else
+      return getpts("1-1024,[1025-]");
   }
 
-  for(bucket = 0; bucket < SERVICE_TABLE_SIZE; bucket++) {  
-    for(current = service_table[bucket % SERVICE_TABLE_SIZE];
-	current; current = current->next) {
-      if (tcpscan &&
-	  ! (usedports[ntohs(current->servent->s_port)] & SCAN_TCP_PORT) &&
-          ! strncmp(current->servent->s_proto, "tcp", 3)) {
-	usedports[ntohs(current->servent->s_port)] |= SCAN_TCP_PORT;
-	tcpportsneeded++;
-      }
-      if (udpscan && 
-	  ! (usedports[ntohs(current->servent->s_port)] & SCAN_UDP_PORT) &&
-	  !strncmp(current->servent->s_proto, "udp", 3)) {      
-	usedports[ntohs(current->servent->s_port)] |= SCAN_UDP_PORT;
-	udpportsneeded++;
-      }
+  // TOP PORT DEFAULTS
+  if (level == -1) {
+    if (portlist)
+      return getpts(portlist);
+
+    if (o.fastscan) level = 100;
+    else level = 0.01;
+  }
+
+  sl = (struct scan_lists *) safe_zalloc(sizeof(struct scan_lists));
+  if (portlist) ptsdata = getpts(portlist);
+
+  if (level < 1) {
+    for (current=sorted_services; current; current=current->next) {
+      if (ptsdata && !is_port_member(ptsdata, current)) continue;
+
+      if (current->ratio >= level) {
+        if (o.TCPScan() && current->servent->s_proto[0] == 't') sl->tcp_count++;
+        else if (o.UDPScan() && current->servent->s_proto[0] == 'u') sl->udp_count++;
+      } else break;
     }
-  }
 
-  ports = (struct scan_lists *) safe_zalloc(sizeof(struct scan_lists));
-  if (tcpscan) 
-    ports->tcp_ports = (unsigned short *) safe_zalloc((tcpportsneeded) * sizeof(unsigned short));
-  if (udpscan) 
-    ports->udp_ports = (unsigned short *) safe_zalloc((udpportsneeded) * sizeof(unsigned short));
-  ports->tcp_count= tcpportsneeded;
-  ports->udp_count= udpportsneeded;
+    if (sl->tcp_count)
+      sl->tcp_ports = (unsigned short *)safe_zalloc(sl->tcp_count * sizeof(unsigned short));
 
-  for(bucket = 0; bucket < 65536; bucket++) {
-    if (usedports[bucket] & SCAN_TCP_PORT) 
-      ports->tcp_ports[tcpportindex++] = bucket;
-    if (usedports[bucket] & SCAN_UDP_PORT) 
-      ports->udp_ports[udpportindex++] = bucket;
-  }
+    if (sl->udp_count)
+      sl->udp_ports = (unsigned short *)safe_zalloc(sl->udp_count * sizeof(unsigned short));
 
-  free(usedports);
-  return ports;
+    sl->prots = NULL;
+
+    for (current=sorted_services;current;current=current->next) {
+      if (ptsdata && !is_port_member(ptsdata, current)) continue;
+
+      if (current->ratio >= level) {
+        if (o.TCPScan() && current->servent->s_proto[0] == 't')
+          sl->tcp_ports[ti++] = ntohs(current->servent->s_port);
+        else if (o.UDPScan() && current->servent->s_proto[0] == 'u')
+          sl->udp_ports[ui++] = ntohs(current->servent->s_port);
+      } else break;
+    }
+  } else if (level >= 1) {
+    if (level > 65536)
+      fatal("Level argument to gettoppts (%g) is too large", level);
+
+    if (o.TCPScan()) {
+      sl->tcp_count = MIN((int) level, numtcpports);
+      sl->tcp_ports = (unsigned short *)safe_zalloc(sl->tcp_count * sizeof(unsigned short));
+    }
+
+    if (o.UDPScan()) {
+      sl->udp_count = MIN((int) level, numudpports);
+      sl->udp_ports = (unsigned short *)safe_zalloc(sl->udp_count * sizeof(unsigned short));
+    }
+
+    sl->prots = NULL;
+
+    for (current=sorted_services;current && (ti < sl->tcp_count || ui < sl->udp_count);current=current->next) {
+      if (ptsdata && !is_port_member(ptsdata, current)) continue;
+
+      if (o.TCPScan() && current->servent->s_proto[0] == 't' && ti < sl->tcp_count)
+        sl->tcp_ports[ti++] = ntohs(current->servent->s_port);
+      else if (o.UDPScan() && current->servent->s_proto[0] == 'u' && ui < sl->udp_count)
+        sl->udp_ports[ui++] = ntohs(current->servent->s_port);
+    }
+
+    if (ti < sl->tcp_count) sl->tcp_count = ti;
+    if (ui < sl->udp_count) sl->udp_count = ui;
+  } else
+    fatal("Argument to gettoppts (%g) should be a positive ratio below 1 or an integer of 1 or higher", level);
+
+  if (ptsdata) free_scan_lists(ptsdata);
+
+  if (sl->tcp_count > 1)
+    qsort(sl->tcp_ports, sl->tcp_count, sizeof(unsigned short), &port_compare);
+
+  if (sl->udp_count > 1)
+    qsort(sl->udp_ports, sl->udp_count, sizeof(unsigned short), &port_compare);
+
+  if (o.debugging && level < 1)
+    log_write(LOG_STDOUT, "PORTS: Using ports open on %g%% or more average hosts (TCP:%d, UDP:%d)\n", level*100, sl->tcp_count, sl->udp_count);
+  else if (o.debugging && level >= 1)
+    log_write(LOG_STDOUT, "PORTS: Using top %d ports found open (TCP:%d, UDP:%d)\n", (int) level, sl->tcp_count, sl->udp_count);
+
+  return sl;
 }
-
-struct scan_lists *getfastports(int tcpscan, int udpscan) {
-  int tcpportindex = 0;
-  int udpportindex = 0;
-  struct scan_lists *ports;
-  u8 *usedports;
-  struct service_list *current;
-  int bucket;
-  int tcpportsneeded = 0;
-  int udpportsneeded = 0;
-
-  if (nmap_services_init() == -1)
-    fatal("Getfastports: Couldn't get port numbers");
-  
-  usedports = (u8 *) safe_zalloc(sizeof(*usedports) * 65536);
-
-  for(bucket = 0; bucket < SERVICE_TABLE_SIZE; bucket++) {  
-    for(current = service_table[bucket % SERVICE_TABLE_SIZE];
-	current; current = current->next) {
-      if (tcpscan  &&
-	  ! (usedports[ntohs(current->servent->s_port)] & SCAN_TCP_PORT) &&
-	  !strncmp(current->servent->s_proto, "tcp", 3)) {
-	usedports[ntohs(current->servent->s_port)] |= SCAN_TCP_PORT;
-	tcpportsneeded++;
-      }
-      if (udpscan &&
-	  ! (usedports[ntohs(current->servent->s_port)] & SCAN_UDP_PORT) &&
-	  !strncmp(current->servent->s_proto, "udp", 3)) {      
-	usedports[ntohs(current->servent->s_port)] |= SCAN_UDP_PORT;
-	udpportsneeded++;
-      }
-    }
-  }
-
-  ports = (struct scan_lists *) safe_zalloc(sizeof(struct scan_lists));
-  if (tcpscan) 
-    ports->tcp_ports = (unsigned short *) safe_zalloc((tcpportsneeded) * sizeof(unsigned short));
-  if (udpscan)
-    ports->udp_ports = (unsigned short *) safe_zalloc((udpportsneeded) * sizeof(unsigned short));
-  ports->tcp_count= tcpportsneeded;
-  ports->udp_count= udpportsneeded;
-
-  for(bucket = 0; bucket < 65536; bucket++) {
-    if (usedports[bucket] & SCAN_TCP_PORT) 
-      ports->tcp_ports[tcpportindex++] = bucket;
-    if (usedports[bucket] & SCAN_UDP_PORT) 
-      ports->udp_ports[udpportindex++] = bucket;
-  }
-
-  free(usedports);
-  return ports;
-}
-

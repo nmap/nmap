@@ -105,6 +105,49 @@
 
 extern NmapOps o;
 
+
+
+/* Test a wildcard mask against a test string. Wildcard mask
+ * can include '*' and '?' which work the same as they do
+ * in /bin/sh (except it's case insensitive)
+ * Return val of 1 means it DID match. 0 means it DIDN'T
+ * - Doug Hoyte, 2005
+ */
+
+int wildtest(char *wild, char *test) {
+
+  int i;
+
+  while(*wild != '\0'  ||  *test != '\0') {
+    if (*wild == '*') {
+
+      /* --- Deal with multiple asterisks. --- */
+      while (wild[1] == '*') wild++;
+
+      /* --- Deal with terminating asterisks. --- */
+      if (wild[1] == '\0') return 1;
+
+      for(i=0; test[i]!='\0'; i++)
+        if ((wild[1] == test[i]  ||  wild[1] == '?')
+             &&  wildtest(wild+1, test+i) == 1) return 1;
+
+      return 0;
+    }
+
+    /* --- '?' can't match '\0'. --- */
+    if (*wild == '?' && *test == '\0') return 0;
+
+    if (*wild != '?' && tolower((int)*wild) != tolower((int)*test)) return 0;
+    wild++; test++;
+  }
+
+  if (tolower((int)*wild) == tolower((int)*test)) return 1;
+  return 0;
+
+}
+
+
+
 /* Hex dump */
 void hdump(unsigned char *packet, unsigned int len) {
 unsigned int i=0, j=0;

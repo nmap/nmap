@@ -125,11 +125,12 @@
 
 struct service_list {
   struct servent *servent;
+  double ratio;
   struct service_list *next;
 };
 
+int addportsfromservmask(char *mask, u8 *porttbl, struct scan_lists *ports, int range_type);
 struct servent *nmap_getservbyport(int port, const char *proto);
-struct scan_lists *getfastports(int tcpscan, int udpscan);
-struct scan_lists *getdefaultports(int tcpscan, int udpscan);
+struct scan_lists *gettoppts(double level, char *portlist);
 
 #endif
