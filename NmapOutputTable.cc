@@ -241,13 +241,32 @@ int NmapOutputTable::printableSize() {
 
 }
 
+/* True if every column in nrow is empty */
+bool NmapOutputTable::emptyRow(unsigned int nrow) {
+	NmapOutputTableCell *cell;
+	unsigned int col;
+	bool isEmpty = true;
+	
+	assert(nrow < numRows);
+
+	for(col = 0 ; col < numColumns; col++) {
+		cell = getCellAddy(nrow, col);
+		if(cell->strlength > 0) {
+			isEmpty = false;
+			break;
+		}
+	}
+	return isEmpty;		
+}
+
  // This function sticks the entire table into a character buffer.
  // Note that the buffer is likely to be reused if you call the
  // function again, and it will also be invalidated if you free the
  // table. If size is not NULL, it will be filled with the size of
- // the ASCII table in bytes (not including the terminating NUL)
-
-char *NmapOutputTable::printableTable(int *size) {
+ // the ASCII table in bytes (not including the terminating NUL) 
+ // If trim is true, excess empty rows are not returned 
+ //
+char *NmapOutputTable::internalPrintableTable(int *size, bool trim) {
   unsigned int col, row;
   int maxsz = printableSize();
   char *p;
@@ -264,6 +283,12 @@ char *NmapOutputTable::printableTable(int *size) {
 
   for(row = 0; row < numRows; row++) {
     validthisrow = 0;
+
+    /* If this was called by printableTrimmedTable 
+     * (trim == true) we can ignore everything after an 
+     * empty row */
+    if(trim && emptyRow(row)) 
+	break;
 
     cell = getCellAddy(row, 0);
     if(cell->fullrow && cell->strlength > 0) {
@@ -290,4 +315,12 @@ char *NmapOutputTable::printableTable(int *size) {
   *p = '\0';
   if (size) *size = p - tableout;
   return tableout;
+}
+
+char *NmapOutputTable::printableTable(int *size) {
+	return internalPrintableTable(size, false);
+}
+
+char *NmapOutputTable::printableTrimmedTable(int *size) {
+	return internalPrintableTable(size, true);
 }

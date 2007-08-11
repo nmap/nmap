@@ -270,9 +270,6 @@ class TraceGroup {
     /* consolidate timeouts, remove common paths elements
      * and performs general upkeep on a finished trace */
     void consolidateHops ();
-    /* the number of table rows a trace will use
-     * when printed. */
-    u8 tableSize ();
     /* the next ttl to send, if the destination has replied
      * the ttl is decremented, if it hasn't it is incremented */
     void nextTTL () { if (gotReply) ttl--; else { ttl++; hopDistance++;}}

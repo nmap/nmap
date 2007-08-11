@@ -148,8 +148,13 @@ class NmapOutputTable {
   // the ASCII table in bytes (not including the terminating NUL)
   char *printableTable(int *size);
 
+  // same as printableTable() but with excess empty rows removed
+  char *printableTrimmedTable(int *size);
+
  private:
 
+  char *internalPrintableTable(int *size, bool trim);
+  bool emptyRow(unsigned int nrow);
   // The table, squished into 1D.  Access a member via getCellAddy
   struct NmapOutputTableCell *table;
   struct NmapOutputTableCell *getCellAddy(unsigned int row, unsigned int col) {

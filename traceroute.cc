@@ -945,7 +945,6 @@ Traceroute::outputTarget (Target * t) {
     char row_count = 0;
     char timebuf[16];
     u8 consol_count = 0;
-    u16 size;
 
     if ((TraceGroups.find (t->v4host ().s_addr)) == TraceGroups.end ())
         return;
@@ -959,19 +958,15 @@ Traceroute::outputTarget (Target * t) {
     /* clean up and consolidate traces */
     tg->consolidateHops ();
     /* calculate length of table, post-consolidation */
-    size = tg->tableSize ();
     this->outputXMLTrace(tg);
 
     /* table headers */
-    Tbl = new NmapOutputTable (size, 3);
+    Tbl = new NmapOutputTable (tg->hopDistance+1, 3);
     Tbl->addItem (row_count, HOP_COL, false, "HOP", 3);
     Tbl->addItem (row_count, RTT_COL, false, "RTT", 3);
     Tbl->addItem (row_count, HOST_COL, false, "ADDRESS", 7);
 
     for (ttl_count = 1; ttl_count <= tg->hopDistance; ttl_count++) {
-
-        if (row_count >= size-1)
-            break;
 
         /* consolidate hops based on the reference trace (commonPath)  */
         if(commonPath[ttl_count] && ttl_count <= tg->consolidation_start) { 
@@ -1061,7 +1056,7 @@ Traceroute::outputTarget (Target * t) {
         log_write(LOG_PLAIN, "\nTRACEROUTE (using proto %d/%s)\n", tg->proto, proto?proto->p_name:"unknown");
     else 
         log_write(LOG_PLAIN, "\nTRACEROUTE (using port %d/%s)\n", tg->dport, proto2ascii(tg->proto));
-    log_write (LOG_PLAIN, "%s", Tbl->printableTable(NULL));
+    log_write (LOG_PLAIN, "%s", Tbl->printableTrimmedTable(NULL));
 
     if(G_TTL(tg->getState()))
         log_write(LOG_PLAIN, "! maximum TTL reached (50)\n");
@@ -1224,39 +1219,6 @@ TraceGroup::retransmissions (vector < TraceProbe * >&retrans) {
             scanDelay = MAX (scanDelay - (scanDelay / 5), 5);
         }
     }
-}
-
-/* nmap's traceroute output can be consolidated, timeouts 
- * and hops from the common path are collapsed to save space.
- * This function calculates the number lines the trace will
- * occupy after all consolidation. If debug mode is active
- * no consolidation will be applied */
-u8 TraceGroup::tableSize () {
-    map < u16, TraceProbe * >::iterator it;
-    TraceProbe *last_probe = NULL;
-    u8 pathCount = 255;
-    u8 size = this->size ();
-
-    /* count timeouts and common path elements */
-    for (it = TraceProbes.begin (); it != TraceProbes.end (); ++it) {
-        pathCount = MIN (pathCount, it->second->ttl);
-        if(last_probe && last_probe->timing.consolidated && it->second->timing.consolidated)
-            size--;
-        last_probe = it->second;
-    }
-
-    /* reached max ttl */
-    if(G_TTL(getState())) 
-        return size;
-
-    /* no consolidation in debug mode */
-    if(o.debugging)
-        return size + pathCount;
-    /* trace has been consolidated based on commonpath */
-    if(pathCount > 1)
-        return size-(consolidation_start-pathCount);
-    /* no common path elements have been used */
-    return size;
 }
 
 /* Remove uneeded probes and mark timed out probes for consolidation */
