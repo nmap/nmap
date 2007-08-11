@@ -7,6 +7,8 @@
 #include "nse_bitlib.h"
 #include "nse_pcrelib.h"
 
+#include "nbase.h"
+
 #include "nmap.h"
 #include "nmap_error.h"
 #include "NmapOps.h"
@@ -28,7 +30,6 @@ int init_updatedb(lua_State* l);
 int init_pick_default_categories(std::vector<std::string>& chosenScripts);
 
 int check_extension(const char* ext, const char* path);
-std::string get_filename(std::string str);
 
 extern NmapOps o;
 
@@ -291,10 +292,15 @@ int init_updatedb(lua_State* l) {
 			
 			lua_pushnil(l);
 			while(lua_next(l, -2) != 0) {
+				char *filename = path_get_basename(c_iter);
+				if (filename == NULL) {
+					error("%s: Could not allocate temporary memory.", SCRIPT_ENGINE);
+					return SCRIPT_ENGINE_ERROR;
+				}
 				fprintf(scriptdb,
 					"Entry{ category = \"%s\", filename = \"%s\" }\n",
-					lua_tostring(l, -1),
-					get_filename(std::string(c_iter)).c_str());
+					lua_tostring(l, -1), filename);
+				free(filename);
 				lua_pop(l, 1);
 			}
 			lua_pop(l, 1); // pop the categories table
@@ -425,15 +431,6 @@ int init_fetchfile(char *path, size_t path_len, char* file) {
 	}
 
 	return type;
-}
-
-std::string get_filename(std::string str) {
-	int pos = MAX( (int) str.rfind('\\'), (int) str.rfind('/'));
-
-	if(pos > -1)
-		return str.substr(pos + 1);
-	else
-		return str;
 }
 
 /* This is simply the most portable way to check
