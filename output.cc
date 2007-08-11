@@ -331,17 +331,14 @@ int print_iflist(void) {
   
   /* Display windows device names */
   if((p_ifaces = getpcapinterfaces()) != NULL && numifs > 0) {
-    Tbl = new NmapOutputTable(3, numifs);
+    Tbl = new NmapOutputTable(numifs+1, 2);
     Tbl->addItem(0, 0, false, "DEV");
     Tbl->addItem(0, 1, false, "WINDEVICE");
-    i = numifs-1;
+    i = numifs;
 
-    for(p_iface_iter = p_ifaces; p_iface_iter != NULL && i >= 0; i--) {
-      Tbl->addItem(i+1, 0, false, iflist[i].devname);
-      if(p_iface_iter->name == NULL)
-        Tbl->addItem(i+1, 1, false, "(null)");
-      else
-        Tbl->addItem(i+1, 1, false, p_iface_iter->name);
+    for(p_iface_iter = p_ifaces; p_iface_iter != NULL && i >= 1; i--) {	
+      Tbl->addItem(i, 0, false, iflist[i-1].devname);
+      Tbl->addItem(i, 1, false, p_iface_iter->name);
       p_iface_iter = p_iface_iter->next;
     }
 
