@@ -8,7 +8,7 @@ license = "See nmaps COPYING for licence"
 
 categories = {"intrusive"}
 
-require "bit"
+-- require "bit"
 
 portrule = function(host, port)
 	if 	port.number == 53
