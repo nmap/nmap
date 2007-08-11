@@ -3415,7 +3415,7 @@ static void processData(UltraScanInfo *USI) {
     long tv_diff;
     gettimeofday(&USI->now, NULL);
     tv_diff = TIMEVAL_MSEC_SUBTRACT(USI->now, tv_start);
-    if (tv_diff > 30) printf("processData took %lims\n", tv_diff);
+    if (tv_diff > 30) printf("%s took %lims\n", __func__, tv_diff);
   }
 }
 

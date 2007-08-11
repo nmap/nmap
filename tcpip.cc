@@ -184,7 +184,7 @@ const char *proto2ascii(u8 proto, bool uppercase) {
 }
 
 static char *ll2shortascii(unsigned long long bytes, char *buf, int buflen) {
-  if (buflen < 2 || !buf) fatal("Bogus parameter passed to ll2shortascii");
+  if (buflen < 2 || !buf) fatal("Bogus parameter passed to %s", __func__);
 
   if (bytes > 1000000) {
     snprintf(buf, buflen, "%.3fMB", bytes / 1000000.0);
