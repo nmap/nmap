@@ -1,3 +1,5 @@
+require "ipOps"
+
 id = "RIPE query"
 description = "Connects to the RIPE database, extracts and prints the role: entry for the IP."
 author = "Diman Todorov <diman.todorov@gmail.com>"
@@ -6,7 +8,7 @@ license = "See nmaps COPYING for licence"
 categories = {"discovery"}
 
 hostrule = function(host, port)
-	return true
+	return not ipOps.isPrivate(host.ip)
 end
 
 action = function(host, port)

@@ -8,6 +8,7 @@
 #include "NmapOps.h"
 #include "nmap_rpc.h"
 #include "Target.h"
+#include "output.h"
 
 #define SCRIPT_ENGINE_GETSTRING(name) \
 	char* name; \
@@ -394,7 +395,7 @@ static int l_set_port_version(lua_State* l, Target* target, Port* port) {
 }
 
 static int l_print_debug_unformatted(lua_State *l) {
-	int verbosity(0), stack_counter(1);
+	int verbosity=1, stack_counter(1);
 	const char *out;
 
 	if (lua_isnumber (l, 1) && (lua_gettop(l) > 1)) {
@@ -403,8 +404,7 @@ static int l_print_debug_unformatted(lua_State *l) {
 		stack_counter++;
 	}
 	out = luaL_checkstring(l, stack_counter);
-
-	error("%s NSE DEBUG: %s", SCRIPT_ENGINE, out);
+	log_write(LOG_STDOUT, "%s NSE DEBUG: %s\n", SCRIPT_ENGINE, out);
 	return 0;
 }
 

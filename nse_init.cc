@@ -18,7 +18,7 @@
 #include "errno.h"
 
 #include <algorithm>
-
+int init_setlualibpath(lua_State* l);
 int init_loadfile(lua_State* l, char* filename);
 int init_loaddir(lua_State* l, char* dirname);
 int init_loadcategories(lua_State* l, std::vector<std::string> categories, std::vector<std::string> &unusedTags);
@@ -61,7 +61,54 @@ int init_lua(lua_State* l) {
 	lua_newtable(l);
 	SCRIPT_ENGINE_TRY(set_nmaplib(l));
 	lua_setglobal(l, "nmap");
+	SCRIPT_ENGINE_TRY(init_setlualibpath(l));
 
+	return SCRIPT_ENGINE_SUCCESS;
+}
+
+/*sets two variables, which control where lua looks for modules (implemented in C or lua */
+int init_setlualibpath(lua_State* l){
+	char path[MAX_FILENAME_LEN]; 
+	const char*oldpath, *oldcpath;
+	std::string luapath, luacpath;
+	/* set the path lua searches for modules*/
+	if(nmap_fetchfile(path, MAX_FILENAME_LEN, SCRIPT_ENGINE_LIB_DIR)!=2){
+		/*SCRIPT_ENGINE_LIB_DIR is not a directory - error */
+		error("%s: %s not a directory\n", SCRIPT_ENGINE, SCRIPT_ENGINE_LIB_DIR);
+		return SCRIPT_ENGINE_ERROR;
+	}
+	/* the path lua uses to search for modules is setted to the 
+	 * SCRIPT_ENGINE_LIBDIR/ *.lua with the default path 
+	 * (which is read from the package-module) appended  - 
+	 * the path for C-modules is as above but it searches for shared libs (*.so)	*/
+	luapath= std::string(path) + "?.lua;"; 
+	luacpath= std::string(path) + "?.so;"; 
+	lua_getglobal(l,"package");
+	if(!lua_istable(l,-1)){
+		error("%s: the lua global-variable package is not a table?!", SCRIPT_ENGINE);
+		return SCRIPT_ENGINE_ERROR;
+	}
+	lua_getfield(l,-1, "path");
+	lua_getfield(l,-2, "cpath");
+	if(!lua_isstring(l,-1)||!lua_isstring(l,-2)){
+		error("%s: no default paths setted in package table (needed in %s at line %d) -- probably a problem of the lua-configuration?!", SCRIPT_ENGINE, __FILE__, __LINE__);
+		return SCRIPT_ENGINE_ERROR;
+	}
+	oldcpath= lua_tostring(l,-1);
+	oldpath = lua_tostring(l,-2);
+	luacpath= luacpath + oldcpath;
+	luapath= luapath + oldpath;
+	lua_pop(l,2);
+	lua_pushstring(l, luapath.c_str());
+	lua_setfield(l, -2, "path");
+	lua_pushstring(l, luacpath.c_str());
+	lua_setfield(l, -2, "cpath");
+	lua_getfield(l,-1, "path");
+	lua_getfield(l,-2, "cpath");
+	SCRIPT_ENGINE_DEBUGGING(log_write(LOG_STDOUT, "%s: Using %s to search for C-modules and %s for Lua-modules\n", SCRIPT_ENGINE, lua_tostring(l,-1), lua_tostring(l,-2));)
+	/*pop the two strings (luapath and luacpath) and the package table off 
+	 * the stack */
+	lua_pop(l,3);
 	return SCRIPT_ENGINE_SUCCESS;
 }
 
