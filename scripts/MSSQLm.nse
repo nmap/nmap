@@ -13,6 +13,7 @@ categories = {"discovery", "intrusive"}
 
 require('stdnse')
 require "shortport"
+require("strbuf")
 
 portrule = shortport.portnumber({1433, 1434}, "udp", {"open", "open|filtered"})
 
@@ -20,7 +21,6 @@ action = function(host, port)
 
 	-- create the socket used for our connection
 	local socket = nmap.new_socket()
-	local sb_add = stdnse.strbuf.add
 	
 	-- set a reasonable timeout value
 	socket:set_timeout(5000)
@@ -37,24 +37,24 @@ action = function(host, port)
 	local get_real_version = function(dst, dstPort)
 	  
 	  local outcome
-	  local payload =  stdnse.strbuf.new()
+	  local payload =  strbuf.new()
 	  
 	  local stat, resp
 	  
 	  -- build a TDS packet - type 0x12
 	  -- copied from packet capture of osql connection
-	  sb_add(payload, "\018\001\000\047\000\000\001\000\000\000")
-	  sb_add(payload, "\026\000\006\001\000\032\000\001\002\000")
-	  sb_add(payload, "\033\000\001\003\000\034\000\004\004\000")
-	  sb_add(payload, "\038\000\001\255\009\000\011\226\000\000")
-	  sb_add(payload, "\000\000\120\023\000\000\000")
+	  payload = payload .. "\018\001\000\047\000\000\001\000\000\000"
+	  payload = payload .. "\026\000\006\001\000\032\000\001\002\000"
+	  payload = payload .. "\033\000\001\003\000\034\000\004\004\000"
+	  payload = payload .. "\038\000\001\255\009\000\011\226\000\000"
+	  payload = payload .. "\000\000\120\023\000\000\000"
 	  
 	  socket = nmap.new_socket()
 	  
 	  -- connect to the server using the tcpPort captured from the UDP probe
 	  try(socket:connect(dst, dstPort, "tcp"))
 	  
-	  try(socket:send(stdnse.strbuf.dump(payload)))
+	  try(socket:send(strbuf.dump(payload)))
 	  
 	  -- read in any response we might get
 	  stat, resp = socket:receive_bytes(1)
@@ -65,26 +65,26 @@ action = function(host, port)
 	    -- username = sa, blank password
 	    -- for information about packet structure, see http://www.freetds.org/tds.html
 	    
-	    local query = stdnse.strbuf.new()
-	    sb_add(query, "\016\001\000\128\000\000\001\000") -- TDS packet header
-	    sb_add(query, "\120\000\000\000\002\000\009\114") -- Login packet header = length, version
-	    sb_add(query, "\000\000\000\000\000\000\000\007") -- Login packet header continued = size, client version
-	    sb_add(query, "\140\018\000\000\000\000\000\000") -- Login packet header continued = Client PID, Connection ID
-	    sb_add(query, "\224\003\000\000\104\001\000\000") -- Login packet header continued = Option Flags 1 & 2, status flag, reserved flag, timezone
-	    sb_add(query, "\009\004\000\000\094\000\004\000") -- Login packet (Collation), then start offsets & lengths (client name, client length)
-	    sb_add(query, "\102\000\002\000\000\000\000\000") -- Login packet, offsets & lengths = username offset, username length, password offset, password length
-	    sb_add(query, "\106\000\004\000\114\000\000\000") -- Login packet, offsets & lengths = app name offset, app name length, server name offset, server name length
-	    sb_add(query, "\000\000\000\000\114\000\003\000") -- Login packet, offsets & lengths = unknown offset, unknown length, library name offset, library name length
-	    sb_add(query, "\120\000\000\000\120\000\000\000") -- Login packet, offsets & lengths = locale offset, locale length, database name offset, database name length
-	    sb_add(query, "\000\000\000\000\000\000\000\000") -- Login packet, MAC address + padding
-	    sb_add(query, "\000\000\000\000\000\000\000\000") -- Login packet, padding
-	    sb_add(query, "\000\000\000\000\000\000\078\000") -- Login packet, padding + start of client name (N)
-	    sb_add(query, "\077\000\065\000\080\000\115\000") -- Login packet = rest of client name (MAP) + username (s)
-	    sb_add(query, "\097\000\078\000\077\000\065\000") -- Login packet = username (a), app name (NMA)
-	    sb_add(query, "\080\000\078\000\083\000\069\000") -- Login packet = app name (P), library name (NSE)
+	    local query = strbuf.new()
+	    query = query .. "\016\001\000\128\000\000\001\000" -- TDS packet header
+	    query = query .. "\120\000\000\000\002\000\009\114" -- Login packet header = length, version
+	    query = query .. "\000\000\000\000\000\000\000\007" -- Login packet header continued = size, client version
+	    query = query .. "\140\018\000\000\000\000\000\000" -- Login packet header continued = Client PID, Connection ID
+	    query = query .. "\224\003\000\000\104\001\000\000" -- Login packet header continued = Option Flags 1 & 2, status flag, reserved flag, timezone
+	    query = query .. "\009\004\000\000\094\000\004\000" -- Login packet (Collation), then start offsets & lengths (client name, client length)
+	    query = query .. "\102\000\002\000\000\000\000\000" -- Login packet, offsets & lengths = username offset, username length, password offset, password length
+	    query = query .. "\106\000\004\000\114\000\000\000" -- Login packet, offsets & lengths = app name offset, app name length, server name offset, server name length
+	    query = query .. "\000\000\000\000\114\000\003\000" -- Login packet, offsets & lengths = unknown offset, unknown length, library name offset, library name length
+	    query = query .. "\120\000\000\000\120\000\000\000" -- Login packet, offsets & lengths = locale offset, locale length, database name offset, database name length
+	    query = query .. "\000\000\000\000\000\000\000\000" -- Login packet, MAC address + padding
+	    query = query .. "\000\000\000\000\000\000\000\000" -- Login packet, padding
+	    query = query .. "\000\000\000\000\000\000\078\000" -- Login packet, padding + start of client name (N)
+	    query = query .. "\077\000\065\000\080\000\115\000" -- Login packet = rest of client name (MAP) + username (s)
+	    query = query .. "\097\000\078\000\077\000\065\000" -- Login packet = username (a), app name (NMA)
+	    query = query .. "\080\000\078\000\083\000\069\000" -- Login packet = app name (P), library name (NSE)
 	    
 	    -- send the packet down the wire
-	    try(socket:send(stdnse.strbuf.dump(query)))
+	    try(socket:send(strbuf.dump(query)))
 	    
 	    -- read in any response we might get
 	    stat, resp = socket:receive_bytes(1)
@@ -94,17 +94,17 @@ action = function(host, port)
 	    if string.match(resp, "S\000Q\000L\000") then
 		  outcome = "\n    sa user appears to have blank password"
 		  
-		  stdnse.strbuf.clear(query)
+		  strbuf.clear(query)
 		  -- since we have a successful login, send a query that will tell us what version the server is really running
-		  sb_add(query, "\001\001\000\044\000\000\001\000") -- TDS Query packet
-		  sb_add(query, "\083\000\069\000\076\000\069\000") -- SELE
-		  sb_add(query, "\067\000\084\000\032\000\064\000") -- CT @
-		  sb_add(query, "\064\000\086\000\069\000\082\000") -- @VER
-		  sb_add(query, "\083\000\073\000\079\000\078\000") -- SION
-		  sb_add(query, "\013\000\010\000")
+		  query = query .. "\001\001\000\044\000\000\001\000" -- TDS Query packet
+		  query = query .. "\083\000\069\000\076\000\069\000" -- SELE
+		  query = query .. "\067\000\084\000\032\000\064\000" -- CT @
+		  query = query .. "\064\000\086\000\069\000\082\000" -- @VER
+		  query = query .. "\083\000\073\000\079\000\078\000" -- SION
+		  query = query .. "\013\000\010\000"
 		  
 		  -- send the packet down the wire
-		  try(socket:send(stdnse.strbuf.dump(query)))
+		  try(socket:send(strbuf.dump(query)))
 	      
 		  -- read in any response we might get
 		  stat, resp = socket:receive_bytes(1)

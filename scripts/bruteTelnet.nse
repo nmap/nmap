@@ -6,6 +6,7 @@ categories = {'intrusive'}
 
 require('shortport')
 require('stdnse')
+require('strbuf')
 
 local soc
 local catch = function() soc.close() end
@@ -77,7 +78,7 @@ local negotiate_options = function(result)
 	local index, x, opttype, opt, retbuf
 
 	index = 0
-	retbuf = stdnse.strbuf.new()
+	retbuf = strbuf.new()
 
 	while true do
 
@@ -98,12 +99,12 @@ local negotiate_options = function(result)
 			opttype = 252
 		end
 
-		stdnse.strbuf.add(retbuf, string.char(255))
-		stdnse.strbuf.add(retbuf, string.char(opttype))
-		stdnse.strbuf.add(retbuf, string.char(opt))
+		retbuf = retbuf .. string.char(255)
+		retbuf = retbuf .. string.char(opttype)
+		retbuf = retbuf .. string.char(opt)
 		index = index + 1
 	end	
-	soc:send(stdnse.strbuf.dump(retbuf))
+	soc:send(strbuf.dump(retbuf))
 end
 
 --[[
