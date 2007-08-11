@@ -137,14 +137,9 @@ extern NmapOps o;  /* option structure */
 int main(int argc, char *argv[]) {
   /* The "real" main is nmap_main().  This function hijacks control at the
      beginning to do the following:
-     1) Check if Nmap called under name listed in INTERACTIVE_NAMES or with
-     interactive.
+     1) Check if Nmap was called with --interactive.
      2) Start interactive mode or just call nmap_main
   */
-  char *interactive_names[] = INTERACTIVE_NAMES;
-  int numinames = sizeof(interactive_names) / sizeof(char *);
-  int nameidx;
-  char *nmapcalledas;
   char command[2048];
   int myargc, fakeargc;
   char **myargv = NULL, **fakeargv = NULL;
@@ -197,13 +192,6 @@ int main(int argc, char *argv[]) {
 #endif
 #endif
 
-  /* First we figure out whether the name nmap is called as qualifies it 
-     for interactive mode treatment */
-  nmapcalledas = strrchr(argv[0], '/');
-  if (!nmapcalledas) {
-    nmapcalledas = argv[0];
-  } else nmapcalledas++;
-
   if ((cptr = getenv("NMAP_ARGS"))) {
     if (snprintf(command, sizeof(command), "nmap %s", cptr) >= (int) sizeof(command)) {
         error("Warning: NMAP_ARGS variable is too long, truncated");
@@ -220,14 +208,6 @@ int main(int argc, char *argv[]) {
     ret = nmap_main(myargc, myargv);
     arg_parse_free(myargv);
     return ret;
-  }
-
-  for(nameidx = 0; nameidx < numinames; nameidx++) {
-    if (strcasecmp(nmapcalledas, interactive_names[nameidx]) == 0) {
-      printf("Entering Interactive Mode because argv[0] == %s\n", nmapcalledas);
-      interactivemode = 1;
-      break;
-    }
   }
 
   if (interactivemode == 0 &&
@@ -333,6 +313,10 @@ int main(int argc, char *argv[]) {
 	    if ((pptr = getenv("PATH"))) {
 	      Strncpy(path, pptr, sizeof(path));
 	      pptr = path;
+	      /* Get the name Nmap was called as. */
+	      char *nmapcalledas = path_get_basename(argv[0]);
+	      if (nmapcalledas == NULL)
+		pfatal("Could not get nmap executable basename");
 	      while(pptr && *pptr) {
 		endptr = strchr(pptr, ':');
 		if (endptr) { 
@@ -345,6 +329,7 @@ int main(int argc, char *argv[]) {
 		if (endptr) pptr = endptr + 1;
 		else pptr = NULL;
 	      }
+	      free(nmapcalledas);
 	    }
 	  }
 	}
