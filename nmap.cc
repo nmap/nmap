@@ -605,7 +605,9 @@ int nmap_main(int argc, char *argv[]) {
       {"dns_servers", required_argument, 0, 0},
       {"dns-servers", required_argument, 0, 0},
       {"port-ratio", required_argument, 0, 0},
+      {"port_ratio", required_argument, 0, 0},
       {"top-ports", required_argument, 0, 0},
+      {"top_ports", required_argument, 0, 0},
 #ifndef NOLUA
       {"script", required_argument, 0, 0},
       {"script-trace", no_argument, 0, 0},
@@ -835,12 +837,12 @@ int nmap_main(int argc, char *argv[]) {
         o.fragscan = atoi(optarg);
         if (o.fragscan <= 0 || o.fragscan % 8 != 0)
             fatal("Data payload MTU must be >0 and multiple of 8");
-      } else if (strcmp(long_options[option_index].name, "port-ratio") == 0) {
+      } else if (optcmp(long_options[option_index].name, "port-ratio") == 0) {
         char *ptr;
         o.topportlevel = strtod(optarg, &ptr);
         if (!ptr || o.topportlevel < 0 || o.topportlevel >= 1)
           fatal("--port-ratio should be between [0 and 1)");
-      } else if (strcmp(long_options[option_index].name, "top-ports") == 0) {
+      } else if (optcmp(long_options[option_index].name, "top-ports") == 0) {
         char *ptr;
         o.topportlevel = strtod(optarg, &ptr);
         if (!ptr || o.topportlevel < 1 || ((double)((int)o.topportlevel)) != o.topportlevel)
