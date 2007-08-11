@@ -37,6 +37,7 @@ static int l_nsock_receive(lua_State* l);
 static int l_nsock_receive_lines(lua_State* l);
 static int l_nsock_receive_bytes(lua_State* l);
 static int l_nsock_get_info(lua_State* l);
+static int l_nsock_gc(lua_State* l);
 static int l_nsock_close(lua_State* l);
 static int l_nsock_set_timeout(lua_State* l);
 
@@ -59,6 +60,7 @@ static luaL_reg l_nsock [] = {
 	{"get_info", l_nsock_get_info},
 	{"close", l_nsock_close},
 	{"set_timeout", l_nsock_set_timeout},
+	{"__gc",l_nsock_gc},
 	{NULL, NULL}
 };
 
@@ -86,7 +88,6 @@ int l_nsock_new(lua_State* l) {
 	udata->nsiod = NULL;
 	udata->ssl_session = NULL;
 	udata->timeout = DEFAULT_TIMEOUT;
-	
 	return 1;
 }
 
@@ -131,6 +132,7 @@ static int l_nsock_connect(lua_State* l) {
 	const char* error;
 	struct addrinfo *dest;
 	int error_id;
+	
 
 	error_id = getaddrinfo(addr, NULL, NULL, &dest);
 	if (error_id) {
@@ -386,7 +388,16 @@ static int l_nsock_get_info(lua_State* l) {
 	free(ipstring_remote);
 	return 5;
 }
-
+static int l_nsock_gc(lua_State* l){
+	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	if(udata->nsiod == NULL) { //socket obviously got closed already - so no finalization needed
+		return 0;	
+	}else{
+	//FIXME - check wheter close returned true!!
+		l_nsock_close(l);
+	}
+	return 0;
+}
 static int l_nsock_close(lua_State* l) {
 	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
 
