@@ -1305,7 +1305,7 @@ int nmap_main(int argc, char *argv[]) {
     }
     /* Got the new MAC! */
     const char *vend = MACPrefix2Corp(mac_data);
-    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, 
+    log_write(LOG_PLAIN, 
 	      "Spoofing MAC address %02X:%02X:%02X:%02X:%02X:%02X (%s)\n",
 	      mac_data[0], mac_data[1], mac_data[2], mac_data[3], mac_data[4],
 	      mac_data[5], vend? vend : "No registered vendor");
@@ -1554,7 +1554,7 @@ int nmap_main(int argc, char *argv[]) {
 	write_host_status(currenths, o.resolve_all);
 	printmacinfo(currenths);
 	//	if (currenths->flags & HOST_UP)
-	//  log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"\n");
+	//  log_write(LOG_PLAIN,"\n");
 	log_write(LOG_XML, "</host>\n");
 	log_flush_all();
 	delete currenths;
@@ -1744,7 +1744,7 @@ int nmap_main(int argc, char *argv[]) {
       log_write(LOG_XML, "<host>");
       write_host_status(currenths, o.resolve_all);
       if (currenths->timedOut(NULL)) {
-	log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT,"Skipping host %s due to host timeout\n", 
+	log_write(LOG_PLAIN,"Skipping host %s due to host timeout\n", 
 		  currenths->NameIP(hostname, sizeof(hostname)));
 	log_write(LOG_MACHINE,"Host: %s (%s)\tStatus: Timeout", 
 		  currenths->targetipstr(), currenths->HostName());
@@ -1766,7 +1766,7 @@ int nmap_main(int argc, char *argv[]) {
 		  currenths->to.srtt, currenths->to.rttvar, currenths->to.timeout);
       log_write(LOG_XML, "<times srtt=\"%d\" rttvar=\"%d\" to=\"%d\" />\n",
 		currenths->to.srtt, currenths->to.rttvar, currenths->to.timeout);
-      log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT|LOG_MACHINE,"\n");
+      log_write(LOG_PLAIN|LOG_MACHINE,"\n");
       log_write(LOG_XML, "</host>\n");
     }
     log_flush_all();

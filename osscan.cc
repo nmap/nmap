@@ -1100,7 +1100,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
       }
     }
     else {
-      log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID,"Insufficient responses for TCP sequencing (%d), OS detection may be less accurate\n", si->responses);
+      log_write(LOG_PLAIN,"Insufficient responses for TCP sequencing (%d), OS detection may be less accurate\n", si->responses);
     }
   } else {
   }
@@ -1507,7 +1507,7 @@ o.current_scantype = OS_SCAN;
       target->ports.getStateCounts(IPPROTO_TCP, PORT_UNFILTERED) == 0)) {
    if (o.osscan_limit) {
      if (o.verbose)
-       log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID, "Skipping OS Scan due to absence of open (or perhaps closed) ports\n");
+       log_write(LOG_PLAIN, "Skipping OS Scan due to absence of open (or perhaps closed) ports\n");
      return 1;
    } else {   
      target->osscanSetFlag(OS_PERF_UNREL);
@@ -1576,7 +1576,7 @@ o.current_scantype = OS_SCAN;
 		     o.reference_FPs1, OSSCAN_GUESS_THRESHOLD);
 
  if (o.debugging > 2) {
-   log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID, "Completed OS Detection against %s at %.3fs (took %.3fs)\n", target->targetipstr(), o.TimeSinceStartMS() / 1000.0, (o.TimeSinceStartMS() - starttimems) / 1000.0);
+   log_write(LOG_PLAIN, "Completed OS Detection against %s at %.3fs (took %.3fs)\n", target->targetipstr(), o.TimeSinceStartMS() / 1000.0, (o.TimeSinceStartMS() - starttimems) / 1000.0);
  }
  
  return 1;

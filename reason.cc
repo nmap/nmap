@@ -320,9 +320,9 @@ void print_state_summary(PortList *Ports, unsigned short type) {
 		return;
 	
 	if(type == STATE_REASON_EMPTY)
-		log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, " because of"); 
+		log_write(LOG_PLAIN, " because of"); 
 	else if(type == STATE_REASON_FULL)
-		log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "Reason:"); 
+		log_write(LOG_PLAIN, "Reason:"); 
 	else
 		assert(0);
 
@@ -333,7 +333,7 @@ void print_state_summary(PortList *Ports, unsigned short type) {
 		if(states == 1 && (!first_time))
 			separator = " and ";
 		if(currentr->count > 0) {
-			log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "%s%d %s", (first_time) ? " " : separator, 
+			log_write(LOG_PLAIN, "%s%d %s", (first_time) ? " " : separator, 
 				currentr->count, reason_str(currentr->reason_id, currentr->count));
 			first_time = false;
 
@@ -342,7 +342,7 @@ void print_state_summary(PortList *Ports, unsigned short type) {
 		currentr  = currentr->next;
 	}
 	if(type == STATE_REASON_FULL)
-		log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "\n");
+		log_write(LOG_PLAIN, "\n");
 	state_reason_summary_dinit(reason_head);
 }
 

@@ -120,7 +120,6 @@
 
 #define MAX_TTL 50
 
-#define LOG_PLAIN LOG_NORMAL|LOG_SKID|LOG_STDOUT
 #define HOP_COL 0
 #define RTT_COL 1
 #define HOST_COL 2

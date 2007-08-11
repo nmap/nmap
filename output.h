@@ -117,6 +117,8 @@
 #define LOG_SKID_NOXLT 4096
 #define LOG_MAX LOG_SKID_NOXLT /* The maximum log type value */
 
+#define LOG_PLAIN LOG_NORMAL|LOG_SKID|LOG_STDOUT
+
 #define LOG_NAMES {"normal", "machine", "$Cr!pT |<!dd!3", "XML"}
 
 #include "portlist.h"

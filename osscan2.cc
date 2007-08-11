@@ -1945,7 +1945,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
     }
   }
   else {
-    log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID,
+    log_write(LOG_PLAIN,
 			  "Insufficient responses for TCP sequencing (%d), OS detection may be less accurate\n", hss->si.responses);
   }
 }
@@ -2901,7 +2901,7 @@ OsScanInfo::OsScanInfo(vector<Target *> &Targets) {
          Targets[targetno]->ports.getStateCounts(IPPROTO_TCP, PORT_UNFILTERED) == 0)) {
       if (o.osscan_limit) {
         if (o.verbose)
-          log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID, "Skipping OS Scan against %s due to absence of open (or perhaps closed) ports\n", Targets[targetno]->NameIP());
+          log_write(LOG_PLAIN, "Skipping OS Scan against %s due to absence of open (or perhaps closed) ports\n", Targets[targetno]->NameIP());
         continue;
       } else {   
         Targets[targetno]->osscanSetFlag(OS_PERF_UNREL);
