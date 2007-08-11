@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Relocated OSScan warning message (could not find 1 closed and 1 open
+  port). Now output.cc prints the warning along with a targets OSScan 
+  results. [Eddie]
+
 o Fixed a bug which caused port 0 to be improperly used for gen1 OS
   detection in some cases when your scan includes port 0 (it isn't
   included by default).  Thanks to Sebastian Wolfgarten for the report

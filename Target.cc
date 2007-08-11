@@ -122,7 +122,7 @@ void Target::Initialize() {
   distance = -1;
   FPR1 = NULL;
   FPR = NULL;
-  osscan_performed = 0;
+  osscan_flag = OS_NOTPERF;
   wierd_responses = flags = 0;
   memset(&to, 0, sizeof(to));
   memset(&targetsock, 0, sizeof(targetsock));
@@ -443,3 +443,15 @@ const u8 *Target::SrcMACAddress() {
 const u8 *Target::NextHopMACAddress() {
   return (NextHopMACaddress_set)? NextHopMACaddress : NULL;
 }
+
+int Target::osscanPerformed(void) {
+	return osscan_flag;
+}
+
+void Target::osscanSetFlag(int flag) {
+	if(osscan_flag == OS_PERF_UNREL)
+		return;
+	else
+		osscan_flag = flag;
+}
+

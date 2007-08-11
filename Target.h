@@ -112,6 +112,10 @@
 #define INET6_ADDRSTRLEN 46
 #endif
 
+enum osscan_flags {
+	OS_NOTPERF=0, OS_PERF, OS_PERF_UNREL
+};
+
 struct host_timeout_nfo {
   unsigned long msecs_used; /* How many msecs has this Target used? */
   bool toclock_running; /* Is the clock running right now? */
@@ -220,11 +224,13 @@ class Target {
   const char *deviceName();
   const char *deviceFullName();
 
+  int osscanPerformed(void);
+  void osscanSetFlag(int flag);
+
   struct seq_info seq;
   int distance;
   FingerPrintResults *FPR1; /* FP results get by the old OS scan system. */
   FingerPrintResults *FPR; /* FP results get by the new OS scan system. */
-  int osscan_performed; /* nonzero if an osscan was performed */
   PortList ports;
 
   // unsigned int up;
@@ -253,6 +259,10 @@ class Target {
   devtype interface_type;
   char devname[32];
 	char devfullname[32];
+  /* 0 (OS_NOTPERF) if os detection not performed
+   * 1 (OS_PERF) if os detection performed 
+   * 2 (OS_PERF_UNREL) if an unreliable os detection has been performed */
+  int osscan_flag; 
 };
 
 #endif /* TARGET_H */

@@ -195,7 +195,7 @@ void set_hostinfo(lua_State* l, Target *currenths) {
 	 * result, we will use it in the scripts
 	 * matches which aren't perfect are not needed in the scripts
 	 */
-	if(	currenths->osscan_performed &&
+	if(	currenths->osscanPerformed() &&
 		FPR != NULL &&
 		FPR->overall_results == OSSCAN_SUCCESS &&
 		FPR->num_perfect_matches > 0 &&

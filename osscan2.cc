@@ -2852,7 +2852,7 @@ HostOsScanInfo::HostOsScanInfo(Target *t, OsScanInfo *OsSI) {
 
   if (target->FPR == NULL)
     target->FPR = new FingerPrintResults;
-  target->osscan_performed = 1;
+  target->osscanSetFlag(OS_PERF);
   
   hss = new HostOsScanStats(t);
 }
@@ -2898,7 +2898,7 @@ OsScanInfo::OsScanInfo(vector<Target *> &Targets) {
           log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID, "Skipping OS Scan against %s due to absence of open (or perhaps closed) ports\n", Targets[targetno]->NameIP());
         continue;
       } else {   
-        log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID,"Warning:  OS detection for %s will be MUCH less reliable because we did not find at least 1 open and 1 closed TCP port\n", Targets[targetno]->targetipstr());
+        Targets[targetno]->osscanSetFlag(OS_PERF_UNREL);
       }
     }
 

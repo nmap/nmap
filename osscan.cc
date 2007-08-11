@@ -560,7 +560,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
   snprintf(filter, sizeof(filter), "dst host %s and (icmp or (tcp and src host %s))", inet_ntoa(target->v4source()), target->targetipstr());
  
   set_pcap_filter(target->deviceName(), pd, filter);
-  target->osscan_performed = 1; /* Let Nmap know that we did try an OS scan */
+  target->osscanSetFlag(OS_PERF); /* Let Nmap know that we did try an OS scan */
 
   /* Lets find an open port to use */
   openport = (unsigned long) -1;
@@ -1506,7 +1506,7 @@ o.current_scantype = OS_SCAN;
        log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID, "Skipping OS Scan due to absence of open (or perhaps closed) ports\n");
      return 1;
    } else {   
-     log_write(LOG_STDOUT|LOG_NORMAL|LOG_SKID,"Warning:  OS detection will be MUCH less reliable because we did not find at least 1 open and 1 closed TCP port\n");
+     target->osscanSetFlag(OS_PERF_UNREL);
    }
  }
 

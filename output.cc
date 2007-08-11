@@ -1337,10 +1337,11 @@ void printosscanoutput(Target *currenths) {
   FingerPrintResults *FPR;
   int osscanSys = 0;
   int distance = -1;
+  int osscan_flag;
   
-  if (!currenths->osscan_performed)
+  if (!(osscan_flag = currenths->osscanPerformed()))
     return;
-  
+   
   if (currenths->FPR == NULL && currenths->FPR1 == NULL) {
     return;
   } else if (currenths->FPR != NULL && currenths->FPR1 == NULL) {
@@ -1387,7 +1388,12 @@ void printosscanoutput(Target *currenths) {
 	      "<portused state=\"closed\" proto=\"udp\" portid=\"%hu\" />\n",
 	      FPR->osscan_closedudpport);
   }
-  
+
+  if(osscan_flag == OS_PERF_UNREL && 
+     !(FPR->overall_results == OSSCAN_TOOMANYMATCHES ||
+     (FPR->num_perfect_matches > 8 && !o.debugging)))
+	log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port\n");
+
   // If the FP can't be submitted anyway, might as well make a guess.
   const char *reason = FPR->OmitSubmissionFP();
   printosclassificationoutput(FPR->getOSClassification(), 
