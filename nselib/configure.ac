@@ -15,6 +15,9 @@ AC_SUBST(LIBTOOL_DEPS)
 
 AC_CANONICAL_HOST
 
+# needed for lua-includes
+AC_CHECK_HEADER([lua.h],,[AC_MSG_NOTICE(using lua-includefiles provided with nmap);[LUAINCLUDE=-I../liblua/]],)
+AC_SUBST(LUAINCLUDE)
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

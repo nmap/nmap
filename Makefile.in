@@ -53,6 +53,7 @@ TARGET = nmap
 TARGETNMAPFE=@TARGETNMAPFE@
 INSTALLNMAPFE=@INSTALLNMAPFE@
 INSTALLNSE=@INSTALLNSE@
+INSTALLUMIT=@INSTALLUMIT@
 
 ifneq (@LIBLUA_LIBS@,)
 NSE_SRC=nse_main.cc nse_auxiliar.cc nse_nsock.cc nse_init.cc nse_nmaplib.cc nse_debug.cc nse_pcrelib.cc nse_string.cc 
@@ -103,7 +104,7 @@ $(NSOCKDIR)/src/libnsock.a: $(NSOCKDIR)/src/Makefile FORCE
 	cd $(NSOCKDIR)/src && $(MAKE)
 
 $(LIBLUADIR)/liblua.a: $(LIBLUADIR)/Makefile FORCE
-	@echo Compiling liblua; cd $(LIBLUADIR) && $(MAKE) @LUAFLAVOR@
+	@echo Compiling liblua; cd $(LIBLUADIR) && $(MAKE) liblua.a @LUAFLAGS@
 
 #$(LIBPCAPDIR)/Makefile:
 #	@echo Configuring libpcap; cd $(LIBPCAPDIR); ./configure
@@ -197,6 +198,9 @@ install-nmapfe: $(TARGETNMAPFE)
 	@echo "If the next command fails -- you cannot use the X front end"
 	-test -f nmapfe/nmapfe && $(INSTALL) -c -m 755 -s nmapfe/nmapfe $(DESTDIR)$(bindir)/nmapfe && rm -f $(DESTDIR)$(bindir)/xnmap && $(SHTOOL) mkln -f -s $(DESTDIR)$(bindir)/nmapfe $(DESTDIR)$(bindir)/xnmap && $(INSTALL) -c -m 644 nmapfe.desktop $(DESTDIR)$(deskdir)/nmapfe.desktop && $(INSTALL) -c -m 644 docs/nmapfe.1 $(DESTDIR)$(mandir)/man1/nmapfe.1 && $(INSTALL) -c -m 644 docs/xnmap.1 $(DESTDIR)$(mandir)/man1/xnmap.1
 
+install-umit: umit/setup.py
+	cd umit && python setup.py install --prefix $(DESTDIR)$(prefix)
+
 NSE_FILES = scripts/script.db scripts/*.nse
 NSE_LIB_FILES = nselib/*lua nselib/*so
 install-nse: $(TARGET)
@@ -205,7 +209,8 @@ install-nse: $(TARGET)
 	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(nmapdatadir)/nselib
 	cp -f $(NSE_LIB_FILES) $(DESTDIR)$(nmapdatadir)/nselib
 
-install: install-nmap $(INSTALLNMAPFE) $(INSTALLNSE)
+install: install-nmap $(INSTALLNMAPFE) $(INSTALLNSE) $(INSTALLUMIT)
+	@echo "NMAP SUCCESSFULLY INSTALLED"
 
 uninstall:
 	rm -f $(bindir)/$(TARGET) $(bindir)/nmapfe $(bindir)/xnmap

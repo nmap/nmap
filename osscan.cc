@@ -120,6 +120,8 @@
 # endif
 #endif
 
+#include <list>
+
 extern NmapOps o;
 
 /* Note that a sport of 0 really will (try to) use zero as the source

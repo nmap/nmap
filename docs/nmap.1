@@ -2,7 +2,7 @@
 .\" It was generated using the DocBook XSL Stylesheets (version 1.69.1).
 .\" Instead of manually editing it, you probably should edit the DocBook XML
 .\" source for it and then use the DocBook XSL Stylesheets to regenerate it.
-.TH "NMAP" "1" "07/04/2007" "" "Nmap Reference Guide"
+.TH "NMAP" "1" "07/07/2007" "" "Nmap Reference Guide"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -40,9 +40,9 @@ In addition to the interesting ports table, Nmap can provide further information
 .PP
 A typical Nmap scan is shown in
 Example\ 14.1, \(lqA representative Nmap scan\(rq. The only Nmap arguments used in this example are
-\fB\-A\fR, to enable OS and version detection,
+\fB\-A\fR, to enable OS and version detection, script scanning, and traceroute;
 \fB\-T4\fR
-for faster execution, and then the two target hostnames.
+for faster execution; and then the two target hostnames.
 Example\ 14.1.\ A representative Nmap scan.sp
 .nf
 # nmap \-A \-T4 scanme.nmap.org playground
@@ -118,7 +118,6 @@ SCAN TECHNIQUES:
   \-sO: IP protocol scan
   \-b <ftp relay host>: FTP bounce scan
   \-\-traceroute: Trace hop path to each host
-  \-\-reason: Display the reason a port is in a particular state
 PORT SPECIFICATION AND SCAN ORDER:
   \-p <port ranges>: Only scan specified ports
     Ex: \-p22; \-p1\-65535; \-p U:53,111,137,T:21\-25,80,139,8080
@@ -180,7 +179,7 @@ OUTPUT:
   \-\-no\-stylesheet: Prevent associating of XSL stylesheet w/XML output
 MISC:
   \-6: Enable IPv6 scanning
-  \-A: Enables OS detection, Version detection, Script scanning and Traceroute
+  \-A: Enables OS detection and Version detection
   \-\-datadir <dirname>: Specify custom Nmap data file location
   \-\-send\-eth/\-\-send\-ip: Send using raw ethernet frames or IP packets
   \-\-privileged: Assume that the user is fully privileged
@@ -383,7 +382,7 @@ Traceroutes are performed post\-scan using information from the scan results to 
 Traceroute works by sending packets with a low TTL (time\-to\-live) in an attempt to illicit ICMP TTL_EXCCEDED messages from intermediate hops between the scanner and the target host. Standard traceroute implementation start with a TTL of 1 and increment the TTL until the destination host is reached. Nmap's traceroute starts with a high TTL and then decrements the TTL until it reaches 0. Doing it backwards lets nmap employ clever caching algorithms to speed up traces over multiple hosts. On average nmap sends 5\-10 fewer packets per host, depending on network conditions. If a single subnet is being scanned (i.e. 192.168.0.0/24) nmap may only have to send a single packet to most hosts.
 .TP
 \fB\-\-reason\fR (Host and port state reasons)
-Shows the reason each port is set to a specific state and the reason each host is up or down. This option displays the type of the packet that determined a port or hosts state. For example, A RST packet from a closed port or an echo reply from an alive host. The information nmap can provide is determined by the type of scan or ping. The SYN scan and SYN ping (\fB\-sS and -PT\fR) are very detailed. Whilst the TCP connect scan and ping (\fB\-sT\fR) are limited by the implementation of connect(). This feature is automatically enabled by the debug flag (\fB\-d\fR) and the results are stored in XML log files even if this option is not specified.
+Shows the reason each port is set to a specific state and the reason each host is up or down. This option displays the type of the packet that determined a port or hosts state. For example, A RST packet from a closed port or an echo reply from an alive host. The information nmap can provide is determined by the type of scan or ping. The SYN scan and SYN ping (\fB\\\-sS and \-PT\fR) are very detailed. Whilst the TCP connect scan and ping (\fB\\\-sT\fR) are limited by the implementation of connect(). This feature is automatically enabled by the debug flag (\fB\\\-d\fR) and the results are stored in XML log files even if this option is not specified.
 .TP
 \fB\-n\fR (No DNS resolution)
 Tells Nmap to
@@ -664,6 +663,15 @@ and at least one TCP scan type (such as
 \fB\-sS\fR,
 \fB\-sF\fR, or
 \fB\-sT\fR). If no protocol qualifier is given, the port numbers are added to all protocol lists.
+Ports can also be specified by name according to what the port is referred to in the
+\fInmap\-services\fR. You can even use the wildcards * and ? with the names. For example, to scan ftp and all ports whose names begin with http, use
+\fB\-p ftp,http*\fR. Be careful about shell expansions and quote the argument to \-p if unsure.
+.sp
+Ranges of ports can be surrounded by square brackets to indicate ports inside that range that appear in
+\fInmap\-services\fR. For example, the following will scan all ports in
+\fInmap\-services\fR
+equal to or below 1024:
+\fB\-p [\-1024]\fR. Be careful with shell expansions and quote the argument to \-p if unsure.
 .TP
 \fB\-F\fR (Fast (limited port) scan)
 Specifies that you only wish to scan for ports listed in the
@@ -681,6 +689,20 @@ options.
 By default, Nmap randomizes the scanned port order (except that certain commonly accessible ports are moved near the beginning for efficiency reasons). This randomization is normally desirable, but you can specify
 \fB\-r\fR
 for sequential port scanning instead.
+.TP
+\fB\-\-port\-ratio <decimal number between 0 and 1>\fR
+Scans all ports in
+\fInmap\-services\fR
+file with a ratio greater than the number specified as the argument. (new format
+\fInmap\-services\fR
+only.)
+.TP
+\fB\-\-top\-ports <integer of 1 or greater>\fR
+Scans the N highest\-ratio ports found in
+\fInmap\-services\fR
+file. (new format
+\fInmap\-services\fR
+only.)
 .SH "SERVICE AND VERSION DETECTION"
 .PP
 Point Nmap at a remote machine and it might tell you that ports 25/tcp, 80/tcp, and 53/udp are open. Using its
@@ -706,8 +728,7 @@ Version detection is enabled and controlled with the following options:
 .TP
 \fB\-sV\fR (Version detection)
 Enables version detection, as discussed above. Alternatively, you can use
-\fB\-A\fR
-to enable both OS detection and version detection.
+\fB\-A\fR, which enables version detection among other things.
 .TP
 \fB\-\-allports\fR (Don't exclude any ports from version detection)
 By default, Nmap version detection skips TCP port 9100 because some printers simply print anything sent to that port, leading to dozens of pages of HTTP get requests, binary SSL session requests, etc. This behavior can be changed by modifying or removing the
@@ -766,7 +787,7 @@ OS detection is enabled and controlled with the following options:
 \fB\-O\fR (Enable OS detection)
 Enables OS detection, as discussed above. Alternatively, you can use
 \fB\-A\fR
-to enable both OS detection and version detection. 2nd generation OS detection is tried first. If that fails, Nmap will either print out the host fingerprint and ask you to submit it (if you are certain about what the target host is running), or Nmap will fall back to the 1st generation OS detection system in case its larger database has a match.
+to enable OS detection along with other things. 2nd generation OS detection is tried first. If that fails, Nmap will either print out the host fingerprint and ask you to submit it (if you are certain about what the target host is running), or Nmap will fall back to the 1st generation OS detection system in case its larger database has a match.
 .TP
 \fB\-O2\fR (2nd Generation OS Detection Only)
 Enables 2nd generation OS detection, but never falls back to the old (1st generation) system, even if it fails to find any match. This saves time and can reduce the number of packets sent to each target.

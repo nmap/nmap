@@ -1,16 +1,10 @@
 PLATFORM=@host@
 
-#ugly hack to get the includes right
-ifeq ($(LIBLUA_LIBS),$(LIBLUADIR)/liblua.a)
-LIBLUA_INCLUDE= -I../$(LIBLUADIR)
-endif
-LIBSUFFIX=@LIBSUFFIX@
 CC = @CC@
 CXX = @CXX@
 CCOPT = 
 DBGFLAGS = 
 
-# LIBPCREDIR = @LIBPCREDIR@
 
 SHTOOL = ../shtool
 INSTALL = $(SHTOOL) install 
@@ -21,7 +15,7 @@ LTFLAGS = --tag=CC --silent
 all: bit.so
 
 bit.so: bit.c @LIBTOOL_DEPS@
-	$(LIBTOOL) $(LTFLAGS) --mode=compile $(CC) $(LIBLUA_INCLUDE) $(CFLAGS) -c bit.c
+	$(LIBTOOL) $(LTFLAGS) --mode=compile $(CC) @LUAINCLUDE@ $(CFLAGS) -c bit.c
 	$(LIBTOOL) $(LTFLAGS) --mode=link $(CC) -avoid-version -module -rpath /usr/local/lib -o bit.la bit.lo
 	mv .libs/bit.so bit.so
 

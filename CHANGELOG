@@ -2,8 +2,13 @@
 
 4.22SOC1
 
-o Upgraded from WinPcap 4.0 to WinPcap 4.01 and fixed a versioning
-  error [Eddie]
+o The UMIT graphical Nmap frontend is now included (as an ALPHA TEST
+  release) with the Nmap tarball distribution.  It isn't yet in the
+  RPMs or the Windows distributions.  UMIT is written with Python/GTK
+  and has many huge advantages over NmapFE.  It installs from the Nmap
+  source tarballs as part of the "make install" process unless you
+  specify --without-umit to configure.  Please give UMIT a try (the
+  executable is named umit) and let us know the results!
 
 o The port selection mechanism was overhauled.  Nmap now knows
   (roughly) how common various services are, so you can specify
@@ -62,7 +67,8 @@ o The build dependencies were dramatically reduced by removing
   This should make Nmap compilation faster and prevent some
   portability problems. [David Fifield]
 
-o Upgraded from WinPcap 3.1 to WinPcap 4.0 [Eddie]
+o Upgraded from WinPcap 3.1 to WinPcap 4.01 and fixed a pcap installer
+  error. [Eddie]
 
 o In verbose mode, Nmap now reports where it obtains data files (such as
   nmap-services) from. [David Fifield]
@@ -111,6 +117,8 @@ o Nmap now provides more consise OS fingerprints for submission thanks
 o A number of changes were made to the Windows build system to handle
   version numbers, publisher field, add/remove program support,
   etc. [Eddie]
+
+o The Nmap -A option now enables the traceroute option too [Eddie]
 
 o Improved how the Gen1 OS Detection system selects which UDP ports to
   send probes to.  [Kris]

@@ -673,12 +673,13 @@ host
 host_cpu
 host_vendor
 host_os
-LUAFLAVOR
+LUAFLAGS
 CPP
 GREP
 EGREP
 TARGETNMAPFE
 INSTALLNMAPFE
+INSTALLUMIT
 OPENSSL_LIBS
 PCAP_DEPENDS
 PCAP_CLEAN
@@ -1300,7 +1301,8 @@ Optional Packages:
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-localdirs        Explicitly ask compiler to use
                           /usr/local/{include,libs} if they exist
-  --without-nmapfe        skip nmapfe X-window GUI
+  --without-nmapfe        Skip nmapfe X-window GUI
+  --without-umit          Skip installation of the UMIT graphical frontend
   --with-openssl=DIR      Use optional openssl libs and includes from
                           DIR/lib/ and DIR/include/openssl/)
   --with-libpcap=DIR      Look for pcap in DIR/include and DIR/libs.
@@ -3408,14 +3410,14 @@ case "$host" in
 #define DEC 1
 _ACEOF
 
-	LUAFLAVOR=posix
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-netbsd* | *-knetbsd*-gnu)
     cat >>confdefs.h <<\_ACEOF
 #define NETBSD 1
 _ACEOF
 
-	LUAFLAVOR=bsd
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
 	LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-openbsd*)
@@ -3423,7 +3425,7 @@ _ACEOF
 #define OPENBSD 1
 _ACEOF
 
-	LUAFLAVOR=bsd
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
 	LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-sgi-irix5*)
@@ -3433,8 +3435,8 @@ _ACEOF
 
     if test -z "$GCC"; then
       sgi_cc=yes
-	LUAFLAVOR=posix
     fi
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-sgi-irix6*)
     cat >>confdefs.h <<\_ACEOF
@@ -3444,7 +3446,7 @@ _ACEOF
     if test -z "$GCC"; then
       sgi_cc=yes
     fi
-	LUAFLAVOR=posix
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-hpux*)
     cat >>confdefs.h <<\_ACEOF
@@ -3524,7 +3526,7 @@ _ACEOF
 
 fi
 
-	LUAFLAVOR=posix
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-solaris2.0*)
     cat >>confdefs.h <<\_ACEOF
@@ -3535,14 +3537,14 @@ _ACEOF
 #define SOLARIS 1
 _ACEOF
 
-	LUAFLAVOR=solaris
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-solaris2.[1-9][0-9]*)
     cat >>confdefs.h <<\_ACEOF
 #define SOLARIS 1
 _ACEOF
 
-	LUAFLAVOR=solaris
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-solaris2.1*)
     cat >>confdefs.h <<\_ACEOF
@@ -3553,7 +3555,7 @@ _ACEOF
 #define SOLARIS 1
 _ACEOF
 
-	LUAFLAVOR=solaris
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-solaris2.2*)
     cat >>confdefs.h <<\_ACEOF
@@ -3564,7 +3566,7 @@ _ACEOF
 #define SOLARIS 1
 _ACEOF
 
-	LUAFLAVOR=solaris
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-solaris2.3*)
     cat >>confdefs.h <<\_ACEOF
@@ -3575,7 +3577,7 @@ _ACEOF
 #define SOLARIS 1
 _ACEOF
 
-	LUAFLAVOR=solaris
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-solaris2.4*)
     cat >>confdefs.h <<\_ACEOF
@@ -3586,7 +3588,7 @@ _ACEOF
 #define SOLARIS 1
 _ACEOF
 
-	LUAFLAVOR=solaris
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-solaris2.5.1)
     cat >>confdefs.h <<\_ACEOF
@@ -3597,14 +3599,14 @@ _ACEOF
 #define SOLARIS 1
 _ACEOF
 
-	LUAFLAVOR=solaris
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-solaris*)
     cat >>confdefs.h <<\_ACEOF
 #define SOLARIS 1
 _ACEOF
 
-	LUAFLAVOR=solaris
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-sunos4*)
     cat >>confdefs.h <<\_ACEOF
@@ -3615,7 +3617,7 @@ _ACEOF
 #define SPRINTF_RETURNS_STRING 1
 _ACEOF
 
-	LUAFLAVOR=solaris
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-linux*)
     linux=yes
@@ -3628,7 +3630,7 @@ _ACEOF
 _ACEOF
   # libpcap doesn't even LOOK at
                                      # the timeout you give it under Linux
-	LUAFLAVOR=linux
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
 	LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*)
@@ -3636,7 +3638,7 @@ _ACEOF
 #define FREEBSD 1
 _ACEOF
 
-	LUAFLAVOR=bsd
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
 	LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-bsdi*)
@@ -3645,7 +3647,7 @@ _ACEOF
 _ACEOF
 
 	LUAFLAVOR=bsd
-	LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-apple-darwin*)
     macosx=yes
@@ -3654,10 +3656,10 @@ _ACEOF
 _ACEOF
 
     needs_cpp_precomp=yes
-	LUAFLAVOR=macosx
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_MACOSX\""
     ;;
   *)
-  	LUAFLAVOR=posix
+	LUAFLAGS=MYCFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN"
 esac
 
 
@@ -5426,7 +5428,23 @@ fi
 
 
 
-# First we test whether they specified openssl desires explicitly
+# Do they want UMIT?
+INSTALLUMIT=install-umit
+
+# Check whether --with-umit was given.
+if test "${with_umit+set}" = set; then
+  withval=$with_umit;  case "$with_umit" in
+   no)
+    INSTALLUMIT=""
+    ;;
+   esac
+
+fi
+
+
+
+
+# We test whether they specified openssl desires explicitly
 use_openssl="yes"
 specialssldir=""
 
@@ -7067,6 +7085,7 @@ if test "${with_liblua+set}" = set; then
     LUA_DEPENDS="$LIBLUADIR/liblua.a"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
+	have_lua="yes"
 
   ;;
   no)
@@ -9593,12 +9612,13 @@ host!$host$ac_delim
 host_cpu!$host_cpu$ac_delim
 host_vendor!$host_vendor$ac_delim
 host_os!$host_os$ac_delim
-LUAFLAVOR!$LUAFLAVOR$ac_delim
+LUAFLAGS!$LUAFLAGS$ac_delim
 CPP!$CPP$ac_delim
 GREP!$GREP$ac_delim
 EGREP!$EGREP$ac_delim
 TARGETNMAPFE!$TARGETNMAPFE$ac_delim
 INSTALLNMAPFE!$INSTALLNMAPFE$ac_delim
+INSTALLUMIT!$INSTALLUMIT$ac_delim
 OPENSSL_LIBS!$OPENSSL_LIBS$ac_delim
 PCAP_DEPENDS!$PCAP_DEPENDS$ac_delim
 PCAP_CLEAN!$PCAP_CLEAN$ac_delim
@@ -9629,7 +9649,6 @@ NSOCKDIR!$NSOCKDIR$ac_delim
 LIBNSOCK_LIBS!$LIBNSOCK_LIBS$ac_delim
 GTK_CONFIG!$GTK_CONFIG$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim
-LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -9664,6 +9683,50 @@ N; s/^.*\n//; s/[,\\&]/\\&/g; s/@/@|#_!!_#|/g; b n
 ' >>$CONFIG_STATUS <conf$$subs.sed
 rm -f conf$$subs.sed
 cat >>$CONFIG_STATUS <<_ACEOF
+CEOF$ac_eof
+_ACEOF
+
+
+ac_delim='%!_!# '
+for ac_last_try in false false false false false :; do
+  cat >conf$$subs.sed <<_ACEOF
+LTLIBOBJS!$LTLIBOBJS$ac_delim
+_ACEOF
+
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 1; then
+    break
+  elif $ac_last_try; then
+    { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
+echo "$as_me: error: could not make $CONFIG_STATUS" >&2;}
+   { (exit 1); exit 1; }; }
+  else
+    ac_delim="$ac_delim!$ac_delim _$ac_delim!! "
+  fi
+done
+
+ac_eof=`sed -n '/^CEOF[0-9]*$/s/CEOF/0/p' conf$$subs.sed`
+if test -n "$ac_eof"; then
+  ac_eof=`echo "$ac_eof" | sort -nru | sed 1q`
+  ac_eof=`expr $ac_eof + 1`
+fi
+
+cat >>$CONFIG_STATUS <<_ACEOF
+cat >"\$tmp/subs-2.sed" <<\CEOF$ac_eof
+/@[a-zA-Z_][a-zA-Z_0-9]*@/!b end
+_ACEOF
+sed '
+s/[,\\&]/\\&/g; s/@/@|#_!!_#|/g
+s/^/s,@/; s/!/@,|#_!!_#|/
+:n
+t n
+s/'"$ac_delim"'$/,g/; t
+s/$/\\/; p
+N; s/^.*\n//; s/[,\\&]/\\&/g; s/@/@|#_!!_#|/g; b n
+' >>$CONFIG_STATUS <conf$$subs.sed
+rm -f conf$$subs.sed
+cat >>$CONFIG_STATUS <<_ACEOF
+:end
+s/|#_!!_#|//g
 CEOF$ac_eof
 _ACEOF
 
@@ -9906,7 +9969,7 @@ s&@builddir@&$ac_builddir&;t t
 s&@abs_builddir@&$ac_abs_builddir&;t t
 s&@abs_top_builddir@&$ac_abs_top_builddir&;t t
 $ac_datarootdir_hack
-" $ac_file_inputs | sed -f "$tmp/subs-1.sed" | sed 's/|#_!!_#|//g' >$tmp/out
+" $ac_file_inputs | sed -f "$tmp/subs-1.sed" | sed -f "$tmp/subs-2.sed" >$tmp/out
 
 test -z "$ac_datarootdir_hack$ac_datarootdir_seen" &&
   { ac_out=`sed -n '/\${datarootdir}/p' "$tmp/out"`; test -n "$ac_out"; } &&

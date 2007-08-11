@@ -399,18 +399,18 @@ static int l_set_port_version(lua_State* l, Target* target, Port* port) {
 }
 
 static int l_print_debug_unformatted(lua_State *l) {
-	int verbosity=1, stack_counter(1);
-	const char *out;
-
-	if (lua_gettop(l) != 2) return luaL_error(l, "Incorrect number of arguments\n");
-
-	verbosity = luaL_checkinteger(l, 1);
-	if (verbosity > o.verbose) return 0;
-	out = luaL_checkstring(l, 2);
-
-	log_write(LOG_STDOUT, "%s DEBUG: %s\n", SCRIPT_ENGINE, out);
-
-	return 0;
+  int verbosity=1;
+  const char *out;
+  
+  if (lua_gettop(l) != 2) return luaL_error(l, "Incorrect number of arguments\n");
+  
+  verbosity = luaL_checkinteger(l, 1);
+  if (verbosity > o.verbose) return 0;
+  out = luaL_checkstring(l, 2);
+  
+  log_write(LOG_STDOUT, "%s DEBUG: %s\n", SCRIPT_ENGINE, out);
+  
+  return 0;
 }
 
 static int l_exc_finalize(lua_State *l) {

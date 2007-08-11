@@ -136,111 +136,111 @@ needs_cpp_precomp=no
 case "$host" in
   *alpha-dec-osf*)
     AC_DEFINE(DEC)
-	LUAFLAVOR=posix
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-netbsd* | *-knetbsd*-gnu)
     AC_DEFINE(NETBSD)
-	LUAFLAVOR=bsd
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
 	LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-openbsd*)
     AC_DEFINE(OPENBSD)
-	LUAFLAVOR=bsd
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
 	LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-sgi-irix5*)
     AC_DEFINE(IRIX)
     if test -z "$GCC"; then
       sgi_cc=yes
-	LUAFLAVOR=posix
     fi
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-sgi-irix6*)
     AC_DEFINE(IRIX)
     if test -z "$GCC"; then
       sgi_cc=yes
     fi
-	LUAFLAVOR=posix
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-hpux*)
     AC_DEFINE(HPUX)
     # To link with libnet and NM (/usr/lib/libnm.sl) library
     # on HP-UX 11.11 (other versions?) Mikhail Zakharov (zmey20000@yahoo.com)
     AC_CHECK_LIB(nm, open_mib)
-	LUAFLAVOR=posix
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-solaris2.0*)  
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
-	LUAFLAVOR=solaris
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-solaris2.[[1-9]][[0-9]]*)
     AC_DEFINE(SOLARIS)
-	LUAFLAVOR=solaris
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-solaris2.1*)
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
-	LUAFLAVOR=solaris
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-solaris2.2*)
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
-	LUAFLAVOR=solaris
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-solaris2.3*)
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
-	LUAFLAVOR=solaris
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-solaris2.4*)
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
-	LUAFLAVOR=solaris
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-solaris2.5.1)
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
-	LUAFLAVOR=solaris
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-solaris*)
     AC_DEFINE(SOLARIS)
-	LUAFLAVOR=solaris
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-sunos4*)
     AC_DEFINE(SUNOS)
     AC_DEFINE(SPRINTF_RETURNS_STRING)
-	LUAFLAVOR=solaris
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-linux*)
     linux=yes
     AC_DEFINE(LINUX)
     AC_DEFINE(PCAP_TIMEOUT_IGNORED)  # libpcap doesn't even LOOK at
                                      # the timeout you give it under Linux
-	LUAFLAVOR=linux
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
 	LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*)
     AC_DEFINE(FREEBSD)
-	LUAFLAVOR=bsd
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
 	LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-bsdi*)
     AC_DEFINE(BSDI)
 	LUAFLAVOR=bsd
-	LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-apple-darwin*)
     macosx=yes
     AC_DEFINE(MACOSX)
     needs_cpp_precomp=yes
-	LUAFLAVOR=macosx
+	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_MACOSX\""
     ;;
   *)
-  	LUAFLAVOR=posix
+	LUAFLAGS=MYCFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN"
 esac
 
-AC_SUBST(LUAFLAVOR)
+AC_SUBST(LUAFLAGS)
 AC_SEARCH_LIBS(dlopen, dl)
 
 dnl equiv to '#define inline' to 'inline', '__inline__', '__inline' or ''
@@ -300,7 +300,7 @@ test "${with_nmapfe+set}" != "set" && with_nmapfe=yes
  
 TARGETNMAPFE=nmapfe/nmapfe
 INSTALLNMAPFE=install-nmapfe
-AC_ARG_WITH(nmapfe, AC_HELP_STRING([--without-nmapfe], [skip nmapfe X-window GUI]),
+AC_ARG_WITH(nmapfe, AC_HELP_STRING([--without-nmapfe], [Skip nmapfe X-window GUI]),
  [  case "$with_nmapfe" in
   no)
     TARGETNMAPFE=""; INSTALLNMAPFE=""
@@ -310,7 +310,19 @@ AC_ARG_WITH(nmapfe, AC_HELP_STRING([--without-nmapfe], [skip nmapfe X-window GUI
 AC_SUBST(TARGETNMAPFE)
 AC_SUBST(INSTALLNMAPFE)
 
-# First we test whether they specified openssl desires explicitly
+# Do they want UMIT?
+INSTALLUMIT=install-umit
+AC_ARG_WITH(umit, AC_HELP_STRING([--without-umit], [Skip installation of the UMIT graphical frontend]),
+ [ case "$with_umit" in
+   no)
+    INSTALLUMIT=""
+    ;;
+   esac]
+)
+AC_SUBST(INSTALLUMIT)
+
+
+# We test whether they specified openssl desires explicitly
 use_openssl="yes"
 specialssldir=""
 
@@ -589,6 +601,7 @@ AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all o
     LUA_DEPENDS="$LIBLUADIR/liblua.a"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
+	have_lua="yes"
 	
   ;;
   no)

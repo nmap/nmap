@@ -55,7 +55,7 @@ be installed before installing nmap-frontend.
 %build
 export CFLAGS="$RPM_OPT_FLAGS"
 export CXXFLAGS="$RPM_OPT_FLAGS"
-./configure --prefix=%{prefix} --mandir=%{prefix}/share/man --without-openssl
+./configure --prefix=%{prefix} --mandir=%{prefix}/share/man --without-openssl --without-umit
 %if "%{static}" == "1"
 make static
 %else

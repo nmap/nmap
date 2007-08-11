@@ -12,5 +12,3 @@
     /  /  _/ /    +                                      /              \/
    '  (__/                                             /                  \
              NMAP IS A POWERFUL TOOL -- USE CAREFULLY AND RESPONSIBLY
-              [ Sick of the Nmap dragon? Submit your art and tag ]
-              [ lines to nmap-dev@insecure.org for next release! ]

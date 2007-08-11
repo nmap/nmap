@@ -101,6 +101,8 @@
 
 #include "Target.h"
 
+#include <vector>
+
 /* Probe types */
 #define PROBE_TRACE 0
 #define PROBE_TTL 1
