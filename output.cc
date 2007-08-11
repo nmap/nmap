@@ -338,7 +338,10 @@ int print_iflist(void) {
 
     for(p_iface_iter = p_ifaces; p_iface_iter != NULL && i >= 0; i--) {
       Tbl->addItem(i+1, 0, false, iflist[i].devname);
-      Tbl->addItem(i+1, 1, false, p_iface_iter->name);
+      if(p_iface_iter->name == NULL)
+        Tbl->addItem(i+1, 1, false, "(null)");
+      else
+        Tbl->addItem(i+1, 1, false, p_iface_iter->name);
       p_iface_iter = p_iface_iter->next;
     }
 
