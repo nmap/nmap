@@ -147,7 +147,7 @@ static void state_reason_summary_dinit(state_reason_summary_t *r) {
 	while(r != NULL) {
 		tmp = r->next;
 		free(r);
-		r = r->next;
+		r = tmp;
 	}
 }
 
