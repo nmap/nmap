@@ -190,7 +190,7 @@ static const char *pspectype2ascii(int type) {
   case PS_ARP:
     return "ARP";
   default:
-    fatal("%s: Unknown type: %d", __FUNCTION__, type);
+    fatal("%s: Unknown type: %d", __func__, type);
   }
   return ""; // Unreached
 }
@@ -624,7 +624,7 @@ static char *probespec2ascii(probespec *pspec, char *buf, unsigned int bufsz) {
     snprintf(buf, bufsz, "ARP");
     break;
   default:
-    fatal("Unexpected probespec2ascii type encountered");
+    fatal("Unexpected %s type encountered", __func__);
     break;
   }
   return buf;  
@@ -675,7 +675,7 @@ void UltraProbe::setIP(u8 *ippacket, u32 iplen, const probespec *pspec) {
   type = UP_IP;
   if (ipv4->ip_v != 4)
     fatal("Bogus packet passed to %s -- only IPv4 packets allowed", 
-	  __FUNCTION__);
+	  __func__);
   assert(iplen >= 20);
   assert(iplen == (u32) ntohs(ipv4->ip_len));
   probes.IP.ipid = ntohs(ipv4->ip_id);
@@ -698,7 +698,7 @@ u32 UltraProbe::tcpseq() {
   if (mypspec.proto == IPPROTO_TCP)
     return probes.IP.pd.tcp.seq;
   else
-    fatal("Bogus seq number request to %s -- type is %s", __FUNCTION__, 
+    fatal("Bogus seq number request to %s -- type is %s", __func__, 
 	  pspectype2ascii(mypspec.type));
 
   return 0; // Unreached
@@ -852,7 +852,7 @@ static int scantype_no_response_means(stype scantype) {
   case PING_SCAN_ARP:
     return HOST_DOWN;
   default:
-    fatal("Unexpected scan type found in scantype_no_response_means()");
+    fatal("Unexpected scan type found in %s()", __func__);
   }
   return 0; /* Unreached */
 }
@@ -1214,7 +1214,7 @@ void UltraScanInfo::Init(vector<Target *> &Targets, struct scan_lists *pts, styp
     } else {
       /* Initialize a raw socket */
       if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
-	pfatal("socket troubles in UltraScanInfo::Init");
+	pfatal("socket troubles in %s", __func__);
       /* We do not wan't to unblock the socket since we want to wait 
 	 if kernel send buffers fill up rather than get ENOBUF, and
 	 we won't be receiving on the socket anyway 
@@ -1293,7 +1293,7 @@ HostScanStats *UltraScanInfo::findIncompleteHost(struct sockaddr_storage *ss) {
   struct sockaddr_in *sin = (struct sockaddr_in *) ss;
 
   if (sin->sin_family != AF_INET)
-    fatal("UltraScanInfo::findIncompleteHost passed a non IPv4 address");
+    fatal("%s passed a non IPv4 address", __func__);
 
   for(hss = incompleteHosts.begin(); hss != incompleteHosts.end(); hss++) {
     if ((*hss)->target->v4hostip()->s_addr == sin->sin_addr.s_addr)
@@ -1987,11 +1987,11 @@ static UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   CP = probe->CP();
   /* Initiate the connection */
   CP->sd = socket(o.af(), SOCK_STREAM, IPPROTO_TCP);
-  if (CP->sd == -1) pfatal("Socket creation in sendConnectScanProbe");
+  if (CP->sd == -1) pfatal("Socket creation in %s", __func__);
   unblock_socket(CP->sd);
   init_socket(CP->sd);
   if (hss->target->TargetSockAddr(&sock, &socklen) != 0) {
-    fatal("Failed to get target socket address in pos_scan");
+    fatal("Failed to get target socket address in %s", __func__);
   }
   if (sin->sin_family == AF_INET)
     sin->sin_port = htons(probe->pspec()->pd.tcp.dport);
@@ -2234,7 +2234,7 @@ static void sendNextScanProbe(UltraScanInfo *USI, HostScanStats *hss) {
   probespec pspec;
   
   if (get_next_target_probe(USI, hss, &pspec) == -1) {
-    fatal("sendNextScanProbe: No more probes! Error in Nmap.");
+    fatal("%s: No more probes! Error in Nmap.", __func__);
   }
   hss->numprobes_sent++;
   USI->gstats->probes_sent++;
@@ -2557,7 +2557,7 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
   gettimeofday(&USI->now, NULL);
   
   if (selectres == -1)
-    pfatal("select failed in do_one_select_round()");
+    pfatal("select failed in %s()", __func__);
   
   if (!selectres)
     return false;
@@ -3717,7 +3717,7 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
     return;
 
   if (scantype != RPC_SCAN)
-    fatal("pos_scan now handles only rpc scan");
+    fatal("%s now handles only rpc scan", __func__);
 
   if (target->ports.getStateCounts(PORT_OPEN) == 0 && 
       (o.servicescan || target->ports.getStateCounts(PORT_OPENFILTERED) == 0))

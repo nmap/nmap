@@ -160,7 +160,7 @@ void adjust_timeouts2(const struct timeval *sent,
   else {
     if (delta >= 8000000 || delta < 0) {
       if (o.verbose)
-	error("adjust_timeout: packet supposedly had rtt of %lu microseconds.  Ignoring time.", delta);
+	error("%s: packet supposedly had rtt of %lu microseconds.  Ignoring time.", __func__, delta);
       return;
     }
     delta -= to->srtt;
@@ -225,7 +225,7 @@ void enforce_scan_delay(struct timeval *tv) {
   time_diff = TIMEVAL_MSEC_SUBTRACT(now, lastcall);
   if (time_diff < (int) o.scan_delay) {  
     if (o.debugging > 1) {
-      printf("Sleeping for %d milliseconds in enforce_scan_delay()\n", o.scan_delay - time_diff);
+      printf("Sleeping for %d milliseconds in %s()\n", o.scan_delay - time_diff, __func__);
     }
     usleep((o.scan_delay - time_diff) * 1000);
     gettimeofday(&lastcall, NULL);

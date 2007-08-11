@@ -202,7 +202,7 @@ char *getFinalPacketStats(char *buf, int buflen) {
   char sendbytesasc[16], recvbytesasc[16];
 
   if (buflen <= 10 || !buf)
-    fatal("getFinalPacketStats called with woefully inadequate parameters");
+    fatal("%s called with woefully inadequate parameters", __func__);
 
   snprintf(buf, buflen, 
 #if WIN32
@@ -785,7 +785,7 @@ const char *inet_socktop(struct sockaddr_storage *ss) {
                 (char *) NULL,
 #endif /* HAVE_IPV6 */
                 buf, sizeof(buf)) == NULL) {
-    fatal("Failed to convert target address to presentation format in inet_socktop!?!  Error: %s", strerror(socket_errno()));
+    fatal("Failed to convert target address to presentation format in %s!?!  Error: %s", __func__, strerror(socket_errno()));
   }
   return buf;
 }
@@ -1018,7 +1018,7 @@ int resolve(char *hostname, struct in_addr *ip) {
   struct hostent *h;
 
   if (!hostname || !*hostname)
-    fatal("NULL or zero-length hostname passed to resolve()");
+    fatal("NULL or zero-length hostname passed to %s()", __func__);
 
   if (inet_pton(AF_INET, hostname, ip))
     return 1; /* damn, that was easy ;) */
@@ -1038,8 +1038,8 @@ int resolve(char *hostname, struct in_addr *ip) {
    call eth_close_cached() to close whichever device (if any) is
    cached.  Returns NULL if it fails to open the device. */
 eth_t *eth_open_cached(const char *device) {
-  if (!device) fatal("eth_open_cached() called with NULL device name!");
-  if (!*device) fatal("eth_open_cached() called with empty device name!");
+  if (!device) fatal("%s() called with NULL device name!", __func__);
+  if (!*device) fatal("%s() called with empty device name!", __func__);
 
   if (strcmp(device, etht_cache_device_name) == 0) {
     /* Yay, we have it cached. */
@@ -1163,7 +1163,7 @@ assert(source);
 assert(ipoptlen%4==0);
 
 if (tcpoptlen % 4)
-  fatal("build_tcp_raw() called with an option length argument of %d which is illegal because it is not divisible by 4. Just add \\0 padding to the end.", tcpoptlen);
+  fatal("%s() called with an option length argument of %d which is illegal because it is not divisible by 4. Just add \\0 padding to the end.", __func__, tcpoptlen);
 
 
 /* Time to live */
@@ -1319,7 +1319,7 @@ do {
 	    strerror(err));
       error("Offending packet: %s", ippackethdrinfo(packet, len));
       if (numerrors == 10) {
-	error("Omitting future Sendto error messages now that %d have been shown.  Use -d2 if you really want to see them.", numerrors);
+	error("Omitting future %s error messages now that %d have been shown.  Use -d2 if you really want to see them.", __func__, numerrors);
       }
     }
 
@@ -1368,7 +1368,7 @@ int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetl
     if (!eth->ethsd) {
       ethsd = eth_open_cached(eth->devname);
       if (!ethsd) 
-	fatal("send_ip_packet: Failed to open ethernet device (%s)", eth->devname);
+	fatal("%s: Failed to open ethernet device (%s)", __func__, eth->devname);
       ethsd_opened = true;
     } else ethsd = eth->ethsd;
     res = eth_send(ethsd, eth_frame, 14 + packetlen);
@@ -1454,7 +1454,7 @@ char *ping = (char *) &pingpkt;
    *datastart++ = 0;
    //datalen -= 4;
  } else 
-   fatal("Unknown icmp type/code (%d/%d) in build_icmp_raw", ptype, pcode);
+   fatal("Unknown icmp type/code (%d/%d) in %s", ptype, pcode, __func__);
 
  if (datalen > 0) {
    icmplen += MIN(dlen, datalen);
@@ -1516,7 +1516,7 @@ u8 *build_igmp_raw(const struct in_addr *source, const struct in_addr *victim,
  } else if (ptype == 0x22) { /* v3 Membership Report */
    igmplen = 8;
  } else {
-   fatal("Unknown igmp type (%d) in build_igmp_raw", ptype);
+   fatal("Unknown igmp type (%d) in %s", ptype, __func__);
  }
 
  if (datalen > 0) {
@@ -1553,7 +1553,7 @@ int i;
 int realfrag = 0;
 
 if (!packet) {
-  fprintf(stderr, "readtcppacket: packet is NULL!\n");
+  fprintf(stderr, "%s: packet is NULL!\n", __func__);
   return -1;
     }
 
@@ -1613,7 +1613,7 @@ int i;
 int realfrag = 0;
 
 if (!packet) {
-  fprintf(stderr, "readudppacket: packet is NULL!\n");
+  fprintf(stderr, "%s: packet is NULL!\n", __func__);
   return -1;
     }
 
@@ -1886,12 +1886,12 @@ static int warning = 0;
 
 if (linknfo) { memset(linknfo, 0, sizeof(*linknfo)); }
 
-if (!pd) fatal("NULL packet device passed to readip_pcap");
+if (!pd) fatal("NULL packet device passed to %s", __func__);
 
  if (to_usec < 0) {
    if (!warning) {
      warning = 1;
-     error("WARNING: Negative timeout value (%lu) passed to readip_pcap() -- using 0", to_usec);
+     error("WARNING: Negative timeout value (%lu) passed to %s() -- using 0", to_usec, __func__);
    }
    to_usec = 0;
  }
@@ -1959,7 +1959,7 @@ if (!pd) fatal("NULL packet device passed to readip_pcap");
      p = (char *) pcap_next(pd, &head);
    }
    if (head.caplen > 100000) {
-     fatal("FATAL: readip_pcap: bogus caplen from libpcap (%d) on interface type %d", head.caplen, datalink);
+     fatal("FATAL: %s: bogus caplen from libpcap (%d) on interface type %d", __func__, head.caplen, datalink);
    } 
    error("FATAL:  Unknown datalink type (%d). Caplen: %d; Packet:\n", datalink, head.caplen);
    lamont_hdump(p, head.caplen);
@@ -2106,7 +2106,7 @@ static bool NmapArpCache(int command, struct sockaddr_storage *ss, u8 *mac) {
   int i;
 
   if (sin->sin_family != AF_INET) 
-    fatal("NmapArpCache() can only take IPv4 addresses.  Sorry");
+    fatal("%s() can only take IPv4 addresses.  Sorry", __func__);
   
   if (command == ARPCACHE_GET) {
     for(i=0; i < ArpCacheSz; i++) {
@@ -2156,12 +2156,12 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
   int badcounter = 0;
   struct timeval tv_start, tv_end;
 
-  if (!pd) fatal("NULL packet device passed to readarp_reply_pcap");
+  if (!pd) fatal("NULL packet device passed to %s", __func__);
 
   if (to_usec < 0) {
     if (!warning) {
       warning = 1;
-      error("WARNING: Negative timeout value (%lu) passed to %s() -- using 0", to_usec, __FUNCTION__);
+      error("WARNING: Negative timeout value (%lu) passed to %s() -- using 0", to_usec, __func__);
     }
     to_usec = 0;
   }
@@ -2171,7 +2171,7 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
     fatal("Cannot obtain datalink information: %s", pcap_geterr(pd));
 
   if (datalink != DLT_EN10MB)
-    fatal("readarp_reply_pcap called on interfaces that is datatype %d rather than DLT_EN10MB (%d)", datalink, DLT_EN10MB);
+    fatal("%s called on interfaces that is datatype %d rather than DLT_EN10MB (%d)", __func__, datalink, DLT_EN10MB);
 
   if (to_usec > 0) {
     gettimeofday(&tv_start, NULL);
@@ -2317,7 +2317,7 @@ static bool doArp(const char *dev, const u8 *srcmac,
   bool foundit = false;
 
   if (targetsin->sin_family != AF_INET || srcsin->sin_family != AF_INET)
-    fatal("%s can only handle IPv4 addresses", __FUNCTION__);
+    fatal("%s can only handle IPv4 addresses", __func__);
 
   /* Start listening */
   pd = my_pcap_open_live(dev, 50, 1, 25);
@@ -2325,7 +2325,7 @@ static bool doArp(const char *dev, const u8 *srcmac,
 
   /* Prepare probe and sending stuff */
   ethsd = eth_open_cached(dev);
-  if (!ethsd) fatal("%s: failed to open device %s", __FUNCTION__, dev);
+  if (!ethsd) fatal("%s: failed to open device %s", __func__, dev);
   eth_pack_hdr(frame, ETH_ADDR_BROADCAST, *srcmac, ETH_TYPE_ARP);
   arp_pack_hdr_ethip(frame + ETH_HDR_LEN, ARP_OP_REQUEST, *srcmac, 
 		     srcsin->sin_addr, ETH_ADDR_BROADCAST, 
@@ -2337,7 +2337,7 @@ static bool doArp(const char *dev, const u8 *srcmac,
     /* Send the sucker */
     rc = eth_send(ethsd, frame, sizeof(frame));
     if (rc != sizeof(frame)) {
-      error("WARNING: %s: eth_send of ARP packet returned %u rather than expected %d bytes\n", __FUNCTION__, rc, (int) sizeof(frame));
+      error("WARNING: %s: eth_send of ARP packet returned %u rather than expected %d bytes\n", __func__, rc, (int) sizeof(frame));
     }
     PacketTrace::traceArp(PacketTrace::SENT, (u8 *) frame, sizeof(frame), &now);
     num_sends++;
@@ -2354,7 +2354,7 @@ static bool doArp(const char *dev, const u8 *srcmac,
       /* Now listen until we reach our next timeout or get an answer */
       rc = read_arp_reply_pcap(pd, targetmac, &rcvdIP, timeleft, &rcvdtime);
       if (rc == -1) fatal("%s: Received -1 response from readarp_reply_pcap", 
-			  __FUNCTION__);
+			  __func__);
       if (rc == 1) {
 	/* Yay, I got one! But is it the right one? */
 	if (rcvdIP.s_addr != targetsin->sin_addr.s_addr)
@@ -2405,7 +2405,7 @@ bool setTargetNextHopMAC(Target *target) {
     target->TargetSockAddr(&targetss, &sslen);
   } else {
     if (!target->nextHop(&targetss, &sslen))
-      fatal("%s: Failed to determine nextHop to target", __FUNCTION__);
+      fatal("%s: Failed to determine nextHop to target", __func__);
   }
 
   /* First, let us check the Nmap arp cache ... */
@@ -2458,7 +2458,7 @@ void set_pcap_filter(const char *device,
   
   va_start(ap, bpf);
   if (vsnprintf(buf, sizeof(buf), bpf, ap) >= (int) sizeof(buf))
-    fatal("set_pcap_filter called with too-large filter arg\n");
+    fatal("%s called with too-large filter arg\n", __func__);
   va_end(ap);
 
   /* Due to apparent bug in libpcap */
@@ -2663,9 +2663,9 @@ int sd;
       dcrn.ifaces = mydevs;
       dcrn.numifaces = 0;
 	  it = intf_open();
-	  if (!it) fatal("%s: intf_open() failed", __FUNCTION__);
+	  if (!it) fatal("%s: intf_open() failed", __func__);
 	  if (intf_loop(it, collect_dnet_interfaces, &dcrn) != 0)
-		  fatal("%s: intf_loop() failed", __FUNCTION__);
+		  fatal("%s: intf_loop() failed", __func__);
 	  intf_close(it);	
 	  mydevs = dcrn.ifaces;
 	  numifaces = dcrn.numifaces;
@@ -2673,7 +2673,7 @@ int sd;
 #else // !Win32
     /* Dummy socket for ioctl */
     sd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sd < 0) pfatal("socket in getinterfaces");
+    if (sd < 0) pfatal("socket in %s", __func__);
     bufsz = 20480;
     buf = (u8 *) safe_zalloc(bufsz);
     ifc.ifc_len = bufsz;
@@ -2683,7 +2683,7 @@ int sd;
     }
     ifr = (struct ifreq *) buf;
     if (ifc.ifc_len == 0) 
-      fatal("getinterfaces: SIOCGIFCONF claims you have no network interfaces!\n");
+      fatal("%s: SIOCGIFCONF claims you have no network interfaces!\n", __func__);
 #if HAVE_SOCKADDR_SA_LEN
     /*    len = MAX(sizeof(struct sockaddr), ifr->ifr_addr.sa_len);*/
     len = ifr->ifr_addr.sa_len + sizeof(ifr->ifr_name);
@@ -2771,11 +2771,11 @@ int sd;
 	eth_addr_t ethaddr;
 
 	if (!ethsd) 
-	  fatal("%s: Failed to open ethernet interface (%s). A possible cause on BSD operating systems is running out of BPF devices (see http://seclists.org/lists/nmap-dev/2006/Jan-Mar/0014.html).", __FUNCTION__,
+	  fatal("%s: Failed to open ethernet interface (%s). A possible cause on BSD operating systems is running out of BPF devices (see http://seclists.org/lists/nmap-dev/2006/Jan-Mar/0014.html).", __func__,
 		mydevs[numifaces].devname);
 	if (eth_get(ethsd, &ethaddr) != 0) 
 	  fatal("%s: Failed to obtain MAC address for ethernet interface (%s)",
-		__FUNCTION__, mydevs[numifaces].devname);
+		__func__, mydevs[numifaces].devname);
 	memcpy(mydevs[numifaces].mac, ethaddr.data, 6);
 #endif /*SIOCGIFHWADDR*/
 
@@ -2812,7 +2812,7 @@ struct interface_info *getInterfaceByIP(struct sockaddr_storage *ss) {
   int ifnum;
 
   if (sin->sin_family != AF_INET)
-    fatal("%s called with non-IPv4 address", __FUNCTION__);
+    fatal("%s called with non-IPv4 address", __func__);
 
   ifaces = getinterfaces(&numifaces);
 
@@ -2877,7 +2877,7 @@ struct sys_route *getsysroutes(int *howmany) {
   struct sockaddr_in *sin;
   struct interface_info *ii;
 
-  if (!howmany) fatal("NULL howmany ptr passed to getsysroutes()");
+  if (!howmany) fatal("NULL howmany ptr passed to %s()", __func__);
 
   if (!routes) {
     routes = (struct sys_route *) safe_zalloc(route_capacity * sizeof(struct sys_route));
@@ -2974,9 +2974,9 @@ struct sys_route *getsysroutes(int *howmany) {
       dcrn.ifaces = ifaces;
       dcrn.numifaces = numifaces;
       route_t *dr = route_open();
-      if (!dr) fatal("%s: route_open() failed", __FUNCTION__);
+      if (!dr) fatal("%s: route_open() failed", __func__);
       if (route_loop(dr, collect_dnet_routes, &dcrn) != 0) {
-	fatal("%s: route_loop() failed", __FUNCTION__);
+	fatal("%s: route_loop() failed", __func__);
       }
       route_close(dr);
       /* These values could have changed in the callback */
@@ -3019,11 +3019,11 @@ bool route_dst(const struct sockaddr_storage *const dst, struct route_nfo *rnfo)
   int i;
   u32 mask;
   struct sockaddr_in *ifsin, *dstsin;
-  if (!dst) fatal("route_nfo passed a NULL dst address");
+  if (!dst) fatal("%s passed a NULL dst address", __func__);
   dstsin = (struct sockaddr_in *)dst;
 
   if (dstsin->sin_family != AF_INET)
-    fatal("Sorry -- route_dst currently only supports IPv4");
+    fatal("Sorry -- %s currently only supports IPv4", __func__);
 
   /* First let us deal with the case where a user requested a specific spoofed IP/dev */
   if (o.spoofsource || *o.device) {

@@ -391,7 +391,7 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
     if (currentaddr.s_addr <= endaddr.s_addr) {
       sin->sin_addr.s_addr = htonl(currentaddr.s_addr++);
     } else {
-      error("Bogus target structure passed to TargetGroup::get_next_host");
+      error("Bogus target structure passed to %s", __func__);
       ipsleft = 0;
       return -1;
     }

@@ -881,7 +881,7 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
 	va_end(apcopy);
 	return;
       } else if (len < 0) {
-	fprintf(stderr, "vsnprintf returned %d in %s -- bizarre. Quitting.\n", len, __FUNCTION__);
+	fprintf(stderr, "vsnprintf returned %d in %s -- bizarre. Quitting.\n", len, __func__);
 	exit(1);
       } else if (len >= writebuflen) {
 	/* Didn't have enough space.  Expand writebuf and try again */
@@ -890,7 +890,7 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
 	writebuf = (char *) safe_malloc(writebuflen);
 	len = vsnprintf(writebuf, writebuflen, fmt, apcopy);
 	if (len <= 0 || len >= writebuflen) {
-	  fprintf(stderr, "%s: vnsprintf failed.  Even after increasing bufferlen to %d, vsnprintf returned %d (logt == %d).  Please email this message to fyodor@insecure.org.  Quitting.\n", __FUNCTION__, writebuflen, len, logt);
+	  fprintf(stderr, "%s: vnsprintf failed.  Even after increasing bufferlen to %d, vsnprintf returned %d (logt == %d).  Please email this message to fyodor@insecure.org.  Quitting.\n", __func__, writebuflen, len, logt);
 	  exit(1);
 	}
       }
@@ -906,7 +906,7 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
     break;
 
   default:
-    fprintf(stderr, "log_vwrite(): Passed unknown log type (%d).  Note that this function, unlike log_write, can only handle one log type at a time (no bitmasks)\n", logt);
+    fprintf(stderr, "%s(): Passed unknown log type (%d).  Note that this function, unlike log_write, can only handle one log type at a time (no bitmasks)\n", __func__, logt);
     exit(1);
   }
 
@@ -956,7 +956,7 @@ void log_flush(int logt) {
   }
 
   if (logt & LOG_SKID_NOXLT)
-    fatal("You are not allowed to log_flush() with LOG_SKID_NOXLT");
+    fatal("You are not allowed to %s() with LOG_SKID_NOXLT", __func__);
 
   if (logt<0 || logt>LOG_FILE_MASK) return;
 

@@ -926,13 +926,13 @@ HostOsScan::HostOsScan(Target *t) {
     memcpy(eth.srcmac, t->SrcMACAddress(), 6);
     memcpy(eth.dstmac, t->NextHopMACAddress(), 6);
     if ((eth.ethsd = eth_open_cached(t->deviceName())) == NULL)
-      fatal("%s: Failed to open ethernet device (%s)", __FUNCTION__, t->deviceName());
+      fatal("%s: Failed to open ethernet device (%s)", __func__, t->deviceName());
     rawsd = -1;
     ethptr = &eth;
   } else {
     /* Init our raw socket */
     if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
-      pfatal("socket troubles in get_fingerprint");
+      pfatal("socket troubles in %s", __func__);
     unblock_socket(rawsd);
     broadcast_socket(rawsd);
 #ifndef WIN32
@@ -2927,7 +2927,7 @@ HostOsScanInfo *OsScanInfo::findIncompleteHost(struct sockaddr_storage *ss) {
   struct sockaddr_in *sin = (struct sockaddr_in *) ss;
 
   if (sin->sin_family != AF_INET)
-    fatal("UltraScanInfo::findIncompleteHost passed a non IPv4 address");
+    fatal("%s passed a non IPv4 address", __func__);
 
   for(hostI = incompleteHosts.begin(); hostI != incompleteHosts.end(); hostI++) {
     if ((*hostI)->target->v4hostip()->s_addr == sin->sin_addr.s_addr)
@@ -3049,7 +3049,7 @@ int send_closedudp_probe_2(struct udpprobeinfo &upi, int sd,
 
   /* check that required fields are there and not too silly */
   if ( !victim || !sport || !dport || (!eth && sd < 0)) {
-    fprintf(stderr, "send_closedudp_probe_2: One or more of your parameters suck!\n");
+    fprintf(stderr, "%s: One or more of your parameters suck!\n", __func__);
     return 1;
   }
 

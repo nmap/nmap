@@ -1445,8 +1445,8 @@ enforce_scan_delay (struct timeval *tv, int scan_delay) {
     time_diff = TIMEVAL_MSEC_SUBTRACT (now, lastcall);
     if (time_diff < (int) scan_delay) {
         if (o.debugging > 2)
-            log_write (LOG_STDOUT, "Sleeping for %d milliseconds in enforce_scan_delay()\n",
-                       scan_delay - time_diff);
+            log_write (LOG_STDOUT, "Sleeping for %d milliseconds in %s()\n",
+                       scan_delay - time_diff, __func__);
         usleep ((scan_delay - time_diff) * 1000);
         gettimeofday (&lastcall, NULL);
     } else

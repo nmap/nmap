@@ -262,14 +262,14 @@ int send_rpc_query(const struct in_addr *target_host, unsigned short portno,
     
   if (ipproto == IPPROTO_TCP && tcp_rpc_socket == -1) {
     if ((tcp_rpc_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1)
-      pfatal("Socket troubles in send_rpc_query");
+      pfatal("Socket troubles in %s", __func__);
     /* I should unblock the socket here and timeout the connect() */
     res = connect(tcp_rpc_socket, (struct sockaddr *) &sock, 
 		  sizeof(struct sockaddr_in));
     if (res == -1) {
       if (o.debugging) {
-	gh_perror("Failed to connect to port %d of %s in send_rpc_query",
-		  portno, inet_ntoa(*target_host));
+	gh_perror("Failed to connect to port %d of %s in %s",
+		  portno, inet_ntoa(*target_host), __func__);
       }
       close(tcp_rpc_socket);
       tcp_rpc_socket = -1;
@@ -278,7 +278,7 @@ int send_rpc_query(const struct in_addr *target_host, unsigned short portno,
     unblock_socket(tcp_rpc_socket);
   } else if (ipproto == IPPROTO_UDP && udp_rpc_socket == -1) {
     if ((udp_rpc_socket = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
-      pfatal("UDP socket troubles in send_rpc_query");
+      pfatal("UDP socket troubles in %s", __func__);
     unblock_socket(udp_rpc_socket);
   }
   
@@ -314,7 +314,7 @@ int send_rpc_query(const struct in_addr *target_host, unsigned short portno,
 
     if (res == -1) {
       if (o.debugging) {
-	gh_perror("Sendto in send_rpc_query");
+	gh_perror("Sendto in %s", __func__);
 	close(udp_rpc_socket);
 	udp_rpc_socket = -1;
       }
@@ -327,7 +327,7 @@ int send_rpc_query(const struct in_addr *target_host, unsigned short portno,
     res = Send(tcp_rpc_socket, rpch_buf, sizeof(struct rpc_hdr) + sizeof(unsigned long), 0);
     if (res == -1) {
       if (o.debugging) {
-	gh_perror("Write in send_rpc_query");
+	gh_perror("Write in %s", __func__);
       }
       close(tcp_rpc_socket);
       tcp_rpc_socket = -1;
@@ -411,7 +411,7 @@ static int rpc_are_we_done(char *msg, int msg_len, Target *target,
   }
      
   if (trynum > current->trynum) {
-    error("Bogus trynum %d when we are only up to %d in get_rpc_results", trynum, current->trynum);
+    error("Bogus trynum %d when we are only up to %d in %s", trynum, current->trynum, __func__);
     rsi->rpc_status = RPC_STATUS_NOT_RPC;
     ss->numqueries_outstanding = 0;
     return 1;
@@ -511,7 +511,7 @@ unsigned long current_msg_len;
    if (tcp_rpc_socket > max_sd)
      max_sd = tcp_rpc_socket;
  } else {
-   error("Unable to find listening socket in get_rpc_results");
+   error("Unable to find listening socket in %s", __func__);
    return;
  }
 
@@ -536,7 +536,7 @@ unsigned long current_msg_len;
      if (res < 0) {
        /* Doh! */
        if (o.debugging || o.verbose)
-	 gh_perror("recvfrom in get_rpc_results");
+	 gh_perror("recvfrom in %s", __func__);
        ss->numqueries_outstanding = 0;
        rsi->rpc_status = RPC_STATUS_NOT_RPC;
        return;
@@ -562,9 +562,9 @@ unsigned long current_msg_len;
      if (res <= 0) {
        if (o.debugging) {
 	 if (res == -1)
-	   gh_perror("Failed to read() from tcp rpc socket in get_rpc_results");
+	   gh_perror("Failed to read() from tcp rpc socket in %s", __func__);
 	 else {
-	   error("Lamer on port %u closed RPC socket on me in get_rpc_results", rsi->rpc_current_port->portno);
+	   error("Lamer on port %u closed RPC socket on me in %s", rsi->rpc_current_port->portno, __func__);
 	 }
        }
        ss->numqueries_outstanding = 0;

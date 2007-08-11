@@ -417,7 +417,7 @@ int PortList::addPort(u16 portno, u8 protocol, char *owner, int state) {
   if (state != PORT_OPEN && state != PORT_CLOSED && state != PORT_FILTERED &&
       state != PORT_UNFILTERED && state != PORT_OPENFILTERED && 
       state != PORT_CLOSEDFILTERED)
-    fatal("addPort: attempt to add port number %d with illegal state %d\n", portno, state);
+    fatal("%s: attempt to add port number %d with illegal state %d\n", __func__, portno, state);
 
   assert(protocol!=IPPROTO_IP || portno<256);
 
@@ -555,7 +555,7 @@ Port *PortList::getPortEntry(u16 portno, u8 protocol) {
 
   assert(protocol!=IPPROTO_IP || portno<256);
   if(port_map[proto]==NULL || port_list[proto]==NULL)
-    fatal("getPortEntry(%i,%i): you're trying to access uninitialized protocol", portno, protocol);
+    fatal("%s(%i,%i): you're trying to access uninitialized protocol", __func__, portno, protocol);
   mapped_pno = port_map[proto][portno];
 
   assert(mapped_pno < port_list_count[proto]);
@@ -563,7 +563,7 @@ Port *PortList::getPortEntry(u16 portno, u8 protocol) {
   
   /* The ugly hack: we allow only port 0 to be mapped to 0 position */
   if(mapped_pno==0 && portno!=0) {
-    error("WARNING: getPortEntry(%i,%i): this port was not mapped", portno, protocol);
+    error("WARNING: %s(%i,%i): this port was not mapped", __func__, portno, protocol);
     return(NULL);
   }else
     return(port_list[proto][mapped_pno]);
@@ -575,7 +575,7 @@ void PortList::setPortEntry(u16 portno, u8 protocol, Port *port) {
 
   assert(protocol!=IPPROTO_IP || portno<256);
   if(port_map[proto]==NULL || port_list[proto]==NULL)
-    fatal("setPortEntry(%i,%i): you're trying to access uninitialized protocol", portno, protocol);
+    fatal("%s(%i,%i): you're trying to access uninitialized protocol", __func__, portno, protocol);
   mapped_pno = port_map[proto][portno];
 
   assert(mapped_pno < port_list_count[proto]);
@@ -583,7 +583,7 @@ void PortList::setPortEntry(u16 portno, u8 protocol, Port *port) {
   
   /* The ugly hack: we allow only port 0 to be mapped to 0 position */
   if(mapped_pno==0 && portno!=0) {
-    error("WARNING: setPortEntry(%i,%i): this port was not mapped", portno, protocol);
+    error("WARNING: %s(%i,%i): this port was not mapped", __func__, portno, protocol);
     return;
   }
   
@@ -615,7 +615,7 @@ void PortList::initializePortMap(int protocol, u16 *ports, int portcount) {
   int proto = INPROTO2PORTLISTPROTO(protocol);
   
   if(port_map[proto]!=NULL)
-    fatal("initializePortMap: portmap for protocol %i already initialized", protocol);
+    fatal("%s: portmap for protocol %i already initialized", __func__, protocol);
 
   assert(port_list_count[proto]==0);
   

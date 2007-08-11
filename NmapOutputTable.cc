@@ -203,7 +203,7 @@ void NmapOutputTable::addItemFormatted(unsigned int row,
   va_end(ap);
 
   if (res > sizeof(buf))
-    fatal("NmapOutputTable only supports adding up to 4096 to a cell via addItemFormatString.");
+    fatal("NmapOutputTable only supports adding up to 4096 to a cell via %s.", __func__);
 
   addItem(row, column, fullrow, true, buf, res);
 

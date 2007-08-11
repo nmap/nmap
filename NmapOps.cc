@@ -486,13 +486,13 @@ void NmapOps::ValidateOptions() {
 
 void NmapOps::setMaxOSTries(int mot) {
   if (mot <= 0) 
-    fatal("NmapOps::setMaxOSTries(): value must be at least 1");
+    fatal("%s: value must be at least 1", __func__);
   max_os_tries = mot; 
 }
 
 void NmapOps::setMaxRttTimeout(int rtt) 
 { 
-  if (rtt <= 0) fatal("NmapOps::setMaxRttTimeout(): maximum round trip time must be greater than 0");
+  if (rtt <= 0) fatal("%s: maximum round trip time must be greater than 0", __func__);
   max_rtt_timeout = rtt; 
   if (rtt < min_rtt_timeout) min_rtt_timeout = rtt; 
   if (rtt < initial_rtt_timeout) initial_rtt_timeout = rtt;
@@ -500,7 +500,7 @@ void NmapOps::setMaxRttTimeout(int rtt)
 
 void NmapOps::setMinRttTimeout(int rtt) 
 { 
-  if (rtt < 0) fatal("NmapOps::setMinRttTimeout(): minimum round trip time must be at least 0");
+  if (rtt < 0) fatal("%s: minimum round trip time must be at least 0", __func__);
   min_rtt_timeout = rtt; 
   if (rtt > max_rtt_timeout) max_rtt_timeout = rtt;  
   if (rtt > initial_rtt_timeout) initial_rtt_timeout = rtt;
@@ -508,7 +508,7 @@ void NmapOps::setMinRttTimeout(int rtt)
 
 void NmapOps::setInitialRttTimeout(int rtt) 
 { 
-  if (rtt <= 0) fatal("NmapOps::setInitialRttTimeout(): initial round trip time must be greater than 0");
+  if (rtt <= 0) fatal("%s: initial round trip time must be greater than 0", __func__);
   initial_rtt_timeout = rtt; 
   if (rtt > max_rtt_timeout) max_rtt_timeout = rtt;  
   if (rtt < min_rtt_timeout) min_rtt_timeout = rtt;
@@ -517,7 +517,7 @@ void NmapOps::setInitialRttTimeout(int rtt)
 void NmapOps::setMaxRetransmissions(int max_retransmit)
 {
     if (max_retransmit < 0)
-        fatal("NmapOps::setMaxRetransmissions(): must be positive");
+        fatal("%s: must be positive", __func__);
     max_retransmissions = max_retransmit;
 }
 

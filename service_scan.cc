@@ -308,9 +308,9 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   unsigned int tmpbuflen = 0;
   char **curr_tmp = NULL;
 
-  if (isInitialized) fatal("Sorry ... ServiceProbeMatch::InitMatch does not yet support reinitializion");
+  if (isInitialized) fatal("Sorry ... %s does not yet support reinitializion", __func__);
   if (!matchtext || !*matchtext) 
-    fatal("ServiceProbeMatch::InitMatch: no matchtext passed in (line %d of nmap-service-probes)", lineno);
+    fatal("%s: no matchtext passed in (line %d of nmap-service-probes)", __func__, lineno);
   isInitialized = true;
 
   deflineno = lineno;
@@ -324,11 +324,11 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
     isSoft = false;
     matchtext += 6;
   } else 
-    fatal("ServiceProbeMatch::InitMatch: parse error on line %d of nmap-service-probes - must begin with \"match\" or \"softmatch\"", lineno);
+    fatal("%s: parse error on line %d of nmap-service-probes - must begin with \"match\" or \"softmatch\"", __func__, lineno);
 
   // next comes the service name
   p = strchr(matchtext, ' ');
-  if (!p) fatal("ServiceProbeMatch::InitMatch: parse error on line %d of nmap-service-probes: could not find service name", lineno);
+  if (!p) fatal("%s: parse error on line %d of nmap-service-probes: could not find service name", __func__, lineno);
 
   servicename = (char *) safe_malloc(p - matchtext + 1);
   memcpy(servicename, matchtext, p - matchtext);
@@ -345,13 +345,13 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   while(isspace(*matchtext)) matchtext++;
   if (*matchtext == 'm') {
     if (!*(matchtext+1))
-      fatal("ServiceProbeMatch::InitMatch: parse error on line %d of nmap-service-probes: matchtext must begin with 'm'", lineno);
+      fatal("%s: parse error on line %d of nmap-service-probes: matchtext must begin with 'm'", __func__, lineno);
     matchtype = SERVICEMATCH_REGEX;
     delimchar = *(++matchtext);
     ++matchtext;
     // find the end of the regex
     p = strchr(matchtext, delimchar);
-    if (!p) fatal("ServiceProbeMatch::InitMatch: parse error on line %d of nmap-service-probes: could not find end delimiter for regex", lineno);
+    if (!p) fatal("%s: parse error on line %d of nmap-service-probes: could not find end delimiter for regex", __func__, lineno);
     matchstrlen = p - matchtext;
     matchstr = (char *) safe_malloc(matchstrlen + 1);
     memcpy(matchstr, matchtext, matchstrlen);
@@ -364,7 +364,7 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
 	matchops_ignorecase = true;
       else if (*matchtext == 's')
 	matchops_dotall = true;
-      else fatal("ServiceProbeMatch::InitMatch: illegal regexp option on line %d of nmap-service-probes", lineno);
+      else fatal("%s: illegal regexp option on line %d of nmap-service-probes", __func__, lineno);
       matchtext++;
     }
 
@@ -379,16 +379,16 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
 				     &pcre_erroffset, NULL);
     
     if (regex_compiled == NULL)
-      fatal("ServiceProbeMatch::InitMatch: illegal regexp on line %d of nmap-service-probes (at regexp offset %d): %s\n", lineno, pcre_erroffset, pcre_errptr);
+      fatal("%s: illegal regexp on line %d of nmap-service-probes (at regexp offset %d): %s\n", __func__, lineno, pcre_erroffset, pcre_errptr);
     
     
     // Now study the regexp for greater efficiency
     regex_extra = pcre_study(regex_compiled, 0, &pcre_errptr);
     if (pcre_errptr != NULL)
-      fatal("ServiceProbeMatch::InitMatch: failed to pcre_study regexp on line %d of nmap-service-probes: %s\n", lineno, pcre_errptr);
+      fatal("%s: failed to pcre_study regexp on line %d of nmap-service-probes: %s\n", __func__, lineno, pcre_errptr);
   } else {
     /* Invalid matchtext */
-    fatal("ServiceProbeMatch::InitMatch: parse error on line %d of nmap-service-probes: match string must begin with 'm'", lineno);
+    fatal("%s: parse error on line %d of nmap-service-probes: match string must begin with 'm'", __func__, lineno);
   }
 
   /* OK! Now we look for any templates of the form ?/.../
@@ -401,12 +401,12 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
 
     modechar = *(matchtext++);
     if (*matchtext == 0 || *matchtext == '\r' || *matchtext == '\n')
-      fatal("ServiceProbeMatch::InitMatch: parse error on line %d of nmap-service-probes", lineno);
+      fatal("%s: parse error on line %d of nmap-service-probes", __func__, lineno);
 
     delimchar = *(matchtext++);
 
     p = strchr(matchtext, delimchar);
-    if (!p) fatal("ServiceProbeMatch::InitMatch: parse error on line %d of nmap-service-probes", lineno);
+    if (!p) fatal("%s: parse error on line %d of nmap-service-probes", __func__, lineno);
 
     tmptemplate = NULL;
     tmpbuflen = p - matchtext;
@@ -424,7 +424,7 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
     case 'o': curr_tmp = &ostype_template; break;
     case 'd': curr_tmp = &devicetype_template; break;
     default:
-    	fatal("ServiceProbeMatch::InitMatch: Unknown template specifier '%c' on line %d of nmap-service-probes", modechar, lineno);
+    	fatal("%s: Unknown template specifier '%c' on line %d of nmap-service-probes", __func__, modechar, lineno);
     }
     if(*curr_tmp){
       if(o.debugging)
@@ -1031,7 +1031,7 @@ void ServiceProbe::setRarity(const char *portstr, int lineno) {
   tp = atoi(portstr);
 
   if (tp < 1 || tp > 9)
-    fatal("ServiceProbe::setRarity: Rarity directive on line %d of nmap-service-probes must be between 1 and 9", lineno);
+    fatal("%s: Rarity directive on line %d of nmap-service-probes must be between 1 and 9", __func__, lineno);
 
   rarity = tp;
 }
@@ -1248,7 +1248,7 @@ int AllProbes::isExcluded(unsigned short port, int proto) {
     p = excludedports->udp_ports;
     count = excludedports->udp_count;
   } else {
-    fatal("Bad proto number (%d) specified in AllProbes::isExcluded", proto);
+    fatal("Bad proto number (%d) specified in %s", proto, __func__);
   }
 
   for (i=0; i<count; i++)
@@ -1297,13 +1297,13 @@ void AllProbes::compileFallbacks() {
       while (tp != NULL && i<(MAXFALLBACKS-1)) {
         (*curr)->fallbacks[i] = getProbeByName(tp, (*curr)->getProbeProtocol());
 	if ((*curr)->fallbacks[i] == NULL)
-          fatal("AllProbes::compileFallbacks: Unknown fallback specified in Probe %s: '%s'", (*curr)->getName(), tp);
+          fatal("%s: Unknown fallback specified in Probe %s: '%s'", __func__, (*curr)->getName(), tp);
 	i++;
 	tp = strtok(NULL, ",\r\n\t ");
       }
 
       if (i == MAXFALLBACKS-1)
-        fatal("AllProbes::compileFallbacks: MAXFALLBACKS exceeded on probe '%s'", (*curr)->getName());
+        fatal("%s: MAXFALLBACKS exceeded on probe '%s'", __func__, (*curr)->getName());
 
       if ((*curr)->getProbeProtocol() == IPPROTO_TCP)
         (*curr)->fallbacks[i] = nullProbe;
@@ -1357,7 +1357,7 @@ ServiceNFO::~ServiceNFO() {
 void ServiceNFO::addServiceChar(char c, int wrapat) {
 
   if (servicefpalloc - servicefplen < 6)
-    fatal("ServiceNFO::addServiceChar - out of space for servicefp");
+    fatal("%s - out of space for servicefp", __func__);
 
   if (servicefplen % (wrapat+1) == wrapat) {
     // we need to start a new line
@@ -1567,7 +1567,7 @@ bool dropdown = false;
    return NULL; 
  }
 
- fatal("ServiceNFO::nextProbe called for probe in state (%d)", (int) probe_state);
+ fatal("%s called for probe in state (%d)", __func__, (int) probe_state);
  return NULL;
 }
 
@@ -1763,7 +1763,7 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
       if (svc->proto == IPPROTO_TCP) {
 	nsi_delete(nsi, NSOCK_PENDING_SILENT);
 	if ((svc->niod = nsi_new(nsp, svc)) == NULL) {
-	  fatal("Failed to allocate Nsock I/O descriptor in startNextProbe()");
+	  fatal("Failed to allocate Nsock I/O descriptor in %s()", __func__);
 	}
 	svc->target->TargetSockAddr(&ss, &ss_len);
 	if (svc->tunnel == SERVICE_TUNNEL_NONE) {
@@ -1958,7 +1958,7 @@ static int launchSomeServiceProbes(nsock_pool nsp, ServiceGroup *SG) {
 
     // We start by requesting a connection to the target
     if ((svc->niod = nsi_new(nsp, svc)) == NULL) {
-      fatal("Failed to allocate Nsock I/O descriptor in launchSomeServiceProbes()");
+      fatal("Failed to allocate Nsock I/O descriptor in %s()", __func__);
     }
     if (o.debugging > 1) {
       printf("Starting probes against new service: %s:%hi (%s)\n", svc->target->targetipstr(), svc->portno, proto2ascii(svc->proto));
@@ -2405,7 +2405,7 @@ int service_scan(vector<Target *> &Targets) {
   // Lets create a nsock pool for managing all the concurrent probes
   // Store the servicegroup in there for availability in callbacks
   if ((nsp = nsp_new(SG)) == NULL) {
-    fatal("service_scan() failed to create new nsock pool.");
+    fatal("%s() failed to create new nsock pool.", __func__);
   }
 
   if (o.versionTrace()) {

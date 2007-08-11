@@ -85,6 +85,29 @@ if test "$nmap_gcc_major_version" -ge 4; then
   CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
 fi
 
+AC_MSG_CHECKING(for __func__)
+AC_TRY_COMPILE([
+#include <stdio.h>
+],[printf ("%s", __func__);],
+have_func=yes, have_func=no)
+if test "x$have_func" = "xyes"; then
+   AC_MSG_RESULT(yes)
+else
+   AC_MSG_RESULT(no)
+   AC_MSG_CHECKING(for __FUNCTION__)
+   AC_TRY_COMPILE([
+#include <stdio.h>
+],[printf ("%s", __FUNCTION__);],
+have_function=yes, have_function=no)
+   if test "x$have_function" = "xyes"; then
+      AC_MSG_RESULT(yes)
+      AC_DEFINE(__func__, __FUNCTION__)
+   else
+      AC_MSG_RESULT(no)
+      AC_DEFINE(__func__, __FILE__)
+   fi
+fi
+
 dnl AC_PROG_INSTALL
 dnl AC_PATH_PROG(MAKEDEPEND, makedepend)
 

@@ -274,7 +274,7 @@ int addportsfromservmask(char *mask, u8 *porttbl, struct scan_lists *ports, int 
   int bucket,t=0;
 
   if (!services_initialized && nmap_services_init() == -1)
-    fatal("addportsfromservmask: Couldn't get port numbers");
+    fatal("%s: Couldn't get port numbers", __func__);
   
   for(bucket = 0; bucket < SERVICE_TABLE_SIZE; bucket++) {
     for(current = service_table[bucket % SERVICE_TABLE_SIZE]; current; current = current->next) {
@@ -367,7 +367,7 @@ struct scan_lists *gettoppts(double level, char *portlist) {
   struct service_list *current;
 
   if (!services_initialized && nmap_services_init() == -1)
-    fatal("gettoppts: Couldn't get port numbers");
+    fatal("%s: Couldn't get port numbers", __func__);
 
   if (ratio_format == 0) {
     if (level != -1)

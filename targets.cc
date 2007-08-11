@@ -469,7 +469,7 @@ static int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[],
       continue;
 
     if (bytes > 0 && bytes <= 20) {  
-      error("%d byte micro packet received in get_ping_results", bytes);
+      error("%d byte micro packet received in %s", bytes, __func__);
       continue;
     }  
 
@@ -835,7 +835,7 @@ static int sendconnecttcpquery(Target *hostbatch[], struct tcpqueryinfo *tqi,
       tmpsd = hostnum * pt->max_tries + i;
       if (tqi->sockets[probe_port_num][tmpsd] >= 0) {
 	if (o.debugging) 
-	  log_write(LOG_STDOUT, "sendconnecttcpquery: Scavenging a free socket due to serious shortage\n");
+	  log_write(LOG_STDOUT, "%s: Scavenging a free socket due to serious shortage\n", __func__);
 	close(tqi->sockets[probe_port_num][tmpsd]);
 	tqi->sockets[probe_port_num][tmpsd] = -1;
 	tqi->sockets_out--;
@@ -843,21 +843,21 @@ static int sendconnecttcpquery(Target *hostbatch[], struct tcpqueryinfo *tqi,
       }
     }
     if (i == trynum)
-      fatal("sendconnecttcpquery: Could not scavenge a free socket!");
+      fatal("%s: Could not scavenge a free socket!", __func__);
   }
     
   /* Since we know we now have a free s0cket, lets take it */
   assert(tqi->sockets[probe_port_num][seq] == -1);
   tqi->sockets[probe_port_num][seq] =  socket(o.af(), SOCK_STREAM, IPPROTO_TCP);
   if (tqi->sockets[probe_port_num][seq] == -1) 
-    fatal("Socket creation in sendconnecttcpquery");
+    fatal("Socket creation in %s", __func__);
   tqi->maxsd = MAX(tqi->maxsd, tqi->sockets[probe_port_num][seq]);
   tqi->sockets_out++;
   unblock_socket(tqi->sockets[probe_port_num][seq]);
   init_socket(tqi->sockets[probe_port_num][seq]);
 
   if (target->TargetSockAddr(&sock, &socklen) != 0)
-    fatal("Unable to get target sock in sendconnecttcpquery");
+    fatal("Unable to get target sock in %s", __func__);
 
   if (sin->sin_family == AF_INET)
     sin->sin_port = htons(o.ping_synprobes[probe_port_num]);
@@ -877,7 +877,7 @@ static int sendconnecttcpquery(Target *hostbatch[], struct tcpqueryinfo *tqi,
   }
   else if (sock_err == ENETUNREACH) {
     if (o.debugging) 
-      error("Got ENETUNREACH from sendconnecttcpquery connect()");
+      error("Got ENETUNREACH from %s connect()", __func__);
     hostupdate(hostbatch, target, HOST_DOWN, 1, trynum, to, 
 	       &time[seq], NULL, pt, tqi, pingstyle_connecttcp);
   }
@@ -1050,7 +1050,7 @@ if (ethsd) {
    datalen -= 12;
    pingpkt.type = 13;
  }
- else fatal("sendpingquery: unknown pingtype: %d", pingtype);
+ else fatal("%s: unknown pingtype: %d", __func__, pingtype);
 
  if (o.extra_payload_length > 0) {
    icmplen += MIN(datalen, o.extra_payload_length);
@@ -1095,7 +1095,7 @@ if (ptech.icmpscan) {
 	&& sock_err != WSAEADDRNOTAVAIL
 #endif 
 		       ) {
-       fprintf(stderr, "sendto in sendpingquery returned %d (should be 8)!\n", res);
+       fprintf(stderr, "sendto in %s returned %d (should be 8)!\n", __func__, res);
        fprintf(stderr, "sendto: %s\n", strerror(sock_err));
      }
    } else {
@@ -1243,7 +1243,7 @@ while(pt->block_unaccounted) {
   gettimeofday(&end, NULL);
   tm = TIMEVAL_SUBTRACT(end,start);  
   if (tm > (30 * to->timeout)) {
-    error("WARNING: getconnecttcpscanresults is taking way too long, skipping");
+    error("WARNING: %s is taking way too long, skipping", __func__);
     break;
   }
   if (res == 0 &&  tm > to->timeout) break; 
@@ -1558,7 +1558,7 @@ static void massping(Target *hostbatch[], int num_hosts,
 
   if (ptech.icmpscan) {
     sd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
-    if (sd < 0) pfatal("Socket trouble in massping"); 
+    if (sd < 0) pfatal("Socket trouble in %s", __func__); 
     unblock_socket(sd);
 #ifndef WIN32
     sethdrinclude(sd);
@@ -1587,14 +1587,14 @@ static void massping(Target *hostbatch[], int num_hosts,
       rawsd = -1; rawpingsd = -1;
     } else {
       if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
-	pfatal("socket troubles in massping");
+	pfatal("socket troubles in %s", __func__);
       broadcast_socket(rawsd);
 #ifndef WIN32
       sethdrinclude(rawsd);
 #endif
 
       if ((rawpingsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
-	pfatal("socket troubles in massping");
+	pfatal("socket troubles in %s", __func__);
       broadcast_socket(rawpingsd);
 #ifndef WIN32
       sethdrinclude(rawpingsd);
@@ -1766,7 +1766,7 @@ do {
 	   )) {
 	hs->hostbatch[hidx]->TargetSockAddr(&ss, &sslen);
 	if (!route_dst(&ss, &rnfo)) {
-	  fatal("%s: failed to determine route to %s", __FUNCTION__, hs->hostbatch[hidx]->NameIP());
+	  fatal("%s: failed to determine route to %s", __func__, hs->hostbatch[hidx]->NameIP());
 	}
 	if (rnfo.direct_connect) {
 	  hs->hostbatch[hidx]->setDirectlyConnected(true);
@@ -1845,7 +1845,7 @@ if (hs->randomize) {
 	 !hs->hostbatch[i]->timedOut(&now))
        if (!setTargetNextHopMAC(hs->hostbatch[i]))
 	 fatal("%s: Failed to determine dst MAC address for target %s", 
-	       __FUNCTION__, hs->hostbatch[i]->NameIP());
+	       __func__, hs->hostbatch[i]->NameIP());
  }
 
  /* TODO: Maybe I should allow real ping scan of directly connected

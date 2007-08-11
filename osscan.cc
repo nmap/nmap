@@ -149,7 +149,7 @@ while(!id) id = get_random_uint();
 
 /* check that required fields are there and not too silly */
 if ( !victim || !dport || (!eth && sd < 0)) {
-  fprintf(stderr, "send_closedudp_probe: One or more of your parameters suck!\n");
+  fprintf(stderr, "%s: One or more of your parameters suck!\n", __func__);
   return NULL;
 }
 
@@ -336,7 +336,7 @@ static struct AVal *fingerprint_portunreach(struct ip *ip, struct udpprobeinfo *
   /* The very first thing we do is make sure this is the correct
      response */
   if (ip->ip_p != IPPROTO_ICMP) {
-    error("fingerprint_portunreach handed a non-ICMP packet!");
+    error("%s handed a non-ICMP packet!", __func__);
     return NULL;
   }
 
@@ -531,14 +531,14 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
     memcpy(eth.dstmac, target->NextHopMACAddress(), 6);
     eth.ethsd = eth_open_cached(target->deviceName());
     if (eth.ethsd == NULL)
-      fatal("%s: Failed to open ethernet device (%s)", __FUNCTION__, target->deviceName());
+      fatal("%s: Failed to open ethernet device (%s)", __func__, target->deviceName());
 
     rawsd = -1;
     ethptr = &eth;
   } else {
     /* Init our raw socket */
     if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
-      pfatal("socket troubles in get_fingerprint");
+      pfatal("socket troubles in %s", __func__);
     unblock_socket(rawsd);
     broadcast_socket(rawsd);
 #ifndef WIN32
@@ -1281,10 +1281,10 @@ static int AVal_match(struct AVal *reference, struct AVal *fprint, struct AVal *
       if (numtrue == 0) testfailed=1;
       if (points) {
 	 current_points = getattrbyname(points, current_ref->attribute);
-	 if (!current_points) fatal("%s: Failed to find point amount for test %s.%s", __FUNCTION__, testGroupName? testGroupName : "", current_ref->attribute);
+	 if (!current_points) fatal("%s: Failed to find point amount for test %s.%s", __func__, testGroupName? testGroupName : "", current_ref->attribute);
 	 pointsThisTest = strtol(current_points->value, &endptr, 10);
 	 if (pointsThisTest < 1)
-	   fatal("%s: Got bogus point amount (%s) for test %s.%s", __FUNCTION__, current_points->value, testGroupName? testGroupName : "", current_ref->attribute);
+	   fatal("%s: Got bogus point amount (%s) for test %s.%s", __func__, current_points->value, testGroupName? testGroupName : "", current_ref->attribute);
       }
       subtests += pointsThisTest;
       if (testfailed) {
@@ -1329,7 +1329,7 @@ double compare_fingerprints(FingerPrint *referenceFP, FingerPrint *observedFP,
       if (MatchPoints) {
 	currentTestMatchPoints = gettestbyname(MatchPoints, currentReferenceTest->name);
 	if (!currentTestMatchPoints)
-	  fatal("%s: Failed to locate test %s in MatchPoints directive of fingerprint file", __FUNCTION__, currentReferenceTest->name);
+	  fatal("%s: Failed to locate test %s in MatchPoints directive of fingerprint file", __func__, currentReferenceTest->name);
       } else currentTestMatchPoints = NULL;
 
       AVal_match(currentReferenceTest->results, currentObservedTest, currentTestMatchPoints,
@@ -1641,7 +1641,7 @@ if (numFPs > 32) return "(Too many)";
 memset(str, 0, sizeof(str));
 for(i=0; i < numFPs; i++) {
   if (FPs[i] == NULL) {
-    fatal("mergeFPs was handed a pointer to null fingerprint");
+    fatal("%s was handed a pointer to null fingerprint", __func__);
   }
   currentFPs[i] = FPs[i];
 }
@@ -1769,7 +1769,7 @@ static void parse_classline(FingerPrint *FP, char *thisline, int lineno,
   fflush(stdout);
 
   if (!thisline || strncmp(thisline, "Class ", 6) == 1) {
-    fatal("Bogus line #%d (%s) passed to parse_classline()", lineno, thisline);
+    fatal("Bogus line #%d (%s) passed to %s()", lineno, thisline, __func__);
   }
 
   if (*classno >= MAX_OS_CLASSIFICATIONS_PER_FP)
@@ -2034,7 +2034,7 @@ int classno = 0; /* Number of Class lines dealt with so far */
 
 char *p, *q; /* OH YEAH!!!! */
 
- if (!DB) fatal("non-allocated DB passed to %s", __FUNCTION__);
+ if (!DB) fatal("non-allocated DB passed to %s", __func__);
 
  DB->prints = (FingerPrint **) safe_zalloc(sizeof(FingerPrint *) * max_records); 
 

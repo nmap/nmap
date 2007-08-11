@@ -195,7 +195,7 @@ int addprotocolsfromservmask(char *mask, u8 *porttbl, struct scan_lists *ports) 
   int bucket, t=0;
 
   if (!protocols_initialized && nmap_protocols_init() == -1)
-    fatal("addprotocolsfromservmask: Couldn't get protocol numbers");
+    fatal("%s: Couldn't get protocol numbers", __func__);
 
   for(bucket = 0; bucket < PROTOCOL_TABLE_SIZE; bucket++) {
     for(current = protocol_table[bucket % PROTOCOL_TABLE_SIZE]; current; current = current->next) {

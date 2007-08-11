@@ -224,7 +224,7 @@ static struct MAC_entry *findMACEntry(int prefix) {
 const char *MACPrefix2Corp(const u8 *prefix) {
   struct MAC_entry *ent;
 
-  if (!prefix) fatal("MACPrefix2Corp called with a NULL prefix");
+  if (!prefix) fatal("%s called with a NULL prefix", __func__);
   mac_prefix_init();
 
   ent = findMACEntry(MacCharPrefix2Key(prefix));
@@ -238,8 +238,8 @@ const char *MACPrefix2Corp(const u8 *prefix) {
    is not particularly efficient and so should be rewriteen if it is
    called often */
 bool MACCorp2Prefix(const char *vendorstr, u8 *mac_data) {
-  if (!vendorstr) fatal("%s: vendorstr is NULL", __FUNCTION__);
-  if (!mac_data) fatal("%s: mac_data is NULL", __FUNCTION__);
+  if (!vendorstr) fatal("%s: vendorstr is NULL", __func__);
+  if (!mac_data) fatal("%s: mac_data is NULL", __func__);
   mac_prefix_init();
 
   for(int i = 0; i < MacTable.table_capacity; i++ ) {

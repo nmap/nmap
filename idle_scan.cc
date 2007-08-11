@@ -371,17 +371,17 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   if ((o.sendpref & PACKET_SEND_ETH) &&  proxy->host.ifType() == devt_ethernet) {
     if (!setTargetNextHopMAC(&proxy->host))
       fatal("%s: Failed to determine dst MAC address for Idle proxy", 
-	    __FUNCTION__);
+	    __func__);
     memcpy(proxy->eth.srcmac, proxy->host.SrcMACAddress(), 6);
     memcpy(proxy->eth.dstmac, proxy->host.NextHopMACAddress(), 6);
     proxy->eth.ethsd = eth_open_cached(proxy->host.deviceName());
     if (proxy->eth.ethsd == NULL)
-      fatal("%s: Failed to open ethernet device (%s)", __FUNCTION__, proxy->host.deviceName());
+      fatal("%s: Failed to open ethernet device (%s)", __func__, proxy->host.deviceName());
     proxy->rawsd = -1;
     proxy->ethptr = &proxy->eth;
   } else {
     if ((proxy->rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
-      pfatal("socket troubles in %s", __FUNCTION__);
+      pfatal("socket troubles in %s", __func__);
     unblock_socket(proxy->rawsd);
     broadcast_socket(proxy->rawsd);
 #ifndef WIN32
@@ -577,10 +577,10 @@ static void adjust_idle_timing(struct idle_proxy_info *proxy,
 
   if (o.debugging > 1)
     log_write(LOG_STDOUT, 
-	  "adjust_idle_timing: tested/true %d/%d -- old grpsz/delay: %f/%d ",
-	  testcount, realcount, proxy->current_groupsz, proxy->senddelay);
+	  "%s: tested/true %d/%d -- old grpsz/delay: %f/%d ",
+	  __func__, testcount, realcount, proxy->current_groupsz, proxy->senddelay);
   else if (o.debugging && testcount != realcount) {
-    error("adjust_idle_timing: testcount: %d  realcount: %d -- old grpsz/delay: %f/%d", testcount, realcount, proxy->current_groupsz, proxy->senddelay);
+    error("%s: testcount: %d  realcount: %d -- old grpsz/delay: %f/%d", __func__, testcount, realcount, proxy->current_groupsz, proxy->senddelay);
   }
 
     if (testcount < realcount) {
@@ -672,12 +672,12 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
   if (proxy->rawsd < 0) {
     if (!setTargetNextHopMAC(target))
       fatal("%s: Failed to determine dst MAC address for Idle proxy", 
-	    __FUNCTION__);
+	    __func__);
     memcpy(eth.srcmac, target->SrcMACAddress(), 6);
     memcpy(eth.dstmac, target->NextHopMACAddress(), 6);
     eth.ethsd = eth_open_cached(target->deviceName());
     if (eth.ethsd == NULL)
-      fatal("%s: Failed to open ethernet device (%s)", __FUNCTION__, target->deviceName());
+      fatal("%s: Failed to open ethernet device (%s)", __func__, target->deviceName());
   } else eth.ethsd = NULL;
 
   /* I start by sending out the SYN pr0bez */
@@ -736,7 +736,7 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
 	 rather have a negative number in that case */
       if (ipid_dist < proxyprobes_sent) {
 	if (o.debugging) 
-           error("idlescan_countopen2: Must have lost a sent packet because ipid_dist is %d while proxyprobes_sent is %d.", ipid_dist, proxyprobes_sent);
+           error("%s: Must have lost a sent packet because ipid_dist is %d while proxyprobes_sent is %d.", __func__, ipid_dist, proxyprobes_sent);
 	/* I no longer whack timing here ... done at bottom */
       }
       ipid_dist -= proxyprobes_sent;
@@ -746,7 +746,7 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
       } else if (ipid_dist < openports && ipid_dist >= 0) {
 	/* Uh-oh.  Perhaps I dropped a packet this time */
 	if (o.debugging > 1) {
-	  error("idlescan_countopen2: Counted %d open ports in try #%d, but counted %d earlier ... probably a proxy_probe problem", ipid_dist, tries, openports);
+	  error("%s: Counted %d open ports in try #%d, but counted %d earlier ... probably a proxy_probe problem", __func__, ipid_dist, tries, openports);
 	}	
 	/* I no longer whack timing here ... done at bottom */
       }
@@ -759,7 +759,7 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
   if (proxyprobes_sent > proxyprobes_rcvd) {
     /* Uh-oh.  It looks like we lost at least one proxy probe packet */
     if (o.debugging) {
-      error("idlescan_countopen2: Sent %d probes; only %d responses.  Slowing scan.", proxyprobes_sent, proxyprobes_rcvd);
+      error("%s: Sent %d probes; only %d responses.  Slowing scan.", __func__, proxyprobes_sent, proxyprobes_rcvd);
     }
     proxy->senddelay += 5000;
     proxy->senddelay = MIN(proxy->max_senddelay, proxy->senddelay);
@@ -775,7 +775,7 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
 
   if ((openports > 0) && (openports <= numports)) {
     /* Yeah, we found open ports... lets adjust the timing ... */
-    if (o.debugging > 2) error("idlescan_countopen2:  found %d open ports (out of %d) in %lu usecs", openports, numports, (unsigned long) TIMEVAL_SUBTRACT(latestchange, start));
+    if (o.debugging > 2) error("%s:  found %d open ports (out of %d) in %lu usecs", __func__, openports, numports, (unsigned long) TIMEVAL_SUBTRACT(latestchange, start));
     if (sent_time) *sent_time = start;
     if (rcv_time) *rcv_time = latestchange;
   }
@@ -803,7 +803,7 @@ static int idlescan_countopen(struct idle_proxy_info *proxy,
       break;
     
     if (o.debugging) {
-      error("idlescan_countopen: In try #%d, counted %d open ports out of %d.  Retrying", tries, openports, numports);
+      error("%s: In try #%d, counted %d open ports out of %d.  Retrying", __func__, tries, openports, numports);
     }
     /* Sleep for a little while -- maybe proxy host had brief birst of 
        traffic or similar problem */
@@ -822,7 +822,7 @@ static int idlescan_countopen(struct idle_proxy_info *proxy,
 	  proxy->host.targetipstr());
   }
 
-  if (o.debugging > 2) error("idlescan_countopen: %d ports found open out of %d, starting with %hu", openports, numports, ports[0]);
+  if (o.debugging > 2) error("%s: %d ports found open out of %d, starting with %hu", __func__, openports, numports, ports[0]);
 
   return openports;
 }
@@ -843,7 +843,7 @@ static int idle_treescan(struct idle_proxy_info *proxy, Target *target,
   /* Scan the first half of the range */
 
   if (o.debugging > 1) {  
-    error("idle_treescan: Called against %s with %d ports, starting with %hu. expectedopen: %d", target->targetipstr(), numports, ports[0], expectedopen);
+    error("%s: Called against %s with %d ports, starting with %hu. expectedopen: %d", __func__, target->targetipstr(), numports, ports[0], expectedopen);
     error("IDLESCAN TIMING: grpsz: %.3f delay: %d srtt: %d rttvar: %d\n",
 	  proxy->current_groupsz, proxy->senddelay, target->to.srtt,
 	  target->to.rttvar);
@@ -985,7 +985,7 @@ void idle_scan(Target *target, u16 *portarray, int numports,
   if (!proxyName) fatal("Idlescan requires a proxy host");
 
   if (*lastproxy && strcmp(proxyName, lastproxy))
-    fatal("idle_scan(): You are not allowed to change proxies midstream.  Sorry");
+    fatal("%s: You are not allowed to change proxies midstream.  Sorry", __func__);
   assert(target);
 
   if (target->timedOut(NULL))

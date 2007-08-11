@@ -338,7 +338,7 @@ unsigned char *tmp;
 int bpe;
 
 if (sizeof(unsigned char) != 1)
-  fatal("genfry() requires 1 byte chars");
+  fatal("%s() requires 1 byte chars", __func__);
 
 if (num_elem < 2)
   return;
@@ -1059,8 +1059,8 @@ char *mmapfile(char *fname, int *length, int openflags)
  CloseHandle (fd);
 
  if (o.debugging > 2)
-  printf ("mmapfile(): fd %08lX, gmap %08lX, fileptr %08lX, length %d\n",
-    (DWORD)fd, (DWORD)gmap, (DWORD)fileptr, *length);
+  printf ("%s(): fd %08lX, gmap %08lX, fileptr %08lX, length %d\n",
+    __func__, (DWORD)fd, (DWORD)gmap, (DWORD)fileptr, *length);
 
 	return fileptr;
 }
@@ -1071,7 +1071,7 @@ char *mmapfile(char *fname, int *length, int openflags)
 int win32_munmap(char *filestr, int filelen)
 {
   if (gmap == 0)
-    fatal("win32_munmap: no current mapping !\n");
+    fatal("%s: no current mapping !\n", __func__);
 
   FlushViewOfFile(filestr, filelen);
   UnmapViewOfFile(filestr);

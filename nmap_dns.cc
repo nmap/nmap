@@ -669,9 +669,9 @@ static void read_evt_handler(nsock_pool nsp, nsock_event evt, void *nothing) {
 
   if (nse_type(evt) != NSE_TYPE_READ || nse_status(evt) != NSE_STATUS_SUCCESS) {
     if (o.debugging)
-      log_write(LOG_STDOUT, "mass_dns: warning: got a %s:%s in read_evt_handler()\n",
+      log_write(LOG_STDOUT, "mass_dns: warning: got a %s:%s in %s()\n",
         nse_type2str(nse_type(evt)),
-        nse_status2str(nse_status(evt)));
+        nse_status2str(nse_status(evt)), __func__);
     return;
   }
 
@@ -1203,7 +1203,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
   // And finally, do it!
 
   if ((dnspool = nsp_new(NULL)) == NULL)
-    fatal("Unable to create nsock pool in nmap_mass_rdns_core()");
+    fatal("Unable to create nsock pool in %s()", __func__);
 
   if ((lasttrace = o.packetTrace()))
     nsp_settrace(dnspool, 5, o.getStartTime());
