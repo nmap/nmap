@@ -942,9 +942,9 @@ Traceroute::addConsolidationMessage(NmapOutputTable *Tbl, unsigned short row_cou
 	char *ip = inet_ntoa(ref_ipaddr);
 
 	if(ttl == 1)
-		len = snprintf(mbuf, 64, "Hop 1 is the same as %s", ip);
+		len = snprintf(mbuf, 64, "Hop 1 is the same as for %s", ip);
 	else
-		len = snprintf(mbuf, 64, "Hops 1-%d are the same as %s", ttl, ip);
+		len = snprintf(mbuf, 64, "Hops 1-%d are the same as for %s", ttl, ip);
 
 	assert(len);
 	Tbl->addItem(row_count, HOP_COL, true, "-", 1);

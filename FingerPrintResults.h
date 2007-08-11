@@ -148,6 +148,10 @@ class FingerPrintResults {
 			    otherwise -1) */
   int distance; /* How "far" is this FP gotten from? */
   int distance_guess; /* How "far" is this FP gotten from? by guessing based on ttl. */
+  /* What's the highest initial TTL we have calculated? It's possible for the
+     TTL to be altered in a nonstandard way in transit. If a TTL is ever greater
+     than 255, we can detect it. */
+  int max_init_ttl;
 
   /* The largest ratio we have seen of time taken vs. target time
      between sending 1st tseq probe and sending first ICMP echo probe.

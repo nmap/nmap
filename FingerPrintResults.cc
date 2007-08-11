@@ -113,6 +113,7 @@ FingerPrintResults::FingerPrintResults() {
   osscan_opentcpport = osscan_closedtcpport = osscan_closedudpport = -1;
   distance = -1;
   distance_guess = -1;
+  max_init_ttl = -1;
   /* We keep FPs holding at least 10 records because Gen1 OS detection
      doesn't support maxOSTries() */
   FPs = (FingerPrint **) safe_zalloc(MAX(o.maxOSTries(), 10) * sizeof(FingerPrint *));
@@ -158,6 +159,20 @@ const char *FingerPrintResults::OmitSubmissionFP() {
 
   if (osscan_closedtcpport <= 0)
     return "Missing a closed TCP port so results incomplete";
+
+  if (max_init_ttl > 0xFF) {
+    snprintf(reason, sizeof(reason), "An initial TTL (%d) is greater than 255", max_init_ttl);
+    return reason;
+  }
+
+  /* This can happen if the TTL in the response to the UDP probe is somehow
+     greater than the TTL in the probe itself. We exclude -1 because that is
+     used to mean the distance is unknown, though there's a chance it could
+     have come from the distance calculation. */
+  if (distance < -1) {
+    snprintf(reason, sizeof(reason), "Host distance (%d network hops) appears to be negative", distance);
+    return reason;
+  }
 
   if (distance > 5) {
     snprintf(reason, sizeof(reason), "Host distance (%d network hops) is greater than five", distance);
