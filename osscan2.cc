@@ -1585,19 +1585,7 @@ void HostOsScan::makeFP(HostOsScanStats *hss) {
 			/* We've gotten response for the UDP probe and thus have
 			   the "true" hop count. Add the received TTL to the hop
 			   count to get the initial TTL. */
-			ttl = ttl + hss->distance;
-			/* Keep track of the highest initial TTL we've seen. */
-			if (ttl > hss->target->FPR->max_init_ttl)
-			  hss->target->FPR->max_init_ttl = ttl;
-			/* It's not possible for an initial TTL to be greater
-			   than 255, but we might calculate it to be so if the
-			   TTL was monkeyed with in transit. We cap the TTL at
-			   255 to aid OS detection, while the too-high TTL is
-			   stored in hss->target->FPR->max_init_ttl so we know
-			   what happened. */
-			if (ttl > 0xFF)
-			  ttl = 0xFF;
-			sprintf(pAV->value, "%hX", ttl);
+			sprintf(pAV->value, "%hX", ttl + hss->distance);
 		  } else {
 			/* Guess the initial TTL value */
 			pAV->attribute = "TG";
