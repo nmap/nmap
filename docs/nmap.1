@@ -180,7 +180,7 @@ OUTPUT:
   \-\-no\-stylesheet: Prevent associating of XSL stylesheet w/XML output
 MISC:
   \-6: Enable IPv6 scanning
-  \-A: Enables OS detection and Version detection
+  \-A: Enables OS detection, Version detection, Script scanning and Traceroute
   \-\-datadir <dirname>: Specify custom Nmap data file location
   \-\-send\-eth/\-\-send\-ip: Send using raw ethernet frames or IP packets
   \-\-privileged: Assume that the user is fully privileged
@@ -1325,7 +1325,7 @@ While IPv6 hasn't exactly taken the world by storm, it gets significant use in s
 \fI\%http://ipv6tb.he.net/\fR. 6to4 tunnels are another popular, free approach.
 .TP
 \fB\-A\fR (Aggressive scan options)
-This option enables additional advanced and aggressive options. I haven't decided exactly which it stands for yet. Presently this enables OS Detection (\fB\-O\fR) and version scanning (\fB\-sV\fR). More features may be added in the future. The point is to enable a comprehensive set of scan options without people having to remember a large set of flags. This option only enables features, and not timing options (such as
+This option enables additional advanced and aggressive options. I haven't decided exactly which it stands for yet. Presently this enables OS Detection (\fB\-O\fR), version scanning (\fB\-sV\fR), script scanning (\fB\-sC\fR) and traceroute (\fB\-\-traceroute\fR). More features may be added in the future. The point is to enable a comprehensive set of scan options without people having to remember a large set of flags. This option only enables features, and not timing options (such as
 \fB\-T4\fR) or verbosity options (\fB\-v\fR) that you might want as well.
 .TP
 \fB\-\-datadir <directoryname>\fR (Specify custom Nmap data file location)

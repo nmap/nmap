@@ -305,7 +305,7 @@ printf("%s %s ( %s )\n"
        "  --no-stylesheet: Prevent associating of XSL stylesheet w/XML output\n"
        "MISC:\n"
        "  -6: Enable IPv6 scanning\n"
-       "  -A: Enables OS detection and Version detection\n"
+       "  -A: Enables OS detection and Version detection, Script scanning and Traceroute\n"
        "  --datadir <dirname>: Specify custom Nmap data file location\n"
        "  --send-eth/--send-ip: Send using raw ethernet frames or IP packets\n"
        "  --privileged: Assume that the user is fully privileged\n"
@@ -893,8 +893,10 @@ int nmap_main(int argc, char *argv[]) {
 #ifndef NOLUA
       o.script = 1;
 #endif
-      if (o.isr00t)
+      if (o.isr00t) {
 		o.osscan = OS_SCAN_DEFAULT;
+		o.traceroute = true;
+      }		
       break;
     case 'b': 
       o.bouncescan++;

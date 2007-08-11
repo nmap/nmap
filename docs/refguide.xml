@@ -75,8 +75,8 @@
     <para>A typical Nmap scan is shown in <xref
     linkend="man-ex-repscan" />.  The only Nmap arguments used in
     this example are <option>-A</option>, to enable OS and version
-    detection, <option>-T4</option> for faster execution, and then the
-    two target hostnames.</para>
+    detection, script scanning, and traceroute; <option>-T4</option> for
+    faster execution; and then the two target hostnames.</para>
 
 <example id="man-ex-repscan"><title>A representative Nmap scan</title>
 <screen>
@@ -1523,8 +1523,8 @@ way.</para>
 
           <indexterm><primary>-sV</primary></indexterm>
           <para>Enables version detection, as discussed above.
-          Alternatively, you can use <option>-A</option> to enable
-          both OS detection and version detection.</para>
+          Alternatively, you can use <option>-A</option>, which enables
+          version detection among other things.</para>
 
         </listitem>
       </varlistentry>
@@ -1700,7 +1700,7 @@ way.</para>
 
           <para>Enables OS detection, as discussed above.
           Alternatively, you can use <option>-A</option> to enable
-          both OS detection and version detection.  2nd generation OS
+          OS detection along with other things.  2nd generation OS
           detection is tried first.  If that fails, Nmap will either
           print out the host fingerprint and ask you to submit it (if
           you are certain about what the target host is running), or
@@ -3056,7 +3056,9 @@ overwhelming requests.  Specify <option>--open</option> to only see
           <para>This option enables additional advanced and
           aggressive options. I haven't decided exactly which it
           stands for yet. Presently this enables OS Detection
-          (<option>-O</option>) and version scanning (<option>-sV</option>). More features may be
+          (<option>-O</option>), version scanning (<option>-sV</option>),
+	  script scanning (<option>-sC</option>) and 
+	  traceroute (<option>--traceroute</option>). More features may be
           added in the future. The point is to enable a
           comprehensive set of scan options without people having
           to remember a large set of flags. This option only
