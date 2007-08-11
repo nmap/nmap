@@ -518,7 +518,8 @@ int nmap_main(int argc, char *argv[]) {
       {"version", no_argument, 0, 'V'},
       {"verbose", no_argument, 0, 'v'},
       {"datadir", required_argument, 0, 0},
-      {"services", required_argument, 0, 0},
+      {"servicedb", required_argument, 0, 0},
+      {"versiondb", required_argument, 0, 0},
       {"debug", optional_argument, 0, 'd'},
       {"help", no_argument, 0, 'h'},
       {"iflist", no_argument, 0, 0},
@@ -731,9 +732,11 @@ int nmap_main(int argc, char *argv[]) {
 	}
       } else if (strcmp(long_options[option_index].name, "datadir") == 0) {
 	o.datadir = strdup(optarg);
-      } else if (strcmp(long_options[option_index].name, "services") == 0) {
+      } else if (strcmp(long_options[option_index].name, "servicedb") == 0) {
 	o.requested_data_files["nmap-services"] = optarg;
 	o.fastscan++;
+      } else if (strcmp(long_options[option_index].name, "versiondb") == 0) {
+	o.requested_data_files["nmap-service-probes"] = optarg;
       } else if (optcmp(long_options[option_index].name, "append-output") == 0) {
 	o.append_output = 1;
       } else if (strcmp(long_options[option_index].name, "noninteractive") == 0) {
