@@ -299,6 +299,11 @@ class NmapOps {
   int ttl; // Time to live
   int badsum;
   char *datadir;
+  /* A map from abstract data file names like "nmap-services" and "nmap-os-db"
+     to paths which have been requested by the user. nmap_fetchfile will return
+     the file names defined in this map instead of searching for a matching
+     file. */
+  std::map<std::string, std::string> requested_data_files;
   bool mass_dns;
   int resolve_all;
   char *dns_servers;
