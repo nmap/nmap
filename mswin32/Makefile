@@ -1,6 +1,6 @@
 MAKENSIS=/c/apps/NSIS/makensis.exe
 VCEXPRESS="/c/Program Files/Microsoft Visual Studio 8/Common7/IDE/VCExpress.exe"
-NMAP_VERSION:=$(shell grep "export NMAP_VERSION " ../Makefile.in | cut "-d " -f4)
+export NMAP_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 LOGLOC=c:nmapbuild.log
 
 winbuild:

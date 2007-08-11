@@ -428,6 +428,7 @@ GtkAdjustment *adjust;
 #ifdef WIN32
   opt.isr00t = 1;
   /* for nmap version */
+#include "nmap.h"
 #include "nmap_winconfig.h"
 #define VERSION NMAP_VERSION
 #else

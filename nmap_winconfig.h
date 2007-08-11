@@ -106,7 +106,6 @@
 /* Without this, Windows will give us all sorts of crap about using functions
    like strcpy() even if they are done safely */
 #define _CRT_SECURE_NO_DEPRECATE 1
-#define NMAP_VERSION "4.21ALPHA5"
 #define NMAP_NAME "Nmap"
 #define NMAP_URL "http://insecure.org"
 #define NMAP_PLATFORM "i686-pc-windows-windows"
