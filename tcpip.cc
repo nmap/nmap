@@ -3235,14 +3235,14 @@ int recvtime(int sd, char *buf, int len, int seconds, int *timedout) {
   if (res > 0 ) {
     res = recv(sd, buf, len, 0);
     if (res >= 0) return res;
-    perror("recv in recvtime");
+    gh_perror("recv in %s", __func__);
     return 0; 
   }
   else if (!res) {
     if (timedout) *timedout = 1;
     return 0;
   }
-  perror("select() in recvtime");
+  gh_perror("select() in %s", __func__);
   return -1;
 }
 

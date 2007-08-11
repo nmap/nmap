@@ -2430,7 +2430,7 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
 	      ftp->server_name, ftp->port);
 
   if ((sd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
-    perror("Couldn't create ftp_anon_connect socket");
+    gh_perror("Couldn't create %s socket", __func__);
     return 0;
   }
 
@@ -2448,8 +2448,7 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
       log_write(LOG_STDOUT, "%s", recvbuf);
     }
   if (res < 0) {
-    perror("recv problem from ftp bounce server");
-    exit(1);
+    pfatal("recv problem from ftp bounce server");
   }
 
   snprintf(command, 511, "USER %s\r\n", ftp->user);
@@ -2457,8 +2456,7 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
   send(sd, command, strlen(command), 0);
   res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1,12, NULL);
   if (res <= 0) {
-    perror("recv problem from ftp bounce server");
-    exit(1);
+    pfatal("recv problem from ftp bounce server");
   }
   recvbuf[res] = '\0';
   if (o.debugging) log_write(LOG_STDOUT, "sent username, received: %s", recvbuf);
@@ -2471,8 +2469,7 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
   send(sd, command, strlen(command), 0);
   res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1,12, NULL);
   if (res < 0) {
-    perror("recv problem from ftp bounce server\n");
-    exit(1);
+    pfatal("recv problem from ftp bounce server");
   }
   if (!res) error("Timeout from bounce server ...");
   else {
@@ -2489,8 +2486,7 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
       log_write(LOG_STDOUT, "%s", recvbuf);
     }
   if (res < 0) {
-    perror("recv problem from ftp bounce server");
-    exit(1);
+    pfatal("recv problem from ftp bounce server");
   }
   if (o.verbose) log_write(LOG_STDOUT, "Login credentials accepted by ftp server!\n");
 

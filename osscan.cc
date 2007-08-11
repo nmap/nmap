@@ -210,7 +210,7 @@ for(decoy=0; decoy < o.numdecoys; decoy++) {
   
   if ((res = send_ip_packet(sd, eth, packet, ntohs(ip->ip_len))) == -1)
     {
-      perror("send_ip_packet in send_closedupd_probe");
+      gh_perror("send_ip_packet in %s", __func__);
       return NULL;
     }
 }

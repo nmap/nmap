@@ -3560,7 +3560,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
     snprintf(command, 512, "PORT %s%i,%i\r\n", targetstr, p1,p2);
     if (o.debugging) log_write(LOG_STDOUT, "Attempting command: %s", command);
     if (send(sd, command, strlen(command), 0) < 0 ) {
-      perror("send in bounce_scan");
+      gh_perror("send in %s", __func__);
       if (retriesleft) {
 	if (o.verbose || o.debugging) 
 	  log_write(LOG_STDOUT, "Our ftp proxy server hung up on us!  retrying\n");
@@ -3580,7 +3580,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
     } else { /* Our send is good */
       res = recvtime(sd, recvbuf, 2048, 15, NULL);
       if (res <= 0) 
-	perror("recv problem from ftp bounce server\n");
+	perror("recv problem from ftp bounce server");
   
       else { /* our recv is good */
 	recvbuf[res] = '\0';
@@ -3602,7 +3602,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
 	  if (send(sd, "LIST\r\n", 6, 0) > 0 ) {
 	    res = recvtime(sd, recvbuf, 2048,12, &timedout);
 	    if (res < 0) {
-	      perror("recv problem from ftp bounce server\n");
+	      perror("recv problem from ftp bounce server");
 	    } else if (res == 0) {
 	      if (timedout)
 		target->ports.addPort(portarray[i], IPPROTO_TCP, NULL, 

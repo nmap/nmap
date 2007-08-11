@@ -3105,7 +3105,7 @@ int send_closedudp_probe_2(struct udpprobeinfo &upi, int sd,
   
     if ((res = send_ip_packet(sd, eth, packet, ntohs(ip->ip_len))) == -1)
       {
-        perror("send_ip_packet in send_closedupd_probe_2");
+        gh_perror("send_ip_packet in %s", __func__);
         return 1;
       }
   }
