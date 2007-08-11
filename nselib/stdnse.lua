@@ -1,3 +1,4 @@
+-- See nmaps COPYING for licence
 module(..., package.seeall)
 
 print_debug = function(...)
@@ -13,17 +14,7 @@ end
 -- separated by the string delimiter (just like in perl)
 -- example: strjoin(", ", {"Anna", "Bob", "Charlie", "Dolores"})
 function strjoin(delimiter, list)
-	local len = getn(list)
-	if len == 0 then 
-		return "" 
-	end
-
-	local string = list[1]
-	for i = 2, len do 
-		string = string .. delimiter .. list[i] 
-	end
-
-	return string
+	return table.concat(list, delimiter);
 end
 
 -- Split text into a list consisting of the strings in text,
@@ -51,47 +42,6 @@ function strsplit(delimiter, text)
 	return list
 end
 
--- String buffer functions. Concatenation is not efficient in 
--- lua as strings are immutable. If a large amount of '..' 
--- operations are needed a string buffer should be used instead
-
---[[
-	local buf = strbuf.new()
-	strbuf.add(buf, 'string') ; strbuf.add(buf, 'data')
-
-	print(buf)                   -- default seperator is a new line
-	print(strbuf.dump(buf))      -- no seperator
-	print(strbuf.dump(buf, ' ')) -- seperated by spaces
-	strbuf.clear(buf)
---]]
-
-strbuf_dump = table.concat 
-
-function strbuf_new()
-	local sbuf = {}
-	sbuf.mt = {}
-	setmetatable(sbuf, sbuf.mt)
-	sbuf.mt.__tostring = function(s) return strbuf_dump(s, '\n') end
-	return sbuf
-end
-
-function strbuf_add(sbuf, s)
-	if not (type(s) == 'string') or
-	   not (type(sbuf) == 'table') then
-		return nil 
-	end
-	table.insert(sbuf, s)
-	return table.getn(sbuf)
-end
-
-function strbuf_clear(sbuf)
-	for i, v in pairs(sbuf) do
-		sbuf[i] = nil
-    	end
-end
-
--- pseudo namespace for string buffers
-strbuf = { new=strbuf_new, add=strbuf_add, dump=strbuf_dump, clear=strbuf_clear }
 
 -- Generic buffer implementation using lexical closures
 --

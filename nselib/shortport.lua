@@ -1,3 +1,4 @@
+-- See nmaps COPYING for licence
 module(..., package.seeall)
 
 portnumber = function(port, _proto, _state)
