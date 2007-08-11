@@ -381,20 +381,6 @@ or
 Traceroutes are performed post\-scan using information from the scan results to determine the port and protocol most likely to reach the target. It works with all scan types except connect scans (\-sT) and idle scans (\-sI). All traces use nmap's dynamic timing model and are performed in parallel.
 .sp
 Traceroute works by sending packets with a low TTL (time\-to\-live) in an attempt to illicit ICMP TTL_EXCCEDED messages from intermediate hops between the scanner and the target host. Standard traceroute implementation start with a TTL of 1 and increment the TTL until the destination host is reached. Nmap's traceroute starts with a high TTL and then decrements the TTL until it reaches 0. Doing it backwards lets nmap employ clever caching algorithms to speed up traces over multiple hosts. On average nmap sends 5\-10 fewer packets per host, depending on network conditions. If a single subnet is being scanned (i.e. 192.168.0.0/24) nmap may only have to send a single packet to most hosts.
-.sp
-The output from each trace is consolidated to save space, There are two type of consolidation: timed out and reference trace. A reference trace is a cache of hops nmap has already reported.
-Example\ 14.2.\ Timeout consolidation.sp
-.nf
-  1 ...      Hop 1 timed out
-  1 ... 6    Hop 1 to 6 timed out
- 
-.fi
-Example\ 14.3.\ Reference consolidation (hop cache).sp
-.nf
-  1 \-\-       Hop 1 has been taken from the reference trace
-  1 \-\-> 6    Hop 1 to 6 have been taken from the reference trace
- 
-.fi
 .TP
 \fB\-\-reason\fR (Host and port state reasons)
 Shows the reason each port is set to a specific state and the reason each host is up or down. This option displays the type of the packet that determined a port or hosts state. For example, A RST packet from a closed port or an echo reply from an alive host. The information nmap can provide is determined by the type of scan or ping. The SYN scan and SYN ping (\fB\-sS and -PT\fR) are very detailed. Whilst the TCP connect scan and ping (\fB\-sT\fR) are limited by the implementation of connect(). This feature is automatically enabled by the debug flag (\fB\-d\fR) and the results are stored in XML log files even if this option is not specified.

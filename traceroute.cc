@@ -144,7 +144,7 @@
  * but a little more light weight. It keeps track of sent, received and dropped
  * packet, then adjusts timing parameters accordingly. The parameters are; number of
  * retransmissions, delay between each sent packet and the amount of time to wait 
- * for a reply. This are initially based on the timing level (-T0 to -T5). 
+ * for a reply. They are initially based on the timing level (-T0 to -T5). 
  * Traceroute also has to watch out for rate-limiting of ICMP TTL EXCCEDED
  * messages, sometimes there is nothing we can do and just have to settle with a
  * timedout hop.
@@ -154,12 +154,10 @@
  * reference trace.
  *
  * Timed out
- *  1 ...      Hop 1 timed out
- *  1 ... 6    Hop 1 to 6 timed out
+ *  23  ... 24 no response
  *
  * Reference trace
- *  1 --       Hop 1 has been taken from the reference trace
- *  1 --> 6    Hop 1 to 6 have been taken from the reference trace
+ *   Hops 1-10 are the same as for X.X.X.X
  *
  * Traceroute does not work with connect scans or idle scans and has trouble
  * with ICMP_TIMESTAMP and ICMP_ADDRESSMASK scans because so many host filter 
