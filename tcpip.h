@@ -648,6 +648,7 @@ struct interface_info *getInterfaceByIP(struct sockaddr_storage *ss);
 struct interface_info *getInterfaceByName(char *iname);
 /* Where the above 4 functions get their info */
 struct interface_info *getinterfaces(int *howmany);
+pcap_if_t *getpcapinterfaces();
 
 /* Parse the system routing table, converting each route into a
    sys_route entry.  Returns an array of sys_routes.  numroutes is set

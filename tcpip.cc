@@ -2615,6 +2615,19 @@ static int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
 }
 #endif /* WIN32 */
 
+pcap_if_t *getpcapinterfaces() {
+  #ifndef WIN32
+    return NULL;
+  #endif
+  pcap_if_t *p_ifaces;
+
+  if((pcap_findalldevs(&p_ifaces, NULL)) == -1) {
+    fatal("pcap_findalldevs() : Cannot retrieve pcap interfaces");
+    return NULL;
+  }
+  return p_ifaces;
+}
+
 struct interface_info *getinterfaces(int *howmany) {
   static bool initialized = 0;
   static struct interface_info *mydevs;
@@ -2644,7 +2657,6 @@ int sd;
 
 #if WIN32
 /* On Win32 we just use Dnet to determine the interface list */
-
       dcrn.routes = NULL;
       dcrn.numroutes = 0;
       dcrn.capacity = ii_capacity; // I'm reusing this struct for ii now

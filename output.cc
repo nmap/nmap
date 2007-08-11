@@ -290,6 +290,7 @@ int print_iflist(void) {
   int numifs = 0, numroutes = 0;
   struct interface_info *iflist;
   struct sys_route *routes;
+  pcap_if_t *p_ifaces, *p_iface_iter;
   NmapOutputTable *Tbl = NULL;
   iflist = getinterfaces(&numifs);
   int i;
@@ -324,6 +325,25 @@ int print_iflist(void) {
     log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "%s\n", Tbl->printableTable(NULL));
     log_flush_all();
     delete Tbl;
+  }
+  
+  /* Display windows device names */
+  if((p_ifaces = getpcapinterfaces()) != NULL && numifs > 0) {
+    Tbl = new NmapOutputTable(3, numifs);
+    Tbl->addItem(0, 0, false, "DEV");
+    Tbl->addItem(0, 1, false, "WINDEVICE");
+    i = numifs-1;
+
+    for(p_iface_iter = p_ifaces; p_iface_iter != NULL && i >= 0; i--) {
+      Tbl->addItem(i+1, 0, false, iflist[i].devname);
+      Tbl->addItem(i+1, 1, false, p_iface_iter->name);
+      p_iface_iter = p_iface_iter->next;
+    }
+
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "%s\n", Tbl->printableTable(NULL));
+    log_flush_all();
+    delete Tbl;
+    pcap_freealldevs(p_ifaces);
   }
 
   /* OK -- time to handle routes */
