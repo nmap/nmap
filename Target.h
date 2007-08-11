@@ -105,7 +105,11 @@
 
 #include "nmap.h"
 #include "FingerPrintResults.h"
+
+#ifndef NOLUA
 #include "nse_main.h"
+#endif
+
 #include "reason.h"
 
 #ifndef INET6_ADDRSTRLEN
@@ -240,7 +244,10 @@ class Target {
   struct timeout_info to;
   char *hostname; // Null if unable to resolve or unset
 
+#ifndef NOLUA
   ScriptResults scriptResults;
+#endif
+
   state_reason_t reason;
 
   private:

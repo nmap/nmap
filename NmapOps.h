@@ -99,6 +99,8 @@
 
 /* $Id$ */
 
+#include <string>
+
 class NmapOps {
  public:
   NmapOps();

@@ -56,6 +56,10 @@ action = function(host, port)
 
 	if title ~= nil then
 		result = string.gsub(title , "[\n\r\t]", "")
+		if string.len(title) > 50 then
+			nmap.print_debug_unformatted("showHTMLTitle.nse: title was truncated!");
+			result = string.sub(result, 1, 62) .. "..."
+		end
 	else
 		result = "Site doesn't have a title."
 	end

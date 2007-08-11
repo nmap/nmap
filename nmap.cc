@@ -110,7 +110,11 @@
 #include "traceroute.h"
 #include "nmap_tty.h"
 #include "nmap_dns.h"
+
+#ifndef NOLUA
 #include "nse_main.h"
+#endif 
+
 #ifdef WIN32
 #include "winfix.h"
 #endif

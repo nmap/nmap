@@ -103,7 +103,10 @@
 
 #include <map>
 #include "nbase.h"
+#ifndef NOLUA
 #include "nse_main.h"
+#endif 
+
 #include "reason.h"
 
 /* port states */
@@ -224,7 +227,9 @@ class Port {
   int confidence; /* How sure are we about the state? */
   state_reason_t reason;
 
+#ifndef NOLUA
   ScriptResults scriptResults;
+#endif
 
  private:
   int rpc_status; /* RPC_STATUS_UNTESTED means we haven't checked

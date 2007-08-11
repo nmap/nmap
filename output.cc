@@ -680,8 +680,12 @@ void printportoutput(Target *currenths, PortList *plist) {
 		for(	ssr_iter = current->scriptResults.begin(); 
 			ssr_iter != current->scriptResults.end(); 
 			ssr_iter++) {
+			char* xml_id= xml_convert((*ssr_iter).id);
+			char* xml_scriptoutput= xml_convert((*ssr_iter).output);
 			log_write(LOG_XML, "<script id=\"%s\" output=\"%s\" />", 
-					(*ssr_iter).id, (*ssr_iter).output);
+					xml_id, xml_scriptoutput);
+			free(xml_id);
+			free(xml_scriptoutput);
 
 			char* script_output = formatScriptOutput((*ssr_iter));
 			Tbl->addItem(rowno, 0, true, true, script_output);
@@ -719,6 +723,7 @@ log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "%d service%s unrecognized despite ret
   log_flush_all();
 }
 
+#ifndef NOLUA
 char* formatScriptOutput(struct script_scan_result ssr) {
 	char* c_result;
 	std::string result = std::string();
@@ -756,6 +761,7 @@ char* formatScriptOutput(struct script_scan_result ssr) {
 
 	return c_result;
 }
+#endif /* NOLUA */
 
 char* xml_convert (const char* str) {
   char *temp, ch=0, prevch = 0, *p;
@@ -1693,22 +1699,29 @@ void printserviceinfooutput(Target *currenths) {
   log_flush_all();
 }
 
+#ifndef NOLUA
 void printhostscriptresults(Target *currenths) {
 	ScriptResults::iterator iter;
-	char* script_output; 
+	char* script_output, *xml_id, *xml_scriptoutput; 
 	
 	if(currenths->scriptResults.size() > 0) {
 		log_write(LOG_XML, "<hostscript>");
 		log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "\nHost script results:\n");
 		for(iter = currenths->scriptResults.begin(); iter != currenths->scriptResults.end(); iter++) {
+			xml_id = xml_convert((*iter).id);
+			xml_scriptoutput= xml_convert((*iter).output);
 			log_write(LOG_XML, "<script id=\"%s\" output=\"%s\" />", 
-					(*iter).id, (*iter).output);
+					xml_id, xml_scriptoutput);
 			script_output = formatScriptOutput((*iter));
 			log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "%s\n", script_output);
+			free(script_output);
+			free(xml_id);
+			free(xml_scriptoutput);
 		}
 		log_write(LOG_XML, "</hostscript>");
 	}
 }
+#endif
 
 /* Prints a status message while the program is running */
 void printStatusMessage() {
