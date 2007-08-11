@@ -123,7 +123,10 @@ struct NmapOutputTableCell {
 
 class NmapOutputTable {
  public:
-  // Create a table of the given dimensions
+  // Create a table of the given dimensions. Any completely
+  // blank rows will be removed when printableTable() is called.
+  // If the number of table rows is unknown then the highest
+  // number of possible rows should be specified.
   NmapOutputTable(int nrows, int ncols);
   ~NmapOutputTable();
 
@@ -146,14 +149,11 @@ class NmapOutputTable {
   // function again, and it will also be invalidated if you free the
   // table. If size is not NULL, it will be filled with the size of
   // the ASCII table in bytes (not including the terminating NUL)
+  // All blank rows will be removed from the returned string
   char *printableTable(int *size);
-
-  // same as printableTable() but with excess empty rows removed
-  char *printableTrimmedTable(int *size);
 
  private:
 
-  char *internalPrintableTable(int *size, bool trim);
   bool emptyRow(unsigned int nrow);
   // The table, squished into 1D.  Access a member via getCellAddy
   struct NmapOutputTableCell *table;

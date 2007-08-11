@@ -967,6 +967,8 @@ Traceroute::outputTarget (Target * t) {
     Tbl->addItem (row_count, HOST_COL, false, "ADDRESS", 7);
 
     for (ttl_count = 1; ttl_count <= tg->hopDistance; ttl_count++) {
+	
+	assert(row_count <= tg->hopDistance);
 
         /* consolidate hops based on the reference trace (commonPath)  */
         if(commonPath[ttl_count] && ttl_count <= tg->consolidation_start) { 
@@ -1057,7 +1059,7 @@ Traceroute::outputTarget (Target * t) {
         log_write(LOG_PLAIN, "\nTRACEROUTE (using proto %d/%s)\n", tg->proto, proto?proto->p_name:"unknown");
     else 
         log_write(LOG_PLAIN, "\nTRACEROUTE (using port %d/%s)\n", tg->dport, proto2ascii(tg->proto));
-    log_write (LOG_PLAIN, "%s", Tbl->printableTrimmedTable(NULL));
+    log_write (LOG_PLAIN, "%s", Tbl->printableTable(NULL));
 
     if(G_TTL(tg->getState()))
         log_write(LOG_PLAIN, "! maximum TTL reached (50)\n");

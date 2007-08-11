@@ -264,9 +264,8 @@ bool NmapOutputTable::emptyRow(unsigned int nrow) {
  // function again, and it will also be invalidated if you free the
  // table. If size is not NULL, it will be filled with the size of
  // the ASCII table in bytes (not including the terminating NUL) 
- // If trim is true, excess empty rows are not returned 
- //
-char *NmapOutputTable::internalPrintableTable(int *size, bool trim) {
+ // All blank rows are removed from the returned string
+char *NmapOutputTable::printableTable(int *size) {
   unsigned int col, row;
   int maxsz = printableSize();
   char *p;
@@ -284,11 +283,8 @@ char *NmapOutputTable::internalPrintableTable(int *size, bool trim) {
   for(row = 0; row < numRows; row++) {
     validthisrow = 0;
 
-    /* If this was called by printableTrimmedTable 
-     * (trim == true) we can ignore everything after an 
-     * empty row */
-    if(trim && emptyRow(row)) 
-	break;
+    if(emptyRow(row)) 
+	continue;
 
     cell = getCellAddy(row, 0);
     if(cell->fullrow && cell->strlength > 0) {
@@ -315,12 +311,4 @@ char *NmapOutputTable::internalPrintableTable(int *size, bool trim) {
   *p = '\0';
   if (size) *size = p - tableout;
   return tableout;
-}
-
-char *NmapOutputTable::printableTable(int *size) {
-	return internalPrintableTable(size, false);
-}
-
-char *NmapOutputTable::printableTrimmedTable(int *size) {
-	return internalPrintableTable(size, true);
 }
