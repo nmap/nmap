@@ -141,10 +141,12 @@ case "$host" in
   *-netbsd* | *-knetbsd*-gnu)
     AC_DEFINE(NETBSD)
 	LUAFLAVOR=bsd
+	LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-openbsd*)
     AC_DEFINE(OPENBSD)
 	LUAFLAVOR=bsd
+	LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-sgi-irix5*)
     AC_DEFINE(IRIX)
@@ -221,10 +223,12 @@ case "$host" in
   *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*)
     AC_DEFINE(FREEBSD)
 	LUAFLAVOR=bsd
+	LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-bsdi*)
     AC_DEFINE(BSDI)
 	LUAFLAVOR=bsd
+	LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-apple-darwin*)
     macosx=yes
@@ -237,6 +241,8 @@ case "$host" in
 esac
 
 AC_SUBST(LUAFLAVOR)
+AC_SEARCH_LIBS(dlopen, dl)
+
 dnl equiv to '#define inline' to 'inline', '__inline__', '__inline' or ''
 AC_C_INLINE
 if test -n "$sgi_cc"; then
