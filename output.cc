@@ -1873,6 +1873,8 @@ void printdatafilepaths() {
   std::list<struct data_file_record> df;
   std::list<struct data_file_record>::iterator iter;
   std::map<std::string, std::string>::iterator map_iter;
+  std::string dir;
+  unsigned int num_dirs;
 
   /* Copy the elements of o.loaded_data_files (each a (data file, path) pair) to
      a list of data_file_records to make them easier to manipulate. */
@@ -1888,17 +1890,47 @@ void printdatafilepaths() {
      that records with the same directory name are contiguous. */
   df.sort();
 
-  /* Iterate over the list and display file names. */
-  iter = df.begin();
-  while (iter != df.end()) {
-    std::string dir = iter->dir;
-    /* Write the directory name. */
-    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "Read from %s:", dir.c_str());
-    /* Write files in that directory on the same line. */
-    while (iter != df.end() && iter->dir == dir) {
-      log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, " %s", iter->file.c_str());
-      iter++;
+  /* Count the number of distinct directories. Normally we print something only
+     if files came from more than one directory. */
+  if (df.empty()) {
+    num_dirs = 0;
+  } else {
+    num_dirs = 1;
+    iter = df.begin();
+    dir = iter->dir;
+    for (iter++; iter != df.end(); iter++) {
+      if (iter->dir != dir) {
+        num_dirs++;
+        dir = iter->dir;
+      }
     }
-    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, ".\n");
+  }
+
+  /* Decide what to print out based on the number of distinct directories and
+     the verbosity and debugging levels. */
+  if (num_dirs == 0) {
+    /* If no files were read, print a message only in debugging mode. */
+    if (o.debugging > 0)
+      log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "No data files read.\n");
+  } else if (num_dirs == 1 && o.verbose && !o.debugging) {
+    /* If all the files were from the same directory and we're in verbose mode,
+       print a brief message unless we are also in debugging mode. */
+    log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "Read data files from: %s.\n", dir.c_str());
+  } else if (num_dirs == 1 && o.debugging || num_dirs > 1) {
+    /* If files were read from more than one directory was found, or if they
+       were read from one directory and we are in debugging mode, display all
+       the files grouped by directory. */
+    iter = df.begin();
+    while (iter != df.end()) {
+      std::string dir = iter->dir;
+      /* Write the directory name. */
+      log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, "Read from %s:", dir.c_str());
+      /* Write files in that directory on the same line. */
+      while (iter != df.end() && iter->dir == dir) {
+        log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, " %s", iter->file.c_str());
+        iter++;
+      }
+      log_write(LOG_NORMAL|LOG_SKID|LOG_STDOUT, ".\n");
+    }
   }
 }
