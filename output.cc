@@ -779,8 +779,9 @@ char* formatScriptOutput(struct script_scan_result ssr) {
 
 	// delete the unwanted trailing newline
 	pos = result.rfind(sep);
-	result.erase(pos, strlen(sep));
-	
+	if(pos!=std::string::npos){
+		result.erase(pos, strlen(sep));
+	}
 	c_result = strdup(result.c_str());
 
 	return c_result;

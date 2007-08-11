@@ -466,6 +466,8 @@ int process_preparerunlevels(std::list<struct thread_record> torun_threads) {
 		if(runlevel_idx < (*runlevel_iter).runlevel) {
 			runlevel_idx = (*runlevel_iter).runlevel;
 			current_runlevel.clear();
+			//push_back an empty in which we store all scripts of the current 
+			//runlevel...
 			torun_scripts.push_back(current_runlevel);
 		}
 
