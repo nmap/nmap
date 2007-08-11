@@ -7,18 +7,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef __cplusplus
 extern "C" {
+#endif
 #include "lua.h"
 #include "lauxlib.h"
+
+#ifdef __cplusplus
 }
+#endif
 
 #include <locale.h>
 #include <pcre.h>
 
-#include "nbase.h"
-#include "nmap_error.h"
-
-#include "nse_pcrelib.h"
+#include "pcre.h"
 
 static void L_lua_error(lua_State *L, const char *message)
 {
@@ -147,9 +149,17 @@ static int Lpcre_comp(lua_State *L)
 	if(error) L_lua_error(L, error);
 
 	pcre_fullinfo(ud->pr, ud->extra, PCRE_INFO_CAPTURECOUNT, &ud->ncapt);
+	/* since some platforms have problems with nbase and exporting symbols we
+	 * emulate it 
+	 */
+	if(((ud->ncapt + 1) * 3 * sizeof(int))<0){
+		L_lua_error(L, "PCRE: negative argument to malloc");
+	}
 	/* need (2 ints per capture, plus one for substring match) * 3/2 */
-	ud->match = (int *) safe_malloc((ud->ncapt + 1) * 3 * sizeof(int));
-
+	ud->match = (int *) malloc((ud->ncapt + 1) * 3 * sizeof(int));
+	if(ud->match==NULL){
+		L_lua_error(L, "PCRE: malloc failed!");
+	}
 	return 1;
 }
 
@@ -362,7 +372,7 @@ static const luaL_reg pcrelib[] = {
 	{NULL, NULL}
 };
 
-LUALIB_API int luaopen_pcrelib(lua_State *L)
+LUALIB_API int luaopen_pcre(lua_State *L)
 {
 	createmeta(L, pcre_handle);
 	luaL_openlib(L, NULL, pcremeta, 0);

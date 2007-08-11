@@ -286,10 +286,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\nse_pcrelib.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\nse_string.cc"
 				>
 			</File>
@@ -472,10 +468,6 @@
 			</File>
 			<File
 				RelativePath="..\nse_nsock.h"
-				>
-			</File>
-			<File
-				RelativePath="..\nse_pcrelib.h"
 				>
 			</File>
 			<File
