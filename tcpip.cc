@@ -325,7 +325,7 @@ static void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize) {
 	  
       q++;
 
-	  snprintf(p, bufsize, "wsacle %u", *q);
+	  snprintf(p, bufsize, "wscale %u", *q);
 	  bufsize -= strlen(p);
 	  p += strlen(p); 
 	  
