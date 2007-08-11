@@ -7,7 +7,7 @@ author = "Ferdy Riphagen <f.riphagen@nsec.nl>"
 
 license = "See nmap's COPYING for license"
 
-categories = {"safe", "discovery"}
+categories = {"version"}
 
 require "shortport"
 

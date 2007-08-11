@@ -379,11 +379,20 @@ static int l_set_port_version(lua_State* l, Target* target, Port* port) {
 //			tunnel, product, version,
 //			extrainfo, hostname, ostype, 
 //			devicetype, fingerprint);
-	port->setServiceProbeResults(probestate, name,
-			tunnel, product, version,
-			extrainfo, hostname, ostype, 
-			devicetype, NULL);
 
+//should prevent a assertion-failure during output if the OutputTable does 
+//not contain columns for the fields other than the name
+	if(o.servicescan){
+		port->setServiceProbeResults(probestate, name,
+				tunnel, product, version,
+				extrainfo, hostname, ostype, 
+				devicetype, NULL);
+	}else{
+		port->setServiceProbeResults(probestate, name,
+			tunnel, NULL, NULL,
+			NULL, NULL, NULL, 
+			NULL, NULL);
+	}
 
 
 	free(service_tunnel);
