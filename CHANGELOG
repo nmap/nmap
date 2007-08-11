@@ -7,6 +7,11 @@ o Fixed an output bug on systems like Windows which return -1 when
   vsnprintf is passed a too-small buffer rather than returning the
   size needed.  Thanks to jah (jah(a)zadkiel.plus.com) for the report.
 
+o Added sys/types.h include to reason.h to help OpenBSD compilation.  
+  Thanks to Olivier Meyer for the patch.
+
+o Updated IANA assignment IP list for random IP (-iR) generation. [Kris]
+
 4.22SOC2
 
 o NSE compilation fixes by Stoiko and Kris

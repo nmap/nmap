@@ -108,6 +108,8 @@
 #include <netinet/in.h>
 #endif
 
+#include <sys/types.h>
+
 class Target;
 class PortList;
 

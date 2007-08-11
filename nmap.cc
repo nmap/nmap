@@ -369,8 +369,6 @@ static int ip_is_reserved(struct in_addr *ip)
     case 49:        /* 049/8 is IANA reserved       */
     case 50:        /* 050/8 is IANA reserved       */
     case 55:        /* misc. U.S.A. Armed forces    */
-    case 94:        /* 094/8 is IANA reserved       */
-    case 95:        /* 095/8 is IANA reserved       */
     case 127:       /* 127/8 is reserved for loopback */
     case 197:       /* 197/8 is IANA reserved       */
     case 223:       /* 223/8 is IANA reserved       */
