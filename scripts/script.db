@@ -32,3 +32,4 @@ Entry{ category = "discovery", filename = "SMTPcommands.nse" }
 Entry{ category = "intrusive", filename = "SMTPcommands.nse" }
 Entry{ category = "malware", filename = "kibuvDetection.nse" }
 Entry{ category = "discovery", filename = "ircServerInfo.nse" }
+Entry{ category = "intrusive", filename = "bruteTelnet.nse" }

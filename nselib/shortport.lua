@@ -1,62 +1,58 @@
-module(...)
+module('shortport', package.seeall)
 
-protorule = function(service, proto, state)
-	return function(host,port)
-		state = state or "open"
-		proto = proto or "tcp"
-		if port.service==service
-			and port.protocol == proto
-			and port.state == state
-		then
-			return true;
-		else
-			return false;
-		end
-	end
-end
+portnumber = function(port, _proto, _state)
+	local port_table;
+	local state = _state or "open"
+	local proto = _proto or "tcp"
 
-portnumber = function(number, proto, state)
-	return function(host,port)
-		state = state or "open"
-		proto = proto or "tcp"
-		if port.number==number
-			and port.protocol == proto
-			and port.state ==state
-		then
-			return true;
-		else
-			return false;
-		end
-	end
-end
+	if(type(port) == "number") then
+		port_table = {port}
+	elseif(type(port) == "table") then
+		port_table = port
+	end	
 
-port_in_list = function(proto, ...)
-	local list={...}
-	return function(host,port)
-		if not port.protocol==proto
-		then
-			return false
-		end
-		for _, v in ipairs(list) do
-			if port.number == v then
-				return true
+	return function(host, port)
+		if(port.protocol == proto and port.state == state) then
+			for _, _port in ipairs(port_table) do
+				if(port.number == _port) then
+					return true
+				end
 			end
 		end
+
 		return false
 	end
 end
 
-port_or_service = function(number, service, proto, state)
+service = function(service, _proto, _state)
+	local service_table;
+	local state = _state or "open"
+	local proto = _proto or "tcp"
+
+	if(type(service) == "string") then
+		service_table = {service}
+	elseif(type(service) == "table") then
+		service_table = service
+	end	
+
 	return function(host, port)
-		state = state or "open"
-		proto = proto or "tcp"
-		if 	(port.number==number or port.service==service) 
-			and port.protocol==proto
-			and port.state == state
-		then
-			return true
-		else 
-			return false
+		if(port.protocol == proto and port.state == state) then
+			for _, service in ipairs(service_table) do
+				if(port.service == service) then
+					return true
+				end
+			end
 		end
+
+		return false
+	end
+end
+
+port_or_service = function(port, _service, proto, state)
+	local port_checker = portnumber(port, proto, state)
+	local service_checker = service(_service, proto, state)
+
+	return function(host, port)
+		return port_checker(host, port) or service_checker(host, port)
 	end
 end

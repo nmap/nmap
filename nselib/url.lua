@@ -315,6 +315,10 @@ function parse_query(query)
 	local parsed = {}
 	local pos = 0
 
+	query = string.gsub(query, "&amp;", "&")
+	query = string.gsub(query, "&lt;", "<")
+	query = string.gsub(query, "&gt;", ">")
+
 	function ginsert(qstr)
 		local first, last = string.find(qstr, "=")
 		if first then

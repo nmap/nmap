@@ -14,17 +14,7 @@ categories = {"demo", "safe"}
 require "shortport"
 require "stdnse"
 
-portrule = function(host, port)
-	if ( port.service=='http' 
-    or port.service=='https' )
-		and port.protocol == 'tcp'
-		and port.state == 'open'
-	then
-		return true;
-	else
-		return false;
-	end
-end
+portrule = shortport.service({'http', 'https'})
 
 action = function(host, port)
 	local url, socket, request, result, status, s, title, protocol
