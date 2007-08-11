@@ -21,11 +21,9 @@ LTFLAGS = --tag=CC --silent
 all: bit.so
 
 bit.so: bit.c @LIBTOOL_DEPS@
-	echo "liblua is : $(LIBLUADIR)"
-	echo "liblua_LIBS is: $(LIBLUA_LIBS)"
 	$(LIBTOOL) $(LTFLAGS) --mode=compile $(CC) $(LIBLUA_INCLUDE) $(CFLAGS) -c bit.c
-	$(LIBTOOL) $(LTFLAGS) --mode=link $(CC) -rpath /usr/local/lib -o libbit.la bit.lo
-	mv .libs/libbit$(LIBSUFFIX) bit.so
+	$(LIBTOOL) $(LTFLAGS) --mode=link $(CC) -avoid-version -module -rpath /usr/local/lib -o bit.la bit.lo
+	mv .libs/bit.so bit.so
 
 clean: 
 	rm -f bit.so *.la *.lo

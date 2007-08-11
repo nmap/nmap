@@ -136,17 +136,21 @@ needs_cpp_precomp=no
 case "$host" in
   *alpha-dec-osf*)
     AC_DEFINE(DEC)
+	LUAFLAVOR=posix
     ;;
   *-netbsd* | *-knetbsd*-gnu)
     AC_DEFINE(NETBSD)
+	LUAFLAVOR=bsd
     ;;
   *-openbsd*)
     AC_DEFINE(OPENBSD)
+	LUAFLAVOR=bsd
     ;;
   *-sgi-irix5*)
     AC_DEFINE(IRIX)
     if test -z "$GCC"; then
       sgi_cc=yes
+	LUAFLAVOR=posix
     fi
     ;;
   *-sgi-irix6*)
@@ -154,66 +158,85 @@ case "$host" in
     if test -z "$GCC"; then
       sgi_cc=yes
     fi
+	LUAFLAVOR=posix
     ;;
   *-hpux*)
     AC_DEFINE(HPUX)
     # To link with libnet and NM (/usr/lib/libnm.sl) library
     # on HP-UX 11.11 (other versions?) Mikhail Zakharov (zmey20000@yahoo.com)
     AC_CHECK_LIB(nm, open_mib)
+	LUAFLAVOR=posix
     ;;
   *-solaris2.0*)  
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
+	LUAFLAVOR=solaris
     ;;
   *-solaris2.[[1-9]][[0-9]]*)
     AC_DEFINE(SOLARIS)
+	LUAFLAVOR=solaris
     ;;
   *-solaris2.1*)
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
+	LUAFLAVOR=solaris
     ;;
   *-solaris2.2*)
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
+	LUAFLAVOR=solaris
     ;;
   *-solaris2.3*)
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
+	LUAFLAVOR=solaris
     ;;
   *-solaris2.4*)
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
+	LUAFLAVOR=solaris
     ;;
   *-solaris2.5.1)
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
+	LUAFLAVOR=solaris
     ;;
   *-solaris*)
     AC_DEFINE(SOLARIS)
+	LUAFLAVOR=solaris
     ;;
   *-sunos4*)
     AC_DEFINE(SUNOS)
     AC_DEFINE(SPRINTF_RETURNS_STRING)
+	LUAFLAVOR=solaris
     ;;
   *-linux*)
     linux=yes
     AC_DEFINE(LINUX)
     AC_DEFINE(PCAP_TIMEOUT_IGNORED)  # libpcap doesn't even LOOK at
                                      # the timeout you give it under Linux
+	LUAFLAVOR=linux
+	LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*)
     AC_DEFINE(FREEBSD)
+	LUAFLAVOR=bsd
     ;;
   *-bsdi*)
     AC_DEFINE(BSDI)
+	LUAFLAVOR=bsd
     ;;
   *-apple-darwin*)
     macosx=yes
     AC_DEFINE(MACOSX)
     needs_cpp_precomp=yes
+	LUAFLAVOR=macosx
     ;;
+  *)
+  	LUAFLAVOR=posix
 esac
 
+AC_SUBST(LUAFLAVOR)
 dnl equiv to '#define inline' to 'inline', '__inline__', '__inline' or ''
 AC_C_INLINE
 if test -n "$sgi_cc"; then

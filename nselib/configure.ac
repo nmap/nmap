@@ -14,27 +14,7 @@ AC_SUBST(LIBTOOL_DEPS)
 
 AC_CANONICAL_HOST
 
-case "$host" in
-	*-freebsd* | *-kfreebsd*-gnu | *-dragonfly*)
-		LIBSUFFIX=.so.0
-		;;
-	*bsd*) # need to verify this
-		LIBSUFFIX=.so.0
-		;;
-	*-linux*)
-		LIBSUFFIX=.so.0.0.0
-		;;
-	*-apple-darwin*) # need to verify this
-		LIBSUFFIX=.bundle
-		;;
-	*) # maybe this will work
-		LIBSUFFIX=.so
-		;;
-esac
-
 AC_SUBST(LIBSUFFIX)
-
-AC_HEADER_STDC
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

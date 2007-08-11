@@ -35,7 +35,7 @@ export CFLAGS = $(CXXFLAGS)
 # CFLAGS = $(DEFS) $(INCLS)
 STATIC =
 LDFLAGS = @LDFLAGS@ $(DBGFLAGS) $(STATIC)
-LIBS =  @LIBNBASE_LIBS@ @LIBNSOCK_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ @OPENSSL_LIBS@ @LIBDNET_LIBS@ @LIBLUA_LIBS@ @LIBS@
+LIBS =  @LIBNBASE_LIBS@ @LIBNSOCK_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ @OPENSSL_LIBS@ @LIBDNET_LIBS@ @LIBLUA_LIBS@ @LIBS@ 
 # LIBS =  -lefence @LIBS@
 # LIBS =  -lrmalloc @LIBS@
 SHTOOL = ./shtool
@@ -103,7 +103,7 @@ $(NSOCKDIR)/src/libnsock.a: $(NSOCKDIR)/src/Makefile FORCE
 	cd $(NSOCKDIR)/src && $(MAKE)
 
 $(LIBLUADIR)/liblua.a: $(LIBLUADIR)/Makefile FORCE
-	@echo Compiling liblua; cd $(LIBLUADIR) && $(MAKE) posix
+	@echo Compiling liblua; cd $(LIBLUADIR) && $(MAKE) @LUAFLAVOR@
 
 #$(LIBPCAPDIR)/Makefile:
 #	@echo Configuring libpcap; cd $(LIBPCAPDIR); ./configure
