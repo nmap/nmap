@@ -3572,7 +3572,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
 	i--;
       }
       else {
-	fprintf(stderr, "Our socket descriptor is dead and we are out of retries. Giving up.\n");
+	error("Our socket descriptor is dead and we are out of retries. Giving up.");
 	close(sd);
 	ftp->sd = -1;
 	return;
@@ -3588,15 +3588,13 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
 				 portarray[i],  recvbuf);
 	if (recvbuf[0] == '5') {
 	  if (portarray[i] > 1023) {
-	    fprintf(stderr, "Your ftp bounce server sucks, it won't let us feed bogus ports!\n");
-	    exit(1);
+	    fatal("Your ftp bounce server sucks, it won't let us feed bogus ports!");
 	  }
 	  else {
-	    fprintf(stderr, "Your ftp bounce server doesn't allow privileged ports, skipping them.\n");
+	    error("Your ftp bounce server doesn't allow privileged ports, skipping them.");
 	    while(i < numports && portarray[i] < 1024) i++;
 	    if (!portarray[i]) {
-	      fprintf(stderr, "And you didn't want to scan any unpriviliged ports.  Giving up.\n");
-	      exit(1);
+	      fatal("And you didn't want to scan any unpriviliged ports.  Giving up.");
 	    }
 	  }  
 	}
@@ -3617,7 +3615,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
 	      if (!strncmp(recvbuf, "500", 3)) {
 		/* fuck, we are not aligned properly */
 		if (o.verbose || o.debugging)
-		  fprintf(stderr, "FTP command misalignment detected ... correcting.\n");
+		  error("FTP command misalignment detected ... correcting.");
 		res = recvtime(sd, recvbuf, 2048,10, NULL);
 	      }
 	      if (recvbuf[0] == '1' || recvbuf[0] == '2') {

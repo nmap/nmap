@@ -149,7 +149,7 @@ while(!id) id = get_random_uint();
 
 /* check that required fields are there and not too silly */
 if ( !victim || !dport || (!eth && sd < 0)) {
-  fprintf(stderr, "%s: One or more of your parameters suck!\n", __func__);
+  error("%s: One or more of your parameters suck!", __func__);
   return NULL;
 }
 
@@ -824,7 +824,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
 	  if ((tcp->th_flags & TH_RST)) {
 	    /*	 readtcppacket((char *) ip, ntohs(ip->ip_len));*/	 
 	    if (si->responses == 0) {	 
-	      fprintf(stderr, "WARNING:  RST from port %lu -- is this port really open?\n", openport);
+	      error("WARNING:  RST from port %lu -- is this port really open?", openport);
 	      /* We used to quit in this case, but left-overs from a SYN
 		 scan or lame-ass TCP wrappers can cause this! */
 	    } 
@@ -2186,7 +2186,7 @@ while(fgets(line, sizeof(line), fp)) {
     if (DB->MatchPoints) fatal("Found MatchPoints directive on line %d of %s even though it has previously been seen in the file", lineno, fname);
     parsingMatchPoints = true;
   } else {
-    fprintf(stderr, "Parse error on line %d of nmap-os-fingerprints file: %s\n", lineno, line);
+    error("Parse error on line %d of nmap-os-fingerprints file: %s", lineno, line);
     continue;
   }
 
@@ -2231,7 +2231,7 @@ while(fgets(line, sizeof(line), fp)) {
       p = line;
       q = strchr(line, '(');
       if (!q) {
-	fprintf(stderr, "Parse error on line %d of nmap-os-fingerprints file: %s\n", lineno, line);
+	error("Parse error on line %d of nmap-os-fingerprints file: %s", lineno, line);
 	goto top;
       }
       *q = '\0';
@@ -2244,7 +2244,7 @@ while(fgets(line, sizeof(line), fp)) {
       *q = '(';
       q = strchr(p, ')');
       if (!q) {
-	fprintf(stderr, "Parse error on line %d of nmap-os-fingerprints file: %s\n", lineno, line);
+	error("Parse error on line %d of nmap-os-fingerprints file: %s", lineno, line);
 	goto top;
       }
       *q = '\0';

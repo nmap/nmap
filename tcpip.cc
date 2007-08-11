@@ -1553,7 +1553,7 @@ int i;
 int realfrag = 0;
 
 if (!packet) {
-  fprintf(stderr, "%s: packet is NULL!\n", __func__);
+  error("%s: packet is NULL!", __func__);
   return -1;
     }
 
@@ -1612,7 +1612,7 @@ int i;
 int realfrag = 0;
 
 if (!packet) {
-  fprintf(stderr, "%s: packet is NULL!\n", __func__);
+  error("%s: packet is NULL!", __func__);
   return -1;
     }
 
@@ -3209,7 +3209,7 @@ void broadcast_socket(int sd) {
   if(sd == 501) return;
 #endif
   if (setsockopt(sd, SOL_SOCKET, SO_BROADCAST, (const char *)&one, sizeof(int)) != 0) {
-    fprintf(stderr, "Failed to secure socket broadcasting permission\n");
+    error("Failed to secure socket broadcasting permission");
     perror("setsockopt");
   }
 }

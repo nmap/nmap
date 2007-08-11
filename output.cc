@@ -882,8 +882,7 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
 	va_end(apcopy);
 	return;
       } else if (len < 0) {
-	fprintf(stderr, "vsnprintf returned %d in %s -- bizarre. Quitting.\n", len, __func__);
-	exit(1);
+	fatal("vsnprintf returned %d in %s -- bizarre. Quitting.", len, __func__);
       } else if (len >= writebuflen) {
 	/* Didn't have enough space.  Expand writebuf and try again */
 	free(writebuf);
@@ -891,24 +890,21 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
 	writebuf = (char *) safe_malloc(writebuflen);
 	len = vsnprintf(writebuf, writebuflen, fmt, apcopy);
 	if (len <= 0 || len >= writebuflen) {
-	  fprintf(stderr, "%s: vnsprintf failed.  Even after increasing bufferlen to %d, vsnprintf returned %d (logt == %d).  Please email this message to fyodor@insecure.org.  Quitting.\n", __func__, writebuflen, len, logt);
-	  exit(1);
+	  fatal("%s: vnsprintf failed.  Even after increasing bufferlen to %d, vsnprintf returned %d (logt == %d).  Please email this message to fyodor@insecure.org.  Quitting.", __func__, writebuflen, len, logt);
 	}
       }
       if (logt == LOG_SKID && !skid_noxlate)
 	skid_output(writebuf);
       rc = fwrite(writebuf,len,1,o.logfd[fileidx]);
       if (rc != 1) {
-	fprintf(stderr, "Failed to write %d bytes of data to (logt==%d) stream. fwrite returned %d.  Quitting.\n", len, logt, rc);
-	exit(1);
+	fatal("Failed to write %d bytes of data to (logt==%d) stream. fwrite returned %d.  Quitting.", len, logt, rc);
       }
       va_end(apcopy);
     }
     break;
 
   default:
-    fprintf(stderr, "%s(): Passed unknown log type (%d).  Note that this function, unlike log_write, can only handle one log type at a time (no bitmasks)\n", __func__, logt);
-    exit(1);
+    fatal("%s(): Passed unknown log type (%d).  Note that this function, unlike log_write, can only handle one log type at a time (no bitmasks)", __func__, logt);
   }
 
   return;
@@ -1783,7 +1779,7 @@ void printfinaloutput() {
       && o.scriptupdatedb == 0
 #endif
      )
-    fprintf(stderr, "WARNING: No targets were specified, so 0 hosts scanned.\n");
+    error("WARNING: No targets were specified, so 0 hosts scanned.");
   if (o.numhosts_scanned == 1 && o.numhosts_up == 0 && !o.listscan && 
       o.pingtype != PINGTYPE_NONE)
     log_write(LOG_STDOUT, "Note: Host seems down. If it is really up, but blocking our ping probes, try -P0\n");

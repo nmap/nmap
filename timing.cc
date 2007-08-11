@@ -177,7 +177,7 @@ void adjust_timeouts2(const struct timeval *sent,
     to->timeout = to->srtt + (to->rttvar << 2);  
   }
   if (to->rttvar > 2300000) {
-    fprintf(stderr, "RTTVAR has grown to over 2.3 seconds, decreasing to 2.0\n");
+    error("RTTVAR has grown to over 2.3 seconds, decreasing to 2.0");
     to->rttvar = 2000000;
   }
   

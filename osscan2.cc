@@ -2017,7 +2017,7 @@ bool HostOsScan::processTSeqResp(HostOsScanStats *hss, struct ip *ip, int replyN
 
   if ((tcp->th_flags & TH_RST)) {
     if (hss->si.responses == 0) {     
-      fprintf(stderr, "WARNING:  RST from %s port %d -- is this port really open?\n",
+      error("WARNING:  RST from %s port %d -- is this port really open?",
               hss->target->targetipstr(), hss->openTCPPort);
     }
     return false;
@@ -3053,7 +3053,7 @@ int send_closedudp_probe_2(struct udpprobeinfo &upi, int sd,
 
   /* check that required fields are there and not too silly */
   if ( !victim || !sport || !dport || (!eth && sd < 0)) {
-    fprintf(stderr, "%s: One or more of your parameters suck!\n", __func__);
+    error("%s: One or more of your parameters suck!", __func__);
     return 1;
   }
 

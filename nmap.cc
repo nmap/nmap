@@ -899,7 +899,7 @@ int nmap_main(int argc, char *argv[]) {
     case 'b': 
       o.bouncescan++;
       if (parse_bounce_argument(&ftp, optarg) < 0 ) {
-	fprintf(stderr, "Your argument to -b is b0rked. Use the normal url style:  user:pass@server:port or just use server and use default anon login\n  Use -h for help\n");
+	error("Your argument to -b is b0rked. Use the normal url style:  user:pass@server:port or just use server and use default anon login\n  Use -h for help");
       }
       break;
     case 'D':
@@ -1079,7 +1079,7 @@ int nmap_main(int argc, char *argv[]) {
       break;
     case 's': 
       if (!*optarg) {
-	fprintf(stderr, "An option is required for -s, most common are -sT (tcp scan), -sS (SYN scan), -sF (FIN scan), -sU (UDP scan) and -sP (Ping scan)");
+	error("An option is required for -s, most common are -sT (tcp scan), -sS (SYN scan), -sF (FIN scan), -sU (UDP scan) and -sP (Ping scan)");
 	printusage(argv[0], -1);
       }
       p = optarg;
@@ -1368,9 +1368,8 @@ int nmap_main(int argc, char *argv[]) {
       if ((target = gethostbyname(ftp.server_name)))
 	memcpy(&ftp.server, target->h_addr_list[0], 4);
       else {
-	fprintf(stderr, "Failed to resolve ftp bounce proxy hostname/IP: %s\n",
+	fatal("Failed to resolve ftp bounce proxy hostname/IP: %s",
 		ftp.server_name);
-	exit(1);
       } 
     }  else if (o.verbose)
       log_write(LOG_STDOUT, "Resolved ftp bounce attack proxy to %s (%s).\n", 
@@ -1439,7 +1438,7 @@ int nmap_main(int argc, char *argv[]) {
 #endif
 
   if (o.max_parallelism && (i = max_sd()) && i < o.max_parallelism) {
-    fprintf(stderr, "WARNING:  Your specified max_parallel_sockets of %d, but your system says it might only give us %d.  Trying anyway\n", o.max_parallelism, i);
+    error("WARNING:  Your specified max_parallel_sockets of %d, but your system says it might only give us %d.  Trying anyway", o.max_parallelism, i);
   }
 
   if (o.debugging > 1) log_write(LOG_STDOUT, "The max # of sockets we are using is: %d\n", o.max_parallelism);
@@ -1585,7 +1584,7 @@ int nmap_main(int argc, char *argv[]) {
 	    o.setSourceSockAddr(&ss, sslen);
 	    currenths->setSourceSockAddr(&ss, sslen);
 	    if (! sourceaddrwarning) {
-	      fprintf(stderr, "WARNING:  We could not determine for sure which interface to use, so we are guessing %s .  If this is wrong, use -S <my_IP_address>.\n", inet_socktop(&ss));
+	      error("WARNING:  We could not determine for sure which interface to use, so we are guessing %s .  If this is wrong, use -S <my_IP_address>.", inet_socktop(&ss));
 	      sourceaddrwarning = 1;
 	    }
 	  }
@@ -1954,7 +1953,7 @@ void init_socket(int sd) {
 
   if (setsockopt(sd, SOL_SOCKET, SO_LINGER,  (const char *) &l, sizeof(struct linger)))
     {
-      fprintf(stderr, "Problem setting socket SO_LINGER, errno: %d\n", socket_errno());
+      error("Problem setting socket SO_LINGER, errno: %d", socket_errno());
       perror("setsockopt");
     }
   if (o.spoofsource && !bind_failed)
@@ -1963,7 +1962,7 @@ void init_socket(int sd) {
       res=bind(sd, (struct sockaddr*)&ss, sslen);
       if (res<0)
 	{
-	  fprintf(stderr, "init_socket: Problem binding source address (%s), errno :%d\n", inet_socktop(&ss), socket_errno());
+	  error("init_socket: Problem binding source address (%s), errno :%d", inet_socktop(&ss), socket_errno());
 	  perror("bind");
 	  bind_failed=1;
 	}
@@ -2438,8 +2437,7 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
   sock.sin_port = htons(ftp->port); 
   res = connect(sd, (struct sockaddr *) &sock, sizeof(struct sockaddr_in));
   if (res < 0 ) {
-    fprintf(stderr, "Your ftp bounce proxy server won't talk to us!\n");
-    exit(1);
+    fatal("Your ftp bounce proxy server won't talk to us!");
   }
   if (o.verbose || o.debugging) log_write(LOG_STDOUT, "Connected:");
   while ((res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1,7, NULL)) > 0) 
@@ -2463,9 +2461,7 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
   recvbuf[res] = '\0';
   if (o.debugging) log_write(LOG_STDOUT, "sent username, received: %s", recvbuf);
   if (recvbuf[0] == '5') {
-    fprintf(stderr, "Your ftp bounce server doesn't like the username \"%s\"\n", 
-	    ftp->user);
-    exit(1);
+    fatal("Your ftp bounce server doesn't like the username \"%s\"", ftp->user);
   }
 
   snprintf(command, 511, "PASS %s\r\n", ftp->pass);
@@ -2476,14 +2472,13 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
     perror("recv problem from ftp bounce server\n");
     exit(1);
   }
-  if (!res) fprintf(stderr, "Timeout from bounce server ...");
+  if (!res) error("Timeout from bounce server ...");
   else {
     recvbuf[res] = '\0';
     if (o.debugging) log_write(LOG_STDOUT, "sent password, received: %s", recvbuf);
     if (recvbuf[0] == '5') {
-      fprintf(stderr, "Your ftp bounce server refused login combo (%s/%s)\n",
+      fatal("Your ftp bounce server refused login combo (%s/%s)",
 	      ftp->user, ftp->pass);
-      exit(1);
     }
   }
   while ((res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1,2, NULL)) > 0) 
@@ -2522,37 +2517,37 @@ void sigdie(int signo) {
 
   switch(signo) {
   case SIGINT:
-    fprintf(stderr, "caught SIGINT signal, cleaning up\n");
+    error("caught SIGINT signal, cleaning up");
     break;
 
 #ifdef SIGTERM
   case SIGTERM:
-    fprintf(stderr, "caught SIGTERM signal, cleaning up\n");
+    error("caught SIGTERM signal, cleaning up");
     break;
 #endif
 
 #ifdef SIGHUP
   case SIGHUP:
-    fprintf(stderr, "caught SIGHUP signal, cleaning up\n");
+    error("caught SIGHUP signal, cleaning up");
     break;
 #endif
 
 #ifdef SIGSEGV
   case SIGSEGV:
-    fprintf(stderr, "caught SIGSEGV signal, cleaning up\n");
+    error("caught SIGSEGV signal, cleaning up");
     abt = 1;
     break;
 #endif
 
 #ifdef SIGBUS
   case SIGBUS:
-    fprintf(stderr, "caught SIGBUS signal, cleaning up\n");
+    error("caught SIGBUS signal, cleaning up");
     abt = 1;
     break;
 #endif
 
   default:
-    fprintf(stderr, "caught signal %d, cleaning up\n", signo);
+    error("caught signal %d, cleaning up", signo);
     abt = 1;
     break;
   }

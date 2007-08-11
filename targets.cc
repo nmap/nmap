@@ -1095,8 +1095,8 @@ if (ptech.icmpscan) {
 	&& sock_err != WSAEADDRNOTAVAIL
 #endif 
 		       ) {
-       fprintf(stderr, "sendto in %s returned %d (should be 8)!\n", __func__, res);
-       fprintf(stderr, "sendto: %s\n", strerror(sock_err));
+       error("sendto in %s returned %d (should be 8)!", __func__, res);
+       error("sendto: %s", strerror(sock_err));
      }
    } else {
      send_ip_raw(rawsd, ethptr,
@@ -1216,7 +1216,7 @@ while(pt->block_unaccounted) {
 		  break;
 	        default:
 		  snprintf (buf, sizeof(buf), "Strange read error from %s", hostbatch[hostindex]->targetipstr());
-		  fprintf(stderr, "%s: %s\n", buf, strerror(sock_err));
+		  error("%s: %s", buf, strerror(sock_err));
 		  break;
 	        }
 	      } else { 
@@ -1346,7 +1346,7 @@ TargetGroup* load_exclude(FILE *fExclude, char *szExclude) {
       while ((char *)0 != pc) {
          if(excludelist[i].parse_expr(pc,o.af()) == 0) {
            if (o.debugging > 1)
-             fprintf(stderr, "Loaded exclude target of: %s\n", pc);
+             error("Loaded exclude target of: %s", pc);
            ++i;
          } 
          pc=strtok(NULL, "\t\n ");
@@ -1361,7 +1361,7 @@ TargetGroup* load_exclude(FILE *fExclude, char *szExclude) {
     while (NULL != pc) {
       if(excludelist[i].parse_expr(pc,o.af()) == 0) {
         if (o.debugging >1)
-          fprintf(stderr, "Loaded exclude target of: %s\n", pc);
+          error("Loaded exclude target of: %s", pc);
         ++i;
       } 
 
@@ -1410,12 +1410,12 @@ int dumpExclude(TargetGroup *exclude_group) {
        case TargetGroup::IPV4_NETMASK:
          exclude_group[i].get_next_host(&ss, &slen);
          mask = exclude_group[i].get_mask();
-         fprintf(stderr, "exclude host group %d is %s/%d\n", i, inet_ntoa(sin->sin_addr), mask);
+         error("exclude host group %d is %s/%d", i, inet_ntoa(sin->sin_addr), mask);
          break;
 
        case TargetGroup::IPV4_RANGES:
          while (exclude_group[i].get_next_host(&ss, &slen) == 0) 
-           fprintf(stderr, "exclude host group %d is %s\n", i, inet_ntoa(sin->sin_addr));
+           error("exclude host group %d is %s", i, inet_ntoa(sin->sin_addr));
          break;
 
        case TargetGroup::IPV6_ADDRESS:

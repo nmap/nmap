@@ -189,7 +189,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
     s = strtok(NULL, "");    /* find the end of the token from hostexp */
     netmask  = ( s ) ? atoi(s) : 32;
     if ((int) netmask <= 0 || netmask > 32) {
-      fprintf(stderr, "Illegal netmask value (%d), must be /1 - /32 .  Assuming /32 (one host)\n", netmask);
+      error("Illegal netmask value (%d), must be /1 - /32 .  Assuming /32 (one host)", netmask);
       netmask = 32;
     }
     for(i=0; *(hostexp + i); i++) 
@@ -210,7 +210,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
           if (count > 1)
              error("Warning: Hostname %s resolves to %d IPs. Using %s.", target_net, count, inet_ntoa(*((struct in_addr *)target->h_addr_list[0])));
 	} else {
-	  fprintf(stderr, "Failed to resolve given hostname/IP: %s.  Note that you can't use '/mask' AND '1-4,7,100-' style IP ranges\n", target_net);
+	  error("Failed to resolve given hostname/IP: %s.  Note that you can't use '/mask' AND '1-4,7,100-' style IP ranges", target_net);
 	  free(hostexp);
 	  return 1;
 	}
@@ -289,7 +289,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
     hints.ai_family = PF_INET6;
     rc = getaddrinfo(hostexp, NULL, &hints, &result);
     if (rc != 0) {
-      fprintf(stderr, "Failed to resolve given IPv6 hostname/IP: %s.  Note that you can't use '/mask' or '[1-4,7,100-]' style ranges for IPv6.  Error code %d: %s\n", hostexp, rc, gai_strerror(rc));
+      error("Failed to resolve given IPv6 hostname/IP: %s.  Note that you can't use '/mask' or '[1-4,7,100-]' style ranges for IPv6.  Error code %d: %s", hostexp, rc, gai_strerror(rc));
       free(hostexp);
       if (result) freeaddrinfo(result);
       return 1;
