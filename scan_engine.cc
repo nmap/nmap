@@ -3829,8 +3829,9 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
     // This initial message is way down here because we don't want to print it if
     // no RPC ports need scanning.
     if (!SPM) {
-      char scanname[32];
+      char scanname[48];
       snprintf(scanname, sizeof(scanname), "%s against %s", scantype2str(scantype), target->NameIP());
+      scanname[sizeof(scanname) - 1] = '\0';
       SPM = new ScanProgressMeter(scanname);
     }
     
