@@ -13,9 +13,11 @@ categories = {"demo", "safe"}
 
 require "shortport"
 
-portrule = function(host, port) 
-	return shortport.port_or_service(port, 80, "http")
-end
+portrule = shortport.port_or_service(80, "http")
+
+--portrule = function(host, port) 
+--	return shortport.port_or_service(port, 80, "http")
+--end
 
 action = function(host, port)
 	local url, socket, request, result, status, s, title
