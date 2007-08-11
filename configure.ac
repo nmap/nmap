@@ -560,7 +560,7 @@ AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all o
     LUA_DEPENDS="$LIBLUADIR/liblua.a"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
-    have_lua=yes
+	
   ;;
   no)
     no_lua="yes"
@@ -619,12 +619,20 @@ else
   INSTALLNSE="install-nse"
 fi
 
+if test $no_lua != yes; then
+	AC_CONFIG_SUBDIRS( nselib )
+	NSELIB_CLEAN=nselib_clean
+	NSELIB_DIST_CLEAN=nselib_dist_clean
+fi
+
 AC_SUBST(LIBLUA_LIBS)
 AC_SUBST(LIBLUADIR)
 AC_SUBST(LUA_DEPENDS)
 AC_SUBST(LUA_CLEAN)
 AC_SUBST(LUA_DIST_CLEAN)
 AC_SUBST(INSTALLNSE)
+AC_SUBST(NSELIB_CLEAN)
+AC_SUBST(NSELIB_DIST_CLEAN)
 
 dnl AC_HEADER_TIME
 

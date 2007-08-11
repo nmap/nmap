@@ -1,0 +1,35 @@
+PLATFORM=@host@
+
+#ugly hack to get the includes right
+ifeq ($(LIBLUA_LIBS),$(LIBLUADIR)/liblua.a)
+LIBLUA_INCLUDE= -I../$(LIBLUADIR)
+endif
+LIBSUFFIX=@LIBSUFFIX@
+CC = @CC@
+CXX = @CXX@
+CCOPT = 
+DBGFLAGS = 
+
+# LIBPCREDIR = @LIBPCREDIR@
+
+SHTOOL = ../shtool
+INSTALL = $(SHTOOL) install 
+ 
+LIBTOOL= ./libtool
+LTFLAGS = --tag=CC --silent
+
+all: bit.so
+
+bit.so: bit.c @LIBTOOL_DEPS@
+	echo "liblua is : $(LIBLUADIR)"
+	echo "liblua_LIBS is: $(LIBLUA_LIBS)"
+	$(LIBTOOL) $(LTFLAGS) --mode=compile $(CC) $(LIBLUA_INCLUDE) $(CFLAGS) -c bit.c
+	$(LIBTOOL) $(LTFLAGS) --mode=link $(CC) -rpath /usr/local/lib -o libbit.la bit.lo
+	mv .libs/libbit$(LIBSUFFIX) bit.so
+
+clean: 
+	rm -f bit.so *.la *.lo
+	rm -rf .libs
+
+distclean: clean
+	rm -f Makefile config.log config.status libtool 

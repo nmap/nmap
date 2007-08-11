@@ -16,6 +16,7 @@ export NBASEDIR=@NBASEDIR@
 export NSOCKDIR=@NSOCKDIR@
 export LIBLUADIR = @LIBLUADIR@
 export NDIR=$(shell pwd)
+export LIBLUA_LIBS = @LIBLUA_LIBS@
 CC = @CC@
 CXX = @CXX@
 CCOPT = 
@@ -29,7 +30,7 @@ DEFS = @DEFS@ -DNMAP_NAME=\"$(NMAP_NAME)\" -DNMAP_URL=\"$(NMAP_URL)\" -DNMAP_PLA
 # DEFS += -DMTRACE=1
 CXXFLAGS = @CXXFLAGS@ $(DBGFLAGS) $(CCOPT) $(DEFS)
 CPPFLAGS = @CPPFLAGS@
-# CFLAGS = $(CXXFLAGS)
+export CFLAGS = $(CXXFLAGS)
 # CFLAGS = $(DEFS) $(INCLS)
 STATIC =
 LDFLAGS = @LDFLAGS@ $(DBGFLAGS) $(STATIC)
@@ -53,9 +54,10 @@ INSTALLNMAPFE=@INSTALLNMAPFE@
 INSTALLNSE=@INSTALLNSE@
 
 ifneq (@LIBLUA_LIBS@,)
-NSE_SRC=nse_main.cc nse_auxiliar.cc nse_nsock.cc nse_init.cc nse_nmaplib.cc nse_debug.cc nse_bitlib.cc nse_pcrelib.cc nse_string.cc
-NSE_HDRS=nse_main.h nse_auxiliar.h nse_nsock.h nse_init.h nse_nmaplib.h nse_debug.h nse_macros.h nse_bitlib.h nse_pcrelib.h nse_string.h
-NSE_OBJS=nse_main.o nse_auxiliar.o nse_nsock.o nse_init.o nse_nmaplib.o nse_debug.o nse_bitlib.o nse_pcrelib.o nse_string.o
+NSE_SRC=nse_main.cc nse_auxiliar.cc nse_nsock.cc nse_init.cc nse_nmaplib.cc nse_debug.cc nse_pcrelib.cc nse_string.cc
+NSE_HDRS=nse_main.h nse_auxiliar.h nse_nsock.h nse_init.h nse_nmaplib.h nse_debug.h nse_macros.h nse_pcrelib.h nse_string.h
+NSE_OBJS=nse_main.o nse_auxiliar.o nse_nsock.o nse_init.o nse_nmaplib.o nse_debug.o nse_pcrelib.o nse_string.o
+NSESTDLIB=nsestdlib
 endif
 
 export SRCS = main.cc nmap.cc targets.cc tcpip.cc nmap_error.cc utils.cc idle_scan.cc osscan.cc osscan2.cc output.cc scan_engine.cc timing.cc charpool.cc services.cc protocols.cc nmap_rpc.cc portlist.cc NmapOps.cc TargetGroup.cc Target.cc FingerPrintResults.cc service_scan.cc NmapOutputTable.cc MACLookup.cc nmap_tty.cc nmap_dns.cc traceroute.cc reason.cc $(NSE_SRC) @COMPAT_SRCS@
@@ -69,10 +71,14 @@ OBJS = main.o nmap.o targets.o tcpip.o nmap_error.o utils.o idle_scan.o osscan.o
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
 all: $(TARGET) $(TARGETNMAPFE) 
-$(TARGET): $(DEPS) @LUA_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(OBJS)
+$(TARGET): $(DEPS) @LUA_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(NSESTDLIB) $(OBJS)
 	echo Compiling nmap
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
+
+nsestdlib: nselib/Makefile 
+	@echo Compiling nse-standard-library; cd nselib && $(MAKE)
+
 
 # This empty rule is used to force execution of certain rules where I can't conveniently specify
 # all of the prerequisites (e.g. recursive makes and such)
@@ -125,7 +131,7 @@ distro:
 web:
 	cd ../nmap-dev && $(MAKE) web
 
-clean: @LUA_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nmapfe_clean nsock_clean nbase_clean my_clean 
+clean: @LUA_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nmapfe_clean nsock_clean nbase_clean my_clean @NSELIB_CLEAN@
 
 my_clean:
 	rm -f dependencies.mk
@@ -144,6 +150,8 @@ nsock_clean:
 	-cd $(NSOCKDIR)/src && $(MAKE) clean
 lua_clean:
 	-cd $(LIBLUADIR) && $(MAKE) clean
+nselib_clean:
+	-cd nselib && $(MAKE) clean
 pcap_dist_clean:
 	-cd $(LIBPCAPDIR) && $(MAKE) distclean
 pcre_dist_clean:
@@ -154,6 +162,8 @@ nmapfe_dist_clean:
 	-cd nmapfe && $(MAKE) distclean
 lua_dist_clean:
 	-cd $(LIBLUADIR) && $(MAKE) clean
+nselib_dist_clean:
+	-cd nselib && $(MAKE) distclean
 nbase_dist_clean:
 	-cd $(NBASEDIR) && $(MAKE) distclean
 nsock_dist_clean:
@@ -161,7 +171,7 @@ nsock_dist_clean:
 debugclean:
 	rm -f *.gcov *.gcda *.gcno gmon.out
 
-distclean: my_clean my_distclean @LUA_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ nmapfe_dist_clean 
+distclean: my_clean my_distclean @LUA_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ nmapfe_dist_clean  @NSELIB_DIST_CLEAN@
 
 my_distclean:
 	rm -f Makefile Makefile.bak makefile.dep config.h stamp-h stamp-h.in \
@@ -187,7 +197,7 @@ install-nmapfe: $(TARGETNMAPFE)
 	-test -f nmapfe/nmapfe && $(INSTALL) -c -m 755 -s nmapfe/nmapfe $(DESTDIR)$(bindir)/nmapfe && rm -f $(DESTDIR)$(bindir)/xnmap && $(SHTOOL) mkln -f -s $(DESTDIR)$(bindir)/nmapfe $(DESTDIR)$(bindir)/xnmap && $(INSTALL) -c -m 644 nmapfe.desktop $(DESTDIR)$(deskdir)/nmapfe.desktop && $(INSTALL) -c -m 644 docs/nmapfe.1 $(DESTDIR)$(mandir)/man1/nmapfe.1 && $(INSTALL) -c -m 644 docs/xnmap.1 $(DESTDIR)$(mandir)/man1/xnmap.1
 
 NSE_FILES = scripts/script.db scripts/*.nse
-NSE_LIB_FILES = nselib/*lua
+NSE_LIB_FILES = nselib/*lua nselib/*so
 install-nse: $(TARGET)
 	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(nmapdatadir)/scripts
 	cp -f $(NSE_FILES) $(DESTDIR)$(nmapdatadir)/scripts

@@ -8,6 +8,8 @@ license = "See nmaps COPYING for licence"
 
 categories = {"intrusive"}
 
+require "bit"
+
 portrule = function(host, port)
 	if 	port.number == 53
 		and port.protocol == "udp"

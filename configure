@@ -700,6 +700,8 @@ LUA_DEPENDS
 LUA_CLEAN
 LUA_DIST_CLEAN
 INSTALLNSE
+NSELIB_CLEAN
+NSELIB_DIST_CLEAN
 NBASEDIR
 LIBNBASE_LIBS
 NSOCKDIR
@@ -722,6 +724,7 @@ CCC
 CPP'
 ac_subdirs_all='libpcre
 libdnet-stripped
+nselib
 $nmap_cfg_subdirs '
 
 # Initialize some variables set by options.
@@ -6952,7 +6955,7 @@ if test "${with_liblua+set}" = set; then
     LUA_DEPENDS="$LIBLUADIR/liblua.a"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
-    have_lua=yes
+
   ;;
   no)
     no_lua="yes"
@@ -7470,6 +7473,15 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
   INSTALLNSE="install-nse"
 fi
+
+if test $no_lua != yes; then
+	subdirs="$subdirs nselib"
+
+	NSELIB_CLEAN=nselib_clean
+	NSELIB_DIST_CLEAN=nselib_dist_clean
+fi
+
+
 
 
 
@@ -9496,6 +9508,8 @@ LUA_DEPENDS!$LUA_DEPENDS$ac_delim
 LUA_CLEAN!$LUA_CLEAN$ac_delim
 LUA_DIST_CLEAN!$LUA_DIST_CLEAN$ac_delim
 INSTALLNSE!$INSTALLNSE$ac_delim
+NSELIB_CLEAN!$NSELIB_CLEAN$ac_delim
+NSELIB_DIST_CLEAN!$NSELIB_DIST_CLEAN$ac_delim
 NBASEDIR!$NBASEDIR$ac_delim
 LIBNBASE_LIBS!$LIBNBASE_LIBS$ac_delim
 NSOCKDIR!$NSOCKDIR$ac_delim
@@ -9505,7 +9519,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 94; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 96; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
@@ -9524,7 +9538,7 @@ fi
 
 cat >>$CONFIG_STATUS <<_ACEOF
 cat >"\$tmp/subs-1.sed" <<\CEOF$ac_eof
-/@[a-zA-Z_][a-zA-Z_0-9]*@/!b end
+/@[a-zA-Z_][a-zA-Z_0-9]*@/!b
 _ACEOF
 sed '
 s/[,\\&]/\\&/g; s/@/@|#_!!_#|/g
@@ -9537,8 +9551,6 @@ N; s/^.*\n//; s/[,\\&]/\\&/g; s/@/@|#_!!_#|/g; b n
 ' >>$CONFIG_STATUS <conf$$subs.sed
 rm -f conf$$subs.sed
 cat >>$CONFIG_STATUS <<_ACEOF
-:end
-s/|#_!!_#|//g
 CEOF$ac_eof
 _ACEOF
 
@@ -9781,7 +9793,7 @@ s&@builddir@&$ac_builddir&;t t
 s&@abs_builddir@&$ac_abs_builddir&;t t
 s&@abs_top_builddir@&$ac_abs_top_builddir&;t t
 $ac_datarootdir_hack
-" $ac_file_inputs | sed -f "$tmp/subs-1.sed" >$tmp/out
+" $ac_file_inputs | sed -f "$tmp/subs-1.sed" | sed 's/|#_!!_#|//g' >$tmp/out
 
 test -z "$ac_datarootdir_hack$ac_datarootdir_seen" &&
   { ac_out=`sed -n '/\${datarootdir}/p' "$tmp/out"`; test -n "$ac_out"; } &&

@@ -8,6 +8,8 @@ license = "See Nmap's COPYING"
 
 categories = {"discovery"}
 
+require("stdnse")
+
 portrule = function(host, port) 
   return (portnumber == 6667 or port.service == "irc")
          and port.protocol == "tcp"
@@ -116,7 +118,7 @@ action = function(host, port)
 
   sd:send("USER nmap +iw nmap :Nmap Wuz Here\nNICK " .. curr_nick .. "\n")
 
-  buf = make_buffer(sd, "\r?\n")
+  buf = stdnse.make_buffer(sd, "\r?\n")
 
   while true do
     status, line = buf()
@@ -202,66 +204,6 @@ action = function(host, port)
 
 end
 
-
-
-
--- Generic buffer implementation using lexical closures
---
--- Pass make_buffer a socket and a separator lua pattern [1]
---
--- Returns a function bound to your provided socket with behaviour identical
--- to receive_lines() except it will return AT LEAST ONE [2] and AT MOST ONE "line".
--- The data is returned WITHOUT the pattern/newline on the end.
--- Empty "lines" ARE NOT RETURNED.
---
--- [1] Use the pattern "\r?\n" for regular newlines
--- [2] Except where there is trailing "left over" data not terminated by a pattern
---     (in which case you get the data anyways)
---
--- -Doug, June, 2007
-
-make_buffer = function(sd, sep)
-  local self, result
-  local buf = ""
-
-  self = function()
-    local i, j, status, value
-
-    i, j = string.find(buf, sep)
-
-    if i then
-      if i == 1 then  -- empty line
-        buf = string.sub(buf, j+1, -1)
-        return self() -- tail
-      else
-        value = string.sub(buf, 1, i-1)
-        buf = string.sub(buf, j+1, -1)
-        return true, value
-      end
-    end
-
-    if result then
-      if string.len(buf) > 0 then  -- left over data with no terminating pattern
-        value = buf
-        buf = ""
-        return true, value
-      end
-      return nil, result
-    end
-
-    status, value = sd:receive()
-
-    if status then
-      buf = buf .. value
-    else
-      result = value
-    end
-
-    return self() -- tail
-  end
-
-  return self
-end
 
 
 

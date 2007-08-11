@@ -8,12 +8,7 @@
  * the most recent copy can be found at http://rrt.sc3d.org/Software/Lua/
  **/
 
-extern "C" {
-#include "lauxlib.h"
-#include "lua.h"
-}
-
-#include "nse_bitlib.h"
+#include "bit.h"
 
 typedef long long Integer;
 typedef unsigned long long UInteger;
@@ -68,8 +63,8 @@ static const struct luaL_reg bitlib[] = {
   {NULL, NULL}
 };
 
-LUALIB_API int luaopen_bitlib (lua_State *L) {
-  luaL_openlib(L, NSE_BITLIBNAME, bitlib, 0);
+LUALIB_API int luaopen_bit(lua_State *L) {
+  luaL_openlib(L, BITLIBNAME, bitlib, 0);
   return 1;
 }
 
