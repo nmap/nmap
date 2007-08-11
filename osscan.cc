@@ -1722,31 +1722,43 @@ static bool AVal_match_literal(struct AVal *a, struct AVal *b) {
    of tests when they are displayed. Returns true if and only if the test a
    should come before the test b. */
 static bool FingerTest_lessthan(const FingerTest* a, const FingerTest* b) {
+  /* This defines the order in which test lines should appear. It contains test
+     names for both the first- and second-generation OS detection systems so
+     fingerprints from both systems can work with this one function. The
+     first-generation entries should be removed when the rest of the
+     first-generation system is. */
   const char *TEST_ORDER[] = {
-    "SEQ", "OPS", "WIN", "ECN",
-    "T1", "T2", "T3", "T4", "T5", "T6", "T7", "U1", "IE"
+    "TSeq",                                   /* 1st gen. */
+    "SEQ", "OPS", "WIN", "ECN",               /* 2nd gen. */
+    "T1", "T2", "T3", "T4", "T5", "T6", "T7", /* 1st and 2nd gen. */
+    "PU",                                     /* 1st gen. */
+    "U1", "IE"                                /* 2nd gen. */
   };
   unsigned int i;
+  int ia, ib;
 
-  if (strcmp(a->name, b->name) == 0)
-    return false;
-
+  /* The indices at which the test names were found in the list. -1 means "not
+     found." */
+  ia = -1;
+  ib = -1;
+  /* Look up the test names in the list. */
   for (i = 0; i < sizeof(TEST_ORDER) / sizeof(*TEST_ORDER); i++) {
-    if (strcmp(a->name, TEST_ORDER[i]) == 0)
-      /* a came first, so it's less than. */
-      return true;
-    if (strcmp(b->name, TEST_ORDER[i]) == 0)
-      /* b came first, so a is not less than. */
-      return false;
+    if (ia == -1 && strcmp(a->name, TEST_ORDER[i]) == 0)
+      ia = i;
+    if (ib == -1 && strcmp(b->name, TEST_ORDER[i]) == 0)
+      ib = i;
+    /* Once we've found both tests we can stop searching. */
+    if (ia != -1 && ib != -1)
+      break;
   }
+  /* If a test name was not found, it probably indicates an error in another
+     part of the code. */
+  if (ia == -1)
+    fatal("%s received an unknown test name \"%s\".\n", __func__, a->name);
+  if (ib == -1)
+    fatal("%s received an unknown test name \"%s\".\n", __func__, b->name);
 
-  /* If neither test name was recognized, it probably indicates an error in
-     another part of the code. */
-  fatal("%s received two unknown test lines \"%s\" and \"%s\".\n", __func__,
-    a->name, b->name);
-
-  /* If neither was in the ordering list, just compare their names. */
-  return strcmp(a->name, b->name);
+  return ia < ib;
 }
 
 /* Merges the tests from several fingerprints into a character string
