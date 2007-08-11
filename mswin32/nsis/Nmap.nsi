@@ -19,9 +19,10 @@
    
   ;Get installation folder from registry if available 
   InstallDirRegKey HKCU "Software\Nmap" "" 
-   
+ 
+  !define VERSION "4.21ALPHA5"  
   VIProductVersion "4.21.0.5"
-  VIAddVersionKey /LANG=1033 "FileVersion" "4.21ALPHA5"
+  VIAddVersionKey /LANG=1033 "FileVersion" "${VERSION}"
   VIAddVersionKey /LANG=1033 "ProductName" "Nmap" 
   VIAddVersionKey /LANG=1033 "CompanyName" "Insecure.org" 
   VIAddVersionKey /LANG=1033 "InternalName" "NmapInstaller.exe" 
@@ -83,7 +84,7 @@ Section "Nmap Core Files" SecCore
   WriteUninstaller "$INSTDIR\Uninstall.exe" 
    
   ; Register Nmap with add/remove programs 
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "DisplayName" "Nmap 4.20ALPHA7" 
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "DisplayName" "Nmap ${VERSION}" 
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "UninstallString" '"$INSTDIR\uninstall.exe"' 
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "DisplayIcon" '"$INSTDIR\icon1.ico"' 
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "NoModify" 1 
