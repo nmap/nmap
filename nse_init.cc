@@ -267,6 +267,12 @@ int init_updatedb(lua_State* l) {
 	)
 	
 	lua_newtable(l);
+	/*give the script global namespace access*/
+	lua_newtable(l);
+	lua_getglobal(l, "_G");
+	lua_setfield(l, -2, "__index");
+	lua_setmetatable(l, -2);
+
 	for(iter = files.begin(); iter != files.end(); iter++) {
 		c_iter = strdup((*iter).c_str());
 		if(check_extension(SCRIPT_ENGINE_EXTENSION, c_iter) == MATCH 
