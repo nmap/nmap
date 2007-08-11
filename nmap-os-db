@@ -151,7 +151,7 @@ U1(DF=N%T=FF%TG=FF%TOS=0%IPL=38%UN=0%RIPL=15C%RID=1042%RIPCK=Z%RUCK=0%RUL=G%RUD=
 IE(DFI=S%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # 3com OfficeConnect wirless router 3CRWER100-75 firmware 1.2.0
-Fingerprint 3Com OfficeConnect #CRWER100-75 wirless router
+Fingerprint 3Com OfficeConnect #CRWER100-75 wireless router
 Class 3Com | Linux | 2.4.X | broadband router
 SEQ(SP=B1-BB%GCD=<7%ISR=C4-CE%TI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11%O2=M5B4ST11%O3=M5B4NNT11%O4=M5B4ST11%O5=M5B4ST11%O6=M5B4ST11)
@@ -3303,9 +3303,10 @@ U1(DF=N%T=41%TG=41%TOS=C0%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=41%TG=41%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Linux 2.4.28-pre3 i686 Debian 4.0
-Fingerprint Linux 2.4.28-pre3 (Debian 4.0)
+# Cisco Intrusion Prevention System, Version 6.0(1)E1 (2.4.30-IDS-smp-bigphys)
+Fingerprint Linux 2.4.28 - 2.4.30
 Class Linux | Linux | 2.4.X | general purpose
-SEQ(SP=C0-CA%GCD=<7%ISR=C8-D2%TI=Z%II=I%TS=7)
+SEQ(SP=C0-CE%GCD=<7%ISR=C8-D2%TI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
 ECN(R=Y%DF=Y%T=40%TG=40%W=16D0%O=M5B4NNSNW0%CC=N%Q=)
@@ -5411,16 +5412,17 @@ IE(DFI=S%T=7F%TG=7F%TOSI=Z%CD=Z%SI=S%DLI=S)
 # Microsoft Windows Server 2003 standard edition
 # Microsoft Windows 2003 Standard Edition (English) [Winver: Version 5.2 (build 3790.srv03_gdr.050225-1827
 # Microsoft Windows 2003 server Enterprice (no service pack) Version5.2 (build 3790.srv03_rtm.030324-2048)
+# windows xp corporate ed. (5.1 build2600xpsp_spl_gdr.050301-1519:service pack 2
 Fingerprint Microsoft Windows XP SP2 or Windows 2003 Server SP0/SP1
 Class Microsoft | Windows | XP | general purpose
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=F0-10C%GCD=<7%ISR=100-111%TI=I%II=I%SS=S%TS=0)
 OPS(O1=NNT11|M5B4NW0NNT00NNS%O2=NNT11|M5B4NW0NNT00NNS%O3=NNT11|M5B4NW0NNT00%O4=NNT11|M5B4NW0NNT00NNS%O5=NNT11|M5B4NW0NNT00NNS%O6=NNT11|M5B4NNT00NNS)
 WIN(W1=4470%W2=41A0%W3=4100%W4=40E8%W5=40E8%W6=402E)
-ECN(R=Y%DF=Y%T=80%TG=80%W=4470%O=M5B4NW0NNS%CC=N%Q=)
-T1(R=Y%DF=Y%T=80%TG=80%S=O%A=O|S+%F=AS%RD=0%Q=)
+ECN(R=Y%DF=Y%T=80%TG=80%W=4470%O=|M5B4NW0NNS%CC=N%Q=)
+T1(R=Y%DF=Y%T=80%TG=80%S=O%A=O|S+%F=A|AS%RD=0%Q=)
 T2(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
-T3(R=Y%DF=Y%T=80%TG=80%W=402E%S=O%A=O|S+%F=AS%O=NNT11|M5B4NW0NNT00NNS%RD=0%Q=)
+T3(R=Y%DF=Y%T=80%TG=80%W=402E%S=O%A=O|S+%F=A|AS%O=NNT11|M5B4NW0NNT00NNS%RD=0%Q=)
 T4(R=Y%DF=N%T=80%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
 T5(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 T6(R=Y%DF=N%T=80%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
@@ -10405,7 +10407,7 @@ U1(DF=N%T=80%TG=80%TOS=0%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=S%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # Actiontec MI424-WR (firmware 4.0.16.1.45.160)(Linux 2.4.21openrg-rmk1) XScale-IXP4xx/IXC11xx rev 1 (v5b)
-Fingerprint Actiontec MI-424-WR wireless broadband router
+Fingerprint Actiontec MI-424-WR wireless broadband router (Linux 2.4.21)
 Class Actiontec | embedded || broadband router
 SEQ(SP=C7-D1%GCD=<7%ISR=CE-D8%TI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)

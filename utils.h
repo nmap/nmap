@@ -137,6 +137,8 @@
 # endif
 #endif
 
+#include "nbase.h"
+
 #include "nmap_error.h"
 #include "nmap.h"
 #include "global_structures.h"
