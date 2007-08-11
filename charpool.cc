@@ -99,9 +99,11 @@
 
 /* $Id$ */
 
+#include "nbase.h"
 
 /* Character pool memory allocation */
 #include "charpool.h"
+#include "nmap_error.h"
 
 static char *charpool[16];
 static int currentcharpool;

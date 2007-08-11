@@ -104,6 +104,7 @@
 #include "portlist.h"
 #include "NmapOps.h"
 #include "reason.h"
+#include "Target.h"
 #ifdef WIN32
 #include "winfix.h"
 #endif

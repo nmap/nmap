@@ -111,6 +111,8 @@
 #endif
 
 #include "reason.h"
+#include "portlist.h"
+#include "tcpip.h"
 
 #ifndef INET6_ADDRSTRLEN
 #define INET6_ADDRSTRLEN 46

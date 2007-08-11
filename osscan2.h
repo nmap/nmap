@@ -104,10 +104,11 @@
 #define OSSCAN2_H
 
 #include "nmap.h"
-#include "tcpip.h"
 #include "global_structures.h"
-#include "FingerPrintResults.h"
-#include "osscan.h"
+#include "nbase.h"
+#include <vector>
+
+class Target;
 
 /**********************  PROTOTYPES  ***********************************/
 

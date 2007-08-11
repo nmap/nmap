@@ -5,7 +5,6 @@
 
 #include "nsock.h"
 #include "nmap_error.h"
-#include "osscan.h"
 #include "NmapOps.h"
 
 #include <stdio.h>

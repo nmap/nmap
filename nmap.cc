@@ -110,6 +110,14 @@
 #include "traceroute.h"
 #include "nmap_tty.h"
 #include "nmap_dns.h"
+#include "services.h"
+#include "protocols.h"
+#include "targets.h"
+#include "TargetGroup.h"
+#include "service_scan.h"
+#include "charpool.h"
+#include "nmap_error.h"
+#include "utils.h"
 
 #ifndef NOLUA
 #include "nse_main.h"

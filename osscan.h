@@ -104,7 +104,6 @@
 #define OSSCAN_H
 
 #include "nmap.h"
-#include "tcpip.h"
 #include "global_structures.h"
 #include "FingerPrintResults.h"
 

@@ -106,10 +106,7 @@
 
 #include "nmap.h"
 #include "global_structures.h"
-#include "charpool.h"
-#include "nmap_error.h"
-#include "utils.h"
-#include "timing.h"
+#include "portlist.h"
 
 /* rpc related #define's */
 #define RECORD_MARKING 4        /* length of recoder marking (bytes)     */

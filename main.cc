@@ -100,11 +100,8 @@
 /* $Id$ */
 
 #include "nmap.h"
-#include "osscan.h"
-#include "scan_engine.h"
-#include "idle_scan.h"
-#include "timing.h"
 #include "NmapOps.h"
+#include "utils.h"
 
 #ifdef MTRACE
 #include "mcheck.h"

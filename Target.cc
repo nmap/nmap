@@ -106,9 +106,10 @@
 
 #include "Target.h"
 #include <dnet.h>
-#include "osscan.h"
 #include "nbase.h"
 #include "NmapOps.h"
+#include "utils.h"
+#include "nmap_error.h"
 
 extern NmapOps o;
 

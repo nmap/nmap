@@ -104,6 +104,11 @@
 
 #include "nmap_rpc.h"
 #include "NmapOps.h"
+#include "Target.h"
+#include "charpool.h"
+#include "timing.h"
+#include "nmap_error.h"
+#include "utils.h"
 
 extern NmapOps o;
 static struct rpc_info ri;

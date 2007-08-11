@@ -104,7 +104,7 @@
 #ifndef NMAP_TIMING_H
 #define NMAP_TIMING_H
 
-#include "tcpip.h"
+#include "nmap.h"
 #include "global_structures.h"
 
 /* Call this function on a newly allocated struct timeout_info to

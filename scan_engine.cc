@@ -109,6 +109,9 @@
 #include "timing.h"
 #include "NmapOps.h"
 #include "nmap_tty.h"
+#include "nmap_rpc.h"
+#include "Target.h"
+#include "utils.h"
 #include <list>
 
 using namespace std;

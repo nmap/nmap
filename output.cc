@@ -109,6 +109,10 @@
 #include "NmapOutputTable.h"
 #include "MACLookup.h"
 #include "reason.h"
+#include "protocols.h"
+#include "nmap_rpc.h"
+#include "Target.h"
+#include "utils.h"
 
 #include <string>
 

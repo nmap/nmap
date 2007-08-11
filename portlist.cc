@@ -103,6 +103,9 @@
 #include "nmap_error.h"
 #include "nmap.h"
 #include "NmapOps.h"
+#include "services.h"
+#include "nmap_rpc.h"
+#include "tcpip.h"
 
 using namespace std;
 

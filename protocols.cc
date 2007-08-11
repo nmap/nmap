@@ -101,6 +101,10 @@
 
 #include "protocols.h"
 #include "NmapOps.h"
+#include "services.h"
+#include "charpool.h"
+#include "nmap_error.h"
+#include "utils.h"
 
 extern NmapOps o;
 static int numipprots = 0;

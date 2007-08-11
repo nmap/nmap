@@ -105,6 +105,7 @@
 
 #include "nmap.h"
 #include "global_structures.h"
+#include "portlist.h"
 
 #include <vector>
 

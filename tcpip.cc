@@ -106,6 +106,8 @@
 #include <dnet.h>
 #include "tcpip.h"
 #include "NmapOps.h"
+#include "Target.h"
+#include "utils.h"
 
 #if HAVE_SYS_TIME_H
 #include <sys/time.h>

@@ -106,10 +106,11 @@
 #ifndef IDLE_SCAN_H
 #define IDLE_SCAN_H
 
-#include "portlist.h"
-#include "tcpip.h"
+#include "nmap.h"
 #include "global_structures.h"
 #include <nbase.h>
+
+class Target;
 
 /* Handles the scan types where no positive-acknowledgement of open
    port is received (those scans are in pos_scan).  Super_scan

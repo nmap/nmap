@@ -103,13 +103,13 @@
 
 #include "targets.h"
 #include "timing.h"
-#include "osscan.h"
 #include "NmapOps.h"
 #include "TargetGroup.h"
 #include "Target.h"
 #include "scan_engine.h"
 #include "nmap_dns.h"
 #include "nmap_tty.h"
+#include "utils.h"
 
 using namespace std;
 extern NmapOps o;

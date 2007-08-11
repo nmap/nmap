@@ -223,8 +223,6 @@ extern "C" {
 
 typedef enum { devt_ethernet, devt_loopback, devt_p2p, devt_other  } devtype;
 
-#include "nmap_error.h"
-#include "utils.h"
 #include "nmap.h"
 #include "global_structures.h"
 

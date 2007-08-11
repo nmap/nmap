@@ -103,6 +103,7 @@
 
 #include "timing.h"
 #include "NmapOps.h"
+#include "utils.h"
 
 extern NmapOps o;
 

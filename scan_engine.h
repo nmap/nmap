@@ -103,9 +103,9 @@
 #ifndef SCAN_ENGINE_H
 #define SCAN_ENGINE_H
 
-#include "portlist.h"
-#include "tcpip.h"
+#include "nmap.h"
 #include "global_structures.h"
+#include <vector>
 
 /* 3rd generation Nmap scanning function.  Handles most Nmap port scan types */
 void ultra_scan(std::vector<Target *> &Targets, struct scan_lists *ports, 

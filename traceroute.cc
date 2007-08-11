@@ -178,6 +178,9 @@
 #include "nmap_tty.h"
 #include "nmap_dns.h"
 #include "osscan2.h"
+#include "protocols.h"
+#include "timing.h"
+#include "utils.h"
 #include <algorithm>
 #include <stdlib.h>
 

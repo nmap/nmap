@@ -110,9 +110,8 @@
 #endif
 #include "nmap.h"
 #include "global_structures.h"
-#include "charpool.h"
-#include "nmap_error.h"
-#include "utils.h"
+
+#include "nbase.h"
 
 #define SERVICE_TABLE_SIZE 1024
 

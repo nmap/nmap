@@ -103,6 +103,7 @@
 
 #include "TargetGroup.h"
 #include "NmapOps.h"
+#include "nmap_error.h"
 
 extern NmapOps o;
 

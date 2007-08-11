@@ -115,7 +115,6 @@
 #endif
 #include <stdlib.h>
 
-#include "output.h"
 #include "nmap_tty.h"
 #include "NmapOps.h"
 

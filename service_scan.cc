@@ -105,6 +105,8 @@
 #include "timing.h"
 #include "NmapOps.h"
 #include "nsock.h"
+#include "Target.h"
+#include "utils.h"
 
 #include "nmap_tty.h"
 

@@ -15,11 +15,11 @@ extern "C" {
 
 #include "nmap.h"
 #include "nmap_error.h"
-#include "osscan.h"
 #include "portlist.h"
 #include "nsock.h"
 #include "NmapOps.h"
 #include "timing.h"
+#include "Target.h"
 
 extern NmapOps o;
 

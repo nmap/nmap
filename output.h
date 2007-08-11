@@ -120,7 +120,7 @@
 #define LOG_NAMES {"normal", "machine", "$Cr!pT |<!dd!3", "XML"}
 
 #include "portlist.h"
-#include "tcpip.h"
+#include "nmap.h"
 #include "global_structures.h"
 
 /* Prints the familiar Nmap tabular output showing the "interesting"

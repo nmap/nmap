@@ -169,6 +169,8 @@
 #include "nsock.h"
 #include "utils.h"
 #include "nmap_tty.h"
+#include "timing.h"
+#include "Target.h"
 
 extern NmapOps o;
 

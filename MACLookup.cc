@@ -105,6 +105,7 @@
 #include "MACLookup.h"
 #include "nmap.h"
 #include "nmap_error.h"
+#include "charpool.h"
 
 struct MAC_entry {
   int prefix; /* -1 means none set */

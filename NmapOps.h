@@ -99,6 +99,9 @@
 
 /* $Id$ */
 
+#include "nmap.h"
+#include "global_structures.h"
+#include "output.h"
 #include <string>
 
 class NmapOps {

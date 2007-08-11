@@ -405,19 +405,7 @@ void *realloc();
 
 /********************** LOCAL INCLUDES *****************************/
 
-#include "output.h"
-#include "portlist.h"
-#include "tcpip.h"
 #include "global_structures.h"
-#include "nmap_error.h"
-#include "utils.h"
-#include "services.h"
-#include "protocols.h"
-#include "nmap_rpc.h"
-#include "targets.h"
-#include "Target.h"
-#include "TargetGroup.h"
-#include "service_scan.h"
 
 /***********************STRUCTURES**********************************/
 

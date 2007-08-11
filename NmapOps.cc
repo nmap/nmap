@@ -101,6 +101,7 @@
 #include "nmap.h"
 #include "nbase.h"
 #include "NmapOps.h"
+#include "utils.h"
 #ifdef WIN32
 #include "winfix.h"
 #endif

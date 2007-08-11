@@ -104,6 +104,10 @@
 #include "timing.h"
 #include "NmapOps.h"
 #include "nmap_tty.h"
+#include "charpool.h"
+#include "Target.h"
+#include "nmap_error.h"
+#include "utils.h"
 
 #if TIME_WITH_SYS_TIME
 # include <sys/time.h>

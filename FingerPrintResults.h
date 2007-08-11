@@ -105,6 +105,7 @@
 class FingerPrintResults;
 
 #include "nmap.h"
+#include "global_structures.h"
 
 /* Maximum number of results allowed in one of these things ... */
 #define MAX_FP_RESULTS 36

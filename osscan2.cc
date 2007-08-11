@@ -104,6 +104,8 @@
 #include "osscan2.h"
 #include "timing.h"
 #include "NmapOps.h"
+#include "Target.h"
+#include "utils.h"
 #include <dnet.h>
 #include <list>
 

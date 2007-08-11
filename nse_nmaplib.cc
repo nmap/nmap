@@ -6,6 +6,8 @@
 #include "nmap_error.h"
 #include "osscan.h"
 #include "NmapOps.h"
+#include "nmap_rpc.h"
+#include "Target.h"
 
 #define SCRIPT_ENGINE_GETSTRING(name) \
 	char* name; \

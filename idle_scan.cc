@@ -104,11 +104,12 @@
 /* $Id$ */
 
 #include "idle_scan.h"
-#include "scan_engine.h"
 #include "timing.h"
 #include "osscan.h"
 #include "nmap.h"
 #include "NmapOps.h"
+#include "Target.h"
+#include "utils.h"
 
 #include <stdio.h>
 
