@@ -349,6 +349,10 @@ void Target::setDirectlyConnected(bool connected) {
   directly_connected = connected? 1 : 0;
 }
 
+int Target::directlyConnectedOrUnset(){
+    return directly_connected;
+}
+
 bool Target::directlyConnected() {
   assert(directly_connected == 0 || directly_connected == 1);
   return directly_connected;

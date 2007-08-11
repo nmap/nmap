@@ -37,6 +37,8 @@ static int l_get_port_state(lua_State* l, Target* target, Port* port);
 static int l_set_port_state(lua_State* l, Target* target, Port* port);
 static int l_set_port_version(lua_State* l, Target* target, Port* port);
 
+int l_clock_ms(lua_State* l);
+
 /* register the nmap lib 
  * we assume that we can write to a table at -1 on the stack
  * */
@@ -46,6 +48,9 @@ int set_nmaplib(lua_State* l) {
 		{"set_port_state", l_port_accessor},
 		{"set_port_version", l_port_accessor},
 		{"new_socket", l_nsock_new},
+		{"new_dnet", l_dnet_new},
+		{"get_interface_link", l_dnet_get_interface_link},
+		{"clock_ms", l_clock_ms},
 		{"print_debug_unformatted", l_print_debug_unformatted},
 		{"new_try", l_exc_newtry},
 		{NULL, NULL} 
@@ -61,6 +66,7 @@ int set_nmaplib(lua_State* l) {
 	lua_setfield(l, -2, "registry");
 
 	SCRIPT_ENGINE_TRY(l_nsock_open(l));
+	SCRIPT_ENGINE_TRY(l_dnet_open(l));
 
 	return SCRIPT_ENGINE_SUCCESS;
 }
@@ -181,6 +187,33 @@ void set_hostinfo(lua_State* l, Target *currenths) {
 	lua_pushstring(l, strncpy(hostname, currenths->HostName(), 1024));
 	lua_setfield(l, -2, "name");
 
+	if(currenths->directlyConnectedOrUnset() != -1){
+	    lua_pushboolean(l, currenths->directlyConnected());
+	    lua_setfield(l, -2, "directly_connected");
+	}
+
+	if(currenths->MACAddress()){	// else nil
+		lua_pushlstring (l, (const char*)currenths->MACAddress() , 6);
+		lua_setfield(l, -2, "mac_addr");
+	}
+	if(currenths->SrcMACAddress()){	// else nil
+		lua_pushlstring(l, (const char*)currenths->SrcMACAddress(), 6);
+		lua_setfield(l, -2, "mac_addr_src");
+	}
+	if(currenths->deviceName()){
+		lua_pushstring(l, strncpy(hostname, currenths->deviceName(), 1024));
+		lua_setfield(l, -2, "interface");
+	}
+	if( (u32)(currenths->v4host().s_addr) ){
+		struct in_addr  adr = currenths->v4host();
+		lua_pushlstring(l, (char*)&adr, 4);
+		lua_setfield(l, -2, "bin_ip");
+	} 
+	if( (u32)(currenths->v4source().s_addr) ){
+		struct in_addr  adr = currenths->v4source();
+		lua_pushlstring(l, (char*)&adr, 4);
+		lua_setfield(l, -2, "bin_ip_src");
+	} 
 	
 	FingerPrintResults *FPR = NULL;
 	int osscanSys;

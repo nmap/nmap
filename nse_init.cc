@@ -117,6 +117,7 @@ int init_setlualibpath(lua_State* l){
 }
 
 int init_parseargs(lua_State* l){
+	//FIXME - free o.script-args after we're finished!!!
 	const char* tmp;
 	std::string processed_args = std::string("nmap.registry.args={");
 	//try the easy way:

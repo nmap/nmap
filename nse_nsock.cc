@@ -7,11 +7,15 @@
 
 #include "nsock.h"
 #include "nmap_error.h"
+/* #include "osscan.h" */
 #include "NmapOps.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+
+#include "utils.h"
+#include "tcpip.h"
 
 #if HAVE_OPENSSL
 #include <openssl/ssl.h>
@@ -47,6 +51,12 @@ static int l_nsock_close(lua_State* l);
 static int l_nsock_set_timeout(lua_State* l);
 static int l_nsock_receive_buf(lua_State* l);
 
+static int l_nsock_ncap_open(lua_State* l);
+static int l_nsock_ncap_close(lua_State* l);
+static int l_nsock_ncap_register(lua_State *l);
+static int l_nsock_pcap_receive(lua_State* l);
+
+
 void l_nsock_connect_handler(nsock_pool nsp, nsock_event nse, void *lua_state);
 void l_nsock_send_handler(nsock_pool nsp, nsock_event nse, void *lua_state);
 void l_nsock_receive_handler(nsock_pool nsp, nsock_event nse, void *lua_state);
@@ -71,10 +81,56 @@ static luaL_reg l_nsock [] = {
 	{"close", l_nsock_close},
 	{"set_timeout", l_nsock_set_timeout},
 	{"__gc",l_nsock_gc},
+	{"pcap_open",  		l_nsock_ncap_open},
+	{"pcap_close", 		l_nsock_ncap_close},
+	{"pcap_register",	l_nsock_ncap_register},
+	{"pcap_receive",  	l_nsock_pcap_receive},
+//	{"callback_test", l_nsock_pcap_callback_test},
 	{NULL, NULL}
 };
 
 static nsock_pool nsp;
+
+/*
+ * Structure with nsock pcap descriptor.
+ * shared between many lua threads
+ */
+struct ncap_socket{
+	nsock_iod nsiod;	/* nsock pcap desc */
+	int references;		/* how many lua threads use this */
+	char *key;		/* (free) zero-terminated key used in map to 
+				 * address this structure. */
+};
+
+/*
+ *
+ */ 
+struct ncap_request{
+	int suspended;		/* is the thread suspended? (lua_yield) */
+	lua_State *l;		/* lua_State of current process
+				 * or NULL if process isn't suspended */ 
+	nsock_event_id nseid;	/* nse for this specific lua_State */
+	struct timeval end_time;
+	char *key;		/* (free) zero-terminated key used in map to 
+				 * address this structure (hexified 'test') */
+        
+        bool	 	received;   /* are results ready? */
+        
+        bool	        r_success;  /* true-> okay,data ready to pass to user
+        			     * flase-> this statusstring contains error description */
+        char *          r_status;   /* errorstring */
+        
+        unsigned char  *r_layer2;
+        size_t          r_layer2_len;
+        unsigned char  *r_layer3;
+        size_t          r_layer3_len;
+        size_t          packetsz;
+        
+        int ncap_cback_ref; 	/* just copy of udata->ncap_cback_ref
+        			 * because we don't have access to udata in place
+        			 * we need to use this. */ 
+};
+
 
 struct l_nsock_udata {
 	int timeout;
@@ -83,6 +139,10 @@ struct l_nsock_udata {
 	/*used for buffered reading */
 	int bufidx; /*index inside lua's registry */
 	int bufused;
+	
+	struct ncap_socket  *ncap_socket;
+	struct ncap_request *ncap_request;
+	int ncap_cback_ref;
 };
 
 void l_nsock_clear_buf(lua_State* l, l_nsock_udata* udata);
@@ -91,7 +151,7 @@ int l_nsock_open(lua_State* l) {
 	auxiliar_newclass(l, "nsock", l_nsock);
 
         nsp = nsp_new(NULL);
-
+	//nsp_settrace(nsp, o.debugging, o.getStartTime());
 	if (o.scriptTrace())
 		nsp_settrace(nsp, 5, o.getStartTime());
 
@@ -107,6 +167,10 @@ int l_nsock_new(lua_State* l) {
 	udata->timeout = DEFAULT_TIMEOUT;
 	udata->bufidx = LUA_NOREF;
 	udata->bufused= 0;
+	udata->ncap_socket	= NULL;
+	udata->ncap_request	= NULL;
+	udata->ncap_cback_ref	= 0;
+	
 	return 1;
 }
 
@@ -328,10 +392,10 @@ void l_nsock_trace(nsock_iod nsiod, char* message, int direction) {
 	char* ipstring_local = (char*) safe_malloc(sizeof(char) * INET6_ADDRSTRLEN);
 	char* ipstring_remote = (char*) safe_malloc(sizeof(char) * INET6_ADDRSTRLEN);
 
-	status =  nsi_getlastcommunicationinfo(nsiod, &protocol, &af,
+	if(!nsi_is_pcap(nsiod)){
+		status =  nsi_getlastcommunicationinfo(nsiod, &protocol, &af,
 			&local, &remote, sizeof(sockaddr)); 
-
-	log_write(LOG_STDOUT, "SCRIPT ENGINE: %s %s:%d %s %s:%d | %s\n", 
+		log_write(LOG_STDOUT, "SCRIPT ENGINE: %s %s:%d %s %s:%d | %s\n", 
 			(protocol == IPPROTO_TCP)? "TCP" : "UDP",
 			inet_ntop_both(af, &local, ipstring_local), 
 			inet_port_both(af, &local), 
@@ -340,8 +404,13 @@ void l_nsock_trace(nsock_iod nsiod, char* message, int direction) {
 			inet_port_both(af, &remote), 
 			message); 
 
-	free(ipstring_local);
-	free(ipstring_remote);
+		free(ipstring_local);
+		free(ipstring_remote);
+	}else{ // is pcap device
+		log_write(LOG_STDOUT, "SCRIPT ENGINE: %s | %s\n", 
+			(direction == TO)? ">" : "<", 
+			message); 
+	}
 }
 
 char* inet_ntop_both(int af, const void* v_addr, char* ipstring) {
@@ -425,6 +494,7 @@ static int l_nsock_gc(lua_State* l){
 	}
 	return 0;
 }
+
 static int l_nsock_close(lua_State* l) {
 	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
 	
@@ -630,7 +700,7 @@ int l_nsock_check_buf(lua_State* l ){
 		}
 		luaL_unref(l,LUA_REGISTRYINDEX,udata->bufidx);
 		udata->bufidx=tmpidx;
-		l_dumpStack(l);
+		//l_dumpStack(l);
 		return NSOCK_WRAPPER_BUFFER_OK;
 	}
 	assert(0);
@@ -642,3 +712,612 @@ void l_nsock_clear_buf(lua_State* l, l_nsock_udata* udata){
 	udata->bufidx=LUA_NOREF;
 	udata->bufused=0;
 }
+
+/****************** NCAP_SOCKET ***********************************************/ 
+#ifdef WIN32
+/* From tcpip.cc. Gets pcap device name from dnet name. */
+bool DnetName2PcapName(const char *dnetdev, char *pcapdev, int pcapdevlen);
+#endif
+
+/* fuckin' C++ maps stuff */
+/* here we store ncap_sockets */
+std::map<std::string, struct ncap_socket*> ncap_socket_map;
+
+/* receive sthing from socket_map */
+struct ncap_socket *ncap_socket_map_get(char *key){
+	std::string skey = key;
+	return ncap_socket_map[skey];
+}
+
+/* set sthing on socket_map */
+void ncap_socket_map_set(char *key, struct ncap_socket *ns){
+	std::string skey = key;
+	ncap_socket_map[skey] = ns;
+	return;
+}
+
+/* receive sthing from socket_map */
+void ncap_socket_map_del(char *key){
+	std::string skey = key;
+	ncap_socket_map.erase(skey);
+	return;
+}
+
+
+/* (static) Dnet-like device name to Pcap-like name */
+char *dnet_to_pcap_device_name(const char *device){
+	static char pcapdev[128];
+	if( strcmp(device, "any") == 0 )
+		return strncpy(pcapdev, "any", sizeof(pcapdev));
+		
+	#ifdef WIN32
+	/* Nmap normally uses device names obtained through dnet for interfaces, 
+	 * but Pcap has its own naming system.  So the conversion is done here */
+	if (!DnetName2PcapName(device, pcapdev, sizeof(pcapdev))) {
+		/* Oh crap -- couldn't find the corresponding dev apparently.  
+		 * Let's just go with what we have then ... */
+		strncpy(pcapdev, device, sizeof(pcapdev));
+	}
+	#else
+		strncpy(pcapdev, device, sizeof(pcapdev));
+	#endif
+	return pcapdev;
+}
+
+/* (LUA) Open nsock-pcap socket. 
+ * 1)	device	- dnet-style network interface name, or "any"
+ * 2)	snaplen	- maximum number of bytes to be captured for packet
+ * 3)	promisc - should we set network car in promiscuous mode (0/1)
+ * 4)	callback- callback function, that will create hash string from packet
+ * 5)	bpf	- berkeley packet filter, see tcpdump(8)	
+ * */  
+static int l_nsock_ncap_open(lua_State* l){
+	l_nsock_udata* udata  = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	const char* device    = luaL_checkstring(l, 2);
+	int snaplen           = luaL_checkint(l, 3);
+	int promisc           = luaL_checkint(l, 4);
+	luaL_checktype(l, 5, LUA_TFUNCTION);		/* callback function that creates hash */
+	const char* bpf       = luaL_checkstring(l, 6);
+
+	if(udata->nsiod || udata->ncap_request || udata->ncap_socket) {
+		luaL_argerror(l, 1, "Trying to open nsock-pcap, but this connection is already opened");
+		return 0;
+	}
+	char *pcapdev = dnet_to_pcap_device_name(device);
+	if(!strlen(device) || !strlen(pcapdev)) {
+		luaL_argerror(l, 1, "Trying to open nsock-pcap, but you're passing empty or wrong device name.");
+		return 0;
+	}
+
+	lua_pop(l, 1);	// pop bpf
+	/* take func from top of stack and store it in the Registry */
+	int hash_func_ref = luaL_ref(l, LUA_REGISTRYINDEX);
+	/* push function on the registry-stack */
+	lua_rawgeti(l, LUA_REGISTRYINDEX, hash_func_ref); 
+	
+	struct ncap_socket *ns;
+	
+	/* create key */
+	char key[8192];
+	snprintf(key, sizeof(key), "%s|%i|%i|%u|%s",
+					pcapdev,
+					snaplen, promisc,
+					(unsigned int)strlen(bpf),
+					bpf);
+	ns = ncap_socket_map_get(key);
+	if(ns == NULL){
+		ns = (struct ncap_socket*)safe_zalloc(sizeof(struct ncap_socket));
+		ns->nsiod 	= nsi_new(nsp, ns);
+		ns->key		= strdup(key);
+		/* error messages are passed here */ 
+		char *emsg = nsock_pcap_open(nsp, ns->nsiod, pcapdev, snaplen, promisc, bpf);
+		if(emsg){
+			luaL_argerror(l, 1, emsg);
+			return 0;
+		}
+		ncap_socket_map_set(key, ns);
+	}
+	ns->references++;
+	udata->nsiod		= ns->nsiod;
+	udata->ncap_socket	= ns;
+	udata->ncap_cback_ref	= hash_func_ref;
+	return 0;
+}
+
+/* (LUA) Close nsock-pcap socket. 
+ * */  
+static int l_nsock_ncap_close(lua_State* l){
+	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	struct ncap_socket *ns = udata->ncap_socket;
+
+	if(!udata->nsiod || !udata->ncap_socket) {
+		luaL_argerror(l, 1, "Trying to close nsock-pcap, but it was never opened.");
+		return 0;	
+	}
+	if(udata->ncap_request) {
+		luaL_argerror(l, 1, "Trying to close nsock-pcap, but it has active event.");
+		return 0;	
+	}
+
+	assert(ns->references > 0);
+
+	ns->references--;
+	if(ns->references == 0){
+		ncap_socket_map_del(ns->key);
+		if(ns->key) free(ns->key);		
+		nsi_delete(ns->nsiod, NSOCK_PENDING_NOTIFY);
+		free(ns);
+	}
+
+	udata->nsiod 		= NULL;
+	udata->ncap_socket	= NULL;
+	lua_unref(l, udata->ncap_cback_ref);
+	udata->ncap_cback_ref	= 0;
+
+	lua_pushboolean(l, true);
+	return 1;
+}
+
+
+/* (static) binary string to hex zero-terminated string */
+char *hex(char *str, unsigned int strsz){
+	static char x[] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+	static char buf[2048];
+	unsigned int i;
+	unsigned char *s;
+	for(i=0, s=(unsigned char*)str; i<strsz && i<(sizeof(buf)/2-1); i++, s++){
+		buf[i*2  ] = x[ *s/16 ];
+		buf[i*2+1] = x[ *s%16 ];
+	}
+	buf[i*2] = '\0';
+	return(buf);
+}
+
+/****************** NCAP_REQUEST **********************************************/ 
+
+int ncap_restore_lua(ncap_request *nr);
+void ncap_request_set_result(nsock_event nse, struct ncap_request *nr);
+int ncap_request_set_results(nsock_event nse, char *key);
+void l_nsock_pcap_receive_handler(nsock_pool nsp, nsock_event nse, void *userdata);
+
+/* next map, this time it's multimap "key"(from callback)->suspended_lua_threads */
+std::multimap<std::string, struct ncap_request*> ncap_request_map;
+typedef std::multimap<std::string, struct ncap_request*>::iterator ncap_request_map_iterator;
+typedef std::pair<ncap_request_map_iterator, ncap_request_map_iterator> ncap_request_map_ii;
+
+/* del from multimap */
+void ncap_request_map_del(struct ncap_request *nr){
+	ncap_request_map_iterator i;
+	ncap_request_map_ii	  ii;
+	std::string s = nr->key;
+	ii = ncap_request_map.equal_range(s);
+		
+	for(i=ii.first ; i!=ii.second ;i++){
+		if(i->second == nr){
+			i->second = NULL;
+			ncap_request_map.erase(i);
+			return;
+		}
+	}
+	assert(0);
+}
+
+
+/* add to multimap */
+void ncap_request_map_add(char *key, struct ncap_request *nr){
+	std::string skey = key;
+	ncap_request_map.insert(std::pair<std::string, struct ncap_request *>(skey, nr));
+	return;
+}
+
+/* (LUA) Register event that will wait for one packet matching hash. 
+ * It's non-blocking method of capturing packets.
+ * 1)	hash	- hash for packet that should be matched. or empty string if you 
+ * 		  want to receive first packet   
+ * */
+static int l_nsock_ncap_register(lua_State *l){
+	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	size_t testdatasz;
+	const char* testdata = luaL_checklstring(l, 2, &testdatasz);
+
+	struct timeval now = *nsock_gettimeofday();
+	
+	if(!udata->nsiod || !udata->ncap_socket) {
+		luaL_argerror(l, 1, "You can't register to nsock-pcap if it wasn't opened.");
+		return 0;
+	}
+	if(udata->ncap_request){
+		luaL_argerror(l, 1, "You are already registered to this socket.");
+		return 0;
+	}
+	
+	struct ncap_request *nr = 
+		(struct ncap_request*)safe_zalloc(sizeof(struct ncap_request));
+		
+	udata->ncap_request = nr;
+	
+	TIMEVAL_MSEC_ADD(nr->end_time, now, udata->timeout);
+	nr->key   = strdup(hex((char*)testdata, testdatasz));
+	nr->l     = l;
+	nr->ncap_cback_ref = udata->ncap_cback_ref;
+	/* always create new event. */
+	nr->nseid = nsock_pcap_read_packet(nsp, 
+					udata->nsiod, 
+					l_nsock_pcap_receive_handler, 
+					udata->timeout, nr);
+	
+	ncap_request_map_add(nr->key, nr);
+
+	/* that's it. return to lua */
+	return 0;
+}
+
+/* (LUA) After "register" use this function to block, and wait for packet. 
+ * If packet is already captured, this function will return immidietly.
+ * 
+ * return values: status(true/false), capture_len/error_msg, layer2data, layer3data
+ * */
+int l_nsock_pcap_receive(lua_State *l){
+	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	if(!udata->nsiod || !udata->ncap_socket) {
+		luaL_argerror(l, 1, "You can't receive to nsock-pcap if it wasn't opened.");
+		return 0;
+	}
+	if(!udata->ncap_request){
+		luaL_argerror(l, 1, "You can't it's not registered");
+		return 0;
+	}
+
+	/* and clear udata->ncap_request, we'll never,ever have access to current
+	 * udata during this request */
+	struct ncap_request *nr = udata->ncap_request;
+	udata->ncap_request = NULL;
+	
+	/* ready to receive data? don't suspend thread*/
+	if(nr->received) /*data already received*/
+		return ncap_restore_lua(nr);
+	
+	/* no data yet? suspend thread */
+	nr->suspended = 1;
+	
+	return lua_yield(l, 0);
+}
+
+/* (free) excute callback function from lua script */
+char* ncap_request_do_callback(nsock_event nse, lua_State *l, int ncap_cback_ref){
+	const unsigned char *l2_data, *l3_data;
+	size_t l2_len, l3_len, packet_len;
+	nse_readpcap(nse, &l2_data, &l2_len, &l3_data, &l3_len, &packet_len, NULL);
+	
+	lua_rawgeti(l, LUA_REGISTRYINDEX, ncap_cback_ref);
+	lua_pushnumber(l,  packet_len);
+	lua_pushlstring(l, (char*)l2_data, l2_len);
+	lua_pushlstring(l, (char*)l3_data, l3_len);
+
+	lua_call(l, 3, 1);
+	
+	/* get string from top of the stack*/
+	size_t testdatasz;
+	const char* testdata = lua_tolstring(l, -1, &testdatasz); 
+	// lua_pop(l, 1);/* just in case [nope, it's not needed]*/
+	
+	char *key = strdup(hex((char*)testdata, testdatasz));
+	return key;
+}
+
+
+
+/* callback from nsock */
+void l_nsock_pcap_receive_handler(nsock_pool nsp, nsock_event nse, void *userdata){
+	int this_event_restored=0;
+	struct ncap_request *nr = (struct ncap_request *) userdata;
+
+	
+	switch(nse_status(nse)) {
+	case NSE_STATUS_SUCCESS:{
+		char *key = ncap_request_do_callback(nse, nr->l, nr->ncap_cback_ref);
+		
+		/* processes threads that receive every packet */
+		this_event_restored += ncap_request_set_results(nse, "");
+			
+		/* process everything that matches test */
+		this_event_restored += ncap_request_set_results(nse, key);
+		free(key);
+
+
+		if(!this_event_restored){
+			/* okay, we received event but it wasn't handled by the process
+			 * that requested this event. We must query for new event with
+			 * smaller timeout */
+			struct timeval now = *nsock_gettimeofday();
+			
+			/*event was successfull so I assert it occured before pr->end_time*/
+			int timeout = TIMEVAL_MSEC_SUBTRACT(nr->end_time, now);
+			if(timeout < 0) /* funny to receive event that should be timeouted in the past. But on windows it can happen*/
+			    timeout = 0;
+			nr->nseid = nsock_pcap_read_packet(nsp, 
+							nse_iod(nse), 
+							l_nsock_pcap_receive_handler, 
+							timeout, nr);
+			/* no need to cancel or delete current nse :) */
+		}
+		return;
+		}
+	default:
+		/* event timeouted */
+		ncap_request_map_del(nr);		/* delete from map */
+		ncap_request_set_result(nse, nr);
+		if(nr->suspended)			/* restore thread */
+			ncap_restore_lua(nr);
+		return;
+	}
+}
+
+
+/* get data from nsock_event, and set result on ncap_requests which mach key */
+int ncap_request_set_results(nsock_event nse, char *key) {
+	int this_event_restored = 0;
+	
+	std::string skey = key;
+	
+	ncap_request_map_iterator i;
+	ncap_request_map_ii ii;
+	
+	ii = ncap_request_map.equal_range(skey);
+	for(i = ii.first; i != ii.second; i++) {
+		/* tests are successfull, so just restore process */
+		ncap_request *nr = i->second;
+		if(nr->nseid == nse_id(nse))
+			this_event_restored = 1;
+		
+		ncap_request_set_result(nse, nr);
+		if(nr->suspended)
+			ncap_restore_lua(nr);
+	}
+        ncap_request_map.erase(ii.first, ii.second);
+	
+	return this_event_restored;
+}
+
+/* get data from nsock_event, and set result ncap_request */
+void ncap_request_set_result(nsock_event nse, struct ncap_request *nr) {
+	enum nse_status status = nse_status(nse);
+	nr->received = true;
+
+	switch (status) {
+	case NSE_STATUS_SUCCESS:{
+		nr->r_success = true;
+		
+		const unsigned char *l2_data, *l3_data;
+		size_t l2_len, l3_len, packet_len;
+		nse_readpcap(nse, &l2_data, &l2_len, &l3_data, &l3_len, 
+					&packet_len, NULL);
+		char *packet = (char*) malloc(l2_len + l3_len);
+		nr->r_layer2 = (unsigned char*)memcpy(&packet[0],      l2_data, l2_len);
+		nr->r_layer3 = (unsigned char*)memcpy(&packet[l2_len], l3_data, l3_len);
+		nr->r_layer2_len = l2_len;
+		nr->r_layer3_len = l3_len;
+		nr->packetsz 	 = packet_len;
+		break;}
+	case NSE_STATUS_ERROR:
+	case NSE_STATUS_TIMEOUT:
+	case NSE_STATUS_CANCELLED:
+	case NSE_STATUS_KILL:
+	case NSE_STATUS_EOF:
+		nr->r_success = false;
+		nr->r_status  = strdup( nse_status2str(status) );
+		break;
+	case NSE_STATUS_NONE:
+	default:
+		fatal("%s: In: %s:%i This should never happen.", 
+				NSOCK_WRAPPER, __FILE__, __LINE__);
+	}
+
+	if(nr->nseid != nse_id(nse)){ /* different event, cancel*/
+		nsock_event_cancel(nsp, nr->nseid, 0); /* Don't send CANCELED event, just cancel */
+		nr->nseid = 0;
+	}else{	/* this event -> do nothing */
+	}
+	
+	return;
+}
+
+
+/* if lua thread was suspended, restore it. If it wasn't, just return results 
+ * (push them on the stack and return) */
+int ncap_restore_lua(ncap_request *nr){
+	lua_State *l = nr->l;
+
+	if(nr->r_success){
+		lua_pushboolean(l, true);
+		lua_pushnumber(l, nr->packetsz);
+		lua_pushlstring(l, (char*)nr->r_layer2, nr->r_layer2_len);
+		lua_pushlstring(l, (char*)nr->r_layer3, nr->r_layer3_len);
+	}else{
+		lua_pushnil(l);
+		lua_pushstring(l, nr->r_status);
+		lua_pushnil(l);
+		lua_pushnil(l);
+	}
+	bool suspended  = nr->suspended;
+	nr->l 		   = NULL;
+	nr->ncap_cback_ref = 0;	/* this ref is freed in different place (on udata->ncap_cback_ref) */
+	if(nr->key) free(nr->key);
+	if(nr->r_status) free(nr->r_status);
+	if(nr->r_layer2) free(nr->r_layer2);
+	/* dont' free r_layer3, it's in the same block as r_layer2*/
+
+	free(nr);
+	
+	if(suspended) 	/* lua process is  suspended */
+		return process_waiting2running(l, 4);
+	else			/* not suspended, just pass output */
+		return 4;
+}
+
+
+
+
+/****************** DNET ******************************************************/ 
+static int l_dnet_open_ethernet(lua_State* l);
+static int l_dnet_close_ethernet(lua_State* l);
+static int l_dnet_send_ethernet(lua_State* l);
+
+static luaL_reg l_dnet [] = {
+	{"ethernet_open",  l_dnet_open_ethernet},
+	{"ethernet_close", l_dnet_close_ethernet},
+	{"ethernet_send",  l_dnet_send_ethernet},
+	{NULL, NULL}
+};
+
+int l_dnet_open(lua_State* l) {
+	auxiliar_newclass(l, "dnet", l_dnet);
+	return NSOCK_WRAPPER_SUCCESS;
+}
+
+struct l_dnet_udata {
+	char *interface;
+	eth_t *eth;
+};
+
+int l_dnet_new(lua_State* l) {
+	struct l_dnet_udata* udata;
+	udata = (struct l_dnet_udata*) lua_newuserdata(l, sizeof(struct l_dnet_udata));
+	auxiliar_setclass(l, "dnet", -1);
+	udata->interface= NULL;
+	udata->eth    	= NULL;
+
+	return 1;
+}
+
+int l_dnet_get_interface_link(lua_State* l) {
+	const char* interface_name = luaL_checkstring(l, 1);
+	
+	struct interface_info *ii = getInterfaceByName((char*)interface_name);
+	if(!ii){	
+		lua_pushnil(l);
+		return 1;
+	}
+	char *s= NULL;
+	switch(ii->device_type){
+	case devt_ethernet:
+		s = "ethernet";
+		break;
+	case devt_loopback:
+		s = "loopback";
+		break;
+	case devt_p2p:
+		s = "p2p";
+		break;
+	case devt_other:
+	default:
+		s = NULL;
+		break;
+	}
+	if(s)
+		lua_pushstring(l, s);
+	else
+		lua_pushnil(l);
+	
+	return 1;
+}
+
+typedef struct{
+	int references;
+	eth_t *eth;
+} dnet_eth_map;
+
+
+std::map<std::string, dnet_eth_map *> dnet_eth_cache;
+
+eth_t *ldnet_eth_open_cached(const char *device) {
+	assert(device && *device);
+	
+	std::string key = device;
+	dnet_eth_map *dem = dnet_eth_cache[key];
+	if(dem != NULL){
+		dem->references++;
+		return dem->eth;
+	} 
+	
+	dem = (dnet_eth_map *)safe_zalloc(sizeof(dnet_eth_map));
+	dem->eth	= eth_open(device);
+	if(!dem->eth)
+		fatal("Unable to open dnet on ethernet interface %s",device);
+	dem->references	= 1;
+	dnet_eth_cache[key] = dem;
+	return dem->eth;
+}
+
+/* See the description for eth_open_cached */
+void ldnet_eth_close_cached(const char *device) {
+	std::string key = device;
+	dnet_eth_map *dem = dnet_eth_cache[key];
+	assert(dem);
+	dem->references--;
+	if(dem->references==0){
+		dnet_eth_cache.erase(key);
+		eth_close(dem->eth);
+		free(dem);
+	}
+	return;
+}
+
+static int l_dnet_open_ethernet(lua_State* l){
+	l_dnet_udata* udata = (l_dnet_udata*) auxiliar_checkclass(l, "dnet", 1);
+	const char* interface_name = luaL_checkstring(l, 2);
+
+	struct interface_info *ii = getInterfaceByName((char*)interface_name);
+	if(!ii || ii->device_type!=devt_ethernet){
+		luaL_argerror(l, 2, "device is not valid ethernet interface");
+		return 0;
+	}
+	udata->interface= strdup(interface_name);
+	udata->eth	= ldnet_eth_open_cached(interface_name);	
+	
+	return 0;
+}
+
+static int l_dnet_close_ethernet(lua_State* l){
+	l_dnet_udata* udata = (l_dnet_udata*) auxiliar_checkclass(l, "dnet", 1);
+	if(!udata->interface || !udata->eth){
+		luaL_argerror(l, 1, "dnet is not valid opened ethernet interface");
+		return  0;
+	}
+
+	udata->eth = NULL;
+	ldnet_eth_close_cached(udata->interface);
+	free(udata->interface);
+	udata->interface = NULL;
+	return 0;
+}
+
+static int l_dnet_send_ethernet(lua_State* l){
+	l_dnet_udata* udata = (l_dnet_udata*) auxiliar_checkclass(l, "dnet", 1);
+	size_t packetsz = 0;
+	const char* packet = luaL_checklstring(l, 2, &packetsz);
+
+	if(!udata->interface || !udata->eth){
+		luaL_argerror(l, 1, "dnet is not valid opened ethernet interface");
+		return  0;
+	}
+	eth_send(udata->eth, packet, packetsz);
+	return 0;
+}
+
+int l_clock_ms(lua_State* l){
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	// no rounding error 
+	// unless the number is greater than 100,000,000,000,000
+	double usec = 0.0; //MAX_INT*1000 =    4 294 967 296 000 <- miliseconds since epoch should fit
+	usec = tv.tv_sec*1000; 
+	usec += (int)(tv.tv_usec/1000);	// make sure it's integer.
+	
+	lua_pushnumber(l, usec);
+	return 1;
+}
+
+
+
+
