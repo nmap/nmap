@@ -2973,6 +2973,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: eMule\r\n.*<title>eMule (\d[-.\w]+)
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: eMule\r\n.*<title>eMule Plus (\d[-.\w]+) |s p/eMule Plus P2P/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: aMule\r\n.*<title>aMule (\d[-.\w]+) - Web Control Panel</title>|s p/aMule P2P/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: aMule\r\n| p/aMule P2P/
+match http m|^HTTP/1\.0 200 OK\r\nServer: Agent-ListenServer-HttpSvr/1\.0\r\n.*<ComputerName>([-.\w]+)</ComputerName><version>([\d\.]+)</version>|s p/Network Associates ePolicy Orchestrator/ i/Computername: $1 Version: $2/
 # Network Associates EPO 3.0
 match http m|^HTTP/1\.0 200 OK\r\nServer: Agent-ListenServer-HttpSvr/1\.0\r\n.*<ComputerName>([-.\w]+)</ComputerName>|s p/Network Associates ePolicy Orchestrator/ i/Computername: $1/
 match http m|^HTTP/1\.0 403 Forbidden\r\nServer: Agent-ListenServer-HttpSvr/1\.0\r\n| p/Network Associates ePolicy Orchestrator/
@@ -5528,8 +5529,14 @@ rarity 5
 ports 5060
 # Some VoIP phones take longer to respond
 totalwaitms 7500
+
+# SIP Proxy Servers
 # OpenSER SIP Server
-match sip m|Server: OpenS[Ee][Rr] \((.*?) \((.*?)\)\)| p/OpenSER SIP Server/ v/$1/ i/$2/
+match sip m|Server: OpenS[Ee][Rr] \(([\w\d\.-]+) \(([\d\w/]+)\)\)| p/OpenSER SIP Server/ v/$1/ i/$2/
+# SIP Express Router
+match sip m|Server: Sip EXpress router \(([\w\d\.-]+) \(([\d\w/]+)\)\)| p/SIP Express Router/ v/$1/ i/$2/
+
+# SIP User Agents
 # Polycom SoundPoint
 match sip m|User-Agent: PolycomSoundPointIP-SPIP_(\d+)-UA/([\d\.]+)| p/Polycom SoundPoint/ v/$1/ i/firmware $2/ d/VoIP phone/
 

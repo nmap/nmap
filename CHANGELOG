@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Performed a bunch of OS fingerprint text canonicalization thanks to
+  reports of dozens of capitalization inconsistencies from Suicidal Bob.
+
 4.22SOC2
 
 o NSE compilation fixes by Stoiko and Kris

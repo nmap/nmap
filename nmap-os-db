@@ -372,8 +372,8 @@ T7(R=Y%DF=Y%T=3F%TG=3F%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=3F%TG=3F%TOS=C0%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=3F%TG=3F%TOSI=S%CD=S%SI=S%DLI=S)
 
-# Alcatel Speed-Touch Pro ADSL Modem (Firmware: Khdsaa3.270  (1003194))
-Fingerprint Alcatel Speed-Touch Pro ADSL Modem
+# Alcatel SpeedTouch Pro ADSL Modem (Firmware: Khdsaa3.270  (1003194))
+Fingerprint Alcatel SpeedTouch Pro ADSL Modem
 Class Alcatel | embedded || broadband router
 SEQ(SP=B-15%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=96-A0%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M200NW0NNT11%O2=M200NW0NNT11%O3=M200NW0NNT11%O4=M200NW0NNT11%O5=M200NW0NNT11%O6=M200NNT11)
@@ -718,7 +718,7 @@ T7(R=Y%DF=N%T=40%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
-# Apple Mac OS X 10.4.8 (Tiger) on X86 Core Duo (first-gen Intel iMac 17"/1.83): Darwin 8.8.1 Darwin Kernel Version 8.8.1: Mon Sep 25 19:42:00 PDT 2006 root:xnu-792.13.8.obj~1/RELEASE_I386 i386 i386)
+# Apple Mac OS X 10.4.8 (Tiger) on x86 Core Duo (first-gen Intel iMac 17"/1.83): Darwin 8.8.1 Darwin Kernel Version 8.8.1: Mon Sep 25 19:42:00 PDT 2006 root:xnu-792.13.8.obj~1/RELEASE_I386 i386 i386)
 # Darwin 8.8.0 Darwin Kernel Version 8.8.0: Fri Sep  8 17:18:57 PDT 2006; root:xnu-792.12.6.obj~1/RELEASE_PPC Power Macintosh powerpc
 # Mac OS X Server 10.4.9 PowerPC Darwin 8.9.0
 # Darwin 8.9.1 Darwin Kernel Version 8.9.1: Thu Feb 22 20:58:18 PST 2007; root:xnu-792.18.15~1/RELEASE_PPC Power Macintosh powerpc (MacOS 10.4.9 Server [PPC])
@@ -741,7 +741,7 @@ IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Apple Mac OS 10.4.8/ppc (Darwin tetralyre 8.8.0 Darwin Kernel Version 8.8.0: Fri Sep  8 17:18:57 PDT
 # Darwin 8.8.1 Darwin Kernel Version 8.8.1: Mon Sep 25 19:42:00 PDT 2006; root:xnu-792.13.8.obj~1/RELEASE_I386 i386 i386
-# Apple Mac OS X 10.4.8 (Tiger) on X86 Core Duo
+# Apple Mac OS X 10.4.8 (Tiger) on x86 Core Duo
 # Apple Mac OS X 10.4.9, Darwin Kernel Version 8.9.1: Thu Feb 22 20:55:00 PST 2007; root:xnu-792.18.15~1/RELEASE_I386 i386 i386
 Fingerprint Apple Mac OS X 10.4.8 - 10.4.9 (Tiger)
 Class Apple | Mac OS X | 10.4.X | general purpose
@@ -3795,7 +3795,7 @@ U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=1042%RIPCK=Z%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # HP laserjet 4100n
-Fingerprint HP LaserJet 4100n printer
+Fingerprint HP LaserJet 4100N printer
 Class HP | embedded || printer
 SEQ(SP=13-1D%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=98-A2%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW0%O2=M5B4NW0%O3=M5B4NW0%O4=M5B4NW0%O5=M5B4NW0%O6=M5B4)
@@ -6698,7 +6698,7 @@ U1(DF=N%T=40%TG=40%TOS=C0%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Centos 4.3 Linux 2.6.17.11-grsec #1 Sat Sep 16 06:39:06 EDT 2006 i686 athlon i386 GNU/Linux
-# CentOS 4.4 Linux 2.6.17.11 (CentOS 4.4, X86, custom compiled kernel)
+# CentOS 4.4 Linux 2.6.17.11 (CentOS 4.4, x86, custom compiled kernel)
 Fingerprint Linux 2.6.17.11 (CentOS 4.3 or 4.4, x86)
 Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=BD-D5%GCD=<7%ISR=C3-D7%TI=Z%II=I%TS=U)
@@ -7952,7 +7952,7 @@ T7(R=Y%DF=N%T=80|81%TG=81%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=80|81%TG=81%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=S%T=80|81%TG=81%TOSI=Z%CD=Z%SI=S%DLI=S)
 
-# Taken on an X86 SMP machine
+# Taken on an x86 SMP machine
 Fingerprint Microsoft Windows 2000 SP4
 Class Microsoft | Windows | 2000 | general purpose
 SEQ(SP=7D-8A%GCD=<7%ISR=99-9D%TI=I%II=I%SS=S)
@@ -9179,7 +9179,7 @@ IE(DFI=N%T=80%TG=80%TOSI=S%CD=Z%SI=S%DLI=S)
 
 # W2003 Server Standard Edition v 5.2 build3790.srv003_rtm.030324-2048 , no sp, MUI RU terminal server started app mode
 # Microsoft Windows XP Home SP2 (German) [Winver: Version 5.1 (build 2600.xpsp_sp2_gdr.050301-1519: Service Pack 2)]
-# Microsoft Windows 2003 (Swedish) X86 version 5.2 (Build 3790.srv03_rtm.030324-2048)
+# Microsoft Windows 2003 (Swedish) x86 version 5.2 (Build 3790.srv03_rtm.030324-2048)
 # Microsoft Windows Server 2003 Enterprise Edition 64-Bit with SP1
 # Microsoft Windows Server 2003 standard edition
 # Microsoft Windows 2003 Standard Edition (English) [Winver: Version 5.2 (build 3790.srv03_gdr.050225-1827
@@ -11665,7 +11665,7 @@ IE(DFI=N%T=41%TG=41%TOSI=Z%CD=S%SI=S%DLI=S)
 
 # Symbol WS5000 Wireless Switch
 # Software 1.4.3.0-012R, firmware 2.2 (7/9/02)
-Fingerprint Symbol WS5000 Wireless Switch
+Fingerprint Symbol WS5000 wireless switch
 Class Symbol | embedded || WAP
 SEQ(SP=5-15%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=96-A0%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
@@ -12352,7 +12352,7 @@ U1(DF=N%T=FE%TG=FE%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=FE%TG=FE%TOSI=S%CD=S%SI=S%DLI=S)
 
 # ZyNOS Firmware Version: V3.62(WK.16) ZyWALL 2
-Fingerprint ZyXEL ZyWall 2
+Fingerprint ZyXEL ZyWALL 2
 Class ZyXEL | ZyNOS || firewall
 SEQ(SP=0-29%GCD=1000|2000|3000|4000|5000|6000|64000|C8000|12C000|190000|1F4000|258000%ISR=AB-B5%TI=I%II=I%SS=S%TS=U)
 OPS(O1=|M200%O2=|M200%O3=|M200%O4=|M200%O5=|M200%O6=|M200)
