@@ -9,6 +9,7 @@
 #include "nmap_rpc.h"
 #include "Target.h"
 #include "output.h"
+#include "portlist.h"
 
 #define SCRIPT_ENGINE_GETSTRING(name) \
 	char* name; \
@@ -307,6 +308,7 @@ static int l_get_port_state(lua_State* l, Target* target, Port* port) {
  * */
 static int l_set_port_state(lua_State* l, Target* target, Port* port) {
 	char* state;
+	PortList* plist = &(target->ports);
 
 	luaL_checktype(l, -1, LUA_TSTRING);
 	state = strdup(lua_tostring(l, -1));
@@ -316,11 +318,13 @@ static int l_set_port_state(lua_State* l, Target* target, Port* port) {
 		case 'o':
 			if (strcmp(state, "open")) 
 				luaL_argerror (l, 4, "Invalid port state.");
+			plist->addPort(port->portno, port->proto, NULL, PORT_OPEN);
 			port->state = PORT_OPEN;
 			break;
 		case 'c':
 			if (strcmp(state, "closed"))
 				luaL_argerror (l, 4, "Invalid port state.");
+			plist->addPort(port->portno, port->proto, NULL, PORT_CLOSED);
 			port->state = PORT_CLOSED;
 			break;
 		default:
