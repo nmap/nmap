@@ -133,7 +133,7 @@ int  TargetGroup::rewind() {
 	return 0; 
       }
       else
-        assert(FALSE);
+        assert(0);
   }
   /* For ranges, we easily set current to zero and calculate
    * the ips by the number of values in the columns */

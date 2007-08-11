@@ -47,7 +47,6 @@ if test $CXXPROG = "MISSING"; then
   AC_MSG_ERROR([Could not locate a C++ compiler. If it exists, add it to your PATH or give configure the CXX=path_to_compiler argument.  Otherwise, install a C++ compiler such as g++ or install a binary package of Nmap (see http://www.insecure.org/nmap/nmap_download.html ))])
 fi
 
-nmap_gcc_major_version=0
 AC_MSG_CHECKING([whether the compiler is gcc 4 or greater])
 if test x"$GXX" = xno; then
   AC_MSG_RESULT([no])
@@ -58,36 +57,26 @@ else
   else
     our_gcc="$ac_cv_prog_CC"
   fi
-  # new major versions must be added here
+
+  nmap_gcc_major_version=0
   case `$our_gcc --version | sed -e 's,\..*,.,' -e q` in
     *4.)
       nmap_gcc_major_version=4
       ;;
-    *3.)
-      nmap_gcc_major_version=3
-      ;;
-    *2.)
-      nmap_gcc_major_version=2
-      ;;
-    *1.)
-      nmap_gcc_major_version=1
-      ;;
   esac
-  if test "$nmap_gcc_major_version" -ge 4; then
+
+  if test 4 -ge $nmap_gcc_major_version; then
     AC_MSG_RESULT([yes])
+    CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
   else
     AC_MSG_RESULT([no])
   fi
 fi
 
 # Remember that all following tests will run with this CXXFLAGS by default
-if test "$nmap_gcc_major_version" -ge 4; then
-  CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
-fi
-
 AC_MSG_CHECKING(for __func__)
 AC_TRY_COMPILE([
-#include <stdio.h>
+include <stdio.h>
 ],[printf ("%s", __func__);],
 have_func=yes, have_func=no)
 if test "x$have_func" = "xyes"; then
@@ -108,192 +97,79 @@ have_function=yes, have_function=no)
    fi
 fi
 
-dnl AC_PROG_INSTALL
-dnl AC_PATH_PROG(MAKEDEPEND, makedepend)
-
-dnl Checks for typedefs, structures, and compiler characteristics.
-
-dnl check for void should be put in
-dnl AC_MSG_CHECKING(for void)
-dnl AC_TRY_COMPILE(, [void *foo = 0;], 
-dnl [AC_MSG_RESULT(yes); AC_DEFINE(HAVE_VOID)], [AC_MSG_RESULT(no)])
-
-dnl so should check for 'const'
-dnl AC_MSG_CHECKING(for const)
-dnl AC_TRY_COMPILE(, [const int foo = 0;], 
-dnl [AC_MSG_RESULT(yes); AC_DEFINE(HAVE_CONST)], [AC_MSG_RESULT(no)])
-
 AC_SUBST(COMPAT_OBJS)
 AC_SUBST(COMPAT_SRCS)
 
 dnl Host specific hacks
 AC_CANONICAL_HOST
+AC_C_INLINE
 
-linux=no
-macosx=no
 needs_cpp_precomp=no
+LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
 
 case "$host" in
   *alpha-dec-osf*)
     AC_DEFINE(DEC)
-	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-netbsd* | *-knetbsd*-gnu)
     AC_DEFINE(NETBSD)
-	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
-	LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
+    LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-openbsd*)
     AC_DEFINE(OPENBSD)
-	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
-	LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
+    LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
-  *-sgi-irix5*)
-    AC_DEFINE(IRIX)
-    if test -z "$GCC"; then
-      sgi_cc=yes
-    fi
-	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
+  *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*)
+    AC_DEFINE(FREEBSD)
+    LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
-  *-sgi-irix6*)
+  *-bsdi*)
+    AC_DEFINE(BSDI)
+    LUAFLAVOR=bsd
+    ;;
+  *-sgi-irix5* | *-sgi-irix6*)
     AC_DEFINE(IRIX)
-    if test -z "$GCC"; then
-      sgi_cc=yes
-    fi
-	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-hpux*)
     AC_DEFINE(HPUX)
     # To link with libnet and NM (/usr/lib/libnm.sl) library
     # on HP-UX 11.11 (other versions?) Mikhail Zakharov (zmey20000@yahoo.com)
     AC_CHECK_LIB(nm, open_mib)
-	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
-  *-solaris2.0*)  
+  *-solaris2.0* | *-solaris2.1* | *-solaris2.2* | *-solaris2.3* | *-solaris2.4* | *-solaris2.5.1 )  
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
-	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
-    ;;
-  *-solaris2.[[1-9]][[0-9]]*)
-    AC_DEFINE(SOLARIS)
-	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
-    ;;
-  *-solaris2.1*)
-    AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
-    AC_DEFINE(SOLARIS)
-	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
-    ;;
-  *-solaris2.2*)
-    AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
-    AC_DEFINE(SOLARIS)
-	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
-    ;;
-  *-solaris2.3*)
-    AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
-    AC_DEFINE(SOLARIS)
-	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
-    ;;
-  *-solaris2.4*)
-    AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
-    AC_DEFINE(SOLARIS)
-	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
-    ;;
-  *-solaris2.5.1)
-    AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
-    AC_DEFINE(SOLARIS)
-	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-solaris*)
     AC_DEFINE(SOLARIS)
-	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-sunos4*)
     AC_DEFINE(SUNOS)
     AC_DEFINE(SPRINTF_RETURNS_STRING)
-	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
     ;;
   *-linux*)
-    linux=yes
     AC_DEFINE(LINUX)
-    AC_DEFINE(PCAP_TIMEOUT_IGNORED)  # libpcap doesn't even LOOK at
-                                     # the timeout you give it under Linux
-	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
-	LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
-    ;;
-  *-freebsd* | *-kfreebsd*-gnu | *-dragonfly*)
-    AC_DEFINE(FREEBSD)
-	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
-	LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
-    ;;
-  *-bsdi*)
-    AC_DEFINE(BSDI)
-	LUAFLAVOR=bsd
-	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
+    AC_DEFINE(PCAP_TIMEOUT_IGNORED)  # libpcap doesn't even LOOK at the timeout you give it under Linux
+    LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-apple-darwin*)
-    macosx=yes
     AC_DEFINE(MACOSX)
+    dnl on Mac OSX the math library seems to contain unwanted getopt cruft
+    AC_CHECK_LIB(m, main)
+    LUAFLAGS="MYCFLAGS=\"-DLUA_USE_MACOSX\""
     needs_cpp_precomp=yes
-	LUAFLAGS="MYCFLAGS=\"-DLUA_USE_MACOSX\""
     ;;
   *)
-	LUAFLAGS=MYCFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN"
+   LUAFLAGS=MYCFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN"
 esac
 
 AC_SUBST(LUAFLAGS)
-AC_SEARCH_LIBS(dlopen, dl)
-
-dnl equiv to '#define inline' to 'inline', '__inline__', '__inline' or ''
-AC_C_INLINE
-if test -n "$sgi_cc"; then
-   AC_DEFINE(inline, )
-fi
 
 dnl Checks for header files.
-AC_HEADER_STDC
-AC_CHECK_HEADERS(string.h getopt.h strings.h memory.h sys/param.h sys/sockio.h bstring.h sys/time.h sys/stat.h fcntl.h termios.h pwd.h unistd.h )
-AC_CHECK_HEADERS(netinet/in.h)
-AC_CHECK_HEADERS(sys/socket.h)
-AC_CHECK_HEADERS([net/if.h],[],[],
-[#if HAVE_SYS_TYPES_H
-# include <sys/types.h>
-# endif
-#if HAVE_NETINET_IN_H
-# include <netinet/in.h>
-# endif
-#if HAVE_SYS_SOCKET_H
-# include <sys/socket.h>
-# endif
-])
-AC_CHECK_HEADERS([netinet/if_ether.h],[],[],
-[#if HAVE_SYS_TYPES_H
-# include <sys/types.h>
-# endif
-#if HAVE_NETINET_IN_H
-# include <netinet/in.h>
-# endif
-# if HAVE_SYS_SOCKET_H
-# include <sys/socket.h>
-# endif
-# if HAVE_NET_IF_H
-# include <net/if.h>
-# endif
-])
-AC_HEADER_TIME
-
-dnl Checks for libraries.
-dnl AC_CHECK_LIB(m, pow)
-dnl on Mac OSX the math library seems to contain unwanted getopt cruft
-if test $macosx = no; then
-  AC_CHECK_LIB(m, main)
-fi
+AC_CHECK_HEADERS(pwd.h termios.h)
 
 dnl If any socket libraries needed
-AC_SEARCH_LIBS(gethostent, nsl)
 AC_SEARCH_LIBS(setsockopt, socket)
-
-dnl need posix4/nanosleep for solaris 2.4
-AC_SEARCH_LIBS(nanosleep, posix4)
 
 # By default, try to build nmapfe if possible
 test "${with_nmapfe+set}" != "set" && with_nmapfe=yes
@@ -347,18 +223,6 @@ if test "$use_openssl" = "yes" -a -z "$specialssldir"; then
   AC_CHECK_HEADER(openssl/ssl.h,,
   [ use_openssl="no"
     AC_MSG_WARN([Failed to find openssl/ssl.h so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument]) ])
-
- if test "$use_openssl" = "yes"; then
-   AC_CHECK_HEADER(openssl/err.h,,
-    [ use_openssl="no"
-    AC_MSG_WARN([Failed to find openssl/err.h so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument]) ])
- fi
-
- if test "$use_openssl" = "yes"; then
-   AC_CHECK_HEADER(openssl/rand.h,,
-    [ use_openssl="no"
-    AC_MSG_WARN([Failed to find openssl/rand.h so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument]) ])
- fi
 
 # use_openssl="yes" given explicitly in next 2 rules to avoid adding lib to $LIBS
  if test "$use_openssl" = "yes"; then
@@ -421,10 +285,6 @@ AC_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap
   esac]
 )
 
-#if test $linux = yes; then
-#  have_libpcap=no
-#fi
-
 if test $needs_cpp_precomp = yes; then
   CXXFLAGS="-no-cpp-precomp $CXXFLAGS"
 fi
@@ -457,11 +317,9 @@ int main() {
   exit(0);
 }],
 [AC_MSG_RESULT(yes); have_libpcap=yes],
-[AC_MSG_RESULT(no); have_libpcap=no],
 [AC_MSG_RESULT(no); have_libpcap=no])
 LIBS="$LIBS_OLD"
 fi
-
 
 LIBPCAP_LIBS="-lpcap"
 if test $have_libpcap = yes; then
@@ -651,11 +509,14 @@ else
 
   # if we didn't find we use our own
   if test $have_lua != yes; then
+    AC_MSG_RESULT(no) 
     CXXFLAGS="-I$LIBLUADIR $CXXFLAGS"
     LIBLUA_LIBS="$LIBLUADIR/liblua.a"
     LUA_DEPENDS="$LIBLUADIR/liblua.a"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
+  else
+    AC_MSG_RESULT(yes) 
   fi
 
   INSTALLNSE="install-nse"
@@ -675,52 +536,6 @@ AC_SUBST(LUA_DIST_CLEAN)
 AC_SUBST(INSTALLNSE)
 AC_SUBST(NSELIB_CLEAN)
 AC_SUBST(NSELIB_DIST_CLEAN)
-
-dnl AC_HEADER_TIME
-
-AC_MSG_CHECKING([struct ip])
-AC_TRY_COMPILE([#include <sys/types.h>
-#include <netinet/in.h>
-#include <netinet/in_systm.h>
-#include <netinet/ip.h>],
-               [struct ip ip;],
-               [AC_MSG_RESULT(yes); bsd_networking=yes],
-               [AC_MSG_RESULT(no); bsd_networking=no]);
-if test $bsd_networking = yes; then
-
-  AC_DEFINE(BSD_NETWORKING)
-  AC_MSG_CHECKING([ip_v in struct ip])
-  AC_TRY_COMPILE([#include <sys/types.h>
-#include <netinet/in.h>
-#include <netinet/in_systm.h>
-#include <netinet/ip.h>],
-                 [struct ip ip; ip.ip_v;],
-                 [AC_MSG_RESULT(yes); has_bitfields=yes],
-                 [AC_MSG_RESULT(no); has_bitfields=no])
-
-  if test $has_bitfields = no; then
-    SAVE_CXXFLAGS="$CXXFLAGS"
-    CXXFLAGS="-D__STDC__=2"
-
-    AC_MSG_CHECKING([if setting __STDC__=2 gives ip_v])
-    AC_TRY_COMPILE([#include <sys/types.h>
-#include <netinet/in.h>
-#include <netinet/in_systm.h>
-#include <netinet/ip.h>],
-                   [struct ip ip; ip.ip_v;],
-                   [AC_MSG_RESULT(yes); setting_stdc_helps=yes],
-                  [AC_MSG_RESULT(no); setting_stdc_helps=no])
-
-    CXXFLAGS="$SAVE_CXXFLAGS"
-    if test $setting_stdc_helps = yes; then
-      CXXFLAGS="$CXXFLAGS -D__STDC__=2"
-    else
-      AC_MSG_RESULT(Can't figure out how to get bitfields - configure failed)
-      exit 1
-    fi
-  fi
-fi
-
 AC_SUBST(CXXFLAGS)
 
 dnl This test is from the configure.in of Unix Network Programming second
@@ -730,8 +545,8 @@ dnl Check if sockaddr{} has sa_len member.
 dnl
 AC_CACHE_CHECK(if sockaddr{} has sa_len member, ac_cv_sockaddr_has_sa_len,
         AC_TRY_COMPILE([
-#               include <sys/types.h>
-#               include <sys/socket.h>],
+               #include <sys/types.h>
+               #include <sys/socket.h>],
                 [unsigned int i = sizeof(((struct sockaddr *)0)->sa_len)],
         ac_cv_sockaddr_has_sa_len=yes,
         ac_cv_sockaddr_has_sa_len=no))
@@ -739,15 +554,15 @@ if test $ac_cv_sockaddr_has_sa_len = yes ; then
         AC_DEFINE(HAVE_SOCKADDR_SA_LEN)
 fi
 
-dnl check endedness
+#dnl check endedness
 AC_C_BIGENDIAN
 
 AC_MSG_CHECKING([if struct in_addr is a wacky huge structure (some Sun boxes)])
 
 AC_TRY_COMPILE([#include <netinet/in.h>], struct in_addr i; i._S_un._S_addr;, \
-              AC_DEFINE(IN_ADDR_DEEPSTRUCT) \
-              AC_MSG_RESULT(yes) , \
-              AC_TRY_COMPILE([#include <sys/types.h>
+             AC_DEFINE(IN_ADDR_DEEPSTRUCT) \
+             AC_MSG_RESULT(yes) , \
+             AC_TRY_COMPILE([#include <sys/types.h>
 #include <netinet/in.h>], struct in_addr i; i.S_un.S_addr;, \
                              AC_DEFINE(IN_ADDR_DEEPSTRUCT) \
                              AC_MSG_RESULT(yes) , \
@@ -755,15 +570,15 @@ AC_TRY_COMPILE([#include <netinet/in.h>], struct in_addr i; i._S_un._S_addr;, \
 
 AC_CACHE_CHECK(if struct icmp exists, ac_cv_struct_icmp_exists,
         AC_TRY_COMPILE([
-#               include <sys/types.h>
-#               include <sys/param.h>
-#               include <netinet/in_systm.h>
-#               include <netinet/in.h>               
-#               define __USE_BSD
-#               define __FAVOR_BSD
-#               define _BSD_SOURCE
-#               include <netinet/ip.h>
-#               include <netinet/ip_icmp.h>],
+               #include <sys/types.h>
+               #include <sys/param.h>
+               #include <netinet/in_systm.h>
+               #include <netinet/in.h>               
+               #define __USE_BSD
+               #define __FAVOR_BSD
+               #define _BSD_SOURCE
+               #include <netinet/ip.h>
+               #include <netinet/ip_icmp.h>],
                 [unsigned int i = sizeof(struct icmp)],
         ac_cv_struct_icmp_exists=yes,
         ac_cv_struct_icmp_exists=no))
@@ -773,14 +588,14 @@ fi
 
 AC_CACHE_CHECK(if struct ip exists, ac_cv_struct_ip_exists,
         AC_TRY_COMPILE([
-#               include <sys/types.h>
-#               include <sys/param.h>
-#               include <netinet/in_systm.h>
-#               include <netinet/in.h>               
-#               define __USE_BSD
-#               define __FAVOR_BSD
-#               define _BSD_SOURCE
-#               include <netinet/ip.h>],
+               #include <sys/types.h>
+               #include <sys/param.h>
+               #include <netinet/in_systm.h>
+               #include <netinet/in.h>               
+               #define __USE_BSD
+               #define __FAVOR_BSD
+               #define _BSD_SOURCE
+               #include <netinet/ip.h>],
                 [unsigned int i = sizeof(struct ip)],
         ac_cv_struct_ip_exists=yes,
         ac_cv_struct_ip_exists=no))
@@ -790,15 +605,15 @@ fi
 
 AC_CACHE_CHECK(if struct ip has ip_sum member, ac_cv_ip_has_ip_sum,
         AC_TRY_COMPILE([
-#               include <sys/types.h>
-#               include <sys/param.h>
-#               include <netinet/in_systm.h>
-#               include <netinet/in.h>
-#               define __USE_BSD
-#               define __FAVOR_BSD
-#               define _BSD_SOURCE
-#               include <netinet/ip.h>
-#               include <netinet/ip_icmp.h>],
+               #include <sys/types.h>
+               #include <sys/param.h>
+               #include <netinet/in_systm.h>
+               #include <netinet/in.h>
+               #define __USE_BSD
+               #define __FAVOR_BSD
+               #define _BSD_SOURCE
+               #include <netinet/ip.h>
+               #include <netinet/ip_icmp.h>],
                 [unsigned int i = sizeof(((struct ip *)0)->ip_sum)],
         ac_cv_ip_has_ip_sum=yes,
         ac_cv_ip_has_ip_sum=no))
@@ -806,48 +621,9 @@ if test $ac_cv_ip_has_ip_sum = yes ; then
         AC_DEFINE(HAVE_IP_IP_SUM)
 fi
 
-
 dnl Checks for library functions.
-dnl AC_TYPE_SIGNAL
-AC_CHECK_FUNCS(bzero memcpy nanosleep strerror strcasestr getopt_long_only)
-
-AC_LANG_PUSH(C++)
-AC_MSG_CHECKING([for usleep])
-AC_TRY_LINK([#include <unistd.h>],[usleep (200);],[
-  AC_MSG_RESULT(yes)],[
-  AC_MSG_RESULT(no)
-  AC_MSG_CHECKING([if usleep needs custom prototype])
-  AC_TRY_LINK([
-#include <unistd.h>
-
-extern "C" int usleep (unsigned int);],[
-usleep (200);],[
-  AC_MSG_RESULT(yes)
-  AC_DEFINE(NEED_USLEEP_PROTO)],
-  AC_MSG_RESULT(not found))])
-AC_LANG_POP(C++)
-
-AC_LANG_PUSH(C++)
-AC_TRY_LINK([#include <stdlib.h>
-#include <unistd.h>],[
-char buffer[200];
-gethostname (buffer, 200);], ,[
-  AC_MSG_CHECKING([if gethostname needs custom prototype])
-  AC_TRY_LINK([
-#include <stdlib.h>
-#include <unistd.h>
-
-extern "C" int gethostname (char *, unsigned int);],[
-char buffer[200];
-gethostname (buffer, 200);],[
-  AC_MSG_RESULT(yes)
-  AC_DEFINE(NEED_GETHOSTNAME_PROTO)],
-  AC_MSG_RESULT(not found))])
-AC_LANG_POP(C++)
-
+AC_CHECK_FUNCS(strerror)
 RECVFROM_ARG6_TYPE
-
-dnl AC_CHECK_FUNCS(gethostname gettimeofday select socket strdup strstr )
 
 AC_ARG_WITH(libnbase,
 AC_HELP_STRING([--with-libnbase=DIR], [Look for nbase include/libs in DIR]),
@@ -938,15 +714,6 @@ fi
 
 dnl all hell broke loose when the variable was named $subdirs
 AC_CONFIG_SUBDIRS( $nmap_cfg_subdirs )
-
-dnl Configure libpcap if we need to since a lot of lamers don't
-dnl already have it installed ...
-dnl if test $have_libpcap = nsadf ; then
-dnl    echo "Have libpcap is set to $have_libpcap ";
-dnl    asdfasdf sdsdf sfd sdfsd
-dnl    AC_CONFIG_SUBDIRS( $libpcapdir )
-dnl fi
-
 AC_OUTPUT(Makefile)
 # Krad ASCII ART#!#@$!@#$
 if test -f docs/leet-nmap-ascii-art.txt; then
