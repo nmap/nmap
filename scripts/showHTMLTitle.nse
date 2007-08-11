@@ -50,7 +50,7 @@ action = function(host, port)
 	if title ~= nil then
 		result = string.gsub(title , "[\n\r\t]", "")
 		if string.len(title) > 50 then
-			nmap.print_debug_unformatted("showHTMLTitle.nse: Title got truncated!");
+			nmap.print_debug("showHTMLTitle.nse: Title got truncated!");	
 			result = string.sub(result, 1, 62) .. "..."
 		end
 	else

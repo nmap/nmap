@@ -402,13 +402,14 @@ static int l_print_debug_unformatted(lua_State *l) {
 	int verbosity=1, stack_counter(1);
 	const char *out;
 
-	if (lua_isnumber (l, 1) && (lua_gettop(l) > 1)) {
-		verbosity = lua_tointeger(l, 1);
-		if (verbosity > o.verbose) return 0;
-		stack_counter++;
-	}
-	out = luaL_checkstring(l, stack_counter);
-	log_write(LOG_STDOUT, "%s NSE DEBUG: %s\n", SCRIPT_ENGINE, out);
+	if (lua_gettop(l) != 2) return luaL_error(l, "Incorrect number of arguments\n");
+
+	verbosity = luaL_checkinteger(l, 1);
+	if (verbosity > o.verbose) return 0;
+	out = luaL_checkstring(l, 2);
+
+	log_write(LOG_STDOUT, "%s DEBUG: %s\n", SCRIPT_ENGINE, out);
+
 	return 0;
 }
 
