@@ -25,6 +25,12 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nse_bitlib", "..\nselib\nse_bitlib.vcproj", "{FB7F6FD2-A39D-40A1-86DD-9B08370BDEA6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{31FB0767-A71F-4575-8379-002D72B8AF86} = {31FB0767-A71F-4575-8379-002D72B8AF86}
+		{AC2E7983-2E05-4CDB-96E3-7A03B01DCE85} = {AC2E7983-2E05-4CDB-96E3-7A03B01DCE85}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nse_pcrelib", "..\nselib\nse_pcrelib.vcproj", "{AC2E7983-2E05-4CDB-96E3-7A03B01DCE85}"
+	ProjectSection(ProjectDependencies) = postProject
+		{31FB0767-A71F-4575-8379-002D72B8AF86} = {31FB0767-A71F-4575-8379-002D72B8AF86}
 	EndProjectSection
 EndProject
 Global
@@ -61,6 +67,10 @@ Global
 		{FB7F6FD2-A39D-40A1-86DD-9B08370BDEA6}.Debug|Win32.Build.0 = Debug|Win32
 		{FB7F6FD2-A39D-40A1-86DD-9B08370BDEA6}.Release|Win32.ActiveCfg = Release|Win32
 		{FB7F6FD2-A39D-40A1-86DD-9B08370BDEA6}.Release|Win32.Build.0 = Release|Win32
+		{AC2E7983-2E05-4CDB-96E3-7A03B01DCE85}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AC2E7983-2E05-4CDB-96E3-7A03B01DCE85}.Debug|Win32.Build.0 = Debug|Win32
+		{AC2E7983-2E05-4CDB-96E3-7A03B01DCE85}.Release|Win32.ActiveCfg = Release|Win32
+		{AC2E7983-2E05-4CDB-96E3-7A03B01DCE85}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
