@@ -19,7 +19,7 @@ typedef unsigned long long UInteger;
 #define TDYADIC(name, op, checkbit1, checkbit2) \
   static int bit_ ## name(lua_State* L) { \
     lua_pushnumber(L, \
-      checkbit1(L, 1) op checkbit2(L, 2)); \
+      (lua_Number)(checkbit1(L, 1) op checkbit2(L, 2))); \
     return 1; \
   }
 
@@ -28,7 +28,7 @@ typedef unsigned long long UInteger;
 
 #define MONADIC(name, op) \
   static int bit_ ## name(lua_State* L) { \
-    lua_pushnumber(L, op luaL_checkbit(L, 1)); \
+    lua_pushnumber(L, (lua_Number)(op luaL_checkbit(L, 1))); \
     return 1; \
   }
 
@@ -38,7 +38,7 @@ typedef unsigned long long UInteger;
     Integer w = luaL_checkbit(L, 1); \
     for (i = 2; i <= n; i++) \
       w op luaL_checkbit(L, i); \
-    lua_pushnumber(L, w); \
+    lua_pushnumber(L, (lua_Number)w); \
     return 1; \
   }
 
