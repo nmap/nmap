@@ -39,7 +39,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\libpcre;..\liblua"
+				AdditionalIncludeDirectories="..\libpcre;..\liblua;..\nbase"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;NSE_PCRELIB_EXPORTS;LUA_BUILD_AS_DLL;LUA_LIB"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
@@ -62,10 +62,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="liblua.lib libpcre.lib"
+				AdditionalDependencies="liblua.lib libpcre.lib nbase.lib"
 				OutputFile=".\pcre.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\libpcre;..\liblua"
+				AdditionalLibraryDirectories="..\libpcre;..\liblua;..\nbase"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
