@@ -19,27 +19,7 @@ AC_CANONICAL_HOST
 AC_CHECK_HEADER([lua.h],,[AC_MSG_NOTICE(using lua-includefiles provided with nmap);[LUAINCLUDE=-I../liblua/]],)
 AC_SUBST(LUAINCLUDE)
 
-#needed for pcre - libpcre and nbase
-AC_ARG_WITH(libnbase,
-AC_HELP_STRING([--with-libnbase=DIR], [Look for nbase include/libs in DIR]),
-[  case "$with_libnbase" in
-  yes)
-    ;;
-  *)
-    NBASEDIR="$with_libnbase"
-    ;;
-  esac],
-NBASEDIR="../nbase"
-)
-
-
-NBASE_INCLUDE="-I$NBASEDIR"
-NBASE_LD="-L$NBASEDIR"
-NBASE_LIBS="-lnbase"
-
-AC_SUBST(NBASE_LIBS)
-AC_SUBST(NBASE_LD)
-AC_SUBST(NBASE_INCLUDE)
+#needed for pcre - libpcre
 
 # First we test whether they specified libpcre explicitly
 AC_ARG_WITH(libpcre,

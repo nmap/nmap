@@ -20,8 +20,8 @@ bit.so: bit.c @LIBTOOL_DEPS@
 	mv .libs/bit.so bit.so
 
 pcre.so: pcre.c @LIBTOOL_DEPS@
-	$(LIBTOOL) $(LTFLAGS) --mode=compile $(CC) @NBASE_INCLUDE@ @PCRE_INCLUDE@ @LUAINCLUDE@ $(CFLAGS) -c pcre.c
-	$(LIBTOOL) $(LTFLAGS) --mode=link $(CC) @NBASE_LD@ @PCRE_LD@ @NBASE_LIBS@ @PCRE_LIBS@ -avoid-version -module -rpath /usr/local/lib -o pcre.la pcre.lo
+	$(LIBTOOL) $(LTFLAGS) --mode=compile $(CC) @PCRE_INCLUDE@ @LUAINCLUDE@ $(CFLAGS) -c pcre.c
+	$(LIBTOOL) $(LTFLAGS) --mode=link $(CC) @PCRE_LD@ @PCRE_LIBS@ -avoid-version -module -rpath /usr/local/lib -o pcre.la pcre.lo
 	mv .libs/pcre.so pcre.so
 
 
