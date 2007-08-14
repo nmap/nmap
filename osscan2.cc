@@ -3264,7 +3264,7 @@ static void begin_sniffer(HostOsScan *HOS, vector<Target *> &Targets) {
 
   if (doIndividual) {
     for(targetno = 0; targetno < Targets.size(); targetno++) {
-      len = snprintf(dst_hosts + filterlen, 
+      len = Snprintf(dst_hosts + filterlen, 
                      sizeof(dst_hosts) - filterlen,
                      "%ssrc host %s", (targetno == 0)? "" : " or ",
                      Targets[targetno]->targetipstr());
@@ -3272,7 +3272,7 @@ static void begin_sniffer(HostOsScan *HOS, vector<Target *> &Targets) {
         fatal("ran out of space in dst_hosts");
       filterlen += len;
     }
-    len = snprintf(dst_hosts + filterlen, sizeof(dst_hosts) - filterlen, ")))");
+    len = Snprintf(dst_hosts + filterlen, sizeof(dst_hosts) - filterlen, ")))");
     if (len < 0 || len + filterlen >= (int) sizeof(dst_hosts))
       fatal("ran out of space in dst_hosts");
   }
@@ -3281,10 +3281,10 @@ static void begin_sniffer(HostOsScan *HOS, vector<Target *> &Targets) {
   HOS->pd = my_pcap_open_live(Targets[0]->deviceName(), 8192,  (o.spoofsource)? 1 : 0, pcap_selectable_fd_valid()? 200 : 2);
 
   if (doIndividual)
-    len = snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s and (icmp or (tcp and (%s", 
+    len = Snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s and (icmp or (tcp and (%s", 
                    inet_ntoa(Targets[0]->v4source()), dst_hosts);
   else
-    len = snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s and (icmp or tcp)", 
+    len = Snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s and (icmp or tcp)", 
                    inet_ntoa(Targets[0]->v4source()));
   if (len < 0 || len >= (int) sizeof(pcap_filter))
     fatal("ran out of space in pcap filter");
@@ -3848,7 +3848,7 @@ static int os_scan_2(vector<Target *> &Targets) {
       bool plural = (OSI->numIncompleteHosts() != 1);
       if (!plural) {
 	(*(OSI->incompleteHosts.begin()))->target->NameIP(targetstr, sizeof(targetstr));
-      } else snprintf(targetstr, sizeof(targetstr), "%d hosts", (int) OSI->numIncompleteHosts());
+      } else Snprintf(targetstr, sizeof(targetstr), "%d hosts", (int) OSI->numIncompleteHosts());
       log_write(LOG_PLAIN, "%s OS detection (try #%d) against %s\n", (itry == 0)? "Initiating" : "Retrying", itry + 1, targetstr);
       log_flush_all();
     }

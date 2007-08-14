@@ -193,7 +193,7 @@ int main(int argc, char *argv[]) {
 #endif
 
   if ((cptr = getenv("NMAP_ARGS"))) {
-    if (snprintf(command, sizeof(command), "nmap %s", cptr) >= (int) sizeof(command)) {
+    if (Snprintf(command, sizeof(command), "nmap %s", cptr) >= (int) sizeof(command)) {
         error("Warning: NMAP_ARGS variable is too long, truncated");
     }
     /* copy rest of command-line arguments */
@@ -322,7 +322,7 @@ int main(int argc, char *argv[]) {
 		if (endptr) { 
 		  *endptr = '\0';
 		}
-		snprintf(nmappath, sizeof(nmappath), "%s/%s", pptr, nmapcalledas);
+		Snprintf(nmappath, sizeof(nmappath), "%s/%s", pptr, nmapcalledas);
 		if (stat(nmappath, &st) != -1)
 		  break;
 		nmappath[0] = '\0';

@@ -611,17 +611,17 @@ static char *probespec2ascii(probespec *pspec, char *buf, unsigned int bufsz) {
       if (pspec->pd.tcp.flags & TH_CWR) *f++ = 'C'; /* rfc 2481/3168 */
       *f++ = '\0';
     }
-    snprintf(buf, bufsz, "tcp to port %hu; flags: %s", pspec->pd.tcp.dport, 
+    Snprintf(buf, bufsz, "tcp to port %hu; flags: %s", pspec->pd.tcp.dport, 
 	     flagbuf);
     break;
   case PS_UDP:
-    snprintf(buf, bufsz, "udp to port %hu", pspec->pd.udp.dport);
+    Snprintf(buf, bufsz, "udp to port %hu", pspec->pd.udp.dport);
     break;
   case PS_PROTO:
-    snprintf(buf, bufsz, "protocol %u", (unsigned int) pspec->proto);
+    Snprintf(buf, bufsz, "protocol %u", (unsigned int) pspec->proto);
     break;
   case PS_ARP:
-    snprintf(buf, bufsz, "ARP");
+    Snprintf(buf, bufsz, "ARP");
     break;
   default:
     fatal("Unexpected %s type encountered", __func__);
@@ -2675,11 +2675,11 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
 	case ENETDOWN:
 	case ENETRESET:
 	case ECONNABORTED:
-	  snprintf(buf, sizeof(buf), "Strange SO_ERROR from connection to %s (%d - '%s') -- bailing scan", host->target->targetipstr(), optval, strerror(optval) );
+	  Snprintf(buf, sizeof(buf), "Strange SO_ERROR from connection to %s (%d - '%s') -- bailing scan", host->target->targetipstr(), optval, strerror(optval) );
 	  pfatal(buf);
 	  break;
 	default:
-	  snprintf(buf, sizeof(buf), "Strange read error from %s (%d - '%s')", host->target->targetipstr(), optval, strerror(optval));
+	  Snprintf(buf, sizeof(buf), "Strange read error from %s (%d - '%s')", host->target->targetipstr(), optval, strerror(optval));
 	  perror(buf);
 	  break;
 	}
@@ -3258,7 +3258,7 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
 
   if (doIndividual) {
     for(targetno = 0; targetno < Targets.size(); targetno++) {
-      len = snprintf(dst_hosts + filterlen, 
+      len = Snprintf(dst_hosts + filterlen, 
 		     sizeof(dst_hosts) - filterlen,
 		     "%ssrc host %s", (targetno == 0)? "" : " or ",
 		     Targets[targetno]->targetipstr());
@@ -3273,11 +3273,11 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
 
   if (USI->tcp_scan || USI->udp_scan) {
     if (doIndividual)
-      len = snprintf(pcap_filter, sizeof(pcap_filter), 
+      len = Snprintf(pcap_filter, sizeof(pcap_filter), 
 		     "dst host %s and (icmp or (%s and (%s)))", 
 		     inet_ntoa(Targets[0]->v4source()), 
 		     (USI->tcp_scan)? "tcp" : "udp", dst_hosts);
-    else len = snprintf(pcap_filter, sizeof(pcap_filter), 
+    else len = Snprintf(pcap_filter, sizeof(pcap_filter), 
 			"dst host %s and (icmp or %s)", 
 			inet_ntoa(Targets[0]->v4source()), 
 			(USI->tcp_scan)? "tcp" : "udp");
@@ -3286,11 +3286,11 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
     filterlen = len;
   } else if (USI->prot_scan) {
     if (doIndividual)
-      len = snprintf(pcap_filter, sizeof(pcap_filter), 
+      len = Snprintf(pcap_filter, sizeof(pcap_filter), 
 		     "dst host %s and (icmp or (%s))", 
 		     inet_ntoa(Targets[0]->v4source()), dst_hosts);
     else	
-      len = snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s",
+      len = Snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s",
 		     inet_ntoa(Targets[0]->v4source()));
     if (len < 0 || len >= (int) sizeof(pcap_filter))
       fatal("ran out of space in pcap filter");
@@ -3298,7 +3298,7 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
   } else if (USI->ping_scan_arp) {
     const u8 *mac = Targets[0]->SrcMACAddress();
     assert(mac);
-    len = snprintf(pcap_filter, sizeof(pcap_filter), 
+    len = Snprintf(pcap_filter, sizeof(pcap_filter), 
 		   "arp and ether dst host %02X:%02X:%02X:%02X:%02X:%02X", 
 		   mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     if (len < 0 || len >= (int) sizeof(pcap_filter))
@@ -3456,7 +3456,7 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
     bool plural = (Targets.size() != 1);
     if (!plural) {
       (*(Targets.begin()))->NameIP(targetstr, sizeof(targetstr));
-    } else snprintf(targetstr, sizeof(targetstr), "%d hosts", (int) Targets.size());
+    } else Snprintf(targetstr, sizeof(targetstr), "%d hosts", (int) Targets.size());
     log_write(LOG_STDOUT, "Scanning %s [%d port%s%s]\n", targetstr, USI->gstats->numprobes, (USI->gstats->numprobes != 1)? "s" : "", plural? "/host" : "");
   }
 
@@ -3508,10 +3508,10 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
   if (o.verbose) {
     char additional_info[128];
     if (USI->gstats->num_hosts_timedout == 0)
-      snprintf(additional_info, sizeof(additional_info), "%lu total %s",
+      Snprintf(additional_info, sizeof(additional_info), "%lu total %s",
 		(unsigned long) USI->gstats->numprobes * Targets.size(), 
 		(scantype == PING_SCAN_ARP)? "hosts" : "ports");
-    else snprintf(additional_info, sizeof(additional_info), "%d %s timed out",
+    else Snprintf(additional_info, sizeof(additional_info), "%d %s timed out",
 		   USI->gstats->num_hosts_timedout, 
 		   (USI->gstats->num_hosts_timedout == 1)? "host" : "hosts");
     USI->SPM->endTask(NULL, additional_info);
@@ -3540,7 +3540,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
 
   if (! numports) return;		 /* nothing to scan for */
 
-  snprintf(targetstr, 20, "%d,%d,%d,%d,", UC(t[0]), UC(t[1]), UC(t[2]), UC(t[3]));
+  Snprintf(targetstr, 20, "%d,%d,%d,%d,", UC(t[0]), UC(t[1]), UC(t[2]), UC(t[3]));
 
   starttime = time(NULL);
   if (o.verbose || o.debugging) {
@@ -3557,7 +3557,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
     portno = htons(portarray[i]);
     p1 = ((unsigned char *) &portno)[0];
     p2 = ((unsigned char *) &portno)[1];
-    snprintf(command, 512, "PORT %s%i,%i\r\n", targetstr, p1,p2);
+    Snprintf(command, 512, "PORT %s%i,%i\r\n", targetstr, p1,p2);
     if (o.debugging) log_write(LOG_STDOUT, "Attempting command: %s", command);
     if (send(sd, command, strlen(command), 0) < 0 ) {
       gh_perror("send in %s", __func__);
@@ -3830,7 +3830,7 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
     // no RPC ports need scanning.
     if (!SPM) {
       char scanname[48];
-      snprintf(scanname, sizeof(scanname), "%s against %s", scantype2str(scantype), target->NameIP());
+      Snprintf(scanname, sizeof(scanname), "%s against %s", scantype2str(scantype), target->NameIP());
       scanname[sizeof(scanname) - 1] = '\0';
       SPM = new ScanProgressMeter(scanname);
     }
@@ -3990,7 +3990,7 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
   numports = rpcportsscanned;
   if (SPM && o.verbose && (numports > 0)) {
     char scannedportsstr[14];
-    snprintf(scannedportsstr, sizeof(scannedportsstr), "%d %s", numports, (numports > 1)? "ports" : "port");
+    Snprintf(scannedportsstr, sizeof(scannedportsstr), "%d %s", numports, (numports > 1)? "ports" : "port");
     SPM->endTask(NULL, scannedportsstr);
   }
  posscan_timedout:

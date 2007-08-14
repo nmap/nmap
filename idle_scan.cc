@@ -398,7 +398,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
 
   p = strdup(proxy->host.targetipstr());
   q = strdup(inet_ntoa(proxy->host.v4source()));
-  snprintf(filter, sizeof(filter), "tcp and src host %s and dst host %s and src port %hu", p, q, proxy->probe_port);
+  Snprintf(filter, sizeof(filter), "tcp and src host %s and dst host %s and src port %hu", p, q, proxy->probe_port);
  free(p); 
  free(q);
  set_pcap_filter(proxy->host.deviceName(), proxy->pd,  filter);
@@ -978,7 +978,7 @@ void idle_scan(Target *target, u16 *portarray, int numports,
   int portsleft;
   time_t starttime;
   char scanname[32];
-  snprintf(scanname, sizeof(scanname), "Idlescan against %s", target->NameIP());
+  Snprintf(scanname, sizeof(scanname), "Idlescan against %s", target->NameIP());
   ScanProgressMeter SPM(scanname);
 
   if (numports == 0) return; /* nothing to scan for */
@@ -1032,7 +1032,7 @@ void idle_scan(Target *target, u16 *portarray, int numports,
 
 
   char additional_info[14];
-  snprintf(additional_info, sizeof(additional_info), "%d ports", numports);
+  Snprintf(additional_info, sizeof(additional_info), "%d ports", numports);
   SPM.endTask(NULL, additional_info);
 
   /* Now we go through the ports which were not determined were scanned

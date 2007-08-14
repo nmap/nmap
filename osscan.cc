@@ -563,7 +563,7 @@ static FingerPrint *get_fingerprint(Target *target, struct seq_info *si) {
   if (o.debugging > 1)
     log_write(LOG_STDOUT, "Wait time is %dms\n", (ossofttimeout +500)/1000);
 
-  snprintf(filter, sizeof(filter), "dst host %s and (icmp or (tcp and src host %s))", inet_ntoa(target->v4source()), target->targetipstr());
+  Snprintf(filter, sizeof(filter), "dst host %s and (icmp or (tcp and src host %s))", inet_ntoa(target->v4source()), target->targetipstr());
  
   set_pcap_filter(target->deviceName(), pd, filter);
   target->osscanSetFlag(OS_PERF); /* Let Nmap know that we did try an OS scan */
@@ -1600,24 +1600,24 @@ static void WriteSInfo(char *ostr, int ostrlen, bool isGoodFP,
 
   otbuf[0] = '\0';
   if(openTcpPort != -1)
-	snprintf(otbuf, sizeof(otbuf), "%d", openTcpPort);
+	Snprintf(otbuf, sizeof(otbuf), "%d", openTcpPort);
   ctbuf[0] = '\0';
   if(closedTcpPort != -1)
-	snprintf(ctbuf, sizeof(ctbuf), "%d", closedTcpPort);
+	Snprintf(ctbuf, sizeof(ctbuf), "%d", closedTcpPort);
   cubuf[0] = '\0';
   if(closedUdpPort != -1)
-	snprintf(cubuf, sizeof(cubuf), "%d", closedUdpPort);
+	Snprintf(cubuf, sizeof(cubuf), "%d", closedUdpPort);
   
   dsbuf[0] = '\0';
   if(distance != -1) {
-	snprintf(dsbuf, sizeof(dsbuf), "%%DS=%d", distance);
+	Snprintf(dsbuf, sizeof(dsbuf), "%%DS=%d", distance);
   }
   
   macbuf[0] = '\0';
   if (mac)
-    snprintf(macbuf, sizeof(macbuf), "%%M=%02X%02X%02X", mac[0], mac[1], mac[2]);
+    Snprintf(macbuf, sizeof(macbuf), "%%M=%02X%02X%02X", mac[0], mac[1], mac[2]);
 
-  snprintf(ostr, ostrlen, "SCAN(V=%s%%D=%d/%d%%OT=%s%%CT=%s%%CU=%s%%PV=%c%s%%G=%c%s%%TM=%X%%P=%s)",
+  Snprintf(ostr, ostrlen, "SCAN(V=%s%%D=%d/%d%%OT=%s%%CT=%s%%CU=%s%%PV=%c%s%%G=%c%s%%TM=%X%%P=%s)",
 		   NMAP_VERSION, ltime->tm_mon + 1, ltime->tm_mday,
 		   otbuf, ctbuf, cubuf, isipprivate(addr)?'Y':'N', dsbuf, isGoodFP?'Y':'N',
 		   macbuf, (int) timep, NMAP_PLATFORM);
@@ -1909,7 +1909,7 @@ memset(str, 0, sizeof(str));
 if (!FP) return "(None)";
 
 if(FP->OS_name && *(FP->OS_name)) {
-  len = snprintf(str, 128, "FingerPrint  %s\n", FP->OS_name);
+  len = Snprintf(str, 128, "FingerPrint  %s\n", FP->OS_name);
   if (len < 0) fatal("OS name too long");
   p += len;
 }

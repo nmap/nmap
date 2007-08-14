@@ -199,7 +199,7 @@ void NmapOutputTable::addItemFormatted(unsigned int row,
   va_list ap; 
   va_start(ap,fmt);
   char buf[4096];
-  res = vsnprintf(buf, sizeof(buf), fmt, ap);
+  res = Vsnprintf(buf, sizeof(buf), fmt, ap);
   va_end(ap);
 
   if (res > sizeof(buf))

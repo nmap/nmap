@@ -317,7 +317,7 @@ const char *Target::NameIP(char *buf, size_t buflen) {
   assert(buf);
   assert(buflen > 8);
   if (hostname) {
-    snprintf(buf, buflen, "%s (%s)", hostname, targetipstring);
+    Snprintf(buf, buflen, "%s (%s)", hostname, targetipstring);
   } else Strncpy(buf, targetipstring, buflen);
   return buf;
 }

@@ -1215,7 +1215,7 @@ while(pt->block_unaccounted) {
 		  newstate = HOST_DOWN;
 		  break;
 	        default:
-		  snprintf (buf, sizeof(buf), "Strange read error from %s", hostbatch[hostindex]->targetipstr());
+		  Snprintf (buf, sizeof(buf), "Strange read error from %s", hostbatch[hostindex]->targetipstr());
 		  error("%s: %s", buf, strerror(sock_err));
 		  break;
 	        }
@@ -1612,7 +1612,7 @@ static void massping(Target *hostbatch[], int num_hosts,
        = 104 byte snaplen */
     pd = my_pcap_open_live(hostbatch[0]->deviceName(), 104, o.spoofsource, pcap_selectable_fd_valid()? 200 : 15);
 
-    snprintf(filter, sizeof(filter), "(icmp and dst host %s) or ((tcp or udp) and dst host %s and ( dst port %d or dst port %d or dst port %d or dst port %d or dst port %d))", 
+    Snprintf(filter, sizeof(filter), "(icmp and dst host %s) or ((tcp or udp) and dst host %s and ( dst port %d or dst port %d or dst port %d or dst port %d or dst port %d))", 
 	     inet_ntoa(hostbatch[0]->v4source()),
 	     inet_ntoa(hostbatch[0]->v4source()),
 	     sportbase , sportbase + 1, sportbase + 2, sportbase + 3, 

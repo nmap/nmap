@@ -367,7 +367,7 @@ char *target_reason_str(Target *t) {
 	static char reason[128];
 	memset(reason,'\0', 128);
 	assert(t->reason.reason_id != ER_NORESPONSE);
-	snprintf(reason, 128, ", received %s",reason_str(t->reason.reason_id, SINGULAR)); 
+	Snprintf(reason, 128, ", received %s",reason_str(t->reason.reason_id, SINGULAR)); 
 	return reason;
 }
 
@@ -377,7 +377,7 @@ char *target_reason_str(Target *t) {
 char *port_reason_str(state_reason_t r) {
 	static char reason[128];
 	memset(reason,'\0', 128);
-	snprintf(reason, 128, "%s%s%s", reason_str(r.reason_id, SINGULAR),
+	Snprintf(reason, 128, "%s%s%s", reason_str(r.reason_id, SINGULAR),
             (r.ip_addr.s_addr==0)?"":" from ",
             (r.ip_addr.s_addr==0)?"":inet_ntoa(r.ip_addr));
 	return reason;	

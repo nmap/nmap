@@ -269,12 +269,12 @@ static int getServiceXMLBuf(struct serviceDeductions *sd, char *xmlbuf,
   }
 
   if (o.rpcscan && sd->rpc_status == RPC_STATUS_GOOD_PROG) {
-    snprintf(rpcbuf, sizeof(rpcbuf), 
+    Snprintf(rpcbuf, sizeof(rpcbuf), 
 	     " rpcnum=\"%li\" lowver=\"%i\" highver=\"%i\" proto=\"rpc\"", 
 	     sd->rpc_program, sd->rpc_lowver, sd->rpc_highver);
   } else rpcbuf[0] = '\0';
 
-  snprintf(xmlbuf, xmlbuflen, 
+  Snprintf(xmlbuf, xmlbuflen, 
 	   "<service name=\"%s\"%s %smethod=\"%s\" conf=\"%d\"%s />", 
 	   sd->name? sd->name : "unknown",
 	   versionxmlstring.c_str(),
@@ -400,10 +400,10 @@ static void getNmapServiceName(struct serviceDeductions *sd, int state,
   if (sd->name && (sd->service_tunnel != SERVICE_TUNNEL_SSL || 
 		   sd->dtype == SERVICE_DETECTION_PROBED)) {
     if (o.servicescan && state == PORT_OPEN && sd->name_confidence <= 5) 
-      len = snprintf(dst, lenremaining, "%s?", sd->name);
-    else len = snprintf(dst, lenremaining, "%s", sd->name);
+      len = Snprintf(dst, lenremaining, "%s?", sd->name);
+    else len = Snprintf(dst, lenremaining, "%s", sd->name);
   } else {
-    len = snprintf(dst, lenremaining, "%s", "unknown");
+    len = Snprintf(dst, lenremaining, "%s", "unknown");
   }
   if (len > lenremaining || len < 0) goto overflow;
   dst += len;
@@ -508,9 +508,9 @@ void printportoutput(Target *currenths, PortList *plist) {
     else log_write(LOG_PLAIN, ", ");
     char desc[32];
     if (o.ipprotscan)
-      snprintf(desc, sizeof(desc), (plist->getStateCounts(istate) == 1)? "protocol" : "protocols");
+      Snprintf(desc, sizeof(desc), (plist->getStateCounts(istate) == 1)? "protocol" : "protocols");
     else 
-      snprintf(desc, sizeof(desc), (plist->getStateCounts(istate) == 1)? "port" : "ports");
+      Snprintf(desc, sizeof(desc), (plist->getStateCounts(istate) == 1)? "port" : "ports");
     log_write(LOG_PLAIN, "%d %s %s", plist->getStateCounts(istate), statenum2str(istate), desc);
     prevstate = istate;
   }
@@ -572,7 +572,7 @@ void printportoutput(Target *currenths, PortList *plist) {
 		Tbl->addItem(rowno, reasoncol, true, port_reason_str(current->reason));
 	state = statenum2str(current->state);
 	proto = nmap_getprotbynum(htons(current->portno));
-	snprintf(portinfo, sizeof(portinfo), "%s",
+	Snprintf(portinfo, sizeof(portinfo), "%s",
 		 proto?proto->p_name: "unknown");
 	Tbl->addItemFormatted(rowno, portcol, false, "%d", current->portno);
 	Tbl->addItem(rowno, statecol, true, state);
@@ -599,7 +599,7 @@ void printportoutput(Target *currenths, PortList *plist) {
 	if (!first) log_write(LOG_MACHINE,", ");
 	else first = 0;
 	strcpy(protocol,(current->proto == IPPROTO_TCP)? "tcp": "udp");
-	snprintf(portinfo, sizeof(portinfo), "%d/%s", current->portno, protocol);
+	Snprintf(portinfo, sizeof(portinfo), "%d/%s", current->portno, protocol);
 	state = statenum2str(current->state);
 	current->getServiceDeductions(&sd);
 	if (sd.service_fp && saved_servicefps.size() <= 8)
@@ -621,21 +621,21 @@ void printportoutput(Target *currenths, PortList *plist) {
 	    break;
 	  case RPC_STATUS_GOOD_PROG:
 	    name = nmap_getrpcnamebynum(sd.rpc_program);
-	    snprintf(rpcmachineinfo, sizeof(rpcmachineinfo), "(%s:%li*%i-%i)", (name)? name : "", sd.rpc_program, sd.rpc_lowver, sd.rpc_highver);
+	    Snprintf(rpcmachineinfo, sizeof(rpcmachineinfo), "(%s:%li*%i-%i)", (name)? name : "", sd.rpc_program, sd.rpc_lowver, sd.rpc_highver);
 	    if (!name) {
-	      snprintf(rpcinfo, sizeof(rpcinfo), "(#%li (unknown) V%i-%i)", sd.rpc_program, sd.rpc_lowver, sd.rpc_highver);
+	      Snprintf(rpcinfo, sizeof(rpcinfo), "(#%li (unknown) V%i-%i)", sd.rpc_program, sd.rpc_lowver, sd.rpc_highver);
 	    } else {
 	      if (sd.rpc_lowver == sd.rpc_highver) {
-		snprintf(rpcinfo, sizeof(rpcinfo), "(%s V%i)", name, sd.rpc_lowver);
+		Snprintf(rpcinfo, sizeof(rpcinfo), "(%s V%i)", name, sd.rpc_lowver);
 	      } else 
-		snprintf(rpcinfo, sizeof(rpcinfo), "(%s V%i-%i)", name, sd.rpc_lowver, sd.rpc_highver);
+		Snprintf(rpcinfo, sizeof(rpcinfo), "(%s V%i-%i)", name, sd.rpc_lowver, sd.rpc_highver);
 	    }
 	    break;
 	  default:
 	    fatal("Unknown rpc_status %d", sd.rpc_status);
 	    break;
 	  }
-	  snprintf(serviceinfo, sizeof(serviceinfo), "%s%s%s", (sd.name)? sd.name : ((*rpcinfo)? "" : "unknown"), (sd.name)? " " : "",  rpcinfo);
+	  Snprintf(serviceinfo, sizeof(serviceinfo), "%s%s%s", (sd.name)? sd.name : ((*rpcinfo)? "" : "unknown"), (sd.name)? " " : "",  rpcinfo);
 	} else {
 	  getNmapServiceName(&sd, current->state, serviceinfo, sizeof(serviceinfo));
 	  rpcmachineinfo[0] = '\0';
@@ -879,7 +879,7 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
     while ((l&1)==0) { fileidx++; l>>=1; }
     assert(fileidx < LOG_NUM_FILES);
     if (o.logfd[fileidx]) {
-      len = vsnprintf(writebuf, writebuflen, fmt, ap);
+      len = Vsnprintf(writebuf, writebuflen, fmt, ap);
       if (len == 0) {
 	va_end(apcopy);
 	return;
@@ -894,9 +894,9 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
 	  writebuflen *= 100;
 	}
 	writebuf = (char *) safe_realloc(writebuf, writebuflen);
-	len = vsnprintf(writebuf, writebuflen, fmt, apcopy);
+	len = Vsnprintf(writebuf, writebuflen, fmt, apcopy);
 	if (len <= 0 || len >= writebuflen) {
-	  fatal("%s: vnsprintf failed.  Even after increasing bufferlen to %d, vsnprintf returned %d (logt == %d).  Please email this message to fyodor@insecure.org.  Quitting.", __func__, writebuflen, len, logt);
+	  fatal("%s: vnsprintf failed.  Even after increasing bufferlen to %d, Vsnprintf returned %d (logt == %d).  Please email this message to fyodor@insecure.org.  Quitting.", __func__, writebuflen, len, logt);
 	}
       }
       if (logt == LOG_SKID && !skid_noxlate)
@@ -1107,11 +1107,11 @@ static void print_MAC_XML_Info(Target *currenths) {
 
   if (mac) {
     const char *macvendor = MACPrefix2Corp(mac);
-    snprintf(macascii, sizeof(macascii), "%02X:%02X:%02X:%02X:%02X:%02X",
+    Snprintf(macascii, sizeof(macascii), "%02X:%02X:%02X:%02X:%02X:%02X",
 	     mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     if (macvendor) {
       xml_mac = xml_convert(macvendor);
-      snprintf(vendorstr, sizeof(vendorstr), " vendor=\"%s\"", xml_mac);
+      Snprintf(vendorstr, sizeof(vendorstr), " vendor=\"%s\"", xml_mac);
       free(xml_mac);
     } else vendorstr[0] = '\0';
     log_write(LOG_XML, "<address addr=\"%s\" addrtype=\"mac\"%s />\n", macascii, vendorstr);
@@ -1173,9 +1173,9 @@ void write_host_status(Target *currenths, int resolve_all) {
   else if (o.pingscan) {
 
 	if(o.reason && currenths->flags & HOST_UP)
-		snprintf(reasonbuf, 512, "%s.\n", target_reason_str(currenths));
+		Snprintf(reasonbuf, 512, "%s.\n", target_reason_str(currenths));
 	else
-		snprintf(reasonbuf, 512, ".\n");
+		Snprintf(reasonbuf, 512, ".\n");
 	
     write_xml_initial_hostinfo(currenths, 
 			       (currenths->flags & HOST_UP)? "up" : "down");
@@ -1258,7 +1258,7 @@ static void printosclassificationoutput(const struct OS_Classification_Results *
     for (classno=0; classno < OSR->OSC_num_matches; classno++) {
       // Because the OS_Generation filed is optional
       if (OSR->OSC[classno]->OS_Generation) {
-	snprintf(tmpbuf, sizeof(tmpbuf), " osgen=\"%s\"", OSR->OSC[classno]->OS_Generation);
+	Snprintf(tmpbuf, sizeof(tmpbuf), " osgen=\"%s\"", OSR->OSC[classno]->OS_Generation);
       } else tmpbuf[0] = '\0';
       {
 	char *xml_type, *xml_vendor, *xml_class;
@@ -1285,7 +1285,7 @@ static void printosclassificationoutput(const struct OS_Classification_Results *
       // If family and vendor names are the same, no point being redundant
       if (strcmp(OSR->OSC[classno]->OS_Vendor, OSR->OSC[classno]->OS_Family) == 0)
 	Strncpy(tmpbuf, OSR->OSC[classno]->OS_Family, sizeof(tmpbuf));
-      else snprintf(tmpbuf, sizeof(tmpbuf), "%s %s", OSR->OSC[classno]->OS_Vendor, OSR->OSC[classno]->OS_Family);
+      else Snprintf(tmpbuf, sizeof(tmpbuf), "%s %s", OSR->OSC[classno]->OS_Vendor, OSR->OSC[classno]->OS_Family);
       
       
       // Let's see if it is already in the array
@@ -1353,7 +1353,7 @@ void printmacinfo(Target *currenths) {
 
   if (mac) {
     const char *macvendor = MACPrefix2Corp(mac);
-    snprintf(macascii, sizeof(macascii), "%02X:%02X:%02X:%02X:%02X:%02X",  mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    Snprintf(macascii, sizeof(macascii), "%02X:%02X:%02X:%02X:%02X:%02X",  mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     log_write(LOG_PLAIN, "MAC Address: %s (%s)\n", macascii, macvendor? macvendor : "Unknown");
   }
 }

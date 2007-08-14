@@ -248,7 +248,7 @@ void NmapOps::Initialize() {
 #if WIN32
   Strncpy(tmpxsl, "nmap.xsl", sizeof(tmpxsl));
 #else
-  snprintf(tmpxsl, sizeof(tmpxsl), "%s/nmap.xsl", NMAPDATADIR);
+  Snprintf(tmpxsl, sizeof(tmpxsl), "%s/nmap.xsl", NMAPDATADIR);
 #endif
   if (xsl_stylesheet) free(xsl_stylesheet);
   xsl_stylesheet = strdup(tmpxsl);

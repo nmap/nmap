@@ -824,11 +824,11 @@ int nmap_main(int argc, char *argv[]) {
 	xmlfilename = optarg;
       } else if (strcmp(long_options[option_index].name, "oA") == 0) {
 	char buf[MAXPATHLEN];
-	snprintf(buf, sizeof(buf), "%s.nmap", optarg);
+	Snprintf(buf, sizeof(buf), "%s.nmap", optarg);
 	normalfilename = strdup(buf);
-	snprintf(buf, sizeof(buf), "%s.gnmap", optarg);
+	Snprintf(buf, sizeof(buf), "%s.gnmap", optarg);
 	machinefilename = strdup(buf);
-	snprintf(buf, sizeof(buf), "%s.xml", optarg);
+	Snprintf(buf, sizeof(buf), "%s.xml", optarg);
 	xmlfilename = strdup(buf);
       } else if (strcmp(long_options[option_index].name, "thc") == 0) {
 	printf("!!Greets to Van Hauser, Plasmoid, Skyper and the rest of THC!!\n");
@@ -1390,7 +1390,7 @@ int nmap_main(int argc, char *argv[]) {
   char xslline[1024];
   if (xslfname) {
     char *p = xml_convert(xslfname);
-    snprintf(xslline, sizeof(xslline), "<?xml-stylesheet href=\"%s\" type=\"text/xsl\"?>\n", p);
+    Snprintf(xslline, sizeof(xslline), "<?xml-stylesheet href=\"%s\" type=\"text/xsl\"?>\n", p);
     free(p);
   }  else xslline[0] = '\0';
   log_write(LOG_XML, "<?xml version=\"1.0\" ?>\n%s<!-- ", xslline);
@@ -2283,7 +2283,7 @@ f --spoof \"/usr/local/bin/pico -z hello.c\" -sS -oN e.log example.com/24\n\n");
 char *seqreport1(struct seq_info *seq) {
   static char report[512];
 
-  snprintf(report, sizeof(report), "TCP Sequence Prediction: Difficulty=%d (%s)\n", seq->index, seqidx2difficultystr1(seq->index));
+  Snprintf(report, sizeof(report), "TCP Sequence Prediction: Difficulty=%d (%s)\n", seq->index, seqidx2difficultystr1(seq->index));
   return report;
 }
 
@@ -2296,7 +2296,7 @@ const char *seqidx2difficultystr1(unsigned long idx) {
 char *seqreport(struct seq_info *seq) {
   static char report[512];
 
-  snprintf(report, sizeof(report), "TCP Sequence Prediction: Difficulty=%d (%s)\n", seq->index, seqidx2difficultystr(seq->index));
+  Snprintf(report, sizeof(report), "TCP Sequence Prediction: Difficulty=%d (%s)\n", seq->index, seqidx2difficultystr(seq->index));
   return report;
 }
 
@@ -2452,7 +2452,7 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
     pfatal("recv problem from ftp bounce server");
   }
 
-  snprintf(command, 511, "USER %s\r\n", ftp->user);
+  Snprintf(command, 511, "USER %s\r\n", ftp->user);
 
   send(sd, command, strlen(command), 0);
   res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1,12, NULL);
@@ -2465,7 +2465,7 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
     fatal("Your ftp bounce server doesn't like the username \"%s\"", ftp->user);
   }
 
-  snprintf(command, 511, "PASS %s\r\n", ftp->pass);
+  Snprintf(command, 511, "PASS %s\r\n", ftp->pass);
 
   send(sd, command, strlen(command), 0);
   res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1,12, NULL);
@@ -2625,14 +2625,14 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, char *file) {
   }
 
   if (o.datadir) {
-    res = snprintf(filename_returned, bufferlen, "%s/%s", o.datadir, file);
+    res = Snprintf(filename_returned, bufferlen, "%s/%s", o.datadir, file);
     if (res > 0 && res < bufferlen) {
       foundsomething = fileexistsandisreadable(filename_returned);
     }
   }
 
   if (!foundsomething && (dirptr = getenv("NMAPDIR"))) {
-    res = snprintf(filename_returned, bufferlen, "%s/%s", dirptr, file);
+    res = Snprintf(filename_returned, bufferlen, "%s/%s", dirptr, file);
     if (res > 0 && res < bufferlen) {
       foundsomething = fileexistsandisreadable(filename_returned);
     }
@@ -2641,7 +2641,7 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, char *file) {
   if (!foundsomething) {
     pw = getpwuid(getuid());
     if (pw) {
-      res = snprintf(filename_returned, bufferlen, "%s/.nmap/%s", pw->pw_dir, file);
+      res = Snprintf(filename_returned, bufferlen, "%s/.nmap/%s", pw->pw_dir, file);
       if (res > 0 && res < bufferlen) {
         foundsomething = fileexistsandisreadable(filename_returned);
       }
@@ -2649,7 +2649,7 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, char *file) {
     if (!foundsomething && getuid() != geteuid()) {
       pw = getpwuid(geteuid());
       if (pw) {
-	res = snprintf(filename_returned, bufferlen, "%s/.nmap/%s", pw->pw_dir, file);
+	res = Snprintf(filename_returned, bufferlen, "%s/.nmap/%s", pw->pw_dir, file);
 	if (res > 0 && res < bufferlen) {
           foundsomething = fileexistsandisreadable(filename_returned);
 	}
@@ -2666,20 +2666,20 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, char *file) {
 	  for(i = res - 1; i >= 0 && fnbuf[i] != '/' && fnbuf[i] != '\\'; i--);
 	  if(i >= 0) /* we found it */
 		  fnbuf[i] = 0;
-	  res = snprintf(filename_returned, bufferlen, "%s\\%s", fnbuf, file);
+	  res = Snprintf(filename_returned, bufferlen, "%s\\%s", fnbuf, file);
 	  if(res > 0 && res < bufferlen) {
 		  foundsomething = fileexistsandisreadable(filename_returned);
       }
   }
 #endif
   if (!foundsomething) {
-    res = snprintf(filename_returned, bufferlen, "%s/%s", NMAPDATADIR, file);
+    res = Snprintf(filename_returned, bufferlen, "%s/%s", NMAPDATADIR, file);
     if (res > 0 && res < bufferlen) {
       foundsomething = fileexistsandisreadable(filename_returned);
     }
   }
   if (foundsomething && (*filename_returned != '.')) {    
-    res = snprintf(dot_buffer, sizeof(dot_buffer), "./%s", file);
+    res = Snprintf(dot_buffer, sizeof(dot_buffer), "./%s", file);
     if (res > 0 && res < bufferlen) {
       if (fileexistsandisreadable(dot_buffer)) {
 #ifdef WIN32
@@ -2693,7 +2693,7 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, char *file) {
   }
 
   if (!foundsomething) {
-    res = snprintf(filename_returned, bufferlen, "./%s", file);
+    res = Snprintf(filename_returned, bufferlen, "./%s", file);
     if (res > 0 && res < bufferlen) {
       foundsomething = fileexistsandisreadable(filename_returned);
     }

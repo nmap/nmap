@@ -336,11 +336,11 @@ void Port::setRPCProbeResults(int rpcs, unsigned long rpcp,
     serviceprobe_service = strdup(newsvc);
     serviceprobe_product = strdup(newsvc);
     if (rpc_lowver == rpc_highver)
-      snprintf(verbuf, sizeof(verbuf), "%i", rpc_lowver);
+      Snprintf(verbuf, sizeof(verbuf), "%i", rpc_lowver);
     else
-      snprintf(verbuf, sizeof(verbuf), "%i-%i", rpc_lowver, rpc_highver);
+      Snprintf(verbuf, sizeof(verbuf), "%i-%i", rpc_lowver, rpc_highver);
     serviceprobe_version = strdup(verbuf);
-    snprintf(verbuf, sizeof(verbuf), "rpc #%li", rpc_program);
+    Snprintf(verbuf, sizeof(verbuf), "rpc #%li", rpc_program);
     serviceprobe_extrainfo = strdup(verbuf);
   } else if (rpc_status == RPC_STATUS_UNKNOWN) {
     if (serviceprobe_service)
@@ -403,7 +403,7 @@ int PortList::addPort(u16 portno, u8 protocol, char *owner, int state) {
 
   if ((state == PORT_OPEN && o.verbose) || (o.debugging > 1)) {
     if (owner && *owner) {
-      snprintf(msg, sizeof(msg), " (owner: %s)", owner);
+      Snprintf(msg, sizeof(msg), " (owner: %s)", owner);
     } else msg[0] = '\0';
     
     log_write(LOG_STDOUT, "Discovered %s port %hu/%s%s%s\n",
@@ -489,7 +489,7 @@ void PortList::setIdStr(const char *id) {
   len = strlen(id);
   len += 5; // " on " + \0
   idstr = (char *) safe_malloc(len);
-  snprintf(idstr, len, " on %s", id);
+  Snprintf(idstr, len, " on %s", id);
 }
 
 

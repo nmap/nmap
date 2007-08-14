@@ -940,9 +940,9 @@ Traceroute::addConsolidationMessage(NmapOutputTable *Tbl, unsigned short row_cou
 	char *ip = inet_ntoa(ref_ipaddr);
 
 	if(ttl == 1)
-		len = snprintf(mbuf, 64, "Hop 1 is the same as for %s", ip);
+		len = Snprintf(mbuf, 64, "Hop 1 is the same as for %s", ip);
 	else
-		len = snprintf(mbuf, 64, "Hops 1-%d are the same as for %s", ttl, ip);
+		len = Snprintf(mbuf, 64, "Hops 1-%d are the same as for %s", ttl, ip);
 
 	assert(len);
 	Tbl->addItem(row_count, HOP_COL, true, "-", 1);
@@ -1061,7 +1061,7 @@ Traceroute::outputTarget (Target * t) {
 
         /* normal hop output (rtt, ip and hostname) */
         if (!tp->timing.consolidated && !last_consolidation) {
-            snprintf(timebuf, 16, "%.2f", (float) 
+            Snprintf(timebuf, 16, "%.2f", (float) 
             TIMEVAL_SUBTRACT (tp->timing.recvTime, tp->timing.sendTime) / 1000);
             Tbl->addItemFormatted (row_count, HOP_COL, false, "%d", tp->ttl);
         if (tp->timing.getState () != P_TIMEDOUT) {
@@ -1340,9 +1340,9 @@ const char *TraceProbe::nameIP(void) {
 	hostnameip = (char *) safe_zalloc(NAMEIPLEN);
 
 	if(hostname == NULL || *hostname == NULL)
-		snprintf(hostnameip, NAMEIPLEN, "%s", inet_ntoa(ipreplysrc));
+		Snprintf(hostnameip, NAMEIPLEN, "%s", inet_ntoa(ipreplysrc));
 	else
-		snprintf(hostnameip, NAMEIPLEN, "%s (%s)",*hostname, inet_ntoa(ipreplysrc));
+		Snprintf(hostnameip, NAMEIPLEN, "%s (%s)",*hostname, inet_ntoa(ipreplysrc));
 		
 	return hostnameip;
 }
@@ -1489,8 +1489,8 @@ hostStr (u32 ip) {
     memset (nameipbuf, '\0', MAXHOSTNAMELEN + INET6_ADDRSTRLEN);
     addr.s_addr = ip;
     if((hname = lookup_cached_host(ip)) == "")
-        snprintf(nameipbuf, MAXHOSTNAMELEN+INET6_ADDRSTRLEN, "%s", inet_ntoa(addr));
+        Snprintf(nameipbuf, MAXHOSTNAMELEN+INET6_ADDRSTRLEN, "%s", inet_ntoa(addr));
     else
-        snprintf (nameipbuf, MAXHOSTNAMELEN + INET6_ADDRSTRLEN, "%s (%s)", hname, inet_ntoa (addr));
+        Snprintf (nameipbuf, MAXHOSTNAMELEN + INET6_ADDRSTRLEN, "%s (%s)", hname, inet_ntoa (addr));
     return nameipbuf;
 }

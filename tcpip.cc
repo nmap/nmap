@@ -187,10 +187,10 @@ static char *ll2shortascii(unsigned long long bytes, char *buf, int buflen) {
   if (buflen < 2 || !buf) fatal("Bogus parameter passed to %s", __func__);
 
   if (bytes > 1000000) {
-    snprintf(buf, buflen, "%.3fMB", bytes / 1000000.0);
+    Snprintf(buf, buflen, "%.3fMB", bytes / 1000000.0);
   } else if (bytes > 10000) {
-    snprintf(buf, buflen, "%.3fKB", bytes / 1000.0);
-  } else snprintf(buf, buflen, "%uB", (unsigned int) bytes);
+    Snprintf(buf, buflen, "%.3fKB", bytes / 1000.0);
+  } else Snprintf(buf, buflen, "%uB", (unsigned int) bytes);
     
   return buf;
 }
@@ -204,7 +204,7 @@ char *getFinalPacketStats(char *buf, int buflen) {
   if (buflen <= 10 || !buf)
     fatal("%s called with woefully inadequate parameters", __func__);
 
-  snprintf(buf, buflen, 
+  Snprintf(buf, buflen, 
 #if WIN32
 	  "Raw packets sent: %I64u (%s) | Rcvd: %I64u (%s)",
 #else
@@ -252,10 +252,10 @@ void PacketTrace::traceArp(pdirection pdir, const u8 *frame, u32 len,
   if (frame[21] == 1) /* arp REQUEST */ {
     inet_ntop(AF_INET, frame+38, who_has, sizeof(who_has));
     inet_ntop(AF_INET, frame+28, tell, sizeof(tell));
-    snprintf(arpdesc, sizeof(arpdesc), "who-has %s tell %s", who_has, tell);
+    Snprintf(arpdesc, sizeof(arpdesc), "who-has %s tell %s", who_has, tell);
   } else { /* ARP REPLY */
     inet_ntop(AF_INET, frame+28, who_has, sizeof(who_has));
-    snprintf(arpdesc, sizeof(arpdesc), 
+    Snprintf(arpdesc, sizeof(arpdesc), 
 	     "reply %s is-at %02X:%02X:%02X:%02X:%02X:%02X", who_has, 
 	     frame[22], frame[23], frame[24], frame[25], frame[26], frame[27]);
   }
@@ -283,13 +283,13 @@ static void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize) {
   ch = '<';
   
   while(len > 0 && bufsize > 2) {
-	snprintf(p, bufsize, "%c", ch);
+	Snprintf(p, bufsize, "%c", ch);
 	bufsize--;
 	p++;
     opcode=*q++;	
     if (!opcode) { /* End of List */
 	  
-	  snprintf(p, bufsize, "eol");
+	  Snprintf(p, bufsize, "eol");
 	  bufsize -= strlen(p);
 	  p += strlen(p);
 	  
@@ -297,7 +297,7 @@ static void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize) {
 	  
     } else if (opcode == 1) { /* No Op */
 	  
-	  snprintf(p, bufsize, "nop");
+	  Snprintf(p, bufsize, "nop");
 	  bufsize -= strlen(p);
 	  p += strlen(p);
 	  
@@ -311,7 +311,7 @@ static void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize) {
       q++;
       memcpy(&tmpshort, q, 2);
 	  
-	  snprintf(p, bufsize, "mss %u", ntohs(tmpshort));
+	  Snprintf(p, bufsize, "mss %u", ntohs(tmpshort));
 	  bufsize -= strlen(p);
 	  p += strlen(p);
 
@@ -325,7 +325,7 @@ static void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize) {
 	  
       q++;
 
-	  snprintf(p, bufsize, "wscale %u", *q);
+	  Snprintf(p, bufsize, "wscale %u", *q);
 	  bufsize -= strlen(p);
 	  p += strlen(p); 
 	  
@@ -337,7 +337,7 @@ static void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize) {
       if(len<2)
         break; /* SACK permitted option has 2 bytes */
 	  
-	  snprintf(p, bufsize, "sackOK");
+	  Snprintf(p, bufsize, "sackOK");
 	  bufsize -= strlen(p);
 	  p += strlen(p); 
 	  
@@ -353,17 +353,17 @@ static void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize) {
 	  q++;
 	  
 	  if((sackoptlen-2) % 8 != 0) {
-		snprintf(p, bufsize, "malformed sack");
+		Snprintf(p, bufsize, "malformed sack");
 		bufsize -= strlen(p);
 		p += strlen(p); 
 	  } else {
-		snprintf(p, bufsize, "sack %d ", (sackoptlen-2)/8);
+		Snprintf(p, bufsize, "sack %d ", (sackoptlen-2)/8);
 		bufsize -= strlen(p);
 		p += strlen(p);
 		for(int i = 0; i < sackoptlen - 2; i += 8) {
 		  memcpy(&tmpword1, q + i, 4);
 		  memcpy(&tmpword2, q + i + 4, 4);
-		  snprintf(p, bufsize, "{%u:%u}", tmpword1, tmpword2);
+		  Snprintf(p, bufsize, "{%u:%u}", tmpword1, tmpword2);
 		  bufsize -= strlen(p);
 		  p += strlen(p);
 		}
@@ -381,7 +381,7 @@ static void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize) {
       memcpy(&tmpword1, q, 4);
       memcpy(&tmpword2, q+4, 4);
 
-	  snprintf(p, bufsize, "timestamp %u %u", ntohl(tmpword1), ntohl(tmpword2));
+	  Snprintf(p, bufsize, "timestamp %u %u", ntohl(tmpword1), ntohl(tmpword2));
 	  bufsize -= strlen(p);
 	  p += strlen(p);
 
@@ -398,7 +398,7 @@ static void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize) {
 	return;
   }
 
-  snprintf(p, bufsize, ">");
+  Snprintf(p, bufsize, ">");
 }
 
 /* Returns a buffer of ASCII information about a packet that may look
@@ -433,11 +433,11 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
   frag_off = 8 * (ntohs(ip->ip_off) & 8191) /* 2^13 - 1 */;
   more_fragments = ntohs(ip->ip_off) & IP_MF;
   if (frag_off || more_fragments) {
-    snprintf(fragnfo, sizeof(fragnfo), " frag offset=%d%s", frag_off, more_fragments ? "+" : "");
+    Snprintf(fragnfo, sizeof(fragnfo), " frag offset=%d%s", frag_off, more_fragments ? "+" : "");
   }
   
 
-  snprintf(ipinfo, sizeof(ipinfo), "ttl=%d id=%d iplen=%d%s %s%s%s", 
+  Snprintf(ipinfo, sizeof(ipinfo), "ttl=%d id=%d iplen=%d%s %s%s%s", 
 	  ip->ip_ttl, ntohs(ip->ip_id), ntohs(ip->ip_len), fragnfo,
 	  ip->ip_hl==5?"":"ipopts={",
 	  ip->ip_hl==5?"":print_ip_options((u8*)ip + sizeof(struct ip), MIN((ip->ip_hl-5)*4,len-sizeof(struct ip))),
@@ -451,7 +451,7 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
 	
     tcp = (struct tcp_hdr *)  (packet + ip->ip_hl * 4);
     if (frag_off > 8 || len < (u32) ip->ip_hl * 4 + 8) 
-      snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? ?? %s (incomplete)", srchost, dsthost, ipinfo);
+      Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? ?? %s (incomplete)", srchost, dsthost, ipinfo);
     else if (frag_off == 8) {// at least we can get TCP flags and ACKn
       tcp = (struct tcp_hdr *)((u8 *) tcp - frag_off); // ugly?
       p = tflags;
@@ -462,7 +462,7 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
       if (tcp->th_flags & TH_PUSH) *p++ = 'P';
       if (tcp->th_flags & TH_ACK) {
 	*p++ = 'A';
-	snprintf(tcpinfo, sizeof(tcpinfo), " ack=%lu", 
+	Snprintf(tcpinfo, sizeof(tcpinfo), " ack=%lu", 
 		 (unsigned long) ntohl(tcp->th_ack));
       }
       if (tcp->th_flags & TH_URG) *p++ = 'U';
@@ -473,7 +473,7 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
 	  if((u32) tcp->th_off * 4 > sizeof(struct tcp_hdr)) {
 		// tcp options
 		if(len < (u32) ip->ip_hl * 4 + (u32) tcp->th_off * 4 - frag_off) {
-		  snprintf(tcpoptinfo, sizeof(tcpoptinfo), "option incomplete");
+		  Snprintf(tcpoptinfo, sizeof(tcpoptinfo), "option incomplete");
 		  
 		} else {
 		  tcppacketoptinfo((u8*) tcp + sizeof(struct tcp_hdr),
@@ -482,15 +482,15 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
 		}
 	  }
 
-      snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? %s %s %s %s",
+      Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? %s %s %s %s",
 			   srchost, dsthost, tflags, ipinfo, tcpinfo, tcpoptinfo);
     } else if (len < (u32) ip->ip_hl * 4 + 16) { // we can get ports and seq
-      snprintf(tcpinfo, sizeof(tcpinfo), "seq=%lu (incomplete)", (unsigned long) ntohl(tcp->th_seq));
-      snprintf(protoinfo, sizeof(protoinfo), "TCP %s:%d > %s:%d ?? %s %s",
+      Snprintf(tcpinfo, sizeof(tcpinfo), "seq=%lu (incomplete)", (unsigned long) ntohl(tcp->th_seq));
+      Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:%d > %s:%d ?? %s %s",
 	       srchost, ntohs(tcp->th_sport), dsthost, ntohs(tcp->th_dport), ipinfo, tcpinfo);
     } else { // at least first 16 bytes of TCP header are there
 
-      snprintf(tcpinfo, sizeof(tcpinfo), "seq=%lu win=%hu", 
+      Snprintf(tcpinfo, sizeof(tcpinfo), "seq=%lu win=%hu", 
 	       (unsigned long) ntohl(tcp->th_seq),
 	       ntohs(tcp->th_win));
       p = tflags;
@@ -501,7 +501,7 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
       if (tcp->th_flags & TH_PUSH) *p++ = 'P';
       if (tcp->th_flags & TH_ACK) {
 	*p++ = 'A';
-	snprintf(buf, sizeof(buf), " ack=%lu", 
+	Snprintf(buf, sizeof(buf), " ack=%lu", 
 		 (unsigned long) ntohl(tcp->th_ack));
 	strncat(tcpinfo, buf, sizeof(tcpinfo) - strlen(tcpinfo) - 1);
       }
@@ -513,7 +513,7 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
 	  if((u32) tcp->th_off * 4 > sizeof(struct tcp_hdr)) {
 		// tcp options
 		if(len < (u32) ip->ip_hl * 4 + (u32) tcp->th_off * 4) {
-		  snprintf(tcpoptinfo, sizeof(tcpoptinfo), "option incomplete");
+		  Snprintf(tcpoptinfo, sizeof(tcpoptinfo), "option incomplete");
 		  
 		} else {
 		  tcppacketoptinfo((u8*) tcp + sizeof(struct tcp_hdr),
@@ -522,20 +522,20 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
 		}
 	  }
 
-      snprintf(protoinfo, sizeof(protoinfo), "TCP %s:%d > %s:%d %s %s %s %s",
+      Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:%d > %s:%d %s %s %s %s",
 	       srchost, ntohs(tcp->th_sport), dsthost, ntohs(tcp->th_dport),
 			   tflags, ipinfo, tcpinfo, tcpoptinfo);
     }
   } else if (ip->ip_p == IPPROTO_UDP && frag_off) {
-      snprintf(protoinfo, sizeof(protoinfo), "UDP %s:?? > %s:?? fragment %s (incomplete)", srchost, dsthost, ipinfo);
+      Snprintf(protoinfo, sizeof(protoinfo), "UDP %s:?? > %s:?? fragment %s (incomplete)", srchost, dsthost, ipinfo);
   } else if (ip->ip_p == IPPROTO_UDP) {
     udp =  (struct udp_hdr *) (packet + sizeof(struct ip));
 
-    snprintf(protoinfo, sizeof(protoinfo), "UDP %s:%d > %s:%d %s",
+    Snprintf(protoinfo, sizeof(protoinfo), "UDP %s:%d > %s:%d %s",
 	     srchost, ntohs(udp->uh_sport), dsthost, ntohs(udp->uh_dport),
 	     ipinfo);
   } else if (ip->ip_p == IPPROTO_ICMP && frag_off) {
-      snprintf(protoinfo, sizeof(protoinfo), "ICMP %s > %s fragment %s (incomplete)", srchost, dsthost, ipinfo);
+      Snprintf(protoinfo, sizeof(protoinfo), "ICMP %s > %s fragment %s (incomplete)", srchost, dsthost, ipinfo);
   } else if (ip->ip_p == IPPROTO_ICMP) {
     char icmptype[128];
     char *ip2dst;
@@ -558,19 +558,19 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
       ip2dst = inet_ntoa(ip2->ip_dst);
       switch (ping->code) {
       case 0:
-	snprintf(icmptype, sizeof icmptype, "network %s unreachable", ip2dst);
+	Snprintf(icmptype, sizeof icmptype, "network %s unreachable", ip2dst);
 	break;
       case 1:
-	snprintf(icmptype, sizeof icmptype, "host %s unreachable", ip2dst);
+	Snprintf(icmptype, sizeof icmptype, "host %s unreachable", ip2dst);
 	break;
       case 2:
-	snprintf(icmptype, sizeof icmptype, "protocol %u unreachable", ip2->ip_p);
+	Snprintf(icmptype, sizeof icmptype, "protocol %u unreachable", ip2->ip_p);
 	break;
       case 3:
 	if (ip2->ip_p == IPPROTO_UDP)
-	  snprintf(icmptype, sizeof icmptype, "port %u unreachable", ntohs(udp->uh_dport));
+	  Snprintf(icmptype, sizeof icmptype, "port %u unreachable", ntohs(udp->uh_dport));
 	else if (ip2->ip_p == IPPROTO_TCP)
-	  snprintf(icmptype, sizeof icmptype, "port %u unreachable", ntohs(tcp->th_dport));
+	  Snprintf(icmptype, sizeof icmptype, "port %u unreachable", ntohs(tcp->th_dport));
 	else
 	  strcpy(icmptype, "port unreachable");
 	break;
@@ -581,25 +581,25 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
 	strcpy(icmptype, "source route failed");
 	break;
       case 6:
-	snprintf(icmptype, sizeof icmptype, "destination network %s unknown", ip2dst);
+	Snprintf(icmptype, sizeof icmptype, "destination network %s unknown", ip2dst);
 	break;
       case 7:
-	snprintf(icmptype, sizeof icmptype, "destination host %s unknown", ip2dst);
+	Snprintf(icmptype, sizeof icmptype, "destination host %s unknown", ip2dst);
 	break;
       case 8:
 	strcpy(icmptype, "source host isolated");
 	break;
       case 9:
-	snprintf(icmptype, sizeof icmptype, "destination network %s administratively prohibited", ip2dst);
+	Snprintf(icmptype, sizeof icmptype, "destination network %s administratively prohibited", ip2dst);
 	break;
       case 10:
-	snprintf(icmptype, sizeof icmptype, "destination host %s administratively prohibited", ip2dst);
+	Snprintf(icmptype, sizeof icmptype, "destination host %s administratively prohibited", ip2dst);
 	break;
       case 11:
-	snprintf(icmptype, sizeof icmptype, "network %s unreachable for TOS", ip2dst);
+	Snprintf(icmptype, sizeof icmptype, "network %s unreachable for TOS", ip2dst);
 	break;
       case 12:
-	snprintf(icmptype, sizeof icmptype, "host %s unreachable for TOS", ip2dst);
+	Snprintf(icmptype, sizeof icmptype, "host %s unreachable for TOS", ip2dst);
 	break;
       case 13:
 	strcpy(icmptype, "communication administratively prohibited by filtering");
@@ -664,10 +664,10 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
       strcpy(icmptype, "Unknown type"); break;
       break;
     }
-    snprintf(protoinfo, sizeof(protoinfo), "ICMP %s > %s %s (type=%d/code=%d) %s",
+    Snprintf(protoinfo, sizeof(protoinfo), "ICMP %s > %s %s (type=%d/code=%d) %s",
 	     srchost, dsthost, icmptype, ping->type, ping->code, ipinfo);
   } else {
-    snprintf(protoinfo, sizeof(protoinfo), "Unknown protocol (%d) %s > %s: %s", 
+    Snprintf(protoinfo, sizeof(protoinfo), "Unknown protocol (%d) %s > %s: %s", 
 	     ip->ip_p, srchost, dsthost, ipinfo);
   }    
 
@@ -735,7 +735,7 @@ void PacketTrace::traceConnect(u8 proto, const struct sockaddr *sock,
   if (connectrc == 0)
     Strncpy(errbuf, "Connected", sizeof(errbuf));
   else {
-    snprintf(errbuf, sizeof(errbuf), "%s", strerror(connect_errno));
+    Snprintf(errbuf, sizeof(errbuf), "%s", strerror(connect_errno));
   }
 
   if (sin->sin_family == AF_INET) {
@@ -2456,7 +2456,7 @@ void set_pcap_filter(const char *device,
     fatal("Failed to lookup subnet/netmask for device (%s): %s", device, err0r);
   
   va_start(ap, bpf);
-  if (vsnprintf(buf, sizeof(buf), bpf, ap) >= (int) sizeof(buf))
+  if (Vsnprintf(buf, sizeof(buf), bpf, ap) >= (int) sizeof(buf))
     fatal("%s called with too-large filter arg\n", __func__);
   va_end(ap);
 

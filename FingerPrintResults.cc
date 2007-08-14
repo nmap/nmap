@@ -146,7 +146,7 @@ const char *FingerPrintResults::OmitSubmissionFP() {
   static char reason[128];
 
   if (o.scan_delay > 500) { // This can screw up the sequence timing
-    snprintf(reason, sizeof(reason), "Scan delay (%d) is greater than 500", o.scan_delay);
+    Snprintf(reason, sizeof(reason), "Scan delay (%d) is greater than 500", o.scan_delay);
     return reason;
   }
 
@@ -164,17 +164,17 @@ const char *FingerPrintResults::OmitSubmissionFP() {
      used to mean the distance is unknown, though there's a chance it could
      have come from the distance calculation. */
   if (distance < -1) {
-    snprintf(reason, sizeof(reason), "Host distance (%d network hops) appears to be negative", distance);
+    Snprintf(reason, sizeof(reason), "Host distance (%d network hops) appears to be negative", distance);
     return reason;
   }
 
   if (distance > 5) {
-    snprintf(reason, sizeof(reason), "Host distance (%d network hops) is greater than five", distance);
+    Snprintf(reason, sizeof(reason), "Host distance (%d network hops) is greater than five", distance);
     return reason;
   }
 
   if (maxTimingRatio > 1.4) {
-    snprintf(reason, sizeof(reason), "maxTimingRatio (%e) is greater than 1.4", maxTimingRatio);
+    Snprintf(reason, sizeof(reason), "maxTimingRatio (%e) is greater than 1.4", maxTimingRatio);
     return reason;
   }
 

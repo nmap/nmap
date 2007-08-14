@@ -799,7 +799,7 @@ static int l_nsock_ncap_open(lua_State* l){
 	
 	/* create key */
 	char key[8192];
-	snprintf(key, sizeof(key), "%s|%i|%i|%u|%s",
+	Snprintf(key, sizeof(key), "%s|%i|%i|%u|%s",
 					pcapdev,
 					snaplen, promisc,
 					(unsigned int)strlen(bpf),

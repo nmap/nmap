@@ -1411,12 +1411,12 @@ void ServiceNFO::addToServiceFingerprint(const char *probeName, const u8 *resp,
   if (servicefplen == 0) {
     timep = time(NULL);
     ltime = localtime(&timep);
-    servicefplen = snprintf(servicefp, spaceleft, "SF-Port%hu-%s:V=%s%s%%I=%d%%D=%d/%d%%Time=%X%%P=%s", portno, proto2ascii(proto, true), NMAP_VERSION, (tunnel == SERVICE_TUNNEL_SSL)? "%T=SSL" : "", o.version_intensity, ltime->tm_mon + 1, ltime->tm_mday, (int) timep, NMAP_PLATFORM);
+    servicefplen = Snprintf(servicefp, spaceleft, "SF-Port%hu-%s:V=%s%s%%I=%d%%D=%d/%d%%Time=%X%%P=%s", portno, proto2ascii(proto, true), NMAP_VERSION, (tunnel == SERVICE_TUNNEL_SSL)? "%T=SSL" : "", o.version_intensity, ltime->tm_mon + 1, ltime->tm_mday, (int) timep, NMAP_PLATFORM);
   }
 
   // Note that we give the total length of the response, even though we 
   // may truncate
-  len = snprintf(buf, sizeof(buf), "%%r(%s,%X,\"", probeName, resplen);
+  len = Snprintf(buf, sizeof(buf), "%%r(%s,%X,\"", probeName, resplen);
   addServiceString(buf, servicewrap);
 
   // Now for the probe response itself ...
@@ -1446,7 +1446,7 @@ void ServiceNFO::addToServiceFingerprint(const char *probeName, const u8 *resp,
     } else {
       addServiceChar('\\', servicewrap);
       addServiceChar('x', servicewrap);
-      snprintf(buf, sizeof(buf), "%02x", resp[srcidx]);
+      Snprintf(buf, sizeof(buf), "%02x", resp[srcidx]);
       addServiceChar(*buf, servicewrap);
       addServiceChar(*(buf+1), servicewrap);
     }
@@ -2394,7 +2394,7 @@ int service_scan(vector<Target *> &Targets) {
     bool plural = (Targets.size() != 1);
     if (!plural) {
       (*(Targets.begin()))->NameIP(targetstr, sizeof(targetstr));
-    } else snprintf(targetstr, sizeof(targetstr), "%u hosts", (unsigned) Targets.size());
+    } else Snprintf(targetstr, sizeof(targetstr), "%u hosts", (unsigned) Targets.size());
 
     log_write(LOG_STDOUT, "Scanning %u %s on %s\n", 
 	      (unsigned) SG->services_remaining.size(), 
@@ -2430,11 +2430,11 @@ int service_scan(vector<Target *> &Targets) {
   if (o.verbose) {
     char additional_info[128];
     if (SG->num_hosts_timedout == 0)
-      snprintf(additional_info, sizeof(additional_info), "%u %s on %u %s",
+      Snprintf(additional_info, sizeof(additional_info), "%u %s on %u %s",
 		(unsigned) SG->services_finished.size(),  
 		(SG->services_finished.size() == 1)? "service" : "services", 
 		(unsigned) Targets.size(), (Targets.size() == 1)? "host" : "hosts");
-    else snprintf(additional_info, sizeof(additional_info), "%u %s timed out", 
+    else Snprintf(additional_info, sizeof(additional_info), "%u %s timed out", 
 		   SG->num_hosts_timedout, 
 		   (SG->num_hosts_timedout == 1)? "host" : "hosts");
     SG->SPM->endTask(NULL, additional_info);

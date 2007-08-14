@@ -745,19 +745,19 @@ void bintohexstr(char *buf, int buflen, char *src, int srclen){
     int bp=0;
     int i;
     for(i=0; i<srclen; i++){
-      bp += snprintf(buf+bp, buflen-bp, "\\x%02hhx",src[i]);
+      bp += Snprintf(buf+bp, buflen-bp, "\\x%02hhx",src[i]);
       if(bp >= buflen)break;
       if(i%16==7){
-        bp += snprintf(buf+bp, buflen-bp," ");
+        bp += Snprintf(buf+bp, buflen-bp," ");
         if(bp >= buflen)break;
       }
       if(i%16==15){
-        bp += snprintf(buf+bp, buflen-bp,"\n");
+        bp += Snprintf(buf+bp, buflen-bp,"\n");
         if(bp >= buflen)break;
       }
     }
     if(i%16!=0 && bp < buflen)
-      bp += snprintf(buf+bp, buflen-bp,"\n");
+      bp += Snprintf(buf+bp, buflen-bp,"\n");
 }
 
 static inline char* STRAPP(char *fmt, ...) {
@@ -772,7 +772,7 @@ static inline char* STRAPP(char *fmt, ...) {
     return buf;
   va_list ap;
   va_start(ap, fmt);
-  bp += vsnprintf (buf+bp, left, fmt, ap);
+  bp += Vsnprintf (buf+bp, left, fmt, ap);
   va_end(ap);
 
   return(buf);

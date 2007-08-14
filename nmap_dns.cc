@@ -874,7 +874,7 @@ void win32_read_registry(char *controlset) {
   char buf[2048], keyname[2048], *p;
   DWORD sz, i;
 
-  snprintf(keybasebuf, sizeof(keybasebuf), "SYSTEM\\%s\\Services\\Tcpip\\Parameters", controlset);
+  Snprintf(keybasebuf, sizeof(keybasebuf), "SYSTEM\\%s\\Services\\Tcpip\\Parameters", controlset);
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keybasebuf,
                     0, KEY_READ, &hKey) != ERROR_SUCCESS) {
     if (firstrun) error("mass_dns: warning: Error opening registry to read DNS servers. Try using --system-dns or specify valid servers with --dns-servers");
@@ -891,14 +891,14 @@ void win32_read_registry(char *controlset) {
 
   RegCloseKey(hKey);
 
-  snprintf(keybasebuf, sizeof(keybasebuf), "SYSTEM\\%s\\Services\\Tcpip\\Parameters\\Interfaces", controlset);
+  Snprintf(keybasebuf, sizeof(keybasebuf), "SYSTEM\\%s\\Services\\Tcpip\\Parameters\\Interfaces", controlset);
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keybasebuf,
                     0, KEY_ENUMERATE_SUB_KEYS, &hKey) == ERROR_SUCCESS) {
 
     sz = sizeof(buf);
     for (i=0; RegEnumKeyEx(hKey, i, buf, &sz, NULL, NULL, NULL, NULL) != ERROR_NO_MORE_ITEMS; i++) {
 
-      snprintf(keyname, sizeof(keyname), "SYSTEM\\%s\\Services\\Tcpip\\Parameters\\Interfaces\\%s", controlset, buf);
+      Snprintf(keyname, sizeof(keyname), "SYSTEM\\%s\\Services\\Tcpip\\Parameters\\Interfaces\\%s", controlset, buf);
 
       if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keyname,
                         0, KEY_READ, &hKey2) == ERROR_SUCCESS) {
@@ -1093,11 +1093,11 @@ static void etchosts_init(void) {
   has_backslash = (windows_dir[strlen(windows_dir)-1] == '\\');
 
   // Windows 95/98/Me:
-  snprintf(tpbuf, sizeof(tpbuf), "%s%shosts", windows_dir, has_backslash ? "" : "\\");
+  Snprintf(tpbuf, sizeof(tpbuf), "%s%shosts", windows_dir, has_backslash ? "" : "\\");
   parse_etchosts(tpbuf);
 
   // Windows NT/2000/XP/2K3:
-  snprintf(tpbuf, sizeof(tpbuf), "%s%ssystem32\\drivers\\etc\\hosts", windows_dir, has_backslash ? "" : "\\");
+  Snprintf(tpbuf, sizeof(tpbuf), "%s%ssystem32\\drivers\\etc\\hosts", windows_dir, has_backslash ? "" : "\\");
   parse_etchosts(tpbuf);
 
 #else
@@ -1133,7 +1133,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
       if (((currenths->flags & HOST_UP) || o.resolve_all) && !o.noresolve) stat_actual++;
     }
 
-    snprintf(spmobuf, sizeof(spmobuf), "System DNS resolution of %d host%s.", num_targets, num_targets-1 ? "s" : "");
+    Snprintf(spmobuf, sizeof(spmobuf), "System DNS resolution of %d host%s.", num_targets, num_targets-1 ? "s" : "");
     SPM = new ScanProgressMeter(spmobuf);
 
     for(i=0, hostI = targets; hostI < targets+num_targets; hostI++, i++) {
@@ -1214,7 +1214,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
   read_timeout_index = MIN(sizeof(read_timeouts)/sizeof(read_timeouts[0]), servs.size()) - 1;
 
-  snprintf(spmobuf, sizeof(spmobuf), "Parallel DNS resolution of %d host%s.", num_targets, num_targets-1 ? "s" : "");
+  Snprintf(spmobuf, sizeof(spmobuf), "Parallel DNS resolution of %d host%s.", num_targets, num_targets-1 ? "s" : "");
   SPM = new ScanProgressMeter(spmobuf);
 
   while (total_reqs > 0) {
@@ -1245,7 +1245,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
     log_write(LOG_STDOUT, "Performing system-dns for %d domain names that use CNAMEs\n", (int) cname_reqs.size());
 
   if (cname_reqs.size()) {
-    snprintf(spmobuf, sizeof(spmobuf), "System CNAME DNS resolution of %u host%s.", (unsigned) cname_reqs.size(), cname_reqs.size()-1 ? "s" : "");
+    Snprintf(spmobuf, sizeof(spmobuf), "System CNAME DNS resolution of %u host%s.", (unsigned) cname_reqs.size(), cname_reqs.size()-1 ? "s" : "");
     SPM = new ScanProgressMeter(spmobuf);
 
     for(i=0, reqI = cname_reqs.begin(); reqI != cname_reqs.end(); reqI++, i++) {
