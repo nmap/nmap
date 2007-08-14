@@ -20,7 +20,6 @@ extern "C" {
 #include <locale.h>
 #include <pcre.h>
 
-#include "nbase.h"
 #include "pcre.h"
 
 static void L_lua_error(lua_State *L, const char *message)
@@ -51,11 +50,11 @@ static int udata_tostring (lua_State *L, const char* type_handle,
 	void *udata = luaL_checkudata(L, 1, type_handle);
 
 	if(udata) {
-		(void)Snprintf(buf, 255, "%s (%p)", type_name, udata);
+		(void)snprintf(buf, 255, "%s (%p)", type_name, udata);
 		lua_pushstring(L, buf);
 	}
 	else {
-		(void)Snprintf(buf, 255, "must be userdata of type '%s'", type_name);
+		(void)snprintf(buf, 255, "must be userdata of type '%s'", type_name);
 		(void)luaL_argerror(L, 1, buf);
 	}
 
@@ -141,7 +140,7 @@ static int Lpcre_comp(lua_State *L)
 
 	ud->pr = pcre_compile(pattern, cflags, &error, &erroffset, tables);
 	if(!ud->pr) {
-		(void)Snprintf(buf, 255, "%s (pattern offset: %d)", error, erroffset+1);
+		(void)snprintf(buf, 255, "%s (pattern offset: %d)", error, erroffset+1);
 		/* show offset 1-based as it's common in Lua */
 		L_lua_error(L, buf);
 	}
