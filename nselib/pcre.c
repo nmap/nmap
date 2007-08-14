@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,6 +22,21 @@ extern "C" {
 #include <pcre.h>
 
 #include "pcre.h"
+
+static int Snprintf(char *s, size_t n, const char *fmt, ...)
+{
+	va_list ap;
+	int ret;
+
+	va_start(ap, fmt);
+	ret = vsnprintf(s, n, fmt, ap);
+	va_end(ap);
+
+	if (ret < 0 || (unsigned) ret >= n)
+		s[n - 1] = '\0';
+
+	return ret;
+}
 
 static void L_lua_error(lua_State *L, const char *message)
 {
@@ -50,11 +66,11 @@ static int udata_tostring (lua_State *L, const char* type_handle,
 	void *udata = luaL_checkudata(L, 1, type_handle);
 
 	if(udata) {
-		(void)snprintf(buf, 255, "%s (%p)", type_name, udata);
+		(void)Snprintf(buf, 255, "%s (%p)", type_name, udata);
 		lua_pushstring(L, buf);
 	}
 	else {
-		(void)snprintf(buf, 255, "must be userdata of type '%s'", type_name);
+		(void)Snprintf(buf, 255, "must be userdata of type '%s'", type_name);
 		(void)luaL_argerror(L, 1, buf);
 	}
 
@@ -140,7 +156,7 @@ static int Lpcre_comp(lua_State *L)
 
 	ud->pr = pcre_compile(pattern, cflags, &error, &erroffset, tables);
 	if(!ud->pr) {
-		(void)snprintf(buf, 255, "%s (pattern offset: %d)", error, erroffset+1);
+		(void)Snprintf(buf, 255, "%s (pattern offset: %d)", error, erroffset+1);
 		/* show offset 1-based as it's common in Lua */
 		L_lua_error(L, buf);
 	}

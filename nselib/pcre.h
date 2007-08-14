@@ -2,7 +2,7 @@
 #define PCRE_H
 
 #ifdef WIN32
-#define snprintf _snprintf
+#define vsnprintf _vsnprintf
 #endif /* WIN32 */
 #define NSE_PCRELIBNAME "pcre"
 
