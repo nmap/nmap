@@ -107,7 +107,7 @@
 #include "nse_main.h"
 #endif 
 
-#include "reason.h"
+#include "portreasons.h"
 
 /* port states */
 #define PORT_UNKNOWN 0

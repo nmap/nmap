@@ -1,5 +1,5 @@
 /***************************************************************************
- * reason.cc -- Verbose packet-level information on port states            *
+ * portreasons.cc -- Verbose packet-level information on port states       *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
@@ -103,7 +103,7 @@
 #include "nmap.h"
 #include "portlist.h"
 #include "NmapOps.h"
-#include "reason.h"
+#include "portreasons.h"
 #include "Target.h"
 #ifdef WIN32
 #include "winfix.h"

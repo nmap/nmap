@@ -103,7 +103,7 @@
 #ifdef WIN32
 #include "nmap_winconfig.h"
 #endif
-#include "reason.h"
+#include "portreasons.h"
 #include <dnet.h>
 #include "scan_engine.h"
 #include "timing.h"

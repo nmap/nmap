@@ -310,7 +310,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\reason.cc"
+				RelativePath="..\portreasons.cc"
 				>
 			</File>
 			<File
@@ -495,7 +495,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\reason.h"
+				RelativePath="..\portreasons.h"
 				>
 			</File>
 			<File

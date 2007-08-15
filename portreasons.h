@@ -1,5 +1,5 @@
 /***************************************************************************
- * reason.cc -- Verbose packet-level information on port states            *
+ * portreasons.h -- Verbose packet-level information on port states        *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
@@ -132,7 +132,7 @@ typedef struct port_reason_summary {
 	struct port_reason_summary *next;
 } state_reason_summary_t;
 
-/* reason.h:reason_codes and reason.cc:reason_str must stay in sync */
+/* portreasons.h:reason_codes and portreasons.cc:reason_str must stay in sync */
 enum reason_codes {
 	ER_RESETPEER=0, ER_CONREFUSED, ER_CONACCEPT, 
 	ER_SYNACK, ER_UDPRESPONSE, ER_PROTORESPONSE, 

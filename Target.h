@@ -110,7 +110,7 @@
 #include "nse_main.h"
 #endif
 
-#include "reason.h"
+#include "portreasons.h"
 #include "portlist.h"
 #include "tcpip.h"
 

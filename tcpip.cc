@@ -102,7 +102,7 @@
 #ifdef WIN32
 #include "nmap_winconfig.h"
 #endif
-#include "reason.h"
+#include "portreasons.h"
 #include <dnet.h>
 #include "tcpip.h"
 #include "NmapOps.h"

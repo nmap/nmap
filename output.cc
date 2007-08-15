@@ -108,7 +108,7 @@
 #include "NmapOps.h"
 #include "NmapOutputTable.h"
 #include "MACLookup.h"
-#include "reason.h"
+#include "portreasons.h"
 #include "protocols.h"
 #include "nmap_rpc.h"
 #include "Target.h"
