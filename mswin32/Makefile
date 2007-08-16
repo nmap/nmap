@@ -28,8 +28,8 @@ winbuild:
 	cd Release && cp -f $(NSE_LIB_FILES) ../nmap-$(NMAP_VERSION)/nselib/
 	zip -r nmap-$(NMAP_VERSION)-win32.zip nmap-$(NMAP_VERSION)
 	cp winpcap/winpcap-nmap-*.exe nmap-$(NMAP_VERSION)
-	cd nmap-$(NMAP_VERSION) && mkdir umit
-	cd ../umit && utils/copy_win_deps.bat
+	mkdir nmap-$(NMAP_VERSION)/umit
+	cd ../umit && install_scripts/windows/copy_and_compile.bat
 	cp -R ../umit/dist/* ../umit/COPYING* ../umit/README nmap-$(NMAP_VERSION)/umit
 	cp nsis/AddToPath.nsh nsis/Nmap.nsi nsis/shortcuts.ini nmap-$(NMAP_VERSION)
 	$(MAKENSIS) nmap-$(NMAP_VERSION)/Nmap.nsi
