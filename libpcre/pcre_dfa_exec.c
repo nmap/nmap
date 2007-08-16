@@ -6,7 +6,7 @@
 and semantics are as close as possible to those of the Perl 5 language.
 
                        Written by Philip Hazel
-           Copyright (c) 1997-2006 University of Cambridge
+           Copyright (c) 1997-2007 University of Cambridge
 
 -----------------------------------------------------------------------------
 Redistribution and use in source and binary forms, with or without
@@ -39,11 +39,15 @@ POSSIBILITY OF SUCH DAMAGE.
 
 
 /* This module contains the external function pcre_dfa_exec(), which is an
-alternative matching function that uses a DFA algorithm. This is NOT Perl-
-compatible, but it has advantages in certain applications. */
+alternative matching function that uses a sort of DFA algorithm (not a true
+FSM). This is NOT Perl- compatible, but it has advantages in certain
+applications. */
 
 
-#define NLBLOCK md           /* The block containing newline information */
+#define NLBLOCK md             /* Block containing newline information */
+#define PSSTART start_subject  /* Field containing processed string start */
+#define PSEND   end_subject    /* Field containing processed string end */
+
 #include "pcre_internal.h"
 
 
@@ -58,24 +62,31 @@ compatible, but it has advantages in certain applications. */
 *************************************************/
 
 /* These are offsets that are used to turn the OP_TYPESTAR and friends opcodes
-into others, under special conditions. A gap of 10 between the blocks should be
-enough. */
+into others, under special conditions. A gap of 20 between the blocks should be
+enough. The resulting opcodes don't have to be less than 256 because they are
+never stored, so we push them well clear of the normal opcodes. */
 
-#define OP_PROP_EXTRA    (EXTRACT_BASIC_MAX+1)
-#define OP_EXTUNI_EXTRA  (EXTRACT_BASIC_MAX+11)
+#define OP_PROP_EXTRA       300
+#define OP_EXTUNI_EXTRA     320
+#define OP_ANYNL_EXTRA      340
+#define OP_HSPACE_EXTRA     360
+#define OP_VSPACE_EXTRA     380
 
 
 /* This table identifies those opcodes that are followed immediately by a
 character that is to be tested in some way. This makes is possible to
 centralize the loading of these characters. In the case of Type * etc, the
 "character" is the opcode for \D, \d, \S, \s, \W, or \w, which will always be a
-small value. */
+small value. ***NOTE*** If the start of this table is modified, the two tables
+that follow must also be modified. */
 
 static uschar coptable[] = {
   0,                             /* End                                    */
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  /* \A, \G, \B, \b, \D, \d, \S, \s, \W, \w */
+  0, 0, 0, 0, 0,                 /* \A, \G, \K, \B, \b                     */
+  0, 0, 0, 0, 0, 0,              /* \D, \d, \S, \s, \W, \w                 */
   0, 0,                          /* Any, Anybyte                           */
   0, 0, 0,                       /* NOTPROP, PROP, EXTUNI                  */
+  0, 0, 0, 0, 0,                 /* \R, \H, \h, \V, \v                     */
   0, 0, 0, 0, 0,                 /* \Z, \z, Opt, ^, $                      */
   1,                             /* Char                                   */
   1,                             /* Charnc                                 */
@@ -83,12 +94,15 @@ static uschar coptable[] = {
   /* Positive single-char repeats                                          */
   1, 1, 1, 1, 1, 1,              /* *, *?, +, +?, ?, ??                    */
   3, 3, 3,                       /* upto, minupto, exact                   */
+  1, 1, 1, 3,                    /* *+, ++, ?+, upto+                      */
   /* Negative single-char repeats - only for chars < 256                   */
   1, 1, 1, 1, 1, 1,              /* NOT *, *?, +, +?, ?, ??                */
   3, 3, 3,                       /* NOT upto, minupto, exact               */
+  1, 1, 1, 3,                    /* NOT *+, ++, ?+, updo+                  */
   /* Positive type repeats                                                 */
   1, 1, 1, 1, 1, 1,              /* Type *, *?, +, +?, ?, ??               */
   3, 3, 3,                       /* Type upto, minupto, exact              */
+  1, 1, 1, 3,                    /* Type *+, ++, ?+, upto+                 */
   /* Character class & ref repeats                                         */
   0, 0, 0, 0, 0, 0,              /* *, *?, +, +?, ?, ??                    */
   0, 0,                          /* CRRANGE, CRMINRANGE                    */
@@ -107,19 +121,19 @@ static uschar coptable[] = {
   0,                             /* Assert behind                          */
   0,                             /* Assert behind not                      */
   0,                             /* Reverse                                */
-  0,                             /* Once                                   */
-  0,                             /* COND                                   */
+  0, 0, 0, 0,                    /* ONCE, BRA, CBRA, COND                  */
+  0, 0, 0,                       /* SBRA, SCBRA, SCOND                     */
   0,                             /* CREF                                   */
-  0, 0,                          /* BRAZERO, BRAMINZERO                    */
-  0,                             /* BRANUMBER                              */
-  0                              /* BRA                                    */
+  0,                             /* RREF                                   */
+  0,                             /* DEF                                    */
+  0, 0                           /* BRAZERO, BRAMINZERO                    */
 };
 
 /* These 2 tables allow for compact code for testing for \D, \d, \S, \s, \W,
 and \w */
 
 static uschar toptable1[] = {
-  0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0,
   ctype_digit, ctype_digit,
   ctype_space, ctype_space,
   ctype_word,  ctype_word,
@@ -127,7 +141,7 @@ static uschar toptable1[] = {
 };
 
 static uschar toptable2[] = {
-  0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0,
   ctype_digit, 0,
   ctype_space, 0,
   ctype_word,  0,
@@ -278,7 +292,7 @@ stateblock *next_active_state, *next_new_state;
 
 const uschar *ctypes, *lcc, *fcc;
 const uschar *ptr;
-const uschar *end_code;
+const uschar *end_code, *first_op;
 
 int active_count, new_count, match_count;
 
@@ -291,6 +305,8 @@ const uschar *start_code = md->start_code;
 
 #ifdef SUPPORT_UTF8
 BOOL utf8 = (md->poptions & PCRE_UTF8) != 0;
+#else
+BOOL utf8 = FALSE;
 #endif
 
 rlevel++;
@@ -314,6 +330,9 @@ active_states = (stateblock *)(workspace + 2);
 next_new_state = new_states = active_states + wscount;
 new_count = 0;
 
+first_op = this_start_code + 1 + LINK_SIZE +
+  ((*this_start_code == OP_CBRA || *this_start_code == OP_SCBRA)? 2:0);
+
 /* The first thing in any (sub) pattern is a bracket of some sort. Push all
 the alternative states onto the list, and find out where the end is. This
 makes is possible to use this function recursively, when we want to stop at a
@@ -323,7 +342,7 @@ If the first opcode in the first alternative is OP_REVERSE, we are dealing with
 a backward assertion. In that case, we have to find out the maximum amount to
 move back, and set up each alternative appropriately. */
 
-if (this_start_code[1+LINK_SIZE] == OP_REVERSE)
+if (*first_op == OP_REVERSE)
   {
   int max_back = 0;
   int gone_back;
@@ -405,10 +424,13 @@ else
 
   else
     {
+    int length = 1 + LINK_SIZE +
+      ((*this_start_code == OP_CBRA || *this_start_code == OP_SCBRA)? 2:0);
     do
       {
-      ADD_NEW(end_code - start_code + 1 + LINK_SIZE, 0);
+      ADD_NEW(end_code - start_code + length, 0);
       end_code += GET(end_code, 1);
+      length = 1 + LINK_SIZE;
       }
     while (*end_code == OP_ALT);
     }
@@ -461,7 +483,7 @@ for (;;)
 
   if (ptr < end_subject)
     {
-    clen = 1;
+    clen = 1;        /* Number of bytes in the character */
 #ifdef SUPPORT_UTF8
     if (utf8) { GETCHARLEN(c, ptr, clen); } else
 #endif  /* SUPPORT_UTF8 */
@@ -469,8 +491,8 @@ for (;;)
     }
   else
     {
-    clen = 0;    /* At end subject */
-    c = -1;
+    clen = 0;        /* This indicates the end of the subject */
+    c = NOTACHAR;    /* This value should never actually be used */
     }
 
   /* Scan up the active states and act on each one. The result of an action
@@ -484,11 +506,13 @@ for (;;)
     const uschar *code;
     int state_offset = current_state->offset;
     int count, codevalue;
+#ifdef SUPPORT_UCP
     int chartype, script;
+#endif
 
 #ifdef DEBUG
     printf ("%.*sProcessing state %d c=", rlevel*2-2, SP, state_offset);
-    if (c < 0) printf("-1\n");
+    if (clen == 0) printf("EOL\n");
       else if (c > 32 && c < 127) printf("'%c'\n", c);
         else printf("0x%02x\n", c);
 #endif
@@ -532,7 +556,6 @@ for (;;)
 
     code = start_code + state_offset;
     codevalue = *code;
-    if (codevalue >= OP_BRA) codevalue = OP_BRA; /* All brackets are equal */
 
     /* If this opcode is followed by an inline character, load it. It is
     tempting to test for the presence of a subject character here, but that
@@ -540,10 +563,10 @@ for (;;)
     permitted.
 
     We also use this mechanism for opcodes such as OP_TYPEPLUS that take an
-    argument that is not a data character - but is always one byte long.
-    Unfortunately, we have to take special action to deal with  \P, \p, and
-    \X in this case. To keep the other cases fast, convert these ones to new
-    opcodes. */
+    argument that is not a data character - but is always one byte long. We
+    have to take special action to deal with  \P, \p, \H, \h, \V, \v and \X in
+    this case. To keep the other cases fast, convert these ones to new opcodes.
+    */
 
     if (coptable[codevalue] > 0)
       {
@@ -554,15 +577,25 @@ for (;;)
       d = code[coptable[codevalue]];
       if (codevalue >= OP_TYPESTAR)
         {
-        if (d == OP_ANYBYTE) return PCRE_ERROR_DFA_UITEM;
-        if (d >= OP_NOTPROP)
-          codevalue += (d == OP_EXTUNI)? OP_EXTUNI_EXTRA : OP_PROP_EXTRA;
+        switch(d)
+          {
+          case OP_ANYBYTE: return PCRE_ERROR_DFA_UITEM;
+          case OP_NOTPROP:
+          case OP_PROP: codevalue += OP_PROP_EXTRA; break;
+          case OP_ANYNL: codevalue += OP_ANYNL_EXTRA; break;
+          case OP_EXTUNI: codevalue += OP_EXTUNI_EXTRA; break;
+          case OP_NOT_HSPACE:
+          case OP_HSPACE: codevalue += OP_HSPACE_EXTRA; break;
+          case OP_NOT_VSPACE:
+          case OP_VSPACE: codevalue += OP_VSPACE_EXTRA; break;
+          default: break;
+          }
         }
       }
     else
       {
       dlen = 0;         /* Not strictly necessary, but compilers moan */
-      d = -1;           /* if these variables are not set. */
+      d = NOTACHAR;     /* if these variables are not set. */
       }
 
 
@@ -624,12 +657,25 @@ for (;;)
 
       /*-----------------------------------------------------------------*/
       case OP_BRA:
+      case OP_SBRA:
       do
         {
         ADD_ACTIVE(code - start_code + 1 + LINK_SIZE, 0);
         code += GET(code, 1);
         }
       while (*code == OP_ALT);
+      break;
+
+      /*-----------------------------------------------------------------*/
+      case OP_CBRA:
+      case OP_SCBRA:
+      ADD_ACTIVE(code - start_code + 3 + LINK_SIZE,  0);
+      code += GET(code, 1);
+      while (*code == OP_ALT)
+        {
+        ADD_ACTIVE(code - start_code + 1 + LINK_SIZE,  0);
+        code += GET(code, 1);
+        }
       break;
 
       /*-----------------------------------------------------------------*/
@@ -642,17 +688,11 @@ for (;;)
       break;
 
       /*-----------------------------------------------------------------*/
-      case OP_BRANUMBER:
-      ADD_ACTIVE(state_offset + 1 + LINK_SIZE, 0);
-      break;
-
-      /*-----------------------------------------------------------------*/
       case OP_CIRC:
       if ((ptr == start_subject && (md->moptions & PCRE_NOTBOL) == 0) ||
           ((ims & PCRE_MULTILINE) != 0 &&
-            ptr >= start_subject + md->nllen &&
             ptr != end_subject &&
-            IS_NEWLINE(ptr - md->nllen)))
+            WAS_NEWLINE(ptr)))
         { ADD_ACTIVE(state_offset + 1, 0); }
       break;
 
@@ -686,16 +726,13 @@ for (;;)
 
       /*-----------------------------------------------------------------*/
       case OP_ANY:
-      if (clen > 0 && ((ims & PCRE_DOTALL) != 0 ||
-                       ptr > end_subject - md->nllen ||
-                       !IS_NEWLINE(ptr)))
+      if (clen > 0 && ((ims & PCRE_DOTALL) != 0 || !IS_NEWLINE(ptr)))
         { ADD_NEW(state_offset + 1, 0); }
       break;
 
       /*-----------------------------------------------------------------*/
       case OP_EODN:
-      if (clen == 0 ||
-           (ptr == end_subject - md->nllen && IS_NEWLINE(ptr)))
+      if (clen == 0 || (IS_NEWLINE(ptr) && ptr == end_subject - md->nllen))
         { ADD_ACTIVE(state_offset + 1, 0); }
       break;
 
@@ -704,13 +741,12 @@ for (;;)
       if ((md->moptions & PCRE_NOTEOL) == 0)
         {
         if (clen == 0 ||
-            (ptr <= end_subject - md->nllen && IS_NEWLINE(ptr) &&
+            (IS_NEWLINE(ptr) &&
                ((ims & PCRE_MULTILINE) != 0 || ptr == end_subject - md->nllen)
             ))
           { ADD_ACTIVE(state_offset + 1, 0); }
         }
-      else if ((ims & PCRE_MULTILINE) != 0 &&
-               ptr <= end_subject - md->nllen && IS_NEWLINE(ptr))
+      else if ((ims & PCRE_MULTILINE) != 0 && IS_NEWLINE(ptr))
         { ADD_ACTIVE(state_offset + 1, 0); }
       break;
 
@@ -759,13 +795,12 @@ for (;;)
       break;
 
 
-#ifdef SUPPORT_UCP
-
       /*-----------------------------------------------------------------*/
       /* Check the next character by Unicode property. We will get here only
       if the support is in the binary; otherwise a compile-time error occurs.
       */
 
+#ifdef SUPPORT_UCP
       case OP_PROP:
       case OP_NOTPROP:
       if (clen > 0)
@@ -816,6 +851,7 @@ for (;;)
 
       case OP_TYPEPLUS:
       case OP_TYPEMINPLUS:
+      case OP_TYPEPOSPLUS:
       count = current_state->count;  /* Already matched */
       if (count > 0) { ADD_ACTIVE(state_offset + 2, 0); }
       if (clen > 0)
@@ -824,11 +860,15 @@ for (;;)
             (c < 256 &&
               (d != OP_ANY ||
                (ims & PCRE_DOTALL) != 0 ||
-               ptr > end_subject - md->nllen ||
                !IS_NEWLINE(ptr)
               ) &&
               ((ctypes[c] & toptable1[d]) ^ toptable2[d]) != 0))
           {
+          if (count > 0 && codevalue == OP_TYPEPOSPLUS)
+            {
+            active_count--;            /* Remove non-match possibility */
+            next_active_state--;
+            }
           count++;
           ADD_NEW(state_offset, count);
           }
@@ -838,6 +878,7 @@ for (;;)
       /*-----------------------------------------------------------------*/
       case OP_TYPEQUERY:
       case OP_TYPEMINQUERY:
+      case OP_TYPEPOSQUERY:
       ADD_ACTIVE(state_offset + 2, 0);
       if (clen > 0)
         {
@@ -845,11 +886,15 @@ for (;;)
             (c < 256 &&
               (d != OP_ANY ||
                (ims & PCRE_DOTALL) != 0 ||
-               ptr > end_subject - md->nllen ||
                !IS_NEWLINE(ptr)
               ) &&
               ((ctypes[c] & toptable1[d]) ^ toptable2[d]) != 0))
           {
+          if (codevalue == OP_TYPEPOSQUERY)
+            {
+            active_count--;            /* Remove non-match possibility */
+            next_active_state--;
+            }
           ADD_NEW(state_offset + 2, 0);
           }
         }
@@ -858,6 +903,7 @@ for (;;)
       /*-----------------------------------------------------------------*/
       case OP_TYPESTAR:
       case OP_TYPEMINSTAR:
+      case OP_TYPEPOSSTAR:
       ADD_ACTIVE(state_offset + 2, 0);
       if (clen > 0)
         {
@@ -865,11 +911,15 @@ for (;;)
             (c < 256 &&
               (d != OP_ANY ||
                (ims & PCRE_DOTALL) != 0 ||
-               ptr > end_subject - md->nllen ||
                !IS_NEWLINE(ptr)
               ) &&
               ((ctypes[c] & toptable1[d]) ^ toptable2[d]) != 0))
           {
+          if (codevalue == OP_TYPEPOSSTAR)
+            {
+            active_count--;            /* Remove non-match possibility */
+            next_active_state--;
+            }
           ADD_NEW(state_offset, 0);
           }
         }
@@ -877,10 +927,6 @@ for (;;)
 
       /*-----------------------------------------------------------------*/
       case OP_TYPEEXACT:
-      case OP_TYPEUPTO:
-      case OP_TYPEMINUPTO:
-      if (codevalue != OP_TYPEEXACT)
-        { ADD_ACTIVE(state_offset + 4, 0); }
       count = current_state->count;  /* Number already matched */
       if (clen > 0)
         {
@@ -888,7 +934,6 @@ for (;;)
             (c < 256 &&
               (d != OP_ANY ||
                (ims & PCRE_DOTALL) != 0 ||
-               ptr > end_subject - md->nllen ||
                !IS_NEWLINE(ptr)
               ) &&
               ((ctypes[c] & toptable1[d]) ^ toptable2[d]) != 0))
@@ -901,14 +946,45 @@ for (;;)
         }
       break;
 
+      /*-----------------------------------------------------------------*/
+      case OP_TYPEUPTO:
+      case OP_TYPEMINUPTO:
+      case OP_TYPEPOSUPTO:
+      ADD_ACTIVE(state_offset + 4, 0);
+      count = current_state->count;  /* Number already matched */
+      if (clen > 0)
+        {
+        if ((c >= 256 && d != OP_DIGIT && d != OP_WHITESPACE && d != OP_WORDCHAR) ||
+            (c < 256 &&
+              (d != OP_ANY ||
+               (ims & PCRE_DOTALL) != 0 ||
+               !IS_NEWLINE(ptr)
+              ) &&
+              ((ctypes[c] & toptable1[d]) ^ toptable2[d]) != 0))
+          {
+          if (codevalue == OP_TYPEPOSUPTO)
+            {
+            active_count--;           /* Remove non-match possibility */
+            next_active_state--;
+            }
+          if (++count >= GET2(code, 1))
+            { ADD_NEW(state_offset + 4, 0); }
+          else
+            { ADD_NEW(state_offset, count); }
+          }
+        }
+      break;
+
 /* ========================================================================== */
       /* These are virtual opcodes that are used when something like
-      OP_TYPEPLUS has OP_PROP, OP_NOTPROP, or OP_EXTUNI as its argument. It
-      keeps the code above fast for the other cases. The argument is in the
-      d variable. */
+      OP_TYPEPLUS has OP_PROP, OP_NOTPROP, OP_ANYNL, or OP_EXTUNI as its
+      argument. It keeps the code above fast for the other cases. The argument
+      is in the d variable. */
 
+#ifdef SUPPORT_UCP
       case OP_PROP_EXTRA + OP_TYPEPLUS:
       case OP_PROP_EXTRA + OP_TYPEMINPLUS:
+      case OP_PROP_EXTRA + OP_TYPEPOSPLUS:
       count = current_state->count;           /* Already matched */
       if (count > 0) { ADD_ACTIVE(state_offset + 4, 0); }
       if (clen > 0)
@@ -944,19 +1020,34 @@ for (;;)
           break;
           }
 
-        if (OK == (d == OP_PROP)) { count++; ADD_NEW(state_offset, count); }
+        if (OK == (d == OP_PROP))
+          {
+          if (count > 0 && codevalue == OP_PROP_EXTRA + OP_TYPEPOSPLUS)
+            {
+            active_count--;           /* Remove non-match possibility */
+            next_active_state--;
+            }
+          count++;
+          ADD_NEW(state_offset, count);
+          }
         }
       break;
 
       /*-----------------------------------------------------------------*/
       case OP_EXTUNI_EXTRA + OP_TYPEPLUS:
       case OP_EXTUNI_EXTRA + OP_TYPEMINPLUS:
+      case OP_EXTUNI_EXTRA + OP_TYPEPOSPLUS:
       count = current_state->count;  /* Already matched */
       if (count > 0) { ADD_ACTIVE(state_offset + 2, 0); }
       if (clen > 0 && _pcre_ucp_findprop(c, &chartype, &script) != ucp_M)
         {
         const uschar *nptr = ptr + clen;
         int ncount = 0;
+        if (count > 0 && codevalue == OP_EXTUNI_EXTRA + OP_TYPEPOSPLUS)
+          {
+          active_count--;           /* Remove non-match possibility */
+          next_active_state--;
+          }
         while (nptr < end_subject)
           {
           int nd;
@@ -970,15 +1061,143 @@ for (;;)
         ADD_NEW_DATA(-state_offset, count, ncount);
         }
       break;
+#endif
 
       /*-----------------------------------------------------------------*/
+      case OP_ANYNL_EXTRA + OP_TYPEPLUS:
+      case OP_ANYNL_EXTRA + OP_TYPEMINPLUS:
+      case OP_ANYNL_EXTRA + OP_TYPEPOSPLUS:
+      count = current_state->count;  /* Already matched */
+      if (count > 0) { ADD_ACTIVE(state_offset + 2, 0); }
+      if (clen > 0)
+        {
+        int ncount = 0;
+        switch (c)
+          {
+          case 0x000d:
+          if (ptr + 1 < end_subject && ptr[1] == 0x0a) ncount = 1;
+          /* Fall through */
+          case 0x000a:
+          case 0x000b:
+          case 0x000c:
+          case 0x0085:
+          case 0x2028:
+          case 0x2029:
+          if (count > 0 && codevalue == OP_ANYNL_EXTRA + OP_TYPEPOSPLUS)
+            {
+            active_count--;           /* Remove non-match possibility */
+            next_active_state--;
+            }
+          count++;
+          ADD_NEW_DATA(-state_offset, count, ncount);
+          break;
+          default:
+          break;
+          }
+        }
+      break;
+
+      /*-----------------------------------------------------------------*/
+      case OP_VSPACE_EXTRA + OP_TYPEPLUS:
+      case OP_VSPACE_EXTRA + OP_TYPEMINPLUS:
+      case OP_VSPACE_EXTRA + OP_TYPEPOSPLUS:
+      count = current_state->count;  /* Already matched */
+      if (count > 0) { ADD_ACTIVE(state_offset + 2, 0); }
+      if (clen > 0)
+        {
+        BOOL OK;
+        switch (c)
+          {
+          case 0x000a:
+          case 0x000b:
+          case 0x000c:
+          case 0x000d:
+          case 0x0085:
+          case 0x2028:
+          case 0x2029:
+          OK = TRUE;
+          break;
+
+          default:
+          OK = FALSE;
+          break;
+          }
+
+        if (OK == (d == OP_VSPACE))
+          {
+          if (count > 0 && codevalue == OP_VSPACE_EXTRA + OP_TYPEPOSPLUS)
+            {
+            active_count--;           /* Remove non-match possibility */
+            next_active_state--;
+            }
+          count++;
+          ADD_NEW_DATA(-state_offset, count, 0);
+          }
+        }
+      break;
+
+      /*-----------------------------------------------------------------*/
+      case OP_HSPACE_EXTRA + OP_TYPEPLUS:
+      case OP_HSPACE_EXTRA + OP_TYPEMINPLUS:
+      case OP_HSPACE_EXTRA + OP_TYPEPOSPLUS:
+      count = current_state->count;  /* Already matched */
+      if (count > 0) { ADD_ACTIVE(state_offset + 2, 0); }
+      if (clen > 0)
+        {
+        BOOL OK;
+        switch (c)
+          {
+          case 0x09:      /* HT */
+          case 0x20:      /* SPACE */
+          case 0xa0:      /* NBSP */
+          case 0x1680:    /* OGHAM SPACE MARK */
+          case 0x180e:    /* MONGOLIAN VOWEL SEPARATOR */
+          case 0x2000:    /* EN QUAD */
+          case 0x2001:    /* EM QUAD */
+          case 0x2002:    /* EN SPACE */
+          case 0x2003:    /* EM SPACE */
+          case 0x2004:    /* THREE-PER-EM SPACE */
+          case 0x2005:    /* FOUR-PER-EM SPACE */
+          case 0x2006:    /* SIX-PER-EM SPACE */
+          case 0x2007:    /* FIGURE SPACE */
+          case 0x2008:    /* PUNCTUATION SPACE */
+          case 0x2009:    /* THIN SPACE */
+          case 0x200A:    /* HAIR SPACE */
+          case 0x202f:    /* NARROW NO-BREAK SPACE */
+          case 0x205f:    /* MEDIUM MATHEMATICAL SPACE */
+          case 0x3000:    /* IDEOGRAPHIC SPACE */
+          OK = TRUE;
+          break;
+
+          default:
+          OK = FALSE;
+          break;
+          }
+
+        if (OK == (d == OP_HSPACE))
+          {
+          if (count > 0 && codevalue == OP_HSPACE_EXTRA + OP_TYPEPOSPLUS)
+            {
+            active_count--;           /* Remove non-match possibility */
+            next_active_state--;
+            }
+          count++;
+          ADD_NEW_DATA(-state_offset, count, 0);
+          }
+        }
+      break;
+
+      /*-----------------------------------------------------------------*/
+#ifdef SUPPORT_UCP
       case OP_PROP_EXTRA + OP_TYPEQUERY:
       case OP_PROP_EXTRA + OP_TYPEMINQUERY:
+      case OP_PROP_EXTRA + OP_TYPEPOSQUERY:
       count = 4;
       goto QS1;
 
       case OP_PROP_EXTRA + OP_TYPESTAR:
       case OP_PROP_EXTRA + OP_TYPEMINSTAR:
+      case OP_PROP_EXTRA + OP_TYPEPOSSTAR:
       count = 0;
 
       QS1:
@@ -1017,18 +1236,29 @@ for (;;)
           break;
           }
 
-        if (OK == (d == OP_PROP)) { ADD_NEW(state_offset + count, 0); }
+        if (OK == (d == OP_PROP))
+          {
+          if (codevalue == OP_PROP_EXTRA + OP_TYPEPOSSTAR ||
+              codevalue == OP_PROP_EXTRA + OP_TYPEPOSQUERY)
+            {
+            active_count--;           /* Remove non-match possibility */
+            next_active_state--;
+            }
+          ADD_NEW(state_offset + count, 0);
+          }
         }
       break;
 
       /*-----------------------------------------------------------------*/
       case OP_EXTUNI_EXTRA + OP_TYPEQUERY:
       case OP_EXTUNI_EXTRA + OP_TYPEMINQUERY:
+      case OP_EXTUNI_EXTRA + OP_TYPEPOSQUERY:
       count = 2;
       goto QS2;
 
       case OP_EXTUNI_EXTRA + OP_TYPESTAR:
       case OP_EXTUNI_EXTRA + OP_TYPEMINSTAR:
+      case OP_EXTUNI_EXTRA + OP_TYPEPOSSTAR:
       count = 0;
 
       QS2:
@@ -1038,6 +1268,12 @@ for (;;)
         {
         const uschar *nptr = ptr + clen;
         int ncount = 0;
+        if (codevalue == OP_EXTUNI_EXTRA + OP_TYPEPOSSTAR ||
+            codevalue == OP_EXTUNI_EXTRA + OP_TYPEPOSQUERY)
+          {
+          active_count--;           /* Remove non-match possibility */
+          next_active_state--;
+          }
         while (nptr < end_subject)
           {
           int nd;
@@ -1050,11 +1286,161 @@ for (;;)
         ADD_NEW_DATA(-(state_offset + count), 0, ncount);
         }
       break;
+#endif
 
       /*-----------------------------------------------------------------*/
+      case OP_ANYNL_EXTRA + OP_TYPEQUERY:
+      case OP_ANYNL_EXTRA + OP_TYPEMINQUERY:
+      case OP_ANYNL_EXTRA + OP_TYPEPOSQUERY:
+      count = 2;
+      goto QS3;
+
+      case OP_ANYNL_EXTRA + OP_TYPESTAR:
+      case OP_ANYNL_EXTRA + OP_TYPEMINSTAR:
+      case OP_ANYNL_EXTRA + OP_TYPEPOSSTAR:
+      count = 0;
+
+      QS3:
+      ADD_ACTIVE(state_offset + 2, 0);
+      if (clen > 0)
+        {
+        int ncount = 0;
+        switch (c)
+          {
+          case 0x000d:
+          if (ptr + 1 < end_subject && ptr[1] == 0x0a) ncount = 1;
+          /* Fall through */
+          case 0x000a:
+          case 0x000b:
+          case 0x000c:
+          case 0x0085:
+          case 0x2028:
+          case 0x2029:
+          if (codevalue == OP_ANYNL_EXTRA + OP_TYPEPOSSTAR ||
+              codevalue == OP_ANYNL_EXTRA + OP_TYPEPOSQUERY)
+            {
+            active_count--;           /* Remove non-match possibility */
+            next_active_state--;
+            }
+          ADD_NEW_DATA(-(state_offset + count), 0, ncount);
+          break;
+          default:
+          break;
+          }
+        }
+      break;
+
+      /*-----------------------------------------------------------------*/
+      case OP_VSPACE_EXTRA + OP_TYPEQUERY:
+      case OP_VSPACE_EXTRA + OP_TYPEMINQUERY:
+      case OP_VSPACE_EXTRA + OP_TYPEPOSQUERY:
+      count = 2;
+      goto QS4;
+
+      case OP_VSPACE_EXTRA + OP_TYPESTAR:
+      case OP_VSPACE_EXTRA + OP_TYPEMINSTAR:
+      case OP_VSPACE_EXTRA + OP_TYPEPOSSTAR:
+      count = 0;
+
+      QS4:
+      ADD_ACTIVE(state_offset + 2, 0);
+      if (clen > 0)
+        {
+        BOOL OK;
+        switch (c)
+          {
+          case 0x000a:
+          case 0x000b:
+          case 0x000c:
+          case 0x000d:
+          case 0x0085:
+          case 0x2028:
+          case 0x2029:
+          OK = TRUE;
+          break;
+
+          default:
+          OK = FALSE;
+          break;
+          }
+        if (OK == (d == OP_VSPACE))
+          {
+          if (codevalue == OP_VSPACE_EXTRA + OP_TYPEPOSSTAR ||
+              codevalue == OP_VSPACE_EXTRA + OP_TYPEPOSQUERY)
+            {
+            active_count--;           /* Remove non-match possibility */
+            next_active_state--;
+            }
+          ADD_NEW_DATA(-(state_offset + count), 0, 0);
+          }
+        }
+      break;
+
+      /*-----------------------------------------------------------------*/
+      case OP_HSPACE_EXTRA + OP_TYPEQUERY:
+      case OP_HSPACE_EXTRA + OP_TYPEMINQUERY:
+      case OP_HSPACE_EXTRA + OP_TYPEPOSQUERY:
+      count = 2;
+      goto QS5;
+
+      case OP_HSPACE_EXTRA + OP_TYPESTAR:
+      case OP_HSPACE_EXTRA + OP_TYPEMINSTAR:
+      case OP_HSPACE_EXTRA + OP_TYPEPOSSTAR:
+      count = 0;
+
+      QS5:
+      ADD_ACTIVE(state_offset + 2, 0);
+      if (clen > 0)
+        {
+        BOOL OK;
+        switch (c)
+          {
+          case 0x09:      /* HT */
+          case 0x20:      /* SPACE */
+          case 0xa0:      /* NBSP */
+          case 0x1680:    /* OGHAM SPACE MARK */
+          case 0x180e:    /* MONGOLIAN VOWEL SEPARATOR */
+          case 0x2000:    /* EN QUAD */
+          case 0x2001:    /* EM QUAD */
+          case 0x2002:    /* EN SPACE */
+          case 0x2003:    /* EM SPACE */
+          case 0x2004:    /* THREE-PER-EM SPACE */
+          case 0x2005:    /* FOUR-PER-EM SPACE */
+          case 0x2006:    /* SIX-PER-EM SPACE */
+          case 0x2007:    /* FIGURE SPACE */
+          case 0x2008:    /* PUNCTUATION SPACE */
+          case 0x2009:    /* THIN SPACE */
+          case 0x200A:    /* HAIR SPACE */
+          case 0x202f:    /* NARROW NO-BREAK SPACE */
+          case 0x205f:    /* MEDIUM MATHEMATICAL SPACE */
+          case 0x3000:    /* IDEOGRAPHIC SPACE */
+          OK = TRUE;
+          break;
+
+          default:
+          OK = FALSE;
+          break;
+          }
+
+        if (OK == (d == OP_HSPACE))
+          {
+          if (codevalue == OP_HSPACE_EXTRA + OP_TYPEPOSSTAR ||
+              codevalue == OP_HSPACE_EXTRA + OP_TYPEPOSQUERY)
+            {
+            active_count--;           /* Remove non-match possibility */
+            next_active_state--;
+            }
+          ADD_NEW_DATA(-(state_offset + count), 0, 0);
+          }
+        }
+      break;
+
+      /*-----------------------------------------------------------------*/
+#ifdef SUPPORT_UCP
       case OP_PROP_EXTRA + OP_TYPEEXACT:
       case OP_PROP_EXTRA + OP_TYPEUPTO:
       case OP_PROP_EXTRA + OP_TYPEMINUPTO:
+      case OP_PROP_EXTRA + OP_TYPEPOSUPTO:
       if (codevalue != OP_PROP_EXTRA + OP_TYPEEXACT)
         { ADD_ACTIVE(state_offset + 6, 0); }
       count = current_state->count;  /* Number already matched */
@@ -1093,6 +1479,11 @@ for (;;)
 
         if (OK == (d == OP_PROP))
           {
+          if (codevalue == OP_PROP_EXTRA + OP_TYPEPOSUPTO)
+            {
+            active_count--;           /* Remove non-match possibility */
+            next_active_state--;
+            }
           if (++count >= GET2(code, 1))
             { ADD_NEW(state_offset + 6, 0); }
           else
@@ -1105,6 +1496,7 @@ for (;;)
       case OP_EXTUNI_EXTRA + OP_TYPEEXACT:
       case OP_EXTUNI_EXTRA + OP_TYPEUPTO:
       case OP_EXTUNI_EXTRA + OP_TYPEMINUPTO:
+      case OP_EXTUNI_EXTRA + OP_TYPEPOSUPTO:
       if (codevalue != OP_EXTUNI_EXTRA + OP_TYPEEXACT)
         { ADD_ACTIVE(state_offset + 4, 0); }
       count = current_state->count;  /* Number already matched */
@@ -1112,6 +1504,11 @@ for (;;)
         {
         const uschar *nptr = ptr + clen;
         int ncount = 0;
+        if (codevalue == OP_EXTUNI_EXTRA + OP_TYPEPOSUPTO)
+          {
+          active_count--;           /* Remove non-match possibility */
+          next_active_state--;
+          }
         while (nptr < end_subject)
           {
           int nd;
@@ -1125,6 +1522,142 @@ for (;;)
           { ADD_NEW_DATA(-(state_offset + 4), 0, ncount); }
         else
           { ADD_NEW_DATA(-state_offset, count, ncount); }
+        }
+      break;
+#endif
+
+      /*-----------------------------------------------------------------*/
+      case OP_ANYNL_EXTRA + OP_TYPEEXACT:
+      case OP_ANYNL_EXTRA + OP_TYPEUPTO:
+      case OP_ANYNL_EXTRA + OP_TYPEMINUPTO:
+      case OP_ANYNL_EXTRA + OP_TYPEPOSUPTO:
+      if (codevalue != OP_ANYNL_EXTRA + OP_TYPEEXACT)
+        { ADD_ACTIVE(state_offset + 4, 0); }
+      count = current_state->count;  /* Number already matched */
+      if (clen > 0)
+        {
+        int ncount = 0;
+        switch (c)
+          {
+          case 0x000d:
+          if (ptr + 1 < end_subject && ptr[1] == 0x0a) ncount = 1;
+          /* Fall through */
+          case 0x000a:
+          case 0x000b:
+          case 0x000c:
+          case 0x0085:
+          case 0x2028:
+          case 0x2029:
+          if (codevalue == OP_ANYNL_EXTRA + OP_TYPEPOSUPTO)
+            {
+            active_count--;           /* Remove non-match possibility */
+            next_active_state--;
+            }
+          if (++count >= GET2(code, 1))
+            { ADD_NEW_DATA(-(state_offset + 4), 0, ncount); }
+          else
+            { ADD_NEW_DATA(-state_offset, count, ncount); }
+          break;
+          default:
+          break;
+          }
+        }
+      break;
+
+      /*-----------------------------------------------------------------*/
+      case OP_VSPACE_EXTRA + OP_TYPEEXACT:
+      case OP_VSPACE_EXTRA + OP_TYPEUPTO:
+      case OP_VSPACE_EXTRA + OP_TYPEMINUPTO:
+      case OP_VSPACE_EXTRA + OP_TYPEPOSUPTO:
+      if (codevalue != OP_VSPACE_EXTRA + OP_TYPEEXACT)
+        { ADD_ACTIVE(state_offset + 4, 0); }
+      count = current_state->count;  /* Number already matched */
+      if (clen > 0)
+        {
+        BOOL OK;
+        switch (c)
+          {
+          case 0x000a:
+          case 0x000b:
+          case 0x000c:
+          case 0x000d:
+          case 0x0085:
+          case 0x2028:
+          case 0x2029:
+          OK = TRUE;
+          break;
+
+          default:
+          OK = FALSE;
+          }
+
+        if (OK == (d == OP_VSPACE))
+          {
+          if (codevalue == OP_VSPACE_EXTRA + OP_TYPEPOSUPTO)
+            {
+            active_count--;           /* Remove non-match possibility */
+            next_active_state--;
+            }
+          if (++count >= GET2(code, 1))
+            { ADD_NEW_DATA(-(state_offset + 4), 0, 0); }
+          else
+            { ADD_NEW_DATA(-state_offset, count, 0); }
+          }
+        }
+      break;
+
+      /*-----------------------------------------------------------------*/
+      case OP_HSPACE_EXTRA + OP_TYPEEXACT:
+      case OP_HSPACE_EXTRA + OP_TYPEUPTO:
+      case OP_HSPACE_EXTRA + OP_TYPEMINUPTO:
+      case OP_HSPACE_EXTRA + OP_TYPEPOSUPTO:
+      if (codevalue != OP_HSPACE_EXTRA + OP_TYPEEXACT)
+        { ADD_ACTIVE(state_offset + 4, 0); }
+      count = current_state->count;  /* Number already matched */
+      if (clen > 0)
+        {
+        BOOL OK;
+        switch (c)
+          {
+          case 0x09:      /* HT */
+          case 0x20:      /* SPACE */
+          case 0xa0:      /* NBSP */
+          case 0x1680:    /* OGHAM SPACE MARK */
+          case 0x180e:    /* MONGOLIAN VOWEL SEPARATOR */
+          case 0x2000:    /* EN QUAD */
+          case 0x2001:    /* EM QUAD */
+          case 0x2002:    /* EN SPACE */
+          case 0x2003:    /* EM SPACE */
+          case 0x2004:    /* THREE-PER-EM SPACE */
+          case 0x2005:    /* FOUR-PER-EM SPACE */
+          case 0x2006:    /* SIX-PER-EM SPACE */
+          case 0x2007:    /* FIGURE SPACE */
+          case 0x2008:    /* PUNCTUATION SPACE */
+          case 0x2009:    /* THIN SPACE */
+          case 0x200A:    /* HAIR SPACE */
+          case 0x202f:    /* NARROW NO-BREAK SPACE */
+          case 0x205f:    /* MEDIUM MATHEMATICAL SPACE */
+          case 0x3000:    /* IDEOGRAPHIC SPACE */
+          OK = TRUE;
+          break;
+
+          default:
+          OK = FALSE;
+          break;
+          }
+
+        if (OK == (d == OP_HSPACE))
+          {
+          if (codevalue == OP_HSPACE_EXTRA + OP_TYPEPOSUPTO)
+            {
+            active_count--;           /* Remove non-match possibility */
+            next_active_state--;
+            }
+          if (++count >= GET2(code, 1))
+            { ADD_NEW_DATA(-(state_offset + 4), 0, 0); }
+          else
+            { ADD_NEW_DATA(-state_offset, count, 0); }
+          }
         }
       break;
 
@@ -1148,7 +1681,7 @@ for (;;)
         {
         if (c == d) { ADD_NEW(state_offset + dlen + 1, 0); } else
           {
-          int othercase;
+          unsigned int othercase;
           if (c < 128) othercase = fcc[c]; else
 
           /* If we have Unicode property support, we can use it to test the
@@ -1157,7 +1690,7 @@ for (;;)
 #ifdef SUPPORT_UCP
           othercase = _pcre_ucp_othercase(c);
 #else
-            othercase = -1;
+          othercase = NOTACHAR;
 #endif
 
           if (d == othercase) { ADD_NEW(state_offset + dlen + 1, 0); }
@@ -1198,6 +1731,131 @@ for (;;)
 #endif
 
       /*-----------------------------------------------------------------*/
+      /* This is a tricky like EXTUNI because it too can match more than one
+      character (when CR is followed by LF). In this case, set up a negative
+      state to wait for one character to pass before continuing. */
+
+      case OP_ANYNL:
+      if (clen > 0) switch(c)
+        {
+        case 0x000a:
+        case 0x000b:
+        case 0x000c:
+        case 0x0085:
+        case 0x2028:
+        case 0x2029:
+        ADD_NEW(state_offset + 1, 0);
+        break;
+        case 0x000d:
+        if (ptr + 1 < end_subject && ptr[1] == 0x0a)
+          {
+          ADD_NEW_DATA(-(state_offset + 1), 0, 1);
+          }
+        else
+          {
+          ADD_NEW(state_offset + 1, 0);
+          }
+        break;
+        }
+      break;
+
+      /*-----------------------------------------------------------------*/
+      case OP_NOT_VSPACE:
+      if (clen > 0) switch(c)
+        {
+        case 0x000a:
+        case 0x000b:
+        case 0x000c:
+        case 0x000d:
+        case 0x0085:
+        case 0x2028:
+        case 0x2029:
+        break;
+
+        default:
+        ADD_NEW(state_offset + 1, 0);
+        break;
+        }
+      break;
+
+      /*-----------------------------------------------------------------*/
+      case OP_VSPACE:
+      if (clen > 0) switch(c)
+        {
+        case 0x000a:
+        case 0x000b:
+        case 0x000c:
+        case 0x000d:
+        case 0x0085:
+        case 0x2028:
+        case 0x2029:
+        ADD_NEW(state_offset + 1, 0);
+        break;
+
+        default: break;
+        }
+      break;
+
+      /*-----------------------------------------------------------------*/
+      case OP_NOT_HSPACE:
+      if (clen > 0) switch(c)
+        {
+        case 0x09:      /* HT */
+        case 0x20:      /* SPACE */
+        case 0xa0:      /* NBSP */
+        case 0x1680:    /* OGHAM SPACE MARK */
+        case 0x180e:    /* MONGOLIAN VOWEL SEPARATOR */
+        case 0x2000:    /* EN QUAD */
+        case 0x2001:    /* EM QUAD */
+        case 0x2002:    /* EN SPACE */
+        case 0x2003:    /* EM SPACE */
+        case 0x2004:    /* THREE-PER-EM SPACE */
+        case 0x2005:    /* FOUR-PER-EM SPACE */
+        case 0x2006:    /* SIX-PER-EM SPACE */
+        case 0x2007:    /* FIGURE SPACE */
+        case 0x2008:    /* PUNCTUATION SPACE */
+        case 0x2009:    /* THIN SPACE */
+        case 0x200A:    /* HAIR SPACE */
+        case 0x202f:    /* NARROW NO-BREAK SPACE */
+        case 0x205f:    /* MEDIUM MATHEMATICAL SPACE */
+        case 0x3000:    /* IDEOGRAPHIC SPACE */
+        break;
+
+        default:
+        ADD_NEW(state_offset + 1, 0);
+        break;
+        }
+      break;
+
+      /*-----------------------------------------------------------------*/
+      case OP_HSPACE:
+      if (clen > 0) switch(c)
+        {
+        case 0x09:      /* HT */
+        case 0x20:      /* SPACE */
+        case 0xa0:      /* NBSP */
+        case 0x1680:    /* OGHAM SPACE MARK */
+        case 0x180e:    /* MONGOLIAN VOWEL SEPARATOR */
+        case 0x2000:    /* EN QUAD */
+        case 0x2001:    /* EM QUAD */
+        case 0x2002:    /* EN SPACE */
+        case 0x2003:    /* EM SPACE */
+        case 0x2004:    /* THREE-PER-EM SPACE */
+        case 0x2005:    /* FOUR-PER-EM SPACE */
+        case 0x2006:    /* SIX-PER-EM SPACE */
+        case 0x2007:    /* FIGURE SPACE */
+        case 0x2008:    /* PUNCTUATION SPACE */
+        case 0x2009:    /* THIN SPACE */
+        case 0x200A:    /* HAIR SPACE */
+        case 0x202f:    /* NARROW NO-BREAK SPACE */
+        case 0x205f:    /* MEDIUM MATHEMATICAL SPACE */
+        case 0x3000:    /* IDEOGRAPHIC SPACE */
+        ADD_NEW(state_offset + 1, 0);
+        break;
+        }
+      break;
+
+      /*-----------------------------------------------------------------*/
       /* Match a negated single character. This is only used for one-byte
       characters, that is, we know that d < 256. The character we are
       checking (c) can be multibyte. */
@@ -1205,7 +1863,7 @@ for (;;)
       case OP_NOT:
       if (clen > 0)
         {
-        int otherd = ((ims & PCRE_CASELESS) != 0)? fcc[d] : d;
+        unsigned int otherd = ((ims & PCRE_CASELESS) != 0)? fcc[d] : d;
         if (c != d && c != otherd) { ADD_NEW(state_offset + dlen + 1, 0); }
         }
       break;
@@ -1213,13 +1871,15 @@ for (;;)
       /*-----------------------------------------------------------------*/
       case OP_PLUS:
       case OP_MINPLUS:
+      case OP_POSPLUS:
       case OP_NOTPLUS:
       case OP_NOTMINPLUS:
+      case OP_NOTPOSPLUS:
       count = current_state->count;  /* Already matched */
       if (count > 0) { ADD_ACTIVE(state_offset + dlen + 1, 0); }
       if (clen > 0)
         {
-        int otherd = -1;
+        unsigned int otherd = NOTACHAR;
         if ((ims & PCRE_CASELESS) != 0)
           {
 #ifdef SUPPORT_UTF8
@@ -1234,19 +1894,30 @@ for (;;)
           otherd = fcc[d];
           }
         if ((c == d || c == otherd) == (codevalue < OP_NOTSTAR))
-          { count++; ADD_NEW(state_offset, count); }
+          {
+          if (count > 0 &&
+              (codevalue == OP_POSPLUS || codevalue == OP_NOTPOSPLUS))
+            {
+            active_count--;             /* Remove non-match possibility */
+            next_active_state--;
+            }
+          count++;
+          ADD_NEW(state_offset, count);
+          }
         }
       break;
 
       /*-----------------------------------------------------------------*/
       case OP_QUERY:
       case OP_MINQUERY:
+      case OP_POSQUERY:
       case OP_NOTQUERY:
       case OP_NOTMINQUERY:
+      case OP_NOTPOSQUERY:
       ADD_ACTIVE(state_offset + dlen + 1, 0);
       if (clen > 0)
         {
-        int otherd = -1;
+        unsigned int otherd = NOTACHAR;
         if ((ims & PCRE_CASELESS) != 0)
           {
 #ifdef SUPPORT_UTF8
@@ -1261,19 +1932,28 @@ for (;;)
           otherd = fcc[d];
           }
         if ((c == d || c == otherd) == (codevalue < OP_NOTSTAR))
-          { ADD_NEW(state_offset + dlen + 1, 0); }
+          {
+          if (codevalue == OP_POSQUERY || codevalue == OP_NOTPOSQUERY)
+            {
+            active_count--;            /* Remove non-match possibility */
+            next_active_state--;
+            }
+          ADD_NEW(state_offset + dlen + 1, 0);
+          }
         }
       break;
 
       /*-----------------------------------------------------------------*/
       case OP_STAR:
       case OP_MINSTAR:
+      case OP_POSSTAR:
       case OP_NOTSTAR:
       case OP_NOTMINSTAR:
+      case OP_NOTPOSSTAR:
       ADD_ACTIVE(state_offset + dlen + 1, 0);
       if (clen > 0)
         {
-        int otherd = -1;
+        unsigned int otherd = NOTACHAR;
         if ((ims & PCRE_CASELESS) != 0)
           {
 #ifdef SUPPORT_UTF8
@@ -1288,23 +1968,24 @@ for (;;)
           otherd = fcc[d];
           }
         if ((c == d || c == otherd) == (codevalue < OP_NOTSTAR))
-          { ADD_NEW(state_offset, 0); }
+          {
+          if (codevalue == OP_POSSTAR || codevalue == OP_NOTPOSSTAR)
+            {
+            active_count--;            /* Remove non-match possibility */
+            next_active_state--;
+            }
+          ADD_NEW(state_offset, 0);
+          }
         }
       break;
 
       /*-----------------------------------------------------------------*/
       case OP_EXACT:
-      case OP_UPTO:
-      case OP_MINUPTO:
       case OP_NOTEXACT:
-      case OP_NOTUPTO:
-      case OP_NOTMINUPTO:
-      if (codevalue != OP_EXACT && codevalue != OP_NOTEXACT)
-        { ADD_ACTIVE(state_offset + dlen + 3, 0); }
       count = current_state->count;  /* Number already matched */
       if (clen > 0)
         {
-        int otherd = -1;
+        unsigned int otherd = NOTACHAR;
         if ((ims & PCRE_CASELESS) != 0)
           {
 #ifdef SUPPORT_UTF8
@@ -1320,6 +2001,46 @@ for (;;)
           }
         if ((c == d || c == otherd) == (codevalue < OP_NOTSTAR))
           {
+          if (++count >= GET2(code, 1))
+            { ADD_NEW(state_offset + dlen + 3, 0); }
+          else
+            { ADD_NEW(state_offset, count); }
+          }
+        }
+      break;
+
+      /*-----------------------------------------------------------------*/
+      case OP_UPTO:
+      case OP_MINUPTO:
+      case OP_POSUPTO:
+      case OP_NOTUPTO:
+      case OP_NOTMINUPTO:
+      case OP_NOTPOSUPTO:
+      ADD_ACTIVE(state_offset + dlen + 3, 0);
+      count = current_state->count;  /* Number already matched */
+      if (clen > 0)
+        {
+        unsigned int otherd = NOTACHAR;
+        if ((ims & PCRE_CASELESS) != 0)
+          {
+#ifdef SUPPORT_UTF8
+          if (utf8 && d >= 128)
+            {
+#ifdef SUPPORT_UCP
+            otherd = _pcre_ucp_othercase(d);
+#endif  /* SUPPORT_UCP */
+            }
+          else
+#endif  /* SUPPORT_UTF8 */
+          otherd = fcc[d];
+          }
+        if ((c == d || c == otherd) == (codevalue < OP_NOTSTAR))
+          {
+          if (codevalue == OP_POSUPTO || codevalue == OP_NOTPOSUPTO)
+            {
+            active_count--;             /* Remove non-match possibility */
+            next_active_state--;
+            }
           if (++count >= GET2(code, 1))
             { ADD_NEW(state_offset + dlen + 3, 0); }
           else
@@ -1448,18 +2169,31 @@ for (;;)
 
       /*-----------------------------------------------------------------*/
       case OP_COND:
+      case OP_SCOND:
         {
         int local_offsets[1000];
         int local_workspace[1000];
         int condcode = code[LINK_SIZE+1];
 
-        /* The only supported version of OP_CREF is for the value 0xffff, which
-        means "test if in a recursion". */
+        /* Back reference conditions are not supported */
 
-        if (condcode == OP_CREF)
+        if (condcode == OP_CREF) return PCRE_ERROR_DFA_UCOND;
+
+        /* The DEFINE condition is always false */
+
+        if (condcode == OP_DEF)
+          {
+          ADD_ACTIVE(state_offset + GET(code, 1) + LINK_SIZE + 1, 0);
+          }
+
+        /* The only supported version of OP_RREF is for the value RREF_ANY,
+        which means "test if in any recursion". We can't test for specifically
+        recursed groups. */
+
+        else if (condcode == OP_RREF)
           {
           int value = GET2(code, LINK_SIZE+2);
-          if (value != 0xffff) return PCRE_ERROR_DFA_UCOND;
+          if (value != RREF_ANY) return PCRE_ERROR_DFA_UCOND;
           if (recursing > 0) { ADD_ACTIVE(state_offset + LINK_SIZE + 4, 0); }
             else { ADD_ACTIVE(state_offset + GET(code, 1) + LINK_SIZE + 1, 0); }
           }
@@ -1728,7 +2462,7 @@ is not anchored.
 
 Arguments:
   argument_re     points to the compiled expression
-  extra_data      points to extra data or is NULL (not currently used)
+  extra_data      points to extra data or is NULL
   subject         points to the subject string
   length          length of subject string (may contain binary zeros)
   start_offset    where to start in the subject string
@@ -1744,7 +2478,7 @@ Returns:          > 0 => number of match offset pairs placed in offsets
                  < -1 => some kind of unexpected problem
 */
 
-PCRE_DATA_SCOPE int
+PCRE_EXP_DEFN int
 pcre_dfa_exec(const pcre *argument_re, const pcre_extra *extra_data,
   const char *subject, int length, int start_offset, int options, int *offsets,
   int offsetcount, int *workspace, int wscount)
@@ -1834,29 +2568,44 @@ md->end_subject = end_subject;
 md->moptions = options;
 md->poptions = re->options;
 
-/* Handle different types of newline. The two bits give four cases. If nothing
-is set at run time, whatever was used at compile time applies. */
+/* Handle different types of newline. The three bits give eight cases. If
+nothing is set at run time, whatever was used at compile time applies. */
 
-switch ((((options & PCRE_NEWLINE_CRLF) == 0)? re->options : options) &
-         PCRE_NEWLINE_CRLF)
+switch ((((options & PCRE_NEWLINE_BITS) == 0)? re->options : (pcre_uint32)options) &
+         PCRE_NEWLINE_BITS)
   {
-  default:              newline = NEWLINE; break;   /* Compile-time default */
+  case 0: newline = NEWLINE; break;   /* Compile-time default */
   case PCRE_NEWLINE_CR: newline = '\r'; break;
   case PCRE_NEWLINE_LF: newline = '\n'; break;
   case PCRE_NEWLINE_CR+
        PCRE_NEWLINE_LF: newline = ('\r' << 8) | '\n'; break;
+  case PCRE_NEWLINE_ANY: newline = -1; break;
+  case PCRE_NEWLINE_ANYCRLF: newline = -2; break;
+  default: return PCRE_ERROR_BADNEWLINE;
   }
 
-if (newline > 255)
+if (newline == -2)
   {
-  md->nllen = 2;
-  md->nl[0] = (newline >> 8) & 255;
-  md->nl[1] = newline & 255;
+  md->nltype = NLTYPE_ANYCRLF;
+  }
+else if (newline < 0)
+  {
+  md->nltype = NLTYPE_ANY;
   }
 else
   {
-  md->nllen = 1;
-  md->nl[0] = newline;
+  md->nltype = NLTYPE_FIXED;
+  if (newline > 255)
+    {
+    md->nllen = 2;
+    md->nl[0] = (newline >> 8) & 255;
+    md->nl[1] = newline & 255;
+    }
+  else
+    {
+    md->nllen = 1;
+    md->nl[0] = newline;
+    }
   }
 
 /* Check a UTF-8 string if required. Unfortunately there's no way of passing
@@ -1946,7 +2695,7 @@ for (;;)
     if (firstline)
       {
       const uschar *t = current_subject;
-      while (t <= save_end_subject - md->nllen && !IS_NEWLINE(t)) t++;
+      while (t < md->end_subject && !IS_NEWLINE(t)) t++;
       end_subject = t;
       }
 
@@ -1965,11 +2714,19 @@ for (;;)
 
     else if (startline)
       {
-      if (current_subject > md->start_subject + md->nllen +
-          start_offset)
+      if (current_subject > md->start_subject + start_offset)
         {
-        while (current_subject <= end_subject &&
-               !IS_NEWLINE(current_subject - md->nllen))
+        while (current_subject <= end_subject && !WAS_NEWLINE(current_subject))
+          current_subject++;
+
+        /* If we have just passed a CR and the newline option is ANY or
+        ANYCRLF, and we are now at a LF, advance the match position by one more
+        character. */
+
+        if (current_subject[-1] == '\r' &&
+             (md->nltype == NLTYPE_ANY || md->nltype == NLTYPE_ANYCRLF) &&
+             current_subject < end_subject &&
+             *current_subject == '\n')
           current_subject++;
         }
       }
@@ -2052,15 +2809,15 @@ for (;;)
   rc = internal_dfa_exec(
     md,                                /* fixed match data */
     md->start_code,                    /* this subexpression's code */
-    current_subject,                           /* where we currently are */
-    start_offset,                              /* start offset in subject */
-    offsets,                                   /* offset vector */
-    offsetcount,                               /* size of same */
-    workspace,                                 /* workspace vector */
-    wscount,                                   /* size of same */
+    current_subject,                   /* where we currently are */
+    start_offset,                      /* start offset in subject */
+    offsets,                           /* offset vector */
+    offsetcount,                       /* size of same */
+    workspace,                         /* workspace vector */
+    wscount,                           /* size of same */
     re->options & (PCRE_CASELESS|PCRE_MULTILINE|PCRE_DOTALL), /* ims flags */
-    0,                                         /* function recurse level */
-    0);                                        /* regex recurse level */
+    0,                                 /* function recurse level */
+    0);                                /* regex recurse level */
 
   /* Anything other than "no match" means we are done, always; otherwise, carry
   on only if not anchored. */
@@ -2070,9 +2827,7 @@ for (;;)
   /* Advance to the next subject character unless we are at the end of a line
   and firstline is set. */
 
-  if (firstline &&
-      current_subject <= end_subject - md->nllen &&
-      IS_NEWLINE(current_subject)) break;
+  if (firstline && IS_NEWLINE(current_subject)) break;
   current_subject++;
   if (utf8)
     {
@@ -2080,7 +2835,20 @@ for (;;)
       current_subject++;
     }
   if (current_subject > end_subject) break;
-  }
+
+  /* If we have just passed a CR and the newline option is CRLF or ANY or
+  ANYCRLF, and we are now at a LF, advance the match position by one more
+  character. */
+
+  if (current_subject[-1] == '\r' &&
+       (md->nltype == NLTYPE_ANY ||
+        md->nltype == NLTYPE_ANYCRLF ||
+        md->nllen == 2) &&
+       current_subject < end_subject &&
+       *current_subject == '\n')
+    current_subject++;
+
+  }   /* "Bumpalong" loop */
 
 return PCRE_ERROR_NOMATCH;
 }

@@ -1,3 +1,4 @@
+/* config.h.  Generated from config.h.in by configure.  */
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
 
@@ -18,76 +19,116 @@ them both to 0; an emulation function will be used. */
 /* If you are compiling for a system that uses EBCDIC instead of ASCII
    character codes, define this macro as 1. On systems that can use
    "configure", this can be done via --enable-ebcdic. */
-#undef EBCDIC
+/* #undef EBCDIC */
 
 /* Define to 1 if you have the `bcopy' function. */
-#undef HAVE_BCOPY
+#ifndef HAVE_BCOPY
+#define HAVE_BCOPY 1
+#endif
 
 /* Define to 1 if you have the <bits/type_traits.h> header file. */
-#undef HAVE_BITS_TYPE_TRAITS_H
+/* #undef HAVE_BITS_TYPE_TRAITS_H */
 
 /* Define to 1 if you have the <dirent.h> header file. */
-#undef HAVE_DIRENT_H
+#ifndef HAVE_DIRENT_H
+#define HAVE_DIRENT_H 1
+#endif
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
-#undef HAVE_DLFCN_H
+#ifndef HAVE_DLFCN_H
+#define HAVE_DLFCN_H 1
+#endif
 
 /* Define to 1 if you have the <inttypes.h> header file. */
-#undef HAVE_INTTYPES_H
+#ifndef HAVE_INTTYPES_H
+#define HAVE_INTTYPES_H 1
+#endif
 
 /* Define to 1 if you have the <limits.h> header file. */
-#undef HAVE_LIMITS_H
+#ifndef HAVE_LIMITS_H
+#define HAVE_LIMITS_H 1
+#endif
 
 /* Define to 1 if the system has the type `long long'. */
-#undef HAVE_LONG_LONG
+#ifndef HAVE_LONG_LONG
+#define HAVE_LONG_LONG 1
+#endif
 
 /* Define to 1 if you have the `memmove' function. */
-#undef HAVE_MEMMOVE
+#ifndef HAVE_MEMMOVE
+#define HAVE_MEMMOVE 1
+#endif
 
 /* Define to 1 if you have the <memory.h> header file. */
-#undef HAVE_MEMORY_H
+#ifndef HAVE_MEMORY_H
+#define HAVE_MEMORY_H 1
+#endif
 
 /* Define to 1 if you have the <stdint.h> header file. */
-#undef HAVE_STDINT_H
+#ifndef HAVE_STDINT_H
+#define HAVE_STDINT_H 1
+#endif
 
 /* Define to 1 if you have the <stdlib.h> header file. */
-#undef HAVE_STDLIB_H
+#ifndef HAVE_STDLIB_H
+#define HAVE_STDLIB_H 1
+#endif
 
 /* Define to 1 if you have the `strerror' function. */
-#undef HAVE_STRERROR
+#ifndef HAVE_STRERROR
+#define HAVE_STRERROR 1
+#endif
 
 /* Define to 1 if you have the <string> header file. */
-#undef HAVE_STRING
+#ifndef HAVE_STRING
+#define HAVE_STRING 1
+#endif
 
 /* Define to 1 if you have the <strings.h> header file. */
-#undef HAVE_STRINGS_H
+#ifndef HAVE_STRINGS_H
+#define HAVE_STRINGS_H 1
+#endif
 
 /* Define to 1 if you have the <string.h> header file. */
-#undef HAVE_STRING_H
+#ifndef HAVE_STRING_H
+#define HAVE_STRING_H 1
+#endif
 
 /* Define to 1 if you have the `strtoll' function. */
-#undef HAVE_STRTOLL
+#ifndef HAVE_STRTOLL
+#define HAVE_STRTOLL 1
+#endif
 
 /* Define to 1 if you have the `strtoq' function. */
-#undef HAVE_STRTOQ
+#ifndef HAVE_STRTOQ
+#define HAVE_STRTOQ 1
+#endif
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
-#undef HAVE_SYS_STAT_H
+#ifndef HAVE_SYS_STAT_H
+#define HAVE_SYS_STAT_H 1
+#endif
 
 /* Define to 1 if you have the <sys/types.h> header file. */
-#undef HAVE_SYS_TYPES_H
+#ifndef HAVE_SYS_TYPES_H
+#define HAVE_SYS_TYPES_H 1
+#endif
 
 /* Define to 1 if you have the <type_traits.h> header file. */
-#undef HAVE_TYPE_TRAITS_H
+/* #undef HAVE_TYPE_TRAITS_H */
 
 /* Define to 1 if you have the <unistd.h> header file. */
-#undef HAVE_UNISTD_H
+#ifndef HAVE_UNISTD_H
+#define HAVE_UNISTD_H 1
+#endif
 
 /* Define to 1 if the system has the type `unsigned long long'. */
-#undef HAVE_UNSIGNED_LONG_LONG
+#ifndef HAVE_UNSIGNED_LONG_LONG
+#define HAVE_UNSIGNED_LONG_LONG 1
+#endif
 
 /* Define to 1 if you have the <windows.h> header file. */
-#undef HAVE_WINDOWS_H
+/* #undef HAVE_WINDOWS_H */
 
 /* The value of LINK_SIZE determines the number of bytes used to store links
    as offsets within the compiled regex. The default is 2, which allows for
@@ -95,7 +136,9 @@ them both to 0; an emulation function will be used. */
    However, PCRE can also be compiled to use 3 or 4 bytes instead. This allows
    for longer patterns in extreme cases. On systems that support it,
    "configure" can be used to override this default. */
-#undef LINK_SIZE
+#ifndef LINK_SIZE
+#define LINK_SIZE 2
+#endif
 
 /* The value of MATCH_LIMIT determines the default number of times the
    internal match() function can be called during a single execution of
@@ -104,7 +147,9 @@ them both to 0; an emulation function will be used. */
    for ever to determine that they do not match. The default is set very large
    so that it does not accidentally catch legitimate cases. On systems that
    support it, "configure" can be used to override this default default. */
-#undef MATCH_LIMIT
+#ifndef MATCH_LIMIT
+#define MATCH_LIMIT 10000000
+#endif
 
 /* The above limit applies to all calls of match(), whether or not they
    increase the recursion depth. In some environments it is desirable to limit
@@ -115,28 +160,38 @@ them both to 0; an emulation function will be used. */
    MATCH_LIMIT. The default is to use the same value as MATCH_LIMIT. There is
    a runtime method for setting a different limit. On systems that support it,
    "configure" can be used to override the default. */
-#undef MATCH_LIMIT_RECURSION
+#ifndef MATCH_LIMIT_RECURSION
+#define MATCH_LIMIT_RECURSION MATCH_LIMIT
+#endif
 
 /* This limit is parameterized just in case anybody ever wants to change it.
    Care must be taken if it is increased, because it guards against integer
    overflow caused by enormously large patterns. */
-#undef MAX_DUPLENGTH
+#ifndef MAX_DUPLENGTH
+#define MAX_DUPLENGTH 30000
+#endif
 
 /* This limit is parameterized just in case anybody ever wants to change it.
    Care must be taken if it is increased, because it guards against integer
    overflow caused by enormously large patterns. */
-#undef MAX_NAME_COUNT
+#ifndef MAX_NAME_COUNT
+#define MAX_NAME_COUNT 10000
+#endif
 
 /* This limit is parameterized just in case anybody ever wants to change it.
    Care must be taken if it is increased, because it guards against integer
    overflow caused by enormously large patterns. */
-#undef MAX_NAME_SIZE
+#ifndef MAX_NAME_SIZE
+#define MAX_NAME_SIZE 32
+#endif
 
 /* The value of NEWLINE determines the newline character sequence. On
    Unix-like systems, "configure" can be used to override the default, which
    is 10. The possible values are 10 (LF), 13 (CR), 3338 (CRLF), -1 (ANY), or
    -2 (ANYCRLF). */
-#undef NEWLINE
+#ifndef NEWLINE
+#define NEWLINE 10
+#endif
 
 /* PCRE uses recursive function calls to handle backtracking while matching.
    This can sometimes be a problem on systems that have stacks of limited
@@ -146,25 +201,25 @@ them both to 0; an emulation function will be used. */
    the comments and other stuff just above the match() function. On systems
    that support it, "configure" can be used to set this in the Makefile (use
    --disable-stack-for-recursion). */
-#undef NO_RECURSE
+/* #undef NO_RECURSE */
 
 /* Name of package */
-#undef PACKAGE
+#define PACKAGE "pcre"
 
 /* Define to the address where bug reports for this package should be sent. */
-#undef PACKAGE_BUGREPORT
+#define PACKAGE_BUGREPORT ""
 
 /* Define to the full name of this package. */
-#undef PACKAGE_NAME
+#define PACKAGE_NAME "PCRE"
 
 /* Define to the full name and version of this package. */
-#undef PACKAGE_STRING
+#define PACKAGE_STRING "PCRE 7.2"
 
 /* Define to the one symbol short name of this package. */
-#undef PACKAGE_TARNAME
+#define PACKAGE_TARNAME "pcre"
 
 /* Define to the version of this package. */
-#undef PACKAGE_VERSION
+#define PACKAGE_VERSION "7.2"
 
 
 /* If you are compiling for a system other than a Unix-like system or
@@ -176,10 +231,10 @@ them both to 0; an emulation function will be used. */
    every exported function that is part of the external API. It does
    not appear on functions that are "external" in the C sense, but
    which are internal to the library. */
-#undef PCRE_EXP_DEFN
+/* #undef PCRE_EXP_DEFN */
 
 /* Define if linking statically (TODO: make nice with Libtool) */
-#undef PCRE_STATIC
+/* #undef PCRE_STATIC */
 
 /* When calling PCRE via the POSIX interface, additional working storage is
    required for holding the pointers to capturing substrings because PCRE
@@ -189,22 +244,28 @@ them both to 0; an emulation function will be used. */
    malloc() for each call. The threshold above which the stack is no longer
    used is defined by POSIX_MALLOC_THRESHOLD. On systems that support it,
    "configure" can be used to override this default. */
-#undef POSIX_MALLOC_THRESHOLD
+#ifndef POSIX_MALLOC_THRESHOLD
+#define POSIX_MALLOC_THRESHOLD 10
+#endif
 
 /* Define to 1 if you have the ANSI C header files. */
-#undef STDC_HEADERS
+#ifndef STDC_HEADERS
+#define STDC_HEADERS 1
+#endif
 
 /* Define to enable support for Unicode properties */
-#undef SUPPORT_UCP
+/* #undef SUPPORT_UCP */
 
 /* Define to enable support for the UTF-8 Unicode encoding. */
-#undef SUPPORT_UTF8
+/* #undef SUPPORT_UTF8 */
 
 /* Version number of package */
-#undef VERSION
+#ifndef VERSION
+#define VERSION "7.2"
+#endif
 
 /* Define to empty if `const' does not conform to ANSI C. */
-#undef const
+/* #undef const */
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
-#undef size_t
+/* #undef size_t */

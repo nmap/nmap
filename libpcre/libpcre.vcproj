@@ -191,6 +191,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\pcre_newline.c"
+				>
+			</File>
+			<File
+				RelativePath=".\pcre_ord2utf8.c"
+				>
+			</File>
+			<File
 				RelativePath=".\pcre_refcount.c"
 				>
 			</File>
@@ -204,6 +212,14 @@
 			</File>
 			<File
 				RelativePath=".\pcre_try_flipped.c"
+				>
+			</File>
+			<File
+				RelativePath=".\pcre_ucp_searchfuncs.c"
+				>
+			</File>
+			<File
+				RelativePath=".\pcre_valid_utf8.c"
 				>
 			</File>
 			<File
@@ -233,19 +249,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\pcre_win.h"
-				>
-			</File>
-			<File
-				RelativePath=".\pcre_winconfig.h"
-				>
-			</File>
-			<File
 				RelativePath=".\pcreposix.h"
 				>
 			</File>
 			<File
 				RelativePath=".\ucp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ucpinternal.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ucptable.h"
 				>
 			</File>
 		</Filter>

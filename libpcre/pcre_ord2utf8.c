@@ -38,49 +38,45 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-/* This module contains the external function pcre_version(), which returns a
-string that identifies the PCRE version that is in use. */
+/* This file contains a private PCRE function that converts an ordinal
+character value into a UTF8 string. */
 
 
 #include "pcre_internal.h"
 
 
 /*************************************************
-*          Return version string                 *
+*       Convert character value to UTF-8         *
 *************************************************/
 
-/* These macros are the standard way of turning unquoted text into C strings.
-They allow macros like PCRE_MAJOR to be defined without quotes, which is
-convenient for user programs that want to test its value. */
+/* This function takes an integer value in the range 0 - 0x7fffffff
+and encodes it as a UTF-8 character in 0 to 6 bytes.
 
-#define STRING(a)  # a
-#define XSTRING(s) STRING(s)
+Arguments:
+  cvalue     the character value
+  buffer     pointer to buffer for result - at least 6 bytes long
 
-/* A problem turned up with PCRE_PRERELEASE, which is defined empty for
-production releases. Originally, it was used naively in this code:
+Returns:     number of characters placed in the buffer
+*/
 
-  return XSTRING(PCRE_MAJOR)
-         "." XSTRING(PCRE_MINOR)
-             XSTRING(PCRE_PRERELEASE)
-         " " XSTRING(PCRE_DATE);
-
-However, when PCRE_PRERELEASE is empty, this leads to an attempted expansion of
-STRING(). The C standard states: "If (before argument substitution) any
-argument consists of no preprocessing tokens, the behavior is undefined." It
-turns out the gcc treats this case as a single empty string - which is what we
-really want - but Visual C grumbles about the lack of an argument for the
-macro. Unfortunately, both are within their rights. To cope with both ways of
-handling this, I had resort to some messy hackery that does a test at run time.
-I could find no way of detecting that a macro is defined as an empty string at
-pre-processor time. This hack uses a standard trick for avoiding calling
-the STRING macro with an empty argument when doing the test. */
-
-PCRE_EXP_DEFN const char *
-pcre_version(void)
+int
+_pcre_ord2utf8(int cvalue, uschar *buffer)
 {
-return (XSTRING(Z PCRE_PRERELEASE)[1] == 0)?
-  XSTRING(PCRE_MAJOR.PCRE_MINOR PCRE_DATE) :
-  XSTRING(PCRE_MAJOR.PCRE_MINOR) XSTRING(PCRE_PRERELEASE PCRE_DATE);
+#ifdef SUPPORT_UTF8
+register int i, j;
+for (i = 0; i < _pcre_utf8_table1_size; i++)
+  if (cvalue <= _pcre_utf8_table1[i]) break;
+buffer += i;
+for (j = i; j > 0; j--)
+ {
+ *buffer-- = 0x80 | (cvalue & 0x3f);
+ cvalue >>= 6;
+ }
+*buffer = _pcre_utf8_table2[i] | cvalue;
+return i + 1;
+#else
+return 0;   /* Keep compiler happy; this function won't ever be */
+#endif      /* called when SUPPORT_UTF8 is not defined. */
 }
 
-/* End of pcre_version.c */
+/* End of pcre_ord2utf8.c */
