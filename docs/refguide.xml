@@ -1942,6 +1942,35 @@ way.</para>
           </para>
         </listitem>
       </varlistentry>
+      
+	  <varlistentry>
+        <term><option>--script-args=&lt;name1=value1,name2={name3=value3},name4=value4&gt;</option></term>
+
+        <listitem>
+          <indexterm>
+            <primary>--script-args</primary>
+          </indexterm>
+		  <para> 
+          lets you provide arguments to NSE-scripts. Arguments are passed as 
+		  name=value pairs. The provided argument is processed and stored
+		  inside a lua-table, to which all scripts have access. The names are
+		  taken as strings (which have to be alphanumeric values) and used as
+		  keys inside the argument-table. Values are either strings or tables
+		  themselves (starting with a '{' and ending with a '}'). Subtables make
+		  it possible to override arguments for specific scripts (e.g. when you
+		  want to provide different login/password pairs for different scripts).
+		  An argument of
+		  <literal>user=bar,password=foo,anonFTP={password=nobody@foobar.com} 
+		  </literal> for example results in the following table provided to
+		  NSE-scripts:
+		  <literal>t={user="bar",password="foo",anonFTP={password="nobody@foobar.com"}</literal>.
+		  Note, that if you want to override an option to a script, you should
+		  index the subtable with the script's <literal>id</literal>, since this
+		  is the only way the script can "know" about it's special argument.
+		  </para>
+        </listitem>
+      </varlistentry>
+
 
       <varlistentry>
         <term><option>--script-trace</option></term>

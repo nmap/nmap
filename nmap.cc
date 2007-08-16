@@ -256,7 +256,9 @@ printf("%s %s ( %s )\n"
 #ifndef NOLUA
        "SCRIPT SCAN:\n"
        "  -sC: equivalent to --script=safe,intrusive\n"
-       "  --script=<lua scripts>: <lua scripts> is a comma separated list of dirs or scripts\n"
+       "  --script=<lua scripts>: <lua scripts> is a comma separated list of \n"
+	   "           directories, script-files or script-categories\n"
+	   "  --script-args=<n1=v1,[n2=v2,[n3=v3]]>: provide arguments to scripts\n"
        "  --script-trace: Show all data sent and received\n"
        "  --script-updatedb: Update the script database.\n"
 #endif

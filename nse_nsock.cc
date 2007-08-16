@@ -652,7 +652,7 @@ int l_nsock_check_buf(lua_State* l ){
 		lua_pushvalue(l,2); /*the pattern we are searching for */
 		if(lua_pcall(l,2,2,0)!=0){
 			lua_pushboolean(l,false);
-			lua_pushstring(l,"error in string.find (nsockobj:receive_buf)!");
+			lua_pushstring(l,"Error in string.find (nsockobj:receive_buf)!");
 			return NSOCK_WRAPPER_BUFFER_OK;
 		}
 	}else{
@@ -673,7 +673,7 @@ int l_nsock_check_buf(lua_State* l ){
 		lua_settop(l,0); /* clear the stack for returning */
 		if(startpos>endpos){
 			lua_pushboolean(l,false);
-			lua_pushstring(l,"delimter has negative size!");
+			lua_pushstring(l,"delimiter has negative size!");
 			return NSOCK_WRAPPER_BUFFER_OK;
 		}else if(startpos==endpos){
 			/* if the delimter has a size of zero we keep it, since otherwise 
