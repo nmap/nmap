@@ -198,8 +198,8 @@ install-nmapfe: $(TARGETNMAPFE)
 	@echo "If the next command fails -- you cannot use the X front end"
 	-test -f nmapfe/nmapfe && $(INSTALL) -c -m 755 -s nmapfe/nmapfe $(DESTDIR)$(bindir)/nmapfe && rm -f $(DESTDIR)$(bindir)/xnmap && $(SHTOOL) mkln -f -s $(DESTDIR)$(bindir)/nmapfe $(DESTDIR)$(bindir)/xnmap && $(INSTALL) -c -m 644 nmapfe.desktop $(DESTDIR)$(deskdir)/nmapfe.desktop && $(INSTALL) -c -m 644 docs/nmapfe.1 $(DESTDIR)$(mandir)/man1/nmapfe.1 && $(INSTALL) -c -m 644 docs/xnmap.1 $(DESTDIR)$(mandir)/man1/xnmap.1
 
-install-umit: umit/install_scripts/linux/setup.py
-	cd umit && install_scripts/linux/setup.sh && python setup.py install --prefix $(DESTDIR)$(prefix)
+install-umit: umit/install_scripts/unix/setup.py
+	cd umit && install_scripts/unix/setup.sh && python setup.py install --prefix $(DESTDIR)$(prefix)
 
 NSE_FILES = scripts/script.db scripts/*.nse
 NSE_LIB_FILES = nselib/*lua nselib/*so
