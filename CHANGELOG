@@ -38,7 +38,7 @@ o Merged various Umit bug fixes from SouceForge trunk: "missing import
 
 o Eddie fixed several Umit bugs.  Umit now sets the file save
   extension to .usr unless the user specifies something else. The
-  details highlight regex was improved, and nn error message was added
+  details highlight regex was improved and an error message was added
   when no target was specified and -iR and -iL aren't used.
 
 o reason.cc/reason.h renamed to portreasons.cc/.h because a reason.h
