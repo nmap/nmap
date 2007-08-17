@@ -1,5 +1,16 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+4.22SOC4
+
+o The Windows installer should actually install UMIT properly now.
+
+o Fixed the UMIT portion of the Windows installer build system to
+  detect certain heinous errors (like not being able to find Python)
+  and bail out. [Kris]
+
+o Prevent scripts directory from containing .svn cruft when using the
+  Win32 installer (thanks to David Fifield for the patch).
+
 4.22SOC3
 
 o Umit is now included in the Nmap Windows executable installer.
