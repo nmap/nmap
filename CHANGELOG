@@ -13,7 +13,7 @@ o Added four new NSE scripts: HTTP proxy detection (Arturo 'Buanzo'
 
 o All of your 2nd Quarter 2007 Nmap version detection fingerprints
   were integrated by Doug.  The DB now contains 4,347 signatures for
-  439 service protocols.  Doug describes the highlights (crazyest
+  439 service protocols.  Doug describes the highlights (craziest
   services found) in his integration report at
   http://hcsw.org/blog.pl/29 .
 
@@ -24,7 +24,7 @@ o NSE now supports raw IP packet sending and receiving thanks to a
 o Nmap now has Snprintf() and Vsnprintf() as safer alternatives to the
   standard version.  The problem is that the Windows version of these
   functions (_snprintf, _vsnprintf) doesn't properly terminate strings
-  when it has to truncate them.  These wrappers ensure tha the string
+  when it has to truncate them.  These wrappers ensure that the string
   written is always truncated.  Thanks to Kris for doing the work.
 
 o Upgraded libpcre from version 6.7 to 7.2 [Kris]
