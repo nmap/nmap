@@ -124,7 +124,7 @@ Section "Nmap Core Files" SecCore
   File ..\..\docs\nmap.xsl 
   File ..\nmap_performance.reg 
   File ..\..\README-WIN32 
-  File /r ..\..\scripts 
+  File /r scripts 
   File /r ..\Release\nselib
   File ..\icon1.ico 
   
