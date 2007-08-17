@@ -1,0 +1,62 @@
+                   Building the Nmap Installer for Windows
+                   =======================================
+
+
+I. UMIT BUILD DEPENDENCIES
+
+
+I've listed the build dependencies for UMIT, the versions I am using, and
+where to get them:
+
+GTK (2.10.11) - http://gladewin32.sourceforge.net
+Python (2.5.1) - http://www.python.org/download
+PyGTK (2.10.4) - http://ftp.gnome.org/pub/gnome/binaries/win32/pygtk
+PyCairo (1.2.6) - http://ftp.gnome.org/pub/gnome/binaries/win32/pycairo
+PyGObject (2.12.3) - http://ftp.gnome.org/pub/gnome/binaries/win32/pygobject
+Py2exe (0.6.6) - http://www.sourceforge.net/projects/py2exe
+Psyco (1.5.2) - http://www.sourceforge.net/projects/psyco
+PIL (1.1.6) - http://www.pythonware.com/products/pil/
+
+Be sure to grab the PyGTK, PyCairo, etc. for Python 2.5 and not 2.4!
+
+Using the default install directories in these installers is important,
+especially for Python (C:\Python25) and GTK (C:\GTK).  See Section IV if you
+change the directories.
+
+
+II. OTHER REQUIREMENTS
+
+
+You'll need Microsoft Visual C++ 2005 and the Platform SDK for compilation.
+Directions for obtaining those are at:
+http://insecure.org/nmap/install/inst-windows.html#inst-win-source
+
+You'll also need Cygwin installed in order to build the Nmap installer (not
+required for normal compiling).  You'll find it at http://www.cygwin.com
+
+And last, you'll need the Nullsoft Scriptable Install System installed.  You
+can download if from http://nsis.sourceforge.net/Download 
+
+
+III. BUILDING
+
+
+With all of the requirements and dependencies installed, open up a Cygwin
+shell and go to the mswin32 directory in the Nmap directory and type "make".
+This may take several minutes, and will create an executable installer and a
+zip archive (nmap-<version>-setup.exe and nmap-<version>-win32.zip).
+
+
+IV. INSTALLATION PATHS / PROBLEMS
+
+
+If you have Python installed to a directory other than C:\Python25, then
+you need to edit the copy_and_compile.bat file under
+umit/install_scripts/windows and change the "set PythonEXE" line with your
+installed directory.
+
+If you have GTK installed to a different directory, follow the same directions
+as for Python, but edit the "set GTKDir" line.
+
+
+-- Kris Katterjohn 08/2007
