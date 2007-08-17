@@ -1,7 +1,65 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+4.22SOC3
+
+o Umit is now included in the Nmap Windows executable installer.
+  Please give it a try and let us know what you think!  Kris put a lot
+  of work into getting this set up.
+
+o Added four new NSE scripts: HTTP proxy detection (Arturo 'Buanzo'
+  Busleiman), DNS zone transfer attempt (Eddie), detecting SQL
+  injection vulnerabilities on web sites (Eddie), and fetching and
+  displaying portions of /robots.txt from web servers (Eddie).
+
+o All of your 2nd Quarter 2007 Nmap version detection fingerprints
+  were integrated by Doug.  The DB now contains 4,347 signatures for
+  439 service protocols.  Doug describes the highlights (crazyest
+  services found) in his integration report at
+  http://hcsw.org/blog.pl/29 .
+
+o NSE now supports raw IP packet sending and receiving thanks to a
+  patch from Marek Majkowski.  Diman handled testing and applied the
+  patch.
+
+o Nmap now has Snprintf() and Vsnprintf() as safer alternatives to the
+  standard version.  The problem is that the Windows version of these
+  functions (_snprintf, _vsnprintf) doesn't properly terminate strings
+  when it has to truncate them.  These wrappers ensure tha the string
+  written is always truncated.  Thanks to Kris for doing the work.
+
+o Upgraded libpcre from version 6.7 to 7.2 [Kris]
+
+o Merged various Umit bug fixes from SouceForge trunk: "missing import
+  webbrowser on umit", "Missing markup in 'OS Class' on
+  HostDetailsPage", "some command line options are now working
+  (target, profile, verbose, open result file and run an nmap
+  command)", "removing unused functions import from os.path",
+  "verbosity works on command line"
+
+o Eddie fixed several Umit bugs.  Umit now sets the file save
+  extension to .usr unless the user specifies something else. The
+  details highlight regex was improved, and nn error message was added
+  when no target was specified and -iR and -iL aren't used.
+
+o reason.cc/reason.h renamed to portreasons.cc/.h because a reason.h
+  in the Windows platform SDK was causing conflicts. [Kris]
+
+o Fixed a bug in --iflist which would lead to crashes.  Thanks to
+  Michael Lawler for the report, and Eddie for the fix.
+
+o Finished updating Winpcap to 4.01 (a few static libraries were
+  missed) [ Eddie ]
+
+o Added NSE support for buffered data reads. [Stoiko]
+
+o Added new --script-args option for passing arguments to NSE scripts
+  [Stoiko]
+
 o Performed a bunch of OS fingerprint text canonicalization thanks to
   reports of dozens of capitalization inconsistencies from Suicidal Bob.
+
+o Fixed an assertion failure which could be experienced when script
+  scan was requested without also requesting version scan. [Stoiko]
 
 o Fixed an output bug on systems like Windows which return -1 when
   vsnprintf is passed a too-small buffer rather than returning the
@@ -10,7 +68,15 @@ o Fixed an output bug on systems like Windows which return -1 when
 o Added sys/types.h include to portreasons.h to help OpenBSD compilation.  
   Thanks to Olivier Meyer for the patch.
 
-o Updated IANA assignment IP list for random IP (-iR) generation. [Kris]
+o Many hardcoded function names and instances of __FUNCTION__ were
+  changed to __func__ [Kris]
+
+o Configure scripts for Nmap, Nbase, and Nsock were optimized to
+  remove redundant checks.  This improves compilation time
+  performance. [Eddie]
+
+o Updated IANA assignment IP list for random IP (-iR)
+  generation. [Kris]
 
 4.22SOC2
 
