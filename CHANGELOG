@@ -1,8 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
-
-4.22SOC4
+4.22SOC5
 
 o The Windows installer should actually install UMIT properly now.
+
+o Revert to an earlier (empty) umit.db as a problematic one was added
+  accidentally in 4.22SOC3 and SOC4. [Kris]
 
 o Fixed the UMIT portion of the Windows installer build system to
   detect certain heinous errors (like not being able to find Python)
