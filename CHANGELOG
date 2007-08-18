@@ -3,8 +3,8 @@
 
 o The Windows installer should actually install UMIT properly now.
 
-o Revert to an earlier (empty) umit.db as a problematic one was added
-  accidentally in 4.22SOC3 and SOC4. [Kris]
+o Remove umit.db from the installation process.  Let Umit create a new
+  one on its own when needed.
 
 o Fixed the UMIT portion of the Windows installer build system to
   detect certain heinous errors (like not being able to find Python)
