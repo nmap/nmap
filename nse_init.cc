@@ -19,6 +19,7 @@
 
 #include <algorithm>
 int init_setlualibpath(lua_State* l);
+int init_setargs(lua_State *l);
 int init_parseargs(lua_State* l);
 int init_loadfile(lua_State* l, char* filename);
 int init_loaddir(lua_State* l, char* dirname);
@@ -60,8 +61,6 @@ int init_lua(lua_State* l) {
 	SCRIPT_ENGINE_TRY(set_nmaplib(l));
 	lua_setglobal(l, "nmap");
 	SCRIPT_ENGINE_TRY(init_setlualibpath(l));
-	/* add the provided commandline args to the registry */
-	SCRIPT_ENGINE_TRY(init_parseargs(l));
 	return SCRIPT_ENGINE_SUCCESS;
 }
 
@@ -115,12 +114,14 @@ int init_setlualibpath(lua_State* l){
 	lua_pop(l,3);
 	return SCRIPT_ENGINE_SUCCESS;
 }
-
+/* parses the argument provided to --script-args and leaves the processed 
+ * string on the stack, after this it only has to be prepended with 
+ * "<tablename>={" and appended by "}", before it can be called by
+ * luaL_loadbuffer() 
+ */
 int init_parseargs(lua_State* l){
 	//FIXME - free o.script-args after we're finished!!!
-	const char* tmp;
-	std::string processed_args = std::string("nmap.registry.args={");
-	//try the easy way:
+	
 	if(o.scriptargs==NULL){ //if no arguments are provided we're done
 		return SCRIPT_ENGINE_SUCCESS;
 	}
@@ -131,44 +132,58 @@ int init_parseargs(lua_State* l){
 	lua_pushstring(l,o.scriptargs);
 	lua_pushstring(l,"=([^{},$]+)");
 	lua_pushstring(l,"=\"%1\"");
-	if(lua_pcall(l,3,1,0)!=0){
-		error("error parsing --script-args");
-		return SCRIPT_ENGINE_ERROR;
-	}
-	processed_args.append(lua_tostring(l,-1));
+	SCRIPT_ENGINE_TRY(lua_pcall(l,3,1,0));
+	
+	/* copy the result on the bottom of the stack, since this is the part 
+	 * we want to return
+	 */
+	lua_pushvalue(l,-1);
+	lua_insert(l,1);
 	lua_pushstring(l,"%b{}");
 	lua_pushstring(l,"");
-	if(lua_pcall(l,3,1,0)!=0){
-		error("error parsing --script-args");
-		return SCRIPT_ENGINE_ERROR;
-	}
-	tmp=lua_tostring(l,-1);
+	SCRIPT_ENGINE_TRY(lua_pcall(l,3,1,0));
 	lua_getfield(l,-2,"find");
 	lua_pushvalue(l,-2);
 	lua_pushstring(l,"[{}]");
-	if(lua_pcall(l,2,1,0)!=0){
-		error("error parsing --script-args");
-		return SCRIPT_ENGINE_ERROR;
-	}
+	SCRIPT_ENGINE_TRY(lua_pcall(l,2,1,0));
 	if(!lua_isnil(l,-1)){
 		error("unbalanced brackets inside script-options!!\n");
 		return SCRIPT_ENGINE_ERROR;
 	}
-	processed_args.push_back('}');
-	lua_settop(l,0); //clear stack
+	lua_settop(l,1); //clear stack
 
-	tmp = processed_args.c_str();
-	luaL_loadbuffer(l,tmp,strlen(tmp),"Script-Arguments");
+	//luaL_loadbuffer(l,tmp,strlen(tmp),"Script-Arguments");
+	//if(lua_pcall(l,0,0,0)!=0){
+//		error("error loading --script-args: %s",lua_tostring(l,-1));
+//		return SCRIPT_ENGINE_ERROR;
+//	}
+
+	return SCRIPT_ENGINE_SUCCESS;
+}
+/* set the arguments inside the nmap.registry, for use by scripts
+ */
+int init_setargs(lua_State *l){
+	const char *argbuf;
+	size_t argbuflen;
+	if(o.scriptargs==NULL){
+		return SCRIPT_ENGINE_SUCCESS;
+	}
+	/* we'll concatenate the stuff we need to prepend and append to the 
+	 * processed using lua's functionality
+	 */
+	SCRIPT_ENGINE_TRY(init_parseargs(l));
+	lua_pushstring(l,"nmap.registry.args={");
+	lua_insert(l,-2);
+	lua_pushstring(l,"}");
+	lua_concat(l,3);
+	argbuf=lua_tolstring(l,-1,&argbuflen);
+	luaL_loadbuffer(l,argbuf,argbuflen,"Script-Arguments-prerun");
 	if(lua_pcall(l,0,0,0)!=0){
 		error("error loading --script-args: %s",lua_tostring(l,-1));
 		return SCRIPT_ENGINE_ERROR;
 	}
-	//lua_getglobal(l,"nmap");
-	//l_dumpStack(l);
-
 	return SCRIPT_ENGINE_SUCCESS;
 }
-
 /* if there were no command line arguments specifying
  * which scripts should be run, a default script set is
  * chosen

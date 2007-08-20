@@ -659,6 +659,8 @@ int nmap_main(int argc, char *argv[]) {
 		o.chooseScripts(optarg);
 	} else if(strcmp(long_options[option_index].name,"script-args")==0){
 		o.scriptargs=strdup(optarg);
+		if(script_check_args()!=0)
+			fatal("Error parsing --script-args\n");
 	}else if (optcmp(long_options[option_index].name, "script-trace") == 0) {
 		o.scripttrace = 1;
 	} else if (optcmp(long_options[option_index].name, "script-updatedb") == 0){

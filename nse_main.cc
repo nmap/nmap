@@ -105,6 +105,35 @@ finishup:
 	}
 }
 
+//int check_scripts(){
+//}
+/* check the script-arguments provided to nmap (--script-args) before
+ * scanning starts - otherwise the whole scan will run through and be
+ * aborted before script-scanning 
+ */
+int script_check_args(){
+	lua_State* l;
+	const char *argbuf;
+	size_t argbuflen;
+
+	l= lua_open();
+	if(l==NULL){
+		fatal("Error opening lua, for checking arguments\n");
+	}
+	/* set all global libraries (we'll need the string-lib) */
+	SCRIPT_ENGINE_TRY(init_lua(l));
+	SCRIPT_ENGINE_TRY(init_parseargs(l));
+	lua_pushstring(l,"t={");
+	lua_insert(l,-2);
+	lua_pushstring(l,"}");
+	lua_concat(l,3);
+	argbuf=lua_tolstring(l,-1,&argbuflen);
+	luaL_loadbuffer(l,argbuf,argbuflen,"Script-Arguments-prerun");
+	SCRIPT_ENGINE_TRY(lua_pcall(l,0,0,0));
+
+	lua_close(l);
+	return SCRIPT_ENGINE_SUCCESS;
+}
 /* open a lua instance
  * open the lua standard libraries
  * open all the scripts and prepare them for execution
@@ -141,6 +170,11 @@ int script_scan(std::vector<Target*> &targets) {
 	}
 
 	status = init_lua(l);
+	if(status != SCRIPT_ENGINE_SUCCESS) {
+		goto finishup;
+	}
+	//set the arguments - if provided
+	status = init_setargs(l);
 	if(status != SCRIPT_ENGINE_SUCCESS) {
 		goto finishup;
 	}

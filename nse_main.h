@@ -18,5 +18,7 @@ class Target;
 int script_scan(std::vector<Target *> &targets);
 int script_updatedb();
 
+//parses the arguments provided to scripts via nmap's --script-args option 
+int script_check_args();
 #endif
 
