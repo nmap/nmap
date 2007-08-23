@@ -1181,19 +1181,20 @@ while(pt->block_unaccounted) {
   	        int sock_err = socket_errno();
 	        switch(sock_err) {
 	        case ECONNREFUSED:
-			  foundsomething = 1;
-		      newstate = HOST_UP;	
-		      hostbatch[hostindex]->reason.reason_id = ER_CONREFUSED;
-	        case EAGAIN:
-#ifdef WIN32
-			case WSAENOTCONN:
-#endif
-		  if (sock_err == EAGAIN && o.verbose) {
-		    log_write(LOG_STDOUT, "Machine %s MIGHT actually be listening on probe port %d\n", hostbatch[hostindex]->targetipstr(), o.ping_synprobes[p]);
-		  }
 		  foundsomething = 1;
-		  newstate = HOST_UP;	
-          hostbatch[hostindex]->reason.reason_id = ER_CONACCEPT;
+		  newstate = HOST_UP;
+		  hostbatch[hostindex]->reason.reason_id = ER_CONREFUSED;
+		  break;
+	        case EAGAIN:
+		  if (o.verbose)
+		    log_write(LOG_STDOUT, "Machine %s MIGHT actually be listening on probe port %d\n", hostbatch[hostindex]->targetipstr(), o.ping_synprobes[p]);
+		  /* Fall through. */
+#ifdef WIN32
+		case WSAENOTCONN:
+#endif
+		  foundsomething = 1;
+		  newstate = HOST_UP;
+		  hostbatch[hostindex]->reason.reason_id = ER_CONACCEPT;
 		  break;
 	        case ENETDOWN:
 	        case ENETUNREACH:
