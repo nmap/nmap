@@ -1129,16 +1129,13 @@ Traceroute::outputXMLTrace(TraceGroup * tg) {
         if(tp->probeType() == PROBE_TTL)
             break;
 
-        log_write(LOG_XML, "<hop ttl=\"%d\"", tp->ttl);
-
         if(tp->timing.getState() == P_TIMEDOUT) {
-            log_write(LOG_XML, "/>\n");
             continue;
-        }
+	}
 
         timediff = TIMEVAL_SUBTRACT (tp->timing.recvTime, tp->timing.sendTime);
-        log_write(LOG_XML, " rtt=\"%.2f\" ipaddr=\"%s\"",
-                 (float)timediff/1000, tp->ipReplyStr());
+
+        log_write(LOG_XML, "<hop ttl=\"%d\" rtt=\"%.2f\" ipaddr=\"%s\"", tp->ttl, (float)timediff/1000, tp->ipReplyStr());
         if(tp->HostName() != NULL)
             log_write(LOG_XML, " host=\"%s\"", tp->HostName());
         log_write(LOG_XML, "/>\n");
@@ -1152,7 +1149,6 @@ Traceroute::outputXMLTrace(TraceGroup * tg) {
     /* traceroute XML footer */
     log_write(LOG_XML, "</trace>\n");
     log_flush(LOG_XML);
-
 } 
 
 TraceGroup::TraceGroup (u32 dip, u16 sport, u16 dport, u8 proto) {
