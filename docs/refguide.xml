@@ -1104,7 +1104,7 @@ means it is <literal>open|filtered</literal>.  The port is marked
 <para>The key advantage to these scan types is that they can sneak
 through certain non-stateful firewalls and packet filtering
 routers. Another advantage is that these scan types are a little more
-stealthy than even a SYN scan.  Don't count on this though -- most
+stealthy than even a SYN scan.  Don't count on this though&mdash;most
 modern IDS products can be configured to detect them.  The big
 downside is that not all systems follow RFC 793 to the letter.  A
 number of systems send RST responses to the probes regardless of
@@ -1469,14 +1469,14 @@ way.</para>
     that ports 25/tcp, 80/tcp, and 53/udp are open. Using its
     <filename>nmap-services</filename> database of about 2,200 well-known services,
     Nmap would report that those ports probably correspond to a
-    mail server (SMTP), web server (HTTP), and name server (DNS)
-    respectively. This lookup is usually accurate -- the vast
+    mail server (smtp), web server (http), and name server (DNS)
+    respectively. This lookup is usually accurate&mdash;the vast
     majority of daemons listening on TCP port 25 are, in fact, mail
     servers. However, you should not bet your security on this!
     People can and do run services on strange ports.</para>
 
     <para>Even if Nmap is right, and the hypothetical server above is
-    running SMTP, HTTP, and DNS servers, that is not a lot of
+    running smtp, http, and dns servers, that is not a lot of
     information. When doing vulnerability assessments (or even simple
     network inventories) of your companies or clients, you really want
     to know which mail and DNS servers and versions are
@@ -1550,7 +1550,7 @@ way.</para>
           <indexterm><primary>--allports</primary></indexterm>
           <para>By default, Nmap version detection skips TCP port 9100
           because some printers simply print anything sent to that
-          port, leading to dozens of pages of HTTP get requests, binary
+          port, leading to dozens of pages of http get requests, binary
           SSL session requests, etc.  This behavior can be changed by
           modifying or removing the <literal>Exclude</literal>
           directive in <filename>nmap-service-probes</filename>, or
@@ -1820,9 +1820,9 @@ way.</para>
     </variablelist>
   </refsect1>
 	<refsect1 id='man-nse'> 
-	<title>NSE - Scripting extension to the Nmap network scanner</title> 
+	<title>NSE&mdash;Scripting extension to the Nmap network scanner</title> 
 	<indexterm> 
-	<primary>NSE - Scripting extension to the Nmap network scanner</primary> 
+	<primary>NSE</primary> 
 	</indexterm>
 	<para> 
 	The Nmap Scripting Engine (NSE) combines the efficiency of Nmap's
@@ -1837,7 +1837,7 @@ way.</para>
    
     <para> 
     <emphasis>Enhanced Version-detection</emphasis> (category
-    <literal>version</literal>) - While Nmap already offers its Service and
+    <literal>version</literal>)&mdash;While Nmap already offers its Service and
     Version detection system, which is unmatched in terms of efficiency and
     scope, this power has its downside when it comes to services requiring more
     complex probes. The Skype-Protocol version 2 for instance can be identified
@@ -1849,7 +1849,7 @@ way.</para>
     <para> 
     <emphasis>Malware-detection</emphasis> (categories
     <literal>malware</literal> and <literal>backdoor</literal>)- Both attackers
-    and worms often leave backdoors - be it in form of SMTP-servers listening on
+    and worms often leave backdoors&mdash;be it in form of SMTP-servers listening on
     uncommon ports mostly used by spammers for mail relay, or in form of an
     FTP-server giving crackers access to critical data.  A few lines of lua code
     can help to identify those loopholes easily.  
@@ -1864,11 +1864,11 @@ way.</para>
     <para>
     <emphasis>Network Discovery and Information Gathering</emphasis>
     (categories <literal>safe</literal>, <literal>intrusive</literal> and
-    <literal>discovery</literal>) - By providing you with a scripting language
+    <literal>discovery</literal>)&mdash;By providing you with a scripting language
     and a really efficient asynchronous network API on the one hand and the
     information gathered during earlier stages of a scan on the other hand the
-    NSE is suited to write "client" programs for the services listening on a
-    target machine. These "clients" may collect information like: listings of
+    NSE is suited to write client programs for the services listening on a
+    target machine. These clients may collect information like: listings of
     available NFS/SMB/RPC shares, the number of channels of an irc-network or
     currently logged on users. 
     </para>
@@ -1966,7 +1966,7 @@ way.</para>
 		  <literal>t={user="bar",password="foo",anonFTP={password="nobody@foobar.com"}</literal>.
 		  Note, that if you want to override an option to a script, you should
 		  index the subtable with the script's <literal>id</literal>, since this
-		  is the only way the script can "know" about it's special argument.
+		  is the only way the script knows about its special argument.
 		  </para>
         </listitem>
       </varlistentry>
@@ -2309,7 +2309,7 @@ section are powerful and effective, some people find them confusing.
 Moreover, choosing the appropriate values can sometimes take more time
 than the scan you are trying to optimize.  So Nmap offers a simpler
 approach, with six timing templates.  You can specify them with the
-<option>-T</option> option and their number (0 - 5) or their name.
+<option>-T</option> option and their number (0&ndash;5) or their name.
 The template names are paranoid (0), sneaky (1), polite (2), normal
 (3), aggressive (4), and insane (5).  The first two are for IDS
 evasion.  Polite mode slows down the scan to use less bandwidth and
@@ -3127,7 +3127,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
         <listitem>
 
           <indexterm><primary>--resume</primary></indexterm>
-          <para>Some extensive Nmap runs take a very long time -- on
+          <para>Some extensive Nmap runs take a very long time&mdash;on
           the order of days.  Such scans don't always run to
           completion.  Restrictions may prevent Nmap from being run
           during working hours, the network could go down, the machine
