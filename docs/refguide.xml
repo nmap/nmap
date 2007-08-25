@@ -1749,13 +1749,12 @@ way.</para>
           submit, but you don't know what OS the target is running,
           try <option>-O1</option>.  But in that case, <emphasis
           role="bold">don't submit the fingerprint</emphasis> as you
-          don't know for sure whether <option>-O1</option> guess
+          don't know for sure whether <option>-O1</option> guessed
           correctly.  If it was perfect, we wouldn't have bothered to
           create <option>-O2</option>.</para>
 
           <para>This option, and all other vestiges of the old OS
-          detection system, will likely be removed in late 2006 or in
-          2007.</para>
+          detection system, will likely be removed in 2007.</para>
 
         </listitem>
       </varlistentry>
@@ -1827,7 +1826,7 @@ way.</para>
 	<para> 
 	The Nmap Scripting Engine (NSE) combines the efficiency of Nmap's
 	network handling with the versatility of the lightweight scripting language
-	<ulink url="http://lua.org">lua</ulink>, thus providing innumerable
+	<ulink url="http://lua.org">Lua</ulink>, thus providing innumerable
 	opportunities.  A more extensive documentation of the NSE (including its
 	API) can be found at: <ulink url="http://www.insecure.org/nmap/nse"/>. The
 	target of the NSE is to provide Nmap with a flexible infrastructure for
@@ -1851,7 +1850,7 @@ way.</para>
     <literal>malware</literal> and <literal>backdoor</literal>)- Both attackers
     and worms often leave backdoors&mdash;be it in form of SMTP-servers listening on
     uncommon ports mostly used by spammers for mail relay, or in form of an
-    FTP-server giving crackers access to critical data.  A few lines of lua code
+    FTP-server giving crackers access to critical data.  A few lines of Lua code
     can help to identify those loopholes easily.  
     </para> 
     <para> 
@@ -1883,12 +1882,12 @@ way.</para>
     run <command>nmap --script=malware target-ip</command> and check the output
     afterwards. The <literal>version</literal>-scripts are always run
     implicitely when a script-scan is requested. The
-    <filename>script.db</filename> is a lua-script itself and can be updated
+    <filename>script.db</filename> is a Lua-script itself and can be updated
     through the <option>--script-updatedb</option> option.  
     </para>
     
     <para>
-    A NSE-script basically is a chunk of lua-code which has (among some
+    A NSE-script basically is a chunk of Lua-code which has (among some
     informational fields, like name, id and categories) 2 functions: a test
     whether the particular script should be run against a certain host or port
     (called a <literal>hostrule</literal> or <literal>portrule</literal>
@@ -1953,7 +1952,7 @@ way.</para>
 		  <para> 
           lets you provide arguments to NSE-scripts. Arguments are passed as 
 		  name=value pairs. The provided argument is processed and stored
-		  inside a lua-table, to which all scripts have access. The names are
+		  inside a Lua table, to which all scripts have access. The names are
 		  taken as strings (which have to be alphanumeric values) and used as
 		  keys inside the argument-table. Values are either strings or tables
 		  themselves (starting with a '{' and ending with a '}'). Subtables make
@@ -2000,7 +1999,7 @@ way.</para>
           </indexterm>
           <para>
 		  updates the script database which stores a mapping from
-          category tags to filenames. The database is a lua script which is
+          category tags to filenames. The database is a Lua script which is
           interpreted once to choose a set of scripts from the categories 
 		  provided to the <option>--script</option> argument.  
 		  It should be run if you have changed the <literal>categories</literal>
