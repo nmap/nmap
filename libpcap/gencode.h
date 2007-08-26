@@ -18,7 +18,7 @@
  * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @(#) $Header: /tcpdump/master/libpcap/gencode.h,v 1.60.2.6 2005/09/05 09:08:06 guy Exp $ (LBL)
+ * @(#) $Header: /tcpdump/master/libpcap/gencode.h,v 1.60.2.11 2007/06/11 09:52:04 guy Exp $ (LBL)
  */
 
 /*
@@ -173,11 +173,16 @@
 				   end-to-end circuits, ILMI circuits or
 				   connection signalling circuit. */
 
-/*MTP3 field types */
-#define M_SIO 1
-#define M_OPC 2
-#define M_DPC 3
-#define M_SLS 4
+/* MTP2 types */
+#define M_FISU		22	/* FISU */
+#define M_LSSU		23	/* LSSU */
+#define M_MSU		24	/* MSU */
+
+/* MTP3 field types */
+#define M_SIO		1
+#define M_OPC		2
+#define M_DPC		3
+#define M_SLS		4
 
 
 struct slist;
@@ -296,6 +301,7 @@ struct block *gen_atmfield_code(int atmfield, bpf_int32 jvalue, bpf_u_int32 jtyp
 struct block *gen_atmtype_abbrev(int type);
 struct block *gen_atmmulti_abbrev(int type);
 
+struct block *gen_mtp2type_abbrev(int type);
 struct block *gen_mtp3field_code(int mtp3field, bpf_u_int32 jvalue, bpf_u_int32 jtype, int reverse);
 
 struct block *gen_pf_ifname(const char *);
@@ -315,7 +321,7 @@ char *sdup(const char *);
 
 struct bpf_insn *icode_to_fcode(struct block *, int *);
 int pcap_parse(void);
-void lex_init(char *);
+void lex_init(const char *);
 void lex_cleanup(void);
 void sappend(struct slist *, struct slist *);
 

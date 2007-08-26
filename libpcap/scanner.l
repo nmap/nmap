@@ -22,7 +22,7 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/scanner.l,v 1.99.2.4 2005/09/05 09:08:07 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/scanner.l,v 1.99.2.9 2007/06/11 09:52:05 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -81,11 +81,11 @@ N		([0-9]+|(0X|0x)[0-9A-Fa-f]+)
 B		([0-9A-Fa-f][0-9A-Fa-f]?)
 W		([0-9A-Fa-f][0-9A-Fa-f]?[0-9A-Fa-f]?[0-9A-Fa-f]?)
 
-%a 16000
-%o 19000
-%e 6000
-%k 4000
-%p 25000
+%a 18400
+%o 21500
+%e 7600
+%k 4550
+%p 27600
 %n 2000
 
 V680		{W}:{W}:{W}:{W}:{W}:{W}:{W}:{W}
@@ -288,6 +288,10 @@ srnr|subrulenum	return PF_SRNR;
 reason		return PF_REASON;
 action		return PF_ACTION;
 
+fisu		return FISU;
+lssu		return LSSU;
+lsu		return LSSU;
+msu		return MSU;
 sio		return SIO;
 opc		return OPC;
 dpc		return DPC;
@@ -357,7 +361,7 @@ tcp-urg			{ yylval.i = 0x20; return NUM; }
 %%
 void
 lex_init(buf)
-	char *buf;
+	const char *buf;
 {
 #ifdef FLEX_SCANNER
 	in_buffer = yy_scan_string(buf);

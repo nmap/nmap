@@ -23,6 +23,7 @@ Additional people who have contributed patches:
 	Chris G. Demetriou		<cgd@netbsd.org>
 	Chris Lightfoot			<cwrl@users.sourceforge.net>
 	Chris Pepper			<pepper@mail.reppep.com>
+	Daniele Orlandi			<daniele@orlandi.com>
 	Darren Reed			<darrenr@reed.wattle.id.au>
 	David Kaelbling			<drk@sgi.com>
 	David Young			<dyoung@ojctech.com>
@@ -31,6 +32,7 @@ Additional people who have contributed patches:
 	Dug Song			<dugsong@monkey.org>
 	Eric Anderson			<anderse@hpl.hp.com>
         Erik de Castro Lopo             <erik.de.castro.lopo@sensorynetworks.com>
+	Florent Drouin			<Florent.Drouin@alcatel-lucent.fr>
 	Franz Schaefer			<schaefer@mond.at>
 	Gianluca Varenni		<varenni@netgroup-serv.polito.it>
 	Gilbert Hoyek			<gil_hoyek@hotmail.com>
@@ -50,6 +52,7 @@ Additional people who have contributed patches:
 	John Bankier			<jbankier@rainfinity.com>
 	Jon Lindgren			<jonl@yubyub.net>
 	Juergen Schoenwaelder		<schoenw@ibr.cs.tu-bs.de>
+	Jung-uk Kim			<jkim@FreeBSD.org>
 	Kazushi Sugyo			<sugyo@pb.jp.nec.com>
 	Klaus Klein			<kleink@netbsd.org>
 	Koryn Grant			<koryn@endace.com>
@@ -69,6 +72,7 @@ Additional people who have contributed patches:
 	Nicolas Dade			<ndade@nsd.dyndns.org>
 	Octavian Cerna			<tavy@ylabs.com>
 	Olaf Kirch			<okir@caldera.de>
+	Ollie Wild			<aaw@users.sourceforge.net>
 	Onno van der Linden		<onno@simplex.nl>
 	Patrick Marie			<mycroft@virgaria.org>
 	Paul Mundt			<lethal@linux-sh.org>
@@ -85,6 +89,7 @@ Additional people who have contributed patches:
 	Shaun Clowes			<delius@progsoc.uts.edu.au>
 	Solomon Peachy			<pizza@shaftnet.org>
 	Stefan Hudson			<hudson@mbay.net>
+	Stephen Donnelly		<stephen@endace.com>
 	Takashi Yamamoto		<yamt@mwd.biglobe.ne.jp>
         Tanaka Shin-ya                  <zstanaka@archer.livedoor.com>
 	Tony Li				<tli@procket.com>

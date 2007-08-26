@@ -20,7 +20,7 @@
  */
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/pcap-bpf.c,v 1.86.2.8 2005/07/10 10:55:31 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/pcap-bpf.c,v 1.86.2.12 2007/06/15 17:57:27 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -523,8 +523,12 @@ static inline int
 bpf_open(pcap_t *p, char *errbuf)
 {
 	int fd;
+#ifdef HAVE_CLONING_BPF
+	static const char device[] = "/dev/bpf";
+#else
 	int n = 0;
 	char device[sizeof "/dev/bpf0000000000"];
+#endif
 
 #ifdef _AIX
 	/*
@@ -536,6 +540,12 @@ bpf_open(pcap_t *p, char *errbuf)
 		return (-1);
 #endif
 
+#ifdef HAVE_CLONING_BPF
+	if ((fd = open(device, O_RDWR)) == -1 &&
+	    (errno != EACCES || (fd = open(device, O_RDONLY)) == -1))
+		snprintf(errbuf, PCAP_ERRBUF_SIZE,
+		  "(cannot open device) %s: %s", device, pcap_strerror(errno));
+#else
 	/*
 	 * Go through all the minors and find one that isn't in use.
 	 */
@@ -566,6 +576,7 @@ bpf_open(pcap_t *p, char *errbuf)
 	if (fd < 0)
 		snprintf(errbuf, PCAP_ERRBUF_SIZE, "(no devices found) %s: %s",
 		    device, pcap_strerror(errno));
+#endif
 
 	return (fd);
 }
@@ -746,7 +757,7 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 		u_int i;
 		int is_ethernet;
 
-		bdl.bfl_list = (u_int *) malloc(sizeof(u_int) * bdl.bfl_len + 1);
+		bdl.bfl_list = (u_int *) malloc(sizeof(u_int) * (bdl.bfl_len + 1));
 		if (bdl.bfl_list == NULL) {
 			(void)snprintf(ebuf, PCAP_ERRBUF_SIZE, "malloc: %s",
 			    pcap_strerror(errno));
@@ -1091,9 +1102,22 @@ pcap_setfilter_bpf(pcap_t *p, struct bpf_program *fp)
 static int
 pcap_setdirection_bpf(pcap_t *p, pcap_direction_t d)
 {
-#ifdef BIOCSSEESENT
+#if defined(BIOCSDIRECTION)
+	u_int direction;
+
+	direction = (d == PCAP_D_IN) ? BPF_D_IN :
+	    ((d == PCAP_D_OUT) ? BPF_D_OUT : BPF_D_INOUT);
+	if (ioctl(p->fd, BIOCSDIRECTION, &direction) == -1) {
+		(void) snprintf(p->errbuf, sizeof(p->errbuf),
+		    "Cannot set direction to %s: %s",
+		        (d == PCAP_D_IN) ? "PCAP_D_IN" :
+			((d == PCAP_D_OUT) ? "PCAP_D_OUT" : "PCAP_D_INOUT"),
+			strerror(errno));
+		return (-1);
+	}
+	return (0);
+#elif defined(BIOCSSEESENT)
 	u_int seesent;
-#endif
 
 	/*
 	 * We don't support PCAP_D_OUT.
@@ -1103,7 +1127,7 @@ pcap_setdirection_bpf(pcap_t *p, pcap_direction_t d)
 		    "Setting direction to PCAP_D_OUT is not supported on BPF");
 		return -1;
 	}
-#ifdef BIOCSSEESENT
+
 	seesent = (d == PCAP_D_INOUT);
 	if (ioctl(p->fd, BIOCSSEESENT, &seesent) == -1) {
 		(void) snprintf(p->errbuf, sizeof(p->errbuf),

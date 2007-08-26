@@ -15,13 +15,6 @@ General
   style (okay, you can guess that by looking at the code) and a guide for
   what needs to be documented.
 
-Linux kernel interface
-
-- Currently there is a race condition in that a socket is activated at the
-  same time it is opened - before applying a filter. This has to
-  be corrected so that capture starts when pcap_read is called for the 
-  first time. 
-
 Less urgent items
 -----------------
 

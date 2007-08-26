@@ -1,4 +1,81 @@
-@(#) $Header: /tcpdump/master/libpcap/CHANGES,v 1.59.2.8 2005/09/05 09:17:47 guy Exp $ (LBL)
+@(#) $Header: /tcpdump/master/libpcap/CHANGES,v 1.59.2.11 2007/07/24 02:27:32 mcr Exp $ (LBL)
+
+Wed.	July 23, 2007.  mcr@xelerance.com.  Summary for 0.9.7 libpcap release
+
+	FIXED version file to be 0.9.7 instead of 0.9.5.
+	added flags/configuration for cloning bpf device.
+	added DLT_MTP2_WITH_PHDR support (PPI)
+        "fix" the "memory leak" in icode_to_fcode() -- documentation bug
+        Various link-layer types, with a pseudo-header, for SITA http://www.sita.aero/
+	introduces support for the DAG ERF type TYPE_COLOR_MC_HDLC_POS.
+	Basic BPF filtering support for DLT_MTP2_WITH_PHDR is also added.
+        check for IPv4 and IPv6, even for DLT_RAW 
+	add support for DLT_JUNIPER_ISM
+  	Pick up changes from NetBSD: many from tron, christos, drochner
+	Allocate DLT_ for 802.15.4 without any header munging, for Mikko Saarnivala.
+	Header for 802.16 MAC Common Part Sublayer plus a radiotap radio header
+
+Wed.	April 25, 2007. ken@xelerance.com.  Summary for 0.9.6 libpcap release
+
+	Put the public libpcap headers into a pcap subdirectory in both the
+	 source directory and the target include directory, and have include
+	 files at the top-level directory to include those headers, for 
+	 backwards compatibility.
+	Add Bluetooth support
+	Add USB capturing support on Linux
+	Add support for the binary USB sniffing interface in Linux
+	Add support for new FreeBSD BIOCSDIRECTION ioctl
+	Add additional filter operations for 802.11 frame types
+	Add support for filtering on MTP2 frame types
+	Propagate some changes from the main branch, so the x.9 branch has 
+	 all the DLT_ and LINKTYPE_ values that the main branch does
+	Reserved a DLT_ and SAVEFILE_ value for PPI (Per Packet Info) 
+	 encapsulated packets
+	Add LINKTYPE_ for IEEE 802.15.4, with address fields padded as done 
+	 by Linux drivers
+	Add LINKTYPE_ value corresponding to DLT_IEEE802_16_MAC_CPS.
+	Add DLT for IEEE 802.16 (WiMAX) MAC Common Part Sublayer
+	Add DLT for Bluetooth HCI UART transport layer
+	When building a shared library, build with "-fPIC" on Linux to support x86_64
+	Link with "$(CC) -shared" rather than "ld -shared" when building a 
+	 ".so" shared library
+	Add support for autoconf 2.60
+	Fixes to discard unread packets when changing filters
+	Changes to handle name changes in the DAG library resulting from 
+	 switching to libtool.
+	Add support for new DAG ERF types.
+        Add an explicit "-ldag" when building the shared library, so the DAG 
+	 library dependency is explicit.
+	Mac OSX fixes for dealing with "wlt" devices
+	Fixes in add_or_find_if() & pcap_findalldevs() to optimize generating
+	 device lists
+	Fixed a bug in pcap_open_live(). The return value of PacketSetHwFilter
+	 was not checked. 
+
+Tue.	September 19, 2006. ken@xelerance.com. Summary for 0.9.5 libpcap release
+
+	Support for LAPD frames with vISDN
+	Support for ERF on channelized T1/E1 cards via DAG API
+	Fix capitalization that caused issues crossc compiling on Linux
+	Better failure detection on PacketGetAdapterNames()
+	Fixes for MPLS packet generation (link layer)
+	OP_PACKET now matches the beginning of the packet, instead of
+	 beginning+link-layer
+	Add DLT/LINKTYPE for carrying FRF.16 Multi-link Frame Relay
+	Fix allocation of buffer for list of link-layer types  
+	Added a new DLT and LINKTYPE value for ARINC 653 Interpartition Communcation Messages
+	Fixed a typo in a DLT value: it should start with DLT_ and not LINKTYPE_
+	Redefined DLT_CAN20B and LINKTYPE_CAN20B as #190 (as this is the right value for CAN).
+	Added definition for DLT_A429 and LINKTYPE_A429 as #184.
+	Added a new DLT and LINKTYPE value for CAN v2.0B frames.
+	Add support for DLT_JUNIPER_VP.
+	Don't double-count received packets on Linux systems that 
+	 support the PACKET_STATISTICS getsockopt() argument on 
+	 PF_PACKET sockets.
+	Add support for DLT_IEEE802_11 and DLT_IEEE802_11_RADIO link 
+	 layers in Windows
+	Add support to build libpcap.lib and wpcap.dll under Cygnus and 
+	 MingW32.
 
 Mon. 	September 5, 2005.  ken@xelerance.com. Summary for 0.9.4 libpcap release
 

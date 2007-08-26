@@ -17,7 +17,7 @@
 #  WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 #  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 #
-# @(#) $Header: /tcpdump/master/libpcap/Makefile.in,v 1.99 2003/12/15 01:35:03 guy Exp $ (LBL)
+# @(#) $Header: /tcpdump/master/libpcap/Makefile.in,v 1.99.2.2 2007/07/24 02:35:15 mcr Exp $ (LBL)
 
 #
 # Various configurable paths (remember to edit Makefile.in, not Makefile)
@@ -46,7 +46,9 @@ CCOPT = @V_CCOPT@
 INCLS = -I. @V_INCLS@
 DEFS = @DEFS@ @V_DEFS@
 LIBS = @V_LIBS@
+DAGLIBS = @DAGLIBS@
 DYEXT = @DYEXT@
+PROG=libpcap
 
 # Standard CFLAGS
 CFLAGS = $(CCOPT) $(INCLS) $(DEFS)
@@ -112,7 +114,7 @@ shared: libpcap.$(DYEXT)
 #
 libpcap.so: $(OBJ)
 	@rm -f $@
-	ld -shared -o $@.`cat VERSION` $(OBJ)
+	$(CC) -shared -o $@.`cat VERSION` $(OBJ) $(DAGLIBS)
 
 # the following rule succeeds, but the result is untested.
 libpcap.dylib: $(OBJ)
@@ -216,19 +218,10 @@ packaging/pcap.spec: packaging/pcap.spec.in VERSION
 	RPMVERSION=`cat VERSION | sed s/-.*//g`; \
 		sed -e s/@VERSION@/$$RPMVERSION/ -e s/@NAME@/libpcap-`cat VERSION`/ $<   > $@
 
-tar: Makefile packaging/pcap.spec
-	@cwd=`pwd` ; dir=`basename $$cwd` ; name=libpcap-`cat VERSION` ; \
-	    list="" ; tar="tar chf" ; \
-	    for i in `cat FILES` ; do list="$$list $$name/$$i" ; done; \
-	    echo \
-	    "rm -f ../$$name; ln -s $$dir ../$$name" ; \
-	     rm -f ../$$name; ln -s $$dir ../$$name ; \
-	    echo \
-	    "(cd .. ; $$tar - [lots of files]) | gzip -c > /tmp/$$name.tar.gz" ; \
-	     (cd .. ; $$tar - $$list) | gzip -c > /tmp/$$name.tar.gz ; \
-	    echo \
-	    "rm -f ../$$name" ; \
-	     rm -f ../$$name
+releasetar:
+	@cwd=`pwd` ; dir=`basename $$cwd` ; name=$(PROG)-`cat VERSION` ; \
+	   list="" ; make distclean; cd ..; mkdir -p n; cd n; ln -s ../$$dir $$name; \
+	   tar -c -z -f $$name.tar.gz $$name/. ;
 
 depend:	$(GENSRC) $(GENHDR) bpf_filter.c
 	./mkdep -c $(CC) $(DEFS) $(INCLS) $(SRC)

@@ -21,7 +21,7 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/bpf_image.c,v 1.26 2003/11/15 23:23:57 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/bpf_image.c,v 1.26.2.1 2007/06/11 09:52:04 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -43,7 +43,7 @@ bpf_image(p, n)
 	int n;
 {
 	int v;
-	char *fmt, *op;
+	const char *fmt, *op;
 	static char image[256];
 	char operand[64];
 

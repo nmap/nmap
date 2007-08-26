@@ -30,7 +30,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * @(#) $Header: /tcpdump/master/libpcap/pcap-int.h,v 1.68.2.6 2005/07/07 06:56:04 guy Exp $ (LBL)
+ * @(#) $Header: /tcpdump/master/libpcap/pcap-int.h,v 1.68.2.11 2007/06/22 06:43:58 guy Exp $ (LBL)
  */
 
 #ifndef pcap_int_h
@@ -43,13 +43,26 @@ extern "C" {
 #include <pcap.h>
 
 #ifdef WIN32
-#include <packet32.h>
+#include <Packet32.h>
 #endif /* WIN32 */
 
 #ifdef MSDOS
 #include <fcntl.h>
 #include <io.h>
 #endif
+
+/*
+ * Swap byte ordering of unsigned long long timestamp on a big endian
+ * machine.
+ */
+#define SWAPLL(ull)  ((ull & 0xff00000000000000LL) >> 56) | \
+                      ((ull & 0x00ff000000000000LL) >> 40) | \
+                      ((ull & 0x0000ff0000000000LL) >> 24) | \
+                      ((ull & 0x000000ff00000000LL) >> 8)  | \
+                      ((ull & 0x00000000ff000000LL) << 8)  | \
+                      ((ull & 0x0000000000ff0000LL) << 24) | \
+                      ((ull & 0x000000000000ff00LL) << 40) | \
+                      ((ull & 0x00000000000000ffLL) << 56)
 
 /*
  * Savefile
@@ -88,6 +101,7 @@ struct pcap_md {
 	int	ifindex;	/* interface index of device we're bound to */
 	int	lo_ifindex;	/* interface index of the loopback device */
 	struct pcap *next;	/* list of open promiscuous sock_packet pcaps */
+	u_int	packets_read;	/* count of packets read with recvfrom() */
 #endif
 
 #ifdef HAVE_DAG_API
@@ -110,8 +124,13 @@ struct pcap_md {
 
 /*
  * Ultrix, DEC OSF/1^H^H^H^H^H^H^H^H^HDigital UNIX^H^H^H^H^H^H^H^H^H^H^H^H
- * Tru64 UNIX, and NetBSD pad to make everything line up on a nice boundary.
+ * Tru64 UNIX, and some versions of NetBSD pad FDDI packets to make everything
+ * line up on a nice boundary.
  */
+#ifdef __NetBSD__
+#include <sys/param.h>	/* needed to declare __NetBSD_Version__ */
+#endif
+
 #if defined(ultrix) || defined(__osf__) || (defined(__NetBSD__) && __NetBSD_Version__ > 106000000)
 #define       PCAP_FDDIPAD 3
 #endif
@@ -188,9 +207,13 @@ struct pcap {
 };
 
 /*
- * This is a timeval as stored in disk in a dumpfile.
+ * This is a timeval as stored in a savefile.
  * It has to use the same types everywhere, independent of the actual
- * `struct timeval'
+ * `struct timeval'; `struct timeval' has 32-bit tv_sec values on some
+ * platforms and 64-bit tv_sec values on other platforms, and writing
+ * out native `struct timeval' values would mean files could only be
+ * read on systems with the same tv_sec size as the system on which
+ * the file was written.
  */
 
 struct pcap_timeval {
@@ -199,7 +222,7 @@ struct pcap_timeval {
 };
 
 /*
- * How a `pcap_pkthdr' is actually stored in the dumpfile.
+ * This is a `pcap_pkthdr' as actually stored in a savefile.
  *
  * Do not change the format of this structure, in any way (this includes
  * changes that only affect the length of fields in this structure),
@@ -231,7 +254,7 @@ struct pcap_sf_pkthdr {
 };
 
 /*
- * How a `pcap_pkthdr' is actually stored in dumpfiles written
+ * How a `pcap_pkthdr' is actually stored in savefiles written
  * by some patched versions of libpcap (e.g. the ones in Red
  * Hat Linux 6.1 and 6.2).
  *

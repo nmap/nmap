@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 1999 - 2003
- * NetGroup, Politecnico di Torino (Italy)
+ * Copyright (c) 1999 - 2005 NetGroup, Politecnico di Torino (Italy)
+ * Copyright (c) 2005 - 2007 CACE Technologies, Davis (California)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -12,9 +12,10 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
+ * nor the names of its contributors may be used to endorse or promote 
+ * products derived from this software without specific prior written 
+ * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -32,11 +33,11 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/pcap-win32.c,v 1.25.2.3 2005/07/10 17:52:54 risso Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/pcap-win32.c,v 1.25.2.7 2007/06/14 22:07:14 gianluca Exp $ (LBL)";
 #endif
 
 #include <pcap-int.h>
-#include <packet32.h>
+#include <Packet32.h>
 #include <Ntddndis.h>
 #ifdef HAVE_DAG_API
 #include <dagnew.h>
@@ -486,14 +487,41 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 		p->linktype = DLT_NULL;
 		break;
 
+	case NdisMediumBare80211:
+		p->linktype = DLT_IEEE802_11;
+		break;
+
+	case NdisMediumRadio80211:
+		p->linktype = DLT_IEEE802_11_RADIO;
+		break;
+
+	case NdisMediumPpi:
+		p->linktype = DLT_PPI;
+		break;
+
 	default:
 		p->linktype = DLT_EN10MB;			/*an unknown adapter is assumed to be ethernet*/
 		break;
 	}
 
-	/* Set promisquous mode */
-	if (promisc) PacketSetHwFilter(p->adapter,NDIS_PACKET_TYPE_PROMISCUOUS);
-	 else PacketSetHwFilter(p->adapter,NDIS_PACKET_TYPE_ALL_LOCAL);
+	/* Set promiscuous mode */
+	if (promisc) 
+	{
+
+		if (PacketSetHwFilter(p->adapter,NDIS_PACKET_TYPE_PROMISCUOUS) == FALSE)
+		{
+			snprintf(ebuf, PCAP_ERRBUF_SIZE, "failed to set hardware filter to promiscuous mode");
+			goto bad;
+		}
+	}
+	else 
+	{
+		if (PacketSetHwFilter(p->adapter,NDIS_PACKET_TYPE_ALL_LOCAL) == FALSE)
+		{
+			snprintf(ebuf, PCAP_ERRBUF_SIZE, "failed to set hardware filter to non-promiscuous mode");
+			goto bad;
+		}
+	}
 
 	/* Set the buffer size */
 	p->bufsize = PcapBufSize;

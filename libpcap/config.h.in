@@ -10,8 +10,14 @@
 /* Enable optimizer debugging */
 #undef BDEBUG
 
+/* define if you have a cloning BPF device */
+#undef HAVE_CLONING_BPF
+
 /* define if you have the DAG API */
 #undef HAVE_DAG_API
+
+/* define if you have dag_get_erf_types() */
+#undef HAVE_DAG_GET_ERF_TYPES
 
 /* define if you have streams capable DAG API */
 #undef HAVE_DAG_STREAMS_API
@@ -52,6 +58,9 @@
 
 /* if there's an os_proto.h */
 #undef HAVE_OS_PROTO_H
+
+/* Define to 1 if you have the <paths.h> header file. */
+#undef HAVE_PATHS_H
 
 /* define if you have a /proc/net/dev */
 #undef HAVE_PROC_NET_DEV

@@ -1,4 +1,4 @@
-.\" @(#) $Header: /tcpdump/master/libpcap/pcap.3,v 1.64.2.8 2005/09/07 08:29:17 guy Exp $
+.\" @(#) $Header: /tcpdump/master/libpcap/pcap.3,v 1.64.2.11 2007/06/11 09:52:05 guy Exp $
 .\"
 .\" Copyright (c) 1994, 1996, 1997
 .\"	The Regents of the University of California.  All rights reserved.
@@ -77,7 +77,7 @@ u_char *sp)
 .ft B
 int pcap_compile(pcap_t *p, struct bpf_program *fp,
 .ti +8
-char *str, int optimize, bpf_u_int32 netmask)
+const char *str, int optimize, bpf_u_int32 netmask)
 int pcap_setfilter(pcap_t *p, struct bpf_program *fp)
 void pcap_freecode(struct bpf_program *)
 int pcap_setdirection(pcap_t *p, pcap_direction_t d)
@@ -116,7 +116,7 @@ int pcap_fileno(pcap_t *p)
 int pcap_get_selectable_fd(pcap_t *p);
 void pcap_perror(pcap_t *p, char *prefix)
 char *pcap_geterr(pcap_t *p)
-char *pcap_strerror(int error)
+const char *pcap_strerror(int error)
 const char *pcap_lib_version(void)
 .ft
 .LP
@@ -1079,6 +1079,11 @@ and type bytes.
 Linux-IrDA packets, with a
 .B DLT_LINUX_SLL
 header followed by the IrLAP header.
+.TP 5
+.B DLT_LINUX_LAPD
+LAPD (Q.921) frames, with a
+.B DLT_LINUX_SLL
+header captured via vISDN.
 .RE
 .PP
 .B pcap_list_datalinks()
@@ -1140,12 +1145,13 @@ or NULL, if a network device was opened with
 .BR pcap_open_live() .
 .PP
 .B pcap_stats()
-returns 0 and fills in a
+returns 0 and fills in the
 .B pcap_stat
-struct. The values represent packet statistics from the start of the
-run to the time of the call. If there is an error or the underlying
-packet capture doesn't support packet statistics, \-1 is returned and
-the error text can be obtained with
+structure pointed to by its second argument.  The values represent
+packet statistics from the start of the run to the time of the call.  If
+there is an error or the underlying packet capture doesn't support
+packet statistics, \-1 is returned and the error text can be obtained
+with
 .B pcap_perror()
 or
 .BR pcap_geterr() .

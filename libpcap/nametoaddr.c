@@ -24,7 +24,7 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/nametoaddr.c,v 1.77.2.3 2005/04/20 11:13:51 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/nametoaddr.c,v 1.77.2.4 2007/06/11 09:52:05 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -276,7 +276,7 @@ pcap_nametoproto(const char *str)
 #include "ethertype.h"
 
 struct eproto {
-	char *s;
+	const char *s;
 	u_short p;
 };
 
@@ -388,7 +388,7 @@ __pcap_atodn(const char *s, bpf_u_int32 *addr)
 
 	u_int node, area;
 
-	if (sscanf((char *)s, "%d.%d", &area, &node) != 2)
+	if (sscanf(s, "%d.%d", &area, &node) != 2)
 		bpf_error("malformed decnet address '%s'", s);
 
 	*addr = (area << AREASHIFT) & AREAMASK;
@@ -474,7 +474,7 @@ pcap_ether_hostton(const char *name)
 	u_char a[6];
 
 	ap = NULL;
-	if (ether_hostton((char *)name, (struct ether_addr *)a) == 0) {
+	if (ether_hostton(name, (struct ether_addr *)a) == 0) {
 		ap = (u_char *)malloc(6);
 		if (ap != NULL)
 			memcpy((char *)ap, (char *)a, 6);

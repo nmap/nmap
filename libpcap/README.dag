@@ -77,10 +77,31 @@ RX stream buffer overflow, this count is before filters are applied (it will
 include packets that would have been dropped by the filter). The RX stream
 buffer size is user configurable outside libpcap, typically 16-512MB.
 
-pcap_get_selectable_fd() is not supported, DAG cards do not support
+pcap_get_selectable_fd() is not supported, as DAG cards do not support
 poll/select methods.
 
 pcap_inject() and pcap_sendpacket() are not supported.
+
+Some DAG cards now support capturing to multiple virtual interfaces, called
+streams. Capture streams have even numbers. These are available via libpcap
+as separate interfaces, e.g. dag0:0, dag0:2, dag0:4 etc. dag0:0 is the same
+as dag0. These are visible via pcap_findalldevs().
+
+libpcap now does NOT set the card's hardware snaplen (slen). This must now be
+set using the appropriate DAG coniguration program, e.g. dagthree, dagfour,
+dagsix, dagconfig. This is because the snaplen is currently shared between
+all of the streams. In future this may change if per-stream slen is
+implemented.
+
+DAG cards by default capture entire packets including the L2
+CRC/FCS. If the card is not configured to discard the CRC/FCS, this
+can confuse applications that use libpcap if they're not prepared for
+packets to have an FCS. Libpcap now reads the environment variable
+ERF_FCS_BITS to determine how many bits of CRC/FCS to strip from the
+end of the captured frame. This defaults to 32 for use with
+Ethernet. If the card is configured to strip the CRC/FCS, then set
+ERF_FCS_BITS=0. If used with a HDLC/PoS/PPP/Frame Relay link with 16
+bit CRC/FCS, then set ERF_FCS_BITS=16.
 
 ----------------------------------------------------------------------
 

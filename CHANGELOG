@@ -1,4 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
+o Upgraded libpcap from version 0.9.4 to 0.9.7 [Kris]
+
 4.22SOC5
 
 o The Windows installer should actually install UMIT properly now.

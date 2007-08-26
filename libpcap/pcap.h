@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * @(#) $Header: /tcpdump/master/libpcap/pcap.h,v 1.52.2.5 2005/07/07 02:04:36 guy Exp $ (LBL)
+ * @(#) $Header: /tcpdump/master/libpcap/pcap.h,v 1.52.2.7 2007/06/11 09:52:05 guy Exp $ (LBL)
  */
 
 #ifndef lib_pcap_h
@@ -127,9 +127,16 @@ typedef enum {
 } pcap_direction_t;
 
 /*
- * Each packet in the dump file is prepended with this generic header.
- * This gets around the problem of different headers for different
- * packet interfaces.
+ * Generic per-packet information, as supplied by libpcap.
+ *
+ * The time stamp can and should be a "struct timeval", regardless of
+ * whether your system supports 32-bit tv_sec in "struct timeval",
+ * 64-bit tv_sec in "struct timeval", or both if it supports both 32-bit
+ * and 64-bit applications.  The on-disk format of savefiles uses 32-bit
+ * tv_sec (and tv_usec); this structure is irrelevant to that.  32-bit
+ * and 64-bit versions of libpcap, even if they're on the same platform,
+ * should supply the appropriate version of "struct timeval", even if
+ * that's not what the underlying packet capture mechanism supplies.
  */
 struct pcap_pkthdr {
 	struct timeval ts;	/* time stamp */
@@ -230,12 +237,12 @@ int	pcap_setnonblock(pcap_t *, int, char *);
 void	pcap_perror(pcap_t *, char *);
 int	pcap_inject(pcap_t *, const void *, size_t);
 int	pcap_sendpacket(pcap_t *, const u_char *, int);
-char	*pcap_strerror(int);
+const char *pcap_strerror(int);
 char	*pcap_geterr(pcap_t *);
-int	pcap_compile(pcap_t *, struct bpf_program *, char *, int,
+int	pcap_compile(pcap_t *, struct bpf_program *, const char *, int,
 	    bpf_u_int32);
 int	pcap_compile_nopcap(int, int, struct bpf_program *,
-	    char *, int, bpf_u_int32);
+	    const char *, int, bpf_u_int32);
 void	pcap_freecode(struct bpf_program *);
 int	pcap_datalink(pcap_t *);
 int	pcap_list_datalinks(pcap_t *, int **);

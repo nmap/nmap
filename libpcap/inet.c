@@ -34,7 +34,7 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/inet.c,v 1.66.2.1 2005/06/20 21:30:17 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/inet.c,v 1.66.2.6 2007/06/11 09:52:04 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -135,37 +135,80 @@ add_or_find_if(pcap_if_t **curdev_ret, pcap_if_t **alldevs, const char *name,
 	int this_instance;
 
 	/*
-	 * Can we open this interface for live capture?
-	 *
-	 * We do this check so that interfaces that ae supplied
-	 * by the interface enumeration mechanism we're using
-	 * but that don't support packet capture aren't included
-	 * in the list.  An example of this is loopback interfaces
-	 * on Solaris; we don't just omit loopback interfaces
-	 * becaue you *can* capture on loopback interfaces on some
-	 * OSes.
-	 */
-	p = pcap_open_live(name, 68, 0, 0, errbuf);
-	if (p == NULL) {
-		/*
-		 * No.  Don't bother including it.
-		 * Don't treat this as an error, though.
-		 */
-		*curdev_ret = NULL;
-		return (0);
-	}
-	pcap_close(p);
-
-	/*
 	 * Is there already an entry in the list for this interface?
 	 */
 	for (curdev = *alldevs; curdev != NULL; curdev = curdev->next) {
 		if (strcmp(name, curdev->name) == 0)
 			break;	/* yes, we found it */
 	}
+
 	if (curdev == NULL) {
 		/*
 		 * No, we didn't find it.
+		 *
+		 * Can we open this interface for live capture?
+		 *
+		 * We do this check so that interfaces that are
+		 * supplied by the interface enumeration mechanism
+		 * we're using but that don't support packet capture
+		 * aren't included in the list.  Loopback interfaces
+		 * on Solaris are an example of this; we don't just
+		 * omit loopback interfaces on all platforms because
+		 * you *can* capture on loopback interfaces on some
+		 * OSes.
+		 *
+		 * On OS X, we don't do this check if the device
+		 * name begins with "wlt"; at least some versions
+		 * of OS X offer monitor mode capturing by having
+		 * a separate "monitor mode" device for each wireless
+		 * adapter, rather than by implementing the ioctls
+		 * that {Free,Net,Open,DragonFly}BSD provide.
+		 * Opening that device puts the adapter into monitor
+		 * mode, which, at least for some adapters, causes
+		 * them to deassociate from the network with which
+		 * they're associated.
+		 *
+		 * Instead, we try to open the corresponding "en"
+		 * device (so that we don't end up with, for users
+		 * without sufficient privilege to open capture
+		 * devices, a list of adapters that only includes
+		 * the wlt devices).
+		 */
+#ifdef __APPLE__
+		if (strncmp(name, "wlt", 3) == 0) {
+			char *en_name;
+			size_t en_name_len;
+
+			/*
+			 * Try to allocate a buffer for the "en"
+			 * device's name.
+			 */
+			en_name_len = strlen(name) - 1;
+			en_name = malloc(en_name_len + 1);
+			if (en_name == NULL) {
+				(void)snprintf(errbuf, PCAP_ERRBUF_SIZE,
+				    "malloc: %s", pcap_strerror(errno));
+				return (-1);
+			}
+			strcpy(en_name, "en");
+			strcat(en_name, name + 3);
+			p = pcap_open_live(en_name, 68, 0, 0, errbuf);
+			free(en_name);
+		} else
+#endif /* __APPLE */
+		p = pcap_open_live(name, 68, 0, 0, errbuf);
+		if (p == NULL) {
+			/*
+			 * No.  Don't bother including it.
+			 * Don't treat this as an error, though.
+			 */
+			*curdev_ret = NULL;
+			return (0);
+		}
+		pcap_close(p);
+
+		/*
+		 * Yes, we can open it.
 		 * Allocate a new entry.
 		 */
 		curdev = malloc(sizeof(pcap_if_t));
@@ -179,14 +222,25 @@ add_or_find_if(pcap_if_t **curdev_ret, pcap_if_t **alldevs, const char *name,
 		 * Fill in the entry.
 		 */
 		curdev->next = NULL;
-		curdev->name = malloc(strlen(name) + 1);
-		strcpy(curdev->name, name);
+		curdev->name = strdup(name);
+		if (curdev->name == NULL) {
+			(void)snprintf(errbuf, PCAP_ERRBUF_SIZE,
+			    "malloc: %s", pcap_strerror(errno));
+			free(curdev);
+			return (-1);
+		}
 		if (description != NULL) {
 			/*
 			 * We have a description for this interface.
 			 */
-			curdev->description = malloc(strlen(description) + 1);
-			strcpy(curdev->description, description);
+			curdev->description = strdup(description);
+			if (curdev->description == NULL) {
+				(void)snprintf(errbuf, PCAP_ERRBUF_SIZE,
+				    "malloc: %s", pcap_strerror(errno));
+				free(curdev->name);
+				free(curdev);
+				return (-1);
+			}
 		} else {
 			/*
 			 * We don't.
@@ -357,6 +411,8 @@ add_addr_to_iflist(pcap_if_t **alldevs, const char *name, u_int flags,
 		if (curaddr->netmask == NULL) {
 			(void)snprintf(errbuf, PCAP_ERRBUF_SIZE,
 			    "malloc: %s", pcap_strerror(errno));
+			if (curaddr->addr != NULL)
+				free(curaddr->addr);
 			free(curaddr);
 			return (-1);
 		}
@@ -368,6 +424,10 @@ add_addr_to_iflist(pcap_if_t **alldevs, const char *name, u_int flags,
 		if (curaddr->broadaddr == NULL) {
 			(void)snprintf(errbuf, PCAP_ERRBUF_SIZE,
 			    "malloc: %s", pcap_strerror(errno));
+			if (curaddr->netmask != NULL)
+				free(curaddr->netmask);
+			if (curaddr->addr != NULL)
+				free(curaddr->addr);
 			free(curaddr);
 			return (-1);
 		}
@@ -379,6 +439,12 @@ add_addr_to_iflist(pcap_if_t **alldevs, const char *name, u_int flags,
 		if (curaddr->dstaddr == NULL) {
 			(void)snprintf(errbuf, PCAP_ERRBUF_SIZE,
 			    "malloc: %s", pcap_strerror(errno));
+			if (curaddr->broadaddr != NULL)
+				free(curaddr->broadaddr);
+			if (curaddr->netmask != NULL)
+				free(curaddr->netmask);
+			if (curaddr->addr != NULL)
+				free(curaddr->addr);
 			free(curaddr);
 			return (-1);
 		}
@@ -527,7 +593,7 @@ pcap_lookupnet(device, netp, maskp, errbuf)
 	register char *errbuf;
 {
 	register int fd;
-	register struct sockaddr_in *sin;
+	register struct sockaddr_in *sin4;
 	struct ifreq ifr;
 
 	/*
@@ -571,8 +637,8 @@ pcap_lookupnet(device, netp, maskp, errbuf)
 		(void)close(fd);
 		return (-1);
 	}
-	sin = (struct sockaddr_in *)&ifr.ifr_addr;
-	*netp = sin->sin_addr.s_addr;
+	sin4 = (struct sockaddr_in *)&ifr.ifr_addr;
+	*netp = sin4->sin_addr.s_addr;
 	if (ioctl(fd, SIOCGIFNETMASK, (char *)&ifr) < 0) {
 		(void)snprintf(errbuf, PCAP_ERRBUF_SIZE,
 		    "SIOCGIFNETMASK: %s: %s", device, pcap_strerror(errno));
@@ -580,7 +646,7 @@ pcap_lookupnet(device, netp, maskp, errbuf)
 		return (-1);
 	}
 	(void)close(fd);
-	*maskp = sin->sin_addr.s_addr;
+	*maskp = sin4->sin_addr.s_addr;
 	if (*maskp == 0) {
 		if (IN_CLASSA(*netp))
 			*maskp = IN_CLASSA_NET;

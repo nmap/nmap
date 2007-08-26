@@ -27,7 +27,7 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/pcap-linux.c,v 1.110.2.6 2005/08/16 04:25:26 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/pcap-linux.c,v 1.110.2.14 2006/10/12 17:26:58 guy Exp $ (LBL)";
 #endif
 
 /*
@@ -394,7 +394,16 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 		 *
 		 * We can safely pass "recvfrom()" a byte count
 		 * based on the snapshot length.
+		 *
+		 * If we're in cooked mode, make the snapshot length
+		 * large enough to hold a "cooked mode" header plus
+		 * 1 byte of packet data (so we don't pass a byte
+		 * count of 0 to "recvfrom()").
 		 */
+		if (handle->md.cooked) {
+			if (handle->snapshot < SLL_HDR_LEN + 1)
+				handle->snapshot = SLL_HDR_LEN + 1;
+		}
 		handle->bufsize = handle->snapshot;
 	}
 
@@ -517,6 +526,22 @@ pcap_read_packet(pcap_t *handle, pcap_handler callback, u_char *userdata)
 
 #ifdef HAVE_PF_PACKET_SOCKETS
 	if (!handle->md.sock_packet) {
+		/*
+		 * Unfortunately, there is a window between socket() and
+		 * bind() where the kernel may queue packets from any
+		 * interface.  If we're bound to a particular interface,
+		 * discard packets not from that interface.
+		 *
+		 * (If socket filters are supported, we could do the
+		 * same thing we do when changing the filter; however,
+		 * that won't handle packet sockets without socket
+		 * filter support, and it's a bit more complicated.
+		 * It would save some instructions per packet, however.)
+		 */
+		if (handle->md.ifindex != -1 &&
+		    from.sll_ifindex != handle->md.ifindex)
+			return 0;
+
 		/*
 		 * Do checks based on packet direction.
 		 * We can only do this if we're using PF_PACKET; the
@@ -657,7 +682,7 @@ pcap_read_packet(pcap_t *handle, pcap_handler callback, u_char *userdata)
 
 	if (ioctl(handle->fd, SIOCGSTAMP, &pcap_header.ts) == -1) {
 		snprintf(handle->errbuf, sizeof(handle->errbuf),
-			 "ioctl: %s", pcap_strerror(errno));
+			 "SIOCGSTAMP: %s", pcap_strerror(errno));
 		return -1;
 	}
 	pcap_header.caplen	= caplen;
@@ -695,8 +720,18 @@ pcap_read_packet(pcap_t *handle, pcap_handler callback, u_char *userdata)
 	 * here, but it's not clear that always incrementing
 	 * the count is more expensive than always testing a flag
 	 * in memory.
+	 *
+	 * We keep the count in "md.packets_read", and use that for
+	 * "ps_recv" if we can't get the statistics from the kernel.
+	 * We do that because, if we *can* get the statistics from
+	 * the kernel, we use "md.stat.ps_recv" and "md.stat.ps_drop"
+	 * as running counts, as reading the statistics from the
+	 * kernel resets the kernel statistics, and if we directly
+	 * increment "md.stat.ps_recv" here, that means it will
+	 * count packets *twice* on systems where we can get kernel
+	 * statistics - once here, and once in pcap_stats_linux().
 	 */
-	handle->md.stat.ps_recv++;
+	handle->md.packets_read++;
 
 	/* Call the user supplied callback function */
 	callback(userdata, &pcap_header, bp);
@@ -770,6 +805,23 @@ pcap_stats_linux(pcap_t *handle, struct pcap_stat *stats)
 	if (getsockopt(handle->fd, SOL_PACKET, PACKET_STATISTICS,
 			&kstats, &len) > -1) {
 		/*
+		 * On systems where the PACKET_STATISTICS "getsockopt()"
+		 * argument is supported on PF_PACKET sockets:
+		 *
+		 *	"ps_recv" counts only packets that *passed* the
+		 *	filter, not packets that didn't pass the filter.
+		 *	This includes packets later dropped because we
+		 *	ran out of buffer space.
+		 *
+		 *	"ps_drop" counts packets dropped because we ran
+		 *	out of buffer space.  It doesn't count packets
+		 *	dropped by the interface driver.  It counts only
+		 *	packets that passed the filter.
+		 *
+		 *	Both statistics include packets not yet read from
+		 *	the kernel by libpcap, and thus not yet seen by
+		 *	the application.
+		 *
 		 * In "linux/net/packet/af_packet.c", at least in the
 		 * 2.4.9 kernel, "tp_packets" is incremented for every
 		 * packet that passes the packet filter *and* is
@@ -799,6 +851,8 @@ pcap_stats_linux(pcap_t *handle, struct pcap_stat *stats)
 		 */
 		handle->md.stat.ps_recv += kstats.tp_packets;
 		handle->md.stat.ps_drop += kstats.tp_drops;
+		*stats = handle->md.stat;
+		return 0;
 	}
 	else
 	{
@@ -818,21 +872,6 @@ pcap_stats_linux(pcap_t *handle, struct pcap_stat *stats)
 #endif
 	/*
 	 * On systems where the PACKET_STATISTICS "getsockopt()" argument
-	 * is supported on PF_PACKET sockets:
-	 *
-	 *	"ps_recv" counts only packets that *passed* the filter,
-	 *	not packets that didn't pass the filter.  This includes
-	 *	packets later dropped because we ran out of buffer space.
-	 *
-	 *	"ps_drop" counts packets dropped because we ran out of
-	 *	buffer space.  It doesn't count packets dropped by the
-	 *	interface driver.  It counts only packets that passed
-	 *	the filter.
-	 *
-	 *	Both statistics include packets not yet read from the
-	 *	kernel by libpcap, and thus not yet seen by the application.
-	 *
-	 * On systems where the PACKET_STATISTICS "getsockopt()" argument
 	 * is not supported on PF_PACKET sockets:
 	 *
 	 *	"ps_recv" counts only packets that *passed* the filter,
@@ -844,8 +883,14 @@ pcap_stats_linux(pcap_t *handle, struct pcap_stat *stats)
 	 *
 	 *	"ps_recv" doesn't include packets not yet read from
 	 *	the kernel by libpcap.
+	 *
+	 * We maintain the count of packets processed by libpcap in
+	 * "md.packets_read", for reasons described in the comment
+	 * at the end of pcap_read_packet().  We have no idea how many
+	 * packets were dropped.
 	 */
-	*stats = handle->md.stat;
+	stats->ps_recv = handle->md.packets_read;
+	stats->ps_drop = 0;
 	return 0;
 }
 
@@ -917,6 +962,7 @@ pcap_setfilter_linux(pcap_t *handle, struct bpf_program *filter)
 		 * sake of correctness I added this check.
 		 */
 		fprintf(stderr, "Warning: Filter too complex for kernel\n");
+		fcode.len = 0;
 		fcode.filter = NULL;
 		can_filter_in_kernel = 0;
 	} else
@@ -1315,6 +1361,16 @@ static void map_arphrd_to_dlt(pcap_t *handle, int arptype, int cooked_ok)
 		//handle->md.cooked = 1;
 		break;
 
+	/* ARPHRD_LAPD is unofficial and randomly allocated, if reallocation
+	 * is needed, please report it to <daniele@orlandi.com> */
+#ifndef ARPHRD_LAPD
+#define ARPHRD_LAPD	8445
+#endif
+	case ARPHRD_LAPD:
+		/* Don't expect IP packet out of this interfaces... */
+		handle->linktype = DLT_LINUX_LAPD;
+		break;
+
 	default:
 		handle->linktype = -1;
 		break;
@@ -1396,6 +1452,7 @@ live_open_new(pcap_t *handle, const char *device, int promisc,
 			if (handle->linktype == -1 ||
 			    handle->linktype == DLT_LINUX_SLL ||
 			    handle->linktype == DLT_LINUX_IRDA ||
+			    handle->linktype == DLT_LINUX_LAPD ||
 			    (handle->linktype == DLT_EN10MB &&
 			     (strncmp("isdn", device, 4) == 0 ||
 			      strncmp("isdY", device, 4) == 0))) {
@@ -1449,7 +1506,8 @@ live_open_new(pcap_t *handle, const char *device, int promisc,
 				}
 				/* IrDA capture is not a real "cooked" capture,
 				 * it's IrLAP frames, not IP packets. */
-				if (handle->linktype != DLT_LINUX_IRDA)
+				if (handle->linktype != DLT_LINUX_IRDA &&
+			    		handle->linktype != DLT_LINUX_LAPD)
 					handle->linktype = DLT_LINUX_SLL;
 			}
 
@@ -1557,7 +1615,7 @@ iface_get_id(int fd, const char *device, char *ebuf)
 
 	if (ioctl(fd, SIOCGIFINDEX, &ifr) == -1) {
 		snprintf(ebuf, PCAP_ERRBUF_SIZE,
-			 "ioctl: %s", pcap_strerror(errno));
+			 "SIOCGIFINDEX: %s", pcap_strerror(errno));
 		return -1;
 	}
 
@@ -1774,7 +1832,7 @@ live_open_old(pcap_t *handle, const char *device, int promisc,
 			strncpy(ifr.ifr_name, device, sizeof(ifr.ifr_name));
 			if (ioctl(handle->fd, SIOCGIFFLAGS, &ifr) == -1) {
 				snprintf(ebuf, PCAP_ERRBUF_SIZE,
-					 "ioctl: %s", pcap_strerror(errno));
+					 "SIOCGIFFLAGS: %s", pcap_strerror(errno));
 				break;
 			}
 			if ((ifr.ifr_flags & IFF_PROMISC) == 0) {
@@ -1808,7 +1866,7 @@ live_open_old(pcap_t *handle, const char *device, int promisc,
 				ifr.ifr_flags |= IFF_PROMISC;
 				if (ioctl(handle->fd, SIOCSIFFLAGS, &ifr) == -1) {
 				        snprintf(ebuf, PCAP_ERRBUF_SIZE,
-						 "ioctl: %s",
+						 "SIOCSIFFLAGS: %s",
 						 pcap_strerror(errno));
 					break;
 				}
@@ -1892,7 +1950,7 @@ iface_get_mtu(int fd, const char *device, char *ebuf)
 
 	if (ioctl(fd, SIOCGIFMTU, &ifr) == -1) {
 		snprintf(ebuf, PCAP_ERRBUF_SIZE,
-			 "ioctl: %s", pcap_strerror(errno));
+			 "SIOCGIFMTU: %s", pcap_strerror(errno));
 		return -1;
 	}
 
@@ -1912,7 +1970,7 @@ iface_get_arptype(int fd, const char *device, char *ebuf)
 
 	if (ioctl(fd, SIOCGIFHWADDR, &ifr) == -1) {
 		snprintf(ebuf, PCAP_ERRBUF_SIZE,
-			 "ioctl: %s", pcap_strerror(errno));
+			 "SIOCGIFHWADDR: %s", pcap_strerror(errno));
 		return -1;
 	}
 
@@ -2149,8 +2207,13 @@ set_kernel_filter(pcap_t *handle, struct sock_fprog *fcode)
 static int
 reset_kernel_filter(pcap_t *handle)
 {
-	/* setsockopt() barfs unless it get a dummy parameter */
-	int dummy;
+	/*
+	 * setsockopt() barfs unless it get a dummy parameter.
+	 * valgrind whines unless the value is initialized,
+	 * as it has no idea that setsockopt() ignores its
+	 * parameter.
+	 */
+	int dummy = 0;
 
 	return setsockopt(handle->fd, SOL_SOCKET, SO_DETACH_FILTER,
 				   &dummy, sizeof(dummy));

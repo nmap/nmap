@@ -33,7 +33,7 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/pcap.c,v 1.88.2.8 2005/08/13 22:29:46 hannes Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/pcap.c,v 1.88.2.17 2007/06/22 06:43:58 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -354,30 +354,40 @@ static struct dlt_choice dlt_choices[] = {
 	DLT_CHOICE(DLT_ARCNET_LINUX, "Linux ARCNET"),
 	DLT_CHOICE(DLT_DOCSIS, "DOCSIS"),
 	DLT_CHOICE(DLT_LINUX_IRDA, "Linux IrDA"),
+	DLT_CHOICE(DLT_LINUX_LAPD, "Linux vISDN LAPD"),
 	DLT_CHOICE(DLT_IEEE802_11_RADIO_AVS, "802.11 plus AVS radio information header"),
         DLT_CHOICE(DLT_SYMANTEC_FIREWALL, "Symantec Firewall"),
         DLT_CHOICE(DLT_JUNIPER_ATM1, "Juniper ATM1 PIC"),
         DLT_CHOICE(DLT_JUNIPER_ATM2, "Juniper ATM2 PIC"),
         DLT_CHOICE(DLT_JUNIPER_MLPPP, "Juniper Multi-Link PPP"),
- 	DLT_CHOICE(DLT_PPP_PPPD, "PPP for pppd, with direction flag"),
- 	DLT_CHOICE(DLT_JUNIPER_PPPOE, "Juniper PPPoE"),
- 	DLT_CHOICE(DLT_JUNIPER_PPPOE_ATM, "Juniper PPPoE/ATM"),
- 	DLT_CHOICE(DLT_GPRS_LLC, "GPRS LLC"),
- 	DLT_CHOICE(DLT_GPF_T, "GPF-T"),
- 	DLT_CHOICE(DLT_GPF_F, "GPF-F"),
- 	DLT_CHOICE(DLT_JUNIPER_PIC_PEER, "Juniper PIC Peer"),
- 	DLT_CHOICE(DLT_JUNIPER_MLFR, "Juniper Multi-Link Frame Relay"),
+	DLT_CHOICE(DLT_PPP_PPPD, "PPP for pppd, with direction flag"),
+	DLT_CHOICE(DLT_JUNIPER_PPPOE, "Juniper PPPoE"),
+	DLT_CHOICE(DLT_JUNIPER_PPPOE_ATM, "Juniper PPPoE/ATM"),
+	DLT_CHOICE(DLT_GPRS_LLC, "GPRS LLC"),
+	DLT_CHOICE(DLT_GPF_T, "GPF-T"),
+	DLT_CHOICE(DLT_GPF_F, "GPF-F"),
+	DLT_CHOICE(DLT_JUNIPER_PIC_PEER, "Juniper PIC Peer"),
+	DLT_CHOICE(DLT_JUNIPER_MLFR, "Juniper Multi-Link Frame Relay"),
 	DLT_CHOICE(DLT_ERF_ETH,	"Ethernet with Endace ERF header"),
 	DLT_CHOICE(DLT_ERF_POS, "Packet-over-SONET with Endace ERF header"),
         DLT_CHOICE(DLT_JUNIPER_GGSN, "Juniper GGSN PIC"),
         DLT_CHOICE(DLT_JUNIPER_ES, "Juniper Encryption Services PIC"),
         DLT_CHOICE(DLT_JUNIPER_MONITOR, "Juniper Passive Monitor PIC"),
         DLT_CHOICE(DLT_JUNIPER_SERVICES, "Juniper Advanced Services PIC"),
- 	DLT_CHOICE(DLT_JUNIPER_MFR, "Juniper FRF.16 Frame Relay"),
- 	DLT_CHOICE(DLT_JUNIPER_ETHER, "Juniper Ethernet"),
- 	DLT_CHOICE(DLT_JUNIPER_PPP, "Juniper PPP"),
- 	DLT_CHOICE(DLT_JUNIPER_FRELAY, "Juniper Frame Relay"),
- 	DLT_CHOICE(DLT_JUNIPER_CHDLC, "Juniper C-HDLC"),
+	DLT_CHOICE(DLT_JUNIPER_MFR, "Juniper FRF.16 Frame Relay"),
+	DLT_CHOICE(DLT_JUNIPER_ETHER, "Juniper Ethernet"),
+	DLT_CHOICE(DLT_JUNIPER_PPP, "Juniper PPP"),
+	DLT_CHOICE(DLT_JUNIPER_FRELAY, "Juniper Frame Relay"),
+	DLT_CHOICE(DLT_JUNIPER_CHDLC, "Juniper C-HDLC"),
+	DLT_CHOICE(DLT_MFR, "FRF.16 Frame Relay"),
+	DLT_CHOICE(DLT_JUNIPER_VP, "Juniper Voice PIC"),
+	DLT_CHOICE(DLT_MTP2, "SS7 MTP2"),
+	DLT_CHOICE(DLT_A429, "Arinc 429"),
+	DLT_CHOICE(DLT_A653_ICM, "Arinc 653 Interpartition Communication"),
+	DLT_CHOICE(DLT_USB, "USB"),
+	DLT_CHOICE(DLT_BLUETOOTH_HCI_H4, "Bluetooth HCI UART transport layer"),
+	DLT_CHOICE(DLT_CAN20B, "Controller Area Network (CAN) v. 2.0B"),
+	DLT_CHOICE(DLT_MTP2_WITH_PHDR, "SS7 MTP2 with Pseudo-header"),
 	DLT_CHOICE_SENTINEL
 };
 
@@ -457,8 +467,8 @@ int
 pcap_strcasecmp(const char *s1, const char *s2)
 {
 	register const u_char	*cm = charmap,
-				*us1 = (u_char *)s1,
-				*us2 = (u_char *)s2;
+				*us1 = (const u_char *)s1,
+				*us2 = (const u_char *)s2;
 
 	while (cm[*us1] == cm[*us2++])
 		if (*us1++ == '\0')
@@ -671,7 +681,7 @@ pcap_win32strerror(void)
 /*
  * Not all systems have strerror().
  */
-char *
+const char *
 pcap_strerror(int errnum)
 {
 #ifdef HAVE_STRERROR
@@ -807,7 +817,7 @@ pcap_close(pcap_t *p)
 #ifdef HAVE_VERSION_H
 #include "version.h"
 #else
-static const char pcap_version_string[] = "libpcap version 0.9[.x]";
+static const char pcap_version_string[] = "libpcap version 0.9.7";
 #endif
 
 #ifdef WIN32
@@ -816,7 +826,7 @@ static const char pcap_version_string[] = "libpcap version 0.9[.x]";
  * version numbers when building WinPcap.  (It'd be nice to do so for
  * the packet.dll version number as well.)
  */
-static const char wpcap_version_string[] = "3.1";
+static const char wpcap_version_string[] = "4.0";
 static const char pcap_version_string_fmt[] =
     "WinPcap version %s, based on %s";
 static const char pcap_version_string_packet_dll_fmt[] =

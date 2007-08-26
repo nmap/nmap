@@ -22,7 +22,7 @@
  */
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/optimize.c,v 1.85 2005/04/04 08:42:18 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/optimize.c,v 1.85.2.2 2007/07/15 19:55:04 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -624,7 +624,7 @@ fold_op(s, v0, v1)
 	struct stmt *s;
 	int v0, v1;
 {
-	bpf_int32 a, b;
+	bpf_u_int32 a, b;
 
 	a = vmap[v0].const_val;
 	b = vmap[v1].const_val;
@@ -1823,9 +1823,9 @@ intern_blocks(root)
 {
 	struct block *p;
 	int i, j;
-	int done;
+	int done1; /* don't shadow global */
  top:
-	done = 1;
+	done1 = 1;
 	for (i = 0; i < n_blocks; ++i)
 		blocks[i]->link = 0;
 
@@ -1849,15 +1849,15 @@ intern_blocks(root)
 		if (JT(p) == 0)
 			continue;
 		if (JT(p)->link) {
-			done = 0;
+			done1 = 0;
 			JT(p) = JT(p)->link;
 		}
 		if (JF(p)->link) {
-			done = 0;
+			done1 = 0;
 			JF(p) = JF(p)->link;
 		}
 	}
-	if (!done)
+	if (!done1)
 		goto top;
 }
 
@@ -2124,7 +2124,7 @@ convert_code_r(p)
 	    {
 		int i;
 		int jt, jf;
-		char *ljerr = "%s for block-local relative jump: off=%d";
+		const char *ljerr = "%s for block-local relative jump: off=%d";
 
 #if 0
 		printf("code=%x off=%d %x %x\n", src->s.code,
@@ -2216,6 +2216,20 @@ filled:
 /*
  * Convert flowgraph intermediate representation to the
  * BPF array representation.  Set *lenp to the number of instructions.
+ *
+ * This routine does *NOT* leak the memory pointed to by fp.  It *must
+ * not* do free(fp) before returning fp; doing so would make no sense,
+ * as the BPF array pointed to by the return value of icode_to_fcode()
+ * must be valid - it's being returned for use in a bpf_program structure.
+ *
+ * If it appears that icode_to_fcode() is leaking, the problem is that
+ * the program using pcap_compile() is failing to free the memory in
+ * the BPF program when it's done - the leak is in the program, not in
+ * the routine that happens to be allocating the memory.  (By analogy, if
+ * a program calls fopen() without ever calling fclose() on the FILE *,
+ * it will leak the FILE structure; the leak is not in fopen(), it's in
+ * the program.)  Change the program to use pcap_freecode() when it's
+ * done with the filter program.  See the pcap man page.
  */
 struct bpf_insn *
 icode_to_fcode(root, lenp)

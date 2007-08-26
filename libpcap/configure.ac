@@ -1,4 +1,4 @@
-dnl @(#) $Header: /tcpdump/master/libpcap/configure.in,v 1.120.2.7 2005/07/07 06:56:03 guy Exp $ (LBL)
+dnl @(#) $Header: /tcpdump/master/libpcap/configure.in,v 1.120.2.12 2007/06/15 17:57:26 guy Exp $ (LBL)
 dnl
 dnl Copyright (c) 1994, 1995, 1996, 1997
 dnl	The Regents of the University of California.  All rights reserved.
@@ -6,7 +6,7 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 dnl
 
-AC_REVISION($Revision: 1.120.2.7 $)
+AC_REVISION($Revision: 1.120.2.12 $)
 AC_PREREQ(2.50)
 AC_INIT(pcap.c)
 
@@ -26,7 +26,7 @@ dnl in "AC_LBL_FIXINCLUDES" in "aclocal.m4" uses it, so we have to
 dnl test for it and set "HAVE_SYS_IOCCOM_H" if we have it, otherwise
 dnl "AC_LBL_FIXINCLUDES" won't work on some platforms such as Solaris.
 dnl
-AC_CHECK_HEADERS(sys/ioccom.h sys/sockio.h limits.h)
+AC_CHECK_HEADERS(sys/ioccom.h sys/sockio.h limits.h paths.h)
 AC_CHECK_HEADERS(netinet/if_ether.h, , , [#include <sys/types.h>
 #include <sys/socket.h>])
 if test "$ac_cv_header_netinet_if_ether_h" != yes; then
@@ -184,6 +184,12 @@ AC_ARG_WITH(pcap, [  --with-pcap=TYPE        use packet capture TYPE])
 AC_MSG_CHECKING(packet capture type)
 if test ! -z "$with_pcap" ; then
 	V_PCAP="$withval"
+elif test -r /dev/bpf ; then
+	#
+	# Cloning BPF device.
+	#
+	V_PCAP=bpf
+	AC_DEFINE(HAVE_CLONING_BPF,1,[define if you have a cloning BPF device])
 elif test -r /dev/bpf0 ; then
 	V_PCAP=bpf
 elif test -r /usr/include/net/pfilt.h ; then
@@ -492,6 +498,11 @@ if test $ac_cv_lbl_dag_api = yes; then
 		ar x $dag_lib_dir/libdag.a dagapi.o
 		if test -r ./dagapi.o; then
 		    dagapi_obj=./dagapi.o
+		else
+		    ar x $dag_lib_dir/libdag.a libdag_la-dagapi.o
+		    if test -r ./libdag_la-dagapi.o; then
+		       dagapi_obj=./libdag_la-dagapi.o
+		    fi		
 		fi
 	fi
 
@@ -518,6 +529,11 @@ if test $ac_cv_lbl_dag_api = yes; then
 		ar x $dag_lib_dir/libdag.a dagopts.o
 		if test -r ./dagopts.o; then
 		    dagopts_obj=./dagopts.o
+		else
+		    ar x $dag_lib_dir/libdag.a libdag_la-dagopts.o
+		    if test -r ./libdag_la-dagopts.o; then
+		       dagopts_obj=./libdag_la-dagopts.o
+		    fi
 		fi
 	fi
 
@@ -542,6 +558,11 @@ if test $ac_cv_lbl_dag_api = yes; then
 			ar x $dag_lib_dir/libdag.a dagreg.o
 			if test -r ./dagreg.o; then
 				dagreg_obj=./dagreg.o
+			else
+				ar x $dag_lib_dir/libdag.a libdag_la-dagreg.o
+				if test -r ./libdag_la-dagreg.o; then
+				   dagreg_obj=./libdag_la-dagreg.o
+				fi
 			fi
 		fi
 
@@ -567,10 +588,14 @@ if test $ac_cv_lbl_dag_api = yes; then
 	saved_ldflags=$LDFLAGS
 	LDFLAGS="-L$dag_lib_dir"
 	AC_CHECK_LIB([dag], [dag_attach_stream], [dag_version="2.5.x"], [dag_version="2.4.x"])
+	AC_CHECK_LIB([dag],[dag_get_erf_types], [
+		AC_DEFINE(HAVE_DAG_GET_ERF_TYPES, 1, [define if you have dag_get_erf_types()])]
+	)
 	LDFLAGS=$saved_ldflags
 
 	if test "$dag_version" = 2.5.x; then
 		AC_DEFINE(HAVE_DAG_STREAMS_API, 1, [define if you have streams capable DAG API])
+		DAGLIBS="-ldag"
 	fi
 
 	# See if we can find a specific version string.
@@ -677,6 +702,7 @@ if test "$V_PCAP" = septel -a "$ac_cv_lbl_septel_api" = no; then
 	AC_MSG_ERROR(Specifying the capture type as 'septel' requires the Septel API to be present; use --with-septel=DIR)
 fi
 
+
 DYEXT="so"
 case "$host_os" in
 
@@ -727,6 +753,11 @@ darwin*)
 	DYEXT="dylib"
 	V_CCOPT="$V_CCOPT -fno-common"
 	;;
+
+linux*)
+	V_CCOPT="$V_CCOPT -fPIC"
+	;;
+
 esac
 
 AC_PROG_RANLIB
@@ -792,6 +823,7 @@ AC_SUBST(V_FINDALLDEVS)
 AC_SUBST(V_RANLIB)
 AC_SUBST(SSRC)
 AC_SUBST(DYEXT)
+AC_SUBST(DAGLIBS)
 
 AC_PROG_INSTALL
 

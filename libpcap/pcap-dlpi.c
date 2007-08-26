@@ -70,7 +70,7 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/pcap-dlpi.c,v 1.108.2.6 2005/08/13 23:15:58 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/pcap-dlpi.c,v 1.108.2.7 2006/04/04 05:33:02 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -396,6 +396,14 @@ pcap_inject_dlpi(pcap_t *p, const void *buf, size_t size)
 		    pcap_strerror(errno));
 		return (-1);
 	}
+	/*
+	 * putmsg() returns either 0 or -1; it doesn't indicate how
+	 * many bytes were written (presumably they were all written
+	 * or none of them were written).  OpenBSD's pcap_inject()
+	 * returns the number of bytes written, so, for API compatibility,
+	 * we return the number of bytes we were told to write.
+	 */
+	ret = size;
 #else /* no raw mode */
 	/*
 	 * XXX - this is a pain, because you might have to extract
@@ -894,7 +902,6 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 			goto bad;
 		}
 	}
-
 #endif
 
 	/*
