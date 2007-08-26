@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed UMIT bug which occurred when installing to a non-standard
+  directory (e.g. a home directory).  This caused Python to not be able
+  to find the necessary files. [Kris]
+
+o Removed win_dependencies cruft from UMIT directory. [Kris]
+
 o Upgraded libpcap from version 0.9.4 to 0.9.7 [Kris]
 
 4.22SOC5
