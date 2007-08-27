@@ -106,7 +106,7 @@ PORT     STATE SERVICE       VERSION
 1002/tcp open  windows-icfw?
 1025/tcp open  msrpc         Microsoft Windows RPC
 1720/tcp open  H.323/Q.931   CompTek AquaGateKeeper
-5800/tcp open  vnc-http      RealVNC 4.0 (Resolution 400x250; VNC TCP port: 5900)
+5800/tcp open  vnc-http      RealVNC 4.0 (Resolution 400x250; VNC port: 5900)
 5900/tcp open  vnc           VNC (protocol 3.8)
 MAC Address: 00:A0:CC:63:85:4B (Lite-on Communications)
 Device type: general purpose
@@ -1767,7 +1767,7 @@ way.</para>
 
       <varlistentry>
         <term>
-          <option>-O1</option> (1nd Generation OS Detection Only)
+          <option>-O1</option> (1st Generation OS Detection Only)
           <indexterm><primary>-O1</primary></indexterm>
         </term>
         <listitem>
@@ -1977,26 +1977,20 @@ way.</para>
           <indexterm><primary>--script-args</primary></indexterm></term>
 
         <listitem>
-		  <para> 
-          lets you provide arguments to NSE-scripts. Arguments are passed as 
-		  name=value pairs. The provided argument is processed and stored
-		  inside a Lua table, to which all scripts have access. The names are
-		  taken as strings (which have to be alphanumeric values) and used as
-		  keys inside the argument-table. Values are either strings or tables
-		  themselves (starting with a '{' and ending with a '}'). Subtables make
-		  it possible to override arguments for specific scripts (e.g. when you
-		  want to provide different login/password pairs for different scripts).
-		  An argument of
-		  <literal>user=bar,password=foo,anonFTP={password=nobody@foobar.com} 
-		  </literal> for example results in the following table provided to
-		  NSE-scripts:
-		  <literal>t={user="bar",password="foo",anonFTP={password="nobody@foobar.com"}</literal>.
-		  Note, that if you want to override an option to a script, you should
-		  index the subtable with the script's <literal>id</literal>, since this
-		  is the only way the script knows about its special argument.
-		  </para>
-        </listitem>
-      </varlistentry>
+
+<para>lets you provide arguments to NSE-scripts. Arguments are passed
+as <literal>name=value</literal> pairs. The provided argument is processed and stored
+inside a Lua table, to which all scripts have access. The names are
+taken as strings (which must be alphanumeric values) and used as
+keys inside the <literal>argument-table</literal>. Values are either strings or tables
+themselves (surrounded by &lsquo;<literal>{</literal>&rsquo; and  &lsquo;<literal>}</literal>&rsquo;.  Subtables make
+it possible to override arguments for specific scripts (e.g. when you
+want to provide different login/password pairs for different scripts).
+For example, you could pass the comma-separated arguments:
+<literal>user=bar</literal>,<literal>password=foo</literal>, and <literal>anonFTP={password=nobody@foobar.com}</literal>. If you want to override an option to a script, you should
+index the subtable with the script's <literal>id</literal>, since this
+is the only way the script knows about its special argument.</para>
+</listitem> </varlistentry>
 
 
       <varlistentry>
