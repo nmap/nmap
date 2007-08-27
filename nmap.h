@@ -333,6 +333,7 @@ void *realloc();
 #define UC(b)   (((int)b)&0xff)
 #define SA    struct sockaddr  /*Ubertechnique from R. Stevens */
 
+#define HOST_UNKNOWN 0
 #define HOST_UP 1
 #define HOST_DOWN 2 
 #define HOST_FIREWALLED 4 
@@ -346,7 +347,7 @@ void *realloc();
 #define PINGTYPE_TCP  16
 #define PINGTYPE_TCP_USE_ACK 32
 #define PINGTYPE_TCP_USE_SYN 64
-#define PINGTYPE_RAWTCP 128
+/* # define PINGTYPE_RAWTCP 128 used to be here, but was never used. */
 #define PINGTYPE_CONNECTTCP 256
 #define PINGTYPE_UDP  512
 #define PINGTYPE_ARP 1024

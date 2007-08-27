@@ -109,7 +109,7 @@
 
 /* 3rd generation Nmap scanning function.  Handles most Nmap port scan types */
 void ultra_scan(std::vector<Target *> &Targets, struct scan_lists *ports, 
-		stype scantype);
+		stype scantype, struct timeout_info *to = NULL);
 
 /* Handles the "positive-response" scans (where we get a response
    telling us that the port is open based on the probe.  This includes

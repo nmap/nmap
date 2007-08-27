@@ -111,6 +111,10 @@
 #include "nmap_tty.h"
 #include "utils.h"
 
+/* If defined, use the new massping that uses ultra_scan instead of the old
+   standalone function. */
+#define NEW_MASSPING
+
 using namespace std;
 extern NmapOps o;
 enum pingstyle { pingstyle_unknown, pingstyle_rawtcp, pingstyle_rawudp, pingstyle_connecttcp, 
@@ -144,6 +148,7 @@ char *readhoststate(int state) {
   return NULL;
 }
 
+#ifndef NEW_MASSPING
 /* Internal function to update the state of machine (up/down/etc) based on
    ping results */
 static int hostupdate(Target *hostbatch[], Target *target, 
@@ -252,11 +257,11 @@ static int hostupdate(Target *hostbatch[], Target *target,
   }
   return 0;
 }
+#endif // NEW_MASSPING
 
 /* Conducts an ARP ping sweep of the given hosts to determine which ones
    are up on a local ethernet network */
-static void arpping(Target *hostbatch[], int num_hosts, 
-	     struct scan_lists *ports) {
+static void arpping(Target *hostbatch[], int num_hosts) {
   /* First I change hostbatch into a vector<Target *>, which is what ultra_scan
      takes.  I remove hosts that cannot be ARP scanned (such as localhost) */
   vector<Target *> targets;
@@ -288,7 +293,7 @@ static void arpping(Target *hostbatch[], int num_hosts,
     targets.push_back(hostbatch[targetno]);
   }
   if (!targets.empty())
-    ultra_scan(targets, ports, PING_SCAN_ARP);
+    ultra_scan(targets, NULL, PING_SCAN_ARP);
   return;
 }
 
@@ -380,11 +385,11 @@ static int hostInExclude(struct sockaddr *checksock, size_t checksocklen,
 }
 
 
+#ifndef NEW_MASSPING
 static int get_ping_results(int sd, pcap_t *pd, Target *hostbatch[], 
 			    int pingtype, struct timeval *time,
 			    struct pingtune *pt, struct timeout_info *to, 
-			    int id, struct pingtech *ptech, 
-			    struct scan_lists *ports) {
+			    int id, struct pingtech *ptech) {
   fd_set fd_r, fd_x;
   struct timeval myto, tmpto, start, rcvdtime;
   unsigned int bytes;
@@ -1272,6 +1277,7 @@ while(pt->block_unaccounted) {
 	 
 return 0;
 }
+#endif // NEW_MASSPING
 
 
 /* loads an exclude file into an exclude target list  (mdmcl) */
@@ -1434,8 +1440,42 @@ int dumpExclude(TargetGroup *exclude_group) {
   return 1;
 }
  
-static void massping(Target *hostbatch[], int num_hosts, 
-              struct scan_lists *ports, int pingtype) {
+#ifdef NEW_MASSPING
+static void massping(Target *hostbatch[], int num_hosts, int pingtype) {
+  static struct timeout_info group_to = { 0, 0, 0 };
+  static char prev_device_name[16] = "";
+  const char *device_name;
+  std::vector<Target *> targets;
+  int i;
+
+  /* Get the name of the interface used to send to this group. We assume the
+     device used to send to the first target is used to send to all of them. */
+  device_name = NULL;
+  if (num_hosts > 0)
+    device_name = hostbatch[0]->deviceName();
+  if (device_name == NULL)
+    device_name = "";
+
+  /* group_to is a static variable that keeps track of group timeout values
+     between invocations of this function. We reuse timeouts as long as this
+     invocation uses the same device as the previous one. Otherwise we
+     reinitialize the timeouts. */
+  if (group_to.srtt == 0 || group_to.rttvar == 0 || group_to.timeout == 0
+    || strcmp(prev_device_name, device_name) != 0) {
+    initialize_timeout_info(&group_to);
+    Strncpy(prev_device_name, device_name, sizeof(prev_device_name));
+  }
+
+  for (i = 0; i < num_hosts; i++) {
+    initialize_timeout_info(&hostbatch[i]->to);
+    targets.push_back(hostbatch[i]);
+  }
+
+  /* ultra_scan gets pingtype from o.pingtype. */
+  ultra_scan(targets, NULL, PING_SCAN, &group_to);
+}
+#else
+static void massping(Target *hostbatch[], int num_hosts, int pingtype) {
   static struct timeout_info to = {0,0,0};
   static double gsize = (double) LOOKAHEAD;
   int hostnum;
@@ -1675,7 +1715,7 @@ static void massping(Target *hostbatch[], int num_hosts,
 	}
 	if(ptech.icmpscan || ptech.rawicmpscan || ptech.rawtcpscan || ptech.rawudpscan) {       
 	  get_ping_results(sd, pd, hostbatch, pingtype, time, &pt, &to, id, 
-			   &ptech, ports);
+			   &ptech);
 	}
 	if (ptech.connecttcpscan) {
 	  get_connecttcpscan_results(&tqi, hostbatch, time, &pt, &to);
@@ -1719,9 +1759,10 @@ static void massping(Target *hostbatch[], int num_hosts,
   gsize = pt.group_size;
   return;
 }
+#endif // NEW_MASSPING
 
 Target *nexthost(HostGroupState *hs, TargetGroup *exclude_group,
-			    struct scan_lists *ports, int *pingtype) {
+			    struct scan_lists *ports, int pingtype) {
 int hidx = 0;
 int i;
 struct sockaddr_storage ss;
@@ -1760,9 +1801,9 @@ do {
 	 3) We are doing a raw-mode portscan or osscan OR
 	 4) We are on windows and doing ICMP ping */
       if (o.isr00t && o.af() == AF_INET && 
-	  ((*pingtype & (PINGTYPE_TCP|PINGTYPE_UDP|PINGTYPE_ARP)) || o.RawScan()
+	  ((pingtype & (PINGTYPE_TCP|PINGTYPE_UDP|PINGTYPE_ARP)) || o.RawScan()
 #ifdef WIN32
-	   || (*pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))
+	   || (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))
 #endif // WIN32
 	   )) {
 	hs->hostbatch[hidx]->TargetSockAddr(&ss, &sslen);
@@ -1834,7 +1875,7 @@ if (hs->randomize) {
  if (hs->hostbatch[0]->ifType() == devt_ethernet && 
      hs->hostbatch[0]->directlyConnected() && 
      o.sendpref != PACKET_SEND_IP_STRONG) {
-   arpping(hs->hostbatch, hs->current_batch_sz, ports);
+   arpping(hs->hostbatch, hs->current_batch_sz);
    arpping_done = true;
  }
  
@@ -1852,7 +1893,7 @@ if (hs->randomize) {
  /* TODO: Maybe I should allow real ping scan of directly connected
     ethernet hosts? */
  /* Then we do the mass ping (if required - IP-level pings) */
- if ((*pingtype == PINGTYPE_NONE && !arpping_done) || hs->hostbatch[0]->ifType() == devt_loopback) {
+ if ((pingtype == PINGTYPE_NONE && !arpping_done) || hs->hostbatch[0]->ifType() == devt_loopback) {
    for(i=0; i < hs->current_batch_sz; i++)  {
      if (!hs->hostbatch[i]->timedOut(&now)) {
        initialize_timeout_info(&hs->hostbatch[i]->to);
@@ -1861,10 +1902,10 @@ if (hs->randomize) {
      }
    }
  } else if (!arpping_done)
-   if (*pingtype & PINGTYPE_ARP) /* A host that we can't arp scan ... maybe localhost */
-     massping(hs->hostbatch, hs->current_batch_sz, ports, DEFAULT_PING_TYPES);
+   if (pingtype & PINGTYPE_ARP) /* A host that we can't arp scan ... maybe localhost */
+     massping(hs->hostbatch, hs->current_batch_sz, DEFAULT_PING_TYPES);
    else
-     massping(hs->hostbatch, hs->current_batch_sz, ports, *pingtype);
+     massping(hs->hostbatch, hs->current_batch_sz, pingtype);
  
  if (!o.noresolve) nmap_mass_rdns(hs->hostbatch, hs->current_batch_sz);
  

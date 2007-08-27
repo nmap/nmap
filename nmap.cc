@@ -470,7 +470,7 @@ int nmap_main(int argc, char *argv[]) {
   short quashargv = 0;
   char **host_exp_group;
   char *idleProxy = NULL; /* The idle host used to "Proxy" an Idlescan */
-  int num_host_exp_groups = 0;
+  int num_host_exp_groups;
   char *machinefilename = NULL, *kiddiefilename = NULL, 
     *normalfilename = NULL, *xmlfilename = NULL;
   HostGroupState *hstate = NULL;
@@ -1480,10 +1480,6 @@ int nmap_main(int argc, char *argv[]) {
     if (ports->prot_count) 
       shortfry(ports->prots, ports->prot_count); 
   }
-  
-  /* Time to create a hostgroup state object filled with all the requested
-     machines */
-  host_exp_group = (char **) safe_malloc(o.ping_group_sz * sizeof(char *));
 
   /* lets load our exclude list */
   if ((NULL != excludefd) || (NULL != exclude_spec)) {
@@ -1498,17 +1494,6 @@ int nmap_main(int argc, char *argv[]) {
       free(exclude_spec);
   }
 
-  while(num_host_exp_groups < o.ping_group_sz &&
-	(host_spec = grab_next_host_spec(inputfd, argc, fakeargv))) {
-    host_exp_group[num_host_exp_groups++] = strdup(host_spec);
-    // For purposes of random scan
-    if (o.max_ips_to_scan && o.max_ips_to_scan <= o.numhosts_scanned + num_host_exp_groups)
-      break;
-  }
-
- // if (num_host_exp_groups == 0)
- //   fatal("No target machines/networks specified!");
- 
 #ifndef NOLUA
   if(o.scriptupdatedb) {
 	script_updatedb();
@@ -1516,6 +1501,12 @@ int nmap_main(int argc, char *argv[]) {
   	o.max_ips_to_scan = o.numhosts_scanned; 
   }
 #endif
+  
+  /* Time to create a hostgroup state object filled with all the requested
+     machines. The list is initially empty. It is refilled inside the loop
+     whenever it is empty. */
+  host_exp_group = (char **) safe_malloc(o.ping_group_sz * sizeof(char *));
+  num_host_exp_groups = 0;
 
   hstate = new HostGroupState(o.ping_group_sz, o.randomize_hosts,
 			      host_exp_group, num_host_exp_groups);
@@ -1524,7 +1515,7 @@ int nmap_main(int argc, char *argv[]) {
     ideal_scan_group_sz = determineScanGroupSize(o.numhosts_scanned, ports);
     while(Targets.size() < ideal_scan_group_sz) {
       o.current_scantype = HOST_DISCOVERY;
-      currenths = nexthost(hstate, exclude_group, ports, &(o.pingtype));
+      currenths = nexthost(hstate, exclude_group, ports, o.pingtype);
       if (!currenths) {
 	/* Try to refill with any remaining expressions */
 	/* First free the old ones */
@@ -1545,7 +1536,7 @@ int nmap_main(int argc, char *argv[]) {
 				    host_exp_group, num_host_exp_groups);
       
 	/* Try one last time -- with new expressions */
-	currenths = nexthost(hstate, exclude_group, ports, &(o.pingtype));
+	currenths = nexthost(hstate, exclude_group, ports, o.pingtype);
 	if (!currenths)
 	  break;
       }

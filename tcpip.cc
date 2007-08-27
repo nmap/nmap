@@ -917,6 +917,9 @@ pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc,
   pcap_t *pt;
   char pcapdev[128];
   int failed = 0;
+
+  assert(device != NULL);
+
 #ifdef WIN32
 /* Nmap normally uses device names obtained through dnet for interfaces, but Pcap has its own
 naming system.  So the conversion is done here */
@@ -1839,10 +1842,16 @@ int pcap_select(pcap_t *p, struct timeval *timeout)
 	FD_ZERO(&rfds);
 	FD_SET(fd, &rfds);
 
-	ret = select(fd + 1, &rfds, NULL, NULL, timeout);
-
-	if (ret == -1)
-		fatal("Your system does not support select()ing on pcap devices (%s). PLEASE REPORT THIS ALONG WITH DETAILED SYSTEM INFORMATION TO THE nmap-dev MAILING LIST!", strerror(errno));
+	do {
+		errno = 0;
+		ret = select(fd + 1, &rfds, NULL, NULL, timeout);
+		if (ret == -1) {
+			if (errno == EINTR)
+				error("%s: %s", __func__, strerror(errno));
+			else
+				fatal("Your system does not support select()ing on pcap devices (%s). PLEASE REPORT THIS ALONG WITH DETAILED SYSTEM INFORMATION TO THE nmap-dev MAILING LIST!", strerror(errno));
+		}
+	} while (ret == -1);
 
 	return ret;
 }

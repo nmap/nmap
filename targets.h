@@ -155,8 +155,7 @@ struct tcpqueryinfo {
 };
 
 struct pingtech {
-  unsigned int icmpscan: 1,
-    rawicmpscan: 1,
+  unsigned int rawicmpscan: 1,
     connecttcpscan: 1,
     rawtcpscan: 1,
     rawudpscan: 1;
@@ -166,7 +165,7 @@ struct pingtech {
 /* Ports is the list of ports the user asked to be scanned (0 terminated),
    you can just pass NULL (it is only a stupid optimization that needs it) */
 Target *nexthost(HostGroupState *hs, TargetGroup *exclude_group, 
-		 struct scan_lists *ports, int *pingtype);
+		 struct scan_lists *ports, int pingtype);
 /* loads an exclude file into a excluded target list */
 TargetGroup* load_exclude(FILE *fExclude, char *szExclude);
 /* a debugging routine to dump an exclude list to stdout. */
