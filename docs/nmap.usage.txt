@@ -1,4 +1,4 @@
-Nmap 4.22SOC1 ( http://insecure.org )
+Nmap 4.22SOC6 ( http://insecure.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -41,9 +41,11 @@ SERVICE/VERSION DETECTION:
   --version-trace: Show detailed version scan activity (for debugging)
 SCRIPT SCAN:
   -sC: equivalent to --script=safe,intrusive
-  --script=<lua scripts>: <lua scripts> is a comma separated list of dirs or scripts
+  --script=<lua scripts>: <lua scripts> is a comma separated list of 
+           directories, script-files or script-categories
+  --script-args=<n1=v1,[n2=v2,...]>: provide arguments to scripts
   --script-trace: Show all data sent and received
-  --script-updatedb: Update the script database. Only performed if -sC or --script was also given.
+  --script-updatedb: Update the script database.
 OS DETECTION:
   -O: Enable OS detection (try 2nd generation w/fallback to 1st)
   -O2: Only use the new OS detection system (no fallback)
