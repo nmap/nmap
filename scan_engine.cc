@@ -1769,13 +1769,6 @@ void HostScanStats::destroyAllOutstandingProbes() {
     destroyOutstandingProbe(probes_outstanding.begin());
 }
 
-/* This is a temporary function that logs the congestion window and congestion
-   control threshold for the purposes of graphing those values. */
-void log_cc(const GroupScanStats *gstats) {
-  if (o.debugging)
-    log_write(LOG_PLAIN, "cc: %.2f %.4f %d\n", o.TimeSinceStartMS() / 1000.0, gstats->timing.cwnd, gstats->timing.ccthresh);
-}
-
 /* Adjust various timing variables based on pcket receipt.  Pass
    rcvdtime = NULL if you have given up on a probe and want to count
    this as a DROPPED PACKET */
@@ -1834,8 +1827,6 @@ static void ultrascan_adjust_times(UltraScanInfo *USI, HostScanStats *hss,
     if (USI->gstats->timing.cwnd > USI->perf.max_cwnd)
       USI->gstats->timing.cwnd = USI->perf.max_cwnd;
   }
-
-  log_cc(USI->gstats);
 
   /* If packet drops are particularly bad, enforce a delay between
      packet sends (useful for cases such as UDP scan where responses
@@ -2779,7 +2770,7 @@ static void sendGlobalPingProbe(UltraScanInfo *USI) {
   hss = USI->gstats->pinghost;
   assert(hss != NULL);
 
-  if (o.debugging > 1 || o.debugging) {
+  if (o.debugging > 1) {
     char tmpbuf[32];
     log_write(LOG_PLAIN, "Ultrascan GLOBAL PING SENT to %s [%s]\n", hss->target->targetipstr(), 
 	      probespec2ascii(&hss->pingprobe, tmpbuf, sizeof(tmpbuf)));
@@ -2915,11 +2906,6 @@ static void printAnyStats(UltraScanInfo *USI) {
   list<HostScanStats *>::iterator hostI;
   HostScanStats *hss;
   struct ultra_timing_vals hosttm;
-
-  /* This is a temporary measure to log the number of active probes for the
-     purpose of making graphs. */
-  if (o.debugging)
-    log_write(LOG_PLAIN, "num_probes_active: %.2f %d\n", o.TimeSinceStartMS() / 1000.0, USI->gstats->num_probes_active);
 
   /* Print debugging states for each host being scanned */
   if (o.debugging > 2) {
@@ -4481,8 +4467,6 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
   /* Use the requested timeouts. */
   if (to != NULL)
     USI->gstats->to = *to;
-
-  log_cc(USI->gstats);
 
   if (o.verbose) {
     char targetstr[128];
