@@ -1517,12 +1517,18 @@ int UltraScanInfo::removeCompletedHosts() {
 		    hss->target->targetipstr(), scantype2str(scantype), remain,
 		    (remain == 1)? "host left" : "hosts left");
       }
-      if (o.debugging > 1) {
-	char tmpbuf[32];
-	std::list<UltraProbe *>::iterator iter;
-	log_write(LOG_PLAIN, "Moving %s to completed hosts list with %d outstanding probes.\n", hss->target->targetipstr(), hss->probes_outstanding.size());
-	for (iter = hss->probes_outstanding.begin(); iter != hss->probes_outstanding.end(); iter++)
-	  log_write(LOG_PLAIN, "* %s\n", probespec2ascii((probespec *) (*iter)->pspec(), tmpbuf, sizeof(tmpbuf)));
+      if (o.debugging) {
+        unsigned int num_outstanding_probes;
+        num_outstanding_probes = hss->probes_outstanding.size();
+        log_write(LOG_PLAIN, "Moving %s to completed hosts list with %d outstanding %s.\n",
+                  hss->target->targetipstr(), num_outstanding_probes,
+                  num_outstanding_probes == 1 ? "probe" : "probes");
+        if (o.debugging > 1) {
+          char tmpbuf[32];
+          std::list<UltraProbe *>::iterator iter;
+          for (iter = hss->probes_outstanding.begin(); iter != hss->probes_outstanding.end(); iter++)
+            log_write(LOG_PLAIN, "* %s\n", probespec2ascii((probespec *) (*iter)->pspec(), tmpbuf, sizeof(tmpbuf)));
+        }
       }
       completedHosts.push_front(hss);
       incompleteHosts.erase(hostI);
