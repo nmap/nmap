@@ -2710,7 +2710,7 @@ static void doAnyNewProbes(UltraScanInfo *USI) {
      sending a probe. */
   unableToSend = NULL;
   hss = USI->nextIncompleteHost();
-  while (hss != NULL and hss != unableToSend && USI->gstats->sendOK()) {
+  while (hss != NULL && hss != unableToSend && USI->gstats->sendOK()) {
     if (hss->freshPortsLeft() && hss->sendOK(NULL)) {
       sendNextScanProbe(USI, hss);
       unableToSend = NULL;
