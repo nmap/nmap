@@ -918,6 +918,25 @@ int nmap_main(int argc, char *argv[]) {
 	  if (o.decoyturn != -1) 
 	    fatal("Can only use 'ME' as a decoy once.\n");
 	  o.decoyturn = o.numdecoys++;
+	} else if (!strcasecmp(p, "rnd") || !strncasecmp(p, "rnd:", 4)) {
+	  int i = 1;
+
+	  /* 'rnd:' is allowed and just gives them one */
+	  if (strlen(p) > 4)
+	    i = atoi(&p[4]);
+
+	  if (i < 1)
+	    fatal("Bad 'rnd' decoy \"%s\"", p);
+
+	  if (o.numdecoys + i >= MAX_DECOYS - 1)
+	    fatal("You are only allowed %d decoys (if you need more redefine MAX_DECOYS in nmap.h)", MAX_DECOYS);
+
+	  while (i--) {
+	    do {
+	      o.decoys[o.numdecoys].s_addr = get_random_u32();
+	    } while (ip_is_reserved(&o.decoys[o.numdecoys]));
+	    o.numdecoys++;
+	  }
 	} else {      
 	  if (o.numdecoys >= MAX_DECOYS -1)
 	    fatal("You are only allowed %d decoys (if you need more redefine MAX_DECOYS in nmap.h)", MAX_DECOYS);

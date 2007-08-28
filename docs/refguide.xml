@@ -2525,7 +2525,9 @@ lists the relevant options and describes what they do.</para>
           common port scan detectors (such as Solar Designer's
           excellent scanlogd) are unlikely to show your IP address at
           all. If you don't use <literal>ME</literal>, nmap will put
-          you in a random position.</para> <para>Note that the hosts
+          you in a random position.  You can also use RND to generate
+          a random, non-reserved IP address, or RND:&lt;number&gt; to
+          generate &lt;number&gt; addresses.</para> <para>Note that the hosts
           you use as decoys should be up or you might accidentally SYN
           flood your targets. Also it will be pretty easy to determine
           which host is scanning if only one is actually up on the
