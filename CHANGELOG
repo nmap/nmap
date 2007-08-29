@@ -16,6 +16,11 @@ o Fixed UMIT bug which occurred when installing to a non-standard
 o Added an NSE script (HTTPpasswd.nse) for finding directory traversal
   problems and /etc/password files on web servers. [Kris]
 
+o Fixed an error related to version scans against SSL services on
+  UNIX.  The error said "nsock_connect_ssl called - but nsock was
+  built w/o SSL support. QUITTING".  Thanks to Jason DePriest for
+  tracking down the problem and David Fifield for fixing it.
+
 o Removed win_dependencies cruft from UMIT directory. [Kris]
 
 o Upgraded libpcap from version 0.9.4 to 0.9.7 [Kris]
