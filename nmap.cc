@@ -725,7 +725,8 @@ int nmap_main(int argc, char *argv[]) {
 	if (o.min_parallelism > 100) {
 	  error("Warning: Your --min-parallelism option is pretty high!  This can hurt reliability.");
 	}
-      } else if (optcmp(long_options[option_index].name, "host-timeout") == 0) {	l = tval2msecs(optarg);
+      } else if (optcmp(long_options[option_index].name, "host-timeout") == 0) {
+	l = tval2msecs(optarg);
 	if (l <= 1500) fatal("--host-timeout is specified in milliseconds unless you qualify it by appending 's', 'm', 'h', or 'd'.  The value must be greater than 1500 milliseconds");
 	pre_host_timeout = l;
 	if (l < 15000) {
