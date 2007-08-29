@@ -1775,21 +1775,33 @@ void HostScanStats::destroyAllOutstandingProbes() {
     destroyOutstandingProbe(probes_outstanding.begin());
 }
 
-/* Adjust various timing variables based on pcket receipt.  Pass
-   rcvdtime = NULL if you have given up on a probe and want to count
-   this as a DROPPED PACKET */
-static void ultrascan_adjust_times(UltraScanInfo *USI, HostScanStats *hss, 
-		       UltraProbe *probe, struct timeval *rcvdtime) {
+/* Adjust host and group timeouts (struct timeout_info) based on a received
+   packet. If rcvdtime is NULL, nothing is updated.
+   
+   This function is called for every probe response received, in order to keep
+   an accurate timeout estimate. ultrascan_adjust_timing, on the other hand, is
+   not called when a response is not useful for adjusting other timing
+   variables. */
+static void ultrascan_adjust_timeouts(UltraScanInfo *USI, HostScanStats *hss, 
+                                      UltraProbe *probe,
+                                      struct timeval *rcvdtime) {
+  if (rcvdtime == NULL)
+    return;
 
+  adjust_timeouts2(&(probe->sent), rcvdtime, &(hss->target->to));
+  adjust_timeouts2(&(probe->sent), rcvdtime, &(USI->gstats->to));
+
+  USI->gstats->lastrcvd = hss->lastrcvd = *rcvdtime;
+}
+
+/* Adjust host and group congestion control variables (struct ultra_timing_vals)
+   and host send delay (struct send_delay_nfo) based on a received packet. Use
+   rcvdtime == NULL to indicate that you have given up on a probe and want to
+   count this as a DROPPED PACKET. */
+static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss, 
+                                    UltraProbe *probe,
+                                    struct timeval *rcvdtime) {
   int ping_magnifier = (probe->isPing())? USI->perf.ping_magnifier : 1;
-
-  /* Adjust timing */
-  if (rcvdtime) {
-    adjust_timeouts2(&(probe->sent), rcvdtime, &(hss->target->to));
-    adjust_timeouts2(&(probe->sent), rcvdtime, &(USI->gstats->to));
-  
-    USI->gstats->lastrcvd = hss->lastrcvd = *rcvdtime;
-  }
 
   hss->timing.num_updates++;
   USI->gstats->timing.num_updates++;
@@ -1875,7 +1887,7 @@ void HostScanStats::markProbeTimedout(list<UltraProbe *>::iterator probeI) {
   assert(USI->gstats->num_probes_active > 0);
   USI->gstats->num_probes_active--;
   if (probe->isPing()) {
-    ultrascan_adjust_times(USI, this, probe, NULL);
+    ultrascan_adjust_timing(USI, this, probe, NULL);
     /* I'll leave it in the queue in case some response ever does
        come */
   } else num_probes_waiting_retransmit++;
@@ -2213,14 +2225,15 @@ void HostScanStats::moveProbeToBench(list<UltraProbe *>::iterator probeI) {
   delete probe;
 }
 
-/* Called when a ping response is discovered. If adjust_times is false, timing
+/* Called when a ping response is discovered. If adjust_timing is false, timing
    stats are not updated. */
 static void ultrascan_ping_update(UltraScanInfo *USI, HostScanStats *hss, 
 				  list<UltraProbe *>::iterator probeI,
 				  struct timeval *rcvdtime,
-				  bool adjust_times = true) {
-  if (adjust_times)
-    ultrascan_adjust_times(USI, hss, *probeI, rcvdtime);
+				  bool adjust_timing = true) {
+  ultrascan_adjust_timeouts(USI, hss, *probeI, rcvdtime);
+  if (adjust_timing)
+    ultrascan_adjust_timing(USI, hss, *probeI, rcvdtime);
   hss->destroyOutstandingProbe(probeI);
 }
 
@@ -2279,11 +2292,11 @@ static void ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
    found to be up or down by a ping/ping_arp scan.  The probe that led
    to this new decision is in probeI.  This function needs to update
    timing information and other stats as appropriate. If rcvdtime is
-   NULL or adjust_times is false, packet stats are not updated. */
+   NULL or adjust_timing is false, packet stats are not updated. */
 static void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss, 
 				        list<UltraProbe *>::iterator probeI,
 				        int newstate, struct timeval *rcvdtime,
-				        bool adjust_times = true) {
+				        bool adjust_timing = true) {
   UltraProbe *probe = *probeI;
 
   if (o.debugging)  {
@@ -2293,8 +2306,9 @@ static void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
     log_write(LOG_STDOUT, "%s called for machine %s state %s -> %s (trynum %d time: %ld)\n", __func__, hss->target->targetipstr(), readhoststate(hss->target->flags), readhoststate(newstate), probe->tryno, (long) TIMEVAL_SUBTRACT(tv, probe->sent));
   }
 
-  if (adjust_times && rcvdtime != NULL)
-    ultrascan_adjust_times(USI, hss, probe, rcvdtime);
+  ultrascan_adjust_timeouts(USI, hss, probe, rcvdtime);
+  if (adjust_timing && rcvdtime != NULL)
+    ultrascan_adjust_timing(USI, hss, probe, rcvdtime);
 
   ultrascan_host_pspec_update(USI, hss, probe->pspec(), newstate);
 
@@ -2307,19 +2321,21 @@ static void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
    Nmap port state table as appropriate.  If rcvdtime is NULL or we got
    unimportant packet, packet stats are not updated.  If you don't have an
    UltraProbe list iterator, you may need to call ultrascan_port_psec_update()
-   instead. If rcvdtime is NULL or adjust_times is false, packet stats are not
+   instead. If rcvdtime is NULL or adjust_timing is false, packet stats are not
    updated. */
 static void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
  					list<UltraProbe *>::iterator probeI,
 					int newstate, struct timeval *rcvdtime,
-					bool adjust_times = true) {
+					bool adjust_timing = true) {
   UltraProbe *probe = *probeI;
   const probespec *pspec = probe->pspec();
   bool changed = false;
 
   changed = ultrascan_port_pspec_update(USI, hss, pspec, newstate);
 
-  if (adjust_times &&
+  ultrascan_adjust_timeouts(USI, hss, probe, rcvdtime);
+
+  if (adjust_timing &&
   /* The rcvdtime check is because this func is called that way when
      we give up on a probe because of too many retransmissions. */
      rcvdtime &&
@@ -2333,7 +2349,7 @@ static void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
   /* If we are in --defeat-rst-ratelimit mode, we do not care whether we got RST back or not
    * because RST and "no response" both mean PORT_CLOSEDFILTERED. Do not slow down */
      !(o.defeat_rst_ratelimit && newstate == PORT_CLOSEDFILTERED && probe->tryno > 0)) { /* rcvdtime is interesting */
-    ultrascan_adjust_times(USI, hss, probe, rcvdtime);
+    ultrascan_adjust_timing(USI, hss, probe, rcvdtime);
     if (probe->tryno > hss->max_successful_tryno) {
       hss->max_successful_tryno = probe->tryno;
       if (o.debugging)
@@ -2865,44 +2881,45 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
 
   gettimeofday(&USI->now, NULL);
 
-  /* Retransmit as permitted by congestion control and tryno limits */
-  while(USI->gstats->sendOK()) {
+  /* Loop until we get through all the hosts without a retransmit or we're not
+     OK to send any more. */
+  do {
     retrans = 0;
-    for(hostI = USI->incompleteHosts.begin(); 
-	hostI != USI->incompleteHosts.end(); hostI++) {
+    for (hostI = USI->incompleteHosts.begin();
+         hostI != USI->incompleteHosts.end() && USI->gstats->sendOK();
+         hostI++) {
       host = *hostI;
-      if ((host->num_probes_active > 0 || 
-	   host->num_probes_waiting_retransmit > 0) && host->sendOK(NULL)) {
-	/* Doing the probe list backwards gives a decent efficiency
-	   boost.  Probe retransmissions may be reordered from the
-	   original transmissions, but mixing things up like that can
-	   be beneficial */
-	probeI = host->probes_outstanding.end();
-	maxtries = host->allowedTryno(NULL, NULL);
-	do {
-	  probeI--;
-	  probe = *probeI;
-	  if (probe->timedout && !probe->retransmitted && 
-	      maxtries > probe->tryno && !probe->isPing()) {
-	    /* For rate limit detection, we delay the first time a new tryno
-	       is seen, as long as we are scanning at least 2 ports */
-	    if (probe->tryno + 1 > (int) host->rld.max_tryno_sent && 
-		USI->gstats->numprobes > 1) {
-	      host->rld.max_tryno_sent = probe->tryno + 1;
-	      host->rld.rld_waiting = true;
-	      TIMEVAL_MSEC_ADD(host->rld.rld_waittime, USI->now, 1000);
-	    } else {
-	      host->rld.rld_waiting = false;
-	      retransmitProbe(USI, host, probe);
-	      retrans++;
-	    }
-	    break; /* I only do one probe per host for now to spread load */
-	  } 
-	} while (probeI != host->probes_outstanding.begin());
-      }
+      /* Skip this host if it has nothing to send. */
+      if ((host->num_probes_active == 0
+           && host->num_probes_waiting_retransmit == 0))
+        continue;
+      if (!host->sendOK(NULL))
+        continue;
+      assert(!host->probes_outstanding.empty());
+      probeI = host->probes_outstanding.end();
+      maxtries = host->allowedTryno(NULL, NULL);
+      do {
+        probeI--;
+        probe = *probeI;
+        if (probe->timedout && !probe->retransmitted && 
+            maxtries > probe->tryno && !probe->isPing()) {
+          /* For rate limit detection, we delay the first time a new tryno
+             is seen, as long as we are scanning at least 2 ports */
+          if (probe->tryno + 1 > (int) host->rld.max_tryno_sent && 
+              USI->gstats->numprobes > 1) {
+            host->rld.max_tryno_sent = probe->tryno + 1;
+            host->rld.rld_waiting = true;
+            TIMEVAL_MSEC_ADD(host->rld.rld_waittime, USI->now, 1000);
+          } else {
+            host->rld.rld_waiting = false;
+            retransmitProbe(USI, host, probe);
+            retrans++;
+          }
+          break; /* I only do one probe per host for now to spread load */
+        } 
+      } while (probeI != host->probes_outstanding.begin());
     }
-    if (retrans == 0) break; /* Went through all hosts -- nothing to send */
-  }
+  } while (USI->gstats->sendOK() && retrans != 0);
 }
 
 /* Print occasional remaining time estimates, as well as
@@ -3049,8 +3066,8 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
       if (probeI != host->probes_outstanding.begin()) 
 	nextProbeI--;
       probe = *probeI;
-      /* Assume that we will adjust times when a response is received. */
-      bool adjust_times = true;
+      /* Assume that we will adjust timing when a response is received. */
+      bool adjust_timing = true;
       pport = probe->pspec()->pd.tcp.dport;
       assert(probe->type == UltraProbe::UP_CONNECT);
       sd = probe->CP()->sd;
@@ -3151,7 +3168,7 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
 	  newportstate = PORT_FILTERED;
 	  current_reason = ER_HOSTUNREACH;
 	  /* Don't adjust timing for this. */
-          adjust_times = false;
+          adjust_timing = false;
 	  break;
 	case ETIMEDOUT:
 	case EHOSTDOWN:
@@ -3162,14 +3179,14 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
 	  newportstate = PORT_FILTERED;
 	  current_reason = ER_NORESPONSE;
 	  /* Don't adjust timing for this. */
-          adjust_times = false;
+          adjust_timing = false;
 	  break;
 	case ENETUNREACH:
 	  newhoststate = HOST_DOWN;
 	  newportstate = PORT_FILTERED;
 	  current_reason = ER_NETUNREACH;
 	  /* Don't adjust timing for this. */
-          adjust_times = false;
+          adjust_timing = false;
 	  break;
 	case ENETDOWN:
 	case ENETRESET:
@@ -3185,14 +3202,14 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
 
 	if (USI->ping_scan && newhoststate != HOST_UNKNOWN) {
 	  if (probe->isPing())
-	    ultrascan_ping_update(USI, host, probeI, &USI->now, adjust_times);
+	    ultrascan_ping_update(USI, host, probeI, &USI->now, adjust_timing);
 	  else {
-	    ultrascan_host_probe_update(USI, host, probeI, newhoststate, &USI->now, adjust_times);
+	    ultrascan_host_probe_update(USI, host, probeI, newhoststate, &USI->now, adjust_timing);
 	    host->target->reason.reason_id = current_reason;
 	  }
 	} else if (!USI->ping_scan && newportstate != PORT_UNKNOWN) {
 	  if (probe->isPing())
-	    ultrascan_ping_update(USI, host, probeI, &USI->now, adjust_times);
+	    ultrascan_ping_update(USI, host, probeI, &USI->now, adjust_timing);
 	  else {
 	    /* Save these values so we can use them after
 	       ultrascan_port_probe_update deletes probe. */
@@ -3713,7 +3730,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   bool goodone = false;
   bool timedout = false;
-  bool adjust_times = true;
+  bool adjust_timing = true;
   struct timeval rcvdtime;
   struct link_header linkhdr;
   struct ip *ip;
@@ -4007,7 +4024,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
                and much longer scans. */
             goodone = true;
             newstate = HOST_DOWN;
-            adjust_times = false;
+            adjust_timing = false;
           }
           if (o.debugging) {
 	    if (ping->code == 3)
@@ -4021,7 +4038,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           goodone = 1;
           newstate = HOST_DOWN;
 	  /* I don't want anything to do with timing this. */
-	  adjust_times = false;
+	  adjust_timing = false;
         } else if (ping->type == 4) {      
           if (o.debugging) log_write(LOG_STDOUT, "Got ICMP source quench\n");
           usleep(50000);
@@ -4172,7 +4189,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
     if (probe->isPing())
       ultrascan_ping_update(USI, hss, probeI, &USI->now);
     else {
-      ultrascan_host_probe_update(USI, hss, probeI, newstate, &rcvdtime, adjust_times);
+      ultrascan_host_probe_update(USI, hss, probeI, newstate, &rcvdtime, adjust_timing);
       /* If the host is up, we can forget our other probes. */
       if (newstate == HOST_UP)
 	hss->destroyAllOutstandingProbes();
