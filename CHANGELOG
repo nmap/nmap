@@ -1,12 +1,62 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+4.22SOC6
+
+o Included David's major massping migration project.  The same
+  underlying engine is now uses for ping scanning as for port
+  scanning.  We hope this will lead to better performance and
+  accuracy, as well as helping to de-bloat Nmap.  Please test it out
+  and report your results to nmap-dev!  For more details, see
+  http://seclists.org/nmap-dev/2007/q3/0277.html
+
 o Fixed UMIT bug which occurred when installing to a non-standard
   directory (e.g. a home directory).  This caused Python to not be able
   to find the necessary files. [Kris]
 
+o Added an NSE script (HTTPpasswd.nse) for finding directory traversal
+  problems and /etc/password files on web servers. [Kris]
+
 o Removed win_dependencies cruft from UMIT directory. [Kris]
 
 o Upgraded libpcap from version 0.9.4 to 0.9.7 [Kris]
+
+o Removed the effectively empty XML elements for traceroute hops which
+  timed out. [Eddie]
+
+o Fixed (I hope) a problem with running Nmap on Mac OS X machines with
+  VMWare Fusion running.  The error message started with:
+  "getinterfaces: Failed to open ethernet interface (vmnet8). A
+  possible cause on BSD operating systems is running out of BPF
+  devices ...."  For more details, see
+  http://seclists.org/nmap-dev/2007/q3/0254.html.
+
+o Check that --script arguments are reasonable when Nmap starts rather
+  than potentially waiting for a bunch of port scanning to finish
+  first. [Stoiko]
+
+o Fixed (we hope) a UMIT problem which resulted in the error message:
+  "NameError: global name 'S_IRUSR' is not defined". [Adriano]
+
+o Removed an error message which used to appear when you quit UMIT on
+  Windows.  The message used to say "Errors occurred - See the logfile
+  [filename] for details." [Adriano]
+
+o Fix permissions on files installed by Umit so that it should work
+  even if you do 'make install' from an account with a 077 umask.
+
+o Add a feature to Umit that lets you search your unsaved
+  scans. [Eddie]
+
+o Added back a previously removed feature which allows you to specify
+  'rnd' as one of your decoys (-D option) to let Nmap choose a random
+  IP.  You also use a format such as rnd:5 to generate five random
+  decoys. [Kris]
+
+o Reference guide (man page) updates to the NSE section, and some
+  general cleanup.
+
+o When Nmap finishes, it now says "Nmap done" rather than "Nmap run
+  completed".  No need to waste pixels on excess verbiage.
 
 4.22SOC5
 
