@@ -2778,9 +2778,10 @@ int sd;
 	eth_t *ethsd = eth_open_cached(mydevs[numifaces].devname);
 	eth_addr_t ethaddr;
 
-	if (!ethsd) 
-	  fatal("%s: Failed to open ethernet interface (%s). A possible cause on BSD operating systems is running out of BPF devices (see http://seclists.org/lists/nmap-dev/2006/Jan-Mar/0014.html).", __func__,
-		mydevs[numifaces].devname);
+	if (!ethsd) {
+	  error("Warning: Unable to open interface %s -- skipping it.", mydevs[numifaces].devname);
+	  continue;
+	}
 	if (eth_get(ethsd, &ethaddr) != 0) 
 	  fatal("%s: Failed to obtain MAC address for ethernet interface (%s)",
 		__func__, mydevs[numifaces].devname);
