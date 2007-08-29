@@ -691,14 +691,14 @@ static char *probespec2ascii(probespec *pspec, char *buf, unsigned int bufsz) {
     Snprintf(buf, bufsz, "protocol %u", (unsigned int) pspec->proto);
     break;
   case PS_ICMP:
-    snprintf(buf, bufsz, "icmp type %d code %d",
+    Snprintf(buf, bufsz, "icmp type %d code %d",
              pspec->pd.icmp.type, pspec->pd.icmp.code);
     break;
   case PS_ARP:
     Snprintf(buf, bufsz, "ARP");
     break;
   case PS_CONNECTTCP:
-    snprintf(buf, bufsz, "connect to port %hu", pspec->pd.tcp.dport);
+    Snprintf(buf, bufsz, "connect to port %hu", pspec->pd.tcp.dport);
     break;
   default:
     fatal("Unexpected %s type encountered", __func__);
@@ -4300,11 +4300,11 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
     /* Handle all the different ping types (except ARP and TCP connect) with one
        filter. */
     if (doIndividual)
-      len = snprintf(pcap_filter, sizeof(pcap_filter),
+      len = Snprintf(pcap_filter, sizeof(pcap_filter),
         "dst host %s and (icmp or ((tcp or udp) and (%s)))", 
 	inet_ntoa(Targets[0]->v4source()), dst_hosts);
     else
-      len = snprintf(pcap_filter, sizeof(pcap_filter),
+      len = Snprintf(pcap_filter, sizeof(pcap_filter),
         "dst host %s and (icmp or tcp or udp)", 
 	inet_ntoa(Targets[0]->v4source()));
     if (len < 0 || len >= (int) sizeof(pcap_filter))
