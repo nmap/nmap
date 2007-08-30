@@ -1520,13 +1520,13 @@ int UltraScanInfo::removeCompletedHosts() {
 		    hss->target->targetipstr(), scantype2str(scantype), remain,
 		    (remain == 1)? "host left" : "hosts left");
       }
-      if (o.debugging) {
+      if (o.debugging > 1) {
         unsigned int num_outstanding_probes;
         num_outstanding_probes = hss->probes_outstanding.size();
         log_write(LOG_PLAIN, "Moving %s to completed hosts list with %d outstanding %s.\n",
                   hss->target->targetipstr(), num_outstanding_probes,
                   num_outstanding_probes == 1 ? "probe" : "probes");
-        if (o.debugging > 1) {
+        if (o.debugging > 2) {
           char tmpbuf[32];
           std::list<UltraProbe *>::iterator iter;
           for (iter = hss->probes_outstanding.begin(); iter != hss->probes_outstanding.end(); iter++)
