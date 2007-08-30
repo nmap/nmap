@@ -3815,6 +3815,18 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         probeI = hss->probes_outstanding.end();
         listsz = hss->num_probes_outstanding();
 
+        /* A check for wierd_responses is needed here. This is not currently
+           possible because we don't have a good way to look up the original
+           target of an ICMP probe based on the response. (massping encoded an
+           array index in the ICMP sequence, which won't work here.) Once we've
+           found the host that sent the probe that elicited the response, the
+           test for wierd_responses is
+              if (sending_host->v4host().s_addr != ip->ip_src.s_addr)
+                hss->target->wierd_responses++;
+           (That is, the target that sent the probe is not the same one that
+           sent the response.)
+         */
+
         goodone = false;
 
         /* Find the probe that provoked this response. */
@@ -3826,10 +3838,8 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
             continue;
 
           /* Ensure the connection info matches. */
-          if (hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr) {
-            hss->target->wierd_responses++;
+          if (hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
             continue;
-          }
 
           /* Sometimes we get false results when scanning localhost with
              -p- because we scan localhost with src port = dst port and

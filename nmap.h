@@ -327,7 +327,7 @@ void *realloc();
 /* Number of hosts we pre-ping and then scan.  We do a lot more if
    randomize_hosts is set.  Every one you add to this leads to ~1K of
    extra always-resident memory in nmap */
-#define PING_GROUP_SZ 2048
+#define PING_GROUP_SZ 4096
 
 /* DO NOT change stuff after this point */
 #define UC(b)   (((int)b)&0xff)
