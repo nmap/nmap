@@ -2272,9 +2272,6 @@ static void ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
     } else assert(0);
   }
 
-  if (o.verbose && (hss->target->flags & HOST_UP))
-    log_write(LOG_STDOUT, "%s appears to be up\n", hss->target->NameIP());
-
   /* Consider changing the ping port */
   if (hss->pingprobestate != newstate) {
     if (hss->pingprobestate == PORT_UNKNOWN && newstate == HOST_UP) {
