@@ -1457,12 +1457,15 @@ HostScanStats *UltraScanInfo::findHost(struct sockaddr_storage *ss) {
     fatal("%s passed a non IPv4 address", __func__);
 
   for(hss = incompleteHosts.begin(); hss != incompleteHosts.end(); hss++) {
-    if ((*hss)->target->v4hostip()->s_addr == sin->sin_addr.s_addr)
+    if ((*hss)->target->v4hostip()->s_addr == sin->sin_addr.s_addr) {
+      if (o.debugging > 2)
+	log_write(LOG_STDOUT, "Found %s in incomplete hosts list.\n", (*hss)->target->targetipstr());
       return *hss;
+    }
   }
   for(hss = completedHosts.begin(); hss != completedHosts.end(); hss++) {
     if ((*hss)->target->v4hostip()->s_addr == sin->sin_addr.s_addr) {
-      if (o.debugging)
+      if (o.debugging > 2)
 	log_write(LOG_STDOUT, "Found %s in completed hosts list.\n", (*hss)->target->targetipstr());
       return *hss;
     }
@@ -2269,6 +2272,9 @@ static void ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
     } else assert(0);
   }
 
+  if (o.verbose && (hss->target->flags & HOST_UP))
+    log_write(LOG_STDOUT, "%s appears to be up\n", hss->target->NameIP());
+
   /* Consider changing the ping port */
   if (hss->pingprobestate != newstate) {
     if (hss->pingprobestate == PORT_UNKNOWN && newstate == HOST_UP) {
@@ -2299,7 +2305,7 @@ static void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
 				        bool adjust_timing = true) {
   UltraProbe *probe = *probeI;
 
-  if (o.debugging)  {
+  if (o.debugging > 1) {
     struct timeval tv;
 
     gettimeofday(&tv, NULL);
@@ -4042,7 +4048,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         } else if (ping->type == 4) {      
           if (o.debugging) log_write(LOG_STDOUT, "Got ICMP source quench\n");
           usleep(50000);
-        } else if (o.debugging > 0) {
+        } else if (o.debugging) {
           log_write(LOG_STDOUT, "Got ICMP message type %d code %d\n", ping->type, ping->code);
         }
       }
@@ -4436,7 +4442,8 @@ static void processData(UltraScanInfo *USI) {
       /* If a global ping probe times out, we want to get rid of it so a new
          host can take its place. */
       if (TIMEVAL_SUBTRACT(USI->now, (*probeI)->sent) > (long) pinghost->probeTimeout()) {
-        log_write(LOG_STDOUT, "Destroying timed-out global ping from %s.\n", pinghost->target->targetipstr());
+        if (o.debugging)
+          log_write(LOG_STDOUT, "Destroying timed-out global ping from %s.\n", pinghost->target->targetipstr());
 	pinghost->destroyOutstandingProbe(probeI);
       }
     }
