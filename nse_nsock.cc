@@ -41,6 +41,7 @@ extern NmapOps o;
 int process_waiting2running(lua_State* l, int resume_arguments);
 
 static int l_nsock_connect(lua_State* l);
+static int l_nsock_connect_queued(lua_State* l);
 static int l_nsock_send(lua_State* l);
 static int l_nsock_receive(lua_State* l);
 static int l_nsock_receive_lines(lua_State* l);
@@ -71,7 +72,7 @@ char* inet_ntop_both(int af, const void* v_addr, char* ipstring);
 unsigned short inet_port_both(int af, const void* v_addr);
 
 static luaL_reg l_nsock [] = {
-	{"connect", l_nsock_connect},
+	{"connect", l_nsock_connect_queued},
 	{"send", l_nsock_send},
 	{"receive", l_nsock_receive},
 	{"receive_lines", l_nsock_receive_lines},
@@ -90,6 +91,13 @@ static luaL_reg l_nsock [] = {
 };
 
 static nsock_pool nsp;
+
+/* There can't be more opened descriptors than max_descriptors_allowed
+ * (search below) If there are no more free slots, lua thread is
+ * freezed and saved to nsock_connect_queue. It's restored when when a
+ * descriptor becomes availble (after nsock_close). */
+static int nsock_descriptors_used; /* nsock descriptors currently in use */
+std::list<lua_State* > nsock_connect_queue; /* list of freezed threads waiting for desc */
 
 /*
  * Structure with nsock pcap descriptor.
@@ -206,6 +214,50 @@ int l_nsock_checkstatus(lua_State* l, nsock_event nse) {
 	return -1;
 }
 
+
+static int l_nsock_connect_queued(lua_State* l) {
+
+  /* We allow at least 10 even max_parallelism is 1 because a single
+     script might open a few sockets at once and we don't want it to
+     deadlock when it tries to open the 2nd one. */
+	const int max_descriptors_allowed = MAX(o.max_parallelism, 10);
+	if(nsock_descriptors_used >= max_descriptors_allowed){
+		/* wait for free descriptor */
+		nsock_connect_queue.push_back(l);
+
+		/* I must know how many arguments are passed to nsock_connect. 
+		 * is there a better way? */
+		int arguments = 3;
+		const char *how = luaL_optstring(l, 4, "");
+		if(how != ""){
+			arguments = 4;
+			int port = luaL_optinteger(l, 5, -1);
+			if(port!=-1)
+				arguments = 5;
+		}
+		
+		if(o.scriptTrace())
+			log_write(LOG_STDOUT, "NSOCK_connect_queued: thread queued (%i args) %p\n", arguments, (void *)l); 
+
+		return lua_yield(l, arguments);
+	}
+	return l_nsock_connect(l);
+}
+
+void l_nsock_connect_queued_handler(nsock_pool nsp, nsock_event nse, void *lua_state) {
+	lua_State* l = (lua_State*) lua_state;
+	/* well, this is really hackish, we can't just do process_waiting2running, because
+	 * nsock_connect() can do lua_yield().
+	 * Instead, we first execute nsock_connect, and if it returns lua_yield() (ie. -1)
+	 * than we don't do process_waiting2running. 
+	 * So, in summary we can do two lua_yield() on thread (one in l_nsock_connect_queued,
+	 * second in l_nsock_connect). But it works for me. */
+	int r = l_nsock_connect(l);
+	if(r != -1)
+		process_waiting2running((lua_State*) lua_state, 0);
+}
+
+
 static int l_nsock_connect(lua_State* l) {
 	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
 	const char* addr = luaL_checkstring(l, 2);
@@ -227,6 +279,7 @@ static int l_nsock_connect(lua_State* l) {
 	}
 
 	udata->nsiod = nsi_new(nsp, NULL);
+	nsock_descriptors_used++;
 
 	switch (how[0]) {
 		case 't':
@@ -517,6 +570,18 @@ static int l_nsock_close(lua_State* l) {
 #endif
 
 	nsi_delete(udata->nsiod, NSOCK_PENDING_NOTIFY);
+	nsock_descriptors_used--;
+	/* handle threads that are waiting for free sockets*/
+	if(nsock_connect_queue.size()){
+		lua_State *nl = nsock_connect_queue.front();
+		nsock_connect_queue.pop_front();
+		if(o.debugging)
+			log_write(LOG_STDOUT, "NSOCK: thread unqueued %p\n", (void *)nl);
+		/* we can't restore lua thread here. instead create timer event with
+		 * short timeout 0, and restore thread there*/
+		nsock_timer_create(nsp, l_nsock_connect_queued_handler, 0, (void*) nl);
+	}
+
 
 	udata->nsiod = NULL;
 
