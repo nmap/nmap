@@ -29,16 +29,18 @@ AC_HELP_STRING([--with-libpcre=included], [Always use the version included with 
   yes)
     ;;
   included)
-	PCREDIR="../libpcre"
+	PCRE_INCLUDE_DIR="../libpcre"
+	PCRE_LD_DIR="../libpcre"
     ;;
   *)
-    PCREDIR="$with_libpcre"
+    PCRE_INCLUDE_DIR="$with_libpcre/include"
+    PCRE_LD_DIR="$with_libpcre/lib"
     ;;
   esac], 
-PCREDIR="../libpcre"
+[PCRE_INCLUDE_DIR="../libpcre";PCRE_LD_DIR="../libpcre"]
 )
-PCRE_INCLUDE="-I$PCREDIR"
-PCRE_LD="-L$PCREDIR"
+PCRE_INCLUDE="-I$PCRE_INCLUDE_DIR"
+PCRE_LD="-L$PCRE_LD_DIR"
 PCRE_LIBS="-lpcre"
 
 # AC_SUBST(PCREDIR)
