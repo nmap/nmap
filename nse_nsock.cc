@@ -575,8 +575,6 @@ static int l_nsock_close(lua_State* l) {
 	if(nsock_connect_queue.size()){
 		lua_State *nl = nsock_connect_queue.front();
 		nsock_connect_queue.pop_front();
-		if(o.debugging)
-			log_write(LOG_STDOUT, "NSOCK: thread unqueued %p\n", (void *)nl);
 		/* we can't restore lua thread here. instead create timer event with
 		 * short timeout 0, and restore thread there*/
 		nsock_timer_create(nsp, l_nsock_connect_queued_handler, 0, (void*) nl);
