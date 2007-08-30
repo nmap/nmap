@@ -343,7 +343,7 @@ int process_waiting2running(lua_State* l, int resume_arguments) {
 
 	// put the thread back into the running
 	// queue
-	running_scripts.push_back((*iter));
+	running_scripts.push_front((*iter));
 	waiting_scripts.erase(iter);
 
 	return SCRIPT_ENGINE_SUCCESS;
