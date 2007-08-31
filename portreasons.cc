@@ -115,7 +115,8 @@ class PortList;
 /* Possible plural and singular reasons */
 char *reason_text[ER_MAX+1]={ 
         "reset", "conn-refused", "syn-ack", "syn-ack",  "udp-response",
-        "proto-response","net-unreach", "host-unreach", "proto-unreach",
+        "proto-response", "perm-denied",
+        "net-unreach", "host-unreach", "proto-unreach",
         "port-unreach", "echo-reply", "unknown", "unknown", "dest-unreach",
         "source-quench", "net-prohibited", "host-prohibited", "unknown", 
         "unknown", "admin-prohibited", "unknown", "time-exceeded", "unknown", "unknown",
@@ -126,7 +127,8 @@ char *reason_text[ER_MAX+1]={
 
 char *reason_pl_text[ER_MAX+1]={ 
         "resets", "conn-refused", "syn-acks", "syn-acks",  "udp-responses",
-        "proto-responses","net-unreaches", "host-unreaches", "proto-unreaches",
+        "proto-responses", "perm-denieds",
+        "net-unreaches", "host-unreaches", "proto-unreaches",
         "port-unreaches", "echo-replies", "unknowns", "unknowns", "dest-unreaches",
         "source-quenches", "net-prohibiteds", "host-prohibiteds", "unknowns", 
         "unknowns", "admin-prohibiteds", "unknowns", "time-exceededs", "unknowns",
