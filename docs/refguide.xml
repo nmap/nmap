@@ -1481,8 +1481,7 @@ way.</para>
 
 
   <refsect1 id='man-version-detection'>
-    <title>Service and Version Detection
-    <indexterm><primary>version scan</primary></indexterm></title>
+    <title>Service and Version Detection<indexterm><primary>version scan</primary></indexterm></title>
 
 
     <para>Point Nmap at a remote machine and it might tell you
@@ -1674,8 +1673,7 @@ way.</para>
 
   <refsect1 id='man-os-detection'>
 
-    <title>OS Detection
-    <indexterm><primary>OS detection</primary></indexterm></title>
+    <title>OS Detection<indexterm><primary>OS detection</primary></indexterm></title>
 
     <para>One of Nmap's best-known features is remote OS detection
     using TCP/IP stack fingerprinting.  Nmap sends a series of TCP and
@@ -1851,8 +1849,7 @@ way.</para>
     </variablelist>
   </refsect1>
 	<refsect1 id='man-nse'> 
-	<title>NSE&mdash;Scripting extension to the Nmap network scanner
-	<indexterm><primary>NSE</primary></indexterm></title>
+	<title>NSE&mdash;Scripting extension to the Nmap network scanner<indexterm><primary>NSE</primary></indexterm></title>
 	<para> 
 	The Nmap Scripting Engine (NSE) combines the efficiency of Nmap's
 	network handling with the versatility of the lightweight scripting language
@@ -3522,9 +3519,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
   </refsect1>
 
   <refsect1 id='man-runtime-interaction'>
-    <title>Runtime Interaction
-    <indexterm><primary>runtime interaction</primary></indexterm></title>
- 
+    <title>Runtime Interaction<indexterm><primary>runtime interaction</primary></indexterm></title>
 
     <para>During the execution of nmap, all key presses are
     captured. This allows you to interact with the program
