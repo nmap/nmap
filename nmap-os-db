@@ -985,7 +985,8 @@ IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # Netgear DG834 DSL Router - Firmware Version V4.01.06
 # NetGear DG834G v3 ADSL2+ Wireless b/g router
 # Netgear ADSL Firewall Router DG834 v.2 (firmware version 3.01.32)
-Fingerprint AVM Fritz!Box SL or 5010 cable modem (Linux 2.4.17), D-Link DSL-G604T wireless ADSL router (Linux 2.4.17), or Netgear DG834 or DG834G wireless DSL router
+# This is a AVM Speedport W 501 V distributed by Deutsche Telekom
+Fingerprint AVM Fritz!Box SL 5010 or AVM Speedport W 501 V cable modem (Linux 2.4.17), D-Link DSL-G604T wireless ADSL router (Linux 2.4.17), or Netgear DG834 or DG834G wireless DSL router
 Class AVM | Linux | 2.4.X | broadband router
 Class D-Link | Linux | 2.4.X | WAP
 Class Netgear | embedded || WAP
@@ -1056,8 +1057,9 @@ U1(DF=N%T=40%TG=40%TOS=C0%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Transform SCN Encoder  - Linux version 2.6.16-barco1 (evelghe@gemini) (gcc version 3.4.4) #1 PREEMPT Wed May 31 11:27:47 CEST 2006 - Barco BCD Streaming Platforms (G1) Port by Barco Control Rooms (support.bcd@barco.com)
-Fingerprint Barco TransForm SCN streaming video encoder (runs Linux 2.6.16)
-Class Barco | Linux | 2.6.16 | media device
+# Linux 2.6.15-28-amd64-generic #1 SMP PREEMPT Wed Jul 18 22:51:22 UTC 2007 x86_64 GNU/Linux
+Fingerprint Linux 2.6.15 - 2.6.16
+Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=C8-D2%GCD=<7%ISR=C9-D3%TI=Z%II=I%TS=8)
 OPS(O1=M5B4ST11NW8%O2=M5B4ST11NW8%O3=M5B4NNT11NW8%O4=M5B4ST11NW8%O5=M5B4ST11NW8%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -3589,8 +3591,10 @@ U1(DF=N%T=3C%TG=3C%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=3C%TG=3C%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # HP WP110 print server, Firmware Version: 02.00, Firmware Build Date: 2001-09-14, Boot+Version: 01.00, Boot Build Date: 2001-07-23
-Fingerprint HP WP110 print server
+# The printer is a XEROX Document Centre 405
+Fingerprint HP WP110 print server or Xerox Document Centre 405 printer
 Class HP | embedded || print server
+Class Xerox | embedded || printer
 SEQ(SP=B-15%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=97-A1%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -5285,7 +5289,7 @@ IE(DFI=N%T=FE%TG=FE%TOSI=S%CD=S%SI=S%DLI=S)
 
 # LinkSys Etherfast(R) Cable/DSL Router BEFSR41 / Firmware Version: 2.00.1
 # Linksys BEFSR41-AU router Firmware Version 4.1
-Fingerprint LinkSys BEFSR41 EtherFast broadband router
+Fingerprint Linksys BEFSR41 EtherFast broadband router
 Class Linksys | embedded || broadband router
 SEQ(SP=0-5%GCD=65|CA|12F|194|1F9%ISR=4B-55%TI=I%II=I%SS=S%TS=U)
 OPS(O1=|M5B4%O2=|M5B4%O3=|M5B4%O4=|M5B4%O5=|M5B4%O6=|M5B4)
@@ -5302,7 +5306,9 @@ U1(DF=N%T=96%TG=96%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=96%TG=96%TOSI=Z%CD=S%SI=S%DLI=S)
 
 # Linksys BEFSR41 V3 Cable/DSL Router (Firmware Version: 1.05.00)
-Fingerprint LinkSys BEFSR41 EtherFast broadband router firmware version 1.05.00
+# it is actually a DCS-6620G wireless IP camera
+Fingerprint Linksys BEFSR41 EtherFast broadband router or D-Link DCS-6620G webcam
+Class D-Link | embedded || webcam
 Class Linksys | embedded || broadband router
 SEQ(R=N)
 OPS(R=N)
@@ -5322,8 +5328,10 @@ IE(DFI=N%T=96%TG=96%TOSI=Z%CD=S%SI=S%DLI=S)
 # Linux 2.4.30 #1 Sun Mar 26 19:02:04 CEST 2006 mips unknown, OpenWRT Whiterussian RC5 on WRT54GS
 # Linux 2.4.30 mips OpenWrt 0.9 on Linksys WRT54Gv2
 # OpenWrt Whiterussian 0.9 (Linux OpenWrt 2.4.30 #1 Sat Feb 3 13:16:08 CET 2007 mips unknown)/Linksys Wireless-G Broadband-Router WRT54GL/
-Fingerprint Linksys WRT54G v2 or WRT54GS v4 running OpenWrt w/Linux kernel 2.4.30
-Class Linksys | embedded || broadband router
+# openwrt, linux 2.4.34
+# not specifically linksys wrt54gs, but any broadcom BCM947xx/953xx device (this particular one is a buffalo wzr-rs-g54)
+Fingerprint Linksys WRT54G v2 or WRT54GS v4, or Buffalo AirStation WZR-RS-G54 running OpenWrt w/Linux kernel 2.4
+Class Linux | Linux | 2.4.X | broadband router
 SEQ(SP=B3-CF%GCD=<7%ISR=C2-D3%TI=Z%II=I%TS=U)
 OPS(O1=M5B4NNSNW0%O2=M5B4NNSNW0%O3=M5B4NW0%O4=M5B4NNSNW0%O5=M5B4NNSNW0%O6=M5B4NNS)
 WIN(W1=16D0%W2=16D0%W3=16D0%W4=16D0%W5=16D0%W6=16D0)
@@ -5584,8 +5592,8 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # Linux 2.4.27-2-686 Debian GNU/Linux 3.1
 # Linux HET2 2.4.27-2-386 #1 Wed Aug 17 09:33:35 UTC 2005 i686 GNU/Linux Debian stable
 # Linux  2.4.21-32.0.1.EL  Red Hat Enterprise 3.1
-# Fingerprint Linux 2.4.33.3 #6 Fri Sep 1 04:15:45 CDT 2006 i686 pentium4 i386 GNU/Linux [Slackware Linux 11.0]
-# Fingerprint Linux  2.4.20-021stab028.17.777-enterprise #1 SMP Tue Jul 19 19:31:27 MSD 2005 i686 GNU/Linux debian sarge
+# Linux 2.4.33.3 #6 Fri Sep 1 04:15:45 CDT 2006 i686 pentium4 i386 GNU/Linux [Slackware Linux 11.0]
+# Linux  2.4.20-021stab028.17.777-enterprise #1 SMP Tue Jul 19 19:31:27 MSD 2005 i686 GNU/Linux debian sarge
 Fingerprint Linux 2.4.20 - 2.4.33 (x86)
 Class Linux | Linux | 2.4.X | general purpose
 SEQ(SP=B0-CE%GCD=<7%ISR=C3-D5%TI=Z%II=I%TS=7)
@@ -6543,6 +6551,7 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # Linux version 2.6.17-10-386 (gcc version 4.1.2 20060928 (prerelease) (Ubuntu 4.1.1-13ubuntu5)) #2 Fri Oct 13 18:41:40 UTC 2006 (Ubuntu 2.6.17-10.33-386) i686 GNU/Linux (Ubunty 6.10 Edgy))
 # Linux 2.6.17-ck1 (x86 compiled by myself)
 # Linux 2.6.19-ARCH #1 SMP PREEMPT Tue Dec 12 12:47:42 CET 2006 i686 Pentium III (Coppermine) GenuineIntel GNU/Linux
+# Gentoo with kernel version 2.6.20-hardened-r
 Fingerprint Linux 2.6.17 - 2.6.20
 Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=B5-D2%GCD=<7%ISR=BA-D7%TI=Z%II=I%TS=8)
@@ -7843,23 +7852,6 @@ T6(R=Y%DF=N%T=40%TG=40%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=Z%CD=Z%SI=S%DLI=S)
-
-# Microsoft Windows 2000 server with SP4 build 2195
-Fingerprint Microsoft Windows 2000 Server SP4
-Class Microsoft | Windows | 2000 | general purpose
-SEQ(SP=F8-108%GCD=<7%ISR=9C-112%TI=I%II=I%SS=O|S%TS=0)
-OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
-WIN(W1=FAF0|FFFF%W2=FAF0|FFFF%W3=FAF0|FFFF%W4=FAF0|FFFF%W5=FAF0|FFFF%W6=FAF0|FFFF)
-ECN(R=Y%DF=Y%T=80%TG=80%W=FAF0|FFFF%O=M5B4NW0NNS%CC=N%Q=)
-T1(R=Y%DF=Y%T=80%TG=80%S=O%A=S+%F=AS%RD=0%Q=)
-T2(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
-T3(R=Y%DF=Y%T=80%TG=80%W=FAF0|FFFF%S=O%A=S+%F=AS%O=M5B4NW0NNT00NNS%RD=0%Q=)
-T4(R=Y%DF=N%T=80%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=N%T=80%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T7(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=80%TG=80%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
-IE(DFI=S%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # Microsoft Windows 2000 Server [Winver: Version 5.0 (Build 2195: Service Pack 4)]
 Fingerprint Microsoft Windows 2000 Server SP4
@@ -9705,8 +9697,12 @@ IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Netgear WPN824 -- hwversion:V2H1 -- fwversion:V2.0.6_1.2.17NA
 # Linksys WAP55AG Firmware Version: 1.1(ETSI), Mar 17, 2005
-Fingerprint WAP: Netgear WPN824 or Linksys WAP55AG
+# It is a ReplayTV 5500.
+# It is a WAP51AB
+Fingerprint Netgear WPN824 WAP, Linksys WAP51AB or WAP55AG WAP, or ReplayTV 5500 DVR
+Class Linksys | embedded || WAP
 Class Netgear | embedded || WAP
+Class SONICblue | embedded || media device
 SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=99-A3%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -11498,6 +11494,7 @@ IE(DFI=Y%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # SunOS 5.9 Generic_118558-10 sun4u sparc SUNW,Sun-Fire-15000
 # Solaris 10; uname: SunOS 5.10 Generic_118855-33 i86pc i386 i86pc
+# SunOS xxxx 5.11 snv_64a sun4u sparc SUNW,Sun-Blade-1000
 Fingerprint Sun Solaris 9 or 10
 Class Sun | Solaris | 9 | general purpose
 Class Sun | Solaris | 10 | general purpose
