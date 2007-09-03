@@ -1475,11 +1475,19 @@ void printosscanoutput(Target *currenths) {
       if ((o.verbose > 1 || o.debugging) && reason)
 	log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,
 		  "OS fingerprint not ideal because: %s\n", reason);
+
       if ((o.osscan_guess || reason) && FPR->num_matches > 0) {
+	char *p;
 	/* Print the best guesses available */
 	log_write(LOG_PLAIN,"Aggressive OS guesses: %s (%d%%)", FPR->prints[0]->OS_name, (int) (FPR->accuracy[0] * 100));
+	log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"%d\" line=\"%d\"/>\n", 
+		  p = xml_convert(FPR->prints[0]->OS_name),  
+		  (int) (FPR->accuracy[0] * 100), 
+		  FPR->prints[0]->line);
+	free(p);
+
 	for(i=1; i < 10 && FPR->num_matches > i && FPR->accuracy[i] > FPR->accuracy[0] - 0.10; i++) {
-	  char *p;
+
 	  log_write(LOG_PLAIN,", %s (%d%%)", FPR->prints[i]->OS_name, (int) (FPR->accuracy[i] * 100));
 	  log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"%d\" line=\"%d\"/>\n", 
 		    p = xml_convert(FPR->prints[i]->OS_name),  
