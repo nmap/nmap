@@ -4618,7 +4618,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
   if (o.verbose || o.debugging) {
     struct tm *tm = localtime(&starttime);
     assert(tm);
-    log_write(LOG_STDOUT, "Initiating TCP ftp bounce scan against %s at %02d:%02d\n", target->NameIP(hostname, sizeof(hostname)), tm->tm_hour, tm->tm_min );
+    log_write(LOG_STDOUT, "Initiating TCP FTP bounce scan against %s at %02d:%02d\n", target->NameIP(hostname, sizeof(hostname)), tm->tm_hour, tm->tm_min );
   }
   for(i=0; i < numports; i++) {
 
@@ -4635,7 +4635,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
       gh_perror("send in %s", __func__);
       if (retriesleft) {
 	if (o.verbose || o.debugging) 
-	  log_write(LOG_STDOUT, "Our ftp proxy server hung up on us!  retrying\n");
+	  log_write(LOG_STDOUT, "Our FTP proxy server hung up on us!  retrying\n");
 	retriesleft--;
 	close(sd);
 	ftp->sd = ftp_anon_connect(ftp);
@@ -4652,7 +4652,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
     } else { /* Our send is good */
       res = recvtime(sd, recvbuf, 2048, 15, NULL);
       if (res <= 0) 
-	perror("recv problem from ftp bounce server");
+	perror("recv problem from FTP bounce server");
   
       else { /* our recv is good */
 	recvbuf[res] = '\0';
@@ -4660,10 +4660,10 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
 				 portarray[i],  recvbuf);
 	if (recvbuf[0] == '5') {
 	  if (portarray[i] > 1023) {
-	    fatal("Your ftp bounce server sucks, it won't let us feed bogus ports!");
+	    fatal("Your FTP bounce server sucks, it won't let us feed bogus ports!");
 	  }
 	  else {
-	    error("Your ftp bounce server doesn't allow privileged ports, skipping them.");
+	    error("Your FTP bounce server doesn't allow privileged ports, skipping them.");
 	    while(i < numports && portarray[i] < 1024) i++;
 	    if (!portarray[i]) {
 	      fatal("And you didn't want to scan any unpriviliged ports.  Giving up.");
@@ -4674,7 +4674,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
 	  if (send(sd, "LIST\r\n", 6, 0) > 0 ) {
 	    res = recvtime(sd, recvbuf, 2048,12, &timedout);
 	    if (res < 0) {
-	      perror("recv problem from ftp bounce server");
+	      perror("recv problem from FTP bounce server");
 	    } else if (res == 0) {
 	      if (timedout)
 		target->ports.addPort(portarray[i], IPPROTO_TCP, NULL, 

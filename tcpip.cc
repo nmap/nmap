@@ -550,7 +550,7 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
     ping = (struct ppkt *) ((ip->ip_hl * 4) + (char *) ip);
     switch(ping->type) {
     case 0:
-      strcpy(icmptype, "Echo reply"); break;
+      strcpy(icmptype, "echo reply"); break;
     case 3:
       ip2 = (struct ip *) ((char *) ip + (ip->ip_hl * 4) + 8);
       tcp = (struct tcp_hdr *) ((char *) ip2 + (ip2->ip_hl * 4));
@@ -625,7 +625,7 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
       else strcpy(icmptype, "unknown redirect");
       break;
     case 8:
-      strcpy(icmptype, "Echo request"); break;
+      strcpy(icmptype, "echo request"); break;
     case 11:
       if (ping->code == 0)
 	strcpy(icmptype, "TTL=0 during transit");

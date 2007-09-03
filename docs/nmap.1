@@ -77,7 +77,7 @@ PORT     STATE SERVICE       VERSION
 1002/tcp open  windows\-icfw?
 1025/tcp open  msrpc         Microsoft Windows RPC
 1720/tcp open  H\.323/Q\.931   CompTek AquaGateKeeper
-5800/tcp open  vnc\-http      RealVNC 4\.0 (Resolution 400x250; VNC TCP port: 5900)
+5800/tcp open  vnc\-http      RealVNC 4\.0 (Resolution 400x250; VNC port: 5900)
 5900/tcp open  vnc           VNC (protocol 3\.8)
 MAC Address: 00:A0:CC:63:85:4B (Lite\-on Communications)
 Device type: general purpose
@@ -603,7 +603,7 @@ open|filtered\. The port is marked
 filtered
 if an ICMP unreachable error (type 3, code 1, 2, 3, 9, 10, or 13) is received\.
 .sp
-The key advantage to these scan types is that they can sneak through certain non\-stateful firewalls and packet filtering routers\. Another advantage is that these scan types are a little more stealthy than even a SYN scan\. Don\'t count on this though \-\- most modern IDS products can be configured to detect them\. The big downside is that not all systems follow RFC 793 to the letter\. A number of systems send RST responses to the probes regardless of whether the port is open or not\. This causes all of the ports to be labeled
+The key advantage to these scan types is that they can sneak through certain non\-stateful firewalls and packet filtering routers\. Another advantage is that these scan types are a little more stealthy than even a SYN scan\. Don\'t count on this though\(emmost modern IDS products can be configured to detect them\. The big downside is that not all systems follow RFC 793 to the letter\. A number of systems send RST responses to the probes regardless of whether the port is open or not\. This causes all of the ports to be labeled
 closed\. Major operating systems that do this are Microsoft Windows, many Cisco devices, BSDI, and IBM OS/400\. This scan does work against most UNIX\-based systems though\. Another downside of these scans is that they can\'t distinguish
 open
 ports from certain
@@ -756,6 +756,7 @@ and at least one TCP scan type (such as
 \fB\-sS\fR,
 \fB\-sF\fR, or
 \fB\-sT\fR)\. If no protocol qualifier is given, the port numbers are added to all protocol lists\.
+.sp
 Ports can also be specified by name according to what the port is referred to in the
 \fInmap\-services\fR\. You can even use the wildcards * and ? with the names\. For example, to scan ftp and all ports whose names begin with http, use
 \fB\-p ftp,http*\fR\. Be careful about shell expansions and quote the argument to \-p if unsure\.
@@ -791,9 +792,9 @@ for sequential port scanning instead\.
 .PP
 Point Nmap at a remote machine and it might tell you that ports 25/tcp, 80/tcp, and 53/udp are open\. Using its
 \fInmap\-services\fR
-database of about 2,200 well\-known services, Nmap would report that those ports probably correspond to a mail server (SMTP), web server (HTTP), and name server (DNS) respectively\. This lookup is usually accurate \-\- the vast majority of daemons listening on TCP port 25 are, in fact, mail servers\. However, you should not bet your security on this! People can and do run services on strange ports\.
+database of about 2,200 well\-known services, Nmap would report that those ports probably correspond to a mail server (smtp), web server (http), and name server (DNS) respectively\. This lookup is usually accurate\(emthe vast majority of daemons listening on TCP port 25 are, in fact, mail servers\. However, you should not bet your security on this! People can and do run services on strange ports\.
 .PP
-Even if Nmap is right, and the hypothetical server above is running SMTP, HTTP, and DNS servers, that is not a lot of information\. When doing vulnerability assessments (or even simple network inventories) of your companies or clients, you really want to know which mail and DNS servers and versions are running\. Having an accurate version number helps dramatically in determining which exploits a server is vulnerable to\. Version detection helps you obtain this information\.
+Even if Nmap is right, and the hypothetical server above is running smtp, http, and dns servers, that is not a lot of information\. When doing vulnerability assessments (or even simple network inventories) of your companies or clients, you really want to know which mail and DNS servers and versions are running\. Having an accurate version number helps dramatically in determining which exploits a server is vulnerable to\. Version detection helps you obtain this information\.
 .PP
 After TCP and/or UDP ports are discovered using one of the other scan methods, version detection interrogates those ports to determine more about what is actually running\. The
 \fInmap\-service\-probes\fR
@@ -818,7 +819,7 @@ Enables version detection, as discussed above\. Alternatively, you can use
 .PP
 \fB\-\-allports\fR (Don\'t exclude any ports from version detection)
 .RS 4
-By default, Nmap version detection skips TCP port 9100 because some printers simply print anything sent to that port, leading to dozens of pages of HTTP get requests, binary SSL session requests, etc\. This behavior can be changed by modifying or removing the
+By default, Nmap version detection skips TCP port 9100 because some printers simply print anything sent to that port, leading to dozens of pages of http get requests, binary SSL session requests, etc\. This behavior can be changed by modifying or removing the
 Exclude
 directive in
 \fInmap\-service\-probes\fR, or you can specify
@@ -895,7 +896,7 @@ to enable OS detection along with other things\. 2nd generation OS detection is 
 Enables 2nd generation OS detection, but never falls back to the old (1st generation) system, even if it fails to find any match\. This saves time and can reduce the number of packets sent to each target\.
 .RE
 .PP
-\fB\-O1\fR (1nd Generation OS Detection Only)
+\fB\-O1\fR (1st Generation OS Detection Only)
 .RS 4
 Tells Nmap to only use the old OS detection system\. If
 \fB\-O2\fR
@@ -904,10 +905,10 @@ just gives you a fingerprint to submit, but you don\'t know what OS the target i
 \fBdon\'t submit the fingerprint\fR
 as you don\'t know for sure whether
 \fB\-O1\fR
-guess correctly\. If it was perfect, we wouldn\'t have bothered to create
+guessed correctly\. If it was perfect, we wouldn\'t have bothered to create
 \fB\-O2\fR\.
 .sp
-This option, and all other vestiges of the old OS detection system, will likely be removed in late 2006 or in 2007\.
+This option, and all other vestiges of the old OS detection system, will likely be removed in 2007\.
 .RE
 .PP
 \fB\-\-osscan\-limit\fR (Limit OS detection to promising targets)
@@ -931,23 +932,23 @@ When Nmap performs OS detection against a target and fails to find a perfect mat
 \fB\-\-max\-os\-tries\fR
 value (such as 1) speeds Nmap up, though you miss out on retries which could potentially identify the OS\. Alternatively, a high value may be set to allow even more retries when conditions are favorable\. This is rarely done, except to generate better fingerprints for submission and integration into the Nmap OS database\. This option only affects second generation OS detection (\fB\-O2\fR, the default) and not the old system (\fB\-O1\fR)\.
 .RE
-.SH "NSE - SCRIPTING EXTENSION TO THE NMAP NETWORK SCANNER"
+.SH "NSE\(emSCRIPTING EXTENSION TO THE NMAP NETWORK SCANNER"
 .PP
 The Nmap Scripting Engine (NSE) combines the efficiency of Nmap\'s network handling with the versatility of the lightweight scripting language
-\fIlua\fR\&[6], thus providing innumerable opportunities\. A more extensive documentation of the NSE (including its API) can be found at:
+\fILua\fR\&[6], thus providing innumerable opportunities\. A more extensive documentation of the NSE (including its API) can be found at:
 \fI\%http://www.insecure.org/nmap/nse\fR\. The target of the NSE is to provide Nmap with a flexible infrastructure for extending its capabilities and offering its users a simple way of creating customized tests\. Uses for the NSE include (but definitely are not limited to):
 .PP
 
 \fIEnhanced Version\-detection\fR
 (category
-version) \- While Nmap already offers its Service and Version detection system, which is unmatched in terms of efficiency and scope, this power has its downside when it comes to services requiring more complex probes\. The Skype\-Protocol version 2 for instance can be identified by sending 2 independent probes to it, which the builtin system is not laid out for: a simple NSE\-script can do the job and update the port\'s service information\.
+version)\(emWhile Nmap already offers its Service and Version detection system, which is unmatched in terms of efficiency and scope, this power has its downside when it comes to services requiring more complex probes\. The Skype\-Protocol version 2 for instance can be identified by sending 2 independent probes to it, which the builtin system is not laid out for: a simple NSE\-script can do the job and update the port\'s service information\.
 .PP
 
 \fIMalware\-detection\fR
 (categories
 malware
 and
-backdoor)\- Both attackers and worms often leave backdoors \- be it in form of SMTP\-servers listening on uncommon ports mostly used by spammers for mail relay, or in form of an FTP\-server giving crackers access to critical data\. A few lines of lua code can help to identify those loopholes easily\.
+backdoor)\- Both attackers and worms often leave backdoors\(embe it in form of SMTP\-servers listening on uncommon ports mostly used by spammers for mail relay, or in form of an FTP\-server giving crackers access to critical data\. A few lines of Lua code can help to identify those loopholes easily\.
 .PP
 
 \fIVulnerability Detection\fR
@@ -960,7 +961,7 @@ vulnerability)\- NSE\'s capacity in detecting risks ranges from checking for def
 safe,
 intrusive
 and
-discovery) \- By providing you with a scripting language and a really efficient asynchronous network API on the one hand and the information gathered during earlier stages of a scan on the other hand the NSE is suited to write "client" programs for the services listening on a target machine\. These "clients" may collect information like: listings of available NFS/SMB/RPC shares, the number of channels of an irc\-network or currently logged on users\.
+discovery)\(emBy providing you with a scripting language and a really efficient asynchronous network API on the one hand and the information gathered during earlier stages of a scan on the other hand the NSE is suited to write client programs for the services listening on a target machine\. These clients may collect information like: listings of available NFS/SMB/RPC shares, the number of channels of an irc\-network or currently logged on users\.
 .PP
 To reflect those different uses and to simplify the choice of which scripts to run, each script contains a field associating it with one or more of the above mentioned categories\. To maintain the matching from scripts to categories a file called
 \fIscript\.db\fR
@@ -969,11 +970,11 @@ is installed along with the distributed scripts\. Therefore, if you, for example
 and check the output afterwards\. The
 version\-scripts are always run implicitely when a script\-scan is requested\. The
 \fIscript\.db\fR
-is a lua\-script itself and can be updated through the
+is a Lua\-script itself and can be updated through the
 \fB\-\-script\-updatedb\fR
 option\.
 .PP
-A NSE\-script basically is a chunk of lua\-code which has (among some informational fields, like name, id and categories) 2 functions: a test whether the particular script should be run against a certain host or port (called a
+A NSE\-script basically is a chunk of Lua\-code which has (among some informational fields, like name, id and categories) 2 functions: a test whether the particular script should be run against a certain host or port (called a
 hostrule
 or
 portrule
@@ -1008,11 +1009,13 @@ subdirectory)\.
 .PP
 \fB\-\-script\-args=<name1=value1,name2={name3=value3},name4=value4>\fR
 .RS 4
-lets you provide arguments to NSE\-scripts\. Arguments are passed as name=value pairs\. The provided argument is processed and stored inside a lua\-table, to which all scripts have access\. The names are taken as strings (which have to be alphanumeric values) and used as keys inside the argument\-table\. Values are either strings or tables themselves (starting with a \'{\' and ending with a \'}\')\. Subtables make it possible to override arguments for specific scripts (e\.g\. when you want to provide different login/password pairs for different scripts)\. An argument of
-user=bar,password=foo,anonFTP={password=nobody@foobar\.com}
-for example results in the following table provided to NSE\-scripts:
-t={user="bar",password="foo",anonFTP={password="nobody@foobar\.com"}\. Note, that if you want to override an option to a script, you should index the subtable with the script\'s
-id, since this is the only way the script can "know" about it\'s special argument\.
+lets you provide arguments to NSE\-scripts\. Arguments are passed as
+name=value
+pairs\. The provided argument is processed and stored inside a Lua table, to which all scripts have access\. The names are taken as strings (which must be alphanumeric values) and used as keys inside the
+argument\-table\. Values are either strings or tables themselves (surrounded by \(oq{\(cq and \(oq}\(cq\. Subtables make it possible to override arguments for specific scripts (e\.g\. when you want to provide different login/password pairs for different scripts)\. For example, you could pass the comma\-separated arguments:
+user=bar,password=foo, and
+anonFTP={password=nobody@foobar\.com}\. If you want to override an option to a script, you should index the subtable with the script\'s
+id, since this is the only way the script knows about its special argument\.
 .RE
 .PP
 \fB\-\-script\-trace\fR
@@ -1024,7 +1027,7 @@ does, just one ISO layer higher\. If this option is specified all incoming and o
 .PP
 \fB\-\-script\-updatedb\fR
 .RS 4
-updates the script database which stores a mapping from category tags to filenames\. The database is a lua script which is interpreted once to choose a set of scripts from the categories provided to the
+updates the script database which stores a mapping from category tags to filenames\. The database is a Lua script which is interpreted once to choose a set of scripts from the categories provided to the
 \fB\-\-script\fR
 argument\. It should be run if you have changed the
 categories
@@ -1164,7 +1167,7 @@ ports isn\'t worth the extra time\.
 .RS 4
 While the fine grained timing controls discussed in the previous section are powerful and effective, some people find them confusing\. Moreover, choosing the appropriate values can sometimes take more time than the scan you are trying to optimize\. So Nmap offers a simpler approach, with six timing templates\. You can specify them with the
 \fB\-T\fR
-option and their number (0 \- 5) or their name\. The template names are paranoid (0), sneaky (1), polite (2), normal (3), aggressive (4), and insane (5)\. The first two are for IDS evasion\. Polite mode slows down the scan to use less bandwidth and target machine resources\. Normal mode is the default and so
+option and their number (0\(en5) or their name\. The template names are paranoid (0), sneaky (1), polite (2), normal (3), aggressive (4), and insane (5)\. The first two are for IDS evasion\. Polite mode slows down the scan to use less bandwidth and target machine resources\. Normal mode is the default and so
 \fB\-T3\fR
 does nothing\. Aggressive mode speeds scans up by making the assumption that you are on a reasonably fast and reliable network\. Finally Insane mode assumes that you are on an extraordinarily fast network or are willing to sacrifice some accuracy for speed\.
 .sp
@@ -1252,7 +1255,7 @@ ME
 as one of the decoys to represent the position for your real IP address\. If you put
 ME
 in the 6th position or later, some common port scan detectors (such as Solar Designer\'s excellent scanlogd) are unlikely to show your IP address at all\. If you don\'t use
-ME, nmap will put you in a random position\.
+ME, nmap will put you in a random position\. You can also use RND to generate a random, non\-reserved IP address, or RND:<number> to generate <number> addresses\.
 .sp
 Note that the hosts you use as decoys should be up or you might accidentally SYN flood your targets\. Also it will be pretty easy to determine which host is scanning if only one is actually up on the network\. You might want to use IP addresses instead of names (so the decoy networks don\'t see you in their nameserver logs)\.
 .sp
@@ -1486,8 +1489,6 @@ As with XML output, this man page does not allow for documenting the entire form
 .PP
 \fB\-oA <basename>\fR (Output to all formats)
 .RS 4
-
-
 As a convenience, you may specify
 \fB\-oA \fR\fB\fIbasename\fR\fR
 to store scan results in normal, XML, and grepable formats at once\. They are stored in
@@ -1553,7 +1554,7 @@ may be condensed into counts if there are an overwhelming number of them\.
 .PP
 \fB\-\-iflist\fR (List interfaces and routes)
 .RS 4
-Prints the interface list and system routes as detected by Nmap\. This is useful for debugging routing problems or device mischaracterization (such as Nmap treating a PPP connection as Ethernet)\.
+Prints the interface list and system routes as detected by Nmap\. This is useful for debugging routing problems or device mischaracterization (such as Nmap treating a PPP connection as ethernet)\.
 .RE
 .PP
 \fB\-\-log\-errors\fR (Log errors/warnings to normal mode output file)
@@ -1575,7 +1576,7 @@ option\. All output filenames specified in that Nmap execution will then be appe
 .PP
 \fB\-\-resume <filename>\fR (Resume aborted scan)
 .RS 4
-Some extensive Nmap runs take a very long time \-\- on the order of days\. Such scans don\'t always run to completion\. Restrictions may prevent Nmap from being run during working hours, the network could go down, the machine Nmap is running on might suffer a planned or unplanned reboot, or Nmap itself could crash\. The admin running Nmap could cancel it for any other reason as well, by pressing
+Some extensive Nmap runs take a very long time\(emon the order of days\. Such scans don\'t always run to completion\. Restrictions may prevent Nmap from being run during working hours, the network could go down, the machine Nmap is running on might suffer a planned or unplanned reboot, or Nmap itself could crash\. The admin running Nmap could cancel it for any other reason as well, by pressing
 ctrl\-C\. Restarting the whole scan from the beginning may be undesirable\. Fortunately, if normal (\fB\-oN\fR) or grepable (\fB\-oG\fR) logs were kept, the user can ask Nmap to resume scanning with the target it was working on when execution ceased\. Simply specify the
 \fB\-\-resume\fR
 option and pass the normal/grepable output file as its argument\. No other arguments are permitted, as Nmap parses the output file to use the same ones specified previously\. Simply call Nmap as
@@ -1828,7 +1829,7 @@ file which is distributed with Nmap and also available from
 .SH "LEGAL NOTICES"
 .SS "Nmap Copyright and Licensing"
 .PP
-The Nmap Security Scanner is (C) 1996\-2005 Insecure\.Com LLC\. Nmap is also a registered trademark of Insecure\.Com LLC\. This program is free software; you may redistribute and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; Version 2\. This guarantees your right to use, modify, and redistribute this software under certain conditions\. If you wish to embed Nmap technology into proprietary software, we may be willing to sell alternative licenses (contact
+The Nmap Security Scanner is (C) 1996\-2007 Insecure\.Com LLC\. Nmap is also a registered trademark of Insecure\.Com LLC\. This program is free software; you may redistribute and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; Version 2\. This guarantees your right to use, modify, and redistribute this software under certain conditions\. If you wish to embed Nmap technology into proprietary software, we may be willing to sell alternative licenses (contact
 <sales@insecure\.com>)\. Many security scanner vendors already license Nmap technology such as host discovery, port scanning, OS detection, and service/version detection\.
 .PP
 Note that the GPL places important restrictions on
@@ -1869,12 +1870,13 @@ We don\'t consider these to be added restrictions on top of the GPL, but just a 
 \(lqderived works\(rq
 as it applies to our GPL\-licensed Nmap product\. This is similar to the way Linus Torvalds has announced his interpretation of how
 \(lqderived works\(rq
-applies to Linux kernel modules\. Our interpretation refers only to Nmap \- we don\'t speak for any other GPL products\.
+applies to Linux kernel modules\. Our interpretation refers only to Nmap\(emwe don\'t speak for any other GPL products\.
 .PP
 If you have any questions about the GPL licensing restrictions on using Nmap in non\-GPL works, we would be happy to help\. As mentioned above, we also offer alternative license to integrate Nmap into proprietary applications and appliances\. These contracts have been sold to many security vendors, and generally include a perpetual license as well as providing for priority support and updates as well as helping to fund the continued development of Nmap technology\. Please email
 <sales@insecure\.com>
 for further information\.
 .PP
+
 As a special exception to the GPL terms, Insecure\.Com LLC grants permission to link the code of this program with any version of the OpenSSL library which is distributed under a license identical to that listed in the included Copying\.OpenSSL file, and distribute linked combinations including the two\. You must obey the GNU GPL in all respects for all of the code used other than OpenSSL\. If you modify this file, you may extend this exception to your version of the file, but you are not obligated to do so\.
 .PP
 If you received these files with a written license agreement or contract stating terms other than the terms above, then that alternative license agreement takes precedence over these comments\.
@@ -1958,7 +1960,7 @@ RFC 959
 \%http://www.rfc-editor.org/rfc/rfc959.txt
 .RE
 .IP " 6." 4
-lua
+Lua
 .RS 4
 \%http://lua.org
 .RE

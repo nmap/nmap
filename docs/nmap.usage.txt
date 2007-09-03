@@ -41,7 +41,7 @@ SERVICE/VERSION DETECTION:
   --version-trace: Show detailed version scan activity (for debugging)
 SCRIPT SCAN:
   -sC: equivalent to --script=safe,intrusive
-  --script=<lua scripts>: <lua scripts> is a comma separated list of 
+  --script=<Lua scripts>: <Lua scripts> is a comma separated list of 
            directories, script-files or script-categories
   --script-args=<n1=v1,[n2=v2,...]>: provide arguments to scripts
   --script-trace: Show all data sent and received

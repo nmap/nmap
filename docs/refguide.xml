@@ -306,10 +306,10 @@ you would expect.</para>
 
     <para>If no host discovery options are given, Nmap
           sends a TCP ACK
-          packet destined for port 80 and an ICMP Echo Request query
+          packet destined for port 80 and an ICMP echo request query
           to each target machine.  An exception to this is that an ARP scan is
           used for any targets which are on a local ethernet network.
-          For unprivileged UNIX shell users, a SYN packet is sent
+          For unprivileged Unix shell users, a SYN packet is sent
           instead of the ack using the <function>connect()</function>
           system call.  These defaults are equivalent to the
           <option>-PA -PE</option> options.  This host discovery is
@@ -374,7 +374,7 @@ you would expect.</para>
         <listitem>
            <para>This option tells Nmap to <emphasis>only</emphasis>
            <indexterm><primary>-sP</primary></indexterm>
-           <indexterm><primary>Ping scan</primary></indexterm>
+           <indexterm><primary>ping scan</primary></indexterm>
            perform a ping scan (host discovery), then print out the available hosts
            that responded to the scan.  No further testing (such as
            port scanning or OS detection) is performed.  This is one
@@ -473,7 +473,7 @@ you would expect.</para>
           Either the RST or SYN/ACK response discussed previously tell
           Nmap that the host is available and responsive.</para>
 
-          <para>On UNIX boxes, only the privileged user
+          <para>On Unix boxes, only the privileged user
           <literal>root</literal> is generally able to send and
           receive raw TCP packets.  For unprivileged users, a
           workaround is automatically employed whereby the connect()
@@ -607,7 +607,7 @@ you would expect.</para>
           packets sent by the ubiquitous
           <application>ping</application> program.  Nmap sends an ICMP
           type 8 (echo request) packet to the target IP addresses,
-          expecting a type 0 (Echo Reply) in return from available
+          expecting a type 0 (echo reply) in return from available
           hosts.  Unfortunately for network explorers, many hosts and
           firewalls now block these packets, rather than responding as
           required by <ulink
@@ -688,7 +688,7 @@ you would expect.</para>
  <listitem>
 
 <para>
-Traceroutes are performed post-scan using information from the scan results to determine the port and protocol most likely to reach the target. It works with all scan types except connect scans (-sT) and idle scans (-sI).  All traces use nmap's dynamic timing model and are performed in parallel.
+Traceroutes are performed post-scan using information from the scan results to determine the port and protocol most likely to reach the target. It works with all scan types except connect scans (-sT) and idle scans (-sI).  All traces use Nmap's dynamic timing model and are performed in parallel.
 </para>
 
 <para>
@@ -766,8 +766,8 @@ Shows the reason each port is set to a specific state and the reason each host i
         <listitem>
 
           <para>By default Nmap will try to determine your DNS servers
-          (for rDNS resolution) from your resolv.conf file (UNIX) or
-          the registry (Win32).  Alternatively, you may use this
+          (for rDNS resolution) from your resolv.conf file (Unix) or
+          the Registry (Win32).  Alternatively, you may use this
           option to specify alternate servers.  This option is not
           honored if you are using <option>--system-dns</option> or an
           IPv6 scan. Using multiple DNS servers is often faster,
@@ -868,14 +868,14 @@ options from across the Internet might show that port as <literal>filtered</lite
   types in which open ports give no response.  The lack of
   response could also mean that a packet filter dropped the probe or
   any response it elicited.  So Nmap does not know for sure whether
-  the port is open or being filtered.  The UDP, IP Protocol,
-  FIN, Null, and Xmas scans classify ports this
+  the port is open or being filtered.  The UDP, IP protocol,
+  FIN, null, and Xmas scans classify ports this
   way.</para></listitem></varlistentry>
 
   <varlistentry><term>closed|filtered</term>
   <listitem><para>This state is used when Nmap is unable to determine
   whether a port is closed or filtered.  It is only used for the IPID
-  Idle scan.</para></listitem></varlistentry>
+  idle scan.</para></listitem></varlistentry>
   </variablelist>
 </refsect1>
 
@@ -898,14 +898,14 @@ have to pay thousands of dollars for it.</para>
 
 <para>Most of the scan types are only available to privileged users.
 This is because they send and receive raw packets, which requires root
-access on UNIX systems.  Using an administrator account on Windows is
+access on Unix systems.  Using an administrator account on Windows is
 recommended, though Nmap sometimes works for unprivileged users on that
 platform when WinPcap has already been loaded into the OS.  Requiring
 root privileges was a serious limitation when Nmap was released in
 1997, as many users only had access to shared shell accounts.  Now,
 the world is different.  Computers are cheaper, far more people have
-always-on direct Internet access, and desktop UNIX systems (including
-Linux and MAC OS X) are prevalent.  A Windows version of Nmap is now
+always-on direct Internet access, and desktop Unix systems (including
+Linux and Mac OS X) are prevalent.  A Windows version of Nmap is now
 available, allowing it to run on even more desktops.  For all these
 reasons, users have less need to run Nmap from limited shared shell accounts.
 This is fortunate, as the privileged options make Nmap far more
@@ -916,7 +916,7 @@ that all of its insights are based on packets returned by the target
 machines (or firewalls in front of them).  Such hosts may be
 untrustworthy and send responses intended to confuse or mislead Nmap.
 Much more common are non-RFC-compliant hosts that do not respond as
-they should to Nmap probes.  FIN, Null, and Xmas scans are
+they should to Nmap probes.  FIN, null, and Xmas scans are
 particularly susceptible to this problem.  Such issues are specific to
 certain scan types and so are
 discussed in the individual scan type entries.</para>
@@ -931,8 +931,8 @@ name, usually the first.  The one exception to this is the deprecated
 FTP bounce scan (<option>-b</option>).  By default, Nmap performs a
 SYN Scan, though it substitutes a connect scan if the user does not
 have proper privileges to send raw packets (requires root access on
-UNIX) or if IPv6 targets were specified.  Of the scans listed in this
-section, unprivileged users can only execute connect and ftp bounce
+Unix) or if IPv6 targets were specified.  Of the scans listed in this
+section, unprivileged users can only execute connect and FTP bounce
 scans.</para>
 
     <variablelist>
@@ -950,7 +950,7 @@ second on a fast network not hampered by intrusive firewalls. SYN scan
 is relatively unobtrusive and stealthy, since it never completes TCP
 connections.  It also works against any compliant TCP stack rather
 than depending on idiosyncrasies of specific platforms as Nmap's
-Fin/Null/Xmas, Maimon and Idle scans do.  It also allows clear,
+FIN/null/Xmas, Maimon and idle scans do.  It also allows clear,
 reliable differentiation between the <literal>open</literal>,
 <literal>closed</literal>, and <literal>filtered</literal>
 states.</para>
@@ -995,7 +995,7 @@ half-open reset that SYN scan does.  Not only does this take longer
 and require more packets to obtain the same information, but target
 machines are more likely to log the connection.  A decent IDS will
 catch either, but most machines have no such alarm system.  Many
-services on your average UNIX system will add a note to syslog, and
+services on your average Unix system will add a note to syslog, and
 sometimes a cryptic error message, when Nmap connects and then closes
 the connection without sending data.  Truly pathetic services crash
 when this happens, though that is uncommon.  An administrator who sees
@@ -1069,7 +1069,7 @@ hosts.</para>
 <indexterm><primary>-sN</primary></indexterm>
 <indexterm><primary>-sF</primary></indexterm>
 <indexterm><primary>-sX</primary></indexterm>
-<indexterm><primary>NULL scan</primary></indexterm>
+<indexterm><primary>null scan</primary></indexterm>
 <indexterm><primary>FIN scan</primary></indexterm>
 <indexterm><primary>Xmas scan</primary></indexterm>
 </term>
@@ -1096,7 +1096,7 @@ scan types:</para>
 
 <variablelist>
   <varlistentry><term>Null scan (<option>-sN</option>)</term>
-  <listitem><para>Does not set any bits (tcp flag header is 0)</para></listitem></varlistentry> 
+  <listitem><para>Does not set any bits (TCP flag header is 0)</para></listitem></varlistentry> 
 
   <varlistentry><term>FIN scan (<option>-sF</option>)</term>
   <listitem><para>Sets just the TCP FIN bit.</para></listitem></varlistentry> 
@@ -1123,7 +1123,7 @@ number of systems send RST responses to the probes regardless of
 whether the port is open or not.  This causes all of the ports to be
 labeled <literal>closed</literal>.  Major operating systems that do
 this are Microsoft Windows, many Cisco devices, BSDI, and IBM OS/400.
-This scan does work against most UNIX-based systems though. Another
+This scan does work against most Unix-based systems though. Another
 downside of these scans is that they can't distinguish <literal>open</literal> ports from
 certain <literal>filtered</literal> ones, leaving you with the response
 <literal>open|filtered</literal>.</para>
@@ -1203,7 +1203,7 @@ ports, then those three may very well be the truly open ones.</para>
 <para>The Maimon scan is named after its discoverer, Uriel Maimon.  He
 described the technique in Phrack Magazine issue #49 (November 1996).
 Nmap, which included this technique, was released two issues later.
-This technique is exactly the same as Null, FIN, and Xmas scans, except
+This technique is exactly the same as null, FIN, and Xmas scans, except
 that the probe is FIN/ACK.  According to RFC 793 (TCP), a RST packet
 should be generated in response to such a probe whether the port is
 open or closed.  However, Uriel noticed that many BSD-derived systems
@@ -1250,9 +1250,9 @@ used.</para>
       <varlistentry>
         <term>
         <option>-sI &lt;zombie
-        host[:probeport]&gt;</option> (Idlescan)
+        host[:probeport]&gt;</option> (idle scan)
           <indexterm><primary>-sI</primary></indexterm>
-          <indexterm><primary>Idle scan</primary></indexterm>
+          <indexterm><primary>idle scan</primary></indexterm>
         </term>
 
         <listitem>
@@ -1281,7 +1281,7 @@ used.</para>
           <para>You can add a colon followed by a port number to the
           zombie host if you wish to probe a particular port on the
           zombie for IPID changes. Otherwise Nmap will use the port it
-          uses by default for tcp pings (80).</para>
+          uses by default for TCP pings (80).</para>
 
         </listitem>
       </varlistentry>
@@ -1294,7 +1294,7 @@ used.</para>
         </term>
         <listitem>
           
-<para>IP Protocol scan allows you to determine which IP protocols
+<para>IP protocol scan allows you to determine which IP protocols
 (TCP, ICMP, IGMP, etc.) are supported by target machines.  This isn't
 technically a port scan, since it cycles through IP protocol numbers
 rather than TCP or UDP port numbers. Yet it still uses the
@@ -1340,7 +1340,7 @@ after retransmissions, the protocol is marked
 
       <varlistentry>
         <term>
-        <option>-b &lt;ftp relay host&gt;</option> (FTP bounce scan)
+        <option>-b &lt;FTP relay host&gt;</option> (FTP bounce scan)
         <indexterm><primary>-b</primary></indexterm>
         <indexterm><primary>FTP bounce scan</primary></indexterm>
         </term>
@@ -1348,7 +1348,7 @@ after retransmissions, the protocol is marked
 
 <para>An interesting feature of the FTP protocol (<ulink
 url="http://www.rfc-editor.org/rfc/rfc959.txt">RFC 959</ulink>) is
-support for so-called proxy ftp connections.  This allows a user to
+support for so-called proxy FTP connections.  This allows a user to
 connect to one FTP server, then ask that files be sent to a
 third-party server.  Such a feature is ripe for abuse on many levels,
 so most servers have ceased supporting it.  One of the abuses this
@@ -1357,7 +1357,7 @@ Simply ask the FTP server to send a file to each interesting port of a
 target host in turn.  The error message will describe whether the port
 is open or not.  This is a good way to bypass firewalls because
 organizational FTP servers are often placed where they have
-more access to other internal hosts than any old Internet host would.  Nmap supports ftp
+more access to other internal hosts than any old Internet host would.  Nmap supports FTP
 bounce scan with the <option>-b</option> option.  It takes an argument
 of the form
 <replaceable>username</replaceable>:<replaceable>password</replaceable>@<replaceable>server</replaceable>:<replaceable>port</replaceable>.
@@ -1374,7 +1374,7 @@ well, in which case the default FTP port (21) on
 released, but has largely been fixed.  Vulnerable servers are still
 around, so it is worth trying when all else fails.  If bypassing a
 firewall is your goal, scan the target network for open port 21 (or
-even for any ftp services if you scan all ports with version
+even for any FTP services if you scan all ports with version
 detection), then try a bounce scan using each.  Nmap will tell you
 whether the host is vulnerable or not.  If you are just trying to
 cover your tracks, you don't need to (and, in fact, shouldn't) limit
@@ -1431,7 +1431,7 @@ way.</para>
           <para><indexterm><primary>wildcard</primary></indexterm>Ports can also be specified by name according to what the
           port is referred to in the <filename>nmap-services</filename>. You
           can even use the wildcards * and ? with the names. For example, to scan
-          ftp and all ports whose names begin with http, use <option>-p ftp,http*</option>.
+          FTP and all ports whose names begin with http, use <option>-p ftp,http*</option>.
           Be careful about shell expansions and quote the argument to -p if unsure.</para>
 
           <para>Ranges of ports can be surrounded by square brackets to indicate
@@ -1489,14 +1489,14 @@ way.</para>
     that ports 25/tcp, 80/tcp, and 53/udp are open. Using its
     <filename>nmap-services</filename> database of about 2,200 well-known services,
     Nmap would report that those ports probably correspond to a
-    mail server (smtp), web server (http), and name server (DNS)
+    mail server (SMTP), web server (HTTP), and name server (DNS)
     respectively. This lookup is usually accurate&mdash;the vast
     majority of daemons listening on TCP port 25 are, in fact, mail
     servers. However, you should not bet your security on this!
     People can and do run services on strange ports.</para>
 
     <para>Even if Nmap is right, and the hypothetical server above is
-    running smtp, http, and dns servers, that is not a lot of
+    running SMTP, HTTP, and DNS servers, that is not a lot of
     information. When doing vulnerability assessments (or even simple
     network inventories) of your companies or clients, you really want
     to know which mail and DNS servers and versions are
@@ -1511,7 +1511,7 @@ way.</para>
     <filename>nmap-service-probes</filename> database contains probes
     for querying various services and match expressions to recognize
     and parse responses. Nmap tries to determine the service protocol
-    (e.g. ftp, ssh, telnet, http), the application name (e.g. ISC
+    (e.g. FTP, SSH, telnet, http), the application name (e.g. ISC
     Bind, Apache httpd, Solaris telnetd), the version number,
     hostname, device type (e.g. printer, router), the OS family
     (e.g. Windows, Linux) and sometimes miscellaneous details like
@@ -1540,7 +1540,7 @@ way.</para>
     on the port.  Please take a couple minutes to make the submission
     so that your find can benefit everyone.  Thanks to these
     submissions, Nmap has about 3,000 pattern matches for more than
-    350 protocols such as smtp, ftp, http, etc.</para>
+    350 protocols such as SMTP, FTP, HTTP, etc.</para>
 
     <para>Version detection is enabled and controlled with the
     following options:</para>
@@ -1715,8 +1715,8 @@ way.</para>
     fluctuate.  It is generally better to use the English
     classification such as <quote>worthy challenge</quote> or <quote>trivial joke</quote>.  This
     is only reported in normal output in verbose (<option>-v</option>)
-    mode.  When verbose mode is enabled along with <option>-O</option>, IPID Sequence
-    Generation is also reported.  Most machines are in the
+    mode.  When verbose mode is enabled along with <option>-O</option>, IPID sequence
+    generation is also reported.  Most machines are in the
     <quote>incremental</quote> class, which means that they increment the ID
     field in the IP header for each packet they send.  This makes them
     vulnerable to several advanced information gathering and
@@ -1865,7 +1865,7 @@ way.</para>
 	to): </para>
    
     <para> 
-    <emphasis>Enhanced Version-detection</emphasis> (category
+    <emphasis>Enhanced version detection</emphasis> (category
     <literal>version</literal>)&mdash;While Nmap already offers its Service and
     Version detection system, which is unmatched in terms of efficiency and
     scope, this power has its downside when it comes to services requiring more
@@ -1923,9 +1923,9 @@ way.</para>
     (called a <literal>hostrule</literal> or <literal>portrule</literal>
     respectively) and an <literal>action</literal> to be carried out if the test
     returns true. Scripts have access to most information gathered by Nmap
-    during earlier stages. For each host this includes the ip,  hostname and (if
+    during earlier stages. For each host this includes the IP address,  hostname and (if
     available) operating system. If a script is targeted at a port it has access
-    to the portnumber, the protocol (tcp, udp or ssl), the service running
+    to the portnumber, the protocol (<literal>tcp</literal>, <literal>udp</literal> or <literal>ssl</literal>), the service running
     behind that port, and optionally information from a version-scan.
     NSE-scripts have by convention a <literal>.nse</literal>-extension. Although
     you are not required to follow this for the moment, this may change in the
@@ -2180,7 +2180,7 @@ more likely to get through a firewall.  Look at the maximum round trip
 time out of ten packets or so.  You might want to double that for the
 <option>--initial-rtt-timeout</option> and triple or quadruple it for
 the <option>--max-rtt-timeout</option>.  I generally do not set the
-maximum rtt below 100ms, no matter what the ping times are.  Nor do I
+maximum RTT below 100ms, no matter what the ping times are.  Nor do I
 exceed 1000ms.</para>
 
 <para><option>--min-rtt-timeout</option> is a rarely used option that
@@ -2321,7 +2321,7 @@ worth the extra time.</para>
       <varlistentry>
         <term>
           <option>-T
-          &lt;Paranoid|Sneaky|Polite|Normal|Aggressive|Insane&gt;</option>
+          &lt;paranoid|sneaky|polite|normal|aggressive|insane&gt;</option>
           (Set a timing template)
         <indexterm><primary>--T</primary></indexterm>
         </term>
@@ -2340,7 +2340,7 @@ evasion.  Polite mode slows down the scan to use less bandwidth and
 target machine resources.  Normal mode is the default and so
 <option>-T3</option> does nothing. Aggressive mode speeds scans up by
 making the assumption that you are on a reasonably fast and reliable
-network.  Finally Insane mode assumes that you are on an
+network.  Finally insane mode assumes that you are on an
 extraordinarily fast network or are willing to sacrifice some accuracy
 for speed.</para>
 
@@ -2364,7 +2364,7 @@ recommend always using <option>-T4</option>.  Some people love
 sometimes specify <option>-T2</option> because they think it is less
 likely to crash hosts or because they consider themselves to be polite
 in general.  They often don't realize just how slow <option>-T
-Polite</option> really is.  Their scan may take ten times longer than a
+polite</option> really is.  Their scan may take ten times longer than a
 default scan.
 Machine crashes and bandwidth problems are rare with the
 default timing options (<option>-T3</option>) and so I normally
@@ -2424,7 +2424,7 @@ It even supports mechanisms for bypassing poorly implemented
 defenses.  One of the best methods of understanding your
 network security posture is to try to defeat it.  Place yourself in
 the mindset of an attacker, and deploy techniques from this section
-against your networks.  Launch an FTP bounce scan, Idle scan,
+against your networks.  Launch an FTP bounce scan, idle scan,
 fragmentation attack, or try to tunnel through one of your own
 proxies.</para>
 
@@ -2495,7 +2495,7 @@ lists the relevant options and describes what they do.</para>
           networks.  Some source
           systems defragment outgoing packets in the kernel. Linux
           with the iptables connection tracking module is one such
-          example. Do a scan while a sniffer such as Ethereal
+          example. Do a scan while a sniffer such as <application>Wireshark</application>
           is running to ensure that sent packets are
           fragmented.  If your host OS is causing problems, try the <option>--send-eth</option> option to bypass the IP layer and send raw ethernet frames.</para>
         </listitem>
@@ -2523,7 +2523,7 @@ lists the relevant options and describes what they do.</para>
           represent the position for your real IP address. If you put
           <literal>ME</literal> in the 6th position or later, some
           common port scan detectors (such as Solar Designer's
-          excellent scanlogd) are unlikely to show your IP address at
+          excellent Scanlogd) are unlikely to show your IP address at
           all. If you don't use <literal>ME</literal>, nmap will put
           you in a random position.  You can also use RND to generate
           a random, non-reserved IP address, or RND:&lt;number&gt; to
@@ -2612,7 +2612,7 @@ to transfer the requested file.</para>
 <para>Secure solutions to these problems exist, often in the form of
 application-level proxies or protocol-parsing firewall modules.
 Unfortunately there are also easier, insecure solutions.  Noting that
-DNS replies come from port 53 and active ftp from port 20, many admins
+DNS replies come from port 53 and active FTP from port 20, many admins
 have fallen into the trap of simply allowing incoming traffic from
 those ports.  They often assume that no attacker would notice and
 exploit such firewall holes.  In other cases, admins consider this a
@@ -2741,7 +2741,7 @@ support the option completely, as does UDP scan.</para>
 
       <varlistentry>
         <term>
-          <option>--spoof-mac &lt;mac address, prefix, or vendor
+          <option>--spoof-mac &lt;MAC address, prefix, or vendor
           name&gt;</option> (Spoof MAC address)
         <indexterm><primary>--spoof-mac</primary></indexterm>
         </term>
@@ -2862,7 +2862,7 @@ described below.</para>
 <variablelist><title>Nmap Output Formats</title>
       <varlistentry>
         <term>
-        <option>-oN &lt;filespec&gt;</option> (Normal output)
+        <option>-oN &lt;filespec&gt;</option> (normal output)
           <indexterm><primary>-oN</primary></indexterm></term>
         <listitem>
 
@@ -2932,7 +2932,7 @@ described below.</para>
 
       <varlistentry>
         <term>
-        <option>-oG &lt;filespec&gt;</option> (Grepable output)
+        <option>-oG &lt;filespec&gt;</option> (grepable output)
         <indexterm><primary>-oG</primary></indexterm></term>
         <listitem>
 
@@ -2947,9 +2947,9 @@ output for lack of a place to put them.</para>
 
 <para>Nevertheless, grepable output is still quite popular.  It is a
 simple format that lists each host on one line and can be trivially
-searched and parsed with standard UNIX tools such as grep, awk, cut,
+searched and parsed with standard Unix tools such as grep, awk, cut,
 sed, diff, and Perl.  Even I usually use it for one-off tests done at the
-command line.  Finding all the hosts with the ssh port open or that
+command line.  Finding all the hosts with the SSH port open or that
 are running Solaris takes only a simple grep to identify the hosts,
 piped to an awk or cut command to print the desired fields.</para>
 
@@ -2991,7 +2991,7 @@ url="http://www.unspecific.com/nmap-oG-output" />.</para>
            <replaceable>basename</replaceable>.gnmap, respectively.
            As with most programs, you can prefix the filenames with a
            directory path, such as
-           <filename>~/nmaplogs/foocorp/</filename> on UNIX or
+           <filename>~/nmaplogs/foocorp/</filename> on Unix or
            <filename>c:\hacking\sco</filename> on Windows.</para>
         </listitem>
       </varlistentry>
@@ -3131,7 +3131,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
           messages use a different system that does not yet support
           this option.  An alternative to using this option is
           redirecting interactive output (including the standard error
-          stream) to a file.  While most UNIX shells make that
+          stream) to a file.  While most Unix shells make that
           approach easy, it can be difficult on Windows.</para>
         </listitem>
       </varlistentry>
@@ -3305,7 +3305,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
 
           <para>This option enables additional advanced and
           aggressive options. I haven't decided exactly which it
-          stands for yet. Presently this enables OS Detection
+          stands for yet. Presently this enables OS detection
           (<option>-O</option>), version scanning (<option>-sV</option>),
 	  script scanning (<option>-sC</option>) and 
 	  traceroute (<option>--traceroute</option>). More features may be
@@ -3389,10 +3389,10 @@ overwhelming requests.  Specify <option>--open</option> to only see
           link) layer rather than the higher IP (network) layer. By
           default, Nmap chooses the one which is generally best for
           the platform it is running on. Raw sockets (IP layer) are
-          generally most efficient for UNIX machines, while ethernet
+          generally most efficient for Unix machines, while ethernet
           frames are required for Windows operation since Microsoft
           disabled raw socket support. Nmap still uses raw IP packets
-          on UNIX despite this option when there is no other choice
+          on Unix despite this option when there is no other choice
           (such as non-ethernet connections).</para>
 
         </listitem>
@@ -3422,7 +3422,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
           <para>Tells Nmap to simply assume that it is privileged
           enough to perform raw socket sends, packet sniffing, and
           similar operations that usually require root privileges on
-          UNIX systems. By default Nmap quits if such operations are
+          Unix systems. By default Nmap quits if such operations are
           requested but geteuid() is not
           zero. <option>--privileged</option> is useful with Linux
           kernel capabilities and similar systems that may be
@@ -3542,7 +3542,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
           <option>v</option> / <option>V</option>
         </term>
         <listitem>
-          <para>Increase / Decrease the Verbosity</para>
+          <para>Increase / decrease the verbosity level</para>
         </listitem>
       </varlistentry>
       <varlistentry>
@@ -3550,7 +3550,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
           <option>d</option> / <option>D</option>
         </term>
         <listitem>
-          <para>Increase / Decrease the Debugging Level</para>
+          <para>Increase / decrease the debugging Level</para>
         </listitem>
       </varlistentry>
       <varlistentry>
@@ -3558,7 +3558,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
           <option>p</option> / <option>P</option>
         </term>
         <listitem>
-          <para>Turn on / off Packet Tracing</para>
+          <para>Turn on / off packet tracing</para>
         </listitem>
       </varlistentry>
       <varlistentry>
@@ -3630,10 +3630,10 @@ overwhelming requests.  Specify <option>--open</option> to only see
 
     <para>Launches host enumeration and a TCP scan at the first half
     of each of the 255 possible 8 bit subnets in the 198.116 class B
-    address space. This tests whether the systems run sshd, DNS,
-    pop3d, imapd, or port 4564. For any of these ports found open,
-    version detection is used to determine what application is
-    running.</para>
+    address space. This tests whether the systems run SSH, DNS, POP3,
+    or IMAP on their standard ports, or anything on port 4564. For any
+    of these ports found open, version detection is used to determine
+    what application is running.</para>
 
     <para>
     <userinput>nmap -v -iR 100000 -P0 -p 80</userinput>
@@ -3664,7 +3664,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
     url="http://insecure.org/nmap/"/>.  If the problem persists,
     do some research to determine whether it has already been
     discovered and addressed.  Try Googling the error message or
-    browsing the Nmap-dev archives at <ulink
+    browsing the nmap-dev archives at <ulink
     url="http://seclists.org/" />.  Read this full munual page as
     well.  If nothing comes of this, mail a bug report to
     <email>nmap-dev@insecure.org</email>.  Please include everything

@@ -337,7 +337,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
 
   proxy->host.setHostName(name);
   if (resolve(name, &ss, &sslen, o.pf()) == 0) {
-    fatal("Could not resolve idlescan zombie host: %s", name);
+    fatal("Could not resolve idle scan zombie host: %s", name);
   }
   proxy->host.setTargetSockAddr(&ss, sslen);
   
@@ -489,7 +489,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   }
 
   if (probes_returned == 0)
-    fatal("Idlescan zombie %s (%s) port %hu cannot be used because it has not returned any of our probes -- perhaps it is down or firewalled.", 
+    fatal("Idle scan zombie %s (%s) port %hu cannot be used because it has not returned any of our probes -- perhaps it is down or firewalled.", 
 	  proxy->host.HostName(), proxy->host.targetipstr(), 
 	  proxy->probe_port);
 
@@ -497,10 +497,10 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   switch(proxy->seqclass) {
   case IPID_SEQ_INCR:
   case IPID_SEQ_BROKEN_INCR:
-    log_write(LOG_PLAIN, "Idlescan using zombie %s (%s:%hu); Class: %s\n", proxy->host.HostName(), proxy->host.targetipstr(), proxy->probe_port, ipidclass2ascii(proxy->seqclass));
+    log_write(LOG_PLAIN, "Idle scan using zombie %s (%s:%hu); Class: %s\n", proxy->host.HostName(), proxy->host.targetipstr(), proxy->probe_port, ipidclass2ascii(proxy->seqclass));
     break;
   default:
-    fatal("Idlescan zombie %s (%s) port %hu cannot be used because IPID sequencability class is: %s.  Try another proxy.", proxy->host.HostName(), proxy->host.targetipstr(), proxy->probe_port, ipidclass2ascii(proxy->seqclass));
+    fatal("Idle scan zombie %s (%s) port %hu cannot be used because IPID sequencability class is: %s.  Try another proxy.", proxy->host.HostName(), proxy->host.targetipstr(), proxy->probe_port, ipidclass2ascii(proxy->seqclass));
   }
 
   proxy->latestid = ipids[probes_returned - 1];
@@ -509,7 +509,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   if (probes_returned < NUM_IPID_PROBES) {
     /* Yikes!  We're already losing packets ... clamp down a bit ... */
     if (o.debugging)
-      error("idlescan initial zombie qualification test: %d probes sent, only %d returned", NUM_IPID_PROBES, probes_returned);
+      error("Idle scan initial zombie qualification test: %d probes sent, only %d returned", NUM_IPID_PROBES, probes_returned);
     proxy->current_groupsz = MIN(12, proxy->max_groupsz);
     proxy->current_groupsz = MAX(proxy->current_groupsz, proxy->min_groupsz);
     proxy->senddelay += 5000;
@@ -605,7 +605,7 @@ static void adjust_idle_timing(struct idle_proxy_info *proxy,
 
       if (!notidlewarning && o.verbose) {
 	notidlewarning = 1;
-	error("WARNING: Idlescan has erroneously detected phantom ports -- is the proxy %s (%s) really idle?", proxy->host.HostName(), proxy->host.targetipstr());
+	error("WARNING: idle scan has erroneously detected phantom ports -- is the proxy %s (%s) really idle?", proxy->host.HostName(), proxy->host.targetipstr());
       }
     } else {
       /* W00p We got a perfect match.  That means we get a slight increase
@@ -622,10 +622,10 @@ static void adjust_idle_timing(struct idle_proxy_info *proxy,
 }
 
 
-/* OK, now this is the hardcore idlescan function which actually does
+/* OK, now this is the hardcore idle scan function which actually does
    the testing (most of the other cruft in this file is just
    coordination, preparation, etc).  This function simply uses the
-   Idlescan technique to try and count the number of open ports in the
+   idle scan technique to try and count the number of open ports in the
    given port array.  The sent_time and rcv_time are filled in with
    the times that the probe packet & response were sent/received.
    They can be NULL if you don't want to use them.  The purpose is for
@@ -722,7 +722,7 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
 
     if (tries == 0 && sleeptime < 500)
       sleeptime = 500;
-    if (o.debugging > 1) error("In preparation for idlescan probe try #%d, sleeping for %d usecs", tries, sleeptime);
+    if (o.debugging > 1) error("In preparation for idle scan probe try #%d, sleeping for %d usecs", tries, sleeptime);
     if (sleeptime > 0)
       usleep(sleeptime);
 
@@ -786,7 +786,7 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
 
 
 
-/* The job of this function is to use the Idlescan technique to count
+/* The job of this function is to use the idle scan technique to count
    the number of open ports in the given list.  Under the covers, this
    function just farms out the hard work to another function */
 static int idlescan_countopen(struct idle_proxy_info *proxy, 
@@ -818,7 +818,7 @@ static int idlescan_countopen(struct idle_proxy_info *proxy,
 
   if (openports < 0 || openports > numports ) {
     /* Oh f*ck!!!! */
-    fatal("Idlescan is unable to obtain meaningful results from proxy %s (%s).  I'm sorry it didn't work out.", proxy->host.HostName(), 
+    fatal("Idle scan is unable to obtain meaningful results from proxy %s (%s).  I'm sorry it didn't work out.", proxy->host.HostName(), 
 	  proxy->host.targetipstr());
   }
 
@@ -827,7 +827,7 @@ static int idlescan_countopen(struct idle_proxy_info *proxy,
   return openports;
 }
 
-/* Recursively Idlescans scans a group of ports using a depth-first
+/* Recursively idle scans scans a group of ports using a depth-first
    divide-and-conquer strategy to find the open one(s) */
 
 static int idle_treescan(struct idle_proxy_info *proxy, Target *target,
@@ -844,7 +844,7 @@ static int idle_treescan(struct idle_proxy_info *proxy, Target *target,
 
   if (o.debugging > 1) {  
     error("%s: Called against %s with %d ports, starting with %hu. expectedopen: %d", __func__, target->targetipstr(), numports, ports[0], expectedopen);
-    error("IDLESCAN TIMING: grpsz: %.3f delay: %d srtt: %d rttvar: %d\n",
+    error("IDLE SCAN TIMING: grpsz: %.3f delay: %d srtt: %d rttvar: %d\n",
 	  proxy->current_groupsz, proxy->senddelay, target->to.srtt,
 	  target->to.rttvar);
   }
@@ -978,11 +978,11 @@ void idle_scan(Target *target, u16 *portarray, int numports,
   int portsleft;
   time_t starttime;
   char scanname[32];
-  Snprintf(scanname, sizeof(scanname), "Idlescan against %s", target->NameIP());
+  Snprintf(scanname, sizeof(scanname), "idle scan against %s", target->NameIP());
   ScanProgressMeter SPM(scanname);
 
   if (numports == 0) return; /* nothing to scan for */
-  if (!proxyName) fatal("Idlescan requires a proxy host");
+  if (!proxyName) fatal("idle scan requires a proxy host");
 
   if (*lastproxy && strcmp(proxyName, lastproxy))
     fatal("%s: You are not allowed to change proxies midstream.  Sorry", __func__);

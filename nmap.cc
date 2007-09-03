@@ -235,9 +235,9 @@ printf("%s %s ( %s )\n"
        "  -sU: UDP Scan\n"
        "  -sN/sF/sX: TCP Null, FIN, and Xmas scans\n"
        "  --scanflags <flags>: Customize TCP scan flags\n"
-       "  -sI <zombie host[:probeport]>: Idlescan\n"
+       "  -sI <zombie host[:probeport]>: Idle scan\n"
        "  -sO: IP protocol scan\n"
-       "  -b <ftp relay host>: FTP bounce scan\n"
+       "  -b <FTP relay host>: FTP bounce scan\n"
        "  --traceroute: Trace hop path to each host\n"
        "  --reason: Display the reason a port is in a particular state\n"
        "PORT SPECIFICATION AND SCAN ORDER:\n"
@@ -469,7 +469,7 @@ int nmap_main(int argc, char *argv[]) {
   short randomize=1;
   short quashargv = 0;
   char **host_exp_group;
-  char *idleProxy = NULL; /* The idle host used to "Proxy" an Idlescan */
+  char *idleProxy = NULL; /* The idle host used to "Proxy" an idle scan */
   int num_host_exp_groups;
   char *machinefilename = NULL, *kiddiefilename = NULL, 
     *normalfilename = NULL, *xmlfilename = NULL;
@@ -1390,17 +1390,17 @@ int nmap_main(int argc, char *argv[]) {
   }
 
 
-  /* If he wants to bounce off of an ftp site, that site better damn well be reachable! */
+  /* If he wants to bounce off of an FTP site, that site better damn well be reachable! */
   if (o.bouncescan) {
 	  if (!inet_pton(AF_INET, ftp.server_name, &ftp.server)) {
       if ((target = gethostbyname(ftp.server_name)))
 	memcpy(&ftp.server, target->h_addr_list[0], 4);
       else {
-	fatal("Failed to resolve ftp bounce proxy hostname/IP: %s",
+	fatal("Failed to resolve FTP bounce proxy hostname/IP: %s",
 		ftp.server_name);
       } 
     }  else if (o.verbose)
-      log_write(LOG_STDOUT, "Resolved ftp bounce attack proxy to %s (%s).\n", 
+      log_write(LOG_STDOUT, "Resolved FTP bounce attack proxy to %s (%s).\n", 
 		ftp.server_name, inet_ntoa(ftp.server)); 
   }
   fflush(stdout);
@@ -2400,7 +2400,7 @@ char *scantype2str(stype scantype) {
   case FIN_SCAN: return "FIN Scan"; break;
   case XMAS_SCAN: return "XMAS Scan"; break;
   case UDP_SCAN: return "UDP Scan"; break;
-  case CONNECT_SCAN: return "Connect() Scan"; break;
+  case CONNECT_SCAN: return "Connect Scan"; break;
   case NULL_SCAN: return "NULL Scan"; break;
   case WINDOW_SCAN: return "Window Scan"; break;
   case RPC_SCAN: return "RPCGrind Scan"; break;
@@ -2426,7 +2426,7 @@ char *statenum2str(int state) {
   switch(state) {
   case PORT_OPEN: return "open"; break;
   case PORT_FILTERED: return "filtered"; break;
-  case PORT_UNFILTERED: return "UNfiltered"; break;
+  case PORT_UNFILTERED: return "unfiltered"; break;
   case PORT_CLOSED: return "closed"; break;
   case PORT_OPENFILTERED: return "open|filtered"; break;
   case PORT_CLOSEDFILTERED: return "closed|filtered"; break;
@@ -2456,7 +2456,7 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
   sock.sin_port = htons(ftp->port); 
   res = connect(sd, (struct sockaddr *) &sock, sizeof(struct sockaddr_in));
   if (res < 0 ) {
-    fatal("Your ftp bounce proxy server won't talk to us!");
+    fatal("Your FTP bounce proxy server won't talk to us!");
   }
   if (o.verbose || o.debugging) log_write(LOG_STDOUT, "Connected:");
   while ((res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1,7, NULL)) > 0) 
@@ -2465,7 +2465,7 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
       log_write(LOG_STDOUT, "%s", recvbuf);
     }
   if (res < 0) {
-    pfatal("recv problem from ftp bounce server");
+    pfatal("recv problem from FTP bounce server");
   }
 
   Snprintf(command, 511, "USER %s\r\n", ftp->user);
@@ -2473,12 +2473,12 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
   send(sd, command, strlen(command), 0);
   res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1,12, NULL);
   if (res <= 0) {
-    pfatal("recv problem from ftp bounce server");
+    pfatal("recv problem from FTP bounce server");
   }
   recvbuf[res] = '\0';
   if (o.debugging) log_write(LOG_STDOUT, "sent username, received: %s", recvbuf);
   if (recvbuf[0] == '5') {
-    fatal("Your ftp bounce server doesn't like the username \"%s\"", ftp->user);
+    fatal("Your FTP bounce server doesn't like the username \"%s\"", ftp->user);
   }
 
   Snprintf(command, 511, "PASS %s\r\n", ftp->pass);
@@ -2486,14 +2486,14 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
   send(sd, command, strlen(command), 0);
   res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1,12, NULL);
   if (res < 0) {
-    pfatal("recv problem from ftp bounce server");
+    pfatal("recv problem from FTP bounce server");
   }
   if (!res) error("Timeout from bounce server ...");
   else {
     recvbuf[res] = '\0';
     if (o.debugging) log_write(LOG_STDOUT, "sent password, received: %s", recvbuf);
     if (recvbuf[0] == '5') {
-      fatal("Your ftp bounce server refused login combo (%s/%s)",
+      fatal("Your FTP bounce server refused login combo (%s/%s)",
 	      ftp->user, ftp->pass);
     }
   }
@@ -2503,9 +2503,9 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
       log_write(LOG_STDOUT, "%s", recvbuf);
     }
   if (res < 0) {
-    pfatal("recv problem from ftp bounce server");
+    pfatal("recv problem from FTP bounce server");
   }
-  if (o.verbose) log_write(LOG_STDOUT, "Login credentials accepted by ftp server!\n");
+  if (o.verbose) log_write(LOG_STDOUT, "Login credentials accepted by FTP server!\n");
 
   ftp->sd = sd;
   return sd;
