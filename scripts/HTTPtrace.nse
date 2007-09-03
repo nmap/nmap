@@ -19,16 +19,7 @@ license = "Look at Nmap's COPYING"
 categories = {"discovery"}
 
 require "shortport"
-
-str2tab = function(str)
-	local tab = { }
-
-	for s in string.gfind(str, "[^\r\n]+") do
-		table.insert(tab, s)
-	end
-
-	return tab
-end
+require "stdnse"
 
 truncate = function(tab)
 	local str = ""
@@ -59,10 +50,10 @@ validate = function(response, original)
 			local sub = string.sub(data, 19) -- skip TRACE line
 			local tab = {}
 
-			-- Avoid extra newlines
-			sub = string.gsub(sub, "\r\n$", "")
+			-- Skip extra newline at the end (making sure it's there)
+			sub = string.gsub(sub, "\r\n\r\n$", "\r\n")
 
-			tab = str2tab(sub)
+			tab = stdnse.strsplit("\r\n", sub)
 
 			if #tab > 5 then
 				output = output .. "First 5 additional lines:\n"
@@ -85,7 +76,7 @@ end
 portrule = shortport.port_or_service({80, 8080}, "http")
 
 action = function(host, port)
-	local cmd, response, ret
+	local cmd, response
 	local socket
 
 	socket = nmap.new_socket()
