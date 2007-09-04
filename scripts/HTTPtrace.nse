@@ -33,27 +33,27 @@ end
 
 validate = function(response, original)
 	local start, stop
-	local data
+	local body
 
-	if not string.match(response, "HTTP/1.[01] 200") or
-	   not string.match(response, "TRACE / HTTP/1.0") then
+	if not response:match("HTTP/1.[01] 200") or
+	   not response:match("TRACE / HTTP/1.0") then
 		return
 	end
 
-	start, stop = string.find(response, "\r\n\r\n")
-	data = string.sub(response, stop + 1)
+	start, stop = response:find("\r\n\r\n")
+	body = response:sub(stop + 1)
 
-	if original ~= data then
+	if original ~= body then
 		local output =  "Response differs from request.  "
 
-		if string.match(data, "^TRACE / HTTP/1.0\r\n") then
-			local sub = string.sub(data, 19) -- skip TRACE line
+		if body:match("^TRACE / HTTP/1.0\r\n") then
+			local extra = body:sub(19) -- skip TRACE line
 			local tab = {}
 
 			-- Skip extra newline at the end (making sure it's there)
-			sub = string.gsub(sub, "\r\n\r\n$", "\r\n")
+			extra = extra:gsub("\r\n\r\n$", "\r\n")
 
-			tab = stdnse.strsplit("\r\n", sub)
+			tab = stdnse.strsplit("\r\n", extra)
 
 			if #tab > 5 then
 				output = output .. "First 5 additional lines:\n"
@@ -61,13 +61,13 @@ validate = function(response, original)
 			end
 
 			output = output .. "Additional lines:\n"
-			return output .. sub .. "\n"
+			return output .. extra .. "\n"
 		end
 
 		-- This shouldn't happen
 
 		output = output .. "Full response:\n"
-		return output .. data .. "\n"
+		return output .. body .. "\n"
 	end
 
 	return

@@ -25,17 +25,17 @@ validate = function(response)
 
 	-- Hopefully checking for only 200 won't bite me in the ass, but
 	-- it's the only one that makes sense and I haven't seen it fail
-	if string.match(response, "HTTP/1.[01] 200") then
-		start, stop = string.find(response, "\r\n\r\n")
-		passwd = string.sub(response, stop+1)
+	if response:match("HTTP/1.[01] 200") then
+		start, stop = response:find("\r\n\r\n")
+		passwd = response:sub(stop + 1)
 	else
 		return
 	end
 
-	start, stop = string.find(passwd, "[\r\n]")
-	line = string.sub(passwd, 1, stop)
+	start, stop = passwd:find("[\r\n]")
+	line = passwd:sub(1, stop)
 
-	if string.match(line, "^[^:]+:[^:]*:[0-9]+:[0-9]+:") then
+	if line:match("^[^:]+:[^:]*:[0-9]+:[0-9]+:") then
 		return passwd
 	end
 
@@ -76,16 +76,16 @@ end
 
 hexify = function(str)
 	local ret
-	ret = string.gsub(str, "%.", "%%2E")
-	ret = string.gsub(ret, "/", "%%2F")
-	ret = string.gsub(ret, "\\", "%%5C")
+	ret = str:gsub("%.", "%%2E")
+	ret = ret:gsub("/", "%%2F")
+	ret = ret:gsub("\\", "%%5C")
 	return ret
 end
 
 -- Returns truncated passwd file and returned length
 truncatePasswd = function(passwd)
 	local len = 250
-	return string.sub(passwd, 1, len), len
+	return passwd:sub(1, len), len
 end
 
 output = function(passwd, dir)
