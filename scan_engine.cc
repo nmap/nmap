@@ -2944,7 +2944,7 @@ static void printAnyStats(UltraScanInfo *USI) {
   struct ultra_timing_vals hosttm;
 
   /* Print debugging states for each host being scanned */
-  if (o.debugging > 2) {
+  if (o.debugging > 1) {
     log_write(LOG_PLAIN, "**TIMING STATS** (%.4fs): IP, probes active/freshportsleft/retry_stack/outstanding/retranwait/onbench, cwnd/ccthresh/delay, timeout/srtt/rttvar/\n", o.TimeSinceStartMS() / 1000.0);
     log_write(LOG_PLAIN, "   Groupstats (%d/%d incomplete): %d/*/*/*/*/* %.2f/%d/* %d/%d/%d\n",
 	      USI->numIncompleteHosts(), USI->numInitialHosts(), 
@@ -2952,18 +2952,20 @@ static void printAnyStats(UltraScanInfo *USI) {
 	      USI->gstats->timing.ccthresh, USI->gstats->to.timeout, 
 	      USI->gstats->to.srtt, USI->gstats->to.rttvar);
 
-    for(hostI = USI->incompleteHosts.begin(); 
-	hostI != USI->incompleteHosts.end(); hostI++) {
-      hss = *hostI;
-      hss->getTiming(&hosttm);
-      log_write(LOG_PLAIN, "   %s: %d/%d/%d/%d/%d/%d %.2f/%d/%d %li/%d/%d\n", hss->target->targetipstr(),
-		hss->num_probes_active, hss->freshPortsLeft(), 
-		(int) hss->retry_stack.size(),
-		hss->num_probes_outstanding(), 
-		hss->num_probes_waiting_retransmit, (int) hss->probe_bench.size(),
-		hosttm.cwnd, hosttm.ccthresh, hss->sdn.delayms, 
-		hss->probeTimeout(), hss->target->to.srtt, 
-		hss->target->to.rttvar);
+    if (o.debugging > 2) {
+      for(hostI = USI->incompleteHosts.begin(); 
+          hostI != USI->incompleteHosts.end(); hostI++) {
+        hss = *hostI;
+        hss->getTiming(&hosttm);
+        log_write(LOG_PLAIN, "   %s: %d/%d/%d/%d/%d/%d %.2f/%d/%d %li/%d/%d\n", hss->target->targetipstr(),
+                  hss->num_probes_active, hss->freshPortsLeft(), 
+                  (int) hss->retry_stack.size(),
+                  hss->num_probes_outstanding(), 
+                  hss->num_probes_waiting_retransmit, (int) hss->probe_bench.size(),
+                  hosttm.cwnd, hosttm.ccthresh, hss->sdn.delayms, 
+                  hss->probeTimeout(), hss->target->to.srtt, 
+                  hss->target->to.rttvar);
+      }
     }
   }
 
