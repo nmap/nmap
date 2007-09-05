@@ -1231,12 +1231,20 @@ static void init_perf_values(struct ultra_scan_performance_vars *perf,
     /* Increase by up to 8 / cwnd in congestion control mode. */
     perf->cc_incr = (int) (1 + 7.0 / num_probes_per_host);
   }
-  perf->initial_ccthresh = 50;
+  perf->initial_ccthresh = 75;
   perf->ping_magnifier = 3;
   perf->pingtime = 5000000;
   perf->group_drop_cwnd_divisor = 2.0;
-  perf->group_drop_ccthresh_divisor = (o.timing_level < 4)? 2.0 : 1.5;
-  perf->host_drop_ccthresh_divisor = (o.timing_level < 4)? 2.0 : 1.5;
+  /* Change the amount that ccthresh drops based on the timing level. */
+  double ccthresh_divisor;
+  if (o.timing_level <= 3)
+    ccthresh_divisor = (3.0 / 2.0);
+  else if (o.timing_level <= 4)
+    ccthresh_divisor = (4.0 / 3.0);
+  else
+    ccthresh_divisor = (5.0 / 4.0);
+  perf->group_drop_ccthresh_divisor = ccthresh_divisor;
+  perf->host_drop_ccthresh_divisor = ccthresh_divisor;
   perf->tryno_cap = o.getMaxRetransmissions();
 }
 
