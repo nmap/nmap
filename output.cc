@@ -1808,7 +1808,7 @@ void printfinaloutput() {
 
   log_write(LOG_STDOUT|LOG_SKID, "Nmap done: %d %s (%d %s up) scanned in %.3f seconds\n", o.numhosts_scanned, (o.numhosts_scanned == 1)? "IP address" : "IP addresses", o.numhosts_up, (o.numhosts_up == 1)? "host" : "hosts",  o.TimeSinceStartMS(&tv) / 1000.0);
   if (o.verbose && o.isr00t && o.RawScan()) 
-    log_write(LOG_STDOUT|LOG_SKID, "               %s\n", 
+    log_write(LOG_STDOUT|LOG_SKID, "           %s\n", 
 	      getFinalPacketStats(statbuf, sizeof(statbuf)));
 
   Strncpy(mytime, ctime(&timep), sizeof(mytime));
