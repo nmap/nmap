@@ -149,8 +149,7 @@ option argument) is treated as a target host specification.  The
 simplest case is to specify a target IP address or hostname for scanning.</para>
 
 <para>Sometimes you wish to scan a whole network of adjacent hosts.
-For this, Nmap supports CIDR-style addressing.  You can append
-<indexterm><primary>CIDR addressing</primary></indexterm>
+For this, Nmap supports CIDR-style addressing.  You can append<indexterm><primary>CIDR addressing</primary></indexterm>
 /<replaceable>numbits</replaceable> to an IP address or hostname and
 Nmap will scan every IP address for which the first
 <replaceable>numbits</replaceable> are the same as for the reference
@@ -372,9 +371,7 @@ you would expect.</para>
         <term>
         <option>-sP</option> (Ping Scan)</term>
         <listitem>
-           <para>This option tells Nmap to <emphasis>only</emphasis>
-           <indexterm><primary>-sP</primary></indexterm>
-           <indexterm><primary>ping scan</primary></indexterm>
+           <para>This option tells Nmap to <emphasis>only</emphasis><indexterm><primary>-sP</primary></indexterm><indexterm><primary>ping scan</primary></indexterm>
            perform a ping scan (host discovery), then print out the available hosts
            that responded to the scan.  No further testing (such as
            port scanning or OS detection) is performed.  This is one
@@ -700,13 +697,23 @@ Traceroute works by sending packets with a low TTL (time-to-live) in an attempt 
 <varlistentry>
  <term>
   <option>--reason</option> (Host and port state reasons)
-   <indexterm significance="normal"><primary>--reason</primary></indexterm>
-   <indexterm significance="normal"><primary>Host and port state reasons</primary></indexterm>
+   <indexterm><primary>--reason</primary></indexterm>
+   <indexterm><primary>Host and port state reasons</primary></indexterm>
  </term>
  <listitem>
 
 <para>
-Shows the reason each port is set to a specific state and the reason each host is up or down. This option displays the type of the packet that determined a port or hosts state. For example, A RST packet from a closed port or an echo reply from an alive host. The information nmap can provide is determined by the type of scan or ping. The SYN scan and SYN ping (\fB\-sS and -PT\fR) are very detailed. Whilst the TCP connect scan and ping (\fB\-sT\fR) are limited by the implementation of connect(). This feature is automatically enabled by the debug flag (\fB\-d\fR) and the results are stored in XML log files even if this option is not specified.
+Shows the reason each port is set to a specific state and the reason
+each host is up or down. This option displays the type of the packet
+that determined a port or hosts state. For example, A <literal>RST</literal> packet from
+a closed port or an echo reply from an alive host. The information
+Nmap can provide is determined by the type of scan or ping. The SYN
+scan and SYN ping (<option>-sS</option> and <option>-PT</option>) are very detailed, but the
+TCP connect scan and ping (<option>-sT</option>) are limited by the
+implementation of the <literal>connect</literal> system call. This feature is automatically enabled by
+the debug option (<option>-d</option>) and the results are stored in XML log files
+even if this option is not specified.
+
 </para>
 </listitem>
 </varlistentry>
@@ -1432,13 +1439,13 @@ way.</para>
           port is referred to in the <filename>nmap-services</filename>. You
           can even use the wildcards * and ? with the names. For example, to scan
           FTP and all ports whose names begin with http, use <option>-p ftp,http*</option>.
-          Be careful about shell expansions and quote the argument to -p if unsure.</para>
+          Be careful about shell expansions and quote the argument to <option>-p</option> if unsure.</para>
 
           <para>Ranges of ports can be surrounded by square brackets to indicate
           ports inside that range that appear in <filename>nmap-services</filename>.
           For example, the following will scan all ports in <filename>nmap-services</filename>
           equal to or below 1024: <option>-p [-1024]</option>. Be careful with shell
-          expansions and quote the argument to -p if unsure.</para> 
+          expansions and quote the argument to <option>-p</option> if unsure.</para> 
         </listitem>
       </varlistentry>
 
@@ -1511,7 +1518,7 @@ way.</para>
     for querying various services and match expressions to recognize
     and parse responses. Nmap tries to determine the service protocol
     (e.g. FTP, SSH, telnet, http), the application name (e.g. ISC
-    Bind, Apache httpd, Solaris telnetd), the version number,
+    BIND, Apache httpd, Solaris telnetd), the version number,
     hostname, device type (e.g. printer, router), the OS family
     (e.g. Windows, Linux) and sometimes miscellaneous details like
     whether an X server is open to connections, the SSH protocol
@@ -1907,7 +1914,7 @@ way.</para>
     with the distributed scripts. Therefore, if you, for example, want to see if
     a machine is infected by any worm Nmap provides a script for you can simply
     run <command>nmap --script=malware target-ip</command> and check the output
-    afterwards. The <literal>version</literal>-scripts are always run
+    afterwards. The <literal>version</literal> scripts are always run
     implicitely when a script-scan is requested. The
     <filename>script.db</filename> is a Lua-script itself and can be updated
     through the <option>--script-updatedb</option> option.  
@@ -1942,7 +1949,7 @@ way.</para>
         <listitem>
 
           <para>performs a script scan using the default set of scripts. it is 
-		  equivalent to <literal>--script=safe,intrusive</literal></para>
+		  equivalent to <option>--script=safe,intrusive</option></para>
         </listitem>
       </varlistentry>
 
@@ -2325,16 +2332,19 @@ worth the extra time.</para>
         <listitem>
 
 
-<para>While the fine grained timing controls discussed in the previous
+<para>While the fine-grained timing controls discussed in the previous
 section are powerful and effective, some people find them confusing.
 Moreover, choosing the appropriate values can sometimes take more time
 than the scan you are trying to optimize.  So Nmap offers a simpler
 approach, with six timing templates.  You can specify them with the
 <option>-T</option> option and their number (0&ndash;5) or their name.
-The template names are paranoid (0), sneaky (1), polite (2), normal
-(3), aggressive (4), and insane (5).  The first two are for IDS
-evasion.  Polite mode slows down the scan to use less bandwidth and
-target machine resources.  Normal mode is the default and so
+The template names are <option>paranoid</option> (<option>0</option>),
+<option>sneaky</option> (<option>1</option>), <option>polite</option>
+(<option>2</option>), <option>normal</option> (<option>3</option>),
+<option>aggressive</option> (<option>4</option>), and
+<option>insane</option> (<option>5</option>).  The first two are for
+IDS evasion.  Polite mode slows down the scan to use less bandwidth
+and target machine resources.  Normal mode is the default and so
 <option>-T3</option> does nothing. Aggressive mode speeds scans up by
 making the assumption that you are on a reasonably fast and reliable
 network.  Finally insane mode assumes that you are on an
@@ -2343,16 +2353,16 @@ for speed.</para>
 
 <para>These templates allow the user to specify how aggressive they
 wish to be, while leaving Nmap to pick the exact timing values.  The
-templates also make some minor speed adjustments for which fine
-grained control options do not currently exist.  For example,
+templates also make some minor speed adjustments for which
+fine-grained control options do not currently exist.  For example,
 <option>-T4</option> prohibits the dynamic scan delay from exceeding
 10ms for TCP ports and <option>-T5</option> caps that value at 5
-milliseconds.  Templates can be used in combination with fine grained
+milliseconds.  Templates can be used in combination with fine-grained
 controls, and the fine-grained controls will you specify will take
 precedence over the timing template default for that parameter.  I
 recommend using <option>-T4</option> when scanning reasonably modern
-and reliable networks.  Keep that option even when you add fine
-grained controls so that you benefit from those extra minor
+and reliable networks.  Keep that option even when you add
+fine-grained controls so that you benefit from those extra minor
 optimizations that it enables.</para>
 
 <para>If you are on a decent broadband or ethernet connection, I would
@@ -3102,7 +3112,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
         <term>
           <option>--iflist</option> (List interfaces and routes)
         <indexterm><primary>--iflist</primary></indexterm>
-        </term> <listitem>
+        </term><listitem>
         <para>Prints the interface list and system routes as detected
         by Nmap.  This is useful for debugging routing problems or
         device mischaracterization (such as Nmap treating a PPP
@@ -3218,7 +3228,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
           a machine that doesn't have Nmap (and thus
           <filename>nmap.xsl</filename>) installed.  So the URL is
           often more useful, but the local filesystem location of
-          nmap.xsl is used by default for privacy reasons.</para>
+          <filename>nmap.xsl</filename> is used by default for privacy reasons.</para>
         </listitem>
       </varlistentry>
 
@@ -3604,13 +3614,13 @@ overwhelming requests.  Specify <option>--open</option> to only see
     do not currently exist.</para>
 
     <para>
-      <userinput>nmap -v scanme.nmap.org</userinput>
+      <command>nmap -v scanme.nmap.org</command>
     </para>
     <para>This option scans all reserved TCP ports on the machine
     <literal>scanme.nmap.org</literal> . The <option>-v</option>
     option enables verbose mode.</para>
     <para>
-      <userinput>nmap -sS -O scanme.nmap.org/24</userinput>
+      <command>nmap -sS -O scanme.nmap.org/24</command>
     </para>
     <para>Launches a stealth SYN scan against each machine that is
     up out of the 255 machines on <quote>class C</quote> network where
@@ -3619,8 +3629,8 @@ overwhelming requests.  Specify <option>--open</option> to only see
     running. This requires root privileges because of the SYN scan
     and OS detection.</para>
     <para>
-      <userinput>nmap -sV -p 22,53,110,143,4564
-      198.116.0-255.1-127</userinput>
+      <command>nmap -sV -p 22,53,110,143,4564
+      198.116.0-255.1-127</command>
     </para>
 
     <para>Launches host enumeration and a TCP scan at the first half
@@ -3631,7 +3641,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
     what application is running.</para>
 
     <para>
-    <userinput>nmap -v -iR 100000 -P0 -p 80</userinput>
+    <command>nmap -v -iR 100000 -P0 -p 80</command>
     </para>
 
     <para>Asks Nmap to choose 100,000 hosts at random and scan them
@@ -3641,8 +3651,8 @@ overwhelming requests.  Specify <option>--open</option> to only see
     probing one port on each target host anyway.</para>
 
     <para>
-      <userinput>nmap -P0 -p80 -oX logs/pb-port80scan.xml -oG
-      logs/pb-port80scan.gnmap 216.163.128.20/20</userinput>
+      <command>nmap -P0 -p80 -oX logs/pb-port80scan.xml -oG
+      logs/pb-port80scan.gnmap 216.163.128.20/20</command>
     </para>
     <para>This scans 4096 IPs for any webservers (without pinging
     them) and saves the output in grepable and XML formats.</para>
