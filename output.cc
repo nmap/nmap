@@ -1615,8 +1615,8 @@ void printosscanoutput(Target *currenths) {
     }
     log_write(LOG_XML, "<ipidsequence class=\"%s\" values=\"%s\" />\n", ipidclass2ascii(currenths->seq.ipid_seqclass), numlst);
     if (o.verbose)
-      log_write(LOG_PLAIN,"IPID Sequence Generation: %s\n", ipidclass2ascii(currenths->seq.ipid_seqclass));
-    log_write(LOG_MACHINE,"\tIPID Seq: %s", ipidclass2ascii(currenths->seq.ipid_seqclass));
+      log_write(LOG_PLAIN,"IP ID Sequence Generation: %s\n", ipidclass2ascii(currenths->seq.ipid_seqclass));
+    log_write(LOG_MACHINE,"\tIP ID Seq: %s", ipidclass2ascii(currenths->seq.ipid_seqclass));
     
     p=numlst;
     for(i=0; i < currenths->seq.responses; i++) {

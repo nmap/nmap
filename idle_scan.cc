@@ -126,9 +126,9 @@ extern NmapOps o;
 
 struct idle_proxy_info {
   Target host; /* contains name, IP, source IP, timing info, etc. */
-  int seqclass; /* IPID sequence class (IPID_SEQ_* defined in nmap.h) */
-  u16 latestid; /* The most recent IPID we have received from the proxy */
-  u16 probe_port; /* The port we use for probing IPID infoz */
+  int seqclass; /* IP ID sequence class (IPID_SEQ_* defined in nmap.h) */
+  u16 latestid; /* The most recent IP ID we have received from the proxy */
+  u16 probe_port; /* The port we use for probing IP ID infoz */
   u16 max_groupsz; /* We won't test groups larger than this ... */
   u16 min_groupsz; /* We won't allow the group size to fall below this
 		      level.  Affected by --min_parallelism */
@@ -150,7 +150,7 @@ struct idle_proxy_info {
 };
 
 
-/* Sends an IPID probe to the proxy machine and returns the IPID.
+/* Sends an IP ID probe to the proxy machine and returns the IP ID.
    This function handles retransmissions, and returns -1 if it fails.
    Proxy timing is adjusted, but proxy->latestid is NOT ADJUSTED --
    you'll have to do that yourself.   Probes_sent is set to the number
@@ -217,14 +217,14 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
 	  if (ntohs(tcp->th_dport) < base_port || ntohs(tcp->th_dport) - base_port >= tries  || ntohs(tcp->th_sport) != proxy->probe_port || ((tcp->th_flags & TH_RST) == 0)) {
 	    if (ntohs(tcp->th_dport) > o.magic_port && ntohs(tcp->th_dport) < (o.magic_port + 260)) {
 	      if (o.debugging) {
-		error("Received IPID zombie probe response which probably came from an earlier prober instance ... increasing rttvar from %d to %d", 
+		error("Received IP ID zombie probe response which probably came from an earlier prober instance ... increasing rttvar from %d to %d", 
 		      proxy->host.to.rttvar, (int) (proxy->host.to.rttvar * 1.2));
 	      }
 	      proxy->host.to.rttvar = (int) (proxy->host.to.rttvar * 1.2);
 	      rcvd++;
 	    }
 	    else if (o.debugging > 1) {
-	      error("Received unexpected response packet from %s during ipid zombie probing:", inet_ntoa(ip->ip_src));
+	      error("Received unexpected response packet from %s during IP ID zombie probing:", inet_ntoa(ip->ip_src));
 	      readtcppacket( (unsigned char *) ip,ntohs(ip->ip_len));
 	    }
 	    continue;
@@ -247,8 +247,8 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
 }
 
 
-/* Returns the number of increments between an early IPID and a later
-   one, assuming the given IPID Sequencing class.  Returns -1 if the
+/* Returns the number of increments between an early IP ID and a later
+   one, assuming the given IP ID Sequencing class.  Returns -1 if the
    distance cannot be determined */
 
 static int ipid_distance(int seqclass , u16 startid, u16 endid) {
@@ -277,7 +277,7 @@ static void initialize_proxy_struct(struct idle_proxy_info *proxy) {
   proxy->ethptr = NULL;
 }
 
-/* takes a proxy name/IP, resolves it if neccessary, tests it for IPID
+/* takes a proxy name/IP, resolves it if neccessary, tests it for IP ID
    suitability, and fills out an idle_proxy_info structure.  If the
    proxy is determined to be unsuitable, the function whines and exits
    the program */
@@ -327,7 +327,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
     *q++ = '\0';
     proxy->probe_port = strtoul(q, &endptr, 10);
     if (*q==0 || !endptr || *endptr != '\0' || !proxy->probe_port) {
-      fatal("Invalid port number given in IPID zombie specification: %s", proxyName);
+      fatal("Invalid port number given in IP ID zombie specification: %s", proxyName);
     }
   } else {
     proxy->probe_port = (o.num_ping_synprobes > 0)? o.ping_synprobes[0] : 
@@ -366,7 +366,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   if (rnfo.ii.device_type == devt_ethernet)
     proxy->host.setSrcMACAddress(rnfo.ii.mac);
   
-  /* Now lets send some probes to check IPID algorithm ... */
+  /* Now lets send some probes to check IP ID algorithm ... */
   /* First we need a raw socket ... */
   if ((o.sendpref & PACKET_SEND_ETH) &&  proxy->host.ifType() == devt_ethernet) {
     if (!setTargetNextHopMAC(&proxy->host))
@@ -418,7 +418,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
        TH_SYN allows us to get a nonzero ACK back so we can associate
        a response with the exact request for timing purposes.  So I
        think I'll use TH_SYN, although it is a tough call. */
-    /* We can't use decoys 'cause that would screw up the IPIDs */
+    /* We can't use decoys 'cause that would screw up the IP IDs */
     send_tcp_raw(proxy->rawsd, proxy->ethptr,
     		proxy->host.v4sourceip(), proxy->host.v4hostip(),
     		o.ttl, false,
@@ -461,7 +461,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
       if (ip->ip_p == IPPROTO_TCP) {
 	tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
 	if (ntohs(tcp->th_dport) < (o.magic_port+1) || ntohs(tcp->th_dport) - o.magic_port > NUM_IPID_PROBES  || ntohs(tcp->th_sport) != proxy->probe_port || ((tcp->th_flags & TH_RST) == 0)) {
-	  if (o.debugging > 1) error("Received unexpected response packet from %s during initial ipid zombie testing", inet_ntoa(ip->ip_src));
+	  if (o.debugging > 1) error("Received unexpected response packet from %s during initial IP ID zombie testing", inet_ntoa(ip->ip_src));
 	  continue;
 	}
 	
@@ -500,7 +500,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
     log_write(LOG_PLAIN, "Idle scan using zombie %s (%s:%hu); Class: %s\n", proxy->host.HostName(), proxy->host.targetipstr(), proxy->probe_port, ipidclass2ascii(proxy->seqclass));
     break;
   default:
-    fatal("Idle scan zombie %s (%s) port %hu cannot be used because IPID sequencability class is: %s.  Try another proxy.", proxy->host.HostName(), proxy->host.targetipstr(), proxy->probe_port, ipidclass2ascii(proxy->seqclass));
+    fatal("Idle scan zombie %s (%s) port %hu cannot be used because IP ID sequencability class is: %s.  Try another proxy.", proxy->host.HostName(), proxy->host.targetipstr(), proxy->probe_port, ipidclass2ascii(proxy->seqclass));
   }
 
   proxy->latestid = ipids[probes_returned - 1];
@@ -516,13 +516,13 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   }
 
   /* OK, through experimentation I have found that some hosts *cough*
-   Solaris APPEAR to use simple IPID incrementing, but in reality they
-   assign a new IPID base to each host which connects with them.  This
+   Solaris APPEAR to use simple IP ID incrementing, but in reality they
+   assign a new IP ID base to each host which connects with them.  This
    is actually a good idea on several fronts, but it totally
-   frustrates our efforts (which rely on side-channel IPID info
+   frustrates our efforts (which rely on side-channel IP ID info
    leaking to different hosts).  The good news is that we can easily
    detect the problem by sending some spoofed packets "from" the first
-   target to the zombie and then probing to verify that the proxy IPID
+   target to the zombie and then probing to verify that the proxy IP ID
    changed.  This will also catch the case where the Nmap user is
    behind an egress filter or other measure that prevents this sort of
    sp00fery */
@@ -546,16 +546,16 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
     if (newipid == -1)
       newipid = ipid_proxy_probe(proxy, NULL, NULL); /* OK, we'll give it one more try */
 
-    if (newipid < 0) fatal("Your IPID Zombie (%s; %s) is behaving strangely -- suddenly cannot obtain IPID", proxy->host.HostName(), proxy->host.targetipstr());
+    if (newipid < 0) fatal("Your IP ID Zombie (%s; %s) is behaving strangely -- suddenly cannot obtain IP ID", proxy->host.HostName(), proxy->host.targetipstr());
       
     distance = ipid_distance(proxy->seqclass, proxy->latestid, newipid);
     if (distance <= 0) {
-      fatal("Your IPID Zombie (%s; %s) is behaving strangely -- suddenly cannot obtain valid IPID distance.", proxy->host.HostName(), proxy->host.targetipstr());
+      fatal("Your IP ID Zombie (%s; %s) is behaving strangely -- suddenly cannot obtain valid IP ID distance.", proxy->host.HostName(), proxy->host.targetipstr());
     } else if (distance == 1) {
-      fatal("Even though your Zombie (%s; %s) appears to be vulnerable to IPID sequence prediction (class: %s), our attempts have failed.  This generally means that either the Zombie uses a separate IPID base for each host (like Solaris), or because you cannot spoof IP packets (perhaps your ISP has enabled egress filtering to prevent IP spoofing), or maybe the target network recognizes the packet source as bogus and drops them", proxy->host.HostName(), proxy->host.targetipstr(), ipidclass2ascii(proxy->seqclass));
+      fatal("Even though your Zombie (%s; %s) appears to be vulnerable to IP ID sequence prediction (class: %s), our attempts have failed.  This generally means that either the Zombie uses a separate IP ID base for each host (like Solaris), or because you cannot spoof IP packets (perhaps your ISP has enabled egress filtering to prevent IP spoofing), or maybe the target network recognizes the packet source as bogus and drops them", proxy->host.HostName(), proxy->host.targetipstr(), ipidclass2ascii(proxy->seqclass));
     }
     if (o.debugging && distance != 5) {
-      error("WARNING: IPID spoofing test sent 4 packets and expected a distance of 5, but instead got %d", distance);
+      error("WARNING: IP ID spoofing test sent 4 packets and expected a distance of 5, but instead got %d", distance);
     }
     proxy->latestid = newipid;
   }
@@ -586,7 +586,7 @@ static void adjust_idle_timing(struct idle_proxy_info *proxy,
     if (testcount < realcount) {
       /* We must have missed a port -- our probe could have been
 	 dropped, the response to proxy could have been dropped, or we
-	 didn't wait long enough before probing the proxy IPID.  The
+	 didn't wait long enough before probing the proxy IP ID.  The
 	 third case is covered elsewhere in the scan, so we worry most
 	 about the first two.  The solution is to decrease our group
 	 size and add a sending delay */
@@ -812,7 +812,7 @@ static int idlescan_countopen(struct idle_proxy_info *proxy,
       sleep(45); /* We're gonna give up if this fails, so we will be a bit
 		    patient */
     /* Since the host may have received packets while we were sleeping,
-       lets update our proxy IPID counter */
+       lets update our proxy IP ID counter */
     proxy->latestid = ipid_proxy_probe(proxy, NULL, NULL);
   } while(1);
 
