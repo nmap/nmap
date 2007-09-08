@@ -720,7 +720,7 @@ int l_nsock_check_buf(lua_State* l ){
 		}
 	}else{
 			lua_pushboolean(l,false);
-			lua_pushstring(l,"expected either a function or a string!");
+			lua_pushstring(l,"Expected either a function or a string!");
 			return NSOCK_WRAPPER_BUFFER_OK;
 			//luaL_argerror(l,2,"expected either a function or a string!");
 	}
@@ -736,7 +736,7 @@ int l_nsock_check_buf(lua_State* l ){
 		lua_settop(l,0); /* clear the stack for returning */
 		if(startpos>endpos){
 			lua_pushboolean(l,false);
-			lua_pushstring(l,"delimiter has negative size!");
+			lua_pushstring(l,"Delimiter has negative size!");
 			return NSOCK_WRAPPER_BUFFER_OK;
 		}else if(startpos==endpos){
 			/* if the delimter has a size of zero we keep it, since otherwise 
