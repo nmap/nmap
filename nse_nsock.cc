@@ -300,7 +300,7 @@ static int l_nsock_connect(lua_State* l) {
 					udata->ssl_session);
 			break;
 #else
-			luaL_argerror(l, 4, "Sorry, you don't have openssl.");
+			luaL_argerror(l, 4, "Sorry, you don't have OpenSSL.");
 			return 0;
 #endif
 		default:
