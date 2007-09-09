@@ -632,7 +632,7 @@ you would expect.</para>
           <option>-PP</option> and <option>-PM</option> options,
           respectively.  A timestamp reply (ICMP code 14) or address
           mask reply (code 18) discloses that the host is available.
-          These two queries can be valuable when admins specifically
+          These two queries can be valuable when administrators specifically
           block echo request packets while forgetting that other ICMP
           queries can be used for the same purpose.</para>
 
@@ -881,7 +881,7 @@ options from across the Internet might show that port as <literal>filtered</lite
 
   <varlistentry><term>closed|filtered</term>
   <listitem><para>This state is used when Nmap is unable to determine
-  whether a port is closed or filtered.  It is only used for the IPID
+  whether a port is closed or filtered.  It is only used for the IP ID
   idle scan.</para></listitem></varlistentry>
   </variablelist>
 </refsect1>
@@ -1287,7 +1287,7 @@ used.</para>
 
           <para>You can add a colon followed by a port number to the
           zombie host if you wish to probe a particular port on the
-          zombie for IPID changes. Otherwise Nmap will use the port it
+          zombie for IP ID changes. Otherwise Nmap will use the port it
           uses by default for TCP pings (80).</para>
 
         </listitem>
@@ -1686,7 +1686,7 @@ way.</para>
     using TCP/IP stack fingerprinting.  Nmap sends a series of TCP and
     UDP packets to the remote host and examines practically every bit
     in the responses.  After performing dozens of tests such as TCP
-    ISN sampling, TCP options support and ordering, IPID sampling, and
+    ISN sampling, TCP options support and ordering, IP ID sampling, and
     the initial window size check, Nmap compares the results to its
     <filename>nmap-os-fingerprints</filename> database of more than 1500 known
     OS fingerprints and prints out the OS details if there is a match.
@@ -1720,7 +1720,7 @@ way.</para>
     fluctuate.  It is generally better to use the English
     classification such as <quote>worthy challenge</quote> or <quote>trivial joke</quote>.  This
     is only reported in normal output in verbose (<option>-v</option>)
-    mode.  When verbose mode is enabled along with <option>-O</option>, IPID sequence
+    mode.  When verbose mode is enabled along with <option>-O</option>, IP ID sequence
     generation is also reported.  Most machines are in the
     <quote>incremental</quote> class, which means that they increment the ID
     field in the IP header for each packet they send.  This makes them
@@ -1856,7 +1856,7 @@ way.</para>
     </variablelist>
   </refsect1>
 	<refsect1 id='man-nse'> 
-	<title>NSE&mdash;Scripting extension to the Nmap network scanner<indexterm><primary>NSE</primary></indexterm></title>
+	<title>Nmap Scripting Engine (NSE)<indexterm><primary>NSE</primary></indexterm></title>
 	<para> 
 	The Nmap Scripting Engine (NSE) combines the efficiency of Nmap's
 	network handling with the versatility of the lightweight scripting language
@@ -2619,10 +2619,10 @@ to transfer the requested file.</para>
 <para>Secure solutions to these problems exist, often in the form of
 application-level proxies or protocol-parsing firewall modules.
 Unfortunately there are also easier, insecure solutions.  Noting that
-DNS replies come from port 53 and active FTP from port 20, many admins
+DNS replies come from port 53 and active FTP from port 20, many administrators
 have fallen into the trap of simply allowing incoming traffic from
 those ports.  They often assume that no attacker would notice and
-exploit such firewall holes.  In other cases, admins consider this a
+exploit such firewall holes.  In other cases, administrators consider this a
 short-term stop-gap measure until they can implement a more secure
 solution.  Then they forget the security upgrade.
 </para>
@@ -2966,7 +2966,7 @@ of 6 labeled fields, separated by tabs and followed with a colon.
 The fields are <literal>Host</literal>, <literal>Ports</literal>,
 <literal>Protocols</literal>, <literal>Ignored State</literal>,
 <literal>OS</literal>, <literal>Seq Index</literal>,
-<literal>IPID</literal>, and <literal>Status</literal>.</para>
+<literal>IP ID</literal>, and <literal>Status</literal>.</para>
 
 <para>The most important of these fields is generally
 <literal>Ports</literal>, which gives details on each interesting
@@ -3180,7 +3180,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
           completion.  Restrictions may prevent Nmap from being run
           during working hours, the network could go down, the machine
           Nmap is running on might suffer a planned or unplanned
-          reboot, or Nmap itself could crash.  The admin running Nmap
+          reboot, or Nmap itself could crash.  The administrator running Nmap
           could cancel it for any other reason as well, by pressing
           <keycap>ctrl-C</keycap>.  Restarting the whole scan from the
           beginning may be undesirable.  Fortunately, if normal
