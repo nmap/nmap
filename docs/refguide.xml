@@ -2732,7 +2732,7 @@ support the option completely, as does UDP scan.</para>
         </term>
         <listitem>
 
-          <para>Tells Nmap to shuffle each group of up to 8096 hosts
+          <para>Tells Nmap to shuffle each group of up to 16384 hosts
           before it scans them. This can make the scans less obvious
           to various network monitoring systems, especially when you
           combine it with slow timing options.  If you
