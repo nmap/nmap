@@ -2099,6 +2099,11 @@ left on a given interface to fulfill the specified minimum.  Both may
 be set to keep the group size within a specific range, though this is
 rarely desired.</para>
 
+<para>These options do not have an effect during the host discovery
+phase of a scan. This includes plain ping scans (<option>-sP</option>).
+Host discovery always works in large groups of hosts to improve speed
+and accuracy.</para>
+
 <para>The primary use of these options is to specify a large minimum
 group size so that the full scan runs more quickly.  A common choice
 is 256 to scan a network in Class C sized chunks.  For a scan with
