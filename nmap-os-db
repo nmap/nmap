@@ -8073,7 +8073,7 @@ U1(DF=N%T=80%TG=80%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=S%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # Microsoft Windows 2003 Server [Winver: Version 5.2 (Build 3790.srv03_gdr.050225-1827)]
-Fingerprint Microsoft Windows 2003 Server
+Fingerprint Microsoft Windows Server 2003
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=FF-109%GCD=<7%ISR=106-110%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
@@ -8090,7 +8090,7 @@ U1(DF=N%T=80%TG=80%TOS=0%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # Windows Server 2003 R2 Standard Edition - [winver: Version 5.2 R2 (Build 3790.srv03_sp1_qfe.070304-2232 : Service Pack 1)] Terminal Services
-Fingerprint Microsoft Windows 2003 Server R2 SP1
+Fingerprint Microsoft Windows Server 2003 R2 SP1
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=103-10D%GCD=<7%ISR=107-111%II=I%TS=0)
 OPS(O1=M576NW0NNT00NNS%O2=M576NW0NNT00NNS%O3=M576NW0NNT00%O4=M576NW0NNT00NNS%O5=M576NW0NNT00NNS%O6=M576NNT00NNS)
@@ -8116,7 +8116,7 @@ IE(DFI=S%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 # Microsoft Windows XP Professional x64 Edition, Version 2003, Service Pack 1 [winver: Version 5.2 (Build 3790.srv03_sp1_gdr.060315-1609 : Service Pack 1)]
 # Microsoft Windows 2003 R2 standard x64 SP1 - (Version 5.2.3790 Service Pack 1 Nu 3790)
 # Microsoft Windows  2003 SP1 SE (Russian) [Winver:Version 5.2 (build 3790.srv03_sp1_rtm.050324-1447 : Service Pack 1)
-Fingerprint Microsoft Windows 2003 Server SP1
+Fingerprint Microsoft Windows Server 2003 SP1
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=C7-109%GCD=<7%ISR=FE-10F%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M4ECNW0NNT00NNS%O2=M4ECNW0NNT00NNS%O3=M4ECNW0NNT00%O4=M4ECNW0NNT00NNS%O5=M4ECNW0NNT00NNS%O6=M4ECNNT00NNS)
@@ -8133,7 +8133,7 @@ U1(DF=N%T=7F|80|81%TG=80%TOS=0%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD
 IE(DFI=S%T=7F|80%TG=7F%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # Microsoft Windows 2003 Server SP1 build 3790
-Fingerprint Microsoft Windows 2003 Server SP1
+Fingerprint Microsoft Windows Server 2003 SP1
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=E0-EA%GCD=<7%ISR=103-10D%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
@@ -8151,7 +8151,7 @@ IE(DFI=S%T=80%TG=80%TOSI=40%CD=Z%SI=S%DLI=S)
 
 # Microsoft Windows 2003 Server SP1 [Winver: Version 5.2 (Build 3790.srv03_sp1_rtm.050324-1447: Service Pack 1)]
 # Version 5.2 (Build 3790.srv03_sp2_gdr.070304-2240 : Service Pack 2)
-Fingerprint Microsoft Windows 2003 Server SP1 or SP2
+Fingerprint Microsoft Windows Server 2003 SP1 or SP2
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=100-10A%GCD=<7%ISR=104-10E%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M4ECNW0NNT00NNS%O2=M4ECNW0NNT00NNS%O3=M4ECNW0NNT00%O4=M4ECNW0NNT00NNS%O5=M4ECNW0NNT00NNS%O6=M4ECNNT00NNS)
@@ -8168,7 +8168,7 @@ U1(DF=N%T=80%TG=80%TOS=0%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=S%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # Microsoft Windows 2003 Standard Edition [Winver: Version 5.2 (build 3790.srv03_sp1_rtm.050324-1447 : Service Pack 1)
-Fingerprint Microsoft Windows 2003 Server SP1
+Fingerprint Microsoft Windows Server 2003 SP1
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=FF-109%GCD=<7%ISR=102-10C%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
@@ -8187,7 +8187,7 @@ IE(DFI=S%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 # Microsoft Windows Server 2003 Enterprise Edition Version 5.2 (Build 3790.srv03_sp1_rtm.050324-1447 : Service Pack 1)
 # Microsoft Windows Version 5.2 (Build 3790.srv03_sp2_gdr.070304-2240: Service Pack 2)
 # Microsoft Windows 2003 Server Standard Edition German SP1 [Winver: Version 5.2 (Build 3790.srv03_sp1_rtm.050324-1447)
-Fingerprint Microsoft Windows 2003 Server SP1 or SP2
+Fingerprint Microsoft Windows Server 2003 SP1 or SP2
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=D7-129%GCD=<7%ISR=F1-113%TI=RD|RI%II=I%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
@@ -8210,7 +8210,7 @@ IE(DFI=S%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 # Microsoft Windows 2003 Server SP1 [Winver: Version 5.2 (Build 3790.srv03_sp1_gdr.070304-2232-Service Pack 1)]
 # Microsoft Windows Server 2003 [Winver: Version 5.2 (Build 3790.srv03_sp2_rtm.070216-1710 : Service Pack 2)]
 # Microsoft Windows 2003 Standard R2 version 5.2 Service Pack 2 (build 3790.srv03_sp2_gdr.070304-2240)
-Fingerprint Microsoft Windows 2003 Server SP1 or SP2
+Fingerprint Microsoft Windows Server 2003 SP1 or SP2
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=FA-10A%GCD=<7%ISR=FB-10D%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
@@ -8229,7 +8229,7 @@ IE(DFI=S%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 # Microsoft Windows [Version 5.2.3790] (Build 3790.srv03_sp2_rtm.070216-1710: Service Pack2)
 # Microsoft Windows 2003 Standard Edition SP1 [Winver: Version 5.2 (Build 3790.srv03_sp1_rtm.050324-1447 : Service Pack 1)]
 # Microsoft Windows Server 2003 SE SP1 [Winver: Version 5.2 (build 3790.srv03_sp1_rtm.050324-1447 : Service Pack 1)]
-Fingerprint Microsoft Windows 2003 Server SP1 or SP2
+Fingerprint Microsoft Windows Server 2003 SP1 or SP2
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=FE-108%GCD=<7%ISR=101-10B%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
@@ -8247,7 +8247,7 @@ IE(DFI=S%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # Microsoft Windows Server 2003 R2 Enterprise Edition SP2 [Winver: Version 5.2 R2 (build 3790.srv03_sp2_gdr.070304-2240 : Service Pack 2)]
 # Microsoft Windows Server 2003 Enterprise Edition SP1 [Winver: Version 5.2 (Build 3790.srv03_sp1_rtm.050324-1447: Service Pack 1)
-Fingerprint Microsoft Windows 2003 Server SP1 or SP2
+Fingerprint Microsoft Windows Server 2003 SP1 or SP2
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=FA-104%GCD=<7%ISR=107-111%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
@@ -8264,7 +8264,7 @@ U1(DF=N%T=7F%TG=7F%TOS=0%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=S%T=7F%TG=7F%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # Windows Server 2003 Standard (NO SP) [Winver: Version 5.2 (Build 3790.srv03_rtm.030324-2048)]
-Fingerprint Microsoft Windows 2003 Server Standard (no service pack)
+Fingerprint Microsoft Windows Server 2003 Standard (no service pack)
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=102-10C%GCD=<7%ISR=107-111%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
@@ -8281,7 +8281,7 @@ U1(DF=N%T=80%TG=80%TOS=0%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=S%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # Microsoft Windows 2003 server enterprise x64 edition sp1 english (5.2.3790)
-Fingerprint Microsoft Windows 2003 Server X64 SP1
+Fingerprint Microsoft Windows Server 2003 X64 SP1
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=102-10C%GCD=<7%ISR=106-110%TS=0)
 OPS(O1=M5B4NWENNT00NNS%O2=M5B4NWENNT00NNS%O3=M5B4NWENNT00%O4=M5B4NWENNT00NNS%O5=M5B4NWENNT00NNS%O6=M5B4NNT00NNS)
@@ -8319,7 +8319,7 @@ IE(DFI=S%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 # microsoft windows server 2003 [winver:version 5.2(build3790.srv03_sp1_gdr.070304-2232 : service pack 1)]
 # OCE TCS 500 (XP Embedded)
 # Version 5.2 (Build 3790.srv03_sp2_gdr.070304-2240 : Service Pack 2)
-Fingerprint Microsoft Windows 2003 Server SP1 or SP2
+Fingerprint Microsoft Windows Server 2003 SP1 or SP2
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=FB-10B%GCD=<7%ISR=100-10E%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
@@ -8337,7 +8337,7 @@ IE(DFI=S%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # Microsoft Windows Server 2003 R2 Standard x64 [Winver: Version 5.2 R2 (Build 3790.srv03_sp2_rtm.070216-1710 : Service Pack 2)]
 # Microsoft Windows 2003 SP1 [Winver: Version 5.2 (Build 3790.srv03_sp1_rtm.050324-1447 : Service Pack 1)]
-Fingerprint Microsoft Windows 2003 Server SP1 or SP2
+Fingerprint Microsoft Windows Server 2003 SP1 or SP2
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=EE-10C%GCD=<7%ISR=102-10C%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
@@ -9260,7 +9260,7 @@ IE(DFI=N%T=80%TG=80%TOSI=S%CD=Z%SI=S%DLI=S)
 # windows xp corporate ed. (5.1 build2600xpsp_spl_gdr.050301-1519:service pack 2
 # Microsoft Windows Version 5.1(Build 2600.xpsp_sp2_gdr.070227-2254: Service Pack 2)
 # Version 5.1 (Build 2600.xpsp_sp2_gdr.070227-2254 : Service Pack 2)
-Fingerprint Microsoft Windows XP SP2 or Windows 2003 Server SP0/SP1
+Fingerprint Microsoft Windows XP SP2 or Windows Server 2003 SP0/SP1
 Class Microsoft | Windows | XP | general purpose
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=F0-10C%GCD=<7%ISR=100-111%TI=I%II=I%SS=S%TS=0)
@@ -13129,7 +13129,7 @@ U1(DF=N%T=40%TG=40%TOS=C0%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Version 5.2 (Build 3790.srv03_sp1_gdr.070304-2232 : Service Pack 1)
-Fingerprint Microsoft Windows 2003 Server SP1
+Fingerprint Microsoft Windows Server 2003 SP1
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=F9-103%GCD=<7%ISR=103-10D%TI=I%TS=0)
 OPS(O1=M564NW0NNT00NNS%O2=M564NW0NNT00NNS%O3=M564NW0NNT00%O4=M564NW0NNT00NNS%O5=M564NW0NNT00NNS%O6=M564NNT00NNS)
@@ -13387,7 +13387,7 @@ U1(DF=N%T=80%TG=80%TOS=0%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=S%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # Version 5.2 (Build 3790.srv03_sp1_gdr.070304-2232 : Service Pack 1)
-Fingerprint Microsoft Windows 2003 Server SP1
+Fingerprint Microsoft Windows Server 2003 SP1
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=FA-104%GCD=<7%ISR=107-111%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M4ECNW0NNT00NNS%O2=M4ECNW0NNT00NNS%O3=M4ECNW0NNT00%O4=M4ECNW0NNT00NNS%O5=M4ECNW0NNT00NNS%O6=M4ECNNT00NNS)
@@ -13489,7 +13489,7 @@ U1(DF=Y%T=FF%TG=FF%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=29F9%RUL=G%RUD=G)
 IE(DFI=Y%T=FF%TG=FF%TOSI=Z%CD=S%SI=S%DLI=S)
 
 # Version 5.2 (Build 3790.srv03_sp2_gdr.070304-2240 : Service Pack 2)
-Fingerprint Microsoft Windows 2003 Server SP2
+Fingerprint Microsoft Windows Server 2003 SP2
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=FF-109%GCD=<7%ISR=105-10F%TI=I|RD%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
