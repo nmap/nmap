@@ -601,7 +601,7 @@ U1(DF=N%T=FF%TG=FF%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=FF%TG=FF%TOSI=Z%CD=S%SI=S%DLI=S)
 
 # Darwin Kernel Version 6.8: Wed Sep 10 15:20:55 PDT 2003; root:xnu/xnu-344.49.obj~2/RELEASE_PPC  Power Macintosh powerpc
-Fingerprint Apple Mac OS X Server 10.2.8 (PowerPC)
+Fingerprint Apple Mac OS X Server 10.2.8 "Jaguar" (Darwin 6.8, PowerPC)
 Class Apple | Mac OS X | 10.2.X | general purpose
 SEQ(SP=FB-111%GCD=<7%ISR=104-10E%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
@@ -619,7 +619,7 @@ IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Apple Mac OS X 10.3.9 (Panther) - Darwin Kernel Version 7.9.0 Wed Mar 30 20:11:17 PST 2005; root:xnu/xnu-517.12.7.obj~1/RELEASE_PPC  Power Macintosh powerpc
 # Apple Mac OS X 10.4.5 on PPC
-Fingerprint Apple Mac OS X 10.3.9 - 10.4.5 (PowerPC)
+Fingerprint Apple Mac OS X 10.3.9 "Panther" - 10.4.5 "Tiger" (Darwin 7.9.0 - 8.5.0, PowerPC)
 Class Apple | Mac OS X | 10.3.X | general purpose
 SEQ(SP=F9-10B%GCD=<7%ISR=101-111%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M3FD8NW0NNT11%O2=M3FD8NW0NNT11%O3=M3FD8NW0NNT11%O4=M3FD8NW0NNT11%O5=M3FD8NW0NNT11%O6=M3FD8NNT11)
@@ -637,7 +637,7 @@ IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Apple eMac G4 1.25GHz, Mac OS X 10.4.7 (uname -a: Darwin 8.7.8 Darwin Kernel Version 8.7.8: Fri May 26 15:20:53 PDT 2006; root:xnu-792.6.76.obj~1/RELEASE_PPC Power Maciontosh powerpc)
 # Apple Mac OS X 10.3.9 (PowerPC)
-Fingerprint Apple Mac OS X 10.3.9 - 10.4.7
+Fingerprint Apple Mac OS X 10.3.9 "Panther" - 10.4.7 "Tiger" (Darwin 7.9.0 - 8.7.8, PowerPC)
 Class Apple | Mac OS X | 10.3.X | general purpose
 Class Apple | Mac OS X | 10.4.X | general purpose
 SEQ(SP=AC-108%GCD=<7%ISR=EA-110%TI=I|RD%II=I%SS=S%TS=1)
@@ -655,7 +655,7 @@ U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # MAC OS X 10.3.9 (7W98) on PowerPC (Darwin Kernel 7.9.0)
-Fingerprint Mac OS X 10.3.9 (PowerPC)
+Fingerprint Mac OS X 10.3.9 "Panther" (Darwin 7.9.0, PowerPC)
 Class Apple | Mac OS X | 10.3.X | general purpose
 SEQ(R=N)
 OPS(O1=%O2=%O3=%O4=%O5=%O6=)
@@ -672,7 +672,7 @@ U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=2B18%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Power Mac G5 running OS X 10.4.8
-Fingerprint Apple Mac OS X 10.4.8 (Tiger) (PPC)
+Fingerprint Apple Mac OS X 10.4.8 "Tiger" (PowerPC)
 Class Apple | Mac OS X | 10.4.X | general purpose
 SEQ(SP=FA-104%GCD=<7%ISR=103-10D%II=I%TS=U)
 OPS(O1=M3FD8SLL%O2=M3FD8SLL%O3=M3FD8%O4=M3FD8SLL%O5=M3FD8SLL%O6=M3FD8SLL)
@@ -690,7 +690,7 @@ IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Darwin 8.8.0 Darwin Kernel Version 8.8.0: Fri Sep  8 17:18:57 PDT 2006; root:xnu-792.12.6.obj~1/RELEASE_PPC Power Macintosh powerpc - Apple MacOS X 10.4.8 (Panther) on PPC
 # Darwin 8.9.0 Darwin Kernel Version 8.9.0: Thu Feb 22 20:54:07 PST 2007; root:xnu-792.17.14~1/RELEASE_PPC Power Macintosh powerpc
-Fingerprint Apple Mac OS X 10.4.8 (Tiger) on PPC
+Fingerprint Apple Mac OS X 10.4.8 "Tiger" (Darwin 8.8.0 - 8.9.0, PowerPC)
 Class Apple | Mac OS X | 10.4.X | general purpose
 SEQ(SP=FB-107%GCD=<7%ISR=108-112%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M3FD8NW3NNT11SLL%O2=M3FD8NW3NNT11SLL%O3=M3FD8NW3NNT11%O4=M3FD8NW3NNT11SLL%O5=M3FD8NW3NNT11SLL%O6=M3FD8NNT11SLL)
@@ -708,7 +708,7 @@ IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Apple Mac OS X 10.4.8 (PowerPC)
 # Darwin macmini.local 8.10.1 Darwin Kernel Version 8.10.1: Wed May 23 16:33:00 PDT 2007; root:xnu-792.22.5~1/RELEASE_I386 i386 i386 (macmini running OSX 10.4.10)
-Fingerprint Apple Mac OS X 10.4.8 - 10.4.10 (Tiger) on PPC
+Fingerprint Apple Mac OS X 10.4.8 - 10.4.10 "Tiger" (Darwin 8.10.1, PowerPC)
 Class Apple | Mac OS X | 10.4.X | general purpose
 SEQ(SP=FE-10A%GCD=<7%ISR=105-111%TI=RD%II=I%TS=1)
 OPS(O1=NNT11|M5B4NW3NNT11SLL%O2=NNT11|M5B4NW3NNT11SLL%O3=NNT11|M5B4NW3NNT11%O4=NNT11|M5B4NW3NNT11SLL%O5=NNT11|M5B4NW3NNT11SLL%O6=NNT11|M5B4NNT11SLL)
@@ -731,7 +731,7 @@ IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # OS X 10.4.8 (Intel)  -- Darwin 8.8.1 Darwin Kernel Version 8.8.1: Mon Sep 25 19:42:00 PDT 2006; root:xnu-792.13.8.obj~1/RELEASE_I386 i386 i386
 # Mac OS X 10.4.10 (8R218) Darwin 8.10.0 Darwin Kernel Version 8.10.0 : Wed May 23 16:50:59 PDT 2007; root:xnu-792.21.3~1/RELEASE_PPC Power Macintosh powerpc
 # Darwin 8.10.1 Darwin Kernel Version 8.10.1: Wed May 23 16:33:00 PDT 2007; root:xnu-792.22.5~1/RELEASE_I386 i386 i386
-Fingerprint Apple Mac OS X 10.4.8 - 10.4.10 (Tiger)
+Fingerprint Apple Mac OS X 10.4.8 - 10.4.10 "Tiger" (Darwin 8.8.0 - 8.10.1)
 Class Apple | Mac OS X | 10.4.X | general purpose
 SEQ(SP=BC-10C%GCD=<7%ISR=C7-111%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11SLL%O2=M5B4NW0NNT11SLL%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11SLL%O5=M5B4NW0NNT11SLL%O6=M5B4NNT11SLL)
@@ -752,7 +752,7 @@ IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # Apple Mac OS X 10.4.8 (Tiger) on x86 Core Duo
 # Apple Mac OS X 10.4.9, Darwin Kernel Version 8.9.1: Thu Feb 22 20:55:00 PST 2007; root:xnu-792.18.15~1/RELEASE_I386 i386 i386
 # Darwin 8.10.1 Darwin Kernel Version 8.10.1: Wed May 23 16:33:00 PDT 2007; root:xnu-792.22.5~1/RELEASE_I386 i386 i386 (OS X version 10.4.10, Intel version)
-Fingerprint Apple Mac OS X 10.4.8 - 10.4.10 (Tiger)
+Fingerprint Apple Mac OS X 10.4.8 - 10.4.10 "Tiger" (Darwin 8.8.0 - 8.10.1)
 Class Apple | Mac OS X | 10.4.X | general purpose
 SEQ(SP=BC-109%GCD=<7%ISR=FD-10F%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M3FD8NW0NNT11SLL%O2=M3FD8NW0NNT11SLL%O3=M3FD8NW0NNT11%O4=M3FD8NW0NNT11SLL%O5=M3FD8NW0NNT11SLL%O6=M3FD8NNT11SLL)
@@ -769,7 +769,7 @@ U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Apple Mac OS X 10.4.9 on PowerPC G4 (1.5)
-Fingerprint Apple Mac OS X 10.4.9 (PowerPC)
+Fingerprint Apple Mac OS X 10.4.9 "Tiger" (PowerPC)
 Class Apple | Mac OS X | 10.4.X | general purpose
 SEQ(SP=103-10D%GCD=<7%ISR=102-10E%TI=I%II=I%SS=S%TS=0|1)
 OPS(O1=M3FD8NW0NNT11SLL%O2=M3FD8NW0NNT11SLL%O3=M3FD8NW0NNT11%O4=M3FD8NW0NNT11SLL%O5=M3FD8NW0NNT11SLL%O6=M3FD8NNT11SLL)
@@ -786,7 +786,7 @@ U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Mac OS X 10.5 Build 9A303
-Fingerprint Mac OS X 10.5 (Leopard) Pre-release build 9A303 (PPC)
+Fingerprint Apple Mac OS X 10.5 "Leopard" pre-release build 9A303 (PowerPC)
 Class Apple | Mac OS X | 10.5.X | general purpose
 SEQ(SP=EF-10D%GCD=<7%ISR=101-10B%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M3FD8NW5NNT11SLL%O2=M3FD8NW5NNT11SLL%O3=M3FD8NW5NNT11%O4=M3FD8NW5NNT11SLL%O5=M3FD8NW5NNT11SLL%O6=M3FD8NNT11SLL)
@@ -803,7 +803,7 @@ U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # PowerMac G5 running OS X Server 10.5 build 9A284
-Fingerprint OS X Server 10.5 (Leopard) pre-release build 9A284
+Fingerprint Apple Mac OS X Server 10.5 "Leopard" pre-release build 9A284
 Class Apple | Mac OS X | 10.5.X | general purpose
 SEQ(SP=D6-100%GCD=<7%ISR=102-10C%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW5NNT11SLL%O2=M5B4NW5NNT11SLL%O3=M5B4NW5NNT11%O4=M5B4NW5NNT11SLL%O5=M5B4NW5NNT11SLL%O6=M5B4NNT11SLL)
@@ -14002,7 +14002,7 @@ U1(DF=N%T=FF%TG=FF%TOS=0%IPL=38%UN=0%RIPL=15C%RID=G%RIPCK=I%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Darwin 8.10.0 Darwin Kernel Version 8.10.0: Wed May 23 16:50:59 PDT 2007; root:xnu-792.21.3~1/RELEASE_PPC Power Macintosh powerpc
-Fingerprint Apple Mac OS X 10.4.10 (Tiger)
+Fingerprint Apple Mac OS X 10.4.10 "Tiger" (Darwin 8.10.0, PowerPC)
 Class Apple | Mac OS X | 10.4.X | general purpose
 SEQ(SP=FA-10C%GCD=<7%ISR=F7-105%TI=I%II=I%SS=S%TS=1|2)
 OPS(O1=M5B4NW0NNT11SLL%O2=M5B4NW0NNT11SLL%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11SLL%O5=M5B4NW0NNT11SLL%O6=M5B4NNT11SLL)
@@ -14327,7 +14327,7 @@ U1(R=N)
 IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Darwin 8.9.0 Darwin Kernel Version 8.9.0: Thu Feb 22 20:54:07 PST 2007; root:xnu-792.17.14~1/RELEASE_PPC Power Macintosh powerpc
-Fingerprint Mac OS X Server 10.4.9 (Darwin 8.9.0)
+Fingerprint Mac OS X Server 10.4.9 "Tiger" (Darwin 8.9.0, PowerPC)
 Class Apple | Mac OS X | 10.4.X | general purpose
 SEQ(SP=F7-101%GCD=<7%ISR=106-110%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11SLL%O2=M5B4NW0NNT11SLL%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11SLL%O5=M5B4NW0NNT11SLL%O6=M5B4NNT11SLL)
