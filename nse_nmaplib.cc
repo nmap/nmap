@@ -36,6 +36,8 @@ static int l_print_debug_unformatted(lua_State *l);
 static int l_get_port_state(lua_State* l, Target* target, Port* port);
 static int l_set_port_state(lua_State* l, Target* target, Port* port);
 static int l_set_port_version(lua_State* l, Target* target, Port* port);
+static int l_get_verbosity(lua_State *);
+static int l_get_debugging(lua_State *);
 
 int l_clock_ms(lua_State* l);
 
@@ -53,6 +55,8 @@ int set_nmaplib(lua_State* l) {
 		{"clock_ms", l_clock_ms},
 		{"print_debug_unformatted", l_print_debug_unformatted},
 		{"new_try", l_exc_newtry},
+		{"verbosity", l_get_verbosity},
+		{"debugging", l_get_debugging},
 		{NULL, NULL} 
 	};
 
@@ -483,6 +487,18 @@ static int l_exc_newtry(lua_State *l) {
 	if (lua_isnil(l, 1)) 
 		lua_pushcfunction(l, l_exc_do_nothing);
 	lua_pushcclosure(l, l_exc_finalize, 1);
+	return 1;
+}
+
+static int l_get_verbosity(lua_State *l)
+{
+	lua_pushnumber(l, o.verbose);
+	return 1;
+}
+
+static int l_get_debugging(lua_State *l)
+{
+	lua_pushnumber(l, o.debugging);
 	return 1;
 }
 
