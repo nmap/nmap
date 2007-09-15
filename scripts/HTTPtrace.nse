@@ -21,7 +21,7 @@ categories = {"discovery"}
 require "shortport"
 require "stdnse"
 
-truncate = function(tab)
+local truncate = function(tab)
 	local str = ""
 	str = str .. tab[1] .. "\n"
 	str = str .. tab[2] .. "\n"
@@ -31,7 +31,7 @@ truncate = function(tab)
 	return str
 end
 
-validate = function(response, original)
+local validate = function(response, original)
 	local start, stop
 	local body
 

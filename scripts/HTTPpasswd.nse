@@ -18,7 +18,7 @@ require "shortport"
 
 -- Check for a valid HTTP return code, and check
 -- the supposed passwd file for validity
-validate = function(response)
+local validate = function(response)
 	local passwd
 	local line
 	local start, stop
@@ -43,7 +43,7 @@ validate = function(response)
 end
 
 -- Connects to host:port, send cmd, and returns the (hopefully valid) response
-talk = function(host, port, cmd)
+local talk = function(host, port, cmd)
 	local socket
 	local response
 
@@ -70,11 +70,11 @@ talk = function(host, port, cmd)
 	return validate(response)
 end
 
-httpget = function(str)
+local httpget = function(str)
 	return "GET " .. str .. " HTTP/1.0\r\n\r\n"
 end
 
-hexify = function(str)
+local hexify = function(str)
 	local ret
 	ret = str:gsub("%.", "%%2E")
 	ret = ret:gsub("/", "%%2F")
@@ -83,12 +83,12 @@ hexify = function(str)
 end
 
 -- Returns truncated passwd file and returned length
-truncatePasswd = function(passwd)
+local truncatePasswd = function(passwd)
 	local len = 250
 	return passwd:sub(1, len), len
 end
 
-output = function(passwd, dir)
+local output = function(passwd, dir)
 	local trunc, len = truncatePasswd(passwd)
 	local out = ""
 	out = out .. "Found with \"" .. dir .. "\"\n"
