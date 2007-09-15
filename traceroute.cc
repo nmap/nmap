@@ -500,7 +500,7 @@ Traceroute::readTraceResponses () {
             commonPath[tp->ttl] = tp->ipreplysrc.s_addr;
 	    /* remember which host is the reference trace */
 	    if(tp->ttl == 1)
-		ref_ipaddr = tp->ipdst;
+		ref_ipaddr.s_addr = tg->ipdst;
 	}
         break;
     case IPPROTO_TCP:
