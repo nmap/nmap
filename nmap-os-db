@@ -4755,7 +4755,7 @@ U1(DF=N%T=3F%TG=3F%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=3F%TG=3F%TOSI=Z%CD=S%SI=S%DLI=S)
 
 # zOS 1.6
-Fingerprint z/OS 1.6
+Fingerprint IBM z/OS 1.6
 Class IBM | z/OS | 1.6.X | general purpose
 SEQ(SP=7B-89%GCD=<7%ISR=93-9D%TI=I%II=I%SS=S%TS=A)
 OPS(O1=M22F8NW1NNT11%O2=M22F8NW1NNT11%O3=M22F8NW1NNT11%O4=M22F8NW1NNT11%O5=M22F8NW1NNT11%O6=M22F8NNT11)
@@ -13203,7 +13203,7 @@ U1(DF=N%T=FF%TG=FF%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Teltronics NET-PATH <http://www.teltronics.com/products_services/ism/text.asp?id=SEBNETPATH> OS Version: 3.0.1.1047 Application Version: 3.1.1.1057
-Fingerprint Teltronics NET-PATH IDS
+Fingerprint Teltronics NET-PATH intrusion detection system
 Class Teltronics | embedded || IDS
 SEQ(SP=46-95%GCD=FA|1F4|2EE|3E8|4E2%ISR=8C-BA%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5A2%O2=M5A2%O3=M5A2%O4=M5A2%O5=M5A2%O6=M5A2)
@@ -13666,7 +13666,7 @@ U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Nokia E60 wifi enabled mobile phone, firmware version 3.
-Fingerprint Nokia E60 mobile phone (Symbian OS
+Fingerprint Nokia E60 mobile phone (Symbian OS)
 Class Nokia | Symbian OS || phone
 SEQ(SP=FF-109%GCD=<7%ISR=108-112%TI=RD%TS=A)
 OPS(O1=M5B4NW8NNT11SLL%O2=M5B4NW8NNT11SLL%O3=M5B4NW8NNT11%O4=M5B4NW8NNT11SLL%O5=M5B4NW8NNT11SLL%O6=M5B4NNT11SLL)
