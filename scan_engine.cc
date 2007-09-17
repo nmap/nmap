@@ -3070,13 +3070,16 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
      and find the relevant ones. Note the peculiar structure of the loop--we
      iterate through both incompleteHosts and completedHosts, because global
      timing pings are sent to hosts in completedHosts. */
-  for(hostI = USI->incompleteHosts.begin(); 
-      hostI != USI->completedHosts.end() && numGoodSD < selectres; hostI++) {
-    if (hostI == USI->incompleteHosts.end())
-      /* We're done with incomplete hosts. Move on to completed hosts. */
-      hostI = USI->completedHosts.begin();
-    if (hostI == USI->completedHosts.end())
-      break;
+  list<HostScanStats *>::iterator incompleteHostI, completedHostI;
+  incompleteHostI = USI->incompleteHosts.begin();
+  completedHostI = USI->completedHosts.begin();
+  while ((incompleteHostI != USI->incompleteHosts.end()
+          || completedHostI != USI->completedHosts.end())
+         && numGoodSD < selectres) {
+    if (incompleteHostI != USI->incompleteHosts.end())
+      hostI = incompleteHostI++;
+    else
+      hostI = completedHostI++;
 
     host = *hostI;
     if (host->num_probes_active == 0) continue;
