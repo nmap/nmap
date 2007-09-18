@@ -3000,10 +3000,6 @@ static void printAnyStats(UltraScanInfo *USI) {
     }
   }
 
-  if (o.debugging > 1) {
-    log_write(LOG_PLAIN, "packet_ratio: %.2f %d/%d  %.5f = 1 / %.5f\n", o.TimeSinceStartMS() / 1000.0, USI->gstats->probes_replied_to, USI->gstats->probes_sent, 1.0 / USI->gstats->cc_scale(), USI->gstats->cc_scale());
-  }
-
   /* Now time to figure out how close we are to completion ... */
   if (USI->SPM->mayBePrinted(&USI->now)) {
     list<HostScanStats *>::iterator hostI;
