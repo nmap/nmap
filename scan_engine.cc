@@ -1547,13 +1547,13 @@ int UltraScanInfo::removeCompletedHosts() {
 		    hss->target->targetipstr(), scantype2str(scantype), remain,
 		    (remain == 1)? "host left" : "hosts left");
       }
-      if (o.debugging > 1) {
+      if (o.debugging > 2) {
         unsigned int num_outstanding_probes;
         num_outstanding_probes = hss->probes_outstanding.size();
         log_write(LOG_PLAIN, "Moving %s to completed hosts list with %d outstanding %s.\n",
                   hss->target->targetipstr(), num_outstanding_probes,
                   num_outstanding_probes == 1 ? "probe" : "probes");
-        if (o.debugging > 2) {
+        if (o.debugging > 3) {
           char tmpbuf[32];
           std::list<UltraProbe *>::iterator iter;
           for (iter = hss->probes_outstanding.begin(); iter != hss->probes_outstanding.end(); iter++)
@@ -2975,7 +2975,7 @@ static void printAnyStats(UltraScanInfo *USI) {
   struct ultra_timing_vals hosttm;
 
   /* Print debugging states for each host being scanned */
-  if (o.debugging > 1) {
+  if (o.debugging > 2) {
     log_write(LOG_PLAIN, "**TIMING STATS** (%.4fs): IP, probes active/freshportsleft/retry_stack/outstanding/retranwait/onbench, cwnd/ccthresh/delay, timeout/srtt/rttvar/\n", o.TimeSinceStartMS() / 1000.0);
     log_write(LOG_PLAIN, "   Groupstats (%d/%d incomplete): %d/*/*/*/*/* %.2f/%d/* %d/%d/%d\n",
 	      USI->numIncompleteHosts(), USI->numInitialHosts(), 
@@ -2983,7 +2983,7 @@ static void printAnyStats(UltraScanInfo *USI) {
 	      USI->gstats->timing.ccthresh, USI->gstats->to.timeout, 
 	      USI->gstats->to.srtt, USI->gstats->to.rttvar);
 
-    if (o.debugging > 2) {
+    if (o.debugging > 3) {
       for(hostI = USI->incompleteHosts.begin(); 
           hostI != USI->incompleteHosts.end(); hostI++) {
         hss = *hostI;
@@ -4613,7 +4613,7 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
     USI->SPM->endTask(NULL, additional_info);
   }
 
-  if (o.debugging > 1 && USI->pd != NULL)
+  if (o.debugging > 2 && USI->pd != NULL)
     pcap_print_stats(LOG_PLAIN, USI->pd);
 
   delete USI;
