@@ -617,6 +617,10 @@ int my_pcap_get_selectable_fd(pcap_t *p);
 // invalid (Windows and Amiga), readip_pcap returns the time you called it.
 bool pcap_recv_timeval_valid();
 
+/* Prints stats from a pcap descriptor (number of received and dropped
+   packets). */
+void pcap_print_stats(int logt, pcap_t *pd);
+
 /* A simple function that caches the eth_t from dnet for one device,
    to avoid opening, closing, and re-opening it thousands of tims.  If
    you give a different device, this function will close the first

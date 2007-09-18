@@ -129,6 +129,8 @@ struct ultra_scan_performance_vars {
 		     in quick start mode */
   int cc_incr; /* How many probes are incremented per (roughly) rtt in 
 		  congestion control mode */
+  int cc_scale_max; /* The maximum scaling factor for congestion window
+                       increments. */
   int initial_ccthresh;
   /* When a successful ping response comes back, it counts as this many
      "normal" responses, because the fact that pings are neccessary means
@@ -356,6 +358,12 @@ public:
   int numprobes; /* Number of probes/ports scanned on each host */
   /* The last time waitForResponses finished (initialized to GSS creation time */
   int probes_sent; /* Number of probes sent in total.  This DOES include pings and retransmissions */
+  int probes_replied_to; /* The number of probes for which we've received
+     responses. Used for scaling congestion control increments. */
+
+  /* Returns the scaling factor to use when incrementing the congestion window.
+     This is the minimum of probes_sent / probes_replied_to and cc_scale_max. */
+  double cc_scale();
 
   /* The most recently received probe response time -- initialized to scan
      start time. */
@@ -854,6 +862,7 @@ GroupScanStats::GroupScanStats(UltraScanInfo *UltraSI) {
     CSI = new ConnectScanInfo;
   else CSI = NULL;
   probes_sent = probes_sent_at_last_wait = 0;
+  probes_replied_to = 0;
   lastping_sent = lastrcvd = USI->now;
   lastping_sent_numprobes = 0;
   pinghost = NULL;
@@ -904,6 +913,19 @@ bool GroupScanStats::sendOK() {
     return true;
 
   return false;
+}
+
+/* Returns the scaling factor to use when incrementing the congestion window.
+   This is the minimum of probes_sent / probes_replied_to and cc_scale_max. */
+double GroupScanStats::cc_scale() {
+  double ratio;
+
+  if (probes_replied_to == 0)
+    return USI->perf.cc_scale_max;
+
+  ratio = (double) probes_sent / probes_replied_to;
+
+  return MIN(ratio, USI->perf.cc_scale_max);
 }
 
 /* For the given scan type, this returns the port/host state demonstrated
@@ -1213,8 +1235,7 @@ HostScanStats *UltraScanInfo::nextIncompleteHost() {
 
 /* This is the function for tuning the major values that affect
    scan performance */
-static void init_perf_values(struct ultra_scan_performance_vars *perf,
-			     unsigned int num_probes_per_host) {
+static void init_perf_values(struct ultra_scan_performance_vars *perf) {
   memset(perf, 0, sizeof(*perf));
   /* TODO: I should revisit these values for tuning.  They should probably
      at least be affected by -T. */
@@ -1222,15 +1243,13 @@ static void init_perf_values(struct ultra_scan_performance_vars *perf,
   perf->max_cwnd = o.max_parallelism? o.max_parallelism : 300;
   perf->group_initial_cwnd = box(o.min_parallelism, perf->max_cwnd, 10);
   perf->host_initial_cwnd = perf->group_initial_cwnd;
-  if (o.timing_level < 4) {
-    perf->quick_incr = 1;
+  perf->quick_incr = 1;
+  /* The congestion window grows faster with more aggressive timing. */
+  if (o.timing_level < 4)
     perf->cc_incr = 1;
-  } else {
-    /* Increase by up to 4 in quick start mode. */
-    perf->quick_incr = (int) (1 + 3.0 / num_probes_per_host);
-    /* Increase by up to 8 / cwnd in congestion control mode. */
-    perf->cc_incr = (int) (1 + 7.0 / num_probes_per_host);
-  }
+  else
+    perf->cc_incr = 2;
+  perf->cc_scale_max = 50;
   perf->initial_ccthresh = 75;
   perf->ping_magnifier = 3;
   perf->pingtime = 5000000;
@@ -1309,7 +1328,7 @@ void UltraScanInfo::Init(vector<Target *> &Targets, struct scan_lists *pts, styp
     break;
   }
 
-  init_perf_values(&perf, numProbesPerHost());
+  init_perf_values(&perf);
 
   for(targetno = 0; targetno < Targets.size(); targetno++) {
     if (Targets[targetno]->timedOut(&now)) {
@@ -1817,6 +1836,8 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
   hss->timing.num_updates++;
   USI->gstats->timing.num_updates++;
 
+  USI->gstats->probes_replied_to++;
+
   /* Adjust window */
   if (probe->tryno > 0 || !rcvdtime) {
     /* A previous probe must have been lost ... */
@@ -1836,7 +1857,7 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
   } else {
     /* Good news -- got a response to first try.  Increase window as 
        appropriate.  */
-    if (hss->timing.cwnd <= hss->timing.ccthresh) {
+    if (hss->timing.cwnd < hss->timing.ccthresh) {
       /* In quick start mode */
       hss->timing.cwnd += ping_magnifier * USI->perf.quick_incr;
     } else {
@@ -1846,12 +1867,14 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
     if (hss->timing.cwnd > USI->perf.max_cwnd)
       hss->timing.cwnd = USI->perf.max_cwnd;
 
-    if (USI->gstats->timing.cwnd <= USI->gstats->timing.ccthresh) {
+    if (USI->gstats->timing.cwnd < USI->gstats->timing.ccthresh) {
       /* In quick start mode */
-      USI->gstats->timing.cwnd += ping_magnifier * USI->perf.quick_incr;
+      USI->gstats->timing.cwnd += ping_magnifier * USI->perf.quick_incr * USI->gstats->cc_scale();
+      if (USI->gstats->timing.cwnd > USI->gstats->timing.ccthresh)
+	USI->gstats->timing.cwnd = USI->gstats->timing.ccthresh;
     } else {
       /* Congestion control mode */
-      USI->gstats->timing.cwnd += ping_magnifier * USI->perf.cc_incr / USI->gstats->timing.cwnd;
+      USI->gstats->timing.cwnd += ping_magnifier * USI->perf.cc_incr / USI->gstats->timing.cwnd * USI->gstats->cc_scale();
     }
     if (USI->gstats->timing.cwnd > USI->perf.max_cwnd)
       USI->gstats->timing.cwnd = USI->perf.max_cwnd;
@@ -2977,6 +3000,10 @@ static void printAnyStats(UltraScanInfo *USI) {
     }
   }
 
+  if (o.debugging > 1) {
+    log_write(LOG_PLAIN, "packet_ratio: %.2f %d/%d  %.5f = 1 / %.5f\n", o.TimeSinceStartMS() / 1000.0, USI->gstats->probes_replied_to, USI->gstats->probes_sent, 1.0 / USI->gstats->cc_scale(), USI->gstats->cc_scale());
+  }
+
   /* Now time to figure out how close we are to completion ... */
   if (USI->SPM->mayBePrinted(&USI->now)) {
     list<HostScanStats *>::iterator hostI;
@@ -3193,8 +3220,6 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
 	  newhoststate = HOST_DOWN;
 	  newportstate = PORT_FILTERED;
 	  current_reason = ER_HOSTUNREACH;
-	  /* Don't adjust timing for this. */
-          adjust_timing = false;
 	  break;
 	case ETIMEDOUT:
 	case EHOSTDOWN:
@@ -3204,15 +3229,11 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
 	     thought, lets go firewalled! and see if it causes any trouble */
 	  newportstate = PORT_FILTERED;
 	  current_reason = ER_NORESPONSE;
-	  /* Don't adjust timing for this. */
-          adjust_timing = false;
 	  break;
 	case ENETUNREACH:
 	  newhoststate = HOST_DOWN;
 	  newportstate = PORT_FILTERED;
 	  current_reason = ER_NETUNREACH;
-	  /* Don't adjust timing for this. */
-          adjust_timing = false;
 	  break;
 	case ENETDOWN:
 	case ENETRESET:
@@ -4053,14 +4074,8 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
             goodone = true;
             newstate = HOST_UP;
           } else {
-            /* If we get a destination unreachable from a host other than the
-               target, we'll take it as evidence that the target is down, but
-               won't use it to alter any timing estimates. That's because these
-               responses are often sporadic, leading to lots of detected drops
-               and much longer scans. */
             goodone = true;
             newstate = HOST_DOWN;
-            adjust_timing = false;
           }
           if (o.debugging) {
 	    if (ping->code == 3)
@@ -4601,6 +4616,10 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
 		   (USI->gstats->num_hosts_timedout == 1)? "host" : "hosts");
     USI->SPM->endTask(NULL, additional_info);
   }
+
+  if (o.debugging > 1 && USI->pd != NULL)
+    pcap_print_stats(LOG_PLAIN, USI->pd);
+
   delete USI;
   USI = NULL;
 }

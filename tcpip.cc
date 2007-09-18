@@ -2091,6 +2091,20 @@ bool pcap_recv_timeval_valid() {
 #endif
 }
 
+/* Prints stats from a pcap descriptor (number of received and dropped
+   packets). */
+void pcap_print_stats(int logt, pcap_t *pd) {
+  struct pcap_stat stat;
+
+  assert(pd != NULL);
+
+  if (pcap_stats(pd, &stat) < 0) {
+    error("%s: %s\n", __func__, pcap_geterr(pd));
+    return;
+  }
+
+  log_write(logt, "pcap stats: %u packets received by filter, %u dropped by kernel.\n", stat.ps_recv, stat.ps_drop);
+}
 
 /* A trivial functon that maintains a cache of IP to MAC Address
    entries.  If the command is ARPCACHE_GET, this func looks for the
