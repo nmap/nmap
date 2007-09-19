@@ -1,8 +1,8 @@
 
 /***************************************************************************
- * scanengine.h -- Includes much of the "engine" functions for scanning,   *
+ * scan_engine.h -- Includes much of the "engine" functions for scanning,  *
  * such as pos_scan and ultra_scan.  It also includes dependant functions  *
- * such as those for collectiong SYN/connect scan responses.               *
+ * such as those for collecting SYN/connect scan responses.                *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *

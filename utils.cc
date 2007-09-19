@@ -292,7 +292,7 @@ int numberlist2array(char *expr, u16 *dest, int destsize, char **errorstr, u16 m
     errorstr = &errbogus;
 
   if (destsize % 2 != 0) {
-    *errorstr = "Bogus call to numerlist2array() -- destsize must be a multiple of 2";
+    *errorstr = "Bogus call to numberlist2array() -- destsize must be a multiple of 2";
     return -1;
   }
 
