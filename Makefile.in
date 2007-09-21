@@ -55,6 +55,7 @@ TARGET = nmap
 TARGETNMAPFE=@TARGETNMAPFE@
 INSTALLNMAPFE=@INSTALLNMAPFE@
 INSTALLNSE=@INSTALLNSE@
+BUILDUMIT=@BUILDUMIT@
 INSTALLUMIT=@INSTALLUMIT@
 
 ifneq (@LIBLUA_LIBS@,)
@@ -74,7 +75,7 @@ OBJS = main.o nmap.o targets.o tcpip.o nmap_error.o utils.o idle_scan.o osscan.o
 .cc.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
-all: $(TARGET) $(TARGETNMAPFE) 
+all: $(TARGET) $(TARGETNMAPFE) $(BUILDUMIT)
 $(TARGET): $(DEPS) @LUA_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(NSESTDLIB) $(OBJS)
 	echo Compiling nmap
 	rm -f $@
@@ -205,6 +206,9 @@ install-nmapfe: $(TARGETNMAPFE)
 
 $(UMITDIR)/setup.py:
 	cd $(UMITDIR) && install_scripts/unix/setup.sh
+
+build-umit: $(UMITDIR)/setup.py
+	cd $(UMITDIR) && $(PYTHON) setup.py build
 
 install-umit: $(UMITDIR)/setup.py
 	cd $(UMITDIR) && $(PYTHON) setup.py install --prefix $(DESTDIR)$(prefix)

@@ -187,18 +187,21 @@ AC_SUBST(TARGETNMAPFE)
 AC_SUBST(INSTALLNMAPFE)
 
 # Do they want UMIT?
+BUILDUMIT=build-umit
 INSTALLUMIT=install-umit
 UMIT_CLEAN=umit_clean
 UMIT_DIST_CLEAN=umit_dist_clean
 AC_ARG_WITH(umit, AC_HELP_STRING([--without-umit], [Skip installation of the UMIT graphical frontend]),
  [ case "$with_umit" in
    no)
+    BUILDUMIT=""
     INSTALLUMIT=""
     UMIT_CLEAN=""
     UMIT_DIST_CLEAN=""
     ;;
    esac]
 )
+AC_SUBST(BUILDUMIT)
 AC_SUBST(INSTALLUMIT)
 AC_SUBST(UMIT_CLEAN)
 AC_SUBST(UMIT_DIST_CLEAN)
