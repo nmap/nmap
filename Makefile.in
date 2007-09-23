@@ -176,6 +176,7 @@ nbase_dist_clean:
 nsock_dist_clean:
 	-cd $(NSOCKDIR)/src && $(MAKE) distclean
 umit_dist_clean: umit_clean
+	-cd $(UMITDIR) && rm -rf setup.py MANIFEST build/ dist/
 debugclean:
 	rm -f *.gcov *.gcda *.gcno gmon.out
 
