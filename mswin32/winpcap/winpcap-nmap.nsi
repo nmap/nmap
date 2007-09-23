@@ -102,23 +102,34 @@ Section "" ;No components page, name is not important
 
   SetOutPath $SYSDIR
 
-  File Packet.dll
   File pthreadVC.dll
-  File WanPacket.dll
   File wpcap.dll
 
-  SetOutPath $SYSDIR\drivers
+  ; Check windows version
+  ReadRegStr $R0 HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion" VersionNumber
+  StrCmp $R0 '6.0'vista_files no_vista_files
 
-  File npf.sys
+  no_vista_files:
+    File Packet.dll
+    File WanPacket.dll
+    Goto install
 
-  ; Install some basic registry keys
-  WriteRegStr HKLM "Software\WinPcap" "" '"$INSTDIR"'
+  vista_files:
+    File vista\Packet.dll
 
-  ; Write the uninstall keys for Windows
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "DisplayName" "winpcap-nmap 4.01"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "UninstallString" '"$INSTDIR\uninstall.exe"'
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "NoModify" 1
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "NoRepair" 1
+  install:
+    SetOutPath $SYSDIR\drivers
+
+    File npf.sys
+
+    ; Install some basic registry keys
+    WriteRegStr HKLM "Software\WinPcap" "" '"$INSTDIR"'
+
+    ; Write the uninstall keys for Windows
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "DisplayName" "winpcap-nmap 4.01"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "UninstallString" '"$INSTDIR\uninstall.exe"'
+    WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "NoModify" 1
+    WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "NoRepair" 1
 
 SectionEnd ; end the section
 

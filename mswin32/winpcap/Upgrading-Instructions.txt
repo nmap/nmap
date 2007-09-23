@@ -46,3 +46,6 @@ How to upgrade nmap to a new winpcap release (2007)
    /traceroute) 
 
 11) Sit back and have a cup of coffee, you deserve it :)
+
+
+*NB* You must also update vista/Packet.dll with the vista specific version from the offcial winpcap release
