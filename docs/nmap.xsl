@@ -688,31 +688,34 @@
 <!-- uptime -->
 <!-- ............................................................ -->
 <xsl:template match="uptime">
-<xsl:if test="@seconds != ''"><h3>system uptime</h3></xsl:if>
+<xsl:if test="@seconds != ''"><h3>system uptime</h3>
 <ul>
 <li>uptime: <xsl:value-of select="@seconds" /> sec</li>
 <li>last reboot: <xsl:value-of select="@lastboot" /></li>
 </ul>
+</xsl:if>
 </xsl:template>
 <!-- ............................................................ -->
 
 <!-- distance -->
 <!-- ............................................................ -->
 <xsl:template match="distance">
-<xsl:if test="@value != ''"><h3>network distance</h3></xsl:if>
+<xsl:if test="@value != ''"><h3>network distance</h3>
 <ul>
 	<li>distance: <xsl:value-of select="@value" /> hops</li>
 </ul>
+</xsl:if>
 </xsl:template>
 <!-- ............................................................ -->
 
 <!-- smurf -->
 <!-- ............................................................ -->
 <xsl:template match="smurf">
-<xsl:if test="@responses != ''"><h3>smurf responses</h3></xsl:if>
+<xsl:if test="@responses != ''"><h3>smurf responses</h3>
 <ul>
 <li><xsl:value-of select="@responses" /> responses counted</li>
 </ul>
+</xsl:if>
 </xsl:template>
 <!-- ............................................................ -->
 
