@@ -208,7 +208,11 @@ install-nmapfe: $(TARGETNMAPFE)
 $(UMITDIR)/setup.py:
 	cd $(UMITDIR) && install_scripts/unix/setup.sh
 
-build-umit: $(UMITDIR)/setup.py
+# Update the version number used by Umit.
+$(UMITDIR)/umitCore/Version.py: nmap.h
+	echo "VERSION = \"$(NMAP_VERSION)\"" > $@
+
+build-umit: $(UMITDIR)/setup.py $(UMITDIR)/umitCore/Version.py
 	cd $(UMITDIR) && $(PYTHON) setup.py build
 
 install-umit: $(UMITDIR)/setup.py
