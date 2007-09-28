@@ -21,9 +21,9 @@ SCAN TECHNIQUES:
   -sU: UDP Scan
   -sN/sF/sX: TCP Null, FIN, and Xmas scans
   --scanflags <flags>: Customize TCP scan flags
-  -sI <zombie host[:probeport]>: Idlescan
+  -sI <zombie host[:probeport]>: Idle scan
   -sO: IP protocol scan
-  -b <ftp relay host>: FTP bounce scan
+  -b <FTP relay host>: FTP bounce scan
   --traceroute: Trace hop path to each host
   --reason: Display the reason a port is in a particular state
 PORT SPECIFICATION AND SCAN ORDER:
