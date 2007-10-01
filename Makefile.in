@@ -209,8 +209,8 @@ $(UMITDIR)/setup.py:
 	cd $(UMITDIR) && install_scripts/unix/setup.sh
 
 # Update the version number used by Umit.
-$(UMITDIR)/umitCore/Version.py: nmap.h
-	echo "VERSION = \"$(NMAP_VERSION)\"" > $@
+$(UMITDIR)/umitCore/Version.py $(UMITDIR)/share/umit/config/umit_version: nmap.h
+	cd $(UMITDIR) && $(PYTHON) install_scripts/utils/version_update.py "$(NMAP_VERSION)"
 
 build-umit: $(UMITDIR)/setup.py $(UMITDIR)/umitCore/Version.py
 	cd $(UMITDIR) && $(PYTHON) setup.py build
