@@ -571,6 +571,13 @@ public:
   int numpings_sent;
   /* Boost the scan delay for this host, usually because too many packet
      drops were detected. */
+  int numprobes_replied_to; /* The number of probes for which we've received
+     responses. Used for scaling congestion control increments. */
+  /* Returns the scaling factor to use when incrementing the congestion window.
+     This is the minimum of
+     (numprobes_sent + numpings_sent) / numprobes_replied_to and
+     cc_scale_max. */
+  double cc_scale();
   void boostScanDelay();
   struct send_delay_nfo sdn;
   struct rate_limit_detection_nfo rld;
@@ -976,6 +983,7 @@ HostScanStats::HostScanStats(Target *t, UltraScanInfo *UltraSI) {
   ports_finished = 0;
   numprobes_sent = 0;
   numpings_sent = 0;
+  numprobes_replied_to = 0;
   init_ultra_timing_vals(&timing, TIMING_HOST, 1, &(USI->perf), &USI->now);
   bench_tryno = 0;
   memset(&sdn, 0, sizeof(sdn));
@@ -1837,6 +1845,7 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
   USI->gstats->timing.num_updates++;
 
   USI->gstats->probes_replied_to++;
+  hss->numprobes_replied_to++;
 
   /* Adjust window */
   if (probe->tryno > 0 || !rcvdtime) {
@@ -1859,10 +1868,12 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
        appropriate.  */
     if (hss->timing.cwnd < hss->timing.ccthresh) {
       /* In quick start mode */
-      hss->timing.cwnd += ping_magnifier * USI->perf.quick_incr;
+      hss->timing.cwnd += ping_magnifier * USI->perf.quick_incr * hss->cc_scale();
+      if (hss->timing.cwnd > hss->timing.ccthresh)
+	hss->timing.cwnd = hss->timing.ccthresh;
     } else {
       /* Congestion control mode */
-      hss->timing.cwnd += ping_magnifier * USI->perf.cc_incr / hss->timing.cwnd;
+      hss->timing.cwnd += ping_magnifier * USI->perf.cc_incr / hss->timing.cwnd * hss->cc_scale();
     }
     if (hss->timing.cwnd > USI->perf.max_cwnd)
       hss->timing.cwnd = USI->perf.max_cwnd;
@@ -2195,6 +2206,20 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
     }
   }
   return oldstate != newstate;
+}
+
+/* Returns the scaling factor to use when incrementing the congestion window.
+   This is the minimum of
+   (numprobes_sent + numpings_sent) / numprobes_replied_to and cc_scale_max. */
+double HostScanStats::cc_scale() {
+  double ratio;
+
+  if (numprobes_replied_to == 0)
+    return USI->perf.cc_scale_max;
+
+  ratio = (double) (numprobes_sent + numpings_sent) / numprobes_replied_to;
+
+  return MIN(ratio, USI->perf.cc_scale_max);
 }
 
   /* Boost the scan delay for this host, usually because too many packet
