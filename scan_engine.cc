@@ -1257,7 +1257,7 @@ static void init_perf_values(struct ultra_scan_performance_vars *perf) {
     perf->cc_incr = 1;
   else
     perf->cc_incr = 2;
-  perf->cc_scale_max = 100;
+  perf->cc_scale_max = 50;
   perf->initial_ccthresh = 75;
   perf->ping_magnifier = 3;
   perf->pingtime = 5000000;
