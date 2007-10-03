@@ -25,7 +25,7 @@ action = function(host, port)
 
 	socket:set_timeout(5000)
 	try(socket:connect(host.ip, port.number, port.protocol))
-       	try(socket:send("\n\r"))
+	try(socket:send("\r\n"))
 
 	status, results = socket:receive_lines(100)
 	socket:close()

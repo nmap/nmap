@@ -26,8 +26,8 @@ action = function(host, port)
 
 	socket:set_timeout(5000)
 	try(socket:connect(host.ip, port.number, port.protocol))
-       	try(socket:send("USER anonymous\n\r"))
-	try(socket:send("PASS IEUser@\n\r"))
+	try(socket:send("USER anonymous\r\n"))
+	try(socket:send("PASS IEUser@\r\n"))
 
         while status do
 		status, result = socket:receive_lines(1);
