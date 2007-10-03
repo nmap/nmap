@@ -431,7 +431,11 @@ you would expect.</para>
           zero and not the letter O.  Proper host discovery is skipped
           as with the list scan, but instead of stopping and printing
           the target list, Nmap continues to perform requested
-          functions as if each target IP is active.</para>
+          functions as if each target IP is active.  For machines on a
+          local ethernet network, ARP scanning will still be performed
+          (unless <options>--send-ip</option> is specified) because
+          Nmap needs MAC addressses to further scan target
+          hosts.</para>
         </listitem>
       </varlistentry>
 
