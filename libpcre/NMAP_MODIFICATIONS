@@ -40,7 +40,9 @@ o Got rid of the C++ wrapper, which included this step:
 
 o Copied pcre.h.generic to pcre.h and pcre_chartables.c.dist to, you
   guessed it, pcre_chartables.c (for Windows).  Running ./configure in
-  UNIX just overwrites them with other ones.
+  UNIX just overwrites them with other ones. Made the rule that makes
+  pcre_chartables.c copy pcre_chartables.c.dist instead of making a
+  symbolic link to it. Remove pcre_chartables.c from CLEANFILES.
 
 o Stripped down Makefile.am and configure.ac substantially to remove
   libtool dependency (was having trouble on Mac OS X), remove Windows

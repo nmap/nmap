@@ -42,9 +42,8 @@ subdir = .
 DIST_COMMON = README $(am__configure_deps) $(include_HEADERS) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/config.h.in $(srcdir)/pcre-config.in \
-	$(srcdir)/pcre.h.in $(top_srcdir)/configure AUTHORS COPYING \
-	ChangeLog INSTALL NEWS config.guess config.sub depcomp \
-	install-sh missing
+	$(srcdir)/pcre.h.in $(top_srcdir)/configure AUTHORS INSTALL \
+	config.guess config.sub depcomp install-sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -224,7 +223,7 @@ top_srcdir = @top_srcdir@
 lib_LIBRARIES = libpcre.a
 
 # Additional files to delete on 'make clean' and 'make maintainer-clean'.
-CLEANFILES = pcre_chartables.c
+CLEANFILES = 
 MAINTAINERCLEANFILES = pcre.h.generic
 
 # These are the header files we'll install. We do not distribute pcre.h because
@@ -270,15 +269,15 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
-	      echo ' cd $(srcdir) && $(AUTOMAKE) --gnu '; \
-	      cd $(srcdir) && $(AUTOMAKE) --gnu  \
+	      echo ' cd $(srcdir) && $(AUTOMAKE) --foreign '; \
+	      cd $(srcdir) && $(AUTOMAKE) --foreign  \
 		&& exit 0; \
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu  Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  Makefile'; \
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu  Makefile
+	  $(AUTOMAKE) --foreign  Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -780,7 +779,7 @@ pcre.h.generic: configure.ac
 
 @WITH_REBUILD_CHARTABLES_FALSE@pcre_chartables.c: $(srcdir)/pcre_chartables.c.dist
 @WITH_REBUILD_CHARTABLES_FALSE@	rm -f $@
-@WITH_REBUILD_CHARTABLES_FALSE@	$(LN_S) $(srcdir)/pcre_chartables.c.dist $@
+@WITH_REBUILD_CHARTABLES_FALSE@	cp -p $(srcdir)/pcre_chartables.c.dist $@
 
 # A compatibility line, the old build system worked with 'make test'
 test: check ;

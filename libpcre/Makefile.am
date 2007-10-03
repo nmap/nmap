@@ -42,7 +42,7 @@ else
 
 pcre_chartables.c: $(srcdir)/pcre_chartables.c.dist
 	rm -f $@
-	$(LN_S) $(srcdir)/pcre_chartables.c.dist $@
+	cp -p $(srcdir)/pcre_chartables.c.dist $@
 
 endif # WITH_REBUILD_CHARTABLES
 
@@ -76,8 +76,6 @@ libpcre_a_SOURCES = \
 
 ## This file is generated as part of the building process, so don't distribute.
 nodist_libpcre_a_SOURCES = pcre_chartables.c
-
-CLEANFILES += pcre_chartables.c
 
 # A compatibility line, the old build system worked with 'make test'
 test: check ;
