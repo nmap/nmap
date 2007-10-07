@@ -13,26 +13,27 @@
 #define FILES		 1
 #define DIRS		 2
 
-#define SCRIPT_ENGINE 			"SCRIPT ENGINE"
-#define SCRIPT_ENGINE_LUA 		"LUA INTERPRETER"
-#define SCRIPT_ENGINE_SUCCESS 		0
-#define SCRIPT_ENGINE_ERROR	 	2
-#define SCRIPT_ENGINE_LUA_ERROR		3
+#define SCRIPT_ENGINE 			   "SCRIPT ENGINE"
+#define SCRIPT_ENGINE_LUA 		   "LUA INTERPRETER"
+#define SCRIPT_ENGINE_SUCCESS 		   0
+#define SCRIPT_ENGINE_ERROR	 	   2
+#define SCRIPT_ENGINE_LUA_ERROR		   3
 
 #ifdef WIN32
-	#define SCRIPT_ENGINE_LUA_DIR 	"scripts\\"
+	#define SCRIPT_ENGINE_LUA_DIR 	   "scripts\\"
 #else
-	#define SCRIPT_ENGINE_LUA_DIR 	"scripts/"
+	#define SCRIPT_ENGINE_LUA_DIR 	   "scripts/"
 #endif
 
 #ifdef WIN32
-	#define SCRIPT_ENGINE_LIB_DIR 	"nselib\\"
+	#define SCRIPT_ENGINE_LIB_DIR 	   "nselib\\"
 #else
-	#define SCRIPT_ENGINE_LIB_DIR 	"nselib/"
+	#define SCRIPT_ENGINE_LIB_DIR 	   "nselib/"
+  #define SCRIPT_ENGINE_LIBEXEC_DIR  "nse/"
 #endif
 
-#define SCRIPT_ENGINE_DATABASE 		"script.db"
-#define SCRIPT_ENGINE_EXTENSION		".nse"
+#define SCRIPT_ENGINE_DATABASE 		   "script.db"
+#define SCRIPT_ENGINE_EXTENSION		   ".nse"
 
 #define SCRIPT_ENGINE_LUA_TRY(func) if (func != 0) {\
 	error("LUA INTERPRETER in %s:%d: %s", __FILE__, __LINE__, (char *)lua_tostring(l, -1));\

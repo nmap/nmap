@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Unix installation now places NSELib dynamic libraries in 'libexec'
+  rather than 'share' directories, since they are architecture
+  dependent.  Thanks to Christoph J. Thompson for the patch.
+
 o Fixed a bug which prevented the first OS detection guess from being
   included in XML output.  This only applies when no exact matches
   were found.  Thanks to Martyn Tovey of Netcraft for reporting the

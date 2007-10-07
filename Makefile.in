@@ -9,6 +9,7 @@ bindir = @bindir@
 sbindir = @sbindir@
 mandir = @mandir@
 srcdir = @srcdir@
+nmaplibexecdir = @libexecdir@/nmap
 nmapdatadir = @datadir@/nmap
 deskdir = $(prefix)/share/applications
 NMAPDEVDIR=~/nmap-dev
@@ -27,7 +28,7 @@ LIBPCREDIR = @LIBPCREDIR@
 export LIBDNETDIR = @LIBDNETDIR@
 UMITDIR = umit
 PYTHON = python
-DEFS = @DEFS@ -DNMAP_NAME=\"$(NMAP_NAME)\" -DNMAP_URL=\"$(NMAP_URL)\" -DNMAP_PLATFORM=\"$(NMAP_PLATFORM)\" -DNMAPDATADIR=\"$(nmapdatadir)\"
+DEFS = @DEFS@ -DNMAP_NAME=\"$(NMAP_NAME)\" -DNMAP_URL=\"$(NMAP_URL)\" -DNMAP_PLATFORM=\"$(NMAP_PLATFORM)\" -DNMAPDATADIR=\"$(nmapdatadir)\" -DNMAPLIBEXECDIR=\"$(nmaplibexecdir)\"
 # For mtrace debugging -- see MTRACE define in main.cc for instructions
 # Should only be enabled during debugging and not in any real release.
 # DEFS += -DMTRACE=1
@@ -219,12 +220,16 @@ install-umit: $(UMITDIR)/setup.py
 	cd $(UMITDIR) && $(PYTHON) setup.py install --prefix $(DESTDIR)$(prefix)
 
 NSE_FILES = scripts/script.db scripts/*.nse
-NSE_LIB_FILES = nselib/*lua nselib/*so
+NSE_LIB_LUA_FILES = nselib/*.lua
+NSE_LIB_SO_FILES = nselib/*.so
+
 install-nse: $(TARGET)
 	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(nmapdatadir)/scripts
 	cp -f $(NSE_FILES) $(DESTDIR)$(nmapdatadir)/scripts
 	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(nmapdatadir)/nselib
-	cp -f $(NSE_LIB_FILES) $(DESTDIR)$(nmapdatadir)/nselib
+	cp -f $(NSE_LIB_LUA_FILES) $(DESTDIR)$(nmapdatadir)/nselib
+	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(nmaplibexecdir)/nse
+	cp -f $(NSE_LIB_SO_FILES) $(DESTDIR)$(nmaplibexecdir)/nse
 
 install: install-nmap $(INSTALLNMAPFE) $(INSTALLNSE) $(INSTALLUMIT)
 	@echo "NMAP SUCCESSFULLY INSTALLED"
@@ -233,7 +238,7 @@ uninstall:
 	rm -f $(bindir)/$(TARGET) $(bindir)/nmapfe $(bindir)/xnmap
 	rm -f $(deskdir)/nmapfe.desktop $(mandir)/man1/nmapfe.1
 	rm -f $(mandir)/man1/xnmap.1 $(mandir)/man1/nmap.1
-	rm -rf $(nmapdatadir) 
+	rm -rf $(nmapdatadir) $(nmaplibexecdir)
 
 ${srcdir}/configure: configure.ac 
 	cd ${srcdir} && autoconf
