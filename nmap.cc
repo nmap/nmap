@@ -387,8 +387,8 @@ static int ip_is_reserved(struct in_addr *ip)
   if (i1 == 172 && i2 >= 16 && i2 <= 31)
     return 1;
 
-  /* 173-187/8 is IANA reserved */
-  if (i1 >= 173 && i1 <= 187)
+  /* 173-185/8 is IANA reserved */
+  if (i1 >= 173 && i1 <= 185)
     return 1;
 
   /* 192.168.0.0/16 is reserved for private nets by RFC1819 */

@@ -85,6 +85,9 @@ o Disabled auto-generation of libpcre/pcre_chartables.c because that
   was useless for our purposes and could also cause some version
   control related problems. [David]
 
+o Updated IANA assignment IP list for random IP (-iR)
+  generation. [Kris]
+
 4.22SOC6
 
 o Included David's major massping migration project.  The same
