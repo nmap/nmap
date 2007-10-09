@@ -1,13 +1,89 @@
 # Nmap Changelog ($Id$); -*-text-*-
+4.22SOC7
 
-o Unix installation now places NSELib dynamic libraries in 'libexec'
-  rather than 'share' directories, since they are architecture
-  dependent.  Thanks to Christoph J. Thompson for the patch.
+o Integrated all of your OS detection new fingerprint submissions and
+  correction reports.  The grew more DB more than 18% to 825
+  fingerprints.  Keep those submissions coming!  [David]
+
+o Made a number of significant improvements to host discovery
+  algorithms for better performance and reliability. [David]
 
 o Fixed a bug which prevented the first OS detection guess from being
   included in XML output.  This only applies when no exact matches
   were found.  Thanks to Martyn Tovey of Netcraft for reporting the
   problem and helping to track it down in the code.
+
+o Improve the script scan scheduling system to prevent the system from
+  running out of sockets by executing too many scripts concurrently
+  during large scans.  Thanks to Brandon Enright for finding the bug
+  and Stoiko for fixing it.
+
+o Added nmap.verbosity() and nmap.debugging() functions for scripts to
+  determine the Nmap verbosity/debugging level. [Kris]
+
+o Fixed a crash (assertion error) which occured when the first hop of
+  the first system (reference trace) times out. [Eddie]
+
+o UMIT no longer rewrites a bunch of script files to replace variables
+  such as VERSION and REVISION in the SVN working directory. [David,
+  Adriano]
+
+o UMIT icon loading code simplified and made platform
+  independent.[David]
+
+o Removed PIL dependency from UMIT package generation system.  We now
+  use GTK to put the version number in the splash screen.
+
+o UMIT no longer crashes just because documentation files are
+  missing. [David]
+
+o Removed unnecessary recent_scans.txt and target_list.txt files from
+  UMIT. Some unnecessary copies of Nmap data files were removed as
+  well. [David, Adriano]
+
+o Updated the *.dmp preprocessed Nmap data files used by UMIT, and
+  also updated the scripts used to create them. [David]
+
+o Winpcap installer was updated so that on Windows Vista it uses a
+  different Packet.dll and omits WanPacket.dll. [Eddie]
+
+o Unix installation now places NSELib dynamic libraries in 'libexec'
+  rather than 'share' directories, since they are architecture
+  dependent.  Thanks to Christoph J. Thompson for the patch.
+
+o Fix bug related to users providing custom libpcre location to
+  configure (reported by Daniel Johnson, fixed by Stoiko).  A patch
+  from Marek Majkowski which caps the number of sockets opened by NSE
+  scripts was also applied.
+
+o The UMIT version number is automatically updated to be the same as
+  the Nmap version number rather than always being 0.9.4. [David]
+
+o UMIT now sorts port numbers numerically rather than alphabetically
+  [Adriano]
+
+o Three UMIT data files (options.xml, profile_editor.xml, and
+  wizard.xml) are installed in the shared UMIT data dir
+  (e.g. /usr/share/umit/misc) rather than in every user's ~/.umit
+  directory. [David]
+
+o Added HTTPtrace demo NSE script by Kris, who also updated his
+  HTTPpasswd script.
+
+o A bunch of capitalization/spelling canonicalization changes were
+  made to Nmap output. For example: ftp to FTP and idlescan to
+  idle scan.
+
+o Made some improvements to the nmap.xsl stylesheet for converting
+  Nmap XML results to HTML reports.  It now does a better job at
+  removing empty sections and headers. Thanks to Henrik Lund Kramshoej
+  for the patch.
+
+o Updated nmap-mac-prefixes with the latest IEEE data.
+
+o Disabled auto-generation of libpcre/pcre_chartables.c because that
+  was useless for our purposes and could also cause some version
+  control related problems. [David]
 
 4.22SOC6
 
