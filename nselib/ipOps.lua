@@ -2,9 +2,8 @@
 module(...,package.seeall)
 
 
+-- check to see if ip is part of RFC 1918 address space
 isPrivate = function(ip)
-	-- check to see if ip is part of RFC 1918 address space
-	-- if so, don't bother with the RIPE lookup
 	local a, b
 	a, b = get_parts_as_number(ip)  
 	if a == 10 then
