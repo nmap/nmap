@@ -29,7 +29,7 @@ o UMIT no longer rewrites a bunch of script files to replace variables
   Adriano]
 
 o UMIT icon loading code simplified and made platform
-  independent.[David]
+  independent. [David]
 
 o Removed PIL dependency from UMIT package generation system.  We now
   use GTK to put the version number in the splash screen. [Adriano]
