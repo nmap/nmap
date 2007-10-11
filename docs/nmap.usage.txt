@@ -1,4 +1,4 @@
-Nmap 4.22SOC6 ( http://insecure.org )
+Nmap 4.22SOC7 ( http://insecure.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.

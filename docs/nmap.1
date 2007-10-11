@@ -102,7 +102,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .sp
 .RS 4
 .nf
-Nmap 4\.22SOC6 ( http://insecure\.org )
+Nmap 4\.22SOC7 ( http://insecure\.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\.
@@ -336,7 +336,9 @@ causes Nmap to attempt the requested scanning functions against
 \fIevery\fR
 target IP address specified\. So if a class B sized target address space (/16) is specified on the command line, all 65,536 IP addresses are scanned\. That second option character in
 \fB\-P0\fR
-is a zero and not the letter O\. Proper host discovery is skipped as with the list scan, but instead of stopping and printing the target list, Nmap continues to perform requested functions as if each target IP is active\.
+is a zero and not the letter O\. Proper host discovery is skipped as with the list scan, but instead of stopping and printing the target list, Nmap continues to perform requested functions as if each target IP is active\. For machines on a local ethernet network, ARP scanning will still be performed (unless
+\fB\-\-send\-ip\fR
+is specified) because Nmap needs MAC addressses to further scan target hosts\.
 .RE
 .PP
 \fB\-PS [portlist]\fR (TCP SYN Ping)
