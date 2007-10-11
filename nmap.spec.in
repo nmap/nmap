@@ -91,6 +91,7 @@ gzip $RPM_BUILD_ROOT%{prefix}/share/man/man1/* || :
 %{prefix}/bin/nmap
 %{prefix}/share/nmap
 %{prefix}/share/man/man1/nmap.1.gz
+%{prefix}/libexec/nmap
 
 %if "%{buildfe}" == "1"
 %files frontend
