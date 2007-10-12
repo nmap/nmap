@@ -126,10 +126,6 @@
 #include "nmap.h"
 #include "global_structures.h"
 
-/* If defined, use the new massping that uses ultra_scan instead of the old
-   standalone function. */
-#define NEW_MASSPING
-
 class HostGroupState;
 
 /**************************STRUCTURES******************************/
@@ -160,9 +156,6 @@ struct tcpqueryinfo {
 
 struct pingtech {
   unsigned int rawicmpscan: 1,
-#ifndef NEW_MASSPING
-    icmpscan: 1,
-#endif
     connecttcpscan: 1,
     rawtcpscan: 1,
     rawudpscan: 1;
