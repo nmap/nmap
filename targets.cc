@@ -111,10 +111,6 @@
 #include "nmap_tty.h"
 #include "utils.h"
 
-/* If defined, use the new massping that uses ultra_scan instead of the old
-   standalone function. */
-#define NEW_MASSPING
-
 using namespace std;
 extern NmapOps o;
 enum pingstyle { pingstyle_unknown, pingstyle_rawtcp, pingstyle_rawudp, pingstyle_connecttcp, 
