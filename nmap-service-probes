@@ -4354,7 +4354,6 @@ match http m|^HTTP/1\.0 200 OK \r\n.*<title>: innovaphone IP200A</title>|s p/Inn
 match http m|^HTTP/1\.1 200 Document follows\r\nServer: ELOG HTTP ([\w-_.]+)\r\n| p/ELOG blog httpd/ v/$1/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Digest realm=\"iRMC@.*<title>RemoteView&reg; iRMC Web Server</title>|s p/iRMC RemoteView httpd/ d/remote management/
 match http m|^HTTP/1\.1 \d\d\d .*:: Welcome to ZyXEL (P-\w+) \(([\w-_.]+)\) ::\.|s p/ZyXEL $1 broadband router http config/ d/broadband router/ h/$2/
-match http m|^HTTP/1\.1 \d\d\d .*Server: Server\r\n.*domain=\.amazon\.com;|s p/Amazon httpd/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Web Server\r\n.*<title>Dell OpenManage Switch Administrator</title>|s p/Dell OpenManage switch http config/ d/switch/
 match http m|^HTTP/1\.0 \d\d\d .*<SCRIPT language=JavaScript>\r\n\tvar PIN_change_attempted = false;\r\n\tvar Login_failed = false;\r\n\tvar password_label = \"\";\r\n</SCRIPT>\r\n<!--\r\nNote: the opening and closing HTML tags are deliberately omitted from\r\nthis file\.|s p/Citrix Access Gateway httpd/ o/Windows/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Micro Focus DSD ([\w-_.]+)\r\n| p/Micro Focus Directory Server httpd/ v/$1/ o/Windows/
