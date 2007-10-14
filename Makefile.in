@@ -77,7 +77,7 @@ OBJS = main.o nmap.o targets.o tcpip.o nmap_error.o utils.o idle_scan.o osscan.o
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
 all: $(TARGET) $(TARGETNMAPFE) $(BUILDUMIT)
-$(TARGET): $(DEPS) @LUA_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(NSESTDLIB) $(OBJS)
+$(TARGET): @LUA_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(NSESTDLIB) $(OBJS)
 	echo Compiling nmap
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
