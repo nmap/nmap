@@ -167,7 +167,7 @@ void set_ttl(int sd, int ttl)
 	if (sd == -1)
 		return;
 
-	setsockopt(sd, IPPROTO_IP, IP_TTL, &ttl, sizeof ttl);
+	setsockopt(sd, IPPROTO_IP, IP_TTL, (const char *) &ttl, sizeof ttl);
 #endif
 }
 
