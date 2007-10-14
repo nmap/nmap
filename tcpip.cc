@@ -161,6 +161,16 @@ setsockopt(sd, IPPROTO_IP, IP_HDRINCL, (const char *) &one, sizeof(one));
 #endif
 }
 
+void set_ttl(int sd, int ttl)
+{
+#ifdef IP_TTL
+	if (sd == -1)
+		return;
+
+	setsockopt(sd, IPPROTO_IP, IP_TTL, &ttl, sizeof ttl);
+#endif
+}
+
 // Takes a protocol number like IPPROTO_TCP, IPPROTO_UDP, or
 // IPPROTO_IP and returns a ascii representation (or "unknown" if it
 // doesn't recognize the number).  If uppercase is true, the returned

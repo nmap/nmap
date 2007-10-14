@@ -663,6 +663,8 @@ pcap_if_t *getpcapinterfaces();
 struct sys_route *getsysroutes(int *howmany);
 void sethdrinclude(int sd);
 
+void set_ttl(int sd, int ttl);
+
 /* Fill buf (up to buflen -- truncate if necessary but always
    terminate) with a short representation of the packet stats.
    Returns buf.  Aborts if there is a problem. */

@@ -2458,6 +2458,7 @@ static UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   if (CP->sd == -1) pfatal("Socket creation in %s", __func__);
   unblock_socket(CP->sd);
   init_socket(CP->sd);
+  set_ttl(CP->sd, o.ttl);
   if (hss->target->TargetSockAddr(&sock, &socklen) != 0) {
     fatal("Failed to get target socket address in %s", __func__);
   }
