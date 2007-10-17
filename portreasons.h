@@ -102,6 +102,8 @@
 #ifndef REASON_H
 #define REASON_H
 
+#include "nmap.h"
+
 #ifdef WIN32
 #include "winsock2.h"
 #else
