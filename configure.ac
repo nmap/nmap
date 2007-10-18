@@ -245,7 +245,8 @@ if test "$use_openssl" = "yes" -a -z "$specialssldir"; then
    AC_CHECK_LIB(ssl, SSL_new,
     [ use_openssl="yes" ],
     [ use_openssl="no"
-    AC_MSG_WARN([Failed to find libssl so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument]) ])
+    AC_MSG_WARN([Failed to find libssl so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument]) ],
+    [ -lcrypto ])
  fi
 fi
 
