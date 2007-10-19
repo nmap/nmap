@@ -160,7 +160,7 @@ case "$host" in
     needs_cpp_precomp=yes
     ;;
   *)
-   LUAFLAGS=MYCFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN"
+   LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
 esac
 
 AC_SUBST(LUAFLAGS)
