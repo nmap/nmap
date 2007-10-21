@@ -288,7 +288,7 @@ bool NmapOps::UDPScan() {
 bool NmapOps::RawScan() {
   if (ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|osscan|synscan|udpscan|windowscan|xmasscan)
     return true;
-  if (o.pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS|PINGTYPE_TCP_USE_ACK|PINGTYPE_UDP))
+  if (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS|PINGTYPE_TCP_USE_ACK|PINGTYPE_UDP))
     return true;
 
    return false; 
@@ -316,7 +316,7 @@ void NmapOps::ValidateOptions() {
     //    if (verbose) error("No tcp, udp, or ICMP scantype specified, assuming %s scan. Use -sP if you really don't want to portscan (and just want to see what hosts are up).", synscan? "SYN Stealth" : "vanilla tcp connect()");
   }
 
-  if ((pingtype & PINGTYPE_TCP) && (!o.isr00t || o.af() != AF_INET)) {
+  if ((pingtype & PINGTYPE_TCP) && (!isr00t || af() != AF_INET)) {
     /* We will have to do a connect() style ping */
     if (num_ping_synprobes && num_ping_ackprobes) {
       fatal("Cannot use both SYN and ACK ping probes if you are nonroot or using IPv6");
@@ -348,7 +348,7 @@ void NmapOps::ValidateOptions() {
     error("WARNING:  -S will only affect the source address used in a connect() scan if you specify one of your own addresses.  Use -sS or another raw scan if you want to completely spoof your source address, but then you need to know what you're doing to obtain meaningful results.");
   }
 
- if ((pingtype & PINGTYPE_UDP) && (!o.isr00t || o.af() != AF_INET)) {
+ if ((pingtype & PINGTYPE_UDP) && (!isr00t || af() != AF_INET)) {
    fatal("Sorry, UDP Ping (-PU) only works if you are root (because we need to read raw responses off the wire) and only for IPv4 (cause fyodor is too lazy right now to add IPv6 support and nobody has sent a patch)");
  }
 
@@ -403,7 +403,7 @@ void NmapOps::ValidateOptions() {
       fatal("TCP/IP fingerprinting (for OS scan) requires %s.  Sorry, dude.\n", privreq);
     }
 
-    if (o.ipoptionslen)
+    if (ipoptionslen)
       fatal("Sorry, using ip options requires %s.", privreq);
   }
   
@@ -479,7 +479,7 @@ void NmapOps::ValidateOptions() {
   if (min_parallelism > max_parallelism)
     max_parallelism = min_parallelism;
 
-  if(o.ipoptions && o.osscan)
+  if(ipoptions && osscan)
     error("WARNING: Ip options are NOT used while OS scanning!");
     
 }
