@@ -689,37 +689,9 @@ fi
 
 if test "${with_nmapfe}" = "yes"; then
 dnl Check for GTK+
-AC_PATH_PROG(GTK_CONFIG, pkg-config, no)
-AC_MSG_CHECKING(If you have GTK+ installed)
-if test "$GTK_CONFIG" = "no" ; then
-  AC_MSG_RESULT([no])
-  AC_MSG_WARN([Gtk+ has not been installed -> nmapfe will not be made])
-else
-  GTK_NEEDED_MAJOR=2
-  GTK_NEEDED_MINOR=4
-  GTK_NEEDED_MICRO=0
-  GTK_MINVERSION=$GTK_NEEDED_MAJOR.$GTK_NEEDED_MINOR.$GTK_NEEDED_MICRO
-  ver=`pkg-config --modversion gtk+-2.0`
-  dnl Extract the information.
-  major=`echo $ver|sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\1/'`
-  minor=`echo $ver|sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\2/'`
-  micro=`echo $ver|sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\3/'`
-  AC_MSG_RESULT($ver)
-  if test $major -lt $GTK_NEEDED_MAJOR -o $major -eq $GTK_NEEDED_MAJOR \
-    -a $minor -lt $GTK_NEEDED_MINOR -o $minor -eq $GTK_NEEDED_MINOR \
-    -a $micro -lt $GTK_NEEDED_MICRO; then
-    AC_MSG_WARN([An old version of GTK+ ($major.$minor.$micro) was found.\n \
-                 You need at least version $GTK_MINVERSION.\n Subdir X-windows \
-                 will not be made])
-  else
-    nmap_cfg_subdirs="$nmap_cfg_subdirs nmapfe"
-    dnl Maybe also define the flags to compile and link GTK+
-    dnl GTK_CXXFLAGS=`gtk-config --cflags`
-    dnl GTK_LIBS=`gtk-config --libs`
-    dnl AC_SUBST(GTK_CXXFLAGS)
-    dnl AC_SUBST(GTK_LIBS)
-  fi
-fi
+AM_PATH_GTK_2_0(2.4.0,
+            AC_CONFIG_SUBDIRS(nmapfe),
+            AC_MSG_WARN([Gtk+ has not been installed -> nmapfe will not be made]))
 fi
 
 dnl all hell broke loose when the variable was named $subdirs
