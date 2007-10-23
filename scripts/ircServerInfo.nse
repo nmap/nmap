@@ -10,7 +10,6 @@ categories = {"discovery"}
 
 require("stdnse")
 require "shortport"
-require "pcre"
 
 portrule = shortport.port_or_service(6667, "irc")
 

@@ -4,6 +4,7 @@
 #include "nse_debug.h"
 
 // 3rd Party libs
+#include "nse_pcrelib.h"
 
 #include "nbase.h"
 
@@ -45,6 +46,7 @@ int init_lua(lua_State* l) {
 		{LUA_STRLIBNAME, luaopen_string},
 		{LUA_MATHLIBNAME, luaopen_math},
 		{LUA_DBLIBNAME, luaopen_debug},
+		{NSE_PCRELIBNAME, luaopen_pcrelib},
 		{NULL, NULL}
 	}; 
 

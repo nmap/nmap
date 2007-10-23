@@ -6,37 +6,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdarg.h>
 
-#ifdef __cplusplus
 extern "C" {
-#endif
 #include "lua.h"
 #include "lauxlib.h"
-
-#ifdef __cplusplus
 }
-#endif
 
 #include <locale.h>
 #include <pcre.h>
 
-#include "pcre.h"
+#include "nbase.h"
+#include "nmap_error.h"
 
-static int Snprintf(char *s, size_t n, const char *fmt, ...)
-{
-	va_list ap;
-	int ret;
-
-	va_start(ap, fmt);
-	ret = vsnprintf(s, n, fmt, ap);
-	va_end(ap);
-
-	if (ret < 0 || (unsigned) ret >= n)
-		s[n - 1] = '\0';
-
-	return ret;
-}
+#include "nse_pcrelib.h"
 
 static void L_lua_error(lua_State *L, const char *message)
 {
@@ -52,7 +34,7 @@ static int get_startoffset(lua_State *L, int stackpos, size_t len)
 	if(startoffset > 0)
 		startoffset--;
 	else if(startoffset < 0) {
-		startoffset += (int) len;
+		startoffset += len;
 		if(startoffset < 0)
 			startoffset = 0;
 	}
@@ -66,11 +48,11 @@ static int udata_tostring (lua_State *L, const char* type_handle,
 	void *udata = luaL_checkudata(L, 1, type_handle);
 
 	if(udata) {
-		(void)Snprintf(buf, 255, "%s (%p)", type_name, udata);
+		(void)snprintf(buf, 255, "%s (%p)", type_name, udata);
 		lua_pushstring(L, buf);
 	}
 	else {
-		(void)Snprintf(buf, 255, "must be userdata of type '%s'", type_name);
+		(void)snprintf(buf, 255, "must be userdata of type '%s'", type_name);
 		(void)luaL_argerror(L, 1, buf);
 	}
 
@@ -156,7 +138,7 @@ static int Lpcre_comp(lua_State *L)
 
 	ud->pr = pcre_compile(pattern, cflags, &error, &erroffset, tables);
 	if(!ud->pr) {
-		(void)Snprintf(buf, 255, "%s (pattern offset: %d)", error, erroffset+1);
+		(void)snprintf(buf, 255, "%s (pattern offset: %d)", error, erroffset+1);
 		/* show offset 1-based as it's common in Lua */
 		L_lua_error(L, buf);
 	}
@@ -165,17 +147,9 @@ static int Lpcre_comp(lua_State *L)
 	if(error) L_lua_error(L, error);
 
 	pcre_fullinfo(ud->pr, ud->extra, PCRE_INFO_CAPTURECOUNT, &ud->ncapt);
-	/* since some platforms have problems with nbase and exporting symbols we
-	 * emulate it 
-	 */
-	if(((ud->ncapt + 1) * 3 * sizeof(int))<0){
-		L_lua_error(L, "PCRE: negative argument to malloc");
-	}
 	/* need (2 ints per capture, plus one for substring match) * 3/2 */
-	ud->match = (int *) malloc((ud->ncapt + 1) * 3 * sizeof(int));
-	if(ud->match==NULL){
-		L_lua_error(L, "PCRE: malloc failed!");
-	}
+	ud->match = (int *) safe_malloc((ud->ncapt + 1) * 3 * sizeof(int));
+
 	return 1;
 }
 
@@ -388,7 +362,7 @@ static const luaL_reg pcrelib[] = {
 	{NULL, NULL}
 };
 
-LUALIB_API int luaopen_pcre(lua_State *L)
+LUALIB_API int luaopen_pcrelib(lua_State *L)
 {
 	createmeta(L, pcre_handle);
 	luaL_openlib(L, NULL, pcremeta, 0);
