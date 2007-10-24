@@ -3868,7 +3868,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 
       current_reason = ping->type + ER_ICMPTYPE_MOD;
       if (current_reason == ER_DESTUNREACH)
-        current_reason = ping->type + ER_ICMPCODE_MOD;
+        current_reason = ping->code + ER_ICMPCODE_MOD;
 
       /* Echo reply, Timestamp reply, or Address Mask Reply */
       if (ping->type == 0 || ping->type == 14 || ping->type == 18) {
