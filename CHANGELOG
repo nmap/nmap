@@ -1,4 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
+o Renamed Umit to Zenmap to reduce confusion between the version we
+  ship with Nmap and the version maintained separately at
+  umit.sourceforge.net.  We are excited about Zenmap and expect to
+  remove NmapFE in the near future.
+
 4.22SOC7
 
 o Integrated all of your OS detection new fingerprint submissions and

@@ -26,7 +26,7 @@ DBGFLAGS =
 LIBPCAPDIR = @libpcapdir@
 LIBPCREDIR = @LIBPCREDIR@
 export LIBDNETDIR = @LIBDNETDIR@
-UMITDIR = umit
+ZENMAPDIR = zenmap
 PYTHON = python
 DEFS = @DEFS@ -DNMAP_NAME=\"$(NMAP_NAME)\" -DNMAP_URL=\"$(NMAP_URL)\" -DNMAP_PLATFORM=\"$(NMAP_PLATFORM)\" -DNMAPDATADIR=\"$(nmapdatadir)\" -DNMAPLIBEXECDIR=\"$(nmaplibexecdir)\"
 # For mtrace debugging -- see MTRACE define in main.cc for instructions
@@ -56,8 +56,8 @@ TARGET = nmap
 TARGETNMAPFE=@TARGETNMAPFE@
 INSTALLNMAPFE=@INSTALLNMAPFE@
 INSTALLNSE=@INSTALLNSE@
-BUILDUMIT=@BUILDUMIT@
-INSTALLUMIT=@INSTALLUMIT@
+BUILDZENMAP=@BUILDZENMAP@
+INSTALLZENMAP=@INSTALLZENMAP@
 
 ifneq (@LIBLUA_LIBS@,)
 NSE_SRC=nse_main.cc nse_auxiliar.cc nse_nsock.cc nse_init.cc nse_nmaplib.cc nse_debug.cc nse_pcrelib.cc nse_string.cc 
@@ -77,7 +77,7 @@ OBJS = main.o nmap.o targets.o tcpip.o nmap_error.o utils.o idle_scan.o osscan.o
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
 all: @LUA_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(NSESTDLIB)
-	$(MAKE) $(TARGET) $(TARGETNMAPFE) $(BUILDUMIT)
+	$(MAKE) $(TARGET) $(TARGETNMAPFE) $(BUILDZENMAP)
 
 $(TARGET): $(OBJS)
 	echo Compiling nmap
@@ -139,7 +139,7 @@ distro:
 web:
 	cd $(NMAPDEVDIR) && $(MAKE) web
 
-clean: @LUA_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nmapfe_clean nsock_clean nbase_clean my_clean @NSELIB_CLEAN@ @UMIT_CLEAN@
+clean: @LUA_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nmapfe_clean nsock_clean nbase_clean my_clean @NSELIB_CLEAN@ @ZENMAP_CLEAN@
 
 my_clean:
 	rm -f dependencies.mk
@@ -160,8 +160,8 @@ lua_clean:
 	-cd $(LIBLUADIR) && $(MAKE) clean
 nselib_clean:
 	-cd nselib && $(MAKE) clean
-umit_clean:
-	-cd $(UMITDIR) && $(PYTHON) setup.py clean --all
+zenmap_clean:
+	-cd $(ZENMAPDIR) && $(PYTHON) setup.py clean --all
 pcap_dist_clean:
 	-cd $(LIBPCAPDIR) && $(MAKE) distclean
 pcre_dist_clean:
@@ -178,12 +178,12 @@ nbase_dist_clean:
 	-cd $(NBASEDIR) && $(MAKE) distclean
 nsock_dist_clean:
 	-cd $(NSOCKDIR)/src && $(MAKE) distclean
-umit_dist_clean: umit_clean
-	-cd $(UMITDIR) && rm -rf MANIFEST build/ dist/
+zenmap_dist_clean: zenmap_clean
+	-cd $(ZENMAPDIR) && rm -rf MANIFEST build/ dist/
 debugclean:
 	rm -f *.gcov *.gcda *.gcno gmon.out
 
-distclean: my_clean my_distclean @LUA_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ nmapfe_dist_clean  @NSELIB_DIST_CLEAN@ @UMIT_DIST_CLEAN@
+distclean: my_clean my_distclean @LUA_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ nmapfe_dist_clean  @NSELIB_DIST_CLEAN@ @ZENMAP_DIST_CLEAN@
 
 my_distclean:
 	rm -f Makefile Makefile.bak makefile.dep config.h stamp-h stamp-h.in \
@@ -208,18 +208,18 @@ install-nmapfe: $(TARGETNMAPFE)
 	@echo "If the next command fails -- you cannot use the X front end"
 	-test -f nmapfe/nmapfe && $(INSTALL) -c -m 755 -s nmapfe/nmapfe $(DESTDIR)$(bindir)/nmapfe && rm -f $(DESTDIR)$(bindir)/xnmap && $(SHTOOL) mkln -f -s $(DESTDIR)$(bindir)/nmapfe $(DESTDIR)$(bindir)/xnmap && $(INSTALL) -c -m 644 nmapfe.desktop $(DESTDIR)$(deskdir)/nmapfe.desktop && $(INSTALL) -c -m 644 docs/nmapfe.1 $(DESTDIR)$(mandir)/man1/nmapfe.1 && $(INSTALL) -c -m 644 docs/xnmap.1 $(DESTDIR)$(mandir)/man1/xnmap.1
 
-$(UMITDIR)/setup.py:
-	cd $(UMITDIR) && install_scripts/unix/setup.sh
+$(ZENMAPDIR)/setup.py:
+	cd $(ZENMAPDIR) && install_scripts/unix/setup.sh
 
-# Update the version number used by Umit.
-$(UMITDIR)/umitCore/Version.py $(UMITDIR)/share/umit/config/umit_version: nmap.h
-	cd $(UMITDIR) && $(PYTHON) install_scripts/utils/version_update.py "$(NMAP_VERSION)"
+# Update the version number used by Zenmap.
+$(ZENMAPDIR)/umitCore/Version.py $(ZENMAPDIR)/share/umit/config/umit_version: nmap.h
+	cd $(ZENMAPDIR) && $(PYTHON) install_scripts/utils/version_update.py "$(NMAP_VERSION)"
 
-build-umit: $(UMITDIR)/setup.py $(UMITDIR)/umitCore/Version.py
-	cd $(UMITDIR) && $(PYTHON) setup.py build
+build-zenmap: $(ZENMAPDIR)/setup.py $(ZENMAPDIR)/umitCore/Version.py
+	cd $(ZENMAPDIR) && $(PYTHON) setup.py build
 
-install-umit: $(UMITDIR)/setup.py
-	cd $(UMITDIR) && $(PYTHON) setup.py install --prefix $(DESTDIR)$(prefix)
+install-zenmap: $(ZENMAPDIR)/setup.py
+	cd $(ZENMAPDIR) && $(PYTHON) setup.py install --prefix $(DESTDIR)$(prefix)
 
 NSE_FILES = scripts/script.db scripts/*.nse
 NSE_LIB_LUA_FILES = nselib/*.lua
@@ -233,7 +233,7 @@ install-nse: $(TARGET)
 	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(nmaplibexecdir)/nse
 	cp -f $(NSE_LIB_SO_FILES) $(DESTDIR)$(nmaplibexecdir)/nse
 
-install: install-nmap $(INSTALLNMAPFE) $(INSTALLNSE) $(INSTALLUMIT)
+install: install-nmap $(INSTALLNMAPFE) $(INSTALLNSE) $(INSTALLZENMAP)
 	@echo "NMAP SUCCESSFULLY INSTALLED"
 
 uninstall:

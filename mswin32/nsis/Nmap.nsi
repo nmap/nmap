@@ -56,7 +56,7 @@
 ;--------------------------------
 ;Variables
 
-Var umitset
+Var zenmapset
 
 ;--------------------------------
 ;Reserves
@@ -73,7 +73,7 @@ FunctionEnd
 
 
 Function shortcutsPage
-  StrCmp $umitset "" skip
+  StrCmp $zenmapset "" skip
 
   !insertmacro MUI_HEADER_TEXT "Create Shortcuts" ""
   !insertmacro MUI_INSTALLOPTIONS_DISPLAY "shortcuts.ini"  
@@ -82,20 +82,20 @@ Function shortcutsPage
 FunctionEnd
 
 Function makeShortcuts
-  StrCmp $umitset "" skip
+  StrCmp $zenmapset "" skip
 
-  SetOutPath "$INSTDIR\umit"
+  SetOutPath "$INSTDIR\zenmap"
 
   ReadINIStr $0 "$PLUGINSDIR\shortcuts.ini" "Field 1" "State"
   StrCmp $0 "0" skipdesktop
-  CreateShortCut "$DESKTOP\Nmap - UMIT GUI.lnk" "$INSTDIR\umit\umit.exe"
+  CreateShortCut "$DESKTOP\Nmap - Zenmap GUI.lnk" "$INSTDIR\zenmap\zenmap.exe"
 
   skipdesktop:
 
   ReadINIStr $0 "$PLUGINSDIR\shortcuts.ini" "Field 2" "State"
   StrCmp $0 "0" skipstartmenu
   CreateDirectory "$SMPROGRAMS\Nmap"
-  CreateShortCut "$SMPROGRAMS\Nmap\Nmap - UMIT GUI.lnk" "$INSTDIR\umit\umit.exe"
+  CreateShortCut "$SMPROGRAMS\Nmap\Nmap - Zenmap GUI.lnk" "$INSTDIR\zenmap\zenmap.exe"
 
   skipstartmenu:
 
@@ -141,12 +141,12 @@ Section "Nmap Core Files" SecCore
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "NoModify" 1 
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "NoRepair" 1 
 
-  ;Register .usr files with umit
-  ;This is commented out till umit supports opening log files from the command-line
+  ;Register .usr files with Zenmap
+  ;This is commented out till Zenmap supports opening log files from the command-line
   ;WriteRegStr HKCR ".usr" "" "UmitScan"
   ;WriteRegStr HKCR "UmitScan" "" "Umit Saved Port Scan"
   ;WriteRegStr HKCR "UmitScan\DefaultIcon" "" "$INSTDIR\umit_128.ico,0"
-  ;WriteRegStr HKCR "UmitScan\shell\open\command" "" '"$INSTDIR\umit.exe" "%1"'
+  ;WriteRegStr HKCR "UmitScan\shell\open\command" "" '"$INSTDIR\zenmap.exe" "%1"'
   ;WriteRegStr HKCR "UmitScan\shell" "" "open"
   ;System::Call 'Shell32::SHChangeNotify(i 0x8000000, i 0, i 0, i 0)'
   
@@ -168,9 +168,9 @@ Section "Network Performance Improvements (Registry Changes)" SecPerfRegistryMod
   Exec 'regedt32 /S "$INSTDIR\nmap_performance.reg"' 
 SectionEnd 
 
-Section "UMIT (GUI frontend)" SecUmit
-  File /r ..\nmap-${VERSION}\umit
-  StrCpy $umitset "true"
+Section "Zenmap (GUI frontend)" SecZenmap
+  File /r ..\nmap-${VERSION}\zenmap
+  StrCpy $zenmapset "true"
 SectionEnd
 
  
@@ -233,12 +233,12 @@ Section "Uninstall"
   Push $INSTDIR 
   Call un.RemoveFromPath 
 
-  Delete "$DESKTOP\Nmap - UMIT GUI.lnk"
-  Delete "$SMPROGRAMS\Nmap\Nmap - UMIT GUI.lnk"
+  Delete "$DESKTOP\Nmap - Zenmap GUI.lnk"
+  Delete "$SMPROGRAMS\Nmap\Nmap - Zenmap GUI.lnk"
   RMDIR "$SMPROGRAMS\Nmap"
 
   ;Remove file association
-  ;This is commented out till umit supports opening log files from the command-line
+  ;This is commented out till Zenmap supports opening log files from the command-line
   ;DeleteRegKey HKCR ".usr"
   ;DeleteRegKey HKCR "UmitScan"
   ;System::Call 'Shell32::SHChangeNotify(i 0x8000000, i 0, i 0, i 0)'

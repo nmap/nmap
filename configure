@@ -679,10 +679,10 @@ GREP
 EGREP
 TARGETNMAPFE
 INSTALLNMAPFE
-BUILDUMIT
-INSTALLUMIT
-UMIT_CLEAN
-UMIT_DIST_CLEAN
+BUILDZENMAP
+INSTALLZENMAP
+ZENMAP_CLEAN
+ZENMAP_DIST_CLEAN
 OPENSSL_LIBS
 PCAP_DEPENDS
 PCAP_CLEAN
@@ -1313,7 +1313,7 @@ Optional Packages:
   --with-localdirs        Explicitly ask compiler to use
                           /usr/local/{include,libs} if they exist
   --without-nmapfe        Skip nmapfe X-window GUI
-  --without-umit          Skip installation of the UMIT graphical frontend
+  --without-zenmap        Skip installation of the Zenmap graphical frontend
   --with-openssl=DIR      Use optional openssl libs and includes from
                           DIR/lib/ and DIR/include/openssl/)
   --with-libpcap=DIR      Look for pcap in DIR/include and DIR/libs.
@@ -4585,20 +4585,20 @@ fi
 
 
 
-# Do they want UMIT?
-BUILDUMIT=build-umit
-INSTALLUMIT=install-umit
-UMIT_CLEAN=umit_clean
-UMIT_DIST_CLEAN=umit_dist_clean
+# Do they want Zenmap?
+BUILDZENMAP=build-zenmap
+INSTALLZENMAP=install-zenmap
+ZENMAP_CLEAN=zenmap_clean
+ZENMAP_DIST_CLEAN=zenmap_dist_clean
 
-# Check whether --with-umit was given.
-if test "${with_umit+set}" = set; then
-  withval=$with_umit;  case "$with_umit" in
+# Check whether --with-zenmap was given.
+if test "${with_zenmap+set}" = set; then
+  withval=$with_zenmap;  case "$with_zenmap" in
    no)
-    BUILDUMIT=""
-    INSTALLUMIT=""
-    UMIT_CLEAN=""
-    UMIT_DIST_CLEAN=""
+    BUILDZENMAP=""
+    INSTALLZENMAP=""
+    ZENMAP_CLEAN=""
+    ZENMAP_DIST_CLEAN=""
     ;;
    esac
 
@@ -8424,10 +8424,10 @@ GREP!$GREP$ac_delim
 EGREP!$EGREP$ac_delim
 TARGETNMAPFE!$TARGETNMAPFE$ac_delim
 INSTALLNMAPFE!$INSTALLNMAPFE$ac_delim
-BUILDUMIT!$BUILDUMIT$ac_delim
-INSTALLUMIT!$INSTALLUMIT$ac_delim
-UMIT_CLEAN!$UMIT_CLEAN$ac_delim
-UMIT_DIST_CLEAN!$UMIT_DIST_CLEAN$ac_delim
+BUILDZENMAP!$BUILDZENMAP$ac_delim
+INSTALLZENMAP!$INSTALLZENMAP$ac_delim
+ZENMAP_CLEAN!$ZENMAP_CLEAN$ac_delim
+ZENMAP_DIST_CLEAN!$ZENMAP_DIST_CLEAN$ac_delim
 OPENSSL_LIBS!$OPENSSL_LIBS$ac_delim
 PCAP_DEPENDS!$PCAP_DEPENDS$ac_delim
 PCAP_CLEAN!$PCAP_CLEAN$ac_delim

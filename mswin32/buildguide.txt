@@ -2,10 +2,10 @@
                    =======================================
 
 
-I. UMIT BUILD DEPENDENCIES
+I. ZENMAP BUILD DEPENDENCIES
 
 
-I've listed the build dependencies for UMIT, the versions I am using, and
+I've listed the build dependencies for Zenmap, the versions I am using, and
 where to get them:
 
 GTK (2.10.11) - http://gladewin32.sourceforge.net
@@ -52,7 +52,7 @@ IV. INSTALLATION PATHS / PROBLEMS
 
 If you have Python installed to a directory other than C:\Python25, then
 you need to edit the copy_and_compile.bat file under
-umit/install_scripts/windows and change the "set PythonEXE" line with your
+zenmap/install_scripts/windows and change the "set PythonEXE" line with your
 installed directory.
 
 If you have GTK installed to a different directory, follow the same directions
