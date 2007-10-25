@@ -94,10 +94,6 @@ SOURCE=..\nbase\getopt.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\nbase\getopt1.c
-# End Source File
-# Begin Source File
-
 SOURCE=..\nbase\inet_aton.c
 # End Source File
 # Begin Source File
