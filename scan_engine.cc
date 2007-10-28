@@ -424,6 +424,9 @@ public:
   /* The index of the next UDP port in o.ping_udpprobes to probe during ping
      scan. */
   int next_udpportpingidx;
+  /* The index of the next IP protocol in o.ping_protoprobes to probe during ping
+     scan. */
+  int next_protoportpingidx;
   /* Whether we have sent an ICMP echo request. */
   bool sent_icmp_ping;
   /* Whether we have sent an ICMP address mask request. */
@@ -968,6 +971,7 @@ HostScanStats::HostScanStats(Target *t, UltraScanInfo *UltraSI) {
   next_ackportpingidx = 0;
   next_synportpingidx = 0;
   next_udpportpingidx = 0;
+  next_protoportpingidx = 0;
   sent_icmp_ping = false;
   sent_icmp_mask = false;
   sent_icmp_ts = false;
@@ -1220,7 +1224,7 @@ UltraScanInfo::~UltraScanInfo() {
 bool UltraScanInfo::isRawScan() {
   return scantype != CONNECT_SCAN
     && (tcp_scan || udp_scan || prot_scan || ping_scan_arp
-      || (ping_scan && (ptech.rawicmpscan || ptech.rawtcpscan || ptech.rawudpscan)));
+      || (ping_scan && (ptech.rawicmpscan || ptech.rawtcpscan || ptech.rawudpscan || ptech.rawprotoscan)));
 }
 
  /* A circular buffer of the incompleteHosts.  nextIncompleteHost() gives
@@ -1325,6 +1329,8 @@ void UltraScanInfo::Init(vector<Target *> &Targets, struct scan_lists *pts, styp
       else
         ptech.connecttcpscan = 1;
     }
+    if (o.pingtype & PINGTYPE_PROTO)
+      ptech.rawprotoscan = 1;
     if (o.pingtype & PINGTYPE_CONNECTTCP)
       ptech.connecttcpscan = 1;
     break;
@@ -1417,6 +1423,8 @@ unsigned int UltraScanInfo::numProbesPerHost()
       if (o.pingtype & PINGTYPE_ICMP_TS)
         numprobes++;
     }
+    if (ptech.rawprotoscan)
+      numprobes += o.num_ping_protoprobes;
     if (ptech.connecttcpscan)
       numprobes += o.num_ping_synprobes;
   } else assert(0); /* TODO: RPC scan */
@@ -1722,6 +1730,11 @@ static int get_next_target_probe(UltraScanInfo *USI, HostScanStats *hss,
         return 0;
       }
     }
+    if (USI->ptech.rawprotoscan) {
+      pspec->type = PS_PROTO;
+      pspec->proto = o.ping_protoprobes[hss->next_protoportpingidx++];
+      return 0;
+    }
     if (USI->ptech.connecttcpscan && hss->next_synportpingidx < o.num_ping_synprobes) {
       pspec->type = PS_CONNECTTCP;
       pspec->proto = IPPROTO_TCP;
@@ -1771,6 +1784,8 @@ int HostScanStats::freshPortsLeft() {
       if ((o.pingtype & PINGTYPE_ICMP_TS) && !sent_icmp_ts)
         num_probes++;
     }
+    if (USI->ptech.rawprotoscan)
+      num_probes += o.num_ping_protoprobes - next_protoportpingidx;
     if (USI->ptech.connecttcpscan && next_synportpingidx < o.num_ping_synprobes)
       num_probes += o.num_ping_synprobes - next_synportpingidx;
     return num_probes;
@@ -2910,7 +2925,7 @@ static void retransmitProbe(UltraScanInfo *USI, HostScanStats *hss,
 			    UltraProbe *probe) {
   UltraProbe *newProbe = NULL;
   if (probe->type == UltraProbe::UP_IP) {
-    if (USI->prot_scan)
+    if (USI->prot_scan || USI->ptech.rawprotoscan)
       newProbe = sendIPScanProbe(USI, hss, probe->pspec(), 
 				 probe->tryno + 1, 0);
     else if (probe->protocol() == IPPROTO_TCP) {
@@ -3856,6 +3871,34 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
     if (ip->ip_hl < 5)
       continue;
 
+    if (USI->ptech.rawprotoscan) {
+      memset(&sin, 0, sizeof(sin));
+      sin.sin_addr.s_addr = ip->ip_src.s_addr;
+      sin.sin_family = AF_INET;
+      hss = USI->findHost((struct sockaddr_storage *) &sin);
+      if (hss) {
+	setTargetMACIfAvailable(hss->target, &linkhdr, ip, 0);
+	probeI = hss->probes_outstanding.end();
+	listsz = hss->num_probes_outstanding();
+	goodone = false;
+	for(probenum = 0; probenum < listsz && !goodone; probenum++) {
+	  probeI--;
+	  probe = *probeI;
+	    
+	  if (probe->protocol() == ip->ip_p) {
+	    /* if this is our probe we sent to localhost, then it doesn't count! */
+	    if (ip->ip_src.s_addr == ip->ip_dst.s_addr &&
+		probe->ipid() == ntohs(ip->ip_id))
+	      continue;
+
+	    newstate = HOST_UP;
+	    current_reason = ER_PROTORESPONSE;
+	    goodone = true;
+          }
+        }
+      }
+    }
+
     /* First check if it is ICMP, TCP, or UDP */
     if (ip->ip_p == IPPROTO_ICMP) {
       /* if it is our response */
@@ -3931,13 +3974,15 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         }
 
         struct ip *ip2 = (struct ip *) ((char *) ip + ip->ip_hl * 4 + 8);
-        if (bytes < ip->ip_hl * 4 + 8U + ip2->ip_hl * 4 + 8U) {
+
+	/* IPProto Scan (generally) sends bare IP headers, so no extra payload */
+        if (bytes < ip->ip_hl * 4 + 8U + ip2->ip_hl * 4 + 8U && !USI->ptech.rawprotoscan) {
           if (o.debugging)
             error("ICMP (embedded) type %d code %d packet is only %d bytes\n", ping->type, ping->code, bytes);
           continue;
         }
 
-        if (ip2->ip_p == IPPROTO_ICMP) {
+        if (ip2->ip_p == IPPROTO_ICMP && !USI->ptech.rawprotoscan) {
           /* The response was based on a ping packet we sent */
           if (!USI->ptech.rawicmpscan) {
             if (o.debugging)
@@ -3976,7 +4021,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           /* Did we fail to find a probe? */
           if (probenum >= listsz)
             continue;
-        } else if (ip2->ip_p == IPPROTO_TCP) {
+        } else if (ip2->ip_p == IPPROTO_TCP && !USI->ptech.rawprotoscan) {
           /* The response was based our TCP probe */
           if (!USI->ptech.rawtcpscan) {
             if (o.debugging)
@@ -4031,7 +4076,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           /* Did we fail to find a probe? */
           if (probenum >= listsz)
             continue;
-        } else if (ip2->ip_p == IPPROTO_UDP) {
+        } else if (ip2->ip_p == IPPROTO_UDP && !USI->ptech.rawprotoscan) {
           /* The response was based our UDP probe */
           if (!USI->ptech.rawudpscan) {
             if (o.debugging)
@@ -4083,7 +4128,40 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           /* Did we fail to find a probe? */
           if (probenum >= listsz)
             continue;
-        } else {
+        } else if (USI->ptech.rawprotoscan) {
+          memset(&sin, 0, sizeof(sin));
+          sin.sin_addr.s_addr = ip2->ip_dst.s_addr;
+          sin.sin_family = AF_INET;
+          hss = USI->findHost((struct sockaddr_storage *) &sin);
+          if (!hss) continue; // Not referring to a host that interests us
+          setTargetMACIfAvailable(hss->target, &linkhdr, ip, 0);
+          probeI = hss->probes_outstanding.end();
+          listsz = hss->num_probes_outstanding();
+
+          /* Find the probe that provoked this response. */
+          for (probenum = 0; probenum < listsz; probenum++) {
+            probeI--;
+            probe = *probeI;
+            goodseq = false;
+
+            if (o.af() != AF_INET || probe->protocol() != ip2->ip_p)
+              continue;
+
+            if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
+              continue;
+
+            /* Ensure the connection info matches. */
+            if (hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
+              continue;
+
+            /* If we made it this far, we found it. We don't yet know if it's
+               going to change a host state (goodone) or not. */
+            break;
+	  }
+          /* Did we fail to find a probe? */
+          if (probenum >= listsz)
+            continue;
+	} else {
           if (o.debugging)
             error("Got ICMP response to a packet which was not TCP, UDP, or ICMP");
           continue;
@@ -4119,7 +4197,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           log_write(LOG_STDOUT, "Got ICMP message type %d code %d\n", ping->type, ping->code);
         }
       }
-    } else if (ip->ip_p == IPPROTO_TCP) {
+    } else if (ip->ip_p == IPPROTO_TCP && !USI->ptech.rawprotoscan) {
       if (!USI->ptech.rawtcpscan) {
         continue;
       }
@@ -4202,7 +4280,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         if (o.debugging)
           log_write(LOG_STDOUT, "We got a TCP ping packet back from %s port %hi (trynum = %d)\n", inet_ntoa(ip->ip_src), ntohs(tcp->th_sport), trynum);
       }
-    } else if (ip->ip_p == IPPROTO_UDP) {
+    } else if (ip->ip_p == IPPROTO_UDP && !USI->ptech.rawprotoscan) {
       if (!USI->ptech.rawudpscan) {
         continue;
       }
@@ -4253,7 +4331,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         if (o.debugging)
           log_write(LOG_STDOUT, "In response to UDP-ping, we got UDP packet back from %s port %hi (trynum = %d)\n", inet_ntoa(ip->ip_src), htons(udp->uh_sport), trynum);
       }
-    } else if (o.debugging) {
+    } else if (!USI->ptech.rawprotoscan && o.debugging) {
       error("Found whacked packet protocol %d in %s.", ip->ip_p, __func__);
     }
   } while (!goodone && !timedout);
@@ -4349,7 +4427,7 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
     if (len < 0 || len >= (int) sizeof(pcap_filter))
       fatal("ran out of space in pcap filter");
     filterlen = len;
-  } else if (USI->prot_scan) {
+  } else if (USI->prot_scan || (USI->ping_scan && USI->ptech.rawprotoscan)) {
     if (doIndividual)
       len = Snprintf(pcap_filter, sizeof(pcap_filter), 
 		     "dst host %s and (icmp or (%s))", 

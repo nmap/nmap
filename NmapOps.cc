@@ -202,7 +202,7 @@ void NmapOps::Initialize() {
   reference_FPs = NULL;
   magic_port = 33000 + (get_random_uint() % 31000);
   magic_port_set = 0;
-  num_ping_synprobes = num_ping_ackprobes = num_ping_udpprobes = 0;
+  num_ping_synprobes = num_ping_ackprobes = num_ping_udpprobes = num_ping_protoprobes = 0;
   timing_level = 3;
   max_parallelism = 0;
   min_parallelism = 0;
@@ -332,11 +332,11 @@ void NmapOps::ValidateOptions() {
   }
 
   if (pingtype != PINGTYPE_NONE && spoofsource) {
-    error("WARNING:  If -S is being used to fake your source address, you may also have to use -e <interface> and -P0 .  If you are using it to specify your real source address, you can ignore this warning.");
+    error("WARNING:  If -S is being used to fake your source address, you may also have to use -e <interface> and -PN .  If you are using it to specify your real source address, you can ignore this warning.");
   }
 
   if (pingtype != PINGTYPE_NONE && idlescan) {
-    error("WARNING: Many people use -P0 w/Idlescan to prevent pings from their true IP.  On the other hand, timing info Nmap gains from pings can allow for faster, more reliable scans.");
+    error("WARNING: Many people use -PN w/Idlescan to prevent pings from their true IP.  On the other hand, timing info Nmap gains from pings can allow for faster, more reliable scans.");
     sleep(2); /* Give ppl a chance for ^C :) */
   }
 
@@ -352,13 +352,16 @@ void NmapOps::ValidateOptions() {
    fatal("Sorry, UDP Ping (-PU) only works if you are root (because we need to read raw responses off the wire) and only for IPv4 (cause fyodor is too lazy right now to add IPv6 support and nobody has sent a patch)");
  }
 
+ if ((pingtype & PINGTYPE_PROTO) && (!isr00t || af() != AF_INET)) {
+   fatal("Sorry, IPProto Ping (-PO) only works if you are root (because we need to read raw responses off the wire) and only for IPv4");
+ }
 
  if (ipprotscan + (TCPScan() || UDPScan()) + listscan + pingscan > 1) {
    fatal("Sorry, the IPProtoscan, Listscan, and Pingscan (-sO, -sL, -sP) must currently be used alone rather than combined with other scan types.");
  }
 
  if ((pingscan && pingtype == PINGTYPE_NONE)) {
-    fatal("-P0 (skip ping) is incompatable with -sP (ping scan).  If you only want to enumerate hosts, try list scan (-sL)");
+    fatal("-PN (skip ping) is incompatable with -sP (ping scan).  If you only want to enumerate hosts, try list scan (-sL)");
   }
 
  if (pingscan && (TCPScan() || UDPScan() || ipprotscan || listscan)) {
@@ -413,7 +416,7 @@ void NmapOps::ValidateOptions() {
   }
   
   if (bouncescan && pingtype != PINGTYPE_NONE) 
-    log_write(LOG_STDOUT, "Hint: if your bounce scan target hosts aren't reachable from here, remember to use -P0 so we don't try and ping them prior to the scan\n");
+    log_write(LOG_STDOUT, "Hint: if your bounce scan target hosts aren't reachable from here, remember to use -PN so we don't try and ping them prior to the scan\n");
   
   if (ackscan+bouncescan+connectscan+finscan+idlescan+maimonscan+nullscan+synscan+windowscan+xmasscan > 1)
     fatal("You specified more than one type of TCP scan.  Please choose only one of -sA, -b, -sT, -sF, -sI, -sM, -sN, -sS, -sW, and -sX");

@@ -1796,7 +1796,7 @@ void printfinaloutput() {
     error("WARNING: No targets were specified, so 0 hosts scanned.");
   if (o.numhosts_scanned == 1 && o.numhosts_up == 0 && !o.listscan && 
       o.pingtype != PINGTYPE_NONE)
-    log_write(LOG_STDOUT, "Note: Host seems down. If it is really up, but blocking our ping probes, try -P0\n");
+    log_write(LOG_STDOUT, "Note: Host seems down. If it is really up, but blocking our ping probes, try -PN\n");
   else if (o.numhosts_up > 0) {
     if (o.osscan && o.servicescan)
       log_write(LOG_PLAIN, "OS and Service detection performed. Please report any incorrect results at http://insecure.org/nmap/submit/ .\n");

@@ -224,9 +224,10 @@ printf("%s %s ( %s )\n"
        "HOST DISCOVERY:\n"
        "  -sL: List Scan - simply list targets to scan\n"
        "  -sP: Ping Scan - go no further than determining if host is online\n"
-       "  -P0: Treat all hosts as online -- skip host discovery\n"
+       "  -PN: Treat all hosts as online -- skip host discovery\n"
        "  -PS/PA/PU [portlist]: TCP SYN/ACK or UDP discovery to given ports\n"
        "  -PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes\n"
+       "  -PO [protocol list]: IP Protocol Ping\n"
        "  -n/-R: Never do DNS resolution/Always resolve [default: sometimes]\n"
        "  --dns-servers <serv1[,serv2],...>: Specify custom DNS servers\n"
        "  --system-dns: Use OS's DNS resolver\n"
@@ -317,7 +318,7 @@ printf("%s %s ( %s )\n"
        "EXAMPLES:\n"
        "  nmap -v -A scanme.nmap.org\n"
        "  nmap -v -sP 192.168.0.0/16 10.0.0.0/8\n"
-       "  nmap -v -iR 10000 -P0 -p 80\n"
+       "  nmap -v -iR 10000 -PN -p 80\n"
        "SEE THE MAN PAGE FOR MANY MORE OPTIONS, DESCRIPTIONS, AND EXAMPLES\n", NMAP_NAME, NMAP_VERSION, NMAP_URL);
   exit(rc);
 }
@@ -1081,9 +1082,20 @@ int nmap_main(int argc, char *argv[]) {
 	  o.ping_ackprobes[0] = DEFAULT_TCP_PROBE_PORT;
 	}
       } else if (*optarg == 'O') {
-	fatal("-PO (the letter O)? No such option. Perhaps you meant to disable pings with -P0 (Zero).");
+	o.pingtype |= PINGTYPE_PROTO;
+	if (isdigit((int) *(optarg+1))) {
+	  o.num_ping_protoprobes = numberlist2array(optarg+1, o.ping_protoprobes, sizeof(o.ping_protoprobes), &proberr);
+	  if (o.num_ping_protoprobes < 0) {
+	    fatal("Bogus argument to -PO: %s", proberr);
+	  }
+	}
+	if (o.num_ping_protoprobes == 0) {
+	  u16 probes[] = DEFAULT_PROTO_PROBE_PORTS;
+	  o.num_ping_protoprobes = sizeof probes / sizeof *probes;
+	  memcpy(o.ping_protoprobes, probes, sizeof probes);
+	}
       } else { 
-	fatal("Illegal Argument to -P, use -P0, -PI, -PB, -PE, -PM, -PP, -PA, -PU, -PT, or -PT80 (or whatever number you want for the TCP probe destination port)"); 
+	fatal("Illegal Argument to -P, use -PN, -PO, -PI, -PB, -PE, -PM, -PP, -PA, -PU, -PT, or -PT80 (or whatever number you want for the TCP probe destination port)"); 
       }
       break;
     case 'p': 

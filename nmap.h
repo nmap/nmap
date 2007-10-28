@@ -287,6 +287,8 @@ void *realloc();
 				      to 113 */
 #define DEFAULT_UDP_PROBE_PORT 31338 /* The port UDP probes (esp. "ping" probes) go to if unspecified
 				     by user */
+#define DEFAULT_PROTO_PROBE_PORTS { 1, 2, 6, 17 } /* The IPProto ping probes to use if unspecified
+						     by user */
 
 #define MAX_DECOYS 128 /* How many decoys are allowed? */
 
@@ -351,6 +353,7 @@ void *realloc();
 #define PINGTYPE_CONNECTTCP 256
 #define PINGTYPE_UDP  512
 #define PINGTYPE_ARP 1024
+#define PINGTYPE_PROTO 2048
 
 #define DEFAULT_PING_TYPES PINGTYPE_TCP|PINGTYPE_TCP_USE_ACK|PINGTYPE_ICMP_PING
 

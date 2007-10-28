@@ -158,7 +158,8 @@ struct pingtech {
   unsigned int rawicmpscan: 1,
     connecttcpscan: 1,
     rawtcpscan: 1,
-    rawudpscan: 1;
+    rawudpscan: 1,
+    rawprotoscan: 1;
 };
 
 

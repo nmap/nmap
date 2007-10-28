@@ -196,6 +196,8 @@ class NmapOps {
   u16 ping_ackprobes[MAX_PROBE_PORTS];
   int num_ping_udpprobes;
   u16 ping_udpprobes[MAX_PROBE_PORTS];
+  int num_ping_protoprobes;
+  u16 ping_protoprobes[MAX_PROBE_PORTS];
   /* Scan timing/politeness issues */
   int timing_level; // 0-5, corresponding to Paranoid, Sneaky, Polite, Normal, Aggressive, Insane
   int max_parallelism; // 0 means it has not been set

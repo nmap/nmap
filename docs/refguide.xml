@@ -291,7 +291,7 @@ you would expect.</para>
     the simple ICMP echo request packets associated with the
     ubiquitous <application>ping</application> tool. Users can skip
     the ping step entirely with a list scan (<option>-sL</option>) or
-    by disabling ping (<option>-P0</option>), or engage the network
+    by disabling ping (<option>-PN</option>), or engage the network
     with arbitrary combinations of multi-port TCP SYN/ACK, UDP, and
     ICMP probes. The goal of these probes is to solicit responses
     which demonstrate that an IP address is actually active (is being
@@ -331,7 +331,7 @@ you would expect.</para>
     probes (<option>-PU</option>).  Read about the
     <option>-sP</option> option to learn how to perform
     <emphasis>only</emphasis> host discovery, or use
-    <option>-P0</option> to skip host discovery and port scan all
+    <option>-PN</option> to skip host discovery and port scan all
     target hosts.  The following options control host
     discovery:</para>
 
@@ -363,7 +363,7 @@ you would expect.</para>
           scanning, OS detection, or ping scanning cannot be combined
           with this.  If you wish to disable ping scanning while still
           performing such higher level functionality, read up on the
-          <option>-P0</option> option.</para>
+          <option>-PN</option> option.</para>
         </listitem>
       </varlistentry>
 
@@ -398,7 +398,7 @@ you would expect.</para>
            <option>--send-ip</option> was specified.
            The <option>-sP</option> option can be combined with any of the
            discovery probe types (the <option>-P*</option> options,
-           excluding <option>-P0</option>) for greater flexibility.
+           excluding <option>-PN</option>) for greater flexibility.
            If any of those probe type and port number options are
            used, the default probes (ACK and echo request) are
            overridden.  When strict firewalls are in place between the
@@ -413,8 +413,8 @@ you would expect.</para>
 
       <varlistentry>
         <term>
-          <option>-P0</option> (No ping)
-          <indexterm><primary>-P0</primary></indexterm>
+          <option>-PN</option> (No ping)
+          <indexterm><primary>-PN</primary></indexterm>
         </term>
         <listitem>
           <para>This option skips the Nmap discovery stage altogether.
@@ -422,12 +422,12 @@ you would expect.</para>
           for heavier scanning.  By default, Nmap only performs heavy
           probing such as port scans, version detection, or OS
           detection against hosts that are found to be up.  Disabling
-          host discovery with <option>-P0</option> causes Nmap to
+          host discovery with <option>-PN</option> causes Nmap to
           attempt the requested scanning functions against
           <emphasis>every</emphasis> target IP address specified.  So
           if a class B sized target address space (/16) is specified
           on the command line, all 65,536 IP addresses are scanned.
-          That second option character in <option>-P0</option> is a
+          That second option character in <option>-PN</option> is a
           zero and not the letter O.  Proper host discovery is skipped
           as with the list scan, but instead of stopping and printing
           the target list, Nmap continues to perform requested
@@ -643,6 +643,37 @@ you would expect.</para>
         </listitem>
       </varlistentry>
 
+      <varlistentry>
+        <term>
+        <option>-PO [protolist]</option> (IP Protocol Ping)
+          <indexterm><primary>-PO</primary></indexterm>
+          <indexterm><primary>IP Protocol ping</primary></indexterm>
+        </term>
+        <listitem>
+
+          <para>Another host discovery option is the IPProto ping,
+          which sends IP packets with the specified protocol numbers
+          in the Protocol field of the IP headers.  The protocol list
+          takes the same format as with the port lists in the
+          previously discussed TCP and UDP host discovery options.  If
+          no protocols are specified, the default is to send multiple
+          IP packets for ICMP (protocol 1), IGMP (protocol 2), TCP
+          (protocol 6) and UDP (protocol 17).  The default protocols
+          can be configured at compile-time by changing
+          DEFAULT_PROTO_PROBE_PORTS in <filename>nmap.h</filename>.
+          Note that for the ICMP, IGMP, TCP and UDP protocols, the
+          packets are sent with the additional headers while other
+          protocols are sent with no additional data beyond the IP
+          header (unless the <option>--data-length</option> option is
+          specified).</para>
+
+          <para>This host discovery method looks for responses in the
+          same protocol as the probes, or ICMP Protocol Unreachable
+          messages which signify the specified IP protocol isn't
+          supported on the host (which gives away that it's up).</para>
+
+        </listitem>
+      </varlistentry>
       <varlistentry>
         <term>
         <option>-PR</option> (ARP Ping)
@@ -1809,7 +1840,7 @@ way.</para>
           open and one closed TCP port are found. Set this option
           and Nmap will not even try OS detection against hosts
           that do not meet this criteria. This can save substantial
-          time, particularly on <option>-P0</option> scans against many hosts. It
+          time, particularly on <option>-PN</option> scans against many hosts. It
           only matters when OS detection is requested with <option>-O</option> or <option>-A</option>.</para>
         </listitem>
       </varlistentry>
@@ -2180,7 +2211,7 @@ unresponsive hosts.</para>
 Specifying a lower <option>--max-rtt-timeout</option> and
 <option>--initial-rtt-timeout</option> than the defaults can cut scan
 times significantly.  This is particularly true for pingless
-(<option>-P0</option>) scans, and those against heavily filtered
+(<option>-PN</option>) scans, and those against heavily filtered
 networks.  Don't get too aggressive though.  The scan can end up
 taking longer if you specify such a low value that many probes are
 timing out and retransmitting while the response is in transit.</para>
@@ -2583,7 +2614,7 @@ lists the relevant options and describes what they do.</para>
           to make the targets think that <emphasis>someone
           else</emphasis> is scanning them. Imagine a company being
           repeatedly port scanned by a competitor!  The
-          <option>-e</option> option and <option>-P0</option> are
+          <option>-e</option> option and <option>-PN</option> are
           generally required for this sort of usage.  Note that you
           usually won't receive reply packets back (they will be
           addressed to the IP you are spoofing), so Nmap won't produce
@@ -3650,17 +3681,17 @@ overwhelming requests.  Specify <option>--open</option> to only see
     what application is running.</para>
 
     <para>
-    <command>nmap -v -iR 100000 -P0 -p 80</command>
+    <command>nmap -v -iR 100000 -PN -p 80</command>
     </para>
 
     <para>Asks Nmap to choose 100,000 hosts at random and scan them
     for web servers (port 80).  Host enumeration is disabled with
-    <option>-P0</option> since first sending a couple probes to
+    <option>-PN</option> since first sending a couple probes to
     determine whether a host is up is wasteful when you are only
     probing one port on each target host anyway.</para>
 
     <para>
-      <command>nmap -P0 -p80 -oX logs/pb-port80scan.xml -oG
+      <command>nmap -PN -p80 -oX logs/pb-port80scan.xml -oG
       logs/pb-port80scan.gnmap 216.163.128.20/20</command>
     </para>
     <para>This scans 4096 IPs for any webservers (without pinging
