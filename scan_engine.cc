@@ -3830,7 +3830,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   HostScanStats *hss = NULL;
   struct sockaddr_in sin;
   list<UltraProbe *>::iterator probeI;
-  UltraProbe *probe;
+  UltraProbe *probe = NULL;
   unsigned int trynum = 0;
   unsigned int pingseq = 0;
   bool goodseq;
@@ -3876,25 +3876,24 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       sin.sin_addr.s_addr = ip->ip_src.s_addr;
       sin.sin_family = AF_INET;
       hss = USI->findHost((struct sockaddr_storage *) &sin);
-      if (hss) {
-	setTargetMACIfAvailable(hss->target, &linkhdr, ip, 0);
-	probeI = hss->probes_outstanding.end();
-	listsz = hss->num_probes_outstanding();
-	goodone = false;
-	for(probenum = 0; probenum < listsz && !goodone; probenum++) {
-	  probeI--;
-	  probe = *probeI;
+      if (!hss) continue;
+      setTargetMACIfAvailable(hss->target, &linkhdr, ip, 0);
+      probeI = hss->probes_outstanding.end();
+      listsz = hss->num_probes_outstanding();
+      goodone = false;
+      for(probenum = 0; probenum < listsz && !goodone; probenum++) {
+	probeI--;
+	probe = *probeI;
 	    
-	  if (probe->protocol() == ip->ip_p) {
-	    /* if this is our probe we sent to localhost, then it doesn't count! */
-	    if (ip->ip_src.s_addr == ip->ip_dst.s_addr &&
-		probe->ipid() == ntohs(ip->ip_id))
-	      continue;
+	if (probe->protocol() == ip->ip_p) {
+	  /* if this is our probe we sent to localhost, then it doesn't count! */
+	  if (ip->ip_src.s_addr == ip->ip_dst.s_addr &&
+	      probe->ipid() == ntohs(ip->ip_id))
+	    continue;
 
-	    newstate = HOST_UP;
-	    current_reason = ER_PROTORESPONSE;
-	    goodone = true;
-          }
+	  newstate = HOST_UP;
+	  current_reason = ER_PROTORESPONSE;
+	  goodone = true;
         }
       }
     }
