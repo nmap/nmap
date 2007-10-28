@@ -1,9 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
-
 o Renamed Umit to Zenmap to reduce confusion between the version we
-  ship with Nmap and the version maintained separately at
-  umit.sourceforge.net.  We are excited about Zenmap and expect to
-  remove NmapFE in the near future.
+  ship with Nmap as the integrated GUI and the version maintained
+  separately at umit.sourceforge.net.  We are excited about Zenmap and
+  expect to remove NmapFE in the near future
 
 o Added --ttl support for connect() scans (-sT). [Kris]
 
