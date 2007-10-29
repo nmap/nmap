@@ -33,6 +33,12 @@ o The SMTPcommands.nse script was updated to support the HELP query in
 
 o Added --ttl support for connect() scans (-sT). [Kris]
 
+o Combine the zenmap setup scripts into one portable setup.py rather
+  than having separate versions for Windows, Unix, and Mac OS X.
+
+o Removed a bunch of uneccessary/incomplete code and data files from
+  Zenmap. [ David]
+
 o In nbase, switched from GNU's getopt() replacement functions to
   Ben Sittler's BSD-licensed (but GNU compatible) functions. [Kris]
 
