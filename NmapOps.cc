@@ -188,8 +188,8 @@ void NmapOps::Initialize() {
   else
     isr00t = !(geteuid());
 #endif
-  debugging = DEBUGGING;
-  verbose = DEBUGGING;
+  debugging = 0;
+  verbose = 0;
   randomize_hosts = 0;
   sendpref = PACKET_SEND_NOPREF;
   spoofsource = 0;

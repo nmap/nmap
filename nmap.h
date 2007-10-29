@@ -253,25 +253,15 @@ void *realloc();
 #ifndef NMAP_VERSION
 /* Edit this definition only within the quotes, because it is read from this
    file by the makefiles. */
-#define NMAP_VERSION "4.22SOC7"
-#define NMAP_NUM_VERSION "4.22.0.7"
+#define NMAP_VERSION "4.22SOC8"
+#define NMAP_NUM_VERSION "4.22.0.8"
 #endif
 
 /* User configurable #defines: */
-#ifndef VERSION
-#define VERSION "1.60-Beta"
-#endif
-#ifndef DEBUGGING
-#define DEBUGGING 0
-#endif
 #define MAX_PROBE_PORTS 10     /* How many TCP probe ports are allowed ? */
 /* Default number of ports in parallel.  Doesn't always involve actual 
    sockets.  Can also adjust with the -M command line option.  */
 #define MAX_SOCKETS 36 
-/* How many hosts do we ping in parallel to see if they are up? Note that this is
-   divided by the num probes per host */
-#define LOOKAHEAD 30
- /*How many seconds before we give up on a host being alive? */
 
 #define FAKE_ARGV "pine" /* What ps and w should show if you use -q */
 /* How do we want to log into ftp sites for */ 
