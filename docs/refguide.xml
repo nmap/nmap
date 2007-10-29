@@ -657,12 +657,11 @@ you would expect.</para>
           takes the same format as with the port lists in the
           previously discussed TCP and UDP host discovery options.  If
           no protocols are specified, the default is to send multiple
-          IP packets for ICMP (protocol 1), IGMP (protocol 2), TCP
-          (protocol 6) and UDP (protocol 17).  The default protocols
-          can be configured at compile-time by changing
-          DEFAULT_PROTO_PROBE_PORTS in <filename>nmap.h</filename>.
-          Note that for the ICMP, IGMP, TCP and UDP protocols, the
-          packets are sent with the additional headers while other
+          IP packets for ICMP (protocol 1), IGMP (protocol 2), and
+          IP-in-IP (protocol 4).  The default protocols can be
+          configured at compile-time by changing DEFAULT_PROTO_PROBE_PORTS
+          in <filename>nmap.h</filename>.  Note that for the ICMP and IGMP,
+          the packets are sent with the additional headers while other
           protocols are sent with no additional data beyond the IP
           header (unless the <option>--data-length</option> option is
           specified).</para>
