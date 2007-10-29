@@ -33,19 +33,19 @@ o The SMTPcommands.nse script was updated to support the HELP query in
 
 o Added --ttl support for connect() scans (-sT). [Kris]
 
-o Combine the zenmap setup scripts into one portable setup.py rather
+o Combine the Zenmap setup scripts into one portable setup.py rather
   than having separate versions for Windows, Unix, and Mac OS X.
 
 o Removed a bunch of unnecessary/incomplete code and data files from
-  Zenmap. [David]
+  Zenmap. [ David]
 
-o In nbase, switched from GNU's getopt() replacement functions to
+o In Nbase, switched from GNU's getopt() replacement functions to
   Ben Sittler's BSD-licensed (but GNU compatible) functions. [Kris]
 
 o Include nmap.h in portreasons.h.  This fixes a compilation problem
   reported on OpenBSD. [David]
 
-o Change pcre from an nselib module back to statically linked code due
+o Change PCRE from an NSELib module back to statically linked code due
   to OpenBSD compilation problems.  See
   http://seclists.org/nmap-dev/2007/q4/0085.html [David]
 
@@ -80,7 +80,7 @@ o Improve the script scan scheduling system to prevent the system from
 o Added nmap.verbosity() and nmap.debugging() functions for scripts to
   determine the Nmap verbosity/debugging level. [Kris]
 
-o Fixed a crash (assertion error) which occured when the first hop of
+o Fixed a crash (assertion error) which occurred when the first hop of
   the first system (reference trace) times out. [Eddie]
 
 o UMIT no longer rewrites a bunch of script files to replace variables
@@ -122,7 +122,7 @@ o UMIT now sorts port numbers numerically rather than alphabetically
   [Adriano]
 
 o Three UMIT data files (options.xml, profile_editor.xml, and
-  wizard.xml) are installed in the shared UMIT data dir
+  wizard.xml) are installed in the shared UMIT data directory
   (e.g. /usr/share/umit/misc) rather than in every user's ~/.umit
   directory. [David]
 
@@ -170,7 +170,7 @@ o Fixed an error related to version scans against SSL services on
 
 o Removed win_dependencies cruft from UMIT directory. [Kris]
 
-o Upgraded libpcap from version 0.9.4 to 0.9.7 [Kris]
+o Upgraded Libpcap from version 0.9.4 to 0.9.7 [Kris]
 
 o Removed the effectively empty XML elements for traceroute hops which
   timed out. [Eddie]
@@ -262,7 +262,7 @@ o Merged various Umit bug fixes from SouceForge trunk: "missing import
 
 o Eddie fixed several Umit bugs.  Umit now sets the file save
   extension to .usr unless the user specifies something else. The
-  details highlight regex was improved and an error message was added
+  details highlight regular expression was improved and an error message was added
   when no target was specified and -iR and -iL aren't used.
 
 o reason.cc/reason.h renamed to portreasons.cc/.h because a reason.h
@@ -342,11 +342,11 @@ o Integrated version detection submissions.  The database has grown by
   credit for the integration marathon, which he describes at
   http://hcsw.org/blog.pl .
 
-o Added the NSE library (nselib) which is a library of useful
+o Added the NSE library (NSELib) which is a library of useful
   functions (which can be implemented in LUA or as loadable C/C++
   modules) for use by NSE scripts.  We already have libraries for bit
   operations (bit), list operations (listop), URL fetching and
-  manipulation (url), activation rules (shortport), and miscelaneous
+  manipulation (url), activation rules (shortport), and miscellaneous
   commonly useful functions (stdnse).  Stoiko added the underlying
   functionality, though numerous people contributed to the library
   routines.
@@ -357,13 +357,13 @@ o Added --servicedb and --versiondb command-line options which allow
   Fifield ]
 
 o The build dependencies were dramatically reduced by removing
-  unneccessary header includes and moving header includes from .h
+  unnecessary header includes and moving header includes from .h
   files to .cc as well as adding some forward declarations.  This
   reduced the number of makefile.dep dependencies from 1469 to 605.
   This should make Nmap compilation faster and prevent some
   portability problems. [David Fifield]
 
-o Upgraded from WinPcap 3.1 to WinPcap 4.01 and fixed a pcap installer
+o Upgraded from WinPcap 3.1 to WinPcap 4.01 and fixed a WinPcap installer
   error. [Eddie]
 
 o In verbose mode, Nmap now reports where it obtains data files (such as
@@ -407,7 +407,7 @@ o XML output now has a <times> tag for reporting final time
 o Changed the XML output format so that the <extrareasons> tag (part
   of Eddie's --reason patch) falls within the <extraports> tag. [Kris]
 
-o Nmap now provides more consise OS fingerprints for submission thanks
+o Nmap now provides more concise OS fingerprints for submission thanks
   to better merging. [David Fifield]
 
 o A number of changes were made to the Windows build system to handle
@@ -432,7 +432,7 @@ o Added a SIP (IP phone) probe from Matt Selsky to nmap-service-probes.
 o Fixed a bug which prevented the NSE scripts directory from appearing
   in the Win32 .zip version of Nmap.
 
-o Fixed a bug in Traceroute's output.  It occured when a traced host could
+o Fixed a bug in --traceroute output.  It occurred when a traced host could
   be fully consolidated, but only the first hop number was outputted. [Kris]
 
 o The new "rnd" option to -D allows you to ask Nmap to generate random
