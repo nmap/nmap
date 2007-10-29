@@ -1,13 +1,56 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
+4.22SOC8
+
+o Removed the old massping() system, since the functionality has now
+  been migrated into the existing ultra_scan() system (which is used
+  for port scanning too).  Thanks to David for doing the migration,
+  whicn involved a lot of work and testing.  The new system is
+  frequently faster and more accurate than massping(), and some of the
+  new algorithms benefit port scans too.
+
 o Renamed Umit to Zenmap to reduce confusion between the version we
   ship with Nmap as the integrated GUI and the version maintained
   separately at umit.sourceforge.net.  We are excited about Zenmap and
   expect to remove NmapFE in the near future
 
+o Integrated all of your Q3 service detection submissions!  We have
+  now surpassed 4500 signatures and are approaching 500 service
+  protocols.  Wow!  Thanks to Doug for doing the integration.  His
+  notes on the crazy and interesting services discovered this quarter
+  are at http://hcsw.org/blog.pl/31 .
+
+o Added a new ping type: IPProto Ping.  Use -PO (that is the letter O
+  as in prOtOcOl, not a zero).  This is similar to protocol scan (-sO)
+  in that it sends IP headers with different protocols in the hope of
+  eliciting a response from targets.  The default is to send with
+  protocols 1 (ICMP), 2 (IGMP), and 4 (IP-in-IP tunnel), but you can
+  specify different protocol numbers on the command line the same way
+  you specify TCP/UDP ports to -PS or -PU. [Kris]
+
+o The SMTPcommands.nse script was updated to support the HELP query in
+  addition to EHLO [Jason DePriest]
+
 o Added --ttl support for connect() scans (-sT). [Kris]
 
 o In nbase, switched from GNU's getopt() replacement functions to
   Ben Sittler's BSD-licensed (but GNU compatible) functions. [Kris]
+
+o Include nmap.h in portreasons.h.  This fixes a compilation problem
+  reported on OpenBSD [David].
+
+o Change pcre fomr an nselib module back to statically linked code due
+  to OpenBSD compilation problems.  See
+  http://seclists.org/nmap-dev/2007/q4/0085.html [David]
+
+o Fix a problem with --reason printing the wrong host discovery
+  reasons when ICMP destination unreachable packets arrived. [Kris]
+
+o Nmap has better dependency tracking now such that it no longer
+  builds the executable every time you type 'make'.  This was causing
+  problems where 'make; sudo make install' would create a root-owned
+  nmap executable because it was rebuilt as part of 'make
+  install'. [David]
 
 4.22SOC7
 
