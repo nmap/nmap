@@ -5,7 +5,7 @@
 o Removed the old massping() system, since the functionality has now
   been migrated into the existing ultra_scan() system (which is used
   for port scanning too).  Thanks to David for doing the migration,
-  whicn involved a lot of work and testing.  The new system is
+  which involved a lot of work and testing.  The new system is
   frequently faster and more accurate than massping(), and some of the
   new algorithms benefit port scans too.
 
@@ -39,7 +39,7 @@ o In nbase, switched from GNU's getopt() replacement functions to
 o Include nmap.h in portreasons.h.  This fixes a compilation problem
   reported on OpenBSD [David].
 
-o Change pcre fomr an nselib module back to statically linked code due
+o Change pcre from an nselib module back to statically linked code due
   to OpenBSD compilation problems.  See
   http://seclists.org/nmap-dev/2007/q4/0085.html [David]
 
