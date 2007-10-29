@@ -36,14 +36,14 @@ o Added --ttl support for connect() scans (-sT). [Kris]
 o Combine the zenmap setup scripts into one portable setup.py rather
   than having separate versions for Windows, Unix, and Mac OS X.
 
-o Removed a bunch of uneccessary/incomplete code and data files from
-  Zenmap. [ David]
+o Removed a bunch of unnecessary/incomplete code and data files from
+  Zenmap. [David]
 
 o In nbase, switched from GNU's getopt() replacement functions to
   Ben Sittler's BSD-licensed (but GNU compatible) functions. [Kris]
 
 o Include nmap.h in portreasons.h.  This fixes a compilation problem
-  reported on OpenBSD [David].
+  reported on OpenBSD. [David]
 
 o Change pcre from an nselib module back to statically linked code due
   to OpenBSD compilation problems.  See
