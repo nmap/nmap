@@ -2059,7 +2059,7 @@ void init_socket(int sd) {
  * the outer part of the port expression. It's "closed".
  */
 
-static void getpts_aux(char *origexpr, int nested, u8 *porttbl, struct scan_lists *ports, int range_type, int 
+static void getpts_aux(char *origexpr, int nested, u8 *porttbl, int range_type, int 
 *portwarning);
 
 struct scan_lists *getpts(char *origexpr) {
@@ -2082,9 +2082,20 @@ struct scan_lists *getpts(char *origexpr) {
   getpts_aux(origexpr,      // Pass on the expression
              0,             // Don't start off nested
              porttbl,       // Our allocated port table
-             ports,         // The destination structure - passed so we can track the number of tcp/udp/prot ports
              range_type,    // Defaults to TCP/UDP/Protos
              &portwarning); // No, we haven't warned them about dup ports yet
+
+  ports->tcp_count = 0;
+  ports->udp_count = 0;
+  ports->prot_count = 0;
+  for(i = 0; i <= 65535; i++) {
+    if (porttbl[i] & SCAN_TCP_PORT)
+      ports->tcp_count++;
+    if (porttbl[i] & SCAN_UDP_PORT)
+      ports->udp_count++;
+    if (porttbl[i] & SCAN_PROTOCOLS && i < 256)
+      ports->prot_count++;
+  }
 
   if (range_type != 0 && 0 == (ports->tcp_count + ports->udp_count + ports->prot_count))
     fatal("No ports specified -- If you really don't want to scan any ports use ping scan...");
@@ -2117,7 +2128,7 @@ struct scan_lists *getpts(char *origexpr) {
 
 /* getpts() (see above) is a wrapper for this function */
 
-static void getpts_aux(char *origexpr, int nested, u8 *porttbl, struct scan_lists *ports, int range_type, int *portwarning) {
+static void getpts_aux(char *origexpr, int nested, u8 *porttbl, int range_type, int *portwarning) {
   long rangestart = -2343242, rangeend = -9324423;
   char *current_range;
   char *endptr;
@@ -2148,7 +2159,7 @@ static void getpts_aux(char *origexpr, int nested, u8 *porttbl, struct scan_list
       if (nested)
         fatal("Can't nest [] brackets in -p switch");
 
-      getpts_aux(++current_range, 1, porttbl, ports, range_type, portwarning);
+      getpts_aux(++current_range, 1, porttbl, range_type, portwarning);
 
       // Skip past the ']'. This is OK because we can't nest []s
       while(*current_range != ']') current_range++;
@@ -2189,8 +2200,8 @@ static void getpts_aux(char *origexpr, int nested, u8 *porttbl, struct scan_list
       if (*current_range && *current_range != ']') current_range++; // We want the '] character to be picked up on the next pass
       servmask[i] = '\0'; // Finish the string
 
-      i = addportsfromservmask(servmask, porttbl, ports, range_type);
-      if (range_type & SCAN_PROTOCOLS) i += addprotocolsfromservmask(servmask, porttbl, ports);
+      i = addportsfromservmask(servmask, porttbl, range_type);
+      if (range_type & SCAN_PROTOCOLS) i += addprotocolsfromservmask(servmask, porttbl);
 
       if (i == 0)
         fatal("Found no matches for the service mask '%s' and your specified protocols", servmask);
@@ -2237,26 +2248,17 @@ static void getpts_aux(char *origexpr, int nested, u8 *porttbl, struct scan_list
         if (nested) {
           if ((range_type & SCAN_TCP_PORT) &&
               nmap_getservbyport(htons(rangestart), "tcp")) {
-            ports->tcp_count++;
             porttbl[rangestart] |= SCAN_TCP_PORT;
           }
           if ((range_type & SCAN_UDP_PORT) &&
               nmap_getservbyport(htons(rangestart), "udp")) {
-            ports->udp_count++;
             porttbl[rangestart] |= SCAN_UDP_PORT;
           }
           if ((range_type & SCAN_PROTOCOLS) &&
               nmap_getprotbynum(htons(rangestart))) {
-            ports->prot_count++;
             porttbl[rangestart] |= SCAN_PROTOCOLS;
           }
         } else {
-          if (range_type & SCAN_TCP_PORT)
-            ports->tcp_count++;
-          if (range_type & SCAN_UDP_PORT)
-            ports->udp_count++;
-          if (range_type & SCAN_PROTOCOLS && rangestart < 256)
-            ports->prot_count++;
           porttbl[rangestart] |= range_type;
         }
       }

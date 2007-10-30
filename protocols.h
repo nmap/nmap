@@ -117,7 +117,7 @@ struct protocol_list {
   struct protocol_list *next;
 };
 
-int addprotocolsfromservmask(char *mask, u8 *porttbl, struct scan_lists *ports);
+int addprotocolsfromservmask(char *mask, u8 *porttbl);
 struct protoent *nmap_getprotbynum(int num);
 
 #endif

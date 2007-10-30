@@ -272,7 +272,7 @@ static int nmap_services_init() {
  * Returns the number of ports added in total.
  */
 
-int addportsfromservmask(char *mask, u8 *porttbl, struct scan_lists *ports, int range_type) {
+int addportsfromservmask(char *mask, u8 *porttbl, int range_type) {
   struct service_list *current;
   int bucket,t=0;
 
@@ -285,13 +285,11 @@ int addportsfromservmask(char *mask, u8 *porttbl, struct scan_lists *ports, int 
 
         if ((range_type & SCAN_TCP_PORT) && strcmp(current->servent->s_proto, "tcp") == 0) {
           porttbl[ntohs(current->servent->s_port)] |= SCAN_TCP_PORT;
-          ports->tcp_count++;
           t++;
         }
 
         if ((range_type & SCAN_UDP_PORT) && strcmp(current->servent->s_proto, "udp") == 0) {
           porttbl[ntohs(current->servent->s_port)] |= SCAN_UDP_PORT;
-          ports->udp_count++;
           t++;
         }
 

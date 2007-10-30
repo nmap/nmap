@@ -190,7 +190,7 @@ static int nmap_protocols_init() {
  */
 
 
-int addprotocolsfromservmask(char *mask, u8 *porttbl, struct scan_lists *ports) {
+int addprotocolsfromservmask(char *mask, u8 *porttbl) {
   struct protocol_list *current;
   int bucket, t=0;
 
@@ -201,7 +201,6 @@ int addprotocolsfromservmask(char *mask, u8 *porttbl, struct scan_lists *ports) 
     for(current = protocol_table[bucket % PROTOCOL_TABLE_SIZE]; current; current = current->next) {
       if (wildtest(mask, current->protoent->p_name)) {
         porttbl[ntohs(current->protoent->p_proto)] |= SCAN_PROTOCOLS;
-        ports->prot_count++;
         t++;
       }
     }
