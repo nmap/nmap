@@ -1084,7 +1084,7 @@ int nmap_main(int argc, char *argv[]) {
       } else if (*optarg == 'O') {
 	o.pingtype |= PINGTYPE_PROTO;
 	if (isdigit((int) *(optarg+1))) {
-	  o.num_ping_protoprobes = numberlist2array(optarg+1, o.ping_protoprobes, sizeof(o.ping_protoprobes), &proberr);
+	  o.num_ping_protoprobes = numberlist2array(optarg+1, o.ping_protoprobes, sizeof(o.ping_protoprobes), &proberr, 0, 255);
 	  if (o.num_ping_protoprobes < 0) {
 	    fatal("Bogus argument to -PO: %s", proberr);
 	  }
