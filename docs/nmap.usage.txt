@@ -1,4 +1,4 @@
-Nmap 4.22SOC7 ( http://insecure.org )
+Nmap 4.22SOC8 ( http://insecure.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -10,9 +10,10 @@ TARGET SPECIFICATION:
 HOST DISCOVERY:
   -sL: List Scan - simply list targets to scan
   -sP: Ping Scan - go no further than determining if host is online
-  -P0: Treat all hosts as online -- skip host discovery
+  -PN: Treat all hosts as online -- skip host discovery
   -PS/PA/PU [portlist]: TCP SYN/ACK or UDP discovery to given ports
   -PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes
+  -PO [protocol list]: IP Protocol Ping
   -n/-R: Never do DNS resolution/Always resolve [default: sometimes]
   --dns-servers <serv1[,serv2],...>: Specify custom DNS servers
   --system-dns: Use OS's DNS resolver
@@ -101,5 +102,5 @@ MISC:
 EXAMPLES:
   nmap -v -A scanme.nmap.org
   nmap -v -sP 192.168.0.0/16 10.0.0.0/8
-  nmap -v -iR 10000 -P0 -p 80
+  nmap -v -iR 10000 -PN -p 80
 SEE THE MAN PAGE FOR MANY MORE OPTIONS, DESCRIPTIONS, AND EXAMPLES
