@@ -3,15 +3,9 @@
 %define release 1
 %define prefix /usr
 
-# To not build the frontend, add:
-#   --define "buildfe 0"
-# ...to the rpm build command-line
 # To build a static rpm, add:
 # --define "static 1"
-
-%if "%{buildfe}" != "0"
-%define buildfe 1
-%endif
+# ...to the rpm build command-line
 
 Summary: Network exploration tool and security scanner
 Name: %{name}
@@ -37,18 +31,6 @@ sunRPC scanning, and more. Most Unix and Windows platforms are
 supported in both GUI and commandline modes. Several popular handheld
 devices are also supported, including the Sharp Zaurus and the iPAQ.
 
-%if "%{buildfe}" == "1"
-%package frontend
-Summary: Gtk+ frontend for nmap
-Group: Applications/System
-Requires: nmap, gtk2
-BuildPreReq: gtk2-devel
-Version: %{version}
-%description frontend
-This package includes nmapfe, a Gtk+ frontend for nmap. The nmap package must
-be installed before installing nmap-frontend.
-%endif
-
 %prep
 %setup -q
 
@@ -72,14 +54,6 @@ mkdir -p $RPM_BUILD_ROOT%{prefix}/share/applications
 strip $RPM_BUILD_ROOT%{prefix}/bin/* || :
 gzip $RPM_BUILD_ROOT%{prefix}/share/man/man1/* || :
 
-%if "%{buildfe}" == "1"
-%post frontend
-%endif
-
-%if "%{buildfe}" == "1"
-%postun frontend
-%endif
-
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
 
@@ -93,17 +67,10 @@ gzip $RPM_BUILD_ROOT%{prefix}/share/man/man1/* || :
 %{prefix}/share/man/man1/nmap.1.gz
 %{prefix}/libexec/nmap
 
-%if "%{buildfe}" == "1"
-%files frontend
-%defattr(-,root,root)
-%{prefix}/bin/nmapfe
-%{prefix}/bin/xnmap
-%{prefix}/share/applications/nmapfe.desktop
-%{prefix}/share/man/man1/xnmap.1.gz
-%{prefix}/share/man/man1/nmapfe.1.gz
-%endif
-
 %changelog
+
+* Wed Oct 31 2007 David Fifield (david(a)bamsoftware.com)
+- Remove references to buildfe (build the NmapFE frontend).
 
 * Sat Sep 01 2004 Stephane Loeuillet (stephane.loeuillet(a)tiscali.fr)
 - Place .desktop file under ${prefix}/share/applications rather than

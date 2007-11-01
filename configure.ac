@@ -171,21 +171,6 @@ AC_CHECK_HEADERS(pwd.h termios.h)
 dnl If any socket libraries needed
 AC_SEARCH_LIBS(setsockopt, socket)
 
-# By default, try to build nmapfe if possible
-test "${with_nmapfe+set}" != "set" && with_nmapfe=yes
- 
-TARGETNMAPFE=nmapfe/nmapfe
-INSTALLNMAPFE=install-nmapfe
-AC_ARG_WITH(nmapfe, AC_HELP_STRING([--without-nmapfe], [Skip nmapfe X-window GUI]),
- [  case "$with_nmapfe" in
-  no)
-    TARGETNMAPFE=""; INSTALLNMAPFE=""
-    ;;
-  esac]
-)
-AC_SUBST(TARGETNMAPFE)
-AC_SUBST(INSTALLNMAPFE)
-
 # Do they want Zenmap?
 BUILDZENMAP=build-zenmap
 INSTALLZENMAP=install-zenmap
@@ -675,7 +660,7 @@ AC_SUBST(LIBNSOCK_LIBS)
 
 nmap_cfg_subdirs="$nmap_cfg_subdirs $NSOCKDIR/src"
 
-dnl I need to configure nmapfe and libpcap here since the user might
+dnl I need to configure nsock and libpcap here since the user might
 dnl have specified special options (such as --prefix )
 dnl
 dnl But I only have to configure libpcap if I am going to use it
@@ -687,12 +672,13 @@ else
 fi
 
 
-if test "${with_nmapfe}" = "yes"; then
+dnl Commented out -- awaiting transition to Zenmap.
+dnl if test "${with_nmapfe}" = "yes"; then
 dnl Check for GTK+
-AM_PATH_GTK_2_0(2.4.0,
-            AC_CONFIG_SUBDIRS(nmapfe),
-            AC_MSG_WARN([Gtk+ has not been installed -> nmapfe will not be made]))
-fi
+dnl AM_PATH_GTK_2_0(2.4.0,
+dnl             AC_CONFIG_SUBDIRS(nmapfe),
+dnl             AC_MSG_WARN([Gtk+ has not been installed -> nmapfe will not be made]))
+dnl fi
 
 dnl all hell broke loose when the variable was named $subdirs
 AC_CONFIG_SUBDIRS( $nmap_cfg_subdirs )

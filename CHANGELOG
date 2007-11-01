@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Removed the NmapFE frontend.
+
 4.22SOC8
 
 o Removed the old massping() system, since the functionality has now

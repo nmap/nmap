@@ -53,8 +53,6 @@ export RPMTDIR=$(HOME)/rpm
 DESTDIR =
 
 TARGET = nmap
-TARGETNMAPFE=@TARGETNMAPFE@
-INSTALLNMAPFE=@INSTALLNMAPFE@
 INSTALLNSE=@INSTALLNSE@
 BUILDZENMAP=@BUILDZENMAP@
 INSTALLZENMAP=@INSTALLZENMAP@
@@ -77,7 +75,7 @@ OBJS = main.o nmap.o targets.o tcpip.o nmap_error.o utils.o idle_scan.o osscan.o
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
 all: @LUA_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(NSESTDLIB)
-	$(MAKE) $(TARGET) $(TARGETNMAPFE) $(BUILDZENMAP)
+	$(MAKE) $(TARGET) $(BUILDZENMAP)
 
 $(TARGET): $(OBJS)
 	echo Compiling nmap
@@ -116,14 +114,6 @@ $(LIBLUADIR)/liblua.a: $(LIBLUADIR)/Makefile FORCE
 #	@echo Configuring libpcap; cd $(LIBPCAPDIR); ./configure
 
 
-nmapfe/nmapfe: 
-#	@echo "FAILURES HERE ARE OK -- THEY JUST MEAN YOU CANNOT USE nmapfe"
-#	-rm -f nmapfe/Makefile
-#	-cd nmapfe; ./configure;
-	@if test -f nmapfe/Makefile; then echo "Building NmapFE graphical frontend"; cd nmapfe && $(MAKE) VERSION=$(NMAP_VERSION); else echo "NmapFE will not be made -- your system lacks the capabilities (perhaps GTK) for this graphical frontend.  You can still run command-line nmap!"; fi
-#	-cd nmapfe; test -f Makefile && $(MAKE) VERSION=$(NMAP_VERSION) STATIC=$(STATIC);
-#	@echo "END OF SECTION WHERE FAILURES ARE OK"
-
 # Make a statically compiled binary for portability between distributions
 static:
 	$(MAKE) STATIC=-static
@@ -139,7 +129,7 @@ distro:
 web:
 	cd $(NMAPDEVDIR) && $(MAKE) web
 
-clean: @LUA_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nmapfe_clean nsock_clean nbase_clean my_clean @NSELIB_CLEAN@ @ZENMAP_CLEAN@
+clean: @LUA_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nsock_clean nbase_clean my_clean @NSELIB_CLEAN@ @ZENMAP_CLEAN@
 
 my_clean:
 	rm -f dependencies.mk
@@ -150,8 +140,6 @@ pcre_clean:
 	-cd $(LIBPCREDIR) && $(MAKE) clean
 dnet_clean:
 	-cd $(LIBDNETDIR) && $(MAKE) clean
-nmapfe_clean:
-	-cd nmapfe && $(MAKE) clean
 nbase_clean:
 	-cd $(NBASEDIR) && $(MAKE) clean
 nsock_clean:
@@ -168,8 +156,6 @@ pcre_dist_clean:
 	-cd $(LIBPCREDIR) && $(MAKE) distclean
 dnet_dist_clean:
 	-cd $(LIBDNETDIR) && $(MAKE) distclean
-nmapfe_dist_clean:
-	-cd nmapfe && $(MAKE) distclean
 lua_dist_clean:
 	-cd $(LIBLUADIR) && $(MAKE) clean
 nselib_dist_clean:
@@ -183,7 +169,7 @@ zenmap_dist_clean: zenmap_clean
 debugclean:
 	rm -f *.gcov *.gcda *.gcno gmon.out
 
-distclean: my_clean my_distclean @LUA_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ nmapfe_dist_clean  @NSELIB_DIST_CLEAN@ @ZENMAP_DIST_CLEAN@
+distclean: my_clean my_distclean @LUA_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@  @NSELIB_DIST_CLEAN@ @ZENMAP_DIST_CLEAN@
 
 my_distclean:
 	rm -f Makefile Makefile.bak makefile.dep config.h stamp-h stamp-h.in \
@@ -202,11 +188,6 @@ install-nmap: $(TARGET)
 	$(INSTALL) -c -m 644 nmap-service-probes $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 nmap-protocols $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 nmap-mac-prefixes $(DESTDIR)$(nmapdatadir)/
-
-install-nmapfe: $(TARGETNMAPFE)
-	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1 $(DESTDIR)$(nmapdatadir) $(DESTDIR)$(deskdir)
-	@echo "If the next command fails -- you cannot use the X front end"
-	-test -f nmapfe/nmapfe && $(INSTALL) -c -m 755 -s nmapfe/nmapfe $(DESTDIR)$(bindir)/nmapfe && rm -f $(DESTDIR)$(bindir)/xnmap && $(SHTOOL) mkln -f -s $(DESTDIR)$(bindir)/nmapfe $(DESTDIR)$(bindir)/xnmap && $(INSTALL) -c -m 644 nmapfe.desktop $(DESTDIR)$(deskdir)/nmapfe.desktop && $(INSTALL) -c -m 644 docs/nmapfe.1 $(DESTDIR)$(mandir)/man1/nmapfe.1 && $(INSTALL) -c -m 644 docs/xnmap.1 $(DESTDIR)$(mandir)/man1/xnmap.1
 
 $(ZENMAPDIR)/setup.py:
 	cd $(ZENMAPDIR) && install_scripts/unix/setup.sh
@@ -233,13 +214,12 @@ install-nse: $(TARGET)
 	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(nmaplibexecdir)/nse
 	cp -f $(NSE_LIB_SO_FILES) $(DESTDIR)$(nmaplibexecdir)/nse
 
-install: install-nmap $(INSTALLNMAPFE) $(INSTALLNSE) $(INSTALLZENMAP)
+install: install-nmap $(INSTALLNSE) $(INSTALLZENMAP)
 	@echo "NMAP SUCCESSFULLY INSTALLED"
 
 uninstall:
-	rm -f $(bindir)/$(TARGET) $(bindir)/nmapfe $(bindir)/xnmap
-	rm -f $(deskdir)/nmapfe.desktop $(mandir)/man1/nmapfe.1
-	rm -f $(mandir)/man1/xnmap.1 $(mandir)/man1/nmap.1
+	rm -f $(bindir)/$(TARGET) $(bindir)/xnmap
+	rm -f $(mandir)/man1/nmap.1
 	rm -rf $(nmapdatadir) $(nmaplibexecdir)
 
 ${srcdir}/configure: configure.ac 

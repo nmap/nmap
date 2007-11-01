@@ -48,12 +48,11 @@ Of course, you are welcome to work on whatever suits your fancy.  But
 here are some ideas of contributions that might be particularly
 useful:
 
-o Nmap GUI improvements -- I am currently maintaining NmapFE (also known
-  as xnmap) -- the GTK GUI front end to Nmap.  I am very open to changes
-  and improvements in that program.  If you have enhancement ideas, give
-  it a shot!  Alternatively, consider contributing to the NmapGUI and
-  UMIT projects available at http://sourceforge.net/projects/nmapgui/
-  and http://umit.sourceforge.net/ , respectively.
+o Nmap GUI improvements -- Zenmap is the Nmap GUI. If you have
+  enhancement ideas, give it a shot!  Alternatively, consider
+  contributing to the NmapGUI and Umit projects available at
+  http://sourceforge.net/projects/nmapgui/ and
+  http://umit.sourceforge.net/ , respectively.
 
 One of the best ways to help is to join the nmap-dev list
 ( http://cgi.insecure.org/mailman/listinfo/nmap-dev ).  Requests for
