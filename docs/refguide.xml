@@ -434,7 +434,7 @@ you would expect.</para>
           functions as if each target IP is active.  For machines on a
           local ethernet network, ARP scanning will still be performed
           (unless <option>--send-ip</option> is specified) because
-          Nmap needs MAC addressses to further scan target
+          Nmap needs MAC addresses to further scan target
           hosts.</para>
         </listitem>
       </varlistentry>
@@ -1953,7 +1953,7 @@ way.</para>
     a machine is infected by any worm Nmap provides a script for you can simply
     run <command>nmap --script=malware target-ip</command> and check the output
     afterwards. The <literal>version</literal> scripts are always run
-    implicitely when a script-scan is requested. The
+    implicitly when a script-scan is requested. The
     <filename>script.db</filename> is a Lua-script itself and can be updated
     through the <option>--script-updatedb</option> option.  
     </para>
@@ -2043,7 +2043,7 @@ is the only way the script knows about its special argument.</para>
           <para>
 		  This option does what <option>--packet-trace</option> does,
           just one ISO layer higher. If this option is specified all incoming
-          and outgiong communication performed by a script is printed. The
+          and outgoing communication performed by a script is printed. The
           displayed information includes the communication protocol, the
           source, the target and the transmitted data. If more than 5% of all
           transmitted data is not printable, then the trace output is in a hex
@@ -2349,12 +2349,12 @@ Some systems now apply similar rate limits to the RST (reset)
 packets they generate.  This can slow Nmap down dramatically as it
 adjusts its timing to reflect those rate limits.  You can tell Nmap to
 ignore those rate limits (for port scans such as SYN scan which
-<emphasis>don't</emphasis> treat nonresponsive ports as
+<emphasis>don't</emphasis> treat non-responsive ports as
 <literal>open</literal>) by specifying
 <option>--defeat-rst-ratelimit</option>.</para>
 
 <para>Using this option can reduce accuracy, as some ports will appear
-nonresponse because Nmap didn't wait long enough for a rate-limited
+non-responsive because Nmap didn't wait long enough for a rate-limited
 RST response.  With a SYN
 scan, the non-response results in the port being labeled
 <literal>filtered</literal> rather than the <literal>closed</literal>
@@ -2473,7 +2473,7 @@ complex networks, and to verify that filters are working as intended.
 It even supports mechanisms for bypassing poorly implemented
 defenses.  One of the best methods of understanding your
 network security posture is to try to defeat it.  Place yourself in
-the mindset of an attacker, and deploy techniques from this section
+the mind-set of an attacker, and deploy techniques from this section
 against your networks.  Launch an FTP bounce scan, idle scan,
 fragmentation attack, or try to tunnel through one of your own
 proxies.</para>
@@ -3170,7 +3170,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
 
           <para>Warnings and errors printed by Nmap usually go only to
           the screen (interactive output), leaving any specified
-          normal-fomat output files uncluttered.  But when you do want
+          normal-format output files uncluttered.  But when you do want
           to see those messages in the normal output file you
           specified, add this option. It is useful when you aren't
           watching the interactive output or are trying to debug a
@@ -3713,7 +3713,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
     do some research to determine whether it has already been
     discovered and addressed.  Try Googling the error message or
     browsing the nmap-dev archives at <ulink
-    url="http://seclists.org/" />.  Read this full munual page as
+    url="http://seclists.org/" />.  Read this full manual page as
     well.  If nothing comes of this, mail a bug report to
     <email>nmap-dev@insecure.org</email>.  Please include everything
     you have learned about the problem, as well as what version of
