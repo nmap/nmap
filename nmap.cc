@@ -2171,6 +2171,13 @@ static void getpts_aux(char *origexpr, int nested, u8 *porttbl, int range_type, 
   char servmask[128];  // A protocol name can be up to 127 chars + nul byte
   int i;
 
+  /* An example of proper syntax to use in error messages. */
+  char *syntax_example;
+  if (change_range_type)
+    syntax_example = "-100,200-1024,T:3000-4000,U:60000-";
+  else
+    syntax_example = "-100,200-1024,3000-4000,60000-";
+
   current_range = origexpr;
   do {
     while(isspace((int) *current_range))
@@ -2196,7 +2203,7 @@ static void getpts_aux(char *origexpr, int nested, u8 *porttbl, int range_type, 
 
     if (*current_range == '[') {
       if (nested)
-        fatal("Can't nest [] brackets in -p switch");
+        fatal("Can't nest [] brackets in port/protocol specification");
 
       getpts_aux(++current_range, 1, porttbl, range_type, portwarning);
 
@@ -2210,7 +2217,7 @@ static void getpts_aux(char *origexpr, int nested, u8 *porttbl, int range_type, 
       continue;
     } else if (*current_range == ']') {
       if (!nested)
-        fatal("Unexpected ] character in -p switch");
+        fatal("Unexpected ] character in port/protocol specification");
 
       return;
     } else if (*current_range == '-') {
@@ -2236,7 +2243,7 @@ static void getpts_aux(char *origexpr, int nested, u8 *porttbl, int range_type, 
       while (*current_range && !isspace((int)*current_range) && *current_range != ',' && *current_range != ']') {
         servmask[i++] = *(current_range++);
         if (i >= ((int)sizeof(servmask)-1))
-          fatal("A service mask in the -p switch is either malformed or too long");
+          fatal("A service mask in the port/protocol specification is either malformed or too long");
       }
 
       if (*current_range && *current_range != ']') current_range++; // We want the '] character to be picked up on the next pass
@@ -2251,7 +2258,7 @@ static void getpts_aux(char *origexpr, int nested, u8 *porttbl, int range_type, 
       continue;
 
     } else {
-      fatal("Error #485: Your port specifications are illegal.  Example of proper form: \"-100,200-1024,T:3000-4000,U:60000-\"");
+      fatal("Error #485: Your port specifications are illegal.  Example of proper form: \"%s\"", syntax_example);
     }
     /* Now I have a rangestart, time to go after rangeend */
     if (!*current_range || *current_range == ',' || *current_range == ']') {
@@ -2276,10 +2283,10 @@ static void getpts_aux(char *origexpr, int nested, u8 *porttbl, int range_type, 
 	}
 	current_range = endptr;
       } else {
-	fatal("Error #486: Your port specifications are illegal.  Example of proper form: \"-100,200-1024,3000-4000,60000-\"");
+	fatal("Error #486: Your port specifications are illegal.  Example of proper form: \"%s\"", syntax_example);
       }
     } else {
-	fatal("Error #487: Your port specifications are illegal.  Example of proper form: \"-100,200-1024,3000-4000,60000-\"");
+	fatal("Error #487: Your port specifications are illegal.  Example of proper form: \"%s\"", syntax_example);
     }
 
     /* Now I have a rangestart and a rangeend, so I can add these ports */
@@ -2316,7 +2323,7 @@ static void getpts_aux(char *origexpr, int nested, u8 *porttbl, int range_type, 
     if (*current_range == ']') return;
 
     if (*current_range && *current_range != ',') {
-      fatal("Error #488: Your port specifications are illegal.  Example of proper form: \"-100,200-1024,3000-4000,60000-\"");
+      fatal("Error #488: Your port specifications are illegal.  Example of proper form: \"%s\"", syntax_example);
     }
     if (*current_range == ',')
       current_range++;
