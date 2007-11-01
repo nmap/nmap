@@ -2,6 +2,9 @@
 
 o Removed the NmapFE frontend.
 
+o Updated IANA assignment IP list for random IP (-iR)
+  generation. [Kris]
+
 4.22SOC8
 
 o Removed the old massping() system, since the functionality has now
