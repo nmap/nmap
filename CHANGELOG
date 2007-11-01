@@ -5,6 +5,14 @@ o Removed the NmapFE frontend.
 o Updated IANA assignment IP list for random IP (-iR)
   generation. [Kris]
 
+o There is no longer any artificial limit on the number of ports or
+  protocols that can be used for host discovery. Port lists for ping
+  scan now use the same syntax as the -p option except that T:, U:,
+  and P: are not allowed. This means that you can do
+    nmap -PS1-1000 target
+    nmap -PAhttp,https target
+    nmap -PU'[-]' target
+
 4.22SOC8
 
 o Removed the old massping() system, since the functionality has now

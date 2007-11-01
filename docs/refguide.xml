@@ -449,12 +449,15 @@ you would expect.</para>
 
           <para>This option sends an empty TCP packet with the SYN
           flag set.  The default destination port is 80 (configurable
-          at compile time by changing DEFAULT_TCP_PROBE_PORT in
-          <filename>nmap.h</filename>), but an alternate port can be
-          specified as a parameter.  A comma separated list of ports
-          can even be specified
-          (e.g. <option>-PS22,23,25,80,113,1050,35000</option>), in
-          which case probes will be attempted against each port in
+          at compile time by changing DEFAULT_TCP_PROBE_PORT_SPEC in
+          <filename>nmap.h</filename>). Alternate ports can be
+          specified as a parameter. The syntax is the same as for the
+          <option>-p</option> except that port type specifiers like
+          <literal>T:</literal> are not allowed. Examples are
+          <option>-PS22</option> and
+          <option>-PS22-25,80,113,1050,35000</option>. Note that there
+          can be no space between <option>-PS</option> and the port
+          list. If multiple probes are specified they will be sent in
           parallel.</para>
 
           <para>The SYN flag suggests to the remote system that you
@@ -563,8 +566,8 @@ you would expect.</para>
           <option>-PS</option> and <option>-PA</option> options.  If
           no ports are specified, the default is 31338.  This default
           can be configured at compile-time by changing
-          DEFAULT_UDP_PROBE_PORT in <filename>nmap.h</filename>.  A
-          highly uncommon port is used by default because sending to
+          DEFAULT_UDP_PROBE_PORT_SPEC in <filename>nmap.h</filename>.
+          A highly uncommon port is used by default because sending to
           open ports is often undesirable for this particular scan
           type.</para>
 
@@ -659,11 +662,12 @@ you would expect.</para>
           no protocols are specified, the default is to send multiple
           IP packets for ICMP (protocol 1), IGMP (protocol 2), and
           IP-in-IP (protocol 4).  The default protocols can be
-          configured at compile-time by changing DEFAULT_PROTO_PROBE_PORTS
-          in <filename>nmap.h</filename>.  Note that for the ICMP, IGMP,
-          TCP (protocol 6), and UDP (protocol 17), the packets are sent
-          with the additional headers while other protocols are sent with
-          no additional data beyond the IP header (unless the
+          configured at compile-time by changing
+          DEFAULT_PROTO_PROBE_PORT_SPEC in <filename>nmap.h</filename>.
+          Note that for the ICMP, IGMP, TCP (protocol 6), and UDP
+          (protocol 17), the packets are sent with the additional
+          headers while other protocols are sent with no additional data
+          beyond the IP header (unless the
           <option>--data-length</option> option is specified).</para>
 
           <para>This host discovery method looks for responses in the

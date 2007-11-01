@@ -492,7 +492,6 @@ int nmap_main(int argc, char *argv[]) {
   Target *currenths;
   vector<Target *> Targets;
   char *portlist = NULL; /* Ports list specified by user */
-  char *proberr;
   int sourceaddrwarning = 0; /* Have we warned them yet about unguessable
 				source addresses? */
   unsigned int ideal_scan_group_sz = 0;
@@ -1029,70 +1028,68 @@ int nmap_main(int argc, char *argv[]) {
 	o.pingtype |= PINGTYPE_ARP;
       else if (*optarg == 'S') {
 	o.pingtype |= (PINGTYPE_TCP|PINGTYPE_TCP_USE_SYN);
-	if (isdigit((int) *(optarg+1)))
-	  {
-	    o.num_ping_synprobes = numberlist2array(optarg+1, o.ping_synprobes, sizeof(o.ping_synprobes), &proberr);
-	    if (o.num_ping_synprobes < 0) {
-	      fatal("Bogus argument to -PS: %s", proberr);
-	    }
+	if (*(optarg + 1) != '\0') {
+	  getpts_simple(optarg + 1, SCAN_TCP_PORT, &o.ping_synprobes, &o.num_ping_synprobes);
+	  if (o.num_ping_synprobes <= 0) {
+	    fatal("Bogus argument to -PS: %s", optarg + 1);
 	  }
+	}
 	if (o.num_ping_synprobes == 0) {
-	  o.num_ping_synprobes = 1;
-	  o.ping_synprobes[0] = DEFAULT_TCP_PROBE_PORT;
+	  getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &o.ping_synprobes, &o.num_ping_synprobes);
+	  assert(o.num_ping_synprobes > 0);
 	}
       }
       else if (*optarg == 'T' || *optarg == 'A') {
 	/* NmapOps::ValidateOptions() takes care of changing this
 	   to SYN if not root or if IPv6 */
 	o.pingtype |= (PINGTYPE_TCP|PINGTYPE_TCP_USE_ACK);
-	if (isdigit((int) *(optarg+1))) {
-	  o.num_ping_ackprobes = numberlist2array(optarg+1, o.ping_ackprobes, sizeof(o.ping_ackprobes), &proberr);
-	  if (o.num_ping_ackprobes < 0) {
-	    fatal("Bogus argument to -PA: %s", proberr);
+	if (*(optarg + 1) != '\0') {
+	  getpts_simple(optarg + 1, SCAN_TCP_PORT, &o.ping_ackprobes, &o.num_ping_ackprobes);
+	  if (o.num_ping_ackprobes <= 0) {
+	    fatal("Bogus argument to -PA: %s", optarg + 1);
 	  }
 	}
 	if (o.num_ping_ackprobes == 0) {
-	  o.num_ping_ackprobes = 1;
-	  o.ping_ackprobes[0] = DEFAULT_TCP_PROBE_PORT;
+	  getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &o.ping_ackprobes, &o.num_ping_ackprobes);
+	  assert(o.num_ping_ackprobes > 0);
 	}
       }
       else if (*optarg == 'U') {
 	o.pingtype |= (PINGTYPE_UDP);
-	if (isdigit((int) *(optarg+1))) {
-	  o.num_ping_udpprobes = numberlist2array(optarg+1, o.ping_udpprobes, sizeof(o.ping_udpprobes), &proberr);
-	  if (o.num_ping_udpprobes < 0) {
-	    fatal("Bogus argument to -PU: %s", proberr);
+	if (*(optarg + 1) != '\0') {
+	  getpts_simple(optarg + 1, SCAN_UDP_PORT, &o.ping_udpprobes, &o.num_ping_udpprobes);
+	  if (o.num_ping_udpprobes <= 0) {
+	    fatal("Bogus argument to -PU: %s", optarg + 1);
 	  }
 	}
 	if (o.num_ping_udpprobes == 0) {
-	  o.num_ping_udpprobes = 1;
-	  o.ping_udpprobes[0] = DEFAULT_UDP_PROBE_PORT;
+	  getpts_simple(DEFAULT_UDP_PROBE_PORT_SPEC, SCAN_UDP_PORT, &o.ping_udpprobes, &o.num_ping_udpprobes);
+	  assert(o.num_ping_udpprobes > 0);
 	}
       }
       else if (*optarg == 'B') {
 	o.pingtype = (PINGTYPE_TCP|PINGTYPE_TCP_USE_ACK|PINGTYPE_ICMP_PING);
-	if (isdigit((int) *(optarg+1))) {
-	  o.num_ping_ackprobes = numberlist2array(optarg+1, o.ping_ackprobes, sizeof(o.ping_ackprobes), &proberr);
-	  if (o.num_ping_ackprobes < 0) {
-	    fatal("Bogus argument to -PB: %s", proberr);
+	if (*(optarg + 1) != '\0') {
+	  getpts_simple(optarg + 1, SCAN_TCP_PORT, &o.ping_ackprobes, &o.num_ping_ackprobes);
+	  if (o.num_ping_ackprobes <= 0) {
+	    fatal("Bogus argument to -PB: %s", optarg + 1);
 	  }
 	}
 	if (o.num_ping_ackprobes == 0) {
-	  o.num_ping_ackprobes = 1;
-	  o.ping_ackprobes[0] = DEFAULT_TCP_PROBE_PORT;
+	  getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &o.ping_ackprobes, &o.num_ping_ackprobes);
+	  assert(o.num_ping_ackprobes > 0);
 	}
       } else if (*optarg == 'O') {
 	o.pingtype |= PINGTYPE_PROTO;
-	if (isdigit((int) *(optarg+1))) {
-	  o.num_ping_protoprobes = numberlist2array(optarg+1, o.ping_protoprobes, sizeof(o.ping_protoprobes), &proberr, 0, 255);
-	  if (o.num_ping_protoprobes < 0) {
-	    fatal("Bogus argument to -PO: %s", proberr);
+	if (*(optarg + 1) != '\0') {
+	  getpts_simple(optarg + 1, SCAN_PROTOCOLS, &o.ping_protoprobes, &o.num_ping_protoprobes);
+	  if (o.num_ping_protoprobes <= 0) {
+	    fatal("Bogus argument to -PO: %s", optarg + 1);
 	  }
 	}
 	if (o.num_ping_protoprobes == 0) {
-	  u16 probes[] = DEFAULT_PROTO_PROBE_PORTS;
-	  o.num_ping_protoprobes = sizeof probes / sizeof *probes;
-	  memcpy(o.ping_protoprobes, probes, sizeof probes);
+	  getpts_simple(DEFAULT_PROTO_PROBE_PORT_SPEC, SCAN_PROTOCOLS, &o.ping_protoprobes, &o.num_ping_protoprobes);
+	  assert(o.num_ping_protoprobes > 0);
 	}
       } else { 
 	fatal("Illegal Argument to -P, use -PN, -PO, -PI, -PB, -PE, -PM, -PP, -PA, -PU, -PT, or -PT80 (or whatever number you want for the TCP probe destination port)"); 
@@ -2059,8 +2056,8 @@ void init_socket(int sd) {
  * the outer part of the port expression. It's "closed".
  */
 
-static void getpts_aux(char *origexpr, int nested, u8 *porttbl, int range_type, int 
-*portwarning);
+static void getpts_aux(char *origexpr, int nested, u8 *porttbl, int range_type,
+                       int *portwarning, bool change_range_type = true);
 
 struct scan_lists *getpts(char *origexpr) {
   u8 *porttbl;
@@ -2125,10 +2122,49 @@ struct scan_lists *getpts(char *origexpr) {
 
 }
 
+/* This function is like getpts except that instead of returning several lists
+   of ports in a struct scan_lists, it allocates only one list and stores it in
+   the list and count arguments. For that reason, T:, U:, and P: restrictions
+   are not allowed and only one bit in range_type may be set. */
+void getpts_simple(char *origexpr, int range_type,
+                   unsigned short **list, int *count) {
+  u8 *porttbl;
+  int portwarning = 0;
+  int i, j;
 
-/* getpts() (see above) is a wrapper for this function */
+  /* Make sure that only one bit in range_type is set (or that range_type is 0,
+     which is useless but not incorrect). */
+  assert((range_type & (range_type - 1)) == 0);
 
-static void getpts_aux(char *origexpr, int nested, u8 *porttbl, int range_type, int *portwarning) {
+  porttbl = (u8 *) safe_zalloc(65536);
+
+  /* Get the ports but do not allow changing the type with T:, U:, or P:. */
+  getpts_aux(origexpr, 0, porttbl, range_type, &portwarning, false);
+
+  /* Count how many are set. */
+  *count = 0;
+  for (i = 0; i <= 65535; i++) {
+    if (porttbl[i] & range_type)
+      (*count)++;
+  }
+
+  if (*count == 0)
+    return;
+
+  *list = (unsigned short *) safe_zalloc(*count * sizeof(unsigned short));
+
+  /* Fill in the list. */
+  for (i = 0, j = 0; i <= 65535; i++) {
+    if (porttbl[i] & range_type)
+      (*list)[j++] = i;
+  }
+
+  free(porttbl);
+}
+
+/* getpts() and getpts_simple() (see above) are wrappers for this function */
+
+static void getpts_aux(char *origexpr, int nested, u8 *porttbl, int range_type, int *portwarning, bool change_range_type) {
   long rangestart = -2343242, rangeend = -9324423;
   char *current_range;
   char *endptr;
@@ -2140,21 +2176,24 @@ static void getpts_aux(char *origexpr, int nested, u8 *porttbl, int range_type, 
     while(isspace((int) *current_range))
       current_range++; /* I don't know why I should allow spaces here, but I will */
 
-    if (*current_range == 'T' && *++current_range == ':') {
-	current_range++;
-	range_type = SCAN_TCP_PORT;
-	continue;
+    if (change_range_type) {
+      if (*current_range == 'T' && *++current_range == ':') {
+          current_range++;
+          range_type = SCAN_TCP_PORT;
+          continue;
+      }
+      if (*current_range == 'U' && *++current_range == ':') {
+          current_range++;
+          range_type = SCAN_UDP_PORT;
+          continue;
+      }
+      if (*current_range == 'P' && *++current_range == ':') {
+          current_range++;
+          range_type = SCAN_PROTOCOLS;
+          continue;
+      }
     }
-    if (*current_range == 'U' && *++current_range == ':') {
-	current_range++;
-	range_type = SCAN_UDP_PORT;
-	continue;
-    }
-    if (*current_range == 'P' && *++current_range == ':') {
-	current_range++;
-	range_type = SCAN_PROTOCOLS;
-	continue;
-    }
+
     if (*current_range == '[') {
       if (nested)
         fatal("Can't nest [] brackets in -p switch");

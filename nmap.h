@@ -272,13 +272,14 @@ void *realloc();
 #define MAX_TIMEOUTS MAX_SOCKETS   /* How many timed out connection attempts 
 				      in a row before we decide the host is 
 				      dead? */
-#define DEFAULT_TCP_PROBE_PORT 80 /* The port TCP probes go to if unspecified
-				      by user -- uber hackers change this
-				      to 113 */
-#define DEFAULT_UDP_PROBE_PORT 31338 /* The port UDP probes (esp. "ping" probes) go to if unspecified
-				     by user */
-#define DEFAULT_PROTO_PROBE_PORTS { 1, 2, 4 } /* The IPProto ping probes to use if unspecified
-						 by user */
+#define DEFAULT_TCP_PROBE_PORT_SPEC "80" /* The ports TCP probes go to if
+                                            unspecified by user -- uber hackers
+                                            change this to 113 */
+#define DEFAULT_UDP_PROBE_PORT_SPEC "31338" /* The port UDP probes (esp. "ping"
+                                               probes) go to if unspecified by
+                                               user */
+#define DEFAULT_PROTO_PROBE_PORT_SPEC "1,2,4" /* The IPProto ping probes to use
+                                                 if unspecified by user */
 
 #define MAX_DECOYS 128 /* How many decoys are allowed? */
 
@@ -412,6 +413,8 @@ int ftp_anon_connect(struct ftpinfo *ftp);
 
 /* port manipulators */
 struct scan_lists *getpts(char *expr); /* someone stole the name getports()! */
+void getpts_simple(char *origexpr, int range_type,
+                   unsigned short **list, int *count);
 void free_scan_lists(struct scan_lists *ports);
 
 /* socket manipulation functions */

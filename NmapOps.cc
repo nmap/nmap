@@ -101,6 +101,7 @@
 #include "nmap.h"
 #include "nbase.h"
 #include "NmapOps.h"
+#include "services.h"
 #include "utils.h"
 #ifdef WIN32
 #include "winfix.h"
@@ -115,6 +116,10 @@ NmapOps::NmapOps() {
 }
 
 NmapOps::~NmapOps() {
+  if (ping_synprobes) free(ping_synprobes);
+  if (ping_ackprobes) free(ping_ackprobes);
+  if (ping_udpprobes) free(ping_udpprobes);
+  if (ping_protoprobes) free(ping_protoprobes);
   if (datadir) free(datadir);
   if (xsl_stylesheet) free(xsl_stylesheet);
 }
@@ -203,6 +208,7 @@ void NmapOps::Initialize() {
   magic_port = 33000 + (get_random_uint() % 31000);
   magic_port_set = 0;
   num_ping_synprobes = num_ping_ackprobes = num_ping_udpprobes = num_ping_protoprobes = 0;
+  ping_synprobes = ping_ackprobes = ping_udpprobes = ping_protoprobes = NULL;
   timing_level = 3;
   max_parallelism = 0;
   min_parallelism = 0;
@@ -304,8 +310,8 @@ void NmapOps::ValidateOptions() {
   if (pingtype == PINGTYPE_UNKNOWN) {
     if (isr00t && af() == AF_INET) pingtype = DEFAULT_PING_TYPES;
     else pingtype = PINGTYPE_TCP; // if nonr00t or IPv6
-    num_ping_ackprobes = 1;
-    ping_ackprobes[0] = DEFAULT_TCP_PROBE_PORT;
+    getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &o.ping_ackprobes, &o.num_ping_ackprobes);
+    assert(o.num_ping_ackprobes > 0);
   }
 
   /* Insure that at least one scantype is selected */
@@ -322,10 +328,12 @@ void NmapOps::ValidateOptions() {
       fatal("Cannot use both SYN and ACK ping probes if you are nonroot or using IPv6");
     }
     
+    /* Pretend we wanted SYN probes all along. */
     if (num_ping_ackprobes > 0) { 
-      memcpy(ping_synprobes, ping_ackprobes, num_ping_ackprobes * sizeof(*ping_synprobes));
       num_ping_synprobes = num_ping_ackprobes;
+      ping_synprobes = ping_ackprobes;
       num_ping_ackprobes = 0;
+      ping_ackprobes = NULL;
     }
     pingtype &= ~PINGTYPE_TCP_USE_ACK;
     pingtype |= PINGTYPE_TCP_USE_SYN;
@@ -384,8 +392,8 @@ void NmapOps::ValidateOptions() {
       pingtype = PINGTYPE_TCP;
       if (num_ping_synprobes == 0)
 	{
-	  num_ping_synprobes = 1;
-	  ping_synprobes[0] = DEFAULT_TCP_PROBE_PORT;
+          getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &o.ping_synprobes, &o.num_ping_synprobes);
+          assert(o.num_ping_synprobes > 0);
 	}
     }
 #endif

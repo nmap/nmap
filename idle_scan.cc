@@ -108,6 +108,7 @@
 #include "osscan.h"
 #include "nmap.h"
 #include "NmapOps.h"
+#include "services.h"
 #include "Target.h"
 #include "utils.h"
 
@@ -330,9 +331,19 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
       fatal("Invalid port number given in IP ID zombie specification: %s", proxyName);
     }
   } else {
-    proxy->probe_port = (o.num_ping_synprobes > 0)? o.ping_synprobes[0] : 
-      (o.num_ping_ackprobes > 0)? o.ping_ackprobes[0] :
-      DEFAULT_TCP_PROBE_PORT;
+    if (o.num_ping_synprobes > 0) {
+      proxy->probe_port = o.ping_synprobes[0];
+    } else if (o.num_ping_ackprobes > 0) {
+      proxy->probe_port = o.ping_ackprobes[0];
+    } else {
+      u16 *ports;
+      int count;
+
+      getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &ports, &count);
+      assert(count > 0);
+      proxy->probe_port = ports[0];
+      free(ports);
+    }
   }
 
   proxy->host.setHostName(name);
