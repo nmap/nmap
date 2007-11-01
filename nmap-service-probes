@@ -4547,6 +4547,7 @@ match imap m|^\* OK IMAP4 IMAP4rev1 Server\r\nGET BAD Unrecognised Command\r\n| 
 match imap m|^\* OK IMAP4r1 server \[([\w-_.]+)\] ready\r\nGET BAD Protocol Error: \"Unidentifiable command specified\"\.\r\n\* BAD Protocol Error: \"Tag not found in command\"\.\r\n| p/Microsoft Exchange imapd/ h/$1/ i/Version masked/ o/Windows/
 match imap m|^\* OK IMAP4rev1 server ready at \d\d/\d\d/\d\d \d?\d:\d\d:\d\d\r\nGET BAD UNKNOWN Command\r\n\r\n BAD UNKNOWN Command\r\n| p/MailEnable imapd/ o/Windows/
 match imap m|^\* OK IMAP4rev1 server ready\r\nGET BAD Unknown command '/'\r\n BAD Unknown command ''\r\n| p/Kerio imapd/
+match imap m|^\* OK Gimap ready for requests from [\d\.]+ ([\w\d]+)| p/Google Gmail imapd/ i/$1/
 
 # Server: CUPS/1.1
 match ipp m|^HTTP/1\.0 \d\d\d .*\r\nServer: CUPS/([\w-_.]+)|s p/CUPS/ v/$1/
