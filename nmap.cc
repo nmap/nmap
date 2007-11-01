@@ -2175,11 +2175,14 @@ static void getpts_aux(char *origexpr, int nested, u8 *porttbl, int range_type, 
 
       return;
     } else if (*current_range == '-') {
-      rangestart = o.ipprotscan ? 0 : 1;
+      if (range_type & SCAN_PROTOCOLS)
+        rangestart = 0;
+      else
+        rangestart = 1;
     }
     else if (isdigit((int) *current_range)) {
       rangestart = strtol(current_range, &endptr, 10);
-      if (o.ipprotscan) {
+      if (range_type & SCAN_PROTOCOLS) {
         if (rangestart < 0 || rangestart > 255)
 	  fatal("Protocols to be scanned must be between 0 and 255 inclusive");
       } else {
@@ -2219,10 +2222,13 @@ static void getpts_aux(char *origexpr, int nested, u8 *porttbl, int range_type, 
       current_range++;
       if (!*current_range || *current_range == ',' || *current_range == ']') {
 	/* Ended with a -, meaning up until the last possible port */
-	rangeend = o.ipprotscan ? 255 : 65535;
+        if (range_type & SCAN_PROTOCOLS)
+          rangeend = 255;
+        else
+          rangeend = 65535;
       } else if (isdigit((int) *current_range)) {
 	rangeend = strtol(current_range, &endptr, 10);
-	if (o.ipprotscan) {
+        if (range_type & SCAN_PROTOCOLS) {
 	  if (rangeend < 0 || rangeend > 255)
 	    fatal("Protocols to be scanned must be between 0 and 255 inclusive");
 	} else {
