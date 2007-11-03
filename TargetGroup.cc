@@ -120,7 +120,7 @@ void TargetGroup::Initialize() {
   ipsleft = 0;
 }
 
-/* take the object back to the begining without  (mdmcl)
+/* take the object back to the beginning without  (mdmcl)
  * reinitalizing the data structures */  
 int  TargetGroup::rewind() {
 
@@ -355,14 +355,14 @@ int TargetGroup::skip_range(_octet_nums octet) {
     current[i] = 0;
   }
 
-  /* we actauly don't skip the current, it was accounted for 
+  /* we actually don't skip the current, it was accounted for 
    * by get_next_host */
   ipsleft -= hosts_skipped - 1;
  
   return hosts_skipped;
 }
 
- /* Grab the next host from this expression (if any) and uptdates its internal
+ /* Grab the next host from this expression (if any) and updates its internal
     state to reflect that the IP was given out.  Returns 0 and
     fills in ss if successful.  ss must point to a pre-allocated
     sockaddr_storage structure */

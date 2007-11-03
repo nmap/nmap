@@ -1210,7 +1210,7 @@ if (window)
   tcp->th_win = htons(window);
 else tcp->th_win = htons(1024 * (myttl % 4 + 1)); /* Who cares */
 
-/* Urgend pointer */
+/* Urgent pointer */
 if (urp)
   tcp->th_urp = htons(urp);
 
@@ -1877,7 +1877,7 @@ int pcap_select(pcap_t *p, long usecs)
 }
 
 /* Read an IP packet using libpcap .  We return the packet and take
-   a pcap descripter and a pointer to the packet length (which we set
+   a pcap descriptor and a pointer to the packet length (which we set
    in the function. If you want a maximum length returned, you
    should specify that in pcap_open_live() */
 
