@@ -114,7 +114,6 @@ Section "Nmap Core Files" SecCore
   File ..\..\CHANGELOG 
   File ..\..\COPYING 
   File ..\..\nmap-mac-prefixes 
-  File ..\..\nmap-os-fingerprints 
   File ..\..\nmap-os-db 
   File ..\..\nmap-protocols 
   File ..\..\nmap-rpc 
@@ -207,7 +206,6 @@ Section "Uninstall"
   Delete "$INSTDIR\CHANGELOG" 
   Delete "$INSTDIR\COPYING" 
   Delete "$INSTDIR\nmap-mac-prefixes" 
-  Delete "$INSTDIR\nmap-os-fingerprints" 
   Delete "$INSTDIR\nmap-os-db" 
   Delete "$INSTDIR\nmap-protocols" 
   Delete "$INSTDIR\nmap-rpc" 

@@ -191,14 +191,14 @@ typedef struct FingerTest {
   char *OS_name;
   struct OS_Classification OS_class[MAX_OS_CLASSIFICATIONS_PER_FP];
   int num_OS_Classifications;
-  int line; /* For reference prints, the line # in nmap-os-fingerprints */
+  int line; /* For reference prints, the line # in nmap-os-db */
   const char *name;
   struct AVal *results;
   struct FingerTest *next;
  } FingerPrint;
 
 /* This structure contains the important data from the fingerprint
-   database (nmap-os-db or nmap-os-fingerprints) */
+   database (nmap-os-db) */
 typedef struct FingerPrintDB {
   FingerPrint **prints;
   FingerPrint *MatchPoints;

@@ -13,6 +13,8 @@ o There is no longer any artificial limit on the number of ports or
     nmap -PAhttp,https target
     nmap -PU'[-]' target
 
+o Removed the first-generation OS detection.
+
 4.22SOC8
 
 o Removed the old massping() system, since the functionality has now

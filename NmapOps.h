@@ -185,7 +185,6 @@ class NmapOps {
   int interactivemode;
   int ping_group_sz;
   int generate_random_ips; /* -iR option */
-  FingerPrintDB *reference_FPs1; /* Used in the old OS scan system. */
   FingerPrintDB *reference_FPs; /* Used in the new OS scan system. */
   u16 magic_port;
   unsigned short magic_port_set; /* Was this set by user? */

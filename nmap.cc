@@ -264,9 +264,7 @@ printf("%s %s ( %s )\n"
        "  --script-updatedb: Update the script database.\n"
 #endif
        "OS DETECTION:\n"
-       "  -O: Enable OS detection (try 2nd generation w/fallback to 1st)\n"
-       "  -O2: Only use the new OS detection system (no fallback)\n"
-       "  -O1: Only use the old (1st generation) OS detection system\n"
+       "  -O: Enable OS detection\n"
        "  --osscan-limit: Limit OS detection to promising targets\n"
        "  --osscan-guess: Guess OS more aggressively\n"
        "TIMING AND PERFORMANCE:\n"
@@ -1002,15 +1000,12 @@ int nmap_main(int argc, char *argv[]) {
       break;
     case 'n': o.noresolve++; break;
     case 'O': 
-      if (!optarg)
-		o.osscan = OS_SCAN_DEFAULT;
+      if (!optarg || *optarg == '2')
+        o.osscan = OS_SCAN_DEFAULT;
       else if (*optarg == '1')
-		o.osscan = OS_SCAN_SYS_1_ONLY;
-	  else if (*optarg == '2')
-		o.osscan = OS_SCAN_SYS_2_ONLY;
-      else {
-	fatal("Use -O for new osscan engine, -O1 for old osscan engine.");
-      }
+        fatal("First-generation OS detection (-O1) is no longer supported. Use -O instead.");
+      else
+        fatal("Unknown argument to -O.");
       break;
     case 'o':
       normalfilename = optarg;
@@ -1221,9 +1216,7 @@ int nmap_main(int argc, char *argv[]) {
   if (pre_host_timeout != -1) o.host_timeout = pre_host_timeout;
 
 
-  if (o.osscan == OS_SCAN_SYS_1_ONLY)
-    o.reference_FPs1 = parse_fingerprint_reference_file("nmap-os-fingerprints");
-  else if (o.osscan == OS_SCAN_DEFAULT || o.osscan == OS_SCAN_SYS_2_ONLY)
+  if (o.osscan == OS_SCAN_DEFAULT)
     o.reference_FPs = parse_fingerprint_reference_file("nmap-os-db");
 
   o.ValidateOptions();
@@ -1736,7 +1729,7 @@ int nmap_main(int argc, char *argv[]) {
       service_scan(Targets);
     }
 
-    if (o.osscan == OS_SCAN_DEFAULT || o.osscan == OS_SCAN_SYS_2_ONLY)
+    if (o.osscan == OS_SCAN_DEFAULT)
 	  os_scan2(Targets);
 
     if(o.traceroute) {
@@ -1753,11 +1746,6 @@ int nmap_main(int argc, char *argv[]) {
        * host rather than port list the user specified.
        */
       if (o.servicescan || o.rpcscan)  pos_scan(currenths, NULL, 0, RPC_SCAN);
-
-      // Should be host parallelized.  Though rarely takes a huge amt. of time.
-      if (o.osscan == OS_SCAN_SYS_1_ONLY) {
-	os_scan(currenths);
-      }
 		}
 #ifndef NOLUA
     if(o.script || o.scriptversion) {

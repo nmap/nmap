@@ -48,9 +48,7 @@ SCRIPT SCAN:
   --script-trace: Show all data sent and received
   --script-updatedb: Update the script database.
 OS DETECTION:
-  -O: Enable OS detection (try 2nd generation w/fallback to 1st)
-  -O2: Only use the new OS detection system (no fallback)
-  -O1: Only use the old (1st generation) OS detection system
+  -O: Enable OS detection
   --osscan-limit: Limit OS detection to promising targets
   --osscan-guess: Guess OS more aggressively
 TIMING AND PERFORMANCE:

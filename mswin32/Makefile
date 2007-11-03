@@ -21,7 +21,7 @@ winbuild:
 	$(MAKENSIS) winpcap/winpcap-nmap.nsi
 	rm -rf nmap-$(NMAP_VERSION)
 	mkdir nmap-$(NMAP_VERSION)
-	cd Release && cp -r ../../CHANGELOG ../../COPYING nmap-mac-prefixes nmap-os-fingerprints nmap-os-db nmap-protocols nmap-rpc nmap-service-probes nmap-services nmap.exe nmap.xsl ../nmap_performance.reg ../../README-WIN32 ../nmap-$(NMAP_VERSION)/
+	cd Release && cp -r ../../CHANGELOG ../../COPYING nmap-mac-prefixes nmap-os-db nmap-protocols nmap-rpc nmap-service-probes nmap-services nmap.exe nmap.xsl ../nmap_performance.reg ../../README-WIN32 ../nmap-$(NMAP_VERSION)/
 	mkdir nmap-$(NMAP_VERSION)/scripts
 	cd Release && cp -f $(NSE_FILES) ../nmap-$(NMAP_VERSION)/scripts/
 	mkdir nmap-$(NMAP_VERSION)/nselib

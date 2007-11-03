@@ -350,8 +350,6 @@ void *realloc();
 
 /* OS scan */
 #define OS_SCAN_DEFAULT 9
-#define OS_SCAN_SYS_1_ONLY 1
-#define OS_SCAN_SYS_2_ONLY 2
 
 /* How many syn packets do we send to TCP sequence a host? */
 #define NUM_SEQ_SAMPLES 6

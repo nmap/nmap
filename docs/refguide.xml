@@ -1726,7 +1726,7 @@ way.</para>
     in the responses.  After performing dozens of tests such as TCP
     ISN sampling, TCP options support and ordering, IP ID sampling, and
     the initial window size check, Nmap compares the results to its
-    <filename>nmap-os-fingerprints</filename> database of more than 1500 known
+    <filename>nmap-os-db</filename> database of more than 800 known
     OS fingerprints and prints out the OS details if there is a match.
     Each fingerprint includes a freeform textual description of the
     OS, and a classification which provides the vendor name
@@ -1782,51 +1782,7 @@ way.</para>
 
           <para>Enables OS detection, as discussed above.
           Alternatively, you can use <option>-A</option> to enable
-          OS detection along with other things.  2nd generation OS
-          detection is tried first.  If that fails, Nmap will either
-          print out the host fingerprint and ask you to submit it (if
-          you are certain about what the target host is running), or
-          Nmap will fall back to the 1st generation OS detection
-          system in case its larger database has a match.</para>
-
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>-O2</option> (2nd Generation OS Detection Only)
-          <indexterm><primary>-O2</primary></indexterm>
-        </term>
-        <listitem>
-
-
-          <para>Enables 2nd generation OS detection, but never falls
-          back to the old (1st generation) system, even if it fails to
-          find any match.  This saves time and can reduce the number
-          of packets sent to each target.</para>
-
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>-O1</option> (1st Generation OS Detection Only)
-          <indexterm><primary>-O1</primary></indexterm>
-        </term>
-        <listitem>
-
-
-          <para>Tells Nmap to only use the old OS detection system.
-          If <option>-O2</option> just gives you a fingerprint to
-          submit, but you don't know what OS the target is running,
-          try <option>-O1</option>.  But in that case, <emphasis
-          role="bold">don't submit the fingerprint</emphasis> as you
-          don't know for sure whether <option>-O1</option> guessed
-          correctly.  If it was perfect, we wouldn't have bothered to
-          create <option>-O2</option>.</para>
-
-          <para>This option, and all other vestiges of the old OS
-          detection system, will likely be removed in 2007.</para>
+          OS detection along with other things.</para>
 
         </listitem>
       </varlistentry>
@@ -1884,9 +1840,7 @@ way.</para>
           may be set to allow even more retries when conditions are
           favorable.  This is rarely done, except to generate better
           fingerprints for submission and integration into the Nmap OS
-          database.  This option only affects second generation OS
-          detection (<option>-O2</option>, the default) and not the
-          old system (<option>-O1</option>).</para>
+          database.</para>
 
         </listitem>
       </varlistentry>
@@ -3381,7 +3335,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
           <filename>nmap-protocols</filename>,
           <filename>nmap-rpc</filename>,
           <filename>nmap-mac-prefixes</filename>, and
-          <filename>nmap-os-fingerprints</filename>.  If the
+          <filename>nmap-os-db</filename>.  If the
           location of any of these files has been specified (using the
           <option>--servicedb</option> or <option>--versiondb</option> options),
           that location is used for that file. After that, Nmap

@@ -203,7 +203,6 @@ void NmapOps::Initialize() {
   interactivemode = 0;
   ping_group_sz = PING_GROUP_SZ;
   generate_random_ips = 0;
-  reference_FPs1 = NULL;
   reference_FPs = NULL;
   magic_port = 33000 + (get_random_uint() % 31000);
   magic_port_set = 0;

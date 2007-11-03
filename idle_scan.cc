@@ -105,7 +105,7 @@
 
 #include "idle_scan.h"
 #include "timing.h"
-#include "osscan.h"
+#include "osscan2.h"
 #include "nmap.h"
 #include "NmapOps.h"
 #include "services.h"
@@ -305,7 +305,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   struct ip *ip;
   struct tcp_hdr *tcp;
   int distance;
-  u16 ipids[NUM_IPID_PROBES]; 
+  int ipids[NUM_IPID_PROBES]; 
   u8 probe_returned[NUM_IPID_PROBES];
   struct route_nfo rnfo;
   assert(proxy);
@@ -504,7 +504,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
 	  proxy->host.HostName(), proxy->host.targetipstr(), 
 	  proxy->probe_port);
 
-  proxy->seqclass = ipid_sequence(probes_returned, ipids, 0);
+  proxy->seqclass = get_ipid_sequence(probes_returned, ipids, 0);
   switch(proxy->seqclass) {
   case IPID_SEQ_INCR:
   case IPID_SEQ_BROKEN_INCR:
