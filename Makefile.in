@@ -199,7 +199,7 @@ build-zenmap: $(ZENMAPDIR)/setup.py $(ZENMAPDIR)/umitCore/Version.py
 	cd $(ZENMAPDIR) && $(PYTHON) setup.py build
 
 install-zenmap: $(ZENMAPDIR)/setup.py
-	cd $(ZENMAPDIR) && $(PYTHON) setup.py install --prefix $(DESTDIR)$(prefix)
+	cd $(ZENMAPDIR) && $(PYTHON) setup.py install --prefix "$(prefix)" $(if $(DESTDIR),--root "$(DESTDIR)")
 
 NSE_FILES = scripts/script.db scripts/*.nse
 NSE_LIB_LUA_FILES = nselib/*.lua
