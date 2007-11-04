@@ -2862,6 +2862,8 @@ static void sendPingProbe(UltraScanInfo *USI, HostScanStats *hss) {
   } else if (hss->pingprobe.type == PS_TCP || hss->pingprobe.type == PS_UDP
     || hss->pingprobe.type == PS_PROTO || hss->pingprobe.type == PS_ICMP) {
     sendIPScanProbe(USI, hss, &hss->pingprobe, 0, hss->nextPingSeq(true));
+  } else if (hss->pingprobe.type == PS_ARP) {
+    sendArpScanProbe(USI, hss, 0, hss->nextPingSeq(true));
   } else if (USI->scantype == RPC_SCAN) {
     assert(0); /* TODO: fill out */
   } else {
