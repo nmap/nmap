@@ -74,11 +74,14 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 # zenmap subpackage.
 %if "%{buildzenmap}" != "0"
 %package -n zenmap
-Summary: Nmap frontend
+Summary: Multi-platform graphical Nmap frontend and results viewer.
 Group: Applications/System
+# The python dependency is filled in automatically.
 Requires: nmap, gtk2
 %description -n zenmap
-Zenmap description.
+Zenmap is an Nmap frontend. It is meant to be useful for advanced users
+and to make Nmap easy to use by beginners. It was originally derived
+from Umit, an Nmap GUI created as part of the Google Summer of Code.
 
 %define python_libdir %{_libdir}/python2.5
 
