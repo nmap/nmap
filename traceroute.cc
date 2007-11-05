@@ -110,7 +110,7 @@
  * Nmap first sends a probe to the target port, from the reply traceroute is able
  * to infer how many hops away the target is. Nmap starts the trace by sending 
  * a packet with a TTL equal to that of the hop distance guess. If it gets an 
- * ICMP_TTL_EXCCEDED message back it know the hop distance guess was under so
+ * ICMP_TTL_EXCEEDED message back it know the hop distance guess was under so
  * nmap will continue sending probes with incremental TTLs until it receives a
  * reply from the target host.
  *
@@ -122,12 +122,12 @@
  *
  * Forwards/Backwards tracing example
  *  hop guess:20
- *  send:20  --> ICMP_TTL_EXCCEDED
- *  send:21  --> ICMP_TTL_EXCCEDED
+ *  send:20  --> ICMP_TTL_EXCEEDED
+ *  send:21  --> ICMP_TTL_EXCEEDED
  *  send:22  --> Reply from host
- *  send:19  --> ICMP_TTL_EXCCEDED
+ *  send:19  --> ICMP_TTL_EXCEEDED
  *  ....
- *  send:1   --> ICMP_TTL_EXECCEDED
+ *  send:1   --> ICMP_TTL_EXCEEDED
  *
  * The forward/backwards tracing method seems a little convoluted at first but 
  * there is a reason for it. The first host traced in a Target group is
@@ -145,7 +145,7 @@
  * packet, then adjusts timing parameters accordingly. The parameters are; number of
  * retransmissions, delay between each sent packet and the amount of time to wait 
  * for a reply. They are initially based on the timing level (-T0 to -T5). 
- * Traceroute also has to watch out for rate-limiting of ICMP TTL EXCCEDED
+ * Traceroute also has to watch out for rate-limiting of ICMP TTL EXCEEDED
  * messages, sometimes there is nothing we can do and just have to settle with a
  * timedout hop.
  *
