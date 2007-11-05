@@ -909,6 +909,8 @@ static void parse_classline(FingerPrint *FP, char *thisline, int lineno,
  when done.  This function does not require the fingerprint to be 100%
  complete since it is used by scripts such as scripts/fingerwatch for
  which some partial fingerpritns are OK. */
+/* This function is not currently used by Nmap, but it is present here because
+   it is used by fingerprint utilities that link with Nmap object files. */
 FingerPrint *parse_single_fingerprint(char *fprint_orig) {
   int lineno = 0;
   int classno = 0; /* Number of Class lines dealt with so far */
