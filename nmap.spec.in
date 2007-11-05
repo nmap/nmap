@@ -1,11 +1,14 @@
+# This spec file defines two packages. nmap is Nmap itself and zenmap is
+# the Zenmap frontend. Both packages are built by default. To keep from
+# building the zenmap package, add
+#     --define "buildzenmap 0"
+# to the rpmbuild command. To build a static RPM, add
+#     --define "static 1"
+
 %define name nmap
 %define version @VERSION@
 %define release 1
-%define prefix /usr
-
-# To build a static rpm, add:
-# --define "static 1"
-# ...to the rpm build command-line
+%define _prefix /usr
 
 Summary: Network exploration tool and security scanner
 Name: %{name}
@@ -16,9 +19,10 @@ License: http://www.insecure.org/nmap/man/man-legal.html
 Group: Applications/System
 Source0: http://www.insecure.org/nmap/dist/%{name}-%{version}.tgz
 URL: http://www.insecure.org/nmap/
+
+# RPM can't be relocatable until I stop storing path info in the binary.
+# Prefix: %{_prefix}
 BuildRoot: %{_tmppath}/%{name}-root
-# RPM can't be relocatable until I stop storing path info in the binary
-# Prefix: %{prefix}
 
 %description
 Nmap is a utility for network exploration or security auditing. It
@@ -35,9 +39,11 @@ devices are also supported, including the Sharp Zaurus and the iPAQ.
 %setup -q
 
 %build
-export CFLAGS="$RPM_OPT_FLAGS"
-export CXXFLAGS="$RPM_OPT_FLAGS"
-./configure --prefix=%{prefix} --mandir=%{prefix}/share/man --without-openssl --without-zenmap
+%if "%{buildzenmap}" != "0"
+%configure --without-openssl
+%else
+%configure --without-openssl --without-zenmap
+%endif
 %if "%{static}" == "1"
 make static
 %else
@@ -46,13 +52,11 @@ make
 
 %install
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
-
-make prefix=$RPM_BUILD_ROOT%{prefix} mandir=$RPM_BUILD_ROOT%{prefix}/share/man install
-
-mkdir -p $RPM_BUILD_ROOT%{prefix}/share/applications
-
-strip $RPM_BUILD_ROOT%{prefix}/bin/* || :
-gzip $RPM_BUILD_ROOT%{prefix}/share/man/man1/* || :
+make install DESTDIR=$RPM_BUILD_ROOT
+# Don't package the uninstaller with the RPM.
+rm -f $RPM_BUILD_ROOT%{_bindir}/uninstall_zenmap
+strip $RPM_BUILD_ROOT%{_bindir}/* || :
+gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
@@ -62,12 +66,38 @@ gzip $RPM_BUILD_ROOT%{prefix}/share/man/man1/* || :
 %doc COPYING
 %doc docs/README
 %doc docs/nmap.usage.txt
-%{prefix}/bin/nmap
-%{prefix}/share/nmap
-%{prefix}/share/man/man1/nmap.1.gz
-%{prefix}/libexec/nmap
+%doc %{_prefix}/share/man/man1/nmap.1.gz
+%{_bindir}/nmap
+%{_datadir}/nmap
+%{_libexecdir}/nmap
+
+# zenmap subpackage.
+%if "%{buildzenmap}" != "0"
+%package -n zenmap
+Summary: Nmap frontend
+Group: Applications/System
+Requires: nmap, gtk2
+%description -n zenmap
+Zenmap description.
+
+%define python_libdir %{_libdir}/python2.5
+
+%files -n zenmap
+%defattr(-,root,root)
+%{_bindir}/zenmap
+%{python_libdir}/site-packages/umitCore
+%{python_libdir}/site-packages/umitGUI
+%{python_libdir}/site-packages/higwidgets
+%{python_libdir}/site-packages/*.egg-info
+%{_datadir}/icons/*
+%{_datadir}/pixmaps/*
+%{_datadir}/umit
+%endif
 
 %changelog
+
+* Sun Nov 04 2007 David Fifield (david(a)bamsoftware.com)
+- Add a zenmap subpackage.
 
 * Wed Oct 31 2007 David Fifield (david(a)bamsoftware.com)
 - Remove references to buildfe (build the NmapFE frontend).
