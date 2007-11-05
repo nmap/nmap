@@ -29,7 +29,7 @@
 	#define SCRIPT_ENGINE_LIB_DIR 	   "nselib\\"
 #else
 	#define SCRIPT_ENGINE_LIB_DIR 	   "nselib/"
-  #define SCRIPT_ENGINE_LIBEXEC_DIR  "scripts/"
+  #define SCRIPT_ENGINE_LIBEXEC_DIR  "nse/"
 #endif
 
 #define SCRIPT_ENGINE_DATABASE 		   "script.db"
