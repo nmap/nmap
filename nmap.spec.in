@@ -4,6 +4,9 @@
 #     --define "buildzenmap 0"
 # to the rpmbuild command. To build a static RPM, add
 #     --define "static 1"
+# By default, Zenmap will be built using whatever version of Python is
+# the default on your system. To change this, use something like
+#     --define "__python /usr/bin/python2.5"
 
 %define name nmap
 %define version @VERSION@
@@ -38,6 +41,8 @@ devices are also supported, including the Sharp Zaurus and the iPAQ.
 %prep
 %setup -q
 
+%define makeflags %{?__python:PYTHON="%{__python}"}
+
 %build
 %if "%{buildzenmap}" != "0"
 %configure --without-openssl
@@ -45,14 +50,14 @@ devices are also supported, including the Sharp Zaurus and the iPAQ.
 %configure --without-openssl --without-zenmap
 %endif
 %if "%{static}" == "1"
-make static
+make %{makeflags} static
 %else
-make
+make %{makeflags}
 %endif
 
 %install
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT
+make %{makeflags} install DESTDIR=$RPM_BUILD_ROOT
 # Don't package the uninstaller with the RPM.
 rm -f $RPM_BUILD_ROOT%{_bindir}/uninstall_zenmap
 strip $RPM_BUILD_ROOT%{_bindir}/* || :
@@ -78,26 +83,33 @@ Summary: Multi-platform graphical Nmap frontend and results viewer.
 Group: Applications/System
 # The python dependency is filled in automatically.
 Requires: nmap, gtk2
+# Zenmap should really have a BuildArch of "noarch" but the arch of a
+# subpackage can't be different from that of the rest of the spec.
 %description -n zenmap
 Zenmap is an Nmap frontend. It is meant to be useful for advanced users
 and to make Nmap easy to use by beginners. It was originally derived
 from Umit, an Nmap GUI created as part of the Google Summer of Code.
 
-%define python_libdir %{_libdir}/python2.5
+# Find where Python modules are installed. See
+# http://fedoraproject.org/wiki/Packaging/Python.
+%{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 %files -n zenmap
 %defattr(-,root,root)
 %{_bindir}/zenmap
-%{python_libdir}/site-packages/umitCore
-%{python_libdir}/site-packages/umitGUI
-%{python_libdir}/site-packages/higwidgets
-%{python_libdir}/site-packages/*.egg-info
+# This gets the modules and the .egg-info file if it was installed.
+%{python_sitelib}/*
 %{_datadir}/icons/*
 %{_datadir}/pixmaps/*
 %{_datadir}/umit
 %endif
 
 %changelog
+
+* Tue Nov 06 2007 David Fifield (david(a)bamsoftware.com)
+- Fix the Zenmap build on 64-bit architectures (where %{_libdir} is
+  "/usr/lib64" but Python modules may not be installed there) and make
+  it work with different versions of Python.
 
 * Sun Nov 04 2007 David Fifield (david(a)bamsoftware.com)
 - Add a zenmap subpackage.
