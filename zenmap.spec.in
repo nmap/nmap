@@ -1,0 +1,66 @@
+# By default, Zenmap will be built using whatever version of Python is
+# the default on your system. To change this, use something like
+#     --define "__python /usr/bin/python2.5"
+
+%define name zenmap
+%define version @VERSION@
+%define release 1
+%define _prefix /usr
+
+# Find where Python modules are installed. See
+# http://fedoraproject.org/wiki/Packaging/Python.
+%{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
+
+Summary: Multi-platform graphical Nmap frontend and results viewer
+Name: %{name}
+Version: %{version}
+Release: %{release}
+Epoch: 2
+License: http://www.insecure.org/nmap/man/man-legal.html
+Group: Applications/System
+Source0: http://www.insecure.org/nmap/dist/nmap-%{version}.tgz
+URL: http://www.insecure.org/nmap/
+# The python dependency is filled in automatically.
+Requires: nmap, gtk2
+BuildArch: noarch
+
+Prefix: %{_prefix}
+BuildRoot: %{_tmppath}/%{name}-root
+
+%description
+Zenmap is an Nmap frontend. It is meant to be useful for advanced users
+and to make Nmap easy to use by beginners. It was originally derived
+from Umit, an Nmap GUI created as part of the Google Summer of Code.
+
+%prep
+%setup -q -n nmap-%{version}
+
+%define makeflags %{?__python:PYTHON="%{__python}"}
+
+%build
+%configure --without-openssl
+make %{makeflags} build-zenmap
+
+%install
+[ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
+make %{makeflags} install-zenmap DESTDIR=$RPM_BUILD_ROOT
+# Don't package the uninstaller with the RPM.
+rm -f $RPM_BUILD_ROOT%{_bindir}/uninstall_zenmap
+gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
+
+%clean
+[ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(-,root,root)
+%{_bindir}/zenmap
+# This gets the modules and the .egg-info file if it was installed.
+%{python_sitelib}/*
+%{_datadir}/icons/*
+%{_datadir}/pixmaps/*
+%{_datadir}/umit
+
+%changelog
+
+* Thu Nov 08 2007 David Fifield (david(a)bamsoftware.com)
+- Split the zenmap subpackage into its own spec file.
