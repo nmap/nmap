@@ -200,6 +200,13 @@ build-zenmap: $(ZENMAPDIR)/setup.py $(ZENMAPDIR)/umitCore/Version.py
 
 install-zenmap: $(ZENMAPDIR)/setup.py
 	cd $(ZENMAPDIR) && $(PYTHON) setup.py install --prefix "$(prefix)" $(if $(DESTDIR),--root "$(DESTDIR)")
+# Create a symlink from nmapfe to zenmap if nmapfe doesn't exist or is
+# already a link.
+	if [ ! -e $(DESTDIR)$(bindir)/nmapfe -o -L $(DESTDIR)$(bindir)/nmapfe ]; then \
+		ln -sf zenmap $(DESTDIR)$(bindir)/nmapfe; \
+	fi
+# Create a symlink from xnmap to zenmap unconditionally.
+	ln -sf zenmap $(DESTDIR)$(bindir)/xnmap
 
 NSE_FILES = scripts/script.db scripts/*.nse
 NSE_LIB_LUA_FILES = nselib/*.lua
