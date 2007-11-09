@@ -41,7 +41,9 @@ o Added a new ping type: IPProto Ping.  Use -PO (that is the letter O
   eliciting a response from targets.  The default is to send with
   protocols 1 (ICMP), 2 (IGMP), and 4 (IP-in-IP tunnel), but you can
   specify different protocol numbers on the command line the same way
-  you specify TCP/UDP ports to -PS or -PU. [Kris]
+  you specify TCP/UDP ports to -PS or -PU. To reduce confusion, we now
+  recommend that -PN be used when you don't want pings done rather
+  than using the old -P0 (zero). [Kris]
 
 o The SMTPcommands.nse script was updated to support the HELP query in
   addition to EHLO [Jason DePriest]
