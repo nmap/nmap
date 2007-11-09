@@ -54,6 +54,8 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 %files
 %defattr(-,root,root)
 %{_bindir}/zenmap
+%{_bindir}/nmapfe
+%{_bindir}/xnmap
 # This gets the modules and the .egg-info file if it was installed.
 %{python_sitelib}/*
 %{_datadir}/icons/*
