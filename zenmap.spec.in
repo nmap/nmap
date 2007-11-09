@@ -21,7 +21,7 @@ Group: Applications/System
 Source0: http://www.insecure.org/nmap/dist/nmap-%{version}.tgz
 URL: http://www.insecure.org/nmap/
 # The python dependency is filled in automatically.
-Requires: nmap, gtk2
+Requires: nmap, gtk2, python-sqlite2
 BuildArch: noarch
 
 Prefix: %{_prefix}
