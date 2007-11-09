@@ -671,6 +671,7 @@ else
         nmap_cfg_subdirs="$NBASEDIR $libpcapdir $nmap_cfg_subdirs"
 fi
 
+AM_PATH_PYTHON
 
 dnl Commented out -- awaiting transition to Zenmap.
 dnl if test "${with_nmapfe}" = "yes"; then
