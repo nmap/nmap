@@ -1,9 +1,21 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o Removed the NmapFE frontend.
+4.23RC1
 
-o Updated IANA assignment IP list for random IP (-iR)
-  generation. [Kris]
+o NmapFE is now GONE!  It had a good run as the default Nmap GUI
+  for more than 8 years (since April 1999).  But after two years of
+  development, Zenmap is ready to take its place.  Zenmap is portable
+  and provides a much better interface to executing and (especially)
+  viewing and analyzing Nmap results.  David did the honors of
+  removing NmapFE.
+
+o We have lost another old friend as well:  1st generation OS
+  detection system.  Nmap revolutionized OS detection when this was
+  released in October 1998 and it served us well for more than 9 years
+  as the database grew to 1,684 fingerprints.  But the 2nd generation
+  system incorporates everything we learned during all those years and
+  has proven itself even more effective.  I couldn't bear to kill this
+  myself, so David did the dirty work.
 
 o There is no longer any artificial limit on the number of ports or
   protocols that can be used for host discovery. Port lists for ping
@@ -12,8 +24,29 @@ o There is no longer any artificial limit on the number of ports or
     nmap -PS1-1000 target
     nmap -PAhttp,https target
     nmap -PU'[-]' target
+  [David]
 
-o Removed the first-generation OS detection.
+o Zenmap is now available packaged in RPM format.  Since it is in
+  Python, we no longer have to have separate x86 and x86_64 versions
+  like we did with NmapFE (and like we still do with Nmap). [David]
+
+o Fixed a crash (assertion failure) which could occur during ARP Ping
+  scan [Kris]
+
+o Fixed Zenmap so that it can handle asterisks in the command line
+  (e.g. "nmap 192.168.*.*" or "nmap -phttp* localhost") [David]
+
+o Change the Zenmap bug report dialogue to now give instructions for
+  reporting isues to nmap-dev. [David]
+
+o Modified higwidgets/higdialogs.py for compatability with old
+  versions of PyGTK. [David]
+
+o Updated IANA assignment IP list for random IP (-iR)
+  generation. [Kris]
+
+o Fixed a number of spelling errors in the Reference Guide (man page)
+  [Doug]
 
 4.22SOC8
 
