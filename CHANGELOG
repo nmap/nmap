@@ -2,7 +2,7 @@
 
 4.23RC1
 
-o NmapFE is now GONE!  It had a good run as the default Nmap GUI
+o NmapFE is now gone.  It had a good run as the default Nmap GUI
   for more than 8 years (since April 1999).  But after two years of
   development, Zenmap is ready to take its place.  Zenmap is portable
   and provides a much better interface to executing and (especially)
@@ -26,9 +26,10 @@ o There is no longer any artificial limit on the number of ports or
     nmap -PU'[-]' target
   [David]
 
-o Zenmap is now available packaged in RPM format.  Since it is in
-  Python, we no longer have to have separate x86 and x86_64 versions
-  like we did with NmapFE (and like we still do with Nmap). [David]
+o Zenmap is now available packaged in RPM format.  Since Zenmap is
+  written in Python, we no longer have to have separate x86 and x86_64
+  versions like we did with NmapFE (and like we still do with
+  Nmap). [David]
 
 o Fixed a crash (assertion failure) which could occur during ARP Ping
   scan [Kris]
