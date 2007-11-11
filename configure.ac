@@ -170,6 +170,7 @@ AC_CHECK_HEADERS(pwd.h termios.h sys/sockio.h)
 
 dnl If any socket libraries needed
 AC_SEARCH_LIBS(setsockopt, socket)
+AC_SEARCH_LIBS(gethostbyname, nsl)
 
 # Do they want Zenmap?
 BUILDZENMAP=build-zenmap
