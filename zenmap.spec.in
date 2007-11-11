@@ -35,15 +35,13 @@ from Umit, an Nmap GUI created as part of the Google Summer of Code.
 %prep
 %setup -q -n nmap-%{version}
 
-%define makeflags %{?__python:PYTHON="%{__python}"}
-
 %build
-%configure --without-openssl
-make %{makeflags} build-zenmap
+%configure --without-openssl PYTHON="%{__python}"
+make build-zenmap
 
 %install
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
-make %{makeflags} install-zenmap DESTDIR=$RPM_BUILD_ROOT
+make install-zenmap DESTDIR=$RPM_BUILD_ROOT
 # Don't package the uninstaller with the RPM.
 rm -f $RPM_BUILD_ROOT%{_bindir}/uninstall_zenmap
 gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
