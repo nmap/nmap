@@ -166,7 +166,7 @@ esac
 AC_SUBST(LUAFLAGS)
 
 dnl Checks for header files.
-AC_CHECK_HEADERS(pwd.h termios.h)
+AC_CHECK_HEADERS(pwd.h termios.h sys/sockio.h)
 
 dnl If any socket libraries needed
 AC_SEARCH_LIBS(setsockopt, socket)
