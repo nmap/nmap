@@ -2136,11 +2136,15 @@ slnp              8076/tcp   # SLNP (Simple Library Network Protocol) by Sisis I
 http-proxy        8080/tcp   # Common HTTP proxy/second web server port
 blackice-icecap   8081/tcp   # ICECap user console
 blackice-alerts   8082/tcp   # BlackIce Alerts sent to this port
+privoxy           8118/tcp   # Privoxy, www.privoxy.org
 polipo            8123/tcp   # Polipo open source web proxy cache
 https-alt         8443/tcp   # Common alternative https port
 apple-iphoto      8770/tcp   # Apple iPhoto sharing
 sun-answerbook    8888/tcp   # Sun Answerbook HTTP server.  Or gnump3d streaming music server
 seosload          8892/tcp   # From the new Computer Associates eTrust ACX
+tor-transport     9040/tcp   # Tor TransPort, www.torproject.org
+tor-socksport     9050/tcp   # Tor SocksPort, www.torproject.org
+tor-controlport   9051/tcp   # Tor ControlPort, www.torproject.org
 zeus-admin        9090/tcp   # Zeus admin server
 jetdirect         9100/tcp   # HP JetDirect card
 jetdirect         9101/tcp   # HP JetDirect card
