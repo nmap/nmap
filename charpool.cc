@@ -99,6 +99,8 @@
 
 /* $Id$ */
 
+#include <stddef.h>
+
 #include "nbase.h"
 
 /* Character pool memory allocation */
@@ -110,7 +112,10 @@ static int currentcharpool;
 static int currentcharpoolsz;
 static char *nextchar;
 
-#define ALIGN_ON sizeof(char *)
+/* Allocated blocks are allocated to multiples of ALIGN_ON. This is the
+   definition used by the malloc in Glibc 2.7, which says that it "suffices for
+   nearly all current machines and C compilers." */
+#define ALIGN_ON (2 * sizeof(size_t))
 
 static int cp_init(void) {
   static int charpool_initialized = 0;
