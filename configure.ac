@@ -203,7 +203,6 @@ AC_HELP_STRING([--with-openssl=DIR],[Use optional openssl libs and includes from
     ;;
   no)
     use_openssl="no"
-    AC_SEARCH_LIBS(dlopen, dl)
     ;;
   *)
     specialssldir="$with_openssl"
@@ -479,6 +478,8 @@ if test $no_lua == yes; then
   INSTALLNSE=""
 
 else 
+  # NSE C modules are loaded with dlopen.
+  AC_SEARCH_LIBS(dlopen, dl)
 
   # If they didn't specify it, we try to find it
   if test $have_lua != yes; then
