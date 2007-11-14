@@ -4,6 +4,7 @@ Entry{ category = "intrusive", filename = "HTTPpasswd.nse" }
 Entry{ category = "discovery", filename = "HTTPtrace.nse" }
 Entry{ category = "discovery", filename = "MSSQLm.nse" }
 Entry{ category = "intrusive", filename = "MSSQLm.nse" }
+Entry{ category = "version", filename = "PPTPversion.nse" }
 Entry{ category = "backdoor", filename = "RealVNC_auth_bypass.nse" }
 Entry{ category = "demo", filename = "SMTP_openrelay_test.nse" }
 Entry{ category = "discovery", filename = "SMTPcommands.nse" }

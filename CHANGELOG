@@ -1,12 +1,15 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added PPTP version detection NSE script (PPTPversion.nse) from
+  Thomas Buchanan.  Nmap now ships with 38 NSE scripts.
+
 o Reworded an error message after a woman reported that it was "highly
   offensive and sexist".  She also noted that "times have changed and
   many women now use your software" and "a sexist remark like the one
   above should have no place in software."  The message was: "TCP/IP
   fingerprinting (for OS scan) requires root privileges. Sorry,
   dude.".  I checked svn blame to call out the insensitive,
-  chauvinistic jerk who wrote that error message, but it was me. Oops.
+  chauvinistic jerk who wrote that message, but it was me. Oops :).
 
 o We received a bug report through Debian entitled "Nmap is a
   clairvoyant" because when you run it with -v on September 1 1970, it
