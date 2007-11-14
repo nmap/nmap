@@ -398,19 +398,19 @@ void NmapOps::ValidateOptions() {
 #endif
     
     if (ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|synscan|udpscan|windowscan|xmasscan) {
-      fatal("You requested a scan type which requires %s.  Sorry dude.\n", privreq);
+      fatal("You requested a scan type which requires %s.", privreq);
     }
     
     if (numdecoys > 0) {
-      fatal("Sorry, but decoys (-D) require %s.\n", privreq);
+      fatal("Sorry, but decoys (-D) require %s.", privreq);
     }
     
     if (fragscan) {
-      fatal("Sorry, but fragscan requires %s\n", privreq);
+      fatal("Sorry, but fragscan requires %s.", privreq);
     }
     
     if (osscan) {
-      fatal("TCP/IP fingerprinting (for OS scan) requires %s.  Sorry, dude.\n", privreq);
+      fatal("TCP/IP fingerprinting (for OS scan) requires %s.", privreq);
     }
 
     if (ipoptionslen)
