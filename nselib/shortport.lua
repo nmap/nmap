@@ -2,9 +2,9 @@
 module(..., package.seeall)
 
 portnumber = function(port, _proto, _state)
-	local port_table;
-	local state = _state or "open"
+	local port_table, state_table
 	local proto = _proto or "tcp"
+	local state = _state or {"open"}
 
 	if(type(port) == "number") then
 		port_table = {port}
@@ -12,11 +12,19 @@ portnumber = function(port, _proto, _state)
 		port_table = port
 	end	
 
+	if(type(state) == "string") then
+		state_table = {state}
+	elseif(type(state) == "table") then
+		state_table = state
+	end	
+
 	return function(host, port)
-		if(port.protocol == proto and port.state == state) then
-			for _, _port in ipairs(port_table) do
-				if(port.number == _port) then
-					return true
+		for _, state in pairs(state_table) do
+			if(port.protocol == proto and port.state == state) then
+				for _, _port in ipairs(port_table) do
+					if(port.number == _port) then
+						return true
+					end
 				end
 			end
 		end
