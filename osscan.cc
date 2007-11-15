@@ -1020,7 +1020,6 @@ void free_fingerprint_file(FingerPrintDB *DB) {
       }
       free(c);
     }
-    free(DB->MatchPoints);
   }
   free(DB);
 }
