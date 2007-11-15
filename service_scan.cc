@@ -1694,6 +1694,10 @@ static void adjustPortStateIfNeccessary(ServiceNFO *svc) {
 
   if (svc->port->state == PORT_OPENFILTERED) {
     svc->target->ports.addPort(svc->portno, svc->proto, NULL, PORT_OPEN);
+    if (svc->proto == IPPROTO_TCP) 
+        svc->target->ports.setStateReason(svc->portno, svc->proto, ER_TCPRESPONSE, 0, 0);
+    if (svc->proto == IPPROTO_UDP)
+        svc->target->ports.setStateReason(svc->portno, svc->proto, ER_UDPRESPONSE, 0, 0);
 
     if (o.verbose || o.debugging > 1) {
       svc->target->NameIP(host, sizeof(host));

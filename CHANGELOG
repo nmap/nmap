@@ -9,6 +9,10 @@ o When an NSE script changes the state of a port (e.g. from
   scripts through a "reason" element in the port-table.  Thanks to
   Matthew Boyle for the patch.
 
+o When version detection changes the state of a port, the reason field
+  is now updated as well (to udp-response or tcp-response as
+  applicable).  Thanks to Thomas Buchanan for the patch.
+
 o Reworded an error message after a woman reported that it was "highly
   offensive and sexist".  She also noted that "times have changed and
   many women now use your software" and "a sexist remark like the one
