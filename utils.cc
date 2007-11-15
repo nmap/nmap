@@ -270,62 +270,6 @@ int optcmp(const char *a, const char *b) {
   return 0;
 }
 
-/* Convert a comma-separated list of ASCII u16-sized numbers into the
-   given 'dest' array, which is of total size (meaning sizeof() as
-   opposed to numelements) of destsize.  If min_elem and max_elem are
-   provided, each number must be within (or equal to) those
-   constraints.  The number of numbers stored in 'dest' is returned,
-   except that -1 is returned in the case of an error. If -1 is
-   returned and errorstr is non-null, *errorstr is filled with a ptr to a
-   static string literal describing the error. */
-
-int numberlist2array(char *expr, u16 *dest, int destsize, char **errorstr, u16 min_elem, u16 max_elem) {
-  char *current_range;
-  char *endptr;
-  char *errbogus;
-  long val;
-  int max_vals = destsize / 2;
-  int num_vals_saved = 0;
-  current_range = expr;
-
-  if (!errorstr)
-    errorstr = &errbogus;
-
-  if (destsize % 2 != 0) {
-    *errorstr = "Bogus call to numberlist2array() -- destsize must be a multiple of 2";
-    return -1;
-  }
-
-  if (!expr || !*expr)
-    return 0;
-
-  do {
-    if (num_vals_saved == max_vals) {
-      *errorstr = "Buffer would overflow -- too many numbers in provided list";
-      return -1;
-    }
-    if( !isdigit((int) *current_range) ) {
-      *errorstr = "Alleged number begins with nondigit!  Example of proper form: \"20,80,65532\"";
-      return -1;
-    }
-    val = strtol(current_range, &endptr, 10);
-    if( val < min_elem || val > max_elem ) {
-      *errorstr = "Number given in list is outside given legal range";
-      return -1;
-    }
-    dest[num_vals_saved++] = (u16) val;
-    current_range = endptr;
-    while (*current_range == ',' || isspace(*current_range))
-      current_range++;
-    if (*current_range && !isdigit(*current_range)) {
-      *errorstr = "Bogus character in supposed number-list string. Example of proper form: \"20,80,65532\"";
-      return -1;
-    }
-  } while( current_range && *current_range);
-
-  return num_vals_saved;
-}
-
 /* Scramble the contents of an array*/
 void genfry(unsigned char *arr, int elem_sz, int num_elem) {
 int i;
