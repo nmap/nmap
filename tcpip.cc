@@ -117,10 +117,6 @@
 #include <sys/resource.h>
 #endif
 
-#if HAVE_SYS_SOCKIO_H
-#include <sys/sockio.h>
-#endif
-
 #if HAVE_UNISTD_H
 /* #include <sys/unistd.h> */
 #include <unistd.h>
