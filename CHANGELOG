@@ -3,6 +3,12 @@
 o Added PPTP version detection NSE script (PPTPversion.nse) from
   Thomas Buchanan.  Nmap now ships with 38 NSE scripts.
 
+o When an NSE script changes the state of a port (e.g. from
+  open|filtered to open), the --reason flag is now changed to
+  "script-set".  Also, the port state reason is now available to NSE
+  scripts through a "reason" element in the port-table.  Thanks to
+  Matthew Boyle for the patch.
+
 o Reworded an error message after a woman reported that it was "highly
   offensive and sexist".  She also noted that "times have changed and
   many women now use your software" and "a sexist remark like the one

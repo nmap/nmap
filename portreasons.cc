@@ -122,7 +122,7 @@ char *reason_text[ER_MAX+1]={
         "unknown", "admin-prohibited", "unknown", "time-exceeded", "unknown", "unknown",
         "timestamp-reply", "unknown", "unknown", "unknown", "addressmask-reply",
         "no-ipid-change", "ipid-change", "arp-reponse", "tcp-response",
-        "no-response", "localhost-response", "unknown-response"
+        "no-response", "localhost-response", "script-set", "unknown-response"
 };
 
 char *reason_pl_text[ER_MAX+1]={ 
@@ -134,7 +134,7 @@ char *reason_pl_text[ER_MAX+1]={
         "unknowns", "admin-prohibiteds", "unknowns", "time-exceededs", "unknowns",
         "unknowns", "timestamp-replies", "unknowns", "unknowns", "unknowns", 
         "addressmask-replies", "no-ipid-changes", "ipid-changes", "arp-responses",
-        "tcp-responses", "no-responses", "localhost-response", "unknown-responses"
+        "tcp-responses", "no-responses", "localhost-response", "script-set", "unknown-responses"
 };
 
 static void state_reason_summary_init(state_reason_summary_t *r) {

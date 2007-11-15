@@ -98,6 +98,9 @@ void set_portinfo(lua_State* l, Port* port) {
 
 	lua_pushstring(l, statenum2str(port->state));
 	lua_setfield(l, -2, "state");
+
+	lua_pushstring(l, reason_str(port->reason.reason_id, 1));
+	lua_setfield(l, -2, "reason");
 }
 
 void set_version(lua_State* l, struct serviceDeductions sd) {
@@ -367,6 +370,8 @@ static int l_set_port_state(lua_State* l, Target* target, Port* port) {
 		default:
 			luaL_argerror (l, 4, "Invalid port state.");
 	}	
+
+	port->reason.reason_id = ER_SCRIPT;
 
 	free(state);
 	return 0;
