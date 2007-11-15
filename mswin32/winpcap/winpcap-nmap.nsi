@@ -4,14 +4,15 @@
 ;; Eddie Bell
 ;; Updated to 4.0, June 2007
 ;; Updated to 4.01, July 2007
+;; Updated to 4.02, November 2007
 
 ;--------------------------------
 
 ; The name of the installer
-Name "winpcap-nmap-4.01"
+Name "winpcap-nmap-4.02"
 
 ; The file to write
-OutFile "winpcap-nmap-4.01.exe"
+OutFile "winpcap-nmap-4.02.exe"
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\WinPcap
@@ -43,7 +44,7 @@ UninstPage instfiles
 Function .onInit
   var /GLOBAL inst_ver
   var /GLOBAL my_ver
-  StrCpy $my_ver "4.0.0.901" 
+  StrCpy $my_ver "4.0.0.1040" 
   
   IfSilent do_silent no_silent
 
@@ -126,7 +127,7 @@ Section "" ;No components page, name is not important
     WriteRegStr HKLM "Software\WinPcap" "" '"$INSTDIR"'
 
     ; Write the uninstall keys for Windows
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "DisplayName" "winpcap-nmap 4.01"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "DisplayName" "winpcap-nmap 4.02"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "UninstallString" '"$INSTDIR\uninstall.exe"'
     WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "NoModify" 1
     WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "NoRepair" 1

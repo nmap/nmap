@@ -20,8 +20,8 @@
   ;Get installation folder from registry if available 
   InstallDirRegKey HKCU "Software\Nmap" "" 
  
-  !define VERSION "4.22SOC7"  
-  VIProductVersion "4.22.0.7"
+  !define VERSION "4.23RC1"  
+  VIProductVersion "4.23.0.1"
   VIAddVersionKey /LANG=1033 "FileVersion" "${VERSION}"
   VIAddVersionKey /LANG=1033 "ProductName" "Nmap" 
   VIAddVersionKey /LANG=1033 "CompanyName" "Insecure.org" 
@@ -156,10 +156,10 @@ Section "Register Nmap Path" SecRegisterPath
   Call AddToPath 
 SectionEnd 
  
-Section "WinPcap 4.01" SecWinPcap 
-  File ..\winpcap\winpcap-nmap-4.01.exe 
-  Exec '"$INSTDIR\winpcap-nmap-4.01.exe"' 
-  Delete "$INSTDIR\winpcap-nmap-4.01.exe" 
+Section "WinPcap 4.02" SecWinPcap 
+  File ..\winpcap\winpcap-nmap-4.02.exe 
+  Exec '"$INSTDIR\winpcap-nmap-4.02.exe"' 
+  Delete "$INSTDIR\winpcap-nmap-4.02.exe" 
 SectionEnd 
  
 Section "Network Performance Improvements (Registry Changes)" SecPerfRegistryMods 
