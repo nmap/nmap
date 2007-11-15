@@ -1279,7 +1279,7 @@ void TraceGroup::consolidateHops () {
 
 u8
 TraceGroup::setState (u8 state) {
-    if (state <= G_FINISH || state >= G_OK)
+    if (state <= G_FINISH && state >= G_OK)
         this->state = state;
     else if (o.debugging)
         log_write (LOG_STDOUT, "%s: invalid tracegroup state %d\n", IPStr (), state);
