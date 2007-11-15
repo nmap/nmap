@@ -58,7 +58,7 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 %{python_sitelib}/*
 %{_datadir}/icons/*
 %{_datadir}/pixmaps/*
-%{_datadir}/umit
+%{_datadir}/zenmap
 
 %changelog
 
