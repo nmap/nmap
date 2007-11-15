@@ -250,7 +250,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
 	  if (*addy[i] == '*') { start = 0; end = 255; } 
 	  else if (*addy[i] == '-') {
 	    start = 0;
-	    if (!addy[i] + 1) end = 255;
+	    if (!(addy[i] + 1)) end = 255;
 	    else end = atoi(addy[i]+ 1);
 	  }
 	  else {
