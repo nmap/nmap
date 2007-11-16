@@ -44,7 +44,7 @@ from Umit, an Nmap GUI created as part of the Google Summer of Code.
 
 %build
 %configure --without-openssl PYTHON="%{__python}"
-make build-zenmap
+make build-zenmap DESTDIR=$RPM_BUILD_ROOT
 
 %install
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT

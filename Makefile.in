@@ -195,8 +195,19 @@ $(ZENMAPDIR)/setup.py:
 $(ZENMAPDIR)/umitCore/Version.py $(ZENMAPDIR)/share/zenmap/config/zenmap_version: nmap.h
 	cd $(ZENMAPDIR) && $(PYTHON) install_scripts/utils/version_update.py "$(NMAP_VERSION)"
 
+# By default distutils rewrites installed scripts to hardcode the
+# location of the Python interpreter they were built with (something
+# like #!/usr/bin/python2.4). This is the wrong thing to do when
+# installing on a machine other than the one used to do the build. Use
+# this as the location of the interpreter whenever we're not doing a
+# local installation.
+DEFAULT_PYTHON_PATH = /usr/bin/env python
+
 build-zenmap: $(ZENMAPDIR)/setup.py $(ZENMAPDIR)/umitCore/Version.py
-	cd $(ZENMAPDIR) && $(PYTHON) setup.py build
+# When DESTDIR is defined, assume we're building an executable
+# distribution rather than a local installation and force a generic
+# Python interpreter location.
+	cd $(ZENMAPDIR) && $(PYTHON) setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
 
 install-zenmap: $(ZENMAPDIR)/setup.py
 	cd $(ZENMAPDIR) && $(PYTHON) setup.py install --prefix "$(prefix)" $(if $(DESTDIR),--root "$(DESTDIR)")
