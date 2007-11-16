@@ -307,8 +307,11 @@ static int l_port_accessor(lua_State* l) {
 	}
 
 	// if the port wasn't scanned we return nil
-	if(port == NULL)
+	if(port == NULL) {
+		free(target_ip);
+		free(function_name);
 		return 0;
+	}
 
 	if(strcmp(function_name, "set_port_state") == MATCH)
 		retvalues = l_set_port_state(l, target, port);
