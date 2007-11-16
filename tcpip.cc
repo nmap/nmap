@@ -2452,8 +2452,10 @@ bool setTargetNextHopMAC(Target *target) {
   if (arp_get(a, &ae) == 0) {
     NmapArpCache(ARPCACHE_SET, &targetss, ae.arp_ha.addr_eth.data);
     target->setNextHopMACAddress(ae.arp_ha.addr_eth.data);
+    arp_close(a);
     return true;
   }
+  arp_close(a);
 
   /* OK, the last choice is to send our own damn ARP request (and
      retransmissions if necessary) to determine the MAC */
