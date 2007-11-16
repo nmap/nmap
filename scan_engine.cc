@@ -4827,14 +4827,18 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
 		target->ports.addPort(portarray[i], IPPROTO_TCP, NULL, PORT_OPEN);
 		if (recvbuf[0] == '1') {
 		  res = recvtime(sd, recvbuf, 2048,5, NULL);
-		  recvbuf[res] = '\0';
-		  if (res > 0) {
-		    if (o.debugging) log_write(LOG_STDOUT, "nxt line: %s", recvbuf);
-		    if (recvbuf[0] == '4' && recvbuf[1] == '2' && 
-			recvbuf[2] == '6') {	      	
-		      target->ports.removePort(portarray[i], IPPROTO_TCP);
-		      if (o.debugging || o.verbose)
-			log_write(LOG_STDOUT, "Changed my mind about port %i\n", portarray[i]);
+		  if (res < 0)
+		    perror("recv problem from FTP bounce server");
+		  else {
+		    recvbuf[res] = '\0';
+		    if (res > 0) {
+		      if (o.debugging) log_write(LOG_STDOUT, "nxt line: %s", recvbuf);
+		      if (recvbuf[0] == '4' && recvbuf[1] == '2' && 
+			  recvbuf[2] == '6') {	      	
+		        target->ports.removePort(portarray[i], IPPROTO_TCP);
+		        if (o.debugging || o.verbose)
+			  log_write(LOG_STDOUT, "Changed my mind about port %i\n", portarray[i]);
+		      }
 		    }
 		  }
 		}
