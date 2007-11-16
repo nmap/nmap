@@ -20,9 +20,16 @@ License: http://www.insecure.org/nmap/man/man-legal.html
 Group: Applications/System
 Source0: http://www.insecure.org/nmap/dist/nmap-%{version}.tgz
 URL: http://www.insecure.org/nmap/
-# The python dependency is filled in automatically.
-Requires: nmap, gtk2, python-sqlite2
 BuildArch: noarch
+
+# Disable automatic dependency calculation because we want to provide
+# packages for more than one version of Python. Without this, RPM will
+# grep through the installed files and automatically add things like
+#   Requires: python(abi) = 2.4
+# setup.py takes care of adjusting sys.path to point to wherever the
+# modules were installed so it's not dependent on any particular ABI.
+AutoReqProv: no
+Requires: python >= 2.4, nmap, gtk2, python-sqlite2
 
 Prefix: %{_prefix}
 BuildRoot: %{_tmppath}/%{name}-root
