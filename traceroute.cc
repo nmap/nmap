@@ -444,7 +444,7 @@ Traceroute::readTraceResponses () {
         if (tp->ipreplysrc.s_addr)
             break;
 
-        if ((tg->proto == IPPROTO_UDP && ip2->ip_p == IPPROTO_UDP) ||
+        if ((tg->proto == IPPROTO_UDP && (ip2 && ip2->ip_p == IPPROTO_UDP)) ||
             (icmp->icmp_type == ICMP_DEST_UNREACH)) {
             switch (icmp->icmp_code) {
                 /* reply from a closed port */
