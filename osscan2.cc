@@ -1608,7 +1608,7 @@ void HostOsScan::makeFP(HostOsScanStats *hss) {
     }
     last = i;
   }
-  if (last) hss->FPtests[last]->next = NULL;
+  if (last != -1) hss->FPtests[last]->next = NULL;
 
   /*  printf("%s", fp2ascii(FP)); */
 
