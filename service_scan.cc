@@ -1057,7 +1057,7 @@ void ServiceProbe::addMatch(const char *match, int lineno) {
    NOT be made static because I have external maintenance tools
    (servicematch) which use this */
 void parse_nmap_service_probe_file(AllProbes *AP, char *filename) {
-  ServiceProbe *newProbe;
+  ServiceProbe *newProbe = NULL;
   char line[2048];
   int lineno = 0;
   FILE *fp;
