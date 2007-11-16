@@ -29,7 +29,7 @@ BuildArch: noarch
 # setup.py takes care of adjusting sys.path to point to wherever the
 # modules were installed so it's not dependent on any particular ABI.
 AutoReqProv: no
-Requires: python >= 2.4, nmap, gtk2, python-sqlite2
+Requires: python >= 2.4, nmap, pygtk2, python-sqlite2
 
 Prefix: %{_prefix}
 BuildRoot: %{_tmppath}/%{name}-root
