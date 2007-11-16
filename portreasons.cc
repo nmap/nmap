@@ -214,7 +214,9 @@ static state_reason_summary_t *reason_sort(state_reason_summary_t *list) {
           }
           p = q;
        }
-	   tail->next = NULL;
+      if (!tail)
+        return NULL;
+      tail->next = NULL;
       if (nmerges <= 1)  
         return list;
       insize *= 2;
