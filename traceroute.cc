@@ -1370,8 +1370,7 @@ void
 TimeInfo::adjustTimeouts (struct timeval *received, u16 scan_delay) {
     long delta = 0;
 
-    if (received)
-        recvTime = *received;
+    recvTime = *received;
 
     if (o.debugging > 3) {
         log_write (LOG_STDOUT, "Timeout vals: srtt: %d rttvar: %d to: %d ", to.srtt, to.rttvar,
