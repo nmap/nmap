@@ -36,6 +36,10 @@ AC_SUBST(pcredir)
 dnl use config.h instead of -D macros
 AC_CONFIG_HEADER(config.h)
 
+dnl Host specific hacks
+AC_CANONICAL_HOST
+AC_C_INLINE
+
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
@@ -99,10 +103,6 @@ fi
 
 AC_SUBST(COMPAT_OBJS)
 AC_SUBST(COMPAT_SRCS)
-
-dnl Host specific hacks
-AC_CANONICAL_HOST
-AC_C_INLINE
 
 needs_cpp_precomp=no
 LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
