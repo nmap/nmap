@@ -18,7 +18,7 @@ o Added PPTP version detection NSE script (PPTPversion.nse) from
   Thomas Buchanan.  Nmap now ships with 38 NSE scripts.
 
 o A number of Solaris compilation fixes were added.  Hopefully it
-  works for more Solaris users now. We also fixed an alighnent issue
+  works for more Solaris users now. We also fixed an alignment issue
   which could cause a bus error on Solaris. [David]
 
 o When an NSE script changes the state of a port (e.g. from
@@ -48,11 +48,11 @@ o We no longer strip the Nmap binary before installing it, as that was
   leading to a runtime error on Mac OS X: "lazy symbol binding failed:
   Symbol not found: _luaL_openlib".  Unfortunately, the unstripped
   Nmap binary can be much larger (e.g. 4MB vs. 800KB) so we are
-  working on a better fix which allows us to continue striping the
+  working on a better fix which allows us to continue stripping the
   binary on other platforms.
 
 o Zenmap configuration/customization files renamed from ~/.umit to
-  ~/.zenmap and umit.conf to zenmap.con, etc.
+  ~/.zenmap and umit.conf to zenmap.conf, etc.
 
 o Fixed a Zenmap bug  where if you try to edit a profile and then
   click cancel, that profile ends up deleted. [Luis A. Bastiao]
