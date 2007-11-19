@@ -342,6 +342,10 @@ AC_SUBST(PCAP_CLEAN)
 AC_SUBST(PCAP_DIST_CLEAN)
 AC_SUBST(LIBPCAP_LIBS)
 
+if test $have_libpcap != yes ; then
+        AC_CONFIG_SUBDIRS(libpcap)
+fi
+
 have_pcre=no
 requested_included_pcre=no
 LIBPCREDIR=libpcre
@@ -643,6 +647,8 @@ LIBNBASE_LIBS="-lnbase"
 AC_SUBST(NBASEDIR)
 AC_SUBST(LIBNBASE_LIBS)
 
+AC_CONFIG_SUBDIRS(nbase)
+
 NSOCKDIR="nsock"
 AC_ARG_WITH(libnsock,
 AC_HELP_STRING([--with-libnsock=DIR], [Compile and link to libnsock in DIR]),
@@ -662,18 +668,7 @@ LIBNSOCK_LIBS="-lnsock"
 AC_SUBST(NSOCKDIR)
 AC_SUBST(LIBNSOCK_LIBS)
 
-nmap_cfg_subdirs="$nmap_cfg_subdirs $NSOCKDIR/src"
-
-dnl I need to configure nsock and libpcap here since the user might
-dnl have specified special options (such as --prefix )
-dnl
-dnl But I only have to configure libpcap if I am going to use it
-
-if test $have_libpcap = yes ; then
-        nmap_cfg_subdirs="$NBASEDIR $nmap_cfg_subdirs"
-else
-        nmap_cfg_subdirs="$NBASEDIR $libpcapdir $nmap_cfg_subdirs"
-fi
+AC_CONFIG_SUBDIRS(nsock/src)
 
 AM_PATH_PYTHON
 
@@ -685,8 +680,6 @@ dnl             AC_CONFIG_SUBDIRS(nmapfe),
 dnl             AC_MSG_WARN([Gtk+ has not been installed -> nmapfe will not be made]))
 dnl fi
 
-dnl all hell broke loose when the variable was named $subdirs
-AC_CONFIG_SUBDIRS( $nmap_cfg_subdirs )
 AC_OUTPUT(Makefile)
 # Krad ASCII ART#!#@$!@#$
 if test -f docs/leet-nmap-ascii-art.txt; then

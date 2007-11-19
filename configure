@@ -734,10 +734,12 @@ CXX
 CXXFLAGS
 CCC
 CPP'
-ac_subdirs_all='libpcre
+ac_subdirs_all='libpcap
+libpcre
 libdnet-stripped
 nselib
-$nmap_cfg_subdirs '
+nbase
+nsock/src'
 
 # Initialize some variables set by options.
 ac_init_help=
@@ -6301,6 +6303,11 @@ fi
 
 
 
+if test $have_libpcap != yes ; then
+        subdirs="$subdirs libpcap"
+
+fi
+
 have_pcre=no
 requested_included_pcre=no
 LIBPCREDIR=libpcre
@@ -8233,6 +8240,9 @@ LIBNBASE_LIBS="-lnbase"
 
 
 
+subdirs="$subdirs nbase"
+
+
 NSOCKDIR="nsock"
 
 # Check whether --with-libnsock was given.
@@ -8255,14 +8265,8 @@ LIBNSOCK_LIBS="-lnsock"
 
 
 
-nmap_cfg_subdirs="$nmap_cfg_subdirs $NSOCKDIR/src"
+subdirs="$subdirs nsock/src"
 
-
-if test $have_libpcap = yes ; then
-        nmap_cfg_subdirs="$NBASEDIR $nmap_cfg_subdirs"
-else
-        nmap_cfg_subdirs="$NBASEDIR $libpcapdir $nmap_cfg_subdirs"
-fi
 
 
 
@@ -8399,8 +8403,6 @@ echo "${ECHO_T}$am_cv_python_pyexecdir" >&6; }
 
 
 
-
-subdirs="$subdirs $nmap_cfg_subdirs"
 
 ac_config_files="$ac_config_files Makefile"
 
