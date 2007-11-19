@@ -1,4 +1,5 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
 4.23RC2
 
 o Static code analysis company Coverity generously offered to scan the
@@ -12,7 +13,7 @@ o Improved the Zenmap RPM file so that it should work on either Python
   2.4 or Python 2.5 machines.  It should also work on any platform (x86,
   x86_64, etc.) [David]
 
-o WinPcap updated from version 4.0.1 to the new 4.0.2 release.
+o WinPcap updated from version 4.0.1 to the new 4.0.2 release. [David]
 
 o Added PPTP version detection NSE script (PPTPversion.nse) from
   Thomas Buchanan.  Nmap now ships with 38 NSE scripts.
@@ -52,7 +53,7 @@ o We no longer strip the Nmap binary before installing it, as that was
   binary on other platforms.
 
 o Zenmap configuration/customization files renamed from ~/.umit to
-  ~/.zenmap and umit.conf to zenmap.conf, etc.
+  ~/.zenmap and umit.conf to zenmap.conf, etc. [David]
 
 o Fixed a Zenmap bug  where if you try to edit a profile and then
   click cancel, that profile ends up deleted. [Luis A. Bastiao]
@@ -63,7 +64,7 @@ o The NSE shortport rules now allow for multiple matching states
 
 o Regenerate configure scripts with Autoconf 2.61 and update
   config.guess and config.sub files with the latest versions from
-  http://cvs.savannah.gnu.org/viewvc/config/?root=config .
+  http://cvs.savannah.gnu.org/viewvc/config/?root=config . [David]
 
 4.23RC1
 
