@@ -1,7 +1,25 @@
 # Nmap Changelog ($Id$); -*-text-*-
+4.23RC2
+
+o Static code analysis company Coverity generously offered to scan the
+  Nmap code base for flaws, and Kris volunteered to go through their
+  report and fix the ones which were actual/possible problems rather
+  than false positives.  Their system proved quite useful, and about a
+  dozen potential problems were fixed.  For details, see Kris'
+  11/15/07 SVN commits.
+
+o Improved the Zenmap RPM file so that it should work on either Python
+  2.4 or Python 2.5 machines.  It should also work on any platform (x86,
+  x86_64, etc.) [David]
+
+o WinPcap updated from version 4.0.1 to the new 4.0.2 release.
 
 o Added PPTP version detection NSE script (PPTPversion.nse) from
   Thomas Buchanan.  Nmap now ships with 38 NSE scripts.
+
+o A number of Solaris compilation fixes were added.  Hopefully it
+  works for more Solaris users now. We also fixed an alighnent issue
+  which could cause a bus error on Solaris. [David]
 
 o When an NSE script changes the state of a port (e.g. from
   open|filtered to open), the --reason flag is now changed to
@@ -19,12 +37,33 @@ o Reworded an error message after a woman reported that it was "highly
   above should have no place in software."  The message was: "TCP/IP
   fingerprinting (for OS scan) requires root privileges. Sorry,
   dude.".  I checked svn blame to call out the insensitive,
-  chauvinistic jerk who wrote that message, but it was me. Oops :).
+  chauvinistic jerk who wrote that message, but it was me :).
 
 o We received a bug report through Debian entitled "Nmap is a
   clairvoyant" because when you run it with -v on September 1 1970, it
   reports "Happy -27th Birthday to Nmap, may it live to be 73!".  We
   have decided that clairvoyance is a feature and ignored the report.
+
+o We no longer strip the Nmap binary before installing it, as that was
+  leading to a runtime error on Mac OS X: "lazy symbol binding failed:
+  Symbol not found: _luaL_openlib".  Unfortunately, the unstripped
+  Nmap binary can be much larger (e.g. 4MB vs. 800KB) so we are
+  working on a better fix which allows us to continue striping the
+  binary on other platforms.
+
+o Zenmap configuration/customization files renamed from ~/.umit to
+  ~/.zenmap and umit.conf to zenmap.con, etc.
+
+o Fixed a Zenmap bug  where if you try to edit a profile and then
+  click cancel, that profile ends up deleted. [Luis A. Bastiao]
+
+o The NSE shortport rules now allow for multiple matching states
+  (e.g. open or open|filtered) to be specified. This silently failed
+  before. [Eddie]
+
+o Regenerate configure scripts with Autoconf 2.61 and update
+  config.guess and config.sub files with the latest versions from
+  http://cvs.savannah.gnu.org/viewvc/config/?root=config .
 
 4.23RC1
 
