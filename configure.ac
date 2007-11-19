@@ -104,6 +104,8 @@ fi
 AC_SUBST(COMPAT_OBJS)
 AC_SUBST(COMPAT_SRCS)
 
+AC_PATH_TOOL([STRIP], [strip], [/bin/true])
+
 needs_cpp_precomp=no
 LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
 

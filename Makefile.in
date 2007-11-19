@@ -23,6 +23,7 @@ CC = @CC@
 CXX = @CXX@
 CCOPT = 
 DBGFLAGS = 
+STRIP = @STRIP@
 LIBPCAPDIR = @libpcapdir@
 LIBPCREDIR = @LIBPCREDIR@
 export LIBDNETDIR = @LIBDNETDIR@
@@ -178,6 +179,9 @@ my_distclean:
 install-nmap: $(TARGET)
 	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1 $(DESTDIR)$(nmapdatadir)
 	$(INSTALL) -c -m 755 nmap $(DESTDIR)$(bindir)/nmap
+# Use strip -x to avoid stripping dynamically loaded NSE functions. See
+# http://seclists.org/nmap-dev/2007/q4/0272.html.
+	$(STRIP) -x $(DESTDIR)$(bindir)/nmap
 	$(INSTALL) -c -m 644 docs/$(TARGET).1 $(DESTDIR)$(mandir)/man1/$(TARGET).1
 	$(INSTALL) -c -m 644 docs/nmap.xsl $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 docs/nmap.dtd $(DESTDIR)$(nmapdatadir)/
