@@ -170,7 +170,7 @@ zenmap_dist_clean: zenmap_clean
 debugclean:
 	rm -f *.gcov *.gcda *.gcno gmon.out
 
-distclean: my_clean my_distclean @LUA_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@  @NSELIB_DIST_CLEAN@ @ZENMAP_DIST_CLEAN@
+distclean: my_clean my_distclean @LUA_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ nbase_dist_clean nsock_dist_clean @NSELIB_DIST_CLEAN@ @ZENMAP_DIST_CLEAN@
 
 my_distclean:
 	rm -f Makefile Makefile.bak makefile.dep config.h stamp-h stamp-h.in \
