@@ -17,9 +17,7 @@ require "stdnse"
 portrule = shortport.service({'http', 'https'})
 
 action = function(host, port)
-	local url, socket, request, result, status, s, title, protocol
-
-	url = "http://" .. host.name
+	local socket, request, result, status, s, title, protocol
 
 	socket = nmap.new_socket()
 
