@@ -321,6 +321,7 @@ fi
 LIBPCAP_LIBS="-lpcap"
 if test $have_libpcap = yes; then
   PCAP_DEPENDS=""
+  PCAP_BUILD=""
   PCAP_CLEAN=""
   PCAP_DIST_CLEAN=""
   AC_DEFINE(HAVE_LIBPCAP)
@@ -333,11 +334,13 @@ else
     CXXFLAGS="$CXXFLAGS -I$libpcapdir"
   fi
   PCAP_DEPENDS='$(LIBPCAPDIR)/libpcap.a'
+  PCAP_BUILD="pcap_build"
   PCAP_CLEAN="pcap_clean"
   PCAP_DIST_CLEAN="pcap_dist_clean"
 fi
 
 AC_SUBST(PCAP_DEPENDS)
+AC_SUBST(PCAP_BUILD)
 AC_SUBST(PCAP_CLEAN)
 AC_SUBST(PCAP_DIST_CLEAN)
 AC_SUBST(LIBPCAP_LIBS)
@@ -384,11 +387,13 @@ if test $have_pcre != yes ; then
   CXXFLAGS="-I$LIBPCREDIR $CXXFLAGS"
   LIBPCRE_LIBS="$LIBPCREDIR/libpcre.a"
   PCRE_DEPENDS="$LIBPCREDIR/libpcre.a"
+  PCRE_BUILD="pcre_build"
   PCRE_CLEAN="pcre_clean"
   PCRE_DIST_CLEAN="pcre_dist_clean"
 else
   LIBPCRE_LIBS="-lpcre"
   PCRE_DEPENDS=""
+  PCRE_BUILD=""
   PCRE_CLEAN=""
   PCRE_DIST_CLEAN=""
 fi
@@ -396,6 +401,7 @@ fi
 AC_SUBST(LIBPCRE_LIBS)
 AC_SUBST(LIBPCREDIR)
 AC_SUBST(PCRE_DEPENDS)
+AC_SUBST(PCRE_BUILD)
 AC_SUBST(PCRE_CLEAN)
 AC_SUBST(PCRE_DIST_CLEAN)
 
@@ -425,11 +431,13 @@ if test $have_dnet != yes ; then
   CXXFLAGS="-I$LIBDNETDIR/include $CXXFLAGS"
   LIBDNET_LIBS="$LIBDNETDIR/src/.libs/libdnet.a"
   DNET_DEPENDS="$LIBDNETDIR/src/.libs/libdnet.a"
+  DNET_BUILD="dnet_build"
   DNET_CLEAN="dnet_clean"
   DNET_DIST_CLEAN="dnet_dist_clean"
 else
   LIBDNET_LIBS="-ldnet"
   DNET_DEPENDS=""
+  DNET_BUILD=""
   DNET_CLEAN=""
   DNET_DIST_CLEAN=""
 fi
@@ -437,6 +445,7 @@ fi
 AC_SUBST(LIBDNET_LIBS)
 AC_SUBST(LIBDNETDIR)
 AC_SUBST(DNET_DEPENDS)
+AC_SUBST(DNET_BUILD)
 AC_SUBST(DNET_CLEAN)
 AC_SUBST(DNET_DIST_CLEAN)
 
@@ -458,6 +467,7 @@ AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all o
     CXXFLAGS="-I$LIBLUADIR $CXXFLAGS"
     LIBLUA_LIBS="$LIBLUADIR/liblua.a"
     LUA_DEPENDS="$LIBLUADIR/liblua.a"
+    LUA_BUILD="lua_build"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
 	have_lua="yes"
@@ -479,6 +489,7 @@ if test $no_lua == yes; then
   CXXFLAGS="-DNOLUA $CXXFLAGS"
   LIBLUA_LIBS=""
   LUA_DEPENDS=""
+  LUA_BUILD=""
   LUA_CLEAN=""
   LUA_DIST_CLEAN=""
   INSTALLNSE=""
@@ -506,6 +517,7 @@ else
   
     LIBLUA_LIBS="-llua"
     LUA_DEPENDS=""
+    LUA_BUILD=""
     LUA_CLEAN=""
     LUA_DIST_CLEAN=""
   fi
@@ -516,6 +528,7 @@ else
     CXXFLAGS="-I$LIBLUADIR $CXXFLAGS"
     LIBLUA_LIBS="$LIBLUADIR/liblua.a"
     LUA_DEPENDS="$LIBLUADIR/liblua.a"
+    LUA_BUILD="lua_build"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
   else
@@ -534,6 +547,7 @@ fi
 AC_SUBST(LIBLUA_LIBS)
 AC_SUBST(LIBLUADIR)
 AC_SUBST(LUA_DEPENDS)
+AC_SUBST(LUA_BUILD)
 AC_SUBST(LUA_CLEAN)
 AC_SUBST(LUA_DIST_CLEAN)
 AC_SUBST(INSTALLNSE)
@@ -635,8 +649,10 @@ AC_HELP_STRING([--with-libnbase=DIR], [Look for nbase include/libs in DIR]),
     ;;
   *)
     NBASEDIR="$with_libnbase"
+    NBASE_BUILD=""
     ;;
   esac],
+NBASE_BUILD="nbase_build"
 NBASEDIR="nbase"
 )
 
@@ -645,11 +661,13 @@ CXXFLAGS="$CXXFLAGS -I$NBASEDIR"
 LIBNBASE_LIBS="-lnbase"
 
 AC_SUBST(NBASEDIR)
+AC_SUBST(NBASE_BUILD)
 AC_SUBST(LIBNBASE_LIBS)
 
 AC_CONFIG_SUBDIRS(nbase)
 
 NSOCKDIR="nsock"
+NSOCK_BUILD="nsock_build"
 AC_ARG_WITH(libnsock,
 AC_HELP_STRING([--with-libnsock=DIR], [Compile and link to libnsock in DIR]),
 [  case "$with_nsock" in
@@ -657,6 +675,7 @@ AC_HELP_STRING([--with-libnsock=DIR], [Compile and link to libnsock in DIR]),
     ;;
   *)
     NSOCKDIR="$with_nsock"
+    NSOCK_BUILD=""
     ;;
   esac]
 )
@@ -666,6 +685,7 @@ CXXFLAGS="$CXXFLAGS -I$NSOCKDIR/include"
 LIBNSOCK_LIBS="-lnsock"
 
 AC_SUBST(NSOCKDIR)
+AC_SUBST(NSOCK_BUILD)
 AC_SUBST(LIBNSOCK_LIBS)
 
 AC_CONFIG_SUBDIRS(nsock/src)

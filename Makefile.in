@@ -75,10 +75,10 @@ OBJS = main.o nmap.o targets.o tcpip.o nmap_error.o utils.o idle_scan.o osscan.o
 .cc.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
-all: @LUA_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(NSESTDLIB)
-	$(MAKE) $(TARGET) $(BUILDZENMAP)
+all: @LUA_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @DNET_BUILD@ @NBASE_BUILD@ @NSOCK_BUILD@
+	$(MAKE) $(TARGET) $(NSESTDLIB) $(BUILDZENMAP)
 
-$(TARGET): $(OBJS)
+$(TARGET): @LUA_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(OBJS)
 	echo Compiling nmap
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
@@ -87,28 +87,24 @@ nsestdlib: nselib/Makefile
 	@echo Compiling nse-standard-library; cd nselib && $(MAKE)
 
 
-# This empty rule is used to force execution of certain rules where I can't conveniently specify
-# all of the prerequisites (e.g. recursive makes and such)
-FORCE:
-
-$(LIBPCREDIR)/libpcre.a: $(LIBPCREDIR)/Makefile FORCE
+pcre_build: $(LIBPCREDIR)/Makefile
 	@echo Compiling libpcre; cd $(LIBPCREDIR) && $(MAKE)
 
-$(LIBDNETDIR)/src/.libs/libdnet.a: $(LIBDNETDIR)/Makefile FORCE
+dnet_build: $(LIBDNETDIR)/Makefile
 	@echo Compiling libdnet; cd $(LIBDNETDIR) && $(MAKE)
 
-$(LIBPCAPDIR)/libpcap.a: $(LIBPCAPDIR)/Makefile FORCE
+pcap_build: $(LIBPCAPDIR)/Makefile
 	@echo Compiling libpcap; cd $(LIBPCAPDIR) && $(MAKE)
 
-$(NBASEDIR)/libnbase.a: $(NBASEDIR)/Makefile FORCE
+nbase_build: $(NBASEDIR)/Makefile
 	@echo Compiling libnbase;
 	cd $(NBASEDIR) && $(MAKE)
 
-$(NSOCKDIR)/src/libnsock.a: $(NSOCKDIR)/src/Makefile FORCE
+nsock_build: $(NSOCKDIR)/src/Makefile
 	@echo Compiling libnsock;
 	cd $(NSOCKDIR)/src && $(MAKE)
 
-$(LIBLUADIR)/liblua.a: $(LIBLUADIR)/Makefile FORCE
+lua_build: $(LIBLUADIR)/Makefile
 	@echo Compiling liblua; cd $(LIBLUADIR) && $(MAKE) liblua.a @LUAFLAGS@
 
 #$(LIBPCAPDIR)/Makefile:

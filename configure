@@ -684,6 +684,7 @@ ZENMAP_CLEAN
 ZENMAP_DIST_CLEAN
 OPENSSL_LIBS
 PCAP_DEPENDS
+PCAP_BUILD
 PCAP_CLEAN
 PCAP_DIST_CLEAN
 LIBPCAP_LIBS
@@ -691,24 +692,29 @@ subdirs
 LIBPCRE_LIBS
 LIBPCREDIR
 PCRE_DEPENDS
+PCRE_BUILD
 PCRE_CLEAN
 PCRE_DIST_CLEAN
 LIBDNET_LIBS
 LIBDNETDIR
 DNET_DEPENDS
+DNET_BUILD
 DNET_CLEAN
 DNET_DIST_CLEAN
 LIBLUA_LIBS
 LIBLUADIR
 LUA_DEPENDS
+LUA_BUILD
 LUA_CLEAN
 LUA_DIST_CLEAN
 INSTALLNSE
 NSELIB_CLEAN
 NSELIB_DIST_CLEAN
 NBASEDIR
+NBASE_BUILD
 LIBNBASE_LIBS
 NSOCKDIR
+NSOCK_BUILD
 LIBNSOCK_LIBS
 PYTHON
 PYTHON_VERSION
@@ -6279,6 +6285,7 @@ fi
 LIBPCAP_LIBS="-lpcap"
 if test $have_libpcap = yes; then
   PCAP_DEPENDS=""
+  PCAP_BUILD=""
   PCAP_CLEAN=""
   PCAP_DIST_CLEAN=""
   cat >>confdefs.h <<\_ACEOF
@@ -6294,9 +6301,11 @@ else
     CXXFLAGS="$CXXFLAGS -I$libpcapdir"
   fi
   PCAP_DEPENDS='$(LIBPCAPDIR)/libpcap.a'
+  PCAP_BUILD="pcap_build"
   PCAP_CLEAN="pcap_clean"
   PCAP_DIST_CLEAN="pcap_dist_clean"
 fi
+
 
 
 
@@ -6744,14 +6753,17 @@ if test $have_pcre != yes ; then
   CXXFLAGS="-I$LIBPCREDIR $CXXFLAGS"
   LIBPCRE_LIBS="$LIBPCREDIR/libpcre.a"
   PCRE_DEPENDS="$LIBPCREDIR/libpcre.a"
+  PCRE_BUILD="pcre_build"
   PCRE_CLEAN="pcre_clean"
   PCRE_DIST_CLEAN="pcre_dist_clean"
 else
   LIBPCRE_LIBS="-lpcre"
   PCRE_DEPENDS=""
+  PCRE_BUILD=""
   PCRE_CLEAN=""
   PCRE_DIST_CLEAN=""
 fi
+
 
 
 
@@ -6789,14 +6801,17 @@ if test $have_dnet != yes ; then
   CXXFLAGS="-I$LIBDNETDIR/include $CXXFLAGS"
   LIBDNET_LIBS="$LIBDNETDIR/src/.libs/libdnet.a"
   DNET_DEPENDS="$LIBDNETDIR/src/.libs/libdnet.a"
+  DNET_BUILD="dnet_build"
   DNET_CLEAN="dnet_clean"
   DNET_DIST_CLEAN="dnet_dist_clean"
 else
   LIBDNET_LIBS="-ldnet"
   DNET_DEPENDS=""
+  DNET_BUILD=""
   DNET_CLEAN=""
   DNET_DIST_CLEAN=""
 fi
+
 
 
 
@@ -6821,6 +6836,7 @@ if test "${with_liblua+set}" = set; then
     CXXFLAGS="-I$LIBLUADIR $CXXFLAGS"
     LIBLUA_LIBS="$LIBLUADIR/liblua.a"
     LUA_DEPENDS="$LIBLUADIR/liblua.a"
+    LUA_BUILD="lua_build"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
 	have_lua="yes"
@@ -6844,6 +6860,7 @@ if test $no_lua == yes; then
   CXXFLAGS="-DNOLUA $CXXFLAGS"
   LIBLUA_LIBS=""
   LUA_DEPENDS=""
+  LUA_BUILD=""
   LUA_CLEAN=""
   LUA_DIST_CLEAN=""
   INSTALLNSE=""
@@ -7411,6 +7428,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
     LIBLUA_LIBS="-llua"
     LUA_DEPENDS=""
+    LUA_BUILD=""
     LUA_CLEAN=""
     LUA_DIST_CLEAN=""
   fi
@@ -7422,6 +7440,7 @@ echo "${ECHO_T}no" >&6; }
     CXXFLAGS="-I$LIBLUADIR $CXXFLAGS"
     LIBLUA_LIBS="$LIBLUADIR/liblua.a"
     LUA_DEPENDS="$LIBLUADIR/liblua.a"
+    LUA_BUILD="lua_build"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
   else
@@ -7438,6 +7457,7 @@ if test $no_lua != yes; then
 	NSELIB_CLEAN=nselib_clean
 	NSELIB_DIST_CLEAN=nselib_dist_clean
 fi
+
 
 
 
@@ -8225,10 +8245,12 @@ if test "${with_libnbase+set}" = set; then
     ;;
   *)
     NBASEDIR="$with_libnbase"
+    NBASE_BUILD=""
     ;;
   esac
 else
-  NBASEDIR="nbase"
+  NBASE_BUILD="nbase_build"
+NBASEDIR="nbase"
 
 fi
 
@@ -8240,10 +8262,12 @@ LIBNBASE_LIBS="-lnbase"
 
 
 
+
 subdirs="$subdirs nbase"
 
 
 NSOCKDIR="nsock"
+NSOCK_BUILD="nsock_build"
 
 # Check whether --with-libnsock was given.
 if test "${with_libnsock+set}" = set; then
@@ -8252,6 +8276,7 @@ if test "${with_libnsock+set}" = set; then
     ;;
   *)
     NSOCKDIR="$with_nsock"
+    NSOCK_BUILD=""
     ;;
   esac
 
@@ -8261,6 +8286,7 @@ fi
 LDFLAGS="$LDFLAGS -L$NSOCKDIR/src/"
 CXXFLAGS="$CXXFLAGS -I$NSOCKDIR/include"
 LIBNSOCK_LIBS="-lnsock"
+
 
 
 
@@ -9092,6 +9118,7 @@ ZENMAP_CLEAN!$ZENMAP_CLEAN$ac_delim
 ZENMAP_DIST_CLEAN!$ZENMAP_DIST_CLEAN$ac_delim
 OPENSSL_LIBS!$OPENSSL_LIBS$ac_delim
 PCAP_DEPENDS!$PCAP_DEPENDS$ac_delim
+PCAP_BUILD!$PCAP_BUILD$ac_delim
 PCAP_CLEAN!$PCAP_CLEAN$ac_delim
 PCAP_DIST_CLEAN!$PCAP_DIST_CLEAN$ac_delim
 LIBPCAP_LIBS!$LIBPCAP_LIBS$ac_delim
@@ -9099,25 +9126,24 @@ subdirs!$subdirs$ac_delim
 LIBPCRE_LIBS!$LIBPCRE_LIBS$ac_delim
 LIBPCREDIR!$LIBPCREDIR$ac_delim
 PCRE_DEPENDS!$PCRE_DEPENDS$ac_delim
+PCRE_BUILD!$PCRE_BUILD$ac_delim
 PCRE_CLEAN!$PCRE_CLEAN$ac_delim
 PCRE_DIST_CLEAN!$PCRE_DIST_CLEAN$ac_delim
 LIBDNET_LIBS!$LIBDNET_LIBS$ac_delim
 LIBDNETDIR!$LIBDNETDIR$ac_delim
 DNET_DEPENDS!$DNET_DEPENDS$ac_delim
+DNET_BUILD!$DNET_BUILD$ac_delim
 DNET_CLEAN!$DNET_CLEAN$ac_delim
 DNET_DIST_CLEAN!$DNET_DIST_CLEAN$ac_delim
 LIBLUA_LIBS!$LIBLUA_LIBS$ac_delim
 LIBLUADIR!$LIBLUADIR$ac_delim
 LUA_DEPENDS!$LUA_DEPENDS$ac_delim
+LUA_BUILD!$LUA_BUILD$ac_delim
 LUA_CLEAN!$LUA_CLEAN$ac_delim
 LUA_DIST_CLEAN!$LUA_DIST_CLEAN$ac_delim
 INSTALLNSE!$INSTALLNSE$ac_delim
 NSELIB_CLEAN!$NSELIB_CLEAN$ac_delim
 NSELIB_DIST_CLEAN!$NSELIB_DIST_CLEAN$ac_delim
-NBASEDIR!$NBASEDIR$ac_delim
-LIBNBASE_LIBS!$LIBNBASE_LIBS$ac_delim
-NSOCKDIR!$NSOCKDIR$ac_delim
-LIBNSOCK_LIBS!$LIBNSOCK_LIBS$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -9159,6 +9185,12 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+NBASEDIR!$NBASEDIR$ac_delim
+NBASE_BUILD!$NBASE_BUILD$ac_delim
+LIBNBASE_LIBS!$LIBNBASE_LIBS$ac_delim
+NSOCKDIR!$NSOCKDIR$ac_delim
+NSOCK_BUILD!$NSOCK_BUILD$ac_delim
+LIBNSOCK_LIBS!$LIBNSOCK_LIBS$ac_delim
 PYTHON!$PYTHON$ac_delim
 PYTHON_VERSION!$PYTHON_VERSION$ac_delim
 PYTHON_PREFIX!$PYTHON_PREFIX$ac_delim
@@ -9172,7 +9204,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 11; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 17; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
