@@ -470,13 +470,15 @@ static int l_print_debug_unformatted(lua_State *l) {
 }
 
 static int l_exc_finalize(lua_State *l) {
-	if (lua_isnil(l, 1)) {
+	if (!lua_toboolean(l, 1)) {
+		/* false or nil. */
 		lua_pushvalue(l, lua_upvalueindex(1));
 		lua_call(l, 0, 0);
 		lua_settop(l, 2);
 		lua_error(l);
 		return 0;
-	} else if(lua_toboolean(l, 1)) {
+	} else if(lua_isboolean(l, 1) && lua_toboolean(l, 1)) {
+		/* true. */
 		lua_remove(l, 1);
 		return lua_gettop(l);
 	} else {
