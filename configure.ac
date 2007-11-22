@@ -175,25 +175,32 @@ AC_SEARCH_LIBS(setsockopt, socket)
 AC_SEARCH_LIBS(gethostbyname, nsl)
 
 # Do they want Zenmap?
-BUILDZENMAP=build-zenmap
-INSTALLZENMAP=install-zenmap
-ZENMAP_CLEAN=zenmap_clean
-ZENMAP_DIST_CLEAN=zenmap_dist_clean
-AC_ARG_WITH(zenmap, AC_HELP_STRING([--without-zenmap], [Skip installation of the Zenmap graphical frontend]),
- [ case "$with_zenmap" in
-   no)
-    BUILDZENMAP=""
-    INSTALLZENMAP=""
-    ZENMAP_CLEAN=""
-    ZENMAP_DIST_CLEAN=""
-    ;;
-   esac]
-)
+AC_ARG_WITH(zenmap, AC_HELP_STRING([--without-zenmap], [Skip installation of the Zenmap graphical frontend]), [], [with_zenmap=check])
+
+if test "$with_zenmap" != "no"; then
+  AM_PATH_PYTHON([2.4], [],
+  [if test "$with_zenmap" = "check"; then
+     AC_MSG_WARN([Not building Zenmap because Python 2.4 or later was not found])
+   else
+     AC_MSG_FAILURE([--with-zenmap requires Python 2.4 or later])
+   fi
+   with_zenmap=no])
+fi
+if test "$with_zenmap" = "no"; then
+  BUILDZENMAP=""
+  INSTALLZENMAP=""
+  ZENMAP_CLEAN=""
+  ZENMAP_DIST_CLEAN=""
+else
+  BUILDZENMAP=build-zenmap
+  INSTALLZENMAP=install-zenmap
+  ZENMAP_CLEAN=zenmap_clean
+  ZENMAP_DIST_CLEAN=zenmap_dist_clean
+fi
 AC_SUBST(BUILDZENMAP)
 AC_SUBST(INSTALLZENMAP)
 AC_SUBST(ZENMAP_CLEAN)
 AC_SUBST(ZENMAP_DIST_CLEAN)
-
 
 # We test whether they specified openssl desires explicitly
 use_openssl="yes"
@@ -689,16 +696,6 @@ AC_SUBST(NSOCK_BUILD)
 AC_SUBST(LIBNSOCK_LIBS)
 
 AC_CONFIG_SUBDIRS(nsock/src)
-
-AM_PATH_PYTHON
-
-dnl Commented out -- awaiting transition to Zenmap.
-dnl if test "${with_nmapfe}" = "yes"; then
-dnl Check for GTK+
-dnl AM_PATH_GTK_2_0(2.4.0,
-dnl             AC_CONFIG_SUBDIRS(nmapfe),
-dnl             AC_MSG_WARN([Gtk+ has not been installed -> nmapfe will not be made]))
-dnl fi
 
 AC_OUTPUT(Makefile)
 # Krad ASCII ART#!#@$!@#$
