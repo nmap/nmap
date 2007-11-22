@@ -11,10 +11,19 @@ license = "See nmaps COPYING for licence"
 
 categories = {"demo", "safe"}
 
-require "shortport"
 require "stdnse"
 
-portrule = shortport.service({'http', 'https'})
+portrule = function(host, port)
+	if not (port.service == 'http' or port.service == 'https') then
+		return false
+	end
+	-- Don't bother running on SSL ports if we don't have SSL.
+	if (port.service == 'https' or port.version.service_tunnel == 'ssl')
+		and not nmap.have_ssl() then
+		return false
+	end
+	return true
+end
 
 action = function(host, port)
 	local socket, request, result, status, s, title, protocol

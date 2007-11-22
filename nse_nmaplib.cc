@@ -38,6 +38,7 @@ static int l_set_port_state(lua_State* l, Target* target, Port* port);
 static int l_set_port_version(lua_State* l, Target* target, Port* port);
 static int l_get_verbosity(lua_State *);
 static int l_get_debugging(lua_State *);
+static int l_get_have_ssl(lua_State *l);
 
 int l_clock_ms(lua_State* l);
 
@@ -57,6 +58,7 @@ int set_nmaplib(lua_State* l) {
 		{"new_try", l_exc_newtry},
 		{"verbosity", l_get_verbosity},
 		{"debugging", l_get_debugging},
+		{"have_ssl", l_get_have_ssl},
 		{NULL, NULL} 
 	};
 
@@ -510,3 +512,11 @@ static int l_get_debugging(lua_State *l)
 	return 1;
 }
 
+static int l_get_have_ssl(lua_State *l) {
+#if HAVE_OPENSSL
+	lua_pushboolean(l, true);
+#else
+	lua_pushboolean(l, false);
+#endif
+	return 1;
+}
