@@ -43,7 +43,7 @@ from Umit, an Nmap GUI created as part of the Google Summer of Code.
 %setup -q -n nmap-%{version}
 
 %build
-%configure --without-openssl PYTHON="%{__python}"
+%configure --without-openssl --with-zenmap PYTHON="%{__python}"
 make build-zenmap DESTDIR=$RPM_BUILD_ROOT
 
 %install
@@ -68,6 +68,9 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 %{_datadir}/zenmap
 
 %changelog
+
+* Thu Nov 22 2007 David Fifield (david(a)bamsoftware.com)
+- Use an explicit --with-zenmap.
 
 * Thu Nov 08 2007 David Fifield (david(a)bamsoftware.com)
 - Split the zenmap subpackage into its own spec file.
