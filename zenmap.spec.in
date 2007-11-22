@@ -72,5 +72,10 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 * Thu Nov 22 2007 David Fifield (david(a)bamsoftware.com)
 - Use an explicit --with-zenmap.
 
+* Fri Nov 16 2007 David Fifield (david(a)bamsoftware.com)
+- Add AutoReqProv: no. This keeps dependencies from being calculated
+  automatically. This is because we don't want RPM to say the package
+  depends on python(abi) = 2.4, say, when it doesn't really.
+
 * Thu Nov 08 2007 David Fifield (david(a)bamsoftware.com)
 - Split the zenmap subpackage into its own spec file.
