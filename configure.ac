@@ -670,11 +670,11 @@ NSOCKDIR="nsock"
 NSOCK_BUILD="nsock_build"
 AC_ARG_WITH(libnsock,
 AC_HELP_STRING([--with-libnsock=DIR], [Compile and link to libnsock in DIR]),
-[  case "$with_nsock" in
+[  case "$with_libnsock" in
   yes)
     ;;
   *)
-    NSOCKDIR="$with_nsock"
+    NSOCKDIR="$with_libnsock"
     NSOCK_BUILD=""
     ;;
   esac]

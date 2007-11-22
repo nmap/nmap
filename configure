@@ -8271,11 +8271,11 @@ NSOCK_BUILD="nsock_build"
 
 # Check whether --with-libnsock was given.
 if test "${with_libnsock+set}" = set; then
-  withval=$with_libnsock;   case "$with_nsock" in
+  withval=$with_libnsock;   case "$with_libnsock" in
   yes)
     ;;
   *)
-    NSOCKDIR="$with_nsock"
+    NSOCKDIR="$with_libnsock"
     NSOCK_BUILD=""
     ;;
   esac
