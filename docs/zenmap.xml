@@ -152,9 +152,13 @@
 
   <refsect1 id='man-history'>
     <title>History</title>
-    <para>Zenmap was originally derived from Umit, an Nmap GUI created by
-    Adriano Monteiro Marques. Umit began as a project for the Google Summer of
-    Code in 2005. Zenmap became an independent project in October 2007.</para>
+
+    <para>Zenmap was originally derived from Umit, an Nmap GUI created
+    during the Google-sponsored Nmap Summer of Code in 2005 and 2006.
+    The primary author of Umit was Adriano Monteiro Marques.  When
+    Umit was modified and integrated into Nmap in 2007, it was renamed
+    Zenmap.</para>
+
   </refsect1>
 
   <refsect1 id='man-author'>
@@ -177,9 +181,7 @@
 
     <refsect2>
       <title>Umit</title>
-      <para>Zenmap is derived from the Umit Nmap frontend, the primary author of
-      which is Adriano Monteiro Marques <email>py.adriano@gmail.com</email>
-      (<ulink url="http://umit.sourceforge.net" />).</para>
+      <para>Zenmap is derived from the Umit Nmap frontend, which was started by Adriano Monteiro Marques as an Nmap/Google Summer of Code project (<email>py.adriano@gmail.com</email>, <ulink url="http://umit.sourceforge.net" />).</para>
     </refsect2>
   </refsect1>
 
