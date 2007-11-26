@@ -2600,52 +2600,58 @@ static int collect_dnet_routes(const struct route_entry *entry, void *arg) {
 #if WIN32
 static int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
   struct dnet_collector_route_nfo *dcrn = (struct dnet_collector_route_nfo *) arg;
-  int i;
-  int numifaces = dcrn->numifaces;
+  bool primary_done;
+  int num_aliases_done;
 
+  primary_done = false;
+  num_aliases_done = 0;
+  while (!primary_done || num_aliases_done < entry->intf_alias_num) {
     /* Make sure we have room for the new route */
    if (dcrn->numifaces >= dcrn->capacity) {
     dcrn->capacity <<= 2;
     dcrn->ifaces = (struct interface_info *) safe_realloc(dcrn->ifaces, 
 							  dcrn->capacity * sizeof(struct interface_info));
    }
-   if (entry->intf_addr.addr_type == ADDR_TYPE_IP) {
-	addr_ntos(&entry->intf_addr, (struct sockaddr *) &dcrn->ifaces[numifaces].addr);
-	dcrn->ifaces[numifaces].netmask_bits = entry->intf_addr.addr_bits;
-   } else {
-	   for(i=0; i < (int) entry->intf_alias_num; i++) {
-		   if (entry->intf_alias_addrs[i].addr_type == ADDR_TYPE_IP) {
-			   addr_ntos(&entry->intf_alias_addrs[i], (struct sockaddr *) &dcrn->ifaces[numifaces].addr);
-			   dcrn->ifaces[numifaces].netmask_bits = entry->intf_alias_addrs[i].addr_bits;
-			   break;
-		   }
-		   if (i == (int) entry->intf_alias_num)
-			   return 0; /* No IPv4 addresses found for this interface */
-	   }
+
+   /* The first time through the loop we add the primary interface record. After
+      that we add the aliases one at a time. */
+   if (!primary_done) {
+     if (entry->intf_addr.addr_type == ADDR_TYPE_IP) {
+       addr_ntos(&entry->intf_addr, (struct sockaddr *) &dcrn->ifaces[dcrn->numifaces].addr);
+       dcrn->ifaces[dcrn->numifaces].netmask_bits = entry->intf_addr.addr_bits;
+     }
+     primary_done = true;
+   } else if (num_aliases_done < (int) entry->intf_alias_num) {
+     if (entry->intf_alias_addrs[num_aliases_done].addr_type == ADDR_TYPE_IP) {
+       addr_ntos(&entry->intf_alias_addrs[num_aliases_done], (struct sockaddr *) &dcrn->ifaces[dcrn->numifaces].addr);
+       dcrn->ifaces[dcrn->numifaces].netmask_bits = entry->intf_alias_addrs[num_aliases_done].addr_bits;
+     }
+     num_aliases_done++;
    }
 
    /* OK, address/netmask found.  Let's get the name */
-   Strncpy(dcrn->ifaces[numifaces].devname, entry->intf_name, sizeof(dcrn->ifaces[numifaces].devname));
-   Strncpy(dcrn->ifaces[numifaces].devfullname, entry->intf_name, sizeof(dcrn->ifaces[numifaces].devfullname));
+   Strncpy(dcrn->ifaces[dcrn->numifaces].devname, entry->intf_name, sizeof(dcrn->ifaces[dcrn->numifaces].devname));
+   Strncpy(dcrn->ifaces[dcrn->numifaces].devfullname, entry->intf_name, sizeof(dcrn->ifaces[dcrn->numifaces].devfullname));
 
    /* Interface type */
    if (entry->intf_type == INTF_TYPE_ETH) {
-	   dcrn->ifaces[numifaces].device_type = devt_ethernet;
+	   dcrn->ifaces[dcrn->numifaces].device_type = devt_ethernet;
 	   /* Collect the MAC address since this is ethernet */
-	   memcpy(dcrn->ifaces[numifaces].mac, &entry->intf_link_addr.addr_eth.data, 6);
+	   memcpy(dcrn->ifaces[dcrn->numifaces].mac, &entry->intf_link_addr.addr_eth.data, 6);
    }
    else if (entry->intf_type == INTF_TYPE_LOOPBACK)
-	   dcrn->ifaces[numifaces].device_type = devt_loopback;
+	   dcrn->ifaces[dcrn->numifaces].device_type = devt_loopback;
    else if (entry->intf_type == INTF_TYPE_TUN)
-	   dcrn->ifaces[numifaces].device_type = devt_p2p;
-   else dcrn->ifaces[numifaces].device_type = devt_other;
+	   dcrn->ifaces[dcrn->numifaces].device_type = devt_p2p;
+   else dcrn->ifaces[dcrn->numifaces].device_type = devt_other;
    
    /* Is the interface up and running? */
-   dcrn->ifaces[numifaces].device_up = (entry->intf_flags & INTF_FLAG_UP)? true : false;
+   dcrn->ifaces[dcrn->numifaces].device_up = (entry->intf_flags & INTF_FLAG_UP)? true : false;
 
    /* For the rest of the information, we must open the interface directly ... */
    dcrn->numifaces++;
-   return 0;
+  }
+  return 0;
 }
 #endif /* WIN32 */
 

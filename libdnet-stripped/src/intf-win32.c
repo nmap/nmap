@@ -103,7 +103,12 @@ _ifrow_to_entry(intf_t *intf, MIB_IFROW *ifrow, struct intf_entry *entry)
 	struct addr *ap, *lap;
 	int i;
 	
+	/* The total length of the entry may be passed in inside entry.
+	   Remember it and clear the entry. */
+	u_int intf_len = entry->intf_len;
 	memset(entry, 0, sizeof(*entry));
+	/* Restore the length. */
+	entry->intf_len = intf_len;
 
 	for (i = 0; i < intf->ifcombo[ifrow->dwType].cnt; i++) {
 		if (intf->ifcombo[ifrow->dwType].idx[i] == ifrow->dwIndex)
