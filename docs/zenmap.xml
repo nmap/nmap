@@ -1,0 +1,191 @@
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+          "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<refentry id='man-zenmap1'>
+  <refmeta>
+    <refentrytitle>zenmap</refentrytitle>
+    <manvolnum>1</manvolnum>
+  </refmeta>
+  <refnamediv id='man-name'>
+    <refname>zenmap</refname>
+    <refpurpose>Graphical Nmap frontend and results viewer</refpurpose>
+  </refnamediv>
+  <!-- body begins here -->
+  <refsynopsisdiv id='man-synopsis'>
+    <cmdsynopsis>
+      <command>zenmap</command>
+      <arg choice='opt'>
+        <replaceable>options</replaceable>
+      </arg>
+      <arg choice='opt' repeat='rep'>
+        <replaceable>results file</replaceable>
+      </arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+  <refsect1 id='man-description'>
+    <title>Description</title>
+    <!--
+    <web>
+    <note><para>This document describes the very latest version of
+    Zenmap available from <ulink
+    url="http://insecure.org/nmap/download.html" /> or <ulink
+    url="http://insecure.org/nmap/dist/?C=M&amp;O=D" />.  Please
+    ensure you are using the latest version before reporting that a
+    feature doesn't work as described.</para></note>
+    </web>
+    -->
+
+    <para>Zenmap is a multi-platform graphical Nmap frontend and results viewer.
+    Zenmap aims to make Nmap easy for beginners to use while giving experienced
+    Nmap users advanced features. Frequently used scans can be saved as profiles
+    to make them easy to run repeatedly. A command creator allows interactive
+    creation of Nmap command lines. Scan results can be saved and viewed later.
+    Saved scan results can be compared with one another to see how they differ.
+    The results of recent scans are stored in a searchable database.</para>
+  </refsect1>
+
+  <refsect1 id='man-briefoptions'>
+    <title>Options Summary</title>
+    <variablelist>
+      <varlistentry>
+        <term><option>-f</option></term>
+        <term><option>--file</option> <replaceable>results file</replaceable></term>
+        <listitem>
+          <para>Open the given results file for viewing. The results file may be
+          an Nmap XML output file (.xml, as produced by <command>nmap
+          -oX</command>) or a Umit scan results file (.usr). This option may be
+          given more than once.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>-h</option></term>
+        <term><option>--help</option></term>
+        <listitem>
+          <para>Show a help message and exit.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>-n</option></term>
+        <term><option>--nmap</option> <replaceable>Nmap command line</replaceable></term>
+        <listitem>
+          <para>Run the given Nmap command within the Zenmap interface. After
+          <option>-n</option> or <option>--nmap</option>, every remaining
+          command line argument is read as the command line to execute. This
+          means that <option>-n</option> or <option>--nmap</option> must be
+          given last, after any other options. Note that the command line must
+          include the <command>nmap</command> executable name: <command>zenmap
+          -n nmap -sS target</command>.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>-p</option></term>
+        <term><option>--profile</option> <replaceable>profile</replaceable></term>
+        <listitem>
+          <para>Start with the given profile selected. The profile name is just
+          a string: <literal>"Regular scan"</literal>. If combined with
+          <option>-t</option>, begin a scan with the given profile against the
+          specified target.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>-t</option></term>
+        <term><option>--target</option> <replaceable>target</replaceable></term>
+        <listitem>
+          <para>Start with the given target. If combined with
+          <option>-p</option>, begin a scan with the given profile against the
+          specified target.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>-v</option></term>
+        <term><option>--verbose</option></term>
+        <listitem>
+          <para>Increase verbosity (of Zenmap, not Nmap). This option may be
+          given multiple times to get even more vebosity. Beware that verbose
+          output is not shown on a terminal unless the environment variable
+          <varname>ZENMAP_DEVELOPMENT</varname> is defined and true.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>Any other arguments are taken to be the names of results files to
+    open.</para>
+  </refsect1>
+
+  <!-- Automatic crash reporting -->
+
+  <refsect1 id='man-env-vars'>
+    <title>Environment Variables</title>
+    <variablelist>
+      <varlistentry>
+        <term><varname>ZENMAP_DEVELOPMENT</varname></term>
+        <listitem>
+          <para>Set <varname>ZENMAP_DEVELOPMENT</varname> to 1 to enable
+          development mode. This causes debugging output to be printed to a
+          terminal (see the <option>--verbose</option> option) and turns off
+          automatic crash reporting.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id='man-bugs'>
+    <title>Bugs</title>
+    <para>Like their authors, Nmap and Zenmap aren&rsquo;t perfect.  But you can
+    help make them better by sending bug reports or even writing patches.  If
+    Nmap or Zenmap doesn&rsquo;t behave the way you expect, first upgrade to the
+    latest version available from <ulink url="http://insecure.org/nmap/"/>.  If
+    the problem persists, do some research to determine whether it has already
+    been discovered and addressed.  Try Googling the error message or browsing
+    the nmap-dev archives at <ulink url="http://seclists.org/" />.  Read this
+    full manual page as well.  If nothing comes of this, mail a bug report to
+    <email>nmap-dev@insecure.org</email>.  Please include everything you have
+    learned about the problem, as well as what version of Zenmap you are running
+    and what operating system version it is running on.  Problem reports and
+    Zenmap usage questions sent to nmap-dev@insecure.org are far more likely to
+    be answered than those sent to Fyodor directly.</para>
+
+    <para>Code patches to fix bugs are even better than bug reports. Basic
+    instructions for creating patch files with your changes are available at
+    <ulink url="http://insecure.org/nmap/data/HACKING" />.  Patches may be sent
+    to nmap-dev (recommended) or to Fyodor directly.</para>
+  </refsect1>
+
+  <refsect1 id='man-history'>
+    <title>History</title>
+    <para>Zenmap was originally derived from Umit, an Nmap GUI created by
+    Adriano Monteiro Marques. Umit began as a project for the Google Summer of
+    Code in 2005. Zenmap became an independent project in October 2007.</para>
+  </refsect1>
+
+  <refsect1 id='man-author'>
+    <title>Authors</title>
+    <!-- Zenmap? -->
+
+    <refsect2>
+      <title>Nmap</title>
+      <para>Fyodor 
+      <email>fyodor@insecure.org</email>
+      (<ulink url="http://insecure.org" />)
+      </para>
+
+      <para>Hundreds of people have made valuable contributions to Nmap
+      over the years.  These are detailed in the
+      <filename>CHANGELOG</filename> file which is distributed with Nmap
+      and also available from <ulink
+      url="http://insecure.org/nmap/changelog.html" />.</para>
+    </refsect2>
+
+    <refsect2>
+      <title>Umit</title>
+      <para>Zenmap is derived from the Umit Nmap frontend, the primary author of
+      which is Adriano Monteiro Marques <email>py.adriano@gmail.com</email>
+      (<ulink url="http://umit.sourceforge.net" />).</para>
+    </refsect2>
+  </refsect1>
+
+  <!--
+  <refsect1 id='man-legal'>
+    &legal-notices;
+  </refsect1>
+  -->
+</refentry>
