@@ -13,7 +13,11 @@ extern "C" {
 }
 
 #include <locale.h>
-#include <pcre.h>
+#ifdef HAVE_PCRE_PCRE_H
+# include <pcre/pcre.h>
+#else
+# include <pcre.h>
+#endif
 
 #include "nbase.h"
 #include "nmap_error.h"
