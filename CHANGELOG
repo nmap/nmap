@@ -1,4 +1,51 @@
 # Nmap Changelog ($Id$); -*-text-*-
+4.23RC3
+
+o Zenmap now has a man page!  It isn't very long yet, but covers the
+  basics.  Thanks to David for writing this.
+
+o A new NSE script, promiscuous.nse, scans devices on a local network
+  looking for sniffers (devices running in promiscuous mode).  This
+  script is from Marek Majkowski and is the first to use the NSE pcap
+  extension system (which he also wrote).  The script is in the demo
+  category for now (due to feature freeze), so specify it explicitly
+  to try it out.
+
+o Nmap can now handle IP aliases on Windows.  A given device such as
+  eth0 might have several IP addresses.  Nmap will use the primary
+  address, so you need to use -S if you want to specify a different
+  one. [David]
+
+o An exception (rather than luaL_argerror) is now thrown when an SSL
+  connection is attempted but OpenSSL isn't available. [David]
+
+o There is now an nmap.have_ssl NSE function so you can avoid doing
+  NSE probes when SSL isn't available. [David]
+
+o Auxillary autoconf scripts such as config.guess, config.sub,
+  depcomp, install-sh, and ltmain.sh were deleted from Nmap
+  subdirectories because configure is smart enough to use the ones from
+  the parent directory.  This decreases the Nmap source tarball and svn
+  checkout sizes. [David]
+
+o Nmap now compiles on systems which have the libPCRE include file in
+  pcre/pcre.h rather than just pcre.h.  Thanks to Lionel Cons for the
+  report. [Fyodor]
+
+o Nmap binary is now stripped again, but it now uses -x to avoid
+  stripping dynamically loaded NSE functions on Mac OS X. [David]
+
+o configure.ac now uses literal directory names rather than variable
+  references in calls to AC_CONFIG_SUBDIRS.  This removes an annoying
+  warning message which has existed for years when you regenerate
+  configure. [David]
+
+o Fixed a configure.ac error which prevented you from specifying an
+  alternative libnsock directory. [David]
+
+o Check for Python in configure only if Zenmap is requested, and bail
+  out if Zenmap is explicitly requested (--with-zenmap) and Python is
+  not available. [David]
 
 4.23RC2
 
