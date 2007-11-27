@@ -6,8 +6,6 @@ dnl
 dnl $Id: configure.in,v 1.64 2005/02/25 23:05:09 dugsong Exp $
 
 AC_INIT(include/dnet.h)
-AC_CONFIG_AUX_DIR(config)
-AC_SUBST(ac_aux_dir)
 
 AM_INIT_AUTOMAKE(libdnet, 1.10)
 AM_CONFIG_HEADER(include/config.h)

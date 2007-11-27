@@ -1,6 +1,5 @@
 AC_PREREQ(2.13)
 AC_INIT([nselib.h])
-AC_CONFIG_AUX_DIR([.])
 
 AC_PROG_CC
 

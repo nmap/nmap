@@ -326,6 +326,50 @@ Index: addr-util.c
         if (len < 46)
                 return (NULL);
 
+o Removed config.sub, config.guess, install-sh, ltmain.sh, and missing from the
+  config directory. These files are found in the parent (i.e., Nmap's)
+  directory. Also removed config/mkinstalldirs because it is replaced with
+  $(install_sh) -d. Change Makefile.am not to use ac_aux_dir, which is an
+  internal Autoconf variable.
+Index: configure.in
+===================================================================
+--- configure.in	(revision 6317)
++++ configure.in	(working copy)
+@@ -6,8 +6,6 @@
+ dnl $Id$
+ 
+ AC_INIT(include/dnet.h)
+-AC_CONFIG_AUX_DIR(config)
+-AC_SUBST(ac_aux_dir)
+ 
+ AM_INIT_AUTOMAKE(libdnet, 1.10)
+ AM_CONFIG_HEADER(include/config.h)
+Index: Makefile.am
+===================================================================
+--- Makefile.am	(revision 6317)
++++ Makefile.am	(working copy)
+@@ -10,16 +10,12 @@
+ 
+ CLEANFILES =	dnet-config
+ 
+-AUX_DIST =	$(ac_aux_dir)/acinclude.m4	\
+-		$(ac_aux_dir)/config.guess	\
+-		$(ac_aux_dir)/config.sub	\
+-		$(ac_aux_dir)/install-sh	\
+-		$(ac_aux_dir)/ltmain.sh		\
+-		$(ac_aux_dir)/missing		\
+-		$(ac_aux_dir)/mkinstalldirs
++aux_dir = config
+ 
++AUX_DIST =	$(aux_dir)/acinclude.m4
++
+ dist-hook:
+-	(cd $(distdir) && mkdir $(ac_aux_dir))
++	(cd $(distdir) && mkdir $(aux_dir))
+ 	for file in $(AUX_DIST); do \
+ 		cp $$file $(distdir)/$$file; \
+ 	done
+
 o Remember the entry->intf_len before zeroing entry in _ifrow_to_entry.
 intf_loop relies on passing the length inside the structure to make sure
 interface aliases are accounted for.

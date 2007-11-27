@@ -193,3 +193,5 @@ is in use.  Here is that patch:
 o Ran autoconf to regenerate configure (I ship those with the Nmap
   tarball rather than generating them at build time).
 
+o Removed config.sub, config.guess, and install-sh. These files are found in
+  the parent (i.e., Nmap's) directory.

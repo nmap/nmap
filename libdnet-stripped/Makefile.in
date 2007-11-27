@@ -36,12 +36,12 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/dnet-config.in \
-	$(top_srcdir)/Makefile.am.common $(top_srcdir)/configure \
-	INSTALL THANKS TODO acconfig.h config/config.guess \
-	config/config.sub config/install-sh config/ltmain.sh \
-	config/missing config/mkinstalldirs
+DIST_COMMON = README $(am__configure_deps) $(srcdir)/../config.guess \
+	$(srcdir)/../config.sub $(srcdir)/../install-sh \
+	$(srcdir)/../ltmain.sh $(srcdir)/../missing \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+	$(srcdir)/dnet-config.in $(top_srcdir)/Makefile.am.common \
+	$(top_srcdir)/configure INSTALL THANKS TODO acconfig.h
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/config/acinclude.m4 \
@@ -50,7 +50,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno configure.status.lineno
-mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/include/config.h
 CONFIG_CLEAN_FILES = dnet-config
 am__installdirs = "$(DESTDIR)$(bindir)"
@@ -111,6 +111,7 @@ EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 F77 = @F77@
 FFLAGS = @FFLAGS@
+GREP = @GREP@
 HAVE_CHECK_FALSE = @HAVE_CHECK_FALSE@
 HAVE_CHECK_TRUE = @HAVE_CHECK_TRUE@
 INSTALL_DATA = @INSTALL_DATA@
@@ -147,13 +148,9 @@ TCLLIB = @TCLLIB@
 TCL_FALSE = @TCL_FALSE@
 TCL_TRUE = @TCL_TRUE@
 VERSION = @VERSION@
-ac_aux_dir = @ac_aux_dir@
-ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
 ac_ct_F77 = @ac_ct_F77@
-ac_ct_RANLIB = @ac_ct_RANLIB@
-ac_ct_STRIP = @ac_ct_STRIP@
 am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
 am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
 am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@
@@ -170,23 +167,30 @@ build_cpu = @build_cpu@
 build_os = @build_os@
 build_vendor = @build_vendor@
 datadir = @datadir@
+datarootdir = @datarootdir@
+docdir = @docdir@
+dvidir = @dvidir@
 exec_prefix = @exec_prefix@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
 host_os = @host_os@
 host_vendor = @host_vendor@
+htmldir = @htmldir@
 includedir = @includedir@
 infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
+localedir = @localedir@
 localstatedir = @localstatedir@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
+pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
+psdir = @psdir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
@@ -198,14 +202,8 @@ SUBDIRS = include src
 bin_SCRIPTS = dnet-config
 EXTRA_DIST = LICENSE Makefile.am.common acconfig.h
 CLEANFILES = dnet-config
-AUX_DIST = $(ac_aux_dir)/acinclude.m4	\
-		$(ac_aux_dir)/config.guess	\
-		$(ac_aux_dir)/config.sub	\
-		$(ac_aux_dir)/install-sh	\
-		$(ac_aux_dir)/ltmain.sh		\
-		$(ac_aux_dir)/missing		\
-		$(ac_aux_dir)/mkinstalldirs
-
+aux_dir = config
+AUX_DIST = $(aux_dir)/acinclude.m4
 all: all-recursive
 
 .SUFFIXES:
@@ -397,7 +395,7 @@ distclean-tags:
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkdir_p) $(distdir)/. $(distdir)/config
+	$(mkdir_p) $(distdir)/. $(distdir)/.. $(distdir)/config
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -643,7 +641,7 @@ uninstall-info: uninstall-info-recursive
 
 
 dist-hook:
-	(cd $(distdir) && mkdir $(ac_aux_dir))
+	(cd $(distdir) && mkdir $(aux_dir))
 	for file in $(AUX_DIST); do \
 		cp $$file $(distdir)/$$file; \
 	done

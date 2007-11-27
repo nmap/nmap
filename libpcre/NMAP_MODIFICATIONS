@@ -53,6 +53,9 @@ o Stripped down Makefile.am and configure.ac substantially to remove
   when compiling on Mac OS X on Intel (original patch: Kurt Grutzmacher
   grutz(a)jingojango.net).  [The diff is FAR too large to included here]
 
+o Removed config.sub, config.guess, depcomp, install-sh, and missing.
+  These files are found in the parent (i.e., Nmap's) directory.
+
 o Comment out some build configuration lines from pcre-internal.h because Nmap
   builds a static library:
 
