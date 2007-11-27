@@ -72,6 +72,9 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 
 %changelog
 
+* Mon Nov 27 2007 David Fifield (david(a)bamsoftware.com)
+- Install the zenmap.1 man page.
+
 * Thu Nov 22 2007 David Fifield (david(a)bamsoftware.com)
 - Use an explicit --with-zenmap.
 
