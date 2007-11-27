@@ -93,7 +93,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy &quot;$(SolutionDir)..\nselib\*.lua&quot; &quot;$(SolutionDir)\$(ConfigurationName)\nselib\&quot;  /y &amp;&amp; xcopy &quot;$(SolutionDir)..\nselib\*.dll&quot; &quot;$(SolutionDir)\$(ConfigurationName)\nselib\&quot; /y"
+				CommandLine="xcopy &quot;$(SolutionDir)..\nselib-bin\*.dll&quot; &quot;$(SolutionDir)\$(ConfigurationName)\nselib-bin\&quot; /y"
 			/>
 		</Configuration>
 		<Configuration
@@ -172,7 +172,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy &quot;$(SolutionDir)..\nselib\*.lua&quot; &quot;$(SolutionDir)\$(ConfigurationName)\nselib\&quot;  /y &amp;&amp; xcopy &quot;$(SolutionDir)..\nselib\*.dll&quot; &quot;$(SolutionDir)\$(ConfigurationName)\nselib\&quot; /y"
+				CommandLine="xcopy &quot;$(SolutionDir)..\nselib-bin\*.dll&quot; &quot;$(SolutionDir)\$(ConfigurationName)\nselib-bin\&quot; /y"
 			/>
 		</Configuration>
 	</Configurations>

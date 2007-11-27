@@ -20,8 +20,8 @@
   ;Get installation folder from registry if available 
   InstallDirRegKey HKCU "Software\Nmap" "" 
  
-  !define VERSION "4.23RC1"  
-  VIProductVersion "4.23.0.1"
+  !define VERSION "4.23RC3"  
+  VIProductVersion "4.23.0.3"
   VIAddVersionKey /LANG=1033 "FileVersion" "${VERSION}"
   VIAddVersionKey /LANG=1033 "ProductName" "Nmap" 
   VIAddVersionKey /LANG=1033 "CompanyName" "Insecure.org" 
@@ -123,8 +123,9 @@ Section "Nmap Core Files" SecCore
   File ..\..\docs\nmap.xsl 
   File ..\nmap_performance.reg 
   File ..\..\README-WIN32 
-  File /r scripts 
+  File /r ..\..\scripts 
   File /r ..\Release\nselib
+  File /r ..\Release\nselib-bin
   File ..\icon1.ico 
   
   ;Store installation folder 

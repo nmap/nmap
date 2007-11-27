@@ -107,7 +107,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy &quot;$(SolutionDir)..\scripts&quot; &quot;.\$(ConfigurationName)\scripts\&quot; /e /y "
+				CommandLine="xcopy &quot;$(SolutionDir)..\scripts&quot; &quot;.\$(ConfigurationName)\scripts\&quot; /e /y &amp;&amp; xcopy &quot;$(SolutionDir)..\nselib\*.lua&quot; &quot;$(SolutionDir)\$(ConfigurationName)\nselib\&quot;  /y"
 			/>
 		</Configuration>
 		<Configuration
@@ -202,7 +202,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy &quot;$(SolutionDir)..\scripts&quot; &quot;.\$(ConfigurationName)\scripts\&quot; /e /y"
+				CommandLine="xcopy &quot;$(SolutionDir)..\scripts&quot; &quot;.\$(ConfigurationName)\scripts\&quot; /e /y &amp;&amp; xcopy &quot;$(SolutionDir)..\nselib\*.lua&quot; &quot;$(SolutionDir)\$(ConfigurationName)\nselib\&quot;  /y"
 			/>
 		</Configuration>
 	</Configurations>
@@ -310,11 +310,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\protocols.cc"
+				RelativePath="..\portreasons.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\portreasons.cc"
+				RelativePath="..\protocols.cc"
 				>
 			</File>
 			<File
@@ -499,11 +499,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\protocols.h"
+				RelativePath="..\portreasons.h"
 				>
 			</File>
 			<File
-				RelativePath="..\portreasons.h"
+				RelativePath="..\protocols.h"
 				>
 			</File>
 			<File
