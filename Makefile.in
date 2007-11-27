@@ -83,8 +83,8 @@ $(TARGET): @LUA_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
-nsestdlib: nselib/Makefile 
-	@echo Compiling nse-standard-library; cd nselib && $(MAKE)
+nsestdlib: nselib-bin/Makefile 
+	@echo Compiling nse-standard-library; cd nselib-bin && $(MAKE)
 
 
 pcre_build: $(LIBPCREDIR)/Makefile
@@ -144,7 +144,7 @@ nsock_clean:
 lua_clean:
 	-cd $(LIBLUADIR) && $(MAKE) clean
 nselib_clean:
-	-cd nselib && $(MAKE) clean
+	-cd nselib-bin && $(MAKE) clean
 zenmap_clean:
 	-cd $(ZENMAPDIR) && $(PYTHON) setup.py clean --all
 pcap_dist_clean:
@@ -156,7 +156,7 @@ dnet_dist_clean:
 lua_dist_clean:
 	-cd $(LIBLUADIR) && $(MAKE) clean
 nselib_dist_clean:
-	-cd nselib && $(MAKE) distclean
+	-cd nselib-bin && $(MAKE) distclean
 nbase_dist_clean:
 	-cd $(NBASEDIR) && $(MAKE) distclean
 nsock_dist_clean:
@@ -221,15 +221,15 @@ install-zenmap: $(ZENMAPDIR)/setup.py
 
 NSE_FILES = scripts/script.db scripts/*.nse
 NSE_LIB_LUA_FILES = nselib/*.lua
-NSE_LIB_SO_FILES = nselib/*.so
+NSE_LIB_SO_FILES = nselib-bin/*.so
 
 install-nse: $(TARGET)
 	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(nmapdatadir)/scripts
 	cp -f $(NSE_FILES) $(DESTDIR)$(nmapdatadir)/scripts
 	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(nmapdatadir)/nselib
 	cp -f $(NSE_LIB_LUA_FILES) $(DESTDIR)$(nmapdatadir)/nselib
-	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(nmaplibexecdir)/nse
-	cp -f $(NSE_LIB_SO_FILES) $(DESTDIR)$(nmaplibexecdir)/nse
+	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(nmaplibexecdir)/nselib-bin
+	cp -f $(NSE_LIB_SO_FILES) $(DESTDIR)$(nmaplibexecdir)/nselib-bin
 
 install: install-nmap $(INSTALLNSE) $(INSTALLZENMAP)
 	@echo "NMAP SUCCESSFULLY INSTALLED"

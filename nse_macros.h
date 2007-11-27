@@ -25,12 +25,8 @@
 	#define SCRIPT_ENGINE_LUA_DIR 	   "scripts/"
 #endif
 
-#ifdef WIN32
-	#define SCRIPT_ENGINE_LIB_DIR 	   "nselib\\"
-#else
-	#define SCRIPT_ENGINE_LIB_DIR 	   "nselib/"
-  #define SCRIPT_ENGINE_LIBEXEC_DIR  "nse/"
-#endif
+#define SCRIPT_ENGINE_LIB_DIR 	   "nselib/"
+#define SCRIPT_ENGINE_LIBEXEC_DIR  "nselib-bin/"
 
 #define SCRIPT_ENGINE_DATABASE 		   "script.db"
 #define SCRIPT_ENGINE_EXTENSION		   ".nse"

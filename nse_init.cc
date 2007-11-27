@@ -69,10 +69,7 @@ int init_lua(lua_State* l) {
 /*sets two variables, which control where lua looks for modules (implemented in C or lua */
 int init_setlualibpath(lua_State* l){
 	char path[MAX_FILENAME_LEN];
-
-  #ifndef WIN32
-  char cpath[MAX_FILENAME_LEN];
-  #endif
+	char cpath[MAX_FILENAME_LEN];
 
 	const char*oldpath, *oldcpath;
 	std::string luapath, luacpath;
@@ -83,20 +80,19 @@ int init_setlualibpath(lua_State* l){
 		return SCRIPT_ENGINE_ERROR;
 	}
 
-  #ifndef WIN32
 	if(nmap_fetchfile(cpath, MAX_FILENAME_LEN, SCRIPT_ENGINE_LIBEXEC_DIR)!=2){
 		error("%s: %s not a directory\n", SCRIPT_ENGINE, SCRIPT_ENGINE_LIBEXEC_DIR);
 		return SCRIPT_ENGINE_ERROR;
 	}
-  #endif
 
 	/* the path lua uses to search for modules is setted to the 
 	 * SCRIPT_ENGINE_LIBDIR/ *.lua with the default path 
 	 * (which is read from the package-module) appended  - 
 	 * the path for C-modules is as above but it searches for shared libs (*.so)	*/
 	luapath= std::string(path) + "?.lua;"; 
+
 #ifdef WIN32
-	luacpath= std::string(path) + "?.dll;";
+	luacpath= std::string(cpath) + "?.dll;";
 #else
 	luacpath= std::string(cpath) + "?.so;";
 #endif

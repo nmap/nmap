@@ -548,7 +548,7 @@ else
 fi
 
 if test $no_lua != yes; then
-	AC_CONFIG_SUBDIRS( nselib )
+	AC_CONFIG_SUBDIRS( nselib-bin )
 	NSELIB_CLEAN=nselib_clean
 	NSELIB_DIST_CLEAN=nselib_dist_clean
 fi
