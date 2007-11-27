@@ -28,6 +28,11 @@ o Zenmap gives clearer error messages when an import error occurs or
 o Zenmap now looks for its data files relative to the directory of the
   zenmap script to allow running from the build/svn directory. [David]
 
+o NSE C modules are now installed into an nselib-bin directory.  This
+  was needed to make the dns-test-open-recursion and zoneTrans NSE
+  scripts work properly, since they use the NSE bit library
+  (bit.so). [Diman, Fyodor]
+
 o Auxillary autoconf scripts such as config.guess, config.sub,
   depcomp, install-sh, and ltmain.sh were deleted from Nmap
   subdirectories because configure is smart enough to use the ones from
