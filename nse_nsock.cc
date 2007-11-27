@@ -551,6 +551,11 @@ static int l_nsock_gc(lua_State* l){
 
 static int l_nsock_close(lua_State* l) {
 	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+
+	/* Never ever collect nse-pcap connections. */
+	if(udata->ncap_socket){
+		return 0;
+	}
 	
 	l_nsock_clear_buf(l, udata);
 
