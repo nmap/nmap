@@ -58,6 +58,7 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 
 %files
 %defattr(-,root,root)
+%doc %{_prefix}/share/man/man1/zenmap.1.gz
 %{_bindir}/zenmap
 %{_bindir}/nmapfe
 %{_bindir}/xnmap
