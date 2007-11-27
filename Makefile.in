@@ -178,7 +178,7 @@ install-nmap: $(TARGET)
 # Use strip -x to avoid stripping dynamically loaded NSE functions. See
 # http://seclists.org/nmap-dev/2007/q4/0272.html.
 	$(STRIP) -x $(DESTDIR)$(bindir)/nmap
-	$(INSTALL) -c -m 644 docs/$(TARGET).1 docs/zenmap.1 $(DESTDIR)$(mandir)/man1/
+	$(INSTALL) -c -m 644 docs/$(TARGET).1 $(DESTDIR)$(mandir)/man1/
 	$(INSTALL) -c -m 644 docs/nmap.xsl $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 docs/nmap.dtd $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 nmap-services $(DESTDIR)$(nmapdatadir)/
@@ -236,7 +236,7 @@ install: install-nmap $(INSTALLNSE) $(INSTALLZENMAP)
 
 uninstall:
 	rm -f $(bindir)/$(TARGET) $(bindir)/xnmap
-	rm -f $(mandir)/man1/nmap.1 $(mandir)/man1/zenmap.1
+	rm -f $(mandir)/man1/nmap.1
 	rm -rf $(nmapdatadir) $(nmaplibexecdir)
 
 ${srcdir}/configure: configure.ac 
