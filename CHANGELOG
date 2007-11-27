@@ -33,7 +33,7 @@ o NSE C modules are now installed into an nselib-bin directory.  This
   scripts work properly, since they use the NSE bit library
   (bit.so). [Diman, Fyodor]
 
-o Auxillary autoconf scripts such as config.guess, config.sub,
+o Axillary autoconf scripts such as config.guess, config.sub,
   depcomp, install-sh, and ltmain.sh were deleted from Nmap
   subdirectories because configure is smart enough to use the ones from
   the parent directory.  This decreases the Nmap source tarball and svn
