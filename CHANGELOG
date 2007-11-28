@@ -1,4 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
+o Compatibility with systems that have the pcre.h header file in its
+  own pcre directory should now be fixed for real. [Fyodor]
+
 4.23RC3
 
 o Zenmap now has a man page!  It isn't very long yet, but covers the
