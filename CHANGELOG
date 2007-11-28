@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Included netbios-smb-os-discovery.nse NSE script which uses NetBIOS
+  and SMB queries to guess OS version.  This script was written by
+  Judy Novak and contributed by Sourcefire.
+
 o Compatibility with systems that have the pcre.h header file in its
   own pcre directory should now be fixed for real. [Fyodor]
 

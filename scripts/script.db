@@ -29,6 +29,8 @@ Entry{ category = "malware", filename = "kibuvDetection.nse" }
 Entry{ category = "backdoor", filename = "mswindowsShell.nse" }
 Entry{ category = "discovery", filename = "nbstat.nse" }
 Entry{ category = "safe", filename = "nbstat.nse" }
+Entry{ category = "version", filename = "netbios-smb-os-discovery.nse" }
+Entry{ category = "discovery", filename = "promiscuous.nse" }
 Entry{ category = "discovery", filename = "ripeQuery.nse" }
 Entry{ category = "safe", filename = "robots.nse" }
 Entry{ category = "demo", filename = "showHTMLTitle.nse" }
