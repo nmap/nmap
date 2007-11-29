@@ -24,9 +24,10 @@ o Zenmap now has a man page!  It isn't very long yet, but covers the
 o A new NSE script, promiscuous.nse, scans devices on a local network
   looking for sniffers (devices running in promiscuous mode).  This
   script is from Marek Majkowski and is the first to use the NSE pcap
-  extension system (which he also wrote).  The script is in the demo
-  category for now (due to feature freeze), so specify it explicitly
-  to try it out.
+  extension system (which he also wrote).  The script is only in the
+  discovery category for now so it does not run by default.  Specify
+  it by name for now.  We may make it default after the upcoming
+  stable release.
 
 o Nmap can now handle IP aliases on Windows.  A given device such as
   eth0 might have several IP addresses.  Nmap will use the primary
