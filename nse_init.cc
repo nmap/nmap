@@ -227,6 +227,12 @@ int init_rules(lua_State* l, std::vector<std::string> chosenScripts) {
 		c_iter = strdup((*iter).c_str());
 		type = init_fetchfile(path, sizeof(path), c_iter);
 		free(c_iter);
+
+		if (type == 0) {
+			c_iter = strdup((*iter + std::string(SCRIPT_ENGINE_EXTENSION)).c_str());
+			type = init_fetchfile(path, sizeof(path), c_iter);
+			free(c_iter);
+		}
 		
 		switch(type) {
 			case 0: // no such path
