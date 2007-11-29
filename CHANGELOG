@@ -8,12 +8,15 @@ o Compatibility with systems that have the pcre.h header file in its
   own pcre directory should now be fixed for real. [Fyodor]
 
 o Enhanced the radmind service detection signature and added a
-  deprecated radmind port to nmap-services.  Thanks to Matt Selsky for
-  the patch.
+  deprecated radmind port to nmap-services.  [Matt Selsky]
+
+o Documented the "--script all" option in the man page and NSE
+  article.  This option executes all scripts in the NSE database
+  regardless of category. [Fyodor]
 
 o Fixed the NSIS installer so that it does not include some excess
   files (mswin32/* and .svn).  Thanks to Alan Jones for reporting the
-  problem.
+  problem. [Fyodor]
 
 
 4.23RC3

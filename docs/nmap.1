@@ -1003,21 +1003,31 @@ performs a script scan using the default set of scripts\. it is equivalent to
 \fB\-\-script=safe,intrusive\fR
 .RE
 .PP
-\fB\-\-script=<script\-categories|directory|filename>\fR
+\fB\-\-script <script\-categories|directory|filename|all>\fR
 .RS 4
-gives you the opportunity to choose from a custom set of scripts\. You can specify script\-categories, single scripts and/or directories with scripts which are to be run against the target hosts instead of the default set\. Nmap will try to interpret the arguments at first as categories and afterwards as files or directories in one of the following places
-\fI\-\-datadir/\fR
-;
-\fI$(NMAPDIR)/\fR
-;
+Runs a script scan (like
+\fB\-sC\fR) with the scripts you have chosen rather than the defaults\. Arguments can be script categories, single scripts or directories with scripts which are to be run against the target hosts instead of the default set\. Nmap will try to interpret the arguments at first as categories and afterwards as files or directories\. Absolute paths are used as is, relative paths are searched in the following places until found:
+\fI\-\-datadir/\fR;
+\fI$(NMAPDIR)/\fR;
 \fI~user/nmap/\fR
-(only on *nix\-platforms);
+(not searched on Windows);
 \fINMAPDATADIR/\fR
 or
-\fI\./\fR
-(optionally inside a
+\fI\./\fR\. A
 \fIscripts/\fR
-subdirectory)\.
+subdirectory is also tried in each of these\. Give the argument
+all
+to execute all scripts in the Nmap script database\.
+.sp
+If a directory is specified and found, Nmap loads all NSE scripts (any filenames ending with
+\.nse) from that directory\. They must have the filename extension
+nse\. Nmap does not recurse into subdirectories to find scripts\. When individual file names are specified, the file extension does not have to be
+nse\.
+.sp
+Nmap scripts are stored in a
+\fIscripts\fR
+subdirectory of the Nmap data directory by default\. Scripts are indexed in a database stored in
+\fIscripts/script\.db\fR\. The database lists all of the scripts in each category\. A single script may be in several categories\.
 .RE
 .PP
 \fB\-\-script\-args=<name1=value1,name2={name3=value3},name4=value4>\fR
