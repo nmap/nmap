@@ -5,7 +5,7 @@ export NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION'
 COMMA_VERSION=$(shell echo $(NMAP_NUM_VERSION) | tr '.' ',')
 LOGLOC=c:nmapbuild.log
 NSE_FILES = scripts/script.db scripts/*.nse
-NSE_LIB_FILES = nselib/*.lua nselib/*.dll
+NSE_LIB_FILES = nselib/*.lua nselib-bin/*.dll
 
 winbuild:
 # VCExpress.exe is devenv.com with the commercial Visual Studio suite instead of VC++ Express
