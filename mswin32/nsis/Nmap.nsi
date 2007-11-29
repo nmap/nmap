@@ -123,9 +123,9 @@ Section "Nmap Core Files" SecCore
   File ..\..\docs\nmap.xsl 
   File ..\nmap_performance.reg 
   File ..\..\README-WIN32 
-  File /r ..\..\scripts 
-  File /r ..\Release\nselib
-  File /r ..\Release\nselib-bin
+  File /r /x mswin32 /x .svn ..\..\scripts
+  File /r /x mswin32 /x .svn ..\Release\nselib
+  File /r /x mswin32 /x .svn ..\Release\nselib-bin
   File ..\icon1.ico 
   
   ;Store installation folder 
@@ -169,7 +169,7 @@ Section "Network Performance Improvements (Registry Changes)" SecPerfRegistryMod
 SectionEnd 
 
 Section "Zenmap (GUI frontend)" SecZenmap
-  File /r ..\nmap-${VERSION}\zenmap
+  File /r /x mswin32 /x .svn ..\nmap-${VERSION}\zenmap
   StrCpy $zenmapset "true"
 SectionEnd
 
