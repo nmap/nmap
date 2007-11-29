@@ -7,7 +7,7 @@ o Included netbios-smb-os-discovery.nse NSE script which uses NetBIOS
 o Compatibility with systems that have the pcre.h header file in its
   own pcre directory should now be fixed for real. [Fyodor]
 
-o Enhanded the radmind service detection signature and added a
+o Enhanced the radmind service detection signature and added a
   deprecated radmind port to nmap-services.  Thanks to Matt Selsky for
   the patch.
 
