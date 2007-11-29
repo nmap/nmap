@@ -1387,7 +1387,7 @@ match quagga m|^\r\nHello, this is [Qq]uagga \(version (\d[-.\w]+)\)\.\r\nCopyri
 
 match qtopia-transfer m|^220 Qtopia transfer service ready!\n| p/Qtopia transfer daemon/ d/PDA/
 
-match radmind m|^200 RAP 1 ([\w-_.]+) ([\w-_.]+) radmind access protocol\r\n| p/radmind/ v/$2/ h/$1/
+match radmind m|^200-?RAP 1 ([\w-_.]+) ([\w-_.]+) radmind access protocol\r\n| p/radmind/ v/$2/ h/$1/
 match rationalsoft m|^\0\0\0\x10ip_infilter=true$| p/Rational Soft Hidden Administrator Server/ o/Windows/ i/ha_server.exe/
 match razor2 m|^sn=\w&srl=\d+&ep4=[-\w]+&a=\w&a=\w+\r\n$| p/Vipul's Razor2 anti-spam service/
 match renderer m|^250 backburner ([\d.]+) Ready\.\r\nbackburner>| p/Discreet Backburner network renderer/ v/$1/

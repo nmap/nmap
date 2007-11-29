@@ -2064,6 +2064,7 @@ montage-lm        6147/tcp   # Montage License Manager
 montage-lm        6147/udp   # Montage License Manager
 ricardo-lm        6148/tcp   # Ricardo North America License Manager
 ricardo-lm        6148/udp   # Ricardo North America License Manager
+radmind           6222/tcp   # Radmind protocol
 gnutella          6346/tcp   # Gnutella file sharing protocol
 gnutella          6346/udp   # Gnutella file sharing protocol
 gnutella2         6347/tcp   # Gnutella2 file sharing protocol
@@ -2080,6 +2081,7 @@ netop-rc          6502/udp   # NetOp Remote Control (by Danware Data A/S)
 xdsxdm            6558/tcp   # 
 xdsxdm            6558/udp   # 
 analogx           6588/tcp   # AnalogX HTTP proxy port
+radmind           6662/tcp   # Radmind protocol (deprecated)
 irc-serv          6666/tcp   # internet relay chat server
 irc               6667/tcp   # Internet Relay Chat
 irc               6668/tcp   # Internet Relay Chat
