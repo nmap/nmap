@@ -312,7 +312,7 @@ ac_includes_default="\
 ac_subdirs_all="$ac_subdirs_all libpcap"
 ac_subdirs_all="$ac_subdirs_all libpcre"
 ac_subdirs_all="$ac_subdirs_all libdnet-stripped"
-ac_subdirs_all="$ac_subdirs_all nselib"
+ac_subdirs_all="$ac_subdirs_all nselib-bin"
 ac_subdirs_all="$ac_subdirs_all nbase"
 ac_subdirs_all="$ac_subdirs_all nsock/src"
 ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS libpcapdir pcredir build build_cpu build_vendor build_os host host_cpu host_vendor host_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CXX CXXFLAGS ac_ct_CXX CXXPROG COMPAT_OBJS COMPAT_SRCS STRIP ac_pt_STRIP LUAFLAGS CPP EGREP PYTHON PYTHON_VERSION PYTHON_PREFIX PYTHON_EXEC_PREFIX PYTHON_PLATFORM pythondir pkgpythondir pyexecdir pkgpyexecdir BUILDZENMAP INSTALLZENMAP ZENMAP_CLEAN ZENMAP_DIST_CLEAN OPENSSL_LIBS PCAP_DEPENDS PCAP_BUILD PCAP_CLEAN PCAP_DIST_CLEAN LIBPCAP_LIBS subdirs LIBPCRE_LIBS LIBPCREDIR PCRE_DEPENDS PCRE_BUILD PCRE_CLEAN PCRE_DIST_CLEAN LIBDNET_LIBS LIBDNETDIR DNET_DEPENDS DNET_BUILD DNET_CLEAN DNET_DIST_CLEAN LIBLUA_LIBS LIBLUADIR LUA_DEPENDS LUA_BUILD LUA_CLEAN LUA_DIST_CLEAN INSTALLNSE NSELIB_CLEAN NSELIB_DIST_CLEAN NBASEDIR NBASE_BUILD LIBNBASE_LIBS NSOCKDIR NSOCK_BUILD LIBNSOCK_LIBS LIBOBJS LTLIBOBJS'
@@ -7448,7 +7448,7 @@ fi
 if test $no_lua != yes; then
 
 
-subdirs="$subdirs nselib "
+subdirs="$subdirs nselib-bin "
 
 	NSELIB_CLEAN=nselib_clean
 	NSELIB_DIST_CLEAN=nselib_dist_clean
