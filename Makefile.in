@@ -192,7 +192,7 @@ $(ZENMAPDIR)/setup.py:
 	cd $(ZENMAPDIR) && install_scripts/unix/setup.sh
 
 # Update the version number used by Zenmap.
-$(ZENMAPDIR)/umitCore/Version.py $(ZENMAPDIR)/share/zenmap/config/zenmap_version: nmap.h
+$(ZENMAPDIR)/zenmapCore/Version.py $(ZENMAPDIR)/share/zenmap/config/zenmap_version: nmap.h
 	cd $(ZENMAPDIR) && $(PYTHON) install_scripts/utils/version_update.py "$(NMAP_VERSION)"
 
 # By default distutils rewrites installed scripts to hardcode the
@@ -203,7 +203,7 @@ $(ZENMAPDIR)/umitCore/Version.py $(ZENMAPDIR)/share/zenmap/config/zenmap_version
 # local installation.
 DEFAULT_PYTHON_PATH = /usr/bin/env python
 
-build-zenmap: $(ZENMAPDIR)/setup.py $(ZENMAPDIR)/umitCore/Version.py
+build-zenmap: $(ZENMAPDIR)/setup.py $(ZENMAPDIR)/zenmapCore/Version.py
 # When DESTDIR is defined, assume we're building an executable
 # distribution rather than a local installation and force a generic
 # Python interpreter location.
