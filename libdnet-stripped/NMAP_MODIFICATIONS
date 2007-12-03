@@ -390,37 +390,3 @@ Index: src/intf-win32.c
  
  	for (i = 0; i < intf->ifcombo[ifrow->dwType].cnt; i++) {
  		if (intf->ifcombo[ifrow->dwType].idx[i] == ifrow->dwIndex)
-
-o Show a warning whenever a Windows interface type is unrecognized.
-Index: src/intf-win32.c
-===================================================================
---- src/intf-win32.c	(revision 6321)
-+++ src/intf-win32.c	(working copy)
-@@ -23,6 +23,8 @@
- #include <stdlib.h>
- #include <string.h>
- 
-+#include "err.h"
-+
- #include "pcap.h"
- 
- struct ifcombo {
-@@ -42,7 +44,7 @@
- static char *
- _ifcombo_name(int type)
- {
--	char *name = "net";	/* XXX */
-+	char *name;
- 	
- 	if (type == MIB_IF_TYPE_ETHERNET) {
- 		name = "eth";
-@@ -56,6 +58,9 @@
- 		name = "lo";
- 	} else if (type == MIB_IF_TYPE_SLIP) {
- 		name = "sl";
-+	} else {
-+		name = "net";
-+		warnx("_ifcombo_name: Mapping unknown interface type %d to \"%s\".\n", type, name);
- 	}
- 	return (name);
- }

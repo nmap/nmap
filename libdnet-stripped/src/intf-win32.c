@@ -23,8 +23,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "err.h"
-
 #include "pcap.h"
 
 struct ifcombo {
@@ -44,7 +42,7 @@ struct intf_handle {
 static char *
 _ifcombo_name(int type)
 {
-	char *name;
+	char *name = "net";	/* XXX */
 	
 	if (type == MIB_IF_TYPE_ETHERNET) {
 		name = "eth";
@@ -58,9 +56,6 @@ _ifcombo_name(int type)
 		name = "lo";
 	} else if (type == MIB_IF_TYPE_SLIP) {
 		name = "sl";
-	} else {
-		name = "net";
-		warnx("_ifcombo_name: Mapping unknown interface type %d to \"%s\".\n", type, name);
 	}
 	return (name);
 }
