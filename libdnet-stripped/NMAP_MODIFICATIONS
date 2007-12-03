@@ -390,3 +390,103 @@ Index: src/intf-win32.c
  
  	for (i = 0; i < intf->ifcombo[ifrow->dwType].cnt; i++) {
  		if (intf->ifcombo[ifrow->dwType].idx[i] == ifrow->dwIndex)
+
+o Forced interface type numbers to be canonicalized to internal numbers to
+avoid accessing uninitialized memory when an unknown device name is
+given.
+Index: libdnet-stripped/src/intf-win32.c
+===================================================================
+--- libdnet-stripped/src/intf-win32.c	(revision 6413)
++++ libdnet-stripped/src/intf-win32.c	(working copy)
+@@ -42,9 +42,12 @@
+ static char *
+ _ifcombo_name(int type)
+ {
+-	char *name = "net";	/* XXX */
++	/* Unknown interface types get the prefix "net". */
++	char *name = "net";
+ 	
+-	if (type == MIB_IF_TYPE_ETHERNET) {
++	if (type == MIB_IF_TYPE_ETHERNET || type == IF_TYPE_IEEE80211) {
++		/* INTF_TYPE_IEEE80211 is used for wireless devices on
++		   Windows Vista. */
+ 		name = "eth";
+ 	} else if (type == MIB_IF_TYPE_TOKENRING) {
+ 		name = "tr";
+@@ -60,9 +63,12 @@
+ 	return (name);
+ }
+ 
++/* Return a canonical internal interface type number for the given
++ * device string. */
+ static int
+ _ifcombo_type(const char *device)
+ {
++	/* Unknown device names (like "net") get mapped to INTF_TYPE_OTHER. */
+ 	int type = INTF_TYPE_OTHER;
+ 	
+ 	if (strncmp(device, "eth", 3) == 0) {
+@@ -81,6 +87,20 @@
+ 	return (type);
+ }
+ 
++/* Map an MIB_IFROW.dwType interface type into an internal interface
++   type. The internal types are never exposed to users of this library;
++   they exist only for the sake of ordering interface types within an
++   intf_handle, which has an array of ifcombo structures ordered by
++   type. Entries in an intf_handle must not be stored or accessed by a
++   raw MIB_IFROW.dwType number because they will not be able to be found
++   by a device name such as "net0" if the device name does not map
++   exactly to the dwType. */
++static int
++_if_type_canonicalize(int type)
++{
++	return _ifcombo_type(_ifcombo_name(type));
++}
++
+ static void
+ _ifcombo_add(struct ifcombo *ifc, DWORD idx)
+ {
+@@ -102,6 +122,7 @@
+ {
+ 	struct addr *ap, *lap;
+ 	int i;
++	int type;
+ 	
+ 	/* The total length of the entry may be passed in inside entry.
+ 	   Remember it and clear the entry. */
+@@ -110,14 +131,15 @@
+ 	/* Restore the length. */
+ 	entry->intf_len = intf_len;
+ 
+-	for (i = 0; i < intf->ifcombo[ifrow->dwType].cnt; i++) {
+-		if (intf->ifcombo[ifrow->dwType].idx[i] == ifrow->dwIndex)
++	type = _if_type_canonicalize(ifrow->dwType);
++	for (i = 0; i < intf->ifcombo[type].cnt; i++) {
++		if (intf->ifcombo[type].idx[i] == ifrow->dwIndex)
+ 			break;
+ 	}
+-	/* XXX - dwType matches MIB-II ifType. */
++	/* XXX - type matches MIB-II ifType. */
+ 	snprintf(entry->intf_name, sizeof(entry->intf_name), "%s%lu",
+-	    _ifcombo_name(ifrow->dwType), i);
+-	entry->intf_type = (uint16_t)ifrow->dwType;
++	    _ifcombo_name(type), i);
++	entry->intf_type = (uint16_t)type;
+ 	
+ 	/* Get interface flags. */
+ 	entry->intf_flags = 0;
+@@ -201,9 +223,11 @@
+ 	 * XXX - like IP_ADAPTER_INFO ComboIndex
+ 	 */
+ 	for (i = 0; i < intf->iftable->dwNumEntries; i++) {
++		int type;
+ 		ifrow = &intf->iftable->table[i];
+-		if (ifrow->dwType < MIB_IF_TYPE_MAX) {
+-			_ifcombo_add(&intf->ifcombo[ifrow->dwType],
++		type = _if_type_canonicalize(ifrow->dwType);
++		if (type < MIB_IF_TYPE_MAX) {
++			_ifcombo_add(&intf->ifcombo[type],
+ 			    ifrow->dwIndex);
+ 		} else
+ 			return (-1);
