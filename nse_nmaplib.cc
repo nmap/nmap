@@ -401,7 +401,9 @@ static int l_set_port_version(lua_State* l, Target* target, Port* port) {
 		// SCRIPT_ENGINE_GETSTRING(fingerprint);
 	
 		SCRIPT_ENGINE_GETSTRING(service_tunnel);
-		if(strcmp(service_tunnel, "none") == 0)
+		if(service_tunnel == NULL)
+			tunnel = SERVICE_TUNNEL_NONE;	
+		else if(strcmp(service_tunnel, "none") == 0)
 			tunnel = SERVICE_TUNNEL_NONE;	
 		else if(strcmp(service_tunnel, "ssl") == 0)
 			tunnel = SERVICE_TUNNEL_SSL;
@@ -409,6 +411,8 @@ static int l_set_port_version(lua_State* l, Target* target, Port* port) {
 			luaL_argerror(l, 2, "Invalid value for port.version.service_tunnel");
 	lua_pop(l, 1);
 
+	if(c_probestate == NULL)
+		probestate = PROBESTATE_INITIAL;
 	if(strcmp(c_probestate, "hardmatched") == 0)
 		probestate = PROBESTATE_FINISHED_HARDMATCHED;	
 	else if(strcmp(c_probestate, "softmatched") == 0)
