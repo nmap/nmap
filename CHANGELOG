@@ -18,6 +18,9 @@ o Fixed the NSIS installer so that it does not include some excess
   files (mswin32/* and .svn).  Thanks to Alan Jones for reporting the
   problem. [Fyodor]
 
+o Updated nmap-mac-prefixes with the latest IEEE data.  Also added
+  back Cooperative Linux virtual NIC which was inadvertantly removed in
+  a previous release.
 
 4.23RC3
 
