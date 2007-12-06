@@ -38,7 +38,7 @@ action = function(host, port)
 	end
 
 	if (value == nil) then
-		value = ""
+		return
 	end
 	
 	return "IP belongs to: " .. value
