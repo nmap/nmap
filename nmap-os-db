@@ -284,9 +284,11 @@ IE(DFI=N%T=40%TG=40%TOSI=Z%CD=Z%SI=S%DLI=S)
 # Actiontec MI424-WR, firmware version 4.0.16.1.45.160 (Verizon FiOS service).
 # HP Brocade 4Gb SAN Switch for HP p-Class BladeSystem running firmware version 5.0.0
 # Brocade 4100 running firmware version 5.2.1a
-Fingerprint Actiontec MI-424-WR wireless broadband router (Linux 2.4.21) or HP Brocade 4100 switch
-Class Actiontec | embedded || WAP
+# WNR834Bv2 - Wireless Router, Firmware Version 1.0.30
+Fingerprint Actiontec MI-424-WR wireless broadband router (Linux 2.4.21), HP Brocade 4100 switch, or Netgear WNR834B wireless broadband router
+Class Actiontec | Linux | 2.4.X | WAP
 Class HP | embedded || switch
+Class Netgear | embedded || WAP
 SEQ(SP=C1-D1%GCD=<7%ISR=C2-D8%TI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -329,8 +331,10 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # well PTI-8505G ADSL 2/2+ router
 # NETGEAR DG834G
 # Actiontec GT724WG Firmware 3.130.4.0.7,  branded and provided by ISP: TDS Metrocom.
-Fingerprint Broadband router (Actiontec GT701-WG or GT724-WG; D-Link 500T; Linksys WAG54G, WAG354G, or RTP300; Netgear DG834G, or WELL PTI-850G)
+# BeWAN 700G ADSL2+, v3.6.0C - w1.0.4
+Fingerprint Broadband router (Actiontec GT701-WG or GT724-WG; BeWAN 770G ADSL2+; D-Link 500T; Linksys WAG54G, WAG354G, or RTP300; Netgear DG834G, or WELL PTI-850G)
 Class Actiontec | embedded || WAP
+Class BeWAN | embedded || WAP
 Class D-Link | embedded || broadband router
 Class Linksys | embedded || WAP
 Class Netgear | embedded || WAP
@@ -1282,7 +1286,8 @@ IE(DFI=N%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 # Planet WAP-1963A Runtime Code Version 2.72
 # Dlink DSL-504T ADSL router. Linux version 2.4.17_mvl21-malta-mips_fp_le (gcc version 2.95.3 20010315 (release/MontaVista)) #61 Thu Jun 10 11:43:47 CST 2004
 # KiSS DP558 Digital Video Recorder
-# Linux scotland 2.4.9-e.12smp #1 SMP Tue Feb 11 02:24:10 EST 2003 i686 unknown Red Hat Enterprise Linux ES release 2.1 (Panama)
+# Linux 2.4.9-e.12smp #1 SMP Tue Feb 11 02:24:10 EST 2003 i686 unknown Red Hat Enterprise Linux ES release 2.1 (Panama)
+# DLink ADSL router: DSL-500T with DSL-500T.V1.00B02T02.RU.20050223 firmware
 Fingerprint Linux 2.4.9 - 2.4.18
 Class Linux | Linux | 2.4.X | broadband router
 Class Linux | Linux | 2.4.X | WAP
@@ -1530,7 +1535,8 @@ U1(DF=N%T=FF%TG=FF%TOS=0%IPL=38%UN=0%RIPL=15C%RID=1042%RIPCK=Z%RUCK=0%RUL=G%RUD=
 IE(DFI=S%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Blue Coat SG200 Proxy - SGOS 4.2.2.8 release id: 26972
-Fingerprint Blue Coat SG200 proxy server (SGOS 4.2.2.8)
+# SGOS 4.2.5.1, release 29951.
+Fingerprint Blue Coat SG200 proxy server (SGOS 4.2.2.8 - 4.2.5.1)
 Class Blue Coat | SGOS | 4.X | web proxy
 SEQ(SP=94-9E%GCD=<7%ISR=9C-A6%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M578NW0NNT11%O3=M280NW0NNT11%O4=M5B4NW0NNT11%O5=M218NW0NNT11%O6=M109NNT11)
@@ -2363,7 +2369,8 @@ IE(DFI=S%T=101%TG=101%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Cisco 3640 IOS ver 12.4.12
 # Cisco 1812 router
-Fingerprint Cisco 1812 or 3640 router (IOS 12.4)
+# Cisco IOS Software, 3700 Software (C3725-ADVENTERPRISEK9-M), Version 12.4(7), RELEASE SOFTWARE (fc6)
+Fingerprint Cisco 1812, 3640, or 3700 router (IOS 12.4)
 Class Cisco | IOS | 12.X | router
 SEQ(SP=FA-10A%GCD=<7%ISR=103-10D%TI=RD%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
@@ -2509,7 +2516,9 @@ U1(DF=N%T=FF|100%TG=FF|100%TOS=C0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%
 IE(DFI=S%T=FF|100%TG=FF|100%TOSI=S%CD=S%SI=S%DLI=S)
 
 # IOS (tm) C820 Software (C820-K9OSV6Y6-M), Version 12.3(20), RELEASE SOFTWARE (fc2)
-Fingerprint Cisco 820-series router (IOS 12.3)
+# IOS (tm) 2500 Software (C2500-IS-L), Version 12.3(23), RELEASE SOFTWARE (fc5)
+# Cisco 1721 router running IOS version 12.3(6c)
+Fingerprint Cisco 820, 1721, or 2514 router (IOS 12.3)
 Class Cisco | IOS | 12.X | router
 SEQ(SP=E2-107%GCD=<7%ISR=108-10C%TI=Z%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
@@ -2754,6 +2763,7 @@ IE(DFI=S%T=100%TG=100%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Cisco Catalyst WS-C3750G-12S-E IOS 12.2(35)SE2
 # cisco WS-C2950C-24 IOS (tm) C2950 Software (C2950-I6K2L2Q4-M), Version 12.1(22)EA10a
+# IOS (tm) C2950 Software (C2950-I6K2L2Q4-M), Version 12.1(22)EA10a, RELEASE SOFTWARE (fc2)
 Fingerprint Cisco Catalyst C2950 or 3750G switch (IOS 12.1 - 12.2)
 Class Cisco | IOS | 12.X | switch
 SEQ(SP=FA-10A%GCD=<7%ISR=104-112%TI=RD%II=RI%TS=U)
@@ -2826,7 +2836,8 @@ IE(DFI=S%T=100%TG=100%TOSI=Z%CD=S%SI=S%DLI=S)
 # Cisco WS-C3512-XL
 # Cisco IOS (tm) C3500XL Software (C3500XL-C3H2S-M), Version 12.0(5)WC10
 # IOS (tm) C2900XL Software (C2900XL-C3H2S-M), Version 12.0(5)WC17, RELEASE SOFTWARE (fc1)
-Fingerprint Cisco Catalyst C2900- or C3500-series switch (IOS 12.0)
+# IOS (tm) C3500XL Software (C3500XL-C3H2S-M), Version 12.0(5)WC17, RELEASE SOFTWARE (fc1)
+Fingerprint Cisco Catalyst C2900- or C3500XL-series switch (IOS 12.0)
 Class Cisco | IOS | 12.X | switch
 SEQ(SP=FE-10A%GCD=<7%ISR=105-10F%TI=Z%II=RI%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
@@ -4821,8 +4832,10 @@ IE(DFI=S%T=40%TG=40%TOSI=Z%CD=S%SI=S%DLI=S)
 # HP Color LaserJet 2605dtn
 # HP Color LaserJet 2840 All-In-One printer copier fax scanner
 # HP LaserJet 1022n printer
-Fingerprint HP LaserJet printer (1020-, 2010-, 2600-, 2800-, 3050-, or 3390-series)
+# Brother HL-5250DN
+Fingerprint HP LaserJet (1020-, 2010-, 2600-, 2800-, 3050-, or 3390-series), or Brother HL-5250DN printer
 Class HP | embedded || printer
+Class Brother | embedded || printer
 SEQ(SP=0-16%GCD=1E848|3D090|5B8D8|7A120|98968|B71B0%ISR=9F-A9%TI=I%II=I%SS=S%TS=A)
 OPS(O1=M5B4NW0NNSNNT11%O2=M578NW0NNSNNT11%O3=M280NW0NNT11%O4=M5B4NW0NNSNNT11%O5=M218NW0NNSNNT11%O6=M109NNSNNT11)
 WIN(W1=21F0%W2=2088%W3=2258%W4=21F0%W5=20C0%W6=209D)
@@ -4857,7 +4870,8 @@ U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=1042%RIPCK=Z%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=Z%CD=S%SI=S%DLI=S)
 
 # HP Photosmart 8400   Model HPF2109W040W firmware version:QF1P133G
-Fingerprint HP Photosmart 8400 printer
+# HP DeskJet 6127
+Fingerprint HP DeskJet 6127 or Photosmart 8400 printer
 Class HP | embedded || printer
 SEQ(SP=B-15%GCD=1E848|3D090|5B8D8|7A120|98968|B71B0%ISR=9F-A9%TI=I%II=I%SS=S%TS=A)
 OPS(O1=M5B4NW0NNSNNT11%O2=M578NW0NNSNNT11%O3=M280NW0NNT11%O4=M5B4NW0NNSNNT11%O5=M218NW0NNSNNT11%O6=M109NNSNNT11)
@@ -5002,7 +5016,8 @@ IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # HP Procurve 2650 (firmware H.07.50)
 # Xerox Phaser 8550DT. Operating System: 4.302. PostScript: 4.8.0
-Fingerprint HP ProCurve 2650 switch or Xerox Phaser 8550DT printer
+# Xerox Phaser 7400N network printer
+Fingerprint HP ProCurve 2650 switch, or Xerox Phaser 7400N or 8550DT printer
 Class HP | embedded || switch
 Class Xerox | embedded || printer
 SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=99-A3%TI=I%II=I%SS=S%TS=U)
@@ -6722,7 +6737,9 @@ IE(DFI=N%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 # openwrt, linux 2.4.34
 # not specifically linksys wrt54gs, but any broadcom BCM947xx/953xx device (this particular one is a buffalo wzr-rs-g54)
 # OpenWrt Kamikaze - With X-Wrt Extensions 7.07, Linux 2.4.34 #10 Mon Aug 27 15:35:58 CDT 2007 mips unknown
-Fingerprint Linksys WRT54G v2 or WRT54GS v4, or Buffalo AirStation WZR-RS-G54 running OpenWrt w/Linux kernel 2.4
+# generic dual-P4-Xeon server running Linux 2.4.33-ow1.
+# WRT54GL, Linux 2.4.34 #2 Tue Oct 16 13:41:23 CEST 2007 mips unknown, OpenWRT Kamikaze 7.09, r9494
+Fingerprint Linksys WRT54G v2, WRT54GL, or WRT54GS v4; or Buffalo AirStation WZR-RS-G54 running OpenWrt w/Linux kernel 2.4
 Class Linux | Linux | 2.4.X | broadband router
 SEQ(SP=B3-CF%GCD=<7%ISR=C2-D7%TI=Z%II=I%TS=U)
 OPS(O1=M5B4NNSNW0%O2=M5B4NNSNW0%O3=M5B4NW0%O4=M5B4NNSNW0%O5=M5B4NNSNW0%O6=M5B4NNS)
@@ -6759,9 +6776,11 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # KEMP Technologies LoadMaster 1500 load balancer
 # AXIS 221 Network Camera version 4.30
 # IOLAN SCS48C terminal server
-Fingerprint Linux 2.4.18 - 2.4.32
+# HP/Compaq T5525 Thin Client (Linux-based) running version 3158 A
+# Linksys WRT150N EU; v1.1, Firmware Version: v1.01.9
+Fingerprint Linux 2.4.18 - 2.4.32 (likely embedded)
 Class Linux | Linux | 2.4.X | general purpose
-SEQ(SP=A0-CE%GCD=<7%ISR=BE-D6%TI=Z%II=I%TS=7|9)
+SEQ(SP=A0-D0%GCD=<7%ISR=BE-D6%TI=Z%II=I%TS=7|9)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
 ECN(R=Y%DF=Y%T=40%TG=40%W=16D0%O=M5B4NNSNW0%CC=N%Q=)
@@ -14142,7 +14161,7 @@ U1(DF=Y%T=FF%TG=FF%TOS=0%IPL=70%UN=0%RIPL=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=Y%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # SunOS 5.9 Generic_122300-03 sun4us sparc FJSV,GPUZC-M
-# SunOS xxx.xxx.xxxxxxxxx.vladnet.ru 5.10 Generic_125101-10 i86pc i386 i86pc
+# SunOS 5.10 Generic_125101-10 i86pc i386 i86pc
 Fingerprint Sun Solaris 9 or 10
 Class Sun | Solaris | 9 | general purpose
 Class Sun | Solaris | 10 | general purpose
