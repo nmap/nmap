@@ -542,7 +542,9 @@ match ftp m|^220  \(Ver\. ([^)]+)\) [A-Z][a-z]{2} \d+ 20\d+ ready\.\r\n| p|Canon
 match ftp m|^220 Cisco \(([\d.]+)\) FTP server ready\r\n| p/Cisco ftpd/ v/$1/ o/IOS/
 match ftp m|^220 ISOS FTP Server \(([\d.]+)\) ready\r\n| p/Xavi 7768 WAP ftpd/ v/$1/ d/WAP/
 match ftp m|^220- smallftpd ([\d.]+)\r\n220- check http://smallftpd\.free\.fr| p/smallftpd/ v/$1/ o/Windows/
-match ftp m|^220 ([\w-_.]+) GridFTP Server ([\d.]+) \(gcc32, [\d-]+\) ready\.\r\n| p/Globus GridFTPd/ v/$2/ h/$1/
+match ftp m|^220 ([\w-_.]+) GridFTP Server ([\d.]+) \(gcc\w+, [\d-]+\) ready\.\r\n| p/Globus GridFTPd/ v/$2/ h/$1/
+match ftp m|^220 ([\w-_.]+) ([A-Z]+ )?GridFTP Server ([\d.]+) (GSSAPI type Globus/GSI wu-\S+) \(gcc\w+, [\d-]+\) ready\.\r\n| p/Globus GridFTPd/ v/$3/ i/$4/ h/$1/
+match ftp m|^220 ([\w-_.]+) FTP server \(GridFTP Server ([\d.]+) \[(GSI patch v[\d\.]+)\] (wu-\S+) .+\) ready\.\r\n| p/Globus GridFTPd/ v/$2/ i/$4 $3/ h/$1/
 match ftp m|^220 Welcome to the OpenDreambox FTP service\.\r\n| p/Dreambox ftpd/ d/media device/
 match ftp m|^220 ([\w-_.]+) FTP server \(KONICA FTPD version ([\d.]+)\) ready\.\r\n| p/Konica Minolta printer ftpd/ v/$2/ h/$1/ d/printer/
 match ftp m|^220 KONICA MINOLTA FTP server ready\.\r\n| p/Konica Minolta Bizhub printer ftpd/ d/printer/
