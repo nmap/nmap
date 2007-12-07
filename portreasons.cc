@@ -121,7 +121,7 @@ char *reason_text[ER_MAX+1]={
         "source-quench", "net-prohibited", "host-prohibited", "unknown", 
         "unknown", "admin-prohibited", "unknown", "time-exceeded", "unknown", "unknown",
         "timestamp-reply", "unknown", "unknown", "unknown", "addressmask-reply",
-        "no-ipid-change", "ipid-change", "arp-reponse", "tcp-response",
+        "no-ipid-change", "ipid-change", "arp-response", "tcp-response",
         "no-response", "localhost-response", "script-set", "unknown-response"
 };
 
