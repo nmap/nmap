@@ -44,11 +44,19 @@ service = function(service, _proto, _state)
 		service_table = service
 	end	
 
+	if(type(state) == "string") then
+		state_table = {state}
+	elseif(type(state) == "table") then
+		state_table = state
+	end	
+
 	return function(host, port)
-		if(port.protocol == proto and port.state == state) then
-			for _, service in ipairs(service_table) do
-				if(port.service == service) then
-					return true
+		for _, state in pairs(state_table) do
+			if(port.protocol == proto and port.state == state) then
+				for _, service in ipairs(service_table) do
+					if(port.service == service) then
+						return true
+					end
 				end
 			end
 		end
