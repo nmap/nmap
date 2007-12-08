@@ -2,12 +2,19 @@
 
 4.49RC5
 
+o Don't install the orphaned and incomplete Zenmap HTML documentation.
+  Instead point to the Nmap documentation site, which is provides more
+  comprehensive and up-to-date Nmap docs.  We're rapidly improving the
+  online Zenmap docs as well.  Of course the Nmap and (new!) Zenmap
+  man pages are still installed on Unix. [Fyodor]
+
 o Fix mswin32/Makefile so that the new nselib-bin directory is
   properly included in the Nmap win32 zipfile distribution.  Thanks
-  to Rob Nicholls for reporting the problem.
+  to Rob Nicholls for reporting the problem. [Fyodor]
 
 o Fix host reason reported when the target is found to be "down" due
-  to no response. [Kris]
+  to no response. Nmap now reports "no-response" rather than
+  "unknown-reason" [Kris]
 
 4.49RC4
 
