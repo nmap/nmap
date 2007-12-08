@@ -4549,6 +4549,8 @@ static void processData(UltraScanInfo *USI) {
 	    ultrascan_host_probe_update(USI, host, probeI, newstate, NULL);
 	  else
 	    ultrascan_port_probe_update(USI, host, probeI, newstate, NULL);
+	  if (host->target->reason.reason_id == ER_UNKNOWN)
+	    host->target->reason.reason_id = ER_NORESPONSE;
 	  if (tryno_capped && lastRetryCappedWarning != USI) {
 	    /* Perhaps I should give this on a per-host basis.  Oh
 	       well, hopefully it is rare anyway. */

@@ -6,6 +6,9 @@ o Fix mswin32/Makefile so that the new nselib-bin directory is
   properly included in the Nmap win32 zipfile distribution.  Thanks
   to Rob Nicholls for reporting the problem.
 
+o Fix host reason reported when the target is found to be "down" due
+  to no response. [Kris]
+
 4.49RC4
 
 o David did a huge OS fingerprint integration marathon, going through
