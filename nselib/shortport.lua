@@ -4,7 +4,7 @@ module(..., package.seeall)
 portnumber = function(port, _proto, _state)
 	local port_table, state_table
 	local proto = _proto or "tcp"
-	local state = _state or {"open"}
+	local state = _state or {"open", "open|filtered"}
 
 	if(type(port) == "number") then
 		port_table = {port}
@@ -35,7 +35,7 @@ end
 
 service = function(service, _proto, _state)
 	local service_table;
-	local state = _state or "open"
+	local state = _state or {"open", "open|filtered"}
 	local proto = _proto or "tcp"
 
 	if(type(service) == "string") then
@@ -66,7 +66,7 @@ service = function(service, _proto, _state)
 end
 
 port_or_service = function(port, _service, proto, _state)
-	local state = _state or {"open"}
+	local state = _state or {"open", "open|filtered"}
 	local state_table
 
 	if(type(state) == "string") then
