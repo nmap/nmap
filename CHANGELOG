@@ -1,25 +1,78 @@
 # Nmap Changelog ($Id$); -*-text-*-
+4.49RC4
 
-o Included netbios-smb-os-discovery.nse NSE script which uses NetBIOS
+o David did a huge OS fingerprint integration marathon, going through
+  all of your submissions (more than 1600) since August 20.  The 2nd
+  generation database has grown more than 30% to 1,085 entries!  Many
+  of the existing fingerprints were improved as well.  Notable new or
+  greatly improved entries include the iPhone, iPod Touch, Mac OS X
+  Leopard FreeBSD 7.0, Linux 2.6.23, Nokia cell phones (E61, E65, E70,
+  E90, N95), and OpenBSD 4.2.  Of course there were all manner of new
+  printers, cable/DSL routers, switches, enterprise routers, IP
+  phones, cell phones and a heap of obscure equipment such as the
+  BeaconMedaes medical gas alarm.  Windows Vista fingerprints were
+  also improved significantly.  Please keep those OS fingerprint
+  submissions and corrections coming!
+
+o Doug integrated all of your version detection fingerprints and
+  corrections since October 4.  The DB now has an incredible 4,542
+  signatures for 449 service protocols.  The service protocols with
+  the most signatures are http (1,473), telnet (459), ftp (423), smtp
+  (327), pop3 (188), http-proxy (111), ssh (104), imap (103), irc (46)
+  and nntp (44).
+
+o Included the netbios-smb-os-discovery.nse script which uses NetBIOS
   and SMB queries to guess OS version.  This script was written by
   Judy Novak and contributed by Sourcefire.
 
-o Compatibility with systems that have the pcre.h header file in its
-  own pcre directory should now be fixed for real. [Fyodor]
-
-o Enhanced the radmind service detection signature and added a
-  deprecated radmind port to nmap-services.  [Matt Selsky]
+o Canonicalized the interface type numbers used internally by
+  libdnet. Also Libdnet now recognizes devices with type
+  INTF_TYPE_IEEE80211 as Ethernet devices.  This ought to make
+  wireless network scanning work on Windows Vista. For more background
+  see http://seclists.org/nmap-dev/2007/q4/0391.html. [David]
 
 o Documented the "--script all" option in the man page and NSE
   article.  This option executes all scripts in the NSE database
   regardless of category. [Fyodor]
 
+o NSE scripts can now be specified by name without the .nse
+  extension.  So instead of using "--script
+  bruteTelnet.nse,HTTPpasswd.nse,SQLInject.nse,robots.nse", you can
+  just pass "--script bruteTelnet,HTTPpasswd,SQLInject,robots". [Kris]
+
+o Removed some auto-generated files from the new nselib-bin directory
+  as they could cause compatibility problems. Also updated
+  mswin32/Makefile to reflect the new nselib-bin DLL location [David]
+
+o ripeQuery.nse was updated to avoid printing some useless
+  information. [Kris]
+
+o Compatibility with systems that have the pcre.h header file in its
+  own pcre directory should now be fixed for real. [Fyodor]
+
+o Enhanced the radmind service detection signature and added a
+  deprecated radmind port to nmap-services. [Matt Selsky]
+
+o Zenmap now gives better errors to stdout when it can't even pop up a
+  dialog box (such as when PyGTK can't be loaded). [David]
+
+o Fixed a Zenmap crash which occurred on Mac OS X and possibly other
+  platforms.  The error message aid: "object of type
+  'ScanHostDetailsPage' has no len()". [David]
+
+o Fixed a crash which occurred when an NSE script called
+  set_port_version() at times that version scanning was not
+  enabled. [Diman]
+
 o Fixed the NSIS installer so that it does not include some excess
   files (mswin32/* and .svn).  Thanks to Alan Jones for reporting the
   problem. [Fyodor]
 
+o Renamed some Zenmap Python packages to allow Zenmap and Umit to be
+  installed at the same time. [David]
+
 o Updated nmap-mac-prefixes with the latest IEEE data.  Also added
-  back Cooperative Linux virtual NIC which was inadvertantly removed in
+  back Cooperative Linux virtual NIC which was inadvertently removed in
   a previous release.
 
 4.23RC3

@@ -102,7 +102,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .sp
 .RS 4
 .nf
-Nmap 4\.23RC3 ( http://insecure\.org )
+Nmap 4\.49RC4 ( http://insecure\.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\.
@@ -333,11 +333,13 @@ This option skips the Nmap discovery stage altogether\. Normally, Nmap uses this
 \fB\-PN\fR
 causes Nmap to attempt the requested scanning functions against
 \fIevery\fR
-target IP address specified\. So if a class B sized target address space (/16) is specified on the command line, all 65,536 IP addresses are scanned\. That second option character in
-\fB\-PN\fR
-is a zero and not the letter O\. Proper host discovery is skipped as with the list scan, but instead of stopping and printing the target list, Nmap continues to perform requested functions as if each target IP is active\. For machines on a local ethernet network, ARP scanning will still be performed (unless
+target IP address specified\. So if a class B sized target address space (/16) is specified on the command line, all 65,536 IP addresses are scanned\. Proper host discovery is skipped as with the list scan, but instead of stopping and printing the target list, Nmap continues to perform requested functions as if each target IP is active\. For machines on a local ethernet network, ARP scanning will still be performed (unless
 \fB\-\-send\-ip\fR
-is specified) because Nmap needs MAC addresses to further scan target hosts\.
+is specified) because Nmap needs MAC addresses to further scan target hosts\. This option flag for this used to be
+\fBP0\fR
+(uses zero), but was renamed to avoid confusion with protocol ping\'s
+\fBPO\fR
+(uses the letter O) flag\.
 .RE
 .PP
 \fB\-PS [portlist]\fR (TCP SYN Ping)
