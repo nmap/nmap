@@ -5,7 +5,6 @@ export NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION'
 COMMA_VERSION=$(shell echo $(NMAP_NUM_VERSION) | tr '.' ',')
 LOGLOC=c:nmapbuild.log
 NSE_FILES = scripts/script.db scripts/*.nse
-NSE_LIB_FILES = nselib/*.lua nselib-bin/*.dll
 
 winbuild:
 # VCExpress.exe is devenv.com with the commercial Visual Studio suite instead of VC++ Express
@@ -25,7 +24,8 @@ winbuild:
 	mkdir nmap-$(NMAP_VERSION)/scripts
 	cd Release && cp -f $(NSE_FILES) ../nmap-$(NMAP_VERSION)/scripts/
 	mkdir nmap-$(NMAP_VERSION)/nselib
-	cd Release && cp -f $(NSE_LIB_FILES) ../nmap-$(NMAP_VERSION)/nselib/
+	cp -a Release/nselib nmap-$(NMAP_VERSION)
+	cp -a Release/nselib-bin nmap-$(NMAP_VERSION)
 	zip -r nmap-$(NMAP_VERSION)-win32.zip nmap-$(NMAP_VERSION)
 	cp winpcap/winpcap-nmap-*.exe nmap-$(NMAP_VERSION)
 	mkdir nmap-$(NMAP_VERSION)/zenmap
