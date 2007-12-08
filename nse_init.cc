@@ -300,7 +300,7 @@ int init_pick_default_categories(std::vector<std::string>& chosenScripts) {
 					chosenScripts.begin(), 
 					chosenScripts.end(), 
 					(*rcat_iter).category) != chosenScripts.end())
-				fatal("%s: specifying the \"%s\" category explicitely is not allowed.", 
+				fatal("%s: specifying the \"%s\" category explicitly is not allowed.", 
 				SCRIPT_ENGINE, (*rcat_iter).category.c_str());
 		}
 	}
