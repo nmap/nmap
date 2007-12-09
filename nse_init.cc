@@ -27,6 +27,7 @@ int init_loaddir(lua_State* l, char* dirname);
 int init_loadcategories(lua_State* l, std::vector<std::string> categories, std::vector<std::string> &unusedTags);
 int init_scandir(char* dirname, std::vector<std::string>& result, int files_or_dirs);
 int init_fetchfile(char *result, size_t result_max_len, char* file);
+int init_fetchfile_absolute(char *path, size_t path_len, char *file);
 int init_updatedb(lua_State* l);
 int init_pick_default_categories(std::vector<std::string>& chosenScripts);
 
@@ -225,12 +226,12 @@ int init_rules(lua_State* l, std::vector<std::string> chosenScripts) {
 	for(iter = unusedTags.begin(); iter != unusedTags.end(); iter++) {
 
 		c_iter = strdup((*iter).c_str());
-		type = init_fetchfile(path, sizeof(path), c_iter);
+		type = init_fetchfile_absolute(path, sizeof(path), c_iter);
 		free(c_iter);
 
 		if (type == 0) {
 			c_iter = strdup((*iter + std::string(SCRIPT_ENGINE_EXTENSION)).c_str());
-			type = init_fetchfile(path, sizeof(path), c_iter);
+			type = init_fetchfile_absolute(path, sizeof(path), c_iter);
 			free(c_iter);
 		}
 		
@@ -521,6 +522,30 @@ int init_fetchfile(char *path, size_t path_len, char* file) {
 	}
 
 	return type;
+}
+
+static bool filename_is_absolute(const char *file) {
+	if (file[0] == '/')
+		return true;
+#ifdef WIN32
+	if (file[0] != '\0' && file[1] == ':')
+		return true;
+#endif
+	return false;
+}
+
+/* This is a modification of init_fetchfile that first looks for an
+ * absolute file name.
+ */
+int init_fetchfile_absolute(char *path, size_t path_len, char *file) {
+	if (filename_is_absolute(file)) {
+		if (o.debugging > 1)
+			log_write(LOG_STDOUT, "Trying absolute path %s.\n", file);
+		Strncpy(path, file, path_len);
+		return nmap_fileexistsandisreadable(file);
+	}
+
+	return init_fetchfile(path, path_len, file);
 }
 
 /* This is simply the most portable way to check
