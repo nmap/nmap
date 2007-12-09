@@ -15,7 +15,8 @@ require "shortport"
 portrule = shortport.port_or_service(21, "ftp")
 
 login = function(socket, user, pass)
-	res = ""
+	local status, err
+	local res = ""
 	status, err = socket:send("USER " .. user .. "\n")
 	status, err = socket:send("PASS " .. pass .. "\n")
 
@@ -37,7 +38,8 @@ login = function(socket, user, pass)
 end
 
 action = function(host, port)
-	socket = nmap.new_socket()
+	local res
+	local socket = nmap.new_socket()
 
 	socket:connect(host.ip, port.number)
 	res = login(socket, "nobody", "e0e0e0e0")
