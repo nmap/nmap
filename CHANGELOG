@@ -1,5 +1,27 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+4.49RC6
+
+o NSE scripts can now be specifed by absolute path to the --script
+  option.  This was supposed to work before, but didn't. [David]
+
+o Insert a path separator in returned paths in init_scandir on
+  Windows.  Otherwise options such as "--scripts=scripts" (where
+  scripts is a directory) were failing with error messages about being
+  unable to access things like "C:\Nmap\scriptsanonFTP.nse" (should be
+  "C:\Nmap\scripts\anonFTP.nse"). [David]
+
+o Add some "local" declarations to xamppDefaultPass.nse to avoid
+  errors like: "SCRIPT ENGINE: [string "Global Access"]:1: Attempted
+  to change the global 'socket' ..." [David]
+
+o NSE "shortports" function now by default matches ports in the
+  "open|filtered" state as well as "open" ones. [Diman]
+
+o Nsock msevent_new and msevent_delete calls fixed to handle NULL I/O
+  descriptors.  This should fix a reported bus error crash. [Diman]
+
+
 4.49RC5
 
 o Don't install the orphaned and incomplete Zenmap HTML documentation.
