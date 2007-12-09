@@ -540,7 +540,7 @@ static bool filename_is_absolute(const char *file) {
 int init_fetchfile_absolute(char *path, size_t path_len, char *file) {
 	if (filename_is_absolute(file)) {
 		if (o.debugging > 1)
-			log_write(LOG_STDOUT, "Trying absolute path %s.\n", file);
+			log_write(LOG_STDOUT, "%s: Trying absolute path %s\n", SCRIPT_ENGINE, file);
 		Strncpy(path, file, path_len);
 		return nmap_fileexistsandisreadable(file);
 	}
