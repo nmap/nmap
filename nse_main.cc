@@ -299,7 +299,7 @@ int process_mainloop(lua_State* l) {
 			}
 
 			SCRIPT_ENGINE_TRY(process_finalize(l, current.registry_idx));
-			SCRIPT_ENGINE_TRY(lua_gc(l, LUA_GCCOLLECT,NULL));
+			SCRIPT_ENGINE_TRY(lua_gc(l, LUA_GCCOLLECT, 0));
 		} else {
 			// this script returned because of an error
 			// print the failing reason if the verbose level is high enough	
