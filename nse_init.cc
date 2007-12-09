@@ -632,7 +632,7 @@ int init_scandir(char* dirname, std::vector<std::string>& result, int files_or_d
 
 		// otherwise we add it to the results
 		// we assume that dirname ends with a directory separator of some kind
-		path = std::string(dirname) + std::string(entry.cFileName);
+		path = std::string(dirname) + "\\" + std::string(entry.cFileName);
 		result.push_back(path);
 		morefiles = FindNextFile(dir, &entry);
 	}
