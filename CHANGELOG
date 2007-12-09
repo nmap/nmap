@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o A Zenmap crash was fixed. Scanning once, then scanning another target
+  on the same scan tab caused an ImportError ("list index out of range")
+  in zenmapGUI/ScanNotebook.py. João Medeiros reported the bug. [David]
+
 4.49RC6
 
 o NSE scripts can now be specified by absolute path to the --script
