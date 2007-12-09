@@ -2,7 +2,7 @@
 
 4.49RC6
 
-o NSE scripts can now be specifed by absolute path to the --script
+o NSE scripts can now be specified by absolute path to the --script
   option.  This was supposed to work before, but didn't. [David]
 
 o Insert a path separator in returned paths in init_scandir on
@@ -20,6 +20,11 @@ o NSE "shortports" function now by default matches ports in the
 
 o Nsock msevent_new and msevent_delete calls fixed to handle NULL I/O
   descriptors.  This should fix a reported bus error crash. [Diman]
+
+o Prevent old bit.dll and pcre.dll files from being installed in
+  nselib directory by Windows executable installer.  Bit.dll is still
+  installed in nselib-bin where it belongs.  Thanks to Rob Nicholls for
+  reporting the problem.
 
 
 4.49RC5
