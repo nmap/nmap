@@ -2407,12 +2407,12 @@ match tinc m|^0 \w+ 17\n| p/tinc vpn daemon/
 
 # This will match systems with clocks set between the
 # following 2 dates:
-# 0xC4000000 = Mon, 15 Mar 2004 10:12:16 GMT
-# 0xCCFFFFFF = Sat, 27 Dec 2008 01:14:39 GMT
+# 0xCA000000 = Thu May 24 14:13:52 2007 GMT
+# 0xCEFFFFFF = Tue Jan 19 10:55:11 2010 GMT
 # Also needs updating in the UDP Help probe (search for TIME)
 # TIME
-match time m|^[\xc4-\xcc]...$| i/32 bits/
-match time m|^[\xc4-\xcc]....\0\0\0$| i/64 bits/
+match time m|^[\xca-\xce]...$|s i/32 bits/
+match time m|^[\xca-\xce]....\0\0\0$|s i/64 bits/
 
 # Need more examples... -Doug
 match timeedit m|^\0\0\0H\0\0\0\x02\x0fTimeEdit131\.| p/Evolvera TimeEdit/ v/1.3.1/
@@ -5298,8 +5298,8 @@ match daytime m|^[0-3]\d [A-Z][A-Z][A-Z] 20\d\d \d\d:\d\d:\d\d \S+\r\n|
 match daytime m|^\d{1,2}:\d\d:\d\d [AP]M \d{1,2}/\d\d/\d{4}\n$| p/Windows small service daytime/ o/Windows/
 match daytime m|^\d{1,2}:\d\d:\d\d \d{1,2}/\d\d/\d{4}\n$| p/Windows daytime/ o/Windows/
 # TIME
-match time m|^[\xc4-\xcc]...$| i/32 bits/
-match time m|^[\xc4-\xcc]....\0\0\0$| i/64 bits/
+match time m|^[\xca-\xce]...$|s i/32 bits/
+match time m|^[\xca-\xce]....\0\0\0$|s i/64 bits/
 # Solaris Internet Name Server (42/udp), see ien116.txt
 match nameserver m|^help\r\n\r\n\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01| p/Solaris Internet Name Server/ i/IEN 116/ o/Solaris/
 match nameserver m|^\x03\x03\x02$| p/Solaris Internet Name Server/ i/IEN 116/ o/Solaris/
