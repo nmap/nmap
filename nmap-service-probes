@@ -6064,7 +6064,7 @@ match afs m|^[\d\D]{28}\s*(OpenAFS)\s+stable\s+([\d\.]+)\s+([^\0]+)\0| p/$1/ v/$
 match afs m|^[\d\D]{28}\s*(OpenAFS)([\d\.]{3}[^\s\0]*)\s+([^\0]+)\0| p/$1/ v/$2/ i/$3/
 match afs m|^[\d\D]{28}\s*(OpenAFS)([\d\.]{3}[^\s\0]*)\0| p/$1/ v/$2/
 # Transarc AFS
-match afs m|^[\d\D]{28}\s*Base\sconfiguration\safs([\d\.]+)\s+[^\s\0\;]+[\0\;]| p/Transarc AFS/ v/$1/ i/$2/
+match afs m|^[\d\D]{28}\s*Base\sconfiguration\safs([\d\.]+)\s+[^\s\0\;]+[\0\;]| p/Transarc AFS/ v/$1/
 # Arla
 match afs m|^[\d\D]{28}\s*arla-([\d\.]+)\0| p/Arla/ v/$1/
 
