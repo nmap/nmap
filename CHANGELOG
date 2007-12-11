@@ -1,8 +1,14 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+4.49RC7
+
 o A Zenmap crash was fixed. Scanning once, then scanning another target
   on the same scan tab caused an ImportError ("list index out of range")
-  in zenmapGUI/ScanNotebook.py. Jo„o Medeiros reported the bug. [David]
+  in zenmapGUI/ScanNotebook.py. Joao Medeiros reported the
+  bug. [David]
+
+o Updated a couple of version detection signatures due to problem
+  reports by Lionel Cons. [Doug]
 
 4.49RC6
 
@@ -28,7 +34,7 @@ o Nsock msevent_new and msevent_delete calls fixed to handle NULL I/O
 o Prevent old bit.dll and pcre.dll files from being installed in
   nselib directory by Windows executable installer.  Bit.dll is still
   installed in nselib-bin where it belongs.  Thanks to Rob Nicholls for
-  reporting the problem.
+  reporting the problem. [Fyodor]
 
 
 4.49RC5
@@ -294,9 +300,9 @@ o Fixed Zenmap so that it can handle asterisks in the command line
   (e.g. "nmap 192.168.*.*" or "nmap -phttp* localhost") [David]
 
 o Change the Zenmap bug report dialogue to now give instructions for
-  reporting isues to nmap-dev. [David]
+  reporting issues to nmap-dev. [David]
 
-o Modified higwidgets/higdialogs.py for compatability with old
+o Modified higwidgets/higdialogs.py for compatibility with old
   versions of PyGTK. [David]
 
 o Updated IANA assignment IP list for random IP (-iR)
@@ -560,7 +566,7 @@ o Nmap now has Snprintf() and Vsnprintf() as safer alternatives to the
 
 o Upgraded libpcre from version 6.7 to 7.2 [Kris]
 
-o Merged various Umit bug fixes from SouceForge trunk: "missing import
+o Merged various Umit bug fixes from SourceForge trunk: "missing import
   webbrowser on umit", "Missing markup in 'OS Class' on
   HostDetailsPage", "some command line options are now working
   (target, profile, verbose, open result file and run an nmap
@@ -599,7 +605,7 @@ o Fixed an output bug on systems like Windows which return -1 when
 o Added sys/types.h include to portreasons.h to help OpenBSD compilation.  
   Thanks to Olivier Meyer for the patch.
 
-o Many hardcoded function names and instances of __FUNCTION__ were
+o Many hard coded function names and instances of __FUNCTION__ were
   changed to __func__ [Kris]
 
 o Configure scripts for Nmap, Nbase, and Nsock were optimized to
@@ -697,22 +703,22 @@ o Fixed a bug which caused port 0 to be improperly used for gen1 OS
 o The --iflist table now provides Winpcap device names on
   Windows. [Eddie]
 
-o The Nmap reference guide (man page) Docbook XML source is now in the
+o The Nmap reference guide (man page) DocBook XML source is now in the
   SVN repository at svn://svn.insecure.org/nmap/docs/refguide.xml .
 
 o NSE now has garbage collection so that if you forget to close a
   socket before exiting a script, it is closed for you. [Stoiko]
 
-o The <portused> tag in XML output now provides the open TCP port used
+o The [portused] tag in XML output now provides the open TCP port used
   for OS detection as well as the closed TCP and UDP ports which were
   reported previously. [Kris]
 
-o XML output now has a <times> tag for reporting final time
+o XML output now has a [times] tag for reporting final time
   information which was already printed in normal output in verbose
   mode (round trip time, rtt variance, timeout, etc.) [Kris]
 
-o Changed the XML output format so that the <extrareasons> tag (part
-  of Eddie's --reason patch) falls within the <extraports> tag. [Kris]
+o Changed the XML output format so that the [extrareasons] tag (part
+  of Eddie's --reason patch) falls within the [extraports] tag. [Kris]
 
 o Nmap now provides more concise OS fingerprints for submission thanks
   to better merging. [David Fifield]
@@ -766,7 +772,7 @@ o Performed another big OS detection run.  The DB has grown almost 10%
   to 417 fingerprints.  All submissions up to February 6 have been
   processed.  Please keep them coming!
 
-o Fixed XML output so that the opening <os> tag is printed again.  The
+o Fixed XML output so that the opening [os] tag is printed again.  The
   line which prints this was somehow removed when NSE was integrated.
   Thanks to Joshua Abraham for reporting the problem.
 
@@ -1234,7 +1240,7 @@ o Nmap now allows multiple ignored port states.  If a 65K-port scan
   filtered ports, 1000 closed ports" or "All 2051 scanned ports on
   192.168.0.69 are closed (1051) or filtered (1000)", and omit all of
   those ports from the table.  Open ports are never ignored.  XML
-  output can now have multiple <extraports> directive (one for each
+  output can now have multiple [extraports] directive (one for each
   ignored state).  The number of ports in a single state before it is
   consolidated defaults to 26 or more, though that number increases as
   you add -v or -d options.  With -d3 or higher, no ports will be
@@ -1739,7 +1745,7 @@ o Fixed a compilation problem on Mac OS X and perhaps other platforms
   with a one-line fix to scan_engine.cc.  Thanks to Felix Gr√∂bert
   (felix(a)groebert.org) for notifying me of the problem.
 
-o Fixed a problem that prevented the command "nmap -sT -PT <targets>"
+o Fixed a problem that prevented the command "nmap -sT -PT [targets]"
   from working from a non-privileged user account.  The -PT option
   doesn't change default behavior in this case, but Nmap should (and now
   does) allow it.
