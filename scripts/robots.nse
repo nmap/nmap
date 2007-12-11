@@ -62,10 +62,9 @@ action = function(host, port)
 		return nil
 	end
 
-	-- parse all disallowed entries and remove comments
+	-- parse all disallowed entries
 	local output = strbuf.new()
 	for w in string.gmatch(strbuf.dump(response, '\n'), "Disallow:%s*([^\n]*)\n") do
-			w = w:gsub("%s*#.*", "")
 			buildOutput(output, w)
 	end
 
