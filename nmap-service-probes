@@ -3405,7 +3405,7 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Apache  -OOPS Development Organi
 match http m|^HTTP/1\.0 200 OK\nDATE: .*\nPragma: no-cache\nServer: Delta UPSentry\n| p/Sentry Bulldog UPS httpd/
 match http m|^HTTP/1\.[01] \d\d\d .*Server: Gatling/([\d.]+)\r\n|s p/Gatling httpd/ v/$1/
 # PolyCom ViewStation 128
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Viavideo-Web\r\n|s v/PolyCom ViewStation/ d/webcam/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Viavideo-Web\r\n|s p/PolyCom ViewStation/ d/webcam/
 match http m|^HTTP/1\.0 \d\d\d .*\nDate: .*\nMIME-version: [\d.]+\nServer: Micro-HTTP/([\d.]+)\nContent-type: text/html\n.*Copyright Tektronix, Inc\.|s p/Tektronix printer httpd/ d/printer/ i|Micro-HTTP/$1|
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: IBM HTTP Server/([\w]+)\r\n| p/IBM httpd/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: SAlive/ ([\d.]+)\r\n|s p/Servers Alive network monitor/ v/$1/ o/Windows/
