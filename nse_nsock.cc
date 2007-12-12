@@ -221,6 +221,23 @@ static int l_nsock_connect_queued(lua_State* l) {
      script might open a few sockets at once and we don't want it to
      deadlock when it tries to open the 2nd one. */
 	const int max_descriptors_allowed = MAX(o.max_parallelism, 10);
+	
+	
+	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	
+	if(udata->nsiod!=NULL){
+		/*should a script try to connect a socket, which is already connected
+		 * we close the old connection, since it would have no access to it 
+		 * anyways
+		 */
+		if(o.scriptTrace()){
+			log_write(LOG_STDOUT,"%s: Trying to connect already connected socket - closing!\n",SCRIPT_ENGINE);
+		}
+		l_nsock_close(l);
+		lua_pop(l,1);
+	}
+	
+	
 	if(nsock_descriptors_used >= max_descriptors_allowed){
 		/* wait for free descriptor */
 		nsock_connect_queue.push_back(l);
@@ -270,17 +287,6 @@ static int l_nsock_connect(lua_State* l) {
 	
 	l_nsock_clear_buf(l, udata);
 	
-	if(udata->nsiod!=NULL){
-		/*should a script try to connect a socket, which is already connected
-		 * we close the old connection, since it would have no access to it 
-		 * anyways
-		 */
-		if(o.scriptTrace()){
-			log_write(LOG_STDOUT,"%s: Trying to connect already connected socket - closing!\n",SCRIPT_ENGINE);
-		}
-		l_nsock_close(l);
-		lua_pop(l,1);
-	}
 	error_id = getaddrinfo(addr, NULL, NULL, &dest);
 	if (error_id) {
 		error = gai_strerror(error_id);
