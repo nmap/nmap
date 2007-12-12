@@ -269,7 +269,18 @@ static int l_nsock_connect(lua_State* l) {
 	int error_id;
 	
 	l_nsock_clear_buf(l, udata);
-
+	
+	if(udata->nsiod!=NULL){
+		/*should a script try to connect a socket, which is already connected
+		 * we close the old connection, since it would have no access to it 
+		 * anyways
+		 */
+		if(o.scriptTrace()){
+			log_write(LOG_STDOUT,"%s: Trying to connect already connected socket - closing!\n",SCRIPT_ENGINE);
+		}
+		l_nsock_close(l);
+		lua_pop(l,1);
+	}
 	error_id = getaddrinfo(addr, NULL, NULL, &dest);
 	if (error_id) {
 		error = gai_strerror(error_id);
