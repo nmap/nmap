@@ -2868,6 +2868,18 @@ compatibility feature of Nmap will cause the creation of
 <filename>G-</filename> and <filename>Xscan.xml</filename>
 respectively.</para>
 
+<para>All of these arguments support <function>strftime()</function>-like
+conversions in the filename.  <literal>%H</literal>, <literal>%M</literal>,
+<literal>%S</literal>, <literal>%T</literal>, <literal>%R</literal>,
+<literal>%m</literal>, <literal>%d</literal>, <literal>%y</literal>,
+and <literal>%Y</literal> are all exactly the same as in
+<function>strftime()</function>.  <literal>%t</literal> is the same as
+<literal>%H%M%S</literal>, <literal>%r</literal> is the same as
+<literal>%H%M</literal>, and <literal>%D</literal> is the same as
+<literal>%m%d%y</literal>.  So <option>-oX 'scan-%T-%D.xml'</option>
+will use an XML file in the form of
+<filename>scan-14:48:40-121307.xml</filename>.</para>
+
 <para>Nmap also offers options to control scan verbosity and to append
 to output files rather than clobbering them.  All of these options are
 described below.</para>

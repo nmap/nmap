@@ -472,6 +472,8 @@ int nmap_main(int argc, char *argv[]) {
   int num_host_exp_groups;
   char *machinefilename = NULL, *kiddiefilename = NULL, 
     *normalfilename = NULL, *xmlfilename = NULL;
+  time_t now;
+  struct tm *tm;
   HostGroupState *hstate = NULL;
   char *endptr = NULL;
   struct scan_lists *ports = NULL;
@@ -647,6 +649,9 @@ int nmap_main(int argc, char *argv[]) {
   win_pre_init();
 #endif
 
+  now = time(NULL);
+  tm = localtime(&now);
+
   /* OK, lets parse these args! */
   optind = 1; /* so it can be called multiple times */
   while((arg = getopt_long_only(argc,fakeargv,"6Ab:D:d::e:Ffg:hIi:M:m:nO::o:P:p:qRrS:s:T:Vv", long_options, &option_index)) != EOF) {
@@ -816,23 +821,23 @@ int nmap_main(int argc, char *argv[]) {
       } else if (strcmp(long_options[option_index].name, "webxml") == 0) {
 	o.setXSLStyleSheet("http://www.insecure.org/nmap/data/nmap.xsl");
       } else if (strcmp(long_options[option_index].name, "oN") == 0) {
-	normalfilename = optarg;
+	normalfilename = logfilename(optarg, tm);
       } else if (strcmp(long_options[option_index].name, "oG") == 0 ||
 		 strcmp(long_options[option_index].name, "oM") == 0) {
-	machinefilename = optarg;
+	machinefilename = logfilename(optarg, tm);
       } else if (strcmp(long_options[option_index].name, "oS") == 0) {
-	kiddiefilename = optarg;
+	kiddiefilename = logfilename(optarg, tm);
       } else if (strcmp(long_options[option_index].name, "oH") == 0) {
 	fatal("HTML output is not directly supported, though Nmap includes an XSL for transforming XML output into HTML.  See the man page.");
       } else if (strcmp(long_options[option_index].name, "oX") == 0) {
-	xmlfilename = optarg;
+	xmlfilename = logfilename(optarg, tm);
       } else if (strcmp(long_options[option_index].name, "oA") == 0) {
 	char buf[MAXPATHLEN];
-	Snprintf(buf, sizeof(buf), "%s.nmap", optarg);
+	Snprintf(buf, sizeof(buf), "%s.nmap", logfilename(optarg, tm));
 	normalfilename = strdup(buf);
-	Snprintf(buf, sizeof(buf), "%s.gnmap", optarg);
+	Snprintf(buf, sizeof(buf), "%s.gnmap", logfilename(optarg, tm));
 	machinefilename = strdup(buf);
-	Snprintf(buf, sizeof(buf), "%s.xml", optarg);
+	Snprintf(buf, sizeof(buf), "%s.xml", logfilename(optarg, tm));
 	xmlfilename = strdup(buf);
       } else if (strcmp(long_options[option_index].name, "thc") == 0) {
 	printf("!!Greets to Van Hauser, Plasmoid, Skyper and the rest of THC!!\n");
@@ -1008,7 +1013,7 @@ int nmap_main(int argc, char *argv[]) {
         fatal("Unknown argument to -O.");
       break;
     case 'o':
-      normalfilename = optarg;
+      normalfilename = logfilename(optarg, tm);
       break;
     case 'P': 
       if (*optarg == '\0' || *optarg == 'I' || *optarg == 'E')
@@ -1244,10 +1249,6 @@ int nmap_main(int argc, char *argv[]) {
 
   if (!o.interactivemode) {
     char tbuf[128];
-    struct tm *tm;
-    time_t now = time(NULL);
-    if (!(tm = localtime(&now))) 
-      fatal("Unable to get current localtime()#!#");
     // ISO 8601 date/time -- http://www.cl.cam.ac.uk/~mgk25/iso-time.html 
     if (strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M %Z", tm) <= 0)
       fatal("Unable to properly format time");

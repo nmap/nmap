@@ -138,6 +138,8 @@ void printportoutput(Target *currenths, PortList *plist);
    in a certain place to conform to DTD. */
 void printmacinfo(Target *currenths);
 
+char *logfilename(const char *str, struct tm *tm);
+
 /* Write some information (printf style args) to the given log stream(s).
    Remember to watch out for format string bugs. */
 void log_write(int logt, const char *fmt, ...)

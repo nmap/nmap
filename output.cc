@@ -830,6 +830,77 @@ char* xml_convert (const char* str) {
   return temp;
 }
 
+char *logfilename(const char *str, struct tm *tm)
+{
+	char *ret, *end, *p;
+	char tbuf[10];
+	int retlen = strlen(str) * 6 + 1;
+
+	ret = (char *) safe_malloc(retlen);
+	end = ret + retlen;
+
+	for (p = ret; *str; str++) {
+		if (*str == '%') {
+			str++;
+
+			if (!*str)
+				break;
+
+			switch (*str) {
+			case 'H':
+				strftime(tbuf, sizeof tbuf, "%H", tm);
+				break;
+			case 'M':
+				strftime(tbuf, sizeof tbuf, "%M", tm);
+				break;
+			case 'S':
+				strftime(tbuf, sizeof tbuf, "%S", tm);
+				break;
+			case 'T':
+				strftime(tbuf, sizeof tbuf, "%T", tm);
+				break;
+			case 't':
+				strftime(tbuf, sizeof tbuf, "%H%M%S", tm);
+				break;
+			case 'R':
+				strftime(tbuf, sizeof tbuf, "%R", tm);
+				break;
+			case 'r':
+				strftime(tbuf, sizeof tbuf, "%H%M", tm);
+				break;
+			case 'm':
+				strftime(tbuf, sizeof tbuf, "%m", tm);
+				break;
+			case 'd': 
+				strftime(tbuf, sizeof tbuf, "%d", tm);
+				break;
+			case 'y': 
+				strftime(tbuf, sizeof tbuf, "%y", tm);
+				break;
+			case 'Y': 
+				strftime(tbuf, sizeof tbuf, "%Y", tm);
+				break;
+			case 'D': 
+				strftime(tbuf, sizeof tbuf, "%m%d%y", tm);
+				break;
+			default:
+				*p++ = *str;
+				continue;
+			}
+
+			assert(end - p > 1);
+			Strncpy(p, tbuf, end - p - 1);
+			p += strlen(tbuf);
+		} else {
+			*p++ = *str;
+		}
+	}
+
+	*p = 0;
+
+	return (char *) safe_realloc(ret, strlen(ret) + 1);
+}
+
 /* This is the workhorse of the logging functions.  Usually it is
    called through log_write(), but it can be called directly if you
    are dealing with a vfprintf-style va_list.  Unlike log_write, YOU
