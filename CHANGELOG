@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Zenmap no longer double-spaces its output (by inadvertently
+  duplicating newlines) when viewing scan results that were saved to a
+  file.
+
 o Nmap's output options (-oA, -oX, etc.) now support strftime()-like
   conversions in the filename.  %H, %M, %S, %m, %d, %y, and %Y are
   all the same as in strftime().  %T is the same as %H%M%S, %R is the
