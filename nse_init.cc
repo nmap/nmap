@@ -528,7 +528,7 @@ static bool filename_is_absolute(const char *file) {
 	if (file[0] == '/')
 		return true;
 #ifdef WIN32
-	if (file[0] != '\0' && file[1] == ':')
+	if ((file[0] != '\0' && file[1] == ':') || file[0] == '\\')
 		return true;
 #endif
 	return false;

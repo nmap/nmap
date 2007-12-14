@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o On Windows, paths beginning with \ are now considered absolute when
+  used with the --script option.
+
 o Zenmap no longer double-spaces its output (by inadvertently
   duplicating newlines) when viewing scan results that were saved to a
   file.
