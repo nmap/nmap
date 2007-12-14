@@ -1624,11 +1624,12 @@ void printosscanoutput(Target *currenths) {
   } else { assert(0); }
   
   if (o.debugging || o.verbose) {
-    log_write(LOG_XML,"<osfingerprint fingerprint=\"\n%s\" />\n", 
-	      mergeFPs(FPR->FPs, FPR->numFPs, false,
-		       currenths->v4hostip(), distance, currenths->MACAddress(),
-		       FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
-		       false));
+    char *xml_osfp = xml_convert(mergeFPs(FPR->FPs, FPR->numFPs, false,
+				 currenths->v4hostip(), distance, currenths->MACAddress(),
+				 FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
+				 false));
+    log_write(LOG_XML,"<osfingerprint fingerprint=\"\n%s\" />\n", xml_osfp);
+    free(xml_osfp);
   }
   
   log_write(LOG_XML, "</os>\n");
