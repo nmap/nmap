@@ -1,11 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
 o Nmap's output options (-oA, -oX, etc.) now support strftime()-like
-  conversions in the filename.  %H, %M, %S, %T, %R, %m, %d, %y, and
-  %Y are all the same as in strftime().  %t is the same as %H%M%S,
-  %r is the same as %H%M, and %D is the same as %m%d%y.  This means
-  that "-oX 'scan-%T-%D.xml'" uses an XML file in the form of
-  "scan-14:48:40-121307.xml". [Kris]
+  conversions in the filename.  %H, %M, %S, %m, %d, %y, and %Y are
+  all the same as in strftime().  %T is the same as %H%M%S, %R is the
+  same as %H%M, and %D is the same as %m%d%y.  A % followed by any
+  other character just yields that character (%% yields a %).  This
+  means that "-oX 'scan-%T-%D.xml'" uses an XML file in the form of
+  "scan-144840-121307.xml". [Kris]
 
 4.50
 

@@ -857,15 +857,9 @@ char *logfilename(const char *str, struct tm *tm)
 				strftime(tbuf, sizeof tbuf, "%S", tm);
 				break;
 			case 'T':
-				strftime(tbuf, sizeof tbuf, "%T", tm);
-				break;
-			case 't':
 				strftime(tbuf, sizeof tbuf, "%H%M%S", tm);
 				break;
 			case 'R':
-				strftime(tbuf, sizeof tbuf, "%R", tm);
-				break;
-			case 'r':
 				strftime(tbuf, sizeof tbuf, "%H%M", tm);
 				break;
 			case 'm':
