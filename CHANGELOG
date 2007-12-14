@@ -2,13 +2,15 @@
 
 o Zenmap uses -PN now instead of -P0. -P0 is still supported but -PN is
   recommended to avoid confusion with the -PO (protocol ping) option.
+  jah (jah(a)zadkiel.plus.com) noticed this.
 
 o On Windows, paths beginning with \ are now considered absolute when
-  used with the --script option.
+  used with the --script option. jah (jah(a)zadkiel.plus.com) suggested
+  this.
 
 o Zenmap no longer double-spaces its output (by inadvertently
   duplicating newlines) when viewing scan results that were saved to a
-  file.
+  file. Joao Medeiros submitted the patch.
 
 o Nmap's output options (-oA, -oX, etc.) now support strftime()-like
   conversions in the filename.  %H, %M, %S, %m, %d, %y, and %Y are
