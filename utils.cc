@@ -974,7 +974,7 @@ char *mmapfile(char *fname, int *length, int openflags)
   }
  else {
   oflags = GENERIC_READ | GENERIC_WRITE;
-  mflags = PAGE_READONLY | PAGE_READWRITE;
+  mflags = PAGE_READWRITE;
  }
 
  fd = CreateFile (
