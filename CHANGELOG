@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Zenmap uses -PN now instead of -P0. -P0 is still supported but -PN is
+  recommended to avoid confusion with the -PO (protocol ping) option.
+
 o On Windows, paths beginning with \ are now considered absolute when
   used with the --script option.
 
