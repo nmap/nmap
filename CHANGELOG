@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed an output problem that showed itself on Windows when attempting
+  to scan localhost, which is skipped. The problem looked like
+    All 0 scanned ports on 127.0.0.1 are 
+  ("Are what?") Now it looks like
+    0 ports scanned on 127.0.0.1
+  Rob Nicholls reported the problem.
+
 o Fixed a bug that prevented the --resume option from working on
   Windows. A symptom of the bug was an error message that looks like
   ..\utils.cc(996): CreateFileMapping(), file 'testresume', length 103,

@@ -466,25 +466,29 @@ void printportoutput(Target *currenths, PortList *plist) {
   }
 
   if (numignoredports == plist->numports) {
-    log_write(LOG_PLAIN,
-              "%s %d scanned %s on %s %s ",
-	      (numignoredports == 1)? "The" : "All", numignoredports,
-	      (numignoredports == 1)? "port" : "ports", 
-	      currenths->NameIP(hostname, sizeof(hostname)), 
-	      (numignoredports == 1)? "is" : "are");
-    if (plist->numIgnoredStates() == 1) {
-      log_write(LOG_PLAIN, statenum2str(plist->nextIgnoredState(PORT_UNKNOWN)));
+    if (numignoredports == 0) {
+      log_write(LOG_PLAIN, "0 ports scanned on %s\n", currenths->NameIP(hostname, sizeof(hostname)));
     } else {
-      prevstate = PORT_UNKNOWN;
-      while ((istate = plist->nextIgnoredState(prevstate)) != PORT_UNKNOWN) {
-	if (prevstate != PORT_UNKNOWN) log_write(LOG_PLAIN, " or ");
-	log_write(LOG_PLAIN, "%s (%d)", statenum2str(istate), plist->getStateCounts(istate));
-	prevstate = istate;
+      log_write(LOG_PLAIN,
+		"%s %d scanned %s on %s %s ",
+		(numignoredports == 1)? "The" : "All", numignoredports,
+		(numignoredports == 1)? "port" : "ports", 
+		currenths->NameIP(hostname, sizeof(hostname)), 
+		(numignoredports == 1)? "is" : "are");
+      if (plist->numIgnoredStates() == 1) {
+	log_write(LOG_PLAIN, statenum2str(plist->nextIgnoredState(PORT_UNKNOWN)));
+      } else {
+	prevstate = PORT_UNKNOWN;
+	while ((istate = plist->nextIgnoredState(prevstate)) != PORT_UNKNOWN) {
+	  if (prevstate != PORT_UNKNOWN) log_write(LOG_PLAIN, " or ");
+	  log_write(LOG_PLAIN, "%s (%d)", statenum2str(istate), plist->getStateCounts(istate));
+	  prevstate = istate;
+	}
       }
+      if(o.reason) 
+		  print_state_summary(plist, STATE_REASON_EMPTY);
+      log_write(LOG_PLAIN, "\n");
     }
-    if(o.reason) 
-		print_state_summary(plist, STATE_REASON_EMPTY);
-    log_write(LOG_PLAIN, "\n");
 
     log_write(LOG_MACHINE,"Host: %s (%s)\tStatus: Up", 
 	      currenths->targetipstr(), currenths->HostName());
