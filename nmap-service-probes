@@ -2556,8 +2556,8 @@ match boinc m|^<boinc_gui_rpc_reply>\n<unauthorized/>\n</boinc_gui_rpc_reply>\n\
 match ciscopsdm m|^\xc0\0\x01\0....\0\0\0\x03| p/Cisco PIX Secure Database Manager/ d/firewall/ o/IOS/
 match cisco7200sim m|^200-At least a module and a command must be specified\r\n200-At least a module and a command must be specified\r\n| p/Cisco 7200 Simulator/
 match crossmatchverifier m|^Idle\r\n$| p/Cross Match Technologies Verifier fingerprint capture control port/
-match clamd m|^UNKNOWN COMMAND\n$| p/Clam AV/
-match cmaed m|^_err=refused%20by%20workers\r\n$| p/Cloudmark cmae_server antispam/
+match clam m|^UNKNOWN COMMAND\n$| p/Clam AV/
+match cmae m|^_err=refused%20by%20workers\r\n$| p/Cloudmark cmae_server antispam/
 match conserver m|^ok\r\nunknown command\r\nunknown command\r\n$| p/conserver serial console daemon/
 match datamaxdb m|^X01\r\nX01\r\n$| p/MailMax DataMaxDB/ o/Windows/
 match dusk m|^\x03Not a valid name\. This may because you left it blank or used invalid symbols\. Please try again\.\n| p/Dusk Java-based game/
@@ -2727,11 +2727,11 @@ match irc m|^:([\w-_.]+) 421 \r\n\r\n :\r\n\r\n unimplemented protocol request\r
 
 match irc-proxy m|^\+OK \r\n-ERR XXX authorization first\r\n$| p/muh irc proxy/
 
-match irrd m|^% No search key specified\n\n| p/Merit Internet Routing Registry/
+match irr m|^% No search key specified\n\n| p/Merit Internet Routing Registry/
 
 match memcache m|^ERROR\r\nERROR\r\n$| p/memcached/
 
-match lexlmd m|^.\x08\0\0|s p/Lexmark language monitor/
+match lexlm m|^.\x08\0\0|s p/Lexmark language monitor/
 
 # Part of Linux net-snmp-5.0.6-17
 match linuxconf m|^500 access denied: Check networking/linuxconf network access\r\n$| p/Linuxconf/ i/Access denied/ o/Linux/
@@ -2815,7 +2815,7 @@ match whois m|^%rwhois V-[\w:.-]+ ([\w-_.]+) \(by Network Solutions, Inc\. V-([\
 match whois m|^Query may not be an empty string\n| p/Public Interest Registry whois server/
 match whois m|^WHOIS LIMIT EXCEEDED - SEE WWW\.PIR\.ORG/WHOIS FOR DETAILS\n| p/Public Interest Registry whois server/
 
-match irrd m|^%  No entries found for the selected source\(s\)\.\n$| p/Merit Internet Routing Registry whoisd/
+match irr m|^%  No entries found for the selected source\(s\)\.\n$| p/Merit Internet Routing Registry whoisd/
 
 match wincomm m|^128 System Incompatible Windows Communicator client or server version\r\n128 System Incompatible Windows Communicator client or server version\r\n| p/Windows Communicator/
 match zebedee m|^\x02\x01$| p/Zebedee encrypted tunnel/
@@ -5153,7 +5153,7 @@ match kshell m|^\x01kshd: Authentication failed: | p/Kerberised rsh/ o/Unix/
 
 match ssc-agent m|^\0\x1e\0\x06\0\t\0\0$| p/Novell Netware ssc-agent/ o/NetWare/
 # http://www.apcupsd.com/ - apcupsd 3.8.5-1.3 on Linux 2.4.X
-match apcnisd m|^\0\x11Invalid command\n\0\0\0$| p/apcupsd/
+match apcupsd m|^\0\x11Invalid command\n\0\0\0$| p/apcupsd/
 
 match avauthsrvprtcl m|^BEEF\x83\0\0| p/Avocent AutoView 1000R KVM daemon/
 
@@ -5188,7 +5188,7 @@ match imaze-game m|^\0\x18\x82iMaze server JC/HUK ([\d.]+)$| p/iMaze game server
 
 match msrpc m|^\x05\0\r\x03\x10\0\0\0\x18\0\0\0v\x07\0\0\x04\0\x01\x05\0\0.\0$| p/Microsoft RPC/ o/Windows/
 
-match arkeiad m|^\0\x05\0\0\0\0\0\0$| p/Arkeia Network Backup/
+match arkeia m|^\0\x05\0\0\0\0\0\0$| p/Arkeia Network Backup/
 
 match qcheck m|^.*\$Id: //ral_depot/products/current/ENDPOINT/CODE/client\.c|s p/IXIA Q-Check network performance tester/
 
@@ -6003,21 +6003,21 @@ Probe TCP NessusTPv12 q|< NTP/1.2 >\n|
 rarity 9
 ports 1241
 sslports 1241
-match nessusd m|< NTP/1.2 >\n| p/Nessus Daemon/ i/NTP v1.2/
+match nessus m|< NTP/1.2 >\n| p/Nessus Daemon/ i/NTP v1.2/
 
 ##############################NEXT PROBE##############################
 Probe TCP NessusTPv11 q|< NTP/1.1 >\n|
 rarity 9
 ports 1241
 sslports 1241
-match nessusd m|< NTP/1.1 >\n| p/Nessus Daemon/ i/NTP v1.1/
+match nessus m|< NTP/1.1 >\n| p/Nessus Daemon/ i/NTP v1.1/
 
 ##############################NEXT PROBE##############################
 Probe TCP NessusTPv10 q|< NTP/1.0 >\n|
 rarity 6
 ports 1241
 sslports 1241
-match nessusd m|< NTP/1.0 >\n| p/Nessus Daemon/ i/NTP v1.0/
+match nessus m|< NTP/1.0 >\n| p/Nessus Daemon/ i/NTP v1.0/
 
 
 ##############################NEXT PROBE##############################
