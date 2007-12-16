@@ -107,7 +107,7 @@ match chess m=^\n\r             _       __     __                             __
 # Citrix, Metaframe XP on Windows
 match citrix-ica m|^\x7f\x7fICA\0\x7f\x7fICA\0| p/Citrix Metaframe XP ICA/ o/Windows/
 # Citrix MetaFrame XP 1.0 implimented with ClassLink 2000 on NT4
-match citrix-ima m|^.\0\0\0\x81\0\0\0\x01| p/Citrix Metaframe XP IMA/ o/Windows/
+match citrix-ima m|^.\0\0\0\x81\0\0\0\x01|s p/Citrix Metaframe XP IMA/ o/Windows/
 match clsbd m|^\0\0\0\x10ClsBoolVersion 1$| p/Cadence IC design daemon/
 match codeforge m|^CFMSERV\(1\)\n| p/CodeForge IDE/
 match concertosendlog m|^Concerto Software\r\n\r\nEnsemblePro SendLog Server - Version (\d[-.\w]+)\r\n\r\nEnter Telnet Password\r\n#> | p/Concerto Software EnsemblePro CRM software SendLog Server/ v/$1/
@@ -115,7 +115,7 @@ match concertotimesync m|^Concerto Software\r\n\r\nContactPro TimeSync Server - 
 match conference m|^Conference, V([\d.]+)\r\n$| p/Forum Communcations conferenced/ v/$1/
 match complex-link m|^\x06\x07\xd0\0\x01\0\0\0\x01\0\x02\x07\xd0\0\x01\0\0\x01\x0f\x01\xf4\0\0\0\0HP +LTO ULTRIUM| p/HP LTO Ultrium data port/ d/storage-misc/
 # CompTek AquaGateKeeper (Telephony package) http://aqua.comptek.ru
-match H.323/Q.931 m|^\x03\0\0.*@| p/CompTek AquaGateKeeper/
+match H.323/Q.931 m|^\x03\0\0.*@|s p/CompTek AquaGateKeeper/
 
 match cvspserver m|^no repository configured in /| p/CVS pserver/ i/broken/
 match cvspserver m|^/usr/sbin/cvs-pserver: line \d+: .*cvs: No such file or directory\n| p/CVS pserver/ i/broken/
@@ -956,7 +956,7 @@ match ndmp m|^\x80\0\0L\0\0\0\0C\x88\xd7\xcb\0\0\0\0\0\0\x05\x02\0\0\0\0\0\0\0\0
 
 match nngs m|^>>messages/login\r\n----- Welcome to the No Name Go Server \(NNGS\) -----\r\n\r\n| p/No Name Go Server/
 
-match donkey m|^.*\0\0\0\x06\0Donkey\x01\x0c\0\./donkey\.ini\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0| p/MLdonkey multi-network P2P GUI port/
+match donkey m|^.*\0\0\0\x06\0Donkey\x01\x0c\0\./donkey\.ini\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|s p/MLdonkey multi-network P2P GUI port/
 match donkey m|^\xff\xfd\x1f[\r\n* ]+Welcome to MLdonkey          \r\n| p/MLdonkey multi-network P2P GUI port/
 match donkey m|^\xff\xfd\x1f\n\n\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\n\n                         Welcome to MLdonkey chrooted| p/MLdonkey multi-network P2P GUI port/ i/chrooted/
 match donkey m|^\xff\xfd\x1f ?Welcome to MLdonkey ?\n\x1b\[34mWelcome on mldonkey command-line\x1b\[2;37;0m\n\nUse \x1b\[31m\?\x1b\[2;37;0m for help\n\n\x1b\[7mMLdonkey command-line:\x1b\[2;37;0m\n> | p/MLdonkey multi-network P2P server control port/
@@ -979,17 +979,17 @@ match msactivesync m|^.\0\x01\0[^\0]\0[^\0]\0[^\0]\0[^\0]\0[^\0]\0.*\0\0\0$|s p/
 
 match mud m|^\n\r\xff\xfbUDo you want ANSI color\? \(Y/n\) $| p|ROM-based MUD| i|http://rrp.rom.org/|
 
-match mysql m/^.\0\0\0\xff.\x04.*Host .* is not allowed to connect to this MySQL server$/ p/MySQL/ i/unauthorized/
-match mysql m|^.\0\0\0\xff.\x04Too many connections| p/MySQL/ i/Too many connections/
-match mysql m|^.\0\0\0\xff.\x04Host '[\d.]+' is blocked because of many connection errors; unblock with 'mysqladmin flush-hosts'| p/MySQL/ i/Host blocked because of too many connections/
-match mysql m|^.\0\0\0\xffj\x04Host hat keine Berechtigung, eine Verbindung zu diesem MySQL Server herzustellen\.| p/MySQL/ i/unauthorized; German/
+match mysql m/^.\0\0\0\xff.\x04.*Host .* is not allowed to connect to this MySQL server$/s p/MySQL/ i/unauthorized/
+match mysql m|^.\0\0\0\xff.\x04Too many connections|s p/MySQL/ i/Too many connections/
+match mysql m|^.\0\0\0\xff.\x04Host '[\d.]+' is blocked because of many connection errors; unblock with 'mysqladmin flush-hosts'|s p/MySQL/ i/Host blocked because of too many connections/
+match mysql m|^.\0\0\0\xffj\x04Host hat keine Berechtigung, eine Verbindung zu diesem MySQL Server herzustellen\.|s p/MySQL/ i/unauthorized; German/
 match mysql m|^.\0\0\0.*Host '[\w-_.]+' hat keine Berechtigung, sich mit diesem MySQL-Server zu verbinden|s p/MySQL/ i/Unauthorized; German/
-match mysql m/^.\0\0\0...Al sistema '[-.\w]+' non e` consentita la connessione a questo server MySQL$/ p/MySQL/ i/unauthorized; Italian/
-match mysql m|^.\0\0\0\xffi?\x04?Host .* is blocked because of many connection errors\.| p/MySQL/ i/blocked - too many connection errors/
-match mysql m|^.\0\0\0...Servidor '[-.\w]+' est\xe1 bloqueado por muchos errores de conexi\xf3n\.  Desbloquear con 'mysqladmin flush-hosts'| p/MySQL/ i/Spanish; blocked - too many connection errors/
+match mysql m/^.\0\0\0...Al sistema '[-.\w]+' non e` consentita la connessione a questo server MySQL$/s p/MySQL/ i/unauthorized; Italian/
+match mysql m|^.\0\0\0\xffi?\x04?Host .* is blocked because of many connection errors\.|s p/MySQL/ i/blocked - too many connection errors/
+match mysql m|^.\0\0\0...Servidor '[-.\w]+' est\xe1 bloqueado por muchos errores de conexi\xf3n\.  Desbloquear con 'mysqladmin flush-hosts'|s p/MySQL/ i/Spanish; blocked - too many connection errors/
 
 
-match minisql m|^.\0\0\x000:23:([\d.]+)\n$| p/Mini SQL/ v/$1/
+match minisql m|^.\0\0\x000:23:([\d.]+)\n$|s p/Mini SQL/ v/$1/
 
 # MySQL 4.0.13
 match mysql m/^.\0\0\0.(3\.[-_~.\w]+)\0.*\x08\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0$/s p/MySQL/ v/$1/
@@ -1076,7 +1076,7 @@ softmatch nntp m|^200 [-\[\]\(\)!,/+:<>@.\w ]*nntp[-\[\]\(\)!,/+:<>@.\w ]*\r\n$|
 match nsunicast m|^4\0\0\0V4\x12\0\0\0\0\0\0\0\0\x004\0\0\0\x04\0\xf0\0.\x07.\0.\0.\0.\0.\0.\0..\0\0\0\0.\0\0\0.\0\0\0\x02\0|s p/Microsoft Windows Media Unicast Service/ i/nsum.exe/ o/Windows/
 match nsunicast m|^[4f]\0\0\0V4\x12\0\0\0\0\0\0\0\0\x00[4f]\0\0\0.\0\xf0\0\xd3\x07\t\0.\0.\0.\0.\0.\0..\0\0\0\0.\0\0\0..\0\0.\0|s p/Microsoft Windows Media Unicast Service/ i/nsum.exe/ o/Windows/
 
-match netsupport m|^.\0\x02\0([^\0]+)\0+\x01\0\x01\0| p/NetSupport PC remote control/ i/Name $1/
+match netsupport m|^.\0\x02\0([^\0]+)\0+\x01\0\x01\0|s p/NetSupport PC remote control/ i/Name $1/
 match partimage m|^([\d.]+) SSL\0                      \0$| p/Partimage+SSL/ v/$1/ o/Linux/
 match patrol m|^\0\0\0\r..Who are you\?\n\0|s p/BMC Patrol Agent/ o/Unix/
 match pcanywheredata m/^\0X\x08\0\}\x08\r\n\0\.\x08.*\.\.\.\r\n/s p/PCAnywhere/ o/Windows/
@@ -1443,7 +1443,7 @@ match shell m|^(ba)?sh-\d\.\d\d\w?# $| p/ROOT SHELL/ o/Unix/
 match satstrat m|^VERSION ([\d.]+)\r\nJOIN 0\r\nNICK 0 !SaCkS\r\nJOIN 1\r\n| p/SatStrat/ v/$1/
 match securepath m|^GENERAL: \d+ \d+<EoM>\n$| p/HP StorageWorks SecurePath/ o/Windows/
 match securepath m|^Unauthorized client; connection refused<EoM>\n| p/HP StorageWorks SecurePath/ i/unauthorized/ o/Windows/
-match service-monitor m|^\0\0\0\x18\0\0..\0\0..\xff\xff\xff\xff\xff\xff\xff\xff\0\0\0\x02\0\0\0\0\0\0\0.([^\0]+)\0| p/CA Spectrum/ i/User $1/
+match service-monitor m|^\0\0\0\x18\0\0..\0\0..\xff\xff\xff\xff\xff\xff\xff\xff\0\0\0\x02\0\0\0\0\0\0\0.([^\0]+)\0|s p/CA Spectrum/ i/User $1/
 match service-monitor m|^550 Bad syntax\. Go away\.\n$| p/CA Spectrum/
 
 match ser2net m|^.*\r\nser2net port \d+ device (/dev/[\w-_]+) \[\d+ \w+\] \(Debian GNU/Linux\)\r\n|s p/serial to network proxy/ i/Debian; serial port $1/ o/Linux/
@@ -1904,7 +1904,7 @@ match soldat m|^Soldat Admin Connection Established\.\.\.\r\nAdmin connected\.\r
 match solproxy m|^The solproxy is used by [\d.]+\n\rThe client is closed!\n\r| p/Dell Serial Over LAN proxy/
 match subethaedit m|^RPY \d \d \. \d \d+\r\nContent-Type: application/beep\+xml\r\n\r\n<greeting><profile uri=\"http://www\.codingmonkeys\.de/BEEP/SubEthaEditHandshake\"| p/SubEthaEdit collaborative text editor/ o/Mac OS X/
 
-match kvm m|^\0\0\0\x0bSynergy\0\x01\0.| p/Synergy KVM/
+match kvm m|^\0\0\0\x0bSynergy\0\x01\0| p/Synergy KVM/
 match kvm m|^\0\0\0\x0b<CSC/>\0| p/Raritan KVM/
 match kvm m|^LFB 1\.05$| p/IBM BladeCenter KVM/
 
@@ -2462,7 +2462,7 @@ match xbmsp m|^XBMSP-1\.0 1\.0 CcXstream Media Server (\d[-.\w]+)\n| p/CcXstream
 match xbmsp m|^XBMSP-1\.0 1\.0 Media File XStream Server \n| p/Media File XStream/
 match xinetd m=^([\w-_.]+ (tcp|udp) \d{1,5}\n)+= p/xinetd service display/ o/Unix/
 # XFCE Desktop Version 3.99.4 From Gentoo 1.4 Ebuild on Linux 2.4.6
-match xfce-session m|^\0\x01\0.\0\0\0\0$| p/XFCE Session Manager/
+match xfce-session m|^\0\x01\0.\0\0\0\0$|s p/XFCE Session Manager/
 match xmailctl m|^\+\d+ <[\d.]+@[\d.]+> XMail ([\d.]+) \(Linux/Ix86\) CTRL Server; .*\r\n| p/XMail CTRL Server/ v/$1/ o/Linux/
 match xmailctl m|^\+\d+ <[\d.]+@[\d.]+> XMail ([\d.]+) CTRL Server; .*\r\n| p/XMail CTRL Server/ v/$1/
 match xmbmon m|^TEMP0 +: +[\d.]+\nTEMP1 +: +[\d.]+\nTEMP2 +: +[\d.]+\nFAN0 +: +[\d.]+\nFAN1 +: +[\d.]+\nFAN2 +: +[\d.]+\n| p/Mother Board Monitor/
@@ -2477,12 +2477,12 @@ match zebra m|^\r\nUser Access Verification\r\n\r\n\xff\xfb\x01\xff\xfb\x03\xff\
 
 match zenworks m|^<AgentInfo><Version>([^<]+)</Version></AgentInfo>\0| p/ZENworks Patch Management/ v/$1/ o/Windows/
 
-match pcp m|^\0\0\0\x14\0\0p\0\0\0..\0\0\0\0\x02\x01\0\0| p/SGI Performance Co-Pilot/
+match pcp m|^\0\0\0\x14\0\0p\0\0\0..\0\0\0\0\x02\x01\0\0|s p/SGI Performance Co-Pilot/
 
 match smtp m|^220 SPAM, we hates it.\r\n| p/Barracuda Spam firewall/
 
 # 13720/tcp
-match bprd m|^\0\0\0.EXIT STATUS \d+$| p/Veritas Netbackup/
+match bprd m|^\0\0\0.EXIT STATUS \d+$|s p/Veritas Netbackup/
 match bprd m|^request daemon can't accept sessions\nanother instance may already be running\.\nAddress already in use\n$| p/Veritas Netbackup/
 match bprd m|^bp[\w-]+: error while loading shared libraries: libstdc\+\+-libc6\.2-2\.so\.3: cannot open shared object file: No such file or directory\n$| p/Veritas Netbackup/ i/broken/
 # 13782/tcp
@@ -2493,7 +2493,7 @@ match bprd m|^bpjava-msvc: error while loading shared libraries: libpam\.so\.0: 
 match smtp m|^220 PostCast SMTP server.*\r\n$| p/PostCast SMTP server/
 
 match omapi m|^\0\0\0d\0\0\0\x18$| p/ISC (BIND|DHCPD) OMAPI/
-match openvpn m|^\0\x0e@........\0\0\0\0\0\0\x0e@| p/OpenVPN/
+match openvpn m|^\0\x0e@........\0\0\0\0\0\0\x0e@|s p/OpenVPN/
 match openvpn m|^\0\*@.*\0\0\0\0\0\0\*@|s p/OpenVPN/
 match openvpn-management m|^>INFO:OpenVPN Management Interface Version ([\d.]+) -- type 'help' for more info\r\n>| p/OpenVPN Management Interface/ v/$1/
 match osiris m|^\x80[=+:]\x01\x03\x01\0.\0\0\0\x10\0|s p/osiris host IDS agent/
@@ -2505,7 +2505,7 @@ match apc-agent m|^\xac\xed\0\x05$| p/APC PowerChute agent/ d/power-device/
 # OpenH323 Gatekeeper 2.0.3
 match afs3-fileserver m|^\xff\xfd\x03\xff\xfb\x05.*Version:\r\nGatekeeper\(GNU\) Version\(([\d.]+)\) Ext\(.*\) Build\(.*\) Sys\(Linux .*\)\r\n| p/OpenH323 Gatekeeper/ v/$1/ o/Linux/
 
-match wingate-control m|^.\x01.[\x02\x03]\x01\d+\0$| p/WinGate Administration/ o/Windows/
+match wingate-control m|^.\x01.[\x02\x03]\x01\d+\0$|s p/WinGate Administration/ o/Windows/
 # Wingate redir: Probably not general enough
 match wingate m|^\0\n\0\0\x02\0\0\0\x01\0$| p/WinGate transparent redirection/ o/Windows/
 match mail-admin m|^OK0100 eXtremail V([\d.]+) release (\d+) REMote management \.\.\.\r\n| p/eXtremail remote management/ v/$1 release $2/
@@ -2553,7 +2553,7 @@ match boinc m|^<boinc_gui_rpc_reply>\n<major_version>(\d+)</major_version>\n<min
 match boinc m|^<boinc_gui_rpc_reply>\n<unauthorized/>\n</boinc_gui_rpc_reply>\n\x03| p/Boinc GUI RPC port/ i/Unauthorized/
 
 # Cisco PIX 501 running PIX IOS 6.3(1)
-match ciscopsdm m|^\xc0\0\x01\0....\0\0\0\x03| p/Cisco PIX Secure Database Manager/ d/firewall/ o/IOS/
+match ciscopsdm m|^\xc0\0\x01\0....\0\0\0\x03|s p/Cisco PIX Secure Database Manager/ d/firewall/ o/IOS/
 match cisco7200sim m|^200-At least a module and a command must be specified\r\n200-At least a module and a command must be specified\r\n| p/Cisco 7200 Simulator/
 match crossmatchverifier m|^Idle\r\n$| p/Cross Match Technologies Verifier fingerprint capture control port/
 match clam m|^UNKNOWN COMMAND\n$| p/Clam AV/
@@ -2580,7 +2580,7 @@ match finger m|^\r\nUSB port \d+\r\nPrinter Type:  Photo AIO Printer (\w+)\r\nPr
 
 match mon m|^520 invalid command\n$| p/Perl service monitoring daemon/
 
-match netbackup m|^\xea\xdd\xbe\xef\0\0\0\x05\0\0\x000\0\0\x000\0\0..\0\0\0\x08\0a\0f\0f\0s\0p\0r\0n\0g\0\0\0\0\0\0\0\0$| p/Veritas Netbackup Professional/
+match netbackup m|^\xea\xdd\xbe\xef\0\0\0\x05\0\0\x000\0\0\x000\0\0..\0\0\0\x08\0a\0f\0f\0s\0p\0r\0n\0g\0\0\0\0\0\0\0\0$|s p/Veritas Netbackup Professional/
 
 # Alcatel Speedtouch ADSL Router
 match ftp m|^220 Inactivity timer = \d+ seconds\. Use 'site idle <secs>' to change\.\r\n221 Goodbye \(badly formated command seen\)\.  You uploaded 0 and downloaded 0 kbytes\.\r\n221 Goodbye \(badly formated command seen\)\.  You uploaded 0 and downloaded 0 kbytes\.\r\n$| p/Alcatel Speedtouch aDSL router ftpd/ d/broadband router/
@@ -2782,8 +2782,9 @@ match redcarpet m|^Status: 400 Bad Request\r\nContent-Length: 0\r\n\r\n| p/Ximia
 
 match sdcomm m|^ERR 27$| p/RSA SecureID Ace Server/
 
-match socks m|^\0\[\r\n...\0$| p/Socks4/
-match socks m|^\x05\x01\0.\0\0\0\0\0\0$| p/Socks5/
+# Hopefully obsoleted by the SOCKS probes -Doug
+#match socks m|^\0\[\r\n...\0$| p/Socks4/
+#match socks m|^\x05\x01\0.\0\0\0\0\0\0$| p/Socks5/
 
 match solfe m|^\x02\0\x01\xfb\xff\xfb\xff\xff\xff\xff\xffNOSUP| p/HP PNM Solid FlowEngine/
 
@@ -2829,9 +2830,6 @@ match http m|^HTTP/1\.1 400 Bad Request\r\nCache-control: no-cache\r\nServer: Ub
 match http m|^<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3\.2//EN\">\n<html>\n<head>\n<title>GoodTech Systems Telnet Server Administration Login</title>\n| p/GoodTech Systems telnet server web admin/ o/Windows/
 
 match nntp m|^200 Coruscant BBS News \(Synchronet NNTP Service v(\d[-.\w ]+)\)\r\n| p/Synchronet NNTP Service/ v/$1/
-
-# wesnotd multiplayer network daemon (http://www.wesnoth.org/)
-match wesnotd m|^\0\0\0\x16\0\0\0\x1f\x02version\0\x040\..\..\0\0\x02mustlogin\0x05\x01\0| p/wesnotd/
 
 match telnet m|^\xff\xfb\x01\n\rSSH service name not present in rcvd msg\n\rSSH Session task 0x\w+: Version Exchange Failed\n\r\n\r\n\rSSH service name not present in rcvd msg\n\r| p/Cisco 350 Series AP telnetd/ d/router/
 match telnet m|^\xff\xfe\"\xff\xfb\x01\xff\xfb\x03User : \r\n\r?SpeedTouch \(([\w-]+)\)\r\n\r?Password : Invalid Password\r\n\r?Closing connection\r\n| p/Alcatel SpeedTouch DSL router/ i/MAC $1/ d/router/
@@ -2884,7 +2882,7 @@ match ajp12 m|^Status: 400 Bad Request\r\nServlet-Error: Malformed data sent to 
 match nuttcp m|^KO\nnuttcp-t: v([\d.]+): error scanning parameters\nmay be using older client version than server\n\r\nKO\n| p/nuttcp network throughput tester/ v/$1/
 match backdoor m|^sh-2\.05b\$ | p/r0nin rootkit backdoor/
 
-match wesnoth m|^\0\0\0\x03\0\0\0\x1f\x02version\0\x04([\d.]+)\0\0\x02mustlogin\0\x05\x01\0| p/Battle For Wesnoth game server/ v/$1/
+match wesnoth m|^\0\0\0.\0\0\0\x1f\x02version\0\x04[\d.]+\0\0\x02mustlogin\0\x05\x01\0|s p/Battle For Wesnoth game server/ v/$1/
 
 match xboxdebug m|^201- connected\r\n407- unknown command\r\n$| p/Microsoft XBox Debugging Kit/ d/game console/
 match xns m|^HELLO XBOX!$| p/Relax XBOX file server/ d/game console/
@@ -4658,7 +4656,7 @@ match kazaa-http m|^HTTP/1\.[01] 404 Not Found\r?\nServer: giFT-FastTrack ([\d.]
 
 match kazaa-peerpoint m|^HTTP/1\.0 404 Not Found\n\r\n$| p/KaZaA P2P client Peer Point Manager/
 
-match kerberos-sec m|^\0\0\0.~\x81.0\x81..\x03\x02\x01\x05.\x03\x02\x01\x1e.\x11\x18\x0f| p/Mac OS X kerberos-sec/ o/Mac OS X/
+match kerberos-sec m|^\0\0\0.~\x81.0\x81..\x03\x02\x01\x05.\x03\x02\x01\x1e.\x11\x18\x0f|s p/Mac OS X kerberos-sec/ o/Mac OS X/
 
 match lcdproc m|^huh\? Invalid command \"GET\"\n| p/LCDProc screen interface daemon/
 
@@ -4769,10 +4767,10 @@ match uucp m|^login: Login incorrect\.$| p/Solaris uucpd/
 # Veritas Netbackup 4.5 Java listener
 match netbackup m|^1000      2\n43\nunexpected message received\n$| p/Veritas Netbackup java listener/
 # Veritas Backup Exec 9.0 on Windows
-match backupexec m|^\x80\0\0\$\0\0\0\x01[\x3F-\x4B]...\0\0\0\0\0\0\x05\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x03\0\0\0\0| p/Veritas Backup Exec/ v/9.0/
+match backupexec m|^\x80\0\0\$\0\0\0\x01[\x3F-\x4B]...\0\0\0\0\0\0\x05\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x03\0\0\0\0|s p/Veritas Backup Exec/ v/9.0/
 
 # Possibly a different version? -Doug
-match backupexec m|^\x80\0\0\$\0\0\0\x01....\0\0\0\0\0\0\x05\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x02\0\0\0\0| p/Veritas Backup Exec/
+match backupexec m|^\x80\0\0\$\0\0\0\x01....\0\0\0\0\0\0\x05\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x02\0\0\0\0|s p/Veritas Backup Exec/
 
 match vnc-http m|^HTTP/1\.1 200 OK\r\nServer: RealVNC/(\d[-.\w]+)\r\n.*<APPLET CODE="?vncviewer/VNCViewer\.class"? ARCHIVE="?vncviewer\.jar"?\r?\n *WIDTH="?(\d+)"? HEIGHT="?(\d+)"?>\r?\n<PARAM name=\"port\" value=\"(\d+)\">\r?\n</APPLET>|si p/RealVNC/ v/$1/ i/Resolution $2x$3; VNC TCP port: $4/
 # Sometimes extra HTTP crap pushes the extra info out of the header we capture:
@@ -4963,7 +4961,7 @@ rarity 4
 ports 81,111,199,514,544,710,711,1433,2049,4045,4999,7000,32750-32810,38978
 # Microsoft SQLServer 6.5 on WinNT 4.0 SP6a
 # Microsoft SQL Server 6.5 on WinNT 4.0
-match ms-sql-s m|^\x04\x01\0C..\0\0\xaa\0\0\0/\x0f\xa2\x01\x0e.. Login failed\r\n\x14Microsoft SQL Server\0\0\0\xfd\0\xfd\0\0\0\0\0\x02$| p/Microsoft SQLServer/ v/6.5/ o/Windows/
+match ms-sql-s m|^\x04\x01\0C..\0\0\xaa\0\0\0/\x0f\xa2\x01\x0e.. Login failed\r\n\x14Microsoft SQL Server\0\0\0\xfd\0\xfd\0\0\0\0\0\x02$|s p/Microsoft SQLServer/ v/6.5/ o/Windows/
 match rpc m|^\x80\0\0\x18\x72\xFE\x1D\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01|
 match rpc m|^\x80\0\0\x20\x72\xFE\x1D\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x02|
 match rpc m|^\x80\0\0\x14r\xfe\x1d\x13\0\0\0\x01\0\0\0\x01\0\0\0\x01\0\0\0\x05|
@@ -5018,7 +5016,7 @@ match qotd m/^"(L'art de persuader consiste autant|Le peu que je sais, c'est \x8
 match mohaa m|\xff\xff\xff\xff\x01disconnect| p/Medal Of Honor Allied Assault game server/
 match mohaa-gamespy m|^\\final\\\\queryid\\\d+\.1| p/Medal Of Honor Allied Assault gamespy query port/
 match quake3 m|^\xff\xff\xff\xffdisconnect$| p/Quake 3 dedicated server/
-match ericssontimestep m|^.{8}\0\0\0\0\0\0\0\0\x0b\x10\x05\0\0\0\0\0\0\0\0\(\0\0\0\x0c\0\0\0\0\x01\0\0\x1e$| p/Ericsson Timestep Permit VPN/
+match ericssontimestep m|^.{8}\0\0\0\0\0\0\0\0\x0b\x10\x05\0\0\0\0\0\0\0\0\(\0\0\0\x0c\0\0\0\0\x01\0\0\x1e$|s p/Ericsson Timestep Permit VPN/
 match rtp m|^501 0 Endpoint is not ready - Unrecognized command verb\n|
 
 ##############################NEXT PROBE##############################
@@ -5037,7 +5035,7 @@ match domain m|^\0\x06\x81\x04\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x0
 # MyDNS 0.10.0 on Linux
 match domain m|^\0\x06\x81\x04\0\0\0\0\0\0\0\0$| p/MyDNS/
 # PowerDNS 2.9.11
-match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01\0\0\0\x05\0..Served by POWERDNS ([\d.]+) | p/PowerDNS/ v/$1/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01\0\0\0\x05\0..Served by POWERDNS ([\d.]+) |s p/PowerDNS/ v/$1/
 
 # This fallback is because many people customize their BIND version to avoid
 # revealing specific version information. This rule should always be below the
@@ -5059,7 +5057,7 @@ match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\x
 
 match domain m|^\0\x06\x85\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03\0\0\0\0\0\('Peticion no permitida/Query not allowed| p/Zyxel Prestige 643 dns cache/ d/switch/
 
-match cisco-sla-responder m|^..\0\x08\0\x03[\0\r][\0\n]$| p/Cisco SLA Responder/ o/IOS/ d/router/
+match cisco-sla-responder m|^..\0\x08\0\x03[\0\r][\0\n]$|s p/Cisco SLA Responder/ o/IOS/ d/router/
 
 # These are pretty generic:
 match domain m|^\0\x06\x81\x84\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/pdnsd/
@@ -5087,7 +5085,7 @@ match domain m|\x07version\x04bind\0.*Microsoft DNS ([\w-_.]+) \(|s p/Microsoft 
 
 # Novell 5.1 DNS Server
 # BIND 4.9.7-REL on OpenBSD
-match domain m|^\0\x1e\0\x06\x81.\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/ISC BIND/ v/4.X/
+match domain m|^\0\x1e\0\x06\x81.\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$|s p/ISC BIND/ v/4.X/
 # PowerDNS 2.9.6 on FreeBSD
 # PowerDNS 2.9.8 Linux
 match domain m|^\0.\0\x06\x85\0\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01\0\0\0\x05\0..Served by POWERDNS (\d[-.\w]+) |s p/PowerDNS/ v/$1/
@@ -5130,7 +5128,7 @@ match login m|^\0\r\nEL-32 EtherLite module\r\n\r\n| p/Digi EtherLite32 logind/
 
 # RedHat 7.3 - Oracle TNS Listener Oracle 8.1.7
 # Oracle 8.1.6.1.0 on Linux 2.2.X
-match oracle-tns m|^\0\x1c\0\0\x04\x01\0\0\0.\0\0| p/Oracle TNS Listener/
+match oracle-tns m|^\0\x1c\0\0\x04\x01\0\0\0.\0\0|s p/Oracle TNS Listener/
 
 # OpenBSD 2.3
 # Solaris 9
@@ -5175,18 +5173,18 @@ match pafserver m|^\0&\xeb\xefTQM\xee\[B| p/Sun Cobalt Adaptive Firewall/ o/Sun 
 # RSA SecureID Ace Server 5
 match sdlog m|^\0\0\0\x01\0\x17\0\x14\0\x06\0\0\0\x01\0\0\0\0\0\0$| p/RSA SecureID Ace Server/
 
-match sdlog m|^\xe3\r\n\r\n\0\x01\0.\0vInvalid protocol verification, illegal ORMI request or request performed with an incompatible version of this protocol| p/Oracle Enterprise Manager/
+match sdlog m|^\xe3\r\n\r\n\0\x01\0.\0vInvalid protocol verification, illegal ORMI request or request performed with an incompatible version of this protocol|s p/Oracle Enterprise Manager/
 
 # Sun Cobalt Adaptive Firewall 1.7-0
 match pafserver m|^\0&\xeb\xefTQM\xee\[B| p/Sun Cobalt Adaptive Firewall/ o/Sun Cobalt Linux/
 
-match freeciv m|^\0\x03\x02\0\.\x01\0\0\0\0Invalid name ''\0\+1\.14\.0 conn_info team\0\0\x03\x03| p/Freeciv/ v/1.X/
-match freeciv m|^\0\x03X\0.\x01\0\0\0\0Your client is too old\. To use this server please upgrade your client to a CVS version later than 2003-11-28 or Freeciv 1\.15\.0 or later\.\0\0\0\x03\0\0\x03\x01| p/Freeciv/ v/2.X/
-match freeciv m|^\0\x03X\0.\x01\0\0\0\0Tw\xc3\xb3j klient jest zbyt stary\. Aby wej\xc5\x9b\xc4\x87 na ten serwer musisz u\xc5\xbcywa\xc4\x87 klienta w wersji co najmniej 1\.15\.0\. \(Lub z CVS'a po 18\.11\.2003\)\.\0\0\0\x03\0\0\x03\x01| p/Freeciv/ v/2.X/ i/Polish/
+match freeciv m|^\0\x03\x02\0\.\x01\0\0\0\0Invalid name ''\0\+1\.14\.0 conn_info team\0\0\x03\x03|s p/Freeciv/ v/1.X/
+match freeciv m|^\0\x03X\0.\x01\0\0\0\0Your client is too old\. To use this server please upgrade your client to a CVS version later than 2003-11-28 or Freeciv 1\.15\.0 or later\.\0\0\0\x03\0\0\x03\x01|s p/Freeciv/ v/2.X/
+match freeciv m|^\0\x03X\0.\x01\0\0\0\0Tw\xc3\xb3j klient jest zbyt stary\. Aby wej\xc5\x9b\xc4\x87 na ten serwer musisz u\xc5\xbcywa\xc4\x87 klienta w wersji co najmniej 1\.15\.0\. \(Lub z CVS'a po 18\.11\.2003\)\.\0\0\0\x03\0\0\x03\x01|s p/Freeciv/ v/2.X/ i/Polish/
 
 match imaze-game m|^\0\x18\x82iMaze server JC/HUK ([\d.]+)$| p/iMaze game server/ v/$1/
 
-match msrpc m|^\x05\0\r\x03\x10\0\0\0\x18\0\0\0v\x07\0\0\x04\0\x01\x05\0\0.\0$| p/Microsoft RPC/ o/Windows/
+match msrpc m|^\x05\0\r\x03\x10\0\0\0\x18\0\0\0v\x07\0\0\x04\0\x01\x05\0\0.\0$|s p/Microsoft RPC/ o/Windows/
 
 match arkeia m|^\0\x05\0\0\0\0\0\0$| p/Arkeia Network Backup/
 
@@ -5549,7 +5547,7 @@ match afp m|^\x01\x03\0\0\xff\xff\xecQ\0\0\x01.\0\0\0\0\0.\0.\0.\0.\x80\xfb.([^\
 match afp m|^\x01\x03\0\0\xff\xff\xecQ\0\0..\0\0\0\0\0.\0.\0.\0.\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x06\x06AFP3\.1\x06AFPX03\x06AFP2\.2\x0eAFPVersion 2\.1\x0eAFPVersion 2\.0\x0eAFPVersion 1\.1.\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.1; Mac OS X 10.2.*/
 match afp m|^\x01\x03\0\0\xff\xff\xecQ\0\0..\0\0\0\0\0.\0.\0.\0.\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x03\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.1; Mac OS X 10.3.*/
 match afp m|^\x01\x03\0\0....\0\0..\0\0\0\0\0.\0.\0.\0..\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x04\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128|s p/Apple AFP/ i|name: $1; protocol 3.2; Max OS X 10.4/10.5|
-match afp m|^\x01\x03\0\0....\0\0..\0\0\0\0\0.\0...\0..\xfa.([^\0\x01]+)[\0\x01].*\tMacintosh\x01\x06AFP3\.1.\tDHCAST128| p/Apple Airport Extreme AFP/ i/name: $1; protocol 3.1/ d/WAP/
+match afp m|^\x01\x03\0\0....\0\0..\0\0\0\0\0.\0...\0..\xfa.([^\0\x01]+)[\0\x01].*\tMacintosh\x01\x06AFP3\.1.\tDHCAST128|s p/Apple Airport Extreme AFP/ i/name: $1; protocol 3.1/ d/WAP/
 
 # OpenSSL/0.9.7aa
 match ssl m|^\x16\x03\0\0J\x02\0\0F\x03\0| p/OpenSSL/
@@ -5608,21 +5606,21 @@ match kerberos-sec m|^.*Internal KDC error, contact administrator|s p/Shishi ker
 # Windows Server 2003 kerberos
 match kerberos-sec m/^\0\0\0\0$/ p/Microsoft Windows kerberos-sec/ o/Windows/
 # Longhorn
-match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.\n\0\x01\0\x04\x11\0\0\0\0\x01\0\0\0\0\0\xfd\xe3\x03\0| p/Microsoft Windows Longhorn microsoft-ds/ o/Windows/
+match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.\n\0\x01\0\x04\x11\0\0\0\0\x01\0\0\0\0\0\xfd\xe3\x03\0|s p/Microsoft Windows Longhorn microsoft-ds/ o/Windows/
 # Windows XP SP1
-match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.\n\0\x01\0\x04\x11\0\0\0\0\x01\0\0\0\0\0\xfd\xe3\0\0| p/Microsoft Windows XP microsoft-ds/ o/Windows/
-match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.2\0\x01\0\x04A\0\0\0\0\x01\0\0\0\0\0\xfd\xf3\0\0| p/Microsoft Windows 2000 microsoft-ds/ o/Windows/
+match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.\n\0\x01\0\x04\x11\0\0\0\0\x01\0\0\0\0\0\xfd\xe3\0\0|s p/Microsoft Windows XP microsoft-ds/ o/Windows/
+match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.2\0\x01\0\x04A\0\0\0\0\x01\0\0\0\0\0\xfd\xf3\0\0|s p/Microsoft Windows 2000 microsoft-ds/ o/Windows/
 # Microsoft Windows 2003
 match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.2\0\x01\0\x04.\0\0\0\0\x01\0\0\0\0\0\xfd\xf3\x01\0|s p/Microsoft Windows 2003 microsoft-ds/ o/Windows/
 # Microsoft Windows 2000 Server
 # Microsoft Windows 2000 Server SP4
 match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.[}2]\0\x01\0\x04A\0\0\0\0\x01\0\0\0\0\0\xfd[\xe3\xf3]\0\0|s p/Microsoft Windows 2000 microsoft-ds/ o/Windows/
 
-match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.\x05\0\x01\0\x04\x11\0\0\0\0\x01\0\xad\x05\0\0| p|IBM OS/400 microsoft-ds| o|OS/400|
+match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.\x05\0\x01\0\x04\x11\0\0\0\0\x01\0\xad\x05\0\0|s p|IBM OS/400 microsoft-ds| o|OS/400|
 
 # Microsoft Windows XP SP1
 # Windows 2000
-match msrpc m|^\x05\0\r\x03\x10\0\0\0\x18\0\0\0....\x04\0\x01\x05\0\0\0\0$| p/Microsoft Windows RPC/ o/Windows/
+match msrpc m|^\x05\0\r\x03\x10\0\0\0\x18\0\0\0....\x04\0\x01\x05\0\0\0\0$|s p/Microsoft Windows RPC/ o/Windows/
 # Windows 2000 Advanced Server c:\winnt\system32\Mstask.exe
 match mstask m|^\x05\0\r\x03\x10\0\0\0\x18\0\0\0\0\x08\x01@\x04\0\x01\x05\0...|s p/Microsoft mstask/ i/task server - c:\winnt\system32\Mstask.exe/ o/Windows/
 # Microsoft Windows 2000
@@ -5653,14 +5651,14 @@ match omniback m|^\0\0\0.\xff\xfe1\x005\0\0\0 \0\x07\0\x01\0\[\x001\x002\0:\x001
 match omniback m|^\0\0\0.15\0 \x07\x01\[12:1\]\0 \x07\x02\[2003\]\0 \x07\x051\d+\0 INET\0 |s p|HP OpenView Omniback/Data Protector| o/Unix/
 
 # PostgreSQL 7.4
-match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0| p/PostgreSQL DB/
-match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0Mnicht unterst.{1,2}tztes Frontend-Protokoll 65363\.19778: Server unterst.{1,2}tzt 1\.0 bis 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ i/German/
-match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0MProtocole non support[e\xe9]e de l'interface 65363\.19778: le serveur supporte de 1\.0 [a\xe0] 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ i/French/
-match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0Mel protocolo 65363\.19778 no est..? soportado: servidor soporta 1\.0 hasta 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ i/Spanish/
-match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0Mprotocolo 65363\.19778 n\xe3o \xe9 suportado: servidor suporta 1\.0 a 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ i/Portugese/
-match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0Mprotocolo do cliente 65363\.19778 n\xe3o \xe9 suportado: servidor suporta 1\.0 a 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ i/Portugese/
-match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0MProtocole non support\xc3\xa9e de l'interface 65363\.19778: le serveur supporte de 1\.0 \xc3\xa0 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ i/French; Unicode support/
-match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0Mnicht unterst\xc3\xbctztes Frontend-Protokoll 65363\.19778: Server unterst\xc3\xbctzt 1\.0 bis 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ i/German; Unicode support/
+match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0|s p/PostgreSQL DB/
+match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0Mnicht unterst.{1,2}tztes Frontend-Protokoll 65363\.19778: Server unterst.{1,2}tzt 1\.0 bis 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0|s p/PostgreSQL DB/ i/German/
+match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0MProtocole non support[e\xe9]e de l'interface 65363\.19778: le serveur supporte de 1\.0 [a\xe0] 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0|s p/PostgreSQL DB/ i/French/
+match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0Mel protocolo 65363\.19778 no est..? soportado: servidor soporta 1\.0 hasta 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0|s p/PostgreSQL DB/ i/Spanish/
+match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0Mprotocolo 65363\.19778 n\xe3o \xe9 suportado: servidor suporta 1\.0 a 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0|s p/PostgreSQL DB/ i/Portugese/
+match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0Mprotocolo do cliente 65363\.19778 n\xe3o \xe9 suportado: servidor suporta 1\.0 a 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0|s p/PostgreSQL DB/ i/Portugese/
+match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0MProtocole non support\xc3\xa9e de l'interface 65363\.19778: le serveur supporte de 1\.0 \xc3\xa0 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0|s p/PostgreSQL DB/ i/French; Unicode support/
+match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0Mnicht unterst\xc3\xbctztes Frontend-Protokoll 65363\.19778: Server unterst\xc3\xbctzt 1\.0 bis 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0|s p/PostgreSQL DB/ i/German; Unicode support/
 
 match postgresql m|^E\0\0\0\xb1S\xec\xb9\x98| p/PostgreSQL DB/
 
@@ -5695,7 +5693,7 @@ match font-service m|^\0\0\x02\0\0\0\0\0\0\0\0\0\x06\0\0\0\0@\x0c\0p\x17\0\0X Co
 match font-service m|^\0\0\x02\0\0\0\0\0\0\0\0\0\x06\0\0\0\0@\x0c\0\xd4\x17\0\0X Consortium\x01\n\x01\0\x05\0\0\0....\0\0..\0\0\0\0$|s p/HP-UX X Font Server/ o/HP-UX/
 match font-service m|^\0\0\x02\0\0\0\0\0\0\0\0\0\x0e\0\0\0\0 \*\0.\x19\0\0The XFree86 Project[-.\w() ]+..\x01\n\x01\0\x05\0\0\0....\0\0..\0\0\0|s p/XFree86 X Font Server/ o/Unix/
 match font-service m|^\0\0\x02\0\0\0\0\0\0\0\0\0\x07\0\0\0\0 \x10\0....X\.Org Foundation\x01\n|s p/X.Org X Font Server/ o/Unix/
-match font-service m|^\0\0\x02\0\0\0\0\0\0\0\0\0\x07\0\0\0\0.......The X\.Org Group| p/X.Org X Font Server/ o/Unix/
+match font-service m|^\0\0\x02\0\0\0\0\0\0\0\0\0\x07\0\0\0\0.......The X\.Org Group|s p/X.Org X Font Server/ o/Unix/
 match font-service m|^\0\0\x02\0\0\0\0\0\0\0\0\0\x04\0\0\0\0.......HD\0@|s p/X Font Server for TrueType Fonts/ o/Unix/
 match networkaudio m|^\0\x19\x02\0\x02\0\x07\0Protocol version mismatch\0| p|Network Audio System|
 
@@ -5709,32 +5707,33 @@ match X11 m|^\x01\0\x0b\0\0\0......\0\0.*The X\.Org Foundation|s p/X.Org/ i/open
 match X11 m|^\x01\0\x0b\0\0\0.....\x02\0\0..\xff\xff\x1f\0\0\x01\0\0.*Gentoo Linux \(XFree86 (\d[^)]+)\)\0\0|s p/XFree86/ v/$1/ i/Gentoo Linux/ o/Linux/
 match X11 m|^\x01\0\x0b\0\0\0.....\x03\0\0..\xff\xff\x1f\0\0\x01\0\0.\0\xff\xff\x01\x07\0\0  \x08\xff....Gentoo Linux \(The X\.Org Foundation ([\w-_.]+), revision ([\w-_.]+)\)\0\0|s p/X.Org/ v/$1 revision $2/ i/Gentoo Linux/ o/Linux/
 match X11 m|^\x01\0\x0b\0\0\0.....\x02\0\0.*Mandrake Linux \(XFree86 (\d[^\)]+)\)\0\0|s p/XFree86/ v/$1/ i/Mandrake Linux/ o/Linux/
-match X11 m|^\x01\0\x0b\0\0\0.....\x03\0\0.*Mandrakelinux \(X\.Org X11 ([\d.]+), patch level ([\w.]+)\)| p/X.Org/ v/$1 patch level $2/ i/Mandrake Linux/ o/Linux/
+match X11 m|^\x01\0\x0b\0\0\0.....\x03\0\0.*Mandrakelinux \(X\.Org X11 ([\d.]+), patch level ([\w.]+)\)|s p/X.Org/ v/$1 patch level $2/ i/Mandrake Linux/ o/Linux/
 match X11 m|^\x01\0\x0b\0\0.*Conectiva Linux \(XFree86 ([\d.]+), patch level (\w+)\)|s p/XFree86/ v/$1 patch level $2/ i/Connectiva Linux/ o/Linux/
 match X11 m|^\x01\0\x0b\0\0\0\x4C\0\xA0\xE0\x63\x02\0\0| i/open/
 # StarNet X-Win32 v5.4 on Windows XP
 match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0.*StarNet Communications Corp\.|s p/StarNet X-Win32/ o/Windows/
-match X11 m|^\0J\x0b\0\0...This copy of X-Win32 will only accept connections from network ([\d.]+)\0\0| p/StarNet X-Win32/ i/Only accepting connections from net $1/ o/Windows/
+match X11 m|^\0J\x0b\0\0...This copy of X-Win32 will only accept connections from network ([\d.]+)\0\0|s p/StarNet X-Win32/ i/Only accepting connections from net $1/ o/Windows/
 match X11 m|^\x01\0\x0b\0\0\0=\0\x01\0\0\0\0\0\xc0\x06\xff\xff\?.*\0DECWINDOWS Digital Equipment Corporation Digital UNIX V(\d[-.\w]+)\0\0\x01\x01|s p/Digital UNIX X-Window/ v/$1/ i/Version is X Server and not of Digital UNIX/ o/Digital UNIX/
 # tightvnc 1.2.3 Xvnc
 # Tightvnc 3.3.3 Xvnc
-match X11 m|^\x01\0\x0b\0\0\0%\0\x04\r\0\0\0\0..\xff\xff\?\0\0\x01\0\0\x1b\0\xff\xff\x01\x02\0\0  \x08\xff...\x08AT&T Laboratories Cambridge\0| p/Xvnc/
+match X11 m|^\x01\0\x0b\0\0\0%\0\x04\r\0\0\0\0..\xff\xff\?\0\0\x01\0\0\x1b\0\xff\xff\x01\x02\0\0  \x08\xff...\x08AT&T Laboratories Cambridge\0|s p/Xvnc/
 # Exceed X server for Win32
-match X11 m|^\x01\0\x0b\0\0\0.\0..\0\0\0\0..\xff\xff\x1f\0\x01\0\0\0.\0\xff\xff.\x04\0\0\x08 \x08\xfe...\0Hummingbird Ltd\.\x01\x01 \0| p/Hummingbird Exceed X server/ v/11.X/ o/Windows/
-match X11 m|^\x01\0\x0b\0\0\0.\0..\0\0\0\0..\xff\xff\?\0\x01\0\0\0.\0\xff\xff.\x04\x01\x01\x08 \x08\xfe...\0Hummingbird Ltd\.\x01\x01 \0| p/Hummingbird Exceed X server/ v/8.X, 9.X, or 10.X/ o/Windows/
+match X11 m|^\x01\0\x0b\0\0\0.\0..\0\0\0\0..\xff\xff\x1f\0\x01\0\0\0.\0\xff\xff.\x04\0\0\x08 \x08\xfe...\0Hummingbird Ltd\.\x01\x01 \0|s p/Hummingbird Exceed X server/ v/11.X/ o/Windows/
+match X11 m|^\x01\0\x0b\0\0\0.\0..\0\0\0\0..\xff\xff\?\0\x01\0\0\0.\0\xff\xff.\x04\x01\x01\x08 \x08\xfe...\0Hummingbird Ltd\.\x01\x01 \0|s p/Hummingbird Exceed X server/ v/8.X, 9.X, or 10.X/ o/Windows/
 match X11 m|^\x01\0\x0b\0\0\0.\0..\0\0\0\0..\xff\xff\?\0\x01\0\0\0.\0\xff\xff\x01\x04\x01\x01\x08 \x08\xfe...\0Hummingbird Communications Ltd\.\0\x01\x01 ...\0\0\x08\x08 ...\0\0\x0c\x0c ...\0\0\x18  ...\0\0.\0\0\0 \0\0\0\xff\xff\xff\0\0\0\0\0|s p/Hummingbird Exceed X server/ v/7.X/ o/Windows/
 match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0..\xff\xff\?\0\x01\0\0\0.\0\xff\xff\x01.\x01\x01\x08 \x08\xfe...\0Hummingbird Communications Ltd\..\x01\x01|s p/Hummingbird Exceed X server/ v/6.X/ o/Windows/
 # General catch-alls
 match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0..\xff\xff.\0\x01\0\0..\0\xff\xff......\x08\xfe...\0Hummingbird Communications Ltd\.|s p/Hummingbird Exceed X server/ o/Windows/
 match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0..\xff\xff.\0\x01\0\0..\0\xff\xff......\x08\xfe...\0Hummingbird Ltd\.|s p/Hummingbird Exceed X server/ o/Windows/
 match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0..\xff\xff\?\0.\0\0..\0\xff\xff......\x08....\0DECWINDOWS compatibility\. Hummingbird|s p/Hummingbird Exceed X server/ i/DECWINDOWS compatibility/ o/Windows/
-match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0..\xff\xff\?\0.\0\0..\0\xff\xff......\x08....\0DECWINDOWS DigitalEquipmentCorporation, eXcursion| p/DEC eXcursion X server/ o/Windows/
-match X11 m|^\x01\0\x0b\0\0......\0\0\0..\xff\xff\?\0.\0\0..\0\xff\xff.*Hewlett-Packard Company\0| p/Hewlett-Packard X server/ o/HP-UX/
-match X11 m|^\x01\0\x0b\0\0......\0\0\0..\xff\xff\?\0.\0\0..\0\xff\xff.*Santa Cruz Operation Inc\.\0| p/SCO X server/ o/SCO UNIX/
+match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0..\xff\xff\?\0.\0\0..\0\xff\xff......\x08....\0DECWINDOWS DigitalEquipmentCorporation, eXcursion|s p/DEC eXcursion X server/ o/Windows/
+match X11 m|^\x01\0\x0b\0\0......\0\0\0..\xff\xff\?\0.\0\0..\0\xff\xff.*Hewlett-Packard Company\0|s p/Hewlett-Packard X server/ o/HP-UX/
+match X11 m|^\x01\0\x0b\0\0......\0\0\0..\xff\xff\?\0.\0\0..\0\xff\xff.*Santa Cruz Operation Inc\.\0|s p/SCO X server/ o/SCO UNIX/
 
 # HP MC/ServiceGuard for Linux A.11.14.02
 match X11 m|^\0\0\0\x01\0\0\0\x0c\0\0\0\0$| p|HP MC/ServiceGuard|
-match X11 m|^\x01\0\x0b\0\0\0%\0\0\x19\0\0\0\0\0\x01\xff\xff\?\0\0\x01\0\0\x12\0\xff\xff\x01\x02\0\0  \x08\xfe\xba\x1dF\0Labtam Europe Ltd\.\0\0\x01\x01| p/Labtam X-WinPro/
+
+match X11 m|^\x01\0\x0b\0\0......\0\0\0..\xff\xff\?\0.*Labtam Europe Ltd\.\0\0\x01\x01|s p/Labtam X-WinPro/
 
 match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0.*NetSarang Computer, Inc\.|s p/NetSarang XManager/ o/Windows/
 match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0.*WRQ, Inc\.|s p/ReflectionX/ o/Windows/
@@ -5749,7 +5748,7 @@ match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0.*MicroImages, Inc\.\0|s p/MicroImages M
 match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0.*Attachmate Corporation\0|s p/Attachmate Kea! X server/ o/Windows/
 match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0.*WebTerm X ([\d.]+) by Powerlan USA\0|s p/Powerlan WebTerm X server/ v/$1/ o/Windows/
 
-match X11 m|^\x01\0\x0b\0\0.......\0\0..\xff\xff.\0\0\x01\0\0.\0\xff\xff......\x08\xff....Colin Harrison\0| p/Xming X server/ o/Windows/
+match X11 m|^\x01\0\x0b\0\0.......\0\0..\xff\xff.\0\0\x01\0\0.\0\xff\xff......\x08\xff....Colin Harrison\0|s p/Xming X server/ o/Windows/
 match X11 m|^\x01\0\x0b\0\0.......\0\0..\xff\xff.\0\0\x01\0\0.\0\xff\xff......\x08\xff....The Xming Project\0| p/Xming X server/ o/Windows/
 
 # Strange one... X.Org Group?
@@ -5876,16 +5875,16 @@ Probe TCP LANDesk-RC q|\x54\x4e\x4d\x50\x04\0\0\0\x54\x4e\x4d\x45\0\0\x04\0|
 rarity 6
 ports 1761-1763,2701
 # With Host and User currently logged in
-match landesk-rc m|^TNMP.\0\0\0TNME.\0\0\0USER.\x08\x04\0\x08\0.{9}\0R\0\x03\0W\0\xff\xff\0.\0\xfd..\0\0\0\0\x02\0\0\0\0\x01\x04\0\0\0\0\0...\0\xb5\x01\xbb\0Desktop Manager (\d\.\d)\0\x02\x04\x01\x02\x01\0\0\W+([-\w]+)\0([-\w]+)\0\0$| p/LANDesk RC/ v/$1/ i/User: $3)/ h/$2/
+match landesk-rc m|^TNMP.\0\0\0TNME.\0\0\0USER.\x08\x04\0\x08\0.{9}\0R\0\x03\0W\0\xff\xff\0.\0\xfd..\0\0\0\0\x02\0\0\0\0\x01\x04\0\0\0\0\0...\0\xb5\x01\xbb\0Desktop Manager (\d\.\d)\0\x02\x04\x01\x02\x01\0\0\W+([-\w]+)\0([-\w]+)\0\0$|s p/LANDesk RC/ v/$1/ i/User: $3)/ h/$2/
 # With just hostname
-match landesk-rc m|^TNMP.\0\0\0TNME.\0\0\0USER.\x08\x04\0\x08\0.{9}\0R\0\x03\0W\0\xff\xff\0.\0\xfd..\0\0\0\0\x02\0\0\0\0\x01\x04\0\0\0\0\0...\0\xb5\x01\xbb\0Desktop Manager (\d\.\d)\0\x02\x04\x01\x02\x01\0\0\W+(\w+)\0\0\0$| p/LANDesk RC/ v/$1/ h/$2/
+match landesk-rc m|^TNMP.\0\0\0TNME.\0\0\0USER.\x08\x04\0\x08\0.{9}\0R\0\x03\0W\0\xff\xff\0.\0\xfd..\0\0\0\0\x02\0\0\0\0\x01\x04\0\0\0\0\0...\0\xb5\x01\xbb\0Desktop Manager (\d\.\d)\0\x02\x04\x01\x02\x01\0\0\W+(\w+)\0\0\0$|s p/LANDesk RC/ v/$1/ h/$2/
 # Being Controled w/ User
-match landesk-rc m|^TNMP.\0\0\0TNME.\0\0\0USER.\x08\x04\0\x08\0.{9}\0R\0\x03\0W\0\xff\xff\0.\0\xfd..\0\0\0\0\x02\0\0\0\0\x01\x04\0\0\0\0\0...\0\xb5\x01\xbb\0Desktop Manager (\d\.\d)\0\x02\x04\x01\x02\x01\0\0\W+([\w.:]+)\W+(\w+)\0(\w+)\0\0$| p/LANDesk RC/ v/$1/ i/User: $4 Controler: $2/ h/$3/
+match landesk-rc m|^TNMP.\0\0\0TNME.\0\0\0USER.\x08\x04\0\x08\0.{9}\0R\0\x03\0W\0\xff\xff\0.\0\xfd..\0\0\0\0\x02\0\0\0\0\x01\x04\0\0\0\0\0...\0\xb5\x01\xbb\0Desktop Manager (\d\.\d)\0\x02\x04\x01\x02\x01\0\0\W+([\w.:]+)\W+(\w+)\0(\w+)\0\0$|s p/LANDesk RC/ v/$1/ i/User: $4 Controler: $2/ h/$3/
 # Being Controled w/o User
-#match landesk-rc m|^TNMP.\0\0\0TNME.\0\0\0USER.\x08\x04\0\x08\0.{9}\0R\0\x03\0W\0\xff\xff\0.\0\xfd..\0\0\0\0\x02\0\0\0\0\x01\x04\0\0\0\0\0...\0\xb5\x01\xbb\0Desktop Manager (\d\.\d)\0\x02\x04\x01\x02\x01\0\0\W+([\w.:]+)\W+(\w+)\0(\w+)\0{2,3}$| v/LANDesk RC/$1/Host: $3 Controler: $2/
+#match landesk-rc m|^TNMP.\0\0\0TNME.\0\0\0USER.\x08\x04\0\x08\0.{9}\0R\0\x03\0W\0\xff\xff\0.\0\xfd..\0\0\0\0\x02\0\0\0\0\x01\x04\0\0\0\0\0...\0\xb5\x01\xbb\0Desktop Manager (\d\.\d)\0\x02\x04\x01\x02\x01\0\0\W+([\w.:]+)\W+(\w+)\0(\w+)\0{2,3}$|s v/LANDesk RC/$1/Host: $3 Controler: $2/
 match landesk-rc m|^TNMP.\0\0\0TNME.\0\0\0USER.\x08\x04\0\x08\0.{9}\0R\0\x03\0W\0\xff\xff\0.\0\xfd..\0\0\0\0\x02\0\0\0\0\x01\x04\0\0\0\0\0...\0\xb5\x01\xbb\0Desktop Manager (\d\.\d)\0\x02\x04\x01\x02\x01\0\0\W+([\w.:]+)\W+(\w+)\0|s p/LANDesk RC/ v/$1/ i/Controler: $2/ h/$3/
 
-match landesk-rc m|^TNMP\x16\0\0\0TNME\x80\0\xfe\xff..([\w.]+):(\d)$| p/LANDesk RC/ i/Busy, From $1 on port 176$2/
+match landesk-rc m|^TNMP\x16\0\0\0TNME\x80\0\xfe\xff..([\w.]+):(\d)$|s p/LANDesk RC/ i/Busy, From $1 on port 176$2/
 
 # Novell Zen Remote Desktop Several 4.0.X submissions
 match landesk-rc m|^\0\x04\0| p/Novell Zen Remote Desktop/ v/4.0.X/
@@ -5912,7 +5911,7 @@ match printer m|^Host Name: ([\w-_.]+)\nPrinter Device: hp LaserJet (\w+)\nPrint
 match microsoft-rdp m|^\x03\0\0\x0b\x06\xd0\0\0\x12.\0$|s p|Microsoft Terminal Service| o|Windows|
 match microsoft-rdp m|^\x03\0\0\x17\x08\x02\0\0Z~\0\x0b\x05\x05@\x06\0\x08\x91J\0\x02X$| p/Microsoft Terminal Service/ i/Used with Netmeeting, Remote Desktop, Remote Assistance/ o/Windows/
 match microsoft-rdp m|^\x03\0\0\x11\x08\x02..}\x08\x03\0\0\xdf\x14\x01\x01$|s p/Microsoft NetMeeting Remote Desktop Service/ o/Windows/
-match microsoft-rdp m|^\x03\0\0\x0b\x06\xd0\0\0\x03.\0$| p/Microsoft NetMeeting Remote Desktop Service/ o/Windows/
+match microsoft-rdp m|^\x03\0\0\x0b\x06\xd0\0\0\x03.\0$|s p/Microsoft NetMeeting Remote Desktop Service/ o/Windows/
 
 # Need more samples!
 match microsoft-rdp m|^\x03\0\0\x0b\x06\xd0\0\0\0\0\0| p/xrdp/
@@ -5930,7 +5929,7 @@ ports 524,2000,3000-3006,6802
 # NCP "OK" reply
 match ncp m|^\x74\x4e\x63\x50\0\0\0\x10\x33\x33| p/Novell Netware NCP/ o/NetWare/
 match srun m|^X\0\0\0$| p/Caucho Resin JSP Engine srun/
-match progress m|^\0\0\0\x01\0\x17\0\x14\0\x06\0\0\0.\0\0\0\0\0\0| p/Progress Database/
+match progress m|^\0\0\0\x01\0\x17\0\x14\0\x06\0\0\0.\0\0\0\0\0\0|s p/Progress Database/
 
 ##############################NEXT PROBE##############################
 Probe TCP NotesRPC q|\x3A\x00\x00\x00\x2F\x00\x00\x00\x02\x00\x00\x40\x02\x0F\x00\x01\x00\x3D\x05\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x2F\x00\x00\x00\x00\x00\x00\x00\x00\x00\x40\x1F\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00|
@@ -6024,8 +6023,7 @@ match nessus m|< NTP/1.0 >\n| p/Nessus Daemon/ i/NTP v1.0/
 Probe UDP SNMPv1public q|0\x82\0/\x02\x01\0\x04\x06public\xa0\x82\0\x20\x02\x04\x4c\x33\xa7\x56\x02\x01\0\x02\x01\0\x30\x82\0\x10\x30\x82\0\x0c\x06\x08\x2b\x06\x01\x02\x01\x01\x05\0\x05\0|
 rarity 4
 ports 161
-# FIXME: Can probably get more information out of these... -Doug
-match snmp m|^0.\x02\x01\0\x04\x06public\xa2| p/SNMPv1 server/ i/public/
+# FIXME: Can probably get more information out of this... -Doug
 match snmp m|^0.*\x02\x01\0\x04\x06public\xa2|s p/SNMPv1 server/ i/public/
 
 ##############################NEXT PROBE##############################
