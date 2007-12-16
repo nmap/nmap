@@ -36,6 +36,8 @@ o Nmap's output options (-oA, -oX, etc.) now support strftime()-like
   means that "-oX 'scan-%T-%D.xml'" uses an XML file in the form of
   "scan-144840-121307.xml". [Kris]
 
+o Updated robots.nse to prevent printing robots.txt comments. [Kris]
+
 4.50
 
 o Bumped up the version number to the big 4.50!
