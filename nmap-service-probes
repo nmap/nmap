@@ -2690,7 +2690,7 @@ match ident m|^0, 0: ERROR: UNKNOWN-ERROR\n$| p/slident/
 match ident m|^0,0:ERROR:UNKNOWN-ERROR\r\n$| p/mlidentd/
 # This identd might be BSD derived:
 match ident m|^2 , 0 : ERROR : UNKNOWN-ERROR\r\n$|
-match ident m|^0 , 0 : ERROR : UNKNOWN-ERROR\r\n$| p/OpenBSD identd/ o/OpenBSD/
+match ident m|^0 , 0 : ERROR : UNKNOWN-ERROR\r\n$|
 # FreeBSD 4.8-RC inetd internal identd
 match ident m|^0 , 0 : ERROR : INVALID-PORT\r\n$| p/FreeBSD identd/ o/FreeBSD/
 # pidentd-3.1a19-157
