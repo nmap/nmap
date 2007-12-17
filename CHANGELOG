@@ -36,6 +36,9 @@ o Nmap's output options (-oA, -oX, etc.) now support strftime()-like
   means that "-oX 'scan-%T-%D.xml'" uses an XML file in the form of
   "scan-144840-121307.xml". [Kris]
 
+o Fixed Zenmap crash that occurred when selecting Help from the Compare
+  Results window. [Kris]
+
 o Updated robots.nse to prevent printing robots.txt comments. [Kris]
 
 4.50
