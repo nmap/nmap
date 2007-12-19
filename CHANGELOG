@@ -47,7 +47,8 @@ o Updated robots.nse to prevent printing robots.txt comments. [Kris]
 
 4.50
 
-o Bumped up the version number to the big 4.50!
+o Bumped up the version number to the big 10th anniversary 4.50
+release!  See http://insecure.org/stf/Nmap-4.50-Release.html .
 
 4.49RC7
 
@@ -176,7 +177,7 @@ o Renamed some Zenmap Python packages to allow Zenmap and Umit to be
 
 o Updated nmap-mac-prefixes with the latest IEEE data.  Also added
   back Cooperative Linux virtual NIC which was inadvertently removed in
-  a previous release.
+  a previous release. [Fyodor]
 
 4.23RC3
 
@@ -913,7 +914,7 @@ o The --scanflags option now also accepts "ECE", "CWR", "ALL" and "NONE" as
   arguments.  [Kris]
 
 o The --packet-trace option was added to NmapFE.  The Ordered Ports (-r)
-  option in now available to non-root users on NmapFE as well.  [Kris]
+  option in now available to non-root users on NmapFE as well. [Kris]
 
 4.21ALPHA1
 
@@ -1188,7 +1189,7 @@ o Fixed the --max-retries option, which wasn't being honored.  Thanks
 
 Nmap 4.20ALPHA3
 
-o Added back Win32 support thanks to a patch by kx
+o Added back Win32 support thanks to a patch by KX
 
 o Fixed the English translation of TCP sequence difficulty reported by
   Brandon Enright, and also removed fingerprint printing for 1st
