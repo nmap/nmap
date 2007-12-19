@@ -848,8 +848,8 @@ stx               527/tcp    # Stock IXChange
 stx               527/udp    # Stock IXChange
 custix            528/tcp    # Customer IXChange
 custix            528/udp    # Customer IXChange
-irc-serv          529/tcp    # 
-irc-serv          529/udp    # 
+irc               529/tcp    # 
+irc               529/udp    # 
 courier           530/tcp    # rpc
 courier           530/udp    # rpc
 conference        531/tcp    # chat
@@ -2082,9 +2082,12 @@ xdsxdm            6558/tcp   #
 xdsxdm            6558/udp   # 
 analogx           6588/tcp   # AnalogX HTTP proxy port
 radmind           6662/tcp   # Radmind protocol (deprecated)
-irc-serv          6666/tcp   # internet relay chat server
+irc               6665/tcp   # Internet Relay Chat
+irc               6666/tcp   # internet relay chat server
 irc               6667/tcp   # Internet Relay Chat
 irc               6668/tcp   # Internet Relay Chat
+irc               6669/tcp   # Internet Relay Chat
+irc               6670/tcp   # Internet Relay Chat
 carracho          6700/tcp   # Carracho file sharing
 carracho          6701/tcp   # Carracho file sharing
 bittorent-tracker 6881/tcp   # BitTorrent tracker
