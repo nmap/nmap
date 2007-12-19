@@ -36,6 +36,10 @@ o Nmap's output options (-oA, -oX, etc.) now support strftime()-like
   means that "-oX 'scan-%T-%D.xml'" uses an XML file in the form of
   "scan-144840-121307.xml". [Kris]
 
+o Added a new NSE script (MySQLinfo) which prints MySQL server information
+  such as the protocol and version numbers, status, thread id, capabilities,
+  and password salt. [Kris]
+
 o Fixed Zenmap crash that occurred when selecting Help from the Compare
   Results window. [Kris]
 
