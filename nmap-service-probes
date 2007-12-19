@@ -981,7 +981,7 @@ match mud m|^\n\r\xff\xfbUDo you want ANSI color\? \(Y/n\) $| p|ROM-based MUD| i
 
 match mysql m/^.\0\0\0\xff.\x04.*Host .* is not allowed to connect to this MySQL server$/s p/MySQL/ i/unauthorized/
 match mysql m|^.\0\0\0\xff.\x04Too many connections|s p/MySQL/ i/Too many connections/
-match mysql m|^.\0\0\0\xff.\x04Host '[\d.]+' is blocked because of many connection errors; unblock with 'mysqladmin flush-hosts'|s p/MySQL/ i/Host blocked because of too many connections/
+match mysql m|^.\0\0\0\xff.\x04Host '[-.\w]+' is blocked because of many connection errors; unblock with 'mysqladmin flush-hosts'|s p/MySQL/ i/Host blocked because of too many connections/
 match mysql m|^.\0\0\0\xffj\x04Host hat keine Berechtigung, eine Verbindung zu diesem MySQL Server herzustellen\.|s p/MySQL/ i/unauthorized; German/
 match mysql m|^.\0\0\0.*Host '[\w-_.]+' hat keine Berechtigung, sich mit diesem MySQL-Server zu verbinden|s p/MySQL/ i/Unauthorized; German/
 match mysql m/^.\0\0\0...Al sistema '[-.\w]+' non e` consentita la connessione a questo server MySQL$/s p/MySQL/ i/unauthorized; Italian/
