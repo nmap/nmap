@@ -1,4 +1,4 @@
-This directory conains a version of LibPCRE 7.2 that has been stripped
+This directory contains a version of LibPCRE 7.4 that has been stripped
 down to less than a third of its original uncompressed size.  So if you
 want docs, tests and such, you should go to the PCRE website at
 http://www.pcre.org .  Here are the changes for the Nmap version:
@@ -30,13 +30,14 @@ makevp_c.txt
 makevp_l.txt
 pcregexp.pas
 ltmain.sh
+CleanTxt
 ChangeLog
 NEWS
 HACKING
 COPYING [Look at LICENCE]
 
 o Got rid of the C++ wrapper, which included this step:
-  rm -f *.cc pcrecpparg.h.in pcrecpp.h pcre_scanner.h pcre_stringpiece.h.in
+  rm -f *.cc pcrecpparg.h.in pcrecpp.h pcrecpp_internal.h pcre_scanner.h pcre_stringpiece.h.in
 
 o Copied pcre.h.generic to pcre.h and pcre_chartables.c.dist to, you
   guessed it, pcre_chartables.c (for Windows).  Running ./configure in
@@ -56,17 +57,17 @@ o Stripped down Makefile.am and configure.ac substantially to remove
 o Removed config.sub, config.guess, depcomp, install-sh, and missing.
   These files are found in the parent (i.e., Nmap's) directory.
 
-o Comment out some build configuration lines from pcre-internal.h because Nmap
+o Comment out some build configuration lines from pcre_internal.h because Nmap
   builds a static library:
 
---- pcre-7.2/pcre_internal.h	2007-06-12 08:39:55.000000000 -0500
-+++ libpcre/pcre_internal.h	2007-08-15 18:56:18.000000000 -0500
-@@ -112,15 +112,19 @@ PCRE_EXP_DATA_DEFN only if they are not 
+--- pcre-7.4/pcre_internal.h	2007-09-13 04:22:27.000000000 -0500
++++ libpcre/pcre_internal.h	2007-12-19 22:28:33.000000000 -0600
+@@ -108,15 +108,19 @@ PCRE_EXP_DATA_DEFN only if they are not 
  
  #ifndef PCRE_EXP_DECL
  #  ifdef _WIN32
 +/* COMMENTED OUT AS IT'S COMPILED STATICALLY
- #    ifdef DLL_EXPORT
+ #    ifndef PCRE_STATIC
  #      define PCRE_EXP_DECL       extern __declspec(dllexport)
  #      define PCRE_EXP_DEFN       __declspec(dllexport)
  #      define PCRE_EXP_DATA_DEFN  __declspec(dllexport)
@@ -78,74 +79,71 @@ o Comment out some build configuration lines from pcre-internal.h because Nmap
 +/*
  #    endif
 +*/
- #
  #  else
  #    ifdef __cplusplus
+ #      define PCRE_EXP_DECL       extern "C"
 
 
 ...and pcre.h.in/pcre.h.generic/pcre.h:
 
 
---- pcre-7.2/pcre.h.in	2007-06-04 05:18:02.000000000 -0500
-+++ libpcre/pcre.h.in	2007-08-15 19:24:46.000000000 -0500
+--- pcre-7.4/pcre.h.in	2007-09-11 06:24:35.000000000 -0500
++++ libpcre/pcre.h.in	2007-12-19 22:30:32.000000000 -0600
 @@ -51,6 +51,7 @@ imported have to be identified as such. 
  export setting is defined in pcre_internal.h, which includes this file. So we
- don't change an existing definition of PCRE_EXP_DECL. */
+ don't change existing definitions of PCRE_EXP_DECL and PCRECPP_EXP_DECL. */
  
 +/*
- #ifndef PCRE_EXP_DECL
- #  ifdef _WIN32
- #    ifndef PCRE_STATIC
-@@ -58,6 +59,7 @@ don't change an existing definition of P
+ #if defined(_WIN32) && !defined(PCRE_STATIC)
+ #  ifndef PCRE_EXP_DECL
+ #    define PCRE_EXP_DECL  extern __declspec(dllimport)
+@@ -64,6 +65,7 @@ don't change existing definitions of PCR
  #    endif
  #  endif
  #endif
 +*/
  
  /* By default, we use the standard "extern" declarations. */
-
+ 
 
 ..and pcreposix.h:
 
 
---- pcre-7.2/pcreposix.h	2007-04-04 09:04:40.000000000 -0500
-+++ libpcre/pcreposix.h	2007-08-15 20:31:42.000000000 -0500
-@@ -109,12 +109,14 @@ typedef struct {
- imported have to be identified as such. When building PCRE, the appropriate
- export settings are needed. */
+--- pcre-7.4/pcreposix.h	2007-08-01 04:06:39.000000000 -0500
++++ libpcre/pcreposix.h	2007-12-19 22:31:14.000000000 -0600
+@@ -110,10 +110,12 @@ imported have to be identified as such. 
+ export settings are needed, and are set in pcreposix.c before including this
+ file. */
  
 +/*
- #ifdef _WIN32
- #  ifndef PCREPOSIX_STATIC
- #    define PCREPOSIX_EXP_DECL extern __declspec(dllimport)
- #    define PCREPOSIX_EXP_DEFN  __declspec(dllimport)
- #  endif
+ #if defined(_WIN32) && !defined(PCRE_STATIC) && !defined(PCREPOSIX_EXP_DECL)
+ #  define PCREPOSIX_EXP_DECL  extern __declspec(dllimport)
+ #  define PCREPOSIX_EXP_DEFN  __declspec(dllimport)
  #endif
 +*/
  
  /* By default, we use the standard "extern" declarations. */
-
-
-o Added pcre_winconfig.h, and include it in pcre_internal.h instead of config.h:
- 
---- pcre-7.2/pcre_internal.h	2007-06-12 08:39:55.000000000 -0500
-+++ libpcre/pcre_internal.h	2007-08-15 20:33:48.000000000 -0500
-@@ -69,7 +69,11 @@ be absolutely sure we get our version. *
- 
- /* Get the definitions provided by running "configure" */
- 
-+#ifdef WIN32
-+#include "pcre_winconfig.h"
-+#else
- #include "config.h"
-+#endif
- 
- /* Standard C headers plus the external interface definition. The only time
- setjmp and stdarg are used is when NO_RECURSE is set. */
  
 
-o Change the pcre.h #include in pcre_internal.h from <pcre.h> to "pcre.h".
-  This seems to be needed on Windows.
+o Added pcre_winconfig.h for Windows.  LibPCRE used to include config.h in
+  pcre_internal.h, and we'd include this winconfig there instead of config.h
+  if WIN32 is defined.  Now, however, they've moved config.h includes to a
+  bunch of different files, so we have to change them.  We could remove the
+  other includes and move it back to pcre_internal.h, but they must've moved
+  them for a reason, so we'll follow them.  Occurrences of
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+  get changed to
+
+#ifdef WIN32
+#include "pcre_winconfig.h"
+#else
+#include "config.h"
+#endif
+
 
 o Regenerated everything with 'automake; aclocal; autoconf'
 

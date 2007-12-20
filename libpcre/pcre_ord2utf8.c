@@ -41,6 +41,11 @@ POSSIBILITY OF SUCH DAMAGE.
 /* This file contains a private PCRE function that converts an ordinal
 character value into a UTF8 string. */
 
+#ifdef WIN32
+#include "pcre_winconfig.h"
+#else
+#include "config.h"
+#endif
 
 #include "pcre_internal.h"
 

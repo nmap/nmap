@@ -42,6 +42,12 @@ POSSIBILITY OF SUCH DAMAGE.
 information about a compiled pattern. */
 
 
+#ifdef WIN32
+#include "pcre_winconfig.h"
+#else
+#include "config.h"
+#endif
+
 #include "pcre_internal.h"
 
 
@@ -106,8 +112,8 @@ switch (what)
 
   case PCRE_INFO_FIRSTBYTE:
   *((int *)where) =
-    ((re->options & PCRE_FIRSTSET) != 0)? re->first_byte :
-    ((re->options & PCRE_STARTLINE) != 0)? -1 : -2;
+    ((re->flags & PCRE_FIRSTSET) != 0)? re->first_byte :
+    ((re->flags & PCRE_STARTLINE) != 0)? -1 : -2;
   break;
 
   /* Make sure we pass back the pointer to the bit vector in the external
@@ -121,7 +127,7 @@ switch (what)
 
   case PCRE_INFO_LASTLITERAL:
   *((int *)where) =
-    ((re->options & PCRE_REQCHSET) != 0)? re->req_byte : -1;
+    ((re->flags & PCRE_REQCHSET) != 0)? re->req_byte : -1;
   break;
 
   case PCRE_INFO_NAMEENTRYSIZE:
@@ -141,11 +147,15 @@ switch (what)
   break;
 
   case PCRE_INFO_OKPARTIAL:
-  *((int *)where) = (re->options & PCRE_NOPARTIAL) == 0;
+  *((int *)where) = (re->flags & PCRE_NOPARTIAL) == 0;
   break;
 
   case PCRE_INFO_JCHANGED:
-  *((int *)where) = (re->options & PCRE_JCHANGED) != 0;
+  *((int *)where) = (re->flags & PCRE_JCHANGED) != 0;
+  break;
+
+  case PCRE_INFO_HASCRORLF:
+  *((int *)where) = (re->flags & PCRE_HASCRORLF) != 0;
   break;
 
   default: return PCRE_ERROR_BADOPTION;

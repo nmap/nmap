@@ -43,6 +43,12 @@ class (one that contains characters whose values are > 255). It is used by both
 pcre_exec() and pcre_def_exec(). */
 
 
+#ifdef WIN32
+#include "pcre_winconfig.h"
+#else
+#include "config.h"
+#endif
+
 #include "pcre_internal.h"
 
 

@@ -80,4 +80,3 @@ nodist_libpcre_a_SOURCES = pcre_chartables.c
 # A compatibility line, the old build system worked with 'make test'
 test: check ;
 
-## end Makefile.am

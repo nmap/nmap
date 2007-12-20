@@ -41,6 +41,12 @@ POSSIBILITY OF SUCH DAMAGE.
 /* This module contains code for searching the table of Unicode character
 properties. */
 
+#ifdef WIN32
+#include "pcre_winconfig.h"
+#else
+#include "config.h"
+#endif
+
 #include "pcre_internal.h"
 
 #include "ucp.h"               /* Category definitions */

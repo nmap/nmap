@@ -45,7 +45,12 @@ compilation of dftables.c, in which case the macro DFTABLES is defined. */
 
 
 #ifndef DFTABLES
-#include "pcre_internal.h"
+#  ifdef WIN32
+#  include "pcre_winconfig.h"
+#  else
+#  include "config.h"
+#  endif
+#  include "pcre_internal.h"
 #endif
 
 

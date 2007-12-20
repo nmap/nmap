@@ -42,6 +42,12 @@ POSSIBILITY OF SUCH DAMAGE.
 string that identifies the PCRE version that is in use. */
 
 
+#ifdef WIN32
+#include "pcre_winconfig.h"
+#else
+#include "config.h"
+#endif
+
 #include "pcre_internal.h"
 
 

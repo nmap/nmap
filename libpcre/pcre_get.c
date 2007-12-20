@@ -43,6 +43,12 @@ from the subject string after a regex match has succeeded. The original idea
 for these functions came from Scott Wimer. */
 
 
+#ifdef WIN32
+#include "pcre_winconfig.h"
+#else
+#include "config.h"
+#endif
+
 #include "pcre_internal.h"
 
 
@@ -185,7 +191,7 @@ const real_pcre *re = (const real_pcre *)code;
 int entrysize;
 char *first, *last;
 uschar *entry;
-if ((re->options & (PCRE_DUPNAMES | PCRE_JCHANGED)) == 0)
+if ((re->options & PCRE_DUPNAMES) == 0 && (re->flags & PCRE_JCHANGED) == 0)
   return pcre_get_stringnumber(code, stringname);
 entrysize = pcre_get_stringtable_entries(code, stringname, &first, &last);
 if (entrysize <= 0) return entrysize;

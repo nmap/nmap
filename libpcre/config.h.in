@@ -8,12 +8,23 @@ it to run on SunOS4 and other "close to standard" systems.
 
 If you are going to build PCRE "by hand" on a system without "configure" you
 should copy the distributed config.h.generic to config.h, and then set up the
-macros the way you need them. Alternatively, you can avoid editing by using -D
-on the compiler command line to set the macro values.
+macro definitions the way you need them. You must then add -DHAVE_CONFIG_H to
+all of your compile commands, so that config.h is included at the start of
+every source.
+
+Alternatively, you can avoid editing by using -D on the compiler command line
+to set the macro values. In this case, you do not have to set -DHAVE_CONFIG_H.
 
 PCRE uses memmove() if HAVE_MEMMOVE is set to 1; otherwise it uses bcopy() if
 HAVE_BCOPY is set to 1. If your system has neither bcopy() nor memmove(), set
 them both to 0; an emulation function will be used. */
+
+/* By default, the \R escape sequence matches any Unicode line ending
+   character or sequence of characters. If BSR_ANYCRLF is defined, this is
+   changed so that backslash-R matches only CR, LF, or CRLF. The build- time
+   default can be overridden by the user of PCRE at runtime. On systems that
+   support it, "configure" can be used to override the default. */
+#undef BSR_ANYCRLF
 
 /* If you are compiling for a system that uses EBCDIC instead of ASCII
    character codes, define this macro as 1. On systems that can use
@@ -23,14 +34,8 @@ them both to 0; an emulation function will be used. */
 /* Define to 1 if you have the `bcopy' function. */
 #undef HAVE_BCOPY
 
-/* Define to 1 if you have the <bits/type_traits.h> header file. */
-#undef HAVE_BITS_TYPE_TRAITS_H
-
 /* Define to 1 if you have the <dirent.h> header file. */
 #undef HAVE_DIRENT_H
-
-/* Define to 1 if you have the <dlfcn.h> header file. */
-#undef HAVE_DLFCN_H
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
@@ -56,9 +61,6 @@ them both to 0; an emulation function will be used. */
 /* Define to 1 if you have the `strerror' function. */
 #undef HAVE_STRERROR
 
-/* Define to 1 if you have the <string> header file. */
-#undef HAVE_STRING
-
 /* Define to 1 if you have the <strings.h> header file. */
 #undef HAVE_STRINGS_H
 
@@ -77,9 +79,6 @@ them both to 0; an emulation function will be used. */
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
 
-/* Define to 1 if you have the <type_traits.h> header file. */
-#undef HAVE_TYPE_TRAITS_H
-
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
@@ -89,6 +88,9 @@ them both to 0; an emulation function will be used. */
 /* Define to 1 if you have the <windows.h> header file. */
 #undef HAVE_WINDOWS_H
 
+/* Define to 1 if you have the `_strtoi64' function. */
+#undef HAVE__STRTOI64
+
 /* The value of LINK_SIZE determines the number of bytes used to store links
    as offsets within the compiled regex. The default is 2, which allows for
    compiled patterns up to 64K long. This covers the vast majority of cases.
@@ -96,6 +98,9 @@ them both to 0; an emulation function will be used. */
    for longer patterns in extreme cases. On systems that support it,
    "configure" can be used to override this default. */
 #undef LINK_SIZE
+
+/* Mac OS X on Intel */
+#undef MACOSX
 
 /* The value of MATCH_LIMIT determines the default number of times the
    internal match() function can be called during a single execution of
@@ -120,11 +125,6 @@ them both to 0; an emulation function will be used. */
 /* This limit is parameterized just in case anybody ever wants to change it.
    Care must be taken if it is increased, because it guards against integer
    overflow caused by enormously large patterns. */
-#undef MAX_DUPLENGTH
-
-/* This limit is parameterized just in case anybody ever wants to change it.
-   Care must be taken if it is increased, because it guards against integer
-   overflow caused by enormously large patterns. */
 #undef MAX_NAME_COUNT
 
 /* This limit is parameterized just in case anybody ever wants to change it.
@@ -132,10 +132,10 @@ them both to 0; an emulation function will be used. */
    overflow caused by enormously large patterns. */
 #undef MAX_NAME_SIZE
 
-/* The value of NEWLINE determines the newline character sequence. On
-   Unix-like systems, "configure" can be used to override the default, which
-   is 10. The possible values are 10 (LF), 13 (CR), 3338 (CRLF), -1 (ANY), or
-   -2 (ANYCRLF). */
+/* The value of NEWLINE determines the newline character sequence. On systems
+   that support it, "configure" can be used to override the default, which is
+   10. The possible values are 10 (LF), 13 (CR), 3338 (CRLF), -1 (ANY), or -2
+   (ANYCRLF). */
 #undef NEWLINE
 
 /* PCRE uses recursive function calls to handle backtracking while matching.

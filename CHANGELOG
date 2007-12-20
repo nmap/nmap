@@ -42,6 +42,8 @@ o Nmap's output options (-oA, -oX, etc.) now support strftime()-like
   means that "-oX 'scan-%T-%D.xml'" uses an XML file in the form of
   "scan-144840-121307.xml". [Kris]
 
+o Upgraded the shipped LibPCRE from version 7.2 to 7.4 [Kris]
+
 o Added a new NSE script (MySQLinfo) which prints MySQL server information
   such as the protocol and version numbers, status, thread id, capabilities,
   and password salt. [Kris]
