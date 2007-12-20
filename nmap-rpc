@@ -464,8 +464,6 @@ SLSd_daemon	536870913	# HP Distributed Single Logical Screen
 uidd		536870915
 #
 vtsk		536870916	# SunVTS diagnostic kernel
-#
-userd		536870916
 bondd		536870917
 staticd		536870918
 curved		536870919
