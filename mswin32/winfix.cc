@@ -194,7 +194,8 @@ void win_init()
 		}
 #endif
 
-	o.isr00t = pcap_avail;
+	if (!pcap_avail)
+		o.isr00t = 0;
 	atexit(win_cleanup);
 }
 

@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed an error that showed itself on Windows when attempting
+  to scan localhost as an unprivileged user (nmap --unprivileged
+  localhost). The error looked like
+Skipping SYN Stealth Scan against localhost (127.0.0.1) because Windows does not support scanning your own machine (localhost) this way.
+  Now connect scan is used instead of SYN scan.
+
 o Fixed an output problem that showed itself on Windows when attempting
   to scan localhost, which is skipped. The problem looked like
     All 0 scanned ports on 127.0.0.1 are 
