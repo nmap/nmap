@@ -1,9 +1,17 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added rpcinfo.nse script, which contacts a listening RPC portmapper
+  and reports the listening services and port information (like
+  rpcinfo -p does).  The script was written by Sven Klemm.  Fyodor
+  then enhanced the RPC number list with all of the entries from
+  nmap-rpc.
+
 o Fixed an error that showed itself on Windows when attempting
   to scan localhost as an unprivileged user (nmap --unprivileged
   localhost). The error looked like
-Skipping SYN Stealth Scan against localhost (127.0.0.1) because Windows does not support scanning your own machine (localhost) this way.
+   "Skipping SYN Stealth Scan against localhost (127.0.0.1) because
+    Windows does not support scanning your own machine (localhost) this
+    way."
   Now connect scan is used instead of SYN scan.
 
 o Fixed an output problem that showed itself on Windows when attempting

@@ -35,6 +35,8 @@ Entry{ category = "version", filename = "netbios-smb-os-discovery.nse" }
 Entry{ category = "discovery", filename = "promiscuous.nse" }
 Entry{ category = "discovery", filename = "ripeQuery.nse" }
 Entry{ category = "safe", filename = "robots.nse" }
+Entry{ category = "safe", filename = "rpcinfo.nse" }
+Entry{ category = "discovery", filename = "rpcinfo.nse" }
 Entry{ category = "demo", filename = "showHTMLTitle.nse" }
 Entry{ category = "safe", filename = "showHTMLTitle.nse" }
 Entry{ category = "", filename = "showHTTPVersion.nse" }
