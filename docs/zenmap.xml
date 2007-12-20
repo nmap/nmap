@@ -49,9 +49,10 @@
         <term><option>--file</option> <replaceable>results file</replaceable></term>
         <listitem>
           <para>Open the given results file for viewing. The results file may be
-          an Nmap XML output file (.xml, as produced by <command>nmap
-          -oX</command>) or a Umit scan results file (.usr). This option may be
-          given more than once.</para>
+          an Nmap XML output file (<filename>.xml</filename>, as produced by
+          <command>nmap -oX</command>) or a Umit scan results file
+          (<filename>.usr</filename>). This option may be given more than
+          once.</para>
         </listitem>
       </varlistentry>
       <varlistentry>
