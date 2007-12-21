@@ -4521,7 +4521,7 @@ match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nCache-Control: no-cache\r\nPragma: no
 match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nServer: BlueCoat-Security-Appliance\r\n|s p/BlueCoat http proxy/
 match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nProxy-agent: BlueCoat-WinProxy\r\n| p/BlueCoat WinProxy http proxy/ o/Windows/
 match http-proxy m|^HTTP/1\.0 200 Connection established\r\nPragma: no-cach\r\nContent-Type: text/html; charset=windows-1251\r\n\r\n$| p/UserGate http proxy/ o/Windows/
-match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nServer: nginx/([\d.]+)\r\n| p/nginx http proxy/ v/$1/
+match http-proxy m!^HTTP/1\.1 ([1235]\d\d|4(\d[1-9]|[1-9]\d)) .*\r\nServer: nginx/([\d.]+)\r\n! p/nginx http proxy/ v/$1/
 match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nServer: Simple, Secure Web Server ([\d.]+)\r\n|s p/Symantec firewall http proxy/ i/Simple, Secure Web Server $1/ d/firewall/
 match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nContent-Length: \d+\r\n.*\r\n\r\n.*<B>KEN! Proxy</B>|s p/AVM KEN! http proxy/
 match http-proxy m|^HTTP/1\.0 400 Bad request\r\nContent-Type: text/html\r\nPragma: no-cache\r\n\r\n<H4><font COLOR=\"#FF0000\">Error parsing http request : </font></H2><p><pre>GET / / HTTP/1\.0\r\n\r\n</pre>| p/Kerio Winroute Pro http proxy/ o/Windows/
