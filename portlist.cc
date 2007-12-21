@@ -426,7 +426,7 @@ int PortList::addPort(u16 portno, u8 protocol, char *owner, int state) {
     /* We must discount our statistics from the old values.  Also warn
        if a complete duplicate */
     if (o.debugging && current->state == state && (!owner || !*owner)) {
-      error("Duplicate port (%hu/%s)\n", portno, proto2ascii(protocol));
+      error("Duplicate port (%hu/%s)", portno, proto2ascii(protocol));
     } 
     state_counts_proto[proto][current->state]--;
   } else {

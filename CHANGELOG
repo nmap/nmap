@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fix a bunch of warning/error messages which contained an extra
+  newline.  Thanks to Brandon Enright for the patch.
+
 o Added rpcinfo.nse script, which contacts a listening RPC portmapper
   and reports the listening services and port information (like
   rpcinfo -p does).  The script was written by Sven Klemm.  Fyodor

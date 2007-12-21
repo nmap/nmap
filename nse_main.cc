@@ -225,7 +225,7 @@ finishup:
 	current_hosts.clear();
 	torun_scripts.clear();
 	if(status != SCRIPT_ENGINE_SUCCESS) {
-		error("%s: Aborting script scan.\n", SCRIPT_ENGINE);
+		error("%s: Aborting script scan.", SCRIPT_ENGINE);
 		return SCRIPT_ENGINE_ERROR;
 	} else {
 		return SCRIPT_ENGINE_SUCCESS;
@@ -364,7 +364,7 @@ int process_getScriptId(lua_State* l, struct script_scan_result *ssr) {
 	} else if(lua_isstring(l, -1)) {
 		ssr->id = strdup(lua_tostring (l, -1));
 	} else {
-		error("%s: The script has no 'id' entry, the 'filename' entry was changed to: \n",
+		error("%s: The script has no 'id' entry, the 'filename' entry was changed to:",
 			SCRIPT_ENGINE);
 		l_dumpValue(l, -1);
 		return SCRIPT_ENGINE_ERROR;

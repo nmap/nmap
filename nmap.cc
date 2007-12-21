@@ -2787,7 +2787,7 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, char *file) {
   }
 
   if (foundsomething && o.debugging > 1)
-    error("Fetchfile found %s\n", filename_returned);
+    error("Fetchfile found %s", filename_returned);
 
   return foundsomething;
 

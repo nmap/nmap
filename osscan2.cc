@@ -2033,8 +2033,9 @@ bool HostOsScan::processTSeqResp(HostOsScanStats *hss, struct ip *ip, int replyN
     if (seq_response_num != replyNo) {
       /* BzzT! Value out of range */
       if (o.debugging) {
-        error("Unable to associate os scan response with sent packet for %s.\nReceived ack: %lX; sequence sent: %lX. Packet:",
-              hss->target->targetipstr(),
+        error("Unable to associate os scan response with sent packet for %s.",
+              hss->target->targetipstr());
+        error("Received ack: %lX; sequence sent: %lX. Packet:",
               (unsigned long) ntohl(tcp->th_ack),
               (unsigned long) tcpSeqBase);
         readtcppacket((unsigned char *)ip,ntohs(ip->ip_len));

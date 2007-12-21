@@ -1979,7 +1979,7 @@ if (!pd) fatal("NULL packet device passed to %s", __func__);
    if (head.caplen > 100000) {
      fatal("FATAL: %s: bogus caplen from libpcap (%d) on interface type %d", __func__, head.caplen, datalink);
    } 
-   error("FATAL:  Unknown datalink type (%d). Caplen: %d; Packet:\n", datalink, head.caplen);
+   error("FATAL:  Unknown datalink type (%d). Caplen: %d; Packet:", datalink, head.caplen);
    lamont_hdump(p, head.caplen);
    exit(1);
  }
@@ -2109,7 +2109,7 @@ void pcap_print_stats(int logt, pcap_t *pd) {
   assert(pd != NULL);
 
   if (pcap_stats(pd, &stat) < 0) {
-    error("%s: %s\n", __func__, pcap_geterr(pd));
+    error("%s: %s", __func__, pcap_geterr(pd));
     return;
   }
 
@@ -2175,7 +2175,7 @@ static bool NmapArpCache(int command, struct sockaddr_storage *ss, u8 *mac) {
    descriptor pd.  If it receives one, fills in sendermac (must pass
    in 6 bytes), senderIP, and rcvdtime (can be NULL if you don't care)
    and returns 1.  If it times out and reads no arp requests, returns
-   0.  to_usec is the timeout period in microseconds.  Use 0 to avoid
+   0.  to_usec is the timeout periaod in microseconds.  Use 0 to avoid
    blocking to the extent possible.  Returns
    -1 or exits if ther is an error. */
 int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac, struct in_addr *senderIP,
@@ -2369,7 +2369,7 @@ static bool doArp(const char *dev, const u8 *srcmac,
     /* Send the sucker */
     rc = eth_send(ethsd, frame, sizeof(frame));
     if (rc != sizeof(frame)) {
-      error("WARNING: %s: eth_send of ARP packet returned %u rather than expected %d bytes\n", __func__, rc, (int) sizeof(frame));
+      error("WARNING: %s: eth_send of ARP packet returned %u rather than expected %d bytes", __func__, rc, (int) sizeof(frame));
     }
     PacketTrace::traceArp(PacketTrace::SENT, (u8 *) frame, sizeof(frame), &now);
     num_sends++;
@@ -2504,7 +2504,7 @@ void set_pcap_filter(const char *device,
     log_write(LOG_STDOUT, "Packet capture filter (device %s): %s\n", device, buf);
   
   if (pcap_compile(pd, &fcode, buf, 0, netmask) < 0)
-    fatal("Error compiling our pcap filter: %s\n", pcap_geterr(pd));
+    fatal("Error compiling our pcap filter: %s", pcap_geterr(pd));
   if (pcap_setfilter(pd, &fcode) < 0 )
     fatal("Failed to set the pcap filter: %s\n", pcap_geterr(pd));
   pcap_freecode(&fcode);
@@ -2590,7 +2590,7 @@ static int collect_dnet_routes(const struct route_entry *entry, void *arg) {
     } 
   }
   if (i == dcrn->numifaces) {
-    error("WARNING: Unable to find appropriate interface for system route to %s\n", addr_ntoa(&entry->route_gw));
+    error("WARNING: Unable to find appropriate interface for system route to %s", addr_ntoa(&entry->route_gw));
     return 0;
   }
   dcrn->numroutes++;
@@ -2951,7 +2951,7 @@ struct sys_route *getsysroutes(int *howmany) {
 	endptr = NULL;
 	routes[numroutes].gw.s_addr = strtoul(p, &endptr, 16);
 	if (!endptr || *endptr) {
-	  error("Failed to determine gw for %s from /proc/net/route\n", iface);
+	  error("Failed to determine gw for %s from /proc/net/route", iface);
 	}
 	for(i=0; i < 5; i++) {
 	  p = strtok(NULL, " \t\n");

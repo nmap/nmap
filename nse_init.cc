@@ -77,12 +77,12 @@ int init_setlualibpath(lua_State* l){
 	/* set the path lua searches for modules*/
 	if(nmap_fetchfile(path, MAX_FILENAME_LEN, SCRIPT_ENGINE_LIB_DIR)!=2){
 		/*SCRIPT_ENGINE_LIB_DIR is not a directory - error */
-		error("%s: %s not a directory\n", SCRIPT_ENGINE, SCRIPT_ENGINE_LIB_DIR);
+		error("%s: %s not a directory", SCRIPT_ENGINE, SCRIPT_ENGINE_LIB_DIR);
 		return SCRIPT_ENGINE_ERROR;
 	}
 
 	if(nmap_fetchfile(cpath, MAX_FILENAME_LEN, SCRIPT_ENGINE_LIBEXEC_DIR)!=2){
-		error("%s: %s not a directory\n", SCRIPT_ENGINE, SCRIPT_ENGINE_LIBEXEC_DIR);
+		error("%s: %s not a directory", SCRIPT_ENGINE, SCRIPT_ENGINE_LIBEXEC_DIR);
 		return SCRIPT_ENGINE_ERROR;
 	}
 
@@ -159,7 +159,7 @@ int init_parseargs(lua_State* l){
 	lua_pushstring(l,"[{}]");
 	SCRIPT_ENGINE_TRY(lua_pcall(l,2,1,0));
 	if(!lua_isnil(l,-1)){
-		error("unbalanced brackets inside script-options!!\n");
+		error("unbalanced brackets inside script-options!!");
 		return SCRIPT_ENGINE_ERROR;
 	}
 	lua_settop(l,1); //clear stack
@@ -334,7 +334,7 @@ int init_updatedb(lua_State* l) {
 	char* c_iter;
 	
 	if(nmap_fetchfile(path, sizeof(path)-sizeof(SCRIPT_ENGINE_DATABASE)-1, SCRIPT_ENGINE_LUA_DIR) == 0) {
-		error("%s: Couldn't find '%s'\n.", SCRIPT_ENGINE, SCRIPT_ENGINE_LUA_DIR);
+		error("%s: Couldn't find '%s'", SCRIPT_ENGINE, SCRIPT_ENGINE_LUA_DIR);
 		return SCRIPT_ENGINE_ERROR;
 	}
 

@@ -855,7 +855,7 @@ static int idle_treescan(struct idle_proxy_info *proxy, Target *target,
 
   if (o.debugging > 1) {  
     error("%s: Called against %s with %d ports, starting with %hu. expectedopen: %d", __func__, target->targetipstr(), numports, ports[0], expectedopen);
-    error("IDLE SCAN TIMING: grpsz: %.3f delay: %d srtt: %d rttvar: %d\n",
+    error("IDLE SCAN TIMING: grpsz: %.3f delay: %d srtt: %d rttvar: %d",
 	  proxy->current_groupsz, proxy->senddelay, target->to.srtt,
 	  target->to.rttvar);
   }

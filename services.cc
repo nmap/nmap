@@ -140,7 +140,7 @@ static int nmap_services_init() {
 	else
 		len = GetWindowsDirectory(filename, 480);	//	be safe
 	if(!len)
-		error("Get%sDirectory failed (%d) @#!#@\n",
+		error("Get%sDirectory failed (%d) @#!#@",
 		 wnt ? "System" : "Windows", GetLastError());
 	else
 	{

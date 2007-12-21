@@ -248,7 +248,7 @@ static int AVal_match(struct AVal *reference, struct AVal *fprint, struct AVal *
 		*q1 = '\0'; number = strtol(p, NULL, 16);
 		number1 = strtol(q1 + 1, NULL, 16);
 		if(number1 < number && o.debugging) {
-		  error("Range error in reference aval: %s=%s\n", current_ref->attribute, current_ref->value);
+		  error("Range error in reference aval: %s=%s", current_ref->attribute, current_ref->value);
       }
 		val = strtol(current_fp->value, &endptr, 16);
 		if (val < number || val > number1 || *endptr) { if (andexp)  { testfailed=1; break; } }
