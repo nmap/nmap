@@ -83,7 +83,7 @@ Function .onInit
     return
 
   run_uninstaller:
-    ExecWait '"$0\Uninstall.exe"'
+    ExecWait '"$0\Uninstall.exe" _?=$INSTDIR'
 
 FunctionEnd
 

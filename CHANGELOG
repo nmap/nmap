@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed our Winpcap installer so that it waits for a Winpcap uninstall
+  (if needed) to complete before trying to install the new Winpcap.
+  Thanks to Jah for the patch.
+
 o Fix a bunch of warning/error messages which contained an extra
   newline.  Thanks to Brandon Enright for the patch.
 
