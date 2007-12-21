@@ -3035,8 +3035,8 @@ url="http://www.unspecific.com/nmap-oG-output" />.</para>
           print more information about the scan in progress. Open
           ports are shown as they are found and completion time
           estimates are provided when Nmap thinks a scan will take
-          more than a few minutes. Use it twice for even greater
-          verbosity. Using it more than twice has no effect.</para>
+          more than a few minutes. Use it twice or more for even greater
+          verbosity.</para>
 
           <para>Most changes only affect interactive output, and some
           also affect normal and script kiddie output.  The other
