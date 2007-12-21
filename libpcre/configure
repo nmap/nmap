@@ -5155,7 +5155,7 @@ cat >>confdefs.h <<\_ACEOF
 #define MACOSX
 _ACEOF
 
-    CFLAGS="$CFLAGS -fno-jump-threads"
+    CFLAGS="$CFLAGS -fno-thread-jumps"
     ;;
 esac
 

@@ -369,14 +369,14 @@ if test "$enable_ebcdic" = "yes"; then
     "configure", this can be done via --enable-ebcdic.])
 fi
 
-dnl Mac OS X on Intel hack to remove jump threads
+dnl Mac OS X on Intel hack to remove thread jumps
 AC_CANONICAL_HOST
 
 case "$host" in
   i386-apple-darwin*)
     macosx=yes
     AC_DEFINE(MACOSX, [], [Mac OS X on Intel])
-    CFLAGS="$CFLAGS -fno-jump-threads"
+    CFLAGS="$CFLAGS -fno-thread-jumps"
     ;;
 esac
 
