@@ -3,6 +3,10 @@
 o Added nmap.fetchfile() function for scripts so they can easily find
   Nmap's nmap-* data files. [Kris]
 
+o Updated rpcinfo.nse to use nmap.fetchfile() to read from nmap-rpc
+  instead of having a huge table of RPC numbers.  This reduced the
+  script's size by nearly 3/4. [Kris]
+
 4.51BETA
 
 o We now have a detailed Zenmap Guide at
