@@ -21,16 +21,13 @@
   </refsynopsisdiv>
   <refsect1 id='man-description'>
     <title>Description</title>
-    <!--
     <web>
     <note><para>This document describes the very latest version of
     Zenmap available from <ulink
-    url="http://insecure.org/nmap/download.html" /> or <ulink
-    url="http://insecure.org/nmap/dist/?C=M&amp;O=D" />.  Please
+    url="http://insecure.org/nmap/download.html" />.  Please
     ensure you are using the latest version before reporting that a
     feature doesn't work as described.</para></note>
     </web>
-    -->
 
     <para>Zenmap is a multi-platform graphical Nmap frontend and results viewer.
     Zenmap aims to make Nmap easy for beginners to use while giving experienced
@@ -39,6 +36,8 @@
     creation of Nmap command lines. Scan results can be saved and viewed later.
     Saved scan results can be compared with one another to see how they differ.
     The results of recent scans are stored in a searchable database.</para>
+
+    <para>This man page only describes the few Zenmap command-line options and some critical notes.  A much more detailed Zenmap User's Guide is available at <ulink url="http://insecure.org/nmap/zenmapguide/"/>.  Other documentation and information is available from the Zen web page at <ulink url="http://insecure.org/nmap/zenmap/"/>.</para>
   </refsect1>
 
   <refsect1 id='man-briefoptions'>
