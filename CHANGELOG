@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed Winpcap installer to install the right version of Packet.dll
+  on Windows Vista. [Fyodor]
+
 o Fixed our Winpcap installer so that it waits for a Winpcap uninstall
   (if needed) to complete before trying to install the new Winpcap.
   Thanks to Jah for the patch.
