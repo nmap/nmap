@@ -1,14 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
+4.51BETA
 
-o Fixed Winpcap installer to install the right version of Packet.dll
-  on Windows Vista. [Fyodor]
-
-o Fixed our Winpcap installer so that it waits for a Winpcap uninstall
-  (if needed) to complete before trying to install the new Winpcap.
-  Thanks to Jah for the patch.
-
-o Fix a bunch of warning/error messages which contained an extra
-  newline.  Thanks to Brandon Enright for the patch.
+o We now have a detailed Zenmap Guide at
+  http://insecure.org/nmap/zenmapguide/ . Thanks to David for writing
+  it.
 
 o Added rpcinfo.nse script, which contacts a listening RPC portmapper
   and reports the listening services and port information (like
@@ -16,41 +11,9 @@ o Added rpcinfo.nse script, which contacts a listening RPC portmapper
   then enhanced the RPC number list with all of the entries from
   nmap-rpc.
 
-o Fixed an error that showed itself on Windows when attempting
-  to scan localhost as an unprivileged user (nmap --unprivileged
-  localhost). The error looked like
-   "Skipping SYN Stealth Scan against localhost (127.0.0.1) because
-    Windows does not support scanning your own machine (localhost) this
-    way."
-  Now connect scan is used instead of SYN scan.
-
-o Fixed an output problem that showed itself on Windows when attempting
-  to scan localhost, which is skipped. The problem looked like
-    All 0 scanned ports on 127.0.0.1 are 
-  ("Are what?") Now it looks like
-    0 ports scanned on 127.0.0.1
-  Rob Nicholls reported the problem.
-
-o Fixed a bug that prevented the --resume option from working on
-  Windows. A symptom of the bug was an error message that looks like
-  ..\utils.cc(996): CreateFileMapping(), file 'testresume', length 103,
-  mflags 000
-  00006: The parameter is incorrect.
-   (87)
-  when running "nmap --resume testresume". Rob Nicholls submitted the
-  fix.
-
-o Zenmap uses -PN now instead of -P0. -P0 is still supported but -PN is
-  recommended to avoid confusion with the -PO (protocol ping) option.
-  jah (jah(a)zadkiel.plus.com) noticed this.
-
-o On Windows, paths beginning with \ are now considered absolute when
-  used with the --script option. jah (jah(a)zadkiel.plus.com) suggested
-  this.
-
-o Zenmap no longer double-spaces its output (by inadvertently
-  duplicating newlines) when viewing scan results that were saved to a
-  file. Joao Medeiros submitted the patch.
+o Added a new NSE script (MySQLinfo) which prints MySQL server information
+  such as the protocol and version numbers, status, thread id, capabilities,
+  and password salt. [Kris]
 
 o Nmap's output options (-oA, -oX, etc.) now support strftime()-like
   conversions in the filename.  %H, %M, %S, %m, %d, %y, and %Y are
@@ -60,16 +23,50 @@ o Nmap's output options (-oA, -oX, etc.) now support strftime()-like
   means that "-oX 'scan-%T-%D.xml'" uses an XML file in the form of
   "scan-144840-121307.xml". [Kris]
 
-o Upgraded the shipped LibPCRE from version 7.2 to 7.4 [Kris]
+o Fixed Winpcap installer to install the right version of Packet.dll
+  on Windows Vista. [Fyodor]
 
-o Added a new NSE script (MySQLinfo) which prints MySQL server information
-  such as the protocol and version numbers, status, thread id, capabilities,
-  and password salt. [Kris]
+o Fixed our Winpcap installer so that it waits for a Winpcap uninstall
+  (if needed) to complete before trying to install the new Winpcap.
+  [Jah]
+
+o Fix a bunch of warning/error messages which contained an extra
+  newline. [Brandon Enright]
+
+o Fixed an error when attempting to scan localhost as an unprivileged
+  user on Windows (nmap --unprivileged localhost). The error was:
+   "Skipping SYN Stealth Scan against localhost (127.0.0.1) because
+    Windows does not support scanning your own machine (localhost) this
+    way."
+  Now connect scan is used instead of SYN scan. [David]
+
+o Fixed a bug that prevented the --resume option from working on
+  Windows. The error message was: [Fixed by David, reported by Rob Nicholls]
+  ..\utils.cc(996): CreateFileMapping(), file 'testresume', length 103,
+  mflags 000 00006: The parameter is incorrect.(87)
+  [Fixed by David, reported by Rob Nicholls]
+
+o Zenmap's new web page (http://insecure.org/nmap/zenmap/) is now
+  shown in the Zenmap about dialogue.
+
+o On Windows, paths beginning with \ are now considered absolute when
+  used with the --script option. jah (jah(a)zadkiel.plus.com) suggested
+  this. [David]
+
+o Zenmap no longer double-spaces its output (by inadvertently
+  duplicating newlines) when viewing scan results that were saved to a
+  file. [Joao Medeiros]
+
+o Upgraded the shipped LibPCRE from version 7.2 to 7.4 [Kris]
 
 o Fixed Zenmap crash that occurred when selecting Help from the Compare
   Results window. [Kris]
 
 o Updated robots.nse to prevent printing robots.txt comments. [Kris]
+
+o Many version detection match lines were improved to match even when
+  newlines appear in binary data returned by the service. [Fixed by
+  Doug, suggested by Lionel Cons]
 
 4.50
 

@@ -102,7 +102,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .sp
 .RS 4
 .nf
-Nmap 4\.50 ( http://insecure\.org )
+Nmap 4\.51 ( http://insecure\.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\.
@@ -1458,6 +1458,33 @@ and
 \fIXscan\.xml\fR
 respectively\.
 .PP
+All of these arguments support
+\fBstrftime()\fR\-like conversions in the filename\.
+%H,
+%M,
+%S,
+%m,
+%d,
+%y, and
+%Y
+are all exactly the same as in
+\fBstrftime()\fR\.
+%T
+is the same as
+%H%M%S,
+%R
+is the same as
+%H%M, and
+%D
+is the same as
+%m%d%y\. A
+%
+followed by any other character just yields that character (%%
+gives you a percent symbol)\. So
+\fB\-oX \'scan\-%T\-%D\.xml\'\fR
+will use an XML file in the form of
+\fIscan\-144840\-121307\.xml\fR\.
+.PP
 Nmap also offers options to control scan verbosity and to append to output files rather than clobbering them\. All of these options are described below\.
 .PP
 \fBNmap Output Formats\fR
@@ -1546,7 +1573,7 @@ on Windows\.
 .PP
 \fB\-v\fR (Increase verbosity level)
 .RS 4
-Increases the verbosity level, causing Nmap to print more information about the scan in progress\. Open ports are shown as they are found and completion time estimates are provided when Nmap thinks a scan will take more than a few minutes\. Use it twice for even greater verbosity\. Using it more than twice has no effect\.
+Increases the verbosity level, causing Nmap to print more information about the scan in progress\. Open ports are shown as they are found and completion time estimates are provided when Nmap thinks a scan will take more than a few minutes\. Use it twice or more for even greater verbosity\.
 .sp
 Most changes only affect interactive output, and some also affect normal and script kiddie output\. The other output types are meant to be processed by machines, so Nmap can give substantial detail by default in those formats without fatiguing a human user\. However, there are a few changes in other modes where output size can be reduced substantially by omitting some detail\. For example, a comment line in the grepable output that provides a list of all ports scanned is only printed in verbose mode because it can be quite long\.
 .RE
