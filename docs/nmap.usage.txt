@@ -1,4 +1,4 @@
-Nmap 4.51 ( http://insecure.org )
+Nmap 4.51BETA ( http://insecure.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
