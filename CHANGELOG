@@ -1,4 +1,5 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
 4.51BETA
 
 o We now have a detailed Zenmap Guide at
@@ -57,7 +58,7 @@ o Zenmap no longer double-spaces its output (by inadvertently
   duplicating newlines) when viewing scan results that were saved to a
   file. [Joao Medeiros]
 
-o Upgraded the shipped LibPCRE from version 7.2 to 7.4 [Kris]
+o Upgraded the shipped LibPCRE from version 7.2 to 7.4. [Kris]
 
 o Fixed Zenmap crash that occurred when selecting Help from the Compare
   Results window. [Kris]
