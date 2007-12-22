@@ -3,6 +3,7 @@
 #include "nse_macros.h"
 #include "nse_debug.h"
 
+#include "nmap.h"
 #include "nmap_error.h"
 #include "osscan.h"
 #include "NmapOps.h"
@@ -39,6 +40,7 @@ static int l_set_port_version(lua_State* l, Target* target, Port* port);
 static int l_get_verbosity(lua_State *);
 static int l_get_debugging(lua_State *);
 static int l_get_have_ssl(lua_State *l);
+static int l_fetchfile(lua_State *l);
 
 int l_clock_ms(lua_State* l);
 
@@ -59,6 +61,7 @@ int set_nmaplib(lua_State* l) {
 		{"verbosity", l_get_verbosity},
 		{"debugging", l_get_debugging},
 		{"have_ssl", l_get_have_ssl},
+		{"fetchfile", l_fetchfile},
 		{NULL, NULL} 
 	};
 
@@ -526,3 +529,24 @@ static int l_get_have_ssl(lua_State *l) {
 #endif
 	return 1;
 }
+
+static int l_fetchfile(lua_State *l)
+{
+	char buf[FILENAME_MAX];
+	const char *req = lua_tostring(l, -1);
+
+	if (!req)
+		goto err;
+
+	if (nmap_fetchfile(buf, sizeof buf, (char *) req) != 1)
+		goto err;
+
+	lua_pop(l, 1);
+	lua_pushstring(l, buf);
+	return 1;
+err:
+	lua_pop(l, 1);
+	lua_pushnil(l);
+	return 0;
+}
+

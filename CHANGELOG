@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added nmap.fetchfile() function for scripts so they can easily find
+  Nmap's nmap-* data files. [Kris]
+
 4.51BETA
 
 o We now have a detailed Zenmap Guide at
