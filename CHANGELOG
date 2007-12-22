@@ -49,7 +49,7 @@ o Fixed an error when attempting to scan localhost as an unprivileged
   Now connect scan is used instead of SYN scan. [David]
 
 o Fixed a bug that prevented the --resume option from working on
-  Windows. The error message was: [Fixed by David, reported by Rob Nicholls]
+  Windows. The error message was:
   ..\utils.cc(996): CreateFileMapping(), file 'testresume', length 103,
   mflags 000 00006: The parameter is incorrect.(87)
   [Fixed by David, reported by Rob Nicholls]
