@@ -5028,6 +5028,7 @@ match domain m|\x07version\x04bind.*[\x03-\x14]([-\w._ ]{3,20})$|s p/ISC BIND/ v
 match domain m|\x07version\x04bind.*[\x03-\x14]BIND ([-\w._]{3,20})$|s p/ISC BIND/ v/$1/
 # ISC BIND 9.1.3
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\x01\0| p/ISC BIND/ v/9.X/
+match domain m|\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03\0\0\0\0\0| p/ISC BIND/ v/8.X/
 # Tinydns 1.05
 match domain m|^\0\x06\x81\x81\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03$| p/TinyDNS/
 # Microsoft DNS Windows 2000, SP4
@@ -5051,7 +5052,6 @@ match symantec-av m|^\0\x06\x01\x01\0\x10..........$|s p/Symantec rtvscan antivi
 
 match domain m|\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03\0\0\0\0\0\)\(Meta IP DNS - BIND V([\d.]+)-REL \(Build (\d+)\)| p/Meta IP ISC BIND/ v/$1 build $2/
 # ISC BIND 8.2.7-REL
-match domain m|\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03\0\0\0\0\0| p/ISC BIND/ v/8.X/
 
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\x1b\x1arbldnsd ([\d.]+) | p/rbldnsd/ v/$1/
 
