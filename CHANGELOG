@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed Nmap Winpcap installer to use CurrentVersion registry key on
+  Windows rather than VersionNumber to more reliably detect Vista
+  machines.  This should prevent the XP version of Packet.dll from
+  being installed on Vista. [Rob Nicholls]
+
 o Added nmap.fetchfile() function for scripts so they can easily find
   Nmap's nmap-* data files. [Kris]
 
