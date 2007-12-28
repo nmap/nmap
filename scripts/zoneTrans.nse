@@ -263,7 +263,7 @@ end
 
 action = function(host, port)
 	local soc, status, data
-	local catch = function() soc.close() end
+	local catch = function() soc:close() end
 	local try = nmap.new_try(catch)
 	
 	-- can't do anything without a hostname

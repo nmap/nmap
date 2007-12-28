@@ -9,7 +9,7 @@ require('stdnse')
 require('strbuf')
 
 local soc
-local catch = function() soc.close() end
+local catch = function() soc:close() end
 local try = nmap.new_try(catch)
 
 portrule = shortport.port_or_service(23, 'telnet')

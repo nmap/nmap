@@ -34,7 +34,7 @@ end
 action = function(host, port)
 	local soc, lines, status
 
-	local catch = function() soc.close() end
+	local catch = function() soc:close() end
 	local try = nmap.new_try(catch)
 
 	-- connect to webserver 

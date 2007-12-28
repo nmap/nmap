@@ -41,7 +41,7 @@ local maxdepth = 10
 local get_page_from_host
 
 local soc
-local catch = function() soc.close() end
+local catch = function() soc:close() end
 local try = nmap.new_try(catch)
 
 portrule = shortport.service("http")

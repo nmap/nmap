@@ -48,7 +48,7 @@ action = function(host, port)
         result1 = try(socket:receive_lines(1))
 
         if not string.match(result1, "^250") then
-                socket.close()
+                socket:close()
 -- TODO: use print_debug instead
                 return "EHLO with errors or timeout.  Enable --script-trace to see what is happening."
         end
@@ -70,7 +70,7 @@ action = function(host, port)
 	result2 = try(socket:receive_lines(1))
 
 	if not string.match(result2, "^214") then
-		socket.close()
+		socket:close()
 -- TODO: use print_debug instead
 		return "HELP with errors or timeout.  Enable --script-trace to see what is happening."
 	end
