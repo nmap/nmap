@@ -20,6 +20,7 @@ extern "C" {
 #include "NmapOps.h"
 #include "timing.h"
 #include "Target.h"
+#include "nmap_tty.h"
 
 extern NmapOps o;
 
@@ -256,6 +257,15 @@ int process_mainloop(lua_State* l) {
 		}
 
 		unfinished = running_scripts.size() + waiting_scripts.size();
+
+		if (keyWasPressed()) {
+			done = 1.0 - (((double) unfinished) / total);
+			if (o.verbose > 1 || o.debugging) {
+				log_write(LOG_STDOUT, "Active NSE scripts: %d\n", unfinished);
+				log_flush(LOG_STDOUT);
+			}
+			progress.printStats(done, NULL);
+		}
 
 		SCRIPT_ENGINE_VERBOSE(
 			if(progress.mayBePrinted(NULL)) { 
