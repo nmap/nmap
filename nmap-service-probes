@@ -5626,10 +5626,10 @@ match mstask m|^\x05\0\r\x03\x10\0\0\0\x18\0\0\0\0\x08\x01@\x04\0\x01\x05\0...|s
 # Microsoft Windows 2000
 # samba-2.2.7-5.8.0 on RedHat 8
 # samba-2.2.7a-8.9.0 on Red Hat Linux 7.x
-match netbios-ssn m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x06\0.*\W([-.\w]+)\0$|s p/Samba smbd/ i/workgroup: $1/
+match netbios-ssn m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x06\0.*\W([-_.\w]+)\0$|s p/Samba smbd/ i/workgroup: $1/
 # Samba 2.999+3.0.alpha21-5 on Linux
 # Samba 3.0.0rc4-Debian
-match netbios-ssn m=^\0\0\0.\xffSMBr\0\0\0\0\x88..\0\0[\w-. ]*\0+@\x06\0\0\x01\0\x11\x06\0.*([^\0]|([^-A-Z0-9]\0))(([-\w]\0){2,50})=s p/Samba smbd/ v/3.X/ i/workgroup: $P(3)/
+match netbios-ssn m=^\0\0\0.\xffSMBr\0\0\0\0\x88..\0\0[\w-. ]*\0+@\x06\0\0\x01\0\x11\x06\0.*([^\0]|([^-_A-Z0-9]\0))(([-\w]\0){2,50})=s p/Samba smbd/ v/3.X/ i/workgroup: $P(3)/
 match netbios-ssn m|^\0\0\0.\xffSMBr\0\0\0\0\x88..\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x06\0..\0\x01\0..\0\0...\0..\0\0|s p/Samba smbd/ v/3.X/
 # Samba 2.2.8a on Linux 2.4.20
 match netbios-ssn m|^\x83\0\0\x01\x81$| p/Samba smbd/
@@ -5640,7 +5640,7 @@ match netbios-ssn m|^\x83\0\0\x01\x8f$| p/Microsoft Windows 98 netbios-ssn/ o/Wi
 # Netware might just be using Samba?
 match netbios-ssn m|^\0\0\0M\xffSMBr\0\0\0\0\x80\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0\x032\0\x01\0\xff\xff\0\0\0\0\x01\0| p/Netware 6 SMB Services/
 # Network Appliance ONTAP 6.3.3 netbios-ssn
-match netbios-ssn m/^\0\0\0.\xffSMBr\0\0\0\0\x98\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.*([^\0]|([^-A-Z0-9]\0))(([-\w]\0){2,50})/s p/Network Appliance Ontap smbd/ i/workgroup: $P(3)/
+match netbios-ssn m/^\0\0\0.\xffSMBr\0\0\0\0\x98\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.*([^\0]|([^-_A-Z0-9]\0))(([-\w]\0){2,50})/s p/Network Appliance Ontap smbd/ i/workgroup: $P(3)/
 match netbios-ssn m|^\x82\0\0\0\n-> doHttp: Connection timeouted!\n\ntelnetd: This system \*IN USE\* via telnet\.\nshell restarted\.\n\x08\x08\x08\x08        \*\*\*  EPSON Network Print Server \(([^)]+)\)  \*\*\*\n\n\x08\x08\x08\x08        \nPassword: | p/Epson print server smbd/ v/$1/ d/print server/
 match netbios-ssn m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01.\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0|
 
