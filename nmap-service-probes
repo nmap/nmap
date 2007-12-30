@@ -682,7 +682,7 @@ match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n\r\n<html>\n<body>\
 match http m|^HTTP/1\.0 400 Bad Request\r\nServer: Speed Touch WebServer/([\d.]+)\r\n| p|Alcatel/Thomson SpeedTouch aDSL http config| v/$1/ d/broadband router/
 
 # This is here for NULL probe cheat since several probes unpredictably trigger it -Doug
-match http m|^HTTP/1\.0 400 Bad Request\r\nServer: OfficeScan Client\r\nContent-Type: text/plain\r\nAccept-Ranges: bytes\r\nContent-Length: 4\r\n\r\nFail| p/TrendMicro Officescan Antivirus http config/ o/Windows/
+match http m|^HTTP/1\.0 400 Bad Request\r\nServer: OfficeScan Client\r\nContent-Type: text/plain\r\nAccept-Ranges: bytes\r\nContent-Length: 4\r\n\r\nFail| p/TrendMicro OfficeScan Antivirus http config/ o/Windows/
 
 match http m|^HTTP/1\.1 408 Request Time-Out\r\nConnection: Close\r\n\r\n$| p/Konica Minolta Bizhub printer http config/ d/printer/
 match http m|^HTTP/1\.1 400 Bad Request\r\n.*\r\n\r\n<h1>Bad Request \(Invalid Verb\)</h1>|s p/Microsoft IIS httpd/ o/Windows/
@@ -2979,7 +2979,6 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: WebCam2000/(\d[-.\w]+) \(([-/.+\w]+
 match http m|^HTTP/1\.0 404 Not Found\r\nDate: .*\r\nServer: BWS/1\.0b3\r\n\r\n| p/Corel Paradox relational database web interface/ v/9.X/ i/Embedded BWS 1.0b3/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: WebSite/(\d[-.\w]+)\r\n| p/Deerfield VisNetic WebSite Professional/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d\r\nServer: Statistics Server (\d[-.\w]+)\r\n| p/DeepMetrix Statistics Server/ v/$1/
-match http m|^HTTP/1\.0 400 Bad Request\r\nServer: OfficeScan Client\r\nContent-Type: text/plain\r\nAccept-Ranges: bytes\r\nContent-Length: 4\r\n\r\nFail$| p/Trend Micro OfficeScan antivirus update client/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nDate: Tue, 07 Oct 2003 12:26:05 GMT\r\nAllow: GET, HEAD\r\nServer: Spyglass_MicroServer/(\d[-.\w]+)\r\n\r\n<html>\n\n<head>\n\n<title>.*PhaserLink| p/Tektronix Phaser printer webadmin/ i/Ebedded Spyglass MicroServer $1/ d/printer/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: 3Com/v(\d[-.\w]+)\r\n.*WWW-Authenticate:Basic realm=\"device\"\r\n|s p/3Com switch webadmin/ v/$1/
 match http m|^HTTP/1\.0 401 Unauthorized\nDate: .*\nServer: Acme\.Serve/v(\d[-.\w ]+)\nConnection: close\nExpires: .*\nWWW-Authenticate: Basic realm=\"PowerChute network shutdown\"\n|s p/APC Powerchute UPS web management/ i/Embedded Acme.Serv $1/ d/power-device/
@@ -6154,3 +6153,11 @@ match socks4 m|^\0\x5a| p/Connection ok/
 match socks4 m|^\0\x5b| p/Connection rejected or failed; connections possibly ok/
 match socks4 m|^\0\x5c| p/Connection failed; ident required/
 match socks4 m|^\0\x5d| p/Connection failed; username required/
+
+
+##############################NEXT PROBE##############################
+
+Probe TCP OfficeScan q|GET /?CAVIT HTTP/1.1\r\n\r\n|
+rarity 9
+ports 12345
+match http m|^HTTP/1.0 \d\d\d .*\r\nServer: OfficeScan Client| p/Trend Micro OfficeScan Antivirus http config/
