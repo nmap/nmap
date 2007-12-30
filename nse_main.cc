@@ -242,6 +242,9 @@ int process_mainloop(lua_State* l) {
 	double total = (double) unfinished;
 	double done = 0;
 
+	std::list<struct thread_record>::iterator iter;
+	struct timeval now;
+
 	// while there are scripts in running or waiting state, we loop.
 	// we rely on nsock_loop to protect us from busy loops when 
 	// all scripts are waiting.
@@ -263,12 +266,25 @@ int process_mainloop(lua_State* l) {
 					progress.printStatsIfNeccessary(done, NULL);
 			})
 
+		gettimeofday(&now, NULL);
+
+		for(iter = waiting_scripts.begin(); iter != waiting_scripts.end(); iter++)
+			if (iter->rr->host->timedOut(&now)) {
+				running_scripts.push_front((*iter));
+				waiting_scripts.erase(iter);
+				iter = waiting_scripts.begin();
+			}
+
 
 		if(running_scripts.begin() == running_scripts.end())
 			continue;
 
 		current = *(running_scripts.begin());
-		state = lua_resume(current.thread, current.resume_arguments);
+
+		if (current.rr->host->timedOut(&now))
+			state = LUA_ERRRUN;
+		else
+			state = lua_resume(current.thread, current.resume_arguments);
 
 		if(state == LUA_YIELD) {
 			// this script has performed a network io operation
@@ -316,9 +332,29 @@ int process_mainloop(lua_State* l) {
 	return SCRIPT_ENGINE_SUCCESS;
 }
 
+// If the target still has scripts in either running_scripts
+// or waiting_scripts then it is still running
+
+int has_target_finished(Target *target) {
+	std::list<struct thread_record>::iterator iter;
+
+	for (iter = waiting_scripts.begin(); iter != waiting_scripts.end(); iter++)
+		if (target == iter->rr->host) return 0;
+
+	for (iter = running_scripts.begin(); iter != running_scripts.end(); iter++)
+		if (target == iter->rr->host) return 0;
+
+	return 1;
+}
+
 int process_finalize(lua_State* l, unsigned int registry_idx) {
 	luaL_unref(l, LUA_REGISTRYINDEX, registry_idx);
+	struct thread_record thr = running_scripts.front();
+
 	running_scripts.pop_front();
+
+	if (has_target_finished(thr.rr->host))
+		thr.rr->host->stopTimeOutClock(NULL);
 
 	return SCRIPT_ENGINE_SUCCESS;
 }
@@ -330,14 +366,20 @@ int process_waiting2running(lua_State* l, int resume_arguments) {
 	for(	iter = waiting_scripts.begin(); 
 		(*iter).thread != l;
 		iter++) {
+
 		// It is very unlikely that a thread which
 		// is not in the waiting queue tries to
 		// continue
 		// it does happen when they try to do socket i/o
 		// inside a pcall
+
+		// This also happens when we timeout a script
+		// In this case, the script is still in the waiting
+		// queue and we will have manually removed it from
+		// the waiting queue so we just return.
+
 		if(iter == waiting_scripts.end())
-			fatal("%s: In: %s:%i This should never happen.", 
-					SCRIPT_ENGINE, __FILE__, __LINE__);
+			return SCRIPT_ENGINE_SUCCESS;
 	}
 
 	(*iter).resume_arguments = resume_arguments;
@@ -389,6 +431,9 @@ int process_preparehost(lua_State* l, Target* target, std::list<struct thread_re
 	std::vector<run_record> torun;
 	std::vector<run_record>::iterator iter;
 	struct run_record rr;
+
+	if (!target->timeOutClockRunning())
+		target->startTimeOutClock(NULL);
 
 	/* find the matching hostrules
 	 * */
