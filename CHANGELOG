@@ -1,21 +1,29 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+4.52
+
 o Fixed Nmap Winpcap installer to use CurrentVersion registry key on
   Windows rather than VersionNumber to more reliably detect Vista
   machines.  This should prevent the XP version of Packet.dll from
   being installed on Vista. [Rob Nicholls]
 
+o The Nmap Scripting Engine (NSE) now supports run-time interaction
+  and the Nmap --host-timeout option. [Doug]
+
 o Added nmap.fetchfile() function for scripts so they can easily find
-  Nmap's nmap-* data files. [Kris]
+  Nmap's nmap-* data files (such as the OS/version detection DBs, port
+  number mapping, etc.) [Kris]
 
 o Updated rpcinfo.nse to use nmap.fetchfile() to read from nmap-rpc
   instead of having a huge table of RPC numbers.  This reduced the
-  script's size by nearly 3/4. [Kris]
+  script's size by nearly 75%. [Kris]
 
 o Fixed multiple NSE scripts that weren't always properly closing their
   sockets.  The error message was:
-    "bad argument #1 to 'close' (nsock expected, got no value)"
-  [Kris]
+  "bad argument #1 to 'close' (nsock expected, got no value)" [Kris]
+
+o Added a new version detection probe for the Trend Micro OfficeScan
+  product line. [Tom Sellers]
 
 4.51BETA
 
