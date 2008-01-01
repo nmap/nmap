@@ -23,7 +23,7 @@ o Fixed multiple NSE scripts that weren't always properly closing their
   "bad argument #1 to 'close' (nsock expected, got no value)" [Kris]
 
 o Added a new version detection probe for the Trend Micro OfficeScan
-  product line. [Tom Sellers]
+  product line. [Tom Sellers, Doug]
 
 4.51BETA
 
