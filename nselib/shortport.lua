@@ -65,7 +65,7 @@ service = function(service, _proto, _state)
 	end
 end
 
-port_or_service = function(port, _service, proto, _state)
+port_or_service = function(_port, _service, proto, _state)
 	local state = _state or {"open", "open|filtered"}
 	local state_table
 
@@ -77,7 +77,7 @@ port_or_service = function(port, _service, proto, _state)
 
 	return function(host, port)
 		for _, state in pairs(state_table) do
-			local port_checker = portnumber(port, proto, state)
+			local port_checker = portnumber(_port, proto, state)
 			local service_checker = service(_service, proto, state)
 			if (port_checker(host, port) or service_checker(host, port)) then
 				return true
