@@ -1,4 +1,8 @@
+
 # Nmap Changelog ($Id$); -*-text-*-
+
+o Improved rpcinfo.nse to better sort and display available RPC
+  services. [Sven Klemm]
 
 4.52
 
