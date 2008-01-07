@@ -202,6 +202,7 @@ Traceroute::Traceroute (const char *device_name, devtype type) {
     pd = NULL;
     total_size = 0;
     memset(&ref_ipaddr, '\0', sizeof(struct in_addr));
+    cp_flag = 0;
 
     if(type == devt_loopback) 
         return;
@@ -500,12 +501,15 @@ Traceroute::readTraceResponses () {
             tp->ttl > 1 && tg->gotReply && tg->getState () != G_FINISH) {
             tg->setState (G_FINISH);
             tg->consolidation_start = tp->ttl+1;
+	    cp_flag = 1;
             break;
         } else if (commonPath[tp->ttl] == 0) {
             commonPath[tp->ttl] = tp->ipreplysrc.s_addr;
 	    /* remember which host is the reference trace */
-	    if(tp->ttl == 1)
-		ref_ipaddr.s_addr = tg->ipdst;
+            if(!cp_flag) {
+               ref_ipaddr.s_addr = tg->ipdst;
+               cp_flag = 1;
+	    }
 	}
         break;
     case IPPROTO_TCP:

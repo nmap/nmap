@@ -344,12 +344,11 @@ class Traceroute {
      * the groups destination IP address */
      std::map < u32, TraceGroup * >TraceGroups;
 
-
     struct scan_info scaninfo;
     Target **hops;
     pcap_t *pd;
     eth_t *ethsd;
-    int fd, total_size;
+    int fd, total_size, cp_flag;
     struct in_addr ref_ipaddr;
 
     /* called by outputTarget to log XML data */
