@@ -6,7 +6,7 @@ license = "See nmaps COPYING for licence"
 categories = {"safe","discovery"}
 
 require "shortport"
-require "bit"
+require "packet"
 require "stdnse"
 
 local rpc_numbers = {}
@@ -56,13 +56,7 @@ action = function(host, port)
 
   catch = function() socket:close() end
   try = nmap.new_try( catch )
-
   try( fillrpc() )
-
-  local ntohl = function( s )
-    return bit.lshift(s:byte(1),24) + bit.lshift(s:byte(2),16) +
-           bit.lshift(s:byte(3),8) + s:byte(4)
-  end
 
   local request = string.char(0x80,0,0,40) -- fragment header
   request = request .. transaction_id -- transaction id
@@ -98,10 +92,10 @@ action = function(host, port)
     local dir = { udp = {}, tcp = {}}
     local rpc_prog, rpc_vers, rpc_proto, rpc_port
     while answer:byte(4) == 1 and answer:len() >= 20 do
-      rpc_prog = ntohl( answer:sub(5,8))
-      rpc_vers = ntohl( answer:sub(9,12))
-      rpc_proto = ntohl( answer:sub(13,16))
-      rpc_port = ntohl( answer:sub(17,20))
+      rpc_prog = packet.u32( answer, 4 )
+      rpc_vers = packet.u32( answer, 8 )
+      rpc_proto = packet.u32( answer, 12 )
+      rpc_port = packet.u32( answer, 16 )
       answer = answer:sub(21)
       if rpc_proto == 6 then
         rpc_proto = "tcp"
