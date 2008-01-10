@@ -1,6 +1,11 @@
 
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added UPnP-info NSE script by Thomas Buchanan. It gathers
+  information from the UPnP service (UDP port 1900) which listens on
+  many network devices such as routers, printers, and networked media
+  players.
+
 o Improved rpcinfo.nse to better sort and display available RPC
   services. [Sven Klemm]
 

@@ -16,6 +16,7 @@ Entry{ category = "safe", filename = "SNMPsysdesr.nse" }
 Entry{ category = "vulnerability", filename = "SQLInject.nse" }
 Entry{ category = "intrusive", filename = "SSHv1-support.nse" }
 Entry{ category = "intrusive", filename = "SSLv2-support.nse" }
+Entry{ category = "safe", filename = "UPnP-info.nse" }
 Entry{ category = "intrusive", filename = "anonFTP.nse" }
 Entry{ category = "intrusive", filename = "bruteTelnet.nse" }
 Entry{ category = "demo", filename = "chargenTest.nse" }
