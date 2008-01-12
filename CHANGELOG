@@ -1,5 +1,6 @@
-
 # Nmap Changelog ($Id$); -*-text-*-
+4.53
+
 o Impoved Windows executable installer by making uninstall work better
   on systems which changed the default install path.  The shortcut is
   also now deleted properly on Vista. [Rob Nicholls]
@@ -11,6 +12,15 @@ o Added UPnP-info NSE script by Thomas Buchanan. It gathers
   information from the UPnP service (UDP port 1900) which listens on
   many network devices such as routers, printers, and networked media
   players.
+
+o Fixed a --traceroute bug (assertion failure crash) which occured
+  when the first hop of the first host in a tracegroup (reference
+  trace) times out.  Thanks to Sebastián García for the bug report and
+  testing, and Eddie for the patch.
+
+o Fix a problem which prevented proper port number matching in
+  NSE scripts (port_or_service function) due to a variable
+  shadowing bug. [Sven Klemm]
 
 o Improved rpcinfo.nse to better sort and display available RPC
   services. [Sven Klemm]
