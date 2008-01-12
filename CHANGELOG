@@ -1,5 +1,11 @@
 
 # Nmap Changelog ($Id$); -*-text-*-
+o Impoved Windows executable installer by making uninstall work better
+  on systems which changed the default install path.  The shortcut is
+  also now deleted properly on Vista. [Rob Nicholls]
+
+o Windows installer is now generated using NSIS 2.34 rather than
+  2.13. [Fyodor]
 
 o Added UPnP-info NSE script by Thomas Buchanan. It gathers
   information from the UPnP service (UDP port 1900) which listens on

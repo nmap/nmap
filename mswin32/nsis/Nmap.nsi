@@ -13,7 +13,10 @@
   ;Name and file 
   Name "Nmap" 
   OutFile "NmapInstaller.exe" 
- 
+
+  ;Required for removing shortcuts (http://nsis.sourceforge.net/Shortcuts_removal_fails_on_Windows_Vista)
+  RequestExecutionLevel admin
+
   ;Default installation folder 
   InstallDir "$PROGRAMFILES\Nmap" 
    
@@ -106,10 +109,36 @@ FunctionEnd
 ;Installer Sections 
  
 Section "Nmap Core Files" SecCore 
- 
+
+  StrCpy $R0 $INSTDIR "" -2
+  StrCmp $R0 ":\" bad_key_install
+  StrCpy $R0 $INSTDIR "" -14
+  StrCmp $R0 "\Program Files" bad_key_install
+  StrCpy $R0 $INSTDIR "" -8
+  StrCmp $R0 "\Windows" bad_key_install
+  StrCpy $R0 $INSTDIR "" -6
+  StrCmp $R0 "\WinNT" bad_key_install
+  StrCpy $R0 $INSTDIR "" -9
+  StrCmp $R0 "\system32" bad_key_install
+  StrCpy $R0 $INSTDIR "" -8
+  StrCmp $R0 "\Desktop" bad_key_install
+  StrCpy $R0 $INSTDIR "" -22
+  StrCmp $R0 "\Documents and Settings" bad_key_install
+  StrCpy $R0 $INSTDIR "" -13
+  StrCmp $R0 "\My Documents" bad_key_install probably_safe_key_install
+  bad_key_install:
+    MessageBox MB_YESNO "It may not be safe to uninstall the previous installation of Nmap from the directory '$INSTDIR'.$\r$\nContinue anyway (not recommended)?" IDYES probably_safe_key_install 
+    Abort "Install aborted by user" 
+  probably_safe_key_install:
+
+  ;Delete specific subfolders (NB: custom scripts in scripts folder will be lost)
+  RMDir /r "$INSTDIR\nselib"
+  RMDir /r "$INSTDIR\nselib-bin"
+  RMDir /r "$INSTDIR\scripts"
+  RMDir /r "$INSTDIR\zenmap"
+
   SetOutPath "$INSTDIR" 
-  RMDir /r $PROGRAMFILES\Nmap 
-   
+
   SetOverwrite on 
   File ..\..\CHANGELOG 
   File ..\..\COPYING 
@@ -194,14 +223,35 @@ SectionEnd
 ;Uninstaller Section 
  
 Section "Uninstall" 
- 
-  SetDetailsPrint textonly 
-  DetailPrint "Uninstalling Files..." 
-  SetDetailsPrint listonly 
- 
+
+  StrCpy $R0 $INSTDIR "" -2
+  StrCmp $R0 ":\" bad_key_uninstall
+  StrCpy $R0 $INSTDIR "" -14
+  StrCmp $R0 "\Program Files" bad_key_uninstall
+  StrCpy $R0 $INSTDIR "" -8
+  StrCmp $R0 "\Windows" bad_key_uninstall
+  StrCpy $R0 $INSTDIR "" -6
+  StrCmp $R0 "\WinNT" bad_key_uninstall
+  StrCpy $R0 $INSTDIR "" -9
+  StrCmp $R0 "\system32" bad_key_uninstall
+  StrCpy $R0 $INSTDIR "" -8
+  StrCmp $R0 "\Desktop" bad_key_uninstall
+  StrCpy $R0 $INSTDIR "" -22
+  StrCmp $R0 "\Documents and Settings" bad_key_uninstall
+  StrCpy $R0 $INSTDIR "" -13
+  StrCmp $R0 "\My Documents" bad_key_uninstall probably_safe_key_uninstall
+  bad_key_uninstall:
+    MessageBox MB_YESNO "It may not be safe to uninstall Nmap from the directory '$INSTDIR'.$\r$\nContinue anyway (not recommended)?" IDYES probably_safe_key_uninstall 
+    Abort "Uninstall aborted by user" 
+  probably_safe_key_uninstall:
+
   IfFileExists $INSTDIR\nmap.exe nmap_installed 
     MessageBox MB_YESNO "It does not appear that Nmap is installed in the directory '$INSTDIR'.$\r$\nContinue anyway (not recommended)?" IDYES nmap_installed 
     Abort "Uninstall aborted by user" 
+
+  SetDetailsPrint textonly 
+  DetailPrint "Uninstalling Files..." 
+  SetDetailsPrint listonly 
    
   nmap_installed: 
   Delete "$INSTDIR\CHANGELOG" 
@@ -216,11 +266,18 @@ Section "Uninstall"
   Delete "$INSTDIR\nmap.xsl" 
   Delete "$INSTDIR\nmap_performance.reg" 
   Delete "$INSTDIR\README-WIN32" 
-  Delete "$INSTDIR\icon1.ico" 
+  Delete "$INSTDIR\icon1.ico"
+  Delete "$INSTDIR\winpcap-nmap*.exe"
+  ;Delete specific subfolders (NB: custom scripts in scripts folder will be lost)
+  RMDir /r "$INSTDIR\nselib"
+  RMDir /r "$INSTDIR\nselib-bin"
+  RMDir /r "$INSTDIR\scripts"
+  RMDir /r "$INSTDIR\zenmap"
  
   Delete "$INSTDIR\Uninstall.exe" 
- 
-  RMDir /r $PROGRAMFILES\Nmap 
+
+  ;Removes folder if it's now empty
+  RMDir "$INSTDIR"
  
   SetDetailsPrint textonly 
   DetailPrint "Deleting Registry Keys..." 
