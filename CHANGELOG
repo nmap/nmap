@@ -1,6 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
-o Add Radmin remote control software probe and signatures to the Nmap
-  version detection DB. [Tom Sellers, Fyodor]
+
+o Add Famtech Radmin remote control software probe and signatures to
+  the Nmap version detection DB. [Tom Sellers, Fyodor]
 
 4.53
 
