@@ -1921,7 +1921,7 @@ way.</para>
     available) operating system. If a script is targeted at a port it has access
     to the portnumber, the protocol (<literal>tcp</literal>, <literal>udp</literal> or <literal>ssl</literal>), the service running
     behind that port, and optionally information from a version-scan.
-    NSE-scripts have by convention a <literal>.nse</literal>-extension. Although
+    NSE scripts by convention have an <literal>nse</literal> extension. Although
     you are not required to follow this for the moment, this may change in the
     future. Nmap will issue a warning if a file has any other extension.
     More extensive documentation on the NSE, including a description of its API
@@ -1956,7 +1956,7 @@ way.</para>
 </para>
 
 <para>If a directory is specified and found, Nmap loads all NSE
-scripts (any filenames ending with <literal>.nse</literal>) from that
+scripts (any filenames with the <literal>nse</literal> extension) from that
 directory.  They must have the filename extension
 <literal>nse</literal>.  Nmap does not recurse into subdirectories to
 find scripts.  When individual file names are specified, the file
