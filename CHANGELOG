@@ -3,6 +3,14 @@
 o Add Famtech Radmin remote control software probe and signatures to
   the Nmap version detection DB. [Tom Sellers, Fyodor]
 
+o Update SSLv2-support NSE script to run against more services which
+  are likely SSL. [Sven Klemm]
+
+o Fixed a man page bug related to our DocBook to Nroff translation
+  software producing incorrect Nroff output.  The man page no longer
+  uses the ".nse" string which was being confused with the Nroff
+  no-space mode command. [Fyodor]
+
 4.53
 
 o Impoved Windows executable installer by making uninstall work better
