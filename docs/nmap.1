@@ -995,8 +995,9 @@ action
 to be carried out if the test returns true\. Scripts have access to most information gathered by Nmap during earlier stages\. For each host this includes the IP address, hostname and (if available) operating system\. If a script is targeted at a port it has access to the portnumber, the protocol (tcp,
 udp
 or
-ssl), the service running behind that port, and optionally information from a version\-scan\. NSE\-scripts have by convention a
-\.nse\-extension\. Although you are not required to follow this for the moment, this may change in the future\. Nmap will issue a warning if a file has any other extension\. More extensive documentation on the NSE, including a description of its API can be found at
+ssl), the service running behind that port, and optionally information from a version\-scan\. NSE scripts by convention have an
+nse
+extension\. Although you are not required to follow this for the moment, this may change in the future\. Nmap will issue a warning if a file has any other extension\. More extensive documentation on the NSE, including a description of its API can be found at
 \fI\%http://insecure.org/nmap/nse/\fR\.
 .PP
 \fB\-sC\fR
@@ -1021,8 +1022,9 @@ subdirectory is also tried in each of these\. Give the argument
 all
 to execute all scripts in the Nmap script database\.
 .sp
-If a directory is specified and found, Nmap loads all NSE scripts (any filenames ending with
-\.nse) from that directory\. They must have the filename extension
+If a directory is specified and found, Nmap loads all NSE scripts (any filenames with the
+nse
+extension) from that directory\. They must have the filename extension
 nse\. Nmap does not recurse into subdirectories to find scripts\. When individual file names are specified, the file extension does not have to be
 nse\.
 .sp
