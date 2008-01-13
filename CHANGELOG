@@ -1,4 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o Add Radmin remote control software probe and signatures to the Nmap
+  version detection DB. [Tom Sellers, Fyodor]
+
 4.53
 
 o Impoved Windows executable installer by making uninstall work better

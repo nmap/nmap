@@ -5970,6 +5970,18 @@ ports 1098,1099,1981
 match jrmi m|^N..[0-9.]+\0\0..$|s p/Java RMI/
 
 ##############################NEXT PROBE##############################
+Probe TCP Radmin q|\x01\x00\x00\x00\x01\x00\x00\x00\x08\x08|
+ports 4899
+rarity 8
+
+match radmin m|^\x01\x00\x00\x00\x25\x09\x00\x01\x10\x08\x01\x00\x09\x08| p/Radmin remote control software/ v/2.X/ o/Windows/ i/Using Windows Authentication/
+match radmin m|^\x01\x00\x00\x00\x25\x0a\x00\x01\x10\x08\x01\x00\x0a\x08| p/Radmin 2.x remote control software/ v/2.X/ o/Windows/ i/Using Radmin Authentication/
+match radmin m|^\x01\x00\x00\x00\x25\x00\x00\x02\x12\x08\x02\x00\x00\x0a| p/Radmin remote control software/ v/3.X/ o/Windows/ i/Using Radmin Authentication/
+match radmin m|^\x01\x00\x00\x00\x25\x71\x00\x02\x12\x08\x02\x00\x71\x0a| p/Radmin remote control software/ v/3.X/ o/Windows/ i/Using Windows Authentication/
+
+
+
+##############################NEXT PROBE##############################
 Probe UDP Sqlping q|\x02|
 rarity 6
 ports 1434
