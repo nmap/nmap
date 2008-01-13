@@ -5979,6 +5979,7 @@ match radmin m|^\x01\x00\x00\x00\x25\x0a\x00\x01\x10\x08\x01\x00\x0a\x08| p/Fama
 match radmin m|^\x01\x00\x00\x00\x25\x00\x00\x02\x12\x08\x02\x00\x00\x0a| p/Famatech Radmin/ v/3.X/ o/Windows/ i/Radmin Authentication/
 match radmin m|^\x01\x00\x00\x00\x25\x71\x00\x02\x12\x08\x02\x00\x71\x0a| p/Famatech Radmin/ v/3.X/ o/Windows/ i/Windows Authentication/
 
+softmatch radmin m|^\x01\x00\x00\x00\x25| p/Famatech Radmin/ o/Windows/
 
 
 ##############################NEXT PROBE##############################
