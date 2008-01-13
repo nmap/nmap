@@ -794,6 +794,12 @@ char* formatScriptOutput(struct script_scan_result ssr) {
 }
 #endif /* NOLUA */
 
+
+/* Note that this escapes newlines, which is generally needed in
+   attributes to avoid parser normalization, but might not be needed
+   or desirable in XML content outside of attributes.  So if we find
+   some cases where we don't want \r\n\t escaped, we'll have to add a
+   parameter to control this. */
 char* xml_convert (const char* str) {
   char *temp, ch=0, prevch = 0, *p;
   int strl = strlen(str);
@@ -802,6 +808,15 @@ char* xml_convert (const char* str) {
   for (p = temp;(prevch = ch, ch = *str);str++) {
     char *a;
     switch (ch) {
+    case '\t':
+      a = "&#x9;";
+      break;
+    case '\r':
+      a = "&#xd;";
+      break;
+    case '\n':
+      a = "&#xa;";
+      break;
     case '<':
       a = "&lt;";
       break;
@@ -1632,7 +1647,7 @@ void printosscanoutput(Target *currenths) {
 				 currenths->v4hostip(), distance, currenths->MACAddress(),
 				 FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
 				 false));
-    log_write(LOG_XML,"<osfingerprint fingerprint=\"\n%s\" />\n", xml_osfp);
+    log_write(LOG_XML,"<osfingerprint fingerprint=\"%s\" />\n", xml_osfp);
     free(xml_osfp);
   }
   

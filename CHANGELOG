@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o We now escape newlines, carriage returns, and tabs (\n\r\t) in XML
+  output.  While those are allowed in XML attributes, they get
+  normalized which can make formatting the output difficult for
+  applications which parse Nmap XML. [Joao Medeiros, David, Fyodor]
+
 o Add Famtech Radmin remote control software probe and signatures to
   the Nmap version detection DB. [Tom Sellers, Fyodor]
 
