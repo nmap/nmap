@@ -1041,7 +1041,8 @@ static void addto_etchosts(u32 ip, const char *hname) {
     for(i = 0; i < HASH_TABLE_SIZE; i++) {
       while((it = find_if(etchosts[i].begin(), etchosts[i].end(), remove_and_age)) != etchosts[i].end()) {
         etchosts[i].erase(it);
-        total_size--;
+        if((total_size--) < HASH_TABLE_SIZE/2)
+		break;
       }
     }
   }
