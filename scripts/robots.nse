@@ -48,6 +48,7 @@ action = function(host, port)
 	query = query .. "Accept-Language: en"
 	query = query .. "User-Agent: Nmap NSE"
 	query = query .. "Host: " .. host.ip .. ":" .. port.number
+	query = query .. "Connection: close"
 	query = query .. '\r\n\r\n';
 	try(soc:send(strbuf.dump(query, '\r\n')))
 

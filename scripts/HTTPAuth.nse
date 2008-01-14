@@ -71,6 +71,7 @@ action = function(host, port)
        query = query .. "Accept: */*\r\n"
        query = query .. "Accept-Language: en\r\n"
        query = query .. "User-Agent: Nmap NSE\r\n"
+       query = query .. "Connection: close\r\n"
        query = query .. "Host: " .. host.ip .. ":" .. port.number .. "\r\n\r\n"
 
        local headers = get_http_headers(host.ip, port.number, query)
@@ -100,6 +101,7 @@ action = function(host, port)
                query = query .. "Accept: */*\r\n"
                query = query .. "Accept-Language: en\r\n"
                query = query .. "User-Agent: Nmap NSE\r\n"
+               query = query .. "Connection: close\r\n"
                query = query .. "Host: " .. host.ip .. ":" .. port.number .. "\r\n\r\n"
 
                auth = ""
@@ -115,6 +117,7 @@ action = function(host, port)
                query = query .. "Accept: */*\r\n"
                query = query .. "Accept-Language: en\r\n"
                query = query .. "User-Agent: Nmap NSE\r\n"
+               query = query .. "Connection: close\r\n"
                query = query .. "Host: " .. host.ip .. ":" .. port.number .. "\r\n\r\n"
 
                auth = ""
