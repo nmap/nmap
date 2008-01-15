@@ -22,6 +22,7 @@ require('strbuf')
 require('stdnse')
 require('listop')
 require('bit')
+require('tab')
 
 id = 'zone-transfer'
 author = 'Eddie Bell <ejlbell@gmail.com>'
@@ -187,18 +188,17 @@ function get_rdata(data, offset, ttype)
 end
 
 -- get a single answer record from the current offset
-function get_answer_record(data, offset)
-	local line, record, rdlen, ttype
-	record = strbuf.new()
+function get_answer_record(table, data, offset)
+	local line, rdlen, ttype
 	
 	-- answer domain
 	offset, line = parse_domain(data, offset)
-	record = record .. line 
+	tab.add(table, 1, line)
 
 	-- answer record type
 	ttype = bto16(data, offset)
 	if not(typetab[ttype] == nil) then
-		record = record .. typetab[ttype]
+		tab.add(table, 2, typetab[ttype])
 	end
 
 	-- length of type specific data
@@ -209,26 +209,24 @@ function get_answer_record(data, offset)
 	if(line == '') then
 		offset = offset + rdlen
 	else
-		record = record .. line
+		tab.add(table, 3, line)
 	end
 
-	return offset, strbuf.dump(record, '\t')
+	return offset, tab
 end
 
-function parse_records(number, data, results, offset)
-	local record
+function parse_records(number, data, table, offset)
 	while number > 0 do
-		offset, record = get_answer_record(data, offset)
-		results = results .. record
+		offset = get_answer_record(table, data, offset)
 		number = number - 1
+		if number > 0 then tab.nextrow(table) end
 	end
 	return offset
 end
 
-function dump_zone_info(data, offset)
-	local results, answers, line
+function dump_zone_info(table, data, offset)
+	local answers, line
 	local questions, auth_answers, add_answers
-	results = strbuf.new()
 	
 	-- number of available records
 	questions = bto16(data, offset+6)
@@ -254,11 +252,10 @@ function dump_zone_info(data, offset)
 	end
 		
 	-- parse all available resource records
-	offset = parse_records(answers, data, results, offset)
-	offset = parse_records(auth_answers, data, results, offset)
-	offset = parse_records(add_answers, data, results, offset)
-
-	return offset, strbuf.dump(results, '\n')
+	offset = parse_records(answers, data, table, offset)
+	offset = parse_records(auth_answers, data, table, offset)
+	offset = parse_records(add_answers, data, table, offset)
+	return offset
 end
 
 action = function(host, port)
@@ -274,7 +271,8 @@ action = function(host, port)
 	try(soc:connect(host.ip, port.number))
 	
 	local req_id = '\222\173'
-	local results = strbuf.new()
+	local table = tab.new(3)
+	local offset = 1 
 	local name = build_domain(string.lower(host.name))
 	local pkt_len = string.len(name) + 16
 
@@ -304,12 +302,10 @@ action = function(host, port)
 	end
 
 	-- parse zone information from all returned packets
-	local offset = 1 
 	while(offset < length) do
-		offset, data = dump_zone_info(response_str, offset)
-		results = results .. data
+		offset = dump_zone_info(table, response_str, offset)
 	end
 
 	soc:close()
-	return '\r\n' .. strbuf.dump(results, '\n')
+	return ' \n' .. tab.dump(table)
 end
