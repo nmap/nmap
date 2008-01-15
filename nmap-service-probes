@@ -1884,6 +1884,7 @@ match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)-(hpn[\dv]+)\n| p/OpenSSH/ v/$2-$3/ i/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+-hpn) NCSA_GSSAPI_\d+ KRB5\n| p/OpenSSH/ v/$2/ i/protocol $1; kerberos support/
 match ssh m|^SSH-([\d.]+)-OpenSSH_3\.4\+p1\+gssapi\+OpenSSH_3\.7\.1buf_fix\+2006100301\n| p/OpenSSH/ v/3.4p1 with CMU Andrew patches/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)\.RL\r\n| p/OpenSSH/ v/$2.RL Allied Telesis/ i/protocol $1/ d/switch/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)-(CERN\d+)\n| p/OpenSSH/ v/$2-$3/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w-.]+)\.cern-hpn| p/OpenSSH/ v/$2-cern-hpn/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w-.]+-hpn)\n| p/OpenSSH/ v/$2/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w-.]+-pwexp\d+)\n| p/OpenSSH/ v/$2/ i/protocol $1/ o/AIX/
