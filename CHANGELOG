@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added IPv6 host support to the RPC scan.  Attempting this before
+  (via -sV) caused a segmentation fault.  Thanks to Will Cladek for
+  the report. [Kris]
+
 o We now escape newlines, carriage returns, and tabs (\n\r\t) in XML
   output.  While those are allowed in XML attributes, they get
   normalized which can make formatting the output difficult for

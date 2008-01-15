@@ -176,7 +176,7 @@ struct rpcscaninfo {
 
 int get_rpc_procs(unsigned long **programs, unsigned long *num_programs);
 char *nmap_getrpcnamebynum(unsigned long num);
-int send_rpc_query(const struct in_addr *target_host, unsigned short portno,
+int send_rpc_query(Target *target_host, unsigned short portno,
 		   int ipproto, unsigned long program, int scan_offset, 
 		   int trynum);
 void get_rpc_results(Target *target, struct portinfo *scan,

@@ -212,13 +212,17 @@ int get_rpc_procs(unsigned long **programs, unsigned long *num_programs) {
 /* Send an RPC query to the specified host/port on the specified protocol
    looking for the specified RPC program.  We cache our sending sockets
    to avoid recreating and (with TCP) reconnect()'ing them each time */
-int send_rpc_query(const struct in_addr *target_host, unsigned short portno,
+int send_rpc_query(Target *target_host, unsigned short portno,
 		   int ipproto, unsigned long program, int scan_offset, 
 		   int trynum) {
-  static struct in_addr last_target_host;
+  static struct sockaddr_storage last_target;
+  struct sockaddr_storage sock;
+  size_t socklen;
   static int last_ipproto = -1;
-  static unsigned short last_portno = 0; 
-  struct sockaddr_in sock;
+  struct sockaddr_in *sin = NULL, *lastsin = NULL;
+#ifdef HAVE_IPV6
+  struct sockaddr_in6 *sin6 = NULL, *lastsin6 = NULL;
+#endif
   char rpch_buf[256]; 
   struct rpc_hdr *rpch;
   int res, err = 0;
@@ -238,38 +242,57 @@ int send_rpc_query(const struct in_addr *target_host, unsigned short portno,
     log_write(LOG_PLAIN, "Sending RPC probe for program %li to %hu/%s -- scan_offset=%d trynum=%d xid=%lX\n", program, portno, proto2ascii(ipproto), scan_offset, trynum, rpc_xid_base + ((portno & 0x3FFF) << 16) + (trynum << 30) +  scan_offset);
   }
 
+  memset(&sock, 0, sizeof(sock));
+  target_host->TargetSockAddr(&sock, &socklen);
+
+  if (sock.ss_family == AF_INET) {
+    sin = (struct sockaddr_in *) &sock;
+    lastsin = (struct sockaddr_in *) &last_target;
+
+    sin->sin_port = htons(portno);
+  }
+#ifdef HAVE_IPV6
+  else {
+    sin6 = (struct sockaddr_in6 *) &sock;
+    lastsin6 = (struct sockaddr_in6 *) &last_target;
+
+    sin6->sin6_port = htons(portno);
+  }
+#endif
+
   /* First we check whether we have to create a new connection -- we 
      need to if we have a new target_host, or a new portno, or the socket
      we want to use is -1 */
-  if (ipproto == IPPROTO_TCP && 
-      (last_target_host.s_addr != target_host->s_addr ||
-       last_portno != portno || last_ipproto != IPPROTO_TCP)) {
-    /* New host or port -- kill our old tcp socket */
-    if (tcp_rpc_socket != -1) {
-      close(tcp_rpc_socket);
-      tcp_rpc_socket = -1;
-      tcp_readlen = 0;
+  if (ipproto == IPPROTO_TCP) {
+    if ((sock.ss_family == AF_INET &&
+         memcmp(sin, lastsin, sizeof(struct sockaddr_in)))
+#ifdef HAVE_IPV6
+     || (sock.ss_family == AF_INET6 &&
+         memcmp(sin6, lastsin6, sizeof(struct sockaddr_in6)))
+#endif
+     || last_ipproto != IPPROTO_TCP) {
+      /* New host or port -- kill our old tcp socket */
+      if (tcp_rpc_socket != -1) {
+        close(tcp_rpc_socket);
+        tcp_rpc_socket = -1;
+        tcp_readlen = 0;
+      }
     }
   }
-  last_ipproto = ipproto;
-  last_target_host.s_addr = target_host->s_addr;
-  last_portno = portno;
   
-  memset(&sock, 0, sizeof(sock));
-  sock.sin_family = AF_INET;
-  sock.sin_addr.s_addr = target_host->s_addr;
-  sock.sin_port = htons(portno);
-    
+  last_target = sock;
+  last_ipproto = ipproto;
+
   if (ipproto == IPPROTO_TCP && tcp_rpc_socket == -1) {
-    if ((tcp_rpc_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1)
+    if ((tcp_rpc_socket = socket(sock.ss_family, SOCK_STREAM, IPPROTO_TCP)) == -1)
       pfatal("Socket troubles in %s", __func__);
     /* I should unblock the socket here and timeout the connect() */
     res = connect(tcp_rpc_socket, (struct sockaddr *) &sock, 
-		  sizeof(struct sockaddr_in));
+		  sizeof(struct sockaddr_storage));
     if (res == -1) {
       if (o.debugging) {
 	gh_perror("Failed to connect to port %d of %s in %s",
-		  portno, inet_ntoa(*target_host), __func__);
+		  portno, target_host->targetipstr(), __func__);
       }
       close(tcp_rpc_socket);
       tcp_rpc_socket = -1;
@@ -277,7 +300,7 @@ int send_rpc_query(const struct in_addr *target_host, unsigned short portno,
     }
     unblock_socket(tcp_rpc_socket);
   } else if (ipproto == IPPROTO_UDP && udp_rpc_socket == -1) {
-    if ((udp_rpc_socket = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+    if ((udp_rpc_socket = socket(sock.ss_family, SOCK_DGRAM, 0)) == -1)
       pfatal("UDP socket troubles in %s", __func__);
     unblock_socket(udp_rpc_socket);
   }
@@ -306,7 +329,7 @@ int send_rpc_query(const struct in_addr *target_host, unsigned short portno,
       if (o.debugging > 1)
 	hdump((unsigned char *) rpch, sizeof(struct rpc_hdr));
       res = sendto(udp_rpc_socket, (char *)rpch, sizeof(struct rpc_hdr), 0,
-		   (struct sockaddr *) &sock, sizeof(struct sockaddr_in));
+		   (struct sockaddr *) &sock, sizeof(struct sockaddr_storage));
       if (res == -1)
 	err = socket_errno();
      } while(res == -1 && (err == EINTR || err == ENOBUFS));

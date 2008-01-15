@@ -5098,7 +5098,7 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
 		current->trynum++;
 		gettimeofday(&current->sent[current->trynum], NULL);
 		now = current->sent[current->trynum];
-		if (send_rpc_query(target->v4hostip(), rsi.rpc_current_port->portno,
+		if (send_rpc_query(target, rsi.rpc_current_port->portno,
 				   rsi.rpc_current_port->proto, 
 				   current->portno, current - scan, 
 				   current->trynum) == -1) {
@@ -5126,7 +5126,7 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
 	    /*	if (!testinglist) testinglist = current; */
 	    ss.numqueries_outstanding++;
 	    gettimeofday(&current->sent[0], NULL);
-	    if (send_rpc_query(target->v4hostip(), 
+	    if (send_rpc_query(target, 
 			       rsi.rpc_current_port->portno,
 			       rsi.rpc_current_port->proto, current->portno,
 			       current - scan, current->trynum) == -1) {
