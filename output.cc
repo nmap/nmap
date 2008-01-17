@@ -42,7 +42,7 @@
  * These restrictions only apply when you actually redistribute Nmap.  For *
  * example, nothing stops you from writing and selling a proprietary       *
  * front-end to Nmap.  Just distribute it by itself, and point people to   *
- * http://insecure.org/nmap/ to download Nmap.                             *
+ * http://nmap.org to download Nmap.                                       *
  *                                                                         *
  * We don't consider these to be added restrictions on top of the GPL, but *
  * just a clarification of how we interpret "derived works" as it applies  *
@@ -1582,7 +1582,7 @@ void printosscanoutput(Target *currenths) {
 	log_write(LOG_PLAIN, "\n");
       }
       if (osscanSys == 2 && !reason) {
-	log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No exact OS matches for host (If you know what OS is running on it, see http://insecure.org/nmap/submit/ ).\nTCP/IP fingerprint:\n%s\n",
+	log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No exact OS matches for host (If you know what OS is running on it, see http://nmap.org/submit/ ).\nTCP/IP fingerprint:\n%s\n",
 		  mergeFPs(FPR->FPs, FPR->numFPs, true,
 			   currenths->v4hostip(), distance, currenths->MACAddress(),
 			   FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
@@ -1617,7 +1617,7 @@ void printosscanoutput(Target *currenths) {
     if ((o.verbose > 1 || o.debugging) && reason)
       log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"OS fingerprint not ideal because: %s\n", reason);
     if (osscanSys == 2 && !reason) {
-      log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No OS matches for host (If you know what OS is running on it, see http://insecure.org/nmap/submit/ ).\nTCP/IP fingerprint:\n%s\n",
+      log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No OS matches for host (If you know what OS is running on it, see http://nmap.org/submit/ ).\nTCP/IP fingerprint:\n%s\n",
 		mergeFPs(FPR->FPs, FPR->numFPs, true,
 			 currenths->v4hostip(), distance, currenths->MACAddress(),
 			 FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
@@ -1884,11 +1884,11 @@ void printfinaloutput() {
     log_write(LOG_STDOUT, "Note: Host seems down. If it is really up, but blocking our ping probes, try -PN\n");
   else if (o.numhosts_up > 0) {
     if (o.osscan && o.servicescan)
-      log_write(LOG_PLAIN, "OS and Service detection performed. Please report any incorrect results at http://insecure.org/nmap/submit/ .\n");
+      log_write(LOG_PLAIN, "OS and Service detection performed. Please report any incorrect results at http://nmap.org/submit/ .\n");
     else if (o.osscan)
-      log_write(LOG_PLAIN, "OS detection performed. Please report any incorrect results at http://insecure.org/nmap/submit/ .\n");
+      log_write(LOG_PLAIN, "OS detection performed. Please report any incorrect results at http://nmap.org/submit/ .\n");
     else if (o.servicescan)
-      log_write(LOG_PLAIN, "Service detection performed. Please report any incorrect results at http://insecure.org/nmap/submit/ .\n");
+      log_write(LOG_PLAIN, "Service detection performed. Please report any incorrect results at http://nmap.org/submit/ .\n");
   }
 
   log_write(LOG_STDOUT|LOG_SKID, "Nmap done: %d %s (%d %s up) scanned in %.3f seconds\n", o.numhosts_scanned, (o.numhosts_scanned == 1)? "IP address" : "IP addresses", o.numhosts_up, (o.numhosts_up == 1)? "host" : "hosts",  o.TimeSinceStartMS(&tv) / 1000.0);

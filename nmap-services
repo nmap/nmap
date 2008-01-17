@@ -1,5 +1,5 @@
 # Well known service port numbers -*- mode: fundamental; -*-
-# From the Nmap security scanner ( http://www.insecure.org/nmap/ )
+# From the Nmap security scanner ( http://nmap.org )
 #
 # $Id$
 # For a HUGE list of services (including these and others), 

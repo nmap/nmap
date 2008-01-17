@@ -74,7 +74,7 @@ o Added a new version detection probe for the Trend Micro OfficeScan
 4.51BETA
 
 o We now have a detailed Zenmap Guide at
-  http://insecure.org/nmap/zenmapguide/ . Thanks to David for writing
+  http://nmap.org/zenmapguide/ . Thanks to David for writing
   it.
 
 o Added rpcinfo.nse script, which contacts a listening RPC portmapper
@@ -118,7 +118,7 @@ o Fixed a bug that prevented the --resume option from working on
   mflags 000 00006: The parameter is incorrect.(87)
   [Fixed by David, reported by Rob Nicholls]
 
-o Zenmap's new web page (http://insecure.org/nmap/zenmap/) is now
+o Zenmap's new web page (http://nmap.org/zenmap/) is now
   shown in the Zenmap about dialogue.
 
 o On Windows, paths beginning with \ are now considered absolute when
@@ -973,7 +973,7 @@ o Changed the IP protocol scan so that it sends proper IGMP headers when
 
 o Improved the algorithm for classifying the TCP timestamp frequency
   for OS detection.  The new algorithm is described at
-  http://insecure.org/nmap/osdetect/osdetect-methods.html#osdetect-ts .
+  http://nmap.org/osdetect/osdetect-methods.html#osdetect-ts .
 
 o Fixed the way Nmap detects whether one of its data files (such as
   nmap-services) exists and has permissions which allow it to be read.
@@ -1019,7 +1019,7 @@ o Integrated the Nmap Scripting Engine (NSE) into mainline Nmap.
   accepting (and writing) general purpose scripts to put into Nmap
   proper, and you can also write personal scripts to deal with issues
   specific to your environment.  The system is documented at
-  http://insecure.org/nmap/nse/ .
+  http://nmap.org/nse/ .
 
 o Updated nmap-mac-prefixes to reflect the latest OUI DB from the IEEE
   (http://standards.ieee.org/regauth/oui/oui.txt) as of December 7.
@@ -1136,7 +1136,7 @@ o Integrated the newly submitted OS fingerprints.  The DB now contains
 
 o Nmap 2nd generation OS detection now has a more sophisticated
   mechanism for guessing a target OS when there is no exact match in the
-  database (see http://insecure.org/nmap/osdetect/osdetect-guess.html )
+  database (see http://nmap.org/osdetect/osdetect-guess.html )
 
 o Rewrote mswin32/nmap.rc to remove cruft and hopefully reduce some
   MFC-related compilation problems we've seen.  Thanks to KX
@@ -1185,14 +1185,14 @@ o Worked with Zhao to improve the new OS detection system with
   now ready to start growing the new database!  If Nmap gives you
   fingerprints, please submit them at the given URL.  The DB is still
   extremely small.  The new system is extensively documented at
-  http://insecure.org/nmap/osdetect/ .
+  http://nmap.org/osdetect/ .
 
 o Nmap now supports IP options with the new --ip-options flag.  You
   can specify any options in hex, or use "R" (record route), "T"
   (record timestamp), "U") (record route & timestamp), "S [route]"
   (strict source route), or "L [route]" (loose source route).  Specify
   --packet-trace to display IP options of responses.  For further
-  information and examples, see http://insecure.org/nmap/man/ and
+  information and examples, see http://nmap.org/man/ and
   http://seclists.org/nmap-dev/2006/q3/0052.html .  Thanks to Marek
   Majkowski for writing and sending the patch.
 
@@ -1307,7 +1307,7 @@ o Added a fix for the crash in the new OS detection which would come
 Nmap 4.20ALPHA1
 
 o Integrated initial 2nd generation OS detection patch!  The system is
-  documented at http://insecure.org/nmap/osdetect/ .  Thanks to Zhao Lei
+  documented at http://nmap.org/osdetect/ .  Thanks to Zhao Lei
   for helping with the coding and design.
 
 o portlist.cc was refactored to remove some code duplication.  Thanks
@@ -1406,7 +1406,7 @@ o Nmap now ignores certain ICMP error message rate limiting (rather
   limits when encountered.  For a SYN scan, this may cause closed
   ports to be labeled 'filtered' becuase Nmap refused to slow down
   enough to correspond to the rate limiting.  Learn more about this
-  new option at http://www.insecure.org/nmap/man/ .  Thanks to Martin
+  new option at http://nmap.org/man/ .  Thanks to Martin
   Macok (martin.macok(a)underground.cz) for writing the patch that
   these changes were based on.
 
@@ -1415,7 +1415,7 @@ o Moved my Nmap development environment to Visual C++ 2005 Express
   2003 users will no longer be able to compile Nmap using the new
   solution files.  The compilation, installation, and execution
   instructions at
-  http://www.insecure.org/nmap/install/inst-windows.html have been
+  http://nmap.org/install/inst-windows.html have been
   upgraded.  
 
 o Automated my Windows build system so that I just have to type a
@@ -1725,7 +1725,7 @@ o Fixed compilation to again work with gcc-derivatives such as
 Nmap 3.98BETA1
 
 o Added run time interaction as documented at
-  http://www.insecure.org/nmap/man/man-runtime-interaction.html .
+  http://nmap.org/man/man-runtime-interaction.html .
   While Nmap is running, you can now press 'v' to increase verbosity,
   'd' to increase the debugging level, 'p' to enable packet tracing,
   or the capital versions (V,D,P) to do the opposite.  Any other key
@@ -1847,11 +1847,11 @@ o Made a change to libdnet so that Windows interfaces are listed as
 
 o Ceased including foreign translations in the Nmap tarball as they
   take up too much space.  HTML versions can be found at
-  http://www.insecure.org/nmap/docs.html , while XML and NROFF versions
-  are available from http://www.insecure.org/nmap/data/man-xlate/ .
+  http://nmap.org/docs.html , while XML and NROFF versions
+  are available from http://nmap.org/data/man-xlate/ .
 
 o Changed INSTALL and README-WIN32 files to mostly just reference the
-  new Nmap Install Guide at http://www.insecure.org/nmap/install/ .
+  new Nmap Install Guide at http://nmap.org/install/ .
 
 o Included docs/nmap-man.xml in the tarball distribution, which is the
   DocBook XML source for the Nmap man page.  Patches to Nmap that are
@@ -1942,13 +1942,13 @@ Nmap 3.94ALPHA1
 
 o Wrote a new man page from scratch.  It is much more comprehensive
   (more than twice as long) and (IMHO) better organized than the
-  previous one.  Read it online at http://www.insecure.org/nmap/man/
+  previous one.  Read it online at http://nmap.org/man/
   or docs/nmap.1 from the Nmap distribution.  Let me know if you have
   any ideas for improving it.
 
 o Wrote a new "help screen", which you get when running Nmap without
   arguments.  It is also reproduced in the man page and at
-  http://www.insecure.org/nmap/data/nmap.usage.txt .  I gave up trying
+  http://nmap.org/data/nmap.usage.txt .  I gave up trying
   to fit it within a 25-line, 80-column terminal window.  It is now 78
   lines and summarizes all but the most obscure Nmap options.
 
@@ -1969,7 +1969,7 @@ o Made the version detection "ports" directive (in
   bit.  The patch was done by Doug Hoyte (doug(a)hcsw.org).
 
 o Added the --webxml option, which does the same thing as 
-  --stylesheet http://www.insecure.org/nmap/data/nmap.xsl , without
+  --stylesheet http://nmap.org/data/nmap.xsl , without
   requiring you to remember the exact URL or type that whole thing.
 
 o Fixed a crash occurred when the --exclude option was used with
@@ -2147,7 +2147,7 @@ o Nmap distribution signing has changed. Release files are now signed
   generated a new key for himself (KeyID 33599B5F).  The Nmap key has
   been signed by Fyodor's new key, which has been signed by Fyodor's
   old key so that you know they are legit.  The new keys are available
-  at http://www.insecure.org/nmap/data/nmap_gpgkeys.txt , as
+  at http://nmap.org/data/nmap_gpgkeys.txt , as
   docs/nmap_gpgkeys.txt in the Nmap source tarball, and on the public
   keyserver network.  Here are the fingerprints:
     pub  1024D/33599B5F 2005-04-24
@@ -2413,7 +2413,7 @@ o Nmap now ships with and installs (in the same directory as other
   results), Nmap uses the local filesystem by default.  If you would
   like the latest version of the stylesheet loaded from the web when
   rendering, specify 
-  --stylesheet http://www.insecure.org/nmap/data/nmap.xsl .
+  --stylesheet http://nmap.org/data/nmap.xsl .
 
 o Fixed fragmentation option (-f).  One -f now sets sends fragments
   with just 8 bytes after the IP header, while -ff sends 16 bytes to
@@ -2592,7 +2592,7 @@ o Fixed nmap_fetchfile() to better find custom versions of data files
 o Changed XML output so that the MAC address [address] element comes
   right after the IPv4/IPv6 [address] element.  Apparently this is
   needed to comply with the DTD (
-  http://www.insecure.org/nmap/data/nmap.dtd ).  Thanks to Adam Morgan
+  http://nmap.org/data/nmap.dtd ).  Thanks to Adam Morgan
   (adam.morgan(a)Q1Labs.com) and Florian Ebner
   (Florian.Ebner(a)e-bros.de) for the problem reports.
 
@@ -2876,7 +2876,7 @@ o Modified the mswine32/nmap_performance.reg Windows registry file to
   should apply the new registry changes by clicking on the .reg file.
   Or do it manually as described in README-WIN32.  This file is also
   now available in the data directory at
-  http://www.insecure.org/nmap/data/nmap_performance.reg
+  http://nmap.org/data/nmap_performance.reg
 
 o Applied patch from Gisle Vanem (giva(a)bgnett.no) which allows the
   Windows version of Nmap to work with WinPCAP 3.1BETA (and probably
@@ -3208,7 +3208,7 @@ o Applied a one-line patch from Dmitry V. Levin (ldv(a)altlinux.org)
 Nmap 3.40PVT17
 
 o Wrote and posted a new paper on version scanning to
-  http://www.insecure.org/nmap/versionscan.html .  Updated
+  http://nmap.org/versionscan.html .  Updated
   nmap-service-probes and the Nmap man page to simply refer to this
   URL.
 
@@ -4121,11 +4121,11 @@ o Applied patch by Max Schubert (nmap(a)webwizarddesign.com) which adds
 
 o Added German translation of Nmap man page by Marc Ruef
   (marc.ruef(a)computec.ch).  It is also available at
-  http://www.insecure.org/nmap/data/nmap_manpage-de.html
+  http://nmap.org/data/nmap_manpage-de.html
 
 o Includes a brand new French translation of the man page by Sebastien
   Blanchet.  You could probably guess that it is available at
-  http://www.insecure.org/nmap/data/nmap_manpage-fr.html
+  http://nmap.org/data/nmap_manpage-fr.html
 
 o Applied some patches from Chad Loder (cloder(a)loder.us) which update
   the random IP allocation pool and improve OpenBSD support.  Some
@@ -5399,7 +5399,7 @@ o Fixed strtol() integer overflow problem found by Renaud Deraison
   (deraison(a)cvs.nessus.org)
 
 o The HTML translation of the Man page at
-  http://www.insecure.org/nmap/nmap_manpage.html should now be
+  http://nmap.org/nmap_manpage.html should now be
   complete (man2html was dropping lines before).
 
 o Added a note in the man page that Nmap 2.0+ is believed to be

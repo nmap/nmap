@@ -24,7 +24,7 @@
     <web>
     <note><para>This document describes the very latest version of
     Zenmap available from <ulink
-    url="http://insecure.org/nmap/download.html" />.  Please
+    url="http://nmap.org/download.html" />.  Please
     ensure you are using the latest version before reporting that a
     feature doesn't work as described.</para></note>
     </web>
@@ -37,7 +37,7 @@
     Saved scan results can be compared with one another to see how they differ.
     The results of recent scans are stored in a searchable database.</para>
 
-    <para>This man page only describes the few Zenmap command-line options and some critical notes.  A much more detailed Zenmap User's Guide is available at <ulink url="http://insecure.org/nmap/zenmapguide/"/>.  Other documentation and information is available from the Zen web page at <ulink url="http://insecure.org/nmap/zenmap/"/>.</para>
+    <para>This man page only describes the few Zenmap command-line options and some critical notes.  A much more detailed Zenmap User's Guide is available at <ulink url="http://nmap.org/zenmapguide/"/>.  Other documentation and information is available from the Zen web page at <ulink url="http://nmap.org/zenmap/"/>.</para>
   </refsect1>
 
   <refsect1 id='man-briefoptions'>
@@ -131,7 +131,7 @@
     <para>Like their authors, Nmap and Zenmap aren&rsquo;t perfect.  But you can
     help make them better by sending bug reports or even writing patches.  If
     Nmap or Zenmap doesn&rsquo;t behave the way you expect, first upgrade to the
-    latest version available from <ulink url="http://insecure.org/nmap/"/>.  If
+    latest version available from <ulink url="http://nmap.org"/>.  If
     the problem persists, do some research to determine whether it has already
     been discovered and addressed.  Try Googling the error message or browsing
     the nmap-dev archives at <ulink url="http://seclists.org/" />.  Read this
@@ -144,7 +144,7 @@
 
     <para>Code patches to fix bugs are even better than bug reports. Basic
     instructions for creating patch files with your changes are available at
-    <ulink url="http://insecure.org/nmap/data/HACKING" />.  Patches may be sent
+    <ulink url="http://nmap.org/data/HACKING" />.  Patches may be sent
     to nmap-dev (recommended) or to Fyodor directly.</para>
   </refsect1>
 
@@ -174,7 +174,7 @@
       over the years.  These are detailed in the
       <filename>CHANGELOG</filename> file which is distributed with Nmap
       and also available from <ulink
-      url="http://insecure.org/nmap/changelog.html" />.</para>
+      url="http://nmap.org/changelog.html" />.</para>
     </refsect2>
 
     <refsect2>

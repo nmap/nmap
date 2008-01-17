@@ -3,7 +3,7 @@
 # This was created by Vik Bajaj <vbajaj@sas.upenn.edu> with help
 # from various members of the nmap-hackers list.  
 # To join nmap-hackers send mail to nmap-hackers-subscribe@insecure.org
-# Nmap is available from http://www.insecure.org/nmap/
+# Nmap is available from http://nmap.org
 # All the rpc services we could find as of Feb26, 2005
 # Tweaked a bit by Fyodor <fyodor@insecure.org>
 #

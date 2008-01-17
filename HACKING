@@ -12,22 +12,21 @@ it.  This also allows you to audit the software for security holes
 
 Source code also allows you to port Nmap to new platforms, fix bugs,
 and add new features.  You are highly encouraged to send your changes
-to fyodor@insecure.org or nmap-dev@insecure.org for possible
-incorporation into the main distribution.  By sending these changes to
-Fyodor or one the insecure.org development mailing lists, it is
-assumed that you are offering Fyodor the unlimited, non-exclusive
-right to reuse, modify, and relicense the code.  This is important
-because the inability to relicense code has caused devastating
-problems for other Free Software projects (such as KDE and NASM).
-Nmap will always be available Open Source.  If you wish to specify
-special license conditions of your contributions, just say so when you
-send them.
+to nmap-dev@insecure.org for possible incorporation into the main
+distribution.  By sending these changes to Fyodor or one the
+insecure.org development mailing lists, it is assumed that you are
+offering Fyodor the unlimited, non-exclusive right to reuse, modify,
+and relicense the code.  This is important because the inability to
+relicense code has caused devastating problems for other Free Software
+projects (such as KDE and NASM).  Nmap will always be available Open
+Source.  If you wish to specify special license conditions of your
+contributions, just say so when you send them.
 
 Nmap is a community project and has already benefitted greatly from
-outside contributors ( for examples, see the CHANGELOG or
-http://www.insecure.org/nmap/#thanks ).  Bugfixes, and portability
-changes will almost always be accepted.  Even if you do not have time
-to track down and patch a problem, bug reports are always welcome.
+outside contributors (for examples, see the CHANGELOG at
+http://nmap.org/changelog.html).  Bugfixes, and portability changes
+will almost always be accepted.  Even if you do not have time to track
+down and patch a problem, bug reports are always welcome.
 
 Hackers interested in something more major, such as a new feature, are
 encouraged to send a mail describing their plans to

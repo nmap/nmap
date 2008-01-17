@@ -1,11 +1,11 @@
 GPG detached signatures and MD5/SHA-1 hashes for each Nmap release are
-available from http://www.insecure.org/nmap/dist/sigs/?C=M;O=D .  The
+available from http://nmap.org/dist/sigs/?C=M;O=D .  The
 releases are signed by the Nmap project GPG key (KeyId 6B9355D0).
 Some messages to Nmap mailing lists may be signed by Nmap author and
 maintainer Fyodor.  Fyodor's KeyID is 33599B5F.  Those two keys and
 their fingerprints are reproduced below.  The latest version of this
 file is always available at
-http://www.insecure.org/nmap/data/nmap_gpgkeys.txt .
+http://nmap.org/data/nmap_gpgkeys.txt .
 
 To verify a file with GPG, obtain and import the keys with a command
 such as "gpg --import nmap_gpgkeys.txt" and then verify the obtained

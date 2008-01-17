@@ -1,7 +1,7 @@
 # Extract the version string from nmap.h.
 export NMAP_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 NMAP_NAME= Nmap
-NMAP_URL= http://insecure.org
+NMAP_URL= http://nmap.org
 NMAP_PLATFORM=@host@
 prefix = @prefix@
 exec_prefix = @exec_prefix@

@@ -12,10 +12,10 @@ Name: %{name}
 Version: %{version}
 Release: %{release}
 Epoch: 2
-License: http://www.insecure.org/nmap/man/man-legal.html
+License: http://nmap.org/man/man-legal.html
 Group: Applications/System
-Source0: http://www.insecure.org/nmap/dist/%{name}-%{version}.tgz
-URL: http://www.insecure.org/nmap/
+Source0: http://nmap.org/dist/%{name}-%{version}.tgz
+URL: http://nmap.org
 
 # RPM can't be relocatable until I stop storing path info in the binary.
 # Prefix: %{_prefix}
@@ -99,7 +99,7 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 
 * Mon Dec 13 1999 Tim Powers <timp(a)redhat.com>
 - based on origional spec file from
-	http://www.insecure.org/nmap/index.html#download
+	http://nmap.org/download.html
 - general cleanups, removed lots of commenrts since it made the spec hard to
 	read
 - changed group to Applications/System

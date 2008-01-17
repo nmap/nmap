@@ -27,8 +27,8 @@
     <web>
     <note><para>This document describes the very latest version of
     Nmap available from <ulink
-    url="http://insecure.org/nmap/download.html" /> or <ulink
-    url="http://insecure.org/nmap/dist/?C=M&amp;O=D" />.  Please
+    url="http://nmap.org/download.html" /> or <ulink
+    url="http://nmap.org/dist/?C=M&amp;O=D" />.  Please
     ensure you are using the latest version before reporting that a
     feature doesn't work as described.</para></note>
     </web>
@@ -82,7 +82,7 @@
 <screen>
 # nmap -A -T4 scanme.nmap.org playground
 
-Starting nmap ( http://insecure.org/nmap/ )
+Starting nmap ( http://nmap.org )
 Interesting ports on scanme.nmap.org (205.217.153.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 PORT    STATE  SERVICE VERSION
@@ -119,9 +119,9 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
 </example>
 
 <para>The newest version of Nmap can be obtained from <ulink
-url="http://insecure.org/nmap/" />.  The newest version of the man
+url="http://nmap.org" />.  The newest version of the man
 page is available from <ulink
-url="http://insecure.org/nmap/man/"/>.</para>
+url="http://nmap.org/man/"/>.</para>
 
   </refsect1>
 
@@ -130,7 +130,7 @@ url="http://insecure.org/nmap/man/"/>.</para>
 
 <para>This options summary is printed when Nmap is run
 with no arguments, and the latest version is always available at
-<ulink url="http://insecure.org/nmap/data/nmap.usage.txt" />.
+<ulink url="http://nmap.org/data/nmap.usage.txt" />.
 It helps people remember the most common options, but is no
 substitute for the in-depth documentation in the rest of this
 manual.  Some obscure options aren't even included here.</para>
@@ -1310,7 +1310,7 @@ used.</para>
           specify (which must be up and meet certain criteria). This
           fascinating scan type is too complex to fully describe in this reference
           guide, so I wrote and posted an informal paper with full details at
-          <ulink url="http://insecure.org/nmap/idlescan.html" />.</para>
+          <ulink url="http://nmap.org/idlescan.html" />.</para>
 
           <para>Besides being extraordinarily stealthy (due to its
           blind nature), this scan type permits mapping out
@@ -1574,7 +1574,7 @@ way.</para>
     enables version detection among other things.  A paper documenting
     the workings, usage, and customization of version detection is
     available at <ulink
-    url="http://insecure.org/nmap/vscan/" />.</para>
+    url="http://nmap.org/vscan/" />.</para>
 
     <para>When Nmap receives responses from a service but cannot match
     them to its database, it prints out a special fingerprint and
@@ -1765,7 +1765,7 @@ way.</para>
 
     <para>A paper documenting the workings, usage, and customization
     of OS detection is available at <ulink
-    url="http://insecure.org/nmap/osdetect/" />.</para>
+    url="http://nmap.org/osdetect/" />.</para>
 
     <para>OS detection is enabled and controlled with the following options:</para>
 
@@ -1852,7 +1852,7 @@ way.</para>
 	network handling with the versatility of the lightweight scripting language
 	<ulink url="http://lua.org">Lua</ulink>, thus providing innumerable
 	opportunities.  A more extensive documentation of the NSE (including its
-	API) can be found at: <ulink url="http://www.insecure.org/nmap/nse"/>. The
+	API) can be found at: <ulink url="http://nmap.org/nse/"/>. The
 	target of the NSE is to provide Nmap with a flexible infrastructure for
 	extending its capabilities and offering its users a simple way of creating
 	customized tests. Uses for the NSE include (but definitely are not limited
@@ -1925,7 +1925,7 @@ way.</para>
     you are not required to follow this for the moment, this may change in the
     future. Nmap will issue a warning if a file has any other extension.
     More extensive documentation on the NSE, including a description of its API
-    can be found at <ulink url="http://insecure.org/nmap/nse/" />.
+    can be found at <ulink url="http://nmap.org/nse/" />.
     </para>
    
 	<variablelist>
@@ -2912,7 +2912,7 @@ described below.</para>
           output.  The DTD defines the legal elements of the format,
           and often enumerates the attributes and values they can take
           on.  The latest version is always available from <ulink
-          url="http://insecure.org/nmap/data/nmap.dtd"/>.</para>
+          url="http://nmap.org/data/nmap.dtd"/>.</para>
 
           <para>XML offers a stable format that is easily parsed by
           software. Free XML parsers are available for all major
@@ -3238,7 +3238,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
           <option>--stylesheet</option>.  You must pass the full
           pathname or URL.  One common invocation is
           <option>--stylesheet
-          http://insecure.org/nmap/data/nmap.xsl</option>.  This
+          http://nmap.org/data/nmap.xsl</option>.  This
           tells a browser to load the latest version of the stylesheet
           from Insecure.Org.  The <option>--webxml</option> option
           does the same thing with less typing and memorization.
@@ -3258,7 +3258,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
         <listitem>
 
           <para>This convenience option is simply an alias for
-          <option>--stylesheet http://insecure.org/nmap/data/nmap.xsl</option>.</para>
+          <option>--stylesheet http://nmap.org/data/nmap.xsl</option>.</para>
         </listitem>
       </varlistentry>
 
@@ -3684,7 +3684,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
     it better by sending bug reports or even writing patches.  If Nmap
     doesn't behave the way you expect, first upgrade to the latest
     version available from <ulink
-    url="http://insecure.org/nmap/"/>.  If the problem persists,
+    url="http://nmap.org"/>.  If the problem persists,
     do some research to determine whether it has already been
     discovered and addressed.  Try Googling the error message or
     browsing the nmap-dev archives at <ulink
@@ -3700,7 +3700,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
     <para>Code patches to fix bugs are even better than bug reports.
     Basic instructions for creating patch files with your changes are
     available at <ulink
-    url="http://insecure.org/nmap/data/HACKING" />.  Patches may
+    url="http://nmap.org/data/HACKING" />.  Patches may
     be sent to nmap-dev (recommended) or to Fyodor directly.</para>
   </refsect1>
 
@@ -3715,7 +3715,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
     over the years.  These are detailed in the
     <filename>CHANGELOG</filename> file which is distributed with Nmap
     and also available from <ulink
-    url="http://insecure.org/nmap/changelog.html" />.</para>
+    url="http://nmap.org/changelog.html" />.</para>
 
   </refsect1>
 

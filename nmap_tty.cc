@@ -37,7 +37,7 @@
  * These restrictions only apply when you actually redistribute Nmap.  For *
  * example, nothing stops you from writing and selling a proprietary       *
  * front-end to Nmap.  Just distribute it by itself, and point people to   *
- * http://insecure.org/nmap/ to download Nmap.                             *
+ * http://nmap.org to download Nmap.                                       *
  *                                                                         *
  * We don't consider these to be added restrictions on top of the GPL, but *
  * just a clarification of how we interpret "derived works" as it applies  *
@@ -273,7 +273,7 @@ bool keyWasPressed()
 		"d/D             Increase/decrease debugging\n"
 		"p/P             Enable/disable packet tracing\n"
 		"anything else   Print status\n"
-                "More help: http://www.insecure.org/nmap/man/man-runtime-interaction.html\n");
+                "More help: http://nmap.org/man/man-runtime-interaction.html\n");
     } else {
        printStatusMessage();
        return true;

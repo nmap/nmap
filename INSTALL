@@ -5,6 +5,6 @@ make
 make install
 
 For far more in-depth compilation, installation, and removal notes,
-read the Nmap Install Guide at http://www.insecure.org/nmap/install/ .
+read the Nmap Install Guide at http://nmap.org/install/ .
 
 

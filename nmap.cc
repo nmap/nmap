@@ -38,7 +38,7 @@
  * These restrictions only apply when you actually redistribute Nmap.  For *
  * example, nothing stops you from writing and selling a proprietary       *
  * front-end to Nmap.  Just distribute it by itself, and point people to   *
- * http://insecure.org/nmap/ to download Nmap.                             *
+ * http://nmap.org to download Nmap.                                       *
  *                                                                         *
  * We don't consider these to be added restrictions on top of the GPL, but *
  * just a clarification of how we interpret "derived works" as it applies  *
@@ -819,7 +819,7 @@ int nmap_main(int argc, char *argv[]) {
       } else if (optcmp(long_options[option_index].name, "log-errors") == 0) {
         o.log_errors = 1;
       } else if (strcmp(long_options[option_index].name, "webxml") == 0) {
-	o.setXSLStyleSheet("http://www.insecure.org/nmap/data/nmap.xsl");
+	o.setXSLStyleSheet("http://nmap.org/data/nmap.xsl");
       } else if (strcmp(long_options[option_index].name, "oN") == 0) {
 	normalfilename = logfilename(optarg, tm);
       } else if (strcmp(long_options[option_index].name, "oG") == 0 ||

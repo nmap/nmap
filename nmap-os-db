@@ -4,7 +4,7 @@
 # Contributions to this database are welcome.  If Nmap obtains a new
 # fingerprint (and test conditions are favorable), it will print out a
 # URL you can use to submit the fingerprint.  If Nmap guesses wrong,
-# please see http://insecure.org/nmap/submit/ .
+# please see http://nmap.org/submit/ .
 #
 # By submitting fingerprints you are transfering any and all copyright
 # interest in the data to Insecure.Com LLC so it can modified,
@@ -13,7 +13,7 @@
 # This collection of fingerprint data is (C) 1998-2006 by Insecure.Com
 # LLC.  It is distributed under the Nmap open source license as
 # provided in the COPYING file of the source distribution or at
-# http://insecure.org/nmap/data/COPYING .  Note that this license
+# http://nmap.org/data/COPYING .  Note that this license
 # requires you to license your own work under a compatable open source
 # license.  If you wish to embed Nmap technology into proprietary
 # software, we sell alternative licenses (contact sales@insecure.com).
@@ -21,7 +21,7 @@
 # host discovery, port scanning, OS detection, and version detection.
 #
 # For a complete description of Nmap OS detection and the format of
-# fingerprints in this file, see http://insecure.org/nmap/osdetect/
+# fingerprints in this file, see http://nmap.org/osdetect/
 
 # This first element provides the number of points every fingerprint
 # test is worth.  Tests like TTL or Don't fragment are worth less

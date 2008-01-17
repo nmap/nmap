@@ -2,7 +2,7 @@
 # $Id$ 
 #
 # This is a database of custom probes and expected responses that the
-# Nmap Security Scanner ( http://www.insecure.org/nmap/ ) uses to
+# Nmap Security Scanner ( http://nmap.org ) uses to
 # identify what services (eg http, smtp, dns, etc.) are listening on
 # open ports.  Contributions to this database are welcome.  We hope to
 # create an automated submission system (as with OS fingerprints), but
@@ -27,7 +27,7 @@
 # For details on how Nmap version detection works, why it was added,
 # the grammar of this file, and how to detect and contribute new
 # services, see our paper at
-# http://www.insecure.org/nmap/versionscan.html .
+# http://nmap.org/vscan/ .
 
 # The Exclude directive takes a comma separated list of ports.
 # The format is exactly the same as the -p switch.

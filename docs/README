@@ -1,8 +1,3 @@
-Here are the docs for nmap.  You would be better
-off checking the website at http://www.insecure.org/nmap
-for the latest information.  Also if the man page is installed
-correctly you should be able to 'man nmap'.  The man page is more 
-up-to-date than the article.  See nmap-manpage.html for an html version
-of it.
-
--Fyodor
+Here is some documentation for Nmap, but these files are much less
+comprehensive than what you'll find at the actual Nmap documentation
+site ( http://nmap.org ).

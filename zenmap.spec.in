@@ -16,10 +16,10 @@ Name: %{name}
 Version: %{version}
 Release: %{release}
 Epoch: 2
-License: http://www.insecure.org/nmap/man/man-legal.html
+License: http://nmap.org/man/man-legal.html
 Group: Applications/System
-Source0: http://www.insecure.org/nmap/dist/nmap-%{version}.tgz
-URL: http://www.insecure.org/nmap/
+Source0: http://nmap.org/dist/nmap-%{version}.tgz
+URL: http://nmap.org
 BuildArch: noarch
 
 # Disable automatic dependency calculation because we want to provide
