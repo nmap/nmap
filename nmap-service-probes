@@ -3697,7 +3697,7 @@ match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nDate: .*\nThe reque
 match http m|^HTTP/1\.0 501 Unsupported method \('GET'\)\r\nServer: BaseHTTP/([\d.]+) Python/([\d.]+)\r\n| p/Python SimpleXMLRPCServer/ i/BaseHTTP $1; Python $2/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"Cable Modem\"\r\nContent-length: \d+\r\nContent-type: text/html\r\nConnect: Keep-Alive\r\n\r\n<html>\r\n<head><title>401 Unauthorized</title></head>\r\n<body><h1>401 Unauthorized</h1>\r\n<p>Access to this resource is denied; your client has not supplied the correct authentication\.</p></body>\r\n</html>\r\n| p|Coresma/Belkin Cable Modem httpd| d/router/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R([\d_]+)\r\n.*<!-- Begin Hiding\n         netscapeVersion =|s p/HP Deskjet 5800 http config/ i/Virata embedded httpd $1/ d/printer/
-match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R([\d_]+)\r\n.*\n\n<title></title>\n\n\n\n\n<script language=\"JavaScript1\.1\">\n<!-- Begin Hiding\n netscapeVersion =|s p/HP PhotoSmart 8450 printer http config/ i/Virata embedded httpd $1/ d/printer/
+match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R([\d_]+)\r\n.*\n\n<title></title>\n\n\n\n\n<script language=\"JavaScript1\.1\">\n<!-- Begin Hiding\n netscapeVersion =|s p|HP PhotoSmart/Deskjet printer http config| i/Virata embedded httpd $1/ d/printer/
 match http m|^HTTP/1\.0 200 OK\r\nServer: Sun_Ray_Admin_Server/([\d.]+)\r\n| p/SunRay admin webserver/ v/$1/ o/Solaris/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: WatchGuard Firewall\r\nwww-authenticate: Digest realm=\"WatchGuard SOHO (.+) Configuration\"| p/WatchGuard SOHO $1 http config/ d/firewall/
 match http m|^HTTP/1\.1 200 OK\r\nServer: WindWeb/([\d.]+)\r\nConnection: close\r\n.*\r\n<title>Cisco Web Accessible Phone Settings</title>\r\n|s p/Cisco 7935 IP Phone Conference Station http config/ i/WindWeb embedded httpd $1/ d/VoIP phone/
@@ -4494,6 +4494,7 @@ match http m|^HTTP/1\.0 401 Authenticate\nWWW-Authenticate: Basic realm=\"P4Web\
 match http m|^HTTP/1\.1 200\r\n.*<!--SELECTserver Full Page Header-->\r\n<html>\r\n\r\n<head>\r\n<title>\r\nSELECTserver: License Manager\r\n</title>|s p/SELECTserver license manager httpd/
 match http m|^HTTP/1\.0 200 Document follows\r\nDate: .*\r\nServer: WebminServer\r\n| p/WebminServer httpd/
 match http m|^HTTP/1\.1 200 OK.*\* Zimbra Collaboration Suite Web Client\n|s p/Zimbra http config/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nWWW-Authenticate: Basic realm=\"CANOPY ([\w-]+)\"\r\n|s p/Motorola Canopy WAP http config/ d/WAP/ i/MAC $1/
 
 #(insert http)
 
