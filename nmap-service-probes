@@ -6281,3 +6281,11 @@ match mssql m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\
 match mssql m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x08| p/Microsoft SQL Server 2000/ o/Windows/
 
 softmatch mssql m|^\x04\x01\x00\x25\x00\x00\x01| p/Microsoft SQL Server/ o/Windows/
+
+
+##############################NEXT PROBE##############################
+# ActiveMQ's STOMP (Streaming Text Orientated Messaging Protocol)
+Probe TCP HELP4STOMP q|HELP\n\n\0|
+rarity 8
+ports 6163,61613
+match stomp m|^ERROR\nmessage:Unknown STOMP action:.+ org\.apache\.activemq\.|s p/Apache ActiveMQ/
