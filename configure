@@ -3571,8 +3571,8 @@ echo "${ECHO_T}no" >&6
 fi
 
 if test $CXXPROG = "MISSING"; then
-  { { echo "$as_me:$LINENO: error: Could not locate a C++ compiler. If it exists, add it to your PATH or give configure the CXX=path_to_compiler argument.  Otherwise, install a C++ compiler such as g++ or install a binary package of Nmap (see http://www.insecure.org/nmap/nmap_download.html ))" >&5
-echo "$as_me: error: Could not locate a C++ compiler. If it exists, add it to your PATH or give configure the CXX=path_to_compiler argument.  Otherwise, install a C++ compiler such as g++ or install a binary package of Nmap (see http://www.insecure.org/nmap/nmap_download.html ))" >&2;}
+  { { echo "$as_me:$LINENO: error: Could not locate a C++ compiler. If it exists, add it to your PATH or give configure the CXX=path_to_compiler argument.  Otherwise, install a C++ compiler such as g++ or install a binary package of Nmap (see http://nmap.org/download.html ))" >&5
+echo "$as_me: error: Could not locate a C++ compiler. If it exists, add it to your PATH or give configure the CXX=path_to_compiler argument.  Otherwise, install a C++ compiler such as g++ or install a binary package of Nmap (see http://nmap.org/download.html ))" >&2;}
    { (exit 1); exit 1; }; }
 fi
 

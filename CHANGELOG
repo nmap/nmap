@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap URL has changed from http://insecure.org/nmap/ to
+  http://nmap.org to save everyone some typing. All the files from the
+  former location are now available at the latter (e.g. download page
+  is now http://nmap.org/download.html). Even though transparent
+  redirectors are in place for the old URLs, please update your links
+  and bookmarks. And if you don't have a link to Nmap on your web
+  site, now is a good time to add one :).
+
 o Added IPv6 host support to the RPC scan.  Attempting this before
   (via -sV) caused a segmentation fault.  Thanks to Will Cladek for
   the report. [Kris]

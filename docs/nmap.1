@@ -53,7 +53,7 @@ for faster execution; and then the two target hostnames\.
 .nf
 # nmap \-A \-T4 scanme\.nmap\.org playground
 
-Starting nmap ( http://insecure\.org/nmap/ )
+Starting nmap ( http://nmap\.org )
 Interesting ports on scanme\.nmap\.org (205\.217\.153\.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 PORT    STATE  SERVICE VERSION
@@ -90,19 +90,19 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88\.392 seconds
 .RE
 .PP
 The newest version of Nmap can be obtained from
-\fI\%http://insecure.org/nmap/\fR\. The newest version of the man page is available from
-\fI\%http://insecure.org/nmap/man/\fR\.
+\fI\%http://nmap.org\fR\. The newest version of the man page is available from
+\fI\%http://nmap.org/man/\fR\.
 .SH "OPTIONS SUMMARY"
 .PP
 This options summary is printed when Nmap is run with no arguments, and the latest version is always available at
-\fI\%http://insecure.org/nmap/data/nmap.usage.txt\fR\. It helps people remember the most common options, but is no substitute for the in\-depth documentation in the rest of this manual\. Some obscure options aren\'t even included here\.
+\fI\%http://nmap.org/data/nmap.usage.txt\fR\. It helps people remember the most common options, but is no substitute for the in\-depth documentation in the rest of this manual\. Some obscure options aren\'t even included here\.
 .PP
 
 
 .sp
 .RS 4
 .nf
-Nmap 4\.53 ( http://insecure\.org )
+Nmap 4\.53 ( http://nmap\.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\.
@@ -714,7 +714,7 @@ open|filtered\. Nmap will behave the same way it does for the base scan type, ex
 \fB\-sI <zombie host[:probeport]>\fR (idle scan)
 .RS 4
 This advanced scan method allows for a truly blind TCP port scan of the target (meaning no packets are sent to the target from your real IP address)\. Instead, a unique side\-channel attack exploits predictable IP fragmentation ID sequence generation on the zombie host to glean information about the open ports on the target\. IDS systems will display the scan as coming from the zombie machine you specify (which must be up and meet certain criteria)\. This fascinating scan type is too complex to fully describe in this reference guide, so I wrote and posted an informal paper with full details at
-\fI\%http://insecure.org/nmap/idlescan.html\fR\.
+\fI\%http://nmap.org/idlescan.html\fR\.
 .sp
 Besides being extraordinarily stealthy (due to its blind nature), this scan type permits mapping out IP\-based trust relationships between machines\. The port listing shows open ports
 \fIfrom the perspective of the zombie host\.\fR
@@ -836,7 +836,7 @@ open|filtered
 TCP ports are treated the same way\. Note that the Nmap
 \fB\-A\fR
 option enables version detection among other things\. A paper documenting the workings, usage, and customization of version detection is available at
-\fI\%http://insecure.org/nmap/vscan/\fR\.
+\fI\%http://nmap.org/vscan/\fR\.
 .PP
 When Nmap receives responses from a service but cannot match them to its database, it prints out a special fingerprint and a URL for you to submit if to if you know for sure what is running on the port\. Please take a couple minutes to make the submission so that your find can benefit everyone\. Thanks to these submissions, Nmap has about 3,000 pattern matches for more than 350 protocols such as SMTP, FTP, HTTP, etc\.
 .PP
@@ -911,7 +911,7 @@ or
 class, which means that they increment the ID field in the IP header for each packet they send\. This makes them vulnerable to several advanced information gathering and spoofing attacks\.
 .PP
 A paper documenting the workings, usage, and customization of OS detection is available at
-\fI\%http://insecure.org/nmap/osdetect/\fR\.
+\fI\%http://nmap.org/osdetect/\fR\.
 .PP
 OS detection is enabled and controlled with the following options:
 .PP
@@ -947,7 +947,7 @@ value (such as 1) speeds Nmap up, though you miss out on retries which could pot
 .PP
 The Nmap Scripting Engine (NSE) combines the efficiency of Nmap\'s network handling with the versatility of the lightweight scripting language
 \fILua\fR\&[6], thus providing innumerable opportunities\. A more extensive documentation of the NSE (including its API) can be found at:
-\fI\%http://www.insecure.org/nmap/nse\fR\. The target of the NSE is to provide Nmap with a flexible infrastructure for extending its capabilities and offering its users a simple way of creating customized tests\. Uses for the NSE include (but definitely are not limited to):
+\fI\%http://nmap.org/nse/\fR\. The target of the NSE is to provide Nmap with a flexible infrastructure for extending its capabilities and offering its users a simple way of creating customized tests\. Uses for the NSE include (but definitely are not limited to):
 .PP
 
 \fIEnhanced version detection\fR
@@ -998,7 +998,7 @@ or
 ssl), the service running behind that port, and optionally information from a version\-scan\. NSE scripts by convention have an
 nse
 extension\. Although you are not required to follow this for the moment, this may change in the future\. Nmap will issue a warning if a file has any other extension\. More extensive documentation on the NSE, including a description of its API can be found at
-\fI\%http://insecure.org/nmap/nse/\fR\.
+\fI\%http://nmap.org/nse/\fR\.
 .PP
 \fB\-sC\fR
 .RS 4
@@ -1504,7 +1504,7 @@ interactive output\.
 Requests that
 XML output
 be directed to the given filename\. Nmap includes a document type definition (DTD) which allows XML parsers to validate Nmap XML output\. While it is primarily intended for programmatic use, it can also help humans interpret Nmap XML output\. The DTD defines the legal elements of the format, and often enumerates the attributes and values they can take on\. The latest version is always available from
-\fI\%http://insecure.org/nmap/data/nmap.dtd\fR\.
+\fI\%http://nmap.org/data/nmap.dtd\fR\.
 .sp
 XML offers a stable format that is easily parsed by software\. Free XML parsers are available for all major computer languages, including C/C++, Perl, Python, and Java\. People have even written bindings for most of these languages to handle Nmap output and execution specifically\. Examples are
 \fINmap::Scanner\fR\&[8]
@@ -1665,7 +1665,7 @@ where it was initially installed by Nmap (or in the current working directory on
 \fInmap\.xsl\fR
 from the filesystem and use it to render results\. If you wish to use a different stylesheet, specify it as the argument to
 \fB\-\-stylesheet\fR\. You must pass the full pathname or URL\. One common invocation is
-\fB\-\-stylesheet http://insecure\.org/nmap/data/nmap\.xsl\fR\. This tells a browser to load the latest version of the stylesheet from Insecure\.Org\. The
+\fB\-\-stylesheet http://nmap\.org/data/nmap\.xsl\fR\. This tells a browser to load the latest version of the stylesheet from Insecure\.Org\. The
 \fB\-\-webxml\fR
 option does the same thing with less typing and memorization\. Loading the XSL from Insecure\.Org makes it easier to view results on a machine that doesn\'t have Nmap (and thus
 \fInmap\.xsl\fR) installed\. So the URL is often more useful, but the local filesystem location of
@@ -1676,7 +1676,7 @@ is used by default for privacy reasons\.
 \fB\-\-webxml\fR (Load stylesheet from Insecure\.Org)
 .RS 4
 This convenience option is simply an alias for
-\fB\-\-stylesheet http://insecure\.org/nmap/data/nmap\.xsl\fR\.
+\fB\-\-stylesheet http://nmap\.org/data/nmap\.xsl\fR\.
 .RE
 .PP
 \fB\-\-no_stylesheet\fR (Omit XSL stylesheet declaration from XML)
@@ -1882,12 +1882,12 @@ This scans 4096 IPs for any webservers (without pinging them) and saves the outp
 .SH "BUGS"
 .PP
 Like its author, Nmap isn\'t perfect\. But you can help make it better by sending bug reports or even writing patches\. If Nmap doesn\'t behave the way you expect, first upgrade to the latest version available from
-\fI\%http://insecure.org/nmap/\fR\. If the problem persists, do some research to determine whether it has already been discovered and addressed\. Try Googling the error message or browsing the nmap\-dev archives at
+\fI\%http://nmap.org\fR\. If the problem persists, do some research to determine whether it has already been discovered and addressed\. Try Googling the error message or browsing the nmap\-dev archives at
 \fI\%http://seclists.org/\fR\. Read this full manual page as well\. If nothing comes of this, mail a bug report to
 <nmap\-dev@insecure\.org>\. Please include everything you have learned about the problem, as well as what version of Nmap you are running and what operating system version it is running on\. Problem reports and Nmap usage questions sent to nmap\-dev@insecure\.org are far more likely to be answered than those sent to Fyodor directly\.
 .PP
 Code patches to fix bugs are even better than bug reports\. Basic instructions for creating patch files with your changes are available at
-\fI\%http://insecure.org/nmap/data/HACKING\fR\. Patches may be sent to nmap\-dev (recommended) or to Fyodor directly\.
+\fI\%http://nmap.org/data/HACKING\fR\. Patches may be sent to nmap\-dev (recommended) or to Fyodor directly\.
 .SH "AUTHOR"
 .PP
 Fyodor
@@ -1897,7 +1897,7 @@ Fyodor
 Hundreds of people have made valuable contributions to Nmap over the years\. These are detailed in the
 \fICHANGELOG\fR
 file which is distributed with Nmap and also available from
-\fI\%http://insecure.org/nmap/changelog.html\fR\.
+\fI\%http://nmap.org/changelog.html\fR\.
 .SH "LEGAL NOTICES"
 .SS "Nmap Copyright and Licensing"
 .PP
