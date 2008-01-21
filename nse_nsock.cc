@@ -466,7 +466,8 @@ void l_nsock_trace(nsock_iod nsiod, char* message, int direction) {
 	if(!nsi_is_pcap(nsiod)){
 		status =  nsi_getlastcommunicationinfo(nsiod, &protocol, &af,
 			&local, &remote, sizeof(sockaddr)); 
-		log_write(LOG_STDOUT, "SCRIPT ENGINE: %s %s:%d %s %s:%d | %s\n", 
+		log_write(LOG_STDOUT, "%s: %s %s:%d %s %s:%d | %s\n", 
+			SCRIPT_ENGINE,
 			(protocol == IPPROTO_TCP)? "TCP" : "UDP",
 			inet_ntop_both(af, &local, ipstring_local), 
 			inet_port_both(af, &local), 
@@ -478,7 +479,8 @@ void l_nsock_trace(nsock_iod nsiod, char* message, int direction) {
 		free(ipstring_local);
 		free(ipstring_remote);
 	}else{ // is pcap device
-		log_write(LOG_STDOUT, "SCRIPT ENGINE: %s | %s\n", 
+		log_write(LOG_STDOUT, "%s: %s | %s\n", 
+			SCRIPT_ENGINE,
 			(direction == TO)? ">" : "<", 
 			message); 
 	}
