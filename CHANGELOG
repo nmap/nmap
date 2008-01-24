@@ -84,9 +84,8 @@ o Added a new version detection probe for the Trend Micro OfficeScan
 
 4.51BETA
 
-o We now have a detailed Zenmap Guide at
-  http://nmap.org/zenmapguide/ . Thanks to David for writing
-  it.
+o We now have a detailed Zenmap Guide at http://nmap.org/zenmapguide/ .
+  Thanks to David for writing it.
 
 o Added rpcinfo.nse script, which contacts a listening RPC portmapper
   and reports the listening services and port information (like
@@ -129,8 +128,8 @@ o Fixed a bug that prevented the --resume option from working on
   mflags 000 00006: The parameter is incorrect.(87)
   [Fixed by David, reported by Rob Nicholls]
 
-o Zenmap's new web page (http://nmap.org/zenmap/) is now
-  shown in the Zenmap about dialogue.
+o Zenmap's new web page (http://nmap.org/zenmap/) is now shown in the
+  Zenmap about dialogue.
 
 o On Windows, paths beginning with \ are now considered absolute when
   used with the --script option. jah (jah(a)zadkiel.plus.com) suggested
@@ -154,7 +153,7 @@ o Many version detection match lines were improved to match even when
 4.50
 
 o Bumped up the version number to the big 10th anniversary 4.50
-release!  See http://insecure.org/stf/Nmap-4.50-Release.html .
+  release!  See http://insecure.org/stf/Nmap-4.50-Release.html .
 
 4.49RC7
 
@@ -1425,8 +1424,7 @@ o Moved my Nmap development environment to Visual C++ 2005 Express
   edition.  In typical "MS Upgrade Treadmill" fashion, Visual Studio
   2003 users will no longer be able to compile Nmap using the new
   solution files.  The compilation, installation, and execution
-  instructions at
-  http://nmap.org/install/inst-windows.html have been
+  instructions at http://nmap.org/install/inst-windows.html have been
   upgraded.  
 
 o Automated my Windows build system so that I just have to type a
@@ -2423,8 +2421,7 @@ o Nmap now ships with and installs (in the same directory as other
   privacy reasons (avoid loading of an external URL when you view
   results), Nmap uses the local filesystem by default.  If you would
   like the latest version of the stylesheet loaded from the web when
-  rendering, specify 
-  --stylesheet http://nmap.org/data/nmap.xsl .
+  rendering, specify --stylesheet http://nmap.org/data/nmap.xsl .
 
 o Fixed fragmentation option (-f).  One -f now sets sends fragments
   with just 8 bytes after the IP header, while -ff sends 16 bytes to
@@ -2602,9 +2599,8 @@ o Fixed nmap_fetchfile() to better find custom versions of data files
 
 o Changed XML output so that the MAC address [address] element comes
   right after the IPv4/IPv6 [address] element.  Apparently this is
-  needed to comply with the DTD (
-  http://nmap.org/data/nmap.dtd ).  Thanks to Adam Morgan
-  (adam.morgan(a)Q1Labs.com) and Florian Ebner
+  needed to comply with the DTD ( http://nmap.org/data/nmap.dtd ).
+  Thanks to Adam Morgan (adam.morgan(a)Q1Labs.com) and Florian Ebner
   (Florian.Ebner(a)e-bros.de) for the problem reports.
 
 o Fixed an error in the Nmap RPM spec file reported by Pascal Trouvin
@@ -3219,9 +3215,8 @@ o Applied a one-line patch from Dmitry V. Levin (ldv(a)altlinux.org)
 Nmap 3.40PVT17
 
 o Wrote and posted a new paper on version scanning to
-  http://nmap.org/versionscan.html .  Updated
-  nmap-service-probes and the Nmap man page to simply refer to this
-  URL.
+  http://nmap.org/versionscan.html .  Updated nmap-service-probes and
+  the Nmap man page to simply refer to this URL.
 
 o Integrated more service signatures from my own scanning as well as
   contributions from Brian Hatch (bri(a)ifokr.org), MadHat
