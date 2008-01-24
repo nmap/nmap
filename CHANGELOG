@@ -31,6 +31,9 @@ o Fixed a man page bug related to our DocBook to Nroff translation
 o The Zenmap man page is now installed on Unix when "make install" is
   run.  This was supposed to work before, but didn't. [Kris]
 
+o Updated IANA assignment IP list for random IP (-iR)
+  generation. [Kris]
+
 4.53
 
 o Impoved Windows executable installer by making uninstall work better
