@@ -8,6 +8,13 @@ o Nmap URL has changed from http://insecure.org/nmap/ to
   and bookmarks. And if you don't have a link to Nmap on your web
   site, now is a good time to add one :).
 
+o Fixed a crash in Zenmap which occurred when attempting to edit or
+  create a new profile based on an existing one when there wasn't one
+  selected.  The error message was:
+    'NoneType' object has no attribute 'toolbar'
+  Now a new Profile Editor is opened.  Thanks to D1N (d1n@inbox.com)
+  for the report. [Kris]
+
 o Added IPv6 host support to the RPC scan.  Attempting this before
   (via -sV) caused a segmentation fault.  Thanks to Will Cladek for
   the report. [Kris]
