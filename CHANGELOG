@@ -15,6 +15,13 @@ o Fixed a crash in Zenmap which occurred when attempting to edit or
   Now a new Profile Editor is opened.  Thanks to D1N (d1n@inbox.com)
   for the report. [Kris]
 
+o Fixed another crash in Zenmap which occurred when exiting the
+  Profile Editor (while editing an existing profile) by clicking the
+  "X", then going to edit the same profile again.  The error message
+  was: "No option named '' found!".  Now the same window that appears
+  when clicking Cancel comes up when clicking "X".  Thanks to David
+  for reporting this bug. [Kris]
+
 o Added IPv6 host support to the RPC scan.  Attempting this before
   (via -sV) caused a segmentation fault.  Thanks to Will Cladek for
   the report. [Kris]
