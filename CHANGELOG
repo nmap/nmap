@@ -22,6 +22,11 @@ o Fixed another crash in Zenmap which occurred when exiting the
   when clicking Cancel comes up when clicking "X".  Thanks to David
   for reporting this bug. [Kris]
 
+o Another Zenmap bug was fixed: ports consolidated into "extra ports"
+  groups are now counted and shown in the "Host Details" tab.  The
+  closed, filtered and scanned port counts in this tab didn't contain
+  this information before so they were usually very inaccurate. [Kris]
+
 o Added IPv6 host support to the RPC scan.  Attempting this before
   (via -sV) caused a segmentation fault.  Thanks to Will Cladek for
   the report. [Kris]
