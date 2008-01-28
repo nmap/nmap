@@ -704,6 +704,28 @@ int init_scandir(char* dirname, std::vector<std::string>& result, int files_or_d
 
 #endif
 
+
+
+// Takes a string and converts \, ', and " characters so that
+// the string is suitable for embedding in a Lua ' or " string.
+// Remember to free() when finished
+
+char *make_lua_escaped_string(char *str) {
+  char *tp, *out;
+  out = tp = (char *) safe_malloc((strlen(str)*2) + 1); // assume every character needs escaping
+
+  while(*str) {
+    if (*str == '\\' || *str == '\'' || *str == '"') *tp++ = '\\';
+    *tp++ = *str++;
+  }
+
+  *tp = '\0';
+
+  return out;
+}
+
+
+
 /* load an nmap-lua script
  * create a new closure to store the script
  * tell the closure where to find the standard
@@ -715,6 +737,7 @@ int init_scandir(char* dirname, std::vector<std::string>& result, int files_or_d
  * */
 int init_loadfile(lua_State* l, char* filename) {
 	int rule_count;
+	char *escaped_filename;
 
 	/* create a closure for encapsuled execution
 	 * give the closure access to the global enviroment
@@ -753,13 +776,17 @@ int init_loadfile(lua_State* l, char* filename) {
 	 * */
 	lua_getmetatable(l, -1);
 
+	escaped_filename = make_lua_escaped_string(filename);
+
 	std::string buf = 
 	 (std::string("err = \"Attempted to change the global '\" .. select(2, ...) .. \"' in ") 
-	 + std::string(filename)
+	 + std::string(escaped_filename)
 	 + std::string(" - use nmap.registry if you really want to share data between scripts.\"")
 	 + std::string("error(err)"));
 	SCRIPT_ENGINE_LUA_TRY(luaL_loadbuffer(l, buf.c_str(), buf.length(), "Global Access"));
 	lua_setfield(l, -2, "__newindex");
+
+	free(escaped_filename);
 
 	lua_setmetatable(l, -2);
 
