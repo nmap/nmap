@@ -1332,6 +1332,74 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	</variablelist>
 	</sect2>
+	<sect2 id="nse-lib-http">
+	<title>HTTP Functions</title>
+	<para>
+	The <literal>http</literal> module provides functions for dealing with the client side of the http protocol.
+	The functions reside inside the <literal>http</literal> namespace.
+	The return value of each function in this module is a table with the following keys:
+	<literal>status</literal>, <literal>header</literal> and <literal>body</literal>.
+	<literal>status</literal> is the status code of the http request
+	In case of an error status is <literal>nil</literal>.  <literal>header</literal>
+	is a table with the headers received from the server. The header names are
+	lower-cased and multiple headers of the same name are concatenated with comma.
+	<literal>body</literal> holds a string with the request body.
+	</para>
+	<variablelist>
+	    <varlistentry>
+	      <term><option>table = http.get(host,port,path,[options])</option>
+		  <indexterm><primary>get</primary></indexterm></term>
+	      <listitem>
+		  <para>
+		  Fetches a resource with a <literal>GET</literal> request.
+		  The first argument is either a string with the hostname or a
+		  table like the host table passed by nmap. The second argument
+		  is either the port number or a table like the port table passed
+		  by nmap. The third argument is the path of the resource. The fourth
+		  argument is a table for further options. The table may have 2 keys:
+		  <literal>timeout</literal> and <literal>header</literal>.
+		  <literal>timeout</literal> is the timeout used for the socket
+		  operations. <literal>header</literal> is a table with additional
+		  headers to be used for the request.
+		  The function builds the request and calls <literal>http.request</literal>
+		  </para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term><option>table = http.request(host,port,request,[options])</option>
+		  <indexterm><primary>request</primary></indexterm></term>
+	      <listitem>
+		  <para>
+		  Sends <literal>request</literal> to <literal>host</literal>:<literal>port</literal>
+		  and parses the answer.
+		  The first argument is either a string with the hostname or a
+		  table like the host table passed by nmap. The second argument
+		  is either the port number or a table like the port table passed
+		  by nmap. SSL is used for the request if either <literal>port.service</literal>
+		  equals <literal>"https"</literal> or <literal>port.version.service_tunnel</literal>
+		  equals <literal>"ssl"</literal>.  The third argument is the request. The fourth
+		  argument is a table for further options. You can specify a timeout
+		  for the socket operations with the timeout key.
+		  </para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term><option>table = http.get_url(url,[options])</option>
+		  <indexterm><primary>get_url</primary></indexterm></term>
+	      <listitem>
+		  <para>
+		  Parses <literal>url</literal> and calls <literal>http.get</literal>
+		  with the result.
+		  The second argument is a table for further options. The table may have 2 keys:
+		  <literal>timeout</literal> and <literal>header</literal>.
+		  <literal>timeout</literal> is the timeout used for the socket
+		  operations. <literal>header</literal> is a table with additional
+		  headers to be used for the request.
+		  </para>
+	      </listitem>
+	    </varlistentry>
+	</variablelist>
+	</sect2>
 	<sect2 id="nse-lib-stdnse">
 	<title>Various Utility Functions</title>
 	<para>
