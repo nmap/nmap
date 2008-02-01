@@ -1,6 +1,7 @@
 require('shortport')
 require('strbuf')
 require('listop')
+require('http')
 
 id = "robots.txt"
 author = "Eddie Bell <ejlbell@gmail.com>"
@@ -9,7 +10,7 @@ license = "See nmaps COPYING for licence"
 categories = {"safe"}
 runlevel = 1.0
 
-portrule = shortport.port_or_service(80, "http")
+portrule = shortport.port_or_service({80,443}, {"http","https"})
 local last_len = 0
 
 -- split the output in 40 character lines 
@@ -32,40 +33,15 @@ local function buildOutput(output, w)
 end
 
 action = function(host, port)
-	local soc, lines, status
+	local answer = http.get( host, port, "/robots.txt" )
 
-	local catch = function() soc:close() end
-	local try = nmap.new_try(catch)
-
-	-- connect to webserver 
-	soc = nmap.new_socket()
-	soc:set_timeout(4000)
-	try(soc:connect(host.ip, port.number))
-
-	local query = strbuf.new()
-	query = query .. "GET /robots.txt HTTP/1.1"
-	query = query .. "Accept: */*"
-	query = query .. "Accept-Language: en"
-	query = query .. "User-Agent: Nmap NSE"
-	query = query .. "Host: " .. host.ip .. ":" .. port.number
-	query = query .. "Connection: close"
-	query = query .. '\r\n\r\n';
-	try(soc:send(strbuf.dump(query, '\r\n')))
-
-	local response = strbuf.new()
-	while true do
-		status, lines = soc:receive_lines(1)
-		if not status then break end
-		response = response .. lines
-	end
-
-	if not string.find(strbuf.dump(response), "HTTP/1.1 200 OK") then
+	if answer.status ~= 200 then
 		return nil
 	end
 
 	-- parse all disallowed entries and remove comments
 	local output = strbuf.new()
-	for w in string.gmatch(strbuf.dump(response, '\n'), "Disallow:%s*([^\n]*)\n") do
+	for w in string.gmatch(answer.body, "Disallow:%s*([^\n]*)\n") do
 			w = w:gsub("%s*#.*", "")
 			buildOutput(output, w)
 	end
