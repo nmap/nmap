@@ -2127,6 +2127,7 @@ openmanage        7273/tcp   # Dell OpenManage
 icb               7326/tcp   # Internet Citizen's Band
 pythonds          7464/tcp   # Python Documentation Server
 qaz               7597/tcp   # Quaz trojan worm
+hddtemp           7634/tcp   # A cross-platform hard disk temperature monitoring daemon
 cucme-1           7648/udp   # cucme live video/audio server
 cucme-2           7649/udp   # cucme live video/audio server
 cucme-3           7650/udp   # cucme live video/audio server
