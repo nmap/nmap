@@ -30,7 +30,6 @@ int init_fetchfile(char *result, size_t result_max_len, char* file);
 int init_fetchfile_absolute(char *path, size_t path_len, char *file);
 int init_updatedb(lua_State* l);
 int init_pick_default_categories(std::vector<std::string>& chosenScripts);
-int init_debugger(lua_State* l);
 
 int check_extension(const char* ext, const char* path);
 
@@ -59,32 +58,13 @@ int init_lua(lua_State* l) {
 		SCRIPT_ENGINE_LUA_TRY(lua_pcall(l, 1, 0, 0));
 	}
 
+
 	/* publish the nmap bindings to the script */
 	lua_newtable(l);
 	SCRIPT_ENGINE_TRY(set_nmaplib(l));
 	lua_setglobal(l, "nmap");
 	SCRIPT_ENGINE_TRY(init_setlualibpath(l));
-
-	SCRIPT_ENGINE_TRY(init_debugger(l));
-	
 	return SCRIPT_ENGINE_SUCCESS;
-}
-
-int init_debugger(lua_State* l) {
-
-	if(o.scriptdebug > 0) {
-		luaL_loadstring(l, "require 'debugger'");
-		SCRIPT_ENGINE_TRY(lua_pcall(l, 0, 0, 0));
-	} else {
-		char* debugger_dummy = "\
-package.loaded['debugger'] = true\n\
-pause = function() end\n";
-
-		luaL_loadstring(l, debugger_dummy);
-		SCRIPT_ENGINE_TRY(lua_pcall(l, 0, 0, 0));
-	}
-
-	return SCRIPT_ENGINE_SUCCESS;	
 }
 
 /*sets two variables, which control where lua looks for modules (implemented in C or lua */

@@ -274,7 +274,6 @@ void NmapOps::Initialize() {
   script = 0;
   scriptversion = 0;
   scripttrace = 0;
-  scriptdebug = 0;
   scriptupdatedb = 0;
 #endif
 }

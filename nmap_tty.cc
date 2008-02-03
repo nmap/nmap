@@ -207,9 +207,6 @@ void tty_init()
 {
 	struct termios ti;
 
-	if(o.noninteractive)
-		return;
-
 	if (tty_fd)
 		return;
 
