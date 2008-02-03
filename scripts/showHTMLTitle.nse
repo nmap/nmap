@@ -28,6 +28,8 @@ end
 action = function(host, port)
 	local data, result, title, protocol
 
+	pause("test")
+
 	data = http.get( host, port, '/' )
 	result = data.body
 
