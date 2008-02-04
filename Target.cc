@@ -119,6 +119,7 @@ Target::Target() {
 
 void Target::Initialize() {
   hostname = NULL;
+  targetname = NULL;
   memset(&seq, 0, sizeof(seq));
   distance = -1;
   FPR1 = NULL;
@@ -168,6 +169,9 @@ void Target::FreeInternal() {
   /* Free the DNS name if we resolved one */
   if (hostname)
     free(hostname);
+
+  if (targetname)
+    free(targetname);
 
   if (nameIPBuf) {
     free(nameIPBuf);
@@ -221,6 +225,7 @@ void Target::setTargetSockAddr(struct sockaddr_storage *ss, size_t ss_len) {
     /* We had an old target sock, so we better blow away the hostname as
        this one may be new. */
     setHostName(NULL);
+    setTargetName(NULL);
   }
   memcpy(&targetsock, ss, ss_len);
   targetsocklen = ss_len;
@@ -305,6 +310,16 @@ void Target::setHostName(char *name) {
       }
       p++;
     }
+  }
+}
+
+void Target::setTargetName(char *name) {
+  if (targetname) {
+    free(targetname);
+    targetname = NULL;
+  }
+  if (name) {
+    targetname = strdup(name);
   }
 }
 

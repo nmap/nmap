@@ -72,7 +72,7 @@ request = function( host, port, data, options )
   options = options or {}
 
   if type(host) == 'table' then
-    host = ( host.name ~= '' and host.name ) or host.ip
+    host = host.targetname or ( host.name ~= '' and host.name ) or host.ip
   end
 
   local protocol = 'tcp'

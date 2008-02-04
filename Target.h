@@ -176,6 +176,16 @@ class Target {
   /* This next version returns a STATIC buffer -- so no concurrency */
   const char *NameIP();
 
+  /* Give the name from the last setTargetName() call, which is the 
+   name of the target given on the command line if it's a named
+   host. */
+  const char *TargetName() { return targetname; }
+  /* You can set to NULL to erase a name.  The targetname is blown
+     away when you setTargetSockAddr(), so make sure you do these in proper
+     order
+  */
+  void setTargetName(char *name);
+
   /* If the host is directly connected on a network, set and retrieve
      that information here.  directlyConnected() will abort if it hasn't
      been set yet.  */
@@ -246,6 +256,7 @@ class Target {
   unsigned int flags; /* HOST_UP, HOST_DOWN, HOST_FIREWALLED, HOST_BROADCAST (instead of HOST_BROADCAST use wierd_responses */
   struct timeout_info to;
   char *hostname; // Null if unable to resolve or unset
+  char * targetname; // The name of the target host given on the commmand line if it is a named host
 
 #ifndef NOLUA
   ScriptResults scriptResults;

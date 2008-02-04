@@ -134,6 +134,8 @@ class TargetGroup {
   char get_targets_type() {return targets_type;};
   /* get the netmask */
   int get_mask() {return netmask;};
+  /* is the current expression a named host */
+  int get_namedhost() {return namedhost;};
   /* Skip an octet in the range array */
   int skip_range(_octet_nums octet);
  private:
@@ -160,6 +162,8 @@ class TargetGroup {
 		  the fields are not valid */
   unsigned long ipsleft; 
 
+  // is the current target expression a named host
+  int namedhost;
 };
 
 class HostGroupState {

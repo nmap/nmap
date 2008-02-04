@@ -180,7 +180,7 @@ void set_version(lua_State* l, struct serviceDeductions sd) {
 	}
 }
 
-/* set host ip and host name onto the
+/* set host ip, host name and target name onto the
  * table which is currently on the stack
  * set name of the os run by the host onto the
  * table which is currently on the stack
@@ -198,6 +198,11 @@ void set_hostinfo(lua_State* l, Target *currenths) {
 
 	lua_pushstring(l, strncpy(hostname, currenths->HostName(), 1024));
 	lua_setfield(l, -2, "name");
+
+	if ( currenths->TargetName() ) { // else nil
+		lua_pushstring(l, strncpy(hostname, currenths->TargetName(), 1024));
+		lua_setfield(l, -2, "targetname");
+	}
 
 	if(currenths->directlyConnectedOrUnset() != -1){
 	    lua_pushboolean(l, currenths->directlyConnected());

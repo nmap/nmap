@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap now saves the target name (if any) specified on the command
+  line, since this can differ from the reverse DNS results.  It can be
+  particularly important when doing HTTP tests against virtual hosts.
+  The data can be accessed from target->HostName() from Nmap proper
+  and host.targetname from NSE scripts.  The NSE HTTP library now uses
+  this for the Host header.  Thanks to Sven Klemm for adding this
+  useful feature.
+
 o Added NSE HTTP library which allows scripts to easily fetch URLs
   with http.get_url() or create more complex requests with
   http.request().  There is also an http.get() function which takes

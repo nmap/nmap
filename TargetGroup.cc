@@ -168,7 +168,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
   char *hostexp = strdup(target_expr);
   struct hostent *target;
   unsigned long longtmp;
-  int namedhost = 0;
+  namedhost = 0;
 
   if (targets_type != TYPE_NONE)
     Initialize();

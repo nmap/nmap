@@ -1527,6 +1527,16 @@ if(s) code_to_be_done_on_match end
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
+	    <term><option>host.targetname</option>
+	      <indexterm><primary>host.targetname</primary></indexterm></term>
+	    <listitem>
+	      <para>Contains the name of the host as specified on the commandline.
+		If the target given on the commandline contains a netmask or is an IP
+		address the value of the field is <literal>nil</literal>.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
 	    <term><option>host.directly_connected</option>
 	      <indexterm><primary>host.directly_connected</primary></indexterm></term>
 	    <listitem>
