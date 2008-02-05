@@ -1570,7 +1570,7 @@ match smtp m|^220 ([-.+\w]+) ESMTP MailMasher ready to boogie\r\n| p/MailMasher 
 match smtp m|^220 ([-.\w]+) ESMTP Postfix \(([-.\w]+)\) \(([-.\w ]+)\)| p/Postfix smtpd/ h/$1/ v/$2/ i/$3/
 # postfix 1.1.11-0.woody2
 match smtp m|^220([\s-]\S+) ESMTP Postfix| p/Postfix smtpd/ h/$1/
-match smtp m|^220 [\*\d\ ]{2,300}\r\n| p|Cisco PIX sanatized smtpd| d|firewall|
+match smtp m|^220 [\*\d\ ]{2,300}\r\n| p|Cisco PIX sanitized smtpd| d|firewall|
 match smtp m|^220 ArGoSoft Mail Server Pro for WinNT/2000/XP, Version ([-.\w]+) \(([-.\w]+)\)\r\n| p/ArGoSoft Mail Server Pro/ v/$1/ i/$2/ o/Windows/
 match smtp m|^220 ([\w-.]+) ArGoSoft Mail Server Pro for WinNT/2000/XP, Version [\d.]+ \(([\d.]+)\)\r\n| p/ArGoSoft Mail Server Pro/ v/$2/ h/$1/ o/Windows/
 match smtp m|^220 ([\w-.]+) ArGoSoft Mail Server, Version [\d.]+ \(([\d.]+)\)\r\n| p/ArGoSoft Mail Server/ v/$2/ h/$1/ o/Windows/
