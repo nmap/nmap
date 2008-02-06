@@ -49,7 +49,8 @@ o Another Zenmap bug was fixed: the --scan-delay and --max-scan-delay
   buttons ("amount of time between probes") under the Advanced tab in
   the Profile Editor were backwards. [Kris]
 
-o Added the IPProto Ping (-PO) to Zenmap's Profile Editor. [Kris]
+o Added the UDP Scan (-sU) and IPProto Ping (-PO) to Zenmap's Profile
+  Editor and Command Wizard. [Kris]
 
 o Added IPv6 host support to the RPC scan.  Attempting this before
   (via -sV) caused a segmentation fault.  Thanks to Will Cladek for
