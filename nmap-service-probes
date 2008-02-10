@@ -5270,7 +5270,7 @@ match qcheck m|^.*\$Id: //ral_depot/products/current/ENDPOINT/CODE/client\.c|s p
 match telecom-misc m|^\0\x1e\x02\x06\x01\0\0\0\0\0\0\xf1\0| p/Radio IP MTG gateway/ d/telecom-misc/
 
 
-# DNS Server status request: http://www.crynwr.com/crynwr/rfc1035/rfc1035.html
+# DNS Server status request: http://www.rfc-editor.org/rfc/rfc1035.txt
 ##############################NEXT PROBE##############################
 Probe UDP DNSStatusRequest q|\0\0\x10\0\0\0\0\0\0\0\0\0|
 rarity 5
