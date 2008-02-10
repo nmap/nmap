@@ -297,7 +297,7 @@ you would expect.</para>
     which demonstrate that an IP address is actually active (is being
     used by a host or network device). On many networks, only a small
     percentage of IP addresses are active at any given time. This is
-    particularly common with RFC1918-blessed private address space
+    particularly common with private address space
     such as 10.0.0.0/8. That network has 16 million IPs, but I have
     seen it used by companies with less than a thousand machines. Host
     discovery can find those machines in a sparsely allocated sea of
@@ -613,7 +613,7 @@ you would expect.</para>
           hosts.  Unfortunately for network explorers, many hosts and
           firewalls now block these packets, rather than responding as
           required by <ulink
-          url="http://www.rfc-editor.org/rfc/rfc1122.txt">RFC
+          role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc1122.txt">RFC
           1122</ulink>.  For this reason, ICMP-only scans are rarely
           reliable enough against unknown targets over the Internet.
           But for system administrators monitoring an internal
@@ -623,7 +623,7 @@ you would expect.</para>
 
           <para>While echo request is the standard ICMP ping query,
           Nmap does not stop there.  The ICMP standard (<ulink
-          url="http://www.rfc-editor.org/rfc/rfc792.txt">RFC
+          role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc792.txt">RFC
           792</ulink>) also specifies timestamp request, information
           request, and address mask request packets as codes 13, 15,
           and 17, respectively.  While the ostensible purpose for
@@ -685,7 +685,7 @@ you would expect.</para>
 
           <para>One of the most common Nmap usage scenarios is to scan
           an ethernet LAN. On most LANs, especially those using
-          RFC1918-blessed private address ranges, the vast majority of
+          private address ranges specified by <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc1918.txt">RFC 1918</ulink>, the vast majority of
           IP addresses are unused at any given time.  When Nmap tries
           to send a raw IP packet such as an ICMP echo request, the
           operating system must determine the destination hardware
@@ -1058,7 +1058,7 @@ know that she has been connect scanned.</para>
 
 <para>While most popular services on the Internet run over the TCP
 protocol, <ulink
-url="http://www.rfc-editor.org/rfc/rfc768.txt">UDP</ulink> services
+role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc768.txt">UDP</ulink> services
 are widely deployed.  DNS, SNMP, and DHCP
 (registered ports 53, 161/162, and 67/68) are three of the most
 common.  Because UDP scanning is generally slower and more difficult
@@ -1121,7 +1121,7 @@ hosts.</para>
 <para>These three scan types (even more are possible with the
 <option>--scanflags</option> option described in the next section)
 exploit a subtle loophole in the <ulink
-url="http://www.rfc-editor.org/rfc/rfc793.txt">TCP RFC</ulink> to
+role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc793.txt">TCP RFC</ulink> to
 differentiate between <literal>open</literal> and
 <literal>closed</literal> ports.  Page 65 says that <quote>if the
 [destination] port state is CLOSED .... an incoming segment not
@@ -1247,7 +1247,7 @@ ports, then those three may very well be the truly open ones.</para>
 described the technique in Phrack Magazine issue #49 (November 1996).
 Nmap, which included this technique, was released two issues later.
 This technique is exactly the same as null, FIN, and Xmas scans, except
-that the probe is FIN/ACK.  According to RFC 793 (TCP), a RST packet
+that the probe is FIN/ACK.  According to <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc793.txt">RFC 793</ulink> (TCP), a RST packet
 should be generated in response to such a probe whether the port is
 open or closed.  However, Uriel noticed that many BSD-derived systems
 simply drop the packet if the port is open.</para>
@@ -1390,7 +1390,7 @@ after retransmissions, the protocol is marked
         <listitem>
 
 <para>An interesting feature of the FTP protocol (<ulink
-url="http://www.rfc-editor.org/rfc/rfc959.txt">RFC 959</ulink>) is
+role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc959.txt">RFC 959</ulink>) is
 support for so-called proxy FTP connections.  This allows a user to
 connect to one FTP server, then ask that files be sent to a
 third-party server.  Such a feature is ripe for abuse on many levels,
@@ -1742,8 +1742,7 @@ way.</para>
 
     <para>OS detection enables several other tests which make use
     of information that is gathered during the process anyway.  One of these
-    is uptime measurement, which uses the TCP timestamp option (RFC
-    1323) to guess when a machine was last rebooted.  This is only
+    is uptime measurement, which uses the TCP timestamp option (<ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc1323.txt">RFC 1323</ulink>) to guess when a machine was last rebooted.  This is only
     reported for machines which provide this information.  Another is
     TCP Sequence Predictability Classification.  This measures
     approximately how hard it is to establish a forged
@@ -2679,7 +2678,7 @@ support the option completely, as does UDP scan.</para>
       <indexterm><primary>--ip-options</primary></indexterm>
       </term>
       <listitem>
-      <para>The <ulink url="http://www.ietf.org/rfc/rfc0791.txt">IP
+      <para>The <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc791.txt">IP
       protocol</ulink> offers several options which may be placed in
       packet headers.  Unlike the ubiquitous TCP options, IP options
       are rarely seen due to practicality and security concerns.  In

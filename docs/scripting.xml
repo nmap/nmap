@@ -940,7 +940,7 @@ if(s) code_to_be_done_on_match end
 		  <para>
 		  checks whether an IP address, provided as a string in 
 		  dotted-quad notation, is part of the non-routed private IP address 
-		  space, as described in RFC 1918. These addresses are the well known 
+		  space, as described in <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc1918.txt">RFC 1918</ulink>. These addresses are the well known 
 		  <literal>10.0.0.0/8</literal>,<literal>192.168.0.0/16</literal> and
 		  <literal>172.16.0.0/12</literal> networks.
 		  </para>
@@ -2573,7 +2573,7 @@ try(socket:send(result))
       character. The server should then respond with a string of the
       form <literal><replaceable>port-on-server</replaceable>, <replaceable>port-on-client</replaceable>:<replaceable>response-type</replaceable>:<replaceable>address-information</replaceable></literal>.  In case of an error the address
       information is omitted. This description is sufficient for our
-      purposes, for more details refer to <ulink url="http://www.ietf.org/rfc/rfc1413.txt">RFC 1413</ulink>.  The protocol cannot be modeled in Nmap's version
+      purposes, for more details refer to <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc1413.txt">RFC 1413</ulink>.  The protocol cannot be modeled in Nmap's version
       detection language for two reasons. The first is that you need
       to know both the local and the remote port of a
       connection. Version detection does not provide this data.  The
