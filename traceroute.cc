@@ -325,8 +325,8 @@ Traceroute::getTracePort (u8 proto, Target * t) {
     u16 open_port = 1;
     u16 closed_port = 1;
     u16 filtered_port = 1;
-    u16 state = 0;
     u16 port = 0;
+    int state = -1;
     struct Port *np;
 
     /* Use the first specified port for ping traceroutes */
@@ -347,20 +347,30 @@ Traceroute::getTracePort (u8 proto, Target * t) {
         open_port = (!scaninfo.open_response) ? 0 : 1;
     }
 
-    /* First we try to find an open port, if not we try to find a closed
-     * port and lastly we try to find a filtered port */
-    if (open_port && t->ports.getStateCounts (proto, scaninfo.open_state))
-        state = scaninfo.open_state;
-    else if (closed_port && t->ports.getStateCounts (proto, scaninfo.closed_state))
-        state = scaninfo.closed_state;
-    else if (filtered_port && t->ports.getStateCounts (proto, PORT_FILTERED)) {
+    /* For UDP we try for a closed port, then an open one.  For everything else
+     * we try the opposite.  When all else fails, we try for filtered */
+    if (proto == IPPROTO_UDP) {
+        if (closed_port && t->ports.getStateCounts (proto, scaninfo.closed_state))
+            state = scaninfo.closed_state;
+        else if (open_port && t->ports.getStateCounts (proto, scaninfo.open_state))
+            state = scaninfo.open_state;
+    } else {
+        if (open_port && t->ports.getStateCounts (proto, scaninfo.open_state))
+            state = scaninfo.open_state;
+        else if (closed_port && t->ports.getStateCounts (proto, scaninfo.closed_state))
+            state = scaninfo.closed_state;
+    }
+
+    if (state == -1 && filtered_port &&
+        t->ports.getStateCounts (proto, PORT_FILTERED)) {
         state = PORT_FILTERED;
         if (o.verbose)
             log_write (LOG_PLAIN, "%s: only filtered %s available, results may be incorrect\n",
                        t->targetipstr (), o.ipprotscan ? "protocols" : "ports");
-    } else {
-        return -1;
     }
+
+    if (state == -1)
+        return -1;
 
     np = t->ports.nextPort (NULL, proto, state);
     if (!np)

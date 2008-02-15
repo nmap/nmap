@@ -56,6 +56,11 @@ o Added IPv6 host support to the RPC scan.  Attempting this before
   (via -sV) caused a segmentation fault.  Thanks to Will Cladek for
   the report. [Kris]
 
+o Reordered the UDP port selection for Traceroute: a closed port is
+  now chosen before an open one.  This is because an open UDP port is
+  usually due to running version detection (-sV), so a Traceroute
+  probe wouldn't elicit a response. [Kris]
+
 o We now escape newlines, carriage returns, and tabs (\n\r\t) in XML
   output.  While those are allowed in XML attributes, they get
   normalized which can make formatting the output difficult for
