@@ -6,7 +6,7 @@
 and semantics are as close as possible to those of the Perl 5 language.
 
                        Written by Philip Hazel
-           Copyright (c) 1997-2007 University of Cambridge
+           Copyright (c) 1997-2008 University of Cambridge
 
 -----------------------------------------------------------------------------
 Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ an invalid string are then undefined.
 Originally, this function checked according to RFC 2279, allowing for values in
 the range 0 to 0x7fffffff, up to 6 bytes long, but ensuring that they were in
 the canonical format. Once somebody had pointed out RFC 3629 to me (it
-obsoletes 2279), additional restrictions were applies. The values are now
+obsoletes 2279), additional restrictions were applied. The values are now
 limited to be between 0 and 0x0010ffff, no more than 4 bytes long, and the
 subrange 0xd000 to 0xdfff is excluded.
 

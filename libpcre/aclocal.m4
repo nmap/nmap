@@ -11,8 +11,8 @@
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.
 
-m4_if(m4_PACKAGE_VERSION, [2.60],,
-[m4_fatal([this file was generated for autoconf 2.60.
+m4_if(m4_PACKAGE_VERSION, [2.61],,
+[m4_fatal([this file was generated for autoconf 2.61.
 You have another version of autoconf.  If you want to use that,
 you should regenerate the build system entirely.], [63])])
 

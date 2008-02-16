@@ -77,6 +77,8 @@ o Fixed a man page bug related to our DocBook to Nroff translation
   uses the ".nse" string which was being confused with the Nroff
   no-space mode command. [Fyodor]
 
+o Upgraded the shipped LibPCRE from version 7.4 to 7.6. [Kris]
+
 o The Zenmap man page is now installed on Unix when "make install" is
   run.  This was supposed to work before, but didn't. [Kris]
 

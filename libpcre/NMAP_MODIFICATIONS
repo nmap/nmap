@@ -1,4 +1,4 @@
-This directory contains a version of LibPCRE 7.4 that has been stripped
+This directory contains a version of LibPCRE 7.6 that has been stripped
 down to less than a third of its original uncompressed size.  So if you
 want docs, tests and such, you should go to the PCRE website at
 http://www.pcre.org .  Here are the changes for the Nmap version:
@@ -6,6 +6,7 @@ http://www.pcre.org .  Here are the changes for the Nmap version:
 o Started this NMAP_MODIFICATIONS file
 
 o Removed these directories:
+cmake
 doc
 testdata
 
@@ -60,8 +61,8 @@ o Removed config.sub, config.guess, depcomp, install-sh, and missing.
 o Comment out some build configuration lines from pcre_internal.h because Nmap
   builds a static library:
 
---- pcre-7.4/pcre_internal.h	2007-09-13 04:22:27.000000000 -0500
-+++ libpcre/pcre_internal.h	2007-12-19 22:28:33.000000000 -0600
+--- pcre-7.6/pcre_internal.h	2008-01-20 13:59:21.000000000 -0600
++++ libpcre/pcre_internal.h	2008-02-15 18:12:28.000000000 -0600
 @@ -108,15 +108,19 @@ PCRE_EXP_DATA_DEFN only if they are not 
  
  #ifndef PCRE_EXP_DECL
@@ -87,8 +88,8 @@ o Comment out some build configuration lines from pcre_internal.h because Nmap
 ...and pcre.h.in/pcre.h.generic/pcre.h:
 
 
---- pcre-7.4/pcre.h.in	2007-09-11 06:24:35.000000000 -0500
-+++ libpcre/pcre.h.in	2007-12-19 22:30:32.000000000 -0600
+--- pcre-7.6/pcre.h.in	2008-01-20 14:01:08.000000000 -0600
++++ libpcre/pcre.h.in	2008-02-15 18:12:54.000000000 -0600
 @@ -51,6 +51,7 @@ imported have to be identified as such. 
  export setting is defined in pcre_internal.h, which includes this file. So we
  don't change existing definitions of PCRE_EXP_DECL and PCRECPP_EXP_DECL. */
@@ -109,8 +110,8 @@ o Comment out some build configuration lines from pcre_internal.h because Nmap
 ..and pcreposix.h:
 
 
---- pcre-7.4/pcreposix.h	2007-08-01 04:06:39.000000000 -0500
-+++ libpcre/pcreposix.h	2007-12-19 22:31:14.000000000 -0600
+--- pcre-7.6/pcreposix.h	2008-01-20 13:56:29.000000000 -0600
++++ libpcre/pcreposix.h	2008-02-15 18:13:29.000000000 -0600
 @@ -110,10 +110,12 @@ imported have to be identified as such. 
  export settings are needed, and are set in pcreposix.c before including this
  file. */

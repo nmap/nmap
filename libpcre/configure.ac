@@ -7,9 +7,9 @@ dnl be defined as -RC2, for example. For real releases, it should be defined
 dnl empty.
 
 m4_define(pcre_major, [7])
-m4_define(pcre_minor, [4])
+m4_define(pcre_minor, [6])
 m4_define(pcre_prerelease, [])
-m4_define(pcre_date, [2007-09-21])
+m4_define(pcre_date, [2008-01-28])
 
 AC_PREREQ(2.57)
 AC_INIT(PCRE, pcre_major.pcre_minor[]pcre_prerelease, , pcre)
@@ -127,6 +127,24 @@ AC_ARG_ENABLE(stack-for-recursion,
               AS_HELP_STRING([--disable-stack-for-recursion],
                              [don't use stack recursion when matching]),
               , enable_stack_for_recursion=yes)
+
+# Handle --enable-pcregrep-libz
+AC_ARG_ENABLE(pcregrep-libz,
+              AS_HELP_STRING([--enable-pcregrep-libz],
+                             [link pcregrep with libz to handle .gz files]),
+              , enable_pcregrep_libz=no)
+
+# Handle --enable-pcregrep-libbz2
+AC_ARG_ENABLE(pcregrep-libbz2,
+              AS_HELP_STRING([--enable-pcregrep-libbz2],
+                             [link pcregrep with libbz2 to handle .bz2 files]),
+              , enable_pcregrep_libbz2=no)
+
+# Handle --enable-pcretest-libreadline
+AC_ARG_ENABLE(pcretest-libreadline,
+              AS_HELP_STRING([--enable-pcretest-libreadline],
+                             [link pcretest with libreadline]),
+              , enable_pcretest_libreadline=no)
 
 # Handle --with-posix-malloc-threshold=NBYTES
 AC_ARG_WITH(posix-malloc-threshold,
@@ -251,6 +269,22 @@ AC_SUBST(pcre_have_ulong_long)
 
 AC_CHECK_FUNCS(bcopy memmove strerror strtoq strtoll _strtoi64)
 
+# Check for the availability of libz (aka zlib)
+
+AC_CHECK_HEADERS([zlib.h], [HAVE_ZLIB_H=1])
+AC_CHECK_LIB([z], [gzopen], [HAVE_LIBZ=1])
+
+# Check for the availability of libbz2
+
+AC_CHECK_HEADERS([bzlib.h], [HAVE_BZLIB_H=1])
+AC_CHECK_LIB([bz2], [BZ2_bzopen], [HAVE_LIBBZ2=1])
+
+# Check for the availabiity of libreadline
+
+AC_CHECK_HEADERS([readline/readline.h], [HAVE_READLINE_H=1])
+AC_CHECK_HEADERS([readline/history.h], [HAVE_HISTORY_H=1])
+AC_CHECK_LIB([readline], [readline], [HAVE_LIB_READLINE=1])
+
 # This facilitates -ansi builds under Linux
 dnl AC_DEFINE([_GNU_SOURCE], [], [Enable GNU extensions in glibc])
 
@@ -281,6 +315,23 @@ if test "$enable_stack_for_recursion" = "no"; then
     just above the match() function. On systems that support it,
     "configure" can be used to set this in the Makefile
     (use --disable-stack-for-recursion).])
+fi
+
+if test "$enable_pcregrep_libz" = "yes"; then
+  AC_DEFINE([SUPPORT_LIBZ], [], [
+    Define to allow pcregrep to be linked with libz, so that it is
+    able to handle .gz files.])
+fi
+
+if test "$enable_pcregrep_libbz2" = "yes"; then
+  AC_DEFINE([SUPPORT_LIBBZ2], [], [
+    Define to allow pcregrep to be linked with libbz2, so that it is
+    able to handle .bz2 files.])
+fi
+
+if test "$enable_pcretest_libreadline" = "yes"; then
+  AC_DEFINE([SUPPORT_LIBREADLINE], [], [
+    Define to allow pcretest to be linked with libreadline.])
 fi
 
 AC_DEFINE_UNQUOTED([NEWLINE], [$ac_pcre_newline_value], [
@@ -388,6 +439,47 @@ AC_SUBST(CFLAGS)
 EXTRA_LIBPCRE_LDFLAGS="$NO_UNDEFINED -version-info libpcre_version"
 
 AC_SUBST(EXTRA_LIBPCRE_LDFLAGS)
+
+# Check that, if --enable-pcregrep-libz or --enable-pcregrep-libbz2 is
+# specified, the relevant library is available. If so, add it to LIBS.
+
+if test "$enable_pcregrep_libz" = "yes"; then
+  if test "$HAVE_ZLIB_H" != "1"; then
+    echo "** Cannot --enable-pcregrep-libz because zlib.h was not found"
+    exit 1
+  fi
+  if test "$HAVE_LIBZ" != "1"; then
+    echo "** Cannot --enable-pcregrep-libz because libz was not found"
+    exit 1
+  fi
+  if test "$LIBS" = ""; then LIBS=-lz; else LIBS="$LIBS -lz"; fi
+fi
+
+if test "$enable_pcregrep_libbz2" = "yes"; then
+  if test "$HAVE_BZLIB_H" != "1"; then
+    echo "** Cannot --enable-pcregrep-libbz2 because bzlib.h was not found"
+    exit 1
+  fi
+  if test "$HAVE_LIBBZ2" != "1"; then
+    echo "** Cannot --enable-pcregrep-libbz2 because libbz2 was not found"
+    exit 1
+  fi
+  if test "$LIBS" = ""; then LIBS=-lbz2; else LIBS="$LIBS -lbz2"; fi
+fi
+
+# Similarly for --enable-pcretest-readline
+
+if test "$enable_pcretest_libreadline" = "yes"; then
+  if test "$HAVE_READLINE_H" != "1"; then
+    echo "** Cannot --enable-pcretest-readline because readline/readline.h was not found."
+    exit 1
+  fi
+  if test "$HAVE_HISTORY_H" != "1"; then
+    echo "** Cannot --enable-pcretest-readline because readline/history.h was not found."
+    exit 1
+  fi
+  if test "$LIBS" = ""; then LIBS=-lreadline; else LIBS="$LIBS -lreadline"; fi
+fi
 
 # Produce these files, in addition to config.h.
 AC_CONFIG_FILES(

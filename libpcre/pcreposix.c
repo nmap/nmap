@@ -6,7 +6,7 @@
 and semantics are as close as possible to those of the Perl 5 language.
 
                        Written by Philip Hazel
-           Copyright (c) 1997-2007 University of Cambridge
+           Copyright (c) 1997-2008 University of Cambridge
 
 -----------------------------------------------------------------------------
 Redistribution and use in source and binary forms, with or without
@@ -126,7 +126,9 @@ static const int eint[] = {
   REG_INVARG,  /* inconsistent NEWLINE options */
   REG_BADPAT,  /* \g is not followed followed by an (optionally braced) non-zero number */
   REG_BADPAT,  /* (?+ or (?- must be followed by a non-zero number */
-  REG_BADPAT   /* number is too big */
+  REG_BADPAT,  /* number is too big */
+  REG_BADPAT,  /* subpattern name expected */
+  REG_BADPAT   /* digit expected after (?+ */
 };
 
 /* Table of texts corresponding to POSIX error codes */
