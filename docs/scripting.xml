@@ -2414,8 +2414,8 @@ error_message describes the occurred error.</para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term><option>dnet_object:open_ethernet(interface_name)</option>
-	      <indexterm><primary>open_ethernet</primary></indexterm></term>
+	    <term><option>dnet_object:ethernet_open(interface_name)</option>
+	      <indexterm><primary>ethernet_open</primary></indexterm></term>
 	    <listitem>
 	      <para>Opens the interface defined by the provided 
 		  <replaceable>interface_name</replaceable> for sending ethernet frames
@@ -2426,25 +2426,25 @@ error_message describes the occurred error.</para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term><option>dnet_object:send_ethernet(packet)</option>
-	      <indexterm><primary>send_ethernet</primary></indexterm></term>
+	    <term><option>dnet_object:ethernet_send(packet)</option>
+	      <indexterm><primary>ethernet_send</primary></indexterm></term>
 	    <listitem>
 	      <para>
 		  Sends the provided data as ethernet frame across the previously
 		  opened interface. Note that you have to provide the packet
 		  including IP header and ethernet header. If there was no
-		  previous valid call to <literal>open_ethernet()</literal> an
+		  previous valid call to <literal>ethernet_open()</literal> an
 		  error is thrown (<quote>dnet is not valid opened ethernet
 		  interface</quote>).
 		  </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term><option>dnet_object:close_ethernet()</option>
-	      <indexterm><primary>close_ethernet</primary></indexterm></term>
+	    <term><option>dnet_object:ethernet_close()</option>
+	      <indexterm><primary>ethernet_close</primary></indexterm></term>
 	    <listitem>
 	      <para>Closes the interface. The only error which may be thrown
-		  is the same as for the <literal>send_ethernet()</literal>
+		  is the same as for the <literal>ethernet_send()</literal>
 		  operation.
 		  </para>
 	    </listitem>
