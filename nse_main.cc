@@ -286,55 +286,54 @@ int process_mainloop(lua_State* l) {
 			}
 
 
-		if(running_scripts.begin() == running_scripts.end())
-			continue;
-
-		current = *(running_scripts.begin());
-
-		if (current.rr->host->timedOut(&now))
-			state = LUA_ERRRUN;
-		else
-			state = lua_resume(current.thread, current.resume_arguments);
-
-		if(state == LUA_YIELD) {
-			// this script has performed a network io operation
-			// we put it in the waiting
-			// when the network io operation has completed,
-			// a callback from the nsock library will put the
-			// script back into the running state
-			
-			waiting_scripts.push_back(current);
-			running_scripts.pop_front();
-		} else if( state == 0) {
-			// this script has finished
-			// we first check if it produced output
-			// then we release the thread and remove it from the
-			// running_scripts list
-
-			if(lua_isstring (current.thread, -1)) {
-				SCRIPT_ENGINE_TRY(process_getScriptId(current.thread, &ssr));
-				ssr.output = nse_printable
-					(lua_tostring(current.thread, -1), lua_objlen(current.thread, -1));
-				if(current.rr->type == 0) {
-					current.rr->host->scriptResults.push_back(ssr);
-				} else if(current.rr->type == 1) {
-					current.rr->port->scriptResults.push_back(ssr);
-					current.rr->host->ports.numscriptresults++;
+		while(running_scripts.begin() != running_scripts.end()){
+			current = *(running_scripts.begin());
+	
+			if (current.rr->host->timedOut(&now))
+				state = LUA_ERRRUN;
+			else
+				state = lua_resume(current.thread, current.resume_arguments);
+	
+			if(state == LUA_YIELD) {
+				// this script has performed a network io operation
+				// we put it in the waiting
+				// when the network io operation has completed,
+				// a callback from the nsock library will put the
+				// script back into the running state
+				
+				waiting_scripts.push_back(current);
+				running_scripts.pop_front();
+			} else if( state == 0) {
+				// this script has finished
+				// we first check if it produced output
+				// then we release the thread and remove it from the
+				// running_scripts list
+	
+				if(lua_isstring (current.thread, -1)) {
+					SCRIPT_ENGINE_TRY(process_getScriptId(current.thread, &ssr));
+					ssr.output = nse_printable
+						(lua_tostring(current.thread, -1), lua_objlen(current.thread, -1));
+					if(current.rr->type == 0) {
+						current.rr->host->scriptResults.push_back(ssr);
+					} else if(current.rr->type == 1) {
+						current.rr->port->scriptResults.push_back(ssr);
+						current.rr->host->ports.numscriptresults++;
+					}
+					lua_pop(current.thread, 2);
 				}
-				lua_pop(current.thread, 2);
+	
+				SCRIPT_ENGINE_TRY(process_finalize(l, current.registry_idx));
+				SCRIPT_ENGINE_TRY(lua_gc(l, LUA_GCCOLLECT, 0));
+			} else {
+				// this script returned because of an error
+				// print the failing reason if the verbose level is high enough	
+				SCRIPT_ENGINE_DEBUGGING(
+					const char* errmsg = lua_tostring(current.thread, -1);
+					log_write(LOG_STDOUT, "%s: %s\n", SCRIPT_ENGINE, errmsg);
+				)
+				SCRIPT_ENGINE_TRY(process_finalize(l, current.registry_idx));
 			}
-
-			SCRIPT_ENGINE_TRY(process_finalize(l, current.registry_idx));
-			SCRIPT_ENGINE_TRY(lua_gc(l, LUA_GCCOLLECT, 0));
-		} else {
-			// this script returned because of an error
-			// print the failing reason if the verbose level is high enough	
-			SCRIPT_ENGINE_DEBUGGING(
-				const char* errmsg = lua_tostring(current.thread, -1);
-				log_write(LOG_STDOUT, "%s: %s\n", SCRIPT_ENGINE, errmsg);
-			)
-			SCRIPT_ENGINE_TRY(process_finalize(l, current.registry_idx));
-		}
+		} // while
 	}
 
 	progress.endTask(NULL, NULL);
