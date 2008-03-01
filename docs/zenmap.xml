@@ -98,7 +98,7 @@
         <term><option>--verbose</option></term>
         <listitem>
           <para>Increase verbosity (of Zenmap, not Nmap). This option may be
-          given multiple times to get even more vebosity. Beware that verbose
+          given multiple times to get even more verbosity. Beware that verbose
           output is not shown on a terminal unless the environment variable
           <varname>ZENMAP_DEVELOPMENT</varname> is defined and true.</para>
         </listitem>
