@@ -2791,7 +2791,7 @@ support the option completely, as does UDP scan.</para>
   host IP stacks properly drop these packets, any responses received
   are likely coming from a firewall or IDS that didn't bother to
   verify the checksum.  For more details on this technique, see <ulink
-  url="http://www.phrack.org/phrack/60/p60-0x0c.txt"/></para>
+  url="http://nmap.org/p60-12.html"/></para>
         </listitem>
       </varlistentry>
 
