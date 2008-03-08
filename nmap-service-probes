@@ -6300,6 +6300,7 @@ ports 6163,61613
 match stomp m|^ERROR\nmessage:Unknown STOMP action:.+ org\.apache\.activemq\.|s p/Apache ActiveMQ/
 
 
+##############################NEXT PROBE##############################
 # memcached, text mode protocol
 Probe TCP Memcached q|stats\r\n|
 rarity 8
@@ -6313,3 +6314,12 @@ Probe TCP beast2 q|666|
 rarity 9
 ports 666,6666
 match backdoor m|^666(\d+)\xff(\d+)\xff(\d+)\xff$| p/Beast Trojan/ v/version 2/ i/**BACKDOOR**; No password; New server port: $1; New client ports: $2, $3/ o/Windows/
+
+
+##############################NEXT PROBE##############################
+Probe TCP firebird q|\0\0\0\x01\0\0\0\x13\0\0\0\x02\0\0\0\x24\0\0\0\x0bservice_mgr\0\0\0\0\x02\0\0\0\x13\x01\x08scanner \x04\x05nmap \x06\0\0\0\0\0\x08\0\0\0\x01\0\0\0\x02\0\0\0\x03\0\0\0\x02\0\0\0\x0a\0\0\0\x01\0\0\0\x02\0\0\0\x03\0\0\0\x04|
+rarity 8
+ports 3050
+
+match firebird m|^\0\0\0\x03\0\0\0\x0a\0\0\0\x01| p/Firebird RDBMS/ v/Protocol version 10/
+softmatch firebird m|^\0\0\0\x03\0\0\0.\0\0\0.|s p/Firebird RDBMS/
