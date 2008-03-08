@@ -1791,6 +1791,8 @@ match snpp m|^220 ([-.\w]+) SNPP Sendpage ([-\w_.]+) | p/Sendpage SNPP/ h/$1/ v/
 
 match sobby m|^obby_welcome:\d+\nnet6_encryption:\d+\n| p/Sobby collaborative editing/
 
+match sophos m|^IOR:[a-zA-Z0-9]{32}| p/Sophos Message Router/ i/Interroperable Object Reference Service/
+
 match sourceoffice m|^200\r\nProtocol-Version:(\d[.\d]+)\r\nMessage-ID:\d+\r\nDatabase .*\r\nContent-Length:\d+\r\n\r\n(\w:\\.*ini)\r\n\r\n| p/Sourcegear SourceOffSite/ i/Protocol $1; INI file: $2/
 match sourceoffice m|^250\r\nProtocol-Version:(\d[.\d]+)\r\nMessage-ID:\d+\r\nDatabase .*\r\nContent-Length:\d+\r\nKey Length:(\d+)\r\n\r\n.*(\w:\\.*ini)\r\n\r\n|s p/Sourcegear SourceOffSite/ i/Protocol $1; Key len: $2; INI file: $3/
 
@@ -5615,7 +5617,7 @@ match webster m/^DICTIONARY server protocol:\r\n\r\nContact name is/ p/Webster d
 Probe TCP SSLSessionReq q|\x16\x03\0\0S\x01\0\0O\x03\0?G\xd7\xf7\xba,\xee\xea\xb2`~\xf3\0\xfd\x82{\xb9\xd5\x96\xc8w\x9b\xe6\xc4\xdb<=\xdbo\xef\x10n\0\0(\0\x16\0\x13\0\x0a\0f\0\x05\0\x04\0e\0d\0c\0b\0a\0`\0\x15\0\x12\0\x09\0\x14\0\x11\0\x08\0\x06\0\x03\x01\0|
 
 rarity 3
-ports 443,444,548,636,993,1241,1311,2000,4444,5550,7210,7272,8009,9001
+ports 443,444,548,636,993,1241,1311,2000,4444,5550,7210,7272,8009,8194,9001
 fallback GetRequest
 
 # Apple Filing Protocol (AFP) over TCP on Mac OS X
@@ -5665,6 +5667,10 @@ match ssl m|^\x16\x03\0\0\*\x02\0\0&\x03.*IOS-Self-Signed-Certificate|s p/Cisco 
 match xtel m|^\x15Annuaire \xe9lectronique| p/xteld/ i/French/
 
 match tor m|^\x16\x03\0\0\*\x02\0\0&\x03\0.*T[oO][rR]1.*[\x00-\x20]([-\w_.]+) <identity>|s p/Tor node/ i/Node name: $1/
+
+# Sophos Message Router
+match ssl/sophos m|^\x16\x03\0.*Router\$([a-zA-Z0-9_-]+).*Sophos EM Certification Manager|s p/Sophos Message Router/ h/$1/
+match ssl/sophos m|^\x16\x03\0.*Sophos EM Certification Manager|s p/Sophos Message Router/
 
 
 # SMB Negotiate Protocol
