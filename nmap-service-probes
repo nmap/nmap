@@ -2563,8 +2563,6 @@ match antivir m|^\0\0\x80\0$| p/drweb anti-virus/
 match as-servermap m|^-\0\0\0\0$| p|IBM OS/400 as-servermapd| o|OS/400|
 match access-remote-pc m|^\x99\xf3\0\0\0\0\0\0\xff\xff\xff\xff$| p/Access Remote PC/ o/Windows/
 
-match backdoor m|^\r\n\r$| p/Beast Trojan/ i/**BACKDOOR**/ o/Windows/
-
 match biff m|^Message received\n$| p/NotifyMail biffd/
 match biff m|^Use of uninitialized value in transliteration \(tr///\) at /var/jchkmail/user-filter| p/Joe's j-chkmail biffd/
 match bitdefender-ctl m|^\(null\) 500 Internal Error\n\(null\) 500 Internal Error\n$| p/Bitdefender Remote Admin Console/ o/Windows/
@@ -6307,3 +6305,11 @@ Probe TCP Memcached q|stats\r\n|
 rarity 8
 ports 11211
 match memcached m|^STAT pid (\d+)\r\nSTAT uptime (\d+)\r\n.*?STAT version ([\w_.-]+)\r\n.*?STAT curr_items (\d+)\r\nSTAT total_items (\d+)\r\nSTAT bytes (\d+)\r\n|s p/memcached/ v/$3/ i/PID $1; uptime $2 seconds; curr items: $4; total items: $5; bytes cached: $6/
+
+
+##############################NEXT PROBE##############################
+# Beast Trojan v2
+Probe TCP beast2 q|666|
+rarity 9
+ports 666,6666
+match backdoor m|^666(\d+)\xff(\d+)\xff(\d+)\xff$| p/Beast Trojan/ v/version 2/ i/**BACKDOOR**; No password; New server port: $1; New client ports: $2, $3/ o/Windows/
