@@ -142,7 +142,7 @@ extern NmapOps o;
  * option 2: T, Nop, Nop, WScale (5), Nop, MSS (640)
  * option 3: SackP, T, WScale (10), Nop
  * option 4: MSS (536), SackP, T, WScale (10), Nop
- * option 5: MSS (265), SackP, Nop, Nop, T, Nop, End
+ * option 5: MSS (265), SackP, T
  * option 6: WScale (10), Nop, MSS (1460), SackP, Nop, Nop
  * option 7-11: WScale (10), Nop, MSS (265), T, SackP
  * option 12: WScale (15), Nop, MSS (265), T, SackP
