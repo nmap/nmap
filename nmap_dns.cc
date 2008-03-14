@@ -985,13 +985,8 @@ static void parse_etchosts(char *fname) {
     while (*tp == ' ' || *tp == '\t') tp++;
 
     if (sscanf(tp, "%15s %255s", ipaddrstr, hname) == 2) {
-      if (inet_pton(AF_INET, ipaddrstr, &ia)) {
-        he = new host_elem;
-        he->name = strdup(hname);
-        he->addr = (u32) ia.s_addr;
-        he->cache_hits = 0;
-        etchosts[he->addr % HASH_TABLE_SIZE].push_front(he);
-      }
+      if (inet_pton(AF_INET, ipaddrstr, &ia))
+        addto_etchosts(ia.s_addr, hname);
     }
   }
 
