@@ -25,7 +25,7 @@
 
 # This first element provides the number of points every fingerprint
 # test is worth.  Tests like TTL or Don't fragment are worth less
-# (indivudually) because there are so many of them and the values are
+# (individually) because there are so many of them and the values are
 # often correlated with each other.  Meanwhile, elements such as TS
 # (TCP timestamp) which are only used once, get more points.  Points
 # are used when there are no perfect matches to determine which OS
