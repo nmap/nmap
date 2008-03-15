@@ -124,6 +124,9 @@ o A bunch of service name canonicalization was done in the Nmap
 
 o Upgraded the shipped LibPCRE from version 7.4 to 7.6. [Kris]
 
+o Updated to latest (as of 3/15) autoconf config.sub/config.guess
+  files from http://cvs.savannah.gnu.org/viewvc/config/?root=config .
+
 o We now escape newlines, carriage returns, and tabs (\n\r\t) in XML
   output.  While those are allowed in XML attributes, they get
   normalized which can make formatting the output difficult for
