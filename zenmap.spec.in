@@ -43,7 +43,22 @@ from Umit, an Nmap GUI created as part of the Google Summer of Code.
 %setup -q -n nmap-%{version}
 
 %build
-%configure --without-openssl --with-zenmap PYTHON="%{__python}"
+# Cannot use configure macro because noarch-redhat-linux is not
+# recognized by the auto tools in the tarball.  Upgrading to the
+# latest GNU CVS config.sub/config.guess on 3/15/08 didn't fix it.  So
+# I'm using this approach, as is done by other projects, such as
+# http://mono.ximian.com/monobuild/snapshot/snapshot_packages/noarch/xsp/96614/xsp.spec
+# -Fyodor
+./configure --prefix=%{_prefix} \
+	    --libexecdir=%{_prefix}/lib \
+	    --bindir=%{_prefix}/bin \
+	    --datadir=%{_prefix}/share \
+	    --libdir=%{_prefix}/lib \
+	    --mandir=%{_prefix}/share/man \
+	    --infodir=%{_prefix}/share/info \
+	    --sysconfdir=%{_sysconfdir} \
+	    --without-openssl \
+	    --with-zenmap PYTHON="%{__python}"
 make build-zenmap DESTDIR=$RPM_BUILD_ROOT
 
 %install
