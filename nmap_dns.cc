@@ -285,6 +285,7 @@ static std::list<request *> cname_reqs;
 static int total_reqs;
 static nsock_pool dnspool=NULL;
 
+/* The DNS cache, not just for entries from /etc/hosts. */
 static std::list<host_elem *> etchosts[HASH_TABLE_SIZE];
 
 static int stat_actual, stat_ok, stat_nx, stat_sf, stat_trans, stat_dropped, stat_cname;
@@ -968,7 +969,6 @@ static void parse_etchosts(char *fname) {
   FILE *fp;
   char buf[2048], hname[256], ipaddrstr[16], *tp;
   struct in_addr ia;
-  host_elem *he;
 
   fp = fopen(fname, "r");
   if (fp == NULL) return; // silently is OK
@@ -1020,9 +1020,9 @@ bool remove_and_age(host_elem *host) {
      return true;
 }
 
-/* Add to the dns cache. If there is no space we age and 
- * remove the least frequently used entries until there 
- * is space */
+/* Add to the dns cache. If there are too many entries
+ * we age and remove the least frequently used ones to
+ * make more space. */
 static void addto_etchosts(u32 ip, const char *hname) {
   static u16 total_size = 0;
   std::list<host_elem*>::iterator it;
@@ -1036,8 +1036,10 @@ static void addto_etchosts(u32 ip, const char *hname) {
     for(i = 0; i < HASH_TABLE_SIZE; i++) {
       while((it = find_if(etchosts[i].begin(), etchosts[i].end(), remove_and_age)) != etchosts[i].end()) {
         etchosts[i].erase(it);
-        if((total_size--) < HASH_TABLE_SIZE/2)
-		break;
+        /* We don't want total_size to become out of sync with the actual number
+           of entries. */
+        assert(total_size > 0);
+        total_size--;
       }
     }
   }
