@@ -1,4 +1,4 @@
-Nmap 4.53 ( http://nmap.org )
+Nmap 4.60 ( http://nmap.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -77,7 +77,7 @@ OUTPUT:
   -oN/-oX/-oS/-oG <file>: Output scan in normal, XML, s|<rIpt kIddi3,
      and Grepable format, respectively, to the given filename.
   -oA <basename>: Output in the three major formats at once
-  -v: Increase verbosity level (use twice for more effect)
+  -v: Increase verbosity level (use twice or more for greater effect)
   -d[level]: Set or increase debugging level (Up to 9 is meaningful)
   --open: Only show open (or possibly open) ports
   --packet-trace: Show all packets sent and received

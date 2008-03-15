@@ -1,5 +1,37 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 4.60
+
+o Nmap has moved.  Everything at http://insecure.org/nmap/ can now be
+  found at http://nmap.org .  That should save your fingers from a
+  little bit of typing.  Even though transparent redirectors are in
+  place for the old URLs, please update your links and bookmarks. And
+  if you don't have a link to Nmap on your web site, now is a good
+  time to add one :).
+
+o All of your OS detection fingerprints up until March 10, 2008 have
+  now been integrated by David.  The second generation database has
+  grown from 1,085 fingerprints representing 421 operating
+  systems/devices, to 1,304 fingerprints representing 478 systems.
+  That is an increase of more than 20%.  New fingerprints were added
+  for Mac OS X Tiger, iPod Touch, the La Fonera WAP, FreeBSD 7.0,
+  Linux 2.6.24, Windows 2008, Vista, OpenBSD 4.2, and of course
+  hundreds of broadband routers, VoIP phones, printers, some crazy
+  oscilloscope, etc.  We get a ton of new fingerprint submissions, but
+  not as many corrections.  Please remember to visit
+  http://nmap.org/submit/ if Nmap gives you bad results, whether they
+  are completely wrong or just a slight mistake (like Nmap says Linux
+  2.6.20-2.6.23, but you're running 2.6.24).  Of course you need to be
+  certain you know exactly what is running on the target before you do
+  this.
+
+o All of your service fingerprints and corrections submitted until
+  January 14, 2008 have now been integrated by Doug.  As usual, he has
+  documented his adventures at http://hcsw.org/blog.pl/33 .  More than
+  a hundred signatures were added, growing the database to 4,645
+  signatures for 457 services.  Corrections are welcome for service
+  detection too -- visit http://nmap.org/submit/ if you get incorrect results.
+
 o Nmap now saves the target name (if any) specified on the command
   line, since this can differ from the reverse DNS results.  It can be
   particularly important when doing HTTP tests against virtual hosts.
@@ -15,16 +47,36 @@ o Added NSE HTTP library which allows scripts to easily fetch URLs
   HTTPAuth, robots, and showHTMLTitle NSE scripts have been updated to
   use this library. Sven Klemm wrote all of this code.
 
+o Fixed an integer overflow in the DNS caching code that caused nmap
+  to loop infinitely once it had expunging the cache of older
+  entries.  Thanks to David Moore for the report, and Eddie Bell for
+  the fix.
+
+o Fixed another integer overflow in the DNS caching code which caused
+  infinite loops. [David]
+
+o Added IPv6 host support to the RPC scan.  Attempting this before
+  (via -sV) caused a segmentation fault.  Thanks to Will Cladek for
+  the report. [Kris]
+
+o Fixed an event handling bug in NSE that could cause execution of
+  some in-progress scripts to be excessively delayed. [Marek]
+
+o A new NSE table library (tab.lua) allows scripts to deliver better
+  formatted output.  The Zone transfer script (zoneTrans.nse) has been
+  updated to use this new facility. [Eddie]
+
 o Rewrote HTTPpasswd.nse to use Sven's excellent HTTP library and to
   do some much-needed cleaning up. [Kris]
 
-o Nmap URL has changed from http://insecure.org/nmap/ to
-  http://nmap.org to save everyone some typing. All the files from the
-  former location are now available at the latter (e.g. download page
-  is now http://nmap.org/download.html). Even though transparent
-  redirectors are in place for the old URLs, please update your links
-  and bookmarks. And if you don't have a link to Nmap on your web
-  site, now is a good time to add one :).
+o Added a new MsSQL version detection probe and a bunch of match lines
+  developed by Tom Sellers.
+
+o Added a new service detection probe and signatures for the memcached
+  service [Doug]
+
+o Added new service detection probes and signatures for the Beast
+  Trojan and Firebird RDBMS. [Brandon Enright]
 
 o Fixed a crash in Zenmap which occurred when attempting to edit or
   create a new profile based on an existing one when there wasn't one
@@ -52,38 +104,48 @@ o Another Zenmap bug was fixed: the --scan-delay and --max-scan-delay
 o Added the UDP Scan (-sU) and IPProto Ping (-PO) to Zenmap's Profile
   Editor and Command Wizard. [Kris]
 
-o Added IPv6 host support to the RPC scan.  Attempting this before
-  (via -sV) caused a segmentation fault.  Thanks to Will Cladek for
-  the report. [Kris]
-
 o Reordered the UDP port selection for Traceroute: a closed port is
   now chosen before an open one.  This is because an open UDP port is
   usually due to running version detection (-sV), so a Traceroute
   probe wouldn't elicit a response. [Kris]
+
+o Add Famtech Radmin remote control software probe and signatures to
+  the Nmap version detection DB. [Tom Sellers, Fyodor]
+
+o Add "Conection: Close" header to requests from HTTP NSE scripts so
+  that they finish faster. [Sven Klemm]
+
+o Update SSLv2-support NSE script to run against more services which
+  are likely SSL. [Sven Klemm]
+
+o A bunch of service name canonicalization was done in the Nmap
+  version detection file by Brandon Enright (e.g. capitalizing D-Link
+  and Netgear consistently).
+
+o Upgraded the shipped LibPCRE from version 7.4 to 7.6. [Kris]
 
 o We now escape newlines, carriage returns, and tabs (\n\r\t) in XML
   output.  While those are allowed in XML attributes, they get
   normalized which can make formatting the output difficult for
   applications which parse Nmap XML. [Joao Medeiros, David, Fyodor]
 
-o Add Famtech Radmin remote control software probe and signatures to
-  the Nmap version detection DB. [Tom Sellers, Fyodor]
-
-o Update SSLv2-support NSE script to run against more services which
-  are likely SSL. [Sven Klemm]
+o The Zenmap man page is now installed on Unix when "make install" is
+  run.  This was supposed to work before, but didn't. [Kris]
 
 o Fixed a man page bug related to our DocBook to Nroff translation
   software producing incorrect Nroff output.  The man page no longer
   uses the ".nse" string which was being confused with the Nroff
   no-space mode command. [Fyodor]
 
-o Upgraded the shipped LibPCRE from version 7.4 to 7.6. [Kris]
-
-o The Zenmap man page is now installed on Unix when "make install" is
-  run.  This was supposed to work before, but didn't. [Kris]
+o Fixed a bug in which some NSE error messages were improperly escaped
+  so that a message including "c:\nmap" would end up with a newline
+  between "c:" and "map".
 
 o Updated IANA assignment IP list for random IP (-iR)
   generation. [Kris]
+
+o The DocBook XML source code to the Nmap Scripting Engine docs
+  (http://nmap.org/nse/) is now in SVN under docs/scripting.xml .
 
 4.53
 

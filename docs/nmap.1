@@ -102,7 +102,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .sp
 .RS 4
 .nf
-Nmap 4\.53 ( http://nmap\.org )
+Nmap 4\.60 ( http://nmap\.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\.
@@ -181,7 +181,7 @@ OUTPUT:
   \-oN/\-oX/\-oS/\-oG <file>: Output scan in normal, XML, s|<rIpt kIddi3,
      and Grepable format, respectively, to the given filename\.
   \-oA <basename>: Output in the three major formats at once
-  \-v: Increase verbosity level (use twice for more effect)
+  \-v: Increase verbosity level (use twice or more for greater effect)
   \-d[level]: Set or increase debugging level (Up to 9 is meaningful)
   \-\-open: Only show open (or possibly open) ports
   \-\-packet\-trace: Show all packets sent and received
@@ -1414,7 +1414,7 @@ Cisco\.
 \fB\-\-badsum\fR (Send packets with bogus TCP/UDP checksums)
 .RS 4
 Asks Nmap to use an invalid TCP or UDP checksum for packets sent to target hosts\. Since virtually all host IP stacks properly drop these packets, any responses received are likely coming from a firewall or IDS that didn\'t bother to verify the checksum\. For more details on this technique, see
-\fI\%http://www.phrack.org/phrack/60/p60-0x0c.txt\fR
+\fI\%http://nmap.org/p60-12.html\fR
 .RE
 .SH "OUTPUT"
 .PP
