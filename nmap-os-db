@@ -311,6 +311,7 @@ IE(DFI=N%T=40%TG=40%TOSI=Z%CD=Z%SI=S%DLI=S)
 # BeWAN 700G ADSL2+, v3.6.0C - w1.0.4
 # Linksys WAG54G V.2, Firmware Version: 1.02.14-Pluto, Linux 2.4.17_mvl21-malta-mips_fp_le #95 Fri Dec 1 16:35:11 EST 2006 mips unknown
 # Canon CLC-iR C2620
+# Cisco Security Monitoring, Analysis and Response System (MARS)
 Fingerprint Broadband router (Actiontec GT701-WG or GT724-WG; BeWAN 770G ADSL2+; D-Link 500T; Linksys WAG54G v2, WAG354G, or RTP300; Netgear DG834G, or WELL PTI-850G), or Canon imageRUNNER C2620 printer
 Class Actiontec | embedded || WAP
 Class BeWAN | embedded || WAP
@@ -1823,7 +1824,8 @@ IE(DFI=S%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Blue Coat SG200 Proxy - SGOS 4.2.2.8 release id: 26972
 # SGOS 4.2.5.1, release 29951.
-Fingerprint Blue Coat SG200 proxy server (SGOS 4.2.2.8 - 4.2.5.1)
+# Blue Coat SG200, Version: SGOS 4.2.6.1, Release id: 31079
+Fingerprint Blue Coat SG200 proxy server (SGOS 4.2.2.8 - 4.2.6.1)
 Class Blue Coat | SGOS | 4.X | web proxy
 SEQ(SP=94-9E%GCD=<7%ISR=9C-A6%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M578NW0NNT11%O3=M280NW0NNT11%O4=M5B4NW0NNT11%O5=M218NW0NNT11%O6=M109NNT11)
@@ -3150,7 +3152,8 @@ IE(DFI=S%T=FF%TG=FF%TOSI=Z%CD=S%SI=S%DLI=S)
 # 6500 Switch
 # Cisco Catalyst 4510R Switch
 # Cisco IOS 12.1E: Catalyst 6000
-Fingerprint Cisco 3750, 4510R, 6000-series, or 6500-series switch (IOS 12.1 or 12.2)
+# Cisco IOS Software, C3560 Software (C3560-ADVIPSERVICESK9-M), Version 12.2(44)SE, RELEASE SOFTWARE (fc1)
+Fingerprint Cisco 3560, 3750, 4510R, 6000-series, or 6500-series switch (IOS 12.1 or 12.2)
 Class Cisco | IOS | 12.X | switch
 SEQ(SP=FA-108%GCD=<7%ISR=100-110%TI=RD%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
@@ -3547,7 +3550,7 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Compaq Remote Insight Lights-Out Edition II
 # Cisco Wireless Access Point, AIR-AP1010-E-K9,  Software Version 4.0.206.0
-Fingerprint Compaq Remote Insight Lights-Out (iLO) Edition II remote configuration board or Cisco Aironet 1010 WAP
+Fingerprint Compaq Remote Insight Lights-Out (iLO) Edition II remote server management or Cisco Aironet 1010 WAP
 Class Compaq | embedded || remote management
 Class Cisco | embedded || WAP
 SEQ(SP=13-1D%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=98-A2%TI=I%II=I%SS=S%TS=1)
@@ -4227,10 +4230,11 @@ IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # The Gemini Project, Linux dreambox 2.6.9 #1 Thu Dec 14 02:34:06 CET 2006 ppc unknown/Dream-Multimedia-Tv
 # dreambox 2.6.9 ppc
 # Iomega StorCenter Network Hard Drive Single-Disk. I found the text "Linux-2.6.12" in the imagefile.
-# Linux HOSTNAME 2.6.19.7-1trsmp #1 SMP Mon Mar 5 11:27:12 GMT 2007 i686 i386 GNU/Linux (Trustix Secure Linux release 3.0.5 (Mirch Masala))
+# Linux 2.6.19.7-1trsmp #1 SMP Mon Mar 5 11:27:12 GMT 2007 i686 i386 GNU/Linux (Trustix Secure Linux release 3.0.5 (Mirch Masala))
 Fingerprint Linux 2.6.9 - 2.6.19
 Class Dream Multimedia | Linux | 2.6.X | media device
 Class Iomega | Linux | 2.6.X | storage-misc
+Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=BB-D5%GCD=<7%ISR=C0-D4%TI=Z%II=I%TS=A)
 OPS(O1=M5B4ST11NW1%O2=M5B4ST11NW1%O3=M5B4NNT11NW1%O4=M5B4ST11NW1%O5=M5B4ST11NW1%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -5494,7 +5498,9 @@ IE(DFI=N%T=3C%TG=3C%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # HP WP110 print server, Firmware Version: 02.00, Firmware Build Date: 2001-09-14, Boot+Version: 01.00, Boot Build Date: 2001-07-23
 # The printer is a XEROX Document Centre 405
-Fingerprint HP WP110 print server or Xerox Document Centre 405 printer
+# Cisco Micro Webserver 200, Cisco MicroWeb II, Software Version: Eclipse 1.0.1(100)
+Fingerprint Cisco Micro Webserver 200, HP WP110 print server or Xerox Document Centre 405 printer
+Class Cisco | embedded || web server
 Class HP | embedded || print server
 Class Xerox | embedded || printer
 SEQ(SP=B-15%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=97-A1%TI=I%II=I%SS=S%TS=U)
@@ -5513,6 +5519,7 @@ IE(DFI=S%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # HPColorLaserjet Printer 3550
 # HP LaserJet 1320NW (network+wireless network interface) over its wireless interface.
+# HP LaserJet 2550N Color LaserJet
 Fingerprint HP 1320nw or 3550 Color LaserJet printer
 Class HP | embedded || printer
 SEQ(SP=94-9E%GCD=<7%ISR=9B-A5%TI=I%II=I%SS=S%TS=1)
@@ -5567,7 +5574,8 @@ IE(DFI=S%T=40%TG=40%TOSI=Z%CD=S%SI=S%DLI=S)
 
 # HP Photosmart 8400   Model HPF2109W040W firmware version:QF1P133G
 # HP DeskJet 6127
-Fingerprint HP DeskJet 6127 or Photosmart 8400 printer
+# HP Officejet 7400
+Fingerprint HP DeskJet 6127, OfficeJet 7400, or Photosmart 8400 printer
 Class HP | embedded || printer
 SEQ(SP=B-15%GCD=1E848|3D090|5B8D8|7A120|98968|B71B0%ISR=9F-A9%TI=I%II=I%SS=S%TS=A)
 OPS(O1=M5B4NW0NNSNNT11%O2=M578NW0NNSNNT11%O3=M280NW0NNT11%O4=M5B4NW0NNSNNT11%O5=M218NW0NNSNNT11%O6=M109NNSNNT11)
@@ -5650,7 +5658,8 @@ U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=4210%RIPCK=Z%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # hp LaserJet 1320 series, Formatter Number: E7206LL, Service ID: 16053, Firmware Datecode: 20041024, Network Statistics Firmware Version: V.28.05
-Fingerprint HP LaserJet 1320
+# HP LaserJet 2550N Color LaserJet
+Fingerprint HP LaserJet 1320 or 2550n printer
 Class HP | embedded || printer
 SEQ(SP=94-9E%GCD=<7%ISR=9B-A5%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
@@ -6241,7 +6250,10 @@ IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # HP Procurve 2650 (firmware H.07.50)
 # Xerox Phaser 8550DT. Operating System: 4.302. PostScript: 4.8.0
 # Xerox Phaser 7400N network printer
-Fingerprint HP ProCurve 2650 switch, or Xerox Phaser 7400N or 8550DT printer
+# Cisco C1230B running vxWorks 12.01T1
+# Cisco 1200 Series AP 12.01T1 (AIR-AP-1220B-E-K9) running VxWorks 12.01A
+Fingerprint Cisco 1200-series WAP, HP ProCurve 2650 switch, or Xerox Phaser 7400N or 8550DT printer
+Class Cisco | VxWorks | 12.X | WAP
 Class HP | embedded || switch
 Class Xerox | embedded || printer
 SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=99-A3%TI=I%II=I%SS=S%TS=U)
@@ -8338,9 +8350,13 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # Linksys WAP55AG Firmware Version: 1.1(ETSI), Mar 17, 2005
 # It is a ReplayTV 5500.
 # It is a WAP51AB
-Fingerprint Netgear WPN824 WAP, Linksys WAP51AB or WAP55AG WAP, or ReplayTV 5500 DVR
+# HP/Compaq Remote Insight Lights Out Edition II running firmware v1.21
+# Proxim Wireless Networks AP-4000M, v3.6.0(1168)
+Fingerprint WAP (Linksys WAP51AB or WAP55AG, Netgear WPN824, or Proxim ORiNOCO AP-4000M), HP Remote Insight Lights-Out II remote server management, or ReplayTV 5500 DVR
+Class HP | embedded || remote management
 Class Linksys | embedded || WAP
 Class Netgear | embedded || WAP
+Class Proxim | embedded || WAP
 Class SONICblue | embedded || media device
 SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=99-A3%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
@@ -8527,6 +8543,7 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # DLink ADSL router: DSL-500T with DSL-500T.V1.00B02T02.RU.20050223 firmware
 # ADSL Modem DSL-320T
 # Linux 2.4.9-31 #1 Tue Feb 26 07:11:02 EST 2002 i686 unknown, Red Hat 7.2 (Enigma)
+# Konica Minolta C350 Copier /Scanner
 Fingerprint Linux 2.4.9 - 2.4.18 (likely embedded)
 Class Linux | Linux | 2.4.X | broadband router
 Class Linux | Linux | 2.4.X | WAP
@@ -8967,7 +8984,9 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # D-Link DNS323 NAS System, BIOS Ver.1.03, ftp://ftp.dlink.de/dns/dns-323/
 # "Speedport W 501V" by T-Com, Linux fritz.box 2.6.13.1-ohio #1 Wed Jan 9 16:29:40 CET 2008 mips unknown
 # D-Link DNS-323 NAS (Network Area Storage) firmware 1.03
-Fingerprint Linux 2.6.11 - 2.6.20 (likely embedded)
+# Linux andLinux 2.6.17-co-0.8.0 #6 PREEMPT Tue Oct 3 14:50:35 CEST 2006 i686 GNU/Linux (runs as an application under Windows)
+# Linksys/Cisco NSLU2, Linux 2.6.18-5-ixp4xx #1 Sun Dec 23 05:17:39 UTC 2007 armv5tel GNU/Linux
+Fingerprint Linux 2.6.11 - 2.6.20
 Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=B9-CF%GCD=<7%ISR=C4-D7%TI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW1%O2=M5B4ST11NW1%O3=M5B4NNT11NW1%O4=M5B4ST11NW1%O5=M5B4ST11NW1%O6=M5B4ST11)
@@ -9068,7 +9087,8 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # Linux 2.6.21-suspend2-r5 #1 PREEMPT Fri Jun 1 16:16:50 EDT 2007 i686 Pentium III (Coppermine) GenuineIntel GNU/Linux
 # Linux 2.6.22-2-k7 #1 SMP Fri Aug 31 01:02:37 UTC 2007 i686 GNU/Linux
 # Linux 2.6.23.9-grsec #1 Mon Dec 3 00:02:07 UTC 2007 i686 pentium4 i386 GNU/Linux
-Fingerprint Linux 2.6.13 - 2.6.23
+# Linux 2.6.24-4-generic #1 SMP Mon Jan 14 17:30:39 UTC 2008 i686 GNU/Linux
+Fingerprint Linux 2.6.13 - 2.6.24
 Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=AE-DD%GCD=<7%ISR=B8-DB%TI=Z%II=I%TS=8)
 OPS(O1=M5B4ST11NW1|M5B4ST11NW3|M5B4ST11NW4|M5B4ST11NW6|M5B4ST11NW7|M5B4ST11NW8%O2=M5B4ST11NW1|M5B4ST11NW3|M5B4ST11NW4|M5B4ST11NW6|M5B4ST11NW7|M5B4ST11NW8%O3=M5B4NNT11NW1|M5B4NNT11NW3|M5B4NNT11NW4|M5B4NNT11NW6|M5B4NNT11NW7|M5B4NNT11NW8%O4=M5B4ST11NW1|M5B4ST11NW3|M5B4ST11NW4|M5B4ST11NW6|M5B4ST11NW7|M5B4ST11NW8%O5=M5B4ST11NW1|M5B4ST11NW3|M5B4ST11NW4|M5B4ST11NW6|M5B4ST11NW7|M5B4ST11NW8%O6=M5B4ST11)
@@ -9792,7 +9812,8 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # Linux 2.6.17.8 SMP (x86)
 # Linux 2.6.18-1.2869.fc6 #1 SMP Wed Dec 20 14:51:34 EST 2006 x86_64 x86_64 x86_64 GNU/Linux (Fedora Core 6)
 # Linux 2.6.21-1.3194.fc7 #1 SMP Wed May 23 22:35:01 EDT 2007 i686 i686 i386 GNU/Linux
-Fingerprint Linux 2.6.17 - 2.6.21
+# Linux 2.6.22.14-72
+Fingerprint Linux 2.6.17 - 2.6.22
 Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=B0-D1%GCD=<5%ISR=C3-D8%TI=Z%II=I%TS=A)
 OPS(O1=M400CST11NW7%O2=M400CST11NW7%O3=M400CNNT11NW7%O4=M400CST11NW7%O5=M400CST11NW7%O6=M400CST11)
@@ -12132,7 +12153,9 @@ IE(DFI=S%T=80%TG=80%TOSI=S%CD=Z%SI=S%DLI=S)
 
 # These had latest windows updates until October '06
 # Microsoft Windows XP Professional SP1 (Greek)
-Fingerprint Microsoft Windows 2000 SP0/SP1/SP2 or Windows XP SP1
+# Windows XP Professional Embedded
+# windows xp professional. no service packs.
+Fingerprint Microsoft Windows 2000 SP0/SP1/SP2 or Windows XP SP0/SP1
 Class Microsoft | Windows | 2000 | general purpose
 SEQ(SP=6A-8C%GCD=<7%ISR=95-9F%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
@@ -14793,7 +14816,9 @@ U1(DF=N%T=3C%TG=3C%TOS=0%IPL=150%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=3C%TG=3C%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # MOBOTIX M10Mi-Secure, running Linux 2.2.9-rmk2-np8, running on Intel sa1110
-Fingerprint Mobotix M10Mi-Secure security camera (runs Linux 2.2.9)
+# fli4l version 2.0.7 (though I'm not 100% about the version) (Linux 2.2.22?)
+Fingerprint Linux 2.2.9
+Class Linux | Linux | 2.2.X | general purpose
 Class Mobotix | Linux | 2.2.X | webcam
 SEQ(SP=BB-D3%GCD=<7%ISR=C6-DA%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4ST11NW0%O2=M578ST11NW0%O3=M280NNT11NW0%O4=M218ST11NW0%O5=M218ST11NW0%O6=M109ST11)
@@ -14899,8 +14924,10 @@ IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # SB5101 help page says: Software Version: SB5101-2.4.1.6-SCM02-NOSH; Hardware Version: 1
 # Scientific Atlanta WebSTAR EPX2203 cable modem, v2.0.2r1152-050419epx2203-v202r1152-050419c-eu-5.bin
 # Baseline Switch 2948-SFP Plus
-Fingerprint 3Com Baseline Switch 2948-SFP Plus, or Motorola SURFboard SB5101 or Scientific Atlanta WebSTAR EPX2203 cable modem
+# FreeBSD 4.4-RELEASE FreeBSD 4.4-RELEASE #0: Tue Sep 18 11:57:08 PDT 2001 i386
+Fingerprint FreeBSD 4.4-RELEASE, 3Com Baseline Switch 2948-SFP Plus, or Motorola SURFboard SB5101 or Scientific Atlanta WebSTAR EPX2203 cable modem
 Class 3Com | embedded || switch
+Class FreeBSD | FreeBSD | 4.X | general purpose
 Class Motorola | embedded || broadband router
 Class Scientific Atlanta | embedded || broadband router
 SEQ(SP=BE-108%GCD=<7%ISR=EE-110%TI=I%II=I%SS=S%TS=7)
@@ -15369,7 +15396,8 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # NetopiaAnalog ADSL Router 3346N
 # Netopia 3397GPB  VDSL Router OS Version 7.7.1r3
-Fingerprint Netopia 3346N or 3397GPB ADSL router
+# Netopia 3347NWG, Software Release        7.6.1r6
+Fingerprint Netopia 3346N, 3347NWG, or 3397GPB ADSL router
 Class Netopia | embedded || broadband router
 SEQ(SP=F7-109%GCD=<7%ISR=FF-10F%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
@@ -18598,7 +18626,10 @@ U1(DF=N%T=FF%TG=FF%TOS=C0%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # TRENDnet TEW-431BRP 54Mbps Wireless Cable/DSL Router with Firmware Version : Version 1.1 Release 05
-Fingerprint TRENDnet TEW-431BRP wireless broadband router
+# Linksys WRT54GC (Firmware Version: v1.05.7).
+# Linksys WRT54GC with Firmware Version: v1.03.0
+Fingerprint Linksys WRT54GC or TRENDnet TEW-431BRP wireless broadband router
+Class Linksys | embedded || WAP
 Class TRENDnet | embedded || WAP
 SEQ(SP=0-1D%GCD=80|100|180|200|280|300%ISR=4D-57%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M564%O3=M5B4%O4=M5B4%O5=M204%O6=MF5)
@@ -19132,7 +19163,9 @@ U1(DF=N%T=FE%TG=FE%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=FE%TG=FE%TOSI=S%CD=S%SI=S%DLI=S)
 
 # ZyXel Prestige 623ME-T1 ADSL dual link router
-Fingerprint ZyXEL Prestige 623ME-T1 ADSL dual link router
+# Huawei SmartAX MT800u-T
+Fingerprint Huawei MT800u-T or ZyXEL Prestige 623ME-T1 ADSL router
+Class Huawei | embedded || broadband router
 Class ZyXEL | ZyNOS || broadband router
 SEQ(SP=0-31%GCD=1000|2000|3000|4000|5000|A000|14000|1E000|28000|32000|3C000|64000|C8000|12C000|190000|1F4000|258000%ISR=AB-B5%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M200%O2=M200%O3=M200%O4=M200%O5=M200%O6=M200)
@@ -22680,23 +22713,6 @@ T7(R=N)
 U1(DF=N%T=40%TG=40%TOS=C0%IPL=164%UN=0%RIPL=G%RID=CC0|8CFE|908E|9AAA|F7DB%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
-# NETGEAR Wireless ADSL Firewall Router DG834G, Firmware V4.01.28
-Fingerprint Netgear DG834G ADSL router
-Class Netgear | embedded || broadband router
-SEQ(SP=C7-D1%GCD=<7%ISR=CC-D6%TI=Z%II=I%TS=7)
-OPS(O1=NNT11|M5B4ST11NW0%O2=NNT11|M5B4ST11NW0%O3=NNT11|M5B4NNT11NW0%O4=NNT11|M5B4ST11NW0%O5=NNT11|M5B4ST11NW0%O6=NNT11|M5B4ST11)
-WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
-ECN(R=Y%DF=Y%T=40|FF%TG=40|FF%W=16D0%O=|M5B4NNSNW0%CC=N%Q=)
-T1(R=Y%DF=Y%T=40|FF%TG=40|FF%S=O%A=O|S+%F=A|AS%RD=0%Q=)
-T2(R=N)
-T3(R=N)
-T4(R=N)
-T5(R=Y%DF=Y%T=FF%TG=FF%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=N)
-T7(R=N)
-U1(DF=N%T=FF%TG=FF%TOS=C0%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=I%RUCK=G%RUL=G%RUD=G)
-IE(DFI=N%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
-
 # QNX 6.3 with ftp and telnet enabled (VMWare)
 Fingerprint QNX 6.3
 Class QNX | QNX | 6.X | general purpose
@@ -23256,4 +23272,38 @@ T5(R=Y%DF=Y%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 T6(R=Y%DF=Y%T=40%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=Y%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=40%TG=40%TOS=C0%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
+IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
+
+# Fedora 8 with kernel 2.6.23.1-42.fc8 (VMWare)
+Fingerprint Linux 2.6.23
+Class Linux | Linux | 2.6.X | general purpose
+SEQ(SP=CA-D4%GCD=<7%ISR=CD-D7%TI=Z%II=I%TS=A)
+OPS(O1=M5B4ST11NW4%O2=M5B4ST11NW4%O3=M5B4NNT11NW4%O4=M5B4ST11NW4%O5=M5B4ST11NW4%O6=M5B4ST11)
+WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
+ECN(R=Y%DF=Y%T=40%TG=40%W=16D0%O=M5B4NNSNW4%CC=N%Q=)
+T1(R=Y%DF=Y%T=40%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=N)
+T3(R=Y%DF=Y%T=40%TG=40%W=16A0%S=O%A=S+%F=AS%O=M5B4ST11NW4%RD=0%Q=)
+T4(R=Y%DF=Y%T=40%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=Y%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=Y%T=40%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
+T7(R=Y%DF=Y%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=40%TG=40%TOS=C0%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
+IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
+
+# Siemens C2-010-I ADSL2+ modem with firmware R100B01.0B_HN_20060406
+Fingerprint Siemens C2-010-I ADSL modem
+Class Siemens | embedded || broadband router
+SEQ(SP=F9-105%GCD=<7%ISR=FF-109%TI=I%II=I%SS=O|S%TS=U)
+OPS(O1=|M58C%O2=|M58C%O3=|M58C%O4=|M58C%O5=|M58C%O6=|M58C)
+WIN(W1=3E80%W2=3E80%W3=3E80%W4=3E80%W5=3E80%W6=3E80)
+ECN(R=Y%DF=N%T=40%TG=40%W=3E80%O=|M58C%CC=N%Q=)
+T1(R=Y%DF=N%T=40%TG=40%S=O%A=O|S+%F=AS|RF%RD=0%Q=)
+T2(R=Y%DF=N%T=40%TG=40%W=0%S=Z%A=S%F=ARF%O=%RD=0%Q=)
+T3(R=Y%DF=N%T=40%TG=40%W=3E80%S=O%A=O|S+%F=AS|RF%O=|M58C%RD=0%Q=)
+T4(R=Y%DF=N%T=40%TG=40%W=0%S=A%A=Z%F=RF%O=%RD=0%Q=)
+T5(R=Y%DF=N%T=40%TG=40%W=0%S=Z%A=S+%F=ARF%O=%RD=0%Q=)
+T6(R=Y%DF=N%T=40%TG=40%W=0%S=A%A=Z%F=RF%O=%RD=0%Q=)
+T7(R=Y%DF=N%T=40%TG=40%W=0%S=Z%A=S%F=ARF%O=%RD=0%Q=)
+U1(R=N)
 IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
