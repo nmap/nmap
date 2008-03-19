@@ -250,8 +250,7 @@ match ftp m|^220 ([-.\w]+) FTP server \(FirstClass v(\d[-.\w]+)\) ready\.\r\n| p
 match ftp m|^220 ([-.\w]+) FTP server \(Compaq Tru64 UNIX Version (\d[-.\w]+)\) ready\.\r\n| p/Compaq Tru64 ftp server/ h/$1/ v/$2/ o/Tru64 UNIX/
 match ftp m|^220 AXIS ([-.\w]+) FTP Network Print Server V(\d[-.\w]+) [A-Z][a-z]| p/Axis network print server ftpd/ v/$2/ i/Model $1/ d/print server/
 match ftp m|^220 AXIS ([\d\w]+)V(\d\S+) (.*?) ready\.\n| p/AXIS $1 Webcam/ v/$2/ i/$3/ d/webcam/
-match ftp m|^220 Axis (\d+) Network Camera (\d\S+) (.*?) ready\.\n| p/Axis $1 Webcam/ v/$2/ i/$3/ d/webcam/
-match ftp m|^220 AXIS (\w+) Network Camera (\d\S+) \(.*\) ready\.\r\n| p/Axis $1 Webcam/ v/$2/ d/webcam/
+match ftp m|^220 Axis ([\w\s]+) Network Camera( version)? (\d\S+) \((.*)\) ready\.\r\n|i p/Axis $1 Network Camera/ v/$3/ i/$4/ d/webcam/
 match ftp m|^220 AXIS ([+\d]+) Video Server ?(\d\S+) (.*?) ready\.| p/AXIS $1 Video Server/ v/$2/ i/$3/
 match ftp m|^220 AXIS (\w+) Video Server (\d\S+) \(.*\) ready\.\r\n| p/AXIS $1 Video Server/ v/$2/
 match ftp m|^220-Cerberus FTP Server Personal Edition\r\n220-UNREGISTERED\r\n| p/Cerberus FTP Server/ i/Personal Edition; Unregistered/ o/Windows/
@@ -392,7 +391,6 @@ match ftp m|^220 ([-\w_.]+) FTP Server \(Oracle XML DB/Oracle9i Enterprise Editi
 match ftp m|^220 ([-\w_.]+) FTP Server \(Oracle XML DB/Oracle Database 10g Enterprise Edition Release ([\d.]+) - Production\) ready\.\r\n| p/Oracle 10g Enterprise XML DB ftpd/ v/$2/ h/$1/
 match ftp m|^220 ([-\w_.]+) FTP Server \(Oracle XML DB/Personal Oracle9i Release ([\d.]+) - Production\) ready\.\r\n| p/Personal Oracle XML DB ftpd/ v/$1/ h/$1/
 match ftp m|^220 ([-\w_.]+) PacketShaper FTP server ready\.\r\n| p/PacketShaper ftpd/ h/$1/ o/Windows/
-match ftp m|^220 Axis 2100 Network Camera ([\d.]+) .* ready\.\r\n| p/Axis 2100 Network Camera ftpd/ v/$1/ d/webcam/
 match ftp m|^220 AXIS 205 version ([\d.]+) \(.*\) ready\.\r\n| p/AXIS 205 Network Video ftpd/ v/$1/ d/webcam/
 match ftp m|^220 AXIS 250S MPEG-2 Video Server ([\d.]+) \([^)]+\) ready\.\r\n| p/AXIS 250S Network Video ftpd/ v/$1/ d/webcam/
 match ftp m|^220 AXIS 240Q Video Server ([\d.]+) \([^)]+\) ready\.\r\n| p/AXIS 240Q Video Server ftpd/ v/$1/ d/media device/
