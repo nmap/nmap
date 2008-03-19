@@ -2321,7 +2321,7 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\r\n\nLantronix (SCS\d+) Ver
 match telnet m|^\r\nMC2E Control Console\r\n| p/Crestron MC2E telnetd/ d/media device/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\n\r\nPassword :| p/Cisco 7940 VoIP Phone telnetd/ d/VoIP phone/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\(none\) login: | p/Tandberg MPS 800 telnetd/ d/media device/
-match telnet m|^\xff\xfb\x03\xff\xfd\x03\xff\xfb\x01Welcome to ([-\w\s.]+)\r\nTANDBERG Codec Release ([\w.]+)*| p/Tandberg MXP Video Conference appliance telnetd/ d/media device/ i/Site: $1/ v/Tandberg codec: $2/
+match telnet m|^\xff\xfb\x03\xff\xfd\x03\xff\xfb\x01Welcome to ([-\w\s.]+)\r\nTANDBERG Codec Release ([\w.]+)| p/Tandberg MXP Video Conference appliance telnetd/ d/media device/ i/Site: $1/ v/Tandberg codec: $2/
 match telnet m|^\xff\xfb\x01\xff\xfb\x01\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\n\*+\r\n\* Copyright \(c\) 1998-2006 Huawei Technologies Co\., Ltd\. All rights reserved \*\r\n\*| p/Huawei Quidway s8500 switch telnetd/ d/switch/
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\r\nEnter password: | p/Alteon Networks ACEDirector switch telnetd/ d/switch/
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\n\r +\*+\n\r +Welcome to P([-\w_.+]+) \n\r +\*+\n\r\n\rZyXEL Inc\., Software Release ([\w.()]+)\n\r| p/ZyXEL Prestige $1 aDSL modem telnetd/ v/$2/ d/broadband router/ 
