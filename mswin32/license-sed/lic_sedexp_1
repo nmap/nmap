@@ -1,0 +1,32 @@
+# remove horizontal asterisks
+s@\*\*@@g
+
+# preserve double hyphens between words in GNU GPL
+s@\([^\S\-]\)\-\-\([^\S\-]\)@\1SDFGHdbldash\2@g
+
+# remove horizontal hyphens
+s@\-\-@@g
+
+# reintroduce double hyphens
+s@SDFGHdbldash@--@g
+
+# remove trailing asterisk
+s@\s*\*\s*$@@g
+
+# remove leading asterisk
+s@^\s*\*\s*@@g
+
+# remove lonely slash
+s@^/$@@g
+
+# remove leading whitespace
+s@^\s\+@@g
+
+# preserve bullets
+s@^o\s@oSDFGHbullet@g
+
+# preserve sentence spacing
+s@\.\s\s\(\S\)@.SDFGHJdblspace\1@g
+
+# remove first line
+1d

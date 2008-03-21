@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Reformat Nmap COPYING file (e.g. remove C comment markers, reduce
+  line length) during Nmap windows build so that it looks much better
+  when presented by the Windows executable (NSIS) installer.  Thanks
+  to Jah for the patch (which was modified slightly by Fyodor).
+
 Nmap 4.60
 
 o Nmap has moved.  Everything at http://insecure.org/nmap/ can now be

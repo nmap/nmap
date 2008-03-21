@@ -1,0 +1,8 @@
+# read entire input and replace all newlines with a space
+
+: more
+$!N
+t enough
+$!b more
+: enough
+s@\n@ @g
