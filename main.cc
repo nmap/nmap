@@ -99,6 +99,8 @@
 
 /* $Id$ */
 
+#include <signal.h>
+
 #include "nmap.h"
 #include "NmapOps.h"
 #include "utils.h"
