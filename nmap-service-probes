@@ -42,6 +42,8 @@ Probe TCP NULL q||
 totalwaitms 6000
 match acap m|^\* ACAP \(IMPLEMENTATION \"CommuniGate Pro ACAP (\d[-.\w]+)\"\) | p/CommuniGate Pro ACAP server/ i/for mail client preference sharing/ v/$1/
 match activemq m|^\0\0\0\xae\x01ActiveMQ\0\0\0| p/Apache ActiveMQ/
+# Ad-Aware SE Enterprise Edition 2005/Ad-Axis Client 1.0
+match adaware m|^IceP\x01\0\x01\0\x03\0\x0e\0\0\0| p/Lavasoft Ad-Aware SE Enterprise/
 # AMANDA index server 2.4.2p2 on Linux 2.4
 match amanda m|^220 ([-.\w]+) AMANDA index server \((\d[-.\w ]+)\) ready\.\r\n| p/Amanda backup system index server/ v/$2/ h/$1/ o/Unix/
 match amanda m|^501 Could not read config file [^!\r\n]+!\r\n220 amdx2 AMANDA index server \(([-\w_.]+)\) ready\.\r\n| p/Amanda backup system index server/ v/$1/ i/Config file broken/
@@ -87,6 +89,13 @@ match bittorent m|^\x13BitTorrent protocol\0\0\0\0\0\0\0\0| p/Bittorrent P2P cli
 match softwarepatrol m|^\0\0\0\x17i\x02\x03..\0\x05\x02\0\x04\x02\x04\x03..\0\x03\x04\0\0\0|s p|BMC/HP Software Patrol Agent|
 match scmbug m|^SCMBUG-SERVER RELEASE_([-\w_.]+) \d+\n| p/Scmbug bugtracker/ v/$1/
 
+# Tolis BRU (Backup and Restore Utility)
+match bru m|^0x[0-9a-fA-F]{32}L| p/Tolis BRU/ i/Backup and Restore Utility/
+
+# Bruker AXS X-ray machines (how cool is that!?!?) (Brandon)
+match bruker-axs m|^\[ANGLESTATUS.*\[XYZSTATUS.*\[ZOOMSTATUS.*\[INSTRUMENTSTATUS.*XRAYSON=1|s p/Bruker AXS X-ray controller status/ i/X-rays: On/ d/X-ray machine/
+match bruker-axs m|^\[ANGLESTATUS.*\[XYZSTATUS.*\[ZOOMSTATUS.*\[INSTRUMENTSTATUS.*XRAYSON=0|s p/Bruker AXS X-ray controller status/ i/X-rays: Off/ d/X-ray machine/
+
 match buildservice m|^200 HELLO - BuildForge Agent v([\d.]+)\n| p/BuildForge Agent/ v/$1/
 match buildservice m|^\$\0\0\0\$\0\0\x000RAR\0 \0\0.\xe2\x02\0\xc4G\x0f\0\0\0\0\0\0\0\0\0\0\0\0\0|s p/Xoreax IncrediBuild/ o/Windows/
 match bzfs m|BZFS\d{4}\0| p/BZFlag game server/
@@ -118,6 +127,9 @@ match conference m|^Conference, V([\d.]+)\r\n$| p/Forum Communcations conference
 match complex-link m|^\x06\x07\xd0\0\x01\0\0\0\x01\0\x02\x07\xd0\0\x01\0\0\x01\x0f\x01\xf4\0\0\0\0HP +LTO ULTRIUM| p/HP LTO Ultrium data port/ d/storage-misc/
 # CompTek AquaGateKeeper (Telephony package) http://aqua.comptek.ru
 match H.323/Q.931 m|^\x03\0\0.*@|s p/CompTek AquaGateKeeper/
+
+# Commvault Backup Server (CommVault Galaxy(R) Data Protection)
+match commvault m/^\0\0\0\t\0\0\0\|\0\0\0/ p/CommVault Galaxy data backup/
 
 match cvspserver m|^no repository configured in /| p/CVS pserver/ i/broken/
 match cvspserver m|^/usr/sbin/cvs-pserver: line \d+: .*cvs: No such file or directory\n| p/CVS pserver/ i/broken/
@@ -1103,6 +1115,8 @@ match pcanywheredata m/^\0X\x08\0\}\x08\r\n\0\.\x08.*\.\.\.\r\n/s p/PCAnywhere/ 
 match pbmasterd m|^pbmasterd(\d[-.\w]+)@[-.+\w]+: | p/Symark Power Broker pbmasterd/ v/$1/ i/privilege separation software/
 match pblocald m|^pblocald(\d[-.\w]+)@[-.+\w]+: | p/Symark Power Broker pblocald/ v/$1/ i/privilege separation software/
 match p4d m|^..\0\0\0xfiles\0\x01\0\0\x005\0server\0\x01\0\0\x003\0server2\0\x02\0\0\x00..\0|s p/Perforce configuration daemon/
+# Pharos Notify 7.1
+match pharos m/^PSCOM(\xb6|\$)\0\0.*AUTHENTICATE/s p/Pharos Notify/ i/printing client/
 match poweroff m|^201 Welcome to Poweroff ([\d.]+) created by Jorgen Bosman\r\n| p/Poweroffd/ v/$1/ o/Windows/
 
 match prelude-manager m|^\x01\x04\0\0\0\0\0\rD| p/Prelude IDS manager/
@@ -2511,7 +2525,7 @@ match weather m|^TrueWeather\r\n\r\n>| p/TrueWeather Desktop Weather Authority s
 # http://www.3w.net/lan/faq.html
 match websense-eim m|^\x96\xfeS\xab$| p/Websense EIM/
 
-match winshell m/^Microsoft Windows ((2000)|(XP)|(NT 4\.0)) \[Version ([\d.]+)\]\r\n\(C\) Copyright 1985-20\d\d Microsoft Corp\.\r\n\r\n/ p/Microsoft Windows $1 $5 cmd.exe/ o/Windows/
+match winshell m/^Microsoft Windows ((2000)|(XP)|(NT 4\.0)) \[Version ([\d.]+)\]\r\n\(C\) Copyright 1985-20\d\d Microsoft Corp\.\r\n\r\n/ p/Microsoft Windows $1 $5 cmd.exe/ o/Windows/ i/**BACKDOOR**/
 
 # CcXstream Media Server 1.0.15 on Linux - Uses XBMSP (X-Box Media Streaming Protocol)
 match xbmsp m|^XBMSP-1\.0 1\.0 CcXstream Media Server (\d[-.\w]+)\n| p/CcXstream Media Server/ v/$1/
@@ -2588,7 +2602,7 @@ match domain m|^\x80\xf0\x80\x12\0\x01\0\0\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAA
 ##############################NEXT PROBE##############################
 Probe TCP GenericLines q|\r\n\r\n|
 rarity 1
-ports 21,23,35,43,79,98,110,113,119,199,214,264,449,505,510,540,587,616,628,666,731,782,1000,1010,1040-1043,1080,1212,1220,1248,1302,1400,1432,1467,1501,1505,1666,2010,2024,2600,3000,3005,3128,3310,3333,3940,5000,5400,5432,5555,5570,6112,6667-6670,7144,7145,7200,7780,8000,8138,9000-9003,9801,11371,11965,13720,15000,19150,26214,26470,31416,30444,34012,56667
+ports 21,23,35,43,79,98,110,113,119,199,214,264,449,505,510,540,587,616,628,666,731,782,1000,1010,1040-1043,1080,1212,1220,1248,1302,1400,1432,1467,1501,1505,1666,1687-1688,2010,2024,2600,3000,3005,3128,3310,3333,3940,5000,5400,5432,5555,5570,6112,6667-6670,7144,7145,7200,7780,8000,8138,9000-9003,9801,11371,11965,13720,15000-15002,19150,26214,26470,31416,30444,34012,56667
 
 match abc m|^Feedback\nError=You need unique ID to command ABC!| p/ABC Torrent http interface/
 match antivir m|^\0\0\x80\0$| p/drweb anti-virus/
@@ -2625,6 +2639,10 @@ match clam m|^UNKNOWN COMMAND\n$| p/Clam AV/
 match cmae m|^_err=refused%20by%20workers\r\n$| p/Cloudmark cmae_server antispam/
 match conserver m|^ok\r\nunknown command\r\nunknown command\r\n$| p/conserver serial console daemon/
 match datamaxdb m|^X01\r\nX01\r\n$| p/MailMax DataMaxDB/ o/Windows/
+
+# HP Digital Sender Service (dss)
+match hpdss m|^(53 client not logged in\.\r\n)+$| p/HP Digital Sender client/
+
 match dusk m|^\x03Not a valid name\. This may because you left it blank or used invalid symbols\. Please try again\.\n| p/Dusk Java-based game/
 # I think this type of eggdrop banner is only used when customized or such.
 match eggdrop m|^\r\nNickname\.\r\nSorry, that nickname format is invalid\.\r\n$| p/Eggdrop irc bot console/
@@ -2813,6 +2831,11 @@ match netsaint m|^ERROR: Unknown request number\.| p/NC_Net nagios server/
 match nsclient m|^ERROR:Wrong password$| p/Netsaint Windows Client/
 
 match omniback m|^HP OpenView OmniBack II ([-.\w]+): INET, | p/HP OpenView OmniBack/ v/$1/
+
+# torque, Tera-scale Open-source Resource and QUEue manager (PBS)
+# http://supercluster.org/torque
+# maui, http://supercluster.org/maui
+match pbs-maui m|^\+2\+15\+15056\+\d+\+\d+| p|PBS/Maui Roll| i/Rocks Cluster/ d/cluster/
 
 match peercast m|^OK2\r\nicy-caps:\d+\r\n\r\nOK\r\n$| p/Peercast/
 # Mercury/32 3.32 PH Server module on Windows XP
@@ -4529,6 +4552,12 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nWWW-Authenticate: Basic realm=\"CANOPY ([-\
 match http m|^HTTP/1\.0 200 Document follows\nMIME-Version: 1\.0\nServer: Java Cell Server\n.*<title>dCache service</title>|s p/dCache httpd/ i/Distributed Storage Node/ d/storage-misc/
 match http m|^HTTP/1\.0 200 OK\r\nDate:.*\r\nServer: HighPoint Raidman WebServer/([-.\w\d]+)\r\nAccept-Ranges: bytes\r\n| p/HighPoint Raidman web config http/ v/$1/ d/storage-misc/
 match http m|^HTTP/1\.1 404 Not Found\r\nconnection: close\r\ncontent-type: text/html\r\ndate: .*\r\nserver: Ruckus/([.\d]+)\r\n\r\n| p/Ruckus Media Player/ v/$1/ o/Windows/
+#Novell Groupwise HTTP services
+match http m|^HTTP/1\.0 \d\d\d .*\r\n(?:Date: .*\r\n)?Server: GroupWise MTA ([-_.\d\w\(\) ]+)\r\n| p/Novell GroupWise MTA httpd/ v/$1/ o/Unix/
+match http m|^HTTP/1\.0 \d\d\d .*\r\n(?:Date: .*\r\n)?Server: GroupWise POA ([-_.\d\w\(\) ]+)\r\n| p/Novell GroupWise POA httpd/ v/$1/ i/Post Office Agent/ o/Unix/
+match http m|^HTTP/1\.0 \d\d\d .*\r\n(?:Date: .*\r\n)?Server: GroupWise GWIA ([-_.\d\w\(\) ]+)\r\n| p/Novell GroupWise GWIA httpd/ v/$1/ i/GroupWise Internet Agent/ o/Unix/
+match http m|^HTTP/1\.0 \d\d\d .*\r\n(?:Date: .*\r\n)?Server: Messenger-MA ([-_.\d\w\(\) ]+)\r\n| p/Novell Messenger httpd/ v/$1/ i/Messenger Agent/ o/Unix/
+match http m|^HTTP/1\.0 200 .*\r\nDate: .*\r\nContent-Length: .*\r\nContent-Type: .*\r\n\r\n<html>\r\n<head>\r\n<title>Novell Messenger Download</title>| p/Novell Messenger download httpd/ o/Unix/
 
 #(insert http)
 
@@ -4973,7 +5002,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\n.*Server: Microsoft-IIS/([\d.]+)\r\n|s p/Mi
 match http m|^HTTP/1\.1 503 Service Unavailable\r\nContent-Type: text/html\r\nDate: .*\r\nConnection: close\r\nContent-Length: 28\r\n\r\n<h1>Service Unavailable</h1>| p/Microsoft IIS httpd/ o/Windows/
 
 # A whole bunch of these.. All on win32
-match http m|^HTTP/1\.0 510 Not Extended\r\nDate: .*\r\nServer: CompaqHTTPServer/([\d.]+)\r\n| p/Compaq Diagnostis httpd/ i/CompaqHTTPServer $1/ o/Windows/
+match http m|^HTTP/1\.0 510 Not Extended\r\nDate: .*\r\nServer: CompaqHTTPServer/([\d.]+)\r\n| p/Compaq Diagnostics httpd/ i/CompaqHTTPServer $1/
 # HP Linux System Management, PSP 7.30 on Linux 2.4
 match http m|^HTTP/1\.1 302 Found\r\nDate: .*\r\nServer: CompaqHTTPServer/([\d.]+) HP System Management Homepage/([\d.]+)\r\n| p/HP Proliant System Management/ v/$2/ i/CompaqHTTPServer $1/
 match http m|^HTTP/1\.0 400 Ungueltige Anfrage\r\nServer: Web Sharing\r\n| p/Mac OS Personal Web Sharing/ i/German/ o/Mac OS/
@@ -5684,6 +5713,8 @@ match ssl m|^\x16\x03\0..\x02\0\0F\x03\0|s p/Microsoft IIS SSL/ o/Windows/
 # Novell Netware 6 Enterprise Web server 5.1 https
 # Novell Netware Ldap over SSL or enterprise web server 5.1 over SSL
 match ssl m|^\x16\x03\0\0:\x02\0\x006\x03\0| p/Novell Netware SSL/ o/NetWare/
+# Novell Groupwise
+match ssl m|^\x16\x03\0\0\*\x02\0\0&\x03\0|s p/Novell SSL/ o/Unix/
 # Cisco IDS 4.1 Appliance
 match ssl m|^\x16\x03\0\0\*\x02\0\0&\x03\0\xd10:\xbd\\\x8e\xe3\x15\x1c\x0fZ\xe4\x04\x87\x07\xc0\x82\xa9\xd4\x0e\x9c1LXk\xd1\xd2\x0b\x1a\xc6/p\0\0\n\0\x16\x03\0\x026\x0b\0\x022\0| p/Cisco IDS SSL/ d/firewall/
 # Nessus server sometimes gives this answer
@@ -5814,7 +5845,7 @@ match ftp m|^230 FTP Server Ready\r\n504 Comand length not supported\.\r\n| p/HP
 ##############################NEXT PROBE##############################
 Probe TCP X11Probe q|\x6C\0\x0B\0\0\0\0\0\0\0\0\0|
 rarity 4
-ports 80,443,497,1550,5302,6000-6020,7000,7100,7101,8000
+ports 80,443,497,1550,5302,6000-6020,7000,7100,7101,7777,8000
 # retroclient 6.5.108 on Linux
 match dantzretrospect m|^\0\xca\0\0\0\0\0\x04\0\0\0\0\0\0\x02\($| p/Dantz Retrospect backup client/
 match font-service m|^\0\0\x02\0\0\0\0\0\0\0\0\0\x06\0\0\0\0@\x0c\0p\x17\0\0X Consortium\x01\n\x01\0\x05\0\0\0....\0\0..\0\0\0\0$|s p/Sun Solaris fs.auto/ o/Solaris/
@@ -5825,6 +5856,9 @@ match font-service m|^\0\0\x02\0\0\0\0\0\0\0\0\0\x07\0\0\0\0 \x10\0....X\.Org Fo
 match font-service m|^\0\0\x02\0\0\0\0\0\0\0\0\0\x07\0\0\0\0.......The X\.Org Group|s p/X.Org X Font Server/ o/Unix/
 match font-service m|^\0\0\x02\0\0\0\0\0\0\0\0\0\x04\0\0\0\0.......HD\0@|s p/X Font Server for TrueType Fonts/ o/Unix/
 match networkaudio m|^\0\x19\x02\0\x02\0\x07\0Protocol version mismatch\0| p|Network Audio System|
+
+# ichat-proxy; only two bytes might be too generic (Brandon)
+match ichat-proxy m|^\x05\xff$| p/Apple iChat Server file transfer proxy/ o/Mac OS X/
 
 match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0.*Sun Microsystems, Inc\.|s p/XSun Solaris X11 server/
 match X11 m|^\0\x2D\x0B\0\0\0\x0C\0| i/access denied/
@@ -6056,12 +6090,15 @@ match trillian m|^.\0\x01.....\0([^\0]+)\0|s p/Trillian MSN Module/ i/Name $1/ o
 ##############################NEXT PROBE##############################
 Probe TCP NCP q|\x44\x6d\x64\x54\0\0\0\x17\0\0\0\x01\0\0\0\0\x11\x11\0\xff\x01\xff\x13|
 rarity 6
-ports 524,2000,3000-3006,6802
+ports 524,2000,3000-3006,3031,6802
 # Netware 5 and 6
 # NCP "OK" reply
 match ncp m|^\x74\x4e\x63\x50\0\0\0\x10\x33\x33| p/Novell Netware NCP/ o/NetWare/
 match srun m|^X\0\0\0$| p/Caucho Resin JSP Engine srun/
 match progress m|^\0\0\0\x01\0\x17\0\x14\0\x06\0\0\0.\0\0\0\0\0\0|s p/Progress Database/
+
+# Apple Remote Events echos a truncated version of the probe back
+match appleevents m|^DmdT\0\0\0\x17\0\0\0\x01$| p/Apple Remote Events/ o/Mac OS X/
 
 ##############################NEXT PROBE##############################
 Probe TCP NotesRPC q|\x3A\x00\x00\x00\x2F\x00\x00\x00\x02\x00\x00\x40\x02\x0F\x00\x01\x00\x3D\x05\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x2F\x00\x00\x00\x00\x00\x00\x00\x00\x00\x40\x1F\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00|
