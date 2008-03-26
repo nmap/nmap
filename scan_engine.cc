@@ -4787,12 +4787,14 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
        avgdone /= USI->gstats->numtargets;
               
        USI->SPM->printStats(avgdone, NULL); // This prints something like SYN Stealth Scan Timing: About 1.14% done; ETC: 15:01 (0:43:23 remaining);
-       /* Don't update when getting the current rates, otherwise we can get
-          anomalies (rates are too low) from having just done a potentially long
-          waitForResponses without sending any packets. */
-       log_write(LOG_STDOUT, "Current sending rates: %.2f packets / s, %.2f bytes / s.\n",
-          USI->send_rate_meter.getCurrentPacketRate(&USI->now, false),
-          USI->send_rate_meter.getCurrentByteRate(&USI->now, false));
+       if (o.debugging) {
+         /* Don't update when getting the current rates, otherwise we can get
+            anomalies (rates are too low) from having just done a potentially
+            long waitForResponses without sending any packets. */
+         log_write(LOG_STDOUT, "Current sending rates: %.2f packets / s, %.2f bytes / s.\n",
+            USI->send_rate_meter.getCurrentPacketRate(&USI->now, false),
+            USI->send_rate_meter.getCurrentByteRate(&USI->now, false));
+       }
        
        log_flush(LOG_STDOUT);
 
@@ -4819,6 +4821,8 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
 		   USI->gstats->num_hosts_timedout, 
 		   (USI->gstats->num_hosts_timedout == 1)? "host" : "hosts");
     USI->SPM->endTask(NULL, additional_info);
+  }
+  if (o.debugging) {
     log_write(LOG_STDOUT, "Overall sending rates: %.2f packets / s, %.2f bytes / s.\n",
       USI->send_rate_meter.getOverallPacketRate(),
       USI->send_rate_meter.getOverallByteRate());
