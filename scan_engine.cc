@@ -4915,7 +4915,6 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
   struct portinfo *scan = NULL,  *current, *next;
   struct portinfolist pil;
   struct timeval now;
-  struct connectsockinfo csi;
   struct rpcscaninfo rsi;
   unsigned long j;
   struct serviceDeductions sd;
@@ -4948,11 +4947,6 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
 
   memset(&pil, 0, sizeof(pil));
 
-  FD_ZERO(&csi.fds_read);
-  FD_ZERO(&csi.fds_write);
-  FD_ZERO(&csi.fds_except);
-  csi.maxsd = 0;
-
   if (o.max_parallelism) {
     ss.max_width = o.max_parallelism;
   } else {
@@ -4965,8 +4959,6 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
 
   ss.initial_packet_width = box(ss.min_width, ss.max_width, ss.initial_packet_width);
   ss.numqueries_ideal = ss.initial_packet_width;
-
-  memset(csi.socklookup, 0, sizeof(csi.socklookup));
 
   get_rpc_procs(&(rsi.rpc_progs), &(rsi.rpc_number));
   scan = (struct portinfo *) safe_malloc(rsi.rpc_number * sizeof(struct portinfo));

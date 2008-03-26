@@ -135,16 +135,6 @@ struct udpprobeinfo {
   struct in_addr target;
 };
 
-struct connectsockinfo {
-  fd_set fds_read;
-  fd_set fds_write;
-  fd_set fds_except;
-  struct portinfo *socklookup[2048]; /* index socket descriptor -> scan[] 
-					index.  No OS better give us
-					an SD > 2047!@#$ */
-  int maxsd;
-};
-
 /* The runtime statistics used to decide how fast to proced and how
    many ports we can try at once */
 struct scanstats {
