@@ -238,6 +238,156 @@ void enforce_scan_delay(struct timeval *tv) {
   return;    
 }
 
+/* Initialize the constant CURRENT_RATE_HISTORY that defines how far back we
+   look when calculating the current rates. */
+RateMeter::RateMeter() : CURRENT_RATE_HISTORY(5.0) {
+  start_tv.tv_sec = 0;
+  start_tv.tv_usec = 0;
+  stop_tv.tv_sec = 0;
+  stop_tv.tv_usec = 0;
+  last_update_tv.tv_sec = 0;
+  last_update_tv.tv_usec = 0;
+  num_packets = 0;
+  num_bytes = 0;
+  current_packet_rate = 0.0;
+  current_byte_rate = 0.0;
+  assert(!isSet(&start_tv));
+  assert(!isSet(&stop_tv));
+}
+
+void RateMeter::start(const struct timeval *now) {
+  assert(!isSet(&start_tv));
+  assert(!isSet(&stop_tv));
+  if (now == NULL)
+    gettimeofday(&start_tv, NULL);
+  else
+    start_tv = *now;
+}
+
+void RateMeter::stop(const struct timeval *now) {
+  assert(isSet(&start_tv));
+  assert(!isSet(&stop_tv));
+  if (now == NULL)
+    gettimeofday(&stop_tv, NULL);
+  else
+    stop_tv = *now;
+}
+
+/* Record a packet of length len. If now is not NULL, use it as the time the
+   packet was received rather than calling gettimeofday. */
+void RateMeter::record(u32 len, const struct timeval *now) {
+  update(1, len, now);
+}
+
+double RateMeter::getOverallPacketRate(const struct timeval *now) const {
+  return num_packets / elapsedTime(now);
+}
+
+/* Get the "current" packet rate (actually a moving average of the last few
+   seconds). If update is true (its default value), lower the rate to account
+   for the time since the last packet was received. */
+double RateMeter::getCurrentPacketRate(const struct timeval *now, bool update) {
+  if (update)
+    this->update(0, 0, now);
+
+  return current_packet_rate;
+}
+
+double RateMeter::getOverallByteRate(const struct timeval *now) const {
+  return num_bytes / elapsedTime(now);
+}
+
+/* Get the "current" byte rate (actually a moving average of the last few
+   seconds). If update is true (its default value), lower the rate to account
+   for the time since the last bytes were received. */
+double RateMeter::getCurrentByteRate(const struct timeval *now, bool update) {
+  if (update)
+    this->update(0, 0, now);
+
+  return current_byte_rate;
+}
+
+/* Update the rates to include packets additional packets and bytes additional
+   bytes. If now is not NULL, use it as the time the packets and bytes were
+   received rather than calling gettimeofday. */
+void RateMeter::update(u32 packets, u32 bytes, const struct timeval *now) {
+  struct timeval tv;
+  double diff;
+  double d;
+  double count;
+
+  assert(isSet(&start_tv));
+  assert(!isSet(&stop_tv));
+
+  /* Update the overall counters. */
+  num_packets += packets;
+  num_bytes += bytes;
+
+  if (now == NULL) {
+    gettimeofday(&tv, NULL);
+    now = &tv;
+  }
+  if (!isSet(&last_update_tv))
+    last_update_tv = start_tv;
+
+  /* Calculate approximate moving averages of how many packets and bytes were
+     recorded in the last CURRENT_RATE_HISTORY seconds. These averages are what
+     are returned as the "current" rates. */
+  /* How long since the last update? */
+  diff = TIMEVAL_SUBTRACT(*now, last_update_tv) / 1000000.0;
+  /* Look back CURRENT_RATE_HISTORY seconds, or to when the last sample was
+     recorded, whichever is longer, but don't look back past the start. */
+  d = MAX(CURRENT_RATE_HISTORY, diff);
+  d = MIN(d, TIMEVAL_SUBTRACT(*now, start_tv) / 1000000.0);
+  assert(d >= 0);
+  /* If we get packets in the very same instant that the timer is started,
+     there's no way to calculate meaningful rates. Ignore it. */
+  if (d == 0.0)
+    return;
+  /* To calculate the approximate average of the packet rate over the last d
+     seconds, we assume that the rate was constant over that interval. We
+     calculate how many packets would have been received in that interval,
+     ignoring the first diff seconds' worth, (d - diff) * current_packet_rate.
+     Then we add how many packets were received in the most recent diff seconds.
+     Divide by the width of the interval to get the average. */
+  count = (d - diff) * current_packet_rate + packets;
+  current_packet_rate = count / d;
+  assert(current_packet_rate >= 0.0);
+  /* Likewise with the byte rate. */
+  count = (d - diff) * current_byte_rate + bytes;
+  current_byte_rate = count / d;
+  assert(current_byte_rate >= 0.0);
+
+  last_update_tv = *now;
+}
+
+/* Get the number of seconds the meter has been running: if it has been stopped,
+   the amount of time between start and stop, or if it is still running, the
+   amount of time between start and now. */
+double RateMeter::elapsedTime(const struct timeval *now) const {
+  struct timeval tv;
+  const struct timeval *end_tv;
+
+  assert(isSet(&start_tv));
+
+  if (isSet(&stop_tv)) {
+    end_tv = &stop_tv;
+  } else if (now == NULL) {
+    gettimeofday(&tv, NULL);
+    end_tv = &tv;
+  } else {
+    end_tv = now;
+  }
+
+  return TIMEVAL_SUBTRACT(*end_tv, start_tv) / 1000000.0;
+}
+
+/* Returns true if tv has been initialized; i.e., its members are not all
+   zero. */
+bool RateMeter::isSet(const struct timeval *tv) {
+  return tv->tv_sec != 0 || tv->tv_usec != 0;
+}
+
 ScanProgressMeter::ScanProgressMeter(char *stypestr) {
   scantypestr = strdup(stypestr);
   gettimeofday(&begin, NULL);

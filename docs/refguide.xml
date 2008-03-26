@@ -2301,6 +2301,44 @@ threshold based intrusion detection and prevention systems (IDS/IPS).</para>
       </varlistentry>
 
       <varlistentry>
+        <term>
+        <option>--min-rate &lt;number&gt;</option>
+        (Specify a minimum scanning rate)
+        <indexterm><primary>--min-rate</primary></indexterm>
+        </term>
+        <listitem>
+
+<para>Nmap's dynamic timing does a good job of finding an appropriate
+speed at which to scan. Sometimes, however, you may happen to know an
+appropriate speed for a network, or you may have to guarantee that a
+scan will be finished by a certain time. When the
+<option>--min-rate</option> is given Nmap will do its best to send
+packets as fast or faster than the given rate. The argument is a
+positive real number representing a packet rate in packets per second.
+For example, using <command>--min-rate 300</command> will ensure that
+the packet sending rate doesn't fall below 300 packets per second.
+Specifying a minimum rate does not keep Nmap from going faster if
+conditions warrant.</para>
+
+<para>There are two conditions when the actual scanning rate may fall
+below the specified minimum. The first is if the minimum is faster than
+the fastest rate at which Nmap can send, which is dependent on hardware.
+In this case Nmap will send packets as fast a possible, but be aware
+that such high rates are likely to cause a loss of accuracy. The second
+case is when Nmap has nothing to send, for example at the end of a scan
+when the last probes have been sent and Nmap is waiting for them to time
+out or be responded to. It's normal to see the scanning rate drop at the
+end of a scan or in between groups of hosts.</para>
+
+<para>The <option>--min-rate</option> option is global, affecting an
+entire scan, not individual hosts. It only affects port and host
+discovery scans. Other features like OS detection implement their own
+timing.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
         <term><option>--defeat-rst-ratelimit</option>
         <indexterm><primary>--defeat-rst-ratelimit</primary></indexterm></term>
         <listitem>

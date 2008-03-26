@@ -129,6 +129,42 @@ void adjust_timeouts(struct timeval sent, struct timeout_info *to);
    time is recorded in it */
 void enforce_scan_delay(struct timeval *tv);
 
+/* This class implements current and lifetime average data rates for packets and
+   bytes. */
+class RateMeter {
+  public:
+    RateMeter();
+
+    void start(const struct timeval *now = NULL);
+    void stop(const struct timeval *now = NULL);
+    void record(u32 len, const struct timeval *now = NULL);
+    double getOverallPacketRate(const struct timeval *now = NULL) const;
+    double getCurrentPacketRate(const struct timeval *now = NULL, bool update =true);
+    double getOverallByteRate(const struct timeval *now = NULL) const;
+    double getCurrentByteRate(const struct timeval *now = NULL, bool update =true);
+
+  private:
+    /* How many seconds to look back when calculating the "current" rates. */
+    const double CURRENT_RATE_HISTORY;
+
+    /* When this meter started recording. */
+    struct timeval start_tv;
+    /* When this meter stopped recording. */
+    struct timeval stop_tv;
+    /* The last time the current sample rates were updated. */
+    struct timeval last_update_tv;
+
+    unsigned long long num_packets;
+    unsigned long long num_bytes;
+
+    double current_packet_rate;
+    double current_byte_rate;
+
+    void update(u32 packets, u32 bytes, const struct timeval *now);
+    double elapsedTime(const struct timeval *now = NULL) const;
+    static bool isSet(const struct timeval *tv);
+};
+
 class ScanProgressMeter {
  public:
   /* A COPY of stypestr is made and saved for when stats are printed */

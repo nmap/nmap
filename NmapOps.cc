@@ -195,6 +195,7 @@ void NmapOps::Initialize() {
 #endif
   debugging = 0;
   verbose = 0;
+  min_packet_send_rate = 0.0; /* Unset. */
   randomize_hosts = 0;
   sendpref = PACKET_SEND_NOPREF;
   spoofsource = 0;

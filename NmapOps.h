@@ -178,6 +178,8 @@ class NmapOps {
   bool openOnly() { return open_only; }
   void setOpenOnly(bool oo) { open_only = oo; }
   int verbose;
+  /* The requested minimum packet sending rate, or 0.0 if unset. */
+  float min_packet_send_rate;
   int randomize_hosts;
   int spoofsource; /* -S used */
   int fastscan;

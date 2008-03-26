@@ -278,6 +278,7 @@ printf("%s %s ( %s )\n"
        "  --max-retries <tries>: Caps number of port scan probe retransmissions.\n"
        "  --host-timeout <time>: Give up on target after this long\n"
        "  --scan-delay/--max-scan-delay <time>: Adjust delay between probes\n"
+       "  --min-rate <number>: Send packets no slower than <number> per second\n"
        "FIREWALL/IDS EVASION AND SPOOFING:\n"
        "  -f; --mtu <val>: fragment packets (optionally w/given MTU)\n"
        "  -D <decoy1,decoy2[,ME],...>: Cloak a scan with decoys\n"
@@ -634,6 +635,7 @@ int nmap_main(int argc, char *argv[]) {
 #endif
       {"ip_options", required_argument, 0, 0},
       {"ip-options", required_argument, 0, 0},
+      {"min-rate", required_argument, 0, 0},
       {0, 0, 0, 0}
     };
 
@@ -888,6 +890,9 @@ int nmap_main(int argc, char *argv[]) {
 	o.traceroute = true;
       } else if(strcmp(long_options[option_index].name, "reason") == 0) {
      o.reason = true;
+      } else if(optcmp(long_options[option_index].name, "min-rate") == 0) {
+        if (sscanf(optarg, "%f", &o.min_packet_send_rate) != 1 || o.min_packet_send_rate <= 0.0)
+          fatal("Argument to --min-rate must be a positive floating-point number");
       } else {
 	fatal("Unknown long option (%s) given@#!$#$", long_options[option_index].name);
       }
@@ -1483,6 +1488,7 @@ int nmap_main(int argc, char *argv[]) {
     log_write(LOG_PLAIN, "  max-scan-delay: TCP %d, UDP %d\n", o.maxTCPScanDelay(), o.maxUDPScanDelay());
     log_write(LOG_PLAIN, "  parallelism: min %d, max %d\n", o.min_parallelism, o.max_parallelism);
     log_write(LOG_PLAIN, "  max-retries: %d, host-timeout: %ld\n", o.getMaxRetransmissions(), o.host_timeout);
+    log_write(LOG_PLAIN, "  min-rate: %g\n", o.min_packet_send_rate);
     log_write(LOG_PLAIN, "---------------------------------------------\n");
   }
 
