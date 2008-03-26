@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a new --min-rate option that allows specifying a minimum rate
+  at which to send packets.
+
 o Reformat Nmap COPYING file (e.g. remove C comment markers, reduce
   line length) during Nmap windows build so that it looks much better
   when presented by the Windows executable (NSIS) installer.  Thanks
