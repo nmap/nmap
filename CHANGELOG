@@ -8,6 +8,11 @@ o Reformat Nmap COPYING file (e.g. remove C comment markers, reduce
   when presented by the Windows executable (NSIS) installer.  Thanks
   to Jah for the patch (which was modified slightly by Fyodor).
 
+o Changed the NSE function nmap.set_port_state() so that it checks to
+  see if the requested port is already in the requested state.  This
+  prevents "Duplicate port" messages during the script scan and the
+  inaccurate "script-set" state reason. [Kris]
+
 o Updated ripeQuery.nse to not print extraneous whitespace. [Kris]
 
 Nmap 4.60

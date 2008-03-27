@@ -371,12 +371,16 @@ static int l_set_port_state(lua_State* l, Target* target, Port* port) {
 		case 'o':
 			if (strcmp(state, "open")) 
 				luaL_argerror (l, 4, "Invalid port state.");
+			if (port->state == PORT_OPEN)
+				goto noset;
 			plist->addPort(port->portno, port->proto, NULL, PORT_OPEN);
 			port->state = PORT_OPEN;
 			break;
 		case 'c':
 			if (strcmp(state, "closed"))
 				luaL_argerror (l, 4, "Invalid port state.");
+			if (port->state == PORT_CLOSED)
+				goto noset;
 			plist->addPort(port->portno, port->proto, NULL, PORT_CLOSED);
 			port->state = PORT_CLOSED;
 			break;
@@ -386,6 +390,7 @@ static int l_set_port_state(lua_State* l, Target* target, Port* port) {
 
 	port->reason.reason_id = ER_SCRIPT;
 
+noset:
 	free(state);
 	return 0;
 }
