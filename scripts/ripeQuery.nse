@@ -41,5 +41,5 @@ action = function(host, port)
 		return
 	end
 	
-	return "IP belongs to: " .. value
+	return "IP belongs to: " .. value:gsub("^%s*", "")
 end

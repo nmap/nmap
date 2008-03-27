@@ -8,6 +8,8 @@ o Reformat Nmap COPYING file (e.g. remove C comment markers, reduce
   when presented by the Windows executable (NSIS) installer.  Thanks
   to Jah for the patch (which was modified slightly by Fyodor).
 
+o Updated ripeQuery.nse to not print extraneous whitespace. [Kris]
+
 Nmap 4.60
 
 o Nmap has moved.  Everything at http://insecure.org/nmap/ can now be
