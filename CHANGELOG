@@ -8,6 +8,12 @@ o Reformat Nmap COPYING file (e.g. remove C comment markers, reduce
   when presented by the Windows executable (NSIS) installer.  Thanks
   to Jah for the patch (which was modified slightly by Fyodor).
 
+o Added NSE Datafiles library which reads and parses Nmap's nmap-*
+  data files for scripts.  The functions (parse_protocols(),
+  parse_rpc() and parse_services()) return tables with numbers
+  (e.g. port numbers) indexing names (e.g. service names).  The
+  rpcinfo.nse script was also updated to use this library. [Kris]
+
 o Changed the NSE function nmap.set_port_state() so that it checks to
   see if the requested port is already in the requested state.  This
   prevents "Duplicate port" messages during the script scan and the

@@ -1400,6 +1400,68 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	</variablelist>
 	</sect2>
+	<sect2 id="nse-lib-datafiles">
+	<title>Data File Parsing Functions</title>
+	<para>
+	The <literal>datafiles</literal> module provides functions for reading and parsing
+	Nmap's data files (e.g. <filename>nmap-protocol</filename>, <filename>nmap-rpc</filename>,
+	etc.).  These functions' return values are setup for use with exception handling via
+	<literal>nmap.new_try()</literal>.
+	</para>
+
+	<variablelist>
+	    <varlistentry>
+	      <term><option>bool, table = datafiles.parse_protocols()</option>
+		  <indexterm><primary>parse_protocols</primary></indexterm></term>
+	      <listitem>
+		  <para>
+			This function reads and parses Nmap's <filename>nmap-protocols</filename>
+			file.  <literal>bool</literal> is a boolen value indicating success.
+			If <literal>bool</literal> is true, then the second returned
+			value is a table with protocol numbers indexing the protocol
+			names.  If <literal>bool</literal> is false, an error message
+			is returned as the second value instead of the table.
+		  </para>
+	      </listitem>
+	    </varlistentry>
+
+	    <varlistentry>
+	      <term><option>bool, table = datafiles.parse_rpc()</option>
+		  <indexterm><primary>parse_rpc</primary></indexterm></term>
+	      <listitem>
+		  <para>
+			This function reads and parses Nmap's <filename>nmap-rpc</filename>
+			file.  <literal>bool</literal> is a boolen value indicating success.
+			If <literal>bool</literal> is true, then the second returned
+			value is a table with RPC numbers indexing the RPC names.  If
+			<literal>bool</literal> is false, an error message is returned
+			as the second value instead of the table.
+		  </para>
+	      </listitem>
+	    </varlistentry>
+
+	    <varlistentry>
+	      <term><option>bool, table = datafiles.parse_services([protocol])</option>
+		  <indexterm><primary>parse_services</primary></indexterm></term>
+	      <listitem>
+		  <para>
+			This function reads and parses Nmap's <filename>nmap-services</filename>
+			file.  <literal>bool</literal> is a boolen value indicating success.
+			If <literal>bool</literal> is true, then the second returned
+			value is a table containing two other tables:
+			<literal>tcp{}</literal> and <literal>udp{}</literal>.
+			<literal>tcp{}</literal> contains services indexed by TCP port
+			numbers.  <literal>udp{}</literal> is the same, but for UDP.
+			You can pass "tcp" or "udp" as an argument to
+			<literal>parse_services()</literal> to only get the corresponding
+			table.  If <literal>bool</literal> is false, an error message is
+			returned as the second value instead of the table.
+		  </para>
+	      </listitem>
+	    </varlistentry>
+	</variablelist>
+
+	</sect2>
 	<sect2 id="nse-lib-stdnse">
 	<title>Various Utility Functions</title>
 	<para>

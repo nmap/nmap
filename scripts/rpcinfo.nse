@@ -7,44 +7,7 @@ categories = {"safe","discovery"}
 
 require "shortport"
 require "packet"
-require "stdnse"
-
-local rpc_numbers = {}
-
--- Fills rpc_numbers with values read from RPC file - Kris Katterjohn
-local fillrpc = function()
-	local path = nmap.fetchfile("nmap-rpc")
-
-	if path == nil then
-		return false, "Can't read from RPC file!"
-	end
-
-	local file = io.open(path, "r")
-
-	-- Loops through RPC file line-by-line
-	while true do
-		local l = file:read()
-
-		if not l then
-			break
-		end
-
-		l = l:gsub("%s*#.*", "")
-
-		if l:len() ~= 0 then
-			local m = l:gsub("^([%a%d_]+)%s+(%d+).*", "%2=%1")
-
-			if m:match("=") then
-				local t = stdnse.strsplit("=", m)
-				rpc_numbers[tonumber(t[1])] = t[2]
-			end
-		end
-	end
-
-	file:close()
-
-	return true
-end
+require "datafiles"
 
 portrule = shortport.port_or_service(111, "rpcbind")
 
@@ -53,10 +16,11 @@ action = function(host, port)
   local transaction_id = "nmap"
   local socket = nmap.new_socket()
   local result = " \n"
+  local rpc_numbers
 
   catch = function() socket:close() end
   try = nmap.new_try( catch )
-  try( fillrpc() )
+  rpc_numbers = try(datafiles.parse_rpc())
 
   local request = string.char(0x80,0,0,40) -- fragment header
   request = request .. transaction_id -- transaction id
