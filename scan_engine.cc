@@ -1628,7 +1628,7 @@ int UltraScanInfo::removeCompletedHosts() {
       }
       if (o.debugging > 2) {
         unsigned int num_outstanding_probes;
-        num_outstanding_probes = hss->probes_outstanding.size();
+        num_outstanding_probes = hss->num_probes_outstanding();
         log_write(LOG_PLAIN, "Moving %s to completed hosts list with %d outstanding %s.\n",
                   hss->target->targetipstr(), num_outstanding_probes,
                   num_outstanding_probes == 1 ? "probe" : "probes");
