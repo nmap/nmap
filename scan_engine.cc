@@ -493,6 +493,9 @@ public:
      in this value. */
   unsigned int num_probes_waiting_retransmit;
   unsigned int num_probes_outstanding() { return probes_outstanding.size(); }
+  /* Call this instead of checking for num_probes_outstanding() == 0 because it
+     avoids a potential traversal of the list to find the size. */
+  unsigned int probes_outstanding_empty() { return probes_outstanding.empty(); }
 
   /* The bench is a stock of probes (compacted into just the
      probespec) that have met the current maximum tryno, and are on
@@ -2416,7 +2419,7 @@ static void ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
       /* Make this the new global ping host, but only if it's not waiting for
          any probes. */
       if (USI->gstats->pinghost == NULL
-        || USI->gstats->pinghost->num_probes_outstanding() == 0) {
+        || USI->gstats->pinghost->probes_outstanding_empty()) {
         if (o.debugging > 1)
           log_write(LOG_PLAIN, "Changing global ping host to %s.\n", hss->target->targetipstr());
         USI->gstats->pinghost = hss;
@@ -2983,7 +2986,7 @@ static void doAnyPings(UltraScanInfo *USI) {
 
   /* Next come global pings. We never send more than one of these at at time. */
   if (USI->gstats->pinghost != NULL && USI->gstats->pinghost->pingprobestate != PORT_UNKNOWN &&
-      USI->gstats->pinghost->num_probes_outstanding() == 0 &&
+      USI->gstats->pinghost->probes_outstanding_empty() &&
       USI->gstats->probes_sent >= USI->gstats->lastping_sent_numprobes + 20 && 
       TIMEVAL_SUBTRACT(USI->now, USI->gstats->lastrcvd) > USI->perf.pingtime && 
       TIMEVAL_SUBTRACT(USI->now, USI->gstats->lastping_sent) > USI->perf.pingtime && 
