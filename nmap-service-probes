@@ -242,7 +242,7 @@ match ftp m|^220 ([-.+\w]+) FTP server \(Version (MICRO-[-.\w:#+ ]+)\) ready\.\r
 match ftp m|^220 ([-.+\w]+) FTP server \(Digital UNIX Version (\d[-.\w]+)\) ready\.\r\n| p/Digital UNIX ftpd/ h/$1/ v/$2/ o/Digital UNIX/
 match ftp m|^220 ([-.+\w]+) FTP server \(Version [\d.]+\+Heimdal (\d[-+.\w ]+)\) ready\.\r\n| p/Heimdal Kerberized ftpd/ h/$1/ v/$2/ o/Unix/
 match ftp m|^500 OOPS: (could not bind listening IPv4 socket)\r\n$| p/vsftpd/ i/broken: $1/ o/Unix/
-match ftp m|^500 00PS: vsftpd: (.*)\r\n| p/vsftpd/ i/broken: $1/ o/Unix/
+match ftp m|^500 OOPS: vsftpd: (.*)\r\n| p/vsftpd/ i/broken: $1/ o/Unix/
 match ftp m|^220-QTCP at ([-.\w]+)\r\n220| p|IBM OS/400 FTPd| o|OS/400| h/$1/
 match ftp m|^220[- ]FileZilla Server version (\d[-.\w ]+)\r\n| p/FileZilla ftpd/ v/$1/ o/Windows/
 match ftp m|^220 ([-\w_.]+) running FileZilla Server version (\d[-.\w ]+)\r\n| p/FileZilla ftpd/ v/$2/ h/$1/ o/Windows/
@@ -3205,7 +3205,7 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nX-Powered-By: PHP/([\d.]+)\r\nServer: th
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: thttpd/([\w.]+) PHP/([\d.]+)\r\n| p/thttpd/ v/$1/ i/PHP $2/
 
 match http m|^HTTP/1\.[01] .*\r\n.*Server: FirstClass/(\d[-.\w]+)\r\n|s p/FirstClass webserver/ v/$1/
-match http m|^HTTP/1\.1 400 Bad request\r\nServer: Citrix Web PN Server\r\n| p/Citrix Metafrme ICA Browser/
+match http m|^HTTP/1\.1 400 Bad request\r\nServer: Citrix Web PN Server\r\n| p/Citrix Metaframe ICA Browser/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: HP-ChaiServer/(\d[-.\w]+)\r\nContent-length: 0\r\n\r\n|s p/HP JetDirect printer webadmin/ i/HP-ChaiServer $1/ d/printer/
 # mldonkey-2.5-3 http port on Linux 2.4.21
 match http m|^HTTP/1\.[01] 404 Not Found\r\nServer: MLdonkey\r\nConnection: close\r\nContent-Type: application/x-bittorrent\r\nContent-length: 0\r\n\r\n| p/MLdonkey multi-network P2P web interface/
