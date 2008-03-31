@@ -150,7 +150,7 @@ static void mac_prefix_init() {
 
   /* Now it is time to read in all of the entries ... */
   if (nmap_fetchfile(filename, sizeof(filename), "nmap-mac-prefixes") != 1){
-    error("Cannot find nmap-mac-prefixes: Ethernet vendor corolation will not be performed");
+    error("Cannot find nmap-mac-prefixes: Ethernet vendor correlation will not be performed");
     return;
   }
 
