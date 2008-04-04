@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fix MingW compilation by adding a signal.h include to
+  main.cc. [Gisle Vanem]
+
 o Added a new --min-rate option that allows specifying a minimum rate
   at which to send packets.
 
