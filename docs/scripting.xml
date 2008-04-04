@@ -31,11 +31,7 @@
       <varlistentry>
         <term>More sophisticated version detection</term>
         <listitem>
-          <para>The Nmap
-       <bookex>
-       version detection system (<xref linkend="version-scan"/>)
-       </bookex>
-       <notbook><ulink url="http://insecure.org/vscan/">version detection system</ulink></notbook>
+          <para>The Nmap version detection system (<xref linkend="vscan"/>)
        is able to recognize thousands of different services through
        its probe and regular expression based matching system, but it
        cannot recognize everything.  For example, identifying the Skype v2 service requires two
