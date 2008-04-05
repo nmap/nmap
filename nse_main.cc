@@ -156,12 +156,13 @@ int script_scan(std::vector<Target*> &targets) {
 
 	SCRIPT_ENGINE_DEBUGGING(
 		unsigned int tlen = targets.size();
+		char targetstr[128];
 		if(tlen > 1)
 			log_write(LOG_STDOUT, "%s: Script scanning %d hosts.\n", 
 				SCRIPT_ENGINE, tlen);
 		else
 			log_write(LOG_STDOUT, "%s: Script scanning %s.\n", 
-				SCRIPT_ENGINE, (*targets.begin())->HostName());
+				SCRIPT_ENGINE, (*targets.begin())->NameIP(targetstr, sizeof(targetstr)));
 	)
 
 	l = lua_open();
