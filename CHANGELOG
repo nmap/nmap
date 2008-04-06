@@ -17,6 +17,9 @@ o Added NSE Datafiles library which reads and parses Nmap's nmap-*
   (e.g. port numbers) indexing names (e.g. service names).  The
   rpcinfo.nse script was also updated to use this library. [Kris]
 
+o Added many additional PCRE option flags to the list returned by the
+  NSE pcre.flags() function. [Kris]
+
 o Changed the NSE function nmap.set_port_state() so that it checks to
   see if the requested port is already in the requested state.  This
   prevents "Duplicate port" messages during the script scan and the

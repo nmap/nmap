@@ -343,6 +343,45 @@ static flags_pair pcre_flags[] =
 	{ "NO_AUTO_CAPTURE", PCRE_NO_AUTO_CAPTURE },
 	{ "NO_UTF8_CHECK",   PCRE_NO_UTF8_CHECK },
 #endif
+#ifdef PCRE_AUTO_CALLOUT
+	{ "AUTO_CALLOUT",    PCRE_AUTO_CALLOUT },
+#endif
+#ifdef PCRE_PARTIAL
+	{ "PARTIAL",         PCRE_PARTIAL },
+#endif
+#ifdef PCRE_DFA_SHORTEST
+	{ "DFA_SHORTEST",    PCRE_DFA_SHORTEST },
+#endif
+#ifdef PCRE_DFA_RESTART
+	{ "DFA_RESTART",     PCRE_DFA_RESTART },
+#endif
+#ifdef PCRE_FIRSTLINE
+	{ "FIRSTLINE",       PCRE_FIRSTLINE },
+#endif
+#ifdef PCRE_DUPNAMES
+	{ "DUPNAMES",        PCRE_DUPNAMES },
+#endif
+#ifdef PCRE_NEWLINE_CR
+	{ "NEWLINE_CR",      PCRE_NEWLINE_CR },
+#endif
+#ifdef PCRE_NEWLINE_LF
+	{ "NEWLINE_LF",      PCRE_NEWLINE_LF },
+#endif
+#ifdef PCRE_NEWLINE_CRLF
+	{ "NEWLINE_CRLF",    PCRE_NEWLINE_CRLF },
+#endif
+#ifdef PCRE_NEWLINE_ANY
+	{ "NEWLINE_ANY",     PCRE_NEWLINE_ANY },
+#endif
+#ifdef PCRE_NEWLINE_ANYCRLF
+	{ "NEWLINE_ANYCRLF", PCRE_NEWLINE_ANYCRLF },
+#endif
+#ifdef PCRE_BSR_ANYCRLF
+	{ "BSR_ANYCRLF",     PCRE_BSR_ANYCRLF },
+#endif
+#ifdef PCRE_BSR_UNICODE
+	{ "BSR_UNICODE",     PCRE_BSR_UNICODE },
+#endif
 	{ NULL, 0 }
 };
 
