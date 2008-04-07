@@ -13,7 +13,7 @@ description = "Connects to a MySQL server and prints information"
 
 author = "Kris Katterjohn <katterjohn@gmail.com>"
 
-license = "Look at Nmap's COPYING"
+license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
 
 categories = { "discovery", "safe" }
 

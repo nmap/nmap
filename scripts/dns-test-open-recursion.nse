@@ -4,7 +4,7 @@ description = "Checks whether a Nameserver on udp/53 allows querys for third-par
 
 author = "Felix Groebert <felix@groebert.org>"
 
-license = "See nmaps COPYING for licence"
+license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
 
 categories = {"intrusive"}
 

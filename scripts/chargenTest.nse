@@ -4,7 +4,7 @@ description = "Connects to the UDP chargen service and tries to read some bytes"
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 
-license = "See nmaps COPYING for licence"
+license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
 
 categories = {"demo"}
 

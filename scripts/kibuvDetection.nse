@@ -12,7 +12,7 @@ http://www.trendmicro.com/vinfo/virusencyclo/default5.asp?VName=WORM_KIBUV.B&VSe
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 
-license = "See nmaps COPYING for licence"
+license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
 
 categories = {"malware"}
 

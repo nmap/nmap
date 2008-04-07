@@ -1,14 +1,12 @@
 description = "Demonstration of a version detection NSE script. It checks and reports\
 the version of a remote web server. For real life purposes it is better to use the\
-Nmap version detection.\
-Author: Diman Todorov\
-License: see nmaps' COPYING for license"
+Nmap version detection."
 
 id = "HTTP version"
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 
-license = "See nmaps COPYING for licence"
+license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
 
 -- add this script to "version" if you really want to execute it
 -- keep in mind you can (and should) only execute it with -sV

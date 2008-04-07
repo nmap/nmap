@@ -1,7 +1,7 @@
 id = "Promiscuous detection"
 description = "Checks if hosts on local ethernet have network card in promiscuous mode."
 author = "Marek Majkowski <majek04+nse@gmail.com>"
-license = "See nmaps COPYING for licence"
+license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
 
 --[[
 This script tries to guess if node in local ethernet is in promisucous mode.

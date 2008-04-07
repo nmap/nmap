@@ -5,7 +5,7 @@ Usually this means that the host is an irc zombie."
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 
-license = "See nmaps COPYING for licence"
+license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
 
 categories = {"malware"}
 

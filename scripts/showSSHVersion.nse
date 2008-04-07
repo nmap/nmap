@@ -5,7 +5,7 @@ in the scanning attempt not being logged by the ssh daemon on the target."
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 
-license = "See nmaps COPYING for licence"
+license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
 
 categories = {"demo"}
 

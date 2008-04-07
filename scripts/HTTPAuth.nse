@@ -7,7 +7,7 @@ description = "If a web server requires authentication, prints the authenticatio
 
 author = "Thomas Buchanan <tbuchanan@thecompassgrp.net>"
 
-license = "See nmaps COPYING for licence"
+license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
 
 -- uncomment the following line to enable safe category
 -- categories = {"safe"}

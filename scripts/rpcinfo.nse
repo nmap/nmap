@@ -2,7 +2,7 @@ id = "rpcinfo"
 
 description = "connects to portmapper and prints a list of all registered programs"
 author = "Sven Klemm <sven@c3d2.de>"
-license = "See nmaps COPYING for licence"
+license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
 categories = {"safe","discovery"}
 
 require "shortport"

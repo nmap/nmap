@@ -1,7 +1,7 @@
 id="Skype v2"
 description="Determines if remote service is Skype protocol version 2"
 author = "Brandon Enright <bmenrigh@ucsd.edu>" 
-license = "See nmaps COPYING for licence"
+license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
 categories = {"version"}
 
 portrule = function(host, port)

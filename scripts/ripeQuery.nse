@@ -3,7 +3,7 @@ require "ipOps"
 id = "RIPE query"
 description = "Connects to the RIPE database, extracts and prints the role: entry for the IP."
 author = "Diman Todorov <diman.todorov@gmail.com>"
-license = "See nmaps COPYING for licence"
+license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
 
 categories = {"discovery"}
 

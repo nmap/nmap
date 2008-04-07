@@ -5,7 +5,7 @@ description = "Detects an listening UDP IAX2 service by using a \
 
 author = "Ferdy Riphagen <f.riphagen@nsec.nl>"
 
-license = "See Nmap's COPYING for license"
+license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
 
 categories = {"version"}
 

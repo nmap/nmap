@@ -4,7 +4,7 @@ description="Checks to see if a FTP server allows anonymous logins"
 
 author = "Eddie Bell <ejlbell@gmail.com>"
 
-license = "See nmaps COPYING for licence"
+license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
 
 categories = {"intrusive"}
 

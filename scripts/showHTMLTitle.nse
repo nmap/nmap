@@ -1,5 +1,5 @@
 -- dvt <diman.todorov@gmail.com>
--- See nmaps COPYING for licence
+-- Same as Nmap--See http://nmap.org/man/man-legal.html
 
 id = "HTML title"
 
@@ -7,7 +7,7 @@ description = "Connects to an HTTP server and extracts the title of the default 
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 
-license = "See nmaps COPYING for licence"
+license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
 
 categories = {"demo", "safe"}
 

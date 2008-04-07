@@ -2,7 +2,7 @@ id = "NBSTAT"
 description = "Sends a NetBIOS query to target host to try to determine \
 the NetBIOS name and MAC address."
 author = "Brandon Enright <bmenrigh@ucsd.edu>"
-license = "See nmaps COPYING for licence"
+license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
 
 -- This script was created by reverse-engineering the packets
 -- sent by NBTSCAN and hacking with the Wireshark NetBIOS

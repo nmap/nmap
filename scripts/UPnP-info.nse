@@ -7,7 +7,7 @@ description = "Attempts to extract system information from UPnP service"
 
 author = "Thomas Buchanan <tbuchanan@thecompassgrp.net>"
 
-license = "See nmaps COPYING for licence"
+license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
 
 categories = {"safe"}
 

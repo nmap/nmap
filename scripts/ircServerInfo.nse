@@ -4,7 +4,7 @@ description = "Gets information from an IRC server by issuing STATS, LUSERS, etc
 
 author = "Doug Hoyte"
 
-license = "See Nmap's COPYING"
+license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
 
 categories = {"discovery"}
 
