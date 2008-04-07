@@ -485,14 +485,17 @@ categories.</para>
     <sect2 id="nse-format-author">
       <title><literal>author</literal> Field </title>
       <para>
-	The <literal>author</literal> field contains the name of the script author and/or a method to contact them.  If you are worried about spam, you might want to omit or obscure your email address, or give your home page URL instead.  The field is optional and not currently used.
+	The <literal>author</literal> field contains the script authors name and contact information. If you are worried about spam, you might want to omit or obscure your email address, or give your home page URL instead.  This optional field is not used by NSE, but is important for giving script authors due credit or blame. 
       </para>
     </sect2>
 
     <sect2 id="nse-format-license">
       <title><literal>license</literal> Field </title>
-      <para>
-	<remark>We're still finalizing this.  The field is optional and not currently used.  See <xref linkend="nse-license"/>.</remark>
+      <para>This field describes the license applied to the script.  All scripts currently shipped with Nmap contain:</para>
+<programlisting>
+license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
+</programlisting>
+<para>See <xref linkend="nse-license"/> for further details on contributing NSE scripts to Nmap.
       </para>
     </sect2>
 
