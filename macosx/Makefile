@@ -8,12 +8,12 @@ STAGING_DIR = Zenmap-$(NMAP_VERSION)
 
 DIST_FILES = $(addprefix $(STAGING_DIR)/,Zenmap.app)
 
-Zenmap-$(NMAP_VERSION).dmg: $(STAGING_DIR) $(DIST_FILES)
+Zenmap-$(NMAP_VERSION).dmg: $(DIST_FILES)
 	rm -f $@
 	hdiutil create -imagekey zlib-level=9 -srcfolder $(STAGING_DIR) $@
 
 $(STAGING_DIR)/Zenmap.app:
-	mkdir $(STAGING_DIR)
+	mkdir -p $(STAGING_DIR)
 	cd ../zenmap && install_scripts/macosx/make-bundle.sh
 	mv -f ../zenmap/dist/Zenmap.app $(STAGING_DIR)
 
