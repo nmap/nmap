@@ -1659,7 +1659,7 @@ if(s) code_to_be_done_on_match end
 		against which the script is running. If the script is run
 		according to a host rule, then no port table is passed to the
 		script. Port states on the target can still be requested from Nmap
-		using the <literal>nmap.getPortState()</literal> call.
+		using the <literal>nmap.get_port_state()</literal> call.
 	      </para>
 	    </listitem>
 	  </varlistentry>
