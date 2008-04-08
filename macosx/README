@@ -27,4 +27,8 @@ by default it is installed in /usr/local/bin. But /usr/local/bin is
 with a prefix of /usr, but you can make a symbolic link from
 /usr/bin/nmap to /usr/local/bin/nmap and it will work fine.
 
+Running the application from a directory whose name contains a space
+fails. The wrapper scripts necessary to package GTK+ and Pango need to
+carefully escape paths in the files they write.
+
 David Fifield
