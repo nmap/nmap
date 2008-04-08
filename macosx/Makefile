@@ -6,7 +6,7 @@ NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION' ../nma
 
 STAGING_DIR = Zenmap-$(NMAP_VERSION)
 
-DIST_FILES = $(addprefix $(STAGING_DIR)/,Zenmap.app)
+DIST_FILES = $(addprefix $(STAGING_DIR)/,Zenmap.app README)
 
 Zenmap-$(NMAP_VERSION).dmg: $(DIST_FILES)
 	rm -f $@
@@ -16,6 +16,10 @@ $(STAGING_DIR)/Zenmap.app:
 	mkdir -p $(STAGING_DIR)
 	cd ../zenmap && install_scripts/macosx/make-bundle.sh
 	mv -f ../zenmap/dist/Zenmap.app $(STAGING_DIR)
+
+$(STAGING_DIR)/README:
+	mkdir -p $(STAGING_DIR)
+	cp -f README $(STAGING_DIR)/
 
 clean:
 	rm -rf $(STAGING_DIR)
