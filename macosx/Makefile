@@ -6,7 +6,7 @@ NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION' ../nma
 
 STAGING_DIR = Zenmap-$(NMAP_VERSION)
 
-DIST_FILES = $(addprefix $(STAGING_DIR)/,Zenmap.app README)
+DIST_FILES = $(addprefix $(STAGING_DIR)/,Zenmap.app COPYING README)
 
 Zenmap-$(NMAP_VERSION).dmg: $(DIST_FILES)
 	rm -f $@
@@ -20,6 +20,10 @@ $(STAGING_DIR)/Zenmap.app:
 $(STAGING_DIR)/README:
 	mkdir -p $(STAGING_DIR)
 	cp -f README $(STAGING_DIR)/
+
+$(STAGING_DIR)/COPYING:
+	mkdir -p $(STAGING_DIR)
+	cp -f ../COPYING $(STAGING_DIR)/
 
 clean:
 	rm -rf $(STAGING_DIR)
