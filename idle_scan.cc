@@ -988,7 +988,7 @@ void idle_scan(Target *target, u16 *portarray, int numports,
   int portidx = 0; /* Used for splitting the port array into chunks */
   int portsleft;
   time_t starttime;
-  char scanname[32];
+  char scanname[128];
   Snprintf(scanname, sizeof(scanname), "idle scan against %s", target->NameIP());
   ScanProgressMeter SPM(scanname);
 
