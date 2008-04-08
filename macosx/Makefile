@@ -15,7 +15,7 @@ Zenmap-$(NMAP_VERSION).dmg: $(DIST_FILES)
 $(STAGING_DIR)/Zenmap.app:
 	mkdir -p $(STAGING_DIR)
 	cd ../zenmap && install_scripts/macosx/make-bundle.sh
-	mv -f ../zenmap/dist/Zenmap.app $(STAGING_DIR)
+	cp -rf ../zenmap/dist/Zenmap.app $(STAGING_DIR)/
 
 $(STAGING_DIR)/README:
 	mkdir -p $(STAGING_DIR)
