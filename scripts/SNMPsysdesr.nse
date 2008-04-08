@@ -90,18 +90,30 @@ action = function(host, port)
 	
 	try(socket:close())
 
-	if string.find(response, "\006\001\002\001\001\003") == nil then
+	local start, stop = response:find("\006\001\002\001\001\003\000")
+
+	if start == nil then
 		return result
 	end
 	
-	local length,uptime,s1,s2,s3,s4
-	
-	length = string.len(response)
-	
-	s1,s2,s3,s4 = string.byte(response, length - 3, length)
-	
-	uptime = s1*(2^24) + s2*(2^16) + s3*(2^8) + s4
-	
+	local uplen,uptime,s1,s2,s3,s4
+
+	uplen = response:byte(stop + 2)
+
+	s1,s2,s3,s4 = response:byte(stop + 3, stop + 3 + uplen)
+
+	if uplen == 4 then
+		uptime = s1*(2^24) + s2*(2^16) + s3*(2^8) + s4
+	elseif uplen == 3 then
+		uptime = s1*(2^16) + s2*(2^8) + s3
+	elseif uplen == 2 then
+		uptime = s1*(2^8) + s2
+	elseif uplen == 1 then
+		uptime = s1
+	else
+		return result
+	end
+
 	local days, hours, minutes, seconds, htime, mtime, stime
 	days = math.floor(uptime / 8640000)
 	htime = math.fmod(uptime, 8640000)
