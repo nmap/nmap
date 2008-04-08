@@ -4,7 +4,7 @@
 NMAP_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 
-IMAGE_NAME = Zenmap-$(NMAP_VERSION)$(if $(APPENDAGE),-$(APPENDAGE))
+IMAGE_NAME = zenmap-$(NMAP_VERSION)$(if $(APPENDAGE),-$(APPENDAGE))
 STAGING_DIR = $(IMAGE_NAME)
 
 DIST_FILES = $(addprefix $(STAGING_DIR)/,Zenmap.app COPYING README)
