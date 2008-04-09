@@ -1100,6 +1100,11 @@ bool HostScanStats::sendOK(struct timeval *when) {
   struct timeval probe_to, earliest_to, sendTime;
   long tdiff;
 
+  if (target->timedOut(&USI->now) || completed()) {
+    if (when) *when = USI->now;
+    return false;
+  }
+
   /* If the group stats say we need to send a probe to enforce a minimum
      scanning rate, then we need to step up and send a probe. */
   if (o.min_packet_send_rate != 0.0) {
@@ -1108,11 +1113,6 @@ bool HostScanStats::sendOK(struct timeval *when) {
         *when = USI->now;
       return true;
     }
-  }
-
-  if (target->timedOut(&USI->now) || completed()) {
-    if (when) *when = USI->now;
-    return false;
   }
 
   if (rld.rld_waiting) {
