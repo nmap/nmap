@@ -345,7 +345,7 @@ extension does not have to be <literal>nse</literal>.
 <para>Nmap scripts are stored in a <filename>scripts</filename>
 subdirectory of the Nmap data directory
 <bookex>(see <xref linkend="data-files"/>)</bookex>
-<notbook>(see the <ulink url="http://nmap.org/man/man-misc-options.html"><option>--datadir</option>
+<notbook>(see the <ulink url="http://nmap.org/book/man-misc-options.html"><option>--datadir</option>
 option</ulink>)</notbook>
 by default.  Scripts are indexed in a database stored in
 <filename>scripts/script.db</filename>. The database lists all of the
@@ -493,7 +493,7 @@ categories.</para>
       <title><literal>license</literal> Field </title>
       <para>This field describes the license applied to the script.  All scripts currently shipped with Nmap contain:</para>
 <programlisting>
-license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 </programlisting>
 <para>See <xref linkend="nse-license"/> for further details on contributing NSE scripts to Nmap.
       </para>
