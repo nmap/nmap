@@ -1,7 +1,7 @@
 id = "SSLv2"
 description = "determines whether the server (still) supports SSL-v2, and what cyphers it offers."
 author = "Matt <mb2263@bristol.ac.uk>"
-license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"intrusive"}
 

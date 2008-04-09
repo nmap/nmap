@@ -1,7 +1,7 @@
 id="SSH Protocol Version 1"
 description="Checks to see if SSH server supports SSH Protocol Version 1."
 author = "Brandon Enright <bmenrigh@ucsd.edu>"
-license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive"}
 
 require "shortport"

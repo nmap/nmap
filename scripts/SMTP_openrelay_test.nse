@@ -1,5 +1,5 @@
 -- Arturo 'Buanzo' Busleiman <buanzo@buanzo.com.ar> / www.buanzo.com.ar / linux-consulting.buanzo.com.ar
--- Same as Nmap--See http://nmap.org/man/man-legal.html file for licence details
+-- Same as Nmap--See http://nmap.org/book/man-legal.html file for licence details
 -- This is version 20070516.
 -- Changelog: 
 --   * I changed it to the "demo" category until we figure out what

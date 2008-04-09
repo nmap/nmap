@@ -14,7 +14,7 @@ description = "Send HTTP TRACE method and print modifications"
 
 author = "Kris Katterjohn <katterjohn@gmail.com>"
 
-license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery"}
 

@@ -4,7 +4,7 @@ description = "Connects to the UDP daytime service and on success prints the day
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 
-license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"demo"}
 

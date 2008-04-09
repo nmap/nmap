@@ -6,7 +6,7 @@ allows access with nobody/xampp then we report it."
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 
-license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"vulnerability"}
 

@@ -5,7 +5,7 @@ strings are equal reports success."
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 
-license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"demo"}
 

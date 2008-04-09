@@ -19,7 +19,7 @@ id = "Discover OS Version over NetBIOS and SMB"
 description = "Attempt to elicit OS version from host running NetBIOS/SMB"
 author = "Judy Novak"
 copyright = "Sourcefire Inc, (C) 2006-2007"
-license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"version"}
  
 hostrule = function(host)

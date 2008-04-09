@@ -6,7 +6,7 @@ require('http')
 id = "robots.txt"
 author = "Eddie Bell <ejlbell@gmail.com>"
 description = "Download a http servers robots.txt file and display all disallowed entries"
-license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"safe"}
 runlevel = 1.0
 

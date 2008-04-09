@@ -7,7 +7,7 @@ description = "Attempts to extract system information from PPTP service"
 
 author = "Thomas Buchanan <tbuchanan@thecompassgrp.net>"
 
-license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"version"}
 

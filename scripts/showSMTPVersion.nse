@@ -4,7 +4,7 @@ description = "Simple script which queries and prints the version of an SMTP ser
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 
-license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"demo"}
 

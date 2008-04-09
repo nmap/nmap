@@ -27,7 +27,7 @@ require('tab')
 id = 'zone-transfer'
 author = 'Eddie Bell <ejlbell@gmail.com>'
 description = 'Request a zone transfer (AXFR) from a DNS server'
-license = 'Same as Nmap--See http://nmap.org/man/man-legal.html'
+license = 'Same as Nmap--See http://nmap.org/book/man-legal.html'
 categories = {'intrusive', 'discovery'}
 runlevel = 1.0
 

@@ -14,7 +14,7 @@ description = "Probe for /etc/passwd if server is susceptible to directory trave
 
 author = "Kris Katterjohn <katterjohn@gmail.com>"
 
-license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"intrusive"}
 

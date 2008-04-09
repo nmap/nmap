@@ -7,7 +7,7 @@ description = "Attempts to extract information from Microsoft SQL Server"
 
 author = "Thomas Buchanan <tbuchanan@thecompassgrp.net>"
 
-license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "intrusive"}
 

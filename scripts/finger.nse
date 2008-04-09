@@ -4,7 +4,7 @@ description="attempts to get a list of usernames via the finger service"
 
 author = "Eddie Bell <ejlbell@gmail.com>"
 
-license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery"}
 
