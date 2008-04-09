@@ -3356,6 +3356,9 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
 	  newportstate = PORT_FILTERED;
 	  current_reason = ER_HOSTUNREACH;
 	  break;
+#ifdef WIN32
+	case WSAEADDRNOTAVAIL:
+#endif
 	case ETIMEDOUT:
 	case EHOSTDOWN:
 	  newhoststate = HOST_DOWN;

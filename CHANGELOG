@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug on Win32 problem which caused an infinite loop when Nmap
+  encountered certain broadcast addresses. [Dudi Itzhakov]
+
 o Fix MingW compilation by adding a signal.h include to
   main.cc. [Gisle Vanem]
 
