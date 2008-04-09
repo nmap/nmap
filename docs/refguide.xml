@@ -2645,7 +2645,7 @@ lists the relevant options and describes what they do.</para>
           <option>--source-port &lt;portnumber&gt;;</option>
           <option>-g &lt;portnumber&gt;</option> (Spoof source port number)
           <indexterm><primary>--source-port</primary></indexterm>
-          <indexterm><primary>--g</primary></indexterm>
+          <indexterm><primary>-g</primary></indexterm>
         </term>
         <listitem>
 
