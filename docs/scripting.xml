@@ -531,7 +531,8 @@ license = "Same as Nmap--See http://nmap.org/man/man-legal.html"
 	evaluates to <literal>true</literal>, the script action 
 	is performed. Otherwise the action is skipped. Port rules are
 	only matched against TCP or UDP ports in the
-	<literal>open</literal> or <literal>open|filtered</literal>
+	<literal>open</literal>, <literal>open|filtered</literal> or
+	<literal>unfiltered</literal>
 	states. Host rules are matched exactly once against every
 	scanned host. The action, like the rule, is a Lua function,
 	which takes a host and port table as arguments. If the script is
