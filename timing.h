@@ -168,7 +168,7 @@ class RateMeter {
 class ScanProgressMeter {
  public:
   /* A COPY of stypestr is made and saved for when stats are printed */
-  ScanProgressMeter(char *stypestr);
+  ScanProgressMeter(const char *stypestr);
   ~ScanProgressMeter();
 /* Decides whether a timing report is likely to even be
    printed.  There are stringent limitations on how often they are

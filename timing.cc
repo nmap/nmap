@@ -388,7 +388,7 @@ bool RateMeter::isSet(const struct timeval *tv) {
   return tv->tv_sec != 0 || tv->tv_usec != 0;
 }
 
-ScanProgressMeter::ScanProgressMeter(char *stypestr) {
+ScanProgressMeter::ScanProgressMeter(const char *stypestr) {
   scantypestr = strdup(stypestr);
   gettimeofday(&begin, NULL);
   last_print_test = begin;

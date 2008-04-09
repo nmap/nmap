@@ -551,7 +551,7 @@ void NmapOps::setMaxHostGroupSz(unsigned int sz) {
      If this is never called, a default stylesheet distributed with
      Nmap is used.  If you call it with NULL as the xslname, no
      stylesheet line is printed. */
-void NmapOps::setXSLStyleSheet(char *xslname) {
+void NmapOps::setXSLStyleSheet(const char *xslname) {
   if (xsl_stylesheet) free(xsl_stylesheet);
   xsl_stylesheet = xslname? strdup(xslname) : NULL;
 }

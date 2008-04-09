@@ -286,7 +286,7 @@ public:
   /* Returns true if the given tryno and pingseq match those within this
      probe. */
   bool check_tryno_pingseq(unsigned int tryno, unsigned int pingseq) {
-    return pingseq == 0 && tryno >= this->tryno || pingseq > 0 && pingseq == this->pingseq;
+    return (pingseq == 0 && tryno >= this->tryno) || (pingseq > 0 && pingseq == this->pingseq);
   }
 
   u8 tryno; /* Try (retransmission) number of this probe */

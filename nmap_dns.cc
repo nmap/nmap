@@ -965,7 +965,7 @@ static void parse_resolvdotconf() {
 }
 
 
-static void parse_etchosts(char *fname) {
+static void parse_etchosts(const char *fname) {
   FILE *fp;
   char buf[2048], hname[256], ipaddrstr[16], *tp;
   struct in_addr ia;
@@ -1071,7 +1071,7 @@ static char *lookup_etchosts(u32 ip) {
 /* External interface to dns cache */
 const char *lookup_cached_host(u32 ip) {
   const char *tmp = lookup_etchosts(ip);
-  return tmp==NULL?"":tmp;
+  return tmp;
 }
 
 static void etchosts_init(void) {

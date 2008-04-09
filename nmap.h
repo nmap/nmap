@@ -410,8 +410,8 @@ void printinteractiveusage();
 int ftp_anon_connect(struct ftpinfo *ftp);
 
 /* port manipulators */
-struct scan_lists *getpts(char *expr); /* someone stole the name getports()! */
-void getpts_simple(char *origexpr, int range_type,
+struct scan_lists *getpts(const char *expr); /* someone stole the name getports()! */
+void getpts_simple(const char *origexpr, int range_type,
                    unsigned short **list, int *count);
 void free_scan_lists(struct scan_lists *ports);
 
@@ -425,21 +425,21 @@ void nmap_free_mem();
 
 /* general helper functions */
 int parse_targets(struct targets *targets, char *h);
-char *statenum2str(int state);
-char *scantype2str(stype scantype);
+const char *statenum2str(int state);
+const char *scantype2str(stype scantype);
 void sigdie(int signo);
 void reaper(int signo);
 char *seqreport(struct seq_info *seq);
 char *seqreport1(struct seq_info *seq);
-char *seqclass2ascii(int clas);
-char *ipidclass2ascii(int seqclass);
-char *tsseqclass2ascii(int seqclass);
+const char *seqclass2ascii(int clas);
+const char *ipidclass2ascii(int seqclass);
+const char *tsseqclass2ascii(int seqclass);
 
 /* Convert a TCP sequence prediction difficulty index like 1264386
    into a difficulty string like "Worthy Challenge */
 const char *seqidx2difficultystr(unsigned long idx);
 const char *seqidx2difficultystr1(unsigned long idx);
-int nmap_fetchfile(char *filename_returned, int bufferlen, char *file);
+int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file);
 int nmap_fileexistsandisreadable(char* pathname);
 int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv);
 

@@ -216,7 +216,7 @@ private:
   // written if there is enough space.  Otherwise it exits.
   void addServiceChar(char c, int wrapat);
   // Like addServiceChar, but for a whole zero-terminated string
-  void addServiceString(char *s, int wrapat);
+  void addServiceString(const char *s, int wrapat);
   vector<ServiceProbe *>::iterator current_probe;
   u8 *currentresp;
   int currentresplen;
@@ -1354,7 +1354,7 @@ ServiceNFO::~ServiceNFO() {
   // Adds a character to servicefp.  Takes care of word wrapping if
   // necessary at the given (wrapat) column.  Chars will only be
   // written if there is enough space.  Otherwise it exits.
-void ServiceNFO::addServiceChar(char c, int wrapat) {
+void ServiceNFO::addServiceChar(const char c, int wrapat) {
 
   if (servicefpalloc - servicefplen < 6)
     fatal("%s - out of space for servicefp", __func__);
@@ -1369,7 +1369,7 @@ void ServiceNFO::addServiceChar(char c, int wrapat) {
 }
 
 // Like addServiceChar, but for a whole zero-terminated string
-void ServiceNFO::addServiceString(char *s, int wrapat) {
+void ServiceNFO::addServiceString(const char *s, int wrapat) {
   while(*s) 
     addServiceChar(*s++, wrapat);
 }
@@ -2136,7 +2136,7 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
 	// example, if we read more data for the same probe response
 	// it will probably still match.
       } else {
-	if (o.debugging > 1)
+	if (o.debugging > 1) {
 	  if (MD->product || MD->version || MD->info)
 	    log_write(LOG_PLAIN, "Service scan match (Probe %s matched with %s): %s:%hi is %s%s.  Version: |%s|%s|%s|\n",
                       probe->getName(), (*probe->fallbacks[fallbackDepth]).getName(),
@@ -2148,6 +2148,7 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
                       (MD->isSoft)? "soft" : "hard",
                       probe->getName(), (*probe->fallbacks[fallbackDepth]).getName(),
 		      svc->target->NameIP(), svc->portno, (svc->tunnel == SERVICE_TUNNEL_SSL)? "SSL/" : "", MD->serviceName);
+	}
 	svc->probe_matched = MD->serviceName;
 	if (MD->product)
 	  Strncpy(svc->product_matched, MD->product, sizeof(svc->product_matched));

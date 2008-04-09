@@ -113,7 +113,7 @@ extern NmapOps o;
 class PortList;
 
 /* Possible plural and singular reasons */
-char *reason_text[ER_MAX+1]={ 
+const char *reason_text[ER_MAX+1]={ 
         "reset", "conn-refused", "syn-ack", "syn-ack",  "udp-response",
         "proto-response", "perm-denied",
         "net-unreach", "host-unreach", "proto-unreach",
@@ -125,7 +125,7 @@ char *reason_text[ER_MAX+1]={
         "no-response", "localhost-response", "script-set", "unknown-response"
 };
 
-char *reason_pl_text[ER_MAX+1]={ 
+const char *reason_pl_text[ER_MAX+1]={ 
         "resets", "conn-refused", "syn-acks", "syn-acks",  "udp-responses",
         "proto-responses", "perm-denieds",
         "net-unreaches", "host-unreaches", "proto-unreaches",
@@ -317,7 +317,7 @@ void state_reason_init(state_reason_t *reason) {
 void print_state_summary(PortList *Ports, unsigned short type) {
 	state_reason_summary_t *reason_head, *currentr;
 	bool first_time = true;
-	char *separator = ", ";
+	const char *separator = ", ";
 	int states;
 
 	if((reason_head = print_state_summary_internal(Ports, 0)) == NULL)

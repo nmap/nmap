@@ -760,7 +760,7 @@ int recvtime(int sd, char *buf, int len, int seconds, int *timedout);
 
 /* Sets a pcap filter function -- makes SOCK_RAW reads easier */
 #ifndef WINIP_H
-void set_pcap_filter(const char *device, pcap_t *pd, char *bpf, ...);
+void set_pcap_filter(const char *device, pcap_t *pd, const char *bpf, ...);
 #endif
 
 #endif /*TCPIP_H*/

@@ -67,8 +67,8 @@ int l_nsock_check_buf(lua_State* l);
 
 int l_nsock_checkstatus(lua_State* l, nsock_event nse);
 
-void l_nsock_trace(nsock_iod nsiod, char* message, int direction);
-char* inet_ntop_both(int af, const void* v_addr, char* ipstring);
+void l_nsock_trace(nsock_iod nsiod, const char* message, int direction);
+const char* inet_ntop_both(int af, const void* v_addr, char* ipstring);
 unsigned short inet_port_both(int af, const void* v_addr);
 
 static luaL_reg l_nsock [] = {
@@ -246,7 +246,7 @@ static int l_nsock_connect_queued(lua_State* l) {
 		 * is there a better way? */
 		int arguments = 3;
 		const char *how = luaL_optstring(l, 4, "");
-		if(how != ""){
+		if(*how != '\0'){ 
 			arguments = 4;
 			int port = luaL_optinteger(l, 5, -1);
 			if(port!=-1)
@@ -454,7 +454,7 @@ void l_nsock_receive_handler(nsock_pool nsp, nsock_event nse, void *lua_state) {
 	}
 }
 
-void l_nsock_trace(nsock_iod nsiod, char* message, int direction) { 
+void l_nsock_trace(nsock_iod nsiod, const char* message, int direction) { 
 	int status; 
 	int protocol; 
 	int af; 
@@ -486,7 +486,7 @@ void l_nsock_trace(nsock_iod nsiod, char* message, int direction) {
 	}
 }
 
-char* inet_ntop_both(int af, const void* v_addr, char* ipstring) {
+const char* inet_ntop_both(int af, const void* v_addr, char* ipstring) {
 //	char* ipstring = (char*) safe_malloc(sizeof(char) * INET6_ADDRSTRLEN);
 
 	if(af == AF_INET) {
@@ -965,7 +965,7 @@ char *hex(char *str, unsigned int strsz){
 
 int ncap_restore_lua(ncap_request *nr);
 void ncap_request_set_result(nsock_event nse, struct ncap_request *nr);
-int ncap_request_set_results(nsock_event nse, char *key);
+int ncap_request_set_results(nsock_event nse, const char *key);
 void l_nsock_pcap_receive_handler(nsock_pool nsp, nsock_event nse, void *userdata);
 
 /* next map, this time it's multimap "key"(from callback)->suspended_lua_threads */
@@ -1143,7 +1143,7 @@ void l_nsock_pcap_receive_handler(nsock_pool nsp, nsock_event nse, void *userdat
 
 
 /* get data from nsock_event, and set result on ncap_requests which mach key */
-int ncap_request_set_results(nsock_event nse, char *key) {
+int ncap_request_set_results(nsock_event nse, const char *key) {
 	int this_event_restored = 0;
 	
 	std::string skey = key;
@@ -1286,7 +1286,7 @@ int l_dnet_get_interface_link(lua_State* l) {
 		lua_pushnil(l);
 		return 1;
 	}
-	char *s= NULL;
+	const char *s= NULL;
 	switch(ii->device_type){
 	case devt_ethernet:
 		s = "ethernet";

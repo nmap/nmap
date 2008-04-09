@@ -2052,10 +2052,10 @@ void init_socket(int sd) {
  * the outer part of the port expression. It's "closed".
  */
 
-static void getpts_aux(char *origexpr, int nested, u8 *porttbl, int range_type,
+static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_type,
                        int *portwarning, bool change_range_type = true);
 
-struct scan_lists *getpts(char *origexpr) {
+struct scan_lists *getpts(const char *origexpr) {
   u8 *porttbl;
   struct scan_lists *ports;
   int range_type = 0;
@@ -2122,7 +2122,7 @@ struct scan_lists *getpts(char *origexpr) {
    of ports in a struct scan_lists, it allocates only one list and stores it in
    the list and count arguments. For that reason, T:, U:, and P: restrictions
    are not allowed and only one bit in range_type may be set. */
-void getpts_simple(char *origexpr, int range_type,
+void getpts_simple(const char *origexpr, int range_type,
                    unsigned short **list, int *count) {
   u8 *porttbl;
   int portwarning = 0;
@@ -2160,15 +2160,15 @@ void getpts_simple(char *origexpr, int range_type,
 
 /* getpts() and getpts_simple() (see above) are wrappers for this function */
 
-static void getpts_aux(char *origexpr, int nested, u8 *porttbl, int range_type, int *portwarning, bool change_range_type) {
+static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_type, int *portwarning, bool change_range_type) {
   long rangestart = -2343242, rangeend = -9324423;
-  char *current_range;
+  const char *current_range;
   char *endptr;
   char servmask[128];  // A protocol name can be up to 127 chars + nul byte
   int i;
 
   /* An example of proper syntax to use in error messages. */
-  char *syntax_example;
+  const char *syntax_example;
   if (change_range_type)
     syntax_example = "-100,200-1024,T:3000-4000,U:60000-";
   else
@@ -2385,7 +2385,7 @@ const char *seqidx2difficultystr(unsigned long idx) {
 }
 
 
-char *seqclass2ascii(int seqclass) {
+const char *seqclass2ascii(int seqclass) {
   switch(seqclass) {
   case SEQ_CONSTANT:
     return "constant sequence number (!)";
@@ -2406,7 +2406,7 @@ char *seqclass2ascii(int seqclass) {
   }
 }
 
-char *ipidclass2ascii(int seqclass) {
+const char *ipidclass2ascii(int seqclass) {
   switch(seqclass) {
   case IPID_SEQ_CONSTANT:
     return "Duplicated ipid (!)";
@@ -2427,7 +2427,7 @@ char *ipidclass2ascii(int seqclass) {
   }
 }
 
-char *tsseqclass2ascii(int seqclass) {
+const char *tsseqclass2ascii(int seqclass) {
   switch(seqclass) {
   case TS_SEQ_ZERO:
     return "zero timestamp";
@@ -2452,7 +2452,7 @@ char *tsseqclass2ascii(int seqclass) {
 
 
 /* Just a routine for obtaining a string for printing based on the scantype */
-char *scantype2str(stype scantype) {
+const char *scantype2str(stype scantype) {
 
   switch(scantype) {
   case STYPE_UNKNOWN: return "Unknown Scan Type"; break;
@@ -2484,7 +2484,7 @@ char *scantype2str(stype scantype) {
 
 }
 
-char *statenum2str(int state) {
+const char *statenum2str(int state) {
   switch(state) {
   case PORT_OPEN: return "open"; break;
   case PORT_FILTERED: return "filtered"; break;
@@ -2670,7 +2670,7 @@ int nmap_fileexistsandisreadable(char* pathname) {
 	return fileexistsandisreadable(pathname);
 }
 
-int nmap_fetchfile(char *filename_returned, int bufferlen, char *file) {
+int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
   char *dirptr;
   int res;
   int foundsomething = 0;

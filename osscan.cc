@@ -629,7 +629,7 @@ static bool FingerTest_lessthan(const FingerTest* a, const FingerTest* b) {
    representation. Tests that are identical between more than one fingerprint
    are included only once. If wrapit is true, the string is wrapped for
    submission. */
-char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP,
+const char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP,
 			   const struct in_addr * const addr, int distance, const u8 *mac,
 			   int openTcpPort, int closedTcpPort, int closedUdpPort, bool wrapit) {
   static char str[10240];
@@ -760,7 +760,7 @@ return str;
   }
 }
 
-char *fp2ascii(FingerPrint *FP) {
+const char *fp2ascii(FingerPrint *FP) {
 static char str[2048];
 FingerPrint *current;
 struct AVal *AV;
@@ -1139,7 +1139,7 @@ while(fgets(line, sizeof(line), fp)) {
  return DB;
 }
 
-FingerPrintDB *parse_fingerprint_reference_file(char *dbname) {
+FingerPrintDB *parse_fingerprint_reference_file(const char *dbname) {
 char filename[256];
 
 if (nmap_fetchfile(filename, sizeof(filename), dbname) != 1){

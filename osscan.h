@@ -1,4 +1,3 @@
-
 /***************************************************************************
  * osscan.h -- Routines used for OS detection via TCP/IP fingerprinting.   *
  * For more information on how this works in Nmap, see my paper at         *
@@ -119,7 +118,7 @@
 /* moved to global_structures.h */
 
 /**********************  PROTOTYPES  ***********************************/
-char *fp2ascii(FingerPrint *FP);
+const char *fp2ascii(FingerPrint *FP);
 
 /* Parses a single fingerprint from the memory region given.  If a
  non-null fingerprint is returned, the user is in charge of freeing it
@@ -132,7 +131,7 @@ FingerPrint *parse_single_fingerprint(char *fprint_orig);
    (allocated) FingerPrintDB containing the results.  They exit with
    an error message in the case of error. */
 FingerPrintDB *parse_fingerprint_file(char *fname);
-FingerPrintDB *parse_fingerprint_reference_file(char *dbname);
+FingerPrintDB *parse_fingerprint_reference_file(const char *dbname);
 
 void free_fingerprint_file(FingerPrintDB *DB);
 
@@ -156,7 +155,7 @@ void match_fingerprint(FingerPrint *FP, FingerPrintResults *FPR,
 /* Returns true if perfect match -- if num_subtests & num_subtests_succeeded are non_null it updates them.  if shortcircuit is zero, it does all the tests, otherwise it returns when the first one fails */
 
 void freeFingerPrint(FingerPrint *FP);
-char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP, const struct in_addr * const addr, int distance, const u8 *mac, int openTcpPort, int closedTcpPort, int closedUdpPort, bool wrapit);
+const char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP, const struct in_addr * const addr, int distance, const u8 *mac, int openTcpPort, int closedTcpPort, int closedUdpPort, bool wrapit);
 
 #endif /*OSSCAN_H*/
 

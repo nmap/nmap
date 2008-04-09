@@ -743,7 +743,7 @@ Traceroute::sendProbe (TraceProbe * tp) {
             tg->setState (G_ALIVE_TTL);
             return -1;
         }
-        if (!tg->ttl || tg->gotReply && tg->noDistProbe) {
+        if (!tg->ttl || (tg->gotReply && tg->noDistProbe) ) {
             tg->setState (G_FINISH);
             return 0;
         }
@@ -1135,7 +1135,7 @@ Traceroute::outputXMLTrace(TraceGroup * tg) {
         addr.s_addr = commonPath[ttl_count];
         log_write(LOG_XML, "<hop ttl=\"%d\" rtt=\"--\" ", ttl_count);
         log_write(LOG_XML, "ipaddr=\"%s\"", inet_ntoa(addr));
-        if((hostname_tmp = lookup_cached_host(commonPath[ttl_count])) != "")
+        if((hostname_tmp = lookup_cached_host(commonPath[ttl_count])) != NULL)
             log_write(LOG_XML, " host=\"%s\"", hostname_tmp);
         log_write(LOG_XML, "/>\n");
     }
@@ -1502,7 +1502,7 @@ hostStr (u32 ip) {
 
     memset (nameipbuf, '\0', MAXHOSTNAMELEN + INET6_ADDRSTRLEN);
     addr.s_addr = ip;
-    if((hname = lookup_cached_host(ip)) == "")
+    if((hname = lookup_cached_host(ip)) == NULL)
         Snprintf(nameipbuf, MAXHOSTNAMELEN+INET6_ADDRSTRLEN, "%s", inet_ntoa(addr));
     else
         Snprintf (nameipbuf, MAXHOSTNAMELEN + INET6_ADDRSTRLEN, "%s (%s)", hname, inet_ntoa (addr));

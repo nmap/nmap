@@ -239,7 +239,7 @@ class NmapOps {
      If this is never called, a default stylesheet distributed with
      Nmap is used.  If you call it with NULL as the xslname, no
      stylesheet line is printed. */
-  void setXSLStyleSheet(char *xslname);
+  void setXSLStyleSheet(const char *xslname);
   /* Returns the full path or URL that should be printed in the XML
      output xml-stylesheet element.  Returns NULL if the whole element
      should be skipped */

@@ -704,7 +704,7 @@ void bintohexstr(char *buf, int buflen, char *src, int srclen){
       bp += Snprintf(buf+bp, buflen-bp,"\n");
 }
 
-static inline char* STRAPP(char *fmt, ...) {
+static inline char* STRAPP(const char *fmt, ...) {
   static char buf[256];
   static int bp;
   int left = (int)sizeof(buf)-bp;

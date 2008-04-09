@@ -6,6 +6,9 @@ o Fixed a bug on Win32 problem which caused an infinite loop when Nmap
 o Fix MingW compilation by adding a signal.h include to
   main.cc. [Gisle Vanem]
 
+o Fixed a bunch of code to avoid compilation warning messages (at
+  least on some Linux machines) [Andrew J. Bennieston]
+
 o Added a new --min-rate option that allows specifying a minimum rate
   at which to send packets.
 

@@ -123,7 +123,7 @@ namespace std {};
 using namespace std;
 
 extern NmapOps o;
-static char *logtypes[LOG_NUM_FILES]=LOG_NAMES;
+static const char *logtypes[LOG_NUM_FILES]=LOG_NAMES;
 
 /* Used in creating skript kiddie style output.  |<-R4d! */
 static void skid_output(char *s)
@@ -430,7 +430,7 @@ void printportoutput(Target *currenths, PortList *plist) {
   char grepvers[256];
   char grepown[64];
   char *p;
-  char *state;
+  const char *state;
   char serviceinfo[64];
   char *name=NULL;
   int i;
@@ -761,9 +761,9 @@ char* formatScriptOutput(struct script_scan_result ssr) {
 
 	int line = 0;
 #ifdef WIN32
-	char* sep = "\r\n";
+	const char* sep = "\r\n";
 #else
-	char* sep = "\n";
+	const char* sep = "\n";
 #endif
 	std::string line_prfx = "|  ";
 	
@@ -806,7 +806,7 @@ char* xml_convert (const char* str) {
   temp = (char *) safe_malloc(strl*6+1);
   char *end = temp + strl * 6 + 1;
   for (p = temp;(prevch = ch, ch = *str);str++) {
-    char *a;
+    const char *a;
     switch (ch) {
     case '\t':
       a = "&#x9;";
@@ -1146,7 +1146,7 @@ void output_ports_to_machine_parseable_output(struct scan_lists *ports,
 }
 
 /* Simple helper function for output_xml_scaninfo_records */
-static void doscaninfo(char *type, char *proto, unsigned short *ports, 
+static void doscaninfo(const char *type, const char *proto, unsigned short *ports, 
 		  int numports) {
   log_write(LOG_XML, "<scaninfo type=\"%s\" protocol=\"%s\" numservices=\"%d\" services=\"", type, proto, numports);
   output_rangelist_given_ports(LOG_XML, ports, numports);
@@ -1359,9 +1359,9 @@ static void printosclassificationoutput(const struct OS_Classification_Results *
     // Now to create the fodder for normal output
     for (classno=0; classno < OSR->OSC_num_matches; classno++) {
       /* We have processed enough if any of the following are true */
-      if (!guess && OSR->OSC_Accuracy[classno] < 1.0 ||
+      if ((!guess && OSR->OSC_Accuracy[classno] < 1.0) ||
 	  OSR->OSC_Accuracy[classno] <= OSR->OSC_Accuracy[0] - 0.1 ||
-	  OSR->OSC_Accuracy[classno] < 1.0 && classno > 9)
+	  (OSR->OSC_Accuracy[classno] < 1.0 && classno > 9))
 	break;
       if (addtochararrayifnew(types, &numtypes, MAX_OS_CLASSMEMBERS, OSR->OSC[classno]->Device_Type) == -1)
 	overflow = 1;
@@ -1738,7 +1738,7 @@ void printserviceinfooutput(Target *currenths) {
   char hostname_tbl[MAX_SERVICE_INFO_FIELDS][MAXHOSTNAMELEN];
   char ostype_tbl[MAX_SERVICE_INFO_FIELDS][64];
   char devicetype_tbl[MAX_SERVICE_INFO_FIELDS][64];
-  char *delim;
+  const char *delim;
 
   for (i=0; i<MAX_SERVICE_INFO_FIELDS; i++)
     hostname_tbl[i][0] = ostype_tbl[i][0] = devicetype_tbl[i][0] = '\0';
@@ -1990,7 +1990,7 @@ void printdatafilepaths() {
     /* If all the files were from the same directory and we're in verbose mode,
        print a brief message unless we are also in debugging mode. */
     log_write(LOG_PLAIN, "Read data files from: %s\n", dir.c_str());
-  } else if (num_dirs == 1 && o.debugging || num_dirs > 1) {
+  } else if ( (num_dirs == 1 && o.debugging) || num_dirs > 1) {
     /* If files were read from more than one directory, or if they were read
        from one directory and we are in debugging mode, display all the files
        grouped by directory. */
