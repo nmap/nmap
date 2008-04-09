@@ -20,6 +20,8 @@ o Added NSE Datafiles library which reads and parses Nmap's nmap-*
   (e.g. port numbers) indexing names (e.g. service names).  The
   rpcinfo.nse script was also updated to use this library. [Kris]
 
+o Now ports in the "unfiltered" state can be selected in NSE. [Kris]
+
 o Corrected uptime parsing and reporting in SNMPsysdesr.nse for an
   uptime of less than 46 hours. [Kris]
 

@@ -499,6 +499,10 @@ int process_preparehost(lua_State* l, Target* target, std::list<struct thread_re
 		SCRIPT_ENGINE_TRY(process_pickScriptsForPort(l, target, current, torun));
 	}
 
+	while((current = plist->nextPort(current, TCPANDUDP, PORT_UNFILTERED)) != NULL) {
+		SCRIPT_ENGINE_TRY(process_pickScriptsForPort(l, target, current, torun));
+	}
+
 	// pop the hostinfo, we don't need it anymore
 	lua_pop(l, 1);
 
