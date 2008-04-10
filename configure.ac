@@ -509,13 +509,9 @@ else
 
   # If they didn't specify it, we try to find it
   if test $have_lua != yes; then
-    AC_CHECK_HEADER(lua.h,
-      AC_CHECK_LIB(lua, lua_call, [have_lua=yes ]),
-      [AC_CHECK_HEADERS(lua/lua.h, 
-        [AC_CHECK_LIB(lua, lua_call, [have_lua=yes])]
-      )]
-    )
-  
+    AC_CHECK_HEADERS(lua.h lua/lua.h,
+      AC_CHECK_LIB(lua, lua_call, [have_lua=yes; break],, [-lm]))
+
     AC_LANG_PUSH(C++)
     AC_MSG_CHECKING([for lua version >= 501])
     AC_RUN_IFELSE([ AC_LANG_PROGRAM(
