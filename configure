@@ -1329,6 +1329,7 @@ Optional Packages:
   --with-libpcre=included Always use the version included with Nmap
   --with-libdnet=DIR      Use an existing (compiled) dnet lib from DIR/include
                           and DIR/lib.
+  --with-libdnet=included Use the libdnet version included with Nmap (default)
   --with-liblua=DIR       Use an existing (compiled) lua lib from DIR/include
                           and DIR/lib.
   --with-liblua=included  Use the liblua version included with Nmap
@@ -7103,7 +7104,11 @@ have_dnet=no
 requested_included_dnet=no
 LIBDNETDIR=libdnet-stripped
 
-# First we test whether they specified libdnet explicitly
+# First we test whether they specified libdnet explicitly.
+# Unlike the other included libraries (pcap, pcre, lua), we prefer our local
+# copy of libdnet. That is, with the other libraries we check for a system
+# version by default, whereas with dnet we use the local version unless
+# specifically asked to use a system version.
 
 # Check whether --with-libdnet was given.
 if test "${with_libdnet+set}" = set; then

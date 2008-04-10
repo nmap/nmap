@@ -418,9 +418,14 @@ have_dnet=no
 requested_included_dnet=no
 LIBDNETDIR=libdnet-stripped
 
-# First we test whether they specified libdnet explicitly
+# First we test whether they specified libdnet explicitly.
+# Unlike the other included libraries (pcap, pcre, lua), we prefer our local
+# copy of libdnet. That is, with the other libraries we check for a system
+# version by default, whereas with dnet we use the local version unless
+# specifically asked to use a system version.
 AC_ARG_WITH(libdnet,
-AC_HELP_STRING([--with-libdnet=DIR], [Use an existing (compiled) dnet lib from DIR/include and DIR/lib.]),
+AC_HELP_STRING([--with-libdnet=DIR], [Use an existing (compiled) dnet lib from DIR/include and DIR/lib.])
+AC_HELP_STRING([--with-libdnet=included], [Use the libdnet version included with Nmap (default)]),
 [  case "$with_libdnet" in
   yes)
     ;;
