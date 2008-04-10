@@ -34,7 +34,7 @@ portnumber = function(port, _proto, _state)
 end
 
 service = function(service, _proto, _state)
-	local service_table;
+	local service_table, state_table
 	local state = _state or {"open", "open|filtered"}
 	local proto = _proto or "tcp"
 
