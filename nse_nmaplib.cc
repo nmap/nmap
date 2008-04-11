@@ -233,15 +233,8 @@ void set_hostinfo(lua_State* l, Target *currenths) {
 	} 
 	
 	FingerPrintResults *FPR = NULL;
-	int osscanSys;
 
-	if (currenths->FPR != NULL && currenths->FPR1 == NULL) {
-		osscanSys = 2;
-		FPR = currenths->FPR;
-	} else if(currenths->FPR == NULL && currenths->FPR1 != NULL) {
-		osscanSys = 1;
-		FPR = currenths->FPR1;
-	} 
+	FPR = currenths->FPR;
 
 	/* if there has been an os scan which returned a pretty certain
 	 * result, we will use it in the scripts

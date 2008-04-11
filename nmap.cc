@@ -2358,19 +2358,6 @@ n -sS -O -v example.com/24\n\
 f --spoof \"/usr/local/bin/pico -z hello.c\" -sS -oN e.log example.com/24\n\n");
 }
 
-char *seqreport1(struct seq_info *seq) {
-  static char report[512];
-
-  Snprintf(report, sizeof(report), "TCP Sequence Prediction: Difficulty=%d (%s)\n", seq->index, seqidx2difficultystr1(seq->index));
-  return report;
-}
-
-/* Convert a TCP sequence prediction difficulty index like 1264386
-   into a difficulty string like "Worthy Challenge */
-const char *seqidx2difficultystr1(unsigned long idx) {
-  return  (idx < 10)? "Trivial joke" : (idx < 80)? "Easy" : (idx < 3000)? "Medium" : (idx < 5000)? "Formidable" : (idx < 100000)? "Worthy challenge" : "Good luck!";
-}
-
 char *seqreport(struct seq_info *seq) {
   static char report[512];
 

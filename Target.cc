@@ -122,7 +122,6 @@ void Target::Initialize() {
   targetname = NULL;
   memset(&seq, 0, sizeof(seq));
   distance = -1;
-  FPR1 = NULL;
   FPR = NULL;
   osscan_flag = OS_NOTPERF;
   wierd_responses = flags = 0;
@@ -178,7 +177,6 @@ void Target::FreeInternal() {
     nameIPBuf = NULL;
   }
 
-  if (FPR1) delete FPR1;
   if (FPR) delete FPR;
 }
 

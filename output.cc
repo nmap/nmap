@@ -1452,44 +1452,15 @@ void printosscanoutput(Target *currenths) {
   char numlst[512]; /* For creating lists of numbers */
   char *p; /* Used in manipulating numlst above */
   FingerPrintResults *FPR;
-  int osscanSys = 0;
   int distance = -1;
   int osscan_flag;
   
   if (!(osscan_flag = currenths->osscanPerformed()))
     return;
    
-  if (currenths->FPR == NULL && currenths->FPR1 == NULL) {
+  if (currenths->FPR == NULL)
     return;
-  } else if (currenths->FPR != NULL && currenths->FPR1 == NULL) {
-    osscanSys = 2;
-    FPR = currenths->FPR;
-  } else if (currenths->FPR == NULL && currenths->FPR1 != NULL) {
-    osscanSys = 1;
-    FPR = currenths->FPR1;
-  }
-  else {
-    /* Neither is NULL. This happens when new OS scan system fails to
-       get a perfect match and falls back on the old OS scan
-       system. */
-    if (currenths->FPR->num_perfect_matches > 0) {
-      osscanSys = 2;
-      FPR = currenths->FPR; /* Just an ensurance. */
-    } else if (currenths->FPR1->num_perfect_matches > 0) {
-      osscanSys = 1;
-      FPR = currenths->FPR1;
-    } else if (currenths->FPR->overall_results == OSSCAN_SUCCESS) {
-      osscanSys = 2;
-      FPR = currenths->FPR;
-    } else if (currenths->FPR1->overall_results == OSSCAN_SUCCESS) {
-      osscanSys = 1;
-      FPR = currenths->FPR1;
-    } else {
-      /* Both fails. */
-      osscanSys = 2;
-      FPR = currenths->FPR;
-    }
-  }
+  FPR = currenths->FPR;
 
   if (currenths->distance != -1)
 	distance = currenths->distance;
@@ -1581,7 +1552,7 @@ void printosscanoutput(Target *currenths) {
 	}
 	log_write(LOG_PLAIN, "\n");
       }
-      if (osscanSys == 2 && !reason) {
+      if (!reason) {
 	log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No exact OS matches for host (If you know what OS is running on it, see http://nmap.org/submit/ ).\nTCP/IP fingerprint:\n%s\n",
 		  mergeFPs(FPR->FPs, FPR->numFPs, true,
 			   currenths->v4hostip(), distance, currenths->MACAddress(),
@@ -1593,8 +1564,8 @@ void printosscanoutput(Target *currenths) {
 	  log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No exact OS matches for host (test conditions non-ideal).");
 	  if (o.verbose > 1 || o.debugging)
 	    log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT, 
-		      "\nTCP/IP fingerprint by osscan system #%d:\n%s",
-		      osscanSys, mergeFPs(FPR->FPs, FPR->numFPs, false,
+		      "\nTCP/IP fingerprint:\n%s",
+		      mergeFPs(FPR->FPs, FPR->numFPs, false,
 					  currenths->v4hostip(), distance, currenths->MACAddress(),
 					  FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
 					  false));
@@ -1616,7 +1587,7 @@ void printosscanoutput(Target *currenths) {
     const char *reason = FPR->OmitSubmissionFP();
     if ((o.verbose > 1 || o.debugging) && reason)
       log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"OS fingerprint not ideal because: %s\n", reason);
-    if (osscanSys == 2 && !reason) {
+    if (!reason) {
       log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No OS matches for host (If you know what OS is running on it, see http://nmap.org/submit/ ).\nTCP/IP fingerprint:\n%s\n",
 		mergeFPs(FPR->FPs, FPR->numFPs, true,
 			 currenths->v4hostip(), distance, currenths->MACAddress(),
@@ -1625,8 +1596,8 @@ void printosscanoutput(Target *currenths) {
     } else {
       log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No OS matches for host\n");
       if (o.verbose > 1)
-	log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT, "\nTCP/IP fingerprint by osscan system #%d:\n%s",
-		  osscanSys, mergeFPs(FPR->FPs, FPR->numFPs, false,
+	log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT, "\nTCP/IP fingerprint:\n%s",
+		  mergeFPs(FPR->FPs, FPR->numFPs, false,
 				      currenths->v4hostip(), distance, currenths->MACAddress(),
 				      FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
 				      false));
@@ -1634,8 +1605,8 @@ void printosscanoutput(Target *currenths) {
   } else if (FPR->overall_results == OSSCAN_TOOMANYMATCHES || (FPR->num_perfect_matches > 8 && !o.debugging)) {
     log_write(LOG_PLAIN,"Too many fingerprints match this host to give specific OS details\n");
     if (o.debugging || o.verbose > 1) {
-      log_write(LOG_PLAIN,"TCP/IP fingerprint by osscan system #%d:\n%s",
-		osscanSys, mergeFPs(FPR->FPs, FPR->numFPs, false,
+      log_write(LOG_PLAIN,"TCP/IP fingerprint:\n%s",
+		mergeFPs(FPR->FPs, FPR->numFPs, false,
 				    currenths->v4hostip(), distance, currenths->MACAddress(),
 				    FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
 				    false));
@@ -1679,12 +1650,8 @@ void printosscanoutput(Target *currenths) {
     }
     
     log_write(LOG_XML, "<tcpsequence index=\"%li\" class=\"%s\" difficulty=\"%s\" values=\"%s\" />\n", (long) currenths->seq.index, seqclass2ascii(currenths->seq.seqclass), seqidx2difficultystr(currenths->seq.index), numlst); 
-    if (o.verbose) {
-      if (osscanSys == 1)
-	log_write(LOG_PLAIN,"%s", seqreport1(&(currenths->seq)));
-      else if(osscanSys == 2)
-	log_write(LOG_PLAIN,"%s", seqreport(&(currenths->seq)));
-    }
+    if (o.verbose)
+      log_write(LOG_PLAIN,"%s", seqreport(&(currenths->seq)));
     
     log_write(LOG_MACHINE,"\tSeq Index: %d", currenths->seq.index);
   }

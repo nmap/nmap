@@ -246,8 +246,7 @@ class Target {
 
   struct seq_info seq;
   int distance;
-  FingerPrintResults *FPR1; /* FP results get by the old OS scan system. */
-  FingerPrintResults *FPR; /* FP results get by the new OS scan system. */
+  FingerPrintResults *FPR; /* FP results get by the OS scan system. */
   PortList ports;
 
   // unsigned int up;
