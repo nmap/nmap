@@ -1649,7 +1649,7 @@ void printosscanoutput(Target *currenths) {
       while(*p) p++;
     }
     
-    log_write(LOG_XML, "<tcpsequence index=\"%li\" class=\"%s\" difficulty=\"%s\" values=\"%s\" />\n", (long) currenths->seq.index, seqclass2ascii(currenths->seq.seqclass), seqidx2difficultystr(currenths->seq.index), numlst); 
+    log_write(LOG_XML, "<tcpsequence index=\"%li\" difficulty=\"%s\" values=\"%s\" />\n", (long) currenths->seq.index, seqidx2difficultystr(currenths->seq.index), numlst); 
     if (o.verbose)
       log_write(LOG_PLAIN,"%s", seqreport(&(currenths->seq)));
     

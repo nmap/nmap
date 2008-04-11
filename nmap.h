@@ -358,15 +358,6 @@ void *realloc();
    wrapped. */
 #define FP_RESULT_WRAP_LINE_LEN 74
 
-/* TCP/IP ISN sequence prediction classes */
-#define SEQ_UNKNOWN 0
-#define SEQ_64K 1
-#define SEQ_TD 2
-#define SEQ_RI 4
-#define SEQ_TR 8
-#define SEQ_i800 16
-#define SEQ_CONSTANT 32
-
 /* TCP Timestamp Sequence */
 #define TS_SEQ_UNKNOWN 0
 #define TS_SEQ_ZERO 1 /* At least one of the timestamps we received back was 0 */

@@ -2371,28 +2371,6 @@ const char *seqidx2difficultystr(unsigned long idx) {
   return  (idx < 3)? "Trivial joke" : (idx < 6)? "Easy" : (idx < 11)? "Medium" : (idx < 12)? "Formidable" : (idx < 16)? "Worthy challenge" : "Good luck!";
 }
 
-
-const char *seqclass2ascii(int seqclass) {
-  switch(seqclass) {
-  case SEQ_CONSTANT:
-    return "constant sequence number (!)";
-  case SEQ_64K:
-    return "64K rule";
-  case SEQ_TD:
-    return "trivial time dependency";
-  case SEQ_i800:
-    return "increments by 800";
-  case SEQ_RI:
-    return "random positive increments";
-  case SEQ_TR:
-    return "truly random";
-  case SEQ_UNKNOWN:
-    return "unknown class";
-  default:
-    return "ERROR, WTF?";
-  }
-}
-
 const char *ipidclass2ascii(int seqclass) {
   switch(seqclass) {
   case IPID_SEQ_CONSTANT:

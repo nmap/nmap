@@ -202,8 +202,6 @@ struct timeout_info {
 
 struct seq_info {
   int responses;
-  int seqclass; /* SEQ_* defines in nmap.h.  This should be removed when
-		 we remove osscan gen1 cruft. */
   int ts_seqclass; /* TS_SEQ_* defines in nmap.h */
   time_t uptime; /* time of latest system boot (or 0 if unknown ) */
   int ipid_seqclass; /* IPID_SEQ_* defines in nmap.h */

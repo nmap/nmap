@@ -263,7 +263,6 @@
 <!ELEMENT tcpsequence	EMPTY >
 <!ATTLIST tcpsequence
 			index		%attr_numeric;	#REQUIRED
-			class		CDATA		#REQUIRED
 			difficulty	CDATA		#REQUIRED
 			values		CDATA		#REQUIRED
 >

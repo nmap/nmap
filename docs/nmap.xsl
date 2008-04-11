@@ -726,7 +726,6 @@
     <h3>tcpsequence</h3>
     <ul>
         <li>index: <xsl:value-of select="@index" /></li>
-        <li>class: <xsl:value-of select="@class" /></li>
         <li>difficulty: <xsl:value-of select="@difficulty" /></li>
         <li>values: <xsl:value-of select="@values" /></li>
     </ul>
