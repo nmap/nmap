@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Removed the "class" attribute from the tcpsequence element in XML
+  output. For a long time it had always been "unknown class" because
+  Nmap doesn't calculate a class anymore. The XML output version has
+  been increased from 1.01 to 1.02.
+
 o Fixed a bug on Win32 problem which caused an infinite loop when Nmap
   encountered certain broadcast addresses. [Dudi Itzhakov]
 
