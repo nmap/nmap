@@ -2153,9 +2153,9 @@ static bool NmapArpCache(int command, struct sockaddr_storage *ss, u8 *mac) {
   if (ArpCacheSz == ArpCapacity) {
     if (ArpCapacity == 0) ArpCapacity = 32;
     else ArpCapacity <<= 2;
+    Cache = (struct ArpCache *) safe_realloc(Cache,
+				ArpCapacity * sizeof(struct ArpCache));
   }
-  Cache = (struct ArpCache *) safe_realloc(Cache, 
-					   ArpCapacity * sizeof(struct ArpCache));
 
   /* Ensure that it isn't already there ... */
   for(i=0; i < ArpCacheSz; i++) {
@@ -2168,6 +2168,7 @@ static bool NmapArpCache(int command, struct sockaddr_storage *ss, u8 *mac) {
   /* Add it to the end of the list */
   Cache[i].ip = sin->sin_addr.s_addr;
   memcpy(Cache[i].mac, mac, 6);
+  ArpCacheSz++;
   return true;
 }
 

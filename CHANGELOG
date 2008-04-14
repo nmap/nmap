@@ -17,6 +17,11 @@ o Fixed a bunch of code to avoid compilation warning messages (at
 o Added a new --min-rate option that allows specifying a minimum rate
   at which to send packets.
 
+o Fixed the NmapArpCache so that it actually works. Previously, Nmap
+  was always falling back to the system ARP cache. Of course this
+  raises the question of whether NmapArpCache is needed in the first
+  place. [Daniel Roethlisberger]
+
 o Reformat Nmap COPYING file (e.g. remove C comment markers, reduce
   line length) during Nmap windows build so that it looks much better
   when presented by the Windows executable (NSIS) installer.  Thanks
