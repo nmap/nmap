@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed an assertion failure caused when a host had NSE scripts in
+  multiple runlevels.  This in turn also fixes --host-timeout behavior
+  in NSE. [Kris]
+
 o Removed the "class" attribute from the tcpsequence element in XML
   output. For a long time it had always been "unknown class" because
   Nmap doesn't calculate a class anymore. The XML output version has

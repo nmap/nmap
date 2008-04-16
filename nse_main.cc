@@ -145,6 +145,7 @@ int script_scan(std::vector<Target*> &targets) {
 	int status;
 	std::vector<Target*>::iterator target_iter;
 	std::list<std::list<struct thread_record> >::iterator runlevel_iter;
+	std::list<struct thread_record>::iterator thr_iter;
 	std::list<struct thread_record> torun_threads;
 	lua_State* l;
 
@@ -211,6 +212,15 @@ int script_scan(std::vector<Target*> &targets) {
 		SCRIPT_ENGINE_DEBUGGING(log_write(LOG_STDOUT, "%s: Runlevel: %f\n", 
 					SCRIPT_ENGINE,
 					running_scripts.front().runlevel);)
+
+		/* Start the time-out clocks for targets with scripts in this
+		 * runlevel.  The clock is stopped in process_finalize().
+		 */
+		for (thr_iter = running_scripts.begin();
+		     thr_iter != running_scripts.end();
+		     thr_iter++)
+			if (!thr_iter->rr->host->timeOutClockRunning())
+				thr_iter->rr->host->startTimeOutClock(NULL);
 
 		status = process_mainloop(l);
 		if(status != SCRIPT_ENGINE_SUCCESS){
@@ -343,7 +353,8 @@ int process_mainloop(lua_State* l) {
 }
 
 // If the target still has scripts in either running_scripts
-// or waiting_scripts then it is still running
+// or waiting_scripts then it is still running.  This only
+// pertains to scripts in the current runlevel.
 
 int has_target_finished(Target *target) {
 	std::list<struct thread_record>::iterator iter;
@@ -441,9 +452,6 @@ int process_preparehost(lua_State* l, Target* target, std::list<struct thread_re
 	std::vector<run_record> torun;
 	std::vector<run_record>::iterator iter;
 	struct run_record rr;
-
-	if (!target->timeOutClockRunning())
-		target->startTimeOutClock(NULL);
 
 	/* find the matching hostrules
 	 * */
