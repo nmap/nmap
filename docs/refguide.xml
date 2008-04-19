@@ -652,10 +652,10 @@ you would expect.</para>
         </term>
         <listitem>
 
-          <para>Another host discovery option is the IPProto ping,
-          which sends IP packets with the specified protocol numbers
-          in the Protocol field of the IP headers.  The protocol list
-          takes the same format as with the port lists in the
+          <para>The newest host discovery option is the IP protocol ping,
+          which sends IP packets with the specified protocol number
+          set in their IP header.  The protocol list
+          takes the same format as do port lists in the
           previously discussed TCP and UDP host discovery options.  If
           no protocols are specified, the default is to send multiple
           IP packets for ICMP (protocol 1), IGMP (protocol 2), and
@@ -663,15 +663,16 @@ you would expect.</para>
           configured at compile-time by changing
           DEFAULT_PROTO_PROBE_PORT_SPEC in <filename>nmap.h</filename>.
           Note that for the ICMP, IGMP, TCP (protocol 6), and UDP
-          (protocol 17), the packets are sent with the additional
+          (protocol 17), the packets are sent with the proper protocol
           headers while other protocols are sent with no additional data
           beyond the IP header (unless the
           <option>--data-length</option> option is specified).</para>
 
-          <para>This host discovery method looks for responses in the
-          same protocol as the probes, or ICMP Protocol Unreachable
-          messages which signify the specified IP protocol isn't
-          supported on the host (which gives away that it's up).</para>
+          <para>This host discovery method looks for either responses
+          using the same protocol as a probe, or ICMP protocol
+          unreachable messages which signify that the given protocol
+          isn't supported on the destination host.  Either type of
+          response signifies that the target host is alive.</para>
 
         </listitem>
       </varlistentry>
