@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Zenmap now prints an exception message rather than segfaulting when it
+  can't open a display (such as when trying to connect to an X server as
+  an unauthorized user). Thanks to Aaron Leininger for the initial
+  report and Guilherme Polo for suggesting the fix.
+
 o Fixed an assertion failure caused when a host had NSE scripts in
   multiple runlevels.  This in turn also fixes --host-timeout behavior
   in NSE. [Kris]
