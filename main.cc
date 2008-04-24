@@ -157,7 +157,6 @@ int main(int argc, char *argv[]) {
   char *endptr;
   int interactivemode = 0;
   int fd;
-  struct timeval tv;
   int arglen = 0;
 
 #ifdef __amigaos__
@@ -179,10 +178,6 @@ int main(int argc, char *argv[]) {
   // MTRACE should only be defined during debug sessions.
   mtrace();
 #endif
-
-  /* You never know when "random" numbers will come in handy ... */
-  gettimeofday(&tv, NULL);
-  srand((tv.tv_sec ^ tv.tv_usec) ^ getpid());
 
   /* Trap these sigs for cleanup */
 #if HAVE_SIGNAL
