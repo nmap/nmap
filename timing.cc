@@ -313,7 +313,7 @@ double RateMeter::getCurrentByteRate(const struct timeval *now, bool update) {
 void RateMeter::update(u32 packets, u32 bytes, const struct timeval *now) {
   struct timeval tv;
   double diff;
-  double d;
+  double interval;
   double count;
 
   assert(isSet(&start_tv));
@@ -333,8 +333,11 @@ void RateMeter::update(u32 packets, u32 bytes, const struct timeval *now) {
   /* Calculate approximate moving averages of how many packets and bytes were
      recorded in the last CURRENT_RATE_HISTORY seconds. These averages are what
      are returned as the "current" rates. */
+
   /* How long since the last update? */
   diff = TIMEVAL_SUBTRACT(*now, last_update_tv) / 1000000.0;
+  assert(diff >= 0.0);
+
   /* Find out how far back in time to look. We want to look back
      CURRENT_RATE_HISTORY seconds, or to when the last update occurred,
      whichever is longer. However, we never look past the start. */
@@ -343,26 +346,28 @@ void RateMeter::update(u32 packets, u32 bytes, const struct timeval *now) {
      threshold for deciding how far back to look. */
   TIMEVAL_ADD(tmp, start_tv, (time_t) (CURRENT_RATE_HISTORY * 1000000.0));
   if (TIMEVAL_AFTER(*now, tmp))
-    d = MAX(CURRENT_RATE_HISTORY, diff);
+    interval = MAX(CURRENT_RATE_HISTORY, diff);
   else
-    d = TIMEVAL_SUBTRACT(*now, start_tv) / 1000000.0;
-  assert(d >= 0);
+    interval = TIMEVAL_SUBTRACT(*now, start_tv) / 1000000.0;
+  assert(diff <= interval);
   /* If we get packets in the very same instant that the timer is started,
      there's no way to calculate meaningful rates. Ignore it. */
-  if (d == 0.0)
+  if (interval == 0.0)
     return;
-  /* To calculate the approximate average of the packet rate over the last d
-     seconds, we assume that the rate was constant over that interval. We
-     calculate how many packets would have been received in that interval,
-     ignoring the first diff seconds' worth, (d - diff) * current_packet_rate.
+
+  /* To calculate the approximate average of the packet rate over the last
+     interval seconds, we assume that the rate was constant over that interval.
+     We calculate how many packets would have been received in that interval,
+     ignoring the first diff seconds' worth:
+       (interval - diff) * current_packet_rate.
      Then we add how many packets were received in the most recent diff seconds.
      Divide by the width of the interval to get the average. */
-  count = (d - diff) * current_packet_rate + packets;
-  current_packet_rate = count / d;
+  count = (interval - diff) * current_packet_rate + packets;
+  current_packet_rate = count / interval;
   assert(current_packet_rate >= 0.0);
   /* Likewise with the byte rate. */
-  count = (d - diff) * current_byte_rate + bytes;
-  current_byte_rate = count / d;
+  count = (interval - diff) * current_byte_rate + bytes;
+  current_byte_rate = count / interval;
   assert(current_byte_rate >= 0.0);
 
   last_update_tv = *now;
