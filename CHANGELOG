@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fix a bug in the nbase random number generator (and the way it
+  interacted with Nmap and MS Windows) which caused duplicates in some
+  instances.  Thanks to Jah for reporting the problem and working with
+  Brandon Enright and Fyodor and Kris to fix it.
+
 o The scan status message now shows correct elapsed times past 24
   minutes. Previously the hours would roll over prematurely. [David]
 
