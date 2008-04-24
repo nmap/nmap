@@ -335,10 +335,17 @@ void RateMeter::update(u32 packets, u32 bytes, const struct timeval *now) {
      are returned as the "current" rates. */
   /* How long since the last update? */
   diff = TIMEVAL_SUBTRACT(*now, last_update_tv) / 1000000.0;
-  /* Look back CURRENT_RATE_HISTORY seconds, or to when the last sample was
-     recorded, whichever is longer, but don't look back past the start. */
-  d = MAX(CURRENT_RATE_HISTORY, diff);
-  d = MIN(d, TIMEVAL_SUBTRACT(*now, start_tv) / 1000000.0);
+  /* Find out how far back in time to look. We want to look back
+     CURRENT_RATE_HISTORY seconds, or to when the last update occurred,
+     whichever is longer. However, we never look past the start. */
+  struct timeval tmp;
+  /* Find the time CURRENT_RATE_HISTORY seconds after the start. That's our
+     threshold for deciding how far back to look. */
+  TIMEVAL_ADD(tmp, start_tv, (time_t) (CURRENT_RATE_HISTORY * 1000000.0));
+  if (TIMEVAL_AFTER(*now, tmp))
+    d = MAX(CURRENT_RATE_HISTORY, diff);
+  else
+    d = TIMEVAL_SUBTRACT(*now, start_tv) / 1000000.0;
   assert(d >= 0);
   /* If we get packets in the very same instant that the timer is started,
      there's no way to calculate meaningful rates. Ignore it. */
