@@ -1,0 +1,37 @@
+<pkgref spec="1.12" uuid="FC648982-1188-47E2-9FA7-5492BAB9EF2D">
+  <config>
+    <identifier>org.insecure.nmap.zenmap.pkg</identifier>
+    <version>1</version>
+    <description />
+    <post-install type="none" />
+    <requireAuthorization />
+    <installFrom relative="true" includeRoot="true">Zenmap/Applications/Zenmap.app</installFrom>
+    <installTo relocatable="true">/Applications</installTo>
+    <flags>
+      <followSymbolicLinks />
+    </flags>
+    <packageStore type="internal" />
+    <mod>parent</mod>
+    <mod>installFrom.isRelativeType</mod>
+  </config>
+  <contents>
+    <file-list>02zenmap-contents.xml</file-list>
+    <component id="org.insecure.Zenmap"
+    path="Zenmap/Applications/Zenmap.app"
+    version="4.60">
+      <locator-info>
+        <token title="pkmk-token-199">
+          <search-rule>
+            <combo identifier="org.insecure.Zenmap"
+            default-path="/Applications/Zenmap.app" />
+          </search-rule>
+        </token>
+      </locator-info>
+    </component>
+    <filter>/CVS$</filter>
+    <filter>/\.svn$</filter>
+    <filter>/\.cvsignore$</filter>
+    <filter>/\.cvspass$</filter>
+    <filter>/\.DS_Store$</filter>
+  </contents>
+</pkgref>

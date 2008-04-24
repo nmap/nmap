@@ -1,0 +1,33 @@
+<pkmkdoc spec="1.12">
+  <properties>
+    <title>Nmap</title>
+    <organization>org.insecure</organization>
+    <userSees ui="both" />
+    <min-target os="2" />
+    <domain system="true" />
+  </properties>
+  <distribution>
+    <versions min-spec="1.000000" />
+    <scripts></scripts>
+  </distribution>
+  <contents>
+    <choice title="Nmap" id="choice92" starts_selected="true"
+    starts_enabled="true" starts_hidden="false">
+      <pkgref id="org.insecure.nmap.nmap.pkg" />
+    </choice>
+    <choice title="Zenmap" id="choice93" starts_selected="true"
+    starts_enabled="true" starts_hidden="false">
+      <pkgref id="org.insecure.nmap.zenmap.pkg" />
+    </choice>
+  </contents>
+  <resources bg-scale="none" bg-align="topleft">
+    <locale lang="en" />
+  </resources>
+  <flags />
+  <item type="file">01nmap.xml</item>
+  <item type="file">02zenmap.xml</item>
+  <mod>properties.customizeOption</mod>
+  <mod>properties.title</mod>
+  <mod>properties.anywhereDomain</mod>
+  <mod>properties.systemDomain</mod>
+</pkmkdoc>
