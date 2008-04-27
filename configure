@@ -4252,7 +4252,7 @@ fi
 
 
 needs_cpp_precomp=no
-LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
+LUAFLAGS="MYCFLAGS=\"$CFLAGS -DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
 
 case "$host" in
   *alpha-dec-osf*)
@@ -4481,11 +4481,11 @@ _ACEOF
 
 fi
 
-    LUAFLAGS="MYCFLAGS=\"-DLUA_USE_MACOSX\""
+    LUAFLAGS="MYCFLAGS=\"$CFLAGS -DLUA_USE_MACOSX\""
     needs_cpp_precomp=yes
     ;;
   *)
-   LUAFLAGS="MYCFLAGS=\"-DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
+   LUAFLAGS="MYCFLAGS=\"$CFLAGS -DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
 esac
 
 
