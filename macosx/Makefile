@@ -20,6 +20,20 @@ PACKAGEMAKER = /Developer/usr/bin/packagemaker
 
 EXTRA_DIST_FILES = $(addprefix $(IMAGE_STAGING_DIR)/,COPYING README)
 
+# Flags for building universal binaries. See
+# http://developer.apple.com/documentation/Porting/Conceptual/PortingUnix/compiling/chapter_4_section_3.html.
+UNIVERSAL_CONFIGURE_ARGS = --disable-dependency-tracking
+UNIVERSAL_CPPFLAGS = -isysroot /Developer/SDKs/MacOSX10.4u.sdk
+UNIVERSAL_CFLAGS = $(UNIVERSAL_CPPFLAGS) -mmacosx-version-min=10.4 -arch ppc -arch i386
+UNIVERSAL_CXXFLAGS = $(UNIVERSAL_CFLAGS)
+UNIVERSAL_LDFLAGS = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4 -arch ppc -arch i386
+
+CONFIGURE_ARGS += $(UNIVERSAL_CONFIGURE_ARGS)
+CPPFLAGS += $(UNIVERSAL_CPPFLAGS)
+CFLAGS += $(UNIVERSAL_CFLAGS)
+CXXFLAGS += $(UNIVERSAL_CXXFLAGS)
+LDFLAGS += $(UNIVERSAL_LDFLAGS)
+
 $(IMAGE_NAME): $(IMAGE_STAGING_DIR)/$(PKG_NAME) $(EXTRA_DIST_FILES)
 	rm -f $@
 	hdiutil create -imagekey zlib-level=9 -srcfolder $(IMAGE_STAGING_DIR) $@
@@ -34,7 +48,7 @@ stage-nmap:
 	svn export ../nsock $(NMAP_BUILD_DIR)/nsock
 	svn export ../nbase $(NMAP_BUILD_DIR)/nbase
 	svn export ../zenmap $(NMAP_BUILD_DIR)/zenmap
-	cd $(NMAP_BUILD_DIR) && ./configure --prefix="$(PREFIX)" --without-zenmap --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
+	cd $(NMAP_BUILD_DIR) && ./configure --prefix="$(PREFIX)" --without-zenmap --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" $(CONFIGURE_ARGS)
 	make -C $(NMAP_BUILD_DIR)
 	rm -rf $(NMAP_STAGING_DIR)
 	make -C $(NMAP_BUILD_DIR) install DESTDIR="`pwd`/$(NMAP_STAGING_DIR)"
