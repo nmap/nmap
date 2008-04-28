@@ -97,7 +97,7 @@
  ***************************************************************************/
 
 #ifndef WIN32
-#include "config.h"
+#include "nmap_config.h"
 #endif
 
 #include <sys/types.h>

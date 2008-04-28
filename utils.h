@@ -119,7 +119,7 @@
 
 #include <assert.h>
 #include <sys/mman.h>
-#include "config.h"
+#include "nmap_config.h"
 #endif
 
 #if HAVE_UNISTD_H

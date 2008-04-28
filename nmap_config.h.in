@@ -1,6 +1,6 @@
 /***************************************************************************
- * config.h.in -- Autoconf uses this template, combined with the configure *
- * script knowledge about system capabilities, to build the config.h       *
+ * nmap_config.h.in -- Autoconf uses this template, combined with the      *
+ * configure script knowledge about system capabilities, to build this     *
  * include file that lets nmap better understand system particulars.       *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************

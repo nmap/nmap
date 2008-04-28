@@ -33,8 +33,8 @@ AC_SUBST(libpcapdir)
 pcredir=libpcre
 AC_SUBST(pcredir)
 
-dnl use config.h instead of -D macros
-AC_CONFIG_HEADER(config.h)
+dnl use nmap_config.h instead of -D macros
+AC_CONFIG_HEADER(nmap_config.h)
 
 dnl Host specific hacks
 AC_CANONICAL_HOST

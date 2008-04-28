@@ -1806,7 +1806,7 @@ libpcapdir=libpcap
 pcredir=libpcre
 
 
-ac_config_headers="$ac_config_headers config.h"
+ac_config_headers="$ac_config_headers nmap_config.h"
 
 
 ac_aux_dir=
@@ -8985,7 +8985,7 @@ cat >>$CONFIG_STATUS <<\_ACEOF
 for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
-    "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
+    "nmap_config.h") CONFIG_HEADERS="$CONFIG_HEADERS nmap_config.h" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
