@@ -5069,6 +5069,7 @@ match rtsp m|^RTSP/1\.0 200 OK\r\n.*Server: Helix [\w ]+Server Version ([\d.]+) 
 match rtsp m|^RTSP/1\.0 200 OK\r\n.*Server: Helix [\w ]+Server Plus Version ([\d.]+) \(win32\)|s p/Helix DNA Server Plus/ v/$1/ o/Windows/
 match rtsp m|^RTSP/1\.0 \d\d\d .*\r\nServer: Helix [\w ]+Server Version ([\d.]+) \(linux-[^)\r\n]+\)|s p/Helix DNA Server/ v/$1/ o/Linux/
 match rtsp m|^RTSP/1\.0 \d\d\d .*\r\nServer: Helix [\w ]+Server Version ([\d.]+) \(sunos-([\d.]+)-sparc-server\)|s p/Helix DNA Server/ v/$1/ i/SunOS $2 sparc/ o/SunOS/
+match rtsp m|^RTSP/1\.0 \d\d\d .*\r\nServer: Helix Server Version ([\d.]+) \(sunos-([\d.]+)-sparc-server\)|s p/Helix DNA Server/ v/$1/ i/SunOS $2 sparc/ o/SunOS/
 
 match rtsp m|^RTSP/1\.0 \d\d\d .*\r\nServer: DSS/([\d.]+) \(Build/[\d.]+; Platform/Win32| p/Darwin Streaming Server/ v/$1/ o/Windows/
 match rtsp m|^RTSP/1\.0 \d\d\d .*\r\nServer: DSS/([\d.]+) \(Build/[\d.]+; Platform/Solaris| p/Darwin Streaming Server/ v/$1/ o/Solaris/
