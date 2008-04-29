@@ -42,6 +42,11 @@ Probe TCP NULL q||
 totalwaitms 6000
 match acap m|^\* ACAP \(IMPLEMENTATION \"CommuniGate Pro ACAP (\d[-.\w]+)\"\) | p/CommuniGate Pro ACAP server/ i/for mail client preference sharing/ v/$1/
 match activemq m|^\0\0\0\xae\x01ActiveMQ\0\0\0| p/Apache ActiveMQ/
+
+# Microsoft ActiveSync Version 3.7 Build 3083 (It's used for syncing
+# my ipaq it disapears when you remove the ipaq.)
+match activesync m|^.\0\x01\0[^\0]\0[^\0]\0[^\0]\0[^\0]\0[^\0]\0.*\0\0\0$|s p/Microsoft ActiveSync/ o/Windows/
+
 # Ad-Aware SE Enterprise Edition 2005/Ad-Axis Client 1.0
 match adaware m|^IceP\x01\0\x01\0\x03\0\x0e\0\0\0| p/Lavasoft Ad-Aware SE Enterprise/
 # AMANDA index server 2.4.2p2 on Linux 2.4
@@ -84,7 +89,7 @@ match backdoor m|^220 CAFEiNi [-\w_.]+ FTP server\r\n$| p/CAFEiNi trojan/ i/**BA
 match bf2rcon m|^### Battlefield 2 ModManager Rcon v([\d.]+)\.\n### Digest seed: \w+\n\n| p/Battlefield 2 ModManager Remote Console/ v/$1/
 
 # Bittorrent Client 3.2.1b on Linux 2.4.X
-match bittorent m|^\x13BitTorrent protocol\0\0\0\0\0\0\0\0| p/Bittorrent P2P client/
+match bittorrent m|^\x13BitTorrent protocol\0\0\0\0\0\0\0\0| p/Bittorrent P2P client/
 # BMC Software Patrol Agent 3.45 and HP Patrol Agent
 match softwarepatrol m|^\0\0\0\x17i\x02\x03..\0\x05\x02\0\x04\x02\x04\x03..\0\x03\x04\0\0\0|s p|BMC/HP Software Patrol Agent|
 match scmbug m|^SCMBUG-SERVER RELEASE_([-\w_.]+) \d+\n| p/Scmbug bugtracker/ v/$1/
@@ -113,7 +118,7 @@ match chargen m|^The quick brown fox jumps over the lazy dog\. 1234567890\r\n| p
 
 match chat m|^WebStart Chat Service Established\.\.\.\r\n\(C\) 2000-\d+ R Gabriel all Rights Reserved\r\n| p/WebStart Chat Service/
 match chat m|^\*\x01..\0\x04\0\0\0\x01$|s p/AIM or ICQ server/
-match chat-ctl m|^InfoChat Server v([\d.]+) Remote Control ready\n\r| p/InfoChat Remote Control/ v/$1/
+match chat-ctrl m|^InfoChat Server v([\d.]+) Remote Control ready\n\r| p/InfoChat Remote Control/ v/$1/
 match chess m=^\n\r             _       __     __                             __      \n\r            \| \|     / /__  / /________  ____ ___  ___     / /_____ \n\r            \| \| /\| / / _ \\/ / ___/ __ \\/ __ `__ \\/ _ \\   / __/ __ \\\n\r= p/Lasker Internet Chess server/
 # Citrix, Metaframe XP on Windows
 match citrix-ica m|^\x7f\x7fICA\0\x7f\x7fICA\0| p/Citrix Metaframe XP ICA/ o/Windows/
@@ -180,7 +185,7 @@ match dict m|^220 hello <> msg\r\n$| p/Serpento dictd/
 
 match directconnect m/^\$MyNick ([-.\w]+)|\$Lock/ p/Direct Connect P2P/ i/User: $1/ o/Windows/
 match directconnect m|^\r\nDConnect Daemon v([\d.]+)\r\nlogin: | p/Direct Connect P2P/ v/$1/ o/Windows/
-match directconenct m=<Hub-Security> Your IP is temporarily banned for (\d+) minutes\.\|= p/Shadows DirectConnect hub/ i/Banned for $1 minutes/
+match directconnect m=<Hub-Security> Your IP is temporarily banned for (\d+) minutes\.\|= p/Shadows DirectConnect hub/ i/Banned for $1 minutes/
 match directconnect m=<Hub-Security> You are being banned for (\d+) minutes \(by SDCH Anti Hammering\)\.\|= p/Shadows DirectConnect hub/ i/Banned for $1 minutes/
 match directconnect m=<Hub-Security> You are being redirected to ([\d.]+)\|\$ForceMove [\d.]+\|= p/PtokaX directconnect hub/ i/Redirected to $1/
 match directconnect-admin m=^\r\nOpen DC Hub, version ([\d.]+), administrators port\.\r\nAll commands begin with '\$' and end with '\|'\.\r\nPlease supply administrators passord\.\r\n= p/OpenDCHub directconenct hub admin port/ v/$1/ o/Unix/
@@ -930,10 +935,10 @@ match issc m|^\rYou do not have permission to connect to the builder port\.\r\nT
 # ISS RealSecure ServerSensor 7.0 on Windows 2000 Server
 # ISS RealSecure Server Sensor 6.0 on Windows NT 4.0 Server SP6a
 # ISS RealSecure Server Sensor 7.0 issdaemon on Microsoft Windows NT Workstation with SP6a
-match issrealsecure m|^\0\0\0.\x08\x01\x03\x01\0.\x02\0\0..\0\0.\0\0\0..\0\0\x80\x04..\0.\0\xa0|s p/ISS RealSecure IDS/ o/Windows/
-match issrealsecure m|^\0\0\0.\x08\x01\x04\x01\0..\0\0..\0\0.\0\0\0..\0\0\x80\x04..\0.\0\xa0\0\0|s p/ISS RealSecure IDS ServerSensor/ v/6.0 - 7.0/ o/Windows/
+match iss-realsecure m|^\0\0\0.\x08\x01\x03\x01\0.\x02\0\0..\0\0.\0\0\0..\0\0\x80\x04..\0.\0\xa0|s p/ISS RealSecure IDS/ o/Windows/
+match iss-realsecure m|^\0\0\0.\x08\x01\x04\x01\0..\0\0..\0\0.\0\0\0..\0\0\x80\x04..\0.\0\xa0\0\0|s p/ISS RealSecure IDS ServerSensor/ v/6.0 - 7.0/ o/Windows/
 # I've only seen 1 example of the following. Probably not general enough
-match issrealsecure m|^\0\0\x01/\x08\x01\x03\x01\x01'\x04\0\0\0\x18\0\0\xa4\0\0\0f\x02\0\0\x80\x04\x06\0\0\x80\0\xa05Microsoft Enhanced RSA and AES Cryptographic Provider|s p/ISS Realsecure Workgroup Manager/ o/Windows/
+match iss-realsecure m|^\0\0\x01/\x08\x01\x03\x01\x01'\x04\0\0\0\x18\0\0\xa4\0\0\0f\x02\0\0\x80\x04\x06\0\0\x80\0\xa05Microsoft Enhanced RSA and AES Cryptographic Provider|s p/ISS Realsecure Workgroup Manager/ o/Windows/
 
 match ixia-unknown m|^Enter port cpu supported card port number and hit Enter\. For example \"3 4\"\r\n| p/IXIA 400T traffic QA/
 match ixia-unknown m|^.*\0\x18Ixia Hardware I/O Server\x13Ixia Communications\x18Ixia Hardware I/O Server\x0b([\d.]+)|s p/IXIA 400T traffic QA/
@@ -1004,10 +1009,6 @@ match donkey m|^HTTP/1\.1 404 Not Found\r\nDate: .*\r\nServer: eserver ([\d.]+)\
 
 # Monopoly game server
 match monopd m|^<monopd><server version=\"([\d.]+)\"/>.*</monopd>\n| p/monopd/ v/$1/ o/Unix/
-
-# Microsoft ActiveSync Version 3.7 Build 3083 (It's used for syncing
-# my ipaq it disapears when you remove the ipaq.)
-match msactivesync m|^.\0\x01\0[^\0]\0[^\0]\0[^\0]\0[^\0]\0[^\0]\0.*\0\0\0$|s p/Microsoft ActiveSync/ o/Windows/
 
 match mud m|^\n\r\xff\xfbUDo you want ANSI color\? \(Y/n\) $| p|ROM-based MUD| i|http://rrp.rom.org/|
 
@@ -2470,7 +2471,7 @@ match telnet-proxy m|^\r\n\r\nEnter computer name to connect to\.\r\ne\.g\. \"Ne
 match telnet-proxy m|^\xff\xfc\x01\xff\xfd\"ixProxy V([\d.]+), Copyright \(C\) \d+ Ixia Communications\r\nEnter target port ip address as login name \(example: 10\.0\.1\.1\)\r\nlogin:| p/Ixia ixProxy telnet proxy/
 match telnet-proxy m|^\xff\xfb\x01\xff\xfb\x03Blue Coat Shell proxy\r\nShell-proxy>| p/Blue Coat Shell proxy/ o/SGOS/
 
-match telnet-ssl m|^\xff\xfd.$| p|telnetd-ssl/GNU Gatekeeper|
+match telnets m|^\xff\xfd.$| p|telnetd-ssl/GNU Gatekeeper|
 
 # tinc 1.0.2-2 on Linux
 match tinc m|^0 \w+ 17\n| p/tinc vpn daemon/
@@ -2500,9 +2501,9 @@ match keriopfgui m|^\x12\0\r\0\x03\0\0\0\0\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0
 # Tiny Personal Firewall 2.0
 # Kerio Personal Firewall, Firewall engine version 2.1.5 Driver version 3.0.0 on WinXP
 match tinyfw m|^\x0f\0\n\0\x01\0\0\0\0\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0| p/Kerio Personal Firewall/ v/2.1.X/ i/or Tiny Personal Firewall/
-match ssl/vmware-auth m|^220 VMware Authentication Daemon Version (\d[-.\w]+): SSL Required\r\n| p/VMware Authentication Daemon/ v/$1/
-match ssl/vmware-auth m|^220 VMware Authentication Daemon Version (\d[-.\w]+): SSL [rR]equired, MKSDisplayProtocol:VNC \r\n| p/VMware GSX Authentication Daemon/ v/$1/ i/Uses VNC/
-match ssl/vmware-auth m|^220 VMware Authentication Daemon Version (\d[-.\w]+): SSL Required, ServerDaemonProtocol:SOAP, MKSDisplayProtocol:VNC| p/VMware GSX Authentication Daemon/ v/$1/ i/Uses VNC, SOAP/
+match vmware-auth/ssl m|^220 VMware Authentication Daemon Version (\d[-.\w]+): SSL Required\r\n| p/VMware Authentication Daemon/ v/$1/
+match vmware-auth/ssl m|^220 VMware Authentication Daemon Version (\d[-.\w]+): SSL [rR]equired, MKSDisplayProtocol:VNC \r\n| p/VMware GSX Authentication Daemon/ v/$1/ i/Uses VNC/
+match vmware-auth/ssl m|^220 VMware Authentication Daemon Version (\d[-.\w]+): SSL Required, ServerDaemonProtocol:SOAP, MKSDisplayProtocol:VNC| p/VMware GSX Authentication Daemon/ v/$1/ i/Uses VNC, SOAP/
 
 match vnc m|^RFB 003\.00(\d)\n$| p/VNC/ i/protocol 3.$1/
 match vnc m|^RFB 003\.00(\d)\n\0\0\0\0\0\0\0\x1aToo many security failures$| p/VNC/ i/protocol 3.$1; Locked out/
@@ -2533,8 +2534,8 @@ match xbmsp m|^XBMSP-1\.0 1\.0 Media File XStream Server \n| p/Media File XStrea
 match xinetd m=^([-\w_.]+ (tcp|udp) \d{1,5}\n)+= p/xinetd service display/ o/Unix/
 # XFCE Desktop Version 3.99.4 From Gentoo 1.4 Ebuild on Linux 2.4.6
 match xfce-session m|^\0\x01\0.\0\0\0\0$|s p/XFCE Session Manager/
-match xmailctl m|^\+\d+ <[\d.]+@[\d.]+> XMail ([\d.]+) \(Linux/Ix86\) CTRL Server; .*\r\n| p/XMail CTRL Server/ v/$1/ o/Linux/
-match xmailctl m|^\+\d+ <[\d.]+@[\d.]+> XMail ([\d.]+) CTRL Server; .*\r\n| p/XMail CTRL Server/ v/$1/
+match xmail-ctrl m|^\+\d+ <[\d.]+@[\d.]+> XMail ([\d.]+) \(Linux/Ix86\) CTRL Server; .*\r\n| p/XMail CTRL Server/ v/$1/ o/Linux/
+match xmail-ctrl m|^\+\d+ <[\d.]+@[\d.]+> XMail ([\d.]+) CTRL Server; .*\r\n| p/XMail CTRL Server/ v/$1/
 match xmbmon m|^TEMP0 +: +[\d.]+\nTEMP1 +: +[\d.]+\nTEMP2 +: +[\d.]+\nFAN0 +: +[\d.]+\nFAN1 +: +[\d.]+\nFAN2 +: +[\d.]+\n| p/Mother Board Monitor/
 
 # Right now once a softmatch triggers, only match lines with the same
@@ -2578,7 +2579,7 @@ match osiris m|^\x80[=+:]\x01\x03\x01\0.\0\0\0\x10\0|s p/osiris host IDS agent/
 
 match svnserve m|^\( success \( \d \d \( ANONYMOUS \) \( | p/Subversion/
 
-match icecreamd m|^[\x14-\x1f]\0\0\0$| p/icecreamd/
+match icecream m|^[\x14-\x1f]\0\0\0$| p/icecreamd/
 match apc-agent m|^\xac\xed\0\x05$| p/APC PowerChute agent/ d/power-device/
 # OpenH323 Gatekeeper 2.0.3
 match afs3-fileserver m|^\xff\xfd\x03\xff\xfb\x05.*Version:\r\nGatekeeper\(GNU\) Version\(([\d.]+)\) Ext\(.*\) Build\(.*\) Sys\(Linux .*\)\r\n| p/OpenH323 Gatekeeper/ v/$1/ o/Linux/
@@ -2587,7 +2588,7 @@ match wingate-control m|^.\x01.[\x02\x03]\x01\d+\0$|s p/WinGate Administration/ 
 # Wingate redir: Probably not general enough
 match wingate m|^\0\n\0\0\x02\0\0\0\x01\0$| p/WinGate transparent redirection/ o/Windows/
 match mail-admin m|^OK0100 eXtremail V([\d.]+) release (\d+) REMote management \.\.\.\r\n| p/eXtremail remote management/ v/$1 release $2/
-match pppd m|^SuSE Meta pppd \(smpppd\), Version ([\d.]+)\r\n| p/SuSE Meta pppd/ v/$1/ o/Linux/
+match ppp m|^SuSE Meta pppd \(smpppd\), Version ([\d.]+)\r\n| p/SuSE Meta pppd/ v/$1/ o/Linux/
 match pppctl m|^PPP on ([-\w_.]+)> | p/pppctld/ h/$1/
 
 match honeypot m|^503 Service Unavailable\r\n\r\n\0$| p/Network Flight Recorder BackOfficer Friendly honeypot/
@@ -2611,7 +2612,7 @@ match access-remote-pc m|^\x99\xf3\0\0\0\0\0\0\xff\xff\xff\xff$| p/Access Remote
 
 match biff m|^Message received\n$| p/NotifyMail biffd/
 match biff m|^Use of uninitialized value in transliteration \(tr///\) at /var/jchkmail/user-filter| p/Joe's j-chkmail biffd/
-match bitdefender-ctl m|^\(null\) 500 Internal Error\n\(null\) 500 Internal Error\n$| p/Bitdefender Remote Admin Console/ o/Windows/
+match bitdefender-ctrl m|^\(null\) 500 Internal Error\n\(null\) 500 Internal Error\n$| p/Bitdefender Remote Admin Console/ o/Windows/
 
 match bittorrent-tracker m|^This is not a rootkit or other backdoor, it's a BitTorrent\r\nclient\. Really\.| p/Transmission bittorrent tracker/
 
@@ -2698,7 +2699,7 @@ match ftp m|^220 Ready\r\n502 Not implemented\r\n$| p/Global Cache GC-100 ftpd/ 
 
 match flashconnect m|^FlashCONNECT ([\d.]+) invalid message\.\n$| p/Raining Data FlashCONNECT/ v/$1/
 
-match fw1-topo m|^Q\0\0\0$| p/Checkpoint FW-1 Topology download/ d/firewall/
+match fw1-topology m|^Q\0\0\0$| p/Checkpoint FW-1 Topology download/ d/firewall/
 
 # GKrellM System Monitor 2.1.15 on Linux
 match gkrellm m|^<error>\nBad connect string!| p/GKrellM System Monitor/
@@ -2989,14 +2990,13 @@ sslports 443
 # Kerio PF 4.0.11 unregistered - Service process (Port 44xxx?) on MS W2K SP4+
 match keriopfservice m|^(HTTP/1\.0) 200 OK\r\nServer: Kerio Personal Firewall\r\n| p/Kerio PF 4 Service/ i/$1/
 
-match backupexecra m|^\xf6\xff\xff\xff\x10\0\0\0\0\0\0\0\0\0\0\0$| p/Veritas BackupExec Remote Agent/
+match backupexec-remote m|^\xf6\xff\xff\xff\x10\0\0\0\0\0\0\0\0\0\0\0$| p/Veritas BackupExec Remote Agent/
 
 match backdoor m|^:[-\w_.]+ 451 GET :\r\n| p/**BACKDOOR**/ o/Windows/
 match bittorrent m|^Nice try\.\.\.\r\n$| p/Transmission Bittorrent client/
 
 match csta m|^<HTML>\r\n<HEAD>\r\n<TITLE>CSTA-Mono Server Home Page </TITLE>\r\n| p/Alcatel OmniPCX Enterprise/ d/PBX/
 
-match dantzretrospect m|^\0\xca\0\0\0\0\0\x04\0\0\0\0$| p/Dantz Retrospect/ v/6.0/
 match dnet-keyproxy m|^HTTP/1\.0 302 Found\r\nLocation: http://www\.distributed\.net/\r\n\r\n$| p/Distributed.Net HTTP Keyproxy/
 
 # Digital UNIX 5.6
@@ -4744,7 +4744,7 @@ match imap m|^\* OK ([-.+\w]+) IMAP4rev1 v1(\d[-.\w]+) server ready\r\n| p/UW-Im
 # gnu/mailutils imap4d 0.3.2 on Linux
 match imap m|^\* OK IMAP4rev1\r\nGET BAD  Invalid command\r\n\* BAD  Null command\r\n$| p/GNU Mailutils imapd/
 # Cyrus IMAP 2.1.14
-match ssl/imap m|^\* BYE Fatal error: tls_start_servertls\(\) failed\r\n$| p/Cyrus imapd/
+match imaps m|^\* BYE Fatal error: tls_start_servertls\(\) failed\r\n$| p/Cyrus imapd/
 match imap m|^\* OK ([-\w_.]+)\r\nGET BAD Error in IMAP command received by server\.\r\n\* BAD Error in IMAP command received by server\.\r\n| p/Dovecot imapd/ h/$1/
 match imap m|^\* OK IMAP4 IMAP4rev1 Server\r\nGET BAD Unrecognised Command\r\n| p/Floosietek FTgate imapd/
 match imap m|^\* OK IMAP4r1 server \[([-\w_.]+)\] ready\r\nGET BAD Protocol Error: \"Unidentifiable command specified\"\.\r\n\* BAD Protocol Error: \"Tag not found in command\"\.\r\n| p/Microsoft Exchange imapd/ h/$1/ i/Version masked/ o/Windows/
@@ -4818,14 +4818,15 @@ match giop m|^GIOP\x01\0\x01\x06\0\0\0\0$| p/omniORB omniNames/ i/Corba naming s
 # Oracle MTS Recovery Service 9.2.0.1 on Windows 2000 Professional
 match oracle-mts m|^HTTP/1\.0 200 OK\r\nContent-length: 7\r\n\r\nunknown$| p/Oracle MTS Recovery Service/
 
-match ssl/pop3 m|^-ERR \[SYS/PERM\] Fatal error: tls_start_servertls\(\) failed\r\n$| p/Cyrus pop3sd/
-match ssl/pop3 m|^-ERR Fatal error: pop3s: required OpenSSL options not present\r\n| p/Cyrus pop3sd/
+match pop3s m|^-ERR \[SYS/PERM\] Fatal error: tls_start_servertls\(\) failed\r\n$| p/Cyrus pop3sd/
+match pop3s m|^-ERR Fatal error: pop3s: required OpenSSL options not present\r\n| p/Cyrus pop3sd/
 # Postgresql-server-7.3.2-3
 match postgresql m|^EFATAL:  invalid length of startup packet\n\0$| p/PostgreSQL/
 match postgrey m|^action=dunno\n\n$| p/Postfix Greylist Daemon/
 match powerchute m|^server=&type=0&id=&count=1&oid=[\d.]+&value=&error=4\n| p/APC Powerchute/ d/power-device/
 
 match rendezvous m|^HTTP/1\.1 400 Bad Request\r\nDate: .*\r\nDAAP-Server: iTunes/(\d[-.\w]+) \((.*)\)\r\n| p/Apple iTunes/ v/$1/ o/$2/
+match retrospect m|^\0\xca\0\0\0\0\0\x04\0\0\0\0$| p/Dantz Retrospect/ v/6.0/
 match rfidquery m|^Error 0 parse error\n\nError 0 parse error\n\nError 0 parse error\n\nError 0 parse error\n\nError 0 parse error\n\nError 0 parse error\n\nError 0 parse error\n\n$| p/Mercury3 RFID Query protocol/
 match rtsp m|^RTSP/1.0 400 Bad Request\r\nServer: DSS/([-.\w]+) \[(v\d+)]-(\w+)\r\n| p/DarwinStreamingServer/ v/$1/ i/$2 on $3/
 match rtsp m|^RTSP/1\.0 400 Bad Request\r\nServer: QTSS/(\d[\d.]+ \[v\d+\]-Win32)\r\nCseq: \r\n| p/Apple QuickTime Streaming Server/ v/$1/ o/Windows/
@@ -4868,7 +4869,7 @@ match sip m|^SIP/2\.0 400 Illegal request line\r\nFrom: <sip:missing>\r\nTo: <si
 
 match slimp3 m|^GET %2[Ff] HTTP%2[Ff]1\.0\n$| p|SliMP3 MP3 player| i|http://www.slimdevices.com|
 # spamd 2.20-1woody
-match spamd m|^SPAMD/1\.0 76 Bad header line: GET / HTTP/1\.0\r\r?\n| p/SpamAssassin spamd/
+match spamassassin m|^SPAMD/1\.0 76 Bad header line: GET / HTTP/1\.0\r\r?\n| p/SpamAssassin spamd/
 
 match speech m|^ER\nLP\n#<SUBR\(6\) />\nft_StUfF_keyOK\nER\n$| p/Festival Speech Synthesis System/
 
@@ -5052,7 +5053,7 @@ match http m|^HTTP/1\.0 400\r\nContent-Type: text/html\r\n\r\n<hr><pre><font siz
 
 match http-proxy m|^HTTP/1\.1 503 Service Unavailable\r\ndate: .*\r\nconnection: close\r\n\r\n<html><body><pre><h1>Service unavailable</h1></pre></body></html>\n| p/HTTP Replicator proxy/
 
-match policyd m|^action=defer_if_permit Policy Rejection: Invalid data\n\n$| p/Postfix mail policyd/
+match policy m|^action=defer_if_permit Policy Rejection: Invalid data\n\n$| p/Postfix mail policyd/
 
 match tgcmd m|^\d+ \d+ \d+,Invalid command\.\n$| p/tgcmd.exe support daemon/ o/Windows/
 
@@ -5105,10 +5106,10 @@ ports 81,111,199,514,544,710,711,1433,2049,4045,4999,7000,32750-32810,38978
 # Microsoft SQLServer 6.5 on WinNT 4.0 SP6a
 # Microsoft SQL Server 6.5 on WinNT 4.0
 match ms-sql-s m|^\x04\x01\0C..\0\0\xaa\0\0\0/\x0f\xa2\x01\x0e.. Login failed\r\n\x14Microsoft SQL Server\0\0\0\xfd\0\xfd\0\0\0\0\0\x02$|s p/Microsoft SQLServer/ v/6.5/ o/Windows/
-match rpc m|^\x80\0\0\x18\x72\xFE\x1D\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01|
-match rpc m|^\x80\0\0\x20\x72\xFE\x1D\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x02|
-match rpc m|^\x80\0\0\x14r\xfe\x1d\x13\0\0\0\x01\0\0\0\x01\0\0\0\x01\0\0\0\x05|
-match rpc m|^\x80\0\0\x18r\xfe\x1d\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|
+match rpcbind m|^\x80\0\0\x18\x72\xFE\x1D\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01|
+match rpcbind m|^\x80\0\0\x20\x72\xFE\x1D\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x02|
+match rpcbind m|^\x80\0\0\x14r\xfe\x1d\x13\0\0\0\x01\0\0\0\x01\0\0\0\x01\0\0\0\x05|
+match rpcbind m|^\x80\0\0\x18r\xfe\x1d\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|
 match raid-mon m|^\0 \0.{4}C\x04\0\0\0\x02\\@| p/Promise RAID array monitor/ v/3.X/
 match raid-mon m|^\0 \0.{4}D\x04\0\0\0\x02\\@| p/Promise RAID array monitor/ v/4.X/
 match raid-mon m|^\x02 \0.{4}G\x04\0\0\0\x02\\@| p/Promise RAID array monitor/
@@ -5133,8 +5134,8 @@ rarity 1
 ports 17,88,111,500,517,518,2427,4045,10080,12203,27960,32750-32810,38978
 
 match amanda m|^Amanda ([\d.]+) NAK HANDLE  SEQ 0\nERROR expected \"Amanda\", got \"r\xfe\x1d\x13\"\n| p/Amanda backup service/ v/$1/ o/Unix/
-match rpc m|^\x72\xFE\x1D\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01|
-match rpc m|^\x72\xFE\x1D\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x02|
+match rpcbind m|^\x72\xFE\x1D\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01|
+match rpcbind m|^\x72\xFE\x1D\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x02|
 # OpenAFS 1.2.10 on Linux 2.4.22
 match kerberos-sec m|^\x04\n\0\0\0\0\0\0\0\0\0\0\x04code = 4: packet version number unknown\0| p/OpenAFS/
 # talk-server-0.17 (linux), ports 517-518/udp
@@ -5352,7 +5353,7 @@ match tftp m|^\0\x05\0\0Bad mode\0|
 match tftp m|^\0\x05\0\x02Access violation\0|
 match tftp m|^\0\x05\0\x04\w+\0|
 
-match landesk m|^\0\0\0\0USER\x01\0\x10\0\x08\0:\xd0\x08\0:\xd0\x01\x01\.\0O\0\x03\0T\0\xff\xff\0\0\0\xfd\0\0\0\0\0\0\x02\0\0\0LANDeskWorkgroup Manager ver ([\d.]+)\0| p/LANDesk Workgroup Manager/ v/$1/ o/Windows/
+match landesk-rc m|^\0\0\0\0USER\x01\0\x10\0\x08\0:\xd0\x08\0:\xd0\x01\x01\.\0O\0\x03\0T\0\xff\xff\0\0\0\xfd\0\0\0\0\0\0\x02\0\0\0LANDeskWorkgroup Manager ver ([\d.]+)\0| p/LANDesk Workgroup Manager/ v/$1/ o/Windows/
 
 
 # DNS Server status request: http://www.crynwr.com/crynwr/rfc1035/rfc1035.html
@@ -5744,8 +5745,8 @@ match xtel m|^\x15Annuaire \xe9lectronique| p/xteld/ i/French/
 match tor m|^\x16\x03\0\0\*\x02\0\0&\x03\0.*T[oO][rR]1.*[\x00-\x20]([-\w_.]+) <identity>|s p/Tor node/ i/Node name: $1/
 
 # Sophos Message Router
-match ssl/sophos m|^\x16\x03\0.*Router\$([a-zA-Z0-9_-]+).*Sophos EM Certification Manager|s p/Sophos Message Router/ h/$1/
-match ssl/sophos m|^\x16\x03\0.*Sophos EM Certification Manager|s p/Sophos Message Router/
+match sophos/ssl m|^\x16\x03\0.*Router\$([a-zA-Z0-9_-]+).*Sophos EM Certification Manager|s p/Sophos Message Router/ h/$1/
+match sophos/ssl m|^\x16\x03\0.*Sophos EM Certification Manager|s p/Sophos Message Router/
 
 
 # SMB Negotiate Protocol
@@ -5848,7 +5849,6 @@ Probe TCP X11Probe q|\x6C\0\x0B\0\0\0\0\0\0\0\0\0|
 rarity 4
 ports 80,443,497,1550,5302,6000-6020,7000,7100,7101,7777,8000
 # retroclient 6.5.108 on Linux
-match dantzretrospect m|^\0\xca\0\0\0\0\0\x04\0\0\0\0\0\0\x02\($| p/Dantz Retrospect backup client/
 match font-service m|^\0\0\x02\0\0\0\0\0\0\0\0\0\x06\0\0\0\0@\x0c\0p\x17\0\0X Consortium\x01\n\x01\0\x05\0\0\0....\0\0..\0\0\0\0$|s p/Sun Solaris fs.auto/ o/Solaris/
 # HP-UX 11.11
 match font-service m|^\0\0\x02\0\0\0\0\0\0\0\0\0\x06\0\0\0\0@\x0c\0\xd4\x17\0\0X Consortium\x01\n\x01\0\x05\0\0\0....\0\0..\0\0\0\0$|s p/HP-UX X Font Server/ o/HP-UX/
@@ -5860,6 +5860,8 @@ match networkaudio m|^\0\x19\x02\0\x02\0\x07\0Protocol version mismatch\0| p|Net
 
 # ichat-proxy; only two bytes might be too generic (Brandon)
 match ichat-proxy m|^\x05\xff$| p/Apple iChat Server file transfer proxy/ o/Mac OS X/
+
+match retrospect m|^\0\xca\0\0\0\0\0\x04\0\0\0\0\0\0\x02\($| p/Dantz Retrospect backup client/
 
 match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0.*Sun Microsystems, Inc\.|s p/XSun Solaris X11 server/
 match X11 m|^\0\x2D\x0B\0\0\0\x0C\0| i/access denied/
@@ -6115,7 +6117,7 @@ match lotusnotes m|^.\0\0\0.\0\0\0\x03\0\0@\x02\x0f\0.*\x03\0\0\0\0\x02\0/\0.\0\
 match lotusnotes m|^.\0\0\0.\0\0\0\x03\0\0@\x02\x0f\0.*\x03\0\0\0\0\x02\0/\0.\0\0\0\0\0\0\0.*CN=([-.\w ]+)/OU=([-.\w ]+)/OU=([-.\w ]+)/O=([-.\w ]+)|s p/Lotus Domino server/ i|CN=$1;OU=$2/$3;Org=$4|
 
 # Interesting service: Not sure if it's RPC
-match rpc m|^\x18\0\x01\x02Invalid packet length\0| p/Amanda voicemail system/ d/telecom-misc/
+match rpcbind m|^\x18\0\x01\x02Invalid packet length\0| p/Amanda voicemail system/ d/telecom-misc/
 # Moved this from SSLSessionReq because it seems more reliable.
 match svrloc m|^\x02\x02\0\0\x12\0\0\0\0\0\0\0\0\x02en\0\x02$| p/Apple slpd/ o/Mac OS/
 match tibia m|^V\0\x02\0Your terminal version is too old\.\nPlease get a new version at\nhttp://www\.tibia\.com\.\0$| p/Tibia graphical MUD/
@@ -6234,7 +6236,7 @@ ports 1035,1521,1522,1525,1574,1748,1754
 match oracle-tns m|^\0.\0\0\x02\0\0\0.*TNSLSNR for ([-.+/ \w]{2,20}): Version ([-\d.]+) - Production|s p/Oracle TNS Listener/ v/$2 (for $1)/
 match dbsnmp m|^\0.\0\0\x02\0\0\0.*\(IAGENT = \(AGENT_VERSION = ([\d.]+)\)\(RPC_VERSION = ([\d.]+)\)\)|s p/Oracle Intelligent Agent/ v/$1/ i/RPC v$2/
 match oracle-tns m|^\0.\0\0\x02\0\0\0|s p/Oracle TNS Listener/
-match oracle-dbsnmp m|^\0,\0\0\x04\0\0\0\"\0\0 \(CONNECT_DATA=\(COMMAND=version\)\)| p/Oracle DBSNMP/
+match dbsnmp m|^\0,\0\0\x04\0\0\0\"\0\0 \(CONNECT_DATA=\(COMMAND=version\)\)| p/Oracle DBSNMP/
 
 ##############################NEXT PROBE##############################
 Probe UDP xdmcp q|\0\x01\0\x02\0\x01\0\0|
@@ -6396,11 +6398,11 @@ match stomp m|^ERROR\nmessage:Unknown STOMP action:.+ org\.apache\.activemq\.|s 
 
 
 ##############################NEXT PROBE##############################
-# memcached, text mode protocol
-Probe TCP Memcached q|stats\r\n|
+# memcache, text mode protocol
+Probe TCP Memcache q|stats\r\n|
 rarity 8
 ports 11211
-match memcached m|^STAT pid (\d+)\r\nSTAT uptime (\d+)\r\n.*?STAT version ([\w_.-]+)\r\n.*?STAT curr_items (\d+)\r\nSTAT total_items (\d+)\r\nSTAT bytes (\d+)\r\n|s p/memcached/ v/$3/ i/PID $1; uptime $2 seconds; curr items: $4; total items: $5; bytes cached: $6/
+match memcache m|^STAT pid (\d+)\r\nSTAT uptime (\d+)\r\n.*?STAT version ([\w_.-]+)\r\n.*?STAT curr_items (\d+)\r\nSTAT total_items (\d+)\r\nSTAT bytes (\d+)\r\n|s p/memcached/ v/$3/ i/PID $1; uptime $2 seconds; curr items: $4; total items: $5; bytes cached: $6/
 
 
 ##############################NEXT PROBE##############################
