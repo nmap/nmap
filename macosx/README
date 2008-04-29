@@ -1,15 +1,9 @@
-This is a test packaging of Zenmap for Mac OS X.
+This is a test packaging of Nmap and Zenmap for Mac OS X.
 
 We are distributing this in the hope of creating a really great
 distribution of Nmap and Zenmap on the Mac, and for that we need your
 help. Please try it out and send comments and suggestions to
 nmap-dev@insecure.org.
-
-This package does not come with Nmap itself. Zenmap and Nmap may be
-bundled together in the future depending on what users recommend. You
-need to install Nmap separately. Make sure it is in your system PATH;
-see below. Please write nmap-dev@insecure.org if you have an idea for a
-good way to package Nmap and Zenmap together.
 
 Known issues:
 
@@ -18,17 +12,5 @@ as root. You can do it by peeking inside the application bundle:
 	sudo /Volumes/Zenmap-4.60/Zenmap.app/Contents/MacOS/zenmap
 But there has to be a better way. Please write nmap-dev@insecure.org if
 you have suggestions.
-
-/usr/local/bin is not in the default PATH. As mentioned above, currently
-you have to install Nmap separately. When Nmap is compiled from source,
-by default it is installed in /usr/local/bin. But /usr/local/bin is
-*not* in the default OS X PATH! You will see an error in Zenmap:
-"[Errno 2] No such file or directory". I don't recommend installing Nmap
-with a prefix of /usr, but you can make a symbolic link from
-/usr/bin/nmap to /usr/local/bin/nmap and it will work fine.
-
-Running the application from a directory whose name contains a space
-fails. The wrapper scripts necessary to package GTK+ and Pango need to
-carefully escape paths in the files they write.
 
 David Fifield
