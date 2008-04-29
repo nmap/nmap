@@ -1,16 +1,20 @@
-This is a test packaging of Nmap and Zenmap for Mac OS X.
+This is a test packaging of Nmap and Zenmap for Mac OS X. It is meant to
+work on both Intel and PowerPC Macs running Mac OS X 10.4 or later.
 
 We are distributing this in the hope of creating a really great
 distribution of Nmap and Zenmap on the Mac, and for that we need your
 help. Please try it out and send comments and suggestions to
 nmap-dev@insecure.org.
 
+The nmap command-line binary will be installed in /usr/local/bin, and
+additional support files will be installed in /usr/local/libexec and
+/usr/local/share.
+
+Zenmap is installed as an application bundle in
+/Applications/Zenmap.app.
+
 Known issues:
 
-Zenmap doesn't run as root. I haven't found a convenient way to run it
-as root. You can do it by peeking inside the application bundle:
-	sudo /Volumes/Zenmap-4.60/Zenmap.app/Contents/MacOS/zenmap
-But there has to be a better way. Please write nmap-dev@insecure.org if
-you have suggestions.
-
-David Fifield
+Zenmap doesn't run as root. Work to allow this is underway. A workaround
+is to peek inside the application bundle:
+	sudo /Applications/Zenmap.app/Contents/MacOS/zenmap
