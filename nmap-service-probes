@@ -2501,9 +2501,9 @@ match keriopfgui m|^\x12\0\r\0\x03\0\0\0\0\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0
 # Tiny Personal Firewall 2.0
 # Kerio Personal Firewall, Firewall engine version 2.1.5 Driver version 3.0.0 on WinXP
 match tinyfw m|^\x0f\0\n\0\x01\0\0\0\0\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0| p/Kerio Personal Firewall/ v/2.1.X/ i/or Tiny Personal Firewall/
-match vmware-auth/ssl m|^220 VMware Authentication Daemon Version (\d[-.\w]+): SSL Required\r\n| p/VMware Authentication Daemon/ v/$1/
-match vmware-auth/ssl m|^220 VMware Authentication Daemon Version (\d[-.\w]+): SSL [rR]equired, MKSDisplayProtocol:VNC \r\n| p/VMware GSX Authentication Daemon/ v/$1/ i/Uses VNC/
-match vmware-auth/ssl m|^220 VMware Authentication Daemon Version (\d[-.\w]+): SSL Required, ServerDaemonProtocol:SOAP, MKSDisplayProtocol:VNC| p/VMware GSX Authentication Daemon/ v/$1/ i/Uses VNC, SOAP/
+match ssl/vmware-auth m|^220 VMware Authentication Daemon Version (\d[-.\w]+): SSL Required\r\n| p/VMware Authentication Daemon/ v/$1/
+match ssl/vmware-auth m|^220 VMware Authentication Daemon Version (\d[-.\w]+): SSL [rR]equired, MKSDisplayProtocol:VNC \r\n| p/VMware GSX Authentication Daemon/ v/$1/ i/Uses VNC/
+match ssl/vmware-auth m|^220 VMware Authentication Daemon Version (\d[-.\w]+): SSL Required, ServerDaemonProtocol:SOAP, MKSDisplayProtocol:VNC| p/VMware GSX Authentication Daemon/ v/$1/ i/Uses VNC, SOAP/
 
 match vnc m|^RFB 003\.00(\d)\n$| p/VNC/ i/protocol 3.$1/
 match vnc m|^RFB 003\.00(\d)\n\0\0\0\0\0\0\0\x1aToo many security failures$| p/VNC/ i/protocol 3.$1; Locked out/
@@ -4744,7 +4744,7 @@ match imap m|^\* OK ([-.+\w]+) IMAP4rev1 v1(\d[-.\w]+) server ready\r\n| p/UW-Im
 # gnu/mailutils imap4d 0.3.2 on Linux
 match imap m|^\* OK IMAP4rev1\r\nGET BAD  Invalid command\r\n\* BAD  Null command\r\n$| p/GNU Mailutils imapd/
 # Cyrus IMAP 2.1.14
-match imaps m|^\* BYE Fatal error: tls_start_servertls\(\) failed\r\n$| p/Cyrus imapd/
+match ssl/imap m|^\* BYE Fatal error: tls_start_servertls\(\) failed\r\n$| p/Cyrus imapd/
 match imap m|^\* OK ([-\w_.]+)\r\nGET BAD Error in IMAP command received by server\.\r\n\* BAD Error in IMAP command received by server\.\r\n| p/Dovecot imapd/ h/$1/
 match imap m|^\* OK IMAP4 IMAP4rev1 Server\r\nGET BAD Unrecognised Command\r\n| p/Floosietek FTgate imapd/
 match imap m|^\* OK IMAP4r1 server \[([-\w_.]+)\] ready\r\nGET BAD Protocol Error: \"Unidentifiable command specified\"\.\r\n\* BAD Protocol Error: \"Tag not found in command\"\.\r\n| p/Microsoft Exchange imapd/ h/$1/ i/Version masked/ o/Windows/
@@ -4818,8 +4818,8 @@ match giop m|^GIOP\x01\0\x01\x06\0\0\0\0$| p/omniORB omniNames/ i/Corba naming s
 # Oracle MTS Recovery Service 9.2.0.1 on Windows 2000 Professional
 match oracle-mts m|^HTTP/1\.0 200 OK\r\nContent-length: 7\r\n\r\nunknown$| p/Oracle MTS Recovery Service/
 
-match pop3s m|^-ERR \[SYS/PERM\] Fatal error: tls_start_servertls\(\) failed\r\n$| p/Cyrus pop3sd/
-match pop3s m|^-ERR Fatal error: pop3s: required OpenSSL options not present\r\n| p/Cyrus pop3sd/
+match ssl/pop3 m|^-ERR \[SYS/PERM\] Fatal error: tls_start_servertls\(\) failed\r\n$| p/Cyrus pop3sd/
+match ssl/pop3 m|^-ERR Fatal error: pop3s: required OpenSSL options not present\r\n| p/Cyrus pop3sd/
 # Postgresql-server-7.3.2-3
 match postgresql m|^EFATAL:  invalid length of startup packet\n\0$| p/PostgreSQL/
 match postgrey m|^action=dunno\n\n$| p/Postfix Greylist Daemon/
@@ -5746,8 +5746,8 @@ match xtel m|^\x15Annuaire \xe9lectronique| p/xteld/ i/French/
 match tor m|^\x16\x03\0\0\*\x02\0\0&\x03\0.*T[oO][rR]1.*[\x00-\x20]([-\w_.]+) <identity>|s p/Tor node/ i/Node name: $1/
 
 # Sophos Message Router
-match sophos/ssl m|^\x16\x03\0.*Router\$([a-zA-Z0-9_-]+).*Sophos EM Certification Manager|s p/Sophos Message Router/ h/$1/
-match sophos/ssl m|^\x16\x03\0.*Sophos EM Certification Manager|s p/Sophos Message Router/
+match ssl/sophos m|^\x16\x03\0.*Router\$([a-zA-Z0-9_-]+).*Sophos EM Certification Manager|s p/Sophos Message Router/ h/$1/
+match ssl/sophos m|^\x16\x03\0.*Sophos EM Certification Manager|s p/Sophos Message Router/
 
 
 # SMB Negotiate Protocol
