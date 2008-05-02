@@ -2694,7 +2694,12 @@ static UltraProbe *sendArpScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 }
 
 /* If this is NOT a ping probe, set pingseq to 0.  Otherwise it will be the
-   ping sequence number (they start at 1).  The probe sent is returned. */
+   ping sequence number (they start at 1).  The probe sent is returned.
+   
+   This function also handles the sending of decoys. There is no fine-grained
+   control of this; all decoys are sent at once on one call of this function.
+   This means that decoys do not honor any scan delay and may violate congestion
+   control limits. */
 static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss, 
 			    const probespec *pspec, u8 tryno, u8 pingseq) {
   u8 *packet = NULL;

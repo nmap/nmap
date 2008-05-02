@@ -2604,7 +2604,11 @@ lists the relevant options and describes what they do.</para>
           ICMP, SYN, ACK, or whatever) and during the actual port
           scanning phase. Decoys are also used during remote OS
           detection (<option>-O</option>).  Decoys do not work with
-          version detection or TCP connect scan.</para>
+          version detection or TCP connect scan.  When a scan delay is
+          in effect, the delay is enforced between each batch of
+          spoofed probes, not between each individual probe. Because
+          decoys are sent as a batch all at once, they may temporarily
+          violate congestion control limits.</para>
 
           <para>It is worth noting that using too many decoys may
           slow your scan and potentially even make it less
