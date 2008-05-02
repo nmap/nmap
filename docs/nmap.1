@@ -1,11 +1,11 @@
 .\"     Title: nmap
-.\"    Author: Fyodor 
+.\"    Author: Gordon \(lqFyodor\(rq Lyon
 .\" Generator: DocBook XSL Stylesheets v1.73.2 <http://docbook.sf.net/>
-.\"      Date: <pubdate>September 1, 2007</pubdate>
-.\"    Manual: Nmap Network Scanning
+.\"      Date: <pubdate>April 9, 2008</pubdate>
+.\"    Manual: Nmap Network Scanning (PRE-RELEASE BETA VERSION)
 .\"    Source: Insecure.Org Zero Day
 .\"
-.TH "NMAP" "1" "<pubdate>September 1, 2007</pubdate>" "Insecure.Org Zero Day" "Nmap Network Scanning"
+.TH "NMAP" "1" "<pubdate>April 9, 2008</pubdate>" "Insecure.Org Zero Day" "Nmap Network Scanning (PRE-REL"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -42,12 +42,12 @@ when it cannot determine which of the two states describe a port\. The port tabl
 In addition to the interesting ports table, Nmap can provide further information on targets, including reverse DNS names, operating system guesses, device types, and MAC addresses\.
 .PP
 A typical Nmap scan is shown in
-Example\ 14.1, \(lqA representative Nmap scan\(rq\. The only Nmap arguments used in this example are
+Example\ 15.1, \(lqA representative Nmap scan\(rq\. The only Nmap arguments used in this example are
 \fB\-A\fR, to enable OS and version detection, script scanning, and traceroute;
 \fB\-T4\fR
 for faster execution; and then the two target hostnames\.
 .PP
-\fBExample\ 14.1.\ A representative Nmap scan\fR
+\fBExample\ 15.1.\ A representative Nmap scan\fR
 .sp
 .RS 4
 .nf
@@ -91,7 +91,7 @@ Nmap finished: 2 IP addresses (2 hosts up) scanned in 88\.392 seconds
 .PP
 The newest version of Nmap can be obtained from
 \fI\%http://nmap.org\fR\. The newest version of the man page is available from
-\fI\%http://nmap.org/man/\fR\.
+\fI\%http://nmap.org/book/man.html\fR\.
 .SH "OPTIONS SUMMARY"
 .PP
 This options summary is printed when Nmap is run with no arguments, and the latest version is always available at
@@ -420,12 +420,12 @@ options, respectively\. A timestamp reply (ICMP code 14) or address mask reply (
 .PP
 \fB\-PO [protolist]\fR (IP Protocol Ping)
 .RS 4
-Another host discovery option is the IPProto ping, which sends IP packets with the specified protocol numbers in the Protocol field of the IP headers\. The protocol list takes the same format as with the port lists in the previously discussed TCP and UDP host discovery options\. If no protocols are specified, the default is to send multiple IP packets for ICMP (protocol 1), IGMP (protocol 2), and IP\-in\-IP (protocol 4)\. The default protocols can be configured at compile\-time by changing DEFAULT_PROTO_PROBE_PORT_SPEC in
-\fInmap\.h\fR\. Note that for the ICMP, IGMP, TCP (protocol 6), and UDP (protocol 17), the packets are sent with the additional headers while other protocols are sent with no additional data beyond the IP header (unless the
+The newest host discovery option is the IP protocol ping, which sends IP packets with the specified protocol number set in their IP header\. The protocol list takes the same format as do port lists in the previously discussed TCP and UDP host discovery options\. If no protocols are specified, the default is to send multiple IP packets for ICMP (protocol 1), IGMP (protocol 2), and IP\-in\-IP (protocol 4)\. The default protocols can be configured at compile\-time by changing DEFAULT_PROTO_PROBE_PORT_SPEC in
+\fInmap\.h\fR\. Note that for the ICMP, IGMP, TCP (protocol 6), and UDP (protocol 17), the packets are sent with the proper protocol headers while other protocols are sent with no additional data beyond the IP header (unless the
 \fB\-\-data\-length\fR
 option is specified)\.
 .sp
-This host discovery method looks for responses in the same protocol as the probes, or ICMP Protocol Unreachable messages which signify the specified IP protocol isn\'t supported on the host (which gives away that it\'s up)\.
+This host discovery method looks for either responses using the same protocol as a probe, or ICMP protocol unreachable messages which signify that the given protocol isn\'t supported on the destination host\. Either type of response signifies that the target host is alive\.
 .RE
 .PP
 \fB\-PR\fR (ARP Ping)
@@ -1174,6 +1174,28 @@ option specifies the largest delay that Nmap will allow\. Setting this value too
 Another use of
 \fB\-\-scan\-delay\fR
 is to evade threshold based intrusion detection and prevention systems (IDS/IPS)\.
+.RE
+.PP
+\fB\-\-min\-rate <number>\fR (Specify a minimum scanning rate)
+.RS 4
+Nmap\'s dynamic timing does a good job of finding an appropriate speed at which to scan\. Sometimes, however, you may happen to know an appropriate scanning rate for a network, or you may have to guarantee that a scan will be finished by a certain time\. When the
+\fB\-\-min\-rate\fR
+option is given Nmap will do its best to send packets as fast or faster than the given rate\. The argument is a positive real number representing a packet rate in packets per second\. For example, specifying
+\fB\-\-min\-rate 300\fR
+means that Nmap will try to keep the sending rate at or above 300 packets per second\. Specifying a minimum rate does not keep Nmap from going faster if conditions warrant\.
+.sp
+There are two conditions when the actual scanning rate may fall below the specified minimum\. The first is if the minimum is faster than the fastest rate at which Nmap can send, which is dependent on hardware\. In this case Nmap will send packets as fast as possible, but be aware that such high rates are likely to cause a loss of accuracy\. The second case is when Nmap has nothing to send, for example at the end of a scan when the last probes have been sent and Nmap is waiting for them to time out or be responded to\. It\'s normal to see the scanning rate drop at the end of a scan or in between groups of hosts\.
+.sp
+Specifying a minimum rate should be done with care\. Scanning faster than a network can support may lead to a loss of accuracy\. In some cases, using a faster rate can make a scan take
+\fIlonger\fR
+than it would with a slower rate\. This is because Nmap\'s adaptive retransmission
+will detect the network congestion caused by an excessive scanning rate and increase the number of retransmissions in order to improve accuracy\. So even though packets are sent at a higher rate, more packets are sent overall\. Cap the number of retransmissions with the
+\fB\-\-max\-retries\fR
+option if you need to set an upper limit on total scan time\.
+.sp
+The
+\fB\-\-min\-rate\fR
+option is global, affecting an entire scan, not individual hosts\. It only affects port and host discovery scans\. Other features like OS detection implement their own timing\.
 .RE
 .PP
 \fB\-\-defeat\-rst\-ratelimit\fR
@@ -2002,15 +2024,12 @@ US Export Control: Insecure\.Com LLC believes that Nmap falls under US ECCN (exp
 \(lqInformation Security software not controlled by 5D002\(rq\. The only restriction of this classification is AT (anti\-terrorism), which applies to almost all goods and denies export to a handful of rogue nations such as Iran and North Korea\. Thus exporting Nmap does not require any special license, permit, or other governmental authorization\.
 .SH "AUTHOR"
 .PP
-\fBFyodor \fR
+\fBGordon \(lqFyodor\(rq Lyon\fR
 .br
 Insecure.Org
 .sp -1n
 .IP "" 4
 Author.
-.SH "COPYRIGHT"
-Copyright \(co 2007 Insecure.Com LLC
-.br
 .SH "NOTES"
 .IP " 1." 4
 RFC 1122
