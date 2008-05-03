@@ -102,7 +102,7 @@
 #ifndef NMAPOUTPUTTABLE_H
 #define NMAPOUTPUTTABLE_H
 
-#include <assert.h>
+#include "nmap.h"
 
 #ifndef __attribute__
 #define __attribute__(args)

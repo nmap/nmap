@@ -227,6 +227,9 @@ void *realloc();
 #include <arpa/inet.h>
 #endif
 
+/* Keep assert() defined for security reasons */
+#undef NDEBUG
+
 #include <math.h>
 #include <assert.h>
 

@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Since assert() calls are used for various security-related tests,
+  their safety is now ensured by keeping NDEBUG undefined throughout
+  Nmap, Nbase and Nsock. [Kris]
+
 Nmap 4.62 [5/3/08]
 
 o Added a new --min-rate option that allows specifying a minimum rate

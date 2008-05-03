@@ -132,10 +132,6 @@
 namespace std {};
 using namespace std;
 
-// Because this file uses assert()s for some security checking, we can't
-// have anyone turning off debugging.
-#undef NDEBUG
-
 extern NmapOps o;
 
 // Details on a particular service (open port) we are trying to match

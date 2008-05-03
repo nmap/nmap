@@ -108,6 +108,7 @@
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
+#include "nmap.h"
 #ifdef WIN32
 #include "mswin32\winclude.h"
 #else
@@ -117,7 +118,6 @@
 #include <netinet/in.h>
 #endif
 
-#include <assert.h>
 #include <sys/mman.h>
 #include "nmap_config.h"
 #endif
@@ -140,7 +140,6 @@
 #include "nbase.h"
 
 #include "nmap_error.h"
-#include "nmap.h"
 #include "global_structures.h"
 
 /* Arithmatic difference modulo 2^32 */

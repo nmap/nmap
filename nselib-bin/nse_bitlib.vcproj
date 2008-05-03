@@ -40,7 +40,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\liblua"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;NSE_BITLIB_EXPORTS;WIN32;LUA_BUILD_AS_DLL;LUA_LIB"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_USRDLL;NSE_BITLIB_EXPORTS;WIN32;LUA_BUILD_AS_DLL;LUA_LIB"
 				MinimalRebuild="false"
 				ExceptionHandling="0"
 				BasicRuntimeChecks="0"
@@ -120,7 +120,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\liblua"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;NSE_BITLIB_EXPORTS;WIN32;LUA_BUILD_AS_DLL;LUA_LIB"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_USRDLL;NSE_BITLIB_EXPORTS;WIN32;LUA_BUILD_AS_DLL;LUA_LIB"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
