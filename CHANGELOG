@@ -1,8 +1,43 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-Nmap 4.62 [5/2/08]
+Nmap 4.62 [5/3/08]
 
-o Fix a bug in the nbase random number generator (and the way it
+o Added a new --min-rate option that allows specifying a minimum rate
+  at which to send packets. This allows you to override Nmap's
+  congestion control algorithms and request that Nmap try to keep at
+  least the rate you specify.  The rate is given in packets per
+  second. Read more in the Nmap man page
+  (http://nmap.org/book/man-performance.html) [David]
+
+o Create /nmap/macosx directory in SVN with files necessary to build
+  binary Mac OS X Nmap/Zenmap packages.  We are trying to create
+  binary installer packages which are as useful and easy to use as the
+  Windows installer.  This has involved a lot of work by David.  We
+  aren't quite yet distributing the results on the Nmap download page,
+  but testing our beta versions is useful.  You can find the latest
+  universal (PPC and Intel) binary test version by looking at David
+  Fifield's posts at http://seclists.org/nmap-dev/2008/q2/author.html .
+  You can also read /nmap/macosx/README in svn for more info.
+
+o Nmap 2008 Summer of Code students have began working (though full
+  time doesn't start until late May).  Learn about the winners and their
+  projects at http://seclists.org/nmap-dev/2008/q2/0132.html .
+
+o Brandon added/modified a whole bunch of version detection signatures
+  based on systems discovered when scanning UCSD's network.
+
+o Reformat Nmap COPYING file (e.g. remove C comment markers, reduce
+  line length) during Nmap windows build so that it looks much better
+  when presented by the Windows executable (NSIS) installer.  Thanks
+  to Jah for the patch, which was modified slightly by Fyodor.
+
+o Added NSE Datafiles library which reads and parses Nmap's nmap-*
+  data files for scripts.  The functions (parse_protocols(),
+  parse_rpc() and parse_services()) return tables with numbers
+  (e.g. port numbers) indexing names (e.g. service names).  The
+  rpcinfo.nse script was also updated to use this library. [Kris]
+
+o Fixed a bug in the nbase random number generator (and the way it
   interacted with Nmap and MS Windows) which caused duplicates in some
   instances.  Thanks to Jah for reporting the problem and working with
   Brandon Enright, Fyodor and Kris to fix it.
@@ -11,58 +46,110 @@ o It turns out that hours have 60 minutes, not 24.  Fixed a scan
   status message which was rolling over the hours column
   prematurely. [David]
 
+o Added scripting options to Zenmap profile editor and command wizard
+  to make use of NSE. [David]
+
 o Zenmap now prints an exception message rather than segfaulting when it
   can't open a display (such as when trying to connect to an X server as
   an unauthorized user). Thanks to Aaron Leininger for the initial
   report and Guilherme Polo for suggesting the fix.
 
-o Added release dates for each version to this CHANGELOG going back to
-  Nmap 3.00 (July 31, 2002).  Dates are in MM/DD/YY format.  If someone
-  wants to track down dates for the last 22% of the file (pre-3.00), you
-  are welcome to do so and send a patch.  Searching Google for the
-  version number and site:seclists.org seems to work well.
+o Now ports in the "unfiltered" state can be selected for attention by
+  NSE scripts. [Kris]
 
-o Fixed an assertion failure caused when a host had NSE scripts in
-  multiple runlevels.  This in turn also fixes --host-timeout behavior
-  in NSE. [Kris]
+o Nbase random number generation system now avoids having a high-bit
+  of zero in every other byte on Windows due to Windows having such a
+  low RAND_MAX. [Jah]
+
+o Added release dates for each Nmap version to this CHANGELOG going
+  back to Nmap 3.00 (July 31, 2002).  Dates are in MM/DD/YY format.
+  If someone wants to track down dates for the last 22% of the file
+  (pre-3.00), you are welcome to do so and send a patch.  Searching
+  Google for the version number and site:seclists.org seems to work
+  well. [Fyodor]
+
+o Nmap RPM builds now use the versions of libdnet, libpcap, libpcre,
+  and liblua rather than whatever happens to be installed on the build
+  system. [David]
+
+o Zenmap can now be installed in and run in directories with a space
+  in the name. [David]
+
+o Fixed an assertion failure ("Target.cc:396: void
+  Target::stopTimeOutClock(const timeval*): Assertion
+  'htn.toclock_running == true' failed.")caused when a host had NSE
+  scripts in multiple runlevels.  This also fixes --host-timeout
+  behavior in NSE. [Kris]
+
+o Reduce the maximum number of socket descriptors which Nmap is
+  allowed to open concurrently.  This resoles a bug which could cause
+  "Too many open files" error on Mac OS X when not running as
+  root. [David]
+
+o Canonicalized service names between nmap-service-probes (version
+  detection DB) and nmap-services (port scanning DB). [Kris]
 
 o Removed the "class" attribute from the tcpsequence element in XML
   output. For a long time it had always been "unknown class" because
   Nmap doesn't calculate a class anymore. The XML output version has
-  been increased from 1.01 to 1.02.
+  been increased from 1.01 to 1.02. [David]
 
-o Fixed a bug on Win32 problem which caused an infinite loop when Nmap
+o Fixed a bug on Win32 which caused an infinite loop when Nmap
   encountered certain broadcast addresses. [Dudi Itzhakov]
 
 o Fix MingW compilation by adding a signal.h include to
   main.cc. [Gisle Vanem]
 
-o Fixed a bunch of code to avoid compilation warning messages (at
-  least on some Linux machines) [Andrew J. Bennieston]
+o Fix the test in our build system to determine if liblua is already
+  available or not. For example, the test needed to link with -lm
+  since some systems require that.  [David].
 
-o Added a new --min-rate option that allows specifying a minimum rate
-  at which to send packets.
+o Added TIMEVAL_BEFORE and TIMEVAL_AFTER macros to test whether one
+  timeval is earlier than another while avoiding possible integer
+  overflows in a naive approach we were using previously. [David]
+
+o Adjusted a bunch of code to avoid compilation warning messages on
+  some Linux machines. [Andrew J. Bennieston]
 
 o Fixed the NmapArpCache so that it actually works. Previously, Nmap
   was always falling back to the system ARP cache. Of course this
   raises the question of whether NmapArpCache is needed in the first
   place. [Daniel Roethlisberger]
 
-o Reformat Nmap COPYING file (e.g. remove C comment markers, reduce
-  line length) during Nmap windows build so that it looks much better
-  when presented by the Windows executable (NSIS) installer.  Thanks
-  to Jah for the patch (which was modified slightly by Fyodor).
+o Fix a Zenmap bug which could cause the error message
+  "zenmapCore.NmapOptions.OptionNotFound: No option named '' found!"
+  if you create a new profile without checking any options then try to
+  edit it. [David]
 
-o Added NSE Datafiles library which reads and parses Nmap's nmap-*
-  data files for scripts.  The functions (parse_protocols(),
-  parse_rpc() and parse_services()) return tables with numbers
-  (e.g. port numbers) indexing names (e.g. service names).  The
-  rpcinfo.nse script was also updated to use this library. [Kris]
+o Zenmap now shows a more helpful error message when there is an error
+  in executing Nmap. [David]
 
-o Now ports in the "unfiltered" state can be selected in NSE. [Kris]
+o Zenmap now creates the directory ~/.zenmap-etc to store
+  automatically generated GTK+ and Pango files. They used to go in the
+  application bundle but that doesn't work on a read-only filesystem or
+  disk image. This is what Wireshark does (~/.wireshark-etc), although
+  the directory could be called anything. It doesn't have to persist
+  across sessions.
+
+o Added a mechanism in Zenmap for including extra executable search
+  paths on specific platforms, so we can include /usr/local/bin in
+  PATH on Mac OS X by default and add the Nmap install directory on
+  Windows. [David]
+
+o We now use --no-strip when building Zenmap Mac OS X packages to
+  prevent many mysterious warnings which occur when the binary is
+  stripped. [David]
+
+o When Zenmap invokes Nmap, it now copies the whole environment for
+  the Nmap invocation rather than just providing $PATH.  Windows may
+  need this to do proper name resolution. [David]
 
 o Corrected uptime parsing and reporting in SNMPsysdesr.nse for an
   uptime of less than 46 hours. [Kris]
+
+o Modified the use of CXXFLAGS, CFLAGS, and CPPFLAGS in Nmap build
+  system to work better when building Mac OS X universal
+  binaries. [David]
 
 o Added many additional PCRE option flags to the list returned by the
   NSE pcre.flags() function. [Kris]
@@ -72,7 +159,24 @@ o Changed the NSE function nmap.set_port_state() so that it checks to
   prevents "Duplicate port" messages during the script scan and the
   inaccurate "script-set" state reason. [Kris]
 
+o Canonicalize NSE script license text--more than half did not even
+  spell license correctly. They all still say that they are under Nmap's
+  license, just with consistent capitalization and spelling, and now a
+  link to Nmap legal page at http://nmap.org/man/man-legal.html.
+
 o Updated ripeQuery.nse to not print extraneous whitespace. [Kris]
+
+o Switched telnet brute force password cracking NSE (bruteTelnet.nse)
+  to vulnerability category so it isn't executed by default.  It can
+  take too long to run. [Eddie]
+
+o NSE status messages now print host name and IP, rather than just the
+  host name (which was blank when Nmap didn't know it). [Jah]
+
+o Allocate 128 characters for the idle scan ScanProgressMeter title. Previously
+  it was 32 characters. The "idle scan against " and the \0 terminator take up 19
+  characters, leaving only 13, which isn't enough to represent all IP addresses,
+  let alone host names. Bug reported by Stephan Fijneman, fixed by David.
 
 Nmap 4.60 [3/15/08]
 
