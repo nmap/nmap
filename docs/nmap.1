@@ -102,7 +102,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .sp
 .RS 4
 .nf
-Nmap 4\.60 ( http://nmap\.org )
+Nmap 4\.62 ( http://nmap\.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\.
@@ -166,6 +166,7 @@ TIMING AND PERFORMANCE:
   \-\-max\-retries <tries>: Caps number of port scan probe retransmissions\.
   \-\-host\-timeout <time>: Give up on target after this long
   \-\-scan\-delay/\-\-max\-scan\-delay <time>: Adjust delay between probes
+  \-\-min\-rate <number>: Send packets no slower than <number> per second
 FIREWALL/IDS EVASION AND SPOOFING:
   \-f; \-\-mtu <val>: fragment packets (optionally w/given MTU)
   \-D <decoy1,decoy2[,ME],\.\.\.>: Cloak a scan with decoys
@@ -1327,7 +1328,7 @@ ME, nmap will put you in a random position\. You can also use RND to generate a 
 .sp
 Note that the hosts you use as decoys should be up or you might accidentally SYN flood your targets\. Also it will be pretty easy to determine which host is scanning if only one is actually up on the network\. You might want to use IP addresses instead of names (so the decoy networks don\'t see you in their nameserver logs)\.
 .sp
-Decoys are used both in the initial ping scan (using ICMP, SYN, ACK, or whatever) and during the actual port scanning phase\. Decoys are also used during remote OS detection (\fB\-O\fR)\. Decoys do not work with version detection or TCP connect scan\.
+Decoys are used both in the initial ping scan (using ICMP, SYN, ACK, or whatever) and during the actual port scanning phase\. Decoys are also used during remote OS detection (\fB\-O\fR)\. Decoys do not work with version detection or TCP connect scan\. When a scan delay is in effect, the delay is enforced between each batch of spoofed probes, not between each individual probe\. Because decoys are sent as a batch all at once, they may temporarily violate congestion control limits\.
 .sp
 It is worth noting that using too many decoys may slow your scan and potentially even make it less accurate\. Also, some ISPs will filter out your spoofed packets, but many do not restrict spoofed IP packets at all\.
 .RE
@@ -1926,8 +1927,8 @@ file which is distributed with Nmap and also available from
 .SH "LEGAL NOTICES"
 .SS "Nmap Copyright and Licensing"
 .PP
-The Nmap Security Scanner is (C) 1996\-2007 Insecure\.Com LLC\. Nmap is also a registered trademark of Insecure\.Com LLC\. This program is free software; you may redistribute and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; Version 2\. This guarantees your right to use, modify, and redistribute this software under certain conditions\. If you wish to embed Nmap technology into proprietary software, we may be willing to sell alternative licenses (contact
-<sales@insecure\.com>)\. Many security scanner vendors already license Nmap technology such as host discovery, port scanning, OS detection, and service/version detection\.
+The Nmap Security Scanner is (C) 1996\-2008 Insecure\.Com LLC\. Nmap is also a registered trademark of Insecure\.Com LLC\. This program is free software; you may redistribute and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; Version 2 with the clarifications and exceptions described below\. This guarantees your right to use, modify, and redistribute this software under certain conditions\. If you wish to embed Nmap technology into proprietary software, we sell alternative licenses (contact
+<sales@insecure\.com>)\. Dozens of software vendors already license Nmap technology such as host discovery, port scanning, OS detection, and version detection\.
 .PP
 Note that the GPL places important restrictions on
 \(lqderived works\(rq, yet it does not provide a detailed definition of that term\. To avoid misunderstandings, we consider an application to constitute a

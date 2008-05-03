@@ -1,4 +1,4 @@
-Nmap 4.60 ( http://nmap.org )
+Nmap 4.62 ( http://nmap.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -62,6 +62,7 @@ TIMING AND PERFORMANCE:
   --max-retries <tries>: Caps number of port scan probe retransmissions.
   --host-timeout <time>: Give up on target after this long
   --scan-delay/--max-scan-delay <time>: Adjust delay between probes
+  --min-rate <number>: Send packets no slower than <number> per second
 FIREWALL/IDS EVASION AND SPOOFING:
   -f; --mtu <val>: fragment packets (optionally w/given MTU)
   -D <decoy1,decoy2[,ME],...>: Cloak a scan with decoys
