@@ -485,22 +485,13 @@ public:
      maximum tryno and expired) are not counted in
      probes_outstanding.  */
   list<UltraProbe *> probes_outstanding;
-
-  /* A list of iterators that point into probes_outstanding. The iterators point
-     to those probes that can be retransmitted immediately, i.e., those that are
-     timed out but not expired, with a tryno less than the maximum. */
-  list<list<UltraProbe *>::iterator> probes_waiting_retransmit;
-
   /* The number of probes in probes_outstanding, minus the inactive (timed out) ones */
   unsigned int num_probes_active;
-
-  /* Probes timed out but still in probes_outstanding because of congestion
-     control limits or because more retransmits may not be necessary. This
-     number may exceed probes_waiting_retransmit, because not all timed-out
-     probes are eligible for immediate retransmission (it depends on the tryno
-     and other factors). Note that probes on probe_bench are not included in
-     this value. */
-  unsigned int num_probes_timed_out;
+  /* Probes timed out but not yet retransmitted because of congestion
+     control limits or because more retransmits may not be
+     neccessary.  Note that probes on probe_bench are not included
+     in this value. */
+  unsigned int num_probes_waiting_retransmit;
   unsigned int num_probes_outstanding() { return probes_outstanding.size(); }
   /* Call this instead of checking for num_probes_outstanding() == 0 because it
      avoids a potential traversal of the list to find the size. */
@@ -525,7 +516,7 @@ public:
   vector<u8> retry_stack_tries; 
   /* tryno of probes on the retry queue */
   /* Moves the given probe from the probes_outstanding list, to
-     probe_bench, and decrements num_probes_timed_out accordingly */
+     probe_bench, and decrements num_probes_waiting_retransmit accordingly */
   void moveProbeToBench(list<UltraProbe *>::iterator probeI);
   /* Dismiss all probe attempts on bench -- the ports are marked
      'filtered' or whatever is appropriate for having no response */
@@ -1038,7 +1029,7 @@ HostScanStats::HostScanStats(Target *t, UltraScanInfo *UltraSI) {
   sent_icmp_mask = false;
   sent_icmp_ts = false;
   num_probes_active = 0; 
-  num_probes_timed_out = 0;
+  num_probes_waiting_retransmit = 0;
   lastping_sent = lastprobe_sent = lastrcvd = USI->now;
   lastping_sent_numprobes = 0;
   memset(&pingprobe, 0, sizeof(pingprobe));
@@ -1150,7 +1141,7 @@ bool HostScanStats::sendOK(struct timeval *when) {
 
   getTiming(&tmng);
   if (tmng.cwnd >= num_probes_active + .5 && 
-      (freshPortsLeft() || !probes_waiting_retransmit.empty() || !retry_stack.empty())) {
+      (freshPortsLeft() || num_probes_waiting_retransmit || !retry_stack.empty())) {
     if (when) *when = USI->now;
     return true;
   }
@@ -1888,8 +1879,8 @@ void HostScanStats::destroyOutstandingProbe(list<UltraProbe *>::iterator probeI)
   }
 
   if (!probe->isPing() && probe->timedout && !probe->retransmitted) {
-    assert(num_probes_timed_out > 0);
-    num_probes_timed_out--;
+    assert(num_probes_waiting_retransmit > 0);
+    num_probes_waiting_retransmit--;
   }
 
     /* Remove it from scan watch lists, if it exists on them. */
@@ -1897,8 +1888,6 @@ void HostScanStats::destroyOutstandingProbe(list<UltraProbe *>::iterator probeI)
     USI->gstats->CSI->clearSD(probe->CP()->sd);
 
   probes_outstanding.erase(probeI);
-  probes_waiting_retransmit.remove(probeI);
-
   delete probe;
 }
 
@@ -2033,13 +2022,7 @@ void HostScanStats::markProbeTimedout(list<UltraProbe *>::iterator probeI) {
     ultrascan_adjust_timing(USI, this, probe, NULL);
     /* I'll leave it in the queue in case some response ever does
        come */
-  } else {
-    num_probes_timed_out++;
-    int maxtries = allowedTryno(NULL, NULL);
-    if (probe->tryno < maxtries)
-      /* Get ready to send it back out right away. */
-      probes_waiting_retransmit.push_back(probeI);
-  }
+  } else num_probes_waiting_retransmit++;
 
   if (probe->type == UltraProbe::UP_CONNECT && probe->CP()->sd >= 0 ) {
     /* Free the socket as that is a valuable resource, though it is a shame
@@ -2052,7 +2035,7 @@ void HostScanStats::markProbeTimedout(list<UltraProbe *>::iterator probeI) {
 
 bool HostScanStats::completed() {
   /* If there are probes active or awaiting retransmission, we are not done. */
-  if (num_probes_active != 0 || num_probes_timed_out != 0
+  if (num_probes_active != 0 || num_probes_waiting_retransmit != 0
     || !probe_bench.empty() || !retry_stack.empty()) {
     return false;
   }
@@ -2372,7 +2355,7 @@ void HostScanStats::retransmitBench() {
 }
 
  /* Moves the given probe from the probes_outstanding list, to
-     probe_bench, and decrements num_probes_timed_out
+     probe_bench, and decrements num_probes_waiting_retransmit
      accordingly */
 void HostScanStats::moveProbeToBench(list<UltraProbe *>::iterator probeI) {
   UltraProbe *probe = *probeI;
@@ -2384,8 +2367,7 @@ void HostScanStats::moveProbeToBench(list<UltraProbe *>::iterator probeI) {
   }
   probe_bench.push_back(*probe->pspec());
   probes_outstanding.erase(probeI);
-  probes_waiting_retransmit.remove(probeI);
-  num_probes_timed_out--;
+  num_probes_waiting_retransmit--;
   delete probe;
 }
 
@@ -3055,8 +3037,8 @@ static void retransmitProbe(UltraScanInfo *USI, HostScanStats *hss,
   if (newProbe)
     newProbe->prevSent = probe->sent;
   probe->retransmitted = true;
-  assert(hss->num_probes_timed_out > 0);
-  hss->num_probes_timed_out--;
+  assert(hss->num_probes_waiting_retransmit > 0);
+  hss->num_probes_waiting_retransmit--;
   hss->numprobes_sent++;
   USI->gstats->probes_sent++;
 }
@@ -3065,7 +3047,7 @@ static void retransmitProbe(UltraScanInfo *USI, HostScanStats *hss,
      timed out probes, then try to retransmit them as appropriate */
 static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
   list<HostScanStats *>::iterator hostI;
-  list<list<UltraProbe *>::iterator>::iterator probeII;
+  list<UltraProbe *>::iterator probeI;
   HostScanStats *host = NULL;
   UltraProbe *probe = NULL;
   int retrans = 0; /* Number of retransmissions during a loop */
@@ -3088,29 +3070,34 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
          hostI++) {
       host = *hostI;
       /* Skip this host if it has nothing to send. */
-      if (host->probes_waiting_retransmit.empty())
+      if ((host->num_probes_active == 0
+           && host->num_probes_waiting_retransmit == 0))
         continue;
       if (!host->sendOK(NULL))
         continue;
+      assert(!host->probes_outstanding.empty());
+      probeI = host->probes_outstanding.end();
       maxtries = host->allowedTryno(NULL, NULL);
-      probeII = host->probes_waiting_retransmit.begin();
-      probe = **probeII;
-      assert(probe->timedout && !probe->retransmitted && 
-          maxtries > probe->tryno && !probe->isPing());
-      /* For rate limit detection, we delay the first time a new tryno
-         is seen, as long as we are scanning at least 2 ports */
-      if (probe->tryno + 1 > (int) host->rld.max_tryno_sent && 
-          USI->gstats->numprobes > 1) {
-        host->rld.max_tryno_sent = probe->tryno + 1;
-        host->rld.rld_waiting = true;
-        TIMEVAL_MSEC_ADD(host->rld.rld_waittime, USI->now, 1000);
-      } else {
-        host->rld.rld_waiting = false;
-        host->probes_waiting_retransmit.erase(probeII);
-        retransmitProbe(USI, host, probe);
-        retrans++;
-      }
-      /* Only do one probe per host to spread load */
+      do {
+        probeI--;
+        probe = *probeI;
+        if (probe->timedout && !probe->retransmitted && 
+            maxtries > probe->tryno && !probe->isPing()) {
+          /* For rate limit detection, we delay the first time a new tryno
+             is seen, as long as we are scanning at least 2 ports */
+          if (probe->tryno + 1 > (int) host->rld.max_tryno_sent && 
+              USI->gstats->numprobes > 1) {
+            host->rld.max_tryno_sent = probe->tryno + 1;
+            host->rld.rld_waiting = true;
+            TIMEVAL_MSEC_ADD(host->rld.rld_waittime, USI->now, 1000);
+          } else {
+            host->rld.rld_waiting = false;
+            retransmitProbe(USI, host, probe);
+            retrans++;
+          }
+          break; /* I only do one probe per host for now to spread load */
+        } 
+      } while (probeI != host->probes_outstanding.begin());
     }
   } while (USI->gstats->sendOK(NULL) && retrans != 0);
 
@@ -3132,7 +3119,7 @@ static void printAnyStats(UltraScanInfo *USI) {
 
   /* Print debugging states for each host being scanned */
   if (o.debugging > 2) {
-    log_write(LOG_PLAIN, "**TIMING STATS** (%.4fs): IP, probes active/freshportsleft/retry_stack/outstanding/timedout/onbench, cwnd/ccthresh/delay, timeout/srtt/rttvar/\n", o.TimeSinceStartMS() / 1000.0);
+    log_write(LOG_PLAIN, "**TIMING STATS** (%.4fs): IP, probes active/freshportsleft/retry_stack/outstanding/retranwait/onbench, cwnd/ccthresh/delay, timeout/srtt/rttvar/\n", o.TimeSinceStartMS() / 1000.0);
     log_write(LOG_PLAIN, "   Groupstats (%d/%d incomplete): %d/*/*/*/*/* %.2f/%d/* %d/%d/%d\n",
 	      USI->numIncompleteHosts(), USI->numInitialHosts(), 
 	      USI->gstats->num_probes_active, USI->gstats->timing.cwnd,
@@ -3148,7 +3135,7 @@ static void printAnyStats(UltraScanInfo *USI) {
                   hss->num_probes_active, hss->freshPortsLeft(), 
                   (int) hss->retry_stack.size(),
                   hss->num_probes_outstanding(), 
-                  hss->num_probes_timed_out, (int) hss->probe_bench.size(),
+                  hss->num_probes_waiting_retransmit, (int) hss->probe_bench.size(),
                   hosttm.cwnd, hosttm.ccthresh, hss->sdn.delayms, 
                   hss->probeTimeout(), hss->target->to.srtt, 
                   hss->target->to.rttvar);
