@@ -493,13 +493,12 @@ AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all o
   *)
     CPPFLAGS="-I$with_liblua/include $CPPFLAGS"
     LDFLAGS="-L$with_liblua/lib $LDFLAGS"
-    have_lua=yes
   ;;
   esac]
 )
 
 # They don't want lua
-if test $no_lua == yes; then
+if test "$no_lua" = "yes"; then
   CXXFLAGS="-DNOLUA $CXXFLAGS"
   LIBLUA_LIBS=""
   LUA_DEPENDS=""

@@ -7181,7 +7181,6 @@ if test "${with_liblua+set}" = set; then
   *)
     CPPFLAGS="-I$with_liblua/include $CPPFLAGS"
     LDFLAGS="-L$with_liblua/lib $LDFLAGS"
-    have_lua=yes
   ;;
   esac
 
@@ -7189,7 +7188,7 @@ fi
 
 
 # They don't want lua
-if test $no_lua == yes; then
+if test "$no_lua" = "yes"; then
   CXXFLAGS="-DNOLUA $CXXFLAGS"
   LIBLUA_LIBS=""
   LUA_DEPENDS=""

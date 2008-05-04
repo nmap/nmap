@@ -4,6 +4,12 @@ o Since assert() calls are used for various security-related tests,
   their safety is now ensured by keeping NDEBUG undefined throughout
   Nmap, Nbase and Nsock. [Kris]
 
+o Fix a couple bugs in the way the Nmap built system checked for an
+  existing LUA library.  A bashism caused one test to fail on system
+  which don't use bash as /bin/sh, and another bug fixed --with-liblua
+  configure option for specifying your own liblua. [Daniel
+  Roethlisberger]
+
 Nmap 4.62 [5/3/08]
 
 o Added a new --min-rate option that allows specifying a minimum rate
