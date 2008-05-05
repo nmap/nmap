@@ -235,9 +235,9 @@ install: install-nmap $(INSTALLNSE) $(INSTALLZENMAP)
 	@echo "NMAP SUCCESSFULLY INSTALLED"
 
 uninstall:
-	rm -f $(bindir)/$(TARGET) $(bindir)/xnmap
-	rm -f $(mandir)/man1/$(TARGET).1 $(mandir)/man1/zenmap.1
-	rm -rf $(nmapdatadir) $(nmaplibexecdir)
+	rm -f $(DESTDIR)$(bindir)/$(TARGET) $(DESTDIR)$(bindir)/xnmap
+	rm -f $(DESTDIR)$(mandir)/man1/$(TARGET).1 $(DESTDIR)$(mandir)/man1/zenmap.1
+	rm -rf $(DESTDIR)$(nmapdatadir) $(DESTDIR)$(nmaplibexecdir)
 
 ${srcdir}/configure: configure.ac 
 	cd ${srcdir} && autoconf
