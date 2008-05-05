@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The Zenmap installer and uninstaller are more careful about escaping
+  filenames and dealing with an installation root (DESTDIR). [David]
+
 o Since assert() calls are used for various security-related tests,
   their safety is now ensured by keeping NDEBUG undefined throughout
   Nmap, Nbase and Nsock. [Kris]
