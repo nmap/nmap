@@ -689,6 +689,7 @@ pyexecdir
 pkgpyexecdir
 BUILDZENMAP
 INSTALLZENMAP
+UNINSTALLZENMAP
 ZENMAP_CLEAN
 ZENMAP_DIST_CLEAN
 OPENSSL_LIBS
@@ -5645,14 +5646,17 @@ fi
 if test "$with_zenmap" = "no"; then
   BUILDZENMAP=""
   INSTALLZENMAP=""
+  UNINSTALLZENMAP=""
   ZENMAP_CLEAN=""
   ZENMAP_DIST_CLEAN=""
 else
   BUILDZENMAP=build-zenmap
   INSTALLZENMAP=install-zenmap
+  UNINSTALLZENMAP=uninstall-zenmap
   ZENMAP_CLEAN=zenmap_clean
   ZENMAP_DIST_CLEAN=zenmap_dist_clean
 fi
+
 
 
 
@@ -9123,6 +9127,7 @@ pyexecdir!$pyexecdir$ac_delim
 pkgpyexecdir!$pkgpyexecdir$ac_delim
 BUILDZENMAP!$BUILDZENMAP$ac_delim
 INSTALLZENMAP!$INSTALLZENMAP$ac_delim
+UNINSTALLZENMAP!$UNINSTALLZENMAP$ac_delim
 ZENMAP_CLEAN!$ZENMAP_CLEAN$ac_delim
 ZENMAP_DIST_CLEAN!$ZENMAP_DIST_CLEAN$ac_delim
 OPENSSL_LIBS!$OPENSSL_LIBS$ac_delim
@@ -9143,7 +9148,6 @@ LIBDNETDIR!$LIBDNETDIR$ac_delim
 DNET_DEPENDS!$DNET_DEPENDS$ac_delim
 DNET_BUILD!$DNET_BUILD$ac_delim
 DNET_CLEAN!$DNET_CLEAN$ac_delim
-DNET_DIST_CLEAN!$DNET_DIST_CLEAN$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -9185,6 +9189,7 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+DNET_DIST_CLEAN!$DNET_DIST_CLEAN$ac_delim
 LIBLUA_LIBS!$LIBLUA_LIBS$ac_delim
 LIBLUADIR!$LIBLUADIR$ac_delim
 LUA_DEPENDS!$LUA_DEPENDS$ac_delim
@@ -9204,7 +9209,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 17; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 18; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
