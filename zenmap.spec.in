@@ -66,8 +66,6 @@ make build-zenmap DESTDIR=$RPM_BUILD_ROOT
 make install-zenmap DESTDIR=$RPM_BUILD_ROOT
 # Don't package the uninstaller with the RPM.
 rm -f $RPM_BUILD_ROOT%{_bindir}/uninstall_zenmap
-mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1
-cp docs/zenmap.1 $RPM_BUILD_ROOT%{_mandir}/man1/
 gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 
 %clean

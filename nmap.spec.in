@@ -58,7 +58,6 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 %doc docs/README
 %doc docs/nmap.usage.txt
 %doc %{_prefix}/share/man/man1/nmap.1.gz
-%doc %{_prefix}/share/man/man1/zenmap.1.gz
 %{_bindir}/nmap
 %{_datadir}/nmap
 %{_libexecdir}/nmap
