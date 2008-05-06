@@ -1,5 +1,5 @@
-# This makefile builds a disk image (.dmg) containing the Zenmap application
-# bundle.
+# This makefile builds a disk image (.dmg) containing the installer for Nmap
+# and Zenmap.
 
 NMAP_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
