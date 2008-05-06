@@ -4375,7 +4375,63 @@ _ACEOF
 fi
 
     ;;
-  *-solaris2.0* | *-solaris2.1* | *-solaris2.2* | *-solaris2.3* | *-solaris2.4* | *-solaris2.5.1 )
+  *-solaris2.0*)
+    cat >>confdefs.h <<\_ACEOF
+#define STUPID_SOLARIS_CHECKSUM_BUG 1
+_ACEOF
+
+    cat >>confdefs.h <<\_ACEOF
+#define SOLARIS 1
+_ACEOF
+
+    ;;
+  *-solaris2.[1-9][0-9]*)
+    cat >>confdefs.h <<\_ACEOF
+#define SOLARIS 1
+_ACEOF
+
+    ;;
+  *-solaris2.1*)
+    cat >>confdefs.h <<\_ACEOF
+#define STUPID_SOLARIS_CHECKSUM_BUG 1
+_ACEOF
+
+    cat >>confdefs.h <<\_ACEOF
+#define SOLARIS 1
+_ACEOF
+
+    ;;
+  *-solaris2.2*)
+    cat >>confdefs.h <<\_ACEOF
+#define STUPID_SOLARIS_CHECKSUM_BUG 1
+_ACEOF
+
+    cat >>confdefs.h <<\_ACEOF
+#define SOLARIS 1
+_ACEOF
+
+    ;;
+  *-solaris2.3*)
+    cat >>confdefs.h <<\_ACEOF
+#define STUPID_SOLARIS_CHECKSUM_BUG 1
+_ACEOF
+
+    cat >>confdefs.h <<\_ACEOF
+#define SOLARIS 1
+_ACEOF
+
+    ;;
+  *-solaris2.4*)
+    cat >>confdefs.h <<\_ACEOF
+#define STUPID_SOLARIS_CHECKSUM_BUG 1
+_ACEOF
+
+    cat >>confdefs.h <<\_ACEOF
+#define SOLARIS 1
+_ACEOF
+
+    ;;
+  *-solaris2.5.1)
     cat >>confdefs.h <<\_ACEOF
 #define STUPID_SOLARIS_CHECKSUM_BUG 1
 _ACEOF

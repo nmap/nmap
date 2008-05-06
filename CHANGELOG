@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug which caused Nmap to send bad checksums on Solaris 10
+  x86.  This was due to a workaround for an Ancient Solaris 2.1 bug
+  which activated when the OS string matched "solaris2.1*".  The
+  problem has now been resolved until Solaris 20 comes out and hits
+  our "solaris2.2*" bug workarounds. Thanks to Nathan Bills for the
+  problem report.  Fixed by Fyodor.
+
 o We now compile in IPv6 support on Windows.  In order to use this,
   you need to have IPv6 set up.  It is installed by default on Vista,
   but must be downloaded from MS for XP.  See

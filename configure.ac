@@ -138,7 +138,30 @@ case "$host" in
     # on HP-UX 11.11 (other versions?) Mikhail Zakharov (zmey20000@yahoo.com)
     AC_CHECK_LIB(nm, open_mib)
     ;;
-  *-solaris2.0* | *-solaris2.1* | *-solaris2.2* | *-solaris2.3* | *-solaris2.4* | *-solaris2.5.1 )  
+  *-solaris2.0*)  
+    AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
+    AC_DEFINE(SOLARIS)
+    ;;
+  *-solaris2.[[1-9]][[0-9]]*)
+    AC_DEFINE(SOLARIS)
+    ;;
+  *-solaris2.1*)
+    AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
+    AC_DEFINE(SOLARIS)
+    ;;
+  *-solaris2.2*)
+    AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
+    AC_DEFINE(SOLARIS)
+    ;;
+  *-solaris2.3*)
+    AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
+    AC_DEFINE(SOLARIS)
+    ;;
+  *-solaris2.4*)
+    AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
+    AC_DEFINE(SOLARIS)
+    ;;
+  *-solaris2.5.1)
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
     ;;
