@@ -4565,6 +4565,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\n(?:Date: .*\r\n)?Server: GroupWise POA ([-_
 match http m|^HTTP/1\.0 \d\d\d .*\r\n(?:Date: .*\r\n)?Server: GroupWise GWIA ([-_.\d\w\(\) ]+)\r\n| p/Novell GroupWise GWIA httpd/ v/$1/ i/GroupWise Internet Agent/ o/Unix/
 match http m|^HTTP/1\.0 \d\d\d .*\r\n(?:Date: .*\r\n)?Server: Messenger-MA ([-_.\d\w\(\) ]+)\r\n| p/Novell Messenger httpd/ v/$1/ i/Messenger Agent/ o/Unix/
 match http m|^HTTP/1\.0 200 .*\r\nDate: .*\r\nContent-Length: .*\r\nContent-Type: .*\r\n\r\n<html>\r\n<head>\r\n<title>Novell Messenger Download</title>| p/Novell Messenger download httpd/ o/Unix/
+match http m|^HTTP/1\.[01] \d\d\d .*Server: Hunchentoot ([\w-_.]+)\r\n|s p/Hunchentoot httpd/ v/$1/
 
 #(insert http)
 
