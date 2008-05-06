@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o We now compile in IPv6 support on Windows.  In order to use this,
+  you need to have IPv6 set up.  It is installed by default on XP, but
+  must be downloaded from MS for XP.  See
+  http://www.microsoft.com/technet/network/ipv6/ipv6faq.mspx . [Kris]
+
 o The Zenmap installer and uninstaller are more careful about escaping
   filenames and dealing with an installation root (DESTDIR). [David]
 
