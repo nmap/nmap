@@ -1198,8 +1198,6 @@ if (seq) {
 
 if (ack)
   tcp->th_ack = htonl(ack);
-/*else if (flags & TH_ACK)
-  tcp->th_ack = rand() + rand();*/
 
 if (reserved)
   tcp->th_x2 = reserved & 0x0F;

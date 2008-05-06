@@ -2718,7 +2718,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 
     seq = seq32_encode(USI, tryno, pingseq);
     if (pspec->pd.tcp.flags & TH_ACK)
-	  ack = rand();
+	  ack = get_random_u32();
 
     if (pspec->pd.tcp.flags & TH_SYN) {
       tcpops = (u8 *) "\x02\x04\x05\xb4";

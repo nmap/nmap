@@ -505,7 +505,6 @@ int nmap_main(int argc, char *argv[]) {
   size_t sslen;
   int option_index;
   bool iflist = false;
-  struct timeval tv;
 
   // Pre-specified timing parameters.
   // These are stored here during the parsing of the arguments so that we can
@@ -648,10 +647,6 @@ int nmap_main(int argc, char *argv[]) {
   fakeargv[argc] = NULL;
 
   if (argc < 2 ) printusage(argv[0], -1);
-
-  /* You never know when "random" numbers will come in handy ... */
-  gettimeofday(&tv, NULL);
-  srand((tv.tv_sec ^ tv.tv_usec) ^ getpid() + 31337);
 
   Targets.reserve(100);
 #ifdef WIN32

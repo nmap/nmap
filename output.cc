@@ -129,8 +129,9 @@ static const char *logtypes[LOG_NUM_FILES]=LOG_NAMES;
 static void skid_output(char *s)
 {
   int i;
-  for (i=0;s[i];i++)
-    if (rand()%2==0)
+  for (i=0; s[i]; i++)
+    /* We need a 50/50 chance here, use a random number */
+    if ((get_random_u8() & 0x01) == 0)
       /* Substitutions commented out are not known to me, but maybe look nice */
       switch(s[i])
 	{
@@ -142,7 +143,7 @@ static void skid_output(char *s)
 	case 'e':
 	case 'E': s[i]='3'; break;
 	case 'i':
-	case 'I': s[i]="!|1"[rand()%3]; break;
+	case 'I': s[i]="!|1"[get_random_u8() % 3]; break;
 	  /*      case 'k': s[i]='c'; break;
 	        case 'K': s[i]='C'; break;*/
 	case 'o':
@@ -158,8 +159,13 @@ static void skid_output(char *s)
 	}  
     else
       {
-	if (s[i]>='A' && s[i]<='Z' && (rand()%3==0)) s[i]+='a'-'A';
-	else if (s[i]>='a' && s[i]<='z' && (rand()%3==0)) s[i]-='a'-'A';
+	if (s[i] >= 'A' && s[i] <= 'Z' &&
+	    (get_random_u8() % 3 == 0)) {
+	  s[i] += 'a'-'A'; /* 1/3 chance of lower-case */
+	}
+	else if (s[i] >= 'a' && s[i] <= 'z' && (get_random_u8() % 3 == 0)) {
+	  s[i] -= 'a'-'A'; /* 1/3 chance of upper-case */
+	}
       }
 }
 
