@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o "make uninstall" now uninstalls Zenmap as well. The uninstall_zenmap
+  script now deletes directories that were installed. [David]
+
 o Fixed a bug which caused Nmap to send bad checksums on Solaris 10
   x86.  This was due to a workaround for an Ancient Solaris 2.1 bug
   which activated when the OS string matched "solaris2.1*".  The
