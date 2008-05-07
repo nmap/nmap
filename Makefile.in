@@ -245,8 +245,7 @@ uninstall-nmap:
 	rm -rf $(DESTDIR)$(nmapdatadir) $(DESTDIR)$(nmaplibexecdir)
 
 uninstall-zenmap:
-# This is not a complete uninstall for Zenmap. It only uninstalls the
-# things installed by this makefile.
+	cd $(ZENMAPDIR) && $(PYTHON) setup.py uninstall
 	rm -f $(DESTDIR)$(mandir)/man1/zenmap.1
 # Uninstall nmapfe only if it's a symlink.
 	if [ -L $(DESTDIR)$(bindir)/nmapfe ]; then \
