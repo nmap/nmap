@@ -126,6 +126,7 @@ struct host_timeout_nfo {
   unsigned long msecs_used; /* How many msecs has this Target used? */
   bool toclock_running; /* Is the clock running right now? */
   struct timeval toclock_start; /* When did the clock start? */
+  time_t host_start, host_end; /* The absolute start and end for this host */
 };
 
 class Target {
@@ -222,6 +223,9 @@ class Target {
      current time handy.  You might as well also pass NULL if the
      clock is not running, as the func won't need the time. */
   bool timedOut(const struct timeval *now);
+  /* Return time_t for the start and end time of this host */
+  time_t StartTime() { return htn.host_start; }
+  time_t EndTime() { return htn.host_end; }
 
   /* Takes a 6-byte MAC address */
   int setMACAddress(const u8 *addy);

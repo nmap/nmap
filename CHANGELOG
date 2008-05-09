@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap now reports scan start and end times for individual hosts
+  within a larger scan. The information is added to the XML host
+  element like so: [host starttime="1198292349" endtime="1198292370"]
+  (but of couse with angle brackets rather than square ones).  It is
+  also printed in normal output if -d or "-v -v" are
+  specified. [Brandon, Kris, Fyodor]
+
 o "make uninstall" now uninstalls Zenmap as well. The uninstall_zenmap
   script now deletes directories that were installed. [David]
 

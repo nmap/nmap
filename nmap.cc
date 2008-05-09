@@ -1765,7 +1765,9 @@ int nmap_main(int argc, char *argv[]) {
     for(targetno = 0; targetno < Targets.size(); targetno++) {
       currenths = Targets[targetno];
     /* Now I can do the output and such for each host */
-      log_write(LOG_XML, "<host>");
+      log_write(LOG_XML, "<host starttime=\"%lu\" endtime=\"%lu\">",
+		(unsigned long) currenths->StartTime(),
+		(unsigned long) currenths->EndTime());
       write_host_status(currenths, o.resolve_all);
       if (currenths->timedOut(NULL)) {
 	log_write(LOG_PLAIN,"Skipping host %s due to host timeout\n", 
@@ -2765,4 +2767,5 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
   return foundsomething;
 
 }
+
 

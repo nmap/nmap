@@ -139,6 +139,7 @@ void Target::Initialize() {
   MACaddress_set = SrcMACaddress_set = NextHopMACaddress_set = false;
   htn.msecs_used = 0;
   htn.toclock_running = false;
+  htn.host_start = htn.host_end = 0;
   interface_type = devt_other;
 	devname[0] = '\0';
 	devfullname[0] = '\0';
@@ -389,6 +390,7 @@ void Target::startTimeOutClock(const struct timeval *now) {
   htn.toclock_running = true;
   if (now) htn.toclock_start = *now;
   else gettimeofday(&htn.toclock_start, NULL);
+  if (!htn.host_start) htn.host_start = htn.toclock_start.tv_sec;
 }
   /* The complement to startTimeOutClock. */
 void Target::stopTimeOutClock(const struct timeval *now) {
@@ -398,6 +400,7 @@ void Target::stopTimeOutClock(const struct timeval *now) {
   if (now) tv = *now;
   else gettimeofday(&tv, NULL);
   htn.msecs_used += TIMEVAL_MSEC_SUBTRACT(tv, htn.toclock_start);
+  htn.host_end = tv.tv_sec;
 }
   /* Returns whether the host is timedout.  If the timeoutclock is
      running, counts elapsed time for that.  Pass NULL if you don't have the
@@ -472,4 +475,5 @@ void Target::osscanSetFlag(int flag) {
 	else
 		osscan_flag = flag;
 }
+
 

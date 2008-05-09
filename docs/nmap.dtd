@@ -135,6 +135,10 @@
                           smurf | ports | os | distance | uptime | 
                           tcpsequence | ipidsequence | tcptssequence |
                           hostscript | trace)*, times ) >
+<!ATTLIST host
+			starttime	%attr_numeric;	#IMPLIED
+			endtime		%attr_numeric;	#IMPLIED
+>
 
 <!-- these elements are written by output.c:write_xml_initial_hostinfo() -->
 <!ELEMENT status	EMPTY >

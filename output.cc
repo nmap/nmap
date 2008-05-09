@@ -502,6 +502,19 @@ void printportoutput(Target *currenths, PortList *plist) {
     return;
   }
 
+  if (o.verbose > 1 || o.debugging) {
+    time_t tm_secs, tm_sece;
+    struct tm *tm;
+    char tbufs[128];
+    tm_secs = currenths->StartTime();    
+    tm_sece = currenths->EndTime();    
+    tm = localtime(&tm_secs);
+	if (strftime(tbufs, sizeof(tbufs), "%Y-%m-%d %H:%M:%S %Z", tm) <= 0)
+      fatal("Unable to properly format host start time");
+
+    log_write(LOG_PLAIN,"Scanned at %s for %lds\n",
+	      tbufs, tm_sece - tm_secs);
+  }
   log_write(LOG_PLAIN,"Interesting %s on %s:\n",
 	    (o.ipprotscan)? "protocols" : "ports", 
 	    currenths->NameIP(hostname, sizeof(hostname)));
