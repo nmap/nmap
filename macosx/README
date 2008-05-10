@@ -18,3 +18,29 @@ Known issues:
 Zenmap doesn't run as root. Work to allow this is underway. A workaround
 is to peek inside the application bundle:
 	sudo /Applications/Zenmap.app/Contents/MacOS/zenmap
+
+Changes in the test package:
+
+zenmap-4.60-test1 (April 8, 2008)
+	Initial release. Distributed as a disk image containing the
+	Zenmap application bundle only.
+
+nmap-4.60-test2 (April 30, 2008)
+	Now a metapackage that installs both Nmap and Zenmap. Built
+	against MacPorts 1.7.0, targeting Mac OS X 10.4 with the 10.4u
+	SDK. Zenmap looks for nmap in /usr/local/bin by default. More
+	careful escaping of configuration files allows running from a
+	directory with spaces in the name.
+
+nmap-4.60-test3 (May 2, 2008)
+	Fixes a syntax error with Python 2.3. This version is linked
+	against a version of GLib that is patched to work on PowerPC.
+
+nmap-4.62-test4 (May 3, 2008)
+	This release is built with upstream py2app, not the version that
+	Apple distributes. The Apple version is build to run only on Mac
+	OS X 10.5.
+
+nmap-4.62-test5 (May 8, 2008)
+	This release is built against the X11 libraries from the 10.4u
+	SDK.
