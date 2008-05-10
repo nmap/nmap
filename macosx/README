@@ -48,3 +48,7 @@ nmap-4.62-test5 (May 8, 2008)
 nmap-4.62-test6 (May 9, 2008)
 	This release fixes two libraries that were being built against
 	the 10.5 SDK: OpenSSL and Cairo.
+
+nmap-4.62-test7 (May 10, 2008)
+	This release attempts to automatically launch X11 if it's not
+	already running.
