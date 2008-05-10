@@ -35,6 +35,9 @@ o Fix a couple bugs in the way the Nmap built system checked for an
   configure option for specifying your own liblua. [Daniel
   Roethlisberger]
 
+o Removed mswindowsShell.nse as there is a version detection NULL probe
+  match which accomplishes the same thing. [Brandon, Fyodor, Kris]
+
 Nmap 4.62 [5/3/08]
 
 o Added a new --min-rate option that allows specifying a minimum rate
