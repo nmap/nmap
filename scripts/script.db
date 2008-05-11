@@ -29,7 +29,6 @@ Entry{ category = "version", filename = "iax2Detect.nse" }
 Entry{ category = "discovery", filename = "ircServerInfo.nse" }
 Entry{ category = "malware", filename = "ircZombieTest.nse" }
 Entry{ category = "malware", filename = "kibuvDetection.nse" }
-Entry{ category = "backdoor", filename = "mswindowsShell.nse" }
 Entry{ category = "discovery", filename = "nbstat.nse" }
 Entry{ category = "safe", filename = "nbstat.nse" }
 Entry{ category = "version", filename = "netbios-smb-os-discovery.nse" }
