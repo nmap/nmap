@@ -46,7 +46,6 @@
 <!ENTITY % attr_numeric "CDATA" >
 <!ENTITY % attr_ipaddr "CDATA" >
 <!ENTITY % attr_percent "CDATA" >
-<!ENTITY % attr_percent "CDATA" >
 <!ENTITY % attr_type "(ipv4 | ipv6 | mac)" >
 
 <!ENTITY % host_states "(up|down|unknown|skipped)" >
