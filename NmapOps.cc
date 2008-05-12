@@ -376,6 +376,10 @@ void NmapOps::ValidateOptions() {
    fatal("Ping scan is not valid with any other scan types (the other ones all include a ping scan");
  }
 
+ if (af() == AF_INET6 && (PINGTYPE_ICMP_PING || PINGTYPE_ICMP_MASK || PINGTYPE_ICMP_TS)) {
+   fatal("ICMP Echo, Timestamp and Address Mask pings are only valid for IPv4.");
+ }
+
  if (sendpref == PACKET_SEND_NOPREF) {
 #ifdef WIN32
    sendpref = PACKET_SEND_ETH_STRONG;
