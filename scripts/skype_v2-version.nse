@@ -56,9 +56,10 @@ action = function(host, port)
 		return
 	end
 
-	if string.match(result, "[^%s!-~].*[^%s!-~].*[^%s!-~].*[^%s!-~]") then
+	if string.match(result, "[^%s!-~].*[^%s!-~].*[^%s!-~]") then
 		socket:close()
 		port.version.name = "skype2"
+		port.version.product = "Skype"
 		port.version.confidence = 10
 		port.version.fingerprint = nil
 		nmap.set_port_version(host, port, "hardmatched")
