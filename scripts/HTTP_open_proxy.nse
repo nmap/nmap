@@ -7,7 +7,7 @@
 
 id="Open Proxy Test"
 description="Test if a discovered proxy is open to us by connecting to www.google.com and checking for the 'Server: GWS/' header response."
-tags = {"intrusive"}
+categories = {"intrusive"}
 
 -- I found a nice explode() function in lua-users' wiki. I had to fix it, though.
 -- http://lua-users.org/wiki/LuaRecipes
