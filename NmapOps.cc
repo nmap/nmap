@@ -376,7 +376,7 @@ void NmapOps::ValidateOptions() {
    fatal("Ping scan is not valid with any other scan types (the other ones all include a ping scan");
  }
 
- if (af() == AF_INET6 && (PINGTYPE_ICMP_PING || PINGTYPE_ICMP_MASK || PINGTYPE_ICMP_TS)) {
+ if (af() == AF_INET6 && (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))) {
    fatal("ICMP Echo, Timestamp and Address Mask pings are only valid for IPv4.");
  }
 
