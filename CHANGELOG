@@ -35,6 +35,10 @@ o Fix a couple bugs in the way the Nmap built system checked for an
   configure option for specifying your own liblua. [Daniel
   Roethlisberger]
 
+o Changed SSLv2-support.nse so that it only enumerates the list of
+  available ciphers with a verbosity level of at least two or with
+  debugging enabled. [Kris]
+
 o Removed mswindowsShell.nse as there is a version detection NULL probe
   match which accomplishes the same thing. [Brandon, Fyodor, Kris]
 
