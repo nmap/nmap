@@ -30,9 +30,7 @@ action = function(host, port)
     and bit.band(string.byte(result,4), 0x85) == 0x80)
     then
 		return "Recursion seems enabled"
-    else
-		return "Recursion not enabled"
-	end
+    end
 
 	return
 end
