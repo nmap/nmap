@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed the nmap_command_path bug in Zenmap. The variable now actually
+  accesses the nmap_command_path in zenmap.conf file. It is accessed
+  by a new class in UmitConf called PathsConfig, which represents the
+  [paths] section in zenmap.conf. [Jurand Nogiec]
+
 o Nmap now reports scan start and end times for individual hosts
   within a larger scan. The information is added to the XML host
   element like so: [host starttime="1198292349" endtime="1198292370"]
