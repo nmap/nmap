@@ -1974,7 +1974,7 @@ categories.</para>
 </varlistentry>
       
 	  <varlistentry>
-        <term><option>--script-args=&lt;name1=value1,name2={name3=value3},name4=value4&gt;</option><indexterm><primary>--script-args</primary></indexterm></term>
+        <term><option>--script-args &lt;name1=value1,name2={name3=value3},name4=value4&gt;</option><indexterm><primary>--script-args</primary></indexterm></term>
 
 <listitem>
 <para>lets you provide arguments to NSE-scripts. Arguments are passed
