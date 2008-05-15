@@ -240,6 +240,8 @@ static int read_timeouts[][4] = {
 // Size of hash table used to hold the hosts from /etc/hosts
 #define HASH_TABLE_SIZE 256
 
+// Hash macro for etchosts
+#define IP_HASH(x) (ntohl(x)%HASH_TABLE_SIZE)
 
 
 //------------------- Internal Structures ---------------------
@@ -1047,7 +1049,7 @@ static void addto_etchosts(u32 ip, const char *hname) {
   he->name = strdup(hname);
   he->addr = ip;
   he->cache_hits = 0;
-  etchosts[ip % HASH_TABLE_SIZE].push_back(he);
+  etchosts[IP_HASH(ip)].push_back(he);
   total_size++;
 }
 
@@ -1056,8 +1058,8 @@ static void addto_etchosts(u32 ip, const char *hname) {
 static char *lookup_etchosts(u32 ip) {
   std::list<host_elem *>::iterator hostI;
   host_elem *tpelem;
-
-  for(hostI = etchosts[ip % HASH_TABLE_SIZE].begin(); hostI != etchosts[ip % HASH_TABLE_SIZE].end(); hostI++) {
+  int localIP_Hash = IP_HASH(ip);
+  for(hostI = etchosts[localIP_Hash].begin(); hostI != etchosts[localIP_Hash].end(); hostI++) {
     tpelem = *hostI;
     if (tpelem->addr == ip) {
       if(tpelem->cache_hits < UCHAR_MAX)
