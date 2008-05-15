@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug in nmap_dns.cc where the endian of the platform that nmap
+  ran on might negitivly effect how efficiently nmap stores cache values
+  in a hash table. [Michael]
+
 o Fixed the nmap_command_path bug in Zenmap. The variable now actually
   accesses the nmap_command_path in zenmap.conf file. It is accessed
   by a new class in UmitConf called PathsConfig, which represents the
