@@ -53,6 +53,9 @@ stage-nmap:
 	rm -rf $(NMAP_STAGING_DIR)
 	make -C $(NMAP_BUILD_DIR) install DESTDIR="`pwd`/$(NMAP_STAGING_DIR)"
 
+# make-bundle.sh uses these to build its authorization wrapper.
+export CC CPPFLAGS CFLAGS CXXFLAGS LDFLAGS
+
 stage-zenmap:
 	mkdir -p $(ZENMAP_STAGING_DIR)/Applications
 	cd ../zenmap && install_scripts/macosx/make-bundle.sh
