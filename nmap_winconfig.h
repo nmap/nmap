@@ -111,6 +111,7 @@
 #define NMAP_PLATFORM "i686-pc-windows-windows"
 #define NMAPDATADIR "c:\\nmap" /* FIXME: I really need to make this dynamic */
 
+#define HAVE_OPENSSL 1
 /* Apparently __func__ isn't yet supported */
 #define __func__ __FUNCTION__
 

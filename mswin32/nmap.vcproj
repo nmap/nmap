@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\liblua;.;..;../nbase;../libpcre;winip;..\nsock\include;&quot;pcap-include&quot;;&quot;..\libdnet-stripped\include&quot;"
+				AdditionalIncludeDirectories="..\liblua;.;..;../nbase;../libpcre;winip;..\nsock\include;&quot;pcap-include&quot;;&quot;..\libdnet-stripped\include&quot;;OpenSSL\include;"
 				PreprocessorDefinitions="WIN32;_CONSOLE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -66,11 +66,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="liblua.lib nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib advapi32.lib $(NOINHERIT)"
+				AdditionalDependencies="liblua.lib nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib advapi32.lib libeay32.lib ssleay32.lib $(NOINHERIT)"
 				OutputFile=".\Debug\nmap.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="lib;..\liblua;..\libpcre;..\nsock;..\nbase;&quot;..\libdnet-stripped&quot;"
+				AdditionalLibraryDirectories="lib;..\liblua;..\libpcre;..\nsock;..\nbase;&quot;..\libdnet-stripped&quot;;OpenSSL\lib;"
 				IgnoreDefaultLibraryNames=""
 				DelayLoadDLLs="packet.dll,wpcap.dll,iphlpapi.dll"
 				GenerateDebugInformation="true"
@@ -102,7 +102,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy &quot;$(SolutionDir)..\scripts&quot; &quot;.\$(ConfigurationName)\scripts\&quot; /e /y &amp;&amp; xcopy &quot;$(SolutionDir)..\nselib\*.lua&quot; &quot;$(SolutionDir)\$(ConfigurationName)\nselib\&quot;  /y"
+				CommandLine="xcopy &quot;$(SolutionDir)..\scripts&quot; &quot;.\$(ConfigurationName)\scripts\&quot; /e /y &amp;&amp; xcopy &quot;$(SolutionDir)..\nselib\*.lua&quot; &quot;$(SolutionDir)\$(ConfigurationName)\nselib\&quot; /y &amp;&amp; xcopy &quot;$(SolutionDir)\OpenSSL\bin\*.dll&quot; &quot;$(SolutionDir)\$(ConfigurationName)\&quot; /y"
 			/>
 		</Configuration>
 		<Configuration
@@ -136,7 +136,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories=".;..;../liblua;../nbase;../libpcre;winip;..\nsock\include;&quot;pcap-include&quot;;&quot;..\libdnet-stripped\include&quot;"
+				AdditionalIncludeDirectories=".;..;../liblua;../nbase;../libpcre;winip;..\nsock\include;&quot;pcap-include&quot;;&quot;..\libdnet-stripped\include&quot;;OpenSSL\include;"
 				PreprocessorDefinitions="WIN32;_CONSOLE"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -157,11 +157,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="liblua.lib nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib advapi32.lib $(NOINHERIT)"
+				AdditionalDependencies="liblua.lib nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib advapi32.lib libeay32.lib ssleay32.lib $(NOINHERIT)"
 				OutputFile=".\Release/nmap.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="lib;..\liblua;..\libpcre;..\nsock;..\nbase;&quot;..\libdnet-stripped&quot;"
+				AdditionalLibraryDirectories="lib;..\liblua;..\libpcre;..\nsock;..\nbase;&quot;..\libdnet-stripped&quot;;OpenSSL\lib;"
 				IgnoreDefaultLibraryNames=""
 				DelayLoadDLLs="packet.dll,wpcap.dll,iphlpapi.dll"
 				ProgramDatabaseFile=".\Release/nmap.pdb"
@@ -192,7 +192,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy &quot;$(SolutionDir)..\scripts&quot; &quot;.\$(ConfigurationName)\scripts\&quot; /e /y &amp;&amp; xcopy &quot;$(SolutionDir)..\nselib\*.lua&quot; &quot;$(SolutionDir)\$(ConfigurationName)\nselib\&quot;  /y"
+				CommandLine="xcopy &quot;$(SolutionDir)..\scripts&quot; &quot;.\$(ConfigurationName)\scripts\&quot; /e /y &amp;&amp; xcopy &quot;$(SolutionDir)..\nselib\*.lua&quot; &quot;$(SolutionDir)\$(ConfigurationName)\nselib\&quot; /y &amp;&amp; xcopy &quot;$(SolutionDir)\OpenSSL\bin\*.dll&quot; &quot;$(SolutionDir)\$(ConfigurationName)\&quot; /y"
 			/>
 		</Configuration>
 	</Configurations>

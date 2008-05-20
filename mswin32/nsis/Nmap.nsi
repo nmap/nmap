@@ -23,8 +23,8 @@
   ;Get installation folder from registry if available 
   InstallDirRegKey HKCU "Software\Nmap" "" 
  
-  !define VERSION "4.23RC3"  
-  VIProductVersion "4.23.0.3"
+  !define VERSION "4.62"  
+  VIProductVersion "4.62.0.0"
   VIAddVersionKey /LANG=1033 "FileVersion" "${VERSION}"
   VIAddVersionKey /LANG=1033 "ProductName" "Nmap" 
   VIAddVersionKey /LANG=1033 "CompanyName" "Insecure.org" 
@@ -152,6 +152,8 @@ Section "Nmap Core Files" SecCore
   File ..\..\docs\nmap.xsl 
   File ..\nmap_performance.reg 
   File ..\..\README-WIN32 
+  File libeay32.dll
+  File ssleay32.dll
   File /r /x mswin32 /x .svn ..\..\scripts
   File /r /x mswin32 /x .svn ..\Release\nselib
   File /r /x mswin32 /x .svn ..\Release\nselib-bin
@@ -267,6 +269,8 @@ Section "Uninstall"
   Delete "$INSTDIR\nmap_performance.reg" 
   Delete "$INSTDIR\README-WIN32" 
   Delete "$INSTDIR\icon1.ico"
+  Delete "$INSTDIR\libeay32.dll"
+  Delete "$INSTDIR\ssleay32.dll"
   Delete "$INSTDIR\winpcap-nmap*.exe"
   ;Delete specific subfolders (NB: custom scripts in scripts folder will be lost)
   RMDir /r "$INSTDIR\nselib"

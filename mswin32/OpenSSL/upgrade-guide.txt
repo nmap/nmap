@@ -1,0 +1,45 @@
+Upgrading OpenSSL
+-----------------
+
+I. Additional Requirements
+
+1) Install ActivePerl from activestate.com (free download)
+
+  http://www.activestate.com/store/activeperl/download/
+
+
+II. Compiling OpenSSL from source
+
+2) Grab and extract the latest sources from openssl.org
+3) Create C:\OpenSSL for installation
+4) Open the Visual Studio command prompt
+5) Set the required variables:
+
+  Set MSSDK=C:\Program Files\Microsoft Platform SDK
+  Set Lib=%MSSDK%\Lib;%Lib%
+  Set Include=%MSSDK%\Include;%Include%
+
+Note: Depending on your system you may need to change the SDK directory
+
+6) cd to the OpenSSL source directory
+7) Configure OpenSSL
+
+  perl Configure --prefix=C:/OpenSSL VC-WIN32
+  ms\do_ms
+
+Note #1: The slash after the C: in the configure line is significant
+Note #2: You can safely ignore "Compilation failed" messages from do_ms
+
+8) Compile and Install OpenSSL
+
+  nmake -f ms\ntdll.mak install
+
+
+III. Making OpenSSL available to Nmap
+
+9) Copy the required files from C:\OpenSSL to Nmap's mswin32\OpenSSL directory
+
+  \OpenSSL\bin\*.dll -> mswin32\OpenSSL\bin
+  \OpenSSL\include   -> mswin32\OpenSSL\include
+  \OpenSSL\lib       -> mswin32\OpenSSL\lib
+
