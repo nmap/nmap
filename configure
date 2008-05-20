@@ -673,7 +673,7 @@ ac_ct_CXX
 COMPAT_OBJS
 COMPAT_SRCS
 STRIP
-LUAFLAGS
+LUA_CFLAGS
 CPP
 GREP
 EGREP
@@ -4208,7 +4208,6 @@ fi
 
 
 needs_cpp_precomp=no
-LUAFLAGS="MYCFLAGS=\"$CFLAGS -DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
 
 case "$host" in
   *alpha-dec-osf*)
@@ -4493,11 +4492,11 @@ _ACEOF
 
 fi
 
-    LUAFLAGS="MYCFLAGS=\"$CFLAGS -DLUA_USE_MACOSX\""
+    LUA_CFLAGS="-DLUA_USE_MACOSX"
     needs_cpp_precomp=yes
     ;;
   *)
-   LUAFLAGS="MYCFLAGS=\"$CFLAGS -DLUA_USE_POSIX -DLUA_USE_DLOPEN\""
+   LUA_CFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN"
 esac
 
 
@@ -9122,7 +9121,7 @@ ac_ct_CXX!$ac_ct_CXX$ac_delim
 COMPAT_OBJS!$COMPAT_OBJS$ac_delim
 COMPAT_SRCS!$COMPAT_SRCS$ac_delim
 STRIP!$STRIP$ac_delim
-LUAFLAGS!$LUAFLAGS$ac_delim
+LUA_CFLAGS!$LUA_CFLAGS$ac_delim
 CPP!$CPP$ac_delim
 GREP!$GREP$ac_delim
 EGREP!$EGREP$ac_delim

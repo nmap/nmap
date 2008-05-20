@@ -106,7 +106,7 @@ nsock_build: $(NSOCKDIR)/src/Makefile
 	cd $(NSOCKDIR)/src && $(MAKE)
 
 lua_build: $(LIBLUADIR)/Makefile
-	@echo Compiling liblua; cd $(LIBLUADIR) && $(MAKE) liblua.a @LUAFLAGS@
+	@echo Compiling liblua; cd $(LIBLUADIR) && $(MAKE) liblua.a CC="$(CC)" MYCFLAGS="$(CFLAGS) @LUA_CFLAGS@"
 
 #$(LIBPCAPDIR)/Makefile:
 #	@echo Configuring libpcap; cd $(LIBPCAPDIR); ./configure
