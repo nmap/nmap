@@ -15,9 +15,14 @@ Zenmap is installed as an application bundle in
 
 Known issues:
 
-Zenmap doesn't run as root. Work to allow this is underway. A workaround
-is to peek inside the application bundle:
-	sudo /Applications/Zenmap.app/Contents/MacOS/zenmap
+The authorization dialog that is displayed when the application is
+started is confusing. If the user is an administrator, it says "Zenmap
+requires that you type your password.", but it's not required. Selecting
+Cancel will run Zenmap without privileges. If the user is not an
+administrator, it says "Type an administrator's name and password to
+allow Zenmap to make changes.", but what's really being asked for
+low-level access to network hardware. The operating system does not
+provide a way to change the text on these dialogs.
 
 Changes in the test package:
 
@@ -52,3 +57,6 @@ nmap-4.62-test6 (May 9, 2008)
 nmap-4.62-test7 (May 10, 2008)
 	This release attempts to automatically launch X11 if it's not
 	already running.
+
+nmap-4.62-test8 (May 20, 2008)
+	This release prompts for a password to allow running as root.
