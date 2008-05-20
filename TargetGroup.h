@@ -143,7 +143,7 @@ class TargetGroup {
   void Initialize();
 
 #if HAVE_IPV6
-  struct in6_addr ip6;
+  struct sockaddr_in6 ip6;
 #endif
 
   /* These 4 are used for the '/mask' style of specifying target 

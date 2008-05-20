@@ -296,7 +296,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
     }
     assert(result->ai_addrlen == sizeof(struct sockaddr_in6));
     struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) result->ai_addr;
-    memcpy(ip6.s6_addr, sin6->sin6_addr.s6_addr, 16);
+    memcpy(&ip6, sin6, sizeof(struct sockaddr_in6));
     ipsleft = 1;
     freeaddrinfo(result);
 #else // HAVE_IPV6
@@ -443,7 +443,8 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
 #ifdef SIN_LEN
     sin6->sin6_len = *sslen;
 #endif /* SIN_LEN */
-    memcpy(sin6->sin6_addr.s6_addr, ip6.s6_addr, 16);
+    memcpy(sin6->sin6_addr.s6_addr, ip6.sin6_addr.s6_addr, 16);
+    sin6->sin6_scope_id = ip6.sin6_scope_id;
 #else
     fatal("IPV6 not supported on this platform");
 #endif // HAVE_IPV6
