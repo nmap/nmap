@@ -24,7 +24,7 @@ get = function( host, port, path, options )
   options = options or {}
   local presets = {Host=host,Connection="close",['User-Agent']="Nmap NSE"}
   if type(host) == 'table' then
-    presets['Host'] = ( host.name ~= '' and host.name ) or host.ip
+    presets['Host'] = host.targetname or ( host.name ~= '' and host.name ) or host.ip
   end
 
   local header = options.header or {}
@@ -72,7 +72,7 @@ request = function( host, port, data, options )
   options = options or {}
 
   if type(host) == 'table' then
-    host = host.targetname or ( host.name ~= '' and host.name ) or host.ip
+    host = host.ip
   end
 
   local protocol = 'tcp'

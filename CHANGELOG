@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The NSE HTTP library now uses the host name specified on the command
+  line when making requests, which improves script scanning against web
+  servers with virtual hosts. Thanks to Sven Klemm for the patch.
+
 o Removed a superfluous test for the existence of the C++ compiler in the
   configure script. The test was not robust when configured with
   CXX="ccache g++". Thanks to Rainer Müller for the report.
