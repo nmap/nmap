@@ -4242,7 +4242,6 @@ _ACEOF
 #define BSDI 1
 _ACEOF
 
-    LUAFLAVOR=bsd
     ;;
   *-sgi-irix5* | *-sgi-irix6*)
     cat >>confdefs.h <<\_ACEOF

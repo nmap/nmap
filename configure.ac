@@ -122,7 +122,6 @@ case "$host" in
     ;;
   *-bsdi*)
     AC_DEFINE(BSDI)
-    LUAFLAVOR=bsd
     ;;
   *-sgi-irix5* | *-sgi-irix6*)
     AC_DEFINE(IRIX)
