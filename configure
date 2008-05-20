@@ -670,7 +670,6 @@ OBJEXT
 CXX
 CXXFLAGS
 ac_ct_CXX
-CXXPROG
 COMPAT_OBJS
 COMPAT_SRCS
 STRIP
@@ -3957,50 +3956,6 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
  if test -n "$GXX"; then
       CXXFLAGS="$CXXFLAGS -Wall "
  fi
-# Extract the first word of ""$CXX"", so it can be a program name with args.
-set dummy "$CXX"; ac_word=$2
-{ echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
-if test "${ac_cv_prog_CXXPROG+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if test -n "$CXXPROG"; then
-  ac_cv_prog_CXXPROG="$CXXPROG" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-as_dummy=""$PATH":/"
-for as_dir in $as_dummy
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_prog_CXXPROG=""AVAILABLE""
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_prog_CXXPROG" && ac_cv_prog_CXXPROG=""MISSING""
-fi
-fi
-CXXPROG=$ac_cv_prog_CXXPROG
-if test -n "$CXXPROG"; then
-  { echo "$as_me:$LINENO: result: $CXXPROG" >&5
-echo "${ECHO_T}$CXXPROG" >&6; }
-else
-  { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-fi
-
-
-if test $CXXPROG = "MISSING"; then
-  { { echo "$as_me:$LINENO: error: Could not locate a C++ compiler. If it exists, add it to your PATH or give configure the CXX=path_to_compiler argument.  Otherwise, install a C++ compiler such as g++ or install a binary package of Nmap (see http://nmap.org/download.html ))" >&5
-echo "$as_me: error: Could not locate a C++ compiler. If it exists, add it to your PATH or give configure the CXX=path_to_compiler argument.  Otherwise, install a C++ compiler such as g++ or install a binary package of Nmap (see http://nmap.org/download.html ))" >&2;}
-   { (exit 1); exit 1; }; }
-fi
 
 { echo "$as_me:$LINENO: checking whether the compiler is gcc 4 or greater" >&5
 echo $ECHO_N "checking whether the compiler is gcc 4 or greater... $ECHO_C" >&6; }
@@ -9164,7 +9119,6 @@ OBJEXT!$OBJEXT$ac_delim
 CXX!$CXX$ac_delim
 CXXFLAGS!$CXXFLAGS$ac_delim
 ac_ct_CXX!$ac_ct_CXX$ac_delim
-CXXPROG!$CXXPROG$ac_delim
 COMPAT_OBJS!$COMPAT_OBJS$ac_delim
 COMPAT_SRCS!$COMPAT_SRCS$ac_delim
 STRIP!$STRIP$ac_delim
@@ -9204,6 +9158,7 @@ LIBDNETDIR!$LIBDNETDIR$ac_delim
 DNET_DEPENDS!$DNET_DEPENDS$ac_delim
 DNET_BUILD!$DNET_BUILD$ac_delim
 DNET_CLEAN!$DNET_CLEAN$ac_delim
+DNET_DIST_CLEAN!$DNET_DIST_CLEAN$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -9245,7 +9200,6 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
-DNET_DIST_CLEAN!$DNET_DIST_CLEAN$ac_delim
 LIBLUA_LIBS!$LIBLUA_LIBS$ac_delim
 LIBLUADIR!$LIBLUADIR$ac_delim
 LUA_DEPENDS!$LUA_DEPENDS$ac_delim
@@ -9265,7 +9219,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 18; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 17; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

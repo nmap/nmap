@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Removed a superfluous test for the existence of the C++ compiler in the
+  configure script. The test was not robust when configured with
+  CXX="ccache g++". Thanks to Rainer Müller for the report.
+
 o Fixed a bug in nmap_dns.cc where the endian of the platform that nmap
   ran on might negitivly effect how efficiently nmap stores cache values
   in a hash table. [Michael]
