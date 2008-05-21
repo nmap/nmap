@@ -60,3 +60,8 @@ nmap-4.62-test7 (May 10, 2008)
 
 nmap-4.62-test8 (May 20, 2008)
 	This release prompts for a password to allow running as root.
+
+nmap-4.62-test9 (May 21, 2008)
+	This release fixes a file name case bug that kept the
+	application from running from a filesystem with case sensitivity
+	enabled.
