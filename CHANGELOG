@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o There are now binary installers of Nmap and Zenmap for Mac OS X.
+  http://nmap.org/download.html#macosx
+  Thanks to Benson Kalahar and Vlad Alexa for extensive testing.
+
 o The NSE HTTP library now uses the host name specified on the command
   line when making requests, which improves script scanning against web
   servers with virtual hosts. Thanks to Sven Klemm for the patch.
