@@ -528,7 +528,7 @@ IE(DFI=N%T=7F%TG=7F%TOSI=Z%CD=S%SI=S%DLI=S)
 
 # Linux 2.4.21-20.ELsmp #1 SMP Tue Nov 30 14:55:43 IST 2004 i686 i686 i386 GNU/Linux
 Fingerprint Aladdin eSafe security gateway (runs Linux 2.4.21)
-Class Aladdin | Linux | 2.4.X | security-misc
+Class Aladdin | Linux | 2.4.X | firewall
 SEQ(SP=C0-CA%GCD=<7%ISR=CB-D5%TI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -1188,7 +1188,7 @@ IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # Darwin laptop.8.10.0 Darwin Kernel  Version 8.10.0: Wed May 23 16:50:59 PDT 2007; root:xnu-792.21.3~1/RELEASE_PPC Power Macintosh powerpc
 Fingerprint Apple Mac OS X 10.4 (Tiger) (Darwin 8.10.0, x86)
 Class Apple | Mac OS X | 10.4.X | general purpose
-SEQ(SP=7-17%GCD=A84ABD6|13F01ADD|2427141D|3A6E3739|49D31896|58D6E3F2|5BFAB39F|5F7EA85A|635B8FC8|6FEACE7C|74DC6E72|752A381E|EA54703C|D4A8E078|B1%ISR=F2-102%TI=I%II=I%SS=S%TS=0|1)
+SEQ(SP=7-17%GCD=1|>1000000%ISR=F2-102%TI=I%II=I%SS=S%TS=0|1)
 OPS(O1=M5B4NW0NNT11SLL%O2=M5B4NW0NNT11SLL%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11SLL%O5=M5B4NW0NNT11SLL%O6=M5B4NNT11SLL)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
 ECN(R=Y%DF=Y%T=FF%TG=FF%W=FFFF%O=M5B4NW0SLL%CC=N%Q=)
@@ -3356,7 +3356,7 @@ U1(DF=N%T=40%TG=40%TOS=C0%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Cisco IP Phone 7910
-Fingerprint Cisco 7910 IP Phone
+Fingerprint Cisco IP Phone 7910
 Class Cisco | embedded || VoIP phone
 SEQ(SP=0-5%GCD=5800|B000|10800|16000|1B800%ISR=88-92%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M578%O2=M578%O3=M578%O4=M578%O5=M578%O6=M578)
@@ -3373,7 +3373,7 @@ U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=40%TG=40%TOSI=Z%CD=S%SI=S%DLI=S)
 
 # Cisco IP Phone 7912 Series
-Fingerprint Cisco 7912-series IP phone
+Fingerprint Cisco IP Phone 7912-series
 Class Cisco | embedded || VoIP phone
 SEQ(SP=0-16%GCD=1000|2000|3000|4000|5000|B000|16000|21000|2C000|37000%ISR=90-9A%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B0%O2=M5B0%O3=M5B0%O4=M5B0%O5=M5B0%O6=M5B0)
@@ -3390,7 +3390,7 @@ U1(DF=N%T=FA%TG=FA%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=FA%TG=FA%TOSI=Z%CD=S%SI=S%DLI=S)
 
 # Cisco IP Phone 7912G (SCCP) Software Version        6.01.00(051208A)
-Fingerprint Cisco 7912G IP phone
+Fingerprint Cisco IP Phone 7912G
 Class Cisco | embedded || VoIP phone
 SEQ(SP=FC-106%GCD=<7%ISR=102-10C%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M564%O2=M564%O3=M564%O4=M564%O5=M564%O6=M564)
@@ -3406,7 +3406,7 @@ T7(R=Y%DF=N%T=30|32|33|39|3A%TG=30|32|33|39|3A%W=FFFF%S=A%A=S+%F=AR%O=WFNM109T10
 U1(DF=N%T=FB%TG=FB%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=FB%TG=FB%TOSI=Z%CD=S%SI=S%DLI=S)
 
-Fingerprint Cisco 7960 Unified IP phone
+Fingerprint Cisco Unified IP Phone 7960
 Class Cisco | embedded || VoIP phone
 SEQ(SP=102-10C%GCD=<7%ISR=104-10E%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M578%O2=M578%O3=M578%O4=M578%O5=M578%O6=M578)
@@ -3423,7 +3423,7 @@ U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=40%TG=40%TOSI=Z%CD=S%SI=S%DLI=S)
 
 # Cisco CP-7961G-GE, SCCP41.8-3-3SR2S
-Fingerprint Cisco 7961 IP phone
+Fingerprint Cisco IP Phone 7961
 Class Cisco | embedded || VoIP phone
 SEQ(SP=F9-109%GCD=<7%ISR=FE-112%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M578%O2=M578%O3=M578%O4=M578%O5=M578%O6=M578)
@@ -3443,7 +3443,7 @@ IE(DFI=N%T=40%TG=40%TOSI=Z%CD=S%SI=S%DLI=S)
 # Cisco IP Phone 7941 Series
 # Cisco IP Phone CP-7911G
 # Cisco IP Phone CP-7970G, Version SCCP70.8-2-2SR2S
-Fingerprint Cisco IP phone (7911, 7941, 7961, or 7970)
+Fingerprint Cisco IP Phone (7911, 7941, 7961, or 7970)
 Class Cisco | embedded || VoIP phone
 SEQ(SP=FF-10B%GCD=<7%ISR=101-111%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M578%O2=M578%O3=M578%O4=M578%O5=M578%O6=M578)
@@ -4553,7 +4553,7 @@ IE(DFI=S%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 # DI-524, Firmware Version: V2.05
 # DI 524 H/W revision B4: Current Firmware Version: V2.06
 # DI-604 Firmware Version : V3.14, Thu, Dec 15 2005
-Fingerprint D-Link DI-524/DI-604 or SMC 7004VBR broadband router
+Fingerprint D-Link DI-524 or DI-604, or SMC SMC7004VBR broadband router
 Class D-Link | embedded || broadband router
 Class SMC | embedded || broadband router
 SEQ(SP=0-15%GCD=32|64|96|C8|FA|12C%ISR=4B-55%TI=BI%II=BI%SS=S%TS=U)
@@ -7041,7 +7041,7 @@ IE(DFI=S%T=40%TG=40%TOSI=Z%CD=S%SI=S%DLI=S)
 
 # HP Digital Sender (Scan to Email Device) Model 9100C (Older) running a JetDirect Card as Network Interface
 # HP Jetdirect 175X, J6035G, Firmware Version:    M.25.54
-Fingerprint HP JetDirect 175x print server (J6035G) or 9100c Digital Sender scan-to-email device
+Fingerprint HP JetDirect 175x print server (J6035G) or 9100c Digital Sender multifunction printer
 Class HP | embedded || print server
 Class HP | embedded || printer
 SEQ(SP=96-A0%GCD=<7%ISR=9B-A5%TI=I%II=I%SS=S%TS=1)
@@ -7095,7 +7095,7 @@ U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=1042%RIPCK=Z%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # HP 9100C Digital Sender (J3113A)
-Fingerprint HP 9100c Digital Sender printer (J3113A)
+Fingerprint HP 9100c Digital Sender multifunction printer (J3113A)
 Class HP | embedded || printer
 SEQ(R=N)
 OPS(O1=M5B4%O2=M5B4%O3=|M5B4%O4=%O5=%O6=)
@@ -7710,8 +7710,8 @@ U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # HP 9100c Digital Sender  (scanner)
-Fingerprint HP 9100c Digital Sender scanner
-Class HP | embedded || scanner
+Fingerprint HP 9100c Digital Sender multifunction printer
+Class HP | embedded || printer
 SEQ(R=N)
 OPS(R=N)
 WIN(R=N)
@@ -20115,7 +20115,7 @@ IE(R=N)
 # Red-M Communications Red-Alert PRO bluetooth/wifi activity detector
 # MULTIBAND PROBE - Red-Alert PRO v4.1.20/2.6.5; http://www.red-m.com
 Fingerprint Red-M Communications Red-Alert PRO wireless activity detector
-Class Red-M | embedded || security-misc
+Class Red-M | embedded || firewall
 SEQ(SP=91-9B%GCD=<7%ISR=98-A2%TI=RD%II=RI%TS=1)
 OPS(O1=M5A8NW0NNT11%O2=M5A8NW0NNT11%O3=M5A8NW0NNT11%O4=M5A8NW0NNT11%O5=M5A8NW0NNT11%O6=M5A8NNT11)
 WIN(W1=43E0%W2=4110|467C|4BE8|5154|56C0%W3=423C|44B0|4998|50F4|55DC%W4=43E0%W5=4180|4598|49B0|4FD4|55F8%W6=403D|4431|4A1F|500D|54FE)
@@ -20338,7 +20338,7 @@ U1(DF=N%T=FF%TG=FF%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=S%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Scientific Alanta WebSTAR DPC2100 v2.0.2r1242-040825
-Fingerprint Scientific Alanta WebSTAR DPC2100 cable modem
+Fingerprint Scientific Atlanta WebSTAR DPC2100 cable modem
 Class Scientific Atlanta | embedded || broadband router
 SEQ(SP=CD-D7%GCD=<7%ISR=106-110%TI=RD%II=RI%TS=A)
 OPS(O1=M5B4NW0NNT11SLL%O2=M5B4NW0NNT11SLL%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11SLL%O5=M5B4NW0NNT11SLL%O6=M5B4NNT11SLL)
@@ -20561,7 +20561,7 @@ U1(DF=N%T=40%TG=40%TOS=C4%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=40%TG=40%TOSI=4%CD=S%SI=S%DLI=S)
 
 # Hardware Firewall, SecureComputing/SG560 Version 3.1.4u1 -- Mon, 28 Aug 2006 19:00:12 +1000 - Linux version 2.4.31-uc0 (build@sgbuild) (gcc version 3.3.2) #1 Mon Aug 28 20:17:14 EST 2006
-Fingerprint Secure Computing SnapGear SG560 Firewall (Linux 2.4.31-uc0)
+Fingerprint Secure Computing SnapGear SG560 firewall (Linux 2.4.31-uc0)
 Class Secure Computing | Linux | 2.4.X | firewall
 SEQ(SP=BA-C4%GCD=<7%ISR=CB-D5%TI=Z%II=I%TS=7|9)
 OPS(O1=NNT11|M5B4ST11NW0%O2=NNT11|M5B4ST11NW0%O3=NNT11|M5B4NNT11NW0%O4=NNT11|M5B4ST11NW0%O5=NNT11|M5B4ST11NW0%O6=NNT11|M5B4ST11)
@@ -20871,7 +20871,7 @@ U1(DF=N%T=FF%TG=FF%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=FF%TG=FF%TOSI=Z%CD=S%SI=S%DLI=S)
 
 # Sharp AR-M351N Printer
-Fingerprint Sharp AR-M351N Printer
+Fingerprint Sharp AR-M351N printer
 Class Sharp | embedded || printer
 SEQ(SP=0-5A%GCD=<7|10001|20002|30003|40004|50005|60006%ISR=94-9E%TI=I%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
@@ -22622,7 +22622,7 @@ U1(DF=N%T=77%TG=77%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=84B7%RUL=G%RUD=G)
 IE(DFI=N%T=77%TG=77%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # Toshiba Magnia SG10, Linux toshiba.toshiba.loc 2.4.18-3custom #3 Tue Aug 13 15:10:18 PDT 2002 i686 unknown
-Fingerprint Toshiba Magnia SG10 server appliance
+Fingerprint Toshiba Magnia SG10 server appliance (Linux 2.4.18)
 Class Toshiba | Linux | 2.4.X | server appliance
 SEQ(SP=C9-D3%GCD=<7%ISR=CD-D7%TI=Z%II=I%TS=U)
 OPS(R=N)
