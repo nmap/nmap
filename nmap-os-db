@@ -6343,7 +6343,7 @@ T7(R=Y%DF=Y%T=40%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=40%TG=40%TOS=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=80%CD=S%SI=S%DLI=S)
 
-# FreeBSD xxx.xxxxx.com 6.2-RELEASE FreeBSD 6.2-RELEASE #0: Fri Jan 12 11:05:30 UTC 2007 i386
+# FreeBSD 6.2-RELEASE FreeBSD 6.2-RELEASE #0: Fri Jan 12 11:05:30 UTC 2007 i386
 Fingerprint FreeBSD 6.2-RELEASE (x86)
 Class FreeBSD | FreeBSD | 6.X | general purpose
 SEQ(SP=FF-109%GCD=<7%ISR=105-113%TI=I%TS=A)
@@ -9372,7 +9372,7 @@ U1(R=N)
 IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Juniper SSG-20-WLAN, Firmware: 5.4.0r3a.0 (Firewall+VPN)
-Fingerprint Juniper SSG 20 firewall
+Fingerprint Juniper Networks SSG 20 firewall
 Class Juniper | embedded || firewall
 SEQ(SP=FC-106%GCD=<7%ISR=108-112%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M564%O2=M564%O3=M564%O4=M564%O5=M564%O6=M564)
@@ -9441,7 +9441,7 @@ U1(DF=Y%T=FF%TG=FF%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Juniper j4350, JUNOS Software Release [8.3R1.5] (Export edition)
-Fingerprint Juniper J4350 router (JUNOS 8.3R1.5)
+Fingerprint Juniper Networks J4350 router (JUNOS 8.3R1.5)
 Class Juniper | JUNOS | 8.X | router
 SEQ(SP=F8-10A%GCD=<7%ISR=106-110%TI=I%II=RI%SS=O|S%TS=7)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
@@ -9475,7 +9475,7 @@ U1(DF=Y%T=FF%TG=FF%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Juniper Steel-Belted Radius Enterprise Edition version 5.30.2009 on a Windows 2000 Server with SP4 appliance
-Fingerprint Juniper Steel-Belted Radius (SBR) server (runs Win2K SP4)
+Fingerprint Juniper Networks Steel-Belted Radius (SBR) server (runs Win2K SP4)
 Class Juniper | Windows | 2000 | authentication server
 SEQ(SP=FF-109%GCD=<7%ISR=106-110%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
@@ -13046,7 +13046,7 @@ U1(DF=N%T=40%TG=40%TOS=C0%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(R=N)
 
 # Linux 2.6.20-grml #1 SMP PREEMPT Thu May 3 20:20:41 CEST 2007 i686 GNU/Linux
-Fingerprint Linux 2.6.20-grml #1 SMP PREEMPT Thu May 3 20:20:41 CEST 2007 i686 GNU/Linux
+Fingerprint Linux 2.6.20-grml
 Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=A2-AC%GCD=<7%ISR=C1-CB%TI=Z%II=I%TS=8)
 OPS(O1=M400CST11NW6%O2=M400CST11NW6%O3=M400CNNT11NW6%O4=M400CST11NW6%O5=M400CST11NW6%O6=M400CST11)
