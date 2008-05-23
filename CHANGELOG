@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o A bug was fixed that could cause Zenmap to crash when loading a
+  results file that had multibyte characters in it. The error looked
+  like
+    Gtk-ERROR **: file gtktextsegment.c: line 196 (_gtk_char_segment_new): assertion failed: (gtk_text_byte_begins_utf8_char (text))
+
 o There are now binary installers of Nmap and Zenmap for Mac OS X.
   http://nmap.org/download.html#macosx
   Thanks to Benson Kalahar and Vlad Alexa for extensive testing.
