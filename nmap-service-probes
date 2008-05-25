@@ -85,6 +85,8 @@ match backdoor m|^\xfa\xcb\xd9\xd9\xdd\xc5\xd8\xce\xd6| p/Theef trojan/ i/**BACK
 match backdoor m|^220 SSL Connection Established - Loading Protocol\.\.\.\.\r\n| p/dhcpse.exe/ i/**BACKDOOR**/ o/Windows/
 match backdoor m|^A-311 Death welcome\x001| p/Haxdoor trojan/ i/**BACKDOOR**/ o/Windows/
 match backdoor m|^220 CAFEiNi [-\w_.]+ FTP server\r\n$| p/CAFEiNi trojan/ i/**BACKDOOR**/ o/Windows/
+match backdoor m/^220 (Stny|fuck)Ftpd 0wns j0\r?\n/ p/Kibuv.b worm/ i/**BACKDOOR**/ o/Windows/
+match backdoor m|^220 [Sf.][tu.][nc.][yk.][.F][t.][p.][d.] [0.][w.][n.][s.] [j.][0.]\r?\n|i p/Generic Kibuv worm/ i/**BACKDOOR**/ o/Windows/
 
 match bf2rcon m|^### Battlefield 2 ModManager Rcon v([\d.]+)\.\n### Digest seed: \w+\n\n| p/Battlefield 2 ModManager Remote Console/ v/$1/
 
@@ -482,7 +484,6 @@ match ftp m|^220 HD316\r FTP server\(Version([\d.]+)\) ready\.\r\n| p/Panasonic 
 match ftp m=^220 \w+ IBM Infoprint (Color |)(\d+) FTP Server ([\d.]+) ready\.\r\n= p/IBM Inforprint $1$2 ftpd/ v/$3/ d/printer/
 match ftp m|^220 ShareIt FTP Server ([\d.]+) \(WINCE\) Ready\.\r\n| p/ShareIt ftpd/ v/$1/ d/PDA/
 match ftp m|^220 ShareIt FTP Pro ([\d.]+) \(WINCE\) Ready\.\r\n| p/ShareIt Pro ftpd/ v/$1/ d/PDA/
-match ftp m|^220 StnyFtpd 0wns j0\n$| p/Unknown ftp backdoor/
 match ftp m|^220 ISOS FTP Server for Upgrade Purpose \(([\d.]+)\) ready\r\n| p/Billion 741GE ADSL router/ v/$1/ d/router/
 match ftp m|^220 PV11 FTP Server ready\r\n| p/Unknown wireless acces point ftpd/ i/Runs Phar Lap RTOS/ d/router/
 match ftp m|^220 Alize Session Manager FTP Server\r\n| p/Alcatel OmniPCX ftpd/ d/PBX/

@@ -10,7 +10,7 @@ Entry{ category = "version", filename = "PPTPversion.nse" }
 Entry{ category = "backdoor", filename = "RealVNC_auth_bypass.nse" }
 Entry{ category = "demo", filename = "SMTP_openrelay_test.nse" }
 Entry{ category = "discovery", filename = "SMTPcommands.nse" }
-Entry{ category = "intrusive", filename = "SMTPcommands.nse" }
+Entry{ category = "safe", filename = "SMTPcommands.nse" }
 Entry{ category = "discovery", filename = "SNMPsysdesr.nse" }
 Entry{ category = "safe", filename = "SNMPsysdesr.nse" }
 Entry{ category = "vulnerability", filename = "SQLInject.nse" }
@@ -28,7 +28,6 @@ Entry{ category = "intrusive", filename = "ftpbounce.nse" }
 Entry{ category = "version", filename = "iax2Detect.nse" }
 Entry{ category = "discovery", filename = "ircServerInfo.nse" }
 Entry{ category = "malware", filename = "ircZombieTest.nse" }
-Entry{ category = "malware", filename = "kibuvDetection.nse" }
 Entry{ category = "discovery", filename = "nbstat.nse" }
 Entry{ category = "safe", filename = "nbstat.nse" }
 Entry{ category = "version", filename = "netbios-smb-os-discovery.nse" }

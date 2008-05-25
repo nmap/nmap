@@ -79,6 +79,9 @@ o Changed SSLv2-support.nse so that it only enumerates the list of
   available ciphers with a verbosity level of at least two or with
   debugging enabled. [Kris]
 
+o Replaced kibuvDetection.nse with version detection match lines which
+  work better than the script. [Kris, Brandon]
+
 o Removed mswindowsShell.nse as there is a version detection NULL probe
   match which accomplishes the same thing. [Brandon, Fyodor, Kris]
 
