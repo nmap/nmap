@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug in the showOwner NSE script which caused it to try UDP
+  ports instead of just TCP ports.  This made it very slow in the
+  common case where there are many UDP ports in the open|filtered
+  state.  Thanks to Jason DePriest for reporting the problem and Jah
+  for tracking it down and fixing it.
+
 o A bug was fixed that could cause Zenmap to crash when loading a
   results file that had multibyte characters in it. The error looked
   like
