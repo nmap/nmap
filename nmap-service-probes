@@ -976,6 +976,7 @@ match lucent-fwadm m|^0001;2$| p/Lucent Secure Management Server/
 match mailq m|^version zmailer ([\d.]+)\n220 MAILQ-V2-CHALLENGE: | p/zmailer/ v/$1/ o/Unix/
 match meetingmaker m/^\xc1,$/ p/Meeting Maker calendaring/
 match melange m|^\+\+\+Online\r\n>> Melange Chat Server \(Version (\d[-.\w]+)\), Apr-25-1999\r\n\nWelcome | p/Melange Chat Server/ v/$1/
+match metasploit m|^\n.*=\[ msf v([^\r\n]+)\r?\n.*\d+ exploits.*\d+ payloads.*\d+ encoders.*\d+ nops.*msf > $|s p/Metasploit Framework msfd/ v/$1/
 match midas m|^MIDASd v([\w.]+) connection accepted\n\xff| p/midasd/ v/$1/
 match mpd m|^OK MPD ([\d.]+)\n$| p/Music Player Daemon/ v/$1/
 # lopster 1.2.0.1 on Linux 1.1
