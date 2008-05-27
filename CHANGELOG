@@ -85,6 +85,9 @@ o Replaced kibuvDetection.nse with version detection match lines which
 o Removed mswindowsShell.nse as there is a version detection NULL probe
   match which accomplishes the same thing. [Brandon, Fyodor, Kris]
 
+o Updated IANA assignment IP list for random IP (-iR)
+  generation. [Kris]
+
 Nmap 4.62 [5/3/08]
 
 o Added a new --min-rate option that allows specifying a minimum rate
