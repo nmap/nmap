@@ -134,7 +134,7 @@
     latest version available from <ulink url="http://nmap.org"/>.  If
     the problem persists, do some research to determine whether it has already
     been discovered and addressed.  Try Googling the error message or browsing
-    the nmap-dev archives at <ulink url="http://seclists.org/" />.  Read this
+    the <citetitle>nmap-dev</citetitle> archives at <ulink url="http://seclists.org/" />.  Read this
     full manual page as well.  If nothing comes of this, mail a bug report to
     <email>nmap-dev@insecure.org</email>.  Please include everything you have
     learned about the problem, as well as what version of Zenmap you are running
@@ -145,7 +145,7 @@
     <para>Code patches to fix bugs are even better than bug reports. Basic
     instructions for creating patch files with your changes are available at
     <ulink url="http://nmap.org/data/HACKING" />.  Patches may be sent
-    to nmap-dev (recommended) or to Fyodor directly.</para>
+    to <citetitle>nmap-dev</citetitle> (recommended) or to Fyodor directly.</para>
   </refsect1>
 
   <refsect1 id='man-history'>

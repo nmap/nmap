@@ -1352,10 +1352,11 @@ demonstrates the power of open source software.  While the fundamental
 idea is pretty simple, I had not thought to add it nor received any
 requests for such functionality.  Then in the summer of 2000, Gerhard
 Rieger conceived the idea, wrote an excellent patch implementing it,
-and sent it to the nmap-hackers mailing list.  I incorporated that
-patch into the Nmap tree and released a new version the next day.  Few
-pieces of commercial software have users enthusiastic enough to design
-and contribute their own improvements!</para>
+and sent it to the <citetitle>nmap-hackers</citetitle> mailing list.
+I incorporated that patch into the Nmap tree and released a new
+version the next day.  Few pieces of commercial software have users
+enthusiastic enough to design and contribute their own
+improvements!</para>
 
 <para>Protocol scan works in a similar fashion to UDP scan.  Instead
 of iterating through the port number field of a UDP packet, it sends
@@ -2197,7 +2198,7 @@ exceed 1000ms.</para>
 could be useful when a network is so unreliable that even Nmap's
 default is too aggressive.  Since Nmap only reduces the timeout down to
 the minimum when the network seems to be reliable, this need is
-unusual and should be reported as a bug to the nmap-dev mailing
+unusual and should be reported as a bug to the <citetitle>nmap-dev</citetitle> mailing
 list.</para>
 
         </listitem>
@@ -3133,7 +3134,7 @@ self-explanatory.  You may get something like: <computeroutput>Timeout
 vals: srtt: -1 rttvar: -1 to: 1000000 delta 14987 ==> srtt: 14987
 rttvar: 14987 to: 100000</computeroutput>.  If you don't understand a line, your only recourses
 are to ignore it, look it up in the source code, or request help from
-the development list (nmap-dev).  Some lines are self explanatory, but
+the development list (<citetitle>nmap-dev</citetitle>).  Some lines are self explanatory, but
 the messages become more obscure as the debug level is
 increased.</para>
 
@@ -3743,7 +3744,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
     url="http://nmap.org"/>.  If the problem persists,
     do some research to determine whether it has already been
     discovered and addressed.  Try Googling the error message or
-    browsing the nmap-dev archives at <ulink
+    browsing the <citetitle>nmap-dev</citetitle> archives at <ulink
     url="http://seclists.org/" />.  Read this full manual page as
     well.  If nothing comes of this, mail a bug report to
     <email>nmap-dev@insecure.org</email>.  Please include everything
@@ -3757,7 +3758,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
     Basic instructions for creating patch files with your changes are
     available at <ulink
     url="http://nmap.org/data/HACKING" />.  Patches may
-    be sent to nmap-dev (recommended) or to Fyodor directly.</para>
+    be sent to <citetitle>nmap-dev</citetitle> (recommended) or to Fyodor directly.</para>
   </refsect1>
 
   <refsect1 id='man-author'>

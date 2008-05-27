@@ -3451,7 +3451,7 @@ executed if it is run against a specific target. After the check those script-ta
       <remark>Fyodor is working on this.  The general idea is for scripts to be contributed
 	and distributed under the same license as Nmap, as described
 	in <ulink url="http://seclists.org/nmap-dev/2006/q3/0156.html">this
-	nmap-dev post</ulink>.  We certainly welcome script contributions!</remark>
+	<citetitle>nmap-dev</citetitle> post</ulink>.  We certainly welcome script contributions!</remark>
 
     </para>
   </sect1>
