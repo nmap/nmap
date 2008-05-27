@@ -1,67 +1,7 @@
-This is a test packaging of Nmap and Zenmap for Mac OS X. It is meant to
-work on both Intel and PowerPC Macs running Mac OS X 10.4 or later.
+Nmap is a free and open source utility for network exploration and security auditing. Zenmap is a multi-platform graphical frontend and results viewer for Nmap.
 
-We are distributing this in the hope of creating a really great
-distribution of Nmap and Zenmap on the Mac, and for that we need your
-help. Please try it out and send comments and suggestions to
-nmap-dev@insecure.org.
+This package contains Nmap and Zenmap. It is intended to work on Intel and PowerPC Macs running Mac OS X 10.4 or later.
 
-The nmap command-line binary will be installed in /usr/local/bin, and
-additional support files will be installed in /usr/local/libexec and
-/usr/local/share.
+Installation of both Nmap and Zenmap is optional. Unselect Zenmap to get just the command-line tool. Unselect Nmap if you prefer to use a copy of Nmap that is already installed. Zenmap will not work without Nmap.
 
-Zenmap is installed as an application bundle in
-/Applications/Zenmap.app.
-
-Known issues:
-
-The authorization dialog that is displayed when the application is
-started is confusing. If the user is an administrator, it says "Zenmap
-requires that you type your password.", but it's not required. Selecting
-Cancel will run Zenmap without privileges. If the user is not an
-administrator, it says "Type an administrator's name and password to
-allow Zenmap to make changes.", but what's really being asked for
-low-level access to network hardware. The operating system does not
-provide a way to change the text on these dialogs.
-
-Changes in the test package:
-
-zenmap-4.60-test1 (April 8, 2008)
-	Initial release. Distributed as a disk image containing the
-	Zenmap application bundle only.
-
-nmap-4.60-test2 (April 30, 2008)
-	Now a metapackage that installs both Nmap and Zenmap. Built
-	against MacPorts 1.7.0, targeting Mac OS X 10.4 with the 10.4u
-	SDK. Zenmap looks for nmap in /usr/local/bin by default. More
-	careful escaping of configuration files allows running from a
-	directory with spaces in the name.
-
-nmap-4.60-test3 (May 2, 2008)
-	Fixes a syntax error with Python 2.3. This version is linked
-	against a version of GLib that is patched to work on PowerPC.
-
-nmap-4.62-test4 (May 3, 2008)
-	This release is built with upstream py2app, not the version that
-	Apple distributes. The Apple version is build to run only on Mac
-	OS X 10.5.
-
-nmap-4.62-test5 (May 8, 2008)
-	This release is built against the X11 libraries from the 10.4u
-	SDK.
-
-nmap-4.62-test6 (May 9, 2008)
-	This release fixes two libraries that were being built against
-	the 10.5 SDK: OpenSSL and Cairo.
-
-nmap-4.62-test7 (May 10, 2008)
-	This release attempts to automatically launch X11 if it's not
-	already running.
-
-nmap-4.62-test8 (May 20, 2008)
-	This release prompts for a password to allow running as root.
-
-nmap-4.62-test9 (May 21, 2008)
-	This release fixes a file name case bug that kept the
-	application from running from a filesystem with case sensitivity
-	enabled.
+The nmap command-line binary will be installed in /usr/local/bin, and additional support files will be installed in /usr/local/libexec and /usr/local/share. The Zenmap application bundle will be installed in /Applications/Zenmap.app.
