@@ -104,6 +104,8 @@ AC_PATH_TOOL([STRIP], [strip], [/bin/true])
 
 needs_cpp_precomp=no
 
+LUA_CFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN"
+
 case "$host" in
   *alpha-dec-osf*)
     AC_DEFINE(DEC)
@@ -178,8 +180,6 @@ case "$host" in
     LUA_CFLAGS="-DLUA_USE_MACOSX"
     needs_cpp_precomp=yes
     ;;
-  *)
-   LUA_CFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN"
 esac
 
 AC_SUBST(LUA_CFLAGS)

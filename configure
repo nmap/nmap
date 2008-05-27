@@ -4209,6 +4209,8 @@ fi
 
 needs_cpp_precomp=no
 
+LUA_CFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN"
+
 case "$host" in
   *alpha-dec-osf*)
     cat >>confdefs.h <<\_ACEOF
@@ -4494,8 +4496,6 @@ fi
     LUA_CFLAGS="-DLUA_USE_MACOSX"
     needs_cpp_precomp=yes
     ;;
-  *)
-   LUA_CFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN"
 esac
 
 
