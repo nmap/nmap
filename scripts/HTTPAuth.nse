@@ -11,7 +11,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 -- uncomment the following line to enable safe category
 -- categories = {"safe"}
-categories = {"intrusive"}
+categories = {"default", "intrusive"}
 
 require "shortport"
 require "http"

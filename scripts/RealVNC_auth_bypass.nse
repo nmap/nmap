@@ -3,7 +3,7 @@ description="Checks to see if the VNC Server is vulnerable to the RealVNC authen
 author = "Brandon Enright <bmenrigh@ucsd.edu>" 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"backdoor"}
+categories = {"default", "backdoor"}
 
 require "shortport"
 

@@ -31,7 +31,7 @@ id = "SMTPcommands"
 description = "Attempts to use EHLO and HELP to gather the Extended commands an SMTP server supports."
 author = "Jason DePriest <jrdepriest@gmail.com>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "safe"}
+categories = {"default", "discovery", "safe"}
 
 require "shortport"
 require "stdnse"

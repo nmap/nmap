@@ -9,7 +9,7 @@ author = "Thomas Buchanan <tbuchanan@thecompassgrp.net>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"safe"}
+categories = {"default", "safe"}
 
 require("stdnse")
 require("shortport")

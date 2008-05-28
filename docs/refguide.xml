@@ -1939,8 +1939,10 @@ way.</para>
 
         <listitem>
 
-          <para>performs a script scan using the default set of scripts. it is 
-		  equivalent to <option>--script=safe,intrusive</option></para>
+          <para>Performs a script scan using the default set of scripts. It is 
+		  equivalent to <option>--script=default</option>. Some of the
+		  scripts in this category are considered intrusive and should
+		  not be run against a target network without permission. </para>
         </listitem>
       </varlistentry>
 
@@ -3393,10 +3395,12 @@ overwhelming requests.  Specify <option>--open</option> to only see
 	  traceroute (<option>--traceroute</option>). More features may be
           added in the future. The point is to enable a
           comprehensive set of scan options without people having
-          to remember a large set of flags. This option only
-          enables features, and not timing options (such as <option>-T4</option>) or
-          verbosity options (<option>-v</option>) that you might want as
-          well.</para>
+          to remember a large set of flags. However, because script
+          scanning with the default set is considered intrusive, you
+          should not use <option>-A</option> against target networks
+          without permission. This option only enables features, and
+          not timing options (such as <option>-T4</option>) or verbosity
+          options (<option>-v</option>) that you might want as well.</para>
         </listitem>
       </varlistentry>
 

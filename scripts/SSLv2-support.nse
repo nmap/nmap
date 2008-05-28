@@ -3,7 +3,7 @@ description = "determines whether the server (still) supports SSL-v2, and what c
 author = "Matt <mb2263@bristol.ac.uk>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"intrusive"}
+categories = {"default", "intrusive"}
 
 require "shortport"
 

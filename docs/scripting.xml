@@ -182,11 +182,10 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
     <para>NSE scripts define a list of categories they belong to.
           Currently defined categories are <literal>safe</literal>,
           <literal>intrusive</literal>, <literal>malware</literal>,
-          <literal>version</literal>, <literal>discovery</literal> and
-          <literal>vulnerability</literal>.  By default, Nmap runs all
-          scripts in either the <literal>safe</literal> or
-          <literal>intrusive</literal> categories.  Categories are not
-          case sensitive.  The following list describes each category.</para>
+          <literal>version</literal>, <literal>discovery</literal>,
+          <literal>vulnerability</literal> and <literal>default</literal>.
+          Categories are not case sensitive.  The following list
+          describes each category.</para>
 
      <variablelist>
         <varlistentry>
@@ -264,6 +263,21 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
             <para>These scripts check for a specific vulnerability and report results only if it is found.</para>
           </listitem>
         </varlistentry>
+
+        <varlistentry>
+          <term>
+            <option>default</option>
+          </term>
+          <listitem>
+            <para>These scripts are the default set and are run when
+            using <option>-sC</option>.  This category can also be
+            specified like any other with <option>--script</option>.
+            Don't be fooled into thinking that just because these scripts
+            are run by default that they are all completely unobtrusive:
+            these scripts should not be run against target networks without
+            permission.</para>
+          </listitem>
+        </varlistentry>
     </variablelist>
 
     </sect2>
@@ -316,9 +330,10 @@ $ nmap -sC --script-args user=foo,pass=bar,anonFTP={pass=ftp@foobar.com}
             </indexterm>
           </term>
           <listitem>
-            <para>Performs a script scan using the default set of scripts. It is
-              equivalent to
-              <option>--script=safe,intrusive</option>.</para>
+          <para>Performs a script scan using the default set of scripts. It is 
+		  equivalent to <option>--script=default</option>. Some of the
+		  scripts in this category are considered intrusive and should
+		  not be run against a target network without permission. </para>
           </listitem>
         </varlistentry>
 
@@ -3297,7 +3312,7 @@ also get stored inside the <literal>registry</literal>.</para>
 		<para>
 		The next phase of NSE initialization is loading the chosen
 		scripts, which are the arguments provided to the 
-		<option>--script</option> option or <literal>safe,intrusive</literal>, in 
+		<option>--script</option> option or <literal>default</literal>, in 
 		case of a default script scan.  The string <literal>version</literal> 
 		is appended, if version detection was enabled.
 		The arguments afterwards are tried to be 

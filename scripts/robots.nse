@@ -7,7 +7,7 @@ id = "robots.txt"
 author = "Eddie Bell <ejlbell@gmail.com>"
 description = "Download a http servers robots.txt file and display all disallowed entries"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"safe"}
+categories = {"default", "safe"}
 runlevel = 1.0
 
 portrule = shortport.port_or_service({80,443}, {"http","https"})

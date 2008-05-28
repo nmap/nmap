@@ -310,9 +310,7 @@ int init_pick_default_categories(std::vector<std::string>& chosenScripts) {
 	if(	(o.script == 1 
 		 && chosenScripts.size() == 0) )
 	{
-		chosenScripts.push_back(std::string("safe"));
-		chosenScripts.push_back(std::string("intrusive"));
-		// chosenScripts.push_back(std::string("vulnerabilities"));
+		chosenScripts.push_back(std::string("default"));
 	}
 
 	// we append the implicitely selected categories

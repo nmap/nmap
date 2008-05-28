@@ -6,7 +6,7 @@ author = "Felix Groebert <felix@groebert.org>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"intrusive"}
+categories = {"default", "intrusive"}
 
 require "bit"
 require "shortport"

@@ -15,7 +15,7 @@ author = "Kris Katterjohn <katterjohn@gmail.com>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = { "discovery", "safe" }
+categories = { "default", "discovery", "safe" }
 
 require 'bit'
 

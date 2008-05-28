@@ -256,7 +256,7 @@ printf("%s %s ( %s )\n"
        "  --version-trace: Show detailed version scan activity (for debugging)\n"
 #ifndef NOLUA
        "SCRIPT SCAN:\n"
-       "  -sC: equivalent to --script=safe,intrusive\n"
+       "  -sC: equivalent to --script=default\n"
        "  --script=<Lua scripts>: <Lua scripts> is a comma separated list of \n"
 	   "           directories, script-files or script-categories\n"
 	   "  --script-args=<n1=v1,[n2=v2,...]>: provide arguments to scripts\n"

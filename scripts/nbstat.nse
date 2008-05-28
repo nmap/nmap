@@ -9,7 +9,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 -- protocol dissector.  I do not believe this constitutes
 -- a derivative work in the GPL sense of the phrase.
 
-categories = {"discovery", "safe"}
+categories = {"default", "discovery", "safe"}
 
 -- I have excluded the port function param because it doesn't make much sense
 -- for a hostrule.  It works without warning.  The NSE documentation is

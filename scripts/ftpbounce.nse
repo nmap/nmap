@@ -3,7 +3,7 @@ description="Checks to see if a FTP server allows port scanning using FTP bounce
 author="Marek Majkowski <majek04<at>gmail.com>"
 license="Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"intrusive"}
+categories = {"default", "intrusive"}
 
 require "shortport"
 

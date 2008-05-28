@@ -28,7 +28,7 @@ id = 'zone-transfer'
 author = 'Eddie Bell <ejlbell@gmail.com>'
 description = 'Request a zone transfer (AXFR) from a DNS server'
 license = 'Same as Nmap--See http://nmap.org/book/man-legal.html'
-categories = {'intrusive', 'discovery'}
+categories = {'default', 'intrusive', 'discovery'}
 runlevel = 1.0
 
 portrule = shortport.portnumber(53, 'tcp') 
