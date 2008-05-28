@@ -1034,6 +1034,8 @@ int nmap_main(int argc, char *argv[]) {
       else if (*optarg == 'R')
 	o.pingtype |= PINGTYPE_ARP;
       else if (*optarg == 'S') {
+	if (o.num_ping_synprobes > 0)
+	  fatal("Only one -PS option is allowed. Combine port ranges with commas.");
 	o.pingtype |= (PINGTYPE_TCP|PINGTYPE_TCP_USE_SYN);
 	if (*(optarg + 1) != '\0') {
 	  getpts_simple(optarg + 1, SCAN_TCP_PORT, &o.ping_synprobes, &o.num_ping_synprobes);
@@ -1047,6 +1049,8 @@ int nmap_main(int argc, char *argv[]) {
 	}
       }
       else if (*optarg == 'T' || *optarg == 'A') {
+	if (o.num_ping_ackprobes > 0)
+	  fatal("Only one -PB, -PA, or -PT option is allowed. Combine port ranges with commas.");
 	/* NmapOps::ValidateOptions() takes care of changing this
 	   to SYN if not root or if IPv6 */
 	o.pingtype |= (PINGTYPE_TCP|PINGTYPE_TCP_USE_ACK);
@@ -1062,6 +1066,8 @@ int nmap_main(int argc, char *argv[]) {
 	}
       }
       else if (*optarg == 'U') {
+	if (o.num_ping_udpprobes > 0)
+	  fatal("Only one -PU option is allowed. Combine port ranges with commas.");
 	o.pingtype |= (PINGTYPE_UDP);
 	if (*(optarg + 1) != '\0') {
 	  getpts_simple(optarg + 1, SCAN_UDP_PORT, &o.ping_udpprobes, &o.num_ping_udpprobes);
@@ -1075,6 +1081,8 @@ int nmap_main(int argc, char *argv[]) {
 	}
       }
       else if (*optarg == 'B') {
+	if (o.num_ping_ackprobes > 0)
+	  fatal("Only one -PB, -PA, or -PT option is allowed. Combine port ranges with commas.");
 	o.pingtype = (PINGTYPE_TCP|PINGTYPE_TCP_USE_ACK|PINGTYPE_ICMP_PING);
 	if (*(optarg + 1) != '\0') {
 	  getpts_simple(optarg + 1, SCAN_TCP_PORT, &o.ping_ackprobes, &o.num_ping_ackprobes);
@@ -1087,6 +1095,8 @@ int nmap_main(int argc, char *argv[]) {
 	  assert(o.num_ping_ackprobes > 0);
 	}
       } else if (*optarg == 'O') {
+	if (o.num_ping_protoprobes > 0)
+	  fatal("Only one -PO option is allowed. Combine port ranges with commas.");
 	o.pingtype |= PINGTYPE_PROTO;
 	if (*(optarg + 1) != '\0') {
 	  getpts_simple(optarg + 1, SCAN_PROTOCOLS, &o.ping_protoprobes, &o.num_ping_protoprobes);
