@@ -2321,7 +2321,10 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
     /* Find the next range */
     while(isspace((int) *current_range)) current_range++;
 
-    if (*current_range == ']') return;
+    if (*current_range == ']') {
+      if (!nested) fatal("Unexpected ] character in port/protocol specification");
+      return;
+    }
 
     if (*current_range && *current_range != ',') {
       fatal("Error #488: Your port specifications are illegal.  Example of proper form: \"%s\"", syntax_example);
