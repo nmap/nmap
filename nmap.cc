@@ -2147,8 +2147,10 @@ void getpts_simple(const char *origexpr, int range_type,
       (*count)++;
   }
 
-  if (*count == 0)
+  if (*count == 0){
+    free(porttbl);
     return;
+  }
 
   *list = (unsigned short *) safe_zalloc(*count * sizeof(unsigned short));
 

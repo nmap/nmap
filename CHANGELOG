@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed one of the memory leaks in getpts_simple which occures when
+  no ports are to be added to 'list'. 'porttbl' is now free'd regardless
+  of how the function returns.
+
 o Fixed a bug in the showOwner NSE script which caused it to try UDP
   ports instead of just TCP ports.  This made it very slow in the
   common case where there are many UDP ports in the open|filtered
