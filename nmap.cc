@@ -1083,7 +1083,7 @@ int nmap_main(int argc, char *argv[]) {
       else if (*optarg == 'B') {
 	if (o.num_ping_ackprobes > 0)
 	  fatal("Only one -PB, -PA, or -PT option is allowed. Combine port ranges with commas.");
-	o.pingtype = (PINGTYPE_TCP|PINGTYPE_TCP_USE_ACK|PINGTYPE_ICMP_PING);
+	o.pingtype = DEFAULT_PING_TYPES;
 	if (*(optarg + 1) != '\0') {
 	  getpts_simple(optarg + 1, SCAN_TCP_PORT, &o.ping_ackprobes, &o.num_ping_ackprobes);
 	  if (o.num_ping_ackprobes <= 0) {
