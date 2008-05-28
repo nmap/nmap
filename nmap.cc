@@ -1039,11 +1039,9 @@ int nmap_main(int argc, char *argv[]) {
 	o.pingtype |= (PINGTYPE_TCP|PINGTYPE_TCP_USE_SYN);
 	if (*(optarg + 1) != '\0') {
 	  getpts_simple(optarg + 1, SCAN_TCP_PORT, &o.ping_synprobes, &o.num_ping_synprobes);
-	  if (o.num_ping_synprobes <= 0) {
+	  if (o.num_ping_synprobes <= 0)
 	    fatal("Bogus argument to -PS: %s", optarg + 1);
-	  }
-	}
-	if (o.num_ping_synprobes == 0) {
+	} else {
 	  getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &o.ping_synprobes, &o.num_ping_synprobes);
 	  assert(o.num_ping_synprobes > 0);
 	}
@@ -1056,11 +1054,9 @@ int nmap_main(int argc, char *argv[]) {
 	o.pingtype |= (PINGTYPE_TCP|PINGTYPE_TCP_USE_ACK);
 	if (*(optarg + 1) != '\0') {
 	  getpts_simple(optarg + 1, SCAN_TCP_PORT, &o.ping_ackprobes, &o.num_ping_ackprobes);
-	  if (o.num_ping_ackprobes <= 0) {
+	  if (o.num_ping_ackprobes <= 0)
 	    fatal("Bogus argument to -PA: %s", optarg + 1);
-	  }
-	}
-	if (o.num_ping_ackprobes == 0) {
+	} else {
 	  getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &o.ping_ackprobes, &o.num_ping_ackprobes);
 	  assert(o.num_ping_ackprobes > 0);
 	}
@@ -1071,11 +1067,9 @@ int nmap_main(int argc, char *argv[]) {
 	o.pingtype |= (PINGTYPE_UDP);
 	if (*(optarg + 1) != '\0') {
 	  getpts_simple(optarg + 1, SCAN_UDP_PORT, &o.ping_udpprobes, &o.num_ping_udpprobes);
-	  if (o.num_ping_udpprobes <= 0) {
+	  if (o.num_ping_udpprobes <= 0)
 	    fatal("Bogus argument to -PU: %s", optarg + 1);
-	  }
-	}
-	if (o.num_ping_udpprobes == 0) {
+	} else {
 	  getpts_simple(DEFAULT_UDP_PROBE_PORT_SPEC, SCAN_UDP_PORT, &o.ping_udpprobes, &o.num_ping_udpprobes);
 	  assert(o.num_ping_udpprobes > 0);
 	}
@@ -1086,11 +1080,9 @@ int nmap_main(int argc, char *argv[]) {
 	o.pingtype = DEFAULT_PING_TYPES;
 	if (*(optarg + 1) != '\0') {
 	  getpts_simple(optarg + 1, SCAN_TCP_PORT, &o.ping_ackprobes, &o.num_ping_ackprobes);
-	  if (o.num_ping_ackprobes <= 0) {
+	  if (o.num_ping_ackprobes <= 0)
 	    fatal("Bogus argument to -PB: %s", optarg + 1);
-	  }
-	}
-	if (o.num_ping_ackprobes == 0) {
+	} else {
 	  getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &o.ping_ackprobes, &o.num_ping_ackprobes);
 	  assert(o.num_ping_ackprobes > 0);
 	}
@@ -1100,11 +1092,9 @@ int nmap_main(int argc, char *argv[]) {
 	o.pingtype |= PINGTYPE_PROTO;
 	if (*(optarg + 1) != '\0') {
 	  getpts_simple(optarg + 1, SCAN_PROTOCOLS, &o.ping_protoprobes, &o.num_ping_protoprobes);
-	  if (o.num_ping_protoprobes <= 0) {
+	  if (o.num_ping_protoprobes <= 0)
 	    fatal("Bogus argument to -PO: %s", optarg + 1);
-	  }
-	}
-	if (o.num_ping_protoprobes == 0) {
+	} else {
 	  getpts_simple(DEFAULT_PROTO_PROBE_PORT_SPEC, SCAN_PROTOCOLS, &o.ping_protoprobes, &o.num_ping_protoprobes);
 	  assert(o.num_ping_protoprobes > 0);
 	}
