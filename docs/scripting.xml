@@ -874,7 +874,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 		<indexterm><primary>pcre.match</primary></indexterm></term>
 	      <listitem>
 		<para>
-		  Returns the start point and the end point point of
+		  Returns the start point and the end point of
 		  the first match of the compiled regular expression
 		  pcre_obj in the string.  A third
 		  returned value is a table which contains
@@ -1607,8 +1607,8 @@ if(s) code_to_be_done_on_match end
 	    <term><option>host.targetname</option>
 	      <indexterm><primary>host.targetname</primary></indexterm></term>
 	    <listitem>
-	      <para>Contains the name of the host as specified on the commandline.
-		If the target given on the commandline contains a netmask or is an IP
+	      <para>Contains the name of the host as specified on the command line.
+		If the target given on the command line contains a netmask or is an IP
 		address the value of the field is <literal>nil</literal>.
 	      </para>
 	    </listitem>
@@ -1748,7 +1748,7 @@ if(s) code_to_be_done_on_match end
 
    <row>
     <entry><literal>name_confidence</literal></entry>
-    <entry>Evaluates how confident the version detection is is about the accuracy of <literal>name</literal>, from one (least confident) to 10.</entry>
+    <entry>Evaluates how confident the version detection is about the accuracy of <literal>name</literal>, from one (least confident) to 10.</entry>
    </row>
 
    <row>
