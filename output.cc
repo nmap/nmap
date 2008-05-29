@@ -751,8 +751,12 @@ void printportoutput(Target *currenths, PortList *plist) {
     
   }
   /*  log_write(LOG_PLAIN,"\n"); */
-  if (plist->getStateCounts(istate) > 0)
-    log_write(LOG_MACHINE, "\tIgnored State: %s (%d)", statenum2str(istate), plist->getStateCounts(istate));
+  /* Grepable output supports only one ignored state. */
+  if (plist->numIgnoredStates() == 1) {
+    istate = plist->nextIgnoredState(PORT_UNKNOWN);
+    if (plist->getStateCounts(istate) > 0)
+      log_write(LOG_MACHINE, "\tIgnored State: %s (%d)", statenum2str(istate), plist->getStateCounts(istate));
+  }
   log_write(LOG_XML, "</ports>\n");
 
   // Now we write the table for the user
