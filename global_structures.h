@@ -222,6 +222,17 @@ struct ipid_info {
  * Each element is to point to an array of port/protocol numbers
  */
 struct scan_lists {
+	/* The "synprobes" are also used when doing a connect() ping */
+	unsigned short *syn_ping_ports;
+	unsigned short *ack_ping_ports;
+	unsigned short *udp_ping_ports;
+	unsigned short *proto_ping_ports;
+	int syn_ping_count;
+	int ack_ping_count;
+	int udp_ping_count;
+	int proto_ping_count;
+	//the above fields are only used for host discovery
+	//the fields below are only used for port scanning
 	unsigned short *tcp_ports;
 	int tcp_count;
 	unsigned short *udp_ports;

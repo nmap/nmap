@@ -116,10 +116,6 @@ NmapOps::NmapOps() {
 }
 
 NmapOps::~NmapOps() {
-  if (ping_synprobes) free(ping_synprobes);
-  if (ping_ackprobes) free(ping_ackprobes);
-  if (ping_udpprobes) free(ping_udpprobes);
-  if (ping_protoprobes) free(ping_protoprobes);
   if (datadir) free(datadir);
   if (xsl_stylesheet) free(xsl_stylesheet);
 }
@@ -207,8 +203,6 @@ void NmapOps::Initialize() {
   reference_FPs = NULL;
   magic_port = 33000 + (get_random_uint() % 31000);
   magic_port_set = 0;
-  num_ping_synprobes = num_ping_ackprobes = num_ping_udpprobes = num_ping_protoprobes = 0;
-  ping_synprobes = ping_ackprobes = ping_udpprobes = ping_protoprobes = NULL;
   timing_level = 3;
   max_parallelism = 0;
   min_parallelism = 0;
@@ -307,12 +301,7 @@ void NmapOps::ValidateOptions() {
 #else
 	const char *privreq = "root privileges";
 #endif
-  if (pingtype == PINGTYPE_UNKNOWN) {
-    if (isr00t && af() == AF_INET) pingtype = DEFAULT_PING_TYPES;
-    else pingtype = PINGTYPE_TCP; // if nonr00t or IPv6
-    getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &o.ping_ackprobes, &o.num_ping_ackprobes);
-    assert(o.num_ping_ackprobes > 0);
-  }
+
 
   /* Insure that at least one scantype is selected */
   if (TCPScan() + UDPScan() + ipprotscan + listscan + pingscan == 0) {
@@ -320,23 +309,6 @@ void NmapOps::ValidateOptions() {
       synscan++;
     else connectscan++;
     //    if (verbose) error("No tcp, udp, or ICMP scantype specified, assuming %s scan. Use -sP if you really don't want to portscan (and just want to see what hosts are up).", synscan? "SYN Stealth" : "vanilla tcp connect()");
-  }
-
-  if ((pingtype & PINGTYPE_TCP) && (!isr00t || af() != AF_INET)) {
-    /* We will have to do a connect() style ping */
-    if (num_ping_synprobes && num_ping_ackprobes) {
-      fatal("Cannot use both SYN and ACK ping probes if you are nonroot or using IPv6");
-    }
-    
-    /* Pretend we wanted SYN probes all along. */
-    if (num_ping_ackprobes > 0) { 
-      num_ping_synprobes = num_ping_ackprobes;
-      ping_synprobes = ping_ackprobes;
-      num_ping_ackprobes = 0;
-      ping_ackprobes = NULL;
-    }
-    pingtype &= ~PINGTYPE_TCP_USE_ACK;
-    pingtype |= PINGTYPE_TCP_USE_SYN;
   }
 
   if (pingtype != PINGTYPE_NONE && spoofsource) {
@@ -389,18 +361,6 @@ void NmapOps::ValidateOptions() {
  }
 /* We start with stuff users should not do if they are not root */
   if (!isr00t) {
-
-#ifndef WIN32	/*	Win32 has perfectly fine ICMP socket support */
-    if (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS)) {
-      error("Warning:  You are not root -- using TCP pingscan rather than ICMP");
-      pingtype = PINGTYPE_TCP;
-      if (num_ping_synprobes == 0)
-	{
-          getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &o.ping_synprobes, &o.num_ping_synprobes);
-          assert(o.num_ping_synprobes > 0);
-	}
-    }
-#endif
     
     if (ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|synscan|udpscan|windowscan|xmasscan) {
       fatal("You requested a scan type which requires %s.", privreq);

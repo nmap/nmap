@@ -130,6 +130,6 @@ struct service_list {
 
 int addportsfromservmask(char *mask, u8 *porttbl, int range_type);
 struct servent *nmap_getservbyport(int port, const char *proto);
-struct scan_lists *gettoppts(double level, char *portlist);
+void gettoppts(double level, char *portlist, struct scan_lists * ports);
 
 #endif

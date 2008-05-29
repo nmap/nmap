@@ -190,15 +190,7 @@ class NmapOps {
   FingerPrintDB *reference_FPs; /* Used in the new OS scan system. */
   u16 magic_port;
   unsigned short magic_port_set; /* Was this set by user? */
-  int num_ping_synprobes;
-  /* The "synprobes" are also used when doing a connect() ping */
-  u16 *ping_synprobes;
-  int num_ping_ackprobes;
-  u16 *ping_ackprobes;
-  int num_ping_udpprobes;
-  u16 *ping_udpprobes;
-  int num_ping_protoprobes;
-  u16 *ping_protoprobes;
+
   /* Scan timing/politeness issues */
   int timing_level; // 0-5, corresponding to Paranoid, Sneaky, Polite, Normal, Aggressive, Insane
   int max_parallelism; // 0 means it has not been set

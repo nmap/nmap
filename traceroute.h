@@ -328,7 +328,7 @@ class TraceGroup {
 /* Public interface to traceroute functionality */
 class Traceroute {
   public:
-    Traceroute (const char *device_name, devtype type);
+    Traceroute (const char *device_name, devtype type, const scan_lists * probe_ports);
      ~Traceroute ();
 
     /* perform the traceroute on a list of targets */
@@ -344,6 +344,7 @@ class Traceroute {
      std::map < u32, TraceGroup * >TraceGroups;
 
     struct scan_info scaninfo;
+    const struct scan_lists * scanlists;
     Target **hops;
     pcap_t *pd;
     eth_t *ethsd;

@@ -429,7 +429,7 @@ int dumpExclude(TargetGroup *exclude_group) {
   return 1;
 }
  
-static void massping(Target *hostbatch[], int num_hosts, int pingtype) {
+static void massping(Target *hostbatch[], int num_hosts, struct scan_lists *ports, int pingtype) {
   static struct timeout_info group_to = { 0, 0, 0 };
   static char prev_device_name[16] = "";
   const char *device_name;
@@ -460,7 +460,7 @@ static void massping(Target *hostbatch[], int num_hosts, int pingtype) {
   }
 
   /* ultra_scan gets pingtype from o.pingtype. */
-  ultra_scan(targets, NULL, PING_SCAN, &group_to);
+  ultra_scan(targets, ports, PING_SCAN, &group_to);
 }
 
 Target *nexthost(HostGroupState *hs, TargetGroup *exclude_group,
@@ -612,9 +612,9 @@ if (hs->randomize) {
    }
  } else if (!arpping_done) {
    if (pingtype & PINGTYPE_ARP) /* A host that we can't arp scan ... maybe localhost */
-     massping(hs->hostbatch, hs->current_batch_sz, DEFAULT_PING_TYPES);
+     massping(hs->hostbatch, hs->current_batch_sz, ports, DEFAULT_PING_TYPES);
    else
-     massping(hs->hostbatch, hs->current_batch_sz, pingtype);
+     massping(hs->hostbatch, hs->current_batch_sz, ports, pingtype);
  }
  
  if (!o.noresolve) nmap_mass_rdns(hs->hostbatch, hs->current_batch_sz);

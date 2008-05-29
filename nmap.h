@@ -404,7 +404,7 @@ void printinteractiveusage();
 int ftp_anon_connect(struct ftpinfo *ftp);
 
 /* port manipulators */
-struct scan_lists *getpts(const char *expr); /* someone stole the name getports()! */
+void getpts(const char *expr, struct scan_lists * ports); /* someone stole the name getports()! */
 void getpts_simple(const char *origexpr, int range_type,
                    unsigned short **list, int *count);
 void free_scan_lists(struct scan_lists *ports);

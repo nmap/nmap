@@ -195,8 +195,9 @@ static char *hostStr (u32 ip);
  * trace */
 unsigned long commonPath[MAX_TTL + 1];
 
-Traceroute::Traceroute (const char *device_name, devtype type) {
+Traceroute::Traceroute (const char *device_name, devtype type, const scan_lists * ports) {
     fd = -1;
+    scanlists = ports;
     ethsd = NULL;
     hops = NULL;
     pd = NULL;
@@ -332,11 +333,11 @@ Traceroute::getTracePort (u8 proto, Target * t) {
     /* Use the first specified port for ping traceroutes */
     if (o.pingscan) {
         if (o.pingtype & PINGTYPE_TCP_USE_SYN)
-            return o.ping_synprobes[0];
+            return scanlists->syn_ping_ports[0];
         else if (o.pingtype & PINGTYPE_TCP_USE_ACK)
-            return o.ping_ackprobes[0];
+            return scanlists->ack_ping_ports[0];
         else if (o.pingtype & PINGTYPE_UDP)
-            return o.ping_udpprobes[0];
+            return scanlists->udp_ping_ports[0];
         else
             return 0;
     }

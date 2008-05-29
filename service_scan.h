@@ -333,7 +333,8 @@ public:
   void compileFallbacks();
 
   int isExcluded(unsigned short port, int proto);
-  struct scan_lists *excludedports;
+  bool excluded_seen;
+  struct scan_lists excludedports;
   
   static AllProbes *service_scan_init(void);
   static void service_scan_free(void);

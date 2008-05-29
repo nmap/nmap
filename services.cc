@@ -350,8 +350,9 @@ static int is_port_member(struct scan_lists *ptsdata, struct service_list *serv)
   return 0;
 }
 
-// gettoppts() returns a scan_list with the most common ports scanned by
-// Nmap according to the ratios specified in the nmap-services file.
+// gettoppts() sets its third parameter, a scan_list, with the most
+// common ports scanned by Nmap according to the ratios specified in
+// the nmap-services file.
 //
 // If level is below 1.0 then we treat it as a minimum ratio and we
 // add all ports with ratios above level.
@@ -362,9 +363,10 @@ static int is_port_member(struct scan_lists *ptsdata, struct service_list *serv)
 // This function doesn't support IP protocol scan so only call this
 // function if o.TCPScan() || o.UDPScan()
 
-struct scan_lists *gettoppts(double level, char *portlist) {
+void gettoppts(double level, char *portlist, struct scan_lists * ports) {
   int ti=0, ui=0;
-  struct scan_lists *sl, *ptsdata=NULL;
+  struct scan_lists ptsdata = { 0 };
+  bool ptsdata_initialized = false;
   struct service_list *current;
 
   if (!services_initialized && nmap_services_init() == -1)
@@ -374,52 +376,58 @@ struct scan_lists *gettoppts(double level, char *portlist) {
     if (level != -1)
       fatal("Unable to use --top-ports or --port-ratio with an old style (no-ratio) services file");
 
-    if (portlist)
-      return getpts(portlist);
-    else if (o.fastscan)
-      return getpts("[-]");
-    else
-      return getpts("1-1024,[1025-]");
+    if (portlist){
+      getpts(portlist, ports);
+      return;
+    }else if (o.fastscan){
+      getpts("[-]", ports);
+      return;
+    }else{
+      getpts("1-1024,[1025-]", ports);
+      return;
+    }
   }
 
   // TOP PORT DEFAULTS
   if (level == -1) {
-    if (portlist)
-      return getpts(portlist);
-
+    if (portlist){
+      getpts(portlist, ports);
+      return;
+    }
     if (o.fastscan) level = 100;
     else level = 0.01;
   }
 
-  sl = (struct scan_lists *) safe_zalloc(sizeof(struct scan_lists));
-  if (portlist) ptsdata = getpts(portlist);
-
+  if (portlist){
+	getpts(portlist, &ptsdata);
+        ptsdata_initialized = true;
+  }
   if (level < 1) {
     for (current=sorted_services; current; current=current->next) {
-      if (ptsdata && !is_port_member(ptsdata, current)) continue;
+      if (ptsdata_initialized && !is_port_member(&ptsdata, current)) continue;
 
       if (current->ratio >= level) {
-        if (o.TCPScan() && current->servent->s_proto[0] == 't') sl->tcp_count++;
-        else if (o.UDPScan() && current->servent->s_proto[0] == 'u') sl->udp_count++;
+        if (o.TCPScan() && current->servent->s_proto[0] == 't') ports->tcp_count++;
+        else if (o.UDPScan() && current->servent->s_proto[0] == 'u') ports->udp_count++;
       } else break;
     }
 
-    if (sl->tcp_count)
-      sl->tcp_ports = (unsigned short *)safe_zalloc(sl->tcp_count * sizeof(unsigned short));
+    if (ports->tcp_count)
+	    ports->tcp_ports = (unsigned short *)safe_zalloc(ports->tcp_count * sizeof(unsigned short));
 
-    if (sl->udp_count)
-      sl->udp_ports = (unsigned short *)safe_zalloc(sl->udp_count * sizeof(unsigned short));
+    if (ports->udp_count)
+	    ports->udp_ports = (unsigned short *)safe_zalloc(ports->udp_count * sizeof(unsigned short));
 
-    sl->prots = NULL;
+    ports->prots = NULL;
 
     for (current=sorted_services;current;current=current->next) {
-      if (ptsdata && !is_port_member(ptsdata, current)) continue;
+      if (ptsdata_initialized && !is_port_member(&ptsdata, current)) continue;
 
       if (current->ratio >= level) {
         if (o.TCPScan() && current->servent->s_proto[0] == 't')
-          sl->tcp_ports[ti++] = ntohs(current->servent->s_port);
+		ports->tcp_ports[ti++] = ntohs(current->servent->s_port);
         else if (o.UDPScan() && current->servent->s_proto[0] == 'u')
-          sl->udp_ports[ui++] = ntohs(current->servent->s_port);
+		ports->udp_ports[ui++] = ntohs(current->servent->s_port);
       } else break;
     }
   } else if (level >= 1) {
@@ -427,43 +435,45 @@ struct scan_lists *gettoppts(double level, char *portlist) {
       fatal("Level argument to gettoppts (%g) is too large", level);
 
     if (o.TCPScan()) {
-      sl->tcp_count = MIN((int) level, numtcpports);
-      sl->tcp_ports = (unsigned short *)safe_zalloc(sl->tcp_count * sizeof(unsigned short));
+	    ports->tcp_count = MIN((int) level, numtcpports);
+	    ports->tcp_ports = (unsigned short *)safe_zalloc(ports->tcp_count * sizeof(unsigned short));
     }
 
     if (o.UDPScan()) {
-      sl->udp_count = MIN((int) level, numudpports);
-      sl->udp_ports = (unsigned short *)safe_zalloc(sl->udp_count * sizeof(unsigned short));
+	    ports->udp_count = MIN((int) level, numudpports);
+	    ports->udp_ports = (unsigned short *)safe_zalloc(ports->udp_count * sizeof(unsigned short));
     }
 
-    sl->prots = NULL;
+    ports->prots = NULL;
 
-    for (current=sorted_services;current && (ti < sl->tcp_count || ui < sl->udp_count);current=current->next) {
-      if (ptsdata && !is_port_member(ptsdata, current)) continue;
+    for (current=sorted_services;current && (ti < ports->tcp_count || ui < ports->udp_count);current=current->next) {
+      if (ptsdata_initialized && !is_port_member(&ptsdata, current)) continue;
 
-      if (o.TCPScan() && current->servent->s_proto[0] == 't' && ti < sl->tcp_count)
-        sl->tcp_ports[ti++] = ntohs(current->servent->s_port);
-      else if (o.UDPScan() && current->servent->s_proto[0] == 'u' && ui < sl->udp_count)
-        sl->udp_ports[ui++] = ntohs(current->servent->s_port);
+      if (o.TCPScan() && current->servent->s_proto[0] == 't' && ti < ports->tcp_count)
+	      ports->tcp_ports[ti++] = ntohs(current->servent->s_port);
+      else if (o.UDPScan() && current->servent->s_proto[0] == 'u' && ui < ports->udp_count)
+	      ports->udp_ports[ui++] = ntohs(current->servent->s_port);
     }
 
-    if (ti < sl->tcp_count) sl->tcp_count = ti;
-    if (ui < sl->udp_count) sl->udp_count = ui;
+    if (ti < ports->tcp_count) ports->tcp_count = ti;
+    if (ui < ports->udp_count) ports->udp_count = ui;
   } else
     fatal("Argument to gettoppts (%g) should be a positive ratio below 1 or an integer of 1 or higher", level);
 
-  if (ptsdata) free_scan_lists(ptsdata);
+  if (ptsdata_initialized) {
+    free_scan_lists(&ptsdata);
+    ptsdata_initialized = false;
+  }
 
-  if (sl->tcp_count > 1)
-    qsort(sl->tcp_ports, sl->tcp_count, sizeof(unsigned short), &port_compare);
+  if (ports->tcp_count > 1)
+	  qsort(ports->tcp_ports, ports->tcp_count, sizeof(unsigned short), &port_compare);
 
-  if (sl->udp_count > 1)
-    qsort(sl->udp_ports, sl->udp_count, sizeof(unsigned short), &port_compare);
+  if (ports->udp_count > 1)
+	  qsort(ports->udp_ports, ports->udp_count, sizeof(unsigned short), &port_compare);
 
   if (o.debugging && level < 1)
-    log_write(LOG_STDOUT, "PORTS: Using ports open on %g%% or more average hosts (TCP:%d, UDP:%d)\n", level*100, sl->tcp_count, sl->udp_count);
+	  log_write(LOG_STDOUT, "PORTS: Using ports open on %g%% or more average hosts (TCP:%d, UDP:%d)\n", level*100, ports->tcp_count, ports->udp_count);
   else if (o.debugging && level >= 1)
-    log_write(LOG_STDOUT, "PORTS: Using top %d ports found open (TCP:%d, UDP:%d)\n", (int) level, sl->tcp_count, sl->udp_count);
-
-  return sl;
+	  log_write(LOG_STDOUT, "PORTS: Using top %d ports found open (TCP:%d, UDP:%d)\n", (int) level, ports->tcp_count, ports->udp_count);
 }
+

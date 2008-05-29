@@ -1070,10 +1070,10 @@ void parse_nmap_service_probe_file(AllProbes *AP, char *filename) {
       continue;
   
     if (strncmp(line, "Exclude ", 8) == 0) {
-      if (AP->excludedports != NULL)
+      if (AP->excluded_seen)
         fatal("Only 1 Exclude directive is allowed in the nmap-service-probes file");
-
-      AP->excludedports = getpts(line+8);
+      getpts(line+8, &AP->excludedports);
+      AP->excluded_seen = true;
       continue;
     }
   
@@ -1191,7 +1191,8 @@ const struct MatchDetails *ServiceProbe::testMatch(const u8 *buf, int buflen) {
 
 AllProbes::AllProbes() {
   nullProbe = NULL;
-  excludedports = NULL;
+  excluded_seen = false;
+  memset(&excludedports, 0, sizeof(excludedports));
 }
 
 AllProbes::~AllProbes() {
@@ -1203,7 +1204,7 @@ AllProbes::~AllProbes() {
   }
   if(nullProbe)
     delete nullProbe;
-  free_scan_lists(excludedports);
+  free_scan_lists(&excludedports);
 }
 
   // Tries to find the probe in this AllProbes class which have the
@@ -1235,14 +1236,14 @@ int AllProbes::isExcluded(unsigned short port, int proto) {
   unsigned short *p=NULL;
   int count=-1,i;
 
-  if (!excludedports) return 0;
+  if (!excluded_seen) return 0;
 
   if (proto == IPPROTO_TCP) {
-    p = excludedports->tcp_ports;
-    count = excludedports->tcp_count;
+    p = excludedports.tcp_ports;
+    count = excludedports.tcp_count;
   } else if (proto == IPPROTO_UDP) {
-    p = excludedports->udp_ports;
-    count = excludedports->udp_count;
+    p = excludedports.udp_ports;
+    count = excludedports.udp_count;
   } else {
     fatal("Bad proto number (%d) specified in %s", proto, __func__);
   }
