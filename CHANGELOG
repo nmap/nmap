@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Updated to include the latest MAC Address prefixes from the IEEE in
+  nmap-mac-prefixes [Fyodor]
+
 o Fixed one of the memory leaks in getpts_simple which occures when
   no ports are to be added to 'list'. 'porttbl' is now free'd regardless
   of how the function returns.
