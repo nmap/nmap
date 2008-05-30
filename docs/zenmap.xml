@@ -179,7 +179,7 @@
 
     <refsect2>
       <title>Umit</title>
-      <para>Zenmap is derived from the Umit Nmap frontend, which was started by Adriano Monteiro Marques as an Nmap/Google Summer of Code project (<email>py.adriano@gmail.com</email>, <ulink url="http://umit.sourceforge.net" />).</para>
+      <para>Zenmap is derived from the Umit Nmap frontend, which was started by Adriano Monteiro Marques as an Nmap/Google Summer of Code project (<email>py.adriano@gmail.com</email>, <ulink url="http://www.umitproject.org" />).</para>
     </refsect2>
   </refsect1>
 
