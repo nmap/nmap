@@ -3733,7 +3733,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
       <command>nmap -PN -p80 -oX logs/pb-port80scan.xml -oG
       logs/pb-port80scan.gnmap 216.163.128.20/20</command>
     </para>
-    <para>This scans 4096 IPs for any webservers (without pinging
+    <para>This scans 4096 IPs for any web servers (without pinging
     them) and saves the output in grepable and XML formats.</para>
 
   </refsect1>
