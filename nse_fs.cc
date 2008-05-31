@@ -64,12 +64,12 @@ int nse_fetchfile_absolute(char *path, size_t path_len, const char *file) {
 
 #ifdef WIN32
 
-int nse_scandir (lua_State *L)
+int nse_scandir (lua_State *L) {
 	HANDLE dir;
 	WIN32_FIND_DATA entry;
 	std::string path;
 	BOOL morefiles = FALSE;
-    char *dirname = luaL_checkstring(L, 1);
+    const char *dirname = luaL_checkstring(L, 1);
     int files_or_dirs = luaL_checkint(L, 2);
 
     lua_createtable(L, 100, 0); // 100 files average
@@ -87,7 +87,7 @@ int nse_scandir (lua_State *L)
 		// is a directory, then we don't look further at it
 		if(files_or_dirs == FILES) {
 			if(!(
-						(check_extension(SCRIPT_ENGINE_EXTENSION, entry.cFileName) == MATCH) 
+						(nse_check_extension(SCRIPT_ENGINE_EXTENSION, entry.cFileName)) 
 						&& !(entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			    )) { 
 				morefiles = FindNextFile(dir, &entry);
