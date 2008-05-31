@@ -1,5 +1,5 @@
 /*
-** $Id: lstate.c,v 2.35 2005/10/06 20:46:25 roberto Exp $
+** $Id: lstate.c,v 2.36.1.2 2008/01/03 15:20:39 roberto Exp $
 ** Global State
 ** See Copyright Notice in lua.h
 */
@@ -93,7 +93,7 @@ static void preinit_state (lua_State *L, global_State *g) {
   resethookcount(L);
   L->openupval = NULL;
   L->size_ci = 0;
-  L->nCcalls = 0;
+  L->nCcalls = L->baseCcalls = 0;
   L->status = 0;
   L->base_ci = L->ci = NULL;
   L->savedpc = NULL;
@@ -198,7 +198,6 @@ static void callallgcTM (lua_State *L, void *ud) {
 
 LUA_API void lua_close (lua_State *L) {
   L = G(L)->mainthread;  /* only the main thread can be closed */
-  luai_userstateclose(L);
   lua_lock(L);
   luaF_close(L, L->stack);  /* close all upvalues for this thread */
   luaC_separateudata(L, 1);  /* separate udata that have GC metamethods */
@@ -206,9 +205,10 @@ LUA_API void lua_close (lua_State *L) {
   do {  /* repeat until no more errors */
     L->ci = L->base_ci;
     L->base = L->top = L->ci->base;
-    L->nCcalls = 0;
+    L->nCcalls = L->baseCcalls = 0;
   } while (luaD_rawrunprotected(L, callallgcTM, NULL) != 0);
   lua_assert(G(L)->tmudata == NULL);
+  luai_userstateclose(L);
   close_state(L);
 }
 

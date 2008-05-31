@@ -1,5 +1,5 @@
 /*
-** $Id: loadlib.c,v 1.51 2005/12/29 15:32:11 roberto Exp $
+** $Id: loadlib.c,v 1.52.1.2 2007/12/28 14:58:43 roberto Exp $
 ** Dynamic library loader for Lua
 ** See Copyright Notice in lua.h
 **
@@ -16,15 +16,11 @@
 #define loadlib_c
 #define LUA_LIB
 
-#include "lauxlib.h"
-#include "lobject.h"
 #include "lua.h"
+
+#include "lauxlib.h"
 #include "lualib.h"
 
-
-/* environment variables that hold the search path for packages */
-#define LUA_PATH	"LUA_PATH"
-#define LUA_CPATH	"LUA_CPATH"
 
 /* prefix for open functions in C libraries */
 #define LUA_POF		"luaopen_"
@@ -102,7 +98,7 @@ static void setprogdir (lua_State *L) {
   char buff[MAX_PATH + 1];
   char *lb;
   DWORD nsize = sizeof(buff)/sizeof(char);
-  DWORD n = GetModuleFileName(NULL, buff, nsize);
+  DWORD n = GetModuleFileNameA(NULL, buff, nsize);
   if (n == 0 || n == nsize || (lb = strrchr(buff, '\\')) == NULL)
     luaL_error(L, "unable to get ModuleFileName");
   else {
@@ -116,7 +112,7 @@ static void setprogdir (lua_State *L) {
 static void pusherror (lua_State *L) {
   int error = GetLastError();
   char buffer[128];
-  if (FormatMessage(FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
+  if (FormatMessageA(FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
       NULL, error, 0, buffer, sizeof(buffer), NULL))
     lua_pushstring(L, buffer);
   else
@@ -129,7 +125,7 @@ static void ll_unloadlib (void *lib) {
 
 
 static void *ll_load (lua_State *L, const char *path) {
-  HINSTANCE lib = LoadLibrary(path);
+  HINSTANCE lib = LoadLibraryA(path);
   if (lib == NULL) pusherror(L);
   return lib;
 }
@@ -360,15 +356,16 @@ static const char *findfile (lua_State *L, const char *name,
   path = lua_tostring(L, -1);
   if (path == NULL)
     luaL_error(L, LUA_QL("package.%s") " must be a string", pname);
-  lua_pushstring(L, "");  /* error accumulator */
+  lua_pushliteral(L, "");  /* error accumulator */
   while ((path = pushnexttemplate(L, path)) != NULL) {
     const char *filename;
     filename = luaL_gsub(L, lua_tostring(L, -1), LUA_PATH_MARK, name);
+    lua_remove(L, -2);  /* remove path template */
     if (readable(filename))  /* does file exist and is readable? */
       return filename;  /* return that file name */
-    lua_pop(L, 2);  /* remove path template and file name */ 
-    luaO_pushfstring(L, "\n\tno file " LUA_QS, filename);
-    lua_concat(L, 2);
+    lua_pushfstring(L, "\n\tno file " LUA_QS, filename);
+    lua_remove(L, -2);  /* remove file name */
+    lua_concat(L, 2);  /* add entry to possible error message */
   }
   return NULL;  /* not found */
 }
@@ -427,8 +424,8 @@ static int loader_Croot (lua_State *L) {
   funcname = mkfuncname(L, name);
   if ((stat = ll_loadfunc(L, filename, funcname)) != 0) {
     if (stat != ERRFUNC) loaderror(L, filename);  /* real error */
-    luaO_pushfstring(L, "\n\tno module " LUA_QS " in file " LUA_QS,
-                        name, filename);
+    lua_pushfstring(L, "\n\tno module " LUA_QS " in file " LUA_QS,
+                       name, filename);
     return 1;  /* function not found */
   }
   return 1;
@@ -442,7 +439,7 @@ static int loader_preload (lua_State *L) {
     luaL_error(L, LUA_QL("package.preload") " must be a table");
   lua_getfield(L, -1, name);
   if (lua_isnil(L, -1))  /* not found? */
-    luaO_pushfstring(L, "\n\tno field package.preload['%s']", name);
+    lua_pushfstring(L, "\n\tno field package.preload['%s']", name);
   return 1;
 }
 
@@ -466,7 +463,7 @@ static int ll_require (lua_State *L) {
   lua_getfield(L, LUA_ENVIRONINDEX, "loaders");
   if (!lua_istable(L, -1))
     luaL_error(L, LUA_QL("package.loaders") " must be a table");
-  lua_pushstring(L, "");  /* error message accumulator */
+  lua_pushliteral(L, "");  /* error message accumulator */
   for (i=1; ; i++) {
     lua_rawgeti(L, -2, i);  /* get a loader */
     if (lua_isnil(L, -1))
@@ -650,8 +647,8 @@ LUALIB_API int luaopen_package (lua_State *L) {
   setpath(L, "path", LUA_PATH, LUA_PATH_DEFAULT);  /* set field `path' */
   setpath(L, "cpath", LUA_CPATH, LUA_CPATH_DEFAULT); /* set field `cpath' */
   /* store config information */
-  lua_pushstring(L, LUA_DIRSEP "\n" LUA_PATHSEP "\n" LUA_PATH_MARK "\n"
-                    LUA_EXECDIR "\n" LUA_IGMARK);
+  lua_pushliteral(L, LUA_DIRSEP "\n" LUA_PATHSEP "\n" LUA_PATH_MARK "\n"
+                     LUA_EXECDIR "\n" LUA_IGMARK);
   lua_setfield(L, -2, "config");
   /* set field `loaded' */
   luaL_findtable(L, LUA_REGISTRYINDEX, "_LOADED", 2);

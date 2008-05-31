@@ -1,5 +1,5 @@
 /*
-** $Id: print.c,v 1.54 2006/01/11 22:49:27 lhf Exp $
+** $Id: print.c,v 1.55a 2006/05/31 13:30:05 lhf Exp $
 ** print bytecodes
 ** See Copyright Notice in lua.h
 */
@@ -20,15 +20,18 @@
 #define Sizeof(x)	((int)sizeof(x))
 #define VOID(p)		((const void*)(p))
 
-static void PrintString(const Proto* f, int n)
+static void PrintString(const TString* ts)
 {
- const char* s=svalue(&f->k[n]);
+ const char* s=getstr(ts);
+ size_t i,n=ts->tsv.len;
  putchar('"');
- for (; *s; s++)
+ for (i=0; i<n; i++)
  {
-  switch (*s)
+  int c=s[i];
+  switch (c)
   {
    case '"': printf("\\\""); break;
+   case '\\': printf("\\\\"); break;
    case '\a': printf("\\a"); break;
    case '\b': printf("\\b"); break;
    case '\f': printf("\\f"); break;
@@ -36,10 +39,10 @@ static void PrintString(const Proto* f, int n)
    case '\r': printf("\\r"); break;
    case '\t': printf("\\t"); break;
    case '\v': printf("\\v"); break;
-   default:	if (isprint((unsigned char)*s))
-   			printf("%c",*s);
+   default:	if (isprint((unsigned char)c))
+   			putchar(c);
 		else
-			printf("\\%03u",(unsigned char)*s);
+			printf("\\%03u",(unsigned char)c);
   }
  }
  putchar('"');
@@ -60,7 +63,7 @@ static void PrintConstant(const Proto* f, int i)
 	printf(LUA_NUMBER_FMT,nvalue(o));
 	break;
   case LUA_TSTRING:
-	PrintString(f,i);
+	PrintString(rawtsvalue(o));
 	break;
   default:				/* cannot happen */
 	printf("? type=%d",ttype(o));

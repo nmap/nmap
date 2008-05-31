@@ -1,5 +1,5 @@
 /*
-** $Id: lgc.c,v 2.37 2005/12/22 16:19:56 roberto Exp $
+** $Id: lgc.c,v 2.38.1.1 2007/12/27 13:02:25 roberto Exp $
 ** Garbage Collector
 ** See Copyright Notice in lua.h
 */
@@ -320,8 +320,10 @@ static l_mem propagatemark (global_State *g) {
 }
 
 
-static void propagateall (global_State *g) {
-  while (g->gray) propagatemark(g);
+static size_t propagateall (global_State *g) {
+  size_t m = 0;
+  while (g->gray) m += propagatemark(g);
+  return m;
 }
 
 
@@ -540,7 +542,7 @@ static void atomic (lua_State *L) {
   propagateall(g);
   udsize = luaC_separateudata(L, 0);  /* separate userdata to be finalized */
   marktmu(g);  /* mark `preserved' userdata */
-  propagateall(g);  /* remark, to propagate `preserveness' */
+  udsize += propagateall(g);  /* remark, to propagate `preserveness' */
   cleartable(g->weak);  /* remove collected objects from weak tables */
   /* flip current white */
   g->currentwhite = cast_byte(otherwhite(g));
@@ -590,6 +592,8 @@ static l_mem singlestep (lua_State *L) {
     case GCSfinalize: {
       if (g->tmudata) {
         GCTM(L);
+        if (g->estimate > GCFINALIZECOST)
+          g->estimate -= GCFINALIZECOST;
         return GCFINALIZECOST;
       }
       else {

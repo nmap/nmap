@@ -1,5 +1,5 @@
 /*
-** $Id: luac.c,v 1.52 2005/11/11 14:03:13 lhf Exp $
+** $Id: luac.c,v 1.54 2006/06/02 17:37:11 lhf Exp $
 ** Lua compiler (saves bytecodes to files; also list bytecodes)
 ** See Copyright Notice in lua.h
 */
@@ -70,6 +70,7 @@ static void usage(const char* message)
 static int doargs(int argc, char* argv[])
 {
  int i;
+ int version=0;
  if (argv[0]!=NULL && *argv[0]!=0) progname=argv[0];
  for (i=1; i<argc; i++)
  {
@@ -78,6 +79,7 @@ static int doargs(int argc, char* argv[])
   else if (IS("--"))			/* end of options; skip it */
   {
    ++i;
+   if (version) ++version;
    break;
   }
   else if (IS("-"))			/* end of options; use stdin */
@@ -95,10 +97,7 @@ static int doargs(int argc, char* argv[])
   else if (IS("-s"))			/* strip debug information */
    stripping=1;
   else if (IS("-v"))			/* show version */
-  {
-   printf("%s  %s\n",LUA_VERSION,LUA_COPYRIGHT);
-   if (argc==2) exit(EXIT_SUCCESS);
-  }
+   ++version;
   else					/* unknown option */
    usage(argv[i]);
  }
@@ -107,12 +106,17 @@ static int doargs(int argc, char* argv[])
   dumping=0;
   argv[--i]=Output;
  }
+ if (version)
+ {
+  printf("%s  %s\n",LUA_RELEASE,LUA_COPYRIGHT);
+  if (version==argc-1) exit(EXIT_SUCCESS);
+ }
  return i;
 }
 
 #define toproto(L,i) (clvalue(L->top+(i))->l.p)
 
-static Proto* combine(lua_State* L, int n)
+static const Proto* combine(lua_State* L, int n)
 {
  if (n==1)
   return toproto(L,-1);
@@ -156,7 +160,7 @@ static int pmain(lua_State* L)
  struct Smain* s = (struct Smain*)lua_touserdata(L, 1);
  int argc=s->argc;
  char** argv=s->argv;
- Proto* f;
+ const Proto* f;
  int i;
  if (!lua_checkstack(L,argc)) fatal("too many input files");
  for (i=0; i<argc; i++)

@@ -1,5 +1,5 @@
 /*
-** $Id: lua.c,v 1.157 2005/12/29 16:23:32 roberto Exp $
+** $Id: lua.c,v 1.160.1.2 2007/12/28 15:32:23 roberto Exp $
 ** Lua stand-alone interpreter
 ** See Copyright Notice in lua.h
 */
@@ -74,6 +74,8 @@ static int report (lua_State *L, int status) {
 
 
 static int traceback (lua_State *L) {
+  if (!lua_isstring(L, 1))  /* 'message' not a string? */
+    return 1;  /* keep it intact */
   lua_getfield(L, LUA_GLOBALSINDEX, "debug");
   if (!lua_istable(L, -1)) {
     lua_pop(L, 1);
@@ -107,7 +109,7 @@ static int docall (lua_State *L, int narg, int clear) {
 
 
 static void print_version (void) {
-  l_message(NULL, LUA_VERSION "  " LUA_COPYRIGHT);
+  l_message(NULL, LUA_RELEASE "  " LUA_COPYRIGHT);
 }
 
 
@@ -144,7 +146,7 @@ static int dostring (lua_State *L, const char *s, const char *name) {
 static int dolibrary (lua_State *L, const char *name) {
   lua_getglobal(L, "require");
   lua_pushstring(L, name);
-  return report(L, lua_pcall(L, 1, 0, 0));
+  return report(L, docall(L, 1, 1));
 }
 
 
@@ -252,17 +254,30 @@ static int handle_script (lua_State *L, char **argv, int n) {
 }
 
 
+/* check that argument has no extra characters at the end */
+#define notail(x)	{if ((x)[2] != '\0') return -1;}
+
+
 static int collectargs (char **argv, int *pi, int *pv, int *pe) {
   int i;
   for (i = 1; argv[i] != NULL; i++) {
     if (argv[i][0] != '-')  /* not an option? */
         return i;
     switch (argv[i][1]) {  /* option */
-      case '-': return (argv[i+1] != NULL ? i+1 : 0);
-      case '\0': return i;
-      case 'i': *pi = 1;  /* go through */
-      case 'v': *pv = 1; break;
-      case 'e': *pe = 1;  /* go through */
+      case '-':
+        notail(argv[i]);
+        return (argv[i+1] != NULL ? i+1 : 0);
+      case '\0':
+        return i;
+      case 'i':
+        notail(argv[i]);
+        *pi = 1;  /* go through */
+      case 'v':
+        notail(argv[i]);
+        *pv = 1;
+        break;
+      case 'e':
+        *pe = 1;  /* go through */
       case 'l':
         if (argv[i][2] == '\0') {
           i++;
@@ -306,12 +321,12 @@ static int runargs (lua_State *L, char **argv, int n) {
 
 
 static int handle_luainit (lua_State *L) {
-  const char *init = getenv("LUA_INIT");
+  const char *init = getenv(LUA_INIT);
   if (init == NULL) return 0;  /* status OK */
   else if (init[0] == '@')
     return dofile(L, init+1);
   else
-    return dostring(L, init, "=LUA_INIT");
+    return dostring(L, init, "=" LUA_INIT);
 }
 
 

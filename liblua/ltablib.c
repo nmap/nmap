@@ -1,5 +1,5 @@
 /*
-** $Id: ltablib.c,v 1.38 2005/10/23 17:38:15 roberto Exp $
+** $Id: ltablib.c,v 1.38.1.2 2007/12/28 15:32:23 roberto Exp $
 ** Library for Table Manipulation
 ** See Copyright Notice in lua.h
 */
@@ -118,7 +118,8 @@ static int tinsert (lua_State *L) {
 static int tremove (lua_State *L) {
   int e = aux_getn(L, 1);
   int pos = luaL_optint(L, 2, e);
-  if (e == 0) return 0;  /* table is `empty' */
+  if (!(1 <= pos && pos <= e))  /* position is outside bounds? */
+   return 0;  /* nothing to remove */
   luaL_setn(L, 1, e - 1);  /* t.n = n-1 */
   lua_rawgeti(L, 1, pos);  /* result = t[pos] */
   for ( ;pos<e; pos++) {
@@ -181,7 +182,74 @@ static int sort_comp (lua_State *L, int a, int b) {
     return lua_lessthan(L, a, b);
 }
 
+static int call_comp (lua_State *L)
+{
+  int res;
+  lua_pushvalue(L, 2);
+  lua_pushvalue(L, -2);
+  lua_pushvalue(L, -4);
+  lua_call(L, 2, 1);
+  res = lua_toboolean(L, -1);
+  lua_pop(L, 1);
+  return res;
+}
+
+#define compare(L, c)  (c ? call_comp(L) : lua_lessthan(L, -1, -2))
+
+static int partition (lua_State *L, int p, int r, int c)
+{
+  int i = p - 1, j;
+  lua_rawgeti(L, 1, r);
+  /* for r - p = 1 */
+  if (p - r == 1)
+  {
+    lua_rawgeti(L, 1, p);
+    if (!compare(L, c))
+    {
+      lua_rawseti(L, 1, r);
+      lua_rawseti(L, 1, p);
+    }
+    else
+      lua_pop(L, 2);
+    return i + 1;
+  }
+  for (j = p; j < r; j++)
+  {
+    lua_rawgeti(L, 1, j);
+    if (compare(L, c))
+    {
+      i++;
+      lua_rawgeti(L, 1, i);
+      lua_pushvalue(L, -2);
+      lua_rawseti(L, 1, i);
+      lua_rawseti(L, 1, j);
+    }
+    lua_pop(L, 1);
+  }
+  lua_pop(L, 1);
+  i++;
+  lua_rawgeti(L, 1, r);
+  lua_rawgeti(L, 1, i);
+  lua_rawseti(L, 1, r);
+  lua_rawseti(L, 1, i);
+  return i;
+}
+
+static void quicksort (lua_State *L, int p, int r, int c)
+{
+  if (p < r)
+  {
+    int q = partition(L, p, r, c);
+    quicksort(L, p, q - 1, c);
+    quicksort(L, q + 1, r, c);
+  }
+}
+static int calls = 0;
+
 static void auxsort (lua_State *L, int l, int u) {
+  calls++;
+  if (calls > 20)
+    printf("calls = %d; l = %d; u = %d;\n", calls, l, u);
   while (l < u) {  /* for tail recursion */
     int i, j;
     /* sort elements a[l], a[(l+u)/2] and a[u] */
@@ -242,14 +310,26 @@ static void auxsort (lua_State *L, int l, int u) {
     }
     auxsort(L, j, i);  /* call recursively the smaller one */
   }  /* repeat the routine for the larger one */
+  calls--;
 }
 
 static int sort (lua_State *L) {
   int n = aux_getn(L, 1);
-  luaL_checkstack(L, 40, "");  /* assume array is smaller than 2^40 */
-  if (!lua_isnoneornil(L, 2))  /* is there a 2nd argument? */
-    luaL_checktype(L, 2, LUA_TFUNCTION);
+  int c;
   lua_settop(L, 2);  /* make sure there is two arguments */
+  luaL_checkstack(L, 40, "");  /* assume array is smaller than 2^40 */
+  if ((c = (!lua_isnil(L, 2))))  /* is there a 2nd argument? */
+    luaL_checktype(L, 2, LUA_TFUNCTION);
+  quicksort(L, 1, n, c);
+  return 0;
+}
+
+static int oldsort (lua_State *L) {
+  int n = aux_getn(L, 1);
+  lua_settop(L, 2);  /* make sure there is two arguments */
+  luaL_checkstack(L, 40, "");  /* assume array is smaller than 2^40 */
+  if (!lua_isnil(L, 2))  /* is there a 2nd argument? */
+    luaL_checktype(L, 2, LUA_TFUNCTION);
   auxsort(L, 1, n);
   return 0;
 }
@@ -267,6 +347,7 @@ static const luaL_Reg tab_funcs[] = {
   {"remove", tremove},
   {"setn", setn},
   {"sort", sort},
+  {"oldsort", oldsort},
   {NULL, NULL}
 };
 

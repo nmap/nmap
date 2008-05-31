@@ -1,5 +1,5 @@
 /*
-** $Id: lundump.c,v 1.60 2006/02/16 15:53:49 lhf Exp $
+** $Id: lundump.c,v 2.7.1.2 2008/01/18 16:39:11 roberto Exp $
 ** load precompiled Lua chunks
 ** See Copyright Notice in lua.h
 */
@@ -29,6 +29,7 @@ typedef struct {
 
 #ifdef LUAC_TRUST_BINARIES
 #define IF(c,s)
+#define error(S,s)
 #else
 #define IF(c,s)		if (c) error(S,s)
 
@@ -47,6 +48,7 @@ static void error(LoadState* S, const char* why)
 static void LoadBlock(LoadState* S, void* b, size_t size)
 {
  size_t r=luaZ_read(S->Z,b,size);
+ UNUSED(r);
  IF (r!=0, "unexpected end");
 }
 
@@ -122,7 +124,7 @@ static void LoadConstants(LoadState* S, Proto* f)
 	setsvalue2n(S->L,o,LoadString(S));
 	break;
    default:
-	IF (1, "bad constant");
+	error(S,"bad constant");
 	break;
   }
  }

@@ -10,10 +10,8 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "safe"}
 
 portrule = function(host, port)
-	local identd, decision
-
 	local auth_port = { number=113, protocol="tcp" }
-	identd = nmap.get_port_state(host, auth_port)
+	local identd = nmap.get_port_state(host, auth_port)
 
 	if
 		identd ~= nil
@@ -21,12 +19,10 @@ portrule = function(host, port)
 		and port.protocol == "tcp"
 		and port.state == "open"
 	then
-		decision = true
+        return true
 	else
-		decision = false
+        return false
 	end
-
-	return decision
 end
 
 action = function(host, port)
