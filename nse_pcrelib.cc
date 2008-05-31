@@ -25,14 +25,6 @@ extern "C" {
 
 #include "nse_pcrelib.h"
 
-static void L_lua_error(lua_State *L, const char *message)
-{
-	int status;
-
-	lua_pushstring(L, message);
-	status = lua_error(L);
-}
-
 static int get_startoffset(lua_State *L, int stackpos, size_t len)
 {
 	int startoffset = luaL_optint(L, stackpos, 1);
@@ -105,12 +97,12 @@ static const unsigned char *Lpcre_maketables(lua_State *L, int stackpos)
 	char *locale = strdup(luaL_checkstring(L, stackpos));
 
 	if(locale == NULL)
-		L_lua_error(L, "cannot set locale");
+		luaL_error(L, "cannot set locale");
 
 	strncpy(old_locale, setlocale(LC_CTYPE, NULL), 255); /* store the locale */
 
 	if(setlocale(LC_CTYPE, locale) == NULL)        /* set new locale */
-		L_lua_error(L, "cannot set locale");
+		luaL_error(L, "cannot set locale");
 
 	tables = pcre_maketables();              /* make tables with new locale */
 	(void)setlocale(LC_CTYPE, old_locale);         /* restore the old locale */
@@ -132,7 +124,7 @@ static int Lpcre_comp(lua_State *L)
 	if(lua_gettop(L) > 2 && !lua_isnil(L, 3))
 		tables = Lpcre_maketables(L, 3);
 	if(tables == NULL)
-		L_lua_error(L, "PCRE compilation failed");
+		luaL_error(L, "PCRE compilation failed");
 
 	ud = (pcre2*)lua_newuserdata(L, sizeof(pcre2));
 	luaL_getmetatable(L, pcre_handle);
@@ -145,11 +137,11 @@ static int Lpcre_comp(lua_State *L)
 	if(!ud->pr) {
 		(void)Snprintf(buf, 255, "%s (pattern offset: %d)", error, erroffset+1);
 		/* show offset 1-based as it's common in Lua */
-		L_lua_error(L, buf);
+		luaL_error(L, buf);
 	}
 
 	ud->extra = pcre_study(ud->pr, 0, &error);
-	if(error) L_lua_error(L, error);
+	if(error) luaL_error(L, error);
 
 	pcre_fullinfo(ud->pr, ud->extra, PCRE_INFO_CAPTURECOUNT, &ud->ncapt);
 	/* need (2 ints per capture, plus one for substring match) * 3/2 */
@@ -408,10 +400,13 @@ static const luaL_reg pcrelib[] = {
 
 LUALIB_API int luaopen_pcrelib(lua_State *L)
 {
-	createmeta(L, pcre_handle);
-	luaL_openlib(L, NULL, pcremeta, 0);
+	luaL_newmetatable(L, pcre_handle);
+	lua_pushliteral(L, "__index");
+	lua_pushvalue(L, -2); 
+	lua_rawset(L, -3);
+    luaL_register(L, NULL, pcremeta);
 	lua_pop(L, 1);
-	luaL_openlib(L, NSE_PCRELIBNAME, pcrelib, 0);
+    luaL_register(L, NSE_PCRELIBNAME, pcrelib);
 	
 	return 1;
 }

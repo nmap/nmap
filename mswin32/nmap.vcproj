@@ -252,10 +252,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\nse_auxiliar.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\nse_debug.cc"
 				>
 			</File>

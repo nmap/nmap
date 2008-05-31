@@ -78,9 +78,9 @@ int script_updatedb() {
 			SCRIPT_ENGINE);
 	)
 
-	l = lua_open();
+	l = luaL_newstate();
 	if(l == NULL) {
-		error("%s: Failed lua_open()", SCRIPT_ENGINE);
+		error("%s: Failed luaL_newstate()", SCRIPT_ENGINE);
 		return 0;
 	}
 
@@ -117,7 +117,7 @@ int script_check_args(){
 	const char *argbuf;
 	size_t argbuflen;
 
-	l= lua_open();
+	l= luaL_newstate();
 	if(l==NULL){
 		fatal("Error opening lua, for checking arguments\n");
 	}
@@ -166,9 +166,9 @@ int script_scan(std::vector<Target*> &targets) {
 				SCRIPT_ENGINE, (*targets.begin())->NameIP(targetstr, sizeof(targetstr)));
 	)
 
-	l = lua_open();
+	l = luaL_newstate();
 	if(l == NULL) {
-		error("%s: Failed lua_open()", SCRIPT_ENGINE);
+		error("%s: Failed luaL_newstate()", SCRIPT_ENGINE);
 		return 0;
 	}
 

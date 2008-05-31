@@ -21,16 +21,7 @@ require 'bit'
 
 -- Grabs NUL-terminated string
 local getstring = function(orig)
-	local str = ""
-	local index = 1
-
-	while orig:byte(index) ~= 0 do
-		str = str .. string.char(orig:byte(index))
-
-		index = index + 1
-	end
-
-	return str
+    return orig:match("^([^%z]*)");
 end
 
 -- Convert two bytes into a number

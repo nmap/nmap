@@ -36,9 +36,8 @@ int check_extension(const char* ext, const char* path);
 extern NmapOps o;
 
 /* open the standard libs */
-int init_lua(lua_State* l) {
-	
-	const luaL_Reg lualibs[] = {
+int init_lua(lua_State* l) { // FIXME: Use cpcall, let Lua error normally.
+	static const luaL_Reg lualibs[] = {
 		{"", luaopen_base},
 		{LUA_LOADLIBNAME, luaopen_package},
 		{LUA_TABLIBNAME, luaopen_table},
@@ -126,6 +125,7 @@ int init_setlualibpath(lua_State* l){
 	lua_pop(l,3);
 	return SCRIPT_ENGINE_SUCCESS;
 }
+
 /* parses the argument provided to --script-args and leaves the processed 
  * string on the stack, after this it only has to be prepended with 
  * "<tablename>={" and appended by "}", before it can be called by
@@ -134,41 +134,18 @@ int init_setlualibpath(lua_State* l){
 int init_parseargs(lua_State* l){
 	//FIXME - free o.script-args after we're finished!!!
 	
-	if(o.scriptargs==NULL){ //if no arguments are provided we're done
-		return SCRIPT_ENGINE_SUCCESS;
-	}
-	//prepare passed string for loading
-	lua_getglobal(l,"string");
-	lua_getfield(l,-1,"gsub");
-	lua_pushvalue(l,-1);
-	lua_pushstring(l,o.scriptargs);
-	lua_pushstring(l,"=([^{},$]+)");
-	lua_pushstring(l,"=\"%1\"");
-	SCRIPT_ENGINE_TRY(lua_pcall(l,3,1,0));
-	
-	/* copy the result on the bottom of the stack, since this is the part 
-	 * we want to return
-	 */
-	lua_pushvalue(l,-1);
-	lua_insert(l,1);
-	lua_pushstring(l,"%b{}");
-	lua_pushstring(l,"");
-	SCRIPT_ENGINE_TRY(lua_pcall(l,3,1,0));
-	lua_getfield(l,-2,"find");
-	lua_pushvalue(l,-2);
-	lua_pushstring(l,"[{}]");
-	SCRIPT_ENGINE_TRY(lua_pcall(l,2,1,0));
-	if(!lua_isnil(l,-1)){
-		error("unbalanced brackets inside script-options!!");
-		return SCRIPT_ENGINE_ERROR;
-	}
-	lua_settop(l,1); //clear stack
+	if (o.scriptargs==NULL)
+		return SCRIPT_ENGINE_SUCCESS; //if no arguments are provided we're done
 
-	//luaL_loadbuffer(l,tmp,strlen(tmp),"Script-Arguments");
-	//if(lua_pcall(l,0,0,0)!=0){
-//		error("error loading --script-args: %s",lua_tostring(l,-1));
-//		return SCRIPT_ENGINE_ERROR;
-//	}
+    lua_pushstring(l, o.scriptargs);
+    luaL_getmetafield(l, -1, "__index");
+    lua_getfield(l, -1, "gsub");
+    lua_pushvalue(l, -3);
+    lua_pushliteral(l, "=([^{},]+)");
+    lua_pushliteral(l, "=\"%1\"");
+	SCRIPT_ENGINE_TRY(lua_pcall(l,3,1,0));
+    lua_replace(l, 1);
+	lua_settop(l,1); //clear stack
 
 	return SCRIPT_ENGINE_SUCCESS;
 }
@@ -184,12 +161,13 @@ int init_setargs(lua_State *l){
 	 * processed using lua's functionality
 	 */
 	SCRIPT_ENGINE_TRY(init_parseargs(l));
-	lua_pushstring(l,"nmap.registry.args={");
+	lua_pushliteral(l,"nmap.registry.args={");
 	lua_insert(l,-2);
-	lua_pushstring(l,"}");
+	lua_pushliteral(l,"}");
 	lua_concat(l,3);
 	argbuf=lua_tolstring(l,-1,&argbuflen);
-	luaL_loadbuffer(l,argbuf,argbuflen,"Script-Arguments-prerun");
+	luaL_loadbuffer(l,argbuf,argbuflen, "Script-Arguments");
+    lua_replace(l, -2); // remove argbuf string
 	if(lua_pcall(l,0,0,0)!=0){
 		error("error loading --script-args: %s",lua_tostring(l,-1));
 		return SCRIPT_ENGINE_ERROR;
@@ -357,7 +335,7 @@ int init_updatedb(lua_State* l) {
 	lua_newtable(l);
 	/*give the script global namespace access*/
 	lua_newtable(l);
-	lua_getglobal(l, "_G");
+    lua_pushvalue(l, LUA_GLOBALSINDEX);
 	lua_setfield(l, -2, "__index");
 	lua_setmetatable(l, -2);
 
@@ -702,27 +680,25 @@ int init_scandir(char* dirname, std::vector<std::string>& result, int files_or_d
 
 #endif
 
-
-
-// Takes a string and converts \, ', and " characters so that
-// the string is suitable for embedding in a Lua ' or " string.
-// Remember to free() when finished
-
-char *make_lua_escaped_string(char *str) {
-  char *tp, *out;
-  out = tp = (char *) safe_malloc((strlen(str)*2) + 1); // assume every character needs escaping
-
-  while(*str) {
-    if (*str == '\\' || *str == '\'' || *str == '"') *tp++ = '\\';
-    *tp++ = *str++;
+/* Error function if a user script attempts to create a new global */
+/* TODO: Why wasn't _changing_ globals handled? */
+static int global_error(lua_State *L)
+{
+  lua_pushvalue(L, lua_upvalueindex(1));
+  lua_pushvalue(L, 2);
+  if (!lua_tostring(L, -1))
+  {
+    lua_pushliteral(L, "? (of type ");
+    lua_pushstring(L, lua_typename(L, lua_type(L, -2)));
+    lua_pushliteral(L, ")");
+    lua_concat(L, 3);
+    lua_replace(L, -2);
   }
-
-  *tp = '\0';
-
-  return out;
+  lua_pushvalue(L, lua_upvalueindex(2));
+  lua_concat(L, 3);
+  fprintf(stderr, "%s\n", lua_tostring(L, -1));
+  return lua_error(L);
 }
-
-
 
 /* load an nmap-lua script
  * create a new closure to store the script
@@ -735,7 +711,6 @@ char *make_lua_escaped_string(char *str) {
  * */
 int init_loadfile(lua_State* l, char* filename) {
 	int rule_count;
-	char *escaped_filename;
 
 	/* create a closure for encapsuled execution
 	 * give the closure access to the global enviroment
@@ -749,7 +724,7 @@ int init_loadfile(lua_State* l, char* filename) {
 	/* we give the script access to the global name space 
 	 * */
 	lua_newtable(l);
-	lua_getglobal(l, "_G");
+    lua_pushvalue(l, LUA_GLOBALSINDEX);
 	lua_setfield(l, -2, "__index");
 	lua_setmetatable(l, -2);
 
@@ -774,17 +749,14 @@ int init_loadfile(lua_State* l, char* filename) {
 	 * */
 	lua_getmetatable(l, -1);
 
-	escaped_filename = make_lua_escaped_string(filename);
-
-	std::string buf = 
-	 (std::string("err = \"Attempted to change the global '\" .. select(2, ...) .. \"' in ") 
-	 + std::string(escaped_filename)
-	 + std::string(" - use nmap.registry if you really want to share data between scripts.\"")
-	 + std::string("error(err)"));
-	SCRIPT_ENGINE_LUA_TRY(luaL_loadbuffer(l, buf.c_str(), buf.length(), "Global Access"));
+    lua_pushliteral(l, "Attempted to change the global '");
+    lua_pushliteral(l, "' in ");
+    lua_pushstring(l, filename);
+    lua_pushliteral(l, " - use nmap.registry if you really want to share "
+                       "data between scripts.");
+    lua_concat(l, 3);
+    lua_pushcclosure(l, global_error, 2);
 	lua_setfield(l, -2, "__newindex");
-
-	free(escaped_filename);
 
 	lua_setmetatable(l, -2);
 

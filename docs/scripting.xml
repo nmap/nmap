@@ -304,7 +304,7 @@ $ nmap -sC --script-args user=foo,pass=bar,anonFTP={pass=ftp@foobar.com}
 	  which would result in the Lua table: 
           </para>
 <programlisting>
-{user="foo",pass="bar",anonFTP={pass=nobody@foobar.com}}
+{user="foo",pass="bar",anonFTP={pass="nobody@foobar.com"}}
 </programlisting>
  
 	  <para>You could therefore access the username (<literal>"foo"</literal>)

@@ -1,5 +1,4 @@
 #include "nse_nsock.h"
-#include "nse_auxiliar.h"
 #include "nse_macros.h"
 #include "nse_string.h"
 
@@ -81,7 +80,6 @@ static luaL_reg l_nsock [] = {
 	{"get_info", l_nsock_get_info},
 	{"close", l_nsock_close},
 	{"set_timeout", l_nsock_set_timeout},
-	{"__gc",l_nsock_gc},
 	{"pcap_open",  		l_nsock_ncap_open},
 	{"pcap_close", 		l_nsock_ncap_close},
 	{"pcap_register",	l_nsock_ncap_register},
@@ -156,7 +154,15 @@ struct l_nsock_udata {
 void l_nsock_clear_buf(lua_State* l, l_nsock_udata* udata);
 
 int l_nsock_open(lua_State* l) {
-	auxiliar_newclass(l, "nsock", l_nsock);
+    luaL_newmetatable(l, "nsock");
+    lua_createtable(l, 20, 0);
+    luaL_register(l, NULL, l_nsock);
+    lua_setfield(l, -2, "__index");
+    lua_pushcclosure(l, l_nsock_gc, 0);
+    lua_setfield(l, -2, "__gc");
+    lua_pushliteral(l, "");
+    lua_setfield(l, -2, "__metatable"); // protect metatable
+    lua_pop(l, 1);
 
         nsp = nsp_new(NULL);
 	//nsp_settrace(nsp, o.debugging, o.getStartTime());
@@ -169,7 +175,8 @@ int l_nsock_open(lua_State* l) {
 int l_nsock_new(lua_State* l) {
 	struct l_nsock_udata* udata;
 	udata = (struct l_nsock_udata*) lua_newuserdata(l, sizeof(struct l_nsock_udata));
-	auxiliar_setclass(l, "nsock", -1);
+    luaL_getmetatable(l, "nsock");
+    lua_setmetatable(l, -2);
 	udata->nsiod = NULL;
 	udata->ssl_session = NULL;
 	udata->timeout = DEFAULT_TIMEOUT;
@@ -223,7 +230,7 @@ static int l_nsock_connect_queued(lua_State* l) {
 	const int max_descriptors_allowed = MAX(o.max_parallelism, 10);
 	
 	
-	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	l_nsock_udata* udata = (l_nsock_udata*) luaL_checkudata(l, 1, "nsock");
 	
 	if(udata->nsiod!=NULL){
 		/*should a script try to connect a socket, which is already connected
@@ -276,7 +283,7 @@ void l_nsock_connect_queued_handler(nsock_pool nsp, nsock_event nse, void *lua_s
 
 
 static int l_nsock_connect(lua_State* l) {
-	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	l_nsock_udata* udata = (l_nsock_udata*) luaL_checkudata(l, 1, "nsock");
 	const char* addr = luaL_checkstring(l, 2);
 	unsigned short port = (unsigned short) luaL_checkint(l, 3);
 	const char *how = luaL_optstring(l, 4, "tcp");
@@ -350,7 +357,7 @@ void l_nsock_connect_handler(nsock_pool nsp, nsock_event nse, void *lua_state) {
 }
 
 static int l_nsock_send(lua_State* l) {
-	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	l_nsock_udata* udata = (l_nsock_udata*) luaL_checkudata(l, 1, "nsock");
 	const char* string = luaL_checkstring(l, 2);
 	size_t string_len = lua_objlen (l, 2);
 	char* hexified;
@@ -384,7 +391,7 @@ void l_nsock_send_handler(nsock_pool nsp, nsock_event nse, void *lua_state) {
 }
 
 static int l_nsock_receive(lua_State* l) {
-	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	l_nsock_udata* udata = (l_nsock_udata*) luaL_checkudata(l, 1, "nsock");
 	l_nsock_clear_buf(l, udata);
 
 	if(udata->nsiod == NULL) {
@@ -399,7 +406,7 @@ static int l_nsock_receive(lua_State* l) {
 }
 
 static int l_nsock_receive_lines(lua_State* l) {
-	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	l_nsock_udata* udata = (l_nsock_udata*) luaL_checkudata(l, 1, "nsock");
 	int nlines = (int) luaL_checknumber(l, 2);
 
 	l_nsock_clear_buf(l, udata);
@@ -416,7 +423,7 @@ static int l_nsock_receive_lines(lua_State* l) {
 }
 
 static int l_nsock_receive_bytes(lua_State* l) {
-	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	l_nsock_udata* udata = (l_nsock_udata*) luaL_checkudata(l, 1, "nsock");
 	int nbytes = (int) luaL_checknumber(l, 2);
 	
 	l_nsock_clear_buf(l, udata);
@@ -526,7 +533,7 @@ unsigned short inet_port_both(int af, const void* v_addr) {
 }
 
 static int l_nsock_get_info(lua_State* l) {
-	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	l_nsock_udata* udata = (l_nsock_udata*) luaL_checkudata(l, 1, "nsock");
 	int status;
 
 	int protocol; // tcp or udp
@@ -558,7 +565,7 @@ static int l_nsock_get_info(lua_State* l) {
 	return 5;
 }
 static int l_nsock_gc(lua_State* l){
-	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	l_nsock_udata* udata = (l_nsock_udata*) luaL_checkudata(l, 1, "nsock");
 	if(udata->nsiod == NULL) { //socket obviously got closed already - so no finalization needed
 		return 0;	
 	}else{
@@ -569,7 +576,7 @@ static int l_nsock_gc(lua_State* l){
 }
 
 static int l_nsock_close(lua_State* l) {
-	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	l_nsock_udata* udata = (l_nsock_udata*) luaL_checkudata(l, 1, "nsock");
 
 	/* Never ever collect nse-pcap connections. */
 	if(udata->ncap_socket){
@@ -613,7 +620,7 @@ static int l_nsock_close(lua_State* l) {
 }
 
 static int l_nsock_set_timeout(lua_State* l) {
-	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	l_nsock_udata* udata = (l_nsock_udata*) luaL_checkudata(l, 1, "nsock");
 	int timeout = (unsigned short) luaL_checkint(l, 2);
 
 	udata->timeout = timeout;
@@ -623,7 +630,7 @@ static int l_nsock_set_timeout(lua_State* l) {
 
 /* buffered I/O */
 static int l_nsock_receive_buf(lua_State* l) {
-	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	l_nsock_udata* udata = (l_nsock_udata*) luaL_checkudata(l, 1, "nsock");
 	if(lua_gettop(l)==2){ 
 		/*we were called with 2 arguments only - push the default third one*/
 		lua_pushboolean(l,true);
@@ -663,7 +670,7 @@ void l_nsock_receive_buf_handler(nsock_pool nsp, nsock_event nse, void *lua_stat
 	int rcvd_len = 0;
 	char* hexified;
 	int tmpidx;
-	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	l_nsock_udata* udata = (l_nsock_udata*) luaL_checkudata(l, 1, "nsock");
 	if(l_nsock_checkstatus(l, nse) == NSOCK_WRAPPER_SUCCESS) {
 		
 		//l_nsock_checkstatus pushes true on the stack in case of success
@@ -722,7 +729,7 @@ int l_nsock_check_buf(lua_State* l ){
 	/*should we return the string including the pattern or without it */
 	keeppattern= lua_toboolean(l,-1);
 	lua_pop(l,1);
-	udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	udata = (l_nsock_udata*) luaL_checkudata(l, 1, "nsock");
 	if(lua_isfunction(l,2)){
 		lua_pushvalue(l,2);
 		lua_rawgeti(l, LUA_REGISTRYINDEX, udata->bufidx); /* the buffer is the only argument to the function */
@@ -860,7 +867,7 @@ char *dnet_to_pcap_device_name(const char *device){
  * 5)	bpf	- berkeley packet filter, see tcpdump(8)	
  * */  
 static int l_nsock_ncap_open(lua_State* l){
-	l_nsock_udata* udata  = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	l_nsock_udata* udata  = (l_nsock_udata*) luaL_checkudata(l, 1, "nsock");
 	const char* device    = luaL_checkstring(l, 2);
 	int snaplen           = luaL_checkint(l, 3);
 	int promisc           = luaL_checkint(l, 4);
@@ -915,7 +922,7 @@ static int l_nsock_ncap_open(lua_State* l){
 /* (LUA) Close nsock-pcap socket. 
  * */  
 static int l_nsock_ncap_close(lua_State* l){
-	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	l_nsock_udata* udata = (l_nsock_udata*) luaL_checkudata(l, 1, "nsock");
 	struct ncap_socket *ns = udata->ncap_socket;
 
 	if(!udata->nsiod || !udata->ncap_socket) {
@@ -1004,7 +1011,7 @@ void ncap_request_map_add(char *key, struct ncap_request *nr){
  * 		  want to receive first packet   
  * */
 static int l_nsock_ncap_register(lua_State *l){
-	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	l_nsock_udata* udata = (l_nsock_udata*) luaL_checkudata(l, 1, "nsock");
 	size_t testdatasz;
 	const char* testdata = luaL_checklstring(l, 2, &testdatasz);
 
@@ -1046,7 +1053,7 @@ static int l_nsock_ncap_register(lua_State *l){
  * return values: status(true/false), capture_len/error_msg, layer2data, layer3data
  * */
 int l_nsock_pcap_receive(lua_State *l){
-	l_nsock_udata* udata = (l_nsock_udata*) auxiliar_checkclass(l, "nsock", 1);
+	l_nsock_udata* udata = (l_nsock_udata*) luaL_checkudata(l, 1, "nsock");
 	if(!udata->nsiod || !udata->ncap_socket) {
 		luaL_argerror(l, 1, "You can't receive to nsock-pcap if it wasn't opened.");
 		return 0;
@@ -1259,7 +1266,13 @@ static luaL_reg l_dnet [] = {
 };
 
 int l_dnet_open(lua_State* l) {
-	auxiliar_newclass(l, "dnet", l_dnet);
+    luaL_newmetatable(l, "dnet");
+    lua_createtable(l, 5, 0);
+    luaL_register(l, NULL, l_dnet);
+    lua_setfield(l, -2, "__index");
+    lua_pushliteral(l, "");
+    lua_setfield(l, -2, "__metatable"); // protect metatable
+    lua_pop(l, 1);
 	return NSOCK_WRAPPER_SUCCESS;
 }
 
@@ -1271,7 +1284,8 @@ struct l_dnet_udata {
 int l_dnet_new(lua_State* l) {
 	struct l_dnet_udata* udata;
 	udata = (struct l_dnet_udata*) lua_newuserdata(l, sizeof(struct l_dnet_udata));
-	auxiliar_setclass(l, "dnet", -1);
+    luaL_getmetatable(l, "dnet");
+    lua_setmetatable(l, -2);
 	udata->interface= NULL;
 	udata->eth    	= NULL;
 
@@ -1352,7 +1366,7 @@ void ldnet_eth_close_cached(const char *device) {
 }
 
 static int l_dnet_open_ethernet(lua_State* l){
-	l_dnet_udata* udata = (l_dnet_udata*) auxiliar_checkclass(l, "dnet", 1);
+	l_dnet_udata* udata = (l_dnet_udata*) luaL_checkudata(l, 1, "dnet");
 	const char* interface_name = luaL_checkstring(l, 2);
 
 	struct interface_info *ii = getInterfaceByName((char*)interface_name);
@@ -1367,7 +1381,7 @@ static int l_dnet_open_ethernet(lua_State* l){
 }
 
 static int l_dnet_close_ethernet(lua_State* l){
-	l_dnet_udata* udata = (l_dnet_udata*) auxiliar_checkclass(l, "dnet", 1);
+	l_dnet_udata* udata = (l_dnet_udata*) luaL_checkudata(l, 1, "dnet");
 	if(!udata->interface || !udata->eth){
 		luaL_argerror(l, 1, "dnet is not valid opened ethernet interface");
 		return  0;
@@ -1381,7 +1395,7 @@ static int l_dnet_close_ethernet(lua_State* l){
 }
 
 static int l_dnet_send_ethernet(lua_State* l){
-	l_dnet_udata* udata = (l_dnet_udata*) auxiliar_checkclass(l, "dnet", 1);
+	l_dnet_udata* udata = (l_dnet_udata*) luaL_checkudata(l, 1, "dnet");
 	size_t packetsz = 0;
 	const char* packet = luaL_checklstring(l, 2, &packetsz);
 

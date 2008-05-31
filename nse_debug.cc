@@ -15,21 +15,27 @@ void l_dumpStack(lua_State* l) {
 }
 
 void l_dumpValue(lua_State* l, int i) {
-	if(lua_istable(l, i))
+    switch (lua_type(l, i))
+    {
+      case LUA_TTABLE:
 		l_dumpTable(l, i);
-	else if(lua_isfunction(l, i))
+        break;
+      case LUA_TFUNCTION:
 		l_dumpFunction(l, i);
-	else if(lua_isstring(l, i)) {
-		lua_pushvalue(l, i);
-		log_write(LOG_PLAIN, "string '%s'\n", lua_tostring(l, -1));
-		lua_pop(l, 1);
-	}
-	else if(lua_isboolean(l, i))
-		log_write(LOG_PLAIN, "boolean: %s", lua_toboolean(l, i) ? "true\n" : "false\n"); 
-	else if(lua_isnumber(l, i))
+        break;
+      case LUA_TSTRING:
+		log_write(LOG_PLAIN, "string '%s'\n", lua_tostring(l, i));
+        break;
+      case LUA_TBOOLEAN:
+		log_write(LOG_PLAIN, "boolean: %s\n",
+            lua_toboolean(l, i) ? "true" : "false"); 
+        break;
+      case LUA_TNUMBER:
 		log_write(LOG_PLAIN, "number: %g\n", lua_tonumber(l, i));
-	else
+        break;
+      default:
 		log_write(LOG_PLAIN, "%s\n", lua_typename(l, lua_type(l, i)));
+    }
 }
 
 void l_dumpTable(lua_State *l, int index) {
@@ -56,4 +62,3 @@ void l_dumpFunction(lua_State* l, int index) {
 //	log_write(LOG_PLAIN, "\tname: %s %s\n", ar.namewhat, ar.name);
 	fflush(stdout);
 }
-
