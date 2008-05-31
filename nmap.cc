@@ -2645,7 +2645,7 @@ void sigdie(int signo) {
  * and is a directory.  Otherwise returns 0.
  */
 
-int fileexistsandisreadable(char *pathname) {
+int fileexistsandisreadable(const char *pathname) {
 	char *pathname_buf = strdup(pathname);
 	int status = 0;
 
@@ -2671,7 +2671,7 @@ int fileexistsandisreadable(char *pathname) {
   return status;
 }
 
-int nmap_fileexistsandisreadable(char* pathname) {
+int nmap_fileexistsandisreadable(const char* pathname) {
 	return fileexistsandisreadable(pathname);
 }
 

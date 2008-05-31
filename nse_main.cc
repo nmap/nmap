@@ -39,7 +39,8 @@ struct thread_record {
 	run_record* rr;
 };
 
-std::map<std::string, Target*> current_hosts;
+int current_hosts = 0;
+int errfunc = 0;
 std::list<std::list<struct thread_record> > torun_scripts;
 std::list<struct thread_record> running_scripts;
 std::list<struct thread_record> waiting_scripts;
@@ -53,88 +54,118 @@ public:
 
 // prior execution
 int process_preparerunlevels(std::list<struct thread_record> torun_threads);
-int process_preparehost(lua_State* l, Target* target, std::list<struct thread_record>& torun_threads);
-int process_preparethread(lua_State* l, struct run_record rr, struct thread_record* tr);
+int process_preparehost(lua_State* L, Target* target, std::list<struct thread_record>& torun_threads);
+int process_preparethread(lua_State* L, struct run_record rr, struct thread_record* tr);
 
 // helper functions
-int process_getScriptId(lua_State* l, struct script_scan_result* ssr);
+int process_getScriptId(lua_State* L, struct script_scan_result* ssr);
 int process_pickScriptsForPort(
-		lua_State* l, 
+		lua_State* L, 
 		Target* target, 
 		Port* port,
 		std::vector<run_record>& torun);
 
 // execution
-int process_mainloop(lua_State* l);
-int process_waiting2running(lua_State* l, int resume_arguments);
-int process_finalize(lua_State* l, unsigned int registry_idx);
+int process_mainloop(lua_State* L);
+int process_waiting2running(lua_State* L, int resume_arguments);
+int process_finalize(lua_State* L, unsigned int registry_idx);
 
-int script_updatedb() {
-	int status;
-	lua_State* l;
-	
-	SCRIPT_ENGINE_VERBOSE(
-		log_write(LOG_STDOUT, "%s: Updating rule database.\n", 
-			SCRIPT_ENGINE);
-	)
-
-	l = luaL_newstate();
-	if(l == NULL) {
-		error("%s: Failed luaL_newstate()", SCRIPT_ENGINE);
-		return 0;
-	}
-
-	status = init_lua(l);
-	if(status != SCRIPT_ENGINE_SUCCESS) {
-		goto finishup;
-	}
-
-	status = init_updatedb(l);
-	if(status != SCRIPT_ENGINE_SUCCESS) {
-		goto finishup;
-	}
-
-	log_write(LOG_STDOUT, "NSE script database updated successfully.\n");
-
-finishup:
-	lua_close(l);
-	if(status != SCRIPT_ENGINE_SUCCESS) {
-		error("%s: Aborting database update.\n", SCRIPT_ENGINE);
-		return SCRIPT_ENGINE_ERROR;
-	} else {
-		return SCRIPT_ENGINE_SUCCESS;
-	}
+static int panic (lua_State *L)
+{
+  const char *err = lua_tostring(L, 1);
+  fatal("Unprotected error in Lua:\n%s\n", err);
+  return 0;
 }
 
-//int check_scripts(){
-//}
+int script_updatedb (void)
+{
+  int status;
+  int ret;
+  lua_State *L;
+
+  SCRIPT_ENGINE_VERBOSE(
+      log_write(LOG_STDOUT, "%s: Updating rule database.\n", 
+        SCRIPT_ENGINE);
+      )
+
+  L = luaL_newstate();
+  if (L == NULL)
+  {
+    error("%s: Failed luaL_newstate()", SCRIPT_ENGINE);
+    return 0;
+  }
+  lua_atpanic(L, panic);
+  
+  status = lua_cpcall(L, init_lua, NULL);
+  if (status != 0)
+  {
+    error("%s: error while initializing Lua State:\n%s\n",
+        SCRIPT_ENGINE, lua_tostring(L, -1));
+    ret = SCRIPT_ENGINE_ERROR;
+    goto finishup;
+  }
+  
+  lua_settop(L, 0); // safety, is 0 anyway
+  lua_rawgeti(L, LUA_REGISTRYINDEX, errfunc); // index 1
+
+  lua_pushcclosure(L, init_updatedb, 0);
+  status = lua_pcall(L, 0, 0, 1);
+  if(status != 0)
+  {
+    error("%s: error while updating Script Database:\n%s\n",
+        SCRIPT_ENGINE, lua_tostring(L, -1));
+    ret = SCRIPT_ENGINE_ERROR;
+    goto finishup;
+  }
+  
+  log_write(LOG_STDOUT, "NSE script database updated successfully.\n");
+  
+  finishup:
+    lua_close(L);
+    if (ret != SCRIPT_ENGINE_SUCCESS)
+    {
+      error("%s: Aborting database update.\n", SCRIPT_ENGINE);
+      return SCRIPT_ENGINE_ERROR;
+    }
+    else
+      return SCRIPT_ENGINE_SUCCESS;
+}
+
 /* check the script-arguments provided to nmap (--script-args) before
  * scanning starts - otherwise the whole scan will run through and be
  * aborted before script-scanning 
  */
-int script_check_args(){
-	lua_State* l;
-	const char *argbuf;
-	size_t argbuflen;
+int script_check_args (void)
+{
+  int ret = SCRIPT_ENGINE_SUCCESS, status;
+  lua_State* L = luaL_newstate();
 
-	l= luaL_newstate();
-	if(l==NULL){
-		fatal("Error opening lua, for checking arguments\n");
-	}
-	/* set all global libraries (we'll need the string-lib) */
-	SCRIPT_ENGINE_TRY(init_lua(l));
-	SCRIPT_ENGINE_TRY(init_parseargs(l));
-	lua_pushstring(l,"t={");
-	lua_insert(l,-2);
-	lua_pushstring(l,"}");
-	lua_concat(l,3);
-	argbuf=lua_tolstring(l,-1,&argbuflen);
-	luaL_loadbuffer(l,argbuf,argbuflen,"Script-Arguments-prerun");
-	SCRIPT_ENGINE_TRY(lua_pcall(l,0,0,0));
+  if (L == NULL)
+    fatal("Error opening lua, for checking arguments\n");
+  lua_atpanic(L, panic);
 
-	lua_close(l);
-	return SCRIPT_ENGINE_SUCCESS;
+  /* set all global libraries (we'll need the string-lib) */
+  status = lua_cpcall(L, init_lua, NULL);
+  if (status != 0)
+  {
+    error("%s: error while initializing Lua State:\n%s\n",
+        SCRIPT_ENGINE, lua_tostring(L, -1));
+    ret = SCRIPT_ENGINE_ERROR;
+    goto finishup;
+  }
+
+  lua_pushcclosure(L, init_parseargs, 0);
+  lua_pushstring(L, o.scriptargs);
+  lua_pcall(L, 1, 1, 0);
+
+  if (!lua_isfunction(L, -1))
+    ret = SCRIPT_ENGINE_ERROR;
+
+  finishup:
+	lua_close(L);
+	return ret;
 }
+
 /* open a lua instance
  * open the lua standard libraries
  * open all the scripts and prepare them for execution
@@ -147,7 +178,8 @@ int script_scan(std::vector<Target*> &targets) {
 	std::list<std::list<struct thread_record> >::iterator runlevel_iter;
 	std::list<struct thread_record>::iterator thr_iter;
 	std::list<struct thread_record> torun_threads;
-	lua_State* l;
+    std::vector<std::string>::iterator script_iter;
+	lua_State* L;
 
 	o.current_scantype = SCRIPT_SCAN;
 
@@ -166,34 +198,66 @@ int script_scan(std::vector<Target*> &targets) {
 				SCRIPT_ENGINE, (*targets.begin())->NameIP(targetstr, sizeof(targetstr)));
 	)
 
-	l = luaL_newstate();
-	if(l == NULL) {
+	L = luaL_newstate();
+	if(L == NULL) {
 		error("%s: Failed luaL_newstate()", SCRIPT_ENGINE);
-		return 0;
+        return SCRIPT_ENGINE_ERROR;
 	}
+    lua_atpanic(L, panic);
 
-	status = init_lua(l);
-	if(status != SCRIPT_ENGINE_SUCCESS) {
-		goto finishup;
-	}
+    status = lua_cpcall(L, init_lua, NULL);
+    if (status != 0)
+    {
+      error("%s: error while initializing Lua State:\n%s\n",
+          SCRIPT_ENGINE, lua_tostring(L, -1));
+      status = SCRIPT_ENGINE_ERROR;
+      goto finishup;
+    }
+
 	//set the arguments - if provided
-	status = init_setargs(l);
-	if(status != SCRIPT_ENGINE_SUCCESS) {
-		goto finishup;
-	}
+    status = lua_cpcall(L, init_setargs, NULL);
+    if (status != 0)
+    {
+      error("%s: error while setting arguments for scripts:\n%s\n",
+          SCRIPT_ENGINE, lua_tostring(L, -1));
+      status = SCRIPT_ENGINE_ERROR;
+      goto finishup;
+    }
 
-	status = init_rules(l, o.chosenScripts);
-	if(status != SCRIPT_ENGINE_SUCCESS) {
-		goto finishup;
-	}
+    lua_settop(L, 0); // safety, is 0 anyway
+    lua_rawgeti(L, LUA_REGISTRYINDEX, errfunc); // index 1
+
+    if (!lua_checkstack(L, o.chosenScripts.size() + 1))
+    {
+      error("%s: stack overflow at %s:%d", SCRIPT_ENGINE, __FILE__, __LINE__);
+      status = SCRIPT_ENGINE_ERROR;
+      goto finishup;
+    }
+    lua_pushcclosure(L, init_rules, 0);
+    for (script_iter = o.chosenScripts.begin();
+         script_iter != o.chosenScripts.end();
+         script_iter++)
+      lua_pushstring(L, script_iter->c_str());
+    status = lua_pcall(L, o.chosenScripts.size(), 0, 1);
+    if (status != 0)
+    {
+      error("%s: error while initializing script rules:\n%s\n",
+          SCRIPT_ENGINE, lua_tostring(L, -1));
+      status = SCRIPT_ENGINE_ERROR;
+      goto finishup;
+    }
 
 	SCRIPT_ENGINE_DEBUGGING(log_write(LOG_STDOUT, "%s: Matching rules.\n", SCRIPT_ENGINE);)
 
 	for(target_iter = targets.begin(); target_iter != targets.end(); target_iter++) {
 		std::string key = ((Target*) (*target_iter))->targetipstr();
-		current_hosts[key] = (Target*) *target_iter;
+        lua_rawgeti(L, LUA_REGISTRYINDEX, current_hosts);
+        lua_pushstring(L, key.c_str());
+        lua_pushlightuserdata(L, (void *) *target_iter);
+        lua_settable(L, -3);
+        lua_pop(L, 1);
 
-		status = process_preparehost(l, *target_iter, torun_threads);
+		status = process_preparehost(L, *target_iter, torun_threads);
 		if(status != SCRIPT_ENGINE_SUCCESS){
 			goto finishup;
 		}
@@ -222,7 +286,7 @@ int script_scan(std::vector<Target*> &targets) {
 			if (!thr_iter->rr->host->timeOutClockRunning())
 				thr_iter->rr->host->startTimeOutClock(NULL);
 
-		status = process_mainloop(l);
+		status = process_mainloop(L);
 		if(status != SCRIPT_ENGINE_SUCCESS){
 			goto finishup;
 		}
@@ -233,8 +297,7 @@ finishup:
 	SCRIPT_ENGINE_DEBUGGING(
 			log_write(LOG_STDOUT, "%s: Script scanning completed.\n", SCRIPT_ENGINE);
 			)
-	lua_close(l);
-	current_hosts.clear();
+	lua_close(L);
 	torun_scripts.clear();
 	if(status != SCRIPT_ENGINE_SUCCESS) {
 		error("%s: Aborting script scan.", SCRIPT_ENGINE);
@@ -244,7 +307,7 @@ finishup:
 	}
 }
 
-int process_mainloop(lua_State* l) {
+int process_mainloop(lua_State *L) {
 	int state;
 	int unfinished = running_scripts.size() + waiting_scripts.size(); 
 	struct script_scan_result ssr;
@@ -333,8 +396,8 @@ int process_mainloop(lua_State* l) {
 					lua_pop(current.thread, 2);
 				}
 	
-				SCRIPT_ENGINE_TRY(process_finalize(l, current.registry_idx));
-				SCRIPT_ENGINE_TRY(lua_gc(l, LUA_GCCOLLECT, 0));
+				SCRIPT_ENGINE_TRY(process_finalize(L, current.registry_idx));
+				SCRIPT_ENGINE_TRY(lua_gc(L, LUA_GCCOLLECT, 0));
 			} else {
 				// this script returned because of an error
 				// print the failing reason if the verbose level is high enough	
@@ -342,7 +405,7 @@ int process_mainloop(lua_State* l) {
 					const char* errmsg = lua_tostring(current.thread, -1);
 					log_write(LOG_STDOUT, "%s: %s\n", SCRIPT_ENGINE, errmsg);
 				)
-				SCRIPT_ENGINE_TRY(process_finalize(l, current.registry_idx));
+				SCRIPT_ENGINE_TRY(process_finalize(L, current.registry_idx));
 			}
 		} // while
 	}
@@ -368,8 +431,8 @@ int has_target_finished(Target *target) {
 	return 1;
 }
 
-int process_finalize(lua_State* l, unsigned int registry_idx) {
-	luaL_unref(l, LUA_REGISTRYINDEX, registry_idx);
+int process_finalize(lua_State* L, unsigned int registry_idx) {
+	luaL_unref(L, LUA_REGISTRYINDEX, registry_idx);
 	struct thread_record thr = running_scripts.front();
 
 	running_scripts.pop_front();
@@ -380,12 +443,12 @@ int process_finalize(lua_State* l, unsigned int registry_idx) {
 	return SCRIPT_ENGINE_SUCCESS;
 }
 
-int process_waiting2running(lua_State* l, int resume_arguments) {
+int process_waiting2running(lua_State* L, int resume_arguments) {
 	std::list<struct thread_record>::iterator iter;
 
 	// find the lua state which has received i/o
 	for(	iter = waiting_scripts.begin(); 
-		(*iter).thread != l;
+		(*iter).thread != L;
 		iter++) {
 
 		// It is very unlikely that a thread which
@@ -417,23 +480,23 @@ int process_waiting2running(lua_State* l, int resume_arguments) {
  * if no 'id' field is found, the filename field is used which we set in the 
  * setup phase. If someone changed the filename field to a nonstring we complain
  * */
-int process_getScriptId(lua_State* l, struct script_scan_result *ssr) {
+int process_getScriptId(lua_State* L, struct script_scan_result *ssr) {
 
-	lua_getfield(l, -2, "id");
-	lua_getfield(l, -3, "filename");
+	lua_getfield(L, -2, "id");
+	lua_getfield(L, -3, "filename");
 
-	if(lua_isstring(l, -2)) {
-		ssr->id = strdup(lua_tostring (l, -2));
-	} else if(lua_isstring(l, -1)) {
-		ssr->id = strdup(lua_tostring (l, -1));
+	if(lua_isstring(L, -2)) {
+		ssr->id = strdup(lua_tostring (L, -2));
+	} else if(lua_isstring(L, -1)) {
+		ssr->id = strdup(lua_tostring (L, -1));
 	} else {
 		error("%s: The script has no 'id' entry, the 'filename' entry was changed to:",
 			SCRIPT_ENGINE);
-		l_dumpValue(l, -1);
+		l_dumpValue(L, -1);
 		return SCRIPT_ENGINE_ERROR;
 	}
 
-	lua_pop(l, 2);
+	lua_pop(L, 2);
 
 	return SCRIPT_ENGINE_SUCCESS;
 }
@@ -444,7 +507,7 @@ int process_getScriptId(lua_State* l, struct script_scan_result *ssr) {
  * which want to run
  * process all scripts in the list
  * */
-int process_preparehost(lua_State* l, Target* target, std::list<struct thread_record>& torun_threads) {
+int process_preparehost(lua_State* L, Target* target, std::list<struct thread_record>& torun_threads) {
 	PortList* plist = &(target->ports);
 	Port* current = NULL;
 	size_t rules_count;
@@ -455,20 +518,20 @@ int process_preparehost(lua_State* l, Target* target, std::list<struct thread_re
 
 	/* find the matching hostrules
 	 * */
-	lua_getglobal(l, HOSTTESTS);
-	rules_count = lua_objlen(l, -1);
+	lua_getglobal(L, HOSTTESTS);
+	rules_count = lua_objlen(L, -1);
 
 	for(i = 1; i <= rules_count; i++) {
-		lua_rawgeti(l, -1, i);
+		lua_rawgeti(L, -1, i);
 
-		lua_getfield(l, -1, "hostrule");
+		lua_getfield(L, -1, "hostrule");
 
-		lua_newtable(l);
-		set_hostinfo(l, target);
+		lua_newtable(L);
+		set_hostinfo(L, target);
 
-		SCRIPT_ENGINE_LUA_TRY(lua_pcall(l, 1, 1, 0));
+		SCRIPT_ENGINE_LUA_TRY(lua_pcall(L, 1, 1, 0));
 
-		if(lua_isboolean (l, -1) && lua_toboolean(l, -1)) {
+		if(lua_isboolean (L, -1) && lua_toboolean(L, -1)) {
 			rr.type = 0;
 			rr.index = i;
 			rr.port = NULL;
@@ -476,43 +539,43 @@ int process_preparehost(lua_State* l, Target* target, std::list<struct thread_re
 			torun.push_back(rr);
 
 			SCRIPT_ENGINE_DEBUGGING(
-				lua_getfield(l, -2, "filename");
+				lua_getfield(L, -2, "filename");
 				log_write(LOG_STDOUT, "%s: Will run %s against %s\n",
 					SCRIPT_ENGINE,
-					lua_tostring(l, -1),
+					lua_tostring(L, -1),
 					target->targetipstr());
-				lua_pop(l, 1);
+				lua_pop(L, 1);
 			)
 		}
-		lua_pop(l, 2);
+		lua_pop(L, 2);
 	}
 
 	/* find the matching port rules
 	 * */
-	lua_getglobal(l, PORTTESTS);
+	lua_getglobal(L, PORTTESTS);
 
 	/* we only publish hostinfo once per portrule */
-	lua_newtable(l);
-	set_hostinfo(l, target);
+	lua_newtable(L);
+	set_hostinfo(L, target);
 
 	/* because of the port iteration API we need to awkwardly iterate
 	 * over the kinds of ports we're interested in explictely.
 	 * */
 	current = NULL;
 	while((current = plist->nextPort(current, TCPANDUDP, PORT_OPEN)) != NULL) {
-		SCRIPT_ENGINE_TRY(process_pickScriptsForPort(l, target, current, torun));
+		SCRIPT_ENGINE_TRY(process_pickScriptsForPort(L, target, current, torun));
 	}
 
 	while((current = plist->nextPort(current, TCPANDUDP, PORT_OPENFILTERED)) != NULL) {
-		SCRIPT_ENGINE_TRY(process_pickScriptsForPort(l, target, current, torun));
+		SCRIPT_ENGINE_TRY(process_pickScriptsForPort(L, target, current, torun));
 	}
 
 	while((current = plist->nextPort(current, TCPANDUDP, PORT_UNFILTERED)) != NULL) {
-		SCRIPT_ENGINE_TRY(process_pickScriptsForPort(l, target, current, torun));
+		SCRIPT_ENGINE_TRY(process_pickScriptsForPort(L, target, current, torun));
 	}
 
 	// pop the hostinfo, we don't need it anymore
-	lua_pop(l, 1);
+	lua_pop(L, 1);
 
 	/* ok, let's setup threads for the scripts which said they'd like
 	 * to run 
@@ -531,14 +594,14 @@ int process_preparehost(lua_State* l, Target* target, std::list<struct thread_re
 		 * */
 		switch((*iter).type) {
 			case 0: // this script runs against a host
-				lua_pushvalue(l, -2);
-				SCRIPT_ENGINE_TRY(process_preparethread(l, (*iter), &tr));
-				lua_pop(l, 1);
+				lua_pushvalue(L, -2);
+				SCRIPT_ENGINE_TRY(process_preparethread(L, (*iter), &tr));
+				lua_pop(L, 1);
 				break;
 			case 1: // this script runs against a port
-				lua_pushvalue(l, -1);
-				SCRIPT_ENGINE_TRY(process_preparethread(l, (*iter), &tr));
-				lua_pop(l, 1);
+				lua_pushvalue(L, -1);
+				SCRIPT_ENGINE_TRY(process_preparethread(L, (*iter), &tr));
+				lua_pop(L, 1);
 				break;
 			default:
 				fatal("%s: In: %s:%i This should never happen.", 
@@ -547,7 +610,7 @@ int process_preparehost(lua_State* l, Target* target, std::list<struct thread_re
 
 		torun_threads.push_back(tr);
 	}
-	lua_pop(l, 2);
+	lua_pop(L, 2);
 
 	torun.clear();
 	return SCRIPT_ENGINE_SUCCESS;
@@ -579,33 +642,33 @@ int process_preparerunlevels(std::list<struct thread_record> torun_threads) {
 }
 
 /* Because we can't iterate over all ports of interest in one go
- * we need to du port matching in a separate function (unlike host
+ * we need to do port matching in a separate function (unlike host
  * rule matching)
  * Note that we assume that at -2 on the stack we can find the portrules
  * and at -1 the hostinfo table
  * */
 int process_pickScriptsForPort(
-		lua_State* l, 
+		lua_State* L, 
 		Target* target, 
 		Port* port,
 		std::vector<run_record>& torun) {
-	size_t rules_count = lua_objlen(l, -2);
+	size_t rules_count = lua_objlen(L, -2);
 	struct run_record rr;
 	unsigned int i;
 
 	for(i = 1; i <= rules_count; i++) {
-		lua_rawgeti(l, -2, i);
+		lua_rawgeti(L, -2, i);
 
-		lua_getfield(l, -1, PORTRULE);
+		lua_getfield(L, -1, PORTRULE);
 
-		lua_pushvalue(l, -3);
+		lua_pushvalue(L, -3);
 
-		lua_newtable(l);
-		set_portinfo(l, port);
+		lua_newtable(L);
+		set_portinfo(L, port);
 
-		SCRIPT_ENGINE_LUA_TRY(lua_pcall(l, 2, 1, 0));
+		SCRIPT_ENGINE_LUA_TRY(lua_pcall(L, 2, 1, 0));
 
-		if(lua_isboolean (l, -1) && lua_toboolean(l, -1)) {
+		if(lua_isboolean (L, -1) && lua_toboolean(L, -1)) {
 			rr.type = 1;
 			rr.index = i;
 			rr.port = port;
@@ -613,23 +676,23 @@ int process_pickScriptsForPort(
 			torun.push_back(rr);
 
 			SCRIPT_ENGINE_DEBUGGING(
-					lua_getfield(l, -2, "filename");
+					lua_getfield(L, -2, "filename");
 					log_write(LOG_STDOUT, "%s: Will run %s against %s:%d\n",
 						SCRIPT_ENGINE,
-						lua_tostring(l, -1),
+						lua_tostring(L, -1),
 						target->targetipstr(),
 						port->portno);
-					lua_pop(l, 1);
+					lua_pop(L, 1);
 					)
-		} else if(!lua_isboolean (l, -1)) {
-			lua_getfield(l, -2, "filename");
+		} else if(!lua_isboolean (L, -1)) {
+			lua_getfield(L, -2, "filename");
 			error("%s: Rule in %s returned %s but boolean was expected.",
 					SCRIPT_ENGINE,
-					lua_tostring(l, -1),
-					lua_typename(l, lua_type(l, -2)));
+					lua_tostring(L, -1),
+					lua_typename(L, lua_type(L, -2)));
 			return SCRIPT_ENGINE_LUA_ERROR;
 		}
-		lua_pop(l, 2);
+		lua_pop(L, 2);
 	}
 
 	return SCRIPT_ENGINE_SUCCESS;
@@ -639,14 +702,14 @@ int process_pickScriptsForPort(
  * we store target info in the thread so that the mainloop
  * knows where to put the script result
  * */
-int process_preparethread(lua_State* l, struct run_record rr, struct thread_record* tr){
+int process_preparethread(lua_State* L, struct run_record rr, struct thread_record* tr){
 
-	lua_State *thread = lua_newthread(l);
+	lua_State *thread = lua_newthread(L);
 
-	lua_rawgeti(l, -2, rr.index); // get the script closure
+	lua_rawgeti(L, -2, rr.index); // get the script closure
 
 	// move the script closure into the thread
-	lua_xmove(l, thread, 1); 
+	lua_xmove(L, thread, 1); 
 
 	// store the target of this thread in the thread
 	struct run_record *rr_thread = (struct run_record*) safe_malloc(sizeof(struct run_record));
@@ -674,7 +737,7 @@ int process_preparethread(lua_State* l, struct run_record rr, struct thread_reco
 
 	// we store the thread in the registry to prevent
 	// garbage collection +
-	tr->registry_idx = luaL_ref(l, LUA_REGISTRYINDEX);
+	tr->registry_idx = luaL_ref(L, LUA_REGISTRYINDEX);
 
 	/* if this is a host rule we don't have
 	 * a port state

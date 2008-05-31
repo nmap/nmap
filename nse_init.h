@@ -13,19 +13,18 @@ extern "C" {
 
 // initialize the lua state
 // opens the standard libraries and the nmap lua library
-int init_lua(lua_State* l);
+int init_lua(lua_State* L);
 
 //takes the script arguments provided to nmap through --script-args and 
 //processes and checks them - leaves the processed string on the stack
-int init_parseargs(lua_State* l);
+int init_parseargs(lua_State* L);
 //sets the previously parsed args inside nmap.registry
-int init_setargs(lua_State* l);
+int init_setargs(lua_State* L);
 
 // you give it a description of scripts to run and it
 // populates the tables 'hosttests' and 'porttests' in l with
 // activation records for tests
-int init_rules(lua_State* l, std::vector<std::string> chosenScripts);
-int init_updatedb(lua_State* l);
+int init_rules(lua_State *L);
+int init_updatedb(lua_State* L);
 
 #endif
-

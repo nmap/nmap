@@ -32,7 +32,7 @@
 #define SCRIPT_ENGINE_EXTENSION		   ".nse"
 
 #define SCRIPT_ENGINE_LUA_TRY(func) if (func != 0) {\
-	error("LUA INTERPRETER in %s:%d: %s", __FILE__, __LINE__, (char *)lua_tostring(l, -1));\
+	error("LUA INTERPRETER in %s:%d: %s", __FILE__, __LINE__, (char *)lua_tostring(L, -1));\
 	return SCRIPT_ENGINE_LUA_ERROR;\
 }
 
@@ -40,10 +40,11 @@
 	return SCRIPT_ENGINE_ERROR;\
 }
 
+#define ARRAY_LEN(a)  ((int)(sizeof(a) / sizeof(a[0])))
+
 #define SCRIPT_ENGINE_VERBOSE(msg) if (o.debugging || o.verbose > 0) {msg};
 #define SCRIPT_ENGINE_DEBUGGING(msg) if (o.debugging) {msg};
 
-#define MATCH 0
 #define MAX_FILENAME_LEN 4096
 
 #define NOT_PRINTABLE '.'

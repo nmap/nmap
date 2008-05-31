@@ -434,7 +434,7 @@ const char *tsseqclass2ascii(int seqclass);
 const char *seqidx2difficultystr(unsigned long idx);
 const char *seqidx2difficultystr1(unsigned long idx);
 int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file);
-int nmap_fileexistsandisreadable(char* pathname);
+int nmap_fileexistsandisreadable(const char* pathname);
 int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv);
 
 #endif /* NMAP_H */
