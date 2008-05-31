@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed bug that prevented the R1.UID OS from being recorded properly when
+  scanning some certain printers on little endian computers. Updated
+  nmap-os-db to compensate for signatures that had an incorrect U1.RID value. 
+  [Michael]
+
 o Updated to include the latest MAC Address prefixes from the IEEE in
   nmap-mac-prefixes [Fyodor]
 

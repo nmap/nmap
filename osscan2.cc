@@ -2500,7 +2500,7 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
 
   /* Now lets see how they treated the ID we sent ... */
   AVs[current_testno].attribute = (char*)"RID";
-  if (ip2->ip_id == hss->upi.ipid)
+  if (ntohs(ip2->ip_id) == hss->upi.ipid)
     strcpy(AVs[current_testno].value, "G"); /* The good "expected" value */
   else
 	sprintf(AVs[current_testno].value, "%hX", ntohs(ip2->ip_id));
@@ -3080,7 +3080,7 @@ int send_closedudp_probe_2(struct udpprobeinfo &upi, int sd,
     ip->ip_v = 4;
     ip->ip_hl = 5;
     ip->ip_len = htons(sizeof(struct ip) + sizeof(struct udp_hdr) + datalen);
-    ip->ip_id = id;
+    ip->ip_id = htons(id);
     ip->ip_ttl = myttl;
     ip->ip_p = IPPROTO_UDP;
     ip->ip_src.s_addr = source->s_addr;
