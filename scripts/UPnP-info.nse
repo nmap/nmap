@@ -106,7 +106,7 @@ action = function(host, port)
 					-- create an HTTP request for the file, using the host and port we extracted earlier
 					payload = payload .. "GET /" .. xfile .. " HTTP/1.1\r\n"
 					payload = payload .. "Accept: text/xml, application/xml, text/html\r\n"
-					payload = payload .. "User-Agent: Mozilla/4.0 (compatible; NMAP NSE)\r\n"
+					payload = payload .. "User-Agent: Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)\r\n"
 					payload = payload .. "Host: " .. xhost .. ":" .. xport .. "\r\n"
 					payload = payload .. "Connection: Keep-Alive\r\n"
 					payload = payload .. "Cache-Control: no-cache\r\n"

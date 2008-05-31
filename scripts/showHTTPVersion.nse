@@ -43,7 +43,7 @@ action = function(host, port)
 	local query = "GET / HTTP/2.1\r\n"
 	query = query .. "Accept: */*\r\n"
 	query = query .. "Accept-Language: en\r\n"
-	query = query .. "User-Agent: Nmap NSE\r\n"
+	query = query .. "User-Agent: Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)\r\n"
 	query = query .. "Host: " .. host.ip .. ":" .. port.number .. "\r\n\r\n"
 
 	local socket = nmap.new_socket()

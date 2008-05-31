@@ -69,7 +69,7 @@ local function get_page(host, port, httpurl)
 	query = query .. "GET " .. httpurl .. " HTTP/1.1"
 	query = query .. "Accept: */*"
 	query = query .. "Accept-Language: en"
-	query = query .. "User-Agent: Nmap NSE"
+	query = query .. "User-Agent: Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
 	query = query .. "Host: " .. host.ip .. ":" .. port.number 
 	try(soc:send(strbuf.dump(query, '\r\n') .. '\r\n\r\n'))
 

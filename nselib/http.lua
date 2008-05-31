@@ -22,7 +22,7 @@ require 'url'
 -- fetch relative URL with get request
 get = function( host, port, path, options )
   options = options or {}
-  local presets = {Host=host,Connection="close",['User-Agent']="Nmap NSE"}
+  local presets = {Host=host,Connection="close",['User-Agent']="Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"}
   if type(host) == 'table' then
     presets['Host'] = host.targetname or ( host.name ~= '' and host.name ) or host.ip
   end
