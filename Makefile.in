@@ -130,7 +130,7 @@ web:
 clean: @LUA_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nsock_clean nbase_clean my_clean @NSELIB_CLEAN@ @ZENMAP_CLEAN@
 
 my_clean:
-	rm -f dependencies.mk
+	rm -f dependencies.mk makefile.dep
 	rm -f $(OBJS) $(TARGET) config.cache
 pcap_clean:
 	-cd $(LIBPCAPDIR) && $(MAKE) clean
