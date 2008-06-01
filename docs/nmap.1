@@ -1,11 +1,11 @@
 .\"     Title: nmap
 .\"    Author: Gordon \(lqFyodor\(rq Lyon
 .\" Generator: DocBook XSL Stylesheets v1.73.2 <http://docbook.sf.net/>
-.\"      Date: <pubdate>April 9, 2008</pubdate>
+.\"      Date: <pubdate>May 24, 2008</pubdate>
 .\"    Manual: Nmap Network Scanning (PRE-RELEASE BETA VERSION)
 .\"    Source: Insecure.Org Zero Day
 .\"
-.TH "NMAP" "1" "<pubdate>April 9, 2008</pubdate>" "Insecure.Org Zero Day" "Nmap Network Scanning (PRE-REL"
+.TH "NMAP" "1" "<pubdate>May 24, 2008</pubdate>" "Insecure.Org Zero Day" "Nmap Network Scanning (PRE-REL"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -102,7 +102,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .sp
 .RS 4
 .nf
-Nmap 4\.62 ( http://nmap\.org )
+Nmap 4\.65 ( http://nmap\.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\.
@@ -145,7 +145,7 @@ SERVICE/VERSION DETECTION:
   \-\-version\-all: Try every single probe (intensity 9)
   \-\-version\-trace: Show detailed version scan activity (for debugging)
 SCRIPT SCAN:
-  \-sC: equivalent to \-\-script=safe,intrusive
+  \-sC: equivalent to \-\-script=default
   \-\-script=<Lua scripts>: <Lua scripts> is a comma separated list of 
            directories, script\-files or script\-categories
   \-\-script\-args=<n1=v1,[n2=v2,\.\.\.]>: provide arguments to scripts
@@ -733,7 +733,9 @@ IP protocol scan allows you to determine which IP protocols (TCP, ICMP, IGMP, et
 \fB\-p\fR
 option to select scanned protocol numbers, reports its results within the normal port table format, and even uses the same underlying scan engine as the true port scanning methods\. So it is close enough to a port scan that it belongs here\.
 .sp
-Besides being useful in its own right, protocol scan demonstrates the power of open source software\. While the fundamental idea is pretty simple, I had not thought to add it nor received any requests for such functionality\. Then in the summer of 2000, Gerhard Rieger conceived the idea, wrote an excellent patch implementing it, and sent it to the nmap\-hackers mailing list\. I incorporated that patch into the Nmap tree and released a new version the next day\. Few pieces of commercial software have users enthusiastic enough to design and contribute their own improvements!
+Besides being useful in its own right, protocol scan demonstrates the power of open source software\. While the fundamental idea is pretty simple, I had not thought to add it nor received any requests for such functionality\. Then in the summer of 2000, Gerhard Rieger conceived the idea, wrote an excellent patch implementing it, and sent it to the
+nmap\-hackers
+mailing list\. I incorporated that patch into the Nmap tree and released a new version the next day\. Few pieces of commercial software have users enthusiastic enough to design and contribute their own improvements!
 .sp
 Protocol scan works in a similar fashion to UDP scan\. Instead of iterating through the port number field of a UDP packet, it sends IP packet headers and iterates through the 8\-bit IP protocol field\. The headers are usually empty, containing no data and not even the proper header for the claimed protocol\. The three exceptions are TCP, UDP, and ICMP\. A proper protocol header for those is included since some systems won\'t send them otherwise and because Nmap already has functions to create them\. Instead of watching for ICMP port unreachable messages, protocol scan is on the lookout for ICMP
 \fIprotocol\fR
@@ -840,7 +842,7 @@ open|filtered
 TCP ports are treated the same way\. Note that the Nmap
 \fB\-A\fR
 option enables version detection among other things\. A paper documenting the workings, usage, and customization of version detection is available at
-\fI\%http://nmap.org/vscan/\fR\.
+\fI\%http://nmap.org/book/vscan.html\fR\.
 .PP
 When Nmap receives responses from a service but cannot match them to its database, it prints out a special fingerprint and a URL for you to submit if to if you know for sure what is running on the port\. Please take a couple minutes to make the submission so that your find can benefit everyone\. Thanks to these submissions, Nmap has about 3,000 pattern matches for more than 350 protocols such as SMTP, FTP, HTTP, etc\.
 .PP
@@ -915,7 +917,7 @@ or
 class, which means that they increment the ID field in the IP header for each packet they send\. This makes them vulnerable to several advanced information gathering and spoofing attacks\.
 .PP
 A paper documenting the workings, usage, and customization of OS detection is available at
-\fI\%http://nmap.org/osdetect/\fR\.
+\fI\%http://nmap.org/book/osdetect.html\fR\.
 .PP
 OS detection is enabled and controlled with the following options:
 .PP
@@ -951,7 +953,7 @@ value (such as 1) speeds Nmap up, though you miss out on retries which could pot
 .PP
 The Nmap Scripting Engine (NSE) combines the efficiency of Nmap\'s network handling with the versatility of the lightweight scripting language
 \fILua\fR\&[8], thus providing innumerable opportunities\. A more extensive documentation of the NSE (including its API) can be found at:
-\fI\%http://nmap.org/nse/\fR\. The target of the NSE is to provide Nmap with a flexible infrastructure for extending its capabilities and offering its users a simple way of creating customized tests\. Uses for the NSE include (but definitely are not limited to):
+\fI\%http://nmap.org/book/nse.html\fR\. The target of the NSE is to provide Nmap with a flexible infrastructure for extending its capabilities and offering its users a simple way of creating customized tests\. Uses for the NSE include (but definitely are not limited to):
 .PP
 
 \fIEnhanced version detection\fR
@@ -1002,12 +1004,12 @@ or
 ssl), the service running behind that port, and optionally information from a version\-scan\. NSE scripts by convention have an
 nse
 extension\. Although you are not required to follow this for the moment, this may change in the future\. Nmap will issue a warning if a file has any other extension\. More extensive documentation on the NSE, including a description of its API can be found at
-\fI\%http://nmap.org/nse/\fR\.
+\fI\%http://nmap.org/book/nse.html\fR\.
 .PP
 \fB\-sC\fR
 .RS 4
-performs a script scan using the default set of scripts\. it is equivalent to
-\fB\-\-script=safe,intrusive\fR
+Performs a script scan using the default set of scripts\. It is equivalent to
+\fB\-\-script=default\fR\. Some of the scripts in this category are considered intrusive and should not be run against a target network without permission\.
 .RE
 .PP
 \fB\-\-script <script\-categories|directory|filename|all>\fR
@@ -1038,7 +1040,7 @@ subdirectory of the Nmap data directory by default\. Scripts are indexed in a da
 \fIscripts/script\.db\fR\. The database lists all of the scripts in each category\. A single script may be in several categories\.
 .RE
 .PP
-\fB\-\-script\-args=<name1=value1,name2={name3=value3},name4=value4>\fR
+\fB\-\-script\-args <name1=value1,name2={name3=value3},name4=value4>\fR
 .RS 4
 lets you provide arguments to NSE\-scripts\. Arguments are passed as
 name=value
@@ -1131,7 +1133,9 @@ and triple or quadruple it for the
 \fB\-\-max\-rtt\-timeout\fR\. I generally do not set the maximum RTT below 100ms, no matter what the ping times are\. Nor do I exceed 1000ms\.
 .sp
 \fB\-\-min\-rtt\-timeout\fR
-is a rarely used option that could be useful when a network is so unreliable that even Nmap\'s default is too aggressive\. Since Nmap only reduces the timeout down to the minimum when the network seems to be reliable, this need is unusual and should be reported as a bug to the nmap\-dev mailing list\.
+is a rarely used option that could be useful when a network is so unreliable that even Nmap\'s default is too aggressive\. Since Nmap only reduces the timeout down to the minimum when the network seems to be reliable, this need is unusual and should be reported as a bug to the
+nmap\-dev
+mailing list\.
 .RE
 .PP
 \fB\-\-max\-retries <numtries>\fR (Specify the maximum number of port scan probe retransmissions)
@@ -1731,7 +1735,9 @@ While IPv6 hasn\'t exactly taken the world by storm, it gets significant use in 
 .PP
 \fB\-A\fR (Aggressive scan options)
 .RS 4
-This option enables additional advanced and aggressive options\. I haven\'t decided exactly which it stands for yet\. Presently this enables OS detection (\fB\-O\fR), version scanning (\fB\-sV\fR), script scanning (\fB\-sC\fR) and traceroute (\fB\-\-traceroute\fR)\. More features may be added in the future\. The point is to enable a comprehensive set of scan options without people having to remember a large set of flags\. This option only enables features, and not timing options (such as
+This option enables additional advanced and aggressive options\. I haven\'t decided exactly which it stands for yet\. Presently this enables OS detection (\fB\-O\fR), version scanning (\fB\-sV\fR), script scanning (\fB\-sC\fR) and traceroute (\fB\-\-traceroute\fR)\. More features may be added in the future\. The point is to enable a comprehensive set of scan options without people having to remember a large set of flags\. However, because script scanning with the default set is considered intrusive, you should not use
+\fB\-A\fR
+against target networks without permission\. This option only enables features, and not timing options (such as
 \fB\-T4\fR) or verbosity options (\fB\-v\fR) that you might want as well\.
 .RE
 .PP
@@ -1904,16 +1910,20 @@ since first sending a couple probes to determine whether a host is up is wastefu
 
 \fBnmap \-PN \-p80 \-oX logs/pb\-port80scan\.xml \-oG logs/pb\-port80scan\.gnmap 216\.163\.128\.20/20\fR
 .PP
-This scans 4096 IPs for any webservers (without pinging them) and saves the output in grepable and XML formats\.
+This scans 4096 IPs for any web servers (without pinging them) and saves the output in grepable and XML formats\.
 .SH "BUGS"
 .PP
 Like its author, Nmap isn\'t perfect\. But you can help make it better by sending bug reports or even writing patches\. If Nmap doesn\'t behave the way you expect, first upgrade to the latest version available from
-\fI\%http://nmap.org\fR\. If the problem persists, do some research to determine whether it has already been discovered and addressed\. Try Googling the error message or browsing the nmap\-dev archives at
+\fI\%http://nmap.org\fR\. If the problem persists, do some research to determine whether it has already been discovered and addressed\. Try Googling the error message or browsing the
+nmap\-dev
+archives at
 \fI\%http://seclists.org/\fR\. Read this full manual page as well\. If nothing comes of this, mail a bug report to
 <nmap\-dev@insecure\.org>\. Please include everything you have learned about the problem, as well as what version of Nmap you are running and what operating system version it is running on\. Problem reports and Nmap usage questions sent to nmap\-dev@insecure\.org are far more likely to be answered than those sent to Fyodor directly\.
 .PP
 Code patches to fix bugs are even better than bug reports\. Basic instructions for creating patch files with your changes are available at
-\fI\%http://nmap.org/data/HACKING\fR\. Patches may be sent to nmap\-dev (recommended) or to Fyodor directly\.
+\fI\%http://nmap.org/data/HACKING\fR\. Patches may be sent to
+nmap\-dev
+(recommended) or to Fyodor directly\.
 .SH "AUTHOR"
 .PP
 Fyodor
@@ -1941,7 +1951,7 @@ for the purpose of this license if it does any of the following:
 .sp
 .RS 4
 \h'-04'\(bu\h'+03'Reads or includes Nmap copyrighted data files, such as
-\fInmap\-os\-fingerprints\fR
+\fInmap\-os\-db\fR
 or
 \fInmap\-service\-probes\fR\.
 .RE
@@ -1975,7 +1985,7 @@ If you have any questions about the GPL licensing restrictions on using Nmap in 
 for further information\.
 .PP
 As a special exception to the GPL terms, Insecure\.Com LLC grants permission to link the code of this program with any version of the OpenSSL library which is distributed under a license identical to that listed in the included
-\fICopying\.OpenSSL\fR
+\fICOPYING\.OpenSSL\fR
 file, and distribute linked combinations including the two\. You must obey the GNU GPL in all respects for all of the code used other than OpenSSL\. If you modify this file, you may extend this exception to your version of the file, but you are not obligated to do so\.
 .PP
 If you received these files with a written license agreement or contract stating terms other than the terms above, then that alternative license agreement takes precedence over these comments\.
@@ -1992,8 +2002,8 @@ Source code also allows you to port Nmap to new platforms, fix bugs, and add new
 for possible incorporation into the main distribution\. By sending these changes to Fyodor or one of the Insecure\.Org development mailing lists, it is assumed that you are offering Fyodor and Insecure\.Com LLC the unlimited, non\-exclusive right to reuse, modify, and relicense the code\. Nmap will always be available Open Source, but this is important because the inability to relicense code has caused devastating problems for other Free Software projects (such as KDE and NASM)\. We also occasionally relicense the code to third parties as discussed above\. If you wish to specify special license conditions of your contributions, just say so when you send them\.
 .SS "No Warranty"
 .PP
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE\. See the GNU General Public License for more details at
-\fI\%http://www.gnu.org/copyleft/gpl.html\fR, or in the
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE\. See the GNU General Public License v2\.0 for more details at
+\fI\%http://www.gnu.org/licenses/gpl-2.0.html\fR, or in the
 \fICOPYING\fR
 file included with Nmap\.
 .PP
@@ -2031,6 +2041,9 @@ Insecure.Org
 .sp -1n
 .IP "" 4
 Author.
+.SH "COPYRIGHT"
+Copyright \(co 2008 Nmap Project
+.br
 .SH "NOTES"
 .IP " 1." 4
 RFC 1122

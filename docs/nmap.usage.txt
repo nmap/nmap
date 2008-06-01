@@ -1,4 +1,4 @@
-Nmap 4.62 ( http://nmap.org )
+Nmap 4.65 ( http://nmap.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -41,7 +41,7 @@ SERVICE/VERSION DETECTION:
   --version-all: Try every single probe (intensity 9)
   --version-trace: Show detailed version scan activity (for debugging)
 SCRIPT SCAN:
-  -sC: equivalent to --script=safe,intrusive
+  -sC: equivalent to --script=default
   --script=<Lua scripts>: <Lua scripts> is a comma separated list of 
            directories, script-files or script-categories
   --script-args=<n1=v1,[n2=v2,...]>: provide arguments to scripts
