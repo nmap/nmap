@@ -303,7 +303,12 @@ struct bn_mont_ctx_st
 	BIGNUM N;      /* The modulus */
 	BIGNUM Ni;     /* R*(1/R mod N) - N*Ni = 1
 	                * (Ni is only stored for bignum algorithm) */
+#if 0
+	/* OpenSSL 0.9.9 preview: */
+	BN_ULONG n0[2];/* least significant word(s) of Ni */
+#else
 	BN_ULONG n0;   /* least significant word of Ni */
+#endif
 	int flags;
 	};
 
