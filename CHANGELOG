@@ -180,6 +180,10 @@ o Fix a couple bugs in the way the Nmap built system checked for an
   configure option for specifying your own liblua. [Daniel
   Roethlisberger]
 
+o The NSE nmap.registry.args table is now available, albeit empty, when
+  --script-args isn't used.  Now scripts don't need to check if it's nil
+  before attempting to index it. [Kris]
+
 o Changed SSLv2-support.nse so that it only enumerates the list of
   available ciphers with a verbosity level of at least two or with
   debugging enabled. [Kris]

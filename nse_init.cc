@@ -285,7 +285,7 @@ int init_lua (lua_State *L)
 /* int init_parseargs (lua_State *L)
  *
  * Arguments
- *   args    Arguments passed through --script-args
+ *   args    Arguments passed through --script-args, or "" if it wasn't used
  * Returns
  *   function    Function that returns a table with the arguments, or an error
  *               message describing why the arguments could not be parsed.
@@ -320,9 +320,6 @@ int init_parseargs (lua_State *L)
  */
 int init_setargs (lua_State *L)
 {
-  if (o.scriptargs == NULL)
-    return 0;
-
   lua_getglobal(L, "nmap");
   lua_getfield(L, -1, "registry");
 
