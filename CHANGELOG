@@ -1,10 +1,38 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 4.65 [2008-6-1]
+
+o A Mac OS X Nmap/Zenmap installer is now available from the Nmap
+  download page!  It is rather straightforward, but detailed
+  instructions are available anyway at
+  http://nmap.org/book/inst-macosx.html .  As a universal installer,
+  it works on both Intel and PPC Macs. It is distributed as a disk
+  image file (.dmg) containing an mpkg package.  The installed Nmap
+  does include OpenSSL support.  It also supports Authorization
+  Services so that Zenmap can run as root.  David created this
+  installer.  He wants to thank Benson Kalahar and Vlad Alexa for
+  extensive testing of the nine test releases.
+
+o The Windows version of Nmap now supports OpenSSL just as the UNIX
+  versions have for years.  Both the .zip and executable installer
+  binary packages we ship from the Nmap download page now include
+  OpenSSL.
+
+o We now compile in IPv6 support on Windows.  In order to use this,
+  you need to have IPv6 set up.  It is installed by default on Vista,
+  but must be downloaded from Microsoft for XP.  See
+  http://www.microsoft.com/technet/network/ipv6/ipv6faq.mspx . [Kris]
+
 o Our WinPcap installer now starts the NPF driver running as a
   service immediately upon installation and after restarts. You can
   disable this with new check-boxes. This behavior is important for
   Vista and Windows Server 2008 machines when User Account
   Control (UAC) is enabled. [Rob Nicholls]
+
+o Seven Google-sponsored Summer of Code students began working on
+  exciting Nmap projects full times.  The winning students and their
+  Nmap development projects are described at
+  http://seclists.org/nmap-dev/2008/q2/0132.html .
 
 o Nmap and Nmap-WinPcap silent installation now works.  Nmap can
   be silently installed with the /S option to the installer.
@@ -20,17 +48,61 @@ o Numerous miscellaneous improvements were made to our Win32
   improving the option description labels, and showing a finish
   page in all cases. [Rob Nicholls]
 
-o Fixed bug that prevented the R1.UID OS from being recorded properly when
-  scanning some certain printers on little endian computers. Updated
-  nmap-os-db to compensate for signatures that had an incorrect U1.RID value. 
-  [Michael]
+o The nmap-dev and nmap-hackers mailing list RSS feeds at seclists.org
+  now include message excerpts to make it easier to identify
+  interesting messages and speed the process of reading through the
+  list.  Feeds for all other mailing lists archived at SecLists.Org
+  have been similarly augmented.  For details, see
+  http://seclists.org/nmap-dev/2008/q2/0333.html . [David]
+
+o A new "default" Nmap Scripting Engine category was added.  Only
+  scripts in this category now run by default (except for "version"
+  scripts which run when version detection was requested).
+  Previously, any scripts in the "safe" or "intrusive" categories were
+  run.  21 scripts are now in this default category. [Kris]
+
+o The NSE HTTP library now uses the host name specified on the command
+  line when making requests, which improves script scanning against web
+  servers with virtual hosts. Thanks to Sven Klemm for the patch.
+
+o Added some new and improved version detection signatures. [Brandon]
+
+o Fixed an OS detection bug that prevented the R1.UID test result from
+  being recorded properly when scanning certain printers from
+  little-endian computers. Updated nmap-os-db to compensate for
+  signatures that had an incorrect U1.RID value.  [Michael]
 
 o Updated to include the latest MAC Address prefixes from the IEEE in
   nmap-mac-prefixes [Fyodor]
 
+o Updated the SMTPcommands NSE script to work better against Postfix
+  and reduce verbosity. [Jason DePriest, Fyodor]
+
 o Fixed one of the memory leaks in getpts_simple which occurs when
   no ports are to be added to 'list'. 'porttbl' is now free'd regardless
   of how the function returns.
+
+o Reorganized the way ping probes are handled internally.  Rather than
+  being stored in the NmapOps structure, they are now stored within
+  the individual scan_lists structures.  This is a cleaner
+  organization. [Michael]
+
+o Fix grepable output's "Ignored State" reporting.  Only one ignored
+  state (the one with the highest numbers of ports) is shown. [David]
+
+o Update to Lua version 5.1.3 [Patrick]
+
+o Add NSE stdnse library to include tobinary, toocal, and tohex
+  functions. [Patrick]
+
+o Fixed a bug which caused the Zenmap crash reporter to, uh,
+  crash. [David]
+
+o NSE engine was cleaned up significantly.  nse_auxiliar was removed,
+  and file system manipulation functions were moved from nse_init.cc
+  into a new nse_fs.cc file.  Numerous interfaces between Nmap and Lua
+  were improved.  Most of these functions are now callable directly by
+  Lua. [Patrick]
 
 o Fixed a bug in the showOwner NSE script which caused it to try UDP
   ports instead of just TCP ports.  This made it very slow in the
@@ -38,31 +110,36 @@ o Fixed a bug in the showOwner NSE script which caused it to try UDP
   state.  Thanks to Jason DePriest for reporting the problem and Jah
   for tracking it down and fixing it.
 
+o Nbase now generates pseudo-random numbers itself rather than using
+  /dev/urandom on Linux and the terrible rand() function on Windows.
+  The new system uses ARC4 based on libdnet's implementation. [Brandon]
+
+o Made a number of updates and improvements to the Zenmap Users' Guide
+  at http://nmap.org/book/zenmap.html . [David]
+
+o Fixed the way Zenmap handles command-line entry to prevent your
+  custom command-line to be overwritten with the current profile's
+  command just because you edited the target field. [Jurand]
+
+o Nsock was improved to better support reading from non-network
+  descriptors such as stdin.  This is important for the upcoming Ncat
+  project Mixter is working on. [Mixter]
+
 o A bug was fixed that could cause Zenmap to crash when loading a
   results file that had multibyte characters in it. The error looked
   like
     Gtk-ERROR **: file gtktextsegment.c: line 196 (_gtk_char_segment_new): assertion failed: (gtk_text_byte_begins_utf8_char (text))
 
-o There are now binary installers of Nmap and Zenmap for Mac OS X.
-  http://nmap.org/download.html#macosx
-  Thanks to Benson Kalahar and Vlad Alexa for extensive testing.
-
-o The NSE HTTP library now uses the host name specified on the command
-  line when making requests, which improves script scanning against web
-  servers with virtual hosts. Thanks to Sven Klemm for the patch.
-
 o Removed a superfluous test for the existence of the C++ compiler in the
   configure script. The test was not robust when configured with
   CXX="ccache g++". Thanks to Rainer Müller for the report.
 
-o Fixed a bug in nmap_dns.cc where the endian of the platform that nmap
-  ran on might negatively effect how efficiently nmap stores cache values
-  in a hash table. [Michael]
+o Optimized cached DNS lookups so they are equally efficient when
+  running on big-endian or little-endian systems. [Michael]
 
-o Fixed the nmap_command_path bug in Zenmap. The variable now actually
-  accesses the nmap_command_path in zenmap.conf file. It is accessed
-  by a new class in UmitConf called PathsConfig, which represents the
-  [paths] section in zenmap.conf. [Jurand Nogiec]
+o Fixed the nmap_command_path Zenmap configuration variable so that it
+  is actually used to start the specified Nmap executable
+  path. [Jurand Nogiec]
 
 o Nmap now reports scan start and end times for individual hosts
   within a larger scan. The information is added to the XML host
@@ -71,8 +148,9 @@ o Nmap now reports scan start and end times for individual hosts
   also printed in normal output if -d or "-v -v" are
   specified. [Brandon, Kris, Fyodor]
 
-o "make uninstall" now uninstalls Zenmap as well. The uninstall_zenmap
-  script now deletes directories that were installed. [David]
+o "make uninstall" now uninstalls Zenmap as well as Nmap. The
+  uninstall_zenmap script now deletes directories that were
+  installed. [David]
 
 o Fixed a bug which caused Nmap to send bad checksums on Solaris 10
   x86.  This was due to a workaround for an Ancient Solaris 2.1 bug
@@ -80,11 +158,6 @@ o Fixed a bug which caused Nmap to send bad checksums on Solaris 10
   problem has now been resolved until Solaris 20 comes out and hits
   our "solaris2.2*" bug workarounds. Thanks to Nathan Bills for the
   problem report.  Fixed by Fyodor.
-
-o We now compile in IPv6 support on Windows.  In order to use this,
-  you need to have IPv6 set up.  It is installed by default on Vista,
-  but must be downloaded from MS for XP.  See
-  http://www.microsoft.com/technet/network/ipv6/ipv6faq.mspx . [Kris]
 
 o Nmap now understands the RFC 4007 percent syntax for IPv6 Zone IDs.
   On Windows, this ID has to be a numeric index.  On Linux and some
