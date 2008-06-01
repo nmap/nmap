@@ -6,28 +6,62 @@
 ;; Updated to 4.01, July 2007
 ;; Updated to 4.02, November 2007
 
+;-------------------------------- 
+;Include Modern UI 
+ 
+  !include "MUI.nsh" 
+
 ;--------------------------------
+;General
 
 ; The name of the installer
-Name "winpcap-nmap-4.02"
+Name "WinPcap (Nmap) 4.0.2"
 
 ; The file to write
 OutFile "winpcap-nmap-4.02.exe"
 
+RequestExecutionLevel admin
+
 ; The default installation directory
 InstallDir $PROGRAMFILES\WinPcap
 
-LicenseText "Winpcap License"
-LicenseData "LICENSE"
+;Get installation folder from registry if available 
+InstallDirRegKey HKLM "Software\WinPcap" "" 
+
+VIProductVersion "4.0.0.1040"
+VIAddVersionKey /LANG=1033 "FileVersion" "4.0.0.1040"
+VIAddVersionKey /LANG=1033 "ProductName" "WinPcap" 
+VIAddVersionKey /LANG=1033 "FileDescription" "WinPcap 4.0.2 installer" 
+VIAddVersionKey /LANG=1033 "LegalCopyright" ""
+
+
+;-------------------------------- 
+;Interface Settings 
+ 
+  !define MUI_ABORTWARNING 
 
 ;--------------------------------
+;Pages
 
-Page license
-Page directory
-Page instfiles
+!insertmacro MUI_PAGE_LICENSE "LICENSE" 
+!insertmacro MUI_PAGE_DIRECTORY 
+!insertmacro MUI_PAGE_INSTFILES 
+!insertmacro MUI_UNPAGE_CONFIRM 
+!insertmacro MUI_UNPAGE_INSTFILES 
+Page custom optionsPage doOptions
+Page custom finalPage doFinal
 
-UninstPage uninstConfirm
-UninstPage instfiles
+;-------------------------------- 
+;Languages 
+  
+  !insertmacro MUI_LANGUAGE "English" 
+
+;--------------------------------
+;Reserves
+
+ReserveFile "options.ini"
+ReserveFile "final.ini"
+!insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
 
 ;--------------------------------
 
@@ -42,6 +76,9 @@ UninstPage instfiles
 ; replace it or not.
 
 Function .onInit
+  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "options.ini"
+  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "final.ini"
+
   var /GLOBAL inst_ver
   var /GLOBAL my_ver
   StrCpy $my_ver "4.0.0.1040" 
@@ -87,10 +124,49 @@ Function .onInit
 
 FunctionEnd
 
-;--------------------------------
+Function optionsPage
+  !insertmacro MUI_HEADER_TEXT "WinPcap Options" ""
+  !insertmacro MUI_INSTALLOPTIONS_DISPLAY "options.ini"
+FunctionEnd
 
+Function doOptions
+  ReadINIStr $0 "$PLUGINSDIR\options.ini" "Field 1" "State"
+  StrCmp $0 "0" do_options_end
+  WriteRegDWORD HKLM "SYSTEM\CurrentControlSet\Services\NPF" "Start" 2
+  ReadINIStr $0 "$PLUGINSDIR\options.ini" "Field 2" "State"
+  StrCmp $0 "0" do_options_end
+  nsExec::Exec "net start npf"
+  do_options_end:
+FunctionEnd
+
+Function finalPage
+  ; diplay a page saying everything's finished
+  !insertmacro MUI_HEADER_TEXT "Finished" "Thank you for installing WinPcap"
+  !insertmacro MUI_INSTALLOPTIONS_DISPLAY "final.ini"
+FunctionEnd
+
+Function doFinal
+ ; don't need to do anything
+FunctionEnd
+
+Function registerServiceSC
+    nsExec::Exec "sc create npf binpath= system32\drivers\npf.sys type= kernel DisplayName= $\"NetGroup Packet Filter Driver$\""
+FunctionEnd
+
+Function un.registerServiceSC
+    nsExec::Exec "sc stop npf"
+FunctionEnd
+
+Function autoStartWinPcap
+    WriteRegDWORD HKLM "SYSTEM\CurrentControlSet\Services\NPF" "Start" 2
+    ; silently fails on 2000 if the service isn't registered
+    nsExec::Exec "net start npf"
+FunctionEnd
+
+
+;--------------------------------
 ; The stuff to install
-Section "" ;No components page, name is not important
+Section "WinPcap" SecWinPcap
 
   ; Set output path to the installation directory.
   SetOutPath $INSTDIR
@@ -125,6 +201,16 @@ Section "" ;No components page, name is not important
     ; Install some basic registry keys
     WriteRegStr HKLM "Software\WinPcap" "" '"$INSTDIR"'
 
+    ; register the driver as a system service using sc.exe on xp or higher
+    ; this will silently fail on 2000 (unless they installed sc.exe from the resource kit)
+    Call registerServiceSC
+
+    ; automatically start the service if performing a silent install
+    IfSilent auto_start skip_auto_start
+    auto_start:
+      Call autoStartWinPcap
+    skip_auto_start:
+
     ; Write the uninstall keys for Windows
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "DisplayName" "winpcap-nmap 4.02"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "UninstallString" '"$INSTDIR\uninstall.exe"'
@@ -134,9 +220,14 @@ Section "" ;No components page, name is not important
 SectionEnd ; end the section
 
 
-;--------------------------------
+;-------------------------------- 
+;Uninstaller Section 
 
 Section "Uninstall"
+
+  ; unregister the driver as a system service using sc.exe on xp or higher
+  ; this will silently fail on 2000 (unless they installed sc.exe from the resource kit)
+  Call un.registerServiceSC
 
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap"
   DeleteRegKey HKLM "Software\WinPcap"

@@ -1,5 +1,25 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Our WinPcap installer now starts the NPF driver running as a
+  service immediately upon installation and after restarts. You can
+  disable this with new checkboxes. This behavior is important for
+  Vista and Windows Server 2008 machines when User Account
+  Control (UAC) is enabled. [Rob Nicholls]
+
+o Nmap and Nmap-Winpcap silent installation now works.  Nmap can
+  be silently installed with the /S option to the installer.
+  If you install Nmap from the zip file, you can install just
+  Winpcap silently with the /S option to that
+  installer. [Rob Nicholls]
+
+o Our WinPcap installer is now included with the Nmap Win32 zip
+  file. [Rob Nicholls]
+
+o Numerous miscellaneous improvements were made to our Win32
+  installer, such as using the "Modern" NSIS UI for WinPcap,
+  improving the option description labels, and showing a finish
+  page in all cases. [Rob Nicholls]
+
 o Fixed bug that prevented the R1.UID OS from being recorded properly when
   scanning some certain printers on little endian computers. Updated
   nmap-os-db to compensate for signatures that had an incorrect U1.RID value. 

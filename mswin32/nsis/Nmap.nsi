@@ -14,7 +14,7 @@
   Name "Nmap" 
   OutFile "NmapInstaller.exe" 
 
-  ;Required for removing shortcuts (http://nsis.sourceforge.net/Shortcuts_removal_fails_on_Windows_Vista)
+  ;Required for removing shortcuts
   RequestExecutionLevel admin
 
   ;Default installation folder 
@@ -41,15 +41,14 @@
 ;-------------------------------- 
 ;Pages 
  
-;  !insertmacro MUI_PAGE_LICENSE "${NSISDIR}\Docs\Modern UI\License.txt" 
   !insertmacro MUI_PAGE_LICENSE "..\LICENSE" 
   !insertmacro MUI_PAGE_COMPONENTS 
   !insertmacro MUI_PAGE_DIRECTORY 
   !insertmacro MUI_PAGE_INSTFILES 
-   
   !insertmacro MUI_UNPAGE_CONFIRM 
   !insertmacro MUI_UNPAGE_INSTFILES 
   Page custom shortcutsPage makeShortcuts
+  Page custom finalPage doFinal
    
 ;-------------------------------- 
 ;Languages 
@@ -65,6 +64,7 @@ Var zenmapset
 ;Reserves
 
 ReserveFile "shortcuts.ini"
+ReserveFile "final.ini"
 !insertmacro MUI_RESERVEFILE_INSTALLOPTIONS
 
 ;--------------------------------
@@ -72,6 +72,7 @@ ReserveFile "shortcuts.ini"
 
 Function .onInit
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "shortcuts.ini"
+  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "final.ini"
 FunctionEnd
 
 
@@ -103,6 +104,16 @@ Function makeShortcuts
   skipstartmenu:
 
   skip:
+FunctionEnd
+
+Function finalPage
+  ; diplay a page saying everything's finished
+  !insertmacro MUI_HEADER_TEXT "Finished" "Thank you for installing Nmap"
+  !insertmacro MUI_INSTALLOPTIONS_DISPLAY "final.ini"
+FunctionEnd
+
+Function doFinal
+ ; don't need to do anything
 FunctionEnd
 
 ;-------------------------------- 
@@ -189,37 +200,51 @@ Section "Register Nmap Path" SecRegisterPath
 SectionEnd 
  
 Section "WinPcap 4.02" SecWinPcap 
+  SetOutPath "$INSTDIR" 
+  SetOverwrite on 
   File ..\winpcap\winpcap-nmap-4.02.exe 
-  Exec '"$INSTDIR\winpcap-nmap-4.02.exe"' 
+  ; If the Nmap installer was launched using /S then pass some arguments to WinPcap
+  IfSilent winpcap_silent winpcap_loud
+  winpcap_silent:
+    ExecWait '"$INSTDIR\winpcap-nmap-4.02.exe" /S /D=$\""$PROGRAMFILES\WinPcap\"$\"' 
+  Goto delete_winpcap
+  winpcap_loud:
+    ExecWait '"$INSTDIR\winpcap-nmap-4.02.exe"' 
+  delete_winpcap:
   Delete "$INSTDIR\winpcap-nmap-4.02.exe" 
 SectionEnd 
- 
-Section "Network Performance Improvements (Registry Changes)" SecPerfRegistryMods 
+
+Section "Network Performance Improvements" SecPerfRegistryMods 
+  SetOutPath "$INSTDIR" 
+  SetOverwrite on 
   File ..\nmap_performance.reg 
   Exec 'regedt32 /S "$INSTDIR\nmap_performance.reg"' 
 SectionEnd 
 
-Section "Zenmap (GUI frontend)" SecZenmap
+Section "Zenmap (GUI Frontend)" SecZenmap
+  SetOutPath "$INSTDIR" 
+  SetOverwrite on 
   File /r /x mswin32 /x .svn ..\nmap-${VERSION}\zenmap
   StrCpy $zenmapset "true"
 SectionEnd
-
  
 ;-------------------------------- 
 ;Descriptions 
  
   ;Component strings 
-  LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executables and script files" 
+  LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executable and NSE scripts" 
   LangString DESC_SecRegisterPath ${LANG_ENGLISH} "Registers Nmap path to System path so you can execute it from any directory" 
   LangString DESC_SecWinPcap ${LANG_ENGLISH} "Installs WinPcap 4.0 (required for most Nmap scans unless it is already installed)" 
   LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended." 
- 
+  LangString DESC_SecZenmap ${LANG_ENGLISH} "Installs Zenmap, the official Nmap graphical user interface.  Recommended." 
+
   ;Assign language strings to sections 
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN 
     !insertmacro MUI_DESCRIPTION_TEXT ${SecCore} $(DESC_SecCore) 
     !insertmacro MUI_DESCRIPTION_TEXT ${SecWinPcap} $(DESC_SecWinPcap) 
     !insertmacro MUI_DESCRIPTION_TEXT ${SecRegisterPath} $(DESC_SecRegisterPath) 
     !insertmacro MUI_DESCRIPTION_TEXT ${SecPerfRegistryMods} $(DESC_SecPerfRegistryMods) 
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecZenmap} $(DESC_SecZenmap) 
   !insertmacro MUI_FUNCTION_DESCRIPTION_END 
 ;-------------------------------- 
 ;Uninstaller Section 

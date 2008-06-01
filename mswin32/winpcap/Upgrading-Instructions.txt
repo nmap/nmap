@@ -36,7 +36,7 @@ How to upgrade Nmap to a new WinPcap release (2007)
 5) Open winpcap-nmap.nsi.
    5a) Change the version for the following lines:
 
-        Name "winpcap-nmap-X.X"
+        Name "WinPcap (Nmap) X.X"
         OutFile "winpcap-nmap-X.X.exe
         WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "DisplayName" "winpcap-nmap X.X"
 
