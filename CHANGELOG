@@ -127,6 +127,7 @@ o A bug was fixed that could cause Zenmap to crash when loading a
   Gtk-ERROR **: file gtktextsegment.c: line 196
   (_gtk_char_segment_new): assertion failed:
   (gtk_text_byte_begins_utf8_char (text))
+  [David]
 
 o Removed a superfluous test for the existence of the C++ compiler in the
   configure script. The test was not robust when configured with
@@ -159,7 +160,7 @@ o Fixed a bug which caused Nmap to send bad checksums on Solaris 10
 
 o Fixed a minor memory leak in getpts_simple which occurs when
   no ports are to be added to 'list'. 'porttbl' is now free'd regardless
-  of how the function returns. [michael]
+  of how the function returns. [Michael]
 
 o Nmap now understands the RFC 4007 percent syntax for IPv6 Zone IDs.
   On Windows, this ID has to be a numeric index.  On Linux and some
