@@ -16,7 +16,7 @@ o A Mac OS X Nmap/Zenmap installer is now available from the Nmap
 o The Windows version of Nmap now supports OpenSSL just as the UNIX
   versions have for years.  Both the .zip and executable installer
   binary packages we ship from the Nmap download page now include
-  OpenSSL.
+  OpenSSL. [Kris, Thomas Buchanan]
 
 o We now compile in IPv6 support on Windows.  In order to use this,
   you need to have IPv6 set up.  It is installed by default on Vista,
@@ -77,10 +77,6 @@ o Updated to include the latest MAC Address prefixes from the IEEE in
 
 o Updated the SMTPcommands NSE script to work better against Postfix
   and reduce verbosity. [Jason DePriest, Fyodor]
-
-o Fixed one of the memory leaks in getpts_simple which occurs when
-  no ports are to be added to 'list'. 'porttbl' is now free'd regardless
-  of how the function returns.
 
 o Reorganized the way ping probes are handled internally.  Rather than
   being stored in the NmapOps structure, they are now stored within
@@ -160,6 +156,10 @@ o Fixed a bug which caused Nmap to send bad checksums on Solaris 10
   problem has now been resolved until Solaris 20 comes out and hits
   our "solaris2.2*" bug workarounds. Thanks to Nathan Bills for the
   problem report.  Fixed by Fyodor.
+
+o Fixed a minor memory leak in getpts_simple which occurs when
+  no ports are to be added to 'list'. 'porttbl' is now free'd regardless
+  of how the function returns. [michael]
 
 o Nmap now understands the RFC 4007 percent syntax for IPv6 Zone IDs.
   On Windows, this ID has to be a numeric index.  On Linux and some
