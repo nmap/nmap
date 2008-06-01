@@ -92,7 +92,7 @@ o Fix grepable output's "Ignored State" reporting.  Only one ignored
 
 o Update to Lua version 5.1.3 [Patrick]
 
-o Add NSE stdnse library to include tobinary, toocal, and tohex
+o Add NSE stdnse library to include tobinary, tooctal, and tohex
   functions. [Patrick]
 
 o Fixed a bug which caused the Zenmap crash reporter to, uh,
@@ -127,8 +127,10 @@ o Nsock was improved to better support reading from non-network
 
 o A bug was fixed that could cause Zenmap to crash when loading a
   results file that had multibyte characters in it. The error looked
-  like
-    Gtk-ERROR **: file gtktextsegment.c: line 196 (_gtk_char_segment_new): assertion failed: (gtk_text_byte_begins_utf8_char (text))
+  like:
+  Gtk-ERROR **: file gtktextsegment.c: line 196
+  (_gtk_char_segment_new): assertion failed:
+  (gtk_text_byte_begins_utf8_char (text))
 
 o Removed a superfluous test for the existence of the C++ compiler in the
   configure script. The test was not robust when configured with
