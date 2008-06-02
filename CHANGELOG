@@ -23,16 +23,16 @@ o We now compile in IPv6 support on Windows.  In order to use this,
   but must be downloaded from Microsoft for XP.  See
   http://www.microsoft.com/technet/network/ipv6/ipv6faq.mspx . [Kris]
 
+o Seven Google-sponsored Summer of Code students began working on
+  exciting Nmap projects full times.  The winning students and their
+  Nmap development projects are described at
+  http://seclists.org/nmap-dev/2008/q2/0132.html .
+
 o Our WinPcap installer now starts the NPF driver running as a
   service immediately upon installation and after restarts. You can
   disable this with new check-boxes. This behavior is important for
   Vista and Windows Server 2008 machines when User Account
   Control (UAC) is enabled. [Rob Nicholls]
-
-o Seven Google-sponsored Summer of Code students began working on
-  exciting Nmap projects full times.  The winning students and their
-  Nmap development projects are described at
-  http://seclists.org/nmap-dev/2008/q2/0132.html .
 
 o Nmap and Nmap-WinPcap silent installation now works.  Nmap can
   be silently installed with the /S option to the installer.
@@ -177,7 +177,7 @@ o Since assert() calls are used for various security-related tests,
   their safety is now ensured by keeping NDEBUG undefined throughout
   Nmap, Nbase and Nsock. [Kris]
 
-o Fix a couple bugs in the way the Nmap built system checked for an
+o Fix a couple bugs in the way the Nmap build system checked for an
   existing LUA library.  A bashism caused one test to fail on system
   which don't use bash as /bin/sh, and another bug fixed --with-liblua
   configure option for specifying your own liblua. [Daniel
