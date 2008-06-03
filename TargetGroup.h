@@ -160,7 +160,7 @@ class TargetGroup {
 
 /* Number of IPs left in this structure -- set to 0 if 
 		  the fields are not valid */
-  unsigned long ipsleft; 
+  unsigned long long ipsleft; 
 
   // is the current target expression a named host
   int namedhost;

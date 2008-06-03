@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed an integer overflow which prevented a target specification
+  of "*.*.*.*" from working.  Support for the CIDR /0 is now also
+  available. [Kris]
+
 o Nmap now returns correct values for --iflist in windows even
   if interface aliases have been set. Previously it would misreport
   the windevices and not list all interfaces. [Michael]

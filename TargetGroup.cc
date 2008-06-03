@@ -129,7 +129,7 @@ int  TargetGroup::rewind() {
   if (targets_type == IPV4_NETMASK) {
       currentaddr = startaddr;
       if (startaddr.s_addr <= endaddr.s_addr) { 
-	ipsleft = endaddr.s_addr - startaddr.s_addr + 1;
+	ipsleft = ((unsigned long long) (endaddr.s_addr - startaddr.s_addr)) + 1;
 	return 0; 
       }
       else
@@ -139,8 +139,10 @@ int  TargetGroup::rewind() {
    * the ips by the number of values in the columns */
   else if (targets_type == IPV4_RANGES) {
     memset((char *)current, 0, sizeof(current));
-    ipsleft = (last[0] + 1) * (last[1] + 1) *
-      (last[2] + 1) * (last[3] + 1);
+    ipsleft = (unsigned long long) (last[0] + 1) *
+              (unsigned long long) (last[1] + 1) *
+              (unsigned long long) (last[2] + 1) *
+              (unsigned long long) (last[3] + 1);
     return 0;
   }
 #if HAVE_IPV6
@@ -167,7 +169,6 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
   char *addy[5];
   char *hostexp = strdup(target_expr);
   struct hostent *target;
-  unsigned long longtmp;
   namedhost = 0;
 
   if (targets_type != TYPE_NONE)
@@ -188,8 +189,8 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
     target_net = strtok(hostexp, "/");
     s = strtok(NULL, "");    /* find the end of the token from hostexp */
     netmask  = ( s ) ? atoi(s) : 32;
-    if ((int) netmask <= 0 || netmask > 32) {
-      error("Illegal netmask value (%d), must be /1 - /32 .  Assuming /32 (one host)", netmask);
+    if ((int) netmask < 0 || netmask > 32) {
+      error("Illegal netmask value (%d), must be /0 - /32 .  Assuming /32 (one host)", netmask);
       netmask = 32;
     }
     for(i=0; *(hostexp + i); i++) 
@@ -215,12 +216,20 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
 	  return 1;
 	}
       } 
-      longtmp = ntohl(startaddr.s_addr);
-      startaddr.s_addr = longtmp & (unsigned long) (0 - (1<<(32 - netmask)));
-      endaddr.s_addr = longtmp | (unsigned long)  ((1<<(32 - netmask)) - 1);
+      if (netmask) {
+        unsigned long longtmp = ntohl(startaddr.s_addr);
+        startaddr.s_addr = longtmp & (unsigned long) (0 - (1<<(32 - netmask)));
+        endaddr.s_addr = longtmp | (unsigned long)  ((1<<(32 - netmask)) - 1);
+      } else {
+        /* The above calculations don't work for a /0 netmask, though at first
+         * glance it appears that they would
+         */
+        startaddr.s_addr = 0;
+        endaddr.s_addr = 0xffffffff;
+      }
       currentaddr = startaddr;
       if (startaddr.s_addr <= endaddr.s_addr) { 
-	ipsleft = endaddr.s_addr - startaddr.s_addr + 1;
+	ipsleft = ((unsigned long long) (endaddr.s_addr - startaddr.s_addr)) + 1;
 	free(hostexp); 
 	return 0; 
       }
@@ -272,8 +281,10 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
       }
     }
   memset((char *)current, 0, sizeof(current));
-  ipsleft = (last[0] + 1) * (last[1] + 1) *
-    (last[2] + 1) * (last[3] + 1);
+  ipsleft = (unsigned long long) (last[0] + 1) *
+            (unsigned long long) (last[1] + 1) *
+            (unsigned long long) (last[2] + 1) *
+            (unsigned long long) (last[3] + 1);
   }
   else {
 #if HAVE_IPV6
