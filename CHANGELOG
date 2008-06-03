@@ -1,12 +1,13 @@
 ﻿# Nmap Changelog ($Id$); -*-text-*-
 
-Nmap 4.65 [2008-6-3]
 o Nmap now returns correct values for --iflist in windows even
   if interface aliases have been set. Previously it would misreport
   the windevices and not list all interfaces. [Michael]
 
 o Nmap no longer crashes with an 'assert' error when its told to
   access a disabled wifi NIC on some laptops. [Michael]
+
+Nmap 4.65 [2008-6-1]
 
 o A Mac OS X Nmap/Zenmap installer is now available from the Nmap
   download page!  It is rather straightforward, but detailed
