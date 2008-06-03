@@ -1,4 +1,4 @@
-﻿# Nmap Changelog ($Id$); -*-text-*-
+# Nmap Changelog ($Id$); -*-text-*-
 
 o Nmap now returns correct values for --iflist in windows even
   if interface aliases have been set. Previously it would misreport
