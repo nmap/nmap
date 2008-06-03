@@ -3005,10 +3005,6 @@ Nmap finished: 1 IP address (1 host up) scanned in 9.317 seconds
 
     <para>
 
-    <remark>
-    DT: perhaps include an optional version field
-    </remark>
-
     </para>
     <sect2 id="nse-example-script-finger">
       <title>Finger-Test Script</title>
