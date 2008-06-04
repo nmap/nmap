@@ -2991,21 +2991,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 9.317 seconds
 
   <sect1 id="nse-example-scripts">
     <title>Example Scripts</title>
-    <para>
-      <remark>
-	This section should probably provide 2&ndash;3 scripts
-	which show a diverse and interesting set of NSE features.  Each
-	script should probably have its own sect2 containing a brief
-	description of the script and anything noteworthy about it,
-	followed by the script itself with annotations (lineannotation
-	tag) as you can see, for example, at 
-	<ulink url="http://nmap.org/vscan/vscan-technique-demo.html"/>.
-      </remark>
-    </para>
 
-    <para>
-
-    </para>
     <sect2 id="nse-example-script-finger">
       <title>Finger-Test Script</title>
 	  <para>The finger script (<filename>finger.nse</filename>) is a perfect
@@ -3214,19 +3200,6 @@ end
   </sect1>
   <sect1 id="nse-implementation">
     <title>Implementation</title>
-    <para>
-      <remark>
-	We don't need a dozen pages of low-level trivial
-	details, but it would be nice to have a few sections
-	describing notable aspects of the NSE implementation (maybe
-	things like how the parallelization algorithms work, how Lua
-	is embedded, performance related notes.  Information which
-	might help script writers is particularly desirable.  I tend
-	to think reasons for choosing Lua may be better suited to
-	<xref linkend="nse-lua"/>, but it could be placed here
-	instead.
-      </remark>
-    </para>
 	<para>
 	Now how does all this work? The following section describes
 	some interesting aspects of the NSE. While the focus primarily lies on 
