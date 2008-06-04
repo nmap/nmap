@@ -114,6 +114,7 @@
 #include "targets.h"
 #include "utils.h"
 #include <list>
+#include <map>
 
 using namespace std;
 extern NmapOps o;
@@ -3048,6 +3049,9 @@ static void retransmitProbe(UltraScanInfo *USI, HostScanStats *hss,
 static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
   list<HostScanStats *>::iterator hostI;
   list<UltraProbe *>::iterator probeI;
+  /* A cache of the last processed probe from each host, to avoid re-examining a
+     bunch of probes to find the next one that needs to be retransmitted. */
+  map<HostScanStats *, list<UltraProbe *>::iterator> probe_cache;
   HostScanStats *host = NULL;
   UltraProbe *probe = NULL;
   int retrans = 0; /* Number of retransmissions during a loop */
@@ -3076,7 +3080,13 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
       if (!host->sendOK(NULL))
         continue;
       assert(!host->probes_outstanding.empty());
-      probeI = host->probes_outstanding.end();
+
+      /* Initialize the probe cache if necessary. */
+      if (probe_cache.find(host) == probe_cache.end())
+        probe_cache[host] = host->probes_outstanding.end();
+      /* Restore the probe iterator from the cache. */
+      probeI = probe_cache[host];
+
       maxtries = host->allowedTryno(NULL, NULL);
       do {
         probeI--;
@@ -3098,6 +3108,12 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
           break; /* I only do one probe per host for now to spread load */
         } 
       } while (probeI != host->probes_outstanding.begin());
+
+      /* Wrap the probe iterator around. */
+      if (probeI == host->probes_outstanding.begin())
+        probeI = host->probes_outstanding.end();
+      /* Cache the probe iterator. */
+      probe_cache[host] = probeI;
     }
   } while (USI->gstats->sendOK(NULL) && retrans != 0);
 
