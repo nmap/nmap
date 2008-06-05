@@ -11,6 +11,10 @@ o Nmap now returns correct values for --iflist in windows even
 o Nmap no longer crashes with an 'assert' error when its told to
   access a disabled wifi NIC on some laptops. [Michael]
 
+o The zoneTrans.nse script now takes a "domain" script argument to
+  specify the desired domain name to transfer.  You can narrow the
+  scope down with the form "zoneTrans={domain=xxx}". [Kris]
+
 Nmap 4.65 [2008-6-1]
 
 o A Mac OS X Nmap/Zenmap installer is now available from the Nmap

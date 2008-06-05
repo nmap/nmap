@@ -1,9 +1,10 @@
 --[[
 
 Send axfr queries to DNS servers. The domain to query is determined 
-by examining the domain servers hostname. If the query is successful 
-all domains and domain types are returned along with common type 
-specific data (SOA/MX/NS/PTR/A)
+by examining the name given on the command line, the domain servers
+hostname, or it can be specified with the "domain" script argument.
+If the query is successful all domains and domain types are returned
+along with common type specific data (SOA/MX/NS/PTR/A)
 
 constraints
 -----------
@@ -263,17 +264,32 @@ action = function(host, port)
 	local catch = function() soc:close() end
 	local try = nmap.new_try(catch)
 	
-	-- can't do anything without a hostname
-	if host.name == "" then return nil end
+	local domain = nil
+	local args = nmap.registry.args
+
+	if args.zoneTrans and args.zoneTrans.domain then
+		domain = args.zoneTrans.domain
+	elseif args.domain then
+		domain = args.domain
+	elseif host.targetname then
+		domain = host.targetname
+	elseif host.name ~= "" then
+		domain = host.name
+	else
+		-- can't do anything without a hostname
+		return
+	end
+
+	assert(domain)
 
 	soc = nmap.new_socket()
 	soc:set_timeout(4000)
 	try(soc:connect(host.ip, port.number))
-	
+
 	local req_id = '\222\173'
 	local table = tab.new(3)
 	local offset = 1 
-	local name = build_domain(string.lower(host.name))
+	local name = build_domain(string.lower(domain))
 	local pkt_len = string.len(name) + 16
 
 	-- build axfr request
