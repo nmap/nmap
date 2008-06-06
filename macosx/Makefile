@@ -57,8 +57,9 @@ stage-nmap:
 export CC CPPFLAGS CFLAGS CXXFLAGS LDFLAGS
 
 stage-zenmap:
-	mkdir -p $(ZENMAP_STAGING_DIR)/Applications
 	cd ../zenmap && install_scripts/macosx/make-bundle.sh
+	rm -rf $(ZENMAP_STAGING_DIR)
+	mkdir -p $(ZENMAP_STAGING_DIR)/Applications
 	cp -rf ../zenmap/dist/Zenmap.app $(ZENMAP_STAGING_DIR)/Applications/
 
 $(IMAGE_STAGING_DIR)/README:
