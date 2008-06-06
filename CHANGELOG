@@ -1,5 +1,21 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Install icons and pixmaps under /usr/share/zenmap/{icons,pixmaps} 
+  so they don't get mixed in with the files in /usr/share/{icons,pixmaps}.
+  [Jurand Nogiec]
+
+o Modification to handle the problem where if a user modifies the 
+  command entry field, Zenmap does not necessarily execute this command 
+  and instead it will follow what the Target/Entry fields specify 
+  instead. This avoids a bug where if you edited a command, then selected 
+  a different target, the edited command line would be replaced with one 
+  from the currently selected profile. [Jurand Nogiec]
+
+o Fixed the nmap_command_path bug in Zenmap. The variable now actually
+  accesses the nmap_command_path in zenmap.conf file. It is accessed
+  by a new class in UmitConf called PathsConfig, which represents the
+  [paths] section in zenmap.conf. [Jurand Nogiec]
+
 o Fixed an integer overflow which prevented a target specification
   of "*.*.*.*" from working.  Support for the CIDR /0 is now also
   available. [Kris]
