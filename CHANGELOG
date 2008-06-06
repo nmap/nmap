@@ -27,6 +27,8 @@ o Nmap now returns correct values for --iflist in windows even
 o Nmap no longer crashes with an 'assert' error when its told to
   access a disabled wifi NIC on some laptops. [Michael]
 
+o Upgraded the OpenSSL shipped for Windows to 0.9.8h. [Kris]
+
 o The zoneTrans.nse script now takes a "domain" script argument to
   specify the desired domain name to transfer.  You can narrow the
   scope down with the form "zoneTrans={domain=xxx}". [Kris]
