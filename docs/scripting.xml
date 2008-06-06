@@ -506,12 +506,24 @@ categories.</para>
 
     <sect2 id="nse-format-license">
       <title><literal>license</literal> Field </title>
-      <para>This field describes the license applied to the script.  All scripts currently shipped with Nmap contain:</para>
+
+      <para>Nmap is a community project and we welcome all sorts of
+      code contributions, including NSE scripts.  So if you write a
+      valuable script, don't keep it to yourself!
+      The <literal>license</literal> field helps ensure that we have
+      legal permission to distribute all the scripts which come with Nmap. All of those scripts
+      currently use the standard Nmap license
+      (described in <xref linkend="nmap-copyright"/>).  They 
+      the following line:</para>
+
 <programlisting>
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 </programlisting>
-<para>See <xref linkend="nse-license"/> for further details on contributing NSE scripts to Nmap.
-      </para>
+
+<para>The Nmap license is similar to the GNU GPL.  Script authors may
+use a BSD-style license (no advertising clause) instead if they prefer
+that.</para>
+
     </sect2>
 
     <sect2 id="nse-format-runlevel">
@@ -3427,15 +3439,4 @@ executed if it is run against a specific target. After the check those script-ta
           because it is there nselib-modules get copied to their final destinations and are included in Nmap.
 	  </para>
 	</sect2>
-  </sect1>
-  <sect1 id="nse-license">
-    <title>NSE Script License and Community Contributions</title>
-    <para>
-
-      <remark>Fyodor is working on this.  The general idea is for scripts to be contributed
-	and distributed under the same license as Nmap, as described
-	in <ulink url="http://seclists.org/nmap-dev/2006/q3/0156.html">this
-	<citetitle>nmap-dev</citetitle> post</ulink>.  We certainly welcome script contributions!</remark>
-
-    </para>
   </sect1>
