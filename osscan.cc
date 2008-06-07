@@ -810,7 +810,7 @@ static char *substrstrip(const char *p, const char *q) {
 
   while (isspace(*p))
     p++;
-  while (q >p && isspace(*(q - 1)))
+  while (q > p && isspace(*(q - 1)))
     q--;
 
   s = (char *) cp_alloc(q - p + 1);
@@ -855,13 +855,14 @@ static void parse_classline(FingerPrint *FP, char *thisline, int lineno,
   end = strchr(begin, '|');
   if (end == NULL)
     fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
-  os_class->OS_Generation = substrstrip(begin, end);
-  /* OS generation is a special case: in the case of an empty string it is made
-     NULL. */
-  if (os_class->OS_Generation[0] == '\0') {
-    free(os_class->OS_Generation);
+  /* OS generation is handled specially: instead of an empty string it's
+     supposed to be NULL. */
+  while (isspace(*begin))
+    begin++;
+  if (begin < end)
+    os_class->OS_Generation = substrstrip(begin, end);
+  else
     os_class->OS_Generation = NULL;
-  }
 
   /* And finally the device type. We look for '\0' instead of '|'. */
   begin = end + 1;
