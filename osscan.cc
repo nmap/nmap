@@ -940,8 +940,6 @@ FingerPrint *parse_single_fingerprint(char *fprint_orig) {
       while(q > p && isspace(*(--q)))
 	;
 
-      if (q < p) fatal("Parse error on line %d of fingerprint: %s", lineno, nextline);
-
       FP->OS_name = (char *) cp_alloc(q - p + 2);
       memcpy(FP->OS_name, p, q - p + 1);
       FP->OS_name[q - p + 1] = '\0';
