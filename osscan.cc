@@ -800,104 +800,76 @@ for(current = FP; current ; current = current->next) {
 return str;
 }
 
+/* Return a zero-terminated copy of the substring that starts at p and ends at
+   q, with leading and trailing whitespace stripped. The returned string is
+   allocated with cp_alloc. */
+static char *substrstrip(const char *p, const char *q) {
+  char *s;
+
+  assert(p <= q);
+
+  while (isspace(*p))
+    p++;
+  while (q >p && isspace(*(q - 1)))
+    q--;
+
+  s = (char *) cp_alloc(q - p + 1);
+  memcpy(s, p, q - p);
+  s[q - p] = '\0';
+
+  return s;
+}
+
 /* Parse a 'Class' line found in the fingerprint file into the current
    FP.  Classno is the number of 'class' lines found so far in the
    current fingerprint.  The function quits if there is a parse error */
 static void parse_classline(FingerPrint *FP, char *thisline, int lineno, 
 			    int *classno) {
-  char *p, *q;
+  const char *begin, *end;
+  struct OS_Classification *os_class;
 
-// Wtf????
-  fflush(stdout);
-
-  if (!thisline || strncmp(thisline, "Class ", 6) == 1) {
+  if (!thisline || strncmp(thisline, "Class ", 6) != 0)
     fatal("Bogus line #%d (%s) passed to %s()", lineno, thisline, __func__);
-  }
 
   if (*classno >= MAX_OS_CLASSIFICATIONS_PER_FP)
     fatal("Too many Class lines in fingerprint (line %d: %s), remove some or increase MAX_OS_CLASSIFICATIONS_PER_FP", lineno, thisline);
-  
-  p = thisline + 6;
-  
-  /* First lets get the vendor name */
-  while(*p && isspace(*p)) p++;
-  
-  q = strchr(p, '|');
-  if (!q) {
-    fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
-  }
-  
-  // Trim any trailing whitespace
-  while(q >= p && isspace(*(--q)))
-    ;
-  q++;
-  FP->OS_class[*classno].OS_Vendor = (char *) cp_alloc(q - p + 1);
-  memcpy(FP->OS_class[*classno].OS_Vendor, p, q - p);
-  FP->OS_class[*classno].OS_Vendor[q - p] = '\0';
-  
-  /* Next comes the OS Family */
-  p = q;
-  while(*p && isspace(*p)) p++;
 
-  q = strchr(p, '|');
-  if (!q) {
-    fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
-  }
-  // Trim any trailing whitespace
-  while(q >= p && isspace(*(--q)))
-    ;
-  q++;
-  FP->OS_class[*classno].OS_Family = (char *) cp_alloc(q - p + 1);
-  memcpy(FP->OS_class[*classno].OS_Family, p, q - p);
-  FP->OS_class[*classno].OS_Family[q - p] = '\0';
-  
-  /* And now the the OS generation, if available */
-  p = q;
-  while(*p && *p != '|') p++;
-  if (*p) p++;
-  while(*p && isspace(*p) && *p != '|') p++;
-  if (*p == '|') {
-    FP->OS_class[*classno].OS_Generation = NULL;
-    q = p;
-  }
-  else {
-    q = strpbrk(p, " |");
-    if (!q) {
-      fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
-    }
-    // Trim any trailing whitespace
-    while(q >= p && isspace(*(--q)))
-      ;
-    q++;
-    FP->OS_class[*classno].OS_Generation = (char *) cp_alloc(q - p + 1);
-    memcpy(FP->OS_class[*classno].OS_Generation, p, q - p);
-    FP->OS_class[*classno].OS_Generation[q - p] = '\0';
-  }
-  
-  /* And finally the device type */
-  p = q;
-  while(*p && !isspace(*p)) p++;
-  
-  q = strchr(p, '|');
-  if (!q) {
-    q = p;
-    while(*q) q++;
-  }
-  
-  // Trim any trailing whitespace
-  while(q >= p && isspace(*(--q)))
-    ;
-  q++;
-  FP->OS_class[*classno].Device_Type = (char *) cp_alloc(q - p + 1);
-  memcpy(FP->OS_class[*classno].Device_Type, p, q - p);
-  FP->OS_class[*classno].Device_Type[q - p] = '\0';
-  
+  os_class = &FP->OS_class[*classno];
 
-  //  printf("Got classification #%d for the OS %s: VFGT: %s * %s * %s * %s\n", *classno, FP->OS_name, FP->OS_class[*classno].OS_Vendor, FP->OS_class[*classno].OS_Family, FP->OS_class[*classno].OS_Generation? FP->OS_class[*classno].OS_Generation : "(null)", FP->OS_class[*classno].Device_Type);
+  /* First let's get the vendor name. */
+  begin = thisline + 6;
+  end = strchr(begin, '|');
+  if (end == NULL)
+    fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
+  os_class->OS_Vendor = substrstrip(begin, end);
+
+  /* Next comes the OS family. */
+  begin = end + 1;
+  end = strchr(begin, '|');
+  if (end == NULL)
+    fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
+  os_class->OS_Family = substrstrip(begin, end);
+
+  /* And now the the OS generation. */
+  begin = end + 1;
+  end = strchr(begin, '|');
+  if (end == NULL)
+    fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
+  os_class->OS_Generation = substrstrip(begin, end);
+  /* OS generation is a special case: in the case of an empty string it is made
+     NULL. */
+  if (os_class->OS_Generation[0] == '\0') {
+    free(os_class->OS_Generation);
+    os_class->OS_Generation = NULL;
+  }
+
+  /* And finally the device type. We look for '\0' instead of '|'. */
+  begin = end + 1;
+  end = strchr(begin, '\0');
+  os_class->Device_Type = substrstrip(begin, end);
 
   (*classno)++;
   FP->num_OS_Classifications++;
-
 }
 
 /* Parses a single fingerprint from the memory region given.  If a
