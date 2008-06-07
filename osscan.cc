@@ -941,7 +941,7 @@ FingerPrint *parse_single_fingerprint(char *fprint_orig) {
 
       q = strchr(p, '\n');
       if (!q) q = p + strlen(p);
-      while(isspace(*(--q)))
+      while(q > p && isspace(*(--q)))
 	;
 
       if (q < p) fatal("Parse error on line %d of fingerprint: %s", lineno, nextline);
