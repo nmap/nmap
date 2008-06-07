@@ -828,27 +828,25 @@ static void parse_classline(FingerPrint *FP, char *thisline, int lineno,
   }
   
   // Trim any trailing whitespace
-  q--;
-  while(isspace(*q)) q--;
+  while(q >= p && isspace(*(--q)))
+    ;
   q++;
-  if (q < p) { fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline); }
   FP->OS_class[*classno].OS_Vendor = (char *) cp_alloc(q - p + 1);
   memcpy(FP->OS_class[*classno].OS_Vendor, p, q - p);
   FP->OS_class[*classno].OS_Vendor[q - p] = '\0';
   
   /* Next comes the OS Family */
   p = q;
-  while(*p && !isalnum(*p)) p++;
+  while(*p && isspace(*p)) p++;
 
   q = strchr(p, '|');
   if (!q) {
     fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
   }
   // Trim any trailing whitespace
-  q--;
-  while(isspace(*q)) q--;
+  while(q >= p && isspace(*(--q)))
+    ;
   q++;
-  if (q < p) { fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline); }
   FP->OS_class[*classno].OS_Family = (char *) cp_alloc(q - p + 1);
   memcpy(FP->OS_class[*classno].OS_Family, p, q - p);
   FP->OS_class[*classno].OS_Family[q - p] = '\0';
@@ -868,10 +866,9 @@ static void parse_classline(FingerPrint *FP, char *thisline, int lineno,
       fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
     }
     // Trim any trailing whitespace
-    q--;
-    while(isspace(*q)) q--;
+    while(q >= p && isspace(*(--q)))
+      ;
     q++;
-    if (q < p) { fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline); }
     FP->OS_class[*classno].OS_Generation = (char *) cp_alloc(q - p + 1);
     memcpy(FP->OS_class[*classno].OS_Generation, p, q - p);
     FP->OS_class[*classno].OS_Generation[q - p] = '\0';
@@ -879,7 +876,7 @@ static void parse_classline(FingerPrint *FP, char *thisline, int lineno,
   
   /* And finally the device type */
   p = q;
-  while(*p && !isalnum(*p)) p++;
+  while(*p && !isspace(*p)) p++;
   
   q = strchr(p, '|');
   if (!q) {
@@ -888,10 +885,9 @@ static void parse_classline(FingerPrint *FP, char *thisline, int lineno,
   }
   
   // Trim any trailing whitespace
-  q--;
-  while(isspace(*q)) q--;
+  while(q >= p && isspace(*(--q)))
+    ;
   q++;
-  if (q < p) { fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline); }
   FP->OS_class[*classno].Device_Type = (char *) cp_alloc(q - p + 1);
   memcpy(FP->OS_class[*classno].Device_Type, p, q - p);
   FP->OS_class[*classno].Device_Type[q - p] = '\0';
