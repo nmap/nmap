@@ -1865,7 +1865,7 @@ way.</para>
     Version detection system, which is unmatched in terms of efficiency and
     scope, this power has its downside when it comes to services requiring more
     complex probes. The Skype-Protocol version 2 for instance can be identified
-    by sending 2 independent probes to it, which the builtin system is not laid
+    by sending 2 independent probes to it, which the built-in system is not laid
     out for: a simple NSE-script can do the job and update the port's service
     information.  
     </para>

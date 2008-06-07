@@ -103,16 +103,24 @@ vulnerability scanner,
       Scripts are written in the
       embedded <ulink url="http://www.lua.org/">Lua programming language</ulink>.  
       The language itself is well documented in the books 
+<web>
       <citetitle><ulink url="http://www.amazon.com/exec/obidos/ASIN/8590379825/secbks-20">Programming
 	in Lua, Second Edition</ulink></citetitle> and
       <citetitle><ulink url="http://www.amazon.com/exec/obidos/ASIN/8590379825/secbks-20">Lua
-	5.1 Reference Manual</ulink></citetitle>.  The reference manual is also 
+	5.1 Reference Manual</ulink></citetitle>.  
+</web>
+<print>
+      <citetitle>Programming in Lua, Second Edition</citetitle> and
+      <citetitle>Lua 5.1 Reference Manual</citetitle>.  
+</print>
+
+The reference manual is also 
       <ulink url="http://www.lua.org/manual/5.1/">freely available
 	online</ulink>, as is the 
       <ulink url="http://www.lua.org/pil/">first edition of Programming in
 	Lua</ulink>. Given the availability of these excellent general
       Lua programming references, this document only covers aspects and
-      extensions specific to the Nmap implementation.
+      extensions specific to Nmap's scripting engine.
     </para>
     <para>
 
@@ -341,7 +349,16 @@ $ nmap -sC --script-args user=foo,pass=bar,anonFTP={pass=ftp@foobar.com}
         <term><option>--script &lt;script-categories|directory|filename|all&gt;</option><indexterm><primary>--script</primary></indexterm></term>
 
 <listitem>
-<para>Runs a script scan (like <option>-sC</option>) with the scripts you have chosen rather than the defaults.  Arguments can be script categories, single scripts or directories with scripts which are to be run against the target hosts instead of the default set. Nmap will try to interpret the arguments at first as categories and afterwards as files or directories.  Absolute paths are used as is, relative paths are searched in the following places until found:
+
+<para>
+Runs a script scan (like <option>-sC</option>) with the comma separated
+list of scripts you have chosen rather than the defaults. Specifically,
+the list can contain script categories, single scripts or directories
+with scripts which
+are to be run against the target hosts instead of the default set. Nmap
+will try to interpret the arguments at first as categories and afterwards
+as files or directories.  Absolute paths are used as is, relative paths are
+searched in the following places until found:
 <filename>--datadir/</filename>; 
 <filename>$(NMAPDIR)/</filename>; 
 <filename>~user/nmap/</filename> (not searched on Windows); 
@@ -488,7 +505,7 @@ categories.</para>
       <title><literal>description</literal> Field</title>
       <para>
 	The description describes what the script is testing for and
-	any critical notes the user must be aware of. A good example
+	any critical notes the user must be aware of. A good
 	example is this user contributed recursive DNS script
 	description <quote>Checks whether a nameserver on UDP port 53
 	allows queries for third party names. It is expected that
@@ -533,8 +550,8 @@ that.</para>
 	this section is absent the run level defaults to 1.0. A script
 	with the run level 1.0 is run before any scripts with <literal>runlevel</literal> set to
 	<literal>2.5</literal>, which in turn runs before any scripts
-	with <literal>runlevel 2.55</literal>.  No particular order
-	is guaranteed for scripts with the same run level. One
+	with <literal>runlevel 2.55</literal>.  Scripts with the same run level are run
+        concurrently. One
 	application of run levels is allowing scripts to depend on
 	each other. If <literal>script A</literal> relies on some
 	information gathered by <literal>script B</literal>, give
@@ -554,7 +571,7 @@ that.</para>
 	which run only once against a target IP and <emphasis>port
 	rules</emphasis> which run against individual ports on a
 	target.  A rule is a Lua function which takes a host and a
-	port table as arguments and returns a boolean. If the rule
+	port table as arguments and must returns a boolean value. If the rule
 	evaluates to <literal>true</literal>, the script action 
 	is performed. Otherwise the action is skipped. Port rules are
 	only matched against TCP or UDP ports in the
@@ -563,7 +580,8 @@ that.</para>
 	states. Host rules are matched exactly once against every
 	scanned host. The action, like the rule, is a Lua function,
 	which takes a host and port table as arguments. If the script is
-	matched using a host rule, then <literal>nil</literal> is passed instead of a port table.  Example rules are shown in
+        matched using a host rule, then the port table is absent (<literal>nil</literal>).
+       Example rules are shown in
 	<xref linkend="nse-tutorial-rule"/>.</para> </sect2>
 
      <sect2 id="nse-format-action"><title>Action</title>
@@ -571,13 +589,12 @@ that.</para>
       <para>
 	The action is the heart of an NSE script.  It contains all of
 	the instructions to be executed when the script's port or host
-	rule triggers.  It is a Lua function which returns either
+	rule triggers.  It is a Lua function which can return either
 	<literal>nil</literal> or a string. If a string is returned,
 	it is printed along with the script ID in (if it is a service
 	script) or below (if it is a host script) the Nmap port table.
 	If the script returns <literal>nil</literal>, no output is
-	produced. All variables in the
-	action and rule segments must be declared <literal>local</literal>.  For an
+	produced.  For an
 	example of an NSE action refer to <xref
 	linkend="nse-tutorial-action"/>.
       </para>
@@ -647,7 +664,7 @@ that.</para>
 	Ruby are well known and loved, but are difficult to embed
 	efficiently.  In the end, Lua exceeded in all criteria for
 	NSE. It is small, distributed under the MIT license, has
-	coroutines which provide a sane method for parallel script
+	coroutines for efficient parallel script
 	execution, was designed with embeddability in mind, has
 	excellent documentation, and is actively developed by a large
 	and committed community.
@@ -662,7 +679,11 @@ that.</para>
       NSE scripts more powerful and convenient to write. These 
 	  <emphasis>modules</emphasis> are compiled and installed along with 
 	  Nmap. They have their own directory, <filename>nselib</filename>, which
-	  is installed in the configured datadir. Scripts need only <literal>require</literal> the default modules in order to use them.  The default modules are described in the following sections.
+	  is installed in the configured datadir. Scripts need only 
+      <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#pdf-require">
+      <literal>require</literal>
+      </ulink> the default modules in order to use them.
+      The default modules are described in the following sections.
 	  </para>
 
       <sect2 id="nse-bitops">
@@ -670,12 +691,14 @@ that.</para>
         <para>
 	  Lua does not provide bitwise logical operations. Since they
 	  are often useful for low-level network communication, Reuben
-	  Thomas' bitwise operation library for Lua has been
+          Thomas'
+         <ulink url="http://luaforge.net/projects/bitlib">bitwise operation library</ulink>
+          for Lua has been Thomas' bitwise operation library for Lua has been
 	  integrated into NSE. The arguments to the bitwise operation
 	  functions should be integers.  The number of bits available
 	  for logical operations depends on the data type used to
 	  represent Lua numbers&mdash;this is typically 8-byte IEEE
-	  floats, which give 53 bits (the size of the mantissa).
+	  floats (double), which give 53 bits (the size of the mantissa).
 
 	  This implies that the bitwise operations won't work (as expected) 
 	  for numbers larger than 10<superscript>14</superscript>. You
@@ -1051,7 +1074,7 @@ if(s) code_to_be_done_on_match end
 	<title>Functional Programming Style List Operations</title>
 	<para>
 	People used to programming in functional languages, such as Lisp or
-	Haskell appreciate their handling of lists very much. The <literal>listop</literal> module tries to bring much of the functionality from
+        Haskell, appreciate their handling of lists very much. The <literal>listop</literal> module tries to bring much of the functionality from
 	functional languages to Lua using Lua's central data structure, the table,
 	as a base for its list operations. Highlights include a <literal>map</literal> 
 	function applying a given function to each element of a list.
@@ -2542,6 +2565,104 @@ error_message describes the occurred error.</para>
 	</para>
 	</sect3>
 	</sect2>
+
+    <sect2 id="nse-mutex">
+      <title>Thread Mutexes</title>
+      <para>
+        Each thread made for a script (e.g. anonFTP.nse) will yield to other
+        scripts whenever it makes a call on network objects (sending/receiving
+        data). Some scripts need finer control over threads' execution. An
+        example is the <literal>whois.nse</literal> script which queries whois
+        servers for each target. Because many concurrent queries often result in
+        getting one's IP banned for abuse and a query may return additional
+        information for targets other threads are running against, it is useful
+        to have other threads pause while one thread is conducting a query.
+      </para>
+      <para>
+        To solve this problem, there is an nmap function,
+        <literal>mutex</literal> that provides a
+        <ulink url="http://en.wikipedia.org/wiki/Mutual_exclusion">mutex</ulink>
+        usable by scripts. The mutex allows for only one thread to be working
+        on an object. Threads waiting to work on this object are put in the
+        waiting queue until they can get a "lock" on the mutex. A solution for
+        the <literal>whois.nse</literal> problem above is to have each thread
+        block on a mutex for the <xref linkend="nse-format-id">script's ID field
+        </xref>, thus ensuring only one thread is working so its results can
+        be shared with other scripts which may not need to run and so queries
+        to the whois servers are staggered.
+      </para>
+      <variablelist>
+        <varlistentry>
+          <term>
+            <option>nmap.mutex(object)</option>
+            <indexterm><primary>mutex</primary></indexterm>
+          </term>
+          <listitem>
+            <para>
+              Returns a function that works on a mutex for the object passed.
+              This object can be any
+              <ulink url="http://www.lua.org/manual/5.1/manual.html#2.2">
+                Lua data type
+              </ulink> except <literal>nil</literal>,
+              <literal>booleans</literal>, and <literal>numbers</literal>.
+              The returned function allows you to lock, try to lock, and
+              release the mutex. It's first and only parameter is either:
+              <variablelist>
+                <varlistentry>
+                  <option><literal>"lock"</literal></option>
+                  <para>
+                    Make a blocking lock on the mutex. If the mutex is busy
+                    (another thread has a lock on it), then the thread will
+                    yield and wait. The function returns with the mutex
+                    locked.
+                  </para>
+                </varlistentry>
+                <varlistentry>
+                  <option><literal>"trylock"</literal></option>
+                  <para>
+                    Makes a non-blocking lock on the mutex. If the mutex is
+                    busy then it immediately returns with a return value of
+                    <literal>false</literal>. Otherwise the mutex locks the
+                    mutex and returns <literal>true</literal>.
+                  </para>
+                </varlistentry>
+                <varlistentry>
+                  <option><literal>"done"</literal></option>
+                  <para>
+                    Releases the mutex and allows another thread to lock it.
+                    If the thread does not have a lock on the mutex, an
+                    error will be raised.
+                  </para>
+                </varlistentry>
+                <varlistentry>
+                  <option><literal>"running"</literal></option>
+                  <para>
+                    Returns the thread locked on the mutex or nil. This
+                    should only be used for debugging as it interferes
+                    with finished threads from being collected.
+                  </para>
+                </varlistentry>
+              </variablelist>
+            </para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+      <example id="nse-mutex-handling">
+        <title>Mutex Manipulation</title>
+        <programlisting>
+id = "My Script's Unique ID";
+
+local mutex = nmap.mutex(id);
+function action(host, port)
+  mutex "lock";
+  -- do stuff
+  mutex"done";
+  return script_output;
+end
+        </programlisting>
+      </example>
+    </sect2>
+
     <sect2 id="nse-exceptions">
       <title>Exception Handling</title>
       <para>
@@ -2907,7 +3028,7 @@ description = "Demonstration of a version detection NSE script. It checks \
 and reports the version of a remote web server. For real life purposes it is \
 better to use Nmap version detection (-sV)."
 author = "Diman Todorov &lt;diman.todorov@gmail.at&gt;
-license = "See Nmap's COPYING for license"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 id = "HTTP version"
 
@@ -3021,7 +3142,7 @@ description="attempts to get a list of usernames via the finger service"
 
 author = "Eddie Bell &lt;ejlbell@gmail.com&gt;"
 
-license = "See nmaps COPYING for licence"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 </programlisting>
 
 <para>The <literal>categories</literal> field is a table
@@ -3129,7 +3250,7 @@ port 113, queries the owner of the service on the scanned port and prints it."
 
 author = "Diman Todorov &lt;diman.todorov@gmail.com&gt;"
 
-license = "See nmaps COPYING for licence"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"safe"}
 
@@ -3137,7 +3258,7 @@ categories = {"safe"}
 
 <para>Portrules are not restricted to those provided by the 
 short-port module (<xref linkend="nse-lib-shortport"/>).
-They can be any function taking a host- and a porttable as argument and 
+They can be any function taking a host- and a port table as argument and 
 returning a boolean.
 </para>
 
@@ -3386,9 +3507,10 @@ executed if it is run against a specific target. After the check those script-ta
 	  This section tries to give a short walk-through to adding
 	  nselib modules written in C (or C++) to Nmap's build system, since
 	  this has shown to be sometimes tedious. Writing C modules is
-	  described at length in <ulink
-	  url="http://www.amazon.com/exec/obidos/ASIN/8590379825/secbks-20">Programming
-	  in Lua, Second Edition</ulink>.  Basically C modules consist of the
+	  described at length in 
+<web><ulink url="http://www.amazon.com/exec/obidos/ASIN/8590379825/secbks-20">Programming in Lua, Second Edition</ulink>.</web>
+<print><citetitle>Programming in Lua, Second Edition</citetitle>.</print>
+  Basically C modules consist of the
 	  functions they provide to Lua, which have to be of type <ulink url="http://www.lua.org/manual/5.1/manual.html#lua_CFunction">lua_CFunction</ulink>. Additionally they have to contain a function
 	  which is used to actually open the module. By convention these function names are <literal>luaopen_<replaceable>modulename</replaceable></literal>.
 	  A good starting point for writing such modules is provided with
