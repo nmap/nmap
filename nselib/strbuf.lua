@@ -46,6 +46,7 @@ function concatbuf(sbuf, s)
   else
     error("bad #2 operand to strbuf concat operation", 2);
   end
+  return sbuf;
 end
 
 function eqbuf(sbuf1, sbuf2)
