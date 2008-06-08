@@ -1,9 +1,22 @@
 -- license = "See nmaps COPYING for license"
-module("strbuf" ,package.seeall)
+
+-- DEPENDENCIES --
+
+local getmetatable = getmetatable;
+local setmetatable = setmetatable;
+local type = type;
+local error = error;
+local ipairs = ipairs;
+local pairs = pairs;
+local concat = table.concat;
+
+
+module("strbuf");
 
 -- String buffer functions. Concatenation is not efficient in 
--- lua as strings are immutable. If a large amount of '..' 
+-- lua as strings are immutable. If a large amount of '..' sequential
 -- operations are needed a string buffer should be used instead
+-- e.g. for i = 1, 10 do s = s..i end
 
 --[[
 	local buf = strbuf.new()
@@ -21,64 +34,52 @@ module("strbuf" ,package.seeall)
 	strbuf.clear(buf)
 --]]
 
+dump = concat;
 
-
-dump = table.concat 
-
-concatbuf =function(sbuf, s)
-	if sbuf == s then
-		error("refusing to concat the same buffer (recursion)!")
-	end
-	if getmetatable(sbuf) ~= mt then
-		error("left-hand operand of the concat operation has to be a strbuf!")
-	end
-	if type(s)=="string" then
-		table.insert(sbuf, s)
-	elseif getmetatable(s) == mt then
-		for _,v in ipairs(s) do
-			table.insert(sbuf, v)
-		end
-	else 
-		error("right-hand operand of concat has to be either string or strbuf!")
-	end
-	return sbuf
+function concatbuf(sbuf, s)
+  if type(s) == "string" then
+    sbuf[#sbuf+1] = s;
+  elseif getmetatable(s) == getmetatable(sbuf) then
+    for _,v in ipairs(s) do
+      sbuf[#sbuf+1] = v;
+    end
+  else
+    error("bad #2 operand to strbuf concat operation", 2);
+  end
 end
 
-local eqbuf = function(sbuf1, sbuf2)
-	if getmetatable(sbuf1) ~= mt then
-		error("equal function expects a value of type strbuf as left-hand operand")
-	end
-	if getmetatable(sbuf1) ~= getmetatable(sbuf2) then
-		return false
-	end
-
-	if #sbuf1 ~= #sbuf2 then
-		return false
-	end
-	
-	for i=1, #sbuf1 do
-		if sbuf1[i] ~= sbuf2[i] then
-			return false
-		end
-	end
-	return true
-end
-clear = function(sbuf)
-	for i, v in pairs(sbuf) do
-		sbuf[i] = nil
-    	end
+function eqbuf(sbuf1, sbuf2)
+  if getmetatable(sbuf1) ~= getmetatable(sbuf2) then
+    error("one or more operands is not a string buffer", 2);
+  elseif #sbuf1 ~= #sbuf2 then
+    return false;
+  else
+    for i = 1, #sbuf1 do
+      if sbuf1[i] ~= sbuf2[i] then
+        return false;
+      end
+    end
+    return true;
+  end
 end
 
-mt = { __concat = concatbuf, __tostring = function(s) return dump(s, '\n') end ,  __eq=eqbuf}
-
-new = function(val)
-	local tmp ={}
-	setmetatable(tmp, mt)
-	if val ~=nil then
-		table.insert(tmp, val)
-	end
-	return tmp
+function clear(sbuf)
+  for k in pairs(sbuf) do
+    sbuf[k] = nil;
+  end
 end
 
+function tostring(sbuf)
+  return concat(sbuf, "\n");
+end
 
+local mt = {
+  __concat = concatbuf,
+  __tostring = tostring,
+  __eq = eqbuf,
+  __index = _M,
+};
 
+function new(...)
+  return setmetatable({...}, mt);
+end
