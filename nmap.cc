@@ -1046,7 +1046,7 @@ int nmap_main(int argc, char *argv[]) {
       }
       break;
     case 'm': 
-      machinefilename = optarg;
+      machinefilename = logfilename(optarg, tm);
       break;
     case 'n': o.noresolve++; break;
     case 'O': 
@@ -1284,14 +1284,22 @@ int nmap_main(int argc, char *argv[]) {
 
   /* Open the log files, now that we know whether the user wants them appended
      or overwritten */
-  if (normalfilename)
+  if (normalfilename) {
     log_open(LOG_NORMAL, o.append_output, normalfilename);
-  if (machinefilename)
+    free(normalfilename);
+  }
+  if (machinefilename) {
     log_open(LOG_MACHINE, o.append_output, machinefilename);
-  if (kiddiefilename)
+    free(machinefilename);
+  }
+  if (kiddiefilename) {
     log_open(LOG_SKID, o.append_output, kiddiefilename);
-  if (xmlfilename)
+    free(kiddiefilename);
+  }
+  if (xmlfilename) {
     log_open(LOG_XML, o.append_output, xmlfilename);
+    free(xmlfilename);
+  }
 
   if (!o.interactivemode) {
     char tbuf[128];
@@ -1888,7 +1896,10 @@ void nmap_free_mem() {
     o.reference_FPs = NULL;
   }
   AllProbes::service_scan_free();
-  
+  if (o.dns_servers) free(o.dns_servers);
+  if (o.extra_payload) free(o.extra_payload);
+  if (o.ipoptions) free(o.ipoptions);
+  free(o.scriptargs);
 }
 
 /* Reads in a (normal or machine format) Nmap log file and gathers enough

@@ -459,7 +459,7 @@ void NmapOps::ValidateOptions() {
 
   /* Make sure nmap.registry.args is available (even if it's empty) */
   if (!scriptargs)
-    scriptargs = "";
+    scriptargs = strdup("");
 }
 
 void NmapOps::setMaxOSTries(int mot) {
