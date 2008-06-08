@@ -3413,55 +3413,25 @@ also get stored inside the <literal>registry</literal>.</para>
 		case of a default script scan.  The string <literal>version</literal> 
 		is appended, if version detection was enabled.
 		The arguments afterwards are tried to be 
-		interpreted as script categories. This is done via a short Lua function
-		hard-coded into <filename>nse_init.cc</filename> called <literal>Entry</literal>. If you take a look into the <filename>script.db</filename> you'll see that the <literal>Entry</literal> lines inside
-		it are Lua function calls with a table as argument. 
-The arguments that didn't produce any filenames are then interpreted
-as file or directory names themselves.  If this also fails, the script scan is aborted.</para>
-
+		interpreted as script categories. This is done via a Lua C function
+		in <filename>nse_init.cc</filename> called <literal>entry</literal>.
+        Inside <filename>script.db</filename>, for each category of a script,
+        there is a call to <literal>Entry</literal>. If the category was chosen
+        then the script is loaded. Every argument of
+        <option>--script</option> that could not be interpretted as a category
+        is loaded as a file or directory. If the file or directory could not
+        be located, then an error is raised and the Script Engine aborts.
+        </para>
+        
 		<para>
-		In the next stage the found files are loaded as chunks, each with
-		its own environment, having read but not write access to the global
-		name space and saved inside two globally accessible Lua tables: 
-		<literal>hosttests</literal> and <literal>porttests</literal> 
-		depending on the type of script. Because scripts only get loaded once, values stored inside variables during a script's execution against one host or port can be accessed when the same script runs against another target.   This can be used to save computation time when a script is run
-against multiple targets. See <xref linkend="nse-example-persistent-locals"/>.
-
- 
-During this stage scripts are
-also are also provided with a default <literal>runlevel</literal> (1.0), if they
-don't specify one themselves and a check is performed whether they
-contain an <literal>action</literal> and a <literal>description</literal> field.
-</para>
-
-<example id="nse-example-persistent-locals">
-<title>Using local variables to save data.</title>
-<programlisting>
-id="persistent locals example"
-description="This sample script shows how data can be stored across \
-several invocations of a script against multiple targets"
-author="Stoiko Ivanov"
-categories = {"safe"}
-
-require "shortport"
-portrule = shortport.portnumber(80)
--- we have to declare the variable in the script's global scope
--- because if we declare it inside the action it would get redefined
--- with each call to the action 
-local filecontent = nil
-require "strbuf"
-action= function(host, port)
-  if(filecontent == nil) then
-    filecontent = strbuf.new()
-    for line in io.lines("a_filename_we_want_to_read_from")
-      filecontent = filecontent .. line
-    end
-  end
-  --rest of the script doing something with the filecontent, we just
-  --read
-end
-</programlisting>
-</example>
+        All the <literal>.nse</literal> files inside a loaded directory are 
+        loaded as files. Each file loaded is exectuted in Lua. If a
+        <emphasis>portrule</emphasis> is present, then it is saved in the
+        <emphasis>porttests</emphasis> table with a portrule key and file
+        closure value. Otherwise, if the script has a <emphasis>hostrule
+        </emphasis>, then it is saved in the <emphasis>hosttests</emphasis>
+        in the same manner.
+        </para>
     </sect2>
     
 	<sect2 id="nse-implementation-match">
@@ -3475,7 +3445,16 @@ It should be noted that the rules of all chosen scripts are
 checked against all hosts and their <literal>open</literal> and <literal>open|filtered</literal> ports.
 Therefore it is advisable to leave the rules as simple as possible and
 to do all the computation inside the <literal>action</literal>, as a script will only be
-executed if it is run against a specific target. After the check those script-target combinations  get their own <ulink url="http://www.lua.org/manual/5.1/manual.html#2.11">Lua-thread</ulink> which is anchored in Lua's C-API <ulink url="http://www.lua.org/manual/5.1/manual.html#3.5">registry</ulink> to prevent their garbage collection. These <literal>thread_records</literal> are afterwards sorted by run level and all script-target combinations of one run level are stored in a list, in order to ensure that scripts with a higher run level are run after those with a lower one.</para>
+executed if it is run against a specific target. After the check those script-target combinations
+get their own <ulink url="http://www.lua.org/manual/5.1/manual.html#2.11">Lua-thread</ulink>. A
+thread running against a host will have only a hostrule passed to the action closure whereas
+a thread running against a port will have both a hostrule and portrule passed. Each thread
+is stored in a runlevel table with a table of information for the thread. This information
+includes the runlevel, target, target port (if applicable), host and port tables
+(passed to action), its type (running against a host or port), and its id. When
+script scanning begins, these runlevel tables that store the threads will be
+passed to mainloop where the real work begins.
+</para>
 
     </sect2>
 
@@ -3491,9 +3470,20 @@ executed if it is run against a specific target. After the check those script-ta
 	  remote host, is the part of scripts which would consume most time with
 	  waiting, this is the point where scripts suspend themselves and let
 	  others execute. Each call to some of the functions of the Nsock wrapper 
-	   causes the calling script to yield (pause). Once the request is processed by the Nsock library, the 
+	  causes the calling script to yield (pause). Once the request is
+      processed by the Nsock library, the 
 	  callback causes the script to be pushed from the waiting queue to the
 	  running queue, which will eventually let it resume its operation.
+      The running queue is the runlevel table passed to mainloop
+      (see nse_main.cc). Mainloop will create a table for waiting scripts
+      which will have the same form as the running queue. Threads will be
+      moved back and forth between the tables; when a thread yields, it
+      is moved to the waiting queue. After all scripts are run in the running
+      queue, mainloop will place all threads ready to be run in the
+      running queue. Threads are made "ready" by calling 
+      <literal>process_waiting2running</literal>. This process of running
+      threads and moving paused threads to the waiting and running queues is
+      repeated until no threads exist in the waiting or running queues.
 	  </para>
     </sect2>
 	<sect2 id="nse-implementation-c-modules">
