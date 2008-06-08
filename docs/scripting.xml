@@ -693,7 +693,7 @@ that.</para>
 	  are often useful for low-level network communication, Reuben
           Thomas'
          <ulink url="http://luaforge.net/projects/bitlib">bitwise operation library</ulink>
-          for Lua has been Thomas' bitwise operation library for Lua has been
+      for Lua has
 	  integrated into NSE. The arguments to the bitwise operation
 	  functions should be integers.  The number of bits available
 	  for logical operations depends on the data type used to
@@ -1249,12 +1249,13 @@ if(s) code_to_be_done_on_match end
 	</para>
 	<variablelist>
 	    <varlistentry>
-	      <term><option>buffer = strbuf.new("first-string")</option>
+	      <term><option>buffer = strbuf.new(...)</option>
 		  <indexterm><primary>new</primary></indexterm></term>
 	      <listitem>
 		  <para>
-		  Creates a new string buffer. The argument is optional and is the 
-		  first string to be added to the buffer.
+            Creates a new string buffer. The optional arguments are added
+            to the string buffer. Attempting to add non-strings will
+            result in undefined behavior.
 		  </para>
 	      </listitem>
 	    </varlistentry>
@@ -2873,20 +2874,14 @@ categories = {"safe", "intrusive"}
       <para>
 <programlisting>
 portrule = function(host, port)
-local identd, decision
+  local ident_port = { number=113, protocol="tcp" }
+  local identd = nmap.get_port_state(host, ident_port)
 
-local ident_port = { number=113, protocol="tcp" }
-identd = nmap.get_port_state(host, ident_port)
-
-if
- identd ~= nil and identd.state == "open" and port.state == "open"
-then
- decision = true
-else
- decision = false
-end
-
-return decision
+  if identd ~= nil and identd.state == "open" and port.state == "open" then
+    return true
+  else
+    return false
+  end
 end
 </programlisting>
       </para>
