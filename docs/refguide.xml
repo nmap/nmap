@@ -3323,8 +3323,8 @@ overwhelming requests.  Specify <option>--open</option> to only see
 
       <varlistentry>
         <term>
-          <option>--no_stylesheet</option> (Omit XSL stylesheet declaration from XML)
-          <indexterm><primary>--no_stylesheet</primary></indexterm>
+          <option>--no-stylesheet</option> (Omit XSL stylesheet declaration from XML)
+          <indexterm><primary>--no-stylesheet</primary></indexterm>
         </term>
         <listitem>
 

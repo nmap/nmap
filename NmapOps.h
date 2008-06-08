@@ -244,7 +244,7 @@ class NmapOps {
 
   int max_ips_to_scan; // Used for Random input (-iR) to specify how 
                        // many IPs to try before stopping. 0 means unlimited.
-  int extra_payload_length; /* These two are for --data_length op */
+  int extra_payload_length; /* These two are for --data-length op */
   char *extra_payload;
   unsigned long host_timeout;
   /* Delay between probes, in milliseconds */

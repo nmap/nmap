@@ -132,7 +132,7 @@ struct idle_proxy_info {
   u16 probe_port; /* The port we use for probing IP ID infoz */
   u16 max_groupsz; /* We won't test groups larger than this ... */
   u16 min_groupsz; /* We won't allow the group size to fall below this
-		      level.  Affected by --min_parallelism */
+		      level.  Affected by --min-parallelism */
   double current_groupsz; /* Current group size being used ... depends on
                           conditions ... won't be higher than
                           max_groupsz */

@@ -232,7 +232,7 @@ typedef enum { devt_ethernet, devt_loopback, devt_p2p, devt_other  } devtype;
 
 
 /* Used for tracing all packets sent or received (eg the
-   --packet_trace option) */
+   --packet-trace option) */
 class PacketTrace {
  public:
   /*  static const int SEND=1;

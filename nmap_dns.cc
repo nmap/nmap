@@ -1164,7 +1164,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
     if (o.dns_servers) add_dns_server(o.dns_servers);
     else parse_resolvdotconf();
 
-    if (servs.size() == 0 && firstrun) error("mass_dns: warning: Unable to determine any DNS servers. Reverse DNS is disabled. Try using --system-dns or specify valid servers with --dns_servers");
+    if (servs.size() == 0 && firstrun) error("mass_dns: warning: Unable to determine any DNS servers. Reverse DNS is disabled. Try using --system-dns or specify valid servers with --dns-servers");
   }
 
 
