@@ -2609,8 +2609,8 @@ error_message describes the occurred error.</para>
               The returned function allows you to lock, try to lock, and
               release the mutex. It's first and only parameter is either:
             </para>
-            <variablelist>
-              <varlistentry>
+            <itemizedlist>
+              <listitem>
                 <option><literal>"lock"</literal></option>
                 <para>
                   Make a blocking lock on the mutex. If the mutex is busy
@@ -2618,8 +2618,8 @@ error_message describes the occurred error.</para>
                   yield and wait. The function returns with the mutex
                   locked.
                 </para>
-              </varlistentry>
-              <varlistentry>
+              </listitem>
+              <listitem>
                 <option><literal>"trylock"</literal></option>
                 <para>
                   Makes a non-blocking lock on the mutex. If the mutex is
@@ -2627,24 +2627,24 @@ error_message describes the occurred error.</para>
                   <literal>false</literal>. Otherwise the mutex locks the
                   mutex and returns <literal>true</literal>.
                 </para>
-              </varlistentry>
-              <varlistentry>
+              </listitem>
+              <listitem>
                 <option><literal>"done"</literal></option>
                 <para>
                   Releases the mutex and allows another thread to lock it.
                   If the thread does not have a lock on the mutex, an
                   error will be raised.
                 </para>
-              </varlistentry>
-              <varlistentry>
+              </listitem>
+              <listitem>
                 <option><literal>"running"</literal></option>
                 <para>
                   Returns the thread locked on the mutex or nil. This
                   should only be used for debugging as it interferes
                   with finished threads from being collected.
                 </para>
-              </varlistentry>
-            </variablelist>
+              </listitem>
+            </itemizedlist>
           </listitem>
         </varlistentry>
       </variablelist>
