@@ -1,6 +1,6 @@
 -- See nmaps COPYING for licence
 
-module(..., package.seeall)
+module(... or "stdnse", package.seeall)
 
 print_debug = function(...)
 	local verbosity = 1;
@@ -25,9 +25,7 @@ function strsplit(delimiter, text)
 	local list = {}
 	local pos = 1
 
-	if string.find("", delimiter, 1) then -- this would result in endless loops
-		error("delimiter matches empty string!")
-	end
+    assert(delimiter ~= "", "delimiter matches empty string!");
 
 	while true do
 		local first, last = string.find(text, delimiter, pos)
