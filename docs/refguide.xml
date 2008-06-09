@@ -82,7 +82,7 @@
 <screen>
 # nmap -A -T4 scanme.nmap.org playground
 
-Starting nmap ( http://nmap.org )
+Starting Nmap ( http://nmap.org )
 Interesting ports on scanme.nmap.org (205.217.153.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 PORT    STATE  SERVICE VERSION
@@ -2823,17 +2823,17 @@ support the option completely, as does UDP scan.</para>
   raw ethernet frames it sends.  This option implies
   <option>--send-eth</option> to ensure that Nmap actually sends
   ethernet-level packets.  The MAC given can take several formats.  If
-  it is simply the string <quote>0</quote>, Nmap chooses a completely random MAC
+  it is simply the number <literal>0</literal>, Nmap chooses a completely random MAC address
   for the session.  If the given string is an even number of hex
   digits (with the pairs optionally separated by a colon), Nmap will
-  use those as the MAC.  If less than 12 hex digits are provided, Nmap
+  use those as the MAC.  If fewer than 12 hex digits are provided, Nmap
   fills in the remainder of the 6 bytes with random values.  If the
   argument isn't a 0 or hex string, Nmap looks through
   <filename>nmap-mac-prefixes</filename> to find a vendor name containing the given string
   (it is case insensitive).  If a match is found, Nmap uses the
   vendor's OUI (3-byte prefix) and fills out the remaining 3 bytes
   randomly.  Valid <option>--spoof-mac</option> argument examples are <literal>Apple</literal>, <literal>0</literal>,
-  <literal>01:02:03:04:05:06</literal>, <literal>deadbeefcafe</literal>, <literal>0020F2</literal>, and <literal>Cisco</literal>.</para>
+  <literal>01:02:03:04:05:06</literal>, <literal>deadbeefcafe</literal>, <literal>0020F2</literal>, and <literal>Cisco</literal>.  This option only affects raw packet scans such as SYN scan or OS detection, not connection-oriented features such as version detection or the Nmap Scripting Engine.</para>
 
         </listitem>
       </varlistentry>
