@@ -45,6 +45,9 @@ o The zoneTrans.nse script now takes a "domain" script argument to
   specify the desired domain name to transfer.  You can narrow the
   scope down with the form "zoneTrans={domain=xxx}". [Kris]
 
+o Fixed --script-updatedb "aborting" despite success:
+  http://seclists.org/nmap-dev/2008/q2/0623.html
+
 Nmap 4.65 [2008-6-1]
 
 o A Mac OS X Nmap/Zenmap installer is now available from the Nmap

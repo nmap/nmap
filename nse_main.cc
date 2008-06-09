@@ -83,7 +83,7 @@ static int panic (lua_State *L)
 int script_updatedb (void)
 {
   int status;
-  int ret;
+  int ret = SCRIPT_ENGINE_SUCCESS;
   lua_State *L;
 
   SCRIPT_ENGINE_VERBOSE(
