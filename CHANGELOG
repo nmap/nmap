@@ -1,5 +1,15 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o An error was fixed where Zenmap would crash when trying to load from
+  the recent scans database a file containing non-ASCII characters. The
+  error looked like
+    pysqlite2.dbapi2.OperationalError: Could not decode to UTF-8 column
+      'nmap_xml_output' with text
+    '<?xml version="1.0" encoding="iso-8859-1"?>
+    <nmaprun profile="nmap -T Aggressive -n -v %s" scanner="nmap" hint=""
+  The error would be seen when such a scan was found in using the search
+  interface. [David]
+
 o Install icons and pixmaps under /usr/share/zenmap/{icons,pixmaps} 
   so they don't get mixed in with the files in /usr/share/{icons,pixmaps}.
   [Jurand Nogiec]
