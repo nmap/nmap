@@ -70,6 +70,9 @@ int process_mainloop(lua_State* L);
 int process_waiting2running(lua_State* L, int resume_arguments);
 int process_finalize(lua_State* L, unsigned int registry_idx);
 
+// post execution
+int cleanup_threads(std::list<struct thread_record> trs);
+
 static int panic (lua_State *L)
 {
   const char *err = lua_tostring(L, 1);
@@ -298,6 +301,7 @@ finishup:
 			log_write(LOG_STDOUT, "%s: Script scanning completed.\n", SCRIPT_ENGINE);
 			)
 	lua_close(L);
+	cleanup_threads(torun_threads);
 	torun_scripts.clear();
 	if(status != SCRIPT_ENGINE_SUCCESS) {
 		error("%s: Aborting script scan.", SCRIPT_ENGINE);
@@ -751,4 +755,13 @@ int process_preparethread(lua_State* L, struct run_record rr, struct thread_reco
 	return SCRIPT_ENGINE_SUCCESS;
 }
 
+int cleanup_threads(std::list<struct thread_record> trs)
+{
+	std::list<struct thread_record>::iterator triter;
+
+	for (triter = trs.begin(); triter != trs.end(); triter++)
+		free((*triter).rr);
+
+	return SCRIPT_ENGINE_SUCCESS;
+}
 
