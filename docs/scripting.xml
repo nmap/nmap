@@ -2581,13 +2581,13 @@ error_message describes the occurred error.</para>
       </para>
       <para>
         To solve this problem, there is an nmap function,
-        <literal>mutex</literal> that provides a
+        <literal>mutex</literal>, that provides a
         <ulink url="http://en.wikipedia.org/wiki/Mutual_exclusion">mutex</ulink>
         usable by scripts. The mutex allows for only one thread to be working
         on an object. Threads waiting to work on this object are put in the
         waiting queue until they can get a "lock" on the mutex. A solution for
         the <literal>whois.nse</literal> problem above is to have each thread
-        block on a mutex for the <xref linkend="nse-format-id">script's ID field
+        block on a mutex for <xref linkend="nse-format-id">script's ID field
         </xref>, thus ensuring only one thread is working so its results can
         be shared with other scripts which may not need to run and so queries
         to the whois servers are staggered.
@@ -2611,35 +2611,35 @@ error_message describes the occurred error.</para>
             </para>
             <itemizedlist>
               <listitem>
-                <option><literal>"lock"</literal></option>
                 <para>
-                  Make a blocking lock on the mutex. If the mutex is busy
+                  <literal>"lock"</literal>&mdash;Make a blocking lock on the
+                  mutex. If the mutex is busy
                   (another thread has a lock on it), then the thread will
                   yield and wait. The function returns with the mutex
                   locked.
                 </para>
               </listitem>
               <listitem>
-                <option><literal>"trylock"</literal></option>
                 <para>
-                  Makes a non-blocking lock on the mutex. If the mutex is
+                  <literal>"trylock"</literal>&mdash;Makes a non-blocking lock 
+                  on the mutex. If the mutex is
                   busy then it immediately returns with a return value of
                   <literal>false</literal>. Otherwise the mutex locks the
                   mutex and returns <literal>true</literal>.
                 </para>
               </listitem>
               <listitem>
-                <option><literal>"done"</literal></option>
                 <para>
-                  Releases the mutex and allows another thread to lock it.
+                  <literal>"done"</literal>&mdash;Releases the mutex and allows
+                  another thread to lock it.
                   If the thread does not have a lock on the mutex, an
                   error will be raised.
                 </para>
               </listitem>
               <listitem>
-                <option><literal>"running"</literal></option>
                 <para>
-                  Returns the thread locked on the mutex or nil. This
+                  <literal>"running"</literal>&mdash;Returns the thread locked
+                  on the mutex or nil. This
                   should only be used for debugging as it interferes
                   with finished threads from being collected.
                 </para>
