@@ -468,7 +468,7 @@ void validate_scan_lists(scan_lists &ports, NmapOps &o){
 		assert(ports.ack_ping_count > 0);
 	}
 
-	if (!o.isr00t || o.pf() != PF_INET) {
+	if ((o.pingtype & PINGTYPE_TCP) && (!o.isr00t || o.pf() != PF_INET)) {
     		// We will have to do a connect() style ping 
 		if (ports.syn_ping_count && ports.ack_ping_count) {
 			fatal("Cannot use both SYN and ACK ping probes if you are nonroot or using IPv6");
