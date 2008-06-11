@@ -424,8 +424,8 @@ static void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize) {
 static const char *ippackethdrinfo(const u8 *packet, u32 len) {
   static char protoinfo[512];
   struct ip *ip = (struct ip *) packet;
-  struct tcp_hdr *tcp;
-  struct udp_hdr *udp;
+  struct tcp_hdr *tcp = NULL;
+  struct udp_hdr *udp = NULL;
   char ipinfo[512];
   char srchost[INET6_ADDRSTRLEN], dsthost[INET6_ADDRSTRLEN];
   char *p;
@@ -560,15 +560,23 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
       unsigned short checksum;
       unsigned short id;
       unsigned short seq;
-    } *ping;
+    } *ping = NULL;
+    unsigned pktlen = (ip->ip_hl * 4) + sizeof(struct ppkt);
+    if (pktlen > len)
+      goto icmpbad;
     ping = (struct ppkt *) ((ip->ip_hl * 4) + (char *) ip);
     switch(ping->type) {
     case 0:
       strcpy(icmptype, "echo reply"); break;
     case 3:
       ip2 = (struct ip *) ((char *) ip + (ip->ip_hl * 4) + 8);
-      tcp = (struct tcp_hdr *) ((char *) ip2 + (ip2->ip_hl * 4));
-      udp = (struct udp_hdr *) ((char *) ip2 + (ip2->ip_hl * 4));
+      pktlen += (ip2->ip_hl * 4);
+      if (pktlen > len)
+        goto icmpbad;
+      if (pktlen + 8 < len) {
+        tcp = (struct tcp_hdr *) ((char *) ip2 + (ip2->ip_hl * 4));
+        udp = (struct udp_hdr *) ((char *) ip2 + (ip2->ip_hl * 4));
+      }
       ip2dst = inet_ntoa(ip2->ip_dst);
       switch (ping->code) {
       case 0:
@@ -581,9 +589,9 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
 	Snprintf(icmptype, sizeof icmptype, "protocol %u unreachable", ip2->ip_p);
 	break;
       case 3:
-	if (ip2->ip_p == IPPROTO_UDP)
+	if (ip2->ip_p == IPPROTO_UDP && udp)
 	  Snprintf(icmptype, sizeof icmptype, "port %u unreachable", ntohs(udp->uh_dport));
-	else if (ip2->ip_p == IPPROTO_TCP)
+	else if (ip2->ip_p == IPPROTO_TCP && tcp)
 	  Snprintf(icmptype, sizeof icmptype, "port %u unreachable", ntohs(tcp->th_dport));
 	else
 	  strcpy(icmptype, "port unreachable");
@@ -678,8 +686,20 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
       strcpy(icmptype, "Unknown type"); break;
       break;
     }
-    Snprintf(protoinfo, sizeof(protoinfo), "ICMP %s > %s %s (type=%d/code=%d) %s",
-	     srchost, dsthost, icmptype, ping->type, ping->code, ipinfo);
+    if (pktlen > len) {
+    icmpbad:
+      if (ping) {
+        /* We still have this information */
+        Snprintf(protoinfo, sizeof(protoinfo), "ICMP %s > %s (type=%d/code=%d) %s",
+		 srchost, dsthost, ping->type, ping->code, ipinfo);
+      } else {
+        Snprintf(protoinfo, sizeof(protoinfo), "ICMP %s > %s [??] %s",
+		 srchost, dsthost, ipinfo);
+      }
+    } else {
+      Snprintf(protoinfo, sizeof(protoinfo), "ICMP %s > %s %s (type=%d/code=%d) %s",
+	       srchost, dsthost, icmptype, ping->type, ping->code, ipinfo);
+    }
   } else {
     Snprintf(protoinfo, sizeof(protoinfo), "Unknown protocol (%d) %s > %s: %s", 
 	     ip->ip_p, srchost, dsthost, ipinfo);
