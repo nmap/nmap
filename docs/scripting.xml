@@ -3247,7 +3247,7 @@ author = "Diman Todorov &lt;diman.todorov@gmail.com&gt;"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"safe"}
+categories = {"default", "safe"}
 
 </programlisting>
 
@@ -3259,7 +3259,7 @@ returning a boolean.
 
 <programlisting>
 portrule = function(host, port) 
-  local identd, decision
+    local auth_port = { number=113, protocol="tcp" }
 </programlisting>
 
 <para>In order to determine the state of a port, which is not provided
@@ -3269,19 +3269,17 @@ as argument we just have to construct a table describing the port
 with the information Nmap has about the port.</para>
 
 <programlisting>
-  local auth_port = { number=113, protocol="tcp" }
-  identd = nmap.get_port_state(host, auth_port)
+   local identd = nmap.get_port_state(host, auth_port)
 
-  if 
-    identd ~= nil
-    and identd.state == "open" 
-  then
-    decision = true
-  else
-    decision = false
-  end
-
-  return decision
+   if identd ~= nil
+      and identd.state == "open"
+      and port.protocol == "tcp"
+      and port.state == "open"
+   then
+     return true
+   else
+     return false
+   end
 end
 
 action = function(host, port)
