@@ -356,13 +356,17 @@ static void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize) {
 	  
     } else if (opcode == 5) { /* SACK */
 	  
-	  int sackoptlen = *q;
-	  if(len < sackoptlen)
+	  unsigned sackoptlen = *q;
+	  if((unsigned) len < sackoptlen)
+		break;
+
+	  /* This would break parsing, so it's best to just give up */
+	  if(sackoptlen < 2)
 		break;
 	  
 	  q++;
 	  
-	  if((sackoptlen-2) % 8 != 0) {
+	  if((sackoptlen-2) == 0 || ((sackoptlen-2) % 8 != 0)) {
 		Snprintf(p, bufsize, "malformed sack");
 		bufsize -= strlen(p);
 		p += strlen(p); 
@@ -370,7 +374,7 @@ static void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize) {
 		Snprintf(p, bufsize, "sack %d ", (sackoptlen-2)/8);
 		bufsize -= strlen(p);
 		p += strlen(p);
-		for(int i = 0; i < sackoptlen - 2; i += 8) {
+		for(unsigned i = 0; i < sackoptlen - 2; i += 8) {
 		  memcpy(&tmpword1, q + i, 4);
 		  memcpy(&tmpword2, q + i + 4, 4);
 		  Snprintf(p, bufsize, "{%u:%u}", tmpword1, tmpword2);
