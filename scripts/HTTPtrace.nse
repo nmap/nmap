@@ -18,6 +18,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery"}
 
+require "comm"
 require "shortport"
 require "stdnse"
 
@@ -76,30 +77,13 @@ end
 portrule = shortport.port_or_service({80, 8080}, "http")
 
 action = function(host, port)
-	local cmd, response
-	local socket
+	local cmd = "TRACE / HTTP/1.0\r\n\r\n"
 
-	socket = nmap.new_socket()
+	local status, response = comm.exchange(host, port, cmd, {timeout=5000})
 
-	socket:connect(host.ip, port.number)
-
-	cmd = "TRACE / HTTP/1.0\r\n\r\n"
-
-	socket:send(cmd)
-
-	response = ""
-
-	while true do
-		local status, lines = socket:receive_lines(1)
-
-		if not status then
-			break
-		end
-
-		response = response .. lines
+	if not status then
+		return
 	end
-
-	socket:close()
 
 	return validate(response, cmd)
 end

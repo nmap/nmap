@@ -8,6 +8,7 @@
 id="Open Proxy Test"
 description="Test if a discovered proxy is open to us by connecting to www.google.com and checking for the 'Server: GWS/' header response."
 categories = {"default", "intrusive"}
+require "comm"
 
 -- I found a nice explode() function in lua-users' wiki. I had to fix it, though.
 -- http://lua-users.org/wiki/LuaRecipes
@@ -39,28 +40,21 @@ portrule = function(host, port)
 end
 
 action = function(host, port)
-	local socket = nmap.new_socket()
-	local result
-	local status = true
 	local response
 	local i
 -- We will return this if we don't find "^Server: GWS" in response headers
 	local retval
 
-	socket:set_timeout(10000);
-	socket:connect(host.ip, port.number, port.protocol)
-	
 -- Ask proxy to open www.google.com
-	socket:send("GET http://www.google.com HTTP/1.0\r\nHost: www.google.com\r\n\r\n")
-
--- read the response, if any
-	status, result = socket:receive_lines(1)
+	local req = "GET http://www.google.com HTTP/1.0\r\nHost: www.google.com\r\n\r\n"
+	local status, result = comm.exchange(host, port, req, {proto=port.protocol, timeout=10000})
 	
--- Explode result into the response table
-	if (status == false) or (result == "TIMEOUT") then
-	else
-		response = explode("\n",result)
+	if not status then
+		return
 	end
+
+-- Explode result into the response table
+	response = explode("\n",result)
 
 -- Now, search for Server: GWS until headers (or table) end.
 	i = 0
@@ -74,7 +68,5 @@ action = function(host, port)
 		end
 	end
 
--- close the socket and exit, returning the retval string.
-	socket:close()
 	return retval
 end

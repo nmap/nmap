@@ -11,6 +11,8 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default", "discovery", "safe"}
 
+require "comm"
+
 -- I have excluded the port function param because it doesn't make much sense
 -- for a hostrule.  It works without warning.  The NSE documentation is
 -- not explicit enough in this regard.  
@@ -49,51 +51,23 @@ end
 -- Again, I have excluded the port param.  Is this okay on a hostrule?
 action = function(host)
 	
-	local socket = nmap.new_socket()
-
-	socket:set_timeout(5000)
-
-	local result
-	local status = true
-
-	status, result = socket:connect(host.ip, 137, "udp")
-
-	if (not status) then
-		-- Can a UDP connect ever fail?
-		return
-	end
-
 	-- This is the UDP NetBIOS request packet.  I didn't feel like
 	-- actually generating a new one each time so this has been shamelessly
 	-- copied from a packet dump of nbtscan.
 	-- See http://www.unixwiz.net/tools/nbtscan.html for code.
 	-- The magic number in this code is \003\097.
-	status, result = socket:send(
+	local data =
 		"\003\097\000\016\000\001\000\000" ..
 		"\000\000\000\000\032\067\075\065" ..
 		"\065\065\065\065\065\065\065\065" ..
 		"\065\065\065\065\065\065\065\065" ..
 		"\065\065\065\065\065\065\065\065" ..
 		"\065\065\065\065\065\000\000\033" ..
-		"\000\001")
+		"\000\001"
+
+	local status, result = comm.exchange(host, 137, data, {bytes=1, proto="udp", timeout=5000})
 
 	if (not status) then
-		-- Can the first UDP send ever fail?
-		return
-	end
-
-	-- this receive_bytes will consume all the input available
-	-- with a minimum of 1 byte.
-	status, result = socket:receive_bytes(1);
-
-	-- We don't need this socket anymore
-	socket:close()
-
-	if (not status) then
-		return
-	end
-
-	if (result == "TIMEOUT") then
 		return
 	end
 

@@ -9,21 +9,17 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"demo"}
 
+require "comm"
 require "shortport"
 
 portrule = shortport.port_or_service(7, "echo", "udp")
 
 action = function(host, port)
 	local echostr = "hello there"
-	local socket = nmap.new_socket()
-	socket:connect(host.ip, port.number, "udp")
-	socket:send(echostr)
-	local status, result = socket:receive_lines(1);
-	socket:close()
+
+	local status, result = comm.exchange(host, port, echostr, {lines=1, proto="udp"})
 
 	if (result == echostr) then
 		return "UDP Echo: correct response"
 	end
-
-	return
 end

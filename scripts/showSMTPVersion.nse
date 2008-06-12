@@ -8,24 +8,18 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"demo"}
 
+require "comm"
 require "shortport"
 
 portrule = shortport.port_or_service(25, "smtp")
 
 action = function(host, port)
-	
-	local client = nmap.new_socket()
+	local status, result = comm.get_banner(host, port, {lines=1})
 
-	client:connect(host.ip, port.number)
-	
-	local status, result = client:receive_lines(1);
-
-	client:close()	
-
-	if result ~= nil then
-		result = string.gsub(result, "\n", "")
+	if not status then
+		return
 	end
 
-	return result
+	return string.gsub(result, "\n", "")
 end
 

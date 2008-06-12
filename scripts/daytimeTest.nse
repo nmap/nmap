@@ -8,18 +8,15 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"demo"}
 
+require "comm"
 require "shortport"
 
 portrule = shortport.port_or_service(13, "daytime", "udp")
 
 action = function(host, port)
-	local socket = nmap.new_socket()
-	socket:connect(host.ip, port.number, "udp")
-	socket:send("dummy")
-	local status, result = socket:receive_lines(1);
-	socket:close()
+	local status, result = comm.exchange(host, port, "dummy", {lines=1, proto="udp"})
 
-	if (result ~= nil) then
+	if status then
 		return "Daytime: " .. result
 	end
 end

@@ -9,23 +9,15 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"malware"}
 
+require "comm"
 require "shortport"
 
 portrule = shortport.port_or_service(113, "auth")
 
 action = function(host, port)
-	local status = 0
-	local owner = ""
+	local status, owner = comm.get_banner(host, port, {lines=1})
 
-	local client_ident = nmap.new_socket()
-
-	client_ident:connect(host.ip, port.number)
-
-	status, owner = client_ident:receive_lines(1)
-
-	client_ident:close()
-
-	if owner == "TIMEOUT" then
+	if not status then
 		return
 	end
 

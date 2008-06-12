@@ -1,3 +1,4 @@
+require "comm"
 require "ipOps"
 
 id = "RIPE query"
@@ -12,24 +13,11 @@ hostrule = function(host, port)
 end
 
 action = function(host, port)
-	local socket = nmap.new_socket()
-	local status, line
-	local result = ""
+	local status, result = comm.exchange("whois.ripe.net", 43, host.ip .. "\n")
 
-	socket:connect("whois.ripe.net", 43)
---	socket:connect("193.0.0.135", 43)
-	socket:send(host.ip .. "\n")
-
-	while true do
-		local status, lines = socket:receive_lines(1)
-
-		if not status then
-			break
-		else
-			result = result .. lines
-		end
+	if not status then
+		return
 	end
-	socket:close()
 
 	local value  = string.match(result, "role:(.-)\n")
 

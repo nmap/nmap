@@ -1441,6 +1441,61 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	</variablelist>
 	</sect2>
+
+	<sect2 id="nse-lib-comm">
+	<title>Common Communication Functions</title>
+	<para>
+	The <literal>comm</literal> module provides functions for common network discovery
+	tasks such as banner-grabbing and making a quick exchange of data.  These functions'
+	return values are setup for use with exception handling via <literal>nmap.new_try()</literal>.
+	</para>
+
+	<para>
+	These functions can all be passed a table of options, but it's not required.
+	The relevant indexes for this table are <literal>bytes</literal>, <literal>lines</literal>,
+	<literal>proto</literal> and <literal>timeout</literal>.  <literal>bytes</literal>
+	is used to provide the minimum number of bytes required for a read.  <literal>lines</literal>
+	does the same, but for the minimum number of lines.  <literal>proto</literal> is used
+	to set the protocol to communicate with, defaulting to "tcp" if not provided.
+	<literal>timeout</literal> is used to set the socket timeout (see the socket function
+	<literal>set_timeout()</literal> for details).
+	</para>
+
+	<variablelist>
+	    <varlistentry>
+	      <term><option>bool, response = comm.get_banner(host, port, [options])</option>
+		  <indexterm><primary>get_banner</primary></indexterm></term>
+	      <listitem>
+		  <para>
+			This function simply connects to the specified port number on
+			the specified host and returns any data received.
+			<literal>bool</literal> is a boolean value indicating success.
+			If <literal>bool</literal> is true, then the second returned
+			value is the response from the target host.  If <literal>bool</literal>
+			is false, an error message is returned as the second value instead
+			of a response.
+		  </para>
+	      </listitem>
+	    </varlistentry>
+
+	    <varlistentry>
+	      <term><option>bool, response = comm.exchange(host, port, data, [options])</option>
+		  <indexterm><primary>exchange</primary></indexterm></term>
+	      <listitem>
+		  <para>
+			This function connects to the specified port number on the
+			specified host, sends <literal>data</literal>, then waits for
+			and returns the response, if any.  <literal>bool</literal> is a
+			boolean value indicating success.  If <literal>bool</literal> is
+			true, then the second returned value is the response from the
+			target host.  If <literal>bool</literal> is false, an error message
+			is returned as the second value instead of a response.
+		  </para>
+	      </listitem>
+	    </varlistentry>
+	</variablelist>
+	</sect2>
+
 	<sect2 id="nse-lib-datafiles">
 	<title>Data File Parsing Functions</title>
 	<para>

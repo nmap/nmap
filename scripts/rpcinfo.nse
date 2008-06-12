@@ -5,6 +5,7 @@ author = "Sven Klemm <sven@c3d2.de>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default","safe","discovery"}
 
+require "comm"
 require "shortport"
 require "packet"
 require "datafiles"
@@ -12,14 +13,12 @@ require "datafiles"
 portrule = shortport.port_or_service(111, "rpcbind")
 
 action = function(host, port)
-  local try, catch
+  local try
   local transaction_id = "nmap"
-  local socket = nmap.new_socket()
   local result = " \n"
   local rpc_numbers
 
-  catch = function() socket:close() end
-  try = nmap.new_try( catch )
+  try = nmap.new_try()
   rpc_numbers = try(datafiles.parse_rpc())
 
   local request = string.char(0x80,0,0,40) -- fragment header
@@ -29,16 +28,8 @@ action = function(host, port)
   request = request .. "\0\0\0\2\0\0\0\4" -- programm version (2) procedure dump(4)
   request = request .. "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"-- Credentials and verifier
 
-  socket:set_timeout(1000)
-  try( socket:connect(host.ip, port.number) )
-  try( socket:send( request ) )
-  local status, answer, answer_part
-  status, answer = socket:receive_bytes( 1 )
-  while status do
-    status, answer_part = socket:receive_bytes( 1 )
-    if status then answer = answer .. answer_part end
-  end
-  socket:close()
+  local answer = try(comm.exchange(host, port, request, {timeout=1000}))
+  local answer_part
 
   local fragment_length = answer:byte(4) + answer:byte(3) * 256 + answer:byte(2) * 65536
   if answer:sub(5,8) == transaction_id and answer:byte(12) == 1 and answer:byte(16) == 0 and answer:byte(28) == 0 then

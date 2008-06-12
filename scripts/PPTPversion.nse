@@ -11,6 +11,8 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"version"}
 
+require "comm"
+
 portrule = function(host, port) 
 	if 
 		port.number == 1723
@@ -24,23 +26,6 @@ portrule = function(host, port)
 end
 
 action = function(host, port)
-
-	-- create the socket used for our connection
-	local socket = nmap.new_socket()
-	
-	-- set a reasonable timeout value
-	socket:set_timeout(5000)
-	
-	-- do some exception handling / cleanup
-	local catch = function()
-		socket:close()
-	end
-	
-	local try = nmap.new_try(catch)
-	
-	-- connect to the potential PPTP service
-	try(socket:connect(host.ip, port.number, "tcp"))
-	
 	local payload
 	  
 	-- build a PPTP Start-Control-Connection-Request packet
@@ -67,24 +52,9 @@ action = function(host, port)
 	payload = payload .. "\000\000\000\000\000\000\000\000" -- padding for vendor name
 	payload = payload .. "\000\000\000\000" -- padding for vendor name
 
-	try(socket:send(payload))
-	
-	local status
-	local response
-	
-	-- read in any response we might get
-	status, response = socket:receive_bytes(1)
+	local try = nmap.new_try()
+	local response = try(comm.exchange(host, port, payload, {bytes=1, timeout=5000}))
 
-	if (not status) then
-		return
-	end
-
-	if (response == "TIMEOUT") then
-		return
-	end
-
-	try(socket:close())
-	
 	local result
 		
 	-- check to see if the packet we got back matches the beginning of a PPTP Start-Control-Connection-Reply packet

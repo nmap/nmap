@@ -18,6 +18,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = { "default", "discovery", "safe" }
 
 require 'bit'
+require 'comm'
 
 -- Grabs NUL-terminated string
 local getstring = function(orig)
@@ -105,27 +106,13 @@ portrule = function(host, port)
 end
 
 action = function(host, port)
-	local sock
-	local response = ""
 	local output = ""
 
-	sock = nmap.new_socket()
+	local status, response = comm.get_banner(host, port, {timeout=5000})
 
-	sock:set_timeout(5000)
-
-	sock:connect(host.ip, port.number)
-
-	while true do
-		local status, line = sock:receive_lines(1)
-
-		if not status then
-			break
-		end
-
-		response = response .. line
+	if not status then
+		return
 	end
-
-	sock:close()
 
 	local length = ntoh3(response:sub(1, 3))
 

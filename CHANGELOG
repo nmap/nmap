@@ -28,6 +28,10 @@ o Fixed the nmap_command_path bug in Zenmap. The variable now actually
   by a new class in UmitConf called PathsConfig, which represents the
   [paths] section in zenmap.conf. [Jurand Nogiec]
 
+o Added a new NSE Comm library for common network discovery tasks such
+  as banner-grabbing (get_banner()) and making a quick exchange of data
+  (exchange()).  16 scripts were updated to use this library. [Kris]
+
 o Fixed a bug which caused -PN to erronously bail out for unprivileged
   users.  Thanks to Jabra (jabra(a)spl0it.org) for the report. [Kris]
 
