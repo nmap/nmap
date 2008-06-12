@@ -107,6 +107,9 @@ match buildservice m|^200 HELLO - BuildForge Agent v([\d.]+)\n| p/BuildForge Age
 match buildservice m|^\$\0\0\0\$\0\0\x000RAR\0 \0\0.\xe2\x02\0\xc4G\x0f\0\0\0\0\0\0\0\0\0\0\0\0\0|s p/Xoreax IncrediBuild/ o/Windows/
 match bzfs m|BZFS\d{4}\0| p/BZFlag game server/
 
+# CA Message Queueing Server (Tom Sellers)
+match ca-mq m|^ACK\x01| p/CA Message Queuing Server/
+
 match cddbp m|^201 ([-\w_.]+) CDDBP server v([-\w.]+) ready at .*\r\n| p/freedb cddbp server/ v/$2/ h/$1/
 match chargen m|^!"#\$%\&'\(\)\*\+,-\./0123456789:;<=>\?\@ABCDEFGHIJKLMNOPQRSTUVWXYZ\[\\\]\^_`abcdefgh\r\n"#\$%\&'\(\)\*\+,-\./0123456789:;<=>\?\@ABCDEF| p/Linux chargen/ o/Linux/
 # Redhat 7.2, xinetd 2.3.7 chargen
@@ -3068,6 +3071,9 @@ match gopher m|^3 --6 Bad Request\. \r\n\.\r\n$| p/Windows gopherd/ o/Windows/
 match gopher m|^3 --6 Ung\xfcltige Anforderung\. \r\n\.\r\n$| p/Windows gopherd/ i/German/ o/Windows/
 match gopher-proxy m|^3That item is not currently available\.\r\n$| p/Symantec gopher proxy/
 
+# GoverLan Remote Admin/Control (Tom Sellers)
+match goverlan m|^\0\0\0\0/\x20HT| p/Goverlan Remote Administration/
+
 match gpsd m|^GPSD,G=\?,E=\?,T=\?,T=\?,T=\?,P=\?\r\n| p/gpsd/
 
 match hp-logic-analyzer m|^\r\n\r0\.1/PTTH / TEG.\r\n$| p/HP 1662C logic analyzer/ d/specialized/
@@ -4568,6 +4574,8 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\n(?:Date: .*\r\n)?Server: GroupWise GWIA ([-
 match http m|^HTTP/1\.0 \d\d\d .*\r\n(?:Date: .*\r\n)?Server: Messenger-MA ([-_.\d\w\(\) ]+)\r\n| p/Novell Messenger httpd/ v/$1/ i/Messenger Agent/ o/Unix/
 match http m|^HTTP/1\.0 200 .*\r\nDate: .*\r\nContent-Length: .*\r\nContent-Type: .*\r\n\r\n<html>\r\n<head>\r\n<title>Novell Messenger Download</title>| p/Novell Messenger download httpd/ o/Unix/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Hunchentoot ([\w-_.]+)\r\n|s p/Hunchentoot httpd/ v/$1/
+match http m|^HTTP/1\.1 200 OK\r\nServer: minituner\r\n| p|BMC/Marimba Management http config|
+match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"tuner\"\r\n| p|BMC/Marimba Management http config|
 
 #(insert http)
 

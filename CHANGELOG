@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Integrated several service match lines from Tom Sellers.
+
 o An error was fixed where Zenmap would crash when trying to load from
   the recent scans database a file containing non-ASCII characters. The
   error looked like
