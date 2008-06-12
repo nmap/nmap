@@ -292,61 +292,20 @@ static int getServiceXMLBuf(struct serviceDeductions *sd, char *xmlbuf,
   return 0;
 }
 
+#ifdef WIN32
 /* From tcpip.cc. */
 bool DnetName2PcapName(const char *dnetdev, char *pcapdev, int pcapdevlen);
 
-/* Print a detailed list of Nmap interfaces and routes to
-   normal/skiddy/stdout output */
-int print_iflist(void) {
-  int numifs = 0, numroutes = 0;
-  struct interface_info *iflist;
-  struct sys_route *routes;
-  NmapOutputTable *Tbl = NULL;
-  iflist = getinterfaces(&numifs);
-  int i;
-  /* First let's handle interfaces ... */
-  if (numifs == 0) {
-    log_write(LOG_PLAIN, "INTERFACES: NONE FOUND(!)\n");
-  } else {
-    int devcol=0, shortdevcol=1, ipcol=2, typecol = 3, upcol = 4, maccol = 5;
-    Tbl = new NmapOutputTable( numifs+1, 6 );
-    Tbl->addItem(0, devcol, false, "DEV", 3);
-    Tbl->addItem(0, shortdevcol, false, "(SHORT)", 7);
-    Tbl->addItem(0, ipcol, false, "IP/MASK", 7);
-    Tbl->addItem(0, typecol, false, "TYPE", 4);
-    Tbl->addItem(0, upcol, false, "UP", 2);
-    Tbl->addItem(0, maccol, false, "MAC", 3);
-    for(i=0; i < numifs; i++) {
-      Tbl->addItem(i+1, devcol, false, iflist[i].devfullname);
-      Tbl->addItemFormatted(i+1, shortdevcol, false, "(%s)", iflist[i].devname);
-      Tbl->addItemFormatted(i+1, ipcol, false, "%s/%d", inet_ntop_ez(&(iflist[i].addr), sizeof(iflist[i].addr)), iflist[i].netmask_bits);
-      if (iflist[i].device_type == devt_ethernet) {
-	Tbl->addItem(i+1, typecol, false, "ethernet");
-	Tbl->addItemFormatted(i+1, maccol, false, "%02X:%02X:%02X:%02X:%02X:%02X",  iflist[i].mac[0], iflist[i].mac[1], iflist[i].mac[2], iflist[i].mac[3], iflist[i].mac[4], iflist[i].mac[5]);	
-      }
-      else if (iflist[i].device_type == devt_loopback)
-	Tbl->addItem(i+1, typecol, false, "loopback");
-      else if (iflist[i].device_type == devt_p2p)
-	Tbl->addItem(i+1, typecol, false, "point2point");
-      else Tbl->addItem(i+1, typecol, false, "other");
-      Tbl->addItem(i+1, upcol, false, (iflist[i].device_up? "up" : "down"));
-    }
-    log_write(LOG_PLAIN, "************************INTERFACES************************\n");
-    log_write(LOG_PLAIN, "%s\n", Tbl->printableTable(NULL));
-    log_flush_all();
-    delete Tbl;
-  }
-
-#ifdef WIN32
-  /* Display the mapping from libdnet interface names (like "eth0") to WinPcap
-     interface names (like "\Device\NPF_{...}"). This is the same mapping used
-     by eth_open and so can help diagnose connection problems.  Additionally
-     display WinPcap interface names that are not mapped to by any libdnet
-     name, in other words the names of interfaces Nmap has no way of using.*/
-
+/* Display the mapping from libdnet interface names (like "eth0") to WinPcap
+   interface names (like "\Device\NPF_{...}"). This is the same mapping used by
+   eth_open and so can help diagnose connection problems.  Additionally display
+   WinPcap interface names that are not mapped to by any libdnet name, in other
+   words the names of interfaces Nmap has no way of using.*/
+static void print_iflist_pcap_mapping(const struct interface_info *iflist, int numifs) {
   pcap_if_t *pcap_ifs;
   list<const pcap_if_t *> leftover_pcap_ifs;
   list<const pcap_if_t *>::iterator leftover_p;
+  int i;
 
   /* Build a list of "leftover" libpcap interfaces. Initially it contains all
      the interfaces. */
@@ -394,6 +353,54 @@ int print_iflist(void) {
   }
 
   pcap_freealldevs(pcap_ifs);
+}
+#endif
+
+/* Print a detailed list of Nmap interfaces and routes to
+   normal/skiddy/stdout output */
+int print_iflist(void) {
+  int numifs = 0, numroutes = 0;
+  struct interface_info *iflist;
+  struct sys_route *routes;
+  NmapOutputTable *Tbl = NULL;
+  iflist = getinterfaces(&numifs);
+  int i;
+  /* First let's handle interfaces ... */
+  if (numifs == 0) {
+    log_write(LOG_PLAIN, "INTERFACES: NONE FOUND(!)\n");
+  } else {
+    int devcol=0, shortdevcol=1, ipcol=2, typecol = 3, upcol = 4, maccol = 5;
+    Tbl = new NmapOutputTable( numifs+1, 6 );
+    Tbl->addItem(0, devcol, false, "DEV", 3);
+    Tbl->addItem(0, shortdevcol, false, "(SHORT)", 7);
+    Tbl->addItem(0, ipcol, false, "IP/MASK", 7);
+    Tbl->addItem(0, typecol, false, "TYPE", 4);
+    Tbl->addItem(0, upcol, false, "UP", 2);
+    Tbl->addItem(0, maccol, false, "MAC", 3);
+    for(i=0; i < numifs; i++) {
+      Tbl->addItem(i+1, devcol, false, iflist[i].devfullname);
+      Tbl->addItemFormatted(i+1, shortdevcol, false, "(%s)", iflist[i].devname);
+      Tbl->addItemFormatted(i+1, ipcol, false, "%s/%d", inet_ntop_ez(&(iflist[i].addr), sizeof(iflist[i].addr)), iflist[i].netmask_bits);
+      if (iflist[i].device_type == devt_ethernet) {
+	Tbl->addItem(i+1, typecol, false, "ethernet");
+	Tbl->addItemFormatted(i+1, maccol, false, "%02X:%02X:%02X:%02X:%02X:%02X",  iflist[i].mac[0], iflist[i].mac[1], iflist[i].mac[2], iflist[i].mac[3], iflist[i].mac[4], iflist[i].mac[5]);	
+      }
+      else if (iflist[i].device_type == devt_loopback)
+	Tbl->addItem(i+1, typecol, false, "loopback");
+      else if (iflist[i].device_type == devt_p2p)
+	Tbl->addItem(i+1, typecol, false, "point2point");
+      else Tbl->addItem(i+1, typecol, false, "other");
+      Tbl->addItem(i+1, upcol, false, (iflist[i].device_up? "up" : "down"));
+    }
+    log_write(LOG_PLAIN, "************************INTERFACES************************\n");
+    log_write(LOG_PLAIN, "%s\n", Tbl->printableTable(NULL));
+    log_flush_all();
+    delete Tbl;
+  }
+
+#ifdef WIN32
+  /* Print the libdnet->libpcap interface name mapping. */
+  print_iflist_pcap_mapping(iflist, numifs);
 #endif
 
   /* OK -- time to handle routes */
