@@ -2768,7 +2768,7 @@ try(socket:send(result))
 	  construct consumes the indicator value and returns the
 	  remaining values.  If the function failed then the second
 	  returned value must be a string describing the error
-	  condition. Note that that if the value is not <literal>nil</literal> it is
+	  condition. Note that if the value is not <literal>nil</literal> it is
 	  treated as <literal>true</literal> so you can return your
 	  value in the normal case and return <literal>nil, <replaceable>error description</replaceable></literal>
 	  if an error occurs.
