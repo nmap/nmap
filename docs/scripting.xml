@@ -52,14 +52,7 @@
           <para>When a new vulnerability is discovered, you often want
        to scan your networks quickly to identify vulnerable systems
        before the bad guys do.  While Nmap isn't a
-       comprehensive 
-<web>
-<ulink url="http://sectools.org/vuln-scanners.html">vulnerability scanner</ulink>,
-</web><print>
-vulnerability scanner,
-</print>
-
-       we plan to distribute scripts for some very severe or common vulnerabilities and misconfigurations.</para>
+       comprehensive <ulink role="hidepdf" url="http://sectools.org/vuln-scanners.html">vulnerability scanner</ulink>, we plan to distribute scripts for some very severe or common vulnerabilities and misconfigurations.</para>
 
         </listitem>
       </varlistentry>
@@ -376,10 +369,7 @@ extension does not have to be <literal>nse</literal>.
 
 <para>Nmap scripts are stored in a <filename>scripts</filename>
 subdirectory of the Nmap data directory
-<bookex>(see <xref linkend="data-files"/>)</bookex>
-<notbook>(see the <ulink url="http://nmap.org/book/man-misc-options.html"><option>--datadir</option>
-option</ulink>)</notbook>
-by default.  Scripts are indexed in a database stored in
+(see <xref linkend="data-files"/>) by default.  Scripts are indexed in a database stored in
 <filename>scripts/script.db</filename>. The database lists all of the
 scripts in each category. A single script may be in several
 categories.</para>
@@ -623,8 +613,8 @@ that.</para>
     <para>
     Lua was designed with a small feature set to ease embedding. So
     we have added extensions to support more specialized
-    functionality.  These basically are 
-	<ulink url="http://www.lua.org/manual/5.1/manual.html#5.3">Lua modules</ulink> written either in Lua itself, or where needed in C. This 
+    functionality.  These are basically
+	<ulink url="http://www.lua.org/manual/5.1/manual.html#5.3">Lua modules</ulink> written either in Lua itself, or in C. This 
 	NSE library is the third part of the NSE.
 	</para>
     
@@ -680,7 +670,7 @@ that.</para>
 	  <emphasis>modules</emphasis> are compiled and installed along with 
 	  Nmap. They have their own directory, <filename>nselib</filename>, which
 	  is installed in the configured datadir. Scripts need only 
-      <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#pdf-require">
+      <ulink url="http://www.lua.org/manual/5.1/manual.html#pdf-require">
       <literal>require</literal>
       </ulink> the default modules in order to use them.
       The default modules are described in the following sections.
@@ -1789,9 +1779,7 @@ if(s) code_to_be_done_on_match end
 
    <row>
     <entry><literal>product</literal>, <literal>version</literal>, <literal>extrainfo</literal>, <literal>hostname</literal>, <literal>ostype</literal>, <literal>devicetype</literal></entry>
-    <entry>These five variables are described in
-    <bookex><xref linkend="vscan-versioninfo"/>.</bookex>
-    <notbook>the <ulink url="http://nmap.org/vscan/vscan-fileformat.html#vscan-versioninfo">versioninfo section</ulink> of our version scanning documentation.</notbook>
+    <entry>These five variables are described in <xref linkend="vscan-versioninfo"/>.
    </entry>
    </row>
 
@@ -1803,8 +1791,7 @@ if(s) code_to_be_done_on_match end
    <row>
     <entry><literal>service_fp</literal></entry>
     <entry>The service fingerprint, if any, is provided in this value.  This is described in 
-<bookex><xref linkend="vscan-community"/>.</bookex>
-<notbook>our <ulink url="http://nmap.org/vscan/vscan-community.html">version detection documentation</ulink>.</notbook>
+<xref linkend="vscan-community"/>.
 </entry>
    </row>
 
@@ -2314,7 +2301,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 
                 <para><literal>receive_buf</literal> takes two arguments. 
                   The first one is either a string or a function. If it is 
-		  a string it gets passed to Lua's <literal><ulink url="http://www.lua.org/manual/5.1/manual.html#5.4">string.find</ulink></literal> function as the (second) pattern
+		  a string it gets passed to Lua's <literal><ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.4">string.find</ulink></literal> function as the (second) pattern
 		  parameter, with the buffer data being searched. If it is a function
 		  it is expected to take exactly one parameter (the buffer) and its
 		  return values have to be like those of <literal>string.find</literal>
@@ -2602,7 +2589,7 @@ error_message describes the occurred error.</para>
             <para>
               Returns a function that works on a mutex for the object passed.
               This object can be any
-              <ulink url="http://www.lua.org/manual/5.1/manual.html#2.2">
+              <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#2.2">
                 Lua data type
               </ulink> except <literal>nil</literal>,
               <literal>booleans</literal>, and <literal>numbers</literal>.
@@ -3022,7 +3009,7 @@ end
 description = "Demonstration of a version detection NSE script. It checks \
 and reports the version of a remote web server. For real life purposes it is \
 better to use Nmap version detection (-sV)."
-author = "Diman Todorov &lt;diman.todorov@gmail.at&gt;
+author = "Diman Todorov &lt;diman.todorov@gmail.at&gt;"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 id = "HTTP version"
@@ -3342,14 +3329,14 @@ end
 		<listitem>
 			<para>The <emphasis>package</emphasis> library (namespace: 
 			<literal>package</literal>)&mdash;Lua's 
-			<ulink url="http://www.lua.org/manual/5.1/manual.html#5.3">package-lib</ulink> provides (among others) the <literal>require</literal> function, used to load modules from the
+			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.3">package-lib</ulink> provides (among others) the <literal>require</literal> function, used to load modules from the
 			nselib.
 			</para>
 		</listitem>
 		<listitem>
 			<para>The <emphasis>table</emphasis> library (namespace: 
 			<literal>table</literal>)&mdash;The 
-			<ulink url="http://www.lua.org/manual/5.1/manual.html#5.5">table manipulation library</ulink> contains many functions used
+			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.5">table manipulation library</ulink> contains many functions used
 			to operate on <literal>tables</literal>&mdash;Lua's central data 
 			structure.
 			</para>
@@ -3357,13 +3344,13 @@ end
 		<listitem>
 			<para>The <emphasis>I/O</emphasis> library (namespace: 
 			<literal>io</literal>)&mdash;The 
-			<ulink url="http://www.lua.org/manual/5.1/manual.html#5.7">Input/Output library</ulink> offers functions such as reading files and reading the output from programs you execute.
+			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.7">Input/Output library</ulink> offers functions such as reading files and reading the output from programs you execute.
 			</para>
 		</listitem>
 		<listitem>
 			<para>The <emphasis>OS</emphasis> library (namespace: 
 			<literal>os</literal>)&mdash;The 
-			<ulink url="http://www.lua.org/manual/5.1/manual.html#5.8">Operating System lib</ulink> provides facilities of the operating 
+			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.8">Operating System lib</ulink> provides facilities of the operating 
 			system, including filesystem operations (renaming/removing files,
 			creating of temporary filenames) and access to the environment.
 			</para>
@@ -3371,7 +3358,7 @@ end
 		<listitem>
 			<para>The <emphasis>string</emphasis> library (namespace: 
 			<literal>string</literal>)&mdash;The 
-			<ulink url="http://www.lua.org/manual/5.1/manual.html#5.4">
+			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.4">
 			string library </ulink> helps you with functions used to manipulate
 			strings inside Lua. Functions include: printf-style 
 			string formating, pattern matching using Lua-style patterns, 
@@ -3382,14 +3369,14 @@ end
 			<para>The <emphasis>math</emphasis> library (namespace: 
 			<literal>math</literal>)&mdash;Since usually numbers in Lua correspond
 			to the <literal>double</literal> C-type, the 
-			<ulink url="http://www.lua.org/manual/5.1/manual.html#5.6">math library</ulink> gives you access to rounding functions, 
+			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.6">math library</ulink> gives you access to rounding functions, 
 			trigonometric functions, random number generation, and many more.
 			</para>
 		</listitem>
 		<listitem>
 			<para>The <emphasis>debug</emphasis> library (namespace: 
 			<literal>debug</literal>)&mdash;The 
-			<ulink url="http://www.lua.org/manual/5.1/manual.html#5.9">debug library</ulink> provides you with a somewhat lower level API
+			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.9">debug library</ulink> provides you with a somewhat lower level API
 			to the Lua-interpreter. Through it you can access functions along 
 			the execution stack, get function closures and object metatables,
 			etc. 
@@ -3491,7 +3478,7 @@ passed to mainloop where the real work begins.
 	  nselib modules written in C (or C++) to Nmap's build system, since
 	  this has shown to be sometimes tedious. Writing C modules is
 	  described at length in 
-<web><ulink url="http://www.amazon.com/exec/obidos/ASIN/8590379825/secbks-20">Programming in Lua, Second Edition</ulink>.</web>
+<web><ulink url="http://www.amazon.com/exec/obidos/ASIN/8590379825/secbks-20"><citetitle>Programming in Lua, Second Edition</citetitle></ulink>.</web>
 <print><citetitle>Programming in Lua, Second Edition</citetitle>.</print>
   Basically C modules consist of the
 	  functions they provide to Lua, which have to be of type <ulink url="http://www.lua.org/manual/5.1/manual.html#lua_CFunction">lua_CFunction</ulink>. Additionally they have to contain a function
