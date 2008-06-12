@@ -301,7 +301,6 @@ int print_iflist(void) {
   int numifs = 0, numroutes = 0;
   struct interface_info *iflist;
   struct sys_route *routes;
-  pcap_if_t *p_ifaces, *p_iface_iter;
   NmapOutputTable *Tbl = NULL;
   iflist = getinterfaces(&numifs);
   int i;
@@ -339,28 +338,62 @@ int print_iflist(void) {
   }
 
 #ifdef WIN32
-  if (numifs > 0) {
-    /* Display the mapping from libdnet interface names (like "eth0") to
-       WinPcap interface names (like "\Device\NPF_{...}"). This is the same
-       mapping used by eth_open and so can help diagnose connection problems. */
-    NmapOutputTable Tbl(numifs + 1, 2);
+  /* Display the mapping from libdnet interface names (like "eth0") to WinPcap
+     interface names (like "\Device\NPF_{...}"). This is the same mapping used
+     by eth_open and so can help diagnose connection problems.  Additionally
+     display WinPcap interface names that are not mapped to by any libdnet
+     name, in other words the names of interfaces Nmap has no way of using.*/
+
+  pcap_if_t *pcap_ifs;
+  list<const pcap_if_t *> leftover_pcap_ifs;
+  list<const pcap_if_t *>::iterator leftover_p;
+
+  /* Build a list of "leftover" libpcap interfaces. Initially it contains all
+     the interfaces. */
+  pcap_ifs = getpcapinterfaces();
+  for (const pcap_if_t *p = pcap_ifs; p != NULL; p = p->next)
+    leftover_pcap_ifs.push_front(p);
+
+  if (numifs > 0 || !leftover_pcap_ifs.empty()) {
+    NmapOutputTable Tbl(1 + numifs + leftover_pcap_ifs.size(), 2);
 
     Tbl.addItem(0, 0, false, "DEV");
     Tbl.addItem(0, 1, false, "WINDEVICE");
 
+    /* Show the libdnet names and what they map to. */
     for (i = 0; i < numifs; i++) {
       char pcap_name[1024];
 
-      if (!DnetName2PcapName(iflist[i].devname, pcap_name, sizeof(pcap_name)))
+      if (DnetName2PcapName(iflist[i].devname, pcap_name, sizeof(pcap_name))) {
+        /* We got a name. Remove it from the list of leftovers. */
+        list<const pcap_if_t *>::iterator next;
+        for (leftover_p = leftover_pcap_ifs.begin(); leftover_p != leftover_pcap_ifs.end(); leftover_p = next) {
+          next = leftover_p;
+          next++;
+          if (strcmp((*leftover_p)->name, pcap_name) == 0)
+            leftover_pcap_ifs.erase(leftover_p);
+        }
+      } else {
         Strncpy(pcap_name, "<none>", sizeof(pcap_name));
+      }
 
       Tbl.addItem(i + 1, 0, false, iflist[i].devname);
       Tbl.addItem(i + 1, 1, true, pcap_name);
     }
 
+    /* Show the "leftover" libpcap interface names (those without a libdnet
+       name that maps to them). */
+    for (leftover_p = leftover_pcap_ifs.begin(); leftover_p != leftover_pcap_ifs.end(); leftover_p++) {
+      Tbl.addItem(i + 1, 0, false, "<none>");
+      Tbl.addItem(i + 1, 1, false, (*leftover_p)->name);
+      i++;
+    }
+
     log_write(LOG_PLAIN, "%s\n", Tbl.printableTable(NULL));
     log_flush_all();
   }
+
+  pcap_freealldevs(pcap_ifs);
 #endif
 
   /* OK -- time to handle routes */
