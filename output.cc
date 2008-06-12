@@ -292,6 +292,9 @@ static int getServiceXMLBuf(struct serviceDeductions *sd, char *xmlbuf,
   return 0;
 }
 
+/* From tcpip.cc. */
+bool DnetName2PcapName(const char *dnetdev, char *pcapdev, int pcapdevlen);
+
 /* Print a detailed list of Nmap interfaces and routes to
    normal/skiddy/stdout output */
 int print_iflist(void) {
@@ -335,31 +338,27 @@ int print_iflist(void) {
     delete Tbl;
   }
   
-  /* Display windows device names */
-  if((p_ifaces = getpcapinterfaces()) != NULL && numifs > 0) {
-    Tbl = new NmapOutputTable(numifs+1, 2);
-    Tbl->addItem(0, 0, false, "DEV");
-    Tbl->addItem(0, 1, false, "WINDEVICE");
-    i = numifs;
-	{
-	//the previous interface that we printed to screen
-	char * lastface="";
-	//Now print off all the interfaces, we check to make sure we dont print any duplicate interfaces.
-	//In the case of an interface alias, iflist will have a double entry but p_iface_iter
-	//will only have one. So we check to make sure we only print out one copy of each hardware interface.
-	for(p_iface_iter = p_ifaces; p_iface_iter != NULL && i >= 1; i--) {
-	  if(strcmp(lastface,iflist[i-1].devname)!=0){
-		Tbl->addItem(i, 0, false, iflist[i-1].devname);
-		Tbl->addItem(i, 1, false, p_iface_iter->name);
-		p_iface_iter = p_iface_iter->next;
-		lastface = iflist[i-1].devname;
-	  }
-	}
-	}
-    log_write(LOG_PLAIN, "%s\n", Tbl->printableTable(NULL));
+  if (numifs > 0) {
+    /* Display the mapping from libdnet interface names (like "eth0") to
+       WinPcap interface names (like "\Device\NPF_{...}"). This is the same
+       mapping used by eth_open and so can help diagnose connection problems. */
+    NmapOutputTable Tbl(numifs + 1, 2);
+
+    Tbl.addItem(0, 0, false, "DEV");
+    Tbl.addItem(0, 1, false, "WINDEVICE");
+
+    for (i = 0; i < numifs; i++) {
+      char pcap_name[1024];
+
+      if (!DnetName2PcapName(iflist[i].devname, pcap_name, sizeof(pcap_name)))
+        Strncpy(pcap_name, "<none>", sizeof(pcap_name));
+
+      Tbl.addItem(i + 1, 0, false, iflist[i].devname);
+      Tbl.addItem(i + 1, 1, true, pcap_name);
+    }
+
+    log_write(LOG_PLAIN, "%s\n", Tbl.printableTable(NULL));
     log_flush_all();
-    delete Tbl;
-    pcap_freealldevs(p_ifaces);
   }
 
   /* OK -- time to handle routes */
