@@ -337,7 +337,8 @@ int print_iflist(void) {
     log_flush_all();
     delete Tbl;
   }
-  
+
+#ifdef WIN32
   if (numifs > 0) {
     /* Display the mapping from libdnet interface names (like "eth0") to
        WinPcap interface names (like "\Device\NPF_{...}"). This is the same
@@ -360,6 +361,7 @@ int print_iflist(void) {
     log_write(LOG_PLAIN, "%s\n", Tbl.printableTable(NULL));
     log_flush_all();
   }
+#endif
 
   /* OK -- time to handle routes */
   routes = getsysroutes(&numroutes);
