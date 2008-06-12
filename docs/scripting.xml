@@ -1512,7 +1512,7 @@ if(s) code_to_be_done_on_match end
 	      <listitem>
 		  <para>
 			This function reads and parses Nmap's <filename>nmap-protocols</filename>
-			file.  <literal>bool</literal> is a boolen value indicating success.
+			file.  <literal>bool</literal> is a boolean value indicating success.
 			If <literal>bool</literal> is true, then the second returned
 			value is a table with protocol numbers indexing the protocol
 			names.  If <literal>bool</literal> is false, an error message
@@ -1527,7 +1527,7 @@ if(s) code_to_be_done_on_match end
 	      <listitem>
 		  <para>
 			This function reads and parses Nmap's <filename>nmap-rpc</filename>
-			file.  <literal>bool</literal> is a boolen value indicating success.
+			file.  <literal>bool</literal> is a boolean value indicating success.
 			If <literal>bool</literal> is true, then the second returned
 			value is a table with RPC numbers indexing the RPC names.  If
 			<literal>bool</literal> is false, an error message is returned
@@ -1542,7 +1542,7 @@ if(s) code_to_be_done_on_match end
 	      <listitem>
 		  <para>
 			This function reads and parses Nmap's <filename>nmap-services</filename>
-			file.  <literal>bool</literal> is a boolen value indicating success.
+			file.  <literal>bool</literal> is a boolean value indicating success.
 			If <literal>bool</literal> is true, then the second returned
 			value is a table containing two other tables:
 			<literal>tcp{}</literal> and <literal>udp{}</literal>.
