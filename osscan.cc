@@ -992,7 +992,7 @@ void free_fingerprint_file(FingerPrintDB *DB) {
 }
 
 
-FingerPrintDB *parse_fingerprint_file(char *fname) {
+FingerPrintDB *parse_fingerprint_file(const char *fname) {
 FingerPrintDB *DB = NULL;
 FingerPrint *current;
 FILE *fp;
