@@ -3,7 +3,6 @@
 
 #include <winsock2.h>
 #include <windows.h>
-#include <ws2tcpip.h>
 #include <iphlpapi.h>
 
 #ifndef EXTERNC
@@ -32,5 +31,7 @@ EXTERNC void win_pre_init();
 EXTERNC void win_init();
 EXTERNC void win_barf(const char *msg);
 #endif
+
+
 
 

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="9.00"
 	Name="nmap"
 	ProjectGUID="{361719F0-AB42-4C93-9DE8-7D2144B96625}"
 	RootNamespace="nmap"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -46,6 +47,8 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="..\liblua;.;..;../nbase;../libpcre;winip;..\nsock\include;&quot;pcap-include&quot;;&quot;..\libdnet-stripped\include&quot;;OpenSSL\include;"
 				PreprocessorDefinitions="WIN32;_CONSOLE"
+				GeneratePreprocessedFile="0"
+				KeepComments="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
@@ -60,6 +63,9 @@
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -77,6 +83,8 @@
 				ProgramDatabaseFile=".\Debug/nmap.pdb"
 				SubSystem="1"
 				OptimizeForWindows98="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -96,9 +104,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -153,6 +158,9 @@
 				Name="VCManagedResourceCompilerTool"
 			/>
 			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
@@ -167,6 +175,8 @@
 				ProgramDatabaseFile=".\Release/nmap.pdb"
 				SubSystem="1"
 				OptimizeForWindows98="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -186,9 +196,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -256,11 +263,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\nse_init.cc"
+				RelativePath="..\nse_fs.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\nse_fs.cc"
+				RelativePath="..\nse_init.cc"
 				>
 			</File>
 			<File
@@ -441,11 +448,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\nse_init.h"
+				RelativePath="..\nse_fs.h"
 				>
 			</File>
 			<File
-				RelativePath="..\nse_fs.h"
+				RelativePath="..\nse_init.h"
 				>
 			</File>
 			<File

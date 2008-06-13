@@ -61,5 +61,4 @@
 #define caddr_t char*
 
 #define snprintf _snprintf
-#define vsnprintf _vsnprintf
 #define inline __inline 

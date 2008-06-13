@@ -216,7 +216,7 @@
 #define HAVE_UNISTD_H 1
 
 /* Define if you have the <winsock2.h> header file. */
-/* #undef HAVE_WINSOCK2_H */
+#define HAVE_WINSOCK2_H
 
 /* Name of package */
 #define PACKAGE "libdnet"
@@ -228,7 +228,7 @@
 #define VERSION "1.10"
 
 /* Define for faster code generation. */
-/* #undef WIN32_LEAN_AND_MEAN */
+#define WIN32_LEAN_AND_MEAN
 
 /* Define to empty if `const' does not conform to ANSI C. */
 /* #undef const */
@@ -259,10 +259,6 @@
 
 #if defined(__osf__) && !defined(_SOCKADDR_LEN)
 # define _SOCKADDR_LEN	1
-#endif
-
-#ifndef HAVE_INET_PTON
-int	inet_pton(int, const char *, void *);
 #endif
 
 #ifndef HAVE_STRLCAT

@@ -28,7 +28,6 @@
 #if !defined(__GNUC__)
 typedef unsigned int                ssize_t;
 #define snprintf _snprintf
-#define vsnprintf _vsnprintf
 #endif
 #else
 # include <sys/param.h>

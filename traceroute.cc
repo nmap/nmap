@@ -328,7 +328,7 @@ Traceroute::getTracePort (u8 proto, Target * t) {
     u16 filtered_port = 1;
     u16 port = 0;
     int state = -1;
-    struct Port *np;
+    Port *np;
 
     /* Use the first specified port for ping traceroutes */
     if (o.pingscan) {
