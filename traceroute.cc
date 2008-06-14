@@ -437,19 +437,19 @@ Traceroute::readTraceResponses () {
                 tcp = (struct tcp_hdr *) ((u8 *) ip2 + ip2->ip_hl * 4);
                 if (ntohs(ip2->ip_len) - (ip2->ip_hl * 4) < 2)
                     break;
-                sport = htons (tcp->th_sport);
+                sport = ntohs (tcp->th_sport);
             } else if (ip2->ip_p == IPPROTO_UDP) {
                 udp = (struct udp_hdr *) ((u8 *) ip2 + ip2->ip_hl * 4);
                 if (ntohs(ip2->ip_len) - (ip2->ip_hl * 4) < 2)
                     break;
-                sport = htons (udp->uh_sport);
+                sport = ntohs (udp->uh_sport);
             } else if (ip2->ip_p == IPPROTO_ICMP) {
                 icmp2 = (struct icmp *) ((char *) ip2 + 4 * ip2->ip_hl);
                 if (ntohs(ip2->ip_len) - (ip2->ip_hl * 4) < 8)
                     break;
                 sport = ntohs(icmp2->icmp_id);
             } else {
-                sport = htons(ip2->ip_id);
+                sport = ntohs(ip2->ip_id);
             }
             ipaddr = ip2->ip_dst.s_addr;
         }
@@ -540,8 +540,8 @@ Traceroute::readTraceResponses () {
         else
             break;
 
-        if (tg->TraceProbes.find (htons (tcp->th_dport)) != tg->TraceProbes.end ())
-            tp = tg->TraceProbes[htons (tcp->th_dport)];
+        if (tg->TraceProbes.find (ntohs (tcp->th_dport)) != tg->TraceProbes.end ())
+            tp = tg->TraceProbes[ntohs (tcp->th_dport)];
         else
             break;
 
@@ -584,8 +584,8 @@ Traceroute::readTraceResponses () {
         else
             break;
 
-        if (tg->TraceProbes.find (htons (udp->uh_dport)) != tg->TraceProbes.end ())
-            tp = tg->TraceProbes[htons (udp->uh_dport)];
+        if (tg->TraceProbes.find (ntohs (udp->uh_dport)) != tg->TraceProbes.end ())
+            tp = tg->TraceProbes[ntohs (udp->uh_dport)];
         else
             break;
 

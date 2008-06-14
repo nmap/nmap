@@ -45,6 +45,8 @@ o Fixed an integer overflow which prevented a target specification
 
 o Fixed some memory leaks in NSE found with Valgrind. [Kris]
 
+o Fixed several byte-order bugs in Traceroute. [Kris]
+
 o Nmap now returns correct values for --iflist in windows even
   if interface aliases have been set. Previously it would misreport
   the windevices and not list all interfaces. [Michael]
