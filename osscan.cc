@@ -765,16 +765,9 @@ static char str[2048];
 FingerPrint *current;
 struct AVal *AV;
 char *p = str;
-int len;
 memset(str, 0, sizeof(str));
 
 if (!FP) return "(None)";
-
-if(FP->OS_name && *(FP->OS_name)) {
-  len = Snprintf(str, 128, "FingerPrint  %s\n", FP->OS_name);
-  if (len < 0) fatal("OS name too long");
-  p += len;
-}
 
 for(current = FP; current ; current = current->next) {
   Strncpy(p, current->name, sizeof(str) - (p-str));
@@ -905,18 +898,20 @@ FingerPrint *parse_single_fingerprint(char *fprint_orig) {
     }
 
     if (strncmp(thisline, "Fingerprint ", 12) == 0) {
-      p = thisline + 12;
-      while(*p && isspace((int) *p)) p++;
+      /* Ignore a second Fingerprint line if it appears. */
+      if (FP->OS_name == NULL) {
+        p = thisline + 12;
+        while(*p && isspace((int) *p)) p++;
 
-      q = strchr(p, '\n');
-      if (!q) q = p + strlen(p);
-      while(q > p && isspace(*(--q)))
-	;
+        q = strchr(p, '\n');
+        if (!q) q = p + strlen(p);
+        while(q > p && isspace(*(--q)))
+          ;
 
-      FP->OS_name = (char *) cp_alloc(q - p + 2);
-      memcpy(FP->OS_name, p, q - p + 1);
-      FP->OS_name[q - p + 1] = '\0';
-      
+        FP->OS_name = (char *) cp_alloc(q - p + 2);
+        memcpy(FP->OS_name, p, q - p + 1);
+        FP->OS_name[q - p + 1] = '\0';
+      }
     } else if (strncmp(thisline, "Class ", 6) == 0) {
 
       parse_classline(FP, thisline, lineno, &classno);
