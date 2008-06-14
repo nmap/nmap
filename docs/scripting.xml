@@ -3452,7 +3452,7 @@ end
 	    </itemizedlist>
 
 <para>In addition to loading the libraries provided with Lua, the functions
-in the <literal>nmap</literal> namespace also get loaded. and search
+in the <literal>nmap</literal> namespace are also loaded.  The search
 path for modules is set to the default one prepended by the nselib
 directory (which is searched in the locations Nmap searches for its
 data files and scripts).  In this step the provided script arguments
