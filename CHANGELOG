@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a new timing_level() function to NSE which reports the Nmap
+  timing level from 0 to 5, as set by the Nmap -T option.  The default
+  is 3. [Thomas Buchanan]
+
 o Integrated several service match lines from Tom Sellers.
 
 o An error was fixed where Zenmap would crash when trying to load from

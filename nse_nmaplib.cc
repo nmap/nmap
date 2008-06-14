@@ -42,6 +42,7 @@ static int l_get_verbosity(lua_State *);
 static int l_get_debugging(lua_State *);
 static int l_get_have_ssl(lua_State *L);
 static int l_fetchfile(lua_State *L);
+static int l_get_timing_level(lua_State *L);
 
 int l_clock_ms(lua_State *L);
 
@@ -63,6 +64,7 @@ int l_clock_ms(lua_State *L);
 		{"debugging", l_get_debugging},
 		{"have_ssl", l_get_have_ssl},
 		{"fetchfile", l_fetchfile},
+		{"timing_level", l_get_timing_level},
 		{NULL, NULL} 
 	};
 
@@ -584,3 +586,8 @@ err:
 	return 0;
 }
 
+static int l_get_timing_level(lua_State *L)
+{
+	lua_pushnumber(L, o.timing_level);
+	return 1;
+}

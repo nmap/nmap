@@ -1961,6 +1961,18 @@ nmap.fetchfile("nmap-rpc")
             </para>
           </listitem>
         </varlistentry> 
+        <varlistentry>
+          <term><option>nmap.timing_level()</option>
+            <indexterm><primary>timing_level</primary><secondary><literal>nmap.timing_level</literal></secondary></indexterm></term>
+	  <listitem>
+	    <para>
+            Returns the timing level as a non-negative integer.  Possible return
+            values vary from 0 to 5, corresponding to the six built-in Nmap
+            timing templates.  The timing level can be set with the
+            <option>-T</option> option<bookex> (see <xref linkend="man-performance"/>)</bookex>.
+            </para>
+          </listitem>
+        </varlistentry> 
       </variablelist>
       </para>
     </sect2>
