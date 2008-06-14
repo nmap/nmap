@@ -435,12 +435,18 @@ Traceroute::readTraceResponses () {
             ip2 = (struct ip *) (((char *) ip) + 4 * ip->ip_hl + 8);
             if (ip2->ip_p == IPPROTO_TCP) {
                 tcp = (struct tcp_hdr *) ((u8 *) ip2 + ip2->ip_hl * 4);
+                if (ntohs(ip2->ip_len) - (ip2->ip_hl * 4) < 2)
+                    break;
                 sport = htons (tcp->th_sport);
             } else if (ip2->ip_p == IPPROTO_UDP) {
                 udp = (struct udp_hdr *) ((u8 *) ip2 + ip2->ip_hl * 4);
+                if (ntohs(ip2->ip_len) - (ip2->ip_hl * 4) < 2)
+                    break;
                 sport = htons (udp->uh_sport);
             } else if (ip2->ip_p == IPPROTO_ICMP) {
                 icmp2 = (struct icmp *) ((char *) ip2 + 4 * ip2->ip_hl);
+                if (ntohs(ip2->ip_len) - (ip2->ip_hl * 4) < 8)
+                    break;
                 sport = ntohs(icmp2->icmp_id);
             } else {
                 sport = htons(ip2->ip_id);

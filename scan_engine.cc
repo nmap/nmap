@@ -3732,7 +3732,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
                       /* ICMPLen */ 8 + 
                       /* IP2 Len */ 4 * ip2->ip_hl;
       if (USI->tcp_scan || USI->udp_scan)
-	bytes += 8; /* UDP hdr, or TCP hdr up to seq # */
+	requiredbytes += 8; /* UDP hdr, or TCP hdr up to seq # */
       /* prot scan has no headers coming back, so we don't reserve the 
 	 8 xtra bytes */
       if (bytes < requiredbytes) {
@@ -3961,6 +3961,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   UltraProbe *probe = NULL;
   unsigned int trynum = 0;
   unsigned int pingseq = 0;
+  unsigned int requiredbytes;
   bool goodseq;
   int newstate = HOST_UNKNOWN;
   unsigned int probenum;
@@ -4094,16 +4095,12 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       }
       // Destination unreachable, source quench, or time exceeded 
       else if (ping->type == 3 || ping->type == 4 || ping->type == 11 || o.debugging) {
-        if (bytes < ip->ip_hl * 4 + 28U) {
-          if (o.debugging)
-            error("ICMP type %d code %d packet is only %d bytes", ping->type, ping->code, bytes);
-          continue;
-        }
-
         struct ip *ip2 = (struct ip *) ((char *) ip + ip->ip_hl * 4 + 8);
 
+        requiredbytes = ip->ip_hl * 4 + 8U + ip2->ip_hl * 4 + 8U;
+
 	/* IPProto Scan (generally) sends bare IP headers, so no extra payload */
-        if (bytes < ip->ip_hl * 4 + 8U + ip2->ip_hl * 4 + 8U && !USI->ptech.rawprotoscan) {
+        if (bytes < requiredbytes && !USI->ptech.rawprotoscan) {
           if (o.debugging)
             error("ICMP (embedded) type %d code %d packet is only %d bytes", ping->type, ping->code, bytes);
           continue;
@@ -4155,9 +4152,17 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
               error("Got ICMP error referring to TCP msg which we did not send");
             continue;
           }
+          /* We need to check for a few more bytes because
+           * tcp_trynum_pingseq_decode() below can use th_ack (which is beyond
+           * the +8 bytes checked for above)
+           */
+          requiredbytes += 4U;
+          if (bytes < requiredbytes) {
+            if (o.debugging)
+              error("Got ICMP error with a TCP header that was too short");
+            continue;
+          }
           struct tcp_hdr *tcp = (struct tcp_hdr *) (((char *) ip2) + 4 * ip2->ip_hl);
-          /* No need to check size here, the "+8" check a ways up takes care 
-             of it */
           /* Now ensure this host is even in the incomplete list */
           memset(&sin, 0, sizeof(sin));
           sin.sin_addr.s_addr = ip2->ip_dst.s_addr;

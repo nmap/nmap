@@ -2426,7 +2426,7 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
   assert(icmp->icmp_type == 3 && icmp->icmp_code == 3);
   
   ip2 = (struct ip*)((char *)icmp + 8);
-  udp = (struct udp_hdr *)((char *)ip2 + 4 * ip->ip_hl);
+  udp = (struct udp_hdr *)((char *)ip2 + 4 * ip2->ip_hl);
 
   /* The ports should match. */
   if (ntohs(udp->uh_sport) != hss->upi.sport || ntohs(udp->uh_dport) != hss->upi.dport) {
