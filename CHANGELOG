@@ -45,6 +45,9 @@ o Fixed an integer overflow which prevented a target specification
 
 o Fixed some memory leaks in NSE found with Valgrind. [Kris]
 
+o Fixed a bunch of subtle bugs, some of which could have resulted in
+  a crash, reported by Ilja van Sprundel (ilja(a)netric.org). [Kris]
+
 o Fixed several byte-order bugs in Traceroute. [Kris]
 
 o Nmap now returns correct values for --iflist in windows even
