@@ -134,6 +134,11 @@ case "$host" in
     # on HP-UX 11.11 (other versions?) Mikhail Zakharov (zmey20000@yahoo.com)
     AC_CHECK_LIB(nm, open_mib)
     ;;
+  *-aix*)
+    # use some AIX specific libraries
+    AC_CHECK_LIB(odm, odm_initialize)	
+    AC_CHECK_LIB(cfg, _system_configuration)
+    ;;
   *-solaris2.0*)  
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)
