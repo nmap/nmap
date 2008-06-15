@@ -707,11 +707,10 @@ WinPcap requirement.</para></listitem>
 
 <para>Most Windows users prefer to use the Nmap binary self-installer,
 but compilation from source code is an option, particularly if you plan to help with Nmap development.  Compilation requires
-Microsoft Visual C++ 2005, which is part of their commercial Visual Studio suite.  Any of the VS editions should work.</para>
+Microsoft Visual C++ 2008, which is part of their commercial Visual Studio suite.  Any of the VS editions should work.</para>
 
 <para>Microsoft also distributes a free application named <ulink
-url="http://www.microsoft.com/express/vc/">Visual C++ 2005
-Express</ulink>.  This works for Nmap compilation as long as you first install and configure the Platform SDK as described at <ulink url="http://msdn2.microsoft.com/en-us/express/aa700755.aspx" />.</para>
+url="http://www.microsoft.com/express/vc/">Visual C++ 2008 Express</ulink> which also works for Nmap compilation.</para>
 
 <orderedlist id="nmap-install-windows-compile-from-source"><title>Compiling Nmap on Windows from Source</title>
 
