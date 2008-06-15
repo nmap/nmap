@@ -1093,7 +1093,7 @@ information.</para>
 <para>If you installed Nmap from source
 code, removal is slightly more difficult.  If you still have the build
 directory available (where you initially ran <command>make
-install</command>, you can remove Nmap by
+install</command>), you can remove Nmap by
 running <command>make uninstall</command>.  If you no longer have that
 build directory, type <command>nmap -V</command> to
 obtain the Nmap version number.  Then
