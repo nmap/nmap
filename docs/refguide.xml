@@ -1311,7 +1311,7 @@ used.</para>
           specify (which must be up and meet certain criteria). This
           fascinating scan type is too complex to fully describe in this reference
           guide, so I wrote and posted an informal paper with full details at
-          <ulink url="http://nmap.org/idlescan.html" />.</para>
+          <ulink url="http://nmap.org/book/idlescan.html" />.</para>
 
           <para>Besides being extraordinarily stealthy (due to its
           blind nature), this scan type permits mapping out
