@@ -3203,20 +3203,24 @@ overwhelming requests.  Specify <option>--open</option> to only see
         <listitem>
 
           <para>Warnings and errors printed by Nmap usually go only to
-          the screen (interactive output), leaving any specified
-          normal-format output files uncluttered.  But when you do want
-          to see those messages in the normal output file you
-          specified, add this option. It is useful when you aren't
-          watching the interactive output or are trying to debug a
-          problem.  The messages will also still appear in interactive
-          mode.  This will not work for most errors related to bad
-          command-line arguments, as Nmap may not have initialized its
-          output files yet.  In addition, some Nmap error/warning
-          messages use a different system that does not yet support
-          this option.  An alternative to using this option is
+          the screen (interactive output), leaving any normal-format
+          output files (usually specified with <option>-oN</option>)
+          uncluttered.  When you do want to see those messages in the
+          normal output file you specified, add this option. It is
+          useful when you aren't watching the interactive output or
+          when you want to record errors while debugging a problem.
+          The error and warning messages will still appear in
+          interactive mode too.  This won't work for most errors
+          related to bad command-line arguments because Nmap may not
+          have initialized its output files yet.  In addition, some
+          Nmap error and warning messages use a different system which
+          does not yet support this option.</para>
+
+          <para>An alternative to <option>--log-errors</option> is
           redirecting interactive output (including the standard error
-          stream) to a file.  While most Unix shells make that
-          approach easy, it can be difficult on Windows.</para>
+          stream) to a file.  Most Unix shells make this
+          approach easy, though it can be difficult on Windows.</para>
+
         </listitem>
       </varlistentry>
 
