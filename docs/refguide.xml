@@ -990,7 +990,7 @@ scans.</para>
 
 <para>SYN scan is the default and most popular scan option for good
 reasons.  It can be performed quickly, scanning thousands of ports per
-second on a fast network not hampered by intrusive firewalls. SYN scan
+second on a fast network not hampered by restrictive firewalls. SYN scan
 is relatively unobtrusive and stealthy, since it never completes TCP
 connections.  It also works against any compliant TCP stack rather
 than depending on idiosyncrasies of specific platforms as Nmap's
