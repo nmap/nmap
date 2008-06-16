@@ -157,7 +157,7 @@ signature file downloaded, verifying an Nmap release takes a single
 GPG command, as shown in <xref
 linkend="ex-gpg-verify-nmap-release-good"/>.  If the file has been
 tampered with, the results will look like <xref
-linkend="ex-gpg-verify-nmap-release-bad"/></para>
+linkend="ex-gpg-verify-nmap-release-bad"/>.</para>
 
 <example id="ex-gpg-verify-nmap-release-good">
 <title>Verifying PGP Key Fingerprints (Successful)</title>
@@ -464,7 +464,7 @@ Preparing...                ########################################### [100%]
 </screen>
 </example>
 
-<para>As the filenames above imply, these binary RPMs were created for normal PCs (X86 architecture).  I also distribute x86_64 binaries of some releases for users with 64-bit Linux running on an AMD Opteron or Athlon64 processor.  These binaries won't work for the relatively few Linux users on other platforms such as SPARC, Alpha, or PowerPC.  They also may refuse to install if your library versions are sufficiently different from what the RPMs were initially built on.  One option in these cases would be to find binary RPMs prepared by your Linux vendor for your specific distribution.  The original install CDs or DVD are a good place to start.  Unfortunately, those may not be current or available.  Another option is to install Nmap from source code as described previously, though you lose the binary package maintenance consistency benefits.  A third option is to build and install your own binary RPMs from the source RPMs distributed from the download page above.  <xref linkend="ex-nmap-install-from-srpms" /> demonstrates this technique with Nmap 4.62.</para>
+<para>As the filenames above imply, these binary RPMs were created for normal PCs (x86 architecture).  I also distribute x86_64 binaries of some releases for users with 64-bit Linux running on an AMD Opteron or Athlon64 processor.  These binaries won't work for the relatively few Linux users on other platforms such as SPARC, Alpha, or PowerPC.  They also may refuse to install if your library versions are sufficiently different from what the RPMs were initially built on.  One option in these cases would be to find binary RPMs prepared by your Linux vendor for your specific distribution.  The original install CDs or DVD are a good place to start.  Unfortunately, those may not be current or available.  Another option is to install Nmap from source code as described previously, though you lose the binary package maintenance consistency benefits.  A third option is to build and install your own binary RPMs from the source RPMs distributed from the download page above.  <xref linkend="ex-nmap-install-from-srpms" /> demonstrates this technique with Nmap 4.62.</para>
 
 <example id="ex-nmap-install-from-srpms"><title>Building and installing Nmap from source RPMs</title>
 <screen>
@@ -565,7 +565,7 @@ This works for Debian derivatives such as Ubuntu too.  Information on
 the latest Debian <quote>stable</quote> Nmap package is available at <ulink
 url="http://packages.debian.org/stable/nmap" /> and the
 development (<quote>unstable</quote>) Nmap and Zenmap packages are available from <ulink
-url="http://packages.debian.org/sid/nmap" /> and <ulink url="http://packages.debian.org/sid/zenmap"/>.</para>
+url="http://packages.debian.org/unstable/nmap" /> and <ulink url="http://packages.debian.org/unstable/zenmap"/>.</para>
 </sect2>
 
 <sect2 id="inst-linux-other"><title>Other Linux Distributions</title>
@@ -615,13 +615,13 @@ be reused.  Apply the by double-clicking on
 <filename>nmap_performance.reg</filename>, or run the command
 <command>regedt32 nmap_performance.reg</command>.  Or you can make the
 changes by hand.  Simply add these three Registry DWORD values to
-<literal>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters</literal>:</para>
+the <literal>CurrentControlSet\Services\Tcpip\Parameters</literal> entry under <literal>HKEY_LOCAL_MACHINE\SYSTEM</literal>:</para>
 
 <variablelist>
   <varlistentry><term>MaxUserPort</term>
      <listitem><para>Set a large value such as 65534 (0x0000fffe).  See <ulink url="http://support.microsoft.com/kb/Q196271">MS KB Q196271</ulink>.</para></listitem></varlistentry>
   <varlistentry><term>TCPTimedWaitDelay</term>
-     <listitem><para>Set the minimum value (0000001e). See <ulink url="http://support.microsoft.com/kb/Q149532">MS KB Q149532</ulink>.</para></listitem></varlistentry>
+     <listitem><para>Set the minimum value (0x0000001e). See <ulink url="http://support.microsoft.com/kb/Q149532">MS KB Q149532</ulink>.</para></listitem></varlistentry>
   <varlistentry><term>StrictTimeWaitSeqCheck</term>
      <listitem><para>Set to 1 so TcpTimedWaitDelay is checked.</para></listitem></varlistentry>
 </variablelist>
