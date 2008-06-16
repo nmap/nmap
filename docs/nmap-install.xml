@@ -880,7 +880,7 @@ have to compile from source or use a third-party package.</para>
 on other platforms once a proper build environment is in place.</para>
 
 <sect3>
-<title>Compile Nmap from Source Code</title>
+<title>Compile Nmap from source code</title>
 
 <para>Compiling Nmap on Mac OS X requires
 <ulink url="http://developer.apple.com/tools/xcode/">Xcode</ulink>,
@@ -911,7 +911,7 @@ approach will continue to work.</para>
 </sect3>
 
 <sect3>
-<title>Compile Zenmap from Source Code</title>
+<title>Compile Zenmap from source code</title>
 
 <para>Zenmap depends on some external libraries that do not come with
 Mac OS X, such as GTK+ and PyGTK. These libraries have many dependencies

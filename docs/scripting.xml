@@ -3046,7 +3046,7 @@ end
   </sect1>
 
   <sect1 id="nse-vscan">
-    <title>Version Detection using NSE</title>
+    <title>Version Detection Using NSE</title>
     <para>
 
       The version detection system built into Nmap was designed to
