@@ -312,10 +312,12 @@ $ nmap -sC --script-args user=foo,pass=bar,anonFTP={pass=ftp@foobar.com}
 	  inside your script as <literal>local username= nmap.registry.args.user
 	  </literal>. As a general rule the subtables used to override
 	  options for scripts should be named as the script's
-	  <literal>id</literal>, since otherwise scripts can't know where to
-	  search for their arguments.
+	  <literal>id</literal>, otherwise scripts won't know where to
+	  retrieve their arguments.
 	  </para>
 	</sect2>
+
+	<comment>The "since otherwise" segue was awkward, fixed.</comment>
 
     <sect2 id="nse-cmd-line-args">
       <title>Command-line Arguments</title>
@@ -451,6 +453,11 @@ categories.</para>
 	<option>-A</option>. The aggressive mode of Nmap implies
 	the option <option>-sC</option>.
       </para>
+
+      <comment>Calling -A the agressive mode is somewhat confusing.
+      You might call it "advanced/agressive" mode to differentiate it
+      from -T4.</comment>
+
       <para>
       </para>
     </sect2>
@@ -593,8 +600,11 @@ that.</para>
   </sect1>
   <sect1 id="nse-language">
     <title>Script Language</title>
+
+    <comment>Fixed the "more or less" to be less awkward.</comment>
+
     <para>
-      Nmap's scripting engine consists of three more or less distinct
+      Nmap's scripting engine is essentially three distinct
       parts. The largest part is the embeddable Lua interpreter. This
       is a lightweight language designed for extensibility.  It offers
       a powerful and well documented API for interfacing with other
@@ -610,16 +620,17 @@ that.</para>
 	  exception handling mechanism.
     </para>
 
+    <comment>I re-wrote this whole paragraph.</comment>
+
     <para>
-    Lua was designed with a small feature set to ease embedding. So
-    we have added extensions to support more specialized
-    functionality.  These are basically
-	<ulink url="http://www.lua.org/manual/5.1/manual.html#5.3">Lua modules</ulink> written either in Lua itself, or in C. This 
-	NSE library is the third part of the NSE.
-	</para>
-    
-	<sect2 id="nse-lua">
-      <title>Lua Base Language</title>
+      The third part of NSE is the NSE library.  This library was
+      written to add special functionality and to augment the small
+      feature set of Lua.  The NSE library is made up of <ulink url="http://www.lua.org/manual/5.1/manual.html#5.3">Lua modules</ulink>
+      written in either C, or Lua itself.
+    </para>
+
+    <sect2 id="nse-lua">
+    <title>Lua Base Language</title>
       <para>
 
 	The Nmap scripting language is an embedded <ulink
@@ -658,6 +669,11 @@ that.</para>
 	execution, was designed with embeddability in mind, has
 	excellent documentation, and is actively developed by a large
 	and committed community.
+	Lua is even embedded in popular applications like
+	<application>Wireshark</application> and <application>Second Life</application>.
+
+	<comment>I think including two examples like Wireshark and
+	Second Life should win over quite a few people.</comment>
 
       </para>
     </sect2>
@@ -981,7 +997,7 @@ if(s) code_to_be_done_on_match end
 		  checks whether an IP address, provided as a string in 
 		  dotted-quad notation, is part of the non-routed private IP address 
 		  space, as described in <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc1918.txt">RFC 1918</ulink>. These addresses are the well known 
-		  <literal>10.0.0.0/8</literal>,<literal>192.168.0.0/16</literal> and
+		  <literal>10.0.0.0/8</literal>, <literal>192.168.0.0/16</literal> and
 		  <literal>172.16.0.0/12</literal> networks.
 		  </para>
 	      </listitem>
@@ -1978,7 +1994,7 @@ nmap.fetchfile("nmap-rpc")
     </sect2>
 
     <sect2 id="nse-api-portmethods">
-      <title>Target Information Retrieving by a Script</title>
+      <title>Target Information Retrieval by a Script</title>
       <para>
 	Often the information passed to the script is not enough. Sometimes
 	a script might want to correct target information or set it in the
@@ -2064,6 +2080,9 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 		probably already set that way anyway.  One of the
 		other states should only be used if you know exactly
 		what you are doing.</para>
+
+		<comment>I don't understand what the opening sentence
+		in this paragraph is trying to say.</comment>
 
 		<para>The host and port arguments to this function
 		should either be the tables passed to the
@@ -2357,6 +2376,10 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 		  already read from the connection (even though there may be much more
 		  data than requested). It also leaves line-parsing to the user.</para>
 
+		  <comment>I didn't fully understand the previous
+		  paragraph and I don't understand the next one.  I
+		  think they need more explanation or
+		  clarification.</comment>
  
                <para><literal>receive_buf</literal> on the other hand returns only the
 		  part of the received data until the first match of a delimiter,
@@ -2815,6 +2838,9 @@ try(socket:send(result))
 	compiled a regular expression, you can store the compiled
 	expression in the registry so that scripts which need the same
 	pattern do not have to recompile it. -->
+
+	<comment>How do scripts avoid race conditions when sharing
+	data in the registry?</comment>
 
       </para>
     </sect2>
@@ -3512,9 +3538,13 @@ passed to mainloop where the real work begins.
 
 	<sect2 id="nse-implementation-run">
       <title>Running Scripts</title>
+
+      <comment>Fixed up the intro sentance.</comment>
+
       <para>
-      Now to the actual script scanning, and the way NSE accomplishes 
-	  parallelization. Lua, through its concept of 
+        Nmap is able to perform NSE script scanning in parallel by
+        making use of features of the Lua language.
+        Lua, through its concept of 
 	  <ulink url="http://www.lua.org/manual/5.1/manual.html#2.11">coroutines
 	  </ulink> offers collaborative multi-threading, which means that scripts
 	  can suspend themselves, at defined points, and let other coroutines 
@@ -3571,15 +3601,22 @@ passed to mainloop where the real work begins.
 	  and put the dependencies inside the <literal>libtool</literal>
 	  commands in <filename>Makefile.in</filename>&mdash;here you should
 	  take a look at how <literal>pcre.so</literal> handles this. 
-	  So much for the way it should work. Now for some pitfalls we've
-	  come across so far: These are results from building shared libraries in 
-	  general and not really specific to nselib. Linking with
-	  static libraries (e.g. <literal>libnbase</literal>) sometimes leads
-	  to problems with exporting symbols on some platforms (in our case
-	  this was a x86_64-linux platform). To our knowledge no such
+	  <para>
+
+	  <comment>I split this paragraph into two parts and cleaned
+	  up the second part.</comment>
+
+	  <para>
+	  Of course, theory and practice are rarely the same.  Most of
+	  the trouble building nselib actually comes from the
+	  complications of building shared libraries and not nselib
+	  itself.  Linking with static libraries
+	  (e.g. <literal>libnbase</literal>) sometimes leads to
+	  problems with exporting symbols on some platforms (in our
+	  case the x86_64-linux platform). To our knowledge no such
 	  problems occur when linking against already existing shared
-	  libraries. 
-	  </para>
+	  libraries.</para>
+
 	  <para>
 	  The Windows build system requires C module developers to create a
 	  MS Visual Studio Project file for their module
