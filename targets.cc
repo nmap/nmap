@@ -521,6 +521,11 @@ do {
 	if (rnfo.direct_connect) {
 	  hs->hostbatch[hidx]->setDirectlyConnected(true);
 	} else {
+	  //if the user selected an interface with the -e command that has no route to their target
+	  //this error message will catch it.
+	  if(rnfo.nexthop.ss_family!=AF_INET || rnfo.nexthop.ss_family!=AF_INET6 ){
+		fatal("%s: can not find route for non-directly conected device %s.", __func__, hs->hostbatch[hidx]->NameIP());
+	  }
 	  hs->hostbatch[hidx]->setDirectlyConnected(false);
 	  hs->hostbatch[hidx]->setNextHop(&rnfo.nexthop, 
 					  sizeof(rnfo.nexthop));
