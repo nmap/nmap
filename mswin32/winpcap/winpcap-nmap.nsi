@@ -155,6 +155,7 @@ FunctionEnd
 
 Function un.registerServiceSC
     nsExec::Exec "sc stop npf"
+    nsExec::Exec "sc delete npf"
 FunctionEnd
 
 Function autoStartWinPcap
@@ -196,7 +197,23 @@ Section "WinPcap" SecWinPcap
   install:
     SetOutPath $SYSDIR\drivers
 
-    File npf.sys
+    ; check for x64, install the correct npf.sys file into system32\drivers
+    System::Call "kernel32::GetCurrentProcess() i .s"
+    System::Call "kernel32::IsWow64Process(i s, *i .r0)"
+    StrCmp $0 "0" is32bit is64bit
+
+    is32bit:
+      File npf.sys ; x86 NT5/NT6 version
+      Goto npfdone
+
+    is64bit:
+      ; disable Wow64FsRedirection
+      System::Call kernel32::Wow64EnableWow64FsRedirection(i0)
+      File x64\npf.sys ; x64 NT5/NT6 version
+      ; re-enable Wow64FsRedirection
+      System::Call kernel32::Wow64EnableWow64FsRedirection(i1)
+
+    npfdone:
 
     ; Install some basic registry keys
     WriteRegStr HKLM "Software\WinPcap" "" '"$INSTDIR"'
@@ -241,7 +258,24 @@ Section "Uninstall"
   Delete $SYSDIR\WanPacket.dll
   Delete $SYSDIR\wpcap.dll
 
+  ; check for x64, delete npf.sys file from system32\drivers
+  System::Call "kernel32::GetCurrentProcess() i .s"
+  System::Call "kernel32::IsWow64Process(i s, *i .r0)"
+  StrCmp $0 "0" del32bitnpf del64bitnpf
+  del64bitnpf:
+  ; disable Wow64FsRedirection
+  System::Call kernel32::Wow64EnableWow64FsRedirection(i0)
+
   Delete $SYSDIR\drivers\npf.sys
+
+  ; re-enable Wow64FsRedirection
+  System::Call kernel32::Wow64EnableWow64FsRedirection(i1)
+  Goto npfdeleted
+  del32bitnpf:
+
+  Delete $SYSDIR\drivers\npf.sys
+
+  npfdeleted:
 
   RMDir "$INSTDIR"
 
