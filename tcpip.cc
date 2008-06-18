@@ -2533,27 +2533,29 @@ void set_pcap_filter(const char *device,
   pcap_freecode(&fcode);
 }
 
-/* The 'dev' passed in must be at least 32 bytes long */
-int ipaddr2devname( char *dev, const struct in_addr *addr ) {
-struct interface_info *mydevs;
-int numdevs;
-int i;
-struct sockaddr_in *sin;
+/* The 'dev' passed in must be at least 32 bytes long. Returns 0 on success. */
+int ipaddr2devname(char *dev, const struct in_addr *addr) {
+  struct interface_info *ifaces;
+  struct sockaddr_in *sin;
+  int numifaces;
+  int i;
 
-mydevs = getinterfaces(&numdevs);
+  ifaces = getinterfaces(&numifaces);
 
-if (!mydevs) return -1;
+  if (ifaces == NULL)
+    return -1;
 
-for(i=0; i < numdevs; i++) {
-  sin = (struct sockaddr_in *) &mydevs[i].addr;
-  if (sin->sin_family != AF_INET)
-    continue;
-  if (addr->s_addr == sin->sin_addr.s_addr) {
-    Strncpy(dev, mydevs[i].devname, 32);
-    return 0;
+  for (i = 0; i < numifaces; i++) {
+    sin = (struct sockaddr_in *) &ifaces[i].addr;
+    if (sin->sin_family != AF_INET)
+      continue;
+    if (addr->s_addr == sin->sin_addr.s_addr) {
+      Strncpy(dev, ifaces[i].devname, 32);
+      return 0;
+    }
   }
-}
-return -1;
+
+  return -1;
 }
 
 int devname2ipaddr(char *dev, struct in_addr *addr) {
@@ -2864,29 +2866,6 @@ int sd;
   }
   if (howmany) *howmany = numifaces;
   return mydevs;
-}
-
-/* Looks for an interface assigned to the given IP (ss), and returns
-   the interface_info for the first one found.  If non found, returns NULL */
-struct interface_info *getInterfaceByIP(struct sockaddr_storage *ss) {
-  struct sockaddr_in *sin = (struct sockaddr_in *) ss;
-  struct sockaddr_in *ifsin;
-  struct interface_info *ifaces;
-  int numifaces = 0;
-  int ifnum;
-
-  if (sin->sin_family != AF_INET)
-    fatal("%s called with non-IPv4 address", __func__);
-
-  ifaces = getinterfaces(&numifaces);
-
-  for(ifnum=0; ifnum < numifaces; ifnum++) {
-    ifsin = (struct sockaddr_in *) &ifaces[ifnum].addr;
-    if (ifsin->sin_family != AF_INET) continue;
-    if (sin->sin_addr.s_addr == ifsin->sin_addr.s_addr)
-      return &ifaces[ifnum];
-  }
-  return NULL;
 }
 
 /* Looks for an interface with the given name (iname), and returns the
