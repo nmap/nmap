@@ -3080,8 +3080,10 @@ info</literal>, and <literal>Version info</literal>.</para>
 
 <para>As with XML output, this man page does not allow for documenting
 the entire format.  A more detailed look at the Nmap grepable output
-format is available from <ulink
-url="http://www.unspecific.com/nmap-oG-output" />.</para>
+format is available
+<man>from <ulink url="http://nmap.org/book/output-formats-grepable-output.html" />.</man>
+<notman>in <xref linkend="output-formats-grepable-output"/>.</notman>
+</para>
         </listitem>
       </varlistentry>
 
