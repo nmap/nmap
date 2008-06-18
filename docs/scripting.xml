@@ -357,7 +357,7 @@ as files or directories.  Absolute paths are used as is, relative paths are
 searched in the following places until found:
 <indexterm><primary>data files</primary><secondary>directory search order</secondary></indexterm>
 <indexterm><primary>scripts</primary><secondary>directory locations</secondary></indexterm>
-<indexterm><primary>scripts</primary><secondary>directory locations</secondary></indexterm>
+<indexterm><primary>NMAPDIR environment variable</primary></indexterm>
 <filename>--datadir/</filename>; 
 <filename>$(NMAPDIR)/</filename>; 
 <filename>~user/nmap/</filename> (not searched on Windows); 
