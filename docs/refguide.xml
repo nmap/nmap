@@ -1308,10 +1308,17 @@ used.</para>
           sequence generation on the zombie host to glean information
           about the open ports on the target.  IDS systems will
           display the scan as coming from the zombie machine you
-          specify (which must be up and meet certain criteria). This
-          fascinating scan type is too complex to fully describe in this reference
-          guide, so I wrote and posted an informal paper with full details at
-          <ulink url="http://nmap.org/book/idlescan.html" />.</para>
+          specify (which must be up and meet certain criteria).
+          <man>
+          This fascinating scan type is too complex to fully describe in this
+          reference guide, so I wrote and posted an informal paper with full
+          details at <ulink url="http://nmap.org/book/idlescan.html" />.
+          </man>
+          <notman>
+          Full details of this fascinating scan type are in
+          <xref linkend="idlescan"/>.
+          </notman>
+          </para>
 
           <para>Besides being extraordinarily stealthy (due to its
           blind nature), this scan type permits mapping out
@@ -1573,10 +1580,16 @@ way.</para>
     it does with open ports), and change the state to open if it
     succeeds. <literal>open|filtered</literal> TCP ports are treated
     the same way.  Note that the Nmap <option>-A</option> option
-    enables version detection among other things.  A paper documenting
-    the workings, usage, and customization of version detection is
-    available at <ulink
-    url="http://nmap.org/book/vscan.html" />.</para>
+    enables version detection among other things.
+    <man>
+    A paper documenting the workings, usage, and customization of version
+    detection is available at
+    <ulink url="http://nmap.org/book/vscan.html" />.
+    </man>
+    <notman>
+    Version detection is described in detail in <xref linkend="vscan"/>.
+    </notman>
+    </para>
 
     <para>When Nmap receives responses from a service but cannot match
     them to its database, it prints out a special fingerprint and
@@ -1764,9 +1777,16 @@ way.</para>
     vulnerable to several advanced information gathering and
     spoofing attacks.</para>
 
-    <para>A paper documenting the workings, usage, and customization
-    of OS detection is available at <ulink
-    url="http://nmap.org/book/osdetect.html" />.</para>
+    <para>
+    <man>
+    A paper documenting the workings, usage, and customization of OS
+    detection is available at
+    <ulink url="http://nmap.org/book/osdetect.html" />.
+    </man>
+    <notman>
+    OS detection is covered in <xref linkend="osdetect"/>.
+    </notman>
+    </para>
 
     <para>OS detection is enabled and controlled with the following options:</para>
 
@@ -1853,11 +1873,13 @@ way.</para>
 	network handling with the versatility of the lightweight scripting language
 	<ulink url="http://lua.org">Lua</ulink>, thus providing innumerable
 	opportunities.  A more extensive documentation of the NSE (including its
-	API) can be found at: <ulink url="http://nmap.org/book/nse.html"/>. The
-	target of the NSE is to provide Nmap with a flexible infrastructure for
-	extending its capabilities and offering its users a simple way of creating
-	customized tests. Uses for the NSE include (but definitely are not limited
-	to): </para>
+	API) can be found
+        <man>at <ulink url="http://nmap.org/book/nse.html"/>.</man>
+        <notman>in <xref linkend="nse"/>.</notman>
+        The target of the NSE is to provide Nmap with a flexible infrastructure
+        for extending its capabilities and offering its users a simple way of
+        creating customized tests. Uses for the NSE include (but definitely are
+        not limited to):</para>
    
     <para> 
     <emphasis>Enhanced version detection</emphasis> (category
@@ -1926,7 +1948,9 @@ way.</para>
     you are not required to follow this for the moment, this may change in the
     future. Nmap will issue a warning if a file has any other extension.
     More extensive documentation on the NSE, including a description of its API
-    can be found at <ulink url="http://nmap.org/book/nse.html" />.
+    can be found
+    <man>at <ulink url="http://nmap.org/book/nse.html" />.</man>
+    <notman>in <xref linkend="nse"/>.</notman>
     </para>
    
 	<variablelist>
