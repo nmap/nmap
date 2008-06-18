@@ -3097,7 +3097,7 @@ bool route_dst(const struct sockaddr_storage *const dst, struct route_nfo *rnfo)
 	  /* Look up the device corresponding to src IP, if any ... */
 	  iface = getInterfaceByIP(&spoofss);
 	}
-    }
+	}
 
     if (*o.device) {
       iface = getInterfaceByName(o.device);
@@ -3124,10 +3124,14 @@ bool route_dst(const struct sockaddr_storage *const dst, struct route_nfo *rnfo)
 	    ifsin = (struct sockaddr_in *) &rnfo->nexthop;
 	    ifsin->sin_family = AF_INET;
 	    ifsin->sin_addr.s_addr = routes[i].gw.s_addr;
+		break;
 	  }
 	}
-      }
-      memcpy(&rnfo->ii, iface, sizeof(rnfo->ii));
+	if(i == numroutes){
+	  return false;
+	}
+	}
+    memcpy(&rnfo->ii, iface, sizeof(rnfo->ii));
       if (o.spoofsource)
 	memcpy(&rnfo->srcaddr, &spoofss, sizeof(rnfo->srcaddr));
       else
