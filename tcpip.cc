@@ -3090,13 +3090,10 @@ bool route_dst(const struct sockaddr_storage *const dst, struct route_nfo *rnfo)
     fatal("Sorry -- %s currently only supports IPv4", __func__);
 
   if (o.spoofsource) {
-    memcpy(&rnfo->srcaddr, &spoofss, sizeof(rnfo->srcaddr));
     o.SourceSockAddr(&spoofss, &spoofsslen);
-    if (!*o.device) {
-      /* Look up the device corresponding to src IP, if any ... */
-      //WARNING: THIS IS NEVER USED(i think)
-      iface = getInterfaceByIP(&spoofss);
-    }
+    /* The device corresponding to this spoofed address should already have been
+       set elsewhere. */
+    assert(o.device[0] != '\0');
   }
 
   //dont use this method for user specified devices
