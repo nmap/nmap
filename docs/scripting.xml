@@ -2,6 +2,7 @@
     <title>Introduction</title>
 
     <indexterm><primary>Nmap Scripting Engine</primary></indexterm>
+    <indexterm><primary>scripting</primary><see>Nmap Scripting Engine</see></indexterm>
     <para>The Nmap Scripting Engine (NSE) is one of Nmap's most
     powerful and flexible features.  It allows users to write (and
     share) simple scripts to automate a wide variety of networking
@@ -354,6 +355,9 @@ are to be run against the target hosts instead of the default set. Nmap
 will try to interpret the arguments at first as categories and afterwards
 as files or directories.  Absolute paths are used as is, relative paths are
 searched in the following places until found:
+<indexterm><primary>data files</primary><secondary>directory search order</secondary></indexterm>
+<indexterm><primary>scripts</primary><secondary>directory locations</secondary></indexterm>
+<indexterm><primary>scripts</primary><secondary>directory locations</secondary></indexterm>
 <filename>--datadir/</filename>; 
 <filename>$(NMAPDIR)/</filename>; 
 <filename>~user/nmap/</filename> (not searched on Windows); 

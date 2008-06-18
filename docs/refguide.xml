@@ -1975,6 +1975,7 @@ way.</para>
 
 <listitem>
 <para>Runs a script scan (like <option>-sC</option>) with the scripts you have chosen rather than the defaults.  Arguments can be script categories, single scripts or directories with scripts which are to be run against the target hosts instead of the default set. Nmap will try to interpret the arguments at first as categories and afterwards as files or directories.  Absolute paths are used as is, relative paths are searched in the following places until found:
+<indexterm><primary>NMAPDIR environment variable</primary></indexterm>
 <filename>--datadir/</filename>; 
 <filename>$(NMAPDIR)/</filename>; 
 <filename>~user/nmap/</filename> (not searched on Windows); 
@@ -3454,7 +3455,8 @@ overwhelming requests.  Specify <option>--open</option> to only see
           searches these files in the directory specified with the
           <option>--datadir</option> option (if any). Any files not
           found there, are searched for in the directory specified by
-          the NMAPDIR environmental variable. Next comes <filename>~/.nmap</filename> for
+          the NMAPDIR environmental variable<indexterm><primary>NMAPDIR environment variable</primary></indexterm>.
+          Next comes <filename>~/.nmap</filename> for
           real and effective UIDs (POSIX systems only) or location of
           the Nmap executable (Win32 only), and then a compiled-in
           location such as <filename>/usr/local/share/nmap</filename> or <filename>/usr/share/nmap</filename>
