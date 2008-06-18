@@ -2483,7 +2483,7 @@ containing the returned data (or the case of a failure, an error message).</para
 		Sets the time, in milliseconds, after which input and
 		output operations on a socket should time out and
 		return. The default value is 30,000 (30 seconds). The lowest
-		allowed value is 10ms, since this is 
+		allowed value is 10&nbsp;ms, since this is 
 		the granularity of NSE network I/O.
 	      </para>
 	    </listitem>

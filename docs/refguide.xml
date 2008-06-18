@@ -2193,8 +2193,8 @@ more likely to get through a firewall.  Look at the maximum round trip
 time out of ten packets or so.  You might want to double that for the
 <option>--initial-rtt-timeout</option> and triple or quadruple it for
 the <option>--max-rtt-timeout</option>.  I generally do not set the
-maximum RTT below 100ms, no matter what the ping times are.  Nor do I
-exceed 1000ms.</para>
+maximum RTT below 100&nbsp;ms, no matter what the ping times are.  Nor do I
+exceed 1000&nbsp;ms.</para>
 
 <para><option>--min-rtt-timeout</option> is a rarely used option that
 could be useful when a network is so unreliable that even Nmap's
@@ -2417,8 +2417,8 @@ wish to be, while leaving Nmap to pick the exact timing values.  The
 templates also make some minor speed adjustments for which
 fine-grained control options do not currently exist.  For example,
 <option>-T4</option> prohibits the dynamic scan delay from exceeding
-10ms for TCP ports and <option>-T5</option> caps that value at 5
-milliseconds.  Templates can be used in combination with fine-grained
+10&nbsp;ms for TCP ports and <option>-T5</option> caps that value at 5&nbsp;ms.
+Templates can be used in combination with fine-grained
 controls, and the fine-grained controls will you specify will take
 precedence over the timing template default for that parameter.  I
 recommend using <option>-T4</option> when scanning reasonably modern
@@ -2458,7 +2458,7 @@ does the equivalent of <option>--max-rtt-timeout 1250
 to 10 milliseconds.  <option>T5</option> does the equivalent of
 <option>--max-rtt-timeout 300 --min-rtt-timeout 50
 --initial-rtt-timeout 250 --max-retries 2 --host-timeout 15m</option> as well as
-setting the maximum TCP scan delay to 5ms.</para>
+setting the maximum TCP scan delay to 5&nbsp;ms.</para>
 
         </listitem>
       </varlistentry>
