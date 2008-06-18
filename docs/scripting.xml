@@ -1364,9 +1364,9 @@ if(s) code_to_be_done_on_match end
 		  	This is actually a wrapper around NSE's PCRE library <literal>exec</literal> function (see <xref linkend="nse-pcre"/>), thus
 			giving script developers the possibility to use regular expressions
 			for delimiting instead of Lua's string patterns. If you want to get
-			the data in chunks separated by <function>regex</function> (which has to be a valid
+			the data in chunks separated by <literal>pattern</literal> (which has to be a valid
 			regular expression), you would write <literal>status, val =
-			sockobj:receive_buf(match.lua("regex"))</literal>.
+			sockobj:receive_buf(match.regex("pattern"))</literal>.
 		  </para>
 	      </listitem>
 	    </varlistentry>
