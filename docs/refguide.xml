@@ -1562,7 +1562,7 @@ way.</para>
     <filename>nmap-service-probes</filename> database contains probes
     for querying various services and match expressions to recognize
     and parse responses. Nmap tries to determine the service protocol
-    (e.g. FTP, SSH, telnet, http), the application name (e.g. ISC
+    (e.g. FTP, SSH, telnet, HTTP), the application name (e.g. ISC
     BIND, Apache httpd, Solaris telnetd), the version number,
     hostname, device type (e.g. printer, router), the OS family
     (e.g. Windows, Linux) and sometimes miscellaneous details like
@@ -1629,7 +1629,7 @@ way.</para>
 
           <para>By default, Nmap version detection skips TCP port 9100
           because some printers simply print anything sent to that
-          port, leading to dozens of pages of http get requests, binary
+          port, leading to dozens of pages of HTTP GET requests, binary
           SSL session requests, etc.  This behavior can be changed by
           modifying or removing the <literal>Exclude</literal>
           directive in <filename>nmap-service-probes</filename>, or
