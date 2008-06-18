@@ -458,8 +458,8 @@ categories.</para>
 	the option <option>-sC</option>.
       </para>
 
-      <comment>Calling -A the agressive mode is somewhat confusing.
-      You might call it "advanced/agressive" mode to differentiate it
+      <comment>Calling -A the aggressive mode is somewhat confusing.
+      You might call it "advanced/aggressive" mode to differentiate it
       from -T4.</comment>
 
       <para>
@@ -1860,7 +1860,7 @@ if(s) code_to_be_done_on_match end
 
    <row>
     <entry><literal>service_tunnel</literal></entry>
-    <entry>Contains the string <literal>none</literal> or <literal>ssl</literal> based on whether or not Nmap used SSL tunnelling to detect the service.</entry>
+    <entry>Contains the string <literal>none</literal> or <literal>ssl</literal> based on whether or not Nmap used SSL tunneling to detect the service.</entry>
    </row>
 
    <row>
@@ -3458,7 +3458,7 @@ end
 			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.4">
 			string library </ulink> helps you with functions used to manipulate
 			strings inside Lua. Functions include: printf-style 
-			string formating, pattern matching using Lua-style patterns, 
+			string formatting, pattern matching using Lua-style patterns, 
 			substring extraction, etc.
 			</para>
 		</listitem>
@@ -3500,14 +3500,14 @@ also get stored inside the <literal>registry</literal>.</para>
         Inside <filename>script.db</filename>, for each category of a script,
         there is a call to <literal>Entry</literal>. If the category was chosen
         then the script is loaded. Every argument of
-        <option>--script</option> that could not be interpretted as a category
+        <option>--script</option> that could not be interpreted as a category
         is loaded as a file or directory. If the file or directory could not
         be located, then an error is raised and the Script Engine aborts.
         </para>
         
 		<para>
         All the <literal>.nse</literal> files inside a loaded directory are 
-        loaded as files. Each file loaded is exectuted in Lua. If a
+        loaded as files. Each file loaded is executed in Lua. If a
         <emphasis>portrule</emphasis> is present, then it is saved in the
         <emphasis>porttests</emphasis> table with a portrule key and file
         closure value. Otherwise, if the script has a <emphasis>hostrule
@@ -3543,7 +3543,7 @@ passed to mainloop where the real work begins.
 	<sect2 id="nse-implementation-run">
       <title>Running Scripts</title>
 
-      <comment>Fixed up the intro sentance.</comment>
+      <comment>Fixed up the intro sentence.</comment>
 
       <para>
         Nmap is able to perform NSE script scanning in parallel by
