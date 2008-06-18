@@ -203,7 +203,7 @@ match dnsix m|^DNSIX$|
 match dragon m|^UNAUTHORIZED\n\r\n\r$| p/Dragon realtime shell/
 match drweb m|^0 PROTOCOL 2 [23] AGENT,CONSOLE,INSTALL| p/DrWeb/
 
-match enemyterritory m|^Welcome [\d.]+\. You have 15 seconds to identify\.\r\n| p/EnemyTerritory server/
+match enemyterritory m|^Welcome [\d.]+\. You have 15 seconds to identify\.\r\n| p/Enemy Territory Admin Mod/
 match eftserv m|^\?\x008 \xc3p EFTSRV1                                 ([\d.]+) | p/Ingenico EFTSRVd/ v/$1/ o/Windows/
 match ericom m|^Ericom GCS v([\d.]+)\0| p/Ericom PowerTermWebConnect/ v/$1/ o/Windows/
 match eggdrop m=^\r\n\r\n([-`|.\w]+)  \(Eggdrop v(\d[-.\w+]+) +\([cC]\) *1997.*\r\n\r\n= p/Eggdrop irc bot console/ v/$2/ i/botname: $1/
@@ -304,7 +304,7 @@ match ftp m/^220 JD FTP Server Ready/ p/HP JetDirect ftpd/ d/print server/
 match ftp m/^220.*Check Point FireWall-1 Secure FTP server running on/s p/Check Point Firewall-1 ftpd/ d/firewall/
 match ftp m/^220[- ].*FTP server \(Version (wu-[-.\w]+)/s p/WU-FTPD/ v/$1/ o/Unix/
 match ftp m|^220-\r\n220 ([-.\w]+) FTP server \(Version ([-.+\w()]+)\) ready\.\r\n$| p/WU-FTPD/ h/$1/ v/$2/ o/Unix/
-match ftp m|^220 ([-.\w]+) FTP server \(Version ([-.+\w()]+)\) ready\.\r\n$| p/WU-FTPD/ h/$1/ v/$2/ o/Unix/
+match ftp m|^220 ([-.\w]+) FTP server \(Version ([-.+\w()]+)\) ready\.\r\n$| p|WU-FTPD or MIT Kerberos ftpd| h/$1/ v/$2/ o/Unix/
 
 # ProFTPd 1.2.5
 match ftp m|^220  Server \(ProFTPD\) \[([-.\w]+)\]\r\n| p/ProFTPd/ h/$1/ o/Unix/
@@ -655,6 +655,8 @@ match ftp-proxy m|^220 FTP proxy \(v([\d.]+)\) ready\r\n530 Login incorrect\. Ex
 #match ftp m|^421 Service not available \(The FTP server is not responding\.\)\n$| v/unknown FTP server//service not responding/
 match vdr m|^220 (\S+) SVDRP VideoDiskRecorder (\d[^\;]+);| p/VDR/ h/$1/ v/$2/ d/media device/
 match vdr m|^Access denied!\n$| p/VDR/ d/media device/
+
+match vmware-auth m/^220 VMware Authentication Daemon Version (\d[-.\w]+).*\r\n530 Please login with USER and PASS\.\r\n/s i/VMware Authentication Daemon/ v/$1/
 
 softmatch ftp m/^220 Welcome to ([-.\w]+) FTP.*\r\n$/i h/$1/
 softmatch ftp m/^220 ([-.\w]+) [-.\w ]+ftp.*\r\n$/i h/$1/
@@ -1923,6 +1925,7 @@ match ssh m|^sshd2\[\d+\]: .*\r\nSSH-(\d[\d.]+)-(\d[-.\w]+) SSH Secure Shell \((
 match ssh m/^SSH-([.\d]+)-(\d+\.\d+\.[-.\w]+)/ p/SCS sshd/ v/$2/ i/protocol $1/
 
 # OpenSSH
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) Debian-(\S*maemo\S*)\n| p/OpenSSH/ v/$2 Debian $1/ i/Nokia Maemo tablet; protocol $1/ o/Linux/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)[ -]Debian[ -]([^\r\n]ubuntu[\d.]+)\n| p/OpenSSH/ v/$2 Debian $3/ i/protocol $1/ o/Linux/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)[ -]{1,2}Debian[ -]([^\r\n]+)\n| p/OpenSSH/ v/$2 Debian $3/ i/protocol $1/ o/Linux/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) FreeBSD-([\d]+)\n| p/OpenSSH/ v/$2/ i/FreeBSD $3; protocol $1/ o/FreeBSD/
@@ -3921,7 +3924,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Unknown/[\d.]+ UPnP/[\d.]+ Virata-E
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: HDS Hi-Track Server/([\d.]+)\r\n| p/Hitachi Data System http config/ i/Hi-Track httpd $1/ d/storage-misc/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: WebTrends HTTP Server ([\w.]+)\r\n| p/WebTrends httpd/ v/$1/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: WebTrends HTTP Server \r\n| p/WebTrends httpd/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nDATE: .*\r\nConnection: Keep-Alive\r\nServer: LINUX/([\d.]+) UPnP/([\d.]+) BRCM400/([\d.]+)\r\n| p/Belkin wireless router http config/ i/Linux $1; UPnP $2; BRCM400 $3/ d/router/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nDATE: .*\r\nConnection: Keep-Alive\r\nServer: LINUX/([\d.]+) UPnP/([\d.]+) BRCM400/([\d.]+)\r\n| p|Belkin/Linksys wireless router http config| i/Linux $1; UPnP $2; BRCM400 $3/ d/router/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: Desktop On-Call HTTPD V([\d.]+)\r\n| p/IBM Desktop On-Call httpd/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: OCServer\r\nContent-Type: text/html\r\n\r\n\n\n<!-- WebConnect HTML -->| p/WebConnect http service/ i/OCServer httpd/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Unknown/[\d.]+ UPnP/([\d.]+) GlobespanVirata-EmWeb/R([\d_]+)\r\nContent-Type: text/html\r\n.*<title>CopperJet ([-\w+/.]+) Router VoATM</title>|s p/CopperJet $3 VoATM router http config/ i/Virata embedded httpd $2; UPnP $1/ d/router/
@@ -4228,7 +4231,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nMIME-Version: 1\.0\r\nServer: KS_HTTP/([\d.
 match http m|^HTTP/1\.0 200 Ok Welcome to VOC\r\nServer: Voodoo chat daemon ver perl ([^\r\n]+)\r\n| p/Voodoo chat daemon httpd/ v/$1/
 match http m|^HTTP/1\.0 200 OK\r\nServer: AP HTTP Server\r\nSet-Cookie: LogIn=0\r\n.*<frame name=\"top\" src=\"/cgibin/entry\" marginwidth=\"10\" marginheight=\"10\" scrolling=\"auto\" frameborder=\"0\">\n    <frame name=\"center\" src=\"/user/images/selected/logslct\.gif|s p/Nortel Integrated Conference bridge http config/ i/AP HTTPd/ d/bridge/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Polycom SoundPoint IP Telephone HTTPd\r\n| p/Polycom SoundPoint VoIP phone http config/ d/VoIP phone/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: BISW_SDR\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"WebAdmin\"\r\nPragma: no-cache\r\n| p/Billion 7202 aDSL modem http config/ d/broadband router/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: BISW_SDR\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"WebAdmin\"\r\nPragma: no-cache\r\n| p|Billion/TeleWell aDSL modem http config| d/broadband router/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Virata-EmWeb/R([\d_]+)\r\nContent-Type: text/html; charset=UTF-8\r\nExpires: .*<title>HP LaserJet (\d+)&nbsp;&nbsp;&nbsp;[\d.]+</title>|s p/HP LaserJet $2 printer http config/ i/Virata httpd $1/ d/printer/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Length: \d+\r\nContent-Type: text/html\r\n.*getElementById\(\"cTextChg\"\)\.innerHTML = \"<p>Die soeben durchgef&uuml;hrte System&uuml;berpr&uuml;fung hat ergeben,<br>\" \+\n \"dass ihr Bildschirm nicht die minimal erforderliche Aufl\xf6sung hat\.</p>|s p/T-Com Speedport W 501V WAP http config/ i/German/ d/WAP/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: David-WebBox/([\w.]+) \((\d+)\)\r\n| p/David WebBox httpd/ v/$1.$2/
@@ -5738,9 +5741,8 @@ match ssl m|^\x16\x03\0\0:\x02\0\x006\x03\0| p/Novell Netware SSL/ o/NetWare/
 match ssl m|^\x16\x03\0\0\*\x02\0\0&\x03\0|s p/Novell SSL/ o/Unix/
 # Cisco IDS 4.1 Appliance
 match ssl m|^\x16\x03\0\0\*\x02\0\0&\x03\0\xd10:\xbd\\\x8e\xe3\x15\x1c\x0fZ\xe4\x04\x87\x07\xc0\x82\xa9\xd4\x0e\x9c1LXk\xd1\xd2\x0b\x1a\xc6/p\0\0\n\0\x16\x03\0\x026\x0b\0\x022\0| p/Cisco IDS SSL/ d/firewall/
-# Nessus server sometimes gives this answer
+# These Nessus match lines might be problematic:
 match ssl m|^\x15\x03\0\0\x02\x02\($| p/Nessus security scanner/ 
-# Other Nessus instances look like this:
 match ssl m|^\x16\x03\x01\0J\x02\0\0F\x03\x01| p/Nessus security scanner/
 # PGP Corporation Keyserver Web Console 7.0 - custom Apache 1.3
 # PGP LDAPS Keyserver 8.X
@@ -6020,8 +6022,8 @@ match ldap m|^0\x1a\x02\x01\x01a\x15\n\x01\0\x04\0\x04\x0eanonymous bind| p/Nort
 # Macintosh 8
 # Win 2000 Advanced server.
 match ldap m|^0\x0c\x02\x01\x01a\x07\n\x01\0\x04\0\x04\0| i/Anonymous bind OK/
-# MS Windows Win2K SP4 AD server
-match ldap m|^0\x84\0\0\0\x10\x02\x01\x01a\x84\0\0\0\x07\n\x01\0\x04\0\x04\0$| p/Microsoft LDAP server/ o/Windows/
+# MS Windows Win2K SP4 AD server, also Oracle LDAP on Linux
+match ldap m|^0\x84\0\0\0\x10\x02\x01\x01a\x84\0\0\0\x07\n\x01\0\x04\0\x04\0$|
 # PGP Corporation PGP Keyserver 7.0 (relabeled Freeware PGP Keyserver 2.5.8)
 #  PGP LDAP Server 8.x
 match ldap m|^0\x17\x02\x01\x01a\x12\n\x01\0\x04\0\x04\x0bPGPError #0$| p/PGP Corp. PGP Keyserver/
