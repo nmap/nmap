@@ -85,11 +85,18 @@ request = function( host, port, data, options )
 
   local result = {status=nil,header={},body=""}
   local socket = nmap.new_socket()
+  local default_timeout = {}
   if options.timeout then
     socket:set_timeout( options.timeout )
+  else
+    default_timeout = get_default_timeout( nmap.timing_level() )
+    socket:set_timeout( default_timeout.connect )
   end
   if not socket:connect( host, port, protocol ) then
     return result
+  end
+  if not options.timeout then
+    socket:set_timeout( default_timeout.request )
   end
   if not socket:send( data ) then
     return result
@@ -147,3 +154,18 @@ request = function( host, port, data, options )
 
 end
 
+get_default_timeout = function( nmap_timing )
+  local timeout = {}
+  if nmap_timing >= 0 and nmap_timing <= 3 then
+    timeout.connect = 10000
+    timeout.request = 15000
+  end
+  if nmap_timing >= 4 then
+    timeout.connect = 5000
+    timeout.request = 10000
+  end
+  if nmap_timing >= 5 then
+    timeout.request = 7000
+  end
+  return timeout
+end

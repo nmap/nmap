@@ -99,6 +99,7 @@ int luaopen_nmap (lua_State *L)
     {"debugging", l_get_debugging},
     {"have_ssl", l_get_have_ssl},
     {"fetchfile", l_fetchfile},
+    {"timing_level", l_get_timing_level},
     {NULL, NULL} 
   };
 

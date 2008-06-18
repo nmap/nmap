@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Update the HTTP library to use the new timing_level functionality to
+  set connection and response timeouts. An error preventing the new
+  timing_level feature from working was also fixed.  [Jah]
+
 o Added a new timing_level() function to NSE which reports the Nmap
   timing level from 0 to 5, as set by the Nmap -T option.  The default
   is 3. [Thomas Buchanan]
