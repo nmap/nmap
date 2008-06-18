@@ -4576,6 +4576,7 @@ match http m|^HTTP/1\.0 200 .*\r\nDate: .*\r\nContent-Length: .*\r\nContent-Type
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Hunchentoot ([\w-_.]+)\r\n|s p/Hunchentoot httpd/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\nServer: minituner\r\n| p|BMC/Marimba Management http config|
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"tuner\"\r\n| p|BMC/Marimba Management http config|
+match http m|^HTTP/1\.0 200 OK\r\nServer: Henry/\d\.\d\r\n|s p/NEC Electra Elite IPK II WebPro/
 
 #(insert http)
 
@@ -6057,6 +6058,10 @@ match sip m|^SIP/2\.0 400 Invalid Contact information\r\n.*received=[\d.]+;ms-re
 
 match sip m|^SIP/2\.0 501 Not Implemented.*\r\nServer: SJphone/([-\w_.]+) \(SJ Labs\)\r\n|s p/SJphone SIP client/ v/$1/
 
+match sip m|^SIP/2\.0 ([-\w\s.]+)\r\n.*Server: Cisco-SIPGateway/IOS-([-\d\w.]+)\r\n|s p/Cisco SIP Gateway/ i/Status: $1; IOS $2/ o/IOS/ d/router/
+softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n.*Server: ([-\w\s/_.]+)\r\n|s p/$2/ i/Status: $1/
+softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n| i/SIP end point; Status: $1/
+
 ##############################NEXT PROBE##############################
 Probe TCP LANDesk-RC q|\x54\x4e\x4d\x50\x04\0\0\0\x54\x4e\x4d\x45\0\0\x04\0|
 rarity 6
@@ -6235,7 +6240,9 @@ match nessus m|^< NTP/1.0 >\n| p/Nessus Daemon/ i/NTP v1.0/
 Probe UDP SNMPv1public q|0\x82\0/\x02\x01\0\x04\x06public\xa0\x82\0\x20\x02\x04\x4c\x33\xa7\x56\x02\x01\0\x02\x01\0\x30\x82\0\x10\x30\x82\0\x0c\x06\x08\x2b\x06\x01\x02\x01\x01\x05\0\x05\0|
 rarity 4
 ports 161
-# FIXME: Can probably get more information out of this... -Doug
+
+match snmp m|^0.*\x02\x01\0\x04\x06public\xa2.*\x06\x08\+\x06\x01\x02\x01\x01\x05\0\x04[^\0]([^\0]+)|s p/SNMPv1 server/ i/string: public/ h/$1/
+
 match snmp m|^0.*\x02\x01\0\x04\x06public\xa2|s p/SNMPv1 server/ i/public/
 
 ##############################NEXT PROBE##############################
@@ -6438,3 +6445,35 @@ ports 3050
 
 match firebird m|^\0\0\0\x03\0\0\0\x0a\0\0\0\x01| p/Firebird RDBMS/ v/Protocol version 10/
 softmatch firebird m|^\0\0\0\x03\0\0\0.\0\0\0.|s p/Firebird RDBMS/
+
+
+
+# Following 4 probes created by Tom Sellers:
+##############################NEXT PROBE##############################
+Probe TCP ibm-db2-das q|\0\0\0\0\x44\x42\x32\x44\x41\x53\x20\x20\x20\x20\x20\x20\x01\x04\0\0\0\x10\x39\x7a\0\x01\0\0\0\0\0\0\0\0\0\0\x01\x0c\0\0\+0\0\0\0\x0c\0\0\0\x0c\0\0\0\x04|
+rarity 8
+ports 523,50000
+match ibm-db2 m|^\0\0\0\0DB2DAS\x20\x20\x20\x20\x20\x20\x01\x04\0\0\0\x109z\0\x05\0\0\0\0\0\0\0\0\0\0\$\xf7\0\0\0\0\0\0\x9b\0\0\0\x0c\0\0\0Z\0\0\0\x10\0\0\0\x0c\0\0\0L\0\0\0\0\0\0\0\$\0\0\0\x0c\0\0\0O\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x10\0\0\0\x0c\0\0\0L\0\0\0\0\0\0\0\x19\0\0\0\x0c\0\0\0\x04\0\0\x04\xb8SQL0(\d)(\d\d)(\d+)|s p/IBM DB2 Database Server/ v/$1.$2.$3/
+
+
+##############################NEXT PROBE##############################
+Probe TCP ibm-db2 q|\x01\xc2\0\0\0\x04\0\0\xb6\x01\0\0\x53\x51\x4c\x44\x42\x32\x52\x41\0\x01\0\0\x04\x01\x01\0\x05\0\x1d\0\x88\0\0\0\x01\0\0\x80\0\0\0\x01\x09\0\0\0\x01\0\0\x40\0\0\0\x01\x09\0\0\0\x01\0\0\x40\0\0\0\x01\x08\0\0\0\x04\0\0\x40\0\0\0\x01\x04\0\0\0\x01\0\0\x40\0\0\0\x40\x04\0\0\0\x04\0\0\x40\0\0\0\x01\x04\0\0\0\x04\0\0\x40\0\0\0\x01\x04\0\0\0\x04\0\0\x40\0\0\0\x01\x04\0\0\0\x02\0\0\x40\0\0\0\x01\x04\0\0\0\x04\0\0\x40\0\0\0\x01\0\0\0\0\x01\0\0\x40\0\0\0\0\x04\0\0\0\x04\0\0\x80\0\0\0\x01\x04\0\0\0\x04\0\0\x80\0\0\0\x01\x04\0\0\0\x03\0\0\x80\0\0\0\x01\x04\0\0\0\x04\0\0\x80\0\0\0\x01\x08\0\0\0\x01\0\0\x40\0\0\0\x01\x04\0\0\0\x04\0\0\x40\0\0\0\x01\x10\0\0\0\x01\0\0\x80\0\0\0\x01\x10\0\0\0\x01\0\0\x80\0\0\0\x01\x04\0\0\0\x04\0\0\x40\0\0\0\x01\x09\0\0\0\x01\0\0\x40\0\0\0\x01\x09\0\0\0\x01\0\0\x80\0\0\0\x01\x04\0\0\0\x03\0\0\x80\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\x01\x04\0\0\x01\0\0\x80\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\x40\0\0\0\x01\0\0\0\0\x01\0\0\x40\0\0\0\0\x20\x20\x20\x20\x20\x20\x20\x20\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01\0\xff\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xe4\x04\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x7f|
+rarity 8
+ports 523,50000
+
+match ibm-db2 m|(?<=.)DB2/([^\0]+)\0\0\0\0\0\0\0\0\0.{1,3}\0\0\0\0\0\0\0SQL0(\d)(\d\d)(\d+)|s p/IBM DB2 Database Server/ v/$2.$3.$4/ o/$1/
+match ibm-db2 m|^\0\xa9\x10\0\0\x01\0\0SQLDB2RA\x01\0\x05\0.{10,13}SQLCA|s p/IBM DB2 Database Server/
+
+##############################NEXT PROBE##############################
+Probe TCP pervasive-relational q|\x43\x6c\x69\x65\x6e\x74\x20\x73\x74\x72\x69\x6e\x67\x20\x66\x6f\x72\x20\x50\x41\x52\x43\x20\x76\x65\x72\x73\x69\x6f\x6e\x20\x31\x20\x57\x69\x72\x65\x20\x45\x6e\x63\x72\x79\x70\x74\x69\x6f\x6e\x20\x76\x65\x72\x73\x69\x6f\x6e\x20\x31\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|
+rarity 8
+ports 1583,3351
+
+match psql m|^\0{255}| p/Pervasive.SQL Server - Relational Engine/
+
+
+##############################NEXT PROBE##############################
+Probe TCP pervasive-btrieve q|\x3c\0\x4b\0\0\0\x20\0\0\0\0\0\0\0\0\0\xff\xff\xff\xff\0\0\x0a\x04\xa0\xbe\x53\x03\x55\x52\0\0\x3c\0\0\0\x05\0\0\0\0\0\0\0\0\0\x1a\0\x3c\0\0\0\0\0\x0a\0\0\0\0\0|
+ports 1583,3351
+rarity 8
+match psql-btrieve m|^A\0K\0\0\0\x20\0\0\0\0\0\0\0\0\0\xff\xff\xff\xff\0\0\n\x04\xa0| p/Pervasive.SQL Server - Btrieve Engine/
