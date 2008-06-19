@@ -3398,16 +3398,18 @@ overwhelming requests.  Specify <option>--open</option> to only see
 
           <para>While IPv6 hasn't exactly taken the world by storm, it
           gets significant use in some (usually Asian) countries and
-          most modern operating systems support it.  To use Nmap
-          with IPv6, both the source and target of your scan must be
+          most modern operating systems support it.  To use Nmap with
+          IPv6, both the source and target of your scan must be
           configured for IPv6.  If your ISP (like most of them) does
           not allocate IPv6 addresses to you, free tunnel brokers are
-          widely available and work fine with Nmap.  One of the better
-          ones is run by BT Exact at <ulink
-          url="https://tb.ipv6.btexact.com/" />.  I have also used one
-          that Hurricane Electric provides at <ulink
-          url="http://ipv6tb.he.net/" />.  6to4 tunnels are another
-          popular, free approach.</para>
+          widely available and work fine with Nmap.  I use the free
+          IPv6 tunnel broker service at
+          <ulink url="http://www.tunnelbroker.net"/>.  Other tunnel
+          brokers are
+          <ulink url="http://en.wikipedia.org/wiki/List_of_IPv6_tunnel_brokers">listed
+          at Wikipedia</ulink>.  6to4 tunnels are another popular,
+          free approach.</para>
+
         </listitem>
       </varlistentry>
 
