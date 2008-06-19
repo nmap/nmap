@@ -3070,12 +3070,16 @@ bool route_dst(const struct sockaddr_storage *const dst, struct route_nfo *rnfo)
 
   if (o.spoofsource) {
     o.SourceSockAddr(&spoofss, &spoofsslen);
+	//throughout the rest of this function we only change rnfo->srcaddr if the source isnt spoofed
+	memcpy(&rnfo->srcaddr, &spoofss, sizeof(rnfo->srcaddr));
     /* The device corresponding to this spoofed address should already have been
        set elsewhere. */
     assert(o.device[0] != '\0');
   }
 
-  //dont use this method for user specified devices
+  //first we check to see if the host is directly connected,
+  //if not, we have to check the routing table
+  //also, if the user specified a device we have to check the routing table
   if(!*o.device) {
     ifaces = getinterfaces(&numifaces);
     /* I suppose that I'll first determine whether it is a direct connect
@@ -3094,9 +3098,7 @@ bool route_dst(const struct sockaddr_storage *const dst, struct route_nfo *rnfo)
 	  rnfo->direct_connect = true;
 	  memcpy(&rnfo->ii, &ifaces[i], sizeof(rnfo->ii));
 	  /* But the source address we want to use is the target addy */
-	  if (o.spoofsource)
-	    memcpy(&rnfo->srcaddr, &spoofss, sizeof(rnfo->srcaddr));
-	  else
+	  if (!o.spoofsource)
 	    memcpy(&rnfo->srcaddr, &ifaces[ifnum].addr, sizeof(rnfo->srcaddr));
 	  return true;
 	}
@@ -3105,15 +3107,19 @@ bool route_dst(const struct sockaddr_storage *const dst, struct route_nfo *rnfo)
       }
       mask = htonl((unsigned long) (0-1) << (32 - ifaces[ifnum].netmask_bits));
       if ((ifsin->sin_addr.s_addr & mask) == (dstsin->sin_addr.s_addr & mask)) {
-	rnfo->direct_connect = 1;
+	rnfo->direct_connect = true;
 	memcpy(&rnfo->ii, &ifaces[ifnum], sizeof(rnfo->ii));
 	if (!o.spoofsource) {
 	  memcpy(&rnfo->srcaddr, &ifaces[ifnum].addr, sizeof(rnfo->srcaddr));
 	}
 	return true;
-      }
+	  }
     }
   }
+
+  //assume the device isnt directly connected until we know it is
+  //the only case it could be is if the user specified an interface
+  rnfo->direct_connect = false;
 
   if (*o.device) {
     iface = getInterfaceByName(o.device);
@@ -3123,15 +3129,14 @@ bool route_dst(const struct sockaddr_storage *const dst, struct route_nfo *rnfo)
     /* Is it directly connected? */
     mask = htonl((unsigned long) (0-1) << (32 - iface->netmask_bits));
     ifsin = (struct sockaddr_in *) &(iface->addr);
-    if ((ifsin->sin_addr.s_addr & mask) == (dstsin->sin_addr.s_addr & mask))
-      rnfo->direct_connect = 1;
-    else {
-      rnfo->direct_connect = 0;
-    }
-  } else {
-    rnfo->direct_connect = false;
+	if ((ifsin->sin_addr.s_addr & mask) == (dstsin->sin_addr.s_addr & mask)){
+      rnfo->direct_connect = true;
+      memcpy(&rnfo->ii, iface, sizeof(rnfo->ii));
+	  if (!o.spoofsource)
+	    memcpy(&rnfo->srcaddr, &(iface->addr), sizeof(rnfo->srcaddr));
+	  return true;
+	}
   }
-
 
   routes = getsysroutes(&numroutes);
   /* Now we simply go through the list and take the first match */
@@ -3143,7 +3148,8 @@ bool route_dst(const struct sockaddr_storage *const dst, struct route_nfo *rnfo)
 	  //ignore routes that arent on the device we specified!
 	  continue;
 	} else {
-	  memcpy(&rnfo->srcaddr, &(iface->addr), sizeof(rnfo->srcaddr));
+	  if (!o.spoofsource)
+	    memcpy(&rnfo->srcaddr, &(iface->addr), sizeof(rnfo->srcaddr));
 	  memcpy(&rnfo->ii, iface, sizeof(rnfo->ii));
 	}
       } else {
