@@ -3065,6 +3065,33 @@ match wesnoth m|^\0\0\0.\0\0\0\x1f\x02version\0\x04[\d.]+\0\0\x02mustlogin\0\x05
 match xboxdebug m|^201- connected\r\n407- unknown command\r\n$| p/Microsoft XBox Debugging Kit/ d/game console/
 match xns m|^HELLO XBOX!$| p/Relax XBOX file server/ d/game console/
 
+
+# This probe sends a SIP OPTIONS request.
+# Most of the numbers, usernames, and hostnames are abitrary.
+##############################NEXT PROBE##############################
+Probe TCP SIPOptions q|OPTIONS sip:nm SIP/2.0\r\nVia: SIP/2.0/TCP nm;branch=foo\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nMax-Forwards: 70\r\nContent-Length: 0\r\nContact: <sip:nm@nm>\r\nAccept: application/sdp\r\n\r\n|
+rarity 5
+ports 5060
+fallback GetRequest
+# Some VoIP phones take longer to respond
+totalwaitms 7500
+
+match sip m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: PolycomSoundStationIP-SSIP_(\d+)-UA/([\d.]+)\r\n|s p/Polycom SoundPoint $1/ v/$2/ d/VoIP phone/
+match sip m|^SIP/2\.0 400 Invalid Contact information\r\n.*received=[\d.]+;ms-received-port=\d+;ms-received-cid=\d+\r\n|s p/Microsoft Live SIP client/ o/Windows/
+match sip m|^SIP/2\.0 501 Not Implemented.*\r\nServer: SJphone/([-\w_.]+) \(SJ Labs\)\r\n|s p/SJphone SIP client/ v/$1/
+match sip m|^SIP/2\.0 404 Not Found\r\n.*\r\nUser-Agent: Speedport ([\w-_. ]+) \(|s p/T-Com Speedport/ v/$1/ d/broadband router/
+
+match sip-proxy m|^SIP/2\.0 404 Not Found\r\n.*\r\nUser-Agent: Asterisk PBX ([\w-_.]+)\r\n|s p/Asterisk PBX/ v/$1/ d/PBX/
+match sip-proxy m|^SIP/2\.0 .*\r\nServer: OpenS[Ee][Rr] \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/OpenSER SIP Server/ v/$1/ i/$2/
+match sip-proxy m|^SIP/2\.0 .*\r\nServer: Sip EXpress router \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/SIP Express Router/ v/$1/ i/$2/
+match sip-proxy m|^SIP/2\.0 .*\r\nServer: Cisco-SIPGateway/IOS-([-\d\w.]+)\r\n|s p/Cisco SIP Gateway/ i/IOS $1/ o/IOS/ d/router/
+match sip-proxy m|^SIP/2\.0 .*\r\nServer: Sphericall/([\w-_.]+) Build/(\d+)\r\n|s p/Sphericall VoIP Gateway/ v/$1 build $2/ o/Windows/
+match sip-proxy m|^SIP/2\.0 .*\r\nServer: CommuniGatePro/([\w-_.]+)\r\n|s p/CommuniGatePro VoIP Gateway/ v/$1/
+
+softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n.*Server: ([-\w\s/_.]+)\r\n|s p/$2/ i/Status: $1/
+softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n| i/SIP end point; Status: $1/
+
+
 ##############################NEXT PROBE##############################
 Probe TCP GetRequest q|GET / HTTP/1.0\r\n\r\n|
 rarity 1
@@ -4796,6 +4823,7 @@ match http-proxy m|^HTTP/1\.0 400 Bad Request\r\nContent-Type: text/html\r\n\r\n
 match http-proxy m|^HTTP/1\.0 403 Request error by HAVP\r\n.*<title>Yoggie - Unknown Request</title>|s p/HAVP anti-virus web proxy/ i/Yoggie httpd/
 match http-proxy m|^HTTP/1\.0 403 Request error by HAVP\r\n| p/HAVP anti-virus web proxy/
 match http-proxy m|^HTTP/1\.1 407\r\nProxy-Authenticate: Basic realm=\"Proxy\"\r\nContent-Type: text/plain\r\n\r\nAccess denyed| p/Small HTTP Server http proxy/
+match http-proxy m|^HTTP/1\.0 400 Invalid header received from client\r\nProxy-Agent: Privoxy ([\w-_.]+)\r\n| p/Privoxy http proxy/ v/$1/
 
 match mas-financial m|^409 Invalid Protocol PVXAS/1\.0\r\n| p/MAS200 Financial System/ o/Windows/
 match mas-financial m|^The Host cannot run the specified program\.$| p/MAS200 Financial System/ o/Windows/
@@ -4959,6 +4987,7 @@ match shoutcast m|^ICY \d\d\d .*\r\n.*SHOUTcast Distributed Network Audio Server
 
 match sip m|^SIP/2\.0 400 Illegal request line\r\nFrom: <sip:missing>\r\nTo: <sip:missing>;tag=badrequest\r\nUser-Agent: AVM FRITZ!Box Fon WLAN ([\d.]+) ([^\r\n]+)\r\n| p/AVM FRITZ!Box WLAN $1/ v/$2/ d/VoIP adapter/
 match sip m|^SIP/2\.0 400 Illegal request line\r\nFrom: <sip:missing>\r\nTo: <sip:missing>;tag=badrequest\r\nUser-Agent: AVM FRITZ!Box Fon (\w+) \(UI\) ([\d.]+) \(| p/AVM FRITZ!Box $1/ v/$2/ d/VoIP adapter/
+match sip m|^SIP/2\.0 400 Illegal request line\r\nFrom: <sip:missing>\r\nTo: <sip:missing>;tag=badrequest\r\nUser-Agent: AVM FRITZ!Fon ([\w-_]+) ([\w-_.]+) | p/AVM FRITZ!Fon $1/ v/$2/ d/VoIP adapter/
 match sip m|^SIP/2\.0 400 Illegal request line\r\nFrom: <sip:missing>\r\nTo: <sip:missing>;tag=badrequest\r\nUser-Agent: AVM Speedport W 501V ([\d.]+) \([^)]*\)\r\n| p/Speedport W 501V/ v/$1/ d/VoIP adapter/
 match sip m|^SIP/2\.0 400 Illegal request line\r\nFrom: <sip:missing>\r\nTo: <sip:missing>;tag=badrequest\r\nUser-Agent: Speedport W 701V ([-\w_.]+) \(| p/T-Com Speedport W701V/ v/$1/ d/VoIP adapter/
 
@@ -6114,32 +6143,6 @@ match ldap m|^0\x0c\x02\x01\x01a\x07\n\x011\x04\0\x04\0$| p/Cisco LDAP server/
 
 match ldap m|^0.\x02.*TLS confidentiality required|s i/TLS required/
 
-# This probe sends a SIP OPTIONS request.
-# Most of the numbers, usernames, and hostnames are abitrary.
-##############################NEXT PROBE##############################
-Probe TCP SIPOptions q|OPTIONS sip:nm SIP/2.0\r\nVia: SIP/2.0/TCP nm;branch=foo\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nMax-Forwards: 70\r\nContent-Length: 0\r\nContact: <sip:nm@nm>\r\nAccept: application/sdp\r\n\r\n|
-rarity 5
-ports 5060
-# Some VoIP phones take longer to respond
-totalwaitms 7500
-
-# SIP Proxy Servers
-# OpenSER SIP Server
-match sip m|Server: OpenS[Ee][Rr] \(([\w\d\.-]+) \(([\d\w/]+)\)\)| p/OpenSER SIP Server/ v/$1/ i/$2/
-# SIP Express Router
-match sip m|Server: Sip EXpress router \(([\w\d\.-]+) \(([\d\w/]+)\)\)| p/SIP Express Router/ v/$1/ i/$2/
-
-# SIP User Agents
-# Polycom SoundPoint
-match sip m|User-Agent: PolycomSoundPointIP-SPIP_(\d+)-UA/([\d\.]+)| p/Polycom SoundPoint/ v/$1/ i/firmware $2/ d/VoIP phone/
-
-match sip m|^SIP/2\.0 400 Invalid Contact information\r\n.*received=[\d.]+;ms-received-port=\d+;ms-received-cid=\d+\r\n|s p/Microsoft Live SIP client/ o/Windows/
-
-match sip m|^SIP/2\.0 501 Not Implemented.*\r\nServer: SJphone/([-\w_.]+) \(SJ Labs\)\r\n|s p/SJphone SIP client/ v/$1/
-
-match sip m|^SIP/2\.0 ([-\w\s.]+)\r\n.*Server: Cisco-SIPGateway/IOS-([-\d\w.]+)\r\n|s p/Cisco SIP Gateway/ i/Status: $1; IOS $2/ o/IOS/ d/router/
-softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n.*Server: ([-\w\s/_.]+)\r\n|s p/$2/ i/Status: $1/
-softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n| i/SIP end point; Status: $1/
 
 ##############################NEXT PROBE##############################
 Probe TCP LANDesk-RC q|\x54\x4e\x4d\x50\x04\0\0\0\x54\x4e\x4d\x45\0\0\x04\0|
