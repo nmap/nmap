@@ -1,6 +1,12 @@
 #ifndef NMAP_LUA_H
 #define NMAP_LUA_H
 
+extern "C" {
+  #include "lua.h"
+  #include "lualib.h"
+  #include "lauxlib.h"
+}
+
 #include <vector>
 #include <list>
 #include <string>
@@ -20,5 +26,7 @@ int script_updatedb();
 
 //parses the arguments provided to scripts via nmap's --script-args option 
 int script_check_args();
+
+int process_waiting2running(lua_State *, int);
 #endif
 

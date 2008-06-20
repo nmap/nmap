@@ -1,11 +1,5 @@
 #include "nse_main.h"
 
-extern "C" {
-	#include "lua.h"
-	#include "lualib.h"
-	#include "lauxlib.h"
-}
-
 #include "nse_init.h"
 #include "nse_nsock.h"
 #include "nse_nmaplib.h"
