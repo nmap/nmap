@@ -314,20 +314,6 @@ int intf_get_pcap_devname(const char *ifname, char *pcapdev, int pcapdevlen) {
 	}
 	intf_close(intf);
 	
-	/* Find the first IPv4 address for ie */
-	if (ie.intf_addr.addr_type == ADDR_TYPE_IP) {
-		addr_ntos(&ie.intf_addr, (struct sockaddr *) &devip);
-	} else {
-		for(i=0; i < (int) ie.intf_alias_num; i++) {
-			if (ie.intf_alias_addrs[i].addr_type == ADDR_TYPE_IP) {
-				addr_ntos(&ie.intf_alias_addrs[i], (struct sockaddr *) &devip);
-				break;
-			}
-		}
-		if (i == ie.intf_alias_num)
-			return -1; // Failed to find IPv4 address, which is currently a requirement
-	}
-
 	/* Next we must find the pcap device name corresponding to the device.
 	   The device description used to be compared with those from PacketGetAdapterNames(), but
 	   that was unrelaible because dnet and pcap sometimes give different descriptions.  For example, 
@@ -343,10 +329,27 @@ int intf_get_pcap_devname(const char *ifname, char *pcapdev, int pcapdevlen) {
 		for (pa=pdev->addresses; pa && !pname[0]; pa = pa->next) {
 			if (pa->addr->sa_family != AF_INET)
 				continue;
-			if (((struct sockaddr_in *)pa->addr)->sin_addr.s_addr == devip.sin_addr.s_addr) {
-				strlcpy(pname, pdev->name, sizeof(pname)); /* Found it -- Yay! */
-			break;
-	}
+
+			/* Match this address of pdev against all the addresses of ie.
+			   i == -1 tests against the primary address of the interface.
+			   i >= 0 tests against alias addresses. */
+			for (i = -1; i < (int) ie.intf_alias_num; i++) {
+				if (i == -1) {
+					if (ie.intf_addr.addr_type != ADDR_TYPE_IP)
+						continue;
+					addr_ntos(&ie.intf_addr, (struct sockaddr *) &devip);
+				} else {
+					if (ie.intf_alias_addrs[i].addr_type != ADDR_TYPE_IP)
+						continue;
+					addr_ntos(&ie.intf_alias_addrs[i], (struct sockaddr *) &devip);
+				}
+				if (((struct sockaddr_in *)pa->addr)->sin_addr.s_addr == devip.sin_addr.s_addr) {
+					/* Found it -- Yay! */
+					strlcpy(pname, pdev->name, sizeof(pname));
+					/* Assigning pname[0] breaks out of the outer loops too. */
+					break;
+				}
+			}
 		}
 	}
 
