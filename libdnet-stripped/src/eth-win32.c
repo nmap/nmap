@@ -37,9 +37,6 @@ struct adapter {
 	char		*desc;
 };
 
-/* XXX */
-extern const char *intf_get_desc(intf_t *intf, const char *device);
-
 eth_t *
 eth_open(const char *device)
 {

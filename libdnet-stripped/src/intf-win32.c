@@ -271,25 +271,6 @@ intf_get(intf_t *intf, struct intf_entry *entry)
 	return (0);
 }
 
-/* XXX - gross hack required by eth-win32:eth_open() */
-const char *
-intf_get_desc(intf_t *intf, const char *name)
-{
-	static char desc[MAXLEN_IFDESCR + 1];
-	MIB_IFROW ifrow;
-	
-	if (_refresh_tables(intf) < 0)
-		return (NULL);
-	
-	ifrow.dwIndex = _find_ifindex(intf, name);
-	
-	if (GetIfEntry(&ifrow) != NO_ERROR)
-		return (NULL);
-
-	
-	return (desc);
-}
-
 /* Converts a dnet interface name (ifname) to its pcap equivalent, which is stored in
 pcapdev (up to a length of pcapdevlen).  Returns 0 and fills in pcapdev if successful. */
 int intf_get_pcap_devname(const char *ifname, char *pcapdev, int pcapdevlen) {
