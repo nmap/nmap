@@ -1,46 +1,48 @@
 -- See nmaps COPYING for licence
 
-module(... or "stdnse", package.seeall)
+local assert = assert;
+local tonumber = tonumber;
+local concat = table.concat;
+local nmap = require"nmap";
 
-print_debug = function(...)
-	local verbosity = 1;
-	if ((#arg > 1) and (tonumber(arg[1]))) then
-		verbosity = table.remove(arg, 1);
-	end
-	
-	nmap.print_debug_unformatted(verbosity, string.format(unpack(arg, start)));
+module(... or "stdnse");
+
+print_debug = function(level, fmt, ...)
+  local verbosity = tonumber(level);
+  if verbosity then
+    nmap.print_debug_unformatted(verbosity, fmt:format(...));
+  else
+    nmap.print_debug_unformatted(1, level:format(...));
+  end
 end
 
 -- Concat the contents of the parameter list,
 -- separated by the string delimiter (just like in perl)
 -- example: strjoin(", ", {"Anna", "Bob", "Charlie", "Dolores"})
 function strjoin(delimiter, list)
-	return table.concat(list, delimiter);
+  return concat(list, delimiter);
 end
 
 -- Split text into a list consisting of the strings in text,
 -- separated by strings matching delimiter (which may be a pattern). 
 -- example: strsplit(",%s*", "Anna, Bob, Charlie,Dolores")
 function strsplit(delimiter, text)
-	local list = {}
-	local pos = 1
+  local list, pos = {}, 1;
 
-    assert(delimiter ~= "", "delimiter matches empty string!");
+  assert(delimiter ~= "", "delimiter matches empty string!");
 
-	while true do
-		local first, last = string.find(text, delimiter, pos)
-		if first then -- found?
-			table.insert(list, string.sub(text, pos, first-1))
-			pos = last+1
-		else
-			table.insert(list, string.sub(text, pos))
-			break
-		end
-	end
-
-	return list
+  while true do
+    local first, last, match = text:find(delimiter, pos);
+    if first then -- found?
+      list[#list+1] = text:sub(pos, first-1);
+      pos = last+1;
+    else
+      list[#list+1] = text:sub(pos);
+      break;
+    end
+  end
+  return list;
 end
-
 
 -- Generic buffer implementation using lexical closures
 --
@@ -60,6 +62,36 @@ end
 --
 -- -Doug, June, 2007
 
+--[[ function make_buffer(socket, sep)
+  local point, pattern, buffer = 1, "([^"..sep.."]-)"..sep.."?";
+  local function self(lines)
+    lines = lines or 1;
+    if not buffer then
+      local status, str = socket:receive_lines(lines);
+      if not status then
+        if buffer then
+          return buffer:sub(point);
+        else
+          return status, str;
+        end
+      else
+        buffer = str;
+        return self(lines);
+      end
+    else
+      local _, j, str = buffer:find(pattern, point);
+      if j then
+        point = j + 1;
+        return str;
+      else
+        point, buffer = 1, nil;
+        return self(lines);
+      end
+    end
+  end
+  return self;
+end --]]
+
 make_buffer = function(sd, sep)
   local self, result
   local buf = ""
@@ -67,22 +99,22 @@ make_buffer = function(sd, sep)
   self = function()
     local i, j, status, value
 
-    i, j = string.find(buf, sep)
+    i, j = buf:find(sep)
 
     if i then
       if i == 1 then  -- empty line
-        buf = string.sub(buf, j+1, -1)
+        buf = buf:sub(j+1, -1)
         --return self() -- skip empty, tail
         return true, "" -- return empty
       else
-        value = string.sub(buf, 1, i-1)
-        buf = string.sub(buf, j+1, -1)
+        value = buf:sub(1, i-1)
+        buf = buf:sub(j+1, -1)
         return true, value
       end
     end
 
     if result then
-      if string.len(buf) > 0 then  -- left over data with no terminating pattern
+      if #buf > 0 then  -- left over data with no terminating pattern
         value = buf
         buf = ""
         return true, value
