@@ -67,7 +67,9 @@ static int aux_mutex (lua_State *L)
       lua_pushthread(L);
       if (!lua_equal(L, -1, lua_upvalueindex(2)))
         luaL_error(L, "%s", "Do not have a lock on this mutex");
-      lua_getfield(L, LUA_REGISTRYINDEX, "table.remove");
+      lua_getfield(L, LUA_REGISTRYINDEX, "_LOADED");
+      lua_getfield(L, -1, "table");
+      lua_getfield(L, -1, "remove");
       lua_pushvalue(L, lua_upvalueindex(1));
       lua_pushinteger(L, 1);
       lua_call(L, 2, 1);
