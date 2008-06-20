@@ -2715,7 +2715,7 @@ error_message describes the occurred error.</para>
       <variablelist>
         <varlistentry>
           <term>
-            <option>nmap.mutex(object)</option>
+            <option>mutex = nmap.mutex(object)</option>
             <indexterm><primary>mutex</primary></indexterm>
           </term>
           <listitem>
@@ -2759,7 +2759,7 @@ error_message describes the occurred error.</para>
               <listitem>
                 <para>
                   <literal>"running"</literal>&mdash;Returns the thread locked
-                  on the mutex or nil. This
+                  on the mutex or <literal>nil</literal>. This
                   should only be used for debugging as it interferes
                   with finished threads from being collected.
                 </para>
@@ -2777,7 +2777,7 @@ local mutex = nmap.mutex(id);
 function action(host, port)
   mutex "lock";
   -- do stuff
-  mutex"done";
+  mutex "done";
   return script_output;
 end
         </programlisting>
