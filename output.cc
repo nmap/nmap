@@ -210,7 +210,7 @@ static int getServiceXMLBuf(struct serviceDeductions *sd, char *&xmlbuf) {
   char *xml_servicefp = NULL, *xml_servicefp_temp = NULL;
   int xmlbuflen=0;
 
-  if (!sd->name && !sd->service_fp) return 0;
+  if (!sd->name && !sd->service_fp) return -1;
 
   if (sd->product) {
     xml_product = xml_convert(sd->product);
@@ -765,7 +765,7 @@ void printportoutput(Target *currenths, PortList *plist) {
 	  log_write(LOG_XML, "<owner name=\"%s\" />", current->owner);
 	}
 	if (getServiceXMLBuf(&sd, xmlbuf) == 0)
-	  if (*xmlbuf){
+	  if (xmlbuf){
 	    log_write(LOG_XML, "%s", xmlbuf);
 		free(xmlbuf);
 		xmlbuf=NULL;
