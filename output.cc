@@ -174,9 +174,8 @@ static char* xml_sf_convert (const char* str) {
   char *temp = (char *) safe_malloc(strlen(str) + 1);
   char *dst = temp, *src = (char *)str;
   char *ampptr = 0;
-  int charcount = 0;
 
-  while(*src && charcount < 2035) { /* 2048 - 14 */
+  while(*src) {
     if (strncmp(src, "\nSF:", 4) == 0) {
       src += 4;
       continue;
@@ -189,7 +188,6 @@ static char* xml_sf_convert (const char* str) {
       ampptr = 0;
     }
     *dst++ = *src++;
-    charcount++;
   }
   if (ampptr != 0) {
     *ampptr = '\0';
@@ -204,16 +202,14 @@ static char* xml_sf_convert (const char* str) {
 // Creates an XML <service> element for the information given in
 // serviceDeduction.  It will be 0-length if none is neccessary.
 // returns 0 for success.
-static int getServiceXMLBuf(struct serviceDeductions *sd, char *xmlbuf, 
-		     unsigned int xmlbuflen) {
+static int getServiceXMLBuf(struct serviceDeductions *sd, char *&xmlbuf) {
   string versionxmlstring = "";
   char rpcbuf[128];
   char *xml_product = NULL, *xml_version = NULL, *xml_extrainfo = NULL;
   char *xml_hostname = NULL, *xml_ostype = NULL, *xml_devicetype = NULL;
   char *xml_servicefp = NULL, *xml_servicefp_temp = NULL;
+  int xmlbuflen=0;
 
-  if (xmlbuflen < 1) return -1;
-  xmlbuf[0] = '\0';  
   if (!sd->name && !sd->service_fp) return 0;
 
   if (sd->product) {
@@ -280,15 +276,17 @@ static int getServiceXMLBuf(struct serviceDeductions *sd, char *xmlbuf,
 	     sd->rpc_program, sd->rpc_lowver, sd->rpc_highver);
   } else rpcbuf[0] = '\0';
 
+  xmlbuflen=versionxmlstring.size()+55;
+  xmlbuflen+=strlen(rpcbuf);
+  xmlbuf = (char*)safe_malloc(xmlbuflen);
+
   Snprintf(xmlbuf, xmlbuflen, 
 	   "<service name=\"%s\"%s %smethod=\"%s\" conf=\"%d\"%s />", 
 	   sd->name? sd->name : "unknown",
 	   versionxmlstring.c_str(),
 	   (sd->service_tunnel == SERVICE_TUNNEL_SSL)? "tunnel=\"ssl\" " : "",
 	   (sd->dtype == SERVICE_DETECTION_TABLE)? "table" : "probed", 
-
 	   sd->name_confidence, rpcbuf);
-
   return 0;
 }
 
@@ -481,7 +479,7 @@ void printportoutput(Target *currenths, PortList *plist) {
   char rpcinfo[64];
   char rpcmachineinfo[64];
   char portinfo[64];
-  char xmlbuf[2560];
+  char *xmlbuf=NULL;
   char grepvers[256];
   char grepown[64];
   char *p;
@@ -766,9 +764,12 @@ void printportoutput(Target *currenths, PortList *plist) {
 	if (current->owner && *current->owner) {
 	  log_write(LOG_XML, "<owner name=\"%s\" />", current->owner);
 	}
-	if (getServiceXMLBuf(&sd, xmlbuf, sizeof(xmlbuf)) == 0)
-	  if (*xmlbuf)
+	if (getServiceXMLBuf(&sd, xmlbuf) == 0)
+	  if (*xmlbuf){
 	    log_write(LOG_XML, "%s", xmlbuf);
+		free(xmlbuf);
+		xmlbuf=NULL;
+	  }
 
 	rowno++;
 #ifndef NOLUA	
