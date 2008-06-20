@@ -43,7 +43,7 @@ eth_open(const char *device)
 	eth_t *eth;
 	char pname[128];
 	
-    if (intf_get_pcap_devname(device, pname, sizeof(pname)) != 0)
+    if (eth_get_pcap_devname(device, pname, sizeof(pname)) != 0)
 		return NULL;
 	
 	if ((eth = calloc(1, sizeof(*eth))) == NULL)
@@ -118,7 +118,7 @@ eth_set(eth_t *eth, const eth_addr_t *ea)
 
 /* Converts a dnet interface name (ifname) to its pcap equivalent, which is stored in
 pcapdev (up to a length of pcapdevlen).  Returns 0 and fills in pcapdev if successful. */
-int intf_get_pcap_devname(const char *ifname, char *pcapdev, int pcapdevlen) {
+int eth_get_pcap_devname(const char *ifname, char *pcapdev, int pcapdevlen) {
 	int i;
 	intf_t *intf;
 	struct intf_entry ie;

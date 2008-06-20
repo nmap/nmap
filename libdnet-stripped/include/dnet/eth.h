@@ -68,6 +68,8 @@ int	 eth_set(eth_t *e, const eth_addr_t *ea);
 ssize_t	 eth_send(eth_t *e, const void *buf, size_t len);
 eth_t	*eth_close(eth_t *e);
 
+int	 eth_get_pcap_devname(const char *ifname, char *pcapdev, int pcapdevlen);
+
 char	*eth_ntop(const eth_addr_t *eth, char *dst, size_t len);
 int	 eth_pton(const char *src, eth_addr_t *dst);
 char	*eth_ntoa(const eth_addr_t *eth);
