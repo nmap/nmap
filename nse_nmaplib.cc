@@ -27,7 +27,6 @@
 }
 
 extern NmapOps o;
-/* extern std::map<std::string, Target*> current_hosts; */
 extern int current_hosts;
 
 void set_version(lua_State *L, struct serviceDeductions sd);
@@ -45,43 +44,6 @@ static int l_fetchfile(lua_State *L);
 static int l_get_timing_level(lua_State *L);
 
 int l_clock_ms(lua_State *L);
-
-/* register the nmap lib 
- * we assume that we can write to a table at -1 on the stack
- * */
-/* int set_nmaplib(lua_State *L) {
-	static luaL_reg nmaplib [] = {
-		{"get_port_state", l_port_accessor},
-		{"set_port_state", l_port_accessor},
-		{"set_port_version", l_port_accessor},
-		{"new_socket", l_nsock_new},
-		{"new_dnet", l_dnet_new},
-		{"get_interface_link", l_dnet_get_interface_link},
-		{"clock_ms", l_clock_ms},
-		{"print_debug_unformatted", l_print_debug_unformatted},
-		{"new_try", l_exc_newtry},
-		{"verbosity", l_get_verbosity},
-		{"debugging", l_get_debugging},
-		{"have_ssl", l_get_have_ssl},
-		{"fetchfile", l_fetchfile},
-		{"timing_level", l_get_timing_level},
-		{NULL, NULL} 
-	};
-
-	const luaL_Reg* lib;
-	for (lib = nmaplib; lib->func; lib++) {
-		lua_pushcfunction(L, lib->func);
-		lua_setfield(L, -2, lib->name);
-	}
-
-	lua_newtable(L);
-	lua_setfield(L, -2, "registry");
-
-	SCRIPT_ENGINE_TRY(l_nsock_open(L));
-	SCRIPT_ENGINE_TRY(l_dnet_open(L));
-
-	return SCRIPT_ENGINE_SUCCESS;
-} */
 
 int luaopen_nmap (lua_State *L)
 {
