@@ -179,6 +179,27 @@ int eth_get_pcap_devname(const char *ifname, char *pcapdev, int pcapdevlen) {
 		}
 	}
 
+	/* If matching IP addresses didn't work, try matching hardware
+	   addresses. This is adapted from libdnet 1.11. */
+	if (pname[0] == '\0' && ie.intf_link_addr.addr_type == ADDR_TYPE_ETH) {
+		for(pdev=pcapdevs; pdev && !pname[0]; pdev = pdev->next) {
+			eth_t eth;
+			eth_addr_t ea;
+
+			eth.lpa = PacketOpenAdapter(pdev->name);
+			if (eth.lpa == NULL)
+				continue;
+			if (eth.lpa->hFile != INVALID_HANDLE_VALUE &&
+			    eth_get(&eth, &ea) == 0 &&
+			    memcmp(&ea, &ie.intf_link_addr.addr_eth,
+			        ETH_ADDR_LEN) == 0) {
+				/* Found it -- Yay! */
+				strlcpy(pname, pdev->name, sizeof(pname));
+			}
+			PacketCloseAdapter(eth.lpa);
+		}
+	}
+
 	pcap_freealldevs(pcapdevs);
 	if (pname[0]) {
 		strlcpy(pcapdev, pname, pcapdevlen);
