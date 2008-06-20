@@ -1573,12 +1573,13 @@ if(s) code_to_be_done_on_match end
 	</para>
 	<variablelist>
 	    <varlistentry>
-	      <term><option>stdnse.print_debug(...)</option>
+	      <term><option>stdnse.print_debug([verbosity,] format, ...)</option>
 		  <indexterm><primary>print_debug</primary></indexterm></term>
 	      <listitem>
 		  <para>
 		  Wrapper function around <literal>print_debug_unformatted()</literal>
-		  in the <literal>nmap</literal> namespace. The first argument, if numeric, is 
+		  in the <literal>nmap</literal> namespace. The first optional numeric
+          argument, <literal>verbosity</literal>, is
 		  used as the necessary debug level to print the message (it defaults
 		  to 1 if omitted). All remaining arguments are processed with
 		  Lua's <literal>string.format()</literal> function, which provides a 
@@ -1587,19 +1588,19 @@ if(s) code_to_be_done_on_match end
 	      </listitem>
 	    </varlistentry>
 	    <varlistentry>
-	      <term><option>table = stdnse.strsplit("delimiter","text")</option>
+	      <term><option>list = stdnse.strsplit("delimiter", "text")</option>
 		  <indexterm><primary>strsplit</primary></indexterm></term>
 	      <listitem>
 		  <para>
 		  This function will certainly be appreciated by Perl programmers.
 		  It takes two strings as arguments and splits the second one around
-		  all occurrences of the first one, returning a table, which contains
-		  the substrings without the delimiting string.
+		  all occurrences of the first one, returning a list (table), which
+          contains the substrings without the delimiting string.
 		  </para>
 	      </listitem>
 	    </varlistentry>
 	    <varlistentry>
-	      <term><option>string = stdnse.strjoin("delimiter", table)</option>
+	      <term><option>string = stdnse.strjoin("delimiter", list)</option>
 		  <indexterm><primary>strjoin</primary></indexterm></term>
 	      <listitem>
 		  <para>
@@ -1609,6 +1610,54 @@ if(s) code_to_be_done_on_match end
 		  </para>
 	      </listitem>
 	    </varlistentry>
+        <varlistentry>
+          <term><option>string = stdnse.tobinary(n)</option>
+          <indexterm><primary>tobinary</primary></indexterm></term>
+          <listitem>
+            <para>
+              Converts the given number, <literal>n</literal>, to a string
+              in a binary number format (e.g. 5 becomes "101").
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><option>string = stdnse.tooctal(n)</option>
+          <indexterm><primary>tooctal</primary></indexterm></term>
+          <listitem>
+            <para>
+              Converts the given number, <literal>n</literal>, to a string
+              in an octal number format (e.g. 9 becomes "11").
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><option>string = stdnse.tohex(n)</option>
+          <indexterm><primary>tohex</primary></indexterm></term>
+          <listitem>
+            <para>
+              Converts the given number, <literal>n</literal>, to a string
+              in a hexidecimal number format (e.g. 10 becomes "a").
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><option>string = stdnse.make_buffer(socket, sep)</option>
+          <indexterm><primary>make_buffer</primary></indexterm></term>
+          <listitem>
+            <para>
+              This function operates on a socket attempting to read data.
+              It separates the data by <literal>sep</literal> and, for each
+              invocation, returns a piece of the separated data. Typically
+              this is used to iterate over the lines of data received from a
+              socket (<literal>sep = "\r?\n"</literal>). The returned string
+              does not include the separator. It will return the final data
+              even if it is not followed by the separator. Once an error or
+              EOF is reached, it returns <literal>nil, msg</literal>.
+              <literal>msg</literal> is what is returned by
+              <literal>nmap.receive_lines()</literal>.
+            </para>
+          </listitem>
+        </varlistentry>
 	</variablelist>
 	</sect2>
   </sect1>
@@ -2319,7 +2368,9 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 		<replaceable>n</replaceable> lines before the operation times
 		out a TIMEOUT error occurs. On the other hand, if more
 		than <replaceable>n</replaceable> lines were received, all are
-		returned, not just <replaceable>n</replaceable>. On success
+		returned, not just <replaceable>n</replaceable>. Use
+        <literal>stdnse.make_buffer</literal> to guarantee one line
+        is returned per call. On success
 		the returned value of <replaceable>status</replaceable> is
 		<literal>true</literal> and the received data is
 		stored in <replaceable>value</replaceable>. If the connection
