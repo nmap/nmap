@@ -4,6 +4,7 @@ local assert = assert;
 local tonumber = tonumber;
 local concat = table.concat;
 local nmap = require"nmap";
+local print = print
 
 module(... or "stdnse");
 
@@ -62,79 +63,43 @@ end
 --
 -- -Doug, June, 2007
 
---[[ function make_buffer(socket, sep)
-  local point, pattern, buffer = 1, "([^"..sep.."]-)"..sep.."?";
-  local function self(lines)
-    lines = lines or 1;
-    if not buffer then
-      local status, str = socket:receive_lines(lines);
+function make_buffer(socket, sep)
+  local point, left, buffer, done, msg = 1, "";
+  local function self()
+    if done then
+      return nil, msg; -- must be nil for stdnse.lines (below)
+    elseif not buffer then
+      local status, str = socket:receive_lines(1);
       if not status then
-        if buffer then
-          return buffer:sub(point);
+        if #left > 0 then
+          done, msg = not status, str;
+          return left;
         else
           return status, str;
         end
       else
-        buffer = str;
-        return self(lines);
+        buffer = left..str;
+        return self();
       end
     else
-      local _, j, str = buffer:find(pattern, point);
-      if j then
+      local i, j = buffer:find(sep, point);
+      if i then
+        local ret = buffer:sub(point, i-1);
         point = j + 1;
-        return str;
+        return ret;
       else
-        point, buffer = 1, nil;
-        return self(lines);
+        point, left, buffer = 1, buffer:sub(point), nil;
+        return self();
       end
     end
   end
   return self;
-end --]]
-
-make_buffer = function(sd, sep)
-  local self, result
-  local buf = ""
-
-  self = function()
-    local i, j, status, value
-
-    i, j = buf:find(sep)
-
-    if i then
-      if i == 1 then  -- empty line
-        buf = buf:sub(j+1, -1)
-        --return self() -- skip empty, tail
-        return true, "" -- return empty
-      else
-        value = buf:sub(1, i-1)
-        buf = buf:sub(j+1, -1)
-        return true, value
-      end
-    end
-
-    if result then
-      if #buf > 0 then  -- left over data with no terminating pattern
-        value = buf
-        buf = ""
-        return true, value
-      end
-      return nil, result
-    end
-
-    status, value = sd:receive()
-
-    if status then
-      buf = buf .. value
-    else
-      result = value
-    end
-
-    return self() -- tail
-  end
-
-  return self
 end
+
+--[[ This function may be usable in Lua 5.2
+function lines(socket)
+  return make_buffer(socket, "\r?\n"), nil, nil;
+end --]]
 
 do
   local t = {

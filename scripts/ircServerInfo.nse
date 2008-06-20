@@ -69,8 +69,6 @@ end
 
 
 action = function(host, port)
-  local status = 0
-  local line = ""
   local sd = nmap.new_socket()
   local curr_nick = random_nick()
   local sver, shost, susers, sservers, schans, sircops, slusers, slservers, sup, serr
@@ -121,8 +119,8 @@ action = function(host, port)
   buf = stdnse.make_buffer(sd, "\r?\n")
 
   while true do
-    status, line = buf()
-    if (not status) then break end
+    local line = buf()
+    if (not line) then break end
 
     -- This one lets us know we've connected, pre-PONGed, and got a NICK
     s, e, t = nmap.registry.ircserverinfo_375:exec(line, 0, 0)
