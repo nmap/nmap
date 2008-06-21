@@ -358,9 +358,9 @@ int process_mainloop(lua_State *L) {
 			}
 
 
-		while(running_scripts.begin() != running_scripts.end()){
+        while (!running_scripts.empty()) {
 			current = *(running_scripts.begin());
-	
+
 			if (current.rr->host->timedOut(&now))
 				state = LUA_ERRRUN;
 			else
@@ -468,7 +468,8 @@ int process_waiting2running(lua_State* L, int resume_arguments) {
 
 	// put the thread back into the running
 	// queue
-	running_scripts.push_front((*iter));
+	//running_scripts.push_front((*iter));
+	running_scripts.push_back((*iter));
 	waiting_scripts.erase(iter);
 
 	return SCRIPT_ENGINE_SUCCESS;
