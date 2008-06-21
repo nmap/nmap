@@ -142,8 +142,8 @@ request = function( host, port, data, options )
 
   -- body loop
   while true do
-    status, line = buffer()
-    if (not status) then break end
+    line = buffer()
+    if not line then break end
     table.insert(body,line)
   end
 
