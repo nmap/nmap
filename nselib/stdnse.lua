@@ -4,7 +4,6 @@ local assert = assert;
 local tonumber = tonumber;
 local concat = table.concat;
 local nmap = require"nmap";
-local print = print
 
 module(... or "stdnse");
 
