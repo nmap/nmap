@@ -3066,30 +3066,6 @@ match xboxdebug m|^201- connected\r\n407- unknown command\r\n$| p/Microsoft XBox
 match xns m|^HELLO XBOX!$| p/Relax XBOX file server/ d/game console/
 
 
-# This probe sends a SIP OPTIONS request.
-# Most of the numbers, usernames, and hostnames are abitrary.
-##############################NEXT PROBE##############################
-Probe TCP SIPOptions q|OPTIONS sip:nm SIP/2.0\r\nVia: SIP/2.0/TCP nm;branch=foo\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nMax-Forwards: 70\r\nContent-Length: 0\r\nContact: <sip:nm@nm>\r\nAccept: application/sdp\r\n\r\n|
-rarity 5
-ports 5060
-fallback GetRequest
-# Some VoIP phones take longer to respond
-totalwaitms 7500
-
-match sip m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: PolycomSoundStationIP-SSIP_(\d+)-UA/([\d.]+)\r\n|s p/Polycom SoundPoint $1/ v/$2/ d/VoIP phone/
-match sip m|^SIP/2\.0 400 Invalid Contact information\r\n.*received=[\d.]+;ms-received-port=\d+;ms-received-cid=\d+\r\n|s p/Microsoft Live SIP client/ o/Windows/
-match sip m|^SIP/2\.0 501 Not Implemented.*\r\nServer: SJphone/([-\w_.]+) \(SJ Labs\)\r\n|s p/SJphone SIP client/ v/$1/
-match sip m|^SIP/2\.0 404 Not Found\r\n.*\r\nUser-Agent: Speedport ([\w-_. ]+) \(|s p/T-Com Speedport/ v/$1/ d/broadband router/
-
-match sip-proxy m|^SIP/2\.0 404 Not Found\r\n.*\r\nUser-Agent: Asterisk PBX ([\w-_.]+)\r\n|s p/Asterisk PBX/ v/$1/ d/PBX/
-match sip-proxy m|^SIP/2\.0 .*\r\nServer: OpenS[Ee][Rr] \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/OpenSER SIP Server/ v/$1/ i/$2/
-match sip-proxy m|^SIP/2\.0 .*\r\nServer: Sip EXpress router \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/SIP Express Router/ v/$1/ i/$2/
-match sip-proxy m|^SIP/2\.0 .*\r\nServer: Cisco-SIPGateway/IOS-([-\d\w.]+)\r\n|s p/Cisco SIP Gateway/ i/IOS $1/ o/IOS/ d/router/
-match sip-proxy m|^SIP/2\.0 .*\r\nServer: Sphericall/([\w-_.]+) Build/(\d+)\r\n|s p/Sphericall VoIP Gateway/ v/$1 build $2/ o/Windows/
-match sip-proxy m|^SIP/2\.0 .*\r\nServer: CommuniGatePro/([\w-_.]+)\r\n|s p/CommuniGatePro VoIP Gateway/ v/$1/
-
-softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n.*Server: ([-\w\s/_.]+)\r\n|s p/$2/ i/Status: $1/
-softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n| i/SIP end point; Status: $1/
 
 
 ##############################NEXT PROBE##############################
@@ -6142,6 +6118,32 @@ match ldap m|^0\.\x02\x01\x01a\)\n\x010\x04\0\x04\"Failed, anonymous bind not al
 match ldap m|^0\x0c\x02\x01\x01a\x07\n\x011\x04\0\x04\0$| p/Cisco LDAP server/
 
 match ldap m|^0.\x02.*TLS confidentiality required|s i/TLS required/
+
+
+# This probe sends a SIP OPTIONS request.
+# Most of the numbers, usernames, and hostnames are abitrary.
+##############################NEXT PROBE##############################
+Probe TCP SIPOptions q|OPTIONS sip:nm SIP/2.0\r\nVia: SIP/2.0/TCP nm;branch=foo\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nMax-Forwards: 70\r\nContent-Length: 0\r\nContact: <sip:nm@nm>\r\nAccept: application/sdp\r\n\r\n|
+rarity 5
+ports 5060
+fallback GetRequest
+# Some VoIP phones take longer to respond
+totalwaitms 7500
+
+match sip m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: PolycomSoundStationIP-SSIP_(\d+)-UA/([\d.]+)\r\n|s p/Polycom SoundPoint $1/ v/$2/ d/VoIP phone/
+match sip m|^SIP/2\.0 400 Invalid Contact information\r\n.*received=[\d.]+;ms-received-port=\d+;ms-received-cid=\d+\r\n|s p/Microsoft Live SIP client/ o/Windows/
+match sip m|^SIP/2\.0 501 Not Implemented.*\r\nServer: SJphone/([-\w_.]+) \(SJ Labs\)\r\n|s p/SJphone SIP client/ v/$1/
+match sip m|^SIP/2\.0 404 Not Found\r\n.*\r\nUser-Agent: Speedport ([\w-_. ]+) \(|s p/T-Com Speedport/ v/$1/ d/broadband router/
+
+match sip-proxy m|^SIP/2\.0 404 Not Found\r\n.*\r\nUser-Agent: Asterisk PBX ([\w-_.]+)\r\n|s p/Asterisk PBX/ v/$1/ d/PBX/
+match sip-proxy m|^SIP/2\.0 .*\r\nServer: OpenS[Ee][Rr] \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/OpenSER SIP Server/ v/$1/ i/$2/
+match sip-proxy m|^SIP/2\.0 .*\r\nServer: Sip EXpress router \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/SIP Express Router/ v/$1/ i/$2/
+match sip-proxy m|^SIP/2\.0 .*\r\nServer: Cisco-SIPGateway/IOS-([-\d\w.]+)\r\n|s p/Cisco SIP Gateway/ i/IOS $1/ o/IOS/ d/router/
+match sip-proxy m|^SIP/2\.0 .*\r\nServer: Sphericall/([\w-_.]+) Build/(\d+)\r\n|s p/Sphericall VoIP Gateway/ v/$1 build $2/ o/Windows/
+match sip-proxy m|^SIP/2\.0 .*\r\nServer: CommuniGatePro/([\w-_.]+)\r\n|s p/CommuniGatePro VoIP Gateway/ v/$1/
+
+softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n.*Server: ([-\w\s/_.]+)\r\n|s p/$2/ i/Status: $1/
+softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n| i/SIP end point; Status: $1/
 
 
 ##############################NEXT PROBE##############################
