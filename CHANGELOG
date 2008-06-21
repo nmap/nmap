@@ -1,4 +1,7 @@
-# Nmap Changelog ($Id$); -*-text-*-
+﻿# Nmap Changelog ($Id$); -*-text-*-
+
+o Service fingerprints in XML output are no longer be truncated to 2kb.
+  [Michael]
 
 o Update the HTTP library to use the new timing_level functionality to
   set connection and response timeouts. An error preventing the new
