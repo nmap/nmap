@@ -254,21 +254,29 @@ int init_lua (lua_State *L)
 
   luaL_openlibs(L); // opens all standard libraries
 
-  lua_getfield(L, LUA_REGISTRYINDEX, "_LOADED"); /* Loaded libraries */
+  lua_getfield(L, LUA_REGISTRYINDEX, "_LOADED"); // Loaded libraries
   for (i = 0; i < ARRAY_LEN(libs); i++) // for each in libs
-  {
+  { 
     lua_pushstring(L, libs[i].name);
     lua_pushcclosure(L, libs[i].func, 0);
     lua_pushvalue(L, -2);
     lua_call(L, 1, 1);
     if (lua_isnil(L, -1))
-    {
-      lua_pushboolean(L, 1);
-      lua_replace(L, -2);
+    { 
+      lua_getglobal(L, libs[i].name); // library?
+      if (!lua_istable(L, -1))
+      { 
+        lua_pop(L, 2);
+        lua_pushboolean(L, true);
+      }
+      else
+        lua_replace(L, -2);
     }
     lua_settable(L, -3);
   }
-  lua_getfield(L, -1, "debug"); // _LOADED.debug
+  lua_pop(L, 1); // _LOADED
+
+  lua_getglobal(L, -1, "debug"); // _LOADED.debug
   lua_getfield(L, -1, "traceback");
   lua_pushcclosure(L, error_function, 1);
   errfunc = luaL_ref(L, LUA_REGISTRYINDEX);

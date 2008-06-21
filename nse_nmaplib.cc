@@ -150,7 +150,9 @@ int luaopen_nmap (lua_State *L)
   SCRIPT_ENGINE_TRY(l_nsock_open(L));
   SCRIPT_ENGINE_TRY(l_dnet_open(L));
 
-  return 0;
+  lua_settop(L, 1); // just nmap lib on stack
+
+  return 1;
 }
 
 /* set some port state information onto the
