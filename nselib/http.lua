@@ -104,13 +104,13 @@ request = function( host, port, data, options )
 
   local buffer = stdnse.make_buffer( socket, "\r?\n" )
 
-  local status, line, _
+  local line, _
   local header, body = {}, {}
 
   -- header loop
   while true do
-    status, line = buffer()
-    if (not status or line == "") then break end
+    line = buffer()
+    if not line then break end
     table.insert(header,line)
   end
 
