@@ -185,9 +185,9 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
           Currently defined categories are <literal>safe</literal>,
           <literal>intrusive</literal>, <literal>malware</literal>,
           <literal>version</literal>, <literal>discovery</literal>,
-          <literal>vulnerability</literal> and <literal>default</literal>.
-          Categories are not case sensitive.  The following list
-          describes each category.</para>
+          <literal>vuln</literal>, <literal>auth</literal> and
+          <literal>default</literal>.  Categories are not case
+          sensitive.  The following list describes each category.</para>
 
      <variablelist>
         <varlistentry>
@@ -213,11 +213,12 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
             <option>intrusive</option>
           </term>
           <listitem>
-            <para>These are not intended to
-              crash or damage anything, but are more likely to leave
-              suspicious logs or otherwise arouse sysadmin ire. Scripts
-              which attempt to login to services with default passwords
-              fall into this class.</para>
+            <para>These are scripts that cannot be classified in the
+            "safe" category because the risks are too high that they
+            will crash the target system, use up significant resources
+            on the target host (such as bandwidth or CPU time), or 
+            otherwise be perceived as malicious by the target's
+            system administrators.</para>
           </listitem>
         </varlistentry>
 
@@ -259,10 +260,21 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
-            <option>vulnerability</option>
+            <option>vuln</option>
           </term>
           <listitem>
-            <para>These scripts check for a specific vulnerability and report results only if it is found.</para>
+            <para>These scripts check for specific known vulnerabilities and
+            generally only report results if it is found.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>
+            <option>auth</option>
+          </term>
+          <listitem>
+            <para>These scripts try to determine authentication credentials
+            on the target system, often through a brute-force attack.</para>
           </listitem>
         </varlistentry>
 
@@ -272,8 +284,9 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
           </term>
           <listitem>
             <para>These scripts are the default set and are run when
-            using <option>-sC</option>.  This category can also be
-            specified like any other with <option>--script</option>.
+            using <option>-sC</option>, <option>-A</option> or <option>--script</option>
+            without any arguments.  This category can also be specified
+            explicitly like any other using <option>--script</option>.
             Don't be fooled into thinking that just because these scripts
             are run by default that they are all completely unobtrusive:
             these scripts should not be run against target networks without

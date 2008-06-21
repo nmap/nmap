@@ -2,7 +2,7 @@ id='bruteforce'
 author = 'Eddie Bell <ejlbell@gmail.com>'
 description='brute force telnet login credientials'
 license = 'Same as Nmap--See http://nmap.org/book/man-legal.html'
-categories = {'vulnerability'}
+categories = {'auth', 'intrusive'}
 
 require('shortport')
 require('stdnse')

@@ -16,7 +16,7 @@ author = "Kris Katterjohn <katterjohn@gmail.com>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"intrusive"}
+categories = {"intrusive", "vuln"}
 
 require "shortport"
 require "http"

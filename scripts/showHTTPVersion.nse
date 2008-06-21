@@ -10,7 +10,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 -- add this script to "version" if you really want to execute it
 -- keep in mind you can (and should) only execute it with -sV
-categories = {""}
+categories = {"demo"}
 -- categories = {"version"}
 
 runlevel = 1.0

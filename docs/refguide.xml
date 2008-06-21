@@ -1893,18 +1893,26 @@ way.</para>
     </para>
     
     <para> 
-    <emphasis>Malware-detection</emphasis> (categories
-    <literal>malware</literal> and <literal>backdoor</literal>)- Both attackers
+    <emphasis>Malware-detection</emphasis> (category <literal>malware</literal>)&mdash;Both attackers
     and worms often leave backdoors&mdash;be it in form of SMTP-servers listening on
     uncommon ports mostly used by spammers for mail relay, or in form of an
     FTP-server giving crackers access to critical data.  A few lines of Lua code
     can help to identify those loopholes easily.  
     </para> 
+
     <para> 
     <emphasis>Vulnerability Detection</emphasis> (category
-    <literal>vulnerability</literal>)- NSE's capacity in detecting risks ranges
-    from checking for default passwords on Apache distributions to testing
-    whether a SMTP-server supports relaying mail from arbitrary domains. 
+    <literal>vuln</literal>)&mdash;NSE's capacity in detecting risks ranges
+    from testing whether an SMTP server supports relaying mail from arbitrary
+    domains to testing whether an HTTP server is vulnerable to directory
+    traversal attacks.
+    </para>
+    
+    <para>
+    <emphasis>Determination of Authentication Credentials</emphasis> (category
+    <literal>auth</literal>)&mdash;NSE can be used for determining authentication
+    credentials on the target's services, with a common method being brute-force
+    attack.
     </para>
     
     <para>
@@ -1918,7 +1926,7 @@ way.</para>
     available NFS/SMB/RPC shares, the number of channels of an irc-network or
     currently logged on users. 
     </para>
-    
+
     <para> 
     To reflect those different uses and to simplify the choice of which
     scripts to run, each script contains a field associating it with one or more

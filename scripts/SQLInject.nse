@@ -33,7 +33,7 @@ author = "Eddie Bell <ejlbell@gmail.com>"
 description = "spiders a http server looking for URLs containing queries \
 		and tries to determines if they are vulnerable to injection attack"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"vulnerability"}
+categories = {"intrusive", "vuln"}
 runlevel = 1.0
 
 -- Change this to increase depth of crawl

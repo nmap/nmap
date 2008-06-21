@@ -6,7 +6,7 @@ author = "Eddie Bell <ejlbell@gmail.com>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"default", "intrusive"}
+categories = {"default", "auth", "intrusive"}
 
 require "shortport"
 
