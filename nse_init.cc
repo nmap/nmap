@@ -276,7 +276,7 @@ int init_lua (lua_State *L)
   }
   lua_pop(L, 1); // _LOADED
 
-  lua_getglobal(L, -1, "debug"); // _LOADED.debug
+  lua_getglobal(L, "debug"); // _LOADED.debug
   lua_getfield(L, -1, "traceback");
   lua_pushcclosure(L, error_function, 1);
   errfunc = luaL_ref(L, LUA_REGISTRYINDEX);
