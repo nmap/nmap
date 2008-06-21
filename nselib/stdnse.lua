@@ -12,7 +12,7 @@ print_debug = function(level, fmt, ...)
   if verbosity then
     nmap.print_debug_unformatted(verbosity, fmt:format(...));
   else
-    nmap.print_debug_unformatted(1, level:format(...));
+    nmap.print_debug_unformatted(1, level:format(fmt, ...));
   end
 end
 
