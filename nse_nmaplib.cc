@@ -135,6 +135,7 @@ int luaopen_nmap (lua_State *L)
     {NULL, NULL} 
   };
 
+  lua_settop(L, 0); // clear stack
   luaL_register(L, "nmap", nmaplib);
 
   lua_newtable(L);
