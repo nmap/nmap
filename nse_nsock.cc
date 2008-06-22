@@ -1187,7 +1187,7 @@ void ncap_request_set_result(nsock_event nse, struct ncap_request *nr) {
 		size_t l2_len, l3_len, packet_len;
 		nse_readpcap(nse, &l2_data, &l2_len, &l3_data, &l3_len, 
 					&packet_len, NULL);
-		char *packet = (char*) malloc(l2_len + l3_len);
+		char *packet = (char*) safe_malloc(l2_len + l3_len);
 		nr->r_layer2 = (unsigned char*)memcpy(&packet[0],      l2_data, l2_len);
 		nr->r_layer3 = (unsigned char*)memcpy(&packet[l2_len], l3_data, l3_len);
 		nr->r_layer2_len = l2_len;

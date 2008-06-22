@@ -237,12 +237,9 @@ static int update_state_summary(state_reason_summary_t *head, reason_t reason_id
 		}
 
 		if(tmp->next == NULL) {
-			if((tmp->next = (state_reason_summary_t *)malloc(sizeof(state_reason_summary_t))) == NULL) {
-				perror("malloc() -> Cannot allocate state reason structures");
-				return -1;
-			}
-			tmp = tmp->next;
-			break;
+		  tmp->next = (state_reason_summary_t *)safe_malloc(sizeof(state_reason_summary_t));
+		  tmp = tmp->next;
+		  break;
 		}
 		tmp = tmp->next;
 	}
@@ -277,10 +274,7 @@ static unsigned int get_state_summary(state_reason_summary_t *head, PortList *Po
 static state_reason_summary_t *print_state_summary_internal(PortList *Ports, int state) {
 	state_reason_summary_t *reason_head;
 
-	if((reason_head = (state_reason_summary_t *)malloc(sizeof(state_reason_summary_t))) == NULL)  {
-		perror("malloc() -> Cannot allocate state reason structures");
-		return NULL;
-	}
+	reason_head = (state_reason_summary_t *)safe_malloc(sizeof(state_reason_summary_t));
 
 	state_reason_summary_init(reason_head);
 
