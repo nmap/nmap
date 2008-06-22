@@ -336,7 +336,8 @@ void RateMeter::update(u32 packets, u32 bytes, const struct timeval *now) {
 
   /* How long since the last update? */
   diff = TIMEVAL_SUBTRACT(*now, last_update_tv) / 1000000.0;
-  assert(diff >= 0.0);
+  if (diff < 0.0)
+    fatal("RateMeter::update: negative time delta; now=%lu.%lu; last_update_tv=%lu.%lu", (unsigned long) now->tv_sec, (unsigned long) now->tv_usec, (unsigned long) last_update_tv.tv_sec, (unsigned long) last_update_tv.tv_usec);
 
   /* Find out how far back in time to look. We want to look back
      CURRENT_RATE_HISTORY seconds, or to when the last update occurred,
