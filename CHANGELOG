@@ -654,8 +654,7 @@ o Added a new version detection probe for the Trend Micro OfficeScan
 
 4.51BETA [2007-12-21]
 
-o We now have a detailed Zenmap Guide at http://nmap.org/zenmapguide/ .
-  Thanks to David for writing it.
+o David wrote a detailed Zenmap guide: http://nmap.org/book/zenmap.html
 
 o Added rpcinfo.nse script, which contacts a listening RPC portmapper
   and reports the listening services and port information (like
