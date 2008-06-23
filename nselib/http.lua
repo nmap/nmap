@@ -110,7 +110,7 @@ request = function( host, port, data, options )
   -- header loop
   while true do
     line = buffer()
-    if not line then break end
+    if (not line or line == "") then break end
     table.insert(header,line)
   end
 
