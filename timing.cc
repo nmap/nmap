@@ -312,6 +312,7 @@ double RateMeter::getCurrentByteRate(const struct timeval *now, bool update) {
    received rather than calling gettimeofday. */
 void RateMeter::update(u32 packets, u32 bytes, const struct timeval *now) {
   struct timeval tv;
+  static int clockwarn = 0;
   double diff;
   double interval;
   double count;
@@ -336,6 +337,20 @@ void RateMeter::update(u32 packets, u32 bytes, const struct timeval *now) {
 
   /* How long since the last update? */
   diff = TIMEVAL_SUBTRACT(*now, last_update_tv) / 1000000.0;
+
+  /* On my SMP Linux 2.6.20 system, I'm getting very occasional values
+     like "now=1214173867.8027; last_update_tv=1214173867.8065".
+     Unless I'm missing something, I think my gettimeofday may have
+     decreased by 38 microseconds.  Perhaps due to SMP and the old
+     kernel.  Anyway, I think I'll just treat decreases of up to 1ms
+     as zero -Fyodor */
+  if (diff < 0 && diff > -0.001) {
+    if (!clockwarn) {
+      error("Warning: RateMeter::update: negative time delta; now=%lu.%lu; last_update_tv=%lu.%lu", (unsigned long) now->tv_sec, (unsigned long) now->tv_usec, (unsigned long) last_update_tv.tv_sec, (unsigned long) last_update_tv.tv_usec);
+      clockwarn = 1;
+    }
+    diff = 0.0;
+  }
   if (diff < 0.0)
     fatal("RateMeter::update: negative time delta; now=%lu.%lu; last_update_tv=%lu.%lu", (unsigned long) now->tv_sec, (unsigned long) now->tv_usec, (unsigned long) last_update_tv.tv_sec, (unsigned long) last_update_tv.tv_usec);
 
