@@ -1816,6 +1816,7 @@ match smtp m|^220 ([\w-_.]+) cqgreylist - minimal smptd\r\n| p/cqgreylist minima
 match smtp m|^220 ([\w-_.]+) ESMTP AnNyungSMTP ([\w-_.]+);| p/AnNyung smtpd/ h/$1/ v/$2/
 match smtp m|^220 DP-1820E\r\n| p/Panasonic DP-1820E printer smtpd/ d/printer/
 match smtp m|^220 ([\w-_.]+) -- Server ESMTP \(PMDF V([\d.]+)-| p/PMDF smtpd/ o/OpenVMS/ h/$1/ v/$2/
+match smtp m|^220 ([\w-_.]+) ESMTP SecurityGateway ([0-9]+.[0-9]+.[0-9]+)| p/ALT-N SecurityGateway smtpd/ h/$1/ v/$2/
 
 # Giving problems: added a better match line to the Help probe -Doug
 #match smtp m|^220 ([-\w_.]+) ESMTP ([^;]+); [A-Z][a-z][a-z], .*\r\n| p/Merak Mail Server smtpd/ h/$1/ o/Windows/
@@ -3071,7 +3072,7 @@ match xns m|^HELLO XBOX!$| p/Relax XBOX file server/ d/game console/
 ##############################NEXT PROBE##############################
 Probe TCP GetRequest q|GET / HTTP/1.0\r\n\r\n|
 rarity 1
-ports 1,70,79,80-85,88,113,139,143,280,497,505,514,515,540,554,591,620,631,783,888,898,900,901,993,995,1026,1080,1214,1220,1234,1311,1314,1344,1503,1830,1900,2001,2002,2030,2064,2160,2306,2396,2525,2715,2869,3000,3002,3052,3128,3280,3372,3531,3689,4000,4660,5000,5427,5060,5222,5269,5432,5800-5803,5900,6103,6346,6544,6600,6699,6969,7002,7007,7070,7402,7776,8000-8010,8080-8085,8118,8181,8443,8880-8888,9000,9001,9030,9050,9080,9090,9999,10000,10005,11371,13013,13666,13722,14534,15000,17988,18264,40193,50000,55555,4711
+ports 1,70,79,80-85,88,113,139,143,280,497,505,514,515,540,554,591,620,631,783,888,898,900,901,993,995,1026,1080,1214,1220,1234,1311,1314,1344,1503,1610,1611,1830,1900,2001,2002,2030,2064,2160,2306,2396,2525,2715,2869,3000,3002,3052,3128,3280,3372,3531,3689,4000,4660,4711,5000,5427,5060,5222,5269,5432,5800-5803,5900,6103,6346,6544,6600,6699,6969,7002,7007,7070,7402,7776,8000-8010,8080-8085,8118,8181,8443,8880-8888,9000,9001,9030,9050,9080,9090,9999,10000,10005,11371,13013,13666,13722,14534,15000,17988,18264,40193,50000,55555
 sslports 443
 
 # Kerio PF 4.0.11 unregistered - Service process (Port 44xxx?) on MS W2K SP4+
@@ -3334,6 +3335,8 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: Oracle9iAS/(\d[-.\w]+) 
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: Oracle9iAS\r\n| p/Oracle 9iAS httpd/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nAllow: .*\r\nServer: Oracle9iAS-Web-Cache/(\d[-.\w]+)\r\n| p/Oracle 9iAS Web Cache/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: Oracle9iAS/(\d[-.\w]+)  Lotus-Domino Oracle9iAS-Web-Cache/(\d[-.\w]+) |s p/Lotus Domino httpd/ i/Proxied by Oracle9iAS $1 Web Cache $2/
+match http m|^HTTP/1\.1 401 Unauthorized.*\r\nWWW-Authenticate:.*\r\nDate:.*\r\nServer:Criston Precision Agent (\d[-_.\w]+)| p/Criston Precison Agent/ v/$1/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: ALT-N SecurityGateway ([0-9]+.[0-9]+.[0-9]+)| p/ALT-N SecurityGateway httpd/ v/$1/
 
 match nimbud-netmon m|^nimbus/([\d.]+) \d+ \d+\r\nmtype| p/Nimsoft Nimbus network monitor/ v/$1/
 
