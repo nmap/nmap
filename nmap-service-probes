@@ -3294,7 +3294,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: SimpleServer:WWW/(\d[-.\w]+)\r\n| p
 # Xitami - Try to match PHP first!
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nContent-Length: \d+\r\nX-Powered-By: ([-/.\w ]+)\r\nContent-Type: .*\r\nServer: Xitami\r\n| p/Xitami httpd/ i/$1/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Xitami\r\n|s p/Xitami httpd/
-match http-mgmt m|^ERROR: Malformed startup string$| p/Xitami httpd admin port/
+match http m|^ERROR: Malformed startup string$| p/Xitami httpd admin port/
 match http m|^HTTP/1\.1 500 Server Error\r\nConnection: close\r\nContent-Length: \d+\r\nDate: .*\r\nServer: Radio UserLand/(\d[.\w ]+)-([-.\w ]+)\r\n\r\n| p/Radio Userland blog server/ v/$1/ i/$2/ 
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: (prod )?[Ff]red (\d[-.\w]+) \(build (\d+)\) HTTP Servlets\r\n\r\n|s p/Freenet Fred anonymous P2P/ v/$2 build $3/
 match http m|^HTTP/1\.0 200 Ok\r\nServer: diva_httpd\r\n| p/Eicon Diva ISDN card configuration server/
@@ -5239,10 +5239,8 @@ match http m|^HTTP/1\.0 501 Not Implemented\r\nServer: httpd/1\.00\r\nCache-Cont
 match http m|^HTTP/1\.0 501 Not Implemented\r\nDate: .*<H1>501 Not Implemented</H1>\nPOST to non-script is not supported in Boa\.\n</BODY></HTML>\n|s p/Boa httpd/
 
 # HP JetDirect Card in a LaserJet printer
-match http-mgmt m|^HTTP/1\.1 501 Unknown or unimplemented http action\r\nMIME-Version: 1\.0\r\nServer: HP-ChaiServer/([\d.]+)\r\nContent-length: \d+\r\nContent-Type: text/html\r\n\r\n<TITLE>Request Not Implemented</TITLE><P><B>Cannot process request, not implemented at server\.</B></P><P>Unknown or unimplemented http action| p/HP JetDirect Card in a LaserJet printer/ i/HP-ChaiServer Embedded VM $1/ d/printer/
-
-# HP JetDirect Card in a LaserJet printer
-match http-mgmt m|^HTTP/1\.1 501 Unknown or unimplemented http action\r\nMIME-Version: 1\.0\r\nServer: HP-ChaiServer/([\d.]+)\r\nContent-length: \d+\r\nContent-Type: text/html\r\n\r\n<TITLE>Request Not Implemented</TITLE><P><B>Cannot process request, not implemented at server\.</B></P><P>Unknown or unimplemented http action| p/HP JetDirect Card in a LaserJet printer/ i/HP-ChaiServer Embedded VM $1/ d/printer/
+match http m|^HTTP/1\.1 501 Unknown or unimplemented http action\r\nMIME-Version: 1\.0\r\nServer: HP-ChaiServer/([\d.]+)\r\nContent-length: \d+\r\nContent-Type: text/html\r\n\r\n<TITLE>Request Not Implemented</TITLE><P><B>Cannot process request, not implemented at server\.</B></P><P>Unknown or unimplemented http action| p/HP JetDirect Card in a LaserJet printer/ i/HP-ChaiServer Embedded VM $1/ d/printer/
+match http m|^HTTP/1\.1 501 Unknown or unimplemented http action\r\nMIME-Version: 1\.0\r\nServer: HP-ChaiServer/([\d.]+)\r\nContent-length: \d+\r\nContent-Type: text/html\r\n\r\n<TITLE>Request Not Implemented</TITLE><P><B>Cannot process request, not implemented at server\.</B></P><P>Unknown or unimplemented http action| p/HP JetDirect Card in a LaserJet printer/ i/HP-ChaiServer Embedded VM $1/ d/printer/
 
 # Zero One Technology ( http://www.01tech.com/ ) print servers embedded HTTP service
 match http m|^HTTP/1\.\d\x20200\x20OK\r\nDate:\x20.*\r\nMIME-version:\x201\.\d\r\nServer:\x20ZOT-PS-(\d+)/(\d[-.\w]+)\r\n| p/Zero One Technology print server model $1 HTTP server/ v/$2/ d/print server/
