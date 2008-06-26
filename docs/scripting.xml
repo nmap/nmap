@@ -3580,11 +3580,10 @@ executed if it is run against a specific target. After the check those script-ta
 get their own <ulink url="http://www.lua.org/manual/5.1/manual.html#2.11">Lua-thread</ulink>. A
 thread running against a host will have only a hostrule passed to the action closure whereas
 a thread running against a port will have both a hostrule and portrule passed. Each thread
-is stored in a runlevel table with a table of information for the thread. This information
+is stored with information relevant to the thread. This information
 includes the runlevel, target, target port (if applicable), host and port tables
-(passed to action), its type (running against a host or port), and its id. When
-script scanning begins, these runlevel tables that store the threads will be
-passed to mainloop where the real work begins.
+(passed to action), its type (running against a host or port), and its id.
+The mainloop function will work on each runlevel grouping of threads in order.
 </para>
 
     </sect2>
@@ -3604,17 +3603,18 @@ passed to mainloop where the real work begins.
 	  causes the calling script to yield (pause). Once the request is
       processed by the Nsock library, the 
 	  callback causes the script to be pushed from the waiting queue to the
-	  running queue, which will eventually let it resume its operation.
-      The running queue is the runlevel table passed to mainloop
-      (see nse_main.cc). Mainloop will create a table for waiting scripts
-      which will have the same form as the running queue. Threads will be
-      moved back and forth between the tables; when a thread yields, it
-      is moved to the waiting queue. After all scripts are run in the running
-      queue, mainloop will place all threads ready to be run in the
-      running queue. Threads are made "ready" by calling 
+	  running queue, which will eventually let it resume its operation.</para>
+      <para>
+      The mainloop function will maintain two sets of threads, running and
+      waiting. Threads will be
+      moved back and forth between the sets; when a thread yields, it
+      is moved to the waiting group. Threads run in the running set will either
+      yield, complete, or error. After all scripts are resumed in the running
+      set, mainloop will place all yielded threads ready to be
+      run in the running set. Threads are made "ready" by calling 
       <literal>process_waiting2running</literal>. This process of running
-      threads and moving paused threads to the waiting and running queues is
-      repeated until no threads exist in the waiting or running queues.
+      threads and moving paused threads to the waiting and running sets is
+      repeated until no threads exist in either waiting or running.
 	  </para>
     </sect2>
 	<sect2 id="nse-implementation-c-modules">
