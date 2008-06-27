@@ -703,7 +703,7 @@ that.</para>
 	  are often useful for low-level network communication, Reuben
           Thomas'
          <ulink url="http://luaforge.net/projects/bitlib">bitwise operation library</ulink>
-      for Lua has
+      for Lua has been
 	  integrated into NSE. The arguments to the bitwise operation
 	  functions should be integers.  The number of bits available
 	  for logical operations depends on the data type used to
@@ -807,6 +807,95 @@ that.</para>
 	  </variablelist>
 	</para>
       </sect2>
+
+      <sect2 id="nse-binlib">
+        <title>Binary Data Handling</title>
+        <para>
+	  A problem script authors often face is the necessity of encoding values
+	  into binary data. For example after analyzing a protocol the starting 
+	  point to write a script could be a hex dump, which serves as a preamble
+	  to every sent packet. Although it is possible work with the 
+	  functionality Lua provides, it's not very convenient. Therefore the 
+	  BinLib has been added to NSE, based on 
+	  <ulink="http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/">lpack</ulink> 
+	  by Luiz Henrique de Figueiredo.
+
+	  The BinLib functions take a format string to encode and decode binary
+	  data. The operators of the format string are:
+
+	  <table id="scripting-tbl-binlib">
+	   <title>BinLib format string operators</title>
+	     <tgroup cols="2">
+		<colspec colwidth="2*" />
+		<colspec colwidth="5*" />
+	    <thead><row>
+		<entry>Operator</entry>
+    		<entry>Description</entry>
+   	    </row></thead>
+   	    <tbody>
+		<row><entry><literal>H</literal></entry><entry>hex string</entry></row>
+		<row><entry><literal>B</literal></entry><entry>bit string</entry></row>
+		<row><entry><literal>x</literal></entry><entry>null byte</entry></row>
+		<row><entry><literal>z</literal></entry><entry>zero-terminated string</entry></row>
+		<row><entry><literal>p</literal></entry><entry>string preceded by length byte</entry></row>
+		<row><entry><literal>P</literal></entry><entry>string preceded by length word</entry></row>
+		<row><entry><literal>a</literal></entry><entry>string preceded by length size_t</entry></row>
+		<row><entry><literal>A</literal></entry><entry>string</entry></row>
+		<row><entry><literal>f</literal></entry><entry>float</entry></row>
+		<row><entry><literal>d</literal></entry><entry>double</entry></row>
+		<row><entry><literal>n</literal></entry><entry>Lua number</entry></row>
+		<row><entry><literal>c</literal></entry><entry>char</entry></row>
+		<row><entry><literal>C</literal></entry><entry>byte = unsigned char</entry></row>
+		<row><entry><literal>s</literal></entry><entry>short</entry></row>
+		<row><entry><literal>S</literal></entry><entry>unsigned short</entry></row>
+		<row><entry><literal>i</literal></entry><entry>int</entry></row>
+		<row><entry><literal>I</literal></entry><entry>unsigned int</entry></row>
+		<row><entry><literal>l</literal></entry><entry>long</entry></row>
+		<row><entry><literal>L</literal></entry><entry>unsigned long</entry></row>
+		<row><entry><literal>&lt;</literal></entry><entry>little endian modifier</entry></row>
+		<row><entry><literal>&gt;</literal></entry><entry>big endian modifier</entry></row>
+		<row><entry><literal>=</literal></entry><entry>native endian modifier</entry></row>
+	   </tbody></tgroup></table>
+
+	   Note that the endian operators work as modifiers to all that follows.
+
+	  <variablelist>
+	    <varlistentry>
+	      <term><option>bin.pack(fmt, p1, ...)</option>
+              <indexterm><primary>bin.pack(fmt, p1, ...)</primary></indexterm></term>
+	      <listitem>
+		<para>
+		  Returns a binary packed string. The format string describes how 
+		  the parameters (p1, ...) will be interpreted. Numerical values following 
+		  operators stand for operator repetitions and need an according amount of 
+		  parameters. Operators expect appropriate parameter types.
+		  
+		</para>
+	    </listitem>
+	    </varlistentry>
+	    
+	    <varlistentry>
+	      <term><option>bin.unpack(fmt, data, [init])</option>
+		<indexterm><primary>bin.unpack(fmt, data, [init])</primary></indexterm></term>
+	      <listitem>
+		<para>
+		  Returns values read from the binary data string.
+		  First result is the position, at which unpack stopped. This can 
+		  be used as init value for subsequent calls. The following results 
+		  are the values according to the format string. Numerical values in 
+		  the format string are interpreted as repetitions like in pack, 
+		  except if used with A, B or H, in which cases the number tells unpack
+		  how many bytes to read.
+
+		  Unpack stops if either the format string or the binary data string
+		  are exhausted.
+		</para>
+	      </listitem>
+	    </varlistentry>
+
+	</para>
+      </sect2>
+
 
       <sect2 id="nse-pcre">
         <title>Perl Compatible Regular Expressions</title>
