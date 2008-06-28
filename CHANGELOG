@@ -1,4 +1,7 @@
-﻿# Nmap Changelog ($Id$); -*-text-*-
+# Nmap Changelog ($Id$); -*-text-*-
+
+o Added a UDP SNMPv3 probe to version detection, along with 9 vendor
+  match lines. [Tom Sellers]
 
 o Service fingerprints in XML output are no longer be truncated to 2kb.
   [Michael]

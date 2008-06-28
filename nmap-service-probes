@@ -6584,6 +6584,41 @@ match snmp m|^0.*\x02\x01\0\x04\x06public\xa2.*\x06\x08\+\x06\x01\x02\x01\x01\x0
 match snmp m|^0.*\x02\x01\0\x04\x06public\xa2|s p/SNMPv1 server/ i/public/
 
 ##############################NEXT PROBE##############################
+Probe UDP SNMPv3GetRequest q|\x30\x3a\x02\x01\x03\x30\x0f\x02\x02\x4a\x69\x02\x03\0\xff\xe3\x04\x01\x04\x02\x01\x03\x04\x10\x30\x0e\x04\0\x02\x01\0\x02\x01\0\x04\0\x04\0\x04\0\x30\x12\x04\0\x04\0\xa0\x0c\x02\x02\x37\xf0\x02\x01\0\x02\x01\0\x30\0|
+rarity 4
+ports 161
+
+# Cisco - SNMP Engine ID 9 (CiscoSystems) = \x00 \x09 = pattern \0\t
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\0\t|s p/Cisco SNMP service/
+
+# Cisco - SNMP Engine ID 99 (SNMP Research) = \x00 \x63 = pattern \0c
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\0c|s p/Cisco SNMP service/
+
+# Brocade - SNMP Engine ID 1588 (Engine Enterprise ID: Brocade Communications Systems, Inc.) = \x06 \x34 = pattern \x064
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\0\x064|s p/Brocade SNMP service/
+
+# QLogic - SNMP Engine ID 1663 (Ancor Communications) = \x06 \x7f = pattern \x06\x7f
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x06\x7f|s p/QLogic SNMP service/
+
+# IBM - SNMP Engine ID 1104 (First Virtual Holdins Incorporated) = \x04 \x50 = pattern \x04P
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x04P|s p/IBM SNMP service/
+
+# Canon - SNMP Engine ID 4976 (Agent++) = \x13 \x70  = pattern \x13p
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x13p|s p/Canon SNMP service/
+
+# Lexmark - SNMP Engine ID 2021 (Engine Enterprise ID: U.C. Davis, ECE Dept. Tom) = \x07 \xe5 = pattern \x07\xe5
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x07\xe5|s p/Lexmark SNMP service/
+
+# Xerox - SNMP Engine ID 253 (Xerox) = \x00 \xfd = pattern \0\xfd
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\0\xfd|s p/Xerox SNMP service/
+
+#Tandberg Video Conferencing equipment
+match snmp m|^0\x82\x007\x02\x01\0\x04\x06public\xa2\x82\0\(\x02.{41,43}\nSoftW:\x20([^\0\n]+)\nMCU:\x20([^\0\n]+)\n|s p/$2/ i/$1/ 
+
+#Generic SNMPv3 matchline
+softmatch snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04|s p/SNMPv3 server/
+
+##############################NEXT PROBE##############################
 Probe TCP WMSRequest q|\x01\0\0\xfd\xce\xfa\x0b\xb0\xa0\0\0\0MMS\x14\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x12\0\0\0\x01\0\x03\0\xf0\xf0\xf0\xf0\x0b\0\x04\0\x1c\0\x03\0N\0S\0P\0l\0a\0y\0e\0r\0/\09\0.\00\0.\00\0.\02\09\08\00\0;\0 \0{\00\00\00\00\0A\0A\00\00\0-\00\0A\00\00\0-\00\00\0a\00\0-\0A\0A\00\0A\0-\00\00\00\00\0A\00\0A\0A\00\0A\0A\00\0}\0\0\0\xe0\x6d\xdf\x5f|
 rarity 6
 ports 1549,1755
