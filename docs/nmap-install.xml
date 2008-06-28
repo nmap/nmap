@@ -66,7 +66,7 @@ intimidating for new and infrequent users.
 Nmap offers more than a hundred
 command-line options, although many are obscure features or debugging
 controls that most users can ignore.  Many graphical frontends have been
-created for those users who prefer a GUI interface.  Nmap has traditionally included a simple GUI for Unix named <application>NmapFE</application><indexterm><primary>NmapFE</primary></indexterm>, but that was replaced in 2007 by Zenmap, which we had been developing since 2005.  Zenmap is far more powerfual and effective than NmapFE, particularly in results viewing.  Zenmap's tab-based interface lets you search and sort
+created for those users who prefer a GUI interface.  Nmap has traditionally included a simple GUI for Unix named <application>NmapFE</application><indexterm><primary>NmapFE</primary></indexterm>, but that was replaced in 2007 by Zenmap, which we had been developing since 2005.  Zenmap is far more powerful and effective than NmapFE, particularly in results viewing.  Zenmap's tab-based interface lets you search and sort
 results, and also browse them in several ways (host details, raw Nmap
 output, and ports/hosts).  It works on Microsoft Windows, Linux, Mac
 OS X, and other platforms.  Zenmap is covered in depth in <xref linkend="zenmap"/>.  The rest of this book focuses on command-line invocations of Nmap.
@@ -1045,7 +1045,7 @@ chapter referenced above.</para></listitem>
 </sect2>
 
 <sect2 id="inst-netbsd"><title>NetBSD Binary Package Instructions</title>
-<para>NetBSD has packaged Nmap for an enormous number of platforms, from the normal i386 to Playstation 2, PowerPC, Vax, SPARC, MIPS, Amiga, ARM, and several platforms that I have never even heard of!  Unfortunately they are not very up-to-date.  A list of NetBSD Nmap packages is available from <ulink url="ftp://ftp.netbsd.org/pub/NetBSD/packages/pkgsrc/net/nmap/README.html" /> and a description of using their package system to install applications is available at <ulink url="http://www.netbsd.org/Documentation/pkgsrc/using.html#id2956484" />.</para>
+<para>NetBSD has packaged Nmap for an enormous number of platforms, from the normal i386 to Playstation 2, PowerPC, VAX, SPARC, MIPS, Amiga, ARM, and several platforms that I have never even heard of!  Unfortunately they are not very up-to-date.  A list of NetBSD Nmap packages is available from <ulink url="ftp://ftp.netbsd.org/pub/NetBSD/packages/pkgsrc/net/nmap/README.html" /> and a description of using their package system to install applications is available at <ulink url="http://www.netbsd.org/Documentation/pkgsrc/using.html#id2956484" />.</para>
 </sect2>
 </sect1>
 
