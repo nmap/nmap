@@ -22,6 +22,8 @@ Nmap exists and is in your <envar>$PATH</envar>,
 you should see output similar to <xref linkend="ex-checking-for-nmap" />.</para>
 
 <example id="ex-checking-for-nmap"><title>Checking for Nmap and determining its version number</title>
+<!--REMEMBER TO UPDATE TEXT BELOW THE SCREENSHOT WHEN I UPDATE THE SCREENSHOT
+    TO LATEST VERSION -->
 <screen>
 felix~&gt;nmap --version
 
@@ -34,7 +36,7 @@ exist on the system (or if your <envar>$PATH</envar> is incorrectly
 set), an error message such as
 <computeroutput>nmap: Command not found</computeroutput> is reported.  As the
 example above shows, Nmap responds to the command by printing its
-version number (here <literal>4.60</literal>).</para>
+version number (here <literal>4.65</literal>).</para>
 
 <para>Even if your system already has a copy of Nmap, you should
 consider upgrading to the latest version available from <ulink
