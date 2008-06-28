@@ -1054,7 +1054,7 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
 	  /* Windows seems to just give -1 rather than the amount of space we 
 	     would need.  So lets just gulp up a huge amount in the hope it
 	     will be enough */
-	  writebuflen *= 100;
+	  writebuflen *= 150;
 	}
 	writebuf = (char *) safe_realloc(writebuf, writebuflen);
 	len = Vsnprintf(writebuf, writebuflen, fmt, apcopy);
