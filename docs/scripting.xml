@@ -817,11 +817,11 @@ that.</para>
 	  to every sent packet. Although it is possible work with the 
 	  functionality Lua provides, it's not very convenient. Therefore the 
 	  BinLib has been added to NSE, based on 
-	  <ulink="http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/">lpack</ulink> 
+	  <ulink url="http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/">lpack</ulink> 
 	  by Luiz Henrique de Figueiredo.
 
 	  The BinLib functions take a format string to encode and decode binary
-	  data. The operators of the format string are:
+	  data. The operators of the format string are shown in <xref linkend="scripting-tbl-binlib"/>.</para>
 
 	  <table id="scripting-tbl-binlib">
 	   <title>BinLib format string operators</title>
@@ -857,7 +857,7 @@ that.</para>
 		<row><entry><literal>=</literal></entry><entry>native endian modifier</entry></row>
 	   </tbody></tgroup></table>
 
-	   Note that the endian operators work as modifiers to all that follows.
+	   <para>Note that the endian operators work as modifiers to all the characters following them in the format string.</para>
 
 	  <variablelist>
 	    <varlistentry>
@@ -892,8 +892,7 @@ that.</para>
 		</para>
 	      </listitem>
 	    </varlistentry>
-
-	</para>
+	  </variablelist>
       </sect2>
 
 
