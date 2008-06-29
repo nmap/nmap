@@ -116,11 +116,12 @@ request = function( host, port, data, options )
 
   -- build nicer table for header
   local last_header, match
-  for number, line in pairs( header ) do
+  for number, line in ipairs( header ) do
     if number == 1 then
       local code
       _, _, code = string.find( line, "HTTP/%d\.%d (%d+)")
       result.status = tonumber(code)
+      if not result.status then table.insert(body,line) end
     else
       match, _, key, value = string.find( line, "(.+): (.*)" )
       if match and key and value then
@@ -133,8 +134,10 @@ request = function( host, port, data, options )
         last_header = key
       else
         match, _, value = string.find( line, " +(.*)" )
-        if match and value then
+        if match and value and last_header then
           result.header[last_header] = result.header[last_header] .. ',' .. value
+        elseif match and value then
+          table.insert(body,line)
         end
       end
     end
