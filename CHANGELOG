@@ -1,33 +1,116 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 4.68 [2008-6-28]
+
+o Doug integrated all of your version detection submissions and
+  corrections for the year up to May 31.  There were more than 1,000
+  new submissions and 18 corrections.  Please keep them coming!  And
+  don't forget that corrections are very important, so do submit them
+  if you ever catch Nmap making a version detection or OS detection
+  mistake.  The version detection DB has grown to 5,054 signatures
+  representing 486 service protocols.  Protocols span the gamut from
+  abc, acap, access-remote-pc, activefax, and activemq, to zebedee,
+  zebra, zenimaging, and zenworks.  The most popular protocols are
+  http (1,672 signatures), telnet (519), ftp (459), smtp (344), and
+  pop3 (201).
+
+o Nmap compilation on Windows is now done with Visual C++ Express 2008
+  rather than 2005.  Windows compilation instructions have been
+  updated at http://nmap.org/book/inst-windows.html#inst-win-source .
+  [Kris]
+
 o The Nmap Windows self-installer now automatically installs the MS
   Visual C++ 2008 runtime components if they aren't already installed
   on a system.  These are some reasonably small DLLs that are
   generally necessary for applications compiled with Visual C++ (with
   dynamic linking).  Many or most systems already have these installed
   from other software packages.  The lack of these components led to
-  the error message "The Application failed to intialize properly
+  the error message "The Application failed to initialize properly
   (0xc0150002)." with Nmap 4.65.  A related change is that Nmap on
   Windows is now compiled with /MD rather than /MT so that it
   consistently uses these runtime libraries.  The patch was created by
   Rob Nicholls.
 
-o Updated showHTMLTitle NSE script to follow one HTTP redirect if
-  necessary as long as it is on the same server. [Jah]
+o Added advanced search functionality to Zenmap so that you can locate
+  previous scans using criteria such as which ports were open, keywords
+  in the target names, OS detection results. etc.  Try it out with
+  Ctrl-F or "Tools->Search Scan Results". [Vladimir]
+
+o Nmap's special WinPcap installer now handles 64-bit Windows machines
+  by installing the proper 64-bit npf.sys. [Rob Nicholls]
+
+o Added a new NSE Comm (common communication) library for common
+  network discovery tasks such as banner-grabbing (get_banner()) and
+  making a quick exchange of data (exchange()).  16 scripts were
+  updated to use this library. [Kris]
+
+o The Nmap Scripting Engine now supports mutexes for gracefully
+  handling concurrency issues.  Mutexes are documented at
+  http://nmap.org/book/nse-api.html#nse-mutex . [Patrick]
 
 o Added a UDP SNMPv3 probe to version detection, along with 9 vendor
-  match lines. [Tom Sellers]
+  match lines. The patch was from Tom Sellers, who contributed other
+  probes and match lines to this release as well.
 
-o Service fingerprints in XML output are no longer be truncated to 2kb.
-  [Michael]
+o Added a new timing_level() function to NSE which reports the Nmap
+  timing level from 0 to 5, as set by the Nmap -T option.  The default
+  is 3. [Thomas Buchanan]
 
 o Update the HTTP library to use the new timing_level functionality to
   set connection and response timeouts. An error preventing the new
   timing_level feature from working was also fixed.  [Jah]
 
-o Added a new timing_level() function to NSE which reports the Nmap
-  timing level from 0 to 5, as set by the Nmap -T option.  The default
-  is 3. [Thomas Buchanan]
+o Optimized the doAnyOutstandingProbes() function to make Nmap a bit
+  faster and more efficient.  This makes a particularly big difference
+  in cases where --min-rate is being used to specify a very high
+  packet sending rate. [David]
+
+o Fixed an integer overflow which prevented a target specification of
+  "*.*.*.*" from working.  Support for the CIDR /0 is now also
+  available for those times you wish to scan the entire
+  Internet. [Kris]
+
+o The robots.nse has been improved to print output more compactly and
+  limit the number of entries of large robots.txt files based on Nmap
+  verbosity and debugging levels. [Eddie Bell]
+
+o The Nmap NSE scripts have been re-categorized in a more logical
+  fashion.  The new categories are described at
+  http://nmap.org/book/nse-usage.html#nse-categories . [Kris]
+
+o Improve AIX support by linking against -lodm and -lcfg on that
+  platform. [David]
+
+o Updated showHTMLTitle NSE script to follow one HTTP redirect if
+  necessary as long as it is on the same server. [Jah]
+
+o Michael Pattrick and David created a new OSassist application which
+  streamlines the OS fingerprint submission integration process and
+  prevents certain previously common errors.  OSassist isn't part of
+  Nmap, but the system was used to integrate some submissions for this
+  release.  13 fingerprints were added during OSassist testing, and
+  some existing fingerprints were improved as well.  Expect many more
+  fingerprints coming soon.
+
+o Improved the mapping from dnet device names (like eth0) and WinPcap
+  names (like \Device\NPF_{28700713...}).  You can see this mapping
+  with --iflist, and the change should make Nmap more likely to work
+  on Windows machines with unusual networking configurations. [David]
+
+o Service fingerprints in XML output are no longer be truncated to 2kb.
+  [Michael]
+
+o Some laptops report the IP Family as NULL for disabled WiFi cards.
+  This could lead to a crash with the "sin->sin_family == AF_INET6"
+  assertion failure.  Nmap no longer quits when this is
+  encountered. [Michael]
+
+o On systems without the GNU getopt_long_only() function, Nmap has its
+  own replacement.  That replacement used to call the system's
+  getopt() function if it exists.  But the AIX and Solaris getopt()
+  functions proved insufficient/buggy, so Nmap now always calls its own
+  internal getopt() now from its getopt_long_only()
+  replacement. [David]
 
 o Integrated several service match lines from Tom Sellers.
 
@@ -41,55 +124,75 @@ o An error was fixed where Zenmap would crash when trying to load from
   The error would be seen when such a scan was found in using the search
   interface. [David]
 
+o Fix a Zenmap crash which occurred when local.getpreferredencoding()
+  returns "None".  Similarly, deal with the case when a "X-MAC-KOREAN"
+  is returned by this function.  Both problems were found with the
+  Zenmap crash reporter. [David]
+
+o A whole bunch of internal Zenmap cleanup was done by David to make
+  the code more logical and remove dead code.
+
 o Install icons and pixmaps under /usr/share/zenmap/{icons,pixmaps} 
   so they don't get mixed in with the files in /usr/share/{icons,pixmaps}.
   [Jurand Nogiec]
 
-o Modification to handle the problem where if a user modifies the 
-  command entry field, Zenmap does not necessarily execute this command 
-  and instead it will follow what the Target/Entry fields specify 
-  instead. This avoids a bug where if you edited a command, then selected 
-  a different target, the edited command line would be replaced with one 
-  from the currently selected profile. [Jurand Nogiec]
+o Fixed a Zenmap command entry problem where Zenmap would lose a
+  custom command you had entered into the command entry field if you
+  changed the target field after entering the custom command. [Jurand
+  Nogiec]
 
-o Fixed the nmap_command_path bug in Zenmap. The variable now actually
-  accesses the nmap_command_path in zenmap.conf file. It is accessed
-  by a new class in UmitConf called PathsConfig, which represents the
-  [paths] section in zenmap.conf. [Jurand Nogiec]
+o The Zenmap crash reporter now includes a stack trace rather than
+  just the exception name. [David]
 
-o Added a new NSE Comm library for common network discovery tasks such
-  as banner-grabbing (get_banner()) and making a quick exchange of data
-  (exchange()).  16 scripts were updated to use this library. [Kris]
+o Zenmap now executes the proper Nmap command by honoring the
+  nmap_command_path variable in zenmap.conf. [Jurand Nogiec]
 
-o Fixed a bug which caused -PN to erronously bail out for unprivileged
+o Fixed a bug which caused -PN to erroneously bail out for unprivileged
   users.  Thanks to Jabra (jabra(a)spl0it.org) for the report. [Kris]
 
-o Fixed an integer overflow which prevented a target specification
-  of "*.*.*.*" from working.  Support for the CIDR /0 is now also
-  available. [Kris]
+o Fixed several Nmap NSE memory leaks found with Valgrind. [Kris]
 
-o Fixed some memory leaks in NSE found with Valgrind. [Kris]
+o Migrated some stray malloc()/realloc() calls to the Nbase
+  safe_malloc()/safe_realloc() versions which guard against certain
+  errors.
 
 o Fixed a bunch of subtle bugs, some of which could have resulted in
-  a crash, reported by Ilja van Sprundel (ilja(a)netric.org). [Kris]
+  a crash, reported by Ilja van Sprundel. [Kris]
 
 o Fixed several byte-order bugs in Traceroute. [Kris]
+
+o Fixed a crash in RateMeter::update() which could lead to an error
+  saying "diff >= 0.0" assertion failed.  I think the problem was
+  actually caused by SMP machines which didn't sync the clock time
+  perfectly.  This lead to gettimeofday() sometimes reporting that
+  time decreased by some microseconds.  Now Nmap is willing to
+  tolerate decreases of up to 1 millisecond in this function. [Fyodor]
 
 o Nmap now returns correct values for --iflist in windows even
   if interface aliases have been set. Previously it would misreport
   the windevices and not list all interfaces. [Michael]
 
 o Nmap no longer crashes with an 'assert' error when its told to
-  access a disabled wifi NIC on some laptops. [Michael]
+  access a disabled WiFi NIC on some laptops. [Michael]
 
 o Upgraded the OpenSSL shipped for Windows to 0.9.8h. [Kris]
+
+o The NSE http library was updated to gracefully handle certain bogus
+  (non-)http responses. [Jah]
 
 o The zoneTrans.nse script now takes a "domain" script argument to
   specify the desired domain name to transfer.  You can narrow the
   scope down with the form "zoneTrans={domain=xxx}". [Kris]
 
-o Fixed --script-updatedb "aborting" despite success:
-  http://seclists.org/nmap-dev/2008/q2/0623.html
+o Increase write buffer length for Nmap output on Windows. This should
+  prevent error messages like: "log_vwrite: vnsprintf failed.  Even
+  after increasing bufferlen to 819200, Vsnprintf returned -1 (logt ==
+  1)."  Thanks to prozente0 for the report.
+
+o Fixed the --script-updatedb command, which was claiming to be
+  "Aborting database update" even when the update was performed
+  perfectly.  See http://seclists.org/nmap-dev/2008/q2/0623.html .
+  Thanks to Jah for the report.
 
 Nmap 4.65 [2008-6-1]
 
