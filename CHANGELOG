@@ -187,7 +187,7 @@ o The zoneTrans.nse script now takes a "domain" script argument to
 o Increase write buffer length for Nmap output on Windows. This should
   prevent error messages like: "log_vwrite: vnsprintf failed.  Even
   after increasing bufferlen to 819200, Vsnprintf returned -1 (logt ==
-  1)."  Thanks to prozente0 for the report.
+  1)."  Thanks to prozente0 for the report. [Fyodor]
 
 o Fixed the --script-updatedb command, which was claiming to be
   "Aborting database update" even when the update was performed
