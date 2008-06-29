@@ -141,6 +141,8 @@ match H.323/Q.931 m|^\x03\0\0.*@|s p/CompTek AquaGateKeeper/
 # Commvault Backup Server (CommVault Galaxy(R) Data Protection)
 match commvault m/^\0\0\0\t\0\0\0\|\0\0\0/ p/CommVault Galaxy data backup/
 
+match csync m|\* OK ([-.\w]+) Cyrus sync server v([-.\w]+)| p/Cyrus sync server/ h/$1/ v/$2/
+
 match cvspserver m|^no repository configured in /| p/CVS pserver/ i/broken/
 match cvspserver m|^/usr/sbin/cvs-pserver: line \d+: .*cvs: No such file or directory\n| p/CVS pserver/ i/broken/
 match cvspserver m|^Unknown command: `pserver'\n\nCVS commands are:\n| p/CVS pserver/ i/broken/
@@ -820,12 +822,12 @@ match imap m|^\* OK The Microsoft Exchange IMAP4 service is ready\.\r\n| p/Micro
 match imap m|^\* OK IMAP4rev1 Server DeskNow \(DeskNow ([\w-_.]+)\) ready\r\n| p/DeskNow IMAP4rev1/ v/$1/
 
 match imap m|^\* OK \[CAPABILITY (IMAP4 )?IMAP4REV1 .*IMAP4rev1 (200\d\.[-.\w]+) at| p/UW Imapd/ v/$2/
-match imap m|^\* OK ([-.\w]+) Cyrus IMAP4 v([-.\w\+]+) server ready\r\n| p/Cyrus IMAP4/ h/$1/ v/$2/
+match imap m|^\* OK (?:\[CAPABILITY IMAP4[^\]]*?\] )?([-.\w]+) Cyrus IMAP4? v([-.\w\+]+) server ready\r\n| p/Cyrus IMAP4/ h/$1/ v/$2/
 match imap m|^\* OK ([-.\w]+) Cyrus IMAP4 v([-.\w\+]+)-Red Hat [-.\w\+]+ server ready\r\n| p/Cyrus IMAP4/ h/$1/ v/$2/ i/RedHat/ o/Linux/
 match imap m|^\* OK ([-\w_.]+) Cyrus IMAP4 v([-\w_.]+)-Debian| p/Cyrus imapd/ h/$1/ v/$2/ o/Linux/ i|Debian/Ubuntu|
 match imap m|^\* OK ([-.\w]+) Cyrus IMAP4 v([\w_.]+)-OS X ([\d.]+) server ready\r\n| p/Cyrus IMAP4/ v/$2/ h/$1/ i/Mac OS X $3/ o/Mac OS X/
 match imap m|^\* OK \[[^\]]+\] ([-\w_.]+) Cyrus IMAP4 v([-\w_.]+)-OS X Server ([\d.]+):| p/Cyrus IMAP4/ v/$2/ h/$1/ i/Mac OS X $3/ o/Mac OS X/
-match imap m|^\* OK ([-.\w]+) Cyrus IMAP4 Murder v([-.\w]+) server ready\r\n| p/Cyrus IMAP4 Murder/ h/$1/ v/$2/
+match imap m|^\* OK (?:\[CAPABILITY IMAP4[^\]]*?\] )?([-.\w]+) Cyrus IMAP4? Murder v([-.\w]+) server ready\r\n| p/Cyrus IMAP4 Murder/ h/$1/ v/$2/
 match imap m|^\* OK \[.*] ([-.\w]+) Cyrus IMAP4 v([-.\w]+) server ready\r\n| p/Cyrus IMAP4/ h/$1/ v/$2/
 
 match imap m|^\* OK Welcome to Binc IMAP v(\d[-.\w]+)| p/Binc IMAPd/ v/$1/
