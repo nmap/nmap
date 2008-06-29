@@ -1,5 +1,17 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The Nmap Windows self-installer now automatically installs the MS
+  Visual C++ 2008 runtime components if they aren't already installed
+  on a system.  These are some reasonably small DLLs that are
+  generally necessary for applications compiled with Visual C++ (with
+  dynamic linking).  Many or most systems already have these installed
+  from other software packages.  The lack of these components led to
+  the error message "The Application failed to intialize properly
+  (0xc0150002)." with Nmap 4.65.  A related change is that Nmap on
+  Windows is now compiled with /MD rather than /MT so that it
+  consistently uses these runtime libraries.  The patch was created by
+  Rob Nicholls.
+
 o Updated showHTMLTitle NSE script to follow one HTTP redirect if
   necessary as long as it is on the same server. [Jah]
 

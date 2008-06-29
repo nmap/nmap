@@ -172,7 +172,12 @@ Section "Nmap Core Files" SecCore
   
   ;Store installation folder 
   WriteRegStr HKCU "Software\Nmap" "" $INSTDIR 
-   
+
+  ;Silent install of Visual C++ 2008 runtime components
+  File ..\vcredist_x86.exe
+  ExecWait '"$INSTDIR\vcredist_x86.exe" /q'
+  Delete "$INSTDIR\vcredist_x86.exe" 
+
   ;Create uninstaller 
   WriteUninstaller "$INSTDIR\Uninstall.exe" 
    
@@ -232,7 +237,7 @@ SectionEnd
 ;Descriptions 
  
   ;Component strings 
-  LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executable and NSE scripts" 
+  LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executable, NSE scripts and Visual C++ 2008 runtime components"
   LangString DESC_SecRegisterPath ${LANG_ENGLISH} "Registers Nmap path to System path so you can execute it from any directory" 
   LangString DESC_SecWinPcap ${LANG_ENGLISH} "Installs WinPcap 4.0 (required for most Nmap scans unless it is already installed)" 
   LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended." 

@@ -144,7 +144,7 @@
 				AdditionalIncludeDirectories=".;..;../liblua;../nbase;../libpcre;winip;..\nsock\include;&quot;pcap-include&quot;;&quot;..\libdnet-stripped\include&quot;;OpenSSL\include;"
 				PreprocessorDefinitions="WIN32;_CONSOLE"
 				StringPooling="true"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Release/nmap.pch"
