@@ -1,4 +1,4 @@
-Nmap 4.65 ( http://nmap.org )
+Nmap 4.68 ( http://nmap.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -87,7 +87,7 @@ OUTPUT:
   --append-output: Append to rather than clobber specified output files
   --resume <filename>: Resume an aborted scan
   --stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML
-  --webxml: Reference stylesheet from Insecure.Org for more portable XML
+  --webxml: Reference stylesheet from Nmap.Org for more portable XML
   --no-stylesheet: Prevent associating of XSL stylesheet w/XML output
 MISC:
   -6: Enable IPv6 scanning
