@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Updated showHTMLTitle NSE script to follow one HTTP redirect if
+  necessary as long as it is on the same server. [Jah]
+
 o Added a UDP SNMPv3 probe to version detection, along with 9 vendor
   match lines. [Tom Sellers]
 
