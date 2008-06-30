@@ -745,8 +745,8 @@ each host is up or down. This option displays the type of the packet
 that determined a port or hosts state. For example, A <literal>RST</literal> packet from
 a closed port or an echo reply from an alive host. The information
 Nmap can provide is determined by the type of scan or ping. The SYN
-scan and SYN ping (<option>-sS</option> and <option>-PT</option>) are very detailed, but the
-TCP connect scan and ping (<option>-sT</option>) are limited by the
+scan and SYN ping (<option>-sS</option> and <option>-PS</option>) are very detailed, but the
+TCP connect scan (<option>-sT</option>) is limited by the
 implementation of the <literal>connect</literal> system call. This feature is automatically enabled by
 the debug option (<option>-d</option>) and the results are stored in XML log files
 even if this option is not specified.
