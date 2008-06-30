@@ -673,6 +673,7 @@ int nmap_main(int argc, char *argv[]) {
 #endif
       {"ip_options", required_argument, 0, 0},
       {"ip-options", required_argument, 0, 0},
+      {"min_rate", required_argument, 0, 0},
       {"min-rate", required_argument, 0, 0},
       {0, 0, 0, 0}
     };
