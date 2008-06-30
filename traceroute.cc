@@ -417,7 +417,7 @@ Traceroute::readTraceResponses () {
     u32 ipaddr;
 
     /* Got to look into readip_pcap's timeout value, perhaps make it dynamic */
-    ip = (struct ip *) readip_pcap (pd, &bytes, 10000, &rcvdtime, &linkhdr);
+    ip = (struct ip *) readip_pcap (pd, &bytes, 10000, &rcvdtime, &linkhdr, true);
 
     if (ip == NULL)
         return finished ();
@@ -530,9 +530,6 @@ Traceroute::readTraceResponses () {
 	}
         break;
     case IPPROTO_TCP:
-        if ((unsigned) ip->ip_hl * 4 + 20 > bytes)
-            break;
-
         tcp = (struct tcp_hdr *) ((char *) ip + 4 * ip->ip_hl);
 
         if (TraceGroups.find (ip->ip_src.s_addr) != TraceGroups.end ())
@@ -575,8 +572,6 @@ Traceroute::readTraceResponses () {
         }
         break;
     case IPPROTO_UDP:
-        if ((unsigned) ip->ip_hl * 4 + 8 > bytes)
-            break;
         udp = (udp_hdr *) ((u8 *) ip + ip->ip_hl * 4);
 
         if (TraceGroups.find (ip->ip_src.s_addr) != TraceGroups.end ())

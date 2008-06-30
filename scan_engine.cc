@@ -3581,7 +3581,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   do {
     to_usec = TIMEVAL_SUBTRACT(*stime, USI->now);
     if (to_usec < 2000) to_usec = 2000;
-    ip = (struct ip *) readip_pcap(USI->pd, &bytes, to_usec, &rcvdtime, &linkhdr);
+    ip = (struct ip *) readip_pcap(USI->pd, &bytes, to_usec, &rcvdtime, &linkhdr, true);
     gettimeofday(&USI->now, NULL);
     if (!ip && TIMEVAL_SUBTRACT(*stime, USI->now) < 0) {
       timedout = true;
@@ -3595,12 +3595,10 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       timedout = true;
     }
 
-    /* OK, we got a packet.  Let's make sure it is well-formed */
+    /* OK, we got a packet.  Most packet validity tests are taken care
+     * of in readip_pcap, so this is simple
+     */
     if (bytes < 28)
-      continue;
-    if (ip->ip_v != 4)
-      continue;
-    if (ip->ip_hl < 5)
       continue;
 
     if (USI->prot_scan) {
@@ -3640,8 +3638,6 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
     }
 
     if (ip->ip_p == IPPROTO_TCP && !USI->prot_scan) {
-      if ((unsigned) ip->ip_hl * 4 + 20 > bytes)
-	continue;
       struct tcp_hdr *tcp = (struct tcp_hdr *) ((u8 *) ip + ip->ip_hl * 4);
       /* Now ensure this host is even in the incomplete list */
       memset(&sin, 0, sizeof(sin));
@@ -3832,8 +3828,6 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	}
       }
     } else if (ip->ip_p == IPPROTO_UDP && !USI->prot_scan) {
-      if ((unsigned) ip->ip_hl * 4 + 8 > bytes)
-	continue;
       struct udp_hdr *udp = (struct udp_hdr *) ((u8 *) ip + ip->ip_hl * 4);
       /* Search for this host on the incomplete list */
       memset(&sin, 0, sizeof(sin));
@@ -3971,7 +3965,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   do {
     to_usec = TIMEVAL_SUBTRACT(*stime, USI->now);
     if (to_usec < 2000) to_usec = 2000;
-    ip = (struct ip *) readip_pcap(USI->pd, &bytes, to_usec, &rcvdtime, &linkhdr);
+    ip = (struct ip *) readip_pcap(USI->pd, &bytes, to_usec, &rcvdtime, &linkhdr, true);
     gettimeofday(&USI->now, NULL);
     if (!ip) {
       if (TIMEVAL_SUBTRACT(*stime, USI->now) < 0) {
@@ -3988,16 +3982,10 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       timedout = true;
     }
 
-    /* OK, we got a packet.  Let's make sure it is well-formed */
+    /* OK, we got a packet.  Most packet validity tests are taken care
+     * of in readip_pcap, so this is simple
+     */
     if (bytes == 0)
-      continue;
-    if (bytes <= 20) {  
-      error("%d byte micro packet received in %s", bytes, __func__);
-      continue;
-    }  
-    if (ip->ip_v != 4)
-      continue;
-    if (ip->ip_hl < 5)
       continue;
 
     if (USI->ptech.rawprotoscan) {
@@ -4332,10 +4320,6 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
     } else if (ip->ip_p == IPPROTO_TCP && !USI->ptech.rawprotoscan) {
       if (!USI->ptech.rawtcpscan) {
         continue;
-      }
-      if (bytes < 4 * ip->ip_hl + 16U) {
-          error("TCP packet is only %d bytes, we can't get enough information from it", bytes);
-          continue;
       }
       struct tcp_hdr *tcp = (struct tcp_hdr *) (((u8 *) ip) + 4 * ip->ip_hl);
       /* Check that the packet has useful flags. */

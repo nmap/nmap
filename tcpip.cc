@@ -1898,6 +1898,149 @@ int pcap_select(pcap_t *p, long usecs)
 	return pcap_select(p, &tv);
 }
 
+/* Used by validatepkt() to validate the TCP header (including option lengths).
+ * The options checked are MSS, WScale, SackOK, Sack, and Timestamp.
+ */
+static bool validateTCPhdr(u8 *tcpc, unsigned len)
+{
+	struct tcp_hdr *tcp = (struct tcp_hdr *) tcpc;
+	unsigned hdrlen, optlen;
+
+	hdrlen = tcp->th_off * 4;
+
+	/* Check header length */
+	if (hdrlen > len || hdrlen < sizeof(struct tcp_hdr))
+		return false;
+
+	/* Get to the options */
+	tcpc += sizeof(struct tcp_hdr);
+	optlen = hdrlen - sizeof(struct tcp_hdr);
+
+	while (optlen > 0) {
+		switch (*tcpc) {
+		case 2: /* MSS */
+			if (optlen < 4)
+				return false;
+			optlen -= 4;
+			tcpc += 4;
+			break;
+		case 3: /* Window Scale */
+			if (optlen < 3)
+				return false;
+			optlen -= 3;
+			tcpc += 3;
+			break;
+		case 4: /* SACK Permitted */
+			if (optlen < 2)
+				return false;
+			optlen -= 2;
+			tcpc += 2;
+			break;
+		case 5: /* SACK */
+			if (optlen < *++tcpc)
+				return false;
+			if (!(*tcpc - 2) || ((*tcpc - 2) % 8))
+				return false;
+			optlen -= *tcpc;
+			tcpc += (*tcpc - 1);
+			break;
+		case 8: /* Timestamp */
+			if (optlen < 10)
+				return false;
+			optlen -= 10;
+			tcpc += 10;
+			break;
+		default:
+			optlen--;
+			tcpc++;
+			break;
+		}
+	}
+
+	return true;
+}
+
+/* Used by readip_pcap() to validate an IP packet.  It checks to make sure:
+ *
+ * 1) there is enough room for an IP header in the amount of bytes read
+ * 2) the IP version number is correct
+ * 3) the IP length fields are at least as big as the standard header
+ * 4) the IP packet received isn't a fragment, or is the initial fragment
+ * 5) that next level headers seem reasonable (e.g. validateTCPhdr())
+ *
+ * Checking the IP total length (iplen) to see if its at least as large as the
+ * number of bytes read (len) does not work because things like the Ethernet
+ * CRC also get captured and are counted in len.  Therefore, after the IP total
+ * length is considered reasonable, iplen is used instead of len.  readip_pcap
+ * fixes the length on it's end after this is validated.
+ */
+static bool validatepkt(u8 *ipc, unsigned len)
+{
+	struct ip *ip = (struct ip *) ipc;
+	unsigned fragoff, iphdrlen, iplen;
+
+	if (len < sizeof(struct ip)) {
+		if (o.debugging >= 3)
+			error("Rejecting tiny, supposed IP packet (size %u)", len);
+		return false;
+	}
+
+	if (ip->ip_v != 4) {
+		if (o.debugging >= 3)
+			error("Rejecting IP packet because of invalid version number %u", ip->ip_v);
+		return false;
+	}
+
+	iphdrlen = ip->ip_hl * 4;
+
+	if (iphdrlen < sizeof(struct ip)) {
+		if (o.debugging >= 3)
+			error("Rejecting IP packet because of invalid header length %u", iphdrlen);
+		return false;
+	}
+
+	iplen = ntohs(ip->ip_len);
+
+	if (iplen < iphdrlen) {
+		if (o.debugging >= 3)
+			error("Rejecting IP packet because of invalid total length %u", iplen);
+		return false;
+	}
+
+	fragoff = 8 * (ntohs(ip->ip_off) & IP_OFFMASK);
+
+	if (fragoff) {
+		if (o.debugging >= 3)
+			error("Rejecting IP fragment (offset %u)", fragoff);
+		return false;
+	}
+
+	switch (ip->ip_p) {
+	case IPPROTO_TCP:
+		if (iphdrlen + sizeof(struct tcp_hdr) > iplen) {
+			if (o.debugging >= 3)
+				error("Rejecting TCP packet because of incomplete header");
+			return false;
+		}
+		if (!validateTCPhdr(ipc + iphdrlen, iplen - iphdrlen)) {
+			if (o.debugging >= 3)
+				error("Rejecting TCP packet because of bad TCP header");
+			return false;
+		}
+		break;
+	case IPPROTO_UDP:
+		if (iphdrlen + sizeof(struct udp_hdr) < iplen)
+			break;
+		if (o.debugging >= 3)
+			error("Rejecting UDP packet because of incomplete header");
+		return false;
+	default:
+		break;
+	}
+
+	return true;
+}
+
 /* Read an IP packet using libpcap .  We return the packet and take
    a pcap descriptor and a pointer to the packet length (which we set
    in the function. If you want a maximum length returned, you
@@ -1912,8 +2055,11 @@ int pcap_select(pcap_t *p, long usecs)
    filled with the time that packet was captured from the wire by
    pcap.  If linknfo is not NULL, linknfo->headerlen and
    linknfo->header will be filled with the appropriate values. */
+/* Specifying true for validate will enable validity checks against the
+   received IP packet.  See validatepkt() for a list of checks.
+ */
 char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec, 
-		  struct timeval *rcvdtime, struct link_header *linknfo) {
+		  struct timeval *rcvdtime, struct link_header *linknfo, bool validate) {
 unsigned int offset = 0;
 struct pcap_pkthdr head;
 char *p;
@@ -1923,6 +2069,7 @@ struct timeval tv_start, tv_end;
 static char *alignedbuf = NULL;
 static unsigned int alignedbufsz=0;
 static int warning = 0;
+struct ip *iphdr;
 
 if (linknfo) { memset(linknfo, 0, sizeof(*linknfo)); }
 
@@ -2061,6 +2208,23 @@ if (timedout) {
    alignedbufsz = *len;
  }
  memcpy(alignedbuf, p, *len);
+
+ if (validate) {
+   /* Let's see if this packet passes inspection.. */
+   if (!validatepkt((u8 *) alignedbuf, *len)) {
+     *len = 0;
+     return NULL;
+   }
+
+   iphdr = (struct ip *) alignedbuf;
+
+   /* OK, since the IP header has been validated, we don't want to tell
+    * the caller they have more packet than they really have.  This can
+    * be caused by the Ethernet CRC trailer being counted, for example.
+    */
+   if (*len > ntohs(iphdr->ip_len))
+     *len = ntohs(iphdr->ip_len);
+ }
 
  // printf("Just got a packet at %li,%li\n", head.ts.tv_sec, head.ts.tv_usec);
  if (rcvdtime) {

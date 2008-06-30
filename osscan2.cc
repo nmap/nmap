@@ -3426,7 +3426,7 @@ static void doSeqTests(OsScanInfo *OSI, HostOsScan *HOS) {
       if(o.debugging > 2)
         log_write(LOG_PLAIN, "pcap wait time is %ld.\n", to_usec);
       
-      ip = (struct ip*) readip_pcap(HOS->pd, &bytes, to_usec, &rcvdtime, &linkhdr);
+      ip = (struct ip*) readip_pcap(HOS->pd, &bytes, to_usec, &rcvdtime, &linkhdr, true);
     
       gettimeofday(&now, NULL);
       
@@ -3443,7 +3443,7 @@ static void doSeqTests(OsScanInfo *OSI, HostOsScan *HOS) {
         timedout = true;
       }
       
-      if(bytes < 20 || bytes < (4 * ip->ip_hl) + 4U)
+      if(bytes < (4 * ip->ip_hl) + 4U)
         continue;
 
       memset(&sin, 0, sizeof(sin));
@@ -3595,7 +3595,7 @@ static void doTUITests(OsScanInfo *OSI, HostOsScan *HOS) {
       if(o.debugging > 2)
         log_write(LOG_PLAIN, "pcap wait time is %ld.\n", to_usec);
       
-      ip = (struct ip*) readip_pcap(HOS->pd, &bytes, to_usec, &rcvdtime, &linkhdr);
+      ip = (struct ip*) readip_pcap(HOS->pd, &bytes, to_usec, &rcvdtime, &linkhdr, true);
     
       gettimeofday(&now, NULL);
       
@@ -3612,7 +3612,7 @@ static void doTUITests(OsScanInfo *OSI, HostOsScan *HOS) {
         timedout = true;
       }
       
-      if(bytes < 20 || bytes < (4 * ip->ip_hl) + 4U)
+      if(bytes < (4 * ip->ip_hl) + 4U)
         continue;
 
       memset(&sin, 0, sizeof(sin));

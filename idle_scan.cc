@@ -206,7 +206,7 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
 
       to_usec = proxy->host.to.timeout - TIMEVAL_SUBTRACT(tv_end, tv_sent[tries-1]);
       if (to_usec < 0) to_usec = 0; // Final no-block poll
-      ip = (struct ip *) readip_pcap(proxy->pd, &bytes, to_usec, &rcvdtime, NULL);      
+      ip = (struct ip *) readip_pcap(proxy->pd, &bytes, to_usec, &rcvdtime, NULL, true);      
       gettimeofday(&tv_end, NULL);
       if (ip) {
 	if (bytes < ( 4 * ip->ip_hl) + 14U)
@@ -445,7 +445,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
     while(probes_returned < probes_sent && !timedout) {
 
       to_usec = (probes_sent == NUM_IPID_PROBES)? hardtimeout : 1000;
-      ip = (struct ip *) readip_pcap(proxy->pd, &bytes, to_usec, &rcvdtime, NULL);
+      ip = (struct ip *) readip_pcap(proxy->pd, &bytes, to_usec, &rcvdtime, NULL, true);
 
       gettimeofday(&tmptv, NULL);
       
