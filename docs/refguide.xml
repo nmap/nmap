@@ -1708,7 +1708,7 @@ way.</para>
       <varlistentry>
         <term>
         <option>-sR</option> (RPC scan)
-          <indexterm><primary>--sR</primary></indexterm></term>
+          <indexterm><primary>-sR</primary></indexterm></term>
 
         <listitem>
           <para>This method works in conjunction with the various port
@@ -2421,7 +2421,7 @@ worth the extra time.</para>
           <option>-T
           &lt;paranoid|sneaky|polite|normal|aggressive|insane&gt;</option>
           (Set a timing template)
-        <indexterm><primary>--T</primary></indexterm>
+        <indexterm><primary>-T</primary></indexterm>
         </term>
         <listitem>
 
