@@ -1181,10 +1181,10 @@ int nmap_main(int argc, char *argv[]) {
 	case 'P':  o.pingscan = 1; break;
 	case 'R':  o.rpcscan = 1; break;
 	case 'S':  o.synscan = 1; break;	  
-	case 'W':  o.windowscan = 1; break;
 	case 'T':  o.connectscan = 1; break;
-	case 'V':  o.servicescan = 1; break;
 	case 'U':  o.udpscan++; break;
+	case 'V':  o.servicescan = 1; break;
+	case 'W':  o.windowscan = 1; break;
 	case 'X':  o.xmasscan++; break;
 	default:  error("Scantype %c not supported\n",*p); printusage(argv[0], -1); break;
 	}
