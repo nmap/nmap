@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The Ports/Hosts display in Zenmap now has different colors for open
+  and closed ports. [Vladimir]
+
+o Fixed the "resolution errors not showing up" bug. Actually, from now
+  on, all errors will be displayed properly in the Zenmap window, since
+  stderr is also redirected there (until now, only stdout was
+  displayed). [Vladimir]
+
 Nmap 4.68 [2008-6-28]
 
 o Doug integrated all of your version detection submissions and
