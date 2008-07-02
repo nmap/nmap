@@ -161,7 +161,7 @@ hosts between 192.168.10.0 (binary: <literal>11000000 10101000
 scanme.nmap.org is at the IP address 205.217.153.62, the specification
 scanme.nmap.org/16 would scan the 65,536 IP addresses between
 205.217.0.0 and 205.217.255.255.  The smallest allowed value is /0,
-which scans the whole Internet.  The largest value is 32, which scans
+which scans the whole Internet.  The largest value is /32, which scans
 just the named host or IP address because all address bits are fixed.</para>
 
 <para>CIDR notation is short but not always flexible enough.  For example, you
