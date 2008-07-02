@@ -1245,7 +1245,8 @@ ports, then those three may very well be the truly open ones.</para>
         <listitem>
 
 <para>The Maimon scan is named after its discoverer, Uriel Maimon.  He
-described the technique in Phrack Magazine issue #49 (November 1996).
+described the technique in <citetitle>Phrack</citetitle> Magazine issue #49 (November 1996).
+<indexterm><primary><citetitle>Phrack</citetitle></primary></indexterm>
 Nmap, which included this technique, was released two issues later.
 This technique is exactly the same as null, FIN, and Xmas scans, except
 that the probe is FIN/ACK.  According to <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc793.txt">RFC 793</ulink> (TCP), a RST packet
