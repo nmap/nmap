@@ -875,7 +875,6 @@ command such as <command>nmap scanme.nmap.org</command> from any directory.</par
 <indexterm><primary>Solaris</primary></indexterm>
 <indexterm><primary>Sun Solaris</primary><see>Solaris</see></indexterm>
 
-<indexterm><primary>Solaris</primary><secondary>installation from source on</secondary></indexterm>
 <para>Solaris has long been well-supported by Nmap.  Sun even donated a complete SPARCstation to the project, which is still being used to test new Nmap builds.  For this reason, many Solaris users compile and install from source code as described in <xref linkend="inst-source" />.</para>
 
 <para>Users who prefer native Solaris packages will be pleased to
@@ -916,7 +915,7 @@ the Nmap download page</ulink> there is a file called
 <filename>nmap-<replaceable>version</replaceable>.dmg</filename>, where
 <replaceable>version</replaceable> is the version number of the most
 recent release. The <filename>.dmg</filename>
-<indexterm><primary><filename>.dmg</filename> (Mac OS X disk image)</primary></indexterm>
+<indexterm><primary sortas="dmg"><filename>.dmg</filename> (Mac OS X disk image)</primary></indexterm>
 <indexterm><primary>disk image (Mac OS X)</primary></indexterm>
 file is known as a
 <quote>disk image</quote>. This is the process for installing from the
@@ -1047,7 +1046,7 @@ an optional install on the Mac OS X installation discs.</para>
 
 <para>When Zenmap is started, a dialog is displayed requesting that you
 type your password. Users with administrator privileges
-<indexterm><primary>adminsitrator (root) privileges</primary></indexterm>
+<indexterm><primary>administrator (root) privileges</primary></indexterm>
 may enter their
 password to allow Zenmap to run as the root user and run more advanced
 scans. To run Zenmap in unprivileged mode, just select the
