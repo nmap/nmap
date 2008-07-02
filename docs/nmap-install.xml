@@ -90,7 +90,7 @@ command-line.
 <sect2 id="inst-download"><title>Downloading Nmap</title>
 
 <indexterm significance="preferred"><primary>downloading</primary></indexterm>
-<para>Insecure.Org is the official source for downloading Nmap source
+<para>Nmap.Org is the official source for downloading Nmap source
 code and binaries for Nmap and Zenmap.  Source code is distributed in
 bzip2 and gzip compressed tar files, and binaries are available for
 Windows and Linux (RPM format).  Find all of this at <ulink
@@ -201,10 +201,10 @@ SHA1 and MD5 (among other) hashes
 <indexterm><primary>digests, cryptographic</primary></indexterm>
 are made available for more casual
 validation.  An attacker who can manipulate your Internet traffic in
-real time (and is extremely skilled) or who compromises Insecure.Org
+real time (and is extremely skilled) or who compromises Nmap.Org
 and replaces both the distribution file and digest file, could defeat
 this test.  However, it can be useful to check the authoritative
-Insecure.Org hashes if you obtain Nmap from a third party or feel it
+Nmap.Org hashes if you obtain Nmap from a third party or feel it
 might have been accidentally corrupted.  For every Nmap package download
 file, there is a corresponding file in the sigs directory with
 <literal>.digest.txt</literal> appended to the name
@@ -244,7 +244,7 @@ flog&gt; gpg --print-md sha1 nmap-4.53.tgz
 nmap-4.53.tgz: 3516 D794 8AD8 F994 F2FD  B52E 1C51 7C5F ED91 E06F
 </screen></example>
 
-<para>While releases from Insecure.Org are signed as described in this
+<para>While releases from Nmap.Org are signed as described in this
 section, certain Nmap add-ons, interfaces, and platform-specific
 binaries are developed and distributed by other parties.  They have
 different mechanisms for establishing the authenticity of their
@@ -461,7 +461,7 @@ customized to use the distribution's standard directory paths and
 such.  These packages also allow for consistent management in terms of
 upgrading, removing, or surveying software on the system.  A downside
 is that packages created by the distributions are necessarily behind
-the Insecure.Org source releases.  Most Linux distributions
+the Nmap.Org source releases.  Most Linux distributions
 (particularly Debian and Gentoo) keep their Nmap package relatively
 current, though a few are way out of date.  Choosing the source
 install allows for more flexibility in determining how Nmap is built
@@ -511,7 +511,7 @@ Preparing...                ########################################### [100%]
 
 <example id="ex-nmap-install-from-srpms"><title>Building and installing Nmap from source RPMs</title>
 <screen>
-&gt; rpmbuild --rebuild http://download.insecure.org/nmap/dist/nmap-4.62-1.src.rpm
+&gt; rpmbuild --rebuild http://nmap.org/dist/nmap-4.62-1.src.rpm
 [ hundreds of lines cut ]
 Wrote: /home/fyodor/rpmdir/RPMS/i386/nmap-4.62-1.i386.rpm
 [ cut ]
@@ -1194,7 +1194,7 @@ running <command>make uninstall</command>.  If you no longer have that
 build directory, type <command>nmap -V</command> to
 obtain the Nmap version number.  Then
 download that source tarball for that version of
-Nmap from <ulink url="http://download.insecure.org/nmap/dist/" />.
+Nmap from <ulink url="http://nmap.org/dist/" />.
 Uncompress the tarball and change into the newly created directory
 (<filename>nmap-<replaceable>version</replaceable></filename>).  Run
 <command>./configure</command>, including any install-path options that you specified

@@ -3338,9 +3338,9 @@ overwhelming requests.  Specify <option>--open</option> to only see
           <option>--stylesheet
           http://nmap.org/data/nmap.xsl</option>.  This
           tells a browser to load the latest version of the stylesheet
-          from Insecure.Org.  The <option>--webxml</option> option
+          from Nmap.Org.  The <option>--webxml</option> option
           does the same thing with less typing and memorization.
-          Loading the XSL from Insecure.Org makes it easier to view results on
+          Loading the XSL from Nmap.Org makes it easier to view results on
           a machine that doesn't have Nmap (and thus
           <filename>nmap.xsl</filename>) installed.  So the URL is
           often more useful, but the local filesystem location of
@@ -3350,7 +3350,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
 
       <varlistentry>
         <term>
-          <option>--webxml</option> (Load stylesheet from Insecure.Org)
+          <option>--webxml</option> (Load stylesheet from Nmap.Org)
           <indexterm><primary>--webxml</primary></indexterm>
         </term>
         <listitem>
