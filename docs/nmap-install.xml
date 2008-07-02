@@ -101,7 +101,7 @@ url="http://www.cert.org/advisories/CA-2002-24.html">example</ulink>),
 </web>
 <print>
 Sendmail (see <ulink
-url="http://www.cert.org/advisories/CA-2002-28.html"/>,
+url="http://www.cert.org/advisories/CA-2002-28.html"/>),
 OpenSSH (see <ulink
 url="http://www.cert.org/advisories/CA-2002-24.html"/>),
 </print>
