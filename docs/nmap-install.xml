@@ -46,8 +46,8 @@ updated operating system and service version detection databases.  A
 list of changes since the version already on your system can be found
 at <ulink url="http://nmap.org/changelog.html" />.
 <bookex>
-Nmap output examples in this book usually include a version number
-near the top, and they may not work with older versions.
+Nmap output examples in this book may not match the output produced by
+older versions.
 </bookex></para>
 </sect2>
 
