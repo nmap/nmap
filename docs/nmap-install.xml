@@ -1,5 +1,7 @@
 <!-- $Id$ -->
 
+<indexterm><primary>installation</primary></indexterm>
+
 <sect1 id="inst-intro"><title>Introduction</title>
 
 <para>Nmap can often be installed or upgraded with a single command,
@@ -13,13 +15,17 @@ Nmap removal instructions are also provided in case you change your
 mind.</para>
 
 <sect2 id="inst-already"><title>Testing Whether Nmap is Already Installed</title>
+<indexterm><primary>Nmap</primary><secondary>checking if installed</secondary></indexterm>
 <para>The first step toward obtaining Nmap is to check whether you already
 have it.  Many free operating system distributions (including most
 Linux and BSD systems) come with Nmap, although it may not be
 installed by default.  On Unix systems, open a terminal window and try executing the command
-<command>nmap <option>--version</option></command>.  If
-Nmap exists and is in your <envar>$PATH</envar>,
+<command>nmap <option>--version</option></command><indexterm><primary><option>--version</option></primary></indexterm>.
+If Nmap exists and is in your <envar>$PATH</envar>,
+<indexterm><primary><envar>PATH</envar> environment variable</primary></indexterm>
 you should see output similar to <xref linkend="ex-checking-for-nmap" />.</para>
+
+<indexterm><primary>version number of Nmap</primary><see><option>--version</option></see></indexterm>
 
 <example id="ex-checking-for-nmap"><title>Checking for Nmap and determining its version number</title>
 <!--REMEMBER TO UPDATE TEXT BELOW THE SCREENSHOT WHEN I UPDATE THE SCREENSHOT
@@ -41,10 +47,12 @@ version number (here <literal>4.65</literal>).</para>
 <para>Even if your system already has a copy of Nmap, you should
 consider upgrading to the latest version available from <ulink
 url="http://nmap.org/download.html" />.
+<indexterm><primary>downloading</primary></indexterm>
 Newer versions often run faster, fix important bugs, and feature
 updated operating system and service version detection databases.  A
 list of changes since the version already on your system can be found
 at <ulink url="http://nmap.org/changelog.html" />.
+<indexterm><primary>changelog</primary></indexterm>
 <bookex>
 Nmap output examples in this book may not match the output produced by
 older versions.
@@ -66,7 +74,8 @@ intimidating for new and infrequent users.
 Nmap offers more than a hundred
 command-line options, although many are obscure features or debugging
 controls that most users can ignore.  Many graphical frontends have been
-created for those users who prefer a GUI interface.  Nmap has traditionally included a simple GUI for Unix named <application>NmapFE</application><indexterm><primary>NmapFE</primary></indexterm>, but that was replaced in 2007 by Zenmap, which we had been developing since 2005.  Zenmap is far more powerful and effective than NmapFE, particularly in results viewing.  Zenmap's tab-based interface lets you search and sort
+created for those users who prefer a GUI interface.  Nmap has traditionally included a simple GUI for Unix named <application>NmapFE</application><indexterm><primary>NmapFE</primary></indexterm>, but that was replaced in 2007 by Zenmap,
+<indexterm><primary>Zenmap</primary><secondary>advantages of</secondary></indexterm>which we had been developing since 2005.  Zenmap is far more powerful and effective than NmapFE, particularly in results viewing.  Zenmap's tab-based interface lets you search and sort
 results, and also browse them in several ways (host details, raw Nmap
 output, and ports/hosts).  It works on Microsoft Windows, Linux, Mac
 OS X, and other platforms.  Zenmap is covered in depth in <xref linkend="zenmap"/>.  The rest of this book focuses on command-line invocations of Nmap.
@@ -80,6 +89,7 @@ command-line.
 
 <sect2 id="inst-download"><title>Downloading Nmap</title>
 
+<indexterm significance="preferred"><primary>downloading</primary></indexterm>
 <para>Insecure.Org is the official source for downloading Nmap source
 code and binaries for Nmap and Zenmap.  Source code is distributed in
 bzip2 and gzip compressed tar files, and binaries are available for
@@ -90,6 +100,7 @@ url="http://nmap.org/download.html" />.</para>
 
 <sect2 id="inst-integrity"><title>Verifying the Integrity of Nmap Downloads</title>
 
+<indexterm><primary>verifying the integrity of downloads</primary></indexterm>
 <para>It often pays to be paranoid about the
 integrity of files downloaded from the Internet.  Popular packages
 such as 
@@ -122,8 +133,11 @@ forge and properly sign a trojan release.  While numerous applications
 are able to verify PGP signatures, I recommend the <ulink
 url="http://www.gnupg.org/">GNU Privacy Guard (GPG)</ulink>.</para>
 
-<para>Nmap releases are signed with a special Nmap Project Signing
-Key, which can be obtained from they major keyservers or <ulink
+<para>
+<indexterm><primary>keys, cryptographic</primary></indexterm>
+Nmap releases are signed with a special Nmap Project Signing Key,
+<indexterm><primary>Nmap Project Signing Key</primary></indexterm>
+which can be obtained from they major keyservers or <ulink
 url="http://nmap.org/data/nmap_gpgkeys.txt"/>.  My key is
 included in that file too.  The keys can be imported with the command
 <command>gpg --import nmap_gpgkeys.txt</command>.  You only need to do
@@ -182,7 +196,10 @@ gpg: BAD signature from
 </screen></example>
 
 <para>While PGP signatures are the recommended validation technique,
-SHA1 and MD5 (among other) hashes are made available for more casual
+SHA1 and MD5 (among other) hashes
+<indexterm><primary>hashes, cryptographic</primary></indexterm>
+<indexterm><primary>digests, cryptographic</primary></indexterm>
+are made available for more casual
 validation.  An attacker who can manipulate your Internet traffic in
 real time (and is extremely skilled) or who compromises Insecure.Org
 and replaces both the distribution file and digest file, could defeat
@@ -235,6 +252,8 @@ downloads.</para>
 </sect2>
 
 <sect2 id="inst-svn"><title>Obtaining Nmap from the Subversion (SVN) Repository</title>
+<indexterm><primary>Subversion</primary></indexterm>
+<indexterm><primary>SVN</primary><see>Subversion</see></indexterm>
 
 <para>In addition to regular stable and development releases, the
 latest Nmap source code is always available using the <ulink
@@ -245,7 +264,9 @@ SVN head revisions aren't always as stable as official release.  So
 SVN is most useful for Nmap developers and users who need a fix which
 hasn't yet been formally released.</para>
 
-<para>SVN write access is strictly limited to a few top Nmap
+<para>
+<indexterm><primary>Subversion</primary><secondary>checking out from</secondary></indexterm>
+SVN write access is strictly limited to a few top Nmap
 developers, but everyone has read access to the repository.  Check out
 the latest code using the command <command>svn co --username guest
 --password "" svn://svn.insecure.org/nmap/</command>.  Then you can later
@@ -265,8 +286,14 @@ url="http://cgi.insecure.org/mailman/listinfo/nmap-svn"/>.</para>
 </sect1>
 
 <sect1 id="inst-source"><title>Unix Compilation and Installation from Source Code</title> 
+<indexterm><primary>Unix</primary><secondary>compilation and installation</secondary></indexterm>
+<indexterm><primary>installation</primary><secondary>from source</secondary></indexterm>
+<indexterm><primary>source code</primary></indexterm>
+<indexterm><primary>compilation</primary></indexterm>
 
-<para>While binary packages<indexterm><primary>installation</primary><secondary>from source</secondary></indexterm>
+<para>
+<indexterm><primary>source code</primary><secondary>advantages of</secondary></indexterm>
+While binary packages
 discussed in later sections are available for most platforms, compilation and
 installation from source code is the traditional and most powerful way
 to install Nmap.  This ensures that the
@@ -322,6 +349,8 @@ install</command>.  However, there are a number of options available to <applica
 
 <sect2 id="inst-configure"><title>Configure Directives</title>
 
+<indexterm><primary>configure directives</primary></indexterm>
+
 <para>Most of the Unix build options are controlled by the <literal>configure</literal> script, as used in step number four above.  There are dozens of command-line parameters and environmental variables which affect the way Nmap is built.  Run <command>./configure --help</command> for a huge list with brief descriptions.  Here are the ones that are specific to Nmap or particularly important:</para>
 
 <variablelist>
@@ -346,10 +375,10 @@ Nmap in my account as an unprivileged user.
 I would run <command>./configure --prefix=<replaceable>/home/fyodor</replaceable></command>.  Nmap creates subdirs like <filename>/home/fyodor/man/man1</filename> in the install stage if they do not already exist.</para></listitem></varlistentry>
 
 <varlistentry><term><option>--without-zenmap</option></term>
-<listitem><para>This option prevents the Zenmap graphical frontend from being installed.  Normally the build system checks your system for requirements such as the Python scripting language and then installs Zenmap if they are all available.</para></listitem></varlistentry>
+<listitem><indexterm><primary>Zenmap</primary><secondary>disabling</secondary></indexterm><para>This option prevents the Zenmap graphical frontend from being installed.  Normally the build system checks your system for requirements such as the Python scripting language and then installs Zenmap if they are all available.</para></listitem></varlistentry>
 
 <varlistentry><term><option>--with-openssl=</option><replaceable>directoryname</replaceable></term>
-<listitem><para>The version detection subsystem of Nmap is able to probe SSL-encrypted services using the free OpenSSL libraries.  Normally the Nmap build system looks for these libraries on your system and include this capability if they are found.  If they are in a location your compiler does not search for by default, but you still want them to be used, specify <option>--with-openssl=<replaceable>directoryname</replaceable></option>.  Nmap then looks in <replaceable>directoryname</replaceable>/libs for the OpenSSL libraries themselves and <replaceable>directoryname</replaceable>/include for the necessary header files.  Specify <option>--without-openssl</option> to disable SSL entirely.</para></listitem></varlistentry>
+<listitem><para><indexterm><primary>OpenSSL</primary><secondary>disabling</secondary></indexterm>The version detection subsystem of Nmap is able to probe SSL-encrypted services using the free OpenSSL libraries.  Normally the Nmap build system looks for these libraries on your system and include this capability if they are found.  If they are in a location your compiler does not search for by default, but you still want them to be used, specify <option>--with-openssl=<replaceable>directoryname</replaceable></option>.  Nmap then looks in <replaceable>directoryname</replaceable>/libs for the OpenSSL libraries themselves and <replaceable>directoryname</replaceable>/include for the necessary header files.  Specify <option>--without-openssl</option> to disable SSL entirely.</para></listitem></varlistentry>
 
 <varlistentry><term><option>--with-libpcap=</option><replaceable>directoryname</replaceable></term>
 <listitem><para>Nmap uses the <ulink url="http://www.tcpdump.org">Libpcap library</ulink> for capturing raw IP packets.  Nmap normally looks for an existing copy of Libpcap on your system and uses that if the version number and platform is appropriate.  Otherwise Nmap includes its own recent copy of Libpcap, which has been modified for improved Linux functionality.  The specific changes are described in <filename>libpcap/NMAP_MODIFICATIONS</filename> in the Nmap source directory.  Because of these Linux-related changes, Nmap always uses its own Libpcap by default on that platform.  If you wish to force Nmap to link with your own Libpcap, pass the option <option>--with-libpcap=<replaceable>directoryname</replaceable></option> to <application>configure</application>.  Nmap then expects the Libpcap library to be in <filename><replaceable>directoryname</replaceable>/lib/libpcap.a</filename> and the include files to be in <filename><replaceable>directoryname</replaceable>/include</filename>.  Nmap will always use the version of Libpcap included in its tarball if you specify <option>--with-libpcap=included</option>.
@@ -368,6 +397,7 @@ I would run <command>./configure --prefix=<replaceable>/home/fyodor</replaceable
 </sect2>
 
 <sect2 id="inst-compilation-probs"><title>If You Encounter Compilation Problems</title>
+<indexterm><primary>compilation</primary><secondary>problems with</secondary></indexterm>
 <para>In an ideal world, software would always compile perfectly (and quickly) on every system you maintain.  Unfortunately, society has not yet reached that state of nirvana.  Despite all the efforts to make Nmap portable, compilation issues occasionally arise.  Here are some suggestions in case the source distribution compilation fails.</para>
 <variablelist>
 
@@ -400,7 +430,9 @@ running on, and any relevant output snippets showing the
 error.</para></listitem></varlistentry>
 
 <varlistentry><term>Consider binary packages</term>
-<listitem><para>Binary packages of Nmap are available on most
+<listitem>
+<indexterm><primary>binary packages</primary><secondary>advantages of</secondary></indexterm>
+<para>Binary packages of Nmap are available on most
 platforms and are usually easy to install.  The downsides are that
 they may not be as up-to-date and you lose some of the flexibility of
 self-compilation.  Previous sections of this chapter describe how to
@@ -413,8 +445,11 @@ packages.</para></listitem></varlistentry>
 </sect1>
 
 <sect1 id="inst-linux"><title>Linux Distributions</title>
+<indexterm><primary>Linux</primary></indexterm>
 
-<para>Linux is far and away the most popular platform for running
+<para>
+<indexterm><primary>Linux</primary><secondary>popularity as Nmap platform</secondary></indexterm>
+Linux is far and away the most popular platform for running
 Nmap.  In one user survey, 86% said that Linux was at
 least one of the platforms on which they run
 Nmap.</para>
@@ -435,10 +470,14 @@ linkend="inst-source" />.  Here are simple package instructions for
 the most common distributions.</para>
 
 <sect2 id="inst-rpm"><title>RPM-based Distributions (Red Hat, Mandrake, Suse, Fedora)</title>
+<indexterm><primary>RPM</primary></indexterm>
+<indexterm><primary>Red Hat (Linux distribtion)</primary><see>RPM</see></indexterm>
+<indexterm><primary>Mandrake (Linux distribution)</primary><see>RPM</see></indexterm>
+<indexterm><primary>Suse (Linux distribution)</primary><see>RPM</see></indexterm>
+<indexterm><primary>Fedora (Linux distribution)</primary><see>RPM</see></indexterm>
 
-<para>I build RPM packages for every release of Nmap and post them to<indexterm><primary>installation</primary><secondary>from RPMs</secondary></indexterm>
-the Nmap download page at <ulink
-url="http://nmap.org/download.html" />.
+<para>I build RPM packages for every release of Nmap and post them to
+the Nmap download page at <ulink url="http://nmap.org/download.html" />.
 I build two packages:  The <literal>nmap</literal> package contains
 just the command-line executable and data files, while the
 <literal>zenmap</literal> package contains the optional <application>Zenmap</application>
@@ -449,7 +488,9 @@ that the <literal>nmap</literal> package be installed first.  One down
 side to installing the RPMs rather than compiling from source is that
 the RPMs don't support OpenSSL for version detection of SSL services.</para>
 
-<para>Installing via <application>RPM</application> is quite easy&mdash;it
+<para>
+<indexterm><primary>RPM</primary><secondary>installing from</secondary></indexterm>
+Installing via <application>RPM</application> is quite easy&mdash;it
 even downloads the package for you when given the proper URLs.  The following example downloads and installs Nmap 4.62, including the frontend.  Of course you should use the latest version at the download site above instead.  Any existing RPM-installed versions are
 upgraded. <xref linkend="ex-nmap-install-from-rpms" /> demonstrates this installation process.</para>
 
@@ -466,7 +507,7 @@ Preparing...                ########################################### [100%]
 </screen>
 </example>
 
-<para>As the filenames above imply, these binary RPMs were created for normal PCs (x86 architecture).  I also distribute x86_64 binaries of some releases for users with 64-bit Linux running on an AMD Opteron or Athlon64 processor.  These binaries won't work for the relatively few Linux users on other platforms such as SPARC, Alpha, or PowerPC.  They also may refuse to install if your library versions are sufficiently different from what the RPMs were initially built on.  One option in these cases would be to find binary RPMs prepared by your Linux vendor for your specific distribution.  The original install CDs or DVD are a good place to start.  Unfortunately, those may not be current or available.  Another option is to install Nmap from source code as described previously, though you lose the binary package maintenance consistency benefits.  A third option is to build and install your own binary RPMs from the source RPMs distributed from the download page above.  <xref linkend="ex-nmap-install-from-srpms" /> demonstrates this technique with Nmap 4.62.</para>
+<para>As the filenames above imply, these binary RPMs were created for normal PCs (x86 architecture).<indexterm><primary>x86 architecture</primary></indexterm>  I also distribute x86_64<indexterm><primary>x86_64 architecture</primary></indexterm> binaries of some releases for users with 64-bit Linux running on an AMD Opteron or Athlon64 processor.  These binaries won't work for the relatively few Linux users on other platforms such as SPARC, Alpha, or PowerPC.  They also may refuse to install if your library versions are sufficiently different from what the RPMs were initially built on.  One option in these cases would be to find binary RPMs prepared by your Linux vendor for your specific distribution.  The original install CDs or DVD are a good place to start.  Unfortunately, those may not be current or available.  Another option is to install Nmap from source code as described previously, though you lose the binary package maintenance consistency benefits.  A third option is to build and install your own binary RPMs from the source RPMs distributed from the download page above.  <xref linkend="ex-nmap-install-from-srpms" /> demonstrates this technique with Nmap 4.62.</para>
 
 <example id="ex-nmap-install-from-srpms"><title>Building and installing Nmap from source RPMs</title>
 <screen>
@@ -491,8 +532,13 @@ reason there are no Zenmap source RPMs.</para>
 </sect2>
 
 <sect2 id="inst-yum"><title>Updating Red Hat, Fedora, Mandrake, and Yellow Dog Linux with Yum</title>
+<indexterm><primary>Yum</primary></indexterm>
+<indexterm><primary>Red Hat (Linux distribtion)</primary><see>Yum</see></indexterm>
+<indexterm><primary>Mandrake (Linux distribution)</primary><see>Yum</see></indexterm>
+<indexterm><primary>Yellow Dog (Linux distribution)</primary><see>Yum</see></indexterm>
+<indexterm><primary>Fedora (Linux distribution)</primary><see>Yum</see></indexterm>
 
-<para>The Red Hat, Fedora, Mandrake, and Yellow Dog Linux<indexterm><primary>installation</primary><secondary>from Yum</secondary></indexterm>
+<para>The Red Hat, Fedora, Mandrake, and Yellow Dog Linux
 distributions have an application named <application>Yum</application>
 which manages software installation and updates from central RPM
 repositories.  This makes software installation and updates trivial.
@@ -560,9 +606,14 @@ Complete!
 </sect2>
 
 <sect2 id="inst-debian"><title>Debian Linux and Derivatives such as Ubuntu</title>
-<para>LaMont Jones does a fabulous job maintaining the Nmap .deb<indexterm><primary>installation</primary><secondary>from deb packages</secondary></indexterm>
+<indexterm><primary>Debian</primary><secondary>installing on</secondary></indexterm>
+<indexterm><primary>Ubuntu</primary><see>Debian</see></indexterm>
+<para>LaMont Jones
+<indexterm><primary>Jones, LaMont</primary></indexterm>
+does a fabulous job maintaining the Nmap .deb<indexterm><primary>installation</primary><secondary>from deb packages</secondary></indexterm>
 packages, including keeping them reasonably up-to-date.  The proper
 upgrade/install command is <command>apt-get install nmap</command>.
+<indexterm><primary><application>apt-get</application></primary></indexterm>
 This works for Debian derivatives such as Ubuntu too.  Information on
 the latest Debian <quote>stable</quote> Nmap package is available at <ulink
 url="http://packages.debian.org/stable/nmap" /> and the
@@ -581,10 +632,14 @@ described in <xref linkend="inst-source" />.
 </sect1>
 
 <sect1 id="inst-windows"><title>Windows</title>
+<indexterm><primary>Windows</primary></indexterm>
+<indexterm><primary>Microsoft Windows</primary><see>Windows</see></indexterm>
 
 <para>While Nmap was once a Unix-only tool, a Windows version was
 released in 2000 and has since become the second most popular Nmap
-platform (behind Linux).  Because of this popularity and the fact that
+platform (behind Linux).
+<indexterm><primary>Windows</primary><secondary>popularity as Nmap platform</secondary></indexterm>
+Because of this popularity and the fact that
 many Windows users do not have a compiler, binary executables are
 distributed for each major Nmap release.  While it has improved
 dramatically, the Windows port is not quite as efficient or stable as
@@ -592,11 +647,13 @@ on Unix.  Here are some known limitations:<indexterm><primary>Windows</primary><
 </para>
 
 
+<indexterm><primary>Windows</primary><secondary>limitations of</secondary></indexterm>
 <itemizedlist>
-<listitem><para>You cannot generally scan your own machine from itself (using a loopback IP such as 127.0.0.1 or any of its registered IP addresses).  This is a Windows limitation that we haven't yet worked around.  If you really want to do this, use a TCP connect scan without pinging (<option>-sT -PN</option>) as that uses the high level socket API rather than sending raw packets.</para></listitem>
+<listitem><para>You cannot generally scan your own machine from itself (using a loopback<indexterm><primary>loopback interface</primary></indexterm> IP such as 127.0.0.1 or any of its registered IP addresses).  This is a Windows limitation that we haven't yet worked around.  If you really want to do this, use a TCP connect scan without pinging (<option>-sT -PN</option>) as that uses the high level socket API rather than sending raw packets.</para></listitem>
 <listitem><para>Nmap only supports ethernet interfaces (including many 802.11 wireless cards) unless you use the <option>-sT -PN</option> options.  RAS connections (such as PPP dialups) are not supported.  This support was dropped when Microsoft removed raw TCP/IP socket support in Windows XP SP2.  Now Nmap must send lower-level ethernet frames instead.</para></listitem>
 </itemizedlist>
 
+<indexterm><primary>Windows</primary><secondary>performance of</secondary></indexterm>
 <para>Scans speeds on Windows are generally comparable to those on
 Unix, though the latter often has a slight performance edge.  One
 exception to this is connect scan (<option>-sT</option>), which is
@@ -628,10 +685,12 @@ the <literal>CurrentControlSet\Services\Tcpip\Parameters</literal> entry under <
      <listitem><para>Set to 1 so TcpTimedWaitDelay is checked.</para></listitem></varlistentry>
 </variablelist>
 
-<note><para>I would like to thank Ryan Permeh of eEye, Andy Lutomirski, and
-  Jens Vogt for their hard work on the Nmap Windows port.  For many
+<note><para>I would like to thank Ryan Permeh<indexterm><primary>Permeh, Ryan</primary></indexterm> of eEye, Andy Lutomirski<indexterm><primary>Lutomirski, Andy</primary></indexterm>, and
+  Jens Vogt<indexterm><primary>Vogt, Jens</primary></indexterm> for their hard work on the Nmap Windows port.  For many
   years, Nmap was a Unix-only tool, and it would likely still be that
   way if not for their efforts.</para></note>
+
+<indexterm><primary>Windows</primary><secondary>installation on</secondary></indexterm>
 
 <para>Windows users have three choices for installing
 Nmap, all of which are available from the
@@ -641,6 +700,7 @@ url="http://nmap.org/download.html" />.<indexterm><primary>installation</primary
 
 
 <sect2 id="inst-win-exe"><title>Windows Self-installer</title>
+<indexterm><primary>Windows</primary><seconary>self-installer</seconary></indexterm>
 
 <para>Every major &ldquo;stable&rdquo; Nmap release comes with Windows
 self-installer named
@@ -658,6 +718,7 @@ command-line.</para>
 </sect2>
 
 <sect2 id="inst-win-zip"><title>Command-line Zip Binaries</title>
+<indexterm><primary>Windows</primary><seconary>zip binaries</seconary></indexterm>
 
 <note><para>Most users prefer installing Nmap with the self-installer discussed previously.</para></note>
 
@@ -703,8 +764,8 @@ WinPcap requirement.</para></listitem>
 
 </sect2>
 
-<sect2 id="inst-win-source"><title>Compile from Source Code<indexterm><primary>installation</primary><secondary>from source on Windows</secondary></indexterm></title>
-
+<sect2 id="inst-win-source"><title>Compile from Source Code</title>
+<indexterm><primary>Windows</primary><secondary>compilation on</secondary></indexterm>
 
 
 <para>Most Windows users prefer to use the Nmap binary self-installer,
@@ -718,7 +779,7 @@ url="http://www.microsoft.com/express/vc/">Visual C++ 2008 Express</ulink> which
 
 <listitem><para>Download the latest Nmap source distribution from <ulink url="http://nmap.org/download.html" />.  It has the name nmap-<replaceable>version</replaceable>.tar.bz2 or nmap-<replaceable>version</replaceable>.tgz.  Those are the same tar file compressed using gzip or bzip2, respectively.  The bzip2-compressed version is smaller.</para></listitem>
 
-<listitem><para>Uncompress the source code file you just downloaded.  Recent releases of the free <ulink url="http://www.cygwin.com/">Cygwin distribution</ulink> can handle both the .tar.bz2 and .tgz.  Use the command <command>tar xvjf nmap-version.tar.bz2</command> or <command>tar xvzf nmap-version.tgz</command>, respectively.  Alternatively, the common <application>Winzip</application> application can decompress the .tgz version.</para></listitem>
+<listitem><para>Uncompress the source code file you just downloaded.  Recent releases of the free <ulink url="http://www.cygwin.com/">Cygwin distribution</ulink><indexterm><primary>Cygwin</primary></indexterm> can handle both the .tar.bz2 and .tgz.  Use the command <command>tar xvjf nmap-version.tar.bz2</command> or <command>tar xvzf nmap-version.tgz</command>, respectively.  Alternatively, the common <application>Winzip</application> application can decompress the .tgz version.</para></listitem>
 
 <listitem><para>Open Visual Studio and the Nmap solution file ( <filename>nmap-<replaceable>version</replaceable>/mswin32/nmap.sln</filename>).</para></listitem>
 <listitem><para>Choose <guimenuitem>Build Solution</guimenuitem> from the <guimenu>Build Menu</guimenu>.  Nmap should begin compiling, and end with the line <quote><literal>-- Done --</literal></quote> saying that all projects built successfully and there were 0 failures.</para></listitem>
@@ -726,7 +787,7 @@ url="http://www.microsoft.com/express/vc/">Visual C++ 2008 Express</ulink> which
 
 <listitem><para>Instructions for executing your compiled Nmap are
 given in <xref linkend="inst-win-exec"/>. Take special note of the
-WinPcap requirement.</para></listitem>
+WinPcap<indexterm><primary>WinPcap</primary></indexterm> requirement.</para></listitem>
 
 </orderedlist>
 
@@ -750,7 +811,9 @@ detailed instructions for users who are unfamiliar with command-line
 interfaces:</para>
 
 <orderedlist>
-<listitem><para>Make sure the user you are logged in as has administrative privileges on the computer (user should be a member of the <literal>administrators</literal> group).</para></listitem>
+<listitem><para>Make sure the user you are logged in as has administrative privileges
+<indexterm><primary>administrator (root) privileges</primary></indexterm>
+on the computer (user should be a member of the <literal>administrators</literal> group).</para></listitem>
 <listitem><para>Open a command/DOS Window.  Though it can be found in
 the program menu tree, the simplest approach is to choose <guimenu>Start</guimenu> 
 -> <guimenuitem>Run</guimenuitem> and type <command>cmd&lt;enter&gt;</command>.  Opening a Cygwin window (if you installed it) by clicking on the Cygwin icon on the desktop works too, although the necessary commands differ slightly from those shown here.</para></listitem>
@@ -792,7 +855,9 @@ Computer</literal> and then click <guimenuitem>properties</guimenuitem>.</para><
 <listitem><para>Click the <guimenuitem>Environment
 Variables</guimenuitem> button.</para></listitem>
 
-<listitem><para>Choose <literal>Path</literal> from the
+<listitem><para>
+<indexterm><primary><envar>PATH</envar> environment variable</primary><secondary><envar>Path</envar> on Windows</secondary></indexterm>
+Choose <literal>Path</literal> from the
 <literal>System variables</literal> section, then hit
 edit.</para></listitem>
 
@@ -807,11 +872,16 @@ command such as <command>nmap scanme.nmap.org</command> from any directory.</par
 
 </sect1>
 <sect1 id="inst-solaris"><title>Sun Solaris</title>
+<indexterm><primary>Solaris</primary></indexterm>
+<indexterm><primary>Sun Solaris</primary><see>Solaris</see></indexterm>
 
-<para><indexterm><primary>installation</primary><secondary>on Solaris</secondary></indexterm>Solaris has long been well-supported by Nmap.  Sun even donated a complete SPARCstation to the project, which is still being used to test new Nmap builds.  For this reason, many Solaris users compile and install from source code as described in <xref linkend="inst-source" />.</para>
+<indexterm><primary>Solaris</primary><secondary>installation from source on</secondary></indexterm>
+<para>Solaris has long been well-supported by Nmap.  Sun even donated a complete SPARCstation to the project, which is still being used to test new Nmap builds.  For this reason, many Solaris users compile and install from source code as described in <xref linkend="inst-source" />.</para>
 
 <para>Users who prefer native Solaris packages will be pleased to
-learn that Steven Christensen does an excellent job of maintaining
+learn that Steven Christensen
+<indexterm><primary>Christensen, Steven</primary></indexterm>
+does an excellent job of maintaining
 Nmap packages over at <ulink url="http://www.sunfreeware.com" />.  Instructions are
 on his site, and are generally very simple: download the
 appropriate Nmap package for your version
@@ -825,9 +895,8 @@ you have more flexibility in the build process.
 </sect1>
 
 <sect1 id="inst-macosx"><title>Apple Mac OS X</title>
-<indexterm><primary>Apple Mac OS X</primary><secondary>installation</secondary></indexterm>
-<indexterm><primary>Mac OS X</primary><secondary>installation</secondary></indexterm>
-<indexterm><primary>installation</primary><secondary>on Mac OS X</secondary></indexterm>
+<indexterm><primary>Mac OS X</primary></indexterm>
+<indexterm><primary>Apple Mac OS X</primary><see>Mac OS X</see></indexterm>
 
 <para>Thanks to several people graciously donating shell accounts on
 their Mac OS X boxes, Nmap usually compiles on that platform without
@@ -838,6 +907,7 @@ Unix software for Mac OS X.</para>
 
 <sect2 id="inst-macosx-installer">
 <title>Executable Installer</title>
+<indexterm><primary>Mac OS X</primary><secondary>executable installer</secondary></indexterm>
 
 <para>The easiest way to install Nmap and Zenmap on Mac OS X is to use
 the installer. In the
@@ -845,7 +915,10 @@ the installer. In the
 the Nmap download page</ulink> there is a file called
 <filename>nmap-<replaceable>version</replaceable>.dmg</filename>, where
 <replaceable>version</replaceable> is the version number of the most
-recent release. The <filename>.dmg</filename> file is known as a
+recent release. The <filename>.dmg</filename>
+<indexterm><primary><filename>.dmg</filename> (Mac OS X disk image)</primary></indexterm>
+<indexterm><primary>disk image (Mac OS X)</primary></indexterm>
+file is known as a
 <quote>disk image</quote>. This is the process for installing from the
 disk image.</para>
 
@@ -875,7 +948,7 @@ have to compile from source or use a third-party package.</para>
 </sect2>
 
 <sect2 id="inst-macosx-source">
-<indexterm><primary>installation</primary><secondary>from source on Mac OS X</secondary></indexterm>
+<indexterm><primary>Mac OS X</primary><secondary>compilation on</secondary></indexterm>
 <title>Compile from Source Code</title>
 
 <para>Compiling Nmap from source on Mac OS X is no more difficult than
@@ -886,6 +959,7 @@ on other platforms once a proper build environment is in place.</para>
 
 <para>Compiling Nmap on Mac OS X requires
 <ulink url="http://developer.apple.com/tools/xcode/">Xcode</ulink>,
+<indexterm><primary>Xcode</primary></indexterm>
 Apple's developer tools that include GCC and the rest of the usual build
 system. Xcode is not installed by default but it is available as an
 optional install on the Mac OS X installation discs. If you do not have
@@ -894,7 +968,9 @@ Xcode free of charge by following these steps.</para>
 
 <orderedlist>
 <listitem><para>Apple restricts downloads of Xcode to members of the
-Apple Developer Connection. Browse to
+Apple Developer Connection.
+<indexterm><primary>Apple Developer Connection</primary></indexterm>
+Browse to
 <ulink url="http://connect.apple.com" /> and fill out some forms to
 create an account. Skip to the next step if you already have an
 account.</para></listitem>
@@ -915,6 +991,7 @@ approach will continue to work.</para>
 <sect3>
 <title>Compile Zenmap from source code</title>
 
+<indexterm><primary>Zenmap</primary><secondary>dependencies of</secondary></indexterm>
 <para>Zenmap depends on some external libraries that do not come with
 Mac OS X, such as GTK+ and PyGTK. These libraries have many dependencies
 of their own. A convenient way to install all of them is to use a
@@ -934,11 +1011,13 @@ that packages Unix software for Mac OS X. The two discussed here are
 <ulink url="http://www.macports.org">MacPorts</ulink>. See the
 respective projects' web sites for installation instructions.</para>
 
+<indexterm><primary>Fink</primary></indexterm>
 <para>To install using Fink, use the command <command>fink install
 nmap</command>. Nmap will be installed as
 <filename>/sw/bin/nmap</filename>. To uninstall use the command
 <command>fink remove nmap</command>.</para>
 
+<indexterm><primary>MacPorts</primary></indexterm>
 <para>To install using MacPorts, use the command <command>sudo port
 install nmap</command>. Nmap will be installed as
 <filename>/opt/local/bin/nmap</filename>. To uninstall use the command
@@ -955,7 +1034,9 @@ terminal window. This is where you will type your commands.</para>
 
 <para><indexterm><primary>root</primary><secondary>with <command>sudo</command></secondary></indexterm>
 By default the root user is disabled on Mac OS X. To run a scan with
-root privileges prefix the command name with <literal>sudo</literal>, as
+root privileges prefix the command name with <application>sudo</application>,
+<indexterm><primary><application>sudo</application></primary></indexterm>
+as
 in <command>sudo nmap -sS <replaceable>target</replaceable></command>.
 You will be asked for a password, which is just your normal login
 password. Only users with administrator privileges can do this.</para>
@@ -965,7 +1046,9 @@ be installed. If it was not installed by default it may be available as
 an optional install on the Mac OS X installation discs.</para>
 
 <para>When Zenmap is started, a dialog is displayed requesting that you
-type your password. Users with administrator privileges may enter their
+type your password. Users with administrator privileges
+<indexterm><primary>adminsitrator (root) privileges</primary></indexterm>
+may enter their
 password to allow Zenmap to run as the root user and run more advanced
 scans. To run Zenmap in unprivileged mode, just select the
 <guibutton>Cancel</guibutton> button on this dialog.</para>
@@ -974,7 +1057,7 @@ scans. To run Zenmap in unprivileged mode, just select the
 </sect1>
 
 <sect1 id="inst-bsd"><title>FreeBSD / OpenBSD / NetBSD</title>
-
+<indexterm><primary>BSDs</primary></indexterm>
 
 
 <para><indexterm><primary>installation</primary><secondary>on BSD</secondary></indexterm>The BSD flavors are well supported by Nmap, so you can simply
@@ -987,6 +1070,7 @@ popular applications.   Instructions for installing Nmap on
 the most popular *BSD variants follow.</para>
 
 <sect2 id="inst-openbsd"><title>OpenBSD Binary Packages and Source Ports Instructions</title>
+<indexterm><primary>OpenBSD</primary><secondary>installation on</secondary></indexterm>
 
 <para>According to the <ulink
 url="http://www.openbsd.org/faq/">OpenBSD FAQ</ulink>, users
@@ -1012,6 +1096,7 @@ Or obtain it from the OpenBSD distribution CD-ROM.</para></listitem>
 </sect2>
 
 <sect2 id="inst-freebsd"><title>FreeBSD Binary Package and Source Ports Instructions</title>
+<indexterm><primary>FreeBSD</primary></indexterm>
 
 <para>The FreeBSD project has a whole <ulink
 url="http://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/ports.html">chapter</ulink>
@@ -1045,18 +1130,23 @@ chapter referenced above.</para></listitem>
 </sect2>
 
 <sect2 id="inst-netbsd"><title>NetBSD Binary Package Instructions</title>
+<indexterm><primary>NetBSD</primary></indexterm>
 <para>NetBSD has packaged Nmap for an enormous number of platforms, from the normal i386 to Playstation 2, PowerPC, VAX, SPARC, MIPS, Amiga, ARM, and several platforms that I have never even heard of!  Unfortunately they are not very up-to-date.  A list of NetBSD Nmap packages is available from <ulink url="ftp://ftp.netbsd.org/pub/NetBSD/packages/pkgsrc/net/nmap/README.html" /> and a description of using their package system to install applications is available at <ulink url="http://www.netbsd.org/Documentation/pkgsrc/using.html#id2956484" />.</para>
 </sect2>
 </sect1>
 
-<sect1 id="inst-other-platforms"><title>Amiga, HP-UX, IRIX, and Other Platforms<indexterm><primary>installation</primary><secondary>on other platforms</secondary></indexterm></title>
+<sect1 id="inst-other-platforms"><title>Amiga, HP-UX, IRIX, and Other Platforms</title>
+<indexterm><primary>AmigaOS</primary></indexterm>
+<indexterm><primary>HP-UX</primary></indexterm>
+<indexterm><primary>IRIX</primary></indexterm>
 
 
 
 <para>One of the wonders of Open Source development is that resources
 are often biased towards what people find exciting rather than having
 an exclusive focus on profits as most corporations do.  It is along
-those lines that the Amiga port came about.  Diego Casorran performed
+those lines that the Amiga port came about.  Diego Casorran
+<indexterm><primary>Casorran, Diega</primary></indexterm>performed
 most of the work and sent in a clean patch which was integrated into
 the main Nmap distribution.  In general, AmigaOS users should be able
 to simply follow the source compilation instructions in <xref
@@ -1072,7 +1162,9 @@ sending a report with full details to the <citetitle>nmap-dev</citetitle> mailin
 improves support on your platform, please email it to <citetitle>nmap-dev</citetitle> or to me at <email>fyodor@insecure.org</email>.</para>  
 </sect1>
 
-<sect1 id="inst-removing-nmap"><title>Removing Nmap<indexterm><primary>uninstallation</primary></indexterm></title>
+<sect1 id="inst-removing-nmap"><title>Removing Nmap</title>
+<indexterm><primary>uninstallation</primary></indexterm>
+<indexterm><primary>removal</primary></indexterm>
 
 <para>If your purpose for removing Nmap is
 simply to upgrade to the latest version, you can usually use the
@@ -1086,7 +1178,9 @@ megabytes of disk space it consumes.</para>
 
 <para>How to remove Nmap depends on how
 you installed it initially (see previous sections).  Ease of removal (and other maintenance) is a major advantage of most binary packages.  For example, when Nmap is installed using
-the RPM system common on Linux distributions, it can be removed by
+the RPM
+<indexterm><primary>RPM</primary></indexterm>
+system common on Linux distributions, it can be removed by
 running the command <command>rpm -e nmap
 zenmap</command> as root.  Analogous options are offered by
 most other package managers&mdash;consult their documentation for further
