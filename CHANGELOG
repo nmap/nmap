@@ -964,7 +964,7 @@ o Zenmap now gives better errors to stdout when it can't even pop up a
   dialog box (such as when PyGTK can't be loaded). [David]
 
 o Fixed a Zenmap crash which occurred on Mac OS X and possibly other
-  platforms.  The error message aid: "object of type
+  platforms.  The error message said: "object of type
   'ScanHostDetailsPage' has no len()". [David]
 
 o Fixed a crash which occurred when an NSE script called
