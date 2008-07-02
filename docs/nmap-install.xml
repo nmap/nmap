@@ -1118,6 +1118,6 @@ versions 4.50 or higher, the following commands remove it.</para>
 </screen>
 <para>You may have to adjust the above commands slightly if you
 specified <option>--prefix</option> or other install-path option when
-first installing Nmap.  The files relating to zenmap, nmapfe, and xnmap do not exist if you did not install the <application>Zenmap</application> frontend initially.  The Python directory may also be in a different place depending on your Python version and configuration.</para>
+first installing Nmap.  The files relating to zenmap, nmapfe, and xnmap do not exist if you did not install the <application>Zenmap</application> frontend initially.</para>
 
 </sect1>
