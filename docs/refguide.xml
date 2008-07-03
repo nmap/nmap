@@ -2912,7 +2912,10 @@ used to resume aborted scans.</para>
 
 <para>Nmap makes output available in five different formats.
 The default is called <literal>interactive output</literal>, and it is sent to standard
-output (stdout).  There is also <literal>normal output</literal>,
+output (stdout).
+<indexterm><primary>stdout</primary></indexterm>
+<indexterm><primary>standard output</primary></indexterm>
+There is also <literal>normal output</literal>,
 which is similar to <literal>interactive</literal> except that it
 displays less runtime information and warnings since it is expected to
 be analyzed after the scan completes rather than interactively.</para>
@@ -2949,7 +2952,10 @@ character as the argument to one of the format types.  This causes
 Nmap to deactivate interactive output, and instead print
 results in the format you specified to the standard output stream.  So the
 command <command>nmap -oX - target</command> will send only XML output to
-stdout.  Serious errors may still be printed to the normal error
+stdout.
+<indexterm><primary>stdout</primary></indexterm>
+<indexterm><primary>standard output</primary></indexterm>
+Serious errors may still be printed to the normal error
 stream, stderr.</para>
 
 <para>Unlike some Nmap arguments, the space between the logfile option
