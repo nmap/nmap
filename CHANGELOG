@@ -8,6 +8,8 @@ o Fixed the "resolution errors not showing up" bug. Actually, from now
   stderr is also redirected there (until now, only stdout was
   displayed). [Vladimir]
 
+o NSE now works with the Ping Scan (-sP) to execute host scripts. [Kris]
+
 Nmap 4.68 [2008-6-28]
 
 o Doug integrated all of your version detection submissions and

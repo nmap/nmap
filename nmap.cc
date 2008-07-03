@@ -1622,7 +1622,7 @@ int nmap_main(int argc, char *argv[]) {
       if (currenths->flags & HOST_UP && !o.listscan) 
 	o.numhosts_up++;
     
-    if ((o.pingscan && !o.traceroute) || o.listscan) {
+    if ((o.pingscan && !o.traceroute && !o.script) || o.listscan) {
 	/* We're done with the hosts */
 	log_write(LOG_XML, "<host>");
 	write_host_status(currenths, o.resolve_all);

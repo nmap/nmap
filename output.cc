@@ -509,6 +509,9 @@ void printportoutput(Target *currenths, PortList *plist) {
 
   vector<const char *> saved_servicefps;
 
+  if (o.pingscan)
+    return;
+
   log_write(LOG_XML, "<ports>");
   int prevstate = PORT_UNKNOWN;
   int istate;
