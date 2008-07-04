@@ -150,7 +150,7 @@ The reference manual is also
       and produce results below the port table.  <xref
       linkend="nse-ex1"/> shows a typical script scan.  Examples of
       service scripts producing output are <literal>Stealth SSH
-      Version</literal>, which tricks some SSH servers into divulging
+      version</literal>, which tricks some SSH servers into divulging
       version information without logging the attempt as they normally
       would, <literal>Service Owner</literal>, which connects to open
       ports, then performs a reverse-identd query to determine what
@@ -217,7 +217,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
           <literal>version</literal>, <literal>discovery</literal>,
           <literal>vuln</literal>, <literal>auth</literal> and
           <literal>default</literal>.
-          Categories are not case
+          Category names are not case
           sensitive.  The following list describes each category.</para>
 
      <variablelist>
@@ -513,8 +513,8 @@ categories.</para>
       <para>
         Another option which has effect on the scripting engine is 
 	<option>-A</option>.
-        <indexterm><primary><option>-A</option></primary></indexterm>
-        The advance/aggressive mode of Nmap implies
+        <indexterm><primary><option>-A</option></primary><secondary>features enabled by</secondary></indexterm>
+        The advanced/aggressive mode of Nmap implies
 	the option <option>-sC</option>.
       </para>
 
@@ -689,7 +689,7 @@ that.</para>
     </para>
 
     <para>
-      The second part of the Nmap scripting engine is the NSE library, which
+      The second part of the Nmap Scripting Engine is the NSE library, which
       connects Lua and Nmap. This layer
       handles issues such as initialization of the Lua interpreter, 
       scheduling of parallel script execution, script retrieval and
@@ -986,7 +986,7 @@ that.</para>
 	  interpreter, they are very different in syntax and not as
 	  powerful as standard regular expressions.  So we have
 	  integrated Perl compatible regular expressions into Lua
-	  using libPCRE and a modified version of the Lua PCRE library
+	  using PCRE and a modified version of the Lua PCRE library
 	  written by Reuben Thomas
           <indexterm><primary>Thomas, Reuben</primary></indexterm>
           and Shmuel Zeigerman.
@@ -994,21 +994,22 @@ that.</para>
           These are
 	  the same sort of regular expressions used by Nmap version
 	  detection.  The main modification to their library is that
-	  the NSE version only supports PCRExpressions instead of both
+	  the NSE version only supports PCRE expressions instead of both
 	  PCRE and POSIX patterns. In order to maintain a high script
-	  execution speed, the library interfacing with libPCRE is
+	  execution speed, the library interfacing with PCRE is
 	  kept very thin. It is not integrated as seamlessly as the
 	  Lua string pattern API. This allows script authors to decide
-	  when to use PCRE expressions versus Lua patterns.  PCRE
+	  when to use PCRE expressions versus Lua patterns.  The use of PCRE
 	  involves a separate pattern compilation step, which saves
 	  execution time when patterns are reused.  Compiled patterns
 	  can be cached in the NSE registry and reused by other
 	  scripts. The PCRE functions reside inside the <literal>pcre</literal> 
+          <indexterm><primary><varname>pcre</varname> NSE module</primary></indexterm>
 	  namespace.
 	  </para>
 
       <indexterm><primary>Perl Compatible Regular Expressions (PCRE)</primary><secondary>security vulnerabilities in</secondary></indexterm>
-      <warning><para>LibPCRE has a history of security vulnerabilities
+      <warning><para>PCRE has a history of security vulnerabilities
       allowing attackers who are able to compile arbitrary regular
       expressions to execute arbitrary code.  More such
       vulnerabilities may be discovered in the future.  These have
@@ -1503,10 +1504,10 @@ if(s) code_to_be_done_on_match end
 
 	<para>URL manipulation functions have obvious uses. Fortunately
         there is already an implementation of URL generation functions
-        inside the Lua-socket package, which is fairly complete and
+        inside the Lua <varname>socket</varname> package, which is fairly complete and
         <ulink
         url="http://www.cs.princeton.edu/~diego/professional/luasocket/old/luasocket-2.0-alpha/url.html">well
-        documented</ulink>. For NSE, Lua-socket's URL module was
+        documented</ulink>. For NSE, the <varname>url</varname> module was
         extended with two functions:</para>
 
 	<variablelist>
@@ -1621,8 +1622,8 @@ if(s) code_to_be_done_on_match end
 		  table like the host table passed by nmap. The second argument
 		  is either the port number or a table like the port table passed
 		  by nmap. SSL is used for the request if either <literal>port.service</literal>
-		  equals <literal>"https"</literal> or <literal>port.version.service_tunnel</literal>
-		  equals <literal>"ssl"</literal>.  The third argument is the request. The fourth
+		  equals <literal>https</literal> or <literal>port.version.service_tunnel</literal>
+		  equals <literal>ssl</literal>.  The third argument is the request. The fourth
 		  argument is a table for further options. You can specify a timeout
 		  for the socket operations with the timeout key.
 		  </para>
@@ -1990,7 +1991,9 @@ if(s) code_to_be_done_on_match end
 	    <term><option>host.interface</option>
 	      </term>
 	    <listitem>
-	      <para>A string containing the interface name (dnet-style) through 
+	      <para>A string containing the interface name (dnet-style)
+              <indexterm><primary>libdnet</primary></indexterm>
+              through 
 		  which packets to the host are sent.
 		  </para>
 	    </listitem>
@@ -2387,6 +2390,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	    <listitem>
 	      <para>
 		  For the provided dnet-style
+                  <indexterm><primary>libdnet</primary></indexterm>
 		  <literal>interface_name</literal>,
 		  <literal>nmap.get_interface_link()</literal> returns
 		  what kind of link level hardware the interface
@@ -2408,7 +2412,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	To allow for efficient and parallelizable network I/O, NSE
 	provides an interface to Nsock, the Nmap socket library. The
 	smart callback mechanism Nsock uses is fully transparent to
-	NSE scripts. The main benefit of Nmap-NSE sockets is that they
+	NSE scripts. The main benefit of NSE's sockets is that they
 	never block on I/O operations, allowing many scripts to be run in parallel.
 	The I/O parallelism is fully transparent to authors of NSE scripts.  
 	In NSE you can either program as if you were using a single non
@@ -2436,7 +2440,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	    <listitem>
 	      <para>
 		The <literal>new_socket()</literal> Nmap call returns an
-		Nmap-NSE socket object which is the recommended method for network
+		NSE socket object which is the recommended method for network
 		I/O. It provides facilities to perform communication using the
 		UDP, TCP and SSL protocol in a uniform manner. 
 	      </para>
@@ -2450,13 +2454,13 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	    <listitem>
 	    
 	      <para>
-		The connect method of Nmap-NSE socket objects will put
+		The connect method of NSE socket objects will put
 		the socket in a state ready for communication. It
 		takes as arguments a host descriptor (either an IP
 		address or a host name), a port number and optionally
 		a protocol. The protocol must be one of
-		<literal>"tcp"</literal>, <literal>"udp"</literal> or
-		<literal>"ssl"</literal>. By default the connect call
+		<literal>tcp</literal>, <literal>udp</literal> or
+		<literal>ssl</literal>. By default the connect call
 		will attempt to open a TCP connection. On success the
 		returned value of status is
 		<literal>true</literal>. If the connection attempt has
@@ -2802,7 +2806,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 <listitem><para><literal>device</literal>&mdash;the dnet-style interface name of the device you want to capture from.</para></listitem>
 <listitem><para><literal>snaplen</literal>&mdash;defines the length of each packet you want to capture (similar to the <option>-s</option> option to <command>tcpdump</command>)</para></listitem>
 <listitem><para><literal>promisc</literal>&mdash;should be set to <literal>1</literal> if the interface should activate promiscuous mode, and zero otherwise.</para></listitem>
-<listitem><para><literal>test_function</literal>&mdash;callback function used to compute the <literal>packet-hash</literal></para></listitem>
+<listitem><para><literal>test_function</literal>&mdash;callback function used to compute the <literal>packet hash</literal></para></listitem>
 <listitem><para><literal>bpf</literal>&mdash;a string describing a Berkeley packet filter expression (like those provided to <command>tcpdump</command>)</para></listitem>
 </itemizedlist>
 	    </listitem>
@@ -3370,7 +3374,7 @@ end
       efficiently recognize the vast majority of protocols with a
       simple pattern matching syntax.  Some protocols require a more
       complex approach, and a generalized scripting language is
-      perfect for this.  Skype2 is one such protocol.  It pretends to
+      perfect for this.  Skype&nbsp;v2 is one such protocol.  It pretends to
       be an http server, requiring multiple queries to determine its
       true nature.  NSE has been integrated into Nmap's version
       detection framework to handle these cases. The scripts which
@@ -3524,7 +3528,7 @@ categories = {"discovery"}
 </programlisting>
 
 <para>You can use the facilities provided by the nselib (<xref
-linkend="nse-library"/>) by <literal>requiring</literal> them.  Here
+linkend="nse-library"/>) with <literal>require</literal>.  Here
 we want to use shorter port rules.</para>
 
 <programlisting>
@@ -3610,7 +3614,7 @@ end
       <indexterm><primary><literal>Service owner</literal> script</primary></indexterm>
       <indexterm><primary>auth service</primary></indexterm>
 	  <para><filename>showOwner.nse</filename> demonstrates the flexibility
-	  of the NSE, which is unmatched by other parts of Nmap. If the target
+	  of NSE, which is unmatched by other parts of Nmap. If the target
 	  is running an <literal>identd</literal> daemon it connects to it for
 	  each running service and tries to identify its owner.
 	  </para>
@@ -3663,7 +3667,7 @@ action = function(host, port)
   local owner = ""
 </programlisting>
 
-<para>Scripts can open any number of connection they want.</para>
+<para>Scripts may open any number of connections.</para>
 
 <programlisting>
   local client_ident = nmap.new_socket()
@@ -3707,7 +3711,7 @@ end
     <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>implementation</secondary></indexterm>
 	<para>
 	Now how does all this work? The following section describes
-	some interesting aspects of the NSE. While the focus primarily lies on 
+	some interesting aspects of NSE. While the focus primarily lies on 
 	giving script writers a better feeling of what happens with scripts, it 
 	should also provide a starting point for understanding (and extending) the 
 	NSE sources.
@@ -3769,7 +3773,7 @@ end
 			<para>The <emphasis>debug</emphasis> library (namespace: 
 			<literal>debug</literal>)&mdash;The 
 			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.9">debug library</ulink> provides you with a somewhat lower level API
-			to the Lua-interpreter. Through it you can access functions along 
+			to the Lua interpreter. Through it you can access functions along 
 			the execution stack, get function closures and object metatables,
 			etc. 
 			</para>
@@ -3778,7 +3782,7 @@ end
 
 <para>In addition to loading the libraries provided with Lua, the functions
 in the <literal>nmap</literal> namespace are also loaded.  The search
-path for modules is set to the default one prepended by the nselib
+path for modules is set to the default one prepended by the <filename>nselib</filename>
 directory (which is searched in the locations Nmap searches for its
 data files and scripts).  In this step the provided script arguments
 also get stored inside the registry.
@@ -3838,7 +3842,7 @@ ports.
 Therefore it is advisable to leave the rules as simple as possible and
 to do all the computation inside the <literal>action</literal>, as a script will only be
 executed if it is run against a specific target. After the check those script-target combinations
-get their own <ulink url="http://www.lua.org/manual/5.1/manual.html#2.11">Lua-thread</ulink>. A
+get their own <ulink url="http://www.lua.org/manual/5.1/manual.html#2.11">Lua thread</ulink>. A
 thread running against a host will have only a hostrule passed to the action closure whereas
 a thread running against a port will have both a hostrule and portrule passed. Each thread
 is stored with information relevant to the thread. This information
@@ -3892,12 +3896,12 @@ The mainloop function will work on each runlevel grouping of threads in order.
   Basically C modules consist of the
 	  functions they provide to Lua, which have to be of type <ulink url="http://www.lua.org/manual/5.1/manual.html#lua_CFunction">lua_CFunction</ulink>. Additionally they have to contain a function
 	  which is used to actually open the module. By convention these function names are <literal>luaopen_<replaceable>modulename</replaceable></literal>.
-	  A good starting point for writing such modules is provided with
+	  A good starting point for writing such modules is provided by
 	  <filename>bit.c</filename>
-          <indexterm><primary><varname>bite</varname> NSE module</primary></indexterm>
-          and <filename>pcre.c</filename> inside
-	  the <filename>nselib/</filename> subdirectory of Nmap's source tree, 
-	  which are two C modules already provided by the nselib. C modules
+          <indexterm><primary><varname>bit</varname> NSE module</primary></indexterm>
+          inside
+	  the <filename>nselib/</filename> subdirectory of Nmap's source tree.
+	  <varname>bit</varname> is a C module already provided by the nselib. C modules
 	  basically are shared libraries which get loaded at runtime by Lua. 
 	  </para>
 	  <para>
@@ -3945,7 +3949,7 @@ The mainloop function will work on each runlevel grouping of threads in order.
 	  Nmap's Visual Studio solution file
 	  (<filename>mswin32\nmap.sln</filename>) and make sure that
 	  <filename>nse_bitlib.vcproj</filename> depends on your project,
-          because it is there nselib-modules get copied to their final destinations and are included in Nmap.
+          because it is there that nselib modules get copied to their final destinations and are included in Nmap.
 	  </para>
 	</sect2>
   </sect1>
