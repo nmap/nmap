@@ -1,8 +1,10 @@
+<indexterm class="startofrange" id="nse-indexterm"><primary>Nmap Scripting Engine (NSE)</primary></indexterm>
+<indexterm><primary>scripting</primary><see>Nmap Scripting Engine</see></indexterm>
+<indexterm><primary>NSE</primary><see>Nmap Scripting Engine</see></indexterm>
+
 <sect1 id="nse-intro">
     <title>Introduction</title>
 
-    <indexterm><primary>Nmap Scripting Engine</primary></indexterm>
-    <indexterm><primary>scripting</primary><see>Nmap Scripting Engine</see></indexterm>
     <para>The Nmap Scripting Engine (NSE) is one of Nmap's most
     powerful and flexible features.  It allows users to write (and
     share) simple scripts to automate a wide variety of networking
@@ -11,10 +13,12 @@
     growing and diverse set of scripts distributed with Nmap, or write
     their own to meet custom needs.</para>
 
-    <para>The Nmap project would like to thank Diman Todorov for
-    his excellent work building the initial NSE implementation and
-    writing much of this documentation.  Stoiko Ivanov also
-    contributed greatly.  The tasks we had in mind when
+    <para>The Nmap project would like to thank Diman Todorov
+    <indexterm><primary>Todorov, Diman</primary></indexterm>
+    for his excellent work building the initial NSE implementation and
+    writing much of this documentation.  Stoiko Ivanov
+    <indexterm><primary>Ivanov, Stoiko</primary></indexterm>
+    also contributed greatly.  The tasks we had in mind when
     creating the system are:</para>    
 
     <variablelist>
@@ -30,7 +34,9 @@
 
       </varlistentry>
       <varlistentry>
-        <term>More sophisticated version detection</term>
+        <term>
+        <indexterm><primary>version detection</primary><secondary>using NSE</secondary></indexterm>
+        More sophisticated version detection</term>
         <listitem>
           <para>The Nmap version detection system (<xref linkend="vscan"/>)
        is able to recognize thousands of different services through
@@ -47,7 +53,9 @@
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term>Vulnerability detection</term>
+        <term>
+        <indexterm><primary>vulnerability detection</primary></indexterm>
+        Vulnerability detection</term>
         <listitem>
 
           <para>When a new vulnerability is discovered, you often want
@@ -65,7 +73,9 @@
 	   backdoors to enable later reentry.  Some of these can be
 	   detected by Nmap's regular expression based version detection.
 	   For example, within hours of the MyDoom worm hitting the
-	   Internet, Jay Moran posted an Nmap version detection probe and
+	   Internet, Jay Moran
+           <indexterm><primary>Moran, Jay</primary></indexterm>
+           posted an Nmap version detection probe and
 	   signature so that others could quickly scan their networks.
 	   For more complex worms and backdoors, NSE is needed
 	   instead.
@@ -79,9 +89,12 @@
 	   As a general scripting language, NSE could even
 	   be used to exploit vulnerabilities rather than just find them.
 	   The capability to add custom exploit scripts may be valuable
-	   for some people (particularly penetration testers), though we aren't
+	   for some people (particularly penetration testers),
+           <indexterm><primary>penetration testing</primary></indexterm>
+           though we aren't
 	   planning to turn Nmap into an exploitation framework like
 	   <ulink url="http://www.metasploit.com">Metasploit</ulink>.
+           <indexterm><primary><application>Metasploit</application></primary></indexterm>
        </para>
         </listitem>
       </varlistentry>
@@ -96,6 +109,8 @@
     <para>
       Scripts are written in the
       embedded <ulink url="http://www.lua.org/">Lua programming language</ulink>.  
+      <indexterm><primary>Lua programming language</primary></indexterm>
+      <indexterm><primary>Lua programming language</primary><seealso>Nmap Scripting Engine</seealso></indexterm>
       The language itself is well documented in the books 
 <web>
       <citetitle><ulink url="http://www.amazon.com/exec/obidos/ASIN/8590379825/secbks-20">Programming
@@ -111,17 +126,23 @@
 The reference manual is also 
       <ulink url="http://www.lua.org/manual/5.1/">freely available
 	online</ulink>, as is the 
-      <ulink url="http://www.lua.org/pil/">first edition of Programming in
-	Lua</ulink>. Given the availability of these excellent general
+      <ulink url="http://www.lua.org/pil/">first edition of <citetitle>Programming in
+	Lua</citetitle></ulink>. Given the availability of these excellent general
       Lua programming references, this document only covers aspects and
       extensions specific to Nmap's scripting engine.
     </para>
     <para>
 
-      NSE is activated with the <option>-sC</option> option (or
-      <option>--script</option> if you wish to specify a custom set of
-      scripts) and results are integrated into Nmap normal and XML
-      output.  Two types of scripts are supported: service and host
+      NSE is activated with the <option>-sC</option>
+      <indexterm><primary><option>-sC</option></primary></indexterm>
+      option (or <option>--script</option>
+      <indexterm><primary><option>--script</option></primary></indexterm>
+      if you wish to specify a custom set of
+      scripts) and results are integrated into Nmap normal
+      <indexterm><primary>normal output</primary></indexterm>
+      and XML output.
+      <indexterm><primary>XML output</primary></indexterm>
+      Two types of scripts are supported: service and host
       scripts.  Service scripts relate to a certain open port
       (service) on the target host, and any results they produce are included
       next to that port in the Nmap output port table.  Host scripts,
@@ -137,10 +158,12 @@ The reference manual is also
       which simply grabs the title of the root path of any web servers
       found.  A sample host script is <literal>RIPE Query</literal>,
       which looks up and reports target IP ownership information.
+      <indexterm><primary>script names, examples of</primary></indexterm>
 
     </para>
     <example id="nse-ex1">
       <title>Typical NSE Output</title>
+<indexterm><primary><option>-sC</option></primary><secondary>example of</secondary></indexterm>
 <screen>
 $ ./nmap -sC localhost -p 22,23,80,113
 
@@ -167,31 +190,40 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
     <title>Usage and Examples</title>
     <para>
       While NSE has a complex implementation for efficiency, it is
-      strikingly easy to use.  Simply specify <option>-sC</option> to
-      enable the most common scripts.  Or specify the
-      <option>--script</option> option to choose your own scripts to
+      strikingly easy to use.  Simply specify <option>-sC</option>
+      <indexterm><primary><option>-sC</option></primary></indexterm>
+      to enable the most common scripts.  Or specify the
+      <option>--script</option>
+      <indexterm><primary><option>--script</option></primary></indexterm>
+      option to choose your own scripts to
       execute by providing categories, script file names, or the name of
       directories full of scripts you wish to execute.  You can customize 
 	  some scripts by providing arguments to them via the
-	  <option>--script-args</option> option. The two
-      remaining options, <option>--script-trace</option> and
-      <option>--script-updatedb</option>, are generally only used for
-      script debugging and development.
+	  <option>--script-args</option>
+          <indexterm><primary><option>--script-args</option></primary></indexterm>
+          option. The two remaining options, <option>--script-trace</option>
+          <indexterm><primary><option>--script-trace</option></primary></indexterm>
+          and <option>--script-updatedb</option>,
+          <indexterm><primary><option>--script-updatedb</option></primary></indexterm>
+          are generally only used for script debugging and development.
     </para>
 
     <sect2 id="nse-categories"><title>Script Categories</title>
+    <indexterm><primary>script categories</primary></indexterm>
 
     <para>NSE scripts define a list of categories they belong to.
           Currently defined categories are <literal>safe</literal>,
           <literal>intrusive</literal>, <literal>malware</literal>,
           <literal>version</literal>, <literal>discovery</literal>,
           <literal>vuln</literal>, <literal>auth</literal> and
-          <literal>default</literal>.  Categories are not case
+          <literal>default</literal>.
+          Categories are not case
           sensitive.  The following list describes each category.</para>
 
      <variablelist>
         <varlistentry>
           <term>
+            <indexterm><primary><literal>safe</literal></primary> script category</indexterm>
             <option>safe</option>
           </term>
           <listitem>
@@ -210,6 +242,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
+            <indexterm><primary><literal>intrusive</literal></primary> script category</indexterm>
             <option>intrusive</option>
           </term>
           <listitem>
@@ -224,6 +257,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
+            <indexterm><primary><literal>malware</literal></primary> script category</indexterm>
             <option>malware</option>
           </term>
           <listitem>
@@ -234,6 +268,8 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
+            <indexterm><primary><literal>version</literal></primary> script category</indexterm>
+            <indexterm><primary>version detection</primary><seealso><literal>version</literal> script caetgory</seealso></indexterm>
             <option>version</option>
           </term>
           <listitem>
@@ -249,6 +285,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
+            <indexterm><primary><literal>discovery</literal></primary> script category</indexterm>
             <option>discovery</option>
           </term>
           <listitem>
@@ -260,6 +297,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
+            <indexterm><primary><literal>vuln</literal></primary> script category</indexterm>
             <option>vuln</option>
           </term>
           <listitem>
@@ -270,6 +308,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
+            <indexterm><primary><literal>auth</literal></primary> script category</indexterm>
             <option>auth</option>
           </term>
           <listitem>
@@ -280,6 +319,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
+            <indexterm><primary><literal>default</literal></primary> script category</indexterm>
             <option>default</option>
           </term>
           <listitem>
@@ -298,6 +338,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
     </sect2>
 	<sect2 id="nse-args">
       <title>Arguments to Scripts</title>
+      <indexterm><primary>script arguments</primary></indexterm>
       <para>
       You can pass arguments to NSE scripts via the
 	  <option>--script-args</option> option. The script-arguments generally are
@@ -311,6 +352,8 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 	  look like:
 	  </para>
 	  <para>
+<indexterm><primary><option>-sC</option></primary><secondary>example of</secondary></indexterm>
+<indexterm><primary><option>--script-args</option></primary><secondary>example of</secondary></indexterm>
 <userinput>
 $ nmap -sC --script-args user=foo,pass=bar,anonFTP={pass=ftp@foobar.com}
 </userinput>
@@ -339,10 +382,8 @@ $ nmap -sC --script-args user=foo,pass=bar,anonFTP={pass=ftp@foobar.com}
       <variablelist>
         <varlistentry>
           <term>
+            <indexterm><primary><option>-sC</option></primary></indexterm>
             <option>-sC</option>
-            <indexterm>
-              <primary>-sC</primary>
-            </indexterm>
           </term>
           <listitem>
           <para>Performs a script scan using the default set of scripts. It is 
@@ -353,7 +394,9 @@ $ nmap -sC --script-args user=foo,pass=bar,anonFTP={pass=ftp@foobar.com}
         </varlistentry>
 
      <varlistentry>
-        <term><option>--script &lt;script-categories|directory|filename|all&gt;</option><indexterm><primary>--script</primary></indexterm></term>
+        <term>
+          <indexterm><primary><option>--script</option></primary></indexterm>
+          <option>--script &lt;script-categories|directory|filename|all&gt;</option></term>
 
 <listitem>
 
@@ -367,13 +410,15 @@ will try to interpret the arguments at first as categories and afterwards
 as files or directories.  Absolute paths are used as is, relative paths are
 searched in the following places until found:
 <indexterm><primary>data files</primary><secondary>directory search order</secondary></indexterm>
-<indexterm><primary>scripts</primary><secondary>directory locations</secondary></indexterm>
-<indexterm><primary>NMAPDIR environment variable</primary></indexterm>
+<indexterm><primary>scripts</primary><secondary>location of</secondary></indexterm>
 <filename>--datadir/</filename>; 
+<indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm>
 <filename>$(NMAPDIR)/</filename>; 
 <filename>~user/nmap/</filename> (not searched on Windows); 
+<indexterm><primary><filename>NMAPDATADIR</filename></primary></indexterm>
 <filename>NMAPDATADIR/</filename> or  
-<filename>./</filename>.  A <filename>scripts/</filename> subdirectory is also tried in each of these.  Give the argument <literal>all</literal> to execute all scripts in the Nmap script database.
+<filename>./</filename>.  A <filename>scripts/</filename> subdirectory
+is also tried in each of these.  Give the argument <literal>all</literal> to execute all scripts in the Nmap script database.
 </para>
 
 <para>If a directory is specified and found, Nmap loads all NSE
@@ -387,7 +432,9 @@ extension does not have to be <literal>nse</literal>.
 <para>Nmap scripts are stored in a <filename>scripts</filename>
 subdirectory of the Nmap data directory
 (see <xref linkend="data-files"/>) by default.  Scripts are indexed in a database stored in
-<filename>scripts/script.db</filename>. The database lists all of the
+<filename>scripts/script.db</filename>.
+<indexterm><primary><filename>script.db</filename></primary></indexterm>
+The database lists all of the
 scripts in each category. A single script may be in several
 categories.</para>
 
@@ -396,10 +443,8 @@ categories.</para>
 
         <varlistentry>
           <term>
+            <indexterm><primary><option>--script-args</option></primary></indexterm>
             <option>--script-args</option>
-            <indexterm>
-              <primary>--script-args</primary>
-            </indexterm>
           </term>
           <listitem>
             <para>provides arguments to the scripts. See <xref
@@ -408,10 +453,8 @@ categories.</para>
         </varlistentry>
         <varlistentry>
           <term>
+            <indexterm><primary><option>--script-trace</option></primary></indexterm>
             <option>--script-trace</option>
-            <indexterm>
-              <primary>--script-trace</primary>
-            </indexterm>
           </term>
           <listitem>
             <para>
@@ -431,10 +474,8 @@ categories.</para>
         </varlistentry>
         <varlistentry>
           <term>
+            <indexterm><primary><option>--script-updatedb</option></primary></indexterm>
             <option>--script-updatedb</option>
-            <indexterm>
-              <primary>--script-updatedb</primary>
-            </indexterm>
           </term>
           <listitem>
             <para>This option is only useful if you have added or
@@ -446,7 +487,9 @@ categories.</para>
               which the script belongs to.  Categories may be
               specified with the <option>--script</option> option. For
               efficiency reasons, NSE generates a
-              <filename>script.db</filename> file which maps
+              <filename>script.db</filename>
+              <indexterm><primary><filename>script.db</filename></primary></indexterm>
+              file which maps
               categories to the scripts they contain. If you changed
               tag directives or added/removed scripts, run
               <command>nmap --script-updatedb</command>. 
@@ -457,15 +500,21 @@ categories.</para>
 
       <para>
         Some of the Nmap options have effects on script scans. The most
-        prominent of these is <option>-sV</option>. A version scan executes
-        the scripts in the <literal>version</literal> category. The scripts
+        prominent of these is <option>-sV</option>.
+        <indexterm><primary><option>-sV</option></primary></indexterm>
+        A version scan executes
+        the scripts in the <literal>version</literal> category.
+        <indexterm><primary><literal>version</literal> script category</primary></indexterm>
+        The scripts
         in this category are slightly different than other scripts. Their
         output blends in with the version scan and they do not produce any
         script scan output.
       </para>
       <para>
         Another option which has effect on the scripting engine is 
-	<option>-A</option>. The advance/aggressive mode of Nmap implies
+	<option>-A</option>.
+        <indexterm><primary><option>-A</option></primary></indexterm>
+        The advance/aggressive mode of Nmap implies
 	the option <option>-sC</option>.
       </para>
 
@@ -486,6 +535,8 @@ categories.</para>
 	Tracing a specific script.
       </para>
       <para>
+        <indexterm><primary><option>--script</option></primary><secondary>example of</secondary></indexterm>
+        <indexterm><primary><option>--script-trace</option></primary><secondary>example of</secondary></indexterm>
         <userinput> 
 	  $ nmap --script=./showSSHVersion.nse --script-trace hostname
       </userinput>
@@ -499,6 +550,7 @@ categories.</para>
     </para>
     <sect2 id="nse-format-id">
       <title><literal>id</literal> Field</title>
+      <indexterm><primary><varname>id</varname> script variable</primary></indexterm>
       <para>
 	The script's <literal>id</literal> field is displayed in the Nmap output 
 	table if the script produces any output.  It should be unique so users
@@ -507,10 +559,12 @@ categories.</para>
 	still being meaningful enough for users to recognize.  Some
 	good examples are <literal>RIPE query</literal>, <literal>HTML
 	title</literal>, and <literal>Kibuv worm</literal>.
+        <indexterm><primary>script names, examples of</primary></indexterm>
       </para>
     </sect2>
     <sect2 id="nse-format-description">
       <title><literal>description</literal> Field</title>
+      <indexterm><primary><varname>description</varname> script variable</primary></indexterm>
       <para>
 	The description describes what the script is testing for and
 	any critical notes the user must be aware of. A good
@@ -524,6 +578,7 @@ categories.</para>
 
     <sect2 id="nse-format-author">
       <title><literal>author</literal> Field </title>
+      <indexterm><primary><varname>author</varname> script variable</primary></indexterm>
       <para>
 	The <literal>author</literal> field contains the script authors name and contact information. If you are worried about spam, you might want to omit or obscure your email address, or give your home page URL instead.  This optional field is not used by NSE, but is important for giving script authors due credit or blame. 
       </para>
@@ -531,6 +586,8 @@ categories.</para>
 
     <sect2 id="nse-format-license">
       <title><literal>license</literal> Field </title>
+      <indexterm><primary><varname>license</varname> script variable</primary></indexterm>
+      <indexterm><primary>license of scripts</primary></indexterm>
 
       <para>Nmap is a community project and we welcome all sorts of
       code contributions, including NSE scripts.  So if you write a
@@ -553,6 +610,8 @@ that.</para>
 
     <sect2 id="nse-format-runlevel">
       <title><literal>runlevel</literal> Field</title>
+      <indexterm><primary><varname>license</varname> script variable</primary></indexterm>
+      <indexterm><primary>run level of scripts</primary></indexterm>
       <para>
 	This optional field determines script execution order.  When
 	this section is absent the run level defaults to 1.0. A script
@@ -573,6 +632,9 @@ that.</para>
 
     <sect2 id="nse-format-rules">
       <title>Port and Host Rules</title>
+      <indexterm><primary><varname>portrule</varname> script variable</primary></indexterm>
+      <indexterm><primary><varname>hostrule</varname> script variable</primary></indexterm>
+      <indexterm><primary>rules in NSE</primary><see><varname>portrule</varname> and <varname>hostrule</varname></see></indexterm>
       <para>
 
 	There are two types of rules: <emphasis>host rules</emphasis>
@@ -585,6 +647,9 @@ that.</para>
 	only matched against TCP or UDP ports in the
 	<literal>open</literal>, <literal>open|filtered</literal> or
 	<literal>unfiltered</literal>
+        <indexterm><primary><literal>open</literal> port state</primary></indexterm>
+        <indexterm><primary><literal>open|filtered</literal> port state</primary></indexterm>
+        <indexterm><primary><literal>unfiltered</literal> port state</primary></indexterm>
 	states. Host rules are matched exactly once against every
 	scanned host. The action, like the rule, is a Lua function,
 	which takes a host and port table as arguments. If the script is
@@ -593,6 +658,7 @@ that.</para>
 	<xref linkend="nse-tutorial-rule"/>.</para> </sect2>
 
      <sect2 id="nse-format-action"><title>Action</title>
+      <indexterm><primary><varname>action</varname> script variable</primary></indexterm>
 
       <para>
 	The action is the heart of an NSE script.  It contains all of
@@ -611,10 +677,12 @@ that.</para>
   </sect1>
   <sect1 id="nse-language">
     <title>Script Language</title>
+    <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>parts of</secondary></indexterm>
 
     <para>
       Nmap's scripting engine is essentially three distinct
-      parts. The largest part is the embeddable Lua interpreter. This
+      parts. The largest part is the embeddable Lua
+      interpreter. This
       is a lightweight language designed for extensibility.  It offers
       a powerful and well documented API for interfacing with other
       software (such as Nmap).
@@ -629,6 +697,7 @@ that.</para>
 	  exception handling mechanism.
     </para>
 
+    <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>library</secondary></indexterm>
     <para>
       The third part of NSE is the NSE library.  This library was
       written to add special functionality and to augment the small
@@ -638,6 +707,7 @@ that.</para>
 
     <sect2 id="nse-lua">
     <title>Lua Base Language</title>
+      <indexterm><primary>Lua programming language</primary></indexterm>
       <para>
 
 	The Nmap scripting language is an embedded <ulink
@@ -646,6 +716,7 @@ that.</para>
 	API is in the Lua namespace <literal>nmap</literal>.  This
 	means that all calls to resources provided by Nmap have an
 	<literal>nmap</literal> prefix.
+        <indexterm><primary><varname>nmap</varname> NSE module</primary></indexterm>
 	<literal>nmap.new_socket()</literal>, for example, returns a
 	new socket wrapper object. The Nmap library layer also takes
 	care of initializing the Lua context, scheduling parallel
@@ -683,6 +754,7 @@ that.</para>
     </sect2>
 	</sect1>
     <sect1 id="nse-library">
+      <indexterm class="startofrange" id="nse-library-indexterm"><primary>Nmap Scripting Engine (NSE)</primary><secondary>modules</secondary></indexterm>
       <title>Lua Extensions</title>
       <para>In addition to the significant built-in capabilities of
       Lua, we have written or integrated several extensions to make
@@ -698,10 +770,14 @@ that.</para>
 
       <sect2 id="nse-bitops">
         <title>Bitwise Logical Operations</title>
+        <indexterm><primary><varname>bit</varname> NSE module</primary></indexterm>
         <para>
-	  Lua does not provide bitwise logical operations. Since they
+	  Lua does not provide bitwise logical operations.
+          <indexterm><primary>bitwise operations in NSE</primary></indexterm>
+          Since they
 	  are often useful for low-level network communication, Reuben
           Thomas'
+          <indexterm><primary>Thomas, Reuben</primary></indexterm>
          <ulink url="http://luaforge.net/projects/bitlib">bitwise operation library</ulink>
       for Lua has been
 	  integrated into NSE. The arguments to the bitwise operation
@@ -724,7 +800,7 @@ that.</para>
 	  <variablelist>
 	    <varlistentry>
 	      <term><option>bit.bnot(a)</option>
-              <indexterm><primary>bit.bnot(a)</primary></indexterm></term>
+              </term>
 	      <listitem>
 		<para>
 		  Returns the one's complement of a.
@@ -734,7 +810,7 @@ that.</para>
 	    
 	    <varlistentry>
 	      <term><option>bit.band(w1,...)</option>
-		<indexterm><primary>bit.band(w1,...)</primary></indexterm></term>
+		</term>
 	      <listitem>
 		<para>
 		  Returns the bitwise <literal>and</literal> of the
@@ -745,7 +821,7 @@ that.</para>
 	    
 	    <varlistentry>
 	      <term><option>bit.bor(w1,...)</option>
-		<indexterm><primary>bit.bor(w1,...)</primary></indexterm></term>
+		</term>
 	      <listitem>
 		<para>
 		  Returns the bitwise <literal>or</literal> of the w's.
@@ -755,7 +831,7 @@ that.</para>
 	    
 	    <varlistentry>
 	      <term><option>bit.bxor(w1,...)</option>
-		<indexterm><primary>bit.bxor(w1,...)</primary></indexterm></term>
+		</term>
 	      <listitem>
 
 		<para>
@@ -767,7 +843,7 @@ that.</para>
 	    
 	    <varlistentry>
 	      <term><option>bit.lshift(a,b)</option>
-		<indexterm><primary>bit.lshift(a,b)</primary></indexterm></term>
+		</term>
 	      <listitem>
 		<para>
 		  Returns a shifted left b places&mdash;padded with zeros.
@@ -777,7 +853,7 @@ that.</para>
 	    
 	    <varlistentry>
 	      <term><option>bit.rshift(a,b)</option>
-		<indexterm><primary>bit.rshift(a,b)</primary></indexterm></term>
+		</term>
 	      <listitem>
 		<para>
 		  Returns a shifted logically right b places.
@@ -787,7 +863,7 @@ that.</para>
 
 	    <varlistentry>
 	      <term><option>bit.arshift(a,b)</option>
-		<indexterm><primary>bit.arshift(a,b)</primary></indexterm></term>
+		</term>
 	      <listitem>
 		<para>
 		  Returns a shifted arithmetically right b places.
@@ -797,7 +873,7 @@ that.</para>
 	    
 	    <varlistentry>
 	      <term><option>bit.mod(a,b)</option>
-		<indexterm><primary>bit.mod(a,b)</primary></indexterm></term>
+		</term>
 	      <listitem>
 		<para>
 		  Returns the integer remainder of a divided by b.
@@ -810,6 +886,7 @@ that.</para>
 
       <sect2 id="nse-binlib">
         <title>Binary Data Handling</title>
+        <indexterm><primary><varname>bin</varname> NSE module</primary></indexterm>
         <para>
 	  A problem script authors often face is the necessity of encoding values
 	  into binary data. For example after analyzing a protocol the starting 
@@ -819,6 +896,7 @@ that.</para>
 	  BinLib has been added to NSE, based on 
 	  <ulink url="http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/">lpack</ulink> 
 	  by Luiz Henrique de Figueiredo.
+          <indexterm><primary>Henrique de Figueiredo, Luiz</primary></indexterm>
 
 	  The BinLib functions take a format string to encode and decode binary
 	  data. The operators of the format string are shown in <xref linkend="scripting-tbl-binlib"/>.</para>
@@ -862,7 +940,7 @@ that.</para>
 	  <variablelist>
 	    <varlistentry>
 	      <term><option>bin.pack(fmt, p1, ...)</option>
-              <indexterm><primary>bin.pack(fmt, p1, ...)</primary></indexterm></term>
+              </term>
 	      <listitem>
 		<para>
 		  Returns a binary packed string. The format string describes how 
@@ -876,7 +954,7 @@ that.</para>
 	    
 	    <varlistentry>
 	      <term><option>bin.unpack(fmt, data, [init])</option>
-		<indexterm><primary>bin.unpack(fmt, data, [init])</primary></indexterm></term>
+		</term>
 	      <listitem>
 		<para>
 		  Returns values read from the binary data string.
@@ -897,6 +975,9 @@ that.</para>
 
 
       <sect2 id="nse-pcre">
+        <indexterm class="startofrange" id="nse-pcre-indexterm"><primary><varname>pcre</varname> NSE module</primary></indexterm>
+        <indexterm><primary>Perl Compatible Regular Expressions (PCRE)</primary><secondary>in NSE</secondary></indexterm>
+        <indexterm><primary>regular expressions</primary><secondary>in NSE</secondary></indexterm>
         <title>Perl Compatible Regular Expressions</title>
 
         <para>
@@ -906,7 +987,11 @@ that.</para>
 	  powerful as standard regular expressions.  So we have
 	  integrated Perl compatible regular expressions into Lua
 	  using libPCRE and a modified version of the Lua PCRE library
-	  written by Reuben Thomas and Shmuel Zeigerman.  These are
+	  written by Reuben Thomas
+          <indexterm><primary>Thomas, Reuben</primary></indexterm>
+          and Shmuel Zeigerman.
+          <indexterm><primary>Zeigerman, Shmuel</primary></indexterm>
+          These are
 	  the same sort of regular expressions used by Nmap version
 	  detection.  The main modification to their library is that
 	  the NSE version only supports PCRExpressions instead of both
@@ -922,6 +1007,7 @@ that.</para>
 	  namespace.
 	  </para>
 
+      <indexterm><primary>Perl Compatible Regular Expressions (PCRE)</primary><secondary>security vulnerabilities in</secondary></indexterm>
       <warning><para>LibPCRE has a history of security vulnerabilities
       allowing attackers who are able to compile arbitrary regular
       expressions to execute arbitrary code.  More such
@@ -940,7 +1026,7 @@ that.</para>
 
 	    <varlistentry>
 	      <term><option>pcre.new(pattern, flags, locale)</option>
-		<indexterm><primary>pcre.new</primary></indexterm></term>
+		</term>
 	      <listitem>
 		<para>
 		  Returns a compiled regular expression. The first
@@ -976,7 +1062,7 @@ that.</para>
 
 	    <varlistentry>
 	      <term><option>pcre.flags()</option>
-		<indexterm><primary>pcre.flags</primary></indexterm></term>
+		</term>
 	      <listitem>
 		<para>
 		  Returns a table of the available PCRE option flags
@@ -993,7 +1079,7 @@ that.</para>
 
 	    <varlistentry>
 	      <term><option>pcre.version()</option>
-		<indexterm><primary>pcre.version</primary></indexterm></term>
+		</term>
 	      <listitem>
 		<para>
 		  Returns the version of the PCRE library in use as a
@@ -1004,7 +1090,7 @@ that.</para>
 
 	    <varlistentry>
 	      <term><option>pcre_obj:match(string, start, flags)</option>
-		<indexterm><primary>pcre.match</primary></indexterm></term>
+		</term>
 	      <listitem>
 		<para>
 		  Returns the start point and the end point of
@@ -1033,7 +1119,7 @@ if(s) code_to_be_done_on_match end
 
 	    <varlistentry>
 	      <term><option>pcre_obj:exec(string, start, flags)</option>
-		<indexterm><primary>pcre.exec</primary></indexterm></term>
+		</term>
 	      <listitem>
 		<para>
 		  This function is like <literal>match()</literal> except that a table returned as
@@ -1049,7 +1135,7 @@ if(s) code_to_be_done_on_match end
 
 	    <varlistentry>
 	      <term><option>pcre_obj:gmatch(string, func, n, ef)</option>
-		<indexterm><primary>pcre.gmatch</primary></indexterm></term>
+		</term>
 	      <listitem>
 		<para>
 		  Tries to match the regular expression <replaceable>pcre_obj</replaceable> against <replaceable>string</replaceable>
@@ -1071,10 +1157,12 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 
 	</variablelist>
+        <indexterm class="endofrange" startref="nse-pcre-indexterm"/>
     </sect2>
 	
 	<sect2 id="nse-lib-ipOps">
 	<title>IP Operations</title>
+        <indexterm><primary><varname>ipOps</varname> NSE module</primary></indexterm>
 	<para>
 	The <literal>ipOps</literal> module provides some functions for 
 	manipulating IPv4 addresses. The functions reside inside the 
@@ -1082,8 +1170,10 @@ if(s) code_to_be_done_on_match end
 	</para>
 	<variablelist>
 	    <varlistentry>
-	      <term><option>bool = ipOps.isPrivate("ip-string")</option>
-		  <indexterm><primary>isPrivate</primary></indexterm></term>
+	      <term>
+              <indexterm><primary>private addresses</primary><secondary>in NSE</secondary></indexterm>
+              <option>bool = ipOps.isPrivate("ip-string")</option>
+		  </term>
 	      <listitem>
 		  <para>
 		  checks whether an IP address, provided as a string in 
@@ -1096,7 +1186,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>DWORD = ipOps.todword("ip-string")</option>
-		  <indexterm><primary>todword</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  returns the IP address as DWORD value (i.e. the IP <replaceable>a.b.c.d</replaceable> becomes
@@ -1106,7 +1196,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>a,b,c,d = ipOps.get_parts_as_number("ip-string")</option>
-		  <indexterm><primary>get_parts_as_number</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  returns 4 numbers corresponding to the fields in dotted-quad notation.
@@ -1119,6 +1209,7 @@ if(s) code_to_be_done_on_match end
 	</sect2>
 	<sect2 id="nse-lib-shortport">
 	<title>Short Portrules</title>
+        <indexterm><primary><varname>shortport</varname> NSE module</primary></indexterm>
 	<para>
 	Since portrules are mostly the same for many scripts, the 
         <literal>shortport</literal> module provides functions for the most common tests.
@@ -1129,7 +1220,7 @@ if(s) code_to_be_done_on_match end
 	<variablelist>
 	    <varlistentry>
 	      <term><option>shortport.portnumber(port,[proto],[state])</option>
-		  <indexterm><primary>portnumber</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  The port argument is either a number or a table of numbers which are
@@ -1139,7 +1230,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>shortport.service(service,[proto],[state])</option>
-		  <indexterm><primary>service</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  The service argument is either a string or a table 
@@ -1155,7 +1246,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>shortport.port_or_service(port,service,[proto],[state])</option>
-		  <indexterm><primary>port_or_service</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  This is a combination of the above functions, since many scripts
@@ -1170,6 +1261,7 @@ if(s) code_to_be_done_on_match end
 	</sect2>
 	<sect2 id="nse-lib-listop">
 	<title>Functional Programming Style List Operations</title>
+        <indexterm><primary><varname>listop</varname> NSE module</primary></indexterm>
 	<para>
 	People used to programming in functional languages, such as Lisp or
         Haskell, appreciate their handling of lists very much. The <literal>listop</literal> module tries to bring much of the functionality from
@@ -1180,7 +1272,7 @@ if(s) code_to_be_done_on_match end
 	<variablelist>
 	    <varlistentry>
 	      <term><option>bool = listop.is_empty(list)</option>
-		  <indexterm><primary>is_empty</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  Returns <literal>true</literal> if the given list is empty.
@@ -1189,7 +1281,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>bool = listop.is_list(value)</option>
-		  <indexterm><primary>is_list</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  Returns <literal>true</literal> if the given value is a list (or rather a table).
@@ -1198,7 +1290,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>list = listop.map(function, list)</option>
-		  <indexterm><primary>map</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  The provided function is applied to each element of the list 
@@ -1210,7 +1302,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>value = listop.apply(function, list)</option>
-		  <indexterm><primary>apply</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  All of the elements in the list are passed to a call of <literal>
@@ -1222,7 +1314,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>list = listop.filter(predicate, list)</option>
-		  <indexterm><primary>filter</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  Returns a list containing only those elements for which the predicate
@@ -1238,7 +1330,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>list = listop.flatten(list)</option>
-	      <indexterm><primary>flatten</primary></indexterm></term>
+	      </term>
 	      <listitem>
 		  <para>
 		  Since a list can itself contain lists as elements,
@@ -1252,7 +1344,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>list = listop.append(list1, list2)</option>
-		  <indexterm><primary>append</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  Returns a list containing all elements of list1 appended by all 
@@ -1262,7 +1354,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>list = listop.cons(value1, value2)</option>
-		  <indexterm><primary>cons</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  Returns a list containing <replaceable>value1</replaceable> appended by <replaceable>value2</replaceable>, which may be
@@ -1272,7 +1364,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>list = listop.reverse(list)</option>
-		  <indexterm><primary>reverse</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  Returns a list containing all elements of the given list in inverted
@@ -1282,7 +1374,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>value = listop.car(list)</option>
-		  <indexterm><primary>car</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  Returns the first element of the given list.
@@ -1291,7 +1383,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>value = listop.ncar(list,n)</option>
-		  <indexterm><primary>ncar</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  Returns the nth (or first if n is omitted) element of the given list.
@@ -1300,7 +1392,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>value = listop.cdr(list)</option>
-		  <indexterm><primary>cdr</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  Returns a list containing all elements but the first of the 
@@ -1310,7 +1402,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>value = listop.ncdr(list, n)</option>
-		  <indexterm><primary>ncdr</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  Returns a list containing all elements but the first n of the 
@@ -1322,6 +1414,7 @@ if(s) code_to_be_done_on_match end
 	</sect2>
 	<sect2 id="nse-lib-strbuf">
 	<title>String Buffer Operations</title>
+        <indexterm><primary><varname>strbuf</varname> NSE module</primary></indexterm>
 	<para>
 	Lua's string operations are very flexible and offer an easy-to-use way
 	to manipulate strings.  Concatenation using the <literal>..</literal>
@@ -1348,7 +1441,7 @@ if(s) code_to_be_done_on_match end
 	<variablelist>
 	    <varlistentry>
 	      <term><option>buffer = strbuf.new(...)</option>
-		  <indexterm><primary>new</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
             Creates a new string buffer. The optional arguments are added
@@ -1359,7 +1452,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>buffer = strbuf.concat(strbuf1, value)</option>
-		  <indexterm><primary>concat</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  Concatenates the <literal>value</literal> (which has to be either 
@@ -1372,7 +1465,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>bool = strbuf.eqbuf(strbuf1, strbuf2)</option>
-		  <indexterm><primary>eqbuf</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  Compares <literal>strbuf1</literal> and <literal>strbuf2</literal>
@@ -1383,7 +1476,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>strbuf.clear(strbuf)</option>
-		  <indexterm><primary>clear</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  Deletes all strings in <literal>strbuf</literal>.
@@ -1392,7 +1485,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>string = strbuf.dump(strbuf, "delimiter")</option>
-		  <indexterm><primary>dump</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  Dumps <literal>strbuf</literal>'s contents as string. The second 
@@ -1406,6 +1499,7 @@ if(s) code_to_be_done_on_match end
 	</sect2>
 	<sect2 id="nse-lib-url">
 	<title>URL Manipulation Functions</title>
+        <indexterm><primary><varname>url</varname> NSE module</primary></indexterm>
 
 	<para>URL manipulation functions have obvious uses. Fortunately
         there is already an implementation of URL generation functions
@@ -1418,7 +1512,7 @@ if(s) code_to_be_done_on_match end
 	<variablelist>
 	    <varlistentry>
 	      <term><option>table = url.parse_query("query-string")</option>
-		  <indexterm><primary>parse_query</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  This function takes a <replaceable>query-string</replaceable> of the form <literal>name1=value1&amp;name2=value2...</literal> and returns a table 
@@ -1431,7 +1525,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>query_string = url.build_query(table)</option>
-		  <indexterm><primary>build_query</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  This is the inverse function to <literal>parse_query()</literal>.
@@ -1442,6 +1536,7 @@ if(s) code_to_be_done_on_match end
 	</sect2>
 	<sect2 id="nse-lib-match">
 	<title>Buffered Network I/O Helper Functions</title>
+        <indexterm><primary><varname>match</varname> NSE module</primary></indexterm>
 	<para>
 	The <literal>match</literal> module was written to provide
 	functions which can be used for delimiting data received by the
@@ -1450,7 +1545,7 @@ if(s) code_to_be_done_on_match end
 	<variablelist>
 	    <varlistentry>
 	      <term><option>start,end = match.regex("regexpattern")</option>
-		  <indexterm><primary>regex</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  	This is actually a wrapper around NSE's PCRE library <literal>exec</literal> function (see <xref linkend="nse-pcre"/>), thus
@@ -1464,7 +1559,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>start,end = match.numbytes(number)</option>
-		  <indexterm><primary>numbytes</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  	Takes a number as argument and returns that
@@ -1483,6 +1578,7 @@ if(s) code_to_be_done_on_match end
 	</sect2>
 	<sect2 id="nse-lib-http">
 	<title>HTTP Functions</title>
+        <indexterm><primary><varname>http</varname> NSE module</primary></indexterm>
 	<para>
 	The <literal>http</literal> module provides functions for dealing with the client side of the http protocol.
 	The functions reside inside the <literal>http</literal> namespace.
@@ -1497,7 +1593,7 @@ if(s) code_to_be_done_on_match end
 	<variablelist>
 	    <varlistentry>
 	      <term><option>table = http.get(host,port,path,[options])</option>
-		  <indexterm><primary>get</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  Fetches a resource with a <literal>GET</literal> request.
@@ -1516,7 +1612,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>table = http.request(host,port,request,[options])</option>
-		  <indexterm><primary>request</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  Sends <literal>request</literal> to <literal>host</literal>:<literal>port</literal>
@@ -1534,7 +1630,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>table = http.get_url(url,[options])</option>
-		  <indexterm><primary>get_url</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  Parses <literal>url</literal> and calls <literal>http.get</literal>
@@ -1552,10 +1648,12 @@ if(s) code_to_be_done_on_match end
 
 	<sect2 id="nse-lib-comm">
 	<title>Common Communication Functions</title>
+        <indexterm><primary><varname>comm</varname> NSE module</primary></indexterm>
 	<para>
 	The <literal>comm</literal> module provides functions for common network discovery
 	tasks such as banner-grabbing and making a quick exchange of data.  These functions'
 	return values are setup for use with exception handling via <literal>nmap.new_try()</literal>.
+        <indexterm><primary>exceptions in NSE</primary></indexterm>
 	</para>
 
 	<para>
@@ -1572,7 +1670,7 @@ if(s) code_to_be_done_on_match end
 	<variablelist>
 	    <varlistentry>
 	      <term><option>bool, response = comm.get_banner(host, port, [options])</option>
-		  <indexterm><primary>get_banner</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 			This function simply connects to the specified port number on
@@ -1588,7 +1686,7 @@ if(s) code_to_be_done_on_match end
 
 	    <varlistentry>
 	      <term><option>bool, response = comm.exchange(host, port, data, [options])</option>
-		  <indexterm><primary>exchange</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 			This function connects to the specified port number on the
@@ -1606,6 +1704,8 @@ if(s) code_to_be_done_on_match end
 
 	<sect2 id="nse-lib-datafiles">
 	<title>Data File Parsing Functions</title>
+        <indexterm><primary><varname>datafiles</varname> NSE module</primary></indexterm>
+        <indexterm><primary><varname>data files</varname> access to from NSE</primary></indexterm>
 	<para>
 	The <literal>datafiles</literal> module provides functions for reading and parsing
 	Nmap's data files (e.g. <filename>nmap-protocol</filename>, <filename>nmap-rpc</filename>,
@@ -1616,7 +1716,7 @@ if(s) code_to_be_done_on_match end
 	<variablelist>
 	    <varlistentry>
 	      <term><option>bool, table = datafiles.parse_protocols()</option>
-		  <indexterm><primary>parse_protocols</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 			This function reads and parses Nmap's <filename>nmap-protocols</filename>
@@ -1631,7 +1731,7 @@ if(s) code_to_be_done_on_match end
 
 	    <varlistentry>
 	      <term><option>bool, table = datafiles.parse_rpc()</option>
-		  <indexterm><primary>parse_rpc</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 			This function reads and parses Nmap's <filename>nmap-rpc</filename>
@@ -1646,7 +1746,7 @@ if(s) code_to_be_done_on_match end
 
 	    <varlistentry>
 	      <term><option>bool, table = datafiles.parse_services([protocol])</option>
-		  <indexterm><primary>parse_services</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 			This function reads and parses Nmap's <filename>nmap-services</filename>
@@ -1668,6 +1768,7 @@ if(s) code_to_be_done_on_match end
 	</sect2>
 	<sect2 id="nse-lib-stdnse">
 	<title>Various Utility Functions</title>
+        <indexterm><primary><varname>stdnse</varname> NSE module</primary></indexterm>
 	<para>
 	The <literal>stdnse</literal> library contains various handy
 	functions which are too small to justify modules of their own:
@@ -1675,7 +1776,7 @@ if(s) code_to_be_done_on_match end
 	<variablelist>
 	    <varlistentry>
 	      <term><option>stdnse.print_debug([verbosity,] format, ...)</option>
-		  <indexterm><primary>print_debug</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  Wrapper function around <literal>print_debug_unformatted()</literal>
@@ -1690,7 +1791,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>list = stdnse.strsplit("delimiter", "text")</option>
-		  <indexterm><primary>strsplit</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  This function will certainly be appreciated by Perl programmers.
@@ -1702,7 +1803,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 	    <varlistentry>
 	      <term><option>string = stdnse.strjoin("delimiter", list)</option>
-		  <indexterm><primary>strjoin</primary></indexterm></term>
+		  </term>
 	      <listitem>
 		  <para>
 		  Inverse function to <literal>strsplit()</literal>. Basically this is
@@ -1713,7 +1814,7 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
         <varlistentry>
           <term><option>string = stdnse.tobinary(n)</option>
-          <indexterm><primary>tobinary</primary></indexterm></term>
+          </term>
           <listitem>
             <para>
               Converts the given number, <literal>n</literal>, to a string
@@ -1723,7 +1824,7 @@ if(s) code_to_be_done_on_match end
         </varlistentry>
         <varlistentry>
           <term><option>string = stdnse.tooctal(n)</option>
-          <indexterm><primary>tooctal</primary></indexterm></term>
+          </term>
           <listitem>
             <para>
               Converts the given number, <literal>n</literal>, to a string
@@ -1733,7 +1834,7 @@ if(s) code_to_be_done_on_match end
         </varlistentry>
         <varlistentry>
           <term><option>string = stdnse.tohex(n)</option>
-          <indexterm><primary>tohex</primary></indexterm></term>
+          </term>
           <listitem>
             <para>
               Converts the given number, <literal>n</literal>, to a string
@@ -1743,7 +1844,7 @@ if(s) code_to_be_done_on_match end
         </varlistentry>
         <varlistentry>
           <term><option>string = stdnse.make_buffer(socket, sep)</option>
-          <indexterm><primary>make_buffer</primary></indexterm></term>
+          </term>
           <listitem>
             <para>
               This function operates on a socket attempting to read data.
@@ -1761,16 +1862,20 @@ if(s) code_to_be_done_on_match end
         </varlistentry>
 	</variablelist>
 	</sect2>
+    <indexterm class="endofrange" startref="nse-library-indexterm"/>
   </sect1>
 
   <sect1 id="nse-api">
     <title>Nmap API</title>
+    <indexterm class="startofrange" id="nse-nmap-indexterm"><primary><varname>nmap</varname> NSE module</primary></indexterm>
+    <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>API</secondary></indexterm>
     <para>
       NSE scripts have access to several Nmap facilities for writing
       flexible and elegant scripts. The API provides target host
       details such as port states and version detection results.  It
-      also offers an interface to the Nsock library for efficient
-      network I/O.
+      also offers an interface to the Nsocklibrary
+      <indexterm><primary>Nsock</primary></indexterm>
+      for efficient network I/O.
     </para>
 
     <sect2 id="nse-api-arguments">
@@ -1779,8 +1884,9 @@ if(s) code_to_be_done_on_match end
 	An effective Nmap scripting engine requires more than just a
 	Lua interpreter. Users need easy access to the information
 	Nmap has learned about the target hosts. This data is passed
-	as arguments to the NSE <literal>action</literal> method. The
-	arguments, <literal>host</literal> and
+	as arguments to the NSE <literal>action</literal> method.
+        <indexterm><primary><varname>action</varname> script variable</primary></indexterm>
+        The arguments, <literal>host</literal> and
 	<literal>port</literal>, are Lua tables which contain
 	information on the target against which the script is
 	executed. The following list describes each variable in the
@@ -1791,7 +1897,7 @@ if(s) code_to_be_done_on_match end
 	<variablelist>
 	  <varlistentry>
 	    <term><option>host</option>
-	      <indexterm><primary>host</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		This table is passed as a parameter to the rule and action
@@ -1804,7 +1910,7 @@ if(s) code_to_be_done_on_match end
 
 	  <varlistentry>
 	    <term><option>host.os</option>
-	      <indexterm><primary>host.os</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		The <literal>os</literal> entry in the host table is
@@ -1821,7 +1927,7 @@ if(s) code_to_be_done_on_match end
 	  
 	  <varlistentry>
 	    <term><option>host.ip</option>
-	      <indexterm><primary>host.ip</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>Contains a string representation of the IP address of the
 		target host. If the scan was run against a host name and the
@@ -1833,7 +1939,7 @@ if(s) code_to_be_done_on_match end
 	  
 	  <varlistentry>
 	    <term><option>host.name</option>
-	      <indexterm><primary>host.name</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>Contains the reverse DNS entry of the scanned target host
 		represented as a string. If the host has no reverse DNS entry,
@@ -1843,7 +1949,7 @@ if(s) code_to_be_done_on_match end
 	  </varlistentry>
 	  <varlistentry>
 	    <term><option>host.targetname</option>
-	      <indexterm><primary>host.targetname</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>Contains the name of the host as specified on the command line.
 		If the target given on the command line contains a netmask or is an IP
@@ -1853,7 +1959,7 @@ if(s) code_to_be_done_on_match end
 	  </varlistentry>
 	  <varlistentry>
 	    <term><option>host.directly_connected</option>
-	      <indexterm><primary>host.directly_connected</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para> A boolean value indicating whether or not the target host is
 		  directly connected (i.e. on the same network segment).
@@ -1862,7 +1968,7 @@ if(s) code_to_be_done_on_match end
 	  </varlistentry>
 	  <varlistentry>
 	    <term><option>host.mac_addr</option>
-	      <indexterm><primary>host.mac_addr</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>MAC address of the destination host (6-byte long binary
 		  string) or <literal>nil</literal>, if the host is not directly connected. 
@@ -1871,16 +1977,18 @@ if(s) code_to_be_done_on_match end
 	  </varlistentry>
 	  <varlistentry>
 	    <term><option>host.mac_addr_src</option>
-	      <indexterm><primary>host.mac_addr_src</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>Our own MAC address, which was used to connect to the
-		  host (either our network card's, or (with <option>--spoof-mac</option>) the spoofed address).
+		  host (either our network card's, or (with <option>--spoof-mac</option>)
+                  <indexterm><primary><option>--spoof-mac</option></primary></indexterm>
+                  the spoofed address).
 		  </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
 	    <term><option>host.interface</option>
-	      <indexterm><primary>host.interface</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>A string containing the interface name (dnet-style) through 
 		  which packets to the host are sent.
@@ -1889,7 +1997,7 @@ if(s) code_to_be_done_on_match end
 	  </varlistentry>
 	  <varlistentry>
 	    <term><option>host.bin_ip</option>
-	      <indexterm><primary>host.bin_ip</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>The hosts IP as 4 byte long binary value.
 		  </para>
@@ -1897,7 +2005,7 @@ if(s) code_to_be_done_on_match end
 	  </varlistentry>
 	  <varlistentry>
 	    <term><option>host.bin_ip_src</option>
-	      <indexterm><primary>host.bin_ip_src</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>Our hosts IP as 4 byte long binary value.
 		  </para>
@@ -1905,7 +2013,7 @@ if(s) code_to_be_done_on_match end
 	  </varlistentry>
 	  <varlistentry>
 	    <term><option>port</option>
-	      <indexterm><primary>port</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		The port table is passed to the Lua script in the same
@@ -1920,7 +2028,7 @@ if(s) code_to_be_done_on_match end
 
 	  <varlistentry>
 	    <term><option>port.number</option>
-	      <indexterm><primary>port.number</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		Contains the number of the currently scanned port.
@@ -1931,7 +2039,7 @@ if(s) code_to_be_done_on_match end
 	  
 	  <varlistentry>
 	    <term><option>port.protocol</option>
-	      <indexterm><primary>port.protocol</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		Defines the protocol of the port. Valid values are
@@ -1943,7 +2051,7 @@ if(s) code_to_be_done_on_match end
 	  
 	  <varlistentry>
 	    <term><option>port.service</option>
-	      <indexterm><primary>port.service</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		Contains a string representation of the service running on
@@ -1958,7 +2066,7 @@ if(s) code_to_be_done_on_match end
 	  
 	  <varlistentry>
 	    <term><option>port.version</option>
-	      <indexterm><primary>port.version</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		This entry is a table which contains information
@@ -2037,7 +2145,7 @@ if(s) code_to_be_done_on_match end
 	  
 	  <varlistentry>
 	    <term><option>port.state</option>
-	      <indexterm><primary>port.state</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		Contains information on the state of the port.
@@ -2067,32 +2175,40 @@ if(s) code_to_be_done_on_match end
       <variablelist>
         <varlistentry>
           <term><option>nmap.debugging()</option>
-            <indexterm><primary>debugging</primary><secondary><literal>nmap.debugging</literal></secondary></indexterm></term>
+            </term>
 	  <listitem>
 	    <para>
-            Returns the debugging level as a non-negative integer. The
+            Returns the debugging level
+            <indexterm><primary>debugging</primary><secondary>in NSE</secondary></indexterm>
+            as a non-negative integer. The
             debugging level can be set with the <option>-d</option>
+            <indexterm><primary><option>-d</option></primary></indexterm>
             option<bookex> (see <xref linkend="port-scanning-options-output"/>)</bookex>.
             </para>
           </listitem>
         </varlistentry> 
         <varlistentry>
           <term><option>nmap.have_ssl()</option>
-            <indexterm><primary>have_ssl</primary></indexterm></term>
+            </term>
 	  <listitem>
 	    <para>
-            Returns true if Nmap was compiled with SSL support, false
+            Returns true if Nmap was compiled with SSL support,
+            <indexterm><primary>SSL</primary><secondary>in NSE</secondary></indexterm>
+            false
             otherwise. This can be used to avoid sending SSL probes
             when SSL is not available.
             </para>
           </listitem>
         </varlistentry> 
         <varlistentry>
-          <term><option>nmap.verbosity()</option><indexterm><primary>verbosity</primary><secondary><literal>nmap.verbosity</literal></secondary></indexterm></term>
+          <term><option>nmap.verbosity()</option></term>
 	  <listitem>
 	    <para>
-            Returns the verbosity level as a non-negative integer. The
+            Returns the verbosity level
+            <indexterm><primary>verbosity</primary><secondary>in NSE</secondary></indexterm>
+            as a non-negative integer. The
             verbosity level can be set with the <option>-v</option>
+            <indexterm><primary><option>-v</option></primary></indexterm>
             option<bookex> (see <xref linkend="port-scanning-options-output"/>)</bookex>.
             </para>
           </listitem>
@@ -2100,9 +2216,9 @@ if(s) code_to_be_done_on_match end
         <varlistentry>
           <term>
             <option>nmap.fetchfile(filename)</option>
-            <indexterm><primary>fetchfile</primary></indexterm>
           </term>
 	  <listitem>
+            <indexterm><primary>data files</primary><secondary>access to from NSE</secondary></indexterm>
 	    <para>
             Allows access to Nmap's data files.  <literal>fetchfile()</literal>
             searches for the specified file and returns a string containing
@@ -2120,8 +2236,9 @@ nmap.fetchfile("nmap-rpc")
         </varlistentry> 
         <varlistentry>
           <term><option>nmap.timing_level()</option>
-            <indexterm><primary>timing_level</primary><secondary><literal>nmap.timing_level</literal></secondary></indexterm></term>
+            </term>
 	  <listitem>
+            <indexterm><primary>timing templates</primary><secondary>access to from NSE</secondary></indexterm>
 	    <para>
             Returns the timing level as a non-negative integer.  Possible return
             values vary from 0 to 5, corresponding to the six built-in Nmap
@@ -2146,7 +2263,7 @@ nmap.fetchfile("nmap-rpc")
 	<variablelist>
 	  <varlistentry>
 	    <term><option>nmap.get_port_state(host, port, protocol)</option>
-	      <indexterm><primary>get_port_state</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		The <literal>get_port_state()</literal> call takes a
@@ -2179,7 +2296,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 
 	  <varlistentry>
 	    <term><option>nmap.set_port_state(host, port, state)</option>
-	      <indexterm><primary>set_port_state</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		The <literal>set_port_state()</literal> call takes a host table,
@@ -2197,7 +2314,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	  
 	  <varlistentry>
 	    <term><option>nmap.set_port_version(host, port, probestate)</option>
-	      <indexterm><primary>set_port_version</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		NSE scripts are sometimes able to determine the
@@ -2248,6 +2365,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
     </sect2>
 	<sect2 id="nse-aux-raw-packet">
       <title>Various Utility Functions for Raw Packet Support</title>
+      <indexterm><primary>raw packets</primary><secondary>in NSE</secondary></indexterm>
       <para>
 	  NSE has support for sending raw ethernet frames and capturing
 	  packets. The following two functions may be handy in this context:
@@ -2255,7 +2373,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	<variablelist>
 	  <varlistentry>
 	    <term><option>nmap.clock_ms()</option>
-	      <indexterm><primary>nmap.clock_ms()</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 	      Returns a number representing the current time as milliseconds 
@@ -2265,7 +2383,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	  </varlistentry>
 	  <varlistentry>
 	    <term><option>nmap.get_interface_link("interface_name")</option>
-	      <indexterm><primary>nmap.get_interface_link(interface_name)</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		  For the provided dnet-style
@@ -2301,6 +2419,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	</para>
 	<sect3 id="nse-api-networkio-connect">
 	  <title>Connect-style network I/O</title>
+          <indexterm><primary>sockets in NSE</primary></indexterm>
 	  <para>This part of the network API should be suitable for most
 	  classical network uses: Users create a socket, connect it to a
 	  remote address, send and receive data and close the socket again.
@@ -2313,7 +2432,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	<variablelist>
 	  <varlistentry>
 	    <term><option>nmap.new_socket()</option>
-	      <indexterm><primary>nmap.new_socket()</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		The <literal>new_socket()</literal> Nmap call returns an
@@ -2326,7 +2445,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	  
 	  <varlistentry>
 	    <term><option>status, error = socket_object:connect(hostid, port, [protocol])</option>
-            <indexterm><primary>connect</primary></indexterm></term>
+            </term>
 
 	    <listitem>
 	    
@@ -2384,6 +2503,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 <para>In addition to these standard system error based messages are the following two NSE-specific errors:</para>
 		<itemizedlist>
 			<listitem>
+                        <indexterm><primary>SSL</primary><secondary>in NSE</secondary></indexterm>
 			<para><quote>Sorry, you don't have OpenSSL.</quote> occurs
 			if <literal>ssl</literal> is passed as third argument, but Nmap was compiled 
 			without OpenSSL support.</para>
@@ -2398,7 +2518,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	  
 	  <varlistentry>
 	    <term><option>status, error = socket_object:send(data)</option>
-	      <indexterm><primary>send</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		The send method sends the data contained in the
@@ -2439,7 +2559,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	  
 	  <varlistentry>
 	    <term><option>status, value = socket_object:receive()</option>
-	      <indexterm><primary>receive</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		The receive method does a non-blocking receive operation on
@@ -2459,7 +2579,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	  
 	  <varlistentry>
 	    <term><option>status, value = socket_object:receive_lines(n)</option>
-	      <indexterm><primary>receive_lines</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		Tries to receive at least <replaceable>n</replaceable>
@@ -2485,7 +2605,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	  
 	  <varlistentry>
 	    <term><option>status, value = socket_object:receive_bytes(n)</option>
-	      <indexterm><primary>receive_bytes</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		Tries to receive at least <replaceable>n</replaceable>
@@ -2508,7 +2628,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	  
 	  <varlistentry>
 	    <term><option>status, value = socket_object:receive_buf(func/"string", keeppattern)</option>
-	      <indexterm><primary>receive_buf</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 
@@ -2583,7 +2703,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	  
 	  <varlistentry>
 	    <term><option>status, err = socket_object:close()</option>
-	      <indexterm><primary>close</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		Closes an open connection. On success the returned value of
@@ -2602,7 +2722,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 
 	  <varlistentry>
 	    <term><option>status,localip,localport,remoteip,remoteport=socket_object:get_info()</option>
-	      <indexterm><primary>get_info</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		This function returns information about the socket
@@ -2621,7 +2741,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	  
 	  <varlistentry>
 	    <term><option>socket_object:set_timeout(t)</option>
-	      <indexterm><primary>set_timeout</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		Sets the time, in milliseconds, after which input and
@@ -2638,12 +2758,16 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
     </sect3>
 	<sect3 id="nse-api-networkio-raw">
 	  <title>Raw packet network I/O</title>
+          <indexterm><primary>raw packets</primary><secondary>in NSE</secondary></indexterm>
 	  <para>For those cases where the connection oriented approach is too inflexible,
 	  NSE provides script developers with a more powerful option:
 	  raw packet network I/O. The greater flexibility comes, however, at
 	  the cost of a slightly more complex API. Receiving raw packets is
-	  accomplished via a wrapper around Libpcap inside
-	  the Nsock library. In order to keep the
+	  accomplished via a wrapper around Libpcap
+          <indexterm><primary>Libpcap</primary></indexterm>
+          inside the Nsock library.
+          <indexterm><primary>Nsock</primary></indexterm>
+          In order to keep the
 	  capturing efficient it works in a three tiered approach: Opening a
 	  device for capturing, registering listeners to it and receiving
 	  packets. With each call to <literal>pcap_open()</literal> you have
@@ -2669,7 +2793,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	  <varlistentry>
 	    <term><option>socket_object:pcap_open(device, snaplen, promisc,
 		test_function, bpf)</option>
-	      <indexterm><primary>pcap_open</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		The <literal>pcap_open()</literal> call opens the socket for
@@ -2685,7 +2809,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	  </varlistentry>
 	  <varlistentry>
 	    <term><option>socket_object:pcap_register(packet-hash)</option>
-	      <indexterm><primary>pcap_register</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		  Starts the listening for incoming packages. The provided
@@ -2701,7 +2825,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	  </varlistentry>
 	  <varlistentry>
 	    <term><option>status, packet_len, l2_data, l3_data = socket_object:pcap_receive()</option>
-	      <indexterm><primary>pcap_receive</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		  Receives a captured packet. If successful, the return values are:</para>
@@ -2720,7 +2844,7 @@ error_message describes the occurred error.</para>
 	  </varlistentry>
 	  <varlistentry>
 	    <term><option>socket_object:pcap_close()</option>
-	      <indexterm><primary>pcap_close()</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>Closes the pcap device.
 	      </para>
@@ -2732,6 +2856,7 @@ error_message describes the occurred error.</para>
 	Receiving raw packets is a great feature, but it is also only the
 	half job. Now for sending raw packets: To accomplish this NSE has
 	access to a wrapper around the <literal>dnet</literal> library.
+        <indexterm><primary>libdnet</primary></indexterm>
 	Currently NSE has the ability to send raw ethernet frames via the
 	following API:
 	</para>
@@ -2739,7 +2864,7 @@ error_message describes the occurred error.</para>
 	<variablelist>
 	  <varlistentry>
 	    <term><option>dnet_object=nmap.new_dnet()</option>
-	      <indexterm><primary>new_dnet()</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 	      Creates and returns a new dnet_object, which can be used to
@@ -2749,7 +2874,7 @@ error_message describes the occurred error.</para>
 	  </varlistentry>
 	  <varlistentry>
 	    <term><option>dnet_object:ethernet_open(interface_name)</option>
-	      <indexterm><primary>ethernet_open</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>Opens the interface defined by the provided 
 		  <replaceable>interface_name</replaceable> for sending ethernet frames
@@ -2761,7 +2886,7 @@ error_message describes the occurred error.</para>
 	  </varlistentry>
 	  <varlistentry>
 	    <term><option>dnet_object:ethernet_send(packet)</option>
-	      <indexterm><primary>ethernet_send</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>
 		  Sends the provided data as ethernet frame across the previously
@@ -2775,7 +2900,7 @@ error_message describes the occurred error.</para>
 	  </varlistentry>
 	  <varlistentry>
 	    <term><option>dnet_object:ethernet_close()</option>
-	      <indexterm><primary>ethernet_close</primary></indexterm></term>
+	      </term>
 	    <listitem>
 	      <para>Closes the interface. The only error which may be thrown
 		  is the same as for the <literal>ethernet_send()</literal>
@@ -2790,11 +2915,14 @@ error_message describes the occurred error.</para>
 
     <sect2 id="nse-mutex">
       <title>Thread Mutexes</title>
+      <indexterm><primary>threads in NSE</primary></indexterm>
+      <indexterm><primary>mutexes in NSE</primary></indexterm>
       <para>
         Each thread made for a script (e.g. anonFTP.nse) will yield to other
         scripts whenever it makes a call on network objects (sending/receiving
         data). Some scripts need finer control over threads' execution. An
         example is the <literal>whois.nse</literal> script which queries whois
+        <indexterm><primary>whois</primary></indexterm>
         servers for each target. Because many concurrent queries often result in
         getting one's IP banned for abuse and a query may return additional
         information for targets other threads are running against, it is useful
@@ -2817,7 +2945,7 @@ error_message describes the occurred error.</para>
         <varlistentry>
           <term>
             <option>mutex = nmap.mutex(object)</option>
-            <indexterm><primary>mutex</primary></indexterm>
+            
           </term>
           <listitem>
             <para>
@@ -2887,6 +3015,7 @@ end
 
     <sect2 id="nse-exceptions">
       <title>Exception Handling</title>
+      <indexterm><primary>exceptions in NSE</primary></indexterm>
       <para>
 	  NSE provides an exception handling mechanism not present in
 	  the plain Lua language. The exception handling is tailored
@@ -2956,7 +3085,8 @@ try(socket:send(result))
     </sect2>
 
     <sect2 id="nse-api-registry">
-      <title>The Registry<indexterm><primary>registry</primary></indexterm></title>
+      <title>The Registry</title>
+      <indexterm><primary>registry (NSE)</primary></indexterm>
       <para>
 	The registry is a normal Lua table. What is special about it
 	is that it is visible by all scripts and it retains its state
@@ -2972,7 +3102,9 @@ try(socket:send(result))
 	the registry which was left by the first script. This feature
 	is particularly powerful in combination with the run level
 	concept. A script with a higher run level can rely on entries
-	left behind for it by scripts with lower run levels.  Remember
+	left behind for it by scripts with lower run levels.
+      <indexterm><primary>run level of scripts</primary></indexterm>
+        Remember
 	however that the registry can be written by all scripts
 	equally, so choose the keys for your entries wisely. The
 	registry is stored in <literal>nmap.registry</literal>. The
@@ -2985,16 +3117,20 @@ try(socket:send(result))
 
       </para>
     </sect2>
+    <indexterm class="endofrange" startref="nse-nmap-indexterm"/>
   </sect1>
 
   <sect1 id="nse-tutorial">
     <title>Script Writing Tutorial</title>
+    <indexterm class="startofrange" id="nse-tutorial-indexterm"><primary>Nmap Scripting Engine (NSE)</primary><secondary>tutorial</secondary></indexterm>
 
     <para>
       Suppose that you are convinced of the power of NSE. How do you
       go about writing your own script?  Let's say
       that you want to extract information from an identification
-      server.  Nmap used to have this functionality but it was removed
+      server.
+      <indexterm><primary>auth service</primary></indexterm>
+      Nmap used to have this functionality but it was removed
       because of inconsistencies in the code base. Fortunately, the
       protocol identd uses is pretty simple. Unfortunately, it is too
       complicated to be expressible in Nmap's version detection
@@ -3034,6 +3170,7 @@ try(socket:send(result))
 	the ID is printed before the script's results in Nmap output.
       </para>
       <para>
+<indexterm><primary><varname>id</varname> script variable</primary></indexterm>
 <programlisting>
 id = "Service Owner"
 </programlisting>
@@ -3042,6 +3179,7 @@ id = "Service Owner"
 	The description field should contain a sentence or two describing what the script does.  If anything about the script results might confuse or mislead users, and you can't eliminate the issue by improving the script or results text, it should be documented in the <literal>description</literal> string.
       </para>
       <para>
+<indexterm><primary><varname>description</varname> script variable</primary></indexterm>
 <programlisting>
 description = "Opens a connection to the scanned port, opens a connection to \
 port 113, queries the owner of the service on the scanned port and prints it."
@@ -3054,14 +3192,19 @@ port 113, queries the owner of the service on the scanned port and prints it."
 	backslash (&lsquo;<literal>\</literal>&rsquo;). They must also decide what
 	categories the script belongs to. This script is a good
 	example of a script which cannot be categorized clearly. It is
-	<literal>safe</literal> because we are not using the service
+	<literal>safe</literal>
+        <indexterm><primary><literal>safe</literal> script category</primary></indexterm>
+        because we are not using the service
 	for anything it was not intended for.  On the other hand, it
-	is <literal>intrusive</literal> because we connect to a
+	is <literal>intrusive</literal>
+        <indexterm><primary><literal>intrusive</literal> script category</primary></indexterm>
+        because we connect to a
 	service on the target and therefore potentially give out
 	information about us.  To solve this dilemma we will place our
 	script in two categories:
 
       </para>
+<indexterm><primary><varname>categories</varname> script variable</primary></indexterm>
 <programlisting>
 categories = {"safe", "intrusive"}
 </programlisting>
@@ -3093,6 +3236,7 @@ categories = {"safe", "intrusive"}
 	the action.
       </para>
       <para>
+<indexterm><primary><varname>portrule</varname> script variable</primary></indexterm>
 <programlisting>
 portrule = function(host, port)
   local ident_port = { number=113, protocol="tcp" }
@@ -3144,7 +3288,9 @@ end
 	<literal>send()</literal> or
 	<literal>receive()</literal> we can operate on the network
 	socket. To avoid excessive error checking code we use NSE's
-	exception handling mechanism. We create a function which will
+	exception handling mechanism.
+        <indexterm><primary>exceptions in NSE</primary></indexterm>
+        We create a function which will
 	be executed if an error occurs and call this function
 	<literal>catch</literal>. Using this function we generate
 	a <literal>try</literal> function. The <literal>try</literal>
@@ -3169,6 +3315,7 @@ local localip, localport  = client_service:get_info()
       </para>
       
       <para>
+        <indexterm><primary><varname>action</varname> NSE variable</primary></indexterm>
 	<programlisting>
 action = function(host, port)
 local owner = ""
@@ -3210,10 +3357,13 @@ end
 </programlisting>
       </para>
     </sect2>
+    <indexterm class="endofrange" startref="nse-tutorial-indexterm"/>
   </sect1>
 
   <sect1 id="nse-vscan">
     <title>Version Detection Using NSE</title>
+    <indexterm class="startofrange" id="nse-sample-indexterm"><primary>Nmap Scripting Engine (NSE)</primary><secondary>sample scripts</secondary></indexterm>
+    <indexterm><primary>version detection</primary><secondary>using NSE</secondary></indexterm>
     <para>
 
       The version detection system built into Nmap was designed to
@@ -3225,7 +3375,9 @@ end
       true nature.  NSE has been integrated into Nmap's version
       detection framework to handle these cases. The scripts which
       extend the version scanner belong to the reserved category
-      <literal>version</literal>.  This category cannot be run from
+      <literal>version</literal>.
+      <indexterm><primary><varname>version</varname> script category</primary></indexterm>
+      This category cannot be run from
       the command line.  It is only executed if the user has required a
       version scan. The following listing shows a simple script which
       demonstrates the use of the NSE version detection API. If either
@@ -3242,17 +3394,17 @@ end
 <programlisting> 
 description = "Demonstration of a version detection NSE script. It checks \
 and reports the version of a remote web server. For real life purposes it is \
-better to use Nmap version detection (-sV)."
-author = "Diman Todorov &lt;diman.todorov@gmail.at&gt;"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+better to use Nmap version detection (-sV)."<indexterm><primary><varname>description</varname> script variable</primary></indexterm>
+author = "Diman Todorov &lt;diman.todorov@gmail.at&gt;"<indexterm><primary>Todorov, Diman</primary></indexterm><indexterm><primary><varname>author</varname> script variable</primary></indexterm>
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"<indexterm><primary><varname>license</varname> script variable</primary></indexterm>
 
-id = "HTTP version"
+id = "HTTP version"<indexterm><primary><varname>id</varname> script variable</primary></indexterm>
 
-categories = {"version"}
+categories = {"version"}<indexterm><primary><varname>categories</varname> script variable</primary></indexterm><indexterm><primary><varname>version</varname> script category</primary></indexterm>
 
-runlevel = 1.0
+runlevel = 1.0<indexterm><primary><varname>runlevel</varname> script variable</primary></indexterm>
 
-portrule = function(host, port)
+portrule = function(host, port)<indexterm><primary><varname>portrule</varname> script variable</primary></indexterm>
   if (port.number == 80
       or port.service == "http" )
       and port.protocol == "tcp" 
@@ -3263,7 +3415,7 @@ portrule = function(host, port)
   end
 end
 
-action = function(host, port)
+action = function(host, port)<indexterm><primary><varname>action</varname> script variable</primary></indexterm>
   local query = "GET / HTTP/2.1\r\n"
   query = query .. "Accept: */*\r\n"
   query = query .. "Accept-Language: en\r\n"
@@ -3317,6 +3469,7 @@ end
     </para>
     <para>
 	This is what the output of this script looks like:
+        <indexterm><primary><option>-sV</option></primary><secondary>example of</secondary></indexterm>
       <screen>
 $ ./nmap -sV localhost -p 80
 
@@ -3343,6 +3496,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 9.317 seconds
 
     <sect2 id="nse-example-script-finger">
       <title>Finger-Test Script</title>
+      <indexterm><primary><literal>Finger Results</literal> script</primary></indexterm>
 	  <para>The finger script (<filename>finger.nse</filename>) is a perfect
       example of how short typical NSE scripts are.
 	  </para>
@@ -3352,13 +3506,13 @@ Nmap finished: 1 IP address (1 host up) scanned in 9.317 seconds
 printed in Nmap's output. A detailed description of what the script
 actually does should go in the <literal>description</literal> field.</para>
 <programlisting>
-id="Finger Results"
+id="Finger Results"<indexterm><primary><varname>id</varname> script variable</primary></indexterm>
 
-description="attempts to get a list of usernames via the finger service"
+description="attempts to get a list of usernames via the finger service"<indexterm><primary><varname>description</varname> script variable</primary></indexterm>
 
-author = "Eddie Bell &lt;ejlbell@gmail.com&gt;"
+author = "Eddie Bell &lt;ejlbell@gmail.com&gt;"<indexterm><primary>Bell, Eddie</primary></indexterm><indexterm><primary><varname>author</varname> script variable</primary></indexterm>
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"<indexterm><primary><varname>license</varname> script variable</primary></indexterm>
 </programlisting>
 
 <para>The <literal>categories</literal> field is a table
@@ -3384,9 +3538,9 @@ on a non-standard port) or still run against at least the port we
 expect it, should the version detection information not be available.</para>
 
 <programlisting>
-portrule = shortport.port_or_service(79, "finger")
+portrule = shortport.port_or_service(79, "finger")<indexterm><primary><varname>portrule</varname> script variable</primary></indexterm>
 
-action = function(host, port)
+action = function(host, port)<indexterm><primary><varname>action</varname> script variable</primary></indexterm>
   local socket = nmap.new_socket()
   local results = ""
   local status = true
@@ -3453,22 +3607,24 @@ end
 
 	<sect2 id="nse-example-script-owner">
       <title>Service Owner Lookup via Identd</title>
+      <indexterm><primary><literal>Service owner</literal> script</primary></indexterm>
+      <indexterm><primary>auth service</primary></indexterm>
 	  <para><filename>showOwner.nse</filename> demonstrates the flexibility
 	  of the NSE, which is unmatched by other parts of Nmap. If the target
 	  is running an <literal>identd</literal> daemon it connects to it for
 	  each running service and tries to identify its owner.
 	  </para>
 <programlisting>
-id = "Service owner"
+id = "Service owner"<indexterm><primary><varname>id</varname> script variable</primary></indexterm>
 
 description = "Opens a connection to the scanned port, opens a connection to \
-port 113, queries the owner of the service on the scanned port and prints it."
+port 113, queries the owner of the service on the scanned port and prints it."<indexterm><primary><varname>description</varname> script variable</primary></indexterm>
 
-author = "Diman Todorov &lt;diman.todorov@gmail.com&gt;"
+author = "Diman Todorov &lt;diman.todorov@gmail.com&gt;"<indexterm>Todorov, Diman</indexterm><indexterm><primary><varname>author</varname> script variable</primary></indexterm>
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"<indexterm><primary><varname>license</varname> script variable</primary></indexterm>
 
-categories = {"default", "safe"}
+categories = {"default", "safe"}<indexterm><primary><varname>categories</varname> script variable</primary></indexterm><indexterm><primary><varname>default</varname> script category</primary></indexterm><indexterm><primary><varname>safe</varname> script category</primary></indexterm>
 
 </programlisting>
 
@@ -3479,7 +3635,7 @@ returning a boolean.
 </para>
 
 <programlisting>
-portrule = function(host, port) 
+portrule = function(host, port) <indexterm><primary><varname>portrule</varname> script variable</primary></indexterm>
     local auth_port = { number=113, protocol="tcp" }
 </programlisting>
 
@@ -3544,9 +3700,11 @@ action = function(host, port)
 end
 </programlisting>
 	</sect2>
+    <indexterm class="endofrange" startref="nse-sample-indexterm"/>
   </sect1>
   <sect1 id="nse-implementation">
     <title>Implementation</title>
+    <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>implementation</secondary></indexterm>
 	<para>
 	Now how does all this work? The following section describes
 	some interesting aspects of the NSE. While the focus primarily lies on 
@@ -3623,18 +3781,26 @@ in the <literal>nmap</literal> namespace are also loaded.  The search
 path for modules is set to the default one prepended by the nselib
 directory (which is searched in the locations Nmap searches for its
 data files and scripts).  In this step the provided script arguments
-also get stored inside the <literal>registry</literal>.</para>
+also get stored inside the registry.
+<indexterm><primary>registry (NSE)</primary></indexterm>
+</para>
 
 		<para>
 		The next phase of NSE initialization is loading the chosen
 		scripts, which are the arguments provided to the 
-		<option>--script</option> option or <literal>default</literal>, in 
+		<option>--script</option>
+                <indexterm><primary><option>--script</option></primary></indexterm>
+                option or <literal>default</literal>, in 
 		case of a default script scan.  The string <literal>version</literal> 
+                <indexterm><primary><varname>version</varname> script category</primary></indexterm>
 		is appended, if version detection was enabled.
 		The arguments afterwards are tried to be 
 		interpreted as script categories. This is done via a Lua C function
 		in <filename>nse_init.cc</filename> called <literal>entry</literal>.
-        Inside <filename>script.db</filename>, for each category of a script,
+        Inside <filename>script.db</filename>,
+        <indexterm><primary><filename>script.db</filename></primary></indexterm>
+        <indexterm><primary><filename>script.db</filename></primary><seealso><option>--script-updatedb</option></seealso></indexterm>
+        for each category of a script,
         there is a call to <literal>Entry</literal>. If the category was chosen
         then the script is loaded. Every argument of
         <option>--script</option> that could not be interpreted as a category
@@ -3656,12 +3822,19 @@ also get stored inside the <literal>registry</literal>.</para>
 	<sect2 id="nse-implementation-match">
       <title>Matching of Scripts to Targets</title>
       <para>
-	  After the initialization is finished the <literal>hostrules</literal> and
-	  <literal>portrules</literal> are evaluated for each host in the current
+	  After the initialization is finished the <literal>hostrules</literal>
+          <indexterm><primary><varname>hostrule</varname> script variable</primary></indexterm>
+          and <literal>portrules</literal>
+          <indexterm><primary><varname>portrule</varname> script variable</primary></indexterm>
+          are evaluated for each host in the current
 	  target group. At this check a list is built which contains the combinations of scripts and the hosts they will run against.
 
 It should be noted that the rules of all chosen scripts are
-checked against all hosts and their <literal>open</literal> and <literal>open|filtered</literal> ports.
+checked against all hosts and their <literal>open</literal>
+<indexterm><primary><literal>open</literal> port state</primary></indexterm>
+and <literal>open|filtered</literal>
+<indexterm><primary><literal>open|filtered</literal> port state</primary></indexterm>
+ports.
 Therefore it is advisable to leave the rules as simple as possible and
 to do all the computation inside the <literal>action</literal>, as a script will only be
 executed if it is run against a specific target. After the check those script-target combinations
@@ -3680,8 +3853,9 @@ The mainloop function will work on each runlevel grouping of threads in order.
       <title>Running Scripts</title>
 
       <para>
-        Nmap is able to perform NSE script scanning in parallel by
-        making use of Lua language features.  In particular,
+        Nmap is able to perform NSE script scanning in parallel
+        <indexterm><primary>parallelism</primary><secondary>in NSE</secondary></indexterm>
+        by making use of Lua language features.  In particular,
 	  <ulink url="http://www.lua.org/manual/5.1/manual.html#2.11">coroutines
 	  </ulink> offer collaborative multi-threading so scripts can suspend themselves at defined points, and allow other coroutines 
 	  to execute. Since network I/O, especially waiting for responses from
@@ -3707,6 +3881,7 @@ The mainloop function will work on each runlevel grouping of threads in order.
     </sect2>
 	<sect2 id="nse-implementation-c-modules">
       <title>Adding C Modules to Nselib</title>
+      <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>C modules</secondary></indexterm>
       <para>
 	  This section tries to give a short walk-through to adding
 	  nselib modules written in C (or C++) to Nmap's build system, since
@@ -3718,7 +3893,9 @@ The mainloop function will work on each runlevel grouping of threads in order.
 	  functions they provide to Lua, which have to be of type <ulink url="http://www.lua.org/manual/5.1/manual.html#lua_CFunction">lua_CFunction</ulink>. Additionally they have to contain a function
 	  which is used to actually open the module. By convention these function names are <literal>luaopen_<replaceable>modulename</replaceable></literal>.
 	  A good starting point for writing such modules is provided with
-	  <filename>bit.c</filename> and <filename>pcre.c</filename> inside
+	  <filename>bit.c</filename>
+          <indexterm><primary><varname>bite</varname> NSE module</primary></indexterm>
+          and <filename>pcre.c</filename> inside
 	  the <filename>nselib/</filename> subdirectory of Nmap's source tree, 
 	  which are two C modules already provided by the nselib. C modules
 	  basically are shared libraries which get loaded at runtime by Lua. 
@@ -3747,7 +3924,9 @@ The mainloop function will work on each runlevel grouping of threads in order.
 	  itself.  Linking with static libraries
 	  (e.g. <literal>libnbase</literal>) sometimes leads to
 	  problems with exporting symbols on some platforms (in our
-	  case the x86_64-linux platform). To our knowledge no such
+	  case the x86_64-linux platform).
+          <indexterm><primary>x86_64 architecture</primary></indexterm>
+          To our knowledge no such
 	  problems occur when linking against already existing shared
 	  libraries.</para>
 
@@ -3770,3 +3949,4 @@ The mainloop function will work on each runlevel grouping of threads in order.
 	  </para>
 	</sect2>
   </sect1>
+<indexterm class="endofrange" startref="nse-indexterm"/>
