@@ -3424,8 +3424,9 @@ overwhelming requests.  Specify <option>--open</option> to only see
           not allocate IPv6 addresses to you, free tunnel brokers are
           widely available and work fine with Nmap.  I use the free
           IPv6 tunnel broker service at
-          <ulink url="http://www.tunnelbroker.net"/>.  Other tunnel
-          brokers are
+          <ulink url="http://www.tunnelbroker.net"/>.
+          <indexterm><primary>IPv6 tunnel broker</primary></indexterm>
+          Other tunnel brokers are
           <ulink url="http://en.wikipedia.org/wiki/List_of_IPv6_tunnel_brokers">listed
           at Wikipedia</ulink>.  6to4 tunnels are another popular,
           free approach.</para>
