@@ -415,11 +415,14 @@ If you make code changes to fix the problem, please send a patch
 (created with <command>diff -uw oldfile newfile</command>) and any details about your problem and platform to me at <email>fyodor@insecure.org</email>.  Integrating the change into the base Nmap distribution allows many other users to benefit, and prevents you from having to make the changes with each new Nmap version.</para></listitem></varlistentry>
 
 <varlistentry><term>Ask Google and other Internet resources</term>
-<listitem><para>Try searching for the exact error message on Google or other search engines.  You might also want to browse recent activity on the Nmap development (<citetitle>nmap-dev</citetitle>) list&mdash;archives are available at <ulink url="http://seclists.org" />.</para></listitem></varlistentry>
+<listitem><para>Try searching for the exact error message on Google or other search engines.  You might also want to browse recent activity on the Nmap development (<citetitle>nmap-dev</citetitle>)
+<indexterm><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
+list&mdash;archives are available at <ulink url="http://seclists.org" />.</para></listitem></varlistentry>
 
 <varlistentry><term>Ask <citetitle>nmap-dev</citetitle></term>
 <listitem><para>If none of your research has led to a solution for
 your problem, try sending a report to the Nmap development (<citetitle>nmap-dev</citetitle>)
+<indexterm><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
 list.  If you subscribe first, your message gets through faster
 because it does not go through moderation.  Subscribe by
 sending a blank email to
@@ -1157,7 +1160,9 @@ fanatics.</para>
 SGI IRIX.  The Nmap project mostly depends on the user community to
 maintain adequate support for these systems.  If you have trouble, try
 sending a report with full details to the <citetitle>nmap-dev</citetitle> mailing list
-(<email>nmap-dev@insecure.org</email>).  If you develop a patch which
+(<email>nmap-dev@insecure.org</email>).
+<indexterm><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
+If you develop a patch which
 improves support on your platform, please email it to <citetitle>nmap-dev</citetitle> or to me at <email>fyodor@insecure.org</email>.</para>  
 </sect1>
 

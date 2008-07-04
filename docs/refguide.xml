@@ -1984,10 +1984,11 @@ way.</para>
 
 <listitem>
 <para>Runs a script scan (like <option>-sC</option>) with the scripts you have chosen rather than the defaults.  Arguments can be script categories, single scripts or directories with scripts which are to be run against the target hosts instead of the default set. Nmap will try to interpret the arguments at first as categories and afterwards as files or directories.  Absolute paths are used as is, relative paths are searched in the following places until found:
-<indexterm><primary>NMAPDIR environment variable</primary></indexterm>
 <filename>--datadir/</filename>; 
+<indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm>
 <filename>$(NMAPDIR)/</filename>; 
 <filename>~user/nmap/</filename> (not searched on Windows); 
+<indexterm><primary><filename>NMAPDATADIR</filename></primary></indexterm>
 <filename>NMAPDATADIR/</filename> or  
 <filename>./</filename>.  A <filename>scripts/</filename> subdirectory is also tried in each of these.  Give the argument <literal>all</literal> to execute all scripts in the Nmap script database.
 </para>
@@ -2235,7 +2236,9 @@ could be useful when a network is so unreliable that even Nmap's
 default is too aggressive.  Since Nmap only reduces the timeout down to
 the minimum when the network seems to be reliable, this need is
 unusual and should be reported as a bug to the <citetitle>nmap-dev</citetitle> mailing
-list.</para>
+list.
+<indexterm><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
+</para>
 
         </listitem>
       </varlistentry>
@@ -3178,7 +3181,9 @@ self-explanatory.  You may get something like: <computeroutput>Timeout
 vals: srtt: -1 rttvar: -1 to: 1000000 delta 14987 ==> srtt: 14987
 rttvar: 14987 to: 100000</computeroutput>.  If you don't understand a line, your only recourses
 are to ignore it, look it up in the source code, or request help from
-the development list (<citetitle>nmap-dev</citetitle>).  Some lines are self explanatory, but
+the development list (<citetitle>nmap-dev</citetitle>).
+<indexterm><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
+Some lines are self explanatory, but
 the messages become more obscure as the debug level is
 increased.</para>
 
@@ -3798,7 +3803,9 @@ overwhelming requests.  Specify <option>--open</option> to only see
     do some research to determine whether it has already been
     discovered and addressed.  Try Googling the error message or
     browsing the <citetitle>nmap-dev</citetitle> archives at <ulink
-    url="http://seclists.org/" />.  Read this full manual page as
+    url="http://seclists.org/" />.
+    <indexterm><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
+    Read this full manual page as
     well.  If nothing comes of this, mail a bug report to
     <email>nmap-dev@insecure.org</email>.  Please include everything
     you have learned about the problem, as well as what version of
