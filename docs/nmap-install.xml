@@ -21,7 +21,7 @@ have it.  Many free operating system distributions (including most
 Linux and BSD systems) come with Nmap, although it may not be
 installed by default.  On Unix systems, open a terminal window and try executing the command
 <command>nmap <option>--version</option></command><indexterm><primary><option>--version</option></primary></indexterm>.
-If Nmap exists and is in your <envar>$PATH</envar>,
+If Nmap exists and is in your <envar>PATH</envar>,
 <indexterm><primary><envar>PATH</envar> environment variable</primary></indexterm>
 you should see output similar to <xref linkend="ex-checking-for-nmap" />.</para>
 
@@ -38,7 +38,7 @@ felix~&gt;
 </screen></example>
 
 <para>If Nmap does <emphasis>not</emphasis>
-exist on the system (or if your <envar>$PATH</envar> is incorrectly
+exist on the system (or if your <envar>PATH</envar> is incorrectly
 set), an error message such as
 <computeroutput>nmap: Command not found</computeroutput> is reported.  As the
 example above shows, Nmap responds to the command by printing its

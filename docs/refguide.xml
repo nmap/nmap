@@ -58,7 +58,7 @@
     <literal>open</literal>, <literal>filtered</literal>,
     <literal>closed</literal>, or <literal>unfiltered</literal>.
     <indexterm><primary><literal>open</literal> port state</primary></indexterm>
-    Open means that an application on the target machine is listening for
+    <literal>Open</literal> means that an application on the target machine is listening for
     connections/packets on that port.
     <indexterm><primary><literal>filtered</literal> port state</primary></indexterm>
     <literal>Filtered</literal> means that a firewall, filter, or other network
@@ -334,7 +334,7 @@ you would expect.</para>
           to each target machine.  An exception to this is that an ARP scan is
           used for any targets which are on a local ethernet network.
           For unprivileged Unix shell users, a SYN packet is sent
-          instead of the ack using the <function>connect()</function>
+          instead of the ACK using the <function>connect()</function>
           system call.
           <indexterm><primary>unprivileged users</primary><secondary>limitations of</secondary></indexterm>
           These defaults are equivalent to the
@@ -778,7 +778,7 @@ you would expect.</para>
  <listitem>
 
 <para>
-Traceroutes are performed post-scan using information from the scan results to determine the port and protocol most likely to reach the target. It works with all scan types except connect scans (-sT) and idle scans (-sI).  All traces use Nmap's dynamic timing model and are performed in parallel.
+Traceroutes are performed post-scan using information from the scan results to determine the port and protocol most likely to reach the target. It works with all scan types except connect scans (<option>-sT</option>) and idle scans (<option>-sI</option>).  All traces use Nmap's dynamic timing model and are performed in parallel.
 </para>
 
 <para>
@@ -985,7 +985,7 @@ options from across the Internet might show that port as <literal>filtered</lite
   response could also mean that a packet filter dropped the probe or
   any response it elicited.  So Nmap does not know for sure whether
   the port is open or being filtered.  The UDP, IP protocol,
-  FIN, null, and Xmas scans classify ports this
+  FIN, NULL, and Xmas scans classify ports this
   way.</para></listitem></varlistentry>
 
   <varlistentry><term>
@@ -1039,7 +1039,7 @@ that all of its insights are based on packets returned by the target
 machines (or firewalls in front of them).  Such hosts may be
 untrustworthy and send responses intended to confuse or mislead Nmap.
 Much more common are non-RFC-compliant hosts that do not respond as
-they should to Nmap probes.  FIN, null, and Xmas scans are
+they should to Nmap probes.  FIN, NULL, and Xmas scans are
 particularly susceptible to this problem.  Such issues are specific to
 certain scan types and so are
 discussed in the individual scan type entries.</para>
@@ -1073,7 +1073,7 @@ second on a fast network not hampered by restrictive firewalls. SYN scan
 is relatively unobtrusive and stealthy, since it never completes TCP
 connections.  It also works against any compliant TCP stack rather
 than depending on idiosyncrasies of specific platforms as Nmap's
-FIN/null/Xmas, Maimon and idle scans do.  It also allows clear,
+FIN/NULL/Xmas, Maimon and idle scans do.  It also allows clear,
 reliable differentiation between the <literal>open</literal>,
 <literal>closed</literal>, and <literal>filtered</literal>
 states.</para>
@@ -1159,7 +1159,7 @@ codes 1, 2, 9, 10, or 13) mark the port as <literal>filtered</literal>.  Occasio
 service will respond with a UDP packet, proving that it is <literal>open</literal>.  If
 no response is received after retransmissions, the port is classified
 as <literal>open|filtered</literal>.  This means that the port could be open, or perhaps
-packet filters are blocking the communication. Versions scan
+packet filters are blocking the communication. Version detection
 (<option>-sV</option>) can be used to help differentiate the truly
 open ports from the filtered ones.</para>
 
@@ -1329,7 +1329,7 @@ ports, then those three may very well be the truly open ones.</para>
 He described the technique in <citetitle>Phrack</citetitle> Magazine issue #49 (November 1996).
 <indexterm><primary><citetitle>Phrack</citetitle></primary></indexterm>
 Nmap, which included this technique, was released two issues later.
-This technique is exactly the same as null, FIN, and Xmas scans, except
+This technique is exactly the same as NULL, FIN, and Xmas scans, except
 that the probe is FIN/ACK.  According to <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc793.txt">RFC 793</ulink> (TCP), a RST packet
 should be generated in response to such a probe whether the port is
 open or closed.  However, Uriel noticed that many BSD-derived systems
@@ -1551,7 +1551,7 @@ way.</para>
 
           <para>This option specifies which ports you want to scan and
           overrides the default.  Individual port numbers are OK, as
-          are ranges separated by a hyphen (e.g. 1-1023).  The
+          are ranges separated by a hyphen (e.g. <literal>1-1023</literal>).  The
           beginning and/or end values of a range may be omitted,
           causing Nmap to use 1 and 65535, respectively.  So you can
           specify <option>-p-</option> to scan ports from 1 through
@@ -1638,7 +1638,7 @@ way.</para>
     <filename>nmap-services</filename>
     <indexterm><primary><filename>nmap-services</filename></primary></indexterm>
     database of about 2,200 well-known services,
-    <indexterm><primary>well known ports</primary></indexterm>
+    <indexterm><primary>well-known ports</primary></indexterm>
     Nmap would report that those ports probably correspond to a
     mail server (SMTP), web server (HTTP), and name server (DNS)
     respectively. This lookup is usually accurate&mdash;the vast
@@ -1860,7 +1860,7 @@ way.</para>
     the initial window size check, Nmap compares the results to its
     <filename>nmap-os-db</filename>
     <indexterm><primary><filename>nmap-os-db</filename></primary></indexterm>
-    database of more than 800 known
+    database of more than a thousand known
     OS fingerprints and prints out the OS details if there is a match.
     Each fingerprint includes a freeform textual description of the
     OS, and a classification which provides the vendor name
@@ -2014,9 +2014,9 @@ way.</para>
     <literal>version</literal>)&mdash;While Nmap already offers its Service and
     Version detection system, which is unmatched in terms of efficiency and
     scope, this power has its downside when it comes to services requiring more
-    complex probes. The Skype-Protocol version 2 for instance can be identified
+    complex probes. The Skype Protocol version 2 for instance can be identified
     by sending 2 independent probes to it, which the built-in system is not laid
-    out for: a simple NSE-script can do the job and update the port's service
+    out for: a simple NSE script can do the job and update the port's service
     information.  
     </para>
     
@@ -2079,7 +2079,7 @@ way.</para>
     </para>
     
     <para>
-    A NSE-script basically is a chunk of Lua-code which has (among some
+    An NSE script basically is a chunk of Lua-code which has (among some
     informational fields, like name, id and categories) 2 functions: a test
     whether the particular script should be run against a certain host or port
     (called a <literal>hostrule</literal>
@@ -2128,10 +2128,11 @@ way.</para>
 <indexterm><primary><option>--datadir</option></primary></indexterm>
 <filename>--datadir/</filename>; 
 <indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm>
-<filename>$(NMAPDIR)/</filename>; 
-<filename>~user/nmap/</filename> (not searched on Windows); 
-<indexterm><primary><filename>NMAPDATADIR</filename></primary></indexterm>
-<filename>NMAPDATADIR/</filename> or  
+<filename>$NMAPDIR/</filename>; 
+<filename>~/.nmap/</filename> (not searched on Windows); 
+<indexterm><primary sortas="nmap"><filename>.nmap</filename> directory</primary></indexterm>
+<indexterm><primary>NMAPDATADIR</primary></indexterm>
+NMAPDATADIR/ or  
 <filename>./</filename>.  A <filename>scripts/</filename> subdirectory is also tried in each of these.  Give the argument <literal>all</literal> to execute all scripts in the Nmap script database.
 </para>
 
@@ -2157,7 +2158,7 @@ categories.</para>
         <term><option>--script-args &lt;name1=value1,name2={name3=value3},name4=value4&gt;</option><indexterm><primary><option>--script-args</option></primary></indexterm><indexterm>script arguments</indexterm></term>
 
 <listitem>
-<para>lets you provide arguments to NSE-scripts. Arguments are passed
+<para>lets you provide arguments to NSE scripts. Arguments are passed
 as <literal>name=value</literal> pairs. The provided argument is
 processed and stored inside a Lua table, to which all scripts have
 access. The names are taken as strings (which must be alphanumeric
@@ -2368,7 +2369,7 @@ timing out and retransmitting while the response is in transit.</para>
 <para>If all the hosts are on a local network, 100 milliseconds is a
 reasonable aggressive <option>--max-rtt-timeout</option> value.  If
 routing is involved, ping a host on the network first with the ICMP
-ping utility, or with a custom packet crafter such as hping2
+ping utility, or with a custom packet crafter such as <command>hping2</command>
 <indexterm><primary><command>hping2</command></primary></indexterm>
 that is
 more likely to get through a firewall.  Look at the maximum round trip
@@ -2505,7 +2506,7 @@ that a scan will be finished by a certain time. When the
 <option>--min-rate</option> option is given Nmap will do its best to
 send packets as fast or faster than the given rate. The argument is a
 positive real number representing a packet rate in packets per second.
-For example, specifying <command>--min-rate 300</command> means that
+For example, specifying <option>--min-rate 300</option> means that
 Nmap will try to keep the sending rate at or above 300 packets per
 second. Specifying a minimum rate does not keep Nmap from going faster
 if conditions warrant.</para>
@@ -2580,12 +2581,12 @@ worth the extra time.</para>
         <indexterm><primary>timing templates</primary><seealso><literal>paranoid</literal>, <literal>sneaky</literal>, <literal>polite</literal>, <literal>normal</literal>, <literal>aggressive</literal>, and <literal>insane</literal></seealso></indexterm>
         </term>
         <listitem>
-<indexterm><primary><option>-T0</option><see><literal>paranoid</literal> timing template</see></primary></indexterm>
-<indexterm><primary><option>-T1</option><see><literal>sneaky</literal> timing template</see></primary></indexterm>
-<indexterm><primary><option>-T2</option><see><literal>polite</literal> timing template</see></primary></indexterm>
-<indexterm><primary><option>-T3</option><see><literal>normal</literal> timing template</see></primary></indexterm>
-<indexterm><primary><option>-T4</option><see><literal>aggressive</literal> timing template</see></primary></indexterm>
-<indexterm><primary><option>-T5</option><see><literal>insane</literal> timing template</see></primary></indexterm>
+<indexterm><primary><option>-T0</option></primary><see><literal>paranoid</literal> timing template</see></indexterm>
+<indexterm><primary><option>-T1</option></primary><see><literal>sneaky</literal> timing template</see></indexterm>
+<indexterm><primary><option>-T2</option></primary><see><literal>polite</literal> timing template</see></indexterm>
+<indexterm><primary><option>-T3</option></primary><see><literal>normal</literal> timing template</see></indexterm>
+<indexterm><primary><option>-T4</option></primary><see><literal>aggressive</literal> timing template</see></indexterm>
+<indexterm><primary><option>-T5</option></primary><see><literal>insane</literal> timing template</see></indexterm>
 
 
 <para>While the fine-grained timing controls discussed in the previous
@@ -2594,17 +2595,17 @@ Moreover, choosing the appropriate values can sometimes take more time
 than the scan you are trying to optimize.  So Nmap offers a simpler
 approach, with six timing templates.  You can specify them with the
 <option>-T</option> option and their number (0&ndash;5) or their name.
-The template names are <option>paranoid</option> (<option>0</option>),
+The template names are <option>paranoid</option>&nbsp;(<option>0</option>),
 <indexterm><primary><literal>paranoid</literal> (<option>-T0</option>) timing template</primary></indexterm>
-<option>sneaky</option> (<option>1</option>),
+<option>sneaky</option>&nbsp;(<option>1</option>),
 <indexterm><primary><literal>sneaky</literal> (<option>-T1</option>) timing template</primary></indexterm>
-<option>polite</option> (<option>2</option>),
+<option>polite</option>&nbsp;(<option>2</option>),
 <indexterm><primary><literal>polite</literal> (<option>-T2</option>) timing template</primary></indexterm>
-<option>normal</option> (<option>3</option>),
+<option>normal</option>&nbsp;(<option>3</option>),
 <indexterm><primary><literal>normal</literal> (<option>-T3</option>) timing template</primary></indexterm>
-<option>aggressive</option> (<option>4</option>), and
+<option>aggressive</option>&nbsp;(<option>4</option>), and
 <indexterm><primary><literal>aggressive</literal> (<option>-T4</option>) timing template</primary></indexterm>
-<option>insane</option> (<option>5</option>).
+<option>insane</option>&nbsp;(<option>5</option>).
 <indexterm><primary><literal>insane</literal> (<option>-T5</option>) timing template</primary></indexterm>
 The first two are for IDS evasion.
 <indexterm><primary>intrusion detection systems</primary><secondary>avoiding</secondary></indexterm>
@@ -2621,10 +2622,10 @@ wish to be, while leaving Nmap to pick the exact timing values.  The
 templates also make some minor speed adjustments for which
 fine-grained control options do not currently exist.  For example,
 <option>-T4</option>
-<indexterm><primary><literal>aggressive</literal> (<option>-T4</option>) timing templage</primary></indexterm>
+<indexterm><primary><literal>aggressive</literal> (<option>-T4</option>) timing template</primary></indexterm>
 prohibits the dynamic scan delay from exceeding
 10&nbsp;ms for TCP ports and <option>-T5</option> caps that value at 5&nbsp;ms.
-<indexterm><primary><literal>insane</literal> (<option>-T5</option>) timing templage</primary></indexterm>
+<indexterm><primary><literal>insane</literal> (<option>-T5</option>) timing template</primary></indexterm>
 Templates can be used in combination with fine-grained
 controls, and the fine-grained controls will you specify will take
 precedence over the timing template default for that parameter.  I
@@ -2640,7 +2641,7 @@ sometimes specify <option>-T2</option> because they think it is less
 likely to crash hosts or because they consider themselves to be polite
 in general.  They often don't realize just how slow <option>-T
 polite</option>
-<indexterm><primary><literal>polite</literal> (<option>-T2</option>) timing templage</primary></indexterm>
+<indexterm><primary><literal>polite</literal> (<option>-T2</option>) timing template</primary></indexterm>
 really is.  Their scan may take ten times longer than a
 default scan.
 Machine crashes and bandwidth problems are rare with the
@@ -2650,9 +2651,9 @@ far more effective than playing with timing values at reducing these
 problems.</para>
 
 <para>While <option>-T0</option>
-<indexterm><primary><literal>paranoid</literal> (<option>-T0</option>) timing templage</primary></indexterm>
+<indexterm><primary><literal>paranoid</literal> (<option>-T0</option>) timing template</primary></indexterm>
 and <option>-T1</option>
-<indexterm><primary><literal>sneaky</literal> (<option>-T1</option>) timing templage</primary></indexterm>
+<indexterm><primary><literal>sneaky</literal> (<option>-T1</option>) timing template</primary></indexterm>
 may be
 useful for avoiding IDS alerts, they will take an extraordinarily long
 time to scan thousands of machines or ports.  For such a long scan,
@@ -2666,11 +2667,14 @@ between sending each probe.  <option>T1</option> and
 <option>T2</option> are similar but they only wait 15 seconds and 0.4
 seconds, respectively, between probes.  <option>T3</option> is Nmap's
 default behavior, which includes parallelization.
-<indexterm><primary><literal>normal</literal> (<option>-T1</option>) timing templage</primary></indexterm>
-<option>T4</option>
+<indexterm><primary><literal>normal</literal> (<option>-T3</option>) timing template</primary></indexterm>
+<option>-T4</option>
+<indexterm><primary><literal>aggressive</literal> (<option>-T4</option>) timing template</primary></indexterm>
 does the equivalent of <option>--max-rtt-timeout 1250
 --initial-rtt-timeout 500 --max-retries 6</option> and sets the maximum TCP scan delay
-to 10 milliseconds.  <option>T5</option> does the equivalent of
+to 10 milliseconds.  <option>T5</option>
+<indexterm><primary><literal>insane</literal> (<option>-T5</option>) timing template</primary></indexterm>
+does the equivalent of
 <option>--max-rtt-timeout 300 --min-rtt-timeout 50
 --initial-rtt-timeout 250 --max-retries 2 --host-timeout 15m</option> as well as
 setting the maximum TCP scan delay to 5&nbsp;ms.</para>
@@ -2777,7 +2781,7 @@ lists the relevant options and describes what they do.</para>
           specify <option>-f</option> if you use <option>--mtu</option>. The offset must be a
           multiple of 8. While fragmented packets won't get by
           packet filters and firewalls that queue all IP fragments,
-          such as the CONFIG_IP_ALWAYS_DEFRAG option in the Linux
+          such as the <varname>CONFIG_IP_ALWAYS_DEFRAG</varname> option in the Linux
           kernel, some networks can't afford the performance hit
           this causes and thus leave it disabled. Others can't enable
           this because fragments may take different routes into their
@@ -2824,12 +2828,12 @@ lists the relevant options and describes what they do.</para>
           excellent Scanlogd)
           <indexterm><primary><application>Scanlogd</application></primary></indexterm>
           are unlikely to show your IP address at
-          all. If you don't use <literal>ME</literal>, nmap will put
-          you in a random position.  You can also use RND
+          all. If you don't use <literal>ME</literal>, Nmap will put
+          you in a random position.  You can also use <literal>RND</literal>
           <indexterm><primary><literal>RND</literal> (decoy address)</primary></indexterm>
           to generate
-          a random, non-reserved IP address, or RND:&lt;number&gt; to
-          generate &lt;number&gt; addresses.</para> <para>Note that the hosts
+          a random, non-reserved IP address, or <literal>RND:<replaceable>number</replaceable></literal> to
+          generate <replaceable>number</replaceable> addresses.</para> <para>Note that the hosts
           you use as decoys should be up or you might accidentally SYN
           flood your targets. Also it will be pretty easy to determine
           which host is scanning if only one is actually up on the
@@ -2865,8 +2869,7 @@ lists the relevant options and describes what they do.</para>
 
           <para>In some circumstances, 
           Nmap may not be able to determine your
-          source address ( 
-          Nmap will tell you if this is the
+          source address (Nmap will tell you if this is the
           case). In this situation, use <option>-S</option> with the IP address of
           the interface you wish to send packets through.</para>
 
@@ -3087,6 +3090,7 @@ support the option completely, as does UDP scan.</para>
   (it is case insensitive).  If a match is found, Nmap uses the
   vendor's OUI (3-byte prefix)
   <indexterm><primary>organizationally unique identifier (OUI)</primary></indexterm>
+  <indexterm><primary>organizationally unique identifier (OUI)</primary><seealso><filename>nmap-max-prefixes</filename></seealso></indexterm>
   and fills out the remaining 3 bytes
   randomly.  Valid <option>--spoof-mac</option> argument examples are <literal>Apple</literal>, <literal>0</literal>,
   <literal>01:02:03:04:05:06</literal>, <literal>deadbeefcafe</literal>, <literal>0020F2</literal>, and <literal>Cisco</literal>.  This option only affects raw packet scans such as SYN scan or OS detection, not connection-oriented features such as version detection or the Nmap Scripting Engine.</para>
@@ -3138,28 +3142,28 @@ files, which Nmap can append to or clobber.  Output files may also be
 used to resume aborted scans.</para>
 
 <para>Nmap makes output available in five different formats.
-The default is called <literal>interactive output</literal>,
+The default is called <firstterm>interactive output</firstterm>,
 <indexterm><primary>interactive output</primary></indexterm>
 and it is sent to standard output (stdout).
 <indexterm><primary>stdout</primary></indexterm>
 <indexterm><primary>standard output</primary></indexterm>
-There is also <literal>normal output</literal>,
+There is also <firstterm>normal output</firstterm>,
 <indexterm><primary>normal output</primary></indexterm>
-which is similar to <literal>interactive</literal> except that it
+which is similar to interactive except that it
 displays less runtime information and warnings since it is expected to
 be analyzed after the scan completes rather than interactively.</para>
 
-<para>XML output
+<para><firstterm>XML output</firstterm>
 <indexterm><primary>XML output</primary></indexterm>
 is one of the most important output types, as it can
 be converted to HTML, easily parsed by programs such as Nmap graphical
 user interfaces, or imported into databases.</para>
 
-<para>The two remaining output types are the simple <literal>grepable
-output</literal>
+<para>The two remaining output types are the simple <firstterm>grepable
+output</firstterm>
 <indexterm><primary>grepable output</primary></indexterm>
 which includes most information for a target host on
-a single line, and <literal>sCRiPt KiDDi3 0utPUt</literal>
+a single line, and <firstterm>sCRiPt KiDDi3 0utPUt</firstterm>
 <indexterm><primary sortas="script kiddie output">scR1pT kIddI3 output</primary></indexterm>
 for users
 who consider themselves |&lt;-r4d.</para>
@@ -3739,8 +3743,9 @@ overwhelming requests.  Specify <option>--open</option> to only see
           <option>--datadir</option> option (if any). Any files not
           found there, are searched for in the directory specified by
           the NMAPDIR environmental variable<indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm>.
-          Next comes <filename>~/.nmap</filename> for
-          real and effective UIDs (POSIX systems only) or location of
+          Next comes <filename>~/.nmap</filename>
+          <indexterm><primary sortas="nmap"><filename>.nmap</filename> directory</primary></indexterm>
+          for real and effective UIDs (POSIX systems only) or location of
           the Nmap executable (Win32 only), and then a compiled-in
           location such as <filename>/usr/local/share/nmap</filename> or <filename>/usr/share/nmap</filename>
           . As a last resort, Nmap will look in the current
@@ -3833,7 +3838,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
           configured to allow unprivileged users to perform raw-packet
           scans. Be sure to provide this option flag before any flags
           for options that require privileges (SYN scan, OS detection,
-          etc.). The NMAP_PRIVILEGED environmental variable
+          etc.). The <envar>NMAP_PRIVILEGED</envar> environmental variable
           <indexterm><primary><envar>NMAP_PRIVILEGED</envar></primary></indexterm>
           may be set as an equivalent alternative to
           <option>--privileged</option>.</para>
@@ -3854,7 +3859,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
           <indexterm><primary>unprivileged users</primary></indexterm>
           This is useful for testing, debugging, or when the raw
           network functionality of your operating system is somehow
-          broken. The NMAP_UNPRIVILEGED environmental variable
+          broken. The <envar>NMAP_UNPRIVILEGED</envar> environmental variable
           <indexterm><primary><envar>NMAP_UNPRIVILEGED</envar></primary></indexterm>
           may be set as an equivalent alternative to
           <option>--unprivileged</option>.</para>
