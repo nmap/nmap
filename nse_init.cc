@@ -54,8 +54,10 @@ static int error_function (lua_State *L) // for use with lua_pcall
  * The file is loaded with it's own environment that has access to the Global
  * Environment. The function is tested to be sure it set a global with a valid
  * required_fields[?] ("action", "description", ...), port or host rule.
- * If it did, the script's environment (table) is saved in the global PORTTESTS
- * or HOSTTESTS table.
+ * If it did, the script's PORT/HOST rule (function) is saved in the registry
+ * PORTTESTS or HOSTTESTS table with its file closure as a value. This is
+ * important to allow each thread to have its own action closure with its
+ * own locals.
  */
 static int loadfile (lua_State *L)
 {
@@ -134,7 +136,7 @@ static int loadfile (lua_State *L)
  *
  * Loads all the scripts (files with a .nse extension), using loadfile.
  */
-static int loaddir(lua_State *L)
+static int loaddir (lua_State *L)
 {
   int i;
   luaL_checkstring(L, 1); // directory to load
@@ -367,14 +369,19 @@ int init_updatedb (lua_State *L)
       if (filebase == NULL)
         luaL_error(L, "filename basename could not be generated");
 
+      lua_getglobal(L, "string");
+      lua_getfield(L, -1, "lower"); lua_replace(L, -2);
       lua_pushnil(L);
       while (lua_next(L, -2) != 0)
       {
+        lua_pushvalue(L, -3); // string.lower
+        lua_insert(L, -2); // put below category string
+        lua_call(L, 1, 1); // lowered string on stack
         fprintf(scriptdb, "Entry{ category = \"%s\", filename = \"%s\" }\n",
             lua_tostring(L, -1), filebase);
         lua_pop(L, 1);
       }
-      lua_pop(L, 2); // script environment and categories
+      lua_pop(L, 3); // script environment, categories, string.lower
       free(filebase);
     }
     lua_pop(L, 1); // filename
@@ -415,19 +422,23 @@ static int pick_default_categories (lua_State *L)
       int j;
       lua_pushstring(L, reserved_categories[i].category);
       for (j = 1; j <= top; j++)
-        if (lua_equal(L, j, -1))
+      {
+        lua_getglobal(L, "string");
+        lua_getfield(L, -1, "lower"); lua_replace(L, -2);
+        lua_pushvalue(L, j);
+        lua_call(L, 1, 1);
+        if (lua_equal(L, -1, -2))
         {
           fatal("%s: specifying the \"%s\" category explicitly is not allowed.",
               SCRIPT_ENGINE, lua_tostring(L, -1));
         }
+        lua_pop(L, 1);
+      }
       lua_pop(L, 1);
     }
   }
   else if (o.script == 1)
-  {
-    // default set of categories
-    lua_pushliteral(L, "default");
-  }
+    lua_pushliteral(L, "default"); // default set of categories
 
   // for each in reserved_categories
   for (i = 0; i < ARRAY_LEN(reserved_categories); i++)
@@ -475,15 +486,28 @@ static int entry (lua_State *L)
       lua_pushvalue(L, 2);
     else
       lua_pushliteral(L, "all");
-    lua_pushboolean(L, 1); // set category to true
-    lua_settable(L, lua_upvalueindex(1));
+    lua_pushvalue(L, -1);
+    lua_gettable(L, lua_upvalueindex(1));
+    if (!lua_isboolean(L, -1)) // points to real key?
+    {
+      lua_pushvalue(L, -1);
+      lua_pushboolean(L, true);
+      lua_settable(L, lua_upvalueindex(1));
+    }
+    else
+    {
+      lua_pushvalue(L, -2);
+      lua_pushboolean(L, true); // set category to true
+      lua_settable(L, lua_upvalueindex(1));
+    }
+    lua_pop(L, 1); // pop value
 
     if (nse_fetchfile(script_path, sizeof(script_path),
         lua_tostring(L, 3)) != 1)
       luaL_error(L, "%s: %s is not a file!", lua_tostring(L, 3));
     
     lua_pushvalue(L, 3); // filename
-    lua_pushboolean(L, 1);
+    lua_pushboolean(L, true);
     lua_settable(L, lua_upvalueindex(2)); // loaded 
     lua_pushcclosure(L, loadfile, 0);
     lua_pushstring(L, script_path);
@@ -519,8 +543,20 @@ static int loadcategories (lua_State *L)
   lua_createtable(L, 0, top); // categories table
   for (i = 1; i <= top; i++)
   {
+    lua_getglobal(L, "string");
+    lua_getfield(L, -1, "lower"); lua_replace(L, -2);
+    lua_pushvalue(L, i);
+    lua_call(L, 1, 1);
+    lua_pushvalue(L, i);
+    lua_settable(L, -3); // This is a "complicated" but elegant way to tell
+                         // if the "lowered" string category is used. Entry
+                         // will set the "real" category (e.g. "ALL") to
+                         // true properly. These lowered copies will also
+                         // be removed below (because strings are true in Lua).
+                         // If the category is already lowercase, the below
+                         // code will replace it.
     lua_pushvalue(L, i); // category/files/directory
-    lua_pushboolean(L, 0); // false (not used)
+    lua_pushboolean(L, false); // false (not used)
     lua_settable(L, -3);
   }
 
