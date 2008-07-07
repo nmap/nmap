@@ -28,7 +28,7 @@ struct thread_record {
 	int resume_arguments;
 	unsigned int registry_idx; // index in the main state registry
 	double runlevel;
-	run_record* rr;
+	struct run_record rr;
 };
 
 int current_hosts = 0;
@@ -47,7 +47,7 @@ public:
 // prior execution
 int process_preparerunlevels(std::list<struct thread_record> torun_threads);
 int process_preparehost(lua_State* L, Target* target, std::list<struct thread_record>& torun_threads);
-int process_preparethread(lua_State* L, struct run_record *rr, struct thread_record* tr);
+int process_preparethread(lua_State* L, struct thread_record* tr);
 
 // helper functions
 int process_getScriptId(lua_State* L, ScriptResult * ssr);
@@ -335,8 +335,8 @@ int script_scan(std::vector<Target*> &targets) {
 		for (thr_iter = running_scripts.begin();
 		     thr_iter != running_scripts.end();
 		     thr_iter++)
-			if (!thr_iter->rr->host->timeOutClockRunning())
-				thr_iter->rr->host->startTimeOutClock(NULL);
+			if (!thr_iter->rr.host->timeOutClockRunning())
+				thr_iter->rr.host->startTimeOutClock(NULL);
 
 		status = process_mainloop(L);
 		if(status != SCRIPT_ENGINE_SUCCESS){
@@ -350,7 +350,6 @@ finishup:
 			log_write(LOG_STDOUT, "%s: Script scanning completed.\n", SCRIPT_ENGINE);
 			)
 	lua_close(L);
-	cleanup_threads(torun_threads);
 	torun_scripts.clear();
 	if(status != SCRIPT_ENGINE_SUCCESS) {
 		error("%s: Aborting script scan.", SCRIPT_ENGINE);
@@ -405,7 +404,7 @@ int process_mainloop(lua_State *L) {
 		gettimeofday(&now, NULL);
 
 		for(iter = waiting_scripts.begin(); iter != waiting_scripts.end(); iter++)
-			if (iter->rr->host->timedOut(&now)) {
+			if (iter->rr.host->timedOut(&now)) {
 				running_scripts.push_front((*iter));
 				waiting_scripts.erase(iter);
 				iter = waiting_scripts.begin();
@@ -415,7 +414,7 @@ int process_mainloop(lua_State *L) {
         while (!running_scripts.empty()) {
 			current = *(running_scripts.begin());
 
-			if (current.rr->host->timedOut(&now))
+			if (current.rr.host->timedOut(&now))
 				state = LUA_ERRRUN;
 			else
 				state = lua_resume(current.thread, current.resume_arguments);
@@ -447,11 +446,11 @@ int process_mainloop(lua_State *L) {
                     lua_pushcclosure(thread, escape_char, 0);
                     lua_call(thread, 3, 1);
 					sr.set_output(lua_tostring(thread, -1));
-					if(current.rr->type == 0) {
-						current.rr->host->scriptResults.push_back(sr);
-					} else if(current.rr->type == 1) {
-						current.rr->port->scriptResults.push_back(sr);
-						current.rr->host->ports.numscriptresults++;
+					if(current.rr.type == 0) {
+						current.rr.host->scriptResults.push_back(sr);
+					} else if(current.rr.type == 1) {
+						current.rr.port->scriptResults.push_back(sr);
+						current.rr.host->ports.numscriptresults++;
 					}
 					lua_pop(thread, 2);
 				}
@@ -483,10 +482,10 @@ int has_target_finished(Target *target) {
 	std::list<struct thread_record>::iterator iter;
 
 	for (iter = waiting_scripts.begin(); iter != waiting_scripts.end(); iter++)
-		if (target == iter->rr->host) return 0;
+		if (target == iter->rr.host) return 0;
 
 	for (iter = running_scripts.begin(); iter != running_scripts.end(); iter++)
-		if (target == iter->rr->host) return 0;
+		if (target == iter->rr.host) return 0;
 
 	return 1;
 }
@@ -497,8 +496,8 @@ int process_finalize(lua_State* L, unsigned int registry_idx) {
 
 	running_scripts.pop_front();
 
-	if (has_target_finished(thr.rr->host))
-		thr.rr->host->stopTimeOutClock(NULL);
+	if (has_target_finished(thr.rr.host))
+		thr.rr.host->stopTimeOutClock(NULL);
 
 	return SCRIPT_ENGINE_SUCCESS;
 }
@@ -587,12 +586,11 @@ int process_preparehost(lua_State* L, Target* target, std::list<struct thread_re
       if (lua_isboolean(L, -1) && lua_toboolean(L, -1))
       {
 	    struct thread_record tr;
-        tr.rr = (struct run_record *) safe_malloc(sizeof(struct run_record));
-        tr.rr->type = 0;
-        tr.rr->port = NULL;
-        tr.rr->host = target;
+        tr.rr.type = 0;
+        tr.rr.port = NULL;
+        tr.rr.host = target;
 
-        SCRIPT_ENGINE_TRY(process_preparethread(L, tr.rr, &tr));
+        SCRIPT_ENGINE_TRY(process_preparethread(L, &tr));
 
         torun_threads.push_back(tr);
 
@@ -679,12 +677,11 @@ int process_pickScriptsForPort(lua_State* L, Target* target, Port* port, std::li
       if (lua_isboolean(L, -1) && lua_toboolean(L, -1))
       {
 	    struct thread_record tr;
-        tr.rr = (struct run_record *) safe_malloc(sizeof(struct run_record));
-        tr.rr->type = 1;
-        tr.rr->port = port;
-        tr.rr->host = target;
+        tr.rr.type = 1;
+        tr.rr.port = port;
+        tr.rr.host = target;
 
-        SCRIPT_ENGINE_TRY(process_preparethread(L, tr.rr, &tr));
+        SCRIPT_ENGINE_TRY(process_preparethread(L, &tr));
 
         torun_threads.push_back(tr);
         
@@ -708,7 +705,7 @@ int process_pickScriptsForPort(lua_State* L, Target* target, Port* port, std::li
  * knows where to put the script result. File closure is expected
  * at stack index -2.
  * */
-int process_preparethread(lua_State* L, struct run_record *rr, struct thread_record *tr){
+int process_preparethread(lua_State* L, struct thread_record *tr){
 
 	lua_State *thread = lua_newthread(L);
 	tr->registry_idx = luaL_ref(L, LUA_REGISTRYINDEX); // store thread
@@ -748,14 +745,14 @@ int process_preparethread(lua_State* L, struct run_record *rr, struct thread_rec
 
 	// make the info table
 	lua_newtable(thread); 
-	set_hostinfo(thread, rr->host);
+	set_hostinfo(thread, tr->rr.host);
 
 	/* if this is a host rule we don't have
 	 * a port state
 	 * */
-	if(rr->port != NULL) {
+	if(tr->rr.port != NULL) {
 		lua_newtable(thread);
-		set_portinfo(thread, rr->port);
+		set_portinfo(thread, tr->rr.port);
 		tr->resume_arguments = 2;
 	}
     else
@@ -763,14 +760,3 @@ int process_preparethread(lua_State* L, struct run_record *rr, struct thread_rec
 
 	return SCRIPT_ENGINE_SUCCESS;
 }
-
-int cleanup_threads(std::list<struct thread_record> trs)
-{
-	std::list<struct thread_record>::iterator triter;
-
-	for (triter = trs.begin(); triter != trs.end(); triter++)
-		free((*triter).rr);
-
-	return SCRIPT_ENGINE_SUCCESS;
-}
-
