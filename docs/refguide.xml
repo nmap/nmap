@@ -411,16 +411,16 @@ you would expect.</para>
         </term>
         <listitem>
            <para>This option tells Nmap to only perform a ping scan
-           (host discovery), then print out the available hosts
-           that responded to the scan.  If requested, Traceroute and
-           NSE host scripts can be run against the target after the
-           ping scan, but no other further testing (such as
-           port scanning or OS detection) is performed.  This is by
-           default one step more intrusive than the list scan, and can often be
-           used for the same purposes.  It allows light reconnaissance
-           of a target network without attracting much attention.
-           Knowing how many hosts are up is more valuable to attackers
-           than the list provided by list scan of every single IP and host name.</para>
+           (host discovery), then print out the available hosts that
+           responded to the scan.  Traceroute and NSE host scripts are
+           also run if requested, but no further testing (such as port
+           scanning or OS detection) is performed.  This is by default
+           one step more intrusive than the list scan, and can often
+           be used for the same purposes.  It allows light
+           reconnaissance of a target network without attracting much
+           attention.  Knowing how many hosts are up is more valuable
+           to attackers than the list provided by list scan of every
+           single IP and host name.</para>
 
            <para>Systems administrators often find this option
            valuable as well.  It can easily be used to count available
