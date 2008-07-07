@@ -366,10 +366,9 @@ you would expect.</para>
     even if you specify non-default host discovery types such as UDP
     probes (<option>-PU</option>).  Read about the
     <option>-sP</option> option to learn how to perform
-    <emphasis>only</emphasis> host discovery, or use
-    <option>-PN</option> to skip host discovery and port scan all
-    target hosts.  The following options control host
-    discovery:</para>
+    only host discovery, or use <option>-PN</option> to skip host
+    discovery and port scan all target hosts.  The following options
+    control host discovery:</para>
 
     <variablelist>
 
@@ -411,11 +410,13 @@ you would expect.</para>
         <indexterm><primary>ping scan</primary></indexterm>
         </term>
         <listitem>
-           <para>This option tells Nmap to <emphasis>only</emphasis>
-           perform a ping scan (host discovery), then print out the available hosts
-           that responded to the scan.  No further testing (such as
-           port scanning or OS detection) is performed.  This is one
-           step more intrusive than the list scan, and can often be
+           <para>This option tells Nmap to only perform a ping scan
+           (host discovery), then print out the available hosts
+           that responded to the scan.  If requested, Traceroute and
+           NSE host scripts can be run against the target after the
+           ping scan, but no other further testing (such as
+           port scanning or OS detection) is performed.  This is by
+           default one step more intrusive than the list scan, and can often be
            used for the same purposes.  It allows light reconnaissance
            of a target network without attracting much attention.
            Knowing how many hosts are up is more valuable to attackers
