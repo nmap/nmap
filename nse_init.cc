@@ -66,7 +66,7 @@ static int loadfile (lua_State *L)
   static const char *required_fields[] = {ACTION, DESCRIPTION};
   lua_settop(L, 1); // removes other arguments
 
-  lua_createtable(L, 0, 11); // Environment for script
+  lua_createtable(L, 0, 11); // Environment for script (index 2)
   
   lua_pushvalue(L, 1); // tell the script about its filename
   lua_setfield(L, -2, FILENAME);
@@ -81,9 +81,10 @@ static int loadfile (lua_State *L)
   lua_setfield(L, -2, "__index");
   lua_setmetatable(L, -2);
 
-  if (luaL_loadfile(L, filename) != 0) // load the file
+  if (luaL_loadfile(L, filename) != 0) // load the file (index 3)
     luaL_error(L, "'%s' could not be loaded!", filename);
-  lua_pushvalue(L, -2); // push environment table
+  lua_pushvalue(L, -1);
+  lua_pushvalue(L, 2); // push environment table
   lua_setfenv(L, -2); // set it
   lua_call(L, 0, 0); // Call the function (loads globals)
 
@@ -91,7 +92,7 @@ static int loadfile (lua_State *L)
   for (i = 0; i < ARRAY_LEN(required_fields); i++)
   {
     lua_pushstring(L, required_fields[i]);
-    lua_gettable(L, -2);
+    lua_gettable(L, 2);
     if (lua_isnil(L, -1))
       luaL_error(L, "No '%s' field in script '%s'.", required_fields[i],
           filename);
@@ -101,31 +102,39 @@ static int loadfile (lua_State *L)
   /* store the initialized test in either
    * the hosttests or the porttests
    */
-  lua_getfield(L, -1, PORTRULE); // script's portrule
-  lua_getfield(L, -2, HOSTRULE); // script's hostrule
+  lua_getfield(L, 2, PORTRULE); // script's portrule
+  lua_getfield(L, 2, HOSTRULE); // script's hostrule
 
   /* if we are looking at a portrule then store it in the porttestsets table,
    * else if it is a hostrule, then it goes into the hosttestsets table,
    * otherwise we fail if there.
    */
-  if (!lua_isnil(L, -2))
+  if (!lua_isnil(L, -2)) // script has a port rule
   {
-    lua_pop(L, 2); // pop port/host rules
-    lua_getfield(L, LUA_REGISTRYINDEX, PORTTESTS); // Get global PORTTESTS table
-    lua_pushvalue(L, -2); // script's environment
-    lua_rawseti(L, -2, lua_objlen(L, -2) + 1); // add it
-    lua_pop(L, 1); // pop the porttests table
+    lua_getfield(L, LUA_REGISTRYINDEX, PORTTESTS); // Get PORTTESTS table
+    lua_pushvalue(L, -3); // script's portrule
+    lua_pushvalue(L, 3); // script's file closure
+    lua_getfenv(L, -1);
+    lua_pushliteral(L, FILENAME);
+    lua_pushvalue(L, 1); // filename
+    lua_settable(L, -3);
+    lua_pop(L, 1); // file closure environment
+    lua_settable(L, -3);
   }
-  else if (!lua_isnil(L, -1))
+  else if (!lua_isnil(L, -1)) // script has a hostrule
   {
-    lua_pop(L, 2);
     lua_getfield(L, LUA_REGISTRYINDEX, HOSTTESTS);
-    lua_pushvalue(L, -2);
-    lua_rawseti(L, -2, lua_objlen(L, -2) + 1);
-    lua_pop(L, 1); // pop the hosttests table
+    lua_pushvalue(L, -2); // script's hostrule
+    lua_pushvalue(L, 3); // script's file closure
+    lua_getfenv(L, -1);
+    lua_pushliteral(L, FILENAME);
+    lua_pushvalue(L, 1); // filename
+    lua_settable(L, -3);
+    lua_pop(L, 1); // file closure environment
+    lua_settable(L, -3);
   }
   else
-    luaL_error(L, "No rules in script '%s'.", filename);
+    return luaL_error(L, "No rules in script '%s'.", filename);
   return 0;
 }
 

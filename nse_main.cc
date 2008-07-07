@@ -19,7 +19,6 @@ extern NmapOps o;
 
 struct run_record {
 	short type; // 0 - hostrule; 1 - portrule
-	unsigned int index; // index in the corresponding table
 	Port* port;
 	Target* host;
 };
@@ -48,7 +47,7 @@ public:
 // prior execution
 int process_preparerunlevels(std::list<struct thread_record> torun_threads);
 int process_preparehost(lua_State* L, Target* target, std::list<struct thread_record>& torun_threads);
-int process_preparethread(lua_State* L, struct run_record rr, struct thread_record* tr);
+int process_preparethread(lua_State* L, struct run_record *rr, struct thread_record* tr);
 
 // helper functions
 int process_getScriptId(lua_State* L, struct script_scan_result* ssr);
@@ -56,7 +55,7 @@ int process_pickScriptsForPort(
 		lua_State* L, 
 		Target* target, 
 		Port* port,
-		std::vector<run_record>& torun);
+		std::list<thread_record>& torun_threads);
 
 // execution
 int process_mainloop(lua_State* L);
@@ -109,7 +108,6 @@ static int escape_char (lua_State *L)
   lua_concat(L, 2);
   return 1;
 }
-
 
 int script_updatedb (void)
 {
@@ -233,7 +231,7 @@ int script_scan(std::vector<Target*> &targets) {
 	)
 
 	L = luaL_newstate();
-	if(L == NULL) {
+	if (L == NULL) {
 		error("%s: Failed luaL_newstate()", SCRIPT_ENGINE);
         return SCRIPT_ENGINE_ERROR;
 	}
@@ -553,109 +551,66 @@ int process_getScriptId(lua_State* L, struct script_scan_result *ssr) {
 int process_preparehost(lua_State* L, Target* target, std::list<struct thread_record>& torun_threads) {
 	PortList* plist = &(target->ports);
 	Port* current = NULL;
-	size_t rules_count;
-	unsigned int i;
-	std::vector<run_record> torun;
-	std::vector<run_record>::iterator iter;
-	struct run_record rr;
 
 	/* find the matching hostrules
 	 * */
 	lua_getfield(L, LUA_REGISTRYINDEX, HOSTTESTS);
-	rules_count = lua_objlen(L, -1);
+    lua_pushnil(L);
+    while (lua_next(L, -2) != 0)
+    {
+      // Hostrule function & file closure on stack
+      lua_pushvalue(L, -2); // hostrule function (key)
+      lua_newtable(L);
+      set_hostinfo(L, target); // hostrule argument
+      SCRIPT_ENGINE_LUA_TRY(lua_pcall(L, 1, 1, 0));
 
-	for(i = 1; i <= rules_count; i++) {
-		lua_rawgeti(L, -1, i);
+      if (lua_isboolean(L, -1) && lua_toboolean(L, -1))
+      {
+	    struct thread_record tr;
+        tr.rr = (struct run_record *) safe_malloc(sizeof(struct run_record));
+        tr.rr->type = 0;
+        tr.rr->port = NULL;
+        tr.rr->host = target;
 
-		lua_getfield(L, -1, HOSTRULE);
+        SCRIPT_ENGINE_TRY(process_preparethread(L, tr.rr, &tr));
 
-		lua_newtable(L);
-		set_hostinfo(L, target);
+        torun_threads.push_back(tr);
 
-		SCRIPT_ENGINE_LUA_TRY(lua_pcall(L, 1, 1, 0));
-
-		if(lua_isboolean (L, -1) && lua_toboolean(L, -1)) {
-			rr.type = 0;
-			rr.index = i;
-			rr.port = NULL;
-			rr.host = target;
-			torun.push_back(rr);
-
-			SCRIPT_ENGINE_DEBUGGING(
-				lua_getfield(L, -2, FILENAME);
-				log_write(LOG_STDOUT, "%s: Will run %s against %s\n",
-					SCRIPT_ENGINE,
-					lua_tostring(L, -1),
-					target->targetipstr());
-				lua_pop(L, 1);
-			)
-		}
-		lua_pop(L, 2);
-	}
+        SCRIPT_ENGINE_DEBUGGING(
+            lua_getfenv(L, -2); // file closure environment
+            lua_getfield(L, -1, FILENAME);
+            log_write(LOG_STDOUT, "%s: Will run %s against %s\n",
+              SCRIPT_ENGINE,
+              lua_tostring(L, -1),
+              target->targetipstr());
+            lua_pop(L, 2);
+            )
+      }
+      lua_pop(L, 2); // boolean and file closure
+    }
 
 	/* find the matching port rules
 	 * */
 	lua_getfield(L, LUA_REGISTRYINDEX, PORTTESTS);
-
-	/* we only publish hostinfo once per portrule */
-	lua_newtable(L);
-	set_hostinfo(L, target);
 
 	/* because of the port iteration API we need to awkwardly iterate
 	 * over the kinds of ports we're interested in explictely.
 	 * */
 	current = NULL;
 	while((current = plist->nextPort(current, TCPANDUDP, PORT_OPEN)) != NULL) {
-		SCRIPT_ENGINE_TRY(process_pickScriptsForPort(L, target, current, torun));
+		SCRIPT_ENGINE_TRY(process_pickScriptsForPort(L, target, current, torun_threads));
 	}
 
 	while((current = plist->nextPort(current, TCPANDUDP, PORT_OPENFILTERED)) != NULL) {
-		SCRIPT_ENGINE_TRY(process_pickScriptsForPort(L, target, current, torun));
+		SCRIPT_ENGINE_TRY(process_pickScriptsForPort(L, target, current, torun_threads));
 	}
 
 	while((current = plist->nextPort(current, TCPANDUDP, PORT_UNFILTERED)) != NULL) {
-		SCRIPT_ENGINE_TRY(process_pickScriptsForPort(L, target, current, torun));
+		SCRIPT_ENGINE_TRY(process_pickScriptsForPort(L, target, current, torun_threads));
 	}
 
-	// pop the hostinfo, we don't need it anymore
-	lua_pop(L, 1);
+	lua_pop(L, 2); // Hostrules, Portrules
 
-	/* ok, let's setup threads for the scripts which said they'd like
-	 * to run 
-	 * Remember:
-	 * we have the hosttestset and the porttestset on the stack!
-	 * */
-	struct thread_record tr;
-
-	for(iter = torun.begin(); iter != torun.end(); iter++) {
-		/* If it is a host rule, execute the action
-		 * and append the output to the host output i
-		 * If it is a port rule, append the output to
-		 * the port and increase the number of scripts
-		 * which produced output. We need that number
-		 * to generate beautiful output later.
-		 * */
-		switch((*iter).type) {
-			case 0: // this script runs against a host
-				lua_pushvalue(L, -2);
-				SCRIPT_ENGINE_TRY(process_preparethread(L, (*iter), &tr));
-				lua_pop(L, 1);
-				break;
-			case 1: // this script runs against a port
-				lua_pushvalue(L, -1);
-				SCRIPT_ENGINE_TRY(process_preparethread(L, (*iter), &tr));
-				lua_pop(L, 1);
-				break;
-			default:
-				fatal("%s: In: %s:%i This should never happen.", 
-						SCRIPT_ENGINE, __FILE__, __LINE__);
-		}
-
-		torun_threads.push_back(tr);
-	}
-	lua_pop(L, 2);
-
-	torun.clear();
 	return SCRIPT_ENGINE_SUCCESS;
 }
 
@@ -687,109 +642,104 @@ int process_preparerunlevels(std::list<struct thread_record> torun_threads) {
 /* Because we can't iterate over all ports of interest in one go
  * we need to do port matching in a separate function (unlike host
  * rule matching)
- * Note that we assume that at -2 on the stack we can find the portrules
- * and at -1 the hostinfo table
+ * Note that we assume that at -1 on the stack we can find the portrules
  * */
-int process_pickScriptsForPort(
-		lua_State* L, 
-		Target* target, 
-		Port* port,
-		std::vector<run_record>& torun) {
-	size_t rules_count = lua_objlen(L, -2);
-	struct run_record rr;
-	unsigned int i;
+int process_pickScriptsForPort(lua_State* L, Target* target, Port* port, std::list<thread_record>& torun_threads) {
+    lua_pushnil(L);
+    while (lua_next(L, -2) != 0)
+    {
+      // Portrule function & file closure on stack
+      lua_pushvalue(L, -2); // portrule function (key)
+      lua_newtable(L);
+      set_hostinfo(L, target); // portrule argument 1
+      lua_newtable(L);
+      set_portinfo(L, port); // portrule argument 2
+      SCRIPT_ENGINE_LUA_TRY(lua_pcall(L, 2, 1, 0));
 
-	for(i = 1; i <= rules_count; i++) {
-		lua_rawgeti(L, -2, i);
+      if (lua_isboolean(L, -1) && lua_toboolean(L, -1))
+      {
+	    struct thread_record tr;
+        tr.rr = (struct run_record *) safe_malloc(sizeof(struct run_record));
+        tr.rr->type = 1;
+        tr.rr->port = port;
+        tr.rr->host = target;
 
-		lua_getfield(L, -1, PORTRULE);
+        SCRIPT_ENGINE_TRY(process_preparethread(L, tr.rr, &tr));
 
-		lua_pushvalue(L, -3);
-
-		lua_newtable(L);
-		set_portinfo(L, port);
-
-		SCRIPT_ENGINE_LUA_TRY(lua_pcall(L, 2, 1, 0));
-
-		if(lua_isboolean (L, -1) && lua_toboolean(L, -1)) {
-			rr.type = 1;
-			rr.index = i;
-			rr.port = port;
-			rr.host = target;
-			torun.push_back(rr);
-
-			SCRIPT_ENGINE_DEBUGGING(
-					lua_getfield(L, -2, FILENAME);
-					log_write(LOG_STDOUT, "%s: Will run %s against %s:%d\n",
-						SCRIPT_ENGINE,
-						lua_tostring(L, -1),
-						target->targetipstr(),
-						port->portno);
-					lua_pop(L, 1);
-					)
-		} else if(!lua_isboolean (L, -1)) {
-			lua_getfield(L, -2, FILENAME);
-			error("%s: Rule in %s returned %s but boolean was expected.",
-					SCRIPT_ENGINE,
-					lua_tostring(L, -1),
-					lua_typename(L, lua_type(L, -2)));
-			return SCRIPT_ENGINE_LUA_ERROR;
-		}
-		lua_pop(L, 2);
-	}
-
+        torun_threads.push_back(tr);
+        
+        SCRIPT_ENGINE_DEBUGGING(
+            lua_getfenv(L, -2); // file closure environment
+            lua_getfield(L, -1, FILENAME);
+            log_write(LOG_STDOUT, "%s: Will run %s against %s\n",
+              SCRIPT_ENGINE,
+              lua_tostring(L, -1),
+              target->targetipstr());
+            lua_pop(L, 2);
+            )
+      }
+      lua_pop(L, 2); // boolean and file closure
+    }
 	return SCRIPT_ENGINE_SUCCESS;
 }
 
 /* Create a new lua thread and prepare it for execution
  * we store target info in the thread so that the mainloop
- * knows where to put the script result
+ * knows where to put the script result. File closure is expected
+ * at stack index -2.
  * */
-int process_preparethread(lua_State* L, struct run_record rr, struct thread_record* tr){
+int process_preparethread(lua_State* L, struct run_record *rr, struct thread_record *tr){
 
 	lua_State *thread = lua_newthread(L);
+	tr->registry_idx = luaL_ref(L, LUA_REGISTRYINDEX); // store thread
+    tr->thread = thread;
 
-	lua_rawgeti(L, -2, rr.index); // get the script closure
+    lua_pushvalue(L, -2); // File closure
+    lua_getfenv(L, -1); // get script file environment
+    lua_getfield(L, -1, FILENAME); // get its filename
+ 
+    lua_createtable(L, 0, 11); // new environment
+    lua_pushvalue(L, -2); // script filename
+    lua_setfield(L, -2, FILENAME);
+    lua_pushnumber(L, 1.0); // set a default RUNLEVEL
+    lua_setfield(L, -2, RUNLEVEL);
+    lua_createtable(L, 0, 1); // metatable for env
+    lua_pushvalue(L, LUA_GLOBALSINDEX);
+    lua_setfield(L, -2, "__index"); // global access
+    lua_setmetatable(L, -2);
 
-	// move the script closure into the thread
-	lua_xmove(L, thread, 1); 
+    lua_pushvalue(L, -4); // script file closure
+    lua_pushvalue(L, -2); // script env
+    lua_setfenv(L, -2);
+    SCRIPT_ENGINE_LUA_TRY(
+        lua_pcall(L, 0, 0, 0) // file closure loads globals (action, id, etc.)
+        );
 
-	// store the target of this thread in the thread
-	struct run_record *rr_thread = (struct run_record*) safe_malloc(sizeof(struct run_record));
-	rr_thread->type = rr.type;
-	rr_thread->index = rr.index;
-	rr_thread->host = rr.host;
-	rr_thread->port = rr.port;
+	lua_getfield(L, -1, RUNLEVEL);
+	tr->runlevel = lua_tonumber(L, -1);
+	lua_pop(L, 1);
 
-	
-	lua_getfield(thread, -1, RUNLEVEL);
-	tr->runlevel = lua_tonumber(thread, -1);
-	lua_pop(thread, 1);
-
-	// prepare the thread for a resume by
-	// pushing the action method onto the stack
-	lua_getfield(thread, -1, ACTION);
+	// move the script action closure into the thread
+    lua_getfield(L, -1, ACTION); // action closure
+	lua_xmove(L, thread, 2); 
+    lua_pop(L, 1); // filename
+    lua_setfenv(L, -2); // reset old env
+    lua_pop(L, 1); // file closure
 
 	// make the info table
 	lua_newtable(thread); 
-	set_hostinfo(thread, rr.host);
-
-	tr->thread = thread;
-	tr->rr = rr_thread;
-	tr->resume_arguments = 1;
-
-	// we store the thread in the registry to prevent
-	// garbage collection +
-	tr->registry_idx = luaL_ref(L, LUA_REGISTRYINDEX);
+	set_hostinfo(thread, rr->host);
 
 	/* if this is a host rule we don't have
 	 * a port state
 	 * */
-	if(rr.port != NULL) {
+	if(rr->port != NULL) {
 		lua_newtable(thread);
-		set_portinfo(thread, rr.port);
+		set_portinfo(thread, rr->port);
 		tr->resume_arguments = 2;
 	}
+    else
+	  tr->resume_arguments = 1;
 
 	return SCRIPT_ENGINE_SUCCESS;
 }
