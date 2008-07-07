@@ -66,11 +66,34 @@ int process_finalize(lua_State* L, unsigned int registry_idx);
 // post execution
 int cleanup_threads(std::list<struct thread_record> trs);
 
+/* int panic (lua_State *L)
+ *
+ * Panic function set via lua_atpanic().
+ */
 static int panic (lua_State *L)
 {
   const char *err = lua_tostring(L, 1);
   fatal("Unprotected error in Lua:\n%s\n", err);
   return 0;
+}
+
+/* size_t table_length (lua_State *L, int index)
+ *
+ * Returns the length of the table at index index.
+ * This length is the number of elements, not just array elements.
+ */
+size_t table_length (lua_State *L, int index)
+{
+  size_t len = 0;
+  lua_pushvalue(L, index);
+  lua_pushnil(L);
+  while (lua_next(L, -2) != 0)
+  {
+    len++;
+    lua_pop(L, 1);
+  }
+  lua_pop(L, 1); // table
+  return len;
 }
 
 /* int escape_char (lua_State *L)
@@ -502,8 +525,8 @@ int process_waiting2running(lua_State* L, int resume_arguments) {
  * */
 int process_getScriptId(lua_State* L, struct script_scan_result *ssr) {
 
-	lua_getfield(L, -2, "id");
-	lua_getfield(L, -3, "filename");
+	lua_getfield(L, -2, ID);
+	lua_getfield(L, -3, FILENAME);
 
 	if(lua_isstring(L, -2)) {
 		ssr->id = strdup(lua_tostring (L, -2));
@@ -538,13 +561,13 @@ int process_preparehost(lua_State* L, Target* target, std::list<struct thread_re
 
 	/* find the matching hostrules
 	 * */
-	lua_getglobal(L, HOSTTESTS);
+	lua_getfield(L, LUA_REGISTRYINDEX, HOSTTESTS);
 	rules_count = lua_objlen(L, -1);
 
 	for(i = 1; i <= rules_count; i++) {
 		lua_rawgeti(L, -1, i);
 
-		lua_getfield(L, -1, "hostrule");
+		lua_getfield(L, -1, HOSTRULE);
 
 		lua_newtable(L);
 		set_hostinfo(L, target);
@@ -559,7 +582,7 @@ int process_preparehost(lua_State* L, Target* target, std::list<struct thread_re
 			torun.push_back(rr);
 
 			SCRIPT_ENGINE_DEBUGGING(
-				lua_getfield(L, -2, "filename");
+				lua_getfield(L, -2, FILENAME);
 				log_write(LOG_STDOUT, "%s: Will run %s against %s\n",
 					SCRIPT_ENGINE,
 					lua_tostring(L, -1),
@@ -572,7 +595,7 @@ int process_preparehost(lua_State* L, Target* target, std::list<struct thread_re
 
 	/* find the matching port rules
 	 * */
-	lua_getglobal(L, PORTTESTS);
+	lua_getfield(L, LUA_REGISTRYINDEX, PORTTESTS);
 
 	/* we only publish hostinfo once per portrule */
 	lua_newtable(L);
@@ -696,7 +719,7 @@ int process_pickScriptsForPort(
 			torun.push_back(rr);
 
 			SCRIPT_ENGINE_DEBUGGING(
-					lua_getfield(L, -2, "filename");
+					lua_getfield(L, -2, FILENAME);
 					log_write(LOG_STDOUT, "%s: Will run %s against %s:%d\n",
 						SCRIPT_ENGINE,
 						lua_tostring(L, -1),
@@ -705,7 +728,7 @@ int process_pickScriptsForPort(
 					lua_pop(L, 1);
 					)
 		} else if(!lua_isboolean (L, -1)) {
-			lua_getfield(L, -2, "filename");
+			lua_getfield(L, -2, FILENAME);
 			error("%s: Rule in %s returned %s but boolean was expected.",
 					SCRIPT_ENGINE,
 					lua_tostring(L, -1),

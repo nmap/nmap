@@ -69,7 +69,7 @@ static int loadfile (lua_State *L)
   lua_createtable(L, 0, 11); // Environment for script
   
   lua_pushvalue(L, 1); // tell the script about its filename
-  lua_setfield(L, -2, "filename");
+  lua_setfield(L, -2, FILENAME);
 
   lua_pushnumber(L, 1.0); // set a default RUNLEVEL
   lua_setfield(L, -2, RUNLEVEL);
@@ -87,7 +87,7 @@ static int loadfile (lua_State *L)
   lua_setfenv(L, -2); // set it
   lua_call(L, 0, 0); // Call the function (loads globals)
 
-  /* Check some required fields */
+  // Check some required fields
   for (i = 0; i < ARRAY_LEN(required_fields); i++)
   {
     lua_pushstring(L, required_fields[i]);
@@ -111,7 +111,7 @@ static int loadfile (lua_State *L)
   if (!lua_isnil(L, -2))
   {
     lua_pop(L, 2); // pop port/host rules
-    lua_getglobal(L, PORTTESTS); // Get global PORTTESTS table
+    lua_getfield(L, LUA_REGISTRYINDEX, PORTTESTS); // Get global PORTTESTS table
     lua_pushvalue(L, -2); // script's environment
     lua_rawseti(L, -2, lua_objlen(L, -2) + 1); // add it
     lua_pop(L, 1); // pop the porttests table
@@ -119,7 +119,7 @@ static int loadfile (lua_State *L)
   else if (!lua_isnil(L, -1))
   {
     lua_pop(L, 2);
-    lua_getglobal(L, HOSTTESTS);
+    lua_getfield(L, LUA_REGISTRYINDEX, HOSTTESTS);
     lua_pushvalue(L, -2);
     lua_rawseti(L, -2, lua_objlen(L, -2) + 1);
     lua_pop(L, 1); // pop the hosttests table
@@ -212,16 +212,16 @@ int init_lua (lua_State *L)
 
   lua_getfield(L, LUA_REGISTRYINDEX, "_LOADED"); // Loaded libraries
   for (i = 0; i < ARRAY_LEN(libs); i++) // for each in libs
-  { 
+  {
     lua_pushstring(L, libs[i].name);
     lua_pushcclosure(L, libs[i].func, 0);
     lua_pushvalue(L, -2);
     lua_call(L, 1, 1);
     if (lua_isnil(L, -1))
-    { 
+    {
       lua_getglobal(L, libs[i].name); // library?
       if (!lua_istable(L, -1))
-      { 
+      {
         lua_pop(L, 2);
         lua_pushboolean(L, true);
       }
@@ -232,8 +232,8 @@ int init_lua (lua_State *L)
   }
   lua_pop(L, 1); // _LOADED
 
-  lua_getglobal(L, "debug"); // _LOADED.debug
-  lua_getfield(L, -1, "traceback");
+  lua_getglobal(L, "debug"); // debug
+  lua_getfield(L, -1, "traceback"); lua_replace(L, -2); // replace debug table
   lua_pushcclosure(L, error_function, 1);
   errfunc = luaL_ref(L, LUA_REGISTRYINDEX);
 
@@ -249,7 +249,7 @@ int init_lua (lua_State *L)
 /* int init_parseargs (lua_State *L)
  *
  * Arguments
- *   args    Arguments passed through --script-args, or "" if it wasn't used
+ *   args    Arguments passed through --script-args
  * Returns
  *   function    Function that returns a table with the arguments, or an error
  *               message describing why the arguments could not be parsed.
@@ -465,8 +465,8 @@ static int entry (lua_State *L)
 
   luaL_checktype(L, 1, LUA_TTABLE); // Sole argument is a table
   lua_settop(L, 1);
-  lua_getfield(L, 1, "category"); // index 2
-  lua_getfield(L, 1, "filename"); // index 3
+  lua_getfield(L, 1, CATEGORY); // index 2
+  lua_getfield(L, 1, FILENAME); // index 3
   if (!(lua_isstring(L, 2) && lua_isstring(L, 3)))
     luaL_error(L, "bad entry in script database");
   lua_pushvalue(L, 3); // filename
@@ -590,7 +590,7 @@ static int loadcategories (lua_State *L)
  * Arguments
  *   ...    All the categories/scripts/directories passed via --script
  *
- * This function adds the PORTTESTS and HOSTTESTS globals to the main state.
+ * This function adds the PORTTESTS and HOSTTESTS to the main state.
  * Then it calls pick_default_categories to check for illegally passed implicit
  * categories (which it will add otherwise). Next, loadcategories is called
  * to load all the viable files for which a category was chosen. The unused
@@ -602,10 +602,10 @@ int init_rules (lua_State *L)
   int top = lua_gettop(L); // number of categories/scripts
 
   lua_newtable(L);
-  lua_setglobal(L, PORTTESTS);
+  lua_setfield(L, LUA_REGISTRYINDEX, PORTTESTS);
 
   lua_newtable(L);
-  lua_setglobal(L, HOSTTESTS);
+  lua_setfield(L, LUA_REGISTRYINDEX, HOSTTESTS);
 
   lua_pushcclosure(L, pick_default_categories, 0);
   lua_insert(L, 1);
@@ -662,13 +662,10 @@ int init_rules (lua_State *L)
 
   // Compute some stats 
   SCRIPT_ENGINE_DEBUGGING(
-      int rules_count;
-      
-      lua_getglobal(L, HOSTTESTS);
-      rules_count = lua_objlen(L, -1);
-      
-      lua_getglobal(L, PORTTESTS);
-      rules_count += lua_objlen(L, -1);
+      size_t rules_count;
+      lua_getfield(L, LUA_REGISTRYINDEX, HOSTTESTS);
+      lua_getfield(L, LUA_REGISTRYINDEX, PORTTESTS);
+      rules_count = table_length(L, -2) + table_length(L, -1);
       lua_pop(L, 2);
       log_write(LOG_STDOUT, "%s: Initialized %d rules\n", SCRIPT_ENGINE, rules_count);
    )

@@ -6,10 +6,20 @@
 #define PORTRULE	"portrule"
 #define PORTTESTS	"porttests"
 #define ACTION		"action"
+#define HOST        "host"
+#define PORT        "port"
+#define PORT_U      "Port"
 #define DESCRIPTION	"description"
 #define AUTHOR		"author"
 #define LICENSE		"license"
 #define RUNLEVEL	 "runlevel"
+#define TARGET_CLASS "Target Class"
+#define TARGET      "target"
+#define TYPE        "type"
+#define ID          "id"
+#define FILENAME    "filename"
+#define CATEGORY    "category"
+#define WAITING     "nse_waiting"
 #define FILES		 1
 #define DIRS		 2
 

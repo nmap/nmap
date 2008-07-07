@@ -28,5 +28,9 @@ int script_updatedb();
 int script_check_args();
 
 int process_waiting2running(lua_State *, int);
-#endif
 
+/* Useful auxiliary functions */
+size_t table_length(lua_State *, int);
+
+
+#endif
