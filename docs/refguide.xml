@@ -2048,7 +2048,7 @@ way.</para>
     </para> 
 
     <para> 
-    <indexterm><primary><literal>vulnerability</literal> script category</primary></indexterm>
+    <indexterm><primary><literal>vuln</literal> script category</primary></indexterm>
     <emphasis>Vulnerability Detection</emphasis> (category
     <literal>vuln</literal>)&mdash;NSE's capacity in detecting risks ranges
     from testing whether an SMTP server supports relaying mail from arbitrary
