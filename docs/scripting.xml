@@ -223,7 +223,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
      <variablelist>
         <varlistentry>
           <term>
-            <indexterm><primary><literal>safe</literal></primary> script category</indexterm>
+            <indexterm><primary><literal>safe</literal> script category</primary></indexterm>
             <option>safe</option>
           </term>
           <listitem>
@@ -242,7 +242,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
-            <indexterm><primary><literal>intrusive</literal></primary> script category</indexterm>
+            <indexterm><primary><literal>intrusive</literal> script category</primary></indexterm>
             <option>intrusive</option>
           </term>
           <listitem>
@@ -257,7 +257,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
-            <indexterm><primary><literal>malware</literal></primary> script category</indexterm>
+            <indexterm><primary><literal>malware</literal> script category</primary></indexterm>
             <option>malware</option>
           </term>
           <listitem>
@@ -268,8 +268,8 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
-            <indexterm><primary><literal>version</literal></primary> script category</indexterm>
-            <indexterm><primary>version detection</primary><seealso><literal>version</literal> script caetgory</seealso></indexterm>
+            <indexterm><primary><literal>version</literal> script category</primary></indexterm>
+            <indexterm><primary>version detection</primary><seealso><literal>version</literal> script category</seealso></indexterm>
             <option>version</option>
           </term>
           <listitem>
@@ -285,7 +285,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
-            <indexterm><primary><literal>discovery</literal></primary> script category</indexterm>
+            <indexterm><primary><literal>discovery</literal> script category</primary></indexterm>
             <option>discovery</option>
           </term>
           <listitem>
@@ -297,7 +297,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
-            <indexterm><primary><literal>vuln</literal></primary> script category</indexterm>
+            <indexterm><primary><literal>vuln</literal> script category</primary></indexterm>
             <option>vuln</option>
           </term>
           <listitem>
@@ -308,7 +308,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
-            <indexterm><primary><literal>auth</literal></primary> script category</indexterm>
+            <indexterm><primary><literal>auth</literal> script category</primary></indexterm>
             <option>auth</option>
           </term>
           <listitem>
@@ -319,7 +319,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
-            <indexterm><primary><literal>default</literal></primary> script category</indexterm>
+            <indexterm><primary><literal>default</literal> script category</primary></indexterm>
             <option>default</option>
           </term>
           <listitem>
@@ -410,7 +410,7 @@ will try to interpret the arguments at first as categories and afterwards
 as files or directories.  Absolute paths are used as is, relative paths are
 searched in the following places until found:
 <indexterm><primary>data files</primary><secondary>directory search order</secondary></indexterm>
-<indexterm><primary>scripts</primary><secondary>location of</secondary></indexterm>
+<indexterm><primary>scripts, location of</primary></indexterm>
 <filename>--datadir/</filename>; 
 <indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm>
 <filename>$NMAPDIR/</filename>; 
@@ -528,6 +528,7 @@ categories.</para>
 	Simple script scan.
       </para>
       <para>
+        <indexterm><primary><option>-sC</option></primary><secondary>example of</secondary></indexterm>
         <userinput> 
 	  $ nmap -sC hostname
       </userinput>
@@ -588,7 +589,7 @@ categories.</para>
     <sect2 id="nse-format-license">
       <title><literal>license</literal> Field </title>
       <indexterm><primary><varname>license</varname> script variable</primary></indexterm>
-      <indexterm><primary>license of scripts</primary></indexterm>
+      <indexterm><primary>copyright</primary><secondary>of scripts</secondary></indexterm>
 
       <para>Nmap is a community project and we welcome all sorts of
       code contributions, including NSE scripts.  So if you write a
@@ -1972,7 +1973,9 @@ if(s) code_to_be_done_on_match end
 	    <term><option>host.mac_addr</option>
 	      </term>
 	    <listitem>
-	      <para>MAC address of the destination host (6-byte long binary
+	      <para>MAC address
+                  <indexterm><primary>MAC address</primary></indexterm>
+                  of the destination host (6-byte long binary
 		  string) or <literal>nil</literal>, if the host is not directly connected. 
 		  </para>
 	    </listitem>
@@ -2769,7 +2772,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	  raw packet network I/O. The greater flexibility comes, however, at
 	  the cost of a slightly more complex API. Receiving raw packets is
 	  accomplished via a wrapper around Libpcap
-          <indexterm><primary>Libpcap</primary></indexterm>
+          <indexterm><primary>libpcap</primary></indexterm>
           inside the Nsock library.
           <indexterm><primary>Nsock</primary></indexterm>
           In order to keep the
@@ -3320,7 +3323,7 @@ local localip, localport  = client_service:get_info()
       </para>
       
       <para>
-        <indexterm><primary><varname>action</varname> NSE variable</primary></indexterm>
+        <indexterm><primary><varname>action</varname> script variable</primary></indexterm>
 	<programlisting>
 action = function(host, port)
 local owner = ""
@@ -3474,7 +3477,6 @@ end
     </para>
     <para>
 	This is what the output of this script looks like:
-        <indexterm><primary><option>-sV</option></primary><secondary>example of</secondary></indexterm>
       <screen>
 $ ./nmap -sV localhost -p 80
 

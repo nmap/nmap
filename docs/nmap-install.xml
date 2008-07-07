@@ -1,6 +1,6 @@
 <!-- $Id$ -->
 
-<indexterm><primary>installation</primary></indexterm>
+<indexterm class="startofrange" id="install-indexterm"><primary>installation</primary></indexterm>
 
 <sect1 id="inst-intro"><title>Introduction</title>
 
@@ -20,7 +20,7 @@ mind.</para>
 have it.  Many free operating system distributions (including most
 Linux and BSD systems) come with Nmap, although it may not be
 installed by default.  On Unix systems, open a terminal window and try executing the command
-<command>nmap <option>--version</option></command><indexterm><primary><option>--version</option></primary></indexterm>.
+<command>nmap <option>--version</option></command>.
 If Nmap exists and is in your <envar>PATH</envar>,
 <indexterm><primary><envar>PATH</envar> environment variable</primary></indexterm>
 you should see output similar to <xref linkend="ex-checking-for-nmap" />.</para>
@@ -28,6 +28,7 @@ you should see output similar to <xref linkend="ex-checking-for-nmap" />.</para>
 <indexterm><primary>version number of Nmap</primary><see><option>--version</option></see></indexterm>
 
 <example id="ex-checking-for-nmap"><title>Checking for Nmap and determining its version number</title>
+<indexterm><primary><option>--version</option></primary><secondary>example of</secondary></indexterm>
 <!--REMEMBER TO UPDATE TEXT BELOW THE SCREENSHOT WHEN I UPDATE THE SCREENSHOT
     TO LATEST VERSION -->
 <screen>
@@ -75,7 +76,7 @@ Nmap offers more than a hundred
 command-line options, although many are obscure features or debugging
 controls that most users can ignore.  Many graphical frontends have been
 created for those users who prefer a GUI interface.  Nmap has traditionally included a simple GUI for Unix named <application>NmapFE</application><indexterm><primary>NmapFE</primary></indexterm>, but that was replaced in 2007 by Zenmap,
-<indexterm><primary>Zenmap</primary><secondary>advantages of</secondary></indexterm>which we had been developing since 2005.  Zenmap is far more powerful and effective than NmapFE, particularly in results viewing.  Zenmap's tab-based interface lets you search and sort
+which we had been developing since 2005.  Zenmap is far more powerful and effective than NmapFE, particularly in results viewing.  Zenmap's tab-based interface lets you search and sort
 results, and also browse them in several ways (host details, raw Nmap
 output, and ports/hosts).  It works on Microsoft Windows, Linux, Mac
 OS X, and other platforms.  Zenmap is covered in depth in <xref linkend="zenmap"/>.  The rest of this book focuses on command-line invocations of Nmap.
@@ -265,7 +266,6 @@ SVN is most useful for Nmap developers and users who need a fix which
 hasn't yet been formally released.</para>
 
 <para>
-<indexterm><primary>Subversion</primary><secondary>checking out from</secondary></indexterm>
 SVN write access is strictly limited to a few top Nmap
 developers, but everyone has read access to the repository.  Check out
 the latest code using the command <command>svn co --username guest
@@ -286,7 +286,7 @@ url="http://cgi.insecure.org/mailman/listinfo/nmap-svn"/>.</para>
 </sect1>
 
 <sect1 id="inst-source"><title>Unix Compilation and Installation from Source Code</title> 
-<indexterm><primary>Unix</primary><secondary>compilation and installation</secondary></indexterm>
+<indexterm><primary>Unix</primary><secondary>installing on</secondary></indexterm>
 <indexterm><primary>installation</primary><secondary>from source</secondary></indexterm>
 <indexterm><primary>source code</primary></indexterm>
 <indexterm><primary>compilation</primary></indexterm>
@@ -434,7 +434,7 @@ error.</para></listitem></varlistentry>
 
 <varlistentry><term>Consider binary packages</term>
 <listitem>
-<indexterm><primary>binary packages</primary><secondary>advantages of</secondary></indexterm>
+<indexterm><primary>binary packages</primary></indexterm>
 <para>Binary packages of Nmap are available on most
 platforms and are usually easy to install.  The downsides are that
 they may not be as up-to-date and you lose some of the flexibility of
@@ -448,7 +448,7 @@ packages.</para></listitem></varlistentry>
 </sect1>
 
 <sect1 id="inst-linux"><title>Linux Distributions</title>
-<indexterm><primary>Linux</primary></indexterm>
+<indexterm><primary>Linux</primary><secondary>installing on</secondary></indexterm>
 
 <para>
 <indexterm><primary>Linux</primary><secondary>popularity as Nmap platform</secondary></indexterm>
@@ -474,10 +474,10 @@ the most common distributions.</para>
 
 <sect2 id="inst-rpm"><title>RPM-based Distributions (Red Hat, Mandrake, Suse, Fedora)</title>
 <indexterm><primary>RPM</primary></indexterm>
-<indexterm><primary>Red Hat (Linux distribtion)</primary><see>RPM</see></indexterm>
-<indexterm><primary>Mandrake (Linux distribution)</primary><see>RPM</see></indexterm>
-<indexterm><primary>Suse (Linux distribution)</primary><see>RPM</see></indexterm>
-<indexterm><primary>Fedora (Linux distribution)</primary><see>RPM</see></indexterm>
+<indexterm><primary>Red Hat (Linux distribtion)</primary><secondary>installing on, with RPM</secondary>></indexterm>
+<indexterm><primary>Mandrake (Linux distribution)</primary><secondary>installing on, with RPM</secondary></indexterm>
+<indexterm><primary>Suse (Linux distribution)</primary><secondary>installing on, with RPM</secondary></indexterm>
+<indexterm><primary>Fedora (Linux distribution)</primary><secondary>installing on, with RPM</secondary></indexterm>
 
 <para>I build RPM packages for every release of Nmap and post them to
 the Nmap download page at <ulink url="http://nmap.org/download.html" />.
@@ -536,10 +536,10 @@ reason there are no Zenmap source RPMs.</para>
 
 <sect2 id="inst-yum"><title>Updating Red Hat, Fedora, Mandrake, and Yellow Dog Linux with Yum</title>
 <indexterm><primary>Yum</primary></indexterm>
-<indexterm><primary>Red Hat (Linux distribtion)</primary><see>Yum</see></indexterm>
-<indexterm><primary>Mandrake (Linux distribution)</primary><see>Yum</see></indexterm>
-<indexterm><primary>Yellow Dog (Linux distribution)</primary><see>Yum</see></indexterm>
-<indexterm><primary>Fedora (Linux distribution)</primary><see>Yum</see></indexterm>
+<indexterm><primary>Red Hat (Linux distribtion)</primary><secondary>installing on, with Yum</secondary></indexterm>
+<indexterm><primary>Mandrake (Linux distribution)</primary><secondary>installing on, with Yum</secondary></indexterm>
+<indexterm><primary>Yellow Dog (Linux distribution)</primary><secondary>installing on, with Yum</secondary></indexterm>
+<indexterm><primary>Fedora (Linux distribution)</primary><secondary>installing on, with Yum</secondary></indexterm>
 
 <para>The Red Hat, Fedora, Mandrake, and Yellow Dog Linux
 distributions have an application named <application>Yum</application>
@@ -610,10 +610,10 @@ Complete!
 
 <sect2 id="inst-debian"><title>Debian Linux and Derivatives such as Ubuntu</title>
 <indexterm><primary>Debian</primary><secondary>installing on</secondary></indexterm>
-<indexterm><primary>Ubuntu</primary><see>Debian</see></indexterm>
+<indexterm><primary>Ubuntu</primary><secondary>installing on</secondary></indexterm>
 <para>LaMont Jones
 <indexterm><primary>Jones, LaMont</primary></indexterm>
-does a fabulous job maintaining the Nmap .deb<indexterm><primary>installation</primary><secondary>from deb packages</secondary></indexterm>
+does a fabulous job maintaining the Nmap .deb
 packages, including keeping them reasonably up-to-date.  The proper
 upgrade/install command is <command>apt-get install nmap</command>.
 <indexterm><primary><application>apt-get</application></primary></indexterm>
@@ -646,7 +646,7 @@ Because of this popularity and the fact that
 many Windows users do not have a compiler, binary executables are
 distributed for each major Nmap release.  While it has improved
 dramatically, the Windows port is not quite as efficient or stable as
-on Unix.  Here are some known limitations:<indexterm><primary>Windows</primary><secondary>limitations</secondary></indexterm>
+on Unix.  Here are some known limitations:
 </para>
 
 
@@ -693,12 +693,11 @@ the <literal>CurrentControlSet\Services\Tcpip\Parameters</literal> entry under <
   years, Nmap was a Unix-only tool, and it would likely still be that
   way if not for their efforts.</para></note>
 
-<indexterm><primary>Windows</primary><secondary>installation on</secondary></indexterm>
+<indexterm><primary>Windows</primary><secondary>installing on</secondary></indexterm>
 
 <para>Windows users have three choices for installing
 Nmap, all of which are available from the
-download page at <ulink
-url="http://nmap.org/download.html" />.<indexterm><primary>installation</primary><secondary>from Windows binaries</secondary></indexterm></para>
+download page at <ulink url="http://nmap.org/download.html" />.</para>
 
 
 
@@ -712,7 +711,7 @@ self-installer named
 specific release).  Most Nmap users choose this option since it is so
 easy.  Simply run the installer file and let it walk you through
 panels for choosing an install path and installing WinPcap.  The
-installer was created with the open source <ulink
+installer was created with the open-source <ulink
 url="http://nsis.sourceforge.net/Main_Page">Nullsoft Scriptable
 Install System</ulink>.  After it completes, read <xref
 linkend="inst-win-exec"/> for instructions on executing Nmap on the
@@ -730,7 +729,9 @@ command-line binaries and associated files in a Zip archive.  No
 graphical interface is included, so you need to run
 <literal>nmap.exe</literal> from a DOS/command window.  Or you can
 download and install a superior command shell such as those included
-with the free Cygwin system available from <ulink url="http://www.cygwin.com" />.  Here are the step-by-step instructions for installing and executing the Nmap .zip binaries.</para>
+with the free Cygwin
+<indexterm><primary>Cygwin</primary></indexterm>
+system available from <ulink url="http://www.cygwin.com" />.  Here are the step-by-step instructions for installing and executing the Nmap .zip binaries.</para>
 
 <sect3 id="inst-win-zip-install"><title>Installing the Nmap zip binaries</title>
 <orderedlist>
@@ -744,7 +745,7 @@ the Nmap executable and data files.  Microsoft Windows XP and Vista
 include zip extraction&mdash;just right-click on the file in
 <application>Explorer</application>.  If you do not have a Zip
 decompression program, there is one (called unzip) in Cygwin described
-above, or you can download the open source and free <ulink
+above, or you can download the open-source and free <ulink
 url="http://www.7-zip.org">7-zip utility</ulink>.  Commercial
 alternatives are <ulink url="http://www.winzip.com">Winzip</ulink> and
 <ulink url="http://www.pkware.com">PKZIP</ulink>.</para></listitem>
@@ -815,7 +816,7 @@ interfaces:</para>
 
 <orderedlist>
 <listitem><para>Make sure the user you are logged in as has administrative privileges
-<indexterm><primary>administrator (root) privileges</primary></indexterm>
+<indexterm><primary>privileged users</primary></indexterm>
 on the computer (user should be a member of the <literal>administrators</literal> group).</para></listitem>
 <listitem><para>Open a command/DOS Window.  Though it can be found in
 the program menu tree, the simplest approach is to choose <guimenu>Start</guimenu> 
@@ -897,7 +898,7 @@ you have more flexibility in the build process.
 </sect1>
 
 <sect1 id="inst-macosx"><title>Apple Mac OS X</title>
-<indexterm><primary>Mac OS X</primary></indexterm>
+<indexterm><primary>Mac OS X</primary><secondary>installing on</secondary></indexterm>
 <indexterm><primary>Apple Mac OS X</primary><see>Mac OS X</see></indexterm>
 
 <para>Thanks to several people graciously donating shell accounts on
@@ -1034,7 +1035,7 @@ install nmap</command>. Nmap will be installed as
 <filename>/Applications/Utilities</filename>. Open it and you will see a
 terminal window. This is where you will type your commands.</para>
 
-<para><indexterm><primary>root</primary><secondary>with <command>sudo</command></secondary></indexterm>
+<para><indexterm><primary><command>sudo</command></primary></indexterm>
 By default the root user is disabled on Mac OS X. To run a scan with
 root privileges prefix the command name with <application>sudo</application>,
 <indexterm><primary><application>sudo</application></primary></indexterm>
@@ -1049,7 +1050,7 @@ an optional install on the Mac OS X installation discs.</para>
 
 <para>When Zenmap is started, a dialog is displayed requesting that you
 type your password. Users with administrator privileges
-<indexterm><primary>administrator (root) privileges</primary></indexterm>
+<indexterm><primary>privileged users</primary></indexterm>
 may enter their
 password to allow Zenmap to run as the root user and run more advanced
 scans. To run Zenmap in unprivileged mode, just select the
@@ -1062,7 +1063,7 @@ scans. To run Zenmap in unprivileged mode, just select the
 <indexterm><primary>BSDs</primary></indexterm>
 
 
-<para><indexterm><primary>installation</primary><secondary>on BSD</secondary></indexterm>The BSD flavors are well supported by Nmap, so you can simply
+<para>The BSD flavors are well supported by Nmap, so you can simply
 compile it from source as described in <xref linkend="inst-source"
 />.  This provides the normal advantages of always having the latest
 version and a flexible build process.  If you prefer binary packages,
@@ -1072,7 +1073,6 @@ popular applications.   Instructions for installing Nmap on
 the most popular *BSD variants follow.</para>
 
 <sect2 id="inst-openbsd"><title>OpenBSD Binary Packages and Source Ports Instructions</title>
-<indexterm><primary>OpenBSD</primary><secondary>installation on</secondary></indexterm>
 
 <para>According to the <ulink
 url="http://www.openbsd.org/faq/">OpenBSD FAQ</ulink>, users
@@ -1219,3 +1219,5 @@ specified <option>--prefix</option> or other install-path option when
 first installing Nmap.  The files relating to zenmap, nmapfe, and xnmap do not exist if you did not install the <application>Zenmap</application> frontend initially.</para>
 
 </sect1>
+
+<indexterm class="endofrange" startref="install-indexterm"/>

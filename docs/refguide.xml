@@ -150,8 +150,12 @@ substitute for the in-depth documentation in the rest of this
 manual.  Some obscure options aren't even included here.</para>
 
 <para>
-<indexterm class="startofrange" id="nmap-usage-indexterm"><primary sortas=" ">summary of options</primary></indexterm>
+<!-- sortas="#" puts it before the entries that start with '-' in the options
+     section. -->
+<indexterm class="startofrange" id="nmap-usage-indexterm"><primary sortas="#">summary of options</primary></indexterm>
+<indexterm class="startofrange" id="nmap-usage-nmap-indexterm"><primary>command-line options</primary><secondary>of Nmap</secondary></indexterm>
 &nmap-usage;
+<indexterm class="endofrange" startref="nmap-usage-nmap-indexterm"/>
 <indexterm class="endofrange" startref="nmap-usage-indexterm"/>
 </para>
 
@@ -167,8 +171,8 @@ simplest case is to specify a target IP address or hostname for scanning.</para>
 
 <para>Sometimes you wish to scan a whole network of adjacent hosts.
 For this, Nmap supports CIDR-style addressing.
-<indexterm><primary>Classless Inter-Domain Routing (CIDR)</primary></indexterm>
-You can append<indexterm><primary>CIDR addressing</primary></indexterm>
+<indexterm><primary>CIDR (Classless Inter-Domain Routing)</primary></indexterm>
+You can append
 /<replaceable>numbits</replaceable> to an IP address or hostname and
 Nmap will scan every IP address for which the first
 <replaceable>numbits</replaceable> are the same as for the reference
@@ -252,9 +256,12 @@ you would expect.</para>
           some network administrators bristle at unauthorized scans of
           their networks and may complain.  Use this option at your
           own risk!  If you find yourself really bored one rainy
-          afternoon, try the command <command>nmap -sS -PS80 -iR 0 -p
-          80</command> to locate random web servers for
-          browsing.</para>
+          afternoon, try the command
+          <command>nmap -sS -PS80 -iR 0 -p 80</command>
+          <indexterm><primary><option>-sS</option></primary><secondary>example of</secondary></indexterm>
+          <indexterm><primary><option>-PS</option></primary><secondary>example of</secondary></indexterm>
+          <indexterm><primary><option>-iR</option></primary><secondary>example of</secondary></indexterm>
+          to locate random web servers for browsing.</para>
         </listitem>
       </varlistentry>
 
@@ -262,7 +269,7 @@ you would expect.</para>
         <term>
           <option>--exclude
           &lt;host1[,host2][,host3],...&gt;</option> (Exclude hosts/networks)
-          <indexterm><primary><option>--exclude</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--exclude</option></primary></indexterm>
           <indexterm><primary>excluding targets</primary></indexterm>
         </term>
         <listitem>
@@ -280,7 +287,7 @@ you would expect.</para>
       <varlistentry>
         <term>
           <option>--excludefile &lt;exclude_file&gt;</option> (Exclude list from file)
-          <indexterm><primary><option>--excludefile</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--excludefile</option></primary></indexterm>
         </term>
         <listitem>
           <para>This offers the same functionality as the <option>--exclude</option>
@@ -347,7 +354,9 @@ you would expect.</para>
     ping types) can be combined.  You can increase your odds of
     penetrating strict firewalls by sending many probe types using
     different TCP ports/flags and ICMP codes.  Also note that ARP
-    discovery (<option>-PR</option>) is done by default against
+    discovery (<option>-PR</option>)
+    <indexterm><primary><option>-PR</option></primary></indexterm>
+    is done by default against
     targets on a local ethernet network even if you specify other
     <option>-P*</option> options, because it is almost always faster
     and more effective.</para>
@@ -368,7 +377,7 @@ you would expect.</para>
         <term>
         <option>-sL</option> (List Scan)
           <indexterm><primary><option>-sL</option></primary></indexterm>
-          <indexterm><primary>List scan</primary></indexterm>
+          <indexterm><primary>list scan</primary></indexterm>
         </term>
         <listitem>
           <para>The list scan is a degenerate form of host discovery
@@ -425,7 +434,9 @@ you would expect.</para>
            (using a <function>connect()</function> call) to port 80 on
            the target.  When a privileged user tries to scan targets
            on a local ethernet network, ARP requests
-           (<option>-PR</option>) are used unless
+           (<option>-PR</option>)
+           <indexterm><primary><option>-PR</option></primary></indexterm>
+           are used unless
            <option>--send-ip</option> was specified.
            The <option>-sP</option> option can be combined with any of the
            discovery probe types (the <option>-P*</option> options,
@@ -514,14 +525,14 @@ you would expect.</para>
 
           <para>On Unix boxes, only the privileged user
           <literal>root</literal>
-          <indexterm><primary>authorized (root) user</primary></indexterm>
+          <indexterm><primary>privileged users</primary></indexterm>
           is generally able to send and
           receive raw TCP packets.
           <indexterm><primary>raw packets</primary></indexterm>
           For unprivileged users, a
           workaround is automatically employed whereby the connect()
           system call is initiated against each target port.
-          <indexterm><primary>unprivileged users</primary><secondary>limitations on</secondary></indexterm>
+          <indexterm><primary>unprivileged users</primary><secondary>limitations of</secondary></indexterm>
           This has
           the effect of sending a SYN packet to the target host, in an
           attempt to establish a connection.  If connect() returns
@@ -573,7 +584,6 @@ you would expect.</para>
           approach takes up few resources on the firewall/router and
           is widely supported by hardware and software filters.  The
           Linux Netfilter/iptables
-          <indexterm><primary>Netfilter</primary></indexterm>
           <indexterm><primary>iptables</primary></indexterm>
           firewall software offers the
           <option>--syn</option> convenience option to implement this
@@ -701,7 +711,7 @@ you would expect.</para>
         <term>
         <option>-PO [protolist]</option> (IP Protocol Ping)
           <indexterm><primary><option>-PO</option></primary></indexterm>
-          <indexterm><primary>IP Protocol ping</primary></indexterm>
+          <indexterm><primary>IP protocol ping</primary></indexterm>
         </term>
         <listitem>
 
@@ -772,7 +782,7 @@ you would expect.</para>
 <varlistentry>
  <term>
   <option>--traceroute</option> (Trace path to host)
-   <indexterm significance="normal"><primary><option>--traceroute</option></primary></indexterm>
+   <indexterm significance="preferred"><primary><option>--traceroute</option></primary></indexterm>
    <indexterm significance="normal"><primary>traceroute</primary></indexterm>
  </term>
  <listitem>
@@ -844,7 +854,7 @@ even if this option is not specified.
       <varlistentry>
         <term>
           <option>--system-dns</option> (Use system DNS resolver)
-          <indexterm><primary><option>--system-dns</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--system-dns</option></primary></indexterm>
         </term>
         <listitem>
 
@@ -866,7 +876,7 @@ even if this option is not specified.
         <term>
           <option>--dns-servers &lt;server1[,server2],...&gt;
           </option> (Servers to use for reverse DNS queries)
-          <indexterm><primary><option>--dns-servers</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--dns-servers</option></primary></indexterm>
         </term>
         <listitem>
 
@@ -1017,7 +1027,7 @@ determine that you need a strut spring compressor, then you still
 have to pay thousands of dollars for it.</para>
 
 <para>Most of the scan types are only available to privileged users.
-<indexterm><primary>authorized (root) users</primary></indexterm>
+<indexterm><primary>privileged users</primary></indexterm>
 This is because they send and receive raw packets,
 <indexterm><primary>raw packets</primary></indexterm>
 which requires root
@@ -1094,7 +1104,7 @@ error (type 3, code 1,2, 3, 9, 10, or 13) is received.</para>
         <term>
         <option>-sT</option> (TCP connect scan)
         <indexterm><primary><option>-sT</option></primary></indexterm>
-        <indexterm><primary>connect() scan</primary></indexterm>
+        <indexterm><primary>connect scan</primary></indexterm>
         </term>
         <listitem>
 <para>TCP connect scan is the default TCP scan type when SYN scan is
@@ -1131,7 +1141,7 @@ know that she has been connect scanned.</para>
       <varlistentry>
         <term>
         <option>-sU</option> (UDP scans)
-<indexterm><primary>-sU</primary></indexterm>
+<indexterm><primary><option>-sU</option></primary></indexterm>
 <indexterm><primary>UDP scan</primary></indexterm>
 </term>
         <listitem>
@@ -1189,7 +1199,7 @@ hosts.</para>
 
       <varlistentry>
         <term>
-        <option>-sN</option>; <option>-sF</option>; <option>-sX</option> (TCP Null, FIN, and Xmas scans)
+        <option>-sN</option>; <option>-sF</option>; <option>-sX</option> (TCP NULL, FIN, and Xmas scans)
 <indexterm><primary><option>-sN</option></primary></indexterm>
 <indexterm><primary><option>-sF</option></primary></indexterm>
 <indexterm><primary><option>-sX</option></primary></indexterm>
@@ -1286,7 +1296,7 @@ or 13), are labeled <literal>filtered</literal>.</para>
         <term>
         <option>-sW</option> (TCP Window scan)
 <indexterm><primary><option>-sW</option></primary></indexterm>
-<indexterm><primary>Window scan</primary></indexterm>
+<indexterm><primary>window scan</primary></indexterm>
 </term>
         <listitem>
 
@@ -1350,7 +1360,7 @@ canned scan types offered.  The <option>--scanflags</option> option allows
 you to design your own scan by specifying arbitrary TCP flags.
 <indexterm><primary>TCP flags</primary></indexterm>
 Let your creative juices flow, while evading intrusion detection systems
-<indexterm><primary>intrusion detection systems</primary><secondary>avoiding</secondary></indexterm>
+<indexterm><primary>intrusion detection systems</primary><secondary>evading</secondary></indexterm>
 whose vendors simply paged through the Nmap man page adding specific rules!</para>
 
 <para>The <option>--scanflags</option> argument can be a numerical
@@ -1442,7 +1452,7 @@ underlying scan engine as the true port scanning methods. So it is
 close enough to a port scan that it belongs here.</para>
 
 <para>Besides being useful in its own right, protocol scan
-demonstrates the power of open source software.  While the fundamental
+demonstrates the power of open-source software.  While the fundamental
 idea is pretty simple, I had not thought to add it nor received any
 requests for such functionality.  Then in the summer of 2000, Gerhard
 Rieger
@@ -1575,7 +1585,8 @@ way.</para>
           the port numbers are added to all protocol lists.</para>
 
 
-          <para><indexterm><primary>wildcards in port specifications</primary></indexterm>Ports can also be specified by name according to what the
+          <para><indexterm><primary>port specification</primary><secondary>wildcards in</secondary></indexterm>
+          Ports can also be specified by name according to what the
           port is referred to in the <filename>nmap-services</filename>. You
           can even use the wildcards * and ? with the names. For example, to scan
           FTP and all ports whose names begin with http, use <option>-p ftp,http*</option>.
@@ -1592,7 +1603,7 @@ way.</para>
       <varlistentry>
         <term>
           <option>-F</option> (Fast (limited port) scan)
-          <indexterm><primary><option>-F</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>-F</option></primary></indexterm>
         </term>
         <listitem>
           <para>Specifies that you only wish to scan
@@ -1604,7 +1615,10 @@ way.</para>
           (about 1650 ports) isn't dramatic.  The difference can be
           enormous if you specify your own tiny
           <filename>nmap-services</filename> file using the
-          <option>--servicedb</option> or <option>--datadir</option> options.</para>
+          <option>--servicedb</option> or <option>--datadir</option> options.
+          <indexterm><primary><option>--servicedb</option></primary></indexterm>
+          <indexterm><primary><option>--datadir</option></primary></indexterm>
+          </para>
         </listitem>
       </varlistentry>
 
@@ -1811,7 +1825,7 @@ way.</para>
       <varlistentry>
         <term>
           <option>--version-trace</option> (Trace version scan activity)
-          <indexterm><primary><option>--version-trace</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--version-trace</option></primary></indexterm>
         </term>
         <listitem>
           <para>This causes Nmap to print out extensive debugging info
@@ -1823,8 +1837,10 @@ way.</para>
       <varlistentry>
         <term>
         <option>-sR</option> (RPC scan)
-          <indexterm><primary><option>-sR</option></primary></indexterm>
-          <indexterm><primary>RPC scan</primary></indexterm></term>
+          <indexterm significance="preferred"><primary><option>-sR</option></primary></indexterm>
+          <indexterm><primary>RPC scan</primary><see>RPC grinder</see></indexterm>
+          <indexterm><primary>RPC grinder</primary></indexterm>
+          </term>
 
         <listitem>
           <para>This method works in conjunction with the various port
@@ -1915,7 +1931,7 @@ way.</para>
       <varlistentry>
         <term>
           <option>-O</option> (Enable OS detection)
-          <indexterm><primary><option>-O</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>-O</option></primary></indexterm>
         </term>
         <listitem>
 
@@ -1931,7 +1947,7 @@ way.</para>
         <term>
           <option>--osscan-limit</option> (Limit OS detection to
           promising targets)
-          <indexterm><primary><option>--osscan-limit</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--osscan-limit</option></primary></indexterm>
         </term>
         <listitem>
 
@@ -1947,8 +1963,8 @@ way.</para>
       <varlistentry>
         <term>
           <option>--osscan-guess</option>; <option>--fuzzy</option> (Guess OS detection results)
-          <indexterm><primary><option>--osscan-guess</option></primary></indexterm>
-          <indexterm><primary><option>--fuzzy</option></primary><see>--osscan-guess</see></indexterm>
+          <indexterm significance="preferred"><primary><option>--osscan-guess</option></primary></indexterm>
+          <indexterm><primary><option>--fuzzy</option></primary><see><option>--osscan-guess</option></see></indexterm>
         </term>
         <listitem>
 
@@ -1965,7 +1981,7 @@ way.</para>
       <varlistentry>
         <term>
           <option>--max-os-tries</option> (Set the maximum number of OS detection tries against a target)
-          <indexterm><primary><option>--max-os-tries</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--max-os-tries</option></primary></indexterm>
         </term>
         <listitem>
 
@@ -2106,7 +2122,7 @@ way.</para>
 	<variablelist>
       <varlistentry>
         <term><option>-sC</option>
-          <indexterm>
+          <indexterm significance="preferred">
             <primary><option>-sC</option></primary>
           </indexterm>
          </term>
@@ -2121,7 +2137,7 @@ way.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><option>--script &lt;script-categories|directory|filename|all&gt;</option><indexterm><primary><option>--script</option></primary></indexterm></term>
+        <term><option>--script &lt;script-categories|directory|filename|all&gt;</option><indexterm significance="preferred"><primary><option>--script</option></primary></indexterm></term>
 
 <listitem>
 <para>Runs a script scan (like <option>-sC</option>) with the scripts you have chosen rather than the defaults.  Arguments can be script categories, single scripts or directories with scripts which are to be run against the target hosts instead of the default set. Nmap will try to interpret the arguments at first as categories and afterwards as files or directories.  Absolute paths are used as is, relative paths are searched in the following places until found:
@@ -2155,7 +2171,10 @@ categories.</para>
 </varlistentry>
       
 	  <varlistentry>
-        <term><option>--script-args &lt;name1=value1,name2={name3=value3},name4=value4&gt;</option><indexterm><primary><option>--script-args</option></primary></indexterm><indexterm>script arguments</indexterm></term>
+        <term><option>--script-args &lt;name1=value1,name2={name3=value3},name4=value4&gt;</option>
+        <indexterm significance="preferred"><primary><option>--script-args</option></primary></indexterm>
+        <indexterm><primary>script arguments</primary></indexterm>
+        <indexterm><primary>script arguments</primary><seealso><option>--script-args</option></seealso></indexterm></term>
 
 <listitem>
 <para>lets you provide arguments to NSE scripts. Arguments are passed
@@ -2177,11 +2196,9 @@ script knows about its special argument.</para>
 </listitem>
 
 </varlistentry>
-
-
       <varlistentry>
         <term><option>--script-trace</option>
-          <indexterm><primary><option>--script-trace</option></primary></indexterm></term>
+          <indexterm significance="preferred"><primary><option>--script-trace</option></primary></indexterm></term>
 
         <listitem>
           <para>
@@ -2198,7 +2215,7 @@ script knows about its special argument.</para>
 
       <varlistentry>
         <term><option>--script-updatedb</option>
-        <indexterm><primary><option>--script-updatedb</option></primary></indexterm></term>
+        <indexterm significance="preferred"><primary><option>--script-updatedb</option></primary></indexterm></term>
 
         <listitem>
 
@@ -2485,7 +2502,7 @@ implements strict rate limiting.</para>
 
 <para>Another use of <option>--scan-delay</option> is to evade
 threshold based intrusion detection and prevention systems (IDS/IPS).
-<indexterm><primary>intrusion detection systems</primary><secondary>avoiding</secondary></indexterm>
+<indexterm><primary>intrusion detection systems</primary><secondary>evading</secondary></indexterm>
 </para>
 
         </listitem>
@@ -2526,7 +2543,9 @@ faster than a network can support may lead to a loss of accuracy. In
 some cases, using a faster rate can make a scan take
 <emphasis>longer</emphasis> than it would with a slower rate. This is
 because Nmap's adaptive
-retransmission<indexterm><primary>adaptive retransmission</primary></indexterm>
+retransmission
+<indexterm><primary>adaptive retransmission</primary><see>retransmission</see></indexterm>
+<indexterm><primary>retransmission</primary></indexterm>
 will detect the network congestion caused by an excessive scanning rate
 and increase the number of retransmissions in order to improve accuracy.
 So even though packets are sent at a higher rate, more packets are sent
@@ -2608,7 +2627,7 @@ The template names are <option>paranoid</option>&nbsp;(<option>0</option>),
 <option>insane</option>&nbsp;(<option>5</option>).
 <indexterm><primary><literal>insane</literal> (<option>-T5</option>) timing template</primary></indexterm>
 The first two are for IDS evasion.
-<indexterm><primary>intrusion detection systems</primary><secondary>avoiding</secondary></indexterm>
+<indexterm><primary>intrusion detection systems</primary><secondary>evading</secondary></indexterm>
 Polite mode slows down the scan to use less bandwidth
 and target machine resources.  Normal mode is the default and so
 <option>-T3</option> does nothing. Aggressive mode speeds scans up by
@@ -2689,7 +2708,7 @@ setting the maximum TCP scan delay to 5&nbsp;ms.</para>
   <refsect1 id='man-bypass-firewalls-ids'>
     <title>Firewall/IDS Evasion and Spoofing</title>
     <indexterm class="startofrange" id="man-bypass-filewalls-indexterm"><primary>firewalls</primary><secondary>bypassing</secondary></indexterm>
-    <indexterm class="startofrange" id="man-bypass-ids-indexterm"><primary>intrusion detection systems</primary><secondary>avoiding</secondary></indexterm>
+    <indexterm class="startofrange" id="man-bypass-ids-indexterm"><primary>intrusion detection systems</primary><secondary>evading</secondary></indexterm>
 
 <para>Many Internet pioneers envisioned a global open network with a
 universal IP address space allowing virtual connections between any
@@ -2757,8 +2776,8 @@ lists the relevant options and describes what they do.</para>
         <term>
           <option>-f</option> (fragment packets);
           <option>--mtu</option> (using the specified MTU)
-          <indexterm><primary><option>-f</option></primary></indexterm>
-          <indexterm><primary><option>--mtu</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>-f</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--mtu</option></primary></indexterm>
         </term>
 
         <listitem>
@@ -2776,7 +2795,9 @@ lists the relevant options and describes what they do.</para>
           packets. Two with eight bytes of the TCP header, and one
           with the final four. Of course each fragment also has an
           IP header. Specify <option>-f</option> again to use 16 bytes per fragment
-          (reducing the number of fragments). Or you can specify
+          (reducing the number of fragments).
+          <indexterm><primary><option>-f</option></primary><secondary>giving twice for small fragments</secondary></indexterm>
+          Or you can specify
           your own offset size with the <option>--mtu</option> option. Don't also
           specify <option>-f</option> if you use <option>--mtu</option>. The offset must be a
           multiple of 8. While fragmented packets won't get by
@@ -2905,8 +2926,8 @@ lists the relevant options and describes what they do.</para>
         <term>
           <option>--source-port &lt;portnumber&gt;;</option>
           <option>-g &lt;portnumber&gt;</option> (Spoof source port number)
-          <indexterm><primary><option>--source-port</option></primary></indexterm>
-          <indexterm><primary><option>-g</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--source-port</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>-g</option></primary></indexterm>
           <indexterm><primary>source port number</primary></indexterm>
         </term>
         <listitem>
@@ -2965,7 +2986,9 @@ support the option completely, as does UDP scan.</para>
           bytes and ICMP echo requests are just 28. This option
           tells Nmap to append the given number of random bytes to
           most of the packets it sends. OS detection (<option>-O</option>) packets
-          are not affected because accuracy there requires probe consistency, but most pinging and portscan packets
+          are not affected
+          <indexterm><primary><option>--data-length</option></primary><secondary>no effect in OS detection</secondary></indexterm>
+          because accuracy there requires probe consistency, but most pinging and portscan packets
           support this. It slows things down a little, but can make a scan slightly less
           conspicuous.</para>
         </listitem>
@@ -3006,9 +3029,9 @@ support the option completely, as does UDP scan.</para>
       options.  Simply pass the letter <literal>R</literal>,
       <literal>T</literal>, or <literal>U</literal> to request
       record-route,
-      <indexterm><primary>record-route IP option</primary></indexterm>
+      <indexterm><primary>record route IP option</primary></indexterm>
       record-timestamp,
-      <indexterm><primary>record-timestamp IP option</primary></indexterm>
+      <indexterm><primary>record timestamp IP option</primary></indexterm>
       or both options together,
       respectively.  Loose or strict source routing
       <indexterm><primary>source routing</primary></indexterm>
@@ -3041,7 +3064,7 @@ support the option completely, as does UDP scan.</para>
       <varlistentry>
         <term>
           <option>--randomize-hosts</option> (Randomize target host order)
-          <indexterm><primary><option>--randomize-hosts</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--randomize-hosts</option></primary></indexterm>
           <indexterm><primary>randomization of hosts</primary></indexterm>
         </term>
         <listitem>
@@ -3060,7 +3083,9 @@ support the option completely, as does UDP scan.</para>
           with a list scan (<option>-sL -n -oN
           <replaceable>filename</replaceable></option>), randomize it
           with a Perl script, then provide the whole list to Nmap with
-          <option>-iL</option>.</para>
+          <option>-iL</option>.
+          <indexterm><primary><option>-iL</option></primary><secondary>randomizing hosts with</secondary></indexterm>
+          </para>
         </listitem>
       </varlistentry>
 
@@ -3068,7 +3093,7 @@ support the option completely, as does UDP scan.</para>
         <term>
           <option>--spoof-mac &lt;MAC address, prefix, or vendor
           name&gt;</option> (Spoof MAC address)
-        <indexterm><primary><option>--spoof-mac</option></primary></indexterm>
+        <indexterm significance="preferred"><primary><option>--spoof-mac</option></primary></indexterm>
         <indexterm><primary>spoofing MAC address</primary></indexterm>
         </term>
         <listitem>
@@ -3090,7 +3115,7 @@ support the option completely, as does UDP scan.</para>
   (it is case insensitive).  If a match is found, Nmap uses the
   vendor's OUI (3-byte prefix)
   <indexterm><primary>organizationally unique identifier (OUI)</primary></indexterm>
-  <indexterm><primary>organizationally unique identifier (OUI)</primary><seealso><filename>nmap-max-prefixes</filename></seealso></indexterm>
+  <indexterm><primary>organizationally unique identifier (OUI)</primary><seealso><filename>nmap-mac-prefixes</filename></seealso></indexterm>
   and fills out the remaining 3 bytes
   randomly.  Valid <option>--spoof-mac</option> argument examples are <literal>Apple</literal>, <literal>0</literal>,
   <literal>01:02:03:04:05:06</literal>, <literal>deadbeefcafe</literal>, <literal>0020F2</literal>, and <literal>Cisco</literal>.  This option only affects raw packet scans such as SYN scan or OS detection, not connection-oriented features such as version detection or the Nmap Scripting Engine.</para>
@@ -3359,7 +3384,7 @@ format is available
      <varlistentry>
         <term>
         <option>-oA &lt;basename&gt;</option> (Output to all formats)
-           <indexterm><primary><option>-oA</option></primary></indexterm></term>
+           <indexterm significance="preferred"><primary><option>-oA</option></primary></indexterm></term>
        <listitem><para>
 
            As a convenience, you may specify <option>-oA
@@ -3501,7 +3526,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
       <varlistentry>
         <term>
           <option>--log-errors</option> (Log errors/warnings to normal mode output file)
-          <indexterm><primary><option>--log-errors</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--log-errors</option></primary></indexterm>
         </term>
         <listitem>
 
@@ -3588,7 +3613,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
       <varlistentry>
         <term>
           <option>--stylesheet &lt;path or URL&gt;</option> (Set XSL stylesheet to transform XML output)
-          <indexterm><primary><option>--stylesheet</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--stylesheet</option></primary></indexterm>
         </term>
         <listitem>
 
@@ -3599,7 +3624,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
           named <filename>nmap.xsl</filename>
           <indexterm><primary><filename>nmap.xsl</filename></primary></indexterm>
           for viewing or translating XML output to HTML.
-          <indexterm><primary>HTML</primary><secondary>from XML output</secondary></indexterm>
+          <indexterm><primary>HTML from XML output</primary></indexterm>
           The XML output includes an <literal>xml-stylesheet</literal>
           directive which points to <filename>nmap.xml</filename>
           where it was initially installed by Nmap (or in the current
@@ -3626,19 +3651,19 @@ overwhelming requests.  Specify <option>--open</option> to only see
       <varlistentry>
         <term>
           <option>--webxml</option> (Load stylesheet from Nmap.Org)
-          <indexterm><primary><option>--webxml</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--webxml</option></primary></indexterm>
         </term>
         <listitem>
 
           <para>This convenience option is simply an alias for
-          <option>--stylesheet http://nmap.org/data/nmap.xsl</option>.</para>
+          <option significance="preferred">--stylesheet http://nmap.org/data/nmap.xsl</option>.</para>
         </listitem>
       </varlistentry>
 
       <varlistentry>
         <term>
-          <option>--no-stylesheet</option> (Omit XSL stylesheet declaration from XML)
-          <indexterm><primary><option>--no-stylesheet</option></primary></indexterm>
+          <option significance="preferred">--no-stylesheet</option> (Omit XSL stylesheet declaration from XML)
+          <indexterm significance="preferred"><primary><option>--no-stylesheet</option></primary></indexterm>
         </term>
         <listitem>
 
@@ -3663,7 +3688,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
       <varlistentry>
         <term>
           <option>-6</option> (Enable IPv6 scanning)
-          <indexterm><primary><option>-6</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>-6</option></primary></indexterm>
           <indexterm><primary>IPv6</primary></indexterm>
         </term>
         <listitem>
@@ -3710,7 +3735,9 @@ overwhelming requests.  Specify <option>--open</option> to only see
           stands for yet. Presently this enables OS detection
           (<option>-O</option>), version scanning (<option>-sV</option>),
 	  script scanning (<option>-sC</option>) and 
-	  traceroute (<option>--traceroute</option>). More features may be
+	  traceroute (<option>--traceroute</option>).
+          <indexterm><primary><option>-A</option></primary><secondary>features enabled by</secondary></indexterm>
+          More features may be
           added in the future. The point is to enable a
           comprehensive set of scan options without people having
           to remember a large set of flags. However, because script
@@ -3725,7 +3752,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
       <varlistentry>
         <term>
           <option>--datadir &lt;directoryname&gt;</option> (Specify custom Nmap data file location)
-          <indexterm><primary><option>--datadir</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--datadir</option></primary></indexterm>
         </term>
         <listitem>
 
@@ -3738,6 +3765,8 @@ overwhelming requests.  Specify <option>--open</option> to only see
           <filename>nmap-os-db</filename>.  If the
           location of any of these files has been specified (using the
           <option>--servicedb</option> or <option>--versiondb</option> options),
+          <indexterm><primary><option>--servicedb</option></primary></indexterm>
+          <indexterm><primary><option>--versiondb</option></primary></indexterm>
           that location is used for that file. After that, Nmap
           searches these files in the directory specified with the
           <option>--datadir</option> option (if any). Any files not
@@ -3756,7 +3785,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
       <varlistentry>
         <term>
           <option>--servicedb &lt;services file&gt;</option> (Specify custom services file)
-          <indexterm significance="normal"><primary><option>--servicedb</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--servicedb</option></primary></indexterm>
         </term>
         <listitem>
 
@@ -3772,7 +3801,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
       <varlistentry>
         <term>
           <option>--versiondb &lt;service probes file&gt;</option> (Specify custom service probes file)
-          <indexterm significance="normal"><primary><option>--versiondb</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--versiondb</option></primary></indexterm>
         </term>
         <listitem>
 
@@ -3787,7 +3816,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
       <varlistentry>
         <term>
           <option>--send-eth</option> (Use raw ethernet sending)
-          <indexterm><primary><option>--send-eth</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--send-eth</option></primary></indexterm>
         </term>
         <listitem>
 
@@ -3809,7 +3838,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
       <varlistentry>
         <term>
           <option>--send-ip</option> (Send at raw IP level)
-          <indexterm><primary><option>--send-ip</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--send-ip</option></primary></indexterm>
         </term>
         <listitem>
 
@@ -3823,14 +3852,15 @@ overwhelming requests.  Specify <option>--open</option> to only see
       <varlistentry>
         <term>
           <option>--privileged</option> (Assume that the user is fully privileged)
-          <indexterm><primary><option>--privileged</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--privileged</option></primary></indexterm>
         </term>
         <listitem>
 
           <para>Tells Nmap to simply assume that it is privileged
           enough to perform raw socket sends, packet sniffing, and
           similar operations that usually require root privileges
-          <indexterm><primary>authorized (root) users</primary></indexterm>
+          <indexterm><primary>privileged users</primary></indexterm>
+          <indexterm><primary>authorized users</primary><see>privileged users</see></indexterm>
           on Unix systems. By default Nmap quits if such operations are
           requested but geteuid() is not
           zero. <option>--privileged</option> is useful with Linux
@@ -3839,7 +3869,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
           scans. Be sure to provide this option flag before any flags
           for options that require privileges (SYN scan, OS detection,
           etc.). The <envar>NMAP_PRIVILEGED</envar> environmental variable
-          <indexterm><primary><envar>NMAP_PRIVILEGED</envar></primary></indexterm>
+          <indexterm><primary><envar>NMAP_PRIVILEGED</envar> environment variable</primary></indexterm>
           may be set as an equivalent alternative to
           <option>--privileged</option>.</para>
         </listitem>
@@ -3848,7 +3878,8 @@ overwhelming requests.  Specify <option>--open</option> to only see
       <varlistentry>
         <term>
           <option>--unprivileged</option> (Assume that the user lacks raw socket privileges)
-          <indexterm><primary><option>--unprivileged</option></primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--unprivileged</option></primary></indexterm>
+          <indexterm><primary>unprivileged users</primary></indexterm>
         </term>
         <listitem>
 
@@ -3860,7 +3891,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
           This is useful for testing, debugging, or when the raw
           network functionality of your operating system is somehow
           broken. The <envar>NMAP_UNPRIVILEGED</envar> environmental variable
-          <indexterm><primary><envar>NMAP_UNPRIVILEGED</envar></primary></indexterm>
+          <indexterm><primary><envar>NMAP_UNPRIVILEGED</envar> environment variable</primary></indexterm>
           may be set as an equivalent alternative to
           <option>--unprivileged</option>.</para>
 
@@ -3888,6 +3919,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
         <term>
           <option>--interactive</option> (Start in interactive mode)
           <indexterm><primary><option>--interactive</option></primary></indexterm>
+          <indexterm><primary><option>interactive mode</option></primary></indexterm>
         </term>
         <listitem>
 
@@ -3903,7 +3935,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
           are usually more familiar and feature-complete.  This option
           includes a bang (!) operator for executing shell commands,
           which is one of many reasons not to install Nmap setuid root.
-          <indexterm><primary>setuid</primary></indexterm>
+          <indexterm><primary>setuid, why Nmap shouldn't be</primary></indexterm>
           </para>
         </listitem>
       </varlistentry>
@@ -4039,7 +4071,6 @@ overwhelming requests.  Specify <option>--open</option> to only see
     running. This requires root privileges because of the SYN scan
     and OS detection.</para>
     <para>
-      <indexterm><primary><option>-sV</option></primary><secondary>example of</secondary></indexterm>
       <indexterm><primary><option>-p</option></primary><secondary>example of</secondary></indexterm>
       <command>nmap -sV -p 22,53,110,143,4564
       198.116.0-255.1-127</command>
@@ -4067,7 +4098,6 @@ overwhelming requests.  Specify <option>--open</option> to only see
 
     <para>
       <indexterm><primary><option>-PN</option></primary><secondary>example of</secondary></indexterm>
-      <indexterm><primary><option>-p</option></primary><secondary>example of</secondary></indexterm>
       <indexterm><primary><option>-oX</option></primary><secondary>example of</secondary></indexterm>
       <indexterm><primary><option>-oG</option></primary><secondary>example of</secondary></indexterm>
       <command>nmap -PN -p80 -oX logs/pb-port80scan.xml -oG
@@ -4080,7 +4110,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
 
   <refsect1 id='man-bugs'>
     <title>Bugs</title>
-    <indexterm><primary>bugs</primary></indexterm>
+    <indexterm><primary>bugs, reporting</primary></indexterm>
 
     <para>Like its author, Nmap isn't perfect.  But you can help make
     it better by sending bug reports or even writing patches.  If Nmap
