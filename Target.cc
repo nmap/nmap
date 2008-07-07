@@ -178,12 +178,6 @@ void Target::FreeInternal() {
   }
 
   if (FPR) delete FPR;
-
-  if (o.script) {
-    ScriptResults::iterator sriter;
-    for (sriter = scriptResults.begin(); sriter != scriptResults.end(); sriter++)
-      free((*sriter).id);
-  }
 }
 
 /*  Creates a "presentation" formatted string out of the IPv4/IPv6 address.

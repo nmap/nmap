@@ -196,7 +196,7 @@ void printosscanoutput(Target *currenths);
 void printserviceinfooutput(Target *currenths);
 
 void printhostscriptresults(Target *currenths);
-char* formatScriptOutput(struct script_scan_result ssr);
+char* formatScriptOutput(ScriptResult sr);
 
 /* Print a detailed list of Nmap interfaces and routes to
    normal/skiddy/stdout output */

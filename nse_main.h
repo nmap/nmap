@@ -13,12 +13,19 @@ extern "C" {
 #include <string.h>
 #include <iostream>
 
-struct script_scan_result {
-	char* id;
-	char* output;
+class ScriptResult
+{
+  private:
+    std::string output;
+    std::string id;
+  public:
+    void set_output (const char *);
+    std::string get_output (void);
+    void set_id (const char *);
+    std::string get_id (void);
 };
 
-typedef std::vector<struct script_scan_result> ScriptResults;
+typedef std::vector<ScriptResult> ScriptResults;
 
 class Target;
 int script_scan(std::vector<Target *> &targets);

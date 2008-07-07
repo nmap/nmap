@@ -50,7 +50,7 @@ int process_preparehost(lua_State* L, Target* target, std::list<struct thread_re
 int process_preparethread(lua_State* L, struct run_record *rr, struct thread_record* tr);
 
 // helper functions
-int process_getScriptId(lua_State* L, struct script_scan_result* ssr);
+int process_getScriptId(lua_State* L, ScriptResult * ssr);
 int process_pickScriptsForPort(
 		lua_State* L, 
 		Target* target, 
@@ -64,6 +64,26 @@ int process_finalize(lua_State* L, unsigned int registry_idx);
 
 // post execution
 int cleanup_threads(std::list<struct thread_record> trs);
+
+void ScriptResult::set_output (const char *out)
+{
+  output = std::string(out);
+}
+
+std::string ScriptResult::get_output (void)
+{
+  return output;
+}
+
+void ScriptResult::set_id (const char *ident)
+{
+  id = std::string(ident);
+}
+
+std::string ScriptResult::get_id (void)
+{
+  return id;
+}
 
 /* int panic (lua_State *L)
  *
@@ -343,7 +363,6 @@ finishup:
 int process_mainloop(lua_State *L) {
 	int state;
 	int unfinished = running_scripts.size() + waiting_scripts.size(); 
-	struct script_scan_result ssr;
 	struct thread_record current;
 	ScanProgressMeter progress = ScanProgressMeter(SCRIPT_ENGINE);
 
@@ -417,8 +436,9 @@ int process_mainloop(lua_State *L) {
 				// running_scripts list
 	
 				if(lua_isstring (current.thread, -1)) { // FIXME
+                    ScriptResult sr;
                     lua_State *thread = current.thread;
-					SCRIPT_ENGINE_TRY(process_getScriptId(thread, &ssr));
+					SCRIPT_ENGINE_TRY(process_getScriptId(thread, &sr));
                     lua_getglobal(thread, "string");
                     lua_getfield(thread, -1, "gsub");
                     lua_replace(thread, -2); // remove string table
@@ -426,11 +446,11 @@ int process_mainloop(lua_State *L) {
                     lua_pushliteral(thread, "[^%w%s%p]");
                     lua_pushcclosure(thread, escape_char, 0);
                     lua_call(thread, 3, 1);
-					ssr.output = strdup(lua_tostring(thread, -1));
+					sr.set_output(lua_tostring(thread, -1));
 					if(current.rr->type == 0) {
-						current.rr->host->scriptResults.push_back(ssr);
+						current.rr->host->scriptResults.push_back(sr);
 					} else if(current.rr->type == 1) {
-						current.rr->port->scriptResults.push_back(ssr);
+						current.rr->port->scriptResults.push_back(sr);
 						current.rr->host->ports.numscriptresults++;
 					}
 					lua_pop(thread, 2);
@@ -521,15 +541,15 @@ int process_waiting2running(lua_State* L, int resume_arguments) {
  * if no 'id' field is found, the filename field is used which we set in the 
  * setup phase. If someone changed the filename field to a nonstring we complain
  * */
-int process_getScriptId(lua_State* L, struct script_scan_result *ssr) {
+int process_getScriptId(lua_State* L, ScriptResult *sr) {
 
 	lua_getfield(L, -2, ID);
 	lua_getfield(L, -3, FILENAME);
 
 	if(lua_isstring(L, -2)) {
-		ssr->id = strdup(lua_tostring (L, -2));
+		sr->set_id(lua_tostring (L, -2));
 	} else if(lua_isstring(L, -1)) {
-		ssr->id = strdup(lua_tostring (L, -1));
+		sr->set_id(lua_tostring (L, -1));
 	} else {
 		error("%s: The script has no 'id' entry, the 'filename' entry was changed to:",
 			SCRIPT_ENGINE);

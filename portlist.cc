@@ -150,11 +150,6 @@ Port::~Port() {
    free(serviceprobe_service);
  if (serviceprobe_fp)
    free(serviceprobe_fp);
- if (o.script) {
-   ScriptResults::iterator sriter;
-   for (sriter = scriptResults.begin(); sriter != scriptResults.end(); sriter++)
-     free((*sriter).id);
- }
 }
 
 // Uses the sd->{product,version,extrainfo} if available to fill

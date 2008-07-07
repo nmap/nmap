@@ -788,8 +788,8 @@ void printportoutput(Target *currenths, PortList *plist) {
 		for(	ssr_iter = current->scriptResults.begin(); 
 			ssr_iter != current->scriptResults.end(); 
 			ssr_iter++) {
-			char* xml_id= xml_convert((*ssr_iter).id);
-			char* xml_scriptoutput= xml_convert((*ssr_iter).output);
+			char* xml_id= xml_convert(ssr_iter->get_id().c_str());
+			char* xml_scriptoutput= xml_convert(ssr_iter->get_output().c_str());
 			log_write(LOG_XML, "<script id=\"%s\" output=\"%s\" />", 
 					xml_id, xml_scriptoutput);
 			free(xml_id);
@@ -836,11 +836,11 @@ log_write(LOG_PLAIN, "%d service%s unrecognized despite returning data. If you k
 }
 
 #ifndef NOLUA
-char* formatScriptOutput(struct script_scan_result ssr) {
-	char* c_result;
-	std::string result = std::string();
+char* formatScriptOutput(ScriptResult sr) {
+	std::string result = std::string(), output = sr.get_output();
 	string::size_type pos;
-
+	char *c_result, *c_output = new char[output.length()+1];
+    strncpy(c_output, output.c_str(), output.length()+1);
 	int line = 0;
 #ifdef WIN32
 	const char* sep = "\r\n";
@@ -848,10 +848,10 @@ char* formatScriptOutput(struct script_scan_result ssr) {
 	const char* sep = "\n";
 #endif
 	std::string line_prfx = "|  ";
-	
-	char* token = strtok(ssr.output, sep);
 
-	result += line_prfx + std::string(ssr.id) + ": ";
+	char* token = strtok(c_output, sep);
+
+	result += line_prfx + sr.get_id() + ": ";
 
 	while(token != NULL) {
 		if(line > 0)
@@ -872,6 +872,7 @@ char* formatScriptOutput(struct script_scan_result ssr) {
 	}
 	c_result = strdup(result.c_str());
 
+    delete[] c_output;
 	return c_result;
 }
 #endif /* NOLUA */
@@ -1882,8 +1883,8 @@ void printhostscriptresults(Target *currenths) {
 		log_write(LOG_XML, "<hostscript>");
 		log_write(LOG_PLAIN, "\nHost script results:\n");
 		for(iter = currenths->scriptResults.begin(); iter != currenths->scriptResults.end(); iter++) {
-			xml_id = xml_convert((*iter).id);
-			xml_scriptoutput= xml_convert((*iter).output);
+			xml_id = xml_convert(iter->get_id().c_str());
+			xml_scriptoutput= xml_convert(iter->get_output().c_str());
 			log_write(LOG_XML, "<script id=\"%s\" output=\"%s\" />", 
 					xml_id, xml_scriptoutput);
 			script_output = formatScriptOutput((*iter));
