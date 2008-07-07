@@ -1,6 +1,5 @@
 #include "nse_nsock.h"
 #include "nse_macros.h"
-#include "nse_string.h"
 
 #include "nse_debug.h"
 
@@ -12,6 +11,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <sstream>
+#include <iomanip>
 
 #include "utils.h"
 #include "tcpip.h"
@@ -69,6 +70,44 @@ int l_nsock_checkstatus(lua_State *L, nsock_event nse);
 void l_nsock_trace(nsock_iod nsiod, const char* message, int direction);
 const char* inet_ntop_both(int af, const void* v_addr, char* ipstring);
 unsigned short inet_port_both(int af, const void* v_addr);
+
+
+static std::string hexify (const char *str, size_t len)
+{
+  size_t num = 0;
+  std::ostringstream ret;
+
+  // If more than 95% of the chars are printable, we escape unprintable chars
+  for (size_t i = 0; i < len; i++)
+    if (isprint(str[i]))
+      num++;
+  if ((double) num / (double) len >= 0.95)
+  {
+    for (size_t i = 0; i < len; i++)
+    {
+      if (isprint(str[i]) || isspace(str[i]))
+        ret << str[i];
+      else
+        ret << std::setw(3) << "\\" << (unsigned int) str[i];
+    }
+    return ret.str();
+  }
+
+  ret << std::setbase(16) << std::setfill('0');
+  for (size_t i = 0; i < len; i += 16)
+  {
+    ret << std::setw(8) << i << ": ";
+    for (size_t j = i; j < i + 16; j++)
+      if (j < len)
+        ret << std::setw(2) << (unsigned int) str[j] << " ";
+      else
+        ret << "   ";
+    for (size_t j = i; j < i + 16 && j < len; j++)
+      ret.put(isgraph(str[j]) ? (unsigned char) str[j] : ' ');
+    ret << std::endl;
+  }
+  return ret.str();
+}
 
 static luaL_reg l_nsock [] = {
 	{"connect", l_nsock_connect_queued},
@@ -360,7 +399,6 @@ static int l_nsock_send(lua_State *L) {
 	l_nsock_udata* udata = (l_nsock_udata*) luaL_checkudata(L, 1, "nsock");
 	const char* string = luaL_checkstring(L, 2);
 	size_t string_len = lua_objlen (L, 2);
-	char* hexified;
 	
 	l_nsock_clear_buf(L,udata); 
 
@@ -370,11 +408,8 @@ static int l_nsock_send(lua_State *L) {
 		return 2;	
 	}
 
-	if(o.scriptTrace()) {
-		hexified = nse_hexify((const void*)string, string_len);
-		l_nsock_trace(udata->nsiod, hexified, TO);
-		free(hexified);
-	}
+	if(o.scriptTrace())
+		l_nsock_trace(udata->nsiod, hexify(string, string_len).c_str(), TO);
 
 	nsock_write(nsp, udata->nsiod, l_nsock_send_handler, udata->timeout, L, string, string_len);
 	return lua_yield(L, 0);
@@ -443,16 +478,12 @@ void l_nsock_receive_handler(nsock_pool nsp, nsock_event nse, void *lua_state) {
 	lua_State *L = (lua_State*) lua_state;
 	char* rcvd_string;
 	int rcvd_len = 0;
-	char* hexified;
 
 	if(l_nsock_checkstatus(L, nse) == NSOCK_WRAPPER_SUCCESS) {
 		rcvd_string = nse_readbuf(nse, &rcvd_len);
 
-		if(o.scriptTrace()) {
-			hexified = nse_hexify((const void*) rcvd_string, (size_t) rcvd_len);
-			l_nsock_trace(nse_iod(nse), hexified, FROM);
-			free(hexified);
-		}
+		if(o.scriptTrace())
+			l_nsock_trace(nse_iod(nse), hexify(rcvd_string, (size_t) rcvd_len).c_str(), FROM);
 
 		lua_pushlstring(L, rcvd_string, rcvd_len);
 		process_waiting2running((lua_State*) lua_state, 2);
@@ -668,7 +699,6 @@ void l_nsock_receive_buf_handler(nsock_pool nsp, nsock_event nse, void *lua_stat
 	lua_State *L = (lua_State*) lua_state;
 	char* rcvd_string;
 	int rcvd_len = 0;
-	char* hexified;
 	int tmpidx;
 	l_nsock_udata* udata = (l_nsock_udata*) luaL_checkudata(L, 1, "nsock");
 	if(l_nsock_checkstatus(L, nse) == NSOCK_WRAPPER_SUCCESS) {
@@ -679,11 +709,8 @@ void l_nsock_receive_buf_handler(nsock_pool nsp, nsock_event nse, void *lua_stat
 
 		rcvd_string = nse_readbuf(nse, &rcvd_len);
 		
-		if(o.scriptTrace()) {
-			hexified = nse_hexify((const void*) rcvd_string, (size_t) rcvd_len);
-			l_nsock_trace(nse_iod(nse), hexified, FROM);
-			free(hexified);
-		}
+		if(o.scriptTrace())
+			l_nsock_trace(nse_iod(nse), hexify(rcvd_string, (size_t) rcvd_len).c_str(), FROM);
 		/* push the buffer and what we received from nsock on the stack and
 		 * concatenate both*/
 		lua_rawgeti(L, LUA_REGISTRYINDEX, udata->bufidx);

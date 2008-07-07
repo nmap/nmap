@@ -47,15 +47,5 @@
 
 #define MAX_FILENAME_LEN 4096
 
-#define NOT_PRINTABLE '.'
-
-// if the character is not printable
-// and the character is not a tab
-// and the character is not a new line
-// and the character is not a carriage return
-// return 0
-// otherwise return 1
-#define ISPRINT(c) ((!(c > 31 && c < 127) && c != 9 && c != 10 && c != 13)? 0 : 1)
-
 #endif
 

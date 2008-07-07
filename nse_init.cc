@@ -22,26 +22,6 @@ extern NmapOps o;
 extern int current_hosts;
 extern int errfunc;
 
-/* TODO: keep?
-// Error function if a user script attempts to create a new global 
-static int global_error(lua_State *L)
-{
-  lua_pushvalue(L, lua_upvalueindex(1));
-  lua_pushvalue(L, 2);
-  if (!lua_tostring(L, -1))
-  {
-    lua_pushliteral(L, "? (of type ");
-    lua_pushstring(L, lua_typename(L, lua_type(L, -2)));
-    lua_pushliteral(L, ")");
-    lua_concat(L, 3);
-    lua_replace(L, -2);
-  }
-  lua_pushvalue(L, lua_upvalueindex(2));
-  lua_concat(L, 3);
-  fprintf(stderr, "%s\n", lua_tostring(L, -1));
-  return lua_error(L);
-} */
-
 /* int error_function (lua_State *L)
  *
  * Arguments:
@@ -64,16 +44,6 @@ static int error_function (lua_State *L) // for use with lua_pcall
   lua_concat(L, 3);
   return 1;
 }
-
-/* load an nmap-lua script
- * create a new closure to store the script
- * tell the closure where to find the standard
- * lua libs and the nmap bindings
- * we do some error checking to make sure that
- * the script is well formed
- * the script is then added to either the hostrules
- * or the portrules
- * */
 
 /* int loadfile (lua_State *L)
  *
@@ -108,22 +78,6 @@ static int loadfile (lua_State *L)
                                       // exposed. See lstate.h
   lua_setfield(L, -2, "__index");
   lua_setmetatable(L, -2);
-
-  // TODO: Allow scripts to modify globals?
-  /* finally we make sure nobody tampers with the global name space any more
-   * and prepare for runlevel sorting
-   */
-  /* lua_getmetatable(L, -1);
-  
-  lua_pushliteral(L, "Attempted to change the global '");
-  lua_pushliteral(L, "' in ");
-  lua_pushstring(L, filename);
-  lua_pushliteral(L, " - use nmap.registry if you really want to share "
-      "data between scripts.");
-  lua_concat(L, 3);
-  lua_pushcclosure(L, global_error, 2);
-  lua_setfield(L, -2, "__newindex");
-  lua_pop(L, 1); */
 
   if (luaL_loadfile(L, filename) != 0) // load the file
     luaL_error(L, "'%s' could not be loaded!", filename);

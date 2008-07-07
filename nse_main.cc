@@ -5,7 +5,6 @@
 #include "nse_nmaplib.h"
 #include "nse_debug.h"
 #include "nse_macros.h"
-#include "nse_string.h"
 
 #include "nmap.h"
 #include "nmap_error.h"
@@ -73,6 +72,21 @@ static int panic (lua_State *L)
   fatal("Unprotected error in Lua:\n%s\n", err);
   return 0;
 }
+
+/* int escape_char (lua_State *L)
+ *
+ * This function is called via Lua through string.gsub. It's purpose is to
+ * escape characters. So the first sole character is changed to "\xxx".
+ */
+static int escape_char (lua_State *L)
+{
+  const char *a = luaL_checkstring(L, 1);
+  lua_pushliteral(L, "\\");
+  lua_pushinteger(L, (int) *a);
+  lua_concat(L, 2);
+  return 1;
+}
+
 
 int script_updatedb (void)
 {
@@ -381,17 +395,24 @@ int process_mainloop(lua_State *L) {
 				// then we release the thread and remove it from the
 				// running_scripts list
 	
-				if(lua_isstring (current.thread, -1)) {
-					SCRIPT_ENGINE_TRY(process_getScriptId(current.thread, &ssr));
-					ssr.output = nse_printable
-						(lua_tostring(current.thread, -1), lua_objlen(current.thread, -1));
+				if(lua_isstring (current.thread, -1)) { // FIXME
+                    lua_State *thread = current.thread;
+					SCRIPT_ENGINE_TRY(process_getScriptId(thread, &ssr));
+                    lua_getglobal(thread, "string");
+                    lua_getfield(thread, -1, "gsub");
+                    lua_replace(thread, -2); // remove string table
+                    lua_pushvalue(thread, -2); // output FIXME
+                    lua_pushliteral(thread, "[^%w%s%p]");
+                    lua_pushcclosure(thread, escape_char, 0);
+                    lua_call(thread, 3, 1);
+					ssr.output = strdup(lua_tostring(thread, -1));
 					if(current.rr->type == 0) {
 						current.rr->host->scriptResults.push_back(ssr);
 					} else if(current.rr->type == 1) {
 						current.rr->port->scriptResults.push_back(ssr);
 						current.rr->host->ports.numscriptresults++;
 					}
-					lua_pop(current.thread, 2);
+					lua_pop(thread, 2);
 				}
 	
 				SCRIPT_ENGINE_TRY(process_finalize(L, current.registry_idx));
