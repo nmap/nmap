@@ -2185,7 +2185,7 @@ access. The names are taken as strings (which must be alphanumeric
 values) and used as keys inside the
 <literal>argument-table</literal>. Values are either strings or tables
 themselves (surrounded by &lsquo;<literal>{</literal>&rsquo; and
-&lsquo;<literal>}</literal>&rsquo;.  Subtables make it possible to
+&lsquo;<literal>}</literal>&rsquo;).  Subtables make it possible to
 override arguments for specific scripts (e.g. when you want to provide
 different login/password pairs for different scripts).  For example,
 you could pass the comma-separated arguments:
