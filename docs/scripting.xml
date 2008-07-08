@@ -1705,6 +1705,67 @@ if(s) code_to_be_done_on_match end
 	</variablelist>
 	</sect2>
 
+	<sect2 id="nse-lib-unpwdb">
+	<title>Username/Password Database Functions</title>
+        <indexterm><primary><varname>unpwdb</varname> NSE module</primary></indexterm>
+	<para>
+	The <literal>unpwdb</literal> module provides functions for easily obtaining
+	usernames and/or passwords from a "database" (list).  The most obvious use
+	for this library is brute-force attack.  The first two functions' return values
+	are setup for use with exception handling via <literal>nmap.new_try()</literal>.
+        <indexterm><primary>exceptions in NSE</primary></indexterm>
+	</para>
+
+	<variablelist>
+	    <varlistentry>
+	      <term><option>bool, response = unpwdb.usernames()</option></term>
+	      <listitem>
+		  <para>
+			This function returns a closure which returns a new username
+			with every call, or <literal>nil</literal> when the list is
+			exhausted.  This closure takes an optional argument of
+			<literal>"reset"</literal> to rewind the list to the beginning.
+			You can specify your own username list with the script argument
+			<literal>userdb</literal>.
+		  </para>
+	      </listitem>
+	    </varlistentry>
+
+	    <varlistentry>
+	      <term><option>bool, response = unpwdb.passwords()</option></term>
+	      <listitem>
+		  <para>
+			This function returns a closure which returns a new password
+			with every call, or <literal>nil</literal> when the list is
+			exhausted.  This closure takes an optional argument of
+			<literal>"reset"</literal> to rewind the list to the beginning.
+			You can specify your own password list with the script argument
+			<literal>passdb</literal>.
+		  </para>
+	      </listitem>
+	    </varlistentry>
+
+	    <varlistentry>
+	      <term><option>limit = unpwdb.timelimit()</option></term>
+	      <listitem>
+		  <para>
+			This function returns the suggested number of seconds to
+			attempt a brute force attack, based on Nmap's timing values
+			(<option>-T4</option>, etc) and whether or not a user-defined
+			list is used.  You can use the script argument
+			<literal>notimelimit</literal> to make this function return
+			<literal>nil</literal>, which means the brute-force should
+			run until the list is empty.  If <literal>notimelimit</literal>
+			is not used, be sure to still check for <literal>nil</literal>
+			return values on the above two functions in case you finish
+			before the time limit is up.
+		  </para>
+	      </listitem>
+	    </varlistentry>
+
+	</variablelist>
+	</sect2>
+
 	<sect2 id="nse-lib-datafiles">
 	<title>Data File Parsing Functions</title>
         <indexterm><primary><varname>datafiles</varname> NSE module</primary></indexterm>

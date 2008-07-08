@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a new NSE Unpwdb (username/password database) library for easily
+  obtaining usernames or passwords from a list.  The functions usernames()
+  and passwords() return a closure which returns a new list entry with
+  every call, or nil when the list is exhausted.  You can specify your
+  own username and/or password lists via the script arguments userdb
+  and passdb, respectively. [Kris]
+
 o The Ports/Hosts display in Zenmap now has different colors for open
   and closed ports. [Vladimir]
 
