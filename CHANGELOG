@@ -17,6 +17,25 @@ o Fixed the "resolution errors not showing up" bug. Actually, from now
 
 o NSE now works with the Ping Scan (-sP) to execute host scripts. [Kris]
 
+o [NSE] nse_string has been removed and equivalent, cleaner, procedures
+  have been moved to nse_main and nse_nsock. [Patrick]
+
+o [NSE] Case insensitive categories. [Patrick]
+
+o [NSE] Porttests and Hosttests tables are now in the Lua registry where
+  they belong. [Patrick]
+
+o [NSE] Each thread for a script gets its own action closure (and
+    upvalues). See: http://seclists.org/nmap-dev/2008/q2/0549.html [Patrick]
+
+o [NSE] script_scan_result structure has been changed to a class,
+  ScriptResult, that now uses std::strings to hold a Script's output and
+  id. This alleviates the need to manage memory on the heap explicitly
+  (malloc & free). [Patrick]
+
+o [NSE] The runlevel structure has been placed in the thread record structure
+  so we no longer need to manage the runlevel explicitly on the heap. [Patrick]
+
 Nmap 4.68 [2008-6-28]
 
 o Doug integrated all of your version detection submissions and
