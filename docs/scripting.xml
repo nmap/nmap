@@ -13,11 +13,11 @@
     growing and diverse set of scripts distributed with Nmap, or write
     their own to meet custom needs.</para>
 
-    <para>The Nmap project would like to thank Diman Todorov
-    <indexterm><primary>Todorov, Diman</primary></indexterm>
+    <para>The Nmap project would like to thank
+    Diman Todorov<indexterm><primary>Todorov, Diman</primary></indexterm>
     for his excellent work building the initial NSE implementation and
-    writing much of this documentation.  Stoiko Ivanov
-    <indexterm><primary>Ivanov, Stoiko</primary></indexterm>
+    writing much of this documentation.
+    Stoiko Ivanov<indexterm><primary>Ivanov, Stoiko</primary></indexterm>
     also contributed greatly.  The tasks we had in mind when
     creating the system are:</para>    
 
@@ -73,8 +73,8 @@
 	   backdoors to enable later reentry.  Some of these can be
 	   detected by Nmap's regular expression based version detection.
 	   For example, within hours of the MyDoom worm hitting the
-	   Internet, Jay Moran
-           <indexterm><primary>Moran, Jay</primary></indexterm>
+	   Internet,
+	   Jay Moran<indexterm><primary>Moran, Jay</primary></indexterm>
            posted an Nmap version detection probe and
 	   signature so that others could quickly scan their networks.
 	   For more complex worms and backdoors, NSE is needed
@@ -89,12 +89,11 @@
 	   As a general scripting language, NSE could even
 	   be used to exploit vulnerabilities rather than just find them.
 	   The capability to add custom exploit scripts may be valuable
-	   for some people (particularly penetration testers),
-           <indexterm><primary>penetration testing</primary></indexterm>
+	   for some people (particularly
+	   penetration testers),<indexterm><primary>penetration testing</primary></indexterm>
            though we aren't
 	   planning to turn Nmap into an exploitation framework like
-	   <ulink url="http://www.metasploit.com">Metasploit</ulink>.
-           <indexterm><primary><application>Metasploit</application></primary></indexterm>
+	   <ulink url="http://www.metasploit.com">Metasploit</ulink>.<indexterm><primary><application>Metasploit</application></primary></indexterm>
        </para>
         </listitem>
       </varlistentry>
@@ -108,9 +107,8 @@
 
     <para>
       Scripts are written in the
-      embedded <ulink url="http://www.lua.org/">Lua programming language</ulink>.  
-      <indexterm><primary>Lua programming language</primary></indexterm>
-      <indexterm><primary>Lua programming language</primary><seealso>Nmap Scripting Engine</seealso></indexterm>
+      embedded
+      <ulink url="http://www.lua.org/">Lua programming language</ulink>.<indexterm><primary>Lua programming language</primary><seealso>Nmap Scripting Engine</seealso></indexterm>
       The language itself is well documented in the books 
 <web>
       <citetitle><ulink url="http://www.amazon.com/exec/obidos/ASIN/8590379825/secbks-20">Programming
@@ -133,15 +131,14 @@ The reference manual is also
     </para>
     <para>
 
-      NSE is activated with the <option>-sC</option>
-      <indexterm><primary><option>-sC</option></primary></indexterm>
-      option (or <option>--script</option>
-      <indexterm><primary><option>--script</option></primary></indexterm>
+      NSE is activated with the
+      <option>-sC</option><indexterm><primary><option>-sC</option></primary></indexterm>
+      option (or
+      <option>--script</option><indexterm><primary><option>--script</option></primary></indexterm>
       if you wish to specify a custom set of
-      scripts) and results are integrated into Nmap normal
-      <indexterm><primary>normal output</primary></indexterm>
-      and XML output.
-      <indexterm><primary>XML output</primary></indexterm>
+      scripts) and results are integrated into Nmap
+      normal<indexterm><primary>normal output</primary></indexterm>
+      and XML output.<indexterm><primary>XML output</primary></indexterm>
       Two types of scripts are supported: service and host
       scripts.  Service scripts relate to a certain open port
       (service) on the target host, and any results they produce are included
@@ -157,8 +154,8 @@ The reference manual is also
       username it is running under, and <literal>HTML Title</literal>,
       which simply grabs the title of the root path of any web servers
       found.  A sample host script is <literal>RIPE Query</literal>,
-      which looks up and reports target IP ownership information.
-      <indexterm><primary>script names, examples of</primary></indexterm>
+      which looks up and reports target IP ownership
+      information.<indexterm><primary>script names, examples of</primary></indexterm>
 
     </para>
     <example id="nse-ex1">
@@ -190,21 +187,18 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
     <title>Usage and Examples</title>
     <para>
       While NSE has a complex implementation for efficiency, it is
-      strikingly easy to use.  Simply specify <option>-sC</option>
-      <indexterm><primary><option>-sC</option></primary></indexterm>
+      strikingly easy to use.  Simply specify
+      <option>-sC</option><indexterm><primary><option>-sC</option></primary></indexterm>
       to enable the most common scripts.  Or specify the
-      <option>--script</option>
-      <indexterm><primary><option>--script</option></primary></indexterm>
+      <option>--script</option><indexterm><primary><option>--script</option></primary></indexterm>
       option to choose your own scripts to
       execute by providing categories, script file names, or the name of
       directories full of scripts you wish to execute.  You can customize 
 	  some scripts by providing arguments to them via the
-	  <option>--script-args</option>
-          <indexterm><primary><option>--script-args</option></primary></indexterm>
-          option. The two remaining options, <option>--script-trace</option>
-          <indexterm><primary><option>--script-trace</option></primary></indexterm>
-          and <option>--script-updatedb</option>,
-          <indexterm><primary><option>--script-updatedb</option></primary></indexterm>
+	  <option>--script-args</option><indexterm><primary><option>--script-args</option></primary></indexterm>
+          option. The two remaining options,
+	  <option>--script-trace</option><indexterm><primary><option>--script-trace</option></primary></indexterm>
+          and <option>--script-updatedb</option>,<indexterm><primary><option>--script-updatedb</option></primary></indexterm>
           are generally only used for script debugging and development.
     </para>
 
@@ -408,16 +402,12 @@ with scripts which
 are to be run against the target hosts instead of the default set. Nmap
 will try to interpret the arguments at first as categories and afterwards
 as files or directories.  Absolute paths are used as is, relative paths are
-searched in the following places until found:
-<indexterm><primary>data files</primary><secondary>directory search order</secondary></indexterm>
-<indexterm><primary>scripts, location of</primary></indexterm>
+searched in the following places until
+found:<indexterm><primary>data files</primary><secondary>directory search order</secondary></indexterm><indexterm><primary>scripts, location of</primary></indexterm>
 <filename>--datadir/</filename>; 
-<indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm>
-<filename>$NMAPDIR/</filename>; 
-<indexterm><primary sortas="nmap"><filename>.nmap</filename> directory</primary></indexterm>
-<filename>~/.nmap/</filename> (not searched on Windows); 
-<indexterm><primary>NMAPDATADIR</primary></indexterm>
-NMAPDATADIR/ or  
+<filename>$NMAPDIR/</filename>;<indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm>
+<filename>~/.nmap/</filename> (not searched on Windows);<indexterm><primary sortas="nmap"><filename>.nmap</filename> directory</primary></indexterm>
+NMAPDATADIR/ or<indexterm><primary>NMAPDATADIR</primary></indexterm>
 <filename>./</filename>.  A <filename>scripts/</filename> subdirectory
 is also tried in each of these.  Give the argument <literal>all</literal> to execute all scripts in the Nmap script database.
 </para>
@@ -433,8 +423,7 @@ extension does not have to be <literal>nse</literal>.
 <para>Nmap scripts are stored in a <filename>scripts</filename>
 subdirectory of the Nmap data directory
 (see <xref linkend="data-files"/>) by default.  Scripts are indexed in a database stored in
-<filename>scripts/script.db</filename>.
-<indexterm><primary><filename>script.db</filename></primary></indexterm>
+<filename>scripts/script.db</filename>.<indexterm><primary><filename>script.db</filename></primary></indexterm>
 The database lists all of the
 scripts in each category. A single script may be in several
 categories.</para>
@@ -489,7 +478,6 @@ categories.</para>
               specified with the <option>--script</option> option. For
               efficiency reasons, NSE generates a
               <filename>script.db</filename>
-              <indexterm><primary><filename>script.db</filename></primary></indexterm>
               file which maps
               categories to the scripts they contain. If you changed
               tag directives or added/removed scripts, run
@@ -501,11 +489,11 @@ categories.</para>
 
       <para>
         Some of the Nmap options have effects on script scans. The most
-        prominent of these is <option>-sV</option>.
-        <indexterm><primary><option>-sV</option></primary></indexterm>
+        prominent of these is
+	<option>-sV</option>.<indexterm><primary><option>-sV</option></primary></indexterm>
         A version scan executes
-        the scripts in the <literal>version</literal> category.
-        <indexterm><primary><literal>version</literal> script category</primary></indexterm>
+        the scripts in the
+	<literal>version</literal> category.<indexterm><primary><literal>version</literal> script category</primary></indexterm>
         The scripts
         in this category are slightly different than other scripts. Their
         output blends in with the version scan and they do not produce any
@@ -513,8 +501,7 @@ categories.</para>
       </para>
       <para>
         Another option which has effect on the scripting engine is 
-	<option>-A</option>.
-        <indexterm><primary><option>-A</option></primary><secondary>features enabled by</secondary></indexterm>
+	<option>-A</option>.<indexterm><primary><option>-A</option></primary><secondary>features enabled by</secondary></indexterm>
         The advanced/aggressive mode of Nmap implies
 	the option <option>-sC</option>.
       </para>
@@ -560,8 +547,7 @@ categories.</para>
 	should be kept short to conserve space in Nmap output, while
 	still being meaningful enough for users to recognize.  Some
 	good examples are <literal>RIPE query</literal>, <literal>HTML
-	title</literal>, and <literal>Kibuv worm</literal>.
-        <indexterm><primary>script names, examples of</primary></indexterm>
+	title</literal>, and <literal>Kibuv worm</literal>.<indexterm><primary>script names, examples of</primary></indexterm>
       </para>
     </sect2>
     <sect2 id="nse-format-description">
@@ -647,11 +633,9 @@ that.</para>
 	evaluates to <literal>true</literal>, the script action 
 	is performed. Otherwise the action is skipped. Port rules are
 	only matched against TCP or UDP ports in the
-	<literal>open</literal>, <literal>open|filtered</literal> or
-	<literal>unfiltered</literal>
-        <indexterm><primary><literal>open</literal> port state</primary></indexterm>
-        <indexterm><primary><literal>open|filtered</literal> port state</primary></indexterm>
-        <indexterm><primary><literal>unfiltered</literal> port state</primary></indexterm>
+	<literal>open</literal>,<indexterm><primary><literal>open</literal> port state</primary></indexterm>
+	<literal>open|filtered</literal> or<indexterm><primary><literal>open|filtered</literal> port state</primary></indexterm>
+	<literal>unfiltered</literal><indexterm><primary><literal>unfiltered</literal> port state</primary></indexterm>
 	states. Host rules are matched exactly once against every
 	scanned host. The action, like the rule, is a Lua function,
 	which takes a host and port table as arguments. If the script is
@@ -717,8 +701,7 @@ that.</para>
 	extended with libraries for interfacing with Nmap.  The Nmap
 	API is in the Lua namespace <literal>nmap</literal>.  This
 	means that all calls to resources provided by Nmap have an
-	<literal>nmap</literal> prefix.
-        <indexterm><primary><varname>nmap</varname> NSE module</primary></indexterm>
+	<literal>nmap</literal> prefix.<indexterm><primary><varname>nmap</varname> NSE module</primary></indexterm>
 	<literal>nmap.new_socket()</literal>, for example, returns a
 	new socket wrapper object. The Nmap library layer also takes
 	care of initializing the Lua context, scheduling parallel
@@ -774,12 +757,11 @@ that.</para>
         <title>Bitwise Logical Operations</title>
         <indexterm><primary><varname>bit</varname> NSE module</primary></indexterm>
         <para>
-	  Lua does not provide bitwise logical operations.
-          <indexterm><primary>bitwise operations in NSE</primary></indexterm>
+	  Lua does not provide
+	  bitwise logical operations.<indexterm><primary>bitwise operations in NSE</primary></indexterm>
           Since they
-	  are often useful for low-level network communication, Reuben
-          Thomas'
-          <indexterm><primary>Thomas, Reuben</primary></indexterm>
+	  are often useful for low-level network communication,
+	  Reuben Thomas'<indexterm><primary>Thomas, Reuben</primary></indexterm>
          <ulink url="http://luaforge.net/projects/bitlib">bitwise operation library</ulink>
       for Lua has been
 	  integrated into NSE. The arguments to the bitwise operation
@@ -897,8 +879,7 @@ that.</para>
 	  functionality Lua provides, it's not very convenient. Therefore the 
 	  BinLib has been added to NSE, based on 
 	  <ulink url="http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/">lpack</ulink> 
-	  by Luiz Henrique de Figueiredo.
-          <indexterm><primary>Henrique de Figueiredo, Luiz</primary></indexterm>
+	  by Luiz Henrique de Figueiredo.<indexterm><primary>Henrique de Figueiredo, Luiz</primary></indexterm>
 
 	  The BinLib functions take a format string to encode and decode binary
 	  data. The operators of the format string are shown in <xref linkend="scripting-tbl-binlib"/>.</para>
@@ -989,10 +970,8 @@ that.</para>
 	  powerful as standard regular expressions.  So we have
 	  integrated Perl compatible regular expressions into Lua
 	  using PCRE and a modified version of the Lua PCRE library
-	  written by Reuben Thomas
-          <indexterm><primary>Thomas, Reuben</primary></indexterm>
-          and Shmuel Zeigerman.
-          <indexterm><primary>Zeigerman, Shmuel</primary></indexterm>
+	  written by Reuben Thomas<indexterm><primary>Thomas, Reuben</primary></indexterm>
+          and Shmuel Zeigerman.<indexterm><primary>Zeigerman, Shmuel</primary></indexterm>
           These are
 	  the same sort of regular expressions used by Nmap version
 	  detection.  The main modification to their library is that
@@ -1006,7 +985,6 @@ that.</para>
 	  execution time when patterns are reused.  Compiled patterns
 	  can be cached in the NSE registry and reused by other
 	  scripts. The PCRE functions reside inside the <literal>pcre</literal> 
-          <indexterm><primary><varname>pcre</varname> NSE module</primary></indexterm>
 	  namespace.
 	  </para>
 
@@ -1769,7 +1747,7 @@ if(s) code_to_be_done_on_match end
 	<sect2 id="nse-lib-datafiles">
 	<title>Data File Parsing Functions</title>
         <indexterm><primary><varname>datafiles</varname> NSE module</primary></indexterm>
-        <indexterm><primary><varname>data files</varname> access to from NSE</primary></indexterm>
+        <indexterm><primary>data files</primary><secondary>access to from NSE</secondary></indexterm>
 	<para>
 	The <literal>datafiles</literal> module provides functions for reading and parsing
 	Nmap's data files (e.g. <filename>nmap-protocol</filename>, <filename>nmap-rpc</filename>,
@@ -1937,8 +1915,8 @@ if(s) code_to_be_done_on_match end
       NSE scripts have access to several Nmap facilities for writing
       flexible and elegant scripts. The API provides target host
       details such as port states and version detection results.  It
-      also offers an interface to the Nsocklibrary
-      <indexterm><primary>Nsock</primary></indexterm>
+      also offers an interface to the Nsock<indexterm><primary>Nsock</primary></indexterm>
+      library
       for efficient network I/O.
     </para>
 
@@ -1948,8 +1926,8 @@ if(s) code_to_be_done_on_match end
 	An effective Nmap scripting engine requires more than just a
 	Lua interpreter. Users need easy access to the information
 	Nmap has learned about the target hosts. This data is passed
-	as arguments to the NSE <literal>action</literal> method.
-        <indexterm><primary><varname>action</varname> script variable</primary></indexterm>
+	as arguments to the NSE
+	<literal>action</literal> method.<indexterm><primary><varname>action</varname> script variable</primary></indexterm>
         The arguments, <literal>host</literal> and
 	<literal>port</literal>, are Lua tables which contain
 	information on the target against which the script is
@@ -2034,8 +2012,7 @@ if(s) code_to_be_done_on_match end
 	    <term><option>host.mac_addr</option>
 	      </term>
 	    <listitem>
-	      <para>MAC address
-                  <indexterm><primary>MAC address</primary></indexterm>
+	      <para>MAC address<indexterm><primary>MAC address</primary></indexterm>
                   of the destination host (6-byte long binary
 		  string) or <literal>nil</literal>, if the host is not directly connected. 
 		  </para>
@@ -2046,8 +2023,8 @@ if(s) code_to_be_done_on_match end
 	      </term>
 	    <listitem>
 	      <para>Our own MAC address, which was used to connect to the
-		  host (either our network card's, or (with <option>--spoof-mac</option>)
-                  <indexterm><primary><option>--spoof-mac</option></primary></indexterm>
+		  host (either our network card's, or (with
+		  <option>--spoof-mac</option>)<indexterm><primary><option>--spoof-mac</option></primary></indexterm>
                   the spoofed address).
 		  </para>
 	    </listitem>
@@ -2056,8 +2033,8 @@ if(s) code_to_be_done_on_match end
 	    <term><option>host.interface</option>
 	      </term>
 	    <listitem>
-	      <para>A string containing the interface name (dnet-style)
-              <indexterm><primary>libdnet</primary></indexterm>
+	      <para>A string containing the interface name
+	      (dnet-style)<indexterm><primary>libdnet</primary></indexterm>
               through 
 		  which packets to the host are sent.
 		  </para>
@@ -2246,11 +2223,11 @@ if(s) code_to_be_done_on_match end
             </term>
 	  <listitem>
 	    <para>
-            Returns the debugging level
-            <indexterm><primary>debugging</primary><secondary>in NSE</secondary></indexterm>
+            Returns the
+	    debugging level<indexterm><primary>debugging</primary><secondary>in NSE</secondary></indexterm>
             as a non-negative integer. The
-            debugging level can be set with the <option>-d</option>
-            <indexterm><primary><option>-d</option></primary></indexterm>
+            debugging level can be set with the
+	    <option>-d</option><indexterm><primary><option>-d</option></primary></indexterm>
             option<bookex> (see <xref linkend="port-scanning-options-output"/>)</bookex>.
             </para>
           </listitem>
@@ -2260,8 +2237,8 @@ if(s) code_to_be_done_on_match end
             </term>
 	  <listitem>
 	    <para>
-            Returns true if Nmap was compiled with SSL support,
-            <indexterm><primary>SSL</primary><secondary>in NSE</secondary></indexterm>
+            Returns true if Nmap was compiled with
+	    SSL support,<indexterm><primary>SSL</primary><secondary>in NSE</secondary></indexterm>
             false
             otherwise. This can be used to avoid sending SSL probes
             when SSL is not available.
@@ -2272,11 +2249,11 @@ if(s) code_to_be_done_on_match end
           <term><option>nmap.verbosity()</option></term>
 	  <listitem>
 	    <para>
-            Returns the verbosity level
-            <indexterm><primary>verbosity</primary><secondary>in NSE</secondary></indexterm>
+            Returns the
+	    verbosity level<indexterm><primary>verbosity</primary><secondary>in NSE</secondary></indexterm>
             as a non-negative integer. The
-            verbosity level can be set with the <option>-v</option>
-            <indexterm><primary><option>-v</option></primary></indexterm>
+            verbosity level can be set with the
+	    <option>-v</option><indexterm><primary><option>-v</option></primary></indexterm>
             option<bookex> (see <xref linkend="port-scanning-options-output"/>)</bookex>.
             </para>
           </listitem>
@@ -2454,8 +2431,8 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	      </term>
 	    <listitem>
 	      <para>
-		  For the provided dnet-style
-                  <indexterm><primary>libdnet</primary></indexterm>
+		  For the provided
+		  dnet-style<indexterm><primary>libdnet</primary></indexterm>
 		  <literal>interface_name</literal>,
 		  <literal>nmap.get_interface_link()</literal> returns
 		  what kind of link level hardware the interface
@@ -2832,10 +2809,9 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	  NSE provides script developers with a more powerful option:
 	  raw packet network I/O. The greater flexibility comes, however, at
 	  the cost of a slightly more complex API. Receiving raw packets is
-	  accomplished via a wrapper around Libpcap
-          <indexterm><primary>libpcap</primary></indexterm>
-          inside the Nsock library.
-          <indexterm><primary>Nsock</primary></indexterm>
+	  accomplished via a wrapper around
+	  Libpcap<indexterm><primary>libpcap</primary></indexterm>
+          inside the Nsock library.<indexterm><primary>Nsock</primary></indexterm>
           In order to keep the
 	  capturing efficient it works in a three tiered approach: Opening a
 	  device for capturing, registering listeners to it and receiving
@@ -2924,8 +2900,8 @@ error_message describes the occurred error.</para>
 	<para>
 	Receiving raw packets is a great feature, but it is also only the
 	half job. Now for sending raw packets: To accomplish this NSE has
-	access to a wrapper around the <literal>dnet</literal> library.
-        <indexterm><primary>libdnet</primary></indexterm>
+	access to a wrapper around the
+	<literal>dnet</literal> library.<indexterm><primary>libdnet</primary></indexterm>
 	Currently NSE has the ability to send raw ethernet frames via the
 	following API:
 	</para>
@@ -2990,8 +2966,8 @@ error_message describes the occurred error.</para>
         Each thread made for a script (e.g. anonFTP.nse) will yield to other
         scripts whenever it makes a call on network objects (sending/receiving
         data). Some scripts need finer control over threads' execution. An
-        example is the <literal>whois.nse</literal> script which queries whois
-        <indexterm><primary>whois</primary></indexterm>
+        example is the <literal>whois.nse</literal> script which queries
+	whois<indexterm><primary>whois</primary></indexterm>
         servers for each target. Because many concurrent queries often result in
         getting one's IP banned for abuse and a query may return additional
         information for targets other threads are running against, it is useful
@@ -3197,8 +3173,7 @@ try(socket:send(result))
       Suppose that you are convinced of the power of NSE. How do you
       go about writing your own script?  Let's say
       that you want to extract information from an identification
-      server.
-      <indexterm><primary>auth service</primary></indexterm>
+      server.<indexterm><primary>auth service</primary></indexterm>
       Nmap used to have this functionality but it was removed
       because of inconsistencies in the code base. Fortunately, the
       protocol identd uses is pretty simple. Unfortunately, it is too
@@ -3261,12 +3236,10 @@ port 113, queries the owner of the service on the scanned port and prints it."
 	backslash (&lsquo;<literal>\</literal>&rsquo;). They must also decide what
 	categories the script belongs to. This script is a good
 	example of a script which cannot be categorized clearly. It is
-	<literal>safe</literal>
-        <indexterm><primary><literal>safe</literal> script category</primary></indexterm>
+	<literal>safe</literal><indexterm><primary><literal>safe</literal> script category</primary></indexterm>
         because we are not using the service
 	for anything it was not intended for.  On the other hand, it
-	is <literal>intrusive</literal>
-        <indexterm><primary><literal>intrusive</literal> script category</primary></indexterm>
+	is <literal>intrusive</literal><indexterm><primary><literal>intrusive</literal> script category</primary></indexterm>
         because we connect to a
 	service on the target and therefore potentially give out
 	information about us.  To solve this dilemma we will place our
@@ -3357,8 +3330,7 @@ end
 	<literal>send()</literal> or
 	<literal>receive()</literal> we can operate on the network
 	socket. To avoid excessive error checking code we use NSE's
-	exception handling mechanism.
-        <indexterm><primary>exceptions in NSE</primary></indexterm>
+	exception handling mechanism.<indexterm><primary>exceptions in NSE</primary></indexterm>
         We create a function which will
 	be executed if an error occurs and call this function
 	<literal>catch</literal>. Using this function we generate
@@ -3444,8 +3416,7 @@ end
       true nature.  NSE has been integrated into Nmap's version
       detection framework to handle these cases. The scripts which
       extend the version scanner belong to the reserved category
-      <literal>version</literal>.
-      <indexterm><primary><varname>version</varname> script category</primary></indexterm>
+      <literal>version</literal>.<indexterm><primary><varname>version</varname> script category</primary></indexterm>
       This category cannot be run from
       the command line.  It is only executed if the user has required a
       version scan. The following listing shows a simple script which
@@ -3469,7 +3440,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"<indexterm><pri
 
 id = "HTTP version"<indexterm><primary><varname>id</varname> script variable</primary></indexterm>
 
-categories = {"version"}<indexterm><primary><varname>categories</varname> script variable</primary></indexterm><indexterm><primary><varname>version</varname> script category</primary></indexterm>
+categories = {"version"}<indexterm><primary><varname>categories</varname> script variable</primary></indexterm>
 
 runlevel = 1.0<indexterm><primary><varname>runlevel</varname> script variable</primary></indexterm>
 
@@ -3856,18 +3827,15 @@ also get stored inside the registry.
 		<para>
 		The next phase of NSE initialization is loading the chosen
 		scripts, which are the arguments provided to the 
-		<option>--script</option>
-                <indexterm><primary><option>--script</option></primary></indexterm>
+		<option>--script</option><indexterm><primary><option>--script</option></primary></indexterm>
                 option or <literal>default</literal>, in 
-		case of a default script scan.  The string <literal>version</literal> 
-                <indexterm><primary><varname>version</varname> script category</primary></indexterm>
+		case of a default script scan.  The string
+		<literal>version</literal><indexterm><primary><varname>version</varname> script category</primary></indexterm>
 		is appended, if version detection was enabled.
 		The arguments afterwards are tried to be 
 		interpreted as script categories. This is done via a Lua C function
 		in <filename>nse_init.cc</filename> called <literal>entry</literal>.
-        Inside <filename>script.db</filename>,
-        <indexterm><primary><filename>script.db</filename></primary></indexterm>
-        <indexterm><primary><filename>script.db</filename></primary><seealso><option>--script-updatedb</option></seealso></indexterm>
+        Inside <filename>script.db</filename>,<indexterm><primary><filename>script.db</filename></primary><seealso><option>--script-updatedb</option></seealso></indexterm>
         for each category of a script,
         there is a call to <literal>Entry</literal>. If the category was chosen
         then the script is loaded. Every argument of
@@ -3890,18 +3858,16 @@ also get stored inside the registry.
 	<sect2 id="nse-implementation-match">
       <title>Matching of Scripts to Targets</title>
       <para>
-	  After the initialization is finished the <literal>hostrules</literal>
-          <indexterm><primary><varname>hostrule</varname> script variable</primary></indexterm>
-          and <literal>portrules</literal>
-          <indexterm><primary><varname>portrule</varname> script variable</primary></indexterm>
+	  After the initialization is finished the
+	  <literal>hostrules</literal><indexterm><primary><varname>hostrule</varname> script variable</primary></indexterm>
+          and <literal>portrules</literal><indexterm><primary><varname>portrule</varname> script variable</primary></indexterm>
           are evaluated for each host in the current
 	  target group. At this check a list is built which contains the combinations of scripts and the hosts they will run against.
 
 It should be noted that the rules of all chosen scripts are
-checked against all hosts and their <literal>open</literal>
-<indexterm><primary><literal>open</literal> port state</primary></indexterm>
-and <literal>open|filtered</literal>
-<indexterm><primary><literal>open|filtered</literal> port state</primary></indexterm>
+checked against all hosts and their
+<literal>open</literal><indexterm><primary><literal>open</literal> port state</primary></indexterm>
+and <literal>open|filtered</literal><indexterm><primary><literal>open|filtered</literal> port state</primary></indexterm>
 ports.
 Therefore it is advisable to leave the rules as simple as possible and
 to do all the computation inside the <literal>action</literal>, as a script will only be
@@ -3921,8 +3887,8 @@ The mainloop function will work on each runlevel grouping of threads in order.
       <title>Running Scripts</title>
 
       <para>
-        Nmap is able to perform NSE script scanning in parallel
-        <indexterm><primary>parallelism</primary><secondary>in NSE</secondary></indexterm>
+        Nmap is able to perform NSE script scanning in
+	parallel<indexterm><primary>parallelism</primary><secondary>in NSE</secondary></indexterm>
         by making use of Lua language features.  In particular,
 	  <ulink url="http://www.lua.org/manual/5.1/manual.html#2.11">coroutines
 	  </ulink> offer collaborative multi-threading so scripts can suspend themselves at defined points, and allow other coroutines 
@@ -3961,8 +3927,7 @@ The mainloop function will work on each runlevel grouping of threads in order.
 	  functions they provide to Lua, which have to be of type <ulink url="http://www.lua.org/manual/5.1/manual.html#lua_CFunction">lua_CFunction</ulink>. Additionally they have to contain a function
 	  which is used to actually open the module. By convention these function names are <literal>luaopen_<replaceable>modulename</replaceable></literal>.
 	  A good starting point for writing such modules is provided by
-	  <filename>bit.c</filename>
-          <indexterm><primary><varname>bit</varname> NSE module</primary></indexterm>
+	  <filename>bit.c</filename><indexterm><primary><varname>bit</varname> NSE module</primary></indexterm>
           inside
 	  the <filename>nselib/</filename> subdirectory of Nmap's source tree.
 	  <varname>bit</varname> is a C module already provided by the nselib. C modules
@@ -3992,8 +3957,7 @@ The mainloop function will work on each runlevel grouping of threads in order.
 	  itself.  Linking with static libraries
 	  (e.g. <literal>libnbase</literal>) sometimes leads to
 	  problems with exporting symbols on some platforms (in our
-	  case the x86_64-linux platform).
-          <indexterm><primary>x86_64 architecture</primary></indexterm>
+	  case the x86_64-linux platform).<indexterm><primary>x86_64 architecture</primary></indexterm>
           To our knowledge no such
 	  problems occur when linking against already existing shared
 	  libraries.</para>
