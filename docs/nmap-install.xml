@@ -1148,7 +1148,7 @@ chapter referenced above.</para></listitem>
 are often biased towards what people find exciting rather than having
 an exclusive focus on profits as most corporations do.  It is along
 those lines that the Amiga port came about.  Diego Casorran
-<indexterm><primary>Casorran, Diega</primary></indexterm>performed
+<indexterm><primary>Casorran, Diego</primary></indexterm>performed
 most of the work and sent in a clean patch which was integrated into
 the main Nmap distribution.  In general, AmigaOS users should be able
 to simply follow the source compilation instructions in <xref
