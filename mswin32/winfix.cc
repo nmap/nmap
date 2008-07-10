@@ -205,11 +205,6 @@ static void win_cleanup(void)
   WSACleanup();
 }
 
-int my_close(int sd)
-{
-	return closesocket(sd);
-}
-
 int fork()
 {
 	fatal("no fork for you!\n");
