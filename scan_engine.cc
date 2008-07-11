@@ -1665,15 +1665,23 @@ int UltraScanInfo::removeCompletedHosts() {
    levels. */
 int determineScanGroupSize(int hosts_scanned_so_far, 
 			   struct scan_lists *ports) {
-  int groupsize = 10;
+  int groupsize = 16;
 
   if (o.UDPScan())
-    groupsize = 50;
+    groupsize = 128;
   else if (o.TCPScan()) {
-    groupsize = MAX(1024 / (ports->tcp_count ? ports->tcp_count : 1), 30);
-    if (ports->tcp_count > 1000 && hosts_scanned_so_far == 0 && 
-	o.timing_level < 4)
-      groupsize = 5; // Give quick results for the very first batch
+    groupsize = MAX(1024 / (ports->tcp_count ? ports->tcp_count : 1), 64);
+    if (ports->tcp_count > 1000 && o.timing_level <= 4) {
+      int quickgroupsz = 4;
+      if (o.timing_level == 4) quickgroupsz = 8;
+      if (hosts_scanned_so_far == 0)
+	groupsize = quickgroupsz; // Give quick results for the very first batch
+      else if (hosts_scanned_so_far == quickgroupsz && 
+	     groupsize > quickgroupsz * 2)
+	/* account for initial quick-scan to keep us aligned
+	   on common network boundaries (e.g. /24) */
+	groupsize -= quickgroupsz; 
+    }
   }
 
   groupsize = box(o.minHostGroupSz(), o.maxHostGroupSz(), groupsize);
