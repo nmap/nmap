@@ -3906,9 +3906,9 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 
 	    if (probe->protocol() == IPPROTO_ICMP) {
 	      if (probe->isPing())
-		ultrascan_ping_update(USI, hss, probeI, NULL);
+		ultrascan_ping_update(USI, hss, probeI, &rcvdtime);
 	      else {
-		ultrascan_port_probe_update(USI, hss, probeI, PORT_OPEN, NULL);
+		ultrascan_port_probe_update(USI, hss, probeI, PORT_OPEN, &rcvdtime);
 		icmp = (struct icmp *) ((char *)ip_icmp + 4 * ip_icmp->ip_hl);
 		reason_sip = (ip_icmp->ip_src.s_addr == protoscanicmphackaddy.sin_addr.s_addr) ? 0 : ip_icmp->ip_src.s_addr;
 		if(!icmp->icmp_code && !icmp->icmp_type) 
