@@ -113,6 +113,7 @@
 #include "portreasons.h"
 #include "portlist.h"
 #include "tcpip.h"
+#include "scan_engine.h"
 
 #ifndef INET6_ADDRSTRLEN
 #define INET6_ADDRSTRLEN 46
@@ -266,6 +267,13 @@ class Target {
 #endif
 
   state_reason_t reason;
+
+  /* A probe that is known to receive a response. This is used to hold the
+     current timing ping probe type during scanning. */
+  probespec pingprobe;
+  /* The state the port or protocol entered when the response to pingprobe was
+     received. */
+  int pingprobe_state;
 
   private:
   void Initialize();

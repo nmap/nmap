@@ -144,6 +144,8 @@ void Target::Initialize() {
 	devname[0] = '\0';
 	devfullname[0] = '\0';
   state_reason_init(&reason);
+  memset(&pingprobe, 0, sizeof(pingprobe));
+  pingprobe_state = PORT_UNKNOWN;
 }
 
 

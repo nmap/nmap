@@ -162,28 +162,6 @@ struct ultra_timing_vals {
   struct timeval last_drop; 
 };
 
-struct probespec_tcpdata {
-  u16 dport;
-  u8 flags;
-};
-
-struct probespec_udpdata {
-  u16 dport;
-};
-
-struct probespec_icmpdata {
-  u8 type;
-  u8 code;
-};
-
-#define PS_NONE 0
-#define PS_TCP 1
-#define PS_UDP 2
-#define PS_PROTO 3
-#define PS_ICMP 4
-#define PS_ARP 5
-#define PS_CONNECTTCP 6
-
 static const char *pspectype2ascii(int type) {
   switch(type) {
   case PS_NONE:
@@ -205,22 +183,6 @@ static const char *pspectype2ascii(int type) {
   }
   return ""; // Unreached
 }
-
-/* The size of this structure is critical, since there can be tens of
-   thousands of them stored together ... */
-typedef struct probespec {
-  /* To save space, I changed this from private enum (took 4 bytes) to
-     u8 that uses #defines above */
-  u8 type;
-  u8 proto; /* If not PS_ARP -- Protocol number ... eg IPPROTO_TCP, etc. */
-  union {
-    struct probespec_tcpdata tcp; /* If type is PS_TCP or PS_CONNECTTCP. */
-    struct probespec_udpdata udp; /* PS_UDP */
-    struct probespec_icmpdata icmp; /* PS_ICMP */
-    /* Nothing needed for PS_ARP, since src mac and target IP are
-       avail from target structure anyway */
-  } pd;
-} probespec;
 
 class ConnectProbe {
 public:
@@ -542,9 +504,6 @@ public:
    don't send too many pings when probes are going slowly. */
   int lastping_sent_numprobes; 
   struct timeval lastprobe_sent; /* Most recent probe send (including pings) by host.  Init to scan begin time. */
-  /* A valid probe for sending scanpings. */
-  probespec pingprobe;
-  int pingprobestate; /* PORT_UNKNOWN if no pingprobe yet found */
   /* gives the maximum try number (try numbers start at zero and
      increments for each retransmission) that may be used, based on
      the scan type, observed network reliability, timing mode, etc.
@@ -992,6 +951,32 @@ double GroupScanStats::cc_scale() {
   return MIN(ratio, USI->perf.cc_scale_max);
 }
 
+/* Return true if pingprobe is an appropriate ping probe for the currently
+   running scan. Because ping probes persist between host discovery and port
+   scanning stages, it's possible to have a ping probe that is not relevant for
+   the scan type, or won't be caught by the pcap filters. Examples of
+   inappropriate ping probes are an ARP ping for a TCP scan, or a raw SYN ping
+   for a connect scan. */
+static bool pingprobe_is_appropriate(const UltraScanInfo *USI,
+                                     const probespec *pingprobe) {
+  if (pingprobe->type == PS_NONE)
+    return true;
+  else if (pingprobe->type == PS_TCP)
+    return USI->tcp_scan || (USI->ping_scan && USI->ptech.rawtcpscan);
+  else if (pingprobe->type == PS_UDP)
+    return USI->udp_scan || (USI->ping_scan && USI->ptech.rawudpscan);
+  else if (pingprobe->type == PS_PROTO)
+    return USI->prot_scan || (USI->ping_scan && USI->ptech.rawprotoscan);
+  else if (pingprobe->type == PS_ICMP)
+    return (USI->ping_scan && !USI->ping_scan_arp) || pingprobe->pd.icmp.type == 3;
+  else if (pingprobe->type == PS_ARP)
+    return USI->ping_scan_arp;
+  else if (pingprobe->type == PS_CONNECTTCP)
+    return USI->scantype == CONNECT_SCAN || (USI->ping_scan && USI->ptech.connecttcpscan);
+
+  return false;
+}
+
 /* For the given scan type, this returns the port/host state demonstrated
    by getting no response back */
 static int scantype_no_response_means(stype scantype) {
@@ -1033,8 +1018,6 @@ HostScanStats::HostScanStats(Target *t, UltraScanInfo *UltraSI) {
   num_probes_waiting_retransmit = 0;
   lastping_sent = lastprobe_sent = lastrcvd = USI->now;
   lastping_sent_numprobes = 0;
-  memset(&pingprobe, 0, sizeof(pingprobe));
-  pingprobestate = PORT_UNKNOWN;
   nxtpseq = 1;
   max_successful_tryno = 0;
   tryno_mayincrease = true;
@@ -1050,6 +1033,12 @@ HostScanStats::HostScanStats(Target *t, UltraScanInfo *UltraSI) {
   rld.max_tryno_sent = 0;
   rld.rld_waiting = false;
   rld.rld_waittime = USI->now;
+  if (!pingprobe_is_appropriate(USI, &target->pingprobe)) {
+    if (o.debugging > 1)
+      log_write(LOG_STDOUT, "%s pingprobe type %s is inappropriate for this scan type; resetting.\n", target->targetipstr(), pspectype2ascii(target->pingprobe.type));
+    memset(&target->pingprobe, 0, sizeof(target->pingprobe));
+    target->pingprobe_state = PORT_UNKNOWN;
+  }
 }
 
 HostScanStats::~HostScanStats() {
@@ -2170,7 +2159,7 @@ void HostScanStats::getTiming(struct ultra_timing_vals *tmng) {
 
   /* Use the per-host value if a pingport has been found or very few probes
      have been sent */
-  if (pingprobestate != PORT_UNKNOWN || numprobes_sent < 80) {
+  if (target->pingprobe_state != PORT_UNKNOWN || numprobes_sent < 80) {
     *tmng = timing;
     return;
   }
@@ -2273,24 +2262,24 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
 
   
   /* Consider changing the ping port */
-  if (hss->pingprobestate != newstate) {
+  if (hss->target->pingprobe_state != newstate) {
     /* TODO: UDP scan and such will have different preferences -- add them */
     if (noresp_open_scan) {
-      if (newstate == PORT_CLOSED || (hss->pingprobestate == PORT_UNKNOWN && newstate == PORT_FILTERED))
+      if (newstate == PORT_CLOSED || (hss->target->pingprobe_state == PORT_UNKNOWN && newstate == PORT_FILTERED))
 	swappingport = true;
     } else {
-      if (hss->pingprobestate == PORT_UNKNOWN && 
+      if (hss->target->pingprobe_state == PORT_UNKNOWN && 
 	  (newstate == PORT_OPEN || newstate == PORT_CLOSED || newstate == PORT_UNFILTERED))
 	swappingport = true;
-      else if (hss->pingprobestate == PORT_OPEN && (newstate == PORT_CLOSED || newstate == PORT_UNFILTERED))
+      else if (hss->target->pingprobe_state == PORT_OPEN && (newstate == PORT_CLOSED || newstate == PORT_UNFILTERED))
 	swappingport = true;
     }
 
     if (swappingport) {
       if (o.debugging > 1) 
 	log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), pspectype2ascii(pspec->type));
-      hss->pingprobe = *pspec;
-      hss->pingprobestate = newstate;
+      hss->target->pingprobe = *pspec;
+      hss->target->pingprobe_state = newstate;
     }
   }
   return oldstate != newstate;
@@ -2417,12 +2406,12 @@ static void ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
   }
 
   /* Consider changing the ping port */
-  if (hss->pingprobestate != newstate) {
-    if (hss->pingprobestate == PORT_UNKNOWN && newstate == HOST_UP) {
+  if (hss->target->pingprobe_state != newstate) {
+    if (hss->target->pingprobe_state == PORT_UNKNOWN && newstate == HOST_UP) {
       if (o.debugging > 1) 
 	log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), pspectype2ascii(pspec->type));
-      hss->pingprobe = *pspec;
-      hss->pingprobestate = newstate;
+      hss->target->pingprobe = *pspec;
+      hss->target->pingprobe_state = newstate;
       /* Make this the new global ping host, but only if it's not waiting for
          any probes. */
       if (USI->gstats->pinghost == NULL
@@ -2942,15 +2931,15 @@ static void sendPingProbe(UltraScanInfo *USI, HostScanStats *hss) {
   if (o.debugging > 1) {
     char tmpbuf[32];
     log_write(LOG_PLAIN, "Ultrascan PING SENT to %s [%s]\n", hss->target->targetipstr(), 
-	      probespec2ascii(&hss->pingprobe, tmpbuf, sizeof(tmpbuf)));
+	      probespec2ascii(&hss->target->pingprobe, tmpbuf, sizeof(tmpbuf)));
   }
-  if (hss->pingprobe.type == PS_CONNECTTCP) {
-    sendConnectScanProbe(USI, hss, hss->pingprobe.pd.tcp.dport, 0, 
+  if (hss->target->pingprobe.type == PS_CONNECTTCP) {
+    sendConnectScanProbe(USI, hss, hss->target->pingprobe.pd.tcp.dport, 0, 
 			 hss->nextPingSeq(true));
-  } else if (hss->pingprobe.type == PS_TCP || hss->pingprobe.type == PS_UDP
-    || hss->pingprobe.type == PS_PROTO || hss->pingprobe.type == PS_ICMP) {
-    sendIPScanProbe(USI, hss, &hss->pingprobe, 0, hss->nextPingSeq(true));
-  } else if (hss->pingprobe.type == PS_ARP) {
+  } else if (hss->target->pingprobe.type == PS_TCP || hss->target->pingprobe.type == PS_UDP
+    || hss->target->pingprobe.type == PS_PROTO || hss->target->pingprobe.type == PS_ICMP) {
+    sendIPScanProbe(USI, hss, &hss->target->pingprobe, 0, hss->nextPingSeq(true));
+  } else if (hss->target->pingprobe.type == PS_ARP) {
     sendArpScanProbe(USI, hss, 0, hss->nextPingSeq(true));
   } else if (USI->scantype == RPC_SCAN) {
     assert(0); /* TODO: fill out */
@@ -2970,7 +2959,7 @@ static void sendGlobalPingProbe(UltraScanInfo *USI) {
   if (o.debugging > 1) {
     char tmpbuf[32];
     log_write(LOG_PLAIN, "Ultrascan GLOBAL PING SENT to %s [%s]\n", hss->target->targetipstr(), 
-	      probespec2ascii(&hss->pingprobe, tmpbuf, sizeof(tmpbuf)));
+	      probespec2ascii(&hss->target->pingprobe, tmpbuf, sizeof(tmpbuf)));
   }
   sendPingProbe(USI, hss);
 }
@@ -2984,7 +2973,7 @@ static void doAnyPings(UltraScanInfo *USI) {
   for(hostI = USI->incompleteHosts.begin(); 
       hostI != USI->incompleteHosts.end(); hostI++) {
     hss = *hostI;
-    if (hss->pingprobestate != PORT_UNKNOWN && 
+    if (hss->target->pingprobe_state != PORT_UNKNOWN && 
 	hss->rld.rld_waiting == false && 
 	hss->numprobes_sent >= hss->lastping_sent_numprobes + 10 &&
 	TIMEVAL_SUBTRACT(USI->now, hss->lastrcvd) > USI->perf.pingtime && 
@@ -2997,7 +2986,7 @@ static void doAnyPings(UltraScanInfo *USI) {
   }
 
   /* Next come global pings. We never send more than one of these at at time. */
-  if (USI->gstats->pinghost != NULL && USI->gstats->pinghost->pingprobestate != PORT_UNKNOWN &&
+  if (USI->gstats->pinghost != NULL && USI->gstats->pinghost->target->pingprobe_state != PORT_UNKNOWN &&
       USI->gstats->pinghost->probes_outstanding_empty() &&
       USI->gstats->probes_sent >= USI->gstats->lastping_sent_numprobes + 20 && 
       TIMEVAL_SUBTRACT(USI->now, USI->gstats->lastrcvd) > USI->perf.pingtime && 
