@@ -1,5 +1,16 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Made a number of performance tweaks, such as:
+  o increase host group sizes in many cases, so Nmap will now commonly
+    scan 64 hosts at a time rather than 30
+  o align host groups with common network boundaries, such as /24 or
+   /25
+  o Increase maximum per-target port-scan ping frequency to one every
+    1.25 seconds rather than every five. Port scan pings happen
+    against heavily firewalled hosts and the like when Nmap is not
+    receiving enough responses to normal scan to properly calculate
+    timing variables and detect packet drops.
+
 o Added the undocumented (except here) --nogcc option which disables
   global/group congestion control algorithms and so each member of a
   scan group of machines is treated separately.  This is just an
