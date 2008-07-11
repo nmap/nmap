@@ -3714,10 +3714,6 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         goodone = true;
       }
     } else if (ip->ip_p == IPPROTO_ICMP) {
-
-      if ((unsigned) ip->ip_hl * 4 + 28 > bytes)
-	continue;
-
       icmp = (struct icmp *) ((char *)ip + 4 * ip->ip_hl);
 
       if (icmp->icmp_type != 3)
