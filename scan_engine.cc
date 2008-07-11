@@ -1324,7 +1324,7 @@ static void init_perf_values(struct ultra_scan_performance_vars *perf) {
   perf->cc_scale_max = 50;
   perf->initial_ccthresh = 75;
   perf->ping_magnifier = 3;
-  perf->pingtime = 5000000;
+  perf->pingtime = 1250000;
   perf->group_drop_cwnd_divisor = 2.0;
   /* Change the amount that ccthresh drops based on the timing level. */
   double ccthresh_divisor;
