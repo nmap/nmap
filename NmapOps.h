@@ -186,6 +186,7 @@ class NmapOps {
   char device[64];
   int interactivemode;
   int ping_group_sz;
+  int nogcc; /* Turn off group congestion control with --nogcc */
   int generate_random_ips; /* -iR option */
   FingerPrintDB *reference_FPs; /* Used in the new OS scan system. */
   u16 magic_port;

@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added the undocumented (except here) --nogcc option which disables
+  global/group congestion control algorithms and so each member of a
+  scan group of machines is treated separately.  This is just an
+  experimental option for now. [Fyodor]
+
 o Added a new NSE Unpwdb (username/password database) library for easily
   obtaining usernames or passwords from a list.  The functions usernames()
   and passwords() return a closure which returns a new list entry with

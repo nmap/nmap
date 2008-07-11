@@ -906,6 +906,13 @@ bool GroupScanStats::sendOK(struct timeval *when) {
   if (recentsends >= 50)
     return false;
 
+  /* In case the user specifically asked for no group congestion control */
+  if (o.nogcc) {
+    if (when)
+      *when = USI->now;
+    return true;
+  }
+
   /* Enforce a minimum scanning rate, if necessary. If we're ahead of schedule,
      record the time of the next scheduled send. If we're behind schedule,
      return true to indicate that we need to send now, regardless of any

@@ -565,6 +565,7 @@ int nmap_main(int argc, char *argv[]) {
       {"iflist", no_argument, 0, 0},
       {"release_memory", no_argument, 0, 0},
       {"release-memory", no_argument, 0, 0},
+      {"nogcc", no_argument, 0, 0},
       {"max_os_tries", required_argument, 0, 0},
       {"max-os-tries", required_argument, 0, 0},
       {"max_parallelism", required_argument, 0, 'M'},
@@ -763,6 +764,8 @@ int nmap_main(int argc, char *argv[]) {
 	}
       } else if (strcmp(long_options[option_index].name, "iflist") == 0 ) {
 	iflist = true;
+      } else if (strcmp(long_options[option_index].name, "nogcc") == 0 ) {
+	  o.nogcc = 1;
       } else if (optcmp(long_options[option_index].name, "release-memory") == 0 ) {
 	o.release_memory = true;
       } else if (optcmp(long_options[option_index].name, "min-parallelism") == 0 ) {

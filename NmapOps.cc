@@ -199,6 +199,7 @@ void NmapOps::Initialize() {
   device[0] = '\0';
   interactivemode = 0;
   ping_group_sz = PING_GROUP_SZ;
+  nogcc = 0;
   generate_random_ips = 0;
   reference_FPs = NULL;
   magic_port = 33000 + (get_random_uint() % 31000);
