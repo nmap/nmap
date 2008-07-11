@@ -125,11 +125,8 @@ The reference manual is also
     </para>
     <para>
 
-      NSE is activated with the
-      <option>-sC</option><indexterm><primary><option>-sC</option></primary></indexterm>
-      option (or
-      <option>--script</option><indexterm><primary><option>--script</option></primary></indexterm>
-      if you wish to specify a custom set of
+      NSE is activated with the <option>-sC</option> option (or
+      <option>--script</option> if you wish to specify a custom set of
       scripts) and results are integrated into Nmap
       normal<indexterm><primary>normal output</primary></indexterm>
       and XML output.<indexterm><primary>XML output</primary></indexterm>
@@ -595,7 +592,7 @@ that.</para>
 
     <sect2 id="nse-format-runlevel">
       <title><literal>runlevel</literal> Field</title>
-      <indexterm><primary><varname>license</varname> script variable</primary></indexterm>
+      <indexterm><primary><varname>runlevel</varname> script variable</primary></indexterm>
       <indexterm><primary>run level of scripts</primary></indexterm>
       <para>
 	This optional field determines script execution order.  When

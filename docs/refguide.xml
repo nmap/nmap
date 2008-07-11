@@ -434,7 +434,6 @@ you would expect.</para>
            (using a <function>connect()</function> call) to port 80 on
            the target.  When a privileged user tries to scan targets
            on a local ethernet network, ARP requests
-           (<option>-PR</option>)<indexterm><primary><option>-PR</option></primary></indexterm>
            are used unless
            <option>--send-ip</option> was specified.
            The <option>-sP</option> option can be combined with any of the
@@ -2983,7 +2982,7 @@ support the option completely, as does UDP scan.</para>
   argument isn't a 0 or hex string, Nmap looks through
   <filename>nmap-mac-prefixes</filename> to find a vendor name containing the given string
   (it is case insensitive).  If a match is found, Nmap uses the
-  vendor's OUI (3-byte prefix)<indexterm><primary>organizationally unique identifier (OUI)</primary></indexterm><indexterm><primary>organizationally unique identifier (OUI)</primary><seealso><filename>nmap-mac-prefixes</filename></seealso></indexterm>
+  vendor's OUI (3-byte prefix)<indexterm><primary>organizationally unique identifier (OUI)</primary><seealso><filename>nmap-mac-prefixes</filename></seealso></indexterm>
   and fills out the remaining 3 bytes
   randomly.  Valid <option>--spoof-mac</option> argument examples are <literal>Apple</literal>, <literal>0</literal>,
   <literal>01:02:03:04:05:06</literal>, <literal>deadbeefcafe</literal>, <literal>0020F2</literal>, and <literal>Cisco</literal>.  This option only affects raw packet scans such as SYN scan or OS detection, not connection-oriented features such as version detection or the Nmap Scripting Engine.</para>
@@ -3942,7 +3941,6 @@ overwhelming requests.  Specify <option>--open</option> to only see
     <para>
       <indexterm><primary><option>-iR</option></primary><secondary>example of</secondary></indexterm>
       <indexterm><primary><option>-PN</option></primary><secondary>example of</secondary></indexterm>
-      <indexterm><primary><option>-p</option></primary><secondary>example of</secondary></indexterm>
       <command>nmap -v -iR 100000 -PN -p 80</command>
     </para>
 
