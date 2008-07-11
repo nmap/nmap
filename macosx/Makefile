@@ -38,7 +38,7 @@ $(IMAGE_NAME): $(IMAGE_STAGING_DIR)/$(PKG_NAME) $(EXTRA_DIST_FILES)
 	rm -f $@
 	hdiutil create -imagekey zlib-level=9 -srcfolder $(IMAGE_STAGING_DIR) $@
 
-$(IMAGE_STAGING_DIR)/$(PKG_NAME): stage-nmap stage-zenmap
+$(IMAGE_STAGING_DIR)/$(PKG_NAME): stage-nmap stage-zenmap README COPYING.formatted
 	mkdir -p $(IMAGE_STAGING_DIR)
 	$(PACKAGEMAKER) --doc nmap.pmdoc --title "Nmap $(NMAP_VERSION)" -o $@
 
@@ -70,11 +70,16 @@ $(IMAGE_STAGING_DIR)/COPYING:
 	mkdir -p $(IMAGE_STAGING_DIR)
 	cp -f ../COPYING $(IMAGE_STAGING_DIR)/
 
+COPYING.formatted:
+# Use the license formatter from the Windows installer.
+	../mswin32/license-format/licformat.sh ../COPYING > $@
+
 clean:
 	rm -rf $(IMAGE_STAGING_DIR)
 	rm -rf $(NMAP_STAGING_DIR)
 	rm -rf $(ZENMAP_STAGING_DIR)
 	rm -rf $(NMAP_BUILD_DIR)
+	rm -f COPYING.formatted:
 	rm -f $(IMAGE_NAME)
 
 .PHONY: clean
