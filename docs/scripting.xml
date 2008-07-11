@@ -13,13 +13,7 @@
     growing and diverse set of scripts distributed with Nmap, or write
     their own to meet custom needs.</para>
 
-    <para>The Nmap project would like to thank
-    Diman Todorov<indexterm><primary>Todorov, Diman</primary></indexterm>
-    for his excellent work building the initial NSE implementation and
-    writing much of this documentation.
-    Stoiko Ivanov<indexterm><primary>Ivanov, Stoiko</primary></indexterm>
-    also contributed greatly.  The tasks we had in mind when
-    creating the system are:</para>    
+    <para>Tasks we had in mind when creating the system include:</para>    
 
     <variablelist>
       <varlistentry>
@@ -427,6 +421,9 @@ subdirectory of the Nmap data directory
 The database lists all of the
 scripts in each category. A single script may be in several
 categories.</para>
+
+<para>Malicious scripts are not run in a sandbox and thus could damage your system or invade your privacy.  Never run scripts from third parties unless you trust the authors or have carefully audited the scripts yourself.</para>
+
 
           </listitem>
         </varlistentry>

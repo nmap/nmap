@@ -1990,116 +1990,32 @@ way.</para>
 	<refsect1 id='man-nse'> 
 	<title>Nmap Scripting Engine (NSE)</title>
         <indexterm class="startofrange" id="man-nse-indexterm"><primary>Nmap Scripting Engine (NSE)</primary></indexterm>
-	<para> 
-	The Nmap Scripting Engine (NSE) combines the efficiency of Nmap's
-	network handling with the versatility of the lightweight scripting language
-	<ulink url="http://lua.org">Lua</ulink>,
-        <indexterm><primary>Lua programming language</primary></indexterm>
-        thus providing innumerable
-	opportunities.  A more extensive documentation of the NSE (including its
-	API) can be found
-        <man>at <ulink url="http://nmap.org/book/nse.html"/>.</man>
-        <notman>in <xref linkend="nse"/>.</notman>
-        The target of the NSE is to provide Nmap with a flexible infrastructure
-        for extending its capabilities and offering its users a simple way of
-        creating customized tests. Uses for the NSE include (but definitely are
-        not limited to):</para>
-   
-    <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>uses of</secondary></indexterm>
-    <para> 
-    <indexterm><primary><literal>version</literal> script category</primary></indexterm>
-    <emphasis>Enhanced version detection</emphasis> (category
-    <literal>version</literal>)&mdash;While Nmap already offers its Service and
-    Version detection system, which is unmatched in terms of efficiency and
-    scope, this power has its downside when it comes to services requiring more
-    complex probes. The Skype Protocol version 2 for instance can be identified
-    by sending 2 independent probes to it, which the built-in system is not laid
-    out for: a simple NSE script can do the job and update the port's service
-    information.  
-    </para>
-    
-    <para> 
-    <indexterm><primary><literal>malware</literal> script category</primary></indexterm>
-    <indexterm><primary><literal>backdoor</literal> script category</primary></indexterm>
-    <emphasis>Malware-detection</emphasis> (category <literal>malware</literal>)&mdash;Both attackers
-    and worms often leave backdoors&mdash;be it in form of SMTP-servers listening on
-    uncommon ports mostly used by spammers for mail relay, or in form of an
-    FTP-server giving crackers access to critical data.  A few lines of Lua code
-    can help to identify those loopholes easily.  
-    </para> 
 
-    <para> 
-    <indexterm><primary><literal>vuln</literal> script category</primary></indexterm>
-    <emphasis>Vulnerability Detection</emphasis> (category
-    <literal>vuln</literal>)&mdash;NSE's capacity in detecting risks ranges
-    from testing whether an SMTP server supports relaying mail from arbitrary
-    domains to testing whether an HTTP server is vulnerable to directory
-    traversal attacks.
-    </para>
-    
-    <para>
-    <indexterm><primary><literal>auth</literal> script category</primary></indexterm>
-    <emphasis>Determination of Authentication Credentials</emphasis> (category
-    <literal>auth</literal>)&mdash;NSE can be used for determining authentication
-    credentials on the target's services, with a common method being brute-force
-    attack.
-    </para>
-    
-    <para>
-    <indexterm><primary><literal>safe</literal> script category</primary></indexterm>
-    <indexterm><primary><literal>intrusive</literal> script category</primary></indexterm>
-    <indexterm><primary><literal>discovery</literal> script category</primary></indexterm>
-    <emphasis>Network Discovery and Information Gathering</emphasis>
-    (categories <literal>safe</literal>, <literal>intrusive</literal> and
-    <literal>discovery</literal>)&mdash;By providing you with a scripting language
-    and a really efficient asynchronous network API on the one hand and the
-    information gathered during earlier stages of a scan on the other hand the
-    NSE is suited to write client programs for the services listening on a
-    target machine. These clients may collect information like: listings of
-    available NFS/SMB/RPC shares, the number of channels of an irc-network or
-    currently logged on users. 
-    </para>
+    <para>The Nmap Scripting Engine (NSE) is one of Nmap's most
+    powerful and flexible features.  It allows users to write (and
+    share) simple scripts (using the <ulink url="http://lua.org">Lua programming language</ulink>, <indexterm><primary>Lua programming language</primary></indexterm>) to automate a wide variety of
+    networking tasks.  Those scripts are executed in parallel with the
+    speed and efficiency you expect from Nmap.  Users can rely on the
+    growing and diverse set of scripts distributed with Nmap, or write
+    their own to meet custom needs.</para>
+
+    <para>Tasks we had in mind when creating the system include
+    network discovery, more sophisticated version detection,
+    vulnerability detection.  NSE can even be used for vulnerability
+    exploitation.</para>
 
     <para> 
     To reflect those different uses and to simplify the choice of which
-    scripts to run, each script contains a field associating it with one or more
-    of the above mentioned categories. To maintain the matching from scripts to
-    categories a file called
-    <filename>script.db</filename><indexterm><primary><filename>script.db</filename></primary></indexterm>
-    is installed along
-    with the distributed scripts. Therefore, if you, for example, want to see if
-    a machine is infected by any worm Nmap provides a script for you can simply
-    run <command>nmap --script=malware target-ip</command> and check the output
-    afterwards. The <literal>version</literal> scripts are always run
-    implicitly when a script-scan is requested. The
-    <filename>script.db</filename> is a Lua-script itself and can be updated
-    through the <option>--script-updatedb</option> option.  
-    </para>
+    scripts to run, each script contains a field associating it with one or more categories.  Currently defined categories are
+<literal>safe</literal>, <literal>intrusive</literal>, <literal>malware</literal>, <literal>version</literal>, <literal>discovery</literal>, <literal>vuln</literal>, <literal>auth</literal>, and <literal>default</literal>.  These are all described at 
+    <man>at <ulink url="http://nmap.org/book/nse-usage.html#nse-categories" />.</man>
+    <notman>in <xref linkend="nse-categories"/>.</notman></para>
+
     
-    <para>
-    An NSE script basically is a chunk of Lua-code which has (among some
-    informational fields, like name, id and categories) 2 functions: a test
-    whether the particular script should be run against a certain host or port
-    (called a
-    <literal>hostrule</literal><indexterm><primary><varname>hostrule</varname> script variable</primary></indexterm>
-    or <literal>portrule</literal><indexterm><primary><varname>portrule</varname> script variable</primary></indexterm>
-    respectively) and an
-    <literal>action</literal><indexterm><primary><varname>action</varname> script variable</primary></indexterm>
-    to be carried out if the test
-    returns true. Scripts have access to most information gathered by Nmap
-    during earlier stages. For each host this includes the IP address,  hostname and (if
-    available) operating system. If a script is targeted at a port it has access
-    to the portnumber, the protocol (<literal>tcp</literal>, <literal>udp</literal> or <literal>ssl</literal>), the service running
-    behind that port, and optionally information from a version-scan.
-    NSE scripts by convention have an <literal>nse</literal> extension. Although
-    you are not required to follow this for the moment, this may change in the
-    future. Nmap will issue a warning if a file has any other extension.
-    More extensive documentation on the NSE, including a description of its API
-    can be found
-    <man>at <ulink url="http://nmap.org/book/nse.html" />.</man>
-    <notman>in <xref linkend="nse"/>.</notman>
-    </para>
-   
+    <para>The Nmap Scripting Engine is described in detail
+<man>at <ulink url="http://nmap.org/book/nse.html" /></man>
+<notman>in <xref linkend="nse"/></notman> and is controlled by the following options:</para>
+
 	<variablelist>
       <varlistentry>
         <term><option>-sC</option>
@@ -2143,6 +2059,8 @@ by default.  Scripts are indexed in a database stored in
 <filename>scripts/script.db</filename>. The database lists all of the
 scripts in each category. A single script may be in several
 categories.</para>
+
+<para>Malicious scripts are not run in a sandbox and thus could damage your system or invade your privacy.  Never run scripts from third parties unless you trust the authors or have carefully audited the scripts yourself.</para>
 
 </listitem>
 </varlistentry>
