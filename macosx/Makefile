@@ -79,7 +79,7 @@ clean:
 	rm -rf $(NMAP_STAGING_DIR)
 	rm -rf $(ZENMAP_STAGING_DIR)
 	rm -rf $(NMAP_BUILD_DIR)
-	rm -f COPYING.formatted:
+	rm -f COPYING.formatted
 	rm -f $(IMAGE_NAME)
 
 .PHONY: clean
