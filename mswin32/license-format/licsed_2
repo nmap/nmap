@@ -1,0 +1,12 @@
+
+# collapse whitespace
+s@  @ @g
+s@ $@@g
+
+2d
+
+# reintroduce bullets
+s@oSDFGHbullet@o @g
+
+# reintroduce sentence spacing
+s@SDFGHJdblspace@  @g

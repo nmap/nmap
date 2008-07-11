@@ -15,7 +15,7 @@ winbuild:
 	@cat ./nsis/Nmap.nsi | sed 's/VIProductVersion ".*"/VIProductVersion "$(NMAP_NUM_VERSION)"/' > ./nmap.nsi.tmp
 	@cat ./nmap.nsi.tmp | sed 's/!define VERSION ".*"/!define VERSION "$(NMAP_VERSION)"/' > ./nsis/Nmap.nsi
 	@rm ./nmap.nsi.tmp ./nmap.rc.tmp
-	@sed -f ./license-sed/lic_sedexp_1 ../COPYING | sed -f ./license-sed/lic_sedexp_2 | sed -f ./license-sed/lic_sedexp_3 | sed -f ./license-sed/lic_sedexp_4 > LICENSE
+	@./license-format/licformat.sh ../COPYING > LICENSE
 
 	$(VCEXPRESS) nmap.sln /build release /log $(LOGLOC)
 	$(MAKENSIS) winpcap/winpcap-nmap.nsi

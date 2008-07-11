@@ -1,8 +1,0 @@
-# read entire input and preserve paragraph separation
-
-: more
-$!N
-t enough
-$!b more
-: enough
-s@\n\n@SDFGHJdblnewline@g
