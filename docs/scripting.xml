@@ -660,30 +660,19 @@ that.</para>
     <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>parts of</secondary></indexterm>
 
     <para>
-      Nmap's scripting engine is essentially three distinct
-      parts. The largest part is the embeddable Lua
-      interpreter. This
-      is a lightweight language designed for extensibility.  It offers
-      a powerful and well documented API for interfacing with other
-      software (such as Nmap).
+      The core of the Nmap Scripting Engine is an embeddable Lua
+      interpreter. Lua is a lightweight language designed for
+      extensibility.  It offers a powerful and well documented API for
+      interfacing with other software such as Nmap.
     </para>
-
+    <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>library</secondary></indexterm>
     <para>
-      The second part of the Nmap Scripting Engine is the NSE library, which
+      The second part of the Nmap Scripting Engine is the NSE Library, which
       connects Lua and Nmap. This layer
       handles issues such as initialization of the Lua interpreter, 
       scheduling of parallel script execution, script retrieval and
       more. It is also the heart of the NSE network I/O framework and the
-	  exception handling mechanism.
-    </para>
-
-    <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>library</secondary></indexterm>
-    <para>
-      The third part of NSE is the NSE library.  This library was
-      written to add special functionality and to augment the small
-      feature set of Lua.  The NSE library is made up of <ulink url="http://www.lua.org/manual/5.1/manual.html#5.3">Lua modules</ulink>
-      written in either C, or Lua itself.
-    </para>
+	  exception handling mechanism.  It also includes utility libraries to make scripts more powerful and convenient.  The utility library modules and extensions are described in <xref linkend="nse-library"/>.</para>
 
     <sect2 id="nse-lua">
     <title>Lua Base Language</title>
