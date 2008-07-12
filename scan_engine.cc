@@ -649,7 +649,7 @@ static void init_ultra_timing_vals(ultra_timing_vals *timing,
 /* Take a buffer, buf, of size bufsz (32 bytes is sufficient) and 
    writes a short description of the probe (arg1) into buf.  It also returns 
    buf. */
-static char *probespec2ascii(probespec *pspec, char *buf, unsigned int bufsz) {
+static char *probespec2ascii(const probespec *pspec, char *buf, unsigned int bufsz) {
   char flagbuf[32];
   char *f;
   switch(pspec->type) {
@@ -2192,6 +2192,56 @@ void HostScanStats::getTiming(struct ultra_timing_vals *tmng) {
   return;
 }
 
+/* Define a score for a ping probe, for the purposes of deciding whether one
+   probe should be preferred to another. The order, from most preferred to least
+   preferred, is
+      ARP
+      Raw TCP (not SYN to an open port)
+      UDP, IP protocol, or ICMP
+      Raw TCP (SYN to an open port)
+      TCP connect
+      Anything else
+   Raw TCP SYN to an open port is given a low preference because of the risk of
+   SYN flooding (this is the only case where the port state is considered). The
+   probe passed to this function is assumed to have received a positive
+   response, that is, it should not have set a port state just by timing out. */
+static unsigned int pingprobe_score(const probespec *pspec, int state) {
+  unsigned int score;
+
+  switch (pspec->type) {
+    case PS_ARP:
+      score = 5;
+      break;
+    case PS_TCP:
+      if (pspec->pd.tcp.flags == TH_SYN && (state == PORT_OPEN || state == PORT_UNKNOWN))
+        score = 2;
+      else
+        score = 4;
+      break;
+    case PS_UDP:
+    case PS_PROTO:
+    case PS_ICMP:
+      score = 3;
+      break;
+    case PS_CONNECTTCP:
+      score = 1;
+      break;
+    case PS_NONE:
+    default:
+      score = 0;
+      break;
+  }
+
+  return score;
+}
+
+/* Return true if new_probe and new_state define a better ping probe, as defined
+   by pingprobe_score, than do old_probe and old_state. */
+static bool pingprobe_is_better(const probespec *new_probe, int new_state,
+                                const probespec *old_probe, int old_state) {
+  return pingprobe_score(new_probe, new_state) > pingprobe_score(old_probe, old_state);
+}
+
 static void ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
                                         const probespec *pspec, int newstate);
 
@@ -2206,7 +2256,6 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
   u8 proto = 0;
   int oldstate = PORT_TESTING;
   Port *currentp;
-  bool swappingport = false;
   /* Whether no response means a port is open */
   bool noresp_open_scan = USI->noresp_open_scan;
 
@@ -2275,28 +2324,6 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
     break;
   }
 
-  
-  /* Consider changing the ping port */
-  if (hss->target->pingprobe_state != newstate) {
-    /* TODO: UDP scan and such will have different preferences -- add them */
-    if (noresp_open_scan) {
-      if (newstate == PORT_CLOSED || (hss->target->pingprobe_state == PORT_UNKNOWN && newstate == PORT_FILTERED))
-	swappingport = true;
-    } else {
-      if (hss->target->pingprobe_state == PORT_UNKNOWN && 
-	  (newstate == PORT_OPEN || newstate == PORT_CLOSED || newstate == PORT_UNFILTERED))
-	swappingport = true;
-      else if (hss->target->pingprobe_state == PORT_OPEN && (newstate == PORT_CLOSED || newstate == PORT_UNFILTERED))
-	swappingport = true;
-    }
-
-    if (swappingport) {
-      if (o.debugging > 1) 
-	log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), pspectype2ascii(pspec->type));
-      hss->target->pingprobe = *pspec;
-      hss->target->pingprobe_state = newstate;
-    }
-  }
   return oldstate != newstate;
 }
 
@@ -2419,24 +2446,6 @@ static void ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
       hss->target->flags |= HOST_DOWN;
     } else assert(0);
   }
-
-  /* Consider changing the ping port */
-  if (hss->target->pingprobe_state != newstate) {
-    if (hss->target->pingprobe_state == PORT_UNKNOWN && newstate == HOST_UP) {
-      if (o.debugging > 1) 
-	log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), pspectype2ascii(pspec->type));
-      hss->target->pingprobe = *pspec;
-      hss->target->pingprobe_state = newstate;
-      /* Make this the new global ping host, but only if it's not waiting for
-         any probes. */
-      if (USI->gstats->pinghost == NULL
-        || USI->gstats->pinghost->probes_outstanding_empty()) {
-        if (o.debugging > 1)
-          log_write(LOG_PLAIN, "Changing global ping host to %s.\n", hss->target->targetipstr());
-        USI->gstats->pinghost = hss;
-      }
-    }
-  }
 }
 
 /* Called when a new status is determined for host in hss (eg. it is
@@ -2463,6 +2472,20 @@ static void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
 
   ultrascan_host_pspec_update(USI, hss, probe->pspec(), newstate);
 
+  if (rcvdtime != NULL) {
+    /* This probe received a positive response. Consider making it the new
+       timing ping probe. */
+    if (pingprobe_is_better(probe->pspec(), PORT_UNKNOWN, &hss->target->pingprobe, hss->target->pingprobe_state)) {
+      if (o.debugging > 1) {
+	char buf[32];
+	probespec2ascii(probe->pspec(), buf, sizeof(buf));
+	log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), buf);
+      }
+      hss->target->pingprobe = *probe->pspec();
+      hss->target->pingprobe_state = PORT_UNKNOWN;
+    }
+  }
+
   hss->destroyOutstandingProbe(probeI);
 }
 
@@ -2483,6 +2506,20 @@ static void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
   bool changed = false;
 
   changed = ultrascan_port_pspec_update(USI, hss, pspec, newstate);
+
+  if (rcvdtime != NULL) {
+    /* This probe received a positive response. Consider making it the new
+       timing ping probe. */
+    if (pingprobe_is_better(probe->pspec(), newstate, &hss->target->pingprobe, hss->target->pingprobe_state)) {
+      if (o.debugging > 1) {
+	char buf[32];
+	probespec2ascii(probe->pspec(), buf, sizeof(buf));
+	log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), buf);
+      }
+      hss->target->pingprobe = *probe->pspec();
+      hss->target->pingprobe_state = newstate;
+    }
+  }
 
   ultrascan_adjust_timeouts(USI, hss, probe, rcvdtime);
 
@@ -2988,7 +3025,7 @@ static void doAnyPings(UltraScanInfo *USI) {
   for(hostI = USI->incompleteHosts.begin(); 
       hostI != USI->incompleteHosts.end(); hostI++) {
     hss = *hostI;
-    if (hss->target->pingprobe_state != PORT_UNKNOWN && 
+    if (hss->target->pingprobe.type != PS_NONE && 
 	hss->rld.rld_waiting == false && 
 	hss->numprobes_sent >= hss->lastping_sent_numprobes + 10 &&
 	TIMEVAL_SUBTRACT(USI->now, hss->lastrcvd) > USI->perf.pingtime && 
