@@ -2006,7 +2006,7 @@ way.</para>
     <para> 
     To reflect those different uses and to simplify the choice of which
     scripts to run, each script contains a field associating it with one or more categories.  Currently defined categories are
-<literal>safe</literal>, <literal>intrusive</literal>, <literal>malware</literal>, <literal>version</literal>, <literal>discovery</literal>, <literal>vuln</literal>, <literal>auth</literal>, and <literal>default</literal>.  These are all described at 
+<literal>safe</literal>, <literal>intrusive</literal>, <literal>malware</literal>, <literal>version</literal>, <literal>discovery</literal>, <literal>vuln</literal>, <literal>auth</literal>, and <literal>default</literal>.  These are all described
     <man>at <ulink url="http://nmap.org/book/nse-usage.html#nse-categories" />.</man>
     <notman>in <xref linkend="nse-categories"/>.</notman></para>
 
