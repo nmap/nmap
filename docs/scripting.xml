@@ -98,6 +98,11 @@
       uses for NSE.
     </para>
 
+    <print><note><para>The Nmap Scripting Engine is a new Nmap feature
+    which already works well, but is under active development. To
+    provide the latest NSE news and updates, this chapter has been
+    updated and posted for free online at
+    <ulink url="http://nmap.org/book/nse.html"/>.</para></note></print>
 
     <para>
       Scripts are written in the
@@ -3626,102 +3631,6 @@ scripts return one result).</para>
 end
 </programlisting>
 </sect2>
-
-	<sect2 id="nse-example-script-owner">
-      <title>Service Owner Lookup via Identd</title>
-      <indexterm><primary><literal>Service owner</literal> script</primary></indexterm>
-      <indexterm><primary>auth service</primary></indexterm>
-	  <para><filename>showOwner.nse</filename> demonstrates the flexibility
-	  of NSE, which is unmatched by other parts of Nmap. If the target
-	  is running an <literal>identd</literal> daemon it connects to it for
-	  each running service and tries to identify its owner.
-	  </para>
-<programlisting>
-id = "Service owner"<indexterm><primary><varname>id</varname> script variable</primary></indexterm>
-
-description = "Opens a connection to the scanned port, opens a connection to \
-port 113, queries the owner of the service on the scanned port and prints it."<indexterm><primary><varname>description</varname> script variable</primary></indexterm>
-
-author = "Diman Todorov &lt;diman.todorov@gmail.com&gt;"<indexterm>Todorov, Diman</indexterm><indexterm><primary><varname>author</varname> script variable</primary></indexterm>
-
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"<indexterm><primary><varname>license</varname> script variable</primary></indexterm>
-
-categories = {"default", "safe"}<indexterm><primary><varname>categories</varname> script variable</primary></indexterm><indexterm><primary><varname>default</varname> script category</primary></indexterm><indexterm><primary><varname>safe</varname> script category</primary></indexterm>
-
-</programlisting>
-
-<para>Portrules are not restricted to those provided by the 
-short-port module (<xref linkend="nse-lib-shortport"/>).
-They can be any function taking a host- and a port table as argument and 
-returning a boolean.
-</para>
-
-<programlisting>
-portrule = function(host, port) <indexterm><primary><varname>portrule</varname> script variable</primary></indexterm>
-    local auth_port = { number=113, protocol="tcp" }
-</programlisting>
-
-<para>In order to determine the state of a port, which is not provided
-as argument we just have to construct a table describing the port
-(i.e. its number and the protocol it's using) and pass it to
-<literal>nmap.get_port_state()</literal> which returns a table filled
-with the information Nmap has about the port.</para>
-
-<programlisting>
-   local identd = nmap.get_port_state(host, auth_port)
-
-   if identd ~= nil
-      and identd.state == "open"
-      and port.protocol == "tcp"
-      and port.state == "open"
-   then
-     return true
-   else
-     return false
-   end
-end
-
-action = function(host, port)
-  local owner = ""
-</programlisting>
-
-<para>Scripts may open any number of connections.</para>
-
-<programlisting>
-  local client_ident = nmap.new_socket()
-  local client_service = nmap.new_socket()
-
-  local catch = function()
-    client_ident:close()
-    client_service:close()
-  end
-
-  local try = nmap.new_try(catch)
-
-  try(client_ident:connect(host.ip, 113))
-  try(client_service:connect(host.ip, port.number))
-
-  local localip,localport,remoteip,remoteport = try(client_service:get_info())
-
-  local request = port.number .. ", " .. localport .. "\n"
-
-  try(client_ident:send(request))
-
-  owner = try(client_ident:receive_lines(1))
-
-  if string.match(owner, "ERROR") then 
-    owner = nil
-  else
-    owner = string.match(owner, "USERID : .+ : (.+)\n", 1)
-  end
-
-  try(client_ident:close())
-  try(client_service:close())
-
-  return owner
-end
-</programlisting>
-	</sect2>
     <indexterm class="endofrange" startref="nse-sample-indexterm"/>
   </sect1>
   <sect1 id="nse-implementation">
