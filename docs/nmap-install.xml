@@ -291,7 +291,7 @@ url="http://cgi.insecure.org/mailman/listinfo/nmap-svn"/>.</para>
 
 <sect1 id="inst-source"><title>Unix Compilation and Installation from Source Code</title> 
 <indexterm><primary>Unix, installing on</primary></indexterm>
-<indexterm><primary>Linux, compiling on</primary></indexterm>
+<indexterm><primary>Linux</primary><secondary>compiling on</secondary></indexterm>
 <indexterm><primary>installation</primary><secondary>from source code</secondary></indexterm>
 <indexterm><primary>source code</primary></indexterm>
 <indexterm><primary>compilation</primary></indexterm>
