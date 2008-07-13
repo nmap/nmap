@@ -2719,7 +2719,7 @@ lists the relevant options and describes what they do.</para>
 	  <literal>ME</literal><indexterm><primary><literal>ME</literal> (decoy address)</primary></indexterm>
           as one of the decoys to
           represent the position for your real IP address. If you put
-          <literal>ME</literal> in the 6th position or later, some
+          <literal>ME</literal> in the sixth position or later, some
           common port scan detectors (such as
 	  Solar Designer's<indexterm><primary>Solar Designer</primary></indexterm>
           excellent Scanlogd)<indexterm><primary><application>Scanlogd</application></primary></indexterm>

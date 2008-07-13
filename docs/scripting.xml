@@ -2668,14 +2668,14 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 
 	      The <literal>receive_buf</literal> method reads data
 	      from the network until it encounters the given delimiter
-	      string (or matches the function passsed in). Only data
+	      string (or matches the function passed in). Only data
 	      which occurs before the delimiter is returned, and the
 	      delimiter is then erased.  This function continues to
 	      read from the network until the delimiter is found or
 	      the function times out.  If data is read beyond the
 	      delimiter, that data is saved in a buffer for the next
 	      call to <literal>receive_buf</literal>.  This buffer is
-	      cleared on subsequent calls to other Network I/O APY
+	      cleared on subsequent calls to other Network I/O API
 	      functions.</para>
 
                 <para>The <literal>receive_buf</literal> method takes
@@ -2702,7 +2702,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 		  to <literal>receive_buf</literal> is a boolean value
 		  which indicates whether the delimiting pattern
 		  should be returned along with the received data or
-		  discarded.  The delimiter is included if <literal>true</literal> is passed as the <literal>keeppatern</literal> argument.</para>
+		  discarded.  The delimiter is included if <literal>true</literal> is passed as the <literal>keeppattern</literal> argument.</para>
 
                   <para>The return values of <literal>receive_buf</literal> are the same as the other <literal>receive*</literal> functions.  A <literal>(status, val)</literal> tuple is returned.  The <literal>status</literal> is <literal>true</literal> if the request was successful.  The <literal>val</literal> variable contains the returned data, or an error message if the call failed.</para>
 
