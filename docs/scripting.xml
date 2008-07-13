@@ -213,7 +213,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
      <variablelist>
         <varlistentry>
           <term>
-            <indexterm><primary><literal>safe</literal> script category</primary></indexterm>
+            <indexterm><primary sortas="safe script category">&ldquo;<literal>safe</literal>&rdquo; script category</primary></indexterm>
             <option>safe</option>
           </term>
           <listitem>
@@ -232,7 +232,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
-            <indexterm><primary><literal>intrusive</literal> script category</primary></indexterm>
+            <indexterm><primary sortas="intrusive script category">&ldquo;<literal>intrusive</literal>&rdquo; script category</primary></indexterm>
             <option>intrusive</option>
           </term>
           <listitem>
@@ -247,7 +247,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
-            <indexterm><primary><literal>malware</literal> script category</primary></indexterm>
+            <indexterm><primary sortas="malware script category">&ldquo;<literal>malware</literal>&rdquo; script category</primary></indexterm>
             <option>malware</option>
           </term>
           <listitem>
@@ -258,8 +258,8 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
-            <indexterm><primary><literal>version</literal> script category</primary></indexterm>
-            <indexterm><primary>version detection</primary><seealso><literal>version</literal> script category</seealso></indexterm>
+            <indexterm><primary sortas="version script category">&ldquo;<literal>version</literal>&rdquo; script category</primary></indexterm>
+            <indexterm><primary>version detection</primary><seealso>&ldquo;<literal>version</literal>&rdquo; script category</seealso></indexterm>
             <option>version</option>
           </term>
           <listitem>
@@ -275,7 +275,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
-            <indexterm><primary><literal>discovery</literal> script category</primary></indexterm>
+            <indexterm><primary sortas="discovery script category">&ldquo;<literal>discovery</literal>&rdquo; script category</primary></indexterm>
             <option>discovery</option>
           </term>
           <listitem>
@@ -287,7 +287,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
-            <indexterm><primary><literal>vuln</literal> script category</primary></indexterm>
+            <indexterm><primary sortas="vuln script category">&ldquo;<literal>vuln</literal>&rdquo; script category</primary></indexterm>
             <option>vuln</option>
           </term>
           <listitem>
@@ -298,7 +298,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
-            <indexterm><primary><literal>auth</literal> script category</primary></indexterm>
+            <indexterm><primary sortas="auth script category">&ldquo;<literal>auth</literal>&rdquo; script category</primary></indexterm>
             <option>auth</option>
           </term>
           <listitem>
@@ -309,7 +309,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
 
         <varlistentry>
           <term>
-            <indexterm><primary><literal>default</literal> script category</primary></indexterm>
+            <indexterm><primary sortas="default script category">&ldquo;<literal>default</literal>&rdquo; script category</primary></indexterm>
             <option>default</option>
           </term>
           <listitem>
@@ -492,7 +492,7 @@ categories.</para>
 	<option>-sV</option>.<indexterm><primary><option>-sV</option></primary></indexterm>
         A version scan executes
         the scripts in the
-	<literal>version</literal> category.<indexterm><primary><literal>version</literal> script category</primary></indexterm>
+	<literal>version</literal> category.<indexterm><primary sortas="version script category">&ldquo;<literal>version</literal>&rdquo; script category</primary></indexterm>
         The scripts
         in this category are slightly different than other scripts. Their
         output blends in with the version scan and they do not produce any
@@ -538,7 +538,7 @@ categories.</para>
     </para>
     <sect2 id="nse-format-id">
       <title><literal>id</literal> Field</title>
-      <indexterm><primary><varname>id</varname> script variable</primary></indexterm>
+      <indexterm><primary sortas="id script variable">&ldquo;<varname>id</varname>&rdquo; script variable</primary></indexterm>
       <para>
 	The script's <literal>id</literal> field is displayed in the Nmap output 
 	table if the script produces any output.  It should be unique so users
@@ -551,7 +551,7 @@ categories.</para>
     </sect2>
     <sect2 id="nse-format-description">
       <title><literal>description</literal> Field</title>
-      <indexterm><primary><varname>description</varname> script variable</primary></indexterm>
+      <indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
       <para>
 	The description describes what the script is testing for and
 	any critical notes the user must be aware of. A good
@@ -565,7 +565,7 @@ categories.</para>
 
     <sect2 id="nse-format-author">
       <title><literal>author</literal> Field </title>
-      <indexterm><primary><varname>author</varname> script variable</primary></indexterm>
+      <indexterm><primary sortas="author script variable">&ldquo;<varname>author</varname>&rdquo; script variable</primary></indexterm>
       <para>
 	The <literal>author</literal> field contains the script authors name and contact information. If you are worried about spam, you might want to omit or obscure your email address, or give your home page URL instead.  This optional field is not used by NSE, but is important for giving script authors due credit or blame. 
       </para>
@@ -573,7 +573,7 @@ categories.</para>
 
     <sect2 id="nse-format-license">
       <title><literal>license</literal> Field </title>
-      <indexterm><primary><varname>license</varname> script variable</primary></indexterm>
+      <indexterm><primary sortas="license script variable">&ldquo;<varname>license</varname>&rdquo; script variable</primary></indexterm>
       <indexterm><primary>copyright</primary><secondary>of scripts</secondary></indexterm>
 
       <para>Nmap is a community project and we welcome all sorts of
@@ -597,7 +597,7 @@ that.</para>
 
     <sect2 id="nse-format-runlevel">
       <title><literal>runlevel</literal> Field</title>
-      <indexterm><primary><varname>runlevel</varname> script variable</primary></indexterm>
+      <indexterm><primary sortas="runlevel script variable">&ldquo;<varname>runlevel</varname>&rdquo; script variable</primary></indexterm>
       <indexterm><primary>run level of scripts</primary></indexterm>
       <para>
 	This optional field determines script execution order.  When
@@ -619,9 +619,9 @@ that.</para>
 
     <sect2 id="nse-format-rules">
       <title>Port and Host Rules</title>
-      <indexterm><primary><varname>portrule</varname> script variable</primary></indexterm>
-      <indexterm><primary><varname>hostrule</varname> script variable</primary></indexterm>
-      <indexterm><primary>rules in NSE</primary><see><varname>portrule</varname> and <varname>hostrule</varname></see></indexterm>
+      <indexterm><primary sortas="portrule script variable">&ldquo;<varname>portrule</varname>&rdquo; script variable</primary></indexterm>
+      <indexterm><primary sortas="hostrule script variable">&ldquo;<varname>hostrule</varname>&rdquo; script variable</primary></indexterm>
+      <indexterm><primary>rules in NSE</primary><see>&ldquo;<varname>portrule</varname>&rdquo; and &ldquo;<varname>hostrule</varname>&rdquo;</see></indexterm>
       <para>
 
 	There are two types of rules: <emphasis>host rules</emphasis>
@@ -643,7 +643,7 @@ that.</para>
 	<xref linkend="nse-tutorial-rule"/>.</para> </sect2>
 
      <sect2 id="nse-format-action"><title>Action</title>
-      <indexterm><primary><varname>action</varname> script variable</primary></indexterm>
+      <indexterm><primary sortas="action script variable">&ldquo;<varname>action</varname>&rdquo; script variable</primary></indexterm>
 
       <para>
 	The action is the heart of an NSE script.  It contains all of
@@ -1915,7 +1915,7 @@ if(s) code_to_be_done_on_match end
 	Lua interpreter. Users need easy access to the information
 	Nmap has learned about the target hosts. This data is passed
 	as arguments to the NSE
-	<literal>action</literal> method.<indexterm><primary><varname>action</varname> script variable</primary></indexterm>
+	<literal>action</literal> method.<indexterm><primary sortas="action script variable">&ldquo;<varname>action</varname>&rdquo; script variable</primary></indexterm>
         The arguments, <literal>host</literal> and
 	<literal>port</literal>, are Lua tables which contain
 	information on the target against which the script is
@@ -3202,7 +3202,8 @@ try(socket:send(result))
 	the ID is printed before the script's results in Nmap output.
       </para>
       <para>
-<indexterm><primary><varname>id</varname> script variable</primary></indexterm>
+<indexterm><primary sortas="Service Owner script">&ldquo;<literal>Service Owner</literal>&rdquo; script</primary></indexterm>
+<indexterm><primary sortas="id script variable">&ldquo;<varname>id</varname>&rdquo; script variable</primary></indexterm>
 <programlisting>
 id = "Service Owner"
 </programlisting>
@@ -3211,7 +3212,7 @@ id = "Service Owner"
 	The description field should contain a sentence or two describing what the script does.  If anything about the script results might confuse or mislead users, and you can't eliminate the issue by improving the script or results text, it should be documented in the <literal>description</literal> string.
       </para>
       <para>
-<indexterm><primary><varname>description</varname> script variable</primary></indexterm>
+<indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
 <programlisting>
 description = "Opens a connection to the scanned port, opens a connection to \
 port 113, queries the owner of the service on the scanned port and prints it."
@@ -3234,7 +3235,7 @@ port 113, queries the owner of the service on the scanned port and prints it."
 	script in two categories:
 
       </para>
-<indexterm><primary><varname>categories</varname> script variable</primary></indexterm>
+<indexterm><primary sortas="categories script variable">&ldquo;<varname>categories</varname>&rdquo; script variable</primary></indexterm>
 <programlisting>
 categories = {"safe", "intrusive"}
 </programlisting>
@@ -3266,7 +3267,7 @@ categories = {"safe", "intrusive"}
 	the action.
       </para>
       <para>
-<indexterm><primary><varname>portrule</varname> script variable</primary></indexterm>
+<indexterm><primary sortas="portrule script variable">&ldquo;<varname>portrule</varname>&rdquo; script variable</primary></indexterm>
 <programlisting>
 portrule = function(host, port)
   local ident_port = { number=113, protocol="tcp" }
@@ -3344,7 +3345,7 @@ local localip, localport  = client_service:get_info()
       </para>
       
       <para>
-        <indexterm><primary><varname>action</varname> script variable</primary></indexterm>
+        <indexterm><primary sortas="action script variable">&ldquo;<varname>action</varname>&rdquo; script variable</primary></indexterm>
 	<programlisting>
 action = function(host, port)
 local owner = ""
@@ -3422,17 +3423,17 @@ end
 <programlisting> 
 description = "Demonstration of a version detection NSE script. It checks \
 and reports the version of a remote web server. For real life purposes it is \
-better to use Nmap version detection (-sV)."<indexterm><primary><varname>description</varname> script variable</primary></indexterm>
-author = "Diman Todorov &lt;diman.todorov@gmail.at&gt;"<indexterm><primary>Todorov, Diman</primary></indexterm><indexterm><primary><varname>author</varname> script variable</primary></indexterm>
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"<indexterm><primary><varname>license</varname> script variable</primary></indexterm>
+better to use Nmap version detection (-sV)."<indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
+author = "Diman Todorov &lt;diman.todorov@gmail.at&gt;"<indexterm><primary>Todorov, Diman</primary></indexterm><indexterm><primary sortas="author script variable">&ldquo;<varname>author</varname>&rdquo; script variable</primary></indexterm>
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"<indexterm><primary sortas="license script variable">&ldquo;<varname>license</varname>&rdquo; script variable</primary></indexterm>
 
-id = "HTTP version"<indexterm><primary><varname>id</varname> script variable</primary></indexterm>
+id = "HTTP version"<indexterm><primary sortas="id script variable">&ldquo;<varname>id</varname>&rdquo; script variable</primary></indexterm>
 
-categories = {"version"}<indexterm><primary><varname>categories</varname> script variable</primary></indexterm>
+categories = {"version"}<indexterm><primary sortas="categories script variable">&ldquo;<varname>categories</varname>&rdquo; script variable</primary></indexterm>
 
-runlevel = 1.0<indexterm><primary><varname>runlevel</varname> script variable</primary></indexterm>
+runlevel = 1.0<indexterm><primary sortas="runlevel script variable">&ldquo;<varname>runlevel</varname>&rdquo; script variable</primary></indexterm>
 
-portrule = function(host, port)<indexterm><primary><varname>portrule</varname> script variable</primary></indexterm>
+portrule = function(host, port)<indexterm><primary sortas="portrule script variable">&ldquo;<varname>portrule</varname>&rdquo; script variable</primary></indexterm>
   if (port.number == 80
       or port.service == "http" )
       and port.protocol == "tcp" 
@@ -3443,7 +3444,7 @@ portrule = function(host, port)<indexterm><primary><varname>portrule</varname> s
   end
 end
 
-action = function(host, port)<indexterm><primary><varname>action</varname> script variable</primary></indexterm>
+action = function(host, port)<indexterm><primary sortas="action script variable">&ldquo;<varname>action</varname>&rdquo; script variable</primary></indexterm>
   local query = "GET / HTTP/2.1\r\n"
   query = query .. "Accept: */*\r\n"
   query = query .. "Accept-Language: en\r\n"
@@ -3523,7 +3524,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 9.317 seconds
 
     <sect2 id="nse-example-script-finger">
       <title>Finger-Test Script</title>
-      <indexterm><primary><literal>Finger Results</literal> script</primary></indexterm>
+      <indexterm><primary sortas="Finger Results script">&ldquo;<literal>Finger Results</literal>&rdquo; script</primary></indexterm>
 	  <para>The finger script (<filename>finger.nse</filename>) is a perfect
       example of how short typical NSE scripts are.
 	  </para>
@@ -3533,13 +3534,13 @@ Nmap finished: 1 IP address (1 host up) scanned in 9.317 seconds
 printed in Nmap's output. A detailed description of what the script
 actually does should go in the <literal>description</literal> field.</para>
 <programlisting>
-id="Finger Results"<indexterm><primary><varname>id</varname> script variable</primary></indexterm>
+id="Finger Results"<indexterm><primary sortas="id script variable">&ldquo;<varname>id</varname>&rdquo; script variable</primary></indexterm>
 
-description="attempts to get a list of usernames via the finger service"<indexterm><primary><varname>description</varname> script variable</primary></indexterm>
+description="attempts to get a list of usernames via the finger service"<indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
 
-author = "Eddie Bell &lt;ejlbell@gmail.com&gt;"<indexterm><primary>Bell, Eddie</primary></indexterm><indexterm><primary><varname>author</varname> script variable</primary></indexterm>
+author = "Eddie Bell &lt;ejlbell@gmail.com&gt;"<indexterm><primary>Bell, Eddie</primary></indexterm><indexterm><primary sortas="author script variable">&ldquo;<varname>author</varname>&rdquo; script variable</primary></indexterm>
 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"<indexterm><primary><varname>license</varname> script variable</primary></indexterm>
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"<indexterm><primary sortas="license script variable">&ldquo;<varname>license</varname>&rdquo; script variable</primary></indexterm>
 </programlisting>
 
 <para>The <literal>categories</literal> field is a table
@@ -3565,9 +3566,9 @@ on a non-standard port) or still run against at least the port we
 expect it, should the version detection information not be available.</para>
 
 <programlisting>
-portrule = shortport.port_or_service(79, "finger")<indexterm><primary><varname>portrule</varname> script variable</primary></indexterm>
+portrule = shortport.port_or_service(79, "finger")<indexterm><primary sortas="portrule script variable">&ldquo;<varname>portrule</varname>&rdquo; script variable</primary></indexterm>
 
-action = function(host, port)<indexterm><primary><varname>action</varname> script variable</primary></indexterm>
+action = function(host, port)<indexterm><primary sortas="action script variable">&ldquo;<varname>action</varname>&rdquo; script variable</primary></indexterm>
   local socket = nmap.new_socket()
   local results = ""
   local status = true
@@ -3751,8 +3752,8 @@ also get stored inside the registry.
       <title>Matching of Scripts to Targets</title>
       <para>
 	  After the initialization is finished the
-	  <literal>hostrules</literal><indexterm><primary><varname>hostrule</varname> script variable</primary></indexterm>
-          and <literal>portrules</literal><indexterm><primary><varname>portrule</varname> script variable</primary></indexterm>
+	  <literal>hostrules</literal><indexterm><primary sortas="hostrule script variable">&ldquo;<varname>hostrule</varname>&rdquo; script variable</primary></indexterm>
+          and <literal>portrules</literal><indexterm><primary sortas="portrule script variable">&ldquo;<varname>portrule</varname>&rdquo; script variable</primary></indexterm>
           are evaluated for each host in the current
 	  target group. At this check a list is built which contains the combinations of scripts and the hosts they will run against.
 
