@@ -222,7 +222,7 @@ you would expect.</para>
           <para>Reads target specifications from
           <replaceable>inputfilename</replaceable>.  Passing a huge
           list of hosts is often awkward on the command line, yet it
-          is a common desire.  For example, your dhcp server might
+          is a common desire.  For example, your DHCP server might
           export a list of 10,000 current leases that you wish to
           scan.  Or maybe you want to scan all IP addresses
           <emphasis>except</emphasis> for those to locate hosts using
@@ -1049,11 +1049,11 @@ one of the TCP scan types.  As a memory aid, port scan type options
 are of the form <option>-s<replaceable>C</replaceable></option>, where
 <replaceable>C</replaceable> is a prominent character in the scan
 name, usually the first.  The one exception to this is the deprecated
-ftp bounce scan (<option>-b</option>).  By default, Nmap performs a
+FTP bounce scan (<option>-b</option>).  By default, Nmap performs a
 SYN Scan, though it substitutes a connect scan if the user does not
 have proper privileges to send raw packets (requires root access on
 Unix) or if IPv6 targets were specified.  Of the scans listed in this
-section, unprivileged users can only execute connect and ftp bounce
+section, unprivileged users can only execute connect and FTP bounce
 scans.</para>
 
     <variablelist>
@@ -1137,7 +1137,7 @@ know that she has been connect scanned.</para>
 <para>While most popular services on the Internet run over the TCP
 protocol, <ulink
 role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc768.txt">UDP</ulink> services
-are widely deployed.  DNS, snmp, and dhcp
+are widely deployed.  DNS, SNMP, and DHCP
 (registered ports 53, 161/162, and 67/68) are three of the most
 common.  Because UDP scanning is generally slower and more difficult
 than TCP, some security auditors ignore these ports.  This is a mistake, as
@@ -1478,46 +1478,46 @@ after retransmissions, the protocol is marked
 
       <varlistentry>
         <term>
-        <option>-b <replaceable>ftp relay host</replaceable></option> (ftp bounce scan)
+        <option>-b <replaceable>FTP relay host</replaceable></option> (FTP bounce scan)
         <indexterm><primary><option>-b</option></primary></indexterm>
-        <indexterm><primary>ftp bounce scan</primary></indexterm>
+        <indexterm><primary>FTP bounce scan</primary></indexterm>
         </term>
         <listitem>
 
-<para>An interesting feature of the ftp protocol (<ulink
+<para>An interesting feature of the FTP protocol (<ulink
 role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc959.txt">RFC 959</ulink>) is
-support for so-called proxy ftp connections.  This allows a user to
-connect to one ftp server, then ask that files be sent to a
+support for so-called proxy FTP connections.  This allows a user to
+connect to one FTP server, then ask that files be sent to a
 third-party server.  Such a feature is ripe for abuse on many levels,
 so most servers have ceased supporting it.  One of the abuses this
-feature allows is causing the ftp server to port scan other hosts.
-Simply ask the ftp server to send a file to each interesting port of a
+feature allows is causing the FTP server to port scan other hosts.
+Simply ask the FTP server to send a file to each interesting port of a
 target host in turn.  The error message will describe whether the port
 is open or not.  This is a good way to bypass firewalls because
-organizational ftp servers are often placed where they have
-more access to other internal hosts than any old Internet host would.  Nmap supports ftp
+organizational FTP servers are often placed where they have
+more access to other internal hosts than any old Internet host would.  Nmap supports FTP
 bounce scan with the <option>-b</option> option.  It takes an argument
 of the form
 <replaceable>username</replaceable>:<replaceable>password</replaceable>@<replaceable>server</replaceable>:<replaceable>port</replaceable>.
 <replaceable>Server</replaceable> is the name or IP address of a
-vulnerable ftp server.  As with a normal URL, you may omit
+vulnerable FTP server.  As with a normal URL, you may omit
 <replaceable>username</replaceable>:<replaceable>password</replaceable>,
 in which case anonymous login credentials (user:
 <literal>anonymous</literal> password:<literal>-wwwuser@</literal>)
 are used.  The port number (and preceding colon) may be omitted as
-well, in which case the default ftp port (21) on
+well, in which case the default FTP port (21) on
 <replaceable>server</replaceable> is used.</para>
 
 <para>This vulnerability was widespread in 1997 when Nmap was
 released, but has largely been fixed.  Vulnerable servers are still
 around, so it is worth trying when all else fails.  If bypassing a
 firewall is your goal, scan the target network for open port 21 (or
-even for any ftp services if you scan all ports with version
+even for any FTP services if you scan all ports with version
 detection), then try a bounce scan using each.  Nmap will tell you
 whether the host is vulnerable or not.  If you are just trying to
 cover your tracks, you don't need to (and, in fact, shouldn't) limit
 yourself to hosts on the target network.  Before you go scanning
-random Internet addresses for vulnerable ftp servers, consider that
+random Internet addresses for vulnerable FTP servers, consider that
 sysadmins may not appreciate you abusing their servers in this
 way.</para>
 
@@ -1575,7 +1575,7 @@ way.</para>
           Ports can also be specified by name according to what the
           port is referred to in the <filename>nmap-services</filename>. You
           can even use the wildcards * and ? with the names. For example, to scan
-          ftp and all ports whose names begin with http, use <option>-p ftp,http*</option>.
+          FTP and all ports whose names begin with http, use <option>-p ftp,http*</option>.
           Be careful about shell expansions and quote the argument to <option>-p</option> if unsure.</para>
 
           <para>Ranges of ports can be surrounded by square brackets to indicate
@@ -1639,7 +1639,7 @@ way.</para>
     database of about 2,200
     well-known services,<indexterm><primary>well-known ports</primary></indexterm>
     Nmap would report that those ports probably correspond to a
-    mail server (smtp), web server (http), and name server (DNS)
+    mail server (SMTP), web server (HTTP), and name server (DNS)
     respectively. This lookup is usually accurate&mdash;the vast
     majority of daemons listening on TCP port 25 are, in fact, mail
     servers. However, you should not bet your security on this!
@@ -1648,7 +1648,7 @@ way.</para>
     </para>
 
     <para>Even if Nmap is right, and the hypothetical server above is
-    running smtp, http, and DNS servers, that is not a lot of
+    running SMTP, HTTP, and DNS servers, that is not a lot of
     information. When doing vulnerability assessments (or even simple
     network inventories) of your companies or clients, you really want
     to know which mail and DNS servers and versions are
@@ -1664,11 +1664,11 @@ way.</para>
     database contains probes
     for querying various services and match expressions to recognize
     and parse responses. Nmap tries to determine the service protocol
-    (e.g. ftp, ssh, telnet, http), the application name (e.g. ISC
+    (e.g. FTP, SSH, telnet, HTTP), the application name (e.g. ISC
     BIND, Apache httpd, Solaris telnetd), the version number,
     hostname, device type (e.g. printer, router), the OS family
     (e.g. Windows, Linux) and sometimes miscellaneous details like
-    whether an X server is open to connections, the ssh protocol
+    whether an X server is open to connections, the SSH protocol
     version, or the KaZaA user name).  Of course, most services don't
     provide all of this information.  If Nmap was compiled with
     OpenSSL support, it will connect to SSL servers to deduce the
@@ -1701,7 +1701,7 @@ way.</para>
     on the port.  Please take a couple minutes to make the submission
     so that your find can benefit everyone.  Thanks to these
     submissions, Nmap has about 3,000 pattern matches for more than
-    350 protocols such as smtp, ftp, http, etc.<indexterm><primary>submission of service fingerprints</primary></indexterm>
+    350 protocols such as SMTP, FTP, HTTP, etc.<indexterm><primary>submission of service fingerprints</primary></indexterm>
     </para>
 
     <para>Version detection is enabled and controlled with the
@@ -2611,7 +2611,7 @@ It even supports mechanisms for bypassing poorly implemented
 defenses.  One of the best methods of understanding your
 network security posture is to try to defeat it.  Place yourself in
 the mind-set of an attacker, and deploy techniques from this section
-against your networks.  Launch an ftp bounce scan, idle scan,
+against your networks.  Launch an FTP bounce scan, idle scan,
 fragmentation attack, or try to tunnel through one of your own
 proxies.</para>
 
@@ -2638,9 +2638,9 @@ used by administrators to enhance security.  The problem with this
 logic is that these methods would still be used by attackers, who
 would just find other tools or patch the functionality into Nmap.
 Meanwhile, administrators would find it that much harder to do their
-jobs.  Deploying only modern, patched ftp servers is a far more
+jobs.  Deploying only modern, patched FTP servers is a far more
 powerful defense than trying to prevent the distribution of tools
-implementing the ftp bounce attack.
+implementing the FTP bounce attack.
 </para>
 
 <para>There is no magic bullet (or Nmap option) for detecting and
@@ -2813,14 +2813,14 @@ this comes about.  An administrator will set up a shiny new firewall,
 only to be flooded with complains from ungrateful users whose
 applications stopped working.  In particular, DNS may be broken
 because the UDP DNS replies from external servers can no longer enter
-the network.  ftp is another common example.  In active ftp transfers,
+the network.  FTP is another common example.  In active FTP transfers,
 the remote server tries to establish a connection back to the client
 to transfer the requested file.</para>
 
 <para>Secure solutions to these problems exist, often in the form of
 application-level proxies or protocol-parsing firewall modules.
 Unfortunately there are also easier, insecure solutions.  Noting that
-DNS replies come from port 53 and active ftp from port 20, many administrators
+DNS replies come from port 53 and active FTP from port 20, many administrators
 have fallen into the trap of simply allowing incoming traffic from
 those ports.  They often assume that no attacker would notice and
 exploit such firewall holes.  In other cases, administrators consider this a
@@ -2832,10 +2832,10 @@ solution.  Then they forget the security upgrade.
 into this trap.  Numerous products have shipped with these insecure
 rules.  Even Microsoft has been guilty.  The IPsec filters that
 shipped with Windows 2000 and Windows XP contain an implicit rule that
-allows all TCP or UDP traffic from port 88 (kerberos).  In another well-known
+allows all TCP or UDP traffic from port 88 (Kerberos).  In another well-known
 case, versions of the Zone Alarm personal firewall up to 2.1.25
 allowed any incoming UDP packets with the source port 53 (DNS) or 67
-(dhcp).</para>
+(DHCP).</para>
 
 <para>Nmap offers the <option>-g</option> and
 <option>--source-port</option> options (they are equivalent) to exploit these
@@ -3207,7 +3207,7 @@ output for lack of a place to put them.</para>
 simple format that lists each host on one line and can be trivially
 searched and parsed with standard Unix tools such as grep, awk, cut,
 sed, diff, and Perl.  Even I usually use it for one-off tests done at the
-command line.  Finding all the hosts with the ssh port open or that
+command line.  Finding all the hosts with the SSH port open or that
 are running Solaris takes only a simple grep to identify the hosts,
 piped to an awk or cut command to print the desired fields.</para>
 
@@ -3932,8 +3932,8 @@ overwhelming requests.  Specify <option>--open</option> to only see
 
     <para>Launches host enumeration and a TCP scan at the first half
     of each of the 255 possible 8 bit subnets in the 198.116 class B
-    address space. This tests whether the systems run ssh, DNS, pop3,
-    or imap on their standard ports, or anything on port 4564. For any
+    address space. This tests whether the systems run SSH, DNS, POP3,
+    or IMAP on their standard ports, or anything on port 4564. For any
     of these ports found open, version detection is used to determine
     what application is running.</para>
 
