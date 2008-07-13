@@ -352,7 +352,7 @@ install</command>.  However, there are a number of options available to <applica
 <para>Most of the Unix build options are controlled by the <literal>configure</literal> script, as used in step number four above.  There are dozens of command-line parameters and environmental variables which affect the way Nmap is built.  Run <command>./configure --help</command> for a huge list with brief descriptions.  Here are the ones that are specific to Nmap or particularly important:</para>
 
 <variablelist>
-<varlistentry><term><literal>--prefix=</literal><replaceable>directoryname</replaceable></term>
+<varlistentry><term><option>--prefix=<replaceable>directoryname</replaceable></option></term>
 
 <listitem><para>This option, which is standard to the
 <application>configure</application> scripts of most software,
@@ -375,17 +375,17 @@ I would run <command>./configure --prefix=<replaceable>/home/fyodor</replaceable
 <varlistentry><term><option>--without-zenmap</option></term>
 <listitem><indexterm><primary>Zenmap</primary><secondary>disabling</secondary></indexterm><para>This option prevents the Zenmap graphical frontend from being installed.  Normally the build system checks your system for requirements such as the Python scripting language and then installs Zenmap if they are all available.</para></listitem></varlistentry>
 
-<varlistentry><term><option>--with-openssl=</option><replaceable>directoryname</replaceable></term>
+<varlistentry><term><option>--with-openssl=<replaceable>directoryname</replaceable></option></term>
 <listitem><indexterm><primary>OpenSSL</primary><secondary>disabling</secondary></indexterm><para>The version detection subsystem of Nmap is able to probe SSL-encrypted services using the free OpenSSL libraries.  Normally the Nmap build system looks for these libraries on your system and include this capability if they are found.  If they are in a location your compiler does not search for by default, but you still want them to be used, specify <option>--with-openssl=<replaceable>directoryname</replaceable></option>.  Nmap then looks in <replaceable>directoryname</replaceable>/libs for the OpenSSL libraries themselves and <replaceable>directoryname</replaceable>/include for the necessary header files.  Specify <option>--without-openssl</option> to disable SSL entirely.</para></listitem></varlistentry>
 
-<varlistentry><term><option>--with-libpcap=</option><replaceable>directoryname</replaceable></term>
+<varlistentry><term><option>--with-libpcap=<replaceable>directoryname</replaceable></option></term>
 <listitem><para>Nmap uses the <ulink url="http://www.tcpdump.org">Libpcap library</ulink> for capturing raw IP packets.  Nmap normally looks for an existing copy of Libpcap on your system and uses that if the version number and platform is appropriate.  Otherwise Nmap includes its own recent copy of Libpcap, which has been modified for improved Linux functionality.  The specific changes are described in <filename>libpcap/NMAP_MODIFICATIONS</filename> in the Nmap source directory.  Because of these Linux-related changes, Nmap always uses its own Libpcap by default on that platform.  If you wish to force Nmap to link with your own Libpcap, pass the option <option>--with-libpcap=<replaceable>directoryname</replaceable></option> to <application>configure</application>.  Nmap then expects the Libpcap library to be in <filename><replaceable>directoryname</replaceable>/lib/libpcap.a</filename> and the include files to be in <filename><replaceable>directoryname</replaceable>/include</filename>.  Nmap will always use the version of Libpcap included in its tarball if you specify <option>--with-libpcap=included</option>.
 </para></listitem></varlistentry>
 
-<varlistentry><term><option>--with-libpcre=</option><replaceable>directoryname</replaceable></term>
+<varlistentry><term><option>--with-libpcre=<replaceable>directoryname</replaceable></option></term>
 <listitem><para>PCRE is a Perl-compatible regular expression library available from <ulink url="http://www.pcre.org" />.  Nmap normally looks for a copy on your system, and then fall back to its own copy if that fails.  If your PCRE library is not in your compiler's standard search path, Nmap probably will not find it.  In that case you can tell Nmap where it can be found by specifying the option <option>--with-libpcre=<replaceable>directoryname</replaceable></option> to <application>configure</application>.  Nmap then expects the library files to be in <filename><replaceable>directoryname</replaceable>/lib</filename> and the include files to be in <filename><replaceable>directoryname</replaceable>/include</filename>.  In some cases, you may wish to use the PCRE libraries included with Nmap in preference to those already on your system.  In that case, specify <option>--with-libpcre=included</option>.</para></listitem></varlistentry>
 
-<varlistentry><term><option>--with-libdnet=</option><replaceable>directoryname</replaceable></term>
+<varlistentry><term><option>--with-libdnet=<replaceable>directoryname</replaceable></option></term>
 <listitem><para>Libdnet is an excellent networking library that Nmap uses for sending raw ethernet frames. The version in the Nmap tree is heavily modified (particularly the Windows code), so the default is to use that included version.  If you wish to use a version already installed on your system instead, specify <option>--with-libdnet=<replaceable>directoryname</replaceable></option>.  Nmap then expects the library files to be in <filename><replaceable>directoryname</replaceable>/lib</filename> and the include files to be in <filename><replaceable>directoryname</replaceable>/include</filename>.</para></listitem></varlistentry>
 
 <varlistentry><term><literal>--with-localdirs</literal></term>

@@ -386,7 +386,7 @@ $ nmap -sC --script-args user=foo,pass=bar,anonFTP={pass=ftp@foobar.com}
      <varlistentry>
         <term>
           <indexterm><primary><option>--script</option></primary></indexterm>
-          <option>--script &lt;script-categories|directory|filename|all&gt;</option></term>
+          <option>--script <replaceable>script-categories</replaceable>|<replaceable>directory</replaceable>|<replaceable>filename</replaceable>|all</option></term>
 
 <listitem>
 
@@ -3857,7 +3857,7 @@ The mainloop function will work on each runlevel grouping of threads in order.
 	  <para>
 	  The Windows build system requires C module developers to create a
 	  MS Visual Studio Project file for their module
-	  (<filename>&lt;modulename&gt;.vcproj</filename>) inside the
+	  (<filename><replaceable>modulename</replaceable>.vcproj</filename>) inside the
 	  <filename>nselib</filename> subdirectory. On Windows you have to
 	  include the <filename>liblua/</filename> subdirectory as
 	  an additional include path as well as a library search path. In addition

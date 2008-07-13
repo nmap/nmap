@@ -214,7 +214,7 @@ you would expect.</para>
     <variablelist>
       <varlistentry>
         <term>
-          <option>-iL &lt;inputfilename&gt;</option> (Input from list)
+          <option>-iL <replaceable>inputfilename</replaceable></option> (Input from list)
           <indexterm><primary><option>-iL</option></primary></indexterm>
           <indexterm><primary>target specification</primary><secondary>from list</secondary></indexterm>
         </term>
@@ -240,7 +240,7 @@ you would expect.</para>
 
       <varlistentry>
         <term>
-          <option>-iR &lt;num hosts&gt;</option> (Choose random targets)
+          <option>-iR <replaceable>num hosts</replaceable></option> (Choose random targets)
           <indexterm><primary><option>-iR</option></primary></indexterm>
           <indexterm><primary>random targets</primary></indexterm>
           <indexterm><primary>target specification</primary><secondary>at random</secondary></indexterm>
@@ -268,7 +268,7 @@ you would expect.</para>
       <varlistentry>
         <term>
           <option>--exclude
-          &lt;host1[,host2][,host3],...&gt;</option> (Exclude hosts/networks)
+          <replaceable>host1</replaceable><optional>,<replaceable>host2</replaceable><optional>,...</optional></optional></option> (Exclude hosts/networks)
           <indexterm significance="preferred"><primary><option>--exclude</option></primary></indexterm>
           <indexterm><primary>excluding targets</primary></indexterm>
         </term>
@@ -286,7 +286,7 @@ you would expect.</para>
 
       <varlistentry>
         <term>
-          <option>--excludefile &lt;exclude_file&gt;</option> (Exclude list from file)
+          <option>--excludefile <replaceable>exclude_file</replaceable></option> (Exclude list from file)
           <indexterm significance="preferred"><primary><option>--excludefile</option></primary></indexterm>
         </term>
         <listitem>
@@ -480,7 +480,7 @@ you would expect.</para>
 
       <varlistentry>
         <term>
-        <option>-PS [portlist]</option> (TCP SYN Ping)
+        <option>-PS <replaceable>portlist</replaceable></option> (TCP SYN Ping)
           <indexterm><primary><option>-PS</option></primary></indexterm>
           <indexterm><primary>SYN ping</primary></indexterm>
         </term>
@@ -545,7 +545,7 @@ you would expect.</para>
 
       <varlistentry>
         <term>
-        <option>-PA [portlist]</option> (TCP ACK Ping)
+        <option>-PA <replaceable>portlist</replaceable></option> (TCP ACK Ping)
           <indexterm><primary><option>-PA</option></primary></indexterm>
           <indexterm><primary>ACK ping</primary></indexterm>
         </term>
@@ -602,7 +602,7 @@ you would expect.</para>
 
       <varlistentry>
         <term>
-        <option>-PU [portlist]</option> (UDP Ping)
+        <option>-PU <replaceable>portlist</replaceable></option> (UDP Ping)
           <indexterm><primary><option>-PU</option></primary></indexterm>
           <indexterm><primary>UDP ping</primary></indexterm>
         </term>
@@ -699,7 +699,7 @@ you would expect.</para>
 
       <varlistentry>
         <term>
-        <option>-PO [protolist]</option> (IP Protocol Ping)
+        <option>-PO <replaceable>protolist</replaceable></option> (IP Protocol Ping)
           <indexterm><primary><option>-PO</option></primary></indexterm>
           <indexterm><primary>IP protocol ping</primary></indexterm>
         </term>
@@ -862,7 +862,7 @@ even if this option is not specified.
 
       <varlistentry>
         <term>
-          <option>--dns-servers &lt;server1[,server2],...&gt;
+          <option>--dns-servers <replaceable>server1</replaceable><optional>,<replaceable>server2</replaceable><optional>,...</optional></optional>
           </option> (Servers to use for reverse DNS queries)
           <indexterm significance="preferred"><primary><option>--dns-servers</option></primary></indexterm>
         </term>
@@ -1376,8 +1376,7 @@ used.</para>
 
       <varlistentry>
         <term>
-        <option>-sI &lt;zombie
-        host[:probeport]&gt;</option> (idle scan)
+        <option>-sI <replaceable>zombie host</replaceable><optional>:<replaceable>probeport</replaceable></optional></option> (idle scan)
           <indexterm><primary><option>-sI</option></primary></indexterm>
           <indexterm><primary>idle scan</primary></indexterm>
         </term>
@@ -1479,7 +1478,7 @@ after retransmissions, the protocol is marked
 
       <varlistentry>
         <term>
-        <option>-b &lt;FTP relay host&gt;</option> (FTP bounce scan)
+        <option>-b <replaceable>FTP relay host</replaceable></option> (FTP bounce scan)
         <indexterm><primary><option>-b</option></primary></indexterm>
         <indexterm><primary>FTP bounce scan</primary></indexterm>
         </term>
@@ -1540,7 +1539,7 @@ way.</para>
     <variablelist>
       <varlistentry>
         <term>
-          <option>-p &lt;port ranges&gt;</option> (Only scan specified ports)
+          <option>-p <replaceable>port ranges</replaceable></option> (Only scan specified ports)
           <indexterm><primary><option>-p</option></primary></indexterm>
         </term>
         <listitem>
@@ -1749,7 +1748,7 @@ way.</para>
 
       <varlistentry>
         <term>
-          <option>--version-intensity &lt;intensity&gt;</option> (Set
+          <option>--version-intensity <replaceable>intensity</replaceable></option> (Set
           version scan intensity)
           <indexterm><primary><option>--version-intensity</option></primary></indexterm>
         </term>
@@ -2033,7 +2032,7 @@ way.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><option>--script &lt;script-categories|directory|filename|all&gt;</option><indexterm significance="preferred"><primary><option>--script</option></primary></indexterm></term>
+        <term><option>--script <replaceable>script-categories</replaceable>|<replaceable>directory</replaceable>|<replaceable>filename</replaceable>|all</option><indexterm significance="preferred"><primary><option>--script</option></primary></indexterm></term>
 
 <listitem>
 <para>Runs a script scan (like <option>-sC</option>) with the scripts you have chosen rather than the defaults.  Arguments can be script categories, single scripts or directories with scripts which are to be run against the target hosts instead of the default set. Nmap will try to interpret the arguments at first as categories and afterwards as files or directories.  Absolute paths are used as is, relative paths are searched in the following places until found:
@@ -2065,7 +2064,7 @@ categories.</para>
 </varlistentry>
       
 	  <varlistentry>
-        <term><option>--script-args &lt;name1=value1,name2={name3=value3},name4=value4&gt;</option>
+        <term><option>--script-args <replaceable>name1</replaceable>=<replaceable>value1</replaceable>,<replaceable>name2</replaceable>={<replaceable>name3</replaceable>=<replaceable>value3</replaceable>},<replaceable>name4</replaceable>=<replaceable>value4</replaceable></option>
         <indexterm significance="preferred"><primary><option>--script-args</option></primary></indexterm>
         <indexterm><primary>script arguments</primary><seealso><option>--script-args</option></seealso></indexterm></term>
 
@@ -2162,9 +2161,9 @@ or &lsquo;h&rsquo; to the value to specify seconds, minutes, or hours. So the
 
       <varlistentry>
         <term>
-        <option>--min-hostgroup &lt;numhosts&gt;</option>; 
+        <option>--min-hostgroup <replaceable>numhosts</replaceable></option>; 
         <option>--max-hostgroup
-        &lt;numhosts&gt;</option> (Adjust parallel scan group sizes)
+        <replaceable>numhosts</replaceable></option> (Adjust parallel scan group sizes)
         <indexterm><primary><option>--min-hostgroup</option></primary></indexterm>
         <indexterm><primary><option>--max-hostgroup</option></primary></indexterm>
         </term>
@@ -2211,9 +2210,9 @@ helpful.</para>
 
       <varlistentry>
         <term>
-        <option>--min-parallelism &lt;numprobes&gt;</option>;
+        <option>--min-parallelism <replaceable>numprobes</replaceable></option>;
         <option>--max-parallelism
-        &lt;numprobes&gt;</option> (Adjust probe parallelization)
+        <replaceable>numprobes</replaceable></option> (Adjust probe parallelization)
         <indexterm><primary><option>--min-parallelism</option></primary></indexterm>
         <indexterm><primary><option>--max-parallelism</option></primary></indexterm>
         </term>
@@ -2248,10 +2247,10 @@ enough by itself.</para>
 
       <varlistentry>
         <term>
-        <option>--min-rtt-timeout &lt;time&gt;</option>, 
-        <option>--max-rtt-timeout &lt;time&gt;</option>, 
+        <option>--min-rtt-timeout <replaceable>time</replaceable></option>, 
+        <option>--max-rtt-timeout <replaceable>time</replaceable></option>, 
         <option>--initial-rtt-timeout
-        &lt;time&gt;</option> (Adjust probe timeouts)
+        <replaceable>time</replaceable></option> (Adjust probe timeouts)
         <indexterm><primary><option>--min-rtt-timeout</option></primary></indexterm>
         <indexterm><primary><option>--max-rtt-timeout</option></primary></indexterm>
         <indexterm><primary><option>--initial-rtt-timeout</option></primary></indexterm>
@@ -2303,7 +2302,7 @@ unusual and should be reported as a bug to the
 
       <varlistentry>
         <term>
-          <option>--max-retries &lt;numtries&gt;</option> (Specify the
+          <option>--max-retries <replaceable>numtries</replaceable></option> (Specify the
           maximum number of port scan probe retransmissions)
          <indexterm><primary><option>--max-retries</option></primary></indexterm>
         </term>
@@ -2339,7 +2338,7 @@ about the target.</para>
 
       <varlistentry>
         <term>
-          <option>--host-timeout &lt;time&gt;</option> (Give
+          <option>--host-timeout <replaceable>time</replaceable></option> (Give
           up on slow target hosts)
           <indexterm><primary><option>--host-timeout</option></primary></indexterm>
         </term>
@@ -2366,9 +2365,9 @@ for that host.</para>
 
       <varlistentry>
         <term>
-        <option>--scan-delay &lt;time&gt;</option>;
+        <option>--scan-delay <replaceable>time</replaceable></option>;
         <option>--max-scan-delay
-        &lt;time&gt;</option> (Adjust delay between probes)
+        <replaceable>time</replaceable></option> (Adjust delay between probes)
         <indexterm><primary><option>--scan-delay</option></primary></indexterm>
         <indexterm><primary><option>--max-scan-delay</option></primary></indexterm>
         </term>
@@ -2402,7 +2401,7 @@ threshold based intrusion detection and prevention systems
 
       <varlistentry>
         <term>
-        <option>--min-rate &lt;number&gt;</option>
+        <option>--min-rate <replaceable>number</replaceable></option>
         (Specify a minimum scanning rate)
         <indexterm><primary><option>--min-rate</option></primary></indexterm>
         </term>
@@ -2484,7 +2483,7 @@ worth the extra time.</para>
       <varlistentry>
         <term>
           <option>-T
-          &lt;paranoid|sneaky|polite|normal|aggressive|insane&gt;</option>
+          paranoid|sneaky|polite|normal|aggressive|insane</option>
           (Set a timing template)
         <indexterm><primary><option>-T</option></primary></indexterm>
         <indexterm><primary>timing templates</primary><seealso><literal>paranoid</literal>, <literal>sneaky</literal>, <literal>polite</literal>, <literal>normal</literal>, <literal>aggressive</literal>, and <literal>insane</literal></seealso></indexterm>
@@ -2699,7 +2698,7 @@ lists the relevant options and describes what they do.</para>
 
       <varlistentry>
         <term>
-          <option>-D &lt;decoy1 [,decoy2][,ME],...&gt;</option>
+          <option>-D <replaceable>decoy1</replaceable><optional>,<replaceable>decoy2</replaceable></optional><optional>,ME</optional><optional>,...</optional></option>
           (Cloak a scan with decoys)
           <indexterm><primary><option>-D</option></primary></indexterm> 
           <indexterm><primary>decoys</primary></indexterm>
@@ -2758,7 +2757,7 @@ lists the relevant options and describes what they do.</para>
 
       <varlistentry>
         <term>
-          <option>-S &lt;IP_Address&gt;</option> (Spoof source address)
+          <option>-S <replaceable>IP_Address</replaceable></option> (Spoof source address)
           <indexterm><primary><option>-S</option></primary></indexterm>
           <indexterm><primary>spoofing source address</primary></indexterm>
         </term>
@@ -2785,7 +2784,7 @@ lists the relevant options and describes what they do.</para>
 
       <varlistentry>
         <term>
-          <option>-e &lt;interface&gt;</option> (Use specified interface)
+          <option>-e <replaceable>interface</replaceable></option> (Use specified interface)
           <indexterm><primary><option>-e</option></primary></indexterm>
           <indexterm><primary>interface</primary><seealso><option>-e</option></seealso></indexterm>
         </term>
@@ -2800,8 +2799,8 @@ lists the relevant options and describes what they do.</para>
 
       <varlistentry>
         <term>
-          <option>--source-port &lt;portnumber&gt;;</option>
-          <option>-g &lt;portnumber&gt;</option> (Spoof source port number)
+          <option>--source-port <replaceable>portnumber</replaceable>;</option>
+          <option>-g <replaceable>portnumber</replaceable></option> (Spoof source port number)
           <indexterm significance="preferred"><primary><option>--source-port</option></primary></indexterm>
           <indexterm significance="preferred"><primary><option>-g</option></primary></indexterm>
           <indexterm><primary>source port number</primary></indexterm>
@@ -2852,7 +2851,7 @@ support the option completely, as does UDP scan.</para>
 
       <varlistentry>
         <term>
-          <option>--data-length &lt;number&gt;</option> (Append random
+          <option>--data-length <replaceable>number</replaceable></option> (Append random
           data to sent packets)
           <indexterm><primary><option>--data-length</option></primary></indexterm>
         </term>
@@ -2871,8 +2870,8 @@ support the option completely, as does UDP scan.</para>
 
       <varlistentry>
       <term>
-      <option>--ip-options &lt;S|R [route]|L [route]|T|U ... &gt;;</option>
-      <option>--ip-options &lt;hex string&gt;</option>  (Send packets with specified ip options)
+      <option>--ip-options <replaceable>S|R [route]|L [route]|T|U ... </replaceable>;</option>
+      <option>--ip-options <replaceable>hex string</replaceable></option>  (Send packets with specified ip options)
       <indexterm><primary><option>--ip-options</option></primary></indexterm>
       <indexterm><primary>IP options</primary></indexterm>
       </term>
@@ -2923,7 +2922,7 @@ support the option completely, as does UDP scan.</para>
 
       <varlistentry>
         <term>
-          <option>--ttl &lt;value&gt;</option> (Set IP time-to-live field)
+          <option>--ttl <replaceable>value</replaceable></option> (Set IP time-to-live field)
           <indexterm><primary><option>--ttl</option></primary></indexterm>
           <indexterm><primary>time to live (TTL)</primary></indexterm>
         </term>
@@ -2961,8 +2960,8 @@ support the option completely, as does UDP scan.</para>
 
       <varlistentry>
         <term>
-          <option>--spoof-mac &lt;MAC address, prefix, or vendor
-          name&gt;</option> (Spoof MAC address)
+          <option>--spoof-mac <replaceable>MAC address, prefix, or vendor
+          name</replaceable></option> (Spoof MAC address)
         <indexterm significance="preferred"><primary><option>--spoof-mac</option></primary></indexterm>
         <indexterm><primary>spoofing MAC address</primary></indexterm>
         </term>
@@ -3114,7 +3113,7 @@ described below.</para>
 <variablelist><title>Nmap Output Formats</title>
       <varlistentry>
         <term>
-        <option>-oN &lt;filespec&gt;</option> (normal output)
+        <option>-oN <replaceable>filespec</replaceable></option> (normal output)
           <indexterm><primary><option>-oN</option></primary></indexterm>
           <indexterm><primary>normal output</primary></indexterm></term>
         <listitem>
@@ -3127,7 +3126,7 @@ described below.</para>
 
       <varlistentry>
         <term>
-        <option>-oX &lt;filespec&gt;</option> (XML output)
+        <option>-oX <replaceable>filespec</replaceable></option> (XML output)
           <indexterm><primary><option>-oX</option></primary></indexterm>
           <indexterm><primary>XML output</primary></indexterm></term>
         <listitem>
@@ -3174,7 +3173,7 @@ described below.</para>
 
       <varlistentry>
         <term>
-        <option>-oS &lt;filespec&gt;</option> (ScRipT KIdd|3 oUTpuT)
+        <option>-oS <replaceable>filespec</replaceable></option> (ScRipT KIdd|3 oUTpuT)
         <indexterm><primary><option>-oS</option></primary></indexterm>
         <indexterm><primary sortas="script kiddie output">scR1pT kIddI3 output</primary></indexterm></term>
         <listitem>
@@ -3190,7 +3189,7 @@ described below.</para>
 
       <varlistentry>
         <term>
-        <option>-oG &lt;filespec&gt;</option> (grepable output)
+        <option>-oG <replaceable>filespec</replaceable></option> (grepable output)
         <indexterm><primary><option>-oG</option></primary></indexterm>
         <indexterm><primary>grepable output</primary></indexterm></term>
         <listitem>
@@ -3241,7 +3240,7 @@ format is available
 
      <varlistentry>
         <term>
-        <option>-oA &lt;basename&gt;</option> (Output to all formats)
+        <option>-oA <replaceable>basename</replaceable></option> (Output to all formats)
            <indexterm significance="preferred"><primary><option>-oA</option></primary></indexterm></term>
        <listitem><para>
 
@@ -3436,7 +3435,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
 
       <varlistentry>
         <term>
-          <option>--resume &lt;filename&gt;</option> (Resume aborted scan)
+          <option>--resume <replaceable>filename</replaceable></option> (Resume aborted scan)
           <indexterm><primary><option>--resume</option></primary></indexterm>
           <indexterm><primary>resuming scans</primary></indexterm>
         </term>
@@ -3470,7 +3469,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
 
       <varlistentry>
         <term>
-          <option>--stylesheet &lt;path or URL&gt;</option> (Set XSL stylesheet to transform XML output)
+          <option>--stylesheet <replaceable>path or URL</replaceable></option> (Set XSL stylesheet to transform XML output)
           <indexterm significance="preferred"><primary><option>--stylesheet</option></primary></indexterm>
         </term>
         <listitem>
@@ -3608,7 +3607,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
 
       <varlistentry>
         <term>
-          <option>--datadir &lt;directoryname&gt;</option> (Specify custom Nmap data file location)
+          <option>--datadir <replaceable>directoryname</replaceable></option> (Specify custom Nmap data file location)
           <indexterm significance="preferred"><primary><option>--datadir</option></primary></indexterm>
         </term>
         <listitem>
@@ -3639,7 +3638,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
 
       <varlistentry>
         <term>
-          <option>--servicedb &lt;services file&gt;</option> (Specify custom services file)
+          <option>--servicedb <replaceable>services file</replaceable></option> (Specify custom services file)
           <indexterm significance="preferred"><primary><option>--servicedb</option></primary></indexterm>
         </term>
         <listitem>
@@ -3655,7 +3654,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
 
       <varlistentry>
         <term>
-          <option>--versiondb &lt;service probes file&gt;</option> (Specify custom service probes file)
+          <option>--versiondb <replaceable>service probes file</replaceable></option> (Specify custom service probes file)
           <indexterm significance="preferred"><primary><option>--versiondb</option></primary></indexterm>
         </term>
         <listitem>
