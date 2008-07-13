@@ -3970,7 +3970,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
     version available from <ulink
     url="http://nmap.org"/>.  If the problem persists,
     do some research to determine whether it has already been
-    discovered and addressed.  Try Googling the error message or
+    discovered and addressed.  Try searching for the error message on our search page at <xref linkend="http://insecure.org/search.html"/> or at Google.  Also try
     browsing the <citetitle>nmap-dev</citetitle> archives at <ulink
     url="http://seclists.org/" />.<indexterm><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
     Read this full manual page as
@@ -3980,7 +3980,9 @@ overwhelming requests.  Specify <option>--open</option> to only see
     Nmap you are running and what operating system version it is
     running on.  Problem reports and Nmap usage questions sent to
     nmap-dev@insecure.org are far more likely to be answered than
-    those sent to Fyodor directly.</para>
+    those sent to Fyodor directly.  If you subscribe to the nmap-dev
+    list before posting, your message will bypass moderation and get
+    through more quickly.  Subscribe at <xref linkend="http://cgi.insecure.org/mailman/listinfo/nmap-dev"/>.</para>
 
     <para>Code patches to fix bugs are even better than bug reports.
     Basic instructions for creating patch files with your changes are
