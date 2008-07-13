@@ -780,7 +780,7 @@ Traceroutes are performed post-scan using information from the scan results to d
 </para>
 
 <para>
-Traceroute works by sending packets with a low TTL (time-to-live) in an attempt to elicit ICMP Time Exceeded messages from intermediate hops between the scanner and the target host. Standard traceroute implementation start with a TTL of 1 and increment the TTL until the destination host is reached. Nmap's traceroute starts with a high TTL and then decrements the TTL until it reaches 0. Doing it backwards lets nmap employ clever caching algorithms to speed up traces over multiple hosts. On average nmap sends 5-10 fewer packets per host, depending on network conditions. If a single subnet is being scanned (i.e. 192.168.0.0/24) nmap may only have to send a single packet to most hosts.
+Traceroute works by sending packets with a low TTL (time-to-live) in an attempt to elicit ICMP Time Exceeded messages from intermediate hops between the scanner and the target host. Standard traceroute implementations start with a TTL of 1 and increment the TTL until the destination host is reached. Nmap's traceroute starts with a high TTL and then decrements the TTL until it reaches 0. Doing it backwards lets nmap employ clever caching algorithms to speed up traces over multiple hosts. On average nmap sends 5-10 fewer packets per host, depending on network conditions. If a single subnet is being scanned (i.e. 192.168.0.0/24) nmap may only have to send a single packet to most hosts.
 </para>
 </listitem>
 </varlistentry>
