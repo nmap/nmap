@@ -22,8 +22,8 @@
           <para>This is Nmap's bread and butter. Examples include
            looking up whois data based on the target domain,
            querying ARIN, RIPE, or APNIC for the target IP to determine ownership,
-           performing identd lookups on open ports, SNMP queries, and
-           listing available NFS/SMB/RPC shares and services.</para>
+           performing identd lookups on open ports, snmp queries, and
+           listing available nfs/smb/RPC shares and services.</para>
         </listitem>
 
       </varlistentry>
@@ -36,7 +36,7 @@
        is able to recognize thousands of different services through
        its probe and regular expression based matching system, but it
        cannot recognize everything.  For example, identifying the Skype v2 service requires two
-       independent probes.  Nmap could also recognize more SNMP services
+       independent probes.  Nmap could also recognize more snmp services
        if it tried a few hundred different community names by brute
        force.  Neither of these tasks are well suited to traditional
        Nmap version detection, but both are easily accomplished with
@@ -143,7 +143,7 @@ The reference manual is also
       and produce results below the port table.  <xref
       linkend="nse-ex1"/> shows a typical script scan.  Examples of
       service scripts producing output are <literal>Stealth SSH
-      version</literal>, which tricks some SSH servers into divulging
+      version</literal>, which tricks some ssh servers into divulging
       version information without logging the attempt as they normally
       would, <literal>Service Owner</literal>, which connects to open
       ports, then performs a reverse-identd query to determine what
@@ -280,7 +280,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
           </term>
           <listitem>
             <para>These scripts try to actively learn more about the
-            network by querying public registries, SNMP-enabled
+            network by querying public registries, snmp-enabled
             devices, directory services, and the like.</para>
           </listitem>
         </varlistentry>
