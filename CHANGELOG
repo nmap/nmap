@@ -60,6 +60,8 @@ o Nmap's Nsock-utilizing subsystems (DNS, NSE, version detection) have been
 
 o Added --ip-options support for the connect() scan (-sT). [Kris]
 
+o Changed the order preference of timing ping propes. [Michael]
+
 Nmap 4.68 [2008-6-28]
 
 o Doug integrated all of your version detection submissions and
