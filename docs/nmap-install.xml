@@ -175,7 +175,7 @@ tampered with, the results will look like <xref
 linkend="ex-gpg-verify-nmap-release-bad"/>.</para>
 
 <example id="ex-gpg-verify-nmap-release-good">
-<title>Verifying PGP Key Fingerprints (Successful)</title>
+<title>Verifying PGP key fingerprints (Successful)</title>
 <screen>
 flog&gt; gpg --verify nmap-4.68.tar.bz2.gpg.txt  nmap-4.68.tar.bz2
 gpg: Signature made Sun 29 Jun 2008 02:40:34 AM PDT using DSA key ID 6B9355D0

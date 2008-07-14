@@ -155,7 +155,7 @@ The reference manual is also
 
     </para>
     <example id="nse-ex1">
-      <title>Typical NSE Output</title>
+      <title>Typical NSE output</title>
 <indexterm><primary><option>-sC</option></primary><secondary>example of</secondary></indexterm>
 <screen>
 $ nmap -sC localhost -p 22,23,80,113
@@ -865,15 +865,15 @@ that.</para>
 	  point to write a script could be a hex dump, which serves as a preamble
 	  to every sent packet. Although it is possible work with the 
 	  functionality Lua provides, it's not very convenient. Therefore the 
-	  BinLib has been added to NSE, based on 
+	  Binlib has been added to NSE, based on 
 	  <ulink url="http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/">lpack</ulink> 
 	  by Luiz Henrique de Figueiredo.<indexterm><primary>Henrique de Figueiredo, Luiz</primary></indexterm>
 
-	  The BinLib functions take a format string to encode and decode binary
+	  The Binlib functions take a format string to encode and decode binary
 	  data. The operators of the format string are shown in <xref linkend="scripting-tbl-binlib"/>.</para>
 
 	  <table id="scripting-tbl-binlib">
-	   <title>BinLib format string operators</title>
+	   <title>Binlib format string operators</title>
 	     <tgroup cols="2">
 		<colspec colwidth="2*" />
 		<colspec colwidth="5*" />
@@ -3031,7 +3031,7 @@ error_message describes the occurred error.</para>
         </varlistentry>
       </variablelist>
       <example id="nse-mutex-handling">
-        <title>Mutex Manipulation</title>
+        <title>Mutex manipulation</title>
         <programlisting>
 id = "My Script's Unique ID";
 
