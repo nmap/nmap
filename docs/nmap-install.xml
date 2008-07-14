@@ -102,19 +102,10 @@ url="http://nmap.org/download.html" />.</para>
 <indexterm><primary>verifying the integrity of downloads</primary></indexterm>
 <para>It often pays to be paranoid about the
 integrity of files downloaded from the Internet.  Popular packages
-such as 
-<web>
-Sendmail (<ulink
+such as Sendmail (<ulink
 url="http://cert.org/advisories/CA-2002-28.html">example</ulink>),
 OpenSSH (<ulink
 url="http://cert.org/advisories/CA-2002-24.html">example</ulink>),
-</web>
-<print>
-Sendmail (see <ulink
-url="http://www.cert.org/advisories/CA-2002-28.html"/>),
-OpenSSH (see <ulink
-url="http://www.cert.org/advisories/CA-2002-24.html"/>),
-</print>
 tcpdump, Libpcap, BitchX, Fragrouter, and many others have been
 infected with malicious trojans.  Software distributions sites at the
 Free Software Foundation, Debian, and SourceForge have also been
@@ -299,7 +290,7 @@ url="http://cgi.insecure.org/mailman/listinfo/nmap-svn"/>.</para>
 <para>
 <indexterm><primary>source code</primary><secondary>advantages of</secondary></indexterm>
 While binary packages
-discussed in later sections are available for most platforms, compilation and
+(discussed in later sections) are available for most platforms, compilation and
 installation from source code is the traditional and most powerful way
 to install Nmap.  This ensures that the
 latest version is available and allows Nmap
@@ -388,14 +379,14 @@ in step four as described in the next section.</para>
 </orderedlist>
 
 <para>As you can see above, a simple source compilation and install
-consists of little more than <command>./configure;make;make
-install</command>.  However, there are a number of options available to <application>configure</application> that affect the way Nmap is built.</para>
+consists of little more than running <command>./configure;make;make
+install</command> as root.  However, there are a number of options available to <application>configure</application> that affect the way Nmap is built.</para>
 
 <sect2 id="inst-configure"><title>Configure Directives</title>
 
 <indexterm><primary>configure directives</primary></indexterm>
 
-<para>Most of the Unix build options are controlled by the <literal>configure</literal> script, as used in step number four above.  There are dozens of command-line parameters and environmental variables which affect the way Nmap is built.  Run <command>./configure --help</command> for a huge list with brief descriptions.  These are not applicable to building Nmap on Windows.  Here are the options which are specific to Nmap or particularly important:</para>
+<para>Most of the Unix build options are controlled by the <literal>configure</literal> script, as used in step number four above.  There are dozens of command-line parameters and environmental variables which affect the way Nmap is built.  Run <command>./configure --help</command> for a huge list with brief descriptions.  These are not applicable to building Nmap on Windows.  Here are the options which are either specific to Nmap or particularly important:</para>
 
 <variablelist>
 <varlistentry><term><option>--prefix=<replaceable>directoryname</replaceable></option></term>
@@ -1145,7 +1136,7 @@ Or obtain it from the OpenBSD distribution CD-ROM.</para></listitem>
 </orderedlist>
 
 <orderedlist><title>Installation using the source ports tree</title>
-<listitem><para>If you do not already have a copy of the ports tree, obtain it via CVS using instructions at <ulink url="http://www.openbsd.org/faq/faq8.html#CVS" />.</para></listitem>
+<listitem><para>If you do not already have a copy of the ports tree, obtain it via CVS using instructions at <ulink url="http://openbsd.org/faq/faq15.html" />.</para></listitem>
 <listitem><para>As root, execute the following command (replace <filename>/usr/ports</filename> with your local ports directory if it differs):</para>
 <para><command>cd /usr/ports/net/nmap &amp;&amp; make install clean</command></para></listitem>
 </orderedlist>
@@ -1211,8 +1202,8 @@ systems, but I presume that must be part of the fun for Amiga
 fanatics.</para>
 
 <para>Nmap supports many proprietary Unix flavors such as HP-UX and
-SGI IRIX.  The Nmap project mostly depends on the user community to
-maintain adequate support for these systems.  If you have trouble, try
+SGI IRIX.  The Nmap project depends on the user community to
+help maintain adequate support for these systems.  If you have trouble, try
 sending a report with full details to the <citetitle>nmap-dev</citetitle> mailing list<indexterm><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>, as described in <xref linkend="man-bugs"/>.  Also let us know if
 you develop a patch which
 improves support on your platform so we can incorporate it into Nmap.</para>  
