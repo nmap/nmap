@@ -7,7 +7,7 @@
 <para>Nmap can often be installed or upgraded with a single command,
 so don't let the length of this chapter scare you.  Most readers will
 use the table of contents to skip
-directly sections that concern them.  This chapter describes how to install
+directly to sections that concern them.  This chapter describes how to install
 Nmap on many platforms, including both source
 code compilation and binary installation methods.  Graphical and
 command-line versions of Nmap are described and contrasted.
@@ -111,8 +111,8 @@ infected with malicious trojans.  Software distributions sites at the
 Free Software Foundation, Debian, and SourceForge have also been
 successfully compromised.  This has never happened to Nmap, but one
 should always be careful.  To verify the authenticity of an Nmap
-releases, consult the PGP detached signatures or cryptographic hashes
-(including SHA1 and MD5) posted for each release in the Nmap signatures
+release, consult the PGP detached signatures or cryptographic hashes
+(including SHA1 and MD5) posted for the release in the Nmap signatures
 directory at <ulink
 url="http://nmap.org/dist/sigs/?C=M&amp;O=D"/>.</para>
 
