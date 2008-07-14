@@ -628,7 +628,7 @@ that.</para>
 	which run only once against a target IP and <emphasis>port
 	rules</emphasis> which run against individual ports on a
 	target.  A rule is a Lua function which takes a host and a
-	port table as arguments and must returns a boolean value. If the rule
+	port table as arguments and must return a Boolean value. If the rule
 	evaluates to <literal>true</literal>, the script action 
 	is performed. Otherwise the action is skipped. Port rules are
 	only matched against TCP or UDP ports in the
@@ -1289,7 +1289,7 @@ if(s) code_to_be_done_on_match end
 		  Returns a list containing only those elements for which the predicate
 		  returns true. The predicate has to be a function, which takes an 
 		  element of the list as argument and the result of which
-		  is interpreted as boolean value. If it returns true (or rather 
+		  is interpreted as a Boolean value. If it returns true (or rather 
 		  anything besides <literal>false</literal> and <literal>nil</literal>)
 		  the argument is appended to the return value of <literal>filter</literal>. 
 		  For example: <literal>listop.filter(isnumber,{1,2,3,"foo",4,"bar"})</literal> returns
@@ -1644,7 +1644,7 @@ if(s) code_to_be_done_on_match end
 		  <para>
 			This function simply connects to the specified port number on
 			the specified host and returns any data received.
-			<literal>bool</literal> is a boolean value indicating success.
+			<literal>bool</literal> is a Boolean value indicating success.
 			If <literal>bool</literal> is true, then the second returned
 			value is the response from the target host.  If <literal>bool</literal>
 			is false, an error message is returned as the second value instead
@@ -1661,7 +1661,7 @@ if(s) code_to_be_done_on_match end
 			This function connects to the specified port number on the
 			specified host, sends <literal>data</literal>, then waits for
 			and returns the response, if any.  <literal>bool</literal> is a
-			boolean value indicating success.  If <literal>bool</literal> is
+			Boolean value indicating success.  If <literal>bool</literal> is
 			true, then the second returned value is the response from the
 			target host.  If <literal>bool</literal> is false, an error message
 			is returned as the second value instead of a response.
@@ -1750,7 +1750,7 @@ if(s) code_to_be_done_on_match end
 	      <listitem>
 		  <para>
 			This function reads and parses Nmap's <filename>nmap-protocols</filename>
-			file.  <literal>bool</literal> is a boolean value indicating success.
+			file.  <literal>bool</literal> is a Boolean value indicating success.
 			If <literal>bool</literal> is true, then the second returned
 			value is a table with protocol numbers indexing the protocol
 			names.  If <literal>bool</literal> is false, an error message
@@ -1765,7 +1765,7 @@ if(s) code_to_be_done_on_match end
 	      <listitem>
 		  <para>
 			This function reads and parses Nmap's <filename>nmap-rpc</filename>
-			file.  <literal>bool</literal> is a boolean value indicating success.
+			file.  <literal>bool</literal> is a Boolean value indicating success.
 			If <literal>bool</literal> is true, then the second returned
 			value is a table with RPC numbers indexing the RPC names.  If
 			<literal>bool</literal> is false, an error message is returned
@@ -1780,7 +1780,7 @@ if(s) code_to_be_done_on_match end
 	      <listitem>
 		  <para>
 			This function reads and parses Nmap's <filename>nmap-services</filename>
-			file.  <literal>bool</literal> is a boolean value indicating success.
+			file.  <literal>bool</literal> is a Boolean value indicating success.
 			If <literal>bool</literal> is true, then the second returned
 			value is a table containing two other tables:
 			<literal>tcp{}</literal> and <literal>udp{}</literal>.
@@ -1991,7 +1991,7 @@ if(s) code_to_be_done_on_match end
 	    <term><option>host.directly_connected</option>
 	      </term>
 	    <listitem>
-	      <para> A boolean value indicating whether or not the target host is
+	      <para> A Boolean value indicating whether or not the target host is
 		  directly connected (i.e. on the same network segment).
 		  </para>
 	    </listitem>
@@ -2699,7 +2699,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 		  to <literal>receive_buf</literal>.</para>
 
 		  <para>The second argument
-		  to <literal>receive_buf</literal> is a boolean value
+		  to <literal>receive_buf</literal> is a Boolean value
 		  which indicates whether the delimiting pattern
 		  should be returned along with the received data or
 		  discarded.  The delimiter is included if <literal>true</literal> is passed as the <literal>keeppattern</literal> argument.</para>
@@ -2863,7 +2863,7 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	      <para>
 		  Receives a captured packet. If successful, the return values are:</para>
 <itemizedlist>
-<listitem><para><literal>status</literal>&mdash;a boolean with the value <literal>true</literal>.</para></listitem>
+<listitem><para><literal>status</literal>&mdash;a Boolean with the value <literal>true</literal>.</para></listitem>
 <listitem><para><literal>packet_len</literal>&mdash;the length of the captured packet (note, that you could have received less data if the snaplen parameter was smaller than the packet length)</para></listitem>
 <listitem><para><literal>l2_data</literal>&mdash;data from the second OSI layer (e.g. ethernet headers)</para></listitem>
 <listitem><para><literal>l3_data</literal>&mdash;data from the third OSI layer (e.g. IPv4 headers).</para></listitem>
@@ -3103,7 +3103,7 @@ try(socket:send(result))
 	  <para>
 	  Writing a function which is treated properly by the
 	  try/catch mechanism is straightforward. The function should
-	  return multiple values.  The first value should be a boolean
+	  return multiple values.  The first value should be a Boolean
 	  which is <literal>true</literal> upon successful completion of the function and
 	  <literal>false</literal> otherwise. If the function completed successfully the try
 	  construct consumes the indicator value and returns the

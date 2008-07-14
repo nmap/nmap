@@ -250,7 +250,7 @@ SVN is most useful for Nmap developers and users who need a fix which
 hasn't yet been formally released.</para>
 
 <para>
-SVN write access is strictly limited to a top Nmap
+SVN write access is strictly limited to top Nmap
 developers, but everyone has read access to the repository.  Check out
 the latest code using the command <command>svn co --username guest
 --password "" svn://svn.insecure.org/nmap/</command>.  Then you can later
