@@ -342,6 +342,14 @@ static int l_nsock_connect(lua_State *L) {
 	}
 
 	udata->nsiod = nsi_new(nsp, NULL);
+	if (o.spoofsource) {
+		struct sockaddr_storage ss;
+		size_t sslen;
+		o.SourceSockAddr(&ss, &sslen);
+		nsi_set_localaddr(udata->nsiod, &ss, sslen);
+	}
+	if (o.ipoptionslen)
+		nsi_set_ipoptions(udata->nsiod, o.ipoptions, o.ipoptionslen);
 	nsock_descriptors_used++;
 
 	switch (how[0]) {

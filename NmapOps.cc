@@ -272,6 +272,8 @@ void NmapOps::Initialize() {
   scripttrace = 0;
   scriptupdatedb = 0;
 #endif
+  memset(&sourcesock, 0, sizeof(sourcesock));
+  sourcesocklen = 0;
 }
 
 bool NmapOps::TCPScan() {
@@ -378,9 +380,6 @@ void NmapOps::ValidateOptions() {
     if (osscan) {
       fatal("TCP/IP fingerprinting (for OS scan) requires %s.", privreq);
     }
-
-    if (ipoptionslen)
-      fatal("Sorry, using ip options requires %s.", privreq);
   }
   
   

@@ -1766,6 +1766,12 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
 	if ((svc->niod = nsi_new(nsp, svc)) == NULL) {
 	  fatal("Failed to allocate Nsock I/O descriptor in %s()", __func__);
 	}
+	if (o.spoofsource) {
+	  o.SourceSockAddr(&ss, &ss_len);
+	  nsi_set_localaddr(svc->niod, &ss, ss_len);
+	}
+	if (o.ipoptionslen)
+	  nsi_set_ipoptions(svc->niod, o.ipoptions, o.ipoptionslen);
 	svc->target->TargetSockAddr(&ss, &ss_len);
 	if (svc->tunnel == SERVICE_TUNNEL_NONE) {
 	  nsock_connect_tcp(nsp, svc->niod, servicescan_connect_handler, 
@@ -1964,6 +1970,12 @@ static int launchSomeServiceProbes(nsock_pool nsp, ServiceGroup *SG) {
     if (o.debugging > 1) {
       log_write(LOG_PLAIN, "Starting probes against new service: %s:%hi (%s)\n", svc->target->targetipstr(), svc->portno, proto2ascii(svc->proto));
     }
+    if (o.spoofsource) {
+      o.SourceSockAddr(&ss, &ss_len);
+      nsi_set_localaddr(svc->niod, &ss, ss_len);
+    }
+    if (o.ipoptionslen)
+      nsi_set_ipoptions(svc->niod, o.ipoptions, o.ipoptionslen);
     svc->target->TargetSockAddr(&ss, &ss_len);
     if (svc->proto == IPPROTO_TCP)
       nsock_connect_tcp(nsp, svc->niod, servicescan_connect_handler, 

@@ -857,6 +857,14 @@ static void connect_dns_servers() {
     s = *serverI;
 
     s->nsd = nsi_new(dnspool, NULL);
+    if (o.spoofsource) {
+      struct sockaddr_storage ss;
+      size_t sslen;
+      o.SourceSockAddr(&ss, &sslen);
+      nsi_set_localaddr(s->nsd, &ss, sslen);
+    }
+    if (o.ipoptionslen)
+      nsi_set_ipoptions(s->nsd, o.ipoptions, o.ipoptionslen);
     s->reqs_on_wire = 0;
     s->capacity = CAPACITY_MIN;
     s->write_busy = 0;

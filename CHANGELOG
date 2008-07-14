@@ -52,6 +52,12 @@ o [NSE] script_scan_result structure has been changed to a class,
 o [NSE] The runlevel structure has been placed in the thread record structure
   so we no longer need to manage the runlevel explicitly on the heap. [Patrick]
 
+o Nsock now supports binding to a local address and setting IPv4 options
+  with nsi_set_localaddr() and nsi_set_ipoptions(), respectively. [Kris]
+
+o Nmap's Nsock-utilizing subsystems (DNS, NSE, version detection) have been
+  updated to support the -S and --ip-options flags. [Kris]
+
 Nmap 4.68 [2008-6-28]
 
 o Doug integrated all of your version detection submissions and
