@@ -682,31 +682,46 @@ on Unix.  Here are some known limitations:
 
 <indexterm><primary>Windows</primary><secondary>limitations of</secondary></indexterm>
 <itemizedlist>
-<listitem><para>You cannot generally scan your own machine from itself (using a loopback<indexterm><primary>loopback interface</primary></indexterm> IP such as 127.0.0.1 or any of its registered IP addresses).  This is a Windows limitation that we haven't yet worked around.  If you really want to do this, use a TCP connect scan without pinging (<option>-sT -PN</option>) as that uses the high level socket API rather than sending raw packets.</para></listitem>
-<listitem><para>Nmap only supports ethernet interfaces (including many 802.11 wireless cards) unless you use the <option>-sT -PN</option> options.  RAS connections (such as PPP dialups) are not supported.  This support was dropped when Microsoft removed raw TCP/IP socket support in Windows XP SP2.  Now Nmap must send lower-level ethernet frames instead.</para></listitem>
+
+<listitem><para>You cannot generally scan your own machine from itself
+(using a loopback<indexterm><primary>loopback
+interface</primary></indexterm> IP such as 127.0.0.1 or any of its
+registered IP addresses).  This is a Windows limitation that we
+haven't yet worked around.  If you really want to do this, use a TCP
+connect scan without pinging (<option>-sT -PN</option>) as that uses
+the high level socket API rather than sending raw
+packets.</para></listitem>
+
+<listitem><para>Nmap only supports ethernet interfaces (including most
+802.11 wireless cards and many VPN clients) for raw packet scans.
+Unless you use the <option>-sT -PN</option> options, RAS connections
+(such as PPP dialups) and certain VPN clients are not supported.  This
+support was dropped when Microsoft removed raw TCP/IP socket support
+in Windows XP SP2.  Now Nmap must send lower-level ethernet frames
+instead.</para></listitem>
+
 </itemizedlist>
 
 <indexterm><primary>Windows</primary><secondary>performance of</secondary></indexterm>
 <para>Scans speeds on Windows are generally comparable to those on
 Unix, though the latter often has a slight performance edge.  One
 exception to this is connect scan (<option>-sT</option>), which is
-often much slower than on Unix because of deficiencies in the Windows
+often much slower on Windows because of deficiencies in the Windows
 networking API.  This is a shame, since that is the one TCP scan that
 works against localhost and over all networking types (not just
 ethernet, like the raw packet scans).  Connect scan performance can be
 improved substantially by applying the Registry changes in the
-<filename>nmap_performance.reg</filename> file included with Nmap.  It
+<filename>nmap_performance.reg</filename> file included with Nmap.  By default these changes are applied for you by the Nmap executable installer.  This registry file
 is in the <filename>nmap-<replaceable>version</replaceable></filename>
 directory of the Windows binary zip file, and
 <filename>nmap-<replaceable>version</replaceable>/mswin32</filename>
 in the source tarball (where <replaceable>version</replaceable> is the
 version number of the specific release).  These changes increase
 the number of ephemeral ports reserved for user applications (such as
-Nmap) and decreases the amount of time before a closed connection can
-be reused.  Apply the by double-clicking on
-<filename>nmap_performance.reg</filename>, or run the command
-<command>regedt32 nmap_performance.reg</command>.  Or you can make the
-changes by hand.  Simply add these three Registry DWORD values to
+Nmap) and reduce the time delay before a closed connection can
+be reused.  Most people simply check the box to apply these changes in the executable Nmap installer, but you can also apply them by double-clicking on
+<filename>nmap_performance.reg</filename>, or by running the command
+<command>regedt32 nmap_performance.reg</command>.  To make the changes by hand, add these three Registry DWORD values to
 the <literal>CurrentControlSet\Services\Tcpip\Parameters</literal> entry under <literal>HKEY_LOCAL_MACHINE\SYSTEM</literal>:</para>
 
 <variablelist>
@@ -732,18 +747,18 @@ download page at <ulink url="http://nmap.org/download.html" />.</para>
 <sect2 id="inst-win-exe"><title>Windows Self-installer</title>
 <indexterm><primary>Windows</primary><secondary>self-installer</secondary></indexterm>
 
-<para>Every major &ldquo;stable&rdquo; Nmap release comes with Windows
+<para>Every Nmap release includes a Windows
 self-installer named
 <filename>nmap-<replaceable>version</replaceable>-setup.exe</filename>
 (where <replaceable>version</replaceable> is the version number of the
 specific release).  Most Nmap users choose this option since it is so
-easy.  Simply run the installer file and let it walk you through
+easy.  Another advantage of the self-installer is that it provides the option to install the Zenmap GUI.  Simply run the installer file and let it walk you through
 panels for choosing an install path and installing WinPcap.  The
 installer was created with the open-source <ulink
 url="http://nsis.sourceforge.net/Main_Page">Nullsoft Scriptable
 Install System</ulink>.  After it completes, read <xref
 linkend="inst-win-exec"/> for instructions on executing Nmap on the
-command-line.</para>
+command-line or through Zenmap.</para>
 
 </sect2>
 
@@ -782,14 +797,21 @@ alternatives are <ulink url="http://www.winzip.com">Winzip</ulink> and
 changes discussed previously.</para></listitem>
 
 <listitem><para>Nmap requires the free WinPcap packet capture library.
-Obtain and install the latest version from <ulink
-url="http://www.winpcap.org" />.  They distribute an executable
-installer which makes this easy.  You must have version 4 or
-later.</para></listitem>
+We build our own WinPcap installer which is available in the zip file
+as <filename>winpcap-nmap-<replaceable>version</replaceable>.exe</filename>,
+where <replaceable>version</replaceable> is the Nmap version rather
+than the WinPcap version.  Alternatively, you can obtain and install
+the latest version from <ulink url="http://www.winpcap.org" />.  You
+must install version 4 or later.</para></listitem>
+
+<listitem><para>Due to the way Nmap is compiled, it requires the
+Microsoft Visual C++ 2008 Redistributable Package of runtime
+components. Many systems already have this installed from othher
+packages, but you should run <filename>vcredist_x86.exe</filename>
+from the zip file just in case you need it.</para></listitem>
 
 <listitem><para>Instructions for executing your compiled Nmap are
-given in <xref linkend="inst-win-exec"/>. Take special note of the
-WinPcap requirement.</para></listitem>
+given in <xref linkend="inst-win-exec"/>.</para></listitem>
 
 </orderedlist>
 </sect3>
@@ -802,24 +824,24 @@ WinPcap requirement.</para></listitem>
 
 <para>Most Windows users prefer to use the Nmap binary self-installer,
 but compilation from source code is an option, particularly if you plan to help with Nmap development.  Compilation requires
-Microsoft Visual C++ 2008, which is part of their commercial Visual Studio suite.  Any of the VS editions should work.</para>
-
-<para>Microsoft also distributes a free application named <ulink
-url="http://www.microsoft.com/express/vc/">Visual C++ 2008 Express</ulink> which also works for Nmap compilation.</para>
+Microsoft Visual C++ 2008, which is part of their commercial Visual Studio suite.  Any of the Visual Studio editions should wor, including the free <ulink
+url="http://www.microsoft.com/express/vc/">Visual C++ 2008 Express</ulink>.</para>
 
 <orderedlist id="nmap-install-windows-compile-from-source"><title>Compiling Nmap on Windows from Source</title>
 
 <listitem><para>Download the latest Nmap source distribution from <ulink url="http://nmap.org/download.html" />.  It has the name nmap-<replaceable>version</replaceable>.tar.bz2 or nmap-<replaceable>version</replaceable>.tgz.  Those are the same tar file compressed using gzip or bzip2, respectively.  The bzip2-compressed version is smaller.</para></listitem>
 
-<listitem><para>Uncompress the source code file you just downloaded.  Recent releases of the free <ulink url="http://www.cygwin.com/">Cygwin distribution</ulink><indexterm><primary>Cygwin</primary></indexterm> can handle both the .tar.bz2 and .tgz.  Use the command <command>tar xvjf nmap-version.tar.bz2</command> or <command>tar xvzf nmap-version.tgz</command>, respectively.  Alternatively, the common <application>Winzip</application> application can decompress the .tgz version.</para></listitem>
+<listitem><para>Uncompress the source code file you just downloaded.  Recent releases of the free <ulink url="http://www.cygwin.com/">Cygwin distribution</ulink><indexterm><primary>Cygwin</primary></indexterm> can handle both the <filename>.tar.bz2</filename> and <literal>.tgz</literal> formats.  Use the command <command>tar xvjf nmap-version.tar.bz2</command> or <command>tar xvzf nmap-version.tgz</command>, respectively.  Alternatively, the common <application>Winzip</application> application can decompress the .tgz version.</para></listitem>
 
 <listitem><para>Open Visual Studio and the Nmap solution file ( <filename>nmap-<replaceable>version</replaceable>/mswin32/nmap.sln</filename>).</para></listitem>
 <listitem><para>Choose <guimenuitem>Build Solution</guimenuitem> from the <guimenu>Build Menu</guimenu>.  Nmap should begin compiling, and end with the line <quote><literal>-- Done --</literal></quote> saying that all projects built successfully and there were 0 failures.</para></listitem>
+
 <listitem><para>The executable and data files can be found in <filename>nmap-<replaceable>version</replaceable>/mswin32/Release/</filename>.  You can copy them to a preferred directory as long as they are all kept together.</para></listitem>
 
+<listitem><para>Ensure that you have WinPcap installed.  You can obtain it by installing our binary self-installer or executing <filename>winpcap-nmap-<replaceable>version</replaceable>.exe</filename> from our zip package.  Alternatively, you can obtain the official installer at <ulink url="http://www.winpcap.org"/>.</para></listitem>
+
 <listitem><para>Instructions for executing your compiled Nmap are
-given in <xref linkend="inst-win-exec"/>. Take special note of the
-WinPcap<indexterm><primary>WinPcap</primary></indexterm> requirement.</para></listitem>
+given in the next section.</para></listitem>
 
 </orderedlist>
 
@@ -835,11 +857,12 @@ Cygwin.</para>
 <indexterm><primary>Windows</primary><secondary>running Nmap on</secondary></indexterm>
 
 <para>Nmap releases now include the
-<application>Zenmap</application> graphical user interface for Nmap.  If
-you used the Nmap installer and left the Zenmap field checked, there
-should be a new Zenmap entry on your desktop and Start Menu.  Click this
-to get started.  While many users love Zenmap, others prefer the
-traditional command-line approach to executing Nmap.  Here are
+<application>Zenmap</application> graphical user interface for Nmap.
+If you used the Nmap installer and left the Zenmap field checked,
+there should be a new Zenmap entry on your desktop and Start Menu.
+Click this to get started.  Zenmap is fully documented in
+<xref linkend="zenmap"/>.  While many users love Zenmap, others prefer
+the traditional command-line approach to executing Nmap.  Here are
 detailed instructions for users who are unfamiliar with command-line
 interfaces:</para>
 
@@ -864,10 +887,10 @@ cd "\Program Files\Nmap"
 <mediaobject>
   <imageobject>
 <web>
-    <imagedata fileref="images/nmap-349-windows-demo.png" format="PNG" contentwidth="669" contentdepth="314" />
+    <imagedata fileref="images/nmap-windows-demo-669x326.png" format="PNG" contentwidth="669" contentdepth="326" />
 </web>
 <print>
-    <imagedata fileref="images/nmap-349-windows-demo.png" format="PNG" scale="50" />
+    <imagedata fileref="images/nmap-windows-demo-669x326.png" format="PNG" scale="50" />
 </print>
   </imageobject>
 </mediaobject>
