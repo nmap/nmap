@@ -141,7 +141,7 @@ The reference manual is also
       next to that port in the Nmap output port table.  Host scripts,
       on the other hand, run no more than once against each target IP
       and produce results below the port table.  <xref
-      linkend="nse-ex1"/> shows a typical script scan.  Examples of
+      linkend="nse-ex1" xrefstyle="select: label nopage"/> shows a typical script scan.  Examples of
       service scripts producing output are <literal>Stealth SSH
       version</literal>, which tricks some SSH servers into divulging
       version information without logging the attempt as they normally
@@ -870,7 +870,7 @@ that.</para>
 	  by Luiz Henrique de Figueiredo.<indexterm><primary>Henrique de Figueiredo, Luiz</primary></indexterm>
 
 	  The Binlib functions take a format string to encode and decode binary
-	  data. The operators of the format string are shown in <xref linkend="scripting-tbl-binlib"/>.</para>
+	  data. The operators of the format string are shown in <xref linkend="scripting-tbl-binlib" xrefstyle="select: label nopage"/>.</para>
 
 	  <table id="scripting-tbl-binlib">
 	   <title>Binlib format string operators</title>
@@ -3065,7 +3065,7 @@ end
 	  required clean up operations.</para>
 
       <para>
-	  <xref linkend="nse-exception-handling"/> shows cleanup
+	  <xref linkend="nse-exception-handling" xrefstyle="select: label nopage"/> shows cleanup
 	  exception handling at work.  A new function named
 	  <literal>catch</literal> is defined to simply close the
 	  newly created socket in case of an error.  It is then used

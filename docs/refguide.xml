@@ -86,7 +86,7 @@
     operating system guesses, device types, and MAC addresses.</para>
 
     <para>A typical Nmap scan is shown in <xref
-    linkend="man-ex-repscan" />.  The only Nmap arguments used in
+    linkend="man-ex-repscan" xrefstyle="select: label nopage" />.  The only Nmap arguments used in
     this example are <option>-A</option>, to enable OS and version
     detection, script scanning, and traceroute; <option>-T4</option> for
     faster execution; and then the two target hostnames.</para>

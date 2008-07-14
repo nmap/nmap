@@ -23,7 +23,7 @@ installed by default.  On Unix systems, open a terminal window and try executing
 <command>nmap <option>--version</option></command>.
 If Nmap exists and is in your
 <envar>PATH</envar>,<indexterm><primary><envar>PATH</envar> environment variable</primary></indexterm>
-you should see output similar to <xref linkend="ex-checking-for-nmap" />.</para>
+you should see output similar to that in <xref linkend="ex-checking-for-nmap" xrefstyle="select: label nopage" />.</para>
 
 <indexterm><primary>version number of Nmap</primary><see><option>--version</option></see></indexterm>
 
@@ -134,7 +134,7 @@ included in that file too.  The keys can be imported with the command
 this once, then you can verify all future Nmap releases from that
 machine.  Before trusting the
 keys, verify that the fingerprints match the values shown in <xref
-linkend="ex-check-gpg-keys"/>.</para>
+linkend="ex-check-gpg-keys" xrefstyle="select: label nopage"/>.</para>
 
 <example id="ex-check-gpg-keys">
 <title>Verifying the Nmap and Fyodor PGP Key Fingerprints</title>
@@ -161,9 +161,9 @@ This is the detached signature file.</para>
 <para>With the proper PGP key in your keyring and the detached
 signature file downloaded, verifying an Nmap release takes a single
 GPG command, as shown in <xref
-linkend="ex-gpg-verify-nmap-release-good"/>.  If the file has been
+linkend="ex-gpg-verify-nmap-release-good" xrefstyle="select: label nopage"/>.  If the file has been
 tampered with, the results will look like <xref
-linkend="ex-gpg-verify-nmap-release-bad"/>.</para>
+linkend="ex-gpg-verify-nmap-release-bad" xrefstyle="select: label nopage"/>.</para>
 
 <example id="ex-gpg-verify-nmap-release-good">
 <title>Verifying PGP key fingerprints (Successful)</title>
@@ -194,7 +194,7 @@ might have been accidentally corrupted.  For every Nmap package download
 file, there is a corresponding file in the sigs directory with
 <literal>.digest.txt</literal> appended to the name
 (e.g. <filename>nmap-4.68.tar.bz2.digest.txt</filename>).  An example
-is shown in <xref linkend="ex-digest-file" />.  This is the detached
+is shown in <xref linkend="ex-digest-file" xrefstyle="select: label nopage" />.  This is the detached
 signature file. The hashes from the digest file can be verified using common tools such as
 <application>sha1sum</application>, <application>md5sum</application>,
 or <application>gpg</application>, as shown in <xref
@@ -322,7 +322,7 @@ in the decompression command.</para></listitem>
 
 <listitem><para>Configure the build system: <command>./configure</command></para>
 
-<para>If the configuration succeeds, an ASCII art dragon appears to congratulate you on successful configuration and warn you to be careful, as shown in <xref linkend="ex-configure-success"/>.</para>
+<para>If the configuration succeeds, an ASCII art dragon appears to congratulate you on successful configuration and warn you to be careful, as shown in <xref linkend="ex-configure-success" xrefstyle="select: label nopage"/>.</para>
 
 <example id="ex-configure-success">
 <title>Successful configuration screen</title>
@@ -520,7 +520,7 @@ the RPMs don't support OpenSSL for version detection and Nmap Scripting Engine p
 <indexterm><primary>RPM</primary><secondary>installing from</secondary></indexterm>
 Installing via <application>RPM</application> is quite easy&mdash;it
 even downloads the package for you when given the proper URLs.  The following example downloads and installs Nmap 4.68, including the frontend.  Of course you should use the latest version at the download site above instead.  Any existing RPM-installed versions are
-upgraded. <xref linkend="ex-nmap-install-from-rpms" /> demonstrates this installation process.</para>
+upgraded. <xref linkend="ex-nmap-install-from-rpms" xrefstyle="select: label nopage" /> demonstrates this installation process.</para>
 
 <example id="ex-nmap-install-from-rpms"><title>Installing Nmap from binary RPMs</title>
 <screen>
@@ -535,7 +535,7 @@ Preparing...                ########################################### [100%]
 </screen>
 </example>
 
-<para>As the filenames above imply, these binary RPMs were created for normal PCs (x86 architecture).<indexterm><primary>x86 architecture</primary></indexterm>  I also distribute x86_64<indexterm><primary>x86_64 architecture</primary></indexterm> binaries for 64-bit Linux users.  These binaries won't work for the relatively few Linux users on other platforms such as SPARC, Alpha, or PowerPC.  They also may refuse to install if your library versions are sufficiently different from what the RPMs were initially built on.  One option in these cases would be to find binary RPMs prepared by your Linux vendor for your specific distribution.  The original install CDs or DVD are a good place to start.  Unfortunately, those may not be current or available.  Another option is to install Nmap from source code as described previously, though you lose the binary package maintenance consistency benefits.  A third option is to build and install your own binary RPMs from the source RPMs distributed from the download page above.  <xref linkend="ex-nmap-install-from-srpms" /> demonstrates this technique with Nmap 4.68.</para>
+<para>As the filenames above imply, these binary RPMs were created for normal PCs (x86 architecture).<indexterm><primary>x86 architecture</primary></indexterm>  I also distribute x86_64<indexterm><primary>x86_64 architecture</primary></indexterm> binaries for 64-bit Linux users.  These binaries won't work for the relatively few Linux users on other platforms such as SPARC, Alpha, or PowerPC.  They also may refuse to install if your library versions are sufficiently different from what the RPMs were initially built on.  One option in these cases would be to find binary RPMs prepared by your Linux vendor for your specific distribution.  The original install CDs or DVD are a good place to start.  Unfortunately, those may not be current or available.  Another option is to install Nmap from source code as described previously, though you lose the binary package maintenance consistency benefits.  A third option is to build and install your own binary RPMs from the source RPMs distributed from the download page above.  <xref linkend="ex-nmap-install-from-srpms" xrefstyle="select: label nopage" /> demonstrates this technique with Nmap 4.68.</para>
 
 <example id="ex-nmap-install-from-srpms"><title>Building and installing Nmap from source RPMs</title>
 <screen>
@@ -589,7 +589,7 @@ if you would like the GUI too, though some distributions don't yet package Zenma
 repository on the Internet, finding the appropriate package for
 your architecture, and then installing it along with any necessary
 dependencies.  This is shown (edited for brevity) in <xref
-linkend="ex-nmap-install-from-yum" />.  You can later perform
+linkend="ex-nmap-install-from-yum" xrefstyle="select: label nopage" />.  You can later perform
 <command>yum update</command> to install available updates to Nmap and other
 packages in the repository.</para>
 
@@ -870,7 +870,7 @@ c:
 cd "\Program Files\Nmap"
 </programlisting>
 </listitem>
-<listitem><para>Execute <command>nmap.exe</command>.  <xref linkend="fig-windows-cmdshell-exec" /> is a screen shot showing a simple example.</para>
+<listitem><para>Execute <command>nmap.exe</command>.  <xref linkend="fig-windows-cmdshell-exec" xrefstyle="select: label nopage" /> is a screen shot showing a simple example.</para>
 </listitem>
 </orderedlist>
 
@@ -1039,7 +1039,7 @@ approach will continue to work.</para>
 Mac OS X, including GTK+ and PyGTK. These libraries have many dependencies
 of their own. A convenient way to install all of them is to use a
 third-party packaging system as described in
-<xref linkend="inst-macosx-third-party"/>. Once the dependencies are
+<xref linkend="inst-macosx-third-party" xrefstyle="select: label nopage"/>. Once the dependencies are
 installed, follow the instructions in <xref linkend="inst-source"/> to
 install Zenmap as usual.</para>
 </sect3>
