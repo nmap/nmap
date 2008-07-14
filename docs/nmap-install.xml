@@ -939,7 +939,7 @@ command such as <command>nmap scanme.nmap.org</command> from any directory.</par
 learn that
 Steven Christensen<indexterm><primary>Christensen, Steven</primary></indexterm>
 does an excellent job of maintaining
-Nmap packages over at <ulink url="http://www.sunfreeware.com" />.  Instructions are
+Nmap packages at <ulink url="http://www.sunfreeware.com" /> for all modern Solaris versions and architectures.  Instructions are
 on his site, and are generally very simple: download the
 appropriate Nmap package for your version
 of Solaris, decompress it, and then run <command>pkgadd -d <replaceable>packagename</replaceable></command>.
@@ -958,25 +958,24 @@ you have more flexibility in the build process.
 <para>Thanks to several people graciously donating shell accounts on
 their Mac OS X boxes, Nmap usually compiles on that platform without
 problems. Because not everyone has the development tools necessary to
-compile from source, there is an executable installer as well.
-Additionally Nmap is available through some of the systems that package
-Unix software for Mac OS X.</para>
+compile from source, there is an executable installer as well.  Nmap
+is also available through systems such as MacPorts and Fink which
+package Unix software for Mac OS X.</para>
 
 <sect2 id="inst-macosx-installer">
 <title>Executable Installer</title>
 <indexterm><primary>Mac OS X</primary><secondary>executable installer</secondary></indexterm>
 
 <para>The easiest way to install Nmap and Zenmap on Mac OS X is to use
-the installer. In the
+our installer. The
 <ulink url="http://nmap.org/download.html#macosx">Mac OS X section of
-the Nmap download page</ulink> there is a file called
+the Nmap download page</ulink> provides a file named
 <filename>nmap-<replaceable>version</replaceable>.dmg</filename>, where
 <replaceable>version</replaceable> is the version number of the most
 recent release. The
 <filename>.dmg</filename><indexterm><primary sortas="dmg"><filename>.dmg</filename> (Mac OS X disk image)</primary></indexterm><indexterm><primary>disk image (Mac OS X)</primary></indexterm>
 file is known as a
-<quote>disk image</quote>. This is the process for installing from the
-disk image.</para>
+<quote>disk image</quote>. Installation instructions follow:</para>
 
 <orderedlist>
 <listitem><para>Download the file
@@ -984,11 +983,11 @@ disk image.</para>
 Double-click the icon to open it. (Depending on how you downloaded the
 file, it may be opened automatically.)</para></listitem>
 <listitem><para>The contents of the disk image will be displayed. One of
-the files will be
+the files will be a Mac meta-package file named
 <filename>nmap-<replaceable>version</replaceable>.mpkg</filename>.
 Double-click it to start the installer.</para></listitem>
 <listitem><para>Follow the instructions in the
-installer. You will be asked for your password.</para></listitem>
+installer. You will be asked for your password since Nmap installs in a system directory.</para></listitem>
 <listitem><para>Once the installer is finished, eject the disk image by
 control-clicking on its icon and selecting
 <guimenuitem>Eject</guimenuitem>. The disk image may now be placed in
@@ -996,10 +995,10 @@ the trash.</para></listitem>
 </orderedlist>
 
 <para>See the instructions in <xref linkend="inst-macosx-exec"/> for
-help on running Nmap and Zenmap once they have been installed.</para>
+help on running Nmap and Zenmap after they are installed.</para>
 
 <para>The programs installed by the installer are universal binaries
-that will run on Mac OS X 10.4 or later. Users of earlier versions will
+that will run on Mac OS X 10.4 (Tiger) or later. Users of earlier versions will
 have to compile from source or use a third-party package.</para>
 </sect2>
 
@@ -1016,7 +1015,7 @@ on other platforms once a proper build environment is in place.</para>
 <para>Compiling Nmap on Mac OS X requires
 <ulink url="http://developer.apple.com/tools/xcode/">Xcode</ulink>,<indexterm><primary>Xcode</primary></indexterm>
 Apple's developer tools that include GCC and the rest of the usual build
-system. Xcode is not installed by default but it is available as an
+system. Xcode is not installed by default, but is available as an
 optional install on the Mac OS X installation discs. If you do not have
 the installation discs or if you want a newer version, you can download
 Xcode free of charge by following these steps.</para>
@@ -1039,7 +1038,7 @@ log in with your account credentials.</para></listitem>
 <para>These exact steps may change, but it is hoped that this general
 approach will continue to work.</para>
 
-<para>Once you have installed Xcode, you can follow the compilation instructions found in <xref linkend="inst-source" />.  Note that on some older versions of Mac OS X, you may have to replace the command <command>./configure</command> with <command>./configure CPP=/usr/bin/cpp</command>.</para>
+<para>Once you have installed Xcode, follow the compilation instructions found in <xref linkend="inst-source" />.  Note that on some older versions of Mac OS X, you may have to replace the command <command>./configure</command> with <command>./configure CPP=/usr/bin/cpp</command>.</para>
 </sect3>
 
 <sect3>
@@ -1047,7 +1046,7 @@ approach will continue to work.</para>
 
 <indexterm><primary>Zenmap</primary><secondary>dependencies of</secondary></indexterm>
 <para>Zenmap depends on some external libraries that do not come with
-Mac OS X, such as GTK+ and PyGTK. These libraries have many dependencies
+Mac OS X, including GTK+ and PyGTK. These libraries have many dependencies
 of their own. A convenient way to install all of them is to use a
 third-party packaging system as described in
 <xref linkend="inst-macosx-third-party"/>. Once the dependencies are
@@ -1060,22 +1059,22 @@ install Zenmap as usual.</para>
 <indexterm><primary>Mac OS X</primary><secondary>installing from third-party packages</secondary></indexterm>
 <title>Third-party Packages</title>
 
-<para>A further option for installing Nmap is to use one of the systems
-that packages Unix software for Mac OS X. The two discussed here are
+<para>Another option for installing Nmap is to use a system
+which packages Unix software for Mac OS X. The two discussed here are
 <ulink url="http://www.finkproject.org">Fink</ulink> and
 <ulink url="http://www.macports.org">MacPorts</ulink>. See the
 respective projects' web sites for installation instructions.</para>
 
 <indexterm><primary>Fink</primary></indexterm>
-<para>To install using Fink, use the command <command>fink install
+<para>To install using Fink, run the command <command>fink install
 nmap</command>. Nmap will be installed as
 <filename>/sw/bin/nmap</filename>. To uninstall use the command
 <command>fink remove nmap</command>.</para>
 
 <indexterm><primary>MacPorts</primary></indexterm>
-<para>To install using MacPorts, use the command <command>sudo port
+<para>To install using MacPorts, run <command>sudo port
 install nmap</command>. Nmap will be installed as
-<filename>/opt/local/bin/nmap</filename>. To uninstall use the command
+<filename>/opt/local/bin/nmap</filename>. To uninstall, run
 <command>sudo port uninstall nmap</command>.</para>
 </sect2>
 
@@ -1084,9 +1083,9 @@ install nmap</command>. Nmap will be installed as
 <title>Executing Nmap on Mac OS X</title>
 
 <para>The terminal emulator in Mac OS X is called
-<application>Terminal</application>, and it is located in the directory
-<filename>/Applications/Utilities</filename>. Open it and you will see a
-terminal window. This is where you will type your commands.</para>
+<application>Terminal</application>, and is located in the directory
+<filename>/Applications/Utilities</filename>. Open it and a
+terminal window appears. This is where you will type your commands.</para>
 
 <para>
 By default the root user is disabled on Mac OS X. To run a scan with
@@ -1106,8 +1105,8 @@ type your password. Users with
 administrator privileges<indexterm><primary>privileged users</primary></indexterm>
 may enter their
 password to allow Zenmap to run as the root user and run more advanced
-scans. To run Zenmap in unprivileged mode, just select the
-<guibutton>Cancel</guibutton> button on this dialog.</para>
+scans. To run Zenmap in unprivileged mode, select the
+<guibutton>Cancel</guibutton> button on this authentication dialog.</para>
 </sect2>
 
 <indexterm class="endofrange" startref="inst-macosx-indexterm"/>
@@ -1138,7 +1137,7 @@ FAQ contains detailed instructions for each method.  Here is a summary:</para>
 
 <orderedlist><title>Installation using binary packages</title>
 <listitem><para>Choose a mirror from <ulink
-url="http://www.openbsd.org/ftp.html" />.  FTP in and grab the Nmap
+url="http://www.openbsd.org/ftp.html" />, then FTP in and grab the Nmap
 package from
 <filename>/pub/OpenBSD/<replaceable>version</replaceable>/packages/<replaceable>platform</replaceable>/nmap-<replaceable>version</replaceable>.tgz</filename>.
 Or obtain it from the OpenBSD distribution CD-ROM.</para></listitem>
@@ -1167,7 +1166,7 @@ processes.  A brief summary of the process follows.</para>
 with the <option>zenmap</option> argument if you want the X-Window
 front-end.  If you wish to obtain the package manually instead,
 retrieve it from <ulink
-url="http://www.freshports.org/security/nmap" /> and <ulink url="http://www.freshports.org/security/zenmap"/> or
+url="http://freshports.org/security/nmap" /> and <ulink url="http://freshports.org/security/zenmap"/> or
 the CDROM and run <command>pkg_add <replaceable>packagename.tgz</replaceable></command>.
 </para>
 </sect3>
@@ -1188,7 +1187,7 @@ chapter referenced above.</para></listitem>
 
 <sect2 id="inst-netbsd"><title>NetBSD Binary Package Instructions</title>
 <indexterm><primary>NetBSD, installing on</primary></indexterm>
-<para>NetBSD has packaged Nmap for an enormous number of platforms, from the normal i386 to PlayStation 2, PowerPC, VAX, SPARC, MIPS, Amiga, ARM, and several platforms that I have never even heard of!  Unfortunately they are not very up-to-date.  A list of NetBSD Nmap packages is available from <ulink url="ftp://ftp.netbsd.org/pub/NetBSD/packages/pkgsrc/net/nmap/README.html" /> and a description of using their package system to install applications is available at <ulink url="http://www.netbsd.org/Documentation/pkgsrc/using.html#id2956484" />.</para>
+<para>NetBSD has packaged Nmap for an enormous number of platforms, from the normal i386 to PlayStation 2, PowerPC, VAX, SPARC, MIPS, Amiga, ARM, and several platforms that I have never even heard of!  Unfortunately they are not very up-to-date.  A list of NetBSD Nmap packages is available from <ulink url="ftp://ftp.netbsd.org/pub/NetBSD/packages/pkgsrc/net/nmap/README.html" /> and a description of using their package system to install applications is available at <ulink url="http://netbsd.org/Documentation/pkgsrc/using.html" />.</para>
 </sect2>
 </sect1>
 
@@ -1200,10 +1199,10 @@ chapter referenced above.</para></listitem>
 
 
 <para>One of the wonders of Open Source development is that resources
-are often biased towards what people find exciting rather than having
+are often directed towards what people find exciting rather than having
 an exclusive focus on profits as most corporations do.  It is along
 those lines that the Amiga port came about.
-Diego Casorran<indexterm><primary>Casorran, Diego</primary></indexterm>performed
+Diego Casorran<indexterm><primary>Casorran, Diego</primary></indexterm> performed
 most of the work and sent in a clean patch which was integrated into
 the main Nmap distribution.  In general, AmigaOS users should be able
 to simply follow the source compilation instructions in <xref
@@ -1214,10 +1213,9 @@ fanatics.</para>
 <para>Nmap supports many proprietary Unix flavors such as HP-UX and
 SGI IRIX.  The Nmap project mostly depends on the user community to
 maintain adequate support for these systems.  If you have trouble, try
-sending a report with full details to the <citetitle>nmap-dev</citetitle> mailing list
-(<email>nmap-dev@insecure.org</email>).<indexterm><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
-If you develop a patch which
-improves support on your platform, please email it to <citetitle>nmap-dev</citetitle> or to me at <email>fyodor@insecure.org</email>.</para>  
+sending a report with full details to the <citetitle>nmap-dev</citetitle> mailing list<indexterm><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>, as described in <xref linkend="man-bugs"/>.  Also let us know if
+you develop a patch which
+improves support on your platform so we can incorporate it into Nmap.</para>  
 </sect1>
 
 <sect1 id="inst-removing-nmap"><title>Removing Nmap</title>
@@ -1243,6 +1241,8 @@ zenmap</command> as root.  Analogous options are offered by
 most other package managers&mdash;consult their documentation for further
 information.</para>
 
+<para>If you installed Nmap from the Windows, simply open the <application>Control Panel</application>, select <quote>Add or Remove Programs</quote> and select the <quote>Remove</quote> button for Nmap.  You can also remove WinPcap unless you need it for other applications such as Wireshark.</para>
+
 <para>If you installed Nmap from source
 code, removal is slightly more difficult.  If you still have the build
 directory available (where you initially ran <command>make
@@ -1251,7 +1251,7 @@ running <command>make uninstall</command>.  If you no longer have that
 build directory, type <command>nmap -V</command> to
 obtain the Nmap version number.  Then
 download that source tarball for that version of
-Nmap from <ulink url="http://nmap.org/dist/" />.
+Nmap from <ulink url="http://nmap.org/dist/" /> or <ulink url="http://nmap.org/dist-old/" />.
 Uncompress the tarball and change into the newly created directory
 (<filename>nmap-<replaceable>version</replaceable></filename>).  Run
 <command>./configure</command>, including any install-path options that you specified
