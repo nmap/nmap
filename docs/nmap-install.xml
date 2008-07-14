@@ -888,7 +888,7 @@ cd "\Program Files\Nmap"
 </figure>
 
 <para>If you execute Nmap frequently, you can add the Nmap directory
-(<filename>c:\Program Files\Nmap</filename> in this case) to
+(<filename>c:\Program Files\Nmap</filename> by default) to
 your command execution path.  The exact place to set this varies by
 Windows platform.  On my Windows XP box, I do the following:</para>
 
@@ -909,8 +909,7 @@ Choose <literal>Path</literal> from the
 <literal>System variables</literal> section, then hit
 edit.</para></listitem>
 
-<listitem><para>Add a semi-colon and then your Nmap directory (such as
-<filename>c:\Program Files\Nmap</filename>) to the end of the value.</para></listitem>
+<listitem><para>Add a semi-colon and then your Nmap directory (<filename>c:\Program Files\Nmap</filename> by default) to the end of the value.</para></listitem>
 
 <listitem><para>Open a new DOS window and you should be able to execute a
 command such as <command>nmap scanme.nmap.org</command> from any directory.</para></listitem>
