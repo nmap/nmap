@@ -3810,7 +3810,7 @@ The mainloop function will work on each runlevel grouping of threads in order.
       <title>Adding C Modules to Nselib</title>
       <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>C modules</secondary></indexterm>
       <para>
-	  This section tries to give a short walk-through to adding
+	  This section gives a short walk-through for adding
 	  nselib modules written in C (or C++) to Nmap's build system, since
 	  this has shown to be sometimes tedious. Writing C modules is
 	  described at length in 
@@ -3828,9 +3828,7 @@ The mainloop function will work on each runlevel grouping of threads in order.
 	  </para>
 	  <para>
 	  The Unix build system uses <literal>libtool</literal> for
-	  compilation in a platform independent way.
-
- As long as the new module
+	  compilation in a platform independent way.  As long as the new module
 	  does not depend on foreign libraries, you should only need to add
 	  <literal><replaceable>modulename</replaceable>.so</literal> to the
 	  <literal>all</literal> and <literal>clean</literal> targets in 
