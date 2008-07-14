@@ -1,6 +1,6 @@
 <!--
     nmap.dtd
-    This is the DTD for nmap's XML output (-oX) format.
+    This is the DTD for Nmap's XML output (-oX) format.
     $Id$
 
     Originally written by:
@@ -12,7 +12,7 @@
     <!DOCTYPE nmaprun SYSTEM "nmap.dtd">
     to the nmap output immediately below the prologue (the first line).  This
     should allow you to run a validating parser against the output (so long
-    as the dtd is in your parser's dtd search path).
+    as the DTD is in your parser's DTD search path).
 
     Bugs:
     Most of the elements are "locked" into the specific order that nmap
