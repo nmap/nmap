@@ -721,7 +721,7 @@ the <literal>CurrentControlSet\Services\Tcpip\Parameters</literal> entry under <
   <varlistentry><term>TCPTimedWaitDelay</term>
      <listitem><para>Set the minimum value (0x0000001e). See <ulink url="http://support.microsoft.com/kb/Q149532">MS KB Q149532</ulink>.</para></listitem></varlistentry>
   <varlistentry><term>StrictTimeWaitSeqCheck</term>
-     <listitem><para>Set to 1 so TcpTimedWaitDelay is checked.</para></listitem></varlistentry>
+     <listitem><para>Set to 1 so TCPTimedWaitDelay is checked.</para></listitem></varlistentry>
 </variablelist>
 
 <note><para>I would like to thank Ryan Permeh<indexterm><primary>Permeh, Ryan</primary></indexterm> of eEye, Andy Lutomirski<indexterm><primary>Lutomirski, Andy</primary></indexterm>, and
@@ -781,7 +781,7 @@ include zip extraction&mdash;just right-click on the file in
 decompression program, there is one (called unzip) in Cygwin described
 above, or you can download the open-source and free <ulink
 url="http://www.7-zip.org">7-zip utility</ulink>.  Commercial
-alternatives are <ulink url="http://www.winzip.com">Winzip</ulink> and
+alternatives are <ulink url="http://www.winzip.com">WinZip</ulink> and
 <ulink url="http://www.pkware.com">PKZIP</ulink>.</para></listitem>
 
 <listitem><para>For improved performance, apply the Nmap Registry
@@ -822,7 +822,7 @@ url="http://www.microsoft.com/express/vc/">Visual C++ 2008 Express</ulink>.</par
 
 <listitem><para>Download the latest Nmap source distribution from <ulink url="http://nmap.org/download.html" />.  It has the name nmap-<replaceable>version</replaceable>.tar.bz2 or nmap-<replaceable>version</replaceable>.tgz.  Those are the same tar file compressed using gzip or bzip2, respectively.  The bzip2-compressed version is smaller.</para></listitem>
 
-<listitem><para>Uncompress the source code file you just downloaded.  Recent releases of the free <ulink url="http://www.cygwin.com/">Cygwin distribution</ulink><indexterm><primary>Cygwin</primary></indexterm> can handle both the <filename>.tar.bz2</filename> and <literal>.tgz</literal> formats.  Use the command <command>tar xvjf nmap-version.tar.bz2</command> or <command>tar xvzf nmap-version.tgz</command>, respectively.  Alternatively, the common <application>Winzip</application> application can decompress the .tgz version.</para></listitem>
+<listitem><para>Uncompress the source code file you just downloaded.  Recent releases of the free <ulink url="http://www.cygwin.com/">Cygwin distribution</ulink><indexterm><primary>Cygwin</primary></indexterm> can handle both the <filename>.tar.bz2</filename> and <literal>.tgz</literal> formats.  Use the command <command>tar xvjf nmap-version.tar.bz2</command> or <command>tar xvzf nmap-version.tgz</command>, respectively.  Alternatively, the common <application>WinZip</application> application can decompress the .tgz version.</para></listitem>
 
 <listitem><para>Open Visual Studio and the Nmap solution file ( <filename>nmap-<replaceable>version</replaceable>/mswin32/nmap.sln</filename>).</para></listitem>
 <listitem><para>Choose <guimenuitem>Build Solution</guimenuitem> from the <guimenu>Build Menu</guimenu>.  Nmap should begin compiling, and end with the line <quote><literal>-- Done --</literal></quote> saying that all projects built successfully and there were 0 failures.</para></listitem>
