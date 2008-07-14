@@ -663,6 +663,8 @@ pcap_if_t *getpcapinterfaces();
 struct sys_route *getsysroutes(int *howmany);
 void sethdrinclude(int sd);
 
+void set_ipoptions(int sd, void *opts, size_t optslen);
+
 void set_ttl(int sd, int ttl);
 
 /* Fill buf (up to buflen -- truncate if necessary but always

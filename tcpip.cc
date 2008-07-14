@@ -161,6 +161,16 @@ setsockopt(sd, IPPROTO_IP, IP_HDRINCL, (const char *) &one, sizeof(one));
 #endif
 }
 
+void set_ipoptions(int sd, void *opts, size_t optslen)
+{
+#ifdef IP_OPTIONS
+	if (sd == -1)
+		return;
+
+	setsockopt(sd, IPPROTO_IP, IP_OPTIONS, opts, optslen);
+#endif
+}
+
 void set_ttl(int sd, int ttl)
 {
 #ifdef IP_TTL

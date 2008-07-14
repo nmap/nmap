@@ -58,6 +58,8 @@ o Nsock now supports binding to a local address and setting IPv4 options
 o Nmap's Nsock-utilizing subsystems (DNS, NSE, version detection) have been
   updated to support the -S and --ip-options flags. [Kris]
 
+o Added --ip-options support for the connect() scan (-sT). [Kris]
+
 Nmap 4.68 [2008-6-28]
 
 o Doug integrated all of your version detection submissions and
