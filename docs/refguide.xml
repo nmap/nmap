@@ -97,7 +97,7 @@
 # nmap -A -T4 scanme.nmap.org playground
 
 Starting Nmap ( http://nmap.org )
-Interesting ports on scanme.nmap.org (205.217.153.62):
+Interesting ports on scanme.nmap.org (64.13.134.52):
 (The 1663 ports scanned but not shown below are in state: filtered)
 PORT    STATE  SERVICE VERSION
 22/tcp  open   ssh     OpenSSH 3.9p1 (protocol 1.99)
@@ -181,9 +181,9 @@ hosts between 192.168.10.0 (binary: <literal>11000000 10101000
 00001010 00000000</literal>) and 192.168.10.255 (binary: <literal>11000000 10101000
 00001010 11111111</literal>), inclusive.
 192.168.10.40/24 would do exactly the same thing.  Given that the host
-scanme.nmap.org is at the IP address 205.217.153.62, the specification
+scanme.nmap.org is at the IP address 64.13.134.52, the specification
 scanme.nmap.org/16 would scan the 65,536 IP addresses between
-205.217.0.0 and 205.217.255.255.  The smallest allowed value is /0,
+64.13.0.0 and 64.13.255.255.  The smallest allowed value is /0,
 which scans the whole Internet.  The largest value is /32, which scans
 just the named host or IP address because all address bits are fixed.</para>
 
