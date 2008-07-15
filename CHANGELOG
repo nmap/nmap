@@ -62,9 +62,6 @@ o Added --ip-options support for the connect() scan (-sT). [Kris]
 
 o Changed the order preference of timing ping propes. [Michael]
 
-o Enabled nmap to switch between multiple types of timing pings during port
-  scanning. [Michael]
-
 Nmap 4.68 [2008-6-28]
 
 o Doug integrated all of your version detection submissions and
