@@ -2202,14 +2202,6 @@ void HostScanStats::getTiming(struct ultra_timing_vals *tmng) {
       UDP, IP protocol, or other ICMP
       TCP connect
       Anything else
-
-  The order used to be
-      ARP
-      Raw TCP (not SYN to an open port)
-      UDP, IP protocol, or ICMP
-      Raw TCP (SYN to an open port)
-      TCP connect
-      Anything else
    Raw TCP SYN to an open port is given a low preference because of the risk of
    SYN flooding (this is the only case where the port state is considered). The
    probe passed to this function is assumed to have received a positive
