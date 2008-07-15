@@ -142,12 +142,12 @@ The reference manual is also
       on the other hand, run no more than once against each target IP
       and produce results below the port table.  <xref
       linkend="nse-ex1" xrefstyle="select: label nopage"/> shows a typical script scan.  Examples of
-      service scripts producing output are <literal>Stealth SSH
+      service scripts producing output are: <literal>Stealth SSH
       version</literal>, which tricks some SSH servers into divulging
       version information without logging the attempt as they normally
-      would, <literal>Service Owner</literal>, which connects to open
+      would; <literal>Service Owner</literal>, which connects to open
       ports, then performs a reverse-identd query to determine what
-      username it is running under, and <literal>HTML Title</literal>,
+      username each is running under; and <literal>HTML Title</literal>,
       which simply grabs the title of the root path of any web servers
       found.  A sample host script is <literal>RIPE Query</literal>,
       which looks up and reports target IP ownership
@@ -236,8 +236,9 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
             <option>intrusive</option>
           </term>
           <listitem>
+
             <para>These are scripts that cannot be classified in the
-            "safe" category because the risks are too high that they
+            <literal>safe</literal> category because the risks are too high that they
             will crash the target system, use up significant resources
             on the target host (such as bandwidth or CPU time), or 
             otherwise be perceived as malicious by the target's
@@ -251,7 +252,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
             <option>malware</option>
           </term>
           <listitem>
-            <para>These scripts test if the target platform is
+            <para>These scripts test whether the target platform is
             infected by malware or backdoors.</para>
           </listitem>
         </varlistentry>
@@ -263,13 +264,15 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
             <option>version</option>
           </term>
           <listitem>
-            <para>This category cannot be selected explicitly. It is only 
-		    run if <option>-sV</option>
-	        was supplied. The scripts in this category are an
-	        extension to the version detection service. Their output
-	        cannot be distinguished from version detection output
-	        and they do not produce script scanning
-	        output. </para>
+
+            <para>The scripts in this category are an extension to the
+            version detection option and cannot be selected
+            explicitly. They are selected to run only if version
+            detection (<option>-sV</option>) was requested.  Their
+            output cannot be distinguished from version detection
+            output and they do not produce service or host script
+            results.</para>
+
           </listitem>
         </varlistentry>
 
@@ -292,7 +295,7 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
           </term>
           <listitem>
             <para>These scripts check for specific known vulnerabilities and
-            generally only report results if it is found.</para>
+            generally only report results if they are found.</para>
           </listitem>
         </varlistentry>
 
@@ -314,55 +317,15 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
           </term>
           <listitem>
             <para>These scripts are the default set and are run when
-            using <option>-sC</option>, <option>-A</option> or <option>--script</option>
-            without any arguments.  This category can also be specified
-            explicitly like any other using <option>--script</option>.
-            Don't be fooled into thinking that just because these scripts
-            are run by default that they are all completely unobtrusive:
-            these scripts should not be run against target networks without
-            permission.</para>
+            using <option>-sC</option>, <option>-A</option>
+            or <option>--script</option> without any arguments. This
+            category can also be specified explicitly like any other
+            using <option>--script=default</option>.</para>
           </listitem>
         </varlistentry>
     </variablelist>
 
     </sect2>
-	<sect2 id="nse-args">
-      <title>Arguments to Scripts</title>
-      <indexterm><primary>script arguments</primary></indexterm>
-      <para>
-      You can pass arguments to NSE scripts via the
-	  <option>--script-args</option> option. The script-arguments generally are
-	  name-value pairs, which are provided to the script as a Lua table called
-	  <literal>args</literal> inside the <literal><link
-	  linkend="nse-api-registry">nmap.registry</link></literal> with
-	  the names as keys for the corresponding values. The values can either be
-	  strings or tables. Subtables can be used to pass arguments to 
-	  scripts with a finer granularity (e.g. pass different usernames for
-	  different scripts). A typical nmap invocation with script arguments may
-	  look like:
-	  </para>
-	  <para>
-<indexterm><primary><option>-sC</option></primary><secondary>example of</secondary></indexterm>
-<indexterm><primary><option>--script-args</option></primary><secondary>example of</secondary></indexterm>
-<userinput>
-$ nmap -sC --script-args user=foo,pass=bar,anonFTP={pass=ftp@foobar.com}
-</userinput>
-	  </para>
-	  <para>
-	  which would result in the Lua table: 
-          </para>
-<programlisting>
-{user="foo",pass="bar",anonFTP={pass="nobody@foobar.com"}}
-</programlisting>
- 
-	  <para>You could therefore access the username (<literal>"foo"</literal>)
-	  inside your script as <literal>local username= nmap.registry.args.user
-	  </literal>. As a general rule the subtables used to override
-	  options for scripts should be named as the script's
-	  <literal>id</literal>, otherwise scripts won't know where to
-	  retrieve their arguments.
-	  </para>
-	</sect2>
 
     <sect2 id="nse-cmd-line-args">
       <title>Command-line Arguments</title>
@@ -390,39 +353,36 @@ $ nmap -sC --script-args user=foo,pass=bar,anonFTP={pass=ftp@foobar.com}
 
 <listitem>
 
-<para>
-Runs a script scan (like <option>-sC</option>) with the comma separated
-list of scripts you have chosen rather than the defaults. Specifically,
-the list can contain script categories, single scripts or directories
-with scripts which
-are to be run against the target hosts instead of the default set. Nmap
-will try to interpret the arguments at first as categories and afterwards
-as files or directories.  Absolute paths are used as is, relative paths are
-searched in the following places until
-found:<indexterm><primary>data files</primary><secondary>directory search order</secondary></indexterm><indexterm><primary>scripts, location of</primary></indexterm>
+<para>Runs a script scan (like <option>-sC</option>) using the comma-separated list of
+script categories, individual scripts, or directories containing
+scripts, rather than the default set. Nmap first tries to interpret the
+arguments as categories, then (if that fails) as files or
+directories. A script or directory of scripts may be specified as an
+absolute or relative path. Absolute paths are used as
+supplied. Relative paths are searched for in the following places
+until found:<indexterm><primary>data files</primary><secondary>directory search order</secondary></indexterm><indexterm><primary>scripts, location of</primary></indexterm>
 <filename>--datadir/</filename>; 
 <filename>$NMAPDIR/</filename>;<indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm>
 <filename>~/.nmap/</filename> (not searched on Windows);<indexterm><primary sortas="nmap"><filename>.nmap</filename> directory</primary></indexterm>
 NMAPDATADIR/ or<indexterm><primary>NMAPDATADIR</primary></indexterm>
 <filename>./</filename>.  A <filename>scripts/</filename> subdirectory
-is also tried in each of these.  Give the argument <literal>all</literal> to execute all scripts in the Nmap script database.
-</para>
+is also tried in each of these.</para>
 
 <para>If a directory is specified and found, Nmap loads all NSE
 scripts (any filenames ending with <literal>.nse</literal>) from that
-directory.  They must have the filename extension
-<literal>nse</literal>.  Nmap does not recurse into subdirectories to
-find scripts.  When individual file names are specified, the file
-extension does not have to be <literal>nse</literal>.
-</para>
+directory. Filenames without the <literal>nse</literal> extension are
+ignored. Nmap does not search recursively into subdirectories to find
+scripts.  If individual file names are specified, the file extension
+does not have to be <literal>nse</literal>.</para>
 
 <para>Nmap scripts are stored in a <filename>scripts</filename>
-subdirectory of the Nmap data directory
-(see <xref linkend="data-files"/>) by default.  Scripts are indexed in a database stored in
-<filename>scripts/script.db</filename>.<indexterm><primary><filename>script.db</filename></primary></indexterm>
-The database lists all of the
-scripts in each category. A single script may be in several
-categories.</para>
+subdirectory of the Nmap data directory by default (see
+<xref linkend="data-files"/>). For efficiency, scripts are indexed in
+a database stored
+in <filename>scripts/script.db</filename>.<indexterm><primary><filename>script.db</filename></primary></indexterm>
+which lists the category or categories in which each script belongs.
+Give the argument <literal>all</literal> to execute all scripts in the
+Nmap script database.</para>
 
 <para>Malicious scripts are not run in a sandbox and thus could damage your system or invade your privacy.  Never run scripts from third parties unless you trust the authors or have carefully audited the scripts yourself.</para>
 
@@ -467,21 +427,17 @@ categories.</para>
             <option>--script-updatedb</option>
           </term>
           <listitem>
-            <para>This option is only useful if you have added or
-              removed NSE scripts from the default
-              <literal>scripts</literal> directory, or if you have
-              changed any of the scripts' <literal>categories</literal>
-              fields.  This field contains categories such as
-              <literal>safe</literal> and <literal>discovery</literal>
-              which the script belongs to.  Categories may be
-              specified with the <option>--script</option> option. For
-              efficiency reasons, NSE generates a
-              <filename>script.db</filename>
-              file which maps
-              categories to the scripts they contain. If you changed
-              tag directives or added/removed scripts, run
-              <command>nmap --script-updatedb</command>. 
-	    </para>
+
+            <para>This option updates the script database found
+            in <filename>scripts/script.db</filename> which is used by
+            Nmap to determine the available default scripts and
+            categories. It is only necessary to update the database if
+            you have added or removed NSE scripts from the
+            default <filename>scripts</filename> directory or if you
+            have changed the categories of any script.  This option is
+            generally used by
+            itself: <command>nmap --script-updatedb</command>.</para>
+
           </listitem>
         </varlistentry>
       </variablelist>
@@ -508,15 +464,55 @@ categories.</para>
       <para>
       </para>
     </sect2>
+
+	<sect2 id="nse-args">
+      <title>Arguments to Scripts</title>
+      <indexterm><primary>script arguments</primary></indexterm>
+      <para>
+      You can pass arguments to NSE scripts via the
+	  <option>--script-args</option> option. The script-arguments generally are
+	  name-value pairs, which are provided to the script as a Lua table called
+	  <literal>args</literal> inside the <literal><link
+	  linkend="nse-api-registry">nmap.registry</link></literal> with
+	  the names as keys for the corresponding values. The values can either be
+	  strings or tables. Subtables can be used to pass arguments to 
+	  scripts with a finer granularity (e.g. pass different usernames for
+	  different scripts). A typical nmap invocation with script arguments may
+	  look like:
+	  </para>
+	  <para>
+<indexterm><primary><option>-sC</option></primary><secondary>example of</secondary></indexterm>
+<indexterm><primary><option>--script-args</option></primary><secondary>example of</secondary></indexterm>
+<userinput>
+$ nmap -sC --script-args user=foo,pass=bar,anonFTP={pass=ftp@foobar.com}
+</userinput>
+	  </para>
+	  <para>
+	  which would result in the Lua table: 
+          </para>
+<programlisting>
+{user="foo",pass="bar",anonFTP={pass="nobody@foobar.com"}}
+</programlisting>
+ 
+	  <para>You could therefore access the username (<literal>"foo"</literal>)
+	  inside your script as <literal>local username= nmap.registry.args.user
+	  </literal>. As a general rule the subtables used to override
+	  options for scripts should be named as the script's
+	  <literal>id</literal>, otherwise scripts won't know where to
+	  retrieve their arguments.
+	  </para>
+	</sect2>
+
+
     <sect2 id="nse-usage-examples">
       <title>Usage Examples</title>
       <para> 
-	Simple script scan.
+	A simple script scan using the default set of scripts
       </para>
       <para>
         <indexterm><primary><option>-sC</option></primary><secondary>example of</secondary></indexterm>
         <userinput> 
-	  $ nmap -sC hostname
+	  $ nmap -sC example.com
       </userinput>
       </para>
       <para> 
@@ -526,16 +522,24 @@ categories.</para>
         <indexterm><primary><option>--script</option></primary><secondary>example of</secondary></indexterm>
         <indexterm><primary><option>--script-trace</option></primary><secondary>example of</secondary></indexterm>
         <userinput> 
-	  $ nmap --script=./showSSHVersion.nse --script-trace hostname
+	  $ nmap --script=./showSSHVersion.nse --script-trace example.com
+      </userinput>
+      </para>
+
+      <para> 
+	All scripts in a subdirectory named <filename>mycustomscripts</filename> in addition to all of Nmap's included scripts which are in the <literal>safe</literal> category.
+      </para>
+      <para>
+        <userinput> 
+	  $ nmap --script=mycustomscripts,safe example.com
       </userinput>
       </para>
     </sect2>
   </sect1>
   <sect1 id="nse-scripts">
     <title>Script Format</title>
-    <para>NSE scripts consist of four descriptive fields, a port or host rule defining when the script should be executed, and an action block containing the actual script instructions.  All six of these are Lua variables that are assigned to.  Their names must be lowercase as shown here.
+    <para>NSE scripts consist of six descriptive fields along with either a port or host rule defining when the script should be executed and an action block containing the actual script instructions. Values can be assigned to these fields just as you would assign any other Lua variables.  Their names must be lowercase as shown here.</para>
 
-    </para>
     <sect2 id="nse-format-id">
       <title><literal>id</literal> Field</title>
       <indexterm><primary sortas="id script variable">&ldquo;<varname>id</varname>&rdquo; script variable</primary></indexterm>
@@ -552,15 +556,27 @@ categories.</para>
     <sect2 id="nse-format-description">
       <title><literal>description</literal> Field</title>
       <indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
-      <para>
-	The description describes what the script is testing for and
-	any critical notes the user must be aware of. A good
-	example is this user contributed recursive DNS script
-	description <quote>Checks whether a nameserver on UDP port 53
-	allows queries for third party names. It is expected that
-	recursion will be enabled on your own internal
-	nameserver.</quote>
-      </para>
+      <para>The <literal>description</literal> field describes what the script is testing
+      for and any critical notes the user must be aware of. A good
+      example is this description from a user-contributed recursive
+      DNS script: <quote>Checks whether a nameserver on UDP port 53
+      allows queries for third party names. It is expected that
+      recursion will be enabled on your own internal
+      nameserver.</quote></para>
+    </sect2>
+
+    <sect2 id="nse-format-categories">
+      <title><literal>categories</literal> Field</title>
+      <indexterm><primary sortas="category script variable">&ldquo;<varname>category</varname>&rdquo; script variable</primary></indexterm>
+
+      <para>The <literal>categories</literal> field defines one or
+      more categories to which a script belongs (see
+      <xref linkend="nse-categories"/>).  The categories are case-insensitive and may be specified in any order.  They are listed in an array-like Lua table as in this example:</para>
+
+<programlisting>
+categories = {"default", "discovery", "safe"}
+</programlisting>
+
     </sect2>
 
     <sect2 id="nse-format-author">
@@ -582,7 +598,7 @@ categories.</para>
       The <literal>license</literal> field helps ensure that we have
       legal permission to distribute all the scripts which come with Nmap. All of those scripts
       currently use the standard Nmap license
-      (described in <xref linkend="nmap-copyright"/>).  They 
+      (described in <xref linkend="nmap-copyright"/>).  They include
       the following line:</para>
 
 <programlisting>
@@ -624,38 +640,33 @@ that.</para>
       <indexterm><primary>rules in NSE</primary><see>&ldquo;<varname>portrule</varname>&rdquo; and &ldquo;<varname>hostrule</varname>&rdquo;</see></indexterm>
       <para>
 
-	There are two types of rules: <emphasis>host rules</emphasis>
-	which run only once against a target IP and <emphasis>port
-	rules</emphasis> which run against individual ports on a
-	target.  A rule is a Lua function which takes a host and a
-	port table as arguments and must return a Boolean value. If the rule
-	evaluates to <literal>true</literal>, the script action 
-	is performed. Otherwise the action is skipped. Port rules are
-	only matched against TCP or UDP ports in the
-	<literal>open</literal>,<indexterm><primary><literal>open</literal> port state</primary></indexterm>
-	<literal>open|filtered</literal> or<indexterm><primary><literal>open|filtered</literal> port state</primary></indexterm>
-	<literal>unfiltered</literal><indexterm><primary><literal>unfiltered</literal> port state</primary></indexterm>
-	states. Host rules are matched exactly once against every
-	scanned host. The action, like the rule, is a Lua function,
-	which takes a host and port table as arguments. If the script is
-        matched using a host rule, then the port table is absent (<literal>nil</literal>).
-       Example rules are shown in
-	<xref linkend="nse-tutorial-rule"/>.</para> </sect2>
+Nmap uses the script rules to determine whether a script should be run
+against a target.  A script contains either a <emphasis>port
+rule</emphasis>, which governs which ports of a target the scripts may
+run against, or a <emphasis>host rule</emphasis>, which specifies that
+the script should be run only once against a target IP and only if
+certain conditions are met.  A rule is a Lua function that returns
+either <literal>true</literal> or <literal>false</literal>. The
+script <emphasis>action</emphasis> is only performed if the rule
+evaluates to <literal>true</literal>.  The host rule accepts a host
+table as an argument and may test, for example, the IP address or
+hostname of the target.  A port rule accepts both host and port tables
+as arguments for any TCP or UDP port in either the
+<literal>open</literal><indexterm><primary><literal>open</literal> port state</primary></indexterm>, 
+<literal>open|filtered</literal><indexterm><primary><literal>open|filtered</literal> port state</primary></indexterm>,
+or <literal>unfiltered</literal><indexterm><primary><literal>unfiltered</literal> port state</primary></indexterm> port states.  Port rules generally test factors such as the port number, port state, or listening service name in deciding whether to run against a port. Example rules are shown in <xref linkend="nse-tutorial-rule"/>.</para> 
+</sect2>
 
      <sect2 id="nse-format-action"><title>Action</title>
       <indexterm><primary sortas="action script variable">&ldquo;<varname>action</varname>&rdquo; script variable</primary></indexterm>
 
       <para>
-	The action is the heart of an NSE script.  It contains all of
-	the instructions to be executed when the script's port or host
-	rule triggers.  It is a Lua function which can return either
-	<literal>nil</literal> or a string. If a string is returned,
-	it is printed along with the script ID in (if it is a service
-	script) or below (if it is a host script) the Nmap port table.
-	If the script returns <literal>nil</literal>, no output is
-	produced.  For an
-	example of an NSE action refer to <xref
-	linkend="nse-tutorial-action"/>.
+The action is the heart of an NSE script. It contains all of the
+instructions to be executed when the script's port or host rule
+triggers. It is a Lua function which accepts the same arguments as the
+rule and can return either <literal>nil</literal> or a string. If a string is returned by a service script, the string and script ID are printed in the Nmap port table output.  A string returned by a host script is printed below the port table.  No output is produced if the
+script returns <literal>nil</literal>.  For an example of an NSE
+action refer to <xref linkend="nse-tutorial-action"/>.
       </para>
     </sect2>
 
@@ -707,7 +718,7 @@ that.</para>
 	efforts to design a security auditing language from scratch
 	which have resulted in well-known awkward solutions. It was
 	clear from the beginning that we would not go down this
-	road. For a while the Guile scheme interpreter was considered
+	road. For a while the Guile Scheme interpreter was considered
 	but the preference drifted towards Elk in favor of its more
 	liberal license. But parallelizing Elk scripts would have been
 	difficult. In addition, the subset of Nmap users familiar with
@@ -775,7 +786,7 @@ that.</para>
               </term>
 	      <listitem>
 		<para>
-		  Returns the one's complement of a.
+		  Returns the one's complement of <literal>a</literal>.
 		</para>
 	    </listitem>
 	    </varlistentry>
@@ -786,7 +797,7 @@ that.</para>
 	      <listitem>
 		<para>
 		  Returns the bitwise <literal>and</literal> of the
-		  w's.
+		  <literal>w</literal> variables.
 		</para>
 	      </listitem>
 	    </varlistentry>
@@ -796,7 +807,7 @@ that.</para>
 		</term>
 	      <listitem>
 		<para>
-		  Returns the bitwise <literal>or</literal> of the w's.
+		  Returns the bitwise <literal>or</literal> of the <literal>w</literal> variables.
 		</para>
 	      </listitem>
 	    </varlistentry>
@@ -807,8 +818,7 @@ that.</para>
 	      <listitem>
 
 		<para>
-		  Returns the bitwise <literal>xor</literal> of the
-		  w's.
+		  Returns the bitwise <literal>xor</literal> of the <literal>w</literal> variables.
 		</para>
 	      </listitem>
 	    </varlistentry>
@@ -818,7 +828,7 @@ that.</para>
 		</term>
 	      <listitem>
 		<para>
-		  Returns a shifted left b places&mdash;padded with zeros.
+		  Returns <literal>a</literal> shifted left <literal>b</literal> places&mdash;padded with zeros.
 		</para>
 	      </listitem>
 	    </varlistentry>
@@ -828,7 +838,7 @@ that.</para>
 		</term>
 	      <listitem>
 		<para>
-		  Returns a shifted logically right b places.
+		  Returns <literal>a</literal> shifted logically right <literal>b</literal> places.
 		</para>
 	      </listitem>
 	    </varlistentry>
@@ -838,7 +848,7 @@ that.</para>
 		</term>
 	      <listitem>
 		<para>
-		  Returns a shifted arithmetically right b places.
+		  Returns <literal>a</literal> shifted arithmetically right <literal>b</literal> places.
 		</para>
 	      </listitem>
 	    </varlistentry>
@@ -848,7 +858,7 @@ that.</para>
 		</term>
 	      <listitem>
 		<para>
-		  Returns the integer remainder of a divided by b.
+		  Returns the integer remainder of <literal>a</literal> divided by <literal>b</literal>.
 		</para>
 	      </listitem>
 	    </varlistentry>
@@ -1068,7 +1078,7 @@ that.</para>
 		  returned value is a table which contains
 		  <literal>false</literal> in the positions where the
 		  pattern did not match. If named sub-patterns were
-		  used the table also contains substring matches keyed
+		  used, the table also contains substring matches keyed
 		  by their sub-pattern name. Should no match be found the 
 		  function returns <literal>nil</literal>.
 		  The second and third arguments are optional. The second 
@@ -1209,7 +1219,7 @@ if(s) code_to_be_done_on_match end
 		  determined by Nmap's version scan or (if no version
 		  scan information is available) the service assigned
 		  to the port in <filename>nmap-services</filename>
-		  (i.e. "http" for TCP port 80).
+		  (e.g. "http" for TCP port 80).
 		  </para>
 	      </listitem>
 	    </varlistentry>
@@ -1531,7 +1541,7 @@ if(s) code_to_be_done_on_match end
 		  </term>
 	      <listitem>
 		  <para>
-		  	Takes a number as argument and returns that
+		  	Takes a number as its argument and returns that
                         many bytes.  It can be used to get a buffered
                         version of
                         <literal>sockobj:receive_bytes(n)</literal> in
@@ -1553,12 +1563,20 @@ if(s) code_to_be_done_on_match end
 	The functions reside inside the <literal>http</literal> namespace.
 	The return value of each function in this module is a table with the following keys:
 	<literal>status</literal>, <literal>header</literal> and <literal>body</literal>.
-	<literal>status</literal> is the status code of the http request
-	In case of an error status is <literal>nil</literal>.  <literal>header</literal>
-	is a table with the headers received from the server. The header names are
-	lower-cased and multiple headers of the same name are concatenated with comma.
-	<literal>body</literal> holds a string with the request body.
-	</para>
+
+	<literal>status</literal> is a number representing the HTTP
+	status code returned in response to the HTTP request. In case
+	of an unhandled error, <literal>status</literal>
+	is <literal>nil</literal>. The <literal>header</literal> value
+	is a table containing key-value pairs of HTTP headers received
+	in response to the request. The header names are in lower-case
+	and are the keys to their corresponding header values
+	(e.g. <literal>header.location =
+	"http://nmap.org/"</literal>).  Multiple headers of the same
+	name are concatenated and separated by
+	commas. The <literal>body</literal> value is a string
+	containing the body of the HTTP response.</para>
+
 	<variablelist>
 	    <varlistentry>
 	      <term><option>table = http.get(host,port,path,[options])</option>
@@ -2032,7 +2050,7 @@ if(s) code_to_be_done_on_match end
 	    <term><option>host.bin_ip</option>
 	      </term>
 	    <listitem>
-	      <para>The hosts IP as 4 byte long binary value.
+	      <para>The target host's IPv4 address as 4 byte long binary value.
 		  </para>
 	    </listitem>
 	  </varlistentry>
@@ -2040,7 +2058,7 @@ if(s) code_to_be_done_on_match end
 	    <term><option>host.bin_ip_src</option>
 	      </term>
 	    <listitem>
-	      <para>Our hosts IP as 4 byte long binary value.
+	      <para>Our host's (running Nmap) source IPv4 address as 4 byte long binary value.
 		  </para>
 	    </listitem>
 	  </varlistentry>
@@ -2127,7 +2145,7 @@ if(s) code_to_be_done_on_match end
 
    <row>
     <entry><literal>name_confidence</literal></entry>
-    <entry>Evaluates how confident the version detection is about the accuracy of <literal>name</literal>, from one (least confident) to 10.</entry>
+    <entry>Evaluates how confident the version detection is about the accuracy of <literal>name</literal>, from 1 (least confident) to 10.</entry>
    </row>
 
    <row>
@@ -2150,18 +2168,14 @@ if(s) code_to_be_done_on_match end
 
    <row>
     <entry><literal>rpc_status</literal></entry>
+
     <entry>Contains a string value of <literal>good_prog</literal> if
-           we were able to determine the program number of an RPC
-           service listening on the port, <literal>unknown</literal>
-           if the port appears to be RPC but we couldn't determine the
-           program number, <literal>not_rpc</literal> if the port
-           doesn't appear be RPC, or <literal>untested</literal> if we
-           haven't checked for RPC status.  The
-           <literal>rpc_program</literal>,
-           <literal>rpc_lowver</literal>, and
-           <literal>rpc_highver</literal> variables are <literal>nil</literal> unless
-           <literal>rpc_status</literal> is
-           <literal>good_prog</literal>.</entry>
+    we were able to determine the program number of an RPC service
+    listening on the port, <literal>unknown</literal> if the port
+    appears to be RPC but we couldn't determine the program
+    number, <literal>not_rpc</literal> if the port doesn't appear be
+    RPC, or <literal>untested</literal> if we haven't checked for RPC
+    status.</entry>
    </row>
 
    <row>
@@ -2331,17 +2345,19 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	    <term><option>nmap.set_port_state(host, port, state)</option>
 	      </term>
 	    <listitem>
-	      <para>
-		The <literal>set_port_state()</literal> call takes a host table,
-		a port table, and a port state (<literal>open</literal> or
-		<literal>closed</literal>). With this method the final port
-		state can be changed. This is useful when Nmap detects a port as
-		<literal>open|filtered</literal> but the script successfully connects to it. In this
-		case the port state can be set to <literal>open</literal>.  Note 
-		that the <literal>port.state</literal> value, which was passed
-		to the script's <literal>action</literal> function will not be changed 
-		by this call.
-	      </para>
+	      
+
+<para>The <literal>set_port_state()</literal> call takes a host table,
+a port table, and a port state (<literal>open</literal>
+or <literal>closed</literal>). Using this method the final port state,
+reflected in Nmap's results, can be changed for a target. This is
+useful when Nmap detects a port as <literal>open|filtered</literal>
+(i.e. unable to determine which), but the script successfully connects
+to that port. In this case the script can set the port state
+to <literal>open</literal>. Note that the port.state value, which was
+passed to the script's action function will not be changed by this
+call.</para>
+
 	    </listitem>
 	  </varlistentry>
 	  
@@ -2814,9 +2830,8 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	  The more general the packet hash computing function is kept, 
 	  the more scripts may receive the packet and proceed with their
 	  execution.  To use the packet capturing inside your script you have to 
-	  create (and afterwards close) a socket with
-	  <literal>nmap.newsocket()</literal> 
-	  (or <literal>socket_object:close()</literal> respectively)&mdash;just
+	  create a socket with
+	  <literal>nmap.newsocket()</literal> and later close the socket with <literal>socket_object:close()</literal>&mdash;just
 	  like with the connection-based network I/O. A more detailed description 
 	  of the functions for packet capturing follows:
       </para>
@@ -2832,9 +2847,9 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 		The <literal>pcap_open()</literal> call opens the socket for
 		packet capturing. The parameters are:</para>
 <itemizedlist>
-<listitem><para><literal>device</literal>&mdash;the dnet-style interface name of the device you want to capture from.</para></listitem>
+<listitem><para><literal>device</literal>&mdash;the dnet-style interface name of the device you want to capture from</para></listitem>
 <listitem><para><literal>snaplen</literal>&mdash;defines the length of each packet you want to capture (similar to the <option>-s</option> option to <command>tcpdump</command>)</para></listitem>
-<listitem><para><literal>promisc</literal>&mdash;should be set to <literal>1</literal> if the interface should activate promiscuous mode, and zero otherwise.</para></listitem>
+<listitem><para><literal>promisc</literal>&mdash;should be set to <literal>1</literal> if the interface should activate promiscuous mode, and zero otherwise</para></listitem>
 <listitem><para><literal>test_function</literal>&mdash;callback function used to compute the <literal>packet hash</literal></para></listitem>
 <listitem><para><literal>bpf</literal>&mdash;a string describing a Berkeley packet filter expression (like those provided to <command>tcpdump</command>)</para></listitem>
 </itemizedlist>
@@ -2863,10 +2878,10 @@ nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 	      <para>
 		  Receives a captured packet. If successful, the return values are:</para>
 <itemizedlist>
-<listitem><para><literal>status</literal>&mdash;a Boolean with the value <literal>true</literal>.</para></listitem>
-<listitem><para><literal>packet_len</literal>&mdash;the length of the captured packet (note, that you could have received less data if the snaplen parameter was smaller than the packet length)</para></listitem>
+<listitem><para><literal>status</literal>&mdash;a Boolean with the value <literal>true</literal></para></listitem>
+<listitem><para><literal>packet_len</literal>&mdash;the length of the captured packet which was received (this may be smaller than the actual packet length since packets are truncated when the Libpcap snaplen parameter is smaller than the total packet length)</para></listitem>
 <listitem><para><literal>l2_data</literal>&mdash;data from the second OSI layer (e.g. ethernet headers)</para></listitem>
-<listitem><para><literal>l3_data</literal>&mdash;data from the third OSI layer (e.g. IPv4 headers).</para></listitem>
+<listitem><para><literal>l3_data</literal>&mdash;data from the third OSI layer (e.g. IPv4 headers)</para></listitem>
 </itemizedlist>
 
 <para>Should an error or timeout occur, while waiting for a packet the
@@ -2989,7 +3004,7 @@ error_message describes the occurred error.</para>
               </ulink> except <literal>nil</literal>,
               <literal>booleans</literal>, and <literal>numbers</literal>.
               The returned function allows you to lock, try to lock, and
-              release the mutex. It's first and only parameter is either:
+              release the mutex. Its first and only parameter must be one of the following:
             </para>
             <itemizedlist>
               <listitem>
@@ -3020,10 +3035,12 @@ error_message describes the occurred error.</para>
               </listitem>
               <listitem>
                 <para>
-                  <literal>"running"</literal>&mdash;Returns the thread locked
-                  on the mutex or <literal>nil</literal>. This
-                  should only be used for debugging as it interferes
-                  with finished threads from being collected.
+                  <literal>"running"</literal>&mdash;Returns an
+                  identification string for a thread locked on the
+                  mutex or <literal>nil</literal> if the mutex is not
+                  locked. This should only be used for debugging as it
+                  interferes with finished threads from being
+                  collected.
                 </para>
               </listitem>
             </itemizedlist>
@@ -3190,17 +3207,19 @@ try(socket:send(result))
     <sect2 id="nse-tutorial-head">
       <title>The Head</title>
       <para>
-	The head of the script is essentially its meta
-	information. This includes the fields
-	<literal>id</literal>, <literal>description</literal>,
-	<literal>author</literal>, <literal>license</literal> and
-	<literal>categories</literal>. We are not going to change the
-	run level for now. The <literal>id</literal> of a script
-	should uniquely identify it. If it is absent, the path to the
-	script will be used as an id. We recommend to choose an id
-	which concisely identifies the purpose of the script, since
-	the ID is printed before the script's results in Nmap output.
+
+      The head of the script is essentially its meta information. This
+      includes the
+      fields: <literal>id</literal>, <literal>description</literal>, <literal>categories</literal>, <literal>runlevel</literal>, <literal>author</literal>
+      and <literal>license</literal>. We are not going to change the
+      run level, or worry about the author and license fields for now.
+      The <literal>id</literal> of a script should uniquely identify
+      it. If it is absent, the path to the script will be used as an
+      id. We recommend to choose an id which concisely identifies the
+      purpose of the script, since the ID is printed before the
+      script's results in Nmap output.
       </para>
+
       <para>
 <indexterm><primary sortas="Service Owner script">&ldquo;<literal>Service Owner</literal>&rdquo; script</primary></indexterm>
 <indexterm><primary sortas="id script variable">&ldquo;<varname>id</varname>&rdquo; script variable</primary></indexterm>
@@ -3325,23 +3344,7 @@ end
 	<literal>catch</literal>. Using this function we generate
 	a <literal>try</literal> function. The <literal>try</literal>
 	function will call the <literal>catch</literal> function
-	whenever there is an error condition in the tried block. Note
-	that we could have ignored the last two return values
-	of <literal>client_service:get_info()</literal> like this: 
-
-<programlisting>
-local localip, localport  = client_service:get_info()
-</programlisting>
-	This would have sufficed because we know that the remote port is
-	stored in <literal>port.number</literal>.</para>
-
-        <para>In this example we
-	prefer not to tell the user if the query resulted in an
-	error. To inform users of failed
-	identification queries, simply uncomment the corresponding
-	line. It is necessary that we assign the variable <literal>owner</literal>
-	a <literal>nil</literal> value because returning <literal>nil</literal>
-	is the only way to tell the script engine to suppress script output.
+	whenever there is an error condition in the tried block.
       </para>
       
       <para>
@@ -3386,6 +3389,18 @@ return owner
 end
 </programlisting>
       </para>
+
+<para>Note that because we know that the remote port is stored
+in <literal>port.number</literal>, we could have ignored the last two
+return values of <literal>client_service:get_info()</literal> like
+this:</para>
+
+<programlisting>
+local localip, localport  = client_service:get_info()
+</programlisting>
+
+<para>In this example we avoided telling the user if the service responded with an error.  Instead we commented that line out and assigned <literal>nil</literal> to the owner variable.  NSE scripts generally only return messages when they succeed.</para>
+
     </sect2>
     <indexterm class="endofrange" startref="nse-tutorial-indexterm"/>
   </sect1>
@@ -3559,6 +3574,13 @@ we want to use shorter port rules.</para>
 require "shortport"
 </programlisting>
 
+<para>We want to run the script against the finger service.  So we
+test whether it is using the well-known finger port (79/tcp), or
+whether the service is named <quote>finger</quote> based on version
+detection results or in the port number's listing
+in <filename>nmap-services</filename>.</para>
+
+
 <para>We want to check whether the service behind the port is finger,
 or whether it runs on finger's well-known port 79. Through this we can
 use the information gathered during the version scan (if finger runs
@@ -3592,7 +3614,7 @@ a call to <literal>nmap.new_try()</literal></para>
   local try = nmap.new_try(err_catch())
 </programlisting>
 
-<para>The script sets a timeout of 5000, which is equivalent to 50
+<para>The script sets a timeout of 5000, which is equivalent to 5
 seconds. Should any operation require more time we'll receive a
 <literal>TIMEOUT</literal> error message.</para>
 
@@ -3600,36 +3622,30 @@ seconds. Should any operation require more time we'll receive a
   socket:set_timeout(5000)
 </programlisting>
 
-<para>For actually using exception handling we need to wrap calls to
-functions, which may return an error inside
-<literal>try()</literal></para>
+<para>To make use of the exception handling we need to wrap calls to those functions which might return an error, inside <literal>try()</literal></para>
 
 <programlisting>
   try(socket:connect(host.ip, port.number, port.protocol))
   try(socket:send("\n\r"))
 </programlisting>
 
-<para>The call to <literal>receive_lines()</literal> is not wrapped in
-<literal>try()</literal>, because we don't want to abort the script
-just because we didn't receive the data we expected. Note that there
-is less data than requested (100 lines), we still receive it and the
-status is <literal>true</literal> &mdash;consequent calls would yield
-a <literal>false</literal> status.</para>
+<para>The call to <literal>receive_lines()</literal> is not wrapped
+in <literal>try()</literal>, because we don't want to abort the script
+just because we didn't receive the data we expected. Note that if
+there is less data than requested (100 lines), we will still receive
+it and the status will be <literal>true</literal>&mdash;subsequent
+calls would yield a <literal>false</literal> status.</para>
 
 <programlisting>
   status, results = socket:receive_lines(100)
   socket:close()
 </programlisting>
 
-<para>The script returns a string only if we got the data we
-wanted, otherwise <literal>nil</literal> is returned (automatically, since
-scripts return one result).</para>
+<para>The script returns a string if the call to <literal>receive_lines()</literal> was successful, otherwise it returns <literal>nil</literal>.</para>
 
 <programlisting>
-  if not(status) then
-    return results
+  return results
   end
-end
 </programlisting>
 </sect2>
     <indexterm class="endofrange" startref="nse-sample-indexterm"/>

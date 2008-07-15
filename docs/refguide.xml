@@ -2035,28 +2035,36 @@ way.</para>
         <term><option>--script <replaceable>script-categories</replaceable>|<replaceable>directory</replaceable>|<replaceable>filename</replaceable>|all</option><indexterm significance="preferred"><primary><option>--script</option></primary></indexterm></term>
 
 <listitem>
-<para>Runs a script scan (like <option>-sC</option>) with the scripts you have chosen rather than the defaults.  Arguments can be script categories, single scripts or directories with scripts which are to be run against the target hosts instead of the default set. Nmap will try to interpret the arguments at first as categories and afterwards as files or directories.  Absolute paths are used as is, relative paths are searched in the following places until found:
-<filename>--datadir/</filename>;<indexterm><primary><option>--datadir</option></primary></indexterm>
+<para>Runs a script scan (like <option>-sC</option>) using the comma-separated list of
+script categories, individual scripts, or directories containing
+scripts, rather than the default set. Nmap first tries to interpret the
+arguments as categories, then (if that fails) as files or
+directories. A script or directory of scripts may be specified as an
+absolute or relative path. Absolute paths are used as
+supplied. Relative paths are searched for in the following places
+until found:<indexterm><primary>data files</primary><secondary>directory search order</secondary></indexterm><indexterm><primary>scripts, location of</primary></indexterm>
+<filename>--datadir/</filename>; 
 <filename>$NMAPDIR/</filename>;<indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm>
 <filename>~/.nmap/</filename> (not searched on Windows);<indexterm><primary sortas="nmap"><filename>.nmap</filename> directory</primary></indexterm>
 NMAPDATADIR/ or<indexterm><primary>NMAPDATADIR</primary></indexterm>
-<filename>./</filename>.  A <filename>scripts/</filename> subdirectory is also tried in each of these.  Give the argument <literal>all</literal> to execute all scripts in the Nmap script database.
-</para>
+<filename>./</filename>.  A <filename>scripts/</filename> subdirectory
+is also tried in each of these.</para>
 
 <para>If a directory is specified and found, Nmap loads all NSE
-scripts (any filenames with the <literal>nse</literal> extension) from that
-directory.  They must have the filename extension
-<literal>nse</literal>.  Nmap does not recurse into subdirectories to
-find scripts.  When individual file names are specified, the file
-extension does not have to be <literal>nse</literal>.
-</para>
+scripts (any filenames ending with <literal>.nse</literal>) from that
+directory. Filenames without the <literal>nse</literal> extension are
+ignored. Nmap does not search recursively into subdirectories to find
+scripts.  If individual file names are specified, the file extension
+does not have to be <literal>nse</literal>.</para>
 
 <para>Nmap scripts are stored in a <filename>scripts</filename>
-subdirectory of the Nmap data directory
-by default.  Scripts are indexed in a database stored in
-<filename>scripts/script.db</filename>. The database lists all of the
-scripts in each category. A single script may be in several
-categories.</para>
+subdirectory of the Nmap data directory by default (see
+<xref linkend="data-files"/>). For efficiency, scripts are indexed in
+a database stored
+in <filename>scripts/script.db</filename>.<indexterm><primary><filename>script.db</filename></primary></indexterm>
+which lists the category or categories in which each script belongs.
+Give the argument <literal>all</literal> to execute all scripts in the
+Nmap script database.</para>
 
 <para>Malicious scripts are not run in a sandbox and thus could damage your system or invade your privacy.  Never run scripts from third parties unless you trust the authors or have carefully audited the scripts yourself.</para>
 
@@ -2111,15 +2119,16 @@ script knows about its special argument.</para>
 
         <listitem>
 
-          <para>
-		  updates the script database which stores a mapping from
-          category tags to filenames. The database is a Lua script which is
-          interpreted once to choose a set of scripts from the categories 
-		  provided to the <option>--script</option> argument.  
-		  It should be run if you have changed the <literal>categories</literal>
-		  field of a script, if you have added new scripts or if you have 
-		  removed scripts from the <filename>scripts/</filename> directory.
-		  </para>
+           <para>This option updates the script database found
+            in <filename>scripts/script.db</filename> which is used by
+            Nmap to determine the available default scripts and
+            categories. It is only necessary to update the database if
+            you have added or removed NSE scripts from the
+            default <filename>scripts</filename> directory or if you
+            have changed the categories of any script.  This option is
+            generally used by
+            itself: <command>nmap --script-updatedb</command>.</para>
+
         </listitem>
       </varlistentry>
     </variablelist>
