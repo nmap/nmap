@@ -3663,8 +3663,7 @@ calls would yield a <literal>false</literal> status.</para>
     <sect2 id="nse-implementation-init">
       <title>Initialization Phase</title>
       <para>
-      During its initialization stage, Nmap loads the Lua interpreter and its provided 
-	  libraries get loaded. These libraries are:</para>
+      During its initialization stage, Nmap loads the Lua interpreter, including its provided libraries. These libraries are documented in the <ulink url="http://www.lua.org/manual/5.1/manual.html">Lua Reference Manual</ulink>.  Here is a summary:</para>
 		<itemizedlist>
 		<listitem>
 			<para>The <emphasis>package</emphasis> library (namespace: 
@@ -3690,10 +3689,7 @@ calls would yield a <literal>false</literal> status.</para>
 		<listitem>
 			<para>The <emphasis>OS</emphasis> library (namespace: 
 			<literal>os</literal>)&mdash;The 
-			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.8">Operating System lib</ulink> provides facilities of the operating 
-			system, including filesystem operations (renaming/removing files,
-			creating of temporary filenames) and access to the environment.
-			</para>
+			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.8">Operating System library</ulink> provides facilities of the operating system, including filesystem operations (renaming/removing files, temporary file creation) and access to the environment.</para>
 		</listitem>
 		<listitem>
 			<para>The <emphasis>string</emphasis> library (namespace: 
@@ -3707,11 +3703,7 @@ calls would yield a <literal>false</literal> status.</para>
 		</listitem>
 		<listitem>
 			<para>The <emphasis>math</emphasis> library (namespace: 
-			<literal>math</literal>)&mdash;Since usually numbers in Lua correspond
-			to the <literal>double</literal> C-type, the 
-			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.6">math library</ulink> gives you access to rounding functions, 
-			trigonometric functions, random number generation, and many more.
-			</para>
+			<literal>math</literal>)&mdash;Numbers in Lua usually correspond to the <literal>double</literal> C type, so the <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.6">math library</ulink> provides access to rounding functions, trigonometric functions, random number generation, and more.</para>
 		</listitem>
 		<listitem>
 			<para>The <emphasis>debug</emphasis> library (namespace: 
@@ -3724,14 +3716,8 @@ calls would yield a <literal>false</literal> status.</para>
 		</listitem>
 	    </itemizedlist>
 
-<para>In addition to loading the libraries provided with Lua, the functions
-in the <literal>nmap</literal> namespace are also loaded.  The search
-path for modules is set to the default one prepended by the <filename>nselib</filename>
-directory (which is searched in the locations Nmap searches for its
-data files and scripts).  In this step the provided script arguments
-also get stored inside the registry.
-<indexterm><primary>registry (NSE)</primary></indexterm>
-</para>
+<para>In addition to loading the libraries provided by Lua, the functions in the <literal>nmap</literal> namespace are loaded. The search paths are the same directories that Nmap searches for its data files and scripts, except that the <literal>nselib</literal> directory is appended to each. In this step the provided script arguments are stored inside the registry.<indexterm><primary>registry (NSE)</primary></indexterm></para>
+
 
 		<para>
 		The next phase of NSE initialization is loading the chosen
@@ -3754,12 +3740,12 @@ also get stored inside the registry.
         </para>
         
 		<para>
-        All the <literal>.nse</literal> files inside a loaded directory are 
-        loaded as files. Each file loaded is executed in Lua. If a
+        All of the <literal>.nse</literal> files inside a loaded directory are 
+        loaded as files. Each file loaded is executed by Lua. If a
         <emphasis>portrule</emphasis> is present, then it is saved in the
         <emphasis>porttests</emphasis> table with a portrule key and file
         closure value. Otherwise, if the script has a <emphasis>hostrule
-        </emphasis>, then it is saved in the <emphasis>hosttests</emphasis>
+        </emphasis>, then it is saved in the <emphasis>hosttests</emphasis> table
         in the same manner.
         </para>
     </sect2>
