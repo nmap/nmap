@@ -992,7 +992,7 @@ FingerPrintDB *DB = NULL;
 FingerPrint *current;
 FILE *fp;
 int max_records = 4096; 
-char line[512];
+char line[2048];
 int numrecords = 0;
 int lineno = 0;
  bool parsingMatchPoints = false;
