@@ -13,7 +13,7 @@
     growing and diverse set of scripts distributed with Nmap, or write
     their own to meet custom needs.</para>
 
-    <para>NSE was designed to be versatile so these are some of the tasks we had in mind when creating the system:</para>    
+    <para>We designed NSE to to versatile, with the following tasks in mind</para>    
 
     <variablelist>
       <varlistentry>
@@ -36,11 +36,11 @@
        is able to recognize thousands of different services through
        its probe and regular expression based matching system, but it
        cannot recognize everything.  For example, identifying the Skype v2 service requires two
-       independent probes which version detection isn't flexible enough to handle.  Nmap could also recognize more SNMP services
+       independent probes, which version detection isn't flexible enough to handle.  Nmap could also recognize more SNMP services
        if it tried a few hundred different community names by brute
        force.  Neither of these tasks are well suited to traditional
-       Nmap version detection but are particularly easy accomplish with
-       NSE.  Because of this, version detection now seamlessly calls NSE by
+       Nmap version detection, but both are easily accomplished with
+       NSE.  For these reasons, version detection now calls NSE by
        default to handle some tricky services.  This is described in
        <xref linkend="nse-vscan"/>.</para>
 
@@ -57,9 +57,8 @@
        before the bad guys do.  While Nmap isn't a
        comprehensive <ulink role="hidepdf" url="http://sectools.org/vuln-scanners.html">vulnerability scanner</ulink>, 
        NSE is powerful enough to handle even demanding vulnerability
-       checks.  A few vulnerability detection scripts have already been
-       written and we plan to distribute additional scripts for very severe
-       or common vulnerabilities and misconfigurations.
+       checks.  Many vulnerability detection scripts have already been
+       written and we plan to distribute more as they are written.
        </para>
 
         </listitem>
@@ -98,9 +97,8 @@
       </varlistentry>
     </variablelist>
     <para>
-      The listed items are just the initial script classes.  It is
-      likely that Nmap users will come up with even more inventive
-      uses for NSE.
+      The listed items were our initial goals, but we expect that Nmap
+      users will come up with inventive uses for NSE.
     </para>
 
     <print><note><para>The Nmap Scripting Engine is a new Nmap feature
