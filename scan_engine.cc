@@ -966,21 +966,19 @@ double GroupScanStats::cc_scale() {
    for a connect scan. */
 static bool pingprobe_is_appropriate(const UltraScanInfo *USI,
                                      const probespec *pingprobe) {
-  if (pingprobe->type == PS_NONE)
-    return true;
-  else if (pingprobe->type == PS_TCP)
-    return USI->tcp_scan || (USI->ping_scan && USI->ptech.rawtcpscan);
-  else if (pingprobe->type == PS_UDP)
-    return USI->udp_scan || (USI->ping_scan && USI->ptech.rawudpscan);
-  else if (pingprobe->type == PS_PROTO)
-    return USI->prot_scan || (USI->ping_scan && USI->ptech.rawprotoscan);
-  else if (pingprobe->type == PS_ICMP)
-    return (USI->ping_scan && !USI->ping_scan_arp) || pingprobe->pd.icmp.type == 3;
-  else if (pingprobe->type == PS_ARP)
+  switch(pingprobe->type){
+    case(PS_NONE):
+        return true;
+    case(PS_CONNECTTCP):
+        return USI->scantype == CONNECT_SCAN || (USI->ping_scan && USI->ptech.connecttcpscan);
+  case(PS_TCP):
+  case(PS_UDP):
+  case(PS_PROTO):
+  case(PS_ICMP):
+    return ((USI->ping_scan && !USI->ping_scan_arp) || pingprobe->pd.icmp.type == 3);
+  case(PS_ARP):
     return USI->ping_scan_arp;
-  else if (pingprobe->type == PS_CONNECTTCP)
-    return USI->scantype == CONNECT_SCAN || (USI->ping_scan && USI->ptech.connecttcpscan);
-
+  }
   return false;
 }
 
@@ -2483,9 +2481,9 @@ static void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
        timing ping probe. */
     if (pingprobe_is_better(probe->pspec(), PORT_UNKNOWN, &hss->target->pingprobe, hss->target->pingprobe_state)) {
       if (o.debugging > 1) {
-	char buf[32];
-	probespec2ascii(probe->pspec(), buf, sizeof(buf));
-	log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), buf);
+        char buf[32];
+        probespec2ascii(probe->pspec(), buf, sizeof(buf));
+        log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), buf);
       }
       hss->target->pingprobe = *probe->pspec();
       hss->target->pingprobe_state = PORT_UNKNOWN;
@@ -2517,10 +2515,10 @@ static void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
     /* This probe received a positive response. Consider making it the new
        timing ping probe. */
     if (pingprobe_is_better(probe->pspec(), newstate, &hss->target->pingprobe, hss->target->pingprobe_state)) {
-      if (o.debugging > 1) {
-	char buf[32];
-	probespec2ascii(probe->pspec(), buf, sizeof(buf));
-	log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), buf);
+     if (o.debugging > 1) {
+       char buf[32];
+       probespec2ascii(probe->pspec(), buf, sizeof(buf));
+       log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), buf);
       }
       hss->target->pingprobe = *probe->pspec();
       hss->target->pingprobe_state = newstate;
@@ -4548,85 +4546,54 @@ static void waitForResponses(UltraScanInfo *USI) {
 /* Initiate libpcap or some other sniffer as appropriate to be able to catch
    responses */
 static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
-  char pcap_filter[2048];
+  string pcap_filter="";
   /* 20 IPv6 addresses is max (45 byte addy + 14 (" or src host ")) * 20 == 1180 */
-  char dst_hosts[1200];
-  int filterlen = 0;
-  int len;
+  string dst_hosts="";
+  char macstring[100];
+  unsigned int len = 0;
   unsigned int targetno;
   bool doIndividual = Targets.size() <= 20; // Don't bother IP limits if scanning huge # of hosts
-  pcap_filter[0] = '\0';
 
   if (!USI->isRawScan())
     return; /* No sniffer needed! */
 
   if (doIndividual) {
     for(targetno = 0; targetno < Targets.size(); targetno++) {
-      len = Snprintf(dst_hosts + filterlen, 
-		     sizeof(dst_hosts) - filterlen,
-		     "%ssrc host %s", (targetno == 0)? "" : " or ",
-		     Targets[targetno]->targetipstr());
-      if (len < 0 || len + filterlen >= (int) sizeof(dst_hosts))
-	fatal("ran out of space in dst_hosts");
-      filterlen += len;
+      dst_hosts+=(targetno == 0)? "" : " or ";
+      dst_hosts+="src host ";
+      dst_hosts+=Targets[targetno]->targetipstr();
     }
   }
-  filterlen = 0;
 
   USI->pd = my_pcap_open_live(Targets[0]->deviceName(), 100,  (o.spoofsource)? 1 : 0, pcap_selectable_fd_valid()? 200 : 2);
-
-  if (USI->tcp_scan || USI->udp_scan) {
-    if (doIndividual)
-      len = Snprintf(pcap_filter, sizeof(pcap_filter), 
-		     "dst host %s and (icmp or (%s and (%s)))", 
-		     inet_ntoa(Targets[0]->v4source()), 
-		     (USI->tcp_scan)? "tcp" : "udp", dst_hosts);
-    else len = Snprintf(pcap_filter, sizeof(pcap_filter), 
-			"dst host %s and (icmp or %s)", 
-			inet_ntoa(Targets[0]->v4source()), 
-			(USI->tcp_scan)? "tcp" : "udp");
-    if (len < 0 || len >= (int) sizeof(pcap_filter))
-      fatal("ran out of space in pcap filter");
-    filterlen = len;
-  } else if (USI->prot_scan || (USI->ping_scan && USI->ptech.rawprotoscan)) {
-    if (doIndividual)
-      len = Snprintf(pcap_filter, sizeof(pcap_filter), 
-		     "dst host %s and (icmp or (%s))", 
-		     inet_ntoa(Targets[0]->v4source()), dst_hosts);
-    else	
-      len = Snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s",
-		     inet_ntoa(Targets[0]->v4source()));
-    if (len < 0 || len >= (int) sizeof(pcap_filter))
-      fatal("ran out of space in pcap filter");
-    filterlen = len;
-  } else if (USI->ping_scan_arp) {
+  if(USI->ping_scan_arp){
     const u8 *mac = Targets[0]->SrcMACAddress();
     assert(mac);
-    len = Snprintf(pcap_filter, sizeof(pcap_filter), 
-		   "arp and ether dst host %02X:%02X:%02X:%02X:%02X:%02X", 
-		   mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-    if (len < 0 || len >= (int) sizeof(pcap_filter))
-      fatal("ran out of space in pcap filter");
-    filterlen = len;
-  } else if (USI->ping_scan) {
+    pcap_filter="arp and ether dst host ";
+    len = Snprintf(macstring, sizeof(macstring), 
+      "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    if(len>=sizeof(macstring))
+      fatal("macstring too long");
+    pcap_filter+=macstring;
+    //its not arp or connect, so it must be tcp, udp, prot, or icmp
+  }else {
     /* Handle all the different ping types (except ARP and TCP connect) with one
-       filter. */
-    if (doIndividual)
-      len = Snprintf(pcap_filter, sizeof(pcap_filter),
-        "dst host %s and (icmp or ((tcp or udp) and (%s)))", 
-	inet_ntoa(Targets[0]->v4source()), dst_hosts);
-    else
-      len = Snprintf(pcap_filter, sizeof(pcap_filter),
-        "dst host %s and (icmp or tcp or udp)", 
-	inet_ntoa(Targets[0]->v4source()));
-    if (len < 0 || len >= (int) sizeof(pcap_filter))
-      fatal("ran out of space in pcap filter");
-    filterlen = len;
-  } else assert(0); /* Other scan types? */
-  if (o.debugging > 2) log_write(LOG_PLAIN, "Pcap filter: %s\n", pcap_filter);
-  set_pcap_filter(Targets[0]->deviceName(), USI->pd, pcap_filter);
+    filter. */
+    if (doIndividual){
+      pcap_filter="dst host ";
+      pcap_filter+=inet_ntoa(Targets[0]->v4source());
+      pcap_filter+=" and (icmp or ((tcp or udp) and (";
+      pcap_filter+=dst_hosts;
+      pcap_filter+=")))";
+    }else{
+      pcap_filter="dst host ";
+      pcap_filter+=inet_ntoa(Targets[0]->v4source());
+      pcap_filter+=" and (icmp or tcp or udp)";
+    }
+  }
+  if (o.debugging > 2) log_write(LOG_PLAIN, "Pcap filter: %s\n", pcap_filter.c_str());
+  set_pcap_filter(Targets[0]->deviceName(), USI->pd, pcap_filter.c_str());
   /* pcap_setnonblock(USI->pd, 1, NULL); */
-  
   return;
 }
 
