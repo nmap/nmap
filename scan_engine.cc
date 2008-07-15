@@ -974,9 +974,10 @@ static bool pingprobe_is_appropriate(const UltraScanInfo *USI,
   case(PS_TCP):
   case(PS_UDP):
   case(PS_PROTO):
+    return USI->tcp_scan || USI->udp_scan || USI->prot_scan || 
+          (USI->ping_scan && (USI->ptech.rawtcpscan || USI->ptech.rawudpscan || USI->ptech.rawprotoscan));
   case(PS_ICMP):
-    return ((USI->ping_scan && (!USI->ping_scan_arp || USI->ptech.rawtcpscan || USI->ptech.rawudpscan || USI->ptech.rawprotoscan )) ||
-           USI->tcp_scan || USI->udp_scan || USI->prot_scan || pingprobe->pd.icmp.type == 3);
+    return ((USI->ping_scan && !USI->ping_scan_arp )|| pingprobe->pd.icmp.type == 3);
   case(PS_ARP):
     return USI->ping_scan_arp;
   }
@@ -2482,9 +2483,9 @@ static void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
        timing ping probe. */
     if (pingprobe_is_better(probe->pspec(), PORT_UNKNOWN, &hss->target->pingprobe, hss->target->pingprobe_state)) {
       if (o.debugging > 1) {
-        char buf[32];
-        probespec2ascii(probe->pspec(), buf, sizeof(buf));
-        log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), buf);
+	char buf[32];
+	probespec2ascii(probe->pspec(), buf, sizeof(buf));
+	log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), buf);
       }
       hss->target->pingprobe = *probe->pspec();
       hss->target->pingprobe_state = PORT_UNKNOWN;
@@ -2516,10 +2517,10 @@ static void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
     /* This probe received a positive response. Consider making it the new
        timing ping probe. */
     if (pingprobe_is_better(probe->pspec(), newstate, &hss->target->pingprobe, hss->target->pingprobe_state)) {
-     if (o.debugging > 1) {
-       char buf[32];
-       probespec2ascii(probe->pspec(), buf, sizeof(buf));
-       log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), buf);
+      if (o.debugging > 1) {
+	char buf[32];
+	probespec2ascii(probe->pspec(), buf, sizeof(buf));
+	log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), buf);
       }
       hss->target->pingprobe = *probe->pspec();
       hss->target->pingprobe_state = newstate;
