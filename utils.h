@@ -223,14 +223,6 @@ unsigned int gcd_n_uint(int nvals, unsigned int *val);
 int arg_parse(const char *command, char ***argv);
 void arg_parse_free(char **argv);
 
-/* Converts an Nmap time specification string into milliseconds.  If
-   the string is a plain non-negative number, it is considered to
-   already be in milliseconds and is returned.  If it is a number
-   followed by 's' (for seconds), 'm' (minutes), or 'h' (hours), the
-   number is converted to milliseconds and returned.  If Nmap cannot
-   parse the string, it is returned instead. */
-long tval2msecs(char *tspec);
-
 /* Convert a string in the format of a roughly C-style string literal
    (e.g. can have \r, \n, \xHH escapes, etc.) into a binary string.
    This is done in-place, and the new (shorter or the same) length is

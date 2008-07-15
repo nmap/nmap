@@ -449,28 +449,6 @@ void arg_parse_free(char **argv) {
   free(argv);
 }
 
-/* Converts an Nmap time specification string into milliseconds.  If
-   the string is a plain non-negative number, it is considered to
-   already be in milliseconds and is returned.  If it is a number
-   followed by 's' (for seconds), 'm' (minutes), or 'h' (hours), the
-   number is converted to milliseconds and returned.  If Nmap cannot
-   parse the string, it is returned instead. */
-long tval2msecs(char *tspec) {
-  long l;
-  char *endptr = NULL;
-  l = strtol(tspec, &endptr, 10);
-  if (l < 0 || !endptr) return -1;
-  if (*endptr == '\0') return l;
-  if (*endptr == 's' || *endptr == 'S') return l * 1000;
-  if ((*endptr == 'm' || *endptr == 'M')) {
-    if (*(endptr + 1) == 's' || *(endptr + 1) == 'S') 
-      return l;
-    return l * 60000;
-  }
-  if (*endptr == 'h' || *endptr == 'H') return l * 3600000;
-  return -1;
-}
-
 // A simple function to form a character from 2 hex digits in ASCII form
 static unsigned char hex2char(unsigned char a, unsigned char b)
 {
