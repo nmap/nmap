@@ -2513,18 +2513,20 @@ than the scan you are trying to optimize.  So Nmap offers a simpler
 approach, with six timing templates.  You can specify them with the
 <option>-T</option> option and their number (0&ndash;5) or their name.
 The template names are
-<option>paranoid</option>&nbsp;(<option>0</option>),<indexterm><primary><literal>paranoid</literal> (<option>-T0</option>) timing template</primary></indexterm>
-<option>sneaky</option>&nbsp;(<option>1</option>),<indexterm><primary><literal>sneaky</literal> (<option>-T1</option>) timing template</primary></indexterm>
-<option>polite</option>&nbsp;(<option>2</option>),<indexterm><primary><literal>polite</literal> (<option>-T2</option>) timing template</primary></indexterm>
-<option>normal</option>&nbsp;(<option>3</option>),<indexterm><primary><literal>normal</literal> (<option>-T3</option>) timing template</primary></indexterm>
-<option>aggressive</option>&nbsp;(<option>4</option>),<indexterm><primary><literal>aggressive</literal> (<option>-T4</option>) timing template</primary></indexterm>
-and <option>insane</option>&nbsp;(<option>5</option>).<indexterm><primary><literal>insane</literal> (<option>-T5</option>) timing template</primary></indexterm>
+<option>paranoid</option>&nbsp;(<option>0</option>),
+<option>sneaky</option>&nbsp;(<option>1</option>),
+<option>polite</option>&nbsp;(<option>2</option>),
+<option>normal</option>&nbsp;(<option>3</option>),
+<option>aggressive</option>&nbsp;(<option>4</option>),
+and <option>insane</option>&nbsp;(<option>5</option>).
 The first two are for IDS evasion.
 Polite mode slows down the scan to use less bandwidth
 and target machine resources.  Normal mode is the default and so
 <option>-T3</option> does nothing. Aggressive mode speeds scans up by
 making the assumption that you are on a reasonably fast and reliable
-network.  Finally insane mode assumes that you are on an
+network.  Finally
+insane mode<indexterm><primary><literal>insane</literal> (<option>-T5</option>) timing template</primary></indexterm>
+assumes that you are on an
 extraordinarily fast network or are willing to sacrifice some accuracy
 for speed.</para>
 
