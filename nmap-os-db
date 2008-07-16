@@ -971,7 +971,7 @@ IE(DFI=S%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Darwin 9.0.0d1 Darwin Kernel Version 9.0.0d1: Wed Oct 10 00:07:50 PDT 2007; root:xnu-933.0.0.204.obj~7/RELEASE_ARM_S5L8900XRB iPod1,1 Darwin, ipod touch 1.1.2 (jailbroken)
 # Darwin 9.0.0d1 Darwin Kernel Version 9.0.0d1: Wed Dec 12 00:16:00 PST 2007; root:xnu-933.0.0.211.obj~2/RELEASE_ARM_S5L8900XRB iPod1,1 arm N45AP Darwin, ziphone 2.6b jailbroken ipod touch (1.1.4)
-Fingerprint Apple iPod Touch audio player (iPhone OS 1.1.2 - 1.1.4, Darwin 9.0.0d1)
+Fingerprint Apple iPod touch audio player (iPhone OS 1.1.2 - 1.1.4, Darwin 9.0.0d1)
 Class Apple | iPhone OS | 1.X | media device
 SEQ(SP=0-5%GCD=<7%ISR=15-1F%TI=I%TS=1)
 OPS(O1=M5B4NW0NNT11SLL%O2=M5B4NW0NNT11SLL%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11SLL%O5=M5B4NW0NNT11SLL%O6=M5B4NNT11SLL)
@@ -988,7 +988,7 @@ U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Ipod Touch 16Gb. With 1.1.3 upgrade,BSD Subsystem, Openssh, and some other utils. Darwin 9.0.0d1 Darwin Kernel Version 9.0.0d1: Wed Oct 10 00:07:50 PDT 2007; root:xnu-933.0.0.204.obj~7/RELEASE_ARM_S5L8900XRB iPod1,1 unknown
-Fingerprint Apple iPod Touch audio player (iPhone OS 1.1.3, Darwin 9.0.0d1)
+Fingerprint Apple iPod touch audio player (iPhone OS 1.1.3, Darwin 9.0.0d1)
 Class Apple | iPhone OS | 1.X | media device
 SEQ(SP=0-5%GCD=<7%ISR=15-1F%TS=1)
 OPS(O1=M3FD8NW0NNT11SLL%O2=M3FD8NW0NNT11SLL%O3=M3FD8NW0NNT11%O4=M3FD8NW0NNT11SLL%O5=M3FD8NW0NNT11SLL%O6=M3FD8NNT11SLL)
@@ -1005,7 +1005,7 @@ U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # iPod touch Firmware 1.1.3, jailbroken, ssh installed
-Fingerprint Apple iPod Touch audio player (iPhone OS 1.1.3, Darwin 9.0.0d1)
+Fingerprint Apple iPod touch audio player (iPhone OS 1.1.3, Darwin 9.0.0d1)
 Class Apple | iPhone OS | 1.X | media device
 SEQ(SP=0-5%GCD=<7%ISR=16-20%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11SLL%O2=M5B4NW0NNT11SLL%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11SLL%O5=M5B4NW0NNT11SLL%O6=M5B4NNT11SLL)
@@ -1026,11 +1026,11 @@ IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # Apple iPhone running kernel: "Darwin Kernel Version 9.0.0d1" and DropBear SSH daemon
 # Apple iPhone, 8GB model, firmware version 1.0.2, WiFi connection
 # iPhone Firmware 1.1.1
-# Jailbroken iPod Touch running firmware 1.1.1
+# Jailbroken iPod touch running firmware 1.1.1
 # Darwin 9.0.0d1 Darwin Kernel Version 9.0.0d1: Thu Sep 20 00:27:53 PDT 2007; root:xnu-933.0.0.203.obj~24/RELEASE_ARM_S5L8900XRBiPod1,1 Darwin
 # Darwin iPod 9.0.0d1 Darwin Kernel Version 9.0.0d1: Wed Oct 10 00:07:50 PDT 2007; root:xnu-933.0.0.204.obj~7/RELEASE_ARM_S5L8900XRB iPod1,1 Darwin, iPod Touche firmware 1.1.2 jailbroken (obviously)
 # iPod Touch firmware 1.1.3 (jailbreaked)
-Fingerprint Apple iPhone mobile phone or iPod Touch audio player (iPhone OS 1.0.2 - 1.1.3, Darwin 9.0.0d1)
+Fingerprint Apple iPhone mobile phone or iPod touch audio player (iPhone OS 1.0.2 - 1.1.3, Darwin 9.0.0d1)
 Class Apple | iPhone OS | 1.X | phone
 Class Apple | iPhone OS | 1.X | media device
 SEQ(SP=0-5%GCD=<7%ISR=15-1F%TI=I%II=I%SS=S%TS=1)
