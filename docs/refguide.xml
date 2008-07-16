@@ -429,7 +429,7 @@ you would expect.</para>
            reply to broadcast queries.</para>
 
            <para>The <option>-sP</option> option sends an ICMP echo
-           request and a TCP packet to port 80 by default.  When
+           request and a TCP ACK packet to port 80 by default.  When
            executed by an unprivileged user, only a SYN packet is sent
            (using a <function>connect()</function> call) to port 80 on
            the target.  When a privileged user tries to scan targets
@@ -474,7 +474,7 @@ you would expect.</para>
           IP is active.  For machines on a local ethernet network, ARP
           scanning will still be performed (unless
           <option>--send-ip</option> is specified) because Nmap needs
-          MAC addresses to further scan target hosts.  This option flag for this used to be <option>P0</option> (uses zero), but was renamed to avoid confusion with protocol ping's <option>PO</option> (uses the letter O) flag.</para>
+          MAC addresses to further scan target hosts.  This option flag used to be <option>P0</option> (uses zero), but was renamed to avoid confusion with protocol ping's <option>PO</option> (uses the letter O) flag.</para>
         </listitem>
       </varlistentry>
 
