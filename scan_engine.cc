@@ -4578,7 +4578,7 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
     if(len>=sizeof(macstring))
       fatal("macstring too long");
     pcap_filter+=macstring;
-    //its not arp or connect, so it must be tcp, udp, prot, or icmp
+    //its not arp, so lets check if for a protocol scan.
   } else if(USI->prot_scan || (USI->ping_scan && USI->ptech.rawprotoscan)){
     if (doIndividual){
       pcap_filter="dst host ";
@@ -4590,9 +4590,8 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
       pcap_filter="dst host ";
       pcap_filter+=inet_ntoa(Targets[0]->v4source());
     }
-  } else {
-    /* Handle all the different ping types (except ARP and TCP connect) with one
-    filter. */
+  } else if(USI->tcp_scan || USI->udp_scan || USI->ping_scan) {
+    /* Handle udp and tcp with one filter. */
     if (doIndividual){
       pcap_filter="dst host ";
       pcap_filter+=inet_ntoa(Targets[0]->v4source());
@@ -4604,7 +4603,7 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
       pcap_filter+=inet_ntoa(Targets[0]->v4source());
       pcap_filter+=" and (icmp or tcp or udp)";
     }
-  }
+  }else assert(0);
   if (o.debugging > 2) log_write(LOG_PLAIN, "Pcap filter: %s\n", pcap_filter.c_str());
   set_pcap_filter(Targets[0]->deviceName(), USI->pd, pcap_filter.c_str());
   /* pcap_setnonblock(USI->pd, 1, NULL); */
