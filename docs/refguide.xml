@@ -341,7 +341,7 @@ you would expect.</para>
           to each target machine.  An exception to this is that an ARP scan is
           used for any targets which are on a local ethernet network.
           For unprivileged Unix shell users, a SYN packet is sent
-          instead of the ACK using the <function>connect()</function>
+          instead of the ACK using the <function>connect</function>
           system call.<indexterm><primary>unprivileged users</primary><secondary>limitations of</secondary></indexterm>
           These defaults are equivalent to the
           <option>-PA -PE</option> options.  This host discovery is
@@ -431,7 +431,7 @@ you would expect.</para>
            <para>The <option>-sP</option> option sends an ICMP echo
            request and a TCP ACK packet to port 80 by default.  When
            executed by an unprivileged user, only a SYN packet is sent
-           (using a <function>connect()</function> call) to port 80 on
+           (using a <function>connect</function> call) to port 80 on
            the target.  When a privileged user tries to scan targets
            on a local ethernet network, ARP requests
            are used unless
@@ -527,10 +527,10 @@ you would expect.</para>
 	  raw TCP packets.<indexterm><primary>raw packets</primary></indexterm>
           For unprivileged users, a
           workaround is automatically employed<indexterm><primary>unprivileged users</primary><secondary>limitations of</secondary></indexterm>
-	  whereby the connect() system call is initiated against each
+	  whereby the <function>connect</function> system call is initiated against each
 	  target port. This has
           the effect of sending a SYN packet to the target host, in an
-          attempt to establish a connection.  If connect() returns
+          attempt to establish a connection.  If <function>connect</function> returns
           with a quick success or an ECONNREFUSED failure, the
           underlying TCP stack must have received a SYN/ACK or RST and
           the host is marked available.  If the connection attempt
@@ -563,8 +563,8 @@ you would expect.</para>
           port as the SYN probe (80) and can also take a list of
           destination ports in the same format.  If an unprivileged
           user tries this, or an IPv6 target is specified, the
-          connect() workaround discussed previously is used.  This
-          workaround is imperfect because connect() is actually
+          <function>connect</function> workaround discussed previously is used.  This
+          workaround is imperfect because <function>connect</function> is actually
           sending a SYN packet rather than an ACK.</para>
 
           <para>The reason for offering both SYN and ACK ping probes
@@ -800,7 +800,7 @@ a closed port or an echo reply from an alive host. The information
 Nmap can provide is determined by the type of scan or ping. The SYN
 scan and SYN ping (<option>-sS</option> and <option>-PS</option>) are very detailed, but the
 TCP connect scan (<option>-sT</option>) is limited by the
-implementation of the <literal>connect</literal> system call. This feature is automatically enabled by
+implementation of the <function>connect</function> system call. This feature is automatically enabled by
 the debug option
 (<option>-d</option>)<indexterm><primary><option>--reason</option></primary><secondary>implied by <option>-d</option></secondary></indexterm>
 and the results are stored in XML log files
@@ -851,7 +851,7 @@ even if this option is not specified.
           and then listening for responses.  Many requests (often
           dozens) are performed in parallel to improve performance.
           Specify this option to use your system resolver instead (one
-          IP at a time via the getnameinfo() call).  This is slower
+          IP at a time via the <function>getnameinfo</function> call).  This is slower
           and rarely useful unless you find a bug in the Nmap parallel
           resolver (please let us know if you do).  The system
           resolver is always used for IPv6 scans.
@@ -1100,7 +1100,7 @@ not an option.  This is the case when a user does not have raw packet
 privileges or is scanning IPv6 networks.  Instead of writing raw
 packets as most other scan types do, Nmap asks the underlying
 operating system to establish a connection with the target machine and
-port by issuing the <literal>connect()</literal> system call.  This is
+port by issuing the <function>connect</function> system call.  This is
 the same high-level system call that web browsers, P2P clients, and
 most other network-enabled applications use to establish a connection.
 It is part of a programming interface known as the Berkeley Sockets
@@ -1109,7 +1109,7 @@ this API to obtain status information on each connection attempt.
 </para>
 
 <para>When SYN scan is available, it is usually a better choice.  Nmap
-has less control over the high level <literal>connect()</literal> call
+has less control over the high level <function>connect</function> call
 than with raw packets, making it less efficient.  The system call
 completes connections to open target ports rather than performing the
 half-open reset that SYN scan does.  Not only does this take longer
@@ -3105,11 +3105,11 @@ compatibility feature of Nmap will cause the creation of
 respectively.</para>
 
 <para>All of these arguments support
-<function>strftime()</function>-like<indexterm><primary><function>strftime</function> conversions in filenames</primary></indexterm>
+<function>strftime</function>-like<indexterm><primary><function>strftime</function> conversions in filenames</primary></indexterm>
 conversions in the filename.  <literal>%H</literal>, <literal>%M</literal>,
 <literal>%S</literal>, <literal>%m</literal>, <literal>%d</literal>,
 <literal>%y</literal>, and <literal>%Y</literal> are all exactly the same
-as in <function>strftime()</function>.  <literal>%T</literal> is the same
+as in <function>strftime</function>.  <literal>%T</literal> is the same
 as <literal>%H%M%S</literal>, <literal>%R</literal> is the same as
 <literal>%H%M</literal>, and <literal>%D</literal> is the same as
 <literal>%m%d%y</literal>.  A <literal>%</literal> followed by any other
@@ -3726,7 +3726,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
           similar operations that usually require
 	  root privileges<indexterm><primary>privileged users</primary></indexterm><indexterm><primary>authorized users</primary><see>privileged users</see></indexterm>
           on Unix systems. By default Nmap quits if such operations are
-          requested but geteuid() is not
+          requested but <function>geteuid</function> is not
           zero. <option>--privileged</option> is useful with Linux
           kernel capabilities and similar systems that may be
           configured to allow unprivileged users to perform raw-packet
