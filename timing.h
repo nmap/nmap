@@ -142,6 +142,8 @@ class RateMeter {
     double getCurrentPacketRate(const struct timeval *now = NULL, bool update =true);
     double getOverallByteRate(const struct timeval *now = NULL) const;
     double getCurrentByteRate(const struct timeval *now = NULL, bool update =true);
+    unsigned long long getNumPackets(void) const;
+    unsigned long long getNumBytes(void) const;
 
   private:
     /* How many seconds to look back when calculating the "current" rates. */

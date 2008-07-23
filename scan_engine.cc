@@ -611,6 +611,21 @@ public:
   bool numIncompleteHostsLessThan(unsigned int n);
 
   unsigned int numInitialHosts() { return numInitialTargets; }
+
+  void log_overall_rates(int logt) {
+    log_write(logt, "Overall sending rates: %.2f packets / s", send_rate_meter.getOverallPacketRate(&now));
+    if (send_rate_meter.getNumBytes()> 0)
+      log_write(logt, ", %.2f bytes / s", send_rate_meter.getOverallByteRate(&now));
+    log_write(logt, ".\n");
+  }
+
+  void log_current_rates(int logt, bool update = true) {
+    log_write(logt, "Current sending rates: %.2f packets / s", send_rate_meter.getCurrentPacketRate(&now, update));
+    if (send_rate_meter.getNumBytes()> 0)
+      log_write(logt, ", %.2f bytes / s", send_rate_meter.getCurrentByteRate(&now));
+    log_write(logt, ".\n");
+  }
+
   /* Any function which messes with (removes elements from)
      incompleteHosts may have to manipulate nextI */
   list<HostScanStats *> incompleteHosts;
@@ -3208,12 +3223,8 @@ static void printAnyStats(UltraScanInfo *USI) {
       }
     }
 
-    log_write(LOG_PLAIN, "Current sending rates: %.2f packets / s, %.2f bytes / s.\n",
-      USI->send_rate_meter.getCurrentPacketRate(),
-      USI->send_rate_meter.getCurrentByteRate());
-    log_write(LOG_PLAIN, "Overall sending rates: %.2f packets / s, %.2f bytes / s.\n",
-      USI->send_rate_meter.getOverallPacketRate(),
-      USI->send_rate_meter.getOverallByteRate());
+    USI->log_current_rates(LOG_PLAIN);
+    USI->log_overall_rates(LOG_PLAIN);
   }
 
   /* Now time to figure out how close we are to completion ... */
@@ -4838,9 +4849,7 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
          /* Don't update when getting the current rates, otherwise we can get
             anomalies (rates are too low) from having just done a potentially
             long waitForResponses without sending any packets. */
-         log_write(LOG_STDOUT, "Current sending rates: %.2f packets / s, %.2f bytes / s.\n",
-            USI->send_rate_meter.getCurrentPacketRate(&USI->now, false),
-            USI->send_rate_meter.getCurrentByteRate(&USI->now, false));
+         USI->log_current_rates(LOG_STDOUT, false);
        }
        
        log_flush(LOG_STDOUT);
@@ -4869,11 +4878,8 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
 		   (USI->gstats->num_hosts_timedout == 1)? "host" : "hosts");
     USI->SPM->endTask(NULL, additional_info);
   }
-  if (o.debugging) {
-    log_write(LOG_STDOUT, "Overall sending rates: %.2f packets / s, %.2f bytes / s.\n",
-      USI->send_rate_meter.getOverallPacketRate(),
-      USI->send_rate_meter.getOverallByteRate());
-  }
+  if (o.debugging)
+    USI->log_overall_rates(LOG_STDOUT);
 
   if (o.debugging > 2 && USI->pd != NULL)
     pcap_print_stats(LOG_PLAIN, USI->pd);

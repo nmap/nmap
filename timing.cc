@@ -307,6 +307,14 @@ double RateMeter::getCurrentByteRate(const struct timeval *now, bool update) {
   return current_byte_rate;
 }
 
+unsigned long long RateMeter::getNumPackets(void) const {
+  return num_packets;
+}
+
+unsigned long long RateMeter::getNumBytes(void) const {
+  return num_bytes;
+}
+
 /* Update the rates to include packets additional packets and bytes additional
    bytes. If now is not NULL, use it as the time the packets and bytes were
    received rather than calling gettimeofday. */
