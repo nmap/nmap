@@ -75,6 +75,13 @@ o The file selector in Zenmap now remembers what directory it was last
 o Zenmap defaults to showing files matching both *.xml and *.usr in the
   file selector. Previously it only showed those matching *.usr.
 
+o Nmap avoids printing the sending rate in bytes per second during a TCP
+  connect scan. Because the number of bytes per probe is not known, it used to
+  print
+    Current sending rates: 11248.85 packets / s, 0.00 bytes / s.
+  Now it will print simply
+    Current sending rates: 11248.85 packets / s.
+
 Nmap 4.68 [2008-6-28]
 
 o Doug integrated all of your version detection submissions and
