@@ -13,7 +13,7 @@
     growing and diverse set of scripts distributed with Nmap, or write
     their own to meet custom needs.</para>
 
-    <para>We designed NSE to be versatile, with the following tasks in mind</para>    
+    <para>We designed NSE to be versatile, with the following tasks in mind:</para>    
 
     <variablelist>
       <varlistentry>

@@ -1202,7 +1202,7 @@ hosts.</para>
 exploit a subtle loophole in the <ulink
 role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc793.txt">TCP RFC</ulink> to
 differentiate between <literal>open</literal> and
-<literal>closed</literal> ports.  Page 65 says that <quote>if the
+<literal>closed</literal> ports.  Page 65 of RFC 793 says that <quote>if the
 [destination] port state is CLOSED .... an incoming segment not
 containing a RST causes a RST to be sent in response.</quote>  Then the next
 page discusses packets sent to open ports without the SYN, RST, or ACK
