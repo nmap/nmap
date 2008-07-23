@@ -65,6 +65,16 @@ o Changed the order preference of timing ping propes. [Michael]
 o Enabled nmap to switch between multiple types of timing pings during port
   scanning. [Michael]
 
+o Some Zenmap crashes have been fixed: trying to "refresh" the output of
+  a scan loaded from a file, and trying to re-save a file loaded from
+  the command line in some circumstances. [David]
+
+o The file selector in Zenmap now remembers what directory it was last
+  looking at. [David]
+
+o Zenmap defaults to showing files matching both *.xml and *.usr in the
+  file selector. Previously it only showed those matching *.usr.
+
 Nmap 4.68 [2008-6-28]
 
 o Doug integrated all of your version detection submissions and
