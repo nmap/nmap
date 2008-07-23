@@ -3162,7 +3162,7 @@ described below.</para>
           url="http://sourceforge.net/projects/nmap-scanner/">Nmap::Scanner</ulink>
           <indexterm><primary>Nmap::Scanner</primary></indexterm>
           and <ulink
-          url="http://www.nmapparser.com">Nmap::Parser</ulink>
+          url="http://nmapparser.wordpress.com/">Nmap::Parser</ulink>
           <indexterm><primary>Nmap::Parser</primary></indexterm>
           in Perl
           CPAN.  In almost all cases that a non-trivial application
