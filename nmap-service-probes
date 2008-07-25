@@ -1638,9 +1638,10 @@ match smtp m/^220[- ].*\r\n220[- ]([^\r\n]+) ESMTP Exim /s p/Exim smtpd/ h/$1/
 match smtp m/^220 CheckPoint FireWall-1 secure ESMTP server\r\n$/ p/Checkpoint FireWall-1 smtpd/ d/firewall/
 match smtp m/^220 CheckPoint FireWall-1 secure SMTP server\r\n$/ p/Checkpoint FireWall-1 smtpd/ d/firewall/
 match smtp m|^220 ([-.+\w]+) running IBM AS/400 SMTP V([\w]+)| p|IBM AS/400 smtpd| h|$1| v|$2|
-match smtp m|^220 ([-.+\w]+) ESMTP MailEnable Service, Version: (\d[.\w-]+)- ready at | p/MailEnable smptd/ h/$1/ v/$2/
+match smtp m|^220 ([-.+\w]+) ESMTP MailEnable Service, Version: (\d[.\w]+)- ready at | p/MailEnable smptd/ h/$1/ v/$2/
 match smtp m/^220 ([-.+\w]+) ESMTP Mail Enable SMTP Service, Version: (\d[\w.]+)-- ready at/ p/MailEnable smptd/ h/$1/ v/$2/
-match smtp m|^220 ([-.+\w]+) ESMTP MailEnable Service, Version: \d+--([\d.]+) ready at| p/MailEnable smptd/ h/$1/ v/$2/
+# Enterprise version number seems to be preceeded by "0--"; Professional with "0-"
+match smtp m|^220 ([-.+\w]+) ESMTP MailEnable Service, Version: \d+--([\d.]+) ready at| p/MailEnable Enterprise smptd/ h/$1/ v/$2/
 match smtp m|^220 ([-.+\w]+) ESMTP MailEnable Service, Version: -(\d[\w.]+)- ready at| p/MailEnable smptd/ h/$1/ v/$2/
 match smtp m|^530 ([-.+\w]+) ESMTP MailEnable Service, Version: ([-\w_.]+) denied access at| p/MailEnable smptd/ h/$1/ v/$2/ i/Denied access/
 match smtp m/^220 ([-.+\w]+) ESMTP CPMTA-([-.+\w]+) - NO UCE\r\n/ p/CPMTA/ h/$1/ v/$2/ i/qmail-derived/
