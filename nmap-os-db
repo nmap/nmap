@@ -2001,23 +2001,6 @@ T7(R=Y%DF=Y%T=FF%TG=FF%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=FF%TG=FF%TOS=C0%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
-# AXIS 5400 Network Print Server V6.00 Jun 28 1999
-Fingerprint AXIS 5400 Network Print Server V6.00
-Class AXIS | embedded || print server
-SEQ(SP=F7-101%GCD=<7%ISR=10A-114%TI=I%II=I%SS=O|S%TS=0)
-OPS(O1=NNT11|M4ECNW0NNT00NNS%O2=NNT11|M4ECNW0NNT00NNS%O3=NNT11|M4ECNW0NNT00%O4=NNT11|M4ECNW0NNT00NNS%O5=NNT11|M4ECNW0NNT00NNS%O6=NNT11|M4ECNNT00NNS)
-WIN(W1=44E8%W2=44E8%W3=4100%W4=40E8%W5=40E8%W6=402E)
-ECN(R=Y%DF=Y%T=80%TG=80%W=44E8%O=|M4ECNW0NNS%CC=N%Q=)
-T1(R=Y%DF=Y%T=80%TG=80%S=O%A=O|S+%F=A|AS%RD=0%Q=)
-T2(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
-T3(R=Y%DF=Y%T=80%TG=80%W=402E%S=O%A=O|S+%F=A|AS%O=NNT11|M4ECNW0NNT00NNS%RD=0%Q=)
-T4(R=Y%DF=N%T=80%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=N%T=80%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T7(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=80%TG=80%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
-IE(DFI=S%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
-
 # Axis 70U Network document server
 Fingerprint AXIS 70U Network Document Server
 Class AXIS | embedded || specialized
@@ -4034,7 +4017,8 @@ IE(DFI=S%T=FF%TG=FF%TOSI=Z%CD=S%SI=S%DLI=S)
 # Cisco Catalyst 4510R Switch
 # Cisco IOS 12.1E: Catalyst 6000
 # Cisco IOS Software, C3560 Software (C3560-ADVIPSERVICESK9-M), Version 12.2(44)SE, RELEASE SOFTWARE (fc1)
-Fingerprint Cisco 3560, 3750, 4510R, 6000-series, or 6500-series switch (IOS 12.1 or 12.2)
+# Cisco IOS Software, C3550 Software (C3550-IPSERVICESK9-M), Version 12.2(44)SE2
+Fingerprint Cisco 3550, 3560, 3750, 4510R, 6000-series, or 6500-series switch (IOS 12.1 or 12.2)
 Class Cisco | IOS | 12.X | switch
 SEQ(SP=FA-108%GCD=<7%ISR=100-110%TI=RD%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
@@ -4051,7 +4035,7 @@ U1(DF=N%T=100%TG=100%TOS=C0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=S%T=100%TG=100%TOSI=S%CD=S%SI=S%DLI=S)
 
 # C3500XL Software (C3500XL-C3H2S-M), Version 12.0(5)WC15
-Fingerprint Cisco Catalyst 3500 XL switch (IOS 12.0(5))
+Fingerprint Cisco Catalyst 3500 XL switch (IOS 12.0)
 Class Cisco | IOS | 12.X | switch
 SEQ(SP=DE-100%GCD=<7%ISR=105-10F%TI=Z%II=RI%TS=U)
 OPS(O1=M22C%O2=M22C%O3=M22C%O4=M22C%O5=M22C%O6=M22C)
@@ -4435,9 +4419,11 @@ IE(DFI=S%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 # Xerox Phaser 7400N network printer
 # Cisco C1230B running vxWorks 12.01T1
 # Cisco 1200 Series AP 12.01T1 (AIR-AP-1220B-E-K9) running VxWorks 12.01A
-Fingerprint Cisco 1200-series WAP, HP ProCurve 2650 switch, or Xerox Phaser 7400N or 8550DT printer
+# Remote System Controller (RSC) card of a Sun Fire 280R server, RSC Version: 2.2.3
+Fingerprint Cisco 1200-series WAP, HP ProCurve 2650 switch, Sun Remote System Control (RSC), or Xerox Phaser 7400N or 8550DT printer
 Class Cisco | VxWorks | 12.X | WAP
 Class HP | embedded || switch
+Class Sun | embedded || specialized
 Class Xerox | embedded || printer
 SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=99-A3%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW0%O2=M5B4NW0%O3=M5B4NW0%O4=M5B4NW0%O5=M5B4NW0%O6=M5B4)
@@ -4472,9 +4458,11 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Compaq Remote Insight Lights-Out Edition II
 # Cisco Wireless Access Point, AIR-AP1010-E-K9,  Software Version 4.0.206.0
-Fingerprint Compaq Remote Insight Lights-Out (iLO) Edition II remote server management or Cisco Aironet 1010 WAP
-Class Compaq | embedded || remote management
+# Sun(tm) Advanced Lights Out Manager 1.2
+Fingerprint Lights-Out remote server management, or Cisco Aironet 1010 WAP
 Class Cisco | embedded || WAP
+Class Compaq | embedded || remote management
+Class Sun | embedded || remote management
 SEQ(SP=13-1D%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=98-A2%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -5065,8 +5053,10 @@ IE(DFI=N%T=20%TG=20%TOSI=Z%CD=S%SI=S%DLI=S)
 
 # Dell laser printer 1600n V1.11(1600n)
 # Dell Laser MFP 1600n OS Ver. 1.21 Nic ver. 1.11
-Fingerprint 3Com OfficeConnect 56K LAN modem or Dell 1600n laser printer
+# samsung ML-2150 series printer
+Fingerprint 3Com OfficeConnect 56K LAN modem, or Dell 1600n or Samsung ML-2150 printer
 Class Dell | embedded || printer
+Class Samsung | embedded || printer
 SEQ(SP=C-46%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=97-BB%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -5626,7 +5616,7 @@ U1(DF=N%T=FF%TG=FF%TOS=C0%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Linux 2.6.22.6 #70 Thu Sep 6 15:38:04 CEST 2007 mips unknown (DD-WRT v24 rc4 for Fonera)
-Fingerprint DD-WRT v24 rc4 (Linux 2.6.22.6)
+Fingerprint DD-WRT v24 (Linux 2.6.22)
 Class FON | Linux | 2.6.X | WAP
 SEQ(SP=B0-102%GCD=<7%ISR=E9-FF%TI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW1%O2=M5B4ST11NW1%O3=M5B4NNT11NW1%O4=M5B4ST11NW1%O5=M5B4ST11NW1%O6=M5B4ST11)
@@ -5663,7 +5653,7 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # Linux 2.6.21.5 #2 Sun Sep 30 20:16:16 CEST 2007 mips unknown, FON La Fonera WAP running OpenWrt Kamikaze 7.09
 # Linux OpenWRT-kamikaze 2.6.17 #1 Fri Dec 1 02:56:41 CET 2006 mips unknown
 Fingerprint OpenWrt 7.09 (Linux 2.6.17 - 2.6.21)
-Class Linux | Linux | 2.6.X | broadband router
+Class Linux | Linux | 2.6.X | WAP
 SEQ(SP=C8-D2%GCD=<7%ISR=CA-D4%TI=Z%II=I%TS=U)
 OPS(O1=M5B4NNSNW1%O2=M5B4NNSNW1%O3=M5B4NW1%O4=M5B4NNSNW1%O5=M5B4NNSNW1%O6=M5B4NNS)
 WIN(W1=16D0%W2=16D0%W3=16D0%W4=16D0%W5=16D0%W6=16D0)
@@ -5683,7 +5673,7 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # Linux OpenWrt 2.6.22.4 #7 Sat Sep 8 12:34:50 CEST 2007 mips unknown, fonera with open-wrt.
 # Linksys WRT54GL v.2.0 running kamikaze 7.09, Linux OpenWrt 2.6.22 #5 Thu Jan 17 12:58:41 CET 2008 mips unknown
 Fingerprint OpenWrt 7.09 (Linux 2.6.22)
-Class Linux | Linux | 2.6.X | broadband router
+Class Linux | Linux | 2.6.X | WAP
 SEQ(SP=A2-104%GCD=<7%ISR=E9-101%TI=Z%II=I%TS=U)
 OPS(R=N)
 WIN(R=N)
@@ -5739,23 +5729,6 @@ T5(R=Y%DF=Y%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 T6(R=Y%DF=Y%T=40%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
 T7(R=N)
 U1(DF=N%T=40%TG=40%TOS=C0%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
-IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
-
-# Foundry Networks FastIron II Plus running SW Version 07.2.06T51
-Fingerprint Foundry Networks FastIron II Plus switch
-Class Foundry | embedded || switch
-SEQ(SP=6E-8A%GCD=<7%ISR=6C-90%TI=I%II=I%SS=S%TS=U)
-OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
-WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
-ECN(R=Y%DF=N%T=40%TG=40%W=4000%O=M5B4%CC=N%Q=)
-T1(R=Y%DF=N%T=40%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
-T2(R=Y%DF=Y%T=40%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=U)
-T3(R=Y%DF=Y%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=U)
-T4(R=Y%DF=Y%T=40%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=U)
-T5(R=Y%DF=Y%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=U)
-T6(R=Y%DF=Y%T=40%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=U)
-T7(R=Y%DF=Y%T=40%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=U)
-U1(DF=N%T=40%TG=40%TOS=0%IPL=44%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=I)
 IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # BigIron RX Router IronWare : Version 2.2.1pT143
@@ -5817,21 +5790,24 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # Foundry FastIron 4802 running 08.0.00bT53
 # Foundry FastIron FESX (Image Version 3.1.0)
 # HP ProCurve 9304 HP J4139A
-Fingerprint Foundry FastIron 4802 or FESX switch
+# Foundry Networks FastIron II Plus running SW Version 07.2.06T51
+# 4.x of the code and is a FastIron GS 648p
+Fingerprint Foundry FastIron switch (4802, FESX, GS 648P, or II Plus) (IronWare)
 Class Foundry | IronWare | 3.X | switch
-SEQ(SP=78-A2%GCD=<7%ISR=7E-92%TI=I%II=I%SS=S%TS=U)
+Class Foundry | IronWare | 4.X | switch
+SEQ(SP=6E-A2%GCD=<7%ISR=6C-92%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
-ECN(R=Y%DF=N%T=40|41%TG=40%W=4000%O=M5B4%CC=N%Q=)
-T1(R=Y%DF=N%T=40|41%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
-T2(R=Y%DF=Y%T=40|41%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=U)
-T3(R=Y%DF=Y%T=40|41%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=U)
-T4(R=Y%DF=Y%T=40|41%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=U)
-T5(R=Y%DF=Y%T=40|41%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=U)
-T6(R=Y%DF=Y%T=40|41%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=U)
-T7(R=Y%DF=Y%T=40|41%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=U)
-U1(DF=N%T=40|41%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
-IE(DFI=N%T=40|41%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
+ECN(R=Y%DF=N%T=40%TG=40%W=4000%O=M5B4%CC=N%Q=)
+T1(R=Y%DF=N%T=40%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=Y%DF=Y%T=40%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=U)
+T3(R=Y%DF=Y%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=U)
+T4(R=Y%DF=Y%T=40%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=U)
+T5(R=Y%DF=Y%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=U)
+T6(R=Y%DF=Y%T=40%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=U)
+T7(R=Y%DF=Y%T=40%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=U)
+U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
+IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # FreeBSD 2.2.9 (default everything, vmware)
 Fingerprint FreeBSD 2.2.9 (x86)
@@ -7708,7 +7684,7 @@ IE(DFI=S%T=40%TG=40%TOSI=Z%CD=S%SI=S%DLI=S)
 # HP OfficeJet Pro L7780 Embedded Webserver (EWS)
 # HP Officejet Pro K5400
 # HP Photosmart C6180, Firmware Version: R0631MxNxxN0
-Fingerprint HP printer: Photosmart All-in-One (2575, PSC5100, C6100, or C6180); DeskJet (6940 or 6980); OfficeJet 6300-series; or OfficeJet Pro (K5400, L7600, or L7780)
+Fingerprint HP printer: Photosmart All-in-One (2575, PSC5100, C5180, C6100, or C6180); DeskJet (6940 or 6980); OfficeJet 6300-series; or OfficeJet Pro (K5400, L7600, or L7780)
 Class HP | embedded || printer
 SEQ(SP=34-44%GCD=9C4|1388|1D4C|2710|30D4%ISR=9F-A9%TI=I%II=I%SS=S%TS=A)
 OPS(O1=NNT11|M5B4NW0NNSNNT11%O2=NNT11|M578NW0NNSNNT11%O3=NNT11|M280NW0NNT11%O4=NNT11|M5B4NW0NNSNNT11%O5=NNT11|M218NW0NNSNNT11%O6=NNT11|M109NNSNNT11)
@@ -9391,7 +9367,8 @@ IE(DFI=N%T=C7%TG=C7%TOSI=S%CD=S%SI=S%DLI=S)
 # IPCop V1.4.11 (1.4.10 updated to 1.4.11)
 # Linux 2.4.34 #1 Tue Jan 9 01:40:56 GMT 2007 i586 GenuineIntel unknown GNU/Linux (IPCop firewall v1.4.15)
 # IPCOP 1.4.15; Linux 2.4.34 #1 Fri Mar 9 23:51:29 GMT 2007 i586 pentium-mmx i386 GNU/Linux running IPCOP v. 1.4.15 w/ Copfilter v. 0.82.1
-Fingerprint IPCop firewall 1.4.10 - 1.4.15 (Linux 2.4.31 - 2.4.34)
+# Ipcop 1.4.18
+Fingerprint IPCop firewall 1.4.10 - 1.4.18 (Linux 2.4.31 - 2.4.34)
 Class IPCop | Linux | 2.4.X | firewall
 SEQ(SP=BA-D2%GCD=<7%ISR=C6-D4%TI=Z%II=I%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
@@ -10597,7 +10574,7 @@ IE(DFI=N%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 # Buffalo WHR-G54S running the OpenWRT White Russian 0.9 distribution
 # OpenWRT Kamikaze 7.09 on an Asus wl500gP
 Fingerprint OpenWrt 0.9 - 7.09 (Linux 2.4.30 - 2.4.34)
-Class Linux | Linux | 2.4.X | broadband router
+Class Linux | Linux | 2.4.X | WAP
 SEQ(SP=B3-D2%GCD=<7%ISR=C0-D7%TI=Z%II=I%TS=U)
 OPS(O1=M5B4NNSNW0%O2=M5B4NNSNW0%O3=M5B4NW0%O4=M5B4NNSNW0%O5=M5B4NNSNW0%O6=M5B4NNS)
 WIN(W1=16D0%W2=16D0%W3=16D0%W4=16D0%W5=16D0%W6=16D0)
@@ -10837,6 +10814,7 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # Linux 2.4.33bipiv-ipv4-32 #1 SMP lun sep 18 14:38:38 CEST 2006 i686 GNU/Linux (debian with custom OVH.COM kernel)
 # Linux 2.4.21-47.ELsmp (bhcompile@hs20-bc1-1.build.redhat.com) (gcc version 3.2.3 20030502 (Red Hat Linux 3.2.3-54)) #1 SMP Wed Jul 5 20:38:41 EDT 2006
 # AcceleratorOS, Accelerator 6900 Series, Version v6.1(0) (Build7.39), Expand Networks, Linux 2.4 derivitive
+# Sun(TM) Integrated Lights Out Manager Version 2.0.4.2
 Fingerprint Linux 2.4.21 - 2.4.33
 Class Linux | Linux | 2.4.X | general purpose
 SEQ(SP=C3-CD%GCD=<7%ISR=C8-D6%TI=Z%II=I%TS=7)
@@ -11025,7 +11003,8 @@ U1(DF=N%T=FF%TG=FF%TOS=C0%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Linux 2.4.34 #141 Wed Jun 20 03:34:38 CEST 2007 mips unknown (This is a Buffalo WHR-G125 Wireless Router running DD-WRT v24 alternative firmware)
-Fingerprint Buffalo WHR-G125 wireless broadband router running DD-WRT Linux 2.4.34
+# Linux DD-WRT 2.4.34-pre2 #170 Fri Sep 15 20:10:21 CEST 2006 mips unknown (WRT54GS v1.0 running DD-WRT v23 SP2)
+Fingerprint DD-WRT v23 (Linux 2.4.34)
 Class Linux | Linux | 2.4.X | WAP
 SEQ(SP=B5-DD%GCD=<7%ISR=BA-E0%TI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
@@ -11057,7 +11036,8 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # DD-WRT VeryBusyBox v1.2.1
 # Linux linksys 2.4.35 #2529 dd-wrt v24
 # Telewell TW-EA510 version 3, Software Version 1.30-B009-t8, Bootrom Version 1.06
-Fingerprint Buffalo WHR-HP-G54 WAP or Linksys WRT54GL WAP running DD-WRT Linux 2.4.20 - 2.4.35
+# TeleWell TW-EA510 ADSL Modem Router Firewall WLAN AP(802.11b+g)
+Fingerprint DD-WRT v23 - v24 (Linux 2.4.20 - 2.4.35)
 Class Linux | Linux | 2.4.X | WAP
 SEQ(SP=B5-CF%GCD=<7%ISR=C0-D8%TI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
@@ -11848,7 +11828,8 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # Linux 2.6.22.12-0.1-default #1 SMP 2007/11/06 23:05:18 UTC i686 i686 i386 GNU/Linux
 # Linux 2.6.23-gentoo-r3 #1 SMP Wed Dec 5 12:12:12 MSK 2007 i686 AMD Athlon(tm) 64 Processor 3500+ AuthenticAMD GNU/Linux
 # Linux 2.6.24-k8l #1 SMP PREEMPT Sat Jan 26 03:46:41 YEKT 2008 i686 athlon i386 GNU/Linux
-Fingerprint Linux 2.6.17 - 2.6.24
+# Archlinux with a 2.6.25 kernel
+Fingerprint Linux 2.6.17 - 2.6.25
 Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=B3-D2%GCD=<7%ISR=BA-D7%TI=Z%II=I%TS=8)
 OPS(O1=M400CST11NW1|M400CST11NW2|M400CST11NW3|M400CST11NW4|M400CST11NW5|M400CST11NW6|M400CST11NW7|M400CST11NW9|M400CST11NWA%O2=M400CST11NW1|M400CST11NW2|M400CST11NW3|M400CST11NW4|M400CST11NW5|M400CST11NW6|M400CST11NW7|M400CST11NW9|M400CST11NWA%O3=M400CNNT11NW1|M400CNNT11NW2|M400CNNT11NW3|M400CNNT11NW4|M400CNNT11NW5|M400CNNT11NW6|M400CNNT11NW7|M400CNNT11NW9|M400CNNT11NWA%O4=M400CST11NW1|M400CST11NW2|M400CST11NW3|M400CST11NW4|M400CST11NW5|M400CST11NW6|M400CST11NW7|M400CST11NW9|M400CST11NWA%O5=M400CST11NW1|M400CST11NW2|M400CST11NW3|M400CST11NW4|M400CST11NW5|M400CST11NW6|M400CST11NW7|M400CST11NW9|M400CST11NWA%O6=M400CST11)
@@ -12051,7 +12032,8 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # 2.6.20-1.2962_1.fc6.cubbi_suspend2 Fedora Core 6
 # Linux 2.6.23.1-10.fc7 #1 SMP Fri Oct 19 15:39:08 EDT 2007 i686 i686 i386 GNU/Linux
 # Linux 2.6.24-rc3-zen4 #1 PREEMPT Mon Dec 3 09:48:30 CET 2007 x86_64 AMD Athlon(tm) 64 Processor 3000+ AuthenticAMD GNU/Linux
-Fingerprint Linux 2.6.17 - 2.6.24
+# 2.6.25.6-55.fc9.i686
+Fingerprint Linux 2.6.17 - 2.6.25
 Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=BA-D1%GCD=<7%ISR=B3-D9%TI=Z%II=I%TS=A)
 OPS(O1=M400CST11NW6%O2=M400CST11NW6%O3=M400CNNT11NW6%O4=M400CST11NW6%O5=M400CST11NW6%O6=M400CST11)
@@ -12988,6 +12970,7 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # Linux 2.6.22.5-31-default #1 SMP 2007/09/21 22:29:00 UTC i686 i686 i386 GNU/Linux; openSuSE 10.3 i386
 # Linux 2.6.22.8 #1 PREEMPT Tue Sep 25 13:53:48 CEST 2007 i686 GNU/Linux
 # Linux 2.6.23-rc6 SMP PREEMPT
+# Linux version 2.6.22-14-generic (buildd@terranova) (gcc version 4.1.3 20070929 (prerelease) (Ubuntu 4.1.2-16ubuntu2))
 Fingerprint Linux 2.6.22
 Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=A2-D8%GCD=<7%ISR=E9-FF%TI=Z%II=I%TS=8)
@@ -15646,9 +15629,23 @@ IE(DFI=S%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 # Microsoft Windows 2000 SP# [Winver: Version 5.0 (Build 2195: Service Pack 3)]
 # Version 5.0 (Build 2195: Service Pack 4)
 # Version 5.0 Build 2195 ServicePak 4
-Fingerprint Microsoft Windows Server 2003 SP2, SP3, or SP4
+# W2003 Server Standard Edition v 5.2 build3790.srv003_rtm.030324-2048 , no sp, MUI RU terminal server started app mode
+# Microsoft Windows XP Home SP2 (German) [Winver: Version 5.1 (build 2600.xpsp_sp2_gdr.050301-1519: Service Pack 2)]
+# Microsoft Windows 2003 (Swedish) x86 version 5.2 (Build 3790.srv03_rtm.030324-2048)
+# Microsoft Windows Server 2003 Enterprise Edition 64-Bit with SP1
+# Microsoft Windows Server 2003 standard edition
+# Microsoft Windows 2003 Standard Edition (English) [Winver: Version 5.2 (build 3790.srv03_gdr.050225-1827
+# Microsoft Windows 2003 server Enterprice (no service pack) Version5.2 (build 3790.srv03_rtm.030324-2048)
+# windows xp corporate ed. (5.1 build2600xpsp_spl_gdr.050301-1519:service pack 2
+# Microsoft Windows Version 5.1(Build 2600.xpsp_sp2_gdr.070227-2254: Service Pack 2)
+# Version 5.1 (Build 2600.xpsp_sp2_gdr.070227-2254 : Service Pack 2)
+# Version 5.1 (Build 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2 (Windows XP Tablet PC edition)
+# \320\222\320\265\321\200\321\201\320\270\321\217 5.1 (\321\201\320\261\320\276\321\200\320\272\320\260 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2)
+# Windows 2000
+Fingerprint Microsoft Windows 2000 SP2 - SP4, Windows XP SP2, or Windows Server 2003 SP0 - SP2
+Class Microsoft | Windows | XP | general purpose
 Class Microsoft | Windows | 2003 | general purpose
-SEQ(SP=F6-10C%GCD=<7%ISR=FB-111%TI=I%II=I%SS=S%TS=0)
+SEQ(SP=F0-10C%GCD=<7%ISR=FB-111%TI=I%II=I%SS=S%TS=0)
 OPS(O1=NNT11|M5B4NW0NNT00NNS%O2=NNT11|M5B4NW0NNT00NNS%O3=NNT11|M5B4NW0NNT00%O4=NNT11|M5B4NW0NNT00NNS%O5=NNT11|M5B4NW0NNT00NNS%O6=NNT11|M5B4NNT00NNS)
 WIN(W1=4470%W2=41A0%W3=4100%W4=40E8%W5=40E8%W6=402E)
 ECN(R=Y%DF=Y%T=80%TG=80%W=4470%O=|M5B4NW0NNS%CC=N%Q=)
@@ -16147,8 +16144,10 @@ IE(DFI=S%T=80%TG=80%TOSI=S%CD=Z%SI=S%DLI=S)
 # Microsoft Windows Server Code Name Longhorn Beta 3 (English) [Winver: Version 6.0 (Build 6001: Service Pack 1, v.126)] (Firewall is disabled)
 # Windows Vista Business 32bit Version 6.0 Build 6000
 # Version 6.0 (Build 6001:Service Pack 1)) (VMware)
-Fingerprint Microsoft Windows Vista SP0 or SP1
+# Windows Server 2008
+Fingerprint Microsoft Windows Vista SP0 or SP1, or Windows Server 2008
 Class Microsoft | Windows | Vista | general purpose
+Class Microsoft | Windows | 2008 | general purpose
 SEQ(SP=D2-11B%GCD=<7%ISR=F9-113%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4ST11|M5B4NW8ST11%O2=M5B4ST11|M5B4NW8ST11%O3=M5B4NNT11|M5B4NW8NNT11%O4=M5B4ST11|M5B4NW8ST11%O5=M5B4ST11|M5B4NW8ST11%O6=M5B4ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -16216,23 +16215,6 @@ T6(R=Y%DF=Y%T=40%TG=40%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=Y%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=40%TG=40%TOS=0%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=40%TG=40%TOSI=Z%CD=Z%SI=S%DLI=S)
-
-# Windows Vista Business 32Bit 6.0 Build 6000
-Fingerprint Microsoft Windows Vista Business
-Class Microsoft | Windows | Vista | general purpose
-SEQ(SP=FE-108%GCD=<7%ISR=104-10E%II=I%TS=7)
-OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST11%O5=M5B4NW8ST11%O6=M5B4ST11)
-WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
-ECN(R=Y%DF=Y%T=80%TG=80%W=2000%O=M5B4NW8NNS%CC=N%Q=)
-T1(R=Y%DF=Y%T=80%TG=80%S=O%A=S+%F=AS%RD=0%Q=)
-T2(R=Y%DF=Y%T=80%TG=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
-T3(R=Y%DF=Y%T=80%TG=80%W=0%S=Z%A=O%F=AR%O=%RD=0%Q=)
-T4(R=Y%DF=Y%T=80%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=Y%T=80%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=Y%T=80%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T7(R=Y%DF=Y%T=80%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=80%TG=80%TOS=0%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=I%RUCK=G%RUL=G%RUD=G)
-IE(DFI=N%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # Microsoft Windows Vista Business [Winver: Version 6.0 (Build 6000)]
 Fingerprint Microsoft Windows Vista Business
@@ -16698,7 +16680,10 @@ U1(DF=N%T=80%TG=80%TOS=0%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=S%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # Microsoft windows xp professional, Version 5.1 build 2600.xpsp_sp2_gdr.070227-2254 : Service Pack 2 (The target was running an ipw3945 wifi card.)
-Fingerprint Microsoft Windows XP Professional SP2
+# AXIS 5400 Network Print Server V6.00 Jun 28 1999
+# Microsoft Windows 2000, 5.00.2195, Service Pack 4
+Fingerprint Microsoft Windows 2000 SP4 or Windows XP SP2
+Class Microsoft | Windows | 2000 | general purpose
 Class Microsoft | Windows | XP | general purpose
 SEQ(SP=101-10B%GCD=<7%ISR=106-110%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M4ECNW0NNT00NNS%O2=M4ECNW0NNT00NNS%O3=M4ECNW0NNT00%O4=M4ECNW0NNT00NNS%O5=M4ECNW0NNT00NNS%O6=M4ECNNT00NNS)
@@ -17278,23 +17263,6 @@ T7(R=N)
 U1(DF=N%T=80%TG=80%TOS=0%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=S%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 
-# 2006.xpsp_sp2_gdr.070227-2254
-Fingerprint Microsoft Windows XP SP2
-Class Microsoft | Windows | XP | general purpose
-SEQ(SP=FF-109%GCD=<7%ISR=106-110%TI=I%TS=0)
-OPS(O1=NNT11|M4ECNW0NNT00NNS%O2=NNT11|M4ECNW0NNT00NNS%O3=NNT11|M4ECNW0NNT00%O4=NNT11|M4ECNW0NNT00NNS%O5=NNT11|M4ECNW0NNT00NNS%O6=NNT11|M4ECNNT00NNS)
-WIN(W1=44E8%W2=44E8%W3=4100%W4=40E8%W5=40E8%W6=402E)
-ECN(R=Y%DF=Y%T=80%TG=80%W=44E8%O=|M4ECNW0NNS%CC=N%Q=)
-T1(R=Y%DF=Y%T=80%TG=80%S=O%A=O|S+%F=A|AS%RD=0%Q=)
-T2(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
-T3(R=Y%DF=Y%T=80%TG=80%W=402E%S=O%A=O|S+%F=A|AS%O=NNT11|M4ECNW0NNT00NNS%RD=0%Q=)
-T4(R=Y%DF=N%T=80%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=O|S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=N%T=80%TG=80%W=0%S=A|O%A=O%F=R%O=%RD=0%Q=)
-T7(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=O|S+%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=80%TG=80%TOS=0%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
-IE(DFI=S%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
-
 # Version 5.1 (Build 2600.xpsp_sp2_qfe.070227-2300 : Service Pack 2)
 Fingerprint Microsoft Windows XP SP2
 Class Microsoft | Windows | XP | general purpose
@@ -17708,35 +17676,6 @@ T6(R=Y%DF=N%T=7F|80%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=7F|80%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=7F|80%TG=80%TOS=0%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=S%T=7F|80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
-
-# W2003 Server Standard Edition v 5.2 build3790.srv003_rtm.030324-2048 , no sp, MUI RU terminal server started app mode
-# Microsoft Windows XP Home SP2 (German) [Winver: Version 5.1 (build 2600.xpsp_sp2_gdr.050301-1519: Service Pack 2)]
-# Microsoft Windows 2003 (Swedish) x86 version 5.2 (Build 3790.srv03_rtm.030324-2048)
-# Microsoft Windows Server 2003 Enterprise Edition 64-Bit with SP1
-# Microsoft Windows Server 2003 standard edition
-# Microsoft Windows 2003 Standard Edition (English) [Winver: Version 5.2 (build 3790.srv03_gdr.050225-1827
-# Microsoft Windows 2003 server Enterprice (no service pack) Version5.2 (build 3790.srv03_rtm.030324-2048)
-# windows xp corporate ed. (5.1 build2600xpsp_spl_gdr.050301-1519:service pack 2
-# Microsoft Windows Version 5.1(Build 2600.xpsp_sp2_gdr.070227-2254: Service Pack 2)
-# Version 5.1 (Build 2600.xpsp_sp2_gdr.070227-2254 : Service Pack 2)
-# Version 5.1 (Build 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2 (Windows XP Tablet PC edition)
-# \320\222\320\265\321\200\321\201\320\270\321\217 5.1 (\321\201\320\261\320\276\321\200\320\272\320\260 2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2)
-Fingerprint Microsoft Windows XP SP2 or Windows Server 2003 SP0/SP1
-Class Microsoft | Windows | XP | general purpose
-Class Microsoft | Windows | 2003 | general purpose
-SEQ(SP=F0-10C%GCD=<7%ISR=100-111%TI=I%II=I%SS=S%TS=0)
-OPS(O1=NNT11|M5B4NW0NNT00NNS%O2=NNT11|M5B4NW0NNT00NNS%O3=NNT11|M5B4NW0NNT00%O4=NNT11|M5B4NW0NNT00NNS%O5=NNT11|M5B4NW0NNT00NNS%O6=NNT11|M5B4NNT00NNS)
-WIN(W1=4470%W2=41A0%W3=4100%W4=40E8%W5=40E8%W6=402E)
-ECN(R=Y%DF=Y%T=80%TG=80%W=4470%O=|M5B4NW0NNS%CC=N%Q=)
-T1(R=Y%DF=Y%T=80%TG=80%S=O%A=O|S+%F=A|AS%RD=0%Q=)
-T2(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
-T3(R=Y%DF=Y%T=80%TG=80%W=402E%S=O%A=O|S+%F=A|AS%O=NNT11|M5B4NW0NNT00NNS%RD=0%Q=)
-T4(R=Y%DF=N%T=80%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=N%T=80%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T7(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=80%TG=80%TOS=0%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
-IE(DFI=S%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # Version 5.1 (build 2600.xpsp.080125-2028:Service Pack 3, v3300)
 Fingerprint Version 5.1 (build 2600.xpsp.080125-2028:Service Pack 3, v3300)
@@ -18524,7 +18463,8 @@ IE(DFI=N%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # This is a Netgear WGR614v7, firmware version V2.0.20_1.0.20
 # Netgear WPN824v2
 # Linksys WRT54G
-Fingerprint Linksys WRT54G, or Netgear WGR614v6, WGR614v7, or WPN824v2 wireless broadband router
+# wrt54g2 v1
+Fingerprint Linksys WRT54G or WRT54G2, or Netgear WGR614 or WPN824v2 wireless broadband router
 Class Linksys | embedded || WAP
 Class Netgear | embedded || WAP
 SEQ(SP=13-1E%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=99-A3%TI=I%II=I%SS=S%TS=1)
@@ -19610,7 +19550,8 @@ IE(DFI=N%T=7F%TG=7F%TOSI=Z%CD=S%SI=S%DLI=S)
 # Polycom SoundPoint 320 (firmware 2.1.1.0037)
 # Polycom SoundPoint IP 430, SIP stack version 2.1.0.2708
 # Polycom SoundPoint IP 330/320.
-Fingerprint Polycom SoundPoint 320, 330, or 430 IP phone
+# Polycom SoundPoint 550 IP phone
+Fingerprint Polycom SoundPoint 320, 330, 430, or 550 IP phone
 Class Polycom | embedded || VoIP phone
 SEQ(SP=96-A0%GCD=<7%ISR=9B-A5%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
@@ -21399,23 +21340,6 @@ T7(R=Y%DF=N%T=24|25|32|36|37%TG=24|25|32|36|37%W=FFFF%S=A%A=S%F=AR%O=WFNM109T10S
 U1(DF=Y%T=FF%TG=FF%TOS=0%IPL=70%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=Y%T=FF%TG=FF%TOSI=Z%CD=S%SI=S%DLI=S)
 
-# SunOS 5.10 Generic sun4u sparc SUNW,Sun-Fire-V440
-Fingerprint Sun Solaris 10 (SPARC)
-Class Sun | Solaris | 10 | general purpose
-SEQ(SP=91-9F%GCD=<7%ISR=9F-A9%TI=I%II=I%SS=S%TS=7)
-OPS(O1=NNT11M5B4NW0NNS%O2=NNT11M5B4NW0NNS%O3=NNT11M5B4NW0%O4=NNT11M5B4NW0NNS%O5=NNT11M5B4NW0NNS%O6=NNT11M5B4NNS)
-WIN(W1=C050%W2=C330%W3=C1CC%W4=C068%W5=C068%W6=C0B7)
-ECN(R=Y%DF=Y%T=3B%TG=3B%W=C1E8%O=M5B4NW0NNS%CC=Y%Q=)
-T1(R=Y%DF=Y%T=3B%TG=3B%S=O%A=S+%F=AS%RD=0%Q=)
-T2(R=N)
-T3(R=N)
-T4(R=Y%DF=Y%T=3F%TG=3F%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=Y%T=3F%TG=3F%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=Y%T=3F%TG=3F%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
-T7(R=N)
-U1(DF=Y%T=FE%TG=FE%TOS=0%IPL=70%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
-IE(DFI=Y%T=FE%TG=FE%TOSI=S%CD=S%SI=S%DLI=S)
-
 # SunOS unknown 5.10 Generic_118855-15 i86pc i386 i86pc
 Fingerprint Sun Solaris 10 (x86)
 Class Sun | Solaris | 10 | general purpose
@@ -21434,9 +21358,13 @@ U1(DF=Y%T=FF%TG=FF%TOS=0%IPL=70%UN=0%RIPL=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=Y%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # SunOS 5.10 Generic_127112-05 i86pc i386 i86pc
-Fingerprint Sun Solaris 10 (x86)
+# Solaris 10 on UltraSPARC T1
+# SunOS 5.9 Generic_122300-03 sun4us sparc FJSV,GPUZC-M
+# SunOS 5.10 Generic_125101-10 i86pc i386 i86pc
+Fingerprint Sun Solaris 9 or 10
+Class Sun | Solaris | 9 | general purpose
 Class Sun | Solaris | 10 | general purpose
-SEQ(SP=8C-A2%GCD=<7%ISR=9F-A9%TI=I%II=I%SS=O%TS=7)
+SEQ(SP=8C-B4%GCD=<7%ISR=9E-BC%TI=I%II=I%SS=S%TS=7)
 OPS(O1=NNT11M5B4NW0NNS%O2=NNT11M5B4NW0NNS%O3=NNT11M5B4NW0%O4=NNT11M5B4NW0NNS%O5=NNT11M5B4NW0NNS%O6=NNT11M5B4NNS)
 WIN(W1=C050%W2=C330%W3=C1CC%W4=C068%W5=C068%W6=C0B7)
 ECN(R=Y%DF=Y%T=3C%TG=3C%W=C1E8%O=M5B4NW0NNS%CC=Y%Q=)
@@ -21451,7 +21379,7 @@ U1(DF=Y%T=FF%TG=FF%TOS=0%IPL=70%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=Y%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # SunOS 5.10 Generic_120012-14 i86pc i386 i86pc
-Fingerprint Sun Solaris 10 (x86)
+Fingerprint Sun Solaris 10
 Class Sun | Solaris | 10 | general purpose
 SEQ(SP=8F-99%GCD=<7%ISR=9F-A9%TI=I%II=I%SS=S%TS=6)
 OPS(O1=NNT11M5B4NW0NNS%O2=NNT11M5B4NW0NNS%O3=NNT11M5B4NW0%O4=NNT11M5B4NW0NNS%O5=NNT11M5B4NW0NNS%O6=NNT11M5B4NNS)
@@ -21797,32 +21725,13 @@ T7(R=N)
 U1(DF=Y%T=FF%TG=FF%TOS=0%IPL=70%UN=0%RIPL=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=Y%T=FF%TG=FF%TOSI=Z%CD=S%SI=S%DLI=S)
 
-# SunOS unknown 5.9 Generic_118559-11 i86pc i386 i86pc
+# SunOS 5.9 Generic_118559-11 i86pc i386 i86pc
 Fingerprint Sun Solaris 9 (x86)
 Class Sun | Solaris | 9 | general purpose
 SEQ(SP=92-9C%GCD=<7%ISR=9D-A7%TI=I%II=I%SS=S%TS=7)
 OPS(O1=NNT11M5B4NW1NNS%O2=NNT11M5B4NW1NNS%O3=NNT11M5B4NW1%O4=NNT11M5B4NW1NNS%O5=NNT11M5B4NW1NNS%O6=NNT11M5B4NNS)
 WIN(W1=8218%W2=8220%W3=80CA%W4=80F4%W5=80F4%W6=FFF7)
 ECN(R=Y%DF=Y%T=3C%TG=3C%W=8052%O=M5B4NW1NNS%CC=Y%Q=)
-T1(R=Y%DF=Y%T=3C%TG=3C%S=O%A=S+%F=AS%RD=0%Q=)
-T2(R=N)
-T3(R=N)
-T4(R=Y%DF=Y%T=40%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=Y%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=Y%T=40%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
-T7(R=N)
-U1(DF=Y%T=FF%TG=FF%TOS=0%IPL=70%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
-IE(DFI=Y%T=FF%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
-
-# SunOS 5.9 Generic_122300-03 sun4us sparc FJSV,GPUZC-M
-# SunOS 5.10 Generic_125101-10 i86pc i386 i86pc
-Fingerprint Sun Solaris 9 or 10
-Class Sun | Solaris | 9 | general purpose
-Class Sun | Solaris | 10 | general purpose
-SEQ(SP=90-B4%GCD=<7%ISR=9E-BC%TI=I%II=I%SS=S%TS=7)
-OPS(O1=NNT11M5B4NW0NNS%O2=NNT11M5B4NW0NNS%O3=NNT11M5B4NW0%O4=NNT11M5B4NW0NNS%O5=NNT11M5B4NW0NNS%O6=NNT11M5B4NNS)
-WIN(W1=C050%W2=C330%W3=C1CC%W4=C068%W5=C068%W6=C0B7)
-ECN(R=Y%DF=Y%T=3C%TG=3C%W=C1E8%O=M5B4NW0NNS%CC=Y%Q=)
 T1(R=Y%DF=Y%T=3C%TG=3C%S=O%A=S+%F=AS%RD=0%Q=)
 T2(R=N)
 T3(R=N)
@@ -24915,7 +24824,7 @@ IE(DFI=S%T=3C%TG=3C%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Linux 2.4.34 #107 Sat May 3 19:37:40 CDT 2008 mips unknown, OpenWRT 7.09 on asus wl-500gP
 Fingerprint OpenWrt 7.09 (Linux 2.4.34)
-Class Linux | Linux | 2.4.X | general purpose
+Class Linux | Linux | 2.4.X | WAP
 SEQ(SP=94-CC%GCD=<7%ISR=BD-CD%TI=Z%TS=U)
 OPS(R=N)
 WIN(R=N)
@@ -26855,3 +26764,71 @@ T6(R=Y%DF=Y%T=40%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=40%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=40%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
+
+# VAX/VMS V6.1  on node <redacted>  20-JUL-2008 08:17:41.30   Uptime  0 00:27:01
+Fingerprint HP OpenVMS 6.1
+Class HP | OpenVMS | 6.X | general purpose
+SEQ(SP=C-16%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=97-A1%TI=I%II=I%SS=S%TS=U)
+OPS(O1=M5B0W0N%O2=M5B0W0N%O3=M5B0W0N%O4=M5B0W0N%O5=M5B0W0N%O6=M5B0)
+WIN(W1=BB8%W2=BB8%W3=BB8%W4=BB8%W5=BB8%W6=BB8)
+ECN(R=Y%DF=N%T=80%TG=80%W=BB8%O=M5B0W0N%CC=N%Q=)
+T1(R=Y%DF=N%T=80%TG=80%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=N)
+T3(R=Y%DF=N%T=80%TG=80%W=BB8%S=O%A=O%F=A%O=%RD=0%Q=)
+T4(R=Y%DF=N%T=80%TG=80%W=BB8%S=A%A=Z%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=N%T=80%TG=80%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
+T7(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
+U1(R=N)
+IE(DFI=S%T=FF%TG=FF%TOSI=Z%CD=S%SI=S%DLI=S)
+
+# OpenVMS V7.2  on node <Redacted>  20-JUN-2008 07:27:46.55  Uptime  0 00:40:51
+Fingerprint HP OpenVMS 7.2
+Class HP | OpenVMS | 7.X | general purpose
+SEQ(SP=C-16%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=97-A1%TI=I%II=I%SS=S%TS=U)
+OPS(O1=M5B4NW0%O2=M5B4NW0%O3=M5B4NW0%O4=M5B4NW0%O5=M5B4NW0%O6=M5B4)
+WIN(W1=832C%W2=8340%W3=8200%W4=8000%W5=81D0%W6=805C)
+ECN(R=Y%DF=N%T=40%TG=40%W=832C%O=M5B4NW0%CC=N%Q=)
+T1(R=Y%DF=N%T=40%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=N)
+T3(R=Y%DF=N%T=40%TG=40%W=805C%S=O%A=O%F=A%O=%RD=0%Q=)
+T4(R=Y%DF=N%T=40%TG=40%W=8000%S=A%A=Z%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=N%T=40%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=N%T=40%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
+T7(R=Y%DF=N%T=40%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
+U1(R=N)
+IE(DFI=S%T=40%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
+
+# WindowsXP Professional (SP2,Japanese)
+Fingerprint Microsoft Windows XP SP2
+Class Microsoft | Windows | XP | SP2
+SEQ(SP=F9-103%GCD=<7%ISR=107-111%TI=I%II=I%SS=S%TS=0)
+OPS(O1=NNT11|M5B4NW0NNT00NNS%O2=NNT11|M5B4NW0NNT00NNS%O3=NNT11|M5B4NW0NNT00%O4=NNT11|M5B4NW0NNT00NNS%O5=%O6=)
+WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=0%W6=0)
+ECN(R=Y%DF=N%T=80%TG=80%W=0%O=%CC=N%Q=)
+T1(R=Y%DF=Y%T=80%TG=80%S=O%A=O|S+%F=A|AS%RD=0%Q=)
+T2(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
+T3(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=O%F=AR%O=%RD=0%Q=)
+T4(R=Y%DF=N%T=80%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=N%T=80%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
+T7(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+U1(R=N)
+IE(DFI=S%T=80%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
+
+# debian 4.03r2 2.6.22-2
+Fingerprint Linux 2.6.22 (Debian 4.0)
+Class Linux | Linux | 2.6.X | general purpose
+SEQ(SP=C4-CE%GCD=<7%ISR=C8-D2%TI=Z%II=I%TS=8)
+OPS(O1=M5B4ST11NW4%O2=M5B4ST11NW4%O3=M5B4NNT11NW4%O4=M5B4ST11NW4%O5=M5B4ST11NW4%O6=M5B4ST11)
+WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
+ECN(R=Y%DF=Y%T=40%TG=40%W=16D0%O=M5B4NNSNW4%CC=N%Q=)
+T1(R=Y%DF=Y%T=40%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=N)
+T3(R=N)
+T4(R=N)
+T5(R=Y%DF=N%T=80%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=N)
+T7(R=N)
+U1(R=N)
+IE(DFI=N%T=40%TG=40%TOSI=20%CD=S%SI=S%DLI=S)
