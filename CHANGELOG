@@ -52,6 +52,11 @@ o [NSE] script_scan_result structure has been changed to a class,
 o [NSE] The runlevel structure has been placed in the thread record structure
   so we no longer need to manage the runlevel explicitly on the heap. [Patrick]
 
+o Fixed host discovery probe matching when looking at the returned TCP data in
+  an ICMP error message.  This could lead to incorrectly discarded responses
+  and the debugging error message: "Bogus trynum or sequence number in ICMP
+  error message" [Kris]
+
 o Nsock now supports binding to a local address and setting IPv4 options
   with nsi_set_localaddr() and nsi_set_ipoptions(), respectively. [Kris]
 

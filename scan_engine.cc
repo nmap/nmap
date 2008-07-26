@@ -4197,16 +4197,6 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
               error("Got ICMP error referring to TCP msg which we did not send");
             continue;
           }
-          /* We need to check for a few more bytes because
-           * tcp_trynum_pingseq_decode() below can use th_ack (which is beyond
-           * the +8 bytes checked for above)
-           */
-          requiredbytes += 4U;
-          if (bytes < requiredbytes) {
-            if (o.debugging)
-              error("Got ICMP error with a TCP header that was too short");
-            continue;
-          }
           struct tcp_hdr *tcp = (struct tcp_hdr *) (((char *) ip2) + 4 * ip2->ip_hl);
           /* Now ensure this host is even in the incomplete list */
           memset(&sin, 0, sizeof(sin));
@@ -4233,17 +4223,8 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
             /* Ensure the connection info matches. */
             if (probe->dport() != ntohs(tcp->th_dport)
               || probe->sport() != ntohs(tcp->th_sport)
+              || probe->tcpseq() != ntohl(tcp->th_seq)
               || hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
-              continue;
-
-            goodseq = tcp_trynum_pingseq_decode(USI, tcp, &trynum, &pingseq);
-            if (!goodseq) {
-              if (o.debugging)
-                error("Bogus trynum or sequence number in ICMP error message");
-              continue;
-            }
-
-            if (!probe->check_tryno_pingseq(trynum, pingseq))
               continue;
 
             /* If we made it this far, we found it. We don't yet know if it's
