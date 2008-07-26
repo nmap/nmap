@@ -167,7 +167,7 @@ void set_ipoptions(int sd, void *opts, size_t optslen)
 	if (sd == -1)
 		return;
 
-	setsockopt(sd, IPPROTO_IP, IP_OPTIONS, opts, optslen);
+	setsockopt(sd, IPPROTO_IP, IP_OPTIONS, (const char *) opts, optslen);
 #endif
 }
 
