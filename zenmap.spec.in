@@ -80,6 +80,7 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 # This gets the modules and the .egg-info file if it was installed.
 %{python_sitelib}/*
 %{_datadir}/zenmap
+%{_datadir}/applications/*.desktop
 
 %changelog
 
