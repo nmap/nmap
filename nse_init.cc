@@ -381,7 +381,7 @@ int init_updatedb (lua_State *L)
       lua_getglobal(L, "string");
       lua_getfield(L, -1, "lower"); lua_replace(L, -2);
       lua_pushnil(L);
-      while (lua_next(L, -2) != 0)
+      while (lua_next(L, -3) != 0)
       {
         lua_pushvalue(L, -3); // string.lower
         lua_insert(L, -2); // put below category string
