@@ -351,8 +351,10 @@ void RateMeter::update(u32 packets, u32 bytes, const struct timeval *now) {
      Unless I'm missing something, I think my gettimeofday may have
      decreased by 38 microseconds.  Perhaps due to SMP and the old
      kernel.  Anyway, I think I'll just treat decreases of up to 1ms
-     as zero -Fyodor */
-  if (diff < 0 && diff > -0.001) {
+     as zero -Fyodor 
+     Updated to allow up to 5ms due to crash:
+     RateMeter::update: negative time delta; now=1217210189.144224; last_update_tv=1217210189.148486 */
+  if (diff < 0 && diff > -0.005) {
     if (!clockwarn) {
       error("Warning: RateMeter::update: negative time delta; now=%lu.%lu; last_update_tv=%lu.%lu", (unsigned long) now->tv_sec, (unsigned long) now->tv_usec, (unsigned long) last_update_tv.tv_sec, (unsigned long) last_update_tv.tv_usec);
       clockwarn = 1;
