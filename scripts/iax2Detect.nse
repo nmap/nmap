@@ -20,7 +20,7 @@ action = function(host, port)
 	poke = poke .. string.char(0x00, 0x00, 0x00, 0x00)  
 	poke = poke .. string.char(0x00, 0x00, 0x06, 0x1e)
 
-	local status, recv = comm.exchange(host, port, poke, {bytes=1,proto=port.protocol,timeout=10000})
+	local status, recv = comm.exchange(host, port, poke, {proto=port.protocol,timeout=10000})
 
 	if not status then
 		return

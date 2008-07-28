@@ -65,6 +65,11 @@ o Nmap's Nsock-utilizing subsystems (DNS, NSE, version detection) have been
 
 o Added --ip-options support for the connect() scan (-sT). [Kris]
 
+o The NSE Comm library now defaults to trying to read as many bytes as are
+  available rather than lines if neither the "bytes" nor "lines" options are
+  given.  Thanks to Brandon for reporting a problem which he noticed in the
+  dns-test-open-recursion script. [Kris]
+
 o Changed the order preference of timing ping propes. [Michael]
 
 o Enabled nmap to switch between multiple types of timing pings during port

@@ -65,7 +65,7 @@ action = function(host)
 		"\065\065\065\065\065\000\000\033" ..
 		"\000\001"
 
-	local status, result = comm.exchange(host, 137, data, {bytes=1, proto="udp", timeout=5000})
+	local status, result = comm.exchange(host, 137, data, {proto="udp", timeout=5000})
 
 	if (not status) then
 		return

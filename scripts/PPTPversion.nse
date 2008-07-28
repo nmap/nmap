@@ -53,7 +53,7 @@ action = function(host, port)
 	payload = payload .. "\000\000\000\000" -- padding for vendor name
 
 	local try = nmap.new_try()
-	local response = try(comm.exchange(host, port, payload, {bytes=1, timeout=5000}))
+	local response = try(comm.exchange(host, port, payload, {timeout=5000}))
 
 	local result
 		

@@ -47,7 +47,7 @@ action = function(host, port)
 
 -- Ask proxy to open www.google.com
 	local req = "GET http://www.google.com HTTP/1.0\r\nHost: www.google.com\r\n\r\n"
-	local status, result = comm.exchange(host, port, req, {proto=port.protocol, timeout=10000})
+	local status, result = comm.exchange(host, port, req, {lines=1,proto=port.protocol, timeout=10000})
 	
 	if not status then
 		return

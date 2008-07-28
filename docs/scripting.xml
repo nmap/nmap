@@ -1651,8 +1651,9 @@ if(s) code_to_be_done_on_match end
 	The relevant indexes for this table are <literal>bytes</literal>, <literal>lines</literal>,
 	<literal>proto</literal> and <literal>timeout</literal>.  <literal>bytes</literal>
 	is used to provide the minimum number of bytes required for a read.  <literal>lines</literal>
-	does the same, but for the minimum number of lines.  <literal>proto</literal> is used
-	to set the protocol to communicate with, defaulting to "tcp" if not provided.
+	does the same, but for the minimum number of lines.  If neither are provided, these
+	functions attempt to read as many bytes as are available.  <literal>proto</literal>
+	is used to set the protocol to communicate with, defaulting to "tcp" if not provided.
 	<literal>timeout</literal> is used to set the socket timeout (see the socket function
 	<literal>set_timeout()</literal> for details).
 	</para>

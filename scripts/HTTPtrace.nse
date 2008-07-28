@@ -79,7 +79,7 @@ portrule = shortport.port_or_service({80, 8080}, "http")
 action = function(host, port)
 	local cmd = "TRACE / HTTP/1.0\r\n\r\n"
 
-	local status, response = comm.exchange(host, port, cmd, {timeout=5000})
+	local status, response = comm.exchange(host, port, cmd, {lines=1,timeout=5000})
 
 	if not status then
 		return

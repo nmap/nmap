@@ -27,10 +27,10 @@ module(..., package.seeall)
 --   proto: Specifies the protocol to be used with the connect() call
 --   timeout: Sets the socket's timeout with nmap.set_timeout()
 --
--- If neither lines nor bytes are specified, the calls read as many lines
--- as possible.  If only bytes if specified, then it only tries to read that
--- many bytes.  Likewise, it only lines if specified, then it only tries to
--- read that many lines.  If they're both specified, the lines value is used.
+-- If neither lines nor bytes are specified, the calls attempt to read as many
+-- bytes as possible.  If only bytes is specified, then it only tries to read
+-- that many bytes.  Likewise, it only lines if specified, then it only tries
+-- to read that many lines.  If they're both specified, the lines value is used.
 --
 ------
 
@@ -71,39 +71,24 @@ local setup_connect = function(host, port, opts)
 		return status, err
 	end
 
+	-- If nothing is given, specify bytes=1 so NSE reads everything
+	if not opts.lines and not opts.bytes then
+		opts.bytes = 1
+	end
+
 	return true, sock
 end
 
 local read = function(sock, opts)
-	local line, response, status
+	local response, status
 
 	if opts.lines then
 		status, response = sock:receive_lines(opts.lines)
 		return status, response
-	elseif opts.bytes then
-		status, response = sock:receive_bytes(opts.bytes)
-		return status, response
 	end
 
-	response = ""
-
-	while true do
-		status, line = sock:receive_lines(1)
-
-		if not status then
-			break
-		end
-
-		response = response .. line
-	end
-
-	-- Either we reached the end of the stream, or we got all we could
-	-- within the socket timeout
-	if line == "EOF" or (line == "TIMEOUT" and response ~= "") then
-		return true, response
-	end
-
-	return false, line
+	status, response = sock:receive_bytes(opts.bytes)
+	return status, response
 end
 
 get_banner = function(host, port, opts)
