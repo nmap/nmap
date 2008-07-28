@@ -2299,4 +2299,5 @@ bo2k              54321/udp  # Back Orifice 2K Default Port
 netprowler-manager 61439/tcp
 netprowler-manager2 61440/tcp
 netprowler-sensor 61441/tcp
+iphone-sync       62078/tcp # Apparently used by iPhone while syncing - http://code.google.com/p/iphone-elite/source/browse/wiki/Port_62078.wiki
 pcanywhere        65301/tcp
