@@ -122,7 +122,7 @@ const char *reason_text[ER_MAX+1]={
         "unknown", "admin-prohibited", "unknown", "time-exceeded", "unknown", "unknown",
         "timestamp-reply", "unknown", "unknown", "unknown", "addressmask-reply",
         "no-ipid-change", "ipid-change", "arp-response", "tcp-response",
-        "no-response", "localhost-response", "script-set", "unknown-response"
+        "no-response", "localhost-response", "script-set", "unknown-response","user-set"
 };
 
 const char *reason_pl_text[ER_MAX+1]={ 

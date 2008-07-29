@@ -606,7 +606,10 @@ if (hs->randomize) {
      if (!hs->hostbatch[i]->timedOut(&now)) {
        initialize_timeout_info(&hs->hostbatch[i]->to);
        hs->hostbatch[i]->flags |= HOST_UP; /*hostbatch[i].up = 1;*/
-	   hs->hostbatch[i]->reason.reason_id = ER_LOCALHOST;
+       if(pingtype == PINGTYPE_NONE && !arpping_done)
+         hs->hostbatch[i]->reason.reason_id = ER_USER;
+       else
+         hs->hostbatch[i]->reason.reason_id = ER_LOCALHOST;
      }
    }
  } else if (!arpping_done) {
