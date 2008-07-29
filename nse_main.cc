@@ -117,7 +117,7 @@ size_t table_length (lua_State *L, int index)
 
 /* int escape_char (lua_State *L)
  *
- * This function is called via Lua through string.gsub. It's purpose is to
+ * This function is called via Lua through string.gsub. Its purpose is to
  * escape characters. So the first sole character is changed to "\xFF" (hex).
  */
 static int escape_char (lua_State *L)
