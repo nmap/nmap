@@ -1,4 +1,4 @@
-﻿# Nmap Changelog ($Id$); -*-text-*-
+# Nmap Changelog ($Id$); -*-text-*-
 
 o Made a number of performance tweaks, such as:
   o increase host group sizes in many cases, so Nmap will now commonly
