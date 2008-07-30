@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nsock now returns data from UDP packets individually, preserving the packet
+  boundary, rather than concatenating the data from multiple packets
+  into a single buffer.  This fixes a problem related to our
+  reverse-DNS system, which can only handle one DNS packet at a time.
+  Thanks to Tim Adam of ManageSoft for debugging the problem and
+  sending the patch.  Doug Hoyte helped with testing, and it was
+  applied by Fyodor.
+
 o Made a number of performance tweaks, such as:
   o increase host group sizes in many cases, so Nmap will now commonly
     scan 64 hosts at a time rather than 30
@@ -5241,8 +5249,7 @@ o Applied patch by William McVey (wam(a)cisco.com) which adds the uptime
   information printed with -O to the XML output format.
 
 o Fixed byte-order bug in Windows packet matching code which caused
-  -PS and -PT to fail.  Bug found and patch sent by Tim Adam
-  (tma(a)osa.com.au)
+  -PS and -PT to fail.  Bug found and patch sent by Tim Adam.
 
 o Fixed segfault problem with "-sU -F".  Nobody reported this until I
   noticed it :(.  Anytime you see "Segmentation Fault" in the latest
@@ -5317,8 +5324,7 @@ o Various minor fixes/changes/updates
 Nmap 2.54BETA27
 
 o Fixed bug that caused "adding open port" messages to be printed even
-  when verbose mode was not specified. (patch sent by Doug Hoyte (
-  dugely(a)yahoo.com ).
+  when verbose mode was not specified. (patch sent by Doug Hoyte.
 
 o Fixed bug in zombie:port option parsing in Idlescan as well a few
   other bugs in patch sent by Germano Caronni (gec(a)acm.org)
