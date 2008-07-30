@@ -1,6 +1,27 @@
----NOTE! FIX DNS ENTRY
+--[[
+
+Query Autonomous System Numbers Based on IP
+-------------------------------------------
+Uses a 3rd party service provided by team-cymru.org to
+find the autonomous system numbers of a specific IP.
+This scan is performed on all hosts in a portscan but
+will only output a result once for every netblock.
+
+Be aware that because this scan uses a 3rd party
+service it may result in a loss of privacy, all hosts
+that you scan with this script will be sent to team-
+cymru.org.
+--]]
+
 id = "ASN"
-description = "nmap <target> --script asn --script-args dns=<recursion_enabled_dns_server>"
+description = "This script discovers the autonomous system numbers of the \
+netblock ranges that you scanned. It will return other information as well \
+such as a country code, and BGP prefix. \
+Caution: This script access a 3rd party database provided by team-cymru.com \
+to discover this information. Using this script will expose the hosts that \
+you scan to team-cymru.com in order to get the results. \
+Usage: nmap <target> --script asn --script-args dns=<recursion_enabled_dns_server>"
+
 author = "Jah, Michael"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery"}
