@@ -180,6 +180,8 @@ class NmapOps {
   int verbose;
   /* The requested minimum packet sending rate, or 0.0 if unset. */
   float min_packet_send_rate;
+  /* The requested maximum packet sending rate, or 0.0 if unset. */
+  float max_packet_send_rate;
   int randomize_hosts;
   int spoofsource; /* -S used */
   int fastscan;

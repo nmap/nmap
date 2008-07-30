@@ -113,6 +113,8 @@ o Nmap's makefile will now install menu items for launching zenmap as
 o Nmap will no longer misreport a localhost-responce during -PN scans
   [Michael]
 
+o There is a new --max-rate option complementary to --min-rate. [David]
+
 Nmap 4.68 [2008-6-28]
 
 o Doug integrated all of your version detection submissions and

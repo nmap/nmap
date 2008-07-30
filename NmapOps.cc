@@ -192,6 +192,7 @@ void NmapOps::Initialize() {
   debugging = 0;
   verbose = 0;
   min_packet_send_rate = 0.0; /* Unset. */
+  max_packet_send_rate = 0.0; /* Unset. */
   randomize_hosts = 0;
   sendpref = PACKET_SEND_NOPREF;
   spoofsource = 0;
@@ -442,6 +443,10 @@ void NmapOps::ValidateOptions() {
 
   if (max_parallelism && min_parallelism && (min_parallelism > max_parallelism)) {
     fatal("--min-parallelism=%i must be less than or equal to --max-parallelism=%i",min_parallelism,max_parallelism);
+  }
+
+  if (min_packet_send_rate != 0.0 && max_packet_send_rate != 0.0 && min_packet_send_rate > max_packet_send_rate) {
+    fatal("--min-rate=%g must be less than or equal to --max-rate=%g", min_packet_send_rate, max_packet_send_rate);
   }
   
   if (af() == AF_INET6 && (numdecoys|osscan|bouncescan|fragscan|ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|synscan|udpscan|windowscan|xmasscan)) {

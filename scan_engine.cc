@@ -337,8 +337,14 @@ public:
   /* Value of numprobes_sent at lastping_sent time -- to ensure that we don't
      send too many pings when probes are going slowly. */
   int lastping_sent_numprobes; 
-  /* When to send the next probe, to keep the minimum up. Used only when a
-     minimum sending rate (o.min_packet_send_rate) is set. */
+
+  /* These two variables control minimum- and maximum-rate sending (--min-rate
+     and --max-rate). send_no_earlier_than is for --max-rate and
+     send_no_later_than is for --min-rate; they have effect only when the
+     respective command-line option is given. An attempt is made to keep the
+     sending rate within the interval, however for send_no_later_than it is not
+     guaranteed. */
+  struct timeval send_no_earlier_than;
   struct timeval send_no_later_than;
 
   /* The host to which global pings are sent. This is kept updated to be the
@@ -863,6 +869,7 @@ GroupScanStats::GroupScanStats(UltraScanInfo *UltraSI) {
   probes_sent = probes_sent_at_last_wait = 0;
   probes_replied_to = 0;
   lastping_sent = lastrcvd = USI->now;
+  send_no_earlier_than = USI->now;
   send_no_later_than = USI->now;
   lastping_sent_numprobes = 0;
   pinghost = NULL;
@@ -875,11 +882,23 @@ GroupScanStats::~GroupScanStats() {
 }
 
 void GroupScanStats::probeSent() {
-  /* Find the next scheduled send time for minimum-rate scanning. */
+  /* Find a new scheduling interval for minimum- and maximum-rate sending.
+     Recall that these have effect only when --min-rate or --max-rate is
+     given. */
+
+  TIMEVAL_ADD(send_no_earlier_than, send_no_earlier_than,
+    (time_t) (1000000.0 / o.max_packet_send_rate));
+  if (TIMEVAL_SUBTRACT(send_no_earlier_than, USI->now) < 0) {
+    /* Even after incrementing send_no_earlier_than, it's still in the past.
+       That means more packets could be sent immediately and make the rate too
+       high. Catch the time up to the present to prevent that. */
+    send_no_earlier_than = USI->now;
+  }
+
   if (TIMEVAL_SUBTRACT(send_no_later_than, USI->now) > 0) {
-    /* The next scheduled send is in the future. That means we're ahead of
-       schedule, but it also means there's slack time during which the sending
-       rate could drop. Reschedule the send to keep that from happening. */
+    /* The next scheduled send is in the future. That means there's slack time
+       during which the sending rate could drop. Pull the time back to the
+       present to prevent that. */
     send_no_later_than = USI->now;
   }
   TIMEVAL_ADD(send_no_later_than, send_no_later_than,
@@ -921,6 +940,20 @@ bool GroupScanStats::sendOK(struct timeval *when) {
   if (recentsends >= 50)
     return false;
 
+  /* Enforce a maximum scanning rate, if necessary. If it's too early to send,
+     return false. If not, mark now as a good time to send and allow the
+     congestion control to override it. */
+  if (o.max_packet_send_rate != 0.0) {
+    if (TIMEVAL_SUBTRACT(send_no_earlier_than, USI->now) > 0) {
+      if (when)
+        *when = send_no_earlier_than;
+      return false;
+    } else {
+      if (when)
+        *when = USI->now;
+    }
+  }
+
   /* In case the user specifically asked for no group congestion control */
   if (o.nogcc) {
     if (when)
@@ -929,9 +962,9 @@ bool GroupScanStats::sendOK(struct timeval *when) {
   }
 
   /* Enforce a minimum scanning rate, if necessary. If we're ahead of schedule,
-     record the time of the next scheduled send. If we're behind schedule,
-     return true to indicate that we need to send now, regardless of any
-     congestion control. */
+     record the time of the next scheduled send and submit to congestion
+     control. If we're behind schedule, return true to indicate that we need to
+     send right now. */
   if (o.min_packet_send_rate != 0.0) {
     if (TIMEVAL_SUBTRACT(send_no_later_than, USI->now) > 0) {
       if (when)

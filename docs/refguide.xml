@@ -2461,6 +2461,35 @@ timing.</para>
       </varlistentry>
 
       <varlistentry>
+        <term>
+        <option>--max-rate <replaceable>number</replaceable></option>
+        (Specify a maximum scanning rate)
+        <indexterm><primary><option>--max-rate</option></primary></indexterm>
+        </term>
+        <listitem>
+
+<para>Complementary to <option>--min-rate</option> is
+<option>--max-rate</option>, which limits a scan's sending rate to a
+given maximum. Use <option>--max-rate 100</option>, for example, to
+limit sending to 100 packets per second on a fast network. Use
+<option>--max-rate 0.1</option> for a slow scan of one packet every ten
+seconds.</para>
+
+<para><option>--max-rate</option>, like <option>--min-rate</option>, is
+a global option affecting an entire scan. It affects only port and host
+discovery scans. Unlike <option>--min-rate</option>, which is a
+<quote>best-effort</quote> option, <option>--max-rate</option> is a hard
+upper bound on the scanning rate.</para>
+
+<para>Nmap may go slower than the maximum rate if conditions require it.
+To keep the sending rate within a specified range, use
+<option>--min-rate</option> and <option>--max-rate</option>
+together.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
         <term><option>--defeat-rst-ratelimit</option>
         <indexterm><primary><option>--defeat-rst-ratelimit</option></primary></indexterm></term>
         <listitem>
