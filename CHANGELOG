@@ -92,7 +92,7 @@ o Updated zoneTrans.nse to replace length bytes in returned domain
   replacing non- printable characters with periods.  Thanks to Rob
   Nicholls for reporting the problem. [Kris]
 
-o Changed the order preference of timing ping propes. [Michael]
+o Changed the order preference of timing ping probes. [Michael]
 
 o Enabled nmap to switch between multiple types of timing pings during
   port scanning. [Michael]
@@ -194,9 +194,9 @@ o Fixed an integer overflow which prevented a target specification of
   available for those times you wish to scan the entire
   Internet. [Kris]
 
-o The robots.nse has been improved to print output more compactly and
-  limit the number of entries of large robots.txt files based on Nmap
-  verbosity and debugging levels. [Eddie Bell]
+o The robots.nse script has been improved to print output more
+  compactly and limit the number of entries of large robots.txt files
+  based on Nmap verbosity and debugging levels. [Eddie Bell]
 
 o The Nmap NSE scripts have been re-categorized in a more logical
   fashion.  The new categories are described at
@@ -562,7 +562,7 @@ o Fixed a bug in the nbase random number generator (and the way it
   instances.  Thanks to Jah for reporting the problem and working with
   Brandon Enright, Fyodor and Kris to fix it.
 
-o It turns out that hours have 60 minutes, not 24.  Fixed a scan
+o It turns out that hours contain 60 minutes, not 24.  Fixed a scan
   status message which was rolling over the hours column
   prematurely. [David]
 
@@ -589,8 +589,8 @@ o Added release dates for each Nmap version to this CHANGELOG going
   well. [Fyodor]
 
 o Nmap RPM builds now use the versions of libdnet, libpcap, libpcre,
-  and liblua rather than whatever happens to be installed on the build
-  system. [David]
+  and liblua included with Nmap rather than whatever happens to be
+  installed on the build system. [David]
 
 o Zenmap can now be installed in and run in directories with a space
   in the name. [David]
