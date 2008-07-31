@@ -1,8 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o Nsock now returns data from UDP packets individually, preserving the packet
-  boundary, rather than concatenating the data from multiple packets
-  into a single buffer.  This fixes a problem related to our
+o Nsock now returns data from UDP packets individually, preserving the
+  packet boundary, rather than concatenating the data from multiple
+  packets into a single buffer.  This fixes a problem related to our
   reverse-DNS system, which can only handle one DNS packet at a time.
   Thanks to Tim Adam of ManageSoft for debugging the problem and
   sending the patch.  Doug Hoyte helped with testing, and it was
@@ -24,91 +24,94 @@ o Added the undocumented (except here) --nogcc option which disables
   scan group of machines is treated separately.  This is just an
   experimental option for now. [Fyodor]
 
-o Added a new NSE Unpwdb (username/password database) library for easily
-  obtaining usernames or passwords from a list.  The functions usernames()
-  and passwords() return a closure which returns a new list entry with
-  every call, or nil when the list is exhausted.  You can specify your
-  own username and/or password lists via the script arguments userdb
-  and passdb, respectively. [Kris]
+o Added a new NSE Unpwdb (username/password database) library for
+  easily obtaining usernames or passwords from a list.  The functions
+  usernames() and passwords() return a closure which returns a new
+  list entry with every call, or nil when the list is exhausted.  You
+  can specify your own username and/or password lists via the script
+  arguments userdb and passdb, respectively. [Kris]
 
 o The Ports/Hosts display in Zenmap now has different colors for open
   and closed ports. [Vladimir]
 
 o Fixed the "resolution errors not showing up" bug. Actually, from now
-  on, all errors will be displayed properly in the Zenmap window, since
-  stderr is also redirected there (until now, only stdout was
+  on, all errors will be displayed properly in the Zenmap window,
+  since stderr is also redirected there (until now, only stdout was
   displayed). [Vladimir]
 
-o NSE now works with the Ping Scan (-sP) to execute host scripts. [Kris]
+o NSE now works with the Ping Scan (-sP) to execute host
+  scripts. [Kris]
 
-o [NSE] nse_string has been removed and equivalent, cleaner, procedures
-  have been moved to nse_main and nse_nsock. [Patrick]
+o [NSE] nse_string has been removed and equivalent, cleaner,
+  procedures have been moved to nse_main and nse_nsock. [Patrick]
 
 o [NSE] Case insensitive categories. [Patrick]
 
-o [NSE] Porttests and Hosttests tables are now in the Lua registry where
-  they belong. [Patrick]
+o [NSE] Porttests and Hosttests tables are now in the Lua registry
+  where they belong. [Patrick]
 
 o [NSE] Each thread for a script gets its own action closure (and
-    upvalues). See: http://seclists.org/nmap-dev/2008/q2/0549.html [Patrick]
+  upvalues). See: http://seclists.org/nmap-dev/2008/q2/0549.html
+  [Patrick]
 
 o [NSE] script_scan_result structure has been changed to a class,
-  ScriptResult, that now uses std::strings to hold a Script's output and
-  id. This alleviates the need to manage memory on the heap explicitly
-  (malloc & free). [Patrick]
+  ScriptResult, that now uses std::strings to hold a Script's output
+  and id. This alleviates the need to manage memory on the heap
+  explicitly (malloc & free). [Patrick]
 
-o [NSE] The runlevel structure has been placed in the thread record structure
-  so we no longer need to manage the runlevel explicitly on the heap. [Patrick]
+o [NSE] The runlevel structure has been placed in the thread record
+  structure so we no longer need to manage the runlevel explicitly on
+  the heap. [Patrick]
 
-o Fixed host discovery probe matching when looking at the returned TCP data in
-  an ICMP error message.  This could lead to incorrectly discarded responses
-  and the debugging error message: "Bogus trynum or sequence number in ICMP
-  error message" [Kris]
+o Fixed host discovery probe matching when looking at the returned TCP
+  data in an ICMP error message.  This could lead to incorrectly
+  discarded responses and the debugging error message: "Bogus trynum
+  or sequence number in ICMP error message" [Kris]
 
-o Fixed a segmentation fault in Nsock which occurred when calling nsock_write()
-  with a data length of -1 (which means the data is a NULL-terminated string
-  and Nsock should take the length itself) and the Nsock trace level was at
-  least 2. [Kris]
+o Fixed a segmentation fault in Nsock which occurred when calling
+  nsock_write() with a data length of -1 (which means the data is a
+  NULL-terminated string and Nsock should take the length itself) and
+  the Nsock trace level was at least 2. [Kris]
 
-o Nsock now supports binding to a local address and setting IPv4 options
-  with nsi_set_localaddr() and nsi_set_ipoptions(), respectively. [Kris]
+o Nsock now supports binding to a local address and setting IPv4
+  options with nsi_set_localaddr() and nsi_set_ipoptions(),
+  respectively. [Kris]
 
-o Nmap's Nsock-utilizing subsystems (DNS, NSE, version detection) have been
-  updated to support the -S and --ip-options flags. [Kris]
+o Nmap's Nsock-utilizing subsystems (DNS, NSE, version detection) have
+  been updated to support the -S and --ip-options flags. [Kris]
 
 o Added --ip-options support for the connect() scan (-sT). [Kris]
 
-o The NSE Comm library now defaults to trying to read as many bytes as are
-  available rather than lines if neither the "bytes" nor "lines" options are
-  given.  Thanks to Brandon for reporting a problem which he noticed in the
-  dns-test-open-recursion script. [Kris]
+o The NSE Comm library now defaults to trying to read as many bytes as
+  are available rather than lines if neither the "bytes" nor "lines"
+  options are given.  Thanks to Brandon for reporting a problem which
+  he noticed in the dns-test-open-recursion script. [Kris]
 
-o Updated zoneTrans.nse to replace length bytes in returned domain names to
-  periods itself rather than relying on NSE's old behavior of replacing non-
-  printable characters with periods.  Thanks to Rob Nicholls for reporting the
-  problem. [Kris]
+o Updated zoneTrans.nse to replace length bytes in returned domain
+  names to periods itself rather than relying on NSE's old behavior of
+  replacing non- printable characters with periods.  Thanks to Rob
+  Nicholls for reporting the problem. [Kris]
 
 o Changed the order preference of timing ping propes. [Michael]
 
-o Enabled nmap to switch between multiple types of timing pings during port
-  scanning. [Michael]
+o Enabled nmap to switch between multiple types of timing pings during
+  port scanning. [Michael]
 
-o Some Zenmap crashes have been fixed: trying to "refresh" the output of
-  a scan loaded from a file, and trying to re-save a file loaded from
-  the command line in some circumstances. [David]
+o Some Zenmap crashes have been fixed: trying to "refresh" the output
+  of a scan loaded from a file, and trying to re-save a file loaded
+  from the command line in some circumstances. [David]
 
 o The file selector in Zenmap now remembers what directory it was last
   looking at. [David]
 
-o Zenmap defaults to showing files matching both *.xml and *.usr in the
-  file selector. Previously it only showed those matching *.usr.
+o Zenmap defaults to showing files matching both *.xml and *.usr in
+  the file selector. Previously it only showed those matching *.usr.
 
-o Nmap avoids printing the sending rate in bytes per second during a TCP
-  connect scan. Because the number of bytes per probe is not known, it used to
-  print
-    Current sending rates: 11248.85 packets / s, 0.00 bytes / s.
-  Now it will print simply
-    Current sending rates: 11248.85 packets / s.
+o Nmap avoids printing the sending rate in bytes per second during a
+  TCP connect scan. Because the number of bytes per probe is not
+  known, it used to print Current sending rates: 11248.85 packets / s,
+  0.00 bytes / s.  Now it will print simply Current sending rates:
+  11248.85 packets / s.
 
 o Nmap's makefile will now install menu items for launching zenmap as
   a privileged or non-privileged process on linux. This will mainly
@@ -118,7 +121,8 @@ o Nmap's makefile will now install menu items for launching zenmap as
 o Nmap will no longer misreport a localhost-responce during -PN scans
   [Michael]
 
-o There is a new --max-rate option complementary to --min-rate. [David]
+o There is a new --max-rate option complementary to
+  --min-rate. [David]
 
 Nmap 4.68 [2008-6-28]
 
@@ -217,8 +221,8 @@ o Improved the mapping from dnet device names (like eth0) and WinPcap
   with --iflist, and the change should make Nmap more likely to work
   on Windows machines with unusual networking configurations. [David]
 
-o Service fingerprints in XML output are no longer be truncated to 2kb.
-  [Michael]
+o Service fingerprints in XML output are no longer be truncated to
+  2kb.  [Michael]
 
 o Some laptops report the IP Family as NULL for disabled WiFi cards.
   This could lead to a crash with the "sin->sin_family == AF_INET6"
@@ -228,21 +232,21 @@ o Some laptops report the IP Family as NULL for disabled WiFi cards.
 o On systems without the GNU getopt_long_only() function, Nmap has its
   own replacement.  That replacement used to call the system's
   getopt() function if it exists.  But the AIX and Solaris getopt()
-  functions proved insufficient/buggy, so Nmap now always calls its own
-  internal getopt() now from its getopt_long_only()
+  functions proved insufficient/buggy, so Nmap now always calls its
+  own internal getopt() now from its getopt_long_only()
   replacement. [David]
 
 o Integrated several service match lines from Tom Sellers.
 
 o An error was fixed where Zenmap would crash when trying to load from
-  the recent scans database a file containing non-ASCII characters. The
-  error looked like
+  the recent scans database a file containing non-ASCII
+  characters. The error looked like
     pysqlite2.dbapi2.OperationalError: Could not decode to UTF-8 column
       'nmap_xml_output' with text
     '<?xml version="1.0" encoding="iso-8859-1"?>
     <nmaprun profile="nmap -T Aggressive -n -v %s" scanner="nmap" hint=""
-  The error would be seen when such a scan was found in using the search
-  interface. [David]
+  The error would be seen when such a scan was found in using the
+  search interface. [David]
 
 o Fix a Zenmap crash which occurred when local.getpreferredencoding()
   returns "None".  Similarly, deal with the case when a "X-MAC-KOREAN"
@@ -252,9 +256,9 @@ o Fix a Zenmap crash which occurred when local.getpreferredencoding()
 o A whole bunch of internal Zenmap cleanup was done by David to make
   the code more logical and remove dead code.
 
-o Install icons and pixmaps under /usr/share/zenmap/{icons,pixmaps} 
-  so they don't get mixed in with the files in /usr/share/{icons,pixmaps}.
-  [Jurand Nogiec]
+o Install icons and pixmaps under /usr/share/zenmap/{icons,pixmaps} so
+  they don't get mixed in with the files in
+  /usr/share/{icons,pixmaps}.  [Jurand Nogiec]
 
 o Fixed a Zenmap command entry problem where Zenmap would lose a
   custom command you had entered into the command entry field if you
@@ -267,8 +271,9 @@ o The Zenmap crash reporter now includes a stack trace rather than
 o Zenmap now executes the proper Nmap command by honoring the
   nmap_command_path variable in zenmap.conf. [Jurand Nogiec]
 
-o Fixed a bug which caused -PN to erroneously bail out for unprivileged
-  users.  Thanks to Jabra (jabra(a)spl0it.org) for the report. [Kris]
+o Fixed a bug which caused -PN to erroneously bail out for
+  unprivileged users.  Thanks to Jabra (jabra(a)spl0it.org) for the
+  report. [Kris]
 
 o Fixed several Nmap NSE memory leaks found with Valgrind. [Kris]
 
@@ -376,8 +381,8 @@ o A new "default" Nmap Scripting Engine category was added.  Only
   run.  21 scripts are now in this default category. [Kris]
 
 o The NSE HTTP library now uses the host name specified on the command
-  line when making requests, which improves script scanning against web
-  servers with virtual hosts. Thanks to Sven Klemm for the patch.
+  line when making requests, which improves script scanning against
+  web servers with virtual hosts. Thanks to Sven Klemm for the patch.
 
 o Added some new and improved version detection signatures. [Brandon]
 
@@ -422,7 +427,8 @@ o Fixed a bug in the showOwner NSE script which caused it to try UDP
 
 o Nbase now generates pseudo-random numbers itself rather than using
   /dev/urandom on Linux and the terrible rand() function on Windows.
-  The new system uses ARC4 based on libdnet's implementation. [Brandon]
+  The new system uses ARC4 based on libdnet's
+  implementation. [Brandon]
 
 o Made a number of updates and improvements to the Zenmap Users' Guide
   at http://nmap.org/book/zenmap.html . [David]
@@ -443,8 +449,8 @@ o A bug was fixed that could cause Zenmap to crash when loading a
   (gtk_text_byte_begins_utf8_char (text))
   [David]
 
-o Removed a superfluous test for the existence of the C++ compiler in the
-  configure script. The test was not robust when configured with
+o Removed a superfluous test for the existence of the C++ compiler in
+  the configure script. The test was not robust when configured with
   CXX="ccache g++". Thanks to Rainer Müller for the report.
 
 o Optimized cached DNS lookups so they are equally efficient when
@@ -472,8 +478,8 @@ o Fixed a bug which caused Nmap to send bad checksums on Solaris 10
   our "solaris2.2*" bug workarounds. Thanks to Nathan Bills for the
   problem report.  Fixed by Fyodor.
 
-o Fixed a minor memory leak in getpts_simple which occurs when
-  no ports are to be added to 'list'. 'porttbl' is now free'd regardless
+o Fixed a minor memory leak in getpts_simple which occurs when no
+  ports are to be added to 'list'. 'porttbl' is now free'd regardless
   of how the function returns. [Michael]
 
 o Nmap now understands the RFC 4007 percent syntax for IPv6 Zone IDs.
@@ -497,9 +503,9 @@ o Fix a couple bugs in the way the Nmap build system checked for an
   configure option for specifying your own liblua. [Daniel
   Roethlisberger]
 
-o The NSE nmap.registry.args table is now available, albeit empty, when
-  --script-args isn't used.  Now scripts don't need to check if it's nil
-  before attempting to index it. [Kris]
+o The NSE nmap.registry.args table is now available, albeit empty,
+  when --script-args isn't used.  Now scripts don't need to check if
+  it's nil before attempting to index it. [Kris]
 
 o Changed SSLv2-support.nse so that it only enumerates the list of
   available ciphers with a verbosity level of at least two or with
@@ -508,8 +514,8 @@ o Changed SSLv2-support.nse so that it only enumerates the list of
 o Replaced kibuvDetection.nse with version detection match lines which
   work better than the script. [Kris, Brandon]
 
-o Removed mswindowsShell.nse as there is a version detection NULL probe
-  match which accomplishes the same thing. [Brandon, Fyodor, Kris]
+o Removed mswindowsShell.nse as there is a version detection NULL
+  probe match which does the same thing. [Brandon, Fyodor, Kris]
 
 o Updated IANA assignment IP list for random IP (-iR)
   generation. [Kris]
@@ -530,12 +536,12 @@ o Create /nmap/macosx directory in SVN with files necessary to build
   aren't quite yet distributing the results on the Nmap download page,
   but testing our beta versions is useful.  You can find the latest
   universal (PPC and Intel) binary test version by looking at David
-  Fifield's posts at http://seclists.org/nmap-dev/2008/q2/author.html .
+  Fifield's posts at http://seclists.org/nmap-dev/2008/q2/author.html.
   You can also read /nmap/macosx/README in svn for more info.
 
 o Nmap 2008 Summer of Code students have began working (though full
-  time doesn't start until late May).  Learn about the winners and their
-  projects at http://seclists.org/nmap-dev/2008/q2/0132.html .
+  time doesn't start until late May).  Learn about the winners and
+  their projects at http://seclists.org/nmap-dev/2008/q2/0132.html .
 
 o Brandon added/modified a whole bunch of version detection signatures
   based on systems discovered when scanning UCSD's network.
@@ -563,10 +569,10 @@ o It turns out that hours have 60 minutes, not 24.  Fixed a scan
 o Added scripting options to Zenmap profile editor and command wizard
   to make use of NSE. [David]
 
-o Zenmap now prints an exception message rather than segfaulting when it
-  can't open a display (such as when trying to connect to an X server as
-  an unauthorized user). Thanks to Aaron Leininger for the initial
-  report and Guilherme Polo for suggesting the fix.
+o Zenmap now prints an exception message rather than segfaulting when
+  it can't open a display (such as when trying to connect to an X
+  server as an unauthorized user). Thanks to Aaron Leininger for the
+  initial report and Guilherme Polo for suggesting the fix.
 
 o Now ports in the "unfiltered" state can be selected for attention by
   NSE scripts. [Kris]
@@ -640,10 +646,10 @@ o Zenmap now shows a more helpful error message when there is an error
 
 o Zenmap now creates the directory ~/.zenmap-etc to store
   automatically generated GTK+ and Pango files. They used to go in the
-  application bundle but that doesn't work on a read-only filesystem or
-  disk image. This is what Wireshark does (~/.wireshark-etc), although
-  the directory could be called anything. It doesn't have to persist
-  across sessions.
+  application bundle but that doesn't work on a read-only filesystem
+  or disk image. This is what Wireshark does (~/.wireshark-etc),
+  although the directory could be called anything. It doesn't have to
+  persist across sessions.
 
 o Added a mechanism in Zenmap for including extra executable search
   paths on specific platforms, so we can include /usr/local/bin in
@@ -674,9 +680,10 @@ o Changed the NSE function nmap.set_port_state() so that it checks to
   inaccurate "script-set" state reason. [Kris]
 
 o Canonicalize NSE script license text--more than half did not even
-  spell license correctly. They all still say that they are under Nmap's
-  license, just with consistent capitalization and spelling, and now a
-  link to Nmap legal page at http://nmap.org/man/man-legal.html.
+  spell license correctly. They all still say that they are under
+  Nmap's license, just with consistent capitalization and spelling,
+  and now a link to Nmap legal page at
+  http://nmap.org/man/man-legal.html.
 
 o Updated ripeQuery.nse to not print extraneous whitespace. [Kris]
 
@@ -687,10 +694,11 @@ o Switched telnet brute force password cracking NSE (bruteTelnet.nse)
 o NSE status messages now print host name and IP, rather than just the
   host name (which was blank when Nmap didn't know it). [Jah]
 
-o Allocate 128 characters for the idle scan ScanProgressMeter title. Previously
-  it was 32 characters. The "idle scan against " and the \0 terminator take up 19
-  characters, leaving only 13, which isn't enough to represent all IP addresses,
-  let alone host names. Bug reported by Stephan Fijneman, fixed by David.
+o Allocate 128 characters for the idle scan ScanProgressMeter
+  title. Previously it was 32 characters. The "idle scan against " and
+  the \0 terminator take up 19 characters, leaving only 13, which
+  isn't enough to represent all IP addresses, let alone host
+  names. Bug reported by Stephan Fijneman, fixed by David.
 
 Nmap 4.60 [2008-3-15]
 
