@@ -12,12 +12,16 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
 require "shortport"
+require "snmp"
+
+-- runs after SNMPcommunityprobe.nse
+runlevel = 2
 
 portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 
 action = function(host, port)
 
-	-- create the socket used for our connection
+       	-- create the socket used for our connection
 	local socket = nmap.new_socket()
 	
 	-- set a reasonable timeout value
@@ -38,12 +42,10 @@ action = function(host, port)
 	-- build a SNMP v1 packet
 	-- copied from packet capture of snmpget exchange
 	-- get value: 1.3.6.1.2.1.1.1.0 (SNMPv2-MIB::sysDescr.0)
-	payload = "\048\039\002\001\000\004\006" .. "public" -- community string = public
-	payload = payload .. "\160\026\002\002\111\012\002\001"
-	payload = payload .. "\000\002\001\000\048\014\048\012"
-	payload = payload .. "\006\008\043\006\001\002\001\001"
-	payload = payload .. "\001\000\005\000"
-	
+	local options = {}
+	options.reqId = 28428 -- unnecessary?
+	payload = snmp.encode(snmp.buildPacket(snmp.buildGetRequest(options, "1.3.6.1.2.1.1.1.0")))
+
 	try(socket:send(payload))
 	
 	local status
@@ -64,17 +66,15 @@ action = function(host, port)
 	nmap.set_port_state(host, port, "open")
 	
 	local result
-	result = string.match(response, "\001\001%z\004.(.*)")
+	result = snmp.fetchFirst(response)
 	
 	-- build a SNMP v1 packet
 	-- copied from packet capture of snmpget exchange
 	-- get value: 1.3.6.1.2.1.1.3.0 (SNMPv2-MIB::sysUpTime.0)
-	payload = "\048\039\002\001\000\004\006" .. "public" -- community string = public
-	payload = payload .. "\160\026\002\002\101\040\002\001"
-	payload = payload .. "\000\002\001\000\048\014\048\012"
-	payload = payload .. "\006\008\043\006\001\002\001\001"
-	payload = payload .. "\003\000\005\000"
-
+	local options = {}
+	options.reqId = 28428
+	payload = snmp.encode(snmp.buildPacket(snmp.buildGetRequest(options, "1.3.6.1.2.1.1.3.0")))
+	
 	try(socket:send(payload))
 	
 	-- read in any response we might get
@@ -90,29 +90,7 @@ action = function(host, port)
 	
 	try(socket:close())
 
-	local start, stop = response:find("\006\001\002\001\001\003\000")
-
-	if start == nil then
-		return result
-	end
-	
-	local uplen,uptime,s1,s2,s3,s4
-
-	uplen = response:byte(stop + 2)
-
-	s1,s2,s3,s4 = response:byte(stop + 3, stop + 3 + uplen)
-
-	if uplen == 4 then
-		uptime = s1*(2^24) + s2*(2^16) + s3*(2^8) + s4
-	elseif uplen == 3 then
-		uptime = s1*(2^16) + s2*(2^8) + s3
-	elseif uplen == 2 then
-		uptime = s1*(2^8) + s2
-	elseif uplen == 1 then
-		uptime = s1
-	else
-		return result
-	end
+	local uptime = snmp.fetchFirst(response)
 
 	local days, hours, minutes, seconds, htime, mtime, stime
 	days = math.floor(uptime / 8640000)
