@@ -148,7 +148,9 @@ int luaopen_nmap (lua_State *L)
   lua_setmetatable(L, -2); // Allow closures to be collected (see l_mutex)
   mutex_i = luaL_ref(L, LUA_REGISTRYINDEX);
 
-  SCRIPT_ENGINE_TRY(l_nsock_open(L));
+  lua_pushcclosure(L, luaopen_nsock, 0);
+  lua_pushliteral(L, "nsock");
+  lua_call(L, 1, 0);
   SCRIPT_ENGINE_TRY(l_dnet_open(L));
 
   lua_settop(L, 1); // just nmap lib on stack

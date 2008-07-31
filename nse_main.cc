@@ -410,6 +410,8 @@ int process_mainloop(lua_State *L) {
 				iter = waiting_scripts.begin();
 			}
 
+       // Run the garbage collecter. FIXME: This can error in a __gc metamethod
+       lua_gc(L, LUA_GCSTEP, 5);
 
         while (!running_scripts.empty()) {
 			current = *(running_scripts.begin());
@@ -456,7 +458,6 @@ int process_mainloop(lua_State *L) {
 				}
 	
 				SCRIPT_ENGINE_TRY(process_finalize(L, current.registry_idx));
-				SCRIPT_ENGINE_TRY(lua_gc(L, LUA_GCCOLLECT, 0));
 			} else {
 				// this script returned because of an error
 				// print the failing reason if the verbose level is high enough	
