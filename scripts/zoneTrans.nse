@@ -100,10 +100,15 @@ function parse_domain(data, offset)
 		end
 
 		-- RFC 1035 format name
-		for i=0, x do
+		for i=0, x-1 do
 			offset = offset + 1
 			record = record .. string.char(string.byte(data, offset))
 		end
+
+		offset = offset + 1
+
+		-- replace length byte with a period
+		record = record .. '.'
 		
 		x = string.byte(data, offset)
 		ptr = bto16(data, offset)
