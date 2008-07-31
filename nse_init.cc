@@ -365,7 +365,8 @@ int init_updatedb (lua_State *L)
       lua_newtable(L); // script environment
       lua_pushvalue(L, -3); // script metatable
       lua_setmetatable(L, -2); // set it
-      luaL_loadfile(L, file); // load file
+      if (luaL_loadfile(L, file) != 0) // load file
+        luaL_error(L, "file '%s' could not be loaded", file);
       lua_pushvalue(L, -2); // push environment
       lua_setfenv(L, -2); // set it
       lua_call(L, 0, 0);
