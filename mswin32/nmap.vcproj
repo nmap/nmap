@@ -287,6 +287,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\nse_binlib.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_hash.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\osscan.cc"
 				>
 			</File>
@@ -469,6 +477,14 @@
 			</File>
 			<File
 				RelativePath="..\nse_pcrelib.h"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_binlib.h"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_hash.h"
 				>
 			</File>
 			<File
