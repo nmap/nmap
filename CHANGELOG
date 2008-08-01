@@ -124,6 +124,11 @@ o Nmap will no longer misreport a localhost-responce during -PN scans
 o There is a new --max-rate option complementary to
   --min-rate. [David]
 
+o A bug that could cause some host discovery probes to be incorrectly
+  interpreted as drops was fixed. This occurred only when the IP
+  protocol ping (-PO) option was combined with other ping
+  types. [David]
+
 Nmap 4.68 [2008-6-28]
 
 o Doug integrated all of your version detection submissions and
