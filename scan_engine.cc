@@ -4078,33 +4078,6 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
     if (bytes == 0)
       continue;
 
-    if (USI->ptech.rawprotoscan) {
-      memset(&sin, 0, sizeof(sin));
-      sin.sin_addr.s_addr = ip->ip_src.s_addr;
-      sin.sin_family = AF_INET;
-      hss = USI->findHost((struct sockaddr_storage *) &sin);
-      if (!hss) continue;
-      setTargetMACIfAvailable(hss->target, &linkhdr, ip, 0);
-      probeI = hss->probes_outstanding.end();
-      listsz = hss->num_probes_outstanding();
-      goodone = false;
-      for(probenum = 0; probenum < listsz && !goodone; probenum++) {
-	probeI--;
-	probe = *probeI;
-	    
-	if (probe->protocol() == ip->ip_p) {
-	  /* if this is our probe we sent to localhost, then it doesn't count! */
-	  if (ip->ip_src.s_addr == ip->ip_dst.s_addr &&
-	      probe->ipid() == ntohs(ip->ip_id))
-	    continue;
-
-	  newstate = HOST_UP;
-	  current_reason = ER_PROTORESPONSE;
-	  goodone = true;
-        }
-      }
-    }
-
     /* First check if it is ICMP, TCP, or UDP */
     if (ip->ip_p == IPPROTO_ICMP) {
       /* if it is our response */
@@ -4120,7 +4093,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         current_reason = ping->code + ER_ICMPCODE_MOD;
 
       /* Echo reply, Timestamp reply, or Address Mask Reply */
-      if (ping->type == 0 || ping->type == 14 || ping->type == 18) {
+      if (USI->ptech.rawicmpscan && (ping->type == 0 || ping->type == 14 || ping->type == 18)) {
         memset(&sin, 0, sizeof(sin));
         sin.sin_addr.s_addr = ip->ip_src.s_addr;
         sin.sin_family = AF_INET;
@@ -4172,7 +4145,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         }
       }
       // Destination unreachable, source quench, or time exceeded 
-      else if (ping->type == 3 || ping->type == 4 || ping->type == 11 || o.debugging) {
+      else if (ping->type == 3 || ping->type == 4 || ping->type == 11) {
         struct ip *ip2 = (struct ip *) ((char *) ip + ip->ip_hl * 4 + 8);
 
         requiredbytes = ip->ip_hl * 4 + 8U + ip2->ip_hl * 4 + 8U;
@@ -4184,14 +4157,8 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           continue;
         }
 
-        if (ip2->ip_p == IPPROTO_ICMP && !USI->ptech.rawprotoscan) {
+        if (ip2->ip_p == IPPROTO_ICMP && USI->ptech.rawicmpscan) {
           /* The response was based on a ping packet we sent */
-          if (!USI->ptech.rawicmpscan) {
-            if (o.debugging)
-              error("Got ICMP error referring to ICMP msg which we did not send");
-            continue;
-          }
-
           memset(&sin, 0, sizeof(sin));
           sin.sin_addr.s_addr = ip2->ip_dst.s_addr;
           sin.sin_family = AF_INET;
@@ -4223,13 +4190,8 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           /* Did we fail to find a probe? */
           if (probenum >= listsz)
             continue;
-        } else if (ip2->ip_p == IPPROTO_TCP && !USI->ptech.rawprotoscan) {
+        } else if (ip2->ip_p == IPPROTO_TCP && USI->ptech.rawtcpscan) {
           /* The response was based our TCP probe */
-          if (!USI->ptech.rawtcpscan) {
-            if (o.debugging)
-              error("Got ICMP error referring to TCP msg which we did not send");
-            continue;
-          }
           struct tcp_hdr *tcp = (struct tcp_hdr *) (((char *) ip2) + 4 * ip2->ip_hl);
           /* Now ensure this host is even in the incomplete list */
           memset(&sin, 0, sizeof(sin));
@@ -4267,14 +4229,8 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           /* Did we fail to find a probe? */
           if (probenum >= listsz)
             continue;
-        } else if (ip2->ip_p == IPPROTO_UDP && !USI->ptech.rawprotoscan) {
+        } else if (ip2->ip_p == IPPROTO_UDP && USI->ptech.rawudpscan) {
           /* The response was based our UDP probe */
-          if (!USI->ptech.rawudpscan) {
-            if (o.debugging)
-              error("Got ICMP error referring to UDP msg which we did not send");
-            continue;
-          }
-
           if ((unsigned) ip2->ip_hl * 4 + 8 > bytes)
             continue;
           struct udp_hdr *udp = (struct udp_hdr *) ((u8 *) ip2 + ip2->ip_hl * 4);
@@ -4319,7 +4275,12 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           /* Did we fail to find a probe? */
           if (probenum >= listsz)
             continue;
-        } else if (USI->ptech.rawprotoscan) {
+        } else if (o.debugging && !USI->ptech.rawprotoscan) {
+            error("Got ICMP response to a packet which was not TCP, UDP, or ICMP");
+          continue;
+        }
+        
+        if (!goodone && USI->ptech.rawprotoscan) {
           memset(&sin, 0, sizeof(sin));
           sin.sin_addr.s_addr = ip2->ip_dst.s_addr;
           sin.sin_family = AF_INET;
@@ -4352,10 +4313,6 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           /* Did we fail to find a probe? */
           if (probenum >= listsz)
             continue;
-	} else {
-          if (o.debugging)
-            error("Got ICMP response to a packet which was not TCP, UDP, or ICMP");
-          continue;
         }
 
         if (ping->type == 3) {
@@ -4388,10 +4345,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           log_write(LOG_STDOUT, "Got ICMP message type %d code %d\n", ping->type, ping->code);
         }
       }
-    } else if (ip->ip_p == IPPROTO_TCP && !USI->ptech.rawprotoscan) {
-      if (!USI->ptech.rawtcpscan) {
-        continue;
-      }
+    } else if (ip->ip_p == IPPROTO_TCP && USI->ptech.rawtcpscan) {
       struct tcp_hdr *tcp = (struct tcp_hdr *) (((u8 *) ip) + 4 * ip->ip_hl);
       /* Check that the packet has useful flags. */
       if (!(tcp->th_flags & TH_RST)
@@ -4467,10 +4421,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         if (o.debugging)
           log_write(LOG_STDOUT, "We got a TCP ping packet back from %s port %hi (trynum = %d)\n", inet_ntoa(ip->ip_src), ntohs(tcp->th_sport), trynum);
       }
-    } else if (ip->ip_p == IPPROTO_UDP && !USI->ptech.rawprotoscan) {
-      if (!USI->ptech.rawudpscan) {
-        continue;
-      }
+    } else if (ip->ip_p == IPPROTO_UDP && USI->ptech.rawudpscan) {
       struct udp_hdr *udp = (struct udp_hdr *) (((char *) ip) + 4 * ip->ip_hl);
       /* Search for this host on the incomplete list */
       memset(&sin, 0, sizeof(sin));
@@ -4520,6 +4471,34 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       }
     } else if (!USI->ptech.rawprotoscan && o.debugging) {
       error("Found whacked packet protocol %d in %s.", ip->ip_p, __func__);
+    }
+
+    /* Check for a protocol reply */
+    if (!goodone && USI->ptech.rawprotoscan) {
+      memset(&sin, 0, sizeof(sin));
+      sin.sin_addr.s_addr = ip->ip_src.s_addr;
+      sin.sin_family = AF_INET;
+      hss = USI->findHost((struct sockaddr_storage *) &sin);
+      if (!hss) continue;
+      setTargetMACIfAvailable(hss->target, &linkhdr, ip, 0);
+      probeI = hss->probes_outstanding.end();
+      listsz = hss->num_probes_outstanding();
+      goodone = false;
+      for(probenum = 0; probenum < listsz && !goodone; probenum++) {
+	probeI--;
+	probe = *probeI;
+	    
+	if (probe->protocol() == ip->ip_p) {
+	  /* if this is our probe we sent to localhost, then it doesn't count! */
+	  if (ip->ip_src.s_addr == ip->ip_dst.s_addr &&
+	      probe->ipid() == ntohs(ip->ip_id))
+	    continue;
+
+	  newstate = HOST_UP;
+	  current_reason = ER_PROTORESPONSE;
+	  goodone = true;
+        }
+      }
     }
   } while (!goodone && !timedout);
 
