@@ -4,6 +4,11 @@
 
 module(...,package.seeall)
 
+
+---
+-- Encodes an Integer according to ASN.1 basic encoding rules
+--@param val Value to be encoded
+--@return encoded integer 
 local function encodeInt(val)
    local lsb = 0
    if val > 0 then
@@ -37,6 +42,11 @@ local function encodeInt(val)
    end
 end
 
+
+---
+-- Encodes the length part of a ASN.1 encoding triplet
+--@param val Value to be encoded
+--@return encoded length value
 local function encodeLength(val)
    if (val >= 128) then
       local valStr = ""
@@ -52,6 +62,12 @@ local function encodeLength(val)
    end
 end
 
+
+---
+-- Encodes a given value according to ASN.1 basic encoding
+-- rules for SNMP packet creation
+--@param val Value to be encoded
+--@return encoded value
 function encode(val)
    local vtype = type(val)
    if (vtype == 'number') then
@@ -100,6 +116,13 @@ function encode(val)
    return ''
 end
 
+
+---
+-- Decodes length part of encoded value according to 
+-- ASN.1 basic encoding rules
+--@param encStr Encoded string
+--@param pos Current position in the string
+--@return The position after decoding and the length of the following value
 local function decodeLength(encStr, pos)
    local elen
    pos, elen = bin.unpack('C', encStr, pos)
@@ -117,6 +140,14 @@ local function decodeLength(encStr, pos)
    return pos, elen
 end
 
+
+---
+-- Decodes an Integer according to ASN.1 basic 
+-- encoding rules
+--@param encStr Encoded string
+--@param len Length of integer in bytes
+--@param pos Current position in the string
+--@return The position after decoding and the decoded integer
 local function decodeInt(encStr, len, pos)
    local hexStr
    pos, hexStr = bin.unpack("H" .. len, encStr, pos)
@@ -127,6 +158,13 @@ local function decodeInt(encStr, len, pos)
    return pos, value
 end
 
+---
+-- Decodes a sequence according to ASN.1 basic 
+-- encoding rules
+--@param encStr Encoded string
+--@param len Length of sequence in bytes
+--@param pos Current position in the string
+--@return The position after decoding and the decoded sequence as a table
 local function decodeSeq(encStr, len, pos)
    local seq = {}
    local sPos = 1
@@ -141,6 +179,12 @@ local function decodeSeq(encStr, len, pos)
    return pos, seq
 end
 
+---
+-- Decodes an SNMP packet or a part of it according 
+-- to ASN.1 basic encoding rules
+--@param encStr Encoded string
+--@param pos Current position in the string
+--@return The position after decoding and the decoded value(s)
 function decode(encStr, pos)
    local etype, elen
    pos, etype = bin.unpack("H1", encStr, pos)
@@ -227,6 +271,12 @@ function decode(encStr, pos)
    return pos, nil
 end
 
+---
+-- Decodes an SNMP packet or a part of it according 
+-- to ASN.1 basic encoding rules
+--@param encStr Encoded string
+--@param pos Current position in the string
+--@return The decoded value(s)
 function dec(encStr, pos)
    local result
    local _
@@ -234,6 +284,11 @@ function dec(encStr, pos)
    return result
 end
 
+---
+-- Create SNMP packet
+--@param PDU SNMP Protocol Data Unit to be encapsulated in the packet
+--@param version SNMP version, default 0 (SNMP V1)
+--@param commStr community string, if not already supplied in registry or as script argument
 function buildPacket(PDU, version, commStr)
    local comm = nmap.registry.args.snmpcommunity
    if (not comm) then comm = nmap.registry.snmpcommunity end
@@ -248,10 +303,16 @@ function buildPacket(PDU, version, commStr)
    return packet
 end
 
+
+--- 
+-- Create SNMP Get Request PDU
+--@param options Configure PDU: request ID (reqId), error and error index (err, errIdx)
+--@param OIDs Object identifiers to be queried
+--@return Table representing PDU
 function buildGetRequest(options, ...)
    if not options then options = {} end
 
-	 if not options.reqId then options.reqId = math.mod(nmap.clock_ms(), 65000) end
+   if not options.reqId then options.reqId = math.mod(nmap.clock_ms(), 65000) end
    if not options.err then options.err = 0 end
    if not options.errIdx then options.errIdx = 0 end
 
@@ -274,6 +335,12 @@ function buildGetRequest(options, ...)
    return req
 end
 
+
+--- 
+-- Create SNMP Get Next Request PDU
+--@param options Configure PDU: request ID (reqId), error and error index (err, errIdx)
+--@param OIDs Object identifiers to be queried
+--@return Table representing PDU
 function buildGetNextRequest(options, ...)
    if not options then options = {} end
 
@@ -300,7 +367,14 @@ function buildGetNextRequest(options, ...)
    return req
 end
 
-function buildSetRequest(options, oid, value) -- directly uses value if value is a table
+--- 
+-- Create SNMP Set Request PDU
+-- Takes one OID/value pair or an already prepared table
+--@param options Configure PDU: request ID (reqId), error and error index (err, errIdx)
+--@param OIDs Object identifiers of object to be set
+--@param value To which value object should be set. If given a table, use table instead of OID/value pair
+--@return Table representing PDU
+function buildSetRequest(options, oid, value)
    if not options then options = {} end
 
 	 if not options.reqId then options.reqId = math.mod(nmap.clock_ms(), 65000) end
@@ -329,6 +403,14 @@ function buildSetRequest(options, oid, value) -- directly uses value if value is
    return req
 end
 
+--- 
+-- Create SNMP Trap PDU
+--@param enterpriseOid
+--@param agentIp
+--@param genTrap 
+--@param specTrap
+--@param timeStamp
+--@return Table representing PDU
 function buildTrap(enterpriseOid, agentIp, genTrap, specTrap, timeStamp)
    local req = {}
    req._snmp = 'A4'
@@ -354,7 +436,14 @@ function buildTrap(enterpriseOid, agentIp, genTrap, specTrap, timeStamp)
    return req
 end
 
-function buildGetResponse(options, oid, value) -- directly uses value if value is a table
+--- 
+-- Create SNMP Get Response PDU
+-- Takes one OID/value pair or an already prepared table
+--@param options Configure PDU: request ID (reqId), error and error index (err, errIdx)
+--@param OIDs Object identifiers of object to be sent back
+--@param value To which value object or returned object. If given a table, use table instead of OID/value pair
+--@return Table representing PDU
+function buildGetResponse(options, oid, value) 
    if not options then options = {} end
 
    -- if really a response, should use reqId of request!
@@ -385,7 +474,10 @@ function buildGetResponse(options, oid, value) -- directly uses value if value i
    return resp
 end
 
-
+--- 
+-- Transforms a string into an object identifier table
+--@param oidStr Object identifier as string, for example "1.3.6.1.2.1.1.1.0"
+--@return Table representing OID
 function str2oid(oidStr)
    local oid = {}
    for n in string.gmatch(oidStr, "%d+") do
@@ -395,18 +487,29 @@ function str2oid(oidStr)
    return oid
 end
 
-
+---
+-- Transforms a table representing an object identifier to a string
+--@param oid Object identifier table
+--@return OID string
 function oid2str(oid)
    if (type(oid) ~= "table") then return 'invalid oid' end
    return table.concat(oid, '.')
 end
 
-
+---
+-- Transforms a table representing an IP to a string
+--@param ip IP table
+--@return IP string
 function ip2str(ip)
    if (type(ip) ~= "table") then return 'invalid ip' end
    return table.concat(ip, '.')
 end
 
+
+---
+-- Transforms a string into an IP table
+--@param ipStr IP as string
+--@return Table representing IP
 function str2ip(ipStr)
    local ip = {}
    for n in string.gmatch(ipStr, "%d+") do
@@ -416,6 +519,11 @@ function str2ip(ipStr)
    return ip
 end
 
+
+---
+-- Fetches values from a SNMP response
+--@param resp SNMP Response (will be decoded if necessary)
+--@result Table with all decoded responses and their OIDs
 function fetchResponseValues(resp)
    if (type(resp) == "string") then
       local _, resp = decode(resp)
@@ -456,6 +564,11 @@ function fetchResponseValues(resp)
    return {}
 end
 
+
+---
+-- Fetches first value from a SNMP response.
+--@param response SNMP Response (will be decoded if necessary)
+--@return First decoded value of the response
 function fetchFirst(response)
    local result = fetchResponseValues(response)
    if type(result) == "table" and result[1] and result[1][1] then return result[1][1]

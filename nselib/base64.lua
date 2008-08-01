@@ -95,7 +95,10 @@ local bpack = bin.pack
 local bunpack = bin.unpack
 local concat = table.concat
 
-
+---
+-- Encode six bits to a base64 encoded character
+--@param bits String of six bits to be encoded
+--@return Encoded character
 local function b64enc6bit(bits)
 	-- local byte
 	-- local _, byte = bunpack("C", bpack("B", "00" .. bits))
@@ -106,12 +109,22 @@ local function b64enc6bit(bits)
 	return b64table[byte]
 end
 
+
+---
+-- Decodes a base64 encoded character into binary digits
+--@param b64byte Single base64 encoded character
+--@return String of six decoded bits
 local function b64dec6bit(b64byte)
 	local bits = b64dctable[b64byte]
 	if bits then return bits end
 	return ''
 end
 
+
+---
+-- Encodes a string to base64
+--@param bdata Data to be encoded
+--@return Base64 encoded string
 function enc(bdata)
 	local pos = 1
 	local byte
@@ -140,6 +153,11 @@ function enc(bdata)
 	return concat(b64dataBuf)
 end
 
+
+---
+-- Decodes base64 encoded data
+--@param b64data Base64 encoded data
+--@return Decoded data
 function dec(b64data)
 	local bdataBuf = {}
 	local pos = 1
