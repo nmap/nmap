@@ -1856,7 +1856,8 @@ sj3               3086/tcp   # SJ3 (kanji input)
 squid-http        3128/tcp   #
 squid-ipc         3130/udp   #
 vmodem            3141/tcp   # 
-vmodem            3141/udp   # 
+vmodem            3141/udp   #
+apt-cacher        3142/tcp   # A server which keeps a local cache of Debian/Ubuntu package files
 kademlia          3246/udp   # Kademlia P2P (mlnet)
 ccmail            3264/tcp   # cc:mail/lotus
 ccmail            3264/udp   # cc:mail/lotus
