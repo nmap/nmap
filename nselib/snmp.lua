@@ -526,7 +526,8 @@ end
 --@result Table with all decoded responses and their OIDs
 function fetchResponseValues(resp)
    if (type(resp) == "string") then
-      local _, resp = decode(resp)
+      local _
+      _, resp = decode(resp)
    end
 
    if (type(resp) ~= "table") then 
