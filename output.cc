@@ -1242,26 +1242,28 @@ static void doscaninfo(const char *type, const char *proto, unsigned short *port
 void output_xml_scaninfo_records(struct scan_lists *scanlist) {
   if (o.synscan) 
     doscaninfo("syn", "tcp", scanlist->tcp_ports, scanlist->tcp_count);
-  if (o.ackscan) 
+  else if (o.ackscan) 
     doscaninfo("ack", "tcp", scanlist->tcp_ports, scanlist->tcp_count);
-  if (o.bouncescan) 
+  else if (o.bouncescan) 
     doscaninfo("bounce", "tcp", scanlist->tcp_ports, scanlist->tcp_count);
-  if (o.connectscan)
+  else if (o.connectscan)
     doscaninfo("connect", "tcp", scanlist->tcp_ports, scanlist->tcp_count);
-  if (o.nullscan)
+  else if (o.nullscan)
     doscaninfo("null", "tcp", scanlist->tcp_ports, scanlist->tcp_count);
-  if (o.xmasscan)
+  else if (o.xmasscan)
     doscaninfo("xmas", "tcp", scanlist->tcp_ports, scanlist->tcp_count);
-  if (o.windowscan)
+  else if (o.windowscan)
     doscaninfo("window", "tcp", scanlist->tcp_ports, scanlist->tcp_count);
-  if (o.maimonscan) 
+  else if (o.maimonscan) 
     doscaninfo("maimon", "tcp", scanlist->tcp_ports, scanlist->tcp_count);
-  if (o.finscan) 
+  else if (o.finscan) 
     doscaninfo("fin", "tcp", scanlist->tcp_ports, scanlist->tcp_count);
-  if (o.udpscan) 
+  else if (o.udpscan) 
     doscaninfo("udp", "udp", scanlist->udp_ports, scanlist->udp_count);
-  if (o.ipprotscan) 
-    doscaninfo("ipproto", "ip", scanlist->prots, scanlist->prot_count); 
+  else if (o.ipprotscan) 
+    doscaninfo("ipproto", "ip", scanlist->prots, scanlist->prot_count);
+  else if (o.idlescan)
+    doscaninfo("idle", "tcp", scanlist->tcp_ports, scanlist->tcp_count);
   log_flush_all();
 }
 
