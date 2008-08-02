@@ -117,7 +117,13 @@ static int l_unpack(lua_State *L) 		/** unpack(f,s, [init]) */
  size_t len;
  const char *s=luaL_checklstring(L,2,&len); /* switched s and f */
  const char *f=luaL_checkstring(L,1);
- int i=luaL_optnumber(L,3,1)-1;
+ int i_read = luaL_optnumber(L,3,1)-1;
+ unsigned int i;
+ if (i_read >= 0) {
+   i = i_read;
+ } else {
+   i = 0;
+ }
  int n=0;
  int swap=0;
  int done=0;
@@ -184,7 +190,7 @@ static int l_unpack(lua_State *L) 		/** unpack(f,s, [init]) */
        unsigned char sbyte = 0x80;
        N++;
        if (i+N > len) {done = 1; break;}
-       for (int ii = i; ii < i+N; ii++) {
+       for (unsigned int ii = i; ii < i+N; ii++) {
 	 sbyte = 0x80;
 	 for (int ij = 0; ij < 8; ij++) {
 	   if (s[ii] & sbyte) {
@@ -210,7 +216,7 @@ static int l_unpack(lua_State *L) 		/** unpack(f,s, [init]) */
        luaL_buffinit(L,&buf);
        N++;
        if (i+N > len) {done = 1; break;}
-       for (int ii = i; ii < i+N; ii++) {
+       for (unsigned int ii = i; ii < i+N; ii++) {
 	 val = s[ii] & 0xF0;
 	 val = val >> 4;
 	 hdigit = HEXDIGITS(val);
@@ -317,7 +323,7 @@ static int l_pack(lua_State *L) 		/** pack(f,...) */
      {
        unsigned char sbyte = 0;
        size_t l;
-       int ii = 0, ia = 0;
+       unsigned int ii = 0, ia = 0;
        const char *a = luaL_checklstring(L, i++, &l);
        for (ia = 0; ia < l; ia+= 8) {
 	 sbyte = 0;
@@ -346,7 +352,7 @@ static int l_pack(lua_State *L) 		/** pack(f,...) */
     { // doing digit parsing the lpack way
       unsigned char sbyte = 0;
       size_t l;
-      int ii = 0;
+      unsigned int ii = 0;
       int odd = 0;
       const char *a = luaL_checklstring(L, i++, &l);
       for (ii = 0; ii < l; ii++) {
