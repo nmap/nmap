@@ -1258,12 +1258,10 @@ void output_xml_scaninfo_records(struct scan_lists *scanlist) {
     doscaninfo("maimon", "tcp", scanlist->tcp_ports, scanlist->tcp_count);
   if (o.finscan) 
     doscaninfo("fin", "tcp", scanlist->tcp_ports, scanlist->tcp_count);
-  if (o.ipprotscan)
-    doscaninfo("ipproto", "ip", scanlist->prots, scanlist->prot_count);
-  if (o.idlescan)
-    doscaninfo("idle", "tcp", scanlist->tcp_ports, scanlist->tcp_count);
   if (o.udpscan) 
     doscaninfo("udp", "udp", scanlist->udp_ports, scanlist->udp_count);
+  if (o.ipprotscan) 
+    doscaninfo("ipproto", "ip", scanlist->prots, scanlist->prot_count); 
   log_flush_all();
 }
 
