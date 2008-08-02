@@ -1854,21 +1854,6 @@ int send_ip_raw( int sd, struct eth_nfo *eth,
   return res;
 }
 
-int unblock_socket(int sd) {
-#ifdef WIN32
-u_long one = 1;
-if(sd != 501) // Hack related to WinIP Raw Socket support
-  ioctlsocket (sd, FIONBIO, &one);
-#else
-int options;
-/*Unblock our socket to prevent recvfrom from blocking forever
-  on certain target ports. */
-options = O_NONBLOCK | fcntl(sd, F_GETFL);
-fcntl(sd, F_SETFL, options);
-#endif //WIN32
-return 1;
-}
-
 /* returns -1 if we can't use select() on the pcap device, 0 for timeout, and
  * >0 for success. If select() fails we bail out because it couldn't work with
  * the file descriptor we got from my_pcap_get_selectable_fd()
@@ -3392,21 +3377,6 @@ int max_sd() {
 #endif
 #endif /* WIN32 */
   return 0;
-}
-
-/* Convert a socket to blocking mode */
-int block_socket(int sd) {
-#ifdef WIN32
-  unsigned long options=0;
-  if(sd == 501) return 1;
-  ioctlsocket(sd, FIONBIO, &options);
-#else
-  int options;
-  options = (~O_NONBLOCK) & fcntl(sd, F_GETFL);
-  fcntl(sd, F_SETFL, options);
-#endif
-
-  return 1;
 }
 
 /* Give broadcast permission to a socket */

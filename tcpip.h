@@ -700,7 +700,6 @@ bool setTargetNextHopMAC(Target *target);
 
 int islocalhost(const struct in_addr * const addr);
 int isipprivate(const struct in_addr * const addr);
-int unblock_socket(int sd);
 
 // Takes a protocol number like IPPROTO_TCP, IPPROTO_UDP, or
 // IPPROTO_IP and returns a ascii representation (or "unknown" if it
@@ -745,9 +744,6 @@ void max_rcvbuf(int sd);
 /* Maximize the open file descriptor limit for this process go up to the
    max allowed  */
 int max_sd();
-
-/* Convert a socket to blocking mode */
-int block_socket(int sd);
 
 /* Give broadcast permission to a socket */
 void broadcast_socket(int sd);
