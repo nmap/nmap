@@ -47,7 +47,6 @@ static int l_md5bin(lua_State *L)
   MD5_CTX c;
   unsigned char digest[MD5_DIGEST_LENGTH];
   luaL_Buffer buf;
-  char hdigit[3];
 
   luaL_buffinit(L,&buf);
 
@@ -58,11 +57,6 @@ static int l_md5bin(lua_State *L)
 
   nb_MD5_Update(&c, str, len);
   nb_MD5_Final(digest, &c);
-  
-
-  //  luaL_addlstring(&buf, digest, MD5_DIGEST_LENGTH);
-
-  //  luaL_pushresult(&buf);
 
   lua_pushlstring(L, (char *)digest, MD5_DIGEST_LENGTH);
   return 1;
@@ -127,6 +121,7 @@ static const luaL_reg hashlib[] =
 	{"md5",	l_md5},
 	{"sha1", l_sha1},
 	{"md5bin", l_md5bin},
+	{"sha1bin", l_sha1bin},
 	{NULL,	NULL}
 };
 
