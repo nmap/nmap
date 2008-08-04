@@ -8,7 +8,7 @@ o Nsock now returns data from UDP packets individually, preserving the
   sending the patch.  Doug Hoyte helped with testing, and it was
   applied by Fyodor.
 
-o Made a number of performance tweaks, such as:
+o Fyodor made a number of performance tweaks, such as:
   o increase host group sizes in many cases, so Nmap will now commonly
     scan 64 hosts at a time rather than 30
   o align host groups with common network boundaries, such as /24 or
@@ -830,7 +830,8 @@ o A bunch of service name canonicalization was done in the Nmap
 o Upgraded the shipped LibPCRE from version 7.4 to 7.6. [Kris]
 
 o Updated to latest (as of 3/15) autoconf config.sub/config.guess
-  files from http://cvs.savannah.gnu.org/viewvc/config/?root=config .
+  files from http://cvs.savannah.gnu.org/viewvc/config/?root=config.
+  [Fyodor]
 
 o We now escape newlines, carriage returns, and tabs (\n\r\t) in XML
   output.  While those are allowed in XML attributes, they get
