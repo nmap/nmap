@@ -519,7 +519,7 @@ static int entry (lua_State *L)
 
     if (nse_fetchfile(script_path, sizeof(script_path),
         lua_tostring(L, 3)) != 1)
-      luaL_error(L, "%s: %s is not a file!", lua_tostring(L, 3));
+      luaL_error(L, "%s is not a file!", lua_tostring(L, 3));
     
     lua_pushvalue(L, 3); // filename
     lua_pushboolean(L, true);
