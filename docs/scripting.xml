@@ -3842,8 +3842,7 @@ The mainloop function will work on each runlevel grouping of threads in order.
           If your module does have dependencies you will most probably have to
 	  add checks for those libraries to <filename>configure.ac</filename>
 	  and put the dependencies inside the <literal>libtool</literal>
-	  commands in <filename>Makefile.in</filename>&mdash;here you should
-	  take a look at how <literal>pcre.so</literal> handles this. 
+	  commands in <filename>Makefile.in</filename>.
 	  </para>
 
 	  <para>
