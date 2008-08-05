@@ -498,8 +498,9 @@ $ nmap -sC --script-args user=foo,pass=bar,anonFTP={pass=ftp@foobar.com}
 </programlisting>
  
 	  <para>You could therefore access the username (<literal>"foo"</literal>)
-	  inside your script as <literal>local username= nmap.registry.args.user
-	  </literal>. As a general rule the subtables used to override
+	  inside your script as
+          <literal>local username= nmap.registry.args.user</literal>.
+          As a general rule the subtables used to override
 	  options for scripts should be named as the script's
 	  <literal>id</literal>, otherwise scripts won't know where to
 	  retrieve their arguments.
