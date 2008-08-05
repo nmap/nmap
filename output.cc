@@ -473,6 +473,48 @@ static void getNmapServiceName(struct serviceDeductions *sd, int state,
   *namebuf = '\0';  
 }
 
+#ifndef NOLUA
+static char* formatScriptOutput(ScriptResult sr) {
+	std::string result = std::string(), output = sr.get_output();
+	string::size_type pos;
+	char *c_result, *c_output = new char[output.length()+1];
+    strncpy(c_output, output.c_str(), output.length()+1);
+	int line = 0;
+#ifdef WIN32
+	const char* sep = "\r\n";
+#else
+	const char* sep = "\n";
+#endif
+	std::string line_prfx = "|  ";
+
+	char* token = strtok(c_output, sep);
+
+	result += line_prfx + sr.get_id() + ": ";
+
+	while(token != NULL) {
+		if(line > 0)
+			result += line_prfx;
+		result += std::string(token) + sep;
+		token = strtok(NULL, sep);
+		line++;
+	}
+
+	// fix the last line
+	pos = result.rfind(line_prfx);
+	result.replace(pos, 3, "|_ ");
+
+	// delete the unwanted trailing newline
+	pos = result.rfind(sep);
+	if(pos!=std::string::npos){
+		result.erase(pos, strlen(sep));
+	}
+	c_result = strdup(result.c_str());
+
+    delete[] c_output;
+	return c_result;
+}
+#endif /* NOLUA */
+
 /* Prints the familiar Nmap tabular output showing the "interesting"
    ports found on the machine.  It also handles the Machine/Greppable
    output and the XML output.  It is pretty ugly -- in particular I
@@ -834,48 +876,6 @@ log_write(LOG_PLAIN, "%d service%s unrecognized despite returning data. If you k
   }
   log_flush_all();
 }
-
-#ifndef NOLUA
-static char* formatScriptOutput(ScriptResult sr) {
-	std::string result = std::string(), output = sr.get_output();
-	string::size_type pos;
-	char *c_result, *c_output = new char[output.length()+1];
-    strncpy(c_output, output.c_str(), output.length()+1);
-	int line = 0;
-#ifdef WIN32
-	const char* sep = "\r\n";
-#else
-	const char* sep = "\n";
-#endif
-	std::string line_prfx = "|  ";
-
-	char* token = strtok(c_output, sep);
-
-	result += line_prfx + sr.get_id() + ": ";
-
-	while(token != NULL) {
-		if(line > 0)
-			result += line_prfx;
-		result += std::string(token) + sep;
-		token = strtok(NULL, sep);
-		line++;
-	}
-
-	// fix the last line
-	pos = result.rfind(line_prfx);
-	result.replace(pos, 3, "|_ ");
-
-	// delete the unwanted trailing newline
-	pos = result.rfind(sep);
-	if(pos!=std::string::npos){
-		result.erase(pos, strlen(sep));
-	}
-	c_result = strdup(result.c_str());
-
-    delete[] c_output;
-	return c_result;
-}
-#endif /* NOLUA */
 
 
 /* Note that this escapes newlines, which is generally needed in
