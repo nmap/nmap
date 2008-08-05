@@ -129,6 +129,15 @@ o A bug that could cause some host discovery probes to be incorrectly
   protocol ping (-PO) option was combined with other ping
   types. [David]
 
+o The NSE C modules in nselib-bin are now linked explicitly against
+  liblua. Before this, loading such modules from a static build of
+  Nmap failed, leading to this error whenever one was used:
+    SCRIPT ENGINE: error while initializing script rules:
+    error loading module 'bit' from file '/usr/libexec/nmap/nselib-bin/bit.so':
+      /usr/libexec/nmap/nselib-bin/bit.so: undefined symbol: lua_pushnumber
+  Because RPM builds are static this fixes NSE C modules in
+  RPMs. [David]
+
 Nmap 4.68 [2008-6-28]
 
 o Doug integrated all of your version detection submissions and

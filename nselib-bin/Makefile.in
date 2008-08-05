@@ -1,22 +1,25 @@
-PLATFORM=@host@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+sbindir = @sbindir@
+mandir = @mandir@
+libexecdir = @libexecdir@
+nselib_bindir = $(libexecdir)/nmap/nselib-bin
 
 CC = @CC@
-CXX = @CXX@
-CCOPT = 
-DBGFLAGS = 
+CPPFLAGS = @CPPFLAGS@
+CFLAGS = @CFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
 
-
-SHTOOL = ../shtool
-INSTALL = $(SHTOOL) install 
- 
 LIBTOOL= ./libtool
 LTFLAGS = --tag=CC --silent
 
 all: bit.so
 
 bit.so: bit.c @LIBTOOL_DEPS@
-	$(LIBTOOL) $(LTFLAGS) --mode=compile $(CC) @LUAINCLUDE@ $(CFLAGS) -c bit.c
-	$(LIBTOOL) $(LTFLAGS) --mode=link $(CC) -avoid-version -module -rpath /usr/local/lib -o bit.la bit.lo
+	$(LIBTOOL) $(LTFLAGS) --mode=compile $(CC) $(CPPFLAGS) $(CFLAGS) -c bit.c
+	$(LIBTOOL) $(LTFLAGS) --mode=link $(CC) -avoid-version -module -rpath $(nselib_bindir) $(LDFLAGS) -o bit.la bit.lo $(LIBS)
 	mv .libs/bit.so bit.so
 
 clean: 
