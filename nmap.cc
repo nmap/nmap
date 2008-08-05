@@ -1631,7 +1631,11 @@ int nmap_main(int argc, char *argv[]) {
       if (currenths->flags & HOST_UP && !o.listscan) 
 	o.numhosts_up++;
     
-    if ((o.pingscan && !o.traceroute && !o.script) || o.listscan) {
+    if ((o.pingscan && !o.traceroute
+#ifndef NOLUA
+	 && !o.script
+#endif
+        ) || o.listscan) {
 	/* We're done with the hosts */
 	log_write(LOG_XML, "<host>");
 	write_host_status(currenths, o.resolve_all);
@@ -1909,7 +1913,9 @@ void nmap_free_mem() {
   if (o.dns_servers) free(o.dns_servers);
   if (o.extra_payload) free(o.extra_payload);
   if (o.ipoptions) free(o.ipoptions);
+#ifndef NOLUA
   free(o.scriptargs);
+#endif
 }
 
 /* Reads in a (normal or machine format) Nmap log file and gathers enough

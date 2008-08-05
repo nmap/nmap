@@ -836,7 +836,7 @@ log_write(LOG_PLAIN, "%d service%s unrecognized despite returning data. If you k
 }
 
 #ifndef NOLUA
-char* formatScriptOutput(ScriptResult sr) {
+static char* formatScriptOutput(ScriptResult sr) {
 	std::string result = std::string(), output = sr.get_output();
 	string::size_type pos;
 	char *c_result, *c_output = new char[output.length()+1];

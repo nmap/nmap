@@ -462,9 +462,11 @@ void NmapOps::ValidateOptions() {
   if(ipoptions && osscan)
     error("WARNING: Ip options are NOT used while OS scanning!");
 
+#ifndef NOLUA
   /* Make sure nmap.registry.args is available (even if it's empty) */
   if (!scriptargs)
     scriptargs = strdup("");
+#endif
 }
 
 void NmapOps::setMaxOSTries(int mot) {
