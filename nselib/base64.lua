@@ -142,12 +142,10 @@ function enc(bdata)
 		end
 	end
 	if #nbyte == 2 then
-		append(b64dataBuf, b64enc6bit(nbyte)) 
-			-- relying on pack's 0-autopadding
+		append(b64dataBuf, b64enc6bit(nbyte .. "0000") ) 
 		append(b64dataBuf, "==")
 	elseif #nbyte == 4 then
-		append(b64dataBuf, b64enc6bit(nbyte))
-			-- relying on pack's 0-autopadding
+		append(b64dataBuf, b64enc6bit(nbyte .. "00"))
 		append(b64dataBuf, '=')
 	end
 	return concat(b64dataBuf)
