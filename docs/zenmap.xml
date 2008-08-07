@@ -37,7 +37,7 @@
     Saved scan results can be compared with one another to see how they differ.
     The results of recent scans are stored in a searchable database.</para>
 
-    <para>This man page only describes the few Zenmap command-line options and some critical notes.  A much more detailed Zenmap User's Guide is available at <ulink url="http://nmap.org/book/zenmap.html"/>.  Other documentation and information is available from the Zen web page at <ulink url="http://nmap.org/zenmap/"/>.</para>
+    <para>This man page only describes the few Zenmap command-line options and some critical notes.  A much more detailed Zenmap User's Guide is available at <ulink url="http://nmap.org/book/zenmap.html"/>.  Other documentation and information is available from the Zenmap web page at <ulink url="http://nmap.org/zenmap/"/>.</para>
   </refsect1>
 
   <refsect1 id='man-briefoptions'>
@@ -45,7 +45,7 @@
     <variablelist>
       <varlistentry>
         <term><option>-f</option></term>
-        <term><option>--file</option> <replaceable>results file</replaceable></term>
+        <term><option>--file <replaceable>results file</replaceable></option></term>
         <listitem>
           <para>Open the given results file for viewing. The results file may be
           an Nmap XML output file (<filename>.xml</filename>, as produced by
@@ -63,7 +63,7 @@
       </varlistentry>
       <varlistentry>
         <term><option>-n</option></term>
-        <term><option>--nmap</option> <replaceable>Nmap command line</replaceable></term>
+        <term><option>--nmap <replaceable>Nmap command line</replaceable></option></term>
         <listitem>
           <para>Run the given Nmap command within the Zenmap interface. After
           <option>-n</option> or <option>--nmap</option>, every remaining
@@ -76,7 +76,7 @@
       </varlistentry>
       <varlistentry>
         <term><option>-p</option></term>
-        <term><option>--profile</option> <replaceable>profile</replaceable></term>
+        <term><option>--profile <replaceable>profile</replaceable></option></term>
         <listitem>
           <para>Start with the given profile selected. The profile name is just
           a string: <literal>"Regular scan"</literal>. If combined with
@@ -86,7 +86,7 @@
       </varlistentry>
       <varlistentry>
         <term><option>-t</option></term>
-        <term><option>--target</option> <replaceable>target</replaceable></term>
+        <term><option>--target <replaceable>target</replaceable></option></term>
         <listitem>
           <para>Start with the given target. If combined with
           <option>-p</option>, begin a scan with the given profile against the
@@ -98,9 +98,7 @@
         <term><option>--verbose</option></term>
         <listitem>
           <para>Increase verbosity (of Zenmap, not Nmap). This option may be
-          given multiple times to get even more verbosity. Beware that verbose
-          output is not shown on a terminal unless the environment variable
-          <varname>ZENMAP_DEVELOPMENT</varname> is defined and true.</para>
+          given multiple times to get even more verbosity.</para>
         </listitem>
       </varlistentry>
     </variablelist>
@@ -115,12 +113,10 @@
     <title>Environment Variables</title>
     <variablelist>
       <varlistentry>
-        <term><varname>ZENMAP_DEVELOPMENT</varname></term>
+        <term><envar>ZENMAP_DEVELOPMENT</envar></term>
         <listitem>
-          <para>Set <varname>ZENMAP_DEVELOPMENT</varname> to 1 to enable
-          development mode. This causes debugging output to be printed to a
-          terminal (see the <option>--verbose</option> option) and turns off
-          automatic crash reporting.</para>
+          <para>Set <envar>ZENMAP_DEVELOPMENT</envar> to disable automatic
+          crash reporting.</para>
         </listitem>
       </varlistentry>
     </variablelist>
