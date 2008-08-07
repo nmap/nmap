@@ -85,7 +85,8 @@ static int loadfile (lua_State *L)
   lua_setmetatable(L, -2);
 
   if (luaL_loadfile(L, filename) != 0) // load the file (index 3)
-    luaL_error(L, "'%s' could not be loaded!", filename);
+    luaL_error(L, "'%s' could not be loaded:\n%s", filename,
+        lua_tostring(L, -1));
   lua_pushvalue(L, -1);
   lua_pushvalue(L, 2); // push environment table
   lua_setfenv(L, -2); // set it
