@@ -292,9 +292,7 @@ int luaopen_nsock (lua_State *L)
    * connect function.
    */
   static const char connect[] =
-    "local yield = yield;\n"
-    "local connect = connect;\n"
-    "local socket_lock = socket_lock;\n"
+    "local yield, connect, socket_lock = ...;\n"
     "return function(socket, ...)\n"
     "  while not socket_lock(socket) do\n"
     "    yield();\n"
@@ -353,19 +351,12 @@ int luaopen_nsock (lua_State *L)
   /* Load the connect function */
   if (luaL_loadstring(L, connect) != 0)
     fatal("connect did not compile!");
-  lua_createtable(L, 0, 3); // connect function's environment table
   lua_getglobal(L, "coroutine");
   lua_getfield(L, -1, "yield");
   lua_replace(L, -2); // remove coroutine table
-  lua_setfield(L, -2, "yield");
   lua_pushcclosure(L, l_nsock_connect, 0);
-  lua_setfield(L, -2, "connect");
   lua_pushcclosure(L, socket_lock, 0);
-  lua_setfield(L, -2, "socket_lock");
-  lua_setfenv(L, -2); // set the environment
-  lua_call(L, 0, 1); // leave connect function on stack...
-  lua_newtable(L);
-  lua_setfenv(L, -2); // clean environment (Lua functions can't tamper with)
+  lua_call(L, 3, 1); // leave connect function on stack...
 
   /* Create the nsock metatable for sockets */
   luaL_newmetatable(L, "nsock");
