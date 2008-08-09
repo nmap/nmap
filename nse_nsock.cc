@@ -324,7 +324,7 @@ int luaopen_nsock (lua_State *L)
    * where the #defines are above.
    */
   lua_createtable(L, 5, 0);
-  lua_setfenv(L, 1);
+  lua_replace(L, LUA_ENVIRONINDEX);
 
   lua_createtable(L, 0, 10); // THREAD_PROXY
   lua_createtable(L, 0, 1); // metatable
@@ -357,6 +357,8 @@ int luaopen_nsock (lua_State *L)
   lua_pushcclosure(L, l_nsock_connect, 0);
   lua_pushcclosure(L, socket_lock, 0);
   lua_call(L, 3, 1); // leave connect function on stack...
+  lua_pushvalue(L, LUA_GLOBALSINDEX);
+  lua_setfenv(L, -2); // set the connect function's environment to _G
 
   /* Create the nsock metatable for sockets */
   luaL_newmetatable(L, "nsock");
