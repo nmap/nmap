@@ -20,6 +20,6 @@ action = function(host, port)
 		return
 	end
 
-	return string.gsub(result, "\n", "")
+	return (string.gsub(result, "\n", ""))
 end
 
