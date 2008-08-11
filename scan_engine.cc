@@ -888,12 +888,11 @@ void GroupScanStats::probeSent() {
 
   TIMEVAL_ADD(send_no_earlier_than, send_no_earlier_than,
     (time_t) (1000000.0 / o.max_packet_send_rate));
-  if (TIMEVAL_SUBTRACT(send_no_earlier_than, USI->now) < 0) {
-    /* Even after incrementing send_no_earlier_than, it's still in the past.
-       That means more packets could be sent immediately and make the rate too
-       high. Catch the time up to the present to prevent that. */
-    send_no_earlier_than = USI->now;
-  }
+  /* Allow send_no_earlier_than to slip into the past. This allows the sending
+     scheduler to catch up and make up for delays in other parts of the scan
+     engine. If we were to update send_no_earlier_than to the present the
+     sending rate could be much less than the maximum requested, even if the
+     connection is capable of the maximum. */
 
   if (TIMEVAL_SUBTRACT(send_no_later_than, USI->now) > 0) {
     /* The next scheduled send is in the future. That means there's slack time

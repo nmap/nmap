@@ -2477,12 +2477,12 @@ seconds.</para>
 
 <para><option>--max-rate</option>, like <option>--min-rate</option>, is
 a global option affecting an entire scan. It affects only port and host
-discovery scans. Unlike <option>--min-rate</option>, which is a
-<quote>best-effort</quote> option, <option>--max-rate</option> is a hard
-upper bound on the scanning rate.</para>
+discovery scans.</para>
 
-<para>Nmap may go slower than the maximum rate if conditions require it.
-To keep the sending rate within a specified range, use
+<para>The sending rate may temporarily exceed the maximum to make up for
+unpredictable delays, but on average the rate will stay at or below the
+maximum. Nmap may go slower than the maximum rate if conditions require
+it. To keep the sending rate within a specified range, use
 <option>--min-rate</option> and <option>--max-rate</option>
 together.</para>
 
