@@ -1,6 +1,6 @@
-id = "Nameserver open recursive querys (CVE-1999-0024) (BID 136, 678)"
+id = "Nameserver open recursive queries (CVE-1999-0024) (BID 136, 678)"
 
-description = "Checks whether a Nameserver on udp/53 allows querys for third-party names. If is expected that recursion will be enabled on your own internal nameserver."
+description = "Checks if a nameserver on UDP/53 allows queries for third-party names. It is expected that recursion will be enabled on your own internal nameservers."
 
 author = "Felix Groebert <felix@groebert.org>"
 
@@ -29,7 +29,7 @@ action = function(host, port)
     if (bit.band(string.byte(result,3), 0x80) == 0x80
     and bit.band(string.byte(result,4), 0x85) == 0x80)
     then
-		return "Recursion seems enabled"
+		return "Recursion appears to be enabled"
     end
 
 	return
