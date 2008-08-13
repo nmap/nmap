@@ -79,7 +79,7 @@
 			start		%attr_numeric;	#IMPLIED
 			startstr	CDATA	        #IMPLIED
 			version		CDATA		#REQUIRED
-			xmloutputversion (1.03)		#REQUIRED
+			xmloutputversion (1.02)		#REQUIRED
 >
 
 <!-- this element is written in output.c:doscaninfo() -->
