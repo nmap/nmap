@@ -1228,10 +1228,35 @@ void output_ports_to_machine_parseable_output(struct scan_lists *ports,
  log_flush_all();
 }
 
+//A simple helper function for doscaninfo handles the c14n of o.scanflags
+static void doscanflags(){
+    struct {
+      unsigned char flag;
+      const char *name;
+    } flags[] = {
+      { TH_FIN, "FIN" }, { TH_SYN, "SYN" }, { TH_RST, "RST" },
+      { TH_PUSH, "PSH" }, { TH_ACK, "ACK" }, { TH_URG, "URG" },
+      { TH_ECE, "ECE" }, { TH_CWR, "CWR" }
+    };
+    if(o.scanflags!=-1){
+      log_write(LOG_XML, "scanflags=\"");
+      for(unsigned int i=0;i<sizeof(flags) / sizeof(flags[0]);i++){
+        if(o.scanflags & flags[i].flag){
+          log_write(LOG_XML, "%s",flags[i].name);
+        }
+      }
+      log_write(LOG_XML, "\"");
+    }
+}
+
 /* Simple helper function for output_xml_scaninfo_records */
 static void doscaninfo(const char *type, const char *proto, unsigned short *ports, 
 		  int numports) {
-  log_write(LOG_XML, "<scaninfo type=\"%s\" protocol=\"%s\" numservices=\"%d\" services=\"", type, proto, numports);
+  log_write(LOG_XML, "<scaninfo type=\"%s\" ", type);
+  if(strncmp(proto,"tcp",3)==0){
+	doscanflags();
+  }
+  log_write(LOG_XML, " protocol=\"%s\" numservices=\"%d\" services=\"", proto, numports);
   output_rangelist_given_ports(LOG_XML, ports, numports);
   log_write(LOG_XML, "\" />\n");
 }

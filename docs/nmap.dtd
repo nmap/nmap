@@ -79,16 +79,17 @@
 			start		%attr_numeric;	#IMPLIED
 			startstr	CDATA	        #IMPLIED
 			version		CDATA		#REQUIRED
-			xmloutputversion (1.02)		#REQUIRED
+			xmloutputversion (1.03)		#REQUIRED
 >
 
 <!-- this element is written in output.c:doscaninfo() -->
 <!ELEMENT scaninfo	EMPTY >
 <!ATTLIST scaninfo
-			type		%scan_types;	#REQUIRED
+			type		%scan_types;	 #REQUIRED
+			scanflags	CDATA		 #IMPLIED
 			protocol	%port_protocols; #REQUIRED
-			numservices	%attr_numeric;	#REQUIRED
-			services	CDATA		#REQUIRED
+			numservices	%attr_numeric;	 #REQUIRED
+			services	CDATA		 #REQUIRED
 >
 
 <!-- these elements are written in nmap.c:nmap_main() -->

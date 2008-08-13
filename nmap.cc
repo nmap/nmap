@@ -1499,7 +1499,7 @@ int nmap_main(int argc, char *argv[]) {
   for(i=0; i < argc; i++) 
     log_write(LOG_XML, (i == argc-1)? "%s\" " : "%s ", fakeargv[i]);
 
-  log_write(LOG_XML, "start=\"%lu\" startstr=\"%s\" version=\"%s\" xmloutputversion=\"1.02\">\n",
+  log_write(LOG_XML, "start=\"%lu\" startstr=\"%s\" version=\"%s\" xmloutputversion=\"1.03\">\n",
 	    (unsigned long) timep, mytime, NMAP_VERSION);
 
   output_xml_scaninfo_records(&ports);
