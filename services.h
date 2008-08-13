@@ -122,12 +122,6 @@
 #define SCAN_UDP_PORT	(1 << 1)
 #define SCAN_PROTOCOLS	(1 << 2)
 
-struct service_list {
-  struct servent *servent;
-  double ratio;
-  struct service_list *next;
-};
-
 int addportsfromservmask(char *mask, u8 *porttbl, int range_type);
 struct servent *nmap_getservbyport(int port, const char *proto);
 void gettoppts(double level, char *portlist, struct scan_lists * ports);
