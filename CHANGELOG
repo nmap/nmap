@@ -142,6 +142,10 @@ o A new attribute has been added to XML output, scanflags, which lists
   all user specified --scanflags for the scan. The XML output version
   and DTD have been modified to account for this. [Michael]
 
+o The loading of the nmap-services file has been made faster. In the
+  common case using the default nmap-services file loading was
+  measured to be over nine times faster.
+
 Nmap 4.68 [2008-6-28]
 
 o Doug integrated all of your version detection submissions and
