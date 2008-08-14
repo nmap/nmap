@@ -610,6 +610,8 @@ public:
      lists.  Returns NULL if none are found. */
   HostScanStats *findHost(struct sockaddr_storage *ss);
 
+  double getCompletionFraction();
+
   unsigned int numIncompleteHosts() { return incompleteHosts.size(); }
   /* Call this instead of checking for numIncompleteHosts() == 0 because it
      avoids a potential traversal of the list to find the size. */
@@ -1351,6 +1353,21 @@ HostScanStats *UltraScanInfo::nextIncompleteHost() {
     nextI = incompleteHosts.begin();
 
   return nxt;
+}
+
+/* Return a number between 0.0 and 1.0 inclusive indicating how much of the scan
+   is done. */
+double UltraScanInfo::getCompletionFraction() {
+  list<HostScanStats *>::iterator hostI;
+  double total;
+  
+  /* Add 1 for each completed host. */
+  total= gstats->numtargets - numIncompleteHosts();
+  /* For incomplete hosts add the fraction of finished to total ports. */
+  for(hostI = incompleteHosts.begin(); hostI != incompleteHosts.end(); hostI++)
+    total += (double) (*hostI)->ports_finished / gstats->numprobes;
+
+  return total / gstats->numtargets;
 }
 
 /* This is the function for tuning the major values that affect
@@ -3259,26 +3276,8 @@ static void printAnyStats(UltraScanInfo *USI) {
     USI->log_overall_rates(LOG_PLAIN);
   }
 
-  /* Now time to figure out how close we are to completion ... */
-  if (USI->SPM->mayBePrinted(&USI->now)) {
-    list<HostScanStats *>::iterator hostI;
-    HostScanStats *host = NULL;
-    int maxtries;
-    double thishostpercdone;
-    double avgdone = USI->gstats->numtargets - USI->numIncompleteHosts();
-    /* next for the partially finished hosts */
-    for(hostI = USI->incompleteHosts.begin(); 
-        hostI != USI->incompleteHosts.end(); hostI++) {
-      host = *hostI;
-      maxtries = host->allowedTryno(NULL, NULL) + 1;
-      thishostpercdone = (double) host->ports_finished / USI->gstats->numprobes;
-      if (thishostpercdone >= .9999) thishostpercdone = .9999;
-      avgdone += thishostpercdone;
-    }
-    avgdone /= USI->gstats->numtargets;
-    USI->SPM->printStatsIfNeccessary(avgdone, &USI->now);
-    //    printf("The scan is %.2f%% done!\n", avgdone * 100);
-  }
+  if (USI->SPM->mayBePrinted(&USI->now))
+    USI->SPM->printStatsIfNeccessary(USI->getCompletionFraction(), &USI->now);
 }
 
 /* Does a select() call and handles all of the results. This handles both host
@@ -4812,25 +4811,9 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
     processData(USI);
 
     if (keyWasPressed()) {
-       /* Get the Completion percent */
-       
-       list<HostScanStats *>::iterator hostI;
-       HostScanStats *host = NULL;
-       int maxtries;
-       double thishostpercdone;
-       double avgdone = USI->gstats->numtargets - USI->numIncompleteHosts();
-       /* next for the partially finished hosts */
-       for(hostI = USI->incompleteHosts.begin(); 
-           hostI != USI->incompleteHosts.end(); hostI++) {
-          host = *hostI;
-          maxtries = host->allowedTryno(NULL, NULL) + 1;
-          thishostpercdone = (double) host->ports_finished / USI->gstats->numprobes;
-          if (thishostpercdone >= .9999) thishostpercdone = .9999;
-          avgdone += thishostpercdone;
-       }
-       avgdone /= USI->gstats->numtargets;
-              
-       USI->SPM->printStats(avgdone, NULL); // This prints something like SYN Stealth Scan Timing: About 1.14% done; ETC: 15:01 (0:43:23 remaining);
+       // This prints something like
+       // SYN Stealth Scan Timing: About 1.14% done; ETC: 15:01 (0:43:23 remaining);
+       USI->SPM->printStats(USI->getCompletionFraction(), NULL);
        if (o.debugging) {
          /* Don't update when getting the current rates, otherwise we can get
             anomalies (rates are too low) from having just done a potentially
@@ -4839,7 +4822,6 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
        }
        
        log_flush(LOG_STDOUT);
-
     }
   }
 
