@@ -1359,13 +1359,25 @@ HostScanStats *UltraScanInfo::nextIncompleteHost() {
    is done. */
 double UltraScanInfo::getCompletionFraction() {
   list<HostScanStats *>::iterator hostI;
+  HostScanStats *host;
+  int maxtries;
+  double thishostpercdone;
   double total;
   
   /* Add 1 for each completed host. */
   total= gstats->numtargets - numIncompleteHosts();
   /* For incomplete hosts add the fraction of finished to total ports. */
-  for(hostI = incompleteHosts.begin(); hostI != incompleteHosts.end(); hostI++)
-    total += (double) (*hostI)->ports_finished / gstats->numprobes;
+  for(hostI = incompleteHosts.begin(); hostI != incompleteHosts.end(); hostI++) {
+    host = *hostI;
+    maxtries = host->allowedTryno(NULL, NULL) + 1;
+    // This is inexact (maxtries - 1) because numprobes_sent includes
+    // at least one try of ports_finished.
+    thishostpercdone = host->ports_finished * (maxtries - 1) + host->numprobes_sent;
+    thishostpercdone /= maxtries * gstats->numprobes;
+    if (thishostpercdone >= 0.9999)
+      thishostpercdone = 0.9999;
+    total += thishostpercdone;
+  }
 
   return total / gstats->numtargets;
 }
