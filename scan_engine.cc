@@ -3271,10 +3271,7 @@ static void printAnyStats(UltraScanInfo *USI) {
         hostI != USI->incompleteHosts.end(); hostI++) {
       host = *hostI;
       maxtries = host->allowedTryno(NULL, NULL) + 1;
-      // This is inexact (maxtries - 1) because of numprobes_sent includes
-      // at least one try of ports_finished.
-      thishostpercdone = host->ports_finished * (maxtries -1) + host->numprobes_sent;
-      thishostpercdone /= maxtries * USI->gstats->numprobes;
+      thishostpercdone = (double) host->ports_finished / USI->gstats->numprobes;
       if (thishostpercdone >= .9999) thishostpercdone = .9999;
       avgdone += thishostpercdone;
     }
@@ -4827,10 +4824,7 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
            hostI != USI->incompleteHosts.end(); hostI++) {
           host = *hostI;
           maxtries = host->allowedTryno(NULL, NULL) + 1;
-          // This is inexact (maxtries - 1) because of numprobes_sent includes
-          // at least one try of ports_finished.
-          thishostpercdone = host->ports_finished * (maxtries -1) + host->numprobes_sent;
-          thishostpercdone /= maxtries * USI->gstats->numprobes;
+          thishostpercdone = (double) host->ports_finished / USI->gstats->numprobes;
           if (thishostpercdone >= .9999) thishostpercdone = .9999;
           avgdone += thishostpercdone;
        }
