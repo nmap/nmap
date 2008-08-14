@@ -68,6 +68,10 @@ o Fixed host discovery probe matching when looking at the returned TCP
   discarded responses and the debugging error message: "Bogus trynum
   or sequence number in ICMP error message" [Kris]
 
+o Added IPProto Ping (-PO) support to Traceroute, and fixed support for
+  IPProto Scan (-sO) and the ICMP Pings (-PE, -PP, -PM) in Traceroute
+  as well.  These would cause Nmap to hang during Traceroute. [Kris]
+
 o Fixed a segmentation fault in Nsock which occurred when calling
   nsock_write() with a data length of -1 (which means the data is a
   NULL-terminated string and Nsock should take the length itself) and

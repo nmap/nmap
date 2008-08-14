@@ -183,6 +183,7 @@ struct scan_info {
     u8 open_state;
     u8 closed_response;
     u8 closed_state;
+    bool ipproto;
 };
 
 /* Keeps track of each probes timing state */

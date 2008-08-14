@@ -231,6 +231,7 @@ Traceroute::Traceroute (const char *device_name, devtype type, const scan_lists 
     scaninfo.open_response = 0;
     scaninfo.open_state = PORT_OPEN;
     scaninfo.closed_state = PORT_CLOSED;
+    scaninfo.ipproto = false;
 
     /* Set up which protocols, tcp flags and responsive
      * states to use with the current scan type.
@@ -272,6 +273,9 @@ Traceroute::Traceroute (const char *device_name, devtype type, const scan_lists 
         o.ackscan || o.windowscan || o.maimonscan)
         scaninfo.initial_proto = IPPROTO_TCP;
 
+    if (o.ipprotscan)
+        scaninfo.ipproto = true;
+
     if(o.pingscan) {
         scaninfo.open_state = HOST_UP;
         if (o.pingtype & PINGTYPE_TCP_USE_SYN) {
@@ -295,6 +299,8 @@ Traceroute::Traceroute (const char *device_name, devtype type, const scan_lists 
         } else if(o.pingtype & PINGTYPE_ICMP_MASK) {
             scaninfo.initial_proto = IPPROTO_ICMP;
             scaninfo.icmp_type = ICMP_ADDRESS;
+        } else if (o.pingtype & PINGTYPE_PROTO) {
+            scaninfo.ipproto = true;
         }
     }
 
@@ -338,7 +344,11 @@ Traceroute::getTracePort (u8 proto, Target * t) {
             return scanlists->ack_ping_ports[0];
         else if (o.pingtype & PINGTYPE_UDP)
             return scanlists->udp_ping_ports[0];
-        else
+        else if (o.pingtype & PINGTYPE_PROTO) {
+            // Initialize protocol header information
+            port = scanlists->proto_ping_ports[0];
+            goto ipproto;
+        } else
             return 0;
     }
 
@@ -367,7 +377,7 @@ Traceroute::getTracePort (u8 proto, Target * t) {
         state = PORT_FILTERED;
         if (o.verbose)
             log_write (LOG_PLAIN, "%s: only filtered %s available, results may be incorrect\n",
-                       t->targetipstr (), o.ipprotscan ? "protocols" : "ports");
+                       t->targetipstr (), scaninfo.ipproto ? "protocols" : "ports");
     }
 
     if (state == -1)
@@ -379,7 +389,8 @@ Traceroute::getTracePort (u8 proto, Target * t) {
 
     port = np->portno;
 
-    /* If this is a protocol scan traceroute and we are using
+ipproto:
+    /* If this is a protocol scan/ping traceroute and we are using
      * one of the major protocols, set up the required information
      * so we include the correct protocol headers */
     if (proto == IPPROTO_IP) {
@@ -421,17 +432,19 @@ Traceroute::readTraceResponses () {
 
     if (ip == NULL)
         return finished ();
-    if ((unsigned) ip->ip_hl * 4 + 20 > bytes)
-        return finished ();
 
     switch (ip->ip_p) {
     case IPPROTO_ICMP:
+        if ((unsigned) ip->ip_hl * 4 + 8 > bytes)
+            break;
         icmp = (struct icmp *) ((char *) ip + 4 * ip->ip_hl);
         ipaddr = ip->ip_src.s_addr;
         sport = ntohs(icmp->icmp_id);
 
         /* Process ICMP replies that encapsulate our original probe */
         if (icmp->icmp_type == ICMP_DEST_UNREACH || icmp->icmp_type == ICMP_TIME_EXCEEDED) {
+            if ((unsigned) ip->ip_hl * 4 + 28 > bytes)
+                break;
             ip2 = (struct ip *) (((char *) ip) + 4 * ip->ip_hl + 8);
             if (ip2->ip_p == IPPROTO_TCP) {
                 tcp = (struct tcp_hdr *) ((u8 *) ip2 + ip2->ip_hl * 4);
@@ -664,14 +677,14 @@ Traceroute::sendTTLProbes (vector < Target * >&Targets, vector < Target * >&vali
         if (dport == -1) {
             if (o.verbose > 1)
                 log_write (LOG_STDOUT, "%s: no responsive %s\n",
-                           t->targetipstr (), o.ipprotscan ? "protocols" : "ports");
+                           t->targetipstr (), scaninfo.ipproto ? "protocols" : "ports");
             continue;
         }
 
-        /* If this is a protocol scan getTracePort() returns 
-         * a protocol number for so we need a random destination 
+        /* If this is a protocol scan/ping, getTracePort() returns 
+         * a protocol number so we need a random destination 
          * port */
-        if (o.ipprotscan) {
+        if (scaninfo.ipproto) {
             proto = dport;
             dport = get_random_u16 ();
             scaninfo.initial_proto = IPPROTO_IP;
