@@ -1,9 +1,18 @@
--- Connect to MySQL server and print information such as the protocol and
--- version numbers, thread id, status, capabilities and the password salt
-
+--- Connects to a MySQL server and prints information such as the protocol and
+--- version numbers, thread id, status, capabilities and the password salt
+--
 -- If service detection is performed and the server appears to be blocking
 -- our host or is blocked from too many connections, then we don't bother
 -- running this script (see the portrule)
+--
+--@output
+-- 3306/tcp open  mysql \n
+-- |  MySQL Server Information: Protocol: 10 \n
+-- |  Version: 5.0.51a-3ubuntu5.1 \n
+-- |  Thread ID: 7 \n
+-- |  Some Capabilities: Connect with DB, Compress, Transactions, Secure Connection \n
+-- |  Status: Autocommit \n
+-- |_ Salt: bYyt\NQ/4V6IN+*3`imj
 
 -- Many thanks to jah (jah@zadkiel.plus.com) for testing and enhancements
 
@@ -20,12 +29,16 @@ categories = { "default", "discovery", "safe" }
 require 'bit'
 require 'comm'
 
--- Grabs NUL-terminated string
+--- Grabs NUL-terminated string
+--@param orig Start of the string
+--@return The NUL-terminated string
 local getstring = function(orig)
     return orig:match("^([^%z]*)");
 end
 
--- Convert two bytes into a number
+--- Converts two bytes into a number
+--@param num Start of the two bytes
+--@return The converted number
 local ntohs = function(num)
 	local b1 = bit.band(num:byte(1), 255)
 	local b2 = bit.band(num:byte(2), 255)
@@ -33,7 +46,9 @@ local ntohs = function(num)
 	return bit.bor(b1, bit.lshift(b2, 8))
 end
 
--- Convert three bytes into a number
+--- Converts three bytes into a number
+--@param num Start of the three bytes
+--@return The converted number
 local ntoh3 = function(num)
 	local b1 = bit.band(num:byte(1), 255)
 	local b2 = bit.band(num:byte(2), 255)
@@ -42,7 +57,9 @@ local ntoh3 = function(num)
 	return bit.bor(b1, bit.lshift(b2, 8), bit.lshift(b3, 16))
 end
 
--- Convert four bytes into a number
+--- Converts four bytes into a number
+--@param num Start of the four bytes
+--@return The converted number
 local ntohl = function(num)
 	local b1 = bit.band(num:byte(1), 255)
 	local b2 = bit.band(num:byte(2), 255)
@@ -52,7 +69,9 @@ local ntohl = function(num)
 	return bit.bor(b1, bit.lshift(b2, 8), bit.lshift(b3, 16), bit.lshift(b4, 24))
 end
 
--- Convert number to a list of capabilities for printing
+--- Converts a number to a string description of the capabilities
+--@param num Start of the capabilities data
+--@return String describing the capabilities offered
 local capabilities = function(num)
 	local caps = ""
 
