@@ -1332,6 +1332,7 @@ int send_frag_ip_packet(int sd, struct eth_nfo *eth, u8 *packet,
     if ((fragment-1) * mtu + fdatalen < datalen)
       ip->ip_off |= htons(IP_MF);
 #if HAVE_IP_IP_SUM
+    ip->ip_sum = 0;
     ip->ip_sum = in_cksum((unsigned short *)ip, headerlen);
 #endif
     if (fragment > 1) // copy data payload
