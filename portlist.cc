@@ -692,6 +692,9 @@ bool PortList::isIgnoredState(int state) {
       state == PORT_FRESH)
     return false; /* Cannot be ignored */
 
+  if (state == PORT_OPENFILTERED && (o.verbose > 2 || o.debugging > 2))
+    return false;
+
   /* If openonly, we always ignore states that don't at least have open
      as a possibility. */
   if (o.openOnly() && state != PORT_OPENFILTERED && state != PORT_UNFILTERED 
@@ -706,7 +709,7 @@ bool PortList::isIgnoredState(int state) {
     else
       max_per_state *= (o.verbose + 20 * o.debugging);
   }
-  
+
   if (getStateCounts(state) > max_per_state)
     return true;
 
