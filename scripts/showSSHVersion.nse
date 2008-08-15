@@ -31,6 +31,6 @@ action = function(host, port)
 	try(socket:send(result))
 	try(socket:close())
 
-	return "" .. string.gsub(result, "\n", "") 
+	return (string.gsub(result, "\n", ""))
 end
 
