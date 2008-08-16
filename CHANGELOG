@@ -1,5 +1,53 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Merged in my nmap-exp/jurand/ branch that involves the Context
+  Sensitive help system for the Profile Editor. The purpose of the
+  Profile Editor is to allow you to assemble an nmap command to run
+  in the Zenmap program by using graphical selection of text and
+  checkbox input. The new help system allows you to mouse over options
+  used in the Profile Editor and to display a bit of an overview about
+  what it is used for and what proper input for that option is in the
+  help textbox. [Jurand Nogiec]
+  
+o Compiled the Context Sensitive Help texts along with David Fifield
+  in the profile_editor.xml file. [Jurand Nogiec]
+
+o Rewrote the Icons.py get_os to use the osclass versus doing
+  pattern-matching on os_match. Also, added get_best_osclass to match
+  get_best_osmatch. [Jurand Nogiec]
+  
+o Fixed the bug where Ports/Hosts Version tabs are not populated with
+  the full data (i.e. "OpenSSH 4.3" vs "OpenSSH 4.3 (protocol 2.0)").
+  [Jurand Nogiec]
+  
+o Improvements to the Terminate scan fix, which add the function that
+  the cancel button for scan is only usable during an actual scan and
+  allows one to save partial results. [Jurand Nogiec]
+  
+o Made change that allows for graceful way for cancelling a Scan in
+  progress without losing the data obtained so far. I have added a
+  "Cancel" button that will cancel a Scan within the current tab.
+  The "Scanning" status is changed to "Cancelled" when the button is
+  clicked. [Jurand Nogiec]
+
+o Fixed the problem where scans loaded from an XML file did not
+  necessarily reflect the profile and target that  was shown in the
+  interface. I completed this by fixing that the same parse_result
+  method was called by both the XML "live-scan temporary" and
+  "save-scan" from a file, and made separate cases. [Jurand Nogiec]
+  
+o This modification handles the problem where if a user modifies the
+  command entry field, Zenmap does not necessarily execute this
+  command and instead it will follow what the Target/Entry fields
+  specify instead. This can lead to unpredictable results for the
+  end-user, which must be avoided. This avoids a bug where if you
+  edited a command, then selected a different target, the edited
+  command line would be replaced with one from the currently selected
+  profile. [Jurand Nogiec]
+
+o Documentation for the ScanToolbar.py and ScanNotebook.py files in 
+  zenmap/zenmapGUI folder. [Jurand Nogiec]
+
 o Nsock now returns data from UDP packets individually, preserving the
   packet boundary, rather than concatenating the data from multiple
   packets into a single buffer.  This fixes a problem related to our
