@@ -1,5 +1,5 @@
 -- license = "See nmaps COPYING for license"
-module("packet" ,package.seeall)
+module(... or "packet" ,package.seeall)
 
 -- Raw package parsing functions. Used with raw sockets
 -- in nse.

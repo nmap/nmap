@@ -2,7 +2,7 @@
 --@copyright See nmaps COPYING for licence
 
 
-module(...,package.seeall)
+module(... or "snmp",package.seeall)
 
 
 ---

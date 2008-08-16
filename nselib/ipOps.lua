@@ -1,5 +1,5 @@
 -- See nmaps COPYING for licence
-module(...,package.seeall)
+module(... or "ipOps",package.seeall)
 
 
 -- check to see if ip is part of RFC 1918 address space

@@ -1,5 +1,5 @@
 -- See nmaps COPYING for licence
-module(..., package.seeall)
+module(... or "shortport", package.seeall)
 
 portnumber = function(port, _proto, _state)
 	local port_table, state_table

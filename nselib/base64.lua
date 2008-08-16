@@ -5,7 +5,7 @@
 -- author: Philip Pickering <pgpickering@gmail.com>
 -- thanks to Patrick Donnelly for some optimizations
 
-module(...,package.seeall)
+module(... or "base64",package.seeall)
 
 
 -- todo: make metatable/index --> '' for b64dctable

@@ -11,7 +11,7 @@ local pairs = pairs;
 local concat = table.concat;
 
 
-module("strbuf");
+module(... or "strbuf");
 
 -- String buffer functions. Concatenation is not efficient in 
 -- lua as strings are immutable. If a large amount of '..' sequential

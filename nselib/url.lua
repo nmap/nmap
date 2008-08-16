@@ -15,7 +15,7 @@ parse_query() and build_query() added For nmap (Eddie Bell <ejlbell@gmail.com>)
 local string = require("string")
 local base = _G
 local table = require("table")
-module(...,package.seeall)
+module(... or "url",package.seeall)
 
 _VERSION = "URL 1.0"
 

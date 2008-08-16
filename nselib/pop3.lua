@@ -1,7 +1,7 @@
 --- POP3 functions
 --@copyright See nmaps COPYING for licence
 
-module(...,package.seeall)
+module(... or "pop3",package.seeall)
 
 require 'base64'
 require 'bit'

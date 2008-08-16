@@ -1,5 +1,5 @@
 -- See nmaps COPYING for licence
-module(...,package.seeall)
+module(... or "http",package.seeall)
 
 require 'stdnse'
 require 'url'

@@ -1,6 +1,6 @@
 -- Kris Katterjohn 03/2008
 
-module(..., package.seeall)
+module(... or "datafiles", package.seeall)
 
 require 'stdnse'
 

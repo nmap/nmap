@@ -1,5 +1,5 @@
 -- See nmaps COPYING for licence
-module(...,  package.seeall)
+module(... or "match",  package.seeall)
 require "pcre"
 
 --various functions for use with nse's nsock:receive_buf - function

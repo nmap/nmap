@@ -1,6 +1,6 @@
 -- Kris Katterjohn 04/2008
 
-module(..., package.seeall)
+module(... or "comm", package.seeall)
 
 ------
 --

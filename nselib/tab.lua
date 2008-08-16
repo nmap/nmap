@@ -1,5 +1,5 @@
 -- See nmaps COPYING for license
-module("tab" ,package.seeall)
+module(... or "tab" ,package.seeall)
 
 --[[ Provide NSE scripts with a way to output structured tables similar to
      NmapOutputTable.cc. See end for an example on how to use it. --]]

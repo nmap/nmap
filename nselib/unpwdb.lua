@@ -1,6 +1,6 @@
 -- Kris Katterjohn 06/2008
 
-module(..., package.seeall)
+module(... or "unpwdb", package.seeall)
 
 ---- Username/Password DB Library
 --
