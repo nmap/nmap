@@ -643,7 +643,7 @@ public:
   list<HostScanStats *> completedHosts;
 
   ScanProgressMeter *SPM;
-  RateMeter send_rate_meter;
+  PacketRateMeter send_rate_meter;
   struct scan_lists *ports;
   int rawsd; /* raw socket descriptor */
   pcap_t *pd;
@@ -2693,7 +2693,7 @@ static UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   PacketTrace::traceConnect(IPPROTO_TCP, (sockaddr *) &sock, socklen, rc, 
 			    connect_errno, &USI->now);
   /* We don't record a byte count for connect probes. */
-  USI->send_rate_meter.record(0, &USI->now);
+  USI->send_rate_meter.update(0, &USI->now);
   /* This counts as probe being sent, so update structures */
   hss->probes_outstanding.push_back(probe);
   probeI = hss->probes_outstanding.end();
@@ -2791,7 +2791,7 @@ static UltraProbe *sendArpScanProbe(UltraScanInfo *USI, HostScanStats *hss,
     error("WARNING:  eth_send of ARP packet returned %i rather than expected %d (errno=%i: %s)", rc, (int) sizeof(frame), err, strerror(err));
   }
   PacketTrace::traceArp(PacketTrace::SENT, (u8 *) frame, sizeof(frame), &USI->now);
-  USI->send_rate_meter.record(sizeof(frame), &USI->now);
+  USI->send_rate_meter.update(sizeof(frame), &USI->now);
   probe->tryno = tryno;
   probe->pingseq = pingseq;
   /* First build the probe */
@@ -2969,7 +2969,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
       free(packet);
     }
   } else assert(0); /* TODO:  Maybe RPC scan and the like */
-  USI->send_rate_meter.record(packetlen, &USI->now);
+  USI->send_rate_meter.update(packetlen, &USI->now);
   /* Now that the probe has been sent, add it to the Queue for this host */
   hss->probes_outstanding.push_back(probe);
   USI->gstats->num_probes_active++;

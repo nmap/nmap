@@ -123,31 +123,28 @@ void adjust_timeouts2(const struct timeval *sent,
    response.  We update our RTT averages, etc. */
 void adjust_timeouts(struct timeval sent, struct timeout_info *to);
 
+#define DEFAULT_CURRENT_RATE_HISTORY 5.0
 
 /* Sleeps if necessary to ensure that it isn't called twice within less
    time than o.send_delay.  If it is passed a non-null tv, the POST-SLEEP
    time is recorded in it */
 void enforce_scan_delay(struct timeval *tv);
 
-/* This class implements current and lifetime average data rates for packets and
-   bytes. */
+/* This class measures current and lifetime average rates for some quantity. */
 class RateMeter {
   public:
-    RateMeter();
+    RateMeter(double current_rate_history = DEFAULT_CURRENT_RATE_HISTORY);
 
     void start(const struct timeval *now = NULL);
     void stop(const struct timeval *now = NULL);
-    void record(u32 len, const struct timeval *now = NULL);
-    double getOverallPacketRate(const struct timeval *now = NULL) const;
-    double getCurrentPacketRate(const struct timeval *now = NULL, bool update =true);
-    double getOverallByteRate(const struct timeval *now = NULL) const;
-    double getCurrentByteRate(const struct timeval *now = NULL, bool update =true);
-    unsigned long long getNumPackets(void) const;
-    unsigned long long getNumBytes(void) const;
+    void update(double amount, const struct timeval *now = NULL);
+    double getOverallRate(const struct timeval *now = NULL) const;
+    double getCurrentRate(const struct timeval *now = NULL, bool update = true);
+    double getTotal(void) const;
 
   private:
     /* How many seconds to look back when calculating the "current" rates. */
-    const double CURRENT_RATE_HISTORY;
+    double current_rate_history;
 
     /* When this meter started recording. */
     struct timeval start_tv;
@@ -156,15 +153,31 @@ class RateMeter {
     /* The last time the current sample rates were updated. */
     struct timeval last_update_tv;
 
-    unsigned long long num_packets;
-    unsigned long long num_bytes;
+    double total;
+    double current_rate;
 
-    double current_packet_rate;
-    double current_byte_rate;
-
-    void update(u32 packets, u32 bytes, const struct timeval *now);
     double elapsedTime(const struct timeval *now = NULL) const;
     static bool isSet(const struct timeval *tv);
+};
+
+/* A specialization of RateMeter that measures packet and byte rates. */
+class PacketRateMeter {
+  public:
+    PacketRateMeter(double current_rate_history = DEFAULT_CURRENT_RATE_HISTORY);
+
+    void start(const struct timeval *now = NULL);
+    void stop(const struct timeval *now = NULL);
+    void update(u32 len, const struct timeval *now = NULL);
+    double getOverallPacketRate(const struct timeval *now = NULL) const;
+    double getCurrentPacketRate(const struct timeval *now = NULL, bool update = true);
+    double getOverallByteRate(const struct timeval *now = NULL) const;
+    double getCurrentByteRate(const struct timeval *now = NULL, bool update =true);
+    unsigned long long getNumPackets(void) const;
+    unsigned long long getNumBytes(void) const;
+
+  private:
+    RateMeter packet_rate_meter;
+    RateMeter byte_rate_meter;
 };
 
 class ScanProgressMeter {
