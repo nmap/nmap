@@ -3287,11 +3287,12 @@ format is available
            As a convenience, you may specify <option>-oA
            <replaceable>basename</replaceable></option> to store scan
            results in normal, XML, and grepable formats at once.  They
-           are stored in <replaceable>basename</replaceable>.nmap,
-           <replaceable>basename</replaceable>.xml, and
-           <replaceable>basename</replaceable>.gnmap, respectively.
-           As with most programs, you can prefix the filenames with a
-           directory path, such as
+           are stored in
+           <filename><replaceable>basename</replaceable>.nmap</filename>,
+           <filename><replaceable>basename</replaceable>.xml</filename>, and
+           <filename><replaceable>basename</replaceable>.gnmap</filename>,
+           respectively. As with most programs, you can prefix the filenames
+           with a directory path, such as
            <filename>~/nmaplogs/foocorp/</filename> on Unix or
            <filename>c:\hacking\sco</filename> on Windows.</para>
         </listitem>
