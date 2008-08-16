@@ -1,13 +1,12 @@
---- Attempts to use EHLO and HELP to gather the Extended commands an
+--- SMTP supported commands gathering script \n
+-- \n
+-- Attempts to use EHLO and HELP to gather the Extended commands an
 -- SMTP server supports.
 -- \n
--- SMTP supported commands gathering script \n
--- @release 1.3.1.0
 -- @output
 -- 25/tcp	open	smtp \n
 -- |  SMTPcommands: EHLO uninvited.example.net Hello root at localhost [127.0.0.1], SIZE 52428800, PIPELINING, 250 HELP \n
 -- |_ HELP Commands supported:, , AUTH HELO EHLO MAIL RCPT DATA NOOP QUIT RSET HELP \n
-
 
 -- Version History
 -- 1.1.0.0 - 2007-10-12
@@ -30,6 +29,9 @@
 -- 1.3.1.0 - 2008-05-22
 -- + minor tweaks to get it working when one of the requests fails
 --   but not both of them.
+
+-- 1.5.0.0 - 2008-08-15
+-- + updated to use the nsedoc documentation system
 
 -- Cribbed heavily from Thomas Buchanan's SQL version detection
 -- script and from Arturo 'Buanzo' Busleiman's SMTP open relay
