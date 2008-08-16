@@ -1377,7 +1377,7 @@ double UltraScanInfo::getCompletionFraction() {
     rate = (double) host->numprobes_sent / (gstats->numprobes - ports_left);
     /* Find out how many probes it will take to scan the remainder of the ports
        at that rate. */
-    probes_left = rate * host->freshPortsLeft();
+    probes_left = rate * ports_left;
     /* Get the completion fraction: number of probes sent divided by estimated
        total number of probes. */
     total += (double) host->numprobes_sent / (host->numprobes_sent + probes_left);
