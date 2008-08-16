@@ -780,7 +780,7 @@ Traceroutes are performed post-scan using information from the scan results to d
 </para>
 
 <para>
-Traceroute works by sending packets with a low TTL (time-to-live) in an attempt to elicit ICMP Time Exceeded messages from intermediate hops between the scanner and the target host. Standard traceroute implementations start with a TTL of 1 and increment the TTL until the destination host is reached. Nmap's traceroute starts with a high TTL and then decrements the TTL until it reaches 0. Doing it backwards lets nmap employ clever caching algorithms to speed up traces over multiple hosts. On average nmap sends 5-10 fewer packets per host, depending on network conditions. If a single subnet is being scanned (i.e. 192.168.0.0/24) nmap may only have to send a single packet to most hosts.
+Traceroute works by sending packets with a low TTL (time-to-live) in an attempt to elicit ICMP Time Exceeded messages from intermediate hops between the scanner and the target host. Standard traceroute implementations start with a TTL of 1 and increment the TTL until the destination host is reached. Nmap's traceroute starts with a high TTL and then decrements the TTL until it reaches 0. Doing it backwards lets Nmap employ clever caching algorithms to speed up traces over multiple hosts. On average Nmap sends 5-10 fewer packets per host, depending on network conditions. If a single subnet is being scanned (i.e. 192.168.0.0/24) Nmap may only have to send a single packet to most hosts.
 </para>
 </listitem>
 </varlistentry>
@@ -1594,7 +1594,7 @@ way.</para>
         <listitem>
           <para>Specifies that you only wish to scan
           for ports listed in the <filename>nmap-services</filename>
-          file which comes with nmap (or the protocols file for
+          file which comes with Nmap (or the protocols file for
           <option>-sO</option>). This is much faster than scanning all 65535 ports on a
           host.  Because this list contains so many TCP ports (more
           than 1200), the speed difference from a default TCP scan
@@ -1755,7 +1755,7 @@ way.</para>
         <listitem>
 
 
-          <para>When performing a version scan (<option>-sV</option>), nmap sends a
+          <para>When performing a version scan (<option>-sV</option>), Nmap sends a
           series of probes, each of which is assigned a rarity value
           between 1 and 9. The lower-numbered probes are effective
           against a wide variety of common services, while the higher
@@ -3864,7 +3864,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
   <refsect1 id='man-runtime-interaction'>
     <title>Runtime Interaction<indexterm><primary>runtime interaction</primary></indexterm></title>
 
-    <para>During the execution of nmap, all key presses are
+    <para>During the execution of Nmap, all key presses are
     captured. This allows you to interact with the program
     without aborting and restarting it. Certain special
     keys will change options, while any other keys will print out a
