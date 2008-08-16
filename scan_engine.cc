@@ -1362,7 +1362,7 @@ double UltraScanInfo::getCompletionFraction() {
   double total;
   
   /* Add 1 for each completed host. */
-  total= gstats->numtargets - numIncompleteHosts();
+  total = gstats->numtargets - numIncompleteHosts();
   /* Get the completion fraction for each incomplete host. */
   for(hostI = incompleteHosts.begin(); hostI != incompleteHosts.end(); hostI++) {
     HostScanStats *host = *hostI;
