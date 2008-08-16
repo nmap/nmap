@@ -1,22 +1,48 @@
---[[
-
-Send axfr queries to DNS servers. The domain to query is determined 
-by examining the name given on the command line, the domain servers
-hostname, or it can be specified with the "domain" script argument.
-If the query is successful all domains and domain types are returned
-along with common type specific data (SOA/MX/NS/PTR/A)
-
-constraints
------------
-If we don't have the 'true' hostname for the dns server we cannot
-determine a likely zone to perform the transfer on
-
-useful resources
-----------------
-DNS for rocket scientists - http://www.zytrax.com/books/dns/
-How the AXFR protocol works - http://cr.yp.to/djbdns/axfr-notes.html
-
---]]
+--- Request a zone transfer (AXFR) from a DNS server.\n
+-- \n
+-- Send axfr queries to DNS servers. The domain to query is determined 
+-- by examining the name given on the command line, the domain servers
+-- hostname, or it can be specified with the "domain" script argument.
+-- If the query is successful all domains and domain types are returned
+-- along with common type specific data (SOA/MX/NS/PTR/A).\n
+-- \n
+-- constraints\n
+-- -----------\n
+-- If we don't have the 'true' hostname for the dns server we cannot
+-- determine a likely zone to perform the transfer on.\n
+-- \n
+-- useful resources\n
+-- ----------------\n
+-- DNS for rocket scientists - http://www.zytrax.com/books/dns/\n
+-- How the AXFR protocol works - http://cr.yp.to/djbdns/axfr-notes.html\n
+--
+--@args zoneTrans.domain Domain to transfer.
+--@output
+-- 53/tcp   open     domain
+-- |  zone-transfer:  \n
+-- |  foo.com.            SOA     ns2.foo.com. piou.foo.com.  \n
+-- |  foo.com.            TXT    \n
+-- |  foo.com.            NS      ns1.foo.com.                 \n
+-- |  foo.com.            NS      ns2.foo.com.                 \n
+-- |  foo.com.            NS      ns3.foo.com.                 \n
+-- |  foo.com.            A       127.0.0.1                    \n
+-- |  foo.com.            MX      mail.foo.com.                \n
+-- |  anansie.foo.com.    A       127.0.0.2                    \n
+-- |  dhalgren.foo.com.   A       127.0.0.3                    \n
+-- |  drupal.foo.com.     CNAME  \n
+-- |  goodman.foo.com.    A       127.0.0.4 i                  \n
+-- |  goodman.foo.com.    MX      mail.foo.com.                \n
+-- |  isaac.foo.com.      A       127.0.0.5                    \n
+-- |  julie.foo.com.      A       127.0.0.6                    \n
+-- |  mail.foo.com.       A       127.0.0.7                    \n
+-- |  ns1.foo.com.        A       127.0.0.7                    \n
+-- |  ns2.foo.com.        A       127.0.0.8                    \n
+-- |  ns3.foo.com.        A       127.0.0.9                    \n
+-- |  stubing.foo.com.    A       127.0.0.10                   \n
+-- |  vicki.foo.com.      A       127.0.0.11                   \n
+-- |  votetrust.foo.com.  CNAME  \n
+-- |  www.foo.com.        CNAME  \n
+-- |_ foo.com.            SOA     ns2.foo.com. piou.foo.com.  \n
 
 require('shortport')
 require('strbuf')
@@ -34,7 +60,9 @@ runlevel = 1.0
 
 portrule = shortport.portnumber(53, 'tcp') 
 
--- DNS query and response types.
+--- DNS query and response types.
+--@class table
+--@name typetab
 local typetab = { 'A', 'NS', 'MD', 'MF', 'CNAME', 'SOA', 'MB', 'MG', 'MR', 
  'NULL', 'WKS', 'PTR', 'HINFO', 'MINFO', 'MX', 'TXT', 'RP', 'AFSDB', 'X25',
  'ISDN', 'RT', 'NSAP', 'NSAP-PTR', 'SIG', 'KEY', 'PX', 'GPOS', 'AAAAA', 'LOC',
@@ -43,7 +71,9 @@ local typetab = { 'A', 'NS', 'MD', 'MF', 'CNAME', 'SOA', 'MB', 'MG', 'MR',
  [254]='MAILA', [255]='ANY', [256]='ZXFR'
 }
 
--- Whitelist of TLDs. Only way to reliably determine the root of a domain
+--- Whitelist of TLDs. Only way to reliably determine the root of a domain
+--@class table
+--@name tld
 local tld = {
  'aero', 'asia', 'biz', 'cat', 'com', 'coop', 'info', 'jobs', 'mobi', 'museum',
  'name', 'net', 'org', 'pro', 'tel', 'travel', 'gov', 'edu', 'mil', 'int',
@@ -65,7 +95,10 @@ local tld = {
  'vn','vu','wf','ws','ye','yt','yu','za','zm','zw' 
 }
 
--- Convert two bytes into a 16bit number. 
+--- Convert two bytes into a 16bit number. 
+--@param data String of data.
+--@param idx Index in the string (first of two consecutive bytes).
+--@return 16 bit number represented by the two bytes.
 function bto16(data, idx)
 	local b1 = string.byte(data, idx)
 	local b2 = string.byte(data, idx+1)
@@ -73,7 +106,9 @@ function bto16(data, idx)
 	return bit.bor(bit.band(b2, 255), bit.lshift(bit.band(b1, 255), 8))
 end
 
--- Check if domain name element is a tld
+--- Check if domain name element is a tld
+--@param elm Domain name element to check.
+--@return boolean
 function valid_tld(elm)
 	for i,v in ipairs(tld) do
 		if elm == v then return true end
@@ -81,7 +116,9 @@ function valid_tld(elm)
 	return false
 end
 
--- parse RFC 1035 domain name
+--- Parse an RFC 1035 domain name.
+--@param data String of data.
+--@param offset Offset in the string to read the domain name.
 function parse_domain(data, offset)
 	local i, x, record, line, ptr
 
@@ -117,8 +154,9 @@ function parse_domain(data, offset)
 	return offset+1, string.gsub(strbuf.dump(record), 0, '.')
 end 
 
--- build RFC 1035 root domain name from the name of the 
--- DNS server (e.g ns1.website.com.ar -> \007website\003com\002ar\000)
+--- Build RFC 1035 root domain name from the name of the DNS server
+--  (e.g ns1.website.com.ar -> \007website\003com\002ar\000).
+--@param host The host.
 function build_domain(host)
 	local names, buf, x 
 	local abs_name, i, tmp 
@@ -148,7 +186,10 @@ function build_domain(host)
 	return strbuf.dump(buf) 
 end
 
--- retrieve type specific data (rdata) from dns packets
+--- Retrieve type specific data (rdata) from dns packets
+--@param data
+--@param offset
+--@param ttype
 function get_rdata(data, offset, ttype)
 	local field, info, i
 
@@ -193,7 +234,10 @@ function get_rdata(data, offset, ttype)
 	return offset, strbuf.dump(info, ' ')
 end
 
--- get a single answer record from the current offset
+--- Get a single answer record from the current offset
+--@param table
+--@param data
+--@param offset
 function get_answer_record(table, data, offset)
 	local line, rdlen, ttype
 	

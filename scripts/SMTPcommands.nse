@@ -1,7 +1,15 @@
--- SMTP supported commands gathering script
--- Version History
--- 1.0.0.0 - 2007-06-12
+--- Attempts to use EHLO and HELP to gather the Extended commands an
+-- SMTP server supports.
+-- \n
+-- SMTP supported commands gathering script \n
+-- @release 1.3.1.0
+-- @output
+-- 25/tcp	open	smtp \n
+-- |  SMTPcommands: EHLO uninvited.example.net Hello root at localhost [127.0.0.1], SIZE 52428800, PIPELINING, 250 HELP \n
+-- |_ HELP Commands supported:, , AUTH HELO EHLO MAIL RCPT DATA NOOP QUIT RSET HELP \n
 
+
+-- Version History
 -- 1.1.0.0 - 2007-10-12
 -- + added HELP command in addition to EHLO
 

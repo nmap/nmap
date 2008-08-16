@@ -1,3 +1,6 @@
+--- Obtains the telnet login credentials on a server. This script
+-- uses brute force techniques. 
+
 id='bruteforce'
 author = 'Eddie Bell <ejlbell@gmail.com>'
 description='brute force telnet login credientials'
@@ -22,14 +25,13 @@ local escape_cred = function(cred)
 	end
 end
 
---[[
-Returns a function which returns the next user/pass pair each time
-it is called. When no more pairs are available nil is returned. 
-
-There are plenty more possible pairs but we need to find
-a compromise between speed and coverage
---]]
-
+---
+-- Returns a function which returns the next user/pass pair each time
+-- it is called. When no more pairs are available nil is returned. 
+-- \n
+-- There are plenty more possible pairs but we need to find
+-- a compromise between speed and coverage
+--@return iterator Function which will return user and password pairs.
 local new_auth_iter = function()
 	local userpass = { 
 		-- guest
@@ -69,11 +71,9 @@ local new_auth_iter = function()
 	end
 end
 
---[[
-Go through telnet's option palaver so we can get to the login prompt.
-We just deny every options the server asks us about.
---]]
-
+---
+-- Go through telnet's option palaver so we can get to the login prompt.
+-- We just deny every options the server asks us about.
 local negotiate_options = function(result)
 	local index, x, opttype, opt, retbuf
 
@@ -107,13 +107,11 @@ local negotiate_options = function(result)
 	soc:send(strbuf.dump(retbuf))
 end
 
---[[
-A semi-state-machine that takes action based on output from the
-server. Through pattern matching, it tries to deem if a user/pass
-pair is valid. Telnet does not have a way of telling the client
-if it was authenticated....so we have to make an educated guess
---]]
-
+---
+-- A semi-state-machine that takes action based on output from the
+-- server. Through pattern matching, it tries to deem if a user/pass
+-- pair is valid. Telnet does not have a way of telling the client
+-- if it was authenticated....so we have to make an educated guess
 local brute_line = function(line, user, pass, usent)
 
 	if (line:find 'incorrect' or line:find 'failed' or line:find 'denied' or 
