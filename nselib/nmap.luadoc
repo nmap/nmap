@@ -1,0 +1,103 @@
+
+--- Nmap library is an interface for scripts with Nmap internals. The API
+-- provides target host details such as port states and version detection
+-- results. It also offers an interface to the Nsock library for efficient
+-- network I/O. 
+
+module "nmap"
+
+--- Gets the debugging level for Nmap.
+-- @return The positive integer debugging level.
+
+function nmap.debugging()
+
+--- Determines if Nmap was compiled with SSL support.
+-- @return Has SSL Support.
+
+function nmap.have_ssl()
+
+--- Gets the verbosity level for Nmap.
+-- @return The positive integer verbosity level.
+
+function nmap.verbosity()
+
+--- Search for the specified file and returns a string containing its path if
+-- found and readable (to the process). If the file is not found, not readable,
+-- or is a directory, nil is returned.
+-- @param filename Filename to search for.
+-- @return String representing the full path to the file or nil.
+
+function nmap.fetchfile(filename)
+
+--- Get the positive integer timing level. Possible return values vary from 0
+-- to 5, corresponding to the six built-in Nmap timing templates.
+-- @return Positive integer timing level.
+
+function nmap.timing_level()
+
+--- Gets the status of the port for host. It returns a new port table for that
+-- host.
+-- @param host Host table.
+-- @param port Port table.
+-- @param protocol Protocol string ("tcp" or "udp")
+-- @return A new port table holding the status and information for the port.
+function nmap.get_port_state(host, port, protocol)
+
+--- Takes a host table, a port table, and a port state ("open" or "closed").
+-- Using this function, the final port state, reflected in Nmap's results,
+-- can be changed for a target. This is useful when Nmap detects a port as
+-- open|filtered (i.e. unable to determine which), but the script successfully
+-- connects to that port. In this case, the script can set the port state to
+-- "open". Note that the port.state value, which is passed to the script's
+-- action function will not be changed by this call.
+function nmap.set_port_state(host, port, state)
+
+--- This function is used to record version information when it is discovered
+-- concerning the services on a port. The port table should have extra fields
+-- for "name", "product", "version", "extrainfo", "hostname", "ostype",
+-- "devicetype", and "service_tunnel". None of these values are required.
+-- @param host Host table.
+-- @param port Port table.
+-- @param probestate The state of the probe: "hardmatched", "softmatched",
+-- "nomatch", "tcpwrapped", or "incomplete".
+function nmap.set_port_version(host, port, probestate)
+
+--- Returns a number representing the current time in milliseconds since the
+-- start of the epoch (on most systems this is 01/01/1970).
+function nmap.clock_ms()
+
+--- For the provided dnet-style interface_name, this function returns to what
+-- kind of link level hardware the interface belongs. Return values are:
+-- "ethernet", "loopback", or "p2p". If the provided interface_name is not
+-- one of those types, nil is returned.
+-- @param interface_name The name of the interface.
+-- @return "ethernet", "loopback", "p2p", or nil.
+function nmap.get_interface_link(interface_name)
+
+--- Returns a new NSE socket object which is the recommended method for network
+-- I/O. It provides facilities to perform communication using the UDP, TCP, and
+-- SSL protocol in a uniform manner.
+-- @return A new NSE socket.
+-- @see nsock
+function nmap.new_socket()
+
+--- Returns a function that works on a mutex for the object passed. This object
+-- can be any Lua data type except nil, booleans, and numbers. The returned
+-- function allows you to lock, try to lock, and release the mutex.
+-- <br/>
+-- <b>"lock"</b> makes a blocking lock on the mutex. If the mutex is busy then
+-- the thread will yield and wait. The function returns with the mutex locked.
+-- <br/>
+-- <b>"trylock"</b> makes a non-blocking lock on the mutex. If the mutex is
+-- busy then it immediately returns with a return value of false. Otherwise,
+-- the mutex locks the mutex and returns true.
+-- <br/>
+-- <b>"done"</b> releases the mutex and allows another thread to lock it. If
+-- the thread does not have a lock on the mutex, an error will be raised.
+-- <br/>
+-- <b>"running"</b> returns the thread locked on the mutex or nil if no thread
+-- is locked.
+-- @param object Object to create a mutex for.
+-- @return Mutex function which takes one of the following parameters: "lock",
+-- "trylock", "done", or "running".
+function nmap.mutex(object)
