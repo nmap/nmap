@@ -3409,6 +3409,213 @@ local localip, localport  = client_service:get_info()
     <indexterm class="endofrange" startref="nse-tutorial-indexterm"/>
   </sect1>
 
+  <sect1 id="nse-documentation">
+    <title>Script Documentation Writing</title>
+    <indexterm class="startofrange" id="nse-documentation-indexterm"><primary>Nmap Scripting Engine (NSE)</primary><secondary>Documentation Writing</secondary></indexterm>
+
+    <para>
+      Scripts are used by more than just the author, so it is useful to have
+      documentation for users and other developers to browse through
+      when looking
+      for scripts to run against a host. For this reason,
+      NSE provides a system
+      that will produce complete documentation for its library
+      of scripts.
+    </para>
+    <para>
+      The documentation
+      is put in comments around your code. The trigger for a
+      documentation comment is <literal>---</literal>. Only the first
+      line in the block of comments should use the prefix trigger;
+      subsequent lines should use Lua's standard single line comment
+      prefix: <literal>--</literal>.
+    </para>
+    <para>
+      The first paragraphs are used as a description for the code
+      following the comments. The first sentence of this description
+      is used as a summary (for a brief description in the index).
+      Optional tags can follow the description using the format
+      <literal>@tag ...</literal>. See
+      <xref linkend="nse-documentation-tags"/> for more information.
+    </para>
+    <para>
+      The first comment block not followed by a function or table
+      definition will
+      be used for a file's comment. This comment will serve for documenting
+      general information concerning the script. The description of this
+      tag should explain the script's purpose and what it does.
+      The file comment should also
+      contain an output tag showing expected output for the script and
+      an args tag for any arguments the script expects.
+    </para>
+
+    <sect2 id="nse-documentation-format">
+      <title>Documentation Format</title>
+      <para>
+      Documentation for a script consists of three basic parts: a file
+      comment, a function or table comment, and standard NSE script fields
+      (e.g. <literal>description</literal> or <literal>author</literal>).
+      A file comment is the first documentation comment in a script and
+      is not followed by a function definition or table. The following
+      example demonstrates a file comment:
+<programlisting>
+--- Checks if an FTP server allows anonymous logins.
+-- @output
+-- |_ Anonymous FTP: Anonymous login allowed"
+</programlisting>
+      The standard NSE fields are used to gather other information about a
+      script such as the author or its categories:
+<programlisting>
+author = "Eddie Bell"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+id = "Anonymous FTP"
+categories = {"default", "intrusive"}
+</programlisting>
+      These fields will be present in the final documentation. The
+      description field is used for the User Summary if a description in
+      the file comment or the file comment itself is absent. It is best
+      if the description field is succinct while the file comment has an
+      extensive description of the script.
+      </para>
+      <para>
+      Finally, a documentation comment may precede a function or
+      table definition:
+<programlisting>
+--- Convert two bytes into a 16bit number.
+--@param data String of data.
+--@param idx Index in the string (first of two consecutive bytes).
+--@return 16 bit number represented by the two bytes.
+function bto16(data, idx)
+  local b1 = string.byte(data, idx)
+  local b2 = string.byte(data, idx+1)
+  -- (b2 &amp; 0xff) | ((b1 &amp; 0xff) &lt;&lt; 8)
+  return bit.bor(bit.band(b2, 255), bit.lshift(bit.band(b1, 255), 8))
+end
+</programlisting>
+      You may also choose to document the action, portrule, or hostrule
+      functions. They are separated from other functions in the final
+      documentation for improved visibility.
+      </para>
+    </sect2>
+    <sect2 id="nse-documentation-tags">
+      <title>Tags</title>
+      <para>
+        The following tags can be used:
+      </para>
+      <variablelist>
+        <varlistentry>
+          <term><option>@param</option></term>
+          <listitem>
+            <para>
+              Describe function parameters. The first alphanumeric word
+              must be the parameter being documented.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><option>@see</option></term>
+          <listitem>
+            <para>
+              Refer to other functions or tables.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><option>@return</option></term>
+          <listitem>
+            <para>
+              Describe the return values of a function.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><option>@usage</option></term>
+          <listitem>
+            <para>
+              Describe the usage of a function or variable.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><option>@description</option></term>
+          <listitem>
+            <para>
+              The description of a function or table; this is normally
+              inferred from the beginning of the documentation comment.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><option>@name</option></term>
+          <listitem>
+            <para>
+              The name of the function or table definition. This should
+              be used only if the documentation system cannot infer the
+              name by code analysis.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><option>@class</option></term>
+          <listitem>
+            <para>
+              Like <literal>@name</literal>, if the name of the variable
+              is not being correctly inferred through code analysis, you
+              may specify the class (function or table) explicitly.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><option>@field</option></term>
+          <listitem>
+            <para>
+              Describe a table field definition.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><option>@release</option></term>
+          <listitem>
+            <para>
+              Free format string to describe the module or file release.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><option>@args</option></term>
+          <listitem>
+            <para>
+              This tag is special to the file comment. It allows you specify
+              arguments to the script (via --script-args) that your script
+              uses. The first alphanumeric word (literally matching in Lua
+              <literal>([%w%p]+)</literal>) is used as the name for
+              the argument, the rest its description.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><option>@summary</option></term>
+          <listitem>
+            <para>
+              This allows you to specify the summary explicitly different
+              from the first sentence of the description.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><option>@output</option></term>
+          <listitem>
+            <para>
+              This tag is special to thie file comment. It allows you to
+              show typical output of a script. You may use "\n" to
+              force a line break where you please.
+            </para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </sect2>
+  </sect1>
+
   <sect1 id="nse-vscan">
     <title>Version Detection Using NSE</title>
     <indexterm class="startofrange" id="nse-sample-indexterm"><primary>Nmap Scripting Engine (NSE)</primary><secondary>sample scripts</secondary></indexterm>
