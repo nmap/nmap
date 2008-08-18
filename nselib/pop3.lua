@@ -34,7 +34,6 @@ function login_user(socket, user, pw)
    socket:send("USER " .. user .. "\r\n")
    status, line = socket:receive_lines(1)
    if not stat(line) then return false, err.user_error end
-   print("my way")
    socket:send("PASS " .. pw .. "\r\n")
       
    status, line = socket:receive_lines(1)
@@ -142,7 +141,6 @@ function capabilities(host, port)
    
    socket:send("CAPA\r\n")
    status, line = socket:receive_buf("\r\n", false)
-   -- print("resp " .. line)
    if not stat(line) then 
       capas.capa = false
    else 
