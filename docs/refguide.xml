@@ -868,7 +868,7 @@ even if this option is not specified.
         </term>
         <listitem>
 
-          <para>By default Nmap will try to determine your DNS servers
+          <para>By default, Nmap determines your DNS servers
           (for rDNS resolution) from your resolv.conf file (Unix) or
           the Registry (Win32).  Alternatively, you may use this
           option to specify alternate servers.  This option is not
