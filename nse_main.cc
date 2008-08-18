@@ -436,14 +436,12 @@ int process_mainloop(lua_State *L) {
 				// then we release the thread and remove it from the
 				// running_scripts list
 	
-				if(lua_isstring (current.thread, -1)) { // FIXME
+				if(lua_isstring (current.thread, 2)) { // FIXME
                     ScriptResult sr;
                     lua_State *thread = current.thread;
 					SCRIPT_ENGINE_TRY(process_getScriptId(thread, &sr));
-                    lua_getglobal(thread, "string");
-                    lua_getfield(thread, -1, "gsub");
-                    lua_replace(thread, -2); // remove string table
-                    lua_pushvalue(thread, -2); // output FIXME
+                    lua_getfield(thread, 2, "gsub");
+                    lua_pushvalue(thread, 2); // output FIXME
                     lua_pushliteral(thread, "[^%w%s%p]");
                     lua_pushcclosure(thread, escape_char, 0);
                     lua_call(thread, 3, 1);
@@ -543,8 +541,8 @@ int process_waiting2running(lua_State* L, int resume_arguments) {
  * */
 int process_getScriptId(lua_State* L, ScriptResult *sr) {
 
-	lua_getfield(L, -2, ID);
-	lua_getfield(L, -3, FILENAME);
+	lua_getfield(L, 1, ID);
+	lua_getfield(L, 1, FILENAME);
 
 	if(lua_isstring(L, -2)) {
 		sr->set_id(lua_tostring (L, -2));
