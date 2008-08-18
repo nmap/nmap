@@ -1,0 +1,43 @@
+--- BitLib is a library by Reuben Thomas that provides facilities for
+-- bitwise operations on Integer values.
+-- @author Reuben Thomas
+-- @copyright BSD License
+
+--- Cast a to an internally-used integer type.
+-- @param a Number.
+function bit.cast(a)
+
+--- Return the one's complement of a.
+-- @param a Number.
+-- @return The one's complement of a.
+function bit.bnot(a)
+
+--- Returns the bitwise and of all its arguments.
+-- @param ... A variable number of Numbers to and.
+-- @return The anded result.
+function bit.band(...)
+
+--- Returns the bitwise or of all its arguments.
+-- @param ... A variable number of Numbers to or.
+-- @return The ored result.
+function bit.bor(...)
+
+--- Returns the bitwise exclusive or of all its arguments.
+-- @param ... A variable number of Numbers to exclusive or.
+-- @return The exclusive ored result.
+function bit.bxor(...)
+
+--- Returns a left shifted by b places.
+-- @param a Number to perform the shift on.
+-- @param b Number of shifts.
+function bit.lshift(a, b)
+
+--- Returns a right shifted by b places.
+-- @param a Number to perform the shift on.
+-- @param b Number of shifts.
+function bit.rshift(a, b)
+
+--- Returns a arithmetically shifted by b places.
+-- @param a Number to perform the shift on.
+-- @param b Number of shifts.
+function bit.arshift(a, b)

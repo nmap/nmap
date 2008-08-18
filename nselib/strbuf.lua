@@ -1,4 +1,5 @@
--- license = "See nmaps COPYING for license"
+--- String Buffer Facilities
+--@copyright See nmaps COPYING for license
 
 -- DEPENDENCIES --
 
@@ -34,8 +35,17 @@ module(... or "strbuf");
 	strbuf.clear(buf)
 --]]
 
+--- Dumps the string buffer as a string.
+--@name dump
+--@class function
+--@param sbuf String buffer to dump.
+--@param delimiter String to separate the buffer's contents.
+--@return Concatenated string result.
 dump = concat;
 
+--- Appends the string s to the buffer, sbuf.
+--@param sbuf String buffer.
+--@param s String to append.
 function concatbuf(sbuf, s)
   if type(s) == "string" then
     sbuf[#sbuf+1] = s;
@@ -49,6 +59,11 @@ function concatbuf(sbuf, s)
   return sbuf;
 end
 
+--- Determines if the two buffers are equal. Two buffers are equal
+-- if they are the same or if they have equivalent contents.
+--@param sbuf1 String buffer one.
+--@param sbuf2 String buffer two.
+--@return boolean true if equal, false otherwise.
 function eqbuf(sbuf1, sbuf2)
   if getmetatable(sbuf1) ~= getmetatable(sbuf2) then
     error("one or more operands is not a string buffer", 2);
@@ -64,12 +79,18 @@ function eqbuf(sbuf1, sbuf2)
   end
 end
 
+--- Clears the string buffer.
+--@param sbuf String buffer.
 function clear(sbuf)
   for k in pairs(sbuf) do
     sbuf[k] = nil;
   end
 end
 
+--- Returns the result of the buffer as a string. The delimiter used
+-- is a newline.
+--@param sbuf String buffer.
+--@return String made from concatenating the buffer.
 function tostring(sbuf)
   return concat(sbuf, "\n");
 end
@@ -81,6 +102,12 @@ local mt = {
   __index = _M,
 };
 
+--- Create a new string buffer. The equals and tostring operators for String
+-- buffers are overloaded to be strbuf.eqbuf and strbuf.tostring respectively.
+-- All functions in strbuf can be accessed by a String buffer using the self
+-- calling mechanism in Lua (e.g. strbuf:dump(...)).
+--@param ... Strings to add to the buffer initially.
+--@return String buffer.
 function new(...)
   return setmetatable({...}, mt);
 end

@@ -1,4 +1,17 @@
--- See nmaps COPYING for licence
+--- The http module provides functions for dealing with the client side
+-- of the http protocol. The functions reside inside the http namespace.
+-- The return value of each function in this module is a table with the
+-- following keys: status, header and body. status is a number representing
+-- the HTTP status code returned in response to the HTTP request. In case
+-- of an unhandled error, status is nil. The header value is a table
+-- containing key-value pairs of HTTP headers received in response to the
+-- request. The header names are in lower-case and are the keys to their
+-- corresponding header values (e.g. header.location = "http://nmap.org/").
+-- Multiple headers of the same name are concatenated and separated by
+-- commas. The body value is a string containing the body of the HTTP
+-- response.
+-- @copyright See nmaps COPYING for licence
+
 module(... or "http",package.seeall)
 
 require 'stdnse'
@@ -19,7 +32,19 @@ require 'url'
 -- in case of an error status is nil
 
 
--- fetch relative URL with get request
+--- Fetches a resource with a GET request. The first argument is either a
+-- string with the hostname or a table like the host table passed by nmap.
+-- The second argument is either the port number or a table like the port
+-- table passed by nmap. The third argument is the path of the resource.
+-- The fourth argument is a table for further options. The table may have
+-- 2 keys: timeout and header. timeout is the timeout used for the socket
+-- operations. header is a table with additional headers to be used for
+-- the request. The function builds the request and calls http.request.
+-- @param host The host to query.
+-- @param port The port for the host.
+-- @param path The path of the resource.
+-- @param options A table of optoins. See function description.
+-- @return table
 get = function( host, port, path, options )
   options = options or {}
   local presets = {Host=host,Connection="close",['User-Agent']="Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"}
@@ -41,9 +66,15 @@ get = function( host, port, path, options )
   return request( host, port, data, options )
 end
 
--- fetch URL with get request
-get_url = function( u, options )
-  local parsed = url.parse( u )
+--- Parses url and calls http.get with the result. The second argument
+-- is a table for further options. The table may have 2 keys: timeout
+-- and header. timeout is the timeout used for the socket operations.
+-- header is a table with additional headers to be used for the request. 
+-- @param url The url of the host.
+-- @param options Options passed to http.get.
+-- @see http.get
+get_url = function(url, options )
+  local parsed = url.parse( url )
   local port = {}
 
   port.service = parsed.scheme
@@ -65,9 +96,19 @@ get_url = function( u, options )
   return get( parsed.host, port, path, options )
 end
 
--- send http request and return the result as table
--- host may be a table or the hostname
--- port may be a table or the portnumber
+--- Sends request to host:port and parses the answer. The first argument
+-- is either a string with the hostname or a table like the host table
+-- passed by nmap. The second argument is either the port number or a
+-- table like the port table passed by nmap. SSL is used for the request
+-- if either port.service  equals https or port.version.service_tunnel
+-- equals ssl. The third argument is the request. The fourth argument is
+-- a table for further options. You can specify a timeout for the socket
+-- operations with the timeout key. 
+-- @param host The host to query.
+-- @param port The port on the host.
+-- @param data Data to send initially to the host.
+-- @param options Table of options.
+-- @see http.get
 request = function( host, port, data, options )
   options = options or {}
 

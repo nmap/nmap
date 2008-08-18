@@ -1,13 +1,8 @@
--- license = "See nmaps COPYING for license"
+--- Facilities for manipulating raw packets.
+-- @copyright See nmaps COPYING for license
+-- @author Marek Majkowski <majek04+nse@gmail.com>
+
 module(... or "packet" ,package.seeall)
-
--- Raw package parsing functions. Used with raw sockets
--- in nse.
--- Author: Marek Majkowski <majek04+nse@gmail.com>
-
---[[
---]]
-
 
 require "bit"
 

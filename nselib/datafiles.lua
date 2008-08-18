@@ -1,4 +1,7 @@
--- Kris Katterjohn 03/2008
+--- The datafiles module provides functions for reading and parsing Nmap's
+-- data files. For example nmap-protocol, nmap-rpc, etc. These functions'
+-- return values are setup for use with exception handling via nmap.new_try().
+-- @author Kris Katterjohn 03/2008
 
 module(... or "datafiles", package.seeall)
 
@@ -95,6 +98,12 @@ local fillservices = function()
 	return true
 end
 
+--- This function reads and parses Nmap's nmap-protocols file.
+-- bool is a Boolean value indicating success. If bool is true, then the
+-- second returned value is a table with protocol numbers indexing the
+-- protocol names. If bool is false, an error message is returned as the
+-- second value instead of the table. 
+-- @return bool, table|err
 parse_protocols = function()
 	if not filltable("nmap-protocols", protocols_table) then
 		return false, "Error parsing nmap-protocols"
@@ -103,6 +112,12 @@ parse_protocols = function()
 	return true, protocols_table
 end
 
+--- This function reads and parses Nmap's nmap-rpc  file. bool is a
+-- Boolean value indicating success. If bool is true, then the second
+-- returned value is a table with RPC numbers indexing the RPC names.
+-- If bool is false, an error message is returned as the second value
+-- instead of the table. 
+-- @return bool, table|err
 parse_rpc = function()
 	if not filltable("nmap-rpc", rpc_table) then
 		return false, "Error parsing nmap-rpc"
@@ -111,6 +126,16 @@ parse_rpc = function()
 	return true, rpc_table
 end
 
+--- This function reads and parses Nmap's nmap-services file.
+-- bool is a Boolean value indicating success. If bool is true,
+-- then the second returned value is a table containing two other
+-- tables: tcp{} and udp{}. tcp{} contains services indexed by TCP port
+-- numbers. udp{} is the same, but for UDP. You can pass "tcp" or "udp"
+-- as an argument to parse_services() to only get the corresponding table.
+-- If bool is false, an error message is returned as the second value instead
+-- of the table. 
+-- @param protocol The protocol table to return.
+-- @return bool, table|err
 parse_services = function(protocol)
 	if protocol and protocol ~= "tcp" and protocol ~= "udp" then
 		return false, "Bad protocol for nmap-services: use tcp or udp"

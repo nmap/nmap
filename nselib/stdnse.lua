@@ -1,4 +1,5 @@
--- See nmaps COPYING for licence
+--- Standard Nmap Engine functions.
+--@copyright See nmaps COPYING for licence
 
 local assert = assert;
 local tonumber = tonumber;
@@ -7,6 +8,12 @@ local nmap = require"nmap";
 
 module(... or "stdnse");
 
+--- Prints debug information according with verbosity <i>level</i>
+-- formatted using Lua's standard string.format function.
+--@param level Optional argument for verbosity.
+--@param fmt Format string according to string.format specifiers.
+--@param ... Arguments to format.
+--@see string.format
 print_debug = function(level, fmt, ...)
   local verbosity = tonumber(level);
   if verbosity then
@@ -16,16 +23,23 @@ print_debug = function(level, fmt, ...)
   end
 end
 
--- Concat the contents of the parameter list,
--- separated by the string delimiter (just like in perl)
--- example: strjoin(", ", {"Anna", "Bob", "Charlie", "Dolores"})
+--- Concat the contents of the parameter list. Each string is
+-- separated by the string delimiter (just like in perl).
+-- Example: strjoin(", ", {"Anna", "Bob", "Charlie", "Dolores"})
+-- --> "Anna, Bob, Charlie, Dolores"
+--@param delimiter String to delimit each element of the list.
+--@param list Array of strings to concatenate.
+--@return Concatenated string.
 function strjoin(delimiter, list)
   return concat(list, delimiter);
 end
 
--- Split text into a list consisting of the strings in text,
+--- Split text into a list consisting of the strings in text,
 -- separated by strings matching delimiter (which may be a pattern). 
--- example: strsplit(",%s*", "Anna, Bob, Charlie,Dolores")
+-- example: strsplit(",%s*", "Anna, Bob, Charlie, Dolores")
+--@param delimiter String which delimits the split strings.
+--@param text String to split.
+--@return List of strings.
 function strsplit(delimiter, text)
   local list, pos = {}, 1;
 
@@ -44,24 +58,16 @@ function strsplit(delimiter, text)
   return list;
 end
 
--- Generic buffer implementation using lexical closures
---
--- Pass make_buffer a socket and a separator lua pattern [1].
---
--- Returns a function bound to your provided socket with behaviour identical
--- to receive_lines() except it will return AT LEAST ONE [2] and AT MOST ONE
--- "line" at a time.
---
--- [1] Use the pattern "\r?\n" for regular newlines
--- [2] Except where there is trailing "left over" data not terminated by a
---     pattern (in which case you get the data anyways)
--- [3] The data is returned WITHOUT the pattern/newline on the end.
--- [4] Empty "lines" are returned as "". With the pattern in [1] you will
---     receive a "" for each newline in the stream.
--- [5] Errors/EOFs are delayed until all "lines" have been processed.
---
--- -Doug, June, 2007
-
+--- This function operates on a socket attempting to read data. It separates
+-- the data by sep and, for each invocation, returns a piece of the
+-- separated data. Typically this is used to iterate over the lines of
+-- data received from a socket (sep = "\r?\n"). The returned string does
+-- not include the separator. It will return the final data even if it is
+-- not followed by the separator. Once an error or EOF is reached, it
+-- returns nil, msg. msg is what is returned by nmap.receive_lines(). 
+-- @param socket Socket for the buffer.
+-- @param sep Separator for the buffered reads.
+-- @return Data from socket reads.
 function make_buffer(socket, sep)
   local point, left, buffer, done, msg = 1, "";
   local function self()
@@ -120,17 +126,26 @@ do
     f = "1111"
   };
 
+--- Converts the given number, n, to a string in a binary number format.
+--@param n Number to convert.
+--@return String in binary format.
   function tobinary(n)
     assert(tonumber(n), "number expected");
     return (("%x"):format(n):gsub("%w", t):gsub("^0*", ""));
   end
 end
 
+--- Converts the given number, n, to a string in an octal number format.
+--@param n Number to convert.
+--@return String in octal format.
 function tooctal(n)
   assert(tonumber(n), "number expected");
   return ("%o"):format(n)
 end
 
+--- Converts the given number, n, to a string in a hexidecimal number format.
+--@param n Number to convert.
+--@return String in hexidecimal format.
 function tohex(n)
   assert(tonumber(n), "number expected");
   return ("%x"):format(n);

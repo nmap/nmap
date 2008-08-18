@@ -1,3 +1,5 @@
+--- URI parsing, composition and relative URL resolution.
+
 --[[
 
 URI parsing, composition and relative URL resolution

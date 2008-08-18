@@ -1,8 +1,7 @@
---- Base64 library
+--- Base64 library. Follows RFC4648.
+--@author Philip Pickering <pgpickering@gmail.com>
 --@copyright See nmaps COPYING for licence
 
--- as in RFC4648
--- author: Philip Pickering <pgpickering@gmail.com>
 -- thanks to Patrick Donnelly for some optimizations
 
 module(... or "base64",package.seeall)

@@ -1,13 +1,13 @@
--- See nmaps COPYING for license
-module(... or "tab" ,package.seeall)
+--- Provide NSE scripts with a way to output structured tables similar to
+-- NmapOutputTable.cc.
+--@copyright See nmaps COPYING for license
 
---[[ Provide NSE scripts with a way to output structured tables similar to
-     NmapOutputTable.cc. See end for an example on how to use it. --]]
+module(... or "tab",package.seeall)
 
 require('strbuf')
 
---[[ Create and return a new table with a number of columns equal to col and
-     the row counter set to 1 --]]
+--- Create and return a new table with a number of columns equal to col and
+-- the row counter set to 1.
 function new(cols)
 	assert(cols > 0)
 	local table ={}
@@ -18,9 +18,9 @@ function new(cols)
 	return table
 end
 
---[[ Add a new string item (v) in a previously initialised table (t)
-     at column position 'c'. The data will be added to the current 
-     row, if nextrow() hasn't been called yet that will be row 1 --]]
+--- Add a new string item (v) in a previously initialised table (t)
+-- at column position 'c'. The data will be added to the current
+-- row, if nextrow() hasn't been called yet that will be row 1.
 function add(t, c, v)
 	assert(t)
 	assert(v)
@@ -41,19 +41,19 @@ function add(t, c, v)
 	return true
 end
 
---[[ Move on to the next row in the table. If this is not called
-     then previous column values will be over-written by subsequent
-     values. --]]
+--- Move on to the next row in the table. If this is not called
+-- then previous column values will be over-written by subsequent
+-- values.
 function nextrow(t)
 	assert(t)
 	assert(t['rows'])
 	t['rows'] = t['rows'] + 1
 end
 
---[[ Once items have been added to a table, call this to return a
-     string which contains an equally spaced table. Number of spaces 
-     is based on the largest element of a column with an additional
-     two spaces for padding --]]
+--- Once items have been added to a table, call this to return a
+-- string which contains an equally spaced table. Number of spaces 
+-- is based on the largest element of a column with an additional
+-- two spaces for padding.
 function dump(t)
 	assert(t)
 	assert(t['rows'])

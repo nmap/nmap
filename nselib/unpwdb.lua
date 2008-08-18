@@ -2,7 +2,7 @@
 
 module(... or "unpwdb", package.seeall)
 
----- Username/Password DB Library
+--- Username/Password DB Library.
 --
 -- usernames() - Returns a closure which returns a new username with every call
 -- until the username list is exhausted (in which case it returns nil)

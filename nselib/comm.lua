@@ -1,8 +1,21 @@
--- Kris Katterjohn 04/2008
+--- The comm module provides functions for common network discovery tasks.
+-- Banner-grabbing and making a quick exchange of data are some of
+-- these tasks. These
+-- functions' return values are setup for use with exception handling
+-- via nmap.new_try().\n
+-- \n
+-- These functions can all be passed a table of options, but it's not
+-- required. The relevant indexes for this table are bytes, lines, proto
+-- and timeout. bytes is used to provide the minimum number of bytes required
+-- for a read. lines does the same, but for the minimum number of lines.
+-- proto is used to set the protocol to communicate with, defaulting to
+-- "tcp" if not provided. timeout is used to set the socket timeout (see
+-- the socket function set_timeout() for details). 
+-- @author Kris Katterjohn 04/2008
 
 module(... or "comm", package.seeall)
 
-------
+--
 --
 -- The Functions:
 --
@@ -91,6 +104,15 @@ local read = function(sock, opts)
 	return status, response
 end
 
+--- This function simply connects to the specified port number on the
+-- specified host and returns any data received. bool is a Boolean value
+-- indicating success. If bool is true, then the second returned value
+-- is the response from the target host. If bool is false, an error
+-- message is returned as the second value instead of a response. 
+-- @param host The host to connect to.
+-- @param port The port on the host.
+-- @param opts The options. See module description.
+-- @return bool, data
 get_banner = function(host, port, opts)
 	opts = initopts(opts)
 
@@ -109,6 +131,17 @@ get_banner = function(host, port, opts)
 	return status, ret
 end
 
+--- This function connects to the specified port number on the specified
+-- host, sends data, then waits for and returns the response, if any.
+-- bool is a Boolean value indicating success. If bool is true, then the
+-- second returned value is the response from the target host. If bool is
+-- false, an error message is returned as the second value instead of a
+-- response. 
+-- @param host The host to connect to.
+-- @param port The port on the host.
+-- @param data The data to send initially.
+-- @param opts The options. See module description.
+-- @return bool, data
 exchange = function(host, port, data, opts)
 	opts = initopts(opts)
 
