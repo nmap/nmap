@@ -1,7 +1,7 @@
 --- Queries the version of an SMTP server.
 --@output
--- 25/tcp open  smtp
--- |_ SMTP version: 220 mail.foo.com mx-2.bar.com ESMTP Exim 4.64
+-- 25/tcp open  smtp\n
+-- |_ SMTP version: 220 mail.foo.com mx-2.bar.com ESMTP Exim 4.64\n
 
 id = "SMTP version"
 
