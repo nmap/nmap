@@ -1,3 +1,8 @@
+---
+--@output
+-- |  HTTP Auth: HTTP Service requires authentication\n
+-- |_   Auth type: Basic, realm = DSL Router\n
+
 -- HTTP authentication information gathering script
 -- rev 1.1 (2007-05-25)
 

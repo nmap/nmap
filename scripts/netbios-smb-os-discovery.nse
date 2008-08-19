@@ -1,18 +1,18 @@
------------------------------------------------------------------------
--- This script probes a target for its operating system version sending
--- traffic via UDP port 137 and TCP port 139/445.  First, we need to
+--- This script probes a target for its operating system version.
+-- It sends traffic via UDP port 137 and TCP port 139/445.\n\n
+-- == Implementation Information ==\n
+-- First, we need to
 -- elicit the NetBIOS share name associated with a workstation share.
 -- Once we have that, we need to encode the name into the "mangled"
 -- equivalent and send TCP 139/445 traffic to connect to the host and
 -- in an attempt to elicit the OS version name from an SMB Setup AndX
--- response. 
+-- response.\n\n
 --
 -- Thanks to Michail Prokopyev and xSharez Scanner for required 
 -- traffic to generate for OS version detection.
 --
--- Command line to run this script like following:
---
--- sudo nmap -sU -sS --script osversion.nse  -p U:137,T:139 10.4.12.224
+--@usage
+-- sudo nmap -sU -sS --script netbios-smb-os-discovery.nse -p U:137,T:139 127.0.0.1
 -----------------------------------------------------------------------
 
 id = "Discover OS Version over NetBIOS and SMB"
@@ -70,7 +70,6 @@ end
 -----------------------------------------------------------------------
 -- A NetBIOS wildcard query is sent to a host in an attempt to discover
 -- any NetBIOS shares on the host.
------------------------------------------------------------------------
 
 function udp_query(host)
 
@@ -111,7 +110,6 @@ end
 -- type/code can be queried later for the OS version.  The workstation
 -- type/code is 0x44 0x00 for OS versions prior to Vista.  The type/code
 -- for Vista is 0x04 0x00.  
------------------------------------------------------------------------
 
 function extract_sharename(resp)
  
@@ -150,7 +148,6 @@ end
 
 -----------------------------------------------------------------------
 -- Extract multiple bytes from a string and return concatenated result
------------------------------------------------------------------------
 
 function string_concatenate(mystring, start, stop)
     local x, temp, newname
@@ -178,7 +175,6 @@ end
 -- in the string "chars" is the corresponding position in the trtable
 -- table. The character " had to be handled separately as it is used
 -- to delimit the value of chars.  
------------------------------------------------------------------------
 
 encode = function(name)
 
@@ -235,7 +231,6 @@ end
 -- The workstation share name extracted from the UDP wildcard NetBIOS
 -- response must be used in the SMB session initiation request(payload 1).
 -- Payload for the requests that follow is static.
------------------------------------------------------------------------
 
 function tcp_session(ename, host)
 
@@ -331,7 +326,6 @@ end
 -- Response from Session Setup AndX Request (TCP payload 3)
 -- Must be SMB response.  Extract the OS version from it from a fixed
 -- offset in the payload.
------------------------------------------------------------------------
 
 function extract_version(line)
 
