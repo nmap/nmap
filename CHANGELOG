@@ -198,6 +198,10 @@ o The loading of the nmap-services file has been made faster. In the
   common case using the default nmap-services file loading was
   measured to be over nine times faster.
 
+o The shtool build helper script has been updated to version 2.0.8. An
+  older version of shutil caused installation to fail when the locale
+  was set to et_EE. Thanks to Michal Januszewski for the bug report.
+
 Nmap 4.68 [2008-6-28]
 
 o Doug integrated all of your version detection submissions and
