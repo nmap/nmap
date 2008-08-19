@@ -1366,21 +1366,16 @@ double UltraScanInfo::getCompletionFraction() {
   /* Get the completion fraction for each incomplete host. */
   for(hostI = incompleteHosts.begin(); hostI != incompleteHosts.end(); hostI++) {
     HostScanStats *host = *hostI;
-    int ports_left;
-    double rate;
-    double probes_left;
+    int maxtries = host->allowedTryno(NULL, NULL) + 1;
+    double thishostpercdone;
 
-    ports_left = host->freshPortsLeft();
-    if (ports_left == gstats->numprobes)
-      continue;
-    /* Get the overall rate of probes sent to ports completed. */
-    rate = (double) host->numprobes_sent / (gstats->numprobes - ports_left);
-    /* Find out how many probes it will take to scan the remainder of the ports
-       at that rate. */
-    probes_left = rate * ports_left;
-    /* Get the completion fraction: number of probes sent divided by estimated
-       total number of probes. */
-    total += (double) host->numprobes_sent / (host->numprobes_sent + probes_left);
+    // This is inexact (maxtries - 1) because numprobes_sent includes
+    // at least one try of ports_finished.
+    thishostpercdone = host->ports_finished * (maxtries - 1) + host->numprobes_sent;
+    thishostpercdone /= maxtries * gstats->numprobes;
+    if (thishostpercdone >= 0.9999)
+      thishostpercdone = 0.9999;
+    total += thishostpercdone;
   }
 
   return total / gstats->numtargets;
