@@ -42,8 +42,7 @@ LDFLAGS = @LDFLAGS@ $(DBGFLAGS) $(STATIC)
 LIBS =  @LIBNBASE_LIBS@ @LIBNSOCK_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ @OPENSSL_LIBS@ @LIBDNET_LIBS@ @LIBLUA_LIBS@ @LIBS@ 
 # LIBS =  -lefence @LIBS@
 # LIBS =  -lrmalloc @LIBS@
-SHTOOL = ./shtool
-INSTALL = $(SHTOOL) install 
+INSTALL = @INSTALL@
 # MAKEDEPEND = @MAKEDEPEND@
 export RPMTDIR=$(HOME)/rpm
 
@@ -174,7 +173,7 @@ my_distclean:
 	         config.cache config.log config.status
 
 install-nmap: $(TARGET)
-	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1 $(DESTDIR)$(nmapdatadir)
+	$(INSTALL) -d $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1 $(DESTDIR)$(nmapdatadir)
 	$(INSTALL) -c -m 755 nmap $(DESTDIR)$(bindir)/nmap
 # Use strip -x to avoid stripping dynamically loaded NSE functions. See
 # http://seclists.org/nmap-dev/2007/q4/0272.html.
@@ -208,7 +207,7 @@ build-zenmap: $(ZENMAPDIR)/setup.py $(ZENMAPDIR)/zenmapCore/Version.py
 	cd $(ZENMAPDIR) && $(PYTHON) setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
 
 install-zenmap: $(ZENMAPDIR)/setup.py
-	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1
+	$(INSTALL) -d $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1
 	cd $(ZENMAPDIR) && $(PYTHON) setup.py install --prefix "$(prefix)" $(if $(DESTDIR),--root "$(DESTDIR)")
 	$(INSTALL) -c -m 644 docs/zenmap.1 $(DESTDIR)$(mandir)/man1/
 # Create a symlink from nmapfe to zenmap if nmapfe doesn't exist or is
@@ -224,11 +223,11 @@ NSE_LIB_LUA_FILES = nselib/*.lua
 NSE_LIB_SO_FILES = nselib-bin/*.so
 
 install-nse: $(TARGET)
-	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(nmapdatadir)/scripts
+	$(INSTALL) -d $(DESTDIR)$(nmapdatadir)/scripts
 	cp -f $(NSE_FILES) $(DESTDIR)$(nmapdatadir)/scripts
-	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(nmapdatadir)/nselib
+	$(INSTALL) -d $(DESTDIR)$(nmapdatadir)/nselib
 	cp -f $(NSE_LIB_LUA_FILES) $(DESTDIR)$(nmapdatadir)/nselib
-	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(nmaplibexecdir)/nselib-bin
+	$(INSTALL) -d $(DESTDIR)$(nmaplibexecdir)/nselib-bin
 	cp -f $(NSE_LIB_SO_FILES) $(DESTDIR)$(nmaplibexecdir)/nselib-bin
 
 install: install-nmap $(INSTALLNSE) $(INSTALLZENMAP)

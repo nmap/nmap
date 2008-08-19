@@ -43,6 +43,8 @@ AC_C_INLINE
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
+AC_PROG_INSTALL
+
  if test -n "$GXX"; then
       CXXFLAGS="$CXXFLAGS -Wall "
  fi
