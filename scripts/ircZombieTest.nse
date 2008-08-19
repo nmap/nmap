@@ -1,3 +1,5 @@
+--- Checks if the target is an IRC zombie.
+
 id = "IRC zombie"
 
 description = "If port 113 responds before we ask it then something is fishy.\

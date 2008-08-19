@@ -1,3 +1,8 @@
+--- Queries the owner of a service on a scanned port. Uses port 113 to
+-- make the query.
+--@output
+--
+
 id = "Service owner"
 
 description = "Opens a connection to the scanned port, opens a connection to port 113, queries the owner\

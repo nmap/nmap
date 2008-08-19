@@ -1,5 +1,8 @@
--- dvt <diman.todorov@gmail.com>
--- Same as Nmap--See http://nmap.org/book/man-legal.html
+---
+--@output
+-- 80/tcp  open   http    syn-ack\n
+-- |_ HTML title: Foo.\n
+--@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 id = "HTML title"
 

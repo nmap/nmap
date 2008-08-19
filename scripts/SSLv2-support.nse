@@ -1,5 +1,17 @@
+--- Determines if the target server supports SSL-v2 and what cyphers it
+-- supports.
+--@ouput
+-- 443/tcp open   https   syn-ack\n
+-- |  SSLv2: server still supports SSLv2\n
+-- |       SSL2_RC4_128_WITH_MD5\n
+-- |       SSL2_DES_192_EDE3_CBC_WITH_MD5\n
+-- |       SSL2_RC2_CBC_128_CBC_WITH_MD5\n
+-- |       SSL2_DES_64_CBC_WITH_MD5\n
+-- |       SSL2_RC4_128_EXPORT40_WITH_MD5\n
+-- |_      SSL2_RC2_CBC_128_CBC_WITH_MD5\n
+
 id = "SSLv2"
-description = "determines whether the server (still) supports SSL-v2, and what cyphers it offers."
+description = "Determines whether the server (still) supports SSL-v2, and what cyphers it offers."
 author = "Matt <mb2263@bristol.ac.uk>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

@@ -1,3 +1,16 @@
+---
+--@output
+-- 80/tcp  open   http    syn-ack\n
+-- |  robots.txt: has 156 disallowed entries (40 shown)\n
+-- |  /news?output=xhtml& /search /groups /images /catalogs\n
+-- |  /catalogues /news /nwshp /news?btcid=*& /news?btaid=*&\n
+-- |  /setnewsprefs? /index.html? /? /addurl/image? /pagead/ /relpage/\n
+-- |  /relcontent /sorry/ /imgres /keyword/ /u/ /univ/ /cobrand /custom\n
+-- |  /advanced_group_search /googlesite /preferences /setprefs /swr /url /default\n
+-- |  /m? /m/? /m/lcb /m/news? /m/setnewsprefs? /m/search? /wml?\n
+-- |_ /wml/? /wml/search?\n
+
+
 require('shortport')
 require('strbuf')
 require('http')

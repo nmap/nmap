@@ -1,3 +1,9 @@
+--- Queries the version from an SSH Server. This typically does not result
+-- in any logs of the connection being made.
+--@output
+-- 22/tcp  open   ssh\n
+-- |_ Stealth SSH version: SSH-2.0-OpenSSH_3.9p1\n
+
 id = "Stealth SSH version"
 
 description = "Connects to an SSH server, queries the version string and echos it back. This tends to result\
