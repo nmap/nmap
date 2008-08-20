@@ -999,43 +999,17 @@ fatal("Call to pcap_open_live(%s, %d, %d, %d) failed three times. Reported error
   return pt;
 }
 
-/* Standard BSD internet checksum routine */
+/* Standard BSD internet checksum routine. Uses libdnet helper functions. */
 unsigned short in_cksum(u16 *ptr,int nbytes) {
+  int sum;
 
-register u32 sum;
-u16 oddbyte;
-register u16 answer;
+  sum = ip_cksum_add(ptr, nbytes, 0);
 
-/*
- * Our algorithm is simple, using a 32-bit accumulator (sum),
- * we add sequential 16-bit words to it, and at the end, fold back
- * all the carry bits from the top 16 bits into the lower 16 bits.
- */
-
-sum = 0;
-while (nbytes > 1)  {
-sum += *ptr++;
-nbytes -= 2;
+  return ip_cksum_carry(sum);
 }
 
-/* mop up an odd byte, if necessary */
-if (nbytes == 1) {
-oddbyte = 0;            /* make sure top half is zero */
-*((u_char *) &oddbyte) = *(u_char *)ptr;   /* one byte only */
-sum += oddbyte;
-}
-
-/*
- * Add back carry outs from top 16 bits to low 16 bits.
- */
-
-sum  = (sum >> 16) + (sum & 0xffff);    /* add high-16 to low-16 */
-sum += (sum >> 16);                     /* add carry */
-answer = ~sum;          /* ones-complement, then truncate to 16 bits */
-return(answer);
-}
-
-/* for computing TCP/UDP checksums, see TCP/IP Illustrated p. 145 */
+/* For computing TCP/UDP checksums, see RFC 1071 and TCP/IP Illustrated
+   sections 3.2, 11.3, and 17.3. */
 unsigned short magic_tcpudp_cksum(const struct in_addr *src,
 				  const struct in_addr *dst,
 				  u8 proto, u16 len, char *hstart)
@@ -1046,15 +1020,22 @@ unsigned short magic_tcpudp_cksum(const struct in_addr *src,
 		u8 zero;
 		u8 proto;        
 		u16 length;
-	} *hdr = (struct pseudo *) (hstart - sizeof(struct pseudo));
+	} hdr;
+	int sum;
 
-	hdr->src = *src;
-	hdr->dst = *dst;
-	hdr->zero = 0;
-	hdr->proto = proto;
-	hdr->length = htons(len);
+	hdr.src = *src;
+	hdr.dst = *dst;
+	hdr.zero = 0;
+	hdr.proto = proto;
+	hdr.length = htons(len);
 
-	return in_cksum((unsigned short *) hdr, len + sizeof(struct pseudo));
+	/* Get the ones'-complement sum of the pseudo-header. */
+	sum = ip_cksum_add(&hdr, sizeof(hdr), 0);
+	/* Add it to the sum of the packet. */
+	sum = ip_cksum_add(hstart, len, sum);
+
+	/* Fold in the carry, take the complement, and return. */
+	return ip_cksum_carry(sum);
 }
 
 /* LEGACY resolve() function that only supports IPv4 -- see IPv6 version
