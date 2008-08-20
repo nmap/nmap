@@ -1564,7 +1564,7 @@ way.</para>
           qualifier. For example, the argument <option>-p
           U:53,111,137,T:21-25,80,139,8080</option> would scan UDP
           ports 53,111,and 137, as well as the listed TCP ports. Note
-          that to scan both UDP &amp; TCP, you have to specify
+          that to scan both UDP and TCP, you have to specify
           <option>-sU</option> and at least one TCP scan type (such as
           <option>-sS</option>, <option>-sF</option>, or
           <option>-sT</option>). If no protocol qualifier is given,
