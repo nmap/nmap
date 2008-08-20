@@ -631,7 +631,7 @@ you would expect.</para>
           services simply ignore the empty packet and fail to return
           any response.  This is why the default probe port is 31338,
           which is highly unlikely to be in use.  A few services, such
-          as chargen, will respond to an empty UDP packet, and thus
+          as the Character Generator (chargen) protocol, will respond to an empty UDP packet, and thus
           disclose to Nmap that the machine is available.</para>
 
           <para>The primary advantage of this scan type is that it
@@ -915,7 +915,7 @@ even if this option is not specified.
 <para>These states are not intrinsic
 properties of the port itself, but describe how Nmap sees them.  For
 example, an Nmap scan from the same network as the target may show
-port 135/tcp as open, while a scan at the same time with the same
+port <literal>135/tcp</literal> as open, while a scan at the same time with the same
 options from across the Internet might show that port as <literal>filtered</literal>.</para>
 
 <variablelist><title>The six port states recognized by Nmap</title>
@@ -1575,7 +1575,7 @@ way.</para>
           Ports can also be specified by name according to what the
           port is referred to in the <filename>nmap-services</filename>. You
           can even use the wildcards * and ? with the names. For example, to scan
-          FTP and all ports whose names begin with http, use <option>-p ftp,http*</option>.
+          FTP and all ports whose names begin with <quote>http</quote>, use <option>-p ftp,http*</option>.
           Be careful about shell expansions and quote the argument to <option>-p</option> if unsure.</para>
 
           <para>Ranges of ports can be surrounded by square brackets to indicate
@@ -1634,7 +1634,7 @@ way.</para>
 
 
     <para>Point Nmap at a remote machine and it might tell you
-    that ports 25/tcp, 80/tcp, and 53/udp are open. Using its
+    that ports <literal>25/tcp</literal>, <literal>80/tcp</literal>, and <literal>53/udp</literal> are open. Using its
     <filename>nmap-services</filename><indexterm><primary><filename>nmap-services</filename></primary></indexterm>
     database of about 2,200
     well-known services,<indexterm><primary>well-known ports</primary></indexterm>
@@ -1664,7 +1664,7 @@ way.</para>
     database contains probes
     for querying various services and match expressions to recognize
     and parse responses. Nmap tries to determine the service protocol
-    (e.g. FTP, SSH, telnet, HTTP), the application name (e.g. ISC
+    (e.g. FTP, SSH, Telnet, HTTP), the application name (e.g. ISC
     BIND, Apache httpd, Solaris telnetd), the version number,
     hostname, device type (e.g. printer, router), the OS family
     (e.g. Windows, Linux) and sometimes miscellaneous details like

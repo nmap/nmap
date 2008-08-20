@@ -1223,7 +1223,7 @@ if(s) code_to_be_done_on_match end
 		  determined by Nmap's version scan or (if no version
 		  scan information is available) the service assigned
 		  to the port in <filename>nmap-services</filename>
-		  (e.g. "http" for TCP port 80).
+		  (e.g. <literal>"http"</literal> for TCP port 80).
 		  </para>
 	      </listitem>
 	    </varlistentry>
@@ -1654,7 +1654,7 @@ if(s) code_to_be_done_on_match end
 	is used to provide the minimum number of bytes required for a read.  <literal>lines</literal>
 	does the same, but for the minimum number of lines.  If neither are provided, these
 	functions attempt to read as many bytes as are available.  <literal>proto</literal>
-	is used to set the protocol to communicate with, defaulting to "tcp" if not provided.
+	is used to set the protocol to communicate with, defaulting to <literal>"tcp"</literal> if not provided.
 	<literal>timeout</literal> is used to set the socket timeout (see the socket function
 	<literal>set_timeout()</literal> for details).
 	</para>
@@ -1809,7 +1809,7 @@ if(s) code_to_be_done_on_match end
 			<literal>tcp{}</literal> and <literal>udp{}</literal>.
 			<literal>tcp{}</literal> contains services indexed by TCP port
 			numbers.  <literal>udp{}</literal> is the same, but for UDP.
-			You can pass "tcp" or "udp" as an argument to
+			You can pass <literal>"tcp"</literal> or <literal>"udp"</literal> as an argument to
 			<literal>parse_services()</literal> to only get the corresponding
 			table.  If <literal>bool</literal> is false, an error message is
 			returned as the second value instead of the table.
@@ -2099,7 +2099,7 @@ if(s) code_to_be_done_on_match end
 	    <listitem>
 	      <para>
 		Defines the protocol of the port. Valid values are
-		<literal>tcp</literal> and <literal>udp</literal>.
+		<literal>"tcp"</literal> and <literal>"udp"</literal>.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -2161,7 +2161,7 @@ if(s) code_to_be_done_on_match end
 
    <row>
     <entry><literal>service_tunnel</literal></entry>
-    <entry>Contains the string <literal>none</literal> or <literal>ssl</literal> based on whether or not Nmap used SSL tunneling to detect the service.</entry>
+    <entry>Contains the string <literal>"none"</literal> or <literal>"ssl"</literal> based on whether or not Nmap used SSL tunneling to detect the service.</entry>
    </row>
 
    <row>
@@ -3627,7 +3627,7 @@ end
       simple pattern matching syntax.  Some protocols require a more
       complex approach, and a generalized scripting language is
       perfect for this.  Skype&nbsp;v2 is one such protocol.  It pretends to
-      be an http server, requiring multiple queries to determine its
+      be an HTTP server, requiring multiple queries to determine its
       true nature.  NSE has been integrated into Nmap's version
       detection framework to handle these cases. The scripts which
       extend the version scanner belong to the reserved category
@@ -3637,10 +3637,10 @@ end
       version scan. The following listing shows a simple script which
       demonstrates the use of the NSE version detection API. If either
       the TCP port 80 is open or the service has been determined to be
-      http, the script is triggered. Although it could be extended to
-      recognize different http servers, its only purpose is to show off
+      HTTP, the script is triggered. Although it could be extended to
+      recognize different HTTP servers, its only purpose is to show off
       the version detection API. It is not advisable to use NSE for
-      version detection in the simple case of http servers. The
+      version detection in the simple case of HTTP servers. The
       version detection variables have been filled with dummy entries
       to illustrate their effect on the Nmap output.</para> 
 
@@ -3786,7 +3786,7 @@ require "shortport"
 </programlisting>
 
 <para>We want to run the script against the finger service.  So we
-test whether it is using the well-known finger port (79/tcp), or
+test whether it is using the well-known finger port (<literal>79/tcp</literal>), or
 whether the service is named <quote>finger</quote> based on version
 detection results or in the port number's listing
 in <filename>nmap-services</filename>.</para>
