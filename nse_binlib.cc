@@ -13,21 +13,21 @@
 */
 
 #define	OP_ZSTRING	'z'		/* zero-terminated string */
-#define	OP_BSTRING	'p'		/* string preceded by length byte */
-#define	OP_WSTRING	'P'		/* string preceded by length word */
-#define	OP_SSTRING	'a'		/* string preceded by length size_t */
+#define	OP_BSTRING	'p'		/* string preceded by 1 byte integer */
+#define	OP_WSTRING	'P'		/* string preceded by 2 byte integer */
+#define	OP_SSTRING	'a'		/* string preceded by 4 byte integer */
 #define	OP_STRING	'A'		/* string */
 #define	OP_FLOAT	'f'		/* float */
 #define	OP_DOUBLE	'd'		/* double */
 #define	OP_NUMBER	'n'		/* Lua number */
-#define	OP_CHAR		'c'		/* char */
-#define	OP_BYTE		'C'		/* byte = unsigned char */
-#define	OP_SHORT	's'		/* short */
-#define	OP_USHORT	'S'		/* unsigned short */
-#define	OP_INT		'i'		/* int */
-#define	OP_UINT		'I'		/* unsigned int */
-#define	OP_LONG		'l'		/* long */
-#define	OP_ULONG	'L'		/* unsigned long */
+#define	OP_CHAR		'c'		/* char (1-byte int) */
+#define	OP_BYTE		'C'		/* byte = unsigned char (1-byte unsigned int) */
+#define	OP_SHORT	's'		/* short (2-byte int) */
+#define	OP_USHORT	'S'		/* unsigned short (2-byte unsigned int) */
+#define	OP_INT		'i'		/* int (4-byte int) */
+#define	OP_UINT		'I'		/* unsigned int (4-byte unsigned int) */
+#define	OP_LONG		'l'		/* long (8-byte int) */
+#define	OP_ULONG	'L'		/* unsigned long (8-byte unsigned int) */
 #define	OP_LITTLEENDIAN	'<'		/* little endian */
 #define	OP_BIGENDIAN	'>'		/* big endian */
 #define	OP_NATIVE	'='		/* native endian */
@@ -46,6 +46,7 @@ extern "C" {
 #include "lualib.h"
 #include "lauxlib.h"
 }
+#include <nbase.h>
 #include "nse_binlib.h"
 
 static void badcode(lua_State *L, int c)
@@ -168,20 +169,20 @@ static int l_unpack(lua_State *L) 		/** unpack(f,s, [init]) */
     ++n;
     break;
    }
-   UNPACKSTRING(OP_BSTRING, unsigned char)
-   UNPACKSTRING(OP_WSTRING, unsigned short)
-   UNPACKSTRING(OP_SSTRING, size_t)
+   UNPACKSTRING(OP_BSTRING, u_int8_t)
+   UNPACKSTRING(OP_WSTRING, u_int16_t)
+   UNPACKSTRING(OP_SSTRING, u_int32_t)
    UNPACKNUMBER(OP_NUMBER, lua_Number)
    UNPACKNUMBER(OP_DOUBLE, double)
    UNPACKNUMBER(OP_FLOAT, float)
-   UNPACKNUMBER(OP_CHAR, char)
-   UNPACKNUMBER(OP_BYTE, unsigned char)
-   UNPACKNUMBER(OP_SHORT, short)
-   UNPACKNUMBER(OP_USHORT, unsigned short)
-   UNPACKNUMBER(OP_INT, int)
-   UNPACKNUMBER(OP_UINT, unsigned int)
-   UNPACKNUMBER(OP_LONG, long)
-   UNPACKNUMBER(OP_ULONG, unsigned long)
+   UNPACKNUMBER(OP_CHAR, int8_t)
+   UNPACKNUMBER(OP_BYTE, u_int8_t)
+   UNPACKNUMBER(OP_SHORT, int16_t)
+   UNPACKNUMBER(OP_USHORT, u_int16_t)
+   UNPACKNUMBER(OP_INT, int32_t)
+   UNPACKNUMBER(OP_UINT, u_int32_t)
+   UNPACKNUMBER(OP_LONG, int64_t)
+   UNPACKNUMBER(OP_ULONG, u_int64_t)
 
    case OP_BINMSB:
      {
@@ -305,20 +306,20 @@ static int l_pack(lua_State *L) 		/** pack(f,...) */
     luaL_addlstring(&b,a,l+(c==OP_ZSTRING));
     break;
    }
-   PACKSTRING(OP_BSTRING, unsigned char)
-   PACKSTRING(OP_WSTRING, unsigned short)
-   PACKSTRING(OP_SSTRING, size_t)
+   PACKSTRING(OP_BSTRING, u_int8_t)
+   PACKSTRING(OP_WSTRING, u_int16_t)
+   PACKSTRING(OP_SSTRING, u_int32_t)
    PACKNUMBER(OP_NUMBER, lua_Number)
    PACKNUMBER(OP_DOUBLE, double)
    PACKNUMBER(OP_FLOAT, float)
-   PACKNUMBER(OP_CHAR, char)
-   PACKNUMBER(OP_BYTE, unsigned char)
-   PACKNUMBER(OP_SHORT, short)
-   PACKNUMBER(OP_USHORT, unsigned short)
-   PACKNUMBER(OP_INT, int)
-   PACKNUMBER(OP_UINT, unsigned int)
-   PACKNUMBER(OP_LONG, long)
-   PACKNUMBER(OP_ULONG, unsigned long)
+   PACKNUMBER(OP_CHAR, int8_t)
+   PACKNUMBER(OP_BYTE, u_int8_t)
+   PACKNUMBER(OP_SHORT, int16_t)
+   PACKNUMBER(OP_USHORT, u_int16_t)
+   PACKNUMBER(OP_INT, int32_t)
+   PACKNUMBER(OP_UINT, u_int32_t)
+   PACKNUMBER(OP_LONG, int64_t)
+   PACKNUMBER(OP_ULONG, u_int64_t)
    case OP_BINMSB:
      {
        unsigned char sbyte = 0;
