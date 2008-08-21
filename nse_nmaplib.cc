@@ -13,6 +13,9 @@
 #include "output.h"
 #include "portlist.h"
 
+#include "nmap_dns.h"
+
+
 #define SCRIPT_ENGINE_GETSTRING(name) \
 	char* name; \
 	lua_getfield(L, -1, #name); \
@@ -43,6 +46,7 @@ static int l_get_debugging(lua_State *);
 static int l_get_have_ssl(lua_State *L);
 static int l_fetchfile(lua_State *L);
 static int l_get_timing_level(lua_State *L);
+static int l_get_dns_servers(lua_State *L);
 
 int l_clock_ms(lua_State *L);
 
@@ -132,6 +136,7 @@ int luaopen_nmap (lua_State *L)
     {"fetchfile", l_fetchfile},
     {"timing_level", l_get_timing_level},
     {"mutex", l_mutex},
+    {"get_dns_servers", l_get_dns_servers},
     {NULL, NULL} 
   };
 
@@ -635,4 +640,24 @@ static int l_get_timing_level(lua_State *L)
 {
 	lua_pushnumber(L, o.timing_level);
 	return 1;
+}
+
+
+// returns a table with DNS servers known to nmap
+static int l_get_dns_servers(lua_State *L)
+{
+  std::list<std::string> servs2 = get_dns_servers();
+  std::list<std::string>::iterator servI2;
+
+  int i = 1;
+  lua_newtable(L);
+
+  for(servI2 = servs2.begin(); servI2 != servs2.end(); servI2++) {
+    lua_pushinteger(L, i);
+    const char *s = (*servI2).c_str();
+    lua_pushstring(L, s);
+    lua_settable(L, -3);
+    i++;
+  }
+  return 1;
 }
