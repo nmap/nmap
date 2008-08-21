@@ -1,0 +1,49 @@
+
+--- The Binary Data Library allows to pack and unpack to and from
+-- binary data. Encoding and decoding works by using a format 
+-- string containing certain operator characters:
+-- <table><tr><th>Operator</th><th>Description</th></tr>
+-- <tr><td>H</td><td>hex string</td></tr>
+-- <tr><td>B</td><td>bit string</td></tr>
+-- <tr><td>x</td><td>null byte</td></tr>
+-- <tr><td>z</td><td>zero-terminated string</td></tr>
+-- <tr><td>p</td><td>string preceded by 1-byte integer length</td></tr>
+-- <tr><td>P</td><td>string preceded by 2-byte integer length</td></tr>
+-- <tr><td>a</td><td>string preceded by 4-byte integer length</td></tr>
+-- <tr><td>A</td><td>string</td></tr>
+-- <tr><td>f</td><td>float</td></tr>
+-- <tr><td>d</td><td>double</td></tr>
+-- <tr><td>n</td><td>Lua number</td></tr>
+-- <tr><td>c</td><td>char (1-byte integer)</td></tr>
+-- <tr><td>C</td><td>byte = unsigned char (1-byte unsigned integer)</td></tr>
+-- <tr><td>s</td><td>short (2-byte integer)</td></tr>
+-- <tr><td>S</td><td>unsigned short (2-byte unsigned integer)</td></tr>
+-- <tr><td>i</td><td>int (4-byte integer)</td></tr>
+-- <tr><td>I</td><td>unsigned int (4-byte unsigned integer)</td></tr>
+-- <tr><td>l</td><td>long (8-byte integer)</td></tr>
+-- <tr><td>L</td><td>unsigned long (8-byte unsigned integer)</td></tr>
+-- <tr><td>&lt;</td><td>little endian modifier</td></tr>
+-- <tr><td>&gt;</td><td>big endian modifier</td></tr>
+-- <tr><td>=</td><td>native endian modifier</td></tr>
+-- </table>
+-- Note that the endian operators work as modifiers to all the 
+-- characters following them in the format string.
+
+module "bin"
+
+
+--- Packs values according to format string.
+-- Note: on Windows packing of 64 bit values &gt; 2^63 currently
+-- results in packing exactly 2^63.
+--@param format Format string, used to pack following arguments
+--@return String containing packed data
+function bin.pack(format, ...)
+
+
+--- Unpacks values according to format string.
+--@param format Format string, used to unpack values out of data string
+--@param data String containing packed data
+--@param init Optional starting position within the string
+--@return First returned value is the position in the data string where unpacking stopped, following returned values are the unpacked values.
+function bin.unpack(format, data, init)
+
