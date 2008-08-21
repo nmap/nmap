@@ -1326,3 +1326,21 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
 
   firstrun=0;
 }
+
+
+// Returns a list of known DNS servers
+std::list<std::string> get_dns_servers() {
+  // if, for example, run with -n, list is not initialized,
+  // run empty nmap_mass_rdns to do so
+  if(servs.size() == 0 && firstrun) {
+    nmap_mass_rdns(NULL, 0);
+  }
+  std::list<dns_server *>::iterator servI;
+  std::list<std::string> serverList;
+  dns_server *tpserv;
+  for(servI = servs.begin(); servI != servs.end(); servI++) {
+    tpserv = *servI;
+    serverList.push_back(inet_ntoa(tpserv->addr.sin_addr));
+  }
+  return serverList;
+}
