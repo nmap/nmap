@@ -1012,7 +1012,7 @@ unsigned short in_cksum(u16 *ptr,int nbytes) {
    sections 3.2, 11.3, and 17.3. */
 unsigned short magic_tcpudp_cksum(const struct in_addr *src,
 				  const struct in_addr *dst,
-				  u8 proto, u16 len, char *hstart)
+				  u8 proto, u16 len, const void *hstart)
 {
 	struct pseudo {
 		struct in_addr src;

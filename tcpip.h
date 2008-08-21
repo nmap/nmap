@@ -481,7 +481,7 @@ unsigned short in_cksum(u16 *ptr,int nbytes);
 
 unsigned short magic_tcpudp_cksum(const struct in_addr *src,
 				  const struct in_addr *dst,
-				  u8 proto, u16 len, char *hstart);
+				  u8 proto, u16 len, const void *hstart);
 
 /* Build and send a raw tcp packet.  If TTL is -1, a partially random
    (but likely large enough) one is chosen */
