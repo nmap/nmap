@@ -191,7 +191,7 @@ function query(dname, options)
          if (options.retPkt) then 
             return rPkt 
          else
-            return findNiceAnswer(dtype, rPkt, options.multiple)
+            return findNiceAnswer(dtype, rPkt, options.retAll)
          end
       else -- if not, ask the next server in authority
 
