@@ -900,21 +900,21 @@ action refer to <xref linkend="nse-tutorial-action"/>.
 		<row><entry><literal>B</literal></entry><entry>bit string</entry></row>
 		<row><entry><literal>x</literal></entry><entry>null byte</entry></row>
 		<row><entry><literal>z</literal></entry><entry>zero-terminated string</entry></row>
-		<row><entry><literal>p</literal></entry><entry>string preceded by length byte</entry></row>
-		<row><entry><literal>P</literal></entry><entry>string preceded by length word</entry></row>
-		<row><entry><literal>a</literal></entry><entry>string preceded by length size_t</entry></row>
+		<row><entry><literal>p</literal></entry><entry>string preceded by 1-byte integer length</entry></row>
+		<row><entry><literal>P</literal></entry><entry>string preceded by 2-byte integer length</entry></row>
+		<row><entry><literal>a</literal></entry><entry>string preceded by 4-byte integer length</entry></row>
 		<row><entry><literal>A</literal></entry><entry>string</entry></row>
 		<row><entry><literal>f</literal></entry><entry>float</entry></row>
 		<row><entry><literal>d</literal></entry><entry>double</entry></row>
 		<row><entry><literal>n</literal></entry><entry>Lua number</entry></row>
-		<row><entry><literal>c</literal></entry><entry>char</entry></row>
-		<row><entry><literal>C</literal></entry><entry>byte = unsigned char</entry></row>
-		<row><entry><literal>s</literal></entry><entry>short</entry></row>
-		<row><entry><literal>S</literal></entry><entry>unsigned short</entry></row>
-		<row><entry><literal>i</literal></entry><entry>int</entry></row>
-		<row><entry><literal>I</literal></entry><entry>unsigned int</entry></row>
-		<row><entry><literal>l</literal></entry><entry>long</entry></row>
-		<row><entry><literal>L</literal></entry><entry>unsigned long</entry></row>
+		<row><entry><literal>c</literal></entry><entry>char (1-byte integer)</entry></row>
+		<row><entry><literal>C</literal></entry><entry>byte = unsigned char (1-byte unsigned integer)</entry></row>
+		<row><entry><literal>s</literal></entry><entry>short (2-byte integer)</entry></row>
+		<row><entry><literal>S</literal></entry><entry>unsigned short (2-byte unsigned integer)</entry></row>
+		<row><entry><literal>i</literal></entry><entry>int (4-byte integer)</entry></row>
+		<row><entry><literal>I</literal></entry><entry>unsigned int (4-byte unsigned integer)</entry></row>
+		<row><entry><literal>l</literal></entry><entry>long (8-byte integer)</entry></row>
+		<row><entry><literal>L</literal></entry><entry>unsigned long (8-byte unsigned integer)</entry></row>
 		<row><entry><literal>&lt;</literal></entry><entry>little endian modifier</entry></row>
 		<row><entry><literal>&gt;</literal></entry><entry>big endian modifier</entry></row>
 		<row><entry><literal>=</literal></entry><entry>native endian modifier</entry></row>
