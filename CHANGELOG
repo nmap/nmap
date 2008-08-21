@@ -191,8 +191,8 @@ o The NSE C modules in nselib-bin are now linked explicitly against
   RPMs. [David]
 
 o A new attribute has been added to XML output, scanflags, which lists
-  all user specified --scanflags for the scan. The XML output version
-  and DTD have been modified to account for this. [Michael]
+  all user specified --scanflags for the scan. nmap.dtd has been
+  modified to account for this. [Michael]
 
 o The loading of the nmap-services file has been made faster. In the
   common case using the default nmap-services file loading was
@@ -201,6 +201,16 @@ o The loading of the nmap-services file has been made faster. In the
 o The shtool build helper script has been updated to version 2.0.8. An
   older version of shutil caused installation to fail when the locale
   was set to et_EE. Thanks to Michal Januszewski for the bug report.
+
+o Nmap sometimes sent packets with incorrect IP checksums,
+  particularly when sending the UDP probes in OS detection. This has
+  been fixed. Thanks to Gisle Vanem for reporting and investigating the
+  bug. [David]
+
+o In the interest of forward compatibility, the xmloutputversion
+  attribute in Nmap XML output is no longer constrained to be a
+  certain string ("1.02"). The xmloutputversion should be taken as
+  merely advisory by authors of parsers.
 
 Nmap 4.68 [2008-6-28]
 
