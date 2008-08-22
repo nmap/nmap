@@ -212,6 +212,8 @@ o In the interest of forward compatibility, the xmloutputversion
   certain string ("1.02"). The xmloutputversion should be taken as
   merely advisory by authors of parsers.
 
+o Zenmap no longer leaves any temporary files lying around. [David]
+
 Nmap 4.68 [2008-6-28]
 
 o Doug integrated all of your version detection submissions and
