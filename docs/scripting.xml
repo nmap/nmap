@@ -4035,7 +4035,7 @@ The mainloop function will work on each runlevel grouping of threads in order.
 	  A good starting point for writing such modules is provided by
 	  <filename>bit.c</filename><indexterm><primary><varname>bit</varname> NSE module</primary></indexterm>
           inside
-	  the <filename>nselib/</filename> subdirectory of Nmap's source tree.
+	  the <filename>nselib-bin/</filename> subdirectory of Nmap's source tree.
 	  <varname>bit</varname> is a C module already provided by the nselib. C modules
 	  basically are shared libraries which get loaded at runtime by Lua. 
 	  </para>
