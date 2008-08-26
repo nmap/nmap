@@ -21,49 +21,72 @@ author = "Judy Novak"
 copyright = "Sourcefire Inc, (C) 2006-2007"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"version"}
+
+require 'bit'
  
 hostrule = function(host)
 
-        local port_u137 = nmap.get_port_state(host,
-                {number=137, protocol="udp"})
-        local port_t139 = nmap.get_port_state(host,
-                {number=139, protocol="tcp"})
-        local port_t445 = nmap.get_port_state(host,
-                {number=445, protocol="tcp"})
+    -- This script should run under two different conditions:
+    -- a) port tcp/445 is open (allowing us to make a raw connection)
+    -- b) ports tcp/139 and udp/137 are open (137 may not be known)
 
-        if (
-                (port_u137 ~= nil and
-                (port_u137.state == "open" or
-                 port_u137.state == "open|filtered")) and
-                (port_t139 ~= nil and port_t139.state == "open") or
-                (port_t445 ~= nil and port_t445.state == "open") 
-           )
-        then
-                return true
-        else
-                return false
-        end
+   local port_u137 = nmap.get_port_state(host, {number=137, protocol="udp"})
+   local port_t139 = nmap.get_port_state(host, {number=139, protocol="tcp"})
+   local port_t445 = nmap.get_port_state(host, {number=445, protocol="tcp"})
 
+   if(port_t445 ~= nil and port_t445.state == "open") then
+       -- tcp/445 is open, we're good
+       return true
+   end
+
+   if(port_t139 ~= nil and port_t139.state == "open") then
+       -- tcp/139 is open, check uf udp/137 is open or unknown
+       if(port_u137 == nil or port_u137.state == "open" or port_u137.state == "open|filtered") then
+           return true
+       end
+   end
+
+   return false
 end
 
 action = function(host)
-   local sharename, message, osversion, gen_msg, x
+   local sharename, message, osversion, currenttime, gen_msg, gen_msg_time, x
 
+   sharename = 0
    osversion = ""
    gen_msg = "OS version cannot be determined.\n"
+   gen_msg_time = "System time cannot be determined.\n"
 
-   sharename, message = udp_query(host)
+   -- Decide whether to use raw SMB (port 445) or SMB over NetBIOS (139). 
+   -- Raw is better, because it uses one less packet and doesn't require a 
+   -- name to be known. 
+   local port_t445 = nmap.get_port_state(host, {number=445, protocol="tcp"})
 
-   if (sharename ~= 0)  then
-       osversion, message = tcp_session(sharename, host)
+   local use_raw = (port_t445 ~= nil and port_t445.state == "open")
+
+   if(not use_raw) then
+      sharename, message = udp_query(host)
+   end
+
+   local ret = ""
+
+   if (use_raw or sharename ~= 0)  then
+       osversion, currenttime, message = tcp_session(sharename, host, use_raw)
        if (osversion ~= 0) then
-           return(osversion)
+           ret = ret .. osversion
+           if(currenttime ~= 0) then
+              ret = ret .. "\n" ..  "Discover system time over SMB: " .. currenttime
+           else
+              ret = ret .. "\n" .. gen_msg_time .. message
+           end
        else
-           return(gen_msg .. message)
+           ret = ret .. gen_msg .. message
        end
    else
-       return(gen_msg .. message)
+      ret = ret .. gen_msg .. "TCP/445 closed and couldn't determine NetBIOS name"
    end
+
+   return ret
 
 end
 
@@ -232,13 +255,13 @@ end
 -- response must be used in the SMB session initiation request(payload 1).
 -- Payload for the requests that follow is static.
 
-function tcp_session(ename, host)
+function tcp_session(ename, host, use_raw)
 
     local catch = function()
                 socket:close()
     end
 
-    local rec1_payload, rec2_payload, rec3_payload, status, line1, line2, line3, osversion, winshare, pos, message
+    local rec1_payload, rec2_payload, rec3_payload, status, line1, line2, line3, currenttime, osversion, winshare, pos, message
  
     message = 0
     local win5 =  "Windows 5.0"
@@ -272,16 +295,23 @@ function tcp_session(ename, host)
  
    local socket = nmap.new_socket()
    local try = nmap.new_try(catch)  
-   try(socket:connect(host.ip,139,"tcp"))
 
-   socket:set_timeout(100)
-   try(socket:send(rec1_payload))
-   status, line1 = socket:receive_lines(1)
+   if(use_raw) then
+      try(socket:connect(host.ip,445,"tcp"))
+   else
+      try(socket:connect(host.ip,139,"tcp"))
+   end
 
-   if (not status) then
-       socket:close()
-       message = "Never received a response to SMB Session Request"
-       return 0, message
+   if(not use_raw) then
+      socket:set_timeout(100)
+      try(socket:send(rec1_payload))
+      status, line1 = socket:receive_lines(1)
+   
+      if (not status) then
+          socket:close()
+          message = "Never received a response to SMB Session Request"
+          return 0, 0, message
+      end
    end
 
    socket:set_timeout(100)
@@ -291,7 +321,14 @@ function tcp_session(ename, host)
    if (not status) then
        socket:close()
        message = "Never received a response to SMB Negotiate Protocol Request"
-       return 0, message
+       return 0, 0, message
+   end
+
+   currenttime, message = extract_time(line2);
+
+   -- Check for an error parsing line2
+   if(currenttime == 0) then
+      return 0, 0, message
    end
 
    socket:set_timeout(100)
@@ -301,10 +338,11 @@ function tcp_session(ename, host)
    if (not status) then
        socket:close()
        message = "Never received a response to SMB Setup AndX Request"
-       return 0, message
+       return 0, currenttime, message
    end
-
    socket:close()
+
+   -- Check for an error parsing line3
    osversion, message = extract_version(line3)
    if (osversion ~= 0) then
        pos = string.find(osversion, win5) 
@@ -318,7 +356,7 @@ function tcp_session(ename, host)
        end
    end 
 
-   return  osversion, message
+   return  osversion, currenttime, message
 
 end
 
@@ -344,16 +382,13 @@ function extract_version(line)
     temp = string_concatenate(line, 47, ltemp)
     x=1
 
+    osversion = ""
     while (x < ltemp) do
         mychar = string.byte(temp,x)
         if (mychar == 0) then
             return osversion, message
-          else
-            if (x == 1) then
-                 osversion = string.char(mychar)
-               else
-                 osversion = osversion .. string.char(mychar)
-            end
+        else
+            osversion = osversion .. string.char(mychar)
         end
         x = x + 2
     end
@@ -363,5 +398,59 @@ function extract_version(line)
         return 0, message
     end
     
+end
+
+-----------------------------------------------------------------------
+-- Response from Negotiate Protocol Response (TCP payload 2)
+-- Must be SMB response.  Extract the time from it from a fixed
+-- offset in the payload.
+
+function extract_time(line)
+
+    local smb, tmp, message, i, timebuf, timezonebuf, time, timezone
+
+    message = 0
+
+    if(string.sub(line, 6, 8) ~= "SMB") then
+        message = "Didn't find correct SMB record as a response to the Negotiate Protocol Response"
+        return 0, message
+    end
+
+    if(string.byte(line, 9) ~= 0x72) then
+        message = "Incorrect Negotiate Protocol Response type"
+        return 0, message
+    end
+
+    -- Extract the timestamp from the response
+    i = 1
+    time = 0
+    timebuf = string.sub(line, 0x3d, 0x3d + 7)
+    while (i <= 8) do
+        time = time + 1.0 + (bit.lshift(string.byte(timebuf, i), 8 * (i - 1)))
+        i = i + 1
+    end
+    -- Convert time from 1/10 microseconds to seconds
+    time = (time / 10000000) - 11644473600;
+
+    -- Extract the timezone offset from the response
+    timezonebuf = string.sub(line, 0x45, 0x45 + 2)
+    timezone = (string.byte(timezonebuf, 1) + (bit.lshift(string.byte(timezonebuf, 2), 8)))
+
+    -- This is a nasty little bit of code, so I'll explain it in detail. If the timezone has the 
+    -- highest-order bit set, it means it was negative. If so, we want to take the two's complement
+    -- of it (not(x)+1) and divide by 60, to get minutes. Otherwise, just divide by 60. 
+    -- To further complicate things (as if we needed _that_!), the timezone offset is the number of
+    -- minutes you'd have to add to the time to get to UTC, so it's actually the negative of what
+    -- we want. Confused yet?
+    if(timezone == 0x00) then
+        timezone = "UTC+0"
+    elseif(bit.band(timezone, 0x8000) == 0x8000) then
+        timezone = "UTC+" .. ((bit.band(bit.bnot(timezone), 0x0FFFF) + 1) / 60)
+    else
+        timezone = "UTC-" .. (timezone / 60)
+    end
+
+    return (os.date("%Y-%m-%d %H:%M:%S", time) .. " " .. timezone), message;
+ 
 end
 

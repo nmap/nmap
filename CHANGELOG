@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Improve the nebtios-smb-os-discovery NSE script to improve target
+  port selection and to also decode the system's timestamp from an SMB
+  response. [Ron at SkullSecurity]
+
 o Merged in my nmap-exp/jurand/ branch that involves the Context
   Sensitive help system for the Profile Editor. The purpose of the
   Profile Editor is to allow you to assemble an nmap command to run
