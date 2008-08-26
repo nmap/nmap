@@ -1035,6 +1035,9 @@ match munin m|^# munin node at ([-\w_.]+)\n$| p/Munin/ h/$1/
 
 match multiplicity m|^MULTIPLICITYP$| p/Stardock Multiplicity KVM daemon/ o/Windows/
 
+match mupdate m|\* OK MUPDATE \"([-.\w]+)\" \"Cyrus Murder\" \"v([-.\w]+)\" \"\(master\)\"\r\n| p/Cyrus Murder Master/ h/$1/ v/$2/
+match mupdate m|\* OK MUPDATE \"([-.\w]+)\" \"Cyrus Murder\" \"v([-.\w]+)\" \"mupdate://([-.\w]+)\"\r\n| p/Cyrus Murder Slave/ h/$1/ v/$2/ i/Master: $3/
+
 softmatch napster m|^1$|
 
 match netop m|^\xd6\x81\x81\0\0\xf9\0\xf9\xee\xe3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0| p/NetOp Remote Control/

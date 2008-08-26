@@ -1889,6 +1889,8 @@ distccd           3632/tcp   # Distributed compiler daemon
 rendezvous        3689/tcp   # Rendezvous Zeroconf (used by Apple/iTunes)
 udt_os            3900/tcp   # Unidata UDT OS
 udt_os            3900/udp   # Unidata UDT OS
+mupdate           3905/tcp   # Mailbox Update (MUPDATE) protocol    
+mupdate           3905/udp   # Mailbox Update (MUPDATE) protocol
 mapper-nodemgr    3984/tcp   # MAPPER network node manager
 mapper-nodemgr    3984/udp   # MAPPER network node manager
 mapper-mapethd    3985/tcp   # MAPPER TCP/IP server
