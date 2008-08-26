@@ -108,7 +108,6 @@ PORT    STATE  SERVICE VERSION
 Device type: general purpose
 Running: Linux 2.4.X|2.5.X|2.6.X
 OS details: Linux 2.4.7 - 2.6.11, Linux 2.6.0 - 2.6.11
-Uptime 33.908 days (since Thu Jul 21 03:38:03 2005)
 
 Interesting ports on playground.nmap.org (192.168.0.40):
 (The 1659 ports scanned but not shown below are in state: closed)
@@ -1872,10 +1871,9 @@ way.</para>
     contribute to the pool of operating systems known to Nmap and thus
     it will be more accurate for everyone.</para>
 
-    <para>OS detection enables several other tests which make use
-    of information that is gathered during the process anyway.  One of these
-    is uptime measurement, which uses the TCP timestamp option (<ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc1323.txt">RFC 1323</ulink>) to guess when a machine was last rebooted.  This is only
-    reported for machines which provide this information.  Another is
+    <para>OS detection enables some other tests which make use
+    of information that is gathered during the process anyway.
+    One of these is
     TCP Sequence Predictability Classification.  This measures
     approximately how hard it is to establish a forged
     TCP connection against the remote host.  It is useful for
@@ -1893,6 +1891,15 @@ way.</para>
     field in the IP header for each packet they send.  This makes them
     vulnerable to several advanced information gathering and
     spoofing attacks.</para>
+
+    <indexterm><primary>uptime guess</primary></indexterm>
+    <para>
+    Another bit of extra information enabled by OS detection is a guess
+    at a target's uptime. This uses the TCP timestamp option (<ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc1323.txt">RFC 1323</ulink>) to guess when a machine was last rebooted.
+    The guess can be inaccurate due to the timestamp counter not being
+    initialized to zero or the counter overflowing and wrapping around,
+    so it is printed only in verbose mode.
+    </para>
 
     <para>
     <man>

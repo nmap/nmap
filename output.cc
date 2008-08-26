@@ -1738,7 +1738,8 @@ void printosscanoutput(Target *currenths) {
     gettimeofday(&tv, NULL);
     strncpy(tmbuf, ctime(&(currenths->seq.lastboot)), sizeof(tmbuf));
     chomp(tmbuf);
-    log_write(LOG_PLAIN,"Uptime: %.3f days (since %s)\n", (double) (tv.tv_sec - currenths->seq.lastboot) / 86400, tmbuf);
+    if (o.verbose)
+      log_write(LOG_PLAIN,"Uptime guess: %.3f days (since %s)\n", (double) (tv.tv_sec - currenths->seq.lastboot) / 86400, tmbuf);
     log_write(LOG_XML, "<uptime seconds=\"%li\" lastboot=\"%s\" />\n", tv.tv_sec - currenths->seq.lastboot, tmbuf);
   }
   

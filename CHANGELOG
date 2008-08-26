@@ -218,6 +218,10 @@ o In the interest of forward compatibility, the xmloutputversion
 
 o Zenmap no longer leaves any temporary files lying around. [David]
 
+o Nmap only prints an uptime guess in verbose mode now, because in some
+  situations it can be very inaccurate. See the discussion at
+  http://seclists.org/nmap-dev/2008/q3/0392.html.
+
 Nmap 4.68 [2008-6-28]
 
 o Doug integrated all of your version detection submissions and
