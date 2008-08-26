@@ -251,7 +251,7 @@ answerFetcher[types.TXT] =
       else
          local answers = {}
          for _, v in ipairs(dec.answers) do
-            if v.domain then table.insert(answers, string.sub(v.data, 2)) end
+            if v.data then table.insert(answers, string.sub(v.data, 2)) end
          end
          return answers
       end
