@@ -297,6 +297,7 @@
 			<File
 				RelativePath="..\nse_bit.cc"
 				>
+			</File>
 			<File
 				RelativePath="..\osscan.cc"
 				>
