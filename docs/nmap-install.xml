@@ -1053,7 +1053,8 @@ install Zenmap as usual.</para>
 which packages Unix software for Mac OS X. The two discussed here are
 <ulink url="http://www.finkproject.org">Fink</ulink> and
 <ulink url="http://www.macports.org">MacPorts</ulink>. See the
-respective projects' web sites for installation instructions.</para>
+respective projects' web sites for how to install the package
+managers.</para>
 
 <indexterm><primary>Fink</primary></indexterm>
 <para>To install using Fink, run the command <command>fink install
@@ -1066,6 +1067,13 @@ nmap</command>. Nmap will be installed as
 install nmap</command>. Nmap will be installed as
 <filename>/opt/local/bin/nmap</filename>. To uninstall, run
 <command>sudo port uninstall nmap</command>.</para>
+
+<para>These systems install install the <filename>nmap</filename>
+executable outside the global <envar>PATH</envar>. To enable Zenmap to
+find it, set the <varname>nmap_command_path</varname> variable in
+<filename>zenmap.conf</filename> to <filename>/sw/bin/nmap</filename> or
+<filename>/opt/local/bin/nmap</filename> as described in
+<xref linkend="zenmap-executable"/>.</para>
 </sect2>
 
 <sect2 id="inst-macosx-exec">
