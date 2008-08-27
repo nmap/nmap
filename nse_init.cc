@@ -6,6 +6,7 @@
 
 // 3rd Party libs
 #include "nse_pcrelib.h"
+#include "nse_bit.h"
 
 #include "nse_binlib.h"
 #include "nse_hash.h"
@@ -218,9 +219,10 @@ int init_lua (lua_State *L)
   int i;
   static const luaL_Reg libs[] = {
     {NSE_PCRELIBNAME, luaopen_pcrelib}, // pcre library
-    {"nmap", luaopen_nmap} // nmap bindings
-    ,{NSE_BINLIBNAME, luaopen_binlib}
-    ,{NSE_HASHLIBNAME, luaopen_hashlib}
+    {"nmap", luaopen_nmap}, // nmap bindings
+    {NSE_BINLIBNAME, luaopen_binlib},
+    {NSE_HASHLIBNAME, luaopen_hashlib},
+    {BITLIBNAME, luaopen_bit}, // bit library
   };
 
   luaL_openlibs(L); // opens all standard libraries

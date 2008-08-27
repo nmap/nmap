@@ -295,6 +295,9 @@
 				>
 			</File>
 			<File
+				RelativePath="..\nse_bit.cc"
+				>
+			<File
 				RelativePath="..\osscan.cc"
 				>
 			</File>
@@ -485,6 +488,10 @@
 			</File>
 			<File
 				RelativePath="..\nse_hash.h"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_bit.h"
 				>
 			</File>
 			<File
