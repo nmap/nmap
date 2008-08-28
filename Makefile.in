@@ -83,8 +83,8 @@ $(TARGET): @LUA_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
-#nsestdlib: nselib-bin/Makefile 
-#	@echo Compiling nse-standard-library; cd nselib-bin && $(MAKE)
+nsestdlib: nselib-bin/Makefile 
+	@echo Compiling nse-standard-library; cd nselib-bin && $(MAKE)
 
 
 pcre_build: $(LIBPCREDIR)/Makefile
