@@ -143,8 +143,8 @@ nsock_clean:
 	-cd $(NSOCKDIR)/src && $(MAKE) clean
 lua_clean:
 	-cd $(LIBLUADIR) && $(MAKE) clean
-#nselib_clean:
-#	-cd nselib-bin && $(MAKE) clean
+nselib_clean:
+	-cd nselib-bin && $(MAKE) clean
 zenmap_clean:
 	-cd $(ZENMAPDIR) && $(PYTHON) setup.py clean --all
 pcap_dist_clean:
