@@ -14,9 +14,6 @@ AC_SUBST([LIBTOOL_DEPS])
 
 AC_CANONICAL_HOST
 
-# liblua appears to need libm.
-AC_CHECK_LIB([m], [pow])
-
 # Don't bother with --without-liblua because this directory isn't even
 # configured if that's the case.
 AC_ARG_WITH([liblua],
@@ -48,8 +45,6 @@ if test "x$with_liblua" != "x"; then
   CPPFLAGS="-I$with_liblua $CPPFLAGS"
   LDFLAGS="-L$with_liblua $LDFLAGS"
 fi
-
-LIBS="-llua $LIBS"
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
