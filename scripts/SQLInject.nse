@@ -240,8 +240,7 @@ action = function(host, port)
 	end
 
 	if #injectable > 0 then
-		stdnse.print_debug(1, id .. ": Testing " .. #injectable .. 
-                                      " suspicious URLs")
+		stdnse.print_debug(1, "%s: Testing %d suspicious URLs", id, #injectable )
 	end
 
 	-- test all potentially vulnerable queries

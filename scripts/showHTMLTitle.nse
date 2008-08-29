@@ -37,7 +37,7 @@ action = function(host, port)
 	if data.status == 301 or data.status == 302 then
 		local url = url.parse( data.header.location )
 		if url.host == host.targetname or url.host == ( host.name ~= '' and host.name ) or url.host == host.ip then
-			stdnse.print_debug("showHTMLTitle.nse: Default page is located at " .. url.scheme.. "://" .. url.authority .. url.path)
+			stdnse.print_debug("showHTMLTitle.nse: Default page is located at %s://%s%s", url.scheme, url.authority, url.path)
 			data = http.get( host, port, url.path )
 		end
 	end

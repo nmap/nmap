@@ -80,7 +80,7 @@ action = function(host, port)
     resultEHLO = try(socket:receive_lines(1))
    
     if not (string.match(resultEHLO, "^250")) then
---        stdnse.print_debug("1",resultEHLO)
+--        stdnse.print_debug("1","%s",resultEHLO)
 --        stdnse.print_debug("1","EHLO with errors or timeout.  Enable --script-trace to see what is happening.")
         resultEHLO = ""
     end
@@ -100,7 +100,7 @@ action = function(host, port)
     resultHELP = try(socket:receive_lines(1))
    
     if not (string.match(resultHELP, "^214")) then
---        stdnse.print_debug("1",resultHELP)
+--        stdnse.print_debug("1","%s",resultHELP)
 --        stdnse.print_debug("1","HELP with errors or timeout.  Enable --script-trace to see what is happening.")
         resultHELP = ""
     end

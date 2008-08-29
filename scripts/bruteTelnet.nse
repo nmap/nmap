@@ -65,8 +65,7 @@ local new_auth_iter = function()
 		 end
 
 		i = i + 1
-		stdnse.print_debug(3, id .. " " .. 
-				  userpass[i-1][1] .. ":" .. escape_cred(userpass[i-1][2]))
+		stdnse.print_debug(3, "%s %s:%s", id, userpass[i-1][1], escape_cred(userpass[i-1][2]))
 		return userpass[i-1][1], userpass[i-1][2]
 	end
 end
