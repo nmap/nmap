@@ -3955,8 +3955,8 @@ calls would yield a <literal>false</literal> status.</para>
         loaded as files. Each file loaded is executed by Lua. If a
         <emphasis>portrule</emphasis> is present, then it is saved in the
         <emphasis>porttests</emphasis> table with a portrule key and file
-        closure value. Otherwise, if the script has a <emphasis>hostrule
-        </emphasis>, then it is saved in the <emphasis>hosttests</emphasis> table
+        closure value. Otherwise, if the script has a
+        <emphasis>hostrule</emphasis>, then it is saved in the <emphasis>hosttests</emphasis> table
         in the same manner.
         </para>
     </sect2>
