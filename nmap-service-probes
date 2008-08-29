@@ -125,6 +125,8 @@ match chat m|^WebStart Chat Service Established\.\.\.\r\n\(C\) 2000-\d+ R Gabrie
 match chat m|^\*\x01..\0\x04\0\0\0\x01$|s p/AIM or ICQ server/
 match chat-ctrl m|^InfoChat Server v([\d.]+) Remote Control ready\n\r| p/InfoChat Remote Control/ v/$1/
 match chess m=^\n\r             _       __     __                             __      \n\r            \| \|     / /__  / /________  ____ ___  ___     / /_____ \n\r            \| \| /\| / / _ \\/ / ___/ __ \\/ __ `__ \\/ _ \\   / __/ __ \\\n\r= p/Lasker Internet Chess server/
+# Citadel/UX. Maybe to change the service name and to move somewhere else? embyte
+match citadel m|^200.*Citadel(?:/UX)?| p/Citadel (UX) messaging server/
 # Citrix, Metaframe XP on Windows
 match citrix-ica m|^\x7f\x7fICA\0\x7f\x7fICA\0| p/Citrix Metaframe XP ICA/ o/Windows/
 # Citrix MetaFrame XP 1.0 implimented with ClassLink 2000 on NT4
@@ -653,6 +655,15 @@ match ftp m|^220-Welcome to CrushFTP([\w-_.]+)!\r\n220 CrushFTP Server Ready\.\r
 match ftp m|^220-CentOS release ([\w-_.]+) .*\r\n220 ProFTPD ([\w-_.]+) Server \(ProFTPD Default Installation\)|s p/ProFTPd/ v/$2/ i/CentOS $1/ o/Linux/
 match ftp m|^220 TCAdmin FTP Server\r\n| p/Balance Servers TCAdmin game hosting ftpd/ o/Windows/
 match ftp m|^.* klogd: klogd started: BusyBox v([\w-_.]+) \(.*\)\r\nDoing BRCTL \.\.\.\r\nsetfilter br0 0 \r\n/var/tmp/act_firewall: No such file or directory\r\n| p/Actiontec router ftpd/ i/firewall broken; BusyBox $1/ d/broadband router/
+# these should be fine. embyte
+match ftp m|^220 .*BlackJumboDog Version ([^ ]+)| p/Blackjumbodog FTPd/ v/$1/
+match ftp m|^220[- ] ?[Cc]rob FTP [Ss]erver [Vv]?([-.\d\w]+)| p/Crob FTPd/ v/$1/
+match ftp m|^220.* GlobalSCAPE Secure FTP Server \(v\. ([^\)]+)\)| p/GlobalSCAPE Secure FTPd/ v/$1/
+match ftp m|^220 Mollensoft FTP Server ([^ ]+) Ready\.| p/Mollensoft FTPd/ v/$1/
+match ftp m|^220 Welcome to Ocean FTP Server.| p/Ocean FTPd/ 
+match ftp m|^220 4dftp .* FTP Service \(Version ([^)]+)\)| p/WebStar 4dftp/ v/$1/
+# not already sure about the next. maybe too generic? it exists already above a signature for openftpd. embyte
+match ftp m|^220 OpenFTPD server([^ ]+)?| p/OpenFTPD/ v/$1/
 
 match ftp-proxy m|^220 Ftp service of Jana-Server ready\r\n| p/JanaServer ftp proxy/ o/Windows/
 match ftp-proxy m|^220 FTP Gateway at Jana Server ready\r\n| p/JanaServer ftp proxy/ o/Windows/
@@ -1406,6 +1417,8 @@ match pop3 m|^\+OK ([-\w_.]+) Zimbra POP3 server ready\r\n| p/Zimbra pop3d/ h/$1
 match pop3 m|^\+OK TMSOFT POP3 Server v([\w-_.]+) ready <\w+>\r\n| p/TMSOFT pop3d/ o/Windows/ v/$1/
 match pop3 m|^\+OK POP3D\(\*\) Server PMDFV([\w-_.]+) at .* <\w+@([\w-_.]+)>\r\n| p/PMDF pop3d/ o/OpenVMS/ v/$1/ h/$2/
 match pop3 m|^\+OK Dovecot POP3 at ([\w-_.]+) ready\.\r\n| p/Dovecot pop3d/ h/$1/
+# embyte
+match pop3 m|^\+OK E-POST POP3 Server \(([^\)]+)| p/E-Post POP3 Server/ v/$1/
 
 match pop3-proxy m|^\+OK POP3 AnalogX Proxy (\d[-.\w]+) \(Release\) ready\.\n$| p/AnalogX POP3 proxy/ v/$1/
 match pop3-proxy m/^\+OK CCProxy (\S+) POP3 Service Ready\r\n/ p/CCProxy pop3d/ v/$1/
@@ -1849,6 +1862,10 @@ match smtp m|^220 DP-1820E\r\n| p/Panasonic DP-1820E printer smtpd/ d/printer/
 match smtp m|^220 ([\w-_.]+) -- Server ESMTP \(PMDF V([\d.]+)-| p/PMDF smtpd/ o/OpenVMS/ h/$1/ v/$2/
 match smtp m|^220 ([\w-_.]+) ESMTP SecurityGateway ([0-9]+.[0-9]+.[0-9]+)| p/ALT-N SecurityGateway smtpd/ h/$1/ v/$2/
 match smtp m|^220 ([\w-_.]+) VHCS2 [\w-_.]+ Rhea Managed ESMTP ([\w-_.]+)\r\n| p/Virtual Hosting Control System smtpd/ v/$1/
+# embyte
+match smtp m|^220.*Simple Mail Transfer Service Ready\. Version ([\d.]+)| p/Goodtech smtpd/ v/$1/
+match smtp m|^220.*SMTP Welcome to the IA eMailServer Corporate Edition Version: ([\d.]+ Build: [\d]+)| p/IA eMailServer Corporate/ v/$1/
+match smtp m|^220.*SMTP Welcome to the IA eMailServer Standard Edition Version: ([\d.]+ Build: [\d]+)| p/IA eMailServer Standard/ v/$1/
 
 # Giving problems: added a better match line to the Help probe -Doug
 #match smtp m|^220 ([-\w_.]+) ESMTP ([^;]+); [A-Z][a-z][a-z], .*\r\n| p/Merak Mail Server smtpd/ h/$1/ o/Windows/
@@ -5068,6 +5085,8 @@ match imap m|^\* OK IMAP4rev1 server ready at \d\d/\d\d/\d\d \d?\d:\d\d:\d\d\r\n
 match imap m|^\* OK IMAP4rev1 server ready\r\nGET BAD Unknown command '/'\r\n BAD Unknown command ''\r\n| p/Kerio imapd/
 match imap m|^\* OK Gimap ready for requests from [\d\.]+ ([\w\d]+)| p/Google Gmail imapd/ i/$1/
 match imap m|^\* OK .*IMAP4rev1 Server Completed\r\nGET BAD Protocol Error: Invalid IMAP command specified\r\n| p/Cisco imapd/
+# embyte
+match imap m|^\* OK  MailSite IMAP4 Server ([-.\w]+) ready| p/MailSite imapd/ v/$1/
 
 # Server: CUPS/1.1
 match ipp m|^HTTP/1\.0 \d\d\d .*<TITLE>Home - CUPS ([\d.]+)</TITLE>.*SUMMARY=\"Common UNIX Printing System|s p/CUPS/ v/$1/
