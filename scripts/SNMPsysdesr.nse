@@ -1,5 +1,7 @@
--- SNMP system detection script
--- rev 0.4 (6-11-2007)
+--- SNMP version 1 system information gathering script
+-- @output
+-- |  SNMPv1: HP ETHERNET MULTI-ENVIRONMENT,ROM A.25.80,JETDIRECT,JD117,EEPROM V.28.22,CIDATE 08/09/2006 \n
+-- |_   System uptime: 28 days, 17:18:59 (248153900 timeticks)
 
 id = "SNMPv1"
 
@@ -17,8 +19,13 @@ require "snmp"
 -- runs after SNMPcommunityprobe.nse
 runlevel = 2
 
+---
+-- Runs on UDP port 161
 portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 
+
+---
+-- Sends SNMP packets to host and reads responses
 action = function(host, port)
 
        	-- create the socket used for our connection
@@ -54,11 +61,7 @@ action = function(host, port)
 	-- read in any response we might get
 	status, response = socket:receive_bytes(1)
 
-	if (not status) then
-		return
-	end
-
-	if (response == "TIMEOUT") then
+	if (not status) or (response == "TIMEOUT") then 
 		return
 	end
 	
@@ -80,11 +83,7 @@ action = function(host, port)
 	-- read in any response we might get
 	status, response = socket:receive_bytes(1)
 
-	if (not status) then
-		return result
-	end
-
-	if (response == "TIMEOUT") then
+	if (not status) or (response == "TIMEOUT") then
 		return result
 	end
 	

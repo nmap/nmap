@@ -1,5 +1,7 @@
--- UPnP network information script
--- rev 0.2 (1-9-2007)
+--- UPnP network service information gathering script
+-- @output
+-- |  UPnP:  System/1.0 UPnP/1.0 IGD/1.0 \n
+-- |_ Location: http://192.168.1.1:80/UPnP/IGD.xml
 
 id = "UPnP"
 
@@ -15,8 +17,13 @@ require("stdnse")
 require("shortport")
 require("strbuf")
 
+---
+-- Runs on UDP port 1900
 portrule = shortport.portnumber(1900, "udp", {"open", "open|filtered"})
 
+---
+-- Sends UPnP discovery packet to host, 
+-- and extracts service information from results
 action = function(host, port)
 	
 	-- create the socket used for our connection
