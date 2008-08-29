@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: os.h,v 1.12 2005/02/15 05:31:00 dugsong Exp $
+ * $Id: os.h 583 2005-02-15 05:31:00Z dugsong $
  */
 
 #ifndef DNET_OS_H
@@ -23,12 +23,8 @@
   typedef u_short	uint16_t;
   typedef u_int		uint32_t;
 # ifndef __CYGWIN__
-  typedef unsigned int		ssize_t;
+  typedef long		ssize_t;
 # endif
-#if !defined(__GNUC__)
-typedef unsigned int                ssize_t;
-#define snprintf _snprintf
-#endif
 #else
 # include <sys/param.h>
 # include <sys/types.h>
@@ -122,8 +118,8 @@ typedef unsigned int                ssize_t;
 #  if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 #   define __flexarr	[]
 #  elif defined(_WIN32)
-/* MS VC++ -- using just [] may work, but gives a non-standard extension warning */
-#   define __flexarr	[1]
+/* MS VC++ */
+#   define __flexarr	[]
 #  else
 /* Some other non-C99 compiler. Approximate with [1]. */
 #   define __flexarr	[1]

@@ -490,3 +490,6 @@ Index: libdnet-stripped/src/intf-win32.c
  			    ifrow->dwIndex);
  		} else
  			return (-1);
+
+Copied include/dnet/os.h from libdnet 1.12 to avoid a duplicate typedef
+of ssize_t.
