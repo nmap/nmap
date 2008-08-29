@@ -155,8 +155,8 @@ dnet_dist_clean:
 	-cd $(LIBDNETDIR) && $(MAKE) distclean
 lua_dist_clean:
 	-cd $(LIBLUADIR) && $(MAKE) clean
-#nselib_dist_clean:
-#-cd nselib-bin && $(MAKE) distclean
+nselib_dist_clean:
+	-cd nselib-bin && $(MAKE) distclean
 nbase_dist_clean:
 	-cd $(NBASEDIR) && $(MAKE) distclean
 nsock_dist_clean:
