@@ -60,7 +60,6 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 %doc %{_prefix}/share/man/man1/nmap.1.gz
 %{_bindir}/nmap
 %{_datadir}/nmap
-%{_libexecdir}/nmap
 
 %changelog
 
