@@ -15,15 +15,15 @@ LIBS = @LIBS@
 LIBTOOL= ./libtool
 LTFLAGS = --tag=CC --silent
 
-all: bit.so
+all:
 
-bit.so: bit.c @LIBTOOL_DEPS@
-	$(LIBTOOL) $(LTFLAGS) --mode=compile $(CC) $(CPPFLAGS) $(CFLAGS) -c bit.c
-	$(LIBTOOL) $(LTFLAGS) --mode=link $(CC) -avoid-version -module -rpath $(nselib_bindir) $(LDFLAGS) -o bit.la bit.lo $(LIBS)
-	mv .libs/bit.so bit.so
+%.so: %.c @LIBTOOL_DEPS@
+	$(LIBTOOL) $(LTFLAGS) --mode=compile $(CC) $(CPPFLAGS) $(CFLAGS) -c $*.c
+	$(LIBTOOL) $(LTFLAGS) --mode=link $(CC) -avoid-version -module -rpath $(nselib_bindir) $(LDFLAGS) -o $*.la $*.lo $(LIBS)
+	mv .libs/$*.so $*.so
 
 clean: 
-	rm -f bit.so *.la *.lo
+	rm -f *.so *.la *.lo
 	rm -rf .libs
 
 distclean: clean
