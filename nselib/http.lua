@@ -143,7 +143,7 @@ request = function( host, port, data, options )
     return result
   end
 
-  local buffer = stdnse.make_buffer( socket, "\r?\n" )
+  local buffer = stdnse.make_buffer( socket, "\r\n" )
 
   local line, _
   local header, body = {}, {}
@@ -184,15 +184,32 @@ request = function( host, port, data, options )
     end
   end
 
-  -- body loop
-  while true do
-    line = buffer()
-    if not line then break end
-    table.insert(body,line)
+  -- handle body
+  if result.header['transfer-encoding'] == 'chunked' then
+    -- if the server used chunked encoding we have to 'dechunk' the answer
+    local counter, chunk_size
+    counter = 0; chunk_size = 0
+    while true do
+      if counter >= chunk_size then
+        counter = 0
+        chunk_size = tonumber( buffer(), 16 )
+        if chunk_size == 0 or not chunk_size then break end
+      end
+      line = buffer()
+      if not line then break end
+      counter = counter + #line + 2
+      table.insert(body,line)
+    end
+  else
+    while true do
+      line = buffer()
+      if not line then break end
+      table.insert(body,line)
+    end
   end
 
   socket:close()
-  result.body = table.concat( body, "\n" )
+  result.body = table.concat( body, "\r\n" )
 
   return result
 
