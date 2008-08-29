@@ -1,5 +1,5 @@
 AC_PREREQ([2.13])
-AC_INIT([nselib.h])
+AC_INIT([nselib], [0.0])
 
 AC_PROG_CC
 
