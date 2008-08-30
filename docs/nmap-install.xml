@@ -963,7 +963,7 @@ the Nmap download page</ulink> provides a file named
 <filename>nmap-<replaceable>version</replaceable>.dmg</filename>, where
 <replaceable>version</replaceable> is the version number of the most
 recent release. The
-<filename>.dmg</filename><indexterm><primary sortas="dmg"><filename>.dmg</filename> (Mac OS X disk image)</primary></indexterm><indexterm><primary>disk image (Mac OS X)</primary></indexterm>
+<filename>.dmg</filename><indexterm><primary sortas="dmg (Mac OS X disk image)"><filename>.dmg</filename> (Mac OS X disk image)</primary></indexterm><indexterm><primary>disk image (Mac OS X)</primary></indexterm>
 file is known as a
 <quote>disk image</quote>. Installation instructions follow:</para>
 

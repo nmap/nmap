@@ -2052,7 +2052,7 @@ supplied. Relative paths are searched for in the following places
 until found:<indexterm><primary>data files</primary><secondary>directory search order</secondary></indexterm><indexterm><primary>scripts, location of</primary></indexterm>
 <filename>--datadir/</filename>; 
 <filename>$NMAPDIR/</filename>;<indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm>
-<filename>~/.nmap/</filename> (not searched on Windows);<indexterm><primary sortas="nmap"><filename>.nmap</filename> directory</primary></indexterm>
+<filename>~/.nmap/</filename> (not searched on Windows);<indexterm><primary sortas="nmap directory"><filename>.nmap</filename> directory</primary></indexterm>
 NMAPDATADIR/ or<indexterm><primary>NMAPDATADIR</primary></indexterm>
 <filename>./</filename>.  A <filename>scripts/</filename> subdirectory
 is also tried in each of these.</para>
@@ -3675,7 +3675,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
           found there, are searched for in the directory specified by
           the NMAPDIR environmental variable<indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm>.
           Next comes
-	  <filename>~/.nmap</filename><indexterm><primary sortas="nmap"><filename>.nmap</filename> directory</primary></indexterm>
+	  <filename>~/.nmap</filename><indexterm><primary sortas="nmap directory"><filename>.nmap</filename> directory</primary></indexterm>
           for real and effective UIDs (POSIX systems only) or location of
           the Nmap executable (Win32 only), and then a compiled-in
           location such as <filename>/usr/local/share/nmap</filename> or <filename>/usr/share/nmap</filename>
