@@ -63,6 +63,7 @@ TIMING AND PERFORMANCE:
   --host-timeout <time>: Give up on target after this long
   --scan-delay/--max-scan-delay <time>: Adjust delay between probes
   --min-rate <number>: Send packets no slower than <number> per second
+  --max-rate <number>: Send packets no faster than <number> per second
 FIREWALL/IDS EVASION AND SPOOFING:
   -f; --mtu <val>: fragment packets (optionally w/given MTU)
   -D <decoy1,decoy2[,ME],...>: Cloak a scan with decoys
