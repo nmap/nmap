@@ -38,12 +38,6 @@ o Rewrote eth_open() for Win32 as its technique for translating from
   a dnet-named interface to a pcap-named one did not work on any of my
   systems.
 
-o Added intf_get_pcap_devname() function for Win32.  This tries to
-  convert a dnet if name into its pcap equivalent.  It is a hack, but
-  arguably better than the hacks that were there before.  The main
-  down side is that it won't work with interfaces that don't have an
-  IPv4 address configured.
-
 o Increase the number of available bpf devices from 32 to 128.  Patch:
 --- eth-bsd.c   (revision 2774)
 +++ eth-bsd.c   (working copy)
@@ -490,6 +484,11 @@ Index: libdnet-stripped/src/intf-win32.c
  			    ifrow->dwIndex);
  		} else
  			return (-1);
+
+Added eth_get_pcap_devname that matches up a dnet name to its pcap
+equivalent. It starts by matching interfaces IP addresses, then falls
+back to matching hardware addresses. The hardware address matching code
+is adapted from libdnet 1.11.
 
 Copied include/dnet/os.h from libdnet 1.12 to avoid a duplicate typedef
 of ssize_t.
