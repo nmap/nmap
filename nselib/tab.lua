@@ -41,6 +41,16 @@ function add(t, c, v)
 	return true
 end
 
+--- Add a complete row to the table and move on to the next row.
+-- Calls add() for each argument starting with the second argument
+-- and after that calls nextrow().
+function addrow(t,...)
+	for i=1, arg['n'] do
+		add( t, i, tostring(arg[i]) )
+	end
+	nextrow( t )
+end
+
 --- Move on to the next row in the table. If this is not called
 -- then previous column values will be over-written by subsequent
 -- values.

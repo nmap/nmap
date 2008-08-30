@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added new addrow() function to NSE tab library.  It allows
+  developers to add a whole row at once rather than doing a separate
+  add() call for each column in a row. [Sven Klemm]
+
 o The NSE http library now supports chunked encoding. [Sven Klemm]
 
 o Fix a number of NSE scripts which used print_debug()
