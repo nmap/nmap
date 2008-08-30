@@ -100,7 +100,7 @@ nbase_build: $(NBASEDIR)/Makefile
 	@echo Compiling libnbase;
 	cd $(NBASEDIR) && $(MAKE)
 
-nsock_build: $(NSOCKDIR)/src/Makefile
+nsock_build: $(NSOCKDIR)/src/Makefile nbase_build
 	@echo Compiling libnsock;
 	cd $(NSOCKDIR)/src && $(MAKE)
 

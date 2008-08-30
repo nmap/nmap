@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a Makefile problem (race condition) which could lead to build
+  failures when launching make in parallel mode (e.g. -j4). [Michal
+  Januszewski]
+
 o Added new addrow() function to NSE tab library.  It allows
   developers to add a whole row at once rather than doing a separate
   add() call for each column in a row. [Sven Klemm]
