@@ -279,7 +279,7 @@ you would expect.</para>
           octet ranges, etc.  This can be useful when the network you
           wish to scan includes untouchable mission-critical servers,
           systems that are known to react adversely to port scans,
-          or subnetworks administered by other people.</para>
+          or subnets administered by other people.</para>
         </listitem>
       </varlistentry>
 
