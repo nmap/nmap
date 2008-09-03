@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The NSE datafiles library now has generic file parsing routines, and
+  the parsing of the standard nmap data files (e.g. nmap-services,
+  nmap-protocols, etc.) now uses those generic routines.  NSE scripts
+  and libraries may find them useful for dealing with their own data
+  files, such as password lists. [Jah]
+
 o Fixed a Makefile problem (race condition) which could lead to build
   failures when launching make in parallel mode (e.g. -j4). [Michal
   Januszewski]
