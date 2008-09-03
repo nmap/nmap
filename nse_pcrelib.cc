@@ -71,14 +71,6 @@ static int get_flags (lua_State *L, const flags_pair *arr)
 	return 1;
 }
 
-static void createmeta(lua_State *L, const char *name)
-{
-	(void)luaL_newmetatable(L, name);   /* create new metatable */
-	lua_pushliteral(L, "__index");
-	lua_pushvalue(L, -2);         /* push metatable */
-	lua_rawset(L, -3);            /* metatable.__index = metatable */
-}
-
 const char pcre_handle[] = "pcre_regex_handle";
 const char pcre_typename[] = "pcre_regex";
 
