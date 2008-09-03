@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Updated rpcinfo NSE script to use the new pack/unpack (binlib)
+  functions, use the new tab library, include better documentation, and
+  fix some bugs. [Sven Klemm]
+
 o Fix a bug in the NSE http library which would cause some scripts to
   give the error: SCRIPT ENGINE: C:\Program
   Files\Nmap\nselib/http.lua:77: attempt to call field 'parse' (a nil
@@ -21,7 +25,7 @@ o Added new addrow() function to NSE tab library.  It allows
 
 o The NSE http library now supports chunked encoding. [Sven Klemm]
 
-o Fix a number of NSE scripts which used print_debug()
+o Fixed a number of NSE scripts which used print_debug()
   incorrectly. See
   http://seclists.org/nmap-dev/2008/q3/0470.html. [Sven Klemm].
 
