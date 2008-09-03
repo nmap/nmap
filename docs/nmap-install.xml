@@ -802,7 +802,7 @@ must install version 4 or later.</para></listitem>
 
 <listitem><para>Due to the way Nmap is compiled, it requires the
 Microsoft Visual C++ 2008 Redistributable Package of runtime
-components. Many systems already have this installed from othher
+components. Many systems already have this installed from other
 packages, but you should run <filename>vcredist_x86.exe</filename>
 from the zip file just in case you need it.</para></listitem>
 
