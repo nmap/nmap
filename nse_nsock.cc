@@ -87,7 +87,7 @@ static std::string hexify (const char *str, size_t len)
       if (isprint(str[i]) || isspace(str[i]))
         ret << str[i];
       else
-        ret << std::setw(3) << "\\" << (unsigned int) str[i];
+        ret << std::setw(3) << "\\" << (unsigned int)(unsigned char) str[i];
     }
     return ret.str();
   }
@@ -98,7 +98,7 @@ static std::string hexify (const char *str, size_t len)
     ret << std::setw(8) << i << ": ";
     for (size_t j = i; j < i + 16; j++)
       if (j < len)
-        ret << std::setw(2) << (unsigned int) str[j] << " ";
+        ret << std::setw(2) << (unsigned int)(unsigned char) str[j] << " ";
       else
         ret << "   ";
     for (size_t j = i; j < i + 16 && j < len; j++)

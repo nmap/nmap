@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fix a bug in --script-trace hex dump output resulting in bytes with
+  highest bit set to be prefixed by ffffff. [Sven Klemm]
+
 o Updated rpcinfo NSE script to use the new pack/unpack (binlib)
   functions, use the new tab library, include better documentation, and
   fix some bugs. [Sven Klemm]
