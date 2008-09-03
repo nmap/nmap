@@ -86,12 +86,25 @@ static int loadfile (lua_State *L)
   lua_setmetatable(L, -2);
 
   if (luaL_loadfile(L, filename) != 0) // load the file (index 3)
-    luaL_error(L, "'%s' could not be loaded:\n%s", filename,
-        lua_tostring(L, -1));
+  {
+    error("%s: '%s' could not be compiled.", SCRIPT_ENGINE, filename);
+    SCRIPT_ENGINE_DEBUGGING(
+      error("%s", lua_tostring(L, -1));
+    )
+    return 0;
+  }
   lua_pushvalue(L, -1);
   lua_pushvalue(L, 2); // push environment table
   lua_setfenv(L, -2); // set it
-  lua_call(L, 0, 0); // Call the function (loads globals)
+  if (lua_pcall(L, 0, 0, 0) != 0) // Call the function (loads globals)
+  {
+    error("%s: '%s' threw a run time error and could not be loaded.",
+        SCRIPT_ENGINE, filename);
+    SCRIPT_ENGINE_DEBUGGING(
+      error("%s", lua_tostring(L, -1));
+    )
+    return 0;
+  }
 
   // Check some required fields
   for (i = 0; i < ARRAY_LEN(required_fields); i++)
@@ -99,8 +112,11 @@ static int loadfile (lua_State *L)
     lua_pushstring(L, required_fields[i]);
     lua_gettable(L, 2);
     if (lua_isnil(L, -1))
-      luaL_error(L, "No '%s' field in script '%s'.", required_fields[i],
-          filename);
+    {
+      error("%s: '%s' does not have required field '%s'", SCRIPT_ENGINE, filename,
+          required_fields[i]);
+      return 0;
+    }
     lua_pop(L, 1);
   }
 
@@ -139,7 +155,9 @@ static int loadfile (lua_State *L)
     lua_settable(L, -3);
   }
   else
-    return luaL_error(L, "No rules in script '%s'.", filename);
+    error("%s: '%s' does not have a portrule or hostrule.", SCRIPT_ENGINE,
+        filename);
+
   return 0;
 }
 
