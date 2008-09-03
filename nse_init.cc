@@ -430,7 +430,7 @@ int init_updatedb (lua_State *L)
 }
 
 typedef struct extensional_category {
-  char *category;
+  const char *category;
   int option;
 } extensional_category;
 
