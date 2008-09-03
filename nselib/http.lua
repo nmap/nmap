@@ -73,8 +73,8 @@ end
 -- @param url The url of the host.
 -- @param options Options passed to http.get.
 -- @see http.get
-get_url = function(url, options )
-  local parsed = url.parse( url )
+get_url = function( u, options )
+  local parsed = url.parse( u )
   local port = {}
 
   port.service = parsed.scheme
