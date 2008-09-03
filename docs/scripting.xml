@@ -1891,7 +1891,7 @@ if(s) code_to_be_done_on_match end
           <listitem>
             <para>
               Converts the given number, <literal>n</literal>, to a string
-              in a hexidecimal number format (e.g. 10 becomes "a").
+              in a hexadecimal number format (e.g. 10 becomes "a").
             </para>
           </listitem>
         </varlistentry>
