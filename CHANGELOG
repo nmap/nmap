@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added some Windows and MinGW compatibility patches submitted by
+  Gisle Vanem.
+
 o Fix a bug in --script-trace hex dump output resulting in bytes with
   highest bit set to be prefixed by ffffff. [Sven Klemm]
 
