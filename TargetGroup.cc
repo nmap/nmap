@@ -299,7 +299,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = PF_INET6;
     rc = getaddrinfo(hostexp, NULL, &hints, &result);
-    if (rc != 0) {
+    if (rc != 0 || result == NULL) {
       error("Failed to resolve given IPv6 hostname/IP: %s.  Note that you can't use '/mask' or '[1-4,7,100-]' style ranges for IPv6.  Error code %d: %s", hostexp, rc, gai_strerror(rc));
       free(hostexp);
       if (result) freeaddrinfo(result);
