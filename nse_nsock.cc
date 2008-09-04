@@ -451,6 +451,11 @@ static int l_nsock_connect(lua_State *L) {
 		lua_pushstring(L, error);
 		return 2;
 	}
+        if (dest == NULL) {
+		lua_pushboolean(L, false);
+		lua_pushstring(L, "getaddrinfo returned success but no addresses");
+		return 2;
+        }
 
 	udata->nsiod = nsi_new(nsp, NULL);
 	if (o.spoofsource) {
