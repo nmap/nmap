@@ -851,7 +851,7 @@ int resolve(char *hostname, struct sockaddr_storage *ss, size_t *sslen,
   memset(&hints, 0, sizeof(hints));
   hints.ai_family = pf;
   rc = getaddrinfo(hostname, NULL, &hints, &result);
-  if (rc != 0)
+  if (rc != 0 || result == NULL)
     return 0;
   assert(result->ai_addrlen > 0 && result->ai_addrlen <= (int) sizeof(struct sockaddr_storage));
   *sslen = result->ai_addrlen;
