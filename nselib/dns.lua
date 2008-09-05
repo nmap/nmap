@@ -1,4 +1,4 @@
-module(...,package.seeall)
+module(... or "dns", package.seeall)
 
 -- simple DNS library
 -- packet creation, encoding, decoding, querying
