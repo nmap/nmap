@@ -1417,6 +1417,17 @@ used.</para>
           zombie for IP ID changes. Otherwise Nmap will use the port it
           uses by default for TCP pings (80).</para>
 
+          <para>Ports can also be specified by name according to what the
+          port is referred to in the <filename>nmap-services</filename>. You
+          can even use the wildcards * and ? with the names. For example, to scan
+          ftp and all ports whose names begin with http, use <option>-p ftp,http*</option>.
+          Be careful about shell expansions and quote the argument to -p if unsure.</para>
+
+          <para>Ranges of ports can be surrounded by square brackets to indicate
+          ports inside that range that appear in <filename>nmap-services</filename>.
+          For example, the following will scan all ports in <filename>nmap-services</filename>
+          equal to or below 1024: <option>-p [-1024]</option>. Be careful with shell
+          expansions and quote the argument to -p if unsure.</para> 
         </listitem>
       </varlistentry>
 
@@ -1622,6 +1633,27 @@ way.</para>
           instead.</para>
         </listitem>
       </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--port-ratio &lt;decimal number between 0 and 1&gt;</option>
+        </term>
+        <listitem>
+        <indexterm><primary>--port-ratio</primary></indexterm>
+        <para>Scans all ports in <filename>nmap-services</filename> file with a ratio greater than the number specified as the argument. (new format <filename>nmap-services</filename> only.)</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--top-ports &lt;integer of 1 or greater&gt;</option>
+        </term>
+        <listitem>
+        <indexterm><primary>--top-ports</primary></indexterm>
+        <para>Scans the N highest-ratio ports found in <filename>nmap-services</filename> file. (new format <filename>nmap-services</filename> only.)</para>
+        </listitem>
+      </varlistentry>
+
     </variablelist>
 
 </refsect1>
