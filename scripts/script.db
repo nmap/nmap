@@ -50,9 +50,6 @@ Entry{ category = "demo", filename = "SMTP_openrelay_test.nse" }
 Entry{ category = "default", filename = "nbstat.nse" }
 Entry{ category = "discovery", filename = "nbstat.nse" }
 Entry{ category = "safe", filename = "nbstat.nse" }
-Entry{ category = "default", filename = "SNMPsysdesr.nse" }
-Entry{ category = "discovery", filename = "SNMPsysdesr.nse" }
-Entry{ category = "safe", filename = "SNMPsysdesr.nse" }
 Entry{ category = "default", filename = "HTTPAuth.nse" }
 Entry{ category = "auth", filename = "HTTPAuth.nse" }
 Entry{ category = "intrusive", filename = "HTTPAuth.nse" }
@@ -62,6 +59,9 @@ Entry{ category = "demo", filename = "showHTTPVersion.nse" }
 Entry{ category = "default", filename = "SSHv1-support.nse" }
 Entry{ category = "safe", filename = "SSHv1-support.nse" }
 Entry{ category = "default", filename = "popcapa.nse" }
+Entry{ category = "default", filename = "SNMPsysdescr.nse" }
+Entry{ category = "discovery", filename = "SNMPsysdescr.nse" }
+Entry{ category = "safe", filename = "SNMPsysdescr.nse" }
 Entry{ category = "intrusive", filename = "brutePOP3.nse" }
 Entry{ category = "auth", filename = "brutePOP3.nse" }
 Entry{ category = "default", filename = "MySQLinfo.nse" }
