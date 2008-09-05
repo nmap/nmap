@@ -3,8 +3,9 @@
 o Added dns-safe-recursion-port and dns-safe-recursion-txid (non
   default NSE scripts) which use the 3rd party dns-oarc.net to test
   the source port and transaction ID randomness of a discovered DNS
-  server (assuming it allows recursion at all).  These scripts were
-  contributed by Brandon Enright.
+  server (assuming it allows recursion at all).  These scripts, which
+  test for the "Kaminsky" DNS bugs, were contributed by Brandon
+  Enright.
 
 o Added some Windows and MinGW compatibility patches submitted by
   Gisle Vanem.

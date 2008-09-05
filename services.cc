@@ -158,6 +158,7 @@ static int nmap_services_init() {
   int res;
   double ratio;
   int ratio_n, ratio_d;
+  char ratio_str[32];
 
   if (nmap_fetchfile(filename, sizeof(filename), "nmap-services") != 1) {
 #ifndef WIN32
@@ -198,22 +199,34 @@ static int nmap_services_init() {
     if (*p == '#')
       continue;
 
-    res = sscanf(line, "%127s %hu/%15s %d/%d", servicename, &portno, proto, &ratio_n, &ratio_d);
-
+    res = sscanf(line, "%127s %hu/%15s %31s", servicename, &portno, proto, ratio_str);
+    
     if (res == 3) {
       ratio = 0;
-    } else if (res == 5) {
-      if (ratio_n < 0 || ratio_d < 0)
-        fatal("%s:%d contains an invalid negative value", filename, lineno);
+    } else if (res == 4) {
+      if (strchr(ratio_str, '/')) {
+	res = sscanf(ratio_str, "%d/%d", &ratio_n, &ratio_d);
+	if (res != 2)
+	  fatal("%s:%d contains invalid port ratio string: %s", filename, lineno, ratio_str);
 
-      if (ratio_n > ratio_d)
-        fatal("%s:%d has a ratio %g. All ratios must be < 1", filename, lineno, (double)ratio_n/ratio_d);
-
-      if (ratio_d == 0)
-        fatal("%s:%d has a ratio denominator of 0 causing a division by 0 error", filename, lineno);
-
-      ratio = (double)ratio_n / ratio_d;
-      ratio_format = 1;
+	if (ratio_n < 0 || ratio_d < 0)
+	  fatal("%s:%d contains an invalid negative value", filename, lineno);
+	
+	if (ratio_n > ratio_d)
+	  fatal("%s:%d has a ratio %g. All ratios must be < 1", filename, lineno, (double)ratio_n/ratio_d);
+	
+	if (ratio_d == 0)
+	  fatal("%s:%d has a ratio denominator of 0 causing a division by 0 error", filename, lineno);
+	
+	ratio = (double)ratio_n / ratio_d;
+	ratio_format = 1;
+      } else if (strncmp(ratio_str, "0.", 2) == 0) {
+	/* We assume the ratio is in floating point notation already */
+	ratio = strtod(ratio_str, NULL);
+	ratio_format = 1;
+      } else {
+	ratio = 0;
+      }
     } else {
       continue;
     }
