@@ -65,6 +65,10 @@ o Added dns-safe-recursion-port and dns-safe-recursion-txid (non
   which test for the "Kaminsky" DNS bugs, were contributed by Brandon
   Enright.
 
+o Added whois.nse, which queries the Regional Internet Registries
+  (RIRs) to determine who the target IP addresses are assigned
+  to. [Jah]
+
 o Fyodor made a number of performance tweaks, such as:
   o increase host group sizes in many cases, so Nmap will now commonly
     scan 64 hosts at a time rather than 30

@@ -30,6 +30,8 @@ Entry{ category = "safe", filename = "robots.nse" }
 Entry{ category = "default", filename = "zoneTrans.nse" }
 Entry{ category = "intrusive", filename = "zoneTrans.nse" }
 Entry{ category = "discovery", filename = "zoneTrans.nse" }
+Entry{ category = "discovery", filename = "whois.nse" }
+Entry{ category = "safe", filename = "whois.nse" }
 Entry{ category = "discovery", filename = "ripeQuery.nse" }
 Entry{ category = "demo", filename = "chargenTest.nse" }
 Entry{ category = "malware", filename = "strangeSMTPport.nse" }
