@@ -192,29 +192,17 @@ static int loaddir (lua_State *L)
  *
  * Sets the search path of require function to include:
  *   ./nselib/   For Lua Path (.lua files)
- *   ./nselib-bin/  For C Path (.so files)
  */
 static int init_setpath (lua_State *L)
 {
-  char path[MAX_FILENAME_LEN], cpath[MAX_FILENAME_LEN];
+  char path[MAX_FILENAME_LEN];
   
   /* set the path lua searches for modules*/
   if (nmap_fetchfile(path, MAX_FILENAME_LEN, SCRIPT_ENGINE_LIB_DIR) != 2)
     luaL_error(L, "'%s' not a directory", SCRIPT_ENGINE_LIB_DIR);
-  if (nmap_fetchfile(cpath, MAX_FILENAME_LEN, SCRIPT_ENGINE_LIBEXEC_DIR) != 2)
-    luaL_error(L, "'%s' not a directory", SCRIPT_ENGINE_LIBEXEC_DIR);
 
   lua_getfield(L, LUA_REGISTRYINDEX, "_LOADED");
   lua_getfield(L, -1, LUA_LOADLIBNAME); /* "package" */
-  lua_pushstring(L, cpath);
-#ifdef WIN32
-  lua_pushliteral(L, "?.dll;");
-#else
-  lua_pushliteral(L, "?.so;");
-#endif
-  lua_getfield(L, -3, "cpath"); /* package.cpath */
-  lua_concat(L, 3);
-  lua_setfield(L, -2, "cpath");
 
   lua_pushstring(L, path);
   lua_pushliteral(L, "?.lua;");
