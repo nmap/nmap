@@ -144,6 +144,7 @@ Section "Nmap Core Files" SecCore
 
   ;Delete specific subfolders (NB: custom scripts in scripts folder will be lost)
   RMDir /r "$INSTDIR\nselib"
+  ; nselib-bin held NSE C modules up through version 4.68.
   RMDir /r "$INSTDIR\nselib-bin"
   RMDir /r "$INSTDIR\scripts"
   RMDir /r "$INSTDIR\zenmap"
@@ -303,7 +304,6 @@ Section "Uninstall"
   Delete "$INSTDIR\winpcap-nmap*.exe"
   ;Delete specific subfolders (NB: custom scripts in scripts folder will be lost)
   RMDir /r "$INSTDIR\nselib"
-  RMDir /r "$INSTDIR\nselib-bin"
   RMDir /r "$INSTDIR\scripts"
   RMDir /r "$INSTDIR\zenmap"
  
