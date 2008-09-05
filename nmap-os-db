@@ -10,7 +10,7 @@
 # interest in the data to Insecure.Com LLC so it can modified,
 # incorporated into Nmap, relicensed, etc.
 #
-# This collection of fingerprint data is (C) 1998-2006 by Insecure.Com
+# This collection of fingerprint data is (C) 1998-2008 by Insecure.Com
 # LLC.  It is distributed under the Nmap open source license as
 # provided in the COPYING file of the source distribution or at
 # http://nmap.org/data/COPYING .  Note that this license
@@ -19,6 +19,7 @@
 # software, we sell alternative licenses (contact sales@insecure.com).
 # Dozens of software vendors already license Nmap technology such as
 # host discovery, port scanning, OS detection, and version detection.
+# For more details, see http://nmap.org/book/man-legal.html
 #
 # For a complete description of Nmap OS detection and the format of
 # fingerprints in this file, see http://nmap.org/osdetect/
