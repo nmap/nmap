@@ -167,7 +167,6 @@ Section "Nmap Core Files" SecCore
   File ssleay32.dll
   File /r /x mswin32 /x .svn ..\..\scripts
   File /r /x mswin32 /x .svn ..\Release\nselib
-  File /r /x mswin32 /x .svn ..\Release\nselib-bin
   File ..\icon1.ico 
   
   ;Store installation folder 

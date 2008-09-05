@@ -27,7 +27,6 @@ winbuild:
 	cd Release && cp -f $(NSE_FILES) ../nmap-$(NMAP_VERSION)/scripts/
 	mkdir nmap-$(NMAP_VERSION)/nselib
 	cp -a Release/nselib nmap-$(NMAP_VERSION)
-	cp -a Release/nselib-bin nmap-$(NMAP_VERSION)
 	cp winpcap/winpcap-nmap-*.exe nmap-$(NMAP_VERSION)
 	cp vcredist_x86.exe nmap-$(NMAP_VERSION)
 	zip -r nmap-$(NMAP_VERSION)-win32.zip nmap-$(NMAP_VERSION)

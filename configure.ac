@@ -574,12 +574,6 @@ else
   INSTALLNSE="install-nse"
 fi
 
-if test $no_lua != yes; then
-	AC_CONFIG_SUBDIRS( nselib-bin )
-	NSELIB_CLEAN=nselib_clean
-	NSELIB_DIST_CLEAN=nselib_dist_clean
-fi
-
 AC_SUBST(LIBLUA_LIBS)
 AC_SUBST(LIBLUADIR)
 AC_SUBST(LUA_DEPENDS)
@@ -587,8 +581,6 @@ AC_SUBST(LUA_BUILD)
 AC_SUBST(LUA_CLEAN)
 AC_SUBST(LUA_DIST_CLEAN)
 AC_SUBST(INSTALLNSE)
-AC_SUBST(NSELIB_CLEAN)
-AC_SUBST(NSELIB_DIST_CLEAN)
 AC_SUBST(CXXFLAGS)
 
 dnl This test is from the configure.in of Unix Network Programming second

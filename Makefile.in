@@ -62,7 +62,6 @@ ifneq (@LIBLUA_LIBS@,)
 NSE_SRC=nse_main.cc nse_nsock.cc nse_init.cc nse_fs.cc nse_nmaplib.cc nse_debug.cc nse_pcrelib.cc nse_binlib.cc nse_hash.cc nse_bit.cc
 NSE_HDRS=nse_main.h nse_nsock.h nse_init.h nse_fs.h nse_nmaplib.h nse_debug.h nse_macros.h nse_pcrelib.h nse_binlib.h nse_hash.h nse_bit.h
 NSE_OBJS=nse_main.o nse_nsock.o nse_init.o nse_fs.o nse_nmaplib.o nse_debug.o nse_pcrelib.o nse_binlib.o nse_hash.o nse_bit.o
-NSESTDLIB=nsestdlib
 endif
 
 export SRCS = main.cc nmap.cc targets.cc tcpip.cc nmap_error.cc utils.cc idle_scan.cc osscan.cc osscan2.cc output.cc scan_engine.cc timing.cc charpool.cc services.cc protocols.cc nmap_rpc.cc portlist.cc NmapOps.cc TargetGroup.cc Target.cc FingerPrintResults.cc service_scan.cc NmapOutputTable.cc MACLookup.cc nmap_tty.cc nmap_dns.cc traceroute.cc portreasons.cc $(NSE_SRC) @COMPAT_SRCS@
@@ -76,16 +75,12 @@ OBJS = main.o nmap.o targets.o tcpip.o nmap_error.o utils.o idle_scan.o osscan.o
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
 all: @LUA_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @DNET_BUILD@ @NBASE_BUILD@ @NSOCK_BUILD@
-	$(MAKE) $(TARGET) $(NSESTDLIB) $(BUILDZENMAP)
+	$(MAKE) $(TARGET) $(BUILDZENMAP)
 
 $(TARGET): @LUA_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(OBJS)
 	echo Compiling nmap
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
-
-nsestdlib: nselib-bin/Makefile 
-	@echo Compiling nse-standard-library; cd nselib-bin && $(MAKE)
-
 
 pcre_build: $(LIBPCREDIR)/Makefile
 	@echo Compiling libpcre; cd $(LIBPCREDIR) && $(MAKE)
@@ -126,7 +121,7 @@ distro:
 web:
 	cd $(NMAPDEVDIR) && $(MAKE) web
 
-clean: @LUA_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nsock_clean nbase_clean my_clean @NSELIB_CLEAN@ @ZENMAP_CLEAN@
+clean: @LUA_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nsock_clean nbase_clean my_clean @ZENMAP_CLEAN@
 
 my_clean:
 	rm -f dependencies.mk makefile.dep
@@ -143,8 +138,6 @@ nsock_clean:
 	-cd $(NSOCKDIR)/src && $(MAKE) clean
 lua_clean:
 	-cd $(LIBLUADIR) && $(MAKE) clean
-nselib_clean:
-	-cd nselib-bin && $(MAKE) clean
 zenmap_clean:
 	-cd $(ZENMAPDIR) && $(PYTHON) setup.py clean --all
 pcap_dist_clean:
@@ -155,8 +148,6 @@ dnet_dist_clean:
 	-cd $(LIBDNETDIR) && $(MAKE) distclean
 lua_dist_clean:
 	-cd $(LIBLUADIR) && $(MAKE) clean
-nselib_dist_clean:
-	-cd nselib-bin && $(MAKE) distclean
 nbase_dist_clean:
 	-cd $(NBASEDIR) && $(MAKE) distclean
 nsock_dist_clean:
@@ -166,7 +157,7 @@ zenmap_dist_clean: zenmap_clean
 debugclean:
 	rm -f *.gcov *.gcda *.gcno gmon.out
 
-distclean: my_clean my_distclean @LUA_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ nbase_dist_clean nsock_dist_clean @NSELIB_DIST_CLEAN@ @ZENMAP_DIST_CLEAN@
+distclean: my_clean my_distclean @LUA_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ nbase_dist_clean nsock_dist_clean @ZENMAP_DIST_CLEAN@
 
 my_distclean:
 	rm -f Makefile Makefile.bak makefile.dep nmap_config.h stamp-h stamp-h.in \
@@ -220,15 +211,12 @@ install-zenmap: $(ZENMAPDIR)/setup.py
 
 NSE_FILES = scripts/script.db scripts/*.nse
 NSE_LIB_LUA_FILES = nselib/*.lua
-#NSE_LIB_SO_FILES = nselib-bin/*.so
 
 install-nse: $(TARGET)
 	$(INSTALL) -d $(DESTDIR)$(nmapdatadir)/scripts
 	cp -f $(NSE_FILES) $(DESTDIR)$(nmapdatadir)/scripts
 	$(INSTALL) -d $(DESTDIR)$(nmapdatadir)/nselib
 	cp -f $(NSE_LIB_LUA_FILES) $(DESTDIR)$(nmapdatadir)/nselib
-#$(INSTALL) -d $(DESTDIR)$(nmaplibexecdir)/nselib-bin
-#cp -f $(NSE_LIB_SO_FILES) $(DESTDIR)$(nmaplibexecdir)/nselib-bin
 
 install: install-nmap $(INSTALLNSE) $(INSTALLZENMAP)
 	@echo "NMAP SUCCESSFULLY INSTALLED"

@@ -720,8 +720,6 @@ LUA_BUILD
 LUA_CLEAN
 LUA_DIST_CLEAN
 INSTALLNSE
-NSELIB_CLEAN
-NSELIB_DIST_CLEAN
 NBASEDIR
 NBASE_BUILD
 LIBNBASE_LIBS
@@ -746,7 +744,6 @@ CPP'
 ac_subdirs_all='libpcap
 libpcre
 libdnet-stripped
-nselib-bin
 nbase
 nsock/src'
 
@@ -7829,15 +7826,6 @@ echo "${ECHO_T}yes" >&6; }
   INSTALLNSE="install-nse"
 fi
 
-if test $no_lua != yes; then
-	subdirs="$subdirs nselib-bin"
-
-	NSELIB_CLEAN=nselib_clean
-	NSELIB_DIST_CLEAN=nselib_dist_clean
-fi
-
-
-
 
 
 
@@ -9438,8 +9426,6 @@ LUA_BUILD!$LUA_BUILD$ac_delim
 LUA_CLEAN!$LUA_CLEAN$ac_delim
 LUA_DIST_CLEAN!$LUA_DIST_CLEAN$ac_delim
 INSTALLNSE!$INSTALLNSE$ac_delim
-NSELIB_CLEAN!$NSELIB_CLEAN$ac_delim
-NSELIB_DIST_CLEAN!$NSELIB_DIST_CLEAN$ac_delim
 NBASEDIR!$NBASEDIR$ac_delim
 NBASE_BUILD!$NBASE_BUILD$ac_delim
 LIBNBASE_LIBS!$LIBNBASE_LIBS$ac_delim
@@ -9450,7 +9436,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 20; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 18; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
