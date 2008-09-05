@@ -399,7 +399,7 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports) {
       return;
     }
     if (o.fastscan) level = 100;
-    else level = 0.01;
+    else level = 1000;
   }
 
   if (portlist){
