@@ -1,11 +1,11 @@
 .\"     Title: zenmap
 .\"    Author: 
 .\" Generator: DocBook XSL Stylesheets v1.73.2 <http://docbook.sf.net/>
-.\"      Date: 06/29/2008
+.\"      Date: 09/05/2008
 .\"    Manual: 
 .\"    Source: 
 .\"
-.TH "ZENMAP" "1" "06/29/2008" "" ""
+.TH "ZENMAP" "1" "09/05/2008" "" ""
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -20,11 +20,11 @@ zenmap - Graphical Nmap frontend and results viewer
 Zenmap is a multi\-platform graphical Nmap frontend and results viewer\. Zenmap aims to make Nmap easy for beginners to use while giving experienced Nmap users advanced features\. Frequently used scans can be saved as profiles to make them easy to run repeatedly\. A command creator allows interactive creation of Nmap command lines\. Scan results can be saved and viewed later\. Saved scan results can be compared with one another to see how they differ\. The results of recent scans are stored in a searchable database\.
 .PP
 This man page only describes the few Zenmap command\-line options and some critical notes\. A much more detailed Zenmap User\'s Guide is available at
-\fI\%http://nmap.org/book/zenmap.html\fR\. Other documentation and information is available from the Zen web page at
+\fI\%http://nmap.org/book/zenmap.html\fR\. Other documentation and information is available from the Zenmap web page at
 \fI\%http://nmap.org/zenmap/\fR\.
 .SH "OPTIONS SUMMARY"
 .PP
-\fB\-f\fR, \fB\-\-file\fR \fIresults file\fR
+\fB\-f\fR, \fB\-\-file \fR\fB\fIresults file\fR\fR
 .RS 4
 Open the given results file for viewing\. The results file may be an Nmap XML output file (\fI\.xml\fR, as produced by
 \fBnmap \-oX\fR) or a Umit scan results file (\fI\.usr\fR)\. This option may be given more than once\.
@@ -35,7 +35,7 @@ Open the given results file for viewing\. The results file may be an Nmap XML ou
 Show a help message and exit\.
 .RE
 .PP
-\fB\-n\fR, \fB\-\-nmap\fR \fINmap command line\fR
+\fB\-n\fR, \fB\-\-nmap \fR\fB\fINmap command line\fR\fR
 .RS 4
 Run the given Nmap command within the Zenmap interface\. After
 \fB\-n\fR
@@ -50,14 +50,14 @@ executable name:
 \fBzenmap \-n nmap \-sS target\fR\.
 .RE
 .PP
-\fB\-p\fR, \fB\-\-profile\fR \fIprofile\fR
+\fB\-p\fR, \fB\-\-profile \fR\fB\fIprofile\fR\fR
 .RS 4
 Start with the given profile selected\. The profile name is just a string:
 "Regular scan"\. If combined with
 \fB\-t\fR, begin a scan with the given profile against the specified target\.
 .RE
 .PP
-\fB\-t\fR, \fB\-\-target\fR \fItarget\fR
+\fB\-t\fR, \fB\-\-target \fR\fB\fItarget\fR\fR
 .RS 4
 Start with the given target\. If combined with
 \fB\-p\fR, begin a scan with the given profile against the specified target\.
@@ -65,21 +65,17 @@ Start with the given target\. If combined with
 .PP
 \fB\-v\fR, \fB\-\-verbose\fR
 .RS 4
-Increase verbosity (of Zenmap, not Nmap)\. This option may be given multiple times to get even more verbosity\. Beware that verbose output is not shown on a terminal unless the environment variable
-\fIZENMAP_DEVELOPMENT\fR
-is defined and true\.
+Increase verbosity (of Zenmap, not Nmap)\. This option may be given multiple times to get even more verbosity\.
 .RE
 .PP
 Any other arguments are taken to be the names of results files to open\.
 .SH "ENVIRONMENT VARIABLES"
 .PP
-\fIZENMAP_DEVELOPMENT\fR
+\fBZENMAP_DEVELOPMENT\fR
 .RS 4
 Set
-\fIZENMAP_DEVELOPMENT\fR
-to 1 to enable development mode\. This causes debugging output to be printed to a terminal (see the
-\fB\-\-verbose\fR
-option) and turns off automatic crash reporting\.
+\fBZENMAP_DEVELOPMENT\fR
+to disable automatic crash reporting\.
 .RE
 .SH "BUGS"
 .PP
