@@ -100,7 +100,7 @@ action = function( host )
     end
 
     -- name to query for
-    local dname = reverse( host.ip )
+    local dname = dns.reverse( host.ip )
 
     -- perform queries for each applicable zone
     for asn_type, zone in pairs( cymru[IPv] ) do
@@ -277,49 +277,6 @@ function asn_description( asn )
 
   return decoded_response:match( "|%s*([^|$]+)%s*$" ) or ""
 
-end
-
-
-
--- *** UTILITY FUNCTIONS ***
---     remove when these functions are available in libraries
-
-
----
--- Formats IP for reverse lookup.
--- @param ip String IP address.
--- @return   "Domain" style representation of IP as subdomain of in-addr.arpa or ip6.arpa
-
-function reverse(ip)
-   ip = ipOps.expand_ip(ip)
-   if type(ip) ~= "string" then return nil end
-   local delim = "%."
-   local arpa = ".in-addr.arpa"
-   if ip:match(":") then
-      delim = ":"
-      arpa = ".ip6.arpa"
-   end
-   local ipParts = stdnse.strsplit(delim, ip)
-   if #ipParts == 8 then
-      -- padding
-      local mask = "0000"
-      for i, part in ipairs(ipParts) do
-          ipParts[i] = mask:sub(1, string.len(mask) - string.len(part)) .. part
-      end
-      -- 32 parts from 8
-      local temp = {}
-      for i, hdt in ipairs(ipParts) do
-         for part in hdt:gmatch("%x") do
-          temp[#temp+1] = part
-         end
-      end
-      ipParts = temp
-   end
-   local ipReverse = {}
-   for i = #ipParts, 1, -1 do
-      table.insert(ipReverse, ipParts[i])
-   end
-   return table.concat(ipReverse, ".") .. arpa
 end
 
 

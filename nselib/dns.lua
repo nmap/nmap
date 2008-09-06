@@ -3,6 +3,7 @@ module(... or "dns", package.seeall)
 -- simple DNS library
 -- packet creation, encoding, decoding, querying
 
+require("ipOps")
 require("stdnse")
 
 get_servers = nmap.get_dns_servers
@@ -224,15 +225,37 @@ end
 ---
 -- Formats IP for reverse lookup
 --@param ip IP address string
---@return "Domain" style representation of IP as subdomain of in-addr.arpa
+--@return "Domain" style representation of IP as subdomain of in-addr.arpa or ip6.arpa
 function reverse(ip)
+   ip = ipOps.expand_ip(ip)
    if type(ip) ~= "string" then return nil end
-   local ipParts = stdnse.strsplit("%.", ip)
+   local delim = "%."
+   local arpa = ".in-addr.arpa"
+   if ip:match(":") then
+      delim = ":"
+      arpa = ".ip6.arpa"
+   end
+   local ipParts = stdnse.strsplit(delim, ip)
+   if #ipParts == 8 then
+      -- padding
+      local mask = "0000"
+      for i, part in ipairs(ipParts) do
+          ipParts[i] = mask:sub(1, string.len(mask) - string.len(part)) .. part
+      end
+      -- 32 parts from 8
+      local temp = {}
+      for i, hdt in ipairs(ipParts) do
+         for part in hdt:gmatch("%x") do
+          temp[#temp+1] = part
+         end
+      end
+      ipParts = temp
+   end
    local ipReverse = {}
    for i = #ipParts, 1, -1 do
       table.insert(ipReverse, ipParts[i])
    end
-   return table.concat(ipReverse, ".") .. ".in-addr.arpa"
+   return table.concat(ipReverse, ".") .. arpa
 end
 
 ---
