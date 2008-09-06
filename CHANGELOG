@@ -324,7 +324,7 @@ o The loading of the nmap-services file has been made much
 o Added a script (ASN.nse) which uses Team Cymru's DNS interface to
   determine the routing AS numbers of scanned IP addresses.  They even
   set up a special domain just for Nmap queries.  The script is still
-  experimental and non-default. [Michael]
+  experimental and non-default. [Jah, Michael]
 
 o The shtool build helper script has been updated to version 2.0.8. An
   older version of shutil caused installation to fail when the locale
