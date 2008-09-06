@@ -6,6 +6,9 @@ o zenmap scan inventory place holder.
 
 o zenmap radialnet integration place holder.
 
+o A bug was fixed in Zenmap where clicking "Cancel" in a file chooser
+  in the diff interface would cause a crash.
+
 o --traceroute now uses the timing ping probe saved from host
   discovery and port scanning instead of finding its own probe. The
   timing ping probe is always the best probe for eliciting a response
