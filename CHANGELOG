@@ -187,6 +187,9 @@ o The NSE datafiles library now has generic file parsing routines, and
   and libraries may find them useful for dealing with their own data
   files, such as password lists. [Jah]
 
+o Passed the big revision 10,000 milestone in the Nmap project SVN
+  server: http://seclists.org/nmap-dev/2008/q3/0682.html
+
 o Added some Windows and MinGW compatibility patches submitted by
   Gisle Vanem.
 
