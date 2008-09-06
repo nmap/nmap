@@ -87,6 +87,7 @@ categories  = {"discovery", "safe"}
 
 local url    = require "url"
 local http   = require "http"
+local ipOps  = require "ipOps"
 local stdnse = require "stdnse"
 
 
@@ -100,7 +101,7 @@ local stdnse = require "stdnse"
 
 hostrule = function( host )
 
-    local is_private, err = isPrivate( host.ip )
+    local is_private, err = ipOps.isPrivate( host.ip )
     if err then
       stdnse.print_debug( "%s Error in Hostrule: %s.", id, err )
       return false
@@ -386,7 +387,7 @@ function get_cache_key( ip )
       end
 
       -- check if ip is in a cached range and add the entry to cache_entries if it is
-      local in_range, err = ip_in_range( ip, cache_data.range )
+      local in_range, err = ipOps.ip_in_range( ip, cache_data.range )
       if in_range then
         local t = {}
         t.key = ip_key
@@ -426,11 +427,11 @@ function get_prefix_length( range )
 
   if type( range ) ~= "string" or range == "" then return nil end
 
-  local first, last, err = get_ips_from_range( range )
+  local first, last, err = ipOps.get_ips_from_range( range )
   if err then return nil end
 
-  first = ip_to_bin( first ):reverse()
-  last = ip_to_bin( last ):reverse()
+  first = ipOps.ip_to_bin( first ):reverse()
+  last = ipOps.ip_to_bin( last ):reverse()
 
   local hostbits = 0
   for pos = 1, string.len( first ), 1 do
@@ -473,7 +474,7 @@ function get_db_from_assignments( ip )
 
   if next( nmap.registry.whois.local_assignments_data[af] ) then
     for _, assignment in ipairs( nmap.registry.whois.local_assignments_data[af] ) do
-      if ip_in_range( ip, assignment.range.first .. "-" .. assignment.range.last ) then
+      if ipOps.ip_in_range( ip, assignment.range.first .. "-" .. assignment.range.last ) then
         return assignment.service
       end
     end
@@ -1004,7 +1005,7 @@ function constrain_response( response, db, ip, meta )
     local str_net
     local index
     for i, pointer_to_inetnum in ipairs( mptr ) do
-      if ip_in_range( ip, pointer_to_inetnum.range ) then
+      if ipOps.ip_in_range( ip, pointer_to_inetnum.range ) then
         str_net = pointer_to_inetnum.range
         ptr = pointer_to_inetnum.pointer
         index = i
@@ -1055,21 +1056,21 @@ function not_short_prefix( ip, range, redirect )
   if range:match( ":" ) then
     short_prefix = 23
     safe_prefix = 96
-    zero_first, zero_last, err[#err+1] = get_ips_from_range( "::/0" )
+    zero_first, zero_last, err[#err+1] = ipOps.get_ips_from_range( "::/0" )
   else
     short_prefix = 8
     safe_prefix = 24
-    zero_first, zero_last, err[#err+1] = get_ips_from_range( "0/0" )
+    zero_first, zero_last, err[#err+1] = ipOps.get_ips_from_range( "0/0" )
   end
 
-  first, last, err[#err+1] = get_ips_from_range( range )
+  first, last, err[#err+1] = ipOps.get_ips_from_range( range )
 
   if #err > 0 then
     stdnse.print_debug( 1, "%s Error in not_short_prefix: s%.", id, table.concat( err, " " ) )
     return nil
   end
 
-  if compare_ip( first, "eq", zero_first ) and compare_ip( last, "eq", zero_last ) then
+  if ipOps.compare_ip( first, "eq", zero_first ) and ipOps.compare_ip( last, "eq", zero_last ) then
     return ( get_assignment ( ip, short_prefix ) )
   elseif not redirect and ( get_prefix_length( range ) <= short_prefix ) then
     return ( get_assignment ( ip, safe_prefix ) )
@@ -1132,15 +1133,15 @@ end
 function smallest_range( range_1, range_2 )
 
   local sorted = true  -- return value (defaulting true to avoid a loop)
-  local r1_first, r1_last = get_ips_from_range( range_1.range )
-  local r2_first, r2_last = get_ips_from_range( range_2.range )
+  local r1_first, r1_last = ipOps.get_ips_from_range( range_1.range )
+  local r2_first, r2_last = ipOps.get_ips_from_range( range_2.range )
 
-  if range_1.pointer and compare_ip( r1_first, "eq", r2_first ) and compare_ip( r1_last, "eq", r2_last )
+  if range_1.pointer and ipOps.compare_ip( r1_first, "eq", r2_first ) and ipOps.compare_ip( r1_last, "eq", r2_last )
   and range_1.pointer < range_2.pointer then
     sorted = false
   end
 
-  if compare_ip( r1_first, "le", r2_first ) and compare_ip( r1_last, "ge", r2_last ) then sorted = false end
+  if ipOps.compare_ip( r1_first, "le", r2_first ) and ipOps.compare_ip( r1_last, "ge", r2_last ) then sorted = false end
 
   return sorted
 
@@ -1158,7 +1159,7 @@ end
 
 function get_assignment( ip, prefix )
 
-  local some_ip, err = ip_to_bin( ip )
+  local some_ip, err = ipOps.ip_to_bin( ip )
   if err then return nil, err end
 
   prefix = tonumber( prefix )
@@ -1170,8 +1171,8 @@ function get_assignment( ip, prefix )
   hostbits = string.gsub( hostbits, "1", "0" )
   local first = string.sub( some_ip, 1, prefix ) .. hostbits
   err = {}
-  first, err[#err+1] = bin_to_ip( first )
-  last, err[#err+1] = get_last_ip( ip, prefix )
+  first, err[#err+1] = ipOps.bin_to_ip( first )
+  last, err[#err+1] = ipOps.get_last_ip( ip, prefix )
   if #err > 0 then return nil, table.concat( err, " " ) end
 
   return first .. "-" .. last
@@ -2075,7 +2076,7 @@ function parse_assignments( address_family_spec, table_of_lines )
         svc = "arin"
       end
       -- optimise the data
-      local first_ip, last_ip, err = get_ips_from_range( net )
+      local first_ip, last_ip, err = ipOps.get_ips_from_range( net )
       if not err then
         local t = { first = first_ip, last = last_ip }
         ret[#ret+1] = { range = t, service = svc }
@@ -2181,413 +2182,11 @@ function sort_assignments( first, second )
   local f_lo, f_hi = first.range.first, first.range.last
   local s_lo, s_hi = second.range.first, second.range.last
 
-  if compare_ip( f_lo, "gt", s_lo ) then return false end
-  if compare_ip( f_lo, "le", s_lo ) and compare_ip( f_hi, "ge", s_hi ) then
+  if ipOps.compare_ip( f_lo, "gt", s_lo ) then return false end
+  if ipOps.compare_ip( f_lo, "le", s_lo ) and ipOps.compare_ip( f_hi, "ge", s_hi ) then
     return false
   end
 
   return true
-
-end
-
-
-
-
--- Checks to see if the supplied IP address is part of the following non-internet-routable address spaces:
--- IPv4 Loopback (RFC3330),
--- IPv4 Private Use (RFC1918),
--- IPv4 Link Local (RFC3330),
--- IPv6 Unspecified and Loopback (RFC3513),
--- IPv6 Unique Local Unicast (RFC4193),
--- IPv6 Link Local Unicast (RFC4291)
--- @param ip  String representing an IPv4 or IPv6 address.  Shortened notation is permitted.
--- @usage     local is_private = isPrivate( "192.168.1.1" )
--- @return    Boolean True or False (or nil in case of an error).
--- @return    Nil (or String error message in case of an error).
-isPrivate = function( ip )
-
-  ip, err = expand_ip( ip )
-  if err then return nil, err end
-
-  local ipv4_private = { "10/8", "127/8", "169.254/16", "172.15/12", "192.168/16" }
-  local ipv6_private = { "::/127", "FC00::/7", "FE80::/10" }
-  local t, is_private = {}
-  if ip:match( ":" ) then
-    t = ipv6_private
-  else
-    t = ipv4_private
-  end
-
-  for _, range in ipairs( t ) do
-    is_private, err = ip_in_range( ip, range )
-    -- return as soon as is_private is true or err
-    if is_private then return true end
-    if err then return nil, err end
-  end
-  return false
-
-end
-
-
-
----
--- Compares two IP addresses (from the same address family).
--- @param left   String representing an IPv4 or IPv6 address.  Shortened notation is permitted.
--- @param op     A comparison operator which may be one of the following strings: "eq", "ge", "le", "gt" or "lt" (respectively ==, >=, <=, >, <).
--- @param right  String representing an IPv4 or IPv6 address.  Shortened notation is permitted.
--- @usage        if compare_ip( "2001::DEAD:0:0:0", "eq", "2001:0:0:0:DEAD::" ) then ...
--- @return       Boolean True or False (or nil in case of an error).
--- @return       Nil (or String error message in case of an error).
-compare_ip = function( left, op, right )
-
-  if type( left ) ~= "string" or type( right ) ~= "string" then
-    return nil, "Error in compare_ip: Expected IP address as a string."
-  end
-
-  if ( left:match( ":" ) and not right:match( ":" ) ) or ( not left:match( ":" ) and right:match( ":" ) ) then
-    return nil, "Error in compare_ip: IP addresses must be from the same address family."
-  end
-
-  if op == "lt" or op == "le" then
-    left, right = right, left
-  elseif op ~= "eq" and op ~= "ge" and op ~= "gt" then
-    return nil, "Error in compare_ip: Invalid Operator."
-  end
-
-  local err ={}
-  left, err[#err+1] = ip_to_bin( left )
-  right, err[#err+1] = ip_to_bin( right )
-  if #err > 0 then
-    return nil, table.concat( err, " " )
-  end
-
-  if string.len( left ) ~= string.len( right ) then
-      -- shouldn't happen...
-      return nil, "Error in compare_ip: Binary IP addresses were of different lengths."
-  end
-
-  -- equal?
-  if ( op == "eq" or op == "le" or op == "ge" ) and left == right then
-    return true
-  elseif op == "eq" then
-    return false
-  end
-
-  -- starting from the leftmost bit, subtract the bit in right from the bit in left
-  local compare
-  for i = 1, string.len( left ), 1 do
-    compare = tonumber( string.sub( left, i, i ) ) - tonumber( string.sub( right, i, i ) )
-    if compare == 1 then
-      return true
-    elseif compare == -1 then
-      return false
-    end
-  end
-  return false
-
-end
-
-
-
----
--- Checks whether the supplied IP address is within the supplied Range of IP addresses if they belong to the same address family.
--- @param ip     String representing an IPv4 or IPv6 address.  Shortened notation is permitted.
--- @param range  String representing a range of IPv4 or IPv6 addresses in first-last or cidr notation  (e.g. "192.168.1.1 - 192.168.255.255" or "2001:0A00::/23").
--- @usage        if ip_in_range( "192.168.1.1", "192/8" ) then ...
--- @return       Boolean True or False (or nil in case of an error).
--- @return       Nil (or String error message in case of an error).
-ip_in_range = function( ip, range )
-
-  local first, last, err = get_ips_from_range( range )
-  if err then return nil, err end
-  ip, err = expand_ip( ip )
-  if err then return nil, err end
-  if ( ip:match( ":" ) and not first:match( ":" ) ) or ( not ip:match( ":" ) and first:match( ":" ) ) then
-    return nil, "Error in ip_in_range: IP address is of a different address family to Range."
-  end
-
-  err = {}
-  local ip_ge_first, ip_le_last
-  ip_ge_first, err[#err+1] = compare_ip( ip, "ge", first )
-  ip_le_last, err[#err+1] = compare_ip( ip, "le", last )
-  if #err > 0 then
-    return nil, table.concat( err, " " )
-  end
-
-  if ip_ge_first and ip_le_last then
-    return true
-  else
-    return false
-  end
-
-end
-
-
-
----
--- Expands an IP address supplied in shortened notation.
--- Serves also to check the well-formedness of an IP address.
--- Note: IPv4in6 notated addresses will be returned in pure IPv6 notation unless the IPv4 portion
--- is shortened and does not contain a dot - in which case the address will be treated as IPv6.
--- @param ip  String representing an IPv4 or IPv6 address in shortened or full notation.
--- @usage     local ip = expand_ip( "2001::" )
--- @return    String representing a fully expanded IPv4 or IPv6 address (or nil in case of an error).
--- @return    Nil (or String error message in case of an error).
-expand_ip = function( ip )
-
-  if type( ip ) ~= "string" or ip == "" then
-    return nil, "Error in expand_ip: Expected IP address as a string."
-  end
-
-  local err4 = "Error in expand_ip: An address assumed to be IPv4 was malformed."
-
-  if not ip:match( ":" ) then
-    -- ipv4: missing octets should be "0" appended
-    if ip:match( "[^\.0-9]" ) then
-      return nil, err4
-    end
-    local octets = {}
-    for octet in string.gfind( ip, "%d+" ) do
-      if tonumber( octet, 10 ) > 255 then return nil, err4 end
-      octets[#octets+1] = octet
-    end
-    if #octets > 4 then return nil, err4 end
-    while #octets < 4 do
-      octets[#octets+1] = "0"
-    end
-    return ( table.concat( octets, "." ) )
-  end
-
-  if ip:match( "[^\.:%x]" ) then
-    return nil, ( err4:gsub( "IPv4", "IPv6" ) )
-  end
-
-  -- preserve ::
-  ip = string.gsub(ip, "::", ":z:")
-
-  -- get a table of each hexadectet
-  local hexadectets = {}
-  for hdt in string.gfind( ip, "[\.z%x]+" ) do
-    hexadectets[#hexadectets+1] = hdt
-  end
-
-  -- deal with IPv4in6 (last hexadectet only)
-  local t = {}
-  if hexadectets[#hexadectets]:match( "[\.]+" ) then
-    hexadectets[#hexadectets], err = expand_ip( hexadectets[#hexadectets] )
-    if err then return nil, ( err:gsub( "IPv4", "IPv4in6" ) ) end
-    t = stdnse.strsplit( "[\.]+", hexadectets[#hexadectets] )
-    for i, v in ipairs( t ) do
-      t[i] = tonumber( v, 10 )
-    end
-    hexadectets[#hexadectets] = stdnse.tohex( 256*t[1]+t[2] )
-    hexadectets[#hexadectets+1] = stdnse.tohex( 256*t[3]+t[4] )
-  end
-
-  -- deal with :: and check for invalid address
-  local z_done = false
-  for index, value in ipairs( hexadectets ) do
-    if value:match( "[\.]+" ) then
-      -- shouldn't have dots at this point
-      return nil, ( err4:gsub( "IPv4", "IPv6" ) )
-    elseif value == "z" and z_done then
-      -- can't have more than one ::
-      return nil, ( err4:gsub( "IPv4", "IPv6" ) )
-    elseif value == "z" and not z_done then
-      z_done = true
-      hexadectets[index] = "0"
-      local bound = 8 - #hexadectets
-      for i = 1, bound, 1 do
-        table.insert( hexadectets, index+i, "0" )
-      end
-    elseif tonumber( value, 16 ) > 65535 then
-      -- more than FFFF!
-      return nil, ( err4:gsub( "IPv4", "IPv6" ) )
-    end
-  end
-
-  -- make sure we have exactly 8 hexadectets
-  if #hexadectets > 8 then return nil, ( err4:gsub( "IPv4", "IPv6" ) ) end
-  while #hexadectets < 8 do
-    hexadectets[#hexadectets+1] = "0"
-  end
-
-  return ( table.concat( hexadectets, ":" ) )
-
-end
-
-
-
----
--- Returns the first and last IP addresses in the supplied range of addresses.
--- @param range  String representing a range of IPv4 or IPv6 addresses in either cidr or first-last notation.
--- @usage        first, last = get_ips_from_range( "192.168.0.0/16" )
--- @return       String representing the first address in the supplied range (or nil in case of an error).
--- @return       String representing the last address in the supplied range (or nil in case of an error).
--- @return       Nil (or String error message in case of an error).
-get_ips_from_range = function( range )
-
-  if type( range ) ~= "string" then
-    return nil, nil, "Error in get_ips_from_range: Expected a range as a string."
-  end
-
-  local first, last, prefix
-  if range:match( "/" ) then
-    first, prefix = range:match( "([%x%d:\.]+)/(%d+)" )
-  elseif range:match( "-" ) then
-    first, last = range:match( "([%x%d:\.]+)%s*\-%s*([%x%d:\.]+)" )
-  end
-
-  local err = {}
-  if first and ( last or prefix ) then
-    first, err[#err+1] = expand_ip( first )
-  else
-    return nil, nil, "Error in get_ips_from_range: The range supplied could not be interpreted."
-  end
-  if last then
-    last, err[#err+1] = expand_ip( last )
-  elseif first and prefix then
-    last, err[#err+1] = get_last_ip( first, prefix )
-  end
-
-  if first and last then
-    if ( first:match( ":" ) and not last:match( ":" ) ) or ( not first:match( ":" ) and last:match( ":" ) ) then
-      return nil, nil, "Error in get_ips_from_range: First IP address is of a different address family to last IP address."
-    end
-    return first, last
-  else
-    return nil, nil, table.concat( err, " " )
-  end
-
-end
-
-
-
----
--- Calculates the last IP address of a range of addresses given an IP address in the range and prefix length for that range.
--- @param ip      String representing an IPv4 or IPv6 address.  Shortened notation is permitted.
--- @param prefix  Decimal number or a string representing a decimal number corresponding to a Prefix length.
--- @usage         last = get_last_ip( "192.0.0.0", 26 )
--- @return        String representing the last IP address of the range denoted by the supplied parameters (or nil in case of an error).
--- @return        Nil (or String error message in case of an error).
-get_last_ip = function( ip, prefix )
-
-  local first, err = ip_to_bin( ip )
-  if err then return nil, err end
-
-  prefix = tonumber( prefix )
-  if not prefix or ( prefix < 0 ) or ( prefix > string.len( first ) ) then
-    return nil, "Error in get_last_ip: Invalid prefix length."
-  end
-
-  local hostbits = string.sub( first, prefix + 1 )
-  hostbits = string.gsub( hostbits, "0", "1" )
-  local last = string.sub( first, 1, prefix ) .. hostbits
-  last, err = bin_to_ip( last )
-  if err then return nil, err end
-  return last
-
-end
-
-
-
----
--- Converts an IP address into a string representing the address as binary digits.
--- @param ip  String representing an IPv4 or IPv6 address.  Shortened notation is permitted.
--- @usage     bit_string = ip_to_bin( "2001::" )
--- @return    String representing the supplied IP address as 32 or 128 binary digits (or nil in case of an error).
--- @return    Nil (or String error message in case of an error).
-ip_to_bin = function( ip )
-
-  ip, err = expand_ip( ip )
-  if err then return nil, err end
-
-  local t, mask = {}
-
-  if not ip:match( ":" ) then
-    -- ipv4 string
-    for octet in string.gfind( ip, "%d+" ) do
-      t[#t+1] = stdnse.tohex( octet )
-    end
-    mask = "00"
-  else
-    -- ipv6 string
-    for hdt in string.gfind( ip, "%x+" ) do
-      t[#t+1] = hdt
-    end
-    mask = "0000"
-  end
-
-  -- padding
-  for i, v in ipairs( t ) do
-    t[i] = mask:sub( 1, string.len( mask ) - string.len( v ) ) .. v
-  end
-
-  return hex_to_bin( table.concat( t ) )
-
-end
-
-
-
----
--- Converts a string representing binary digits into an IP address.
--- @param binstring  String representing an IP address as 32 or 128 binary digits.
--- @usage            ip = bin_to_ip( "01111111000000000000000000000001" )
--- @return           String representing an IP address (or nil in case of an error).
--- @return           Nil (or String error message in case of an error).
-bin_to_ip = function( binstring )
-
-  if type( binstring ) ~= "string" or binstring:match( "[^01]+" ) then
-    return nil, "Error in bin_to_ip: Expected string of binary digits."
-  end
-
-  if string.len( binstring ) == 32 then
-    af = 4
-  elseif string.len( binstring ) == 128 then
-    af = 6
-  else
-    return nil, "Error in bin_to_ip: Expected exactly 32 or 128 binary digits."
-  end
-
-  t = {}
-  if af == 6 then
-    local pattern = string.rep( "[01]", 16 )
-    for chunk in string.gfind( binstring, pattern ) do
-      t[#t+1] = stdnse.tohex( tonumber( chunk, 2 ) )
-    end
-    return table.concat( t, ":" )
-  end
-
-  if af == 4 then
-    local pattern = string.rep( "[01]", 8 )
-    for chunk in string.gfind( binstring, pattern ) do
-      t[#t+1] = tonumber( chunk, 2 ) .. ""
-    end
-    return table.concat( t, "." )
-  end
-
-end
-
-
-
----
--- Converts a string representing a hexadecimal number into a string representing that number as binary digits.
--- Each hex digit results in four bits - this function is really just a wrapper around stdnse.tobinary().
--- @param hex  String representing a hexadecimal number.
--- @usage      bin_string = hex_to_bin( "F00D" )
--- @return     String representing the supplied number in binary digits (or nil in case of an error).
--- @return     Nil (or String error message in case of an error).
-hex_to_bin = function( hex )
-
-  if type( hex ) ~= "string" or hex == "" or hex:match( "[^%x]+" ) then
-    return nil, "Error in hex_to_bin: Expected string representing a hexadecimal number."
-  end
-
-  local t, mask, binchar = {}, "0000"
-  for hexchar in string.gfind( hex, "%x" ) do
-      binchar = stdnse.tobinary( tonumber( hexchar, 16 ) )
-      t[#t+1] = mask:sub( 1, string.len( mask ) - string.len( binchar ) ) .. binchar
-  end
-  return table.concat( t )
 
 end
