@@ -172,20 +172,6 @@
 
 class NmapOutputTable;
 
-/* various pieces of scan data used by
- * traceroute to find responsive ports
- * and match probes */
-struct scan_info {
-    u8 initial_proto;
-    u8 icmp_type;
-    u8 scan_flags;
-    u8 open_response;
-    u8 open_state;
-    u8 closed_response;
-    u8 closed_state;
-    bool ipproto;
-};
-
 /* Keeps track of each probes timing state */
 class TimeInfo {
   public:
@@ -217,7 +203,7 @@ class TimeInfo {
  * ttl. Traceprobes are stored inside tracegroups. */
 class TraceProbe {
   public:
-    TraceProbe (u8 proto, u32 dip, u32 sip, u16 sport, u16 dport);
+    TraceProbe (u32 dip, u32 sip, u16 sport, struct probespec& probe);
     ~TraceProbe ();
 
     /* Return the ip address and resolved hostname in a string 
@@ -244,9 +230,8 @@ class TraceProbe {
     struct in_addr ipdst;
     struct in_addr ipsrc;
     struct in_addr ipreplysrc;
+    struct probespec probe;
     u16 sport;
-    u16 dport;
-    u8 proto;
     u8 ttl;
     char **hostname;
 
@@ -260,7 +245,7 @@ class TraceProbe {
  * the ip */
 class TraceGroup {
   public:
-    TraceGroup (u32 dip, u16 dport, u16 sport, u8 proto);
+    TraceGroup (u32 dip, u16 sport, struct probespec& probe);
     ~TraceGroup ();
     /* map of all probes sent to this TraceGroups IP address. The map 
      * is keyed by the source port of the probe */
@@ -295,9 +280,8 @@ class TraceGroup {
     u16 repliedPackets;
     u8 consecTimeouts;
     /* protocol information */
-    u8 proto;
+    struct probespec probe;
     u16 sport;
-    u16 dport;
     u32 ipdst;
     /* estimated ttl distance to target */
     u8 hopDistance;
@@ -344,7 +328,6 @@ class Traceroute {
      * the groups destination IP address */
      std::map < u32, TraceGroup * >TraceGroups;
 
-    struct scan_info scaninfo;
     const struct scan_lists * scanlists;
     Target **hops;
     pcap_t *pd;
@@ -355,7 +338,7 @@ class Traceroute {
     /* called by outputTarget to log XML data */
     void outputXMLTrace (TraceGroup * tg);
     /* find a responsive port for t based on scan results */
-    int getTracePort (u8 proto, Target * t);
+    const probespec getTraceProbe (Target * t);
     /* sendTTLProbes() guesses the hop distance to a 
      * target by actively probing the host. */
     void sendTTLProbes (std::vector < Target * >&Targets, std::vector < Target * >&vaild_targets);
