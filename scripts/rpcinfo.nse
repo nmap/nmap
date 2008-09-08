@@ -57,11 +57,15 @@ action = function(host, port)
   local _,offset,header,length,tx_id,msg_type,reply_state,accept_state,value,payload,last_fragment
   last_fragment = false; offset = 1; payload = ''
 
-  -- extract payload from answer and try to receive more packets if header with
-  -- last_fragment set has not been received
+  -- extract payload from answer and try to receive more packets if 
+  -- RPC header with last_fragment set has not been received
+  -- If we can't get further packets don't stop but process what we
+  -- got so far.
   while not last_fragment do
     if offset > #answer then
-      answer = answer .. try(socket:receive_bytes(1))
+      local status, data = socket:receive_bytes(1)
+      if not status then break end
+      answer = answer .. data
     end
     offset,header = bin.unpack('>I',answer,offset)
     last_fragment = bit.band( header, 0x80000000 ) ~= 0
@@ -77,32 +81,31 @@ action = function(host, port)
   if tx_id == transaction_id and msg_type == 1 and reply_state == 0 and accept_state == 0 then
     local dir = { udp = {}, tcp = {}}
     local protocols = {[6]='tcp',[17]='udp'}
-    local rpc_prog, rpc_vers, rpc_proto, rpc_port
+    local prog, version, proto, port
     offset, value = bin.unpack('>I',payload,offset)
     while value == 1 and #payload - offset >= 19 do
-      offset,rpc_prog,rpc_vers,rpc_proto,rpc_port,value = bin.unpack('>IIIII',payload,offset)
-      rpc_proto = protocols[rpc_proto] or tostring( rpc_proto )
+      offset,prog,version,proto,port,value = bin.unpack('>IIIII',payload,offset)
+      proto = protocols[proto] or tostring( proto )
       -- collect data in a table
-      dir[rpc_proto] = dir[rpc_proto] or {}
-      dir[rpc_proto][rpc_port] = dir[rpc_proto][rpc_port] or {}
-      dir[rpc_proto][rpc_port][rpc_prog] = dir[rpc_proto][rpc_port][rpc_prog] or {}
-      table.insert( dir[rpc_proto][rpc_port][rpc_prog], rpc_vers )
+      dir[proto] = dir[proto] or {}
+      dir[proto][port] = dir[proto][port] or {}
+      dir[proto][port][prog] = dir[proto][port][prog] or {}
+      table.insert( dir[proto][port][prog], version )
     end
 
     -- format output
     local output = tab.new(4)
-    for rpc_proto, o in pairs(dir) do
+    for proto, o in pairs(dir) do
       -- get list of all used ports
       local ports = {}
-      for rpc_port, i in pairs(o) do table.insert(ports, rpc_port) end
+      for port,_ in pairs(o) do table.insert(ports, port) end
       table.sort(ports)
 
       -- iterate over ports to produce output
-      for i, rpc_port in ipairs(ports) do
-        i = o[rpc_port]
-        for rpc_prog, versions in pairs(o[rpc_port]) do
-          local name = rpc_numbers[rpc_prog] or ''
-          tab.addrow(output,rpc_prog,format_version(versions),('%5d/%s'):format(rpc_port,rpc_proto),name)
+      for _, port in ipairs(ports) do
+        for prog, versions in pairs(o[port]) do
+          local name = rpc_numbers[prog] or ''
+          tab.addrow(output,prog,format_version(versions),('%5d/%s'):format(port,proto),name)
         end
       end
     end
