@@ -252,20 +252,31 @@ AC_HELP_STRING([--with-openssl=DIR],[Use optional openssl libs and includes from
 if test "$use_openssl" = "yes" -a -z "$specialssldir"; then
   AC_CHECK_HEADER(openssl/ssl.h,,
   [ use_openssl="no"
-    AC_MSG_WARN([Failed to find openssl/ssl.h so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument]) ])
+    if test "$with_openssl" = "yes"; then
+      AC_MSG_ERROR([OpenSSL was explicitly requested but openssl/ssl.h was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl.])
+    fi
+    AC_MSG_WARN([Failed to find openssl/ssl.h so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument])
+  ])
 
 # use_openssl="yes" given explicitly in next 2 rules to avoid adding lib to $LIBS
  if test "$use_openssl" = "yes"; then
    AC_CHECK_LIB(crypto, BIO_int_ctrl,
     [ use_openssl="yes"],
     [ use_openssl="no"
-    AC_MSG_WARN([Failed to find libcrypto so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument]) ])
+    if test "$with_openssl" = "yes"; then
+      AC_MSG_ERROR([OpenSSL was explicitly requested but libcrypto was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl.])
+    fi
+    AC_MSG_WARN([Failed to find libcrypto so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument])
+   ])
  fi
 
  if test "$use_openssl" = "yes"; then
    AC_CHECK_LIB(ssl, SSL_new,
     [ use_openssl="yes" ],
     [ use_openssl="no"
+    if test "$with_openssl" = "yes"; then
+      AC_MSG_ERROR([OpenSSL was explicitly requested but libssl was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl.])
+    fi
     AC_MSG_WARN([Failed to find libssl so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument]) ],
     [ -lcrypto ])
  fi

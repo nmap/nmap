@@ -6050,8 +6050,14 @@ if test $ac_cv_header_openssl_ssl_h = yes; then
   :
 else
    use_openssl="no"
+    if test "$with_openssl" = "yes"; then
+      { { echo "$as_me:$LINENO: error: OpenSSL was explicitly requested but openssl/ssl.h was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl." >&5
+echo "$as_me: error: OpenSSL was explicitly requested but openssl/ssl.h was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl." >&2;}
+   { (exit 1); exit 1; }; }
+    fi
     { echo "$as_me:$LINENO: WARNING: Failed to find openssl/ssl.h so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument" >&5
 echo "$as_me: WARNING: Failed to find openssl/ssl.h so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument" >&2;}
+
 fi
 
 
@@ -6123,8 +6129,14 @@ if test $ac_cv_lib_crypto_BIO_int_ctrl = yes; then
    use_openssl="yes"
 else
    use_openssl="no"
+    if test "$with_openssl" = "yes"; then
+      { { echo "$as_me:$LINENO: error: OpenSSL was explicitly requested but libcrypto was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl." >&5
+echo "$as_me: error: OpenSSL was explicitly requested but libcrypto was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl." >&2;}
+   { (exit 1); exit 1; }; }
+    fi
     { echo "$as_me:$LINENO: WARNING: Failed to find libcrypto so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument" >&5
 echo "$as_me: WARNING: Failed to find libcrypto so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument" >&2;}
+
 fi
 
  fi
@@ -6195,6 +6207,11 @@ if test $ac_cv_lib_ssl_SSL_new = yes; then
    use_openssl="yes"
 else
    use_openssl="no"
+    if test "$with_openssl" = "yes"; then
+      { { echo "$as_me:$LINENO: error: OpenSSL was explicitly requested but libssl was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl." >&5
+echo "$as_me: error: OpenSSL was explicitly requested but libssl was not found. Try the --with-openssl=DIR argument to give the location of OpenSSL or run configure with --without-openssl." >&2;}
+   { (exit 1); exit 1; }; }
+    fi
     { echo "$as_me:$LINENO: WARNING: Failed to find libssl so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument" >&5
 echo "$as_me: WARNING: Failed to find libssl so OpenSSL will not be used. If it is installed you can try the --with-openssl=DIR argument" >&2;}
 fi
