@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o RPMs are now built with OpenSSL. [David]
+
 o Fixed an assertion failure where raw TCP timing ping probes were
   wrongly used during a TCP connect scan:
   nmap: scan_engine.cc:2843: UltraProbe* sendIPScanProbe(UltraScanInfo*,

@@ -36,7 +36,7 @@ devices are also supported, including the Sharp Zaurus and the iPAQ.
 %setup -q
 
 %build
-%configure --without-openssl --without-zenmap --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
+%configure --with-openssl --without-zenmap --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
 %if "%{static}" == "1"
 make static
 %else
@@ -62,6 +62,9 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 %{_datadir}/nmap
 
 %changelog
+
+* Mon Sep 08 2008 David Fifield (david(a)bamsoftware.com)
+- Build with --with-openssl rather than --without-openssl.
 
 * Thu Nov 08 2007 David Fifield (david(a)bamsoftware.com)
 - Split the zenmap subpackage into its own spec file.
