@@ -71,8 +71,6 @@ action = function(host, port)
 
 	 pstatus, perror = login(socket, currUser, currPw, additional)
 	 
-	 print("x: ", pstatus, perror)
-
 	 if (pstatus) then 
 	    return currUser .. " : " .. currPw
 	 elseif (perror == pop3.err.pwError) then
