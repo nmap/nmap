@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed an assertion failure where raw TCP timing ping probes were
+  wrongly used during a TCP connect scan:
+  nmap: scan_engine.cc:2843: UltraProbe* sendIPScanProbe(UltraScanInfo*,
+    HostScanStats*, const probespec*, u8, u8):
+    Assertion `USI->scantype != CONNECT_SCAN' failed.
+  Thanks to LevelZero for the report. [David]
+
 Nmap 4.75 [2008-9-7]
 
 o [Zenmap] Added a new Scan Topology system. The idea is that if we

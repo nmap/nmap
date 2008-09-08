@@ -1022,8 +1022,9 @@ static bool pingprobe_is_appropriate(const UltraScanInfo *USI,
         return USI->scantype == CONNECT_SCAN || (USI->ping_scan && USI->ptech.connecttcpscan);
   case(PS_TCP):
   case(PS_UDP):
-	  return USI->tcp_scan || USI->udp_scan ||
-          (USI->ping_scan && (USI->ptech.rawtcpscan || USI->ptech.rawudpscan));
+	return (USI->tcp_scan && USI->scantype != CONNECT_SCAN) ||
+            USI->udp_scan ||
+            (USI->ping_scan && (USI->ptech.rawtcpscan || USI->ptech.rawudpscan));
   case(PS_PROTO):
     return USI->prot_scan || (USI->ping_scan && USI->ptech.rawprotoscan);
   case(PS_ICMP):
