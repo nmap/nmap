@@ -1,6 +1,6 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-4.69BETA1
+Nmap 4.75 [2008-9-7]
 
 o [Zenmap] Added a new Scan Topology system. The idea is that if we
   are going to call Nmap the "Network Mapper", it should at least be
