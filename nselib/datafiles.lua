@@ -125,10 +125,10 @@ function parse_file( filename, ... )
     data_struct = t
   end
 
-  -- get path to file - no checking done here
-  local status, filepath = get_filepath( filename )
-  if not status then
-    return false, ( "Error in datafiles.parse_file: %s." ):format( filepath ) -- error from get_filepath
+  -- get path to file
+  local filepath = nmap.fetchfile( filename )
+  if not filepath then
+    return false, ( "Error in nmap.fetchfile: Could not find file %s." ):format( filename )
   end
 
   -- get a table of lines
@@ -270,16 +270,3 @@ function read_from_file( file )
 
 end
 
-
----
--- Gets the path to filename.
-function get_filepath( filename )
-  local ff = { "nmap-rpc", "nmap-services", "nmap-protocols" }
-  for _, f in pairs( ff ) do
-    local path = nmap.fetchfile( f )
-    if path then
-      return true, ( path:sub( 1, #path - #f ) .. filename )
-    end
-  end
-  return false, "Error in datafiles.get_filepath: Can't find nmap datafiles" -- ?
-end
