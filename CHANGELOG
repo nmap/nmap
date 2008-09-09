@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap's Windows self-installer now checks whether the MS Visual C++
+  runtime components have already been installed to avoid running it
+  again (which doesn't hurt anything, but slows down
+  installation). [Rob Nicholls]
+
 o RPMs are now built with OpenSSL. [David]
 
 o Fixed an assertion failure where raw TCP timing ping probes were

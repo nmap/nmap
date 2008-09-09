@@ -173,11 +173,29 @@ Section "Nmap Core Files" SecCore
   ;Store installation folder 
   WriteRegStr HKCU "Software\Nmap" "" $INSTDIR 
 
-  ;Silent install of Visual C++ 2008 runtime components
-  File ..\vcredist_x86.exe
-  ExecWait '"$INSTDIR\vcredist_x86.exe" /q'
-  Delete "$INSTDIR\vcredist_x86.exe" 
+  ;Check if VC++ 2008 runtimes are already installed:
+    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{FF66E9F6-83E7-3A3E-AF14-8DE9A809A6A4}" "DisplayName"
+    StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.21022" create_uninstaller vcredist_silent_install
 
+  ;If VC++ 2008 runtimes are not installed...
+  vcredist_silent_install:
+    DetailPrint "Installing Microsoft Visual C++ 2008 Redistributable"
+    File ..\vcredist_x86.exe
+    ExecWait '"$INSTDIR\vcredist_x86.exe" /q' $0
+    ;Check for successful installation of our vcredist_x86.exe...
+    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{FF66E9F6-83E7-3A3E-AF14-8DE9A809A6A4}" "DisplayName"
+    StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.21022" vcredist_success vcredist_not_present
+    vcredist_not_present:
+      DetailPrint "Microsoft Visual C++ 2008 Redistributable failed to install"
+      IfSilent create_uninstaller vcredist_messagebox
+      vcredist_messagebox:
+        MessageBox MB_OK "Microsoft Visual C++ 2008 Redistributable Package (x86) failed to install ($INSTDIR\vcredist_x86.exe). Please ensure your system meets the minimum requirements before running the installer again."
+        Goto create_uninstaller
+    vcredist_success:
+      Delete "$INSTDIR\vcredist_x86.exe" 
+      DetailPrint "Microsoft Visual C++ 2008 Redistributable was successfully installed"
+
+  create_uninstaller:
   ;Create uninstaller 
   WriteUninstaller "$INSTDIR\Uninstall.exe" 
    
