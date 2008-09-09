@@ -64,7 +64,7 @@ static const struct luaL_reg bitlib[] = {
 };
 
 LUALIB_API int luaopen_bit(lua_State *L) {
-  luaL_openlib(L, BITLIBNAME, bitlib, 0);
+  luaL_register(L, BITLIBNAME, bitlib);
   return 1;
 }
 
