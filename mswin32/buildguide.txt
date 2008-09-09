@@ -14,7 +14,6 @@ PyGTK (2.10.4) - http://ftp.gnome.org/pub/gnome/binaries/win32/pygtk
 PyCairo (1.2.6) - http://ftp.gnome.org/pub/gnome/binaries/win32/pycairo
 PyGObject (2.12.3) - http://ftp.gnome.org/pub/gnome/binaries/win32/pygobject
 Py2exe (0.6.6) - http://www.sourceforge.net/projects/py2exe
-Psyco (1.5.2) - http://www.sourceforge.net/projects/psyco
 
 Be sure to grab the PyGTK, PyCairo, etc. for Python 2.5 and not 2.4!
 
