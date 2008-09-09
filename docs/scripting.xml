@@ -208,8 +208,8 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
           Currently defined categories are <literal>safe</literal>,
           <literal>intrusive</literal>, <literal>malware</literal>,
           <literal>version</literal>, <literal>discovery</literal>,
-          <literal>vuln</literal>, <literal>auth</literal> and
-          <literal>default</literal>.
+          <literal>vuln</literal>, <literal>auth</literal>,
+          <literal>external</literal> and <literal>default</literal>.
           Category names are not case
           sensitive.  The following list describes each category.</para>
 
@@ -310,6 +310,27 @@ Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
           <listitem>
             <para>These scripts try to determine authentication credentials
             on the target system, often through a brute-force attack.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>
+            <indexterm><primary sortas="external script category">&ldquo;<literal>external</literal>&rdquo; script category</primary></indexterm>
+            <option>external</option>
+          </term>
+          <listitem>
+            <para>Scripts in this category may send data to a
+            third-party database or other network resource. An example
+            of this is <filename>whois.nse</filename>, which makes a
+            connection to a
+            whois<indexterm><primary>whois</primary></indexterm> server
+            to learn about the address of the target. There is always
+            the possibility that the operators of the third-party
+            database will record anything you send to them, which in
+            many cases will include your IP address and the address of
+            the target. Most scripts involve traffic strictly between
+            the scanning computer and the client; any that do not are
+            placed in this category.</para>
           </listitem>
         </varlistentry>
 
