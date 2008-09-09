@@ -1,6 +1,15 @@
 id = "DNS source port randomness"
 
-description = "Queries porttest.dns-oarc.net to check for the predictable-port DNS recursion vulnerability.  Predictable source ports can make a DNS server vulnerable to cache poisoning attacks (CVE-2008-1447)"
+description = [[
+Queries porttest.dns-oarc.net to check for the predictable-port DNS recursion
+vulnerability.  Predictable source ports can make a DNS server vulnerable to
+cache poisoning attacks (CVE-2008-1447)
+\n
+Be aware that any targets against which this script is run will be sent to and
+potentially recorded by one or more DNS servers and the porttest server. In
+addition your IP address will be sent along with the porttest query to the DNS
+server running on the target.
+]]
 
 license = "Script: Same as Nmap--See http://nmap.org/book/man-legal.html\n" ..
 	  "porttest.dns-oarc.net: https://www.dns-oarc.net/oarc/services/porttest"
@@ -14,7 +23,7 @@ author = "Script: Brandon Enright <bmenrigh@ucsd.edu>\n" ..
 -- The likely long-term availability makes this script a good candidate
 -- for inclusion in Nmap proper.
 
-categories = {"intrusive"}
+categories = {"external", "intrusive"}
 
 require "bit"
 require "comm"

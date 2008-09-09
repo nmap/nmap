@@ -24,6 +24,10 @@ to ensure that the most accurate information about the IP address assignment is 
 should be used with a value of "nocache" (see script arguments below).  This reduces the range of addresses that may use a
 cached record to a size that helps ensure that smaller assignments will be discovered.  This option should be used with caution
 due to the potential to send large numbers of whois queries and possibly be banned from using the services.
+\n\n
+In using this script your IP address will be sent to iana.org. Additionally
+your address and the address of the target of the scan will be sent to one of
+the RIRs.
 ]]
 
 ---
@@ -83,7 +87,7 @@ id          = "Whois"
 author      = "jah <jah at zadkiel.plus.com>"
 license     = "See Nmap License: http://nmap.org/book/man-legal.html"
 runlevel    = 1
-categories  = {"discovery", "safe"}
+categories  = {"discovery", "external", "safe"}
 
 local url    = require "url"
 local http   = require "http"

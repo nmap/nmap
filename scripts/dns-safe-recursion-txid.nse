@@ -1,6 +1,15 @@
 id = "DNS TXID randomness"
 
-description = "Queries txidtest.dns-oarc.net to check for the predictable-TXID DNS recursion vulnerability.  Predictable TXID values can make a DNS server vulnerable to cache poisoning attacks (CVE-2008-1447)"
+description = [[
+Queries txidtest.dns-oarc.net to check for the predictable-TXID DNS recursion
+vulnerability.  Predictable TXID values can make a DNS server vulnerable to
+cache poisoning attacks (CVE-2008-1447)"
+\n
+Be aware that any targets against which this script is run will be sent to and
+potentially recorded by one or more DNS servers and the txidtest server. In
+addition your IP address will be sent along with the txidtest query to the DNS
+server running on the target.
+]]
 
 license = "Script: Same as Nmap--See http://nmap.org/book/man-legal.html\n" ..
 	  "txidtest.dns-oarc.net: https://www.dns-oarc.net/oarc/services/txidtest"
@@ -14,7 +23,7 @@ author = "Script: Brandon Enright <bmenrigh@ucsd.edu>\n" ..
 -- The likely long-term availability makes this script a good candidate
 -- for inclusion in Nmap proper.
 
-categories = {"intrusive"}
+categories = {"external", "intrusive"}
 
 require "bit"
 require "comm"
