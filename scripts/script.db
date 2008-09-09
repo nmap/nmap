@@ -52,6 +52,7 @@ Entry{ category = "safe", filename = "rpcinfo.nse" }
 Entry{ category = "discovery", filename = "rpcinfo.nse" }
 Entry{ category = "default", filename = "HTTP_open_proxy.nse" }
 Entry{ category = "discovery", filename = "HTTP_open_proxy.nse" }
+Entry{ category = "external", filename = "HTTP_open_proxy.nse" }
 Entry{ category = "intrusive", filename = "HTTP_open_proxy.nse" }
 Entry{ category = "intrusive", filename = "HTTPpasswd.nse" }
 Entry{ category = "vuln", filename = "HTTPpasswd.nse" }
@@ -87,6 +88,7 @@ Entry{ category = "auth", filename = "SNMPcommunitybrute.nse" }
 Entry{ category = "discovery", filename = "whois.nse" }
 Entry{ category = "external", filename = "whois.nse" }
 Entry{ category = "safe", filename = "whois.nse" }
+Entry{ category = "external", filename = "dns-safe-recursion-txid.nse" }
 Entry{ category = "intrusive", filename = "dns-safe-recursion-txid.nse" }
 Entry{ category = "external", filename = "dns-safe-recursion-port.nse" }
 Entry{ category = "intrusive", filename = "dns-safe-recursion-port.nse" }

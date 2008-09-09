@@ -6,8 +6,13 @@
 --		* Fixed some \r\n's
 
 id="Open Proxy Test"
-description="Test if a discovered proxy is open to us by connecting to www.google.com and checking for the 'Server: GWS/' header response."
-categories = {"default", "discovery", "intrusive"}
+description=[[
+Test if a discovered proxy is open to us by connecting to www.google.com and checking for the 'Server: GWS/' header response.
+\n
+If the target is an open proxy, this script will cause the target to retrieve a
+web page from www.google.com.
+]]
+categories = {"default", "discovery", "external", "intrusive"}
 require "comm"
 
 -- I found a nice explode() function in lua-users' wiki. I had to fix it, though.
