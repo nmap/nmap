@@ -1496,8 +1496,11 @@ int nmap_main(int argc, char *argv[]) {
   log_write(LOG_NORMAL|LOG_MACHINE|LOG_XML,"\n");  
 
   log_write(LOG_XML, "<nmaprun scanner=\"nmap\" args=\"");
-  for(i=0; i < argc; i++) 
-    log_write(LOG_XML, (i == argc-1)? "%s\" " : "%s ", fakeargv[i]);
+  for(i=0; i < argc; i++) {
+    char *p = xml_convert(fakeargv[i]);
+    log_write(LOG_XML, (i == argc-1)? "%s\" " : "%s ", p);
+    free(p);
+  }
 
   log_write(LOG_XML, "start=\"%lu\" startstr=\"%s\" version=\"%s\" xmloutputversion=\"1.02\">\n",
 	    (unsigned long) timep, mytime, NMAP_VERSION);

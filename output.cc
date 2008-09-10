@@ -890,39 +890,47 @@ char* xml_convert (const char* str) {
   char *end = temp + strl * 6 + 1;
   for (p = temp;(prevch = ch, ch = *str);str++) {
     const char *a;
-    switch (ch) {
-    case '\t':
-      a = "&#x9;";
-      break;
-    case '\r':
-      a = "&#xd;";
-      break;
-    case '\n':
-      a = "&#xa;";
-      break;
-    case '<':
-      a = "&lt;";
-      break;
-    case '>':
-      a = "&gt;";
-      break;
-    case '&':
-      a =  "&amp;";
-      break;
-    case '"':
-      a = "&quot;";
-      break;
-    case '\'':
-      a = "&apos;";
-      break;
-    case '-': 
-      if (prevch == '-') { /* Must escape -- for comments */
-        a =  "&#45;";
+    if ((unsigned char) ch > 0x7F) {
+      /* Escape anything outside of ASCII--we have to emit UTF-8 and an easy
+         way to do that is to emit ASCII. */
+      char buf[32];
+      Snprintf(buf, sizeof(buf), "&#x%02X;", (unsigned char) ch);
+      a = buf;
+    } else {
+      switch (ch) {
+      case '\t':
+        a = "&#x9;";
         break;
+      case '\r':
+        a = "&#xd;";
+        break;
+      case '\n':
+        a = "&#xa;";
+        break;
+      case '<':
+        a = "&lt;";
+        break;
+      case '>':
+        a = "&gt;";
+        break;
+      case '&':
+        a =  "&amp;";
+        break;
+      case '"':
+        a = "&quot;";
+        break;
+      case '\'':
+        a = "&apos;";
+        break;
+      case '-': 
+        if (prevch == '-') { /* Must escape -- for comments */
+          a =  "&#45;";
+          break;
+        }
+      default:
+        *p++ = ch;
+        continue;
       }
-    default:
-      *p++ = ch;
-      continue;
     }
     assert(end - p > 1);
     Strncpy(p,a, end - p - 1); p += strlen(a); // SAFE
