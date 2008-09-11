@@ -34,6 +34,37 @@ VIAddVersionKey /LANG=1033 "ProductName" "WinPcap"
 VIAddVersionKey /LANG=1033 "FileDescription" "WinPcap 4.0.2 installer" 
 VIAddVersionKey /LANG=1033 "LegalCopyright" ""
 
+;--------------------------------
+; Windows API Definitions
+
+!define SC_MANAGER_ALL_ACCESS		0x3F
+!define SERVICE_ALL_ACCESS		0xF01FF
+
+; Service Types
+!define SERVICE_FILE_SYSTEM_DRIVER	0x00000002
+!define SERVICE_KERNEL_DRIVER		0x00000001
+!define SERVICE_WIN32_OWN_PROCESS	0x00000010
+!define SERVICE_WIN32_SHARE_PROCESS	0x00000020
+!define SERVICE_INTERACTIVE_PROCESS	0x00000100
+
+; Service start options
+!define SERVICE_AUTO_START		0x00000002
+!define SERVICE_BOOT_START		0x00000000
+!define SERVICE_DEMAND_START		0x00000003
+!define SERVICE_DISABLED		0x00000004
+!define SERVICE_SYSTEM_START		0x00000001
+
+; Service Error control
+!define SERVICE_ERROR_CRITICAL		0x00000003
+!define SERVICE_ERROR_IGNORE		0x00000000
+!define SERVICE_ERROR_NORMAL		0x00000001
+!define SERVICE_ERROR_SEVERE		0x00000002
+
+; Service Control Options
+!define SERVICE_CONTROL_STOP		0x00000001
+!define SERVICE_CONTROL_PAUSE		0x00000002
+
+
 
 ;-------------------------------- 
 ;Interface Settings 
@@ -87,11 +118,54 @@ Function .onInit
 
   do_silent:
     SetSilent silent
-    IfFileExists "$SYSDIR\wpcap.dll" finish
+    IfFileExists "$SYSDIR\wpcap.dll" silent_checks
     return
+    silent_checks:
+
+      ; check for the presence of WinPcapInst's UninstallString
+      ; first and manually cleanup registry entries to avoid running 
+      ; the GUI uninstaller and assume our installer will overwrite 
+      ; the files. Needs to be checked first in case someone (force) 
+      ; installs WinPcap over the top of our installation
+      ReadRegStr $0 "HKLM" "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString"
+      StrCmp $0 "" winpcap_keys_not_present
+
+      DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst"
+
+      ReadRegStr $0 "HKLM" "Software\WinPcap" ""
+      StrCmp $0 "" winpcap_keys_not_present
+
+      Delete $0\rpcapd.exe
+      Delete $0\LICENSE
+      Delete $0\uninstall.exe
+      RMDir "$0"
+      DeleteRegKey HKLM "Software\WinPcap"
+
+      ; because we've deleted their uninstaller, skip the next 
+      ; registry key check (we'll still need to overwrite stuff)
+      Goto winpcap-nmap_keys_not_present
+
+      winpcap_keys_not_present:
+
+      ; if our registry key is present then assume all is well 
+      ; (we got this far so the official WinPcap wasn't installed) 
+      ; and use our uninstaller to (magically) silently uninstall 
+      ; everything cleanly and avoid having to overwrite files
+      ReadRegStr $0 "HKLM" "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "UninstallString"
+      StrCmp $0 "" winpcap-nmap_keys_not_present finish
+
+      winpcap-nmap_keys_not_present:
+
+      ; setoverwrite on to avoid any problems when trying to install the files
+      ; wpcap.dll is still present at this point, but unclear where it came from
+      SetOverwrite on
+
+      ; try to ensure that npf has been stopped before we install/overwrite files
+      ExecWait '"net stop npf"'
+
+      return
 
   no_silent:
-
     IfFileExists "$SYSDIR\wpcap.dll" do_version_check
     return
 
@@ -121,6 +195,7 @@ Function .onInit
 
   run_uninstaller:
     ExecWait '"$0\Uninstall.exe" _?=$INSTDIR'
+    return
 
 FunctionEnd
 
@@ -149,18 +224,46 @@ Function doFinal
  ; don't need to do anything
 FunctionEnd
 
-Function registerServiceSC
-    nsExec::Exec "sc create npf binpath= system32\drivers\npf.sys type= kernel DisplayName= $\"NetGroup Packet Filter Driver$\""
+Function registerServiceAPI
+  ; delete the npf service to avoid an error message later if it already exists
+  System::Call 'advapi32::OpenSCManagerA(,,i ${SC_MANAGER_ALL_ACCESS})i.r0'
+  System::Call 'advapi32::OpenServiceA(i r0,t "npf", i ${SERVICE_ALL_ACCESS}) i.r1'
+  System::Call 'advapi32::DeleteService(i r1) i.r6'
+  System::Call 'advapi32::CloseServiceHandle(i r1) n'
+  System::Call 'advapi32::CloseServiceHandle(i r0) n'
+  ; create the new npf service
+  System::Call 'advapi32::OpenSCManagerA(,,i ${SC_MANAGER_ALL_ACCESS})i.R0'
+  System::Call 'advapi32::CreateServiceA(i R0,t "npf",t "NetGroup Packet Filter Driver",i ${SERVICE_ALL_ACCESS},i ${SERVICE_KERNEL_DRIVER}, i ${SERVICE_DEMAND_START},i ${SERVICE_ERROR_NORMAL}, t "system32\drivers\npf.sys",,,,,) i.r1'
+  StrCmp $1 "0" register_fail register_success
+  register_fail:
+    DetailPrint "Failed to create the npf service"
+    IfSilent close_register_handle register_fail_messagebox
+    register_fail_messagebox:
+      MessageBox MB_OK "Failed to create the npf service. Please try installing WinPcap again, or use the official WinPcap installer from www.winpcap.org"
+    Goto close_register_handle
+  register_success:
+    DetailPrint "The npf service was successfully created"
+  close_register_handle:
+  System::Call 'advapi32::CloseServiceHandle(i R0) n'
 FunctionEnd
 
-Function un.registerServiceSC
-    nsExec::Exec "sc stop npf"
-    nsExec::Exec "sc delete npf"
+Function un.registerServiceAPI
+  System::Call 'advapi32::OpenSCManagerA(,,i ${SC_MANAGER_ALL_ACCESS})i.r0'
+  System::Call 'advapi32::OpenServiceA(i r0,t "npf", i ${SERVICE_ALL_ACCESS}) i.r1'
+  System::Call 'advapi32::DeleteService(i r1) i.r6'
+  StrCmp $6 "0" unregister_fail unregister_success
+  unregister_fail:
+    DetailPrint "Failed to delete the npf service"
+    Goto close_unregister_handle
+  unregister_success:
+    DetailPrint "The npf service was successfully deleted"
+  close_unregister_handle:
+  System::Call 'advapi32::CloseServiceHandle(i r1) n'
+  System::Call 'advapi32::CloseServiceHandle(i r0) n'
 FunctionEnd
 
 Function autoStartWinPcap
     WriteRegDWORD HKLM "SYSTEM\CurrentControlSet\Services\NPF" "Start" 2
-    ; silently fails on 2000 if the service isn't registered
     nsExec::Exec "net start npf"
 FunctionEnd
 
@@ -218,9 +321,12 @@ Section "WinPcap" SecWinPcap
     ; Install some basic registry keys
     WriteRegStr HKLM "Software\WinPcap" "" '"$INSTDIR"'
 
-    ; register the driver as a system service using sc.exe on xp or higher
-    ; this will silently fail on 2000 (unless they installed sc.exe from the resource kit)
-    Call registerServiceSC
+    ; stop the service, in case it's still registered, so it can be deleted 
+    nsExec::Exec "net stop npf"
+
+    ; register the driver as a system service using Windows API calls
+    ; this will work on Windows 2000 (that lacks sc.exe) and higher
+    Call registerServiceAPI
 
     ; automatically start the service if performing a silent install
     IfSilent auto_start skip_auto_start
@@ -242,9 +348,10 @@ SectionEnd ; end the section
 
 Section "Uninstall"
 
-  ; unregister the driver as a system service using sc.exe on xp or higher
-  ; this will silently fail on 2000 (unless they installed sc.exe from the resource kit)
-  Call un.registerServiceSC
+  ; stop npf before we delete the service from the registry
+  nsExec::Exec "net stop npf"
+  ; unregister the driver as a system service using Windows API calls, so it works on Windows 2000
+  Call un.registerServiceAPI
 
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap"
   DeleteRegKey HKLM "Software\WinPcap"

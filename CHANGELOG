@@ -16,9 +16,6 @@ o [Zenmap] Several corner-case crashes were fixed: [David]
     File "radialnet/gui/ControlWidget.py", line 104, in __create_widgets
     AttributeError: 'module' object has no attribute 'STOCK_INFO'
 
-o [Zenmap] The automatic crash reported no longer requires an email
-  address. [David]
-
 o [Zenmap] A crash was fixed that happened when opening the Hosts
   Viewer with an empty list of hosts. [David]
   The error message was
@@ -26,6 +23,9 @@ o [Zenmap] A crash was fixed that happened when opening the Hosts
     TypeError: GtkTreeModel.get_iter requires a tree path as its argument
 
 o [Zenmap] Highlighting of hostnames was improved.
+
+o [Zenmap] The automatic crash reported no longer requires an email
+  address. [David]
 
 o There is a new "external" script category, for scripts that rely on
   a third-party network resource. Scripts that send data to anywhere
@@ -36,6 +36,11 @@ o [Zenmap] A crash was fixed that affected Windows users with
   The error looked like this (with many variations):
     UnicodeDecodeError: 'utf8' codec can't decode byte 0x9c in position 28:
     unexpected code byte
+
+o Nmap's Windows self-installer now correctly registers/deletes the
+  npf (Winpcap) service during install/uninstall. Also the silent
+  install mode was improved to avoid a case where the Winpcap
+  uninstaller was (non-silently) shown. [Rob Nicholls]
 
 o Nmap's Windows self-installer now checks whether the MS Visual C++
   runtime components have already been installed to avoid running it
