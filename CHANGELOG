@@ -1,5 +1,42 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] A warning that would occur when a host had the same service
+  running on more than one port was removed. Thanks to Toralf Förster
+  for the bug report. [David]
+    GtkWarning: gtk_box_pack_start: assertion `child->parent == NULL' failed
+      self.pack_start(widget, expand=False, fill=False)
+
+o [Zenmap] Several corner-case crashes were fixed: [David]
+    File "radialnet\gui\NodeNotebook.pyo", line 429, in __create_widgets
+    KeyError: 'tcp'
+    File "radialnet\gui\RadialNet.pyo", line 1531, in __livens_up
+    AttributeError: 'NoneType' object has no attribute 'get_nodes'
+    File "zenmapGUI\MainWindow.pyo", line 308, in _create_ui_manager
+    GError: Odd character '\'
+    File "radialnet/gui/ControlWidget.py", line 104, in __create_widgets
+    AttributeError: 'module' object has no attribute 'STOCK_INFO'
+
+o [Zenmap] The automatic crash reported no longer requires an email
+  address. [David]
+
+o [Zenmap] A crash was fixed that happened when opening the Hosts
+  Viewer with an empty list of hosts. [David]
+  The error message was
+    File "radialnet\gui\HostsViewer.pyo", line 167, in __cursor_callback
+    TypeError: GtkTreeModel.get_iter requires a tree path as its argument
+
+o [Zenmap] Highlighting of hostnames was improved.
+
+o There is a new "external" script category, for scripts that rely on
+  a third-party network resource. Scripts that send data to anywhere
+  other than the target are placed in this category. [David]
+
+o [Zenmap] A crash was fixed that affected Windows users with
+  non-ASCII characters in their user names. [David]
+  The error looked like this (with many variations):
+    UnicodeDecodeError: 'utf8' codec can't decode byte 0x9c in position 28:
+    unexpected code byte
+
 o Nmap's Windows self-installer now checks whether the MS Visual C++
   runtime components have already been installed to avoid running it
   again (which doesn't hurt anything, but slows down
