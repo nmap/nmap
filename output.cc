@@ -480,22 +480,17 @@ static char* formatScriptOutput(ScriptResult sr) {
 	char *c_result, *c_output = new char[output.length()+1];
     strncpy(c_output, output.c_str(), output.length()+1);
 	int line = 0;
-#ifdef WIN32
-	const char* sep = "\r\n";
-#else
-	const char* sep = "\n";
-#endif
 	std::string line_prfx = "|  ";
 
-	char* token = strtok(c_output, sep);
+	char* token = strtok(c_output, "\n");
 
 	result += line_prfx + sr.get_id() + ": ";
 
 	while(token != NULL) {
 		if(line > 0)
 			result += line_prfx;
-		result += std::string(token) + sep;
-		token = strtok(NULL, sep);
+		result += std::string(token) + "\n";
+		token = strtok(NULL, "\n");
 		line++;
 	}
 
@@ -504,9 +499,9 @@ static char* formatScriptOutput(ScriptResult sr) {
 	result.replace(pos, 3, "|_ ");
 
 	// delete the unwanted trailing newline
-	pos = result.rfind(sep);
+	pos = result.rfind("\n");
 	if(pos!=std::string::npos){
-		result.erase(pos, strlen(sep));
+		result.erase(pos, strlen("\n"));
 	}
 	c_result = strdup(result.c_str());
 
