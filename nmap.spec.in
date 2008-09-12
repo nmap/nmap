@@ -36,7 +36,7 @@ devices are also supported, including the Sharp Zaurus and the iPAQ.
 %setup -q
 
 %build
-%configure --with-openssl --without-zenmap --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
+%configure --without-openssl --without-zenmap --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
 %if "%{static}" == "1"
 make static
 %else

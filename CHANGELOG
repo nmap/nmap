@@ -15,8 +15,6 @@ o [Zenmap] A crash was fixed that affected Windows users with
     UnicodeDecodeError: 'utf8' codec can't decode byte 0x9c in position 28:
     unexpected code byte
 
-o RPMs are now built with OpenSSL support. [David]
-
 o [Zenmap] Several corner-case crashes were fixed: [David]
     File "radialnet\gui\NodeNotebook.pyo", line 429, in __create_widgets
     KeyError: 'tcp'
