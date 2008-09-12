@@ -89,7 +89,7 @@ end
 -- Generic parsing of datafiles.  By supplying this function with a table containing captures to be applied to each line
 -- of a datafile a table will be returned which mirrors the structure of the supplied table and which contains any captured
 -- values.  A capture will be applied to each line using string.match() and may also be enclosed within a table or a function.
--- A function must accept a line as its paramater and should return one value derived from that line.
+-- A function must accept a line as its parameter and should return one value derived from that line.
 
 function parse_file( filename, ... )
 
@@ -101,34 +101,32 @@ function parse_file( filename, ... )
   end
 
   -- is filename a member of common_files? is second parameter a key in common_files or is it a table?
-  if common_files[filename] then
-    if type( arg[1] ) == "string" and common_files[filename][arg[1]] then
-      data_struct = {{ [arg[1]] = common_files[filename][arg[1]] }}
-    elseif type( arg[1] ) == "table" then
-      data_struct = { arg[1] }
-    else
-      data_struct = { common_files[filename] }
-    end
+  if common_files[filename] and type( arg[1] ) == "string" and common_files[filename][arg[1]] then
+    data_struct = { common_files[filename][arg[1]] }
+  elseif common_files[filename] and #arg == 0 then
+    data_struct = { common_files[filename] }
+  elseif type( arg[1] ) == "table" then
+    data_struct = arg
+  elseif type( arg[1] ) ~= "table" then
+    return false, "Error in datafiles.parse_file: Expected second parameter as table."
   end
 
-  if type( data_struct ) ~= "table" then
-    local t = {}
-    for _, a in ipairs( arg ) do
-      if type( a ) == "table" then
-        if not next( a ) then a = { "^(.+)$" } end -- empty table? no problem, you'll get the whole line
-        t[#t+1] = a
-      end
+  if type( data_struct ) == "table" then
+    for i, struc in ipairs( data_struct ) do
+      -- check that all varargs are tables
+      if type( struc ) ~= "table" then return false, "Error in datafiles.parse_file: Bad Parameter." end
+      -- allow empty table as sugar for ^(.+)$ capture the whole line
+      if not next( struc ) and #struc == 0 then data_struct[i] = { "^(.+)$" } end
     end
-    if #t == 0 then
+    if #data_struct == 0 then
       return false, "Error in datafiles.parse_file: I've no idea how you want your data."
     end
-    data_struct = t
   end
 
   -- get a table of lines
   local status, lines = read_from_file( filename )
   if not status then
-    return false, ( "Error in datafiles.parse_file: %s could not be read: %s." ):format( filepath, lines )
+    return false, ( "Error in datafiles.parse_file: %s could not be read: %s." ):format( filename, lines )
   end
 
   -- do the actual parsing
@@ -148,7 +146,7 @@ end
 -- Generic parsing of an array of strings.  By supplying this function with a table containing captures to be applied to each value
 -- of a array-like table of strings a table will be returned which mirrors the structure of the supplied table and which contains any captured
 -- values.  A capture will be applied to each array member using string.match() and may also be enclosed within a table or a function.
--- A function must accept an array member as its paramater and should return one value derived from that member.
+-- A function must accept an array member as its parameter and should return one value derived from that member.
 
 function parse_lines( lines, data_struct  )
 
@@ -157,7 +155,7 @@ function parse_lines( lines, data_struct  )
   end
 
   if type( data_struct ) ~= "table" or not next( data_struct ) then
-    return false, "Error in datafiles.parse_lines: No patterns for data capture."
+    return false, "Error in datafiles.parse_lines: Expected second parameter as a non-empty table."
   end
 
   local ret = {}
@@ -174,7 +172,7 @@ function parse_lines( lines, data_struct  )
         _, ret[index] = parse_lines( lines, value )
       else
         -- TEMP
-        stdnse.print_debug("Unexpected value %s", type(value))
+        stdnse.print_debug( "Error in datafiles.parse_lines: Index with type %s has unexpected value %s", type(index), type(value))
       end
     elseif type(index) == "string" or type(index) == "function"  then
       if type( value ) == "string" or type( value ) == "function" then
@@ -184,11 +182,12 @@ function parse_lines( lines, data_struct  )
       end
     else
       -- TEMP
-      stdnse.print_debug("unexpexted index %s %s", type(index), type(value))
+      stdnse.print_debug( "Error in datafiles.parse_lines: Index with type %s has unexpected value %s", type(index), type(value))
     end
   end
 
   return true, ret
+
 end
 
 
@@ -203,12 +202,12 @@ function read_from_file( file )
   -- get path to file
   local filepath = nmap.fetchfile( file )
   if not filepath then
-    return false, ( "Error in nmap.fetchfile: Could not find file %s." ):format( filename )
+    return false, ( "Error in nmap.fetchfile: Could not find file %s." ):format( file )
   end
 
   local f, err, _ = io.open( filepath, "r" )
   if not f then
-    return false, ( "Error in datafiles.read_from_file: Cannot open %s for reading: %s" ):format( file, err )
+    return false, ( "Error in datafiles.read_from_file: Cannot open %s for reading: %s" ):format( filepath, err )
   end
 
   local line, ret = nil, {}
@@ -224,9 +223,12 @@ function read_from_file( file )
 
 end
 
---- return an array-like table of values captured from each line
---@param lines table of strings containing the lines to process
---@param v_pattern pattern to use on the lines to produce the value for the array
+
+---
+-- return an array-like table of values captured from each line
+-- @param lines      table of strings containing the lines to process
+-- @param v_pattern  pattern to use on the lines to produce the value for the array
+
 get_array = function( lines, v_pattern )
   local ret = {}
   for _, line in ipairs( lines ) do
@@ -242,25 +244,30 @@ get_array = function( lines, v_pattern )
   return ret
 end
 
---- return an associative array table of index-value pairs captured from each line
---@param lines table of strings containing the lines to process
---@param i_pattern pattern to use on the lines to produce the key for the associative array
---@param v_pattern pattern to use on the lines to produce the value for the associative array
+
+---
+-- return an associative array table of index-value pairs captured from each line
+-- @param lines      table of strings containing the lines to process
+-- @param i_pattern  pattern to use on the lines to produce the key for the associative array
+-- @param v_pattern  pattern to use on the lines to produce the value for the associative array
+
 get_assoc_array = function( lines, i_pattern, v_pattern )
   local ret = {}
   for _, line in ipairs(lines) do
     assert( type( line ) == "string" )
+    local index
     if type(i_pattern) == "function" then
       index = i_pattern(line)
     else
       index = line:match(i_pattern)
     end
     if index and type(v_pattern) == "function" then
-      ret[index] = v_pattern(line)
+      local m = v_pattern(line)
+      if m then ret[index] = m end
     elseif index then
-      ret[index] = line:match(v_pattern)
+      local m = line:match(v_pattern)
+      if m then ret[index] = m end
     end
   end
   return ret
 end
-
