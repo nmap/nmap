@@ -1,10 +1,21 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [Zenmap] A warning that would occur when a host had the same service
-  running on more than one port was removed. Thanks to Toralf Förster
-  for the bug report. [David]
-    GtkWarning: gtk_box_pack_start: assertion `child->parent == NULL' failed
-      self.pack_start(widget, expand=False, fill=False)
+Nmap 4.76 [2008-9-12]
+
+o There is a new "external" script category, for NSE scripts which
+  rely on a third-party network resource. Scripts that send data to
+  anywhere other than the target are placed in this category. Initial
+  members are ASN.nse, dns-safe-recursion-port.nse,
+  dns-safe-recursion-txid.nse, ripeQuery.nse, HTTP_open_proxy.nse, and
+  whois.nse [David]
+
+o [Zenmap] A crash was fixed that affected Windows users with
+  non-ASCII characters in their user names. [David]
+  The error looked like this (with many variations):
+    UnicodeDecodeError: 'utf8' codec can't decode byte 0x9c in position 28:
+    unexpected code byte
+
+o RPMs are now built with OpenSSL support. [David]
 
 o [Zenmap] Several corner-case crashes were fixed: [David]
     File "radialnet\gui\NodeNotebook.pyo", line 429, in __create_widgets
@@ -24,20 +35,11 @@ o [Zenmap] A crash was fixed that happened when opening the Hosts
     File "radialnet\gui\HostsViewer.pyo", line 167, in __cursor_callback
     TypeError: GtkTreeModel.get_iter requires a tree path as its argument
 
-o [Zenmap] Highlighting of hostnames was improved.
+o Improved rpcinfo.nse to correctly parse a wider variety of server
+  responses. [Sven Klemm]
 
-o [Zenmap] The automatic crash reported no longer requires an email
-  address. [David]
-
-o There is a new "external" script category, for scripts that rely on
-  a third-party network resource. Scripts that send data to anywhere
-  other than the target are placed in this category. [David]
-
-o [Zenmap] A crash was fixed that affected Windows users with
-  non-ASCII characters in their user names. [David]
-  The error looked like this (with many variations):
-    UnicodeDecodeError: 'utf8' codec can't decode byte 0x9c in position 28:
-    unexpected code byte
+o [Zenmap] Fixed a data encoding bug which could cause the crash
+  reporter itself to crash! [David]
 
 o Nmap's Windows self-installer now correctly registers/deletes the
   npf (Winpcap) service during install/uninstall. Also the silent
@@ -49,14 +51,31 @@ o Nmap's Windows self-installer now checks whether the MS Visual C++
   again (which doesn't hurt anything, but slows down
   installation). [Rob Nicholls]
 
-o RPMs are now built with OpenSSL. [David]
-
 o Fixed an assertion failure where raw TCP timing ping probes were
   wrongly used during a TCP connect scan:
   nmap: scan_engine.cc:2843: UltraProbe* sendIPScanProbe(UltraScanInfo*,
     HostScanStats*, const probespec*, u8, u8):
     Assertion `USI->scantype != CONNECT_SCAN' failed.
   Thanks to LevelZero for the report. [David]
+
+o Update the NSE bit library to replace deprecated use of
+  luaL_openlib() with luaL_register(). This fixes a build error which
+  occured on systems which have Lua libraries installed but
+  LUA_COMPAT_OPENLIB not defined [Sven]
+
+o [Zenmap] The automatic crash reporter no longer requires an email
+  address. [David]
+
+o [Zenmap] Highlighting of hostnames was improved to avoid wrongful
+  highlighting of certain elapsed times, byte counts, and other
+  non-hostname data. The blue highlight effects are now more subtle
+  (no longer bold, underlined, or italic) [David]
+
+o [Zenmap] A warning that would occur when a host had the same service
+  running on more than one port was removed. Thanks to Toralf Förster
+  for the bug report. [David]
+    GtkWarning: gtk_box_pack_start: assertion `child->parent == NULL' failed
+      self.pack_start(widget, expand=False, fill=False)
 
 Nmap 4.75 [2008-9-7]
 
