@@ -81,7 +81,7 @@ COPYING.formatted:
 # Use the license formatter from the Windows installer.
 	../mswin32/license-format/licformat.sh ../COPYING > $@
 
-clean: clean-nmap clean-zenmap
+clean:
 	rm -rf $(IMAGE_STAGING_DIR)
 	rm -rf $(NMAP_BUILD_DIR)
 	rm -rf $(NMAP_STAGING_DIR)
