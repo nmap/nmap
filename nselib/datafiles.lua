@@ -125,14 +125,8 @@ function parse_file( filename, ... )
     data_struct = t
   end
 
-  -- get path to file
-  local filepath = nmap.fetchfile( filename )
-  if not filepath then
-    return false, ( "Error in nmap.fetchfile: Could not find file %s." ):format( filename )
-  end
-
   -- get a table of lines
-  local status, lines = read_from_file( filepath )
+  local status, lines = read_from_file( filename )
   if not status then
     return false, ( "Error in datafiles.parse_file: %s could not be read: %s." ):format( filepath, lines )
   end
@@ -168,91 +162,51 @@ function parse_lines( lines, data_struct  )
 
   local ret = {}
 
-  -- return an array-like table of values captured from each line
-  function get_array( v_pattern )
-    local ret = {}
-    for _, line in ipairs( lines ) do
-      -- only process strings
-      if type( line ) == "string" then
-        local captured
-        if type( v_pattern ) == "function" then
-          captured = v_pattern( line )
-        else
-          captured = line:match( v_pattern )
-        end
-        ret[#ret+1] = captured
-      end
-    end
-    return ret
-  end
-
-  -- return an associative array table of index-value pairs captured from each line
-  function get_assoc_array( i_pattern, v_pattern )
-    local ret = {}
-    for _, line in ipairs(lines) do
-      -- only process strings
-      if type( line ) == "string" then
-        if type(i_pattern) == "function" then
-          index = i_pattern(line)
-        else
-          index = line:match(i_pattern)
-        end
-        if index and type(v_pattern) == "function" then
-          ret[index] = v_pattern(line)
-        elseif index then
-          ret[index] = line:match(v_pattern)
-        end
-      end
-    end
-    return ret
-  end
-
-
   -- traverse data_struct and enforce sensible index-value pairs.  Call functions to process the members of lines.
   for index, value in pairs( data_struct ) do
     if type(index) == nil then return false, "Error in datafiles.parse_lines: Invalid index." end
-    if type(index) == "number" or ( type(index) == "string" and not index:match("%(") ) then
-      if type(value) == "number" or ( type(value) == "string" and not value:match("%(") ) then
+    if type(index) == "number" or type(value) == "table" then
+      if type(value) == "number" then
         return false, "Error in datafiles.parse_lines: No patterns for data capture."
       elseif type(value) == "string" or type(value) == "function" then
-        ret = get_array( value )
+        ret = get_array( lines, value )
       elseif type(value) == "table" then
         _, ret[index] = parse_lines( lines, value )
       else
         -- TEMP
-        print(type(index), "unexpected value", type(value))
+        stdnse.print_debug("Unexpected value %s", type(value))
       end
     elseif type(index) == "string" or type(index) == "function"  then
       if type( value ) == "string" or type( value ) == "function" then
-        ret = get_assoc_array( index, value )
+        ret = get_assoc_array( lines, index, value )
       else
         return false, ( "Error in datafiles.parse_lines: Invalid value for index %s." ):format( index )
       end
     else
       -- TEMP
-      print("unexpexted index", type(index), type(value))
+      stdnse.print_debug("unexpexted index %s %s", type(index), type(value))
     end
   end
 
-
   return true, ret
-
 end
 
 
 ---
 -- Reads a file, line by line, into a table.
--- @param file  String representing a filepath.
+-- @param file  String with the name of the file to read.
 -- @return      Boolean True on success, False on error
 -- @return      Table (array-style) of lines read from the file or error message in case of an error.
 
 function read_from_file( file )
 
-  if type( file ) ~= "string" or file == "" then
-    return false, "Error in datafiles.read_from_file: Expected file as a string."
+  -- get path to file
+  local filepath = nmap.fetchfile( file )
+  if not filepath then
+    return false, ( "Error in nmap.fetchfile: Could not find file %s." ):format( filename )
   end
 
-  local f, err, _ = io.open( file, "r" )
+  local f, err, _ = io.open( filepath, "r" )
   if not f then
     return false, ( "Error in datafiles.read_from_file: Cannot open %s for reading: %s" ):format( file, err )
   end
@@ -268,5 +222,45 @@ function read_from_file( file )
 
   return true, ret
 
+end
+
+--- return an array-like table of values captured from each line
+--@param lines table of strings containing the lines to process
+--@param v_pattern pattern to use on the lines to produce the value for the array
+get_array = function( lines, v_pattern )
+  local ret = {}
+  for _, line in ipairs( lines ) do
+    assert( type( line ) == "string" )
+    local captured
+    if type( v_pattern ) == "function" then
+      captured = v_pattern( line )
+    else
+      captured = line:match( v_pattern )
+    end
+    table.insert( ret, captured )
+  end
+  return ret
+end
+
+--- return an associative array table of index-value pairs captured from each line
+--@param lines table of strings containing the lines to process
+--@param i_pattern pattern to use on the lines to produce the key for the associative array
+--@param v_pattern pattern to use on the lines to produce the value for the associative array
+get_assoc_array = function( lines, i_pattern, v_pattern )
+  local ret = {}
+  for _, line in ipairs(lines) do
+    assert( type( line ) == "string" )
+    if type(i_pattern) == "function" then
+      index = i_pattern(line)
+    else
+      index = line:match(i_pattern)
+    end
+    if index and type(v_pattern) == "function" then
+      ret[index] = v_pattern(line)
+    elseif index then
+      ret[index] = line:match(v_pattern)
+    end
+  end
+  return ret
 end
 
