@@ -4,4 +4,4 @@ This package contains Nmap and Zenmap. It is intended to work on Intel and Power
 
 Installation of both Nmap and Zenmap is optional. Unselect Zenmap to get just the command-line tool. Unselect Nmap if you prefer to use a copy of Nmap that is already installed. Zenmap will not work without Nmap.
 
-The nmap command-line binary will be installed in /usr/local/bin, and additional support files will be installed in /usr/local/libexec and /usr/local/share. The Zenmap application bundle will be installed in /Applications/Zenmap.app.
+The nmap command-line binary will be installed in /usr/local/bin, and additional support files will be installed in /usr/local/share. The Zenmap application bundle will be installed in /Applications/Zenmap.app.
