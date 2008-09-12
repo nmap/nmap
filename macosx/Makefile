@@ -6,19 +6,24 @@ NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION' ../nma
 
 NAME_VERSION = nmap-$(NMAP_VERSION)$(if $(APPENDAGE),-$(APPENDAGE))
 
-IMAGE_STAGING_DIR = $(NAME_VERSION)
-NMAP_STAGING_DIR = Nmap
-ZENMAP_STAGING_DIR = Zenmap
-NMAP_BUILD_DIR = nmap-build
-
 IMAGE_NAME = $(NAME_VERSION).dmg
 PKG_NAME = $(NAME_VERSION).mpkg
+
+IMAGE_STAGING_DIR = $(NAME_VERSION)
+
+NMAP_BUILD_DIR = nmap-build
+NMAP_STAGING_DIR = Nmap
+
+ZENMAP_BUILD_DIR = zenmap-build
+ZENMAP_STAGING_DIR = Zenmap
 
 PREFIX = /usr/local
 
 PACKAGEMAKER = /Developer/usr/bin/packagemaker
 
 EXTRA_DIST_FILES = $(addprefix $(IMAGE_STAGING_DIR)/,COPYING README)
+
+CONFIGURE_ARGS = --prefix="$(PREFIX)" --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)"
 
 # Flags for building universal binaries. See
 # http://developer.apple.com/documentation/Porting/Conceptual/PortingUnix/compiling/chapter_4_section_3.html.
@@ -42,13 +47,15 @@ $(IMAGE_STAGING_DIR)/$(PKG_NAME): stage-nmap stage-zenmap README COPYING.formatt
 	mkdir -p $(IMAGE_STAGING_DIR)
 	$(PACKAGEMAKER) --doc nmap.pmdoc --title "Nmap $(NMAP_VERSION)" -o $@
 
-stage-nmap:
-	rm -rf $(NMAP_BUILD_DIR)
-	svn export .. $(NMAP_BUILD_DIR)
-	svn export ../nsock $(NMAP_BUILD_DIR)/nsock
-	svn export ../nbase $(NMAP_BUILD_DIR)/nbase
-	svn export ../zenmap $(NMAP_BUILD_DIR)/zenmap
-	cd $(NMAP_BUILD_DIR) && ./configure --prefix="$(PREFIX)" --without-zenmap --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" $(CONFIGURE_ARGS)
+export-%:
+	rm -rf $*
+	svn export .. $*
+	svn export ../nbase $*/nbase
+	svn export ../nsock $*/nsock
+	svn export ../zenmap $*/zenmap
+
+stage-nmap: export-$(NMAP_BUILD_DIR)
+	cd $(NMAP_BUILD_DIR) && ./configure --without-zenmap $(CONFIGURE_ARGS)
 	make -C $(NMAP_BUILD_DIR)
 	rm -rf $(NMAP_STAGING_DIR)
 	make -C $(NMAP_BUILD_DIR) install DESTDIR="`pwd`/$(NMAP_STAGING_DIR)"
@@ -56,11 +63,11 @@ stage-nmap:
 # make-bundle.sh uses these to build its authorization wrapper.
 export CC CPPFLAGS CFLAGS CXXFLAGS LDFLAGS
 
-stage-zenmap:
-	cd ../zenmap && install_scripts/macosx/make-bundle.sh
+stage-zenmap: export-$(ZENMAP_BUILD_DIR)
+	cd $(ZENMAP_BUILD_DIR)/zenmap && install_scripts/macosx/make-bundle.sh
 	rm -rf $(ZENMAP_STAGING_DIR)
 	mkdir -p $(ZENMAP_STAGING_DIR)/Applications
-	cp -rf ../zenmap/dist/Zenmap.app $(ZENMAP_STAGING_DIR)/Applications/
+	cp -rf $(ZENMAP_BUILD_DIR)/zenmap/dist/Zenmap.app $(ZENMAP_STAGING_DIR)/Applications/
 
 $(IMAGE_STAGING_DIR)/README:
 	mkdir -p $(IMAGE_STAGING_DIR)
@@ -74,12 +81,13 @@ COPYING.formatted:
 # Use the license formatter from the Windows installer.
 	../mswin32/license-format/licformat.sh ../COPYING > $@
 
-clean:
+clean: clean-nmap clean-zenmap
 	rm -rf $(IMAGE_STAGING_DIR)
-	rm -rf $(NMAP_STAGING_DIR)
-	rm -rf $(ZENMAP_STAGING_DIR)
 	rm -rf $(NMAP_BUILD_DIR)
+	rm -rf $(NMAP_STAGING_DIR)
+	rm -rf $(ZENMAP_BUILD_DIR)
+	rm -rf $(ZENMAP_STAGING_DIR)
 	rm -f COPYING.formatted
 	rm -f $(IMAGE_NAME)
 
-.PHONY: clean
+.PHONY: clean export-% stage-%
