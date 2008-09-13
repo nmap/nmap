@@ -58,9 +58,7 @@ action = function(host, port)
                                         0x00, 0x10, -- Type (TXT)
                                         0x00, 0x01) -- Class (IN)
 
-        -- This doesn't work without the bytes= setting...
         local status, result = comm.exchange(host, port, query, {proto="udp",
-                                                                bytes=1,
                                                                 timeout=20000})
 
         -- Fail gracefully
