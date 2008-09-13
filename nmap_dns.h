@@ -97,6 +97,9 @@
 
 class Target;
 
+#include <string>
+#include <list>
+
 void nmap_mass_rdns(Target ** targets, int num_targets);
 const char *lookup_cached_host(u32 ip);
 
