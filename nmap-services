@@ -3743,7 +3743,7 @@ remoteanything	3998/udp	0.000610	# neoworx remote-anything reserved
 remoteanything	3999/tcp	0.000088	# neoworx remote-anything slave file browser
 unknown	3999/udp	0.000330
 remoteanything	4000/tcp	0.001794	# neoworx remote-anything slave remote control
-icq	4000/udp	0.006392	# AOL ICQ instant messaging clent-server communication
+icq    4000/udp        0.006392        # AOL ICQ instant messaging client-server communication
 unknown	4001/tcp	0.002129
 mlchat-proxy	4002/tcp	0.000765	# mlnet - MLChat P2P chat proxy
 unknown	4002/udp	0.000330
