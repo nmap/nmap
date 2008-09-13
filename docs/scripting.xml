@@ -4040,5 +4040,94 @@ The mainloop function will work on each runlevel grouping of threads in order.
       repeated until no threads exist in either waiting or running.
 	  </para>
     </sect2>
+    <sect2 id="nse-implementation-c-modules">
+      <title>Adding C Modules to Nselib</title>
+      <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>C modules</secondary></indexterm>
+
+      <para>
+      Some of the modules included in nselib are not written in Lua but
+      in C or C++. <literal>bit</literal> and <literal>pcre</literal>
+      are two examples. This section describes how to write your own
+      compiled extensions to nselib.
+      </para>
+
+      <para>
+      The C API of Lua is described at length in 
+      <web><ulink url="http://www.amazon.com/exec/obidos/ASIN/8590379825/secbks-20"><citetitle>Programming in Lua, Second Edition</citetitle></ulink>,</web>
+      <print><citetitle>Programming in Lua, Second Edition</citetitle>,</print>
+      so this is a short summary. C modules consist of functions that
+      follow the protocol of the
+      <ulink url="http://www.lua.org/manual/5.1/manual.html#lua_CFunction"><type>lua_CFunction</type></ulink>
+      type. The functions are registered with Lua and assembled into a
+      library by calling the
+      <function>luaL_register</function><indexterm><primary><function>luaL_register</function></primary></indexterm>
+      function. A special initialization function provides the interface
+      between the module and the rest of the NSE code. By convention the
+      initialization function has a name of the form
+      <function>luaopen_<replaceable>module</replaceable></function>.
+      </para>
+
+      <para>
+      Two of the smaller compiled modules that come with NSE are
+      <literal>bit</literal><indexterm><primary><varname>bit</varname> NSE module</primary></indexterm>
+      and <literal>hash</literal>,<indexterm><primary><varname>hash</varname> NSE module</primary></indexterm>
+      and they serve as good examples of how to write such modules. The
+      source code for <literal>bit</literal> is in the files
+      <filename>nse_bit.cc</filename> and
+      <filename>nse_bit.h</filename>, and likewise the source for
+      <literal>hash</literal> is in <filename>nse_hash.cc</filename> and
+      <filename>nse_hash.h</filename>. The other compiled modules follow
+      this naming convention.
+      </para>
+
+      <para>
+      Let us look at the <literal>hash</literal> module. One of the
+      functions in <filename>nse_hash.cc</filename> is
+      <function>l_md5</function>, which calculates an MD5 digest. Its
+      function prototype is
+<programlisting>
+static int l_md5(lua_State *L);
+</programlisting>
+      The prototype shows that <function>l_md5</function> matches the
+      <type>lua_CFunction</type> type. The function is static because it
+      does not have to be visible to other compiled code, it just needs
+      an address so it can be registered with Lua. Later in the file we
+      see <function>l_md5</function> entered into an array of type
+      <type>luaL_reg</type> and associated with the name
+      <function>md5</function>, the name it will be known by to NSE:
+<programlisting>
+static const luaL_reg hashlib[] =
+{
+        {"md5", l_md5},
+        {NULL,  NULL}
+};
+</programlisting>
+      Then the library is registered with a call to
+      <function>luaL_register</function> inside the initialization
+      function <function>luaopen_hashlib</function>:
+<programlisting>
+LUALIB_API int luaopen_hashlib (lua_State *L) {
+  luaL_register(L, NSE_HASHLIBNAME, hashlib);
+  return 1;
+}
+</programlisting>
+      (<varname>NSE_HASHLIBNAME</varname> is just the string
+      <literal>"hash"</literal>.) <function>luaopen_hashlib</function>
+      is the only function in the file that is exposed in
+      <filename>nse_hash.h</filename>.
+      </para>
+
+      <para>
+      Once a compiled module is written, it is added to NSE by including
+      it in the list of standard libraries in
+      <filename>nse_init.cc</filename>. Just follow the example of the
+      modules that are already there. Then the names of the module's
+      source files of the must be added to
+      <filename>Makefile.in</filename> in the appropriate places. Again
+      it is easiest to follow the example of the other modules. For the
+      Windows build the new source files must be added to the
+      <filename>mswin32/nmap.vcproj</filename> project file.
+      </para>
+    </sect2>
   </sect1>
 <indexterm class="endofrange" startref="nse-indexterm"/>
