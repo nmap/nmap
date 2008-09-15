@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o A script could be executed twice if it was given with the --script
+  option, also in the "version" category, and version detection (-sV)
+  was requested. This has been fixed. [David]
+
 Nmap 4.76 [2008-9-12]
 
 o There is a new "external" script category, for NSE scripts which
