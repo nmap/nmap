@@ -26,6 +26,30 @@ extern NmapOps o;
 extern int current_hosts;
 extern int errfunc;
 
+void stack_dump(lua_State *L) {
+  int i;
+  int top = lua_gettop(L);
+  for (i = 1; i <= top; i++) {
+    int t = lua_type(L, i);
+    switch (t) {
+      case LUA_TSTRING:
+        printf("\"%s\"", lua_tostring(L, i));
+        break;
+      case LUA_TBOOLEAN:
+        printf("%s", lua_toboolean(L, i) ? "true" : "false");
+        break;
+      case LUA_TNUMBER:
+        printf("%g", lua_tonumber(L, i));
+        break;
+      default:
+        printf("<%s>", lua_typename(L, t));
+        break;
+    }
+    printf("  ");
+  }
+  printf("\n");
+}
+
 /* int error_function (lua_State *L)
  *
  * Arguments:
@@ -424,11 +448,14 @@ typedef struct extensional_category {
 
 /* int pick_default_categories (lua_State *L)
  *
- * The function is passed all the scripts/directories/categories passed
- * through --scripts argument. For each of these, we check if a reserved
- * category (currently "version") has been chosen, and raise a fatal error
- * if so. Finally the reserved categories are added. Basically, explicitly
- * adding the reserved categories is illegal.
+ * This function takes as arguments all the scripts/categories/directories
+ * passed to the --script command line option, and augments them with any other
+ * categories that should be added. These are "default" if script scanning was
+ * requested and no scripts were given on the command line, and "version" if
+ * version scanning was requested.
+ *
+ * If a "reserved" category (currently only "version") was listed on the command
+ * line, give a fatal error.
  */
 static int pick_default_categories (lua_State *L)
 {
@@ -474,13 +501,27 @@ static int pick_default_categories (lua_State *L)
 
 /* int entry (lua_State *L)
  *
- * This function is called from the script.db file. It has two upvalues:
- *   [1] Categories   The categories/files/directories passed via --script.
- *   [2] Files        The Files currently loaded (initially an empty table).
- * A table is passed from the script database with a category and filename.
- * The function tests if either the script's (filename's) category was chosen
- * by checking [1]. Or, it loads the file if [1] has the 'category' "all" and
- * the script's category is not "version".
+ * This function is called for each line of script.db, and is responsible for
+ * loading the scripts that are in requested categories.
+ *
+ * script.db is executable Lua code that makes calls to this function, with
+ * lines like
+ *
+ *  Entry{ category = "default", filename = "script.nse" }
+ *
+ * The function has two upvalues, which are used to accumulate results while the
+ * database is executed:
+ *       Categories   A table of categories/scripts/directories requested, all
+ *                    initially mapping to false, plus canonicalization mappings
+ *                    (see loadcategories).
+ *       Files        A table of filenames loaded so far (initially empty).
+ *
+ * This function receives a table with a category and a filename. A filename is
+ * loaded if
+ *   1. its category is in the list of requested categories/scripts/directories,
+ *      or
+ *   2. the category "all" was requested and the category of the script is not
+ *      "version".
  */
 static int entry (lua_State *L)
 {
@@ -494,45 +535,58 @@ static int entry (lua_State *L)
   if (!(lua_isstring(L, 2) && lua_isstring(L, 3)))
     luaL_error(L, "bad entry in script database");
   lua_pushvalue(L, 3); // filename
-  lua_gettable(L, lua_upvalueindex(2)); // already loaded?
+
+  /* Is this file already loaded? */
+  lua_gettable(L, lua_upvalueindex(2));
   if (!lua_isnil(L, -1))
     return 0;
-  lua_pushvalue(L, 2); // category
-  lua_gettable(L, lua_upvalueindex(1)); // check 1
-  lua_pushliteral(L, "version"); // check 2
-  lua_getfield(L, lua_upvalueindex(1), "all"); // check 3
 
-  // if category chosen OR category != "version" and [1].all exists
+  /* Push values that are used to decide whether to load this file. */
+  lua_pushvalue(L, 2); // Category name.
+  lua_gettable(L, lua_upvalueindex(1)); // If non-nil: a requested category.
+  lua_pushliteral(L, "version"); // For literal comparison against the "version" category.
+  lua_getfield(L, lua_upvalueindex(1), "all"); // If non-nil: "all" was requested.
+
+  // If category chosen OR ("all" chosen AND category != "version")
   if ((not_all = (!lua_isnil(L, -3))) ||
       (!(lua_isnil(L, -1) || lua_equal(L, 2, -2))))
   {
+    /* Mark this category as used. */
     if (not_all)
       lua_pushvalue(L, 2);
     else
       lua_pushliteral(L, "all");
     lua_pushvalue(L, -1);
     lua_gettable(L, lua_upvalueindex(1));
+
+    /* Is this a canonicalization entry pointing to the real key? (See
+     * loadcategories.) */
     if (!lua_isboolean(L, -1)) // points to real key?
     {
+      /* If yes, point the real key to true. */
       lua_pushvalue(L, -1);
       lua_pushboolean(L, true);
       lua_settable(L, lua_upvalueindex(1));
     }
     else
     {
+      /* If no, just point the category name to true. */
       lua_pushvalue(L, -2);
-      lua_pushboolean(L, true); // set category to true
+      lua_pushboolean(L, true);
       lua_settable(L, lua_upvalueindex(1));
     }
-    lua_pop(L, 1); // pop value
+    lua_pop(L, 1); // Pop Boolean.
 
+    /* Load the file and insert its name into the second upvalue, the table of
+     * loaded filenames. The value is true. */
     if (nse_fetchfile(script_path, sizeof(script_path),
         lua_tostring(L, 3)) != 1)
       luaL_error(L, "%s is not a file!", lua_tostring(L, 3));
-    
     lua_pushvalue(L, 3); // filename
     lua_pushboolean(L, true);
     lua_settable(L, lua_upvalueindex(2)); // loaded 
+
+    /* Finally, load the file (load its portrule or hostrule). */
     lua_pushcclosure(L, loadfile, 0);
     lua_pushstring(L, script_path);
     lua_call(L, 1, 0);
@@ -542,62 +596,78 @@ static int entry (lua_State *L)
 
 /* int loadcategories (lua_State *L)
  *
- * This function takes all the categories/scripts/directories
- * passed to it and puts them in a table.
- * This table along with an empty one are used as upvalues to the
- * Entry closure (see entry above). Finally, the ./scripts/script.db
- * file is loaded and it's environment set to only include the Entry
- * closure. The entry function will do the work to load all script files with
- * chosen categories. After the script database is executed. Any remainining
- * fields (files/directories and possibly unused categories) are left in the
- * table to be handled later.
- */
+ * This function takes all the categories/scripts/directories passed to it,
+ * loads the script files belonging to any of the arguments that are categories,
+ * and returns what's left over (script filenames, directory names, or possibly
+ * unused category names) in a table. The unused names all map to false. */
 static int loadcategories (lua_State *L)
 {
   int i, top = lua_gettop(L);
   char c_dbpath[MAX_FILENAME_LEN];
   static const char *dbpath = SCRIPT_ENGINE_LUA_DIR SCRIPT_ENGINE_DATABASE; 
 
+  /* Build the script database if it doesn't exist. */
   if (nmap_fetchfile(c_dbpath, sizeof(c_dbpath), dbpath) == 0)
   {
     lua_pushcclosure(L, init_updatedb, 0);
     lua_call(L, 0, 0);
   }
 
+  /* Create a table that is used to keep track of which categories/scripts/
+   * directories are used and unused. (Because this function deals only with
+   * categories, script filenames and directory names always come out unused.)
+   * We build a table with every script/category/directory mapped to false.
+   * Additionally we map a lower-case version of every string to the original
+   * string (this is to canonicalize category names). Logic in the entry
+   * function checks for this canonicalization step.
+   *
+   * The entry function adjusts the values in the table to true as files are
+   * loaded. Later, all the keys that map to true are removed, leaving only the
+   * unused scripts/categories/directories. Because all strings are considered
+   * true, the canonicalization entries will be considered "used" and
+   * removed as well. */
   lua_createtable(L, 0, top); // categories table
   for (i = 1; i <= top; i++)
   {
+    /* Create the canonicalization entry mapping the lower-case string to the
+     * original string. Do this first in case the string maps to itself (i.e.,
+     * it was lower-case to begin with). In that case the mapping to false will
+     * replace this mapping, and no canonicalization is needed. */
     lua_getglobal(L, "string");
     lua_getfield(L, -1, "lower"); lua_replace(L, -2);
+    lua_pushvalue(L, i); // Category/script/directory.
+    lua_call(L, 1, 1); // Canonicalize it.
     lua_pushvalue(L, i);
-    lua_call(L, 1, 1);
-    lua_pushvalue(L, i);
-    lua_settable(L, -3); // This is a "complicated" but elegant way to tell
-                         // if the "lowered" string category is used. Entry
-                         // will set the "real" category (e.g. "ALL") to
-                         // true properly. These lowered copies will also
-                         // be removed below (because strings are true in Lua).
-                         // If the category is already lowercase, the below
-                         // code will replace it.
-    lua_pushvalue(L, i); // category/files/directory
-    lua_pushboolean(L, false); // false (not used)
+    lua_settable(L, -3);
+
+    /* Now map the name to false, meaning we assume the category/script/
+     * directory is unused until the entry function marks it as used. */
+    lua_pushvalue(L, i); // Category/script/directory.
+    lua_pushboolean(L, false);
     lua_settable(L, -3);
   }
 
+  /* Execute script.db with the Entry closure as the only thing in its
+   * environment (see the entry function). Entry has two upvalues: the
+   * used/unused table just created, and a table of loaded filenames (initially
+   * empty). Entry will mark categories/scripts/directories as used in the first
+   * table and add loaded filenames to the second table. */
   luaL_loadfile(L, c_dbpath);
   lua_createtable(L, 0, 1);
   lua_pushliteral(L, "Entry");
-  lua_pushvalue(L, -4); // categories table
-  lua_newtable(L); // files loaded
+  lua_pushvalue(L, -4); // Used/unused table.
+  lua_newtable(L); // Empty table to record filenames loaded.
   lua_pushcclosure(L, entry, 2);
   lua_settable(L, -3);
-  lua_setfenv(L, -2);
-  lua_call(L, 0, 0); // Let errors go through
+  lua_setfenv(L, -2); // Put the Entry function in the global environment.
+  lua_call(L, 0, 0); // Execute the script database, letting errors go through.
 
+  /* Go through and remove all the used categories/scripts/directories, leaving
+   * only the unused ones. */
   lua_pushnil(L);
   while (lua_next(L, -2) != 0)
   {
-    if (lua_toboolean(L, -1)) // category was used?
+    if (lua_toboolean(L, -1)) // If used
     {
       lua_pushvalue(L, -2);
       lua_pushnil(L);
@@ -606,7 +676,7 @@ static int loadcategories (lua_State *L)
     lua_pop(L, 1);
   }
 
-  return 1; // unused tags (what's left in categories table)
+  return 1; // Table of unused categories/scripts/directories.
 }
 
 /* int init_rules (lua_State *L)
