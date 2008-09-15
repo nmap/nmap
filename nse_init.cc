@@ -78,21 +78,32 @@ static int error_function (lua_State *L) // for use with lua_pcall
  * Arguments
  *   -- filename  File to load
  *
- * This function loads a file as a new script.
+ * This function loads a file as a new script, unless it has already been
+ * loaded.
+ *
  * The file is loaded with it's own environment that has access to the Global
  * Environment. The function is tested to be sure it set a global with a valid
  * required_fields[?] ("action", "description", ...), port or host rule.
- * If it did, the script's PORT/HOST rule (function) is saved in the registry
- * PORTTESTS or HOSTTESTS table with its file closure as a value. This is
- * important to allow each thread to have its own action closure with its
- * own locals.
+ * If it did, the script is added to the SCRIPTFILES table and the script's
+ * PORT/HOST rule (function) is saved in the registry PORTTESTS or HOSTTESTS
+ * table with its file closure as a value. This is important to allow each
+ * thread to have its own action closure with its own locals.
  */
 static int loadfile (lua_State *L)
 {
   int i;
   const char *filename = luaL_checkstring(L, 1);
   static const char *required_fields[] = {ACTION, DESCRIPTION};
+
   lua_settop(L, 1); // removes other arguments
+
+  /* Is this file already loaded? */
+  lua_getfield(L, LUA_REGISTRYINDEX, SCRIPTFILES);
+  lua_pushvalue(L, 1);
+  lua_gettable(L, -2);
+  if (lua_toboolean(L, -1))
+    return 0;
+  lua_pop(L, 2);
 
   lua_createtable(L, 0, 11); // Environment for script (index 2)
   
@@ -181,6 +192,13 @@ static int loadfile (lua_State *L)
   else
     error("%s: '%s' does not have a portrule or hostrule.", SCRIPT_ENGINE,
         filename);
+
+  /* Record the file as loaded. */
+  lua_getfield(L, LUA_REGISTRYINDEX, SCRIPTFILES);
+  lua_pushstring(L, filename);
+  lua_pushboolean(L, true);
+  lua_settable(L, -3);
+  lua_pop(L, 1);
 
   return 0;
 }
@@ -509,12 +527,10 @@ static int pick_default_categories (lua_State *L)
  *
  *  Entry{ category = "default", filename = "script.nse" }
  *
- * The function has two upvalues, which are used to accumulate results while the
- * database is executed:
- *       Categories   A table of categories/scripts/directories requested, all
- *                    initially mapping to false, plus canonicalization mappings
- *                    (see loadcategories).
- *       Files        A table of filenames loaded so far (initially empty).
+ * The function has one upvalue, which is used to accumulate results while the
+ * database is executed. It is a table of the categories/scripts/directories
+ * requested, all initially mapping to false, plus canonicalization mappings
+ * (see loadcategories).
  *
  * This function receives a table with a category and a filename. A filename is
  * loaded if
@@ -535,11 +551,6 @@ static int entry (lua_State *L)
   if (!(lua_isstring(L, 2) && lua_isstring(L, 3)))
     luaL_error(L, "bad entry in script database");
   lua_pushvalue(L, 3); // filename
-
-  /* Is this file already loaded? */
-  lua_gettable(L, lua_upvalueindex(2));
-  if (!lua_isnil(L, -1))
-    return 0;
 
   /* Push values that are used to decide whether to load this file. */
   lua_pushvalue(L, 2); // Category name.
@@ -582,9 +593,6 @@ static int entry (lua_State *L)
     if (nse_fetchfile(script_path, sizeof(script_path),
         lua_tostring(L, 3)) != 1)
       luaL_error(L, "%s is not a file!", lua_tostring(L, 3));
-    lua_pushvalue(L, 3); // filename
-    lua_pushboolean(L, true);
-    lua_settable(L, lua_upvalueindex(2)); // loaded 
 
     /* Finally, load the file (load its portrule or hostrule). */
     lua_pushcclosure(L, loadfile, 0);
@@ -648,22 +656,20 @@ static int loadcategories (lua_State *L)
   }
 
   /* Execute script.db with the Entry closure as the only thing in its
-   * environment (see the entry function). Entry has two upvalues: the
-   * used/unused table just created, and a table of loaded filenames (initially
-   * empty). Entry will mark categories/scripts/directories as used in the first
-   * table and add loaded filenames to the second table. */
+   * environment (see the entry function). Entry has an upvalue: the used/unused
+   * table just created. Entry will mark categories/scripts/directories as used
+   * in the table as files are loaded. */
   luaL_loadfile(L, c_dbpath);
   lua_createtable(L, 0, 1);
   lua_pushliteral(L, "Entry");
   lua_pushvalue(L, -4); // Used/unused table.
-  lua_newtable(L); // Empty table to record filenames loaded.
-  lua_pushcclosure(L, entry, 2);
+  lua_pushcclosure(L, entry, 1);
   lua_settable(L, -3);
   lua_setfenv(L, -2); // Put the Entry function in the global environment.
   lua_call(L, 0, 0); // Execute the script database, letting errors go through.
 
-  /* Go through and remove all the used categories/scripts/directories, leaving
-   * only the unused ones. */
+  /* Go through and remove all the used categories, leaving only the unused
+   * categories/scripts/directories. */
   lua_pushnil(L);
   while (lua_next(L, -2) != 0)
   {
@@ -700,6 +706,11 @@ int init_rules (lua_State *L)
 
   lua_newtable(L);
   lua_setfield(L, LUA_REGISTRYINDEX, HOSTTESTS);
+
+  /* This table holds a list of all loaded script filenames, to avoid loading
+   * any more than once. */
+  lua_newtable(L);
+  lua_setfield(L, LUA_REGISTRYINDEX, SCRIPTFILES);
 
   lua_pushcclosure(L, pick_default_categories, 0);
   lua_insert(L, 1);

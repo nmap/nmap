@@ -5,6 +5,7 @@
 #define HOSTTESTS	"hosttests"
 #define PORTRULE	"portrule"
 #define PORTTESTS	"porttests"
+#define SCRIPTFILES	"scriptfiles"
 #define ACTION		"action"
 #define HOST        "host"
 #define PORT        "port"
