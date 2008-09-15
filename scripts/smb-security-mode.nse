@@ -32,8 +32,8 @@
 --  See nselib/smb.lua for more information on the protocol itself. 
 --
 --@usage
--- nmap --script smb-security-mide.nse -p445 127.0.0.1\n
--- sudo nmap -sU -sS --script smb-security-mide.nse -p U:137,T:139 127.0.0.1\n
+-- nmap --script smb-security-mode.nse -p445 127.0.0.1\n
+-- sudo nmap -sU -sS --script smb-security-mode.nse -p U:137,T:139 127.0.0.1\n
 --
 --@output
 -- |  SMB Security: User-level authentication
@@ -46,7 +46,7 @@ id = "SMB Security"
 description = "Attempts to determine the security mode over the SMB protocol (ports 445 and 139)."
 author = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"version"}
+categories = {"discovery", "safe"}
 
 require 'smb'
 

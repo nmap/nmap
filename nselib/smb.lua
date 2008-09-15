@@ -2,7 +2,7 @@
 --  sent to/from ports 139 or 445 of Windows systems, although it's also implemented by
 --  others (the most notable one being Samba). 
 --
--- The intention of this library is toe ventually handle all aspects of the SMB protocol,
+-- The intention of this library is to eventually handle all aspects of the SMB protocol,
 -- A programmer using this library must already have some knowledge of the SMB protocol, 
 -- although a lot isn't necessary. You can pick up a lot by looking at the code that uses
 -- this. The basic login is this:

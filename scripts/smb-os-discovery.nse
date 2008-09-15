@@ -17,7 +17,7 @@ id = "OS from SMB"
 description = "Attempts to determine the operating system over the SMB protocol (ports 445 and 139)."
 author = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"version","default"}
+categories = {"default", "discovery", "safe"}
 
 require 'smb'
 require 'stdnse'

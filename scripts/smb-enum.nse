@@ -44,7 +44,7 @@ description = "Attempts to enumerate users and shares anonymously over SMB"
 author = "Ron Bowes"
 copyright = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"version","intrusive"}
+categories = {"discovery", "intrusive"}
 
 require 'smb'
 
