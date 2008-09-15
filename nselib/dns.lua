@@ -719,7 +719,7 @@ end
 
 
 get_default_timeout = function()
-  local timeout = {[0] = 10000, 7000, 5000, 3000, 2000, 2000}
-  return timeout[nmap.timing_level()] or 3000
+  local timeout = {[0] = 10000, 7000, 5000, 4000, 4000, 4000}
+  return timeout[nmap.timing_level()] or 4000
 end
 
