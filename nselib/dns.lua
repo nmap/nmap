@@ -38,11 +38,12 @@ err = {
 --@param data Data to be sent
 --@param host Host to connect to
 --@param port Port to connect to
+--@param timeout Number of ms to wait for a response.
 --@param cnt Number of tries
 --@return success as boolean and response if available
-local function sendPackets(data, host, port, cnt)
+local function sendPackets(data, host, port, timeout, cnt)
    local socket = nmap.new_socket()
-   socket:set_timeout(10000)
+   socket:set_timeout(timeout)
    socket:connect(host, port, "udp")
 
    for i = 1, cnt do 
@@ -142,6 +143,8 @@ function query(dname, options)
    if not tries then tries = 10 end -- don't get into an infinite loop
 
    if not options.sendCount then options.sendCount = 2 end
+   
+   if type( options.timeout ) ~= "number" then options.timeout = get_default_timeout() end
 
    if type(dtype) == "string" then
       dtype = types[dtype]
@@ -174,7 +177,7 @@ function query(dname, options)
 
    local data = encode(pkt)
 
-   local status, response = sendPackets(data, host, port, options.sendCount)
+   local status, response = sendPackets(data, host, port, options.timeout, options.sendCount)
 
 
    -- if working with know nameservers, try the others
@@ -712,5 +715,11 @@ function addQuestion(pkt, dname, dtype)
    q.class = 1
    table.insert(pkt.questions, q)
    return pkt
+end
+
+
+get_default_timeout = function()
+  local timeout = {[0] = 10000, 7000, 5000, 3000, 2000, 2000}
+  return timeout[nmap.timing_level()] or 3000
 end
 

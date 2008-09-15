@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Made DNS timeouts in NSE dependent on the timing template [Jah]
+
 o Added two new nselib modules, netbios and smb, that contain common
   code for scripts using NetBIOS and SMB. Also added or updated four
   scripts that use the new modules:
