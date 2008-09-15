@@ -1,17 +1,35 @@
+--- Sends a NetBIOS NBSTAT query to target host to try to determine the NetBIOS
+--  names and MAC address. By default, displays the name of the computer and the
+--  logged-in user; if verbosity is turned up, displays all names the system
+--  thinks it owns. 
+--
+-- @output
+-- (no verbose)
+-- |_ NBSTAT: NetBIOS name: TEST1, NetBIOS user: RON, NetBIOS MAC: 00:0c:29:f9:d9:28
+--
+-- (verbose)
+-- |  NBSTAT: NetBIOS name: TEST1, NetBIOS user: RON, NetBIOS MAC: 00:0c:29:f9:d9:28
+-- |  Name: TEST1<00>            Flags: <unique><active>
+-- |  Name: TEST1<20>            Flags: <unique><active>
+-- |  Name: WORKGROUP<00>        Flags: <group><active>
+-- |  Name: TEST1<03>            Flags: <unique><active>
+-- |  Name: WORKGROUP<1e>        Flags: <group><active>
+-- |  Name: RON<03>              Flags: <unique><active>
+-- |  Name: WORKGROUP<1d>        Flags: <unique><active>
+-- |_ Name: \x01\x02__MSBROWSE__\x02<01>  Flags: <group><active>
+
 id = "NBSTAT"
 description = "Sends a NetBIOS query to target host to try to determine \
-the NetBIOS name and MAC address."
-author = "Brandon Enright <bmenrigh@ucsd.edu>"
+the NetBIOS name and MAC address. For more information on the NetBIOS protocol, \
+see 'nselib/netbios.lua'."
+author = "Brandon Enright <bmenrigh@ucsd.edu>, Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
--- This script was created by reverse-engineering the packets
--- sent by NBTSCAN and hacking with the Wireshark NetBIOS
--- protocol dissector.  I do not believe this constitutes
--- a derivative work in the GPL sense of the phrase.
-
+-- Current version of this script was based entirly on Implementing CIFS, by 
+-- Christopher R. Hertel. 
 categories = {"default", "discovery", "safe"}
 
-require "comm"
+require "netbios"
 
 -- I have excluded the port function param because it doesn't make much sense
 -- for a hostrule.  It works without warning.  The NSE documentation is
@@ -48,139 +66,69 @@ hostrule = function(host)
 end
 
 
--- Again, I have excluded the port param.  Is this okay on a hostrule?
 action = function(host)
-	
-	-- This is the UDP NetBIOS request packet.  I didn't feel like
-	-- actually generating a new one each time so this has been shamelessly
-	-- copied from a packet dump of nbtscan.
-	-- See http://www.unixwiz.net/tools/nbtscan.html for code.
-	-- The magic number in this code is \003\097.
-	local data =
-		"\003\097\000\016\000\001\000\000" ..
-		"\000\000\000\000\032\067\075\065" ..
-		"\065\065\065\065\065\065\065\065" ..
-		"\065\065\065\065\065\065\065\065" ..
-		"\065\065\065\065\065\065\065\065" ..
-		"\065\065\065\065\065\000\000\033" ..
-		"\000\001"
 
-	local status, result = comm.exchange(host, 137, data, {proto="udp", timeout=5000})
+	local i
+	local status
+	local names, statistics
+	local server_name, user_name
+	local mac
+	local result = ""
 
-	if (not status) then
-		return
+	-- Get the list of NetBIOS names
+	status, names, statistics = netbios.do_nbstat(host.ip)
+	status, names, statistics = netbios.do_nbstat(host.ip)
+	status, names, statistics = netbios.do_nbstat(host.ip)
+	status, names, statistics = netbios.do_nbstat(host.ip)
+	if(status == false) then
+		return "ERROR: " .. names
 	end
 
-	-- We got data back from 137, make sure we know it is open
-	nmap.set_port_state(host, {number=137, protocol="udp"}, "open")
-
-	-- Magic numbers:
-	-- Offset to number of names returned: 57
-	-- Useful name length: 15
-	-- Name type length: 3
-	-- Computer name type: \032\068\000 or \032\004\000
-	-- User name type: \003\068\000 or \003\004\000
-	-- Length of each name + name type: 19
-	-- Length of MAC address: 6
-	-- Note that string.sub includes a 0 char so these numbers are 1 less
-
-	if (string.len(result) < 57) then
-		return
+	-- Get the server name
+	status, server_name = netbios.get_server_name(host.ip, names)
+	if(status == false) then
+		return "ERROR: " .. server_name
 	end
 
-	-- Make sure the response at least looks like a NBTSTAT response
-	-- The first 2 bytes are the magic number sent originally,  The second
-	-- 2 bytes should be 0x84 0x00 (errorless name query response)
-	if (string.sub(result, 1, 4) ~= "\003\097\132\000" ) then
-		return
+	-- Get the logged in user
+	status, user_name = netbios.get_user_name(host.ip, names)
+	if(status == false) then
+		return "ERROR: " .. user_name
 	end
 
-	local namenum = string.byte(result, 57)
-
-	if (string.len(result) < 58 + namenum * 18 + 6) then
-		return
+	-- Format the Mac address in the standard way
+	mac = string.format("%02x:%02x:%02x:%02x:%02x:%02x", statistics:byte(1), statistics:byte(2), statistics:byte(3), statistics:byte(4), statistics:byte(5), statistics:byte(6))
+	-- Samba doesn't set the Mac address
+	if(mac == "00:00:00:00:00:00") then
+		mac = "<unknown>"
 	end
 
+	-- Check if we actually got a username
+	if(user_name == nil) then
+		user_name = "<unknown>"
+	end
 
-	-- This loop will try to find the computer name.  This name needs to
-	-- be found before the username because sometimes NetBIOS reports
-	-- username flags with the computer name as text.
-	local compname
-	for i = 0, namenum - 1, 1 do
-		-- Names come back trailing-space-padded so strip that off..
-		local namefield = string.sub (result, 58 + i * 18,
-			58 + i * 18 + 14)
-		local iname
-		local nameflags = string.sub (result, 58 + i * 18 + 15,
-			58 + i * 18 + 15 + 2)
-		local padindex = string.find(namefield, " ")
-		if (padindex ~= nil and padindex > 1) then
-			iname = string.sub(namefield, 1, padindex - 1)
-		else
-			iname = namefield
+	result = result .. string.format("NetBIOS name: %s, NetBIOS user: %s, NetBIOS MAC: %s\n", server_name, user_name, mac)
+
+	-- If verbosity is set, dump the whole list of names
+	if(nmap.verbosity() >= 1) then
+		for i = 1, #names, 1 do
+			local padding = string.rep(" ", 17 - string.len(names[i]['name']))
+			local flags_str = netbios.flags_to_string(names[i]['flags'])
+			result = result .. string.format("Name: %s<%02x>%sFlags: %s\n", names[i]['name'], names[i]['suffix'], padding, flags_str)
 		end
 
-		if (nameflags == "\032\068\000" or
-			nameflags == "\032\004\000") then
-			compname = iname
-		end
-	end
-
-	if (compname == nil) then
-		return
-	end
-
-
-	-- This loop will attempt to find the username logged onto the machine
-	-- This is not possible on most Windows machines (I don't know why)
-	-- Sometimes the flag that generally indicates the username
-	-- returns the computer name instead.  This function will ignore
-	-- the username if it matches the computer name.  This loop will not
-	-- properly report the the username if it really happens to be
-	-- the same as the computer name.
-	local username
-	for i = 0, namenum - 1, 1 do
-		-- Names come back trailing-space-padded so strip that off..
-		local namefield = string.sub (result, 58 + i * 18,
-			58 + i * 18 + 14)
-		local iname
-		local nameflags = string.sub (result, 58 + i * 18 + 15,
-			58 + i * 18 + 15 + 2)
-		local padindex = string.find(namefield, " ")
-		if (padindex ~= nil and padindex > 1) then
-			iname = string.sub(namefield, 1, padindex - 1)
-		else
-			iname = namefield
-		end
-
-		if (nameflags == "\003\068\000" or
-			nameflags == "\003\004\000") then
-			if (string.find(iname, compname, 1, true) == nil) then
-				username = iname
+		-- If super verbosity is set, print out the full statistics
+		if(nmap.verbosity() >= 2) then
+			result = result .. "Statistics: "
+			for i = 1, #statistics, 1 do
+				result = result .. string.format("%02x ", statistics:byte(i))
 			end
+			result = result .. "\n"
 		end
 	end
 
 
-	-- SAMBA likes to say its MAC is all 0s.  That could be detected...
-	-- If people say printing a MAC of 0000.0000.000 is more wrong
-        -- than not returning a MAC at all then fix it here.
-	local macfield = string.sub (result, 58 + namenum * 18,
-		58 + namenum * 18 + 5)
-	local mac = string.format ("%02X:%02X:%02X:%02X:%02X:%02X",
-		string.byte(macfield, 1),
-		string.byte(macfield, 2),
-		string.byte(macfield, 3),
-		string.byte(macfield, 4),
-		string.byte(macfield, 5),
-		string.byte(macfield, 6))
+	return result
 
-	if (username ~= nil) then
-		return "NetBIOS name: " .. compname ..
-			", NetBIOS user: " .. username ..
-			", NetBIOS MAC: " .. mac
-	else
-		return "NetBIOS name: " .. compname ..
-			", NetBIOS MAC: " .. mac
-	end
 end

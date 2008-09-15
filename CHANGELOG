@@ -1,5 +1,17 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added two new nselib modules, netbios and smb, that contain common
+  code for scripts using NetBIOS and SMB. Also added or updated four
+  scripts that use the new modules:
+    nbstat.nse: get NetBIOS names and MAC address.
+    smb-enum.nse: enumerate SMB users and shares.
+    smb-os-discovery.nse: get operating system over SMB (replaces
+      netbios-smb-os-discovery.nse).
+    smb-security-mode.nse: determine if a host uses user-level or
+      share-level security, and what other security features it
+      supports.
+  [Ron Bowes]
+
 o A script could be executed twice if it was given with the --script
   option, also in the "version" category, and version detection (-sV)
   was requested. This has been fixed. [David]
