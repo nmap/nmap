@@ -166,7 +166,7 @@ Section "Nmap Core Files" SecCore
   File ..\..\README-WIN32 
   File libeay32.dll
   File ssleay32.dll
-  File /r /x mswin32 /x .svn ..\..\scripts
+  File /r /x mswin32 /x .svn /x ncat ..\..\scripts
   File /r /x mswin32 /x .svn ..\Release\nselib
   File ..\icon1.ico 
   
@@ -250,6 +250,12 @@ Section "Zenmap (GUI Frontend)" SecZenmap
   File /r /x mswin32 /x .svn ..\nmap-${VERSION}\zenmap
   StrCpy $zenmapset "true"
 SectionEnd
+
+Section "Ncat (Netcat Replacement)" SecNcat
+  SetOutPath "$INSTDIR"
+  SetOverwrite on
+  File ..\nmap-${VERSION}\ncat.exe
+SectionEnd
  
 ;-------------------------------- 
 ;Descriptions 
@@ -260,6 +266,7 @@ SectionEnd
   LangString DESC_SecWinPcap ${LANG_ENGLISH} "Installs WinPcap 4.0 (required for most Nmap scans unless it is already installed)" 
   LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended." 
   LangString DESC_SecZenmap ${LANG_ENGLISH} "Installs Zenmap, the official Nmap graphical user interface.  Recommended." 
+  LangString DESC_SecNcat ${LANG_ENGLISH} "Installs Ncat, Nmap's Netcat replacement." 
 
   ;Assign language strings to sections 
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN 
@@ -268,6 +275,7 @@ SectionEnd
     !insertmacro MUI_DESCRIPTION_TEXT ${SecRegisterPath} $(DESC_SecRegisterPath) 
     !insertmacro MUI_DESCRIPTION_TEXT ${SecPerfRegistryMods} $(DESC_SecPerfRegistryMods) 
     !insertmacro MUI_DESCRIPTION_TEXT ${SecZenmap} $(DESC_SecZenmap) 
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecNcat} $(DESC_SecNcat) 
   !insertmacro MUI_FUNCTION_DESCRIPTION_END 
 ;-------------------------------- 
 ;Uninstaller Section 
@@ -320,6 +328,7 @@ Section "Uninstall"
   Delete "$INSTDIR\libeay32.dll"
   Delete "$INSTDIR\ssleay32.dll"
   Delete "$INSTDIR\winpcap-nmap*.exe"
+  Delete "$INSTDIR\ncat.exe"
   ;Delete specific subfolders (NB: custom scripts in scripts folder will be lost)
   RMDir /r "$INSTDIR\nselib"
   RMDir /r "$INSTDIR\scripts"
