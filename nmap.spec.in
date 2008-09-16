@@ -1,6 +1,7 @@
 # To build a static RPM, add
 #     --define "static 1"
-# to the rpmbuild command line.
+# to the rpmbuild command line. To build without Ncat, add
+#     --define "buildncat 0"
 
 %define name nmap
 %define version @VERSION@
@@ -37,6 +38,9 @@ devices are also supported, including the Sharp Zaurus and the iPAQ.
 
 %build
 %configure --without-openssl --without-zenmap --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
+%if "%{buildncat}" == "0"
+%configure --without-ncat
+%endif
 %if "%{static}" == "1"
 make static
 %else
@@ -61,10 +65,35 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 %{_bindir}/nmap
 %{_datadir}/nmap
 
+# Ncat subpackage
+%if "%{buildncat}" != "0"
+%package -n ncat
+Summary: Nmap's Netcat replacement
+Group: Applications/System
+
+%description -n ncat
+Ncat is a feature packed networking utility which will read and
+write data across a network from the command line.  It uses both
+TCP and UDP for communication and is designed to be a reliable
+back-end tool to instantly provide network connectivity to other
+applications and users. Ncat will not only work with IPv4 and IPv6
+but provides the user with a virtually limitless number of potential
+uses.
+
+%files -n ncat
+%defattr(-,root,root)
+%doc %{_prefix}/share/man/man1/ncat.1.gz
+%{_bindir}/ncat
+
+%endif
+
 %changelog
 
 * Mon Sep 08 2008 David Fifield (david(a)bamsoftware.com)
 - Build with --with-openssl rather than --without-openssl.
+
+* Sun Aug 17 2008 Kris Katterjohn (katterjohn(a)gmail.com)
+- Added the Ncat subpackage
 
 * Thu Nov 08 2007 David Fifield (david(a)bamsoftware.com)
 - Split the zenmap subpackage into its own spec file.

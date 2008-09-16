@@ -22,6 +22,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dnet", "..\libdnet-stripped
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "liblua", "..\liblua\liblua.vcproj", "{31FB0767-A71F-4575-8379-002D72B8AF86}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ncat", "..\ncat\ncat.vcproj", "{C1E04411-E021-468B-83F1-CB624BBA7589}"
+	ProjectSection(ProjectDependencies) = postProject
+		{31FB0767-A71F-4575-8379-002D72B8AF86} = {31FB0767-A71F-4575-8379-002D72B8AF86}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -52,6 +57,10 @@ Global
 		{31FB0767-A71F-4575-8379-002D72B8AF86}.Debug|Win32.Build.0 = Debug|Win32
 		{31FB0767-A71F-4575-8379-002D72B8AF86}.Release|Win32.ActiveCfg = Release|Win32
 		{31FB0767-A71F-4575-8379-002D72B8AF86}.Release|Win32.Build.0 = Release|Win32
+		{C1E04411-E021-468B-83F1-CB624BBA7589}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C1E04411-E021-468B-83F1-CB624BBA7589}.Debug|Win32.Build.0 = Debug|Win32
+		{C1E04411-E021-468B-83F1-CB624BBA7589}.Release|Win32.ActiveCfg = Release|Win32
+		{C1E04411-E021-468B-83F1-CB624BBA7589}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

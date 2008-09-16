@@ -19,6 +19,7 @@ export NSOCKDIR=@NSOCKDIR@
 export LIBLUADIR = @LIBLUADIR@
 export NDIR=$(shell pwd)
 export LIBLUA_LIBS = @LIBLUA_LIBS@
+export NCATDIR=@NCATDIR@
 CC = @CC@
 CXX = @CXX@
 CCOPT = 
@@ -74,7 +75,7 @@ OBJS = main.o nmap.o targets.o tcpip.o nmap_error.o utils.o idle_scan.o osscan.o
 .cc.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
-all: @LUA_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @DNET_BUILD@ @NBASE_BUILD@ @NSOCK_BUILD@
+all: @LUA_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @DNET_BUILD@ @NBASE_BUILD@ @NSOCK_BUILD@ @NCAT_BUILD@
 	$(MAKE) $(TARGET) $(BUILDZENMAP)
 
 $(TARGET): @LUA_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(OBJS)
@@ -99,6 +100,9 @@ nsock_build: $(NSOCKDIR)/src/Makefile nbase_build
 	@echo Compiling libnsock;
 	cd $(NSOCKDIR)/src && $(MAKE)
 
+ncat_build: $(NCATDIR)/Makefile
+	cd $(NCATDIR) && $(MAKE)
+
 lua_build: $(LIBLUADIR)/Makefile
 	@echo Compiling liblua; cd $(LIBLUADIR) && $(MAKE) liblua.a CC="$(CC)" MYCFLAGS="$(CFLAGS) @LUA_CFLAGS@"
 
@@ -121,7 +125,7 @@ distro:
 web:
 	cd $(NMAPDEVDIR) && $(MAKE) web
 
-clean: @LUA_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nsock_clean nbase_clean my_clean @ZENMAP_CLEAN@
+clean: @LUA_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nsock_clean nbase_clean my_clean @ZENMAP_CLEAN@ @NCAT_CLEAN@
 
 my_clean:
 	rm -f dependencies.mk makefile.dep
@@ -136,6 +140,8 @@ nbase_clean:
 	-cd $(NBASEDIR) && $(MAKE) clean
 nsock_clean:
 	-cd $(NSOCKDIR)/src && $(MAKE) clean
+ncat_clean:
+	-cd $(NCATDIR) && $(MAKE) clean
 lua_clean:
 	-cd $(LIBLUADIR) && $(MAKE) clean
 zenmap_clean:
@@ -152,12 +158,14 @@ nbase_dist_clean:
 	-cd $(NBASEDIR) && $(MAKE) distclean
 nsock_dist_clean:
 	-cd $(NSOCKDIR)/src && $(MAKE) distclean
+ncat_dist_clean:
+	-cd $(NCATDIR) && $(MAKE) distclean
 zenmap_dist_clean: zenmap_clean
 	-cd $(ZENMAPDIR) && rm -rf MANIFEST build/ dist/
 debugclean:
 	rm -f *.gcov *.gcda *.gcno gmon.out
 
-distclean: my_clean my_distclean @LUA_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ nbase_dist_clean nsock_dist_clean @ZENMAP_DIST_CLEAN@
+distclean: my_clean my_distclean @LUA_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ nbase_dist_clean nsock_dist_clean @ZENMAP_DIST_CLEAN@ @NCAT_DIST_CLEAN@
 
 my_distclean:
 	rm -f Makefile Makefile.bak makefile.dep nmap_config.h stamp-h stamp-h.in \
@@ -218,10 +226,13 @@ install-nse: $(TARGET)
 	$(INSTALL) -d $(DESTDIR)$(nmapdatadir)/nselib
 	cp -f $(NSE_LIB_LUA_FILES) $(DESTDIR)$(nmapdatadir)/nselib
 
-install: install-nmap $(INSTALLNSE) $(INSTALLZENMAP)
+install-ncat: $(NCATDIR)/ncat
+	@cd $(NCATDIR) && $(MAKE) install
+
+install: install-nmap $(INSTALLNSE) $(INSTALLZENMAP) @NCAT_INSTALL@
 	@echo "NMAP SUCCESSFULLY INSTALLED"
 
-uninstall: uninstall-nmap $(UNINSTALLZENMAP)
+uninstall: uninstall-nmap $(UNINSTALLZENMAP) @NCAT_UNINSTALL@
 
 uninstall-nmap:
 	rm -f $(DESTDIR)$(bindir)/$(TARGET)
@@ -236,6 +247,9 @@ uninstall-zenmap:
 		rm -f $(DESTDIR)$(bindir)/nmapfe; \
 	fi
 	rm -f $(DESTDIR)$(bindir)/xnmap
+
+uninstall-ncat:
+	@cd $(NCATDIR) && $(MAKE) uninstall
 
 ${srcdir}/configure: configure.ac 
 	cd ${srcdir} && autoconf

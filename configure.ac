@@ -729,6 +729,33 @@ AC_SUBST(LIBNSOCK_LIBS)
 
 AC_CONFIG_SUBDIRS(nsock/src)
 
+NCATDIR="ncat"
+
+AC_ARG_WITH(ncat,
+	AC_HELP_STRING([--without-ncat], [Skip build and installation of Ncat]), [], [with_ncat=check])
+
+if test "$with_ncat" = "no"; then
+  NCAT_BUILD=""
+  NCAT_INSTALL=""
+  NCAT_UNINSTALL=""
+  NCAT_CLEAN=""
+  NCAT_DIST_CLEAN=""
+else
+  NCAT_BUILD="ncat_build"
+  NCAT_INSTALL="install-ncat"
+  NCAT_UNINSTALL="uninstall-ncat"
+  NCAT_CLEAN="ncat_clean"
+  NCAT_DIST_CLEAN="ncat_dist_clean"
+  AC_CONFIG_SUBDIRS(ncat)
+fi
+
+AC_SUBST(NCATDIR)
+AC_SUBST(NCAT_BUILD)
+AC_SUBST(NCAT_INSTALL)
+AC_SUBST(NCAT_UNINSTALL)
+AC_SUBST(NCAT_CLEAN)
+AC_SUBST(NCAT_DIST_CLEAN)
+
 AC_OUTPUT(Makefile)
 # Krad ASCII ART#!#@$!@#$
 if test -f docs/leet-nmap-ascii-art.txt; then

@@ -29,6 +29,7 @@ winbuild:
 	cp -a Release/nselib nmap-$(NMAP_VERSION)
 	cp winpcap/winpcap-nmap-*.exe nmap-$(NMAP_VERSION)
 	cp vcredist_x86.exe nmap-$(NMAP_VERSION)
+	cp ../ncat/Release/ncat.exe nmap-$(NMAP_VERSION)
 	zip -r nmap-$(NMAP_VERSION)-win32.zip nmap-$(NMAP_VERSION)
 	mkdir nmap-$(NMAP_VERSION)/zenmap
 	cd ../zenmap && install_scripts/windows/copy_and_compile.bat

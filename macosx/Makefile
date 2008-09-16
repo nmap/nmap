@@ -1,5 +1,5 @@
 # This makefile builds a disk image (.dmg) containing the installer for Nmap
-# and Zenmap.
+# Zenmap, and Ncat.
 
 NMAP_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
@@ -16,6 +16,9 @@ NMAP_STAGING_DIR = Nmap
 
 ZENMAP_BUILD_DIR = zenmap-build
 ZENMAP_STAGING_DIR = Zenmap
+
+NCAT_BUILD_DIR = ncat-build
+NCAT_STAGING_DIR = Ncat
 
 PREFIX = /usr/local
 
@@ -43,7 +46,7 @@ $(IMAGE_NAME): $(IMAGE_STAGING_DIR)/$(PKG_NAME) $(EXTRA_DIST_FILES)
 	rm -f $@
 	hdiutil create -imagekey zlib-level=9 -srcfolder $(IMAGE_STAGING_DIR) $@
 
-$(IMAGE_STAGING_DIR)/$(PKG_NAME): stage-nmap stage-zenmap README COPYING.formatted
+$(IMAGE_STAGING_DIR)/$(PKG_NAME): stage-nmap stage-ncat stage-zenmap README COPYING.formatted
 	mkdir -p $(IMAGE_STAGING_DIR)
 	$(PACKAGEMAKER) --doc nmap.pmdoc --title "Nmap $(NMAP_VERSION)" -o $@
 
@@ -55,10 +58,16 @@ export-%:
 	svn export ../zenmap $*/zenmap
 
 stage-nmap: export-$(NMAP_BUILD_DIR)
-	cd $(NMAP_BUILD_DIR) && ./configure --without-zenmap $(CONFIGURE_ARGS)
+	cd $(NMAP_BUILD_DIR) && ./configure --without-zenmap --without-ncat $(CONFIGURE_ARGS)
 	make -C $(NMAP_BUILD_DIR)
 	rm -rf $(NMAP_STAGING_DIR)
 	make -C $(NMAP_BUILD_DIR) install DESTDIR="`pwd`/$(NMAP_STAGING_DIR)"
+
+stage-ncat: export-$(NCAT_BUILD_DIR)
+	cd $(NCAT_BUILD_DIR) && ./configure --without-zenmap --with-ncat $(CONFIGURE_ARGS)
+	make -C $(NCAT_BUILD_DIR)
+	rm -rf $(NCAT_STAGING_DIR)
+	make -C $(NCAT_BUILD_DIR) install-ncat DESTDIR="`pwd`/$(NCAT_STAGING_DIR)"
 
 # make-bundle.sh uses these to build its authorization wrapper.
 export CC CPPFLAGS CFLAGS CXXFLAGS LDFLAGS
@@ -87,6 +96,8 @@ clean:
 	rm -rf $(NMAP_STAGING_DIR)
 	rm -rf $(ZENMAP_BUILD_DIR)
 	rm -rf $(ZENMAP_STAGING_DIR)
+	rm -rf $(NCAT_BUILD_DIR)
+	rm -rf $(NCAT_STAGING_DIR)
 	rm -f COPYING.formatted
 	rm -f $(IMAGE_NAME)
 

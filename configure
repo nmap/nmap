@@ -726,6 +726,12 @@ LIBNBASE_LIBS
 NSOCKDIR
 NSOCK_BUILD
 LIBNSOCK_LIBS
+NCATDIR
+NCAT_BUILD
+NCAT_INSTALL
+NCAT_UNINSTALL
+NCAT_CLEAN
+NCAT_DIST_CLEAN
 LIBOBJS
 LTLIBOBJS'
 ac_subst_files=''
@@ -745,7 +751,8 @@ ac_subdirs_all='libpcap
 libpcre
 libdnet-stripped
 nbase
-nsock/src'
+nsock/src
+ncat'
 
 # Initialize some variables set by options.
 ac_init_help=
@@ -1337,6 +1344,7 @@ Optional Packages:
                           from compilation)
   --with-libnbase=DIR     Look for nbase include/libs in DIR
   --with-libnsock=DIR     Compile and link to libnsock in DIR
+  --without-ncat          Skip build and installation of Ncat
 
 Some influential environment variables:
   CC          C compiler command
@@ -8677,6 +8685,40 @@ LIBNSOCK_LIBS="-lnsock"
 subdirs="$subdirs nsock/src"
 
 
+NCATDIR="ncat"
+
+
+# Check whether --with-ncat was given.
+if test "${with_ncat+set}" = set; then
+  withval=$with_ncat;
+else
+  with_ncat=check
+fi
+
+
+if test "$with_ncat" = "no"; then
+  NCAT_BUILD=""
+  NCAT_INSTALL=""
+  NCAT_UNINSTALL=""
+  NCAT_CLEAN=""
+  NCAT_DIST_CLEAN=""
+else
+  NCAT_BUILD="ncat_build"
+  NCAT_INSTALL="install-ncat"
+  NCAT_UNINSTALL="uninstall-ncat"
+  NCAT_CLEAN="ncat_clean"
+  NCAT_DIST_CLEAN="ncat_dist_clean"
+  subdirs="$subdirs ncat"
+
+fi
+
+
+
+
+
+
+
+
 ac_config_files="$ac_config_files Makefile"
 
 cat >confcache <<\_ACEOF
@@ -9449,11 +9491,17 @@ LIBNBASE_LIBS!$LIBNBASE_LIBS$ac_delim
 NSOCKDIR!$NSOCKDIR$ac_delim
 NSOCK_BUILD!$NSOCK_BUILD$ac_delim
 LIBNSOCK_LIBS!$LIBNSOCK_LIBS$ac_delim
+NCATDIR!$NCATDIR$ac_delim
+NCAT_BUILD!$NCAT_BUILD$ac_delim
+NCAT_INSTALL!$NCAT_INSTALL$ac_delim
+NCAT_UNINSTALL!$NCAT_UNINSTALL$ac_delim
+NCAT_CLEAN!$NCAT_CLEAN$ac_delim
+NCAT_DIST_CLEAN!$NCAT_DIST_CLEAN$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 18; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 24; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
