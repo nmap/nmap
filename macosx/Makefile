@@ -54,6 +54,7 @@ export-%:
 	rm -rf $*
 	svn export .. $*
 	svn export ../nbase $*/nbase
+	svn export ../ncat $*/ncat
 	svn export ../nsock $*/nsock
 	svn export ../zenmap $*/zenmap
 
