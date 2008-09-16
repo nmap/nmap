@@ -272,5 +272,5 @@ config.status: configure
 	./config.status --recheck
 
 makefile.dep:
-	$(CXX) -MM $(CPPFLAGS) $(CXXFLAGS) $(SRCS) > $@
+	$(CXX) -MM $(CPPFLAGS) $(SRCS) > $@
 include makefile.dep
