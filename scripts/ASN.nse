@@ -5,7 +5,7 @@ sends DNS TXT queries to a DNS server which in turn queries a third party
 service provided by Team Cymru (team-cymru.org) using an in-addr.arpa style
 zone set-up especially for use by Nmap.
 \n
-The respnses to these queries contain both Origin and Peer ASNs and their
+The responses to these queries contain both Origin and Peer ASNs and their
 descriptions, displayed along with the BG Prefix and Country Code.
 \n
 The script caches results to reduce the number of queries and should perform a
@@ -44,9 +44,10 @@ runlevel = 1
 
 
 
-local dns   = require "dns"
-local comm  = require "comm"
-local ipOps = require "ipOps"
+local dns    = require "dns"
+local comm   = require "comm"
+local ipOps  = require "ipOps"
+local stdnse = require "stdnse"
 
 
 local mutex = nmap.mutex( id )
@@ -72,20 +73,30 @@ end
 -- relevent information from the response.  Mutual exclusion is used so that results can be
 -- cached and so a single thread will be active at any time.
 -- @param host  Host Table.
--- @return      Formatted answers or nil on NXDOMAIN/errors.
+-- @return      Formatted answers or nil on errors.
 
 action = function( host )
 
   mutex "lock"
 
-  -- check for cached data
-  local in_cache, records
-  local combined_records = {}
+  local output, records, combined_records = {}, {}, {}
 
-  in_cache, records = check_cache( host.ip )
-  records = records or {}
+  -- check for cached data
+  local in_cache, cache_data = check_cache( host.ip )
+
+  if in_cache and type( cache_data ) == "table" then
+    combined_records = cache_data
+  elseif in_cache and type( cache_data ) == "string" and cache_data ~= "Unknown Error" then
+    output = cache_data
+  end
 
   if not in_cache then
+
+    local dname = dns.reverse( host.ip )
+    local zone_repl, IPv = "%.in%-addr%.arpa", 4
+    if host.ip:match( ":" ) then
+      zone_repl, IPv = "%.ip6%.arpa", 6
+    end
 
     ---
     -- @class table
@@ -94,76 +105,51 @@ action = function( host )
     -- \n nmap.asn.cymru.com for IPv4 to Origin AS lookup.
     -- \n peer-nmap.asn.cymru.com for IPv4 to Peer AS lookup.
     -- \n nmap6.asn.cymru.com for IPv6 to Origin AS lookup.
-    local cymru = { [4] = { ["Origin"] = ".nmap.asn.cymru.com", ["Peer"] = ".peer-nmap.asn.cymru.com" },
-                    [6] = { ["Origin"] = ".nmap6.asn.cymru.com" }
+    local cymru = { [4] = { ".nmap.asn.cymru.com", ".peer-nmap.asn.cymru.com" },
+                    [6] = { ".nmap6.asn.cymru.com" }
     }
-    local zone_repl, IPv = "%.in%-addr%.arpa", 4
-    if host.ip:match( ":" ) then
-      zone_repl, IPv = "%.ip6%.arpa", 6
-    end
-
-    -- name to query for
-    local dname = dns.reverse( host.ip )
 
     -- perform queries for each applicable zone
-    for asn_type, zone in pairs( cymru[IPv] ) do
+    for _, zone in ipairs( cymru[IPv] ) do
+
+      local asn_type = ( zone:match( "peer" ) and "Peer" ) or "Origin"
       -- replace arpa with cymru zone
       local temp = dname
       dname = dname:gsub( zone_repl, zone )
-      -- send query and recognise and organise fields from response
-      local success, retval = result_recog( ip_to_asn( dname ), asn_type, records )
-      -- if success then records = retval end
+
+      -- send query
+      local success, response = ip_to_asn( dname )
+      if not success then
+        records = {}
+        output = ( type( response ) == "string" and response ) or output
+        break
+      end
+
+      -- recognise and organise fields from response
+      local success = result_recog( response, asn_type, records, host.ip )
+
       -- un-replace arpa zone
       dname = temp
+
     end
 
-    -- combine records into unique BGP
-    for _, record in ipairs( records ) do
-      if not combined_records[record.cache_bgp] then
-        combined_records[record.cache_bgp] = record
-      elseif combined_records[record.cache_bgp].asn_type ~= record.asn_type then
-        -- origin before peer.
-        if record.asn_type == "Origin" then
-          combined_records[record.cache_bgp].asn = { unpack( record.asn ), unpack( combined_records[record.cache_bgp].asn ) }
-        else
-          combined_records[record.cache_bgp].asn = { unpack( combined_records[record.cache_bgp].asn ), unpack( record.asn ) }
-        end
-      end
-    end
+    -- combine records into unique BGP, cache and format for output
+    combined_records = process_answers( records, output, host.ip )
 
-    -- cache combined records
-    for _, rec in pairs( combined_records ) do
-      table.insert( nmap.registry.asn.cache, rec )
-    end
+  end -- if not in_cache
 
-  else -- records were in the cache
-    combined_records = records
-  end
-
-  -- format each combined_record for output
-  local output = {}
-  for _, rec in pairs( combined_records ) do
-    local r = {}
-    if rec.bgp then r[#r+1] = rec.bgp end
-    if rec.co then r[#r+1] = rec.co end
-    output[#output+1] = ( "%s\n  %s" ):format( table.concat( r, " | " ), table.concat( rec.asn, "\n    " ) )
-  end
 
   mutex "done"
 
-  if type( output ) ~= "table" or #output == 0 then return nil end
-  -- sort BGP asc.
-  table.sort( output, function(a,b) return (get_prefix_length(a) or 0) > (get_prefix_length(b) or 0) end )
+  return nice_output( output, combined_records )
 
-  -- return combined and formatted answers
-  return (" \n%s"):format( table.concat( output, "\n" ) )
+end -- action
 
-end
 
 
 ---
 -- Checks whether the target IP address is within any BGP prefixes for which a query has
--- already been performed and returns any applicable answers.
+-- already been performed and returns a pointer to the HOST SCRIPT RESULT displaying the applicable answers.
 -- @param ip String representing the target IP address.
 -- @return   Boolean True if there are cached answers for the supplied target, otherwise
 --           false.
@@ -171,34 +157,106 @@ end
 
 function check_cache( ip )
   local ret = {}
+
+  -- collect any applicable answers
   for _, cache_entry in ipairs( nmap.registry.asn.cache ) do
     if ipOps.ip_in_range( ip, cache_entry.cache_bgp ) then
       ret[#ret+1] = cache_entry
     end
   end
-  if #ret > 0 then return true, ret end
+  if #ret < 1 then return false, nil end
+
+  -- /0 signals that we want to kill this thread (all threads in fact)
+  if #ret == 1 and type( ret[1].cache_bgp ) == "string" and ret[1].cache_bgp:match( "/0" ) then return true, nil end
+
+  -- should return pointer unless there are more than one unique pointer
+  local dirty, last_ip = false
+  for _, entry in ipairs( ret ) do
+    if last_ip and last_ip ~= entry.pointer then
+      dirty = true; break
+    end
+    last_ip = entry.pointer
+  end
+  if not dirty then
+    return true, ( "See the result for %s" ):format( last_ip )
+  else
+    return true, ret
+  end
+
   return false, nil
 end
 
 
 ---
--- Extracts fields from the supplied DNS answer sections.
+-- Performs an IP address to ASN lookup.  See http://www.team-cymru.org/Services/ip-to-asn.html#dns
+-- @param query String - PTR like DNS query.
+-- @return      Boolean true for a successful dns query resulting in an answer, otherwise false.
+-- @return      Table of answers or a String err msg.
+
+function ip_to_asn( query )
+
+  if type( query ) ~= "string" or query == "" then
+    return false, nil
+  end
+
+  -- error codes from dns.lua that we want to display.
+  local err_code = {}
+  err_code[3] = "No Such Name"
+
+  -- dns query options
+  local options = {}
+  options.dtype = "TXT"
+  options.retAll = true
+  options.sendCount = 1
+  if type( nmap.registry.args.dns ) == "string" and nmap.registry.args.dns ~= "" then
+    options.host = nmap.registry.args.dns
+    options.port = 53
+  end
+
+  -- send the query
+  local decoded_response, other_response = dns.query( query, options)
+
+  -- failed to find or get a response from any dns server - fatal
+  if not decoded_response and ( other_response == nil or other_response == 9 ) then
+    stdnse.print_debug( "%s Failed to send dns query.  Response from dns.query(): %s", id, other_response or "nil" )
+    return false, nil
+  end
+
+  -- error codes from dns.lua
+  if not decoded_response and type( other_response ) == "number" then
+    if other_response ~= 3 then stdnse.print_debug( "%s Error from dns.query() Code: %s in response to %s", id, other_response, query ) end
+    return false, err_code[other_response] or "Unknown Error"
+  end
+
+  -- catch
+  if not decoded_response then return false, nil end
+
+  return true, decoded_response
+
+end
+
+
+---
+-- Extracts fields from the supplied DNS answer sections and generates a records entry for each.
 -- @param answers    Table containing string DNS answers.
 -- @param asn_type   String denoting whether the query is for Origin or Peer ASN.
 -- @param recs       Table of existing recognised answers to which to add (ref to actions() records{}.
 -- @return           Boolean true if successful otherwise false.
 
-function result_recog( answers, asn_type, recs )
+function result_recog( answers, asn_type, recs, discoverer_ip )
 
   if type( answers ) ~= "table" or #answers == 0 then return false end
 
   for _, answer in ipairs( answers ) do
     local t = {}
+    t.pointer = discoverer_ip
+
     -- break the answer up into fields and strip whitespace
     local fields = { answer:match( ("([^|]*)|" ):rep(3) ) }
     for i, field in ipairs( fields ) do
       fields[i] = field:gsub( "^%s*(.-)%s*$", "%1" )
     end
+
     -- assign fields with labels to table
     t.cache_bgp = fields[2]
     t.asn_type = asn_type
@@ -206,6 +264,7 @@ function result_recog( answers, asn_type, recs )
     t.bgp = "BGP: "     .. fields[2]
     if fields[3] ~= "" then t.co = "Country: " .. fields[3] end
     recs[#recs+1] = t
+
     -- lookup AS descriptions for Origin AS numbers
     local asn_descr = nmap.registry.asn.descr
     local u = {}
@@ -226,33 +285,6 @@ end
 
 
 ---
--- Performs an IP address to ASN lookup.  See http://www.team-cymru.org/Services/ip-to-asn.html#dns
--- @param query String - PTR like DNS query.
--- @return      Table containing string answers or Boolean false.
-
-function ip_to_asn( query )
-
-  if type( query ) ~= "string" or query == "" then
-    return nil
-  end
-
-  -- dns query options
-  local options = {}
-  options.dtype = "TXT"
-  options.retAll = true
-  if type( nmap.registry.args.dns ) == "string" and nmap.registry.args.dns ~= "" then
-    options.host = nmap.registry.args.dns
-    options.port = 53
-  end
-
-  local decoded_response, other_response = dns.query( query, options)
-
-  return decoded_response
-
-end
-
-
----
 -- Performs an AS Number to AS Description lookup.
 -- @param asn String AS Number
 -- @return    String Description or ""
@@ -266,6 +298,7 @@ function asn_description( asn )
   -- dns query options
   local options = {}
   options.dtype = "TXT"
+  options.sendCount = 1
   if type( nmap.registry.args.dns ) == "string" and nmap.registry.args.dns ~= "" then
     options.host = nmap.registry.args.dns
     options.port = 53
@@ -282,6 +315,58 @@ function asn_description( asn )
 
 end
 
+
+---
+-- Processes records which are recognised dns answers by combining them into unique BGPs before caching
+-- them in the registry and returning combined_records.  If there aren't any records (No Such Name message
+-- or dns failure) we signal this fact to other threads by using the cache and return with an empty table.
+-- @param records  Table of recognised answers (may be empty).
+-- @param output   String non-answer message or an empty table.
+-- @param ip       String host.ip
+-- @return         Table containing combined records for the target (or an empty table).
+
+function process_answers( records, output, ip )
+
+  local combined_records = {}
+
+  -- if records empty and no error message (output) then assume catastrophic dns failure and have all threads fail without trying.
+  if #records == 0 and type( output ) ~= "string" then
+    nmap.registry.asn.cache = { {["cache_bgp"] = "0/0"}, {["cache_bgp"] = "::/0"} }
+    return {}
+  end
+
+  if #records == 0 and type( output ) == "string" then
+    table.insert( nmap.registry.asn.cache, { ["pointer"] = ip, ["cache_bgp"] = get_assignment( ip, ( ip:match(":") and 48 ) or 29 ) } )
+    return {}
+  end
+
+
+  if type( records ) ~= "table" or #records == 0 then
+    return {}
+  end
+
+  -- combine fields for unique BGP
+  for _, record in ipairs( records ) do
+    if not combined_records[record.cache_bgp] then
+      combined_records[record.cache_bgp] = record
+    elseif combined_records[record.cache_bgp].asn_type ~= record.asn_type then
+      -- origin before peer.
+      if record.asn_type == "Origin" then
+        combined_records[record.cache_bgp].asn = { unpack( record.asn ), unpack( combined_records[record.cache_bgp].asn ) }
+      else
+        combined_records[record.cache_bgp].asn = { unpack( combined_records[record.cache_bgp].asn ), unpack( record.asn ) }
+      end
+    end
+  end
+
+  -- cache combined records
+  for _, rec in pairs( combined_records ) do
+    table.insert( nmap.registry.asn.cache, rec )
+  end
+
+  return combined_records
+
+end
 
 
 ---
@@ -311,5 +396,85 @@ function get_prefix_length( range )
   end
 
   return ( string.len( first ) - hostbits )
+
+end
+
+---
+-- Given an IP address and a prefix length, returns a string representing a valid IP address assignment (size is not checked) which contains
+-- the supplied IP address.  For example, with ip = 192.168.1.187 and prefix = 24 the return value will be 192.168.1.1-192.168.1.255
+-- @param ip      String representing an IP address.
+-- @param prefix  String or number representing a prefix length.  Should be of the same address family as ip.
+-- @return        String representing a range of addresses from the first to the last hosts (or nil in case of an error).
+-- @return        Nil or error message in case of an error.
+
+function get_assignment( ip, prefix )
+
+  local some_ip, err = ipOps.ip_to_bin( ip )
+  if err then return nil, err end
+
+  prefix = tonumber( prefix )
+  if not prefix or ( prefix < 0 ) or ( prefix > string.len( some_ip ) ) then
+    return nil, "Error in get_assignment: Invalid prefix length."
+  end
+
+  local hostbits = string.sub( some_ip, prefix + 1 )
+  hostbits = string.gsub( hostbits, "1", "0" )
+  local first = string.sub( some_ip, 1, prefix ) .. hostbits
+  err = {}
+  first, err[#err+1] = ipOps.bin_to_ip( first )
+  last, err[#err+1] = ipOps.get_last_ip( ip, prefix )
+  if #err > 0 then return nil, table.concat( err, " " ) end
+
+  return first .. "-" .. last
+
+end
+
+
+---
+-- Decides what to output based on the content of the supplied paramaters and formats it for return by action().
+-- @param output            String non-answer message to be returned as is or an empty table
+-- @param combined_records  Table containing combined records.
+-- @return                  Formatted nice output string.
+
+function nice_output( output, combined_records )
+
+  -- return a string message
+  if type( output ) == "string" and output ~= "" then
+    return output
+  end
+
+  -- return nothing (dns failure)
+  if type( output ) ~= "table" then return nil end
+
+  -- format each combined_record for output
+  for _, rec in pairs( combined_records ) do
+    local r = {}
+    if rec.bgp then r[#r+1] = rec.bgp end
+    if rec.co then r[#r+1] = rec.co end
+    if rec.asn then output[#output+1] = ( "%s\n  %s" ):format( table.concat( r, " | " ), table.concat( rec.asn, "\n    " ) ) end
+  end
+
+  -- return nothing
+  if #output == 0 then return nil end
+
+  -- sort BGP asc. and combine BGP when ASN info is duplicated
+  table.sort( output, function(a,b) return (get_prefix_length(a) or 0) > (get_prefix_length(b) or 0) end )
+  for i=1,#output,1 do
+    for j=1,#output,1 do
+      -- does everything after the first pipe match for i ~= j?
+      if i ~= j and output[i]:match( "[^|]+|([^$]+$)" ) == output[j]:match( "[^|]+|([^$]+$)" ) then
+        first = output[i]:match( "([%x%d:\.]+/%d+)%s|" ) -- the lastmost BGP before the pipe in i.
+        second = output[j]:match( "([%x%d:\.]+/%d+)" ) -- first BGP in j
+        -- add in the new BGP from j and delete j
+        if first and second then
+          output[i] = output[i]:gsub( first, ("%s and %s"):format( first, second ) )
+          output[j] = ""
+        end
+      end
+    end
+  end
+
+  -- return combined and formatted answers
+  return (" \n%s"):format( table.concat( output, "\n" ) )
 
 end
