@@ -21,6 +21,11 @@
     starts_enabled="true" starts_hidden="false">
       <pkgref id="org.insecure.nmap.zenmap.pkg" />
     </choice>
+    <choice title="Ncat" id="choice94" starts_selected="true"
+    description="Ncat general-purpose network sender and receiver (reimplementation of Netcat)."
+    starts_enabled="true" starts_hidden="false">
+      <pkgref id="org.insecure.nmap.ncat.pkg" />
+    </choice>
   </contents>
   <resources bg-scale="none" bg-align="topleft">
     <locale lang="en">
@@ -31,6 +36,7 @@
   <flags />
   <item type="file">01nmap.xml</item>
   <item type="file">02zenmap.xml</item>
+  <item type="file">03ncat.xml</item>
   <mod>properties.customizeOption</mod>
   <mod>properties.title</mod>
   <mod>properties.anywhereDomain</mod>
