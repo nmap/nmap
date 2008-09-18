@@ -26,6 +26,11 @@
     starts_enabled="true" starts_hidden="false">
       <pkgref id="org.insecure.nmap.ncat.pkg" />
     </choice>
+    <choice title="Ndiff" id="choice95" starts_selected="true"
+    description="Ndiff scan comparison utility."
+    starts_enabled="true" starts_hidden="false">
+      <pkgref id="org.insecure.nmap.ndiff.pkg" />
+    </choice>
   </contents>
   <resources bg-scale="none" bg-align="topleft">
     <locale lang="en">
@@ -37,6 +42,7 @@
   <item type="file">01nmap.xml</item>
   <item type="file">02zenmap.xml</item>
   <item type="file">03ncat.xml</item>
+  <item type="file">04ndiff.xml</item>
   <mod>properties.customizeOption</mod>
   <mod>properties.title</mod>
   <mod>properties.anywhereDomain</mod>

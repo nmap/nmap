@@ -1,5 +1,5 @@
-# This makefile builds a disk image (.dmg) containing the installer for Nmap
-# Zenmap, and Ncat.
+# This makefile builds a disk image (.dmg) containing the installer for Nmap,
+# Zenmap, Ncat, and Ndiff.
 
 NMAP_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
@@ -19,6 +19,9 @@ ZENMAP_STAGING_DIR = Zenmap
 
 NCAT_BUILD_DIR = ncat-build
 NCAT_STAGING_DIR = Ncat
+
+NDIFF_BUILD_DIR = ndiff-build
+NDIFF_STAGING_DIR = Ndiff
 
 PREFIX = /usr/local
 
@@ -46,7 +49,7 @@ $(IMAGE_NAME): $(IMAGE_STAGING_DIR)/$(PKG_NAME) $(EXTRA_DIST_FILES)
 	rm -f $@
 	hdiutil create -imagekey zlib-level=9 -srcfolder $(IMAGE_STAGING_DIR) $@
 
-$(IMAGE_STAGING_DIR)/$(PKG_NAME): stage-nmap stage-ncat stage-zenmap README COPYING.formatted
+$(IMAGE_STAGING_DIR)/$(PKG_NAME): stage-nmap stage-ncat stage-ndiff stage-zenmap README COPYING.formatted
 	mkdir -p $(IMAGE_STAGING_DIR)
 	$(PACKAGEMAKER) --doc nmap.pmdoc --title "Nmap $(NMAP_VERSION)" -o $@
 
@@ -57,15 +60,16 @@ export-%:
 	svn export ../ncat $*/ncat
 	svn export ../nsock $*/nsock
 	svn export ../zenmap $*/zenmap
+	svn export ../ndiff $*/ndiff
 
 stage-nmap: export-$(NMAP_BUILD_DIR)
-	cd $(NMAP_BUILD_DIR) && ./configure --without-zenmap --without-ncat $(CONFIGURE_ARGS)
+	cd $(NMAP_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff $(CONFIGURE_ARGS)
 	make -C $(NMAP_BUILD_DIR)
 	rm -rf $(NMAP_STAGING_DIR)
 	make -C $(NMAP_BUILD_DIR) install DESTDIR="`pwd`/$(NMAP_STAGING_DIR)"
 
 stage-ncat: export-$(NCAT_BUILD_DIR)
-	cd $(NCAT_BUILD_DIR) && ./configure --without-zenmap --with-ncat $(CONFIGURE_ARGS)
+	cd $(NCAT_BUILD_DIR) && ./configure --without-zenmap --with-ncat --without-ndiff $(CONFIGURE_ARGS)
 	make -C $(NCAT_BUILD_DIR)
 	rm -rf $(NCAT_STAGING_DIR)
 	make -C $(NCAT_BUILD_DIR) install-ncat DESTDIR="`pwd`/$(NCAT_STAGING_DIR)"
@@ -78,6 +82,12 @@ stage-zenmap: export-$(ZENMAP_BUILD_DIR)
 	rm -rf $(ZENMAP_STAGING_DIR)
 	mkdir -p $(ZENMAP_STAGING_DIR)/Applications
 	cp -rf $(ZENMAP_BUILD_DIR)/zenmap/dist/Zenmap.app $(ZENMAP_STAGING_DIR)/Applications/
+
+stage-ndiff: export-$(NDIFF_BUILD_DIR)
+	cd $(NDIFF_BUILD_DIR) && ./configure --without-zenmap --without-ncat --with-ndiff $(CONFIGURE_ARGS)
+	make -C $(NDIFF_BUILD_DIR) build-ndiff
+	rm -rf $(NDIFF_STAGING_DIR)
+	make -C $(NDIFF_BUILD_DIR) install-ndiff DESTDIR="`pwd`/$(NDIFF_STAGING_DIR)"
 
 $(IMAGE_STAGING_DIR)/README:
 	mkdir -p $(IMAGE_STAGING_DIR)
@@ -99,6 +109,8 @@ clean:
 	rm -rf $(ZENMAP_STAGING_DIR)
 	rm -rf $(NCAT_BUILD_DIR)
 	rm -rf $(NCAT_STAGING_DIR)
+	rm -rf $(NDIFF_BUILD_DIR)
+	rm -rf $(NDIFF_STAGING_DIR)
 	rm -f COPYING.formatted
 	rm -f $(IMAGE_NAME)
 

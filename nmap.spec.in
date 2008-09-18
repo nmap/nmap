@@ -18,6 +18,9 @@ Group: Applications/System
 Source0: http://nmap.org/dist/%{name}-%{version}.tgz
 URL: http://nmap.org
 
+# For Ndiff.
+Requires: python >= 2.4
+
 # RPM can't be relocatable until I stop storing path info in the binary.
 # Prefix: %{_prefix}
 BuildRoot: %{_tmppath}/%{name}-root
@@ -37,7 +40,7 @@ devices are also supported, including the Sharp Zaurus and the iPAQ.
 %setup -q
 
 %build
-%configure --without-openssl --without-zenmap --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
+%configure --without-openssl --without-zenmap --with-ndiff --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
 %if "%{buildncat}" == "0"
 %configure --without-ncat
 %endif
@@ -64,6 +67,9 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 %doc %{_prefix}/share/man/man1/nmap.1.gz
 %{_bindir}/nmap
 %{_datadir}/nmap
+
+%{_bindir}/ndiff
+%doc %{_prefix}/share/man/man1/ndiff.1.gz
 
 # Ncat subpackage
 %if "%{buildncat}" != "0"

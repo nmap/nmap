@@ -88,18 +88,18 @@ FunctionEnd
 Function makeShortcuts
   StrCmp $zenmapset "" skip
 
-  SetOutPath "$INSTDIR\zenmap"
+  SetOutPath "$INSTDIR"
 
   ReadINIStr $0 "$PLUGINSDIR\shortcuts.ini" "Field 1" "State"
   StrCmp $0 "0" skipdesktop
-  CreateShortCut "$DESKTOP\Nmap - Zenmap GUI.lnk" "$INSTDIR\zenmap\zenmap.exe"
+  CreateShortCut "$DESKTOP\Nmap - Zenmap GUI.lnk" "$INSTDIR\zenmap.exe"
 
   skipdesktop:
 
   ReadINIStr $0 "$PLUGINSDIR\shortcuts.ini" "Field 2" "State"
   StrCmp $0 "0" skipstartmenu
   CreateDirectory "$SMPROGRAMS\Nmap"
-  CreateShortCut "$SMPROGRAMS\Nmap\Nmap - Zenmap GUI.lnk" "$INSTDIR\zenmap\zenmap.exe"
+  CreateShortCut "$SMPROGRAMS\Nmap\Nmap - Zenmap GUI.lnk" "$INSTDIR\zenmap.exe"
 
   skipstartmenu:
 
@@ -247,7 +247,13 @@ SectionEnd
 Section "Zenmap (GUI Frontend)" SecZenmap
   SetOutPath "$INSTDIR" 
   SetOverwrite on 
-  File /r /x mswin32 /x .svn ..\nmap-${VERSION}\zenmap
+  File ..\nmap-${VERSION}\zenmap.exe
+  File ..\nmap-${VERSION}\ZENMAP_README
+  File ..\nmap-${VERSION}\COPYING_HIGWIDGETS
+  File ..\nmap-${VERSION}\msvcr71.dll
+  File ..\nmap-${VERSION}\python25.dll
+  File /r ..\nmap-${VERSION}\share
+  File /r ..\nmap-${VERSION}\py2exe
   StrCpy $zenmapset "true"
 SectionEnd
 
@@ -255,6 +261,16 @@ Section "Ncat (Netcat Replacement)" SecNcat
   SetOutPath "$INSTDIR"
   SetOverwrite on
   File ..\nmap-${VERSION}\ncat.exe
+SectionEnd
+
+Section "Ndiff" SecNdiff
+  SetOutPath "$INSTDIR" 
+  SetOverwrite on 
+  File ..\nmap-${VERSION}\ndiff.exe
+  File ..\nmap-${VERSION}\NDIFF_README
+  File ..\nmap-${VERSION}\msvcr71.dll
+  File ..\nmap-${VERSION}\python25.dll
+  File /r ..\nmap-${VERSION}\py2exe
 SectionEnd
  
 ;-------------------------------- 
@@ -267,6 +283,7 @@ SectionEnd
   LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended." 
   LangString DESC_SecZenmap ${LANG_ENGLISH} "Installs Zenmap, the official Nmap graphical user interface.  Recommended." 
   LangString DESC_SecNcat ${LANG_ENGLISH} "Installs Ncat, Nmap's Netcat replacement." 
+  LangString DESC_SecNdiff ${LANG_ENGLISH} "Installs Ndiff, a tool for comparing Nmap XML files."
 
   ;Assign language strings to sections 
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN 
@@ -276,6 +293,7 @@ SectionEnd
     !insertmacro MUI_DESCRIPTION_TEXT ${SecPerfRegistryMods} $(DESC_SecPerfRegistryMods) 
     !insertmacro MUI_DESCRIPTION_TEXT ${SecZenmap} $(DESC_SecZenmap) 
     !insertmacro MUI_DESCRIPTION_TEXT ${SecNcat} $(DESC_SecNcat) 
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecNdiff} $(DESC_SecNdiff) 
   !insertmacro MUI_FUNCTION_DESCRIPTION_END 
 ;-------------------------------- 
 ;Uninstaller Section 
@@ -328,11 +346,19 @@ Section "Uninstall"
   Delete "$INSTDIR\libeay32.dll"
   Delete "$INSTDIR\ssleay32.dll"
   Delete "$INSTDIR\winpcap-nmap*.exe"
+  Delete "$INSTDIR\zenmap.exe"
+  Delete "$INSTDIR\ndiff.exe"
+  Delete "$INSTDIR\msvcr71.dll"
+  Delete "$INSTDIR\python25.dll"
+  Delete "$INSTDIR\NDIFF_README"
+  Delete "$INSTDIR\ZENMAP_README"
+  Delete "$INSTDIR\COPYING_HIGWIDGETS"
   Delete "$INSTDIR\ncat.exe"
   ;Delete specific subfolders (NB: custom scripts in scripts folder will be lost)
   RMDir /r "$INSTDIR\nselib"
   RMDir /r "$INSTDIR\scripts"
-  RMDir /r "$INSTDIR\zenmap"
+  RMDir /r "$INSTDIR\share"
+  RMDir /r "$INSTDIR\py2exe"
  
   Delete "$INSTDIR\Uninstall.exe" 
 

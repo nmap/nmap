@@ -198,6 +198,34 @@ dnl If any socket libraries needed
 AC_SEARCH_LIBS(setsockopt, socket)
 AC_SEARCH_LIBS(gethostbyname, nsl)
 
+# Do they want Ndiff?
+AC_ARG_WITH(ndiff, AC_HELP_STRING([--without-ndiff], [Skip installation of the Ndiff utility]), [], [with_ndiff=check])
+
+if test "$with_ndiff" != "no"; then
+  AM_PATH_PYTHON([2.4], [],
+  [if test "$with_ndiff" = "check"; then
+     AC_MSG_WARN([Not building Ndiff because Python 2.4 or later was not found])
+   else
+     AC_MSG_FAILURE([--with-ndiff requires Python 2.4 or later])
+   fi
+   with_ndiff=no])
+fi
+if test "$with_ndiff" = "no"; then
+  BUILDNDIFF=""
+  INSTALLNDIFF=""
+  NDIFF_CLEAN=""
+  NDIFF_DIST_CLEAN=""
+else
+  BUILDNDIFF=build-ndiff
+  INSTALLNDIFF=install-ndiff
+  NDIFF_CLEAN=ndiff_clean
+  NDIFF_DIST_CLEAN=ndiff_dist_clean
+fi
+AC_SUBST(BUILDNDIFF)
+AC_SUBST(INSTALLNDIFF)
+AC_SUBST(NDIFF_CLEAN)
+AC_SUBST(NDIFF_DIST_CLEAN)
+
 # Do they want Zenmap?
 AC_ARG_WITH(zenmap, AC_HELP_STRING([--without-zenmap], [Skip installation of the Zenmap graphical frontend]), [], [with_zenmap=check])
 

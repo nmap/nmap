@@ -29,6 +29,7 @@ LIBPCAPDIR = @libpcapdir@
 LIBPCREDIR = @LIBPCREDIR@
 export LIBDNETDIR = @LIBDNETDIR@
 ZENMAPDIR = zenmap
+NDIFFDIR = ndiff
 PYTHON = @PYTHON@
 DEFS = @DEFS@ -DNMAP_NAME=\"$(NMAP_NAME)\" -DNMAP_URL=\"$(NMAP_URL)\" -DNMAP_PLATFORM=\"$(NMAP_PLATFORM)\" -DNMAPDATADIR=\"$(nmapdatadir)\" -DNMAPLIBEXECDIR=\"$(nmaplibexecdir)\"
 # For mtrace debugging -- see MTRACE define in main.cc for instructions
@@ -56,7 +57,9 @@ DESTDIR =
 TARGET = nmap
 INSTALLNSE=@INSTALLNSE@
 BUILDZENMAP=@BUILDZENMAP@
+BUILDNDIFF=@BUILDNDIFF@
 INSTALLZENMAP=@INSTALLZENMAP@
+INSTALLNDIFF=@INSTALLNDIFF@
 UNINSTALLZENMAP=@UNINSTALLZENMAP@
 
 ifneq (@LIBLUA_LIBS@,)
@@ -76,7 +79,7 @@ OBJS = main.o nmap.o targets.o tcpip.o nmap_error.o utils.o idle_scan.o osscan.o
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
 all: @LUA_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @DNET_BUILD@ @NBASE_BUILD@ @NSOCK_BUILD@ @NCAT_BUILD@
-	$(MAKE) $(TARGET) $(BUILDZENMAP)
+	$(MAKE) $(TARGET) $(BUILDZENMAP) $(BUILDNDIFF)
 
 $(TARGET): @LUA_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(OBJS)
 	echo Compiling nmap
@@ -146,6 +149,8 @@ lua_clean:
 	-cd $(LIBLUADIR) && $(MAKE) clean
 zenmap_clean:
 	-cd $(ZENMAPDIR) && $(PYTHON) setup.py clean --all
+ndiff_clean:
+	-cd $(NDIFFDIR) && $(PYTHON) setup.py clean --all
 pcap_dist_clean:
 	-cd $(LIBPCAPDIR) && $(MAKE) distclean
 pcre_dist_clean:
@@ -162,6 +167,8 @@ ncat_dist_clean:
 	-cd $(NCATDIR) && $(MAKE) distclean
 zenmap_dist_clean: zenmap_clean
 	-cd $(ZENMAPDIR) && rm -rf MANIFEST build/ dist/
+ndiff_dist_clean: ndiff_clean
+	-cd $(NDIFFDIR) && rm -rf build/ dist/
 debugclean:
 	rm -f *.gcov *.gcda *.gcno gmon.out
 
@@ -217,6 +224,12 @@ install-zenmap: $(ZENMAPDIR)/setup.py
 # Create a symlink from xnmap to zenmap unconditionally.
 	ln -sf zenmap $(DESTDIR)$(bindir)/xnmap
 
+build-ndiff:
+	cd $(NDIFFDIR) && $(PYTHON) setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
+
+install-ndiff:
+	cd $(NDIFFDIR) && $(PYTHON) setup.py install --prefix "$(prefix)" $(if $(DESTDIR),--root "$(DESTDIR)")
+
 NSE_FILES = scripts/script.db scripts/*.nse
 NSE_LIB_LUA_FILES = nselib/*.lua
 
@@ -229,7 +242,7 @@ install-nse: $(TARGET)
 install-ncat: $(NCATDIR)/ncat
 	@cd $(NCATDIR) && $(MAKE) install
 
-install: install-nmap $(INSTALLNSE) $(INSTALLZENMAP) @NCAT_INSTALL@
+install: install-nmap $(INSTALLNSE) $(INSTALLZENMAP) @NCAT_INSTALL@ $(INSTALLNDIFF)
 	@echo "NMAP SUCCESSFULLY INSTALLED"
 
 uninstall: uninstall-nmap $(UNINSTALLZENMAP) @NCAT_UNINSTALL@
