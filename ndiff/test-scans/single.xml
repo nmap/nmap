@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<?xml-stylesheet href="/usr/share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- This scan has one scaninfo and one extraports. -->
+<!-- Nmap 4.68 scan initiated Wed Sep  3 20:04:31 2008 as: nmap -oX single.xml -p 1-100 scanme.nmap.org -->
+<nmaprun scanner="nmap" args="nmap -oX single.xml -p 1-100 scanme.nmap.org" start="1220493871" startstr="Wed Sep  3 20:04:31 2008" version="4.68" xmloutputversion="1.02">
+<scaninfo type="syn"  protocol="tcp" numservices="100" services="1-100" />
+<verbose level="0" />
+<debugging level="0" />
+<host starttime="1220493871" endtime="1220493872"><status state="up" reason="echo-reply"/>
+<address addr="64.13.134.52" addrtype="ipv4" />
+<hostnames><hostname name="scanme.nmap.org" type="PTR" /></hostnames>
+<ports><extraports state="filtered" count="95">
+<extrareasons reason="no-responses" count="95"/>
+</extraports>
+<port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="51"/><service name="ssh" method="table" conf="3" /></port>
+<port protocol="tcp" portid="25"><state state="closed" reason="reset" reason_ttl="51"/><service name="smtp" method="table" conf="3" /></port>
+<port protocol="tcp" portid="53"><state state="open" reason="syn-ack" reason_ttl="51"/><service name="domain" method="table" conf="3" /></port>
+<port protocol="tcp" portid="70"><state state="closed" reason="reset" reason_ttl="51"/><service name="gopher" method="table" conf="3" /></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="51"/><service name="http" method="table" conf="3" /></port>
+</ports>
+<times srtt="88828" rttvar="25643" to="191400" />
+</host>
+<runstats><finished time="1220493873" timestr="Wed Sep  3 20:04:33 2008"/><hosts up="1" down="0" total="1" />
+<!-- Nmap done at Wed Sep  3 20:04:33 2008; 1 IP address (1 host up) scanned in 2.02 seconds -->
+</runstats></nmaprun>

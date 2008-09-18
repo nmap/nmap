@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<?xml-stylesheet href="/usr/share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- This scan has two scaninfos and two extraports. -->
+<!-- Nmap 4.68 scan initiated Thu Sep  4 20:02:52 2008 as: nmap -oX complex.xml -sS -sU -p T:1-100,U:1-100 scanme.nmap.org -->
+<nmaprun scanner="nmap" args="nmap -oX complex.xml -sS -sU -p T:1-100,U:1-100 scanme.nmap.org" start="1220580172" startstr="Thu Sep  4 20:02:52 2008" version="4.68" xmloutputversion="1.02">
+<scaninfo type="syn"  protocol="tcp" numservices="100" services="1-100" />
+<scaninfo type="udp"  protocol="udp" numservices="100" services="1-100" />
+<verbose level="0" />
+<debugging level="0" />
+<host starttime="1220580172" endtime="1220580176"><status state="up" reason="echo-reply"/>
+<address addr="64.13.134.52" addrtype="ipv4" />
+<hostnames><hostname name="scanme.nmap.org" type="PTR" /></hostnames>
+<ports><extraports state="open|filtered" count="100">
+<extrareasons reason="no-responses" count="100"/>
+</extraports>
+<extraports state="filtered" count="95">
+<extrareasons reason="no-responses" count="95"/>
+</extraports>
+<port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="51"/><service name="ssh" method="table" conf="3" /></port>
+<port protocol="tcp" portid="25"><state state="closed" reason="reset" reason_ttl="51"/><service name="smtp" method="table" conf="3" /></port>
+<port protocol="tcp" portid="53"><state state="open" reason="syn-ack" reason_ttl="51"/><service name="domain" method="table" conf="3" /></port>
+<port protocol="tcp" portid="70"><state state="closed" reason="reset" reason_ttl="51"/><service name="gopher" method="table" conf="3" /></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="51"/><service name="http" method="table" conf="3" /></port>
+</ports>
+<times srtt="85526" rttvar="14010" to="141566" />
+</host>
+<runstats><finished time="1220580176" timestr="Thu Sep  4 20:02:56 2008"/><hosts up="1" down="0" total="1" />
+<!-- Nmap done at Thu Sep  4 20:02:56 2008; 1 IP address (1 host up) scanned in 4.00 seconds -->
+</runstats></nmaprun>

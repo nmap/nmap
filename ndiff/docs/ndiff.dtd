@@ -1,0 +1,142 @@
+<!--
+DTD for the Ndiff XML output format.
+David Fifield <david@bamsoftware.com>
+
+Ndiff compares two scans at a time. The "before" and "after" scans are
+called the A and B scans, respectively. Some of the XML output uses this
+convention, for example the a-start and b-start attributes of the
+scandiff element.
+
+The scandiff element represents a single diff of an A and B scan. Within
+it are zero or more host elements. At the beginning of each host element
+is any number of address and hostname elements, used to identify it. The
+addresses and hostnames are taken from the A scan, unless the host was
+not present in the A scan, in which case they come from the B scan.
+Therefore they may not represent the final status of the host "after"
+the diff; the addresses and hostnames may have changed between the A and
+B scans.
+
+Following the address and hostname elements is an ordered list of
+elements, each representing one diff "hunk." A hunk is an atomic
+difference operation. For example, the host-state-change element
+represents a host changing its state, perhaps from "unknown" to "up".
+See the comments above each diff hunk element for a precise description
+of what they mean.
+
+The order of diff hunks can matter. For example,
+  <port-state-change protocol="tcp" portid="100" a-state="open" b-state="closed"/>
+  <port-id-change a-protocol="tcp" a-portid="100" b-protocol="tcp" b-portid="200"/>
+is different than the opposite order
+  <port-state-change protocol="tcp" portid="100" a-state="open" b-state="closed"/>
+  <port-id-change a-protocol="tcp" a-portid="100" b-protocol="tcp" b-portid="200"/>
+The first order means, "Change the state of port 100/tcp from open to
+closed, then swap ports 100/tcp and 200/tcp." If port 200/tcp was
+initially filtered, this results in 
+  PORT      STATE
+  100/tcp   filtered
+  200/tcp   closed
+The second order means, "Swap ports 100/tcp and 200/tcp, then change the
+state of port 100/tcp from open to closed." In this case, port 200/tcp
+must have originally been open. If port 100/tcp was initially filtered,
+this results in
+  PORT      STATE
+  100/tcp   closed
+  200/tcp   filtered
+-->
+
+<!-- Parameter entities defining "data types" used in the rest of the
+     DTD. -->
+<!ENTITY % protocol "(ip | tcp | udp)">
+<!ENTITY % host-state "(unknown | up | down)">
+<!ENTITY % port-state "CDATA">
+
+<!-- The diff-hunk parameter entity is any element that represents a
+     diff hunk. -->
+<!ENTITY % diff-hunk
+"(host-state-change | host-address-add | host-address-remove
+  | host-hostname-add | host-hostname-remove
+  | port-id-change | port-state-change)"
+>
+
+<!ELEMENT nmapdiff (scandiff)>
+
+<!ELEMENT scandiff (host*)>
+<!-- a-start and b-start are the start times of the A and B scans,
+     expressed as a decimal number of seconds since the epoch. -->
+<!ATTLIST scandiff a-start CDATA #IMPLIED
+                   b-start CDATA #IMPLIED>
+
+<!ELEMENT host ((address | hostname)*, (%diff-hunk;)*)>
+
+<!ELEMENT address EMPTY>
+<!ATTLIST address addrtype (mac | ipv4 | ipv6) "ipv4"
+                  addr CDATA #REQUIRED>
+
+<!ELEMENT hostname EMPTY>
+<!ATTLIST hostname name CDATA #REQUIRED>
+
+<!-- Diff hunk elements. Each of these represents an atomic difference
+     operation. -->
+
+<!--
+The host changed its state, for example from "unknown" to "up". a-state
+is the state of the host in the A scan and b-state is the state of the
+host in the B scan.
+-->
+<!ELEMENT host-state-change EMPTY>
+<!ATTLIST host-state-change a-state %host-state; #REQUIRED
+                            b-state %host-state; #REQUIRED>
+
+<!--
+The host gained an address in the B scan that it didn't have in the A
+scan.
+-->
+<!ELEMENT host-address-add (address)>
+
+<!--
+The host had an address in the A scan that it didn't have in the B scan.
+-->
+<!ELEMENT host-address-remove (address)>
+
+<!--
+The host gained a hostname in the B scan that it didn't have in the A
+scan.
+-->
+<!ELEMENT host-hostname-add (hostname)>
+
+<!--
+The host had a hostname in the A scan that it didn't have in the B scan.
+-->
+<!ELEMENT host-hostname-remove (hostname)>
+
+<!--
+The services that were running on two ports were swapped between the A
+and B scans. The portid and protocol attributes give the A and B port
+specifications. The portid attributes are just decimal port numbers and
+the protocol attributes are something like "ip", "tcp", or "udp".
+
+For example: If, in the A scan port 100/tcp was filtered and port
+200/tcp was open running OpenSSH, then the hunk
+  <port-id-change a-protocol="tcp" a-portid="100" b-protocol="tcp" b-portid="200"/>
+means that in the B scan port 100/tcp is open running OpenSSH and port
+200/tcp is filtered.
+
+Later hunks may further modify the ports that were swapped by this hunk.
+See the not about order in the comment at the top.
+-->
+<!ELEMENT port-id-change EMPTY>
+<!ATTLIST port-id-change a-portid CDATA #REQUIRED
+                         a-protocol %protocol; #REQUIRED
+                         b-portid CDATA #REQUIRED
+                         b-protocol %protocol; #REQUIRED>
+
+<!--
+The port identified by the portid and protocol attributes changed state
+from that given by the a-state attribute to that given by the b-state
+attribute.
+-->
+<!ELEMENT port-state-change EMPTY>
+<!ATTLIST port-state-change portid CDATA #REQUIRED
+                            protocol %protocol; #REQUIRED
+                            a-state %port-state; #REQUIRED
+                            b-state %port-state; #REQUIRED>
