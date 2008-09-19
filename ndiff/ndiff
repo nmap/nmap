@@ -429,8 +429,7 @@ def host_diff(a, b):
     all_specs = list(set(a.ports.keys()).union(set(b.ports.keys())))
     all_specs.sort()
     for spec in all_specs:
-        if b.ports[spec].state != Port.UNKNOWN:
-            diff.extend(port_diff(a.ports[spec], b.ports[spec]))
+        diff.extend(port_diff(a.ports[spec], b.ports[spec]))
     return diff
 
 def scan_diff(a, b):
