@@ -2066,8 +2066,8 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
 
   /* First we decide whether this packet counts as a drop for send
      delay calculation purposes.  This statement means if (a ping since last boost failed, or the previous packet was both sent after the last boost and dropped) */
-  if ((!rcvdtime && TIMEVAL_SUBTRACT(probe->sent, hss->sdn.last_boost) > 0) ||
-      (probe->tryno > 0 && TIMEVAL_SUBTRACT(probe->prevSent, hss->sdn.last_boost) > 0)) {
+  if ((!rcvdtime && TIMEVAL_AFTER(probe->sent, hss->sdn.last_boost)) ||
+      (probe->tryno > 0 && TIMEVAL_AFTER(probe->prevSent, hss->sdn.last_boost))) {
     hss->sdn.droppedRespSinceDelayChanged++;
     //    printf("SDELAY: increasing drops to %d (good: %d; tryno: %d, sent: %.4fs; prevSent: %.4fs, last_boost: %.4fs\n", hss->sdn.droppedRespSinceDelayChanged, hss->sdn.goodRespSinceDelayChanged, probe->tryno, o.TimeSinceStartMS(&probe->sent) / 1000.0, o.TimeSinceStartMS(&probe->prevSent) / 1000.0, o.TimeSinceStartMS(&hss->sdn.last_boost) / 1000.0);
   } else if (rcvdtime) {
