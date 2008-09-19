@@ -331,9 +331,9 @@ class ScanDiff(object):
                     print >> f, u"\t\t" + port_list_string
                 else:
                     if a_state == Port.UNKNOWN:
-                        print >> f, u"\t%d other %s ports are %s." % (len(port_list), protocol, b_state)
+                        print >> f, u"\t%d %s ports are %s." % (len(port_list), protocol, b_state)
                     else:
-                        print >> f, u"\t%d other %s ports changed state from %s to %s." % (len(port_list), protocol, a_state, b_state)
+                        print >> f, u"\t%d %s ports changed state from %s to %s." % (len(port_list), protocol, a_state, b_state)
 
     def print_xml(self, f = sys.stdout):
         impl = xml.dom.minidom.getDOMImplementation()

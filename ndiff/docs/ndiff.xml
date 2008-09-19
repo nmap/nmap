@@ -76,7 +76,7 @@
           commonly most of its ports will change from the state
           "unknown" to "closed" or "filtered". If the port list is very
           long, it will be consolidated into a line like
-<screen>994 other tcp ports changed state from unknown to filtered.
+<screen>994 tcp ports changed state from unknown to filtered.
 </screen>
           With <option>--verbose</option>, all 994 ports will be listed:
 <screen>The following tcp ports changed state from unknown to filtered:

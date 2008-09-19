@@ -23,7 +23,7 @@ Here is a sample of the text output:
 		Add ipv4 address 10.214.143.33.
 		Add hostname cuvtdnray-504.example.com.
 		3389/tcp is open.
-		999 other tcp ports are filtered.
+		999 tcp ports are filtered.
 	scnqxez-842.example.com (10.189.71.117):
 		Remove hostname scnqxez-842.example.com.
 	10.226.19.80:
@@ -35,7 +35,7 @@ Here is a sample of the text output:
 		Host is up, was unknown.
 		Add ipv4 address 10.242.160.155.
 		Add hostname ywnleu-108.example.com.
-		1000 other tcp ports are filtered.
+		1000 tcp ports are filtered.
 
 Here is an abbreviated sample of the XML output:
 
