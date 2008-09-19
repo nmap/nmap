@@ -293,7 +293,7 @@ class host_diff_test(unittest.TestCase):
         for hunk in diff:
             self.assertTrue(hunk.type in self.PORT_DIFF_HUNK_TYPES)
         diff = host_diff(b, a)
-        self.assertTrue(len(diff) == 0)
+        self.assertTrue(len(diff) > 0)
         for hunk in diff:
             self.assertTrue(hunk.type in self.PORT_DIFF_HUNK_TYPES)
 
