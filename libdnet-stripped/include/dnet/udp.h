@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: udp.h,v 1.8 2002/04/02 05:05:39 dugsong Exp $
+ * $Id: udp.h 330 2002-04-02 05:05:39Z dugsong $
  */
 
 #ifndef DNET_UDP_H

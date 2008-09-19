@@ -6,7 +6,7 @@
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  * Copyright (c) 1996 David Mazieres <dm@lcs.mit.edu>
  *
- * $Id: rand.c,v 1.15 2005/02/15 06:37:07 dugsong Exp $
+ * $Id: rand.c 587 2005-02-15 06:37:07Z dugsong $
  */
 
 #include "config.h"

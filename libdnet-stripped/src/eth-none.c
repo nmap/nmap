@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: eth-none.c,v 1.6 2005/01/25 21:30:40 dugsong Exp $
+ * $Id: eth-none.c 547 2005-01-25 21:30:40Z dugsong $
  */
 
 #include "config.h"

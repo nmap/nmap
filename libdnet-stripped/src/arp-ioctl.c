@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2001 Dug Song <dugsong@monkey.org>
  *
- * $Id: arp-ioctl.c,v 1.25 2005/02/09 22:31:00 dugsong Exp $
+ * $Id: arp-ioctl.c 554 2005-02-09 22:31:00Z dugsong $
  */
 
 #include "config.h"

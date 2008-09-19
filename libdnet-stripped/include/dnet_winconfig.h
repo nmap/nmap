@@ -225,7 +225,7 @@
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "1.10"
+#define VERSION "1.12"
 
 /* Define for faster code generation. */
 #define WIN32_LEAN_AND_MEAN
@@ -272,6 +272,8 @@ int	strlcpy(char *, const char *, int);
 #ifndef HAVE_STRSEP
 char	*strsep(char **, const char *);
 #endif
+
+#define snprintf _snprintf
 
 /* Without this, Windows will give us all sorts of crap about using functions
    like strcpy() even if they are done safely */

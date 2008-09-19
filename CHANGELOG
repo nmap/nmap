@@ -22,6 +22,8 @@ o A script could be executed twice if it was given with the --script
   option, also in the "version" category, and version detection (-sV)
   was requested. This has been fixed. [David]
 
+o Upgraded the shipped libdnet to 1.12. [Kris]
+
 o Upgraded the OpenSSL shipped for Windows to 0.9.8i. [Kris]
 
 Nmap 4.76 [2008-9-12]

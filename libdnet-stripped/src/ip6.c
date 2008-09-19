@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2002 Dug Song <dugsong@monkey.org>
  *
- * $Id: ip6.c,v 1.2 2005/01/23 07:36:54 dugsong Exp $
+ * $Id: ip6.c 539 2005-01-23 07:36:54Z dugsong $
  */
 
 #ifdef _WIN32
@@ -41,7 +41,7 @@ ip6_checksum(void *buf, size_t len)
 		
 		if (len >= TCP_HDR_LEN) {
 			tcp->th_sum = 0;
-			sum = ip_cksum_add(tcp, len, 0) + htons(nxt + (unsigned short) len);
+			sum = ip_cksum_add(tcp, len, 0) + htons(nxt + (u_short)len);
 			sum = ip_cksum_add(&ip6->ip6_src, 32, sum);
 			tcp->th_sum = ip_cksum_carry(sum);
 		}
@@ -50,7 +50,7 @@ ip6_checksum(void *buf, size_t len)
 
 		if (len >= UDP_HDR_LEN) {
 			udp->uh_sum = 0;
-			sum = ip_cksum_add(udp, len, 0) + htons(nxt + (unsigned short) len);
+			sum = ip_cksum_add(udp, len, 0) + htons(nxt + (u_short)len);
 			sum = ip_cksum_add(&ip6->ip6_src, 32, sum);
 			if ((udp->uh_sum = ip_cksum_carry(sum)) == 0)
 				udp->uh_sum = 0xffff;
@@ -60,7 +60,7 @@ ip6_checksum(void *buf, size_t len)
 
 		if (len >= ICMP_HDR_LEN) {
 			icmp->icmp_cksum = 0;
-			sum = ip_cksum_add(icmp, len, 0) + htons(nxt + (unsigned short) len);
+			sum = ip_cksum_add(icmp, len, 0) + htons(nxt + (u_short)len);
 			sum = ip_cksum_add(&ip6->ip6_src, 32, sum);
 			icmp->icmp_cksum = ip_cksum_carry(sum);
 		}		

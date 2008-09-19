@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2001 Dug Song <dugsong@monkey.org>
  *
- * $Id: ip-cooked.c,v 1.17 2005/01/25 21:30:40 dugsong Exp $
+ * $Id: ip-cooked.c 547 2005-01-25 21:30:40Z dugsong $
  */
 
 #ifdef _WIN32

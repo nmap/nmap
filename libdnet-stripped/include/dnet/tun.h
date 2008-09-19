@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2001 Dug Song <dugsong@monkey.org>
  *
- * $Id: tun.h,v 1.2 2005/01/25 21:29:12 dugsong Exp $
+ * $Id: tun.h 547 2005-01-25 21:30:40Z dugsong $
  */
 
 #ifndef DNET_TUN_H

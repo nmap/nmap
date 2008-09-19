@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: eth.h,v 1.16 2005/01/25 21:29:12 dugsong Exp $
+ * $Id: eth.h 547 2005-01-25 21:30:40Z dugsong $
  */
 
 #ifndef DNET_ETH_H

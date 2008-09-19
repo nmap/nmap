@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2002 Dug Song <dugsong@monkey.org>
  *
- * $Id: intf-win32.c,v 1.24 2005/02/15 06:37:06 dugsong Exp $
+ * $Id: intf-win32.c 632 2006-08-10 04:36:52Z dugsong $
  */
 
 #ifdef _WIN32
@@ -12,18 +12,15 @@
 #include "config.h"
 #endif
 
-#include <winsock2.h>
-#include <windows.h>
 #include <iphlpapi.h>
 
-#include <dnet.h>
 #include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "pcap.h"
+#include "dnet.h"
 
 struct ifcombo {
 	DWORD		*idx;
@@ -31,7 +28,9 @@ struct ifcombo {
 	int		 max;
 };
 
-#define MIB_IF_TYPE_MAX		MAX_IF_TYPE	/* XXX - ipifcons.h */
+/* XXX - ipifcons.h incomplete, use IANA ifTypes MIB */
+#define MIB_IF_TYPE_TUNNEL	131
+#define MIB_IF_TYPE_MAX		MAX_IF_TYPE
 
 struct intf_handle {
 	struct ifcombo	 ifcombo[MIB_IF_TYPE_MAX];
@@ -42,14 +41,9 @@ struct intf_handle {
 static char *
 _ifcombo_name(int type)
 {
-	/* Unknown interface types get the prefix "net". */
-	char *name = "net";
+	char *name = "eth";	/* XXX */
 	
-	if (type == MIB_IF_TYPE_ETHERNET || type == IF_TYPE_IEEE80211) {
-		/* INTF_TYPE_IEEE80211 is used for wireless devices on
-		   Windows Vista. */
-		name = "eth";
-	} else if (type == MIB_IF_TYPE_TOKENRING) {
+	if (type == MIB_IF_TYPE_TOKENRING) {
 		name = "tr";
 	} else if (type == MIB_IF_TYPE_FDDI) {
 		name = "fddi";
@@ -59,16 +53,15 @@ _ifcombo_name(int type)
 		name = "lo";
 	} else if (type == MIB_IF_TYPE_SLIP) {
 		name = "sl";
+	} else if (type == MIB_IF_TYPE_TUNNEL) {
+		name = "tun";
 	}
 	return (name);
 }
 
-/* Return a canonical internal interface type number for the given
- * device string. */
 static int
 _ifcombo_type(const char *device)
 {
-	/* Unknown device names (like "net") get mapped to INTF_TYPE_OTHER. */
 	int type = INTF_TYPE_OTHER;
 	
 	if (strncmp(device, "eth", 3) == 0) {
@@ -83,22 +76,10 @@ _ifcombo_type(const char *device)
 		type = INTF_TYPE_LOOPBACK;
 	} else if (strncmp(device, "sl", 2) == 0) {
 		type = INTF_TYPE_SLIP;
+	} else if (strncmp(device, "tun", 3) == 0) {
+		type = INTF_TYPE_TUN;
 	}
 	return (type);
-}
-
-/* Map an MIB_IFROW.dwType interface type into an internal interface
-   type. The internal types are never exposed to users of this library;
-   they exist only for the sake of ordering interface types within an
-   intf_handle, which has an array of ifcombo structures ordered by
-   type. Entries in an intf_handle must not be stored or accessed by a
-   raw MIB_IFROW.dwType number because they will not be able to be found
-   by a device name such as "net0" if the device name does not map
-   exactly to the dwType. */
-static int
-_if_type_canonicalize(int type)
-{
-	return _ifcombo_type(_ifcombo_name(type));
 }
 
 static void
@@ -117,6 +98,20 @@ _ifcombo_add(struct ifcombo *ifc, DWORD idx)
 	ifc->idx[ifc->cnt++] = idx;
 }
 
+/* Map an MIB_IFROW.dwType interface type into an internal interface
+   type. The internal types are never exposed to users of this library;
+   they exist only for the sake of ordering interface types within an
+   intf_handle, which has an array of ifcombo structures ordered by
+   type. Entries in an intf_handle must not be stored or accessed by a
+   raw MIB_IFROW.dwType number because they will not be able to be found
+   by a device name such as "net0" if the device name does not map
+   exactly to the dwType. */
+static int
+_if_type_canonicalize(int type)
+{
+       return _ifcombo_type(_ifcombo_name(type));
+}
+
 static void
 _ifrow_to_entry(intf_t *intf, MIB_IFROW *ifrow, struct intf_entry *entry)
 {
@@ -124,11 +119,10 @@ _ifrow_to_entry(intf_t *intf, MIB_IFROW *ifrow, struct intf_entry *entry)
 	int i;
 	int type;
 	
-	/* The total length of the entry may be passed in inside entry.
-	   Remember it and clear the entry. */
+	/* The total length of the entry may be passed inside entry.
+           Remember it and clear the entry. */
 	u_int intf_len = entry->intf_len;
 	memset(entry, 0, sizeof(*entry));
-	/* Restore the length. */
 	entry->intf_len = intf_len;
 
 	type = _if_type_canonicalize(ifrow->dwType);
@@ -143,8 +137,8 @@ _ifrow_to_entry(intf_t *intf, MIB_IFROW *ifrow, struct intf_entry *entry)
 	
 	/* Get interface flags. */
 	entry->intf_flags = 0;
-	if (ifrow->dwAdminStatus == MIB_IF_ADMIN_STATUS_UP && 
-	    (ifrow->dwOperStatus == MIB_IF_OPER_STATUS_OPERATIONAL || 
+	if (ifrow->dwAdminStatus == MIB_IF_ADMIN_STATUS_UP &&
+	    (ifrow->dwOperStatus == MIB_IF_OPER_STATUS_OPERATIONAL ||
 	     ifrow->dwOperStatus == MIB_IF_OPER_STATUS_CONNECTED))
 		entry->intf_flags |= INTF_FLAG_UP;
 	if (ifrow->dwType == MIB_IF_TYPE_LOOPBACK)
@@ -186,7 +180,7 @@ _ifrow_to_entry(intf_t *intf, MIB_IFROW *ifrow, struct intf_entry *entry)
 			}
 		}
 	}
-	entry->intf_len = (unsigned int) ((u_char *)ap - (u_char *)entry);
+	entry->intf_len = (u_int) ((u_char *)ap - (u_char *)entry);
 }
 
 static int
@@ -227,8 +221,7 @@ _refresh_tables(intf_t *intf)
 		ifrow = &intf->iftable->table[i];
 		type = _if_type_canonicalize(ifrow->dwType);
 		if (type < MIB_IF_TYPE_MAX) {
-			_ifcombo_add(&intf->ifcombo[type],
-			    ifrow->dwIndex);
+			_ifcombo_add(&intf->ifcombo[type], ifrow->dwIndex);
 		} else
 			return (-1);
 	}
@@ -270,7 +263,6 @@ intf_get(intf_t *intf, struct intf_entry *entry)
 	
 	return (0);
 }
-
 
 int
 intf_get_src(intf_t *intf, struct intf_entry *entry, struct addr *src)

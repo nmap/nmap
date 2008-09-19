@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: dnet-config.in,v 1.1 2001/10/19 01:29:00 dugsong Exp $
+# $Id: dnet-config.in 91 2001-10-19 01:29:00Z dugsong $
 
 prefix=@prefix@
 exec_prefix=@prefix@

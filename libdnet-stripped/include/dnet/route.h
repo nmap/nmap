@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: route.h,v 1.6 2002/02/04 04:02:22 dugsong Exp $
+ * $Id: route.h 260 2002-02-04 04:03:45Z dugsong $
  */
 
 #ifndef DNET_ROUTE_H

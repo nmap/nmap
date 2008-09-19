@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: route-none.c,v 1.5 2002/02/04 03:59:45 dugsong Exp $
+ * $Id: route-none.c 260 2002-02-04 04:03:45Z dugsong $
  */
 
 #include "config.h"

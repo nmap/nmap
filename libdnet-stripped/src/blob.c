@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2002 Dug Song <dugsong@monkey.org>
  *
- * $Id: blob.c,v 1.4 2002/08/20 05:18:49 dugsong Exp $
+ * $Id: blob.c 615 2006-01-08 16:06:49Z dugsong $
  */
 
 #ifdef _WIN32
@@ -131,8 +131,7 @@ blob_insert(blob_t *b, const void *buf, int len)
 {
 	if (blob_reserve(b, len) == 0 && b->size) {
 		if (b->end - b->off > 0)
-			memmove(b->base + b->off, b->base + b->off + len,
-			    b->end - b->off);
+			memmove( b->base + b->off + len, b->base + b->off, b->end - b->off);
 		memcpy(b->base + b->off, buf, len);
 		b->off += len;
 		return (len);
@@ -146,8 +145,7 @@ blob_delete(blob_t *b, void *buf, int len)
 	if (b->off + len <= b->end && b->size) {
 		if (buf != NULL)
 			memcpy(buf, b->base + b->off, len);
-		memmove(b->base + b->off, b->base + b->off + len,
-		    b->end - (b->off + len));
+		memmove(b->base + b->off, b->base + b->off + len, b->end - (b->off + len));
 		b->end -= len;
 		return (len);
 	}

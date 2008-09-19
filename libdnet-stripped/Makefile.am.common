@@ -1,7 +1,6 @@
-## $Id: Makefile.am.common,v 1.2 2002/12/02 04:05:25 dugsong Exp $
+## $Id: Makefile.am.common 623 2006-01-19 06:09:27Z dugsong $
 
 AUTOMAKE_OPTIONS = foreign no-dependencies
 
-INCLUDES = -I$(top_srcdir)/include
+AM_CPPFLAGS = -I$(top_srcdir)/include
 
-DISTCLEANFILES = *~

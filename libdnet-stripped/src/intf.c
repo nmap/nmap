@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2001 Dug Song <dugsong@monkey.org>
  *
- * $Id: intf.c,v 1.55 2005/02/10 16:57:35 dugsong Exp $
+ * $Id: intf.c 616 2006-01-09 07:09:49Z dugsong $
  */
 
 #ifdef _WIN32
@@ -124,15 +124,16 @@ intf_open(void)
 {
 	intf_t *intf;
 	int one = 1;
-
+	
 	if ((intf = calloc(1, sizeof(*intf))) != NULL) {
 		intf->fd = intf->fd6 = -1;
 		
 		if ((intf->fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
 			return (intf_close(intf));
 
-		setsockopt(intf->fd, SOL_SOCKET, SO_BROADCAST, 
-			   (const char *) &one, sizeof(one));
+		setsockopt(intf->fd, SOL_SOCKET, SO_BROADCAST,
+			(const char *) &one, sizeof(one));
+
 #ifdef SIOCGIFNETMASK_IN6
 		if ((intf->fd6 = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
 #  ifdef EPROTONOSUPPORT
@@ -398,7 +399,7 @@ _intf_get_noalias(intf_t *intf, struct intf_entry *entry)
 	_intf_set_type(entry);
 	
 	/* Get interface MTU. */
-#ifdef SIOCGIFMTU
+#ifdef SIOCSIFMTU
 	if (ioctl(intf->fd, SIOCGIFMTU, &ifr) < 0)
 #endif
 		return (-1);
@@ -506,14 +507,16 @@ _intf_get_aliases(intf_t *intf, struct intf_entry *entry)
 			*p = '\0';
 		
 		if (strcmp(ifr->ifr_name, entry->intf_name) != 0) {
-		  if (p) *p = ':';
+			if (p) *p = ':';
 			continue;
 		}
 		
-		if (p) *p = ':'; /* Fix the name back up */
+		/* Fix the name back up */
+		if (p) *p = ':';
+
 		if (addr_ston(&ifr->ifr_addr, ap) < 0)
 			continue;
-				
+		
 		/* XXX */
 		if (ap->addr_type == ADDR_TYPE_ETH) {
 			memcpy(&entry->intf_link_addr, ap, sizeof(*ap));
@@ -522,11 +525,9 @@ _intf_get_aliases(intf_t *intf, struct intf_entry *entry)
 			if (ap->addr_ip == entry->intf_addr.addr_ip ||
 			    ap->addr_ip == entry->intf_dst_addr.addr_ip)
 				continue;
-			strlcpy(tmpifr.ifr_name, ifr->ifr_name, 
-			       sizeof(tmpifr.ifr_name));
+			strlcpy(tmpifr.ifr_name, ifr->ifr_name, sizeof(tmpifr.ifr_name));
 			if (ioctl(intf->fd, SIOCGIFNETMASK, &tmpifr) == 0)
-			  addr_stob(&tmpifr.ifr_addr, &ap->addr_bits);
-
+				addr_stob(&tmpifr.ifr_addr, &ap->addr_bits);
 		}
 #ifdef SIOCGIFNETMASK_IN6
 		else if (ap->addr_type == ADDR_TYPE_IP6 && intf->fd6 != -1) {
@@ -544,6 +545,30 @@ _intf_get_aliases(intf_t *intf, struct intf_entry *entry)
 #endif
 		ap++, entry->intf_alias_num++;
 	}
+#ifdef HAVE_LINUX_PROCFS
+#define PROC_INET6_FILE	"/proc/net/if_inet6"
+	{
+		FILE *f;
+		char buf[256], s[8][5], name[INTF_NAME_LEN];
+		u_int idx, bits, scope, flags;
+		
+		if ((f = fopen(PROC_INET6_FILE, "r")) != NULL) {
+			while (ap < lap &&
+			       fgets(buf, sizeof(buf), f) != NULL) {
+				sscanf(buf, "%04s%04s%04s%04s%04s%04s%04s%04s %02x %02x %02x %02x %32s\n",
+				    s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7],
+				    &idx, &bits, &scope, &flags, name);
+				if (strcmp(name, entry->intf_name) == 0) {
+					snprintf(buf, sizeof(buf), "%s:%s:%s:%s:%s:%s:%s:%s/%d",
+					    s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], bits);
+					addr_aton(buf, ap);
+					ap++, entry->intf_alias_num++;
+				}
+			}
+			fclose(f);
+		}
+	}
+#endif
 	entry->intf_len = (u_char *)ap - (u_char *)entry;
 	
 	return (0);
@@ -568,28 +593,27 @@ intf_get(intf_t *intf, struct intf_entry *entry)
 static int
 _match_intf_src(const struct intf_entry *entry, void *arg)
 {
-	int matched = 0;
-	int cnt;
 	struct intf_entry *save = (struct intf_entry *)arg;
+	int matched = 0, cnt;
 	
-	if (entry->intf_addr.addr_type == ADDR_TYPE_IP && 
+	if (entry->intf_addr.addr_type == ADDR_TYPE_IP &&
 	    entry->intf_addr.addr_ip == save->intf_addr.addr_ip)
-	  matched = 1;
-  
+		matched = 1;
+
 	for (cnt = 0; !matched && cnt < (int) entry->intf_alias_num; cnt++) {
-	  if (entry->intf_alias_addrs[cnt].addr_type != ADDR_TYPE_IP)
-	    continue;
-	  if (entry->intf_alias_addrs[cnt].addr_ip == save->intf_addr.addr_ip)
-	    matched = 1;
+		if (entry->intf_alias_addrs[cnt].addr_type != ADDR_TYPE_IP)
+			continue;
+		if (entry->intf_alias_addrs[cnt].addr_ip == save->intf_addr.addr_ip)
+			matched = 1;
 	}
 
 	if (matched) {
-	  /* XXX - truncated result if entry is too small. */
-	  if (save->intf_len < entry->intf_len)
-	    memcpy(save, entry, save->intf_len);
-	  else
-	    memcpy(save, entry, entry->intf_len);
-	  return (1);
+		/* XXX - truncated result if entry is too small. */
+		if (save->intf_len < entry->intf_len)
+			memcpy(save, entry, save->intf_len);
+		else
+			memcpy(save, entry, entry->intf_len);
+		return (1);
 	}
 	return (0);
 }
@@ -712,7 +736,7 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
 			*p = '\0';
 		
 		if (pifr != NULL && strcmp(ifr->ifr_name, pifr->ifr_name) == 0) {
-		  if (p) *p = ':';
+			if (p) *p = ':';
 			continue;
 		}
 
@@ -720,9 +744,10 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
 		strlcpy(entry->intf_name, ifr->ifr_name,
 		    sizeof(entry->intf_name));
 		entry->intf_len = sizeof(ebuf);
-		
-		/* Repair the alias name back up. */
+
+		/* Repair the alias name back up */
 		if (p) *p = ':';
+		
 		if (_intf_get_noalias(intf, entry) < 0)
 			return (-1);
 		if (_intf_get_aliases(intf, entry) < 0)

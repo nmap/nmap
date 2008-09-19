@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2001 Dug Song <dugsong@monkey.org>
  *
- * $Id: tun-none.c,v 1.2 2005/01/30 06:01:56 dugsong Exp $
+ * $Id: tun-none.c 548 2005-01-30 06:01:57Z dugsong $
  */
 
 #include "config.h"

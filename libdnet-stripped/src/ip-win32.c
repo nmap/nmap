@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2002 Dug Song <dugsong@monkey.org>
  *
- * $Id: ip-win32.c,v 1.5 2005/01/25 21:30:40 dugsong Exp $
+ * $Id: ip-win32.c 547 2005-01-25 21:30:40Z dugsong $
  */
 
 #ifdef _WIN32
@@ -12,7 +12,6 @@
 #include "config.h"
 #endif
 
-#include <winsock2.h>
 #include <ws2tcpip.h>
 
 #include <errno.h>
@@ -60,9 +59,9 @@ ip_send(ip_t *ip, const void *buf, size_t len)
 	
 	ip->sin.sin_addr.s_addr = hdr->ip_src;
 	
-	if ((len = sendto(ip->fd, (const char *)buf, (int) len, 0,
+	if ((len = sendto(ip->fd, (const char *)buf, (int)len, 0,
 	    (struct sockaddr *)&ip->sin, sizeof(ip->sin))) != SOCKET_ERROR)
-		return ((ssize_t) len);
+		return (ssize_t)(len);
 	
 	return (-1);
 }

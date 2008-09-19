@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2001 Dug Song <dugsong@monkey.org>
  *
- * $Id: fw.h,v 1.13 2002/12/14 04:02:36 dugsong Exp $
+ * $Id: fw.h 394 2002-12-14 04:02:36Z dugsong $
  */
 
 #ifndef DNET_FW_H

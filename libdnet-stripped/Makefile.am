@@ -1,8 +1,8 @@
-## $Id: Makefile.am,v 1.7 2004/01/03 08:52:22 dugsong Exp $
+## $Id: Makefile.am 618 2006-01-15 06:42:19Z dugsong $
 
 include $(top_srcdir)/Makefile.am.common
 
-SUBDIRS =	include src 
+SUBDIRS =	include man src python test
 
 bin_SCRIPTS =	dnet-config
 
@@ -12,10 +12,5 @@ CLEANFILES =	dnet-config
 
 aux_dir = config
 
-AUX_DIST =	$(aux_dir)/acinclude.m4
+AUX_DIST = $(aux_dir)/acinclude.m4
 
-dist-hook:
-	(cd $(distdir) && mkdir $(aux_dir))
-	for file in $(AUX_DIST); do \
-		cp $$file $(distdir)/$$file; \
-	done

@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2002 Dug Song <dugsong@monkey.org>
  *
- * $Id: addr-util.c,v 1.4 2005/01/23 07:36:54 dugsong Exp $
+ * $Id: addr-util.c 539 2005-01-23 07:36:54Z dugsong $
  */
 
 #ifdef _WIN32

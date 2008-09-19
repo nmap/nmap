@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2001 Dug Song <dugsong@monkey.org>
  *
- * $Id: tun-bsd.c,v 1.3 2005/02/10 23:50:04 dugsong Exp $
+ * $Id: tun-bsd.c 573 2005-02-10 23:50:04Z dugsong $
  */
 
 #include "config.h"

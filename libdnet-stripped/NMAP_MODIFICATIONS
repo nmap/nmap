@@ -1,25 +1,19 @@
 $Id$
 
-This is Dug Song's excellent Libdnet networking library version 1.10.
+This is Dug Song's excellent Libdnet networking library version 1.12.
 It has been stripped down for inclusion within Nmap and modified as follows:
 
 o Removed the following directories:
-  python, test, man
-
-o Removed all filenames from EXTRA_libdnet_la_SOURCES sources, as
-  they aren't needed with GNU automake 1.9.2
+  python, test, man, trunk
 
 o Removed the fw-* files except for fw-none because Nmap doesn't use
   the firewall API.  Changed configure.in to always use fw-non.
 
-o Removed files in now-removed dires that were reference from
-  configure.in:318
+o Removed files in now-removed dirs that were referenced in the AC_OUTPUT
+  at the end of configure.in
 
 o Ran "aclocal -I . -I config" to regenerate aclocal.m4 with my newer
   aclocal.
-
-o Replaced config.guess config.sub and missing in config dir with
-  versions from Autoconf 2.59.
 
 o Added this NMAP_MODIFICATIONS file.
 
@@ -33,24 +27,6 @@ o A number of portability changes to remove errors/warnings during
 
 o Added libdnet-stripped.vcproj -- A Visual Studio.Net project file
   for dnet.
-
-o Rewrote eth_open() for Win32 as its technique for translating from
-  a dnet-named interface to a pcap-named one did not work on any of my
-  systems.
-
-o Increase the number of available bpf devices from 32 to 128.  Patch:
---- eth-bsd.c   (revision 2774)
-+++ eth-bsd.c   (working copy)
-@@ -45,7 +45,7 @@
-        int i;
- 
-        if ((e = calloc(1, sizeof(*e))) != NULL) {
--               for (i = 0; i < 32; i++) {
-+               for (i = 0; i < 128; i++) {
-                        snprintf(file, sizeof(file), "/dev/bpf%d", i);
-                        e->fd = open(file, O_WRONLY);
-                        if (e->fd != -1 || errno != EBUSY)
-
 
 o Made some code changes to intf.c (the patch below).  This does the following:
 
@@ -163,22 +139,6 @@ diff -Nruw old/src/intf.c nmap-3.83.new/src/intf.c
                 if (_intf_get_aliases(intf, entry) < 0)
 
 
-
-o Consider Windows interfaces to be down if they are disconnected, unreachable, or otherwise non-operational:
-
---- intf-win32.c        (revision 2976)
-+++ intf-win32.c        (working copy)
-@@ -116,7 +116,9 @@
-
-        /* Get interface flags. */
-        entry->intf_flags = 0;
--       if (ifrow->dwAdminStatus == MIB_IF_ADMIN_STATUS_UP)
-+       if (ifrow->dwAdminStatus == MIB_IF_ADMIN_STATUS_UP &&
-+           (ifrow->dwOperStatus == MIB_IF_OPER_STATUS_OPERATIONAL ||
-+            ifrow->dwOperStatus == MIB_IF_OPER_STATUS_CONNECTED))
-                entry->intf_flags |= INTF_FLAG_UP;
-        if (ifrow->dwType == MIB_IF_TYPE_LOOPBACK)
-                entry->intf_flags |= INTF_FLAG_LOOPBACK;
 
 o Made some AIX/HP-UX portability changes sent in by Peter O'Gorman
 (nmap-dev@mlists.thewrittenword.com):
@@ -485,10 +445,7 @@ Index: libdnet-stripped/src/intf-win32.c
  		} else
  			return (-1);
 
-Added eth_get_pcap_devname that matches up a dnet name to its pcap
-equivalent. It starts by matching interfaces IP addresses, then falls
-back to matching hardware addresses. The hardware address matching code
-is adapted from libdnet 1.11.
+Added eth_get_pcap_devname() that matches up a dnet name to its pcap
+equivalent by matching hardwar addresses.  It's similar to the code
+used in eth_open()
 
-Copied include/dnet/os.h from libdnet 1.12 to avoid a duplicate typedef
-of ssize_t.

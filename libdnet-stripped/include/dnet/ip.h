@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: ip.h,v 1.25 2005/02/16 22:02:45 dugsong Exp $
+ * $Id: ip.h 594 2005-02-16 22:02:45Z dugsong $
  */
 
 #ifndef DNET_IP_H

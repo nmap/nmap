@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2002 Dug Song <dugsong@monkey.org>
  *
- * $Id: blob.h,v 1.2 2002/04/05 03:06:44 dugsong Exp $
+ * $Id: blob.h 334 2002-04-05 03:06:44Z dugsong $
  */
 
 #ifndef DNET_BLOB_H

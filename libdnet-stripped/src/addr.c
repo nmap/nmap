@@ -5,10 +5,10 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: addr.c,v 1.33 2005/01/23 07:36:54 dugsong Exp $
+ * $Id: addr.c 610 2005-06-26 18:23:26Z dugsong $
  */
 
-#ifdef _WIN32
+#ifdef WIN32
 #include "dnet_winconfig.h"
 #else
 #include "config.h"
@@ -250,15 +250,19 @@ addr_ntos(const struct addr *a, struct sockaddr *sa)
 	case ADDR_TYPE_ETH:
 #ifdef HAVE_NET_IF_DL_H
 		memset(&so->sdl, 0, sizeof(so->sdl));
-#ifdef HAVE_SOCKADDR_SA_LEN
+# ifdef HAVE_SOCKADDR_SA_LEN
 		so->sdl.sdl_len = sizeof(so->sdl);
-#endif
+# endif
 		so->sdl.sdl_family = AF_LINK;
 		so->sdl.sdl_alen = ETH_ADDR_LEN;
 		memcpy(LLADDR(&so->sdl), &a->addr_eth, ETH_ADDR_LEN);
 #else
 		memset(sa, 0, sizeof(*sa));
+# ifdef AF_LINK
+		sa->sa_family = AF_LINK;
+# else
 		sa->sa_family = AF_UNSPEC;
+# endif
 		memcpy(sa->sa_data, &a->addr_eth, ETH_ADDR_LEN);
 #endif
 		break;

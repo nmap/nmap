@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2001 Dug Song <dugsong@monkey.org>
  *
- * $Id: dnet.h,v 1.6 2004/09/10 03:10:01 dugsong Exp $
+ * $Id: dnet.h 529 2004-09-10 03:10:01Z dugsong $
  */
 
 #ifndef DNET_H

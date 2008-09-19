@@ -76,4 +76,4 @@ need reliable, legit HP-UX, Unixware, and AIX accounts with root
 access to finish the ports to those platforms. i'd be happy to port to
 other platforms also, given similar (temporary) access.
 
-$Id: TODO,v 1.25 2005/02/14 21:56:59 dugsong Exp $
+$Id: TODO 582 2005-02-14 21:56:59Z dugsong $

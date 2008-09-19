@@ -3,7 +3,7 @@
  * 
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: arp-bsd.c,v 1.14 2005/01/23 07:36:54 dugsong Exp $
+ * $Id: arp-bsd.c 539 2005-01-23 07:36:54Z dugsong $
  */
 
 #include "config.h"

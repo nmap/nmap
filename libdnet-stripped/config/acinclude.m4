@@ -229,7 +229,7 @@ AC_DEFUN(AC_DNET_RAWIP_HOST_OFFLEN,
 	case "$host_os" in
 	*openbsd*)
 	    ac_cv_dnet_rawip_host_offlen=no ;;
-	*bsd*|*osf*|*unixware*)
+	*bsd*|*darwin*|*osf*|*unixware*)
 	    ac_cv_dnet_rawip_host_offlen=yes ;;
 	*)
 	    ac_cv_dnet_rawip_host_offlen=no ;;

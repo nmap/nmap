@@ -3,7 +3,7 @@
  * 
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: fw-none.c,v 1.4 2002/01/20 21:23:28 dugsong Exp $
+ * $Id: fw-none.c 208 2002-01-20 21:23:28Z dugsong $
  */
 
 #include "config.h"

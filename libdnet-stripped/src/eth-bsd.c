@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2001 Dug Song <dugsong@monkey.org>
  *
- * $Id: eth-bsd.c,v 1.10 2005/01/25 21:30:39 dugsong Exp $
+ * $Id: eth-bsd.c 630 2006-02-02 04:17:39Z dugsong $
  */
 
 #include "config.h"

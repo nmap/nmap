@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: route-linux.c,v 1.15 2005/01/23 07:36:54 dugsong Exp $
+ * $Id: route-linux.c 619 2006-01-15 07:33:29Z dugsong $
  */
 
 #include "config.h"
@@ -14,6 +14,7 @@
 #include <sys/uio.h>
 
 #include <asm/types.h>
+#include <netinet/in.h>
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
 
@@ -33,7 +34,8 @@
 			 ((a)->addr_type == ADDR_TYPE_IP6 &&	\
 			  (a)->addr_bits == IP6_ADDR_BITS))
 
-#define PROC_ROUTE_FILE	"/proc/net/route"
+#define PROC_ROUTE_FILE		"/proc/net/route"
+#define PROC_IPV6_ROUTE_FILE	"/proc/net/ipv6_route"
 
 struct route_handle {
 	int	 fd;
@@ -121,35 +123,43 @@ route_get(route_t *r, struct route_entry *entry)
 	struct iovec iov;
 	struct msghdr msg;
 	u_char buf[512];
-	int i;
+	int i, af, alen;
 
-	if (entry->route_dst.addr_type != ADDR_TYPE_IP) {
+	switch (entry->route_dst.addr_type) {
+	case ADDR_TYPE_IP:
+		af = AF_INET;
+		alen = IP_ADDR_LEN;
+		break;
+	case ADDR_TYPE_IP6:
+		af = AF_INET6;
+		alen = IP6_ADDR_LEN;
+		break;
+	default:
 		errno = EINVAL;
 		return (-1);
 	}
 	memset(buf, 0, sizeof(buf));
 
 	nmsg = (struct nlmsghdr *)buf;
-	nmsg->nlmsg_len = NLMSG_LENGTH(sizeof(*nmsg)) +
-	    RTA_LENGTH(IP_ADDR_LEN);
+	nmsg->nlmsg_len = NLMSG_LENGTH(sizeof(*nmsg)) + RTA_LENGTH(alen);
 	nmsg->nlmsg_flags = NLM_F_REQUEST;
 	nmsg->nlmsg_type = RTM_GETROUTE;
 	nmsg->nlmsg_seq = ++seq;
 
 	rmsg = (struct rtmsg *)(nmsg + 1);
-	rmsg->rtm_family = AF_INET;
+	rmsg->rtm_family = af;
 	rmsg->rtm_dst_len = entry->route_dst.addr_bits;
 	
 	rta = RTM_RTA(rmsg);
 	rta->rta_type = RTA_DST;
-	rta->rta_len = RTA_LENGTH(IP_ADDR_LEN);
+	rta->rta_len = RTA_LENGTH(alen);
 
 	/* XXX - gross hack for default route */
-	if (entry->route_dst.addr_ip == IP_ADDR_ANY) {
+	if (af == AF_INET && entry->route_dst.addr_ip == IP_ADDR_ANY) {
 		i = htonl(0x60060606);
-		memcpy(RTA_DATA(rta), &i, IP_ADDR_LEN);
+		memcpy(RTA_DATA(rta), &i, alen);
 	} else
-		memcpy(RTA_DATA(rta), &entry->route_dst.addr_ip, IP_ADDR_LEN);
+		memcpy(RTA_DATA(rta), entry->route_dst.addr_data8, alen);
 	
 	memset(&snl, 0, sizeof(snl));
 	snl.nl_family = AF_NETLINK;
@@ -184,10 +194,9 @@ route_get(route_t *r, struct route_entry *entry)
 	
 	while (RTA_OK(rta, i)) {
 		if (rta->rta_type == RTA_GATEWAY) {
-			entry->route_gw.addr_type = ADDR_TYPE_IP;
-			memcpy(&entry->route_gw.addr_ip,
-			    RTA_DATA(rta), IP_ADDR_LEN);
-			entry->route_gw.addr_bits = IP_ADDR_BITS;
+			entry->route_gw.addr_type = entry->route_dst.addr_type;
+			memcpy(entry->route_gw.addr_data8, RTA_DATA(rta), alen);
+			entry->route_gw.addr_bits = alen * 8;
 			return (0);
 		}
 		rta = RTA_NEXT(rta, i);
@@ -201,46 +210,65 @@ int
 route_loop(route_t *r, route_handler callback, void *arg)
 {
 	FILE *fp;
-	char buf[BUFSIZ], ifbuf[16];
-	int i, iflags, refcnt, use, metric, mss, win, irtt, ret;
 	struct route_entry entry;
-	uint32_t mask;
+	char buf[BUFSIZ];
+	int ret = 0;
 
-	entry.route_dst.addr_type = entry.route_gw.addr_type = ADDR_TYPE_IP;
-	entry.route_dst.addr_bits = entry.route_gw.addr_bits = IP_ADDR_BITS;
-
-	if ((fp = fopen(PROC_ROUTE_FILE, "r")) == NULL)
-		return (-1);
-
-	ret = 0;
-	while (fgets(buf, sizeof(buf), fp) != NULL) {
-		i = sscanf(buf,
-		    "%16s %X %X %X %d %d %d %X %d %d %d\n",
-		    ifbuf, &entry.route_dst.addr_ip, &entry.route_gw.addr_ip,
-		    &iflags, &refcnt, &use, &metric, &mask, &mss, &win, &irtt);
+	if ((fp = fopen(PROC_ROUTE_FILE, "r")) != NULL) {
+		char ifbuf[16];
+		int i, iflags, refcnt, use, metric, mss, win, irtt;
+		uint32_t mask;
 		
-		if (i < 10 || !(iflags & RTF_UP))
-			continue;
+		while (fgets(buf, sizeof(buf), fp) != NULL) {
+			i = sscanf(buf, "%16s %X %X %X %d %d %d %X %d %d %d\n",
+			    ifbuf, &entry.route_dst.addr_ip,
+			    &entry.route_gw.addr_ip, &iflags, &refcnt, &use,
+			    &metric, &mask, &mss, &win, &irtt);
+			
+			if (i < 10 || !(iflags & RTF_UP))
+				continue;
 		
-		if (entry.route_gw.addr_ip == IP_ADDR_ANY)
-			continue;
+			if (entry.route_gw.addr_ip == IP_ADDR_ANY)
+				continue;
 		
-		entry.route_dst.addr_type = entry.route_gw.addr_type =
-		    ADDR_TYPE_IP;
+			entry.route_dst.addr_type = entry.route_gw.addr_type =
+			    ADDR_TYPE_IP;
 		
-		if (addr_mtob(&mask, IP_ADDR_LEN,
-		    &entry.route_dst.addr_bits) < 0)
-			continue;
-		
-		if ((ret = callback(&entry, arg)) != 0)
-			break;
-	}
-	if (ferror(fp)) {
+			if (addr_mtob(&mask, IP_ADDR_LEN,
+				&entry.route_dst.addr_bits) < 0)
+				continue;
+			
+			entry.route_gw.addr_bits = IP_ADDR_BITS;
+			
+			if ((ret = callback(&entry, arg)) != 0)
+				break;
+		}
 		fclose(fp);
-		return (-1);
 	}
-	fclose(fp);
-	
+	if (ret == 0 && (fp = fopen(PROC_IPV6_ROUTE_FILE, "r")) != NULL) {
+		char s[33], d[8][5], n[8][5];
+		u_int slen, dlen;
+		
+		while (fgets(buf, sizeof(buf), fp) != NULL) {
+			sscanf(buf, "%04s%04s%04s%04s%04s%04s%04s%04s %02x "
+			    "%32s %02x %04s%04s%04s%04s%04s%04s%04s%04s ",
+			    d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7],
+			    &dlen, s, &slen,
+			    n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7]);
+			snprintf(buf, sizeof(buf), "%s:%s:%s:%s:%s:%s:%s:%s/%d",
+			    d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7],
+			    dlen);
+			addr_aton(buf, &entry.route_dst);
+			snprintf(buf, sizeof(buf), "%s:%s:%s:%s:%s:%s:%s:%s/%d",
+			    n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7],
+			    IP6_ADDR_BITS);
+			addr_aton(buf, &entry.route_gw);
+			
+			if ((ret = callback(&entry, arg)) != 0)
+				break;
+		}
+		fclose(fp);
+	}
 	return (ret);
 }
 

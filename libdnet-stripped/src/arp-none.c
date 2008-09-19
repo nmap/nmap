@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: arp-none.c,v 1.5 2002/02/02 04:15:57 dugsong Exp $
+ * $Id: arp-none.c 252 2002-02-02 04:15:57Z dugsong $
  */
 
 #include "config.h"

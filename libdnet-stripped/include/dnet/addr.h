@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: addr.h,v 1.12 2003/02/27 03:44:55 dugsong Exp $
+ * $Id: addr.h 404 2003-02-27 03:44:55Z dugsong $
  */
 
 #ifndef DNET_ADDR_H

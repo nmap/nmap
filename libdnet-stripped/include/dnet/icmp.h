@@ -6,7 +6,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: icmp.h,v 1.14 2003/03/16 17:39:17 dugsong Exp $
+ * $Id: icmp.h 416 2003-03-16 17:39:18Z dugsong $
  */
 
 #ifndef DNET_ICMP_H

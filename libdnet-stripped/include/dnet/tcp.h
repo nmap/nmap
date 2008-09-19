@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: tcp.h,v 1.17 2004/02/23 10:02:11 dugsong Exp $
+ * $Id: tcp.h 487 2004-02-23 10:02:11Z dugsong $
  */
 
 #ifndef DNET_TCP_H

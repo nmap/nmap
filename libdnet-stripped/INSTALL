@@ -56,4 +56,4 @@ To build a Microsoft Visual C++ native library and Python module
 	cd ../src && lib /out:dnet.lib *.obj
 
 
-# $Id: INSTALL,v 1.4 2005/02/15 07:38:19 dugsong Exp $
+# $Id: INSTALL 590 2005-02-15 07:38:19Z dugsong $

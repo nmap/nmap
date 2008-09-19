@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2001 Dug Song <dugsong@monkey.org>
  *
- * $Id: eth-ndd.c,v 1.7 2005/01/25 21:30:40 dugsong Exp $
+ * $Id: eth-ndd.c 547 2005-01-25 21:30:40Z dugsong $
  */
 
 #include "config.h"

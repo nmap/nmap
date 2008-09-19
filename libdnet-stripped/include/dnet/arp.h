@@ -6,7 +6,7 @@
  *
  * Copyright (c) 2000 Dug Song <dugsong@monkey.org>
  *
- * $Id: arp.h,v 1.12 2003/03/16 17:39:17 dugsong Exp $
+ * $Id: arp.h 416 2003-03-16 17:39:18Z dugsong $
  */
 
 #ifndef DNET_ARP_H

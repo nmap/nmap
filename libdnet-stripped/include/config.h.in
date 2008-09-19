@@ -1,4 +1,4 @@
-/* include/config.h.in.  Generated automatically from configure.in by autoheader.  */
+/* include/config.h.in.  Generated from configure.in by autoheader.  */
 
 /* Define if arpreq struct has arp_dev. */
 #undef HAVE_ARPREQ_ARP_DEV
@@ -6,68 +6,68 @@
 /* Define if you have the Berkeley Packet Filter. */
 #undef HAVE_BSD_BPF
 
-/* Define if you have the <dlfcn.h> header file. */
+/* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
-/* Define if you have the `err' function. */
+/* Define to 1 if you have the `err' function. */
 #undef HAVE_ERR
 
-/* Define if you have the <fcntl.h> header file. */
+/* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
 
-/* Define if you have the <hpsecurity.h> header file. */
+/* Define to 1 if you have the <hpsecurity.h> header file. */
 #undef HAVE_HPSECURITY_H
 
-/* Define if you have the <inttypes.h> header file. */
+/* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
 /* Define if you have arp(7) ioctls. */
 #undef HAVE_IOCTL_ARP
 
-/* Define if you have the <Iphlpapi.h> header file. */
+/* Define to 1 if you have the <Iphlpapi.h> header file. */
 #undef HAVE_IPHLPAPI_H
 
-/* Define if you have the <ip_compat.h> header file. */
+/* Define to 1 if you have the <ip_compat.h> header file. */
 #undef HAVE_IP_COMPAT_H
 
-/* Define if you have the <ip_fil_compat.h> header file. */
+/* Define to 1 if you have the <ip_fil_compat.h> header file. */
 #undef HAVE_IP_FIL_COMPAT_H
 
-/* Define if you have the <ip_fil.h> header file. */
+/* Define to 1 if you have the <ip_fil.h> header file. */
 #undef HAVE_IP_FIL_H
 
-/* Define if you have the `iphlpapi' library (-liphlpapi). */
+/* Define to 1 if you have the `iphlpapi' library (-liphlpapi). */
 #undef HAVE_LIBIPHLPAPI
 
-/* Define if you have the `nm' library (-lnm). */
+/* Define to 1 if you have the `nm' library (-lnm). */
 #undef HAVE_LIBNM
 
-/* Define if you have the `nsl' library (-lnsl). */
+/* Define to 1 if you have the `nsl' library (-lnsl). */
 #undef HAVE_LIBNSL
 
-/* Define if you have the `resolv' library (-lresolv). */
+/* Define to 1 if you have the `resolv' library (-lresolv). */
 #undef HAVE_LIBRESOLV
 
-/* Define if you have the `socket' library (-lsocket). */
+/* Define to 1 if you have the `socket' library (-lsocket). */
 #undef HAVE_LIBSOCKET
 
-/* Define if you have the `str' library (-lstr). */
+/* Define to 1 if you have the `str' library (-lstr). */
 #undef HAVE_LIBSTR
 
-/* Define if you have the `ws2_32' library (-lws2_32). */
+/* Define to 1 if you have the `ws2_32' library (-lws2_32). */
 #undef HAVE_LIBWS2_32
 
-/* Define if you have the <linux/if_tun.h> header file. */
+/* Define to 1 if you have the <linux/if_tun.h> header file. */
 #undef HAVE_LINUX_IF_TUN_H
 
-/* Define if you have the <linux/ip_fwchains.h> header file. */
+/* Define to 1 if you have the <linux/ip_fwchains.h> header file. */
 #undef HAVE_LINUX_IP_FWCHAINS_H
 
-/* Define if you have the <linux/ip_fw.h> header file. */
+/* Define to 1 if you have the <linux/ip_fw.h> header file. */
 #undef HAVE_LINUX_IP_FW_H
 
-/* Define if you have the <linux/netfilter_ipv4/ipchains_core.h> header file.
-   */
+/* Define to 1 if you have the <linux/netfilter_ipv4/ipchains_core.h> header
+   file. */
 #undef HAVE_LINUX_NETFILTER_IPV4_IPCHAINS_CORE_H
 
 /* Define if you have Linux PF_PACKET sockets. */
@@ -76,55 +76,55 @@
 /* Define if you have the Linux /proc filesystem. */
 #undef HAVE_LINUX_PROCFS
 
-/* Define if you have the <memory.h> header file. */
+/* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
-/* Define if you have the <netinet/in_var.h> header file. */
+/* Define to 1 if you have the <netinet/in_var.h> header file. */
 #undef HAVE_NETINET_IN_VAR_H
 
-/* Define if you have the <netinet/ip_compat.h> header file. */
+/* Define to 1 if you have the <netinet/ip_compat.h> header file. */
 #undef HAVE_NETINET_IP_COMPAT_H
 
-/* Define if you have the <netinet/ip_fil_compat.h> header file. */
+/* Define to 1 if you have the <netinet/ip_fil_compat.h> header file. */
 #undef HAVE_NETINET_IP_FIL_COMPAT_H
 
-/* Define if you have the <netinet/ip_fil.h> header file. */
+/* Define to 1 if you have the <netinet/ip_fil.h> header file. */
 #undef HAVE_NETINET_IP_FIL_H
 
-/* Define if you have the <netinet/ip_fw.h> header file. */
+/* Define to 1 if you have the <netinet/ip_fw.h> header file. */
 #undef HAVE_NETINET_IP_FW_H
 
-/* Define if you have the <net/bpf.h> header file. */
+/* Define to 1 if you have the <net/bpf.h> header file. */
 #undef HAVE_NET_BPF_H
 
-/* Define if you have the <net/if_arp.h> header file. */
+/* Define to 1 if you have the <net/if_arp.h> header file. */
 #undef HAVE_NET_IF_ARP_H
 
-/* Define if you have the <net/if_dl.h> header file. */
+/* Define to 1 if you have the <net/if_dl.h> header file. */
 #undef HAVE_NET_IF_DL_H
 
-/* Define if you have the <net/if.h> header file. */
+/* Define to 1 if you have the <net/if.h> header file. */
 #undef HAVE_NET_IF_H
 
-/* Define if you have the <net/if_tun.h> header file. */
+/* Define to 1 if you have the <net/if_tun.h> header file. */
 #undef HAVE_NET_IF_TUN_H
 
-/* Define if you have the <net/if_var.h> header file. */
+/* Define to 1 if you have the <net/if_var.h> header file. */
 #undef HAVE_NET_IF_VAR_H
 
-/* Define if you have the <net/pfilt.h> header file. */
+/* Define to 1 if you have the <net/pfilt.h> header file. */
 #undef HAVE_NET_PFILT_H
 
-/* Define if you have the <net/pfvar.h> header file. */
+/* Define to 1 if you have the <net/pfvar.h> header file. */
 #undef HAVE_NET_PFVAR_H
 
-/* Define if you have the <net/radix.h> header file. */
+/* Define to 1 if you have the <net/radix.h> header file. */
 #undef HAVE_NET_RADIX_H
 
-/* Define if you have the <net/raw.h> header file. */
+/* Define to 1 if you have the <net/raw.h> header file. */
 #undef HAVE_NET_RAW_H
 
-/* Define if you have the <net/route.h> header file. */
+/* Define to 1 if you have the <net/route.h> header file. */
 #undef HAVE_NET_ROUTE_H
 
 /* Define if you have cooked raw IP sockets. */
@@ -142,10 +142,10 @@
 /* Define if sockaddr struct has sa_len. */
 #undef HAVE_SOCKADDR_SA_LEN
 
-/* Define if you have the <stdint.h> header file. */
+/* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
-/* Define if you have the <stdlib.h> header file. */
+/* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
 
 /* Define if you have SNMP MIB2 STREAMS. */
@@ -154,73 +154,88 @@
 /* Define if you have route(7) STREAMS. */
 #undef HAVE_STREAMS_ROUTE
 
-/* Define if you have the <strings.h> header file. */
+/* Define to 1 if you have the <strings.h> header file. */
 #undef HAVE_STRINGS_H
 
-/* Define if you have the <string.h> header file. */
+/* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
-/* Define if you have the `strlcat' function. */
+/* Define to 1 if you have the `strlcat' function. */
 #undef HAVE_STRLCAT
 
-/* Define if you have the `strlcpy' function. */
+/* Define to 1 if you have the `strlcpy' function. */
 #undef HAVE_STRLCPY
 
-/* Define if you have the <stropts.h> header file. */
+/* Define to 1 if you have the <stropts.h> header file. */
 #undef HAVE_STROPTS_H
 
-/* Define if you have the `strsep' function. */
+/* Define to 1 if you have the `strsep' function. */
 #undef HAVE_STRSEP
 
-/* Define if you have the <sys/bufmod.h> header file. */
+/* Define to 1 if you have the <sys/bufmod.h> header file. */
 #undef HAVE_SYS_BUFMOD_H
 
-/* Define if you have the <sys/dlpihdr.h> header file. */
+/* Define to 1 if you have the <sys/dlpihdr.h> header file. */
 #undef HAVE_SYS_DLPIHDR_H
 
-/* Define if you have the <sys/dlpi_ext.h> header file. */
+/* Define to 1 if you have the <sys/dlpi_ext.h> header file. */
 #undef HAVE_SYS_DLPI_EXT_H
 
-/* Define if you have the <sys/dlpi.h> header file. */
+/* Define to 1 if you have the <sys/dlpi.h> header file. */
 #undef HAVE_SYS_DLPI_H
 
-/* Define if you have the <sys/ioctl.h> header file. */
+/* Define to 1 if you have the <sys/ioctl.h> header file. */
 #undef HAVE_SYS_IOCTL_H
 
-/* Define if you have the <sys/mib.h> header file. */
+/* Define to 1 if you have the <sys/mib.h> header file. */
 #undef HAVE_SYS_MIB_H
 
-/* Define if you have the <sys/ndd_var.h> header file. */
+/* Define to 1 if you have the <sys/ndd_var.h> header file. */
 #undef HAVE_SYS_NDD_VAR_H
 
-/* Define if you have the <sys/socket.h> header file. */
+/* Define to 1 if you have the <sys/socket.h> header file. */
 #undef HAVE_SYS_SOCKET_H
 
-/* Define if you have the <sys/sockio.h> header file. */
+/* Define to 1 if you have the <sys/sockio.h> header file. */
 #undef HAVE_SYS_SOCKIO_H
 
-/* Define if you have the <sys/stat.h> header file. */
+/* Define to 1 if you have the <sys/stat.h> header file. */
 #undef HAVE_SYS_STAT_H
 
-/* Define if you have the <sys/sysctl.h> header file. */
+/* Define to 1 if you have the <sys/sysctl.h> header file. */
 #undef HAVE_SYS_SYSCTL_H
 
-/* Define if you have the <sys/time.h> header file. */
+/* Define to 1 if you have the <sys/time.h> header file. */
 #undef HAVE_SYS_TIME_H
 
-/* Define if you have the <sys/types.h> header file. */
+/* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
 
-/* Define if you have the <unistd.h> header file. */
+/* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
-/* Define if you have the <winsock2.h> header file. */
+/* Define to 1 if you have the <winsock2.h> header file. */
 #undef HAVE_WINSOCK2_H
 
 /* Name of package */
 #undef PACKAGE
 
-/* Define if you have the ANSI C header files. */
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
 /* Version number of package */
@@ -232,9 +247,11 @@
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
 
-/* Define as `__inline' if that's what the C compiler calls it, or to nothing
-   if it is not supported. */
+/* Define to `__inline__' or `__inline' if that's what the C compiler
+   calls it, or to nothing if 'inline' is not supported under any name.  */
+#ifndef __cplusplus
 #undef inline
+#endif
 
 /* Define to `int' if <sys/types.h> does not define. */
 #undef pid_t
