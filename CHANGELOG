@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added the Ndiff utility, which compares the results of Nmap scans.
+  See ndiff/README and http://nmap.org/ndiff/ for more
+  information. [David]
+
+o Fixed an integer overflow that could cause the scan delay to grow
+  large for no reason in some circumstances. [David]
+
 o Enhanced the AS Numbers script (ASN.nse) to better consolidate
   results and bail out if the DNS server doesn't support the ASN
   queries. [Jah]
