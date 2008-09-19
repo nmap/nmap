@@ -72,13 +72,14 @@
 <!-- This element was started in nmap.c:nmap_main().
      It represents to the topmost element of the output document.
 -->
-<!ELEMENT nmaprun      (scaninfo*, verbose, debugging, ((taskbegin, taskprogress*, taskend) | host)*, runstats) >
+<!ELEMENT nmaprun      (scaninfo*, verbose, debugging, ((taskbegin, taskprogress*, taskend) | host | output)*, runstats) >
 <!ATTLIST nmaprun
 			scanner		(nmap)		#REQUIRED
 			args		CDATA		#IMPLIED
 			start		%attr_numeric;	#IMPLIED
 			startstr	CDATA	        #IMPLIED
 			version		CDATA		#REQUIRED
+			profile_name	CDATA		#IMPLIED
 			xmloutputversion CDATA		#REQUIRED
 >
 
@@ -138,6 +139,7 @@
 <!ATTLIST host
 			starttime	%attr_numeric;	#IMPLIED
 			endtime		%attr_numeric;	#IMPLIED
+			comment		CDATA		#IMPLIED
 >
 
 <!-- these elements are written by output.c:write_xml_initial_hostinfo() -->
@@ -308,6 +310,10 @@
 	rttvar	CDATA	#REQUIRED
 	to	CDATA	#REQUIRED
 >
+
+<!-- For embedding another type of output (screen output) like Zenmap does. -->
+<!ELEMENT output (#PCDATA)>
+<!ATTLIST output type  (interactive)  #IMPLIED>
 
 <!-- these elements are generated in output.c:printfinaloutput() -->
 <!ELEMENT runstats	(finished, hosts) >
