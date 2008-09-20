@@ -1,5 +1,14 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Zenmap no longer outputs XML elements and attributes that are not in
+  the Nmap XML DTD. This was done mostly by removing things from
+  Zenmap's output, and adding a few new optional things to the Nmap
+  DTD. A scan's profile name, host comments, and interactive text
+  output are what were added to nmap.dtd. The .usr filename extension
+  for saved Zenmap files is deprecated in favor of the .xml extension
+  commonly used with Nmap. Because of these changes the
+  xmloutputversion has been increased to 1.03. [David]
+
 o Added the Ndiff utility, which compares the results of Nmap scans.
   See ndiff/README and http://nmap.org/ndiff/ for more
   information. [David]
