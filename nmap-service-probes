@@ -3682,6 +3682,7 @@ match http m|^HTTP/1\.0 200 Document follows\r\nServer: IP_SHARER WEB ([\d.]+)\r
 match http m|^HTTP/1\.1 \d\d\d .*\r\nWWW-Authenticate: Basic realm=\"InterMapper\"\r\n.*\r\nServer: InterMapper/([\d.]+)\r\n|s p/InterMapper Network Monitor httpd/ v/$1/
 match http m|^HTTP/1\.0 200 OK\r\n.*\r\nServer: ZOT-PS-13/([\d.]+)\r\n|s p/Hawking Print Server httpd/ v/$1/ d/print server/
 match http m|^HTTP/1\.0 200 OK.*\r\nServer: ZOT-PS-11/([\d.]+)\r\n.*\n<head><!-- Simon Hung, Zero One Tech\. 98/8 -->\n|s p/3P print server http config/ i/ZOT-PS-11 $1/ d/print server/
+match http m|^HTTP/1\.0 401 Unauthorized\r\n.*\r\nServer: (ZOT-PS-17/[\d.]+)\r\n|s p/print server http config/ v/$1/ d/print server/
 match http m|^HTTP/1\.0 302 Temporarily Moved\nLocation: /winamp\?page=main\nConnection: close\nContent-type: text/html\n\n<html>\n<head>\n<title>Winamp Web Interface</title>| p/Winamp Web Interface/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\n.*Server: Lasso/([\d.]+)\r\n\r\n|s p/Lasso httpd/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: BaseHTTP/([\d.]+) Python/([\d.]+)\r\nDate: .*<title>Roundup trackers index</title></head>\n<body><h1>Roundup trackers index</h1>|s p/Roundup issue tracker/ i|BaseHTTP/$1 Python/$2|
