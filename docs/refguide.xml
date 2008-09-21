@@ -784,31 +784,6 @@ Traceroute works by sending packets with a low TTL (time-to-live) in an attempt 
 </listitem>
 </varlistentry>
 
-<varlistentry>
- <term>
-  <option>--reason</option> (Host and port state reasons)
-   <indexterm><primary><option>--reason</option></primary></indexterm>
- </term>
- <listitem>
-
-<para>
-Shows the reason each port is set to a specific state and the reason
-each host is up or down. This option displays the type of the packet
-that determined a port or hosts state. For example, A <literal>RST</literal> packet from
-a closed port or an echo reply from an alive host. The information
-Nmap can provide is determined by the type of scan or ping. The SYN
-scan and SYN ping (<option>-sS</option> and <option>-PS</option>) are very detailed, but the
-TCP connect scan (<option>-sT</option>) is limited by the
-implementation of the <function>connect</function> system call. This feature is automatically enabled by
-the debug option
-(<option>-d</option>)<indexterm><primary><option>--reason</option></primary><secondary>implied by <option>-d</option></secondary></indexterm>
-and the results are stored in XML log files
-even if this option is not specified.
-
-</para>
-</listitem>
-</varlistentry>
-
       <varlistentry>
         <term>
           <option>-n</option> (No DNS resolution)
@@ -3407,6 +3382,32 @@ increased.</para>
 
         </listitem>
       </varlistentry>
+
+<varlistentry>
+ <term>
+  <option>--reason</option> (Host and port state reasons)
+   <indexterm><primary><option>--reason</option></primary></indexterm>
+ </term>
+ <listitem>
+
+<para>
+Shows the reason each port is set to a specific state and the reason
+each host is up or down. This option displays the type of the packet
+that determined a port or hosts state. For example, A <literal>RST</literal> packet from
+a closed port or an echo reply from an alive host. The information
+Nmap can provide is determined by the type of scan or ping. The SYN
+scan and SYN ping (<option>-sS</option> and <option>-PS</option>) are very detailed, but the
+TCP connect scan (<option>-sT</option>) is limited by the
+implementation of the <function>connect</function> system call. This feature is automatically enabled by
+the debug option
+(<option>-d</option>)<indexterm><primary><option>--reason</option></primary><secondary>implied by <option>-d</option></secondary></indexterm>
+and the results are stored in XML log files
+even if this option is not specified.
+
+</para>
+</listitem>
+</varlistentry>
+
 
       <varlistentry>
         <term>
