@@ -353,8 +353,7 @@ int init_parseargs (lua_State *L)
   size_t len;
 
   luaL_checkstring(L, 1);
-  luaL_getmetafield(L, 1, "__index"); // string library
-  lua_getfield(L, -1, "gsub"); // string.gsub
+  lua_getfield(L, 1, "gsub"); // string.gsub
   lua_pushvalue(L, 1);
   lua_pushliteral(L, "=([^{},]+)"); // make strings quoted
   lua_pushliteral(L, "=\"%1\"");
