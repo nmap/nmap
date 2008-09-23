@@ -1577,19 +1577,21 @@ way.</para>
           <indexterm significance="preferred"><primary><option>-F</option></primary></indexterm>
         </term>
         <listitem>
-          <para>Specifies that you only wish to scan
-          for ports listed in the <filename>nmap-services</filename>
-          file which comes with Nmap (or the protocols file for
-          <option>-sO</option>). This is much faster than scanning all 65535 ports on a
-          host.  Because this list contains so many TCP ports (more
-          than 1200), the speed difference from a default TCP scan
-          (about 1650 ports) isn't dramatic.  The difference can be
-          enormous if you specify your own tiny
-          <filename>nmap-services</filename> file using the
-          <option>--servicedb</option><indexterm><primary><option>--servicedb</option></primary></indexterm>
-	  or <option>--datadir</option><indexterm><primary><option>--datadir</option></primary></indexterm>
-	  options.
-          </para>
+          <para>Specifies that you wish to scan fewer ports than the
+          default. Normally Nmaps scans the most common 1,000 ports for
+          each scanned protocol. With <option>-F</option>, this is
+          reduced to 100.</para>
+
+          <para>Nmap needs an <filename>nmap-services</filename> file
+          with frequency information in order to know which ports are
+          the most
+          common<notman> (see <xref linkend="nmap-services"/>
+          for more about port frequencies)</notman>. If port frequency
+          information isn't available, perhaps because of the use of a
+          custom <filename>nmap-services</filename> file,
+          <option>-F</option> means to scan only ports that are named in
+          the services file (normally Nmap scans all named ports plus
+          ports 1&ndash;1024).</para>
         </listitem>
       </varlistentry>
 
