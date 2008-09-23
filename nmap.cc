@@ -2769,17 +2769,6 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
       }
     }
   }
-
-  /* Check also in libexec because architecture dependent files ought not to
-   * be installed in /usr/share
-   */
-
-  if (!foundsomething) {
-    res = Snprintf(filename_returned, bufferlen, "%s/%s", NMAPLIBEXECDIR, file);
-    if (res > 0 && res < bufferlen) {
-      foundsomething = fileexistsandisreadable(filename_returned);
-    }
-  }
 #else
   if (!foundsomething) { /* Try the nMap directory */
 	  char fnbuf[MAX_PATH];

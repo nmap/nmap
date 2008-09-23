@@ -9,7 +9,6 @@ bindir = @bindir@
 sbindir = @sbindir@
 mandir = @mandir@
 srcdir = @srcdir@
-nmaplibexecdir = @libexecdir@/nmap
 nmapdatadir = @datadir@/nmap
 deskdir = $(prefix)/share/applications
 NMAPDEVDIR=~/nmap-dev
@@ -31,7 +30,7 @@ export LIBDNETDIR = @LIBDNETDIR@
 ZENMAPDIR = zenmap
 NDIFFDIR = ndiff
 PYTHON = @PYTHON@
-DEFS = @DEFS@ -DNMAP_NAME=\"$(NMAP_NAME)\" -DNMAP_URL=\"$(NMAP_URL)\" -DNMAP_PLATFORM=\"$(NMAP_PLATFORM)\" -DNMAPDATADIR=\"$(nmapdatadir)\" -DNMAPLIBEXECDIR=\"$(nmaplibexecdir)\"
+DEFS = @DEFS@ -DNMAP_NAME=\"$(NMAP_NAME)\" -DNMAP_URL=\"$(NMAP_URL)\" -DNMAP_PLATFORM=\"$(NMAP_PLATFORM)\" -DNMAPDATADIR=\"$(nmapdatadir)\"
 # For mtrace debugging -- see MTRACE define in main.cc for instructions
 # Should only be enabled during debugging and not in any real release.
 # DEFS += -DMTRACE=1
@@ -250,7 +249,7 @@ uninstall: uninstall-nmap $(UNINSTALLZENMAP) @NCAT_UNINSTALL@
 uninstall-nmap:
 	rm -f $(DESTDIR)$(bindir)/$(TARGET)
 	rm -f $(DESTDIR)$(mandir)/man1/$(TARGET).1
-	rm -rf $(DESTDIR)$(nmapdatadir) $(DESTDIR)$(nmaplibexecdir)
+	rm -rf $(DESTDIR)$(nmapdatadir)
 
 uninstall-zenmap:
 	cd $(ZENMAPDIR) && $(PYTHON) setup.py uninstall
