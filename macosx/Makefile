@@ -60,7 +60,6 @@ export-%:
 	svn export ../ncat $*/ncat
 	svn export ../nsock $*/nsock
 	svn export ../zenmap $*/zenmap
-	svn export ../ndiff $*/ndiff
 
 stage-nmap: export-$(NMAP_BUILD_DIR)
 	cd $(NMAP_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff $(CONFIGURE_ARGS)
