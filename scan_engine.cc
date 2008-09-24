@@ -494,6 +494,7 @@ public:
   void retransmitBench();
   
   bool completed(); /* Whether or not the scan of this Target has completed */
+  struct timeval completiontime; /* When this Target completed */
 
   /* This function provides the proper cwnd and ccthresh to use.  It
      may differ from versions in timing member var because when no
@@ -604,7 +605,8 @@ public:
      NULL. */
   HostScanStats *nextIncompleteHost();
   /* Removes any hosts that have completed their scans from the incompleteHosts
-     list.  Returns the number of hosts removed. */
+     list, and remove any hosts from completedHosts which have exceeded their
+     lifetime.  Returns the number of hosts removed. */
   int removeCompletedHosts();
   /* Find a HostScanStats by its IP address in the incomplete and completed
      lists.  Returns NULL if none are found. */
@@ -641,6 +643,10 @@ public:
      completed. We keep them around because sometimes responses come back very
      late, after we consider a host completed. */
   list<HostScanStats *> completedHosts;
+  /* How long (in msecs) we keep a host in completedHosts */
+  unsigned int completedHostLifetime;
+  /* The last time we went through completedHosts to remove hosts */
+  struct timeval lastCompletedHostRemoval;
 
   ScanProgressMeter *SPM;
   PacketRateMeter send_rate_meter;
@@ -1083,6 +1089,7 @@ HostScanStats::HostScanStats(Target *t, UltraScanInfo *UltraSI) {
   numprobes_sent = 0;
   numpings_sent = 0;
   numprobes_replied_to = 0;
+  memset(&completiontime, 0, sizeof(completiontime));
   init_ultra_timing_vals(&timing, TIMING_HOST, 1, &(USI->perf), &USI->now);
   bench_tryno = 0;
   memset(&sdn, 0, sizeof(sdn));
@@ -1482,6 +1489,10 @@ void UltraScanInfo::Init(vector<Target *> &Targets, struct scan_lists *pts, styp
 
   init_perf_values(&perf);
 
+  /* Keep a completed host around for a standard TCP MSL (2 min) */
+  completedHostLifetime = 120000;
+  memset(&lastCompletedHostRemoval, 0, sizeof(lastCompletedHostRemoval));
+
   for(targetno = 0; targetno < Targets.size(); targetno++) {
     if (Targets[targetno]->timedOut(&now)) {
       num_timedout++;
@@ -1678,12 +1689,33 @@ bool UltraScanInfo::numIncompleteHostsLessThan(unsigned int n) {
 }
 
   /* Removes any hosts that have completed their scans from the incompleteHosts
-     list.  Returns the number of hosts removed. */
+     list, and remove any hosts from completedHosts which have exceeded their
+     lifetime.  Returns the number of hosts removed. */
 int UltraScanInfo::removeCompletedHosts() {
   list<HostScanStats *>::iterator hostI, nxt;
   HostScanStats *hss = NULL;
   int hostsRemoved = 0;
   bool timedout = false;
+
+  /* We don't want to run this all of the time */
+  if ((unsigned) TIMEVAL_MSEC_SUBTRACT(now, lastCompletedHostRemoval) > completedHostLifetime / 2) {
+    for (hostI = completedHosts.begin(); hostI != completedHosts.end(); hostI = nxt) {
+      nxt = hostI;
+      nxt++;
+      hss = (*hostI);
+
+      /* Keep it if it's our port scan ping host */
+      if (hss == gstats->pinghost)
+        continue;
+
+      if ((unsigned) TIMEVAL_MSEC_SUBTRACT(now, hss->completiontime) > completedHostLifetime) {
+        completedHosts.erase(hostI);
+        hostsRemoved++;
+      }
+    }
+    lastCompletedHostRemoval = now;
+  }
+
   for(hostI = incompleteHosts.begin(); hostI != incompleteHosts.end();
       hostI = nxt) {
     nxt = hostI;
@@ -1722,6 +1754,7 @@ int UltraScanInfo::removeCompletedHosts() {
             log_write(LOG_PLAIN, "* %s\n", probespec2ascii((probespec *) (*iter)->pspec(), tmpbuf, sizeof(tmpbuf)));
         }
       }
+      hss->completiontime = now;
       completedHosts.push_front(hss);
       incompleteHosts.erase(hostI);
       hostsRemoved++;

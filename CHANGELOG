@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Reduced memory consumption for some longer running scans by removing
+  completed hosts from the lists after two minutes.  These hosts are
+  kept around in case there is a late response, but this draws the
+  line on how long we wait and hence keep this information in memory.
+  See http://seclists.org/nmap-dev/2008/q3/0902.html for more. [Kris]
+
 o XML output now contains the full path to nmap.xml on Windows. [Jah]
 
 o Zenmap no longer outputs XML elements and attributes that are not in
