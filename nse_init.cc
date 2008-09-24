@@ -452,7 +452,16 @@ int init_updatedb (lua_State *L)
         luaL_error(L, "file '%s' could not be loaded", file);
       lua_pushvalue(L, -2); // push environment
       lua_setfenv(L, -2); // set it
-      lua_call(L, 0, 0);
+      if ( lua_pcall(L, 0, 0, 0) != 0 ) {
+        // skip scripts that produce errors
+        log_write(LOG_STDOUT, "%s: Skipping script '%s' because it produced errors while loading.\n", 
+          SCRIPT_ENGINE, file );
+        SCRIPT_ENGINE_VERBOSE(
+          error("%s", lua_tostring(L, -1));
+        )
+        lua_pop(L, 3);
+        continue;
+      }
 
       lua_getfield(L, -1, "categories");
       if (lua_isnil(L, -1))
