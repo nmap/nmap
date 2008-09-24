@@ -247,11 +247,13 @@ void NmapOps::Initialize() {
   reason = false;
   if (datadir) free(datadir);
   datadir = NULL;
+  if (nmap_fetchfile(tmpxsl, sizeof(tmpxsl), "nmap.xsl") != 1) {
 #if WIN32
   Strncpy(tmpxsl, "nmap.xsl", sizeof(tmpxsl));
 #else
   Snprintf(tmpxsl, sizeof(tmpxsl), "%s/nmap.xsl", NMAPDATADIR);
 #endif
+  }
   if (xsl_stylesheet) free(xsl_stylesheet);
   xsl_stylesheet = strdup(tmpxsl);
   spoof_mac_set = false;

@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o XML output now contains the full path to nmap.xml on Windows. [Jah]
+
 o Zenmap no longer outputs XML elements and attributes that are not in
   the Nmap XML DTD. This was done mostly by removing things from
   Zenmap's output, and adding a few new optional things to the Nmap
