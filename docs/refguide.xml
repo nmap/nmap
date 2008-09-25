@@ -779,7 +779,7 @@ Traceroutes are performed post-scan using information from the scan results to d
 </para>
 
 <para>
-Traceroute works by sending packets with a low TTL (time-to-live) in an attempt to elicit ICMP Time Exceeded messages from intermediate hops between the scanner and the target host. Standard traceroute implementations start with a TTL of 1 and increment the TTL until the destination host is reached. Nmap's traceroute starts with a high TTL and then decrements the TTL until it reaches 0. Doing it backwards lets Nmap employ clever caching algorithms to speed up traces over multiple hosts. On average Nmap sends 5-10 fewer packets per host, depending on network conditions. If a single subnet is being scanned (i.e. 192.168.0.0/24) Nmap may only have to send a single packet to most hosts.
+Traceroute works by sending packets with a low TTL (time-to-live) in an attempt to elicit ICMP Time Exceeded messages from intermediate hops between the scanner and the target host. Standard traceroute implementations start with a TTL of 1 and increment the TTL until the destination host is reached. Nmap's traceroute starts with a high TTL and then decrements the TTL until it reaches 0. Doing it backwards lets Nmap employ clever caching algorithms to speed up traces over multiple hosts. On average Nmap sends 5&ndash;10 fewer packets per host, depending on network conditions. If a single subnet is being scanned (i.e. 192.168.0.0/24) Nmap may only have to send a single packet to most hosts.
 </para>
 </listitem>
 </varlistentry>
@@ -2763,7 +2763,7 @@ lists the relevant options and describes what they do.</para>
           <para>Causes a decoy scan to be performed, which makes it
           appear to the remote host that the host(s) you specify as
           decoys are scanning the target network too. Thus their IDS
-          might report 5-10 port scans from unique IP addresses, but
+          might report 5&ndash;10 port scans from unique IP addresses, but
           they won't know which IP was scanning them and which were
           innocent decoys. While this can be defeated through router
           path tracing, response-dropping, and other active
