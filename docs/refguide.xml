@@ -770,7 +770,7 @@ you would expect.</para>
  <term>
   <option>--traceroute</option> (Trace path to host)
    <indexterm significance="preferred"><primary><option>--traceroute</option></primary></indexterm>
-   <indexterm significance="normal"><primary>traceroute</primary></indexterm>
+   <indexterm significance="preferred"><primary>traceroute</primary></indexterm>
  </term>
  <listitem>
 
