@@ -166,7 +166,6 @@ void adjust_timeouts2(const struct timeval *sent,
     delta -= to->srtt;
     /* sanity check 2*/
     if (delta > 1500000 && delta > 3 * to->srtt + 2 * to->rttvar) {
-      /* WANKER ALERT! */
       if (o.debugging) {
 	log_write(LOG_STDOUT, "Bogus delta: %ld (srtt %d) ... ignoring\n", delta, to->srtt);
       }
