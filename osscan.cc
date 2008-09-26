@@ -264,8 +264,9 @@ static int AVal_match(struct AVal *reference, struct AVal *fprint, struct AVal *
       if (points) {
 	 current_points = getattrbyname(points, current_ref->attribute);
 	 if (!current_points) fatal("%s: Failed to find point amount for test %s.%s", __func__, testGroupName? testGroupName : "", current_ref->attribute);
+	 errno = 0;
 	 pointsThisTest = strtol(current_points->value, &endptr, 10);
-	 if (pointsThisTest < 1)
+	 if (errno != 0 || *endptr != '\0' || pointsThisTest < 0)
 	   fatal("%s: Got bogus point amount (%s) for test %s.%s", __func__, current_points->value, testGroupName? testGroupName : "", current_ref->attribute);
       }
       subtests += pointsThisTest;
