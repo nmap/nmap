@@ -175,6 +175,21 @@ int NmapOps::TimeSinceStartMS(struct timeval *now) {
   return TIMEVAL_MSEC_SUBTRACT(tv, start_time);
 }
 
+// Convert a filename to a file:// URL. The return value must be freed.
+char *filename_to_url(const char *filename) {
+  std::string url(filename);
+
+#if WIN32
+  for (std::string::iterator p = url.begin(); p != url.end(); p++) {
+    if (*p == '\\')
+      *p = '/';
+  }
+#endif
+  url = "file://" + url;
+
+  return strdup(url.c_str());
+}
+
 void NmapOps::Initialize() {
   char tmpxsl[MAXPATHLEN];
 
@@ -247,15 +262,20 @@ void NmapOps::Initialize() {
   reason = false;
   if (datadir) free(datadir);
   datadir = NULL;
-  if (nmap_fetchfile(tmpxsl, sizeof(tmpxsl), "nmap.xsl") != 1) {
+  if (xsl_stylesheet) free(xsl_stylesheet);
+  if (nmap_fetchfile(tmpxsl, sizeof(tmpxsl), "nmap.xsl") == 1) {
+    xsl_stylesheet = filename_to_url(tmpxsl);
+  } else {
 #if WIN32
-  Strncpy(tmpxsl, "nmap.xsl", sizeof(tmpxsl));
+    /* Use a relative URL on Windows if nmap_fetchfile failed. It won't work,
+       but it gives a clue that there is an nmap.xsl somewhere. */
+    Strncpy(tmpxsl, "nmap.xsl", sizeof(tmpxsl));
+    xsl_stylesheet = strdup(tmpxsl);
 #else
-  Snprintf(tmpxsl, sizeof(tmpxsl), "%s/nmap.xsl", NMAPDATADIR);
+    Snprintf(tmpxsl, sizeof(tmpxsl), "%s/nmap.xsl", NMAPDATADIR);
+    xsl_stylesheet = filename_to_url(tmpxsl);
 #endif
   }
-  if (xsl_stylesheet) free(xsl_stylesheet);
-  xsl_stylesheet = strdup(tmpxsl);
   spoof_mac_set = false;
   mass_dns = true;
   log_errors = false;

@@ -6,7 +6,9 @@ o Reduced memory consumption for some longer running scans by removing
   line on how long we wait and hence keep this information in memory.
   See http://seclists.org/nmap-dev/2008/q3/0902.html for more. [Kris]
 
-o XML output now contains the full path to nmap.xml on Windows. [Jah]
+o XML output now contains the full path to nmap.xml on Windows. The
+  path is converted to a file:// URL to provide better compatibility
+  across browsers. [Jah]
 
 o Zenmap no longer outputs XML elements and attributes that are not in
   the Nmap XML DTD. This was done mostly by removing things from
