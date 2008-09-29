@@ -178,6 +178,7 @@ int NmapOps::TimeSinceStartMS(struct timeval *now) {
 // Convert a filename to a file:// URL. The return value must be freed.
 char *filename_to_url(const char *filename) {
   std::string url(filename);
+  char percent_buffer[10];
 
 #if WIN32
   for (std::string::iterator p = url.begin(); p != url.end(); p++) {
@@ -187,6 +188,16 @@ char *filename_to_url(const char *filename) {
   /* Put a pseudo-root directory before "C:/" or whatever. */
   url = "/" + url;
 #endif
+
+  /* Percent-encode any troublesome characters. */
+  int i = 0;
+  /* See RFC 3986, section 3.3 "Path" for allowed characters. */
+  while ((i = url.find_first_of("?#[]", i)) != std::string::npos) {
+    Snprintf(percent_buffer, sizeof(percent_buffer), "%%%02X", url[i]);
+    url.replace(i, 1, percent_buffer);
+    i += strlen(percent_buffer);
+  }
+
   url = "file://" + url;
 
   return strdup(url.c_str());
