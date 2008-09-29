@@ -184,6 +184,8 @@ char *filename_to_url(const char *filename) {
     if (*p == '\\')
       *p = '/';
   }
+  /* Put a pseudo-root directory before "C:/" or whatever. */
+  url = "/" + url;
 #endif
   url = "file://" + url;
 
