@@ -190,9 +190,9 @@ char *filename_to_url(const char *filename) {
 #endif
 
   /* Percent-encode any troublesome characters. */
-  int i = 0;
+  unsigned int i = 0;
   /* See RFC 3986, section 3.3 "Path" for allowed characters. */
-  while ((i = url.find_first_of("?#[]", i)) != std::string::npos) {
+  while ((i = url.find_first_of("?#[]%", i)) != std::string::npos) {
     Snprintf(percent_buffer, sizeof(percent_buffer), "%%%02X", url[i]);
     url.replace(i, 1, percent_buffer);
     i += strlen(percent_buffer);
