@@ -176,7 +176,7 @@ int NmapOps::TimeSinceStartMS(struct timeval *now) {
 }
 
 // Convert a filename to a file:// URL. The return value must be freed.
-char *filename_to_url(const char *filename) {
+static char *filename_to_url(const char *filename) {
   std::string url(filename);
   char percent_buffer[10];
 
