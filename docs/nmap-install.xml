@@ -268,9 +268,7 @@ destabilizing Nmap proper.  When developers feel that an experimental
 branch is ready for wider-scale testing, they will generally email the
 location to the <citetitle>nmap-dev</citetitle> mailing list.</para>
 
-<para>Once Nmap is checked out, you can build it from source code just as you would with the Nmap tarball (described later in this 
-<bookex>chapter</bookex>
-<notbook>guide</notbook>).</para>
+<para>Once Nmap is checked out, you can build it from source code just as you would with the Nmap tarball (described later in this chapter).</para>
 
 <para>If you would like real-time (or digested) notification and diffs by email when any
 changes are made to Nmap, sign up for the nmap-svn mailing
@@ -447,7 +445,7 @@ the error message carefully, as it could indicate a system problem
 such as low disk space or a broken compiler.  Users with programming
 skills may be able to resolve a wider range of problems themselves.
 If you make code changes to fix the problem, please send a patch
-(created with <command>diff -uw oldfile newfile</command>) and any details about your problem and platform to <citetitle>nmap-dev</citetitle> as described in <xref linkend="man-bugs"/>.  Integrating the change into the base Nmap distribution allows many other users to benefit, and prevents you from having to make the changes with each new Nmap version.</para></listitem></varlistentry>
+(created with <command>diff -uw <replaceable>oldfile</replaceable> <replaceable>newfile</replaceable></command>) and any details about your problem and platform to <citetitle>nmap-dev</citetitle> as described in <xref linkend="man-bugs"/>.  Integrating the change into the base Nmap distribution allows many other users to benefit, and prevents you from having to make the changes with each new Nmap version.</para></listitem></varlistentry>
 
 <varlistentry><term>Ask Google and other Internet resources</term>
 <listitem><para>Try searching for the exact error message on Google or other search engines.  You might also want to browse recent activity on the Nmap development
@@ -785,7 +783,7 @@ include zip extraction&mdash;just right-click on the file in
 <application>Explorer</application>.  If you do not have a Zip
 decompression program, there is one (called unzip) in Cygwin described
 above, or you can download the open-source and free <ulink
-url="http://www.7-zip.org">7-zip utility</ulink>.  Commercial
+url="http://www.7-zip.org">7-Zip utility</ulink>.  Commercial
 alternatives are <ulink url="http://www.winzip.com">WinZip</ulink> and
 <ulink url="http://www.pkware.com">PKZIP</ulink>.</para></listitem>
 
@@ -1244,7 +1242,7 @@ zenmap</command> as root.  Analogous options are offered by
 most other package managers&mdash;consult their documentation for further
 information.</para>
 
-<para>If you installed Nmap from the Windows, simply open the <application>Control Panel</application>, select <quote>Add or Remove Programs</quote> and select the <quote>Remove</quote> button for Nmap.  You can also remove WinPcap unless you need it for other applications such as Wireshark.</para>
+<para>If you installed Nmap from the Windows installer, simply open the <application>Control Panel</application>, select <quote>Add or Remove Programs</quote> and select the <quote>Remove</quote> button for Nmap.  You can also remove WinPcap unless you need it for other applications such as Wireshark.</para>
 
 <para>If you installed Nmap from source
 code, removal is slightly more difficult.  If you still have the build
@@ -1272,7 +1270,7 @@ versions 4.50 or higher, the following commands remove it.</para>
 </screen>
 <para>You may have to adjust the above commands slightly if you
 specified <option>--prefix</option> or other install-path option when
-first installing Nmap.  The files relating to zenmap, nmapfe, and xnmap do not exist if you did not install the <application>Zenmap</application> frontend initially.</para>
+first installing Nmap.  The files relating to zenmap, nmapfe, and xnmap do not exist if you did not install the <application>Zenmap</application> frontend.</para>
 
 </sect1>
 
