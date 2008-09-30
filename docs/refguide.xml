@@ -94,40 +94,31 @@
 <example id="man-ex-repscan"><title>A representative Nmap scan</title>
 <indexterm><primary><option>-A</option></primary><secondary>example of</secondary></indexterm>
 <screen>
-# nmap -A -T4 scanme.nmap.org playground
+# nmap -A -T4 scanme.nmap.org
 
 Starting Nmap ( http://nmap.org )
 Interesting ports on scanme.nmap.org (64.13.134.52):
-(The 1663 ports scanned but not shown below are in state: filtered)
+Not shown: 994 filtered ports
 PORT    STATE  SERVICE VERSION
-22/tcp  open   ssh     OpenSSH 3.9p1 (protocol 1.99)
-53/tcp  open   domain
+22/tcp  open   ssh     OpenSSH 4.3 (protocol 2.0)
+25/tcp  closed smtp
+53/tcp  open   domain  ISC BIND 9.3.4
 70/tcp  closed gopher
-80/tcp  open   http    Apache httpd 2.0.52 ((Fedora))
+80/tcp  open   http    Apache httpd 2.2.2 ((Fedora))
+|_ HTML title: Go ahead and ScanMe!
 113/tcp closed auth
 Device type: general purpose
-Running: Linux 2.4.X|2.5.X|2.6.X
-OS details: Linux 2.4.7 - 2.6.11, Linux 2.6.0 - 2.6.11
+Running: Linux 2.6.X
+OS details: Linux 2.6.20-1 (Fedora Core 5)
 
-Interesting ports on playground.nmap.org (192.168.0.40):
-(The 1659 ports scanned but not shown below are in state: closed)
-PORT     STATE SERVICE       VERSION
-135/tcp  open  msrpc         Microsoft Windows RPC
-139/tcp  open  netbios-ssn
-389/tcp  open  ldap?
-445/tcp  open  microsoft-ds  Microsoft Windows XP microsoft-ds
-1002/tcp open  windows-icfw?
-1025/tcp open  msrpc         Microsoft Windows RPC
-1720/tcp open  H.323/Q.931   CompTek AquaGateKeeper
-5800/tcp open  vnc-http      RealVNC 4.0 (Resolution 400x250; VNC port: 5900)
-5900/tcp open  vnc           VNC (protocol 3.8)
-MAC Address: 00:A0:CC:63:85:4B (Lite-on Communications)
-Device type: general purpose
-Running: Microsoft Windows NT/2K/XP
-OS details: Microsoft Windows XP Pro RC1+ through final release
-Service Info: OSs: Windows, Windows XP
+TRACEROUTE (using port 80/tcp)
+HOP RTT   ADDRESS
+[Cut first 7 hops for brevity]
+8   10.59 so-4-2-0.mpr3.pao1.us.above.net (64.125.28.142)
+9   11.00 metro0.sv.svcolo.com (208.185.168.173)
+10  9.93  scanme.nmap.org (64.13.134.52)
 
-Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
+Nmap done: 1 IP address (1 host up) scanned in 17.00 seconds
 </screen>
 </example>
 
@@ -2160,7 +2151,7 @@ script knows about its special argument.</para>
 performance.  A default scan (<command>nmap
 <replaceable>hostname</replaceable></command>) of a host on my local
 network takes a fifth of a second.  That is barely enough time to
-blink, but adds up when you are scanning tens or hundreds of thousands
+blink, but adds up when you are scanning hundreds or thousands
 of hosts.  Moreover, certain scan options such as UDP scanning and
 version detection can increase scan times substantially.  So can
 certain firewall configurations, particularly response rate limiting.
@@ -2170,17 +2161,19 @@ runs.  Expert users carefully craft Nmap commands to obtain only the
 information they care about while meeting their time
 constraints.</para>
 
-    <para>Techniques for improving scan times include omitting
-    non-critical tests, and upgrading to the latest version of Nmap
-    (performance enhancements are made frequently).  Optimizing timing
-    parameters can also make a substantial difference.  Those options
-    are listed below.</para>
+<para>Techniques for improving scan times include omitting
+non-critical tests, and upgrading to the latest version of Nmap
+(performance enhancements are made frequently).  Optimizing timing
+parameters can also make a substantial difference.  Those options are
+listed below.</para>
 
 <para>Some options accept a <literal>time</literal> parameter.  This
-is specified in milliseconds by default, though you can append &lsquo;s&rsquo;, &lsquo;m&rsquo;,
-or &lsquo;h&rsquo; to the value to specify seconds, minutes, or hours. So the
+is specified in milliseconds by default, though you can append
+&lsquo;s&rsquo;, &lsquo;m&rsquo;, or &lsquo;h&rsquo; to the value to
+specify seconds, minutes, or hours. So the
 <option>--host-timeout</option> arguments <literal>900000</literal>,
 <literal>900s</literal>, and <literal>15m</literal> all do the same thing.</para>
+
 
     <variablelist>
 
@@ -2285,11 +2278,12 @@ enough by itself.</para>
 <para>Nmap maintains a
 running timeout value for determining how long it will wait for a
 probe response before giving up or retransmitting the probe.  This is
-calculated based on the response times of previous probes.  If
-the network latency shows itself to be significant and variable, this
-timeout can grow to several seconds.  It also starts at a conservative
-(high) level and may stay that way for a while when Nmap scans
-unresponsive hosts.</para>
+calculated based on the response times of previous probes.
+<notman>The exact formula is given in <xref linkend="port-scanning-algorithms" />.</notman>
+If the network latency shows itself to be significant and variable,
+this timeout can grow to several seconds.  It also starts at a
+conservative (high) level and may stay that way for a while when Nmap
+scans unresponsive hosts.</para>
 
 <para>
 Specifying a lower <option>--max-rtt-timeout</option> and
@@ -2344,7 +2338,8 @@ port.  While this benefits accuracy, it also lengthen scan times.
 When performance is critical, scans may be sped up by limiting the
 number of retransmissions allowed.  You can even specify
 <option>--max-retries 0</option> to prevent any retransmissions,
-though that is rarely recommended.
+though that is only recommended for situations such as informal
+surveys where occasional missed ports and hosts are acceptable.
 </para>
 
 <para>The default (with no <option>-T</option> template) is to allow
@@ -2377,11 +2372,10 @@ slowest few percent of the scanned hosts can eat up a majority of the
 scan time.  Sometimes it is best to cut your losses and skip those
 hosts initially.  Specify 
 <option>--host-timeout</option> with the maximum amount of time you
-are willing to wait.  I
-often specify <literal>30m</literal> to ensure that Nmap doesn't waste
+are willing to wait.  For example,
+specify <literal>30m</literal> to ensure that Nmap doesn't waste
 more than half an hour on a single host.  Note that Nmap may be
-scanning other hosts at the same time during that half an hour as
-well, so it isn't a complete loss.  A host that times out is skipped.
+scanning other hosts at the same time during that half an hour, so it isn't a complete loss.  A host that times out is skipped.
 No port table, OS detection, or version detection results are printed
 for that host.</para>
 
@@ -2400,7 +2394,7 @@ for that host.</para>
 
 <para>This option causes Nmap to wait at least the given amount of
 time between each probe it sends to a given host.  This is
-particularly useful in the case of rate limiting.  Solaris machines
+particularly useful in the case of rate limiting.<indexterm><primary>rate limiting</primary></indexterm>  Solaris machines
 (among many others) will usually respond to UDP scan probe packets
 with only one ICMP message per second.  Any more than that sent by
 Nmap will be wasteful.  A <option>--scan-delay</option> of
@@ -2412,13 +2406,18 @@ works best.</para>
 <para>When Nmap adjusts the scan delay upward to cope with rate
 limiting, the scan slows down dramatically.  The
 <option>--max-scan-delay</option> option specifies the largest delay
-that Nmap will allow.  Setting this value too low can lead to wasteful
+that Nmap will allow.  A low <option>--max-scan-delay</option>
+can speed up Nmap, but it is risky.  Setting this value too low can lead to wasteful
 packet retransmissions and possible missed ports when the target
 implements strict rate limiting.</para>
 
 <para>Another use of <option>--scan-delay</option> is to evade
 threshold based intrusion detection and prevention systems
-(IDS/IPS).<indexterm><primary>intrusion detection systems</primary><secondary>evading</secondary></indexterm>
+(IDS/IPS).<indexterm><primary>intrusion detection
+systems</primary><secondary>evading</secondary></indexterm> <notman>This
+technique is used in <xref linkend="defeating-ids-snort-portscan" />
+to defeat the default port scan detector in Snort IDS.  Most other
+intrusion detection systems can be defeated in the same way.</notman>
 </para>
 
         </listitem>
@@ -2426,52 +2425,68 @@ threshold based intrusion detection and prevention systems
 
       <varlistentry>
         <term>
-        <option>--min-rate <replaceable>number</replaceable></option>
-        (Specify a minimum scanning rate)
+        <option>--min-rate <replaceable>number</replaceable></option>; <option>--max-rate <replaceable>number</replaceable></option>
+        (Directly control the scanning rate)
         <indexterm><primary><option>--min-rate</option></primary></indexterm>
+        <indexterm><primary><option>--max-rate</option></primary></indexterm>
         </term>
         <listitem>
 
 <para>Nmap's dynamic timing does a good job of finding an appropriate
 speed at which to scan. Sometimes, however, you may happen to know an
 appropriate scanning rate for a network, or you may have to guarantee
-that a scan will be finished by a certain time. When the
+that a scan will be finished by a certain time. Or perhaps you must keep
+Nmap from scanning too quickly. The <option>--min-rate</option> and
+<option>--max-rate</option> options are designed for these
+situations.</para>
+
+<para>When the
 <option>--min-rate</option> option is given Nmap will do its best to
-send packets as fast or faster than the given rate. The argument is a
+send packets as fast as or faster than the given rate. The argument is a
 positive real number representing a packet rate in packets per second.
 For example, specifying <option>--min-rate 300</option> means that
 Nmap will try to keep the sending rate at or above 300 packets per
 second. Specifying a minimum rate does not keep Nmap from going faster
 if conditions warrant.</para>
 
+<para>Likewise, <option>--max-rate</option> limits a scan's sending rate to a
+given maximum. Use <option>--max-rate 100</option>, for example, to
+limit sending to 100 packets per second on a fast network. Use
+<option>--max-rate 0.1</option> for a slow scan of one packet every ten
+seconds. Use <option>--min-rate</option> and <option>--max-rate</option>
+together to keep the rate inside a certain range.</para>
+
+<para>These two options are global, affecting an entire scan, not
+individual hosts. They only affect port scans and host discovery scans.
+Other features like OS detection implement their own timing.</para>
+
 <para>There are two conditions when the actual scanning rate may fall
-below the specified minimum. The first is if the minimum is faster than
+below the requested minimum. The first is if the minimum is faster than
 the fastest rate at which Nmap can send, which is dependent on hardware.
-In this case Nmap will send packets as fast as possible, but be aware
-that such high rates are likely to cause a loss of accuracy. The second
-case is when Nmap has nothing to send, for example at the end of a scan
-when the last probes have been sent and Nmap is waiting for them to time
-out or be responded to. It's normal to see the scanning rate drop at the
-end of a scan or in between groups of hosts.</para>
+In this case Nmap will simply send packets as fast as possible, but be
+aware that such high rates are likely to cause a loss of accuracy. The
+second case is when Nmap has nothing to send, for example at the end of
+a scan when the last probes have been sent and Nmap is waiting for them
+to time out or be responded to. It's normal to see the scanning rate
+drop at the end of a scan or in between hostgroups. The sending rate may
+temporarily exceed the maximum to make up for unpredictable delays, but
+on average the rate will stay at or below the maximum.</para>
 
 <para>Specifying a minimum rate should be done with care. Scanning
 faster than a network can support may lead to a loss of accuracy. In
 some cases, using a faster rate can make a scan take
 <emphasis>longer</emphasis> than it would with a slower rate. This is
-because Nmap's adaptive
-retransmission<indexterm><primary>adaptive retransmission</primary><see>retransmission</see></indexterm><indexterm><primary>retransmission</primary></indexterm>
-will detect the network congestion caused by an excessive scanning rate
+because Nmap's
+<notman><link linkend="scan-methods-adaptive-retransmission">adaptive
+retransmission</link><indexterm><primary>adaptive retransmission</primary><see>retransmission</see></indexterm><indexterm><primary>retransmission</primary></indexterm>
+</notman>
+<man>adaptive retransmission</man>
+algorithms will detect the network congestion caused by an excessive scanning rate
 and increase the number of retransmissions in order to improve accuracy.
 So even though packets are sent at a higher rate, more packets are sent
 overall. Cap the number of retransmissions with the
-<option>--max-retries</option>
-option if you need to set an upper limit on total scan
+<option>--max-retries</option> option if you need to set an upper limit on total scan
 time.</para>
-
-<para>The <option>--min-rate</option> option is global, affecting an
-entire scan, not individual hosts. It only affects port and host
-discovery scans. Other features like OS detection implement their own
-timing.</para>
 
         </listitem>
       </varlistentry>
@@ -2484,23 +2499,6 @@ timing.</para>
         </term>
         <listitem>
 
-<para>Complementary to <option>--min-rate</option> is
-<option>--max-rate</option>, which limits a scan's sending rate to a
-given maximum. Use <option>--max-rate 100</option>, for example, to
-limit sending to 100 packets per second on a fast network. Use
-<option>--max-rate 0.1</option> for a slow scan of one packet every ten
-seconds.</para>
-
-<para><option>--max-rate</option>, like <option>--min-rate</option>, is
-a global option affecting an entire scan. It affects only port and host
-discovery scans.</para>
-
-<para>The sending rate may temporarily exceed the maximum to make up for
-unpredictable delays, but on average the rate will stay at or below the
-maximum. Nmap may go slower than the maximum rate if conditions require
-it. To keep the sending rate within a specified range, use
-<option>--min-rate</option> and <option>--max-rate</option>
-together.</para>
 
         </listitem>
       </varlistentry>

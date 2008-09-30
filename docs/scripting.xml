@@ -177,7 +177,7 @@ PORT    STATE  SERVICE
 Host script results:
 |_ RIPE Query: IP belongs to:          Internet Assigned Numbers Authority
 
-Nmap finished: 1 IP address (1 host up) scanned in 0.907 seconds
+Nmap done: 1 IP address (1 host up) scanned in 0.91 seconds
 </screen>
     </example>
 
@@ -3482,7 +3482,7 @@ local localip, localport  = client_service:get_info()
 <programlisting>
 --- Checks if an FTP server allows anonymous logins.
 -- @output
--- |_ Anonymous FTP: Anonymous login allowed"
+-- |_ Anonymous FTP: Anonymous login allowed
 </programlisting>
       The standard NSE fields are used to gather other information about a
       script such as the author or its categories:
@@ -3754,7 +3754,7 @@ PORT   STATE SERVICE VERSION
 80/tcp open  [Name]  [Product] [Version] ([ExtraInfo])
 Service Info: Host: [HostName]; OS: [OSType]; Device: [DeviceType]
 
-Nmap finished: 1 IP address (1 host up) scanned in 9.317 seconds
+Nmap done: 1 IP address (1 host up) scanned in 9.32 seconds
 </screen>
     </para>
     <para>
