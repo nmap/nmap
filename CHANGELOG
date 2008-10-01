@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Nmap output is automatically scrolled. [David]
+
 o Reduced memory consumption for some longer running scans by removing
   completed hosts from the lists after two minutes.  These hosts are
   kept around in case there is a late response, but this draws the
