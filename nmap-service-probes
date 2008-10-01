@@ -1923,133 +1923,133 @@ match sourceoffice m|^250\r\nProtocol-Version:(\d[.\d]+)\r\nMessage-ID:\d+\r\nDa
 match spmd m|^SPMD_ACK\0\0\x01\0\x01$| p/Softimage XSI SPMD license server/ o/Windows/
 
 match ssh m|^\0\0\0\$\0\0\0\0\x01\0\0\0\x1bNo host key is configured!\n\r!\"v| p/Foundry Networks switch sshd/ i/broken: No host key configured/
-match ssh m|^SSH-(\d[\d.]+)-SSF-(\d[-.\w]+)\n| p/SSF French SSH/ v/$2/ i/protocol $1/
+match ssh m|^SSH-(\d[\d.]+)-SSF-(\d[-.\w]+)\r?\n| p/SSF French SSH/ v/$2/ i/protocol $1/
 match ssh m|^SSH-(\d[\d.]+)-lshd_(\d[-.\w]+) lsh - a free ssh\r\n\0\0| p/lshd secure shell/ v/$2/ i/protocol $1/
 match ssh m|^SSH-(\d[\d.]+)-lshd-(\d[-.\w]+) lsh - a GNU ssh\r\n\0\0| p/lshd secure shell/ v/$2/ i/protocol $1/
 match ssh m/^SSH-([.\d]+)-Sun_SSH_(\S+)/ p/SunSSH/ v/$2/ i/protocol $1/
 match ssh m/^SSH-([.\d]+)-meow roototkt by rebel/ p/meow SSH ROOTKIT/ i/protocol $1/
 # Akamai hosted systems tend to run this - found on www.microsoft.com
-match ssh m|^SSH-(\d[.\d]*)-(AKAMAI-I*)\n$| p/Akamai SSH/ v/$2/ i/protocol $1/
-match ssh m|^SSH-(\d[.\d]*)-(Server-V)\n$| p/Akamai SSH/ v/$2/ i/protocol $1/
-match ssh m|^SSH-(\d[.\d]*)-(Server-VI)\n$| p/Akamai SSH/ v/$2/ i/protocol $1/
-match ssh m|^SSH-(\d[.\d]*)-(Server-VII)\n| p/Akamai SSH/ v/$2/ i/protocol $1/
-match ssh m|^SSH-(\d[.\d]+)-Cisco-(\d[.\d]+)\n$| p/Cisco SSH/ v/$2/ i/protocol $1/ o/IOS/
-match ssh m|^SSH-(\d[.\d]+)-CiscoIOS_([\d.]+)XA\n| p/Cisco SSH/ v/$2/ i/protocol $1; Chinese IOS XA/ o/IOS/
+match ssh m|^SSH-(\d[.\d]*)-(AKAMAI-I*)\r?\n$| p/Akamai SSH/ v/$2/ i/protocol $1/
+match ssh m|^SSH-(\d[.\d]*)-(Server-V)\r?\n$| p/Akamai SSH/ v/$2/ i/protocol $1/
+match ssh m|^SSH-(\d[.\d]*)-(Server-VI)\r?\n$| p/Akamai SSH/ v/$2/ i/protocol $1/
+match ssh m|^SSH-(\d[.\d]*)-(Server-VII)\r?\n| p/Akamai SSH/ v/$2/ i/protocol $1/
+match ssh m|^SSH-(\d[.\d]+)-Cisco-(\d[.\d]+)\r?\n$| p/Cisco SSH/ v/$2/ i/protocol $1/ o/IOS/
+match ssh m|^SSH-(\d[.\d]+)-CiscoIOS_([\d.]+)XA\r?\n| p/Cisco SSH/ v/$2/ i/protocol $1; Chinese IOS XA/ o/IOS/
 match ssh m|^\r\nDestination server does not have Ssh activated\.\r\nContact Cisco Systems, Inc to purchase a\r\nlicense key to activate Ssh\.\r\n| p/Cisco CSS SSH/ i/Unlicensed/
-match ssh m|^SSH-(\d[.\d]+)-VShell_(\d[._\d]+) VShell\r\n$| p/VanDyke VShell sshd/ v/$SUBST(2,"_",".")/ i/protocol $1/
-match ssh m|^SSH-2\.0-0\.0 \r\n| p/VanDyke VShell sshd/ i/version info hidden; protocol 2.0/
-match ssh m|^SSH-([\d.]+)-([\w.]+) VShell\r\n| p/VanDyke VShell/ v/$2/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-([\w.]+) \(beta\) VShell\r\n| p/VanDyke VShell/ v/$2 beta/ i/protocol $1/
-match ssh m/^SSH-([.\d]+)-(\d[-.\w]+) sshlib: WinSSHD (\d[-.\w]+)\r\n/ p/Bitvise WinSSHD/ v/$3/ i/sshlib $2; protocol $1/ o/Windows/
-match ssh m/^SSH-([.\d]+)-(\d[-.\w]+) sshlib: WinSSHD\r\n/ p/Bitvise WinSSHD/ i/sshlib $2; protocol $1; server version hidden/ o/Windows/
+match ssh m|^SSH-(\d[.\d]+)-VShell_(\d[._\d]+) VShell\r?\n$| p/VanDyke VShell sshd/ v/$SUBST(2,"_",".")/ i/protocol $1/
+match ssh m|^SSH-2\.0-0\.0 \r?\n| p/VanDyke VShell sshd/ i/version info hidden; protocol 2.0/
+match ssh m|^SSH-([\d.]+)-([\w.]+) VShell\r?\n| p/VanDyke VShell/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-([\w.]+) \(beta\) VShell\r?\n| p/VanDyke VShell/ v/$2 beta/ i/protocol $1/
+match ssh m/^SSH-([.\d]+)-(\d[-.\w]+) sshlib: WinSSHD (\d[-.\w]+)\r?\n/ p/Bitvise WinSSHD/ v/$3/ i/sshlib $2; protocol $1/ o/Windows/
+match ssh m/^SSH-([.\d]+)-(\d[-.\w]+) sshlib: WinSSHD\r?\n/ p/Bitvise WinSSHD/ i/sshlib $2; protocol $1; server version hidden/ o/Windows/
 # Cisco VPN 3000 Concentrator
 # Cisco VPN Concentrator 3005 - Cisco Systems, Inc./VPN 3000 Concentrator Version 4.0.1.B Jun 20 2003
-match ssh m/^SSH-([.\d]+)-OpenSSH\n$/ p/OpenSSH/ i/protocol $1/ d/terminal server/
-match ssh m|^SSH-1\.5-X\n| p/Cisco VPN Concentrator SSHd/ i/protocol 1.5/ d/terminal server/
-match ssh m|^SSH-([\d.]+)-NetScreen\r\n| p/NetScreen sshd/ i/protocol $1/ d/firewall/
-match ssh m|^SSH-1\.5-FucKiT RootKit by Cyrax\n| p/FucKiT RootKit sshd/ i/**BACKDOOR** protocol 1.5/ o/Linux/
-match ssh m|^SSH-2\.0-dropbear_([-\w.]+)\r\n| p/Dropbear sshd/ v/$1/ i/protocol 2.0/
-match ssh m|^SSH-2\.0-dropbear_([\w.]+)-Freesco-p(\d+)\r\n| p/Dropbear sshd/ i/Freesco p$2; protocol $1/ o/Linux/
+match ssh m/^SSH-([.\d]+)-OpenSSH\r?\n$/ p/OpenSSH/ i/protocol $1/ d/terminal server/
+match ssh m|^SSH-1\.5-X\r?\n| p/Cisco VPN Concentrator SSHd/ i/protocol 1.5/ d/terminal server/
+match ssh m|^SSH-([\d.]+)-NetScreen\r?\n| p/NetScreen sshd/ i/protocol $1/ d/firewall/
+match ssh m|^SSH-1\.5-FucKiT RootKit by Cyrax\r?\n| p/FucKiT RootKit sshd/ i/**BACKDOOR** protocol 1.5/ o/Linux/
+match ssh m|^SSH-2\.0-dropbear_([-\w.]+)\r?\n| p/Dropbear sshd/ v/$1/ i/protocol 2.0/
+match ssh m|^SSH-2\.0-dropbear_([\w.]+)-Freesco-p(\d+)\r?\n| p/Dropbear sshd/ i/Freesco p$2; protocol $1/ o/Linux/
 match ssh m|^Access to service sshd from [-\w_.]+@[-\w_.]+ has been denied\.\r\n| p/libwrap'd OpenSSH/ i/Access denied/
-match ssh m|^SSH-([\d.]+)-FortiSSH_([\d.]+)\n| p/FortiSSH/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-FortiSSH_([\d.]+)\r?\n| p/FortiSSH/ v/$2/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-cryptlib\r?\n| p/APC AOS cryptlib sshd/ i/protocol $1/ o/AOS/
-match ssh m/^SSH-([.\d]+)-([.\d]+) Radware\n$/ p/Radware Linkproof SSH/ v/$2/ i/protocol $1/ d/terminal server/
-match ssh m|^SSH-2\.0-1\.0 Radware SSH \r\n| p/Radware sshd/ i|protocol 2.0| d/firewall/
-match ssh m|^SSH-([\d.]+)-Radware_([\d.]+)\r\n| p/Radware sshd/ v/$2/ i/protocol $1/ d/firewall/
-match ssh m|^SSH-1\.5-By-ICE_4_All \( Hackers Not Allowed! \)\n| p/ICE_4_All backdoor sshd/ i/**BACKDOOR** protocol 1.5/
-match ssh m|^SSH-2\.0-mpSSH_([\d.]+)\n| p/HP Integrated Lights Out mpSSH/ v/$1/ i/protocol 2.0/
-match ssh m|^SSH-2\.0-Unknown\n| p/Allot Netenforcer OpenSSH/ i/protocol 2.0/
-match ssh m|^SSH-2\.0-FrSAR ([\d.]+) TRUEX COMPT 32/64\r\n| p/FrSAR truex compt sshd/ v/$1/ i/protocol 2.0/
-match ssh m|^SSH-2\.0-(\d{8,12})\n| p/Netpilot config access/ v/$1/ i/protocol 2.0/
-match ssh m|^SSH-([\d.]+)-RomCliSecure_([\d.]+)\r\n| p/Adtran Netvanta RomCliSecure sshd/ v/$2/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-([\d.]+) sshlib: GlobalScape\r\n| p/GlobalScape CuteFTP sshd/ i/sshlib $2; protocol $1/ o/Windows/
-match ssh m|^SSH-2\.0-APSSH_([\w.]+)\n| p/APSSHd/ v/$1/ i/protocol 2.0/
-match ssh m|^SSH-2\.0-Twisted\r\n| p/Kojoney SSH honeypot/ i/protocol 2.0/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)\r\n.*aes256|s p/Kojoney SSH honeypot/ i/Pretending to be $2; protocol $1/
-match ssh m|^SSH-2\.0-Mocana SSH \r\n| p/Mocanada embedded SSH/ i/protocol 2.0/
-match ssh m|^SSH-1\.99-InteropSecShell_([\d.]+)\n| p/InteropSystems SSH/ v/$1/ i/protocol 1.99/ o/Windows/
-match ssh m|^SSH-2\.0-WeOnlyDo(-wodFTPD)? ([\d.]+)\r\n| p/WeOnlyDo sshd/ v/$2/ i/protocol 2.0/ o/Windows/
-match ssh m|^SSH-2\.0-WeOnlyDo-([\d.]+)\r\n| p/WeOnlyDo sshd/ v/$1/ i/protocol 2.0/ o/Windows/
-match ssh m|^SSH-2\.0-PGP\n| p/PHP Universal sshd/ i/protocol 2.0/
-match ssh m|^SSH-([\d.]+)-libssh-([-\w.]+)\r\n| p/libssh/ v/$2/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-HUAWEI-VRP([\d.]+)\n| p/HUAWEI VRP sshd/ v/$2/ i/protocol $1/ o/VRP/ d/router/
-match ssh m|^SSH-([\d.]+)-VRP-([\d.]+)\n| p/HUAWEI VRP sshd/ v/$2/ i/protocol $1/ o/VRP/ d/router/
-match ssh m|^SSH-([\d.]+)-lancom\r\n| p/lancom sshd/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-xxxxxxx\n| p|Fortinet VPN/firewall sshd| i/protocol $1/ d/firewall/
-match ssh m|^SSH-([\d.]+)-AOS_SSH\n| p/AOS sshd/ i/protocol $1/ o/AOS/
-match ssh m|^SSH-([\d.]+)-RedlineNetworksSSH_([\d.]+) Derived_From_OpenSSH-([\d.])+\n| p/RedLineNetworks sshd/ v/$2/ i/Derived from OpenSSH $3; protocol $1/
+match ssh m/^SSH-([.\d]+)-([.\d]+) Radware\r?\n$/ p/Radware Linkproof SSH/ v/$2/ i/protocol $1/ d/terminal server/
+match ssh m|^SSH-2\.0-1\.0 Radware SSH \r?\n| p/Radware sshd/ i|protocol 2.0| d/firewall/
+match ssh m|^SSH-([\d.]+)-Radware_([\d.]+)\r?\n| p/Radware sshd/ v/$2/ i/protocol $1/ d/firewall/
+match ssh m|^SSH-1\.5-By-ICE_4_All \( Hackers Not Allowed! \)\r?\n| p/ICE_4_All backdoor sshd/ i/**BACKDOOR** protocol 1.5/
+match ssh m|^SSH-2\.0-mpSSH_([\d.]+)\r?\n| p/HP Integrated Lights Out mpSSH/ v/$1/ i/protocol 2.0/
+match ssh m|^SSH-2\.0-Unknown\r?\n| p/Allot Netenforcer OpenSSH/ i/protocol 2.0/
+match ssh m|^SSH-2\.0-FrSAR ([\d.]+) TRUEX COMPT 32/64\r?\n| p/FrSAR truex compt sshd/ v/$1/ i/protocol 2.0/
+match ssh m|^SSH-2\.0-(\d{8,12})\r?\n| p/Netpilot config access/ v/$1/ i/protocol 2.0/
+match ssh m|^SSH-([\d.]+)-RomCliSecure_([\d.]+)\r?\n| p/Adtran Netvanta RomCliSecure sshd/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-([\d.]+) sshlib: GlobalScape\r?\n| p/GlobalScape CuteFTP sshd/ i/sshlib $2; protocol $1/ o/Windows/
+match ssh m|^SSH-2\.0-APSSH_([\w.]+)\r?\n| p/APSSHd/ v/$1/ i/protocol 2.0/
+match ssh m|^SSH-2\.0-Twisted\r?\n| p/Kojoney SSH honeypot/ i/protocol 2.0/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)\r?\n.*aes256|s p/Kojoney SSH honeypot/ i/Pretending to be $2; protocol $1/
+match ssh m|^SSH-2\.0-Mocana SSH \r?\n| p/Mocanada embedded SSH/ i/protocol 2.0/
+match ssh m|^SSH-1\.99-InteropSecShell_([\d.]+)\r?\n| p/InteropSystems SSH/ v/$1/ i/protocol 1.99/ o/Windows/
+match ssh m|^SSH-2\.0-WeOnlyDo(-wodFTPD)? ([\d.]+)\r?\n| p/WeOnlyDo sshd/ v/$2/ i/protocol 2.0/ o/Windows/
+match ssh m|^SSH-2\.0-WeOnlyDo-([\d.]+)\r?\n| p/WeOnlyDo sshd/ v/$1/ i/protocol 2.0/ o/Windows/
+match ssh m|^SSH-2\.0-PGP\r?\n| p/PHP Universal sshd/ i/protocol 2.0/
+match ssh m|^SSH-([\d.]+)-libssh-([-\w.]+)\r?\n| p/libssh/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-HUAWEI-VRP([\d.]+)\r?\n| p/HUAWEI VRP sshd/ v/$2/ i/protocol $1/ o/VRP/ d/router/
+match ssh m|^SSH-([\d.]+)-VRP-([\d.]+)\r?\n| p/HUAWEI VRP sshd/ v/$2/ i/protocol $1/ o/VRP/ d/router/
+match ssh m|^SSH-([\d.]+)-lancom\r?\n| p/lancom sshd/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-xxxxxxx\r?\n| p|Fortinet VPN/firewall sshd| i/protocol $1/ d/firewall/
+match ssh m|^SSH-([\d.]+)-AOS_SSH\r?\n| p/AOS sshd/ i/protocol $1/ o/AOS/
+match ssh m|^SSH-([\d.]+)-RedlineNetworksSSH_([\d.]+) Derived_From_OpenSSH-([\d.])+\r?\n| p/RedLineNetworks sshd/ v/$2/ i/Derived from OpenSSH $3; protocol $1/
 match ssh m|^SSH-([\d.]+)-DLink Corp\. SSH server ver ([\d.]+)\r?\n| p/D-Link sshd/ v/$2/ i/protocol $1/ d/router/
-match ssh m|^SSH-([\d.]+)-FreSSH\.([\d.]+)\n| p/FreSSH/ v/$2/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-Neteyes-C-Series_([\d.]+)\r\n| p/Neteyes C Series load balancer sshd/ v/$2/ i/protocol $1/ d/load balancer/
-match ssh m|^SSH-([\d.]+)-IPSSH-([\d.]+)\r\n| p|Cisco/3com IPSSHd| v/$2/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-DigiSSH_([\d.]+)\n| p/Digi CM sshd/ v/$2/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-0 Tasman Networks Inc\.\n| p/Tasman router sshd/ i/protocol $1/ d/router/
-match ssh m|^SSH-([\d.]+)-([\w.]+)rad\n| p/Rad Java SFTPd/ v/$2/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\d.]+) in DesktopAuthority ([\d.]+)\n| p/DesktopAuthority OpenSSH/ v/$2/ i/DesktopAuthority $3; protocol $1/ o/Windows/
-match ssh m|^SSH-([\d.]+)-NOS-SSH_([\d.]+)\n| p/3Com WX4400 NOS sshd/ v/$2/ i/protocol $1/ d/WAP/
-match ssh m|^SSH-1\.5-SSH\.0\.1\n| p/Dell PowerConnect sshd/ i/protocol 1.5/ d/power-device/
-match ssh m|^SSH-([\d.]+)-Ingrian_SSH\n| p/Ingrian SSH/ i/protocol $1/ d/security-misc/
-match ssh m|^SSH-([\d.]+)-PSFTPd PE\. Secure FTP Server ready\r\n| p/PSFTPd sshd/ i/protocol $1/ o/Windows/
-match ssh m|^SSH-([\d.]+)-BlueArcSSH_([\d.]+)\n| p/BlueArc sshd/ v/$2/ i/protocol $1/ d/storage-misc/
-match ssh m|^SSH-([.\d]+)-Zyxel SSH server\n| p/ZyXEL ZyWALL sshd/ o/ZyNOS/ d/security-misc/ i/protocol $1/
-match ssh m|^SSH-([.\d]+)-paramiko_([\w-_.]+)\r\n| p/Paramiko Python sshd/ v/$2/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-USHA SSHv([\w-_.]+)\n| p/ConnectUPS SNMP card sshd/ v/$2/ i/protocol $1/ d/remote-management/
-match ssh m|^SSH-2\.0-SSH_0\.2\n$| p/3com WAP sshd/ d/WAP/ v/0.2/ i/protocol 2.0/
-match ssh m|^SSH-([\d.]+)-CoreFTP-([\w-_.]+)\r\n| p/CoreFTP sshd/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-FreSSH\.([\d.]+)\r?\n| p/FreSSH/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-Neteyes-C-Series_([\d.]+)\r?\n| p/Neteyes C Series load balancer sshd/ v/$2/ i/protocol $1/ d/load balancer/
+match ssh m|^SSH-([\d.]+)-IPSSH-([\d.]+)\r?\n| p|Cisco/3com IPSSHd| v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-DigiSSH_([\d.]+)\r?\n| p/Digi CM sshd/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-0 Tasman Networks Inc\.\r?\n| p/Tasman router sshd/ i/protocol $1/ d/router/
+match ssh m|^SSH-([\d.]+)-([\w.]+)rad\r?\n| p/Rad Java SFTPd/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\d.]+) in DesktopAuthority ([\d.]+)\r?\n| p/DesktopAuthority OpenSSH/ v/$2/ i/DesktopAuthority $3; protocol $1/ o/Windows/
+match ssh m|^SSH-([\d.]+)-NOS-SSH_([\d.]+)\r?\n| p/3Com WX4400 NOS sshd/ v/$2/ i/protocol $1/ d/WAP/
+match ssh m|^SSH-1\.5-SSH\.0\.1\r?\n| p/Dell PowerConnect sshd/ i/protocol 1.5/ d/power-device/
+match ssh m|^SSH-([\d.]+)-Ingrian_SSH\r?\n| p/Ingrian SSH/ i/protocol $1/ d/security-misc/
+match ssh m|^SSH-([\d.]+)-PSFTPd PE\. Secure FTP Server ready\r?\n| p/PSFTPd sshd/ i/protocol $1/ o/Windows/
+match ssh m|^SSH-([\d.]+)-BlueArcSSH_([\d.]+)\r?\n| p/BlueArc sshd/ v/$2/ i/protocol $1/ d/storage-misc/
+match ssh m|^SSH-([.\d]+)-Zyxel SSH server\r?\n| p/ZyXEL ZyWALL sshd/ o/ZyNOS/ d/security-misc/ i/protocol $1/
+match ssh m|^SSH-([.\d]+)-paramiko_([\w-_.]+)\r?\n| p/Paramiko Python sshd/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-USHA SSHv([\w-_.]+)\r?\n| p/ConnectUPS SNMP card sshd/ v/$2/ i/protocol $1/ d/remote-management/
+match ssh m|^SSH-2\.0-SSH_0\.2\r?\n$| p/3com WAP sshd/ d/WAP/ v/0.2/ i/protocol 2.0/
+match ssh m|^SSH-([\d.]+)-CoreFTP-([\w-_.]+)\r?\n| p/CoreFTP sshd/ v/$2/ i/protocol $1/
 
 # These are strange ones. These routers pretend to be OpenSSH, but don't do it that well (see the \r):
-match ssh m|^SSH-2\.0-OpenSSH\r\n| p/Linksys WRT45G modified dropbear sshd/ i/protocol 2.0/ d/router/
-match ssh m|^SSH-2\.0-OpenSSH_3\.6p1\r\n| p|D-Link/Netgear DSL router modified dropbear sshd| i/protocol 2.0/ d/router/
+match ssh m|^SSH-2\.0-OpenSSH\r?\n| p/Linksys WRT45G modified dropbear sshd/ i/protocol 2.0/ d/router/
+match ssh m|^SSH-2\.0-OpenSSH_3\.6p1\r?\n| p|D-Link/Netgear DSL router modified dropbear sshd| i/protocol 2.0/ d/router/
 
 # F-Secure/WRQ
-match ssh m|^SSH-([\d.]+)-([\d.]+) F-Secure SSH Windows NT Server\r\n| p/F-Secure WinNT sshd/ v/$2/ i/protocol $1/ o/Windows/
-match ssh m|^SSH-([\d.]+)-([\d.]+) dss F-SECURE SSH\r\n| p/F-Secure sshd/ v/$2/ i/dss-only; protocol $1/
-match ssh m|^SSH-([\d.]+)-([\d.]+) F-SECURE SSH.*\r\n| p/F-Secure sshd/ v/$2/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-ReflectionForSecureIT_([-\w_.]+)\r\n| p/WRQ Reflection for Secure IT sshd/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-([\d.]+) F-Secure SSH Windows NT Server\r?\n| p/F-Secure WinNT sshd/ v/$2/ i/protocol $1/ o/Windows/
+match ssh m|^SSH-([\d.]+)-([\d.]+) dss F-SECURE SSH\r?\n| p/F-Secure sshd/ v/$2/ i/dss-only; protocol $1/
+match ssh m|^SSH-([\d.]+)-([\d.]+) F-SECURE SSH.*\r?\n| p/F-Secure sshd/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-ReflectionForSecureIT_([-\w_.]+)\r?\n| p/WRQ Reflection for Secure IT sshd/ v/$2/ i/protocol $1/
 
 # SCS
-match ssh m|^SSH-(\d[.\d]+)-SSH Protocol Compatible Server SCS (\d[-.\w]+)\n| p/SCS NetScreen sshd/ v/$2/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-SSH Compatible Server\n| p/SCS NetScreen sshd/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-([\d.]+) SSH Secure Shell Tru64 UNIX\r\n| p/SCS sshd/ v/$2/ i/protocol $1/ o/Tru64 UNIX/
+match ssh m|^SSH-(\d[.\d]+)-SSH Protocol Compatible Server SCS (\d[-.\w]+)\r?\n| p/SCS NetScreen sshd/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-SSH Compatible Server\r?\n| p/SCS NetScreen sshd/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-([\d.]+) SSH Secure Shell Tru64 UNIX\r?\n| p/SCS sshd/ v/$2/ i/protocol $1/ o/Tru64 UNIX/
 match ssh m/^SSH-([.\d]+)-(\d+\.\d+\.\d+) SSH Secure Shell/ p/SCS sshd/ v/$2/ i/protocol $1/
 match ssh m|^sshd: SSH Secure Shell (\d[-.\w]+) on ([-.\w]+)\nSSH-(\d[.\d]+)-| p/SCS SSH Secure Shell/ v/$1/ i/on $2; protocol $3/
 match ssh m|^sshd: SSH Secure Shell (\d[-.\w]+) \(([^\r\n\)]+)\) on ([-.\w]+)\nSSH-(\d[.\d]+)-| p/SCS sshd/ v/$1/ i/$2; on $3; protocol $4/
-match ssh m|^sshd2\[\d+\]: .*\r\nSSH-(\d[\d.]+)-(\d[-.\w]+) SSH Secure Shell \(([^\r\n\)]+)\)\r\n| p/SCS sshd/ v/$2/ i/protocol $1/
+match ssh m|^sshd2\[\d+\]: .*\r\nSSH-(\d[\d.]+)-(\d[-.\w]+) SSH Secure Shell \(([^\r\n\)]+)\)\r?\n| p/SCS sshd/ v/$2/ i/protocol $1/
 match ssh m/^SSH-([.\d]+)-(\d+\.\d+\.[-.\w]+)/ p/SCS sshd/ v/$2/ i/protocol $1/
 
 # OpenSSH
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) Debian-(\S*maemo\S*)\n| p/OpenSSH/ v/$2 Debian $1/ i/Nokia Maemo tablet; protocol $1/ o/Linux/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)[ -]Debian[ -]([^\r\n]ubuntu[\d.]+)\n| p/OpenSSH/ v/$2 Debian $3/ i/protocol $1/ o/Linux/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)[ -]{1,2}Debian[ -]([^\r\n]+)\n| p/OpenSSH/ v/$2 Debian $3/ i/protocol $1/ o/Linux/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) FreeBSD-([\d]+)\n| p/OpenSSH/ v/$2/ i/FreeBSD $3; protocol $1/ o/FreeBSD/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) FreeBSD localisations (\d+)\n| p/OpenSSH/ v/$2/ i/FreeBSD $3; protocol $1/ o/FreeBSD/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w.]+) FreeBSD-openssh-portable-([\w.,]+)\n| p/OpenSSH/ v/$2/ i/protocol $1/ o/FreeBSD/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) Debian-(\S*maemo\S*)\r?\n| p/OpenSSH/ v/$2 Debian $1/ i/Nokia Maemo tablet; protocol $1/ o/Linux/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)[ -]Debian[ -]([^\r\n]ubuntu[\d.]+)\r?\n| p/OpenSSH/ v/$2 Debian $3/ i/protocol $1/ o/Linux/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)[ -]{1,2}Debian[ -]([^\r\n]+)\r?\n| p/OpenSSH/ v/$2 Debian $3/ i/protocol $1/ o/Linux/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) FreeBSD-([\d]+)\r?\n| p/OpenSSH/ v/$2/ i/FreeBSD $3; protocol $1/ o/FreeBSD/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) FreeBSD localisations (\d+)\r?\n| p/OpenSSH/ v/$2/ i/FreeBSD $3; protocol $1/ o/FreeBSD/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w.]+) FreeBSD-openssh-portable-([\w.,]+)\r?\n| p/OpenSSH/ v/$2/ i/protocol $1/ o/FreeBSD/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w.]+) FreeBSD-openssh-portable-overwrite-base| p/OpenSSH/ v/$2/ i/protocol $1; overwrite base SSH/ o/FreeBSD/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w.]+) FreeBSD-openssh-gssapi-| p/OpenSSH/ v/$2/ i/gssapi; protocol $1/ o/FreeBSD/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) miniBSD-([\d]+)\n| p/OpenSSH/ v/$2/ i/MiniBSD $3; protocol $1/ o/MiniBSD/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) NetBSD_Secure_Shell-([\d]+)\n| p/OpenSSH/ v/$2/ i/NetBSD $3; protocol $1/ o/NetBSD/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)_Mikrotik_v([\d.]+)\n| p/OpenSSH/ v/$2 mikrotik $3/ i/protocol $1/ d/router/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) in RemotelyAnywhere ([\d.]+)\n| p/OpenSSH/ v/$2/ i/RemotelyAnywhere $3; protocol $1/ o/Windows/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)\+CAN-2004-0175\n| p/OpenSSH/ v/$2+CAN-2004-0175/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) NCSA_GSSAPI_20040818 KRB5\n| p/OpenSSH/ v/$2 NCSA_GSSAPI_20040818 KRB5/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) miniBSD-([\d]+)\r?\n| p/OpenSSH/ v/$2/ i/MiniBSD $3; protocol $1/ o/MiniBSD/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) NetBSD_Secure_Shell-([\d]+)\r?\n| p/OpenSSH/ v/$2/ i/NetBSD $3; protocol $1/ o/NetBSD/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)_Mikrotik_v([\d.]+)\r?\n| p/OpenSSH/ v/$2 mikrotik $3/ i/protocol $1/ d/router/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) in RemotelyAnywhere ([\d.]+)\r?\n| p/OpenSSH/ v/$2/ i/RemotelyAnywhere $3; protocol $1/ o/Windows/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)\+CAN-2004-0175\r?\n| p/OpenSSH/ v/$2+CAN-2004-0175/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+) NCSA_GSSAPI_20040818 KRB5\r?\n| p/OpenSSH/ v/$2 NCSA_GSSAPI_20040818 KRB5/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)-(hpn[\dv]+)\r?\n| p/OpenSSH/ v/$2-$3/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+\+sftpfilecontrol-v[\d.]+-hpn\w+)\n| p/OpenSSH/ v/$2/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+-hpn) NCSA_GSSAPI_\d+ KRB5\n| p/OpenSSH/ v/$2/ i/protocol $1; kerberos support/
-match ssh m|^SSH-([\d.]+)-OpenSSH_3\.4\+p1\+gssapi\+OpenSSH_3\.7\.1buf_fix\+2006100301\n| p/OpenSSH/ v/3.4p1 with CMU Andrew patches/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)\.RL\r\n| p/OpenSSH/ v/$2.RL Allied Telesis/ i/protocol $1/ d/switch/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)-(CERN\d+)\n| p/OpenSSH/ v/$2-$3/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+\+sftpfilecontrol-v[\d.]+-hpn\w+)\r?\n| p/OpenSSH/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+-hpn) NCSA_GSSAPI_\d+ KRB5\r?\n| p/OpenSSH/ v/$2/ i/protocol $1; kerberos support/
+match ssh m|^SSH-([\d.]+)-OpenSSH_3\.4\+p1\+gssapi\+OpenSSH_3\.7\.1buf_fix\+2006100301\r?\n| p/OpenSSH/ v/3.4p1 with CMU Andrew patches/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)\.RL\r?\n| p/OpenSSH/ v/$2.RL Allied Telesis/ i/protocol $1/ d/switch/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)-(CERN\d+)\r?\n| p/OpenSSH/ v/$2-$3/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w.]+)\.cern-hpn| p/OpenSSH/ v/$2-cern-hpn/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w.]+-hpn)\n| p/OpenSSH/ v/$2/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w.]+-pwexp\d+)\n| p/OpenSSH/ v/$2/ i/protocol $1/ o/AIX/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([p\d.]+)\r\n| p/OpenSSH/ v/$2/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-Nortel\r\n| p/Nortel SSH/ d/switch/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w_.]+) DragonFly-\d+\n| p/OpenSSH/ v/$2/ i/protocol $1/ o/DragonFlyBSD/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w.]+-hpn)\r?\n| p/OpenSSH/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w.]+-pwexp\d+)\r?\n| p/OpenSSH/ v/$2/ i/protocol $1/ o/AIX/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([p\d.]+)\r?\n| p/OpenSSH/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-Nortel\r?\n| p/Nortel SSH/ d/switch/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w_.]+) DragonFly-\d+\r?\n| p/OpenSSH/ v/$2/ i/protocol $1/ o/DragonFlyBSD/
 
 # Choose 1 of the following:
 # 1) Match all OpenSSHs:
 #match ssh m/^SSH-([.\d]+)-OpenSSH[_-]([\S ]+)/i p/OpenSSH/ v/$2/ i/protocol $1/
 # 2) Don't match unknown SSHs (and generate fingerprints)
-match ssh m/^SSH-([.\d]+)-OpenSSH[_-]([\w.]+)\n/i p/OpenSSH/ v/$2/ i/protocol $1/
+match ssh m/^SSH-([.\d]+)-OpenSSH[_-]([\w.]+)\r?\n/i p/OpenSSH/ v/$2/ i/protocol $1/
 
 softmatch ssh m/^SSH-([.\d]+)-/ i/protocol $1/
 

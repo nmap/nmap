@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Enhanced the ssh service detection signatures to properly
+  detect protocol version 2 services. [Matt Selsky]
+
 o [Zenmap] Nmap output is automatically scrolled. [David]
 
 o Reduced memory consumption for some longer running scans by removing
