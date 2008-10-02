@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] The help function now properly converts the pathname of the
+  local help file to a URL, for better compatibility with different
+  web browsers. [David]
+  This should fix the crash
+  WindowsError: [Error 2] The system cannot find the file specified:
+  'file://C:\\Program Files\\Nmap\\zenmap\\share\\zenmap\\docs\\help.html'
+
 o The HTTP_open_proxy.nse script is updated to match Google Web
   Server's changed header field: "Server: gws" instead of
   "Server: GWS/".  [Vlatko Kosturjak]
