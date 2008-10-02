@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The HTTP_open_proxy.nse is updated to match Google Web Server's
+  changed header field: "Server: gws" instead of "Server: GWS/".
+  [Vlatko Kosturjak]
+
 o Enhanced the ssh service detection signatures to properly
   detect protocol version 2 services. [Matt Selsky]
 
