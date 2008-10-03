@@ -2,7 +2,7 @@
 
 o The http NSE module tries to deal with non-standards-compliant HTTP
   traffic, particularly responses in which the header fields are
-  separated by plain LF rather than CRLF. [Jah]
+  separated by plain LF rather than CRLF. [Jah, Sven]
 
 o [Zenmap] The help function now properly converts the pathname of the
   local help file to a URL, for better compatibility with different

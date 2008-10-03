@@ -164,36 +164,14 @@ request = function( host, port, data, options )
   response = table.concat( response )
 
   -- try and separate the head from the body
-  local header, body, h1, h2, b1, b2
-  if response:match( "\r\n\r\n" ) and response:match( "\n\n" ) then
-    h1, b1 = response:match( "^(.-)\r\n\r\n(.*)$" )
-    h2, b2 = response:match( "^(.-)\n\n(.*)$" )
-    if h1 and h2 and h1:len() <= h2:len() then
-      header, body = h1, b1
-    else
-      header, body = h2, b2
-    end
-  elseif response:match( "\r\n\r\n" ) then
-    header, body = response:match( "^(.-)\r\n\r\n(.*)$" )
-  elseif response:match( "\n\r\n" ) then
-    header, body = response:match( "^(.-)\n\r\n(.*)$" )
-  elseif response:match( "\n\n" ) then
-    header, body = response:match( "^(.-)\n\n(.*)$" )
+  local header, body
+  if response:match( "\r?\n\r?\n" ) then
+    header, body = response:match( "^(.-)\r?\n\r?\n(.*)$" )
   else
-    body = response
+    header, body = "", response
   end
 
-  local head_delim, body_delim
-  if type( header ) == "string" then
-    head_delim = ( header:match( "\r\n" ) and "\r\n" )  or
-                 ( header:match( "\n" )   and "\n" ) or nil
-    header = ( head_delim and stdnse.strsplit( head_delim, header ) ) or { header }
-  end
-
-  if type( body ) == "string" then
-    body_delim = ( body:match( "\r\n" ) and "\r\n" )  or
-                 ( body:match( "\n" )   and "\n" ) or nil
-  end
+  header = stdnse.strsplit( "\r?\n", header )
 
   local line, _
 
@@ -224,8 +202,11 @@ request = function( host, port, data, options )
     end
   end
 
+  body_delim = ( body:match( "\r\n" ) and "\r\n" )  or
+               ( body:match( "\n" )   and "\n" ) or nil
+
   -- handle chunked encoding
-  if type( result.header ) == "table" and result.header['transfer-encoding'] == 'chunked' and type( body_delim ) == "string" then
+  if result.header['transfer-encoding'] == 'chunked' and type( body_delim ) == "string" then
     body = body_delim .. body
     local b = {}
     local start, ptr = 1, 1
