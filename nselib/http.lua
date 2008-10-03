@@ -115,7 +115,7 @@ request = function( host, port, data, options )
   options = options or {}
 
   if type(host) == 'table' then
-    host = host.targetname or host.ip
+    host = host.ip
   end
 
   local protocol = 'tcp'
