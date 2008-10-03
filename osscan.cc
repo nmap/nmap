@@ -462,7 +462,7 @@ static void WriteSInfo(char *ostr, int ostrlen, bool isGoodFP,
 				int openTcpPort, int closedTcpPort, int closedUdpPort) {
   struct tm *ltime;
   time_t timep;
-  char dsbuf[8], otbuf[8], ctbuf[8], cubuf[8];
+  char dsbuf[10], otbuf[8], ctbuf[8], cubuf[8];
   char macbuf[16];
   timep = time(NULL);
   ltime = localtime(&timep);
