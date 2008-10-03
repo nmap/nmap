@@ -1,12 +1,14 @@
 --- The http module provides functions for dealing with the client side
 -- of the http protocol. The functions reside inside the http namespace.
 -- The return value of each function in this module is a table with the
--- following keys: status, header and body. status is a number representing
--- the HTTP status code returned in response to the HTTP request. In case
--- of an unhandled error, status is nil. The header value is a table
--- containing key-value pairs of HTTP headers received in response to the
--- request. The header names are in lower-case and are the keys to their
--- corresponding header values (e.g. header.location = "http://nmap.org/").
+-- following keys: status, status-line, header and body. status is a number
+-- representing the HTTP status code returned in response to the HTTP
+-- request. In case of an unhandled error, status is nil. status-line is
+-- the entire status message which includes the HTTP version, status code
+-- and reason phrase. The header value is a table containing key-value
+-- pairs of HTTP headers received in response to the request. The header
+-- names are in lower-case and are the keys to their corresponding header
+-- values (e.g. header.location = "http://nmap.org/").
 -- Multiple headers of the same name are concatenated and separated by
 -- commas. The body value is a string containing the body of the HTTP
 -- response.
@@ -14,8 +16,8 @@
 
 module(... or "http",package.seeall)
 
-require 'stdnse'
-require 'url'
+local url    = require 'url'
+local stdnse = require 'stdnse'
 
 --
 -- http.get( host, port, path, options )
@@ -26,7 +28,7 @@ require 'url'
 -- port may either be a number or a table
 --
 -- the format of the return value is a table with the following structure:
--- {status = 200, header = {}, body ="<html>...</html>"}
+-- {status = 200, status-line = "HTTP/1.1 200 OK", header = {}, body ="<html>...</html>"}
 -- the header table has an entry for each received header with the header name being the key
 -- the table also has an entry named "status" which contains the http status code of the request
 -- in case of an error status is nil
@@ -43,7 +45,7 @@ require 'url'
 -- @param host The host to query.
 -- @param port The port for the host.
 -- @param path The path of the resource.
--- @param options A table of optoins. See function description.
+-- @param options A table of options. See function description.
 -- @return table
 get = function( host, port, path, options )
   options = options or {}
@@ -113,7 +115,7 @@ request = function( host, port, data, options )
   options = options or {}
 
   if type(host) == 'table' then
-    host = host.ip
+    host = host.targetname or host.ip
   end
 
   local protocol = 'tcp'
@@ -124,7 +126,7 @@ request = function( host, port, data, options )
     port = port.number
   end
 
-  local result = {status=nil,header={},body=""}
+  local result = {status=nil,["status-line"]=nil,header={},body=""}
   local socket = nmap.new_socket()
   local default_timeout = {}
   if options.timeout then
@@ -133,36 +135,76 @@ request = function( host, port, data, options )
     default_timeout = get_default_timeout( nmap.timing_level() )
     socket:set_timeout( default_timeout.connect )
   end
+
   if not socket:connect( host, port, protocol ) then
     return result
   end
+
   if not options.timeout then
     socket:set_timeout( default_timeout.request )
   end
+
   if not socket:send( data ) then
     return result
   end
 
-  local buffer = stdnse.make_buffer( socket, "\r\n" )
+  -- no buffer - we want everything now!
+  local response = {}
+  while true do
+    local status, part = socket:receive()
+    if not status then
+      break
+    else
+      response[#response+1] = part
+    end
+  end
+
+  socket:close()
+
+  response = table.concat( response )
+
+  -- try and separate the head from the body
+  local header, body, h1, h2, b1, b2
+  if response:match( "\r\n\r\n" ) and response:match( "\n\n" ) then
+    h1, b1 = response:match( "^(.-)\r\n\r\n(.*)$" )
+    h2, b2 = response:match( "^(.-)\n\n(.*)$" )
+    if h1 and h2 and h1:len() <= h2:len() then
+      header, body = h1, b1
+    else
+      header, body = h2, b2
+    end
+  elseif response:match( "\r\n\r\n" ) then
+    header, body = response:match( "^(.-)\r\n\r\n(.*)$" )
+  elseif response:match( "\n\r\n" ) then
+    header, body = response:match( "^(.-)\n\r\n(.*)$" )
+  elseif response:match( "\n\n" ) then
+    header, body = response:match( "^(.-)\n\n(.*)$" )
+  else
+    body = response
+  end
+
+  local head_delim, body_delim
+  if type( header ) == "string" then
+    head_delim = ( header:match( "\r\n" ) and "\r\n" )  or
+                 ( header:match( "\n" )   and "\n" ) or nil
+    header = ( head_delim and stdnse.strsplit( head_delim, header ) ) or { header }
+  end
+
+  if type( body ) == "string" then
+    body_delim = ( body:match( "\r\n" ) and "\r\n" )  or
+                 ( body:match( "\n" )   and "\n" ) or nil
+  end
 
   local line, _
-  local header, body = {}, {}
-
-  -- header loop
-  while true do
-    line = buffer()
-    if (not line or line == "") then break end
-    table.insert(header,line)
-  end
 
   -- build nicer table for header
   local last_header, match
-  for number, line in ipairs( header ) do
+  for number, line in ipairs( header or {} ) do
     if number == 1 then
       local code
       _, _, code = string.find( line, "HTTP/%d\.%d (%d+)")
       result.status = tonumber(code)
-      if not result.status then table.insert(body,line) end
+      if code then result["status-line"] = line end
     else
       match, _, key, value = string.find( line, "(.+): (.*)" )
       if match and key and value then
@@ -177,39 +219,42 @@ request = function( host, port, data, options )
         match, _, value = string.find( line, " +(.*)" )
         if match and value and last_header then
           result.header[last_header] = result.header[last_header] .. ',' .. value
-        elseif match and value then
-          table.insert(body,line)
         end
       end
     end
   end
 
-  -- handle body
-  if result.header['transfer-encoding'] == 'chunked' then
-    -- if the server used chunked encoding we have to 'dechunk' the answer
-    local counter, chunk_size
-    counter = 0; chunk_size = 0
-    while true do
-      if counter >= chunk_size then
-        counter = 0
-        chunk_size = tonumber( buffer(), 16 )
-        if chunk_size == 0 or not chunk_size then break end
+  -- handle chunked encoding
+  if type( result.header ) == "table" and result.header['transfer-encoding'] == 'chunked' and type( body_delim ) == "string" then
+    body = body_delim .. body
+    local b = {}
+    local start, ptr = 1, 1
+    local chunk_len
+    local pattern = ("%s([^%s]+)%s"):format( body_delim, body_delim, body_delim )
+    while ( ptr < ( type( body ) == "string" and body:len() ) or 1 ) do
+      local hex = body:match( pattern, ptr )
+      if not hex then break end
+      chunk_len = tonumber( hex or 0, 16 ) or nil
+      if chunk_len then
+        start = ptr + hex:len() + 2*body_delim:len()
+        ptr = start + chunk_len
+        b[#b+1] = body:sub( start, ptr-1 )
       end
-      line = buffer()
-      if not line then break end
-      counter = counter + #line + 2
-      table.insert(body,line)
     end
-  else
-    while true do
-      line = buffer()
-      if not line then break end
-      table.insert(body,line)
+    body = table.concat( b )
+  end
+
+  -- special case for conjoined header and body
+  if type( result.status ) ~= "number" and type( body ) == "string" then
+    local code, remainder = body:match( "HTTP/%d\.%d (%d+)(.*)") -- The Reason-Phrase will be prepended to the body :(
+    if code then
+      stdnse.print_debug( "Interesting variation on the HTTP standard.  Please submit a --script-trace output for this host (%s) to nmap-dev[at]insecure.org.", host )
+      result.status = tonumber(code)
+      body = remainder or body
     end
   end
 
-  socket:close()
-  result.body = table.concat( body, "\r\n" )
+  result.body = body
 
   return result
 

@@ -1587,16 +1587,19 @@ if(s) code_to_be_done_on_match end
 	The <literal>http</literal> module provides functions for dealing with the client side of the http protocol.
 	The functions reside inside the <literal>http</literal> namespace.
 	The return value of each function in this module is a table with the following keys:
-	<literal>status</literal>, <literal>header</literal> and <literal>body</literal>.
+	<literal>status</literal>, <literal>status-line</literal>, <literal>header</literal>
+	and <literal>body</literal>.
 
 	<literal>status</literal> is a number representing the HTTP
 	status code returned in response to the HTTP request. In case
 	of an unhandled error, <literal>status</literal>
-	is <literal>nil</literal>. The <literal>header</literal> value
-	is a table containing key-value pairs of HTTP headers received
-	in response to the request. The header names are in lower-case
-	and are the keys to their corresponding header values
-	(e.g. <literal>header.location =
+	is <literal>nil</literal>. <literal>status-line</literal> is
+	the entire status message which includes the HTTP version,
+	status code and reason phrase. The <literal>header</literal>
+	value is a table containing key-value pairs of HTTP headers
+	received in response to the request. The header names are in
+	lower-case and are the keys to their corresponding header
+	values (e.g. <literal>header.location =
 	"http://nmap.org/"</literal>).  Multiple headers of the same
 	name are concatenated and separated by
 	commas. The <literal>body</literal> value is a string
