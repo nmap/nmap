@@ -1910,12 +1910,17 @@ if(s) code_to_be_done_on_match end
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term><option>string = stdnse.tohex(n)</option>
+          <term><option>string = stdnse.tohex(s, options)</option>
           </term>
           <listitem>
             <para>
-              Converts the given number, <literal>n</literal>, to a string
-              in a hexadecimal number format (e.g. 10 becomes "a").
+              Converts the given number or string, <literal>s</literal>, to a
+              string in a hexadecimal number format (e.g. 10 becomes "a"). 
+              <literal>options</literal> is a table containing parameters to
+              control the formatting. You may specify <literal>options.separator</literal>
+              which will be used as separator for groups of consecutive bytes.
+              With <literal>options.group</literal> you can control the group
+              length to be used with <literal>options.separator</literal>.
             </para>
           </listitem>
         </varlistentry>

@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Enhanced the tohex() function in the NSE stdnse library to support strings
+  and added options to control the formatting. [Sven]
+
 o The http NSE module tries to deal with non-standards-compliant HTTP
   traffic, particularly responses in which the header fields are
   separated by plain LF rather than CRLF. [Jah, Sven]

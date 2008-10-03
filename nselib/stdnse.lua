@@ -5,6 +5,9 @@ local assert = assert;
 local tonumber = tonumber;
 local concat = table.concat;
 local nmap = require"nmap";
+local max = math.max
+local ceil = math.ceil
+local type = type
 
 module(... or "stdnse");
 
@@ -143,10 +146,36 @@ function tooctal(n)
   return ("%o"):format(n)
 end
 
---- Converts the given number, n, to a string in a hexidecimal number format.
---@param n Number to convert.
---@return String in hexidecimal format.
-function tohex(n)
-  assert(tonumber(n), "number expected");
-  return ("%x"):format(n);
+--- encode string or number to hexadecimal
+-- example: stdnse.tohex("abc") => "616263"
+--          stdnse.tohex("abc",{separator=":"}) => "61:62:63"
+--          stdnse.tohex("abc",{separator=":",group=4}) => "61:6263"
+--          stdnse.tohex(123456) => "1e240"
+--          stdnse.tohex(123456,{separator=":"}) => "1:e2:40"
+--          stdnse.tohex(123456,{separator=":",group=4}) => "1:e240"
+--@param s string or number to be encoded
+--@param options table specifiying formatting options
+--@return hexadecimal encoded string
+function tohex( s, options ) 
+  options = options or {}
+  local group = options.group or 2
+  local separator = options.separator or ""
+  local hex
+
+  if type( s ) == 'number' then
+    hex = ("%x"):format(s)
+  elseif type( s ) == 'string' then
+    hex = ("%02x"):rep(#s):format(s:byte(1,#s))
+  else
+    error( "Type not supported in tohex(): " .. type(s), 2 )
+  end
+
+  local fmt_table = {}
+  for i=#hex,1,-group do
+    -- index must be consecutive otherwise table.concat won't work
+    fmt_table[ceil(i/group)] = hex:sub(max(i-group+1,1),i)
+  end
+
+  return concat( fmt_table, separator )
 end
+
