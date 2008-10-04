@@ -237,6 +237,24 @@ if test "$with_zenmap" != "no"; then
      AC_MSG_FAILURE([--with-zenmap requires Python 2.4 or later])
    fi
    with_zenmap=no])
+  if test "$with_zenmap" != "no"; then
+    AM_PATH_GTK_2_0([2.8.0], [],
+    [if test "$with_zenmap" = "check"; then
+       AC_MSG_WARN([Not building Zenmap because GTK+ 2.8.0 or later was not found])
+     else
+       AC_MSG_FAILURE([--with-zenmap requires GTK+ 2.8.0 or later])
+     fi
+     with_zenmap=no])
+  fi
+  if test "$with_zenmap" != "no"; then
+    PKG_CHECK_EXISTS([pygtk-2.0 >= 2.8.0], [],
+    [if test "$with_zenmap" = "check"; then
+       AC_MSG_WARN([Not building Zenmap because PyGTK 2.8.0 or later was not found])
+     else
+       AC_MSG_FAILURE([--with-zenmap requires PyGTK 2.8.0 or later])
+     fi
+     with_zenmap=no])
+  fi
 fi
 if test "$with_zenmap" = "no"; then
   BUILDZENMAP=""
