@@ -291,8 +291,8 @@ function do_nbstat(host)
 		return false, result
 	end
 
-	status, err = socket:close()
-	if(status == false) then
+	close_status, err = socket:close()
+	if(close_status == false) then
 		return false, err
 	end
 

@@ -6,10 +6,10 @@
 -- sudo nmap -sU -sS --script smb-os-discovery.nse -p U:137,T:139 127.0.0.1\n
 --
 --@output
--- |  OS from SMB: Windows 2000
--- |  LAN Manager: Windows 2000 LAN Manager
--- |  Name: WORKGROUP\TEST1
--- |_ System time: 2008-09-09 20:55:55 UTC-5
+-- |  OS from SMB: Windows 2000\n
+-- |  LAN Manager: Windows 2000 LAN Manager\n
+-- |  Name: WORKGROUP\TEST1\n
+-- |_ System time: 2008-09-09 20:55:55 UTC-5\n
 -- 
 -----------------------------------------------------------------------
 
@@ -52,28 +52,30 @@ end
 
 action = function(host)
 
+	-- Start up SMB
 	status, socket = smb.start(host)
-
 	if(status == false) then
 		return "Error: " .. socket
 	end
 
+	-- Negotiate protocol
 	status, negotiate_result = smb.negotiate_protocol(socket)
-
 	if(status == false) then
 		stdnse.print_debug(2, "Negotiate session failed")
 		smb.stop(socket)
 		return "Error: " .. negotiate_result
 	end
 
+	-- Start a session
 	status, session_result = smb.start_session(socket, "", negotiate_result['session_key'], negotiate_result['capabilities'])
-
 	if(status == false) then
 		smb.stop(socket)
 		return "Error: " .. session_result
 	end
 
-	smb.stop(socket)
+	-- Kill SMB
+	smb.stop(socket, session_result['uid'])
+
 	return string.format("%s\nLAN Manager: %s\nName: %s\\%s\nSystem time: %s %s\n", get_windows_version(session_result['os']), session_result['lanmanager'], negotiate_result['domain'], negotiate_result['server'], negotiate_result['date'], negotiate_result['timezone_str'])
 end
 

@@ -1,22 +1,25 @@
 --- Sends a NetBIOS NBSTAT query to target host to try to determine the NetBIOS
 --  names and MAC address. By default, displays the name of the computer and the
 --  logged-in user; if verbosity is turned up, displays all names the system
---  thinks it owns. 
+--  thinks it owns. \n
 --
+--@usage
+-- sudo nmap -sU --script nbstat.nse -p137 <host>\n
+--\n
 -- @output
--- (no verbose)
--- |_ NBSTAT: NetBIOS name: TEST1, NetBIOS user: RON, NetBIOS MAC: 00:0c:29:f9:d9:28
---
--- (verbose)
--- |  NBSTAT: NetBIOS name: TEST1, NetBIOS user: RON, NetBIOS MAC: 00:0c:29:f9:d9:28
--- |  Name: TEST1<00>            Flags: <unique><active>
--- |  Name: TEST1<20>            Flags: <unique><active>
--- |  Name: WORKGROUP<00>        Flags: <group><active>
--- |  Name: TEST1<03>            Flags: <unique><active>
--- |  Name: WORKGROUP<1e>        Flags: <group><active>
--- |  Name: RON<03>              Flags: <unique><active>
--- |  Name: WORKGROUP<1d>        Flags: <unique><active>
--- |_ Name: \x01\x02__MSBROWSE__\x02<01>  Flags: <group><active>
+-- (no verbose)\n
+-- |_ NBSTAT: NetBIOS name: TEST1, NetBIOS user: RON, NetBIOS MAC: 00:0c:29:f9:d9:28\n
+--\n
+-- (verbose)\n
+-- |  NBSTAT: NetBIOS name: TEST1, NetBIOS user: RON, NetBIOS MAC: 00:0c:29:f9:d9:28\n
+-- |  Name: TEST1<00>            Flags: <unique><active>\n
+-- |  Name: TEST1<20>            Flags: <unique><active>\n
+-- |  Name: WORKGROUP<00>        Flags: <group><active>\n
+-- |  Name: TEST1<03>            Flags: <unique><active>\n
+-- |  Name: WORKGROUP<1e>        Flags: <group><active>\n
+-- |  Name: RON<03>              Flags: <unique><active>\n
+-- |  Name: WORKGROUP<1d>        Flags: <unique><active>\n
+-- |_ Name: \x01\x02__MSBROWSE__\x02<01>  Flags: <group><active>\n
 
 id = "NBSTAT"
 description = "Sends a NetBIOS query to target host to try to determine \
