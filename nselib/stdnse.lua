@@ -158,8 +158,6 @@ end
 --@return hexadecimal encoded string
 function tohex( s, options ) 
   options = options or {}
-  local group = options.group or 2
-  local separator = options.separator or ""
   local hex
 
   if type( s ) == 'number' then
@@ -170,12 +168,16 @@ function tohex( s, options )
     error( "Type not supported in tohex(): " .. type(s), 2 )
   end
 
-  local fmt_table = {}
-  for i=#hex,1,-group do
-    -- index must be consecutive otherwise table.concat won't work
-    fmt_table[ceil(i/group)] = hex:sub(max(i-group+1,1),i)
-  end
+  if options.separator then
+    local group = options.group or 2
+    local fmt_table = {}
+    for i=#hex,1,-group do
+      -- table index must be consecutive otherwise table.concat won't work
+      fmt_table[ceil(i/group)] = hex:sub(max(i-group+1,1),i)
+    end
 
-  return concat( fmt_table, separator )
+    hex = concat( fmt_table, options.separator )
+  end
+  return hex
 end
 
