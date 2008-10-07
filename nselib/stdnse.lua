@@ -9,6 +9,8 @@ local max = math.max
 local ceil = math.ceil
 local type = type
 
+local EMPTY = {}; -- Empty constant table
+
 module(... or "stdnse");
 
 --- Prints debug information according with verbosity <i>level</i>
@@ -157,7 +159,7 @@ end
 --@param options table specifiying formatting options
 --@return hexadecimal encoded string
 function tohex( s, options ) 
-  options = options or {}
+  options = options or EMPTY
   local separator = options.separator
   local hex
 
