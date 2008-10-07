@@ -387,7 +387,7 @@ ip_to_bin = function( ip )
   if not ip:match( ":" ) then
     -- ipv4 string
     for octet in string.gfind( ip, "%d+" ) do
-      t[#t+1] = stdnse.tohex( octet )
+      t[#t+1] = stdnse.tohex( tonumber(octet) )
     end
     mask = "00"
   else
