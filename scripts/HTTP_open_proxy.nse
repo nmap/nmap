@@ -1,5 +1,5 @@
+--- Checks if an HTTP Proxy is Open to us.
 -- Arturo 'Buanzo' Busleiman <buanzo@buanzo.com.ar> / www.buanzo.com.ar / linux-consulting.buanzo.com.ar
--- See Nmap's COPYING file for licence details
 -- Changelog: Added explode() function. Header-only matching now works.
 --   * Fixed set_timeout
 --   * Fixed some \r\n's
@@ -14,12 +14,16 @@ Test if a discovered proxy is open to us by connecting to www.google.com and che
 If the target is an open proxy, this script will cause the target to retrieve a
 web page from www.google.com.
 ]]
+author = "Arturo 'Buanzo' Busleiman <buanzo@buanzo.com.ar>"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "external", "intrusive"}
 require "comm"
 require "shortport"
 
--- I found a nice explode() function in lua-users' wiki. I had to fix it, though.
--- http://lua-users.org/wiki/LuaRecipes
+--- An explode() function for NSE/LUA. Taken (and fixed) from http://lua-users.org/wiki/LuaRecipes
+--@param d Delimiter
+--@param p Buffer to explode
+--@return A LUA Table
 function explode(d,p)
 	local t,ll,l
 	t={}
