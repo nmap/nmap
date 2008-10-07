@@ -163,7 +163,7 @@ function tohex( s, options )
   local separator = options.separator
   local hex
 
-  if type( s ) == 'number' then
+  if tonumber( s ) then
     hex = ("%x"):format(s)
   elseif type( s ) == 'string' then
     hex = ("%02x"):rep(#s):format(s:byte(1,#s))
