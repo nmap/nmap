@@ -33,6 +33,10 @@
 -- 1.5.0.0 - 2008-08-15
 -- + updated to use the nsedoc documentation system
 
+-- 1.6.0.0 - 2008-10-06
+-- + Updated gsubs to handle different formats, pulls out extra spaces
+--   and normalizes line endings
+
 -- Cribbed heavily from Thomas Buchanan's SQL version detection
 -- script and from Arturo 'Buanzo' Busleiman's SMTP open relay
 -- detector script.
@@ -49,74 +53,80 @@ require "stdnse"
 portrule = shortport.port_or_service({25, 587, 465}, "smtp")
 
 action = function(host, port)
-
-    local socket = nmap.new_socket()
-    socket:set_timeout(5000)
-    
-    local result
-    local resultEHLO
-    local resultHELP
+	
+	local socket = nmap.new_socket()
+	socket:set_timeout(5000)
+	
+	local result
+	local resultEHLO
+	local resultHELP
+	
+	local catch = function()
+		socket:close()
+		--return
+	end
+	
+	local try = nmap.new_try(catch)
+	
+	local attempt = try(socket:connect(host.ip, port.number, port.protocol))
+	if attempt then
+		if nmap.verbosity() >= 2 or nmap.debugging() >= 1 then -- only tell you it fails if you are debugging or verbose X 2
+			return "Problem connecting to " .. host.ip .. " on port " .. port.number .. " using protocol " .. port.protocol
+		else
+			return -- if you aren't debugging, just return with nothing
+		end
+	end
+	
+	result = try(socket:receive_lines(1))
+	
+	local query = "EHLO example.org\r\n"
+	try(socket:send(query))
+	resultEHLO = try(socket:receive_lines(1))
    
-    local catch = function()
-        socket:close()
-        --return
-    end
-   
-    local try = nmap.new_try(catch)
-   
-    local attempt = try(socket:connect(host.ip, port.number, port.protocol))
-    if attempt then
-        if nmap.verbosity() >= 2 or nmap.debugging() >= 1 then -- only tell you it fails if you are debugging or verbose X 2
-            return "Problem connecting to " .. host.ip .. " on port " .. port.number .. " using protocol " .. port.protocol
-        else
-            return -- if you aren't debugging, just return with nothing
-        end
-    end
-   
-    result = try(socket:receive_lines(1))
-   
-    local query = "EHLO example.org\r\n"
-    try(socket:send(query))
-    resultEHLO = try(socket:receive_lines(1))
-   
-    if not (string.match(resultEHLO, "^250")) then
---        stdnse.print_debug("1","%s",resultEHLO)
---        stdnse.print_debug("1","EHLO with errors or timeout.  Enable --script-trace to see what is happening.")
-        resultEHLO = ""
-    end
-   
-    if resultEHLO ~= "" then
-    	
-        resultEHLO = string.gsub(resultEHLO, "250 OK[\r\n]", "") -- 250 OK (needed to have the \r\n in there)
-        -- get rid of the 250- at the beginning of each line in the response
-        resultEHLO = string.gsub(resultEHLO, "250%-", "") -- 250-
-        resultEHLO = string.gsub(resultEHLO,"[\r\n]+$", "") -- no final CR LF
-        resultEHLO = string.gsub(resultEHLO, "\r\n", ", ") -- CR LF to comma
-        resultEHLO = "\nEHLO " .. resultEHLO
-    end
-   
-    local query = "HELP\r\n"
-    try(socket:send(query))
-    resultHELP = try(socket:receive_lines(1))
-   
-    if not (string.match(resultHELP, "^214")) then
---        stdnse.print_debug("1","%s",resultHELP)
---        stdnse.print_debug("1","HELP with errors or timeout.  Enable --script-trace to see what is happening.")
-        resultHELP = ""
-    end
-    if resultHELP ~= "" then
-        resultHELP = string.gsub(resultHELP, "214%-", "") -- 214-
-        -- get rid of the 214 at the beginning of the lines in the response
-        resultHELP = string.gsub(resultHELP, "214 ", "") -- 214
-        resultHELP = string.gsub(resultHELP,"[\r\n]+$", "") -- no final CR LF
-        resultHELP = string.gsub(resultHELP, "[\r\n]", ", ") -- CR LF to comma
-        resultHELP = "\nHELP " .. resultHELP
-    end
- 
-    result = resultEHLO .. resultHELP
-   
-    socket:close()
-   
-    return result
+	if not (string.match(resultEHLO, "^250")) then
+--		stdnse.print_debug("1","%s",resultEHLO)
+--		stdnse.print_debug("1","EHLO with errors or timeout.  Enable --script-trace to see what is happening.")
+		resultEHLO = ""
+	end
+	
+	if resultEHLO ~= "" then
+		
+		resultEHLO = string.gsub(resultEHLO, "250 OK[\r\n]", "") -- 250 OK (needed to have the \r\n in there)
+		-- get rid of the 250- at the beginning of each line in the response
+		resultEHLO = string.gsub(resultEHLO, "250%-", "") -- 250-
+		resultEHLO = string.gsub(resultEHLO, "\r\n", "\n") -- normalize CR LF
+		resultEHLO = string.gsub(resultEHLO, "\n\r", "\n") -- normalize LF CR
+		resultEHLO = string.gsub(resultEHLO, "\n+$", "") -- no final LF
+		resultEHLO = string.gsub(resultEHLO, "\n", ", ") -- LF to comma
+		resultEHLO = string.gsub(resultEHLO, "%s+", " ") -- get rid of extra spaces
+		resultEHLO = "\nEHLO " .. resultEHLO
+	end
+	
+	local query = "HELP\r\n"
+	try(socket:send(query))
+	resultHELP = try(socket:receive_lines(1))
+	
+	if not (string.match(resultHELP, "^214")) then
+--		stdnse.print_debug("1","%s",resultHELP)
+--		stdnse.print_debug("1","HELP with errors or timeout.  Enable --script-trace to see what is happening.")
+		resultHELP = ""
+	end
+	if resultHELP ~= "" then
+		resultHELP = string.gsub(resultHELP, "214%-", "") -- 214-
+		-- get rid of the 214 at the beginning of the lines in the response
+		resultHELP = string.gsub(resultHELP, "214 ", "") -- 214
+		resultHELP = string.gsub(resultHELP, "\r\n", "\n") -- normalize CR LF
+		resultHELP = string.gsub(resultHELP, "\n\r", "\n") -- normalize LF CR
+		resultHELP = string.gsub(resultHELP, "\n+$", "") -- no final LF
+		resultHELP = string.gsub(resultHELP, "\n", ", ") -- LF to comma
+		resultHELP = string.gsub(resultHELP, "%s+", " ") -- get rid of extra spaces
+		resultHELP = "\nHELP " .. resultHELP
+	end
+	
+	result = resultEHLO .. resultHELP
+	
+	socket:close()
+	
+	return result
    
 end
