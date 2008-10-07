@@ -592,7 +592,7 @@ $ nmap -sC --script-args user=foo,pass=bar,anonFTP={pass=ftp@foobar.com}
 
     <sect2 id="nse-format-categories">
       <title><literal>categories</literal> Field</title>
-      <indexterm><primary sortas="category script variable">&ldquo;<varname>category</varname>&rdquo; script variable</primary></indexterm>
+      <indexterm><primary sortas="categories script variable">&ldquo;<varname>categories</varname>&rdquo; script variable</primary></indexterm>
 
       <para>The <literal>categories</literal> field defines one or
       more categories to which a script belongs (see
