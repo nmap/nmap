@@ -205,16 +205,6 @@ Section "Nmap Core Files" SecCore
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "DisplayIcon" '"$INSTDIR\icon1.ico"' 
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "NoModify" 1 
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "NoRepair" 1 
-
-  ;Register .usr files with Zenmap
-  ;This is commented out till Zenmap supports opening log files from the command-line
-  ;WriteRegStr HKCR ".usr" "" "UmitScan"
-  ;WriteRegStr HKCR "UmitScan" "" "Umit Saved Port Scan"
-  ;WriteRegStr HKCR "UmitScan\DefaultIcon" "" "$INSTDIR\umit_128.ico,0"
-  ;WriteRegStr HKCR "UmitScan\shell\open\command" "" '"$INSTDIR\zenmap.exe" "%1"'
-  ;WriteRegStr HKCR "UmitScan\shell" "" "open"
-  ;System::Call 'Shell32::SHChangeNotify(i 0x8000000, i 0, i 0, i 0)'
-  
 SectionEnd 
  
 Section "Register Nmap Path" SecRegisterPath 
@@ -378,12 +368,6 @@ Section "Uninstall"
   Delete "$DESKTOP\Nmap - Zenmap GUI.lnk"
   Delete "$SMPROGRAMS\Nmap\Nmap - Zenmap GUI.lnk"
   RMDIR "$SMPROGRAMS\Nmap"
-
-  ;Remove file association
-  ;This is commented out till Zenmap supports opening log files from the command-line
-  ;DeleteRegKey HKCR ".usr"
-  ;DeleteRegKey HKCR "UmitScan"
-  ;System::Call 'Shell32::SHChangeNotify(i 0x8000000, i 0, i 0, i 0)'
 
   SetDetailsPrint both 
 SectionEnd 
