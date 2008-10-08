@@ -8,10 +8,6 @@
 #include "nse_pcrelib.h"
 #include "nse_bit.h"
 
-#ifdef HAVE_OPENSSL
-#include "nse_openssl.h"
-#endif
-
 #include "nse_binlib.h"
 
 #include "nbase.h"
@@ -21,6 +17,10 @@
 #include "NmapOps.h"
 
 #include "errno.h"
+
+#ifdef HAVE_OPENSSL
+#include "nse_openssl.h"
+#endif
 
 #include <algorithm>
 

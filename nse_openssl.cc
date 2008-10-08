@@ -1,10 +1,3 @@
-#ifdef WIN32
-#include "nmap_winconfig.h"
-#else
-#include "nmap_config.h"
-#endif
-
-
 /* OpenSSL library for lua
  * adapted from lmd5 library (http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/)
  * Original code written by Luiz Henrique de Figueiredo <lhf@tecgraf.puc-rio.br>
@@ -25,6 +18,8 @@
 #include <openssl/evp.h>
 
 #include "nse_openssl.h"
+#include "lua.h"
+#include "lauxlib.h"
 
 typedef struct bignum_data {
   BIGNUM * bn;

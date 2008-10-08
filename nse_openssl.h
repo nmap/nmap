@@ -1,7 +1,3 @@
-#include "../nmap_config.h"
-
-#if HAVE_OPENSSL
-
 #ifndef OPENSSLLIB
 #define OPENSSLLIB
 
@@ -13,7 +9,5 @@ extern "C" {
 }
 
 LUALIB_API int luaopen_openssl(lua_State *L);
-
-#endif
 
 #endif
