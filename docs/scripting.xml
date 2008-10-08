@@ -4303,21 +4303,22 @@ The mainloop function will work on each runlevel grouping of threads in order.
       </para>
 
       <para>
-      Two of the smaller compiled modules that come with NSE are
-      <literal>bit</literal><indexterm><primary><varname>bit</varname> NSE module</primary></indexterm>
-      and <literal>hash</literal>,<indexterm><primary><varname>hash</varname> NSE module</primary></indexterm>
-      and they serve as good examples of how to write such modules. The
+      The smallest compiled modules that comes with NSE is
+      <literal>bit</literal>,<indexterm><primary><varname>bit</varname> NSE module</primary></indexterm>
+      and one of the most straightforward is
+      <literal>openssl</literal>.<indexterm><primary><varname>openssl</varname> NSE module</primary></indexterm>
+      These modules serve as good examples for a beginning module
+      writer. The
       source code for <literal>bit</literal> is in the files
       <filename>nse_bit.cc</filename> and
       <filename>nse_bit.h</filename>, and likewise the source for
-      <literal>hash</literal> is in <filename>nse_hash.cc</filename> and
-      <filename>nse_hash.h</filename>. The other compiled modules follow
-      this naming convention.
+      <literal>openssl</literal> is in <filename>nse_openssl.cc</filename> and
+      <filename>nse_openssl.h</filename>. The other compiled modules
+      usually follow this naming convention.
       </para>
-
       <para>
-      Let us look at the <literal>hash</literal> module. One of the
-      functions in <filename>nse_hash.cc</filename> is
+      Let us look at the <literal>openssl</literal> module. One of the
+      functions in <filename>nse_openssl.cc</filename> is
       <function>l_md5</function>, which calculates an MD5 digest. Its
       function prototype is
 <programlisting>
@@ -4331,25 +4332,27 @@ static int l_md5(lua_State *L);
       <type>luaL_reg</type> and associated with the name
       <function>md5</function>, the name it will be known by to NSE:
 <programlisting>
-static const luaL_reg hashlib[] =
-{
-        {"md5", l_md5},
-        {NULL,  NULL}
+static const struct luaL_reg openssllib[] = {
+  { "md5", l_md5 },
+  { NULL, NULL }
 };
 </programlisting>
       Then the library is registered with a call to
       <function>luaL_register</function> inside the initialization
-      function <function>luaopen_hashlib</function>:
+      function <function>luaopen_openssl</function>. Some lines relating
+      to the registration of OpenSSL <type>BIGNUM</type> types have been
+      omitted.
 <programlisting>
-LUALIB_API int luaopen_hashlib (lua_State *L) {
-  luaL_register(L, NSE_HASHLIBNAME, hashlib);
+LUALIB_API int luaopen_openssl(lua_State *L) {
+  luaL_register(L, OPENSSLLIBNAME, openssllib);
   return 1;
 }
 </programlisting>
-      (<varname>NSE_HASHLIBNAME</varname> is just the string
-      <literal>"hash"</literal>.) <function>luaopen_hashlib</function>
+      (<varname>NSE_OPENSSLLIBNAME</varname> is just the string
+      <literal>"openssl"</literal>, the name of the module.)
+      <function>luaopen_openssl</function>
       is the only function in the file that is exposed in
-      <filename>nse_hash.h</filename>.
+      <filename>nse_openssl.h</filename>.
       </para>
 
       <para>
