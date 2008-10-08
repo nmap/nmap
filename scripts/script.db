@@ -84,6 +84,7 @@ Entry{ category = "auth", filename = "brutePOP3.nse" }
 Entry{ category = "default", filename = "popcapa.nse" }
 Entry{ category = "intrusive", filename = "SNMPcommunitybrute.nse" }
 Entry{ category = "auth", filename = "SNMPcommunitybrute.nse" }
+Entry{ category = "safe", filename = "SSH-weak_key.nse" }
 Entry{ category = "discovery", filename = "whois.nse" }
 Entry{ category = "external", filename = "whois.nse" }
 Entry{ category = "safe", filename = "whois.nse" }
@@ -102,3 +103,6 @@ Entry{ category = "discovery", filename = "smb-enumshares.nse" }
 Entry{ category = "intrusive", filename = "smb-enumshares.nse" }
 Entry{ category = "discovery", filename = "smb-enumdomains.nse" }
 Entry{ category = "intrusive", filename = "smb-enumdomains.nse" }
+Entry{ category = "safe", filename = "SSH-hostkey.nse" }
+Entry{ category = "default", filename = "SSH-hostkey.nse" }
+Entry{ category = "intrusive", filename = "SSH-hostkey.nse" }
