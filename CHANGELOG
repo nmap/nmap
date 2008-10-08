@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Host information windows are now like any other windows,
+  and will not become unclosable by having their controls offscreen.
+  Thanks to Robert Mead for the bug report.
+
 o showHTMLTitle.nse can now follow (non-standard) relative redirects,
   and may do a DNS lookup to find if the redirected-to host has the
   same IP address as the scanned host. [Jah]
