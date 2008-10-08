@@ -8,8 +8,11 @@
 #include "nse_pcrelib.h"
 #include "nse_bit.h"
 
+#ifdef HAVE_OPENSSL
+#include "nse_openssl.h"
+#endif
+
 #include "nse_binlib.h"
-#include "nse_hash.h"
 
 #include "nbase.h"
 
@@ -245,8 +248,10 @@ int init_lua (lua_State *L)
     {NSE_PCRELIBNAME, luaopen_pcrelib}, // pcre library
     {"nmap", luaopen_nmap}, // nmap bindings
     {NSE_BINLIBNAME, luaopen_binlib},
-    {NSE_HASHLIBNAME, luaopen_hashlib},
     {BITLIBNAME, luaopen_bit}, // bit library
+#ifdef HAVE_OPENSSL
+    {OPENSSLLIBNAME, luaopen_openssl}, // openssl bindings
+#endif
   };
 
   luaL_openlibs(L); // opens all standard libraries

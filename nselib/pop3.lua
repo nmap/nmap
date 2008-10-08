@@ -3,15 +3,24 @@
 
 module(... or "pop3",package.seeall)
 
+local HAVE_SSL = false
+
 require 'base64'
 require 'bit'
+require 'stdnse'
+
+if pcall(require,'openssl') then
+  HAVE_SSL = true
+end
+  
 
 
 err = {
    none = 0,
    userError = 1,
    pwError = 2,
-   informationMissing = 3
+   informationMissing = 3,
+   OpenSSLMissing = 4,
 }
 
 ---
@@ -112,8 +121,8 @@ end
 function login_apop(socket, user, pw, challenge)
    if type(challenge) ~= "string" then return false, err.informationMissing end
 
-   local apStr = hash.md5(challenge .. pw)
-   socket:send("APOP " .. user .. " " .. apStr .. "\r\n")
+   local apStr = stdnse.tohex(openssl.md5(challenge .. pw))
+   socket:send(("APOP %s %s\r\n"):format(user, apStr))
       
    status, line = socket:receive_lines(1)
    
@@ -169,33 +178,6 @@ function capabilities(host, port)
 end
 
 ---
--- Calculate HMAC-MD5 hash
---@param key Key for hash calculation
---@param msg Message to be hashed
---@return HMAC-MD5 of given message
-function hmacMD5(key, msg)
-   local ipad = {}
-   local opad = {}
-
-   if (string.len(key) > 64) then
-      key = hash.md5binary(key)
-   end
-
-   -- create both pads, XORing with key
-   for i = 1, string.len(key) do
-      ipad[i] = string.char(bit.bxor(0x36, string.byte(string.sub(key, i))))
-      opad[i] = string.char(bit.bxor(0x5c, string.byte(string.sub(key, i))))
-   end
-   for i = #ipad + 1, 64 do
-      ipad[i] = string.char(0x36)
-      opad[i] = string.char(0x5c)
-   end
-
-   -- calc HMAC-md5
-   return hash.md5(table.concat(opad) .. hash.md5bin(table.concat(ipad) .. msg))
-end
-
----
 -- Try to login using AUTH command using SASL/CRAM-MD5 method
 --@param socket Socket connected to POP3 server
 --@param user User string
@@ -209,7 +191,7 @@ function login_sasl_crammd5(socket, user, pw)
    
    local challenge = base64.dec(string.sub(line, 3))
 
-   local digest = hmacMD5(pw, challenge)
+   local digest = stdnse.tohex(openssl.hmac('md5', pw, challenge))
    local authStr = base64.enc(user .. " " .. digest)
    socket:send(authStr .. "\r\n")
       
@@ -221,3 +203,15 @@ function login_sasl_crammd5(socket, user, pw)
       return false, err.pwError
    end
 end
+
+--- overwrite functions requiring OpenSSL if we got no OpenSSL
+if not HAVE_SSL then
+
+  local no_ssl = function()
+    return false, err.OpenSSLMissing
+  end
+
+  login_apop = no_ssl
+  login_sasl_crammd5 = no_ssl
+end
+

@@ -291,7 +291,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\nse_hash.cc"
+				RelativePath="..\nse_openssl.cc"
 				>
 			</File>
 			<File
@@ -488,7 +488,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\nse_hash.h"
+				RelativePath="..\nse_openssl.h"
 				>
 			</File>
 			<File
