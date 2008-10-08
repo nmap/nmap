@@ -1382,18 +1382,6 @@ used.</para>
           zombie host if you wish to probe a particular port on the
           zombie for IP ID changes. Otherwise Nmap will use the port it
           uses by default for TCP pings (80).</para>
-
-          <para>Ports can also be specified by name according to what the
-          port is referred to in the <filename>nmap-services</filename>. You
-          can even use the wildcards * and ? with the names. For example, to scan
-          ftp and all ports whose names begin with http, use <option>-p ftp,http*</option>.
-          Be careful about shell expansions and quote the argument to -p if unsure.</para>
-
-          <para>Ranges of ports can be surrounded by square brackets to indicate
-          ports inside that range that appear in <filename>nmap-services</filename>.
-          For example, the following will scan all ports in <filename>nmap-services</filename>
-          equal to or below 1024: <option>-p [-1024]</option>. Be careful with shell
-          expansions and quote the argument to -p if unsure.</para> 
         </listitem>
       </varlistentry>
 
