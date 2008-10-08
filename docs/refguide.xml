@@ -1535,7 +1535,9 @@ way.</para>
           the port numbers are added to all protocol lists.</para>
 
 
-          <para><indexterm><primary>port specification</primary><secondary>wildcards in</secondary></indexterm>
+          <indexterm><primary>port specification</primary><secondary>wildcards in</secondary></indexterm>
+          <indexterm><primary>wildcards</primary><see>port selection, wildcards in</see></indexterm>
+          <para>
           Ports can also be specified by name according to what the
           port is referred to in the <filename>nmap-services</filename>. You
           can even use the wildcards * and ? with the names. For example, to scan
@@ -1554,6 +1556,7 @@ way.</para>
         <term>
           <option>-F</option> (Fast (limited port) scan)
           <indexterm significance="preferred"><primary><option>-F</option></primary></indexterm>
+          <indexterm><primary>fast scan</primary><see><option>-F</option></see></indexterm>
         </term>
         <listitem>
           <para>Specifies that you wish to scan fewer ports than the
@@ -3375,6 +3378,7 @@ increased.</para>
  <term>
   <option>--reason</option> (Host and port state reasons)
    <indexterm><primary><option>--reason</option></primary></indexterm>
+   <indexterm><primary>reason reporting</primary><see><option>--reason</option></see></indexterm>
  </term>
  <listitem>
 
