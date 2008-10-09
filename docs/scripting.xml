@@ -1166,203 +1166,238 @@ if(s) code_to_be_done_on_match end
 	
       <sect2 id="nse-openssl">
         <indexterm class="startofrange" id="nse-openssl-indexterm"><primary><varname>openssl</varname> NSE module</primary></indexterm>
+        <indexterm><primary>OpenSSL</primary><seealso><varname>openssl</varname> NSE module</seealso></indexterm>
         <indexterm><primary>OpenSSL</primary><secondary>in NSE</secondary></indexterm>
         <title>OpenSSL NSE bindings</title>
 
         <para>
-	The <literal>openssl</literal> module provides functions for 
-	dealing with multiprecision integers. The functions reside inside the 
-	<literal>openssl</literal> namespace.
-	  </para>
+        The <literal>openssl</literal> module is a wrapper for OpenSSL
+        functions that provide encryption and decryption, hashing, and
+        multiprecision integers.
+        </para>
 
 	<variablelist>
 
 	    <varlistentry>
-	      <term><option>openssl.bignum_num_bits( bignum )</option></term>
+	      <term><option>openssl.bignum_num_bits(bignum)</option></term>
 	      <listitem>
 		<para>Returns the size of <literal>bignum</literal> in bits.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.bignum_num_bytes( bignum )</option></term>
+	      <term><option>openssl.bignum_num_bytes(bignum)</option></term>
 	      <listitem>
 		<para>Returns the size of <literal>bignum</literal> in bytes.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.bignum_set_bit( bignum, position )</option></term>
+	      <term><option>openssl.bignum_set_bit(bignum, position)</option></term>
 	      <listitem>
-		<para>Sets bit at <literal>position</literal> in <literal>bignum</literal>.</para>
+		<para>Sets the bit at <literal>position</literal> in <literal>bignum</literal>.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.bignum_clear_bit( bignum, position )</option></term>
+	      <term><option>openssl.bignum_clear_bit(bignum, position)</option></term>
 	      <listitem>
-		<para>Clears bit at <literal>position</literal> in <literal>bignum</literal>.</para>
+		<para>Clears the bit at <literal>position</literal> in <literal>bignum</literal>.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.bignum_is_bit_set( bignum, position )</option></term>
+	      <term><option>openssl.bignum_is_bit_set(bignum, position)</option></term>
 	      <listitem>
-		<para>Get bit at <literal>position</literal> in <literal>bignum</literal>.</para>
+		<para>Gets the state of the bit at <literal>position</literal> in <literal>bignum</literal>.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.bignum_set_negative( bignum, negative )</option></term>
+	      <term><option>openssl.bignum_set_negative(bignum, negative)</option></term>
 	      <listitem>
-		<para>Set sign of <literal>bignum</literal>. If <literal>negative</literal> is <literal>false</literal> the sign becomes positive otherwise it becomes negative.</para>
+		<para>Sets the sign of <literal>bignum</literal>. If
+		<literal>negative</literal> is <literal>true</literal>
+		the sign becomes negative, otherwise it becomes positive.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.bignum_is_negative( bignum )</option></term>
+	      <term><option>openssl.bignum_is_negative(bignum)</option></term>
 	      <listitem>
-		<para>Check sign of <literal>bignum</literal>.</para>
+		<para>Returns true if <literal>bignum</literal> is
+		negative, false otherwise.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.bignum_bin2bn( string )</option></term>
+	      <term><option>openssl.bignum_bin2bn(string)</option></term>
 	      <listitem>
-		<para>Converts binary encoded <literal>string</literal> into a <literal>bignum</literal>.</para>
+		<para>Converts the binary-encoded <literal>string</literal> into a <literal>bignum</literal>.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.bignum_dec2bn( string )</option></term>
+	      <term><option>openssl.bignum_dec2bn(string)</option></term>
 	      <listitem>
-		<para>Converts decimal encoded <literal>string</literal> into a <literal>bignum</literal>.</para>
+		<para>Converts the decimal-encoded <literal>string</literal> into a <literal>bignum</literal>.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.bignum_hex2bn( string )</option></term>
+	      <term><option>openssl.bignum_hex2bn(string)</option></term>
 	      <listitem>
-		<para>Converts hex-encoded <literal>string</literal> into a <literal>bignum</literal>.</para>
+		<para>Converts the hex-encoded <literal>string</literal> into a <literal>bignum</literal>.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.bignum_bn2bin( bignum )</option></term>
+	      <term><option>openssl.bignum_bn2bin(bignum)</option></term>
 	      <listitem>
-		<para>Converts <literal>bignum</literal> into a binary encoded string.</para>
+		<para>Converts <literal>bignum</literal> into a binary-encoded string.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.bignum_bn2dec( bignum )</option></term>
+	      <term><option>openssl.bignum_bn2dec(bignum)</option></term>
 	      <listitem>
-		<para>Converts <literal>bignum</literal> into a decimal encoded string.</para>
+		<para>Converts <literal>bignum</literal> into a decimal-encoded string.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.bignum_bn2hex( bignum )</option></term>
+	      <term><option>openssl.bignum_bn2hex(bignum)</option></term>
 	      <listitem>
 		<para>Converts <literal>bignum</literal> into a hex-encoded string.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.bignum_rand( bits )</option></term>
+	      <term><option>openssl.bignum_rand(bits)</option></term>
 	      <listitem>
-		<para>Returns random <literal>bignum</literal> with <literal>bits</literal> bit size.</para>
+		<para>Returns a random <literal>bignum</literal> with a
+		size of <literal>bits</literal> bits.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.bignum_pseudo_rand( bits )</option></term>
+	      <term><option>openssl.bignum_pseudo_rand(bits)</option></term>
 	      <listitem>
-		<para>Returns pseudo random <literal>bignum</literal> with <literal>bits</literal> bit size.</para>
+		<para>Returns a pseudorandom <literal>bignum</literal>
+		with a size of <literal>bits</literal> bits.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.bignum_mod_exp( a, p, m )</option></term>
+	      <term><option>openssl.bignum_mod_exp(a, p, m)</option></term>
 	      <listitem>
-		<para>Returns bignum which is the result of <literal>a</literal>^<literal>p</literal> mod <literal>m</literal>.</para>
+		<para>Returns the bignum which is the result of <literal>a</literal>^<literal>p</literal> mod <literal>m</literal>.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.rand_bytes( bytes )</option></term>
+	      <term><option>openssl.rand_bytes(bytes)</option></term>
 	      <listitem>
-		<para>Returns a string of <literal>bytes</literal> length with random data.</para>
+		<para>Returns a string of length
+		<literal>bytes</literal> containing random data.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.rand_pseudo_bytes( bytes )</option></term>
+	      <term><option>openssl.rand_pseudo_bytes(bytes)</option></term>
 	      <listitem>
-		<para>Returns a string of <literal>bytes</literal> length with pseudo random data.</para>
+		<para>Returns a string of length
+		<literal>bytes</literal> containing pseudorandom data.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.md2( message )</option></term>
+	      <term>
+	      <indexterm><primary>digests, cryptographic</primary></indexterm>
+	      <indexterm><primary>hashes, cryptographic</primary></indexterm>
+	      <option>openssl.md2(message)</option></term>
 	      <listitem>
 		<para>Returns the MD2 digest of <literal>message</literal>.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.md4( message )</option></term>
+	      <term><option>openssl.md4(message)</option></term>
 	      <listitem>
 		<para>Returns the MD4 digest of <literal>message</literal>.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.md5( message )</option></term>
+	      <term><option>openssl.md5(message)</option></term>
 	      <listitem>
 		<para>Returns the MD5 digest of <literal>message</literal>.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.sha1( message )</option></term>
+	      <term><option>openssl.sha1(message)</option></term>
 	      <listitem>
-		<para>Returns the SHA1 digest of <literal>message</literal>.</para>
+		<para>Returns the SHA-1 digest of <literal>message</literal>.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.ripemd160( message )</option></term>
+	      <term><option>openssl.ripemd160(message)</option></term>
 	      <listitem>
-		<para>Returns the RIPEMD160 digest of <literal>message</literal>.</para>
+		<para>Returns the RIPEMD-160 digest of <literal>message</literal>.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.digest( algorithm, message )</option></term>
+	      <term><option>openssl.digest(algorithm, message)</option></term>
 	      <listitem>
-		<para>Returns the digest specified by <literal>algorithm</literal> of <literal>message</literal>.</para>
+		<para>Returns the digest of <literal>message</literal>
+		using the algorithm given by the string
+		<literal>algorithm</literal>. The algorithm name may be
+		anything recognized by the
+		<function>openssl.supported_digests</function>
+		function.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.hmac( algorithm, key, message )</option></term>
+	      <term><option>openssl.hmac(algorithm, key, message)</option></term>
 	      <listitem>
-		<para></para>
+		<para>Returns the message authentication code of
+		<literal>message</literal> using the given algorithm and
+		key. <literal>algorithm</literal> may be anything
+		recognized by the
+		<function>openssl.supported_digests</function>
+		function.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.encrypt( algorithm, key, iv, data, padding = false )</option></term>
+	      <term>
+	      <indexterm><primary>keys, cryptographic</primary></indexterm>
+	      <option>openssl.encrypt(algorithm, key, iv, data, padding = false)</option></term>
 	      <listitem>
-		<para>Encrypt <literal>data</literal> with the encryption algorithm <literal>algorithm</literal>, <literal>key</literal> and the initialization vector <literal>iv</literal>.</para>
+		<para>Encrypt <literal>data</literal> with the given
+		algorithm, key, and initialization vector.
+		<literal>algorithm</literal> may be anything
+		returned by the
+		<function>openssl.supported_ciphers</function>
+		function. If <literal>padding</literal> is true then a
+		partial final block will be padded and encrypted.</para>
 	      </listitem>
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.decrypt( algorithm, key, iv, data, padding = false )</option></term>
+	      <term><option>openssl.decrypt(algorithm, key, iv, data, padding = false)</option></term>
 	      <listitem>
-		<para>Decrypt <literal>data</literal> with the encryption algorithm <literal>algorithm</literal>, <literal>key</literal> and the initialization vector <literal>iv</literal>.</para>
+		<para>Encrypt <literal>data</literal> with the given
+		algorithm, key, and initialization vector.
+		<literal>algorithm</literal> may be anything
+		returned by the
+		<function>openssl.supported_ciphers</function>
+		function. If <literal>padding</literal> is true then the
+		final block must be padded correctly.</para>
 	      </listitem>
 	    </varlistentry>
 
@@ -1381,9 +1416,11 @@ if(s) code_to_be_done_on_match end
 	    </varlistentry>
 
 	    <varlistentry>
-	      <term><option>openssl.DES_string_to_key( string data )</option></term>
+	      <term><option>openssl.DES_string_to_key(string data)</option></term>
 	      <listitem>
-		<para>Converts <literal>data</literal> which must be a 7-byte string into a 8-byte DES key and sets the parity.</para>
+		<para>Converts <literal>data</literal>, which must be a
+		7-byte string, into an 8-byte DES key and sets the
+		parity.</para>
 	      </listitem>
 	    </varlistentry>
 
