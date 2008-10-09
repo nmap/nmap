@@ -1355,7 +1355,7 @@ if(s) code_to_be_done_on_match end
 		<para>Returns the digest of <literal>message</literal>
 		using the algorithm given by the string
 		<literal>algorithm</literal>. The algorithm name may be
-		anything recognized by the
+		anything returned by the
 		<function>openssl.supported_digests</function>
 		function.</para>
 	      </listitem>
@@ -1367,7 +1367,7 @@ if(s) code_to_be_done_on_match end
 		<para>Returns the message authentication code of
 		<literal>message</literal> using the given algorithm and
 		key. <literal>algorithm</literal> may be anything
-		recognized by the
+		returned by the
 		<function>openssl.supported_digests</function>
 		function.</para>
 	      </listitem>
