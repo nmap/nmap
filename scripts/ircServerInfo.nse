@@ -22,12 +22,7 @@ categories = {"default", "discovery"}
 require("stdnse")
 require "shortport"
 
-portrule = function(host, port)
-  return (port.number == 6666 or
-          port.number == 6667 or
-          port.service == "irc" or
-          port.service == "irc-serv") and port.protocol == "tcp"
-end
+portrule = shortport.port_or_service({6666,6667},"irc")
 
 init = function()
   -- Start of MOTD, we'll take the server name from here
