@@ -2,18 +2,18 @@
 -- Connects to portmapper and fetches a list of all registered programs
 -- 
 --@output
--- 111/tcp open  rpcbind
--- |  rpcinfo:  
--- |  100000  2        111/udp  rpcbind   
--- |  100005  1,2,3    705/udp  mountd    
--- |  100003  2,3,4   2049/udp  nfs       
--- |  100024  1      32769/udp  status    
--- |  100021  1,3,4  32769/udp  nlockmgr  
--- |  100000  2        111/tcp  rpcbind   
--- |  100005  1,2,3    706/tcp  mountd    
--- |  100003  2,3,4   2049/tcp  nfs       
--- |  100024  1      50468/tcp  status    
--- |_ 100021  1,3,4  50468/tcp  nlockmgr  
+-- 111/tcp open  rpcbind\n
+-- |  rpcinfo:\n
+-- |  100000  2        111/udp  rpcbind\n
+-- |  100005  1,2,3    705/udp  mountd\n
+-- |  100003  2,3,4   2049/udp  nfs\n
+-- |  100024  1      32769/udp  status\n
+-- |  100021  1,3,4  32769/udp  nlockmgr\n
+-- |  100000  2        111/tcp  rpcbind\n
+-- |  100005  1,2,3    706/tcp  mountd\n
+-- |  100003  2,3,4   2049/tcp  nfs\n
+-- |  100024  1      50468/tcp  status\n
+-- |_ 100021  1,3,4  50468/tcp  nlockmgr
 
 
 require "shortport"
