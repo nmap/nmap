@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a new NSE OpenSSL library with functions for multiprecision
+  integer arithmetics, hashing, HMAC, symmetric encryption and symmetric
+  decryption. [Sven]
+
 o [Zenmap] Host information windows are now like any other windows,
   and will not become unclosable by having their controls offscreen.
   Thanks to Robert Mead for the bug report.
