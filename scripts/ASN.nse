@@ -99,12 +99,12 @@ action = function( host )
     end
 
     ---
-    -- @class table
-    -- @name cymru
     -- Team Cymru zones for rDNS like queries.  The zones are as follows:
     -- \n nmap.asn.cymru.com for IPv4 to Origin AS lookup.
     -- \n peer-nmap.asn.cymru.com for IPv4 to Peer AS lookup.
     -- \n nmap6.asn.cymru.com for IPv6 to Origin AS lookup.
+    -- @class table
+    -- @name cymru
     local cymru = { [4] = { ".nmap.asn.cymru.com", ".peer-nmap.asn.cymru.com" },
                     [6] = { ".nmap6.asn.cymru.com" }
     }
