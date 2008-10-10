@@ -12,18 +12,9 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"version"}
 
 require "comm"
+require "shortport"
 
-portrule = function(host, port) 
-	if 
-		port.number == 1723
-		and port.protocol == "tcp"
-		and port.state == "open"
-	then
-		return true
-	else
-		return false
-	end
-end
+portrule = shortport.portnumber(1723)
 
 action = function(host, port)
 	local payload
