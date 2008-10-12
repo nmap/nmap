@@ -3,6 +3,7 @@
 
 local assert = assert;
 local tonumber = tonumber;
+local error = error;
 local concat = table.concat;
 local nmap = require"nmap";
 local max = math.max
