@@ -16,6 +16,7 @@
 #include <openssl/hmac.h>
 #include <openssl/des.h>
 #include <openssl/evp.h>
+#include <openssl/err.h>
 
 #include "nse_openssl.h"
 #include "lua.h"
@@ -287,7 +288,9 @@ static int l_digest(lua_State *L)     /** digest(string algorithm, string messag
       EVP_DigestUpdate( &mdctx, msg, msg_len ) &&
       EVP_DigestFinal_ex( &mdctx, digest, &digest_len ))) {
     EVP_MD_CTX_cleanup( &mdctx );
-    return luaL_error( L, "OpenSSL error" );
+    unsigned long e = ERR_get_error();
+    return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e), 
+                       ERR_func_error_string(e), ERR_reason_error_string(e));
   }
   EVP_MD_CTX_cleanup( &mdctx );
 
@@ -377,7 +380,9 @@ static int l_encrypt(lua_State *L) /** encrypt( string algorithm, string key, st
       EVP_EncryptFinal_ex( &cipher_ctx, out + out_len, &final_len ) )) {
     EVP_CIPHER_CTX_cleanup( &cipher_ctx );
     free( out );
-    return luaL_error( L, "OpenSSL error" );
+    unsigned long e = ERR_get_error();
+    return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e), 
+                       ERR_func_error_string(e), ERR_reason_error_string(e));
   }
 
   lua_pushlstring( L, (char *) out, out_len + final_len );
@@ -414,7 +419,9 @@ static int l_decrypt(lua_State *L) /** decrypt( string algorithm, string key, st
       EVP_DecryptFinal_ex( &cipher_ctx, out + out_len, &final_len ) )) {
     EVP_CIPHER_CTX_cleanup( &cipher_ctx );
     free( out );
-    return luaL_error( L, "OpenSSL error" );
+    unsigned long e = ERR_get_error();
+    return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e), 
+                       ERR_func_error_string(e), ERR_reason_error_string(e));
   }
 
   lua_pushlstring( L, (char *) out, out_len + final_len );
@@ -442,7 +449,6 @@ static int l_DES_string_to_key(lua_State *L) /** DES_string_to_key( string data 
   lua_pushlstring( L, (char *) key, 8 );
   return 1;
 }
-
 
 static const struct luaL_reg bignum_methods[] = {
   { "num_bits", l_bignum_num_bits },
@@ -497,6 +503,7 @@ static const struct luaL_reg openssllib[] = {
 LUALIB_API int luaopen_openssl(lua_State *L) {
 
   OpenSSL_add_all_algorithms();
+  ERR_load_crypto_strings();
 
   luaL_register(L, OPENSSLLIBNAME, openssllib);
 
