@@ -1,9 +1,8 @@
--- PPTP information gathering script
--- rev 0.2 (11-14-2007)
-
 id = "PPTP"
-
-description = "Attempts to extract system information from PPTP service"
+description = [[
+Attempts to extract system information from the PPTP service.
+]]
+-- rev 0.2 (11-14-2007)
 
 author = "Thomas Buchanan <tbuchanan@thecompassgrp.net>"
 

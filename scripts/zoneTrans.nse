@@ -1,23 +1,25 @@
---- Request a zone transfer (AXFR) from a DNS server.\n
--- \n
--- Send axfr queries to DNS servers. The domain to query is determined 
--- by examining the name given on the command line, the domain servers
--- hostname, or it can be specified with the "domain" script argument.
--- If the query is successful all domains and domain types are returned
--- along with common type specific data (SOA/MX/NS/PTR/A).\n
--- \n
--- constraints\n
--- -----------\n
--- If we don't have the 'true' hostname for the dns server we cannot
--- determine a likely zone to perform the transfer on.\n
--- \n
--- useful resources\n
--- ----------------\n
--- DNS for rocket scientists - http://www.zytrax.com/books/dns/\n
--- How the AXFR protocol works - http://cr.yp.to/djbdns/axfr-notes.html\n
---
---@args zoneTrans.domain Domain to transfer.
---@output
+id = 'zone-transfer'
+description = [[
+Requests a zone transfer (AXFR) from a DNS server.
+\n\n
+The script sends an AXFR query to a DNS server. The domain to query is determined 
+by examining the name given on the command line, the DNS server's
+hostname, or it can be specified with the "domain" script argument.
+If the query is successful all domains and domain types are returned
+along with common type specific data (SOA/MX/NS/PTR/A).
+\n\n
+Constraints\n
+If we don't have the 'true' hostname for the dns server we cannot
+determine a likely zone to perform the transfer on.
+\n\n
+Useful resources\n
+DNS for rocket scientists - http://www.zytrax.com/books/dns/\n
+How the AXFR protocol works - http://cr.yp.to/djbdns/axfr-notes.html\n
+]]
+
+---
+-- @args zoneTrans.domain Domain to transfer.
+-- @output
 -- 53/tcp   open     domain
 -- |  zone-transfer:  \n
 -- |  foo.com.            SOA     ns2.foo.com. piou.foo.com.  \n
@@ -51,9 +53,7 @@ require('listop')
 require('bit')
 require('tab')
 
-id = 'zone-transfer'
 author = 'Eddie Bell <ejlbell@gmail.com>'
-description = 'Request a zone transfer (AXFR) from a DNS server'
 license = 'Same as Nmap--See http://nmap.org/book/man-legal.html'
 categories = {'default', 'intrusive', 'discovery'}
 runlevel = 1.0

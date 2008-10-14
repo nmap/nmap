@@ -1,5 +1,9 @@
---- Probes an HTTP server via directory traversal for /etc/passwd
---
+id = "HTTP directory traversal passwd probe"
+description = [[
+Checks if a web server is vulnerable to directory traversal by attempting to
+retrieve /etc/passwd.
+]]
+
 -- 07/20/2007:
 --   * Used Thomas Buchanan's HTTPAuth script as a starting point
 --   * Applied some great suggestions from Brandon Enright, thanks a lot man!
@@ -7,10 +11,6 @@
 -- 01/31/2008:
 --   * Rewritten to use Sven Klemm's excellent HTTP library and to do some much
 --     needed cleaning up
-
-id = "HTTP directory traversal passwd probe"
-
-description = "Probe for /etc/passwd if server is susceptible to directory traversal"
 
 author = "Kris Katterjohn <katterjohn@gmail.com>"
 

@@ -1,10 +1,11 @@
 id = "DNS TXID randomness"
 
 description = [[
-Queries txidtest.dns-oarc.net to check for the predictable-TXID DNS recursion
+Checks a DNS server for the predictable-TXID DNS recursion
 vulnerability.  Predictable TXID values can make a DNS server vulnerable to
-cache poisoning attacks (CVE-2008-1447)"
-\n
+cache poisoning attacks (CVE-2008-1447).
+\n\n
+The script works by querying txidtest.dns-oarc.net.
 Be aware that any targets against which this script is run will be sent to and
 potentially recorded by one or more DNS servers and the txidtest server. In
 addition your IP address will be sent along with the txidtest query to the DNS

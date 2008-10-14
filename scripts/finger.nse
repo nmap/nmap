@@ -1,6 +1,7 @@
-id="Finger Results"
-
-description="attempts to get a list of usernames via the finger service"
+id = "Finger Results"
+description = [[
+Attempts to get a list of usernames via the finger service.
+]]
 
 author = "Eddie Bell <ejlbell@gmail.com>"
 

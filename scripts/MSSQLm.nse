@@ -1,9 +1,8 @@
--- Microsoft SQL Server information gathering script
--- rev 1.0 (2007-06-09)
-
 id = "MS SQL"
-
-description = "Attempts to extract information from Microsoft SQL Server"
+description = [[
+Attempts to extract information from Microsoft SQL Server.
+]]
+-- rev 1.0 (2007-06-09)
 
 author = "Thomas Buchanan <tbuchanan@thecompassgrp.net>"
 

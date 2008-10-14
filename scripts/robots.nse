@@ -1,3 +1,10 @@
+id = "robots.txt"
+description = [[
+Checks for disallowed entries in robots.txt.
+\n\n
+The higher the verbosity or debug level, the more disallowed entries are shown.
+]]
+
 ---
 --@output
 -- 80/tcp  open   http    syn-ack\n
@@ -15,9 +22,7 @@ require('shortport')
 require('strbuf')
 require('http')
 
-id = "robots.txt"
 author = "Eddie Bell <ejlbell@gmail.com>"
-description = "check for robots.txt with disallowed entries (print them in debug/verbose mode)"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "safe"}
 runlevel = 1.0

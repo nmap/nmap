@@ -1,12 +1,10 @@
---- Queries the owner of a service on a scanned port. Uses port 113 to
--- make the query.
---@output
---
-
 id = "Service owner"
-
-description = "Opens a connection to the scanned port, opens a connection to port 113, queries the owner\
-of the service on the scanned port and prints it."
+description = [[
+Attempts to find the owner of a scanned port.
+\n\n
+The script makes a connection to the auth port (113) and queries the owner of
+an open port.
+]]
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 

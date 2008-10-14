@@ -1,5 +1,8 @@
-id="RealVNC Authentication Bypass (CVE-2006-2369)"
-description="Checks to see if the VNC Server is vulnerable to the RealVNC authentication bypass."
+id = "RealVNC Authentication Bypass"
+description = [[
+Checks if a VNC server is vulnerable to the RealVNC authentication bypass
+(CVE-2006-2369).
+]]
 author = "Brandon Enright <bmenrigh@ucsd.edu>" 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

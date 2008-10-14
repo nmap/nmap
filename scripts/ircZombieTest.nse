@@ -1,9 +1,10 @@
---- Checks if the target is an IRC zombie.
-
 id = "IRC zombie"
-
-description = "If port 113 responds before we ask it then something is fishy.\
-Usually this means that the host is an irc zombie."
+description = [[
+Checks for an IRC zombie.
+\n\n
+If port 113 responds before we ask it then something is fishy. Usually this
+means that the host is an IRC zombie.
+]]
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 

@@ -1,6 +1,7 @@
 id = "POP3 brute force"
-
-description = "tries to log into a POP3 account"
+description = [[
+Tries to log into a POP3 account by guessing usernames and passwords.
+]]
 
 author = "Philip Pickering <pgpickering@gmail.com>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

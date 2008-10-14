@@ -1,26 +1,24 @@
---[[
-
-Experimental SQL injection spider
----------------------------------
-Spiders a http server looking for URLs containing queries.
-It then proceeds to combine crafted sql commands with 
-susceptible urls in order to obtain errors. The errors
+id = "sql-inject"
+description = [[
+Spiders an HTTP server looking for URLs containing queries vulnerable to an SQL
+injection attack.
+\n\n
+The script spiders an HTTP server looking for URLs containing queries.
+It then proceeds to combine crafted SQL commands with 
+susceptible URLs in order to obtain errors. The errors
 are analysed to see if the url is vulnerable to attack. 
 This uses the most basic form of SQL injection but anything
 more complication is more suited to a stand alone tool. 
-Both meta and http redirects are supported.
-
+Both meta and HTTP redirects are supported.
+\n\n
 It is not advisable to run this against unknown hosts.
-
-NOTES
------
-
+\n\n
+NOTES\n
 * We may not have access to the servers true hostname. 
   This means we cannot access virtually hosted sites and
   cannot follow absolute links when the hostname is 
   different from the resolved ip address
-
---]]
+]]
 
 require('url')
 require('shortport')
@@ -28,10 +26,7 @@ require('stdnse')
 require('strbuf')
 require('listop')
 
-id = "sql-inject"
 author = "Eddie Bell <ejlbell@gmail.com>"
-description = "spiders a http server looking for URLs containing queries \
-		and tries to determines if they are vulnerable to injection attack"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "vuln"}
 runlevel = 1.0

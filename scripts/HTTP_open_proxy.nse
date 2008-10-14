@@ -1,4 +1,14 @@
---- Checks if an HTTP Proxy is Open to us.
+id="Open Proxy Test"
+description=[[
+Checks if an HTTP proxy is open.
+\n\n
+The script attempts to connect to www.google.com through the proxy and checks
+for a 'Server: gws' header field in the response.
+\n\n
+If the target is an open proxy, this script will cause the target to retrieve a
+web page from www.google.com.
+]]
+
 -- Arturo 'Buanzo' Busleiman <buanzo@buanzo.com.ar> / www.buanzo.com.ar / linux-consulting.buanzo.com.ar
 -- Changelog: Added explode() function. Header-only matching now works.
 --   * Fixed set_timeout
@@ -7,13 +17,6 @@
 --   * Match case-insensitively against "^Server: gws" rather than
 --     case-sensitively against "^Server: GWS/".
 
-id="Open Proxy Test"
-description=[[
-Test if a discovered proxy is open to us by connecting to www.google.com and checking for the 'Server: gws' header response.
-\n
-If the target is an open proxy, this script will cause the target to retrieve a
-web page from www.google.com.
-]]
 author = "Arturo 'Buanzo' Busleiman <buanzo@buanzo.com.ar>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "external", "intrusive"}

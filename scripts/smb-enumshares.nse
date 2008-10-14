@@ -1,29 +1,30 @@
---- Attempts to call the srvsvc.NetShareEnumAll() MSRPC function. This will
---  likely only work anonymously against Windows 2000. \n
---\n
--- There isn't a whole lot to say about this one. The sequence of calls after
--- the initial bind() is:\n
--- NetShareEnumAll()\n
---\n
--- Since NetShareEnumAll() only works anonymously, if it fails this will check
--- a handful of common shares. \n
---\n
--- Once it has a list of shares, whether it was pulled over MSRPC or guessed, 
--- we attempt to connect to each of them with a standard smb tree_connect request
--- over a null session. We record which ones succeeded and failed (that is, which
--- shares allowed for anonymous access).\n
---
+id = "MSRPC: NetShareEnumAll()"
+description = [[
+Attempts to list shares using the srvsvc.NetShareEnumAll() MSRPC function. This
+will likely only work anonymously against Windows 2000.
+\n\n
+There isn't a whole lot to say about this one. The sequence of calls after
+the initial bind() is:\n
+NetShareEnumAll()
+\n\n
+Since NetShareEnumAll() only works anonymously, if it fails this will check
+a handful of common shares.
+\n\n
+Once it has a list of shares, whether it was pulled over MSRPC or guessed, 
+we attempt to connect to each of them with a standard smb tree_connect request
+over a null session. We record which ones succeeded and failed (that is, which
+shares allowed for anonymous access).
+]]
+
+---
 --@usage
 -- nmap --script smb-enumshares.nse -p445 <host>\n
--- sudo nmap -sU -sS --script smb-enumshares.nse -p U:137,T:139 <host>\n
+-- sudo nmap -sU -sS --script smb-enumshares.nse -p U:137,T:139 <host>
 --
 --@output
--- Host script results:\n
 -- TODO
 -----------------------------------------------------------------------
 
-id = "MSRPC: NetShareEnumAll()"
-description = "Tries calling the NetShareEnumAll() RPC function, and guessing shares"
 author = "Ron Bowes"
 copyright = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

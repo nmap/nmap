@@ -1,22 +1,21 @@
---- Checks if an FTP server allows anonymous logins.
--- @output
--- |_ Anonymous FTP: Anonymous login allowed"
+id = "Anonymous FTP"
+description = [[
+Checks if a FTP server allows anonymous logins.
+]]
 
-id="Anonymous FTP"
-description="Checks to see if a FTP server allows anonymous logins"
+---
+-- @output
+-- |_ Anonymous FTP: Anonymous login allowed
+
 author = "Eddie Bell <ejlbell@gmail.com>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "auth", "intrusive"}
 
 require "shortport"
 
----
--- Works on port 21 or "ftp"
 portrule = shortport.port_or_service(21, "ftp")
 
----
--- Connects to the ftp server and checks if the server allows
--- anonymous logins.
+--- Connects to the ftp server and checks if the server allows anonymous logins.
 action = function(host, port)
 	local socket = nmap.new_socket()
 	local result

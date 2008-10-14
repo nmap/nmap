@@ -1,3 +1,8 @@
+id = "Open Relay SMTP"
+description = [[
+Checks if an SMTP server is an open relay.
+]]
+
 -- Arturo 'Buanzo' Busleiman <buanzo@buanzo.com.ar> / www.buanzo.com.ar / linux-consulting.buanzo.com.ar
 -- Same as Nmap--See http://nmap.org/book/man-legal.html file for licence details
 -- This is version 20070516.
@@ -10,8 +15,6 @@
 --   * The "ourdomain" variable's contents are used instead of hardcoded "insecure.org". Settable by the user.
 --   * Fixed tags -> categories (reported by Jason DePriest to nmap-dev)
 
-id="Open Relay SMTP"
-description="Checks to see if a SMTP server is an open relay"
 categories = {"demo"}
 
 require "shortport"

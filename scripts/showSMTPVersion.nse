@@ -1,11 +1,12 @@
---- Queries the version of an SMTP server.
---@output
+id = "SMTP version"
+description = [[
+Prints the version of an SMTP server.
+]]
+
+---
+-- @output
 -- 25/tcp open  smtp\n
 -- |_ SMTP version: 220 mail.foo.com mx-2.bar.com ESMTP Exim 4.64\n
-
-id = "SMTP version"
-
-description = "Simple script which queries and prints the version of an SMTP server."
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 

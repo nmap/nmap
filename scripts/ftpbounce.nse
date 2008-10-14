@@ -1,5 +1,7 @@
 id="FTP bounce check"
-description="Checks to see if a FTP server allows port scanning using FTP bounce method"
+description=[[
+Checks to see if an FTP server allows port scanning using the FTP bounce method.
+]]
 author="Marek Majkowski <majek04<at>gmail.com>"
 license="Same as Nmap--See http://nmap.org/book/man-legal.html"
 

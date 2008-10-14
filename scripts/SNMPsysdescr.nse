@@ -1,11 +1,12 @@
---- SNMP version 1 system information gathering script
+id = "SNMPv1"
+description = [[
+Attempts to extract system information from an SNMP version 1 service.
+]]
+
+---
 -- @output
 -- |  SNMPv1: HP ETHERNET MULTI-ENVIRONMENT,ROM A.25.80,JETDIRECT,JD117,EEPROM V.28.22,CIDATE 08/09/2006 \n
 -- |_   System uptime: 28 days, 17:18:59 (248153900 timeticks)
-
-id = "SNMPv1"
-
-description = "Attempts to extract system information from SNMP service"
 
 author = "Thomas Buchanan <tbuchanan@thecompassgrp.net>"
 
@@ -19,10 +20,7 @@ require "snmp"
 -- runs after SNMPcommunityprobe.nse
 runlevel = 2
 
----
--- Runs on UDP port 161
 portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
-
 
 ---
 -- Sends SNMP packets to host and reads responses

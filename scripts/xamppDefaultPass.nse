@@ -1,15 +1,16 @@
---- Checks if the remote host is running XAMP or XAMPP's FTP server
--- allows access with nobody/xampp. XAMP is an Apache distribution
--- designed for easy installation and administration.
+id = "XAMPP default pwd"
+description = [[
+Check if an XAMP or XAMPP FTP server uses a default username and password.
+\n\n
+XAMP is an Apache distribution designed for easy installation and
+administration. The default username/password combination the script checks for
+is nobody/xampp.
+]]
+
+---
 -- @output
 -- 21/tcp  open   ftp\n
 -- |_ Login success with u/p: foo/bar\n
-
-id = "XAMPP default pwd"
-
-description = "If the remote host is running XAMP (an Apache distribution\
-designed for easy installation and administration) and XAMPP's FTP server is\
-allows access with nobody/xampp then we report it."
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 

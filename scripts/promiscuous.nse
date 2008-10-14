@@ -1,15 +1,12 @@
 id = "Promiscuous detection"
-description = "Checks if hosts on local ethernet have network card in promiscuous mode."
+description = [[
+Checks if a target on a local Ethernet has its network card in promiscuous mode.
+\n\n
+The technique is described at
+http://www.securityfriday.com/promiscuous_detection_01.pdf.
+]]
 author = "Marek Majkowski <majek04+nse@gmail.com>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-
---[[
-This script tries to guess if node in local ethernet is in promisucous mode.
-
-The technique is described here:
- http://www.securityfriday.com/promiscuous_detection_01.pdf
-
-]]--
 
 categories = {"discovery"}
 

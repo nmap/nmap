@@ -1,6 +1,7 @@
 id = "Daytime"
-
-description = "Connects to the UDP daytime service and on success prints the daytime."
+description = [[
+Retrieves the day and time from the UDP Daytime service.
+]]
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 

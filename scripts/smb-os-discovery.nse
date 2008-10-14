@@ -1,9 +1,15 @@
---- Attempts to determine the operating system over SMB protocol (ports 445 and 139). 
---  See nselib/smb.lua for more information on this protocol. 
---
+id = "OS from SMB"
+description = [[
+Attempts to determine the operating system over the SMB protocol (ports 445 and
+139). 
+\n\n
+See nselib/smb.lua for more information on this protocol. 
+]]
+
+---
 --@usage
 -- nmap --script smb-os-discovery.nse -p445 127.0.0.1\n
--- sudo nmap -sU -sS --script smb-os-discovery.nse -p U:137,T:139 127.0.0.1\n
+-- sudo nmap -sU -sS --script smb-os-discovery.nse -p U:137,T:139 127.0.0.1
 --
 --@output
 -- |  OS from SMB: Windows 2000\n
@@ -13,8 +19,6 @@
 -- 
 -----------------------------------------------------------------------
 
-id = "OS from SMB"
-description = "Attempts to determine the operating system over the SMB protocol (ports 445 and 139)."
 author = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}

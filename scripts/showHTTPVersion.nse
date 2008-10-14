@@ -1,8 +1,10 @@
-description = "Demonstration of a version detection NSE script. It checks and reports\
-the version of a remote web server. For real life purposes it is better to use the\
-Nmap version detection."
-
 id = "HTTP version"
+description = [[
+Detects the version of a web server.
+\n\n
+This is a demonstration script. Its function is done better by normal version
+detection.
+]]
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 

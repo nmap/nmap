@@ -1,6 +1,11 @@
---- Sends and HTTP TRACE and describes any modifications
---
---@output
+id = "HTTP TRACE"
+description = [[
+Sends an HTTP TRACE request and shows header fields that were modified in the
+response.
+]]
+
+---
+-- @output
 -- 80/tcp open  http \n
 -- |  HTTP TRACE: Response differs from request.  First 5 additional lines: \n
 -- |  Cookie: UID=d4287aa38d02f409841b4e0c0050c13148a85d01c0c0a154d4ef56dfc2b4fc1b0 \n
@@ -10,10 +15,6 @@
 -- |_ Ip_line_speed: medium
 
 -- 08/31/2007
-
-id = "HTTP TRACE"
-
-description = "Send HTTP TRACE method and print modifications"
 
 author = "Kris Katterjohn <katterjohn@gmail.com>"
 

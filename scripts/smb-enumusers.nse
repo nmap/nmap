@@ -1,73 +1,80 @@
---- Attempts to enumerate the users on a remote Windows system, with as much information as possible, 
---  through a variety of techniques (over SMB + MSRPC, which uses port 445 or 139). \n
---\n
--- Will first attempt to call the QueryDisplayInfo() MSRPC function. If NULL sessions are enabled, 
--- this will succeed and pull back a detailed list of users. Unfortunately, this likely won't succeed
--- unless we're scanning Windows 2000. When this test is performed, the following MSRPC functions
--- are called:\n
---\n
--- Bind() -- bind to the SAMR service\n
--- Connect4() -- get a connect_handle\n
--- EnumDomains() -- get a list of the domains\n
--- QueryDomain() -- get the sid for the domain\n
--- OpenDomain() -- get a handle for each domain\n
--- QueryDisplayInfo() -- get the list of users in the domain\n
--- Close() -- Close the domain handle\n
--- Close() -- Close the connect handle\n
---\n
--- Credit goes out to the enum.exe program, the code I wrote for this is largely due to packetlogs 
--- I took of its operations. \n
---\n
--- Regardless of whether or not this succeeds, a second technique is used to pull user accounts. 
--- This one is apparently successful against more machines, although I haven't found a machine
--- that this only works against. However, I did find that this will turn up more users for certain
--- systems (although I haven't figured out why). \n
--- \n
--- Each user on a Windows system has an RID. The RID of 500 is the Administrator account (even if 
--- it's renamed), 501 is the Guest account, and 1000+ are the user accounts. This technique, which
--- was originally used in the sid2user/user2sid programs, will attempt to convert common RID numbers
--- to names to discover users. \n
--- \n
--- First, the SID of the server has to be determined. This is done by looking up any name present on
--- the server using a technique like user2sid. For this code, we try and convert as many names as we
--- can find -- all we need is one valid name for this to succeed. In this code, I use:\n
--- - The computer name / domain name, returned in SMB_COM_NEGOTIATE\n
--- - An nbstat query to get the server name and the currently loggeed in user\n
--- - Some common names ("administrator", "guest", and "test")\n
---\n
--- In theory, the computer name should be sufficient for this to always work, and the rest of the \n
--- names are in there for good measure. \n
---\n
--- Once that's completed, the RIDs 500 - 505 are requested, and any responses are displayed. Then,
--- starting at 1000, we take small groups of RIDs which are requestd. I break them into
--- smaller groups because if too many are requested at once, we get a STATUS_BUFFER_OVERFLOW 
--- error. We try every RID up to 1100, then, as soon as we get an empty group (5 RIDs in a row 
--- without a result), we stop. \n
---\n
--- It might be a good idea to modify this, in the future, with some more intelligence. For example,
--- have it run until it get 5 groups in a row with no results instead of going up to 1100. I 
--- performed a test on an old server we have here with a lot of accounts, and I got these results:
--- 500, 501, 1000, 1030, 1031, 1053, 1054, 1055, 1056, 1057, 1058, 1059, 1060, 1061, 1062, 1063, 
--- 1064, 1065, 1066, 1067, 1070, 1075, 1081, 1088, 1090. The jump from 1000 to 1030 is quite large
--- and can easily result in missing accounts.\n
---\n
--- The disadvantage of using the user2sid/sid2user technique is that less information is returned 
--- about the user. \n
---\n
--- The names and details from both of these techniques are merged and displayed. If the output is
--- verbose, then as many details as possible are displayed, otherwise only the list of usernames
--- are displayed. The names are ordered alphabetically.\n
---
---@usage
+id = "MSRPC: List of user accounts"
+description = [[
+Attempts to enumerate the users on a remote Windows system, with as much
+information as possible, through a variety of techniques (over SMB + MSRPC,
+which uses port 445 or 139).
+\n\n
+Will first attempt to call the QueryDisplayInfo() MSRPC function. If NULL
+sessions are enabled, this will succeed and pull back a detailed list of users.
+Unfortunately, this likely won't succeed unless we're scanning Windows 2000.
+When this test is performed, the following MSRPC functions are called:\n
+Bind() -- bind to the SAMR service\n
+Connect4() -- get a connect_handle\n
+EnumDomains() -- get a list of the domains\n
+QueryDomain() -- get the sid for the domain\n
+OpenDomain() -- get a handle for each domain\n
+QueryDisplayInfo() -- get the list of users in the domain\n
+Close() -- Close the domain handle\n
+Close() -- Close the connect handle
+\n\n
+Credit goes out to the enum.exe program, the code I wrote for this is largely
+due to packetlogs I took of its operations.
+\n\n
+Regardless of whether or not this succeeds, a second technique is used to pull
+user accounts. This one is apparently successful against more machines,
+although I haven't found a machine that this only works against. However, I did
+find that this will turn up more users for certain systems (although I haven't
+figured out why).
+\n\n
+Each user on a Windows system has an RID. The RID of 500 is the Administrator
+account (even if it's renamed), 501 is the Guest account, and 1000+ are the
+user accounts. This technique, which was originally used in the
+sid2user/user2sid programs, will attempt to convert common RID numbers to names
+to discover users.
+\n\n
+First, the SID of the server has to be determined. This is done by looking up
+any name present on the server using a technique like user2sid. For this code,
+we try and convert as many names as we can find -- all we need is one valid
+name for this to succeed. In this code, I use:\n
+- The computer name / domain name, returned in SMB_COM_NEGOTIATE\n
+- An nbstat query to get the server name and the currently loggeed in user\n
+- Some common names ("administrator", "guest", and "test")
+\n\n
+In theory, the computer name should be sufficient for this to always work, and
+the rest of the names are in there for good measure.
+\n\n
+Once that's completed, the RIDs 500 - 505 are requested, and any responses are
+displayed. Then, starting at 1000, we take small groups of RIDs which are
+requestd. I break them into smaller groups because if too many are requested at
+once, we get a STATUS_BUFFER_OVERFLOW error. We try every RID up to 1100, then,
+as soon as we get an empty group (5 RIDs in a row without a result), we stop.
+\n\n
+It might be a good idea to modify this, in the future, with some more
+intelligence. For example, have it run until it get 5 groups in a row with no
+results instead of going up to 1100. I performed a test on an old server we
+have here with a lot of accounts, and I got these results: 500, 501, 1000,
+1030, 1031, 1053, 1054, 1055, 1056, 1057, 1058, 1059, 1060, 1061, 1062, 1063,
+1064, 1065, 1066, 1067, 1070, 1075, 1081, 1088, 1090. The jump from 1000 to
+1030 is quite large and can easily result in missing accounts.
+\n\n
+The disadvantage of using the user2sid/sid2user technique is that less
+information is returned about the user.
+\n\n
+The names and details from both of these techniques are merged and displayed.
+If the output is verbose, then as many details as possible are displayed,
+otherwise only the list of usernames are displayed. The names are ordered
+alphabetically.
+]]
+
+---
+-- @usage
 -- nmap --script smb-enumusers.nse -p445 <host>\n
--- sudo nmap -sU -sS --script smb-enumusers.nse -p U:137,T:139 <host>\n
+-- sudo nmap -sU -sS --script smb-enumusers.nse -p U:137,T:139 <host>
 --
---@output
+-- @output
 -- TODO
 -----------------------------------------------------------------------
 
-id = "MSRPC: List of user accounts"
-description = "Tries calling SAMR and LSA functions to get a list of user accounts."
 author = "Ron Bowes"
 copyright = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

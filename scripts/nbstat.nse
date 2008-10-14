@@ -1,11 +1,18 @@
---- Sends a NetBIOS NBSTAT query to target host to try to determine the NetBIOS
---  names and MAC address. By default, displays the name of the computer and the
---  logged-in user; if verbosity is turned up, displays all names the system
---  thinks it owns. \n
---
---@usage
+id = "NBSTAT"
+description = [[
+Attempt's to get the target's NetBIOS names and MAC address.
+\n\n
+By default, the script displays the name of the computer and the logged-in
+user; if the verbosity is turned up, it displays all names the system thinks it
+owns.
+\n\n
+For more information on the NetBIOS protocol, see 'nselib/netbios.lua'.
+]]
+
+---
+-- @usage
 -- sudo nmap -sU --script nbstat.nse -p137 <host>\n
---\n
+--
 -- @output
 -- (no verbose)\n
 -- |_ NBSTAT: NetBIOS name: TEST1, NetBIOS user: RON, NetBIOS MAC: 00:0c:29:f9:d9:28\n
@@ -21,10 +28,6 @@
 -- |  Name: WORKGROUP<1d>        Flags: <unique><active>\n
 -- |_ Name: \x01\x02__MSBROWSE__\x02<01>  Flags: <group><active>\n
 
-id = "NBSTAT"
-description = "Sends a NetBIOS query to target host to try to determine \
-the NetBIOS name and MAC address. For more information on the NetBIOS protocol, \
-see 'nselib/netbios.lua'."
 author = "Brandon Enright <bmenrigh@ucsd.edu>, Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

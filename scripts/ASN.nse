@@ -1,17 +1,18 @@
 id = "AS Numbers"
 description = [[
-This script performs IP address to Autonomous System Numbers (ASN) lookups.  It
-sends DNS TXT queries to a DNS server which in turn queries a third party
-service provided by Team Cymru (team-cymru.org) using an in-addr.arpa style
-zone set-up especially for use by Nmap.
-\n
+Maps IP addresses to autonomous system (AS) numbers.
+\n\n
+The script works by sending DNS TXT queries to a DNS server which in turn
+queries a third-party service provided by Team Cymru (team-cymru.org) using an
+in-addr.arpa style zone set-up especially for use by Nmap.
+\n\n
 The responses to these queries contain both Origin and Peer ASNs and their
 descriptions, displayed along with the BG Prefix and Country Code.
-\n
+\n\n
 The script caches results to reduce the number of queries and should perform a
 single query for all scanned targets in a BG Prefix present in Team Cymru's
 database.
-\n
+\n\n
 Be aware that any targets against which this script is run will be sent to and
 potentially recorded by one or more DNS servers and Team Cymru. In addition
 your IP address will be sent along with the ASN to a DNS server (your default

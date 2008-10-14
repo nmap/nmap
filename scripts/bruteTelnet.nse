@@ -1,9 +1,9 @@
---- Obtains the telnet login credentials on a server. This script
--- uses brute force techniques. 
+id = 'bruteforce'
+description = [[
+Tries to get Telnet login credentials by guessing usernames and passwords.
+]]
 
-id='bruteforce'
 author = 'Eddie Bell <ejlbell@gmail.com>'
-description='brute force telnet login credientials'
 license = 'Same as Nmap--See http://nmap.org/book/man-legal.html'
 categories = {'auth', 'intrusive'}
 

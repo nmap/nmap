@@ -1,3 +1,4 @@
+id          = "Whois"
 description = [[
 Queries the WHOIS services of Regional Internet Registries (RIR) and attempts to retrieve information about the IP Address
 Assignment which contains the Target IP Address.
@@ -69,7 +70,7 @@ the RIRs.
 -- \n        nmap target --script whois --script-args whois={whodb=nocache}
 -- \n\n
 --
-
+--
 --
 --
 -- @output
@@ -83,7 +84,6 @@ the RIRs.
 -- \n|_ country: US stateprov: CA
 --
 
-id          = "Whois"
 author      = "jah <jah at zadkiel.plus.com>"
 license     = "See Nmap License: http://nmap.org/book/man-legal.html"
 runlevel    = 1

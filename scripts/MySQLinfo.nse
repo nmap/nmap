@@ -1,10 +1,14 @@
---- Connects to a MySQL server and prints information such as the protocol and
---- version numbers, thread id, status, capabilities and the password salt
---
--- If service detection is performed and the server appears to be blocking
--- our host or is blocked from too many connections, then we don't bother
--- running this script (see the portrule)
---
+id = "MySQL Server Information"
+description = [[
+Connects to a MySQL server and prints information such as the protocol and
+version numbers, thread ID, status, capabilities, and the password salt.
+\n\n
+If service detection is performed and the server appears to be blocking
+our host or is blocked from too many connections, then we don't bother
+running this script (see the portrule).
+]]
+
+---
 --@output
 -- 3306/tcp open  mysql \n
 -- |  MySQL Server Information: Protocol: 10 \n
@@ -15,10 +19,6 @@
 -- |_ Salt: bYyt\NQ/4V6IN+*3`imj
 
 -- Many thanks to jah (jah@zadkiel.plus.com) for testing and enhancements
-
-id = "MySQL Server Information"
-
-description = "Connects to a MySQL server and prints information"
 
 author = "Kris Katterjohn <katterjohn@gmail.com>"
 

@@ -1,19 +1,23 @@
---- Attempts to enumerate domains on a system, along with their policies. This will likely
--- only work without credentials against Windows 2000. \n
--- \n
--- After the initial bind() to SAMR, the sequence of calls is:\n
--- Connect4() -- get a connect_handle\n
--- EnumDomains() -- get a list of the domains (stop here if you just want the names)\n
--- QueryDomain() -- get the sid for the domain\n
--- OpenDomain() -- get a handle for each domain\n
--- QueryDomainInfo2() -- get the domain information\n
---
---@usage
+id = "MSRPC: List of domains"
+description = [[
+Attempts to enumerate domains on a system, along with their policies. This will
+likely only work without credentials against Windows 2000.
+\n\n
+After the initial bind() to SAMR, the sequence of calls is:\n
+Connect4() -- get a connect_handle\n
+EnumDomains() -- get a list of the domains (stop here if you just want the names)\n
+QueryDomain() -- get the sid for the domain\n
+OpenDomain() -- get a handle for each domain\n
+QueryDomainInfo2() -- get the domain information\n
+]]
+
+---
+-- @usage
 -- nmap --script smb-enumdomains.nse -p445 <host>\n
 -- sudo nmap -sU -sS --script smb-enumdomains.nse -p U:137,T:139 <host>\n
 --
---@output
--- Host script results:
+-- @output
+-- Host script results:\n
 -- |  MSRPC: List of domains:\n
 -- |  Domain: TEST1\n
 -- |   |_ SID: S-1-5-21-1060284298-842925246-839522115\n
@@ -29,11 +33,8 @@
 -- |   |_ Password properties: \n
 -- |     |_  Password complexity requirements do not exist\n
 -- |_    |_  Administrator account cannot be locked out\n
-
 -----------------------------------------------------------------------
 
-id = "MSRPC: List of domains"
-description = "Tries calling the EnumDomains() and QueryDomainInfo2() RPC function to obtain a list of domains/policies."
 author = "Ron Bowes"
 copyright = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

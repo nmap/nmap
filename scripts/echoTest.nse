@@ -1,7 +1,10 @@
 id = "Echo"
-
-description = "Connects to the UDP echo service, sends a string, receives a string and if both\
-strings are equal reports success."
+description = [[
+Tests the UDP echo service.
+\n\n
+The script sends a string, then receives a string and reports success if the
+two strings are equal.
+]]
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 

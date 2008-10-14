@@ -1,6 +1,7 @@
 id = "POP3 Capabilites"
-
-description = "retrieves POP3 server capabilites"
+description = [[
+Retrieves POP3 server capabilities.
+]]
 
 author = "Philip Pickering <pgpickering@gmail.com>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

@@ -1,5 +1,10 @@
---- Determines if the target server supports SSL-v2 and what cyphers it
--- supports.
+id = "SSLv2"
+description = [[
+Determines whether the server (still) supports SSL-v2, and what cyphers it
+offers.
+]]
+
+---
 --@ouput
 -- 443/tcp open   https   syn-ack\n
 -- |  SSLv2: server still supports SSLv2\n
@@ -10,8 +15,6 @@
 -- |       SSL2_RC4_128_EXPORT40_WITH_MD5\n
 -- |_      SSL2_RC2_CBC_128_CBC_WITH_MD5\n
 
-id = "SSLv2"
-description = "Determines whether the server (still) supports SSL-v2, and what cyphers it offers."
 author = "Matt <mb2263@bristol.ac.uk>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

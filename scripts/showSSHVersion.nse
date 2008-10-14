@@ -1,13 +1,14 @@
---- Queries the version from an SSH Server. This typically does not result
--- in any logs of the connection being made.
---@output
+id = "Stealth SSH version"
+description = [[
+Connects to an SSH server and retrieves the version banner.
+\n\n
+This typically does not result in any logs of the connection being made.
+]]
+
+---
+-- @output
 -- 22/tcp  open   ssh\n
 -- |_ Stealth SSH version: SSH-2.0-OpenSSH_3.9p1\n
-
-id = "Stealth SSH version"
-
-description = "Connects to an SSH server, queries the version string and echos it back. This tends to result\
-in the scanning attempt not being logged by the ssh daemon on the target."
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 

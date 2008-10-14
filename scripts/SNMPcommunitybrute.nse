@@ -1,9 +1,8 @@
--- SNMP community string brute force script
--- 2008-07-03
-
 id = "SNMPv1-communitybrute"
-
-description = "Attempts to find SNMP community string by brute force"
+description = [[
+Attempts to find an SNMP community string by brute force.
+]]
+-- 2008-07-03
 
 author = "Philip Pickering <pgpickering@gmail.com>"
 

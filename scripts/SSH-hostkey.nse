@@ -1,13 +1,17 @@
---- Shows SSH Hostkeys 
---
--- Shows fingerprint or fingerprint and key depending on verbosity level.
--- Puts the found hostkeys in nmap.registry for other scripts to use them.
--- You can control the output with the ssh_hostkey script argument. Possible
--- values are bubble,visual,full and all.
---
+id = "SSH Hostkey"
+description = [[
+Shows SSH hostkeys.
+\n\n
+Shows fingerprint or fingerprint and key depending on verbosity level.
+Puts the found hostkeys in nmap.registry for other scripts to use them.
+You can control the output with the ssh_hostkey script argument. Possible
+values are bubble, visual, full and all.
+]]
+
+---
 --@usage
--- nmap host --script SSH-hostkey --script-args ssh_hostkey=full
--- nmap host --script SSH-hostkey --script-args ssh_hostkey=all
+-- nmap host --script SSH-hostkey --script-args ssh_hostkey=full\n
+-- nmap host --script SSH-hostkey --script-args ssh_hostkey=all\n
 -- nmap host --script SSH-hostkey --script-args ssh_hostkey='visual bubble'
 --
 --@output
@@ -29,10 +33,7 @@
 -- 22/tcp open  ssh\n
 -- |  SSH Hostkey: 2048 xuvah-degyp-nabus-zegah-hebur-nopig-bubig-difeg-hisym-rumef-cuxex (RSA)\n
 -- |_ ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwVuv2gcr0maaKQ69VVIEv2ob4OxnuI64fkeOnCXD1lUx5tTA+vefXUWEMxgMuA7iX4irJHy2zer0NQ3Z3yJvr5scPgTYIaEOp5Uo/eGFG9Agpk5wE8CoF0e47iCAPHqzlmP2V7aNURLMODb3jVZuI07A2ZRrMGrD8d888E2ORVORv1rYeTYCqcMMoVFmX9l3gWEdk4yx3w5sD8v501Iuyd1v19mPfyhrI5E1E1nl/Xjp5N0/xP2GUBrdkDMxKaxqTPMie/f0dXBUPQQN697a5q+5lBRPhKYOtn6yQKCd9s1Q22nxn72Jmi1RzbMyYJ52FosDT755Qmb46GLrDMaZMQ==
-
-id = "SSH Hostkey"
 author = "Sven Klemm <sven@c3d2.de>"
-description = "Show SSH Hostkeys"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"safe","default","intrusive"}
 

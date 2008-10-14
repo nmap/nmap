@@ -1,14 +1,16 @@
+id = "HTTP Auth"
+description = [[
+Gets the authentication scheme and realm of a web service that requires
+authentication.
+]]
+
 ---
---@output
+-- @output
 -- |  HTTP Auth: HTTP Service requires authentication\n
 -- |_   Auth type: Basic, realm = DSL Router\n
 
 -- HTTP authentication information gathering script
 -- rev 1.1 (2007-05-25)
-
-id = "HTTP Auth"
-
-description = "If a web server requires authentication, prints the authentication scheme and realm"
 
 author = "Thomas Buchanan <tbuchanan@thecompassgrp.net>"
 

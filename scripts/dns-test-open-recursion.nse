@@ -1,6 +1,10 @@
 id = "Nameserver open recursive queries (CVE-1999-0024) (BID 136, 678)"
 
-description = "Checks if a nameserver on UDP/53 allows queries for third-party names. It is expected that recursion will be enabled on your own internal nameservers."
+description = [[
+Checks if a DNS server allows queries for third-party names.
+\n\n
+It is expected that recursion will be enabled on your own internal nameservers.
+]]
 
 author = "Felix Groebert <felix@groebert.org>"
 

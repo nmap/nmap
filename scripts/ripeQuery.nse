@@ -1,10 +1,8 @@
-require "comm"
-require "ipOps"
-
 id = "RIPE query"
 description = [[
-Connects to the RIPE database, extracts and prints the role: entry for the IP.
-\n
+Connects to the RIPE database and displays the role: entry for the target's IP
+address.
+\n\n
 This script uses an external database. Your IP address and the IP address of
 the target will be sent to whois.ripe.net.
 ]]
@@ -12,6 +10,9 @@ author = "Diman Todorov <diman.todorov@gmail.com>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "external"}
+
+require "comm"
+require "ipOps"
 
 hostrule = function(host, port)
 	return not ipOps.isPrivate(host.ip)

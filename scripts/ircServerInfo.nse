@@ -1,6 +1,12 @@
---- Gather information from an IRC server. It uses STATS, LUSERS, and other
--- queries to obtain this information.
---@output
+id = "IRC Server Info"
+description = [[
+Gathers information from an IRC server.
+\n\n
+It uses STATS, LUSERS, and other queries to obtain this information.
+]]
+
+---
+-- @output
 -- 6665/tcp open     irc\n
 -- |  IRC Server Info: Server: foo.bar.net\n
 -- |  Version: hyperion-1.0.2b(381). foo.bar.net \n
@@ -8,10 +14,6 @@
 -- |  Uptime: 106 days, 2:46:30\n
 -- |  Source host: bar.foo.net\n
 -- |_ Source ident: OK n=nmap\n
-
-id = "IRC Server Info"
-
-description = "Gets information from an IRC server by issuing STATS, LUSERS, etc queries."
 
 author = "Doug Hoyte"
 

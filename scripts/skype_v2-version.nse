@@ -1,5 +1,7 @@
-id="Skype v2"
-description="Determines if remote service is Skype protocol version 2"
+id = "Skype v2"
+description = [[
+Detects the Skype version 2 service.
+]]
 author = "Brandon Enright <bmenrigh@ucsd.edu>" 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"version"}

@@ -1,7 +1,10 @@
+id = "rpcinfo"
+description = [[
+Connects to portmapper and fetches a list of all registered programs.
+]]
+
 ---
--- Connects to portmapper and fetches a list of all registered programs
--- 
---@output
+-- @output
 -- 111/tcp open  rpcbind\n
 -- |  rpcinfo:\n
 -- |  100000  2        111/udp  rpcbind\n
@@ -22,8 +25,6 @@ require "bin"
 require "bit"
 require "tab"
 
-id = "rpcinfo"
-description = "connects to portmapper and fetches a list of all registered programs"
 author = "Sven Klemm <sven@c3d2.de>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default","safe","discovery"}

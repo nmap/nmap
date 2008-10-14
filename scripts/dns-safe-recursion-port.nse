@@ -1,10 +1,11 @@
 id = "DNS source port randomness"
 
 description = [[
-Queries porttest.dns-oarc.net to check for the predictable-port DNS recursion
-vulnerability.  Predictable source ports can make a DNS server vulnerable to
-cache poisoning attacks (CVE-2008-1447)
-\n
+Checks a DNS server for the predictable-port recursion vulnerability.
+Predictable source ports can make a DNS server vulnerable to cache poisoning
+attacks (CVE-2008-1447).
+\n\n
+The script works by querying porttest.dns-oarc.net.
 Be aware that any targets against which this script is run will be sent to and
 potentially recorded by one or more DNS servers and the porttest server. In
 addition your IP address will be sent along with the porttest query to the DNS

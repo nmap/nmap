@@ -1,9 +1,7 @@
---- This script connects to a UDP chargen service and attempts to read
--- some data.
-
 id = "Chargen"
-
-description = "Connects to the UDP chargen service and tries to read some bytes"
+description = [[
+Tries to read bytes from the UDP chargen service.
+]]
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 

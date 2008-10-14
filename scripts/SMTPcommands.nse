@@ -1,8 +1,10 @@
---- SMTP supported commands gathering script \n
--- \n
--- Attempts to use EHLO and HELP to gather the Extended commands an
--- SMTP server supports.
--- \n
+id = "SMTPcommands"
+description = [[
+Attempts to use EHLO and HELP to gather the Extended commands supported by an
+SMTP server.
+]]
+
+---
 -- @output
 -- 25/tcp	open	smtp \n
 -- |  SMTPcommands: EHLO uninvited.example.net Hello root at localhost [127.0.0.1], SIZE 52428800, PIPELINING, 250 HELP \n
@@ -41,8 +43,6 @@
 -- script and from Arturo 'Buanzo' Busleiman's SMTP open relay
 -- detector script.
 
-id = "SMTPcommands"
-description = "Attempts to use EHLO and HELP to gather the Extended commands an SMTP server supports."
 author = "Jason DePriest <jrdepriest@gmail.com>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
