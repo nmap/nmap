@@ -8,16 +8,18 @@ require "bit"
 
 
 ----------------------------------------------------------------------------------------------------------------
--- extract number from binary string
+--- Get an 8-bit integer at a 0-based byte offset in a binary string.
 function u8(b, i)
         return string.byte(b, i+1)
 end
+--- Get a 16-bit integer at a 0-based byte offset in a binary string.
 function u16(b, i)
         local b1,b2
         b1, b2 = string.byte(b, i+1), string.byte(b, i+2)
         --        2^8     2^0
         return b1*256 + b2
 end
+--- Get a 32-bit integer at a 0-based byte offset in a binary string.
 function u32(b,i)
         local b1,b2,b3,b4
         b1, b2 = string.byte(b, i+1), string.byte(b, i+2)
@@ -26,15 +28,20 @@ function u32(b,i)
         return b1*16777216 + b2*65536 + b3*256 + b4
 end
 
--- insert number to binary string
+--- Set an 8-bit integer at a 0-based byte offset in a binary string
+-- (big-endian).
 function set_u8(b, i, num)
 	local s = string.char(bit.band(num, 0xff))
 	return b:sub(0+1, i+1-1) .. s .. b:sub(i+1+1)
 end
+--- Set a 16-bit integer at a 0-based byte offset in a binary string
+-- (big-endian).
 function set_u16(b, i, num)
 	local s = string.char(bit.band(bit.rshift(num, 8), 0xff)) .. string.char(bit.band(num, 0xff))
 	return b:sub(0+1, i+1-1) .. s .. b:sub(i+1+2)
 end
+--- Set a 32-bit integer at a 0-based byte offset in a binary string
+-- (big-endian).
 function set_u32(b,i, num)
 	local s = string.char(bit.band(bit.rshift(num,24), 0xff)) ..
 		string.char(bit.band(bit.rshift(num,16), 0xff)) ..
@@ -45,7 +52,7 @@ end
 
 
 -- Checksum
-----  Standard BSD internet checksum routine  check nmap/tcpip.cc
+---  Calculate a standard Internet checksum.
 function in_cksum(b)
 	local sum = 0
 	local c
@@ -92,14 +99,16 @@ IPPROTO_UDPLITE = 136        	--  UDP-Lite (RFC 3828)
 ----------------------------------------------------------------------------------------------------------------
 -- Packet is a class
 Packet = {}
--- Constructor
--- packet          - binary string with packet data
--- packet_len      - packet length, it could be more than string.len(packet)
--- force_continue  - whether error in parsing headers should be fatal or not.
---                   especially usefull at parsing icmp packets, where on small icmp payload
---                   could be tcp header. The problem is that parsing this payload normally
---                   would fail (broken packet, because tcp header is too small)
---                   The basic question is if too short tcp header should be treated as fatal error.
+
+--- Create a new Packet object.
+-- @param packet binary string with packet data.
+-- @param packet_len packet length, it could be more than string.len(packet).
+-- @param force_continue whether error in parsing headers should be
+-- fatal or not. Especially useful at parsing ICMP packets, where a
+-- small ICMP payload could be a TCP header. The problem is that parsing
+-- this payload normally would fail (broken packet, because TCP header
+-- is too small) The basic question is if too short TCP header should be
+-- treated as fatal error.
 function Packet:new(packet, packet_len, force_continue)
 	local o = setmetatable({}, {__index = Packet})
 	o.buf		= packet
@@ -122,7 +131,8 @@ end
 -- Helpers
 
 
--- from ip notation as string (like 1.2.3.4) to raw_string(4 bytes long)
+--- Convert a dotted-quad IP address string (like 1.2.3.4) to a raw
+-- string four bytes long.
 function iptobin(str)
 	local ret = ""
         for c in string.gmatch(str, "[0-9]+") do
@@ -130,41 +140,50 @@ function iptobin(str)
         end
 	return ret
 end
--- from raw_ip (four bytes string) to dot-notation (like 1.2.3.4)
+--- Convert a four-byte raw string to a dotted-quad IP address string.
 function toip(raw_ip_addr)
 	if not raw_ip_addr then
 		return "?.?.?.?"
 	end
 	return string.format("%i.%i.%i.%i", string.byte(raw_ip_addr,1,4))
 end
--- get unsigned byte
+--- Get an 8-bit integer at a 0-based byte offset in the packet.
 function Packet:u8(index)
         return u8(self.buf, index)
 end
+--- Get a 16-bit integer at a 0-based byte offset in the packet.
 function Packet:u16(index)
         return u16(self.buf, index)
 end
+--- Get a 32-bit integer at a 0-based byte offset in the packet.
 function Packet:u32(index)
         return u32(self.buf, index)
 end
+--- Return the packet contents as a byte string.
 function Packet:raw(index, length)
         return string.char(string.byte(self.buf, index+1, index+1+length-1))
 end
 
+--- Set an 8-bit integer at a 0-based byte offset in the packet.
+-- (big-endian).
 function Packet:set_u8(index, num)
         self.buf = set_u8(self.buf, index, num)
         return self.buf
 end
+--- Set a 16-bit integer at a 0-based byte offset in the packet.
+-- (big-endian).
 function Packet:set_u16(index, num)
         self.buf = set_u16(self.buf, index, num)
         return self.buf
 end
+--- Set a 32-bit integer at a 0-based byte offset in the packet.
+-- (big-endian).
 function Packet:set_u32(index, num)
         self.buf = set_u32(self.buf, index, num)
         return self.buf
 end
 
--- PARSE IP PACKET HEADER
+--- Parse an IP packet header.
 function Packet:ip_parse(force_continue)
 	self.ip_offset		= 0
 	if    string.len(self.buf) < 20 then 	-- too short
@@ -196,43 +215,44 @@ function Packet:ip_parse(force_continue)
 	self.ip_data_offset	= self.ip_offset + self.ip_hl*4
 	return true
 end
--- set header length field
+--- Set the header length field.
 function Packet:ip_set_hl(len)
 	self:set_u8(self.ip_offset + 0, bit.bor(bit.lshift(self.ip_v, 4), bit.band(len, 0x0F)))
 	self.ip_v		= bit.rshift(bit.band(self:u8(self.ip_offset + 0), 0xF0), 4)
 	self.ip_hl		=            bit.band(self:u8(self.ip_offset + 0), 0x0F)		-- header_length or data_offset
 end
--- set packet length field
+--- Set the packet length field.
 function Packet:ip_set_len(len)
 	self:set_u16(self.ip_offset + 2, len)
 end
--- set ttl
+--- Set the TTL.
 function Packet:ip_set_ttl(ttl)
 	self:set_u8(self.ip_offset + 8, ttl)
 end
--- set checksum
+--- Set the checksum.
 function Packet:ip_set_checksum(checksum)
 	self:set_u16(self.ip_offset + 10, checksum)
 end
--- count checksum for packet and save it
+--- Count checksum for packet and save it.
 function Packet:ip_count_checksum()
 	self:ip_set_checksum(0)
 	local csum = in_cksum( self.buf:sub(0, self.ip_offset + self.ip_hl*4)  )
 	self:ip_set_checksum(csum)
 end
--- set source ip
+--- Set the source IP address.
 function Packet:ip_set_bin_src(binip)
 	nrip = u32(binip, 0)
 	self:set_u32(self.ip_offset + 12, nrip)
 	self.ip_bin_src		= self:raw(self.ip_offset + 12,4)	-- raw 4-bytes string
 end
--- set destination ip
+--- Set the destination IP address.
 function Packet:ip_set_bin_dst(binip)
 	nrip = u32(binip, 0)
 	self:set_u32(self.ip_offset + 16, nrip)
 	self.ip_bin_dst		= self:raw(self.ip_offset + 16,4)
 end
--- set ip options field (and move the data, count new length etc)
+--- Set the IP options field (and move the data, count new length,
+-- etc.).
 function Packet:ip_set_options(ipoptions)
 	-- packet = <ip header> + ipoptions + <payload>
 	local buf = self.buf:sub(0+1,self.ip_offset + 20) .. ipoptions .. self.buf:sub(self.ip_data_offset+1)
@@ -251,7 +271,7 @@ function Packet:ip_set_options(ipoptions)
 	end
 end
 
--- return short information about ip header
+--- Return a short string representation of the IP header.
 function Packet:ip_tostring()
 	return string.format(
 		"IP %s -> %s",
@@ -259,7 +279,7 @@ function Packet:ip_tostring()
 		self.ip_dst)
 end
 
--- parse ip/tcp options to dict structure
+--- Parse IP/TCP options into a table.
 function Packet:parse_options(offset, length)
 	local options = {}
 	local op = 1
@@ -287,7 +307,7 @@ function Packet:parse_options(offset, length)
 	return options
 end
 
--- print short information about current packet
+--- Return a short string representation of the packet.
 function Packet:tostring()
 	if self.tcp then
 		return self:tcp_tostring()
@@ -300,7 +320,7 @@ function Packet:tostring()
 end
 
 ----------------------------------------------------------------------------------------------------------------
--- PARSE ICMP PACKET HEADER
+--- Parse an ICMP packet header.
 function Packet:icmp_parse(force_continue)
 	self.icmp_offset	= self.ip_data_offset
 	if string.len(self.buf) < self.icmp_offset + 8 then -- let's say 8 bytes minimum
@@ -322,13 +342,13 @@ function Packet:icmp_parse(force_continue)
 	end
 	return true
 end
--- return short information about icmp header
+--- Return a short string representation of the ICMP header.
 function Packet:icmp_tostring()
 	return self:ip_tostring() .. " ICMP(" .. self.icmp_payload:tostring() .. ")"
 end
 
 ----------------------------------------------------------------------------------------------------------------
--- PARSE TCP HEADER FROM PACKET
+-- Parse a TCP packet header.
 function Packet:tcp_parse(force_continue)
 	self.tcp = true
 	self.tcp_offset		= self.ip_data_offset
@@ -368,7 +388,7 @@ function Packet:tcp_parse(force_continue)
 	return true
 end
 
--- return short information about tcp packet
+--- Return a short string representation of the TCP packet.
 function Packet:tcp_tostring()
 	return string.format(
 		"TCP %s:%i -> %s:%i",
@@ -377,7 +397,7 @@ function Packet:tcp_tostring()
 		)
 end
 
--- parse options for tcp header
+--- Parse options for TCP header.
 function Packet:tcp_parse_options()
         local eoo = false
 	for _,opt in ipairs(self.tcp_options) do
@@ -399,29 +419,31 @@ function Packet:tcp_parse_options()
 	end
 end
 
+--- Set the TCP source port.
 function Packet:tcp_set_sport(port)
 	self:set_u16(self.tcp_offset + 0, port)
 end
+--- Set the TCP destination port.
 function Packet:tcp_set_dport(port)
 	self:set_u16(self.tcp_offset + 2, port)
 end
--- set tcp sequence field
+--- Set the TCP sequence field.
 function Packet:tcp_set_seq(new_seq)
 	self:set_u32(self.tcp_offset + 4, new_seq)
 end
--- set tcp flags field (like syn, ack, rst)
+--- Set the TCP flags field (like SYN, ACK, RST).
 function Packet:tcp_set_flags(new_flags)
 	self:set_u8(self.tcp_offset + 13, new_flags)
 end
--- set urgent pointer field
+--- Set the urgent pointer field.
 function Packet:tcp_set_urp(urg_ptr)
 	self:set_u16(self.tcp_offset + 18, urg_ptr)
 end
--- set tcp checksum field
+--- Set the TCP checksum field.
 function Packet:tcp_set_checksum(checksum)
 	self:set_u16(self.tcp_offset + 16, checksum)
 end
--- count and save tcp checksum field
+--- Count and save the TCP checksum field.
 function Packet:tcp_count_checksum()
 	self:tcp_set_checksum(0)
 	local proto	= self.ip_p
@@ -436,7 +458,7 @@ function Packet:tcp_count_checksum()
 	self:tcp_set_checksum(in_cksum(b))
 end
 
--- small database, mtu to link type string. Stolen from p0f.
+--- Map an MTU to a link type string. Stolen from p0f.
 function Packet:tcp_lookup_link()
         local mtu_def = {
             {["mtu"]=256,   ["txt"]= "radio modem"},
@@ -498,7 +520,8 @@ end
 ----------------------------------------------------------------------------------------------------------------
 
 -- UTILS
--- get binary string  as hex string
+
+--- Convert a binary string to a hex string.
 function bintohex(str)
         local b = ""
         if not str then -- nil
@@ -512,12 +535,13 @@ end
 
 
 
--- Parse specifically printed hex string as binary
+--- Convert a hex string to a binary string.
+-- \n\n
 -- Only bytes [a-f0-9A-F] from input are interpreted. The rest is ignored.
--- Number of interpreted bytes _must_ be even. *The input is interpreted in pairs*.
--- hextobin("20 20 20")		-> "   "
--- hextobin("414243")		-> "ABC"
--- hextobin("\\41\\42\\43")	-> "ABC"
+-- Number of interpreted bytes _must_ be even. *The input is interpreted in pairs*.\n
+-- hextobin("20 20 20")		-> "   "\n
+-- hextobin("414243")		-> "ABC"\n
+-- hextobin("\\41\\42\\43")	-> "ABC"\n
 -- hextobin("   41   42    43  ")-> "ABC"
 function hextobin(str)
         local ret = ""
