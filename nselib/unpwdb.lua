@@ -1,26 +1,8 @@
--- Kris Katterjohn 06/2008
-
-module(... or "unpwdb", package.seeall)
-
---- Username/Password DB Library.
---
--- usernames() - Returns a closure which returns a new username with every call
--- until the username list is exhausted (in which case it returns nil)
---
--- passwords() - Returns a closure which returns a new password with every call
--- until the password list is exhausted (in which case it returns nil)
---
--- timelimit() - Returns the suggested number of seconds to attempt a brute
--- force attack, based on Nmap's timing values (-T4, etc) and whether or not a
--- user-defined list is used.  You can use the script argument "notimelimit" to
--- make this function return nil, which means the brute-force should run until
--- the list is empty.  If "notimelimit" is not used, be sure to still check for
--- nil return values on the above two functions in case you finish before the
--- time limit is up.
---
--- The first two functions return multiple values for use with exception handling
--- via nmap.new_try().  The first value is the boolean success indicator, the
--- second value is the closure.
+--- Username/Password Database Library.
+-- The usernames and passwords functions return multiple values for use
+-- with exception handling via nmap.new_try().
+-- The first value is the boolean success indicator, the second value is
+-- the closure.
 --
 -- The closures can take a parameter of "reset" to rewind the list to the
 -- beginning.
@@ -32,7 +14,9 @@ module(... or "unpwdb", package.seeall)
 -- does the password in "mypass  #!comment: blah" contain a space, two spaces,
 -- or do they just separate the password from the comment?
 --
-----
+-- @author Kris Katterjohn 06/2008
+
+module(... or "unpwdb", package.seeall)
 
 local usertable = {}
 local passtable = {}
@@ -103,10 +87,17 @@ local closure = function(table)
 	end
 end
 
--- If we're reading from a user-defined username or password list,
--- we'll give them a timeout 1.5x the default.  If the "notimelimit"
--- script argument is used, we return nil.
+--- Returns the suggested number of seconds to attempt a brute
+-- force attack, based on Nmap's timing values (-T4, etc) and whether or not a
+-- user-defined list is used.  You can use the script argument "notimelimit" to
+-- make this function return nil, which means the brute-force should run until
+-- the list is empty. If "notimelimit" is not used, be sure to still check for
+-- nil return values on the above two functions in case you finish before the
+-- time limit is up.
 timelimit = function()
+   -- If we're reading from a user-defined username or password list,
+   -- we'll give them a timeout 1.5x the default.  If the "notimelimit"
+   -- script argument is used, we return nil.
 	local t = nmap.timing_level()
 
 	-- Easy enough
@@ -123,6 +114,10 @@ timelimit = function()
 	end
 end
 
+--- Returns a function closure which returns a new username with every call
+-- until the username list is exhausted (in which case it returns nil).
+-- @return boolean Status
+-- @return function The usernames iterator
 usernames = function()
 	local path = userfile()
 
@@ -137,6 +132,10 @@ usernames = function()
 	return true, closure(usertable)
 end
 
+--- Returns a function closure which returns a new password with every call
+-- until the password list is exhausted (in which case it returns nil).
+-- @return boolean Status
+-- @return function The passwords iterator
 passwords = function()
 	local path = passfile()
 
