@@ -2,6 +2,8 @@
   <refmeta>
     <refentrytitle>zenmap</refentrytitle>
     <manvolnum>1</manvolnum>
+    <refmiscinfo class="source">Zenmap</refmiscinfo>
+    <refmiscinfo class="manual">Zenmap Reference Guide</refmiscinfo>
   </refmeta>
   <refnamediv id='man-name'>
     <refname>zenmap</refname>
