@@ -1,7 +1,7 @@
---- The http module provides functions for dealing with the client side
--- of the http protocol. The functions reside inside the http namespace.
+--- Client-side HTTP library.
+-- \n\n
 -- The return value of each function in this module is a table with the
--- following keys: status, status-line, header and body. status is a number
+-- following keys: status, status-line, header, and body. status is a number
 -- representing the HTTP status code returned in response to the HTTP
 -- request. In case of an unhandled error, status is nil. status-line is
 -- the entire status message which includes the HTTP version, status code

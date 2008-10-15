@@ -1,4 +1,4 @@
---- Provides functions for manipulating and comparing IP addresses. The functions reside inside the ipOps namespace.
+--- Utility functions for manipulating and comparing IP addresses.
 -- @copyright See Nmap License: <a href="http://nmap.org/book/man-legal.html">http://nmap.org/book/man-legal.html</a>
 
 local type     = type
@@ -14,7 +14,10 @@ module ( "ipOps" )
 
 
 ---
--- Checks to see if the supplied IP address is part of the following non-internet-routable address spaces:
+-- Checks to see if the supplied IP address is part of a non-routable
+-- address space.
+-- \n\n
+-- The non-Internet-routable address spaces known to this function are:
 -- IPv4 Loopback (RFC3330),
 -- IPv4 Private Use (RFC1918),
 -- IPv4 Link Local (RFC3330),
@@ -53,8 +56,12 @@ end
 
 ---
 -- Converts the supplied IPv4 address into a DWORD value.
--- i.e. the address <a.b.c.d> becomes (((a*256+b)*256+c)*256+d).
--- Note: Currently, numbers in NSE are limited to 10^14, consequently not all IPv6 addresses can be represented in base 10.
+-- \n\n
+-- For example, the address a.b.c.d becomes (((a*256+b)*256+c)*256+d).
+-- \n\n
+-- Note: IPv6 addresses are not supported. Currently, numbers in NSE are
+-- limited to 10^14, consequently not all IPv6 addresses can be
+-- represented in base 10.
 -- @param ip  String representing an IPv4 address.  Shortened notation is permitted.
 -- @usage     local dword = ipOps.todword( "73.150.2.210" )
 -- @return    Number corresponding to the supplied IP address (or nil in case of an error).
@@ -78,10 +85,12 @@ end
 
 
 ---
--- Separates the supplied IP address into its constituent parts and returns them as a table of decimal numbers.
--- (e.g. the address 139.104.32.123 becomes { 139, 104, 32, 123 } )
--- @usage     local a, b, c, d;
---            local t, err = get_parts_as_number( "139.104.32.123" );
+-- Separates the supplied IP address into its constituent parts and
+-- returns them as a table of decimal numbers.
+-- \n\n
+-- For example, the address 139.104.32.123 becomes { 139, 104, 32, 123 }.
+-- @usage     local a, b, c, d;\n
+--            local t, err = get_parts_as_number( "139.104.32.123" );\n
 --            if t then a, b, c, d = unpack( t ) end
 -- @param ip  String representing an IPv4 or IPv6 address.  Shortened notation is permitted.
 -- @return    Array-style Table containing decimal numbers for each part of the supplied IP address (or nil in case of an error).
@@ -170,7 +179,9 @@ end
 
 
 ---
--- Checks whether the supplied IP address is within the supplied Range of IP addresses if they belong to the same address family.
+-- Checks whether the supplied IP address is within the supplied range of IP addresses.
+-- \n\n
+-- The address and the range must both belong to the same address family.
 -- @param ip     String representing an IPv4 or IPv6 address.  Shortened notation is permitted.
 -- @param range  String representing a range of IPv4 or IPv6 addresses in first-last or cidr notation  (e.g. "192.168.1.1 - 192.168.255.255" or "2001:0A00::/23").
 -- @usage        if ipOps.ip_in_range( "192.168.1.1", "192/8" ) then ...
@@ -207,6 +218,7 @@ end
 ---
 -- Expands an IP address supplied in shortened notation.
 -- Serves also to check the well-formedness of an IP address.
+-- \n\n
 -- Note: IPv4in6 notated addresses will be returned in pure IPv6 notation unless the IPv4 portion
 -- is shortened and does not contain a dot - in which case the address will be treated as IPv6.
 -- @param ip  String representing an IPv4 or IPv6 address in shortened or full notation.

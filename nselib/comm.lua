@@ -1,51 +1,22 @@
---- The comm module provides functions for common network discovery tasks.
--- Banner-grabbing and making a quick exchange of data are some of
--- these tasks. These
--- functions' return values are setup for use with exception handling
--- via nmap.new_try().\n
--- \n
--- These functions can all be passed a table of options, but it's not
--- required. The relevant indexes for this table are bytes, lines, proto
--- and timeout. bytes is used to provide the minimum number of bytes required
--- for a read. lines does the same, but for the minimum number of lines.
--- proto is used to set the protocol to communicate with, defaulting to
--- "tcp" if not provided. timeout is used to set the socket timeout (see
--- the socket function set_timeout() for details). 
+--- Common communication functions for network discovery tasks like
+-- banner grabbing and data exchange.
+-- \n\n
+-- The functions in this module return values appropriate for use with
+-- exception handling via nmap.new_try().
+-- \n\n
+-- These functions may be passed a table of options, but it's not
+-- required. The keys for the options table are "bytes", "lines",
+-- "proto", and "timeout". "bytes" sets a minimum number of bytes to
+-- read. "lines" does the same for lines. "proto" sets the protocol to
+-- communicate with, defaulting to "tcp" if not provided. "timeout" sets
+-- the socket timeout (see the socket function set_timeout() for
+-- details). 
+-- \n\n
+-- If both "bytes" and "lines" are provided, "lines" takes precedence.
+-- If neither are given, the functions read as many bytes as possible.
 -- @author Kris Katterjohn 04/2008
 
 module(... or "comm", package.seeall)
-
---
---
--- The Functions:
---
---   get_banner(host, port, [opts])
---   exchange(host, port, data, [opts])
---
--- get_banner() does just what it sounds like it does: connects to the
--- host, reads whatever it gives us, and then returns it.
---
--- exchange() connects to the host, sends the requested data, reads
--- whatever it gives us, and then returns it.
---
--- Both of these functions return multiple values so that they can be
--- used with exception handling via nmap.new_try().  The second value
--- they return is either the response from the host, or the error message
--- from one of the previous calls (connect, send, receive*).
---
--- These functions can be passed a table of options with the following keys:
---
---   bytes: Specifies the minimum amount of bytes are to be read from the host
---   lines: Specifies the minimum amount of lines are to be read from the host
---   proto: Specifies the protocol to be used with the connect() call
---   timeout: Sets the socket's timeout with nmap.set_timeout()
---
--- If neither lines nor bytes are specified, the calls attempt to read as many
--- bytes as possible.  If only bytes is specified, then it only tries to read
--- that many bytes.  Likewise, it only lines if specified, then it only tries
--- to read that many lines.  If they're both specified, the lines value is used.
---
-------
 
 -- Makes sure that opts exists and the default proto is there
 local initopts = function(opts)

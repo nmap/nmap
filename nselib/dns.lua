@@ -1,7 +1,7 @@
 module(... or "dns", package.seeall)
 
--- simple DNS library
--- packet creation, encoding, decoding, querying
+--- Simple DNS library supporting packet creation, encoding, decoding,
+-- and querying.
 
 require("ipOps")
 require("stdnse")
@@ -33,14 +33,13 @@ err = {
 
 
 ---
--- sends repeatedly udp packets to host, 
--- waiting for an answer
---@param data Data to be sent
---@param host Host to connect to
---@param port Port to connect to
+-- Repeatedly sends UDP packets to host, waiting for an answer.
+--@param data Data to be sent.
+--@param host Host to connect to.
+--@param port Port to connect to.
 --@param timeout Number of ms to wait for a response.
---@param cnt Number of tries
---@return success as boolean and response if available
+--@param cnt Number of tries.
+--@return success as boolean and response if available.
 local function sendPackets(data, host, port, timeout, cnt)
    local socket = nmap.new_socket()
    socket:set_timeout(timeout)
@@ -62,9 +61,9 @@ end
 
 
 ---
--- Checks if DNS response packet contains a useful answer
---@param rPkt decoded DNS response packet
---@return True if useful, false if not
+-- Checks if a DNS response packet contains a useful answer.
+--@param rPkt decoded DNS response packet.
+--@return true if useful, false if not.
 local function gotAnswer(rPkt)
    -- have we even got answers?
    if #rPkt.answers > 0 then
@@ -93,8 +92,8 @@ end
 
 
 ---
--- Tries to find next nameserver with authority
--- to get result to query
+-- Tries to find the next nameserver with authority to get a result for
+-- query.
 --@param rPkt decoded DNS response packet
 --@return string or table of next server(s) to query or false
 local function getAuthDns(rPkt)
@@ -124,16 +123,16 @@ local function getAuthDns(rPkt)
 end
 
 ---
--- Query DNS servers for a DNS record
+-- Query DNS servers for a DNS record.
 --@param dname wanted domain name entry
---@param options
--- dtype wanted DNS record type (default: A)
--- host DNS server to be queried (default: DNS servers known to nmap)
--- port Port of DNS server to connect to (default: 53)
--- tries How often should query try to contact another server (for non-recursive queries)
--- retAll Return all answers, not just the first
--- retPkt Return the packet instead of using the answer fetching mechanism
--- norecurse
+--@param options \n
+-- dtype wanted DNS record type (default: A).\n
+-- host DNS server to be queried (default: DNS servers known to Nmap).\n
+-- port Port of DNS server to connect to (default: 53).\n
+-- tries How often should query try to contact another server (for non-recursive queries).\n
+-- retAll Return all answers, not just the first.\n
+-- retPkt Return the packet instead of using the answer fetching mechanism.\n
+-- norecurse If true, do not set the recursion (RD) flags.\n
 --@return Nice answer string by an answer fetcher on success or false and an error code (see: dns.err.*)
 function query(dname, options)
    if not options then options = {} end
@@ -226,9 +225,9 @@ end
 
 
 ---
--- Formats IP for reverse lookup
---@param ip IP address string
---@return "Domain" style representation of IP as subdomain of in-addr.arpa or ip6.arpa
+-- Formats an IP address for reverse lookup.
+--@param ip IP address string.
+--@return "Domain" style representation of IP as subdomain of in-addr.arpa or ip6.arpa.
 function reverse(ip)
    ip = ipOps.expand_ip(ip)
    if type(ip) ~= "string" then return nil end
@@ -262,14 +261,14 @@ function reverse(ip)
 end
 
 ---
--- Table for answer fetching functions
+-- Table for answer fetching functions.
 local answerFetcher = {}
 
 ---
--- answer fetcher for TXT records
---@param dec Decoded DNS response
---@param retAll If true return all entries, not just the first
---@return first entry (or all) treated as TXT
+-- Answer fetcher for TXT records.
+--@param dec Decoded DNS response.
+--@param retAll If true return all entries, not just the first.
+--@return first entry (or all) treated as TXT.
 answerFetcher[types.TXT] = 
    function(dec, retAll)
       if not retAll then
@@ -284,10 +283,10 @@ answerFetcher[types.TXT] =
    end
 
 ---
--- answer fetcher for A records
---@param dec Decoded DNS response
---@param retAll If true return all entries, not just the first
---@return first IP (or all) of response packet
+-- Answer fetcher for A records
+--@param dec Decoded DNS response.
+--@param retAll If true return all entries, not just the first.
+--@return first IP (or all) of response packet.
 answerFetcher[types.A] = 
    function(dec, retAll)
       local answers = {}
@@ -306,10 +305,10 @@ answerFetcher[types.A] =
 
 
 ---
--- answer fetcher for A records
---@param dec Decoded DNS response
---@param retAll If true return all entries, not just the first
---@return Domain entry of first answer RR (or all) in response packet
+-- Answer fetcher for CNAME records.
+--@param dec Decoded DNS response.
+--@param retAll If true return all entries, not just the first.
+--@return Domain entry of first answer RR (or all) in response packet.
 answerFetcher[types.CNAME] = 
    function(dec, retAll)
       if not retAll then
@@ -324,10 +323,10 @@ answerFetcher[types.CNAME] =
    end
 
 ---
--- answer fetcher for A records
---@param dec Decoded DNS response
---@param retAll If true return all entries, not just the first
---@return Domain entry of first answer RR (or all) in response packet
+-- Answer fetcher for MX records.
+--@param dec Decoded DNS response.
+--@param retAll If true return all entries, not just the first.
+--@return Domain entry of first answer RR (or all) in response packet.
 answerFetcher[types.MX] = 
    function(dec, retAll)
       if not retAll then
@@ -350,10 +349,10 @@ answerFetcher[types.NS] = answerFetcher[types.CNAME]
 answerFetcher[types.PTR] = answerFetcher[types.CNAME]
 
 ---
--- answer fetcher for AAAA records
---@param dec Decoded DNS response
---@param retAll If true return all entries, not just the first
---@return first IPv6 (or all) of response packet
+-- Answer fetcher for AAAA records.
+--@param dec Decoded DNS response.
+--@param retAll If true return all entries, not just the first.
+--@return first IPv6 (or all) of response packet.
 answerFetcher[types.AAAA] = 
    function(dec, retAll)
       local answers = {}
@@ -372,12 +371,12 @@ answerFetcher[types.AAAA] =
 
 
 ---
--- Calls answer fetcher for asked type or returns
--- error code on a no such name error
---@param dtype DNS resource record type
---@param dec Decoded DNS response
---@param retAll If true return all entries, not just the first
---@return answer by according answer fetcher or packet if none applicable or false and error code if flags indicate an error
+-- Calls the answer fetcher for dtype or returns an error code on a no
+-- such name error.
+--@param dtype DNS resource record type.
+--@param dec Decoded DNS response.
+--@param retAll If true return all entries, not just the first.
+--@return answer by according answer fetcher or packet if none applicable or false and error code if flags indicate an error.
 function findNiceAnswer(dtype, dec, retAll) 
    if (#dec.answers > 0) then
       if answerFetcher[dtype] then 
@@ -393,9 +392,9 @@ end
 
 
 ---
--- Encodes the question part of a DNS request
---@param questions Table of questions
---@return Encoded question string
+-- Encodes the question part of a DNS request.
+--@param questions Table of questions.
+--@return Encoded question string.
 local function encodeQuestions(questions)
    if type(questions) ~= "table" then return nil end
    local encQ = ""
@@ -411,9 +410,9 @@ local function encodeQuestions(questions)
 end
 
 ---
--- Encodes DNS flags to binary digit string
---@param flags Flag table, each entry representing a flag (QR, OCx, AA, TC, RD, RA, RCx)
---@return Binary digit string representing flags
+-- Encodes DNS flags to a binary digit string.
+--@param flags Flag table, each entry representing a flag (QR, OCx, AA, TC, RD, RA, RCx).
+--@return Binary digit string representing flags.
 local function encodeFlags(flags)
    if type(flags) == "string" then return flags end
    if type(flags) ~= "table" then return nil end
@@ -436,10 +435,10 @@ local function encodeFlags(flags)
 end
 
 ---
--- Takes a table representing a DNS packet to encode
--- Caution: doesn't encode answer, authority and additional part
---@param pkt Table representing DNS packet, initialized by newPacket()
---@return Encoded DNS packet
+-- Takes a table representing a DNS packet to encode.
+-- Caution: doesn't encode answer, authority and additional part.
+--@param pkt Table representing DNS packet, initialized by newPacket().
+--@return Encoded DNS packet.
 function encode(pkt)
    if type(pkt) ~= "table" then return nil end
    local encFlags = encodeFlags(pkt.flags)
@@ -450,11 +449,10 @@ end
 
 
 ---
--- Decodes a domain in a DNS packet, 
--- handles "compressed" data, too
---@param data Complete DNS packet
---@param pos Starting position in packet
---@return Position after decoding and decoded domain
+-- Decodes a domain in a DNS packet, Handles "compressed" data too.
+--@param data Complete DNS packet.
+--@param pos Starting position in packet.
+--@return Position after decoding and decoded domain.
 local function decStr(data, pos)
    local partlen
    local parts = {}
@@ -477,11 +475,11 @@ end
 
 
 ---
--- Decodes questions in a DNS packet
---@param data Complete DNS packet
---@param count Value of question counter in header
---@param pos Starting position in packet
---@return Position after decoding and table of decoded questions
+-- Decodes questions in a DNS packet.
+--@param data Complete DNS packet.
+--@param count Value of question counter in header.
+--@param pos Starting position in packet.
+--@return Position after decoding and table of decoded questions.
 local function decodeQuestions(data, count, pos)
    local q = {}
    for i = 1, count do
@@ -499,8 +497,8 @@ end
 local decoder = {}
 
 ---
--- Decodes IP of A record, puts it in entry.ip
---@param entry RR in packet
+-- Decodes IP of A record, puts it in entry.ip.
+--@param entry RR in packet.
 decoder[types.A] = 
    function(entry)
       local ip = {}
@@ -510,8 +508,8 @@ decoder[types.A] =
    end
 
 ---
--- Decodes IP of AAAA record, puts it in entry.ipv6
---@param entry RR in packet
+-- Decodes IP of AAAA record, puts it in entry.ipv6.
+--@param entry RR in packet.
 decoder[types.AAAA] = 
    function(entry)
       local ip = {}
@@ -525,12 +523,11 @@ decoder[types.AAAA] =
    end
 
 ---
--- Decodes ssh fingerprint record, puts it 
--- in entry.SSHFP as defined in RFC 4255:
+-- Decodes SSH fingerprint record, puts it in entry.SSHFP as defined in RFC 4255:
 -- .algorithm
 -- .fptype
 -- .fingerprint
---@param entry RR in packet
+--@param entry RR in packet.
 decoder[types.SSHFP] =
    function(entry)
       local _
@@ -541,7 +538,7 @@ decoder[types.SSHFP] =
 
 
 ---
--- Decodes SOA record, puts it in entry.SOA.*
+-- Decodes SOA record, puts it in entry.SOA.*.
 --@param entry RR in packet
 --@param data Complete encoded DNS packet
 --@param pos Position in packet after RR
@@ -563,12 +560,11 @@ decoder[types.SOA] =
    end
 
 ---
--- Decodes records which consist only of one domain,
--- for example CNAME, NS, PTR.
--- Puts result in entry.domain
---@param entry RR in packet
---@param data Complete encoded DNS packet
---@param pos Position in packet after RR
+-- Decodes records which consist only of one domain, for example CNAME,
+-- NS, PTR. Puts result in entry.domain.
+--@param entry RR in packet.
+--@param data Complete encoded DNS packet.
+--@param pos Position in packet after RR.
 local function decDomain(entry, data, pos)
       local np = pos - #entry.data
       local _
@@ -584,10 +580,10 @@ decoder[types.PTR] = decDomain
 decoder[types.TXT] = function () end
 
 ---
--- Decodes MX record, puts it in entry.MX.*
---@param entry RR in packet
---@param data Complete encoded DNS packet
---@param pos Position in packet after RR
+-- Decodes MX record, puts it in entry.MX.*.
+--@param entry RR in packet.
+--@param data Complete encoded DNS packet.
+--@param pos Position in packet after RR.
 decoder[types.MX] = 
    function(entry, data, pos)
       local np = pos - #entry.data + 2
@@ -599,12 +595,12 @@ decoder[types.MX] =
 
 
 ---
--- Decodes returned resource records (answer, authority
--- or additional part).
---@param data Complete encoded DNS packet
---@param count Value of according counter in header
---@param pos Starting position in packet
---@return Table of RRs
+-- Decodes returned resource records (answer, authority or additional
+-- part).
+--@param data Complete encoded DNS packet.
+--@param count Value of according counter in header.
+--@param pos Starting position in packet.
+--@return Table of RRs.
 local function decodeRR(data, count, pos)
    local ans = {}
    for i = 1, count do
@@ -626,9 +622,9 @@ local function decodeRR(data, count, pos)
 end
 
 ---
--- Splits string up into table of single characters
---@param str String to be split up
---@return Table of characters
+-- Splits string up into table of single characters.
+--@param str String to be split up.
+--@return Table of characters.
 local function str2tbl(str)
    local tbl = {}
    for i = 1, #str do
@@ -638,9 +634,9 @@ local function str2tbl(str)
 end
 
 ---
--- Decodes DNS flags
---@param Flags as binary digit string
---@result Table representing flags
+-- Decodes DNS flags.
+--@param Flags as binary digit string.
+--@result Table representing flags.
 local function decodeFlags(flgStr)
    flags = {}
    flgTbl = str2tbl(flgStr)
@@ -661,9 +657,9 @@ local function decodeFlags(flgStr)
 end
 
 ---
--- Decodes DNS packet
---@param data Encoded DNS packet
---@result Table representing DNS packet
+-- Decodes a DNS packet.
+--@param data Encoded DNS packet.
+--@result Table representing DNS packet.
 function decode(data)
    local pos
    local pkt = {}
@@ -686,8 +682,8 @@ end
 
 
 ---
--- Creates new table representing a DNS packet
---@return Table representing a DNS packet
+-- Creates a new table representing a DNS packet.
+--@return Table representing a DNS packet.
 function newPacket()
    local pkt = {}
    pkt.id = 1
@@ -702,10 +698,10 @@ end
 
 
 ---
--- Adds a question to a DNS packet table
---@param pkt Table representing DNS packet
---@param dname Domain name to be asked
---@param dtype RR to be asked
+-- Adds a question to a DNS packet table.
+--@param pkt Table representing DNS packet.
+--@param dname Domain name to be asked.
+--@param dtype RR to be asked.
 function addQuestion(pkt, dname, dtype)
    if type(pkt) ~= "table" then return nil end
    if type(pkt.questions) ~= "table" then return nil end

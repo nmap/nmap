@@ -1,4 +1,5 @@
---- Functional Programming Style List Operations.\n\n
+--- Functional-style list operations.
+-- \n\n
 -- People used to programming in functional languages, such as Lisp
 -- or Haskell, appreciate their handling of lists very much. The listop
 -- module tries to bring much of the functionality from functional languages
@@ -33,15 +34,15 @@ Functional programming style 'list' operations
     where 'value' is an lua datatype
 --]]
 
---- Determines if the list is empty.
+--- Returns true if the given list is empty.
 -- @param l A list.
 -- @return boolean
 function is_empty(l)
   return #l == 0 and true or false;
 end
 
---- Determines if l is a list (rather, a table).
--- @param l A list.
+--- Returns true if the given value is a list (or rather a table).
+-- @param l Any value.
 -- @return boolean
 function is_list(l)
   return type(l) == 'table' and true or false;
@@ -49,6 +50,9 @@ end
 
 --- Calls f for each element in the list. The returned list contains
 -- the results of each function call.
+-- \n\n
+-- For example, listop.map(tostring,{1,2,true})  returns
+-- {"1","2","true"}. 
 -- @param f The function to call.
 -- @param l A list.
 -- @return List
@@ -61,6 +65,8 @@ function map(f, l)
 end
 
 --- Calls the function with all the elements in the list as the parameters.
+-- \n\n
+-- For example, listop.apply(math.max,{1,5,6,7,50000}) yields 50000. 
 -- @param f The function to call.
 -- @param l A list.
 -- @return Results from f.
@@ -68,12 +74,14 @@ function apply(f, l)
   return f(unpack(l))
 end
 
---- Returns a list containing only those elements for which the predicate
--- returns true. The predicate has to be a function, which takes an element
--- of the list as argument and the result of which is interpreted as a
--- Boolean value. If it returns true (or rather anything besides false
--- and nil) the argument is appended to the return value of filter. For
--- example: listop.filter(isnumber,{1,2,3,"foo",4,"bar"}) returns {1,2,3,4}. 
+--- Returns a list containing only those elements for which a predicate
+-- function returns true.
+-- \n\n
+-- The predicate has to be a function taking one argument and returning
+-- a Boolean. If it returns true (or rather anything besides false and
+-- nil) the argument is appended to the return value of filter. For
+-- example, listop.filter(isnumber,{1,2,3,"foo",4,"bar"}) returns
+-- {1,2,3,4}. 
 -- @param f The function.
 -- @param l The list.
 -- @return List
@@ -101,7 +109,7 @@ function cdr(l)
   return {unpack(l, 2)}
 end
 
---- Fetch element x from l.
+--- Fetch element at index x from l.
 -- @param l The List.
 -- @param x Element index.
 -- @return Element x or 1.
@@ -109,7 +117,7 @@ function ncar(l, x)
   return l[x or 1];
 end
 
---- Fetch all elements following the x or the first in a new List.
+--- Fetch all elements following the element at index x or the first.
 -- @param l The List.
 -- @param x Element index.
 -- @return List
@@ -149,8 +157,11 @@ function reverse(l)
     return results
 end
 
---- Return a flattened version of the List, l. All lists within l are
--- replaced by its contents.
+--- Return a flattened version of a list. The flattened list contains
+-- only non-list values.
+-- \n\n
+-- For example, listop.flatten({1,2,3,"foo",{4,5,{"bar"}}}) returns
+-- {1,2,3,"foo",4,5,"bar"}.
 -- @param l The list to flatten.
 -- @return List
 function flatten(l)
