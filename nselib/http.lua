@@ -34,7 +34,9 @@ local stdnse = require 'stdnse'
 -- in case of an error status is nil
 
 
---- Fetches a resource with a GET request. The first argument is either a
+--- Fetches a resource with a GET request.
+-- \n\n
+-- The first argument is either a
 -- string with the hostname or a table like the host table passed by nmap.
 -- The second argument is either the port number or a table like the port
 -- table passed by nmap. The third argument is the path of the resource.
@@ -68,11 +70,13 @@ get = function( host, port, path, options )
   return request( host, port, data, options )
 end
 
---- Parses url and calls http.get with the result. The second argument
+--- Parses a URL and calls http.get with the result.
+-- \n\n
+-- The second argument
 -- is a table for further options. The table may have 2 keys: timeout
 -- and header. timeout is the timeout used for the socket operations.
 -- header is a table with additional headers to be used for the request. 
--- @param url The url of the host.
+-- @param u The url of the host.
 -- @param options Options passed to http.get.
 -- @see http.get
 get_url = function( u, options )
@@ -98,7 +102,9 @@ get_url = function( u, options )
   return get( parsed.host, port, path, options )
 end
 
---- Sends request to host:port and parses the answer. The first argument
+--- Sends request to host:port and parses the answer.
+-- \n\n
+-- The first argument
 -- is either a string with the hostname or a table like the host table
 -- passed by nmap. The second argument is either the port number or a
 -- table like the port table passed by nmap. SSL is used for the request
