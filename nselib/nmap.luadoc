@@ -1,103 +1,171 @@
-
---- Nmap library is an interface for scripts with Nmap internals. The API
--- provides target host details such as port states and version detection
--- results. It also offers an interface to the Nsock library for efficient
--- network I/O. 
+--- Interface with Nmap internals.
+-- \n\n
+-- The nmap module is an interface with Nmap's internal functions and data
+-- structures. The API provides target host details such as port states and
+-- version detection results. It also offers an interface to the Nsock library
+-- for efficient network I/O. 
 
 module "nmap"
 
---- Gets the debugging level for Nmap.
--- @return The positive integer debugging level.
-
+--- Returns the debugging level as a non-negative integer.
+-- \n\n
+-- The debugging level can be set with the -d option.
+-- @return The debugging level.
+-- @usage if nmap.debugging() > 0 then ... end
 function nmap.debugging()
 
---- Determines if Nmap was compiled with SSL support.
--- @return Has SSL Support.
-
+--- Determines whether Nmap was compiled with SSL support.
+-- \n\n
+-- This can be used to avoid sending SSL probes when SSL is not available. 
+-- @return true if Nmap was compiled with SSL support, false otherwise.
 function nmap.have_ssl()
 
---- Gets the verbosity level for Nmap.
--- @return The positive integer verbosity level.
-
+--- Returns the verbosity level as a non-negative integer.
+-- \n\n
+-- The verbosity level can be set with the -v option.
+-- @return The verbosity level.
+-- @usage if nmap.verbosity() > 0 then ... end
 function nmap.verbosity()
 
---- Search for the specified file and returns a string containing its path if
--- found and readable (to the process). If the file is not found, not readable,
--- or is a directory, nil is returned.
+--- Searches for the specified file and returns a string containing its path if
+-- it is found and readable (to the process).
+-- \n\n
+-- If the file is not found, not readable, or is a directory, nil is returned.
+-- The call nmap.fetchfile("nmap-rpc") will search for the data file nmap-rpc
+-- and, assuming it's found (which it should be), return a string like
+-- "/usr/local/share/nmap/nmap-rpc".
 -- @param filename Filename to search for.
 -- @return String representing the full path to the file or nil.
-
 function nmap.fetchfile(filename)
 
---- Get the positive integer timing level. Possible return values vary from 0
--- to 5, corresponding to the six built-in Nmap timing templates.
--- @return Positive integer timing level.
-
+--- Returns the timing level as a non-negative integer. Possible return values
+-- vary from 0 to 5, corresponding to the six built-in Nmap timing templates.
+-- The timing level can be set with the -T option.
+-- @return The timing level.
 function nmap.timing_level()
 
---- Gets the status of the port for host. It returns a new port table for that
--- host.
--- @param host Host table.
--- @param port Port table.
+--- Gets a port table for a port on a given host.
+-- \n\n
+-- This function takes a host table and a port table and returns a port table
+-- for the queried port. The port table returned is similar in structure to the
+-- ones passed to the rule and action functions.
+-- \n\n
+-- You can of course reuse the host and port tables passed to the port rule
+-- function. The purpose of this call is to be able to match scripts against
+-- more than one open port. For example if the target host has an open port 22
+-- and a running identd server, then you can write a script which will only fire
+-- if both ports are open and there is an identification server on port 113.
+-- While it is possible to specify IP addresses different to the currently
+-- scanned target, the result will only be correct if the target is in the
+-- currently scanned group of hosts.
+-- @param host Host table, containing an "ip" field.
+-- @param port Port table, containing "number" and "protocol" fields.
 -- @param protocol Protocol string ("tcp" or "udp")
 -- @return A new port table holding the status and information for the port.
-function nmap.get_port_state(host, port, protocol)
+-- @usage p = nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
+function nmap.get_port_state(host, port)
 
---- Takes a host table, a port table, and a port state ("open" or "closed").
+--- Sets the state of a port on a given host.
+-- \n\n
 -- Using this function, the final port state, reflected in Nmap's results,
 -- can be changed for a target. This is useful when Nmap detects a port as
--- open|filtered (i.e. unable to determine which), but the script successfully
--- connects to that port. In this case, the script can set the port state to
--- "open". Note that the port.state value, which is passed to the script's
--- action function will not be changed by this call.
+-- "open|filtered", but the script successfully connects to that port. In this
+-- case, the script can set the port state to "open". Note that the port.state
+-- value, which is passed to the script's action function will not be changed by
+-- this call.
+-- @param host Host table, containing an "ip" field.
+-- @param port Port table, containing "number" and "protocol" fields.
+-- @param state Port state, like "open" or "closed".
 function nmap.set_port_state(host, port, state)
 
---- This function is used to record version information when it is discovered
--- concerning the services on a port. The port table should have extra fields
--- for "name", "product", "version", "extrainfo", "hostname", "ostype",
--- "devicetype", and "service_tunnel". None of these values are required.
--- @param host Host table.
--- @param port Port table.
+--- Sets version information on a port.
+-- \n\n
+-- NSE scripts are sometimes able to determine the service name and application
+-- version listening on a port. A whole script category (version) was designed
+-- for this purpose. set_port_version function is used to record version
+-- information when it is discovered.
+-- \n\n
+-- The host and port arguments to this function should either be the tables
+-- passed to the action method or they should have the same structure. The port
+-- argument specifies the port to operate on through its "number" and "protocol"
+-- fields. and also contains the new version information to set. The version
+-- detection fields this function looks at are "name", "product", "version",
+-- "extrainfo", "hostname", "ostype", "devicetype", and "service_tunnel". All
+-- these keys are optional.
+-- \n\n
+-- The probestate argument describes the state in which the script completed. It
+-- is a string, one of: "hardmatched", "softmatched", "nomatch", "tcpwrapped",
+-- or "incomplete". "hardmatched" is almost always used, as it signifies a
+-- successful match. The other possible states are generally only used for
+-- standard version detection rather than the NSE enhancement.
+-- @param host Host table, containing and "ip" field.
+-- @param port Port table, containing "number" and "protocol" fields, as well as
+-- any additional version information fields.
 -- @param probestate The state of the probe: "hardmatched", "softmatched",
 -- "nomatch", "tcpwrapped", or "incomplete".
 function nmap.set_port_version(host, port, probestate)
 
---- Returns a number representing the current time in milliseconds since the
--- start of the epoch (on most systems this is 01/01/1970).
+--- Returns the current date and time in milliseconds.
+-- @return The number of milliseconds since the epoch (on most systems this is
+-- 01/01/1970).
 function nmap.clock_ms()
 
---- For the provided dnet-style interface_name, this function returns to what
--- kind of link level hardware the interface belongs. Return values are:
--- "ethernet", "loopback", or "p2p". If the provided interface_name is not
--- one of those types, nil is returned.
+--- Gets the link-level hardware type of an interface.
+-- \n\n
+-- This function takes a dnet-style interface name and returns a string
+-- representing the hardware type of the interface. Possible return values are
+-- "ethernet", "loopback", "p2p", or nil if none of the other types apply.
 -- @param interface_name The name of the interface.
 -- @return "ethernet", "loopback", "p2p", or nil.
 function nmap.get_interface_link(interface_name)
 
---- Returns a new NSE socket object which is the recommended method for network
--- I/O. It provides facilities to perform communication using the UDP, TCP, and
--- SSL protocol in a uniform manner.
+--- Returns a new NSE socket object.
+-- \n\n
+-- To allow for efficient and parallelizable network I/O, NSE provides an
+-- interface to Nsock, the Nmap socket library. The smart callback mechanism
+-- Nsock uses is fully transparent to NSE scripts. The main benefit of NSE's
+-- sockets is that they never block on I/O operations, allowing many scripts to
+-- be run in parallel. The I/O parallelism is fully transparent to authors of
+-- NSE scripts. In NSE you can either program as if you were using a single non
+-- blocking socket or you can program as if your connection is blocking.
+-- Seemingly blocking I/O calls still return once a specified timeout has been
+-- exceeded.
+-- \n\n
+-- NSE sockets are the recommended way to do network I/O. They support
+-- connect-style sending and receiving over TCP and UDP (and SSL), as well as
+-- raw socket receiving.
 -- @return A new NSE socket.
--- @see nsock
+-- @see nmap.new_dnet
 function nmap.new_socket()
 
---- Returns a function that works on a mutex for the object passed. This object
--- can be any Lua data type except nil, booleans, and numbers. The returned
--- function allows you to lock, try to lock, and release the mutex.
--- <br/>
--- <b>"lock"</b> makes a blocking lock on the mutex. If the mutex is busy then
--- the thread will yield and wait. The function returns with the mutex locked.
--- <br/>
--- <b>"trylock"</b> makes a non-blocking lock on the mutex. If the mutex is
+--- Create a mutex on an object.
+-- \n\n
+-- This function returns another function that works as a mutex on the object
+-- passed. This object can be any Lua data type except nil, booleans, and
+-- numbers. The returned function allows you to lock, try to lock, and release
+-- the mutex. The returned function takes only one argument, which must be one
+-- of\n
+-- "lock": makes a blocking lock on the mutex. If the mutex is busy then
+-- the thread will yield and wait. The function returns with the mutex locked.\n
+-- "trylock": makes a non-blocking lock on the mutex. If the mutex is
 -- busy then it immediately returns with a return value of false. Otherwise,
--- the mutex locks the mutex and returns true.
--- <br/>
--- <b>"done"</b> releases the mutex and allows another thread to lock it. If
--- the thread does not have a lock on the mutex, an error will be raised.
--- <br/>
--- <b>"running"</b> returns the thread locked on the mutex or nil if no thread
--- is locked.
+-- the mutex locks the mutex and returns true.\n
+-- "done": releases the mutex and allows another thread to lock it. If
+-- the thread does not have a lock on the mutex, an error will be raised.\n
+-- "running": returns the thread locked on the mutex or nil if no thread
+-- is locked. This should only be used for debugging as it interferes with
+-- finished threads from being collected.
 -- @param object Object to create a mutex for.
--- @return Mutex function which takes one of the following parameters: "lock",
+-- @return Mutex function which takes one of the following arguments: "lock",
 -- "trylock", "done", or "running".
+-- @usage
+-- id = "My Script's Unique ID";\n
+-- \n
+-- local mutex = nmap.mutex(id);\n
+-- function action(host, port)\n
+--   mutex "lock";\n
+--   -- do stuff\n
+--   mutex "done";\n
+--   return script_output;\n
+-- end
 function nmap.mutex(object)
