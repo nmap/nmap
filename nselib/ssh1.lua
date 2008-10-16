@@ -1,5 +1,7 @@
-
--- @author = Sven Klemm <sven@c3d2.de>
+--- Functions for the SSH-1 protocol.
+-- \n\n
+-- This module also contains functions for formatting key fingerprints.
+-- @author Sven Klemm <sven@c3d2.de>
 -- @copyright See nmaps COPYING for licence
 
 module(... or "ssh1",package.seeall)
@@ -10,9 +12,11 @@ local math = require "math"
 local stdnse = require "stdnse"
 local openssl = require "openssl"
 
---- fetch SSH1 host key
---@param host nmap host table
---@param port nmap port table
+--- Fetch a SSH-1 host key.
+--@param host Nmap host table.
+--@param port Nmap port table.
+--@return A table with the following keys: "exp", "mod", "bits", "key_type",
+--"fp_input", "full_key", "algorithm", and "fingerprint".
 fetch_host_key = function(host, port)
   local socket = nmap.new_socket()
   local catch = function() socket:close() end
@@ -61,13 +65,13 @@ fetch_host_key = function(host, port)
   end
 end
 
---- format key as hexadecimal fingerprint
+--- Format a key fingerprint in hexadecimal.
 fingerprint_hex = function( fingerprint, algorithm, bits )
   fingerprint = stdnse.tohex(fingerprint,{separator=":",group=2})
   return ("%d %s (%s)"):format( bits, fingerprint, algorithm )
 end
 
---- format key as bubblebabble fingerprint
+--- Format a key fingerprint in Bubble Babble.
 fingerprint_bubblebabble = function( fingerprint, algorithm, bits )
   local vowels = {'a','e','i','o','u','y'}
   local consonants = {'b','c','d','f','g','h','k','l','m','n','p','r','s','t','v','z','x'}
@@ -100,8 +104,9 @@ fingerprint_bubblebabble = function( fingerprint, algorithm, bits )
   return ("%d %s (%s)"):format( bits, s, algorithm )
 end
 
---- format key as visual fingerprint
--- ported from http://www.openbsd.org/cgi-bin/cvsweb/~checkout~/src/usr.bin/ssh/key.c
+--- Format a key fingerprint into a visual ASCII art representation.
+-- \n\n
+-- Ported from http://www.openbsd.org/cgi-bin/cvsweb/~checkout~/src/usr.bin/ssh/key.c.
 fingerprint_visual = function( fingerprint, algorithm, bits )
   local i,j,field,characters,input,fieldsize_x,fieldsize_y,s
   fieldsize_x, fieldsize_y = 17, 9

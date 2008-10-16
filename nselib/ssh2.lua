@@ -1,5 +1,5 @@
-
--- @author = Sven Klemm <sven@c3d2.de>
+--- Functions for the SSH-2 protocol.
+-- @author Sven Klemm <sven@c3d2.de>
 -- @copyright See nmaps COPYING for licence
 
 module(... or "ssh2",package.seeall)
@@ -12,12 +12,12 @@ require "stdnse"
 -- table holding transport layer functions
 transport = {}
 
--- table of SSH2 constants
+-- table of SSH-2 constants
 local SSH2
 
---- pack multiprecision integer for sending
---@param bn openssl bignum 
---@return packed multiprecision integer
+--- Pack a multiprecision integer for sending.
+--@param bn openssl bignum.
+--@return packed multiprecision integer.
 transport.pack_mpint = function( bn )
   local bytes, packed
   bytes = bn:num_bytes()
@@ -29,9 +29,9 @@ transport.pack_mpint = function( bn )
   return bin.pack( ">IA", bytes, packed )
 end
 
---- build a ssh2 packet
---@param payload payload of the packet
---@return packet to send on the wire
+--- Build an SSH-2 packet.
+--@param payload payload of the packet.
+--@return packet to send on the wire.
 transport.build = function( payload )
   local packet_length, padding_length
   padding_length = 8 - ( (payload:len() + 1 + 4 ) % 8 )
@@ -39,9 +39,9 @@ transport.build = function( payload )
   return bin.pack( ">IcAA", packet_length, padding_length, payload, openssl.rand_pseudo_bytes( padding_length ) )
 end
 
---- extract the payload from a received SSH2 packet
---@param received SSH2 packet
---@return payload of the SSH2 packet
+--- Extract the payload from a received SSH-2 packet.
+--@param received SSH2 packet.
+--@return payload of the SSH2 packet.
 transport.payload = function( packet )
   local packet_length, padding_length, payload_length, payload, offset
   offset, packet_length, padding_length = bin.unpack( ">Ic", packet )
@@ -50,12 +50,12 @@ transport.payload = function( packet )
   return payload
 end
 
---- build kexdh_init packet
+--- Build kexdh_init packet.
 transport.kexdh_init = function( e )
   return bin.pack( ">cA", SSH2.SSH_MSG_KEXDH_INIT, transport.pack_mpint( e ) )
 end
 
---- build kex_init packet
+--- Build kex_init packet.
 transport.kex_init = function( cookie, options )
   options = options or {}
   kex_algorithms = "diffie-hellman-group1-sha1"
@@ -75,8 +75,9 @@ transport.kex_init = function( cookie, options )
   return payload
 end
 
---- parse kexinit package
--- returns an empty table in case of an error
+--- Parse kexinit package.
+-- \n\n
+-- Returns an empty table in case of an error
 transport.parse_kex_init = function( payload ) 
   local _, offset, msg_code, parsed, fields, fieldname
   parsed = {}
@@ -100,11 +101,11 @@ transport.parse_kex_init = function( payload )
 end
 
 
---- fetch SSH2 host key
---@param host nmap host table
---@param port nmap port table
---@param key_type key type to fetch
---@return table containing the key and fingerprint
+--- Fetch an SSH-2 host key.
+--@param host Nmap host table.
+--@param port Nmap port table.
+--@param key_type key type to fetch.
+--@return table containing the key and fingerprint.
 fetch_host_key = function( host, port, key_type )
   local socket = nmap.new_socket()
   local catch = function() socket:close() end

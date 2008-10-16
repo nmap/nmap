@@ -1,4 +1,4 @@
---- POP3 functions
+--- POP3 functions.
 --@copyright See nmaps COPYING for licence
 
 module(... or "pop3",package.seeall)
@@ -24,9 +24,9 @@ err = {
 }
 
 ---
--- Checks POP3 response for 
---@param line First line returned from an POP3 request
---@return Found "+OK" string or nil
+-- Check a POP3 response for "+OK".
+--@param line First line returned from an POP3 request.
+--@return Found "+OK" string or nil.
 function stat(line)
    return string.match(line, "+OK")
 end
@@ -34,11 +34,11 @@ end
 
 
 ---
--- Try to login using USER/PASS commands
---@param socket Socket connected to POP3 server
---@param user User string
---@param pw Password string
---@return Success as boolean and error code as in err table
+-- Try to log in using USER/PASS commands.
+--@param socket Socket connected to POP3 server.
+--@param user User string.
+--@param pw Password string.
+--@return Success as boolean and error code as in err table.
 function login_user(socket, user, pw)
    socket:send("USER " .. user .. "\r\n")
    status, line = socket:receive_lines(1)
@@ -54,11 +54,11 @@ end
 
 
 ---
--- Try to login using AUTH command using SASL/Plain method
---@param socket Socket connected to POP3 server
---@param user User string
---@param pw Password string
---@return Success as boolean and error code as in err table
+-- Try to login using AUTH command using SASL/Plain method.
+--@param socket Socket connected to POP3 server.
+--@param user User string.
+--@param pw Password string.
+--@return Success as boolean and error code as in err table.
 function login_sasl_plain(socket, user, pw)
    
    local auth64 = base64.enc(user .. "\0" .. user .. "\0" .. pw)
@@ -74,11 +74,11 @@ function login_sasl_plain(socket, user, pw)
 end
 
 ---
--- Try to login using AUTH command using SASL/Login method
---@param user User string
---@param pw Password string
---@param pw String containing password to login
---@return Success as boolean and error code as in err table
+-- Try to login using AUTH command using SASL/Login method.
+--@param user User string.
+--@param pw Password string.
+--@param pw String containing password to login.
+--@return Success as boolean and error code as in err table.
 function login_sasl_login(socket, user, pw)
 
    local user64 = base64.enc(user)
@@ -112,12 +112,12 @@ function login_sasl_login(socket, user, pw)
 end
 
 ---
--- Try to login using APOP command
---@param socket Socket connected to POP3 server
---@param user User string
---@param pw Password string
---@param challenge String containing challenge from POP3 server greeting
---@return Success as boolean and error code as in err table
+-- Try to login using APOP command.
+--@param socket Socket connected to POP3 server.
+--@param user User string.
+--@param pw Password string.
+--@param challenge String containing challenge from POP3 server greeting.
+--@return Success as boolean and error code as in err table.
 function login_apop(socket, user, pw, challenge)
    if type(challenge) ~= "string" then return false, err.informationMissing end
 
@@ -135,9 +135,9 @@ end
 
 ---
 -- Asks POP3 server for capabilities
---@param host Host to be queried
---@param port Port to connect to
---@return Table containing capabilities
+--@param host Host to be queried.
+--@param port Port to connect to.
+--@return Table containing capabilities.
 function capabilities(host, port)
    local socket = nmap.new_socket()
    local capas = {}
@@ -178,11 +178,11 @@ function capabilities(host, port)
 end
 
 ---
--- Try to login using AUTH command using SASL/CRAM-MD5 method
---@param socket Socket connected to POP3 server
---@param user User string
---@param pw Password string
---@return Success as boolean and error code as in err table
+-- Try to login using AUTH command using SASL/CRAM-MD5 method.
+--@param socket Socket connected to POP3 server.
+--@param user User string.
+--@param pw Password string.
+--@return Success as boolean and error code as in err table.
 function login_sasl_crammd5(socket, user, pw)
 
    socket:send("AUTH CRAM-MD5\r\n")
@@ -204,7 +204,7 @@ function login_sasl_crammd5(socket, user, pw)
    end
 end
 
---- overwrite functions requiring OpenSSL if we got no OpenSSL
+-- Overwrite functions requiring OpenSSL if we got no OpenSSL.
 if not HAVE_SSL then
 
   local no_ssl = function()

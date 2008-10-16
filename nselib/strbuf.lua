@@ -1,4 +1,38 @@
---- String Buffer Facilities
+--- String Buffer facilities.
+-- \n\n
+-- Lua's string operations are very flexible and offer an easy-to-use way to
+-- manipulate strings. Concatenation using the .. operator is such an
+-- operation. The drawback of the built-in API however is the way it handles
+-- concatenation of many string values. Since strings in Lua are immutable
+-- values, each time you concatenate two strings both get copied into the result
+-- string.
+-- \n\n
+-- The strbuf module offers a workaround for this problem, while
+-- maintaining the nice syntax. This is accomplished by overloading the
+-- concatenation operator (..) the equality operator (==) and the tostring
+-- operator. By overloading these operators, we reduce the overhead of using a
+-- string buffer instead of a plain string to wrap the first literal string
+-- assigned to a variable inside a strbuf.new() call. Afterwards you can append
+-- to the string buffer, or compare two string buffers for equality just as you
+-- would do with normal strings.
+-- \n\n
+-- When looking at the details there are some more
+-- restrictions/oddities: The concatenation operator requires its left-hand
+-- value to be a string buffer. Therefore, if you want to prepend a string to a
+-- given string buffer you have to create a new string buffer out of the string
+-- you want to prepend. The string buffer's tostring operator concatenates the
+-- strings inside the buffer using newlines by default, since this appears to be
+-- the separator used most often.
+-- \n\n
+-- Example usage:\n
+-- local buf = strbuf.new()\n
+-- local buf2 = strbuf.new('hello')\n
+-- buf = buf .. 'string'\n
+-- buf = buf .. 'data'\n
+-- print(buf)                   -- default separator is a new line\n
+-- print(strbuf.dump(buf))      -- no separator\n
+-- print(strbuf.dump(buf, ' ')) -- separated by spaces\n
+-- strbuf.clear(buf)
 --@copyright See nmaps COPYING for license
 
 -- DEPENDENCIES --
@@ -19,23 +53,10 @@ module(... or "strbuf");
 -- operations are needed a string buffer should be used instead
 -- e.g. for i = 1, 10 do s = s..i end
 
---[[
-	local buf = strbuf.new()
-	-- from here buf may be used like a string for concatenation operations
-	-- (the lefthand-operand has to be a strbuf, the righthand-operand may be 
-	-- a string or a strbuf)
-	-- alternativly you can assign a value (which will become the first string
-	-- inside the buffer) with new
-	local buf2 = strbuf.new('hello')
-	buf = buf .. 'string'
-	buf = buf .. 'data'
-	print(buf)                   -- default seperator is a new line
-	print(strbuf.dump(buf))      -- no seperator
-	print(strbuf.dump(buf, ' ')) -- seperated by spaces
-	strbuf.clear(buf)
---]]
-
 --- Dumps the string buffer as a string.
+-- \n\n
+-- The second parameter is used as a delimiter between the strings stored inside
+-- strbuf.
 --@name dump
 --@class function
 --@param sbuf String buffer to dump.
@@ -102,10 +123,11 @@ local mt = {
   __index = _M,
 };
 
---- Create a new string buffer. The equals and tostring operators for String
+--- Create a new string buffer.
+-- \n\n
+-- The optional arguments are added to the string buffer. The result of adding
+-- non-strings is undefined. The equals and tostring operators for string
 -- buffers are overloaded to be strbuf.eqbuf and strbuf.tostring respectively.
--- All functions in strbuf can be accessed by a String buffer using the self
--- calling mechanism in Lua (e.g. strbuf:dump(...)).
 --@param ... Strings to add to the buffer initially.
 --@return String buffer.
 function new(...)
