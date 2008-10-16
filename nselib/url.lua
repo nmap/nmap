@@ -1,14 +1,14 @@
---- URI parsing, composition and relative URL resolution.
+--- URI parsing, composition, and relative URL resolution.
+-- @author Diego Nehab
+-- @author Eddie Bell <ejlbell@gmail.com>
 
 --[[
-
 URI parsing, composition and relative URL resolution
 LuaSocket toolkit.
 Author: Diego Nehab
 RCS ID: $Id: url.lua,v 1.37 2005/11/22 08:33:29 diego Exp $
 
 parse_query() and build_query() added For nmap (Eddie Bell <ejlbell@gmail.com>) 
-
 --]]
 
 -----------------------------------------------------------------------------
@@ -23,14 +23,11 @@ _VERSION = "URL 1.0"
 
 		--[[ Internal functions --]]
 
------------------------------------------------------------------------------
+---
 -- Protects a path segment, to prevent it from interfering with the
 -- url parsing.
--- Input
---   s: binary string to be encoded
--- Returns
---   escaped representation of string binary
------------------------------------------------------------------------------
+-- @param s binary string to be encoded.
+-- @return escaped representation of string binary.
 local function make_set(t)
 	local s = {}
 	for i,v in base.ipairs(t) do
@@ -53,13 +50,11 @@ local function protect_segment(s)
 	end)
 end
 
------------------------------------------------------------------------------
+---
 -- Builds a path from a base path and a relative path
--- Input
---   base_path
---   relative_path
--- Returns
---   corresponding absolute path
+-- @param base_path a base path.
+-- @param relative_path a relative path.
+-- @return corresponding absolute path.
 -----------------------------------------------------------------------------
 local function absolute_path(base_path, relative_path)
     if string.sub(relative_path, 1, 1) == "/" then return relative_path end
@@ -85,12 +80,10 @@ end
 
 		--[[ External functions --]]
 
------------------------------------------------------------------------------
--- Encodes a string into its escaped hexadecimal representation
--- Input
---   s: binary string to be encoded
--- Returns
---   escaped representation of string binary
+---
+-- Encodes a string into its escaped hexadecimal representation.
+-- @param s binary string to be encoded.
+-- @return escaped representation of string binary.
 -----------------------------------------------------------------------------
 function escape(s)
     return string.gsub(s, "([^A-Za-z0-9_])", function(c)
@@ -99,12 +92,10 @@ function escape(s)
 end
 
 
------------------------------------------------------------------------------
--- Encodes a string into its escaped hexadecimal representation
--- Input
---   s: binary string to be encoded
--- Returns
---   escaped representation of string binary
+---
+-- Encodes a string into its escaped hexadecimal representation.
+-- @param s binary string to be encoded.
+-- @return escaped representation of string binary.
 -----------------------------------------------------------------------------
 function unescape(s)
     return string.gsub(s, "%%(%x%x)", function(hex)
@@ -113,23 +104,22 @@ function unescape(s)
 end
 
 
------------------------------------------------------------------------------
--- Parses a url and returns a table with all its parts according to RFC 2396
--- The following grammar describes the names given to the URL parts
--- <url> ::= <scheme>://<authority>/<path>;<params>?<query>#<fragment>
--- <authority> ::= <userinfo>@<host>:<port>
--- <userinfo> ::= <user>[:<password>]
--- <path> :: = {<segment>/}<segment>
--- Input
---   url: uniform resource locator of request
---   default: table with default values for each field
--- Returns
---   table with the following fields, where RFC naming conventions have
+---
+-- Parses a URL and returns a table with all its parts according to RFC 2396.
+-- \n\n
+-- The following grammar describes the names given to the URL parts.\n
+-- <url> ::= <scheme>://<authority>/<path>;<params>?<query>#<fragment>\n
+-- <authority> ::= <userinfo>@<host>:<port>\n
+-- <userinfo> ::= <user>[:<password>]\n
+-- <path> :: = {<segment>/}<segment>\n
+-- \n\n
+-- Obs: the leading '/' in {/<path>} is considered part of <path>.
+-- @param url uniform resource locator of request
+-- @param default table with default values for each field
+-- @return a table with the following fields, where RFC naming conventions have
 --   been preserved:
 --     scheme, authority, userinfo, user, password, host, port,
---     path, params, query, fragment
--- Obs:
---   the leading '/' in {/<path>} is considered part of <path>
+--     path, params, query, fragment.
 -----------------------------------------------------------------------------
 function parse(url, default)
     -- initialize default parameters
@@ -179,13 +169,12 @@ function parse(url, default)
     return parsed
 end
 
------------------------------------------------------------------------------
+---
 -- Rebuilds a parsed URL from its components.
--- Components are protected if any reserved or unallowed characters are found
--- Input
---   parsed: parsed URL, as returned by parse
--- Returns
---   a stringing with the corresponding URL
+-- \n\n
+-- Components are protected if any reserved or unallowed characters are found.
+-- @param parsed parsed URL, as returned by parse.
+-- @return a string with the corresponding URL.
 -----------------------------------------------------------------------------
 function build(parsed)
     local ppath = parse_path(parsed.path or "")
@@ -212,13 +201,11 @@ function build(parsed)
     return url
 end
 
------------------------------------------------------------------------------
--- Builds a absolute URL from a base and a relative URL according to RFC 2396
--- Input
---   base_url
---   relative_url
--- Returns
---   corresponding absolute url
+---
+-- Builds a absolute URL from a base and a relative URL according to RFC 2396.
+-- @param base_url a base URL.
+-- @param relative_url a relative URL.
+-- @param corresponding absolute URL.
 -----------------------------------------------------------------------------
 function absolute(base_url, relative_url)
     if type(base_url) == "table" then
@@ -252,12 +239,10 @@ function absolute(base_url, relative_url)
     end
 end
 
------------------------------------------------------------------------------
--- Breaks a path into its segments, unescaping the segments
--- Input
---   path
--- Returns
---   segment: a table with one entry per segment
+---
+-- Breaks a path into its segments, unescaping the segments.
+-- @param path a path to break.
+-- @return a table with one entry per segment.
 -----------------------------------------------------------------------------
 function parse_path(path)
 	local parsed = {}
@@ -272,13 +257,11 @@ function parse_path(path)
 	return parsed
 end
 
------------------------------------------------------------------------------
+---
 -- Builds a path component from its segments, escaping protected characters.
--- Input
---   parsed: path segments
---   unsafe: if true, segments are not protected before path is built
--- Returns
---   path: corresponding path stringing
+-- @param parsed path segments.
+-- @param unsafe if true, segments are not protected before path is built.
+-- @return corresponding path string
 -----------------------------------------------------------------------------
 function build_path(parsed, unsafe)
 	local path = ""
@@ -306,12 +289,16 @@ function build_path(parsed, unsafe)
 	return path
 end
 
------------------------------------------------------------------------------
--- Breaks a query string into name/value pairs
--- Input
---   query string (name=value&name=value ...)
--- Returns
---   table where name=value is table['name'] = value
+---
+-- Breaks a query string into name/value pairs.
+-- \n\n
+-- This function takes a <query-string> of the form name1=value1&name2=value2...
+-- and returns a table containing the name-value pairs, with the name as the key
+-- and the value as its associated value. The table corresponding to the above
+-- <query-string> would have two entries: table["name1"]="value1" and
+-- table["name2"]="value2".
+-- @param query string (name=value&name=value ...).
+-- @return table where name=value is table['name'] = value.
 -----------------------------------------------------------------------------
 function parse_query(query)
 	local parsed = {}
@@ -341,12 +328,12 @@ function parse_query(query)
 	return parsed
 end
 
------------------------------------------------------------------------------
--- Builds a query string from dictionary based table
--- Input
---   dictionary table where table['name'] = value
--- Returns
---   query string (name=value&name=value ...)
+---
+-- Builds a query string from dictionary based table.
+-- \n\n
+-- This is the inverse of parse_query.
+-- @param dictionary table where table['name'] = value.
+-- @return query string (name=value&name=value ...)
 -----------------------------------------------------------------------------
 function build_query(query)
 	local qstr = ""

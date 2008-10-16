@@ -1,13 +1,25 @@
---- Provide NSE scripts with a way to output structured tables similar to
--- NmapOutputTable.cc.
+--- Arrange output into tables.
+-- \n\n
+-- This module provides NSE scripts with a way to output structured tables
+-- similar to NmapOutputTable.cc.
+-- \n\n
+-- Example usage:\n
+-- local t = tab.new(2)\n
+-- tab.add(t, 1, 'A1')\n
+-- tab.add(t, 2, 'A2')\n
+-- tab.nextrow(t)\n
+-- tab.add(t, 1, 'BBBBBBBBB1')\n
+-- tab.add(t, 2, 'BBB2')\n
+-- tab.dump(t)
 --@copyright See nmaps COPYING for license
 
 module(... or "tab",package.seeall)
 
 require('strbuf')
 
---- Create and return a new table with a number of columns equal to col and
+--- Create and return a new table with a number of columns equal to cols and
 -- the row counter set to 1.
+-- @param cols the number of columns the table will hold.
 function new(cols)
 	assert(cols > 0)
 	local table ={}
@@ -18,9 +30,14 @@ function new(cols)
 	return table
 end
 
---- Add a new string item (v) in a previously initialised table (t)
--- at column position 'c'. The data will be added to the current
--- row, if nextrow() hasn't been called yet that will be row 1.
+--- Add a new string item to a table at a given column position.
+-- \n\n
+-- The item will be added to the current row. If nextrow hasn't been called yet
+-- that will be row 1.
+--
+-- @param t the table.
+-- @param v the string to add.
+-- @param c the column position at which to add the item.
 function add(t, c, v)
 	assert(t)
 	assert(v)
@@ -42,9 +59,12 @@ function add(t, c, v)
 end
 
 --- Add a complete row to the table and move on to the next row.
--- Calls add() for each argument starting with the second argument
--- and after that calls nextrow().
-function addrow(t,...)
+-- \n\n
+-- Calls add for each argument starting with the second argument
+-- and after that calls nextrow.
+-- @param t the table.
+-- @param ... the elements to add to the row.
+function addrow(t, ...)
 	for i=1, arg['n'] do
 		add( t, i, tostring(arg[i]) )
 	end
@@ -54,16 +74,18 @@ end
 --- Move on to the next row in the table. If this is not called
 -- then previous column values will be over-written by subsequent
 -- values.
+-- @param t the table.
 function nextrow(t)
 	assert(t)
 	assert(t['rows'])
 	t['rows'] = t['rows'] + 1
 end
 
---- Once items have been added to a table, call this to return a
--- string which contains an equally spaced table. Number of spaces 
--- is based on the largest element of a column with an additional
--- two spaces for padding.
+--- Return a formatted string representation of the table.
+-- \n\n
+-- The number of spaces in a column is based on the largest element in the
+-- column with an additional two spaces for padding.
+-- @param t the table.
 function dump(t)
 	assert(t)
 	assert(t['rows'])
@@ -99,15 +121,3 @@ function dump(t)
 
 	return strbuf.dump(table)
 end
-
---[[ Example Usage
-
-local t = tab.new(2)
-tab.add(t, 1, 'A1')
-tab.add(t, 2, 'A2')
-tab.nextrow(t)
-tab.add(t, 1, 'BBBBBBBBB1')
-tab.add(t, 2, 'BBB2')
-tab.dump(t)
-
---]]

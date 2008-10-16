@@ -1,9 +1,27 @@
-module "bit"
-
---- BitLib is a library by Reuben Thomas that provides facilities for
--- bitwise operations on Integer values.
+--- Bitwise operations on integers.
+-- \n\n
+-- Lua does not provide bitwise logical operations. Since they are often useful
+-- for low-level network communication, Reuben Thomas' BitLib
+-- (http://luaforge.net/projects/bitlib) for Lua has been integrated into NSE.
+-- The arguments to the bitwise operation functions should be integers.  The
+-- number of bits available for logical operations depends on the data type used
+-- to represent Lua numbers--this is typically 8-byte IEEE floats (double),
+-- which give 53 bits (the size of the mantissa).
+-- \n\n
+-- This implies that the bitwise operations won't work (as expected) for numbers
+-- larger than 10^14. You can use them with 32-bit wide numbers without any
+-- problems. Operations involving 64-bit wide numbers, however, may not return
+-- the expected result.
+-- \n\n
+-- The logical operations start with "b" to avoid
+-- clashing with reserved words; although xor isn't a
+-- reserved word, it seemed better to use bxor for
+-- consistency.
+--
 -- @author Reuben Thomas
 -- @copyright BSD License
+
+module "bit"
 
 --- Cast a to an internally-used integer type.
 -- @param a Number.
@@ -43,3 +61,8 @@ function bit.rshift(a, b)
 -- @param a Number to perform the shift on.
 -- @param b Number of shifts.
 function bit.arshift(a, b)
+
+--- Returns the integer remainder of a divided by b.
+-- @param a Dividend.
+-- @param b Divisor.
+function bit.mod(a, b)

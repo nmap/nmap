@@ -1,49 +1,74 @@
 
---- The Binary Data Library allows to pack and unpack to and from
--- binary data. Encoding and decoding works by using a format 
--- string containing certain operator characters:
--- <table><tr><th>Operator</th><th>Description</th></tr>
--- <tr><td>H</td><td>hex string</td></tr>
--- <tr><td>B</td><td>bit string</td></tr>
--- <tr><td>x</td><td>null byte</td></tr>
--- <tr><td>z</td><td>zero-terminated string</td></tr>
--- <tr><td>p</td><td>string preceded by 1-byte integer length</td></tr>
--- <tr><td>P</td><td>string preceded by 2-byte integer length</td></tr>
--- <tr><td>a</td><td>string preceded by 4-byte integer length</td></tr>
--- <tr><td>A</td><td>string</td></tr>
--- <tr><td>f</td><td>float</td></tr>
--- <tr><td>d</td><td>double</td></tr>
--- <tr><td>n</td><td>Lua number</td></tr>
--- <tr><td>c</td><td>char (1-byte integer)</td></tr>
--- <tr><td>C</td><td>byte = unsigned char (1-byte unsigned integer)</td></tr>
--- <tr><td>s</td><td>short (2-byte integer)</td></tr>
--- <tr><td>S</td><td>unsigned short (2-byte unsigned integer)</td></tr>
--- <tr><td>i</td><td>int (4-byte integer)</td></tr>
--- <tr><td>I</td><td>unsigned int (4-byte unsigned integer)</td></tr>
--- <tr><td>l</td><td>long (8-byte integer)</td></tr>
--- <tr><td>L</td><td>unsigned long (8-byte unsigned integer)</td></tr>
--- <tr><td>&lt;</td><td>little endian modifier</td></tr>
--- <tr><td>&gt;</td><td>big endian modifier</td></tr>
--- <tr><td>=</td><td>native endian modifier</td></tr>
--- </table>
+--- Pack and unpack binary data.
+-- \n\n
+-- A problem script authors often face is the necessity of encoding values
+-- into binary data. For example after analyzing a protocol the starting 
+-- point to write a script could be a hex dump, which serves as a preamble
+-- to every sent packet. Although it is possible work with the 
+-- functionality Lua provides, it's not very convenient. Therefore NSE includes
+-- Binlib, based on lpack (http://www.tecgraf.puc-rio.br/~lhf/ftp/lua/)
+-- by Luiz Henrique de Figueiredo.
+-- \n\n
+-- The Binlib functions take a format string to encode and decode binary
+-- data. Packing and unpacking are controlled by the following operator
+-- characters:\n
+-- H: hex string\n
+-- B: bit string\n
+-- x: null byte\n
+-- z: zero-terminated string\n
+-- p: string preceded by 1-byte integer length\n
+-- P: string preceded by 2-byte integer length\n
+-- a: string preceded by 4-byte integer length\n
+-- A: string\n
+-- f: float\n
+-- d: double\n
+-- n: Lua number\n
+-- c: char (1-byte integer)\n
+-- C: byte = unsigned char (1-byte unsigned integer)\n
+-- s: short (2-byte integer)\n
+-- S: unsigned short (2-byte unsigned integer)\n
+-- i: int (4-byte integer)\n
+-- I: unsigned int (4-byte unsigned integer)\n
+-- l: long (8-byte integer)\n
+-- L: unsigned long (8-byte unsigned integer)\n
+-- <: little endian modifier\n
+-- >: big endian modifier\n
+-- =: native endian modifier
+-- \n\n
 -- Note that the endian operators work as modifiers to all the 
 -- characters following them in the format string.
 
 module "bin"
 
 
---- Packs values according to format string.
--- Note: on Windows packing of 64 bit values &gt; 2^63 currently
+--- Returns a binary packed string.
+-- \n\n
+-- The format string describes how the parameters (p1, ...) will be interpreted.
+-- Numerical values following operators stand for operator repetitions and need
+-- an according amount of parameters. Operators expect appropriate parameter
+-- types.
+-- \n\n
+-- Note: on Windows packing of 64 bit values > 2^63 currently
 -- results in packing exactly 2^63.
---@param format Format string, used to pack following arguments
---@return String containing packed data
+--@param format Format string, used to pack following arguments.
+--@param ... The values to pack.
+--@return String containing packed data.
 function bin.pack(format, ...)
 
 
---- Unpacks values according to format string.
---@param format Format string, used to unpack values out of data string
---@param data String containing packed data
---@param init Optional starting position within the string
---@return First returned value is the position in the data string where unpacking stopped, following returned values are the unpacked values.
+--- Returns values read from the binary packed data string.
+-- \n\n
+-- The first return value of this function is the position at which unpacking
+-- stopped. This can be used as init value for subsequent calls. The following
+-- results are the values according to the format string. Numerical values in
+-- the format string are interpreted as repetitions like in pack, except if used
+-- with A, B or H, in which cases the number tells unpack how many bytes to
+-- read. Unpack stops if either the format string or the binary data string are
+-- exhausted. 
+--@param format Format string, used to unpack values out of data string.
+--@param data String containing packed data.
+--@param init Optional starting position within the string.
+--@return Position in the data string where unpacking stopped.
+--@return All unpacked values.
 function bin.unpack(format, data, init)
 
