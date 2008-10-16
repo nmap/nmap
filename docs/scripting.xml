@@ -801,8 +801,10 @@ action refer to <xref linkend="nse-tutorial-action"/>.
         The arguments, <literal>host</literal> and
 	<literal>port</literal>, are Lua tables which contain
 	information on the target against which the script is
-	executed. The following list describes each variable in the
-	<literal>host</literal> and <literal>port</literal> tables.
+	executed. If a script matched a hostrule, it gets only the
+	<literal>host</literal> table, and if it matched a portrule it
+	gets both <literal>host</literal> and <literal>port</literal>.
+	The following list describes each variable in these two tables.
       </para>
 
       <para>
