@@ -826,7 +826,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
 	    <listitem>
 	      <para>
 		The <literal>os</literal> entry in the host table is
-		an array of strings. The strings (maximally 8) are the
+               an array of strings. The strings (as many as eight) are the
 		names of the operating systems the target is possibly
 		running. Strings are only entered in this array if the
 		target machine is a perfect match for one or more OS
@@ -1090,11 +1090,11 @@ action refer to <xref linkend="nse-tutorial-action"/>.
 	NSE scripts. The main benefit of NSE's sockets is that they
 	never block on I/O operations, allowing many scripts to be run in parallel.
 	The I/O parallelism is fully transparent to authors of NSE scripts.  
-	In NSE you can either program as if you were using a single non
-	blocking socket or you can program as if your connection is
+       In NSE you can either program as if you were using a single
+        non-blocking socket or you can program as if your connection is
 	blocking. Seemingly blocking I/O calls still return once a
 	specified timeout has been exceeded. Two flavors of Network I/O are
-	supported: 
+       supported: connect-style and raw packet.
 	</para>
 	<sect3 id="nse-api-networkio-connect">
 	  <title>Connect-style network I/O</title>
@@ -1104,44 +1104,100 @@ action refer to <xref linkend="nse-tutorial-action"/>.
 	  remote address, send and receive data and close the socket again.
 	  Everything up to the Transport layer (which is either TCP, UDP or
 	  SSL) is handled by the library.
-      </para>
+        </para>
+        <para>
+          An NSE socket is created by calling
+          <function>nmap.new_socket()</function>, which returns a socket object.
+          The socket object supports the usual <function>connect</function>,
+          <function>send</function>, <function>receive</function>, and
+          <function>close</function> methods. Additionally the functions
+          <function>receive_bytes</function>,
+          <function>receive_lines</function>, and
+          <function>receive_buf</function> allow greater control of the
+          receiving of data.
+          <xref linkend="nse-api-networkio-connect-example" xrefstyle="select: label nopage"/>
+          shows the use of connect-style network operations. The
+          <function>try</function> function is for error handling; see
+          <xref linkend="nse-exceptions"/>.
+        </para>
+        <example id="nse-api-networkio-connect-example">
+          <title>Connect-style I/O</title>
+          <programlisting>
+require("nmap")
+
+local socket = nmap.new_socket()
+socket:set_timeout(1000)
+try = nmap.new_try(function() socket:close() end)
+try(socket:connect(host.ip, port.number))
+try(socket:send("login"))
+response = try(socket:receive())
+socket:close()
+          </programlisting>
+        </example>
         </sect3>
 
 	<sect3 id="nse-api-networkio-raw">
 	  <title>Raw packet network I/O</title>
           <indexterm><primary>raw packets</primary><secondary>in NSE</secondary></indexterm>
-	  <para>For those cases where the connection oriented approach is too inflexible,
+	  <para>For those cases where the connection-oriented approach is too inflexible,
 	  NSE provides script developers with a more powerful option:
 	  raw packet network I/O. The greater flexibility comes, however, at
 	  the cost of a slightly more complex API. Receiving raw packets is
 	  accomplished via a wrapper around
 	  Libpcap<indexterm><primary>libpcap</primary></indexterm>
-          inside the Nsock library.<indexterm><primary>Nsock</primary></indexterm>
-          In order to keep the
-	  capturing efficient it works in a three tiered approach: Opening a
-	  device for capturing, registering listeners to it and receiving
-	  packets. With each call to <literal>pcap_open()</literal> you have
-	  to provide a callback function, which receives the packet (along with
-	  it's layer 2 and 3 headers) and is used to compute a so-called
-	  packet hash. Each call to <literal>pcap_register()</literal> takes a
-	  binary string as argument. For every packet captured the computed
-	  hash is matched against all registered strings. 
-	  Those scripts for which the compare yields true are then provided
-	  with the packet as a return value to <literal>pcap_receive()</literal>. 
-	  The more general the packet hash computing function is kept, 
-	  the more scripts may receive the packet and proceed with their
-	  execution.  To use the packet capturing inside your script you have to 
-	  create a socket with
-	  <literal>nmap.newsocket()</literal> and later close the socket with <literal>socket_object:close()</literal>&mdash;just
-	  like with the connection-based network I/O.
-      </para>
+          inside the
+          Nsock library.<indexterm><primary>Nsock</primary></indexterm></para>
 
-	<para>
-	Receiving raw packets is a great feature, but it is also only half
-	the job. Now for sending raw packets: To accomplish this NSE has
-	access to a wrapper around the
-	<literal>dnet</literal> library.<indexterm><primary>libdnet</primary></indexterm>
-	</para>
+          <para>For efficiency, the interface for raw packet capturing
+          works in three steps. First, a capture device is opened.
+          Second, listeners are registered with the interface. Third,
+          packets are received.</para>
+
+          <para>A handle for raw socket reads is created from an
+          ordinary socket object using the
+          <function>pcap_open()</function> method. This method takes a
+          callback function, which computes a so-called packet hash from
+          a packet along with its headers. This hash can return any
+          binary string, which is later compared to the strings
+          registered with the <function>pcap_register()</function>
+          function. Normally the packet hash callback will extract some
+          portion of the packet, such as its source address.</para>
+
+          <para>The pcap reader is instructed to listen for certain
+          packets using the <function>pcap_register()</function> function.
+          The function takes a binary string which is compared against
+          the hash value of every packet received. Those packets whose
+          hashes match any registered strings will be returned by the
+          <function>pcap_receive()</function> method. Register the empty
+          string to receive all packets.</para>
+
+          <para>A script then receives packets for which a listener has
+          been registered by calling the
+          <function>pcap_receive()</function> method. The method blocks
+          until a packet is received or a timeout occurs.</para>
+
+          <para>The more general the packet hash computing function is
+          kept, the more scripts may receive the packet and proceed with
+          their execution. To use the packet capturing inside your
+          script you have to create a socket with
+          <function>nmap.newsocket()</function> and later close the socket
+          with <function>socket_object:close()</function>&mdash;just like
+          with the connection-based network I/O.</para>
+
+          <para>
+          Receiving raw packets is a great feature, but it is also only half
+          the job. Now for sending raw packets: To accomplish this NSE has
+          access to a wrapper around the
+          <literal>dnet</literal> library.<indexterm><primary>libdnet</primary></indexterm></para>
+
+          <para>Unlike raw socket reads, raw packet writes are not
+          through a standard socket object. Instead, the function
+          <function>nmap.new_dnet()</function> creates a dnet object
+          with ethernet sending methods. Open an interface with the
+          <function>ethernet_open()</function> method. Send raw ethernet
+          frames with <function>ethernet_send()</function>. Close the
+          ethernet handle with <function>ethernet_close</function> when
+          you're done.</para>
 	</sect3>
 	</sect2>
 
