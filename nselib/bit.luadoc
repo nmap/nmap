@@ -1,3 +1,5 @@
+module "bit"
+
 --- BitLib is a library by Reuben Thomas that provides facilities for
 -- bitwise operations on Integer values.
 -- @author Reuben Thomas
