@@ -26,7 +26,7 @@ action = function(host, port)
 		socket:close()
 	end
 
-	local try = nmap.new_try(err_catch())
+	local try = nmap.new_try(err_catch)
 
 	socket:set_timeout(5000)
 	try(socket:connect(host.ip, port.number, port.protocol))
