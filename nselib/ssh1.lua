@@ -19,18 +19,22 @@ local openssl = require "openssl"
 --"fp_input", "full_key", "algorithm", and "fingerprint".
 fetch_host_key = function(host, port)
   local socket = nmap.new_socket()
-  local catch = function() socket:close() end
-  local try = nmap.new_try(catch)
+  local status
 
-  try(socket:connect(host.ip, port.number))
+  status = socket:connect(host.ip, port.number)
+  if not status then return end
   -- fetch banner
-  try(socket:receive_lines(1))
+  status = socket:receive_lines(1)
+  if not status then socket:close(); return end
   -- send our banner
-  try(socket:send("SSH-1.5-Nmap-SSH1-Hostkey\r\n"))
+  status = socket:send("SSH-1.5-Nmap-SSH1-Hostkey\r\n")
+  if not status then socket:close(); return end
 
   local data, packet_length, padding, offset
-  data = try(socket:receive())
+  status,data = socket:receive()
   socket:close()
+  if not status then return end
+
   offset, packet_length = bin.unpack( ">i", data )
   padding = 8 - packet_length % 8
   offset = offset + padding

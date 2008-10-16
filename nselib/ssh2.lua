@@ -108,22 +108,28 @@ end
 --@return table containing the key and fingerprint.
 fetch_host_key = function( host, port, key_type )
   local socket = nmap.new_socket()
-  local catch = function() socket:close() end
-  local try = nmap.new_try(catch)
+  local status
+
   -- oakley group 2 prime taken from rfc 2409
   local prime = "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7EDEE386BFB5A899FA5AE9F24117C4B1FE649286651ECE65381FFFFFFFFFFFFFFFF"
 
-  try(socket:connect(host.ip, port.number))
+  status = socket:connect(host.ip, port.number)
+  if not status then return end
   -- fetch banner
-  try(socket:receive_lines(1))
+  status = socket:receive_lines(1)
+  if not status then socket:close(); return end
   -- send our banner
-  try(socket:send("SSH-2.0-Nmap-SSH2-Hostkey\r\n"))
+  status = socket:send("SSH-2.0-Nmap-SSH2-Hostkey\r\n")
+  if not status then socket:close(); return end
 
   local cookie = openssl.rand_bytes( 16 )
   local packet = transport.build( transport.kex_init( cookie, {host_key_algorithms=key_type} ) )
-  try(socket:send( packet ))
+  status = socket:send( packet )
+  if not status then socket:close(); return end
 
-  local kex_init = try(socket:receive_bytes(1))
+  local kex_init
+  status, kex_init = socket:receive_bytes(1)
+  if not status then socket:close(); return end
   kex_init = transport.parse_kex_init( transport.payload( kex_init ) )
 
   if not tostring(kex_init.server_host_key_algorithms):find( key_type, 1, true ) then
@@ -140,9 +146,11 @@ fetch_host_key = function( host, port, key_type )
   e = openssl.bignum_mod_exp( g, x, p )
 
   packet = transport.build( transport.kexdh_init( e ) )
-  try(socket:send( packet ))
+  status = socket:send( packet )
+  if not status then socket:close(); return end
 
-  kexdh_reply = try(socket:receive_bytes(1))
+  local kexdh_reply
+  status, kexdh_reply = socket:receive_bytes(1)
   kexdh_reply = transport.payload( kexdh_reply )
   -- check for proper msg code
   if kexdh_reply:byte(1) ~= SSH2.SSH_MSG_KEXDH_REPLY then
