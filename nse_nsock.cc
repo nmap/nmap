@@ -1236,7 +1236,6 @@ char* ncap_request_do_callback(nsock_event nse, lua_State *L, int ncap_cback_ref
 	/* get string from top of the stack*/
 	size_t testdatasz;
 	const char* testdata = lua_tolstring(L, -1, &testdatasz); 
-	// lua_pop(L, 1);/* just in case [nope, it's not needed]*/
 	
 	char *key = strdup(hex((char*)testdata, testdatasz));
 	return key;
