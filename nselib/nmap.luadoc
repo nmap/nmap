@@ -153,25 +153,24 @@ function nmap.mutex(object)
 
 --- Creates a new exception handler.
 -- \n\n
--- This function returns another function, which itself takes a function as an
--- argument. When the returned function is called, it in turn calls the function
--- passed to it as an argument, and checks the return value for an error. An
--- error is signalled when the first return value of the function is false. If
--- there is an error, the script will stop immediately and produce no output.
--- And optional handler function can be called before the script is stopped. In
--- this function you can perform any clean-up operations, such as closing
--- sockets.
+-- This function returns another function, an exception handler. The returned
+-- function takes a variable number of arguments, which are assumed to be the
+-- return values of another function. It checks the return values for an
+-- exception, which is signalled when the first return value is false. If there
+-- is an exception, the script will stop immediately and produce no output. An
+-- optional handler function can be called before the script is stopped. In the
+-- error handler function you can perform any clean-up operations, such as
+-- closing a socket.
 -- @param handler Exception handler function (optional).
 -- @usage
 -- local result, socket, try, catch\n
---\n
+-- \n
 -- result = ""\n
 -- socket = nmap.new_socket()\n
--- catch = function() \n
--- socket:close() \n
+-- catch = function()\n
+--   socket:close()\n
 -- end\n
 -- try = nmap.new_try(catch)\n
---\n
 -- try(socket:connect(host.ip, port.number))\n
 -- result = try(socket:receive_lines(1))\n
 -- try(socket:send(result))
