@@ -129,17 +129,17 @@ action = function( host )
 
   if not nmap.registry.whois then
     ---
-    -- Data and flags shared between threads.
-    --\n whoisdb_default_order          The default number and order of whois services to query.
-    --\n using_local_assignments_file   Set this to: false; to avoid using the data from IANA hosted assignments files (false when whodb=nofile).
-    --\n local_assignments_file_expiry  A period, between 0 and 7 days, during which cached assignments data may be used without being refreshed.
-    --\n init_done                      Set when script_init() has been called and prevents it being called again.
-    --\n mutex                          A table of mutex functions, one for each service defined herein.  Allows a thread exclusive access to a
+    -- Data and flags shared between threads.\n
+    --@field whoisdb_default_order          The default number and order of whois services to query.
+    --@field using_local_assignments_file   Set this to: false; to avoid using the data from IANA hosted assignments files (false when whodb=nofile).
+    --@field local_assignments_file_expiry  A period, between 0 and 7 days, during which cached assignments data may be used without being refreshed.
+    --@field init_done                      Set when script_init() has been called and prevents it being called again.
+    --@field mutex                          A table of mutex functions, one for each service defined herein.  Allows a thread exclusive access to a
     --                                service, preventing concurrent connections to it.
-    --\n nofollow                       A flag that prevents referrals to other whois records and allows the first record retrieved to be
+    --@field nofollow                       A flag that prevents referrals to other whois records and allows the first record retrieved to be
     --                                returned instead.  Set to true when whodb=nofollow
-    --\n using_cache                    A flag which modifies the size of ranges in a cache entry.  Set to false when whodb=nocache
-    --\n cache                          Storage for cached redirects, records and other data for output.
+    --@field using_cache                    A flag which modifies the size of ranges in a cache entry.  Set to false when whodb=nocache
+    --@field cache                          Storage for cached redirects, records and other data for output.
     -- @name whois
     -- @class table
     nmap.registry.whois = {}
@@ -164,14 +164,14 @@ action = function( host )
   -- Holds field data captured from the responses of each service queried and includes additional information about the final desired record.
   --\n The table, indexed by whois service id, holds a table of fields captured from each queried service.  Once it has been determined that a record
   --\n represents the final record we wish to output, the existing values are destroyed and replaced with the one required record.  This is done purely
-  --\n to make it easier to reference the data of a desired record.  Other values in the table are as follows
-  --\n data.iana        is set after the table is initialised and is the number of times a response encountered represents "The Whole Address Space".
+  --\n to make it easier to reference the data of a desired record.  Other values in the table are as follows\n
+  --@field data.iana        is set after the table is initialised and is the number of times a response encountered represents "The Whole Address Space".
   --\n                  If the value reaches 2 it is assumed that a valid record is held at ARIN.
-  --\n data.id          is set in analyse_response() after final record and is the service name at which a valid record has been found.  Used in
+  --@field data.id          is set in analyse_response() after final record and is the service name at which a valid record has been found.  Used in
   --                  format_data_for_output().
-  --\n data.mirror      is set in analyse_response() after final record and is the service name from which a mirrored record has been found.  Used in
+  --@field data.mirror      is set in analyse_response() after final record and is the service name from which a mirrored record has been found.  Used in
   --                  format_data_for_output().
-  --\n data.comparison  is set in analyse_response() after final record and is a string concatenated from fields extracted from a record and which
+  --@field data.comparison  is set in analyse_response() after final record and is a string concatenated from fields extracted from a record and which
   --                  serves as a fingerprint for a record, used in get_cache_key(), to compare two records for equality.
   -- @name data
   -- @class table
@@ -179,11 +179,11 @@ action = function( host )
   data.iana = 0
 
   ---
-  -- Used in the main loop to manage mutexes, the structure of tracking is as follows:
-  --\n this_db    The service for which a thread will wait for exclusive access before sending a query to it.
-  --\n next_db    The next service to query.  Allows a thread to continue in the main "while do" loop.
-  --\n last_db    The value of this_db after sending a query, used when exclusive access to a service is no longer required.
-  --\n completed  An array of services previously queried.
+  -- Used in the main loop to manage mutexes, the structure of tracking is as follows:\n
+  --@field this_db    The service for which a thread will wait for exclusive access before sending a query to it.
+  --@field next_db    The next service to query.  Allows a thread to continue in the main "while do" loop.
+  --@field last_db    The value of this_db after sending a query, used when exclusive access to a service is no longer required.
+  --@field completed  An array of services previously queried.
   -- @name tracking
   -- @class table
   local tracking = {}
@@ -1887,7 +1887,7 @@ end
 
 ---
 -- Checks whether a cached file requires updating via HTTP.
--- The cached file should contain the following string on the second line: "&lt;timestamp&gt;&lt;Last-Modified-Date&gt;&lt;Entity-Tag&gt;".
+-- The cached file should contain the following string on the second line: "<timestamp><Last-Modified-Date><Entity-Tag>".
 -- where timestamp is number of seconds since epoch at the time the file was last cached and
 -- Last-Modified-Date is an HTTP compliant date sting returned by an HTTP server at the time the file was last cached and
 -- Entity-Tag is an HTTP Etag returned by an HTTP server at the time the file was last cached.
