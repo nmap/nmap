@@ -1,0 +1,119 @@
+--- Perl Compatible Regular Expressions
+-- \n\n
+-- One of Lua's quirks is its string patterns. While they have great performance
+-- and are tightly integrated into the Lua interpreter, they are very different
+-- in syntax and not as powerful as standard regular expressions.  So we have
+-- integrated Perl compatible regular expressions into Lua using PCRE and a
+-- modified version of the Lua PCRE library written by Reuben Thomas and Shmuel
+-- Zeigerman. These are the same sort of regular expressions used by Nmap
+-- version detection.  The main modification to their library is that the NSE
+-- version only supports PCRE expressions instead of both PCRE and POSIX
+-- patterns. In order to maintain a high script execution speed, the library
+-- interfacing with PCRE is kept very thin. It is not integrated as seamlessly
+-- as the Lua string pattern API. This allows script authors to decide when to
+-- use PCRE expressions versus Lua patterns.  The use of PCRE involves a
+-- separate pattern compilation step, which saves execution time when patterns
+-- are reused.  Compiled patterns can be cached in the NSE registry and reused
+-- by other scripts.
+-- \n\n
+-- The documentation for this module is derived from that supplied by the PCRE
+-- Lua lib.
+-- \n\n
+-- Warning: PCRE has a history of security vulnerabilities allowing attackers
+-- who are able to compile arbitrary regular expressions to execute arbitrary
+-- code.  More such vulnerabilities may be discovered in the future.  These have
+-- never affected Nmap because it doesn't give attackers any control over the
+-- regular expressions it uses.  Similarly, NSE scripts should never build
+-- regular expressions with untrusted network input.  Matching hardcoded regular
+-- expressions against the untrusted input is fine.
+-- @author Reuben Thomas
+-- @author Shmuel Zeigerman
+
+module "pcre"
+
+--- Returns a compiled regular expression.
+-- \n\n
+-- The resulting compiled regular expression is ready to be matched against
+-- strings. Compiled regular expressions are subject to Lua's garbage
+-- collection.
+-- \n\n
+-- The compilation flags are set bitwise. If you want to set the 3rd
+-- (corresponding to the number 4) and the 1st (corresponding to 1) bit for
+-- example you would pass the number 5 as a second argument. The compilation
+-- flags accepted are those of the PCRE C library. These include flags for case
+-- insensitive matching (1), matching line beginnings (^) and endings ($) even
+-- in multiline strings (i.e. strings containing newlines) (2) and a flag for
+-- matching across line boundaries (4). No compilation flags yield a default
+-- value of 0.
+-- @param pattern a string describing the pattern, such as "^foo$".
+-- @param flags a number describing which compilation flags are set.
+-- @param locale a string describing the locale which should be used to compile
+-- the regular expression (optional). The value is a string which is passed to
+-- the C standard library function setlocale.  For more information on this
+-- argument refer to the documentation of setlocale.
+-- @usage my_regex = pcre.new("pcre-pattern",0,"C")
+function pcre.new(pattern, flags, locale)
+
+--- Returns a table of the available PCRE option flags (numbers) keyed by their
+-- names (strings).
+-- \n\n
+-- Possible names of the available strings can be retrieved from the
+-- documentation of the PCRE library used to link against Nmap. The key is the
+-- option name in the manual minus the PCRE prefix. PCRE_CASELESS becomes
+-- CASELESS for example.
+function pcre.flags()
+
+--- Returns the version of the PCRE library in use as a string.
+-- \n\n
+-- For example "6.4 05-Sep-2005".
+function pcre.version()
+
+--- Matches a string against a compiled regular expression.
+-- \n\n
+-- Returns the start point and the end point of the first match of the compiled
+-- regular expression pcre_obj in the string.
+-- @param string the string to match against.
+-- @param start where to start the match in the string (optional).
+-- @param flags execution flags (optional).
+-- @return nil if no match, otherwise the start point of the first match.
+-- @return the end point of the first match.
+-- @return a table which contains false in the positions where the pattern did
+-- not match. If named sub-patterns were used, the table also contains substring
+-- matches keyed by their sub-pattern name.
+-- @usage
+-- s = pcre_obj:match("string to be searched", 0,0);\n
+-- if(s) code_to_be_done_on_match end
+function pcre_obj:match(string, start, flags)
+
+--- Matches a string against a compiled regular expression, returning positions
+-- of substring matches.
+-- \n\n
+-- This function is like match() except that a table returned as a third result
+-- contains offsets of substring matches rather than substring matches
+-- themselves. That table will not contain string keys, even if named
+-- sub-patterns are used.  For example, if the whole match is at offsets 10, 20
+-- and substring matches are at offsets 12, 14 and 16, 19 then the function
+-- returns the following: 10, 20, {12,14,16,19}
+-- @param string the string to match against.
+-- @param start where to start the match in the string (optional).
+-- @param flags execution flags (optional).
+-- @return a table which contains a list of substring match start and end
+-- positions.
+function pcre_obj:exec(string, start, flags)
+
+--- Matches a string against a regular expression multiple times.
+-- \n\n
+-- Tries to match the regular expression pcre_obj against string up to n times
+-- (or as many as possible if n is either not given or is not a positive
+-- number), subject to the execution flags ef. Each time there is a match, func
+-- is called as func(m, t), where m is the matched string and t is a table of
+-- substring matches. This table contains false in the positions where the
+-- corresponding sub-pattern did not match. If named sub-patterns are used then
+-- the table also contains substring matches keyed by their correspondent
+-- sub-pattern names (strings).  If func returns a true value, then gmatch
+-- immediately returns; gmatch returns the number of matches made.
+-- @param string the string to match against.
+-- @param n the maximum number of matches to do (optional).
+-- @param ef execution flags (optional).
+-- @return the number of matches made.
+function pcre_obj:gmatch(string, func, n, ef)
