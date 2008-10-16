@@ -1572,8 +1572,7 @@ call.</para>
                   (offsets to the start and the end of the delimiter
                   inside the buffer, or <literal>nil</literal> if the
                   delimiter is not found).  The nselib
-		  <literal>match.lua</literal> module (see
-		  <xref linkend="nse-lib-match"/>) provides functions
+		  <literal>match.lua</literal> module provides functions
 		  for matching against regular expressions or byte
 		  counts.  These functions are suitable as arguments
 		  to <literal>receive_buf</literal>.</para>
