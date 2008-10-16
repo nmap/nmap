@@ -2,6 +2,19 @@
 -- \n\n
 -- This module is a wrapper for OpenSSL functions that provide encryption and
 -- decryption, hashing, and multiprecision integers.
+-- \n\n
+-- The openssl module may not always be available--it depends on whether
+-- OpenSSL support was enabled at compile time. Scripts using the module should
+-- be made to fail gracefully using code like the following:
+-- \n\n
+-- if not pcall(require, "openssl") then
+--   action = function(host, port)
+--     stdnse.print_debug(2, "Skipping \"%s\" because OpenSSL is missing.", id)
+--   end 
+-- end
+-- action = action or function(host, port)
+--   ...
+-- end
 -- @author Sven Klemm <sven@c3d2.de>
 -- @copyright See nmaps COPYING for licence
 
