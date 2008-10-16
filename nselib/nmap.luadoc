@@ -119,25 +119,6 @@ function nmap.clock_ms()
 -- @return "ethernet", "loopback", "p2p", or nil.
 function nmap.get_interface_link(interface_name)
 
---- Returns a new NSE socket object.
--- \n\n
--- To allow for efficient and parallelizable network I/O, NSE provides an
--- interface to Nsock, the Nmap socket library. The smart callback mechanism
--- Nsock uses is fully transparent to NSE scripts. The main benefit of NSE's
--- sockets is that they never block on I/O operations, allowing many scripts to
--- be run in parallel. The I/O parallelism is fully transparent to authors of
--- NSE scripts. In NSE you can either program as if you were using a single non
--- blocking socket or you can program as if your connection is blocking.
--- Seemingly blocking I/O calls still return once a specified timeout has been
--- exceeded.
--- \n\n
--- NSE sockets are the recommended way to do network I/O. They support
--- connect-style sending and receiving over TCP and UDP (and SSL), as well as
--- raw socket receiving.
--- @return A new NSE socket.
--- @see nmap.new_dnet
-function nmap.new_socket()
-
 --- Create a mutex on an object.
 -- \n\n
 -- This function returns another function that works as a mutex on the object
@@ -169,3 +150,296 @@ function nmap.new_socket()
 --   return script_output;\n
 -- end
 function nmap.mutex(object)
+
+--- Creates a new exception handler.
+-- \n\n
+-- This function returns another function, which itself takes a function as an
+-- argument. When the returned function is called, it in turn calls the function
+-- passed to it as an argument, and checks the return value for an error. An
+-- error is signalled when the first return value of the function is false. If
+-- there is an error, the script will stop immediately and produce no output.
+-- And optional handler function can be called before the script is stopped. In
+-- this function you can perform any clean-up operations, such as closing
+-- sockets.
+-- @param handler Exception handler function (optional).
+-- @usage
+-- local result, socket, try, catch\n
+--\n
+-- result = ""\n
+-- socket = nmap.new_socket()\n
+-- catch = function() \n
+-- socket:close() \n
+-- end\n
+-- try = nmap.new_try(catch)\n
+--\n
+-- try(socket:connect(host.ip, port.number))\n
+-- result = try(socket:receive_lines(1))\n
+-- try(socket:send(result))
+function nmap.new_try(handler)
+
+--- Returns a new NSE socket object.
+-- \n\n
+-- To allow for efficient and parallelizable network I/O, NSE provides an
+-- interface to Nsock, the Nmap socket library. The smart callback mechanism
+-- Nsock uses is fully transparent to NSE scripts. The main benefit of NSE's
+-- sockets is that they never block on I/O operations, allowing many scripts to
+-- be run in parallel. The I/O parallelism is fully transparent to authors of
+-- NSE scripts. In NSE you can either program as if you were using a single non
+-- blocking socket or you can program as if your connection is blocking.
+-- Seemingly blocking I/O calls still return once a specified timeout has been
+-- exceeded.
+-- \n\n
+-- NSE sockets are the recommended way to do network I/O. They support
+-- connect-style sending and receiving over TCP and UDP (and SSL), as well as
+-- raw socket receiving.
+-- @return A new NSE socket.
+-- @see nmap.new_dnet
+function nmap.new_socket()
+
+--- Establishes a connection.
+-- \n\n
+-- The connect puts a socket in a state ready for communication. It takes as
+-- arguments a host descriptor (either an IP address or a hostname), a port
+-- number and optionally a protocol. The protocol must be one of "tcp", "udp" or
+-- "ssl"; it is "tcp" if not specified.
+-- \n\n
+-- On success the function returns true. On failure it returns false and an
+-- error string. Those strings are taken from the gai_strerror C function. They
+-- are (with the error code in parentheses):\n
+-- "Address family for hostname not supported" (EAI_ADDRFAMILY)\n
+-- "Temporary failure in name resolution" (EAI_AGAIN)\n
+-- "Bad value for ai_flags" (EAI_BADFLAGS)\n
+-- "Non-recoverable failure in name resolution" (EAI_FAIL)\n
+-- "ai_family not supported" (EAI_FAMILY)\n
+-- "Memory allocation failure" (EAI_MEMORY)\n
+-- "No address associated with hostname" (EAI_NODATA)\n
+-- "Name or service not known" (EAI_NONAME)\n
+-- "Servname not supported for ai_socktype" (EAI_SERVICE)\n
+-- "ai_socktype not supported" (EAI_SOCKTYPE)\n
+-- "System error" (EAI_SYSTEM)\n
+-- In addition to these standard system error based messages are the following
+-- two NSE-specific errors:\n
+-- "Sorry, you don't have OpenSSL" occurs if the protocol is "ssl" but but Nmap
+-- was compiled without OpenSSL support.\n
+-- "invalid connection method" occurs if the second parameter is not one of
+-- "tcp", "udp", and "ssl".
+-- @param hostid Hostname or IP address.
+-- @param port Port number.
+-- @param protocol "tcp", "udp", or "ssl" (default "tcp").
+-- @return Status (true or false).
+-- @return Error code (if status is false).
+function socket:connect(hostid, port, protocol)
+
+--- Sends data on an open socket.
+-- \n\n
+-- The send method sends the data contained in the data string through an open
+-- connection. On success the returns true. If the send
+-- operation has failed, the function returns true along with an error string.
+-- The error strings are:\n
+-- "Trying to send through a closed socket": there was no call to socket:connect
+-- before the send operation.\n
+-- "TIMEOUT": the operation took longer than the specified timeout for the
+-- socket.\n
+-- "ERROR": an error occurred inside the underlying Nsock library.\n
+-- "CANCELLED": the operation was cancelled.\n
+-- "KILL": for example the script scan is aborted due to a faulty script.\n
+-- "EOF": an EOF was read (probably will not occur for a send operation).\n
+-- @param data The data to send.
+-- @return Status (true or false).
+-- @return Error code (if status is false).
+function socket:send(data)
+
+--- Receives data from an open socket.
+-- \n\n
+-- The receive method does a non-blocking receive operation on an open socket.
+-- On success the function returns true along with the received data. If
+-- receiving data has failed, the function returns false along with an error
+-- string. A failure occurs for example if receive is called on a closed socket.
+-- The receive call returns to the NSE script all the data currently stored in
+-- the receive buffer of the socket. Error conditions are the same as for the
+-- send operation.
+-- @return Status (true or false).
+-- @return Data (if status is true) or error string (if status is false).
+function socket:receive()
+
+--- Receives lines from an open connection.
+-- \n\n
+-- Tries to receive at least n lines from an open connection. A line is a string
+-- delimited with \n characters.  If it was not possible to receive at least n
+-- lines before the operation times out a "TIMEOUT" error occurs. On the other
+-- hand, if more than n lines were received, all are returned, not just n. Use
+-- stdnse.make_buffer to guarantee one line is returned per call.
+-- \n\n
+-- On success the function returns true along with the received data. If
+-- receiving data has failed, the function returns false along with an error
+-- string. Error conditions are the same as for the send operation.
+-- @param n Minimum number of lines to read.
+-- @return Status (true or false).
+-- @return Data (if status is true) or error string (if status is false).
+function socket:receive_lines(n)
+
+--- Receives bytes from an open connection.
+-- \n\n
+-- Tries to receive at least n bytes from an open connection. Like in
+-- receive_lines, n is the minimum amount of characters we would like to
+-- receive. If more arrive, we get all of them. If fewer than n characters
+-- arrive before the operation times out, a "TIMEOUT" error occurs.
+-- \n\n
+-- On success the function returns true along with the received data. If
+-- receiving data has failed, the function returns false along with an error
+-- string. Error conditions are the same as for the send operation.
+-- @param n Minimum number of bytes to read.
+-- @return Status (true or false).
+-- @return Data (if status is true) or error string (if status is false).
+function socket:receive_bytes(n)
+
+--- Reads from a socket using a buffer and an arbitrary delimiter.
+-- \n\n
+-- The receive_buf method reads data from the network until it encounters the
+-- given delimiter string (or matches the function passed in). This function
+-- continues to read from the network until the delimiter is found or the
+-- function times out.  If data is read beyond the delimiter, that data is saved
+-- in a buffer for the next call to receive_buf.  This buffer is cleared on
+-- subsequent calls to other Network I/O API functions.
+-- \n\n
+-- The first argument may be either a pattern or a function. If a pattern, that
+-- pattern is used to separate the data. If a function, it must take exactly one
+-- parameter (the buffer) and its return values must be in the same format as
+-- string.find (offsets to the start and the end of the delimiter inside the
+-- buffer, or nil if the delimiter is not found).  The nselib match.lua module
+-- provides functions for matching against regular expressions or byte counts.
+-- These functions are suitable as arguments to receive_buf.
+-- \n\n
+-- The second argument to receive_buf is a Boolean value controlling whether the
+-- delimiting string is returned along with the received data (true) or
+-- discarded (false).
+-- \n\n
+-- On success the function returns true along with the received data. If
+-- receiving data has failed, the function returns false along with an error
+-- string. Possible error messages are the same as those that the other receive
+-- function can return, with the addition of\n
+-- "Error inside splitting-function": the first argument was a function which
+-- caused an error while being called.\n
+-- "Error in string.find (nsockobj:receive_buf)!": a string was provided as the
+-- first argument, and string.find() yielded an error while being called.\n
+-- "Expected either a function or a string!": the first argument was neither a
+-- function nor a string.\n
+-- "Delimiter has negative size!": the returned start offset is greater than the
+-- end offset.\n
+-- @param delimiter A Lua pattern or a function with return values like those of
+-- string.find.
+-- @param keeppattern Whether to return the delimiter string with any returned
+-- data.
+-- @return Status (true or false).
+-- @return Data (if status is true) or error string (if status is false).
+function socket:receive_buf(delimiter, keeppattern)
+
+--- Closes an open connection.
+-- \n\n
+-- On success the function returns true. If the close fails, the function
+-- returns false and an error string. Currently the only error message is
+-- "Trying to close a closed socket", which is issued if the socket has already
+-- been closed.
+-- \n\n
+-- Sockets are subject to garbage collection. Should you forget to close a
+-- socket, it will get closed before it gets deleted (on the next occasion Lua's
+-- garbage collector is run). However since garbage collection cycles are
+-- difficult to predict, it is considered good practice to close opened sockets.
+-- @return Status (true or false).
+-- @return Error code (if status is false).
+function socket:close()
+
+--- Gets information about a socket.
+-- \n\n
+-- This function returns information about the socket object. It returns 5
+-- values. If an error occurred, the first value is nil and the second value
+-- describes the error condition. Otherwise the first value describes the
+-- success of the operation and the remaining 4 values describe both endpoints
+-- of the TCP connection. If you put the call in a try() statement the status
+-- value is consumed. The call can be used for example if you want to query an
+-- authentication server.
+-- @return Status (true or false).
+-- @return Local IP address (if status is true) or error string (if status is
+-- false).
+-- @return Local port number (if status is true).
+-- @return Remote IP address (if status is true).
+-- @return Remote port number (if status is true).
+function socket:get_info()
+
+--- Sets a timeout for socket input and output operations.
+-- \n\n
+-- After this time, given in milliseconds, socket operations will time out and
+-- return. The default value is 30,000 (30 seconds). The lowest allowed value is
+-- 10 ms, since this is the granularity of NSE network I/O.
+-- @param t Timeout in milliseconds.
+function socket:set_timeout(t)
+
+--- Opens a socket for raw packet capture.
+-- \n\n
+-- The callback function is a function that receives a packet with headers and
+-- computes a "packet hash"--some value derived from the packet. For example,
+-- the callback function could extract the source IP address from a packet. The
+-- hash of each packet received is compared against all the strings registered
+-- with the pcap_register function.
+-- @param device The dnet-style interface name of the device you want to capture
+-- from.
+-- @param snaplen The length of each packet you want to capture (similar to the
+-- -s option to tcpdump)\n
+-- @param promisc Should be set to 1 if the interface should activate
+-- promiscuous mode, and 0 otherwise.
+-- @param test_function Callback function used to compute the packet hash.
+-- @param bpf A string describing a Berkeley packet filter expression (like
+-- those provided to tcpdump).
+-- @see socket:pcap_register
+function socket:pcap_open(device, snaplen, promisc, test_function, bpf)
+
+--- Starts listening for incoming packages.
+-- \n\n
+-- The provided packet_hash is a binary string which has to match the hash
+-- returned by the test_function parameter provided to pcap_open(). If you want
+-- to receive all packets, just provide the empty string (""). There has to be a
+-- call to pcap_register() before a call to pcap_receive().
+-- @param packet_hash A binary string that is compared against packet hashes.
+-- @see socket:pcap_open
+function socket:pcap_register(packet_hash)
+
+--- Receives a captured packet.
+-- \n\n
+-- If an error or timeout occurs, the function returns false and an error
+-- message. Otherwise, the function returns true followed by the packet length,
+-- the layer two header, and the layer three header.
+-- @return Status (true or false).
+-- @return The length of the captured packet (this may be smaller than the
+-- actual packet length since packets are truncated when the Libpcap snaplen
+-- parameter is smaller than the total packet length).
+-- @return Data from the second OSI layer (e.g. ethernet headers).
+-- @return Data from the third OSI layer (e.g. IPv4 headers).
+function socket:pcap_receive()
+
+--- Closes the pcap device.
+function socket:pcap_close()
+
+--- Creates a new dnet object, used to send raw packets.
+function nmap.new_dnet()
+
+--- Opens an ethernet interface for raw packet sending.
+-- \n\n
+-- An error ("device is not valid ethernet interface") is thrown in case the
+-- provided argument is not valid.
+-- @param interface_name The dnet-style name of the interface to open.
+function dnet:ethernet_open(interface_name)
+
+--- Sends a raw ethernet frame.
+-- \n\n
+-- The dnet object must be associated with a previously opened interface. The
+-- packet must include the IP and ethernet headers. including IP header and
+-- ethernet header. If there was no previous valid call to ethernet_open() an
+-- error is thrown ("dnet is not valid opened ethernet interface").
+-- @param packet
+function dnet:ethernet_send(packet)
+
+--- Closes an ethernet interface.
+-- \n\n
+-- An error ("device is not valid ethernet interface") is thrown in case the
+-- provided argument is not valid.
+function dnet:ethernet_close()
