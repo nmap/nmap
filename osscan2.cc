@@ -3659,7 +3659,7 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
 
   for(hostI = OSI->incompleteHosts.begin(); 
       hostI != OSI->incompleteHosts.end(); hostI++) {
-
+    distance = -1;
     hsi = *hostI;
     HOS->makeFP(hsi->hss);
 

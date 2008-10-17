@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug which caused Nmap to infer an improper distance against
+  some hosts when performaing OS detection against a group whose
+  distance varies between members. [David, Fyodor]
+
 o Added a new NSE OpenSSL library with functions for multiprecision
   integer arithmetics, hashing, HMAC, symmetric encryption and symmetric
   decryption. [Sven]
