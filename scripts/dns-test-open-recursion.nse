@@ -1,4 +1,4 @@
-id = "Nameserver open recursive queries (CVE-1999-0024) (BID 136, 678)"
+id = "Nameserver open recursive queries"
 
 description = [[
 Checks if a DNS server allows queries for third-party names.

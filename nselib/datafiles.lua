@@ -1,4 +1,4 @@
---- Read and parse some of Nmap's data files: nmap-protocol, nmap-rpc,
+--- Read and parse some of Nmap's data files: nmap-protocols, nmap-rpc,
 -- and nmap-services.
 -- \n\n
 -- The functions in this module return values appropriate for use with
