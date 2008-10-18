@@ -763,7 +763,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
     </sect2>
 	</sect1>
     <sect1 id="nse-library">
-      <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>modules</secondary></indexterm>
+      <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>list of modules</secondary></indexterm>
       <title>Lua Extensions</title>
       <para>In addition to the significant built-in capabilities of
       Lua, we have written or integrated several extensions to make
@@ -775,6 +775,19 @@ action refer to <xref linkend="nse-tutorial-action"/>.
       <literal>require</literal>
       </ulink> the default modules in order to use them.
 	  </para>
+
+      <variablelist>
+      &nse-modules;
+      </variablelist>
+  </sect1>
+
+  <sect1 id="nse-scripts-list">
+    <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>list of scripts</secondary></indexterm>
+    <title>NSE Scripts</title>
+
+    <variablelist>
+    &nse-scripts;
+    </variablelist>
   </sect1>
 
   <sect1 id="nse-api">
