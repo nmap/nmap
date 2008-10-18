@@ -537,7 +537,7 @@ end
 ---
 -- Fetches values from a SNMP response.
 --@param resp SNMP Response (will be decoded if necessary).
---@result Table with all decoded responses and their OIDs.
+--@return Table with all decoded responses and their OIDs.
 function fetchResponseValues(resp)
    if (type(resp) == "string") then
       local _

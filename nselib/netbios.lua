@@ -76,7 +76,7 @@ end
 --  the string representation. If the encoding is invalid, it will still attempt
 --  to decode the string as best as possible. 
 --@param encoded_name The L2-encoded name
---@returns the decoded name and the scope. The name will still be padded, and the
+--@return the decoded name and the scope. The name will still be padded, and the
 --         scope will never be nil (empty string is returned if no scope is present)
 function name_decode(encoded_name)
 	local name = ""

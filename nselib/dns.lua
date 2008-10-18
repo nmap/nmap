@@ -636,7 +636,7 @@ end
 ---
 -- Decodes DNS flags.
 --@param Flags as binary digit string.
---@result Table representing flags.
+--@return Table representing flags.
 local function decodeFlags(flgStr)
    flags = {}
    flgTbl = str2tbl(flgStr)
@@ -659,7 +659,7 @@ end
 ---
 -- Decodes a DNS packet.
 --@param data Encoded DNS packet.
---@result Table representing DNS packet.
+--@return Table representing DNS packet.
 function decode(data)
    local pos
    local pkt = {}

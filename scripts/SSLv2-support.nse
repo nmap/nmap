@@ -5,7 +5,7 @@ offers.
 ]]
 
 ---
---@ouput
+--@output
 -- 443/tcp open   https   syn-ack\n
 -- |  SSLv2: server still supports SSLv2\n
 -- |       SSL2_RC4_128_WITH_MD5\n

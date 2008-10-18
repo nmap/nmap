@@ -26,7 +26,6 @@ module(... or "stdnse");
 --@param level Optional verbosity level.
 --@param fmt Format string according to string.format specifiers.
 --@param ... Arguments to format.
---@see string.format
 print_debug = function(level, fmt, ...)
   local verbosity = tonumber(level);
   if verbosity then

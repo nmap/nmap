@@ -15,7 +15,7 @@ local stdnse = require "stdnse"
 
 ---
 -- Capture patterns for common data files, indexed by filename.
--- @type table
+-- @class table
 -- @name common_files
 -- @see parse_file
 local common_files = {
