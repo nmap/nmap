@@ -70,9 +70,6 @@ alphabetically.
 -- @usage
 -- nmap --script smb-enumusers.nse -p445 <host>\n
 -- sudo nmap -sU -sS --script smb-enumusers.nse -p U:137,T:139 <host>
---
--- @output
--- TODO
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"

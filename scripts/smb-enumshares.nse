@@ -20,9 +20,6 @@ shares allowed for anonymous access).
 --@usage
 -- nmap --script smb-enumshares.nse -p445 <host>\n
 -- sudo nmap -sU -sS --script smb-enumshares.nse -p U:137,T:139 <host>
---
---@output
--- TODO
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"
