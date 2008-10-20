@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] The keyboard shortcut for "Save to Directory" has been
+  changed from Ctrl+v to Ctrl+Alt+s so as not to conflict with the
+  usual paste shortcut [Jah, Michael].
+
 o Nmap quits if you give a "backwards" port or protocol range like
   -p 20-10. The issue was noted by Arturo "Buanzo" Busleiman. [David]
 
