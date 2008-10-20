@@ -1142,8 +1142,7 @@ try = nmap.new_try(function() socket:close() end)
 try(socket:connect(host.ip, port.number))
 try(socket:send("login"))
 response = try(socket:receive())
-socket:close()
-          </programlisting>
+socket:close()</programlisting>
         </example>
         </sect3>
 

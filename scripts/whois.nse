@@ -74,7 +74,6 @@ the RIRs.
 -- \n
 -- \n        nmap target --script whois --script-args whodb=nocache
 -- \n        nmap target --script whois --script-args whois={whodb=nocache}
--- \n\n
 --
 --
 --
