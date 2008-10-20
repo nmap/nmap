@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o A crash caused by an incorrect test condition was fixed. It would
+  happen when running a ping scan other than a protocol ping, without
+  debugging enabled, if an ICMP packet was received referring to a
+  packet that was not TCP, UDP, or ICMP. Thanks to Brandon Enright and
+  Matt Castelein for reporting the problem. [David]
+
 o [Zenmap] The keyboard shortcut for "Save to Directory" has been
   changed from Ctrl+v to Ctrl+Alt+s so as not to conflict with the
   usual paste shortcut [Jah, Michael].

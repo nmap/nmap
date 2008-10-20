@@ -4315,7 +4315,8 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           /* Did we fail to find a probe? */
           if (probenum >= listsz)
             continue;
-        } else if (o.debugging && !USI->ptech.rawprotoscan) {
+        } else if (!USI->ptech.rawprotoscan) {
+          if (o.debugging)
             error("Got ICMP response to a packet which was not TCP, UDP, or ICMP");
           continue;
         }
