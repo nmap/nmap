@@ -43,28 +43,34 @@ the RIRs.
 --
 -- nmap target --script whois
 -- \n\n
---       To prevent the use of IANA assignments data supply the nofile value to the whodb argument:
+-- \n    To prevent the use of IANA assignments data supply the nofile
+-- \n    value to the whodb argument:
 -- \n
 -- \n        nmap target --script whois --script-args whodb=nofile
 -- \n        nmap target --script whois --script-args whois={whodb=nofile}
 --
 -- \n\n
--- \n        Supplying a sequence of whois services will also prevent the use of IANA assignments data and override the default sequence:
+-- \n        Supplying a sequence of whois services will also prevent the
+-- \n        use of IANA assignments data and override the default sequence:
 -- \n
 -- \n        nmap target --script whois --script-args whodb=arin+ripe+afrinic
 -- \n        nmap target --script whois --script-args whois={whodb=apnic*lacnic}
--- \n\n  The order in which the services are supplied is the order in which they will be queried.
--- \n        (N.B. commas or semi-colons should not be used to delimit argument values)
+-- \n\n  The order in which the services are supplied is the order in which
+-- \n  they will be queried.
+-- \n        (N.B. commas or semi-colons should not be used to delimit
+-- \n        argument values)
 --
 -- \n\n
--- \n        To return the first record obtained even if it contains a referral to another service, supply the nofollow value to whodb:
+-- \n        To return the first record obtained even if it contains a
+-- \n        referral to another service, supply the nofollow value to whodb:
 -- \n
 -- \n        nmap target --script whois --script-args whodb=nofollow
 -- \n        nmap target --script whois --script-args whois={whodb=nofollow+ripe}
--- \n\n  Note that only one service (the first one supplied) will be used in conjunction with nofollow.
---
+-- \n\n  Note that only one service (the first one supplied) will be used
+-- \n  in conjunction with nofollow.
 -- \n\n
--- \n        To ensure discovery of smaller assignments even if larger ones exist in the cache, supply the nocache value to whodb:
+-- \n        To ensure discovery of smaller assignments even if larger
+-- \n        ones exist in the cache, supply the nocache value to whodb:
 -- \n
 -- \n        nmap target --script whois --script-args whodb=nocache
 -- \n        nmap target --script whois --script-args whois={whodb=nocache}
