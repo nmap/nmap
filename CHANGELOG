@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Removed some unecessary "demo" category NSE scripts: echoTest,
+  chargenTest, showHTTPVersion, and showSMTPVersion.nse.  Moved
+  daytimeTest from the "demo" category to "discovery".  Removed
+  showHTMLTitle from the "demo" category, but it remains in the
+  "default" and "safe" categories. This leaves just showSSHVersion and
+  SMTP_openrelay in the undocumented "demo" category. [Fyodor]
+
 o A crash caused by an incorrect test condition was fixed. It would
   happen when running a ping scan other than a protocol ping, without
   debugging enabled, if an ICMP packet was received referring to a

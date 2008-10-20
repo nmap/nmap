@@ -16,7 +16,6 @@ Entry{ category = "safe", filename = "SSLv2-support.nse" }
 Entry{ category = "malware", filename = "ircZombieTest.nse" }
 Entry{ category = "version", filename = "skype_v2-version.nse" }
 Entry{ category = "discovery", filename = "HTTPtrace.nse" }
-Entry{ category = "demo", filename = "echoTest.nse" }
 Entry{ category = "default", filename = "UPnP-info.nse" }
 Entry{ category = "safe", filename = "UPnP-info.nse" }
 Entry{ category = "default", filename = "rpcinfo.nse" }
@@ -42,10 +41,8 @@ Entry{ category = "discovery", filename = "smb-os-discovery.nse" }
 Entry{ category = "safe", filename = "smb-os-discovery.nse" }
 Entry{ category = "discovery", filename = "ripeQuery.nse" }
 Entry{ category = "external", filename = "ripeQuery.nse" }
-Entry{ category = "demo", filename = "chargenTest.nse" }
 Entry{ category = "malware", filename = "strangeSMTPport.nse" }
 Entry{ category = "version", filename = "iax2Detect.nse" }
-Entry{ category = "demo", filename = "showSMTPVersion.nse" }
 Entry{ category = "discovery", filename = "smb-security-mode.nse" }
 Entry{ category = "safe", filename = "smb-security-mode.nse" }
 Entry{ category = "discovery", filename = "ASN.nse" }
@@ -69,7 +66,6 @@ Entry{ category = "auth", filename = "HTTPAuth.nse" }
 Entry{ category = "intrusive", filename = "HTTPAuth.nse" }
 Entry{ category = "default", filename = "finger.nse" }
 Entry{ category = "discovery", filename = "finger.nse" }
-Entry{ category = "demo", filename = "showHTTPVersion.nse" }
 Entry{ category = "default", filename = "SSHv1-support.nse" }
 Entry{ category = "safe", filename = "SSHv1-support.nse" }
 Entry{ category = "default", filename = "popcapa.nse" }
@@ -103,4 +99,4 @@ Entry{ category = "default", filename = "HTTP_open_proxy.nse" }
 Entry{ category = "discovery", filename = "HTTP_open_proxy.nse" }
 Entry{ category = "external", filename = "HTTP_open_proxy.nse" }
 Entry{ category = "intrusive", filename = "HTTP_open_proxy.nse" }
-Entry{ category = "demo", filename = "daytimeTest.nse" }
+Entry{ category = "discovery", filename = "daytimeTest.nse" }
