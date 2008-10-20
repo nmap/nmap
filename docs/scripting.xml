@@ -776,18 +776,14 @@ action refer to <xref linkend="nse-tutorial-action"/>.
       </ulink> the default modules in order to use them.
 	  </para>
 
-      <variablelist>
       &nse-modules;
-      </variablelist>
   </sect1>
 
   <sect1 id="nse-scripts-list">
     <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>list of scripts</secondary></indexterm>
     <title>NSE Scripts</title>
 
-    <variablelist>
     &nse-scripts;
-    </variablelist>
   </sect1>
 
   <sect1 id="nse-api">
