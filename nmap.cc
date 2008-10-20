@@ -2347,6 +2347,11 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
       } else {
 	fatal("Error #486: Your port specifications are illegal.  Example of proper form: \"%s\"", syntax_example);
       }
+      if (rangeend < rangestart) {
+        fatal("Your %s range %ld-%ld is backwards. Did you mean %ld-%ld?",
+          (range_type & SCAN_PROTOCOLS) ? "protocol" : "port",
+          rangestart, rangeend, rangeend, rangestart);
+      }
     } else {
 	fatal("Error #487: Your port specifications are illegal.  Example of proper form: \"%s\"", syntax_example);
     }

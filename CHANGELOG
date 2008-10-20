@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap quits if you give a "backwards" port or protocol range like
+  -p 20-10. The issue was noted by Arturo "Buanzo" Busleiman. [David]
+
 o Fixed a bug which caused Nmap to infer an improper distance against
   some hosts when performaing OS detection against a group whose
   distance varies between members. [David, Fyodor]
