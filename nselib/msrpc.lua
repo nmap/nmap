@@ -1,7 +1,7 @@
 --- Call various MSRPC functions.
 -- \n\n
 -- By making heavy use of the smb library, this library will call various MSRPC 
---  functions. The functions used here can be access over TCP ports 445 and 139, 
+--  functions. The functions used here can be accessed over TCP ports 445 and 139, 
 --  with an established session. A NULL session (the default) will work for some 
 --  functions and operating systems (or configurations), but not for others. \n
 --\n
