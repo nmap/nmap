@@ -9,31 +9,37 @@
 -- although a lot isn't necessary. You can pick up a lot by looking at the code that uses
 -- this. The basic login is this:\n
 --\n
--- [connect]\n
--- C->S SMB_COM_NEGOTIATE\n
--- S->C SMB_COM_NEGOTIATE\n
--- C->S SMB_COM_SESSION_SETUP_ANDX\n
--- S->C SMB_COM_SESSION_SETUP_ANDX\n
--- C->S SMB_COM_TREE_CONNECT_ANDX\n
--- S->C SMB_COM_TREE_CONNECT_ANDX\n
--- ...\n
--- C->S SMB_COM_TREE_DISCONNECT\n
--- S->C SMB_COM_TREE_DISCONNECT\n
--- C->S SMB_COM_LOGOFF_ANDX\n
--- S->C SMB_COM_LOGOFF_ANDX\n
---\n
+-- <code>
+-- [connect]
+-- C->S SMB_COM_NEGOTIATE
+-- S->C SMB_COM_NEGOTIATE
+-- C->S SMB_COM_SESSION_SETUP_ANDX
+-- S->C SMB_COM_SESSION_SETUP_ANDX
+-- C->S SMB_COM_TREE_CONNECT_ANDX
+-- S->C SMB_COM_TREE_CONNECT_ANDX
+-- ...
+-- C->S SMB_COM_TREE_DISCONNECT
+-- S->C SMB_COM_TREE_DISCONNECT
+-- C->S SMB_COM_LOGOFF_ANDX
+-- S->C SMB_COM_LOGOFF_ANDX
+-- </code>
+--\n\n
 -- In terms of functions here, the protocol is:\n
--- status, socket            = smb.start(host)\n
--- status, negotiate_result  = smb.negotiate_protocol(socket)\n
--- status, session_result    = smb.start_session(socket, username, negotiate_result['session_key'], negotiate_result['capabilities'])\n
--- status, tree_result       = smb.tree_connect(socket, path, session_result['uid'])\n
--- status, disconnect_result = smb.tree_disconnect(socket, session_result['uid'], tree_result['tid'])\n
--- status, logoff_result     = smb.logoff(socket, session_result['uid'])\n
--- status, err               = smb.stop(socket)\n
+-- <code>
+-- status, socket            = smb.start(host)
+-- status, negotiate_result  = smb.negotiate_protocol(socket)
+-- status, session_result    = smb.start_session(socket, username, negotiate_result['session_key'], negotiate_result['capabilities'])
+-- status, tree_result       = smb.tree_connect(socket, path, session_result['uid'])
+-- status, disconnect_result = smb.tree_disconnect(socket, session_result['uid'], tree_result['tid'])
+-- status, logoff_result     = smb.logoff(socket, session_result['uid'])
+-- status, err               = smb.stop(socket)
+-- </code>
 --\n
--- Optionally, the 'stop' function can also call tree_disconnect and logoff, by giving it extra parameters:\n
--- status, err               = smb.stop(socket, session_result['uid'], tree_result['tid'])\n
--- \n
+-- Optionally, the <code>stop</code> function can also call <code>tree_disconnect</code> and <code>logoff</code>, by giving it extra parameters:\n
+-- <code>
+-- status, err               = smb.stop(socket, session_result['uid'], tree_result['tid'])
+-- </code>
+-- 
 -- To initially begin the connection, there are two options:\n
 -- 1) Attempt to start a raw session over 445, if it's open. \n
 -- 2) Attempt to start a NetBIOS session over 139. Although the 
@@ -41,24 +47,23 @@
 --    That packet requires the computer's name, which is requested
 --    using a NBSTAT probe over UDP port 137. \n
 --
--- Once it's connected, a SMB_COM_NEGOTIATE packet is sent, 
+-- Once it's connected, a <code>SMB_COM_NEGOTIATE</code> packet is sent, 
 -- requesting the protocol "NT LM 0.12", which is the most commonly
 -- supported one. Among other things, the server's response contains
 -- the host's security level, the system time, and the computer/domain
 -- name.\n
 --\n
--- If that's successful, SMB_COM_SESSION_SETUP_ANDX is sent. It is essentially the logon
+-- If that's successful, <code>SMB_COM_SESSION_SETUP_ANDX</code> is sent. It is essentially the logon
 -- packet, where the username, domain, and password are sent to the server for verification. 
--- The response to SMB_COM_SESSION_SETUP_ANDX is fairly simple, containing a boolean for 
+-- The response to <code>SMB_COM_SESSION_SETUP_ANDX</code> is fairly simple, containing a boolean for 
 -- success, along with the operating system and the lan manager name. \n
 --\n
--- After a successful SMB_COM_SESSION_SETUP_ANDX has been made, a 
--- SMB_COM_TREE_CONNECT_ANDX packet can be sent. This is what connects to a share. 
+-- After a successful <code>SMB_COM_SESSION_SETUP_ANDX</code> has been made, a 
+<code>--</code> SMB_COM_TREE_CONNECT_ANDX packet can be sent. This is what connects to a share. 
 -- The server responds to this with a boolean answer, and little more information. \n
 --\n
--- Each share will either return STATUS_BAD_NETWORK_NAME if the share doesn't
--- exist, STATUS_ACCESS_DENIED if it exists but we don't have access, or 
--- STATUS_SUCCESS if exists and we do have access. \n
+-- Each share will either return <code>STATUS_BAD_NETWORK_NAME</code> if the share doesn't exist, <code>STATUS_ACCESS_DENIED</code> if it exists but we don't have access, or 
+-- <code>STATUS_SUCCESS</code> if exists and we do have access. \n
 --\n
 -- Thanks go to Christopher R. Hertel and Implementing CIFS, which 
 -- taught me everything I know about Microsoft's protocols. \n
@@ -707,8 +712,8 @@ function get_port(host)
 	return nil
 end
 
---- Begins a SMB session, automatically determining the best way to connect. Also starts a mutex
---  with mutex_id. This prevents multiple threads from making queries at the same time (which breaks
+--- Begins a SMB session, automatically determining the best way to connect. Also starts a mutex.
+--  This prevents multiple threads from making queries at the same time (which breaks
 --  SMB). 
 --
 -- @param host The host object
@@ -754,7 +759,7 @@ function start(host)
 end
 
 --- Kills the SMB connection, closes the socket, and releases the mutex. Because of the mutex 
---  being released, a script HAS to call stop() before it exits, no matter why it's exiting! 
+--  being released, a script HAS to call <code>stop()</code> before it exits, no matter why it's exiting! 
 --
 --  In addition to killing the connection, this function can log off the user and disconnect
 --  a tree. To do so, the appropriate parameters are passed. For a logoff, the uid is required. 
@@ -793,7 +798,6 @@ end
 
 --- Begins a raw SMB session, likely over port 445. Since nothing extra is required, this
 --  function simply makes a connection and returns the socket. 
---  it off to smb_start(). 
 -- 
 --@param host The host object to check. 
 --@param port The port to use (most likely 445).
@@ -955,6 +959,7 @@ end
 
 
 --- Creates a string containing a SMB packet header. The header looks like this:\n
+-- <code>
 -- --------------------------------------------------------------------------------------------------\n
 -- | 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9  8  7  6  5  4  3  2  1  0 |\n
 -- --------------------------------------------------------------------------------------------------\n
@@ -974,16 +979,17 @@ end
 -- --------------------------------------------------------------------------------------------------\n
 -- |                      UID                       |                     MID                       |\n
 -- ------------------------------------------------------------------------------------------------- \n
+-- </code>
 --
 -- All fields are, incidentally, encoded in little endian byte order. \n
 --\n
 -- For the purposes here, the program doesn't care about most of the fields so they're given default \n
 -- values. The fields of interest are:\n
--- * Command -- The command of the packet (SMB_COM_NEGOTIATE, SMB_COM_SESSION_SETUP_ANDX, etc)\n
+-- * Command -- The command of the packet (<code>SMB_COM_NEGOTIATE</code>, <code>SMB_COM_SESSION_SETUP_ANDX</code>, etc)\n
 -- * UID/TID -- Sent by the server, and just have to be echoed back\n
 --@param command The command to use.
---@param uid     The UserID, which is returned by SMB_COM_SESSION_SETUP_ANDX (0 otherwise)
---@param tid     The TreeID, which is returned by SMB_COM_TREE_CONNECT_ANDX (0 otherwise)
+--@param uid     The UserID, which is returned by <code>SMB_COM_SESSION_SETUP_ANDX</code> (0 otherwise)
+--@param tid     The TreeID, which is returned by <code>SMB_COM_TREE_CONNECT_ANDX</code> (0 otherwise)
 --@return A binary string containing the packed packet header. 
 local function smb_encode_header(command, uid, tid)
 
@@ -1021,7 +1027,7 @@ end
 -- The encoding is simple:\n
 -- (1 byte)   The number of 2-byte values in the parameters section\n
 -- (variable) The parameter section\n
--- This is automatically done by smb_send(). 
+-- This is automatically done by <code>smb_send()</code>. 
 -- 
 -- @param parameters The parameters section. 
 -- @return The encoded parameters. 
@@ -1033,7 +1039,7 @@ end
 -- The encoding is simple:\n
 -- (2 bytes)  The number of bytes in the data section\n
 -- (variable) The data section\n
--- This is automatically done by smb_send(). 
+-- This is automatically done by <code>smb_send()</code>. 
 --
 -- @param data The data section. 
 -- @return The encoded data.
@@ -1046,7 +1052,7 @@ end
 --  wide, depending on whether or not we're using raw, but that shouldn't matter. 
 --
 --@param socket The socket to send the packet on.
---@param header The header, encoded with smb_get_header().
+--@param header The header, encoded with <code>smb_get_header()</code>.
 --@param parameters The parameters
 --@param data The data
 --@return (result, err) If result is false, err is the error message. Otherwise, err is
@@ -1103,7 +1109,7 @@ function smb_read(socket)
 	return true, header, parameters, data
 end
 
---- Sends out SMB_COM_NEGOTIATE, which is typically the first SMB packet sent out. 
+--- Sends out <code>SMB_COM_NEGOTIATE</code>, which is typically the first SMB packet sent out. 
 -- Sends the following:\n
 -- * List of known protocols\n
 --\n
@@ -1220,7 +1226,7 @@ function negotiate_protocol(socket)
 	return true, response
 end
 
---- Sends out SMB_COM_SESSION_SETUP_ANDX, which attempts to log a user in. 
+--- Sends out <code>SMB_COM_SESSION_SETUP_ANDX</code>, which attempts to log a user in. 
 -- Sends the following:\n
 -- * Negotiated parameters (multiplexed connections, virtual circuit, capabilities)\n
 -- * Passwords (plaintext, unicode, lanman, ntlm, lmv2, ntlmv2, etc)\n
@@ -1234,8 +1240,8 @@ end
 --\n
 --@param socket       The socket, in the proper state (ie, after protocol has been negotiated).
 --@param username     The account name to use. For Null sessions, leave it blank (''). 
---@param session_key  The session_key value, returned by SMB_COM_NEGOTIATE.  
---@param capabilities The server's capabilities, returned by SMB_COM_NEGOTIATE. 
+--@param session_key  The session_key value, returned by <code>SMB_COM_NEGOTIATE</code>.  
+--@param capabilities The server's capabilities, returned by <code>SMB_COM_NEGOTIATE</code>. 
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a 
 --        table with the following elements:\n
 --      'uid'         The UserID for the session
@@ -1313,7 +1319,7 @@ function start_session(socket, username, session_key, capabilities)
 
 end
  
---- Sends out SMB_COM_SESSION_TREE_CONNECT_ANDX, which attempts to connect to a share. 
+--- Sends out <code>SMB_COM_SESSION_TREE_CONNECT_ANDX</code>, which attempts to connect to a share. 
 -- Sends the following:\n
 -- * Password (for share-level security, which we don't support)\n
 -- * Share name\n
@@ -1323,8 +1329,8 @@ end
 -- * Tree ID\n
 --\n
 --@param socket The socket, in the proper state. 
---@param path   The path to connect (eg, \\servername\C$)
---@param uid    The UserID, returned by SMB_COM_SESSION_SETUP_ANDX
+--@param path   The path to connect (eg, "\\servername\C$")
+--@param uid    The UserID, returned by <code>SMB_COM_SESSION_SETUP_ANDX</code>
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a 
 --        table with the following elements:\n
 --      'tid'         The TreeID for the session
@@ -1376,8 +1382,8 @@ end
 
 --- Disconnects a tree session. Should be called before logging off and disconnecting. 
 --@param socket The socket
---@param uid    The UserID, returned by SMB_COM_SESSION_SETUP_ANDX
---@param tid    The TreeID, returned by SMB_COM_TREE_CONNECT_ANDX
+--@param uid    The UserID, returned by <code>SMB_COM_SESSION_SETUP_ANDX</code>
+--@param tid    The TreeID, returned by <code>SMB_COM_TREE_CONNECT_ANDX</code>
 --@param return (status, result) If statis is false, result is an error message. If status is true, 
 --              the disconnect was successful. 
 function tree_disconnect(socket, uid, tid)
@@ -1411,7 +1417,7 @@ function tree_disconnect(socket, uid, tid)
 	
 end
 
----Logs of the current user. Strictly speaking this isn't necessary, but it's the polite thing to do. 
+---Logs off the current user. Strictly speaking this isn't necessary, but it's the polite thing to do. 
 --@param socket The socket. 
 --@param uid    The user ID. 
 --@param return (status, result) If statis is false, result is an error message. If status is true, 
@@ -1545,8 +1551,8 @@ end
 --       transactions I've done have required parameters. 
 --@param data   The data to send with the packet. This is basically the next protocol layer
 --@param uid    The UserID
---@param tid    The TreeID (handle to $IPC)
---@param fid    The FileID (opened by create_file)
+--@param tid    The TreeID (handle to <code>$IPC</code>)
+--@param fid    The FileID (opened by <code>create_file</code>)
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table 
 --        containing 'parameters' and 'data', representing the parameters and data returned by the server. 
 function send_transaction(socket, func, function_parameters, function_data, uid, tid, fid)
