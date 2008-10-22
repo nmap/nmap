@@ -1,22 +1,22 @@
 id = "AS Numbers"
 description = [[
 Maps IP addresses to autonomous system (AS) numbers.
-\n\n
+
 The script works by sending DNS TXT queries to a DNS server which in turn
 queries a third-party service provided by Team Cymru (team-cymru.org) using an
 in-addr.arpa style zone set-up especially for use by Nmap.
-\n\n
+
 The responses to these queries contain both Origin and Peer ASNs and their
 descriptions, displayed along with the BG Prefix and Country Code.
-\n\n
+
 The script caches results to reduce the number of queries and should perform a
 single query for all scanned targets in a BG Prefix present in Team Cymru's
 database.
-\n\n
+
 Be aware that any targets against which this script is run will be sent to and
 potentially recorded by one or more DNS servers and Team Cymru. In addition
 your IP address will be sent along with the ASN to a DNS server (your default
-DNS server, or whichever you specified with the dns script argument).
+DNS server, or whichever you specified with the <code>dns</code> script argument).
 ]]
 
 
@@ -24,17 +24,17 @@ DNS server, or whichever you specified with the dns script argument).
 -- @usage
 -- nmap <target> --script asn
 --
--- @args dns Optional recursive nameserver.  e.g. --script-args dns=192.168.1.1
+-- @args dns Optional recursive nameserver. (Use <code>--script-args dns=192.168.1.1</code>.)
 --
 -- @output
 -- Host script results:
--- \n|  AS Numbers:
--- \n|  BGP: 64.13.128.0/21 | Country: US
--- \n|    Origin AS: 10565 SVCOLO-AS - Silicon Valley Colocation, Inc.
--- \n|      Peer AS: 3561 6461
--- \n|  BGP: 64.13.128.0/18 | Country: US
--- \n|    Origin AS: 10565 SVCOLO-AS - Silicon Valley Colocation, Inc.
--- \n|_     Peer AS: 174 2914 6461
+-- |  AS Numbers:
+-- |  BGP: 64.13.128.0/21 | Country: US
+-- |    Origin AS: 10565 SVCOLO-AS - Silicon Valley Colocation, Inc.
+-- |      Peer AS: 3561 6461
+-- |  BGP: 64.13.128.0/18 | Country: US
+-- |    Origin AS: 10565 SVCOLO-AS - Silicon Valley Colocation, Inc.
+-- |_     Peer AS: 174 2914 6461
 --
 
 
@@ -100,10 +100,10 @@ action = function( host )
     end
 
     ---
-    -- Team Cymru zones for rDNS like queries.  The zones are as follows:
-    -- \n nmap.asn.cymru.com for IPv4 to Origin AS lookup.
-    -- \n peer-nmap.asn.cymru.com for IPv4 to Peer AS lookup.
-    -- \n nmap6.asn.cymru.com for IPv6 to Origin AS lookup.
+    -- Team Cymru zones for rDNS-like queries.  The zones are as follows:
+    -- * nmap.asn.cymru.com for IPv4 to Origin AS lookup.
+    -- * peer-nmap.asn.cymru.com for IPv4 to Peer AS lookup.
+    -- * nmap6.asn.cymru.com for IPv6 to Origin AS lookup.
     -- @class table
     -- @name cymru
     local cymru = { [4] = { ".nmap.asn.cymru.com", ".peer-nmap.asn.cymru.com" },
@@ -189,7 +189,7 @@ end
 
 
 ---
--- Performs an IP address to ASN lookup.  See http://www.team-cymru.org/Services/ip-to-asn.html#dns
+-- Performs an IP address to ASN lookup.  See http://www.team-cymru.org/Services/ip-to-asn.html#dns.
 -- @param query String - PTR like DNS query.
 -- @return      Boolean true for a successful dns query resulting in an answer, otherwise false.
 -- @return      Table of answers or a String err msg.
@@ -241,7 +241,7 @@ end
 -- Extracts fields from the supplied DNS answer sections and generates a records entry for each.
 -- @param answers    Table containing string DNS answers.
 -- @param asn_type   String denoting whether the query is for Origin or Peer ASN.
--- @param recs       Table of existing recognised answers to which to add (ref to actions() records{}.
+-- @param recs       Table of existing recognised answers to which to add (ref to <code>actions()</code> <code>records{}</code>.
 -- @return           Boolean true if successful otherwise false.
 
 function result_recog( answers, asn_type, recs, discoverer_ip )
@@ -319,11 +319,11 @@ end
 
 ---
 -- Processes records which are recognised dns answers by combining them into unique BGPs before caching
--- them in the registry and returning combined_records.  If there aren't any records (No Such Name message
--- or dns failure) we signal this fact to other threads by using the cache and return with an empty table.
+-- them in the registry and returning <code>combined_records</code>.  If there aren't any records (No Such Name message
+-- or DNS failure) we signal this fact to other threads by using the cache and return with an empty table.
 -- @param records  Table of recognised answers (may be empty).
 -- @param output   String non-answer message or an empty table.
--- @param ip       String host.ip
+-- @param ip       String <code>host.ip</code>.
 -- @return         Table containing combined records for the target (or an empty table).
 
 function process_answers( records, output, ip )
@@ -372,8 +372,8 @@ end
 
 ---
 -- Calculates the prefix length for the given IP address range.
--- @param range  String representing an IP address range
--- @return       Number - prefix length of the range
+-- @param range  String representing an IP address range.
+-- @return       Number - prefix length of the range.
 
 function get_prefix_length( range )
 
@@ -402,11 +402,11 @@ end
 
 ---
 -- Given an IP address and a prefix length, returns a string representing a valid IP address assignment (size is not checked) which contains
--- the supplied IP address.  For example, with ip = 192.168.1.187 and prefix = 24 the return value will be 192.168.1.1-192.168.1.255
+-- the supplied IP address.  For example, with <code>ip</code> = <code>"192.168.1.187"</code> and <code>prefix</code> = <code>24</code> the return value will be <code>"192.168.1.1-192.168.1.255"</code>
 -- @param ip      String representing an IP address.
 -- @param prefix  String or number representing a prefix length.  Should be of the same address family as ip.
--- @return        String representing a range of addresses from the first to the last hosts (or nil in case of an error).
--- @return        Nil or error message in case of an error.
+-- @return        String representing a range of addresses from the first to the last hosts (or <code>nil</code> in case of an error).
+-- @return        <code>nil</code> or error message in case of an error.
 
 function get_assignment( ip, prefix )
 
@@ -432,7 +432,7 @@ end
 
 
 ---
--- Decides what to output based on the content of the supplied paramaters and formats it for return by action().
+-- Decides what to output based on the content of the supplied parameters and formats it for return by <code>action()</code>.
 -- @param output            String non-answer message to be returned as is or an empty table
 -- @param combined_records  Table containing combined records.
 -- @return                  Formatted nice output string.
