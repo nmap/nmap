@@ -14,10 +14,10 @@ Both meta and HTTP redirects are supported.
 It is not advisable to run this against unknown hosts.
 \n\n
 NOTES\n
-* We may not have access to the servers true hostname. 
-  This means we cannot access virtually hosted sites and
-  cannot follow absolute links when the hostname is 
-  different from the resolved ip address
+We may not have access to the servers true hostname. 
+This means we cannot access virtually hosted sites and
+cannot follow absolute links when the hostname is 
+different from the resolved ip address
 ]]
 
 require('url')

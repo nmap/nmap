@@ -12,28 +12,28 @@
 -- The Binlib functions take a format string to encode and decode binary
 -- data. Packing and unpacking are controlled by the following operator
 -- characters:\n
--- H: hex string\n
--- B: bit string\n
--- x: null byte\n
--- z: zero-terminated string\n
--- p: string preceded by 1-byte integer length\n
--- P: string preceded by 2-byte integer length\n
--- a: string preceded by 4-byte integer length\n
--- A: string\n
--- f: float\n
--- d: double\n
--- n: Lua number\n
--- c: char (1-byte integer)\n
--- C: byte = unsigned char (1-byte unsigned integer)\n
--- s: short (2-byte integer)\n
--- S: unsigned short (2-byte unsigned integer)\n
--- i: int (4-byte integer)\n
--- I: unsigned int (4-byte unsigned integer)\n
--- l: long (8-byte integer)\n
--- L: unsigned long (8-byte unsigned integer)\n
--- <: little endian modifier\n
--- >: big endian modifier\n
--- =: native endian modifier
+-- * H: hex string
+-- * B: bit string
+-- * x: null byte
+-- * z: zero-terminated string
+-- * p: string preceded by 1-byte integer length
+-- * P: string preceded by 2-byte integer length
+-- * a: string preceded by 4-byte integer length
+-- * A: string
+-- * f: float
+-- * d: double
+-- * n: Lua number
+-- * c: char (1-byte integer)
+-- * C: byte = unsigned char (1-byte unsigned integer)
+-- * s: short (2-byte integer)
+-- * S: unsigned short (2-byte unsigned integer)
+-- * i: int (4-byte integer)
+-- * I: unsigned int (4-byte unsigned integer)
+-- * l: long (8-byte integer)
+-- * L: unsigned long (8-byte unsigned integer)
+-- * <: little endian modifier
+-- * >: big endian modifier
+-- * =: native endian modifier
 -- \n\n
 -- Note that the endian operators work as modifiers to all the 
 -- characters following them in the format string.

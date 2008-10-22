@@ -15,9 +15,9 @@ it is vulnerable to sniffing.
 \n\n
 Challenge/response passwords: If enabled, the server can accept any type of
 password:\n
-* Plaintext\n
-* LM and NTLM\n
-* LMv2 and NTLMv2\n
+* Plaintext
+* LM and NTLM
+* LMv2 and NTLMv2
 If it isn't set, the server can only accept plaintext passwords. Most servers
 are configured to use challenge/response these days. If a server is configured
 to accept plaintext passwords, it is vulnerable to sniffing.

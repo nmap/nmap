@@ -7,6 +7,7 @@
 -- OpenSSL support was enabled at compile time. Scripts using the module should
 -- be made to fail gracefully using code like the following:
 -- \n\n
+-- <code>
 -- if not pcall(require, "openssl") then\n
 --   action = function(host, port)\n
 --     stdnse.print_debug(2, "Skipping \"%s\" because OpenSSL is missing.", id)\n
@@ -15,6 +16,7 @@
 -- action = action or function(host, port)\n
 --   ...\n
 -- end
+-- </code>
 -- @author Sven Klemm <sven@c3d2.de>
 -- @copyright See nmaps COPYING for licence
 

@@ -80,7 +80,7 @@ the RIRs.
 --
 -- @output
 --
---    Host script results:
+-- Host script results:
 -- \n|  Whois: Record found at whois.arin.net
 -- \n|  netrange: 64.13.134.0 - 64.13.134.63
 -- \n|  netname: NET-64-13-143-0-26
