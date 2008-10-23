@@ -227,8 +227,8 @@ Nmap done: 1 IP address (1 host up) scanned in 0.91 seconds
 	      remote sysadmins.  Of course (as with all other Nmap
 	      features) we cannot guarantee that they won't ever cause
 	      adverse reactions.  Most of these perform general
-	      network discovery. Examples are echoTest (sends a string
-	      to the UDP echo service) and showHTMLTitle (grabs the
+	      network discovery. Examples are SSH-hostkey (gets an SSH
+	      host key) and showHTMLTitle (grabs the
 	      title from a web page).</para>
           </listitem>
         </varlistentry>
