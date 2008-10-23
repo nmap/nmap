@@ -1,7 +1,8 @@
 --- Standard Nmap Scripting Engine functions.
--- \n\n
--- This module contains various handy functions which are too small to justify modules of their own.
---@copyright See nmaps COPYING for licence
+--
+-- This module contains various handy functions that are too small to justify
+-- modules of their own.
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 local assert = assert;
 local tonumber = tonumber;
@@ -18,14 +19,15 @@ module(... or "stdnse");
 
 --- Prints a formatted debug message if the current verbosity level is greater
 -- than or equal to a given level.
--- \n\n
--- This is a convenience wrapper around nmap.print_debug_unformatted. The first
--- optional numeric argument, verbosity, is used as the necessary debug level
--- to print the message (it defaults to 1 if omitted). All remaining arguments
--- are processed with Lua's string.format() function.
---@param level Optional verbosity level.
---@param fmt Format string according to string.format specifiers.
---@param ... Arguments to format.
+-- 
+-- This is a convenience wrapper around
+-- <code>nmap.print_debug_unformatted()</code>. The first optional numeric
+-- argument, verbosity, is used as the verbosity level necessary to print the
+-- message (it defaults to 1 if omitted). All remaining arguments are processed
+-- with Lua's <code>string.format()</code> function.
+-- @param level Optional verbosity level.
+-- @param fmt Format string according to string.format specifiers.
+-- @param ... Arguments to format.
 print_debug = function(level, fmt, ...)
   local verbosity = tonumber(level);
   if verbosity then
@@ -35,32 +37,34 @@ print_debug = function(level, fmt, ...)
   end
 end
 
---- Join a list of string with a separator string.
--- \n\n
--- Example: strjoin(", ", {"Anna", "Bob", "Charlie", "Dolores"})
+--- Join a list of strings with a separator string.
+-- 
+-- This is Lua's <code>table.concat()</code> function with the parameters
+-- swapped for coherence.
+-- @usage
+-- strjoin(", ", {"Anna", "Bob", "Charlie", "Dolores"})
 -- --> "Anna, Bob, Charlie, Dolores"
--- \n\n
--- Basically this is Lua's table.concat() function with the parameters swapped
--- for coherence.
---@param delimiter String to delimit each element of the list.
---@param list Array of strings to concatenate.
---@return Concatenated string.
+-- @param delimiter String to delimit each element of the list.
+-- @param list Array of strings to concatenate.
+-- @return Concatenated string.
 function strjoin(delimiter, list)
   return concat(list, delimiter);
 end
 
 --- Split a string at a given delimiter, which may be a pattern.
--- Example: strsplit(",%s*", "Anna, Bob, Charlie, Dolores")
---@param delimiter String which delimits the split strings.
---@param text String to split.
---@return List of substrings without the delimiter.
-function strsplit(delimiter, text)
+-- @usage
+-- strsplit(",%s*", "Anna, Bob, Charlie, Dolores")
+-- --> { "Anna", "Bob", "Charlie", "Dolores" }
+-- @param pattern Pattern that separates the desired strings.
+-- @param text String to split.
+-- @return Array of substrings without the separating pattern.
+function strsplit(pattern, text)
   local list, pos = {}, 1;
 
-  assert(delimiter ~= "", "delimiter matches empty string!");
+  assert(pattern ~= "", "delimiter matches empty string!");
 
   while true do
-    local first, last, match = text:find(delimiter, pos);
+    local first, last, match = text:find(pattern, pos);
     if first then -- found?
       list[#list+1] = text:sub(pos, first-1);
       pos = last+1;
@@ -74,14 +78,15 @@ end
 
 --- Return a wrapper closure around a socket that buffers socket reads into
 -- chunks separated by a pattern.
--- \n\n
--- This function operates on a socket attempting to read data. It separates
--- the data by sep and, for each invocation, returns a piece of the
--- separated data. Typically this is used to iterate over the lines of
--- data received from a socket (sep = "\r?\n"). The returned string does
--- not include the separator. It will return the final data even if it is
--- not followed by the separator. Once an error or EOF is reached, it
--- returns nil, msg. msg is what is returned by nmap.receive_lines(). 
+-- 
+-- This function operates on a socket attempting to read data. It separates the
+-- data by <code>sep</code> and, for each invocation, returns a piece of the
+-- separated data. Typically this is used to iterate over the lines of data
+-- received from a socket (<code>sep = "\r?\n"</code>). The returned string
+-- does not include the separator. It will return the final data even if it is
+-- not followed by the separator. Once an error or EOF is reached, it returns
+-- <code>nil, msg</code>. <code>msg</code> is what is returned by
+-- <code>nmap.receive_lines()</code>.
 -- @param socket Socket for the buffer.
 -- @param sep Separator for the buffered reads.
 -- @return Data from socket reads.
@@ -143,41 +148,42 @@ do
     f = "1111"
   };
 
---- Converts the given number, n, to a string in a binary number format (10
--- becomes "1010").
---@param n Number to convert.
---@return String in binary format.
+--- Converts the given number, n, to a string in a binary number format (12
+-- becomes "1100").
+-- @param n Number to convert.
+-- @return String in binary format.
   function tobinary(n)
     assert(tonumber(n), "number expected");
     return (("%x"):format(n):gsub("%w", t):gsub("^0*", ""));
   end
 end
 
---- Converts the given number, n, to a string in an octal number format (10
--- becomes "12").
---@param n Number to convert.
---@return String in octal format.
+--- Converts the given number, n, to a string in an octal number format (12
+-- becomes "14").
+-- @param n Number to convert.
+-- @return String in octal format.
 function tooctal(n)
   assert(tonumber(n), "number expected");
   return ("%o"):format(n)
 end
 
---- Encode a string or number in hexadecimal (10 becomes "a", "A" becomes
--- "41").
--- \n\n
--- The returned string may be chunked into groups of a given size, separated
--- by a given string.
--- \n\n
--- Examples:\n
--- stdnse.tohex("abc") => "616263"\n
--- stdnse.tohex("abc",{separator=":"}) => "61:62:63"\n
--- stdnse.tohex("abc",{separator=":",group=4}) => "61:6263"\n
--- stdnse.tohex(123456) => "1e240"\n
--- stdnse.tohex(123456,{separator=":"}) => "1:e2:40"\n
--- stdnse.tohex(123456,{separator=":",group=4}) => "1:e240"\n
---@param s string or number to be encoded.
---@param options table specifiying formatting options.
---@return hexadecimal encoded string.
+--- Encode a string or number in hexadecimal (12 becomes "c", "AB" becomes
+-- "4142").
+--
+-- An optional second argument is a table with formatting options. The possible
+-- fields in this table are
+-- * <code>separator</code>: A string to use to separate groups of digits.
+-- * <code>group</code>: The size of each group of digits between separators. Defaults to 2, but has no effect if <code>separator</code> is not also given.
+-- @usage
+-- stdnse.tohex("abc") --> "616263"
+-- stdnse.tohex("abc", {separator = ":"}) --> "61:62:63"
+-- stdnse.tohex("abc", {separator = ":", group = 4}) --> "61:6263"
+-- stdnse.tohex(123456) --> "1e240"
+-- stdnse.tohex(123456, {separator = ":"}) --> "1:e2:40"
+-- stdnse.tohex(123456, {separator = ":", group = 4}) --> "1:e240"
+-- @param s String or number to be encoded.
+-- @param options Table specifiying formatting options.
+-- @return String in hexadecimal format.
 function tohex( s, options ) 
   options = options or EMPTY
   local separator = options.separator
