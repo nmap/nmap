@@ -783,6 +783,19 @@ action refer to <xref linkend="nse-tutorial-action"/>.
     <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>list of scripts</secondary></indexterm>
     <title>NSE Scripts</title>
 
+    <para>
+    This is a list of the scripts packaged with Nmap as of this writing.
+    This documentation comes straight from the source code of the
+    scripts thanks to the NSEDoc documentation system, described in
+    <xref linkend="nse-documentation"/>.
+    <print>
+    Of course no paper documentation can hope to stay current with
+    software that is developed as actively as NSE is.
+    </print>
+    For the latest documentation see the online NSE documentation portal
+    at <ulink url="http://nmap.org/nsedoc/"/>.
+    </para>
+
     &nse-scripts;
   </sect1>
 
