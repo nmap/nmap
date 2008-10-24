@@ -1,5 +1,5 @@
---- Base64 library. Follows RFC4648.
---@author Philip Pickering <pgpickering@gmail.com>
+--- Base64 encoding and decoding. Follows RFC 4648.
+-- @author Philip Pickering <pgpickering@gmail.com>
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 -- thanks to Patrick Donnelly for some optimizations
@@ -95,9 +95,9 @@ local bunpack = bin.unpack
 local concat = table.concat
 
 ---
--- Encode six bits to a base64 encoded character.
---@param bits String of six bits to be encoded.
---@return Encoded character.
+-- Encode six bits to a Base64-encoded character.
+-- @param bits String of six bits to be encoded.
+-- @return Encoded character.
 local function b64enc6bit(bits)
 	-- local byte
 	-- local _, byte = bunpack("C", bpack("B", "00" .. bits))
@@ -110,9 +110,9 @@ end
 
 
 ---
--- Decodes a base64 encoded character into binary digits.
---@param b64byte Single base64 encoded character.
---@return String of six decoded bits.
+-- Decodes a Base64-encoded character into a string of binary digits.
+-- @param b64byte A single base64-encoded character.
+-- @return String of six decoded bits.
 local function b64dec6bit(b64byte)
 	local bits = b64dctable[b64byte]
 	if bits then return bits end
@@ -121,9 +121,9 @@ end
 
 
 ---
--- Encodes a string to base64.
---@param bdata Data to be encoded.
---@return Base64 encoded string.
+-- Encodes a string to Base64.
+-- @param bdata Data to be encoded.
+-- @return Base64-encoded string.
 function enc(bdata)
 	local pos = 1
 	local byte
@@ -152,9 +152,9 @@ end
 
 
 ---
--- Decodes base64 encoded data.
---@param b64data Base64 encoded data.
---@return Decoded data.
+-- Decodes Base64-encoded data.
+-- @param b64data Base64 encoded data.
+-- @return Decoded data.
 function dec(b64data)
 	local bdataBuf = {}
 	local pos = 1

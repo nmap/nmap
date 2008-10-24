@@ -1,10 +1,9 @@
---- Read and parse some of Nmap's data files: nmap-protocols, nmap-rpc,
--- and nmap-services.
--- \n\n
--- The functions in this module return values appropriate for use with
--- exception handling via nmap.new_try(). On success, they return true
--- and the function result. On failure, they return false and an error
--- message.
+--- Read and parse some of Nmap's data files: <code>nmap-protocols</code>,
+-- <code>nmap-rpc</code>, and <code>nmap-services</code>.
+--
+-- The functions in this module return values appropriate for use with exception
+-- handling via <code>nmap.new_try()</code>. On success, they return true and
+-- the function result. On failure, they return false and an error message.
 -- @author Kris Katterjohn 03/2008
 -- @author jah 08/2008
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
@@ -30,11 +29,12 @@ local common_files = {
 
 
 ---
--- Read and parse nmap-protocols.
--- \n\n
--- On success, return true and a table mapping protocol numbers to
--- protocol names.
--- @return bool, table|err
+-- Read and parse <code>nmap-protocols</code>.
+--
+-- On success, return true and a table mapping protocol numbers to protocol
+-- names.
+-- @return Status (true or false).
+-- @return Table (if status is true) or error string (if status is false).
 -- @see parse_file
 parse_protocols = function()
   local status, protocols_table = parse_file("nmap-protocols")
@@ -47,10 +47,11 @@ end
 
 
 ---
--- Read and parse nmap-rpc.
--- \n\n
+-- Read and parse <code>nmap-rpc</code>.
+--
 -- On success, return true and a table mapping RPC numbers to RPC names.
--- @return bool, table|err
+-- @return Status (true or false).
+-- @return Table (if status is true) or error string (if status is false).
 -- @see parse_file
 parse_rpc = function()
   local status, rpc_table = parse_file("nmap-rpc")
@@ -63,15 +64,17 @@ end
 
 
 ---
--- Read and parse nmap-services.
--- \n\n
--- On success, return true and a table containing two subtables, indexed
--- by the keys "tcp" and "udp". The tcp table maps TCP port numbers to
--- service names, and the udp table is the same for UDP. You can pass
--- "tcp" or "udp" as an argument to parse_services to get only one of
--- the results tables.
--- @param protocol The protocol table to return ("tcp" of "udp").
--- @return bool, table|err
+-- Read and parse <code>nmap-services</code>.
+--
+-- On success, return true and a table containing two subtables, indexed by the
+-- keys "tcp" and "udp". The <code>tcp</code> subtable maps TCP port numbers to
+-- service names, and the <code>udp</code> subtable is the same for UDP. You can
+-- pass "tcp" or "udp" as an argument to <code>parse_services()</code> to get
+-- only one of the results tables.
+-- @param protocol The protocol table to return (<code>"tcp"</code> or
+-- <code>"udp"</code>).
+-- @return Status (true or false).
+-- @return Table (if status is true) or error string (if status is false).
 -- @see parse_file
 parse_services = function(protocol)
   if protocol and protocol ~= "tcp" and protocol ~= "udp" then
@@ -90,14 +93,15 @@ end
 ---
 -- Read and parse a generic data file. The other parse functions are
 -- defined in terms of this one.
--- \n\n
--- If filename is a key in common_files, use the corresponding capture
--- pattern. Otherwise the second argument must be a table of the kind
--- taken by parse_lines.
 --
+-- If filename is a key in <code>common_files</code>, use the corresponding
+-- capture pattern. Otherwise the second argument must be a table of the kind
+-- taken by <code>parse_lines</code>.
+-- @param filename Name of the file to parse.
+-- @param ... A table of capture patterns.
 -- @return A table whose structure mirrors that of the capture table,
 -- filled in with captured values.
-function parse_file( filename, ... )
+function parse_file(filename, ...)
 
   local data_struct
 
@@ -150,16 +154,15 @@ end
 
 ---
 -- Generic parsing of an array of strings.
--- 
 -- @param lines An array of strings to operate on.
 -- @param data_struct A table containing capture patterns to be applied
 -- to each string in the array. A capture will be applied to each string
--- using string.match() and may also be enclosed within a table or a
--- function. If a function, it must accept a string as its parameter and
+-- using <code>string.match()</code> and may also be enclosed within a table or
+-- a function. If a function, it must accept a string as its parameter and
 -- should return one value derived from that string.
 -- @return A table whose structure mirrors that of the capture table,
 -- filled in with captured values.
-function parse_lines( lines, data_struct  )
+function parse_lines(lines, data_struct)
 
   if type( lines ) ~= "table" or #lines < 1 then
     return false, "Error in datafiles.parse_lines: No lines to parse."
@@ -204,9 +207,10 @@ end
 
 ---
 -- Read a file, line by line, into a table.
--- @param file  String with the name of the file to read.
--- @return      Boolean True on success, False on error
--- @return      Table (array-style) of lines read from the file or error message in case of an error.
+-- @param file String with the name of the file to read.
+-- @return Status (true or false).
+-- @return Array of lines read from the file (if status is true) or error
+-- message (if status is false).
 function read_from_file( file )
 
   -- get path to file
@@ -236,9 +240,10 @@ end
 
 ---
 -- Return an array-like table of values captured from each line.
--- @param lines      table of strings containing the lines to process
--- @param v_pattern  pattern to use on the lines to produce the value for the array
-get_array = function( lines, v_pattern )
+-- @param lines Table of strings containing the lines to process.
+-- @param v_pattern Pattern to use on the lines to produce the value for the
+-- array.
+get_array = function(lines, v_pattern)
   local ret = {}
   for _, line in ipairs( lines ) do
     assert( type( line ) == "string" )
@@ -255,11 +260,13 @@ end
 
 
 ---
--- Return an associative array table of index-value pairs captured from each line.
--- @param lines      table of strings containing the lines to process
--- @param i_pattern  pattern to use on the lines to produce the key for the associative array
--- @param v_pattern  pattern to use on the lines to produce the value for the associative array
-get_assoc_array = function( lines, i_pattern, v_pattern )
+-- Return a table of index-value pairs captured from each line.
+-- @param lines Table of strings containing the lines to process.
+-- @param i_pattern Pattern to use on the lines to produce the key for the
+-- associative array.
+-- @param v_pattern Pattern to use on the lines to produce the value for the
+-- associative array.
+get_assoc_array = function(lines, i_pattern, v_pattern)
   local ret = {}
   for _, line in ipairs(lines) do
     assert( type( line ) == "string" )

@@ -233,7 +233,7 @@ function socket:connect(hostid, port, protocol)
 --- Sends data on an open socket.
 -- \n\n
 -- The send method sends the data contained in the data string through an open
--- connection. On success the returns true. If the send
+-- connection. On success the function returns true. If the send
 -- operation has failed, the function returns true along with an error string.
 -- The error strings are:\n
 -- "Trying to send through a closed socket": there was no call to socket:connect

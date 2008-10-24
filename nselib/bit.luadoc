@@ -1,21 +1,21 @@
 --- Bitwise operations on integers.
--- \n\n
+--
 -- Lua does not provide bitwise logical operations. Since they are often useful
 -- for low-level network communication, Reuben Thomas' BitLib
 -- (http://luaforge.net/projects/bitlib) for Lua has been integrated into NSE.
 -- The arguments to the bitwise operation functions should be integers.  The
 -- number of bits available for logical operations depends on the data type used
--- to represent Lua numbers--this is typically 8-byte IEEE floats (double),
+-- to represent Lua numbers. This is typically 8-byte IEEE floats (double),
 -- which give 53 bits (the size of the mantissa).
--- \n\n
+--
 -- This implies that the bitwise operations won't work (as expected) for numbers
 -- larger than 10^14. You can use them with 32-bit wide numbers without any
 -- problems. Operations involving 64-bit wide numbers, however, may not return
 -- the expected result.
--- \n\n
+--
 -- The logical operations start with "b" to avoid
--- clashing with reserved words; although xor isn't a
--- reserved word, it seemed better to use bxor for
+-- clashing with reserved words; although <code>xor</code> isn't a
+-- reserved word, it seemed better to use <code>bxor</code> for
 -- consistency.
 --
 -- @author Reuben Thomas
@@ -23,13 +23,13 @@
 
 module "bit"
 
---- Cast a to an internally-used integer type.
+--- Cast <code>a</code> to an internal integer type.
 -- @param a Number.
 function bit.cast(a)
 
---- Return the one's complement of a.
+--- Returns the one's complement of <code>a</code>.
 -- @param a Number.
--- @return The one's complement of a.
+-- @return The one's complement of <code>a</code>.
 function bit.bnot(a)
 
 --- Returns the bitwise and of all its arguments.
@@ -47,22 +47,23 @@ function bit.bor(...)
 -- @return The exclusive ored result.
 function bit.bxor(...)
 
---- Returns a left shifted by b places.
+--- Returns <code>a</code> left-shifted by <code>b</code> places.
 -- @param a Number to perform the shift on.
 -- @param b Number of shifts.
 function bit.lshift(a, b)
 
---- Returns a right shifted by b places.
+--- Returns <code>a</code> right-shifted by <code>b</code> places.
 -- @param a Number to perform the shift on.
 -- @param b Number of shifts.
 function bit.rshift(a, b)
 
---- Returns a arithmetically shifted by b places.
+--- Returns <code>a</code> arithmetically right-shifted by <code>b</code>
+-- places.
 -- @param a Number to perform the shift on.
 -- @param b Number of shifts.
 function bit.arshift(a, b)
 
---- Returns the integer remainder of a divided by b.
+--- Returns the integer remainder of <code>a</code> divided by <code>b</code>.
 -- @param a Dividend.
 -- @param b Divisor.
 function bit.mod(a, b)

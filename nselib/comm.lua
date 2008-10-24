@@ -77,14 +77,16 @@ local read = function(sock, opts)
 end
 
 --- This function simply connects to the specified port number on the
--- specified host and returns any data received. bool is a Boolean value
--- indicating success. If bool is true, then the second returned value
--- is the response from the target host. If bool is false, an error
--- message is returned as the second value instead of a response. 
+-- specified host and returns any data received.
+--
+-- The first return value is true to signal success or false to signal
+-- failure. On success the second return value is the response from the
+-- remote host. On failure the second return value is an error message.
 -- @param host The host to connect to.
 -- @param port The port on the host.
--- @param opts The options. See module description.
--- @return bool, data
+-- @param opts The options. See the module description.
+-- @return Status (true or false).
+-- @return Data (if status is true) or error string (if status is false).
 get_banner = function(host, port, opts)
 	opts = initopts(opts)
 
@@ -105,15 +107,16 @@ end
 
 --- This function connects to the specified port number on the specified
 -- host, sends data, then waits for and returns the response, if any.
--- bool is a Boolean value indicating success. If bool is true, then the
--- second returned value is the response from the target host. If bool is
--- false, an error message is returned as the second value instead of a
--- response. 
+--
+-- The first return value is true to signal success or false to signal
+-- failure. On success the second return value is the response from the
+-- remote host. On failure the second return value is an error message.
 -- @param host The host to connect to.
 -- @param port The port on the host.
 -- @param data The data to send initially.
--- @param opts The options. See module description.
--- @return bool, data
+-- @param opts The options. See the module description.
+-- @return Status (true or false).
+-- @return Data (if status is true) or error string (if status is false).
 exchange = function(host, port, data, opts)
 	opts = initopts(opts)
 
