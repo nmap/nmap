@@ -2394,7 +2394,7 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
   }
   else oldstate = currentp->state;
 
-  /*    printf("TCP port %hi has changed from state %s to %s!\n", portno, statenum2str(oldstate), statenum2str(newstate)); */
+  /*    printf("TCP port %hu has changed from state %s to %s!\n", portno, statenum2str(oldstate), statenum2str(newstate)); */
   switch(oldstate) {
     /* TODO: I need more code here to determine when a state should
        be overridden, for example PORT_OPEN trumps PORT_FIREWALLED
@@ -3437,7 +3437,7 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
 	    
 	    if (res < 0 ) {
 	      if (o.debugging > 1) {
-		log_write(LOG_STDOUT, "Bad port %hi caught by 0-byte write: ",
+		log_write(LOG_STDOUT, "Bad port %hu caught by 0-byte write: ",
 			  pport);
 		perror("");
 	      }
@@ -4460,7 +4460,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         }
 
         if (o.debugging)
-          log_write(LOG_STDOUT, "We got a TCP ping packet back from %s port %hi (trynum = %d)\n", inet_ntoa(ip->ip_src), ntohs(tcp->th_sport), trynum);
+          log_write(LOG_STDOUT, "We got a TCP ping packet back from %s port %hu (trynum = %d)\n", inet_ntoa(ip->ip_src), ntohs(tcp->th_sport), trynum);
       }
     } else if (ip->ip_p == IPPROTO_UDP && USI->ptech.rawudpscan) {
       struct udp_hdr *udp = (struct udp_hdr *) (((char *) ip) + 4 * ip->ip_hl);
@@ -4508,7 +4508,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         current_reason = ER_UDPRESPONSE;
 
         if (o.debugging)
-          log_write(LOG_STDOUT, "In response to UDP-ping, we got UDP packet back from %s port %hi (trynum = %d)\n", inet_ntoa(ip->ip_src), htons(udp->uh_sport), trynum);
+          log_write(LOG_STDOUT, "In response to UDP-ping, we got UDP packet back from %s port %hu (trynum = %d)\n", inet_ntoa(ip->ip_src), htons(udp->uh_sport), trynum);
       }
     } else if (!USI->ptech.rawprotoscan && o.debugging) {
       error("Found whacked packet protocol %d in %s.", ip->ip_p, __func__);

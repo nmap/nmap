@@ -111,6 +111,10 @@ o A script could be executed twice if it was given with the --script
   option, also in the "version" category, and version detection (-sV)
   was requested. This has been fixed. [David]
 
+o Fixed port number representation in some of Nmap's and all of Nsock's
+  output.  Incorrect conversion modifiers were being used which caused
+  high ports to wrap around and be shown as negative values. [Kris]
+
 o Upgraded the shipped libdnet to 1.12. [Kris]
 
 o Upgraded the OpenSSL shipped for Windows to 0.9.8i. [Kris]

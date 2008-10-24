@@ -1838,7 +1838,7 @@ static int scanThroughTunnel(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
     return 0; // Not SSL
 
   // Alright!  We are going to start the tests over using SSL
-  // printf("DBG: Found SSL service on %s:%hi - starting SSL scan\n", svc->target->NameIP(), svc->portno);
+  // printf("DBG: Found SSL service on %s:%hu - starting SSL scan\n", svc->target->NameIP(), svc->portno);
   svc->tunnel = SERVICE_TUNNEL_SSL;
   svc->probe_matched = NULL;
   svc->product_matched[0] = svc->version_matched[0] = svc->extrainfo_matched[0] = '\0';
@@ -1968,7 +1968,7 @@ static int launchSomeServiceProbes(nsock_pool nsp, ServiceGroup *SG) {
       fatal("Failed to allocate Nsock I/O descriptor in %s()", __func__);
     }
     if (o.debugging > 1) {
-      log_write(LOG_PLAIN, "Starting probes against new service: %s:%hi (%s)\n", svc->target->targetipstr(), svc->portno, proto2ascii(svc->proto));
+      log_write(LOG_PLAIN, "Starting probes against new service: %s:%hu (%s)\n", svc->target->targetipstr(), svc->portno, proto2ascii(svc->proto));
     }
     if (o.spoofsource) {
       o.SourceSockAddr(&ss, &ss_len);
@@ -2140,20 +2140,20 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
       // WOO HOO!!!!!!  MATCHED!  But might be soft
       if (MD->isSoft && svc->probe_matched) {
 	if (strcmp(svc->probe_matched, MD->serviceName) != 0)
-	  error("WARNING:  service %s:%hi had allready soft-matched %s, but now soft-matched %s; ignoring second value", svc->target->NameIP(), svc->portno, svc->probe_matched, MD->serviceName);
+	  error("WARNING:  service %s:%hu had allready soft-matched %s, but now soft-matched %s; ignoring second value", svc->target->NameIP(), svc->portno, svc->probe_matched, MD->serviceName);
 	// No error if its the same - that happens frequently.  For
 	// example, if we read more data for the same probe response
 	// it will probably still match.
       } else {
 	if (o.debugging > 1) {
 	  if (MD->product || MD->version || MD->info)
-	    log_write(LOG_PLAIN, "Service scan match (Probe %s matched with %s): %s:%hi is %s%s.  Version: |%s|%s|%s|\n",
+	    log_write(LOG_PLAIN, "Service scan match (Probe %s matched with %s): %s:%hu is %s%s.  Version: |%s|%s|%s|\n",
                       probe->getName(), (*probe->fallbacks[fallbackDepth]).getName(),
 		      svc->target->NameIP(), svc->portno, (svc->tunnel == SERVICE_TUNNEL_SSL)? "SSL/" : "", 
 		      MD->serviceName, (MD->product)? MD->product : "", (MD->version)? MD->version : "", 
 		      (MD->info)? MD->info : "");
 	  else
-	    log_write(LOG_PLAIN, "Service scan %s match (Probe %s matched with %s): %s:%hi is %s%s\n",
+	    log_write(LOG_PLAIN, "Service scan %s match (Probe %s matched with %s): %s:%hu is %s%s\n",
                       (MD->isSoft)? "soft" : "hard",
                       probe->getName(), (*probe->fallbacks[fallbackDepth]).getName(),
 		      svc->target->NameIP(), svc->portno, (svc->tunnel == SERVICE_TUNNEL_SSL)? "SSL/" : "", MD->serviceName);
