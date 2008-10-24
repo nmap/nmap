@@ -1659,104 +1659,184 @@ local localip, localport  = client_service:get_info()
 
   <sect1 id="nse-documentation">
     <title>Script Documentation Writing</title>
-    <indexterm class="startofrange" id="nse-documentation-indexterm"><primary>Nmap Scripting Engine (NSE)</primary><secondary>Documentation Writing</secondary></indexterm>
+    <indexterm class="startofrange" id="nse-documentation-indexterm"><primary>Nmap Scripting Engine (NSE)</primary><secondary>documentation in</secondary></indexterm>
+    <indexterm><primary>NSEDoc</primary><see>Nmap Scripting Engine, documentation in</see></indexterm>
 
     <para>
-      Scripts are used by more than just the author, so it is useful to have
-      documentation for users and other developers to browse through
-      when looking
-      for scripts to run against a host. For this reason,
-      NSE provides a system
-      that will produce complete documentation for its library
-      of scripts.
-    </para>
-    <para>
-      The documentation
-      is put in comments around your code. The trigger for a
-      documentation comment is <literal>---</literal>. Only the first
-      line in the block of comments should use the prefix trigger;
-      subsequent lines should use Lua's standard single line comment
-      prefix: <literal>--</literal>.
-    </para>
-    <para>
-      The first paragraphs are used as a description for the code
-      following the comments. The first sentence of this description
-      is used as a summary (for a brief description in the index).
-      Optional tags can follow the description using the format
-      <literal>@tag ...</literal>. See
-      <xref linkend="nse-documentation-tags"/> for more information.
-    </para>
-    <para>
-      The first comment block not followed by a function or table
-      definition will
-      be used for a file's comment. This comment will serve for documenting
-      general information concerning the script. The description of this
-      tag should explain the script's purpose and what it does.
-      The file comment should also
-      contain an output tag showing expected output for the script and
-      an args tag for any arguments the script expects.
+    Scripts are used by more than just their author, so scripts must
+    have documentation. NSE modules need documentation so developers can
+    use them in their scripts. NSE's documentation system, described in
+    this section, aims to meet both these needs. While reading this
+    section, you may want to browse NSE's online documentation, which is
+    generated using this documentation. It is at
+    <ulink url="http://nmap.org/nsedoc/"/>.
     </para>
 
-    <sect2 id="nse-documentation-format">
-      <title>Documentation Format</title>
-      <para>
-      Documentation for a script consists of three basic parts: a file
-      comment, a function or table comment, and standard NSE script fields
-      (e.g. <literal>description</literal> or <literal>author</literal>).
-      A file comment is the first documentation comment in a script and
-      is not followed by a function definition or table. The following
-      example demonstrates a file comment:
-<programlisting>
---- Checks if an FTP server allows anonymous logins.
+    <para>
+    NSE uses a customized version of the
+    <ulink url="http://luadoc.luaforge.net/">LuaDoc</ulink>
+    documentation system called NSEDoc. The documentation for scripts
+    and modules is contained in their source code, in the form of
+    comments with a special form.
+    <xref linkend="nse-documentation-comment" xrefstyle="select: label nopage"/>
+    is an NSEDoc comment taken from the
+    <function>stdnse.print_debug</function> function.
+    </para>
+
+    <!-- From stdnse.lua. -->
+    <!-- Be careful to change <code> to &lt;code&gt; when you copy code.
+    <code> is a DocBook tag so it will disappear within a programlisting! -->
+    <example id="nse-documentation-comment">
+      <title>An NSEDoc comment for a function</title>
+      <programlisting>
+--- Prints a formatted debug message if the current verbosity level is greater
+-- than or equal to a given level.
+-- 
+-- This is a convenience wrapper around
+-- &lt;code&gt;nmap.print_debug_unformatted()&lt;/code&gt;. The first optional numeric
+-- argument, &lt;code&gt;verbosity&lt;/code&gt;, is used as the verbosity level necessary
+-- to print the message (it defaults to 1 if omitted). All remaining arguments
+-- are processed with Lua's &lt;code&gt;string.format()&lt;/code&gt; function.
+-- @param level Optional verbosity level.
+-- @param fmt Format string.
+-- @param ... Arguments to format.
+      </programlisting>
+    </example>
+
+    <para>
+    Documentation comments start with three dashes:
+    <literal>---</literal>. The body of the comment is the description
+    of the following code. The first paragraph of the description should
+    be a brief summary, with the following paragraphs giving more
+    detail. Special tags starting with <literal>@</literal> mark off
+    other parts of the documentation. In the above example you see
+    <literal>@param</literal>, which is used to describe each parameter
+    of the function. A complete list of the documentation tags is found
+    in <xref linkend="nse-documentation-tags"/>.
+    </para>
+
+    <para>
+    Text enclosed in the HTML-like <literal>&lt;code&gt;</literal> and
+    <literal>&lt;/code&gt;</literal> tags will be rendered in a
+    monospace font. This should be used for variable and function names,
+    as well as multi-line code examples. When a sequence of lines start
+    with the characters <quote><literal>* </literal></quote>, they will
+    be rendered as a bulleted list.
+    </para>
+
+    <para>
+    It is good practice to document every public function and table in a
+    script or module. Additionally every script and module should have
+    its own file-level documentation. A documentation comment at the
+    beginning of a file (that is not followed by a function or table
+    definition) applies to the entire file. File-level documentation can
+    and should be several paragraphs long, with all the high-level
+    information useful to a developer using a module or a user running a
+    script.
+    <xref linkend="nse-documentation-module" xrefstyle="select: label nopage"/>
+    shows documenatation for the <literal>comm</literal> module (with a
+    few paragraphs removed to save space). Recall that module- and
+    script-level comments are at the very beginning of a file.
+    </para>
+
+    <example id="nse-documentation-module">
+      <title>An NSEDoc comment for a module</title>
+      <programlisting>
+--- Common communication functions for network discovery tasks like
+-- banner grabbing and data exchange.
+--
+-- These functions may be passed a table of options, but it's not
+-- required. The keys for the options table are "bytes", "lines",
+-- "proto", and "timeout". "bytes" sets a minimum number of bytes to
+-- read. "lines" does the same for lines. "proto" sets the protocol to
+-- communicate with, defaulting to "tcp" if not provided. "timeout" sets
+-- the socket timeout (see the socket function
+-- &lt;code&gt;set_timeout()&lt;/code&gt; for details). 
+-- @author Kris Katterjohn 04/2008
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+      </programlisting>
+    </example>
+
+    <para>
+    There are some special considerations when documenting scripts as
+    opposed to functions and modules. Some information that might be put
+    in an <literal>@</literal>-tag in a comment should go in one of the
+    special script variables instead. (Script variables are described in
+    <xref linkend="nse-scripts"/>.) Specifically, the script's
+    description should be in the <varname>description</varname> variable
+    rather than in a documentation comment, and the information that
+    would go in <literal>@author</literal> and
+    <literal>@copyright</literal> should go in the variables
+    <varname>author</varname> and <varname>license</varname> instead.
+    NSEDoc knows about these variables and will use them in preference
+    to fields in the comments. Scripts should also have an
+    <varname>@output</varname> tag showing sample output.
+    <xref linkend="nse-documentation-script" xrefstyle="select: label nopage"/>
+    shows proper form for script-level documentation, using a
+    combination of documentation comments and NSE variables.
+    </para>
+
+    <!-- From ASN.nse. -->
+    <example id="nse-documentation-script">
+      <title>An NSEDoc comment for a script</title>
+      <programlisting>
+id = "AS Numbers"
+description = [[
+Maps IP addresses to autonomous system (AS) numbers.
+
+The script works by sending DNS TXT queries to a DNS server which in
+turn queries a third-party service provided by Team Cymru
+(team-cymru.org) using an in-addr.arpa style zone set-up especially for
+use by Nmap.
+]]
+
+---
+-- @usage
+-- nmap --script ASN.nse [--script-args dns=&lt;dns server&gt;] &lt;target&gt;
+-- @args dns The address of a recursive nameserver to use (optional).
 -- @output
--- |_ Anonymous FTP: Anonymous login allowed
-</programlisting>
-      The standard NSE fields are used to gather other information about a
-      script such as the author or its categories:
-<programlisting>
-author = "Eddie Bell"
+-- Host script results:
+-- |  AS Numbers:
+-- |  BGP: 64.13.128.0/21 | Country: US
+-- |    Origin AS: 10565 SVCOLO-AS - Silicon Valley Colocation, Inc.
+-- |      Peer AS: 3561 6461
+-- |  BGP: 64.13.128.0/18 | Country: US
+-- |    Origin AS: 10565 SVCOLO-AS - Silicon Valley Colocation, Inc.
+-- |_     Peer AS: 174 2914 6461
+
+author = "jah, Michael"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-id = "Anonymous FTP"
-categories = {"default", "intrusive"}
-</programlisting>
-      These fields will be present in the final documentation. The
-      description field is used for the User Summary if a description in
-      the file comment or the file comment itself is absent. It is best
-      if the description field is succinct while the file comment has an
-      extensive description of the script.
-      </para>
-      <para>
-      Finally, a documentation comment may precede a function or
-      table definition:
-<programlisting>
---- Convert two bytes into a 16bit number.
---@param data String of data.
---@param idx Index in the string (first of two consecutive bytes).
---@return 16 bit number represented by the two bytes.
-function bto16(data, idx)
-  local b1 = string.byte(data, idx)
-  local b2 = string.byte(data, idx+1)
-  -- (b2 &amp; 0xff) | ((b1 &amp; 0xff) &lt;&lt; 8)
-  return bit.bor(bit.band(b2, 255), bit.lshift(bit.band(b1, 255), 8))
-end
-</programlisting>
-      You may also choose to document the action, portrule, or hostrule
-      functions. They are separated from other functions in the final
-      documentation for improved visibility.
-      </para>
-    </sect2>
+categories = {"discovery", "external"}
+      </programlisting>
+    </example>
+
+    <para>
+    What about documentation for compiled modules, which have no Lua
+    source code? It is kept in special files with the extension
+    <filename>.luadoc</filename> in the <filename>nselib</filename>
+    directory with the normal Lua modules. For example, the compiled
+    <literal>pcre</literal> module is documented in a file
+    <filename>pcre.luadoc</filename>. These <quote>dummy modules</quote>
+    look just like like normal modules, with a module name,
+    documentation comments, and declarations of files and tables, but
+    they have no code to define them. There are several examples of this
+    method of documentation in the Nmap source distribution.
+    </para>
+
     <sect2 id="nse-documentation-tags">
-      <title>Tags</title>
+      <title>NSE Documentation Tags</title>
       <para>
-        The following tags can be used:
+      This is a list of tags understood by NSEDoc and their purpose.
       </para>
       <variablelist>
         <varlistentry>
           <term><option>@param</option></term>
           <listitem>
             <para>
-              Describe function parameters. The first alphanumeric word
-              must be the parameter being documented.
+              Describes a function parameter. The first word following
+              <literal>@param</literal> is the name of the parameter
+              being described. The tag should appear once for each
+              parameter of the function.
             </para>
           </listitem>
         </varlistentry>
@@ -1764,7 +1844,7 @@ end
           <term><option>@see</option></term>
           <listitem>
             <para>
-              Refer to other functions or tables.
+              Adds a cross-reference to another function or table.
             </para>
           </listitem>
         </varlistentry>
@@ -1772,7 +1852,9 @@ end
           <term><option>@return</option></term>
           <listitem>
             <para>
-              Describe the return values of a function.
+              Describes a return value of a function.
+              <literal>@return</literal> may be used multiple times for
+              multiple return values.
             </para>
           </listitem>
         </varlistentry>
@@ -1780,16 +1862,10 @@ end
           <term><option>@usage</option></term>
           <listitem>
             <para>
-              Describe the usage of a function or variable.
-            </para>
-          </listitem>
-        </varlistentry>
-        <varlistentry>
-          <term><option>@description</option></term>
-          <listitem>
-            <para>
-              The description of a function or table; this is normally
-              inferred from the beginning of the documentation comment.
+              Gives an example of the usage of a function or script. In
+              the case of a function, the example is Lua code; for a
+              script it is an Nmap command line.
+              <literal>@usage</literal> may be given more than once.
             </para>
           </listitem>
         </varlistentry>
@@ -1797,9 +1873,9 @@ end
           <term><option>@name</option></term>
           <listitem>
             <para>
-              The name of the function or table definition. This should
-              be used only if the documentation system cannot infer the
-              name by code analysis.
+              Defines a name for the function or table being documented.
+              This tag is normally not necessary, as NSEDoc infers the
+              name through code analysis.
             </para>
           </listitem>
         </varlistentry>
@@ -1807,9 +1883,11 @@ end
           <term><option>@class</option></term>
           <listitem>
             <para>
-              Like <literal>@name</literal>, if the name of the variable
-              is not being correctly inferred through code analysis, you
-              may specify the class (function or table) explicitly.
+              Defines the <quote>class</quote> of the thing being
+              modified: <literal>function</literal>,
+              <literal>table</literal>, or <function>module</function>.
+              Like <literal>@name</literal>, this is normally inferred
+              automatically.
             </para>
           </listitem>
         </varlistentry>
@@ -1817,15 +1895,8 @@ end
           <term><option>@field</option></term>
           <listitem>
             <para>
-              Describe a table field definition.
-            </para>
-          </listitem>
-        </varlistentry>
-        <varlistentry>
-          <term><option>@release</option></term>
-          <listitem>
-            <para>
-              Free format string to describe the module or file release.
+              In the documentation of a table, describes the value of a
+              named field.
             </para>
           </listitem>
         </varlistentry>
@@ -1833,20 +1904,12 @@ end
           <term><option>@args</option></term>
           <listitem>
             <para>
-              This tag is special to the file comment. It allows you specify
-              arguments to the script (via --script-args) that your script
-              uses. The first alphanumeric word (literally matching in Lua
-              <literal>([%w%p]+)</literal>) is used as the name for
-              the argument, the rest its description.
-            </para>
-          </listitem>
-        </varlistentry>
-        <varlistentry>
-          <term><option>@summary</option></term>
-          <listitem>
-            <para>
-              This allows you to specify the summary explicitly different
-              from the first sentence of the description.
+              Describes a script argument, as used with the
+              <option>--script-args</option> option (see
+              <xref linkend="nse-args"/>). The first word after
+              <literal>@args</literal> is the name of the argument, and
+              everything following that is the description. This tag is
+              special to script-level comments.
             </para>
           </listitem>
         </varlistentry>
@@ -1854,13 +1917,37 @@ end
           <term><option>@output</option></term>
           <listitem>
             <para>
-              This tag is special to thie file comment. It allows you to
-              show typical output of a script. You may use "\n" to
-              force a line break where you please.
+              Shows sample output of a script. This tag is special to
+              script-level comments.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><option>@author</option></term>
+          <listitem>
+            <para>
+              Lists an author of a module. It may be given more than
+              once. Don't use this tag in script documentation; use the
+              <varname>author</varname> variable instead.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><option>@copyright</option></term>
+          <listitem>
+            <para>
+              Describes the copyright of a module. Don't use this tag in
+              script documentation; use the <varname>license</varname>
+              variable instead.
             </para>
           </listitem>
         </varlistentry>
       </variablelist>
+
+      <!-- These tags are undocumented here: @description, @summary, and
+      @release. @documentation and @summary are automatically extracted
+      from the contents of a comment. @release has not been used with
+      NSEDoc. -->
     </sect2>
   </sect1>
 
