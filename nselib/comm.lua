@@ -1,20 +1,21 @@
 --- Common communication functions for network discovery tasks like
 -- banner grabbing and data exchange.
--- \n\n
+--
 -- The functions in this module return values appropriate for use with
--- exception handling via nmap.new_try().
--- \n\n
+-- exception handling via <code>nmap.new_try()</code>.
+--
 -- These functions may be passed a table of options, but it's not
 -- required. The keys for the options table are "bytes", "lines",
 -- "proto", and "timeout". "bytes" sets a minimum number of bytes to
 -- read. "lines" does the same for lines. "proto" sets the protocol to
 -- communicate with, defaulting to "tcp" if not provided. "timeout" sets
--- the socket timeout (see the socket function set_timeout() for
--- details). 
--- \n\n
+-- the socket timeout (see the socket function
+-- <code>set_timeout()</code> for details). 
+--
 -- If both "bytes" and "lines" are provided, "lines" takes precedence.
 -- If neither are given, the functions read as many bytes as possible.
 -- @author Kris Katterjohn 04/2008
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module(... or "comm", package.seeall)
 

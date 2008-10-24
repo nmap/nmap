@@ -22,11 +22,11 @@ module(... or "stdnse");
 -- 
 -- This is a convenience wrapper around
 -- <code>nmap.print_debug_unformatted()</code>. The first optional numeric
--- argument, verbosity, is used as the verbosity level necessary to print the
--- message (it defaults to 1 if omitted). All remaining arguments are processed
--- with Lua's <code>string.format()</code> function.
+-- argument, <code>verbosity</code>, is used as the verbosity level necessary
+-- to print the message (it defaults to 1 if omitted). All remaining arguments
+-- are processed with Lua's <code>string.format()</code> function.
 -- @param level Optional verbosity level.
--- @param fmt Format string according to string.format specifiers.
+-- @param fmt Format string.
 -- @param ... Arguments to format.
 print_debug = function(level, fmt, ...)
   local verbosity = tonumber(level);

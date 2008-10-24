@@ -1,6 +1,6 @@
 id = "Anonymous FTP"
 description = [[
-Checks if a FTP server allows anonymous logins.
+Checks if an FTP server allows anonymous logins.
 ]]
 
 ---

@@ -2,30 +2,29 @@ id = "AS Numbers"
 description = [[
 Maps IP addresses to autonomous system (AS) numbers.
 
-The script works by sending DNS TXT queries to a DNS server which in turn
-queries a third-party service provided by Team Cymru (team-cymru.org) using an
-in-addr.arpa style zone set-up especially for use by Nmap.
+The script works by sending DNS TXT queries to a DNS server which in
+turn queries a third-party service provided by Team Cymru
+(team-cymru.org) using an in-addr.arpa style zone set-up especially for
+use by Nmap.
 
-The responses to these queries contain both Origin and Peer ASNs and their
-descriptions, displayed along with the BG Prefix and Country Code.
+The responses to these queries contain both Origin and Peer ASNs and
+their descriptions, displayed along with the BG Prefix and Country Code.
 
-The script caches results to reduce the number of queries and should perform a
-single query for all scanned targets in a BG Prefix present in Team Cymru's
-database.
+The script caches results to reduce the number of queries and should
+perform a single query for all scanned targets in a BG Prefix present in
+Team Cymru's database.
 
-Be aware that any targets against which this script is run will be sent to and
-potentially recorded by one or more DNS servers and Team Cymru. In addition
-your IP address will be sent along with the ASN to a DNS server (your default
-DNS server, or whichever you specified with the <code>dns</code> script argument).
+Be aware that any targets against which this script is run will be sent
+to and potentially recorded by one or more DNS servers and Team Cymru.
+In addition your IP address will be sent along with the ASN to a DNS
+server (your default DNS server, or whichever you specified with the
+<code>dns</code> script argument).
 ]]
-
 
 ---
 -- @usage
--- nmap <target> --script asn
---
--- @args dns Optional recursive nameserver. (Use <code>--script-args dns=192.168.1.1</code>.)
---
+-- nmap --script ASN.nse [--script-args dns=<dns server>] <target>
+-- @args dns The address of a recursive nameserver to use (optional).
 -- @output
 -- Host script results:
 -- |  AS Numbers:
@@ -35,8 +34,6 @@ DNS server, or whichever you specified with the <code>dns</code> script argument
 -- |  BGP: 64.13.128.0/18 | Country: US
 -- |    Origin AS: 10565 SVCOLO-AS - Silicon Valley Colocation, Inc.
 -- |_     Peer AS: 174 2914 6461
---
-
 
 author = "jah, Michael"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
