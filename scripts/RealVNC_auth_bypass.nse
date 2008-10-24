@@ -6,7 +6,7 @@ Checks if a VNC server is vulnerable to the RealVNC authentication bypass
 author = "Brandon Enright <bmenrigh@ucsd.edu>" 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"default", "malware", "vuln"}
+categories = {"default", "vuln"}
 
 require "shortport"
 
