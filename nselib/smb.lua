@@ -59,7 +59,7 @@
 -- success, along with the operating system and the lan manager name. \n
 --\n
 -- After a successful <code>SMB_COM_SESSION_SETUP_ANDX</code> has been made, a 
-<code>--</code> SMB_COM_TREE_CONNECT_ANDX packet can be sent. This is what connects to a share. 
+-- <code>SMB_COM_TREE_CONNECT_ANDX</code> packet can be sent. This is what connects to a share. 
 -- The server responds to this with a boolean answer, and little more information. \n
 --\n
 -- Each share will either return <code>STATUS_BAD_NETWORK_NAME</code> if the share doesn't exist, <code>STATUS_ACCESS_DENIED</code> if it exists but we don't have access, or 
