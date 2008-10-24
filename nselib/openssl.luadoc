@@ -185,4 +185,4 @@ function supported_digests()
 --- Converts a 56-bit DES key into a 64-bit key with the correct parity.
 -- @param data A 7-byte string.
 -- @return An 8-byte string.
-function DES_string_to_key(string data)
+function DES_string_to_key(data)
