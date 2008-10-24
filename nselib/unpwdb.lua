@@ -1,19 +1,20 @@
 --- Username/password database library.
--- \n\n
--- The usernames and passwords functions return multiple values for use
--- with exception handling via nmap.new_try().
--- The first value is the boolean success indicator, the second value is
--- the closure.
--- \n\n
--- The closures can take a parameter of "reset" to rewind the list to the
--- beginning.
--- \n\n
+--
+-- The <code>usernames</code> and <code>passwords</code> functions return
+-- multiple values for use with exception handling via
+-- <code>nmap.new_try()</code>. The first value is the Boolean success
+-- indicator, the second value is the closure.
+--
+-- The closures can take an argument of <code>"reset"</code> to rewind the list
+-- to the beginning.
+--
 -- You can select your own username and/or password database to read from with
--- the script arguments userdb and passdb, respectively.  Comments are allowed
--- in these files, prefixed with "#!comment:".  Comments cannot be on the same
--- line as a username or password because this leaves too much ambiguity, e.g.
--- does the password in "mypass  #!comment: blah" contain a space, two spaces,
--- or do they just separate the password from the comment?
+-- the script arguments <code>userdb</code> and <code>passdb</code>,
+-- respectively.  Comments are allowed in these files, prefixed with
+-- <code>"#!comment:"</code>.  Comments cannot be on the same line as a
+-- username or password because this leaves too much ambiguity, e.g. does the
+-- password in <code>"mypass  #!comment: blah"</code> contain a space, two
+-- spaces, or do they just separate the password from the comment?
 --
 -- @author Kris Katterjohn 06/2008
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
@@ -89,14 +90,15 @@ local closure = function(table)
 	end
 end
 
---- Returns the suggested number of seconds to attempt a brute
--- force attack, based on Nmap's timing values (-T4, etc) and whether or not a
+--- Returns the suggested number of seconds to attempt a brute force attack,
+-- based on Nmap's timing values (<code>-T4</code> etc.) and whether or not a
 -- user-defined list is used.
--- \n\n
--- You can use the script argument "notimelimit" to make this function return
--- nil, which means the brute-force should run until the list is empty. If
--- "notimelimit" is not used, be sure to still check for nil return values on
--- the above two functions in case you finish before the time limit is up.
+--
+-- You can use the script argument <code>notimelimit</code> to make this
+-- function return <code>nil</code>, which means the brute-force should run
+-- until the list is empty. If <code>notimelimit</code> is not used, be sure to
+-- still check for <code>nil</code> return values on the above two functions in
+-- case you finish before the time limit is up.
 timelimit = function()
    -- If we're reading from a user-defined username or password list,
    -- we'll give them a timeout 1.5x the default.  If the "notimelimit"
@@ -118,7 +120,8 @@ timelimit = function()
 end
 
 --- Returns a function closure which returns a new username with every call
--- until the username list is exhausted (in which case it returns nil).
+-- until the username list is exhausted (in which case it returns
+-- <code>nil</code>).
 -- @return boolean Status.
 -- @return function The usernames iterator.
 usernames = function()
@@ -136,7 +139,8 @@ usernames = function()
 end
 
 --- Returns a function closure which returns a new password with every call
--- until the password list is exhausted (in which case it returns nil).
+-- until the password list is exhausted (in which case it returns
+-- <code>nil</code>).
 -- @return boolean Status.
 -- @return function The passwords iterator.
 passwords = function()

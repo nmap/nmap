@@ -1,5 +1,5 @@
 --- Functions for building short portrules.
--- \n\n
+--
 -- Since portrules are mostly the same for many scripts, this
 -- module provides functions for the most common tests.
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
@@ -9,8 +9,9 @@ module(... or "shortport", package.seeall)
 --- Return a portrule that returns true when given an open port matching a
 -- single port number or a list of port numbers.
 -- @param port A single port number or a list of port numbers.
--- @param _proto The protocol to match against, default "tcp".
--- @param _state A state or list of states to match against, default {"open", "open|filtered"}.
+-- @param _proto The protocol to match against, default <code>"tcp"</code>.
+-- @param _state A state or table of states to match against, default
+-- {<code>"open"</code>, <code>"open|filtered"</code>}.
 -- @return Function for the portrule.
 -- @usage portrule = shortport.portnumber({80, 443})
 portnumber = function(port, _proto, _state)
@@ -46,16 +47,18 @@ portnumber = function(port, _proto, _state)
 end
 
 --- Return a portrule that returns true when given an open port with a
---service name matching a single service name or a list of service
---names.
--- \n\n
--- A service name is something like "http", "https", "smtp", or "ftp".
--- These service names are determined by Nmap's version scan or (if no
--- version scan information is available) the service assigned to the
--- port in nmap-services  (e.g. "http" for TCP port 80). 
+-- service name matching a single service name or a list of service
+-- names.
+--
+-- A service name is something like <code>"http"</code>, <code>"https"</code>,
+-- <code>"smtp"</code>, or <code>"ftp"</code>. These service names are
+-- determined by Nmap's version scan or (if no version scan information is
+-- available) the service assigned to the port in <code>nmap-services</code>
+-- (e.g. <code>"http"</code> for TCP port 80). 
 -- @param service Service name or a list of names to run against.
--- @param _proto The protocol to match against, default "tcp".
--- @param _state A state or list of states to match against, default {"open", "open|filtered"}.
+-- @param _proto The protocol to match against, default <code>"tcp"</code>.
+-- @param _state A state or list of states to match against, default
+-- {<code>"open"</code>, <code>"open|filtered"</code>}.
 -- @return Function for the portrule.
 -- @usage portrule = shortport.service("ftp")
 service = function(service, _proto, _state)
@@ -92,17 +95,18 @@ end
 
 --- Return a portrule that returns true when given an open port matching
 -- either a port number or service name.
--- \n\n
--- This function is a combination of the portnumber and service
--- functions. The port and service may be single values or a list of
--- values as in those functions. Many scripts explicitly try to run
--- against the well-known ports, but want also to run against any other
--- port which was discovered to run the named service.
+--
+-- This function is a combination of the <code>portnumber</code> and
+-- <code>service</code> functions. The port and service may be single values or
+-- a list of values as in those functions. This function exists because many
+-- scripts explicitly try to run against the well-known ports, but want also to
+-- run against any other port which was discovered to run the named service.
 -- @usage portrule = shortport.port_or_service(22,"ssh"). 
 -- @param _port A single port number or a list of port numbers.
 -- @param _service Service name or a list of names to run against.
--- @param proto The protocol to match against, default "tcp".
--- @param _state A state or list of states to match against, default {"open", "open|filtered"}.
+-- @param proto The protocol to match against, default <code>"tcp"</code>.
+-- @param _state A state or list of states to match against, default
+-- {<code>"open"</code>, <code>"open|filtered"</code>}.
 -- @return Function for the portrule.
 port_or_service = function(_port, _service, proto, _state)
 	local state = _state or {"open", "open|filtered"}

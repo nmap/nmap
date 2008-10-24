@@ -1,5 +1,5 @@
 --- Functions for the SSH-1 protocol.
--- \n\n
+--
 -- This module also contains functions for formatting key fingerprints.
 -- @author Sven Klemm <sven@c3d2.de>
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
@@ -12,11 +12,13 @@ local math = require "math"
 local stdnse = require "stdnse"
 local openssl = require "openssl"
 
---- Fetch a SSH-1 host key.
---@param host Nmap host table.
---@param port Nmap port table.
---@return A table with the following keys: "exp", "mod", "bits", "key_type",
---"fp_input", "full_key", "algorithm", and "fingerprint".
+--- Fetch an SSH-1 host key.
+-- @param host Nmap host table.
+-- @param port Nmap port table.
+-- @return A table with the following fields: <code>exp</code>,
+-- <code>mod</code>, <code>bits</code>, <code>key_type</code>,
+-- <code>fp_input</code>, <code>full_key</code>, <code>algorithm</code>, and
+-- <code>fingerprint</code>.
 fetch_host_key = function(host, port)
   local socket = nmap.new_socket()
   local status
@@ -70,12 +72,18 @@ fetch_host_key = function(host, port)
 end
 
 --- Format a key fingerprint in hexadecimal.
+-- @param fingerprint Key fingerprint.
+-- @param algorithm Key algorithm.
+-- @param bits Key size in bits.
 fingerprint_hex = function( fingerprint, algorithm, bits )
   fingerprint = stdnse.tohex(fingerprint,{separator=":",group=2})
   return ("%d %s (%s)"):format( bits, fingerprint, algorithm )
 end
 
 --- Format a key fingerprint in Bubble Babble.
+-- @param fingerprint Key fingerprint.
+-- @param algorithm Key algorithm.
+-- @param bits Key size in bits.
 fingerprint_bubblebabble = function( fingerprint, algorithm, bits )
   local vowels = {'a','e','i','o','u','y'}
   local consonants = {'b','c','d','f','g','h','k','l','m','n','p','r','s','t','v','z','x'}
@@ -109,8 +117,11 @@ fingerprint_bubblebabble = function( fingerprint, algorithm, bits )
 end
 
 --- Format a key fingerprint into a visual ASCII art representation.
--- \n\n
+--
 -- Ported from http://www.openbsd.org/cgi-bin/cvsweb/~checkout~/src/usr.bin/ssh/key.c.
+-- @param fingerprint Key fingerprint.
+-- @param algorithm Key algorithm.
+-- @param bits Key size in bits.
 fingerprint_visual = function( fingerprint, algorithm, bits )
   local i,j,field,characters,input,fieldsize_x,fieldsize_y,s
   fieldsize_x, fieldsize_y = 17, 9

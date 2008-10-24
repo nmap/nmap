@@ -16,8 +16,8 @@ transport = {}
 local SSH2
 
 --- Pack a multiprecision integer for sending.
---@param bn openssl bignum.
---@return packed multiprecision integer.
+-- @param bn <code>openssl</code> bignum.
+-- @return Packed multiprecision integer.
 transport.pack_mpint = function( bn )
   local bytes, packed
   bytes = bn:num_bytes()
@@ -30,8 +30,8 @@ transport.pack_mpint = function( bn )
 end
 
 --- Build an SSH-2 packet.
---@param payload payload of the packet.
---@return packet to send on the wire.
+-- @param payload Payload of the packet.
+-- @return Packet to send on the wire.
 transport.build = function( payload )
   local packet_length, padding_length
   padding_length = 8 - ( (payload:len() + 1 + 4 ) % 8 )
@@ -40,8 +40,8 @@ transport.build = function( payload )
 end
 
 --- Extract the payload from a received SSH-2 packet.
---@param packet received SSH2 packet.
---@return payload of the SSH2 packet.
+-- @param packet Peceived SSH-2 packet.
+-- @return Payload of the SSH-2 packet.
 transport.payload = function( packet )
   local packet_length, padding_length, payload_length, payload, offset
   offset, packet_length, padding_length = bin.unpack( ">Ic", packet )
@@ -50,12 +50,12 @@ transport.payload = function( packet )
   return payload
 end
 
---- Build kexdh_init packet.
+--- Build a <code>kexdh_init</code> packet.
 transport.kexdh_init = function( e )
   return bin.pack( ">cA", SSH2.SSH_MSG_KEXDH_INIT, transport.pack_mpint( e ) )
 end
 
---- Build kex_init packet.
+--- Build a <code>kex_init</code> packet.
 transport.kex_init = function( cookie, options )
   options = options or {}
   kex_algorithms = "diffie-hellman-group1-sha1"
@@ -75,8 +75,8 @@ transport.kex_init = function( cookie, options )
   return payload
 end
 
---- Parse kexinit package.
--- \n\n
+--- Parse a <code>kexinit</code> package.
+--
 -- Returns an empty table in case of an error
 transport.parse_kex_init = function( payload ) 
   local _, offset, msg_code, parsed, fields, fieldname
@@ -102,10 +102,12 @@ end
 
 
 --- Fetch an SSH-2 host key.
---@param host Nmap host table.
---@param port Nmap port table.
---@param key_type key type to fetch.
---@return table containing the key and fingerprint.
+-- @param host Nmap host table.
+-- @param port Nmap port table.
+-- @param key_type key type to fetch.
+-- @return A table with the following fields: <code>key</code>,
+-- <code>key_type</code>, <code>fp_input</code>, <code>bits</code>,
+-- <code>full_key</code>, <code>algorithm</code>, and <code>fingerprint</code>.
 fetch_host_key = function( host, port, key_type )
   local socket = nmap.new_socket()
   local status
