@@ -187,9 +187,6 @@ function build_domain(host)
 end
 
 --- Retrieve type specific data (rdata) from dns packets
---@param data
---@param offset
---@param ttype
 function get_rdata(data, offset, ttype)
 	local field, info, i
 
@@ -235,9 +232,6 @@ function get_rdata(data, offset, ttype)
 end
 
 --- Get a single answer record from the current offset
---@param table
---@param data
---@param offset
 function get_answer_record(table, data, offset)
 	local line, rdlen, ttype
 	

@@ -23,11 +23,6 @@ _VERSION = "URL 1.0"
 
 		--[[ Internal functions --]]
 
----
--- Protects a path segment, to prevent it from interfering with the
--- url parsing.
--- @param s binary string to be encoded.
--- @return escaped representation of string binary.
 local function make_set(t)
 	local s = {}
 	for i,v in base.ipairs(t) do
@@ -43,6 +38,11 @@ local segment_set = make_set {
 	")", ":", "@", "&", "=", "+", "$", ",",
 }
 
+---
+-- Protects a path segment, to prevent it from interfering with the
+-- url parsing.
+-- @param s binary string to be encoded.
+-- @return escaped representation of string binary.
 local function protect_segment(s)
 	return string.gsub(s, "([^A-Za-z0-9_])", function (c)
 		if segment_set[c] then return c
@@ -205,7 +205,7 @@ end
 -- Builds a absolute URL from a base and a relative URL according to RFC 2396.
 -- @param base_url a base URL.
 -- @param relative_url a relative URL.
--- @param corresponding absolute URL.
+-- @return corresponding absolute URL.
 -----------------------------------------------------------------------------
 function absolute(base_url, relative_url)
     if type(base_url) == "table" then
@@ -332,7 +332,7 @@ end
 -- Builds a query string from dictionary based table.
 -- \n\n
 -- This is the inverse of parse_query.
--- @param dictionary table where table['name'] = value.
+-- @param query dictionary table where table['name'] = value.
 -- @return query string (name=value&name=value ...)
 -----------------------------------------------------------------------------
 function build_query(query)

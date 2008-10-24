@@ -135,6 +135,8 @@ action = function( host )
   if not nmap.registry.whois then
     ---
     -- Data and flags shared between threads.\n
+    -- @name whois
+    -- @class table
     --@field whoisdb_default_order          The default number and order of whois services to query.
     --@field using_local_assignments_file   Set this to: false; to avoid using the data from IANA hosted assignments files (false when whodb=nofile).
     --@field local_assignments_file_expiry  A period, between 0 and 7 days, during which cached assignments data may be used without being refreshed.
@@ -145,8 +147,6 @@ action = function( host )
     --                                returned instead.  Set to true when whodb=nofollow
     --@field using_cache                    A flag which modifies the size of ranges in a cache entry.  Set to false when whodb=nocache
     --@field cache                          Storage for cached redirects, records and other data for output.
-    -- @name whois
-    -- @class table
     nmap.registry.whois = {}
     nmap.registry.whois.whoisdb_default_order = {"arin","ripe","apnic"}
     nmap.registry.whois.using_cache = true
@@ -170,6 +170,8 @@ action = function( host )
   --\n The table, indexed by whois service id, holds a table of fields captured from each queried service.  Once it has been determined that a record
   --\n represents the final record we wish to output, the existing values are destroyed and replaced with the one required record.  This is done purely
   --\n to make it easier to reference the data of a desired record.  Other values in the table are as follows\n
+  -- @name data
+  -- @class table
   --@field data.iana        is set after the table is initialised and is the number of times a response encountered represents "The Whole Address Space".
   --\n                  If the value reaches 2 it is assumed that a valid record is held at ARIN.
   --@field data.id          is set in analyse_response() after final record and is the service name at which a valid record has been found.  Used in
@@ -178,19 +180,17 @@ action = function( host )
   --                  format_data_for_output().
   --@field data.comparison  is set in analyse_response() after final record and is a string concatenated from fields extracted from a record and which
   --                  serves as a fingerprint for a record, used in get_cache_key(), to compare two records for equality.
-  -- @name data
-  -- @class table
   local data = {}
   data.iana = 0
 
   ---
   -- Used in the main loop to manage mutexes, the structure of tracking is as follows:\n
+  -- @name tracking
+  -- @class table
   --@field this_db    The service for which a thread will wait for exclusive access before sending a query to it.
   --@field next_db    The next service to query.  Allows a thread to continue in the main "while do" loop.
   --@field last_db    The value of this_db after sending a query, used when exclusive access to a service is no longer required.
   --@field completed  An array of services previously queried.
-  -- @name tracking
-  -- @class table
   local tracking = {}
   tracking.completed = {}
 

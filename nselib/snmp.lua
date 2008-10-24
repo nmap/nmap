@@ -415,11 +415,6 @@ end
 
 --- 
 -- Create SNMP Trap PDU
---@param enterpriseOid
---@param agentIp
---@param genTrap 
---@param specTrap
---@param timeStamp
 --@return Table representing PDU
 function buildTrap(enterpriseOid, agentIp, genTrap, specTrap, timeStamp)
    local req = {}

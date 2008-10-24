@@ -821,9 +821,9 @@ end
 --@param name The name to take apart
 --@param list [optional] If list is set, names will be added to it then returned
 --@return An array of the sub names
-local function get_subnames(name)
+local function get_subnames(name, list)
 	local i = -1
-	local list = {}
+	local list = list or {}
 
 	repeat
 		local subname = name
@@ -1384,7 +1384,7 @@ end
 --@param socket The socket
 --@param uid    The UserID, returned by <code>SMB_COM_SESSION_SETUP_ANDX</code>
 --@param tid    The TreeID, returned by <code>SMB_COM_TREE_CONNECT_ANDX</code>
---@param return (status, result) If statis is false, result is an error message. If status is true, 
+--@return (status, result) If statis is false, result is an error message. If status is true, 
 --              the disconnect was successful. 
 function tree_disconnect(socket, uid, tid)
 	local response = ""
@@ -1420,7 +1420,7 @@ end
 ---Logs off the current user. Strictly speaking this isn't necessary, but it's the polite thing to do. 
 --@param socket The socket. 
 --@param uid    The user ID. 
---@param return (status, result) If statis is false, result is an error message. If status is true, 
+--@return (status, result) If statis is false, result is an error message. If status is true, 
 --              the logoff was successful. 
 function logoff(socket, uid)
 	local header, parameters
@@ -1549,7 +1549,7 @@ end
 --@param func   The function to call. The only one I've tested is 0x26, named pipes. 
 --@param function_parameters The parameter data to pass to the function. This is untested, since none of the
 --       transactions I've done have required parameters. 
---@param data   The data to send with the packet. This is basically the next protocol layer
+--@param function_data The data to send with the packet. This is basically the next protocol layer
 --@param uid    The UserID
 --@param tid    The TreeID (handle to <code>$IPC</code>)
 --@param fid    The FileID (opened by <code>create_file</code>)

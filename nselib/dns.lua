@@ -278,39 +278,37 @@ local answerFetcher = {}
 -- @param dec Decoded DNS response.
 -- @param retAll If true, return all entries, not just the first.
 -- @return First entry (or all of them), treated as TXT.
-answerFetcher[types.TXT] = 
-   function(dec, retAll)
-      if not retAll then
-         return string.sub(dec.answers[1].data, 2)
-      else
-         local answers = {}
-         for _, v in ipairs(dec.answers) do
-            if v.data then table.insert(answers, string.sub(v.data, 2)) end
-         end
-         return answers
+answerFetcher[types.TXT] = function(dec, retAll)
+   if not retAll then
+      return string.sub(dec.answers[1].data, 2)
+   else
+      local answers = {}
+      for _, v in ipairs(dec.answers) do
+         if v.data then table.insert(answers, string.sub(v.data, 2)) end
       end
+      return answers
    end
+end
 
 ---
 -- Answer fetcher for A records
 -- @param dec Decoded DNS response.
 -- @param retAll If true, return all entries, not just the first.
 -- @return First IP (or all of them) of response packet.
-answerFetcher[types.A] = 
-   function(dec, retAll)
-      local answers = {}
-      for _, ans in ipairs(dec.answers) do
-         if ans.dtype == types.A then
-            if not retAll then
-               return ans.ip
-            else
-               table.insert(answers, ans.ip)
-            end
+answerFetcher[types.A] = function(dec, retAll)
+   local answers = {}
+   for _, ans in ipairs(dec.answers) do
+      if ans.dtype == types.A then
+         if not retAll then
+            return ans.ip
+         else
+            table.insert(answers, ans.ip)
          end
       end
-      if retAll then return answers end
-      return dec
    end
+   if retAll then return answers end
+   return dec
+end
 
 
 ---
@@ -318,43 +316,56 @@ answerFetcher[types.A] =
 -- @param dec Decoded DNS response.
 -- @param retAll If true, return all entries, not just the first.
 -- @return Domain entry of first answer RR (or all of them) in response packet.
-answerFetcher[types.CNAME] = 
-   function(dec, retAll)
-      if not retAll then
-         return dec.answers[1].domain
-      else
-         local answers = {}
-         for _, v in ipairs(dec.answers) do
-            if v.domain then table.insert(answers, v.domain) end
-         end
-         return answers
+answerFetcher[types.CNAME] = function(dec, retAll)
+   if not retAll then
+      return dec.answers[1].domain
+   else
+      local answers = {}
+      for _, v in ipairs(dec.answers) do
+         if v.domain then table.insert(answers, v.domain) end
       end
+      return answers
    end
+end
 
 ---
 -- Answer fetcher for MX records.
 -- @param dec Decoded DNS response.
 -- @param retAll If true, return all entries, not just the first.
 -- @return Domain entry of first answer RR (or all of them) in response packet.
-answerFetcher[types.MX] = 
-   function(dec, retAll)
-      if not retAll then
-         if dec.answers[1] then
-            return dec.answers[1].MX.pref .. ":" .. dec.answers[1].MX.server .. ":" .. dec.add[1].ip
-         else
-            return dec
-         end
+answerFetcher[types.MX] = function(dec, retAll)
+   if not retAll then
+      if dec.answers[1] then
+         return dec.answers[1].MX.pref .. ":" .. dec.answers[1].MX.server .. ":" .. dec.add[1].ip
       else
-         local answers = {}
-         for _, v in ipairs(dec.answers) do
-            if v.MX then table.insert(answers, v.MX.pref .. ":" .. v.MX.server .. ":" .. v.MX.ip) end
-         end
-         return answers
+         return dec
       end
+   else
+      local answers = {}
+      for _, v in ipairs(dec.answers) do
+         if v.MX then table.insert(answers, v.MX.pref .. ":" .. v.MX.server .. ":" .. v.MX.ip) end
+      end
+      return answers
    end
+end
 
 
+---
+-- Answer fetcher for NS records.
+-- @name answerFetcher[types.NS]
+-- @class function
+-- @param dec Decoded DNS response.
+-- @param retAll If true, return all entries, not just the first.
+-- @return Domain entry of first answer RR (or all of them) in response packet.
 answerFetcher[types.NS] = answerFetcher[types.CNAME]
+
+---
+-- Answer fetcher for PTR records.
+-- @name answerFetcher[types.PTR]
+-- @class function
+-- @param dec Decoded DNS response.
+-- @param retAll If true, return all entries, not just the first.
+-- @return Domain entry of first answer RR (or all of them) in response packet.
 answerFetcher[types.PTR] = answerFetcher[types.CNAME]
 
 ---
@@ -362,21 +373,20 @@ answerFetcher[types.PTR] = answerFetcher[types.CNAME]
 -- @param dec Decoded DNS response.
 -- @param retAll If true, return all entries, not just the first.
 -- @return First IPv6 (or all of them) of response packet.
-answerFetcher[types.AAAA] = 
-   function(dec, retAll)
-      local answers = {}
-      for _, ans in ipairs(dec.answers) do
-         if ans.dtype == types.AAAA then
-            if not retAll then
-               return ans.ipv6
-            else
-               table.insert(answers, ans.ipv6)
-            end
+answerFetcher[types.AAAA] = function(dec, retAll)
+   local answers = {}
+   for _, ans in ipairs(dec.answers) do
+      if ans.dtype == types.AAAA then
+         if not retAll then
+            return ans.ipv6
+         else
+            table.insert(answers, ans.ipv6)
          end
       end
-      if retAll then return answers end
-      return dec
    end
+   if retAll then return answers end
+   return dec
+end
 
 
 ---
@@ -516,28 +526,26 @@ local decoder = {}
 ---
 -- Decodes IP of A record, puts it in <code>entry.ip</code>.
 -- @param entry RR in packet.
-decoder[types.A] = 
-   function(entry)
-      local ip = {}
-      local _
-      _, ip[1], ip[2], ip[3], ip[4] = bin.unpack(">C4", entry.data)
-      entry.ip = table.concat(ip, ".")
-   end
+decoder[types.A] = function(entry)
+   local ip = {}
+   local _
+   _, ip[1], ip[2], ip[3], ip[4] = bin.unpack(">C4", entry.data)
+   entry.ip = table.concat(ip, ".")
+end
 
 ---
 -- Decodes IP of AAAA record, puts it in <code>entry.ipv6</code>.
 -- @param entry RR in packet.
-decoder[types.AAAA] = 
-   function(entry)
-      local ip = {}
-      local pos = 1
-      local num
-      for i = 1, 8 do
-         pos, num = bin.unpack(">S", entry.data, pos)
-         table.insert(ip, string.format('%x', num))
-      end
-      entry.ipv6 = table.concat(ip, ":")
+decoder[types.AAAA] = function(entry)
+   local ip = {}
+   local pos = 1
+   local num
+   for i = 1, 8 do
+      pos, num = bin.unpack(">S", entry.data, pos)
+      table.insert(ip, string.format('%x', num))
    end
+   entry.ipv6 = table.concat(ip, ":")
+end
 
 ---
 -- Decodes SSH fingerprint record, puts it in <code>entry.SSHFP</code> as
@@ -546,13 +554,12 @@ decoder[types.AAAA] =
 -- <code>entry.SSHFP</code> has the fields <code>algorithm</code>,
 -- <code>fptype</code>, and <code>fingerprint</code>.
 -- @param entry RR in packet.
-decoder[types.SSHFP] =
-   function(entry)
-      local _
-      entry.SSHFP = {}
-      _, entry.SSHFP.algorithm, 
-      entry.SSHFP.fptype, entry.SSHFP.fingerprint = bin.unpack(">C2H" .. (#entry.data - 2), entry.data)
-   end
+decoder[types.SSHFP] = function(entry)
+   local _
+   entry.SSHFP = {}
+   _, entry.SSHFP.algorithm, 
+   entry.SSHFP.fptype, entry.SSHFP.fingerprint = bin.unpack(">C2H" .. (#entry.data - 2), entry.data)
+end
 
 
 ---
@@ -564,22 +571,21 @@ decoder[types.SSHFP] =
 -- @param entry RR in packet.
 -- @param data Complete encoded DNS packet.
 -- @param pos Position in packet after RR.
-decoder[types.SOA] = 
-   function(entry, data, pos)
+decoder[types.SOA] = function(entry, data, pos)
 
-      local np = pos - #entry.data
+   local np = pos - #entry.data
 
-      entry.SOA = {}
+   entry.SOA = {}
 
-      np, entry.SOA.mname = decStr(data, np)
-      np, entry.SOA.rname = decStr(data, np)
-      np, entry.SOA.serial, 
-        entry.SOA.refresh, 
-        entry.SOA.retry, 
-        entry.SOA.expire, 
-        entry.SOA.minimum 
-         = bin.unpack(">I5", data, np)
-   end
+   np, entry.SOA.mname = decStr(data, np)
+   np, entry.SOA.rname = decStr(data, np)
+   np, entry.SOA.serial, 
+     entry.SOA.refresh, 
+     entry.SOA.retry, 
+     entry.SOA.expire, 
+     entry.SOA.minimum 
+      = bin.unpack(">I5", data, np)
+end
 
 ---
 -- Decodes records that consist only of one domain, for example CNAME, NS, PTR.
@@ -593,12 +599,44 @@ local function decDomain(entry, data, pos)
       _, entry.domain = decStr(data, np)
    end
 
+---
+-- Decodes CNAME records.
+-- Puts result in <code>entry.domain</code>.
+-- @name decoder[types.CNAME]
+-- @class function
+-- @param entry RR in packet.
+-- @param data Complete encoded DNS packet.
+-- @param pos Position in packet after RR.
 decoder[types.CNAME] = decDomain
 
+---
+-- Decodes NS records.
+-- Puts result in <code>entry.domain</code>.
+-- @name decoder[types.NS]
+-- @class function
+-- @param entry RR in packet.
+-- @param data Complete encoded DNS packet.
+-- @param pos Position in packet after RR.
 decoder[types.NS] = decDomain
 
+---
+-- Decodes PTR records.
+-- Puts result in <code>entry.domain</code>.
+-- @name decoder[types.PTR]
+-- @class function
+-- @param entry RR in packet.
+-- @param data Complete encoded DNS packet.
+-- @param pos Position in packet after RR.
 decoder[types.PTR] = decDomain
 
+---
+-- Decodes TXT records.
+-- Puts result in <code>entry.domain</code>.
+-- @name decoder[types.TXT]
+-- @class function
+-- @param entry RR in packet.
+-- @param data Complete encoded DNS packet.
+-- @param pos Position in packet after RR.
 decoder[types.TXT] = function () end
 
 ---
@@ -659,7 +697,7 @@ end
 
 ---
 -- Decodes DNS flags.
--- @param Flags as a binary digit string.
+-- @param flgStr Flags as a binary digit string.
 -- @return Table representing flags.
 local function decodeFlags(flgStr)
    flags = {}

@@ -61,7 +61,6 @@ function timing_level()
 -- currently scanned group of hosts.
 -- @param host Host table, containing an "ip" field.
 -- @param port Port table, containing "number" and "protocol" fields.
--- @param protocol Protocol string ("tcp" or "udp")
 -- @return A new port table holding the status and information for the port.
 -- @usage p = nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 function get_port_state(host, port)
@@ -464,10 +463,10 @@ function ethernet_open(interface_name)
 --- Sends a raw ethernet frame.
 -- \n\n
 -- The dnet object must be associated with a previously opened interface. The
--- packet must include the IP and ethernet headers. including IP header and
--- ethernet header. If there was no previous valid call to ethernet_open() an
--- error is thrown ("dnet is not valid opened ethernet interface").
--- @param packet
+-- packet must include the IP and ethernet headers If there was no previous
+-- valid call to ethernet_open() an error is thrown ("dnet is not valid opened
+-- ethernet interface").
+-- @param packet An ethernet frame to send.
 -- @see new_dnet
 -- @usage dnet:ethernet_open(packet)
 function ethernet_send(packet)
