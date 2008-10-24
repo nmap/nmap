@@ -341,8 +341,8 @@ Nmap done: 1 IP address (1 host up) scanned in 0.91 seconds
           </term>
           <listitem>
             <para>These scripts are the default set and are run when
-            using <option>-sC</option>, <option>-A</option>
-            or <option>--script</option> without any arguments. This
+            using <option>-sC</option> or <option>-A</option> without
+            listing scripts with <option>--script</option>. This
             category can also be specified explicitly like any other
             using <option>--script=default</option>.</para>
           </listitem>
