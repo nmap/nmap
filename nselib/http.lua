@@ -1,17 +1,18 @@
 --- Client-side HTTP library.
--- \n\n
+--
 -- The return value of each function in this module is a table with the
--- following keys: status, status-line, header, and body. status is a number
--- representing the HTTP status code returned in response to the HTTP
--- request. In case of an unhandled error, status is nil. status-line is
--- the entire status message which includes the HTTP version, status code
--- and reason phrase. The header value is a table containing key-value
--- pairs of HTTP headers received in response to the request. The header
--- names are in lower-case and are the keys to their corresponding header
--- values (e.g. header.location = "http://nmap.org/").
--- Multiple headers of the same name are concatenated and separated by
--- commas. The body value is a string containing the body of the HTTP
--- response.
+-- following keys: <code>status</code>, <code>status-line</code>,
+-- <code>header</code>, and <code>body</code>. <code>status</code> is a number
+-- representing the HTTP status code returned in response to the HTTP request.
+-- In case of an unhandled error, <code>status</code> is <code>nil</code>.
+-- <code>status-line</code> is the entire status message which includes the HTTP
+-- version, status code, and reason phrase. The <code>header</code> value is a
+-- table containing key-value pairs of HTTP headers received in response to the
+-- request. The header names are in lower-case and are the keys to their
+-- corresponding header values (e.g. <code>header.location</code> =
+-- <code>"http://nmap.org/"</code>). Multiple headers of the same name are
+-- concatenated and separated by commas. The <code>body</code> value is a string
+-- containing the body of the HTTP response.
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module(... or "http",package.seeall)
@@ -35,20 +36,19 @@ local stdnse = require 'stdnse'
 
 
 --- Fetches a resource with a GET request.
--- \n\n
--- The first argument is either a
--- string with the hostname or a table like the host table passed by nmap.
--- The second argument is either the port number or a table like the port
--- table passed by nmap. The third argument is the path of the resource.
--- The fourth argument is a table for further options. The table may have
--- 2 keys: timeout and header. timeout is the timeout used for the socket
--- operations. header is a table with additional headers to be used for
--- the request. The function builds the request and calls http.request.
+--
+-- The first argument is either a string with the hostname or a table like the
+-- host table passed to a portrule or hostrule. The second argument is either
+-- the port number or a table like the port table passed to a portrule or
+-- hostrule. The third argument is the path of the resource. The fourth argument
+-- is a table for further options. The function builds the request and calls
+-- <code>http.request()</code>.
 -- @param host The host to query.
 -- @param port The port for the host.
 -- @param path The path of the resource.
--- @param options A table of options. See function description.
--- @return table
+-- @param options A table of options, as with <code>http.request()</code>.
+-- @return Table as described in the function description.
+-- @see http.request
 get = function( host, port, path, options )
   options = options or {}
   local presets = {Host=host,Connection="close",['User-Agent']="Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"}
@@ -70,14 +70,11 @@ get = function( host, port, path, options )
   return request( host, port, data, options )
 end
 
---- Parses a URL and calls http.get with the result.
--- \n\n
--- The second argument
--- is a table for further options. The table may have 2 keys: timeout
--- and header. timeout is the timeout used for the socket operations.
--- header is a table with additional headers to be used for the request. 
--- @param u The url of the host.
--- @param options Options passed to http.get.
+--- Parses a URL and calls <code>http.get</code> with the result.
+--
+-- The second argument is a table for further options.
+-- @param u The URL of the host.
+-- @param options A table of options, as with <code>http.request()</code>.
 -- @see http.get
 get_url = function( u, options )
   local parsed = url.parse( u )
@@ -103,20 +100,20 @@ get_url = function( u, options )
 end
 
 --- Sends request to host:port and parses the answer.
--- \n\n
--- The first argument
--- is either a string with the hostname or a table like the host table
--- passed by nmap. The second argument is either the port number or a
--- table like the port table passed by nmap. SSL is used for the request
--- if either port.service  equals https or port.version.service_tunnel
--- equals ssl. The third argument is the request. The fourth argument is
--- a table for further options. You can specify a timeout for the socket
--- operations with the timeout key. 
+--
+-- The first argument is either a string with the hostname or a table like the
+-- host table passed to a portrule or hostrule. The second argument is either
+-- the port number or a table like the port table passed to a portrule or
+-- hostrule. SSL is used for the request if <code>port.service</code> is
+-- <code>"https"</code> or <code>port.version.service_tunnel</code> is
+-- <code>"ssl"</code>. The third argument is the request. The fourth argument is
+-- a table for further options.
 -- @param host The host to query.
 -- @param port The port on the host.
 -- @param data Data to send initially to the host.
--- @param options Table of options.
--- @see http.get
+-- @param options A table of options. It may have any of these fields:
+-- * <code>timeout</code>: A timeout used for socket operations.
+-- * <code>header</code>: A table containing additional headers to be used for the request.
 request = function( host, port, data, options )
   options = options or {}
 

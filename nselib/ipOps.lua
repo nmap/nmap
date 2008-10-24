@@ -16,18 +16,20 @@ module ( "ipOps" )
 ---
 -- Checks to see if the supplied IP address is part of a non-routable
 -- address space.
--- \n\n
--- The non-Internet-routable address spaces known to this function are:
--- IPv4 Loopback (RFC3330),
--- IPv4 Private Use (RFC1918),
--- IPv4 Link Local (RFC3330),
--- IPv6 Unspecified and Loopback (RFC3513),
--- IPv6 Unique Local Unicast (RFC4193),
--- IPv6 Link Local Unicast (RFC4291)
--- @param ip  String representing an IPv4 or IPv6 address.  Shortened notation is permitted.
--- @usage     local is_private = ipOps.isPrivate( "192.168.1.1" )
--- @return    Boolean True or False (or nil in case of an error).
--- @return    Nil (or String error message in case of an error).
+--
+-- The non-Internet-routable address spaces known to this function are
+-- * IPv4 Loopback (RFC3330)
+-- * IPv4 Private Use (RFC1918)
+-- * IPv4 Link Local (RFC3330)
+-- * IPv6 Unspecified and Loopback (RFC3513)
+-- * IPv6 Unique Local Unicast (RFC4193)
+-- * IPv6 Link Local Unicast (RFC4291)
+-- @param ip  String representing an IPv4 or IPv6 address.  Shortened notation
+-- is permitted.
+-- @usage
+-- local is_private = ipOps.isPrivate( "192.168.1.1" )
+-- @return True or false (or <code>nil</code> in case of an error).
+-- @return String error message in case of an error.
 isPrivate = function( ip )
 
   ip, err = expand_ip( ip )
@@ -56,16 +58,19 @@ end
 
 ---
 -- Converts the supplied IPv4 address into a DWORD value.
--- \n\n
+--
 -- For example, the address a.b.c.d becomes (((a*256+b)*256+c)*256+d).
--- \n\n
+--
 -- Note: IPv6 addresses are not supported. Currently, numbers in NSE are
--- limited to 10^14, consequently not all IPv6 addresses can be
--- represented in base 10.
--- @param ip  String representing an IPv4 address.  Shortened notation is permitted.
--- @usage     local dword = ipOps.todword( "73.150.2.210" )
--- @return    Number corresponding to the supplied IP address (or nil in case of an error).
--- @return    Nil (or String error message in case of an error).
+-- limited to 10^14, and consequently not all IPv6 addresses can be
+-- represented.
+-- @param ip  String representing an IPv4 address.  Shortened notation is
+-- permitted.
+-- @usage
+-- local dword = ipOps.todword( "73.150.2.210" )
+-- @return Number corresponding to the supplied IP address (or <code>nil</code>
+-- in case of an error).
+-- @return String error message in case of an error.
 todword = function( ip )
 
   if type( ip ) ~= "string" or ip:match( ":" ) then
@@ -86,15 +91,18 @@ end
 
 ---
 -- Separates the supplied IP address into its constituent parts and
--- returns them as a table of decimal numbers.
--- \n\n
+-- returns them as a table of numbers.
+--
 -- For example, the address 139.104.32.123 becomes { 139, 104, 32, 123 }.
--- @usage     local a, b, c, d;\n
---            local t, err = get_parts_as_number( "139.104.32.123" );\n
---            if t then a, b, c, d = unpack( t ) end
--- @param ip  String representing an IPv4 or IPv6 address.  Shortened notation is permitted.
--- @return    Array-style Table containing decimal numbers for each part of the supplied IP address (or nil in case of an error).
--- @return    Nil (or String error message in case of an error).
+-- @usage
+-- local a, b, c, d;
+-- local t, err = get_parts_as_number( "139.104.32.123" )
+-- if t then a, b, c, d = unpack( t ) end
+-- @param ip  String representing an IPv4 or IPv6 address.  Shortened notation
+-- is permitted.
+-- @return   Array of numbers for each part of the supplied IP address (or
+-- <code>nil</code> in case of an error).
+-- @return String error message in case of an error.
 get_parts_as_number = function( ip )
 
   ip, err = expand_ip( ip )
@@ -121,12 +129,19 @@ end
 
 ---
 -- Compares two IP addresses (from the same address family).
--- @param left   String representing an IPv4 or IPv6 address.  Shortened notation is permitted.
--- @param op     A comparison operator which may be one of the following strings: "eq", "ge", "le", "gt" or "lt" (respectively ==, >=, <=, >, <).
--- @param right  String representing an IPv4 or IPv6 address.  Shortened notation is permitted.
--- @usage        if ipOps.compare_ip( "2001::DEAD:0:0:0", "eq", "2001:0:0:0:DEAD::" ) then ...
--- @return       Boolean True or False (or nil in case of an error).
--- @return       Nil (or String error message in case of an error).
+-- @param left   String representing an IPv4 or IPv6 address.  Shortened
+-- notation is permitted.
+-- @param op     A comparison operator which may be one of the following
+-- strings: <code>"eq"</code>, <code>"ge"</code>, <code>"le"</code>,
+-- <code>"gt"</code> or <code>"lt"</code> (respectively ==, >=, <=, >, <).
+-- @param right  String representing an IPv4 or IPv6 address.  Shortened
+-- notation is permitted.
+-- @usage
+-- if ipOps.compare_ip( "2001::DEAD:0:0:0", "eq", "2001:0:0:0:DEAD::" ) then
+--   ...
+-- end
+-- @return True or false (or <code>nil</code> in case of an error).
+-- @return String error message in case of an error.
 compare_ip = function( left, op, right )
 
   if type( left ) ~= "string" or type( right ) ~= "string" then
@@ -179,14 +194,20 @@ end
 
 
 ---
--- Checks whether the supplied IP address is within the supplied range of IP addresses.
--- \n\n
+-- Checks whether the supplied IP address is within the supplied range of IP
+-- addresses.
+--
 -- The address and the range must both belong to the same address family.
--- @param ip     String representing an IPv4 or IPv6 address.  Shortened notation is permitted.
--- @param range  String representing a range of IPv4 or IPv6 addresses in first-last or cidr notation  (e.g. "192.168.1.1 - 192.168.255.255" or "2001:0A00::/23").
--- @usage        if ipOps.ip_in_range( "192.168.1.1", "192/8" ) then ...
--- @return       Boolean True or False (or nil in case of an error).
--- @return       Nil (or String error message in case of an error).
+-- @param ip     String representing an IPv4 or IPv6 address.  Shortened
+-- notation is permitted.
+-- @param range  String representing a range of IPv4 or IPv6 addresses in
+-- first-last or CIDR notation (e.g.
+-- <code>"192.168.1.1 - 192.168.255.255"</code> or
+-- <code>"2001:0A00::/23"</code>).
+-- @usage
+-- if ipOps.ip_in_range( "192.168.1.1", "192/8" ) then ... end
+-- @return True or false (or <code>nil</code> in case of an error).
+-- @return String error message in case of an error.
 ip_in_range = function( ip, range )
 
   local first, last, err = get_ips_from_range( range )
@@ -218,13 +239,16 @@ end
 ---
 -- Expands an IP address supplied in shortened notation.
 -- Serves also to check the well-formedness of an IP address.
--- \n\n
--- Note: IPv4in6 notated addresses will be returned in pure IPv6 notation unless the IPv4 portion
--- is shortened and does not contain a dot - in which case the address will be treated as IPv6.
+--
+-- Note: IPv4in6 notated addresses will be returned in pure IPv6 notation unless
+-- the IPv4 portion is shortened and does not contain a dot, in which case the
+-- address will be treated as IPv6.
 -- @param ip  String representing an IPv4 or IPv6 address in shortened or full notation.
--- @usage     local ip = ipOps.expand_ip( "2001::" )
--- @return    String representing a fully expanded IPv4 or IPv6 address (or nil in case of an error).
--- @return    Nil (or String error message in case of an error).
+-- @usage
+-- local ip = ipOps.expand_ip( "2001::" )
+-- @return    String representing a fully expanded IPv4 or IPv6 address (or
+-- <code>nil</code> in case of an error).
+-- @return String error message in case of an error.
 expand_ip = function( ip )
 
   if type( ip ) ~= "string" or ip == "" then
@@ -312,11 +336,15 @@ end
 
 ---
 -- Returns the first and last IP addresses in the supplied range of addresses.
--- @param range  String representing a range of IPv4 or IPv6 addresses in either cidr or first-last notation.
--- @usage        first, last = ipOps.get_ips_from_range( "192.168.0.0/16" )
--- @return       String representing the first address in the supplied range (or nil in case of an error).
--- @return       String representing the last address in the supplied range (or nil in case of an error).
--- @return       Nil (or String error message in case of an error).
+-- @param range  String representing a range of IPv4 or IPv6 addresses in either
+-- CIDR or first-last notation.
+-- @usage
+-- first, last = ipOps.get_ips_from_range( "192.168.0.0/16" )
+-- @return       String representing the first address in the supplied range (or
+-- <code>nil</code> in case of an error).
+-- @return       String representing the last address in the supplied range (or
+-- <code>nil</code> in case of an error).
+-- @return       String error message in case of an error.
 get_ips_from_range = function( range )
 
   if type( range ) ~= "string" then
@@ -356,12 +384,17 @@ end
 
 
 ---
--- Calculates the last IP address of a range of addresses given an IP address in the range and prefix length for that range.
--- @param ip      String representing an IPv4 or IPv6 address.  Shortened notation is permitted.
--- @param prefix  Decimal number or a string representing a decimal number corresponding to a Prefix length.
--- @usage         last = ipOps.get_last_ip( "192.0.0.0", 26 )
--- @return        String representing the last IP address of the range denoted by the supplied parameters (or nil in case of an error).
--- @return        Nil (or String error message in case of an error).
+-- Calculates the last IP address of a range of addresses given an IP address in
+-- the range and prefix length for that range.
+-- @param ip      String representing an IPv4 or IPv6 address.  Shortened
+-- notation is permitted.
+-- @param prefix  Number or a string representing a decimal number corresponding
+-- to a prefix length.
+-- @usage
+-- last = ipOps.get_last_ip( "192.0.0.0", 26 )
+-- @return        String representing the last IP address of the range denoted
+-- by the supplied parameters (or <code>nil</code> in case of an error).
+-- @return String error message in case of an error.
 get_last_ip = function( ip, prefix )
 
   local first, err = ip_to_bin( ip )
@@ -384,11 +417,15 @@ end
 
 
 ---
--- Converts an IP address into a string representing the address as binary digits.
--- @param ip  String representing an IPv4 or IPv6 address.  Shortened notation is permitted.
--- @usage     bit_string = ipOps.ip_to_bin( "2001::" )
--- @return    String representing the supplied IP address as 32 or 128 binary digits (or nil in case of an error).
--- @return    Nil (or String error message in case of an error).
+-- Converts an IP address into a string representing the address as binary
+-- digits.
+-- @param ip  String representing an IPv4 or IPv6 address.  Shortened notation
+-- is permitted.
+-- @usage
+-- bit_string = ipOps.ip_to_bin( "2001::" )
+-- @return    String representing the supplied IP address as 32 or 128 binary
+-- digits (or <code>nil</code> in case of an error).
+-- @return    String error message in case of an error.
 ip_to_bin = function( ip )
 
   ip, err = expand_ip( ip )
@@ -422,11 +459,14 @@ end
 
 
 ---
--- Converts a string representing binary digits into an IP address.
--- @param binstring  String representing an IP address as 32 or 128 binary digits.
--- @usage            ip = ipOps.bin_to_ip( "01111111000000000000000000000001" )
--- @return           String representing an IP address (or nil in case of an error).
--- @return           Nil (or String error message in case of an error).
+-- Converts a string of binary digits into an IP address.
+-- @param binstring  String representing an IP address as 32 or 128 binary
+-- digits.
+-- @usage
+-- ip = ipOps.bin_to_ip( "01111111000000000000000000000001" )
+-- @return           String representing an IP address (or <code>nil</code> in
+-- case of an error).
+-- @return           String error message in case of an error.
 bin_to_ip = function( binstring )
 
   if type( binstring ) ~= "string" or binstring:match( "[^01]+" ) then
@@ -463,12 +503,17 @@ end
 
 
 ---
--- Converts a string representing a hexadecimal number into a string representing that number as binary digits.
--- Each hex digit results in four bits - this function is really just a wrapper around stdnse.tobinary().
+-- Converts a string of hexadecimal digits into the corresponding string of
+-- binary digits.
+--
+-- Each hex digit results in four bits. This function is really just a wrapper
+-- around <code>stdnse.tobinary()</code>.
 -- @param hex  String representing a hexadecimal number.
--- @usage      bin_string = ipOps.hex_to_bin( "F00D" )
--- @return     String representing the supplied number in binary digits (or nil in case of an error).
--- @return     Nil (or String error message in case of an error).
+-- @usage
+-- bin_string = ipOps.hex_to_bin( "F00D" )
+-- @return     String representing the supplied number in binary digits (or
+-- <code>nil</code> in case of an error).
+-- @return     String error message in case of an error.
 hex_to_bin = function( hex )
 
   if type( hex ) ~= "string" or hex == "" or hex:match( "[^%x]+" ) then
