@@ -25,45 +25,45 @@ module "bit"
 
 --- Cast <code>a</code> to an internal integer type.
 -- @param a Number.
-function bit.cast(a)
+function cast(a)
 
 --- Returns the one's complement of <code>a</code>.
 -- @param a Number.
 -- @return The one's complement of <code>a</code>.
-function bit.bnot(a)
+function bnot(a)
 
 --- Returns the bitwise and of all its arguments.
 -- @param ... A variable number of Numbers to and.
 -- @return The anded result.
-function bit.band(...)
+function band(...)
 
 --- Returns the bitwise or of all its arguments.
 -- @param ... A variable number of Numbers to or.
 -- @return The ored result.
-function bit.bor(...)
+function bor(...)
 
 --- Returns the bitwise exclusive or of all its arguments.
 -- @param ... A variable number of Numbers to exclusive or.
 -- @return The exclusive ored result.
-function bit.bxor(...)
+function bxor(...)
 
 --- Returns <code>a</code> left-shifted by <code>b</code> places.
 -- @param a Number to perform the shift on.
 -- @param b Number of shifts.
-function bit.lshift(a, b)
+function lshift(a, b)
 
 --- Returns <code>a</code> right-shifted by <code>b</code> places.
 -- @param a Number to perform the shift on.
 -- @param b Number of shifts.
-function bit.rshift(a, b)
+function rshift(a, b)
 
 --- Returns <code>a</code> arithmetically right-shifted by <code>b</code>
 -- places.
 -- @param a Number to perform the shift on.
 -- @param b Number of shifts.
-function bit.arshift(a, b)
+function arshift(a, b)
 
 --- Returns the integer remainder of <code>a</code> divided by <code>b</code>.
 -- @param a Dividend.
 -- @param b Divisor.
-function bit.mod(a, b)
+function mod(a, b)

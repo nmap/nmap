@@ -23,101 +23,101 @@
 module "openssl"
 
 --- Returns the size of bignum in bits.
-function openssl.bignum_num_bits(bignum)
+function bignum_num_bits(bignum)
 
 --- Returns the size of bignum in bytes.
-function openssl.bignum_num_bytes(bignum)
+function bignum_num_bytes(bignum)
 
 --- Sets the bit at position in bignum.
-function openssl.bignum_set_bit(bignum, position)
+function bignum_set_bit(bignum, position)
 
 --- Clears the bit at position in bignum.
-function openssl.bignum_clear_bit(bignum, position)
+function bignum_clear_bit(bignum, position)
 
 --- Gets the state of the bit at position in bignum.
-function openssl.bignum_is_bit_set(bignum, position)
+function bignum_is_bit_set(bignum, position)
 
 --- Sets the sign of bignum. If negative is true the sign becomes negative,
 -- otherwise it becomes positive.
-function openssl.bignum_set_negative(bignum, negative)
+function bignum_set_negative(bignum, negative)
 
 --- Returns true if bignum is negative, false otherwise.
-function openssl.bignum_is_negative(bignum)
+function bignum_is_negative(bignum)
 
 --- Converts the binary-encoded string into a bignum.
-function openssl.bignum_bin2bn(string)
+function bignum_bin2bn(string)
 
 --- Converts the decimal-encoded string into a bignum.
-function openssl.bignum_dec2bn(string)
+function bignum_dec2bn(string)
 
 --- Converts the hex-encoded string into a bignum.
-function openssl.bignum_hex2bn(string)
+function bignum_hex2bn(string)
 
 --- Converts bignum into a binary-encoded string.
-function openssl.bignum_bn2bin(bignum)
+function bignum_bn2bin(bignum)
 
 --- Converts bignum into a decimal-encoded string.
-function openssl.bignum_bn2dec(bignum)
+function bignum_bn2dec(bignum)
 
 --- Converts bignum into a hex-encoded string.
-function openssl.bignum_bn2hex(bignum)
+function bignum_bn2hex(bignum)
 
 --- Returns a random bignum with a
-function openssl.bignum_rand(bits)
+function bignum_rand(bits)
 
 --- Returns a pseudorandom bignum with a the given size in bits.
-function openssl.bignum_pseudo_rand(bits)
+function bignum_pseudo_rand(bits)
 
 --- Returns the bignum which is the result of a^p mod m.
-function openssl.bignum_mod_exp(a, p, m)
+function bignum_mod_exp(a, p, m)
 
 --- Returns a string of length bytes containing random data.
-function openssl.rand_bytes(bytes)
+function rand_bytes(bytes)
 
 --- Returns a string of length bytes containing pseudorandom data.
-function openssl.rand_pseudo_bytes(bytes)
+function rand_pseudo_bytes(bytes)
 
 --- Returns the MD2 digest of message.
-function openssl.md2(message)
+function md2(message)
 
 --- Returns the MD4 digest of message.
-function openssl.md4(message)
+function md4(message)
 
 --- Returns the MD5 digest of message.
-function openssl.md5(message)
+function md5(message)
 
 --- Returns the SHA-1 digest of message.
-function openssl.sha1(message)
+function sha1(message)
 
 --- Returns the RIPEMD-160 digest of message.
-function openssl.ripemd160(message)
+function ripemd160(message)
 
 --- Returns the digest of message using the algorithm given by the string
 -- algorithm. The algorithm name may be anything returned by the
 -- openssl.supported_digests function.
-function openssl.digest(algorithm, message)
+function digest(algorithm, message)
 
 --- Returns the message authentication code of message using the given algorithm
 -- and key. algorithm may be anything returned by the openssl.supported_digests
 -- function.
-function openssl.hmac(algorithm, key, message)
+function hmac(algorithm, key, message)
 
 --- Encrypt data with the given algorithm, key, and initialization vector.
 -- algorithm may be anything returned by the openssl.supported_ciphers function.
 -- If padding is true then a partial final block will be padded and encrypted.
-function openssl.encrypt(algorithm, key, iv, data, padding = false)
+function encrypt(algorithm, key, iv, data, padding = false)
 
 --- Encrypt data with the given algorithm, key, and initialization vector.
 -- algorithm may be anything returned by the openssl.supported_ciphers function.
 -- If padding is true then the final block must be padded correctly.
-function openssl.decrypt(algorithm, key, iv, data, padding = false)
+function decrypt(algorithm, key, iv, data, padding = false)
 
 --- Returns a table with the names of the supported cipher algorithms.
-function openssl.supported_ciphers()
+function supported_ciphers()
 
 --- Returns a table with the names of the supported digest algorithms.
-function openssl.supported_digests()
+function supported_digests()
 
 --- Converts data, which must be a 7-byte string, into an 8-byte DES key and
 -- sets the parity.
-function openssl.DES_string_to_key(string data)
+function DES_string_to_key(string data)

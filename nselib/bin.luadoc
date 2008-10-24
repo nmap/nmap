@@ -52,7 +52,7 @@ module "bin"
 -- @param format Format string, used to pack following arguments.
 -- @param ... The values to pack.
 -- @return String containing packed data.
-function bin.pack(format, ...)
+function pack(format, ...)
 
 
 --- Returns values read from the binary packed data string.
@@ -70,5 +70,5 @@ function bin.pack(format, ...)
 -- @param init Optional starting position within the string.
 -- @return Position in the data string where unpacking stopped.
 -- @return All unpacked values.
-function bin.unpack(format, data, init)
+function unpack(format, data, init)
 

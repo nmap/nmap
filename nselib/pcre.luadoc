@@ -51,8 +51,8 @@ module "pcre"
 -- the regular expression (optional). The value is a string which is passed to
 -- the C standard library function setlocale.  For more information on this
 -- argument refer to the documentation of setlocale.
--- @usage my_regex = pcre.new("pcre-pattern",0,"C")
-function pcre.new(pattern, flags, locale)
+-- @usage local regex = pcre.new("pcre-pattern",0,"C")
+function new(pattern, flags, locale)
 
 --- Returns a table of the available PCRE option flags (numbers) keyed by their
 -- names (strings).
@@ -61,12 +61,12 @@ function pcre.new(pattern, flags, locale)
 -- documentation of the PCRE library used to link against Nmap. The key is the
 -- option name in the manual minus the PCRE prefix. PCRE_CASELESS becomes
 -- CASELESS for example.
-function pcre.flags()
+function flags()
 
 --- Returns the version of the PCRE library in use as a string.
 -- \n\n
 -- For example "6.4 05-Sep-2005".
-function pcre.version()
+function version()
 
 --- Matches a string against a compiled regular expression.
 -- \n\n
@@ -81,9 +81,9 @@ function pcre.version()
 -- not match. If named sub-patterns were used, the table also contains substring
 -- matches keyed by their sub-pattern name.
 -- @usage
--- s = pcre_obj:match("string to be searched", 0,0);\n
--- if(s) code_to_be_done_on_match end
-function pcre_obj:match(string, start, flags)
+-- i, j = regex:match("string to be searched", 0, 0)
+-- if (i) then ... end
+function match(string, start, flags)
 
 --- Matches a string against a compiled regular expression, returning positions
 -- of substring matches.
@@ -99,7 +99,10 @@ function pcre_obj:match(string, start, flags)
 -- @param flags execution flags (optional).
 -- @return a table which contains a list of substring match start and end
 -- positions.
-function pcre_obj:exec(string, start, flags)
+-- @usage
+-- i, j, substrings = regex:exec("string to be searched", 0, 0)
+-- if (i) then ... end
+function exec(string, start, flags)
 
 --- Matches a string against a regular expression multiple times.
 -- \n\n
@@ -113,7 +116,12 @@ function pcre_obj:exec(string, start, flags)
 -- sub-pattern names (strings).  If func returns a true value, then gmatch
 -- immediately returns; gmatch returns the number of matches made.
 -- @param string the string to match against.
+-- @param func the function to call for each match.
 -- @param n the maximum number of matches to do (optional).
 -- @param ef execution flags (optional).
 -- @return the number of matches made.
+-- @usage
+-- local t = {}
+-- local function match(m) t[#t + 1] = m end
+-- local n = regex:gmatch("string to be searched", match)
 function pcre_obj:gmatch(string, func, n, ef)

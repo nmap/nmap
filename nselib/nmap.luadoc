@@ -13,20 +13,20 @@ module "nmap"
 -- The debugging level can be set with the -d option.
 -- @return The debugging level.
 -- @usage if nmap.debugging() > 0 then ... end
-function nmap.debugging()
+function debugging()
 
 --- Determines whether Nmap was compiled with SSL support.
 -- \n\n
 -- This can be used to avoid sending SSL probes when SSL is not available. 
 -- @return true if Nmap was compiled with SSL support, false otherwise.
-function nmap.have_ssl()
+function have_ssl()
 
 --- Returns the verbosity level as a non-negative integer.
 -- \n\n
 -- The verbosity level can be set with the -v option.
 -- @return The verbosity level.
 -- @usage if nmap.verbosity() > 0 then ... end
-function nmap.verbosity()
+function verbosity()
 
 --- Searches for the specified file and returns a string containing its path if
 -- it is found and readable (to the process).
@@ -37,13 +37,13 @@ function nmap.verbosity()
 -- "/usr/local/share/nmap/nmap-rpc".
 -- @param filename Filename to search for.
 -- @return String representing the full path to the file or nil.
-function nmap.fetchfile(filename)
+function fetchfile(filename)
 
 --- Returns the timing level as a non-negative integer. Possible return values
 -- vary from 0 to 5, corresponding to the six built-in Nmap timing templates.
 -- The timing level can be set with the -T option.
 -- @return The timing level.
-function nmap.timing_level()
+function timing_level()
 
 --- Gets a port table for a port on a given host.
 -- \n\n
@@ -64,7 +64,7 @@ function nmap.timing_level()
 -- @param protocol Protocol string ("tcp" or "udp")
 -- @return A new port table holding the status and information for the port.
 -- @usage p = nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
-function nmap.get_port_state(host, port)
+function get_port_state(host, port)
 
 --- Sets the state of a port on a given host.
 -- \n\n
@@ -77,7 +77,7 @@ function nmap.get_port_state(host, port)
 -- @param host Host table, containing an "ip" field.
 -- @param port Port table, containing "number" and "protocol" fields.
 -- @param state Port state, like "open" or "closed".
-function nmap.set_port_state(host, port, state)
+function set_port_state(host, port, state)
 
 --- Sets version information on a port.
 -- \n\n
@@ -104,12 +104,13 @@ function nmap.set_port_state(host, port, state)
 -- any additional version information fields.
 -- @param probestate The state of the probe: "hardmatched", "softmatched",
 -- "nomatch", "tcpwrapped", or "incomplete".
-function nmap.set_port_version(host, port, probestate)
+function set_port_version(host, port, probestate)
 
 --- Returns the current date and time in milliseconds.
 -- @return The number of milliseconds since the epoch (on most systems this is
 -- 01/01/1970).
-function nmap.clock_ms()
+-- @usage local now = nmap.clock_ms()
+function clock_ms()
 
 --- Gets the link-level hardware type of an interface.
 -- \n\n
@@ -118,7 +119,8 @@ function nmap.clock_ms()
 -- "ethernet", "loopback", "p2p", or nil if none of the other types apply.
 -- @param interface_name The name of the interface.
 -- @return "ethernet", "loopback", "p2p", or nil.
-function nmap.get_interface_link(interface_name)
+-- @usage iface_type = nmap.get_interface_list("eth0")
+function get_interface_link(interface_name)
 
 --- Create a mutex on an object.
 -- \n\n
@@ -150,7 +152,7 @@ function nmap.get_interface_link(interface_name)
 --   mutex "done";\n
 --   return script_output;\n
 -- end
-function nmap.mutex(object)
+function mutex(object)
 
 --- Creates a new exception handler.
 -- \n\n
@@ -175,7 +177,7 @@ function nmap.mutex(object)
 -- try(socket:connect(host.ip, port.number))\n
 -- result = try(socket:receive_lines(1))\n
 -- try(socket:send(result))
-function nmap.new_try(handler)
+function new_try(handler)
 
 --- Returns a new NSE socket object.
 -- \n\n
@@ -193,8 +195,9 @@ function nmap.new_try(handler)
 -- connect-style sending and receiving over TCP and UDP (and SSL), as well as
 -- raw socket receiving.
 -- @return A new NSE socket.
--- @see nmap.new_dnet
-function nmap.new_socket()
+-- @see pcap_open
+-- @usage local socket = nmap.new_socket()
+function new_socket()
 
 --- Establishes a connection.
 -- \n\n
@@ -228,7 +231,9 @@ function nmap.new_socket()
 -- @param protocol "tcp", "udp", or "ssl" (default "tcp").
 -- @return Status (true or false).
 -- @return Error code (if status is false).
-function socket:connect(hostid, port, protocol)
+-- @see new_socket
+-- @usage local status, err = socket:connect(host.ip, port, "udp")
+function connect(hostid, port, protocol)
 
 --- Sends data on an open socket.
 -- \n\n
@@ -247,7 +252,9 @@ function socket:connect(hostid, port, protocol)
 -- @param data The data to send.
 -- @return Status (true or false).
 -- @return Error code (if status is false).
-function socket:send(data)
+-- @see new_socket
+-- @usage local status, err = socket:send(data)
+function send(data)
 
 --- Receives data from an open socket.
 -- \n\n
@@ -260,7 +267,9 @@ function socket:send(data)
 -- send operation.
 -- @return Status (true or false).
 -- @return Data (if status is true) or error string (if status is false).
-function socket:receive()
+-- @see new_socket
+-- @usage local status, data = socket:receive()
+function receive()
 
 --- Receives lines from an open connection.
 -- \n\n
@@ -276,7 +285,9 @@ function socket:receive()
 -- @param n Minimum number of lines to read.
 -- @return Status (true or false).
 -- @return Data (if status is true) or error string (if status is false).
-function socket:receive_lines(n)
+-- @see new_socket
+-- @usage local status, lines = socket:receive_lines(1)
+function receive_lines(n)
 
 --- Receives bytes from an open connection.
 -- \n\n
@@ -291,7 +302,9 @@ function socket:receive_lines(n)
 -- @param n Minimum number of bytes to read.
 -- @return Status (true or false).
 -- @return Data (if status is true) or error string (if status is false).
-function socket:receive_bytes(n)
+-- @see new_socket
+-- @usage local status, bytes = socket:receive_bytes(1)
+function receive_bytes(n)
 
 --- Reads from a socket using a buffer and an arbitrary delimiter.
 -- \n\n
@@ -332,7 +345,9 @@ function socket:receive_bytes(n)
 -- data.
 -- @return Status (true or false).
 -- @return Data (if status is true) or error string (if status is false).
-function socket:receive_buf(delimiter, keeppattern)
+-- @see new_socket
+-- @usage local status, line = socket:receive_buf("\r?\n", false)
+function receive_buf(delimiter, keeppattern)
 
 --- Closes an open connection.
 -- \n\n
@@ -347,7 +362,9 @@ function socket:receive_buf(delimiter, keeppattern)
 -- difficult to predict, it is considered good practice to close opened sockets.
 -- @return Status (true or false).
 -- @return Error code (if status is false).
-function socket:close()
+-- @see new_socket
+-- @usage socket:close()
+function close()
 
 --- Gets information about a socket.
 -- \n\n
@@ -364,7 +381,9 @@ function socket:close()
 -- @return Local port number (if status is true).
 -- @return Remote IP address (if status is true).
 -- @return Remote port number (if status is true).
-function socket:get_info()
+-- @see new_socket
+-- @usage local status, lhost, lport, rhost, rport = socket:get_info()
+function get_info()
 
 --- Sets a timeout for socket input and output operations.
 -- \n\n
@@ -372,7 +391,9 @@ function socket:get_info()
 -- return. The default value is 30,000 (30 seconds). The lowest allowed value is
 -- 10 ms, since this is the granularity of NSE network I/O.
 -- @param t Timeout in milliseconds.
-function socket:set_timeout(t)
+-- @see new_socket
+-- @usage socket:set_timeout(10000)
+function set_timeout(t)
 
 --- Opens a socket for raw packet capture.
 -- \n\n
@@ -390,8 +411,11 @@ function socket:set_timeout(t)
 -- @param test_function Callback function used to compute the packet hash.
 -- @param bpf A string describing a Berkeley packet filter expression (like
 -- those provided to tcpdump).
--- @see socket:pcap_register
-function socket:pcap_open(device, snaplen, promisc, test_function, bpf)
+-- @see new_socket, pcap_register, pcap_receive
+-- @usage
+-- local socket = nmap.new_socket()
+-- socket:pcap_open("eth0", 64, 0, callback, "tcp")
+function pcap_open(device, snaplen, promisc, test_function, bpf)
 
 --- Starts listening for incoming packages.
 -- \n\n
@@ -400,8 +424,9 @@ function socket:pcap_open(device, snaplen, promisc, test_function, bpf)
 -- to receive all packets, just provide the empty string (""). There has to be a
 -- call to pcap_register() before a call to pcap_receive().
 -- @param packet_hash A binary string that is compared against packet hashes.
--- @see socket:pcap_open
-function socket:pcap_register(packet_hash)
+-- @see pcap_open, pcap_receive
+-- @usage socket:pcap_register("")
+function pcap_register(packet_hash)
 
 --- Receives a captured packet.
 -- \n\n
@@ -414,20 +439,27 @@ function socket:pcap_register(packet_hash)
 -- parameter is smaller than the total packet length).
 -- @return Data from the second OSI layer (e.g. ethernet headers).
 -- @return Data from the third OSI layer (e.g. IPv4 headers).
-function socket:pcap_receive()
+-- @see pcap_open, pcap_register
+-- @usage status, plen, l2_data, l3_data = socket:pcap_receive()
+function pcap_receive()
 
 --- Closes the pcap device.
-function socket:pcap_close()
+-- @see close, pcap_close
+-- @usage socket:pcap_close()
+function pcap_close()
 
 --- Creates a new dnet object, used to send raw packets.
-function nmap.new_dnet()
+-- @usage local dnet = nmap.new_dnet()
+function new_dnet()
 
 --- Opens an ethernet interface for raw packet sending.
 -- \n\n
 -- An error ("device is not valid ethernet interface") is thrown in case the
 -- provided argument is not valid.
 -- @param interface_name The dnet-style name of the interface to open.
-function dnet:ethernet_open(interface_name)
+-- @see new_dnet
+-- @usage dnet:ethernet_open("eth0")
+function ethernet_open(interface_name)
 
 --- Sends a raw ethernet frame.
 -- \n\n
@@ -436,10 +468,14 @@ function dnet:ethernet_open(interface_name)
 -- ethernet header. If there was no previous valid call to ethernet_open() an
 -- error is thrown ("dnet is not valid opened ethernet interface").
 -- @param packet
-function dnet:ethernet_send(packet)
+-- @see new_dnet
+-- @usage dnet:ethernet_open(packet)
+function ethernet_send(packet)
 
 --- Closes an ethernet interface.
 -- \n\n
 -- An error ("device is not valid ethernet interface") is thrown in case the
 -- provided argument is not valid.
-function dnet:ethernet_close()
+-- @see new_dnet, ethernet_open
+-- @usage dnet:ethernet_close()
+function ethernet_close()
