@@ -1,6 +1,6 @@
 --- Functions for the SSH-2 protocol.
 -- @author Sven Klemm <sven@c3d2.de>
--- @copyright See nmaps COPYING for licence
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module(... or "ssh2",package.seeall)
 

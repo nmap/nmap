@@ -2,7 +2,7 @@
 -- \n\n
 -- Since portrules are mostly the same for many scripts, this
 -- module provides functions for the most common tests.
---@copyright See nmaps COPYING for licence
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module(... or "shortport", package.seeall)
 

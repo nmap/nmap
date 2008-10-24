@@ -1,6 +1,6 @@
 --- Facilities for manipulating raw packets.
--- @copyright See nmaps COPYING for license
 -- @author Marek Majkowski <majek04+nse@gmail.com>
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module(... or "packet" ,package.seeall)
 

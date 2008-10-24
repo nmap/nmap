@@ -1,5 +1,5 @@
 --- Utility functions for manipulating and comparing IP addresses.
--- @copyright See Nmap License: http://nmap.org/book/man-legal.html
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 local type     = type
 local table    = table

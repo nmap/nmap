@@ -16,6 +16,7 @@
 -- or do they just separate the password from the comment?
 --
 -- @author Kris Katterjohn 06/2008
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module(... or "unpwdb", package.seeall)
 

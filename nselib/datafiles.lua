@@ -7,6 +7,7 @@
 -- message.
 -- @author Kris Katterjohn 03/2008
 -- @author jah 08/2008
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module(... or "datafiles", package.seeall)
 

@@ -6,7 +6,7 @@
 -- to Lua using Lua's central data structure, the table, as a base for its
 -- list operations. Highlights include a map function applying a given
 -- function to each element of a list. 
---@copyright See nmaps COPYING for licence
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module(... or "listop", package.seeall)
 

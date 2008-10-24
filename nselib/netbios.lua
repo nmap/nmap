@@ -2,7 +2,7 @@
 --  NetBIOS name requests. 
 --
 --@author Ron Bowes <ron@skullsecurity.net>
---@copyright See nmaps COPYING for licence
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -----------------------------------------------------------------------
 
 module(... or "netbios", package.seeall)

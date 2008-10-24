@@ -11,7 +11,7 @@
 -- tab.add(t, 1, 'BBBBBBBBB1')\n
 -- tab.add(t, 2, 'BBB2')\n
 -- tab.dump(t)
---@copyright See nmaps COPYING for license
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module(... or "tab",package.seeall)
 

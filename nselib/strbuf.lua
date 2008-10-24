@@ -33,7 +33,7 @@
 -- print(strbuf.dump(buf))      -- no separator\n
 -- print(strbuf.dump(buf, ' ')) -- separated by spaces\n
 -- strbuf.clear(buf)
---@copyright See nmaps COPYING for license
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 -- DEPENDENCIES --
 

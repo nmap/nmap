@@ -1,6 +1,6 @@
 --- Base64 library. Follows RFC4648.
 --@author Philip Pickering <pgpickering@gmail.com>
---@copyright See nmaps COPYING for licence
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 -- thanks to Patrick Donnelly for some optimizations
 

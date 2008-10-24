@@ -2,7 +2,7 @@
 -- \n\n
 -- The functions in this module can be used for delimiting data received
 -- by the receive_buf function in the Network I/O API.
---@copyright See nmaps COPYING for licence
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module(... or "match",  package.seeall)
 require "pcre"

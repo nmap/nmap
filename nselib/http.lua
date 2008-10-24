@@ -12,7 +12,7 @@
 -- Multiple headers of the same name are concatenated and separated by
 -- commas. The body value is a string containing the body of the HTTP
 -- response.
--- @copyright See nmaps COPYING for licence
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module(... or "http",package.seeall)
 

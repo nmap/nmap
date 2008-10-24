@@ -4,6 +4,7 @@
 -- structures. The API provides target host details such as port states and
 -- version detection results. It also offers an interface to the Nsock library
 -- for efficient network I/O. 
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module "nmap"
 

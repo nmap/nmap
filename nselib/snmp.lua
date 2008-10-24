@@ -1,5 +1,5 @@
 --- SNMP functions.
---@copyright See nmaps COPYING for licence
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 
 module(... or "snmp",package.seeall)
