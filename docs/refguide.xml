@@ -472,7 +472,7 @@ you would expect.</para>
 
       <varlistentry>
         <term>
-        <option>-PS <replaceable>portlist</replaceable></option> (TCP SYN Ping)
+        <option>-PS <replaceable>port list</replaceable></option> (TCP SYN Ping)
           <indexterm><primary><option>-PS</option></primary></indexterm>
           <indexterm><primary>SYN ping</primary></indexterm>
         </term>
@@ -537,7 +537,7 @@ you would expect.</para>
 
       <varlistentry>
         <term>
-        <option>-PA <replaceable>portlist</replaceable></option> (TCP ACK Ping)
+        <option>-PA <replaceable>port list</replaceable></option> (TCP ACK Ping)
           <indexterm><primary><option>-PA</option></primary></indexterm>
           <indexterm><primary>ACK ping</primary></indexterm>
         </term>
@@ -594,7 +594,7 @@ you would expect.</para>
 
       <varlistentry>
         <term>
-        <option>-PU <replaceable>portlist</replaceable></option> (UDP Ping)
+        <option>-PU <replaceable>port list</replaceable></option> (UDP Ping)
           <indexterm><primary><option>-PU</option></primary></indexterm>
           <indexterm><primary>UDP ping</primary></indexterm>
         </term>
@@ -602,7 +602,7 @@ you would expect.</para>
 
           <para>Another host discovery option is the UDP ping, which
           sends an empty (unless <option>--data-length</option> is
-          specified) UDP packet to the given ports.  The portlist
+          specified) UDP packet to the given ports.  The port list
           takes the same format as with the previously discussed
           <option>-PS</option> and <option>-PA</option> options.  If
           no ports are specified, the default is 31338.  This default
@@ -691,7 +691,7 @@ you would expect.</para>
 
       <varlistentry>
         <term>
-        <option>-PO <replaceable>protolist</replaceable></option> (IP Protocol Ping)
+        <option>-PO <replaceable>protocol list</replaceable></option> (IP Protocol Ping)
           <indexterm><primary><option>-PO</option></primary></indexterm>
           <indexterm><primary>IP protocol ping</primary></indexterm>
         </term>
