@@ -86,10 +86,11 @@ end
 -- does not include the separator. It will return the final data even if it is
 -- not followed by the separator. Once an error or EOF is reached, it returns
 -- <code>nil, msg</code>. <code>msg</code> is what is returned by
--- <code>nmap.receive_lines()</code>.
+-- <code>nmap.receive_lines</code>.
 -- @param socket Socket for the buffer.
 -- @param sep Separator for the buffered reads.
--- @return Data from socket reads.
+-- @return Data from socket reads or <code>nil</code> on EOF or error.
+-- @return Error message, as with <code>receive_lines()</code>.
 function make_buffer(socket, sep)
   local point, left, buffer, done, msg = 1, "";
   local function self()
