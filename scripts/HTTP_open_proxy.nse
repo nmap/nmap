@@ -1,10 +1,10 @@
 id="Open Proxy Test"
 description=[[
 Checks if an HTTP proxy is open.
-\n\n
+
 The script attempts to connect to www.google.com through the proxy and checks
-for a 'Server: gws' header field in the response.
-\n\n
+for a <code>Server: gws</code> header field in the response.
+
 If the target is an open proxy, this script will cause the target to retrieve a
 web page from www.google.com.
 ]]

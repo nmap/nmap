@@ -5,7 +5,7 @@ Attempts to extract system information from the UPnP service.
 
 ---
 -- @output
--- |  UPnP:  System/1.0 UPnP/1.0 IGD/1.0 \n
+-- |  UPnP:  System/1.0 UPnP/1.0 IGD/1.0
 -- |_ Location: http://192.168.1.1:80/UPnP/IGD.xml
 
 author = "Thomas Buchanan <tbuchanan@thecompassgrp.net>"

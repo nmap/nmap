@@ -2,7 +2,7 @@ id = "MySQL Server Information"
 description = [[
 Connects to a MySQL server and prints information such as the protocol and
 version numbers, thread ID, status, capabilities, and the password salt.
-\n\n
+
 If service detection is performed and the server appears to be blocking
 our host or is blocked from too many connections, then we don't bother
 running this script (see the portrule).
@@ -10,12 +10,12 @@ running this script (see the portrule).
 
 ---
 --@output
--- 3306/tcp open  mysql \n
--- |  MySQL Server Information: Protocol: 10 \n
--- |  Version: 5.0.51a-3ubuntu5.1 \n
--- |  Thread ID: 7 \n
--- |  Some Capabilities: Connect with DB, Compress, Transactions, Secure Connection \n
--- |  Status: Autocommit \n
+-- 3306/tcp open  mysql
+-- |  MySQL Server Information: Protocol: 10
+-- |  Version: 5.0.51a-3ubuntu5.1
+-- |  Thread ID: 7
+-- |  Some Capabilities: Connect with DB, Compress, Transactions, Secure Connection
+-- |  Status: Autocommit
 -- |_ Salt: bYyt\NQ/4V6IN+*3`imj
 
 -- Many thanks to jah (jah@zadkiel.plus.com) for testing and enhancements

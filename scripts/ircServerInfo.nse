@@ -1,19 +1,19 @@
 id = "IRC Server Info"
 description = [[
 Gathers information from an IRC server.
-\n\n
+
 It uses STATS, LUSERS, and other queries to obtain this information.
 ]]
 
 ---
 -- @output
--- 6665/tcp open     irc\n
--- |  IRC Server Info: Server: foo.bar.net\n
--- |  Version: hyperion-1.0.2b(381). foo.bar.net \n
--- |  Lservers/Lusers: 0/4204\n
--- |  Uptime: 106 days, 2:46:30\n
--- |  Source host: bar.foo.net\n
--- |_ Source ident: OK n=nmap\n
+-- 6665/tcp open     irc
+-- |  IRC Server Info: Server: foo.bar.net
+-- |  Version: hyperion-1.0.2b(381). foo.bar.net 
+-- |  Lservers/Lusers: 0/4204
+-- |  Uptime: 106 days, 2:46:30
+-- |  Source host: bar.foo.net
+-- |_ Source ident: OK n=nmap
 
 author = "Doug Hoyte"
 

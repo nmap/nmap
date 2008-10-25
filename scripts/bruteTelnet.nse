@@ -28,7 +28,7 @@ end
 ---
 -- Returns a function which returns the next user/pass pair each time
 -- it is called. When no more pairs are available nil is returned. 
--- \n
+--
 -- There are plenty more possible pairs but we need to find
 -- a compromise between speed and coverage
 --@return iterator Function which will return user and password pairs.

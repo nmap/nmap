@@ -1,16 +1,15 @@
 id = "XAMPP default pwd"
 description = [[
 Check if an XAMP or XAMPP FTP server uses a default username and password.
-\n\n
+
 XAMP is an Apache distribution designed for easy installation and
-administration. The default username/password combination the script checks for
-is nobody/xampp.
+administration.
 ]]
 
 ---
 -- @output
--- 21/tcp  open   ftp\n
--- |_ Login success with u/p: foo/bar\n
+-- 21/tcp  open   ftp
+-- |_ Login success with u/p: nobody/xampp
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 

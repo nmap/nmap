@@ -1,7 +1,7 @@
 id = "IRC zombie"
 description = [[
 Checks for an IRC zombie.
-\n\n
+
 If port 113 responds before we ask it then something is fishy. Usually this
 means that the host is an IRC zombie.
 ]]

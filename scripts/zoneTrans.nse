@@ -1,50 +1,50 @@
 id = 'zone-transfer'
 description = [[
 Requests a zone transfer (AXFR) from a DNS server.
-\n\n
-The script sends an AXFR query to a DNS server. The domain to query is determined 
-by examining the name given on the command line, the DNS server's
-hostname, or it can be specified with the "domain" script argument.
-If the query is successful all domains and domain types are returned
-along with common type specific data (SOA/MX/NS/PTR/A).
-\n\n
-Constraints\n
-If we don't have the 'true' hostname for the dns server we cannot
+
+The script sends an AXFR query to a DNS server. The domain to query is
+determined by examining the name given on the command line, the DNS
+server's hostname, or it can be specified with the
+<code>zoneTrans.domain</code> script argument. If the query is
+successful all domains and domain types are returned along with common
+type specific data (SOA/MX/NS/PTR/A).
+
+If we don't have the "true" hostname for the DNS server we cannot
 determine a likely zone to perform the transfer on.
-\n\n
-Useful resources\n
-DNS for rocket scientists - http://www.zytrax.com/books/dns/\n
-How the AXFR protocol works - http://cr.yp.to/djbdns/axfr-notes.html\n
+
+Useful resources
+* DNS for rocket scientists: http://www.zytrax.com/books/dns/
+* How the AXFR protocol works: http://cr.yp.to/djbdns/axfr-notes.html
 ]]
 
 ---
 -- @args zoneTrans.domain Domain to transfer.
 -- @output
 -- 53/tcp   open     domain
--- |  zone-transfer:  \n
--- |  foo.com.            SOA     ns2.foo.com. piou.foo.com.  \n
--- |  foo.com.            TXT    \n
--- |  foo.com.            NS      ns1.foo.com.                 \n
--- |  foo.com.            NS      ns2.foo.com.                 \n
--- |  foo.com.            NS      ns3.foo.com.                 \n
--- |  foo.com.            A       127.0.0.1                    \n
--- |  foo.com.            MX      mail.foo.com.                \n
--- |  anansie.foo.com.    A       127.0.0.2                    \n
--- |  dhalgren.foo.com.   A       127.0.0.3                    \n
--- |  drupal.foo.com.     CNAME  \n
--- |  goodman.foo.com.    A       127.0.0.4 i                  \n
--- |  goodman.foo.com.    MX      mail.foo.com.                \n
--- |  isaac.foo.com.      A       127.0.0.5                    \n
--- |  julie.foo.com.      A       127.0.0.6                    \n
--- |  mail.foo.com.       A       127.0.0.7                    \n
--- |  ns1.foo.com.        A       127.0.0.7                    \n
--- |  ns2.foo.com.        A       127.0.0.8                    \n
--- |  ns3.foo.com.        A       127.0.0.9                    \n
--- |  stubing.foo.com.    A       127.0.0.10                   \n
--- |  vicki.foo.com.      A       127.0.0.11                   \n
--- |  votetrust.foo.com.  CNAME  \n
--- |  www.foo.com.        CNAME  \n
--- |_ foo.com.            SOA     ns2.foo.com. piou.foo.com.  \n
+-- |  zone-transfer:
+-- |  foo.com.            SOA     ns2.foo.com. piou.foo.com.
+-- |  foo.com.            TXT  
+-- |  foo.com.            NS      ns1.foo.com.               
+-- |  foo.com.            NS      ns2.foo.com.               
+-- |  foo.com.            NS      ns3.foo.com.               
+-- |  foo.com.            A       127.0.0.1                  
+-- |  foo.com.            MX      mail.foo.com.              
+-- |  anansie.foo.com.    A       127.0.0.2                  
+-- |  dhalgren.foo.com.   A       127.0.0.3                  
+-- |  drupal.foo.com.     CNAME
+-- |  goodman.foo.com.    A       127.0.0.4 i                
+-- |  goodman.foo.com.    MX      mail.foo.com.              
+-- |  isaac.foo.com.      A       127.0.0.5                  
+-- |  julie.foo.com.      A       127.0.0.6                  
+-- |  mail.foo.com.       A       127.0.0.7                  
+-- |  ns1.foo.com.        A       127.0.0.7                  
+-- |  ns2.foo.com.        A       127.0.0.8                  
+-- |  ns3.foo.com.        A       127.0.0.9                  
+-- |  stubing.foo.com.    A       127.0.0.10                 
+-- |  vicki.foo.com.      A       127.0.0.11                 
+-- |  votetrust.foo.com.  CNAME
+-- |  www.foo.com.        CNAME
+-- |_ foo.com.            SOA     ns2.foo.com. piou.foo.com.
 
 require('shortport')
 require('strbuf')

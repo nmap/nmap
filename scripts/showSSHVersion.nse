@@ -1,14 +1,14 @@
 id = "Stealth SSH version"
 description = [[
 Connects to an SSH server and retrieves the version banner.
-\n\n
+
 This typically does not result in any logs of the connection being made.
 ]]
 
 ---
 -- @output
--- 22/tcp  open   ssh\n
--- |_ Stealth SSH version: SSH-2.0-OpenSSH_3.9p1\n
+-- 22/tcp  open   ssh
+-- |_ Stealth SSH version: SSH-2.0-OpenSSH_3.9p1
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 

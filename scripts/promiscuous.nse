@@ -1,7 +1,7 @@
 id = "Promiscuous detection"
 description = [[
 Checks if a target on a local Ethernet has its network card in promiscuous mode.
-\n\n
+
 The technique is described at
 http://www.securityfriday.com/promiscuous_detection_01.pdf.
 ]]

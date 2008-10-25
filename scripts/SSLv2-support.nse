@@ -1,19 +1,19 @@
 id = "SSLv2"
 description = [[
-Determines whether the server (still) supports SSL-v2, and what cyphers it
+Determines whether the server (still) supports SSL-v2, and what ciphers it
 offers.
 ]]
 
 ---
 --@output
--- 443/tcp open   https   syn-ack\n
--- |  SSLv2: server still supports SSLv2\n
--- |       SSL2_RC4_128_WITH_MD5\n
--- |       SSL2_DES_192_EDE3_CBC_WITH_MD5\n
--- |       SSL2_RC2_CBC_128_CBC_WITH_MD5\n
--- |       SSL2_DES_64_CBC_WITH_MD5\n
--- |       SSL2_RC4_128_EXPORT40_WITH_MD5\n
--- |_      SSL2_RC2_CBC_128_CBC_WITH_MD5\n
+-- 443/tcp open   https   syn-ack
+-- |  SSLv2: server still supports SSLv2
+-- |       SSL2_RC4_128_WITH_MD5
+-- |       SSL2_DES_192_EDE3_CBC_WITH_MD5
+-- |       SSL2_RC2_CBC_128_CBC_WITH_MD5
+-- |       SSL2_DES_64_CBC_WITH_MD5
+-- |       SSL2_RC4_128_EXPORT40_WITH_MD5
+-- |_      SSL2_RC2_CBC_128_CBC_WITH_MD5
 
 author = "Matt <mb2263@bristol.ac.uk>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

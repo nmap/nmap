@@ -5,7 +5,7 @@ Attempts to extract system information from an SNMP version 1 service.
 
 ---
 -- @output
--- |  SNMPv1: HP ETHERNET MULTI-ENVIRONMENT,ROM A.25.80,JETDIRECT,JD117,EEPROM V.28.22,CIDATE 08/09/2006 \n
+-- |  SNMPv1: HP ETHERNET MULTI-ENVIRONMENT,ROM A.25.80,JETDIRECT,JD117,EEPROM V.28.22,CIDATE 08/09/2006
 -- |_   System uptime: 28 days, 17:18:59 (248153900 timeticks)
 
 author = "Thomas Buchanan <tbuchanan@thecompassgrp.net>"

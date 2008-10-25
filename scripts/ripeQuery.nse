@@ -1,8 +1,8 @@
 id = "RIPE query"
 description = [[
-Connects to the RIPE database and displays the role: entry for the target's IP
-address.
-\n\n
+Connects to the RIPE database and displays the <code>role:</code> entry for the
+target's IP address.
+
 This script uses an external database. Your IP address and the IP address of
 the target will be sent to whois.ripe.net.
 ]]

@@ -2,92 +2,77 @@ id          = "Whois"
 description = [[
 Queries the WHOIS services of Regional Internet Registries (RIR) and attempts to retrieve information about the IP Address
 Assignment which contains the Target IP Address.
-\n\n
+
 The fields displayed contain information about the assignment and the organisation responsible for managing the address
-space. When output verbosity is requested on the Nmap command line (-v) extra information about the assignment will
+space. When output verbosity is requested on the Nmap command line (<code>-v</code>) extra information about the assignment will
 be displayed.
-\n\n
+
 To determine which of the RIRs to query for a given Target IP Address this script utilises Assignments Data hosted by IANA.
 The data is cached locally and then parsed for use as a lookup table.  The locally cached files are refreshed periodically
 to help ensure the data is current.  If, for any reason, these files are not available to the script then a default sequence
 of Whois services are queried in turn until: the desired record is found; or a referral to another (defined) Whois service is
 found; or until the sequence is exhausted without finding either a referral or the desired record.
-\n\n
+
 The script will recognise a referral to another Whois service if that service is defined in the script and will continue by
 sending a query to the referred service.  A record is assumed to be the desired one if it does not contain a referral.
-\n\n
+
 To reduce the number unecessary queries sent to Whois services a record cache is employed and the entries in the cache can be
 applied to any targets within the range of addresses represented in the record.
-\n\n
+
 In certain circumstances, the ability to cache responses prevents the discovery of other, smaller IP address assignments
 applicable to the target because a cached response is accepted in preference to sending a Whois query.  When it is important
-to ensure that the most accurate information about the IP address assignment is retrieved the script argument "whodb"
-should be used with a value of "nocache" (see script arguments below).  This reduces the range of addresses that may use a
+to ensure that the most accurate information about the IP address assignment is retrieved the script argument <code>whodb</code>
+should be used with a value of <code>"nocache"</code> (see script arguments).  This reduces the range of addresses that may use a
 cached record to a size that helps ensure that smaller assignments will be discovered.  This option should be used with caution
 due to the potential to send large numbers of whois queries and possibly be banned from using the services.
-\n\n
+
 In using this script your IP address will be sent to iana.org. Additionally
 your address and the address of the target of the scan will be sent to one of
 the RIRs.
 ]]
 
 ---
--- @args     whodb  Takes the following values: nofile, nofollow, nocache and any defined whois services.  These values may be combined.
--- \n
--- \n        whodb=nofile        - Prevent the use of IANA assignments data and instead query the default services.
--- \n        whodb=[service-ids] - Redefine the default services to query.  Implies nofile.
--- \n        whodb=nofollow      - Ignore referrals and instead display the first record obtained.
--- \n        whodb=nocache       - Prevent the acceptance of records in the cache when they apply to large ranges of addresses.
---
+-- @args whodb Takes any of the the following values, which may be combined:
+-- * <code>whodb=nofile</code> Prevent the use of IANA assignments data and instead query the default services.
+-- * <code>whodb=nofollow</code> Ignore referrals and instead display the first record obtained.
+-- * <code>whodb=nocache</code> Prevent the acceptance of records in the cache when they apply to large ranges of addresses.
+-- * <code>whodb=[service-ids]</code> Redefine the default services to query.  Implies <code>nofile</code>.
 -- @usage
---
+-- # Basic usage:
 -- nmap target --script whois
--- \n\n
--- \n    To prevent the use of IANA assignments data supply the nofile
--- \n    value to the whodb argument:
--- \n
--- \n        nmap target --script whois --script-args whodb=nofile
--- \n        nmap target --script whois --script-args whois={whodb=nofile}
 --
--- \n\n
--- \n        Supplying a sequence of whois services will also prevent the
--- \n        use of IANA assignments data and override the default sequence:
--- \n
--- \n        nmap target --script whois --script-args whodb=arin+ripe+afrinic
--- \n        nmap target --script whois --script-args whois={whodb=apnic*lacnic}
--- \n\n  The order in which the services are supplied is the order in which
--- \n  they will be queried.
--- \n        (N.B. commas or semi-colons should not be used to delimit
--- \n        argument values)
+-- # To prevent the use of IANA assignments data supply the nofile value
+-- # to the whodb argument:
+-- nmap target --script whois --script-args whodb=nofile
+-- nmap target --script whois --script-args whois={whodb=nofile}
 --
--- \n\n
--- \n        To return the first record obtained even if it contains a
--- \n        referral to another service, supply the nofollow value to whodb:
--- \n
--- \n        nmap target --script whois --script-args whodb=nofollow
--- \n        nmap target --script whois --script-args whois={whodb=nofollow+ripe}
--- \n\n  Note that only one service (the first one supplied) will be used
--- \n  in conjunction with nofollow.
--- \n\n
--- \n        To ensure discovery of smaller assignments even if larger
--- \n        ones exist in the cache, supply the nocache value to whodb:
--- \n
--- \n        nmap target --script whois --script-args whodb=nocache
--- \n        nmap target --script whois --script-args whois={whodb=nocache}
+-- # Supplying a sequence of whois services will also prevent the use of
+-- # IANA assignments data and override the default sequence:
+-- nmap target --script whois --script-args whodb=arin+ripe+afrinic
+-- nmap target --script whois --script-args whois={whodb=apnic*lacnic}
+-- # The order in which the services are supplied is the order in which
+-- # they will be queried. (N.B. commas or semi-colons should not be
+-- # used to delimit argument values.)
 --
+-- # To return the first record obtained even if it contains a referral
+-- # to another service, supply the nofollow value to whodb:
+-- nmap target --script whois --script-args whodb=nofollow
+-- nmap target --script whois --script-args whois={whodb=nofollow+ripe}
+-- # Note that only one service (the first one supplied) will be used in
+-- # conjunction with nofollow.
 --
---
---
+-- # To ensure discovery of smaller assignments even if larger ones
+-- # exist in the cache, supply the nocache value to whodb:
+-- nmap target --script whois --script-args whodb=nocache
+-- nmap target --script whois --script-args whois={whodb=nocache}
 -- @output
---
 -- Host script results:
--- \n|  Whois: Record found at whois.arin.net
--- \n|  netrange: 64.13.134.0 - 64.13.134.63
--- \n|  netname: NET-64-13-143-0-26
--- \n|  orgname: Titan Networks
--- \n|  orgid: INSEC
--- \n|_ country: US stateprov: CA
---
+-- |  Whois: Record found at whois.arin.net
+-- |  netrange: 64.13.134.0 - 64.13.134.63
+-- |  netname: NET-64-13-143-0-26
+-- |  orgname: Titan Networks
+-- |  orgid: INSEC
+-- |_ country: US stateprov: CA
 
 author      = "jah <jah at zadkiel.plus.com>"
 license     = "See Nmap License: http://nmap.org/book/man-legal.html"
@@ -134,7 +119,7 @@ action = function( host )
 
   if not nmap.registry.whois then
     ---
-    -- Data and flags shared between threads.\n
+    -- Data and flags shared between threads.
     -- @name whois
     -- @class table
     --@field whoisdb_default_order          The default number and order of whois services to query.
@@ -167,13 +152,14 @@ action = function( host )
 
   ---
   -- Holds field data captured from the responses of each service queried and includes additional information about the final desired record.
-  --\n The table, indexed by whois service id, holds a table of fields captured from each queried service.  Once it has been determined that a record
-  --\n represents the final record we wish to output, the existing values are destroyed and replaced with the one required record.  This is done purely
-  --\n to make it easier to reference the data of a desired record.  Other values in the table are as follows\n
+  --
+  -- The table, indexed by whois service id, holds a table of fields captured from each queried service.  Once it has been determined that a record
+  -- represents the final record we wish to output, the existing values are destroyed and replaced with the one required record.  This is done purely
+  -- to make it easier to reference the data of a desired record.  Other values in the table are as follows.
   -- @name data
   -- @class table
   --@field data.iana        is set after the table is initialised and is the number of times a response encountered represents "The Whole Address Space".
-  --\n                  If the value reaches 2 it is assumed that a valid record is held at ARIN.
+  --                  If the value reaches 2 it is assumed that a valid record is held at ARIN.
   --@field data.id          is set in analyse_response() after final record and is the service name at which a valid record has been found.  Used in
   --                  format_data_for_output().
   --@field data.mirror      is set in analyse_response() after final record and is the service name from which a mirrored record has been found.  Used in
@@ -184,7 +170,7 @@ action = function( host )
   data.iana = 0
 
   ---
-  -- Used in the main loop to manage mutexes, the structure of tracking is as follows:\n
+  -- Used in the main loop to manage mutexes, the structure of tracking is as follows.
   -- @name tracking
   -- @class table
   --@field this_db    The service for which a thread will wait for exclusive access before sending a query to it.

@@ -6,12 +6,12 @@ response.
 
 ---
 -- @output
--- 80/tcp open  http \n
--- |  HTTP TRACE: Response differs from request.  First 5 additional lines: \n
--- |  Cookie: UID=d4287aa38d02f409841b4e0c0050c13148a85d01c0c0a154d4ef56dfc2b4fc1b0 \n
--- |  Country: us \n
--- |  Ip_is_advertise_combined: yes \n
--- |  Ip_conntype-Confidence: -1 \n
+-- 80/tcp open  http
+-- |  HTTP TRACE: Response differs from request.  First 5 additional lines:
+-- |  Cookie: UID=d4287aa38d02f409841b4e0c0050c13148a85d01c0c0a154d4ef56dfc2b4fc1b0
+-- |  Country: us
+-- |  Ip_is_advertise_combined: yes
+-- |  Ip_conntype-Confidence: -1
 -- |_ Ip_line_speed: medium
 
 -- 08/31/2007
@@ -26,9 +26,9 @@ require "comm"
 require "shortport"
 require "stdnse"
 
---- Truncates and formats the first 5 elements of a table
---@param tab The table to truncate
---@return Truncated, formatted table
+--- Truncates and formats the first 5 elements of a table.
+--@param tab The table to truncate.
+--@return Truncated, formatted table.
 local truncate = function(tab)
 	local str = ""
 	str = str .. tab[1] .. "\n"
@@ -39,11 +39,11 @@ local truncate = function(tab)
 	return str
 end
 
---- Validates the HTTP response and checks for modifications
---@param response The HTTP response from the server
---@param original The original HTTP request sent to the server
+--- Validates the HTTP response and checks for modifications.
+--@param response The HTTP response from the server.
+--@param original The original HTTP request sent to the server.
 --@return A string describing the changes (if any) between the response and
--- request
+-- request.
 local validate = function(response, original)
 	local start, stop
 	local body

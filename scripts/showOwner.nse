@@ -1,7 +1,7 @@
 id = "Service owner"
 description = [[
 Attempts to find the owner of a scanned port.
-\n\n
+
 The script makes a connection to the auth port (113) and queries the owner of
 an open port.
 ]]

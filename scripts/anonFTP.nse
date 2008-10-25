@@ -15,7 +15,7 @@ require "shortport"
 
 portrule = shortport.port_or_service(21, "ftp")
 
---- Connects to the ftp server and checks if the server allows anonymous logins.
+--- Connects to the FTP server and checks if the server allows anonymous logins.
 action = function(host, port)
 	local socket = nmap.new_socket()
 	local result

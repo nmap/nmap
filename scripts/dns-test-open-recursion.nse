@@ -2,7 +2,7 @@ id = "Nameserver open recursive queries"
 
 description = [[
 Checks if a DNS server allows queries for third-party names.
-\n\n
+
 It is expected that recursion will be enabled on your own internal nameservers.
 ]]
 

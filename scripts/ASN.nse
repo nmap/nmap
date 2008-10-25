@@ -4,7 +4,7 @@ Maps IP addresses to autonomous system (AS) numbers.
 
 The script works by sending DNS TXT queries to a DNS server which in
 turn queries a third-party service provided by Team Cymru
-(team-cymru.org) using an in-addr.arpa style zone set-up especially for
+(team-cymru.org) using an in-addr.arpa style zone set up especially for
 use by Nmap.
 
 The responses to these queries contain both Origin and Peer ASNs and
@@ -23,7 +23,7 @@ server (your default DNS server, or whichever you specified with the
 
 ---
 -- @usage
--- nmap --script ASN.nse [--script-args dns=<dns server>] <target>
+-- nmap --script ASN.nse [--script-args dns=<DNS server>] <target>
 -- @args dns The address of a recursive nameserver to use (optional).
 -- @output
 -- Host script results:
@@ -70,8 +70,8 @@ end
 -- Cached results are checked before sending a query for the target and extracting the
 -- relevent information from the response.  Mutual exclusion is used so that results can be
 -- cached and so a single thread will be active at any time.
--- @param host  Host Table.
--- @return      Formatted answers or nil on errors.
+-- @param host  Host table.
+-- @return      Formatted answers or <code>nil</code> on errors.
 
 action = function( host )
 
@@ -149,9 +149,9 @@ end -- action
 -- Checks whether the target IP address is within any BGP prefixes for which a query has
 -- already been performed and returns a pointer to the HOST SCRIPT RESULT displaying the applicable answers.
 -- @param ip String representing the target IP address.
--- @return   Boolean True if there are cached answers for the supplied target, otherwise
+-- @return   Boolean true if there are cached answers for the supplied target, otherwise
 --           false.
--- @return   Table containing a string for each answer or nil if there are none.
+-- @return   Table containing a string for each answer or <code>nil</code> if there are none.
 
 function check_cache( ip )
   local ret = {}
@@ -187,9 +187,9 @@ end
 
 ---
 -- Performs an IP address to ASN lookup.  See http://www.team-cymru.org/Services/ip-to-asn.html#dns.
--- @param query String - PTR like DNS query.
--- @return      Boolean true for a successful dns query resulting in an answer, otherwise false.
--- @return      Table of answers or a String err msg.
+-- @param query String - PTR-like DNS query.
+-- @return      Boolean true for a successful DNS query resulting in an answer, otherwise false.
+-- @return      Table of answers or a string error message.
 
 function ip_to_asn( query )
 
@@ -238,7 +238,7 @@ end
 -- Extracts fields from the supplied DNS answer sections and generates a records entry for each.
 -- @param answers    Table containing string DNS answers.
 -- @param asn_type   String denoting whether the query is for Origin or Peer ASN.
--- @param recs       Table of existing recognised answers to which to add (ref to <code>actions()</code> <code>records{}</code>.
+-- @param recs       Table of existing recognised answers to which to add (refer to the <code>records</code> table inside <code>action()</code>.
 -- @return           Boolean true if successful otherwise false.
 
 function result_recog( answers, asn_type, recs, discoverer_ip )
@@ -284,8 +284,8 @@ end
 
 ---
 -- Performs an AS Number to AS Description lookup.
--- @param asn String AS Number
--- @return    String Description or ""
+-- @param asn String AS number.
+-- @return    String description or <code>""</code>.
 
 function asn_description( asn )
 
@@ -315,7 +315,7 @@ end
 
 
 ---
--- Processes records which are recognised dns answers by combining them into unique BGPs before caching
+-- Processes records which are recognised DNS answers by combining them into unique BGPs before caching
 -- them in the registry and returning <code>combined_records</code>.  If there aren't any records (No Such Name message
 -- or DNS failure) we signal this fact to other threads by using the cache and return with an empty table.
 -- @param records  Table of recognised answers (may be empty).
@@ -401,7 +401,7 @@ end
 -- Given an IP address and a prefix length, returns a string representing a valid IP address assignment (size is not checked) which contains
 -- the supplied IP address.  For example, with <code>ip</code> = <code>"192.168.1.187"</code> and <code>prefix</code> = <code>24</code> the return value will be <code>"192.168.1.1-192.168.1.255"</code>
 -- @param ip      String representing an IP address.
--- @param prefix  String or number representing a prefix length.  Should be of the same address family as ip.
+-- @param prefix  String or number representing a prefix length.  Should be of the same address family as <code>ip</code>.
 -- @return        String representing a range of addresses from the first to the last hosts (or <code>nil</code> in case of an error).
 -- @return        <code>nil</code> or error message in case of an error.
 
@@ -430,7 +430,7 @@ end
 
 ---
 -- Decides what to output based on the content of the supplied parameters and formats it for return by <code>action()</code>.
--- @param output            String non-answer message to be returned as is or an empty table
+-- @param output            String non-answer message to be returned as is or an empty table.
 -- @param combined_records  Table containing combined records.
 -- @return                  Formatted nice output string.
 

@@ -1,7 +1,7 @@
 id = "IAX2 Service Detection"
 description = [[
 Detects the UDP IAX2 service.
-\n\n
+
 The script sends an IAX Control Frame POKE request and checks for a proper
 response.
 ]]

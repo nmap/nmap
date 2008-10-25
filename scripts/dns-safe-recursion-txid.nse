@@ -4,7 +4,7 @@ description = [[
 Checks a DNS server for the predictable-TXID DNS recursion
 vulnerability.  Predictable TXID values can make a DNS server vulnerable to
 cache poisoning attacks (CVE-2008-1447).
-\n\n
+
 The script works by querying txidtest.dns-oarc.net.
 Be aware that any targets against which this script is run will be sent to and
 potentially recorded by one or more DNS servers and the txidtest server. In
@@ -12,11 +12,15 @@ addition your IP address will be sent along with the txidtest query to the DNS
 server running on the target.
 ]]
 
-license = "Script: Same as Nmap--See http://nmap.org/book/man-legal.html\n" ..
-	  "txidtest.dns-oarc.net: https://www.dns-oarc.net/oarc/services/txidtest"
+license = [[
+Script: Same as Nmap--See http://nmap.org/book/man-legal.html \n
+txidtest.dns-oarc.net: https://www.dns-oarc.net/oarc/services/txidtest
+]]
 
-author = "Script: Brandon Enright <bmenrigh@ucsd.edu>\n" ..
-	 "txidtest.dns-oarc.net: Duane Wessels <wessels@dns-oarc.net>"
+author = [[
+Script: Brandon Enright <bmenrigh@ucsd.edu>\n
+txidtest.dns-oarc.net: Duane Wessels <wessels@dns-oarc.net>
+]]
 
 -- This script uses (with permission) Duane Wessels' txidtest.dns-oarc.net
 -- service.  Duane/OARC believe the service is valuable to the community

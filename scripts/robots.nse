@@ -1,21 +1,21 @@
 id = "robots.txt"
 description = [[
-Checks for disallowed entries in robots.txt.
-\n\n
+Checks for disallowed entries in <code>robots.txt</code>.
+
 The higher the verbosity or debug level, the more disallowed entries are shown.
 ]]
 
 ---
 --@output
--- 80/tcp  open   http    syn-ack\n
--- |  robots.txt: has 156 disallowed entries (40 shown)\n
--- |  /news?output=xhtml& /search /groups /images /catalogs\n
--- |  /catalogues /news /nwshp /news?btcid=*& /news?btaid=*&\n
--- |  /setnewsprefs? /index.html? /? /addurl/image? /pagead/ /relpage/\n
--- |  /relcontent /sorry/ /imgres /keyword/ /u/ /univ/ /cobrand /custom\n
--- |  /advanced_group_search /googlesite /preferences /setprefs /swr /url /default\n
--- |  /m? /m/? /m/lcb /m/news? /m/setnewsprefs? /m/search? /wml?\n
--- |_ /wml/? /wml/search?\n
+-- 80/tcp  open   http    syn-ack
+-- |  robots.txt: has 156 disallowed entries (40 shown)
+-- |  /news?output=xhtml& /search /groups /images /catalogs
+-- |  /catalogues /news /nwshp /news?btcid=*& /news?btaid=*&
+-- |  /setnewsprefs? /index.html? /? /addurl/image? /pagead/ /relpage/
+-- |  /relcontent /sorry/ /imgres /keyword/ /u/ /univ/ /cobrand /custom
+-- |  /advanced_group_search /googlesite /preferences /setprefs /swr /url /default
+-- |  /m? /m/? /m/lcb /m/news? /m/setnewsprefs? /m/search? /wml?
+-- |_ /wml/? /wml/search?
 
 
 require('shortport')

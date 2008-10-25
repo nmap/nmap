@@ -2,22 +2,19 @@ id = "sql-inject"
 description = [[
 Spiders an HTTP server looking for URLs containing queries vulnerable to an SQL
 injection attack.
-\n\n
-The script spiders an HTTP server looking for URLs containing queries.
-It then proceeds to combine crafted SQL commands with 
-susceptible URLs in order to obtain errors. The errors
-are analysed to see if the url is vulnerable to attack. 
-This uses the most basic form of SQL injection but anything
-more complication is more suited to a stand alone tool. 
-Both meta and HTTP redirects are supported.
-\n\n
+
+The script spiders an HTTP server looking for URLs containing queries. It then
+proceeds to combine crafted SQL commands with susceptible URLs in order to
+obtain errors. The errors are analysed to see if the url is vulnerable to
+attack. This uses the most basic form of SQL injection but anything more
+complication is more suited to a stand alone tool. Both meta and HTTP redirects
+are supported.
+
 It is not advisable to run this against unknown hosts.
-\n\n
-NOTES\n
-We may not have access to the servers true hostname. 
-This means we cannot access virtually hosted sites and
-cannot follow absolute links when the hostname is 
-different from the resolved ip address
+
+We may not have access to the servers true hostname. This means we cannot
+access virtually hosted sites and cannot follow absolute links when the
+hostname is different from the resolved ip address
 ]]
 
 require('url')

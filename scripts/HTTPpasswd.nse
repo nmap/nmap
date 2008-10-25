@@ -21,10 +21,10 @@ categories = {"intrusive", "vuln"}
 require "shortport"
 require "http"
 
---- Validates the HTTP response code and checks for a valid passwd format
---- in the body
---@param response The HTTP response from the server
---@return The body of the HTTP response
+--- Validates the HTTP response code and checks for a <code>valid</code> passwd
+-- format in the body.
+--@param response The HTTP response from the server.
+--@return The body of the HTTP response.
 local validate = function(response)
 	if not response.status then
 		return nil
@@ -43,8 +43,8 @@ end
 
 --- Transforms a string with ".", "/" and "\" converted to their URL-formatted
 --- hex equivalents
---@param str String to hexify
---@return Transformed string
+--@param str String to hexify.
+--@return Transformed string.
 local hexify = function(str)
 	local ret
 	ret = str:gsub("%.", "%%2E")
@@ -53,17 +53,17 @@ local hexify = function(str)
 	return ret
 end
 
---- Truncates the passwd file
---@param passwd passwd file
---@return Truncated passwd file and truncated length
+--- Truncates the <code>passwd</code> file.
+--@param passwd <code>passwd</code> file.
+--@return Truncated passwd file and truncated length.
 local truncatePasswd = function(passwd)
 	local len = 250
 	return passwd:sub(1, len), len
 end
 
---- Formats output
---@param passwd passwd file
---@param dir Formatted request which elicited the good reponse
+--- Formats output.
+--@param passwd <code>passwd</code> file.
+--@param dir Formatted request which elicited the good reponse.
 --@return String description for output
 local output = function(passwd, dir)
 	local trunc, len = truncatePasswd(passwd)

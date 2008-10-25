@@ -1,7 +1,7 @@
 id = "HTML title"
 description = [[
 Shows the title of the default page of a web server.
-\n\n
+
 The script will follow no more than one HTTP redirect, and only if the
 redirection leads to the same host. The script may send a DNS query to
 determine if the host the redirect leads to has the same IP address as the
@@ -10,9 +10,8 @@ original target.
 
 ---
 --@output
--- 80/tcp  open   http    syn-ack\n
--- |_ HTML title: Foo.\n
---@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- 80/tcp  open   http    syn-ack
+-- |_ HTML title: Foo.
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 

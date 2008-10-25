@@ -1,10 +1,9 @@
 id = "DNS source port randomness"
-
 description = [[
 Checks a DNS server for the predictable-port recursion vulnerability.
 Predictable source ports can make a DNS server vulnerable to cache poisoning
 attacks (CVE-2008-1447).
-\n\n
+
 The script works by querying porttest.dns-oarc.net.
 Be aware that any targets against which this script is run will be sent to and
 potentially recorded by one or more DNS servers and the porttest server. In
@@ -12,11 +11,15 @@ addition your IP address will be sent along with the porttest query to the DNS
 server running on the target.
 ]]
 
-license = "Script: Same as Nmap--See http://nmap.org/book/man-legal.html\n" ..
-	  "porttest.dns-oarc.net: https://www.dns-oarc.net/oarc/services/porttest"
+license = [[
+Script: Same as Nmap--See http://nmap.org/book/man-legal.html \n
+porttest.dns-oarc.net: https://www.dns-oarc.net/oarc/services/porttest
+]]
 
-author = "Script: Brandon Enright <bmenrigh@ucsd.edu>\n" ..
-	 "porttest.dns-oarc.net: Duane Wessels <wessels@dns-oarc.net>"
+author = [[
+Script: Brandon Enright <bmenrigh@ucsd.edu>\n
+porttest.dns-oarc.net: Duane Wessels <wessels@dns-oarc.net>
+]]
 
 -- This script uses (with permission) Duane Wessels' porttest.dns-oarc.net
 -- service.  Duane/OARC believe the service is valuable to the community
