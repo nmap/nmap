@@ -224,7 +224,6 @@ class Port {
   u8 proto;
   char *owner;
   int state; 
-  int confidence; /* How sure are we about the state? */
   state_reason_t reason;
 
 #ifndef NOLUA

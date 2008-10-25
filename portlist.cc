@@ -120,7 +120,7 @@ Port::Port() {
   owner = NULL;
   rpc_status = RPC_STATUS_UNTESTED;
   rpc_program = rpc_lowver = rpc_highver = 0;
-  state = confidence = 0;
+  state = 0;
   next = NULL;
   serviceprobe_results = PROBESTATE_INITIAL;
   serviceprobe_service = NULL;
