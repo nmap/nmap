@@ -5,6 +5,7 @@ Detects the Skype version 2 service.
 author = "Brandon Enright <bmenrigh@ucsd.edu>" 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"version"}
+
 require "comm"
 
 portrule = function(host, port)
@@ -25,7 +26,8 @@ portrule = function(host, port)
 end
 
 action = function(host, port)
-	local status, result = comm.exchange(host, port, "GET / HTTP/1.0\r\n\r\n", {bytes=26, proto=port.protocol})
+	local status, result = comm.exchange(host, port,
+		"GET / HTTP/1.0\r\n\r\n", {bytes=26, proto=port.protocol})
 
 	if (not status) then
 		return
@@ -37,20 +39,19 @@ action = function(host, port)
 	
 	-- So far so good, now see if we get random data for another request
 
-	status, result = comm.exchange(host, port, "random data\r\n\r\n", {bytes=15, proto=port.protocol})
+	status, result = comm.exchange(host, port,
+		"random data\r\n\r\n", {bytes=15, proto=port.protocol})
 
 	if (not status) then
 		return
 	end
 
 	if string.match(result, "[^%s!-~].*[^%s!-~].*[^%s!-~]") then
+		-- Detected
 		port.version.name = "skype2"
 		port.version.product = "Skype"
-		port.version.confidence = 10
-		port.version.fingerprint = nil
 		nmap.set_port_version(host, port, "hardmatched")
 		return	
-		-- return "Skype v2 server detected"
 	end
 
 	return

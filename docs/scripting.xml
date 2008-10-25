@@ -2004,128 +2004,113 @@ function bit.band(...)
     <title>Version Detection Using NSE</title>
     <indexterm class="startofrange" id="nse-sample-indexterm"><primary>Nmap Scripting Engine (NSE)</primary><secondary>sample scripts</secondary></indexterm>
     <indexterm><primary>version detection</primary><secondary>using NSE</secondary></indexterm>
+
     <para>
+    The version detection system built into Nmap was designed to
+    efficiently recognize the vast majority of protocols with a simple
+    pattern matching syntax.  Some protocols require a more complex
+    approach though, and a generalized scripting language is perfect for
+    this.
+    </para>
 
-      The version detection system built into Nmap was designed to
-      efficiently recognize the vast majority of protocols with a
-      simple pattern matching syntax.  Some protocols require a more
-      complex approach, and a generalized scripting language is
-      perfect for this.  Skype&nbsp;v2 is one such protocol.  It pretends to
-      be an HTTP server, requiring multiple queries to determine its
-      true nature.  NSE has been integrated into Nmap's version
-      detection framework to handle these cases. The scripts which
-      extend the version scanner belong to the reserved category
-      <literal>version</literal>.<indexterm><primary><varname>version</varname> script category</primary></indexterm>
-      This category cannot be run from
-      the command line.  It is only executed if the user has required a
-      version scan. The following listing shows a simple script which
-      demonstrates the use of the NSE version detection API. If either
-      the TCP port 80 is open or the service has been determined to be
-      HTTP, the script is triggered. Although it could be extended to
-      recognize different HTTP servers, its only purpose is to show off
-      the version detection API. It is not advisable to use NSE for
-      version detection in the simple case of HTTP servers. The
-      version detection variables have been filled with dummy entries
-      to illustrate their effect on the Nmap output.</para> 
+    <para>
+    NSE's <literal>version</literal><indexterm><primary><varname>version</varname> script category</primary></indexterm>
+    category contains the scripts that enhance standard version
+    detection. Scripts in this category are run whenever you request
+    version detection with <option>-sV</option>; you don't need to use
+    <option>-sC</option> to get version-detection scripts. (This cuts
+    the other way too: if you use <option>-sC</option> you won't get
+    <literal>version</literal> scripts unless you also use
+    <option>-sV</option>.)
+    </para>
 
+    <para>
+    This script detects version 2 of the Skype VoIP protocol, one which
+    is difficult to identify with version detection alone. If Skype gets
+    an HTTP GET request, it pretends to be an HTTP server and sends back
+    a 404. But for any other request it sends back a chunk of
+    random-looking data. Proper identification requires sending two
+    probes and comparing the two responses&mdash;an ideal task for NSE.
+    </para>
 
-      <para>
 <programlisting> 
-description = "Demonstration of a version detection NSE script. It checks \
-and reports the version of a remote web server. For real life purposes it is \
-better to use Nmap version detection (-sV)."<indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
-author = "Diman Todorov &lt;diman.todorov@gmail.at&gt;"<indexterm><primary>Todorov, Diman</primary></indexterm><indexterm><primary sortas="author script variable">&ldquo;<varname>author</varname>&rdquo; script variable</primary></indexterm>
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"<indexterm><primary sortas="license script variable">&ldquo;<varname>license</varname>&rdquo; script variable</primary></indexterm>
+id = "Skype v2"
+description = [[
+Detects the Skype version 2 service.
+]]
+author = "Brandon Enright &lt;bmenrigh@ucsd.edu&gt;" 
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+categories = {"version"}
 
-id = "HTTP version"<indexterm><primary sortas="id script variable">&ldquo;<varname>id</varname>&rdquo; script variable</primary></indexterm>
+require "comm"
 
-categories = {"version"}<indexterm><primary sortas="categories script variable">&ldquo;<varname>categories</varname>&rdquo; script variable</primary></indexterm>
-
-runlevel = 1.0<indexterm><primary sortas="runlevel script variable">&ldquo;<varname>runlevel</varname>&rdquo; script variable</primary></indexterm>
-
-portrule = function(host, port)<indexterm><primary sortas="portrule script variable">&ldquo;<varname>portrule</varname>&rdquo; script variable</primary></indexterm>
-  if (port.number == 80
-      or port.service == "http" )
-      and port.protocol == "tcp" 
-  then
-    return true
-  else
-    return false
-  end
+portrule = function(host, port)
+	if 	(port.number == 80 or
+		port.number == 443 or
+		port.service == nil or
+		port.service == "" or
+		port.service == "unknown")
+		and port.protocol == "tcp"
+		and port.state == "open"
+		and port.service ~= "http"
+		and port.service ~= "ssl/http"
+	then
+		return true
+	else
+		return false
+	end
 end
 
-action = function(host, port)<indexterm><primary sortas="action script variable">&ldquo;<varname>action</varname>&rdquo; script variable</primary></indexterm>
-  local query = "GET / HTTP/2.1\r\n"
-  query = query .. "Accept: */*\r\n"
-  query = query .. "Accept-Language: en\r\n"
-  query = query .. "User-Agent: Nmap NSE\r\n"
-  query = query .. "Host: " .. host.ip .. ":" .. port.number .. "\r\n\r\n"
+action = function(host, port)
+	local status, result = comm.exchange(host, port,
+		"GET / HTTP/1.0\r\n\r\n", {bytes=26, proto=port.protocol})
 
-  local socket = nmap.new_socket()
-  local catch = function()
-    socket:close()
-  end
+	if (not status) then
+		return
+	end
 
-  local try = nmap.new_try(catch)
+	if (result ~= "HTTP/1.0 404 Not Found\r\n\r\n") then
+		return
+	end
+	
+	-- So far so good, now see if we get random data for another request
 
-  try(socket:connect(host.ip, port.number))
-  try(socket:send(query))
+	status, result = comm.exchange(host, port,
+		"random data\r\n\r\n", {bytes=15, proto=port.protocol})
 
-  local response = ""
-  local lines
-  local status
-  local value
+	if (not status) then
+		return
+	end
 
-  while true do
-    status, lines = socket:receive_lines(1)
+	if string.match(result, "[^%s!-~].*[^%s!-~].*[^%s!-~]") then
+		-- Detected
+		port.version.name = "skype2"
+		port.version.product = "Skype"
+		nmap.set_port_version(host, port, "hardmatched")
+		return	
+	end
 
-    if not status or value then
-      break
-    end
-
-    response = response .. lines
-    value = string.match(response, "Server: (.-)\n")
-  end
-
-  try(socket:close())
-
-  if value then
-    port.version.name = "[Name]"
-    port.version.name_confidence = 10
-    port.version.product = "[Product]"
-    port.version.version = "[Version]"
-    port.version.extrainfo = "[ExtraInfo]"
-    port.version.hostname = "[HostName]"
-    port.version.ostype = "[OSType]"
-    port.version.devicetype = "[DeviceType]"
-
-    port.version.service_tunnel = "none"
-    port.version.fingerprint = nil
-    nmap.set_port_version(host, port, "hardmatched")
-  end
+	return
 end
-      </programlisting>
-    </para>
-    <para>
-	This is what the output of this script looks like:
-      <screen>
-$ nmap -sV localhost -p 80
+</programlisting>
 
-Starting Nmap ( http://nmap.org )
-Interesting ports on localhost (127.0.0.1):
-PORT   STATE SERVICE VERSION
-80/tcp open  [Name]  [Product] [Version] ([ExtraInfo])
-Service Info: Host: [HostName]; OS: [OSType]; Device: [DeviceType]
-
-Nmap done: 1 IP address (1 host up) scanned in 9.32 seconds
-</screen>
-    </para>
     <para>
-      The name variable denotes the detected protocol name.
-      The product, version and extrainfo variables are used
-      to produce a human readable description of the server
-      version. The remaining variables provide information deduced
-      from the output of the server concerning the target host.
+    If the script detects Skype, it augments its <varname>port</varname>
+    table with now-known <varname>name</varname> and
+    <varname>product</varname> fields. It then sends this new
+    information to Nmap by calling
+    <function>nmap.set_port_version()</function>. Several other version
+    fields are available to be set if they are known, but in this case
+    we only have the name and product. For the full list of version
+    fields refer to the documentation of
+    <function>nmap.set_port_version()</function>.
+    </para>
+
+    <para>
+    Notice that if the script does not detect the protocol, it does
+    nothing. This is considered good practice; a script shouldn't
+    produce output (other than debug output) just to say it didn't learn
+    anything.
     </para>
   </sect1>
 
