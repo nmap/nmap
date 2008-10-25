@@ -1822,20 +1822,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "external"}
       </programlisting>
     </example>
-
-    <para>
-    What about documentation for compiled modules, which have no Lua
-    source code? It is kept in special files with the extension
-    <filename>.luadoc</filename> in the <filename>nselib</filename>
-    directory with the normal Lua modules. For example, the compiled
-    <literal>pcre</literal> module is documented in a file
-    <filename>pcre.luadoc</filename>. These <quote>dummy modules</quote>
-    look just like like normal modules, with a module name,
-    documentation comments, and declarations of files and tables, but
-    they have no code to define them. There are several examples of this
-    method of documentation in the Nmap source distribution.
-    </para>
-
     <sect2 id="nse-documentation-tags">
       <title>NSE Documentation Tags</title>
       <para>
@@ -1966,37 +1952,18 @@ categories = {"discovery", "external"}
       <title>NSE Documentation for C Modules</title>
       <para>
         NSEDoc documentation can be written for libraries as well as scripts.
-        While Lua modules can be documented in much the same way as your
-        scripts, a C module requires special consideration. You must write
+        But while Lua modules are documented in much the same way, a C module
+        requires special consideration. You must write
         a ".luadoc" file to accompany the C module in order for it to be
-        documented. The file will list all functions for the C module as though
+        documented. These files are typically placed in the nselib directory 
+        next to other Lua modules. The file itself will list all functions
+        for the C module as though
         they were written in Lua. You may however remove certain syntactical
         structures (particularly, <literal>end</literal>) when writing this
-        document. The following example demonstrates how documentation was
-        written for the C bit module.
+        document, as it is never compiled by Lua. Remember you may use the
+        @class tag to also help the parser
+        know what it is you are documenting, especially for tables.
       </para>
-    <!-- From bit.luadoc -->
-    <example id="nse-documentation-cdoc">
-      <title>Documentation for the C "bit" module</title>
-      <programlisting>
---- Return the one's complement of a.
--- @param a Number.
--- @return The one's complement of a.
-function bit.bnot(a)
-
---- Returns the bitwise and of all its arguments.
--- @param ... A variable number of Numbers to and.
--- @return The anded result.
-function bit.band(...)
-      </programlisting>
-    </example>
-    <para>
-      It is important to note that this documentation is being written for
-      a simple documentation parser and <i>not</i> Lua. The functions,
-      bit.bnot and bit.band, are placed there to assist in generating the
-      documentation. You may use the @class tag to also help the parser
-      know what it is you are documenting, especially for tables.
-    </para>
     </sect2>
   </sect1>
 
