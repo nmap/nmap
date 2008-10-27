@@ -79,7 +79,6 @@ action = function(host, port)
 		if hostname ~= nil then port.version.hostname = hostname end
 		
 		port.version.service_tunnel = "none"
-		port.version.fingerprint = nil
 		nmap.set_port_version(host, port, "hardmatched")
 	end
 
