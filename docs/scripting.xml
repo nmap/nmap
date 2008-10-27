@@ -1490,7 +1490,7 @@ try(socket:send(result))
 <indexterm><primary sortas="Service Owner script">&ldquo;<literal>Service Owner</literal>&rdquo; script</primary></indexterm>
 <indexterm><primary sortas="id script variable">&ldquo;<varname>id</varname>&rdquo; script variable</primary></indexterm>
 <programlisting>
-id = "Service Owner"
+id = "Service owner"
 </programlisting>
       </para>
       <para>
@@ -1499,30 +1499,30 @@ id = "Service Owner"
       <para>
 <indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
 <programlisting>
-description = "Opens a connection to the scanned port, opens a connection to \
-port 113, queries the owner of the service on the scanned port and prints it."
+description = [[
+Attempts to find the owner of a scanned port.
+
+The script makes a connection to the auth port (113) and queries the owner of
+an open port.
+]]
 </programlisting>
       </para>
       <para>
 
- 	Users must tell the Lua interpreter that the string
-	continues on the following line by ending the line with a
-	backslash (&lsquo;<literal>\</literal>&rsquo;). They must also decide what
-	categories the script belongs to. This script is a good
-	example of a script which cannot be categorized clearly. It is
-	<literal>safe</literal><indexterm><primary><literal>safe</literal> script category</primary></indexterm>
-        because we are not using the service
-	for anything it was not intended for.  On the other hand, it
-	is <literal>intrusive</literal><indexterm><primary><literal>intrusive</literal> script category</primary></indexterm>
-        because we connect to a
-	service on the target and therefore potentially give out
-	information about us.  To solve this dilemma we will place our
-	script in two categories:
+        The author of a script must decide what categories it belongs
+        to. This script is
+        <literal>safe</literal><indexterm><primary><literal>safe</literal>
+        script category</primary></indexterm> because we are not using
+        the service for anything it was not intended for. Because this
+        script is one that should run by default it is also in the
+        <literal>default</literal><indexterm><primary><literal>default</literal>
+        script category</primary></indexterm>
+        category.
 
       </para>
 <indexterm><primary sortas="categories script variable">&ldquo;<varname>categories</varname>&rdquo; script variable</primary></indexterm>
 <programlisting>
-categories = {"safe", "intrusive"}
+categories = {"default", "safe"}
 </programlisting>
     </sect2>
 
@@ -1537,13 +1537,13 @@ categories = {"safe", "intrusive"}
 	that. To decide whether to run the identification script on a
 	given port we need to know if there is an identification
 	server running on the target machine. Or more formally: the
-	script should be run if (and only if) the currently scanned TCP port is open and
+	script should be run only if the currently scanned TCP port is open and
 	TCP port 113 is also open. For now we will rely on the fact that
 	identification servers listen on TCP port 113. Unfortunately NSE
 	only gives us information about the currently scanned port.
 
 	To find out if port 113 is open we are going to use the
-	<literal>nmap.get_port_state()</literal> method. If the identd
+	<literal>nmap.get_port_state()</literal> function. If the identd
 	port was not scanned, the <literal>get_port_state</literal>
 	function returns <literal>nil</literal>. So we need to make
 	sure that the table is not <literal>nil</literal>. We also
@@ -1555,33 +1555,22 @@ categories = {"safe", "intrusive"}
 <indexterm><primary sortas="portrule script variable">&ldquo;<varname>portrule</varname>&rdquo; script variable</primary></indexterm>
 <programlisting>
 portrule = function(host, port)
-  local ident_port = { number=113, protocol="tcp" }
-  local identd = nmap.get_port_state(host, ident_port)
+        local auth_port = { number=113, protocol="tcp" }
+        local identd = nmap.get_port_state(host, auth_port)
 
-  if identd ~= nil and identd.state == "open" and port.state == "open" then
-    return true
-  else
-    return false
-  end
+        if
+                identd ~= nil
+                and identd.state == "open"
+                and port.protocol == "tcp"
+                and port.state == "open"
+        then
+                return true
+        else
+                return false
+        end
 end
 </programlisting>
       </para>
-
-      <para>
-	This rule is <emphasis>almost</emphasis> correct, but still
-	slightly buggy. Can you find the bug?  It is a pretty subtle
-	one. The problem is that this script fires on any kind of open
-	port, TCP or UDP. The <literal>connect()</literal> method on
-	the other hand assumes a TCP protocol unless it is explicitly
-	told to use another protocol. Since the identification service
-	is only defined for TCP connections, we need to narrow down
-	the range of ports which fire our script. Our new rule only
-	runs the script if the port is open, we are looking at a TCP
-	port, and TCP port 113 is open. Writing the new and
-	improved port rule is left as an exercise to the reader (or
-	peek at the script in the latest Nmap distribution).
-      </para>
-
 
     </sect2>
 
@@ -1615,43 +1604,42 @@ end
       
       <para>
         <indexterm><primary sortas="action script variable">&ldquo;<varname>action</varname>&rdquo; script variable</primary></indexterm>
-	<programlisting>
+<programlisting>
 action = function(host, port)
-local owner = ""
+        local owner = ""
 
-local client_ident = nmap.new_socket()
-local client_service = nmap.new_socket()
+        local client_ident = nmap.new_socket()
+        local client_service = nmap.new_socket()
 
-local catch = function()
-  client_ident:close()
-  client_service:close()
-end
+        local catch = function()
+                client_ident:close()
+                client_service:close()
+        end
 
-local try = nmap.new_try(catch)
+        local try = nmap.new_try(catch)
 
-try(client_ident:connect(host.ip, 113))
-try(client_service:connect(host.ip, port.number))
+        try(client_ident:connect(host.ip, 113))
+        try(client_service:connect(host.ip, port.number))
 
-local localip, localport, remoteip, 
-remoteport = client_service:get_info()
+        local localip, localport, remoteip, remoteport =
+                try(client_service:get_info())
 
-local request = port.number .. ", " .. localport .. "\n"
+        local request = port.number .. ", " .. localport .. "\n"
 
-try(client_ident:send(request))
+        try(client_ident:send(request))
 
-owner = try(client_ident:receive_lines(1))
+        owner = try(client_ident:receive_lines(1))
 
-if string.match(owner, "ERROR") then
-  owner = nil
-  --  owner = "Service owner could not be determined: " .. owner
-else
- owner = string.match(owner, "USERID : .+ : (.+)\n", 1)
-end
+        if string.match(owner, "ERROR") then 
+                owner = nil
+        else
+                owner = string.match(owner, "USERID : .+ : (.+)\n", 1)
+        end
 
-try(client_ident:close())
-try(client_service:close())
+        try(client_ident:close())
+        try(client_service:close())
 
-return owner
+        return owner
 end
 </programlisting>
       </para>
@@ -1662,10 +1650,10 @@ return values of <literal>client_service:get_info()</literal> like
 this:</para>
 
 <programlisting>
-local localip, localport  = client_service:get_info()
+local localip, localport = try(client_service:get_info())
 </programlisting>
 
-<para>In this example we avoided telling the user if the service responded with an error.  Instead we commented that line out and assigned <literal>nil</literal> to the owner variable.  NSE scripts generally only return messages when they succeed.</para>
+<para>In this example we avoided telling the user if the service responded with an error.  Instead we assigned <literal>nil</literal> to the <varname>owner</varname> variable.  NSE scripts generally only return messages when they succeed.</para>
 
     </sect2>
     <indexterm class="endofrange" startref="nse-tutorial-indexterm"/>
@@ -1759,13 +1747,14 @@ local localip, localport  = client_service:get_info()
 --- Common communication functions for network discovery tasks like
 -- banner grabbing and data exchange.
 --
--- These functions may be passed a table of options, but it's not
--- required. The keys for the options table are "bytes", "lines",
--- "proto", and "timeout". "bytes" sets a minimum number of bytes to
--- read. "lines" does the same for lines. "proto" sets the protocol to
--- communicate with, defaulting to "tcp" if not provided. "timeout" sets
--- the socket timeout (see the socket function
--- &lt;code&gt;set_timeout()&lt;/code&gt; for details). 
+-- These functions may be passed a table of options, but it's not required. The
+-- keys for the options table are <code>"bytes"</code>, <code>"lines"</code>,
+-- <code>"proto"</code>, and <code>"timeout"</code>. <code>"bytes"</code> sets
+-- a minimum number of bytes to read. <code>"lines"</code> does the same for
+-- lines. <code>"proto"</code> sets the protocol to communicate with,
+-- defaulting to <code>"tcp"</code> if not provided. <code>"timeout"</code>
+-- sets the socket timeout (see the socket function <code>set_timeout()</code>
+-- for details). 
 -- @author Kris Katterjohn 04/2008
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 </programlisting>
@@ -1800,13 +1789,13 @@ Maps IP addresses to autonomous system (AS) numbers.
 
 The script works by sending DNS TXT queries to a DNS server which in
 turn queries a third-party service provided by Team Cymru
-(team-cymru.org) using an in-addr.arpa style zone set-up especially for
+(team-cymru.org) using an in-addr.arpa style zone set up especially for
 use by Nmap.
 ]]
 
 ---
 -- @usage
--- nmap --script ASN.nse [--script-args dns=&lt;dns server&gt;] &lt;target&gt;
+-- nmap --script ASN.nse [--script-args dns=&lt;DNS server&gt;] &lt;target&gt;
 -- @args dns The address of a recursive nameserver to use (optional).
 -- @output
 -- Host script results:

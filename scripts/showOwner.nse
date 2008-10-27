@@ -22,9 +22,9 @@ portrule = function(host, port)
 		and port.protocol == "tcp"
 		and port.state == "open"
 	then
-        return true
+		return true
 	else
-        return false
+		return false
 	end
 end
 
@@ -44,7 +44,8 @@ action = function(host, port)
 	try(client_ident:connect(host.ip, 113))
 	try(client_service:connect(host.ip, port.number))
 
-	local localip, localport, remoteip, remoteport = try(client_service:get_info())
+	local localip, localport, remoteip, remoteport =
+        	try(client_service:get_info())
 
 	local request = port.number .. ", " .. localport .. "\n"
 
@@ -54,7 +55,6 @@ action = function(host, port)
 
 	if string.match(owner, "ERROR") then 
 		owner = nil
-	--	owner = "Service owner could not be determined: " .. owner
 	else
 		owner = string.match(owner, "USERID : .+ : (.+)\n", 1)
 	end
@@ -64,4 +64,3 @@ action = function(host, port)
 
 	return owner
 end
-
