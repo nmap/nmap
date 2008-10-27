@@ -1146,7 +1146,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
         </para>
         <example id="nse-api-networkio-connect-example">
           <title>Connect-style I/O</title>
-          <programlisting>
+<programlisting>
 require("nmap")
 
 local socket = nmap.new_socket()
@@ -1155,7 +1155,8 @@ try = nmap.new_try(function() socket:close() end)
 try(socket:connect(host.ip, port.number))
 try(socket:send("login"))
 response = try(socket:receive())
-socket:close()</programlisting>
+socket:close()
+</programlisting>
         </example>
         </sect3>
 
@@ -1701,7 +1702,7 @@ local localip, localport  = client_service:get_info()
     <code> is a DocBook tag so it will disappear within a programlisting! -->
     <example id="nse-documentation-comment">
       <title>An NSEDoc comment for a function</title>
-      <programlisting>
+<programlisting>
 --- Prints a formatted debug message if the current verbosity level is greater
 -- than or equal to a given level.
 -- 
@@ -1713,7 +1714,7 @@ local localip, localport  = client_service:get_info()
 -- @param level Optional verbosity level.
 -- @param fmt Format string.
 -- @param ... Arguments to format.
-      </programlisting>
+</programlisting>
     </example>
 
     <para>
@@ -1754,7 +1755,7 @@ local localip, localport  = client_service:get_info()
 
     <example id="nse-documentation-module">
       <title>An NSEDoc comment for a module</title>
-      <programlisting>
+<programlisting>
 --- Common communication functions for network discovery tasks like
 -- banner grabbing and data exchange.
 --
@@ -1767,7 +1768,7 @@ local localip, localport  = client_service:get_info()
 -- &lt;code&gt;set_timeout()&lt;/code&gt; for details). 
 -- @author Kris Katterjohn 04/2008
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
-      </programlisting>
+</programlisting>
     </example>
 
     <para>
@@ -1792,7 +1793,7 @@ local localip, localport  = client_service:get_info()
     <!-- From ASN.nse. -->
     <example id="nse-documentation-script">
       <title>An NSEDoc comment for a script</title>
-      <programlisting>
+<programlisting>
 id = "AS Numbers"
 description = [[
 Maps IP addresses to autonomous system (AS) numbers.
@@ -1820,7 +1821,7 @@ use by Nmap.
 author = "jah, Michael"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "external"}
-      </programlisting>
+</programlisting>
     </example>
     <sect2 id="nse-documentation-tags">
       <title>NSE Documentation Tags</title>
@@ -2012,52 +2013,52 @@ categories = {"version"}
 require "comm"
 
 portrule = function(host, port)
-	if 	(port.number == 80 or
-		port.number == 443 or
-		port.service == nil or
-		port.service == "" or
-		port.service == "unknown")
-		and port.protocol == "tcp"
-		and port.state == "open"
-		and port.service ~= "http"
-		and port.service ~= "ssl/http"
-	then
-		return true
-	else
-		return false
-	end
+        if      (port.number == 80 or
+                port.number == 443 or
+                port.service == nil or
+                port.service == "" or
+                port.service == "unknown")
+                and port.protocol == "tcp"
+                and port.state == "open"
+                and port.service ~= "http"
+                and port.service ~= "ssl/http"
+        then
+                return true
+        else
+                return false
+        end
 end
 
 action = function(host, port)
-	local status, result = comm.exchange(host, port,
-		"GET / HTTP/1.0\r\n\r\n", {bytes=26, proto=port.protocol})
+        local status, result = comm.exchange(host, port,
+                "GET / HTTP/1.0\r\n\r\n", {bytes=26, proto=port.protocol})
 
-	if (not status) then
-		return
-	end
+        if (not status) then
+                return
+        end
 
-	if (result ~= "HTTP/1.0 404 Not Found\r\n\r\n") then
-		return
-	end
-	
-	-- So far so good, now see if we get random data for another request
+        if (result ~= "HTTP/1.0 404 Not Found\r\n\r\n") then
+                return
+        end
+        
+        -- So far so good, now see if we get random data for another request
 
-	status, result = comm.exchange(host, port,
-		"random data\r\n\r\n", {bytes=15, proto=port.protocol})
+        status, result = comm.exchange(host, port,
+                "random data\r\n\r\n", {bytes=15, proto=port.protocol})
 
-	if (not status) then
-		return
-	end
+        if (not status) then
+                return
+        end
 
-	if string.match(result, "[^%s!-~].*[^%s!-~].*[^%s!-~]") then
-		-- Detected
-		port.version.name = "skype2"
-		port.version.product = "Skype"
-		nmap.set_port_version(host, port, "hardmatched")
-		return	
-	end
+        if string.match(result, "[^%s!-~].*[^%s!-~].*[^%s!-~]") then
+                -- Detected
+                port.version.name = "skype2"
+                port.version.product = "Skype"
+                nmap.set_port_version(host, port, "hardmatched")
+                return  
+        end
 
-	return
+        return
 end
 </programlisting>
 
