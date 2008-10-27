@@ -1220,7 +1220,7 @@ socket:close()
           with ethernet sending methods. Open an interface with the
           <function>ethernet_open()</function> method. Send raw ethernet
           frames with <function>ethernet_send()</function>. Close the
-          ethernet handle with <function>ethernet_close</function> when
+          ethernet handle with <function>ethernet_close()</function> when
           you're done.</para>
 	</sect3>
 	</sect2>
@@ -1695,7 +1695,7 @@ local localip, localport  = client_service:get_info()
     comments with a special form.
     <xref linkend="nse-documentation-comment" xrefstyle="select: label nopage"/>
     is an NSEDoc comment taken from the
-    <function>stdnse.print_debug</function> function.
+    <function>stdnse.print_debug()</function> function.
     </para>
 
     <!-- From stdnse.lua. -->
@@ -1902,7 +1902,7 @@ categories = {"discovery", "external"}
             <para>
               Defines the <quote>class</quote> of the thing being
               modified: <literal>function</literal>,
-              <literal>table</literal>, or <function>module</function>.
+              <literal>table</literal>, or <literal>module</literal>.
               Like <literal>@name</literal>, this is normally inferred
               automatically.
             </para>
