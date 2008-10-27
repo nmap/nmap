@@ -1674,7 +1674,7 @@ local localip, localport  = client_service:get_info()
   <sect1 id="nse-documentation">
     <title>Script Documentation Writing</title>
     <indexterm class="startofrange" id="nse-documentation-indexterm"><primary>Nmap Scripting Engine (NSE)</primary><secondary>documentation in</secondary></indexterm>
-    <indexterm><primary>NSEDoc</primary><see>Nmap Scripting Engine, documentation in</see></indexterm>
+    <indexterm class="startofrange" id="nse-nsedoc-indexterm"><primary>NSEDoc</primary></indexterm>
 
     <para>
     Scripts are used by more than just their author, so scripts must
@@ -1688,8 +1688,9 @@ local localip, localport  = client_service:get_info()
 
     <para>
     NSE uses a customized version of the
-    <ulink url="http://luadoc.luaforge.net/">LuaDoc</ulink>
-    documentation system called NSEDoc. The documentation for scripts
+    <ulink url="http://luadoc.luaforge.net/">LuaDoc</ulink><indexterm><primary>LuaDoc</primary></indexterm>
+    documentation system called NSEDoc.
+    The documentation for scripts
     and modules is contained in their source code, in the form of
     comments with a special form.
     <xref linkend="nse-documentation-comment" xrefstyle="select: label nopage"/>
@@ -1951,11 +1952,12 @@ categories = {"discovery", "external"}
     </sect2>
     <sect2 id="nse-documentation-c">
       <title>NSE Documentation for C Modules</title>
+      <indexterm><primary>NSEDoc</primary><secondary>for C modules</secondary></indexterm>
       <para>
         NSEDoc documentation can be written for libraries as well as scripts.
         But while Lua modules are documented in much the same way, a C module
         requires special consideration. You must write a
-        <filename>.luadoc</filename><indexterm><primary sortas="luadoc filename extension"></primary><filename>.luadoc</filename> filename extension</indexterm>
+        <filename>.luadoc</filename><indexterm><primary sortas="luadoc filename extension"><filename>.luadoc</filename> filename extension</primary></indexterm>
         file to accompany the C module in order for it to be
         documented. These files are typically placed in the nselib directory 
         next to other Lua modules. The file itself will list all functions
@@ -1967,6 +1969,8 @@ categories = {"discovery", "external"}
         know what it is you are documenting, especially for tables.
       </para>
     </sect2>
+    <indexterm class="endofrange" startref="nse-documentation-indexterm"/>
+    <indexterm class="endofrange" startref="nse-nsedoc-indexterm"/>
   </sect1>
 
   <sect1 id="nse-vscan">
