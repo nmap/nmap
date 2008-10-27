@@ -123,6 +123,9 @@ o Upgraded the shipped libdnet to 1.12. [Kris]
 
 o Upgraded the OpenSSL shipped for Windows to 0.9.8i. [Kris]
 
+o Updated IANA assignment IP list for random IP (-iR)
+  generation. [Kris]
+
 Nmap 4.76 [2008-9-12]
 
 o There is a new "external" script category, for NSE scripts which
