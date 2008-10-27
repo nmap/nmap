@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Added a simple workaround for a bug in PyXML (an add-on
+  Python XML library) that caused a crash. The crash would happen when
+  loading an XML file and looked like "KeyError: 0". [David]
+
 o Removed some unecessary "demo" category NSE scripts: echoTest,
   chargenTest, showHTTPVersion, and showSMTPVersion.nse.  Moved
   daytimeTest from the "demo" category to "discovery".  Removed
