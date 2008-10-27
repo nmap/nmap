@@ -1204,7 +1204,7 @@ socket:close()
           kept, the more scripts may receive the packet and proceed with
           their execution. To use the packet capturing inside your
           script you have to create a socket with
-          <function>nmap.newsocket()</function> and later close the socket
+          <function>nmap.new_socket()</function> and later close the socket
           with <function>socket_object:close()</function>&mdash;just like
           with the connection-based network I/O.</para>
 
