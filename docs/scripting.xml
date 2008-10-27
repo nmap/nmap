@@ -2003,7 +2003,7 @@ categories = {"discovery", "external"}
     probes and comparing the two responses&mdash;an ideal task for NSE.
     </para>
 
-<programlisting> 
+<programlisting>
 id = "Skype v2"
 description = [[
 Detects the Skype version 2 service.
