@@ -1954,15 +1954,16 @@ categories = {"discovery", "external"}
       <para>
         NSEDoc documentation can be written for libraries as well as scripts.
         But while Lua modules are documented in much the same way, a C module
-        requires special consideration. You must write
-        a ".luadoc" file to accompany the C module in order for it to be
+        requires special consideration. You must write a
+        <filename>.luadoc</filename><indexterm><primary sortas="luadoc filename extension"></primary><filename>.luadoc</filename> filename extension</indexterm>
+        file to accompany the C module in order for it to be
         documented. These files are typically placed in the nselib directory 
         next to other Lua modules. The file itself will list all functions
         for the C module as though
         they were written in Lua. You may however remove certain syntactical
         structures (particularly, <literal>end</literal>) when writing this
         document, as it is never compiled by Lua. Remember you may use the
-        @class tag to also help the parser
+        <literal>@class</literal> tag to also help the parser
         know what it is you are documenting, especially for tables.
       </para>
     </sect2>
