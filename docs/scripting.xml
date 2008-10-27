@@ -1743,15 +1743,14 @@ local localip, localport  = client_service:get_info()
     It is good practice to document every public function and table in a
     script or module. Additionally every script and module should have
     its own file-level documentation. A documentation comment at the
-    beginning of a file (that is not followed by a function or table
+    beginning of a file (one that is not followed by a function or table
     definition) applies to the entire file. File-level documentation can
     and should be several paragraphs long, with all the high-level
     information useful to a developer using a module or a user running a
     script.
     <xref linkend="nse-documentation-module" xrefstyle="select: label nopage"/>
     shows documenatation for the <literal>comm</literal> module (with a
-    few paragraphs removed to save space). Recall that module- and
-    script-level comments are at the very beginning of a file.
+    few paragraphs removed to save space).
     </para>
 
     <example id="nse-documentation-module">
@@ -1824,6 +1823,23 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "external"}
 </programlisting>
     </example>
+
+    <indexterm><primary>NSEDoc</primary><secondary>for C modules</secondary></indexterm>
+    <para>
+    Compiled NSE modules are also documented with NSEDoc, even though
+    they have no Lua source code. Each compiled module has a file
+    <filename><replaceable>modulename</replaceable>.luadoc</filename><indexterm><primary sortas="luadoc filename extension"><filename>.luadoc</filename> filename extension</primary></indexterm>
+    that is kept in the <filename>nselib</filename> directory alongside
+    the Lua modules. This file lists and documents the functions and
+    tables in the compiled module as though they were written in Lua.
+    Only the name of each function is required, not its definition (not
+    even <literal>end</literal>). You must use the
+    <literal>@name</literal> and <literal>@class</literal> tags when
+    documenting a table to assist the documentation parser in
+    identifying it. There are several examples of this method of
+    documentation in the Nmap source distribution.
+    </para>
+
     <sect2 id="nse-documentation-tags">
       <title>NSE Documentation Tags</title>
       <para>
@@ -1949,25 +1965,6 @@ categories = {"discovery", "external"}
       @release. @documentation and @summary are automatically extracted
       from the contents of a comment. @release has not been used with
       NSEDoc. -->
-    </sect2>
-    <sect2 id="nse-documentation-c">
-      <title>NSE Documentation for C Modules</title>
-      <indexterm><primary>NSEDoc</primary><secondary>for C modules</secondary></indexterm>
-      <para>
-        NSEDoc documentation can be written for libraries as well as scripts.
-        But while Lua modules are documented in much the same way, a C module
-        requires special consideration. You must write a
-        <filename>.luadoc</filename><indexterm><primary sortas="luadoc filename extension"><filename>.luadoc</filename> filename extension</primary></indexterm>
-        file to accompany the C module in order for it to be
-        documented. These files are typically placed in the nselib directory 
-        next to other Lua modules. The file itself will list all functions
-        for the C module as though
-        they were written in Lua. You may however remove certain syntactical
-        structures (particularly, <literal>end</literal>) when writing this
-        document, as it is never compiled by Lua. Remember you may use the
-        <literal>@class</literal> tag to also help the parser
-        know what it is you are documenting, especially for tables.
-      </para>
     </sect2>
     <indexterm class="endofrange" startref="nse-documentation-indexterm"/>
     <indexterm class="endofrange" startref="nse-nsedoc-indexterm"/>
