@@ -84,9 +84,11 @@ cyphers = function(cypher_list, len)
 		if (cypher_name == nil) then
 			cypher_name = "unknown cypher (" .. byte1 .. "-" .. byte2 .. "-" .. byte3 .. " dec)"
 		end
-	
-		available_cyphers = available_cyphers .. "\t" .. cypher_name .. "\n";
-	
+
+		-- Check for duplicate cyphers
+		if not available_cyphers:match("\t" .. cypher_name .. "\n") then
+			available_cyphers = available_cyphers .. "\t" .. cypher_name .. "\n";
+		end
 	end
 
 	return available_cyphers

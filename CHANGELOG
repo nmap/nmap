@@ -123,6 +123,9 @@ o Upgraded the shipped libdnet to 1.12. [Kris]
 
 o Upgraded the OpenSSL shipped for Windows to 0.9.8i. [Kris]
 
+o The SSLv2-support NSE script no longer prints duplicate cyphers if
+  they exist in the server's supported cypher list. [Kris]
+
 o Updated IANA assignment IP list for random IP (-iR)
   generation. [Kris]
 
