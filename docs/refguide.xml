@@ -2740,6 +2740,14 @@ lists the relevant options and describes what they do.</para>
           OS is causing problems, try the
 	  <option>--send-eth</option><indexterm><primary><option>--send-eth</option></primary></indexterm>
           option to bypass the IP layer and send raw ethernet frames.</para>
+
+<para>Fragmentation is only supported for Nmap's raw packet features,
+which includes TCP and UDP port scans (except connect scan and FTP
+bounce scan) and OS detection.  Features such as version detection and
+the Nmap Scripting Engine generally don't support fragmentation
+because they rely on your host's TCP stack to communicate with target
+services.</para>
+
         </listitem>
       </varlistentry>
 
