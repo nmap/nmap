@@ -939,7 +939,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
 	    <term><option>host.bin_ip</option>
 	      </term>
 	    <listitem>
-	      <para>The target host's IPv4 address as 4 byte long binary value.
+	      <para>The target host's IPv4 address as a 32-bit binary value.
 		  </para>
 	    </listitem>
 	  </varlistentry>
@@ -947,7 +947,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
 	    <term><option>host.bin_ip_src</option>
 	      </term>
 	    <listitem>
-	      <para>Our host's (running Nmap) source IPv4 address as 4 byte long binary value.
+	      <para>Our host's (running Nmap) source IPv4 address as a 32-bit binary value.
 		  </para>
 	    </listitem>
 	  </varlistentry>
@@ -2154,8 +2154,8 @@ a call to <literal>nmap.new_try()</literal></para>
   local try = nmap.new_try(err_catch())
 </programlisting>
 
-<para>The script sets a timeout of 5000, which is equivalent to 5
-seconds. Should any operation require more time we'll receive a
+<para>The script sets a timeout of 5000 (five seconds).
+Should any operation require more time we'll receive a
 <literal>TIMEOUT</literal> error message.</para>
 
 <programlisting>

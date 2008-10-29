@@ -34,7 +34,7 @@ you should see output similar to that in <xref linkend="ex-checking-for-nmap" xr
 <screen>
 felix~&gt;nmap --version
 
-Nmap version 4.68 ( http://nmap.org )
+Nmap version 4.76 ( http://nmap.org )
 felix~&gt;
 </screen></example>
 
@@ -43,7 +43,7 @@ exist on the system (or if your <envar>PATH</envar> is incorrectly
 set), an error message such as
 <computeroutput>nmap: Command not found</computeroutput> is reported.  As the
 example above shows, Nmap responds to the command by printing its
-version number (here <literal>4.68</literal>).</para>
+version number (here <literal>4.76</literal>).</para>
 
 <para>Even if your system already has a copy of Nmap, you should
 consider upgrading to the latest version available from <ulink
@@ -152,10 +152,10 @@ sub 2048g/A50A6A94 2005-04-24
 </screen></example>
 
 <para>For every Nmap package download file
-(e.g. <filename>nmap-4.68.tar.bz2</filename> and
-<filename>nmap-4.68-win32.zip</filename>), there is a corresponding
+(e.g. <filename>nmap-4.76.tar.bz2</filename> and
+<filename>nmap-4.76-win32.zip</filename>), there is a corresponding
 file in the sigs directory with <literal>.gpg.txt</literal> appended
-to the name (e.g. <filename>nmap-4.68.tar.bz2.gpg.txt</filename>).
+to the name (e.g. <filename>nmap-4.76.tar.bz2.gpg.txt</filename>).
 This is the detached signature file.</para>
 
 <para>With the proper PGP key in your keyring and the detached
@@ -168,16 +168,16 @@ linkend="ex-gpg-verify-nmap-release-bad" xrefstyle="select: label nopage"/>.</pa
 <example id="ex-gpg-verify-nmap-release-good">
 <title>Verifying PGP key fingerprints (Successful)</title>
 <screen>
-flog&gt; gpg --verify nmap-4.68.tar.bz2.gpg.txt  nmap-4.68.tar.bz2
-gpg: Signature made Sun 29 Jun 2008 02:40:34 AM PDT using DSA key ID 6B9355D0
+flog&gt; gpg --verify nmap-4.76.tar.bz2.gpg.txt  nmap-4.76.tar.bz2
+gpg: Signature made Fri 12 Sep 2008 02:03:59 AM PDT using DSA key ID 6B9355D0
 gpg: Good signature from "Nmap Project Signing Key (http://www.insecure.org/)"
 </screen></example>
 
 <example id="ex-gpg-verify-nmap-release-bad">
 <title>Detecting a bogus file</title>
 <screen>
-flog&gt; gpg --verify nmap-4.68.tar.bz2.gpg.txt nmap-4.68-hacked.tar.bz2 
-gpg: Signature made Sun 29 Jun 2008 02:40:34 AM PDT using DSA key ID 6B9355D0
+flog&gt; gpg --verify nmap-4.76.tar.bz2.gpg.txt nmap-4.76-hacked.tar.bz2 
+gpg: Signature made Fri 12 Sep 2008 02:03:59 AM PDT using DSA key ID 6B9355D0
 gpg: BAD signature from "Nmap Project Signing Key (http://www.insecure.org/)"
 </screen></example>
 
@@ -193,7 +193,7 @@ Nmap.Org hashes if you obtain Nmap from a third party or feel it
 might have been accidentally corrupted.  For every Nmap package download
 file, there is a corresponding file in the sigs directory with
 <literal>.digest.txt</literal> appended to the name
-(e.g. <filename>nmap-4.68.tar.bz2.digest.txt</filename>).  An example
+(e.g. <filename>nmap-4.76.tar.bz2.digest.txt</filename>).  An example
 is shown in <xref linkend="ex-digest-file" xrefstyle="select: label nopage" />.  This is the detached
 signature file. The hashes from the digest file can be verified using common tools such as
 <application>sha1sum</application>, <application>md5sum</application>,
@@ -203,30 +203,30 @@ linkend="ex-digest-file-verify" />.</para>
 <example id="ex-digest-file">
 <title>A typical Nmap release digest file</title>
 <screen>
-flog&gt; cat nmap-4.53.tgz.digest.txt 
-nmap-4.53.tgz:    MD5 = 0D 86 C1 C4 FA 55 E9 36  D0 B7 C8 05 1F 70 36 E9
-nmap-4.53.tgz:   SHA1 = 3516 D794 8AD8 F994 F2FD  B52E 1C51 7C5F ED91 E06F
-nmap-4.53.tgz: RMD160 = A5DA A78C 583E 7D2D 650E  E1F5 0551 A4EC 54DF 55A6
-nmap-4.53.tgz: SHA224 = 6B8B62D6 FA1B83DF D8AC2350 D2496906 A9069515 9B98FA93
-                        31782297
-nmap-4.53.tgz: SHA256 = 7D415EB8 E6CBD0F6 FBC2301E A65C6A6D 3580B810 85FAF0FE
-                        42D00863 8BAC12FB
-nmap-4.53.tgz: SHA384 = 9E2086D4 4AAE1FEA 7F347ACA C7A44363 10387CF3 F73BDB3B
-                        492887D5 6F1923D8 154F8D90 6B9FBDEB 903CFEC0 F6D38020
-nmap-4.53.tgz: SHA512 = 31235D3A F8C39057 91A61F7C 63E69D51 722B7540 EA457220
-                        FF2391E7 93B98F0D DFEF9A8B F6C02725 CBE32E0F 35766C6C
-                        554F759C C9D4C4BC F42227F4 6E7B2B3D
+flog&gt; cat sigs/nmap-4.76.tgz.digest.txt 
+nmap-4.76.tgz:    MD5 = 54 B5 C9 E3 F4 4C 1A DD  E1 7D F6 81 70 EB 7C FE
+nmap-4.76.tgz:   SHA1 = 4374 CF9C A882 2C28 5DE9  D00E 8F67 06D0 BCFA A403
+nmap-4.76.tgz: RMD160 = AE7B 80EF 4CE6 DBAA 6E65  76F9 CA38 4A22 3B89 BD3A
+nmap-4.76.tgz: SHA224 = 524D479E 717D98D0 2FB0A42B 9A4E6E52 4027C9B6 1D843F95
+                        D419F87F
+nmap-4.76.tgz: SHA256 = 0E960E05 53EB7647 0C8517A0 038092A3 969DB65C BE23C03F
+                        D6DAEF1A CDCC9658
+nmap-4.76.tgz: SHA384 = D52917FD 9EE6EE62 F5F456BF E245675D B6EEEBC5 0A287B27
+                        3CAA4F50 B171DC23 FE7808A8 C5E3A49A 4A78ACBE A5AEED33
+nmap-4.76.tgz: SHA512 = 826CD89F 7930A765 C9FE9B41 1DAFD113 2C883857 2A3A9503
+                        E4C1E690 20A37FC8 37564DC3 45FF0C97 EF45ABE6 6CEA49FF
+                        E262B403 A52F4ECE C23333A0 48DEDA66
 </screen></example>
 
 <example id="ex-digest-file-verify">
 <title>Verifying Nmap hashes</title>
 <screen>
-flog&gt; sha1sum nmap-4.53.tgz 
-3516d7948ad8f994f2fdb52e1c517c5fed91e06f  nmap-4.53.tgz
-flog&gt; md5sum nmap-4.53.tgz 
-0d86c1c4fa55e936d0b7c8051f7036e9  nmap-4.53.tgz
-flog&gt; gpg --print-md sha1 nmap-4.53.tgz 
-nmap-4.53.tgz: 3516 D794 8AD8 F994 F2FD  B52E 1C51 7C5F ED91 E06F
+flog&gt; sha1sum nmap-4.76.tgz 
+4374cf9ca8822c285de9d00e8f6706d0bcfaa403  nmap-4.76.tgz
+flog&gt; md5sum nmap-4.76.tgz
+54b5c9e3f44c1adde17df68170eb7cfe  nmap-4.76.tgz
+flog&gt; gpg --print-md sha1 nmap-4.76.tgz 
+nmap-4.76.tgz: 4374 CF9C A882 2C28 5DE9  D00E 8F67 06D0 BCFA A403
 </screen></example>
 
 <para>While releases from Nmap.Org are signed as described in this
@@ -796,7 +796,7 @@ as <filename>winpcap-nmap-<replaceable>version</replaceable>.exe</filename>,
 where <replaceable>version</replaceable> is the Nmap version rather
 than the WinPcap version.  Alternatively, you can obtain and install
 the latest version from <ulink url="http://www.winpcap.org" />.  You
-must install version 4 or later.</para></listitem>
+must install version 4.0 or later.</para></listitem>
 
 <listitem><para>Due to the way Nmap is compiled, it requires the
 Microsoft Visual C++ 2008 Redistributable Package of runtime
@@ -828,7 +828,7 @@ url="http://www.microsoft.com/express/vc/">Visual C++ 2008 Express</ulink>.</par
 <listitem><para>Uncompress the source code file you just downloaded.  Recent releases of the free <ulink url="http://www.cygwin.com/">Cygwin distribution</ulink><indexterm><primary>Cygwin</primary></indexterm> can handle both the <filename>.tar.bz2</filename> and <literal>.tgz</literal> formats.  Use the command <command>tar xvjf nmap-version.tar.bz2</command> or <command>tar xvzf nmap-version.tgz</command>, respectively.  Alternatively, the common <application>WinZip</application> application can decompress the .tgz version.</para></listitem>
 
 <listitem><para>Open Visual Studio and the Nmap solution file ( <filename>nmap-<replaceable>version</replaceable>/mswin32/nmap.sln</filename>).</para></listitem>
-<listitem><para>Choose <guimenuitem>Build Solution</guimenuitem> from the <guimenu>Build Menu</guimenu>.  Nmap should begin compiling, and end with the line <quote><literal>-- Done --</literal></quote> saying that all projects built successfully and there were 0 failures.</para></listitem>
+<listitem><para>Choose <guimenuitem>Build Solution</guimenuitem> from the <guimenu>Build Menu</guimenu>.  Nmap should begin compiling, and end with the line <quote><literal>-- Done --</literal></quote> saying that all projects built successfully and there were zero failures.</para></listitem>
 
 <listitem><para>The executable and data files can be found in <filename>nmap-<replaceable>version</replaceable>/mswin32/Release/</filename>.  You can copy them to a preferred directory as long as they are all kept together.</para></listitem>
 
