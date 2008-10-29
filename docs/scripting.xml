@@ -561,7 +561,7 @@ $ nmap -sC --script-args user=foo,pass=bar,anonFTP={pass=ftp@foobar.com}
       </para>
     </sect2>
   </sect1>
-  <sect1 id="nse-scripts">
+  <sect1 id="nse-script-format">
     <title>Script Format</title>
     <para>NSE scripts consist of six descriptive fields along with either a port or host rule defining when the script should be executed and an action block containing the actual script instructions. Values can be assigned to these fields just as you would assign any other Lua variables.  Their names must be lowercase as shown here.</para>
 
@@ -762,24 +762,8 @@ action refer to <xref linkend="nse-tutorial-action"/>.
       </para>
     </sect2>
 	</sect1>
-    <sect1 id="nse-library">
-      <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>list of modules</secondary></indexterm>
-      <title>Lua Extensions</title>
-      <para>In addition to the significant built-in capabilities of
-      Lua, we have written or integrated several extensions to make
-      NSE scripts more powerful and convenient to write. These 
-	  <emphasis>modules</emphasis> are compiled and installed along with 
-	  Nmap. They have their own directory, <filename>nselib</filename>, which
-	  is installed in the configured datadir. Scripts need only 
-      <ulink url="http://www.lua.org/manual/5.1/manual.html#pdf-require">
-      <literal>require</literal>
-      </ulink> the default modules in order to use them.
-	  </para>
 
-      &nse-modules;
-  </sect1>
-
-  <sect1 id="nse-scripts-list">
+  <sect1 id="nse-scripts">
     <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>list of scripts</secondary></indexterm>
     <title>NSE Scripts</title>
 
@@ -798,6 +782,23 @@ action refer to <xref linkend="nse-tutorial-action"/>.
 
     &nse-scripts;
   </sect1>
+
+    <sect1 id="nse-library">
+      <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>list of modules</secondary></indexterm>
+      <title>NSE Libraries</title>
+      <para>In addition to the significant built-in capabilities of
+      Lua, we have written or integrated many extension libraries which make
+      script writing more powerful and convenient. These  libraries (sometimes called modules) are compiled and installed along with 
+	  Nmap. They have their own directory, <filename>nselib</filename>, which
+	  is installed in the configured datadir. Scripts need only 
+      <ulink url="http://www.lua.org/manual/5.1/manual.html#pdf-require">
+      <literal>require</literal>
+      </ulink> the default libraries in order to use them.
+	  </para>
+
+      &nse-modules;
+  </sect1>
+
 
   <sect1 id="nse-api">
     <title>Nmap API</title>
@@ -1466,7 +1467,7 @@ try(socket:send(result))
       overcome with NSE.  </para>
 
     <para>
-      The anatomy of a script is described in <xref linkend="nse-scripts"/>.
+      The anatomy of a script is described in <xref linkend="nse-script-format"/>.
       In this section we will show how the described structure is utilized.
     </para>
     
@@ -1765,7 +1766,7 @@ local localip, localport = try(client_service:get_info())
     opposed to functions and modules. Some information that might be put
     in an <literal>@</literal>-tag in a comment should go in one of the
     special script variables instead. (Script variables are described in
-    <xref linkend="nse-scripts"/>.) Specifically, the script's
+    <xref linkend="nse-script-format"/>.) Specifically, the script's
     description should be in the <varname>description</varname> variable
     rather than in a documentation comment, and the information that
     would go in <literal>@author</literal> and
