@@ -1071,7 +1071,7 @@ install nmap</command>. Nmap will be installed as
 <filename>/opt/local/bin/nmap</filename>. To uninstall, run
 <command>sudo port uninstall nmap</command>.</para>
 
-<para>These systems install install the <filename>nmap</filename>
+<para>These systems install the <filename>nmap</filename>
 executable outside the global <envar>PATH</envar>. To enable Zenmap to
 find it, set the <varname>nmap_command_path</varname> variable in
 <filename>zenmap.conf</filename> to <filename>/sw/bin/nmap</filename> or

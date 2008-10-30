@@ -32,7 +32,7 @@ the RIRs.
 ]]
 
 ---
--- @args whodb Takes any of the the following values, which may be combined:
+-- @args whodb Takes any of the following values, which may be combined:
 -- * <code>whodb=nofile</code> Prevent the use of IANA assignments data and instead query the default services.
 -- * <code>whodb=nofollow</code> Ignore referrals and instead display the first record obtained.
 -- * <code>whodb=nocache</code> Prevent the acceptance of records in the cache when they apply to large ranges of addresses.
