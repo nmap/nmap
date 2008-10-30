@@ -47,17 +47,6 @@ function bignum_clear_bit(bignum, position)
 -- @return True if the selected bit is set, false otherwise. 
 function bignum_is_bit_set(bignum, position)
 
---- Sets the sign of <code>bignum</code>.
--- @param bignum bignum to operate on.
--- @param negative If true, the sign becomes negative, otherwise it becomes
--- positive.
-function bignum_set_negative(bignum, negative)
-
---- Gets the sign of <code>bignum</code>.
--- @param bignum bignum to operate on.
--- @return True if <code>bignum</code> is negative, false otherwise.
-function bignum_is_negative(bignum)
-
 --- Converts a binary-encoded string into a bignum.
 -- @param string Binary string.
 -- @return bignum.

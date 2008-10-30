@@ -142,21 +142,6 @@ static int l_bignum_is_bit_set( lua_State *L ) /** bignum_set_bit( BIGNUM bn, nu
   return 1;
 }
 
-static int l_bignum_set_negative( lua_State *L ) /** bignum_set_negative( BIGNUM bn ) */
-{
-  bignum_data_t * userdata = (bignum_data_t *) luaL_checkudata(L, 1, "BIGNUM");
-  int value = lua_toboolean(L, 2);
-  BN_set_negative( userdata->bn, value );
-  return 0;
-}
-
-static int l_bignum_is_negative( lua_State *L ) /** bignum_is_negative( BIGNUM bn ) */
-{
-  bignum_data_t * userdata = (bignum_data_t *) luaL_checkudata(L, 1, "BIGNUM");
-  lua_pushboolean( L, BN_is_negative( userdata->bn) );
-  return 1;
-}
-
 static int l_bignum_bn2bin( lua_State *L ) /** bignum_bn2bin( BIGNUM bn ) */
 {
   bignum_data_t * userdata = (bignum_data_t *) luaL_checkudata(L, 1, "BIGNUM");
@@ -460,8 +445,6 @@ static const struct luaL_reg bignum_methods[] = {
   { "set_bit", l_bignum_set_bit },
   { "clear_bit", l_bignum_clear_bit },
   { "is_bit_set", l_bignum_is_bit_set },
-  { "set_negative", l_bignum_set_negative },
-  { "is_negative", l_bignum_is_negative },
   { "__gc", l_bignum_free },
   { NULL, NULL }
 };
@@ -472,8 +455,6 @@ static const struct luaL_reg openssllib[] = {
   { "bignum_set_bit", l_bignum_set_bit },
   { "bignum_clear_bit", l_bignum_clear_bit },
   { "bignum_is_bit_set", l_bignum_is_bit_set },
-  { "bignum_set_negative", l_bignum_set_negative },
-  { "bignum_is_negative", l_bignum_is_negative },
   { "bignum_bin2bn", l_bignum_bin2bn },
   { "bignum_dec2bn", l_bignum_dec2bn },
   { "bignum_hex2bn", l_bignum_hex2bn },
