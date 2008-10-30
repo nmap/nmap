@@ -1129,44 +1129,6 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
   bool lasttrace = false;
   char spmobuf[1024];
 
-  if (o.mass_dns == false) {
-    Target *currenths;
-    struct sockaddr_storage ss;
-    size_t sslen;
-    char hostname[MAXHOSTNAMELEN + 1] = "";
-
-    for(hostI = targets; hostI < targets+num_targets; hostI++) {
-      currenths = *hostI;
-
-      if (((currenths->flags & HOST_UP) || o.resolve_all) && !o.noresolve) stat_actual++;
-    }
-
-    Snprintf(spmobuf, sizeof(spmobuf), "System DNS resolution of %d host%s.", num_targets, num_targets-1 ? "s" : "");
-    SPM = new ScanProgressMeter(spmobuf);
-
-    for(i=0, hostI = targets; hostI < targets+num_targets; hostI++, i++) {
-      currenths = *hostI;
-	
-      if (keyWasPressed())
-        SPM->printStats((double) i / stat_actual, NULL);
-
-      if (((currenths->flags & HOST_UP) || o.resolve_all) && !o.noresolve) {
-        if (currenths->TargetSockAddr(&ss, &sslen) != 0)
-          fatal("Failed to get target socket address.");
-        if (getnameinfo((struct sockaddr *)&ss, sslen, hostname,
-                        sizeof(hostname), NULL, 0, NI_NAMEREQD) == 0) {
-          stat_ok++;
-          currenths->setHostName(hostname);
-        }
-      }
-    }
-
-    SPM->endTask(NULL, NULL);
-    delete SPM;
-
-    return;
-  }
-
   // If necessary, set up the dns server list from resolv.conf
   if (servs.size() == 0) {
     if (o.dns_servers) add_dns_server(o.dns_servers);
@@ -1288,6 +1250,44 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
 }
 
+static void nmap_system_rdns_core(Target **targets, int num_targets) {
+  Target **hostI;
+  Target *currenths;
+  struct sockaddr_storage ss;
+  size_t sslen;
+  char hostname[MAXHOSTNAMELEN + 1] = "";
+  char spmobuf[1024];
+  int i;
+
+  for(hostI = targets; hostI < targets+num_targets; hostI++) {
+    currenths = *hostI;
+
+    if (((currenths->flags & HOST_UP) || o.resolve_all) && !o.noresolve) stat_actual++;
+  }
+
+  Snprintf(spmobuf, sizeof(spmobuf), "System DNS resolution of %d host%s.", num_targets, num_targets-1 ? "s" : "");
+  SPM = new ScanProgressMeter(spmobuf);
+
+  for(i=0, hostI = targets; hostI < targets+num_targets; hostI++, i++) {
+    currenths = *hostI;
+      
+    if (keyWasPressed())
+      SPM->printStats((double) i / stat_actual, NULL);
+
+    if (((currenths->flags & HOST_UP) || o.resolve_all) && !o.noresolve) {
+      if (currenths->TargetSockAddr(&ss, &sslen) != 0)
+        fatal("Failed to get target socket address.");
+      if (getnameinfo((struct sockaddr *)&ss, sslen, hostname,
+                      sizeof(hostname), NULL, 0, NI_NAMEREQD) == 0) {
+        stat_ok++;
+        currenths->setHostName(hostname);
+      }
+    }
+  }
+
+  SPM->endTask(NULL, NULL);
+  delete SPM;
+}
 
 
 // Publicly available function. Basically just a wrapper so we
@@ -1300,7 +1300,10 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
 
   stat_actual = stat_ok = stat_nx = stat_sf = stat_trans = stat_dropped = stat_cname = 0;
 
-  nmap_mass_rdns_core(targets, num_targets);
+  if (o.mass_dns)
+    nmap_mass_rdns_core(targets, num_targets);
+  else
+    nmap_system_rdns_core(targets, num_targets);
 
   gettimeofday(&now, NULL);
 
