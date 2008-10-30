@@ -1345,12 +1345,15 @@ std::list<std::string> get_dns_servers() {
   if(servs.size() == 0 && firstrun) {
     nmap_mass_rdns(NULL, 0);
   }
+
+  // If the user said --system-dns (!o.mass_dns), we should never return a list
+  // of servers.
+  assert(o.mass_dns || servs.empty());
+
   std::list<dns_server *>::iterator servI;
   std::list<std::string> serverList;
-  dns_server *tpserv;
-  for(servI = servs.begin(); servI != servs.end(); servI++) {
-    tpserv = *servI;
-    serverList.push_back(inet_ntoa(tpserv->addr.sin_addr));
-  }
+  for(servI = servs.begin(); servI != servs.end(); servI++)
+    serverList.push_back(inet_ntoa((*servI)->addr.sin_addr));
+
   return serverList;
 }
