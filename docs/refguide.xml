@@ -2485,18 +2485,6 @@ time.</para>
       </varlistentry>
 
       <varlistentry>
-        <term>
-        <option>--max-rate <replaceable>number</replaceable></option>
-        (Specify a maximum scanning rate)
-        <indexterm><primary><option>--max-rate</option></primary></indexterm>
-        </term>
-        <listitem>
-
-
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
         <term><option>--defeat-rst-ratelimit</option>
         <indexterm><primary><option>--defeat-rst-ratelimit</option></primary></indexterm></term>
         <listitem>
