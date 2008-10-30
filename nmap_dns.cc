@@ -878,6 +878,8 @@ static void connect_dns_servers() {
 
 
 #ifdef WIN32
+// Reads the Windows registry and adds all the nameservers found via the
+// add_dns_server() function.
 void win32_read_registry(char *controlset) {
   HKEY hKey;
   HKEY hKey2;
@@ -937,12 +939,9 @@ void win32_read_registry(char *controlset) {
 
 
 
-// Parses /etc/resolv.conf (unix) or the registry (win32) and adds
-// all the nameservers found via the add_dns_server() function.
+// Parses /etc/resolv.conf (unix) and adds all the nameservers found via the
+// add_dns_server() function.
 static void parse_resolvdotconf() {
-
-#ifndef WIN32
-
   FILE *fp;
   char buf[2048], *tp;
   char ipaddr[16];
@@ -968,10 +967,6 @@ static void parse_resolvdotconf() {
   }
 
   fclose(fp);
-
-#else
-  win32_read_registry("CurrentControlSet");
-#endif
 }
 
 
@@ -1113,6 +1108,20 @@ static void etchosts_init(void) {
 #endif
 }
 
+/* Initialize the global servs list of DNS servers. If the --dns-servers option
+ * was given, use the listed servers; otherwise get the list from resolv.conf or
+ * the Windows registry. */
+static void init_servs(void) {
+  if (o.dns_servers) {
+    add_dns_server(o.dns_servers);
+  } else {
+#ifndef WIN32
+    parse_resolvdotconf();
+#else
+    win32_read_registry("CurrentControlSet");
+#endif
+  }
+}
 
 //------------------- Main loops ---------------------
 
@@ -1129,13 +1138,11 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
   bool lasttrace = false;
   char spmobuf[1024];
 
-  // If necessary, set up the dns server list from resolv.conf
-  if (servs.size() == 0) {
-    if (o.dns_servers) add_dns_server(o.dns_servers);
-    else parse_resolvdotconf();
+  // If necessary, set up the dns server list
+  if (servs.size() == 0)
+    init_servs();
 
-    if (servs.size() == 0 && firstrun) error("mass_dns: warning: Unable to determine any DNS servers. Reverse DNS is disabled. Try using --system-dns or specify valid servers with --dns-servers");
-  }
+  if (servs.size() == 0 && firstrun) error("mass_dns: warning: Unable to determine any DNS servers. Reverse DNS is disabled. Try using --system-dns or specify valid servers with --dns-servers");
 
 
   // If necessary, set up the /etc/hosts hashtable
