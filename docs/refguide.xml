@@ -1050,7 +1050,7 @@ response. A SYN/ACK indicates the port is listening (open), while a
 RST (reset) is indicative of a non-listener. If no response is
 received after several retransmissions, the port is marked as
 filtered.  The port is also marked filtered if an ICMP unreachable
-error (type 3, code 1,2, 3, 9, 10, or 13) is received.</para>
+error (type 3, code 1, 2, 3, 9, 10, or 13) is received.</para>
 
         </listitem>
       </varlistentry>
