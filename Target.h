@@ -148,7 +148,7 @@ class Target {
   void setTargetSockAddr(struct sockaddr_storage *ss, size_t ss_len);
   // Returns IPv4 target host address or {0} if unavailable.
   struct in_addr v4host();
-  const struct in_addr *v4hostip();
+  const struct in_addr *v4hostip() const;
   /* The source address used to reach the target */
   int SourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len);
   /* Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
@@ -234,7 +234,7 @@ class Target {
   int setNextHopMACAddress(const u8 *addy); // this should be the target's own MAC if directlyConnected()
 
   /* Returns a pointer to 6-byte MAC address, or NULL if none is set */
-  const u8 *MACAddress();
+  const u8 *MACAddress() const;
   const u8 *SrcMACAddress();
   const u8 *NextHopMACAddress();
 

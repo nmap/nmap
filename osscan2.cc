@@ -3677,7 +3677,6 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
       if (roundNum > 0) {
         if(o.verbose) error("WARNING:  OS didn't match until try #%d", roundNum + 1);
       }
-      hsi->target->FPR->goodFP = roundNum;
       match_fingerprint(hsi->target->FPR->FPs[roundNum], hsi->target->FPR, 
                         o.reference_FPs, OSSCAN_GUESS_THRESHOLD);
       hsi->isCompleted = true;
@@ -3728,14 +3727,11 @@ static void findBestFPs(OsScanInfo *OSI) {
       }
     }
 
-    hsi->target->FPR->goodFP = bestaccidx;
-
     // Now we redo the match, since target->FPR has various data (such as
     // target->FPR->numFPs) which is not in FP_matches[bestaccidx].  This is
     // kinda ugly.
-    if (hsi->target->FPR->goodFP >= 0)
-      match_fingerprint(hsi->target->FPR->FPs[bestaccidx], hsi->target->FPR, 
-                        o.reference_FPs, OSSCAN_GUESS_THRESHOLD);
+    match_fingerprint(hsi->target->FPR->FPs[bestaccidx], hsi->target->FPR, 
+                      o.reference_FPs, OSSCAN_GUESS_THRESHOLD);
   }
 }
 

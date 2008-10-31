@@ -244,7 +244,7 @@ struct in_addr Target::v4host() {
 }
 
 // Returns IPv4 host address or NULL if unavailable.
-const struct in_addr *Target::v4hostip() {
+const struct in_addr *Target::v4hostip() const {
   struct sockaddr_in *sin = (struct sockaddr_in *) &targetsock;
   if (sin->sin_family == AF_INET) {
     return &(sin->sin_addr);
@@ -454,7 +454,7 @@ void Target::setDeviceNames(const char *name, const char *fullname) {
 }
 
 /* Returns the 6-byte long MAC address, or NULL if none has been set */
-const u8 *Target::MACAddress() {
+const u8 *Target::MACAddress() const {
   return (MACaddress_set)? MACaddress : NULL;
 }
 

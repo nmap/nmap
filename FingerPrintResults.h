@@ -158,7 +158,6 @@ class FingerPrintResults {
 
   FingerPrint **FPs; /* Fingerprint data obtained from host */
   int numFPs;
-  int goodFP;
 
 /* If the fingerprint is of potentially poor quality, we don't want to
    print it and ask the user to submit it.  In that case, the reason

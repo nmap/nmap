@@ -1555,6 +1555,22 @@ void printmacinfo(Target *currenths) {
 
 
 
+/* A convenience wrapper around mergeFPs. */
+static const char *merge_fpr(const FingerPrintResults *FPR,
+                             const Target *currenths,
+                             bool isGoodFP, bool wrapit) {
+  return mergeFPs(FPR->FPs, FPR->numFPs, isGoodFP, currenths->v4hostip(),
+                  currenths->distance, currenths->MACAddress(),
+                  FPR->osscan_opentcpport, FPR->osscan_closedtcpport,
+                  FPR->osscan_closedudpport, wrapit);
+}
+
+static void write_merged_fpr(const FingerPrintResults *FPR,
+                             const Target *currenths,
+                             bool isGoodFP, bool wrapit) {
+  log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT, "TCP/IP fingerprint:\n%s\n",
+            merge_fpr(FPR, currenths, isGoodFP, wrapit));
+}
 
 /* Prints the formatted OS Scan output to stdout, logfiles, etc (but only
    if an OS Scan was performed).*/
@@ -1563,7 +1579,6 @@ void printosscanoutput(Target *currenths) {
   char numlst[512]; /* For creating lists of numbers */
   char *p; /* Used in manipulating numlst above */
   FingerPrintResults *FPR;
-  int distance = -1;
   int osscan_flag;
   
   if (!(osscan_flag = currenths->osscanPerformed()))
@@ -1572,9 +1587,6 @@ void printosscanoutput(Target *currenths) {
   if (currenths->FPR == NULL)
     return;
   FPR = currenths->FPR;
-
-  if (currenths->distance != -1)
-	distance = currenths->distance;
 
   log_write(LOG_XML, "<os>");
   if (FPR->osscan_opentcpport > 0) {
@@ -1605,130 +1617,82 @@ void printosscanoutput(Target *currenths) {
   
   if (FPR->overall_results == OSSCAN_SUCCESS && 
       (FPR->num_perfect_matches <= 8 || o.debugging)) {
+    /* Success, not too many perfect matches. */
     if (FPR->num_perfect_matches > 0) {
-      char *p;
+      /* Some perfect matches. */
+      for (i = 0; FPR->accuracy[i] == 1; i++) {
+        char *p;
+        log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"100\" line=\"%d\" />\n", 
+                  p = xml_convert(FPR->prints[i]->OS_name),
+                  FPR->prints[i]->line);
+        free(p);
+      }
+
       log_write(LOG_MACHINE,"\tOS: %s",  FPR->prints[0]->OS_name);
-      log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"100\" line=\"%d\" />\n", 
-		p = xml_convert(FPR->prints[0]->OS_name), 
-		FPR->prints[0]->line);
-      free(p);
-      i = 1;
-      while(FPR->accuracy[i] == 1 ) {
-	log_write(LOG_MACHINE,"|%s", FPR->prints[i]->OS_name);
-	log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"100\" line=\"%d\" />\n", 
-		  p = xml_convert(FPR->prints[i]->OS_name),
-		  FPR->prints[i]->line);
-	free(p);
-	i++;
-      }
-      if (FPR->num_perfect_matches == 1)
-	log_write(LOG_PLAIN,
-		  "OS details: %s", 
-		  FPR->prints[0]->OS_name);
-      
-      else {
-	log_write(LOG_PLAIN,
-		  "OS details: %s", 
-		  FPR->prints[0]->OS_name);
-	i = 1;
-	while(FPR->accuracy[i] == 1) {
-	  log_write(LOG_PLAIN,", %s", 
-		    FPR->prints[i]->OS_name);
-	  i++;
-	}
-      }
+      for (i = 1; FPR->accuracy[i] == 1; i++)
+        log_write(LOG_MACHINE,"|%s", FPR->prints[i]->OS_name);
+
+      log_write(LOG_PLAIN, "OS details: %s", FPR->prints[0]->OS_name);
+      for (i = 1; FPR->accuracy[i] == 1; i++)
+        log_write(LOG_PLAIN,", %s", FPR->prints[i]->OS_name);
+      log_write(LOG_PLAIN, "\n");
+
+      if (o.debugging || o.verbose > 1)
+        write_merged_fpr(FPR, currenths, reason != NULL, true);
     } else {
+      /* No perfect matches. */
       if ((o.verbose > 1 || o.debugging) && reason)
-	log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,
-		  "OS fingerprint not ideal because: %s\n", reason);
+        log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,
+                  "OS fingerprint not ideal because: %s\n", reason);
 
       if ((o.osscan_guess || reason) && FPR->num_matches > 0) {
-	char *p;
-	/* Print the best guesses available */
-	log_write(LOG_PLAIN,"Aggressive OS guesses: %s (%d%%)", FPR->prints[0]->OS_name, (int) (FPR->accuracy[0] * 100));
-	log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"%d\" line=\"%d\"/>\n", 
-		  p = xml_convert(FPR->prints[0]->OS_name),  
-		  (int) (FPR->accuracy[0] * 100), 
-		  FPR->prints[0]->line);
-	free(p);
+        /* Print the best guesses available */
+        for (i = 0; i < 10 && i < FPR->num_matches && FPR->accuracy[i] > FPR->accuracy[0] - 0.10; i++) {
+          char *p;
+          log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"%d\" line=\"%d\"/>\n", 
+                    p = xml_convert(FPR->prints[i]->OS_name),  
+                    (int) (FPR->accuracy[i] * 100), 
+                    FPR->prints[i]->line);
+          free(p);
+        }
 
-	for(i=1; i < 10 && FPR->num_matches > i && FPR->accuracy[i] > FPR->accuracy[0] - 0.10; i++) {
-
-	  log_write(LOG_PLAIN,", %s (%d%%)", FPR->prints[i]->OS_name, (int) (FPR->accuracy[i] * 100));
-	  log_write(LOG_XML, "<osmatch name=\"%s\" accuracy=\"%d\" line=\"%d\"/>\n", 
-		    p = xml_convert(FPR->prints[i]->OS_name),  
-		    (int) (FPR->accuracy[i] * 100), 
-		    FPR->prints[i]->line);
-	  free(p);
-	}
-	log_write(LOG_PLAIN, "\n");
+        log_write(LOG_PLAIN,"Aggressive OS guesses: %s (%d%%)", FPR->prints[0]->OS_name, (int) (FPR->accuracy[0] * 100));
+        for (i = 1; i < 10 && FPR->num_matches > i && FPR->accuracy[i] > FPR->accuracy[0] - 0.10; i++)
+          log_write(LOG_PLAIN,", %s (%d%%)", FPR->prints[i]->OS_name, (int) (FPR->accuracy[i] * 100));
+        log_write(LOG_PLAIN, "\n");
       }
+
       if (!reason) {
-	log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No exact OS matches for host (If you know what OS is running on it, see http://nmap.org/submit/ ).\nTCP/IP fingerprint:\n%s\n",
-		  mergeFPs(FPR->FPs, FPR->numFPs, true,
-			   currenths->v4hostip(), distance, currenths->MACAddress(),
-			   FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
-			   true));
-	
+        log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No exact OS matches for host (If you know what OS is running on it, see http://nmap.org/submit/ ).\n");
+        write_merged_fpr(FPR, currenths, true, true);
       } else {
-
-	  log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No exact OS matches for host (test conditions non-ideal).");
-	  if (o.verbose > 1 || o.debugging)
-	    log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT, 
-		      "\nTCP/IP fingerprint:\n%s",
-		      mergeFPs(FPR->FPs, FPR->numFPs, false,
-					  currenths->v4hostip(), distance, currenths->MACAddress(),
-					  FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
-					  false));
+        log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No exact OS matches for host (test conditions non-ideal).\n");
+        if (o.verbose > 1 || o.debugging)
+          write_merged_fpr(FPR, currenths, false, false);
       }
     }
-      
-    log_write(LOG_PLAIN,"\n");	  
-    if (FPR->goodFP >= 0 && (o.debugging || o.verbose > 1) && 
-	FPR->num_perfect_matches > 0 ) {
-      log_write(LOG_PLAIN,"OS Fingerprint:\n%s\n",
-		mergeFPs(FPR->FPs, FPR->numFPs, !reason,
-			 currenths->v4hostip(), distance, currenths->MACAddress(),
-			 FPR->osscan_opentcpport, FPR->osscan_closedtcpport, 
-			 FPR->osscan_closedudpport, true));
-
-    }
-
   } else if (FPR->overall_results == OSSCAN_NOMATCHES) {
-    const char *reason = FPR->OmitSubmissionFP();
-    if ((o.verbose > 1 || o.debugging) && reason)
-      log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"OS fingerprint not ideal because: %s\n", reason);
+    /* No matches at all. */
     if (!reason) {
-      log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No OS matches for host (If you know what OS is running on it, see http://nmap.org/submit/ ).\nTCP/IP fingerprint:\n%s\n",
-		mergeFPs(FPR->FPs, FPR->numFPs, true,
-			 currenths->v4hostip(), distance, currenths->MACAddress(),
-			 FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
-			 true));
+      log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No OS matches for host (If you know what OS is running on it, see http://nmap.org/submit/ ).\n");
+      write_merged_fpr(FPR, currenths, true, true);
     } else {
+      log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"OS fingerprint not ideal because: %s\n", reason);
       log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"No OS matches for host\n");
-      if (o.verbose > 1)
-	log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT, "\nTCP/IP fingerprint:\n%s",
-		  mergeFPs(FPR->FPs, FPR->numFPs, false,
-				      currenths->v4hostip(), distance, currenths->MACAddress(),
-				      FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
-				      false));
+      if (o.debugging || o.verbose > 1)
+        write_merged_fpr(FPR, currenths, false, false);
     }
   } else if (FPR->overall_results == OSSCAN_TOOMANYMATCHES || (FPR->num_perfect_matches > 8 && !o.debugging)) {
-    log_write(LOG_PLAIN,"Too many fingerprints match this host to give specific OS details\n");
-    if (o.debugging || o.verbose > 1) {
-      log_write(LOG_PLAIN,"TCP/IP fingerprint:\n%s",
-		mergeFPs(FPR->FPs, FPR->numFPs, false,
-				    currenths->v4hostip(), distance, currenths->MACAddress(),
-				    FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
-				    false));
-    }
-  } else { assert(0); }
+    /* Too many perfect matches. */
+    log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,"Too many fingerprints match this host to give specific OS details\n");
+    if (o.debugging || o.verbose > 1)
+      write_merged_fpr(FPR, currenths, false, false);
+  } else {
+    assert(0);
+  }
   
   if (o.debugging || o.verbose) {
-    char *xml_osfp = xml_convert(mergeFPs(FPR->FPs, FPR->numFPs, !reason,
-				 currenths->v4hostip(), distance, currenths->MACAddress(),
-				 FPR->osscan_opentcpport, FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
-				 !reason));
+    char *xml_osfp = xml_convert(merge_fpr(FPR, currenths, reason != NULL, reason != NULL));
     log_write(LOG_XML,"<osfingerprint fingerprint=\"%s\" />\n", xml_osfp);
     free(xml_osfp);
   }
@@ -1746,9 +1710,9 @@ void printosscanoutput(Target *currenths) {
     log_write(LOG_XML, "<uptime seconds=\"%li\" lastboot=\"%s\" />\n", tv.tv_sec - currenths->seq.lastboot, tmbuf);
   }
   
-  if (distance!=-1) {
-    log_write(LOG_PLAIN, "Network Distance: %d hop%s\n", distance, (distance == 1)? "" : "s");
-    log_write(LOG_XML, "<distance value=\"%d\" />\n", distance);
+  if (currenths->distance!=-1) {
+    log_write(LOG_PLAIN, "Network Distance: %d hop%s\n", currenths->distance, (currenths->distance == 1)? "" : "s");
+    log_write(LOG_XML, "<distance value=\"%d\" />\n", currenths->distance);
   }
   
   if (currenths->seq.responses > 3) {
