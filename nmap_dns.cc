@@ -1110,8 +1110,19 @@ static void etchosts_init(void) {
 
 /* Initialize the global servs list of DNS servers. If the --dns-servers option
  * was given, use the listed servers; otherwise get the list from resolv.conf or
- * the Windows registry. */
+ * the Windows registry. If o.mass_dns is false, the list of servers is empty.
+ * This function caches the results from the first time it is run. */
 static void init_servs(void) {
+  static bool initialized = false;
+
+  if (initialized)
+    return;
+
+  initialized = true;
+
+  if (!o.mass_dns)
+    return;
+
   if (o.dns_servers) {
     add_dns_server(o.dns_servers);
   } else {
@@ -1139,8 +1150,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
   char spmobuf[1024];
 
   // If necessary, set up the dns server list
-  if (servs.size() == 0)
-    init_servs();
+  init_servs();
 
   if (servs.size() == 0 && firstrun) error("mass_dns: warning: Unable to determine any DNS servers. Reverse DNS is disabled. Try using --system-dns or specify valid servers with --dns-servers");
 
@@ -1307,7 +1317,8 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
 
   stat_actual = stat_ok = stat_nx = stat_sf = stat_trans = stat_dropped = stat_cname = 0;
 
-  if (o.mass_dns)
+  // mass_dns only supports IPv4.
+  if (o.mass_dns && o.af() == AF_INET)
     nmap_mass_rdns_core(targets, num_targets);
   else
     nmap_system_rdns_core(targets, num_targets);
@@ -1316,7 +1327,7 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
 
   if (stat_actual > 0) {
     if (o.debugging || o.verbose >= 3) {
-      if (o.mass_dns) {
+      if (o.mass_dns && o.af() == AF_INET) {
 	// #:  Number of DNS servers used
 	// OK: Number of fully reverse resolved queries
 	// NX: Number of confirmations of 'No such reverse domain eXists'
@@ -1340,11 +1351,7 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
 
 // Returns a list of known DNS servers
 std::list<std::string> get_dns_servers() {
-  // if, for example, run with -n, list is not initialized,
-  // run empty nmap_mass_rdns to do so
-  if(servs.size() == 0 && firstrun) {
-    nmap_mass_rdns(NULL, 0);
-  }
+  init_servs();
 
   // If the user said --system-dns (!o.mass_dns), we should never return a list
   // of servers.

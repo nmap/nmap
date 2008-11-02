@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o NSE scripts that require a list of DNS servers (currently only
+  ASN.nse) now work when IPv6 scanning. Previously it gave an error
+  message: "Failed to send dns query.  Response from dns.query(): 9".
+  [Jah, David]
+
 o [Zenmap] Added a simple workaround for a bug in PyXML (an add-on
   Python XML library) that caused a crash. The crash would happen when
   loading an XML file and looked like "KeyError: 0". [David]
