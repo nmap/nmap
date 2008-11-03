@@ -1,7 +1,7 @@
 id = "NBSTAT"
 description = [[
 Attempt's to get the target's NetBIOS names and MAC address.
-\n\n
+
 By default, the script displays the name of the computer and the logged-in
 user; if the verbosity is turned up, it displays all names the system thinks it
 owns.

@@ -2,7 +2,7 @@ id = "MSRPC: NetShareEnumAll()"
 description = [[
 Attempts to list shares using the srvsvc.NetShareEnumAll() MSRPC function. This
 will likely only work anonymously against Windows 2000.
-\n\n
+
 There isn't a whole lot to say about this one. The sequence of calls after
 the initial bind() is:\n
 NetShareEnumAll()

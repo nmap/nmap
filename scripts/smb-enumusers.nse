@@ -3,7 +3,7 @@ description = [[
 Attempts to enumerate the users on a remote Windows system, with as much
 information as possible, through a variety of techniques (over SMB + MSRPC,
 which uses port 445 or 139).
-\n\n
+
 Will first attempt to call the QueryDisplayInfo() MSRPC function. If NULL
 sessions are enabled, this will succeed and pull back a detailed list of users.
 Unfortunately, this likely won't succeed unless we're scanning Windows 2000.

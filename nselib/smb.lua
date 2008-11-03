@@ -1,5 +1,5 @@
 --- A library for SMB (Server Message Block) (aka CIFS) traffic.
--- \n\n
+--
 -- This traffic is normally
 --  sent to/from ports 139 or 445 of Windows systems, although it's also implemented by
 --  others (the most notable one being Samba). \n

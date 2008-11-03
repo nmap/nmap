@@ -2,7 +2,7 @@ id = "OS from SMB"
 description = [[
 Attempts to determine the operating system over the SMB protocol (ports 445 and
 139). 
-\n\n
+
 See nselib/smb.lua for more information on this protocol. 
 ]]
 

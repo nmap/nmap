@@ -2,7 +2,7 @@ id = "MSRPC: List of domains"
 description = [[
 Attempts to enumerate domains on a system, along with their policies. This will
 likely only work without credentials against Windows 2000.
-\n\n
+
 After the initial bind() to SAMR, the sequence of calls is:\n
 Connect4() -- get a connect_handle\n
 EnumDomains() -- get a list of the domains (stop here if you just want the names)\n

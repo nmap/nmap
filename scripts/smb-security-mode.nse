@@ -1,7 +1,7 @@
 id = "SMB Security"
 description = [[
 Returns information about the SMB security level determined by SMB.
-\n\n
+
 Here is how to interpret the output:
 \n\n
 User-level security: Each user has a separate username/password that is used
