@@ -2,7 +2,7 @@
 --  NetBIOS name requests. 
 --
 --@author Ron Bowes <ron@skullsecurity.net>
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+--@copyright See nmaps COPYING for licence
 -----------------------------------------------------------------------
 
 module(... or "netbios", package.seeall)
@@ -16,12 +16,12 @@ require 'stdnse'
 --  character, and converted it to all uppercase characters (so it can, for example,
 --  pass case-sensitive data in a case-insensitive way)
 --
--- There are two levels of encoding performed:\n
--- L1: Pad the string to 16 characters withs spaces (or NULLs if it's the 
+-- There are two levels of encoding performed:
+-- * L1: Pad the string to 16 characters withs spaces (or NULLs if it's the 
 --     wildcard "*") and replace each byte with two bytes representing each
---     of its nibbles, plus 0x41. \n
--- L2: Prepend the length to the string, and to each substring in the scope
---     (separated by periods). \n
+--     of its nibbles, plus 0x41. 
+-- * L2: Prepend the length to the string, and to each substring in the scope
+--     (separated by periods). 
 --@param name The name that will be encoded (eg. "TEST1"). 
 --@param scope [optional] The scope to encode it with. I've never seen scopes used
 --       in the real world (eg, "insecure.org"). 
@@ -76,7 +76,7 @@ end
 --  the string representation. If the encoding is invalid, it will still attempt
 --  to decode the string as best as possible. 
 --@param encoded_name The L2-encoded name
---@return the decoded name and the scope. The name will still be padded, and the
+--@returns the decoded name and the scope. The name will still be padded, and the
 --         scope will never be nil (empty string is returned if no scope is present)
 function name_decode(encoded_name)
 	local name = ""
@@ -208,38 +208,41 @@ end
 --  script has already performed a nbstat query, the result can be re-used. 
 --
 -- The NetBIOS request's header looks like this:
---  --------------------------------------------------\n
---  |  15 14 13 12 11 10 9  8  7  6  5  4  3  2  1  0 |\n
---  |                  NAME_TRN_ID                    |\n
---  | R |   OPCODE  |      NM_FLAGS      |   RCODE    | (FLAGS)\n
---  |                    QDCOUNT                      |\n
---  |                    ANCOUNT                      |\n
---  |                    NSCOUNT                      |\n
---  |                    ARCOUNT                      |\n
---  --------------------------------------------------\n
+--<code>
+--  --------------------------------------------------
+--  |  15 14 13 12 11 10 9  8  7  6  5  4  3  2  1  0 |
+--  |                  NAME_TRN_ID                    |
+--  | R |   OPCODE  |      NM_FLAGS      |   RCODE    | (FLAGS)
+--  |                    QDCOUNT                      |
+--  |                    ANCOUNT                      |
+--  |                    NSCOUNT                      |
+--  |                    ARCOUNT                      |
+--  --------------------------------------------------
+--</code>
 --
 -- In this case, the TRN_ID is a constant (0x1337, what else?), the flags
 -- are 0, and we have one question. All fields are network byte order. 
 --
 -- The body of the packet is a list of names to check for in the following
 -- format:
--- (ntstring) encoded name
--- (2 bytes)  query type (0x0021 = NBSTAT)
--- (2 bytes)  query class (0x0001 = IN)
+-- * (ntstring) encoded name
+-- * (2 bytes)  query type (0x0021 = NBSTAT)
+-- * (2 bytes)  query class (0x0001 = IN)
 --
 -- The response header is the exact same, except it'll have some flags set
 -- (0x8000 for sure, since it's a response), and ANCOUNT will be 1. The format
--- of the answer is:\n
--- (ntstring) requested name\n
--- (2 bytes)  query type\n
--- (2 bytes)  query class\n
--- (2 bytes)  time to live\n
--- (2 bytes)  record length\n
--- (1 byte)   number of names\n
--- [for each name]\n
---  (16 bytes) padded name, with a 1-byte suffix\n
---  (2 bytes)  flags\n
--- (variable) statistics (usually mac addres)
+-- of the answer is:
+--
+-- * (ntstring) requested name
+-- * (2 bytes)  query type
+-- * (2 bytes)  query class
+-- * (2 bytes)  time to live
+-- * (2 bytes)  record length
+-- * (1 byte)   number of names
+-- * [for each name]
+-- *  (16 bytes) padded name, with a 1-byte suffix
+-- *  (2 bytes)  flags
+-- * (variable) statistics (usually mac address)
 --
 --@param host The IP or hostname of the system. 
 --@return (status, names, statistics) If status is true, then the servers names are
@@ -255,7 +258,7 @@ function do_nbstat(host)
 	stdnse.print_debug(1, "Performing nbstat on host '%s'", host)
 	-- Check if it's cased in the registry for this host
 	if(nmap.registry["nbstat_names_" .. host] ~= nil) then
-		stdnse.print_debug(1, " [using cached value]")
+		stdnse.print_debug(1, " |_ [using cached value]")
 		return true, nmap.registry["nbstat_names_" .. host], nmap.registry["nbstat_statistics_" .. host]
 	end
 
