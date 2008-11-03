@@ -1,4 +1,4 @@
-id = 'bruteforce'
+id = 'Telnet brute force'
 description = [[
 Tries to get Telnet login credentials by guessing usernames and passwords.
 ]]
