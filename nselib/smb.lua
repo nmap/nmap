@@ -214,7 +214,7 @@ end
 -- was blank or nil. 
 --@param string The base string. 
 --@param blank  The string to return if <code>string</code> was blank
---@param Either <code>string</code> or, if it was blank, <code>blank</code>
+--@return Either <code>string</code> or, if it was blank, <code>blank</code>
 function string_or_blank(string, blank)
 	if(string == nil or string == "") then
 		if(blank == nil) then
@@ -342,7 +342,6 @@ end
 --  DNS name can be used in this way. 
 --
 --@param name The name to take apart
---@param list [optional] If list is set, names will be added to it then returned
 --@return An array of the sub names
 local function get_subnames(name)
 	local i = -1
@@ -484,7 +483,7 @@ end
 -- are used as a key to encrypt the string, "KGS!@#$%" in DES. Because the keys are no longer than 
 -- 7-characters long, it's pretty trivial to bruteforce them. 
 --
---@param Password the password to hash
+--@param password the password to hash
 --@return (status, hash) If status is true, the hash is returned; otherwise, an error message is returned.
 function lm_create_hash(password)
 	if(have_ssl ~= true) then
@@ -520,7 +519,7 @@ end
 ---Generate the NTLMv1 hash. This hash is quite a bit better than LMv1, and is far easier to generate. Basically,
 -- it's the MD4 of the Unicode password. 
 --
---@param Password the password to hash
+--@param password the password to hash
 --@return (status, hash) If status is true, the hash is returned; otherwise, an error message is returned.
 function ntlm_create_hash(password)
 	if(have_ssl ~= true) then
@@ -1396,7 +1395,7 @@ end
 
 --- Disconnects a tree session. Should be called before logging off and disconnecting. 
 --@param smb    The SMB object associated with the connection
---@param return (status, result) If statis is false, result is an error message. If status is true, 
+--@return (status, result) If status is false, result is an error message. If status is true, 
 --              the disconnect was successful. 
 function tree_disconnect(smb)
 	local header
@@ -1432,7 +1431,7 @@ end
 ---Logs off the current user. Strictly speaking this isn't necessary, but it's the polite thing to do. 
 --
 --@param smb    The SMB object associated with the connection
---@param return (status, result) If statis is false, result is an error message. If status is true, 
+--@return (status, result) If statis is false, result is an error message. If status is true, 
 --              the logoff was successful. 
 function logoff(smb)
 	local header, parameters
@@ -1560,7 +1559,7 @@ end
 --@param func   The function to call. The only one I've tested is 0x26, named pipes. 
 --@param function_parameters The parameter data to pass to the function. This is untested, since none of the
 --       transactions I've done have required parameters. 
---@param data   The data to send with the packet. This is basically the next protocol layer
+--@param function_data   The data to send with the packet. This is basically the next protocol layer
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table 
 --        containing 'parameters' and 'data', representing the parameters and data returned by the server. 
 function send_transaction(smb, func, function_parameters, function_data)
