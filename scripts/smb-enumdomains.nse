@@ -1,15 +1,16 @@
 id = "MSRPC: List of domains"
-description = [[ Attempts to enumerate domains on a system, along with their policies. This will likely
- only work without credentials against Windows 2000. 
+description = [[
+Attempts to enumerate domains on a system, along with their policies. This will likely only work without credentials against Windows 2000. 
 
-After the initial bind() to SAMR, the sequence of calls is:
-* Connect4() -- get a connect_handle
-* EnumDomains() -- get a list of the domains (stop here if you just want the names)
-* QueryDomain() -- get the sid for the domain
-* OpenDomain() -- get a handle for each domain
-* QueryDomainInfo2() -- get the domain information
-* QueryDomainUsers() -- get a list of the users in the domain
+After the initial <code>bind()</code> to SAMR, the sequence of calls is:
+* <code>Connect4()</code>: get a connect_handle
+* <code>EnumDomains()</code>: get a list of the domains (stop here if you just want the names).
+* <code>QueryDomain()</code>: get the SID for the domain.
+* <code>OpenDomain()</code>: get a handle for each domain.
+* <code>QueryDomainInfo2()</code>: get the domain information.
+* <code>QueryDomainUsers()</code>: get a list of the users in the domain.
 ]]
+
 ---
 --@usage
 -- nmap --script smb-enumdomains.nse -p445 <host>
@@ -38,38 +39,35 @@ After the initial bind() to SAMR, the sequence of calls is:
 -- |     |_  Password complexity requirements do not exist
 -- |_    |_  Administrator account cannot be locked out
 -- 
---@args  smbusername The SMB username to log in with. The form DOMAIN\username and username@DOMAIN
---                   are NOT understood. To set a domain, use the smbdomain argument. 
+--@args  smbusername The SMB username to log in with. The forms "DOMAIN\username" and "username@DOMAIN"
+--                   are not understood. To set a domain, use the <code>smbdomain</code> argument. 
 --@args  smbdomain   The domain to log in with. If you aren't in a domained environment, then anything
 --                   will (should?) be accepted by the server. 
 --@args  smbpassword The password to connect with. Be cautious with this, since some servers will lock
---                   accounts if the incorrect password is given (although it's rare for the 
---                   'administrator' account to be lockoutable, in the off chance that it is, you could
---                   get yourself in trouble). 
+--                   accounts if the incorrect password is given. Although it's rare that the
+--                   Administrator account can be locked out, in the off chance that it can, you could
+--                   get yourself in trouble. 
 --@args  smbhash     A password hash to use when logging in. This is given as a single hex string (32
---                   characters) or a pair of hex strings (2 x 32 characters, optionally separated by a 
---                   single character). These hashes are the Lanman or NTLM hash of the user's password,
---                   and are stored by systems, on the harddrive or memory. They can be retrived from memory
+--                   characters) or a pair of hex strings (both 32 characters, optionally separated by a 
+--                   single character). These hashes are the LanMan or NTLM hash of the user's password,
+--                   and are stored on disk or in memory. They can be retrieved from memory
 --                   using the fgdump or pwdump tools. 
---@args  smbguest    If this is set to 'true' or '1', a 'guest' login will be attempted if the normal one 
+--@args  smbguest    If this is set to <code>true</code> or <code>1</code>, a guest login will be attempted if the normal one 
 --                   fails. This should be harmless, but I thought I would disable it by default anyway
 --                   because I'm not entirely sure of any possible consequences. 
---@args  smbtype     The type of SMB authentication to use. By default, NTLMv1 is used, which is a pretty
+--@args  smbtype     The type of SMB authentication to use. These are the possible options:
+-- * <code>v1</code>: Sends LMv1 and NTLMv1.
+-- * <code>LMv1</code>: Sends LMv1 only.
+-- * <code>NTLMv1</code>: Sends NTLMv1 only (default).
+-- * <code>v2</code>: Sends LMv2 and NTLMv2.
+-- * <code>LMv2</code>: Sends LMv2 only.
+--                   The default, <code>NTLMv1</code>, is a pretty
 --                   decent compromise between security and compatibility. If you are paranoid, you might 
---                   want to use 'v2' or 'lmv2' for this (actually, if you're paranoid, you should be 
+--                   want to use <code>v2</code> or <code>lmv2</code> for this. (Actually, if you're paranoid, you should be 
 --                   avoiding this protocol altogether :P). If you're using an extremely old system, you 
---                   might need to set this to 'v1' or 'lm', which are less secure but more compatible. 
---
---                   If you want finer grained control, these are the possible options:
---                       * v1 -- Sends LMv1 and NTLMv1
---                       * LMv1 -- Sends LMv1 only
---                       * NTLMv1 -- Sends NTLMv1 only (default)
---                       * v2 -- Sends LMv2 and NTLMv2
---                       * LMv2 -- Sends LMv2 only
---
+--                   might need to set this to <code>v1</code> or <code>lm</code>, which are less secure but more compatible. 
 -----------------------------------------------------------------------
 
-description = "Tries calling the EnumDomains() and QueryDomainInfo2() RPC function to obtain a list of domains/policies."
 author = "Ron Bowes"
 copyright = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

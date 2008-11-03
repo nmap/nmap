@@ -1,46 +1,44 @@
 id = "MSRPC: List of user accounts"
 description = [[
 Attempts to enumerate the users on a remote Windows system, with as much
-information as possible, through a variety of techniques (over SMB + MSRPC,
+information as possible, through a variety of techniques (over SMB and MSRPC,
 which uses port 445 or 139). Some functions in SAMR are used to enumerate
-users, and some bruteforce guessing using LSA functions is attempted. 
+users, and some brute-force guessing using LSA functions is attempted. 
 
-One technique used is calling the QueryDisplayInfo() function in the SAMR library. 
+One technique used is calling the <code>QueryDisplayInfo()</code> function in the SAMR library. 
 If this succeeds, it will return a detailed list of users. This can be done
 anonymously against Windows 2000, and with a user-level account on other Windows
 versions (but not with a guest-level account). 
 
 To perform this test, the following functions are used:
-
-	* Bind() -- bind to the SAMR service
-	* Connect4() -- get a connect_handle
-	* EnumDomains() -- get a list of the domains
-	* QueryDomain() -- get the sid for the domain
-	* OpenDomain() -- get a handle for each domain
-	* QueryDisplayInfo() -- get the list of users in the domain
-	* Close() -- Close the domain handle
-	* Close() -- Close the connect handle
-
+* <code>Bind()</code>: bind to the SAMR service.
+* <code>Connect4()</code>: get a connect_handle.
+* <code>EnumDomains()</code>: get a list of the domains.
+* <code>QueryDomain()</code>: get the sid for the domain.
+* <code>OpenDomain()</code>: get a handle for each domain.
+* <code>QueryDisplayInfo()</code>: get the list of users in the domain.
+* <code>Close()</code>: Close the domain handle.
+* <code>Close()</code>: Close the connect handle.
 The advantage of this technique is that a lot of details are returned, including
 the full name and description; the disadvantage is that it requires a user-level
 account on every system except for Windows 2000. Additionally, it only pulls actual
-user accounts, not groups or aliasts. 
+user accounts, not groups or aliases. 
 
-Regardless of whether or not this succeeds, a second technique is used to pull
+Regardless of whether this succeeds, a second technique is used to pull
 user accounts, called LSA bruteforcing. LSA bruteforcing can be done anonymously
 against Windows 2000, and requires a guest account or better on other systems. 
-It has the advantage of running with less permissions, and will also find more 
-account types (ie, groups, aliases, etc). The disadvantages is that it returns 
-less information, and that, because it's a bruteforce, it's possible to miss
+It has the advantage of running with less permission, and will also find more 
+account types (i.e., groups, aliases, etc.). The disadvantages is that it returns 
+less information, and that, because it's a brute-force guess, it's possible to miss
 accounts. 
-\n\n
-This isn't a bruteforce in the common sense, however; it's a bruteforce of users' 
+
+This isn't a brute-force technique in the common sense, however: it's a brute-forcing of users' 
 RIDs. A user's RID is a value (generally 500, 501, or 1000+) that uniquely identifies
 a user on a domain or system. An LSA function is exposed which lets us convert the RID
-(say, '1000') to the username (say, 'Ron'). So, the bruteforce will essentially try
-converting 1000 to a name, 1001, 1002, etc., until we think we're done. 
-\n\n
-I break the users into 5-RID groups, and check them individually (checking too many
+(say, 1000) to the username (say, "Ron"). So, the technique will essentially try
+converting 1000 to a name, then 1001, 1002, etc., until we think we're done. 
+
+I break the users into groups of 5 RIDs, and check them individually (checking too many
 at once causes problems). I continue checking until I reach 1100, and get an empty
 group. This probably isn't the most effective way, but it seems to work. 
 It might be a good idea to modify this, in the future, with some more
@@ -49,27 +47,25 @@ and I got these results: 500, 501, 1000, 1030, 1031, 1053, 1054, 1055,
 1056, 1057, 1058, 1059, 1060, 1061, 1062, 1063, 1064, 1065, 1066, 1067, 1070, 
 1075, 1081, 1088, 1090. The jump from 1000 to 1030 is quite large and can easily 
 result in missing accounts, in an automated check. 
-\n\n
+
 Before attempting this conversion, the SID of the server has to be determined. 
-The SID is determined by doing the reverse operation -- converting a name into 
+The SID is determined by doing the reverse operation, that is, converting a name into 
 a RID. The name is determined by looking up any name present on the system. 
-In this script, I try looking up:
-\n\n
-<ul>
-	<li>The computer name / domain name, returned in SMB_COM_NEGOTIATE
-	<li>An nbstat query to get the server name and the currently loggeed in user
-	<li>Some common names ("administrator", "guest", and "test")
-</ul>
-\n\n
+In this script, I try:
+* The computer name and domain name, returned in <code>SMB_COM_NEGOTIATE</code>;
+* An nbstat query to get the server name and the user currently logged in; and
+* Some common names: "administrator", "guest", and "test".
+
 In theory, the computer name should be sufficient for this to always work, and
 so far has in my tests, but I included the rest of the names for good measure. 
-\n\n
+
 The names and details from both of these techniques are merged and displayed.
-If the output is verbose, then extra details. The output is ordered alphabetically. 
-\n\n
+If the output is verbose, then extra details are shown. The output is ordered alphabetically. 
+
 Credit goes out to the enum.exe, sid2user.exe, and user2sid.exe programs, 
 the code I wrote for this is largely based on the techniques used by them.
 ]]
+
 ---
 -- @usage
 -- nmap --script smb-enumusers.nse -p445 <host>
@@ -114,36 +110,33 @@ the code I wrote for this is largely based on the techniques used by them.
 -- |    |_ Type: Alias
 -- |_   |_ Domain: LOCALSYSTEM
 -- 
---
---@args  smbusername The SMB username to log in with. The form DOMAIN\username and username@DOMAIN
---                   are NOT understood. To set a domain, use the smbdomain argument. 
+--@args  smbusername The SMB username to log in with. The forms "DOMAIN\username" and "username@DOMAIN"
+--                   are not understood. To set a domain, use the <code>smbdomain</code> argument. 
 --@args  smbdomain   The domain to log in with. If you aren't in a domained environment, then anything
 --                   will (should?) be accepted by the server. 
 --@args  smbpassword The password to connect with. Be cautious with this, since some servers will lock
---                   accounts if the incorrect password is given (although it's rare for the 
---                   'administrator' account to be lockoutable, in the off chance that it is, you could
---                   get yourself in trouble). 
+--                   accounts if the incorrect password is given. Although it's rare that the
+--                   Administrator account can be locked out, in the off chance that it can, you could
+--                   get yourself in trouble. 
 --@args  smbhash     A password hash to use when logging in. This is given as a single hex string (32
---                   characters) or a pair of hex strings (2 x 32 characters, optionally separated by a 
---                   single character). These hashes are the Lanman or NTLM hash of the user's password,
---                   and are stored by systems, on the harddrive or memory. They can be retrived from memory
+--                   characters) or a pair of hex strings (both 32 characters, optionally separated by a 
+--                   single character). These hashes are the LanMan or NTLM hash of the user's password,
+--                   and are stored on disk or in memory. They can be retrieved from memory
 --                   using the fgdump or pwdump tools. 
---@args  smbguest    If this is set to 'true' or '1', a 'guest' login will be attempted if the normal one 
+--@args  smbguest    If this is set to <code>true</code> or <code>1</code>, a guest login will be attempted if the normal one 
 --                   fails. This should be harmless, but I thought I would disable it by default anyway
 --                   because I'm not entirely sure of any possible consequences. 
---@args  smbtype     The type of SMB authentication to use. By default, NTLMv1 is used, which is a pretty
+--@args  smbtype     The type of SMB authentication to use. These are the possible options:
+-- * <code>v1</code>: Sends LMv1 and NTLMv1.
+-- * <code>LMv1</code>: Sends LMv1 only.
+-- * <code>NTLMv1</code>: Sends NTLMv1 only (default).
+-- * <code>v2</code>: Sends LMv2 and NTLMv2.
+-- * <code>LMv2</code>: Sends LMv2 only.
+--                   The default, <code>NTLMv1</code>, is a pretty
 --                   decent compromise between security and compatibility. If you are paranoid, you might 
---                   want to use 'v2' or 'lmv2' for this (actually, if you're paranoid, you should be 
+--                   want to use <code>v2</code> or <code>lmv2</code> for this. (Actually, if you're paranoid, you should be 
 --                   avoiding this protocol altogether :P). If you're using an extremely old system, you 
---                   might need to set this to 'v1' or 'lm', which are less secure but more compatible. 
---
---                   If you want finer grained control, these are the possible options:
---                       * v1 -- Sends LMv1 and NTLMv1
---                       * LMv1 -- Sends LMv1 only
---                       * NTLMv1 -- Sends NTLMv1 only (default)
---                       * v2 -- Sends LMv2 and NTLMv2
---                       * LMv2 -- Sends LMv2 only
---
+--                   might need to set this to <code>v1</code> or <code>lm</code>, which are less secure but more compatible. 
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"
@@ -170,8 +163,11 @@ end
 ---Attempt to enumerate users through SAMR methods. See the file description for more information. 
 --
 --@param host The host object. 
---@return (status, result) If status is false, result is an error message. Otherwise, result is an
---        array of tables. Each table contains a 'name', 'domain', 'fullname', 'rid', and 'description'. 
+--@return Status (true or false).
+--@return Array of user tables (if status is true) or an an error string (if
+--status is false). Each user table contains the fields <code>name</code>,
+--<code>domain</code>, <code>fullname</code>, <code>rid</code>, and
+--<code>description</code>.
 local function enum_samr(host)
 
 	stdnse.print_debug(3, "Entering enum_samr()")
@@ -284,8 +280,10 @@ end
 ---Attempt to enumerate users through LSA methods. See the file description for more information. 
 --
 --@param host The host object. 
---@return (status, result) If status is false, result is an error message. Otherwise, result is an
---        array of tables. Each table contains a 'name', 'domain', and 'rid'. 
+--@return Status (true or false).
+--@return Array of user tables (if status is true) or an an error string (if
+--status is false). Each user table contains the fields <code>name</code>,
+--<code>domain</code>, and <code>rid</code>.
 local function enum_lsa(host)
 
 	local smbstate

@@ -9,6 +9,7 @@ This goes for all operating systems, including Windows 2000.
 Windows Vista doesn't appear to have the WINREG binding (or it's different and
 I don't know it), so this doesn't support Vista at all. 
 ]]
+
 ---
 -- @usage
 -- nmap --script smb-systeminfo.nse -p445 <host>
@@ -37,36 +38,34 @@ I don't know it), so this doesn't support Vista at all.
 -- |  Browsers
 -- |  |_ Internet Explorer 7.0000
 -- |_ |_ Firefox 3.0.3 (en-US)
---
---@args  smbusername The SMB username to log in with. The form DOMAIN\username and username@DOMAIN
---                   are NOT understood. To set a domain, use the smbdomain argument. 
+-- 
+--@args  smbusername The SMB username to log in with. The forms "DOMAIN\username" and "username@DOMAIN"
+--                   are not understood. To set a domain, use the <code>smbdomain</code> argument. 
 --@args  smbdomain   The domain to log in with. If you aren't in a domained environment, then anything
 --                   will (should?) be accepted by the server. 
 --@args  smbpassword The password to connect with. Be cautious with this, since some servers will lock
---                   accounts if the incorrect password is given (although it's rare for the 
---                   'administrator' account to be lockoutable, in the off chance that it is, you could
---                   get yourself in trouble). 
+--                   accounts if the incorrect password is given. Although it's rare that the
+--                   Administrator account can be locked out, in the off chance that it can, you could
+--                   get yourself in trouble. 
 --@args  smbhash     A password hash to use when logging in. This is given as a single hex string (32
---                   characters) or a pair of hex strings (2 x 32 characters, optionally separated by a 
---                   single character). These hashes are the Lanman or NTLM hash of the user's password,
---                   and are stored by systems, on the harddrive or memory. They can be retrived from memory
+--                   characters) or a pair of hex strings (both 32 characters, optionally separated by a 
+--                   single character). These hashes are the LanMan or NTLM hash of the user's password,
+--                   and are stored on disk or in memory. They can be retrieved from memory
 --                   using the fgdump or pwdump tools. 
---@args  smbguest    If this is set to 'true' or '1', a 'guest' login will be attempted if the normal one 
+--@args  smbguest    If this is set to <code>true</code> or <code>1</code>, a guest login will be attempted if the normal one 
 --                   fails. This should be harmless, but I thought I would disable it by default anyway
 --                   because I'm not entirely sure of any possible consequences. 
---@args  smbtype     The type of SMB authentication to use. By default, NTLMv1 is used, which is a pretty
+--@args  smbtype     The type of SMB authentication to use. These are the possible options:
+-- * <code>v1</code>: Sends LMv1 and NTLMv1.
+-- * <code>LMv1</code>: Sends LMv1 only.
+-- * <code>NTLMv1</code>: Sends NTLMv1 only (default).
+-- * <code>v2</code>: Sends LMv2 and NTLMv2.
+-- * <code>LMv2</code>: Sends LMv2 only.
+--                   The default, <code>NTLMv1</code>, is a pretty
 --                   decent compromise between security and compatibility. If you are paranoid, you might 
---                   want to use 'v2' or 'lmv2' for this (actually, if you're paranoid, you should be 
+--                   want to use <code>v2</code> or <code>lmv2</code> for this. (Actually, if you're paranoid, you should be 
 --                   avoiding this protocol altogether :P). If you're using an extremely old system, you 
---                   might need to set this to 'v1' or 'lm', which are less secure but more compatible. 
---
---                   If you want finer grained control, these are the possible options:
---                       * v1 -- Sends LMv1 and NTLMv1
---                       * LMv1 -- Sends LMv1 only
---                       * NTLMv1 -- Sends NTLMv1 only (default)
---                       * v2 -- Sends LMv2 and NTLMv2
---                       * LMv2 -- Sends LMv2 only
---
+--                   might need to set this to <code>v1</code> or <code>lm</code>, which are less secure but more compatible. 
 -----------------------------------------------------------------------
 
 
@@ -94,10 +93,11 @@ end
 
 ---Retrieves the requested value from the registry. 
 --@param smbstate The SMB table we're using, bound to the WINREG service. 
---@param handle   The handle to the hive (HKLM or HKU, for example)
---@param key      The full path of the key to retrieve (like "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment")
---@param value    The value to retrieve (like, "NUMBER_OF_PROCESSORS")
---@return (status, result) If status is false, result is an error message. Otherwise, result is the value of the key. 
+--@param handle   The handle to the hive (HKLM or HKU, for example).
+--@param key      The full path of the key to retrieve (like <code>"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"</code>).
+--@param value    The value to retrieve (like <code>"NUMBER_OF_PROCESSORS"</code>).
+--@return Status (true or false).
+--@return The value (if status is true) or an error string (if status is false).
 local function reg_get_value(smbstate, handle, key, value)
 
 	-- Open the key
