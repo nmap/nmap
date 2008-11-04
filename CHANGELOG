@@ -114,7 +114,8 @@ o Added three new nselib modules: msrpc, netbios, and smb. As the
   deal of information from hosts running Windows, particularly Windows
   2000. New or updated scripts using the modules are:
     nbstat.nse: get NetBIOS names and MAC address.
-    smb-enumdomain.nse: enumerate domains and policies.
+    smb-enumdomains.nse: enumerate domains and policies.
+    smb-enumsessions.nse: enumerate logins and SMB sessions.
     smb-enumshares.nse: enumerate network shares.
     smb-enumusers.nse: enumerate users and information about them.
     smb-os-discovery.nse: get operating system over SMB (replaces
@@ -122,6 +123,9 @@ o Added three new nselib modules: msrpc, netbios, and smb. As the
     smb-security-mode.nse: determine if a host uses user-level or
       share-level security, and what other security features it
       supports.
+    smb-serverstats.nse: grab statistics such as network traffic
+      counts.
+    smb-systeminfo.nse: get lots of information from the registry.
   [Ron Bowes]
 
 o A script could be executed twice if it was given with the --script
