@@ -279,12 +279,12 @@ function receive()
 --- Receives lines from an open connection.
 --
 -- Tries to receive at least <code>n</code> lines from an open connection. A
--- line is a string delimited with <code>\n</code> characters.  If it was not
--- possible to receive at least <code>n</code> lines before the operation times
--- out a <code>"TIMEOUT"</code> error occurs. On the other hand, if more than
--- <code>n</code> lines were received, all are returned, not just
--- <code>n</code>. Use <code>stdnse.make_buffer</code> to guarantee only one
--- line is returned per call.
+-- line is a string delimited with <code>\n</code> characters.  If no data was
+-- was received before the operation times out a <code>"TIMEOUT"</code> error
+-- occurs. If even one character was received then it is returned with success.
+-- On the other hand, if more than <code>n</code> lines were received, all are
+-- returned, not just <code>n</code>. Use <code>stdnse.make_buffer</code> to
+-- guarantee only one line is returned per call.
 --
 -- On success the function returns true along with the received data. If
 -- receiving data has failed, the function returns false along with an error
@@ -301,8 +301,8 @@ function receive_lines(n)
 -- Tries to receive at least <code>n</code> bytes from an open connection. Like
 -- in <code>receive_lines</code>, <code>n</code> is the minimum amount of
 -- characters we would like to receive. If more arrive, we get all of them. If
--- fewer than <code>n</code> characters arrive before the operation times out,
--- a <code>"TIMEOUT"</code> error occurs.
+-- even one is received then it is returned. If no characters arrive before the
+-- operation times out, a <code>"TIMEOUT"</code> error occurs.
 --
 -- On success the function returns true along with the received data. If
 -- receiving data has failed, the function returns false along with an error
