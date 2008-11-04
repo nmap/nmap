@@ -796,6 +796,12 @@ action refer to <xref linkend="nse-tutorial-action"/>.
       </ulink> the default libraries in order to use them.
 	  </para>
 
+      <para>
+      This list is just an overview to give an idea of what libraries
+      are available. Developers will want to consult the complete
+      documentation at <ulink url="http://nmap.org/nsedoc/"/>.
+      </para>
+
       &nse-modules;
   </sect1>
 
