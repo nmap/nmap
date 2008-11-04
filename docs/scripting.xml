@@ -1674,7 +1674,7 @@ local localip, localport = try(client_service:get_info())
     use them in their scripts. NSE's documentation system, described in
     this section, aims to meet both these needs. While reading this
     section, you may want to browse NSE's online documentation, which is
-    generated using this documentation. It is at
+    generated using this system. It is at
     <ulink url="http://nmap.org/nsedoc/"/>.
     </para>
 
@@ -1683,7 +1683,7 @@ local localip, localport = try(client_service:get_info())
     <ulink url="http://luadoc.luaforge.net/">LuaDoc</ulink><indexterm><primary>LuaDoc</primary></indexterm>
     documentation system called NSEDoc.
     The documentation for scripts
-    and modules is contained in their source code, in the form of
+    and modules is contained in their source code, as
     comments with a special form.
     <xref linkend="nse-documentation-comment" xrefstyle="select: label nopage"/>
     is an NSEDoc comment taken from the
@@ -1752,12 +1752,12 @@ local localip, localport = try(client_service:get_info())
 -- banner grabbing and data exchange.
 --
 -- These functions may be passed a table of options, but it's not required. The
--- keys for the options table are <code>"bytes"</code>, <code>"lines"</code>,
--- <code>"proto"</code>, and <code>"timeout"</code>. <code>"bytes"</code> sets
--- a minimum number of bytes to read. <code>"lines"</code> does the same for
--- lines. <code>"proto"</code> sets the protocol to communicate with,
--- defaulting to <code>"tcp"</code> if not provided. <code>"timeout"</code>
--- sets the socket timeout (see the socket function <code>set_timeout()</code>
+-- keys for the options table are &lt;code&gt;"bytes"&lt;/code&gt;, &lt;code&gt;"lines"&lt;/code&gt;,
+-- &lt;code&gt;"proto"&lt;/code&gt;, and &lt;code&gt;"timeout"&lt;/code&gt;. &lt;code&gt;"bytes"&lt;/code&gt; sets
+-- a minimum number of bytes to read. &lt;code&gt;"lines"&lt;/code&gt; does the same for
+-- lines. &lt;code&gt;"proto"&lt;/code&gt; sets the protocol to communicate with,
+-- defaulting to &lt;code&gt;"tcp"&lt;/code&gt; if not provided. &lt;code&gt;"timeout"&lt;/code&gt;
+-- sets the socket timeout (see the socket function &lt;code&gt;set_timeout()&lt;/code&gt;
 -- for details). 
 -- @author Kris Katterjohn 04/2008
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
