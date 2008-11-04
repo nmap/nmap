@@ -1,6 +1,8 @@
---- A library for SMB (Server Message Block) (aka CIFS) traffic. This traffic is normally
+--- Server Message Block (SMB, also known as CIFS) traffic.
+--
+-- SMB traffic is normally
 --  sent to/from ports 139 or 445 of Windows systems, although it's also implemented by
---  others (the most notable one being Samba).
+--  other systems (the most notable one being Samba).
 --
 -- The intention of this library is to eventually handle all aspects of the SMB protocol,
 -- A programmer using this library must already have some knowledge of the SMB protocol, 
