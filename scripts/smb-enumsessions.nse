@@ -43,7 +43,6 @@ idea to write this one.
 -- <code>smbtype</code> script arguments of the <code>smb</code> module.
 -----------------------------------------------------------------------
 
-id = "MSRPC: NetSessEnum()"
 author = "Ron Bowes"
 copyright = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
