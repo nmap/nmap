@@ -910,7 +910,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
 	      </term>
 	    <listitem>
 	      <para>MAC address<indexterm><primary>MAC address</primary></indexterm>
-                  of the destination host (6-byte long binary
+                  of the destination host (six-byte long binary
 		  string) or <literal>nil</literal>, if the host is not directly connected. 
 		  </para>
 	    </listitem>
