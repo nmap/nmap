@@ -499,12 +499,12 @@ you would expect.</para>
           destination port will be closed, and a RST (reset) packet
           sent back.  If the port happens to be open, the target will
           take the second step of a TCP
-	  3-way-handshake<indexterm><primary>three-way handshake</primary></indexterm>
+	  three-way-handshake<indexterm><primary>three-way handshake</primary></indexterm>
           by responding
           with a SYN/ACK TCP packet. The machine running Nmap then
           tears down the nascent connection by responding with a RST
           rather than sending an ACK packet which would complete the
-          3-way-handshake and establish a full
+          three-way-handshake and establish a full
           connection.  The RST packet is sent by the
           kernel of the machine running Nmap in response to the
           unexpected SYN/ACK, not by Nmap itself.</para>
@@ -1419,7 +1419,7 @@ improvements!</para>
 
 <para>Protocol scan works in a similar fashion to UDP scan.  Instead
 of iterating through the port number field of a UDP packet, it sends
-IP packet headers and iterates through the 8-bit IP protocol field.
+IP packet headers and iterates through the eight-bit IP protocol field.
 The headers are usually empty, containing no data and not even the
 proper header for the claimed protocol.  The three exceptions are TCP,
 UDP, and ICMP.  A proper protocol header for those is included since
@@ -4002,7 +4002,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
     </para>
 
     <para>Launches host enumeration and a TCP scan at the first half
-    of each of the 255 possible 8-bit subnets in the 198.116 class B
+    of each of the 255 possible eight-bit subnets in the 198.116 class B
     address space. This tests whether the systems run SSH, DNS, POP3,
     or IMAP on their standard ports, or anything on port 4564. For any
     of these ports found open, version detection is used to determine
