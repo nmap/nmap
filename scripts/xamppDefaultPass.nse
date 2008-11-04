@@ -9,7 +9,7 @@ administration.
 ---
 -- @output
 -- 21/tcp  open   ftp
--- |_ Login success with u/p: nobody/xampp
+-- |_ XAMPP default pwd: Login success with u/p: nobody/xampp
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 

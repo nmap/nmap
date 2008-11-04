@@ -9,7 +9,7 @@ system to send spam or control your machine.
 ---
 -- @output
 -- 22/tcp  open   ssh
--- |_ Warning: smtp is running on a strange port.
+-- |_ Unexpected SMTP: Warning: smtp is running on a strange port
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 
