@@ -580,10 +580,11 @@ $ nmap -sC --script-args user=foo,pass=bar,anonFTP={pass=ftp@foobar.com}
       <para>The <literal>description</literal> field describes what the script is testing
       for and any critical notes the user must be aware of. A good
       example is this description from a user-contributed recursive
-      DNS script: <quote>Checks whether a nameserver on UDP port 53
-      allows queries for third party names. It is expected that
-      recursion will be enabled on your own internal
-      nameserver.</quote></para>
+      DNS script:
+<quote>Checks if a DNS server allows queries for third-party names.
+
+It is expected that recursion will be enabled on your own internal nameservers.</quote>
+      </para>
     </sect2>
 
     <sect2 id="nse-format-categories">
