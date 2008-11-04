@@ -1237,7 +1237,7 @@ socket:close()
       <indexterm><primary>threads in NSE</primary></indexterm>
       <indexterm><primary>mutexes in NSE</primary></indexterm>
       <para>
-        Each thread made for a script (e.g. anonFTP.nse) will yield to other
+        Each thread made for a script (e.g. <filename>anonFTP.nse</filename>) will yield to other
         scripts whenever it makes a call on network objects (sending/receiving
         data). Some scripts need finer control over threads' execution. An
         example is the <literal>whois.nse</literal> script which queries
