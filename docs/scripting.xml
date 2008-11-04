@@ -2085,7 +2085,7 @@ end
       example of how short typical NSE scripts are.
 	  </para>
 
- <para>first the information fields are filled out, note that the 
+ <para>First the information fields are filled out, note that the 
 <literal>id</literal> field is kept short, this is important since it is 
 printed in Nmap's output. A detailed description of what the script
 actually does should go in the <literal>description</literal> field.</para>
@@ -2339,7 +2339,7 @@ The mainloop function will work on each runlevel grouping of threads in order.
       </para>
 
       <para>
-      The smallest compiled modules that comes with NSE is
+      The smallest compiled module that comes with NSE is
       <literal>bit</literal>,<indexterm><primary><varname>bit</varname> NSE module</primary></indexterm>
       and one of the most straightforward is
       <literal>openssl</literal>.<indexterm><primary><varname>openssl</varname> NSE module</primary></indexterm>
@@ -2384,7 +2384,7 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
   return 1;
 }
 </programlisting>
-      (<varname>NSE_OPENSSLLIBNAME</varname> is just the string
+      (<varname>OPENSSLLIBNAME</varname> is just the string
       <literal>"openssl"</literal>, the name of the module.)
       <function>luaopen_openssl</function>
       is the only function in the file that is exposed in
