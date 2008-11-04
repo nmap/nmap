@@ -2082,10 +2082,8 @@ end
 
   <sect1 id="nse-example-scripts">
     <title>Example Script</title>
-
-    <sect2 id="nse-example-script-finger">
-      <title>Finger-Test Script</title>
       <indexterm><primary sortas="Finger Results script">&ldquo;<literal>Finger Results</literal>&rdquo; script</primary></indexterm>
+
 	  <para>The finger script (<filename>finger.nse</filename>) is a perfect
       example of how short typical NSE scripts are.
 	  </para>
@@ -2095,9 +2093,10 @@ end
 printed in Nmap's output. A detailed description of what the script
 actually does should go in the <literal>description</literal> field.</para>
 <programlisting>
-id="Finger Results"<indexterm><primary sortas="id script variable">&ldquo;<varname>id</varname>&rdquo; script variable</primary></indexterm>
-
-description="attempts to get a list of usernames via the finger service"<indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
+id = "Finger Results"<indexterm><primary sortas="id script variable">&ldquo;<varname>id</varname>&rdquo; script variable</primary></indexterm>
+description = [[
+Attempts to get a list of usernames via the finger service.
+]]<indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
 
 author = "Eddie Bell &lt;ejlbell@gmail.com&gt;"<indexterm><primary>Bell, Eddie</primary></indexterm><indexterm><primary sortas="author script variable">&ldquo;<varname>author</varname>&rdquo; script variable</primary></indexterm>
 
@@ -2109,14 +2108,15 @@ containing all the categories the script belongs to&mdash;These are used for
 script selection through the <option>--script</option> option.</para>
 
 <programlisting>
-categories = {"discovery"}
+categories = {"default", "discovery"}
 </programlisting>
 
 <para>You can use the facilities provided by the nselib (<xref
 linkend="nse-library"/>) with <literal>require</literal>.  Here
-we want to use shorter port rules.</para>
+we want to use common communication functions and shorter port rules.</para>
 
 <programlisting>
+require "comm"
 require "shortport"
 </programlisting>
 
@@ -2135,65 +2135,25 @@ expect it, should the version detection information not be available.</para>
 
 <programlisting>
 portrule = shortport.port_or_service(79, "finger")<indexterm><primary sortas="portrule script variable">&ldquo;<varname>portrule</varname>&rdquo; script variable</primary></indexterm>
-
-action = function(host, port)<indexterm><primary sortas="action script variable">&ldquo;<varname>action</varname>&rdquo; script variable</primary></indexterm>
-  local socket = nmap.new_socket()
-  local results = ""
-  local status = true
 </programlisting>
 
-<para>The function <literal>err_catch()</literal> will be called for
-clean up, through NSE's exception handling mechanism. Here it only
-closes the previously opened socket (which should be enough in most
-cases).</para>
+<para>First, the script uses <function>nmap.new_try()</function> to
+create an exception handler that will quit the script in case of an
+error. Next, it passes control to <function>comm.exchange()</function>,
+which handles the network transaction. Here we have asked to receive no
+more than around 100 lines, with a timeout of five seconds
+(5000&nbsp;ms). Any errors will be handled by the
+<function>try</function> exception handler. The script returns a string
+if the call to <literal>comm.exchange()</literal> was successful.</para>
 
 <programlisting>
-local err_catch = function()
-  socket:close()
+action = function(host, port)
+	local try = nmap.new_try()
+
+	return try(comm.exchange(host, port, "\r\n",
+        	{lines=100, proto=port.protocol, timeout=5000}))
 end
 </programlisting>
-
-<para>The clean up function gets registered for exception handling via
-a call to <literal>nmap.new_try()</literal></para>
-
-<programlisting>
-  local try = nmap.new_try(err_catch())
-</programlisting>
-
-<para>The script sets a timeout of 5000 (five seconds).
-Should any operation require more time we'll receive a
-<literal>TIMEOUT</literal> error message.</para>
-
-<programlisting>
-  socket:set_timeout(5000)
-</programlisting>
-
-<para>To make use of the exception handling we need to wrap calls to those functions which might return an error, inside <literal>try()</literal></para>
-
-<programlisting>
-  try(socket:connect(host.ip, port.number, port.protocol))
-  try(socket:send("\n\r"))
-</programlisting>
-
-<para>The call to <literal>receive_lines()</literal> is not wrapped
-in <literal>try()</literal>, because we don't want to abort the script
-just because we didn't receive the data we expected. Note that if
-there is less data than requested (100 lines), we will still receive
-it and the status will be <literal>true</literal>&mdash;subsequent
-calls would yield a <literal>false</literal> status.</para>
-
-<programlisting>
-  status, results = socket:receive_lines(100)
-  socket:close()
-</programlisting>
-
-<para>The script returns a string if the call to <literal>receive_lines()</literal> was successful, otherwise it returns <literal>nil</literal>.</para>
-
-<programlisting>
-  return results
-  end
-</programlisting>
-</sect2>
     <indexterm class="endofrange" startref="nse-sample-indexterm"/>
   </sect1>
   <sect1 id="nse-implementation">

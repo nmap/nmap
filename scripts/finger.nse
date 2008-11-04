@@ -17,5 +17,6 @@ portrule = shortport.port_or_service(79, "finger")
 action = function(host, port)
 	local try = nmap.new_try()
 
-	return try(comm.exchange(host, port, "\r\n", {lines=100, proto=port.protocol, timeout=5000}))
+	return try(comm.exchange(host, port, "\r\n",
+        	{lines=100, proto=port.protocol, timeout=5000}))
 end
