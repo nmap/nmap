@@ -144,6 +144,7 @@ local function winreg_enum_rids(host)
 			element['sid']          = msrpc.string_to_sid(enumkey_result['name'])
 
 			-- To get the time the user logged in, we check the 'Volatile Environment' key
+			-- This can fail with the 'guest' account due to access restrictions
 			status, openkey_result = msrpc.winreg_openkey(smbstate, openhku_result['handle'], element['name'] .. "\\Volatile Environment")
 			if(status ~= false) then
 				local queryinfokey_result, closekey_result
@@ -162,8 +163,11 @@ local function winreg_enum_rids(host)
 				end
 
 				element['changed_date'] = queryinfokey_result['last_changed_date']
-				elements[#elements + 1] = element
+			else
+				-- Getting extra details failed, but we can still handle this
+				element['changed_date'] = "<unknown>"
 			end
+			elements[#elements + 1] = element
 		end
 
 		i = i + 1
