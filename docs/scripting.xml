@@ -145,12 +145,9 @@ The reference manual is also
       on the other hand, run no more than once against each target IP
       and produce results below the port table.  <xref
       linkend="nse-ex1" xrefstyle="select: label nopage"/> shows a typical script scan.  Examples of
-      service scripts producing output are: <literal>Stealth SSH
-      version</literal>, which tricks some SSH servers into divulging
-      version information without logging the attempt as they normally
-      would; <literal>Service Owner</literal>, which connects to open
-      ports, then performs a reverse-identd query to determine what
-      username each is running under; and <literal>HTML Title</literal>,
+      service scripts producing output are: <literal>SSH protocol
+      version 1</literal>, saying that SSH-1 is supported;
+      and <literal>HTML Title</literal>,
       which simply grabs the title of the root path of any web servers
       found.  A sample host script is <literal>RIPE Query</literal>,
       which looks up and reports target IP ownership
@@ -167,7 +164,6 @@ Starting Nmap ( http://nmap.org )
 Interesting ports on localhost (127.0.0.1):
 PORT    STATE  SERVICE
 22/tcp  open   ssh
-|_ Stealth SSH version: SSH-1.99-OpenSSH_4.2
 |_ SSH protocol version 1: Server supports SSHv1
 23/tcp  closed telnet
 80/tcp  open   http
