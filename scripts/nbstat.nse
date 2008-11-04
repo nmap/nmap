@@ -5,8 +5,6 @@ Attempt's to get the target's NetBIOS names and MAC address.
 By default, the script displays the name of the computer and the logged-in
 user; if the verbosity is turned up, it displays all names the system thinks it
 owns.
-\n\n
-For more information on the NetBIOS protocol, see 'nselib/netbios.lua'.
 ]]
 
 ---
@@ -37,9 +35,6 @@ categories = {"default", "discovery", "safe"}
 
 require "netbios"
 
--- I have excluded the port function param because it doesn't make much sense
--- for a hostrule.  It works without warning.  The NSE documentation is
--- not explicit enough in this regard.  
 hostrule = function(host)
 
 	-- The following is an attempt to only run this script against hosts

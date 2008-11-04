@@ -6,8 +6,8 @@ services), or through a SMB share.
 Enumerating the local and terminal services users is done by reading the remote registry. Keys under
 <code>HKEY_USERS</code> are SIDs that represent the currently logged in users, and those SIDs can be converted
 to proper names by using the <code>LsaLookupSids()</code> function. Doing this requires any access higher than
-anonymous (guests, users, or administrators are all able to perform this request on the operating
-systems I tested). 
+anonymous. Guests, users, or administrators are all able to perform this request on the operating
+systems I (Ron Bowes) tested. 
 
 Enumerating SMB connections is done using the <code>srvsvc.netsessenum()</code> function, which returns who's
 logged in, when they logged in, and how long they've been idle for. Unfortunately, I couldn't find

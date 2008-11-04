@@ -6,7 +6,7 @@ retrieve more information about each share using <code>srvsvc.NetShareGetInfo()<
 Running
 <code>NetShareEnumAll()</code> will work anonymously on Windows 2000, and requires a user-level 
 account on any other Windows version. Calling <code>NetShareGetInfo()</code> requires an 
-administrator account on every version of Windows I tested. 
+administrator account on every version of Windows I (Ron Bowes) tested. 
 
 Although <code>NetShareEnumAll()</code> is restricted on certain systems, actually connecting to
 a share to check if it exists will always work. So, if <code>NetShareEnumAll()</code> fails, a 

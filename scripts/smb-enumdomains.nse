@@ -115,7 +115,7 @@ action = function(host)
 		end
 	end
 
-	-- If no domanis were returned, print an error (I don't expect this will actually happen)
+	-- If no domains were returned, print an error (I don't expect this will actually happen)
 	if(#enumdomains_result['domains'] == 0) then
 		if(nmap.debugging() > 0) then
 			return "ERROR: Couldn't find any domains to check"

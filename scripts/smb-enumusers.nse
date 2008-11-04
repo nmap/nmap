@@ -38,11 +38,11 @@ a user on a domain or system. An LSA function is exposed which lets us convert t
 (say, 1000) to the username (say, "Ron"). So, the technique will essentially try
 converting 1000 to a name, then 1001, 1002, etc., until we think we're done. 
 
-I break the users into groups of 5 RIDs, and check them individually (checking too many
-at once causes problems). I continue checking until I reach 1100, and get an empty
+Users are broken into groups of five RIDs, then checked individually (checking too many
+at once causes problems). We continue checking until we reach 1100, and get an empty
 group. This probably isn't the most effective way, but it seems to work. 
 It might be a good idea to modify this, in the future, with some more
-intelligence.  I performed a test on an old server with a lot of accounts, 
+intelligence.  I (Ron Bowes) performed a test on an old server with a lot of accounts, 
 and I got these results: 500, 501, 1000, 1030, 1031, 1053, 1054, 1055, 
 1056, 1057, 1058, 1059, 1060, 1061, 1062, 1063, 1064, 1065, 1066, 1067, 1070, 
 1075, 1081, 1088, 1090. The jump from 1000 to 1030 is quite large and can easily 
@@ -51,7 +51,7 @@ result in missing accounts, in an automated check.
 Before attempting this conversion, the SID of the server has to be determined. 
 The SID is determined by doing the reverse operation, that is, converting a name into 
 a RID. The name is determined by looking up any name present on the system. 
-In this script, I try:
+We try:
 * The computer name and domain name, returned in <code>SMB_COM_NEGOTIATE</code>;
 * An nbstat query to get the server name and the user currently logged in; and
 * Some common names: "administrator", "guest", and "test".
