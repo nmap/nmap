@@ -1,4 +1,3 @@
-id = "DNS source port randomness"
 description = [[
 Checks a DNS server for the predictable-port recursion vulnerability.
 Predictable source ports can make a DNS server vulnerable to cache poisoning

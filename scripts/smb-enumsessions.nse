@@ -1,4 +1,3 @@
-id = "MSRPC: NetSessEnum()"
 description = [[
 Enumerates the users logged into a system either locally, through a remote desktop client (terminal
 services), or through a SMB share.
@@ -31,7 +30,7 @@ idea to write this one.
 --
 --@output
 -- Host script results:
--- |  MSRPC: NetSessEnum():
+-- |  smb-enumsessions:
 -- |  Users logged in:
 -- |  |_ TESTBOX\Administrator since 2008-10-21 08:17:14
 -- |  |_ DOMAIN\rbowes since 2008-10-20 09:03:23

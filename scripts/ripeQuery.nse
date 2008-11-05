@@ -1,4 +1,3 @@
-id = "RIPE query"
 description = [[
 Connects to the RIPE database and displays the <code>role:</code> entry for the
 target's IP address.

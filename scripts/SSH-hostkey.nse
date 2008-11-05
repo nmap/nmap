@@ -1,4 +1,3 @@
-id = "SSH Hostkey"
 description = [[
 Shows SSH hostkeys.
 
@@ -22,9 +21,9 @@ the output with the <code>ssh_hostkey</code> script argument.
 --
 --@output
 -- 22/tcp open  ssh
--- |  SSH Hostkey: 2048 f0:58:ce:f4:aa:a4:59:1c:8e:dd:4d:07:44:c8:25:11 (RSA)
+-- |  SSH-hostkey: 2048 f0:58:ce:f4:aa:a4:59:1c:8e:dd:4d:07:44:c8:25:11 (RSA)
 -- 22/tcp open  ssh
--- |  SSH Hostkey: 2048 f0:58:ce:f4:aa:a4:59:1c:8e:dd:4d:07:44:c8:25:11 (RSA)
+-- |  SSH-hostkey: 2048 f0:58:ce:f4:aa:a4:59:1c:8e:dd:4d:07:44:c8:25:11 (RSA)
 -- |  +--[ RSA 2048]----+
 -- |  |       .E*+      |
 -- |  |        oo       |
@@ -37,7 +36,7 @@ the output with the <code>ssh_hostkey</code> script argument.
 -- |  |    o .          |
 -- |_ +-----------------+
 -- 22/tcp open  ssh
--- |  SSH Hostkey: 2048 xuvah-degyp-nabus-zegah-hebur-nopig-bubig-difeg-hisym-rumef-cuxex (RSA)
+-- |  SSH-hostkey: 2048 xuvah-degyp-nabus-zegah-hebur-nopig-bubig-difeg-hisym-rumef-cuxex (RSA)
 -- |_ ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwVuv2gcr0maaKQ69VVIEv2ob4OxnuI64fkeOnCXD1lUx5tTA+vefXUWEMxgMuA7iX4irJHy2zer0NQ3Z3yJvr5scPgTYIaEOp5Uo/eGFG9Agpk5wE8CoF0e47iCAPHqzlmP2V7aNURLMODb3jVZuI07A2ZRrMGrD8d888E2ORVORv1rYeTYCqcMMoVFmX9l3gWEdk4yx3w5sD8v501Iuyd1v19mPfyhrI5E1E1nl/Xjp5N0/xP2GUBrdkDMxKaxqTPMie/f0dXBUPQQN697a5q+5lBRPhKYOtn6yQKCd9s1Q22nxn72Jmi1RzbMyYJ52FosDT755Qmb46GLrDMaZMQ==
 author = "Sven Klemm <sven@c3d2.de>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -52,7 +51,7 @@ if pcall(require,"openssl") then
   require("ssh2")
 else
   action = function()
-    stdnse.print_debug( 3, "Skipping %s script because OpenSSL is missing.", id )
+    stdnse.print_debug( 3, "Skipping %s script because OpenSSL is missing.", filename )
   end 
 end
 
@@ -63,9 +62,9 @@ portrule = shortport.port_or_service(22, "ssh")
 --@param host nmap host table
 --@param key host key table
 local add_key_to_registry = function( host, key )
-  nmap.registry[id] = nmap.registry[id] or {}
-  nmap.registry[id][host.ip] = nmap.registry[id][host.ip] or {}
-  table.insert( nmap.registry[id][host.ip], key )
+  nmap.registry.sshhostkey = nmap.registry.sshhostkey or {}
+  nmap.registry.sshhostkey[host.ip] = nmap.registry.sshhostkey[host.ip] or {}
+  table.insert( nmap.registry.sshhostkey[host.ip], key )
 end
 
 action = action or function(host, port)

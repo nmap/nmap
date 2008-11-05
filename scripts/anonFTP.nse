@@ -1,11 +1,10 @@
-id = "Anonymous FTP"
 description = [[
 Checks if an FTP server allows anonymous logins.
 ]]
 
 ---
 -- @output
--- |_ Anonymous FTP: Anonymous login allowed
+-- |_ anonFTP: Anonymous login allowed
 
 author = "Eddie Bell <ejlbell@gmail.com>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

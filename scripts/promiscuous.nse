@@ -1,4 +1,3 @@
-id = "Promiscuous detection"
 description = [[
 Checks if a target on a local Ethernet has its network card in promiscuous mode.
 

@@ -1,4 +1,3 @@
-id="FTP bounce check"
 description=[[
 Checks to see if an FTP server allows port scanning using the FTP bounce method.
 ]]

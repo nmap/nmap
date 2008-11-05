@@ -1,4 +1,3 @@
-id = "Daytime"
 description = [[
 Retrieves the day and time from the UDP Daytime service.
 ]]

@@ -1,4 +1,3 @@
-id = "robots.txt"
 description = [[
 Checks for disallowed entries in <code>robots.txt</code>.
 
@@ -8,7 +7,7 @@ The higher the verbosity or debug level, the more disallowed entries are shown.
 ---
 --@output
 -- 80/tcp  open   http    syn-ack
--- |  robots.txt: has 156 disallowed entries (40 shown)
+-- |  robots: has 156 disallowed entries (40 shown)
 -- |  /news?output=xhtml& /search /groups /images /catalogs
 -- |  /catalogues /news /nwshp /news?btcid=*& /news?btaid=*&
 -- |  /setnewsprefs? /index.html? /? /addurl/image? /pagead/ /relpage/

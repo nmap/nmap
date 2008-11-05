@@ -1,4 +1,3 @@
-id = "HTTP directory traversal passwd probe"
 description = [[
 Checks if a web server is vulnerable to directory traversal by attempting to
 retrieve /etc/passwd.

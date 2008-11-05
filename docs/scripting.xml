@@ -145,11 +145,11 @@ The reference manual is also
       on the other hand, run no more than once against each target IP
       and produce results below the port table.  <xref
       linkend="nse-ex1" xrefstyle="select: label nopage"/> shows a typical script scan.  Examples of
-      service scripts producing output are: <literal>SSH protocol
-      version 1</literal>, saying that SSH-1 is supported;
-      and <literal>HTML Title</literal>,
+      service scripts producing output are:
+      <literal>SSHv1-support.nse</literal>, saying that SSH-1 is supported;
+      and <literal>showHTMLTitle.nse</literal>,
       which simply grabs the title of the root path of any web servers
-      found.  A sample host script is <literal>RIPE Query</literal>,
+      found.  A sample host script is <literal>ripeQuery.nse</literal>,
       which looks up and reports target IP ownership
       information.<indexterm><primary>script names, examples of</primary></indexterm>
 
@@ -164,14 +164,14 @@ Starting Nmap ( http://nmap.org )
 Interesting ports on localhost (127.0.0.1):
 PORT    STATE  SERVICE
 22/tcp  open   ssh
-|_ SSH protocol version 1: Server supports SSHv1
+|_ SSHv1-support: Server supports SSHv1
 23/tcp  closed telnet
 80/tcp  open   http
-|_ HTML title:Test Page for Apache Installation
+|_ showHTMLTitle: Test Page for Apache Installation
 113/tcp closed auth
 
 Host script results:
-|_ RIPE Query: IP belongs to:          Internet Assigned Numbers Authority
+|_ ripeQuery: IP belongs to:          Internet Assigned Numbers Authority
 
 Nmap done: 1 IP address (1 host up) scanned in 0.91 seconds
 </screen>
@@ -223,9 +223,10 @@ Nmap done: 1 IP address (1 host up) scanned in 0.91 seconds
 	      remote sysadmins.  Of course (as with all other Nmap
 	      features) we cannot guarantee that they won't ever cause
 	      adverse reactions.  Most of these perform general
-	      network discovery. Examples are SSH-hostkey (gets an SSH
-	      host key) and showHTMLTitle (grabs the
-	      title from a web page).</para>
+              network discovery. Examples are
+              <literal>SSH-hostkey.nse</literal> (gets an SSH host key) and
+              <literal>showHTMLTitle.nse</literal> (grabs the title from a
+              web page).</para>
           </listitem>
         </varlistentry>
 
@@ -518,8 +519,8 @@ $ nmap -sC --script-args user=foo,pass=bar,anonFTP={pass=ftp@foobar.com}
 	  inside your script as
           <literal>local username= nmap.registry.args.user</literal>.
           As a general rule the subtables used to override
-	  options for scripts should be named as the script's
-	  <literal>id</literal>, otherwise scripts won't know where to
+	  options for scripts should be named after the script,
+	  otherwise scripts won't know where to
 	  retrieve their arguments.
 	  </para>
 	</sect2>
@@ -559,21 +560,8 @@ $ nmap -sC --script-args user=foo,pass=bar,anonFTP={pass=ftp@foobar.com}
   </sect1>
   <sect1 id="nse-script-format">
     <title>Script Format</title>
-    <para>NSE scripts consist of six descriptive fields along with either a port or host rule defining when the script should be executed and an action block containing the actual script instructions. Values can be assigned to these fields just as you would assign any other Lua variables.  Their names must be lowercase as shown here.</para>
+    <para>NSE scripts consist of five descriptive fields along with either a port or host rule defining when the script should be executed and an action block containing the actual script instructions. Values can be assigned to these fields just as you would assign any other Lua variables.  Their names must be lowercase as shown here.</para>
 
-    <sect2 id="nse-format-id">
-      <title><literal>id</literal> Field</title>
-      <indexterm><primary sortas="id script variable">&ldquo;<varname>id</varname>&rdquo; script variable</primary></indexterm>
-      <para>
-	The script's <literal>id</literal> field is displayed in the Nmap output 
-	table if the script produces any output.  It should be unique so users
-	can identify exactly which script file produced a message. IDs
-	should be kept short to conserve space in Nmap output, while
-	still being meaningful enough for users to recognize.  Some
-	good examples are <literal>RIPE query</literal>, <literal>HTML
-	title</literal>, and <literal>Kibuv worm</literal>.<indexterm><primary>script names, examples of</primary></indexterm>
-      </para>
-    </sect2>
     <sect2 id="nse-format-description">
       <title><literal>description</literal> Field</title>
       <indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
@@ -686,7 +674,7 @@ or <literal>unfiltered</literal><indexterm><primary><literal>unfiltered</literal
 The action is the heart of an NSE script. It contains all of the
 instructions to be executed when the script's port or host rule
 triggers. It is a Lua function which accepts the same arguments as the
-rule and can return either <literal>nil</literal> or a string. If a string is returned by a service script, the string and script ID are printed in the Nmap port table output.  A string returned by a host script is printed below the port table.  No output is produced if the
+rule and can return either <literal>nil</literal> or a string. If a string is returned by a service script, the string and script's filename are printed in the Nmap port table output.  A string returned by a host script is printed below the port table.  No output is produced if the
 script returns <literal>nil</literal>.  For an example of an NSE
 action refer to <xref linkend="nse-tutorial-action"/>.
       </para>
@@ -1252,8 +1240,8 @@ socket:close()
         on an object. Threads waiting to work on this object are put in the
         waiting queue until they can get a "lock" on the mutex. A solution for
         the <literal>whois.nse</literal> problem above is to have each thread
-        block on a mutex for <xref linkend="nse-format-id">script's ID field
-        </xref>, thus ensuring only one thread is working so its results can
+        block on a mutex using a common string,
+        thus ensuring only one thread is working so its results can
         be shared with other scripts which may not need to run and so queries
         to the whois servers are staggered.
       </para>
@@ -1317,9 +1305,7 @@ socket:close()
       <example id="nse-mutex-handling">
         <title>Mutex manipulation</title>
         <programlisting>
-id = "My Script's Unique ID";
-
-local mutex = nmap.mutex(id);
+local mutex = nmap.mutex("My Script's Unique ID");
 function action(host, port)
   mutex "lock";
   -- do stuff
@@ -1480,27 +1466,16 @@ try(socket:send(result))
 
       The head of the script is essentially its meta information. This
       includes the
-      fields: <literal>id</literal>, <literal>description</literal>, <literal>categories</literal>, <literal>runlevel</literal>, <literal>author</literal>
+      fields: <literal>description</literal>, <literal>categories</literal>, <literal>runlevel</literal>, <literal>author</literal>
       and <literal>license</literal>. We are not going to change the
       run level, or worry about the author and license fields for now.
-      The <literal>id</literal> of a script should uniquely identify
-      it. If it is absent, the path to the script will be used as an
-      id. We recommend to choose an id which concisely identifies the
-      purpose of the script, since the ID is printed before the
-      script's results in Nmap output.
       </para>
 
-      <para>
-<indexterm><primary sortas="Service Owner script">&ldquo;<literal>Service Owner</literal>&rdquo; script</primary></indexterm>
-<indexterm><primary sortas="id script variable">&ldquo;<varname>id</varname>&rdquo; script variable</primary></indexterm>
-<programlisting>
-id = "Service owner"
-</programlisting>
-      </para>
       <para>
 	The description field should contain a sentence or two describing what the script does.  If anything about the script results might confuse or mislead users, and you can't eliminate the issue by improving the script or results text, it should be documented in the <literal>description</literal> string.
       </para>
       <para>
+<indexterm><primary><filename>showOwner.nse</filename></primary></indexterm>
 <indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
 <programlisting>
 description = [[
@@ -1787,7 +1762,6 @@ local localip, localport = try(client_service:get_info())
     <example id="nse-documentation-script">
       <title>An NSEDoc comment for a script</title>
 <programlisting>
-id = "AS Numbers"
 description = [[
 Maps IP addresses to autonomous system (AS) numbers.
 
@@ -1997,7 +1971,6 @@ categories = {"discovery", "external"}
     </para>
 
 <programlisting>
-id = "Skype v2"
 description = [[
 Detects the Skype version 2 service.
 ]]
@@ -2079,18 +2052,16 @@ end
 
   <sect1 id="nse-example-scripts">
     <title>Example Script</title>
-      <indexterm><primary sortas="Finger Results script">&ldquo;<literal>Finger Results</literal>&rdquo; script</primary></indexterm>
+      <indexterm><primary><filename>finger.nse</filename></primary></indexterm>
 
 	  <para>The finger script (<filename>finger.nse</filename>) is a perfect
       example of how short typical NSE scripts are.
 	  </para>
 
- <para>First the information fields are filled out, note that the 
-<literal>id</literal> field is kept short, this is important since it is 
-printed in Nmap's output. A detailed description of what the script
+ <para>First the information fields are filled out.
+A detailed description of what the script
 actually does should go in the <literal>description</literal> field.</para>
 <programlisting>
-id = "Finger Results"<indexterm><primary sortas="id script variable">&ldquo;<varname>id</varname>&rdquo; script variable</primary></indexterm>
 description = [[
 Attempts to get a list of usernames via the finger service.
 ]]<indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
@@ -2275,7 +2246,7 @@ thread running against a host will have only a hostrule passed to the action clo
 a thread running against a port will have both a hostrule and portrule passed. Each thread
 is stored with information relevant to the thread. This information
 includes the runlevel, target, target port (if applicable), host and port tables
-(passed to action), its type (running against a host or port), and its id.
+(passed to action), and its type (running against a host or port).
 The mainloop function will work on each runlevel grouping of threads in order.
 </para>
 

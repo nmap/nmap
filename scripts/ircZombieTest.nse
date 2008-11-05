@@ -1,4 +1,3 @@
-id = "IRC zombie"
 description = [[
 Checks for an IRC zombie.
 

@@ -1,4 +1,3 @@
-id = "SMTPcommands"
 description = [[
 Attempts to use EHLO and HELP to gather the Extended commands supported by an
 SMTP server.

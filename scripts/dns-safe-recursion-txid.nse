@@ -1,4 +1,3 @@
-id = "DNS TXID randomness"
 
 description = [[
 Checks a DNS server for the predictable-TXID DNS recursion

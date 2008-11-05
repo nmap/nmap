@@ -1,4 +1,3 @@
-id = "sql-inject"
 description = [[
 Spiders an HTTP server looking for URLs containing queries vulnerable to an SQL
 injection attack.
@@ -54,7 +53,7 @@ local function get_page(host, port, httpurl)
 	try(soc:connect(host.ip, port.number))
 
 	httpurl = string.gsub(httpurl, "&amp;", "&")
-	--print(id .. ": " .. httpurl) 
+	--print(filename .. ": " .. httpurl) 
 
 	-- request page
 	local query = strbuf.new()
@@ -232,7 +231,7 @@ action = function(host, port)
 	end
 
 	if #injectable > 0 then
-		stdnse.print_debug(1, "%s: Testing %d suspicious URLs", id, #injectable )
+		stdnse.print_debug(1, "%s: Testing %d suspicious URLs", filename, #injectable )
 	end
 
 	-- test all potentially vulnerable queries

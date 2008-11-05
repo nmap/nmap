@@ -1,4 +1,3 @@
-id = "RealVNC Authentication Bypass"
 description = [[
 Checks if a VNC server is vulnerable to the RealVNC authentication bypass
 (CVE-2006-2369).

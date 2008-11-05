@@ -1,4 +1,3 @@
-id = "SNMPv1-communitybrute"
 description = [[
 Attempts to find an SNMP community string by brute force.
 ]]

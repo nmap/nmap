@@ -1,4 +1,3 @@
-id = "Skype v2"
 description = [[
 Detects the Skype version 2 service.
 ]]

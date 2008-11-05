@@ -1,4 +1,3 @@
-id = "Open Relay SMTP"
 description = [[
 Checks if an SMTP server is an open relay.
 ]]

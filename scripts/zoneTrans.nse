@@ -1,4 +1,3 @@
-id = "zone-transfer"
 description = [[
 Requests a zone transfer (AXFR) from a DNS server.
 
@@ -21,7 +20,7 @@ Useful resources
 -- @args zoneTrans.domain Domain to transfer.
 -- @output
 -- 53/tcp   open     domain
--- |  zone-transfer:
+-- |  zoneTrans:
 -- |  foo.com.            SOA     ns2.foo.com. piou.foo.com.
 -- |  foo.com.            TXT  
 -- |  foo.com.            NS      ns1.foo.com.               

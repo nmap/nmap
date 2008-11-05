@@ -1,4 +1,3 @@
-id = "PPTP"
 description = [[
 Attempts to extract system information from the PPTP service.
 ]]

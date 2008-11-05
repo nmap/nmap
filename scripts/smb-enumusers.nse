@@ -1,4 +1,3 @@
-id = "MSRPC: List of user accounts"
 description = [[
 Attempts to enumerate the users on a remote Windows system, with as much
 information as possible, through a variety of techniques (over SMB and MSRPC,
@@ -73,11 +72,11 @@ the code I wrote for this is largely based on the techniques used by them.
 --
 -- @output
 -- Host script results:
--- |  MSRPC: List of user accounts:
+-- |  smb-enumusers:
 -- |_ TESTBOX\Administrator, EXTERNAL\DnsAdmins, TESTBOX\Guest, EXTERNAL\HelpServicesGroup, EXTERNAL\PARTNERS$, TESTBOX\SUPPORT_388945a0
 -- 
 -- Host script results:
--- |  MSRPC: List of user accounts:
+-- |  smb-enumusers:
 -- |  Administrator
 -- |    |_ Type: User
 -- |    |_ Domain: LOCALSYSTEM

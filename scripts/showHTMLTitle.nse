@@ -1,4 +1,3 @@
-id = "HTML title"
 description = [[
 Shows the title of the default page of a web server.
 
@@ -11,7 +10,7 @@ original target.
 ---
 --@output
 -- 80/tcp  open   http    syn-ack
--- |_ HTML title: Foo.
+-- |_ showHTMLTitle: Foo.
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 

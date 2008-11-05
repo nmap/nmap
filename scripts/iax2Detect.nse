@@ -1,4 +1,3 @@
-id = "IAX2 Service Detection"
 description = [[
 Detects the UDP IAX2 service.
 

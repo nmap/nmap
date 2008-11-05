@@ -1,4 +1,3 @@
-id = "IRC Server Info"
 description = [[
 Gathers information from an IRC server.
 
@@ -8,7 +7,7 @@ It uses STATS, LUSERS, and other queries to obtain this information.
 ---
 -- @output
 -- 6665/tcp open     irc
--- |  IRC Server Info: Server: foo.bar.net
+-- |  ircServerInfo: Server: foo.bar.net
 -- |  Version: hyperion-1.0.2b(381). foo.bar.net 
 -- |  Lservers/Lusers: 0/4204
 -- |  Uptime: 106 days, 2:46:30

@@ -1,4 +1,3 @@
-id = "AS Numbers"
 description = [[
 Maps IP addresses to autonomous system (AS) numbers.
 
@@ -27,7 +26,7 @@ server (your default DNS server, or whichever you specified with the
 -- @args dns The address of a recursive nameserver to use (optional).
 -- @output
 -- Host script results:
--- |  AS Numbers:
+-- |  ASN:
 -- |  BGP: 64.13.128.0/21 | Country: US
 -- |    Origin AS: 10565 SVCOLO-AS - Silicon Valley Colocation, Inc.
 -- |      Peer AS: 3561 6461
@@ -48,7 +47,7 @@ local ipOps  = require "ipOps"
 local stdnse = require "stdnse"
 
 
-local mutex = nmap.mutex( id )
+local mutex = nmap.mutex( "ASN" )
 if not nmap.registry.asn then
   nmap.registry.asn = {}
   nmap.registry.asn.cache = {}
@@ -216,13 +215,13 @@ function ip_to_asn( query )
 
   -- failed to find or get a response from any dns server - fatal
   if not decoded_response and ( other_response == nil or other_response == 9 ) then
-    stdnse.print_debug( "%s Failed to send dns query.  Response from dns.query(): %s", id, other_response or "nil" )
+    stdnse.print_debug( "%s Failed to send dns query.  Response from dns.query(): %s", filename, other_response or "nil" )
     return false, nil
   end
 
   -- error codes from dns.lua
   if not decoded_response and type( other_response ) == "number" then
-    if other_response ~= 3 then stdnse.print_debug( "%s Error from dns.query() Code: %s in response to %s", id, other_response, query ) end
+    if other_response ~= 3 then stdnse.print_debug( "%s Error from dns.query() Code: %s in response to %s", filename, other_response, query ) end
     return false, err_code[other_response] or "Unknown Error"
   end
 

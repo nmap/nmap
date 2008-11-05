@@ -1,4 +1,3 @@
-id = "rpcinfo"
 description = [[
 Connects to portmapper and fetches a list of all registered programs.
 ]]

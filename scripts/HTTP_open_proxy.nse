@@ -1,4 +1,3 @@
-id="Open Proxy Test"
 description=[[
 Checks if an HTTP proxy is open.
 

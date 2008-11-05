@@ -1,4 +1,3 @@
-id = "HTTP TRACE"
 description = [[
 Sends an HTTP TRACE request and shows header fields that were modified in the
 response.
@@ -7,7 +6,7 @@ response.
 ---
 -- @output
 -- 80/tcp open  http
--- |  HTTP TRACE: Response differs from request.  First 5 additional lines:
+-- |  HTTPtrace: Response differs from request.  First 5 additional lines:
 -- |  Cookie: UID=d4287aa38d02f409841b4e0c0050c13148a85d01c0c0a154d4ef56dfc2b4fc1b0
 -- |  Country: us
 -- |  Ip_is_advertise_combined: yes

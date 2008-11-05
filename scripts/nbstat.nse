@@ -1,4 +1,3 @@
-id = "NBSTAT"
 description = [[
 Attempt's to get the target's NetBIOS names and MAC address.
 
@@ -13,10 +12,10 @@ owns.
 --
 -- @output
 -- (no verbose)\n
--- |_ NBSTAT: NetBIOS name: TEST1, NetBIOS user: RON, NetBIOS MAC: 00:0c:29:f9:d9:28\n
+-- |_ nbstat: NetBIOS name: TEST1, NetBIOS user: RON, NetBIOS MAC: 00:0c:29:f9:d9:28\n
 --\n
 -- (verbose)\n
--- |  NBSTAT: NetBIOS name: TEST1, NetBIOS user: RON, NetBIOS MAC: 00:0c:29:f9:d9:28\n
+-- |  nbstat: NetBIOS name: TEST1, NetBIOS user: RON, NetBIOS MAC: 00:0c:29:f9:d9:28\n
 -- |  Name: TEST1<00>            Flags: <unique><active>\n
 -- |  Name: TEST1<20>            Flags: <unique><active>\n
 -- |  Name: WORKGROUP<00>        Flags: <group><active>\n

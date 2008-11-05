@@ -1,4 +1,3 @@
-id = "Nameserver open recursive queries"
 
 description = [[
 Checks if a DNS server allows queries for third-party names.

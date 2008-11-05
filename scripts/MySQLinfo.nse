@@ -1,4 +1,3 @@
-id = "MySQL Server Information"
 description = [[
 Connects to a MySQL server and prints information such as the protocol and
 version numbers, thread ID, status, capabilities, and the password salt.
@@ -11,7 +10,7 @@ running this script (see the portrule).
 ---
 --@output
 -- 3306/tcp open  mysql
--- |  MySQL Server Information: Protocol: 10
+-- |  MySQLinfo: Protocol: 10
 -- |  Version: 5.0.51a-3ubuntu5.1
 -- |  Thread ID: 7
 -- |  Some Capabilities: Connect with DB, Compress, Transactions, Secure Connection

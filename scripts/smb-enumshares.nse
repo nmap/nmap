@@ -1,4 +1,3 @@
-id = "MSRPC: List of shares"
 description = [[
 Attempts to list shares using the <code>srvsvc.NetShareEnumAll()</code> MSRPC function, then 
 retrieve more information about each share using <code>srvsvc.NetShareGetInfo()</code>.
@@ -28,13 +27,13 @@ doing an authenticated test.
 --
 --@output
 -- Standard:
--- |  MSRPC: List of shares:
+-- |  smb-enumshares:
 -- |  Anonymous shares: IPC$
 -- |_ Restricted shares: F$, ADMIN$, C$
 --
 -- Verbose:
 -- Host script results:
--- |  MSRPC: List of shares: 
+-- |  smb-enumshares: 
 -- |  Anonymous shares:
 -- |     IPC$
 -- |     |_ Type: STYPE_IPC_HIDDEN

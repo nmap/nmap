@@ -1,4 +1,3 @@
-id = "SSH Protocol Version 1"
 description = [[
 Checks if an SSH server supports SSH Protocol Version 1.
 ]]

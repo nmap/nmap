@@ -1,6 +1,7 @@
 #include "nse_main.h"
 
 #include "nse_init.h"
+#include "nse_fs.h"
 #include "nse_nsock.h"
 #include "nse_nmaplib.h"
 #include "nse_debug.h"
@@ -535,27 +536,47 @@ int process_waiting2running(lua_State* L, int resume_arguments) {
 	return SCRIPT_ENGINE_SUCCESS;
 }
 
-/* Tries to get the script id and store it in the script scan result structure
- * if no 'id' field is found, the filename field is used which we set in the 
- * setup phase. If someone changed the filename field to a nonstring we complain
- * */
+/* Gets the basename of a script filename and removes any ".nse" extension. */
+static char *abbreviate_script_filename(const char *filename) {
+	char *abbrev;
+
+	abbrev = path_get_basename(filename);
+	if (abbrev == NULL)
+		return NULL;
+	if (nse_check_extension(SCRIPT_ENGINE_EXTENSION, abbrev)) {
+		abbrev[strlen(abbrev) - strlen(SCRIPT_ENGINE_EXTENSION)] = '\0';
+	}
+
+	return abbrev;
+}
+
+/* Tries to get the script id and store it in the script scan result structure.
+ * If someone changed the filename field to a nonstring we complain. */
 int process_getScriptId(lua_State* L, ScriptResult *sr) {
+	const char *filename;
 
-	lua_getfield(L, 1, ID);
 	lua_getfield(L, 1, FILENAME);
-
-	if(lua_isstring(L, -2)) {
-		sr->set_id(lua_tostring (L, -2));
-	} else if(lua_isstring(L, -1)) {
-		sr->set_id(lua_tostring (L, -1));
-	} else {
-		error("%s: The script has no 'id' entry, the 'filename' entry was changed to:",
+	filename = lua_tostring(L, -1);
+	if (filename == NULL) {
+		error("%s: The script's 'filename' entry was changed to:",
 			SCRIPT_ENGINE);
 		l_dumpValue(L, -1);
 		return SCRIPT_ENGINE_ERROR;
 	}
+	lua_pop(L, 1);
 
-	lua_pop(L, 2);
+	if (o.debugging > 1) {
+		sr->set_id(filename);
+	} else {
+		/* Abbreviate the filename with low or no debugging. */
+		char *id = abbreviate_script_filename(filename);
+		if (id == NULL) {
+			sr->set_id(filename);
+		} else {
+			sr->set_id(id);
+			free(id);
+		}
+	}
 
 	return SCRIPT_ENGINE_SUCCESS;
 }

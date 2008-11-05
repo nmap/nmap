@@ -1,4 +1,3 @@
-id = "HTTP Auth"
 description = [[
 Gets the authentication scheme and realm of a web service that requires
 authentication.
@@ -6,7 +5,7 @@ authentication.
 
 ---
 -- @output
--- |  HTTP Auth: HTTP Service requires authentication
+-- |  HTTPAuth: HTTP Service requires authentication
 -- |_   Auth type: Basic, realm = DSL Router
 
 -- HTTP authentication information gathering script

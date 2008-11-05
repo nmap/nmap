@@ -1,4 +1,3 @@
-id = "MSRPC: List of domains"
 description = [[
 Attempts to enumerate domains on a system, along with their policies. This will likely only work without credentials against Windows 2000. 
 
@@ -18,7 +17,7 @@ After the initial <code>bind()</code> to SAMR, the sequence of calls is:
 --
 --@output
 -- Host script results:
--- |  MSRPC: List of domains:
+-- |  smb-enumdomains:
 -- |  Domain: LOCALSYSTEM
 -- |   |_ SID: S-1-5-21-2956463495-2656032972-1271678565
 -- |   |_ Users: Administrator, Guest, SUPPORT_388945a0

@@ -1,4 +1,3 @@
-id = "Service owner"
 description = [[
 Attempts to find the owner of a scanned port.
 

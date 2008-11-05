@@ -1,4 +1,3 @@
-id = "MS SQL"
 description = [[
 Attempts to extract information from Microsoft SQL Server.
 ]]

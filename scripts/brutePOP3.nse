@@ -1,4 +1,3 @@
-id = "POP3 brute force"
 description = [[
 Tries to log into a POP3 account by guessing usernames and passwords.
 ]]

@@ -1,4 +1,3 @@
-id = "XAMPP default pwd"
 description = [[
 Check if an XAMP or XAMPP FTP server uses a default username and password.
 
@@ -9,7 +8,7 @@ administration.
 ---
 -- @output
 -- 21/tcp  open   ftp
--- |_ XAMPP default pwd: Login success with u/p: nobody/xampp
+-- |_ xamppDefaultPass: Login success with u/p: nobody/xampp
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 

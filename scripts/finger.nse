@@ -1,4 +1,3 @@
-id = "Finger Results"
 description = [[
 Attempts to get a list of usernames via the finger service.
 ]]

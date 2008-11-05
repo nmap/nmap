@@ -1,4 +1,3 @@
-id          = "Whois"
 description = [[
 Queries the WHOIS services of Regional Internet Registries (RIR) and attempts to retrieve information about the IP Address
 Assignment which contains the Target IP Address.
@@ -67,7 +66,7 @@ the RIRs.
 -- nmap target --script whois --script-args whois={whodb=nocache}
 -- @output
 -- Host script results:
--- |  Whois: Record found at whois.arin.net
+-- |  whois: Record found at whois.arin.net
 -- |  netrange: 64.13.134.0 - 64.13.134.63
 -- |  netname: NET-64-13-143-0-26
 -- |  orgname: Titan Networks
@@ -97,7 +96,7 @@ hostrule = function( host )
 
     local is_private, err = ipOps.isPrivate( host.ip )
     if err then
-      stdnse.print_debug( "%s Error in Hostrule: %s.", id, err )
+      stdnse.print_debug( "%s Error in Hostrule: %s.", filename, err )
       return false
     end
 
@@ -143,7 +142,7 @@ action = function( host )
   end
 
   -- script initialisation - threads must wait until this has been completed before continuing
-  local mutex = nmap.mutex( id )
+  local mutex = nmap.mutex( "whois" )
   mutex "lock"
   if not nmap.registry.whois.init_done then
     script_init( host.ip )
@@ -192,7 +191,7 @@ action = function( host )
 
     status, retval = pcall( get_next_action, tracking, host.ip )
     if not status then
-    stdnse.print_debug( "%s %s pcall caught an exception in get_next_action: %s.", id, ip, retval )
+    stdnse.print_debug( "%s %s pcall caught an exception in get_next_action: %s.", filename, ip, retval )
     else tracking = retval end
 
     if tracking.this_db then
@@ -203,13 +202,13 @@ action = function( host )
       -- analyse data
       status, retval = pcall( analyse_response, tracking, host.ip, response, data )
       if not status then
-      stdnse.print_debug( "%s %s pcall caught an exception in analyse_response: %s.", id, ip, retval )
+      stdnse.print_debug( "%s %s pcall caught an exception in analyse_response: %s.", filename, ip, retval )
       else data = retval end
 
       -- get next action
       status, retval = pcall( get_next_action, tracking, host.ip )
       if not status then
-        stdnse.print_debug( "%s %s pcall caught an exception in get_next_action: %s.", id, ip, retval )
+        stdnse.print_debug( "%s %s pcall caught an exception in get_next_action: %s.", filename, ip, retval )
         if not tracking.last_db then tracking.last_db, tracking.this_db = tracking.this_db or tracking.next_db, nil end
       else tracking = retval end
     end
@@ -342,7 +341,7 @@ function check_response_cache( ip )
     -- record found in cache
     return true, nil
   else
-    stdnse.print_debug( 1, "%s %s Error in check_response_cache: %s.", id, ip, err )
+    stdnse.print_debug( 1, "%s %s Error in check_response_cache: %s.", filename, ip, err )
   end
 
   return false, nil
@@ -463,7 +462,7 @@ function get_db_from_assignments( ip )
   end
 
   if not nmap.registry.whois.local_assignments_data or not nmap.registry.whois.local_assignments_data[af] then
-    stdnse.print_debug( 1, "%s Error in get_db_from_assignments: Missing assignments data in registry.", id )
+    stdnse.print_debug( 1, "%s Error in get_db_from_assignments: Missing assignments data in registry.", filename )
     return nil
   end
 
@@ -490,14 +489,14 @@ end
 function do_query(db, ip)
 
   if type( db ) ~= "string" or not nmap.registry.whois.whoisdb[db] then
-    stdnse.print_debug("%s %s Error in do_query: %s is not a defined Whois service.", id, ip, db)
+    stdnse.print_debug("%s %s Error in do_query: %s is not a defined Whois service.", filename, ip, db)
     return nil
   end
 
   local service = nmap.registry.whois.whoisdb[db]
 
   if type( service.hostname ) ~= "string" or service.hostname == "" then
-    stdnse.print_debug("%s %s Error in do_query: Invalid hostname for %s.", id, ip, db)
+    stdnse.print_debug("%s %s Error in do_query: Invalid hostname for %s.", filename, ip, db)
     return nil
   end
 
@@ -513,7 +512,7 @@ function do_query(db, ip)
 
   local socket = nmap.new_socket()
   local catch = function()
-    stdnse.print_debug( "%s %s Connection to %s failed or was aborted! No Output for this Target.", id, ip, db )
+    stdnse.print_debug( "%s %s Connection to %s failed or was aborted! No Output for this Target.", filename, ip, db )
     nmap.registry.whois.mutex[db] "done"
     socket:close()
   end
@@ -536,7 +535,7 @@ function do_query(db, ip)
 
   socket:close()
 
-  stdnse.print_debug(3, "%s %s Ended Query at %s.", id, ip, db)
+  stdnse.print_debug(3, "%s %s Ended Query at %s.", filename, ip, db)
 
   if #result == 0 then
     return nil
@@ -588,13 +587,13 @@ function analyse_response( tracking, ip, response, data )
   if type( meta ) == "table" and type( meta.fieldreq ) == "table" and type( meta.fieldreq.ob_exist ) == "string" then
     have_objects = response:match( meta.fieldreq.ob_exist )
   else
-    stdnse.print_debug( 2, "%s %s Could not check for objects, problem with meta data.", id, ip )
+    stdnse.print_debug( 2, "%s %s Could not check for objects, problem with meta data.", filename, ip )
     have_objects = false
   end
 
   -- if we do not recognise objects check for an known error/non-object message
   if not have_objects then
-    stdnse.print_debug( 4, "%s %s %s has not responded with the expected objects.", id, ip, this_db )
+    stdnse.print_debug( 4, "%s %s %s has not responded with the expected objects.", filename, ip, this_db )
     local tmp, msg
     -- may have found our record saying something similar to "No Record Found"
     for _, pattern in ipairs( nmap.registry.whois.m_none ) do
@@ -602,7 +601,7 @@ function analyse_response( tracking, ip, response, data )
       pattern_u = pattern:gsub( "$addr", ip:upper() )
       msg = response:match( pattern_l ) or response:match( pattern_u )
       if msg then
-        stdnse.print_debug( 4, "%s %s %s responded with a message which is assumed to be authoritative (but may not be).", id, ip, this_db )
+        stdnse.print_debug( 4, "%s %s %s responded with a message which is assumed to be authoritative (but may not be).", filename, ip, this_db )
         break
       end
     end
@@ -611,7 +610,7 @@ function analyse_response( tracking, ip, response, data )
       for _, pattern in ipairs( nmap.registry.whois.m_err ) do
         msg = response:match( pattern )
         if msg then
-          stdnse.print_debug( 4, "%s %s %s responded with an ERROR message.", id, ip, this_db )
+          stdnse.print_debug( 4, "%s %s %s responded with an ERROR message.", filename, ip, this_db )
           break
         end
       end
@@ -630,7 +629,7 @@ function analyse_response( tracking, ip, response, data )
     for setname, set in pairs( nmap.registry.whois.fields_meta ) do
       if set ~= nmap.registry.whois.whoisdb[this_db].fieldreq and response:match(set.ob_exist) then
         foreign_obj = setname
-        stdnse.print_debug( 4, "%s %s %s seems to have responded using the set of objects named: %s.", id, ip, this_db, foreign_obj )
+        stdnse.print_debug( 4, "%s %s %s seems to have responded using the set of objects named: %s.", filename, ip, this_db, foreign_obj )
         break
       end
     end
@@ -639,7 +638,7 @@ function analyse_response( tracking, ip, response, data )
       meta = nmap.registry.whois.whoisdb.ripe
       meta.redirects = nil
       have_objects = true
-      stdnse.print_debug( 4, "%s %s %s will use the display properties of ripe.", id, ip, this_db )
+      stdnse.print_debug( 4, "%s %s %s will use the display properties of ripe.", filename, ip, this_db )
     elseif foreign_obj then
       -- find a display to match the objects.
       for some_db, db_props in pairs( nmap.registry.whois.whoisdb ) do
@@ -648,7 +647,7 @@ function analyse_response( tracking, ip, response, data )
           meta = nmap.registry.whois.whoisdb[some_db]
           meta.redirects = nil
           have_objects = true
-          stdnse.print_debug( 4, "%s %s %s will use the display properties of %s.", id, ip, this_db, some_db )
+          stdnse.print_debug( 4, "%s %s %s will use the display properties of %s.", filename, ip, this_db, some_db )
           break
         end
       end
@@ -657,7 +656,7 @@ function analyse_response( tracking, ip, response, data )
 
   -- extract fields from the entire response for record/redirect discovery
   if have_objects then
-    stdnse.print_debug( 4, "%s %s Parsing Query response from %s.", id, ip, this_db )
+    stdnse.print_debug( 4, "%s %s Parsing Query response from %s.", filename, ip, this_db )
     data[this_db] = extract_objects_from_response( response, this_db, ip, meta )
   end
 
@@ -665,7 +664,7 @@ function analyse_response( tracking, ip, response, data )
 
   -- do record/redirect discovery, cache found redirect
   if not nmap.registry.whois.nofollow and have_objects and meta.redirects then
-    stdnse.print_debug( 4, "%s %s Testing response for redirection.", id, ip )
+    stdnse.print_debug( 4, "%s %s Testing response for redirection.", filename, ip )
     found, nextdb, data.iana = redirection_rules( this_db, ip, data, meta )
   end
 
@@ -673,7 +672,7 @@ function analyse_response( tracking, ip, response, data )
   -- modify the data table depending on whether we're redirecting or quitting
   if have_objects then
 
-    stdnse.print_debug( 5, "%s %s Extracting Fields from response.", id, ip )
+    stdnse.print_debug( 5, "%s %s Extracting Fields from response.", filename, ip )
 
     -- optionally constrain response to a more focused area
     -- discarding previous extraction
@@ -685,7 +684,7 @@ function analyse_response( tracking, ip, response, data )
       end
       if offset > 1 and meta.unordered then
         -- fetch an object immediately in front of inetnum
-        stdnse.print_debug( 5, "%s %s %s Searching for an object group immediately before this range.", id, ip, this_db )
+        stdnse.print_debug( 5, "%s %s %s Searching for an object group immediately before this range.", filename, ip, this_db )
         -- split objects from the record, up to offset.  Last object should be the one we want.
         local obj_sel = stdnse.strsplit( "\r?\n\r?\n", response:sub( 1, offset ) )
         response_chunk = "\n" .. obj_sel[#obj_sel] .. "\n"
@@ -717,10 +716,10 @@ function analyse_response( tracking, ip, response, data )
     end
 
     -- DEBUG
-    stdnse.print_debug( 6, "%s %s %s Fields captured :", id, ip, this_db )
+    stdnse.print_debug( 6, "%s %s %s Fields captured :", filename, ip, this_db )
     for ob, t in pairs( data[this_db] ) do
       for fieldname, fieldvalue in pairs( t ) do
-        stdnse.print_debug( 6, "%s %s %s %s.%s %s.", id, ip, this_db, ob, fieldname, fieldvalue )
+        stdnse.print_debug( 6, "%s %s %s %s.%s %s.", filename, ip, this_db, ob, fieldname, fieldvalue )
       end
     end
 
@@ -806,15 +805,15 @@ function extract_objects_from_response( response_string, db, ip, meta, specific_
   -- we either receive a table for one object or for all objects
   if type( specific_object ) == "string" and meta.fieldreq[specific_object] then
     objects_to_extract[specific_object] = meta.fieldreq[specific_object]
-    stdnse.print_debug( 5, "%s %s Extracting a single object: %s.", id, ip, specific_object )
+    stdnse.print_debug( 5, "%s %s Extracting a single object: %s.", filename, ip, specific_object )
   else
-    stdnse.print_debug( 5, "%s %s Extracting all objects.", id, ip )
+    stdnse.print_debug( 5, "%s %s Extracting all objects.", filename, ip )
     objects_to_extract = meta.fieldreq
   end
 
   for object_name, object in pairs( objects_to_extract ) do
     if object_name and object_name ~= "ob_exist" then
-      stdnse.print_debug(5, "%s %s Seeking object group: %s.", id, ip, object_name)
+      stdnse.print_debug(5, "%s %s Seeking object group: %s.", filename, ip, object_name)
       extracted_objects[object_name] = {}
       extracted_objects[object_name].for_compare = {} -- this will allow us to compare two tables
       -- get a substr of response_string that corresponds to a single object
@@ -823,7 +822,7 @@ function extract_objects_from_response( response_string, db, ip, meta, specific_
       -- if we could not find the end, make the end EOF
       ob_end = ob_end or -1
       if ob_start and ob_end then
-        stdnse.print_debug(5, "%s %s Capturing: %s with indices %s and %s.", id, ip, object_name, ob_start, ob_end )
+        stdnse.print_debug(5, "%s %s Capturing: %s with indices %s and %s.", filename, ip, object_name, ob_start, ob_end )
         local obj_string = response_string:sub( ob_start, ob_end )
         for fieldname, pattern in pairs( object ) do
           if fieldname ~= "ob_start" and fieldname ~= "ob_end" then
@@ -896,19 +895,19 @@ function redirection_rules( db, ip, data, meta )
 
     -- arin record points to iana so we won't follow and we assume we have our record
     if directed_to == iana and directed_from == arin then
-      stdnse.print_debug( 4, "%s %s %s Accept arin record (matched IANA).", id, ip, directed_from )
+      stdnse.print_debug( 4, "%s %s %s Accept arin record (matched IANA).", filename, ip, directed_from )
       return true, nil, ( icnt+1 )
     end
 
     -- non-arin record points to iana so we query arin next
     if directed_to == iana then
-      stdnse.print_debug( 4, "%s %s Redirecting to arin (matched IANA).", id, ip )
+      stdnse.print_debug( 4, "%s %s Redirecting to arin (matched IANA).", filename, ip )
       return false, arin, ( icnt+1 )
     end
 
     -- a redirect, but not to iana or to self, so we follow it.
     if directed_to ~= nmap.registry.whois.whoisdb[directed_from].id then
-      stdnse.print_debug( 4, "%s %s %s redirects us to %s.", id, ip, directed_from, directed_to )
+      stdnse.print_debug( 4, "%s %s %s redirects us to %s.", filename, ip, directed_from, directed_to )
       return false, directed_to, icnt
     end
 
@@ -924,14 +923,14 @@ function redirection_rules( db, ip, data, meta )
     -- if a field has been captured for the given redirect info
     if data[db][obj] and data[db][obj][fld] then
 
-      stdnse.print_debug( 5, "%s %s Seek redirect in object: %s.%s for %s.", id, ip, obj, fld, pattern )
+      stdnse.print_debug( 5, "%s %s Seek redirect in object: %s.%s for %s.", filename, ip, obj, fld, pattern )
       -- iterate over nmap.registry.whois.whoisdb to find pattern (from each service) in the designated field
       for member, mem_properties in pairs( nmap.registry.whois.whoisdb ) do
 
         -- if pattern if found in the field, we have a redirect to member
         if type( mem_properties[pattern] ) == "string" and string.lower( data[db][obj][fld] ):match( mem_properties[pattern] ) then
 
-          stdnse.print_debug( 5, "%s %s Matched %s in %s.%s.", id, ip, pattern, obj, fld )
+          stdnse.print_debug( 5, "%s %s Matched %s in %s.%s.", filename, ip, pattern, obj, fld )
           return redirection_validation( nmap.registry.whois.whoisdb[member].id, db, iana_count )
 
         elseif type( mem_properties[pattern] ) == "table" then
@@ -939,7 +938,7 @@ function redirection_rules( db, ip, data, meta )
           -- pattern is an array of patterns
           for _, pattn in ipairs( mem_properties[pattern] ) do
             if type( pattn ) == "string" and string.lower( data[db][obj][fld] ):match( pattn ) then
-              stdnse.print_debug( 5, "%s %s Matched %s in %s.%s.", id, ip, pattern, obj, fld )
+              stdnse.print_debug( 5, "%s %s Matched %s in %s.%s.", filename, ip, pattern, obj, fld )
               return redirection_validation( nmap.registry.whois.whoisdb[member].id, db, iana_count )
             end
           end
@@ -993,7 +992,7 @@ function constrain_response( response, db, ip, meta )
 
   if # mptr > 1 then
     -- find the closest one to host.ip and constrain the response to it
-    stdnse.print_debug( 5, "%s %s %s Focusing on the smallest of %s address ranges.", id, ip, db, #mptr )
+    stdnse.print_debug( 5, "%s %s %s Focusing on the smallest of %s address ranges.", filename, ip, db, #mptr )
     -- sort the table mptr into nets ascending
     table.sort( mptr, smallest_range )
     -- select the first net that includes host.ip
@@ -1011,15 +1010,15 @@ function constrain_response( response, db, ip, meta )
     if mptr[index+1] and ( mptr[index+1].pointer > mptr[index].pointer ) then
       bound = mptr[index+1].pointer
     end
-    stdnse.print_debug(5, "%s %s %s Smallest range containing target IP addr. is %s.", id, ip, db, trim( str_net ) )
+    stdnse.print_debug(5, "%s %s %s Smallest range containing target IP addr. is %s.", filename, ip, db, trim( str_net ) )
     local dbg = "%s %s %s smallest range is offset from %s to %s."
     -- isolate inetnum and associated objects
     if bound then
-      stdnse.print_debug(5, dbg, id, ip, db, ptr, bound)
+      stdnse.print_debug(5, dbg, filename, ip, db, ptr, bound)
       -- get from pointer to bound
       return response:sub(ptr,bound), ptr
     else
-      stdnse.print_debug(5, dbg, id, ip, db, ptr, "the end")
+      stdnse.print_debug(5, dbg, filename, ip, db, ptr, "the end")
       -- or get the whole thing from the pointer onwards
       return response:sub(ptr), ptr
     end
@@ -1061,7 +1060,7 @@ function not_short_prefix( ip, range, redirect )
   first, last, err[#err+1] = ipOps.get_ips_from_range( range )
 
   if #err > 0 then
-    stdnse.print_debug( 1, "%s Error in not_short_prefix: s%.", id, table.concat( err, " " ) )
+    stdnse.print_debug( 1, "%s Error in not_short_prefix: s%.", filename, table.concat( err, " " ) )
     return nil
   end
 
@@ -1105,7 +1104,7 @@ function add_to_cache( ip, range, redirect, data )
   -- we need to cache some range so we'll cache the small assignment that includes ip.
   if type( range ) ~= "string" or type( get_prefix_length( range ) ) ~= "number" then
     range = get_assignment( ip, longest_prefix )
-    stdnse.print_debug(5, "%s %s Caching an assumed Range: %s", id, ip, range)
+    stdnse.print_debug(5, "%s %s Caching an assumed Range: %s", filename, ip, range)
   end
 
   nmap.registry.whois.cache[ip] = {} -- destroy any previous cache entry for this target.
@@ -1195,13 +1194,13 @@ function output( ip, services_queried )
   end
 
   if type( services_queried ) ~= "table" then
-    stdnse.print_debug( "%s %s Error in output(): No data found.", id, ip )
+    stdnse.print_debug( "%s %s Error in output(): No data found.", filename, ip )
     return nil
   elseif #services_queried == 0 then
-    stdnse.print_debug( "%s %s Error in output(): No data found, no queries were completed.", id, ip )
+    stdnse.print_debug( "%s %s Error in output(): No data found, no queries were completed.", filename, ip )
     return nil
   elseif #services_queried > 0 then
-    stdnse.print_debug( "%s %s Error in output(): No data found - could not understand query responses.", id, ip )
+    stdnse.print_debug( "%s %s Error in output(): No data found - could not understand query responses.", filename, ip )
     return nil
   end
 
@@ -1222,7 +1221,7 @@ function get_output_from_cache( ip )
 
   local ip_key = get_cache_key( ip )
   if not ip_key then
-    stdnse.print_debug( 1, "%s %s Error in get_output_from_cache().", id, ip )
+    stdnse.print_debug( 1, "%s %s Error in get_output_from_cache().", filename, ip )
     return nil
   end
 
@@ -1669,7 +1668,7 @@ function get_args()
         nmap.registry.whois.using_cache = false
       elseif ( db == "nofile" ) then
         nmap.registry.whois.using_local_assignments_file = false
-        stdnse.print_debug( 2, "%s: Not using local assignments data.", id )
+        stdnse.print_debug( 2, "%s: Not using local assignments data.", filename )
       end
     elseif not ( string.match( table.concat( t, " " ), db ) ) then
       -- we have a unique valid whois db
@@ -1680,18 +1679,18 @@ function get_args()
   if ( #t > 0 ) and nmap.registry.whois.using_local_assignments_file then
     -- "nofile" was not explicitly supplied, but it is implied by supplying custom whoisdb_default_order
     nmap.registry.whois.using_local_assignments_file = false
-    stdnse.print_debug(3, "%s: Not using local assignments data because custom whoisdb_default_order was supplied.", id)
+    stdnse.print_debug(3, "%s: Not using local assignments data because custom whoisdb_default_order was supplied.", filename)
   end
 
   if ( #t > 1 ) and nmap.registry.whois.nofollow then
     -- using nofollow, we do not follow redirects and can only accept what we find as a record therefore we only accept the first db supplied
     t = {t[1]}
-    stdnse.print_debug( 1, "%s: Too many args supplied with 'nofollow', only using %s.", id, t[1] )
+    stdnse.print_debug( 1, "%s: Too many args supplied with 'nofollow', only using %s.", filename, t[1] )
   end
 
   if ( #t > 0 ) then
     nmap.registry.whois.whoisdb_default_order = t
-    stdnse.print_debug( 2, "%s: whoisdb_default_order: %s.", id, table.concat( t, " " ) )
+    stdnse.print_debug( 2, "%s: whoisdb_default_order: %s.", filename, table.concat( t, " " ) )
   end
 
 end
@@ -1720,7 +1719,7 @@ function get_local_assignments_data()
   local fetchfile = "nmap-services"
   local directory_path, err = get_parentpath( fetchfile )
   if err then
-    stdnse.print_debug( 1, "%s: Nmap.fetchfile() failed to get a path to %s: %s.", id, fetchfile, err )
+    stdnse.print_debug( 1, "%s: Nmap.fetchfile() failed to get a path to %s: %s.", filename, fetchfile, err )
     return nil, err
   end
 
@@ -1736,10 +1735,10 @@ function get_local_assignments_data()
       local file, exists = directory_path .. assignment_data_spec.local_resource
       exists, err = file_exists( file )
       if not exists and err then
-        stdnse.print_debug( 1, "%s: Error accessing %s: %s.", id, file, err )
+        stdnse.print_debug( 1, "%s: Error accessing %s: %s.", filename, file, err )
       elseif not exists then
         update_required = true
-        stdnse.print_debug( 2, "%s: %s does not exist or is empty. Fetching it now...", id, file )
+        stdnse.print_debug( 2, "%s: %s does not exist or is empty. Fetching it now...", filename, file )
       elseif exists then
         update_required, modified_date, entity_tag = requires_updating( file )
       end
@@ -1748,7 +1747,7 @@ function get_local_assignments_data()
 
       -- read an existing and up-to-date file into file_content.
       if exists and not update_required then
-        stdnse.print_debug( 2, "%s: %s was cached less than %s ago. Reading...", id, file, nmap.registry.whois.local_assignments_file_expiry )
+        stdnse.print_debug( 2, "%s: %s was cached less than %s ago. Reading...", filename, file, nmap.registry.whois.local_assignments_file_expiry )
         file_content = read_from_file( file )
       end
 
@@ -1757,10 +1756,10 @@ function get_local_assignments_data()
       if update_required then
         http_response = ( conditional_download( assignment_data_spec.remote_resource, modified_date, entity_tag ) )
         if not http_response or type( http_response.status ) ~= "number" then
-          stdnse.print_debug( 1, "%s: Failed whilst requesting %s.", id, assignment_data_spec.remote_resource )
+          stdnse.print_debug( 1, "%s: Failed whilst requesting %s.", filename, assignment_data_spec.remote_resource )
         elseif http_response.status == 200 then
           -- prepend our file header
-          stdnse.print_debug( 2, "%s: Retrieved %s.", id, assignment_data_spec.remote_resource )
+          stdnse.print_debug( 2, "%s: Retrieved %s.", filename, assignment_data_spec.remote_resource )
           file_content = stdnse.strsplit( "\r?\n", http_response.body )
           table.insert( file_content, 1, "** Do Not Alter This Line or The Following Line **" )
           local hline = {}
@@ -1770,19 +1769,19 @@ function get_local_assignments_data()
           table.insert( file_content, 2, table.concat( hline ) )
           write_success, err = write_to_file( file, file_content )
           if err then
-            stdnse.print_debug( 1, "%s: Error writing %s to %s: %s.", id, assignment_data_spec.remote_resource, file, err )
+            stdnse.print_debug( 1, "%s: Error writing %s to %s: %s.", filename, assignment_data_spec.remote_resource, file, err )
           end
         elseif http_response.status == 304 then
           -- update our file header with a new timestamp
-          stdnse.print_debug( 1, "%s: %s is up-to-date.", id, file )
+          stdnse.print_debug( 1, "%s: %s is up-to-date.", filename, file )
           file_content = read_from_file( file )
           file_content[2] = file_content[2]:gsub("^<[\-\+]?%d+>(.*)$", "<" .. os.time() .. ">%1")
           write_success, err = write_to_file( file, file_content )
           if err then
-            stdnse.print_debug( 1, "%s: Error writing to %s: %s.", id, file, err )
+            stdnse.print_debug( 1, "%s: Error writing to %s: %s.", filename, file, err )
           end
         else
-          stdnse.print_debug( 1, "%s: HTTP %s whilst requesting %s.", id, http_response.status, assignment_data_spec.remote_resource )
+          stdnse.print_debug( 1, "%s: HTTP %s whilst requesting %s.", filename, http_response.status, assignment_data_spec.remote_resource )
         end
       end
 
@@ -1796,7 +1795,7 @@ function get_local_assignments_data()
         if #t == 0 or err then
           -- good header, but bad file?  Kill the file!
           write_to_file( file, "" )
-          stdnse.print_debug( 1, "%s: Problem with the data in %s.", id, file )
+          stdnse.print_debug( 1, "%s: Problem with the data in %s.", filename, file )
         else
           for i, v in pairs( t ) do
             ret[address_family][#ret[address_family]+1] = v
@@ -1815,7 +1814,7 @@ function get_local_assignments_data()
   for af, t in pairs( ret ) do
     if #t == 0 then
       ret[af] = nil
-      stdnse.print_debug( 1, "%s: Cannot use local assignments file for address family %s.", id, af )
+      stdnse.print_debug( 1, "%s: Cannot use local assignments file for address family %s.", filename, af )
     end
   end
 
@@ -1937,7 +1936,7 @@ function read_from_file( file )
 
   local f, err, _ = io.open( file, "r" )
   if not f then
-    stdnse.print_debug( 1, "%s: Error opening %s for reading: %s", id, file, err )
+    stdnse.print_debug( 1, "%s: Error opening %s for reading: %s", filename, file, err )
     return nil, err
   end
 
@@ -1995,7 +1994,7 @@ function conditional_download( url, mod_date, e_tag )
   -- follow one redirection
   if request_response.status ~= 304 and ( tostring( request_response.status ):match( "30%d" ) and
   type( request_response.header.location ) == "string"  and request_response.header.location ~= "" ) then
-    stdnse.print_debug( 2, "%s: HTTP Status:%d New Location: %s.", id, request_response.status, request_response.header.location )
+    stdnse.print_debug( 2, "%s: HTTP Status:%d New Location: %s.", filename, request_response.status, request_response.header.location )
     request_response = http.get_url( request_response.header.location, request_options )
   end
 
@@ -2024,7 +2023,7 @@ function write_to_file( file, content )
 
   local f, err, _ = io.open( file, "w" )
   if not f then
-    stdnse.print_debug( 1, "%s: Error opening %s for writing: %s.", id, file, err )
+    stdnse.print_debug( 1, "%s: Error opening %s for writing: %s.", filename, file, err )
     return nil, err
   end
 

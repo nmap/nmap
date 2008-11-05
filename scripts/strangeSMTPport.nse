@@ -1,4 +1,3 @@
-id = "Unexpected SMTP"
 description = [[
 Checks if SMTP is running on a non-standard port.
 
@@ -9,7 +8,7 @@ system to send spam or control your machine.
 ---
 -- @output
 -- 22/tcp  open   ssh
--- |_ Unexpected SMTP: Warning: smtp is running on a strange port
+-- |_ strangeSMTPport: Warning: smtp is running on a strange port
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 

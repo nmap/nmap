@@ -1,4 +1,3 @@
-id = "MSRPC: Server statistics"
 description = [[
 Attempts to grab the server's statistics over SMB and MSRPC, which uses TCP
 ports 445 or 139. 
@@ -17,7 +16,7 @@ the numbers that Windows returns. Take the values here with a grain of salt.
 --
 -- @output
 -- Host script results:
--- |  MSRPC: Server statistics:
+-- |  smb-serverstats:
 -- |  Server statistics collected since 2008-10-17 09:32:41 (4d0h24m29s):
 -- |  |_ Traffic 133467 bytes (0.38b/s) sent, 167696 bytes (0.48b/s) received
 -- |  |_ Failed logins: 5

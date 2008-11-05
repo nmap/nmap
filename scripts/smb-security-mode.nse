@@ -1,4 +1,3 @@
-id = "SMB Security"
 description = [[
 Returns information about the SMB security level determined by SMB.
 
@@ -44,9 +43,9 @@ set the username and password, etc.), but it probably won't ever require them.
 -- sudo nmap -sU -sS --script smb-security-mode.nse -p U:137,T:139 127.0.0.1
 --
 --@output
--- |  SMB Security: User-level authentication
--- |  SMB Security: Challenge/response passwords supported
--- |_ SMB Security: Message signing supported
+-- |  smb-security-mode: User-level authentication
+-- |  smb-security-mode: Challenge/response passwords supported
+-- |_ smb-security-mode: Message signing supported
 -- 
 -- @args smb* This script supports the <code>smbusername</code>,
 -- <code>smbpassword</code>, <code>smbhash</code>, <code>smbguest</code>, and

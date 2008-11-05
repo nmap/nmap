@@ -1,4 +1,3 @@
-id = "POP3 Capabilites"
 description = [[
 Retrieves POP3 server capabilities.
 ]]
@@ -6,7 +5,7 @@ Retrieves POP3 server capabilities.
 ---
 -- @output
 -- 110/tcp open  pop3
--- |_ POP3 Capabilites:  USER CAPA RESP-CODES UIDL PIPELINING STLS TOP SASL(PLAIN)
+-- |_ popcapa:  USER CAPA RESP-CODES UIDL PIPELINING STLS TOP SASL(PLAIN)
 
 author = "Philip Pickering <pgpickering@gmail.com>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

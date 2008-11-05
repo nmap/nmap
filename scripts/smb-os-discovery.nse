@@ -1,4 +1,3 @@
-id = "OS from SMB"
 description = [[
 Attempts to determine the operating system over the SMB protocol (ports 445 and
 139).
@@ -13,7 +12,7 @@ they likely won't change the outcome in any meaningful way.
 -- sudo nmap -sU -sS --script smb-os-discovery.nse -p U:137,T:139 127.0.0.1
 --
 --@output
--- |  OS from SMB: Windows 2000
+-- |  smb-os-discovery: Windows 2000
 -- |  LAN Manager: Windows 2000 LAN Manager
 -- |  Name: WORKGROUP\TEST1
 -- |_ System time: 2008-09-09 20:55:55 UTC-5
