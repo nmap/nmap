@@ -505,14 +505,14 @@ Nmap script database.</para>
 <indexterm><primary><option>-sC</option></primary><secondary>example of</secondary></indexterm>
 <indexterm><primary><option>--script-args</option></primary><secondary>example of</secondary></indexterm>
 <userinput>
-$ nmap -sC --script-args user=foo,pass=bar,anonFTP={pass=ftp@foobar.com}
+$ nmap -sC --script-args user=foo,pass=bar,whois={whodb=nofollow+ripe}
 </userinput>
 	  </para>
 	  <para>
 	  which would result in the Lua table: 
           </para>
 <programlisting>
-{user="foo",pass="bar",anonFTP={pass="nobody@foobar.com"}}
+{user="foo",pass="bar",whois={whodb="nofollow+ripe"}}
 </programlisting>
  
 	  <para>You could therefore access the username (<literal>"foo"</literal>)
