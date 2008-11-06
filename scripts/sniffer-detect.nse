@@ -4,6 +4,12 @@ Checks if a target on a local Ethernet has its network card in promiscuous mode.
 The technique is described at
 http://www.securityfriday.com/promiscuous_detection_01.pdf.
 ]]
+
+---
+-- @output
+-- Host script results:
+-- |_ sniffer-detect: Likely in promiscuous mode (tests: "11111111")
+
 author = "Marek Majkowski <majek04+nse@gmail.com>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
@@ -114,7 +120,7 @@ action = function(host, port)
 	pcap:pcap_close()
 
 	if out == '1_1___1_' then
-		return 'Win98/Win2K/WinXP with pcap installed. I\'m unsure if they\'re sniffing. (tests: "' .. out .. '")'
+		return 'Windows with libpcap installed; may or may not be sniffing (tests: "' .. out .. '")'
 	end
 	if results[out] == false then
 		-- probably not sniffing
@@ -122,7 +128,7 @@ action = function(host, port)
 	end
 	if results[out] == true then
 		-- rather sniffer.
-		return 'PROMISCUOUS (tests: "' .. out .. '")'
+		return 'Likely in promiscuous mode (tests: "' .. out .. '")'
 	end
 
 	-- results[out] == nil
