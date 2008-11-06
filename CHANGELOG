@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Removed ripeQuery.nse because we now have the much more robust
+  whois.nse which handles all the major registries. [Fyodor]
+
 o Removed showSSHVersion.nse. Its only real claim to fame was the
   ability to trick some SSH servers (including at least OpenSSH
   4.3p2-9etch3) into not logging the connection.  This trick doesn't

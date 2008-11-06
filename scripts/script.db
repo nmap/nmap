@@ -40,8 +40,6 @@ Entry{ category = "safe", filename = "whois.nse" }
 Entry{ category = "default", filename = "smb-os-discovery.nse" }
 Entry{ category = "discovery", filename = "smb-os-discovery.nse" }
 Entry{ category = "safe", filename = "smb-os-discovery.nse" }
-Entry{ category = "discovery", filename = "ripeQuery.nse" }
-Entry{ category = "external", filename = "ripeQuery.nse" }
 Entry{ category = "malware", filename = "strangeSMTPport.nse" }
 Entry{ category = "version", filename = "iax2Detect.nse" }
 Entry{ category = "discovery", filename = "smb-security-mode.nse" }
