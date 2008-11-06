@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Renamed irc-zombie.nse to auth-spoof and improved its description
+  and output a bit. [Fyodor]
+
 o Most script names were changed to make them more consistent.
   [Fyodor, David]
 

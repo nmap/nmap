@@ -1,8 +1,10 @@
 description = [[
-Checks for an IRC zombie.
+Checks for an identd (auth) server which is spoofing its replies.
 
-If port 113 responds before we ask it then something is fishy. Usually this
-means that the host is an IRC zombie.
+Tests whether an identd (auth) server responds with an answer before
+we even send the query.  This sort of identd spoofing can be a sign of
+malware infection though it can also be used for legitimate privacy
+reasons.
 ]]
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
@@ -23,6 +25,6 @@ action = function(host, port)
 		return
 	end
 
-	return owner
+	return "Spoofed reply: " .. owner
 end
 
