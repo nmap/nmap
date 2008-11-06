@@ -4,7 +4,7 @@ Checks if an FTP server allows anonymous logins.
 
 ---
 -- @output
--- |_ ftp-anon: Anonymous login allowed
+-- |_ ftp-anon: Anonymous FTP login allowed
 
 author = "Eddie Bell <ejlbell@gmail.com>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -43,6 +43,6 @@ action = function(host, port)
 	socket:close()
 
 	if(isAnon) then
-		return "FTP: Anonymous login allowed"
+		return "Anonymous FTP login allowed"
 	end
 end
