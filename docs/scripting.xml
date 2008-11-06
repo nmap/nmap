@@ -146,8 +146,8 @@ The reference manual is also
       and produce results below the port table.  <xref
       linkend="nse-ex1" xrefstyle="select: label nopage"/> shows a typical script scan.  Examples of
       service scripts producing output are:
-      <literal>SSHv1-support.nse</literal>, saying that SSH-1 is supported;
-      and <literal>showHTMLTitle.nse</literal>,
+      <literal>sshv1.nse</literal>, saying that SSH-1 is supported;
+      and <literal>html-title.nse</literal>,
       which simply grabs the title of the root path of any web servers
       found.  A sample host script is <literal>ripeQuery.nse</literal>,
       which looks up and reports target IP ownership
@@ -164,10 +164,10 @@ Starting Nmap ( http://nmap.org )
 Interesting ports on localhost (127.0.0.1):
 PORT    STATE  SERVICE
 22/tcp  open   ssh
-|_ SSHv1-support: Server supports SSHv1
+|_ sshv1: Server supports SSHv1
 23/tcp  closed telnet
 80/tcp  open   http
-|_ showHTMLTitle: Test Page for Apache Installation
+|_ html-title: Test Page for Apache Installation
 113/tcp closed auth
 
 Host script results:
@@ -224,8 +224,8 @@ Nmap done: 1 IP address (1 host up) scanned in 0.91 seconds
 	      features) we cannot guarantee that they won't ever cause
 	      adverse reactions.  Most of these perform general
               network discovery. Examples are
-              <literal>SSH-hostkey.nse</literal> (gets an SSH host key) and
-              <literal>showHTMLTitle.nse</literal> (grabs the title from a
+              <literal>ssh-hostkey.nse</literal> (gets an SSH host key) and
+              <literal>html-title.nse</literal> (grabs the title from a
               web page).</para>
           </listitem>
         </varlistentry>
@@ -1222,7 +1222,7 @@ socket:close()
       <indexterm><primary>threads in NSE</primary></indexterm>
       <indexterm><primary>mutexes in NSE</primary></indexterm>
       <para>
-        Each thread made for a script (e.g. <filename>anonFTP.nse</filename>) will yield to other
+        Each thread made for a script (e.g. <filename>ftp-anon.nse</filename>) will yield to other
         scripts whenever it makes a call on network objects (sending/receiving
         data). Some scripts need finer control over threads' execution. An
         example is the <literal>whois.nse</literal> script which queries
@@ -1475,7 +1475,7 @@ try(socket:send(result))
 	The description field should contain a sentence or two describing what the script does.  If anything about the script results might confuse or mislead users, and you can't eliminate the issue by improving the script or results text, it should be documented in the <literal>description</literal> string.
       </para>
       <para>
-<indexterm><primary><filename>showOwner.nse</filename></primary></indexterm>
+<indexterm><primary><filename>identd-owners.nse</filename></primary></indexterm>
 <indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
 <programlisting>
 description = [[
@@ -1758,7 +1758,7 @@ local localip, localport = try(client_service:get_info())
     combination of documentation comments and NSE variables.
     </para>
 
-    <!-- From ASN.nse. -->
+    <!-- From asn-query.nse. -->
     <example id="nse-documentation-script">
       <title>An NSEDoc comment for a script</title>
 <programlisting>
@@ -1773,7 +1773,7 @@ use by Nmap.
 
 ---
 -- @usage
--- nmap --script ASN.nse [--script-args dns=&lt;DNS server&gt;] &lt;target&gt;
+-- nmap --script asn-query.nse [--script-args dns=&lt;DNS server&gt;] &lt;target&gt;
 -- @args dns The address of a recursive nameserver to use (optional).
 -- @output
 -- Host script results:
