@@ -7,7 +7,7 @@ The higher the verbosity or debug level, the more disallowed entries are shown.
 ---
 --@output
 -- 80/tcp  open   http    syn-ack
--- |  robots: has 156 disallowed entries (40 shown)
+-- |  robots.txt: has 156 disallowed entries (40 shown)
 -- |  /news?output=xhtml& /search /groups /images /catalogs
 -- |  /catalogues /news /nwshp /news?btcid=*& /news?btaid=*&
 -- |  /setnewsprefs? /index.html? /? /addurl/image? /pagead/ /relpage/

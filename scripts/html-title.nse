@@ -10,7 +10,7 @@ original target.
 ---
 --@output
 -- 80/tcp  open   http    syn-ack
--- |_ showHTMLTitle: Foo.
+-- |_ html-title: Foo.
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 

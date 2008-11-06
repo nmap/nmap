@@ -16,7 +16,7 @@ I don't know it), so this doesn't support Vista at all.
 --
 -- @output
 -- Host script results:
--- |  smb-systeminfo:
+-- |  smb-system-info:
 -- |  OS Details
 -- |  |_ Microsoft Windows Server 2003 Service Pack 2 (ServerNT 5.2 build 3790)
 -- |  |_ Installed on 2007-11-26 23:40:40

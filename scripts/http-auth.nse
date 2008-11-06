@@ -5,7 +5,7 @@ authentication.
 
 ---
 -- @output
--- |  HTTPAuth: HTTP Service requires authentication
+-- |  http-auth: HTTP Service requires authentication
 -- |_   Auth type: Basic, realm = DSL Router
 
 -- HTTP authentication information gathering script

@@ -6,7 +6,7 @@ SMTP server.
 ---
 -- @output
 -- 25/tcp	open	smtp
--- |  SMTPcommands: EHLO uninvited.example.net Hello root at localhost [127.0.0.1], SIZE 52428800, PIPELINING, 250 HELP
+-- |  smtp-commands: EHLO uninvited.example.net Hello root at localhost [127.0.0.1], SIZE 52428800, PIPELINING, 250 HELP
 -- |_ HELP Commands supported:, , AUTH HELO EHLO MAIL RCPT DATA NOOP QUIT RSET HELP
 
 -- Version History

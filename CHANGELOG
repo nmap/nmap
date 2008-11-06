@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Most script names were changed to make them more consistent.
+  [Fyodor, David]
+
 o Removed ripeQuery.nse because we now have the much more robust
   whois.nse which handles all the major registries. [Fyodor]
 

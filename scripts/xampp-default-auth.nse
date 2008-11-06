@@ -8,7 +8,7 @@ administration.
 ---
 -- @output
 -- 21/tcp  open   ftp
--- |_ xamppDefaultPass: Login success with u/p: nobody/xampp
+-- |_ xampp-default-auth: Login success with u/p: nobody/xampp
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 

@@ -27,13 +27,13 @@ doing an authenticated test.
 --
 --@output
 -- Standard:
--- |  smb-enumshares:
+-- |  smb-enum-shares:
 -- |  Anonymous shares: IPC$
 -- |_ Restricted shares: F$, ADMIN$, C$
 --
 -- Verbose:
 -- Host script results:
--- |  smb-enumshares: 
+-- |  smb-enum-shares: 
 -- |  Anonymous shares:
 -- |     IPC$
 -- |     |_ Type: STYPE_IPC_HIDDEN

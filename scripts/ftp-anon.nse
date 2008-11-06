@@ -4,7 +4,7 @@ Checks if an FTP server allows anonymous logins.
 
 ---
 -- @output
--- |_ anonFTP: Anonymous login allowed
+-- |_ ftp-anon: Anonymous login allowed
 
 author = "Eddie Bell <ejlbell@gmail.com>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

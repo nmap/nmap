@@ -26,7 +26,7 @@ server (your default DNS server, or whichever you specified with the
 -- @args dns The address of a recursive nameserver to use (optional).
 -- @output
 -- Host script results:
--- |  ASN:
+-- |  asn-query:
 -- |  BGP: 64.13.128.0/21 | Country: US
 -- |    Origin AS: 10565 SVCOLO-AS - Silicon Valley Colocation, Inc.
 -- |      Peer AS: 3561 6461

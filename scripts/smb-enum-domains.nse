@@ -17,7 +17,7 @@ After the initial <code>bind()</code> to SAMR, the sequence of calls is:
 --
 --@output
 -- Host script results:
--- |  smb-enumdomains:
+-- |  smb-enum-domains:
 -- |  Domain: LOCALSYSTEM
 -- |   |_ SID: S-1-5-21-2956463495-2656032972-1271678565
 -- |   |_ Users: Administrator, Guest, SUPPORT_388945a0

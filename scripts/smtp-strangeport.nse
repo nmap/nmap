@@ -8,7 +8,7 @@ system to send spam or control your machine.
 ---
 -- @output
 -- 22/tcp  open   ssh
--- |_ strangeSMTPport: Warning: smtp is running on a strange port
+-- |_ smtp-strangeport: Warning: smtp is running on a strange port
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 

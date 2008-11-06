@@ -10,7 +10,7 @@ running this script (see the portrule).
 ---
 --@output
 -- 3306/tcp open  mysql
--- |  MySQLinfo: Protocol: 10
+-- |  mysql-info: Protocol: 10
 -- |  Version: 5.0.51a-3ubuntu5.1
 -- |  Thread ID: 7
 -- |  Some Capabilities: Connect with DB, Compress, Transactions, Secure Connection

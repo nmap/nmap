@@ -30,7 +30,7 @@ idea to write this one.
 --
 --@output
 -- Host script results:
--- |  smb-enumsessions:
+-- |  smb-enum-sessions:
 -- |  Users logged in:
 -- |  |_ TESTBOX\Administrator since 2008-10-21 08:17:14
 -- |  |_ DOMAIN\rbowes since 2008-10-20 09:03:23
