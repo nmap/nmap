@@ -1,12 +1,12 @@
 .\"     Title: nmap
 .\"    Author: Gordon \(lqFyodor\(rq Insecure.Org Lyon
 .\" Generator: DocBook XSL Stylesheets v1.74.0 <http://docbook.sf.net/>
-.\"      Date: 10/15/2008
+.\"      Date: 11/05/2008
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap Zero Day
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "10/15/2008" "Nmap Zero Day" "Nmap Reference Guide"
+.TH "NMAP" "1" "11/05/2008" "Nmap Zero Day" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * (re)Define some macros
 .\" -----------------------------------------------------------------
@@ -243,7 +243,7 @@ OS details: Linux 2\&.6\&.20\-1 (Fedora Core 5)
 
 TRACEROUTE (using port 80/tcp)
 HOP RTT   ADDRESS
-[Cut first 7 hops for brevity]
+[Cut first seven hops for brevity]
 8   10\&.59 so\-4\-2\-0\&.mpr3\&.pao1\&.us\&.above\&.net (64\&.125\&.28\&.142)
 9   11\&.00 metro0\&.sv\&.svcolo\&.com (208\&.185\&.168\&.173)
 10  9\&.93  scanme\&.nmap\&.org (64\&.13\&.134\&.52)
@@ -543,7 +543,7 @@ is specified) because Nmap needs MAC addresses to further scan target hosts\&. T
 (uses the letter O) flag\&.
 .RE
 .PP
-\fB\-PS \fR\fB\fIportlist\fR\fR (TCP SYN Ping) .\" -PS .\" SYN ping
+\fB\-PS \fR\fB\fIport list\fR\fR (TCP SYN Ping) .\" -PS .\" SYN ping
 .RS 4
 This option sends an empty TCP packet with the SYN flag set\&. The default destination port is 80 (configurable at compile time by changing
 \fIDEFAULT_TCP_PROBE_PORT_SPEC\fR
@@ -562,8 +562,8 @@ and
 \fB\-PS\fR
 and the port list\&. If multiple probes are specified they will be sent in parallel\&.
 .sp
-The SYN flag suggests to the remote system that you are attempting to establish a connection\&. Normally the destination port will be closed, and a RST (reset) packet sent back\&. If the port happens to be open, the target will take the second step of a TCP 3\-way\-handshake.\" three-way handshake
-by responding with a SYN/ACK TCP packet\&. The machine running Nmap then tears down the nascent connection by responding with a RST rather than sending an ACK packet which would complete the 3\-way\-handshake and establish a full connection\&. The RST packet is sent by the kernel of the machine running Nmap in response to the unexpected SYN/ACK, not by Nmap itself\&.
+The SYN flag suggests to the remote system that you are attempting to establish a connection\&. Normally the destination port will be closed, and a RST (reset) packet sent back\&. If the port happens to be open, the target will take the second step of a TCP three\-way\-handshake.\" three-way handshake
+by responding with a SYN/ACK TCP packet\&. The machine running Nmap then tears down the nascent connection by responding with a RST rather than sending an ACK packet which would complete the three\-way\-handshake and establish a full connection\&. The RST packet is sent by the kernel of the machine running Nmap in response to the unexpected SYN/ACK, not by Nmap itself\&.
 .sp
 Nmap does not care whether the port is open or closed\&. Either the RST or SYN/ACK response discussed previously tell Nmap that the host is available and responsive\&.
 .sp
@@ -578,7 +578,7 @@ system call is initiated against each target port\&. This has the effect of send
 returns with a quick success or an ECONNREFUSED failure, the underlying TCP stack must have received a SYN/ACK or RST and the host is marked available\&. If the connection attempt is left hanging until a timeout is reached, the host is marked as down\&. This workaround is also used for IPv6 connections, as raw IPv6 packet building support is not yet available in Nmap\&..\" IPv6: limitations of
 .RE
 .PP
-\fB\-PA \fR\fB\fIportlist\fR\fR (TCP ACK Ping) .\" -PA .\" ACK ping
+\fB\-PA \fR\fB\fIport list\fR\fR (TCP ACK Ping) .\" -PA .\" ACK ping
 .RS 4
 The TCP ACK ping is quite similar to the just\-discussed SYN ping\&. The difference, as you could likely guess, is that the TCP ACK flag is set instead of the SYN flag\&. Such an ACK packet purports to be acknowledging data over an established TCP connection, but no such connection exists\&. So remote hosts should always respond with a RST packet, disclosing their existence in the process\&.
 .sp
@@ -603,11 +603,11 @@ and
 \fB\-PA\fR\&.
 .RE
 .PP
-\fB\-PU \fR\fB\fIportlist\fR\fR (UDP Ping) .\" -PU .\" UDP ping
+\fB\-PU \fR\fB\fIport list\fR\fR (UDP Ping) .\" -PU .\" UDP ping
 .RS 4
 Another host discovery option is the UDP ping, which sends an empty (unless
 \fB\-\-data\-length\fR
-is specified) UDP packet to the given ports\&. The portlist takes the same format as with the previously discussed
+is specified) UDP packet to the given ports\&. The port list takes the same format as with the previously discussed
 \fB\-PS\fR
 and
 \fB\-PA\fR
@@ -640,7 +640,7 @@ and
 options, respectively\&. A timestamp reply (ICMP code 14) or address mask reply (code 18) discloses that the host is available\&. These two queries can be valuable when administrators specifically block echo request packets while forgetting that other ICMP queries can be used for the same purpose\&.
 .RE
 .PP
-\fB\-PO \fR\fB\fIprotolist\fR\fR (IP Protocol Ping) .\" -PO .\" IP protocol ping
+\fB\-PO \fR\fB\fIprotocol list\fR\fR (IP Protocol Ping) .\" -PO .\" IP protocol ping
 .RS 4
 The newest host discovery option is the IP protocol ping, which sends IP packets with the specified protocol number set in their IP header\&. The protocol list takes the same format as do port lists in the previously discussed TCP and UDP host discovery options\&. If no protocols are specified, the default is to send multiple IP packets for ICMP (protocol 1), IGMP (protocol 2), and IP\-in\-IP (protocol 4)\&. The default protocols can be configured at compile\-time by changing
 \fIDEFAULT_PROTO_PROBE_PORT_SPEC\fR.\" DEFAULT_PROTO_PROBE_PORT_SPEC
@@ -669,7 +669,7 @@ or
 .RS 4
 Traceroutes are performed post\-scan using information from the scan results to determine the port and protocol most likely to reach the target\&. It works with all scan types except connect scans (\fB\-sT\fR) and idle scans (\fB\-sI\fR)\&. All traces use Nmap\'s dynamic timing model and are performed in parallel\&.
 .sp
-Traceroute works by sending packets with a low TTL (time\-to\-live) in an attempt to elicit ICMP Time Exceeded messages from intermediate hops between the scanner and the target host\&. Standard traceroute implementations start with a TTL of 1 and increment the TTL until the destination host is reached\&. Nmap\'s traceroute starts with a high TTL and then decrements the TTL until it reaches 0\&. Doing it backwards lets Nmap employ clever caching algorithms to speed up traces over multiple hosts\&. On average Nmap sends 5\(en10 fewer packets per host, depending on network conditions\&. If a single subnet is being scanned (i\&.e\&. 192\&.168\&.0\&.0/24) Nmap may only have to send a single packet to most hosts\&.
+Traceroute works by sending packets with a low TTL (time\-to\-live) in an attempt to elicit ICMP Time Exceeded messages from intermediate hops between the scanner and the target host\&. Standard traceroute implementations start with a TTL of 1 and increment the TTL until the destination host is reached\&. Nmap\'s traceroute starts with a high TTL and then decrements the TTL until it reaches zero\&. Doing it backwards lets Nmap employ clever caching algorithms to speed up traces over multiple hosts\&. On average Nmap sends 5\(en10 fewer packets per host, depending on network conditions\&. If a single subnet is being scanned (i\&.e\&. 192\&.168\&.0\&.0/24) Nmap may only have to send a single packet to most hosts\&.
 .RE
 .PP
 \fB\-n\fR (No DNS resolution) .\" -n
@@ -780,7 +780,7 @@ SYN scan is the default and most popular scan option for good reasons\&. It can 
 \FCfiltered\F[]
 states\&.
 .sp
-This technique is often referred to as half\-open scanning, because you don\'t open a full TCP connection\&. You send a SYN packet, as if you are going to open a real connection and then wait for a response\&. A SYN/ACK indicates the port is listening (open), while a RST (reset) is indicative of a non\-listener\&. If no response is received after several retransmissions, the port is marked as filtered\&. The port is also marked filtered if an ICMP unreachable error (type 3, code 1,2, 3, 9, 10, or 13) is received\&.
+This technique is often referred to as half\-open scanning, because you don\'t open a full TCP connection\&. You send a SYN packet, as if you are going to open a real connection and then wait for a response\&. A SYN/ACK indicates the port is listening (open), while a RST (reset) is indicative of a non\-listener\&. If no response is received after several retransmissions, the port is marked as filtered\&. The port is also marked filtered if an ICMP unreachable error (type 3, code 1, 2, 3, 9, 10, or 13) is received\&.
 .RE
 .PP
 \fB\-sT\fR (TCP connect scan) .\" -sT .\" connect scan
@@ -903,7 +903,7 @@ This scan relies on an implementation detail of a minority of systems out on the
 \FCclosed\F[]\&. Of course, it is possible that the machine really has no open ports\&. If most scanned ports are
 \FCclosed\F[]
 but a few common port numbers (such as 22, 25, 53) are
-\FCfiltered\F[], the system is most likely susceptible\&. Occasionally, systems will even show the exact opposite behavior\&. If your scan shows 1000 open ports and 3 closed or filtered ports, then those three may very well be the truly open ones\&.
+\FCfiltered\F[], the system is most likely susceptible\&. Occasionally, systems will even show the exact opposite behavior\&. If your scan shows 1000 open ports and three closed or filtered ports, then those three may very well be the truly open ones\&.
 .RE
 .PP
 \fB\-sM\fR (TCP Maimon scan) .\" -sM .\" Maimon scan
@@ -971,7 +971,7 @@ nmap\-hackers
 mailing list\&..\" nmap-hackers mailing list
 I incorporated that patch into the Nmap tree and released a new version the next day\&. Few pieces of commercial software have users enthusiastic enough to design and contribute their own improvements!
 .sp
-Protocol scan works in a similar fashion to UDP scan\&. Instead of iterating through the port number field of a UDP packet, it sends IP packet headers and iterates through the 8\-bit IP protocol field\&. The headers are usually empty, containing no data and not even the proper header for the claimed protocol\&. The three exceptions are TCP, UDP, and ICMP\&. A proper protocol header for those is included since some systems won\'t send them otherwise and because Nmap already has functions to create them\&. Instead of watching for ICMP port unreachable messages, protocol scan is on the lookout for ICMP
+Protocol scan works in a similar fashion to UDP scan\&. Instead of iterating through the port number field of a UDP packet, it sends IP packet headers and iterates through the eight\-bit IP protocol field\&. The headers are usually empty, containing no data and not even the proper header for the claimed protocol\&. The three exceptions are TCP, UDP, and ICMP\&. A proper protocol header for those is included since some systems won\'t send them otherwise and because Nmap already has functions to create them\&. Instead of watching for ICMP port unreachable messages, protocol scan is on the lookout for ICMP
 \fIprotocol\fR
 unreachable messages\&. If Nmap receives any response in any protocol from the target host, Nmap marks that protocol as
 \FCopen\F[]\&. An ICMP protocol unreachable error (type 3, code 2) causes the protocol to be marked as
@@ -1138,7 +1138,7 @@ directive\&.
 .PP
 \fB\-\-version\-intensity \fR\fB\fIintensity\fR\fR (Set version scan intensity) .\" --version-intensity
 .RS 4
-When performing a version scan (\fB\-sV\fR), Nmap sends a series of probes, each of which is assigned a rarity value between 1 and 9\&. The lower\-numbered probes are effective against a wide variety of common services, while the higher numbered ones are rarely useful\&. The intensity level specifies which probes should be applied\&. The higher the number, the more likely it is the service will be correctly identified\&. However, high intensity scans take longer\&. The intensity must be between 0 and 9\&.
+When performing a version scan (\fB\-sV\fR), Nmap sends a series of probes, each of which is assigned a rarity value between one and nine\&. The lower\-numbered probes are effective against a wide variety of common services, while the higher numbered ones are rarely useful\&. The intensity level specifies which probes should be applied\&. The higher the number, the more likely it is the service will be correctly identified\&. However, high intensity scans take longer\&. The intensity must be between 0 and 9\&.
 .\" version detection: intensity
 The default is 7\&.
 .\" version detection: default intensity
@@ -1356,7 +1356,7 @@ The primary use of these options is to specify a large minimum group size so tha
 .PP
 \fB\-\-min\-parallelism \fR\fB\fInumprobes\fR\fR; \fB\-\-max\-parallelism \fR\fB\fInumprobes\fR\fR (Adjust probe parallelization) .\" --min-parallelism .\" --max-parallelism
 .RS 4
-These options control the total number of probes that may be outstanding for a host group\&. They are used for port scanning and host discovery\&. By default, Nmap calculates an ever\-changing ideal parallelism based on network performance\&. If packets are being dropped, Nmap slows down and allows fewer outstanding probes\&. The ideal probe number slowly rises as the network proves itself worthy\&. These options place minimum or maximum bounds on that variable\&. By default, the ideal parallelism can drop to 1 if the network proves unreliable and rise to several hundred in perfect conditions\&.
+These options control the total number of probes that may be outstanding for a host group\&. They are used for port scanning and host discovery\&. By default, Nmap calculates an ever\-changing ideal parallelism based on network performance\&. If packets are being dropped, Nmap slows down and allows fewer outstanding probes\&. The ideal probe number slowly rises as the network proves itself worthy\&. These options place minimum or maximum bounds on that variable\&. By default, the ideal parallelism can drop to one if the network proves unreliable and rise to several hundred in perfect conditions\&.
 .sp
 The most common usage is to set
 \fB\-\-min\-parallelism\fR
@@ -1481,10 +1481,6 @@ algorithms will detect the network congestion caused by an excessive scanning ra
 option if you need to set an upper limit on total scan time\&.
 .RE
 .PP
-\fB\-\-max\-rate \fR\fB\fInumber\fR\fR (Specify a maximum scanning rate) .\" --max-rate
-.RS 4
-.RE
-.PP
 \fB\-\-defeat\-rst\-ratelimit\fR .\" --defeat-rst-ratelimit
 .RS 4
 Many hosts have long used rate limiting.\" rate limiting
@@ -1594,7 +1590,7 @@ There is no magic bullet (or Nmap option) for detecting and subverting firewalls
 .RS 4
 The
 \fB\-f\fR
-option causes the requested scan (including ping scans) to use tiny fragmented IP packets\&. The idea is to split up the TCP header over several packets to make it harder for packet filters, intrusion detection systems, and other annoyances to detect what you are doing\&. Be careful with this! Some programs have trouble handling these tiny packets\&. The old\-school sniffer named Sniffit segmentation faulted immediately upon receiving the first fragment\&. Specify this option once, and Nmap splits the packets into 8 bytes or less after the IP header\&. So a 20\-byte TCP header would be split into 3 packets\&. Two with eight bytes of the TCP header, and one with the final four\&. Of course each fragment also has an IP header\&. Specify
+option causes the requested scan (including ping scans) to use tiny fragmented IP packets\&. The idea is to split up the TCP header over several packets to make it harder for packet filters, intrusion detection systems, and other annoyances to detect what you are doing\&. Be careful with this! Some programs have trouble handling these tiny packets\&. The old\-school sniffer named Sniffit segmentation faulted immediately upon receiving the first fragment\&. Specify this option once, and Nmap splits the packets into eight bytes or less after the IP header\&. So a 20\-byte TCP header would be split into three packets\&. Two with eight bytes of the TCP header, and one with the final four\&. Of course each fragment also has an IP header\&. Specify
 \fB\-f\fR
 again to use 16 bytes per fragment (reducing the number of fragments)\&..\" -f: giving twice
 Or you can specify your own offset size with the
@@ -1602,7 +1598,7 @@ Or you can specify your own offset size with the
 option\&. Don\'t also specify
 \fB\-f\fR
 if you use
-\fB\-\-mtu\fR\&. The offset must be a multiple of 8\&. While fragmented packets won\'t get by packet filters and firewalls that queue all IP fragments, such as the
+\fB\-\-mtu\fR\&. The offset must be a multiple of eight\&. While fragmented packets won\'t get by packet filters and firewalls that queue all IP fragments, such as the
 \fICONFIG_IP_ALWAYS_DEFRAG\fR
 option in the Linux kernel, some networks can\'t afford the performance hit this causes and thus leave it disabled\&. Others can\'t enable this because fragments may take different routes into their networks\&. Some source systems defragment outgoing packets in the kernel\&. Linux with the iptables.\" iptables
 connection tracking module is one such example\&. Do a scan while a sniffer such as
@@ -1610,6 +1606,8 @@ Wireshark.\" Wireshark
 is running to ensure that sent packets are fragmented\&. If your host OS is causing problems, try the
 \fB\-\-send\-eth\fR.\" --send-eth
 option to bypass the IP layer and send raw ethernet frames\&.
+.sp
+Fragmentation is only supported for Nmap\'s raw packet features, which includes TCP and UDP port scans (except connect scan and FTP bounce scan) and OS detection\&. Features such as version detection and the Nmap Scripting Engine generally don\'t support fragmentation because they rely on your host\'s TCP stack to communicate with target services\&.
 .RE
 .PP
 \fB\-D \fR\fB\fIdecoy1\fR\fR\fB[,\fIdecoy2\fR]\fR\fB[,ME]\fR\fB[,\&.\&.\&.]\fR (Cloak a scan with decoys) .\" -D .\" decoys
@@ -1734,10 +1732,10 @@ Asks Nmap to use the given MAC address
 for all of the raw ethernet frames it sends\&. This option implies
 \fB\-\-send\-eth\fR.\" --send-eth: implied by --spoof-mac
 to ensure that Nmap actually sends ethernet\-level packets\&. The MAC given can take several formats\&. If it is simply the number
-\FC0\F[], Nmap chooses a completely random MAC address for the session\&. If the given string is an even number of hex digits (with the pairs optionally separated by a colon), Nmap will use those as the MAC\&. If fewer than 12 hex digits are provided, Nmap fills in the remainder of the 6 bytes with random values\&. If the argument isn\'t a 0 or hex string, Nmap looks through
+\FC0\F[], Nmap chooses a completely random MAC address for the session\&. If the given string is an even number of hex digits (with the pairs optionally separated by a colon), Nmap will use those as the MAC\&. If fewer than 12 hex digits are provided, Nmap fills in the remainder of the six bytes with random values\&. If the argument isn\'t a zero or hex string, Nmap looks through
 \FCnmap\-mac\-prefixes\F[]
-to find a vendor name containing the given string (it is case insensitive)\&. If a match is found, Nmap uses the vendor\'s OUI (3\-byte prefix).\" organizationally unique identifier (OUI)
-and fills out the remaining 3 bytes randomly\&. Valid
+to find a vendor name containing the given string (it is case insensitive)\&. If a match is found, Nmap uses the vendor\'s OUI (three\-byte prefix).\" organizationally unique identifier (OUI)
+and fills out the remaining three bytes randomly\&. Valid
 \fB\-\-spoof\-mac\fR
 argument examples are
 \FCApple\F[],
@@ -1883,7 +1881,7 @@ This output format is covered last because it is deprecated\&. The XML output fo
 Nevertheless, grepable output is still quite popular\&. It is a simple format that lists each host on one line and can be trivially searched and parsed with standard Unix tools such as grep, awk, cut, sed, diff, and Perl\&. Even I usually use it for one\-off tests done at the command line\&. Finding all the hosts with the SSH port open or that are running Solaris takes only a simple grep to identify the hosts, piped to an awk or cut command to print the desired fields\&.
 .sp
 Grepable output consists of comments (lines starting with a pound (#)).\" grepable output: comments in
-and target lines\&. A target line includes a combination of 6 labeled fields, separated by tabs and followed with a colon\&. The fields are
+and target lines\&. A target line includes a combination of six labeled fields, separated by tabs and followed with a colon\&. The fields are
 \FCHost\F[],
 \FCPorts\F[],
 \FCProtocols\F[],
@@ -2258,7 +2256,7 @@ network where Scanme resides\&. It also tries to determine what operating system
 .\" -p: example of
 \fBnmap \-sV \-p 22,53,110,143,4564 198\&.116\&.0\-255\&.1\-127\fR
 .PP
-Launches host enumeration and a TCP scan at the first half of each of the 255 possible 8 bit subnets in the 198\&.116 class B address space\&. This tests whether the systems run SSH, DNS, POP3, or IMAP on their standard ports, or anything on port 4564\&. For any of these ports found open, version detection is used to determine what application is running\&.
+Launches host enumeration and a TCP scan at the first half of each of the 255 possible eight\-bit subnets in the 198\&.116 class B address space\&. This tests whether the systems run SSH, DNS, POP3, or IMAP on their standard ports, or anything on port 4564\&. For any of these ports found open, version detection is used to determine what application is running\&.
 .PP
 .\" -iR: example of
 .\" -PN: example of
