@@ -1202,65 +1202,67 @@ socket:close()
 	<sect3 id="nse-api-networkio-raw">
 	  <title>Raw packet network I/O</title>
           <indexterm><primary>raw packets</primary><secondary>in NSE</secondary></indexterm>
-	  <para>For those cases where the connection-oriented approach is too inflexible,
-	  NSE provides script developers with a more powerful option:
-	  raw packet network I/O. The greater flexibility comes, however, at
-	  the cost of a slightly more complex API. Receiving raw packets is
-	  accomplished via a wrapper around
+	  <para>For those cases where the connection-oriented approach is too high-level,
+	  NSE provides script developers with the
+	  option of raw packet network I/O.</para>
+
+          <para>Raw packet reception is handled through a a
 	  Libpcap<indexterm><primary>libpcap</primary></indexterm>
-          inside the
-          Nsock library.<indexterm><primary>Nsock</primary></indexterm></para>
+	  wrapper inside the Nsock
+	  library.<indexterm><primary>Nsock</primary></indexterm>
+	  The steps are to open a capture device, register listeners
+	  with the device, and then process packets as they are
+	  received.</para>
 
-          <para>For efficiency, the interface for raw packet capturing
-          works in three steps. First, a capture device is opened.
-          Second, listeners are registered with the interface. Third,
-          packets are received.</para>
-
-          <para>A handle for raw socket reads is created from an
-          ordinary socket object using the
-          <function>pcap_open()</function> method. This method takes a
-          callback function, which computes a so-called packet hash from
-          a packet along with its headers. This hash can return any
+          <para>The <function>pcap_open</function> method creates a handle for raw socket reads from an
+          ordinary socket object. This method takes a
+          callback function, which computes a packet hash from
+          a packet (including its headers). This hash can return any
           binary string, which is later compared to the strings
-          registered with the <function>pcap_register()</function>
-          function. Normally the packet hash callback will extract some
+          registered with the <function>pcap_register</function>
+          function. The packet hash callback will normally extract some
           portion of the packet, such as its source address.</para>
 
           <para>The pcap reader is instructed to listen for certain
-          packets using the <function>pcap_register()</function> function.
+          packets using the <function>pcap_register</function> function.
           The function takes a binary string which is compared against
           the hash value of every packet received. Those packets whose
           hashes match any registered strings will be returned by the
-          <function>pcap_receive()</function> method. Register the empty
+          <function>pcap_receive</function> method. Register the empty
           string to receive all packets.</para>
 
-          <para>A script then receives packets for which a listener has
+          <para>A script receives all packets for which a listener has
           been registered by calling the
-          <function>pcap_receive()</function> method. The method blocks
+          <function>pcap_receive</function> method. The method blocks
           until a packet is received or a timeout occurs.</para>
 
           <para>The more general the packet hash computing function is
           kept, the more scripts may receive the packet and proceed with
-          their execution. To use the packet capturing inside your
-          script you have to create a socket with
-          <function>nmap.new_socket()</function> and later close the socket
-          with <function>socket_object:close()</function>&mdash;just like
+          their execution. To handle packet capture inside your
+          script you first have to create a socket with
+          <function>nmap.new_socket</function> and later close the socket
+          with <function>socket_object:close</function>&mdash;just like
           with the connection-based network I/O.</para>
 
           <para>
-          Receiving raw packets is a great feature, but it is also only half
-          the job. Now for sending raw packets: To accomplish this NSE has
-          access to a wrapper around the
-          <literal>dnet</literal> library.<indexterm><primary>libdnet</primary></indexterm></para>
+          Receiving raw packets is important, but sending them is a key feature as well.  To accomplish this, NSE can
+          access a wrapper around the
+          <literal>libdnet</literal> library.<indexterm><primary>libdnet</primary></indexterm>  Raw packet writes do not
+          use a standard socket object like reads do. Instead, call the function
+          <function>nmap.new_dnet</function> to create a dnet object
+          with ethernet sending methods. Then open an interface with the
+          <function>ethernet_open</function> method. Raw ethernet
+          frames can then be sent
+          with <function>ethernet_send</function>.  When you're done,
+          close the ethernet handle
+          with <function>ethernet_close</function>.</para>
 
-          <para>Unlike raw socket reads, raw packet writes are not
-          through a standard socket object. Instead, the function
-          <function>nmap.new_dnet()</function> creates a dnet object
-          with ethernet sending methods. Open an interface with the
-          <function>ethernet_open()</function> method. Send raw ethernet
-          frames with <function>ethernet_send()</function>. Close the
-          ethernet handle with <function>ethernet_close()</function> when
-          you're done.</para>
+          <para>Sometimes the easiest ways to understand complex APIs
+          is by example.  The <filename>sniffer-detect.nse</filename>
+          script included with Nmap uses raw packet capture and
+          sending in an attempt to detect promiscuous-mode machines on
+          the network (those running sniffers).</para>
+
 	</sect3>
 	</sect2>
 
