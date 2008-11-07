@@ -34,7 +34,7 @@
         <listitem>
           <para>The Nmap version detection system (<xref linkend="vscan"/>)
        is able to recognize thousands of different services through
-       its probe and regular expression based matching system, but it
+       its probe and regular expression signature based matching system, but it
        cannot recognize everything.  For example, identifying the Skype v2 service requires two
        independent probes, which version detection isn't flexible enough to handle.  Nmap could also recognize more SNMP services
        if it tried a few hundred different community names by brute
@@ -57,8 +57,7 @@
        before the bad guys do.  While Nmap isn't a
        comprehensive <ulink role="hidepdf" url="http://sectools.org/vuln-scanners.html">vulnerability scanner</ulink>, 
        NSE is powerful enough to handle even demanding vulnerability
-       checks.  Many vulnerability detection scripts have already been
-       written and we plan to distribute more as they are written.
+       checks.  Many vulnerability detection scripts are already available and we plan to distribute more as they are written.
        </para>
 
         </listitem>
@@ -67,17 +66,17 @@
         <term>Backdoor detection</term>
         <listitem>
           <para>
-	   Many attackers and some automated worms leave
-	   backdoors to enable later reentry.  Some of these can be
-	   detected by Nmap's regular expression based version detection.
-	   For example, within hours of the MyDoom worm hitting the
-	   Internet,
-	   Jay Moran<indexterm><primary>Moran, Jay</primary></indexterm>
-           posted an Nmap version detection probe and
-	   signature so that others could quickly scan their networks.
-	   For more complex worms and backdoors, NSE is needed
-	   for reliable detection.
+	   Many attackers and some automated worms leave backdoors to
+	   enable later reentry.  Some of these can be detected by
+	   Nmap's regular expression based version detection.  For
+	   example, within hours of the MyDoom worm hitting the
+	   Internet, Jay Moran<indexterm><primary>Moran,
+	   Jay</primary></indexterm> posted an Nmap version detection
+	   probe and signature so that others could quickly scan their
+	   networks for MyDoom infections.  NSE is needed to reliably
+	   detect more complex worms and backdoors.
        </para>
+
         </listitem>
       </varlistentry>
       <varlistentry>
@@ -90,22 +89,16 @@
 	   for some people (particularly
 	   penetration testers),<indexterm><primary>penetration testing</primary></indexterm>
            though we aren't
-	   planning to turn Nmap into an exploitation framework like
+	   planning to turn Nmap into an exploitation framework such as
 	   <ulink url="http://www.metasploit.com">Metasploit</ulink>.<indexterm><primary><application>Metasploit</application></primary></indexterm>
        </para>
         </listitem>
       </varlistentry>
     </variablelist>
     <para>
-      The listed items were our initial goals, but we expect that Nmap
-      users will come up with inventive uses for NSE.
+      These listed items were our initial goals, and we expect Nmap
+      users to come up with even more inventive uses for NSE.
     </para>
-
-    <print><note><para>The Nmap Scripting Engine is a new Nmap feature
-    which already works well, but is under active development. To
-    provide the latest NSE news and updates, this chapter has been
-    updated and posted for free online at
-    <ulink url="http://nmap.org/book/nse.html"/>.</para></note></print>
 
     <para>
       Scripts are written in the
@@ -146,10 +139,10 @@ The reference manual is also
       and produce results below the port table.  <xref
       linkend="nse-ex1" xrefstyle="select: label nopage"/> shows a typical script scan.  Examples of
       service scripts producing output are:
-      <literal>sshv1.nse</literal>, saying that SSH-1 is supported;
-      and <literal>html-title.nse</literal>,
+      <literal>sshv1</literal>, saying that SSH-1 is supported;
+      and <literal>html-title</literal>,
       which simply grabs the title of the root path of any web servers
-      found.  A sample host script is <literal>ripeQuery.nse</literal>,
+      found.  A sample host script is <literal>ripeQuery</literal>,
       which looks up and reports target IP ownership
       information.<indexterm><primary>script names, examples of</primary></indexterm>
 
@@ -194,85 +187,91 @@ Nmap done: 1 IP address (1 host up) scanned in 0.91 seconds
           option. The two remaining options,
 	  <option>--script-trace</option><indexterm><primary><option>--script-trace</option></primary></indexterm>
           and <option>--script-updatedb</option>,<indexterm><primary><option>--script-updatedb</option></primary></indexterm>
-          are generally only used for script debugging and development.
+          are generally only used for script debugging and development.  Script scanning is also included as part of the <option>-A</option> (aggressive scan) option.
     </para>
 
     <sect2 id="nse-categories"><title>Script Categories</title>
     <indexterm><primary>script categories</primary></indexterm>
 
     <para>NSE scripts define a list of categories they belong to.
-          Currently defined categories are <literal>safe</literal>,
-          <literal>intrusive</literal>, <literal>malware</literal>,
-          <literal>version</literal>, <literal>discovery</literal>,
-          <literal>vuln</literal>, <literal>auth</literal>,
-          <literal>external</literal> and <literal>default</literal>.
-          Category names are not case
-          sensitive.  The following list describes each category.</para>
+          Currently defined categories
+          are <literal>auth</literal>, <literal>default</literal>, <literal>discovery</literal>, <literal>external</literal>,
+<literal>intrusive</literal>, <literal>malware</literal>, <literal>safe</literal>, <literal>version</literal>,
+and <literal>vuln</literal>.  Category names are not case sensitive.  The following list describes each category.</para>
 
      <variablelist>
+
         <varlistentry>
           <term>
-            <indexterm><primary sortas="safe script category">&ldquo;<literal>safe</literal>&rdquo; script category</primary></indexterm>
-            <option>safe</option>
+            <indexterm><primary sortas="auth script category">&ldquo;<literal>auth</literal>&rdquo; script category</primary></indexterm>
+            <option>auth</option>
           </term>
           <listitem>
-            <para>Scripts
-	      which weren't designed to crash services, use large
-	      amounts of network bandwidth or other resources, or
-	      exploit security holes. These are less likely to offend
-	      remote sysadmins.  Of course (as with all other Nmap
-	      features) we cannot guarantee that they won't ever cause
-	      adverse reactions.  Most of these perform general
-              network discovery. Examples are
-              <literal>ssh-hostkey.nse</literal> (gets an SSH host key) and
-              <literal>html-title.nse</literal> (grabs the title from a
-              web page).</para>
+            <para>These scripts try to determine authentication credentials
+            on the target system, often through a brute-force attack.  Examples include <literal>snmp-brute</literal>, <literal>http-auth</literal>, and <literal>ftp-anon</literal>.</para>
           </listitem>
         </varlistentry>
 
         <varlistentry>
           <term>
-            <indexterm><primary sortas="intrusive script category">&ldquo;<literal>intrusive</literal>&rdquo; script category</primary></indexterm>
-            <option>intrusive</option>
+            <indexterm><primary sortas="default script category">&ldquo;<literal>default</literal>&rdquo; script category</primary></indexterm>
+            <option>default</option>
           </term>
           <listitem>
 
-            <para>These are scripts that cannot be classified in the
-            <literal>safe</literal> category because the risks are too high that they
-            will crash the target system, use up significant resources
-            on the target host (such as bandwidth or CPU time), or 
-            otherwise be perceived as malicious by the target's
-            system administrators.</para>
-          </listitem>
+            <para>These scripts are the default set and are run when
+            using the <option>-sC</option> or <option>-A</option>
+            options rather than listing scripts
+            with <option>--script</option>. This category can also be
+            specified explicitly like any other
+            using <option>--script=default</option>.  Many factors are
+            considered in deciding whether a script should be run by
+            default:</para>
+
+     <variablelist>
+
+        <varlistentry>
+        <term>Speed</term>
+        <listitem><para>A default scan must finish quickly, which excludes brute force authentication crackers, web spiders, and any other scripts which can take minutes or hours to scan a single service.</para></listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>
-            <indexterm><primary sortas="malware script category">&ldquo;<literal>malware</literal>&rdquo; script category</primary></indexterm>
-            <option>malware</option>
-          </term>
-          <listitem>
-            <para>These scripts test whether the target platform is
-            infected by malware or backdoors.</para>
-          </listitem>
+        <term>Usefulness</term>
+        <listitem><para>Default scans need to produce valuable and actionable information.  If even the script author has trouble explaining why an average networking or security professional would find the output valuable, the script should not run by default.  The script may still be worth including in Nmap so that administrators can run for those occasions when they do need the extra information.</para></listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>
-            <indexterm><primary sortas="version script category">&ldquo;<literal>version</literal>&rdquo; script category</primary></indexterm>
-            <indexterm><primary>version detection</primary><seealso>&ldquo;<literal>version</literal>&rdquo; script category</seealso></indexterm>
-            <option>version</option>
-          </term>
-          <listitem>
+        <term>Verbosity</term>
+        <listitem><para>Nmap output is used for a wide variety of
+        purposes and needs to be readable and concise.  A script which
+        frequently produces pages full of output should not be added
+        to the <literal>default</literal> category.  When there is no
+        important information to report, NSE scripts (particularly
+        default ones) should return nothing.  Checking for an obscure
+        vulnerability may be OK by default as long as it only produces output
+        when that vulnerability discovered.</para></listitem>
+        </varlistentry>
 
-            <para>The scripts in this category are an extension to the
-            version detection option and cannot be selected
-            explicitly. They are selected to run only if version
-            detection (<option>-sV</option>) was requested.  Their
-            output cannot be distinguished from version detection
-            output and they do not produce service or host script
-            results.</para>
+        <varlistentry>
+        <term>Reliability</term>
+        <listitem><para>Many scripts use heuristics and fuzzy signature matching to reach conclusions about the target host or service.  Examples include <literal>sniffer-detect</literal> and <literal>sql-injection</literal>.  If the script is often wrong, it doesn't belong in the <literal>default</literal> category where it may confuse or mislead casual users.  Users who specify a script or category directly are generally more advanced and likely know how the script works or at least where to find its documentation.</para></listitem>
+        </varlistentry>
 
+        <varlistentry>
+        <term>Intrusiveness</term>
+        <listitem><para>Some scripts are very intrusive because they use significant resources on the remote system, are likely to crash the system or service, or are likely to be perceived as an attack by the remote administrators.  The more intrusive a script is, the less suitable it is for the <literal>default</literal> category.</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+        <term>Privacy</term>
+        <listitem><para>Some scripts, particularly those in the <literal>external</literal> category described later, divulge information to third parties by their very nature.  For example, the <literal>whois</literal> script must divulge the target IP address to regional whois registries.  We have also considered (and decided against) adding scripts which check target SSH and SSL key fingerprints against Internet weak key databases.  The more privacy-invasive a script is, the less suitable it is for <literal>default</literal> category inclusion.</para></listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para>We don't have exact thresholds for each of these criteria,
+      and many of them are subjective.  All of these factors are
+      considered together when making a decision whether to promote a
+      script into the <literal>default</literal> category.  A few default scritps are <literal>identd-owners</literal> (determines the username running remote services using identd), <literal>http-auth</literal> (obtains authentication scheme and realm of web sites requiring authentication), and <literal>ftp-anon</literal> (tests whether an FTP server allows anonymous access).</para>
           </listitem>
         </varlistentry>
 
@@ -282,31 +281,9 @@ Nmap done: 1 IP address (1 host up) scanned in 0.91 seconds
             <option>discovery</option>
           </term>
           <listitem>
-            <para>These scripts try to actively learn more about the
+            <para>These scripts try to actively discover more about the
             network by querying public registries, SNMP-enabled
-            devices, directory services, and the like.</para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term>
-            <indexterm><primary sortas="vuln script category">&ldquo;<literal>vuln</literal>&rdquo; script category</primary></indexterm>
-            <option>vuln</option>
-          </term>
-          <listitem>
-            <para>These scripts check for specific known vulnerabilities and
-            generally only report results if they are found.</para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term>
-            <indexterm><primary sortas="auth script category">&ldquo;<literal>auth</literal>&rdquo; script category</primary></indexterm>
-            <option>auth</option>
-          </term>
-          <listitem>
-            <para>These scripts try to determine authentication credentials
-            on the target system, often through a brute-force attack.</para>
+            devices, directory services, and the like.  Examples include <literal>html-title</literal> (obtains the title of the root path of web sites), <literal>smb-enum-shares</literal> (enumerates Windows shares), and <literal>snmp-sysdescr</literal> (extracts system details via SNMP).</para>
           </listitem>
         </varlistentry>
 
@@ -318,11 +295,11 @@ Nmap done: 1 IP address (1 host up) scanned in 0.91 seconds
           <listitem>
             <para>Scripts in this category may send data to a
             third-party database or other network resource. An example
-            of this is <filename>whois.nse</filename>, which makes a
-            connection to a
-            whois<indexterm><primary>whois</primary></indexterm> server
+            of this is <literal>whois</literal>, which makes a
+            connection to
+            whois<indexterm><primary>whois</primary></indexterm> servers
             to learn about the address of the target. There is always
-            the possibility that the operators of the third-party
+            the possibility that operators of the third-party
             database will record anything you send to them, which in
             many cases will include your IP address and the address of
             the target. Most scripts involve traffic strictly between
@@ -333,17 +310,93 @@ Nmap done: 1 IP address (1 host up) scanned in 0.91 seconds
 
         <varlistentry>
           <term>
-            <indexterm><primary sortas="default script category">&ldquo;<literal>default</literal>&rdquo; script category</primary></indexterm>
-            <option>default</option>
+            <indexterm><primary sortas="intrusive script category">&ldquo;<literal>intrusive</literal>&rdquo; script category</primary></indexterm>
+            <option>intrusive</option>
           </term>
           <listitem>
-            <para>These scripts are the default set and are run when
-            using <option>-sC</option> or <option>-A</option> without
-            listing scripts with <option>--script</option>. This
-            category can also be specified explicitly like any other
-            using <option>--script=default</option>.</para>
+
+            <para>These are scripts that cannot be classified in the
+            <literal>safe</literal> category because the risks are too
+            high that they will crash the target system, use up
+            significant resources on the target host (such as
+            bandwidth or CPU time), or otherwise be perceived as
+            malicious by the target's system administrators.  Examples
+            are <literal>http-open-proxy</literal> (which attempts to
+            use the target server as an HTTP proxy)
+            and <literal>snmp-brute</literal> (which tries to guess a
+            device's SNMP comunity string by sending common values
+            such
+            as <literal>public</literal>, <literal>private</literal>,
+            and <literal>cisco</literal>).</para>
+
           </listitem>
         </varlistentry>
+
+        <varlistentry>
+          <term>
+            <indexterm><primary sortas="malware script category">&ldquo;<literal>malware</literal>&rdquo; script category</primary></indexterm>
+            <option>malware</option>
+          </term>
+          <listitem>
+            <para>These scripts test whether the target platform is
+            infected by malware or backdoors.  Examples include <literal>smtp-strangeport</literal>, which watches for SMTP servers running on unusual port numbers, and <literal>auth-spoof</literal>, which detects identd spoofing daemons which provide a fake answer before even receiving a query.  Both of these behaviors are commonly associated with malware infections.</para>
+          </listitem>
+        </varlistentry>
+
+
+        <varlistentry>
+          <term>
+            <indexterm><primary sortas="safe script category">&ldquo;<literal>safe</literal>&rdquo; script category</primary></indexterm>
+            <option>safe</option>
+          </term>
+          <listitem>
+            <para>Scripts
+	      which weren't designed to crash services, use large
+	      amounts of network bandwidth or other resources, or
+	      exploit security holes are categorized as <literal>safe</literal>. These are less likely to offend
+	      remote administrators, though (as with all other Nmap
+	      features) we cannot guarantee that they won't ever cause
+	      adverse reactions.  Most of these perform general
+              network discovery. Examples are
+              <literal>ssh-hostkey</literal> (retrieves an SSH host key) and
+              <literal>html-title</literal> (grabs the title from a
+              web page).</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>
+            <indexterm><primary sortas="version script category">&ldquo;<literal>version</literal>&rdquo; script category</primary></indexterm>
+            <indexterm><primary>version detection</primary><seealso>&ldquo;<literal>version</literal>&rdquo; script category</seealso></indexterm>
+            <option>version</option>
+          </term>
+          <listitem>
+
+            <para>The scripts in this special category are an
+            extension to the version detection feature and cannot be
+            selected explicitly. They are selected to run only if
+            version detection (<option>-sV</option>) was requested.
+            Their output cannot be distinguished from version
+            detection output and they do not produce service or host
+            script results.  Examples
+            are <literal>skypev2-version</literal>, <literal>pptp-version</literal>,
+            and <literal>iax2-version</literal>.</para>
+
+          </listitem>
+        </varlistentry>
+
+
+        <varlistentry>
+          <term>
+            <indexterm><primary sortas="vuln script category">&ldquo;<literal>vuln</literal>&rdquo; script category</primary></indexterm>
+            <option>vuln</option>
+          </term>
+          <listitem>
+            <para>These scripts check for specific known vulnerabilities and
+            generally only report results if they are found.  Examples include <literal>realvnc-auth-bypass</literal> and <literal>xampp-default-auth</literal>.</para>
+          </listitem>
+        </varlistentry>
+
     </variablelist>
 
     </sect2>
@@ -362,7 +415,7 @@ Nmap done: 1 IP address (1 host up) scanned in 0.91 seconds
           <listitem>
           <para>Performs a script scan using the default set of scripts. It is 
 		  equivalent to <option>--script=default</option>. Some of the
-		  scripts in this category are considered intrusive and should
+		  scripts in this <literal>default</literal> category are considered intrusive and should
 		  not be run against a target network without permission. </para>
           </listitem>
         </varlistentry>
@@ -405,7 +458,7 @@ which lists the category or categories in which each script belongs.
 Give the argument <literal>all</literal> to execute all scripts in the
 Nmap script database.</para>
 
-<para>Malicious scripts are not run in a sandbox and thus could damage your system or invade your privacy.  Never run scripts from third parties unless you trust the authors or have carefully audited the scripts yourself.</para>
+<para>Scripts are not run in a sandbox and thus could accidentally or maliciously damage your system or invade your privacy.  Never run scripts from third parties unless you trust the authors or have carefully audited the scripts yourself.</para>
 
 
           </listitem>
@@ -438,6 +491,8 @@ Nmap script database.</para>
               protocol, source and target addresses, and the
               transmitted data. If more than 5% of transmitted data is
               unprintable, hex dumps are given instead.
+              Specifying <option>--packet-trace</option> enables script
+              tracing too.
 
 	    </para>
           </listitem>
@@ -456,30 +511,30 @@ Nmap script database.</para>
             you have added or removed NSE scripts from the
             default <filename>scripts</filename> directory or if you
             have changed the categories of any script.  This option is
-            generally used by
-            itself: <command>nmap --script-updatedb</command>.</para>
+            used by
+            itself without arguments: <command>nmap --script-updatedb</command>.</para>
 
           </listitem>
         </varlistentry>
       </variablelist>
 
       <para>
-        Some of the Nmap options have effects on script scans. The most
+        Some other Nmap options have effects on script scans. The most
         prominent of these is
 	<option>-sV</option>.<indexterm><primary><option>-sV</option></primary></indexterm>
-        A version scan executes
+        A version scan automatically executes
         the scripts in the
 	<literal>version</literal> category.<indexterm><primary sortas="version script category">&ldquo;<literal>version</literal>&rdquo; script category</primary></indexterm>
         The scripts
-        in this category are slightly different than other scripts. Their
-        output blends in with the version scan and they do not produce any
+        in this category are slightly different than other scripts because their
+        output blends in with the version scan results and they do not produce any
         script scan output.
       </para>
       <para>
-        Another option which has effect on the scripting engine is 
+        Another option which affects the scripting engine is 
 	<option>-A</option>.<indexterm><primary><option>-A</option></primary><secondary>features enabled by</secondary></indexterm>
-        The advanced/aggressive mode of Nmap implies
-	the option <option>-sC</option>.
+        The aggressive Nmap mode implies
+	the <option>-sC</option> option.
       </para>
 
       <para>
@@ -490,16 +545,15 @@ Nmap script database.</para>
       <title>Arguments to Scripts</title>
       <indexterm><primary>script arguments</primary></indexterm>
       <para>
-      You can pass arguments to NSE scripts via the
-	  <option>--script-args</option> option. The script-arguments generally are
-	  name-value pairs, which are provided to the script as a Lua table called
-	  <literal>args</literal> inside the <literal><link
-	  linkend="nse-api-registry">nmap.registry</link></literal> with
-	  the names as keys for the corresponding values. The values can either be
-	  strings or tables. Subtables can be used to pass arguments to 
-	  scripts with a finer granularity (e.g. pass different usernames for
-	  different scripts). A typical nmap invocation with script arguments may
-	  look like:
+      Arguments may be passed to NSE scripts using the
+	  <option>--script-args</option> option. The script arguments are generally
+	  name-value pairs. They are provided to scripts as a Lua table named
+	  <literal>args</literal> inside <literal><link
+	  linkend="nse-api-registry">nmap.registry</link></literal>.
+	  The argument names are keys for the corresponding values. The values can be
+	  either strings or tables. Subtables can be used to pass arguments to 
+	  scripts with finer granularity, such as passing different usernames for
+	  different scripts. Here is a typical Nmap invocation with script arguments:
 	  </para>
 	  <para>
 <indexterm><primary><option>-sC</option></primary><secondary>example of</secondary></indexterm>
@@ -509,19 +563,19 @@ $ nmap -sC --script-args user=foo,pass=bar,whois={whodb=nofollow+ripe}
 </userinput>
 	  </para>
 	  <para>
-	  which would result in the Lua table: 
+	  The aforementioned command results in this Lua table:
           </para>
 <programlisting>
 {user="foo",pass="bar",whois={whodb="nofollow+ripe"}}
 </programlisting>
  
-	  <para>You could therefore access the username (<literal>"foo"</literal>)
-	  inside your script as
-          <literal>local username= nmap.registry.args.user</literal>.
-          As a general rule the subtables used to override
-	  options for scripts should be named after the script,
-	  otherwise scripts won't know where to
-	  retrieve their arguments.
+	  <para>You could therefore access the username (<literal>foo</literal>)
+	  inside your script with this statement:</para>
+     
+          <para><literal>local username = nmap.registry.args.user</literal></para>
+
+          <para>Subtables used to override
+	  options for scripts are usually named after the script to ease retrieval.
 	  </para>
 	</sect2>
 
@@ -529,7 +583,7 @@ $ nmap -sC --script-args user=foo,pass=bar,whois={whodb=nofollow+ripe}
     <sect2 id="nse-usage-examples">
       <title>Usage Examples</title>
       <para> 
-	A simple script scan using the default set of scripts
+	A simple script scan using the default set of scripts:
       </para>
       <para>
         <indexterm><primary><option>-sC</option></primary><secondary>example of</secondary></indexterm>
@@ -538,7 +592,7 @@ $ nmap -sC --script-args user=foo,pass=bar,whois={whodb=nofollow+ripe}
       </userinput>
       </para>
       <para> 
-	Tracing a specific script.
+	Executing a specific script with tracing enabled:
       </para>
       <para>
         <indexterm><primary><option>--script</option></primary><secondary>example of</secondary></indexterm>
@@ -549,7 +603,7 @@ $ nmap -sC --script-args user=foo,pass=bar,whois={whodb=nofollow+ripe}
       </para>
 
       <para> 
-	All scripts in a subdirectory named <filename>mycustomscripts</filename> in addition to all of Nmap's included scripts which are in the <literal>safe</literal> category.
+	Execute all scripts in the <filename>mycustomscripts</filename> directory as well as all default scripts in the <literal>safe</literal> category:
       </para>
       <para>
         <userinput> 
@@ -560,18 +614,13 @@ $ nmap -sC --script-args user=foo,pass=bar,whois={whodb=nofollow+ripe}
   </sect1>
   <sect1 id="nse-script-format">
     <title>Script Format</title>
-    <para>NSE scripts consist of five descriptive fields along with either a port or host rule defining when the script should be executed and an action block containing the actual script instructions. Values can be assigned to these fields just as you would assign any other Lua variables.  Their names must be lowercase as shown here.</para>
+    <para>NSE scripts consist of two&ndash;five descriptive fields along with either a port or host rule defining when the script should be executed and an action block containing the actual script instructions. Values can be assigned to the descriptive fields just as you would assign any other Lua variables.  Their names must be lowercase as shown in this section.</para>
 
     <sect2 id="nse-format-description">
       <title><literal>description</literal> Field</title>
       <indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
-      <para>The <literal>description</literal> field describes what the script is testing
-      for and any critical notes the user must be aware of. A good
-      example is this description from a user-contributed recursive
-      DNS script:
-<quote>Checks if a DNS server allows queries for third-party names.
-
-It is expected that recursion will be enabled on your own internal nameservers.</quote>
+      <para>The <literal>description</literal> field describes what a script is testing
+      for and any important notes the user should be aware of. Depending on script complexity, the description may vary from a few sentences to a few paragraphs.  The first paragraph should be a brief synopsis of the script function suitable for stand-alone presentation to the user.  Further paragraphs may provide much more script detail.
       </para>
     </sect2>
 
@@ -581,7 +630,7 @@ It is expected that recursion will be enabled on your own internal nameservers.<
 
       <para>The <literal>categories</literal> field defines one or
       more categories to which a script belongs (see
-      <xref linkend="nse-categories"/>).  The categories are case-insensitive and may be specified in any order.  They are listed in an array-like Lua table as in this example:</para>
+      <xref linkend="nse-categories"/>).  The categories are case-insensitive and may be specified in any order.  They are listed in an array-style Lua table as in this example:</para>
 
 <programlisting>
 categories = {"default", "discovery", "safe"}
@@ -593,7 +642,7 @@ categories = {"default", "discovery", "safe"}
       <title><literal>author</literal> Field </title>
       <indexterm><primary sortas="author script variable">&ldquo;<varname>author</varname>&rdquo; script variable</primary></indexterm>
       <para>
-	The <literal>author</literal> field contains the script authors name and contact information. If you are worried about spam, you might want to omit or obscure your email address, or give your home page URL instead.  This optional field is not used by NSE, but is important for giving script authors due credit or blame. 
+	The <literal>author</literal> field contains the script authors' names and contact information. If you are worried about spam, feel free to omit or obscure your email address, or give your home page URL instead.  This optional field is not used by NSE, but gives script authors due credit or blame. 
       </para>
     </sect2>
 
@@ -605,7 +654,7 @@ categories = {"default", "discovery", "safe"}
       <para>Nmap is a community project and we welcome all sorts of
       code contributions, including NSE scripts.  So if you write a
       valuable script, don't keep it to yourself!
-      The <literal>license</literal> field helps ensure that we have
+      The optional <literal>license</literal> field helps ensure that we have
       legal permission to distribute all the scripts which come with Nmap. All of those scripts
       currently use the standard Nmap license
       (described in <xref linkend="nmap-copyright"/>).  They include
@@ -627,18 +676,14 @@ that.</para>
       <indexterm><primary>run level of scripts</primary></indexterm>
       <para>
 	This optional field determines script execution order.  When
-	this section is absent the run level defaults to 1.0. A script
-	with the run level 1.0 is run before any scripts with <literal>runlevel</literal> set to
-	<literal>2.5</literal>, which in turn runs before any scripts
-	with <literal>runlevel 2.55</literal>.  Scripts with the same run level are run
-        concurrently. One
+	this section is absent, the run level defaults to 1.0. Scripts with a given <literal>runlevel</literal> execute after any with a lower <literal>runlevel</literal> and before any scripts with a higher <literal>runlevel</literal> against a single target machine.  The order of scripts with the same <literal>runlevel</literal> is undefined and they often run concurrently. One
 	application of run levels is allowing scripts to depend on
 	each other. If <literal>script A</literal> relies on some
 	information gathered by <literal>script B</literal>, give
 	<literal>B</literal> a lower run level than
 	<literal>A</literal>. <literal>Script B</literal> can store
 	information in the NSE registry for <literal>A</literal> to
-	retrieve later. For information on the NSE registry see to
+	retrieve later. For information on the NSE registry, see
 	<xref linkend="nse-api-registry"/>.
       </para>
     </sect2>
@@ -655,13 +700,13 @@ against a target.  A script contains either a <emphasis>port
 rule</emphasis>, which governs which ports of a target the scripts may
 run against, or a <emphasis>host rule</emphasis>, which specifies that
 the script should be run only once against a target IP and only if
-certain conditions are met.  A rule is a Lua function that returns
+the given conditions are met.  A rule is a Lua function that returns
 either <literal>true</literal> or <literal>false</literal>. The
-script <emphasis>action</emphasis> is only performed if the rule
-evaluates to <literal>true</literal>.  The host rule accepts a host
-table as an argument and may test, for example, the IP address or
+script <emphasis>action</emphasis> is only performed if its rule
+evaluates to <literal>true</literal>.  Host rules accept a host
+table as their argument and may test, for example, the IP address or
 hostname of the target.  A port rule accepts both host and port tables
-as arguments for any TCP or UDP port in either the
+as arguments for any TCP or UDP port in the
 <literal>open</literal><indexterm><primary><literal>open</literal> port state</primary></indexterm>, 
 <literal>open|filtered</literal><indexterm><primary><literal>open|filtered</literal> port state</primary></indexterm>,
 or <literal>unfiltered</literal><indexterm><primary><literal>unfiltered</literal> port state</primary></indexterm> port states.  Port rules generally test factors such as the port number, port state, or listening service name in deciding whether to run against a port. Example rules are shown in <xref linkend="nse-tutorial-rule"/>.</para> 
@@ -720,29 +765,26 @@ action refer to <xref linkend="nse-tutorial-action"/>.
       <para>
 
 	During the planning stages, we considered several programming
-	languages as the bases for Nmap scripting. One option was to
-	implement a completely new programming language. The criteria
-	imposed on the options were strict, NSE needed to be easy to
+	languages as the base for Nmap scripting. Another option was to
+	implement a completely new programming language. Our criteria
+	were strict: NSE had to be easy to
 	use, small in size, compatible with the Nmap license,
-	scalable, fast and parallelizable.  There have been several
-	efforts to design a security auditing language from scratch
-	which have resulted in well-known awkward solutions. It was
-	clear from the beginning that we would not go down this
-	road. For a while the Guile Scheme interpreter was considered
-	but the preference drifted towards Elk in favor of its more
-	liberal license. But parallelizing Elk scripts would have been
-	difficult. In addition, the subset of Nmap users familiar with
-	functional programming is regarded too small to consider
-	Scheme as an option.  Larger interpreters like Perl, Python or
+	scalable, fast and parallelizable.  Several
+	previous efforts (by other projects) to design their own security auditing language from scratch
+	resulted in awkward solutions, so we decided early not to follow that
+	route. First the Guile Scheme interpreter was considered,
+	but the preference drifted towards the Elk interpreter due to its more
+	favorable license. But parallelizing Elk scripts would have been
+	difficult. In addition, we expect that most Nmap users prefer procedural programming over functional languages such as Scheme.  Larger interpreters such as Perl, Python, and
 	Ruby are well-known and loved, but are difficult to embed
-	efficiently.  In the end, Lua exceeded in all criteria for
-	NSE. It is small, distributed under the MIT license, has
+	efficiently.  In the end, Lua excelled in all of our criteria.
+	It is small, distributed under the liberal MIT open source license, has
 	coroutines for efficient parallel script
 	execution, was designed with embeddability in mind, has
 	excellent documentation, and is actively developed by a large
 	and committed community.
-	Lua is even embedded in popular applications including
-	<application>Wireshark</application> and <application>Second Life</application>.
+	Lua is now even embedded in other popular open source security tools including
+	the <application>Wireshark</application> sniffer and <application>Snort</application> IDS.
 
       </para>
     </sect2>
@@ -752,20 +794,27 @@ action refer to <xref linkend="nse-tutorial-action"/>.
     <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>list of scripts</secondary></indexterm>
     <title>NSE Scripts</title>
 
-    <para>
-    This is a list of the scripts packaged with Nmap as of this writing.
-    This documentation comes straight from the source code of the
-    scripts thanks to the NSEDoc documentation system, described in
-    <xref linkend="nse-documentation"/>.
     <print>
-    Of course no paper documentation can hope to stay current with
-    software that is developed as actively as NSE is.
-    </print>
-    For the latest documentation see the online NSE documentation portal
-    at <ulink url="http://nmap.org/nsedoc/"/>.
+    <para>This section lists (alphabetically) all NSE scripts packaged
+    with Nmap as the time of this writing.  It comes straight from the
+    script source code thanks to the NSEDoc documentation system
+    described in <xref linkend="nse-documentation"/>. Of course no
+    paper documentation can stay current with software developed as
+    actively as NSE is.  For the most comprehensive and up-to-date
+    documentation, see the online NSE Documentation Portal at
+    <ulink url="http://nmap.org/nsedoc/"/>.
     </para>
 
     &nse-scripts;
+    </print>
+
+    <web>
+    <para>This section (a long list of NSE scripts with brief
+    summaries) is only provided in the printed edition of this book
+    because we already provide a better online interface to the
+    information at the <ulink url="http://nmap.org/nsedoc/">NSE
+    Documentation Portal</ulink>.</para>
+    </web>
   </sect1>
 
     <sect1 id="nse-library">
@@ -773,7 +822,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
       <title>NSE Libraries</title>
       <para>In addition to the significant built-in capabilities of
       Lua, we have written or integrated many extension libraries which make
-      script writing more powerful and convenient. These  libraries (sometimes called modules) are compiled and installed along with 
+      script writing more powerful and convenient. These libraries (sometimes called modules) are compiled if necessary and installed along with 
 	  Nmap. They have their own directory, <filename>nselib</filename>, which
 	  is installed in the configured datadir. Scripts need only 
       <ulink url="http://www.lua.org/manual/5.1/manual.html#pdf-require">
@@ -810,7 +859,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
 	An effective Nmap scripting engine requires more than just a
 	Lua interpreter. Users need easy access to the information
 	Nmap has learned about the target hosts. This data is passed
-	as arguments to the NSE
+	as arguments to the NSE script's
 	<literal>action</literal> method.<indexterm><primary sortas="action script variable">&ldquo;<varname>action</varname>&rdquo; script variable</primary></indexterm>
         The arguments, <literal>host</literal> and
 	<literal>port</literal>, are Lua tables which contain
@@ -890,7 +939,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
 	      </term>
 	    <listitem>
 	      <para> A Boolean value indicating whether or not the target host is
-		  directly connected (i.e. on the same network segment).
+		  directly connected to (i.e. on the same network segment as) the host running Nmap.
 		  </para>
 	    </listitem>
 	  </varlistentry>
@@ -947,11 +996,9 @@ action refer to <xref linkend="nse-tutorial-action"/>.
 	      </term>
 	    <listitem>
 	      <para>
-		The port table is passed to the Lua script in the same
+		The port table is passed to an NSE service script (i.e. only those with a portrule rather than a hostrule) in the same
 		fashion as the host table. It contains information about the port
-		against which the script is running. If the script is run
-		according to a host rule, then no port table is passed to the
-		script. Port states on the target can still be requested from Nmap
+		against which the script is running.  While this table is not passed to host scripts, port states on the target can still be requested from Nmap
 		using the <literal>nmap.get_port_state()</literal> call.
 	      </para>
 	    </listitem>
@@ -962,7 +1009,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
 	      </term>
 	    <listitem>
 	      <para>
-		Contains the number of the currently scanned port.
+		Contains the port number of the target port.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -973,7 +1020,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
 	      </term>
 	    <listitem>
 	      <para>
-		Defines the protocol of the port. Valid values are
+		Defines the protocol of the target port. Valid values are
 		<literal>"tcp"</literal> and <literal>"udp"</literal>.
 	      </para>
 	    </listitem>
@@ -988,8 +1035,8 @@ action refer to <xref linkend="nse-tutorial-action"/>.
 		Contains a string representation of the service running on
 		<literal>port.number</literal> as detected by the Nmap service
 		detection. If the <literal>port.version</literal> field is
-		<literal>nil</literal> then Nmap has guessed the service based
-		only on the port number. Otherwise this field is equal to
+		<literal>nil</literal>, Nmap has guessed the service based
+		on the port number. Otherwise version detection was able to determine the listening service and this field is equal to
 		<literal>port.version.name</literal>.
 	      </para>
 	    </listitem>
@@ -1002,10 +1049,10 @@ action refer to <xref linkend="nse-tutorial-action"/>.
 	      <para>
 		This entry is a table which contains information
 		retrieved by the Nmap version scanning engine.  Some
-		of the values (like service name, service type
-		confidence, RPC related values) may be retrieved by
-		Nmap even if a version scan was not required.  Values
-		which were not retrieved default to
+		of the values (such as service name, service type
+		confidence, and the RPC-related values) may be retrieved by
+		Nmap even if a version scan was not performed.  Values
+		which were not determined default to
 		<literal>nil</literal>.  The meaning of each value is given in the following table:</para>
 
 <table id="scripting-tbl-port-version-values">
@@ -1020,12 +1067,12 @@ action refer to <xref linkend="nse-tutorial-action"/>.
    <tbody>
    <row>
     <entry><literal>name</literal></entry>
-    <entry>Contains the service name Nmap will use for the port.</entry>
+    <entry>Contains the service name Nmap determined for the port.</entry>
    </row>
 
    <row>
     <entry><literal>name_confidence</literal></entry>
-    <entry>Evaluates how confident the version detection is about the accuracy of <literal>name</literal>, from 1 (least confident) to 10.</entry>
+    <entry>Evaluates how confident Nmap is about the accuracy of <literal>name</literal>, from 1 (least confident) to 10.</entry>
    </row>
 
    <row>
@@ -1108,7 +1155,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
 	The I/O parallelism is fully transparent to authors of NSE scripts.  
        In NSE you can either program as if you were using a single
         non-blocking socket or you can program as if your connection is
-	blocking. Seemingly blocking I/O calls still return once a
+	blocking. Even blocking I/O calls return once a
 	specified timeout has been exceeded. Two flavors of Network I/O are
        supported: connect-style and raw packet.
 	</para>
@@ -1117,23 +1164,23 @@ action refer to <xref linkend="nse-tutorial-action"/>.
           <indexterm><primary>sockets in NSE</primary></indexterm>
 	  <para>This part of the network API should be suitable for most
 	  classical network uses: Users create a socket, connect it to a
-	  remote address, send and receive data and close the socket again.
+	  remote address, send and receive data and finally close the socket.
 	  Everything up to the Transport layer (which is either TCP, UDP or
 	  SSL) is handled by the library.
         </para>
         <para>
           An NSE socket is created by calling
-          <function>nmap.new_socket()</function>, which returns a socket object.
+          <function>nmap.new_socket</function>, which returns a socket object.
           The socket object supports the usual <function>connect</function>,
           <function>send</function>, <function>receive</function>, and
           <function>close</function> methods. Additionally the functions
           <function>receive_bytes</function>,
           <function>receive_lines</function>, and
-          <function>receive_buf</function> allow greater control of the
-          receiving of data.
+          <function>receive_buf</function> allow greater control
+          over data reception.
           <xref linkend="nse-api-networkio-connect-example" xrefstyle="select: label nopage"/>
           shows the use of connect-style network operations. The
-          <function>try</function> function is for error handling; see
+          <function>try</function> function is used for error handling, as described in
           <xref linkend="nse-exceptions"/>.
         </para>
         <example id="nse-api-networkio-connect-example">
@@ -1222,10 +1269,10 @@ socket:close()
       <indexterm><primary>threads in NSE</primary></indexterm>
       <indexterm><primary>mutexes in NSE</primary></indexterm>
       <para>
-        Each thread made for a script (e.g. <filename>ftp-anon.nse</filename>) will yield to other
+        Each thread made for a script (e.g. <literal>ftp-anon</literal>) will yield to other
         scripts whenever it makes a call on network objects (sending/receiving
         data). Some scripts need finer control over threads' execution. An
-        example is the <literal>whois.nse</literal> script which queries
+        example is the <literal>whois</literal> script which queries
 	whois<indexterm><primary>whois</primary></indexterm>
         servers for each target. Because many concurrent queries often result in
         getting one's IP banned for abuse and a query may return additional
@@ -1239,7 +1286,7 @@ socket:close()
         usable by scripts. The mutex allows for only one thread to be working
         on an object. Threads waiting to work on this object are put in the
         waiting queue until they can get a "lock" on the mutex. A solution for
-        the <literal>whois.nse</literal> problem above is to have each thread
+        the <literal>whois</literal> problem above is to have each thread
         block on a mutex using a common string,
         thus ensuring only one thread is working so its results can
         be shared with other scripts which may not need to run and so queries
@@ -1475,7 +1522,7 @@ try(socket:send(result))
 	The description field should contain a sentence or two describing what the script does.  If anything about the script results might confuse or mislead users, and you can't eliminate the issue by improving the script or results text, it should be documented in the <literal>description</literal> string.
       </para>
       <para>
-<indexterm><primary><filename>identd-owners.nse</filename></primary></indexterm>
+<indexterm><primary><literal>identd-owners</literal></primary></indexterm>
 <indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
 <programlisting>
 description = [[
