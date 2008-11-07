@@ -1364,37 +1364,35 @@ end
       <title>Exception Handling</title>
       <indexterm><primary>exceptions in NSE</primary></indexterm>
       <para>
-	  NSE provides an exception handling mechanism not present in
-	  the plain Lua language. The exception handling is tailored
-	  specifically for network I/O operations. The mechanism
+	  NSE provides an exception handling mechanism which is not present in
+	  the base Lua language. It is tailored
+	  specifically for network I/O operations, and
 	  follows a functional programming paradigm rather than an
-	  object oriented programming paradigm. To create an exception
-	  handler the <literal>nmap.new_try()</literal> API method is
-	  used. This method returns a function, which takes a variable
-          number of arguments, assumed to be the return values of
+	  object oriented one. The <function>nmap.new_try</function> API method is used to
+          create an exception handler.  This method returns a function which takes a variable
+          number of arguments that are assumed to be the return values of
           another function. If an exception is detected in the return
           values (the first return value is false),
 	  then the script execution is aborted and no
-	  output is produced. Optionally you can pass a function to
-	  the <literal>new_try()</literal> method which will be called
-	  if an exception is caught. In this function you can perform
-	  required clean up operations.</para>
+	  output is produced. Optionally, you can pass a function to
+	  <function>new_try</function> which will be called
+	  if an exception is caught. The function would generally perform any required cleanup operations.
+	  </para>
 
       <para>
 	  <xref linkend="nse-exception-handling" xrefstyle="select: label nopage"/> shows cleanup
 	  exception handling at work.  A new function named
-	  <literal>catch</literal> is defined to simply close the
+	  <function>catch</function> is defined to simply close the
 	  newly created socket in case of an error.  It is then used
 	  to protect connection and communication attempts on that
 	  socket. If no catch function is specified, execution of the
-	  script aborts without further ado&mdash;open sockets
-	  will remain open. If the verbosity level is at least one
-	  or if the scan is performed in debugging mode a description
-	  of the uncaught error condition is printed on standard output.
-	  Note that it is currently not easily possible to group several
-	  statements in one try block. It is also important to remember
-	  that if the socket is not closed it will occupy memory
-	  until the next run of Lua's garbage collector.
+	  script aborts without further ado&mdash;open sockets will
+	  remain open until the next run of Lua's garbage
+	  collector. If the verbosity level is at least one or if the
+	  scan is performed in debugging mode a description of the
+	  uncaught error condition is printed on standard output.
+	  Note that it is currently not easily possible to group
+	  several statements in one try block.
 
 	</para>
 
@@ -1421,7 +1419,7 @@ try(socket:send(result))
 	  try/catch mechanism is straightforward. The function should
 	  return multiple values.  The first value should be a Boolean
 	  which is <literal>true</literal> upon successful completion of the function and
-	  <literal>false</literal> otherwise. If the function completed successfully the try
+	  <literal>false</literal> otherwise. If the function completed successfully, the try
 	  construct consumes the indicator value and returns the
 	  remaining values.  If the function failed then the second
 	  returned value must be a string describing the error
