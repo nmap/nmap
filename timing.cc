@@ -160,7 +160,7 @@ void adjust_timeouts2(const struct timeval *sent,
   else {
     if (delta >= 8000000 || delta < 0) {
       if (o.verbose)
-	error("%s: packet supposedly had rtt of %lu microseconds.  Ignoring time.", __func__, delta);
+	error("%s: packet supposedly had rtt of %ld microseconds.  Ignoring time.", __func__, delta);
       return;
     }
     delta -= to->srtt;
