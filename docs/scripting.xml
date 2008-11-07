@@ -1292,9 +1292,9 @@ socket:close()
         the <literal>whois</literal> problem above is to have each
         thread block on a mutex using a common string, thus ensuring
         that only one thread is querying whois servers at once.  That
-        thread can store the results in the NSE Registry before
+        thread can store the results in the NSE registry before
         releasing unlocking the mutex.  The next script in the waiting
-        queue can then run.  It will first check the Registry and only
+        queue can then run.  It will first check the registry and only
         query whois servers if the previous results were insufficient.
       </para>
 
@@ -1436,29 +1436,33 @@ try(socket:send(result))
       <title>The Registry</title>
       <indexterm><primary>registry (NSE)</primary></indexterm>
       <para>
-	The registry is a normal Lua table. What is special about it
-	is that it is visible by all scripts and it retains its state
-	between script executions.  The registry
-	is transient&mdash;it is not stored between Nmap executions. Every
-	script can read the registry and write to it. If a script is
-	running after another script, it can read some information in
-	the registry which was left by the first script. This feature
-	is particularly powerful in combination with the run level
-	concept. A script with a higher run level can rely on entries
-	left behind for it by scripts with lower run levels.
-      <indexterm><primary>run level of scripts</primary></indexterm>
-        Remember
-	however that the registry can be written by all scripts
-	equally, so choose the keys for your entries wisely. The
-	registry is stored in <literal>nmap.registry</literal>. The
-	behavior of the registry allows caching of already calculated
-	data. The cache can be seen by all scripts until the registry
-	is rebuilt with the next target group. <!-- If for example you have
-	compiled a regular expression, you can store the compiled
-	expression in the registry so that scripts which need the same
-	pattern do not have to recompile it. -->
+	The registry is a Lua table with the special property that it
+	is visible by all scripts and retains its state between script
+	executions.  The registry is transient&mdash;it is not stored
+	between Nmap executions. Every script can read and write to
+	the registry.  Scripts commonly use it to save information for
+	other instances of the same script.  For example,
+	the <literal>whois</literal> and <literal>asn-query</literal>
+	scripts may query one IP address, but receive information
+	which may apply to tens of thousands of IPs on that network.
+	Saving the information in the registry may prevent other
+	script threads from having to repeat the same query.  The
+	registry may also be used to hand information to completely
+	different scripts.  For example,
+	the <literal>snmp-brute</literal> script saves a discovered
+	community name in the registry where it may be used by other
+	SNMP scripts.  Scripts which leave information behind for a
+	second script must have a lower <literal>runlevel</literal>
+	than that second script, or there is no guarantee that they
+	will run first.<indexterm><primary>run level of
+	scripts</primary></indexterm>
+        </para>
 
-      </para>
+        <para>Keep in mind that the
+	registry can be written by all scripts equally, so choose
+	keys for your entries wisely. The registry is stored
+	in <literal>nmap.registry</literal>.</para>
+
     </sect2>
     <indexterm class="endofrange" startref="nse-nmap-indexterm"/>
   </sect1>
