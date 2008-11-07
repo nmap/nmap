@@ -1440,12 +1440,7 @@ try(socket:send(result))
       <para>
 	The registry is a normal Lua table. What is special about it
 	is that it is visible by all scripts and it retains its state
-	between script executions. Nmap does not scan every host
-	specified on the command line at the same time, it puts them
-	in smaller groups and these groups are scanned in parallel.  The
-	registry is rebuilt for every group, so information stored
-	there is only deleted after NSE finishes processing the
-	current target group. This implies of course that the registry
+	between script executions.  The registry
 	is transient&mdash;it is not stored between Nmap executions. Every
 	script can read the registry and write to it. If a script is
 	running after another script, it can read some information in
