@@ -22,7 +22,7 @@ categories = {"default", "discovery", "external", "intrusive"}
 require "comm"
 require "shortport"
 
---- An explode() function for NSE/LUA. Taken (and fixed) from http://lua-users.org/wiki/LuaRecipes
+--- An explode function for NSE/LUA. Taken (and fixed) from http://lua-users.org/wiki/LuaRecipes
 --@param d Delimiter
 --@param p Buffer to explode
 --@return A LUA Table

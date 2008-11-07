@@ -1,21 +1,21 @@
 description = [[
-Attempts to list shares using the <code>srvsvc.NetShareEnumAll()</code> MSRPC function, then 
-retrieve more information about each share using <code>srvsvc.NetShareGetInfo()</code>.
+Attempts to list shares using the <code>srvsvc.NetShareEnumAll</code> MSRPC function, then 
+retrieve more information about each share using <code>srvsvc.NetShareGetInfo</code>.
 
 Running
-<code>NetShareEnumAll()</code> will work anonymously on Windows 2000, and requires a user-level 
-account on any other Windows version. Calling <code>NetShareGetInfo()</code> requires an 
+<code>NetShareEnumAll</code> will work anonymously on Windows 2000, and requires a user-level 
+account on any other Windows version. Calling <code>NetShareGetInfo</code> requires an 
 administrator account on every version of Windows I (Ron Bowes) tested. 
 
-Although <code>NetShareEnumAll()</code> is restricted on certain systems, actually connecting to
-a share to check if it exists will always work. So, if <code>NetShareEnumAll()</code> fails, a 
+Although <code>NetShareEnumAll</code> is restricted on certain systems, actually connecting to
+a share to check if it exists will always work. So, if <code>NetShareEnumAll</code> fails, a 
 list of common shares will be attempted. 
 
 After a list of shares is found, whether or not it's complete, we attempt to connect
 to each of them anonymously, which lets us divide them into the classes
 "anonymous" and "restricted." 
 
-When possible, once the list of shares is determined, <code>NetShareGetInfo()</code> is called 
+When possible, once the list of shares is determined, <code>NetShareGetInfo</code> is called 
 to get additional information on the share. Odds are this will fail, unless we're 
 doing an authenticated test. 
 ]]

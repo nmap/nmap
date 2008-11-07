@@ -61,7 +61,7 @@ function pack(format, ...)
 -- stopped. This can be used as the <code>init</code> value for subsequent
 -- calls. The following return values are the values according to the format
 -- string. Numerical values in the format string are interpreted as repetitions
--- like in <code>pack()</code>, except if used with <code>A</code>,
+-- like in <code>pack</code>, except if used with <code>A</code>,
 -- <code>B</code>, or <code>H</code>, in which cases the number tells
 -- <code>unpack</code> how many bytes to read. <code>unpack</code> stops if
 -- either the format string or the binary data string are exhausted. 

@@ -237,7 +237,7 @@ end
 -- Extracts fields from the supplied DNS answer sections and generates a records entry for each.
 -- @param answers    Table containing string DNS answers.
 -- @param asn_type   String denoting whether the query is for Origin or Peer ASN.
--- @param recs       Table of existing recognised answers to which to add (refer to the <code>records</code> table inside <code>action()</code>.
+-- @param recs       Table of existing recognised answers to which to add (refer to the <code>records</code> table inside <code>action</code>.
 -- @return           Boolean true if successful otherwise false.
 
 function result_recog( answers, asn_type, recs, discoverer_ip )
@@ -428,7 +428,7 @@ end
 
 
 ---
--- Decides what to output based on the content of the supplied parameters and formats it for return by <code>action()</code>.
+-- Decides what to output based on the content of the supplied parameters and formats it for return by <code>action</code>.
 -- @param output            String non-answer message to be returned as is or an empty table.
 -- @param combined_records  Table containing combined records.
 -- @return                  Formatted nice output string.

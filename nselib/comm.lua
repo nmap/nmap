@@ -2,7 +2,7 @@
 -- banner grabbing and data exchange.
 --
 -- The functions in this module return values appropriate for use with
--- exception handling via <code>nmap.new_try()</code>.
+-- exception handling via <code>nmap.new_try</code>.
 --
 -- These functions may be passed a table of options, but it's not required. The
 -- keys for the options table are <code>"bytes"</code>, <code>"lines"</code>,
@@ -10,7 +10,7 @@
 -- a minimum number of bytes to read. <code>"lines"</code> does the same for
 -- lines. <code>"proto"</code> sets the protocol to communicate with,
 -- defaulting to <code>"tcp"</code> if not provided. <code>"timeout"</code>
--- sets the socket timeout (see the socket function <code>set_timeout()</code>
+-- sets the socket timeout (see the socket function <code>set_timeout</code>
 -- for details). 
 --
 -- If both <code>"bytes"</code> and <code>"lines"</code> are provided,

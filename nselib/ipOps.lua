@@ -507,7 +507,7 @@ end
 -- binary digits.
 --
 -- Each hex digit results in four bits. This function is really just a wrapper
--- around <code>stdnse.tobinary()</code>.
+-- around <code>stdnse.tobinary</code>.
 -- @param hex  String representing a hexadecimal number.
 -- @usage
 -- bin_string = ipOps.hex_to_bin( "F00D" )

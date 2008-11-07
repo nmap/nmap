@@ -2,7 +2,7 @@
 --
 -- The <code>usernames</code> and <code>passwords</code> functions return
 -- multiple values for use with exception handling via
--- <code>nmap.new_try()</code>. The first value is the Boolean success
+-- <code>nmap.new_try</code>. The first value is the Boolean success
 -- indicator, the second value is the closure.
 --
 -- The closures can take an argument of <code>"reset"</code> to rewind the list

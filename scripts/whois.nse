@@ -124,7 +124,7 @@ action = function( host )
     --@field whoisdb_default_order          The default number and order of whois services to query.
     --@field using_local_assignments_file   Set this to: false; to avoid using the data from IANA hosted assignments files (false when whodb=nofile).
     --@field local_assignments_file_expiry  A period, between 0 and 7 days, during which cached assignments data may be used without being refreshed.
-    --@field init_done                      Set when script_init() has been called and prevents it being called again.
+    --@field init_done                      Set when <code>script_init</code> has been called and prevents it being called again.
     --@field mutex                          A table of mutex functions, one for each service defined herein.  Allows a thread exclusive access to a
     --                                service, preventing concurrent connections to it.
     --@field nofollow                       A flag that prevents referrals to other whois records and allows the first record retrieved to be
@@ -159,12 +159,12 @@ action = function( host )
   -- @class table
   --@field data.iana        is set after the table is initialised and is the number of times a response encountered represents "The Whole Address Space".
   --                  If the value reaches 2 it is assumed that a valid record is held at ARIN.
-  --@field data.id          is set in analyse_response() after final record and is the service name at which a valid record has been found.  Used in
-  --                  format_data_for_output().
-  --@field data.mirror      is set in analyse_response() after final record and is the service name from which a mirrored record has been found.  Used in
-  --                  format_data_for_output().
-  --@field data.comparison  is set in analyse_response() after final record and is a string concatenated from fields extracted from a record and which
-  --                  serves as a fingerprint for a record, used in get_cache_key(), to compare two records for equality.
+  --@field data.id          is set in <code>analyse_response</code> after final record and is the service name at which a valid record has been found.  Used in
+  --                  <code>format_data_for_output</code>.
+  --@field data.mirror      is set in <code>analyse_response</code> after final record and is the service name from which a mirrored record has been found.  Used in
+  --                  <code>format_data_for_output</code>.
+  --@field data.comparison  is set in <code>analyse_response</code> after final record and is a string concatenated from fields extracted from a record and which
+  --                  serves as a fingerprint for a record, used in <code>get_cache_key</code>, to compare two records for equality.
   local data = {}
   data.iana = 0
 
@@ -1117,7 +1117,7 @@ end
 
 
 ---
--- When passed to table.sort(), will sort a table of tables containing IP address ranges in ascending order of size.
+-- When passed to <code>table.sort</code>, will sort a table of tables containing IP address ranges in ascending order of size.
 -- Identical ranges will be sorted in descending order of their position within a record if it is present.
 -- @param range_1  Table: {range = String, pointer = Number}
 --                 where range is an IP address range and pointer is the position of that range in a record.
@@ -1177,7 +1177,7 @@ end
 
 ---
 -- Controls what to output at the end of the script execution.  Attempts to get data from the registry.  If the data is a string it is output as
--- it is.  If the data is a table then format_data_for_output() is called.  If there is no cached data, nothing will be output.
+-- it is.  If the data is a table then <code>format_data_for_output</code> is called.  If there is no cached data, nothing will be output.
 -- @param ip                String representing the Target's IP address.
 -- @param services_queried  Table of strings. Each is the id of a whois service queried for the Target (tracking.completed).
 -- @return                  String - Host Script Results.
@@ -1825,7 +1825,7 @@ end
 
 
 ---
--- Uses fetchfile() to get the path of the parent directory of the supplied Nmap datafile filename.
+-- Uses <code>nmap.fetchfile</code> to get the path of the parent directory of the supplied Nmap datafile filename.
 -- @param fname  String - Filename of an Nmap datafile.
 -- @return       String - The filepath of the directory containing the supplied filename including the trailing slash (or nil in case of an error).
 -- @return       Nil or error message in case of an error.
@@ -1961,7 +1961,7 @@ end
 -- @param url       String representing the full URL of the remote resource.
 -- @param mod_date  String representing an HTTP date.
 -- @param e_tag     String representing an HTTP entity tag.
--- @return          Table as per http.request() or nil in case of a non-HTTP error.
+-- @return          Table as per <code>http.request</code> or <code>nil</code> in case of a non-HTTP error.
 -- @return          Nil or error message in case of an error.
 -- @see             http.request
 
@@ -2165,7 +2165,7 @@ end
 
 
 --
--- Passed to table.sort(), will sort a table of IP assignments such that sub-assignments appear before their parent.
+-- Passed to <code>table.sort</code>, will sort a table of IP assignments such that sub-assignments appear before their parent.
 -- This function is not in use at the moment (see get_local_assignments_data) and will not appear in nse documentation.
 -- @param first   Table { range = { first = IP_addr, last = IP_addr } }
 -- @param second  Table { range = { first = IP_addr, last = IP_addr } }

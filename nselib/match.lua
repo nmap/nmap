@@ -1,7 +1,7 @@
 --- Buffered network I/O helper functions.
 --
 -- The functions in this module can be used for delimiting data received by the
--- <code>nmap.receive_buf()</code> function in the Network I/O API (which see).
+-- <code>nmap.receive_buf</code> function in the Network I/O API (which see).
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module(... or "match",  package.seeall)

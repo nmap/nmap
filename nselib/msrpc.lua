@@ -8,9 +8,9 @@
 --
 -- To make use of these function calls, a SMB session with the server has to be
 -- established. This can be done manually with the <code>smb</code> library, or the function
--- <code>start_smb()</code> can be called. 
+-- <code>start_smb</code> can be called. 
 --
--- Next, the interface has to be bound. The bind() function will take care of that. 
+-- Next, the interface has to be bound. The <code>bind</code> function will take care of that. 
 --
 -- After that, you're free to call any function that's part of that interface. In
 -- other words, if you bind to the SAMR interface, you can only call the samr_
@@ -110,15 +110,15 @@ local function string_to_unicode(string, do_null, do_align)
 	return result
 end
 
---- Read a unicode string from a buffer, similar to how <code>bin.unpack()</code> would, optionally eat the null terminator, 
+--- Read a unicode string from a buffer, similar to how <code>bin.unpack</code> would, optionally eat the null terminator, 
 --  and optionally align it to 4-byte boundaries. 
 --
 --@param buffer   The buffer to read from, typically the full 'arguments' value for MSRPC
---@param pos      The position in the buffer to start (just like <code>bin.unpack()</code>)
+--@param pos      The position in the buffer to start (just like <code>bin.unpack</code>)
 --@param length   The number of ascii characters that will be read (including the null, if do_null is set). 
 --@param do_null  [optional] Remove a null terminator from the string as the last character. Default false. 
 --@param do_align [optional] Ensure that the number of bytes removed is a multiple of 4. 
---@return (pos, string) The new position and the string read, again imitating <code>bin.unpack()</code>. If there was an 
+--@return (pos, string) The new position and the string read, again imitating <code>bin.unpack</code>. If there was an 
 --                attempt to read off the end of the string, then 'nil' is returned for both parameters. 
 local function unicode_to_string(buffer, pos, length, do_null, do_align)
 	local i, ch, dummy
@@ -237,7 +237,7 @@ end
 --- This is a wrapper around the SMB class, designed to get SMB going quickly for MSRPC calls. This will
 --  connect to the SMB server, negotiate the protocol, open a session, connect to the IPC$ share, and
 --  open the named pipe given by 'path'. When this successfully returns, the 'smbstate' table can be immediately 
---  used for MSRPC (the <code>bind()</code> function should be called right after). 
+--  used for MSRPC (the <code>bind</code> function should be called right after). 
 --
 -- Note that the smbstate table is the same one used in the SMB files (obviously), so it will contain
 -- the various responses/information places in there by SMB functions. 
@@ -288,7 +288,7 @@ function start_smb(host, path)
 	return true, smbstate
 end
 
---- A wrapper around the <code>smb.stop()</code> function. I only created it to add symmetry, so client code
+--- A wrapper around the <code>smb.stop</code> function. I only created it to add symmetry, so client code
 --  doesn't have to call both msrpc and smb functions.
 --
 --@param state The SMB state table. 
@@ -392,7 +392,7 @@ function bind(smbstate, interface_uuid, interface_version, transfer_syntax)
 		return false, "MSRPC call returned an incorrect 'call_id' value"
 	end
 
-	-- If we made it this far, then we have a valid Bind() response. Pull out some more parameters. 
+	-- If we made it this far, then we have a valid <code>Bind</code> response. Pull out some more parameters. 
 	pos, response['max_transmit_frag'], response['max_receive_frag'], response['assoc_group'], response['secondary_address_length'] = bin.unpack("SSIS", data, pos)
 
 	-- Read the secondary address
@@ -424,7 +424,7 @@ end
 --
 -- There's a reason that SMB is sometimes considered to be between layer 4 and 7 on the OSI model. :)
 --
---@param smbstate  The SMB state table (after <code>bind()</code> has been called). 
+--@param smbstate  The SMB state table (after <code>bind</code> has been called). 
 --@param opnum     The operating number (ie, the function). Find this in the MSRPC documentation or with a packet logger. 
 --@param arguments The marshalled arguments to pass to the function. Currently, marshalling is all done manually. 
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
@@ -497,7 +497,7 @@ local function call_function(smbstate, opnum, arguments)
 
 end
 
----Call the MSRPC function <code>netshareenumall()</code> on the remote system. This function basically returns a list of all the shares
+---Call the MSRPC function <code>netshareenumall</code> on the remote system. This function basically returns a list of all the shares
 -- on the system. 
 --
 --@param smbstate The SMB state table
@@ -606,7 +606,7 @@ function srvsvc_netshareenumall(smbstate, server)
 	return true, response
 end
 
----Call the MSRPC function <code>netsharegetinfo()</code> on the remote system. This function retrieves extra information about a share
+---Call the MSRPC function <code>netsharegetinfo</code> on the remote system. This function retrieves extra information about a share
 -- on the system. 
 --
 --@param smbstate The SMB state table
@@ -784,7 +784,7 @@ end
 
 
 
----Call the <code>NetSessEnum()</code> function, which gets a list of active sessions on the host. For this function, 
+---Call the <code>NetSessEnum</code> function, which gets a list of active sessions on the host. For this function, 
 -- a session is defined as a connection to a file share. 
 --
 --@param smbstate The SMB state table
@@ -910,7 +910,7 @@ function srvsvc_netsessenum(smbstate, server)
 	return true, response
 end
 
---- Calls the <code>NetServerGetStatistics()</code> function, which grabs a bunch of statistics on the server. 
+--- Calls the <code>NetServerGetStatistics</code> function, which grabs a bunch of statistics on the server. 
 --  This function requires administrator access to call.
 --
 -- Note: Wireshark 1.0.3 doesn't parse this packet properly. 
@@ -1016,7 +1016,7 @@ function srvsvc_netservergetstatistics(smbstate, server)
 end
 
 
----Call the <code>connect4()</code> function, to obtain a "connect handle". This must be done before calling many 
+---Call the <code>connect4</code> function, to obtain a "connect handle". This must be done before calling many 
 -- of the SAMR functions. 
 --
 --@param smbstate  The SMB state table
@@ -1078,10 +1078,10 @@ function samr_connect4(smbstate, server)
 	return true, response
 end
 
----Call the <code>enumdomains()</code> function, which returns a list of all domains in use by the system. 
+---Call the <code>enumdomains</code> function, which returns a list of all domains in use by the system. 
 --
---@param smbstate       The SMB state table
---@param connect_handle The connect_handle, returned by samr_connect4()
+--@param smbstate       The SMB state table.
+--@param connect_handle The connect_handle, returned by <code>samr_connect4</code>.
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'domains', which is a list of the domains. 
 function samr_enumdomains(smbstate, connect_handle)
@@ -1157,12 +1157,12 @@ function samr_enumdomains(smbstate, connect_handle)
 	return true, response
 end
 
----Call the <code>LookupDomain()</code> function, which converts a domain's name into its sid, which is
+---Call the <code>LookupDomain</code> function, which converts a domain's name into its sid, which is
 -- required to do operations on the domain. 
 --
 --@param smbstate       The SMB state table
---@param connect_handle The connect_handle, returned by <code>samr_connect4()</code>
---@param domain         The name of the domain (all domain names can be obtained with <code>samr_enumdomains()</code>)
+--@param connect_handle The connect_handle, returned by <code>samr_connect4</code>
+--@param domain         The name of the domain (all domain names can be obtained with <code>samr_enumdomains</code>)
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'sid', which is required to call other functions. 
 function samr_lookupdomain(smbstate, connect_handle, domain)
@@ -1226,12 +1226,12 @@ function samr_lookupdomain(smbstate, connect_handle, domain)
 	return true, response
 end
 
----Call <code>OpenDomain()</code>, which returns a handle to the domain identified by the given sid. 
+---Call <code>OpenDomain</code>, which returns a handle to the domain identified by the given sid. 
 -- This is required before calling certain functions. 
 --
 --@param smbstate       The SMB state table
---@param connect_handle The connect_handle, returned by <code>samr_connect4()</code>
---@param sid            The sid for the domain, returned by <code>samr_lookupdomain()</code>
+--@param connect_handle The connect_handle, returned by <code>samr_connect4</code>
+--@param sid            The sid for the domain, returned by <code>samr_lookupdomain</code>
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'domain_handle', which is used to call other functions. 
 function samr_opendomain(smbstate, connect_handle, sid)
@@ -1287,11 +1287,11 @@ function samr_opendomain(smbstate, connect_handle, sid)
 	return true, response
 end
 
----Call <code>EnumDomainUsers()</code>, which returns a list of users only. To get more information about the users, the 
--- QueryDisplayInfo() function can be used. 
+---Call <code>EnumDomainUsers</code>, which returns a list of users only. To get more information about the users, the 
+-- <code>QueryDisplayInfo</code> function can be used. 
 --
 --@param smbstate       The SMB state table
---@param domain_handle  The domain_handle, returned by <code>samr_opendomain()</code>
+--@param domain_handle  The domain_handle, returned by <code>samr_opendomain</code>
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'names', which is a list of usernames in that domain. 
 function samr_enumdomainusers(smbstate, domain_handle)
@@ -1370,7 +1370,7 @@ function samr_enumdomainusers(smbstate, domain_handle)
 
 end
 
----Call <code>QueryDisplayInfo()</code>, which returns a list of users with accounts on the system, as well as extra information about
+---Call <code>QueryDisplayInfo</code>, which returns a list of users with accounts on the system, as well as extra information about
 -- them (their full name and description). 
 --
 -- I found in testing that trying to get all the users at once is a mistake, it returns ERR_BUFFER_OVERFLOW, so instead I'm 
@@ -1378,7 +1378,7 @@ end
 -- number of users on the system. 
 --
 --@param smbstate       The SMB state table
---@param domain_handle  The domain handle, returned by <code>samr_opendomain()</code>
+--@param domain_handle  The domain handle, returned by <code>samr_opendomain</code>
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful ones being 'names', a list of all the usernames, and 'details', a further list of tables with the elements
 --        'name', 'fullname', and 'description' (note that any of them can be nil if the server didn't return a value). Finally,
@@ -1528,10 +1528,10 @@ function samr_querydisplayinfo(smbstate, domain_handle)
 	return true, response
 end
 
----Call <code>QueryDomainInfo2()</code>, which grabs various data about a domain. 
+---Call <code>QueryDomainInfo2</code>, which grabs various data about a domain. 
 --
 --@param smbstate       The SMB state table
---@param domain_handle  The domain_handle, returned by <code>samr_opendomain()</code>
+--@param domain_handle  The domain_handle, returned by <code>samr_opendomain</code>
 --@param level          The level, which determines which type of information to query for. See the @return section
 --                      for details. 
 --@param response       [optional] A 'result' to add the entries to. This lets us call this function multiple times, 
@@ -1647,7 +1647,7 @@ function samr_querydomaininfo2(smbstate, domain_handle, level, response)
 	return true, response
 end
 
----Call the <code>close()</code> function, which closes a handle of any type (for example, domain_handle or connect_handle)
+---Call the <code>close</code> function, which closes a handle of any type (for example, domain_handle or connect_handle)
 --@param smbstate The SMB state table
 --@param handle   The handle to close
 --@return (status, result) If status is false, result is an error message. Otherwise, result is potentially
@@ -1690,7 +1690,7 @@ function samr_close(smbstate, handle)
 	return true, response
 end
 
----Call the <code>LsarOpenPolicy2()</code> function, to obtain a "policy handle". This must be done before calling many 
+---Call the <code>LsarOpenPolicy2</code> function, to obtain a "policy handle". This must be done before calling many 
 -- of the LSA functions. 
 --
 --@param smbstate  The SMB state table
@@ -1762,10 +1762,10 @@ function lsa_openpolicy2(smbstate, server)
 	return true, response
 end
 
----Call the <code>LsarLookupNames2()</code> function, to convert the server's name into a sid. 
+---Call the <code>LsarLookupNames2</code> function, to convert the server's name into a sid. 
 --
 --@param smbstate      The SMB state table
---@param policy_handle The policy handle returned by <code>lsa_openpolicy2()</code>
+--@param policy_handle The policy handle returned by <code>lsa_openpolicy2</code>
 --@param names         An array of names to look up. To get a SID, only one of the names needs to be valid. 
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values. 
 --        The most useful result is 'domains', which is a list of domains known to the server. And, for each of the
@@ -1936,14 +1936,14 @@ function lsa_lookupnames2(smbstate, policy_handle, names)
 	return true, response
 end
 
----Call the <code>LsarLookupSids2()</code> function, to convert a list of SIDs to their names
+---Call the <code>LsarLookupSids2</code> function, to convert a list of SIDs to their names
 --
 --@param smbstate      The SMB state table
---@param policy_handle The policy handle returned by <code>lsa_openpolicy2()</code>
+--@param policy_handle The policy handle returned by <code>lsa_openpolicy2</code>
 --@param sid           The SID object for the server
 --@param rids          The RIDs of users to look up
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values. 
---        The element 'domains' is identical to the lookupnames2() element called 'domains'. The element 'names' is a 
+--        The element 'domains' is identical to the <code>lookupnames2</code> element called 'domains'. The element 'names' is a 
 --        list of strings, for the usernames (not necessary a 1:1 mapping with the RIDs), and the element 'details' is
 --        a table containing more information about each name, even if the name wasn't found (this one is a 1:1 mapping
 --        with the RIDs). 
@@ -2126,7 +2126,7 @@ function lsa_lookupsids2(smbstate, policy_handle, sid, rids)
 
 end
 
----Call the <code>close()</code> function, which closes a session created with a <code>lsa_openpolicy()</code>-style function
+---Call the <code>close</code> function, which closes a session created with a <code>lsa_openpolicy</code>-style function
 --@param smbstate  The SMB state table
 --@param handle    The handle to close
 --@return (status, result) If status is false, result is an error message. Otherwise, result is potentially
@@ -2169,7 +2169,7 @@ function lsa_close(smbstate, handle)
 	return true, response
 end
 
----Call the <code>OpenHKU()</code> function, to obtain a handle to the HKEY_USERS hive
+---Call the <code>OpenHKU</code> function, to obtain a handle to the HKEY_USERS hive
 --
 --@param smbstate  The SMB state table
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
@@ -2216,7 +2216,7 @@ function winreg_openhku(smbstate)
 
 end
 
----Call the <code>OpenHKLM()</code> function, to obtain a handle to the HKEY_LOCAL_MACHINE hive
+---Call the <code>OpenHKLM</code> function, to obtain a handle to the HKEY_LOCAL_MACHINE hive
 --
 --@param smbstate  The SMB state table
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
@@ -2263,11 +2263,11 @@ function winreg_openhklm(smbstate)
 
 end
 
----Calls the Windows registry function <code>EnumKey()</code>, which returns a single key
+---Calls the Windows registry function <code>EnumKey</code>, which returns a single key
 -- under the given handle, at the index of 'index'. 
 --
 --@param smbstate  The SMB state table
---@param handle    A handle to hive or key. <code>winreg_openhku()</code> provides a useable key, for example. 
+--@param handle    A handle to hive or key. <code>winreg_openhku</code> provides a useable key, for example. 
 --@param index     The index of the key to return. Generally you'll start at 0 and increment until
 --                 an error is returned.
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
@@ -2373,10 +2373,10 @@ function winreg_enumkey(smbstate, handle, index)
 
 end
 
---- Calls the function <code>OpenKey()</code>, which obtains a handle to a named key. 
+--- Calls the function <code>OpenKey</code>, which obtains a handle to a named key. 
 --
 --@param smbstate  The SMB state table
---@param handle    A handle to hive or key. <code>winreg_openhku()</code> provides a useable key, for example. 
+--@param handle    A handle to hive or key. <code>winreg_openhku</code> provides a useable key, for example. 
 --@param keyname   The name of the key to open. 
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'handle', which is a handle to the newly opened key. 
@@ -2442,7 +2442,7 @@ function winreg_openkey(smbstate, handle, keyname)
 	return true, response
 end
 
---- Calls the function <code>QueryInfoKey()</code>, which obtains information about an opened key. 
+--- Calls the function <code>QueryInfoKey</code>, which obtains information about an opened key. 
 --
 --@param smbstate  The SMB state table
 --@param handle    A handle to the key that's being queried. 
@@ -2537,7 +2537,7 @@ function winreg_queryinfokey(smbstate, handle)
 end
 
 
---- Calls the function <code>QueryValue()</code>, which returns the value of the requested key.
+--- Calls the function <code>QueryValue</code>, which returns the value of the requested key.
 --
 --@param smbstate  The SMB state table
 --@param handle    A handle to the key that's being queried. 
@@ -2648,7 +2648,7 @@ end
 
 
 
---- Calls the function <code>CloseKey()</code>, which closes an opened handle. Strictly speaking, this doesn't have to be called (Windows
+--- Calls the function <code>CloseKey</code>, which closes an opened handle. Strictly speaking, this doesn't have to be called (Windows
 --  will close the key for you), but it's good manners to clean up after yourself. 
 --
 --@param smbstate  The SMB state table

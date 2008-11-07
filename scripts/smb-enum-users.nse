@@ -4,20 +4,20 @@ information as possible, through a variety of techniques (over SMB and MSRPC,
 which uses port 445 or 139). Some functions in SAMR are used to enumerate
 users, and some brute-force guessing using LSA functions is attempted. 
 
-One technique used is calling the <code>QueryDisplayInfo()</code> function in the SAMR library. 
+One technique used is calling the <code>QueryDisplayInfo</code> function in the SAMR library. 
 If this succeeds, it will return a detailed list of users. This can be done
 anonymously against Windows 2000, and with a user-level account on other Windows
 versions (but not with a guest-level account). 
 
 To perform this test, the following functions are used:
-* <code>Bind()</code>: bind to the SAMR service.
-* <code>Connect4()</code>: get a connect_handle.
-* <code>EnumDomains()</code>: get a list of the domains.
-* <code>QueryDomain()</code>: get the sid for the domain.
-* <code>OpenDomain()</code>: get a handle for each domain.
-* <code>QueryDisplayInfo()</code>: get the list of users in the domain.
-* <code>Close()</code>: Close the domain handle.
-* <code>Close()</code>: Close the connect handle.
+* <code>Bind</code>: bind to the SAMR service.
+* <code>Connect4</code>: get a connect_handle.
+* <code>EnumDomains</code>: get a list of the domains.
+* <code>QueryDomain</code>: get the sid for the domain.
+* <code>OpenDomain</code>: get a handle for each domain.
+* <code>QueryDisplayInfo</code>: get the list of users in the domain.
+* <code>Close</code>: Close the domain handle.
+* <code>Close</code>: Close the connect handle.
 The advantage of this technique is that a lot of details are returned, including
 the full name and description; the disadvantage is that it requires a user-level
 account on every system except for Windows 2000. Additionally, it only pulls actual

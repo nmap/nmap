@@ -11,7 +11,7 @@
 -- maintaining the nice syntax. This is accomplished by overloading the
 -- concatenation operator (<code>..</code>), the equality operator (<code>==</code>) and the <code>tostring</code>
 -- operator. A string buffer is created by passing a string to
--- <code>strbuf.new()</code>. Afterwards you can append to the string buffer,
+-- <code>strbuf.new</code>. Afterwards you can append to the string buffer,
 -- or compare two string buffers for equality just as you would do with normal
 -- strings.
 --

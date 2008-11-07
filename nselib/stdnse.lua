@@ -21,10 +21,10 @@ module(... or "stdnse");
 -- than or equal to a given level.
 -- 
 -- This is a convenience wrapper around
--- <code>nmap.print_debug_unformatted()</code>. The first optional numeric
+-- <code>nmap.print_debug_unformatted</code>. The first optional numeric
 -- argument, <code>verbosity</code>, is used as the verbosity level necessary
 -- to print the message (it defaults to 1 if omitted). All remaining arguments
--- are processed with Lua's <code>string.format()</code> function.
+-- are processed with Lua's <code>string.format</code> function.
 -- @param level Optional verbosity level.
 -- @param fmt Format string.
 -- @param ... Arguments to format.
@@ -39,7 +39,7 @@ end
 
 --- Join a list of strings with a separator string.
 -- 
--- This is Lua's <code>table.concat()</code> function with the parameters
+-- This is Lua's <code>table.concat</code> function with the parameters
 -- swapped for coherence.
 -- @usage
 -- strjoin(", ", {"Anna", "Bob", "Charlie", "Dolores"})
@@ -90,7 +90,7 @@ end
 -- @param socket Socket for the buffer.
 -- @param sep Separator for the buffered reads.
 -- @return Data from socket reads or <code>nil</code> on EOF or error.
--- @return Error message, as with <code>receive_lines()</code>.
+-- @return Error message, as with <code>receive_lines</code>.
 function make_buffer(socket, sep)
   local point, left, buffer, done, msg = 1, "";
   local function self()

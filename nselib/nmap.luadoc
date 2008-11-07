@@ -215,7 +215,7 @@ function new_socket()
 -- <code>"tcp"</code> if not specified.
 --
 -- On success the function returns true. On failure it returns false and an
--- error string. Those strings are taken from the <code>gai_strerror()</code> C
+-- error string. Those strings are taken from the <code>gai_strerror</code> C
 -- function. They are (with the error code in parentheses):
 -- * <code>"Address family for hostname not supported"</code> (<code>EAI_ADDRFAMILY</code>)
 -- * <code>"Temporary failure in name resolution"</code> (<code>EAI_AGAIN</code>)
@@ -377,7 +377,7 @@ function close()
 -- values. If an error occurred, the first value is <code>nil</code> and the
 -- second value is an error string. Otherwise the first value is true and the
 -- remaining 4 values describe both endpoints of the TCP connection. If you put
--- the call inside an exception handler created by <code>new_try()</code> the
+-- the call inside an exception handler created by <code>new_try</code> the
 -- status value is consumed. The call can be used for example if you want to
 -- query an authentication server.
 -- @return Status (true or false).
@@ -426,9 +426,9 @@ function pcap_open(device, snaplen, promisc, test_function, bpf)
 --
 -- The provided <code>packet_hash</code> is a binary string which has to match
 -- the hash returned by the <code>test_function</code> parameter provided to
--- <code>pcap_open()</code>. If you want to receive all packets, just provide
+-- <code>pcap_open</code>. If you want to receive all packets, just provide
 -- the empty string (<code>""</code>). There has to be a call to
--- <code>pcap_register()</code> before a call to <code>pcap_receive()</code>.
+-- <code>pcap_register</code> before a call to <code>pcap_receive</code>.
 -- @param packet_hash A binary string that is compared against packet hashes.
 -- @see pcap_open, pcap_receive
 -- @usage socket:pcap_register("")
@@ -471,7 +471,7 @@ function ethernet_open(interface_name)
 --
 -- The dnet object must be associated with a previously opened interface. The
 -- packet must include the IP and ethernet headers. If there was no previous
--- valid call to <code>ethernet_open()</code> an error is thrown
+-- valid call to <code>ethernet_open</code> an error is thrown
 -- (<code>"dnet is not valid opened ethernet interface"</code>).
 -- @param packet An ethernet frame to send.
 -- @see new_dnet

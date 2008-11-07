@@ -42,11 +42,11 @@ local stdnse = require 'stdnse'
 -- the port number or a table like the port table passed to a portrule or
 -- hostrule. The third argument is the path of the resource. The fourth argument
 -- is a table for further options. The function builds the request and calls
--- <code>http.request()</code>.
+-- <code>http.request</code>.
 -- @param host The host to query.
 -- @param port The port for the host.
 -- @param path The path of the resource.
--- @param options A table of options, as with <code>http.request()</code>.
+-- @param options A table of options, as with <code>http.request</code>.
 -- @return Table as described in the function description.
 -- @see http.request
 get = function( host, port, path, options )
@@ -74,7 +74,7 @@ end
 --
 -- The second argument is a table for further options.
 -- @param u The URL of the host.
--- @param options A table of options, as with <code>http.request()</code>.
+-- @param options A table of options, as with <code>http.request</code>.
 -- @see http.get
 get_url = function( u, options )
   local parsed = url.parse( u )

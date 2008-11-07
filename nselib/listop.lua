@@ -4,7 +4,7 @@
 -- or Haskell, appreciate their handling of lists very much. The
 -- <code>listop</code> module tries to bring much of the functionality from
 -- functional languages to Lua using Lua's central data structure, the table, as
--- a base for its list operations. Highlights include a <code>map()</code>
+-- a base for its list operations. Highlights include a <code>map</code>
 -- function applying a given function to each element of a list. 
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 

@@ -36,7 +36,7 @@
 -- status, err      = smb.stop(smbstate)
 --</code>
 --
--- The <code>stop()</code> function will automatically call tree_disconnect and logoff, 
+-- The <code>stop</code> function will automatically call tree_disconnect and logoff, 
 -- cleaning up the session.
 -- 
 -- To initially begin the connection, there are two options:
@@ -64,7 +64,7 @@
 -- If a username is set without a password, then a NULL session is started. If a login fails,
 -- we attempt to log in as the 'GUEST' account with a blank password. If that fails, we try
 -- setting up a NULL session. Starting a NULL session will always work, but we may not get
--- any further (tree_connect() might fail). 
+-- any further (<code>tree_connect</code> might fail). 
 --
 -- In terms of the login protocol, by default, we sent only NTLMv1 authentication, Lanman
 -- isn't set. The reason for this is, NTLMv2 isn't supported by every system (and I don't know
@@ -285,7 +285,7 @@ function start(host)
 end
 
 --- Kills the SMB connection, closes the socket, and releases the mutex. Because of the mutex 
---  being released, a script HAS to call <code>stop()</code> before it exits, no matter why it's exiting! 
+--  being released, a script HAS to call <code>stop</code> before it exits, no matter why it's exiting! 
 --
 --  In addition to killing the connection, this function will log off the user and disconnect
 --  the connected tree, if possible.
@@ -574,7 +574,7 @@ function lm_create_response(lanman, challenge)
 end
 
 ---Create the NTLM response to send back to the server. This is actually done the exact same way as the Lanman hash,
--- so I call the <code>Lanman()</code> function. 
+-- so I call the <code>Lanman</code> function. 
 --
 --@param ntlm      The NTLMv1 hash
 --@param challenge The server's challenge. 
@@ -612,7 +612,7 @@ function ntlmv2_create_hash(ntlm, username, domain)
 	return true, openssl.hmac("MD5", ntlm, unicode)
 end
 
----Create the LMv2 response, which can be sent back to the server. This is identical to the <code>NTLMv2()</code> function, 
+---Create the LMv2 response, which can be sent back to the server. This is identical to the <code>NTLMv2</code> function, 
 -- except that it uses an 8-byte client challenge. 
 --
 -- The reason for LMv2 is a long and twisted story. Well, not really. The reason is basically that the v1 hashes
@@ -722,7 +722,7 @@ end
 -- The encoding is simple:
 -- * (1 byte)   The number of 2-byte values in the parameters section
 -- * (variable) The parameter section
--- This is automatically done by <code>smb_send()</code>. 
+-- This is automatically done by <code>smb_send</code>. 
 -- 
 -- @param parameters The parameters section. 
 -- @return The encoded parameters. 
@@ -734,7 +734,7 @@ end
 -- The encoding is simple:
 -- * (2 bytes)  The number of bytes in the data section
 -- * (variable) The data section
--- This is automatically done by <code>smb_send()</code>. 
+-- This is automatically done by <code>smb_send</code>. 
 --
 -- @param data The data section. 
 -- @return The encoded data.
@@ -747,7 +747,7 @@ end
 --  wide, depending on whether or not we're using raw, but that shouldn't matter. 
 --
 --@param smb        The SMB object associated with the connection
---@param header     The header, encoded with <code>smb_get_header()</code>.
+--@param header     The header, encoded with <code>smb_get_header</code>.
 --@param parameters The parameters.
 --@param data       The data.
 --@return (result, err) If result is false, err is the error message. Otherwise, err is

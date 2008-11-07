@@ -462,7 +462,7 @@ end
 --
 -- Caution: doesn't encode answer, authority and additional part.
 -- @param pkt Table representing DNS packet, initialized by
--- <code>newPacket()</code>.
+-- <code>newPacket</code>.
 -- @return Encoded DNS packet.
 function encode(pkt)
    if type(pkt) ~= "table" then return nil end

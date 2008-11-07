@@ -1,13 +1,13 @@
 description = [[
 Attempts to enumerate domains on a system, along with their policies. This will likely only work without credentials against Windows 2000. 
 
-After the initial <code>bind()</code> to SAMR, the sequence of calls is:
-* <code>Connect4()</code>: get a connect_handle
-* <code>EnumDomains()</code>: get a list of the domains (stop here if you just want the names).
-* <code>QueryDomain()</code>: get the SID for the domain.
-* <code>OpenDomain()</code>: get a handle for each domain.
-* <code>QueryDomainInfo2()</code>: get the domain information.
-* <code>QueryDomainUsers()</code>: get a list of the users in the domain.
+After the initial <code>bind</code> to SAMR, the sequence of calls is:
+* <code>Connect4</code>: get a connect_handle
+* <code>EnumDomains</code>: get a list of the domains (stop here if you just want the names).
+* <code>QueryDomain</code>: get the SID for the domain.
+* <code>OpenDomain</code>: get a handle for each domain.
+* <code>QueryDomainInfo2</code>: get the domain information.
+* <code>QueryDomainUsers</code>: get a list of the users in the domain.
 ]]
 
 ---

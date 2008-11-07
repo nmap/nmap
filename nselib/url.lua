@@ -8,7 +8,7 @@ LuaSocket toolkit.
 Author: Diego Nehab
 RCS ID: $Id: url.lua,v 1.37 2005/11/22 08:33:29 diego Exp $
 
-parse_query() and build_query() added For nmap (Eddie Bell <ejlbell@gmail.com>) 
+parse_query and build_query added For nmap (Eddie Bell <ejlbell@gmail.com>) 
 --]]
 
 -----------------------------------------------------------------------------

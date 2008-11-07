@@ -2,7 +2,7 @@
 -- <code>nmap-rpc</code>, and <code>nmap-services</code>.
 --
 -- The functions in this module return values appropriate for use with exception
--- handling via <code>nmap.new_try()</code>. On success, they return true and
+-- handling via <code>nmap.new_try</code>. On success, they return true and
 -- the function result. On failure, they return false and an error message.
 -- @author Kris Katterjohn 03/2008
 -- @author jah 08/2008
@@ -69,7 +69,7 @@ end
 -- On success, return true and a table containing two subtables, indexed by the
 -- keys "tcp" and "udp". The <code>tcp</code> subtable maps TCP port numbers to
 -- service names, and the <code>udp</code> subtable is the same for UDP. You can
--- pass "tcp" or "udp" as an argument to <code>parse_services()</code> to get
+-- pass "tcp" or "udp" as an argument to <code>parse_services</code> to get
 -- only one of the results tables.
 -- @param protocol The protocol table to return (<code>"tcp"</code> or
 -- <code>"udp"</code>).
@@ -157,7 +157,7 @@ end
 -- @param lines An array of strings to operate on.
 -- @param data_struct A table containing capture patterns to be applied
 -- to each string in the array. A capture will be applied to each string
--- using <code>string.match()</code> and may also be enclosed within a table or
+-- using <code>string.match</code> and may also be enclosed within a table or
 -- a function. If a function, it must accept a string as its parameter and
 -- should return one value derived from that string.
 -- @return A table whose structure mirrors that of the capture table,

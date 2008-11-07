@@ -91,7 +91,7 @@ function match(string, start, flags)
 --- Matches a string against a compiled regular expression, returning positions
 -- of substring matches.
 --
--- This function is like <code>match()</code> except that a table returned as a
+-- This function is like <code>match</code> except that a table returned as a
 -- third result contains offsets of substring matches rather than substring
 -- matches themselves. That table will not contain string keys, even if named
 -- sub-patterns are used.  For example, if the whole match is at offsets 10, 20
@@ -120,8 +120,8 @@ function exec(string, start, flags)
 -- the positions where the corresponding sub-pattern did not match. If named
 -- sub-patterns are used then the table also contains substring matches keyed
 -- by their correspondent sub-pattern names (strings).  If <code>func</code>
--- returns a true value, then <code>gmatch()</code> immediately returns;
--- <code>gmatch()</code> returns the number of matches made.
+-- returns a true value, then <code>gmatch</code> immediately returns;
+-- <code>gmatch</code> returns the number of matches made.
 -- @param string the string to match against.
 -- @param func the function to call for each match.
 -- @param n the maximum number of matches to do (optional).

@@ -143,7 +143,7 @@ end
 --- Sends out a UDP probe on port 137 to get the server's name (that is, the
 --  entry in its NBSTAT table with a 0x20 suffix). 
 --@param host The IP or hostname of the server. 
---@param names [optional] The names to use, from do_nbstat(). 
+--@param names [optional] The names to use, from <code>do_nbstat</code>. 
 --@return (status, result) If status is true, the result is the NetBIOS name. 
 --        otherwise, result is an error message. 
 function get_server_name(host, names)
@@ -173,7 +173,7 @@ end
 --  the server's name. If the username can't be determined, which is frequently
 --  the case, nil is returned. 
 --@param host The IP or hostname of the server. 
---@param names [optional] The names to use, from do_nbstat(). 
+--@param names [optional] The names to use, from <code>do_nbstat</code>. 
 --@return (status, result) If status is true, the result is the NetBIOS name or nil. 
 --        otherwise, result is an error message.
 function get_user_name(host, names)
