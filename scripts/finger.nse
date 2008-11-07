@@ -1,5 +1,5 @@
 description = [[
-Attempts to get a list of usernames via the finger service.
+Attempts to retrieve a list of usernames using the finger service.
 ]]
 
 author = "Eddie Bell <ejlbell@gmail.com>"

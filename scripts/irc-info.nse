@@ -7,11 +7,11 @@ It uses STATS, LUSERS, and other queries to obtain this information.
 ---
 -- @output
 -- 6665/tcp open     irc
--- |  irc-info: Server: foo.bar.net
--- |  Version: hyperion-1.0.2b(381). foo.bar.net 
+-- |  irc-info: Server: target.example.org
+-- |  Version: hyperion-1.0.2b(381). target.example.org
 -- |  Lservers/Lusers: 0/4204
 -- |  Uptime: 106 days, 2:46:30
--- |  Source host: bar.foo.net
+-- |  Source host: source.example.org
 -- |_ Source ident: OK n=nmap
 
 author = "Doug Hoyte"

@@ -1,7 +1,7 @@
 description = [[
 Checks if a target on a local Ethernet has its network card in promiscuous mode.
 
-The technique is described at
+The techniques used are described at
 http://www.securityfriday.com/promiscuous_detection_01.pdf.
 ]]
 

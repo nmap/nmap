@@ -1,5 +1,5 @@
 description = [[
-Retrieves POP3 server capabilities.
+Retrieves POP3 email server capabilities.
 ]]
 
 ---

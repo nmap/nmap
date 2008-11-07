@@ -1,9 +1,7 @@
 description = [[
 Shows SSH hostkeys.
 
-Shows fingerprint or fingerprint and key depending on verbosity level. Puts the
-found hostkeys in nmap.registry for other scripts to use them. You can control
-the output with the <code>ssh_hostkey</code> script argument.
+Shows the target SSH server's key fingerprint and (with high enough verbosity level) the public key itself.  It records the discovered host keys in <code>nmap.registry</code> for use by other scripts.  Output can be controlled with the <code>ssh_hostkey</code> script argument.
 ]]
 
 ---

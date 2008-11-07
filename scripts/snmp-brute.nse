@@ -1,5 +1,5 @@
 description = [[
-Attempts to find an SNMP community string by brute force.
+Attempts to find an SNMP community string by brute force guessing.
 ]]
 -- 2008-07-03
 

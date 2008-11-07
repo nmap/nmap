@@ -1,8 +1,6 @@
 description = [[
-Attempts to find the owner of a scanned port.
-
-The script makes a connection to the auth port (113) and queries the owner of
-an open port.
+Attempts to find the owner of an open TCP port by querying an identd
+(auth - port 113) daemon which must also be open on the target system.
 ]]
 
 author = "Diman Todorov <diman.todorov@gmail.com>"

@@ -3,14 +3,16 @@ Shows the title of the default page of a web server.
 
 The script will follow no more than one HTTP redirect, and only if the
 redirection leads to the same host. The script may send a DNS query to
-determine if the host the redirect leads to has the same IP address as the
+determine whether the host the redirect leads to has the same IP address as the
 original target.
 ]]
 
 ---
 --@output
--- 80/tcp  open   http    syn-ack
--- |_ html-title: Foo.
+-- Interesting ports on scanme.nmap.org (64.13.134.52):
+-- PORT   STATE SERVICE
+-- 80/tcp open  http
+-- |_ html-title.nse: Go ahead and ScanMe!
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 

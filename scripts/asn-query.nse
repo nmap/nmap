@@ -7,7 +7,7 @@ turn queries a third-party service provided by Team Cymru
 use by Nmap.
 
 The responses to these queries contain both Origin and Peer ASNs and
-their descriptions, displayed along with the BG Prefix and Country Code.
+their descriptions, displayed along with the BGP Prefix and Country Code.
 
 The script caches results to reduce the number of queries and should
 perform a single query for all scanned targets in a BG Prefix present in
@@ -16,7 +16,7 @@ Team Cymru's database.
 Be aware that any targets against which this script is run will be sent
 to and potentially recorded by one or more DNS servers and Team Cymru.
 In addition your IP address will be sent along with the ASN to a DNS
-server (your default DNS server, or whichever you specified with the
+server (your default DNS server, or whichever one you specified with the
 <code>dns</code> script argument).
 ]]
 

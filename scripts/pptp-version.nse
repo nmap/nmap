@@ -1,5 +1,5 @@
 description = [[
-Attempts to extract system information from the PPTP service.
+Attempts to extract system information from the point-to-point tunneling protocol (PPTP) service.
 ]]
 -- rev 0.2 (11-14-2007)
 

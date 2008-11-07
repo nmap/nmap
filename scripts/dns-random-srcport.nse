@@ -1,7 +1,7 @@
 description = [[
 Checks a DNS server for the predictable-port recursion vulnerability.
 Predictable source ports can make a DNS server vulnerable to cache poisoning
-attacks (CVE-2008-1447).
+attacks (see CVE-2008-1447).
 
 The script works by querying porttest.dns-oarc.net.
 Be aware that any targets against which this script is run will be sent to and

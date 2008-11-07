@@ -6,14 +6,11 @@ The script spiders an HTTP server looking for URLs containing queries. It then
 proceeds to combine crafted SQL commands with susceptible URLs in order to
 obtain errors. The errors are analysed to see if the URL is vulnerable to
 attack. This uses the most basic form of SQL injection but anything more
-complication is more suited to a standalone tool. Both meta and HTTP redirects
+complicated is better suited to a standalone tool. Both meta-style and HTTP redirects
 are supported.
 
-It is not advisable to run this against unknown hosts.
-
-We may not have access to the server's true hostname. This means we cannot
-access virtually hosted sites and cannot follow absolute links when the
-hostname is different from the resolved IP address
+We may not have access to the target web server's true hostname, which can prevent access to
+virtually hosted sites.  This script only follows absolute links when the host name component is the same as the target server's reverse-DNS name.
 ]]
 
 require('url')

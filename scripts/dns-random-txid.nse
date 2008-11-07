@@ -2,7 +2,7 @@
 description = [[
 Checks a DNS server for the predictable-TXID DNS recursion
 vulnerability.  Predictable TXID values can make a DNS server vulnerable to
-cache poisoning attacks (CVE-2008-1447).
+cache poisoning attacks (see CVE-2008-1447).
 
 The script works by querying txidtest.dns-oarc.net.
 Be aware that any targets against which this script is run will be sent to and

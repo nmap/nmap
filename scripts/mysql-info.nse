@@ -3,8 +3,8 @@ Connects to a MySQL server and prints information such as the protocol and
 version numbers, thread ID, status, capabilities, and the password salt.
 
 If service detection is performed and the server appears to be blocking
-our host or is blocked from too many connections, then we don't bother
-running this script (see the portrule).
+our host or is blocked because of too many connections, then this script isn't run
+(see the portrule).
 ]]
 
 ---
@@ -13,7 +13,7 @@ running this script (see the portrule).
 -- |  mysql-info: Protocol: 10
 -- |  Version: 5.0.51a-3ubuntu5.1
 -- |  Thread ID: 7
--- |  Some Capabilities: Connect with DB, Compress, Transactions, Secure Connection
+-- |  Some Capabilities: Connect with DB, Transactions, Secure Connection
 -- |  Status: Autocommit
 -- |_ Salt: bYyt\NQ/4V6IN+*3`imj
 

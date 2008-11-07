@@ -1,5 +1,5 @@
 description = [[
-Gets the authentication scheme and realm of a web service that requires
+Retrieves the authentication scheme and realm of a web service that requires
 authentication.
 ]]
 

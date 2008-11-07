@@ -8,7 +8,7 @@ Checks if an FTP server allows anonymous logins.
 
 author = "Eddie Bell <ejlbell@gmail.com>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"default", "auth", "intrusive"}
+categories = {"default", "auth", "safe"}
 
 require "shortport"
 

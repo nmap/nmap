@@ -1,14 +1,14 @@
 description = [[
 Checks if SMTP is running on a non-standard port.
 
-This usually indicates crackers or script kiddies have set up a backdoor on the
-system to send spam or control your machine.
+This may indicate that crackers or script kiddies have set up a backdoor on the
+system to send spam or control the machine.
 ]]
 
 ---
 -- @output
--- 22/tcp  open   ssh
--- |_ smtp-strangeport: Warning: smtp is running on a strange port
+-- 22/tcp  open   smtp
+-- |_ smtp-strangeport: Mail server on unusual port: possible malware
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 
@@ -35,6 +35,6 @@ portrule = function(host, port)
 end
 
 action = function()
-	return "Warning: smtp is running on a strange port"
+	return "Mail server on unusual port: possible malware"
 end
 

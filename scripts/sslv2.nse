@@ -1,6 +1,6 @@
 description = [[
-Determines whether the server (still) supports SSL-v2, and what ciphers it
-offers.
+Determines whether the server supports obsolete and less secure SSL-v2, and discovers which ciphers it
+supports.
 ]]
 
 ---

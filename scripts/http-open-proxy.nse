@@ -1,10 +1,10 @@
 description=[[
 Checks if an HTTP proxy is open.
 
-The script attempts to connect to www.google.com through the proxy and checks
+The script attempts to connect to www.google.com through the (possible) proxy and checks
 for a <code>Server: gws</code> header field in the response.
 
-If the target is an open proxy, this script will cause the target to retrieve a
+If the target is an open proxy, this script causes the target to retrieve a
 web page from www.google.com.
 ]]
 

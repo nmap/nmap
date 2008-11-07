@@ -1,5 +1,5 @@
 description = [[
-Attempts to extract information from Microsoft SQL Server.
+Attempts to extract information from Microsoft SQL Server instances.
 ]]
 -- rev 1.0 (2007-06-09)
 

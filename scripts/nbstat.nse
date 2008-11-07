@@ -1,5 +1,5 @@
 description = [[
-Attempt's to get the target's NetBIOS names and MAC address.
+Attempt's to retrieve the target's NetBIOS names and MAC address.
 
 By default, the script displays the name of the computer and the logged-in
 user; if the verbosity is turned up, it displays all names the system thinks it
@@ -12,14 +12,14 @@ owns.
 --
 -- @output
 -- (no verbose)\n
--- |_ nbstat: NetBIOS name: TEST1, NetBIOS user: RON, NetBIOS MAC: 00:0c:29:f9:d9:28\n
+-- |_ nbstat: NetBIOS name: TST, NetBIOS user: RON, NetBIOS MAC: 00:0c:29:f9:d9:28\n
 --\n
 -- (verbose)\n
--- |  nbstat: NetBIOS name: TEST1, NetBIOS user: RON, NetBIOS MAC: 00:0c:29:f9:d9:28\n
--- |  Name: TEST1<00>            Flags: <unique><active>\n
--- |  Name: TEST1<20>            Flags: <unique><active>\n
+-- |  nbstat: NetBIOS name: TST, NetBIOS user: RON, NetBIOS MAC: 00:0c:29:f9:d9:28\n
+-- |  Name: TST<00>            Flags: <unique><active>\n
+-- |  Name: TST<20>            Flags: <unique><active>\n
 -- |  Name: WORKGROUP<00>        Flags: <group><active>\n
--- |  Name: TEST1<03>            Flags: <unique><active>\n
+-- |  Name: TST<03>            Flags: <unique><active>\n
 -- |  Name: WORKGROUP<1e>        Flags: <group><active>\n
 -- |  Name: RON<03>              Flags: <unique><active>\n
 -- |  Name: WORKGROUP<1d>        Flags: <unique><active>\n
