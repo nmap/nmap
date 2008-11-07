@@ -154,7 +154,7 @@ sub 2048g/A50A6A94 2005-04-24
 <para>For every Nmap package download file
 (e.g. <filename>nmap-4.76.tar.bz2</filename> and
 <filename>nmap-4.76-win32.zip</filename>), there is a corresponding
-file in the sigs directory with <literal>.gpg.txt</literal> appended
+file in the <filename>sigs</filename> directory with <literal>.gpg.txt</literal> appended
 to the name (e.g. <filename>nmap-4.76.tar.bz2.gpg.txt</filename>).
 This is the detached signature file.</para>
 
@@ -191,7 +191,7 @@ and replaces both the distribution file and digest file, could defeat
 this test.  However, it can be useful to check the authoritative
 Nmap.Org hashes if you obtain Nmap from a third party or feel it
 might have been accidentally corrupted.  For every Nmap package download
-file, there is a corresponding file in the sigs directory with
+file, there is a corresponding file in the <filename>sigs</filename> directory with
 <literal>.digest.txt</literal> appended to the name
 (e.g. <filename>nmap-4.76.tar.bz2.digest.txt</filename>).  An example
 is shown in <xref linkend="ex-digest-file" xrefstyle="select: label nopage" />.  This is the detached
@@ -710,7 +710,7 @@ the number of ephemeral ports reserved for user applications (such as
 Nmap) and reduce the time delay before a closed connection can
 be reused.  Most people simply check the box to apply these changes in the executable Nmap installer, but you can also apply them by double-clicking on
 <filename>nmap_performance.reg</filename>, or by running the command
-<command>regedt32 nmap_performance.reg</command>.  To make the changes by hand, add these three Registry DWORD values to
+<command>regedit32 nmap_performance.reg</command>.  To make the changes by hand, add these three Registry DWORD values to
 the <literal>CurrentControlSet\Services\Tcpip\Parameters</literal> entry under <literal>HKEY_LOCAL_MACHINE\SYSTEM</literal>:</para>
 
 <variablelist>

@@ -844,7 +844,7 @@ Traceroute works by sending packets with a low TTL (time-to-live) in an attempt 
           especially if you choose authoritative servers for your
           target IP space.  This option can also improve stealth, as
           your requests can be bounced off just about any recursive
-          DNS server on the internet.</para>
+          DNS server on the Internet.</para>
 
           <para>This option also comes in handy when scanning private
           networks.  Sometimes only a few name servers provide
@@ -1562,7 +1562,7 @@ way.</para>
         </term>
         <listitem>
           <para>Specifies that you wish to scan fewer ports than the
-          default. Normally Nmaps scans the most common 1,000 ports for
+          default. Normally Nmap scans the most common 1,000 ports for
           each scanned protocol. With <option>-F</option>, this is
           reduced to 100.</para>
 
@@ -2077,7 +2077,7 @@ Nmap script database.</para>
         <indexterm><primary>script arguments</primary><seealso><option>--script-args</option></seealso></indexterm></term>
 
 <listitem>
-<para>lets you provide arguments to NSE scripts. Arguments are passed
+<para>Lets you provide arguments to NSE scripts. Arguments are passed
 as <literal>name=value</literal> pairs. The provided argument is
 processed and stored inside a Lua table, to which all scripts have
 access. The names are taken as strings (which must be alphanumeric

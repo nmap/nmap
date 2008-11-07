@@ -1716,7 +1716,7 @@ local localip, localport = try(client_service:get_info())
     information useful to a developer using a module or a user running a
     script.
     <xref linkend="nse-documentation-module" xrefstyle="select: label nopage"/>
-    shows documenatation for the <literal>comm</literal> module (with a
+    shows documentation for the <literal>comm</literal> module (with a
     few paragraphs removed to save space).
     </para>
 
