@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Added a workaround for a crash
+    GtkWarning: could not open display
+  on Mac OS X 10.5. The problem is caused by setting the DISPLAY
+  environment variable in one of your shell startup files; that
+  shouldn't be done under 10.5 and removing it will make other
+  X11-using applications work better. Zenmap will now handle the
+  situation automatically. [David]
+
 o http-auth.nse now properly checks for default authentication
   credentials. A bug prevented it from working before. [Vlatko
   Kosturjak]
