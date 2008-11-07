@@ -2084,15 +2084,13 @@ access. The names are taken as strings (which must be alphanumeric
 values) and used as keys inside the
 <literal>argument-table</literal>. Values are either strings or tables
 themselves (surrounded by &lsquo;<literal>{</literal>&rsquo; and
-&lsquo;<literal>}</literal>&rsquo;).  Subtables make it possible to
-override arguments for specific scripts (e.g. when you want to provide
-different login/password pairs for different scripts).  For example,
-you could pass the comma-separated arguments:
-<literal>user=bar</literal>,<literal>password=foo</literal>, and
-<literal>anonFTP={password=nobody@foobar.com}</literal>. If you want
-to override an option to a script, you should index the subtable with
-the script's <literal>id</literal>, since this is the only way the
-script knows about its special argument.</para>
+&lsquo;<literal>}</literal>&rsquo;).
+For example, you could pass the comma-separated arguments:
+<literal>user=bar,pass=foo,whois={whodb=nofollow+ripe}</literal>.
+String arguments are potentially used by several scripts; subtables are
+normally used by only one script. In scripts that take a subtable, the
+subtable is usually named after the script (like
+<literal>whois</literal> in this example).</para>
 </listitem>
 
 </varlistentry>
