@@ -1067,7 +1067,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
    <tbody>
    <row>
     <entry><literal>name</literal></entry>
-    <entry>Contains the service name Nmap determined for the port.</entry>
+    <entry>Contains the service name Nmap decided on for the port.</entry>
    </row>
 
    <row>
