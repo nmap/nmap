@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o http-auth.nse now properly checks for default authentication
+  credentials. A bug prevented it from working before. [Vlatko
+  Kosturjak]
+
 o Renamed irc-zombie.nse to auth-spoof and improved its description
   and output a bit. [Fyodor]
 

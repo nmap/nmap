@@ -5,11 +5,16 @@ authentication.
 
 ---
 -- @output
+-- 80/tcp open  http
 -- |  http-auth: HTTP Service requires authentication
--- |_   Auth type: Basic, realm = DSL Router
+-- |    Auth type: Basic, realm = Password Required
+-- |_   HTTP server may accept admin:admin combination for Basic authentication
 
 -- HTTP authentication information gathering script
 -- rev 1.1 (2007-05-25)
+-- 2008-11-06 Vlatko Kosturjak <kost@linux.hr>
+-- * bug fixes against base64 encoded strings, more flexible auth/pass check,
+--   corrected sample output
 
 author = "Thomas Buchanan <tbuchanan@thecompassgrp.net>"
 
@@ -19,12 +24,14 @@ categories = {"default", "auth", "intrusive"}
 
 require "shortport"
 require "http"
+require "base64"
 
 portrule = shortport.port_or_service({80, 443, 8080}, {"http","https"})
 
 action = function(host, port)
-  local realm,scheme,result
+  local realm,scheme,result,authheader
   local basic = false
+  local authcombinations= {"admin:", "admin:admin"}
 
   local answer = http.get( host, port, "/" )
 
@@ -53,14 +60,12 @@ action = function(host, port)
   end
 
   if basic then
-    answer = http.get(host, port, '/', {header={Authorization="Basic YWRtaW46C"}})
-    if answer.status ~= 401 and answer.status ~= 403 then
-      result = result .. "  HTTP server may accept user=\"admin\" with blank password for Basic authentication\n"
-    end
-
-    answer = http.get(host, port, '/', {header={Authorization="Basic YWRtaW46YWRtaW4"}})
-    if answer.status ~= 401 and answer.status ~= 403 then
-      result = result .. "  HTTP server may accept user=\"admin\" with password=\"admin\" for Basic authentication\n"
+    for _, combination in pairs (authcombinations) do 
+	    authheader = "Basic " .. base64.enc(combination)
+	    answer = http.get(host, port, '/', {header={Authorization=authheader}})
+	    if answer.status ~= 401 and answer.status ~= 403 then
+	      result = result .. "  HTTP server may accept " .. combination .. " combination for Basic authentication\n"
+	    end
     end
   end
 
