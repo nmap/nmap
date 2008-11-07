@@ -1436,19 +1436,22 @@ try(socket:send(result))
       <title>The Registry</title>
       <indexterm><primary>registry (NSE)</primary></indexterm>
       <para>
-	The registry is a Lua table with the special property that it
-	is visible by all scripts and retains its state between script
-	executions.  The registry is transient&mdash;it is not stored
-	between Nmap executions. Every script can read and write to
-	the registry.  Scripts commonly use it to save information for
-	other instances of the same script.  For example,
-	the <literal>whois</literal> and <literal>asn-query</literal>
-	scripts may query one IP address, but receive information
-	which may apply to tens of thousands of IPs on that network.
-	Saving the information in the registry may prevent other
-	script threads from having to repeat the same query.  The
-	registry may also be used to hand information to completely
-	different scripts.  For example,
+	The registry is a Lua table (accessible
+	as <literal>nmap.registry</literal>) with the special property
+	that it is visible by all scripts and retains its state
+	between script executions.  The registry is transient&mdash;it
+	is not stored between Nmap executions. Every script can read
+	and write to the registry.  Scripts commonly use it to save
+	information for other instances of the same script.  For
+	example, the <literal>whois</literal>
+	and <literal>asn-query</literal> scripts may query one IP
+	address, but receive information which may apply to tens of
+	thousands of IPs on that network.  Saving the information in
+	the registry may prevent other script threads from having to
+	repeat the query.</para>
+
+        <para>The registry may also be used to hand
+	information to completely different scripts.  For example,
 	the <literal>snmp-brute</literal> script saves a discovered
 	community name in the registry where it may be used by other
 	SNMP scripts.  Scripts which leave information behind for a
@@ -1458,10 +1461,9 @@ try(socket:send(result))
 	scripts</primary></indexterm>
         </para>
 
-        <para>Keep in mind that the
-	registry can be written by all scripts equally, so choose
-	keys for your entries wisely. The registry is stored
-	in <literal>nmap.registry</literal>.</para>
+        <para>Because every script can write to the registry table, it
+        is important to avoid conflicts by choosing keys wisely
+        (uniquely.</para>
 
     </sect2>
     <indexterm class="endofrange" startref="nse-nmap-indexterm"/>
