@@ -1271,93 +1271,88 @@ socket:close()
       <indexterm><primary>threads in NSE</primary></indexterm>
       <indexterm><primary>mutexes in NSE</primary></indexterm>
       <para>
-        Each thread made for a script (e.g. <literal>ftp-anon</literal>) will yield to other
-        scripts whenever it makes a call on network objects (sending/receiving
-        data). Some scripts need finer control over threads' execution. An
+        Each script execution thread (e.g. <literal>ftp-anon</literal> running against an FTP server on the target host) yields to other
+        scripts whenever it makes a call on network objects (sending or receiving
+        data). Some scripts require finer concurrency control over thread execution. An
         example is the <literal>whois</literal> script which queries
 	whois<indexterm><primary>whois</primary></indexterm>
-        servers for each target. Because many concurrent queries often result in
-        getting one's IP banned for abuse and a query may return additional
+        servers for each target IP address. Because many concurrent queries often result in
+        getting one's IP banned for abuse, and because a single query may return additional
         information for targets other threads are running against, it is useful
-        to have other threads pause while one thread is conducting a query.
+        to have other threads pause while one thread performs a query.
       </para>
       <para>
-        To solve this problem, there is an nmap function,
-        <literal>mutex</literal>, that provides a
+        To solve this problem, NSE includes a
+        <literal>mutex</literal> function which provides a
         <ulink url="http://en.wikipedia.org/wiki/Mutual_exclusion">mutex</ulink>
-        usable by scripts. The mutex allows for only one thread to be working
-        on an object. Threads waiting to work on this object are put in the
-        waiting queue until they can get a "lock" on the mutex. A solution for
-        the <literal>whois</literal> problem above is to have each thread
-        block on a mutex using a common string,
-        thus ensuring only one thread is working so its results can
-        be shared with other scripts which may not need to run and so queries
-        to the whois servers are staggered.
+        (mutual exclusion object) usable by scripts. The mutex allows
+        for only one thread to be working on an object. Competing threads
+        waiting to work on this object are put in the waiting queue
+        until they can get a "lock" on the mutex. A solution for
+        the <literal>whois</literal> problem above is to have each
+        thread block on a mutex using a common string, thus ensuring
+        that only one thread is querying whois servers at once.  That
+        thread can store the results in the NSE Registry before
+        releasing unlocking the mutex.  The next script in the waiting
+        queue can then run.  It will first check the Registry and only
+        query whois servers if the previous results were insufficient.
       </para>
+
+      <para>The first step is to create a mutex object using a statement such as:</para>
+
+      <para><literal>mutexfn = nmap.mutex(object)</literal></para>
+
+      <para>The <literal>mutexfn</literal> returned is a function
+      which works as a mutex for the <literal>object</literal> passed
+      in.  This object can be any
+      <ulink role="hidepdf"
+      url="http://www.lua.org/manual/5.1/manual.html#2.2">Lua data
+      type</ulink> except <literal>nil</literal>,
+      <literal>booleans</literal>, and <literal>numbers</literal>.
+      The returned function allows you to lock, try to lock, and
+      release the mutex. Its first and only parameter must be one of
+      the following:</para>
+
+
       <variablelist>
         <varlistentry>
-          <term>
-            <option>mutex = nmap.mutex(object)</option>
-            
-          </term>
-          <listitem>
-            <para>
-              Returns a function that works on a mutex for the object passed.
-              This object can be any
-              <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#2.2">
-                Lua data type
-              </ulink> except <literal>nil</literal>,
-              <literal>booleans</literal>, and <literal>numbers</literal>.
-              The returned function allows you to lock, try to lock, and
-              release the mutex. Its first and only parameter must be one of the following:
-            </para>
-            <itemizedlist>
-              <listitem>
-                <para>
-                  <literal>"lock"</literal>&mdash;Make a blocking lock on the
-                  mutex. If the mutex is busy
-                  (another thread has a lock on it), then the thread will
-                  yield and wait. The function returns with the mutex
-                  locked.
-                </para>
-              </listitem>
-              <listitem>
-                <para>
-                  <literal>"trylock"</literal>&mdash;Makes a non-blocking lock 
-                  on the mutex. If the mutex is
-                  busy then it immediately returns with a return value of
-                  <literal>false</literal>. Otherwise the mutex locks the
-                  mutex and returns <literal>true</literal>.
-                </para>
-              </listitem>
-              <listitem>
-                <para>
-                  <literal>"done"</literal>&mdash;Releases the mutex and allows
-                  another thread to lock it.
-                  If the thread does not have a lock on the mutex, an
-                  error will be raised.
-                </para>
-              </listitem>
-              <listitem>
-                <para>
-                  <literal>"running"</literal>&mdash;Returns the thread locked
-                  on the mutex or <literal>nil</literal> if the mutex is not
-                  locked. This should only be used for debugging as it
-                  interferes with finished threads from being
-                  collected.
-                </para>
-              </listitem>
-            </itemizedlist>
-          </listitem>
+          <term><literal>"lock"</literal></term>
+          <listitem><para>Make a blocking lock on the mutex. If the mutex is busy (another thread has a lock on it), then the thread will yield and wait. The function returns with the mutex locked.</para></listitem>
         </varlistentry>
-      </variablelist>
+
+        <varlistentry>
+          <term><literal>"trylock"</literal></term>
+          <listitem><para>Makes a non-blocking lock on the mutex. If the mutex is
+           busy then it immediately returns with a return value of
+           <literal>false</literal>. Otherwise the mutex locks the
+           mutex and returns <literal>true</literal>.</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>"done"</literal></term>
+          <listitem><para>Releases the mutex and allows
+          another thread to lock it.  If the thread does not have a lock on the mutex, an
+          error will be raised.</para></listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>"running"</literal></term>
+          <listitem><para>Returns the thread locked
+          on the mutex or <literal>nil</literal> if the mutex is not
+          locked. This should only be used for debugging as it
+          interferes with garbage collection of finished threads.</para></listitem>
+        </varlistentry>
+       </variablelist>
+
+<para>A simple example of using the API is provided in <xref linkend="nse-mutex-handling" xrefstyle="select: label nopage"/>.  For real-life examples, read the <filename>asn-query.nse</filename> and <filename>whois.nse</filename> scripts in the Nmap distribution.</para>
+
       <example id="nse-mutex-handling">
         <title>Mutex manipulation</title>
         <programlisting>
 local mutex = nmap.mutex("My Script's Unique ID");
 function action(host, port)
   mutex "lock";
-  -- do stuff
+  -- Do critical section work - only one thread at a time executes this.
   mutex "done";
   return script_output;
 end
