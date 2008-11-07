@@ -271,7 +271,7 @@ and <literal>vuln</literal>.  Category names are not case sensitive.  The follow
       <para>We don't have exact thresholds for each of these criteria,
       and many of them are subjective.  All of these factors are
       considered together when making a decision whether to promote a
-      script into the <literal>default</literal> category.  A few default scritps are <literal>identd-owners</literal> (determines the username running remote services using identd), <literal>http-auth</literal> (obtains authentication scheme and realm of web sites requiring authentication), and <literal>ftp-anon</literal> (tests whether an FTP server allows anonymous access).</para>
+      script into the <literal>default</literal> category.  A few default scripts are <literal>identd-owners</literal> (determines the username running remote services using identd), <literal>http-auth</literal> (obtains authentication scheme and realm of web sites requiring authentication), and <literal>ftp-anon</literal> (tests whether an FTP server allows anonymous access).</para>
           </listitem>
         </varlistentry>
 
@@ -324,7 +324,7 @@ and <literal>vuln</literal>.  Category names are not case sensitive.  The follow
             are <literal>http-open-proxy</literal> (which attempts to
             use the target server as an HTTP proxy)
             and <literal>snmp-brute</literal> (which tries to guess a
-            device's SNMP comunity string by sending common values
+            device's SNMP community string by sending common values
             such
             as <literal>public</literal>, <literal>private</literal>,
             and <literal>cisco</literal>).</para>
@@ -796,7 +796,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
 
     <print>
     <para>This section lists (alphabetically) all NSE scripts packaged
-    with Nmap as the time of this writing.  It comes straight from the
+    with Nmap at the time of this writing.  It comes straight from the
     script source code thanks to the NSEDoc documentation system
     described in <xref linkend="nse-documentation"/>. Of course no
     paper documentation can stay current with software developed as
@@ -1519,7 +1519,7 @@ try(socket:send(result))
 	The description field should contain a sentence or two describing what the script does.  If anything about the script results might confuse or mislead users, and you can't eliminate the issue by improving the script or results text, it should be documented in the <literal>description</literal> string.
       </para>
       <para>
-<indexterm><primary><literal>identd-owners</literal></primary></indexterm>
+<indexterm><primary><literal>identd-owners</literal> script</primary></indexterm>
 <indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
 <programlisting>
 description = [[
@@ -2096,7 +2096,7 @@ end
 
   <sect1 id="nse-example-scripts">
     <title>Example Script</title>
-      <indexterm><primary><filename>finger.nse</filename></primary></indexterm>
+      <indexterm><primary><literal>finger</literal> script</primary></indexterm>
 
 	  <para>The finger script (<filename>finger.nse</filename>) is a perfect
       example of how short typical NSE scripts are.
