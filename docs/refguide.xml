@@ -2106,7 +2106,8 @@ subtable is usually named after the script (like
           displayed information includes the communication protocol, the
           source, the target and the transmitted data. If more than 5% of all
           transmitted data is not printable, then the trace output is in a hex
-          dump format.
+          dump format. Specifying <option>--packet-trace</option> enables script
+          tracing too.
 		  </para>
         </listitem>
       </varlistentry>
@@ -3411,7 +3412,9 @@ even if this option is not specified.
           thousands of lines, you may want to specify a limited
           number of ports to scan, such as <option>-p20-30</option>.  If you only care
           about the goings on of the version detection subsystem, use
-          <option>--version-trace</option> instead.</para>
+          <option>--version-trace</option> instead.  If you only care about script tracing,
+          specify <option>--script-trace</option>.  With <option>--packet-trace</option>, you get
+          all of the above.</para>
         </listitem>
       </varlistentry>
 
