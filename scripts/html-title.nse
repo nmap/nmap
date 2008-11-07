@@ -16,7 +16,7 @@ author = "Diman Todorov <diman.todorov@gmail.com>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"default", "safe"}
+categories = {"default", "discovery", "safe"}
 
 local url    = require 'url'
 local dns    = require 'dns'
