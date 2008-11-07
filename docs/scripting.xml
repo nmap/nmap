@@ -1463,7 +1463,7 @@ try(socket:send(result))
 
         <para>Because every script can write to the registry table, it
         is important to avoid conflicts by choosing keys wisely
-        (uniquely.</para>
+        (uniquely).</para>
 
     </sect2>
     <indexterm class="endofrange" startref="nse-nmap-indexterm"/>
