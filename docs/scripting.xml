@@ -1477,26 +1477,23 @@ try(socket:send(result))
       Suppose that you are convinced of the power of NSE. How do you
       go about writing your own script?  Let's say
       that you want to extract information from an identification
-      server.<indexterm><primary>auth service</primary></indexterm>
-      Nmap used to have this functionality but it was removed
-      because of inconsistencies in the code base. Fortunately, the
-      protocol identd uses is pretty simple. Unfortunately, it is too
-      complicated to be expressible in Nmap's version detection
-      language. Let's look at how the identification protocol
-      works. First you connect to the identification server. Next you
+      server<indexterm><primary>auth service</primary></indexterm> to determine the owner of the process listening on a TCP port.
+      This is not really the purpose of identd (it is meant for querying the owner of outgoing connections, not listening daemons), but many identd servers allow it anyway.  Nmap used to have this functionality (called ident scan), but it was removed
+      while transitioning to a new scan engine architecture.  The protocol identd uses is pretty simple, but still too
+      complicated to handle with Nmap's version detection
+      language. First, you connect to the identification server and
       send a query of the form <literal><replaceable>port-on-server</replaceable>,
-      <replaceable>port-on-client</replaceable></literal> terminated with a new line
+      <replaceable>port-on-client</replaceable></literal> and terminated with a newline
       character. The server should then respond with a string of the
-      form <literal><replaceable>port-on-server</replaceable>, <replaceable>port-on-client</replaceable>:<replaceable>response-type</replaceable>:<replaceable>address-information</replaceable></literal>.  In case of an error the address
-      information is omitted. This description is sufficient for our
-      purposes, for more details refer to <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc1413.txt">RFC 1413</ulink>.  The protocol cannot be modeled in Nmap's version
+      form <literal><replaceable>port-on-server</replaceable>, <replaceable>port-on-client</replaceable>:<replaceable>response-type</replaceable>:<replaceable>address-information</replaceable></literal>.  The address
+      information is omitted if there is an error. More details are available in <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc1413.txt">RFC 1413</ulink>, but this description is sufficient for our purposes.  The protocol cannot be modeled in Nmap's version
       detection language for two reasons. The first is that you need
       to know both the local and the remote port of a
       connection. Version detection does not provide this data.  The
       second, more severe obstacle, is that you need two open
       connections to the target&mdash;one to the identification server and
-      one to the port you want to query. Both obstacles are easily
-      overcome with NSE.  </para>
+      one to the listening port you wish to query. Both obstacles are easily
+      overcome with NSE.</para>
 
     <para>
       The anatomy of a script is described in <xref linkend="nse-script-format"/>.
@@ -1509,41 +1506,68 @@ try(socket:send(result))
 
       The head of the script is essentially its meta information. This
       includes the
-      fields: <literal>description</literal>, <literal>categories</literal>, <literal>runlevel</literal>, <literal>author</literal>
-      and <literal>license</literal>. We are not going to change the
-      run level, or worry about the author and license fields for now.
+      fields:<literal>description</literal>, <literal>categories</literal>, <literal>runlevel</literal>, <literal>author</literal>, and <literal>license</literal> as well as
+      initial NSEDoc information such as usage, args, and output
+      tags (see xref linkend="nsedoc"/>).
       </para>
 
       <para>
-	The description field should contain a sentence or two describing what the script does.  If anything about the script results might confuse or mislead users, and you can't eliminate the issue by improving the script or results text, it should be documented in the <literal>description</literal> string.
+	The description field should contain a paragraph or more describing what the script does.  If anything about the script results might confuse or mislead users, and you can't eliminate the issue by improving the script or results text, it should be documented in the <literal>description</literal>.  If there are multiple paragraphs, the first is used as a short summary where necessary.  Make sure that first paragraph can serve as a stand alone abstract.  This description is short because it is such a simple script:
       </para>
       <para>
-<indexterm><primary><literal>identd-owners</literal> script</primary></indexterm>
+<indexterm><primary><literal>auth-owners</literal> script</primary></indexterm>
 <indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
 <programlisting>
 description = [[
-Attempts to find the owner of a scanned port.
-
-The script makes a connection to the auth port (113) and queries the owner of
-an open port.
+Attempts to find the owner of an open TCP port by querying an auth
+(identd - port 113) daemon which must also be open on the target system.
 ]]
 </programlisting>
       </para>
+
+<para>Next comes NSEDoc information.  This script is missing the
+common <literal>@usage</literal> and <literal>@args</literal> tags
+since it is so simple, but it does have an
+NSEDoc <literal>@output</literal> tag:</para>
+
+<programlisting>
+---
+--@output
+-- 21/tcp   open     ftp       ProFTPD 1.3.1
+-- |_ auth-owners: nobody
+-- 22/tcp   open     ssh       OpenSSH 4.3p2 Debian 9etch2 (protocol 2.0)
+-- |_ auth-owners: root
+-- 25/tcp   open     smtp      Postfix smtpd
+-- |_ auth-owners: postfix
+-- 80/tcp   open     http      Apache httpd 2.0.61 ((Unix) PHP/4.4.7 ...)
+-- |_ auth-owners: dhapache
+-- 113/tcp  open     auth?
+-- |_ auth-owners: nobody
+-- 587/tcp  open     submission Postfix smtpd
+-- |_ auth-owners: postfix
+-- 5666/tcp open     unknown
+-- |_ auth-owners: root
+</programlisting>
+
+
       <para>
 
-        The author of a script must decide what categories it belongs
-        to. This script is
+        Next come the <literal>author</literal>, <literal>license</literal>, and <literal>categories</literal> tags.
+        This script belongs to the
         <literal>safe</literal><indexterm><primary><literal>safe</literal>
         script category</primary></indexterm> because we are not using
         the service for anything it was not intended for. Because this
         script is one that should run by default it is also in the
         <literal>default</literal><indexterm><primary><literal>default</literal>
         script category</primary></indexterm>
-        category.
+        category.  Here are the variables in context:</para>
 
-      </para>
 <indexterm><primary sortas="categories script variable">&ldquo;<varname>categories</varname>&rdquo; script variable</primary></indexterm>
 <programlisting>
+author = "Diman Todorov &lt;diman.todorov@gmail.com&gt;"
+
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+
 categories = {"default", "safe"}
 </programlisting>
     </sect2>
@@ -1551,25 +1575,25 @@ categories = {"default", "safe"}
     <sect2 id="nse-tutorial-rule">
       <title>The Rule</title>
       <para>
-	The rule section is a Lua method which decides when the
-	script's action should be performed and when it should be
-	skipped. Usually this decision is based on the host and port
+	The rule section is a Lua method which decides whether to skip
+	or execute the script's action method against a particular service or host.
+	This decision is usually based on the host and port
 	information passed to the rule function. In the case of the
-	identification script it is slightly more complicated than
-	that. To decide whether to run the identification script on a
-	given port we need to know if there is an identification
-	server running on the target machine. Or more formally: the
+	identification script, it is slightly more complicated than
+	that. To decide whether to run the identification script against a
+	given port we need to know if there is an auth
+	server running on the target machine. In other words, the
 	script should be run only if the currently scanned TCP port is open and
 	TCP port 113 is also open. For now we will rely on the fact that
 	identification servers listen on TCP port 113. Unfortunately NSE
-	only gives us information about the currently scanned port.
+	only gives us information about the currently scanned port.</para>
 
-	To find out if port 113 is open we are going to use the
-	<literal>nmap.get_port_state()</literal> function. If the identd
+	<para>To find out if port 113 is open, we use the
+	<function>nmap.get_port_state</function> function. If the auth
 	port was not scanned, the <literal>get_port_state</literal>
-	function returns <literal>nil</literal>. So we need to make
-	sure that the table is not <literal>nil</literal>. We also
-	check if both ports are in the <literal>open</literal> state.
+	function returns <literal>nil</literal>. So we check that
+	the table is not <literal>nil</literal>. We also
+	check that both ports are in the <literal>open</literal> state.
 	If this is the case, the action is executed, otherwise we skip
 	the action.
       </para>
@@ -1599,29 +1623,19 @@ end
     <sect2 id="nse-tutorial-action">
       <title>The Mechanism</title>
       <para>
-	At last we implement the actual functionality. The script will
-	first connect to the port on which we expect to find the
+	At last we implement the actual functionality! The script 
+	first connects to the port on which we expect to find the
 	identification server, then it will connect to the port we
-	want information about. Afterward we construct a query string
+	want information about. Doing so involves first creating two socket options by calling <function>nmap.new_socket</function>.  Next we define an error-handling <function>catch</function> function which closes those sockets if failure is detected.  At this point we can safely use object methods such as <function>open</function>, 
+	<function>close</function>, 
+	<function>send</function> and
+	<function>receive</function> to operate on the network socket.  In this case we call <function>connect</function> to make the connections.  NSE's exception handling mechanism.<indexterm><primary>exceptions in NSE</primary></indexterm>
+        is is used to avoid excessive error-handling code.  We simply wrap the networking calls in a <function>try</function> call which will in turn call our <function>catch</function> function if anything goes wrong.</para>
+
+
+     <para>If the two connections succeed, we construct a query string
 	and parse the response. If we received a satisfactory
 	response, we return the retrieved information.
-      </para>
-      <para>
-	First we need to create two socket objects. These objects
-	represent the sockets we are going to use. By using object methods
-	like 
-	<literal>open()</literal>, 
-	<literal>close()</literal>, 
-	<literal>send()</literal> or
-	<literal>receive()</literal> we can operate on the network
-	socket. To avoid excessive error checking code we use NSE's
-	exception handling mechanism.<indexterm><primary>exceptions in NSE</primary></indexterm>
-        We create a function which will
-	be executed if an error occurs and call this function
-	<literal>catch</literal>. Using this function we generate
-	a <literal>try</literal> function. The <literal>try</literal>
-	function will call the <literal>catch</literal> function
-	whenever there is an error condition in the tried block.
       </para>
       
       <para>
@@ -1675,20 +1689,20 @@ this:</para>
 local localip, localport = try(client_service:get_info())
 </programlisting>
 
-<para>In this example we avoided telling the user if the service responded with an error.  Instead we assigned <literal>nil</literal> to the <varname>owner</varname> variable.  NSE scripts generally only return messages when they succeed.</para>
+<para>In this example we exit quietly if the service responds with an error.  This is done by assigning <literal>nil</literal> to the <varname>owner</varname> variable which will be returned.  NSE scripts generally only return messages when they succeed, so they don't flood the user with pointless alerts.</para>
 
     </sect2>
     <indexterm class="endofrange" startref="nse-tutorial-indexterm"/>
   </sect1>
 
-  <sect1 id="nse-documentation">
-    <title>Script Documentation Writing</title>
+  <sect1 id="nsedoc">
+    <title>Writing Script Documentation (NSEDoc)</title>
     <indexterm class="startofrange" id="nse-documentation-indexterm"><primary>Nmap Scripting Engine (NSE)</primary><secondary>documentation in</secondary></indexterm>
     <indexterm class="startofrange" id="nse-nsedoc-indexterm"><primary>NSEDoc</primary></indexterm>
 
     <para>
-    Scripts are used by more than just their author, so scripts must
-    have documentation. NSE modules need documentation so developers can
+    Scripts are used by more than just their authors, so they require good
+    documentation. NSE modules need documentation so developers can
     use them in their scripts. NSE's documentation system, described in
     this section, aims to meet both these needs. While reading this
     section, you may want to browse NSE's online documentation, which is
@@ -1732,11 +1746,11 @@ local localip, localport = try(client_service:get_info())
     Documentation comments start with three dashes:
     <literal>---</literal>. The body of the comment is the description
     of the following code. The first paragraph of the description should
-    be a brief summary, with the following paragraphs giving more
+    be a brief summary, with the following paragraphs providing more
     detail. Special tags starting with <literal>@</literal> mark off
     other parts of the documentation. In the above example you see
     <literal>@param</literal>, which is used to describe each parameter
-    of the function. A complete list of the documentation tags is found
+    of a function. A complete list of the documentation tags is found
     in <xref linkend="nse-documentation-tags"/>.
     </para>
 
@@ -1783,19 +1797,18 @@ local localip, localport = try(client_service:get_info())
     </example>
 
     <para>
-    There are some special considerations when documenting scripts as
-    opposed to functions and modules. Some information that might be put
-    in an <literal>@</literal>-tag in a comment should go in one of the
-    special script variables instead. (Script variables are described in
-    <xref linkend="nse-script-format"/>.) Specifically, the script's
-    description should be in the <varname>description</varname> variable
+    There are some special considerations for documenting scripts rather than
+    functions and modules. In particular, scripts have special variables for some information which
+    would otherwise belongs in @-tag comments (script variables are described in
+    <xref linkend="nse-script-format"/>). In particular, a script's
+    description belongs in the <varname>description</varname> variable
     rather than in a documentation comment, and the information that
     would go in <literal>@author</literal> and
-    <literal>@copyright</literal> should go in the variables
+    <literal>@copyright</literal> belong in the variables
     <varname>author</varname> and <varname>license</varname> instead.
     NSEDoc knows about these variables and will use them in preference
     to fields in the comments. Scripts should also have an
-    <varname>@output</varname> tag showing sample output.
+    <varname>@output</varname> tag showing sample output, as well as <varname>@args</varname> and <varname>@usage</varname> where appropriate.
     <xref linkend="nse-documentation-script" xrefstyle="select: label nopage"/>
     shows proper form for script-level documentation, using a
     combination of documentation comments and NSE variables.
@@ -1847,13 +1860,13 @@ categories = {"discovery", "external"}
     <literal>@name</literal> and <literal>@class</literal> tags when
     documenting a table to assist the documentation parser in
     identifying it. There are several examples of this method of
-    documentation in the Nmap source distribution.
+    documentation in the Nmap source distribution (including <literal>nmap.luadoc</literal>, <literal>bit.luadoc</literal>, and <literal>pcre.luadoc</literal>).
     </para>
 
     <sect2 id="nse-documentation-tags">
       <title>NSE Documentation Tags</title>
       <para>
-      This is a list of tags understood by NSEDoc and their purpose.
+      The following tags are understood by NSEDoc:
       </para>
       <variablelist>
         <varlistentry>
@@ -1863,7 +1876,7 @@ categories = {"discovery", "external"}
               Describes a function parameter. The first word following
               <literal>@param</literal> is the name of the parameter
               being described. The tag should appear once for each
-              parameter of the function.
+              parameter of a function.
             </para>
           </listitem>
         </varlistentry>
@@ -1889,7 +1902,7 @@ categories = {"discovery", "external"}
           <term><option>@usage</option></term>
           <listitem>
             <para>
-              Gives an example of the usage of a function or script. In
+              Provides a usage example of a function or script. In
               the case of a function, the example is Lua code; for a
               script it is an Nmap command line.
               <literal>@usage</literal> may be given more than once.
@@ -1901,8 +1914,8 @@ categories = {"discovery", "external"}
           <listitem>
             <para>
               Defines a name for the function or table being documented.
-              This tag is normally not necessary, as NSEDoc infers the
-              name through code analysis.
+              This tag is normally not necessary because NSEDoc infers
+              names through code analysis.
             </para>
           </listitem>
         </varlistentry>
@@ -1910,7 +1923,7 @@ categories = {"discovery", "external"}
           <term><option>@class</option></term>
           <listitem>
             <para>
-              Defines the <quote>class</quote> of the thing being
+              Defines the <quote>class</quote> of the object being
               modified: <literal>function</literal>,
               <literal>table</literal>, or <literal>module</literal>.
               Like <literal>@name</literal>, this is normally inferred
@@ -1922,7 +1935,7 @@ categories = {"discovery", "external"}
           <term><option>@field</option></term>
           <listitem>
             <para>
-              In the documentation of a table, describes the value of a
+              In the documentation of a table, <varname>@field</varname> describes the value of a
               named field.
             </para>
           </listitem>
@@ -1944,8 +1957,8 @@ categories = {"discovery", "external"}
           <term><option>@output</option></term>
           <listitem>
             <para>
-              Shows sample output of a script. This tag is special to
-              script-level comments.
+              This tag, which is exclusive to
+              script-level comments, shows sample output from a script.
             </para>
           </listitem>
         </varlistentry>
@@ -1953,8 +1966,7 @@ categories = {"discovery", "external"}
           <term><option>@author</option></term>
           <listitem>
             <para>
-              Lists an author of a module. It may be given more than
-              once. Don't use this tag in script documentation; use the
+              This tag, which may be given multiple times, lists the authors of an NSE module. For scripts, use the 
               <varname>author</varname> variable instead.
             </para>
           </listitem>
@@ -1963,8 +1975,8 @@ categories = {"discovery", "external"}
           <term><option>@copyright</option></term>
           <listitem>
             <para>
-              Describes the copyright of a module. Don't use this tag in
-              script documentation; use the <varname>license</varname>
+              This tag describes the copyright status of a module. For scripts,
+              use the <varname>license</varname>
               variable instead.
             </para>
           </listitem>
