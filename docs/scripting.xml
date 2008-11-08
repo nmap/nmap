@@ -2279,159 +2279,167 @@ end
     <title>Implementation Details</title>
     <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>implementation</secondary></indexterm>
 	<para>
-	Now how does all this work? The following section describes
-	some interesting aspects of NSE. While the focus primarily lies on 
-	giving script writers a better feeling of what happens with scripts, it 
-	should also provide a starting point for understanding (and extending) the 
-	NSE sources.
+	Now it is time to get into the nitty gritty details of the NSE
+	implementation.  Understanding how it works is useful for
+	designing efficient scripts and libraries.  The canonical
+	reference to the NSE implementation is the source code, but
+	this section provides an overview of key details.  It should
+	be valuable to folks trying to understand and extend the NSE
+	source code, as well as to script authors who want to
+	better-understand how their scripts are executed.
 	</para>
     <sect2 id="nse-implementation-init">
       <title>Initialization Phase</title>
       <para>
-      During its initialization stage, Nmap loads the Lua interpreter, including its provided libraries. These libraries are documented in the <ulink url="http://www.lua.org/manual/5.1/manual.html">Lua Reference Manual</ulink>.  Here is a summary:</para>
-		<itemizedlist>
-		<listitem>
-			<para>The <emphasis>package</emphasis> library (namespace: 
-			<literal>package</literal>)&mdash;Lua's 
-			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.3">package-lib</ulink> provides (among others) the <literal>require</literal> function, used to load modules from the
-			nselib.
-			</para>
-		</listitem>
-		<listitem>
-			<para>The <emphasis>table</emphasis> library (namespace: 
-			<literal>table</literal>)&mdash;The 
-			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.5">table manipulation library</ulink> contains many functions used
-			to operate on <literal>tables</literal>&mdash;Lua's central data 
-			structure.
-			</para>
-		</listitem>
-		<listitem>
-			<para>The <emphasis>I/O</emphasis> library (namespace: 
-			<literal>io</literal>)&mdash;The 
-			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.7">Input/Output library</ulink> offers functions such as reading files and reading the output from programs you execute.
-			</para>
-		</listitem>
-		<listitem>
-			<para>The <emphasis>OS</emphasis> library (namespace: 
-			<literal>os</literal>)&mdash;The 
-			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.8">Operating System library</ulink> provides facilities of the operating system, including filesystem operations (renaming/removing files, temporary file creation) and access to the environment.</para>
-		</listitem>
-		<listitem>
-			<para>The <emphasis>string</emphasis> library (namespace: 
-			<literal>string</literal>)&mdash;The 
-			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.4">
-			string library </ulink> helps you with functions used to manipulate
-			strings inside Lua. Functions include: printf-style 
-			string formatting, pattern matching using Lua-style patterns, 
-			substring extraction, etc.
-			</para>
-		</listitem>
-		<listitem>
-			<para>The <emphasis>math</emphasis> library (namespace: 
-			<literal>math</literal>)&mdash;Numbers in Lua usually correspond to the <literal>double</literal> C type, so the <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.6">math library</ulink> provides access to rounding functions, trigonometric functions, random number generation, and more.</para>
-		</listitem>
-		<listitem>
-			<para>The <emphasis>debug</emphasis> library (namespace: 
-			<literal>debug</literal>)&mdash;The 
-			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.9">debug library</ulink> provides you with a somewhat lower level API
-			to the Lua interpreter. Through it you can access functions along 
-			the execution stack, get function closures and object metatables,
-			etc. 
-			</para>
-		</listitem>
-	    </itemizedlist>
+      During its initialization stage, Nmap loads the Lua interpreter and its provided libraries. These libraries are fully documented in the <ulink url="http://www.lua.org/manual/5.1/manual.html">Lua Reference Manual</ulink>.  Here is a summary of the libraries, listed alphabetically by their namespace name:</para>
+ 
+      <variablelist>
+        <varlistentry>
+          <term><literal>debug</literal></term>
+          <listitem>
+            <para>The <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.9">debug library</ulink> provides a low-level API to the Lua interpreter, allowing you to access functions along 
+	     the execution stack, retrieve function closures and object metatables,
+	     and more. 
+            </para>
+          </listitem>
+        </varlistentry>
 
-<para>In addition to loading the libraries provided by Lua, the functions in the <literal>nmap</literal> namespace are loaded. The search paths are the same directories that Nmap searches for its data files and scripts, except that the <literal>nselib</literal> directory is appended to each. In this step the provided script arguments are stored inside the registry.<indexterm><primary>registry (NSE)</primary></indexterm></para>
+        <varlistentry>
+          <term><literal>io</literal></term>
+          <listitem>
+            <para>The <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.7">Input/Output library</ulink> offers functions such as reading from files or from the output from programs you execute.
+            </para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>math</literal></term>
+          <listitem>
+            <para>Numbers in Lua usually correspond to the <literal>double</literal> C type, so the <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.6">math library</ulink> provides access to rounding functions, trigonometric functions, random number generation, and more.
+            </para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>os</literal></term>
+          <listitem>
+            <para>The 
+			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.8">Operating System library</ulink> provides system facilities such as filesystem operations (including file renaming or removal and temporary file creation) and system environment access.
+            </para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>package</literal></term>
+          <listitem>
+            <para>Among the functions provided by Lua's 
+			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.3">package-lib</ulink> is <literal>require</literal>, which is used to load nselib modules.
+            </para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>string</literal></term>
+          <listitem>
+            <para>The <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.4">
+	     string library</ulink> provides functions for manipulating
+	     Lua strings, including printf-style 
+	     string formatting, pattern matching using Lua-style patterns, 
+	     substring extraction, and more.
+            </para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>table</literal></term>
+          <listitem>
+            <para>The 
+			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.5">table manipulation library</ulink> is essential for operating on Lua's central data structure (tables).
+            </para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+
+<para>In addition to loading the libraries provided by Lua,
+the <literal>nmap</literal> namespace functions are loaded. The
+search paths are the same directories that Nmap searches for its data
+files, except that the <literal>nselib</literal> directory
+is appended to each. At this stage any provided script arguments are
+stored inside the registry.<indexterm><primary>registry
+(NSE)</primary></indexterm></para>
 
 
 		<para>
-		The next phase of NSE initialization is loading the chosen
-		scripts, which are the arguments provided to the 
+		The next phase of NSE initialization is loading the selected
+		scripts, based on the defaults or arguments provided to the
 		<option>--script</option><indexterm><primary><option>--script</option></primary></indexterm>
-                option or <literal>default</literal>, in 
-		case of a default script scan.  The string
+                option.  The
 		<literal>version</literal><indexterm><primary><varname>version</varname> script category</primary></indexterm>
-		is appended, if version detection was enabled.
-		The arguments afterwards are tried to be 
-		interpreted as script categories. This is done via a Lua C function
-		in <filename>nse_init.cc</filename> called <literal>entry</literal>.
-        Inside <filename>script.db</filename>,<indexterm><primary><filename>script.db</filename></primary><seealso><option>--script-updatedb</option></seealso></indexterm>
-        for each category of a script,
-        there is a call to <literal>Entry</literal>. If the category was chosen
-        then the script is loaded. Every argument of
-        <option>--script</option> that could not be interpreted as a category
-        is loaded as a file or directory. If the file or directory could not
-        be located, then an error is raised and the Script Engine aborts.
-        </para>
+		category scripts are loaded as well if version detection was enabled.
+		NSE first tries to interpret each <option>--script</option> argument as a category.
+		This is done with a Lua C function
+		in <filename>nse_init.cc</filename> named <literal>entry</literal> based on data from
+                the <filename>script.db</filename> script categorization database.<indexterm><primary><filename>script.db</filename></primary><seealso><option>--script-updatedb</option></seealso></indexterm>
+                If the category is found, those scripts are loaded.
+                Otherwise Nmap tries to interpret <option>--script</option> arguments as
+                files or directories. If no files or directories with a given name are found in Nmap's search path,
+                an error is raised and the Script Engine aborts.
+                </para>
         
 		<para>
-        All of the <literal>.nse</literal> files inside a loaded directory are 
-        loaded as files. Each file loaded is executed by Lua. If a
-        <emphasis>portrule</emphasis> is present, then it is saved in the
+        If a directory is specified, all of the <literal>.nse</literal> files inside it are
+        loaded. Each loaded file is executed by Lua. If a
+        <emphasis>portrule</emphasis> is present, it is saved in the
         <emphasis>porttests</emphasis> table with a portrule key and file
         closure value. Otherwise, if the script has a
-        <emphasis>hostrule</emphasis>, then it is saved in the <emphasis>hosttests</emphasis> table
+        <emphasis>hostrule</emphasis>, it is saved in the <emphasis>hosttests</emphasis> table
         in the same manner.
         </para>
     </sect2>
     
 	<sect2 id="nse-implementation-match">
-      <title>Matching of Scripts to Targets</title>
+      <title>Matching Scripts with Targets</title>
       <para>
-	  After the initialization is finished the
+	  After initialization is finished, the
 	  <literal>hostrules</literal><indexterm><primary sortas="hostrule script variable">&ldquo;<varname>hostrule</varname>&rdquo; script variable</primary></indexterm>
           and <literal>portrules</literal><indexterm><primary sortas="portrule script variable">&ldquo;<varname>portrule</varname>&rdquo; script variable</primary></indexterm>
           are evaluated for each host in the current
-	  target group. At this check a list is built which contains the combinations of scripts and the hosts they will run against.
-
-It should be noted that the rules of all chosen scripts are
-checked against all hosts and their
-<literal>open</literal><indexterm><primary><literal>open</literal> port state</primary></indexterm>
+	  target group. 
+          The rules of every chosen script is tested against every host and (in the case of service scripts) each <literal>open</literal><indexterm><primary><literal>open</literal> port state</primary></indexterm>
 and <literal>open|filtered</literal><indexterm><primary><literal>open|filtered</literal> port state</primary></indexterm>
-ports.
-Therefore it is advisable to leave the rules as simple as possible and
-to do all the computation inside the <literal>action</literal>, as a script will only be
-executed if it is run against a specific target. After the check those script-target combinations
-get their own <ulink url="http://www.lua.org/manual/5.1/manual.html#2.11">Lua thread</ulink>. A
-thread running against a host will have only a hostrule passed to the action closure whereas
-a thread running against a port will have both a hostrule and portrule passed. Each thread
-is stored with information relevant to the thread. This information
-includes the runlevel, target, target port (if applicable), host and port tables
-(passed to action), and its type (running against a host or port).
-The mainloop function will work on each runlevel grouping of threads in order.
+port on the hosts.  The combination can grow quite large, so portrules should be kept as simple as possible.  Save any heavy computation for the script's <literal>action</literal>.</para>
+
+<para>Next, a <ulink url="http://www.lua.org/manual/5.1/manual.html#2.11">Lua thread</ulink> is created for each of the matching script-target combinations.  Each thread
+is stored with pertinent information such as the runlevel, target, target port (if applicable), host and port tables
+(passed to the <literal>action</literal>), and the script type (service or host script).
+The <function>mainloop</function> function then processes each runlevel grouping of threads in order.
 </para>
 
     </sect2>
 
-	<sect2 id="nse-implementation-run">
-      <title>Running Scripts</title>
+	<sect2 id="nse-implementation-execute">
+      <title>Script Execution</title>
 
       <para>
-        Nmap is able to perform NSE script scanning in
+        Nmap performs NSE script scanning in
 	parallel<indexterm><primary>parallelism</primary><secondary>in NSE</secondary></indexterm>
-        by making use of Lua language features.  In particular,
+        by taking advantage of Nmap's Nsock parallel I/O library and the Lua
 	  <ulink url="http://www.lua.org/manual/5.1/manual.html#2.11">coroutines
-	  </ulink> offer collaborative multi-threading so scripts can suspend themselves at defined points, and allow other coroutines 
-	  to execute. Since network I/O, especially waiting for responses from
-	  remote host, is the part of scripts which would consume most time with
-	  waiting, this is the point where scripts suspend themselves and let
-	  others execute. Each call to some of the functions of the Nsock wrapper 
-	  causes the calling script to yield (pause). Once the request is
-      processed by the Nsock library, the 
-	  callback causes the script to be pushed from the waiting queue to the
-	  running queue, which will eventually let it resume its operation.</para>
+	  </ulink> language feature.  Coroutines offer collaborative multi-threading so that scripts can suspend themselves at defined points and allow other coroutines to execute. Network I/O, particularly waiting for responses from
+	  remote hosts, often involves long wait times, so
+	  this is when scripts yield to others.
+	  Key functions of the Nsock wrapper 
+	  cause scripts to yield (pause). When Nsock finishes processing such a request, it makes a callback
+	  which causes the script to be pushed from the waiting queue back into the
+	  running queue so it can resume operations when its turn comes up again.</para>
       <para>
-      The mainloop function will maintain two sets of threads, running and
-      waiting. Threads will be
-      moved back and forth between the sets; when a thread yields, it
-      is moved to the waiting group. Threads run in the running set will either
-      yield, complete, or error. After all scripts are resumed in the running
-      set, mainloop will place all yielded threads ready to be
-      run in the running set. Threads are made "ready" by calling 
-      <literal>process_waiting2running</literal>. This process of running
-      threads and moving paused threads to the waiting and running sets is
-      repeated until no threads exist in either waiting or running.
-	  </para>
+      The <function>mainloop</function> function moves threads between the waiting and running queues as needed.
+      A thread which yields is moved from the running queu into the waiting list.  Running threads execute until they either
+      yield, complete, or fail with an error.  Threads are made ready to run (placed in the running queue) by calling 
+      <literal>process_waiting2running</literal>. This process of scheduling running
+      threads and moving threads between queues continues
+      until no threads exist in either queue.</para>
     </sect2>
   </sect1>
 <indexterm class="endofrange" startref="nse-indexterm"/>
