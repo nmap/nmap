@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a Russian translation of the Nmap Reference Guide by Guz
+  Alexander. We now have translations in 15 languages available from
+  http://nmap.org/docs.html. More volunteer translaters are welcome,
+  as we are still missing some important languages (particularly
+  German!). Translation instructions are available from that docs.html
+  page.
+
 o [Zenmap] Added a workaround for a crash
     GtkWarning: could not open display
   on Mac OS X 10.5. The problem is caused by setting the DISPLAY
