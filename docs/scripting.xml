@@ -830,6 +830,8 @@ action refer to <xref linkend="nse-tutorial-action"/>.
       </ulink> the default libraries in order to use them.
 	  </para>
 
+      <sect2 id="nse-library-list">
+      <title>List of All Libraries</title>
       <para>
       This list is just an overview to give an idea of what libraries
       are available. Developers will want to consult the complete
@@ -837,6 +839,106 @@ action refer to <xref linkend="nse-tutorial-action"/>.
       </para>
 
       &nse-modules;
+      </sect2>
+
+    <sect2 id="nse-library-c-modules">
+      <title>Adding C Modules to Nselib</title>
+      <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>C modules</secondary></indexterm>
+
+      <para>
+      A few of the modules included in nselib are written in C or C++
+      rather than Lua.  Two examples are <literal>bit</literal>
+      and <literal>pcre</literal>.  We recommend that modules
+      be written in Lua if possible, but C and C++ may be more
+      appropriate if performance is critical or (as with
+      the <literal>pcre</literal> and <literal>openssl</literal>
+      modules) you are linking to an existing C library.  This section
+      describes how to write your own compiled extensions to nselib.
+      </para>
+
+      <para>
+      The Lua C API is described at length in 
+      <web><ulink url="http://www.amazon.com/exec/obidos/ASIN/8590379825/secbks-20"><citetitle>Programming in Lua, Second Edition</citetitle></ulink>,</web>
+      <print><citetitle>Programming in Lua, Second Edition</citetitle>,</print>
+      so this is a short summary. C modules consist of functions that
+      follow the protocol of the
+      <ulink url="http://www.lua.org/manual/5.1/manual.html#lua_CFunction"><type>lua_CFunction</type></ulink>
+      type. The functions are registered with Lua and assembled into a
+      library by calling the
+      <function>luaL_register</function><indexterm><primary><function>luaL_register</function></primary></indexterm>
+      function. A special initialization function provides the interface
+      between the module and the rest of the NSE code. By convention the
+      initialization function is named in the form
+      <function>luaopen_<replaceable>module</replaceable></function>.
+      </para>
+
+      <para>
+      The smallest compiled module that comes with NSE is
+      <literal>bit</literal>,<indexterm><primary><varname>bit</varname> NSE module</primary></indexterm>
+      and one of the most straightforward is
+      <literal>openssl</literal>.<indexterm><primary><varname>openssl</varname> NSE module</primary></indexterm>
+      These modules serve as good examples for a beginning module
+      writer. The
+      source code for <literal>bit</literal> is found in
+      <filename>nse_bit.cc</filename> and
+      <filename>nse_bit.h</filename>, while the
+      <literal>openssl</literal> source is in <filename>nse_openssl.cc</filename> and
+      <filename>nse_openssl.h</filename>. Most of the other compiled modules
+      follow this <literal>nse_<replaceable>module name</replaceable>.cc</literal> naming convention.
+      </para>
+      <para>
+      Reviewing the <literal>openssl</literal> module shows that one of the
+      functions in <filename>nse_openssl.cc</filename> is
+      <function>l_md5</function>, which calculates an MD5 digest. Its
+      function prototype is:</para>
+<programlisting>
+static int l_md5(lua_State *L);
+</programlisting>
+      <para>The prototype shows that <function>l_md5</function> matches the
+      <type>lua_CFunction</type> type. The function is static because it
+      does not have to be visible to other compiled code.  Only an address is required
+      to register it with Lua. Later in the file,
+      <function>l_md5</function> is entered into an array of type
+      <type>luaL_reg</type> and associated with the name
+      <function>md5</function>:</para>
+<programlisting>
+static const struct luaL_reg openssllib[] = {
+  { "md5", l_md5 },
+  { NULL, NULL }
+};
+</programlisting>
+
+ <para>This function will now be known as <function>md5</function> to NSE.  Next the library is registered with a call to
+      <function>luaL_register</function> inside the initialization
+      function <function>luaopen_openssl</function>, as shown
+      next. Some lines relating to the registration of
+      OpenSSL <type>BIGNUM</type> types have been omitted:</para>
+
+<programlisting>
+LUALIB_API int luaopen_openssl(lua_State *L) {
+  luaL_register(L, OPENSSLLIBNAME, openssllib);
+  return 1;
+}
+</programlisting>
+
+<para>The function <function>luaopen_openssl</function>
+      is the only function in the file that is exposed in
+      <filename>nse_openssl.h</filename>.  <varname>OPENSSLLIBNAME</varname> is simply the string
+      <literal>"openssl"</literal>.
+      </para>
+
+      <para>
+      After a compiled module is written, it must be added to NSE by including
+      it in the list of standard libraries in
+      <filename>nse_init.cc</filename>.  Then the module's
+      source file names must be added to
+      <filename>Makefile.in</filename> in the appropriate places. For both these tasks you can
+      simply follow the example of the other C modules. For the
+      Windows build, the new source files must be added to the
+      <filename>mswin32/nmap.vcproj</filename> project file using MS Visual Studio (see <xref linkend="inst-win-source"/>).
+      </para>
+    </sect2>
+
   </sect1>
 
 
@@ -2330,98 +2432,6 @@ The mainloop function will work on each runlevel grouping of threads in order.
       threads and moving paused threads to the waiting and running sets is
       repeated until no threads exist in either waiting or running.
 	  </para>
-    </sect2>
-    <sect2 id="nse-implementation-c-modules">
-      <title>Adding C Modules to Nselib</title>
-      <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>C modules</secondary></indexterm>
-
-      <para>
-      Some of the modules included in nselib are not written in Lua but
-      in C or C++. <literal>bit</literal> and <literal>pcre</literal>
-      are two examples. This section describes how to write your own
-      compiled extensions to nselib.
-      </para>
-
-      <para>
-      The C API of Lua is described at length in 
-      <web><ulink url="http://www.amazon.com/exec/obidos/ASIN/8590379825/secbks-20"><citetitle>Programming in Lua, Second Edition</citetitle></ulink>,</web>
-      <print><citetitle>Programming in Lua, Second Edition</citetitle>,</print>
-      so this is a short summary. C modules consist of functions that
-      follow the protocol of the
-      <ulink url="http://www.lua.org/manual/5.1/manual.html#lua_CFunction"><type>lua_CFunction</type></ulink>
-      type. The functions are registered with Lua and assembled into a
-      library by calling the
-      <function>luaL_register</function><indexterm><primary><function>luaL_register</function></primary></indexterm>
-      function. A special initialization function provides the interface
-      between the module and the rest of the NSE code. By convention the
-      initialization function has a name of the form
-      <function>luaopen_<replaceable>module</replaceable></function>.
-      </para>
-
-      <para>
-      The smallest compiled module that comes with NSE is
-      <literal>bit</literal>,<indexterm><primary><varname>bit</varname> NSE module</primary></indexterm>
-      and one of the most straightforward is
-      <literal>openssl</literal>.<indexterm><primary><varname>openssl</varname> NSE module</primary></indexterm>
-      These modules serve as good examples for a beginning module
-      writer. The
-      source code for <literal>bit</literal> is in the files
-      <filename>nse_bit.cc</filename> and
-      <filename>nse_bit.h</filename>, and likewise the source for
-      <literal>openssl</literal> is in <filename>nse_openssl.cc</filename> and
-      <filename>nse_openssl.h</filename>. The other compiled modules
-      usually follow this naming convention.
-      </para>
-      <para>
-      Let us look at the <literal>openssl</literal> module. One of the
-      functions in <filename>nse_openssl.cc</filename> is
-      <function>l_md5</function>, which calculates an MD5 digest. Its
-      function prototype is
-<programlisting>
-static int l_md5(lua_State *L);
-</programlisting>
-      The prototype shows that <function>l_md5</function> matches the
-      <type>lua_CFunction</type> type. The function is static because it
-      does not have to be visible to other compiled code, it just needs
-      an address so it can be registered with Lua. Later in the file we
-      see <function>l_md5</function> entered into an array of type
-      <type>luaL_reg</type> and associated with the name
-      <function>md5</function>, the name it will be known by to NSE:
-<programlisting>
-static const struct luaL_reg openssllib[] = {
-  { "md5", l_md5 },
-  { NULL, NULL }
-};
-</programlisting>
-      Then the library is registered with a call to
-      <function>luaL_register</function> inside the initialization
-      function <function>luaopen_openssl</function>. Some lines relating
-      to the registration of OpenSSL <type>BIGNUM</type> types have been
-      omitted.
-<programlisting>
-LUALIB_API int luaopen_openssl(lua_State *L) {
-  luaL_register(L, OPENSSLLIBNAME, openssllib);
-  return 1;
-}
-</programlisting>
-      (<varname>OPENSSLLIBNAME</varname> is just the string
-      <literal>"openssl"</literal>, the name of the module.)
-      <function>luaopen_openssl</function>
-      is the only function in the file that is exposed in
-      <filename>nse_openssl.h</filename>.
-      </para>
-
-      <para>
-      Once a compiled module is written, it is added to NSE by including
-      it in the list of standard libraries in
-      <filename>nse_init.cc</filename>. Just follow the example of the
-      modules that are already there. Then the names of the module's
-      source files of the must be added to
-      <filename>Makefile.in</filename> in the appropriate places. Again
-      it is easiest to follow the example of the other modules. For the
-      Windows build the new source files must be added to the
-      <filename>mswin32/nmap.vcproj</filename> project file.
-      </para>
     </sect2>
   </sect1>
 <indexterm class="endofrange" startref="nse-indexterm"/>
