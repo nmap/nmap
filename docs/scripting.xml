@@ -2000,31 +2000,40 @@ categories = {"discovery", "external"}
     <para>
     The version detection system built into Nmap was designed to
     efficiently recognize the vast majority of protocols with a simple
-    pattern matching syntax.  Some protocols require a more complex
-    approach though, and a generalized scripting language is perfect for
-    this.
+    probe and pattern matching syntax.  Some protocols require more
+    complex communication than version detection can handle.  A
+    generalized scripting language as provided by NSE is perfect for
+    these tough cases.
     </para>
 
     <para>
     NSE's <literal>version</literal><indexterm><primary><varname>version</varname> script category</primary></indexterm>
-    category contains the scripts that enhance standard version
+    category contains scripts that enhance standard version
     detection. Scripts in this category are run whenever you request
     version detection with <option>-sV</option>; you don't need to use
-    <option>-sC</option> to get version-detection scripts. (This cuts
-    the other way too: if you use <option>-sC</option> you won't get
+    <option>-sC</option> to run these. This cuts
+    the other way too: if you use <option>-sC</option>, you won't get
     <literal>version</literal> scripts unless you also use
-    <option>-sV</option>.)
+    <option>-sV</option>.
     </para>
 
     <para>
-    This script detects version 2 of the Skype VoIP protocol, one which
-    is difficult to identify with version detection alone. If Skype gets
-    an HTTP GET request, it pretends to be an HTTP server and sends back
-    a 404. But for any other request it sends back a chunk of
-    random-looking data. Proper identification requires sending two
-    probes and comparing the two responses&mdash;an ideal task for NSE.
+    One protocol which we were unable to detect with normal version
+    detection is Skype version 2.  The protocol was likely designed to
+    frustrate detection out of a fear that telecom-affiliated Internet
+    service providers might consider Skype competition and interfere
+    with the traffic.  Yet we did find one way to detect it.  If Skype
+    receives an HTTP GET request, it pretends to be a web server and
+    returns a 404 error. But for other requests, it sends back
+    a chunk of random-looking data. Proper identification requires
+    sending two probes and comparing the two responses&mdash;an ideal
+    task for NSE.  The simple NSE script which accomplishes this is
+    shown in <xref linkend="nse-skypev2-script" xrefstyle="select:
+    label nopage"/>.
     </para>
 
+<example id="nse-skypev2-script">
+      <title>A typical version detection script (Skype version 2 detection)</title>
 <programlisting>
 description = [[
 Detects the Skype version 2 service.
@@ -2036,15 +2045,11 @@ categories = {"version"}
 require "comm"
 
 portrule = function(host, port)
-        if      (port.number == 80 or
-                port.number == 443 or
-                port.service == nil or
-                port.service == "" or
-                port.service == "unknown")
-                and port.protocol == "tcp"
-                and port.state == "open"
-                and port.service ~= "http"
-                and port.service ~= "ssl/http"
+        if      (port.number == 80 or port.number == 443 or
+                 port.service == nil or port.service == "" or
+                 port.service == "unknown")
+                and port.protocol == "tcp" and port.state == "open"
+                and port.service ~= "http" and port.service ~= "ssl/http"
         then
                 return true
         else
@@ -2084,51 +2089,49 @@ action = function(host, port)
         return
 end
 </programlisting>
+</example>
 
     <para>
     If the script detects Skype, it augments its <varname>port</varname>
     table with now-known <varname>name</varname> and
     <varname>product</varname> fields. It then sends this new
     information to Nmap by calling
-    <function>nmap.set_port_version()</function>. Several other version
+    <function>nmap.set_port_version</function>. Several other version
     fields are available to be set if they are known, but in this case
     we only have the name and product. For the full list of version
-    fields refer to the documentation of
-    <function>nmap.set_port_version()</function>.
+    fields, refer to the <ulink role="hidepdf" url="http://nmap.org/nsedoc/modules/nmap.html"><function>nmap.set_port_version</function> documentation</ulink>.
     </para>
 
     <para>
-    Notice that if the script does not detect the protocol, it does
-    nothing. This is considered good practice; a script shouldn't
+    Notice that this script does nothing unless it detects the protocol.
+    A script shouldn't
     produce output (other than debug output) just to say it didn't learn
     anything.
     </para>
   </sect1>
 
   <sect1 id="nse-example-scripts">
-    <title>Example Script</title>
+    <title>Example Script: <filename>finger.nse</filename></title>
       <indexterm><primary><literal>finger</literal> script</primary></indexterm>
 
 	  <para>The finger script (<filename>finger.nse</filename>) is a perfect
-      example of how short typical NSE scripts are.
+      example of a short and simple NSE script.
 	  </para>
 
- <para>First the information fields are filled out.
+ <para>First the information fields are assigned.
 A detailed description of what the script
-actually does should go in the <literal>description</literal> field.</para>
+actually does goes in the <literal>description</literal> field.</para>
 <programlisting>
 description = [[
 Attempts to get a list of usernames via the finger service.
 ]]<indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
-
 author = "Eddie Bell &lt;ejlbell@gmail.com&gt;"<indexterm><primary>Bell, Eddie</primary></indexterm><indexterm><primary sortas="author script variable">&ldquo;<varname>author</varname>&rdquo; script variable</primary></indexterm>
-
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"<indexterm><primary sortas="license script variable">&ldquo;<varname>license</varname>&rdquo; script variable</primary></indexterm>
 </programlisting>
 
 <para>The <literal>categories</literal> field is a table
 containing all the categories the script belongs to&mdash;These are used for
-script selection through the <option>--script</option> option.</para>
+script selection with the <option>--script</option> option:</para>
 
 <programlisting>
 categories = {"default", "discovery"}
@@ -2136,7 +2139,7 @@ categories = {"default", "discovery"}
 
 <para>You can use the facilities provided by the nselib (<xref
 linkend="nse-library"/>) with <literal>require</literal>.  Here
-we want to use common communication functions and shorter port rules.</para>
+we want to use common communication functions and shorter port rules:</para>
 
 <programlisting>
 require "comm"
@@ -2147,25 +2150,16 @@ require "shortport"
 test whether it is using the well-known finger port (<literal>79/tcp</literal>), or
 whether the service is named <quote>finger</quote> based on version
 detection results or in the port number's listing
-in <filename>nmap-services</filename>.</para>
-
-
-<para>We want to check whether the service behind the port is finger,
-or whether it runs on finger's well-known port 79. Through this we can
-use the information gathered during the version scan (if finger runs
-on a non-standard port) or still run against at least the port we
-expect it, should the version detection information not be available.</para>
+in <filename>nmap-services</filename>:</para>
 
 <programlisting>
 portrule = shortport.port_or_service(79, "finger")<indexterm><primary sortas="portrule script variable">&ldquo;<varname>portrule</varname>&rdquo; script variable</primary></indexterm>
 </programlisting>
 
-<para>First, the script uses <function>nmap.new_try()</function> to
+<para>First, the script uses <function>nmap.new_try</function> to
 create an exception handler that will quit the script in case of an
-error. Next, it passes control to <function>comm.exchange()</function>,
-which handles the network transaction. Here we have asked to receive no
-more than around 100 lines, with a timeout of five seconds
-(5000&nbsp;ms). Any errors will be handled by the
+error. Next, it passes control to <function>comm.exchange</function>,
+which handles the network transaction. Here we have asked to wait in the communication exchange until we receive at least 100 lines, wait at least 5 seconds, or until the remote side closes the connection.  Any errors are handled by the
 <function>try</function> exception handler. The script returns a string
 if the call to <literal>comm.exchange()</literal> was successful.</para>
 
@@ -2180,7 +2174,7 @@ end
     <indexterm class="endofrange" startref="nse-sample-indexterm"/>
   </sect1>
   <sect1 id="nse-implementation">
-    <title>Implementation</title>
+    <title>Implementation Details</title>
     <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>implementation</secondary></indexterm>
 	<para>
 	Now how does all this work? The following section describes
