@@ -2,6 +2,23 @@ description = [[
 Attempts to find the owner of an open TCP port by querying an identd
 (auth - port 113) daemon which must also be open on the target system.
 ]]
+---
+--@output
+-- 21/tcp   open     ftp       ProFTPD 1.3.1
+-- |_ identd-owners: nobody
+-- 22/tcp   open     ssh       OpenSSH 4.3p2 Debian 9etch2 (protocol 2.0)
+-- |_ identd-owners: root
+-- 25/tcp   open     smtp      Postfix smtpd
+-- |_ identd-owners: postfix
+-- 80/tcp   open     http      Apache httpd 2.0.61 ((Unix) PHP/4.4.7 ...)
+-- |_ identd-owners: dhapache
+-- 113/tcp  open     auth?
+-- |_ identd-owners: nobody
+-- 587/tcp  open     submission Postfix smtpd
+-- |_ identd-owners: postfix
+-- 5666/tcp open     unknown
+-- |_ identd-owners: root
+
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 
