@@ -1608,9 +1608,9 @@ try(socket:send(result))
 
       The head of the script is essentially its meta information. This
       includes the
-      fields:<literal>description</literal>, <literal>categories</literal>, <literal>runlevel</literal>, <literal>author</literal>, and <literal>license</literal> as well as
+      fields: <literal>description</literal>, <literal>categories</literal>, <literal>runlevel</literal>, <literal>author</literal>, and <literal>license</literal> as well as
       initial NSEDoc information such as usage, args, and output
-      tags (see xref linkend="nsedoc"/>).
+      tags (see <xref linkend="nsedoc"/>).
       </para>
 
       <para>
@@ -2435,7 +2435,7 @@ The <function>mainloop</function> function then processes each runlevel grouping
 	  running queue so it can resume operations when its turn comes up again.</para>
       <para>
       The <function>mainloop</function> function moves threads between the waiting and running queues as needed.
-      A thread which yields is moved from the running queu into the waiting list.  Running threads execute until they either
+      A thread which yields is moved from the running queue into the waiting list.  Running threads execute until they either
       yield, complete, or fail with an error.  Threads are made ready to run (placed in the running queue) by calling 
       <literal>process_waiting2running</literal>. This process of scheduling running
       threads and moving threads between queues continues
