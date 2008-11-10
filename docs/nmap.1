@@ -1,12 +1,12 @@
 .\"     Title: nmap
 .\"    Author: Gordon \(lqFyodor\(rq Insecure.Org Lyon
 .\" Generator: DocBook XSL Stylesheets v1.74.0 <http://docbook.sf.net/>
-.\"      Date: 11/05/2008
+.\"      Date: 11/08/2008
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap Zero Day
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "11/05/2008" "Nmap Zero Day" "Nmap Reference Guide"
+.TH "NMAP" "1" "11/08/2008" "Nmap Zero Day" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * (re)Define some macros
 .\" -----------------------------------------------------------------
@@ -700,7 +700,7 @@ call)\&. This is slower and rarely useful unless you find a bug in the Nmap para
 .RS 4
 By default, Nmap determines your DNS servers (for rDNS resolution) from your resolv\&.conf file (Unix) or the Registry (Win32)\&. Alternatively, you may use this option to specify alternate servers\&. This option is not honored if you are using
 \fB\-\-system\-dns\fR
-or an IPv6 scan\&. Using multiple DNS servers is often faster, especially if you choose authoritative servers for your target IP space\&. This option can also improve stealth, as your requests can be bounced off just about any recursive DNS server on the internet\&.
+or an IPv6 scan\&. Using multiple DNS servers is often faster, especially if you choose authoritative servers for your target IP space\&. This option can also improve stealth, as your requests can be bounced off just about any recursive DNS server on the Internet\&.
 .sp
 This option also comes in handy when scanning private networks\&. Sometimes only a few name servers provide proper rDNS information, and you may not even know where they are\&. You can scan the network for port 53 (perhaps with version detection), then try Nmap list scans (\fB\-sL\fR) specifying each name server one at a time with
 \fB\-\-dns\-servers\fR
@@ -1047,7 +1047,7 @@ if unsure\&.
 .PP
 \fB\-F\fR (Fast (limited port) scan) .\" -F .\" fast scan
 .RS 4
-Specifies that you wish to scan fewer ports than the default\&. Normally Nmaps scans the most common 1,000 ports for each scanned protocol\&. With
+Specifies that you wish to scan fewer ports than the default\&. Normally Nmap scans the most common 1,000 ports for each scanned protocol\&. With
 \fB\-F\fR, this is reduced to 100\&.
 .sp
 Nmap needs an
@@ -1294,20 +1294,22 @@ Malicious scripts are not run in a sandbox and thus could damage your system or 
 .PP
 \fB\-\-script\-args \fR\fB\fIname1\fR\fR\fB=\fR\fB\fIvalue1\fR\fR\fB,\fR\fB\fIname2\fR\fR\fB={\fR\fB\fIname3\fR\fR\fB=\fR\fB\fIvalue3\fR\fR\fB},\fR\fB\fIname4\fR\fR\fB=\fR\fB\fIvalue4\fR\fR .\" --script-args .\" script arguments
 .RS 4
-lets you provide arguments to NSE scripts\&. Arguments are passed as
+Lets you provide arguments to NSE scripts\&. Arguments are passed as
 \FCname=value\F[]
 pairs\&. The provided argument is processed and stored inside a Lua table, to which all scripts have access\&. The names are taken as strings (which must be alphanumeric values) and used as keys inside the
-\FCargument\-table\F[]\&. Values are either strings or tables themselves (surrounded by \(oq\FC{\F[]\(cq and \(oq\FC}\F[]\(cq)\&. Subtables make it possible to override arguments for specific scripts (e\&.g\&. when you want to provide different login/password pairs for different scripts)\&. For example, you could pass the comma\-separated arguments:
-\FCuser=bar\F[],\FCpassword=foo\F[], and
-\FCanonFTP={password=nobody@foobar\&.com}\F[]\&. If you want to override an option to a script, you should index the subtable with the script\'s
-\FCid\F[], since this is the only way the script knows about its special argument\&.
+\FCargument\-table\F[]\&. Values are either strings or tables themselves (surrounded by \(oq\FC{\F[]\(cq and \(oq\FC}\F[]\(cq)\&. For example, you could pass the comma\-separated arguments:
+\FCuser=bar,pass=foo,whois={whodb=nofollow+ripe}\F[]\&. String arguments are potentially used by several scripts; subtables are normally used by only one script\&. In scripts that take a subtable, the subtable is usually named after the script (like
+\FCwhois\F[]
+in this example)\&.
 .RE
 .PP
 \fB\-\-script\-trace\fR .\" --script-trace
 .RS 4
 This option does what
 \fB\-\-packet\-trace\fR
-does, just one ISO layer higher\&. If this option is specified all incoming and outgoing communication performed by a script is printed\&. The displayed information includes the communication protocol, the source, the target and the transmitted data\&. If more than 5% of all transmitted data is not printable, then the trace output is in a hex dump format\&.
+does, just one ISO layer higher\&. If this option is specified all incoming and outgoing communication performed by a script is printed\&. The displayed information includes the communication protocol, the source, the target and the transmitted data\&. If more than 5% of all transmitted data is not printable, then the trace output is in a hex dump format\&. Specifying
+\fB\-\-packet\-trace\fR
+enables script tracing too\&.
 .RE
 .PP
 \fB\-\-script\-updatedb\fR .\" --script-updatedb
@@ -1959,7 +1961,9 @@ and the results are stored in XML log files even if this option is not specified
 Causes Nmap to print a summary of every packet sent or received\&. This is often used for debugging, but is also a valuable way for new users to understand exactly what Nmap is doing under the covers\&. To avoid printing thousands of lines, you may want to specify a limited number of ports to scan, such as
 \fB\-p20\-30\fR\&. If you only care about the goings on of the version detection subsystem, use
 \fB\-\-version\-trace\fR
-instead\&.
+instead\&. If you only care about script tracing, specify
+\fB\-\-script\-trace\fR\&. With
+\fB\-\-packet\-trace\fR, you get all of the above\&.
 .RE
 .PP
 \fB\-\-open\fR (Show only open (or possibly open) ports) .\" --open
