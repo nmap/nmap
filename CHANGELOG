@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a script that checks for ms08-067-vulnerable hosts 
+  (smb-check-vulns.nse) using the smb nselib. [Ron Bowes]
+
 o Added a Russian translation of the Nmap Reference Guide by Guz
   Alexander. We now have translations in 15 languages available from
   http://nmap.org/docs.html. More volunteer translaters are welcome,
