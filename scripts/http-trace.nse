@@ -7,7 +7,7 @@ response.
 -- @output
 -- 80/tcp open  http
 -- |  http-trace: Response differs from request.  First 5 additional lines:
--- |  Cookie: UID=d4287aa38d02f409841b4e0c0050c13148a85d01c0c0a154d4ef56dfc2b4fc1b0
+-- |  Cookie: UID=d4287aa38d02f409841b4e0c0050c131...
 -- |  Country: us
 -- |  Ip_is_advertise_combined: yes
 -- |  Ip_conntype-Confidence: -1
