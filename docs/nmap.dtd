@@ -72,7 +72,9 @@
 <!-- This element was started in nmap.c:nmap_main().
      It represents to the topmost element of the output document.
 -->
-<!ELEMENT nmaprun      (scaninfo*, verbose, debugging, ((taskbegin, taskprogress*, taskend) | host | output)*, runstats) >
+<!ELEMENT nmaprun      (scaninfo*, verbose, debugging,
+                        ((taskbegin, taskprogress*, taskend) | host | output)*,
+                        runstats) >
 <!ATTLIST nmaprun
 			scanner		(nmap)		#REQUIRED
 			args		CDATA		#IMPLIED
