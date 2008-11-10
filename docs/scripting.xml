@@ -798,7 +798,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
     <para>This section lists (alphabetically) all NSE scripts packaged
     with Nmap at the time of this writing.  It comes straight from the
     script source code thanks to the NSEDoc documentation system
-    described in <xref linkend="nse-documentation"/>. Of course no
+    described in <xref linkend="nsedoc"/>. Of course no
     paper documentation can stay current with software developed as
     actively as NSE is.  For the most comprehensive and up-to-date
     documentation, see the online NSE Documentation Portal at
@@ -1799,7 +1799,7 @@ local localip, localport = try(client_service:get_info())
 
   <sect1 id="nsedoc">
     <title>Writing Script Documentation (NSEDoc)</title>
-    <indexterm class="startofrange" id="nse-documentation-indexterm"><primary>Nmap Scripting Engine (NSE)</primary><secondary>documentation in</secondary></indexterm>
+    <indexterm class="startofrange" id="nsedoc-indexterm"><primary>Nmap Scripting Engine (NSE)</primary><secondary>documentation in</secondary></indexterm>
     <indexterm class="startofrange" id="nse-nsedoc-indexterm"><primary>NSEDoc</primary></indexterm>
 
     <para>
@@ -1819,7 +1819,7 @@ local localip, localport = try(client_service:get_info())
     The documentation for scripts
     and modules is contained in their source code, as
     comments with a special form.
-    <xref linkend="nse-documentation-comment" xrefstyle="select: label nopage"/>
+    <xref linkend="nsedoc-comment" xrefstyle="select: label nopage"/>
     is an NSEDoc comment taken from the
     <function>stdnse.print_debug()</function> function.
     </para>
@@ -1827,7 +1827,7 @@ local localip, localport = try(client_service:get_info())
     <!-- From stdnse.lua. -->
     <!-- Be careful to change <code> to &lt;code&gt; when you copy code.
     <code> is a DocBook tag so it will disappear within a programlisting! -->
-    <example id="nse-documentation-comment">
+    <example id="nsedoc-comment">
       <title>An NSEDoc comment for a function</title>
 <programlisting>
 --- Prints a formatted debug message if the current verbosity level is greater
@@ -1853,7 +1853,7 @@ local localip, localport = try(client_service:get_info())
     other parts of the documentation. In the above example you see
     <literal>@param</literal>, which is used to describe each parameter
     of a function. A complete list of the documentation tags is found
-    in <xref linkend="nse-documentation-tags"/>.
+    in <xref linkend="nsedoc-tags"/>.
     </para>
 
     <para>
@@ -1874,12 +1874,12 @@ local localip, localport = try(client_service:get_info())
     and should be several paragraphs long, with all the high-level
     information useful to a developer using a module or a user running a
     script.
-    <xref linkend="nse-documentation-module" xrefstyle="select: label nopage"/>
+    <xref linkend="nsedoc-module" xrefstyle="select: label nopage"/>
     shows documentation for the <literal>comm</literal> module (with a
     few paragraphs removed to save space).
     </para>
 
-    <example id="nse-documentation-module">
+    <example id="nsedoc-module">
       <title>An NSEDoc comment for a module</title>
 <programlisting>
 --- Common communication functions for network discovery tasks like
@@ -1911,13 +1911,13 @@ local localip, localport = try(client_service:get_info())
     NSEDoc knows about these variables and will use them in preference
     to fields in the comments. Scripts should also have an
     <varname>@output</varname> tag showing sample output, as well as <varname>@args</varname> and <varname>@usage</varname> where appropriate.
-    <xref linkend="nse-documentation-script" xrefstyle="select: label nopage"/>
+    <xref linkend="nsedoc-script" xrefstyle="select: label nopage"/>
     shows proper form for script-level documentation, using a
     combination of documentation comments and NSE variables.
     </para>
 
     <!-- From asn-query.nse. -->
-    <example id="nse-documentation-script">
+    <example id="nsedoc-script">
       <title>An NSEDoc comment for a script</title>
 <programlisting>
 description = [[
@@ -1965,7 +1965,7 @@ categories = {"discovery", "external"}
     documentation in the Nmap source distribution (including <literal>nmap.luadoc</literal>, <literal>bit.luadoc</literal>, and <literal>pcre.luadoc</literal>).
     </para>
 
-    <sect2 id="nse-documentation-tags">
+    <sect2 id="nsedoc-tags">
       <title>NSE Documentation Tags</title>
       <para>
       The following tags are understood by NSEDoc:
@@ -2090,7 +2090,7 @@ categories = {"discovery", "external"}
       from the contents of a comment. @release has not been used with
       NSEDoc. -->
     </sect2>
-    <indexterm class="endofrange" startref="nse-documentation-indexterm"/>
+    <indexterm class="endofrange" startref="nsedoc-indexterm"/>
     <indexterm class="endofrange" startref="nse-nsedoc-indexterm"/>
   </sect1>
 
