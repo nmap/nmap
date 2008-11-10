@@ -27,7 +27,7 @@ local ipOps  = require 'ipOps'
 local stdnse = require 'stdnse'
 
 portrule = function(host, port)
-	if not (port.service == 'http' or port.service == 'https') then
+	if port.protocol ~= 'tcp' or not (port.service == 'http' or port.service == 'https') then
 		return false
 	end
 	-- Don't bother running on SSL ports if we don't have SSL.
@@ -123,7 +123,7 @@ function redirect_ok(url, host, port)
     function (loc, url, host, port)
       -- if present, url.port must be the same as the scanned port
       -- loc.port must be set if returning true
-      if (not url.port) or url.port == port.number then
+      if (not url.port) or tonumber(url.port) == port.number then
         loc.port = port
         return true
       end

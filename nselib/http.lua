@@ -123,6 +123,10 @@ request = function( host, port, data, options )
 
   local protocol = 'tcp'
   if type(port) == 'table' then
+    if port.protocol and port.protocol ~= 'tcp' then
+      stdnse.print_debug(1, "http.request() supports the TCP protocol only, your request to %s cannot be completed.", host)
+      return nil
+    end
     if port.service == 'https' or ( port.version and port.version.service_tunnel == 'ssl' ) then
       protocol = 'ssl'
     end
