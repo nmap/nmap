@@ -2058,9 +2058,10 @@ scripts.  If individual file names are specified, the file extension
 does not have to be <literal>nse</literal>.</para>
 
 <para>Nmap scripts are stored in a <filename>scripts</filename>
-subdirectory of the Nmap data directory by default (see
-<xref linkend="data-files"/>). For efficiency, scripts are indexed in
-a database stored
+subdirectory of the Nmap data directory by default
+<man>(see <ulink url="http://nmap.org/book/data-files.html"/>).</man>
+<notman>(see <xref linkend="data-files"/>).</notman> For efficiency,
+scripts are indexed in a database stored
 in <filename>scripts/script.db</filename>.<indexterm><primary><filename>script.db</filename></primary></indexterm>
 which lists the category or categories in which each script belongs.
 Give the argument <literal>all</literal> to execute all scripts in the
