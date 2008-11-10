@@ -1308,7 +1308,7 @@ socket:close()
 	  NSE provides script developers with the
 	  option of raw packet network I/O.</para>
 
-          <para>Raw packet reception is handled through a a
+          <para>Raw packet reception is handled through a
 	  Libpcap<indexterm><primary>libpcap</primary></indexterm>
 	  wrapper inside the Nsock
 	  library.<indexterm><primary>Nsock</primary></indexterm>
@@ -1732,7 +1732,7 @@ end
 	<function>close</function>, 
 	<function>send</function> and
 	<function>receive</function> to operate on the network socket.  In this case we call <function>connect</function> to make the connections.  NSE's exception handling mechanism.<indexterm><primary>exceptions in NSE</primary></indexterm>
-        is is used to avoid excessive error-handling code.  We simply wrap the networking calls in a <function>try</function> call which will in turn call our <function>catch</function> function if anything goes wrong.</para>
+        is used to avoid excessive error-handling code.  We simply wrap the networking calls in a <function>try</function> call which will in turn call our <function>catch</function> function if anything goes wrong.</para>
 
 
      <para>If the two connections succeed, we construct a query string
