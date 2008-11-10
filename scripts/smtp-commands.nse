@@ -6,8 +6,8 @@ SMTP server.
 ---
 -- @output
 -- 25/tcp	open	smtp
--- |  smtp-commands: EHLO uninvited.example.net Hello root at localhost [127.0.0.1], SIZE 52428800, PIPELINING, 250 HELP
--- |_ HELP Commands supported:, , AUTH HELO EHLO MAIL RCPT DATA NOOP QUIT RSET HELP
+-- |  smtp-commands: EHLO uninvited.example.net Hello root at localhost [127.0.0.1], SIZE 52428800, PIPELINING, HELP
+-- |_ HELP Commands supported: AUTH HELO EHLO MAIL RCPT DATA NOOP QUIT RSET HELP
 
 -- Version History
 -- 1.1.0.0 - 2007-10-12
@@ -37,6 +37,10 @@ SMTP server.
 -- 1.6.0.0 - 2008-10-06
 -- + Updated gsubs to handle different formats, pulls out extra spaces
 --   and normalizes line endings
+
+-- 1.7.0.0 - 2008-11-10
+-- + Better normalization of output, remove "250 " from EHLO output,
+--   don't comma-separate HELP output.
 
 -- Cribbed heavily from Thomas Buchanan's SQL version detection
 -- script and from Arturo 'Buanzo' Busleiman's SMTP open relay
@@ -93,8 +97,10 @@ action = function(host, port)
 		resultEHLO = string.gsub(resultEHLO, "250 OK[\r\n]", "") -- 250 OK (needed to have the \r\n in there)
 		-- get rid of the 250- at the beginning of each line in the response
 		resultEHLO = string.gsub(resultEHLO, "250%-", "") -- 250-
+		resultEHLO = string.gsub(resultEHLO, "250 ", "") -- 250 
 		resultEHLO = string.gsub(resultEHLO, "\r\n", "\n") -- normalize CR LF
 		resultEHLO = string.gsub(resultEHLO, "\n\r", "\n") -- normalize LF CR
+		resultEHLO = string.gsub(resultEHLO, "^\n+", "") -- no initial LF
 		resultEHLO = string.gsub(resultEHLO, "\n+$", "") -- no final LF
 		resultEHLO = string.gsub(resultEHLO, "\n", ", ") -- LF to comma
 		resultEHLO = string.gsub(resultEHLO, "%s+", " ") -- get rid of extra spaces
@@ -114,10 +120,8 @@ action = function(host, port)
 		resultHELP = string.gsub(resultHELP, "214%-", "") -- 214-
 		-- get rid of the 214 at the beginning of the lines in the response
 		resultHELP = string.gsub(resultHELP, "214 ", "") -- 214
-		resultHELP = string.gsub(resultHELP, "\r\n", "\n") -- normalize CR LF
-		resultHELP = string.gsub(resultHELP, "\n\r", "\n") -- normalize LF CR
-		resultHELP = string.gsub(resultHELP, "\n+$", "") -- no final LF
-		resultHELP = string.gsub(resultHELP, "\n", ", ") -- LF to comma
+		resultHELP = string.gsub(resultHELP, "^%s+", "") -- no initial space
+		resultHELP = string.gsub(resultHELP, "%s+$", "") -- no final space
 		resultHELP = string.gsub(resultHELP, "%s+", " ") -- get rid of extra spaces
 		resultHELP = "\nHELP " .. resultHELP
 	end
