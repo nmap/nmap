@@ -1,27 +1,31 @@
-id = "MSRPC: Check vulns()"
+id = "MSRPC: Check vulnerabilities"
 description = [[
-Currently, this script checks if a host is vulnerable to ms08-067. I'd like to add
-checks for more vulnerabilities, but I'm worried about licensing/copyright issues
-(since I'd be basing them on non-free tools). 
+Checks if a host is vulnerable to MS08-067, a Windows RPC vulnerability that
+can allow remote code execution. This script is intended to check for more
+vulnerabilities in the future.
 
-Checking for the ms08-067 vulnerability is very dangerous, as the check is likely
+Checking for MS08-067 is very dangerous, as the check is likely
 to crash systems. On a fairly wide scan conducted by Brandon Enright, we determined
-that a vulnerable on average, is about 50% more likely to crash than to survive
+that on average, a vulnerable system is more likely to crash than to survive
 the check. Out of 82 vulnerable systems, 52 crashed. As such, great care should be 
 taken when using this check. 
 
-You have the option to supply a username/password when performing this check, but
+You have the option to supply a username and password, but
 it shouldn't be necessary for a default configuration. 
 ]]
 
+-- Currently, this script checks if a host is vulnerable to ms08-067. I'd like to add
+-- checks for more vulnerabilities, but I'm worried about licensing/copyright issues
+-- (since I'd be basing them on non-free tools). 
+
 ---
 --@usage
--- nmap --script smb-checkvulns.nse -p445 <host>
--- sudo nmap -sU -sS --script smb-checkvulns.nse -p U:137,T:139 <host>
+-- nmap --script smb-check-vulns.nse -p445 <host>
+-- sudo nmap -sU -sS --script smb-check-vulns.nse -p U:137,T:139 <host>
 --
 --@output
 -- Host script results:
--- |_ smb-checkvulns: This host is vulnerable to ms08-067
+-- |_ smb-check-vulns: This host is vulnerable to MS08-067
 --
 -- @args smb* This script supports the <code>smbusername</code>,
 -- <code>smbpassword</code>, <code>smbhash</code>, <code>smbguest</code>, and
@@ -53,7 +57,7 @@ local VULNERABLE = 1
 local PATCHED    = 2
 local UNKNOWN    = 3
 
----Check if the server is patched for ms08-067. This is done by calling NetPathCompare() with an 
+---Check if the server is patched for MS08-067. This is done by calling NetPathCompare with an 
 -- illegal string. If the string is accepted, then the server is vulnerable; if it's rejected, then
 -- you're safe (for now). 
 --
@@ -123,12 +127,12 @@ action = function(host)
 	end
 
 	if(result == VULNERABLE) then
-		response = "This host is vulnerable to ms08-067"
+		response = "This host is vulnerable to MS08-067"
 	elseif(result == UNKNOWN) then
-		response = "This host is likely vulnerable to ms08-067 (it stopped responding during the test)"
+		response = "This host is likely vulnerable to MS08-067 (it stopped responding during the test)"
 	else
 		if(nmap.verbosity() > 0) then
-			response = "This host is patched for ms08-067"
+			response = "This host is patched for MS08-067"
 		else
 			response = nil
 		end
