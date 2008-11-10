@@ -1584,17 +1584,22 @@ try(socket:send(result))
       complicated to handle with Nmap's version detection
       language. First, you connect to the identification server and
       send a query of the form <literal><replaceable>port-on-server</replaceable>,
-      <replaceable>port-on-client</replaceable></literal> and terminated with a newline
-      character. The server should then respond with a string of the
-      form <literal><replaceable>port-on-server</replaceable>, <replaceable>port-on-client</replaceable>:<replaceable>response-type</replaceable>:<replaceable>address-information</replaceable></literal>.  The address
-      information is omitted if there is an error. More details are available in <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc1413.txt">RFC 1413</ulink>, but this description is sufficient for our purposes.  The protocol cannot be modeled in Nmap's version
+      <replaceable>port-on-client</replaceable></literal> and
+      terminated with a newline character. The server should then
+      respond with a string containing the server port, client port,
+      response type, and address information.  The address information
+      is omitted if there is an error. More details are available
+      in <ulink role="hidepdf"
+      url="http://www.rfc-editor.org/rfc/rfc1413.txt">RFC
+      1413</ulink>, but this description is sufficient for our
+      purposes.  The protocol cannot be modeled in Nmap's version
       detection language for two reasons. The first is that you need
       to know both the local and the remote port of a
       connection. Version detection does not provide this data.  The
       second, more severe obstacle, is that you need two open
-      connections to the target&mdash;one to the identification server and
-      one to the listening port you wish to query. Both obstacles are easily
-      overcome with NSE.</para>
+      connections to the target&mdash;one to the identification server
+      and one to the listening port you wish to query. Both obstacles
+      are easily overcome with NSE.</para>
 
     <para>
       The anatomy of a script is described in <xref linkend="nse-script-format"/>.
@@ -2146,39 +2151,29 @@ categories = {"version"}
 require "comm"
 
 portrule = function(host, port)
-        if      (port.number == 80 or port.number == 443 or
-                 port.service == nil or port.service == "" or
-                 port.service == "unknown")
-                and port.protocol == "tcp" and port.state == "open"
-                and port.service ~= "http" and port.service ~= "ssl/http"
-        then
-                return true
-        else
-                return false
-        end
+        return (port.number == 80 or port.number == 443 or
+                port.service == nil or port.service == "" or
+                port.service == "unknown")
+               and port.protocol == "tcp" and port.state == "open"
+               and port.service ~= "http" and port.service ~= "ssl/http"
 end
 
 action = function(host, port)
         local status, result = comm.exchange(host, port,
                 "GET / HTTP/1.0\r\n\r\n", {bytes=26, proto=port.protocol})
-
         if (not status) then
                 return
         end
-
         if (result ~= "HTTP/1.0 404 Not Found\r\n\r\n") then
                 return
         end
-        
         -- So far so good, now see if we get random data for another request
-
         status, result = comm.exchange(host, port,
                 "random data\r\n\r\n", {bytes=15, proto=port.protocol})
 
         if (not status) then
                 return
         end
-
         if string.match(result, "[^%s!-~].*[^%s!-~].*[^%s!-~]") then
                 -- Detected
                 port.version.name = "skype2"
@@ -2186,7 +2181,6 @@ action = function(host, port)
                 nmap.set_port_version(host, port, "hardmatched")
                 return  
         end
-
         return
 end
 </programlisting>
