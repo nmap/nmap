@@ -49,6 +49,10 @@ hostrule = function(host)
 
 end
 
+local VULNERABLE = 1
+local PATCHED    = 2
+local UNKNOWN    = 3
+
 ---Check if the server is patched for ms08-067. This is done by calling NetPathCompare() with an 
 -- illegal string. If the string is accepted, then the server is vulnerable; if it's rejected, then
 -- you're safe (for now). 
@@ -61,13 +65,10 @@ end
 -- NOTE: This CAN crash stuff (ie, crash svchost.exe and force a reboot), so beware! In about 20 
 -- tests I did, it crashed once. This is not a guarantee. 
 --
---@param host The hose object. 
+--@param host The host object. 
 --@return (status, result) If status if alse, result is an error code; otherwise, result is either 
 --        <code>VULNERABLE</code> for vulnerable, <code>PATCHED</code> for not vulnerable, or
---        <code>UNKNOWN</code> if there was an error (likey vulnerable). 
-local VULNERABLE = 1
-local PATCHED    = 2
-local UNKNOWN    = 3
+--        <code>UNKNOWN</code> if there was an error (likely vulnerable). 
 function check_ms08_067(host)
     local status, smbstate
     local bind_result, netpathcompare_result
