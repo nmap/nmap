@@ -1449,7 +1449,7 @@ socket:close()
 
       <example id="nse-mutex-handling">
         <title>Mutex manipulation</title>
-        <programlisting>
+<programlisting>
 local mutex = nmap.mutex("My Script's Unique ID");
 function action(host, port)
   mutex "lock";
@@ -1457,7 +1457,7 @@ function action(host, port)
   mutex "done";
   return script_output;
 end
-        </programlisting>
+</programlisting>
       </example>
     </sect2>
 
