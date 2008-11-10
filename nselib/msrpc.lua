@@ -1016,6 +1016,193 @@ function srvsvc_netservergetstatistics(smbstate, server)
 end
 
 
+---This calls NetPathCanonicalize(), which was the target of ms08-067. I haven't gotten this
+-- working, yet, I trigger it indirectly through NetPathCompare(). 
+--function srvsvc_netpathcanonicalize(smbstate, server, prefix, path)
+--	local i, j
+--	local status, result
+--	local arguments
+--	local pos, align
+--
+--	local response = {}
+--
+--	stdnse.print_debug(2, "MSRPC: Calling NetPathCanonicalize(%s) [%s]", path, smbstate['ip'])
+--
+----		[in]   [string,charset(UTF16)] uint16 *server_unc,
+--	arguments = bin.pack("<IIIIA",
+--					REFERENT_ID,            -- Referent ID
+--					string.len(server) + 1, -- Max count
+--					0,                      -- Offset
+--					string.len(server) + 1, -- Actual count
+--					string_to_unicode(server, true, true)
+--				)
+--
+----		[in]   [string,charset(UTF16)] uint16 path[],
+--	arguments = arguments .. bin.pack("<IIIA",
+--					string.len(path) + 1, -- Max count
+--					0,                      -- Offset
+--					string.len(path) + 1, -- Actual count
+--					string_to_unicode(path, true, true)
+--				)
+--
+----		[out]  [size_is(maxbuf)] uint8 can_path[],
+----		[in]   uint32 maxbuf,
+--	arguments = arguments .. bin.pack("<I", 3)
+--
+----		[in]   [string,charset(UTF16)] uint16 prefix[],
+--	arguments = arguments .. bin.pack("<IIIA",
+--					string.len(prefix) + 1, -- Max count
+--					0,                      -- Offset
+--					string.len(prefix) + 1, -- Actual count
+--					string_to_unicode(prefix, true, true)
+--				)
+--
+----		[in,out] uint32 pathtype,
+--	arguments = arguments .. bin.pack("<I", 1)
+--
+----		[in]    uint32 pathflags
+--	arguments = arguments .. bin.pack("<I", 0)
+--
+--
+--
+--	-- Do the call
+--	status, result = call_function(smbstate, 0x1F, arguments)
+--	if(status ~= true) then
+--		return false, result
+--	end
+--
+--	stdnse.print_debug(3, "MSRPC: NetPathCanonicalize() returned successfully")
+--
+--	-- Make arguments easier to use
+--	arguments = result['arguments']
+--	pos = 1
+--
+----		[in]   [string,charset(UTF16)] uint16 *server_unc,
+----		[in]   [string,charset(UTF16)] uint16 path[],
+--		[out]  [size_is(maxbuf)] uint8 can_path[],
+--	pos, test = bin.unpack("<I", arguments, pos)
+--	io.write(string.format("test = %08x\n\n", test))
+--	pos, path = bin.unpack(string.format("<A%d", test), arguments, pos)
+--	io.write(string.format("test = %s\n\n", path))
+----		[in]   uint32 maxbuf,
+----		[in]   [string,charset(UTF16)] uint16 prefix[],
+----		[in,out] uint32 pathtype,
+--	pos, pathtype = bin.unpack("<I", arguments, pos)
+--	io.write(string.format("pathtype = %08x\n", pathtype))
+----		[in]    uint32 pathflags
+--
+--
+--	pos, response['return'] = bin.unpack("<I", arguments, pos)
+--	io.write(string.format("return = %08x\n", response['return']))
+--	if(response['return'] == nil) then
+--		return false, "Read off the end of the packet (winreg.openkey)"
+--	end
+--	if(response['return'] ~= 0) then
+--		return false, smb.get_status_name(response['return']) .. " (winreg.openkey)"
+--	end
+--
+--	return true, response
+--
+--end
+
+
+
+
+---Call the NetPathCompare() function, which indirectly calls NetPathCanonicalize(), 
+-- the target of ms08-067. I'm currently only using this to trigger ms08-067. 
+--
+-- The string used by Metasploit and other free tools to check for this vulnerability is
+-- '\AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\..\n'. On vulnerable systems, this will be
+-- accepted and this function will return '0'. On patched systems, this will be rejected
+-- and return <code>ERROR_INVALID_PARAMETER</code>. 
+--
+-- Note that the srvsvc.exe process occasionally crashes when attempting this. 
+--
+--@param smbstate  The SMB state table
+--@param server    The IP or Hostname of the server (seems to be ignored but it's a good idea to have it)
+--@param path1     The first path to compare
+--@param path2     The second path to compare
+--@param pathtype  The pathtype to pass to the function (I always use '1')
+--@param pathflags The pathflags to pass to the function (I always use '0')
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values containing
+-- 'return'. 
+function srvsvc_netpathcompare(smbstate, server, path1, path2, pathtype, pathflags)
+	local i, j
+	local status, result
+	local arguments
+	local pos, align
+
+	local response = {}
+
+	stdnse.print_debug(2, "MSRPC: Calling NetPathCompare(%s, %s) [%s]", path1, path2, smbstate['ip'])
+
+--		[in]   [string,charset(UTF16)] uint16 *server_unc,
+	arguments = bin.pack("<IIIIA",
+					REFERENT_ID,            -- Referent ID
+					string.len(server) + 1, -- Max count
+					0,                      -- Offset
+					string.len(server) + 1, -- Actual count
+					string_to_unicode(server, true, true)
+				)
+
+--		[in]   [string,charset(UTF16)] uint16 path1[],
+	arguments = arguments .. bin.pack("<IIIA",
+					string.len(path1) + 1, -- Max count
+					0,                      -- Offset
+					string.len(path1) + 1, -- Actual count
+					string_to_unicode(path1, true, true)
+				)
+
+
+--		[in]   [string,charset(UTF16)] uint16 path2[],
+	arguments = arguments .. bin.pack("<IIIA",
+					string.len(path2) + 1, -- Max count
+					0,                      -- Offset
+					string.len(path2) + 1, -- Actual count
+					string_to_unicode(path2, true, true)
+				)
+
+--		[in]    uint32 pathtype,
+	arguments = arguments .. bin.pack("<I", pathtype)
+
+--		[in]    uint32 pathflags
+	arguments = arguments .. bin.pack("<I", pathflags)
+
+
+	-- Do the call
+	status, result = call_function(smbstate, 0x20, arguments)
+	if(status ~= true) then
+		return false, result
+	end
+
+	stdnse.print_debug(3, "MSRPC: NetPathCompare() returned successfully")
+
+	-- Make arguments easier to use
+	arguments = result['arguments']
+	pos = 1
+
+
+--		[in]   [string,charset(UTF16)] uint16 *server_unc,
+--		[in]   [string,charset(UTF16)] uint16 path1[],
+--		[in]   [string,charset(UTF16)] uint16 path2[],
+--		[in]    uint32 pathtype,
+--		[in]    uint32 pathflags
+
+	pos, response['return'] = bin.unpack("<I", arguments, pos)
+
+	if(response['return'] == nil) then
+		return false, "Read off the end of the packet (srvsvc.netpathcompare)"
+	end
+	if(response['return'] ~= 0) then
+		return false, smb.get_status_name(response['return']) .. " (srvsvc.netpathcompare)"
+	end
+
+	return true, response
+
+end
+
+
+
 ---Call the <code>connect4</code> function, to obtain a "connect handle". This must be done before calling many 
 -- of the SAMR functions. 
 --

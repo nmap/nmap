@@ -248,7 +248,7 @@ function start(host)
 	stdnse.print_debug(2, "SMB: Starting SMB session for %s (%s)", host.name, host.ip)
 
 	if(port == nil) then
-		return false, "Couldn't find a valid port to check"
+		return false, "SMB: Couldn't find a valid port to check"
 	end
 
 	stdnse.print_debug(3, "SMB: Attempting to lock SMB mutex")
@@ -261,7 +261,7 @@ function start(host)
 		if(status == false) then
 			stdnse.print_debug(3, "SMB: Attempting to release SMB mutex (1)")
 			mutex "done"
-			stdnse.print_debug(3, "SMB: SMB mutex released (1)")
+			stdnse.print_debug(3, "SMB: mutex released (1)")
 		end
 
 		return status, state
@@ -281,7 +281,7 @@ function start(host)
 	mutex "done"
 	stdnse.print_debug(3, "SMB: SMB mutex released (3)")
 
-	return false, "Couldn't find a valid port to check"
+	return false, "SMB: Couldn't find a valid port to check"
 end
 
 --- Kills the SMB connection, closes the socket, and releases the mutex. Because of the mutex 
@@ -312,7 +312,7 @@ function stop(smb)
 		local status, err = smb['socket']:close()
 
 		if(status == false) then
-			return false, "Failed to close socket: " .. err
+			return false, "SMB: Failed to close socket: " .. err
 		end
 	end
 
@@ -333,7 +333,7 @@ function start_raw(host, port)
 	status, err = socket:connect(host.ip, port, "tcp")
 
 	if(status == false) then
-		return false, "Failed to connect to host: " .. err
+		return false, "SMB: Failed to connect to host: " .. err
 	end
 
 	return true, socket
@@ -439,7 +439,7 @@ function start_netbios(host, port, name)
 		status, err = socket:connect(host.ip, port, "tcp")
 		if(status == false) then
 			socket:close()
-			return false, "Failed to connect: " .. err
+			return false, "SMB: Failed to connect: " .. err
 		end
 
 		-- Send the session request
@@ -447,7 +447,7 @@ function start_netbios(host, port, name)
 		status, err = socket:send(session_request)
 		if(status == false) then
 			socket:close()
-			return false, "Failed to send: " .. err
+			return false, "SMB: Failed to send: " .. err
 		end
 		socket:set_timeout(5000)
 	
@@ -456,7 +456,7 @@ function start_netbios(host, port, name)
 		status, result = socket:receive_bytes(4);
 		if(status == false) then
 			socket:close()
-			return false, "Failed to close socket: " .. result
+			return false, "SMB: Failed to close socket: " .. result
 		end
 		pos, result, flags, length = bin.unpack(">CCS", result)
 	
@@ -477,7 +477,7 @@ function start_netbios(host, port, name)
 
 	-- We reached the end of our names list
 	stdnse.print_debug(1, "SMB: None of the NetBIOS names worked!")
-	return false, "Couldn't find a NetBIOS name that works for the server. Sorry!"
+	return false, "SMB: Couldn't find a NetBIOS name that works for the server. Sorry!"
 end
 
 ---Generate the Lanman v1 hash (LMv1). The generated hash is incredibly easy to reverse, because the input
@@ -489,7 +489,7 @@ end
 --@return (status, hash) If status is true, the hash is returned; otherwise, an error message is returned.
 function lm_create_hash(password)
 	if(have_ssl ~= true) then
-		return false, "OpenSSL not present"
+		return false, "SMB: OpenSSL not present"
 	end
 
 	local str1, str2
@@ -525,7 +525,7 @@ end
 --@return (status, hash) If status is true, the hash is returned; otherwise, an error message is returned.
 function ntlm_create_hash(password)
 	if(have_ssl ~= true) then
-		return false, "OpenSSL not present"
+		return false, "SMB: OpenSSL not present"
 	end
 
 	local i
@@ -547,7 +547,7 @@ end
 --@return (status, response) If status is true, the response is returned; otherwise, an error message is returned.
 function lm_create_response(lanman, challenge)
 	if(have_ssl ~= true) then
-		return false, "OpenSSL not present"
+		return false, "SMB: OpenSSL not present"
 	end
 
 	local str1, str2, str3
@@ -593,7 +593,7 @@ end
 --@return (status, response) If status is true, the response is returned; otherwise, an error message is returned.
 function ntlmv2_create_hash(ntlm, username, domain)
 	if(have_ssl ~= true) then
-		return false, "OpenSSL not present"
+		return false, "SMB: OpenSSL not present"
 	end
 
 	local unicode = ""
@@ -641,7 +641,7 @@ end
 -- it on every Windows system from Windows 2000 to Windows Vista, and it has always worked. 
 function ntlmv2_create_response(ntlm, username, domain, challenge, client_challenge_length)
 	if(have_ssl ~= true) then
-		return false, "OpenSSL not present"
+		return false, "SMB: OpenSSL not present"
 	end
 
 	local client_challenge = openssl.rand_bytes(client_challenge_length)
@@ -785,12 +785,15 @@ function smb_read(smb)
 
 	-- Make sure the connection is still alive
 	if(status ~= true) then
-		return false, "Failed to receive bytes: " .. result
+		return false, "SMB: Failed to receive bytes: " .. result
 	end
 
 	-- The length of the packet is 4 bytes of big endian (for our purposes).
 	-- The NetBIOS header is 4 bytes, big endian
 	pos, netbios_length   = bin.unpack(">I", result)
+	if(netbios_length == nil) then
+		return false, "SMB: Malformed packet received"
+	end
 
 	-- The total length is the netbios_length, plus 4 (for the length itself)
 	length = netbios_length + 4
@@ -804,7 +807,7 @@ function smb_read(smb)
 
 		-- Make sure the connection is still alive
 		if(status ~= true) then
-			return false, "Failed to receive bytes: " .. result
+			return false, "SMB: Failed to receive bytes: " .. result
 		end
 
 		-- Append the new data to the old stuff
@@ -819,14 +822,33 @@ function smb_read(smb)
 
 	-- The header is 32 bytes.
 	pos, header   = bin.unpack("<A32", result, pos)
+	if(header == nil) then
+		return false, "SMB: Malformed packet received"
+	end
+
 	-- The parameters length is a 1-byte value.
 	pos, parameter_length = bin.unpack("<C",     result, pos)
+	if(parameter_length == nil) then
+		return false, "SMB: Malformed packet received"
+	end
+
 	-- Double the length parameter, since parameters are two-byte values. 
 	pos, parameters       = bin.unpack(string.format("<A%d", parameter_length*2), result, pos)
+	if(parameters == nil) then
+		return false, "SMB: Malformed packet received"
+	end
+
 	-- The data length is a 2-byte value. 
 	pos, data_length      = bin.unpack("<S",     result, pos)
+	if(data_length == nil) then
+		return false, "SMB: Malformed packet received"
+	end
+
 	-- Read that many bytes of data.
 	pos, data             = bin.unpack(string.format("<A%d", data_length),        result, pos)
+	if(data == nil) then
+		return false, "SMB: Malformed packet received"
+	end
 
 	stdnse.print_debug(3, "SMB: Received %d bytes", string.len(result))
 	return true, header, parameters, data
@@ -891,11 +913,38 @@ function negotiate_protocol(smb)
 		return false, header
 	end
 
-	-- Since this is our first response, parse out the header
+	-- Parse out the header
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 
+	-- Check if we fell off the packet (if that happened, the last parameter will be nil)
+	if(mid == nil) then
+		return false, "SMB: Malformed packet received"
+	end
+
 	-- Parse the parameter section
-	pos, dialect, security_mode, max_mpx, max_vc, max_buffer, max_raw_buffer, session_key, capabilities, time, timezone, key_length = bin.unpack("<SCSSIIIILsC", parameters)
+	pos, dialect = bin.unpack("<S", parameters)
+
+	-- Check if we ran off the packet
+	if(dialect == nil) then
+		return false, "SMB: Malformed packet received"
+	end
+	-- Check if the server didn't like our requested protocol
+	if(dialect ~= 0) then
+		return false, string.format("Server negotiated an unknown protocol (#%d) -- aborting", dialect)
+	end
+
+	pos, security_mode, max_mpx, max_vc, max_buffer, max_raw_buffer, session_key, capabilities, time, timezone, key_length = bin.unpack("<CSSIIIILsC", parameters, pos)
+
+	-- Some broken implementations of SMB don't send these variables
+	if(time == nil) then
+		time = 0
+	end
+	if(timezone == nil) then
+		timezone = 0
+	end
+	if(key_length == nil) then
+		key_length = 0
+	end
 
 	-- Convert the time and timezone to more useful values
 	time = (time / 10000000) - 11644473600
@@ -916,16 +965,17 @@ function negotiate_protocol(smb)
 	-- Get the domain as a Unicode string
 	local ch, dummy
 	domain = ""
+	server = ""
+
 	pos, ch, dummy = bin.unpack("<CC", data, pos)
-	while ch ~= 0 do
+	while ch ~= nil and ch ~= 0 do
 		domain = domain .. string.char(ch)
 		pos, ch, dummy = bin.unpack("<CC", data, pos)
 	end
 
 	-- Get the server name as a Unicode string
-	server = ""
 	pos, ch, dummy = bin.unpack("<CC", data, pos)
-	while ch do
+	while ch ~= nil and ch ~= 0 do
 		server = server .. string.char(ch)
 		pos, ch, dummy = bin.unpack("<CC", data, pos)
 	end
@@ -1296,11 +1346,18 @@ function start_session(smb, username, domain, password, password_hash, hash_type
 		-- Check if we were allowed in
 		pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 
+		if(mid == nil) then
+			return false, "SMB: Malformed packet received"
+		end
+
 		-- Check if we're successful
 		if(status == 0) then
 
 			-- Parse the parameters
 			pos, andx_command, andx_reserved, andx_offset, action = bin.unpack("<CCSS", parameters)
+			if(action == nil) then
+				return false, "SMB: Malformed packet received"	
+			end
 
 			-- Parse the data
 			pos, os, lanmanager, domain = bin.unpack("<zzz", data)
@@ -1312,8 +1369,10 @@ function start_session(smb, username, domain, password, password_hash, hash_type
 			smb['lanmanager'] = lanmanager
 
 			-- Check if they're using an un-supported system [TODO: once I sort this out, remove the warning]
-			if(os == "Unix" or string.sub(lanmanager, 1, 5) == "Samba") then
-				stdnse.print_debug(1, "SMB: Warning: the server apperas to be running a non-Microsoft operating system. Since these scripts are primarily Microsoft checks, your mileage may vary.")
+			if(os == nil or lanmanager == nil or domain == nil) then
+				stdnse.print_debug(1, "SMB: Warning: the server is using a non-standard SMB implementation; your mileage may vary (%s)", smb['ip'])
+			elseif(os == "Unix" or string.sub(lanmanager, 1, 5) == "Samba") then
+				stdnse.print_debug(1, "SMB: Warning: the server apperas to be Unix; your mileage may vary.")
 			end
 
 			-- Check if they were logged in as a guest
@@ -1385,6 +1444,10 @@ function tree_connect(smb, path)
 
 	-- Check if we were allowed in
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
+	if(mid == nil) then
+		return false, "SMB: Malformed packet received"
+	end
+
 	if(status ~= 0) then
 		return false, get_status_name(status)
 	end
@@ -1420,6 +1483,9 @@ function tree_disconnect(smb)
 
 	-- Check if there was an error
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
+	if(mid == nil) then
+		return false, "SMB: Malformed packet received"
+	end
 	if(status ~= 0) then
 		return false, get_status_name(status)
 	end
@@ -1463,6 +1529,9 @@ function logoff(smb)
 
 	-- Check if there was an error
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
+	if(mid == nil) then
+		return false, "SMB: Malformed packet received"
+	end
 	if(status ~= 0) then
 		return false, get_status_name(status)
 	end
@@ -1524,12 +1593,18 @@ function create_file(smb, path)
 
 	-- Check if we were allowed in
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
+	if(mid == nil) then
+		return false, "SMB: Malformed packet received"
+	end
 	if(status ~= 0) then
 		return false, get_status_name(status)
 	end
 
 	-- Parse the parameters
 	pos, andx_command, andx_reserved, andx_offset, oplock_level, fid, create_action, created, last_access, last_write, last_change, attributes, allocation_size, end_of_file, filetype, ipc_state, is_directory = bin.unpack("<CCSCSILLLLILLSSC", parameters)
+	if(is_directory == nil) then
+		return false, "SMB: Malformed packet received"
+	end
 
 	-- Fill in the smb string
 	smb['oplock_level']    = oplock_level
@@ -1619,12 +1694,19 @@ function send_transaction(smb, func, function_parameters, function_data)
 
 	-- Check if it worked
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
+	if(mid == nil) then
+		return false, "SMB: Malformed packet received"
+	end
 	if(status ~= 0) then
+io.write(string.format("Status = %08x\n\n", status))
 		return false, status_codes[status]
 	end
 
 	-- Parse the parameters
 	pos, total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2 = bin.unpack("<SSSSSSSSSCC", parameters)
+	if(reserved2 == nil) then
+		return "SMB: Malformed packet received"
+	end
 
 	-- Convert the parameter/data offsets into something more useful (the offset into the data section)
 	-- - 0x20 for the header, - 0x01 for the length. 
@@ -1734,6 +1816,7 @@ status_names =
 	NT_STATUS_OK = 0x0000,
 	NT_STATUS_WERR_BADFILE           = 0x00000002,
 	NT_STATUS_WERR_ACCESS_DENIED     = 0x00000005,
+	NT_STATUS_WERR_INVALID_NAME      = 0x0000007b,
 	NT_STATUS_NO_MORE_ITEMS          = 0x00000103,
 	NT_STATUS_MORE_ENTRIES           = 0x00000105,
 	NT_STATUS_SOME_NOT_MAPPED        = 0x00000107,
