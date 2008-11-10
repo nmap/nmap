@@ -141,7 +141,6 @@ It helps people remember the most common options, but is no
 substitute for the in-depth documentation in the rest of this
 manual.  Some obscure options aren't even included here.</para>
 
-<para>
 <!-- sortas="#" puts it before the entries that start with '-' in the options
      section. -->
 <indexterm class="startofrange" id="nmap-usage-indexterm"><primary sortas="#">summary of options</primary></indexterm>
@@ -149,7 +148,6 @@ manual.  Some obscure options aren't even included here.</para>
 &nmap-usage;
 <indexterm class="endofrange" startref="nmap-usage-nmap-indexterm"/>
 <indexterm class="endofrange" startref="nmap-usage-indexterm"/>
-</para>
 
   </refsect1>
 
