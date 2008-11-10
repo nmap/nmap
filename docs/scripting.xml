@@ -556,7 +556,6 @@ Nmap script database.</para>
 	  different scripts. Here is a typical Nmap invocation with script arguments:
 	  </para>
 	  <para>
-<indexterm><primary><option>-sC</option></primary><secondary>example of</secondary></indexterm>
 <indexterm><primary><option>--script-args</option></primary><secondary>example of</secondary></indexterm>
 <userinput>
 $ nmap -sC --script-args user=foo,pass=bar,whois={whodb=nofollow+ripe}
