@@ -2275,14 +2275,14 @@ end
     <title>Implementation Details</title>
     <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>implementation</secondary></indexterm>
 	<para>
-	Now it is time to get into the nitty gritty details of the NSE
-	implementation.  Understanding how it works is useful for
-	designing efficient scripts and libraries.  The canonical
-	reference to the NSE implementation is the source code, but
-	this section provides an overview of key details.  It should
-	be valuable to folks trying to understand and extend the NSE
-	source code, as well as to script authors who want to
-	better-understand how their scripts are executed.
+	Now it is time to explore the NSE implementation details in
+	depth.  Understanding how NSE works is useful for designing
+	efficient scripts and libraries.  The canonical reference to
+	the NSE implementation is the source code, but this section
+	provides an overview of key details.  It should be valuable to
+	folks trying to understand and extend the NSE source code, as
+	well as to script authors who want to better-understand how
+	their scripts are executed.
 	</para>
     <sect2 id="nse-implementation-init">
       <title>Initialization Phase</title>

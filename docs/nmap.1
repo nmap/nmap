@@ -1,12 +1,12 @@
 .\"     Title: nmap
-.\"    Author: Gordon \(lqFyodor\(rq Insecure.Org Lyon
+.\"    Author: Gordon \(lqFyodor\(rq Lyon
 .\" Generator: DocBook XSL Stylesheets v1.74.0 <http://docbook.sf.net/>
-.\"      Date: 11/08/2008
+.\"      Date: 11/10/2008
 .\"    Manual: Nmap Reference Guide
-.\"    Source: Nmap Zero Day
+.\"    Source: Nmap First Edition
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "11/08/2008" "Nmap Zero Day" "Nmap Reference Guide"
+.TH "NMAP" "1" "11/10/2008" "Nmap First Edition" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * (re)Define some macros
 .\" -----------------------------------------------------------------
@@ -267,11 +267,8 @@ The newest version of Nmap can be obtained from
 .PP
 This options summary is printed when Nmap is run with no arguments, and the latest version is always available at
 \m[blue]\fB\%http://nmap.org/data/nmap.usage.txt\fR\m[]\&. It helps people remember the most common options, but is no substitute for the in\-depth documentation in the rest of this manual\&. Some obscure options aren\'t even included here\&.
-.PP
-
 .\" summary of options
 .\" command-line options: of Nmap
-
 .sp
 .if n \{\
 .RS 4
@@ -279,12 +276,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .fam C
 .ps -1
 .nf
-.if t \{\
-.sp -1
-.\}
-.BB lightgray adjust-for-leading-newline
-.sp -1
-
+.BB lightgray
 Nmap 4\&.76 ( http://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
@@ -391,20 +383,15 @@ EXAMPLES:
   nmap \-v \-sP 192\&.168\&.0\&.0/16 10\&.0\&.0\&.0/8
   nmap \-v \-iR 10000 \-PN \-p 80
 SEE THE MAN PAGE FOR MANY MORE OPTIONS, DESCRIPTIONS, AND EXAMPLES
-
-.EB lightgray adjust-for-leading-newline
-.if t \{\
-.sp 1
-.\}
+.EB lightgray
 .fi
 .fam
 .ps +1
 .if n \{\
 .RE
 .\}
-.sp
-.\"
-.\"
+.\" 
+.\" 
 .SH "Target Specification"
 .\" target specification
 .PP
@@ -645,8 +632,7 @@ options, respectively\&. A timestamp reply (ICMP code 14) or address mask reply 
 The newest host discovery option is the IP protocol ping, which sends IP packets with the specified protocol number set in their IP header\&. The protocol list takes the same format as do port lists in the previously discussed TCP and UDP host discovery options\&. If no protocols are specified, the default is to send multiple IP packets for ICMP (protocol 1), IGMP (protocol 2), and IP\-in\-IP (protocol 4)\&. The default protocols can be configured at compile\-time by changing
 \fIDEFAULT_PROTO_PROBE_PORT_SPEC\fR.\" DEFAULT_PROTO_PROBE_PORT_SPEC
 in
-\FCnmap\&.h\F[]\&..\" nmap.h
-Note that for the ICMP, IGMP, TCP (protocol 6), and UDP (protocol 17), the packets are sent with the proper protocol headers while other protocols are sent with no additional data beyond the IP header (unless the
+\FCnmap\&.h\F[]\&. Note that for the ICMP, IGMP, TCP (protocol 6), and UDP (protocol 17), the packets are sent with the proper protocol headers while other protocols are sent with no additional data beyond the IP header (unless the
 \fB\-\-data\-length\fR
 option is specified)\&.
 .sp
@@ -1282,8 +1268,10 @@ extension are ignored\&. Nmap does not search recursively into subdirectories to
 .sp
 Nmap scripts are stored in a
 \FCscripts\F[]
-subdirectory of the Nmap data directory by default (see
-Chapter\ \&14, Understanding and Customizing Nmap Data Files)\&. For efficiency, scripts are indexed in a database stored in
+subdirectory of the Nmap data directory by default
+(see \m[blue]\fB\%http://nmap.org/book/data-files.html\fR\m[])\&.
+
+For efficiency, scripts are indexed in a database stored in
 \FCscripts/script\&.db\F[]\&..\" script.db
 which lists the category or categories in which each script belongs\&. Give the argument
 \FCall\F[]
@@ -2452,16 +2440,21 @@ U\&.S\&. Export Control: Insecure\&.Com LLC believes that Nmap falls under U\&.S
 \(lqInformation Security software not controlled by 5D002\(rq\&. The only restriction of this classification is AT (anti\-terrorism), which applies to almost all goods and denies export to a handful of rogue nations such as Iran and North Korea\&. Thus exporting Nmap does not require any special license, permit, or other governmental authorization\&.
 .SH "Author"
 .PP
-\fBGordon \(lqFyodor\(rq Insecure.Org Lyon\fR
-.br
-Insecure.Org
+\fBGordon \(lqFyodor\(rq Lyon\fR
 .RS 4
 Author.
 .RE
 .SH "Copyright"
 .br
-Copyright \(co 2008 Nmap Project
-.br
+.PP
+Copyright \(co 2008 by Insecure.Com LLC. All rights reserved, except where noted.
+.PP
+Copyright \(co 2008 by Insecure.Com LLC. All rights reserved. Except where noted otherwise in this work, no part may be reproduced or transmitted in any form or by any means, electronic or mechanical, including photocopying, recording, or by any information storage or retrieval system, without the prior written permission of the copyright owner.
+.PP
+Nmap is a registered trademark of Insecure.Com LLC. Other product and company names mentioned herein may be the trademarks of their respective owners. Where those designations appear in this book, and the publisher was aware of a trademark claim, the designations have been printed with initial capital letters or in all capitals.
+.PP
+The authors and publisher have taken care in the preparation of this book, but make no expressed or implied warranty of any kind and assume no responsibility for errors or omissions. No liability is assumed for incidental or consequential damages in connection with or arising out of the use of the information or programs contained herein.
+.sp
 .SH "Notes"
 .IP " 1." 4
 RFC 1122

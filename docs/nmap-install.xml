@@ -405,7 +405,7 @@ options <option>--bindir</option>, <option>--datadir</option>, and/or
 <option>--mandir</option>.  An example usage of
 <option>--prefix</option> would be to install
 Nmap in my account as an unprivileged user.
-I would run <command>./configure --prefix=<replaceable>/home/fyodor</replaceable></command>.  Nmap creates subdirs like <filename>/home/fyodor/man/man1</filename> in the install stage if they do not already exist.</para></listitem></varlistentry>
+I would run <command>./configure --prefix=<replaceable>/home/fyodor</replaceable></command>.  Nmap creates subdirectories like <filename>/home/fyodor/man/man1</filename> in the install stage if they do not already exist.</para></listitem></varlistentry>
 
 <varlistentry><term><option>--without-zenmap</option></term>
 <listitem><indexterm><primary>Zenmap</primary><secondary>disabling</secondary></indexterm><para>This option prevents the Zenmap graphical frontend from being installed.  Normally the build system checks your system for requirements such as the Python scripting language and then installs Zenmap if they are all available.</para></listitem></varlistentry>
