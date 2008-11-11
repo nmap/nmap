@@ -122,7 +122,7 @@ action = function( host )
         break
       end
 
-      -- recognise and organise fields from response
+      -- recognize and organise fields from response
       local success = result_recog( response, asn_type, records, host.ip )
 
       -- un-replace arpa zone
@@ -237,7 +237,7 @@ end
 -- Extracts fields from the supplied DNS answer sections and generates a records entry for each.
 -- @param answers    Table containing string DNS answers.
 -- @param asn_type   String denoting whether the query is for Origin or Peer ASN.
--- @param recs       Table of existing recognised answers to which to add (refer to the <code>records</code> table inside <code>action</code>.
+-- @param recs       Table of existing recognized answers to which to add (refer to the <code>records</code> table inside <code>action</code>.
 -- @return           Boolean true if successful otherwise false.
 
 function result_recog( answers, asn_type, recs, discoverer_ip )
@@ -314,10 +314,10 @@ end
 
 
 ---
--- Processes records which are recognised DNS answers by combining them into unique BGPs before caching
+-- Processes records which are recognized DNS answers by combining them into unique BGPs before caching
 -- them in the registry and returning <code>combined_records</code>.  If there aren't any records (No Such Name message
 -- or DNS failure) we signal this fact to other threads by using the cache and return with an empty table.
--- @param records  Table of recognised answers (may be empty).
+-- @param records  Table of recognized answers (may be empty).
 -- @param output   String non-answer message or an empty table.
 -- @param ip       String <code>host.ip</code>.
 -- @return         Table containing combined records for the target (or an empty table).

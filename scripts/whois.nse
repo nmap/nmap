@@ -12,7 +12,7 @@ to help ensure the data is current.  If, for any reason, these files are not ava
 of Whois services are queried in turn until: the desired record is found; or a referral to another (defined) Whois service is
 found; or until the sequence is exhausted without finding either a referral or the desired record.
 
-The script will recognise a referral to another Whois service if that service is defined in the script and will continue by
+The script will recognize a referral to another Whois service if that service is defined in the script and will continue by
 sending a query to the referred service.  A record is assumed to be the desired one if it does not contain a referral.
 
 To reduce the number unnecessary queries sent to Whois services a record cache is employed and the entries in the cache can be
@@ -583,7 +583,7 @@ function analyse_response( tracking, ip, response, data )
 
   meta = meta or nmap.registry.whois.whoisdb[this_db]
 
-  -- do we recognise objects in the response?.
+  -- do we recognize objects in the response?.
   if type( meta ) == "table" and type( meta.fieldreq ) == "table" and type( meta.fieldreq.ob_exist ) == "string" then
     have_objects = response:match( meta.fieldreq.ob_exist )
   else
@@ -591,7 +591,7 @@ function analyse_response( tracking, ip, response, data )
     have_objects = false
   end
 
-  -- if we do not recognise objects check for an known error/non-object message
+  -- if we do not recognize objects check for an known error/non-object message
   if not have_objects then
     stdnse.print_debug( 4, "%s %s %s has not responded with the expected objects.", filename, ip, this_db )
     local tmp, msg
@@ -615,14 +615,14 @@ function analyse_response( tracking, ip, response, data )
         end
       end
     end
-    -- if we've recognised a non-object message,
+    -- if we've recognized a non-object message,
     if msg then
       add_to_cache( ip, nil, nil, "Message from " .. nmap.registry.whois.whoisdb[this_db].hostname .. "\n" .. msg )
       return data
     end
   end
 
-  -- the query response may not contain the set of objects we were expecting and we do not recognise the response message.
+  -- the query response may not contain the set of objects we were expecting and we do not recognize the response message.
   -- it may contain a record mirrored (or found by recursion) from a different service
   if not have_objects then
     local foreign_obj
