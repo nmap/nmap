@@ -35,7 +35,7 @@ it shouldn't be necessary for a default configuration.
 author = "Ron Bowes"
 copyright = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"intrusive","vuln"}
+categories = {"intrusive"}
 
 require 'msrpc'
 require 'smb'

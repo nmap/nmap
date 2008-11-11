@@ -97,7 +97,6 @@ Entry{ category = "version", filename = "skypev2-version.nse" }
 Entry{ category = "intrusive", filename = "sql-injection.nse" }
 Entry{ category = "vuln", filename = "sql-injection.nse" }
 Entry{ category = "intrusive", filename = "smb-check-vulns.nse" }
-Entry{ category = "vuln", filename = "smb-check-vulns.nse" }
 Entry{ category = "demo", filename = "smtp-open-relay.nse" }
 Entry{ category = "default", filename = "snmp-sysdescr.nse" }
 Entry{ category = "discovery", filename = "snmp-sysdescr.nse" }
