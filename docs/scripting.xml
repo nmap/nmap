@@ -137,38 +137,41 @@ The reference manual is also
       next to that port in the Nmap output port table.  Host scripts,
       on the other hand, run no more than once against each target IP
       and produce results below the port table.  <xref
-      linkend="nse-ex1" xrefstyle="select: label nopage"/> shows a typical script scan.  Examples of
-      service scripts producing output are:
-      <literal>sshv1</literal>, saying that SSH-1 is supported;
-      and <literal>html-title</literal>,
-      which simply grabs the title of the root path of any web servers
-      found.  A sample host script is <literal>ripeQuery</literal>,
-      which looks up and reports target IP ownership
-      information.<indexterm><primary>script names, examples of</primary></indexterm>
+      linkend="nse-ex1" xrefstyle="select: label nopage"/> shows a
+      typical script scan.  Service scripts producing
+      output in this example are
+      <literal>ssh-hostkey</literal>, which provides the system's RSA and DSA SSH keys, and <literal>rpcinfo</literal>, which queries
+      portmapper to enumerate available services.  The only host
+      script producing output in this example
+      is <literal>smb-os-discovery</literal>, which collects a variety of
+      information from SMB servers.<indexterm><primary>script names, examples
+      of</primary></indexterm>  Nmap discovered all of this information in a third of a second.</para>
 
-    </para>
-    <example id="nse-ex1">
-      <title>Typical NSE output</title>
-<indexterm><primary><option>-sC</option></primary><secondary>example of</secondary></indexterm>
+<example id="nse-ex1"><title>Typical NSE output</title><indexterm><primary><option>-sC</option></primary><secondary>example of</secondary></indexterm>
 <screen>
-$ nmap -sC localhost -p 22,23,80,113
+# nmap -sC -p22,111,139 -T4 localhost
 
 Starting Nmap ( http://nmap.org )
-Interesting ports on localhost (127.0.0.1):
-PORT    STATE  SERVICE
-22/tcp  open   ssh
-|_ sshv1: Server supports SSHv1
-23/tcp  closed telnet
-80/tcp  open   http
-|_ html-title: Test Page for Apache Installation
-113/tcp closed auth
+Interesting ports on flog (127.0.0.1):
+PORT     STATE SERVICE
+22/tcp   open  ssh
+|  ssh-hostkey: 1024 b1:36:0d:3f:50:dc:13:96:b2:6e:34:39:0d:9b:1a:38 (DSA)
+|_ 2048 77:d0:20:1c:44:1f:87:a0:30:aa:85:cf:e8:ca:4c:11 (RSA)
+111/tcp  open  rpcbind
+|  rpcinfo:  
+|  100000  2,3,4    111/udp  rpcbind  
+|  100024  1      56454/udp  status   
+|_ 100000  2,3,4    111/tcp  rpcbind  
+139/tcp  open  netbios-ssn
 
 Host script results:
-|_ ripeQuery: IP belongs to:          Internet Assigned Numbers Authority
+|  smb-os-discovery: Unix
+|  LAN Manager: Samba 3.0.31-0.fc8
+|_ Name: WORKGROUP
 
-Nmap done: 1 IP address (1 host up) scanned in 0.91 seconds
+Nmap done: 1 IP address (1 host up) scanned in 0.33 seconds
 </screen>
-    </example>
+</example>
 
   </sect1>
   <sect1 id="nse-usage">
