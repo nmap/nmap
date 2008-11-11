@@ -495,12 +495,12 @@ built and optimized for your system.  To build Nmap from source, see
 <xref linkend="inst-source" />.  Here are simple package instructions
 for the most common distributions.</para>
 
-<sect2 id="inst-rpm"><title>RPM-based Distributions (Red Hat, Mandrake, Suse, Fedora)</title>
+<sect2 id="inst-rpm"><title>RPM-based Distributions (Red Hat, Mandrake, SUSE, Fedora)</title>
 <indexterm><primary>RPM</primary></indexterm>
 <indexterm><primary>Linux</primary><secondary>installing on, with RPM</secondary>></indexterm>
 <indexterm><primary>Red Hat (Linux distribution)</primary><secondary>installing on, with RPM</secondary>></indexterm>
 <indexterm><primary>Mandrake (Linux distribution)</primary><secondary>installing on, with RPM</secondary></indexterm>
-<indexterm><primary>Suse (Linux distribution)</primary><secondary>installing on, with RPM</secondary></indexterm>
+<indexterm><primary>SUSE (Linux distribution)</primary><secondary>installing on, with RPM</secondary></indexterm>
 <indexterm><primary>Fedora (Linux distribution)</primary><secondary>installing on, with RPM</secondary></indexterm>
 
 <para>I build RPM packages for every release of Nmap and post them to
