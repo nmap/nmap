@@ -380,8 +380,8 @@ static int ip_is_reserved(struct in_addr *ip)
       break;
     }
 
-  /* 100-111/8 is IANA reserved */
-  if (i1 >= 100 && i1 <= 111)
+  /* 100-109/8 is IANA reserved */
+  if (i1 >= 100 && i1 <= 109)
     return 1;
 
   /* 172.16.0.0/12 is reserved for private nets by RFC1819 */
