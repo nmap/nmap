@@ -15,7 +15,7 @@ found; or until the sequence is exhausted without finding either a referral or t
 The script will recognise a referral to another Whois service if that service is defined in the script and will continue by
 sending a query to the referred service.  A record is assumed to be the desired one if it does not contain a referral.
 
-To reduce the number unecessary queries sent to Whois services a record cache is employed and the entries in the cache can be
+To reduce the number unnecessary queries sent to Whois services a record cache is employed and the entries in the cache can be
 applied to any targets within the range of addresses represented in the record.
 
 In certain circumstances, the ability to cache responses prevents the discovery of other, smaller IP address assignments

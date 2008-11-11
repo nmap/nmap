@@ -1,5 +1,5 @@
 description = [[
-Attempt's to retrieve the target's NetBIOS names and MAC address.
+Attempts to retrieve the target's NetBIOS names and MAC address.
 
 By default, the script displays the name of the computer and the logged-in
 user; if the verbosity is turned up, it displays all names the system thinks it

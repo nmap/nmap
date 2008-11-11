@@ -10,7 +10,7 @@ The responses to these queries contain both Origin and Peer ASNs and
 their descriptions, displayed along with the BGP Prefix and Country Code.
 
 The script caches results to reduce the number of queries and should
-perform a single query for all scanned targets in a BG Prefix present in
+perform a single query for all scanned targets in a BGP Prefix present in
 Team Cymru's database.
 
 Be aware that any targets against which this script is run will be sent
