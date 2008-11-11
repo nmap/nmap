@@ -711,7 +711,7 @@ Nmap) and reduce the time delay before a closed connection can
 be reused.  Most people simply check the box to apply these changes in the executable Nmap installer, but you can also apply them by double-clicking on
 <filename>nmap_performance.reg</filename>, or by running the command
 <command>regedit32 nmap_performance.reg</command>.  To make the changes by hand, add these three Registry DWORD values to
-the <literal>CurrentControlSet\Services\Tcpip\Parameters</literal> entry under <literal>HKEY_LOCAL_MACHINE\SYSTEM</literal>:</para>
+<literal>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters</literal>:</para>
 
 <variablelist>
   <varlistentry><term>MaxUserPort</term>
