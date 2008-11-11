@@ -705,7 +705,7 @@ you would expect.</para>
           IP-in-IP (protocol 4).  The default protocols can be
           configured at compile-time by changing
           <varname>DEFAULT_PROTO_PROBE_PORT_SPEC</varname><indexterm><primary><varname>DEFAULT_PROTO_PROBE_PORT_SPEC</varname></primary></indexterm>
-          in <filename>nmap.h</filename>.<indexterm><primary><filename>nmap.h</filename></primary></indexterm>
+          in <filename>nmap.h</filename>.
           Note that for the ICMP, IGMP, TCP (protocol 6), and UDP
           (protocol 17), the packets are sent with the proper protocol
           headers while other protocols are sent with no additional data
