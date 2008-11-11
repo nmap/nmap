@@ -45,7 +45,8 @@ Useful resources
 -- |  www.foo.com.        CNAME
 -- |_ foo.com.            SOA     ns2.foo.com. piou.foo.com.
 -- @usage
--- nmap --script dns-zone-transfer.nse --script-args 'dnszonetransfer={domain=<domain>}'
+-- nmap --script dns-zone-transfer.nse \
+--      --script-args 'dnszonetransfer={domain=<domain>}'
 
 require('shortport')
 require('strbuf')
