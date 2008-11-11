@@ -25,8 +25,8 @@ idea to write this one.
 
 ---
 --@usage
--- nmap --script smb-enumsessions.nse -p445 <host>
--- sudo nmap -sU -sS --script smb-enumsessions.nse -p U:137,T:139 <host>
+-- nmap --script smb-enum-sessions.nse -p445 <host>
+-- sudo nmap -sU -sS --script smb-enum-sessions.nse -p U:137,T:139 <host>
 --
 --@output
 -- Host script results:

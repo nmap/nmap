@@ -22,7 +22,7 @@ server (your default DNS server, or whichever one you specified with the
 
 ---
 -- @usage
--- nmap --script ASN.nse [--script-args dns=<DNS server>] <target>
+-- nmap --script asn-query.nse [--script-args dns=<DNS server>] <target>
 -- @args dns The address of a recursive nameserver to use (optional).
 -- @output
 -- Host script results:

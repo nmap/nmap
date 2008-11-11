@@ -22,8 +22,8 @@ doing an authenticated test.
 
 ---
 --@usage
--- nmap --script smb-enumshares.nse -p445 <host>
--- sudo nmap -sU -sS --script smb-enumshares.nse -p U:137,T:139 <host>
+-- nmap --script smb-enum-shares.nse -p445 <host>
+-- sudo nmap -sU -sS --script smb-enum-shares.nse -p U:137,T:139 <host>
 --
 --@output
 -- Standard:

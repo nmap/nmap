@@ -12,8 +12,8 @@ After the initial <code>bind</code> to SAMR, the sequence of calls is:
 
 ---
 --@usage
--- nmap --script smb-enumdomains.nse -p445 <host>
--- sudo nmap -sU -sS --script smb-enumdomains.nse -p U:137,T:139 <host>
+-- nmap --script smb-enum-domains.nse -p445 <host>
+-- sudo nmap -sU -sS --script smb-enum-domains.nse -p U:137,T:139 <host>
 --
 --@output
 -- Host script results:

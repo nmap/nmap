@@ -11,8 +11,8 @@ I don't know it), so this doesn't support Vista at all.
 
 ---
 -- @usage
--- nmap --script smb-systeminfo.nse -p445 <host>
--- sudo nmap -sU -sS --script smb-systeminfo.nse -p U:137,T:139 <host>
+-- nmap --script smb-system-info.nse -p445 <host>
+-- sudo nmap -sU -sS --script smb-system-info.nse -p U:137,T:139 <host>
 --
 -- @output
 -- Host script results:

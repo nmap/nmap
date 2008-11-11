@@ -67,8 +67,8 @@ the code I wrote for this is largely based on the techniques used by them.
 
 ---
 -- @usage
--- nmap --script smb-enumusers.nse -p445 <host>
--- sudo nmap -sU -sS --script smb-enumusers.nse -p U:137,T:139 <host>
+-- nmap --script smb-enum-users.nse -p445 <host>
+-- sudo nmap -sU -sS --script smb-enum-users.nse -p U:137,T:139 <host>
 --
 -- @output
 -- Host script results:

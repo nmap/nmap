@@ -11,8 +11,8 @@ the numbers that Windows returns. Take the values here with a grain of salt.
 
 ---
 -- @usage
--- nmap --script smb-serverstats.nse -p445 <host>
--- sudo nmap -sU -sS --script smb-serverstats.nse -p U:137,T:139 <host>
+-- nmap --script smb-server-stats.nse -p445 <host>
+-- sudo nmap -sU -sS --script smb-server-stats.nse -p U:137,T:139 <host>
 --
 -- @output
 -- Host script results:
