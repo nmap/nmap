@@ -20,7 +20,7 @@ Useful resources
 -- @args zoneTrans.domain Domain to transfer.
 -- @output
 -- 53/tcp   open     domain
--- |  zone-transfer:
+-- |  dns-zone-transfer:
 -- |  foo.com.            SOA     ns2.foo.com. piou.foo.com.
 -- |  foo.com.            TXT  
 -- |  foo.com.            NS      ns1.foo.com.               
