@@ -4,7 +4,7 @@ Requests a zone transfer (AXFR) from a DNS server.
 The script sends an AXFR query to a DNS server. The domain to query is
 determined by examining the name given on the command line, the DNS
 server's hostname, or it can be specified with the
-<code>zoneTrans.domain</code> script argument. If the query is
+<code>dnszonetransfer.domain</code> script argument. If the query is
 successful all domains and domain types are returned along with common
 type specific data (SOA/MX/NS/PTR/A).
 
@@ -17,7 +17,7 @@ Useful resources
 ]]
 
 ---
--- @args zoneTrans.domain Domain to transfer.
+-- @args dnszonetransfer.domain Domain to transfer.
 -- @output
 -- 53/tcp   open     domain
 -- |  dns-zone-transfer:
@@ -44,6 +44,8 @@ Useful resources
 -- |  votetrust.foo.com.  CNAME
 -- |  www.foo.com.        CNAME
 -- |_ foo.com.            SOA     ns2.foo.com. piou.foo.com.
+-- @usage
+-- nmap --script dns-zone-transfer.nse --script-args 'dnszonetransfer={domain=<domain>}'
 
 require('shortport')
 require('strbuf')
@@ -309,8 +311,8 @@ action = function(host, port)
 	local domain = nil
 	local args = nmap.registry.args
 
-	if args.zoneTrans and args.zoneTrans.domain then
-		domain = args.zoneTrans.domain
+	if args.dnszonetransfer and args.dnszonetransfer.domain then
+		domain = args.dnszonetransfer.domain
 	elseif args.domain then
 		domain = args.domain
 	elseif host.targetname then
