@@ -165,7 +165,7 @@ struct ftpinfo {
 
 struct AVal {
   char *attribute;
-  char value[128];
+  char value[256];
   struct AVal *next;
 };
 
