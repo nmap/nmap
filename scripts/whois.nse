@@ -341,7 +341,7 @@ function check_response_cache( ip )
     -- record found in cache
     return true, nil
   else
-    stdnse.print_debug( 1, "%s %s Error in check_response_cache: %s.", filename, ip, err )
+    stdnse.print_debug( 1, "%s %s Error in check_response_cache: Empty Cache Entry was found.", filename, ip )
   end
 
   return false, nil
