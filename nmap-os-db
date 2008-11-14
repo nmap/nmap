@@ -1196,7 +1196,7 @@ IE(DFI=S%T=FA-104%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 # iPhone OS 2.0, jailbroken with iPhone Dev-Team's Pwnage Tool 2.0, running on an iPod Touch. Darwin 9.3.1 ARM
 # Unlocked Iphone running 2.0 Firmware with SSH open.
 # unlocked ipod touch 32gb, running openssh 2.0
-# Darwin myphone 9.3.1 Darwin Kernel Version 9.3.1: Sun Jun 15 21:37:01 PDT 2008; root:xnu-1228.6.76~45/RELEASE_ARM_S5L8900X iPhone1,2 arm N82AP Darwin
+# Darwin 9.3.1 Darwin Kernel Version 9.3.1: Sun Jun 15 21:37:01 PDT 2008; root:xnu-1228.6.76~45/RELEASE_ARM_S5L8900X iPhone1,2 arm N82AP Darwin
 # iPod Touch running iPhone OS 2.0.1
 # Running iPhoneOS 2.0.2
 Fingerprint Apple iPhone mobile phone or iPod touch audio player (iPhone OS 2.0.1 - 2.0.2, Darwin 9.3.1)
@@ -1404,7 +1404,7 @@ T7(R=N)
 U1(DF=N%T=3B-45%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=2B18%RUL=G%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
-# Darwin kerenel version 7.9.0: Wed mar 30 20:11:1 7 PST 2005; root:xnu/xnu-571.12.7.obj~1/RELEASE_PPC Power Macintosh powerpc
+# Darwin version 7.9.0: Wed mar 30 20:11:1 7 PST 2005; root:xnu/xnu-571.12.7.obj~1/RELEASE_PPC Power Macintosh powerpc
 Fingerprint Apple Mac OS X 10.3.9 (Panther) (Darwin 7.9.0, PowerPC)
 Class Apple | Mac OS X | 10.3.X | general purpose
 SEQ(SP=F8-108%GCD=<7%ISR=F6-110%TI=I%II=I%SS=S%TS=1)
@@ -1732,7 +1732,7 @@ T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=3B-45%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
-# Apple Mac OS 10.4.8/ppc (Darwin tetralyre 8.8.0 Darwin Kernel Version 8.8.0: Fri Sep  8 17:18:57 PDT
+# Apple Mac OS 10.4.8/ppc (Darwin 8.8.0 Darwin Kernel Version 8.8.0: Fri Sep  8 17:18:57 PDT
 # Darwin 8.8.1 Darwin Kernel Version 8.8.1: Mon Sep 25 19:42:00 PDT 2006; root:xnu-792.13.8.obj~1/RELEASE_I386 i386 i386
 # Apple Mac OS X 10.4.8 (Tiger) on x86 Core Duo
 # Apple Mac OS X 10.4.9, Darwin Kernel Version 8.9.1: Thu Feb 22 20:55:00 PST 2007; root:xnu-792.18.15~1/RELEASE_I386 i386 i386
@@ -1816,7 +1816,7 @@ U1(DF=N%T=3B-45%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%TOSI=Z%CD=S%SI=S%DLI=S)
 
 # Mac OS X 10.5 Build 9A303
-# Darwin hostname 9.0.0 Darwin Kernel Version 9.0.0: Tue Oct  9 21:35:55 PDT 2007; root:xnu-1228~1/RELEASE_I386 i386
+# Darwin 9.0.0 Darwin Kernel Version 9.0.0: Tue Oct  9 21:35:55 PDT 2007; root:xnu-1228~1/RELEASE_I386 i386
 Fingerprint Apple Mac OS X 10.5 (Leopard) (Darwin 9.0.0)
 Class Apple | Mac OS X | 10.5.X | general purpose
 SEQ(SP=EF-10D%GCD=<7%ISR=101-10B%TI=I%II=I%SS=S%TS=1)
@@ -1921,7 +1921,7 @@ U1(DF=N%T=3B-45%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%TOSI=S|Z%CD=S%SI=S%DLI=S)
 
 # Darwin 9.3.0 Darwin Kernel Version 9.3.0: Fri May 23 00:49:16 PDT 2008; root:xnu-1228.5.18~1/RELEASE_I386 i386
-# Darwin mini-intel-home-nutz-nl-2.local 9.4.0 Darwin Kernel Version 9.4.0: Mon Jun  9 19:30:53 PDT 2008; root:xnu-1228.5.20~1/RELEASE_I386 i386
+# Darwin 9.4.0 Darwin Kernel Version 9.4.0: Mon Jun  9 19:30:53 PDT 2008; root:xnu-1228.5.20~1/RELEASE_I386 i386
 Fingerprint Apple Mac OS X 10.5.3 - 10.5.4 (Leopard) (Darwin 9.3.0 - 9.4.0)
 Class Apple | Mac OS X | 10.5.X | general purpose
 SEQ(SP=ED-109%GCD=<7%ISR=F5-10D%TI=RD%II=RI%TS=3)
