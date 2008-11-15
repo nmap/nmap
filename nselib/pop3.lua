@@ -138,7 +138,9 @@ function login_apop(socket, user, pw, challenge)
 end
 
 ---
--- Asks a POP3 server for capabilities
+-- Asks a POP3 server for capabilities.
+--
+-- See RFC 2449.
 -- @param host Host to be queried.
 -- @param port Port to connect to.
 -- @return Table containing capabilities.
