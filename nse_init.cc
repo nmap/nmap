@@ -346,6 +346,21 @@ int init_setargs (lua_State *L)
   return 0;
 }
 
+/* Sorts the table at the given stack index (by calling table.sort). */
+static void table_sort(lua_State *L, int index)
+{
+  /* table.sort sorts in place. We modify the original by calling the function
+     on a copied reference to the table */
+  lua_pushvalue(L, index);
+  /* Get table.sort. */
+  lua_getglobal(L, "table");
+  lua_getfield(L, -1, "sort");
+  lua_replace(L, -2);
+  /* Put the (copy of the) table after the function. */
+  lua_insert(L, -2);
+  lua_call(L, 1, 0);
+}
+
 /* int init_updatedb (lua_State *L)
  *
  * Loads all the files in ./scripts and puts them in the database.
@@ -370,6 +385,9 @@ int init_updatedb (lua_State *L)
   lua_pushstring(L, path);
   lua_pushinteger(L, FILES);
   lua_call(L, 2, 1); // get all the .nse files in ./scripts
+
+  /* Sort what we get from nse_scandir so that script.db diffs are useful. */
+  table_sort(L, 1);
 
   // we rely on the fact that nmap_fetchfile returned a string which leaves enough room
   // to append the db filename (see call to nmap_fetchfile above)
