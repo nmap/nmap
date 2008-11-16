@@ -159,7 +159,64 @@ command_names = {}
 status_codes = {}
 status_names = {}
 
-local mutex = nmap.mutex("SMB")
+local mutexes = setmetatable({}, {__mode = "k"});
+
+---Returns the mutex that should be used by the current connection. This mutex attempts
+-- to use the name, first, then falls back to the IP if no name was returned. 
+--
+--@param smbstate The SMB object associated with the connection
+--@return A mutex
+local function get_mutex(smbstate)
+	local mutex_name = "SMB-"
+	local mutex
+
+	-- Decide whether to use the name or the ip address as the unique identifier
+	if(smbstate['name'] ~= nil) then
+		mutex_name = mutex_name .. smbstate['name']
+	else
+		mutex_name = mutex_name .. smbstate['ip']
+	end
+
+	if(mutexes[smbstate] == nil) then
+		mutex = nmap.mutex(mutex_name)
+		mutexes[smbstate] = mutex
+	else
+		mutex = mutexes[smbstate]
+	end
+
+	stdnse.print_debug(3, "SMB: Using mutex named '%s'", mutex_name)
+
+	return mutex
+end
+
+---Locks the mutex being used by this host. Doesn't return until it successfully 
+-- obtains a lock. 
+--
+--@param smbstate The SMB object associated with the connection
+--@param func     A name to associate with this call (used purely for debugging
+--                and logging)
+local function lock_mutex(smbstate, func)
+	local mutex
+
+	stdnse.print_debug(3, "SMB: Attempting to lock mutex [%s]", func)
+	mutex = get_mutex(smbstate)
+	mutex "lock"
+	stdnse.print_debug(3, "SMB: Mutex lock obtained [%s]", func)
+end
+
+---Unlocks the mutex being used by this host.
+--
+--@param smbstate The SMB object associated with the connection
+--@param func     A name to associate with this call (used purely for debugging
+--                and logging)
+local function unlock_mutex(smbstate, func)
+	local mutex
+
+	stdnse.print_debug(3, "SMB: Attempting to release mutex [%s]", func)
+	mutex = get_mutex(smbstate)
+	mutex "done"
+	stdnse.print_debug(3, "SMB: Mutex released [%s]", func)
+end
 
 ---Convert a status number from the SMB header into a status name, returning an error message (not nil) if 
 -- it wasn't found. 
@@ -241,9 +298,15 @@ function start(host)
 	local status, result
 	local state = {}
 
-	state['uid'] = 0
-	state['tid'] = 0
-	state['ip']  = host.ip
+	state['uid']  = 0
+	state['tid']  = 0
+	state['ip']   = host.ip
+
+	-- Store the name of the server
+	status, result = netbios.get_server_name(host.ip)
+	if(status == true) then
+		state['name'] = result
+	end
 
 	stdnse.print_debug(2, "SMB: Starting SMB session for %s (%s)", host.name, host.ip)
 
@@ -251,17 +314,13 @@ function start(host)
 		return false, "SMB: Couldn't find a valid port to check"
 	end
 
-	stdnse.print_debug(3, "SMB: Attempting to lock SMB mutex")
-	mutex "lock"
-	stdnse.print_debug(3, "SMB: Mutex lock obtained")
+	lock_mutex(state, "start(1)")
 
 	if(port == 445) then
 		status, state['socket'] = start_raw(host, port)
 		state['port'] = 445
 		if(status == false) then
-			stdnse.print_debug(3, "SMB: Attempting to release SMB mutex (1)")
-			mutex "done"
-			stdnse.print_debug(3, "SMB: mutex released (1)")
+			unlock_mutex(state, "start(1)")
 		end
 
 		return status, state
@@ -269,17 +328,13 @@ function start(host)
 		status, state['socket'] = start_netbios(host, port)
 		state['port'] = 139
 		if(status == false) then
-			stdnse.print_debug(3, "SMB: Attempting to release SMB mutex (2)")
-			mutex "done"
-			stdnse.print_debug(3, "SMB: SMB mutex released (2)")
+			unlock_mutex(state, "start(2)")
 		end
 
 		return status, state
 	end
 
-	stdnse.print_debug(3, "SMB: Attempting to release SMB mutex (3)")
-	mutex "done"
-	stdnse.print_debug(3, "SMB: SMB mutex released (3)")
+	unlock_mutex(state, "start(3)")
 
 	return false, "SMB: Couldn't find a valid port to check"
 end
@@ -303,9 +358,7 @@ function stop(smb)
 		logoff(smb)
 	end
 
-	stdnse.print_debug(3, "SMB: Attempting to release SMB mutex (4)")
-	mutex "done"
-	stdnse.print_debug(3, "SMB: SMB mutex released (4)")
+	unlock_mutex(smb, "stop()")
 
 	stdnse.print_debug(2, "SMB: Closing socket")
 	if(smb['socket'] ~= nil) then
@@ -764,10 +817,7 @@ end
 
 --- Reads the next packet from the socket, and parses it into the header, parameters, 
 --  and data.
--- [TODO] This assumes that exactly one packet arrives, which may not be the case. 
---        Some buffering should happen here. Currently, we're waiting on 32 bytes, which
---        is the length of the header, but there's no guarantee that we get the entire
---        body. 
+--
 --@param smb The SMB object associated with the connection
 --@return (status, header, parameters, data) If status is true, the header, 
 --        parameters, and data are all the raw arrays (with the lengths already
