@@ -27,15 +27,18 @@ local ipOps  = require 'ipOps'
 local stdnse = require 'stdnse'
 
 portrule = function(host, port)
-	if port.protocol ~= 'tcp' or not (port.service == 'http' or port.service == 'https') then
-		return false
-	end
-	-- Don't bother running on SSL ports if we don't have SSL.
-	if (port.service == 'https' or port.version.service_tunnel == 'ssl')
-		and not nmap.have_ssl() then
-		return false
-	end
-	return true
+    local svc = { std = { ["http"] = 1, ["http-alt"] = 1 },
+                ssl = { ["https"] = 1, ["https-alt"] = 1 } }
+    if port.protocol ~= 'tcp'
+    or not ( svc.std[port.service] or svc.ssl[port.service] ) then
+        return false
+    end
+    -- Don't bother running on SSL ports if we don't have SSL.
+    if (svc.ssl[port.service] or port.version.service_tunnel == 'ssl')
+    and not nmap.have_ssl() then
+        return false
+    end
+    return true
 end
 
 action = function(host, port)
@@ -51,7 +54,7 @@ action = function(host, port)
     local loc = redirect_ok( url, host, port )
     if loc then
       -- follow redirect
-      redir = ("Requested resource was %s://%s%s"):format( url.scheme or port.service, loc.host, loc.path )
+      redir = ("Requested resource was %s://%s%s%s"):format( url.scheme or port.service, loc.host, (url.port and (":%s"):format(url.port)) or "", loc.path )
       data = http.get( loc.host, loc.port, loc.path )
     else
       loc = nil -- killed so we know we didn't follow a redirect
@@ -92,12 +95,6 @@ function redirect_ok(url, host, port)
   -- redirected to. They incrementally fill in loc.host, loc.port, and loc.path.
   local rules = {
     function (loc, url, host, port)
-      -- if url.scheme is present then it must match the scanned port
-      if url.scheme and url.scheme ~= port.service then return false end
-      return true
-    end,
-
-    function (loc, url, host, port)
       -- bail if userinfo is present
       return ( url.userinfo and false ) or true
     end,
@@ -128,6 +125,13 @@ function redirect_ok(url, host, port)
         return true
       end
       return false
+    end,
+
+    function (loc, url, host, port)
+      -- if url.scheme is present then it must match the scanned port
+      if url.scheme and url.port then return true end
+      if url.scheme and url.scheme ~= port.service then return false end
+      return true
     end,
 
     function (loc, url, host, port)

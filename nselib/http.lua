@@ -105,8 +105,9 @@ end
 -- host table passed to a portrule or hostrule. The second argument is either
 -- the port number or a table like the port table passed to a portrule or
 -- hostrule. SSL is used for the request if <code>port.service</code> is
--- <code>"https"</code> or <code>port.version.service_tunnel</code> is
--- <code>"ssl"</code>. The third argument is the request. The fourth argument is
+-- <code>"https"</code> or <code>"https-alt"</code> or
+-- <code>port.version.service_tunnel</code> is <code>"ssl"</code>.
+-- The third argument is the request. The fourth argument is
 -- a table for further options.
 -- @param host The host to query.
 -- @param port The port on the host.
@@ -127,7 +128,7 @@ request = function( host, port, data, options )
       stdnse.print_debug(1, "http.request() supports the TCP protocol only, your request to %s cannot be completed.", host)
       return nil
     end
-    if port.service == 'https' or ( port.version and port.version.service_tunnel == 'ssl' ) then
+    if port.service == 'https' or port.service == 'https-alt' or ( port.version and port.version.service_tunnel == 'ssl' ) then
       protocol = 'ssl'
     end
     port = port.number
