@@ -543,17 +543,18 @@ static char *abbreviate_script_filename(const char *filename) {
 	abbrev = path_get_basename(filename);
 	if (abbrev == NULL)
 		return NULL;
-	if (nse_check_extension(SCRIPT_ENGINE_EXTENSION, abbrev)) {
+	if (nse_check_extension(SCRIPT_ENGINE_EXTENSION, abbrev))
 		abbrev[strlen(abbrev) - strlen(SCRIPT_ENGINE_EXTENSION)] = '\0';
-	}
 
 	return abbrev;
 }
 
-/* Tries to get the script id and store it in the script scan result structure.
- * If someone changed the filename field to a nonstring we complain. */
+/* Tries to get the script id (based on the filename) and stores it in the
+ * script scan result structure. If someone changed the filename field to a
+ * nonstring we complain. */
 int process_getScriptId(lua_State* L, ScriptResult *sr) {
 	const char *filename;
+        char *id;
 
 	lua_getfield(L, 1, FILENAME);
 	filename = lua_tostring(L, -1);
@@ -565,17 +566,13 @@ int process_getScriptId(lua_State* L, ScriptResult *sr) {
 	}
 	lua_pop(L, 1);
 
-	if (o.debugging > 1) {
+	id = abbreviate_script_filename(filename);
+	if (id == NULL) {
+		/* On error just use the filename. */
 		sr->set_id(filename);
 	} else {
-		/* Abbreviate the filename with low or no debugging. */
-		char *id = abbreviate_script_filename(filename);
-		if (id == NULL) {
-			sr->set_id(filename);
-		} else {
-			sr->set_id(id);
-			free(id);
-		}
+		sr->set_id(id);
+		free(id);
 	}
 
 	return SCRIPT_ENGINE_SUCCESS;
