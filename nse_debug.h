@@ -7,10 +7,7 @@ extern "C" {
 	#include "lauxlib.h"
 }
 
-void l_dumpStack(lua_State* l);
-void l_dumpValue(lua_State* l, int index);
-void l_dumpTable(lua_State *l, int index);
-void l_dumpFunction(lua_State* l, int index);
+void stack_dump(lua_State *L);
 
 #endif
 

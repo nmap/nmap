@@ -557,9 +557,8 @@ int process_getScriptId(lua_State* L, ScriptResult *sr) {
   lua_getfield(L, 1, FILENAME);
   filename = lua_tostring(L, -1);
   if (filename == NULL) {
-    error("%s: The script's 'filename' entry was changed to:",
-      SCRIPT_ENGINE);
-    l_dumpValue(L, -1);
+    error("%s: The script's 'filename' entry was changed to: %s",
+      SCRIPT_ENGINE, luaL_typename(L, -1));
     return SCRIPT_ENGINE_ERROR;
   }
   lua_pop(L, 1);
