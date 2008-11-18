@@ -1,4 +1,3 @@
-
 description = [[
 Checks a DNS server for the predictable-TXID DNS recursion
 vulnerability.  Predictable TXID values can make a DNS server vulnerable to

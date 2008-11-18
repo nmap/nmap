@@ -17,21 +17,10 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"malware"}
 
 portrule = function(host, port) 
-	if 
-		(	port.number ~= 25
-			and
-			port.number ~= 465
-			and
-			port.number ~= 587
-			and 
-			port.service == "smtp" )
+	return port.service == "smtp" and
+		port.number ~= 25 and port.number ~= 465 and port.number ~= 587
 		and port.protocol == "tcp" 
 		and port.state == "open"
-	then
-		return true
-	else
-		return false
-	end
 end
 
 action = function()

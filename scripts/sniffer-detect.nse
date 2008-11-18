@@ -17,14 +17,11 @@ categories = {"discovery"}
 
 -- okay, we're interested only in hosts that are on our ethernet lan
 hostrule = function(host, port)
-	if host.directly_connected == true and
-	   host.mac_addr ~= nil and
-	   host.mac_addr_src ~= nil and
-	   host.interface ~= nil and
-	   nmap.get_interface_link(host.interface) == 'ethernet' then
-	    return true
-	end
-	return false
+	return host.directly_connected == true and
+		host.mac_addr ~= nil and
+		host.mac_addr_src ~= nil and
+		host.interface ~= nil and
+		nmap.get_interface_link(host.interface) == 'ethernet'
 end
 
 --[[

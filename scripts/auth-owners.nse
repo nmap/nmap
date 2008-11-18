@@ -30,16 +30,10 @@ portrule = function(host, port)
 	local auth_port = { number=113, protocol="tcp" }
 	local identd = nmap.get_port_state(host, auth_port)
 
-	if
-		identd ~= nil
+	return identd ~= nil
 		and identd.state == "open"
 		and port.protocol == "tcp"
 		and port.state == "open"
-	then
-		return true
-	else
-		return false
-	end
 end
 
 action = function(host, port)

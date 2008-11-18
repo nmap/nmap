@@ -108,19 +108,12 @@ end
 portrule = function(host, port)
 	local extra = port.version.extrainfo
 
-	if
-		(port.number == 3306
-		or port.service == "mysql")
+	return (port.number == 3306 or port.service == "mysql")
 		and port.protocol == "tcp"
 		and port.state == "open"
 		and not (extra ~= nil
 			and (extra:match("[Uu]nauthorized")
 				or extra:match("[Tt]oo many connection")))
-	then
-		return true
-	end
-
-	return false
 end
 
 action = function(host, port)

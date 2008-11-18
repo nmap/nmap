@@ -51,18 +51,12 @@ hostrule = function(host)
 	local port_u137 = nmap.get_port_state(host,
 		{number=137, protocol="udp"})
 
-	if (
-		(port_t135 ~= nil and port_t135.state == "open") or
+	return (port_t135 ~= nil and port_t135.state == "open") or
 		(port_t139 ~= nil and port_t139.state == "open") or
 		(port_t445 ~= nil and port_t445.state == "open") or
 		(port_u137 ~= nil and
 			(port_u137.state == "open" or
-			port_u137.state == "open|filtered")))
-	then
-		return true
-	else
-		return false
-	end	
+			port_u137.state == "open|filtered"))
 end
 
 

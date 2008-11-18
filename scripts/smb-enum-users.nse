@@ -124,15 +124,7 @@ require 'smb'
 require 'stdnse'
 
 hostrule = function(host)
-
-	local port = smb.get_port(host)
-
-	if(port == nil) then
-		return false
-	else
-		return true
-	end
-
+	return smb.get_port(host) ~= nil
 end
 
 ---Attempt to enumerate users through SAMR methods. See the file description for more information. 

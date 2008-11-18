@@ -26,7 +26,7 @@ local stdnse = require "stdnse"
 ---
 -- Script is executed for any TCP port.
 portrule = function( host, port )
-  return (port.protocol == "tcp" and true) or false
+  return port.protocol == "tcp"
 end
 
 

@@ -31,15 +31,7 @@ require 'stdnse'
 
 --- Check whether or not this script should be run.
 hostrule = function(host)
-
-	local port = smb.get_port(host)
-
-	if(port == nil) then
-		return false
-	else
-		return true
-	end
-
+	return smb.get_port(host) ~= nil
 end
 
 --- Converts numbered Windows version strings (<code>"Windows 5.0"</code>, <code>"Windows 5.1"</code>) to names (<code>"Windows 2000"</code>, <code>"Windows XP"</code>). 
