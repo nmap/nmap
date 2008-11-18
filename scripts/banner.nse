@@ -40,9 +40,6 @@ action = function( host, port )
 end
 
 
--- convert filename from full filepath to filename -extn
-local filename = filename:match( "[\\/]([^\\/]+)\.nse$" )
-
 
 ---
 -- Connects to the target on the given port and returns any data issued by a listening service.
@@ -101,6 +98,8 @@ function output( out )
 
   if type(out) ~= "string" or out == "" then return nil end
 
+  -- convert filename from full filepath to filename -extn
+  local filename = filename:match( "[\\/]([^\\/]+)\.nse$" )
   local line_len = 75    -- The character width of command/shell prompt window.
   local fline_offset = 5 -- number of chars excluding script id not available to the script on the first line
 
