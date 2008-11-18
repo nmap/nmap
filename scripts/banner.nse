@@ -40,6 +40,9 @@ action = function( host, port )
 end
 
 
+-- convert filename from full filepath to filename -extn
+local filename = filename:match( "[\\/]([^\\/]+)\.nse$" )
+
 
 ---
 -- Connects to the target on the given port and returns any data issued by a listening service.
@@ -98,14 +101,14 @@ function output( out )
 
   if type(out) ~= "string" or out == "" then return nil end
 
-  local line_len = 80    -- The character width of command/shell prompt window.
+  local line_len = 75    -- The character width of command/shell prompt window.
   local fline_offset = 5 -- number of chars excluding script id not available to the script on the first line
 
   -- number of chars available on the first line of output
   -- we'll skip the first line of output if the filename is looong
   local fline_len
-  if filename_len() < (line_len-fline_offset) then
-    fline_len = line_len -1 -filename_len() -fline_offset
+  if filename:len() < (line_len-fline_offset) then
+    fline_len = line_len -1 -filename:len() -fline_offset
   else
     fline_len = 0
   end
@@ -198,22 +201,4 @@ end
 -- @return Number
 function extra_output()
   return (nmap.verbosity()-nmap.debugging()>0 and nmap.verbosity()-nmap.debugging()) or 0
-end
-
-
-
----
--- Filename hack which tries to determine the number of characters that
--- will be printed for the filename in the port script output.
---
--- That is, with debugging > 1, filename will be output as a full filepath,
--- but without, only the file name excluding file extension will be output.
--- @return Number of characters.  Length of the filename to be output.
-function filename_len()
-  if nmap.debugging() <= 1 then
-    local f = filename:match( "[\\/]([^\\/]+)\.nse$" )
-    if f then return f:len() end
-  end
-  return filename:len()
-
 end
