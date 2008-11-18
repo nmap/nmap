@@ -85,7 +85,7 @@ static int loadfile (lua_State *L)
   lua_pop(L, 2);
 
   lua_createtable(L, 0, 11); // Environment for script (index 2)
-  
+
   lua_pushvalue(L, 1); // tell the script about its filename
   lua_setfield(L, -2, FILENAME);
 
@@ -93,7 +93,7 @@ static int loadfile (lua_State *L)
   lua_setfield(L, -2, RUNLEVEL);
 
   lua_createtable(L, 0, 1); // script gets access to global env
-  lua_pushvalue(L, LUA_GLOBALSINDEX); // We may want to use G(L)->mainthread 
+  lua_pushvalue(L, LUA_GLOBALSINDEX); // We may want to use G(L)->mainthread
                                       // later if this function becomes
                                       // exposed. See lstate.h
   lua_setfield(L, -2, "__index");
@@ -193,7 +193,7 @@ static int loaddir (lua_State *L)
 {
   int i;
   luaL_checkstring(L, 1); // directory to load
-  
+
   lua_pushcclosure(L, nse_scandir, 0);
   lua_pushvalue(L, 1);
   lua_pushinteger(L, FILES);
@@ -217,7 +217,7 @@ static int loaddir (lua_State *L)
 static int init_setpath (lua_State *L)
 {
   char path[MAX_FILENAME_LEN];
-  
+
   /* set the path lua searches for modules*/
   if (nmap_fetchfile(path, MAX_FILENAME_LEN, SCRIPT_ENGINE_LIB_DIR) != 2)
     luaL_error(L, "'%s' not a directory", SCRIPT_ENGINE_LIB_DIR);
@@ -285,7 +285,7 @@ int init_lua (lua_State *L)
 
   lua_pushcclosure(L, init_setpath, 0);
   lua_call(L, 0, 0);
-  
+
   lua_newtable(L);
   current_hosts = luaL_ref(L, LUA_REGISTRYINDEX);
 
@@ -398,7 +398,7 @@ int init_updatedb (lua_State *L)
     luaL_error(L, "Could not open file '%s' for writing.", path);
 
   SCRIPT_ENGINE_DEBUGGING(
-      log_write(LOG_STDOUT, "%s: Trying to add %u scripts to the database.\n", 
+      log_write(LOG_STDOUT, "%s: Trying to add %u scripts to the database.\n",
         SCRIPT_ENGINE, lua_objlen(L, 1));
       )
 
@@ -425,7 +425,7 @@ int init_updatedb (lua_State *L)
       lua_setfenv(L, -2); // set it
       if ( lua_pcall(L, 0, 0, 0) != 0 ) {
         // skip scripts that produce errors
-        log_write(LOG_STDOUT, "%s: Skipping script '%s' because it produced errors while loading.\n", 
+        log_write(LOG_STDOUT, "%s: Skipping script '%s' because it produced errors while loading.\n",
           SCRIPT_ENGINE, file );
         SCRIPT_ENGINE_VERBOSE(
           error("%s", lua_tostring(L, -1));
@@ -619,7 +619,7 @@ static int loadcategories (lua_State *L)
 {
   int i, top = lua_gettop(L);
   char c_dbpath[MAX_FILENAME_LEN];
-  static const char *dbpath = SCRIPT_ENGINE_LUA_DIR SCRIPT_ENGINE_DATABASE; 
+  static const char *dbpath = SCRIPT_ENGINE_LUA_DIR SCRIPT_ENGINE_DATABASE;
 
   /* Build the script database if it doesn't exist. */
   if (nmap_fetchfile(c_dbpath, sizeof(c_dbpath), dbpath) == 0)
@@ -744,7 +744,7 @@ int init_rules (lua_State *L)
       lua_replace(L, -2); // remove value
       type = nse_fetchfile_absolute(path, sizeof(path), lua_tostring(L, -1));
     }
-    
+
     switch (type)
     {
       case 0: // no such path
@@ -766,13 +766,13 @@ int init_rules (lua_State *L)
         lua_call(L, 1, 0);
         break;
       default:
-        fatal("%s: In: %s:%i This should never happen.", 
+        fatal("%s: In: %s:%i This should never happen.",
             SCRIPT_ENGINE, __FILE__, __LINE__);
     }
     lua_pop(L, 1);
   }
 
-  // Compute some stats 
+  // Compute some stats
   SCRIPT_ENGINE_DEBUGGING(
       size_t rules_count;
       lua_getfield(L, LUA_REGISTRYINDEX, HOSTTESTS);
