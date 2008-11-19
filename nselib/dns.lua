@@ -477,26 +477,43 @@ end
 -- Decodes a domain in a DNS packet. Handles "compressed" data too.
 -- @param data Complete DNS packet.
 -- @param pos Starting position in packet.
--- @return Position after decoding. 
--- @return Decoded domain.
+-- @return Position after decoding.
+-- @return Decoded domain, or <code>nil</code> on error.
 local function decStr(data, pos)
-   local partlen
-   local parts = {}
-   local part
-   pos, partlen = bin.unpack(">C", data, pos)
-   while (partlen ~= 0) do
-      if (partlen < 64) then 
-         pos, part = bin.unpack("A" .. partlen, data, pos)
-         table.insert(parts, part)
-         pos, partlen = bin.unpack(">C", data, pos)
-      else
-         pos, partlen = bin.unpack(">S", data, pos - 1)
-         local _, part = decStr(data, partlen - 0xC000 + 1)
-         table.insert(parts, part)
-         partlen = 0
+   local function dec(data, pos, limit)
+      local partlen
+      local parts = {}
+      local part
+
+      -- Avoid infinite recursion on malformed compressed messages.
+      limit = limit or 1
+      if limit < 0 then
+         return pos, nil
       end
+
+      pos, partlen = bin.unpack(">C", data, pos)
+      while (partlen ~= 0) do
+         if (partlen < 64) then 
+            pos, part = bin.unpack("A" .. partlen, data, pos)
+            if part == nil then
+               return pos
+            end
+            table.insert(parts, part)
+            pos, partlen = bin.unpack(">C", data, pos)
+         else
+            pos, partlen = bin.unpack(">S", data, pos - 1)
+            local _, part = dec(data, partlen - 0xC000 + 1, limit - 1)
+            if part == nil then
+               return pos
+            end
+            table.insert(parts, part)
+            partlen = 0
+         end
+      end
+      return pos, table.concat(parts, ".")
    end
-   return pos, table.concat(parts, ".")
+
+   return dec(data, pos)
 end
 
 
