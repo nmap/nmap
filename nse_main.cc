@@ -277,28 +277,34 @@ int script_scan(std::vector<Target*> &targets) {
     goto finishup;
   }
 
-  lua_settop(L, 0); // safety, is 0 anyway
-  lua_rawgeti(L, LUA_REGISTRYINDEX, errfunc); // index 1
 
-  if (!lua_checkstack(L, o.chosenScripts.size() + 1))
-  {
+  /* Get the error function to use with the lua_pcall of init_rules. */
+  lua_rawgeti(L, LUA_REGISTRYINDEX, errfunc);
+  lua_pushcclosure(L, init_rules, 0);
+  /* We need room for the list of scripts. */
+  if (!lua_checkstack(L, o.chosenScripts.size())) {
     error("%s: stack overflow at %s:%d", SCRIPT_ENGINE, __FILE__, __LINE__);
     status = SCRIPT_ENGINE_ERROR;
     goto finishup;
   }
-  lua_pushcclosure(L, init_rules, 0);
+  /* Push each of the selected scripts. */
   for (script_iter = o.chosenScripts.begin();
        script_iter != o.chosenScripts.end();
-       script_iter++)
+       script_iter++) {
     lua_pushstring(L, script_iter->c_str());
-    status = lua_pcall(L, o.chosenScripts.size(), 0, 1);
-    if (status != 0)
-    {
-      error("%s: error while initializing script rules:\n%s\n",
+  }
+  /* Call init_rules using the error function at index 1. */
+  status = lua_pcall(L, o.chosenScripts.size(), 0, 1);
+  if (status != 0) {
+    error("%s: error while initializing script rules:\n%s\n",
           SCRIPT_ENGINE, lua_tostring(L, -1));
-      status = SCRIPT_ENGINE_ERROR;
-      goto finishup;
-    }
+    status = SCRIPT_ENGINE_ERROR;
+    goto finishup;
+  }
+  /* Pop the error function. */
+  lua_pop(L, 1);
+
+  assert(lua_gettop(L) == 0);
 
   SCRIPT_ENGINE_DEBUGGING(log_write(LOG_STDOUT, "%s: Matching rules.\n", SCRIPT_ENGINE);)
 
