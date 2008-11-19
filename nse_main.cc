@@ -219,20 +219,69 @@ int script_check_args (void)
   return ret;
 }
 
+/* Initialize a global Lua state used to run scripts. This initializes the
+ * state, parses script arguments from the command line, and loads port and host
+ * rules. This only needs to be done once per execution of Nmap. */
+static int init_script_state(lua_State *L) {
+  std::vector<std::string>::iterator script_iter;
+  int status;
+
+  /* Call init_lua to load librarie, set up errfunc, and other things. */
+  status = lua_cpcall(L, init_lua, NULL);
+  if (status != 0) {
+    error("%s: error while initializing Lua State:\n%s\n",
+          SCRIPT_ENGINE, lua_tostring(L, -1));
+    return SCRIPT_ENGINE_ERROR;
+  }
+
+  /* Set any script arguments. */
+  status = lua_cpcall(L, init_setargs, NULL);
+  if (status != 0) {
+    error("%s: error while setting arguments for scripts:\n%s\n",
+          SCRIPT_ENGINE, lua_tostring(L, -1));
+    return SCRIPT_ENGINE_ERROR;
+  }
+
+  /* Get the error function to use with the lua_pcall of init_rules. */
+  /* errfunc is stored in the registry by init_lua. */
+  lua_rawgeti(L, LUA_REGISTRYINDEX, errfunc);
+  lua_pushcclosure(L, init_rules, 0);
+  /* We need room for the list of scripts. */
+  if (!lua_checkstack(L, o.chosenScripts.size())) {
+    error("%s: stack overflow at %s:%d", SCRIPT_ENGINE, __FILE__, __LINE__);
+    return SCRIPT_ENGINE_ERROR;
+  }
+  /* Push each of the selected scripts. */
+  for (script_iter = o.chosenScripts.begin();
+       script_iter != o.chosenScripts.end();
+       script_iter++) {
+    lua_pushstring(L, script_iter->c_str());
+  }
+  /* Call init_rules using the error function at index 1. */
+  status = lua_pcall(L, o.chosenScripts.size(), 0, 1);
+  if (status != 0) {
+    error("%s: error while initializing script rules:\n%s\n",
+          SCRIPT_ENGINE, lua_tostring(L, -1));
+    return SCRIPT_ENGINE_ERROR;
+  }
+  /* Pop the error function. */
+  lua_pop(L, 1);
+
+  return SCRIPT_ENGINE_SUCCESS;
+}
+
+/* The global Lua state in which scripts are run. It has file-level scope so it
+ * and the NSE registry it contains can persist across calls to script_scan. */
+static lua_State* L = NULL;
+
 /* open a lua instance
- * open the lua standard libraries
- * open all the scripts and prepare them for execution
- *  (export nmap bindings, add them to host/port rulesets etc.)
- * apply all scripts on all hosts
- * */
+ * apply all scripts on all hosts */
 int script_scan(std::vector<Target*> &targets) {
   int status;
   std::vector<Target*>::iterator target_iter;
   std::list<std::list<struct thread_record> >::iterator runlevel_iter;
   std::list<struct thread_record>::iterator thr_iter;
   std::list<struct thread_record> torun_threads;
-  std::vector<std::string>::iterator script_iter;
-  lua_State* L;
 
   o.current_scantype = SCRIPT_SCAN;
 
@@ -251,58 +300,18 @@ int script_scan(std::vector<Target*> &targets) {
         SCRIPT_ENGINE, (*targets.begin())->NameIP(targetstr, sizeof(targetstr)));
   )
 
-  L = luaL_newstate();
+  /* Initialize the script scanning state if it hasn't been already. */
   if (L == NULL) {
-    error("%s: Failed luaL_newstate()", SCRIPT_ENGINE);
-        return SCRIPT_ENGINE_ERROR;
+    L = luaL_newstate();
+    if (L == NULL) {
+      error("%s: Failed luaL_newstate()", SCRIPT_ENGINE);
+          return SCRIPT_ENGINE_ERROR;
+    }
+    lua_atpanic(L, panic);
+    status = init_script_state(L);
+    if (status != SCRIPT_ENGINE_SUCCESS)
+      goto finishup;
   }
-  lua_atpanic(L, panic);
-
-  status = lua_cpcall(L, init_lua, NULL);
-  if (status != 0)
-  {
-    error("%s: error while initializing Lua State:\n%s\n",
-          SCRIPT_ENGINE, lua_tostring(L, -1));
-    status = SCRIPT_ENGINE_ERROR;
-    goto finishup;
-  }
-
-  //set the arguments - if provided
-  status = lua_cpcall(L, init_setargs, NULL);
-  if (status != 0)
-  {
-    error("%s: error while setting arguments for scripts:\n%s\n",
-          SCRIPT_ENGINE, lua_tostring(L, -1));
-    status = SCRIPT_ENGINE_ERROR;
-    goto finishup;
-  }
-
-
-  /* Get the error function to use with the lua_pcall of init_rules. */
-  lua_rawgeti(L, LUA_REGISTRYINDEX, errfunc);
-  lua_pushcclosure(L, init_rules, 0);
-  /* We need room for the list of scripts. */
-  if (!lua_checkstack(L, o.chosenScripts.size())) {
-    error("%s: stack overflow at %s:%d", SCRIPT_ENGINE, __FILE__, __LINE__);
-    status = SCRIPT_ENGINE_ERROR;
-    goto finishup;
-  }
-  /* Push each of the selected scripts. */
-  for (script_iter = o.chosenScripts.begin();
-       script_iter != o.chosenScripts.end();
-       script_iter++) {
-    lua_pushstring(L, script_iter->c_str());
-  }
-  /* Call init_rules using the error function at index 1. */
-  status = lua_pcall(L, o.chosenScripts.size(), 0, 1);
-  if (status != 0) {
-    error("%s: error while initializing script rules:\n%s\n",
-          SCRIPT_ENGINE, lua_tostring(L, -1));
-    status = SCRIPT_ENGINE_ERROR;
-    goto finishup;
-  }
-  /* Pop the error function. */
-  lua_pop(L, 1);
 
   assert(lua_gettop(L) == 0);
 
@@ -337,8 +346,7 @@ int script_scan(std::vector<Target*> &targets) {
       running_scripts.front().runlevel);)
 
     /* Start the time-out clocks for targets with scripts in this
-     * runlevel.  The clock is stopped in process_finalize().
-     */
+     * runlevel.  The clock is stopped in process_finalize(). */
     for (thr_iter = running_scripts.begin();
          thr_iter != running_scripts.end();
          thr_iter++)
@@ -356,7 +364,6 @@ finishup:
   SCRIPT_ENGINE_DEBUGGING(
     log_write(LOG_STDOUT, "%s: Script scanning completed.\n", SCRIPT_ENGINE);
   )
-  lua_close(L);
   torun_scripts.clear();
   if(status != SCRIPT_ENGINE_SUCCESS) {
     error("%s: Aborting script scan.", SCRIPT_ENGINE);
@@ -364,6 +371,12 @@ finishup:
   } else {
     return SCRIPT_ENGINE_SUCCESS;
   }
+}
+
+/* Free global resources associated with script scanning. */
+void script_scan_free() {
+  if (L != NULL)
+    lua_close(L);
 }
 
 int process_mainloop(lua_State *L) {

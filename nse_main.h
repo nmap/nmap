@@ -30,6 +30,7 @@ typedef std::vector<ScriptResult> ScriptResults;
 class Target;
 int script_scan(std::vector<Target *> &targets);
 int script_updatedb();
+void script_scan_free();
 
 //parses the arguments provided to scripts via nmap's --script-args option 
 int script_check_args();

@@ -1916,6 +1916,7 @@ void nmap_free_mem() {
   if (o.extra_payload) free(o.extra_payload);
   if (o.ipoptions) free(o.ipoptions);
 #ifndef NOLUA
+  script_scan_free();
   free(o.scriptargs);
 #endif
 }
