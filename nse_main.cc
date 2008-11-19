@@ -18,6 +18,10 @@
 
 extern NmapOps o;
 
+/* The global Lua state in which scripts are run. It has file-level scope so it
+ * and the NSE registry it contains can persist across calls to script_scan. */
+static lua_State* L_script_scan = NULL;
+
 struct run_record {
   short type; // 0 - hostrule; 1 - portrule
   Port* port;
@@ -270,10 +274,6 @@ static int init_script_state(lua_State *L) {
   return SCRIPT_ENGINE_SUCCESS;
 }
 
-/* The global Lua state in which scripts are run. It has file-level scope so it
- * and the NSE registry it contains can persist across calls to script_scan. */
-static lua_State* L = NULL;
-
 /* open a lua instance
  * apply all scripts on all hosts */
 int script_scan(std::vector<Target*> &targets) {
@@ -301,31 +301,31 @@ int script_scan(std::vector<Target*> &targets) {
   )
 
   /* Initialize the script scanning state if it hasn't been already. */
-  if (L == NULL) {
-    L = luaL_newstate();
-    if (L == NULL) {
+  if (L_script_scan == NULL) {
+    L_script_scan = luaL_newstate();
+    if (L_script_scan == NULL) {
       error("%s: Failed luaL_newstate()", SCRIPT_ENGINE);
           return SCRIPT_ENGINE_ERROR;
     }
-    lua_atpanic(L, panic);
-    status = init_script_state(L);
+    lua_atpanic(L_script_scan, panic);
+    status = init_script_state(L_script_scan);
     if (status != SCRIPT_ENGINE_SUCCESS)
       goto finishup;
   }
 
-  assert(lua_gettop(L) == 0);
+  assert(lua_gettop(L_script_scan) == 0);
 
   SCRIPT_ENGINE_DEBUGGING(log_write(LOG_STDOUT, "%s: Matching rules.\n", SCRIPT_ENGINE);)
 
   for(target_iter = targets.begin(); target_iter != targets.end(); target_iter++) {
     std::string key = ((Target*) (*target_iter))->targetipstr();
-    lua_rawgeti(L, LUA_REGISTRYINDEX, current_hosts);
-    lua_pushstring(L, key.c_str());
-    lua_pushlightuserdata(L, (void *) *target_iter);
-    lua_settable(L, -3);
-    lua_pop(L, 1);
+    lua_rawgeti(L_script_scan, LUA_REGISTRYINDEX, current_hosts);
+    lua_pushstring(L_script_scan, key.c_str());
+    lua_pushlightuserdata(L_script_scan, (void *) *target_iter);
+    lua_settable(L_script_scan, -3);
+    lua_pop(L_script_scan, 1);
 
-    status = process_preparehost(L, *target_iter, torun_threads);
+    status = process_preparehost(L_script_scan, *target_iter, torun_threads);
     if(status != SCRIPT_ENGINE_SUCCESS){
       goto finishup;
     }
@@ -353,7 +353,7 @@ int script_scan(std::vector<Target*> &targets) {
       if (!thr_iter->rr.host->timeOutClockRunning())
         thr_iter->rr.host->startTimeOutClock(NULL);
 
-    status = process_mainloop(L);
+    status = process_mainloop(L_script_scan);
     if(status != SCRIPT_ENGINE_SUCCESS){
       goto finishup;
     }
@@ -375,8 +375,8 @@ finishup:
 
 /* Free global resources associated with script scanning. */
 void script_scan_free() {
-  if (L != NULL)
-    lua_close(L);
+  if (L_script_scan != NULL)
+    lua_close(L_script_scan);
 }
 
 int process_mainloop(lua_State *L) {
