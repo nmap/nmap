@@ -319,19 +319,22 @@ function start(host)
 	if(port == 445) then
 		status, state['socket'] = start_raw(host, port)
 		state['port'] = 445
+
 		if(status == false) then
 			unlock_mutex(state, "start(1)")
+			return false, state['socket']
 		end
+		return true, state
 
-		return status, state
 	elseif(port == 139) then
 		status, state['socket'] = start_netbios(host, port)
 		state['port'] = 139
 		if(status == false) then
 			unlock_mutex(state, "start(2)")
+			return false, state['socket']
 		end
+		return true, state
 
-		return status, state
 	end
 
 	unlock_mutex(state, "start(3)")
@@ -918,8 +921,8 @@ end
 -- * The server and domain names
 --
 --@param smb    The SMB object associated with the connection
---@return (status, result) If status is false, result is an error message. Otherwise, result is a 
---        table with the following elements:
+--@return (status, result) If status is false, result is an error message. Otherwise, result is
+--        nil and the following elements are added to <code>smb</code>:
 --      * 'security_mode'    Whether or not to use cleartext passwords, message signatures, etc.
 --      * 'max_mpx'          Maximum number of multiplexed connections
 --      * 'max_vc'           Maximum number of virtual circuits
@@ -954,7 +957,7 @@ function negotiate_protocol(smb)
 	stdnse.print_debug(2, "SMB: Sending SMB_COM_NEGOTIATE")
 	result, err = smb_send(smb, header, parameters, data)
 	if(status == false) then
-		return err
+		return false, err
 	end
 
 	-- Read the result
@@ -1336,8 +1339,8 @@ end
 --@param domain       [optional] Overrides the domain to use. 
 --@param password     [optional] Overrides the password to use. Will use Nmap parameters or registry by default.
 --@param hash_type    [optional] Overrides the hash type to use (can be v1, LM, NTLM, LMv2, v2). Default is 'NTLM'.
---@return (status, result) If status is false, result is an error message. Otherwise, result is a 
---        table with the following elements:
+--@return (status, result) If status is false, result is an error message. Otherwise, result is nil and the following
+--        elements are added to the smb table:
 --    *  'uid'         The UserID for the session
 --    *  'is_guest'    If set, the username wasn't found so the user was automatically logged in as the guest account
 --    *  'os'          The operating system
