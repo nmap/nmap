@@ -145,6 +145,8 @@ class NmapOps {
 		             adjustments (quietly or with a warning to the
 		             user). */
   int isr00t;
+  /* Whether we have pcap functions (can be false on Windows). */
+  bool have_pcap;
   int debugging;
 
 #define PACKET_SEND_NOPREF 1
