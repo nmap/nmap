@@ -113,6 +113,7 @@
 #include "Target.h"
 #include "targets.h"
 #include "utils.h"
+#include <math.h>
 #include <list>
 #include <map>
 
@@ -5355,7 +5356,7 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
     tries++;
 
     if (o.debugging) {
-      log_write(LOG_STDOUT, "Finished round #%d. Current stats: numqueries_ideal: %d; min_width: %d; max_width: %d; packet_incr: %d; senddelay: %dus; fallback: %d%%\n", tries, (int) ss.numqueries_ideal, ss.min_width, ss.max_width, ss.packet_incr, senddelay, (int) (100 * ss.fallback_percent));
+      log_write(LOG_STDOUT, "Finished round #%d. Current stats: numqueries_ideal: %d; min_width: %d; max_width: %d; packet_incr: %d; senddelay: %dus; fallback: %.f%%\n", tries, (int) ss.numqueries_ideal, ss.min_width, ss.max_width, ss.packet_incr, senddelay, floor(100 * ss.fallback_percent));
     }
     ss.numqueries_ideal = ss.initial_packet_width;
     

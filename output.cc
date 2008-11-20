@@ -114,6 +114,8 @@
 #include "Target.h"
 #include "utils.h"
 
+#include <math.h>
+
 #include <string>
 #include <vector>
 #include <list>
@@ -1528,7 +1530,7 @@ static void printosclassificationoutput(const struct OS_Classification_Results *
 	if (familyno > 0) log_write(LOG_PLAIN, ", ");
 	log_write(LOG_PLAIN, "%s", fullfamily[familyno]);
 	if (*familygenerations[familyno]) log_write(LOG_PLAIN, " %s", familygenerations[familyno]);
-	if (familyaccuracy[familyno] < 1.0) log_write(LOG_PLAIN, " (%d%%)", (int) (familyaccuracy[familyno] * 100));
+	if (familyaccuracy[familyno] < 1.0) log_write(LOG_PLAIN, " (%.f%%)", floor(familyaccuracy[familyno] * 100));
       }
       log_write(LOG_PLAIN, "\n");
     }
@@ -1656,9 +1658,10 @@ void printosscanoutput(Target *currenths) {
           free(p);
         }
 
-        log_write(LOG_PLAIN,"Aggressive OS guesses: %s (%d%%)", FPR->prints[0]->OS_name, (int) (FPR->accuracy[0] * 100));
+        log_write(LOG_PLAIN,"Aggressive OS guesses: %s (%.f%%)", FPR->prints[0]->OS_name, floor(FPR->accuracy[0] * 100));
         for (i = 1; i < 10 && FPR->num_matches > i && FPR->accuracy[i] > FPR->accuracy[0] - 0.10; i++)
-          log_write(LOG_PLAIN,", %s (%d%%)", FPR->prints[i]->OS_name, (int) (FPR->accuracy[i] * 100));
+          log_write(LOG_PLAIN,", %s (%.f%%)", FPR->prints[i]->OS_name, floor(FPR->accuracy[i] * 100));
+
         log_write(LOG_PLAIN, "\n");
       }
 
