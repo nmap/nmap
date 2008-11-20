@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o A possible Lua stack overflow in dns.lua was fixed. [David]
+
 o The NSE registry now persists across host groups. [David]
 
 o Added a script that checks for ms08-067-vulnerable hosts 
