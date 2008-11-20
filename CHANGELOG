@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Zenmap now parses and records XSL stylesheet information
+  from Nmap XML files, so files saved by Zenmap will be viewable in a
+  web browser just like those produced by Nmap. [David]
+
 o A possible Lua stack overflow in dns.lua was fixed. [David]
 
 o The NSE registry now persists across host groups. [David]
