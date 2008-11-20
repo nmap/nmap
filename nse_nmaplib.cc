@@ -487,7 +487,6 @@ static int l_set_port_version(lua_State *L, Target* target, Port* port) {
     SCRIPT_ENGINE_GETSTRING(hostname);
     SCRIPT_ENGINE_GETSTRING(ostype);
     SCRIPT_ENGINE_GETSTRING(devicetype);
-    // SCRIPT_ENGINE_GETSTRING(fingerprint);
 
     SCRIPT_ENGINE_GETSTRING(service_tunnel);
     if(service_tunnel == NULL)
@@ -515,11 +514,6 @@ static int l_set_port_version(lua_State *L, Target* target, Port* port) {
   else
     luaL_argerror(L, 3, "Invalid value for probestate.");
 
-  // port->setServiceProbeResults(probestate, name,
-  //   tunnel, product, version,
-  //   extrainfo, hostname, ostype,
-  //   devicetype, fingerprint);
-
   //should prevent a assertion-failure during output if the OutputTable does
   //not contain columns for the fields other than the name
   if(o.servicescan){
@@ -534,7 +528,6 @@ static int l_set_port_version(lua_State *L, Target* target, Port* port) {
       NULL, NULL);
   }
 
-
   free(service_tunnel);
   free(name);
   free(product);
@@ -543,7 +536,6 @@ static int l_set_port_version(lua_State *L, Target* target, Port* port) {
   free(hostname);
   free(ostype);
   free(devicetype);
-  // free(fingerprint);
   return 0;
 }
 
