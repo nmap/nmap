@@ -107,7 +107,7 @@ function set_port_state(host, port, state)
 -- <code>"hardmatched"</code> is almost always used, as it signifies a
 -- successful match. The other possible states are generally only used for
 -- standard version detection rather than the NSE enhancement.
--- @param host Host table, containing and <code>ip</code> field.
+-- @param host Host table, containing an <code>ip</code> field.
 -- @param port Port table, containing <code>number</code> and
 -- <code>protocol</code> fields, as well as any additional version information
 -- fields.
