@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] host.os table is now properly a 1 based array (was 0). [Patrick]
+
 o [Zenmap] Zenmap now parses and records XSL stylesheet information
   from Nmap XML files, so files saved by Zenmap will be viewable in a
   web browser just like those produced by Nmap. [David]
