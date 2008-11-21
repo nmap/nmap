@@ -446,11 +446,11 @@ class scan_test(unittest.TestCase):
         self.assertTrue(len(host.hostnames) == 1)
         self.assertTrue(host.hostnames[0] == u"scanme.nmap.org")
 
-# This test is commented out because doesn't store any information about down
-# hosts, not even the fact that they are down. Recovering the list of scanned
-# hosts to infer which ones are down would involve parsing the targets out of
-# the /nmaprun/@args attribute (which is non-trivial) and possibly looking up
-# their addresses.
+# This test is commented out because Nmap XML doesn't store any information
+# about down hosts, not even the fact that they are down. Recovering the list of
+# scanned hosts to infer which ones are down would involve parsing the targets
+# out of the /nmaprun/@args attribute (which is non-trivial) and possibly
+# looking up their addresses.
 #    def test_down_state(self):
 #        """Test that hosts that are not marked "up" are in the "down" state."""
 #        scan = Scan()
