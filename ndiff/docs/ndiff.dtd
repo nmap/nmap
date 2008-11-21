@@ -122,7 +122,7 @@ means that in the B scan port 100/tcp is open running OpenSSH and port
 200/tcp is filtered.
 
 Later hunks may further modify the ports that were swapped by this hunk.
-See the not about order in the comment at the top.
+See the note about order in the comment at the top.
 -->
 <!ELEMENT port-id-change EMPTY>
 <!ATTLIST port-id-change a-portid CDATA #REQUIRED
