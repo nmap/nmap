@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug in the IP validation code which would have let a specially
+  crafted reply sent from a host on the same LAN slip through and cause
+  Nmap to segfault.  Thanks to ithilgore of sock-raw.homeunix.org for
+  the very detailed bug report. [Kris]
+
 o [Zenmap] The crash reporter is more respectful of user privacy. It
   shows all the information that will be submitted so you can edit it
   to remove identifying information such as the name of your home

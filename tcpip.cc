@@ -1947,9 +1947,11 @@ static bool validateTCPhdr(u8 *tcpc, unsigned len)
  *
  * Checking the IP total length (iplen) to see if its at least as large as the
  * number of bytes read (len) does not work because things like the Ethernet
- * CRC also get captured and are counted in len.  Therefore, after the IP total
- * length is considered reasonable, iplen is used instead of len.  readip_pcap
- * fixes the length on it's end after this is validated.
+ * CRC also get captured and are counted in len.  However, since the IP total
+ * length field can't be trusted, we use len instead of iplen when doing any
+ * further checks on lengths.  readip_pcap fixes the length on it's end if we
+ * read more than the IP header says we should have so as to not pass garbage
+ * data to the caller.
  */
 static bool validatepkt(u8 *ipc, unsigned len)
 {
@@ -1994,19 +1996,19 @@ static bool validatepkt(u8 *ipc, unsigned len)
 
 	switch (ip->ip_p) {
 	case IPPROTO_TCP:
-		if (iphdrlen + sizeof(struct tcp_hdr) > iplen) {
+		if (iphdrlen + sizeof(struct tcp_hdr) > len) {
 			if (o.debugging >= 3)
 				error("Rejecting TCP packet because of incomplete header");
 			return false;
 		}
-		if (!validateTCPhdr(ipc + iphdrlen, iplen - iphdrlen)) {
+		if (!validateTCPhdr(ipc + iphdrlen, len - iphdrlen)) {
 			if (o.debugging >= 3)
 				error("Rejecting TCP packet because of bad TCP header");
 			return false;
 		}
 		break;
 	case IPPROTO_UDP:
-		if (iphdrlen + sizeof(struct udp_hdr) < iplen)
+		if (iphdrlen + sizeof(struct udp_hdr) < len)
 			break;
 		if (o.debugging >= 3)
 			error("Rejecting UDP packet because of incomplete header");
