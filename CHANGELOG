@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] The crash reporter is more respectful of user privacy. It
+  shows all the information that will be submitted so you can edit it
+  to remove identifying information such as the name of your home
+  directory. If you provide an email address the report will be marked
+  private so it will not appear on the public bug tracker. [David]
+
 o [Zenmap] Internationalization has been fixed. Currently there is
   a partial translation of Zenmap into Brazilian Portuguese. [David]
 
