@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Internationalization has been fixed. Currently there is
+  a partial translation of Zenmap into Brazilian Portuguese. [David]
+
 o [NSE] host.os table is now properly a 1 based array (was 0). [Patrick]
 
 o [Zenmap] Zenmap now parses and records XSL stylesheet information
