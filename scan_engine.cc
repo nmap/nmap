@@ -1526,6 +1526,9 @@ void UltraScanInfo::Init(vector<Target *> &Targets, struct scan_lists *pts, styp
       rawsd = -1;
     } else {
       /* Initialize a raw socket */
+#ifdef WIN32
+      win32_warn_raw_sockets(Targets[0]->deviceName());
+#endif
       if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
 	pfatal("socket troubles in %s", __func__);
       /* We do not wan't to unblock the socket since we want to wait 

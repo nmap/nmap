@@ -931,6 +931,9 @@ HostOsScan::HostOsScan(Target *t) {
     ethptr = &eth;
   } else {
     /* Init our raw socket */
+#ifdef WIN32
+    win32_warn_raw_sockets(t->deviceName());
+#endif
     if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
       pfatal("socket troubles in %s", __func__);
     unblock_socket(rawsd);

@@ -116,6 +116,7 @@
 
 #include <math.h>
 
+#include <set>
 #include <string>
 #include <vector>
 #include <list>
@@ -296,6 +297,17 @@ static char * getServiceXMLBuf(struct serviceDeductions *sd) {
 }
 
 #ifdef WIN32
+/* Display a warning that a device is not Ethernet and so raw sockets
+   will be used. The warning is shown only once per unique device name. */
+void win32_warn_raw_sockets(const char *devname) {
+  static set<string> shown_names;
+
+  if (shown_names.find(devname) == shown_names.end()) {
+    error("WARNING: Using raw sockets because %s is not an ethernet device. This probably won't work on Windows.\n", devname);
+    shown_names.insert(devname);
+  }
+}
+
 /* From tcpip.cc. */
 bool DnetName2PcapName(const char *dnetdev, char *pcapdev, int pcapdevlen);
 

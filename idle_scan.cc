@@ -391,6 +391,9 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
     proxy->rawsd = -1;
     proxy->ethptr = &proxy->eth;
   } else {
+#ifdef WIN32
+    win32_warn_raw_sockets(proxy->host.deviceName());
+#endif
     if ((proxy->rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
       pfatal("socket troubles in %s", __func__);
     unblock_socket(proxy->rawsd);

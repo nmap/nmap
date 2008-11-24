@@ -125,6 +125,12 @@
 #include "nmap.h"
 #include "global_structures.h"
 
+#ifdef WIN32
+/* Display a warning that a device is not Ethernet and so raw sockets
+   will be used. The warning is shown only once per unique device name. */
+void win32_warn_raw_sockets(const char *devname);
+#endif
+
 /* Prints the familiar Nmap tabular output showing the "interesting"
    ports found on the machine.  It also handles the Machine/Greppable
    output and the XML output.  It is pretty ugly -- in particular I

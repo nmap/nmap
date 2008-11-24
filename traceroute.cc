@@ -216,6 +216,9 @@ Traceroute::Traceroute (const char *device_name, devtype type, const scan_lists 
         if (ethsd == NULL)
             fatal ("dnet: Failed to open device %s", device_name);
     } else {
+#ifdef WIN32
+        win32_warn_raw_sockets(device_name);
+#endif
         if ((fd = socket (AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0)
             pfatal ("Traceroute: socket troubles");
         broadcast_socket (fd);
