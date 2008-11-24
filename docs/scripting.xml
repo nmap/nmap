@@ -1,3 +1,4 @@
+<chapter id="nse"><title>Nmap Scripting Engine</title>
 <indexterm class="startofrange" id="nse-indexterm"><primary>Nmap Scripting Engine (NSE)</primary></indexterm>
 <indexterm><primary>scripting</primary><see>Nmap Scripting Engine</see></indexterm>
 <indexterm><primary>NSE</primary><see>Nmap Scripting Engine</see></indexterm>
@@ -2439,3 +2440,4 @@ The <function>mainloop</function> function then processes each runlevel grouping
     </sect2>
   </sect1>
 <indexterm class="endofrange" startref="nse-indexterm"/>
+</chapter>

@@ -1,5 +1,5 @@
 <!-- $Id$ -->
-
+<chapter id="install"><title>Obtaining, Compiling, Installing, and Removing Nmap</title>
 <indexterm class="startofrange" id="install-indexterm"><primary>installation</primary></indexterm>
 
 <sect1 id="inst-intro"><title>Introduction</title>
@@ -1275,3 +1275,4 @@ first installing Nmap.  The files relating to zenmap, nmapfe, and xnmap do not e
 </sect1>
 
 <indexterm class="endofrange" startref="install-indexterm"/>
+</chapter>
