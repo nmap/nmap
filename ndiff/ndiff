@@ -67,7 +67,7 @@ class PortDict(dict):
         raise ValueError(u"__len__ is not defined for objects of type PortDict.")
 
 class Host(object):
-    """A single host, with a stated (unknown, up, or down), addresses, and a
+    """A single host, with a state (unknown, up, or down), addresses, and a
     dict mapping port specs to Ports."""
     # This represents an "unknown" host state, the state a host is in when it
     # hasn't been scanned. It must not compare equal with the real Nmap host
@@ -98,6 +98,7 @@ class Host(object):
             addrs = [addr for addr in self.addresses if addr[0] == address_type]
             if len(addrs) > 0:
                 address = addrs[0][1]
+                break
         hostname = None
         if len(self.hostnames) > 0:
             hostname = self.hostnames[0]
@@ -257,6 +258,8 @@ class DiffHunk(object):
             elem.setAttribute(u"a-state", self.a_state)
             elem.setAttribute(u"b-state", self.b_state)
             frag.appendChild(elem)
+        else:
+            assert False
         return frag
 
 def partition_port_state_changes(diff):
