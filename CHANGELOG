@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Zenmap now runs ndiff to do its "Compare Results" function. This
+  completely replaces the old diff view. ndiff is now required to do
+  comparisons in Zenmap. [David]
+
 o Fixed a bug in the IP validation code which would have let a specially
   crafted reply sent from a host on the same LAN slip through and cause
   Nmap to segfault.  Thanks to ithilgore of sock-raw.homeunix.org for
