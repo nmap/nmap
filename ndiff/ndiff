@@ -486,28 +486,22 @@ def render_port_list(ports):
     """Render a list of numbers into a string like
     "1-1027,1029-1033,1040,1043,1050,1058-1059,1067-1068,1076,1080,1083-1084".
     This function and parse_port_list are rough inverses."""
-    if len(ports) == 0:
-        return u""
     ports = ports[:]
     ports.sort()
     chunks = []
-    range_start = ports[0]
     i = 0
     while i < len(ports):
-        x = ports[i]
-        range_start = ports[i]
-        prev = ports[i]
+        start = i
         i += 1
-        while i < len(ports) and ports[i] - prev <= 1:
-            prev = ports[i]
+        while i < len(ports) and i - start == ports[i] - ports[start]:
             i += 1
-        if prev - range_start == 0:
-            chunks.append(u"%d" % range_start)
-        elif prev - range_start == 1:
-            chunks.append(u"%d" % range_start)
+        if i - start == 1:
+            chunks.append(u"%d" % ports[start])
+        elif i - start == 1:
+            chunks.append(u"%d" % ports[start])
             chunks.append(u"%d" % ports[i - 1])
         else:
-            chunks.append(u"%d-%d" % (range_start, prev))
+            chunks.append(u"%d-%d" % (ports[start], ports[i - 1]))
     return u",".join(chunks)
 
 class NmapContentHandler(xml.sax.handler.ContentHandler):
