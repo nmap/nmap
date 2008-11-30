@@ -413,11 +413,6 @@ static int ip_is_reserved(struct in_addr *ip)
   if (i1 == 169 && i2 == 254)
     return 1;
 
-  /* believe it or not, 204.152.64.0/23 is some bizarre Sun proprietary
-   * clustering thing */
-  if (i1 == 204 && i2 == 152 && (i3 == 64 || i3 == 65))
-    return 1;
-
   /* 224-239/8 is all multicast stuff */
   /* 240-255/8 is IANA reserved */
   if (i1 >= 224)
