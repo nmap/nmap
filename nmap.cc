@@ -423,10 +423,6 @@ static int ip_is_reserved(struct in_addr *ip)
   if (i1 >= 224)
     return 1;
 
-  /* 255.255.255.255, note we already tested for i1 in this range */
-  if (i2 == 255 && i3 == 255 && i4 == 255)
-    return 1;
-
   return 0;
 }
 
