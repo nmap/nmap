@@ -346,7 +346,7 @@ printf("%s %s ( %s )\n"
 static int ip_is_reserved(struct in_addr *ip)
 {
   char *ipc = (char *) &(ip->s_addr);
-  unsigned char i1 = ipc[0], i2 = ipc[1], i3 = ipc[2], i4 = ipc[3];
+  unsigned char i1 = ipc[0], i2 = ipc[1], i3 = ipc[2]; /* i4 not currently used - , i4 = ipc[3]; */
 
   /* do all the /7's and /8's with a big switch statement, hopefully the
    * compiler will be able to optimize this a little better using a jump table
