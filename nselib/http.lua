@@ -47,7 +47,7 @@ local stdnse = require 'stdnse'
 -- @param port The port for the host.
 -- @param path The path of the resource.
 -- @param options A table of options, as with <code>http.request</code>.
--- @return Table as described in the function description.
+-- @return Table as described in the module description.
 -- @see http.request
 get = function( host, port, path, options )
   options = options or {}
