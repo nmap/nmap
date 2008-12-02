@@ -32,7 +32,7 @@ function bintohex(str)
         end
         return b
 end
-]]--
+--]]
 
 callback = function(packetsz, layer2, layer3)
 	return string.sub(layer2, 0, 12)
