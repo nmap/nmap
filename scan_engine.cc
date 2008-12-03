@@ -962,13 +962,6 @@ bool GroupScanStats::sendOK(struct timeval *when) {
     }
   }
 
-  /* In case the user specifically asked for no group congestion control */
-  if (o.nogcc) {
-    if (when)
-      *when = USI->now;
-    return true;
-  }
-
   /* Enforce a minimum scanning rate, if necessary. If we're ahead of schedule,
      record the time of the next scheduled send and submit to congestion
      control. If we're behind schedule, return true to indicate that we need to
@@ -982,6 +975,13 @@ bool GroupScanStats::sendOK(struct timeval *when) {
         *when = USI->now;
       return true;
     }
+  }
+
+  /* In case the user specifically asked for no group congestion control */
+  if (o.nogcc) {
+    if (when)
+      *when = USI->now;
+    return true;
   }
 
   /* When there is only one target left, let the host congestion
