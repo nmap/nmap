@@ -156,7 +156,15 @@ struct ultra_timing_vals {
   double cwnd; /* Congestion window - in probes */
   int ssthresh; /* The threshold above which mode is changed from slow start
 		   to congestion avoidance */
-  int num_updates; /* Number of updates to this utv (generally packet receipts ) */
+  /* The number of replies we would expect if every probe produced a reply. This
+     is almost like the total number of probes sent but it is not incremented
+     until a reply is received or a probe times out. This and
+     num_replies_received are used to scale congestion window increments. */
+  int num_replies_expected;
+  /* The number of replies we've received to probes of any type. */
+  int num_replies_received;
+  /* Number of updates to this timing structure (generally packet receipts). */
+  int num_updates;
   /* Last time values were adjusted for a drop (you usually only want
      to adjust again based on probes sent after that adjustment so a
      sudden batch of drops doesn't destroy timing.  Init to now */
@@ -323,11 +331,9 @@ public:
   int numprobes; /* Number of probes/ports scanned on each host */
   /* The last time waitForResponses finished (initialized to GSS creation time */
   int probes_sent; /* Number of probes sent in total.  This DOES include pings and retransmissions */
-  int probes_replied_to; /* The number of probes for which we've received
-     responses. Used for scaling congestion window increments. */
 
-  /* Returns the scaling factor to use when incrementing the congestion window.
-     This is the minimum of probes_sent / probes_replied_to and cc_scale_max. */
+  /* Returns the scaling factor to use when incrementing the congestion
+     window. */
   double cc_scale();
 
   /* The most recently received probe response time -- initialized to scan
@@ -546,16 +552,11 @@ public:
   bool tryno_mayincrease;
   int ports_finished; /* The number of ports of this host that have been determined */
   int numprobes_sent; /* Number of port probes (not counting pings, but counting retransmits) sent to this host */
-  int numpings_sent;
+  /* Returns the scaling factor to use when incrementing the congestion
+     window. */
+  double cc_scale();
   /* Boost the scan delay for this host, usually because too many packet
      drops were detected. */
-  int numprobes_replied_to; /* The number of probes for which we've received
-     responses. Used for scaling congestion window increments. */
-  /* Returns the scaling factor to use when incrementing the congestion window.
-     This is the minimum of
-     (numprobes_sent + numpings_sent) / numprobes_replied_to and
-     cc_scale_max. */
-  double cc_scale();
   void boostScanDelay();
   struct send_delay_nfo sdn;
   struct rate_limit_detection_nfo rld;
@@ -876,7 +877,6 @@ GroupScanStats::GroupScanStats(UltraScanInfo *UltraSI) {
     CSI = new ConnectScanInfo;
   else CSI = NULL;
   probes_sent = probes_sent_at_last_wait = 0;
-  probes_replied_to = 0;
   lastping_sent = lastrcvd = USI->now;
   send_no_earlier_than = USI->now;
   send_no_later_than = USI->now;
@@ -1002,14 +1002,13 @@ bool GroupScanStats::sendOK(struct timeval *when) {
 }
 
 /* Returns the scaling factor to use when incrementing the congestion window.
-   This is the minimum of probes_sent / probes_replied_to and cc_scale_max. */
+   This is the minimum of num_replies_expected / num_replies_received and
+   cc_scale_max. */
 double GroupScanStats::cc_scale() {
   double ratio;
 
-  if (probes_replied_to == 0)
-    return USI->perf.cc_scale_max;
-
-  ratio = (double) probes_sent / probes_replied_to;
+  assert(timing.num_replies_received > 0);
+  ratio = (double) timing.num_replies_expected / timing.num_replies_received;
 
   return MIN(ratio, USI->perf.cc_scale_max);
 }
@@ -1088,8 +1087,6 @@ HostScanStats::HostScanStats(Target *t, UltraScanInfo *UltraSI) {
   tryno_mayincrease = true;
   ports_finished = 0;
   numprobes_sent = 0;
-  numpings_sent = 0;
-  numprobes_replied_to = 0;
   memset(&completiontime, 0, sizeof(completiontime));
   init_ultra_timing_vals(&timing, TIMING_HOST, 1, &(USI->perf), &USI->now);
   bench_tryno = 0;
@@ -1813,6 +1810,8 @@ static void init_ultra_timing_vals(ultra_timing_vals *timing,
 				   struct timeval *now) {
   timing->cwnd = (utt == TIMING_HOST)? perf->host_initial_cwnd : perf->group_initial_cwnd;
   timing->ssthresh = perf->initial_ssthresh; /* Will be reduced if any packets are dropped anyway */
+  timing->num_replies_expected = 0;
+  timing->num_replies_received = 0;
   timing->num_updates = 0;
   if (now)
     timing->last_drop = *now;
@@ -2047,15 +2046,17 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
                                     struct timeval *rcvdtime) {
   int ping_magnifier = (probe->isPing())? USI->perf.ping_magnifier : 1;
 
-  hss->timing.num_updates++;
+  USI->gstats->timing.num_replies_expected++;
   USI->gstats->timing.num_updates++;
 
-  USI->gstats->probes_replied_to++;
-  hss->numprobes_replied_to++;
+  hss->timing.num_replies_expected++;
+  hss->timing.num_updates++;
 
-  /* Adjust window */
-  if (probe->tryno > 0 || !rcvdtime) {
-    /* A previous probe must have been lost ... */
+  if ((probe->tryno > 0 && rcvdtime != NULL)
+      || (probe->isPing() && rcvdtime == NULL)) {
+    /* We consider it a drop if
+       1. We get a positive response to a retransmitted probe, or
+       2. We get no response to a timing print probe. */
     if (o.debugging > 1)
       log_write(LOG_PLAIN, "Ultrascan DROPPED %sprobe packet to %s detected\n", probe->isPing()? "PING " : "", hss->target->targetipstr());
     // Drops often come in big batches, but we only want one decrease per batch.
@@ -2069,20 +2070,11 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
       USI->gstats->timing.ssthresh = (int) MAX(USI->gstats->num_probes_active / USI->perf.group_drop_ssthresh_divisor, 2);
       USI->gstats->timing.last_drop = USI->now;
     }
-  } else {
+  } else if (rcvdtime != NULL) {
     /* Good news -- got a response to first try.  Increase window as 
        appropriate.  */
-    if (hss->timing.cwnd < hss->timing.ssthresh) {
-      /* In slow start mode */
-      hss->timing.cwnd += ping_magnifier * USI->perf.slow_incr * hss->cc_scale();
-      if (hss->timing.cwnd > hss->timing.ssthresh)
-	hss->timing.cwnd = hss->timing.ssthresh;
-    } else {
-      /* Congestion avoidance mode */
-      hss->timing.cwnd += ping_magnifier * USI->perf.ca_incr / hss->timing.cwnd * hss->cc_scale();
-    }
-    if (hss->timing.cwnd > USI->perf.max_cwnd)
-      hss->timing.cwnd = USI->perf.max_cwnd;
+    USI->gstats->timing.num_replies_received++;
+    hss->timing.num_replies_received++;
 
     if (USI->gstats->timing.cwnd < USI->gstats->timing.ssthresh) {
       /* In slow start mode */
@@ -2095,7 +2087,20 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
     }
     if (USI->gstats->timing.cwnd > USI->perf.max_cwnd)
       USI->gstats->timing.cwnd = USI->perf.max_cwnd;
+
+    if (hss->timing.cwnd < hss->timing.ssthresh) {
+      /* In slow start mode */
+      hss->timing.cwnd += 1.0 * hss->cc_scale();
+      if (hss->timing.cwnd > hss->timing.ssthresh)
+	hss->timing.cwnd = hss->timing.ssthresh;
+    } else {
+      /* Congestion avoidance mode */
+      hss->timing.cwnd += 1.0 / hss->timing.cwnd * hss->cc_scale();
+    }
+    if (hss->timing.cwnd > USI->perf.max_cwnd)
+      hss->timing.cwnd = USI->perf.max_cwnd;
   }
+  /* If probe->tryno == 0 and rcvdtime == NULL, do nothing. */
 
   /* If packet drops are particularly bad, enforce a delay between
      packet sends (useful for cases such as UDP scan where responses
@@ -2103,8 +2108,8 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
 
   /* First we decide whether this packet counts as a drop for send
      delay calculation purposes.  This statement means if (a ping since last boost failed, or the previous packet was both sent after the last boost and dropped) */
-  if ((!rcvdtime && TIMEVAL_AFTER(probe->sent, hss->sdn.last_boost)) ||
-      (probe->tryno > 0 && TIMEVAL_AFTER(probe->prevSent, hss->sdn.last_boost))) {
+  if ((probe->isPing() && rcvdtime == NULL && TIMEVAL_AFTER(probe->sent, hss->sdn.last_boost)) ||
+      (probe->tryno > 0 && rcvdtime != NULL && TIMEVAL_AFTER(probe->prevSent, hss->sdn.last_boost))) {
     hss->sdn.droppedRespSinceDelayChanged++;
     //    printf("SDELAY: increasing drops to %d (good: %d; tryno: %d, sent: %.4fs; prevSent: %.4fs, last_boost: %.4fs\n", hss->sdn.droppedRespSinceDelayChanged, hss->sdn.goodRespSinceDelayChanged, probe->tryno, o.TimeSinceStartMS(&probe->sent) / 1000.0, o.TimeSinceStartMS(&probe->prevSent) / 1000.0, o.TimeSinceStartMS(&hss->sdn.last_boost) / 1000.0);
   } else if (rcvdtime) {
@@ -2137,11 +2142,10 @@ void HostScanStats::markProbeTimedout(list<UltraProbe *>::iterator probeI) {
   num_probes_active--;
   assert(USI->gstats->num_probes_active > 0);
   USI->gstats->num_probes_active--;
-  if (probe->isPing()) {
-    ultrascan_adjust_timing(USI, this, probe, NULL);
-    /* I'll leave it in the queue in case some response ever does
-       come */
-  } else num_probes_waiting_retransmit++;
+  ultrascan_adjust_timing(USI, this, probe, NULL);
+  if (!probe->isPing())
+    /* I'll leave it in the queue in case some response ever does come */
+    num_probes_waiting_retransmit++;
 
   if (probe->type == UltraProbe::UP_CONNECT && probe->CP()->sd >= 0 ) {
     /* Free the socket as that is a valuable resource, though it is a shame
@@ -2448,15 +2452,13 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
 }
 
 /* Returns the scaling factor to use when incrementing the congestion window.
-   This is the minimum of
-   (numprobes_sent + numpings_sent) / numprobes_replied_to and cc_scale_max. */
+   This is the minimum of num_replies_expected / num_replies_received and
+   cc_scale_max. */
 double HostScanStats::cc_scale() {
   double ratio;
 
-  if (numprobes_replied_to == 0)
-    return USI->perf.cc_scale_max;
-
-  ratio = (double) (numprobes_sent + numpings_sent) / numprobes_replied_to;
+  assert(timing.num_replies_received > 0);
+  ratio = (double) timing.num_replies_expected / timing.num_replies_received;
 
   return MIN(ratio, USI->perf.cc_scale_max);
 }
@@ -2587,7 +2589,7 @@ static void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
   }
 
   ultrascan_adjust_timeouts(USI, hss, probe, rcvdtime);
-  if (adjust_timing && rcvdtime != NULL)
+  if (adjust_timing)
     ultrascan_adjust_timing(USI, hss, probe, rcvdtime);
 
   ultrascan_host_pspec_update(USI, hss, probe->pspec(), newstate);
@@ -2644,9 +2646,6 @@ static void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
   ultrascan_adjust_timeouts(USI, hss, probe, rcvdtime);
 
   if (adjust_timing &&
-  /* The rcvdtime check is because this func is called that way when
-     we give up on a probe because of too many retransmissions. */
-     rcvdtime &&
   /* If we are not in "noresp_open_scan" and got something back and the
    * newstate is PORT_FILTERED then we got ICMP error response.
    * ICMP errors are often rate-limited (RFC1812) and/or generated by
@@ -3120,7 +3119,6 @@ static void sendPingProbe(UltraScanInfo *USI, HostScanStats *hss) {
   } else {
     assert(0);
   }
-  hss->numpings_sent++;
   USI->gstats->probes_sent++;
 }
 
