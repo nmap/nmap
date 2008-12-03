@@ -127,13 +127,13 @@ struct ultra_scan_performance_vars {
   int group_initial_cwnd; /* Initial congestion window for all hosts as a group */
   int max_cwnd; /* I should never have more than this many probes
 		   outstanding */
-  int quick_incr; /* How many probes are incremented for each response
-		     in quick start mode */
-  int cc_incr; /* How many probes are incremented per (roughly) rtt in 
-		  congestion control mode */
+  int slow_incr; /* How many probes are incremented for each response
+		    in slow start mode */
+  int ca_incr; /* How many probes are incremented per (roughly) rtt in 
+		  congestion avoidance mode */
   int cc_scale_max; /* The maximum scaling factor for congestion window
-                       increments. */
-  int initial_ccthresh;
+		       increments. */
+  int initial_ssthresh;
   /* When a successful ping response comes back, it counts as this many
      "normal" responses, because the fact that pings are neccessary means
      we aren't getting much input. */
@@ -143,9 +143,9 @@ struct ultra_scan_performance_vars {
   int pingtime; 
   double group_drop_cwnd_divisor; /* all-host group cwnd divided by this
 				     value if any packet drop occurs */
-  double group_drop_ccthresh_divisor; /* used to drop the group ccthresh when
+  double group_drop_ssthresh_divisor; /* used to drop the group ssthresh when
 					 any drop occurs */
-  double host_drop_ccthresh_divisor; /* used to drop the host ccthresh when
+  double host_drop_ssthresh_divisor; /* used to drop the host ssthresh when
 					 any drop occurs */
   int tryno_cap; /* The maximum trynumber (starts at zero) allowed */
 };
@@ -154,8 +154,8 @@ struct ultra_scan_performance_vars {
    techniques from RFC2581. */
 struct ultra_timing_vals {
   double cwnd; /* Congestion window - in probes */
-  int ccthresh; /* The threshold after which mode is changed from QUICK_START
-		   to CONGESTION_CONTROL */
+  int ssthresh; /* The threshold above which mode is changed from slow start
+		   to congestion avoidance */
   int num_updates; /* Number of updates to this utv (generally packet receipts ) */
   /* Last time values were adjusted for a drop (you usually only want
      to adjust again based on probes sent after that adjustment so a
@@ -324,7 +324,7 @@ public:
   /* The last time waitForResponses finished (initialized to GSS creation time */
   int probes_sent; /* Number of probes sent in total.  This DOES include pings and retransmissions */
   int probes_replied_to; /* The number of probes for which we've received
-     responses. Used for scaling congestion control increments. */
+     responses. Used for scaling congestion window increments. */
 
   /* Returns the scaling factor to use when incrementing the congestion window.
      This is the minimum of probes_sent / probes_replied_to and cc_scale_max. */
@@ -497,7 +497,7 @@ public:
   bool completed(); /* Whether or not the scan of this Target has completed */
   struct timeval completiontime; /* When this Target completed */
 
-  /* This function provides the proper cwnd and ccthresh to use.  It
+  /* This function provides the proper cwnd and ssthresh to use.  It
      may differ from versions in timing member var because when no
      responses have been received for this host, may look at others in
      the group.  For CHANGING this host's timing, use the timing
@@ -550,7 +550,7 @@ public:
   /* Boost the scan delay for this host, usually because too many packet
      drops were detected. */
   int numprobes_replied_to; /* The number of probes for which we've received
-     responses. Used for scaling congestion control increments. */
+     responses. Used for scaling congestion window increments. */
   /* Returns the scaling factor to use when incrementing the congestion window.
      This is the minimum of
      (numprobes_sent + numpings_sent) / numprobes_replied_to and
@@ -1400,27 +1400,27 @@ static void init_perf_values(struct ultra_scan_performance_vars *perf) {
   perf->max_cwnd = o.max_parallelism? o.max_parallelism : 300;
   perf->group_initial_cwnd = box(o.min_parallelism, perf->max_cwnd, 10);
   perf->host_initial_cwnd = perf->group_initial_cwnd;
-  perf->quick_incr = 1;
+  perf->slow_incr = 1;
   /* The congestion window grows faster with more aggressive timing. */
   if (o.timing_level < 4)
-    perf->cc_incr = 1;
+    perf->ca_incr = 1;
   else
-    perf->cc_incr = 2;
+    perf->ca_incr = 2;
   perf->cc_scale_max = 50;
-  perf->initial_ccthresh = 75;
+  perf->initial_ssthresh = 75;
   perf->ping_magnifier = 3;
   perf->pingtime = 1250000;
   perf->group_drop_cwnd_divisor = 2.0;
-  /* Change the amount that ccthresh drops based on the timing level. */
-  double ccthresh_divisor;
+  /* Change the amount that ssthresh drops based on the timing level. */
+  double ssthresh_divisor;
   if (o.timing_level <= 3)
-    ccthresh_divisor = (3.0 / 2.0);
+    ssthresh_divisor = (3.0 / 2.0);
   else if (o.timing_level <= 4)
-    ccthresh_divisor = (4.0 / 3.0);
+    ssthresh_divisor = (4.0 / 3.0);
   else
-    ccthresh_divisor = (5.0 / 4.0);
-  perf->group_drop_ccthresh_divisor = ccthresh_divisor;
-  perf->host_drop_ccthresh_divisor = ccthresh_divisor;
+    ssthresh_divisor = (5.0 / 4.0);
+  perf->group_drop_ssthresh_divisor = ssthresh_divisor;
+  perf->host_drop_ssthresh_divisor = ssthresh_divisor;
   perf->tryno_cap = o.getMaxRetransmissions();
 }
 
@@ -1812,7 +1812,7 @@ static void init_ultra_timing_vals(ultra_timing_vals *timing,
 				   struct ultra_scan_performance_vars *perf,
 				   struct timeval *now) {
   timing->cwnd = (utt == TIMING_HOST)? perf->host_initial_cwnd : perf->group_initial_cwnd;
-  timing->ccthresh = perf->initial_ccthresh; /* Will be reduced if any packets are dropped anyway */
+  timing->ssthresh = perf->initial_ssthresh; /* Will be reduced if any packets are dropped anyway */
   timing->num_updates = 0;
   if (now)
     timing->last_drop = *now;
@@ -2061,37 +2061,37 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
     // Drops often come in big batches, but we only want one decrease per batch.
     if (TIMEVAL_SUBTRACT(probe->sent, hss->timing.last_drop) > 0) {
       hss->timing.cwnd = USI->perf.low_cwnd;
-      hss->timing.ccthresh = (int) MAX(hss->num_probes_active / USI->perf.host_drop_ccthresh_divisor, 2);
+      hss->timing.ssthresh = (int) MAX(hss->num_probes_active / USI->perf.host_drop_ssthresh_divisor, 2);
       hss->timing.last_drop = USI->now;
     }
     if (TIMEVAL_SUBTRACT(probe->sent, USI->gstats->timing.last_drop) > 0) {
       USI->gstats->timing.cwnd = MAX(USI->perf.low_cwnd, USI->gstats->timing.cwnd / USI->perf.group_drop_cwnd_divisor);
-      USI->gstats->timing.ccthresh = (int) MAX(USI->gstats->num_probes_active / USI->perf.group_drop_ccthresh_divisor, 2);
+      USI->gstats->timing.ssthresh = (int) MAX(USI->gstats->num_probes_active / USI->perf.group_drop_ssthresh_divisor, 2);
       USI->gstats->timing.last_drop = USI->now;
     }
   } else {
     /* Good news -- got a response to first try.  Increase window as 
        appropriate.  */
-    if (hss->timing.cwnd < hss->timing.ccthresh) {
-      /* In quick start mode */
-      hss->timing.cwnd += ping_magnifier * USI->perf.quick_incr * hss->cc_scale();
-      if (hss->timing.cwnd > hss->timing.ccthresh)
-	hss->timing.cwnd = hss->timing.ccthresh;
+    if (hss->timing.cwnd < hss->timing.ssthresh) {
+      /* In slow start mode */
+      hss->timing.cwnd += ping_magnifier * USI->perf.slow_incr * hss->cc_scale();
+      if (hss->timing.cwnd > hss->timing.ssthresh)
+	hss->timing.cwnd = hss->timing.ssthresh;
     } else {
-      /* Congestion control mode */
-      hss->timing.cwnd += ping_magnifier * USI->perf.cc_incr / hss->timing.cwnd * hss->cc_scale();
+      /* Congestion avoidance mode */
+      hss->timing.cwnd += ping_magnifier * USI->perf.ca_incr / hss->timing.cwnd * hss->cc_scale();
     }
     if (hss->timing.cwnd > USI->perf.max_cwnd)
       hss->timing.cwnd = USI->perf.max_cwnd;
 
-    if (USI->gstats->timing.cwnd < USI->gstats->timing.ccthresh) {
-      /* In quick start mode */
-      USI->gstats->timing.cwnd += ping_magnifier * USI->perf.quick_incr * USI->gstats->cc_scale();
-      if (USI->gstats->timing.cwnd > USI->gstats->timing.ccthresh)
-	USI->gstats->timing.cwnd = USI->gstats->timing.ccthresh;
+    if (USI->gstats->timing.cwnd < USI->gstats->timing.ssthresh) {
+      /* In slow start mode */
+      USI->gstats->timing.cwnd += ping_magnifier * USI->perf.slow_incr * USI->gstats->cc_scale();
+      if (USI->gstats->timing.cwnd > USI->gstats->timing.ssthresh)
+	USI->gstats->timing.cwnd = USI->gstats->timing.ssthresh;
     } else {
-      /* Congestion control mode */
-      USI->gstats->timing.cwnd += ping_magnifier * USI->perf.cc_incr / USI->gstats->timing.cwnd * USI->gstats->cc_scale();
+      /* Congestion avoidance mode */
+      USI->gstats->timing.cwnd += ping_magnifier * USI->perf.ca_incr / USI->gstats->timing.cwnd * USI->gstats->cc_scale();
     }
     if (USI->gstats->timing.cwnd > USI->perf.max_cwnd)
       USI->gstats->timing.cwnd = USI->perf.max_cwnd;
@@ -2278,7 +2278,7 @@ static bool tcp_trynum_pingseq_decode(UltraScanInfo *USI,
   }
 }
 
-/* This function provides the proper cwnd and ccthresh to use.  It may
+/* This function provides the proper cwnd and ssthresh to use.  It may
    differ from versions in timing member var because when no responses
    have been received for this host, may look at others in the group.
    For CHANGING this host's timing, use the timing memberval
@@ -2301,7 +2301,7 @@ void HostScanStats::getTiming(struct ultra_timing_vals *tmng) {
 
   /* Last resort is to use canned values */
   tmng->cwnd = USI->perf.host_initial_cwnd;
-  tmng->ccthresh = USI->perf.initial_ccthresh;
+  tmng->ssthresh = USI->perf.initial_ssthresh;
   tmng->num_updates = 0;
   return;
 }
@@ -3298,11 +3298,11 @@ static void printAnyStats(UltraScanInfo *USI) {
 
   /* Print debugging states for each host being scanned */
   if (o.debugging > 2) {
-    log_write(LOG_PLAIN, "**TIMING STATS** (%.4fs): IP, probes active/freshportsleft/retry_stack/outstanding/retranwait/onbench, cwnd/ccthresh/delay, timeout/srtt/rttvar/\n", o.TimeSinceStartMS() / 1000.0);
+    log_write(LOG_PLAIN, "**TIMING STATS** (%.4fs): IP, probes active/freshportsleft/retry_stack/outstanding/retranwait/onbench, cwnd/ssthresh/delay, timeout/srtt/rttvar/\n", o.TimeSinceStartMS() / 1000.0);
     log_write(LOG_PLAIN, "   Groupstats (%d/%d incomplete): %d/*/*/*/*/* %.2f/%d/* %d/%d/%d\n",
 	      USI->numIncompleteHosts(), USI->numInitialHosts(), 
 	      USI->gstats->num_probes_active, USI->gstats->timing.cwnd,
-	      USI->gstats->timing.ccthresh, USI->gstats->to.timeout, 
+	      USI->gstats->timing.ssthresh, USI->gstats->to.timeout, 
 	      USI->gstats->to.srtt, USI->gstats->to.rttvar);
 
     if (o.debugging > 3) {
@@ -3315,7 +3315,7 @@ static void printAnyStats(UltraScanInfo *USI) {
                   (int) hss->retry_stack.size(),
                   hss->num_probes_outstanding(), 
                   hss->num_probes_waiting_retransmit, (int) hss->probe_bench.size(),
-                  hosttm.cwnd, hosttm.ccthresh, hss->sdn.delayms, 
+                  hosttm.cwnd, hosttm.ssthresh, hss->sdn.delayms, 
                   hss->probeTimeout(), hss->target->to.srtt, 
                   hss->target->to.rttvar);
       }
