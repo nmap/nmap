@@ -318,7 +318,7 @@ public:
   struct sockaddr_storage latestip; 
   GroupScanStats(UltraScanInfo *UltraSI);
   ~GroupScanStats();
-  void probeSent();
+  void probeSent(unsigned int nbytes);
   /* Returns true if the GLOBAL system says that sending is OK. */
   bool sendOK(struct timeval *when); 
   /* Total # of probes outstanding (active) for all Hosts */
@@ -413,6 +413,8 @@ public:
   bool sent_icmp_mask;
   /* Whether we have sent an ICMP timestamp request. */
   bool sent_icmp_ts;
+
+  void probeSent(unsigned int nbytes);
 
   /* How long I am currently willing to wait for a probe response
      before considering it timed out.  Uses the host values from
@@ -890,7 +892,11 @@ GroupScanStats::~GroupScanStats() {
   delete CSI;
 }
 
-void GroupScanStats::probeSent() {
+/* Called whenever a probe is sent to any host. Should only be called by
+   HostScanStats::probeSent. */
+void GroupScanStats::probeSent(unsigned int nbytes) {
+  USI->send_rate_meter.update(nbytes, &USI->now);
+
   /* Find a new scheduling interval for minimum- and maximum-rate sending.
      Recall that these have effect only when --min-rate or --max-rate is
      given. */
@@ -1114,6 +1120,15 @@ HostScanStats::~HostScanStats() {
     next++;
     destroyOutstandingProbe(probeI);
   }
+}
+
+/* Called whenever a probe is sent to this host. Takes care of updating scan
+   delay and rate limiting variables. */
+void HostScanStats::probeSent(unsigned int nbytes) {
+  lastprobe_sent = USI->now;
+
+  /* Update group variables. */
+  USI->gstats->probeSent(nbytes);
 }
 
 /* How long I am currently willing to wait for a probe response before
@@ -2717,15 +2732,14 @@ static UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 #if HAVE_IPV6
   else sin6->sin6_port = htons(probe->pspec()->pd.tcp.dport);
 #endif
-  hss->lastprobe_sent = probe->sent = USI->now;
-  USI->gstats->probeSent();
+  probe->sent = USI->now;
+  /* We don't record a byte count for connect probes. */
+  hss->probeSent(0);
   rc = connect(CP->sd, (struct sockaddr *)&sock, socklen);
   gettimeofday(&USI->now, NULL);
   if (rc == -1) connect_errno = socket_errno();
   PacketTrace::traceConnect(IPPROTO_TCP, (sockaddr *) &sock, socklen, rc, 
 			    connect_errno, &USI->now);
-  /* We don't record a byte count for connect probes. */
-  USI->send_rate_meter.update(0, &USI->now);
   /* This counts as probe being sent, so update structures */
   hss->probes_outstanding.push_back(probe);
   probeI = hss->probes_outstanding.end();
@@ -2816,14 +2830,13 @@ static UltraProbe *sendArpScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 		     *hss->target->SrcMACAddress(), *hss->target->v4sourceip(),
 		     ETH_ADDR_BROADCAST,  *hss->target->v4hostip());
   gettimeofday(&USI->now, NULL);
-  hss->lastprobe_sent = probe->sent = USI->now;
-  USI->gstats->probeSent();
+  probe->sent = USI->now;
+  hss->probeSent(sizeof(frame));
   if ((rc = eth_send(USI->ethsd, frame, sizeof(frame))) != sizeof(frame)) {
     int err = socket_errno();
     error("WARNING:  eth_send of ARP packet returned %i rather than expected %d (errno=%i: %s)", rc, (int) sizeof(frame), err, strerror(err));
   }
   PacketTrace::traceArp(PacketTrace::SENT, (u8 *) frame, sizeof(frame), &USI->now);
-  USI->send_rate_meter.update(sizeof(frame), &USI->now);
   probe->tryno = tryno;
   probe->pingseq = pingseq;
   /* First build the probe */
@@ -2899,9 +2912,9 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 			     &packetlen);
       if (decoy == o.decoyturn) {
 	probe->setIP(packet, packetlen, pspec);
-	hss->lastprobe_sent = probe->sent = USI->now;
+	probe->sent = USI->now;
       }
-      USI->gstats->probeSent();
+      hss->probeSent(packetlen);
       send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
       free(packet);
     }
@@ -2915,9 +2928,9 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 			     &packetlen);
       if (decoy == o.decoyturn) {
 	probe->setIP(packet, packetlen, pspec);
-	hss->lastprobe_sent = probe->sent = USI->now;
+	probe->sent = USI->now;
       }
-      USI->gstats->probeSent();
+      hss->probeSent(packetlen);
       send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
       free(packet);
     }
@@ -2971,9 +2984,9 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
       }
       if (decoy == o.decoyturn) {
 	probe->setIP(packet, packetlen, pspec);
-	hss->lastprobe_sent = probe->sent = USI->now;
+	probe->sent = USI->now;
       }
-      USI->gstats->probeSent();
+      hss->probeSent(packetlen);
       send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
       free(packet);
     }
@@ -2994,14 +3007,13 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
                               &packetlen);
       if (decoy == o.decoyturn) {
 	probe->setIP(packet, packetlen, pspec);
-	hss->lastprobe_sent = probe->sent = USI->now;
+	probe->sent = USI->now;
       }
-      USI->gstats->probeSent();
+      hss->probeSent(packetlen);
       send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
       free(packet);
     }
   } else assert(0); /* TODO:  Maybe RPC scan and the like */
-  USI->send_rate_meter.update(packetlen, &USI->now);
   /* Now that the probe has been sent, add it to the Queue for this host */
   hss->probes_outstanding.push_back(probe);
   USI->gstats->num_probes_active++;
