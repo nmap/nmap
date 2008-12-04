@@ -130,20 +130,6 @@ static inline int gethostnum(Target *hostbatch[], Target *target) {
   return 0; // Unreached
 }
 
-const char *readhoststate(int state) {
-  switch(state) {
-  case HOST_UP:
-    return "HOST_UP";
-  case HOST_DOWN:
-    return "HOST_DOWN";
-  case HOST_FIREWALLED:
-    return "HOST_FIREWALLED";
-  default:
-    return "UNKNOWN/COMBO";
-  }
-  return NULL;
-}
-
 /* Conducts an ARP ping sweep of the given hosts to determine which ones
    are up on a local ethernet network */
 static void arpping(Target *hostbatch[], int num_hosts) {
@@ -163,15 +149,13 @@ static void arpping(Target *hostbatch[], int num_hosts) {
 	log_write(LOG_STDOUT|LOG_NORMAL, 
 		  "ARP ping: Considering %s UP because it is a local IP, despite no MAC address for device %s\n",
 		  hostbatch[targetno]->NameIP(), hostbatch[targetno]->deviceName());
-	hostbatch[targetno]->flags &= ~(HOST_DOWN|HOST_FIREWALLED);
-	hostbatch[targetno]->flags |= HOST_UP;
+	hostbatch[targetno]->flags = HOST_UP;
       } else {
 	log_write(LOG_STDOUT|LOG_NORMAL, 
 		  "ARP ping: Considering %s DOWN because no MAC address found for device %s.\n",
 		  hostbatch[targetno]->NameIP(), 
 		  hostbatch[targetno]->deviceName());
-	hostbatch[targetno]->flags &= ~HOST_FIREWALLED;
-	hostbatch[targetno]->flags |= HOST_DOWN;
+	hostbatch[targetno]->flags = HOST_DOWN;
       }
       continue;
     }

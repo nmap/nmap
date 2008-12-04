@@ -2560,8 +2560,6 @@ static const char *readhoststate(int state) {
       return "HOST_UP";
     case HOST_DOWN:
       return "HOST_DOWN";
-    case HOST_FIREWALLED:
-      return "HOST_FIREWALLED";
     default:
       return "COMBO";
   }
@@ -2572,16 +2570,10 @@ static const char *readhoststate(int state) {
 /* Update state of the host in hss based on its current state and newstate. */
 static void ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
                                         const probespec *pspec, int newstate) {
-  /* Adjust the target flags to note the new state. */
-  if ((hss->target->flags & HOST_UP) == 0) {
-    if (newstate == HOST_UP) {
-      /* Clear any HOST_DOWN or HOST_FIREWALLED flags */
-      hss->target->flags &= ~(HOST_DOWN|HOST_FIREWALLED);
-      hss->target->flags |= HOST_UP;
-    } else if (newstate == HOST_DOWN) {
-      hss->target->flags &= ~HOST_FIREWALLED;
-      hss->target->flags |= HOST_DOWN;
-    } else assert(0);
+  /* If the host is already up, ignore any further updates. */
+  if (hss->target->flags != HOST_UP) {
+    assert(newstate == HOST_UP || newstate == HOST_DOWN);
+    hss->target->flags = newstate;
   }
 }
 
