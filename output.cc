@@ -1358,21 +1358,21 @@ void write_host_status(Target *currenths, int resolve_all) {
     write_xml_initial_hostinfo(currenths, "unknown");
   } 
 
-  else if (currenths->wierd_responses) { /* SMURF ADDRESS */
+  else if (currenths->weird_responses) { /* SMURF ADDRESS */
     /* Write xml "down" or "up" based on flags and the smurf info */
     write_xml_initial_hostinfo(currenths, 
 			       (currenths->flags & HOST_UP)? "up" : "down");
     log_write(LOG_XML, "<smurf responses=\"%d\" />\n", 
-	      currenths->wierd_responses);
-    log_write(LOG_MACHINE,"Host: %s (%s)\tStatus: Smurf (%d responses)\n",  currenths->targetipstr(), currenths->HostName(), currenths->wierd_responses);
+	      currenths->weird_responses);
+    log_write(LOG_MACHINE,"Host: %s (%s)\tStatus: Smurf (%d responses)\n",  currenths->targetipstr(), currenths->HostName(), currenths->weird_responses);
     
     if (o.pingscan)
-      log_write(LOG_PLAIN,"Host %s seems to be a subnet broadcast address (returned %d extra pings).%s\n",  currenths->NameIP(hostname, sizeof(hostname)), currenths->wierd_responses, 
+      log_write(LOG_PLAIN,"Host %s seems to be a subnet broadcast address (returned %d extra pings).%s\n",  currenths->NameIP(hostname, sizeof(hostname)), currenths->weird_responses, 
 		(currenths->flags & HOST_UP)? " Note -- the actual IP also responded." : "");
     else {
       log_write(LOG_PLAIN,"Host %s seems to be a subnet broadcast address (returned %d extra pings). %s.\n",  
 		currenths->NameIP(hostname, sizeof(hostname)),
-		currenths->wierd_responses,
+		currenths->weird_responses,
 	       (currenths->flags & HOST_UP)? 
 		" Still scanning it due to ping response from its own IP" 
 		: "Skipping host");

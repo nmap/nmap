@@ -1646,7 +1646,7 @@ int nmap_main(int argc, char *argv[]) {
 	currenths->setSourceSockAddr(&ss, sslen);
       }
     
-      /* I used to check that !currenths->wierd_responses, but in some
+      /* I used to check that !currenths->weird_responses, but in some
 	 rare cases, such IPs CAN be port successfully scanned and even connected to */
       if (!(currenths->flags & HOST_UP)) {
 	delete currenths;

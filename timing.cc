@@ -460,7 +460,7 @@ ScanProgressMeter::~ScanProgressMeter() {
    might as well check this before spending much time computing
    progress info.  now can be NULL if caller doesn't have the current
    time handy.  Just because this function returns true does not mean
-   that the next printStatsIfNeccessary will always print something.
+   that the next printStatsIfNecessary will always print something.
    It depends on whether time estimates have changed, which this func
    doesn't even know about. */
 bool ScanProgressMeter::mayBePrinted(const struct timeval *now) {
@@ -495,7 +495,7 @@ bool ScanProgressMeter::mayBePrinted(const struct timeval *now) {
    so if mayBePrinted() is true, and it seems reasonable to do so
    because the estimate has changed significantly.  Returns whether
    or not a line was printed.*/
-bool ScanProgressMeter::printStatsIfNeccessary(double perc_done, 
+bool ScanProgressMeter::printStatsIfNecessary(double perc_done, 
 					       const struct timeval *now) {
   struct timeval tvtmp;
   long time_used_ms;

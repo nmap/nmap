@@ -256,8 +256,8 @@ class Target {
 
   // unsigned int up;
   // unsigned int down;
-  int wierd_responses; /* echo responses from other addresses, Ie a network broadcast address */
-  unsigned int flags; /* HOST_UP, HOST_DOWN, HOST_FIREWALLED, HOST_BROADCAST (instead of HOST_BROADCAST use wierd_responses */
+  int weird_responses; /* echo responses from other addresses, Ie a network broadcast address */
+  unsigned int flags; /* HOST_UP, HOST_DOWN, HOST_FIREWALLED, HOST_BROADCAST (instead of HOST_BROADCAST use weird_responses */
   struct timeout_info to;
   char *hostname; // Null if unable to resolve or unset
   char * targetname; // The name of the target host given on the commmand line if it is a named host

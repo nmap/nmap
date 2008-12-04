@@ -418,7 +418,7 @@ int process_mainloop(lua_State *L) {
         if(o.verbose > 1 || o.debugging)
           progress.printStats(done, NULL);
         else
-          progress.printStatsIfNeccessary(done, NULL);
+          progress.printStatsIfNecessary(done, NULL);
       })
 
     gettimeofday(&now, NULL);

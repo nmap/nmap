@@ -2180,7 +2180,7 @@ bool HostScanStats::completed() {
 
   /* With ping scan, we are done once we know the host is up or down. */
   if (USI->ping_scan && ((target->flags & HOST_UP)
-    || (target->flags & HOST_DOWN) || target->wierd_responses)) {
+    || (target->flags & HOST_DOWN) || target->weird_responses)) {
     return true;
   }
 
@@ -3336,7 +3336,7 @@ static void printAnyStats(UltraScanInfo *USI) {
   }
 
   if (USI->SPM->mayBePrinted(&USI->now))
-    USI->SPM->printStatsIfNeccessary(USI->getCompletionFraction(), &USI->now);
+    USI->SPM->printStatsIfNecessary(USI->getCompletionFraction(), &USI->now);
 }
 
 /* Does a select() call and handles all of the results. This handles both host
@@ -4157,14 +4157,14 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         probeI = hss->probes_outstanding.end();
         listsz = hss->num_probes_outstanding();
 
-        /* A check for wierd_responses is needed here. This is not currently
+        /* A check for weird_responses is needed here. This is not currently
            possible because we don't have a good way to look up the original
            target of an ICMP probe based on the response. (massping encoded an
            array index in the ICMP sequence, which won't work here.) Once we've
            found the host that sent the probe that elicited the response, the
-           test for wierd_responses is
+           test for weird_responses is
               if (sending_host->v4host().s_addr != ip->ip_src.s_addr)
-                hss->target->wierd_responses++;
+                hss->target->weird_responses++;
            (That is, the target that sent the probe is not the same one that
            sent the response.)
          */

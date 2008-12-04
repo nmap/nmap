@@ -124,7 +124,7 @@ void Target::Initialize() {
   distance = -1;
   FPR = NULL;
   osscan_flag = OS_NOTPERF;
-  wierd_responses = flags = 0;
+  weird_responses = flags = 0;
   memset(&to, 0, sizeof(to));
   memset(&targetsock, 0, sizeof(targetsock));
   memset(&sourcesock, 0, sizeof(sourcesock));

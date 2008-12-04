@@ -333,7 +333,7 @@ void *realloc();
 #define HOST_UP 1
 #define HOST_DOWN 2 
 #define HOST_FIREWALLED 4 
-#define HOST_BROADCAST 8 /* use the wierd_responses member of hoststruct instead */
+#define HOST_BROADCAST 8 /* use the weird_responses member of hoststruct instead */
 
 #define PINGTYPE_UNKNOWN 0
 #define PINGTYPE_NONE 1

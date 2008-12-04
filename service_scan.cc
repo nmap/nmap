@@ -1865,7 +1865,7 @@ static void considerPrintingStats(ServiceGroup *SG) {
   /* Perhaps this should be made more complex, but I suppose it should be
      good enough for now. */
   if (SG->SPM->mayBePrinted(nsock_gettimeofday())) {
-    SG->SPM->printStatsIfNeccessary(SG->services_finished.size() / ((double)SG->services_remaining.size() + SG->services_in_progress.size() + SG->services_finished.size()), nsock_gettimeofday());
+    SG->SPM->printStatsIfNecessary(SG->services_finished.size() / ((double)SG->services_remaining.size() + SG->services_in_progress.size() + SG->services_finished.size()), nsock_gettimeofday());
   }
 }
 

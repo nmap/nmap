@@ -191,7 +191,7 @@ class ScanProgressMeter {
    might as well check this before spending much time computing
    progress info.  now can be NULL if caller doesn't have the current
    time handy.  Just because this function returns true does not mean
-   that the next printStatsIfNeccessary will always print something.
+   that the next printStatsIfNecessary will always print something.
    It depends on whether time estimates have changed, which this func
    doesn't even know about. */
   bool mayBePrinted(const struct timeval *now);
@@ -200,7 +200,7 @@ class ScanProgressMeter {
    so if mayBePrinted() is true, and it seems reasonable to do so
    because the estimate has changed significantly.  Returns whether
    or not a line was printed.*/
-  bool printStatsIfNeccessary(double perc_done, const struct timeval *now);
+  bool printStatsIfNecessary(double perc_done, const struct timeval *now);
 
   /* Prints an estimate of when this scan will complete. */
   bool printStats(double perc_done, const struct timeval *now);
@@ -210,7 +210,7 @@ class ScanProgressMeter {
 
   struct timeval begin; /* When this ScanProgressMeter was instantiated */
  private:
-  struct timeval last_print_test; /* Last time printStatsIfNeccessary was called */
+  struct timeval last_print_test; /* Last time printStatsIfNecessary was called */
   struct timeval last_print; /* The most recent time the ETC was printed */
   char *scantypestr;
   struct timeval last_est; /* The latest PRINTED estimate */
