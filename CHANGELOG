@@ -15,8 +15,10 @@ o [Zenmap] The crash reporter is more respectful of user privacy. It
   directory. If you provide an email address the report will be marked
   private so it will not appear on the public bug tracker. [David]
 
-o [Zenmap] Internationalization has been fixed. Currently there is
-  a partial translation of Zenmap into Brazilian Portuguese. [David]
+o [Zenmap] Internationalization has been fixed [David]. Currently
+  there are two partial translations:
+    Brazilian Portuguese by Adriano Monteiro Marques
+    German by Chris Leick
 
 o [NSE] host.os table is now properly a 1 based array (was 0). [Patrick]
 
