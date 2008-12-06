@@ -107,9 +107,9 @@
       <ulink url="http://www.lua.org/">Lua programming language</ulink>.<indexterm><primary>Lua programming language</primary><seealso>Nmap Scripting Engine</seealso></indexterm>
       The language itself is well documented in the books 
 <web>
-      <citetitle><ulink url="http://www.amazon.com/exec/obidos/ASIN/8590379825/secbks-20">Programming
+      <citetitle><ulink url="http://www.amazon.com/dp/8590379825?tag=secbks-20">Programming
 	in Lua, Second Edition</ulink></citetitle> and
-      <citetitle><ulink url="http://www.amazon.com/exec/obidos/ASIN/8590379825/secbks-20">Lua
+      <citetitle><ulink url="http://www.amazon.com/dp/8590379833?tag=secbks-20">Lua
 	5.1 Reference Manual</ulink></citetitle>.  
 </web>
 <print>
@@ -861,7 +861,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
 
       <para>
       The Lua C API is described at length in 
-      <web><ulink url="http://www.amazon.com/exec/obidos/ASIN/8590379825/secbks-20"><citetitle>Programming in Lua, Second Edition</citetitle></ulink>,</web>
+      <web><ulink url="http://www.amazon.com/dp/8590379825?tag=secbks-20"><citetitle>Programming in Lua, Second Edition</citetitle></ulink>,</web>
       <print><citetitle>Programming in Lua, Second Edition</citetitle>,</print>
       so this is a short summary. C modules consist of functions that
       follow the protocol of the
