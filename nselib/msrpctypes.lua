@@ -908,8 +908,10 @@ end
 --
 --@param data The data packet. 
 --@param pos  The position within the data. 
+--@param pad  [optional] If set to true, will align data on 4-byte boundaries. Default:
+--            true. 
 --@return (pos, str) The position, and the resulting string, which cannot be nil. 
-function unmarshall_int8_array(data, pos)
+function unmarshall_int8_array(data, pos, pad)
 	local max, offset, actual
 	local str
 
@@ -917,6 +919,13 @@ function unmarshall_int8_array(data, pos)
 
 	pos, max, offset, actual = bin.unpack("<III", data, pos)
 	pos, str = bin.unpack("<A"..actual, data, pos)
+
+	-- Do the alignment (note the "- 1", it's there because of 1-based arrays)
+	if(pad == nil or pad == true) then
+		while(((pos - 1) % 4) ~= 0) do
+			pos = pos + 1
+		end
+	end
 
 	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_int8_array()"))
 
@@ -939,16 +948,19 @@ function marshall_int8_array_ptr(data, max_length)
 	return result
 end
 
---- Unmarshall a pointer to an array of int8s. 
+--- Unmarshall a pointer to an array of int8s. By default, aligns the result to 4-byte
+--  boundaries. 
 --
 --@param data The data packet. 
 --@param pos  The position within the data. 
+--@param pad  [optional] If set to true, will align data on 4-byte boundaries. Default:
+--            true. 
 --@return (pos, str) The position, and the resulting string, which cannot be nil. 
-function unmarshall_int8_array_ptr(data, pos)
+function unmarshall_int8_array_ptr(data, pos, pad)
 	local str
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_int8_array_ptr()"))
 
-	pos, str = unmarshall_ptr(ALL, data, pos, unmarshall_int8_array, {})
+	pos, str = unmarshall_ptr(ALL, data, pos, unmarshall_int8_array, {pad})
 
 	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_int8_array_ptr()"))
 	return pos, str

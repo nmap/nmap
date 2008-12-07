@@ -1618,7 +1618,55 @@ function winreg_openhklm(smbstate)
 	end
 
 	return true, result
+end
 
+---Call the <code>OpenHKPD</code> function, to obtain a handle to the hidden HKEY_PERFORMANCE_DATA hive
+--
+--@param smbstate  The SMB state table
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
+--        useful one being 'handle', which is required to call other winreg functions. 
+function winreg_openhkpd(smbstate)
+	local i, j
+	local status, result
+	local arguments
+	local pos, align
+
+	stdnse.print_debug(2, "MSRPC: Calling OpenHKPD() [%s]", smbstate['ip'])
+
+--		[in]      uint16 *system_name,
+	arguments = msrpctypes.marshall_int16_ptr(0x1337, true)
+
+--		[in]      winreg_AccessMask access_mask,
+	arguments = arguments .. msrpctypes.marshall_winreg_AccessMask('MAXIMUM_ALLOWED_ACCESS')
+
+--		[out,ref] policy_handle *handle
+
+	-- Do the call
+	status, result = call_function(smbstate, 0x03, arguments)
+	if(status ~= true) then
+		return false, result
+	end
+
+	stdnse.print_debug(3, "MSRPC: OpenHKPD() returned successfully")
+
+	-- Make arguments easier to use
+	arguments = result['arguments']
+	pos = 1
+
+--		[in]      uint16 *system_name,
+--		[in]      winreg_AccessMask access_mask,
+--		[out,ref] policy_handle *handle
+	pos, result['handle'] = msrpctypes.unmarshall_policy_handle(arguments, pos)
+
+	pos, result['return'] = msrpctypes.unmarshall_int32(arguments, pos)
+	if(result['return'] == nil) then
+		return false, "Read off the end of the packet (winreg.openhkpd)"
+	end
+	if(result['return'] ~= 0) then
+		return false, smb.get_status_name(result['return']) .. " (winreg.openhkpd)"
+	end
+
+	return true, result
 end
 
 ---Call the <code>OpenHKCU</code> function, to obtain a handle to the HKEY_CURRENT_USER hive
@@ -1926,7 +1974,6 @@ function winreg_queryvalue(smbstate, handle, value)
 --		[in,out] uint32 *length
 	arguments = arguments .. msrpctypes.marshall_int32_ptr(0)
 
-
 	-- Do the call
 	status, result = call_function(smbstate, 0x11, arguments)
 	if(status ~= true) then
@@ -1958,8 +2005,8 @@ function winreg_queryvalue(smbstate, handle, value)
 		elseif(result['type'] == "REG_SZ" or result['type'] == "REG_MULTI_SZ" or result['type'] == "REG_EXPAND_SZ") then
 			_, result['value'] = msrpctypes.unicode_to_string(result['data'], 1, #result['data'] / 2)
 		else
-			io.write(string.format("Unknown type: %s\n\n", result['type']))
-			result['value'] = "FIX ME!"
+			stdnse.print_debug("MSRPC ERROR: Unknown type: %s\n\n", result['type'])
+			result['value'] = result['type']
 		end
 	else
 		result['value'] = nil
