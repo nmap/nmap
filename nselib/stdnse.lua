@@ -12,6 +12,7 @@ local nmap = require"nmap";
 local max = math.max
 local ceil = math.ceil
 local type = type
+local pairs = pairs
 
 local EMPTY = {}; -- Empty constant table
 

@@ -7,6 +7,10 @@ of Windows, and Vista doesn't seem to let even the administrator account pull th
 
 Some of the numbers returned here don't feel right to me, but they're definitely 
 the numbers that Windows returns. Take the values here with a grain of salt. 
+
+These statistics are found using a single call to a SRVSVC function, 
+<code>NetServerGetStatistics</code>. This packet is parsed incorrectly by Wireshark,
+up to version 1.0.3 (and possibly higher). 
 ]]
 
 ---
@@ -25,8 +29,8 @@ the numbers that Windows returns. Take the values here with a grain of salt.
 -- |_ |_ Files opened (including pipes): 18
 -- 
 -- @args smb* This script supports the <code>smbusername</code>,
--- <code>smbpassword</code>, <code>smbhash</code>, <code>smbguest</code>, and
--- <code>smbtype</code> script arguments of the <code>smb</code> module.
+-- <code>smbpassword</code>, <code>smbhash</code>, and <code>smbtype</code>
+-- script arguments of the <code>smb</code> module.
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"
@@ -79,10 +83,15 @@ action = function(host)
 	-- Stop the session
 	smb.stop(smbstate)
 
-	-- Build the response
+	-- Build the response	
+	local stats = netservergetstatistics_result['stat']
 	local response = " \n"
-	local period = os.time() - netservergetstatistics_result['start']
+	local period = os.time() - stats['start']
 	local period_str
+
+	-- Fix a couple values
+	stats['bytessent'] = bit.bor(bit.lshift(stats['bytessent_high'], 32), stats['bytessent_low'])
+	stats['bytesrcvd'] = bit.bor(bit.lshift(stats['bytesrcvd_high'], 32), stats['bytesrcvd_low'])
 
 	if(period == 0) then
 		period = 1
@@ -96,9 +105,8 @@ action = function(host)
 		period_str = string.format("%02dm%02ds", period / 60, period % 60)
 	end
 
-stats = netservergetstatistics_result
-	response = response .. string.format("Server statistics collected since %s (%s):\n", netservergetstatistics_result['start_date'], period_str)
-	response = response .. string.format("|_ Traffic %d bytes (%.2fb/s) sent, %d bytes (%.2fb/s) received\n", stats['bytessent'], stats['bytessent'] / period, stats['bytesrcvd'], stats['bytesrcvd'] / period)
+	response = response .. string.format("Server statistics collected since %s (%s):\n", os.date("%Y-%m-%d %H:%M:%S", stats['start']), period_str)
+	response = response .. string.format("|_ Traffic %d bytes (%.2f b/s) sent, %d bytes (%.2f b/s) received\n", stats['bytessent'], stats['bytessent'] / period, stats['bytesrcvd'], stats['bytesrcvd'] / period)
 	response = response .. string.format("|_ Failed logins: %d\n", stats['pwerrors'])
 	response = response .. string.format("|_ Permission errors: %d, System errors: %d\n", stats['permerrors'], stats['syserrors'])
 	response = response .. string.format("|_ Print jobs spooled: %s\n", stats['jobsqueued'])

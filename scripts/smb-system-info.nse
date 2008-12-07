@@ -7,6 +7,14 @@ This goes for all operating systems, including Windows 2000.
 
 Windows Vista doesn't appear to have the WINREG binding (or it's different and
 I don't know it), so this doesn't support Vista at all. 
+
+If you know of more information stored in the Windows registry that could be interesting, 
+post a message to the nmap-dev mailing list and I (Ron Bowes) will add it to my todo list. 
+Adding new checks to this is extremely easy. 
+
+WARNING: I have experienced crashes in regsvc.exe while making registry calls against a fully patched Windows 
+2000 system; I've fixed the issue that caused it, but there's no guarantee that it (or a similar vuln in the
+same code) won't show up again.
 ]]
 
 ---
@@ -20,7 +28,7 @@ I don't know it), so this doesn't support Vista at all.
 -- |  OS Details
 -- |  |_ Microsoft Windows Server 2003 Service Pack 2 (ServerNT 5.2 build 3790)
 -- |  |_ Installed on 2007-11-26 23:40:40
--- |  |_ Registered to IPC (organization: MYCOMPANY)
+-- |  |_ Registered to Ron Bowes (organization: MYCOMPANY)
 -- |  |_ Path: %SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem;C:\Program Files\Microsoft SQL Server\90\Tools\binn\;C:\Program Files\IBM\Rational AppScan\
 -- |  |_ Systemroot: C:\WINDOWS
 -- |  |_ Page files: C:\pagefile.sys 2046 4092 (cleared at shutdown => 0)
@@ -39,8 +47,8 @@ I don't know it), so this doesn't support Vista at all.
 -- |_ |_ Firefox 3.0.3 (en-US)
 -- 
 -- @args smb* This script supports the <code>smbusername</code>,
--- <code>smbpassword</code>, <code>smbhash</code>, <code>smbguest</code>, and
--- <code>smbtype</code> script arguments of the <code>smb</code> module.
+-- <code>smbpassword</code>, <code>smbhash</code>, and <code>smbtype</code>
+-- script arguments of the <code>smb</code> module.
 -----------------------------------------------------------------------
 
 

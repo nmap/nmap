@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Complete re-write of the marshalling logic for Microsoft RPC calls. 
+  [Ron Bowes]
+
+o Added vulnerability checks for MS08-067 as well as an unfixed 
+  denial of service in the Windows 2000 registry service.
+  [Ron Bowes]
+
 o Zenmap now runs ndiff to do its "Compare Results" function. This
   completely replaces the old diff view. ndiff is now required to do
   comparisons in Zenmap. [David]

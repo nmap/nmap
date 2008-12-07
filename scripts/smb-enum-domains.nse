@@ -39,8 +39,8 @@ After the initial <code>bind</code> to SAMR, the sequence of calls is:
 -- |_    |_  Administrator account cannot be locked out
 -- 
 -- @args smb* This script supports the <code>smbusername</code>,
--- <code>smbpassword</code>, <code>smbhash</code>, <code>smbguest</code>, and
--- <code>smbtype</code> script arguments of the <code>smb</code> module.
+-- <code>smbpassword</code>, <code>smbhash</code>, and <code>smbtype</code>
+-- script arguments of the <code>smb</code> module.
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"
@@ -59,6 +59,7 @@ end
 action = function(host)
 	local response = " \n"
 	local status, smbstate
+	local i, j
 
 	-- Create the SMB session
 	status, smbstate  = msrpc.start_smb(host, msrpc.SAMR_PATH)
@@ -107,7 +108,7 @@ action = function(host)
 	end
 
 	-- If no domains were returned, print an error (I don't expect this will actually happen)
-	if(#enumdomains_result['domains'] == 0) then
+	if(#enumdomains_result['sam']['entries'] == 0) then
 		if(nmap.debugging() > 0) then
 			return "ERROR: Couldn't find any domains to check"
 		else
@@ -115,9 +116,9 @@ action = function(host)
 		end
 	end
 
-	for i = 1, #enumdomains_result['domains'], 1 do
+	for i = 1, #enumdomains_result['sam']['entries'], 1 do
 
-		local domain = enumdomains_result['domains'][i]
+		local domain = enumdomains_result['sam']['entries'][i]['name']
 		local sid
 		local domain_handle
 
@@ -131,7 +132,6 @@ action = function(host)
 				return nil
 			end
 		end
-
 		-- Save the sid
 		sid = lookupdomain_result['sid']
 
@@ -149,33 +149,32 @@ action = function(host)
 		-- Save the domain handle
 		domain_handle = opendomain_result['domain_handle']
 
-		-- Call QueryDomainInfo2() to get domain properties. We call these for three types == 1, 8, and 12, since those return
+		-- Call QueryDomainInfo2() to get domain properties. We call these for three types -- 1, 8, and 12, since those return
 		-- the most useful information. 
-		status, querydomaininfo2_result = msrpc.samr_querydomaininfo2(smbstate, domain_handle, 1)
-		if(status == false) then
+		status_1,  querydomaininfo2_result_1  = msrpc.samr_querydomaininfo2(smbstate, domain_handle, 1)
+		status_8,  querydomaininfo2_result_8  = msrpc.samr_querydomaininfo2(smbstate, domain_handle, 8)
+		status_12, querydomaininfo2_result_12 = msrpc.samr_querydomaininfo2(smbstate, domain_handle, 12)
+
+		if(status_1 == false) then
 			msrpc.stop_smb(smbstate)
 			if(nmap.debugging() > 0) then
-				return "ERROR: " .. querydomaininfo2_result
+				return "ERROR: " .. querydomaininfo2_result_1
 			else
 				return nil
 			end
 		end
-
-		status, querydomaininfo2_result = msrpc.samr_querydomaininfo2(smbstate, domain_handle, 8, querydomaininfo2_result)
-		if(status == false) then
+		if(status_8 == false) then
 			msrpc.stop_smb(smbstate)
 			if(nmap.debugging() > 0) then
-				return "ERROR: " .. querydomaininfo2_result
+				return "ERROR: " .. querydomaininfo2_result_8
 			else
 				return nil
 			end
 		end
-
-		status, querydomaininfo2_result = msrpc.samr_querydomaininfo2(smbstate, domain_handle, 12, querydomaininfo2_result)
-		if(status == false) then
+		if(status_12 == false) then
 			msrpc.stop_smb(smbstate)
 			if(nmap.debugging() > 0) then
-				return "ERROR: " .. querydomaininfo2_result
+				return "ERROR: " .. querydomaininfo2_result_12
 			else
 				return nil
 			end
@@ -185,7 +184,7 @@ action = function(host)
 		status, enumdomainusers_result = msrpc.samr_enumdomainusers(smbstate, domain_handle)
 		if(status == false) then
 			msrpc.stop_smb(smbstate)
-			if(nmap.debugging() > 0) then
+			if(nmap.debugging() > 0 and enumdomainusers_result ~= nil) then
 				return "ERROR: " .. enumdomainusers_result
 			else
 				return nil
@@ -195,16 +194,30 @@ action = function(host)
 		-- Close the domain handle
 		msrpc.samr_close(smbstate, domain_handle)
 
+		-- Create the list of users
+		local names = {}
+		if(enumdomainusers_result['sam'] ~= nil and enumdomainusers_result['sam']['entries'] ~= nil) then
+			for j = 1, #enumdomainusers_result['sam']['entries'], 1 do
+				local name = enumdomainusers_result['sam']['entries'][j]['name']
+				names[#names + 1] = name
+			end
+		end
+
 		-- Finally, fill in the response!
 		response = response .. string.format("Domain: %s\n", domain)
-		response = response .. string.format(" |_ SID: %s\n",                               msrpc.sid_to_string(lookupdomain_result['sid']))
-		response = response .. string.format(" |_ Users: %s\n",                             stdnse.strjoin(", ", enumdomainusers_result['names']))
-		response = response .. string.format(" |_ Creation time: %s\n",                     querydomaininfo2_result['create_date'])
+		response = response .. string.format(" |_ SID: %s\n",             lookupdomain_result['sid'])
+		if(#names ~= 0) then
+			response = response .. string.format(" |_ Users: %s\n",           stdnse.strjoin(", ", names))
+		end
+
+		if(querydomaininfo2_result_8['info']['domain_create_time'] ~= 0) then
+			response = response .. string.format(" |_ Creation time: %s\n",   os.date("%Y-%m-%d %H:%M:%S", querydomaininfo2_result_8['info']['domain_create_time']))
+		end
 
 		-- Password characteristics
-		local min_password_length = querydomaininfo2_result['min_password_length']
-		local max_password_age = querydomaininfo2_result['max_password_age']
-		local min_password_age = querydomaininfo2_result['min_password_age']
+		local min_password_length = querydomaininfo2_result_1['info']['min_password_length']
+		local max_password_age = querydomaininfo2_result_1['info']['max_password_age'] / 60 / 60 / 24
+		local min_password_age = querydomaininfo2_result_1['info']['min_password_age'] / 60 / 60 / 24
 
 		if(min_password_length > 0) then
 			min_password_length = string.format("%d characters", min_password_length)
@@ -226,25 +239,29 @@ action = function(host)
 
 		response = response .. string.format(" |_ Passwords: min length: %s; min age: %s; max age: %s\n", min_password_length, min_password_age, max_password_age)
 
-		local lockout_duration = querydomaininfo2_result['lockout_duration']
+		local lockout_duration = querydomaininfo2_result_12['info']['lockout_duration']
 		if(lockout_duration < 0) then
-			lockout_duration = string.format("for %d minutes", querydomaininfo2_result['lockout_duration'])
+			lockout_duration = string.format("for %d minutes", querydomaininfo2_result_12['info']['lockout_duration'])
 		else
 			lockout_duration = "until manually reset"
 		end
 
-		if(querydomaininfo2_result['lockout_threshold'] > 0) then
-			response = response .. string.format(" |_ Password lockout: %d attempts in under %d minutes will lock the account %s\n",  querydomaininfo2_result['lockout_threshold'], querydomaininfo2_result['lockout_window'], lockout_duration)
+		if(querydomaininfo2_result_12['info']['lockout_threshold'] > 0) then
+			response = response .. string.format(" |_ Password lockout: %d attempts in under %d minutes will lock the account %s\n",  querydomaininfo2_result_12['info']['lockout_threshold'], querydomaininfo2_result_12['info']['lockout_window'] / 60, lockout_duration)
 		else
 			response = response .. string.format(" |_ Account lockout disabled\n")
 		end
 
-		if(querydomaininfo2_result['password_history_length']) > 0 then
-			response = response .. string.format(" |_ Password history : %d passwords\n", querydomaininfo2_result['password_history_length'])
+		if(querydomaininfo2_result_1['info']['password_history_length']) > 0 then
+			response = response .. string.format(" |_ Password history: %d passwords\n", querydomaininfo2_result_1['info']['password_history_length'])
 		end
 
-		if(#querydomaininfo2_result['password_properties_list'] > 0) then
-			response = response .. " |_ Password properties: \n   |_  " .. stdnse.strjoin("\n   |_  ", querydomaininfo2_result['password_properties_list']) .. "\n"
+		local password_properties = querydomaininfo2_result_1['info']['password_properties']
+		if(#password_properties > 0) then
+			response = response .. " |_ Password properties:\n"
+			for j = 1, #password_properties, 1 do
+				response = response .. "    |_ " .. msrpc.samr_PasswordProperties_tostr(password_properties[j]) .. "\n"
+			end
 		end
 	end
 

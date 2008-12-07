@@ -1,23 +1,21 @@
 description = [[
-Attempts to list shares using the <code>srvsvc.NetShareEnumAll</code> MSRPC function, then 
-retrieve more information about each share using <code>srvsvc.NetShareGetInfo</code>.
+Attempts to list shares using the <code>srvsvc.NetShareEnumAll</code> MSRPC function and
+retrieve more information about them using <code>srvsvc.NetShareGetInfo</code>.
 
-Running
-<code>NetShareEnumAll</code> will work anonymously on Windows 2000, and requires a user-level 
-account on any other Windows version. Calling <code>NetShareGetInfo</code> requires an 
-administrator account on every version of Windows I (Ron Bowes) tested. 
+Running <code>NetShareEnumAll</code> will work anonymously against Windows 2000, and 
+requires a user-level account on any other Windows version. Calling <code>NetShareGetInfo</code> 
+requires an administrator account on every version of Windows I (Ron Bowes) tested. 
 
-Although <code>NetShareEnumAll</code> is restricted on certain systems, actually connecting to
-a share to check if it exists will always work. So, if <code>NetShareEnumAll</code> fails, a 
-list of common shares will be attempted. 
+Although <code>NetShareEnumAll</code> is restricted on certain systems, making a connection to
+a share to check whether or not it exists will always work. So, if <code>NetShareEnumAll</code> 
+fails, a list of common shares will be checked. 
 
-After a list of shares is found, whether or not it's complete, we attempt to connect
-to each of them anonymously, which lets us divide them into the classes
-"anonymous" and "restricted." 
+After a list of shares is found, we attempt to connect to each of them anonymously, which lets 
+us divide them into the classes "anonymous" and "restricted." 
 
 When possible, once the list of shares is determined, <code>NetShareGetInfo</code> is called 
-to get additional information on the share. Odds are this will fail, unless we're 
-doing an authenticated test. 
+to get additional information on them. Odds are this will fail, unless we're doing an authenticated 
+test. 
 ]]
 
 ---
@@ -58,8 +56,8 @@ doing an authenticated test.
 -- |_    |_ Path: C:\
 -- 
 -- @args smb* This script supports the <code>smbusername</code>,
--- <code>smbpassword</code>, <code>smbhash</code>, <code>smbguest</code>, and
--- <code>smbtype</code> script arguments of the <code>smb</code> module.
+-- <code>smbpassword</code>, <code>smbhash</code>, and <code>smbtype</code>
+-- script arguments of the <code>smb</code> module.
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"
@@ -85,6 +83,8 @@ local function samr_enum_shares(host)
 
 	local status, smbstate
 	local bind_result, netshareenumall_result
+	local shares
+	local i, v
 
 	-- Create the SMB session
 	status, smbstate = msrpc.start_smb(host, msrpc.SRVSVC_PATH)
@@ -109,7 +109,13 @@ local function samr_enum_shares(host)
 	-- Stop the SMB session
 	smb.stop(smbstate)
 
-	return true, netshareenumall_result['shares']
+	-- Convert the share list to an array
+	shares = {}
+	for i, v in pairs(netshareenumall_result['ctr']['array']) do
+		shares[#shares + 1] = v['name']
+	end
+
+	return true, shares
 end
 
 ---Attempts to connect to a list of shares as the anonymous user, returning which ones
@@ -162,7 +168,7 @@ function check_shares(host, shares)
 				stdnse.print_debug(3, "EnumShares: Access was denied")
                 denied_shares[#denied_shares + 1] = shares[i]
 			else
-				stdnse.print_debug(3, "EnumShares: Share didn't pan out: %s", err)
+				stdnse.print_debug(3, "ERROR: EnumShares: Share didn't pan out: %s", err)
             end
         else
 			-- Add it to allowed shares
@@ -227,11 +233,12 @@ action = function(host)
 	-- best we can do. 
 	if(result == false) then
 		if(nmap.debugging() > 0) then
-			response = response .. string.format("Couldn't enum all shares, checking for common ones (%s)\n", shares)
+			response = response .. string.format("ERROR: Couldn't enum all shares, checking for common ones (%s)\n", shares)
 		end
 
 		-- Take some common share names I've seen
-		shares = {"IPC$", "ADMIN$", "TEST", "TEST$", "HOME", "HOME$"}
+		shares = {"IPC$", "ADMIN$", "TEST", "TEST$", "HOME", "HOME$", "PORN", "PR0N", "PUBLIC", "PRINT", "PRINT$", "GROUPS", "USERS", "MEDIA", "SOFTWARE", "XSERVE", "NETLOGON", "INFO", "PROGRAMS", "FILES", "WWW", "STMP", "TMP", "DATA", "BACKUP", "DOCS", "HD", "WEBSERVER", "WEB DOCUMENTS", "SHARED"}
+
 		-- Try every alphabetic share, with and without a trailing '$'
 		for i = string.byte("A", 1), string.byte("Z", 1), 1 do
 			shares[#shares + 1] = string.char(i)
@@ -260,13 +267,15 @@ action = function(host)
 			response = response .. string.format("   %s\n", allowed[i])
 
 			if(status == false) then
-				stdnse.print_debug(2, "Error getting information for share %s: %s", allowed[i], info)
+				stdnse.print_debug(2, "ERROR: Couldn't get information for share %s: %s", allowed[i], info)
 			else
+				info = info['info']
+
 				if(info['max_users'] == 0xFFFFFFFF) then
 					info['max_users'] = "<unlimited>"
 				end
 
-				response = response .. string.format("   |_ Type: %s\n",           info['strtype'])
+				response = response .. string.format("   |_ Type: %s\n",           msrpc.srvsvc_ShareType_tostr(info['sharetype']))
 				response = response .. string.format("   |_ Comment: %s\n",        info['comment'])
 				response = response .. string.format("   |_ Users: %s, Max: %s\n", info['current_users'], info['max_users'])
 				response = response .. string.format("   |_ Path: %s\n",           info['path'])
@@ -280,13 +289,14 @@ action = function(host)
 			response = response .. string.format("   %s\n", denied[i])
 
 			if(status == false) then
-				stdnse.print_debug(2, "Error getting information for share %s: %s", denied[i], info)
+				stdnse.print_debug(2, "ERROR: Couldn't get information for share %s: %s", denied[i], info)
 			else
+				info = info['info']
 				if(info['max_users'] == 0xFFFFFFFF) then
 					info['max_users'] = "<unlimited>"
 				end
 
-				response = response .. string.format("   |_ Type: %s\n",           info['strtype'])
+				response = response .. string.format("   |_ Type: %s\n",           msrpc.srvsvc_ShareType_tostr(info['sharetype']))
 				response = response .. string.format("   |_ Comment: %s\n",        info['comment'])
 				response = response .. string.format("   |_ Users: %s, Max: %s\n", info['current_users'], info['max_users'])
 				response = response .. string.format("   |_ Path: %s\n",           info['path'])

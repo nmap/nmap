@@ -1,10 +1,18 @@
 --- Server Message Block (SMB, also known as CIFS) traffic.
 --
--- SMB traffic is normally
---  sent to/from ports 139 or 445 of Windows systems, although it's also implemented by
---  other systems (the most notable one being Samba).
+-- SMB traffic is normally sent to/from ports 139 or 445 of Windows systems, some of them
+-- properly and many of them not. Samba implements it, as do many printers and other embedded
+-- devices. Although the protocol has been documented decently well by Samba and others, 
+-- many 3rd party implementations are broken or make assumptions. 
 --
--- The intention of this library is to eventually handle all aspects of the SMB protocol,
+-- Naturally, I do the same; however, that being said, this has been tested against every
+-- broken implementation we could find, and will accept (or fail gracefully) against any 
+-- bad implementations we could find. 
+--
+-- The intention of this library is to eventually handle all aspects of the SMB protocol.
+-- That being said, I'm only implementing the pieces that I find myself needing. If you 
+-- require something more, let me know and I'll put it on my todo list. 
+--
 -- A programmer using this library must already have some knowledge of the SMB protocol, 
 -- although a lot isn't necessary. You can pick up a lot by looking at the code that uses
 -- this. The basic login/logoff is this:
@@ -31,13 +39,14 @@
 -- status, err      = smb.negotiate_protocol(smbstate)
 -- status, err      = smb.start_session(smbstate)
 -- status, err      = smb.tree_connect(smbstate, path)
+-- ...
 -- status, err      = smb.tree_disconnect(smbstate)
 -- status, err      = smb.logoff(smbstate)
 -- status, err      = smb.stop(smbstate)
 --</code>
 --
 -- The <code>stop</code> function will automatically call tree_disconnect and logoff, 
--- cleaning up the session.
+-- cleaning up the session, if it hasn't been done already.
 -- 
 -- To initially begin the connection, there are two options:
 --
@@ -48,11 +57,11 @@
 --    That packet requires the computer's name, which is requested
 --    using a NBSTAT probe over UDP port 137. 
 --
--- Once it's connected, a <code>SMB_COM_NEGOTIATE</code> packet is sent, 
--- requesting the protocol "NT LM 0.12", which is the most commonly
--- supported one. Among other things, the server's response contains
--- the host's security level, the system time, and the computer/domain
--- name.
+-- Once it's connected, a <code>SMB_COM_NEGOTIATE</code> packet is sent, requesting the protocol 
+-- "NT LM 0.12", which is the most commonly supported one. Among other things, the server's 
+-- response contains the host's security level, the system time, and the computer/domain name. 
+-- Some systems will refuse to use that protocol and return "-1" or "1" instead of 0. If that's 
+-- detected, we kill the connection (because the protocol following will be unexpected). 
 --
 -- If that's successful, <code>SMB_COM_SESSION_SETUP_ANDX</code> is sent. It is essentially the logon
 -- packet, where the username, domain, and password are sent to the server for verification. 
@@ -67,13 +76,13 @@
 -- any further (<code>tree_connect</code> might fail). 
 --
 -- In terms of the login protocol, by default, we sent only NTLMv1 authentication, Lanman
--- isn't set. The reason for this is, NTLMv2 isn't supported by every system (and I don't know
--- how to do message signing on the v2 protocols), and doesn't have a significant security
--- advantage over NTLMv1 (the major change in NTLMv2 is incorporating a client challenge). 
--- Lanman is horribly insecure, though, so I don't send it at all. These options can, however,
--- be overridden either through script parameters or registry settings [TODO]. 
+-- isn't sent at all. The reason for this is, NTLMv2 isn't supported by every system (and I 
+-- don't know how to do message signing on the v2 protocols), and doesn't have a significant security
+-- advantage over NTLMv1 for performing single scans (the major change in NTLMv2 is incorporating 
+-- a client challenge). Lanman is somewhat insecure, though, so I don't send it at all. These options 
+-- can, however, be overridden either through script parameters or registry settings.
 --
--- Lanman v1 is a fairly weak protocol, although it's still fairly difficult to reverse. NTLMv1 is a slightly more secure
+-- Lanman v1 is a fairly weak protocol, although it's still fairly difficult to break. NTLMv1 is a slightly more secure
 -- protocol (although not much) -- it's also fairly difficult to reverse, though. Windows clients, by default send LMv1 and
 -- NTLMv1 together, but every modern Windows server will accept NTLM alone, so I opted to use that. LMv2 and NTLMv2 are
 -- slightly more secure, and they let the client specify random data (to help fight malicious servers with pre-
@@ -82,24 +91,8 @@
 --
 -- Another interesting aspect of the password hashing is that the original password isn't even necessary, the
 -- password's hash can be used instead. This hash can be dumped from memory of a live system by tools such as
--- pwdump and fgdump, or read straight from the SAM file. This means that if a password file is recovered, 
--- it doesn't even need to be cracked before it can be used here.
---
--- The response to <code>SMB_COM_SESSION_SETUP_ANDX</code> is fairly simple, containing a boolean for 
--- success, along with the operating system and the lan manager name. 
---
--- After a successful <code>SMB_COM_SESSION_SETUP_ANDX</code> has been made, a 
--- <code>SMB_COM_TREE_CONNECT_ANDX</code> packet can be sent. This is what connects to a share. 
--- The server responds to this with a boolean answer, and little more information. 
---
--- Each share will either return <code>STATUS_BAD_NETWORK_NAME</code> if the share doesn't
--- exist, <code>STATUS_ACCESS_DENIED</code> if it exists but we don't have access, or 
--- <code>STATUS_SUCCESS</code> if exists and we do have access. <code>STATUS_ACCESS_DENIED</code> is also returned
--- if the server requires message signing and we don't return a valid signature.
---
--- Once we're connected to a share, we can start doing other operations like reading/writing files
--- or calling RPC functions. Calling RPC functions is the interesting part, and it's done through
--- the <code>SMB_TRANS</code> packet. The actual RPC protocol is built on top of the SMB protocol. 
+-- pwdump and fgdump, or read straight from the SAM file (maybe some day, I'll do an Nmap script to dump it). 
+-- This means that if a password file is recovered, it doesn't even need to be cracked before it can be used here.
 --
 -- Thanks go to Christopher R. Hertel and his book Implementing CIFS, which 
 -- taught me everything I know about Microsoft's protocols. Additionally, I used Samba's
@@ -109,7 +102,6 @@
 --
 -- Scripts that use this module can use the script arguments
 -- <code>smbusername</code>, <code>smbpassword</code>, <code>smbhash</code>,
--- <code>smbguest</code>, and <code>smbtype</code>, described below. Here's an
 -- example of using these script arguments:
 -- <code>
 -- nmap --script=smb-<script>.nse --script-args=smbuser=ron,smbpass=iagotest2k3 <host>
@@ -128,9 +120,6 @@
 --                   single character). These hashes are the LanMan or NTLM hash of the user's password,
 --                   and are stored on disk or in memory. They can be retrieved from memory
 --                   using the fgdump or pwdump tools. 
---@args  smbguest    If this is set to <code>true</code> or <code>1</code>, a guest login will be attempted if the normal one 
---                   fails. This should be harmless, but I thought I would disable it by default anyway
---                   because I'm not entirely sure of any possible consequences. 
 --@args  smbtype     The type of SMB authentication to use. These are the possible options:
 -- * <code>v1</code>: Sends LMv1 and NTLMv1.
 -- * <code>LMv1</code>: Sends LMv1 only.
@@ -160,6 +149,7 @@ status_codes = {}
 status_names = {}
 
 local mutexes = setmetatable({}, {__mode = "k"});
+--local debug_mutex = nmap.mutex("SMB-DEBUG")
 
 ---Returns the mutex that should be used by the current connection. This mutex attempts
 -- to use the name, first, then falls back to the IP if no name was returned. 
@@ -169,6 +159,10 @@ local mutexes = setmetatable({}, {__mode = "k"});
 local function get_mutex(smbstate)
 	local mutex_name = "SMB-"
 	local mutex
+
+--	if(nmap.debugging() > 0) then
+--		return debug_mutex
+--	end
 
 	-- Decide whether to use the name or the ip address as the unique identifier
 	if(smbstate['name'] ~= nil) then
@@ -842,11 +836,13 @@ function smb_read(smb)
 	end
 
 	-- The length of the packet is 4 bytes of big endian (for our purposes).
-	-- The NetBIOS header is 4 bytes, big endian
+	-- The NetBIOS header is 24 bits, big endian
 	pos, netbios_length   = bin.unpack(">I", result)
 	if(netbios_length == nil) then
 		return false, "SMB: Malformed packet received"
 	end
+	-- Make the length 24 bits
+	netbios_length = bit.band(netbios_length, 0x00FFFFFF)
 
 	-- The total length is the netbios_length, plus 4 (for the length itself)
 	length = netbios_length + 4
@@ -1116,7 +1112,7 @@ local function get_domain(domain)
 			stdnse.print_debug(2, "SMB: Using domain passed as an nmap parameter: %s", domain)
 		else
 			domain = ""
-			stdnse.print_debug(2, "SMB: couldn't find domain to use, using blank")
+			stdnse.print_debug(2, "SMB: Couldn't find domain to use, using blank")
 		end
 	end
 
@@ -1185,7 +1181,7 @@ local function get_password_response(username, domain, password, password_hash, 
 				lm_hash   = bin.pack("H", hashes:sub(1, 32))
 				ntlm_hash = bin.pack("H", hashes:sub(34, 65))
 			else
-				stdnse.print_debug(1, "SMB: Hash(es) provided in an invalid format (should be 32, 64, or 65 hex characters)")
+				stdnse.print_debug(1, "SMB: ERROR: Hash(es) provided in an invalid format (should be 32, 64, or 65 hex characters)")
 				lm_hash = nil
 				ntlm_hash = nil
 			end
@@ -1294,21 +1290,19 @@ local function get_logins(ip, challenge, username, domain, password, password_ha
 
 		end
 	else
-		stdnse.print_debug(1, "SMB: Couldn't find OpenSSL library, only checking Guest and/or Anonymous accounts")
+		stdnse.print_debug(1, "SMB: ERROR: Couldn't find OpenSSL library, only checking Guest and/or Anonymous accounts")
 	end
 
 	local data
-	-- Add guest account, if they requested
-	if(nmap.registry.args.smbguest == "true" or nmap.registry.args.smbguest == "1") then
-		stdnse.print_debug(2, "SMB: Going to try guest account before attempting anonymous")
+	-- Add guest account
+	stdnse.print_debug(2, "SMB: Going to try guest account before attempting anonymous")
 
-		data = {}
-		data['username'] = 'guest'
-		data['domain'] = ''
-		data['lanman'] = ''
-		data['ntlm'] = ''
-		response[#response + 1] = data
-	end
+	data = {}
+	data['username'] = 'guest'
+	data['domain'] = ''
+	data['lanman'] = ''
+	data['ntlm'] = ''
+	response[#response + 1] = data
 
 	-- Add the anonymous account
 	data = {}
@@ -1423,9 +1417,9 @@ function start_session(smb, username, domain, password, password_hash, hash_type
 
 			-- Check if they're using an un-supported system [TODO: once I sort this out, remove the warning]
 			if(os == nil or lanmanager == nil or domain == nil) then
-				stdnse.print_debug(1, "SMB: Warning: the server is using a non-standard SMB implementation; your mileage may vary (%s)", smb['ip'])
+				stdnse.print_debug(1, "SMB: WARNING: the server is using a non-standard SMB implementation; your mileage may vary (%s)", smb['ip'])
 			elseif(os == "Unix" or string.sub(lanmanager, 1, 5) == "Samba") then
-				stdnse.print_debug(1, "SMB: Warning: the server apperas to be Unix; your mileage may vary.")
+				stdnse.print_debug(1, "SMB: WARNING: the server appears to be Unix; your mileage may vary.")
 			end
 
 			-- Check if they were logged in as a guest
@@ -1443,7 +1437,7 @@ function start_session(smb, username, domain, password, password_hash, hash_type
 		end
 	end
 
-	stdnse.print_debug(1, "SMB: All logins failed, sorry it didn't work out!")
+	stdnse.print_debug(1, "SMB: ERROR: All logins failed, sorry it didn't work out!")
 	return false, get_status_name(status)
 
 end
@@ -1751,14 +1745,17 @@ function send_transaction(smb, func, function_parameters, function_data)
 		return false, "SMB: Malformed packet received"
 	end
 	if(status ~= 0) then
-io.write(string.format("Status = %08x\n\n", status))
-		return false, status_codes[status]
+		if(status_names[status] == nil) then
+			return false, string.format("Unknown SMB error: 0x%08x\n", status)
+		else
+			return false, status_names[status]
+		end
 	end
 
 	-- Parse the parameters
 	pos, total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2 = bin.unpack("<SSSSSSSSSCC", parameters)
 	if(reserved2 == nil) then
-		return "SMB: Malformed packet received"
+		return false, "SMB: Malformed packet received"
 	end
 
 	-- Convert the parameter/data offsets into something more useful (the offset into the data section)
@@ -1864,15 +1861,18 @@ end
 
 
 
-status_names = 
+status_codes = 
 {
 	NT_STATUS_OK = 0x0000,
 	NT_STATUS_WERR_BADFILE           = 0x00000002,
 	NT_STATUS_WERR_ACCESS_DENIED     = 0x00000005,
 	NT_STATUS_WERR_INVALID_NAME      = 0x0000007b,
+	NT_STATUS_WERR_UNKNOWN_LEVEL     = 0x0000007c,
 	NT_STATUS_NO_MORE_ITEMS          = 0x00000103,
 	NT_STATUS_MORE_ENTRIES           = 0x00000105,
 	NT_STATUS_SOME_NOT_MAPPED        = 0x00000107,
+	DOS_STATUS_UNKNOWN_ERROR         = 0x00010001,
+	DOS_STATUS_ACCESS_DENIED         = 0x00050001,
 	NT_STATUS_BUFFER_OVERFLOW = 0x80000005,
 	NT_STATUS_UNSUCCESSFUL = 0xc0000001,
 	NT_STATUS_NOT_IMPLEMENTED = 0xc0000002,

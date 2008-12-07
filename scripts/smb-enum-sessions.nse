@@ -1,10 +1,9 @@
 description = [[
-Enumerates the users logged into a system either locally, through a remote desktop client (terminal
-services), or through a SMB share.
+Enumerates the users logged into a system either locally or through an SMB share.
 
-Enumerating the local and terminal services users is done by reading the remote registry. Keys under
+Enumerating the local and terminal services users is done by reading the remote registry. Keys stored under
 <code>HKEY_USERS</code> are SIDs that represent the currently logged in users, and those SIDs can be converted
-to proper names by using the <code>LsaLookupSids</code> function. Doing this requires any access higher than
+to proper names by using the <code>lsar.LsaLookupSids</code> function. Doing this requires any access higher than
 anonymous. Guests, users, or administrators are all able to perform this request on the operating
 systems I (Ron Bowes) tested. 
 
@@ -19,8 +18,12 @@ Since both of these are related to users being logged into the server, it seemed
 them into a single script. 
 
 I learned the idea and technique for this from sysinternals' tool, PsLoggedOn.exe. I use similar
-function calls to what they use, so thanks go out to them. Thanks also to Matt, for giving me the 
-idea to write this one. 
+function calls to what they use, so thanks go out to them. Thanks also to Matt Gardenghi, for requesting
+this script.
+
+WARNING: I have experienced crashes in regsvc.exe while making registry calls against a fully patched Windows 
+2000 system; I've fixed the issue that caused it, but there's no guarantee that it (or a similar vuln in the
+same code) won't show up again.
 ]]
 
 ---
@@ -38,8 +41,8 @@ idea to write this one.
 -- |_ |_ ADMINISTRATOR is connected from 10.100.254.138 for [just logged in, it's probably you], idle for [not idle]
 -- 
 -- @args smb* This script supports the <code>smbusername</code>,
--- <code>smbpassword</code>, <code>smbhash</code>, <code>smbguest</code>, and
--- <code>smbtype</code> script arguments of the <code>smb</code> module.
+-- <code>smbpassword</code>, <code>smbhash</code>, and <code>smbtype</code>
+-- script arguments of the <code>smb</code> module.
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"
@@ -89,11 +92,14 @@ local function srvsvc_enum_sessions(host)
 	-- Stop the SMB session
 	msrpc.stop_smb(smbstate)
 
-	return true, netsessenum_result['sessions']
+	return true, netsessenum_result['ctr']['array']
 end
 
 ---Enumerates the users logged in locally (or through terminal services) by using functions
 -- that access the registry. To perform this check, guest access or higher is required. 
+--
+-- The way this works is based on the registry. HKEY_USERS is enumerated, and every key in it
+-- that looks like a SID is converted to a username using the LSA lookup function lsa_lookupsids2(). 
 --
 --@param host The host object. 
 --@return An array of user tables, each with the keys <code>name</code>, <code>domain</code>, and <code>changed_date</code> (representing
@@ -124,14 +130,13 @@ local function winreg_enum_rids(host)
 	-- Loop through the keys under HKEY_USERS and grab the names
 	i = 0
 	repeat 
-		status, enumkey_result = msrpc.winreg_enumkey(smbstate, openhku_result['handle'], i)
+		status, enumkey_result = msrpc.winreg_enumkey(smbstate, openhku_result['handle'], i, "")
 
 		if(status == true) then
 			local status, openkey_result
 
 			local element = {}
-			element['name']         = enumkey_result['name']
-			element['sid']          = msrpc.string_to_sid(enumkey_result['name'])
+			element['name'] = enumkey_result['name']
 
 			-- To get the time the user logged in, we check the 'Volatile Environment' key
 			-- This can fail with the 'guest' account due to access restrictions
@@ -191,44 +196,42 @@ local function winreg_enum_rids(host)
 		return false, openpolicy2_result
 	end
 
-	-- Convert the RIDs to names
+	-- Convert the SID to the name of the user
 	local results = {}
 	stdnse.print_debug(3, "MSRPC: Found %d SIDs that might be logged in", #elements)
 	for i = 1, #elements, 1 do
-		if(elements[i]['sid'] ~= nil) then
-			-- The RID is the last subauthority
-			local rid = elements[i]['sid']['subauthorities'][elements[i]['sid']['count']]
-			stdnse.print_debug(3, "MSRPC: Found an actual RID: %d", rid)
+		if(elements[i]['name'] ~= nil) then
+			local sid = elements[i]['name']
+		    if(string.find(sid, "^S-") ~= nil and string.find(sid, "-%d+$") ~= nil) then
+				-- The rid is the last digits before the end of the string
+				local rid = string.sub(sid, string.find(sid, "%d+$"))
 
-			-- The server is the rest of the SID, so remove the last subauthority
-			elements[i]['sid']['subauthorities'][elements[i]['sid']['count']] = nil
-			elements[i]['sid']['count'] = elements[i]['sid']['count'] - 1
+				status, lookupsids2_result = msrpc.lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], {elements[i]['name']})
 
-			-- Look up the RID
-			stdnse.print_debug(3, "MSRPC: Looking up RID %s in SID %s", rid, msrpc.sid_to_string(elements[i]['sid']))
-			status, lookupsids2_result = msrpc.lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], elements[i]['sid'], {rid})
-			if(status == false) then
-				-- It may not succeed, if it doesn't that's ok
-				stdnse.print_debug(3, "MSRPC: Lookup failed")
-			else
-				-- Create the result array
-				local result = {}
-				result['rid'] = rid
-				result['changed_date'] = elements[i]['changed_date']
-	
-				-- Fill in the result from the response
-				if(lookupsids2_result['details'][1] == nil) then
-					result['name'] = "<unknown>"
-					result['domain'] = ""
+				if(status == false) then
+					-- It may not succeed, if it doesn't that's ok
+					stdnse.print_debug(3, "MSRPC: Lookup failed")
 				else
-					result['name'] = lookupsids2_result['details'][1]['name']
-					result['type'] = lookupsids2_result['details'][1]['type']
-					result['domain'] = lookupsids2_result['domains'][1]['name']
-				end
-
-				if(result['type'] ~= 5) then -- Don't show "well known" accounts
-					-- Add it to the results
-					results[#results + 1] = result
+					-- Create the result array
+					local result = {}
+					result['changed_date'] = elements[i]['changed_date']
+					result['rid'] = rid
+		
+					-- Fill in the result from the response
+					if(lookupsids2_result['names']['names'][1] == nil) then
+						result['name'] = "<unknown>"
+						result['type'] = "<unknown>"
+						result['domain'] = ""
+					else
+						result['name'] = lookupsids2_result['names']['names'][1]['name']
+						result['type'] = lookupsids2_result['names']['names'][1]['sid_type']
+						result['domain'] = lookupsids2_result['domains']['domains'][1]['name']
+					end
+	
+					if(result['type'] ~= "SID_NAME_WKN_GRP") then -- Don't show "well known" accounts
+						-- Add it to the results
+						results[#results + 1] = result
+					end
 				end
 			end
 		end
@@ -275,29 +278,29 @@ action = function(host)
 			-- Format the result
 			for i = 1, #sessions, 1 do
 		
-				local active = sessions[i]['active']
-				if(active == 0) then
-					active = "[just logged in, it's probably you]"
-				elseif(active > 60 * 60 * 24) then
-					active = string.format("%dd%dh%02dm%02ds", active / (60*60*24), (active % (60*60*24)) / 3600, (active % 3600) / 60, active % 60)
-				elseif(active > 60 * 60) then
-					active = string.format("%dh%02dm%02ds", active / 3600, (active % 3600) / 60, active % 60)
+				local time = sessions[i]['time']
+				if(time == 0) then
+					time = "[just logged in, it's probably you]"
+				elseif(time > 60 * 60 * 24) then
+					time = string.format("%dd%dh%02dm%02ds", time / (60*60*24), (time % (60*60*24)) / 3600, (time % 3600) / 60, time % 60)
+				elseif(time > 60 * 60) then
+					time = string.format("%dh%02dm%02ds", time / 3600, (time % 3600) / 60, time % 60)
 				else
-					active = string.format("%02dm%02ds", active / 60, active % 60)
+					time = string.format("%02dm%02ds", time / 60, time % 60)
 				end
 		
-				local idle = sessions[i]['idle']
-				if(idle == 0) then
-					idle = "[not idle]"
-				elseif(idle > 60 * 60 * 24) then
-					idle = string.format("%dd%dh%02dm%02ds", idle / (60*60*24), (idle % (60*60*24)) / 3600, (idle % 3600) / 60, idle % 60)
-				elseif(idle > 60 * 60) then
-					idle = string.format("%dh%02dm%02ds", idle / 3600, (idle % 3600) / 60, idle % 60)
+				local idle_time = sessions[i]['idle_time']
+				if(idle_time == 0) then
+					idle_time = "[not idle]"
+				elseif(idle_time > 60 * 60 * 24) then
+					idle_time = string.format("%dd%dh%02dm%02ds", idle_time / (60*60*24), (idle_time % (60*60*24)) / 3600, (idle_time % 3600) / 60, idle_time % 60)
+				elseif(idle_time > 60 * 60) then
+					idle_time = string.format("%dh%02dm%02ds", idle_time / 3600, (idle_time % 3600) / 60, idle_time % 60)
 				else
-					idle = string.format("%02dm%02ds", idle / 60, idle % 60)
+					idle_time = string.format("%02dm%02ds", idle_time / 60, idle_time % 60)
 				end
 	
-				response = response .. string.format("|_ %s is connected from %s for %s, idle for %s\n", sessions[i]['user'], sessions[i]['client'], active, idle)
+				response = response .. string.format("|_ %s is connected from %s for %s, idle for %s\n", sessions[i]['user'], sessions[i]['client'], time, idle_time)
 			end
 		end
 	end

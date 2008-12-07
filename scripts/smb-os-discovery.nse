@@ -1,6 +1,14 @@
 description = [[
-Attempts to determine the operating system over the SMB protocol (ports 445 and
-139).
+Attempts to determine the operating system, computer name, domain, and current
+time  over the SMB protocol (ports 445 or 139). This is done by starting a 
+session with the anonymous account (or with a proper user account, if one is 
+given); in response to a session starting, the server will send back all this
+information. 
+
+Some systems, like Samba, will blank out their name (and only send their domain). 
+Other systems (like embedded printers) will simply leave out the information. Other
+systems will blank out various pieces (some will send back '0' for the current
+time, for example). 
 
 Although the standard <code>smb*</code> script arguments can be used, 
 they likely won't change the outcome in any meaningful way. 
@@ -18,8 +26,9 @@ they likely won't change the outcome in any meaningful way.
 -- |_ System time: 2008-09-09 20:55:55 UTC-5
 -- 
 -- @args smb* This script supports the <code>smbusername</code>,
--- <code>smbpassword</code>, <code>smbhash</code>, <code>smbguest</code>, and
--- <code>smbtype</code> script arguments of the <code>smb</code> module.
+-- <code>smbpassword</code>, <code>smbhash</code>, and <code>smbtype</code>
+-- script arguments of the <code>smb</code> module, but they are unlikely
+-- to be required.
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"
@@ -92,7 +101,42 @@ action = function(host)
 	-- Kill SMB
 	smb.stop(state)
 
+	if(state['os'] == nil and state['lanmanager'] == nil) then
+		if(nmap.debugging() > 0) then
+			return "Server didn't return OS details"
+		else
+			return nil
+		end
+	end
+
+	if(state['os'] == nil) then
+		state['os'] = "Unknown"
+	end
+
+	if(state['lanmanager'] == nil) then
+		state['lanmanager'] = "Unknown"
+	end
+
+	if(state['domain'] == nil) then
+		state['domain'] = "Unknown"
+	end
+
+	if(state['server'] == nil) then
+		state['server'] = "Unknown"
+	end
+
+	if(state['date'] == nil) then
+		state['date'] = "Unknown"
+	end
+
+	if(state['timezone_str'] == nil) then
+		state['timezone_str'] = ""
+	end
+
+	
 	return string.format("%s\nLAN Manager: %s\nName: %s\\%s\nSystem time: %s %s\n", get_windows_version(state['os']), state['lanmanager'], state['domain'], state['server'], state['date'], state['timezone_str'])
 end
+
+
 
 
