@@ -543,7 +543,7 @@ static int l_print_debug_unformatted(lua_State *L) {
   if (lua_gettop(L) != 2) return luaL_error(L, "Incorrect number of arguments\n");
 
   verbosity = luaL_checkinteger(L, 1);
-  if (verbosity > o.verbose) return 0;
+  if (verbosity >= o.verbose) return 0;
   out = luaL_checkstring(L, 2);
 
   log_write(LOG_STDOUT, "%s DEBUG: %s\n", SCRIPT_ENGINE, out);
