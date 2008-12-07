@@ -50,8 +50,6 @@ static int l_get_dns_servers(lua_State *L);
 
 int l_clock_ms(lua_State *L);
 
-static int mutex_i;
-
 static int aux_mutex (lua_State *L)
 {
   static const char * op[] = {"lock", "done", "trylock", "running", NULL};
@@ -103,9 +101,8 @@ static int l_mutex (lua_State *L)
   int t = lua_type(L, 1);
   if (t == LUA_TNONE || t == LUA_TNIL || t == LUA_TBOOLEAN || t == LUA_TNUMBER)
     luaL_argerror(L, 1, "Object expected");
-  lua_rawgeti(L, LUA_REGISTRYINDEX, mutex_i);
   lua_pushvalue(L, 1);
-  lua_gettable(L, -2);
+  lua_gettable(L, lua_upvalueindex(1));
   if (lua_isnil(L, -1))
   {
     lua_newtable(L); // waiting threads
@@ -113,7 +110,7 @@ static int l_mutex (lua_State *L)
     lua_pushcclosure(L, aux_mutex, 2);
     lua_pushvalue(L, 1); // "mutex object"
     lua_pushvalue(L, -2); // function
-    lua_settable(L, -5); // Add to mutex table
+    lua_settable(L, lua_upvalueindex(1)); // Add to mutex table
   }
   return 1; // aux_mutex closure
 }
@@ -135,7 +132,6 @@ int luaopen_nmap (lua_State *L)
     {"have_ssl", l_get_have_ssl},
     {"fetchfile", l_fetchfile},
     {"timing_level", l_get_timing_level},
-    {"mutex", l_mutex},
     {"get_dns_servers", l_get_dns_servers},
     {NULL, NULL}
   };
@@ -151,7 +147,8 @@ int luaopen_nmap (lua_State *L)
   lua_pushliteral(L, "v");
   lua_setfield(L, -2, "__mode");
   lua_setmetatable(L, -2); // Allow closures to be collected (see l_mutex)
-  mutex_i = luaL_ref(L, LUA_REGISTRYINDEX);
+  lua_pushcclosure(L, l_mutex, 1);
+  lua_setfield(L, -2, "mutex");
 
   lua_pushcclosure(L, luaopen_nsock, 0);
   lua_pushliteral(L, "nsock");
