@@ -49,6 +49,8 @@ end
 -- @param list Array of strings to concatenate.
 -- @return Concatenated string.
 function strjoin(delimiter, list)
+  assert(type(delimiter) == "string" or type(delimiter) == nil, "delimiter is of the wrong type! (did you get the parameters backward?)")
+    
   return concat(list, delimiter);
 end
 

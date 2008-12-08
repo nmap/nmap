@@ -127,9 +127,9 @@ end
 --@return List of shares that exist but are denied to us.
 function check_shares(host, shares)
 	local smbstate
-    local i
-    local allowed_shares = {}
-    local denied_shares = {}
+	local i
+	local allowed_shares = {}
+	local denied_shares = {}
 
 	-- Begin the SMB session
 	status, smbstate = smb.start(host)
@@ -151,32 +151,55 @@ function check_shares(host, shares)
 		return false, err
 	end
 
+	-- Check for hosts that accept any share by generating a totally random name (we don't use a set
+	-- name because then hosts could potentially fool us. Perhaps I'm in a paranoid mood today)
+	local set = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
+	local share = ""
+	math.randomseed(os.time())
+	for i = 1, 16, 1 do
+		local random = math.random(#set)
+		share = share .. string.sub(set, random, random)
+	end
+
+	share = string.format("\\\\%s\\%s", host.ip, share)
+	stdnse.print_debug(2, "EnumShares: Trying a random share to see if server responds properly: %s", share)
+	status, err = smb.tree_connect(smbstate, share)
+	if(status == false) then
+		if(err == 0xc0000022 or err == 'NT_STATUS_ACCESS_DENIED') then
+			return false, "Server doesn't return proper value for non-existent shares (returns ACCESS_DENIED)"
+		end
+	else
+		-- If we were actually able to connect to this share, then there's probably a serious issue
+		smb.tree_disconnect(smbstate)
+		return false, "Server doesn't return proper value for non-existent shares (accepts the connection)"
+	end
+
 	-- Connect to the shares
 	stdnse.print_debug(2, "EnumShares: Testing %d shares", #shares)
-    for i = 1, #shares, 1 do
+	for i = 1, #shares, 1 do
 
 		-- Change the share to the '\\ip\share' format
-        local share = string.format("\\\\%s\\%s", host.ip, shares[i])
+		local share = string.format("\\\\%s\\%s", host.ip, shares[i])
 
 		-- Try connecting to the tree
 		stdnse.print_debug(3, "EnumShares: Testing share %s", share)
-        status, err = smb.tree_connect(smbstate, share)
+		status, err = smb.tree_connect(smbstate, share)
 		-- If it fails, checkwhy
-        if(status == false) then
+		if(status == false) then
 			-- If the result was ACCESS_DENIED, record it
-            if(err == 0xc0000022 or err == 'NT_STATUS_ACCESS_DENIED') then
+			if(err == 0xc0000022 or err == 'NT_STATUS_ACCESS_DENIED') then
 				stdnse.print_debug(3, "EnumShares: Access was denied")
-                denied_shares[#denied_shares + 1] = shares[i]
+				denied_shares[#denied_shares + 1] = shares[i]
 			else
 				stdnse.print_debug(3, "ERROR: EnumShares: Share didn't pan out: %s", err)
-            end
-        else
+			end
+		else
 			-- Add it to allowed shares
 			stdnse.print_debug(3, "EnumShares: Access was granted")
-            allowed_shares[#allowed_shares + 1] = shares[i]
-            smb.tree_disconnect(smbstate)
-        end
-    end
+			allowed_shares[#allowed_shares + 1] = shares[i]
+			smb.tree_disconnect(smbstate)
+		end
+	end
 
 	-- Log off the user
 	smb.stop(smbstate)
@@ -221,17 +244,18 @@ local function get_share_info(host, name)
 end
 
 action = function(host)
+	local enum_result
 	local result, shared
 	local response = " \n"
 	local shares = {}
 	local allowed, denied
 
 	-- Try and do this the good way, make a MSRPC call to get the shares
-	result, shares = samr_enum_shares(host)
+	enum_result, shares = samr_enum_shares(host)
 
 	-- If that failed, try doing it with brute force. This almost certainly won't find everything, but it's the
 	-- best we can do. 
-	if(result == false) then
+	if(enum_result == false) then
 		if(nmap.debugging() > 0) then
 			response = response .. string.format("ERROR: Couldn't enum all shares, checking for common ones (%s)\n", shares)
 		end
@@ -250,10 +274,20 @@ action = function(host)
 	status, allowed, denied = check_shares(host, shares)
 
 	if(status == false) then
-		if(nmap.debugging() > 0) then
-			return "ERROR: " .. allowed
+		if(enum_result == false) then
+			-- At this point, we have nothing
+			if(nmap.debugging() > 0) then
+				return "ERROR: " .. allowed
+			else
+				return nil
+			end
 		else
-			return nil
+			-- If we're here, we have a valid list of shares, but couldn't check them
+			if(nmap.debugging() > 0) then
+				return "ERROR: " .. allowed .. "\nShares found: " .. stdnse.strjoin(", ", shares)
+			else
+				return stdnse.strjoin(", ", shares)
+			end
 		end
 	end
 
