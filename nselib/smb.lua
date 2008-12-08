@@ -839,7 +839,7 @@ function smb_read(smb)
 	-- The NetBIOS header is 24 bits, big endian
 	pos, netbios_length   = bin.unpack(">I", result)
 	if(netbios_length == nil) then
-		return false, "SMB: Malformed packet received"
+		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [1]"
 	end
 	-- Make the length 24 bits
 	netbios_length = bit.band(netbios_length, 0x00FFFFFF)
@@ -872,31 +872,31 @@ function smb_read(smb)
 	-- The header is 32 bytes.
 	pos, header   = bin.unpack("<A32", result, pos)
 	if(header == nil) then
-		return false, "SMB: Malformed packet received"
+		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [2]"
 	end
 
 	-- The parameters length is a 1-byte value.
 	pos, parameter_length = bin.unpack("<C",     result, pos)
 	if(parameter_length == nil) then
-		return false, "SMB: Malformed packet received"
+		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [3]"
 	end
 
 	-- Double the length parameter, since parameters are two-byte values. 
 	pos, parameters       = bin.unpack(string.format("<A%d", parameter_length*2), result, pos)
 	if(parameters == nil) then
-		return false, "SMB: Malformed packet received"
+		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [4]"
 	end
 
 	-- The data length is a 2-byte value. 
 	pos, data_length      = bin.unpack("<S",     result, pos)
 	if(data_length == nil) then
-		return false, "SMB: Malformed packet received"
+		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [5]"
 	end
 
 	-- Read that many bytes of data.
 	pos, data             = bin.unpack(string.format("<A%d", data_length),        result, pos)
 	if(data == nil) then
-		return false, "SMB: Malformed packet received"
+		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [6]"
 	end
 
 	stdnse.print_debug(3, "SMB: Received %d bytes", string.len(result))
@@ -967,7 +967,7 @@ function negotiate_protocol(smb)
 
 	-- Check if we fell off the packet (if that happened, the last parameter will be nil)
 	if(mid == nil) then
-		return false, "SMB: Malformed packet received"
+		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [7]"
 	end
 
 	-- Parse the parameter section
@@ -975,7 +975,7 @@ function negotiate_protocol(smb)
 
 	-- Check if we ran off the packet
 	if(dialect == nil) then
-		return false, "SMB: Malformed packet received"
+		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [8]"
 	end
 	-- Check if the server didn't like our requested protocol
 	if(dialect ~= 0) then
@@ -1394,7 +1394,7 @@ function start_session(smb, username, domain, password, password_hash, hash_type
 		pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 
 		if(mid == nil) then
-			return false, "SMB: Malformed packet received"
+			return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [9]"
 		end
 
 		-- Check if we're successful
@@ -1403,7 +1403,7 @@ function start_session(smb, username, domain, password, password_hash, hash_type
 			-- Parse the parameters
 			pos, andx_command, andx_reserved, andx_offset, action = bin.unpack("<CCSS", parameters)
 			if(action == nil) then
-				return false, "SMB: Malformed packet received"	
+				return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [10]"
 			end
 
 			-- Parse the data
@@ -1492,7 +1492,7 @@ function tree_connect(smb, path)
 	-- Check if we were allowed in
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(mid == nil) then
-		return false, "SMB: Malformed packet received"
+		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [11]"
 	end
 
 	if(status ~= 0) then
@@ -1531,7 +1531,7 @@ function tree_disconnect(smb)
 	-- Check if there was an error
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(mid == nil) then
-		return false, "SMB: Malformed packet received"
+		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [12]"
 	end
 	if(status ~= 0) then
 		return false, get_status_name(status)
@@ -1577,7 +1577,7 @@ function logoff(smb)
 	-- Check if there was an error
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(mid == nil) then
-		return false, "SMB: Malformed packet received"
+		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [13]"
 	end
 	if(status ~= 0) then
 		return false, get_status_name(status)
@@ -1641,7 +1641,7 @@ function create_file(smb, path)
 	-- Check if we were allowed in
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(mid == nil) then
-		return false, "SMB: Malformed packet received"
+		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [14]"
 	end
 	if(status ~= 0) then
 		return false, get_status_name(status)
@@ -1650,7 +1650,7 @@ function create_file(smb, path)
 	-- Parse the parameters
 	pos, andx_command, andx_reserved, andx_offset, oplock_level, fid, create_action, created, last_access, last_write, last_change, attributes, allocation_size, end_of_file, filetype, ipc_state, is_directory = bin.unpack("<CCSCSILLLLILLSSC", parameters)
 	if(is_directory == nil) then
-		return false, "SMB: Malformed packet received"
+		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [15]"
 	end
 
 	-- Fill in the smb string
@@ -1742,7 +1742,7 @@ function send_transaction(smb, func, function_parameters, function_data)
 	-- Check if it worked
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(mid == nil) then
-		return false, "SMB: Malformed packet received"
+		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [16]"
 	end
 	if(status ~= 0) then
 		if(status_names[status] == nil) then
@@ -1755,7 +1755,7 @@ function send_transaction(smb, func, function_parameters, function_data)
 	-- Parse the parameters
 	pos, total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2 = bin.unpack("<SSSSSSSSSCC", parameters)
 	if(reserved2 == nil) then
-		return false, "SMB: Malformed packet received"
+		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [17]"
 	end
 
 	-- Convert the parameter/data offsets into something more useful (the offset into the data section)
