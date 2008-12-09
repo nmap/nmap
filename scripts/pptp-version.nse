@@ -15,31 +15,29 @@ require "shortport"
 portrule = shortport.portnumber(1723)
 
 action = function(host, port)
-	local payload
-	  
 	-- build a PPTP Start-Control-Connection-Request packet
 	-- copied from packet capture of pptp exchange
 	-- for details of packet structure, see http://www.ietf.org/rfc/rfc2637.txt
-	payload = "\000\156\000\001\026\043\060\077" -- length=156, Message type=control, cookie
-	payload = payload .. "\000\001\000\000\001\000\000\000" -- Control type=Start-Control-Connection-Request, Reserved, Protocol=1.0, Reserverd
-	payload = payload .. "\000\000\000\001\000\000\000\001" -- Framing Capabilities, Bearer Capabilities
-	payload = payload .. "\255\255\000\001" .. "none" -- Maximum channels, firmware version, hostname
-	payload = payload .. "\000\000\000\000\000\000\000\000" -- padding for hostname
-	payload = payload .. "\000\000\000\000\000\000\000\000" -- padding for hostname
-	payload = payload .. "\000\000\000\000\000\000\000\000" -- padding for hostname
-	payload = payload .. "\000\000\000\000\000\000\000\000" -- padding for hostname
-	payload = payload .. "\000\000\000\000\000\000\000\000" -- padding for hostname
-	payload = payload .. "\000\000\000\000\000\000\000\000" -- padding for hostname
-	payload = payload .. "\000\000\000\000\000\000\000\000" -- padding for hostname
-	payload = payload .. "\000\000\000\000" .. "nmap" -- padding for hostname, vendor name
-	payload = payload .. "\000\000\000\000\000\000\000\000" -- padding for vendor name
-	payload = payload .. "\000\000\000\000\000\000\000\000" -- padding for vendor name
-	payload = payload .. "\000\000\000\000\000\000\000\000" -- padding for vendor name
-	payload = payload .. "\000\000\000\000\000\000\000\000" -- padding for vendor name
-	payload = payload .. "\000\000\000\000\000\000\000\000" -- padding for vendor name
-	payload = payload .. "\000\000\000\000\000\000\000\000" -- padding for vendor name
-	payload = payload .. "\000\000\000\000\000\000\000\000" -- padding for vendor name
-	payload = payload .. "\000\000\000\000" -- padding for vendor name
+	local payload = "\000\156\000\001\026\043\060\077" .. -- length=156, Message type=control, cookie
+	"\000\001\000\000\001\000\000\000" .. -- Control type=Start-Control-Connection-Request, Reserved, Protocol=1.0, Reserverd
+	"\000\000\000\001\000\000\000\001" .. -- Framing Capabilities, Bearer Capabilities
+	"\255\255\000\001" .. "none" .. -- Maximum channels, firmware version, hostname
+	"\000\000\000\000\000\000\000\000" .. -- padding for hostname
+	"\000\000\000\000\000\000\000\000" .. -- padding for hostname
+	"\000\000\000\000\000\000\000\000" .. -- padding for hostname
+	"\000\000\000\000\000\000\000\000" .. -- padding for hostname
+	"\000\000\000\000\000\000\000\000" .. -- padding for hostname
+	"\000\000\000\000\000\000\000\000" .. -- padding for hostname
+	"\000\000\000\000\000\000\000\000" .. -- padding for hostname
+	"\000\000\000\000" .. "nmap" .. -- padding for hostname, vendor name
+	"\000\000\000\000\000\000\000\000" .. -- padding for vendor name
+	"\000\000\000\000\000\000\000\000" .. -- padding for vendor name
+	"\000\000\000\000\000\000\000\000" .. -- padding for vendor name
+	"\000\000\000\000\000\000\000\000" .. -- padding for vendor name
+	"\000\000\000\000\000\000\000\000" .. -- padding for vendor name
+	"\000\000\000\000\000\000\000\000" .. -- padding for vendor name
+	"\000\000\000\000\000\000\000\000" .. -- padding for vendor name
+	"\000\000\000\000"; -- padding for vendor name
 
 	local try = nmap.new_try()
 	local response = try(comm.exchange(host, port, payload, {timeout=5000}))
