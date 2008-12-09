@@ -166,7 +166,7 @@ function mutex(object)
 -- This function returns another function, an exception handler. The returned
 -- function takes a variable number of arguments, which are assumed to be the
 -- return values of another function. It checks the return values for an
--- exception, which is signalled when the first return value is false. If there
+-- exception, which is signaled when the first return value is false. If there
 -- is an exception, the script will stop immediately and produce no output. An
 -- optional handler function can be called before the script is stopped. In the
 -- error handler function you can perform any clean-up operations, such as
