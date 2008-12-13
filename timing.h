@@ -141,6 +141,7 @@ class RateMeter {
     double getOverallRate(const struct timeval *now = NULL) const;
     double getCurrentRate(const struct timeval *now = NULL, bool update = true);
     double getTotal(void) const;
+    double elapsedTime(const struct timeval *now = NULL) const;
 
   private:
     /* How many seconds to look back when calculating the "current" rates. */
@@ -156,7 +157,6 @@ class RateMeter {
     double total;
     double current_rate;
 
-    double elapsedTime(const struct timeval *now = NULL) const;
     static bool isSet(const struct timeval *tv);
 };
 
