@@ -263,7 +263,7 @@ expand_ip = function( ip )
       return nil, err4
     end
     local octets = {}
-    for octet in string.gfind( ip, "%d+" ) do
+    for octet in string.gmatch( ip, "%d+" ) do
       if tonumber( octet, 10 ) > 255 then return nil, err4 end
       octets[#octets+1] = octet
     end
@@ -283,7 +283,7 @@ expand_ip = function( ip )
 
   -- get a table of each hexadectet
   local hexadectets = {}
-  for hdt in string.gfind( ip, "[\.z%x]+" ) do
+  for hdt in string.gmatch( ip, "[\.z%x]+" ) do
     hexadectets[#hexadectets+1] = hdt
   end
 
@@ -435,13 +435,13 @@ ip_to_bin = function( ip )
 
   if not ip:match( ":" ) then
     -- ipv4 string
-    for octet in string.gfind( ip, "%d+" ) do
+    for octet in string.gmatch( ip, "%d+" ) do
       t[#t+1] = stdnse.tohex( tonumber(octet) )
     end
     mask = "00"
   else
     -- ipv6 string
-    for hdt in string.gfind( ip, "%x+" ) do
+    for hdt in string.gmatch( ip, "%x+" ) do
       t[#t+1] = hdt
     end
     mask = "0000"
@@ -484,7 +484,7 @@ bin_to_ip = function( binstring )
   t = {}
   if af == 6 then
     local pattern = string.rep( "[01]", 16 )
-    for chunk in string.gfind( binstring, pattern ) do
+    for chunk in string.gmatch( binstring, pattern ) do
       t[#t+1] = stdnse.tohex( tonumber( chunk, 2 ) )
     end
     return table.concat( t, ":" )
@@ -492,7 +492,7 @@ bin_to_ip = function( binstring )
 
   if af == 4 then
     local pattern = string.rep( "[01]", 8 )
-    for chunk in string.gfind( binstring, pattern ) do
+    for chunk in string.gmatch( binstring, pattern ) do
       t[#t+1] = tonumber( chunk, 2 ) .. ""
     end
     return table.concat( t, "." )
@@ -521,7 +521,7 @@ hex_to_bin = function( hex )
   end
 
   local t, mask, binchar = {}, "0000"
-  for hexchar in string.gfind( hex, "%x" ) do
+  for hexchar in string.gmatch( hex, "%x" ) do
       binchar = stdnse.tobinary( tonumber( hexchar, 16 ) )
       t[#t+1] = mask:sub( 1, string.len( mask ) - string.len( binchar ) ) .. binchar
   end

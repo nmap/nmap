@@ -182,7 +182,7 @@ local function find_links(list, base_path, page, host)
 	injectable = {}
 	url_parts = {}
 	
-	for w in string.gfind(page, 'href%s*=%s*"%s*[^"]+%s*"') do
+	for w in string.gmatch(page, 'href%s*=%s*"%s*[^"]+%s*"') do
 		s, e = string.find(w, '"')
 		httpurl = string.sub(w, s+1, string.len(w)-1)
 		i = 1
