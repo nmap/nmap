@@ -434,7 +434,9 @@ match ftp m|^500 OOPS: .*\r\n$| p/vsftpd/ i/Misconfigured/ o/Unix/
 match ftp m|^500 OOPS: vsftpd: both local and anonymous access disabled!\r\n| p/vsftpd/ i/Access denied/ o/Unix/
 match ftp m|^220 FTP Version ([\d.]+) on MPS100\r\n| p/Lantronix MPS100 ftpd/ v/$1/ d/print server/
 match ftp m|^220 bftpd ([\d.]+) at ([-\w_.]+) ready\.?\r\n| p/bftpd/ v/$1/ h/$2/
-match ftp m|^220 RICOH Aficio ([\w-_+ ]+) FTP server \(([\d.]+)\) ready\.\r\n| p/RICOH Aficio $1 ftpd/ v/$2/ d/print server/
+match ftp m|^220 RICOH Aficio ([\w\d_ +-]+) FTP server \(([\d.]+)\w?\) ready\.\r\n| p/RICOH Aficio $1 ftpd/ v/$2/ d/print server/
+match ftp m|^220 RICOH Pro (\d+[a-zA-Z]{0,3}) FTP server \(([\d+.]+)\) ready\.\r\n| p/RICOH Pro $1 ftpd/ v/$2/ d/printer/
+match ftp m|^220 LANIER ([\w\d /-]+) FTP server \(([\d+.]+)\) ready\.\r\n| p/Lanier $1 ftpd/ v/$2/ d/printer/
 match ftp m|^220 Welcome to Code-Crafters Ability FTP Server\.\r\n| p/Code-Crafters Ability ftpd/ o/Windows/
 match ftp m|^220 Welcome to Code-Crafters - Ability Server ([\d.]+)\.| p/Code-Crafters Ability ftpd/ v/$1/ o/Windows/
 match ftp m|^220 ([-\w_.]+)           FTP server \(ARM_BE - V([\w.]+)\) ready\.\r\n| p/NetComm NS4000 Network Camera/ h/$1/ i/ARM_BE $2/ d/webcam/
@@ -2238,7 +2240,7 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\x1b\[0;37;40m\x1b\[2J\x1b\[
 match telnet m|^\xff\xfd\($| p|IBM OS/390 or SNA telnetd|
 match telnet m|^\xff\xfb\r\nRemotelyAnywhere Telnet Server v([\d.]+)\r\n.*\r\n\r\n([-\w_. ]+) login\r\nuser name: | p/RemotelyAnywhere telnetd/ v/$1/ i/Name $2/ o/Windows/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x03\xff\xfd\x1f\xff\xfd\x18([^\r\n]+)\r\nRemotelyAnywhere Telnet Server ([\d.]+)\r\n.*\r\n\r\n([-\w_. ]+) login\r\nuser name: |s p/RemotelyAnywhere telnetd/ v/$2/ i/$1; Name $3/ o/Windows/
-match telnet m|^\xff\xfb\x01\xff\xfb\x03\nRICOH Maintenance Shell\.   ([\w:]+)\n\rUser access verification\.\n\rPassword:| p/RICHOH Maintenance telnetd/ i/MAC $1/ d/print server/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\nRICOH Maintenance Shell\.   ([\w:]+)\n\rUser access verification\.\n\rPassword:| p/RICOH Maintenance telnetd/ i/MAC $1/ d/print server/
 match telnet m|^\r\nVxWorks login: \xff\xfb\x01$| p/VxWorks telnetd/ o/VxWorks/
 match telnet m|^\xff\xfb\x01\xff\xfd\x01\xff\xfb\x03\xff\xfd\x03\xff\xfb\x01\xff\xfd\x01\xff\xfb\x03\xff\xfd\x03\r\n\r\nSelect Access Level\r\n===================\r\n1 - Read-Only\r\n2 - Installer\r\n3 - Administrator\r\n13008 >>> | p/BreezeCOM telnetd/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\nExterior router [-\w_.]+\r\nType: Cisco 2651\r\nModule: E3/T3 interface\r\n\r\n| p/Cisco 2651 router telnetd/ o/IOS/ d/router/
@@ -4450,6 +4452,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: GoAhead-Webs\r\nDate: .*\r\nPragma:
 match http m|^HTTP/1\.0 404 Not Found\r\nServer: TABS http server/([\d.]+)\r\nDate: .*\r\nContent-Type: text/html\r\nContent-Length: \d+\r\n\r\n<HTML>\r\n<HEAD>\r\n<TITLE> 404 File Not Found</TITLE>\r\n</HEAD>\r\n\r\n<BODY>\r\n<h2>File Not Found</h2>\r\n</BODY>\r\n</HTML>| p/Server Observer Network Monitor httpd/ i/TABS httpd $1/ o/Windows/
 match http m|^HTTP/1\.1 401\r\nConnection: close\r\nContent-Type: text/plain\r\nWWW-Authenticate: Basic Realm=\"Vibe Streamer\"\r\n\r\n\r\nAccess denied| p/Vibe Streamer httpd/ o/Windows/
 match http m|^HTTP/1\.1 \d\d\d .*<!-- Copyright \(c\) 2000-2002, Fuji Xerox Co\., Ltd\. All Rights Reserved\. -->\r\n<HTML>\r\n<HEAD>\r\n<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=ISO-8859-1\">\r\n<TITLE>\r\nWorkCentre (\w+) -|s p/Xerox WorkCentre $1 http config/ d/printer/
+match http m|^HTTP/1\.1 \d\d\d .*<!--\s+/\*-+\*\\\s+Copyright \(c\) 2002-2006 Xerox Corporation\. All Rights Reserved\..*<title>\s*XEROX WORKCENTRE|s p/Xerox WorkCentre http config/ d/printer/
 match http m|^HTTP/1\.1 404 Not Found\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: \d+\r\n\r\n<body><h2>HTTP/1\.1 404 Not Found</h2></body>| p/VypressChat httpd/ o/Windows/
 match http m|^HTTP/1\.0 200 Ok\r\nDate: .*\r\nMIME-Version: 1\.0\r\nServer: Rogatkin's JWS based on Acme\.Serve/.Revision: ([\d.]+) .\r\nLast-modified: .*\r\nContent-Range: bytes [-\d/]+\r\nAccept-Ranges: bytes\r\nContent-Type: text/html\r\nContent-Length: \d+\r\n\r\n<html>\r\n<head>\r\n<title>\r\nblank page\r\n</title>\r\n<META HTTP-EQUIV=\"Refresh\" CONTENT=\"2;URL=about:blank\">\r\n</head>\r\n<body>\r\nThere is nothing to see here, please move along!\r\n</body>\r\n</html>\r\n| p/SageTV PVR remote control httpd/ i/JWS based on Acme.Serve httpd $1/ d/media device/
 match http m|^HTTP/1\.1 200 OK\r\nServer: SnapStream\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nConnection: close\r\nContent-Type:text/html\r\n\r\n<html>\r\n<body>\r\n<h1>Beyond TV Web Admin Redirector</h1>| p/SnapStream Beyond TV http config/ d/media device/
