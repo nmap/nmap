@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a division by zero error in the packet rate measuring code
+  that could cause a display of infinity packets per seconds near the
+  start of a scan. [Jah]
+
 o Complete re-write of the marshalling logic for Microsoft RPC calls. 
   [Ron Bowes]
 

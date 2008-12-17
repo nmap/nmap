@@ -349,7 +349,13 @@ void RateMeter::update(double amount, const struct timeval *now) {
 }
 
 double RateMeter::getOverallRate(const struct timeval *now) const {
-  return total / elapsedTime(now);
+  double elapsed;
+
+  elapsed = elapsedTime(now);
+  if (elapsed <= 0.0)
+    return 0.0;
+  else
+    return total / elapsed;
 }
 
 /* Get the "current" rate (actually a moving average of the last
