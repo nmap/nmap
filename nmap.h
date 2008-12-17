@@ -416,21 +416,17 @@ int nmap_main(int argc, char *argv[]);
 void nmap_free_mem();
 
 /* general helper functions */
-int parse_targets(struct targets *targets, char *h);
 const char *statenum2str(int state);
 const char *scantype2str(stype scantype);
 void sigdie(int signo);
 void reaper(int signo);
 char *seqreport(struct seq_info *seq);
-char *seqreport1(struct seq_info *seq);
-const char *seqclass2ascii(int clas);
 const char *ipidclass2ascii(int seqclass);
 const char *tsseqclass2ascii(int seqclass);
 
 /* Convert a TCP sequence prediction difficulty index like 1264386
    into a difficulty string like "Worthy Challenge */
 const char *seqidx2difficultystr(unsigned long idx);
-const char *seqidx2difficultystr1(unsigned long idx);
 int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file);
 int nmap_fileexistsandisreadable(const char* pathname);
 int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv);
