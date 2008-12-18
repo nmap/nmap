@@ -193,20 +193,12 @@ struct os_scan_performance_vars {
   int cc_incr; /* How many probes are incremented per (roughly) rtt in 
                   congestion control mode */
   int initial_ccthresh;
-  /* When a successful ping response comes back, it counts as this many
-     "normal" responses, because the fact that pings are neccessary means
-     we aren't getting much input. */
-  int ping_magnifier;
-  /* Try to send a scanping if no response has been received from a target host
-     in this many usecs */
-  int pingtime;
   double group_drop_cwnd_divisor; /* all-host group cwnd divided by this
                                      value if any packet drop occurs */
   double group_drop_ccthresh_divisor; /* used to drop the group ccthresh when
                                          any drop occurs */
   double host_drop_ccthresh_divisor; /* used to drop the host ccthresh when
                                         any drop occurs */
-  int tryno_cap; /* The maximum trynumber (starts at zero) allowed */
 } perf;
 
 /* Some of the algorithms used here are TCP congestion control
@@ -3242,12 +3234,9 @@ static void init_perf_values() {
   perf.quick_incr = 1;
   perf.cc_incr = 1;
   perf.initial_ccthresh = 50;
-  perf.ping_magnifier = 3;
-  perf.pingtime = 5000000;
   perf.group_drop_cwnd_divisor = 2.0;
   perf.group_drop_ccthresh_divisor = (o.timing_level < 4)? 2.0 : 1.5;
   perf.host_drop_ccthresh_divisor = (o.timing_level < 4)? 2.0 : 1.5;
-  perf.tryno_cap = 12;
 }
 
 /* Start the timeout clocks of any targets that aren't already timedout
