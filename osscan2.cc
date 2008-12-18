@@ -991,6 +991,7 @@ void HostOsScan::updateActiveSeqProbes(HostOsScanStats *hss) {
     /* Is the probe timedout? */
     if (TIMEVAL_SUBTRACT(now, probe->sent) > (long) timeProbeTimeout(hss)) {
       hss->removeActiveProbe(probeI);
+      assert(stats->num_probes_active > 0);
       stats->num_probes_active--;
     }
   }
@@ -1074,11 +1075,13 @@ void HostOsScan::updateActiveTUIProbes(HostOsScanStats *hss) {
       if(probe->tryno >= 3) {
         /* The probe is expired. */
         hss->removeActiveProbe(probeI);
+        assert(stats->num_probes_active > 0);
         stats->num_probes_active--;
       }
       else {
         /* It is timedout, move it to the sendlist */
         hss->moveProbeToUnSendList(probeI);
+        assert(stats->num_probes_active > 0);
         stats->num_probes_active--;
       }
     }
@@ -1276,6 +1279,7 @@ void HostOsScan::sendNextProbe(HostOsScanStats *hss) {
   stats->num_probes_sent++;
 
   hss->moveProbeToActiveList(probeI);
+  stats->num_probes_active++;
 
   if (o.debugging > 1) {
     log_write(LOG_PLAIN, "Send probe (type: %s, subid: %d) to %s\n",
@@ -1521,7 +1525,8 @@ bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int l
 
     /* delete the probe. */
     hss->removeActiveProbe(probeI);
-    this->stats->num_probes_active--;
+    assert(stats->num_probes_active > 0);
+    stats->num_probes_active--;
 
     return true;
   }
