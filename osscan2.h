@@ -118,9 +118,9 @@ class Target;
    processed as smaller groups to improve accuracy  */
 void os_scan2(std::vector<Target *> &Targets);
 
-int send_closedudp_probe_2(struct udpprobeinfo &upi, int sd,
-                           struct eth_nfo *eth,  const struct in_addr *victim,
-                           int ttl, u16 sport, u16 dport);
+int send_closedudp_probe(struct udpprobeinfo &upi, int sd,
+                         struct eth_nfo *eth,  const struct in_addr *victim,
+                         int ttl, u16 sport, u16 dport);
 int send_icmp_echo_probe(int sd, struct eth_nfo *eth, const struct in_addr *victim,
 			 u8 tos, bool df, u8 pcode, unsigned short id, u16 seq, u16 datalen);
 

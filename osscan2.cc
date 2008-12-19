@@ -1402,9 +1402,9 @@ void HostOsScan::sendTUdpProbe(HostOsScanStats *hss, int probeNo) {
   assert(hss);
   
   if(hss->closedUDPPort == -1) return;
-  send_closedudp_probe_2(hss->upi, rawsd, ethptr, hss->target->v4hostip(),
-			 this->udpttl, udpPortBase + probeNo, 
-			 hss->closedUDPPort);
+  send_closedudp_probe(hss->upi, rawsd, ethptr, hss->target->v4hostip(),
+                       this->udpttl, udpPortBase + probeNo, 
+                       hss->closedUDPPort);
 }
 
 bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int len, struct timeval *rcvdtime) {
@@ -3022,9 +3022,9 @@ int send_icmp_echo_probe(int sd, struct eth_nfo *eth,
   return 0;
 }
 
-int send_closedudp_probe_2(struct udpprobeinfo &upi, int sd,
-                           struct eth_nfo *eth,  const struct in_addr *victim,
-						   int ttl, u16 sport, u16 dport) {
+int send_closedudp_probe(struct udpprobeinfo &upi, int sd,
+                         struct eth_nfo *eth,  const struct in_addr *victim,
+                         int ttl, u16 sport, u16 dport) {
   static int myttl = 0;
   static u8 patternbyte = 0x43; /* character 'C' */
   static u16 id = 0x1042; 
