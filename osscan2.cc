@@ -505,7 +505,6 @@ public:
   OsScanInfo *OSI; /* The OSI which contains this HostOsScanInfo */
   FingerPrint **FPs; /* Fingerprints of the host */
   FingerPrintResults *FP_matches; /* Fingerprint-matching results */
-  struct seq_info *si;
   bool timedOut;
   bool isCompleted;
   HostOsScanStats *hss; /* Scan status of the host in one scan round */
@@ -2853,7 +2852,6 @@ HostOsScanInfo::HostOsScanInfo(Target *t, OsScanInfo *OsSI) {
 
   FPs = (FingerPrint **) safe_zalloc(o.maxOSTries() * sizeof(FingerPrint *));
   FP_matches = (FingerPrintResults *) safe_zalloc(o.maxOSTries() * sizeof(FingerPrintResults));
-  si = (struct seq_info *) safe_zalloc(o.maxOSTries() * sizeof(struct seq_info));
   timedOut = false;
   isCompleted = false;
 
@@ -2868,7 +2866,6 @@ HostOsScanInfo::~HostOsScanInfo() {
   delete hss;
   free(FPs);
   free(FP_matches);
-  free(si);
 }
 
 OsScanInfo::OsScanInfo(vector<Target *> &Targets) {
