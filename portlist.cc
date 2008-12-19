@@ -760,8 +760,8 @@ void random_port_cheat(u16 *ports, int portcount) {
   int allportidx = 0;
   int popportidx = 0;
   int earlyreplidx = 0;
-  /* Updated 2008-12-18 from nmap-services-all. Top 14 open TCP ports plus 113. */
-  u16 pop_ports[] = { 80, 23, 443, 21, 22, 25, 3389, 110, 445, 139, 143, 53, 135, 113 };
+  /* Updated 2008-12-18 from nmap-services-all. Top 14 open TCP ports plus 113, 554, and 256 */
+  u16 pop_ports[] = { 80, 23, 443, 21, 22, 25, 3389, 110, 445, 139, 143, 53, 135, 113, 554, 256 };
   int num_pop_ports = sizeof(pop_ports) / sizeof(u16);
 
   for(allportidx = 0; allportidx < portcount; allportidx++) {
