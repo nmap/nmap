@@ -1,5 +1,14 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o A problem that caused OS detection to fail for most hosts in a
+  certain was fixed. It happened when sending raw Ethernet frames
+  (by default on Windows or on other platforms with --send-eth) to
+  hosts on a switched LAN. The destination MAC address was wrong for
+  most targets. The symptom was that only one out of each scan group
+  of 20 or 30 hosts would have a meaningful OS fingerprint. Thanks go
+  to Michael Head for running tests and especially Trent Snyder for
+  testing and finding the cause of the problem. [David]
+
 o Fixed a division by zero error in the packet rate measuring code
   that could cause a display of infinity packets per seconds near the
   start of a scan. [Jah]
