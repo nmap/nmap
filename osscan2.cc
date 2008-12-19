@@ -267,6 +267,8 @@ public:
   ~HostOsScanStats();
   void initScanStats();
   
+  struct eth_nfo *fill_eth_nfo(struct eth_nfo *eth, eth_t *ethsd) const;
+
   void addNewProbe(OFProbeType type, int subid);
   void removeActiveProbe(list<OFProbe *>::iterator probeI);
 
@@ -467,6 +469,19 @@ private:
   bool processTUdpResp(HostOsScanStats *hss, struct ip *ip);
   bool processTIcmpResp(HostOsScanStats *hss, struct ip *ip, int replyNo);
 
+  /* Generic sending functions used by the above probe functions. */
+  int send_tcp_probe(HostOsScanStats *hss,
+                     int ttl, bool df, u8* ipopt, int ipoptlen,
+                     u16 sport, u16 dport, u32 seq, u32 ack,
+                     u8 reserved, u8 flags, u16 window, u16 urp,
+                     u8 *options, int optlen,
+                     char *data, u16 datalen);
+  int send_icmp_echo_probe(HostOsScanStats *hss,
+                           u8 tos, bool df, u8 pcode,
+                           unsigned short id, u16 seq, u16 datalen);
+  int send_closedudp_probe(HostOsScanStats *hss,
+                           int ttl, u16 sport, u16 dport);
+
   void makeTSeqFP(HostOsScanStats *hss);
   void makeTOpsFP(HostOsScanStats *hss);
   void makeTWinFP(HostOsScanStats *hss);
@@ -474,8 +489,7 @@ private:
   bool get_tcpopt_string(struct tcp_hdr *tcp, int mss, char *result, int maxlen);
 
   int rawsd; /* raw socket descriptor */
-  struct eth_nfo eth;
-  struct eth_nfo *ethptr; /* for passing to send_ functions */
+  eth_t *ethsd; /* Ethernet handle */
   
   unsigned int tcpSeqBase, tcpAck; /* Seq&Ack value used in TCP probes */
   int tcpMss; /* tcp Mss value used in TCP probes */
@@ -743,6 +757,21 @@ void HostOsScanStats::initScanStats() {
   memset(&upi, 0, sizeof(upi));  
 }
 
+/* Fill in an eth_nfo struct with the appropriate source and destination MAC
+   addresses and a given Ethernet handle. The return value is suitable to pass
+   to send_ip_packet: if ethsd is NULL, returns NULL; otherwise returns eth. */
+struct eth_nfo *HostOsScanStats::fill_eth_nfo(struct eth_nfo *eth, eth_t *ethsd) const {
+  if (ethsd == NULL)
+    return NULL;
+
+  memcpy(eth->srcmac, target->SrcMACAddress(), sizeof(eth->srcmac));
+  memcpy(eth->dstmac, target->NextHopMACAddress(), sizeof(eth->srcmac));
+  eth->ethsd = ethsd;
+  eth->devname[0] = '\0';
+
+  return eth;
+}
+
 /* Add a probe to the probe list. */
 void HostOsScanStats::addNewProbe(OFProbeType type, int subid) {
   OFProbe *probe = new OFProbe();
@@ -912,14 +941,12 @@ bool ScanStats::sendOK() {
 HostOsScan::HostOsScan(Target *t) {
   pd = NULL;
   rawsd = -1;
+  ethsd = NULL;
 
   if ((o.sendpref & PACKET_SEND_ETH) &&  t->ifType() == devt_ethernet) {
-    memcpy(eth.srcmac, t->SrcMACAddress(), 6);
-    memcpy(eth.dstmac, t->NextHopMACAddress(), 6);
-    if ((eth.ethsd = eth_open_cached(t->deviceName())) == NULL)
+    if ((ethsd = eth_open_cached(t->deviceName())) == NULL)
       fatal("%s: Failed to open ethernet device (%s)", __func__, t->deviceName());
     rawsd = -1;
-    ethptr = &eth;
   } else {
     /* Init our raw socket */
 #ifdef WIN32
@@ -932,8 +959,7 @@ HostOsScan::HostOsScan(Target *t) {
 #ifndef WIN32
     sethdrinclude(rawsd);
 #endif
-    ethptr = NULL;
-    eth.ethsd = NULL;
+    ethsd = NULL;
   }
 
   tcpPortBase = o.magic_port_set? o.magic_port : o.magic_port + get_random_u8();
@@ -947,8 +973,8 @@ HostOsScan::~HostOsScan() {
   if (rawsd >= 0) { close(rawsd); rawsd = -1; }
   if (pd) { pcap_close(pd); pd = NULL; }
   /*
-   * No need to close ethptr->ethsd due to caching
-   * if (eth.ethsd) { eth_close(eth.ethsd); eth.ethsd = NULL; }
+   * No need to close ethsd due to caching
+   * if (ethsd) { eth_close(ethsd); ethsd = NULL; }
    */
   delete stats;
 }
@@ -1293,11 +1319,11 @@ void HostOsScan::sendTSeqProbe(HostOsScanStats *hss, int probeNo) {
 
   if(hss->openTCPPort == -1) return;
 
-  send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false, NULL, 0,
-                      tcpPortBase + probeNo, hss->openTCPPort,
-                      tcpSeqBase + probeNo, tcpAck, 0,
-                      TH_SYN, prbWindowSz[probeNo], 0, prbOpts[probeNo].val, prbOpts[probeNo].len,
-		      NULL, 0);
+  send_tcp_probe(hss, o.ttl, false, NULL, 0,
+                 tcpPortBase + probeNo, hss->openTCPPort,
+                 tcpSeqBase + probeNo, tcpAck,
+                 0, TH_SYN, prbWindowSz[probeNo], 0,
+                 prbOpts[probeNo].val, prbOpts[probeNo].len, NULL, 0);
 
   hss->seq_send_times[probeNo] = now;  
 }
@@ -1308,11 +1334,11 @@ void HostOsScan::sendTOpsProbe(HostOsScanStats *hss, int probeNo) {
 
   if(hss->openTCPPort == -1) return;
   
-  send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false, NULL, 0,
-                      tcpPortBase + NUM_SEQ_SAMPLES + probeNo, 
-		      hss->openTCPPort, tcpSeqBase, tcpAck, 0, TH_SYN, 
-		      prbWindowSz[probeNo], 0, prbOpts[probeNo].val, 
-		      prbOpts[probeNo].len, NULL, 0);
+  send_tcp_probe(hss, o.ttl, false, NULL, 0,
+                 tcpPortBase + NUM_SEQ_SAMPLES + probeNo, hss->openTCPPort,
+                 tcpSeqBase, tcpAck,
+                 0, TH_SYN, prbWindowSz[probeNo], 0,
+                 prbOpts[probeNo].val, prbOpts[probeNo].len, NULL, 0);
 }
 
 void HostOsScan::sendTEcnProbe(HostOsScanStats *hss) {
@@ -1320,10 +1346,11 @@ void HostOsScan::sendTEcnProbe(HostOsScanStats *hss) {
   
   if(hss->openTCPPort == -1) return;
   
-  send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false, NULL, 0,
-                      tcpPortBase + NUM_SEQ_SAMPLES + 6, hss->openTCPPort,
-		      tcpSeqBase, 0, 8, TH_CWR|TH_ECE|TH_SYN, prbWindowSz[6], 
-		      63477, prbOpts[6].val, prbOpts[6].len, NULL, 0);
+  send_tcp_probe(hss, o.ttl, false, NULL, 0,
+                 tcpPortBase + NUM_SEQ_SAMPLES + 6, hss->openTCPPort,
+                 tcpSeqBase, 0,
+                 8, TH_CWR|TH_ECE|TH_SYN, prbWindowSz[6], 63477,
+                 prbOpts[6].val, prbOpts[6].len, NULL, 0);
 }
 
 void HostOsScan::sendT1_7Probe(HostOsScanStats *hss, int probeNo) {
@@ -1335,52 +1362,59 @@ void HostOsScan::sendT1_7Probe(HostOsScanStats *hss, int probeNo) {
   switch(probeNo) {
   case 0: /* T1 */
     if(hss->openTCPPort == -1) return;
-    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false, NULL, 0,
-                        port_base, hss->openTCPPort, tcpSeqBase, tcpAck, 0,
-                        TH_SYN, prbWindowSz[0], 0, prbOpts[0].val, 
-			prbOpts[0].len, NULL, 0);
+    send_tcp_probe(hss, o.ttl, false, NULL, 0,
+                   port_base, hss->openTCPPort,
+                   tcpSeqBase, tcpAck,
+                   0, TH_SYN, prbWindowSz[0], 0,
+                   prbOpts[0].val, prbOpts[0].len, NULL, 0);
     break;
   case 1: /* T2 */
     if(hss->openTCPPort == -1) return;
-    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, true, NULL, 0,
-                        port_base + 1, hss->openTCPPort, tcpSeqBase, tcpAck, 0,
-                        0, prbWindowSz[7], 0, prbOpts[7].val, 
-                        prbOpts[7].len, NULL, 0);
+    send_tcp_probe(hss, o.ttl, true, NULL, 0,
+                   port_base + 1, hss->openTCPPort,
+                   tcpSeqBase, tcpAck,
+                   0, 0, prbWindowSz[7], 0,
+                   prbOpts[7].val, prbOpts[7].len, NULL, 0);
     break;
   case 2: /* T3 */
     if(hss->openTCPPort == -1) return;
-    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false, NULL, 0,
-                        port_base + 2, hss->openTCPPort, tcpSeqBase, tcpAck, 0,
-                        TH_SYN|TH_FIN|TH_URG|TH_PUSH, prbWindowSz[8], 0, prbOpts[8].val, 
-                        prbOpts[8].len, NULL, 0);
+    send_tcp_probe(hss, o.ttl, false, NULL, 0,
+                   port_base + 2, hss->openTCPPort,
+                   tcpSeqBase, tcpAck,
+                   0, TH_SYN|TH_FIN|TH_URG|TH_PUSH, prbWindowSz[8], 0,
+                   prbOpts[8].val, prbOpts[8].len, NULL, 0);
     break;
   case 3: /* T4 */
     if(hss->openTCPPort == -1) return;
-    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, true, NULL, 0,
-                        port_base + 3, hss->openTCPPort, tcpSeqBase, tcpAck, 0,
-                        TH_ACK, prbWindowSz[9], 0, prbOpts[9].val, 
-			prbOpts[9].len, NULL, 0);
+    send_tcp_probe(hss, o.ttl, true, NULL, 0,
+                   port_base + 3, hss->openTCPPort,
+                   tcpSeqBase, tcpAck,
+                   0, TH_ACK, prbWindowSz[9], 0,
+                   prbOpts[9].val, prbOpts[9].len, NULL, 0);
     break;
   case 4: /* T5 */
     if(hss->closedTCPPort == -1) return;
-    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false, NULL, 0,
-                        port_base + 4, hss->closedTCPPort, tcpSeqBase, tcpAck,
-			0, TH_SYN, prbWindowSz[10], 0, prbOpts[10].val, 
-			prbOpts[10].len, NULL, 0);
+    send_tcp_probe(hss, o.ttl, false, NULL, 0,
+                   port_base + 4, hss->closedTCPPort,
+                   tcpSeqBase, tcpAck,
+                   0, TH_SYN, prbWindowSz[10], 0,
+                   prbOpts[10].val, prbOpts[10].len, NULL, 0);
     break;
   case 5: /* T6 */
     if(hss->closedTCPPort == -1) return;
-    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, true, NULL, 0,
-                        port_base + 5, hss->closedTCPPort, tcpSeqBase, tcpAck,
-			0, TH_ACK, prbWindowSz[11], 0, prbOpts[11].val, 
-			prbOpts[11].len, NULL, 0);
+    send_tcp_probe(hss, o.ttl, true, NULL, 0,
+                   port_base + 5, hss->closedTCPPort,
+                   tcpSeqBase, tcpAck,
+                   0, TH_ACK, prbWindowSz[11], 0,
+                   prbOpts[11].val, prbOpts[11].len, NULL, 0);
     break;
   case 6: /* T7 */
     if(hss->closedTCPPort == -1) return;
-    send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(), o.ttl, false, NULL, 0,
-                        port_base + 6, hss->closedTCPPort, tcpSeqBase, tcpAck,
-			0, TH_FIN|TH_PUSH|TH_URG, prbWindowSz[12], 0, prbOpts[12].val, 
-			prbOpts[12].len, NULL, 0);
+    send_tcp_probe(hss, o.ttl, false, NULL, 0,
+                   port_base + 6, hss->closedTCPPort,
+                   tcpSeqBase, tcpAck,
+                   0, TH_FIN|TH_PUSH|TH_URG, prbWindowSz[12], 0,
+                   prbOpts[12].val, prbOpts[12].len, NULL, 0);
     break;
   }
 }
@@ -1389,11 +1423,11 @@ void HostOsScan::sendTIcmpProbe(HostOsScanStats *hss, int probeNo) {
   assert(hss);
   assert(probeNo>=0&&probeNo<2);
   if(probeNo==0) {
-    send_icmp_echo_probe(rawsd, ethptr, hss->target->v4hostip(), IP_TOS_DEFAULT,
+    send_icmp_echo_probe(hss, IP_TOS_DEFAULT,
                          true, 9, icmpEchoId, icmpEchoSeq, 120);
   }
   else {
-    send_icmp_echo_probe(rawsd, ethptr, hss->target->v4hostip(), IP_TOS_RELIABILITY,
+    send_icmp_echo_probe(hss, IP_TOS_RELIABILITY,
                          false, 0, icmpEchoId+1, icmpEchoSeq+1, 150);
   }
 }
@@ -1402,9 +1436,7 @@ void HostOsScan::sendTUdpProbe(HostOsScanStats *hss, int probeNo) {
   assert(hss);
   
   if(hss->closedUDPPort == -1) return;
-  send_closedudp_probe(hss->upi, rawsd, ethptr, hss->target->v4hostip(),
-                       this->udpttl, udpPortBase + probeNo, 
-                       hss->closedUDPPort);
+  send_closedudp_probe(hss, udpttl, udpPortBase + probeNo, hss->closedUDPPort);
 }
 
 bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int len, struct timeval *rcvdtime) {
@@ -2999,22 +3031,45 @@ int OsScanInfo::removeCompletedHosts() {
   return hostsRemoved;
 }
 
-int send_icmp_echo_probe(int sd, struct eth_nfo *eth, 
-			 const struct in_addr *victim, u8 tos, bool df,
-			 u8 pcode, unsigned short id, u16 seq, u16 datalen) {
+/* Send a TCP probe. This takes care of decoys and filling in Ethernet
+   addresses if necessary. Used for the SEQ, OPS, WIN, ECN, and T1-T7 probes. */
+int HostOsScan::send_tcp_probe(HostOsScanStats *hss,
+                               int ttl, bool df, u8* ipopt, int ipoptlen,
+                               u16 sport, u16 dport, u32 seq, u32 ack,
+                               u8 reserved, u8 flags, u16 window, u16 urp,
+                               u8 *options, int optlen,
+                               char *data, u16 datalen) {
+  struct eth_nfo eth, *ethptr;
+
+  ethptr = hss->fill_eth_nfo(&eth, ethsd);
+
+  return send_tcp_raw_decoys(rawsd, ethptr, hss->target->v4hostip(),
+                             ttl, df, ipopt, ipoptlen, sport, dport, seq, ack,
+                             reserved, flags, window, urp,
+                             options, optlen, data, datalen);
+}
+
+/* Send an echo probe. This takes care of decoys and filling in Ethernet
+   addresses if necessary. Used for the IE probes. */
+int HostOsScan::send_icmp_echo_probe(HostOsScanStats *hss,
+                                     u8 tos, bool df, u8 pcode,
+                                     unsigned short id, u16 seq, u16 datalen) {
   u8 *packet = NULL;
   u32 packetlen = 0;
   int decoy;
   int res = -1;
+  struct eth_nfo eth, *ethptr;
+
+  ethptr = hss->fill_eth_nfo(&eth, ethsd);
 
   for(decoy = 0; decoy < o.numdecoys; decoy++) {
-    packet = build_icmp_raw(&o.decoys[decoy], victim,
+    packet = build_icmp_raw(&o.decoys[decoy], hss->target->v4hostip(),
     			    o.ttl, get_random_u16(), tos, df,
     			    NULL, 0,
     			    seq, id, ICMP_ECHO, pcode,
     			    NULL, datalen, &packetlen);
     if(!packet) return -1;
-    res = send_ip_packet(sd, eth, packet, packetlen);
+    res = send_ip_packet(rawsd, ethptr, packet, packetlen);
     free(packet);
     if(res==-1) return -1;
   }
@@ -3022,9 +3077,10 @@ int send_icmp_echo_probe(int sd, struct eth_nfo *eth,
   return 0;
 }
 
-int send_closedudp_probe(struct udpprobeinfo &upi, int sd,
-                         struct eth_nfo *eth,  const struct in_addr *victim,
-                         int ttl, u16 sport, u16 dport) {
+/* Send a UDP probe. This takes care of decoys and filling in Ethernet
+   addresses if necessary. Used for the U1 probe. */
+int HostOsScan::send_closedudp_probe(HostOsScanStats *hss,
+                                     int ttl, u16 sport, u16 dport) {
   static int myttl = 0;
   static u8 patternbyte = 0x43; /* character 'C' */
   static u16 id = 0x1042; 
@@ -3037,6 +3093,9 @@ int send_closedudp_probe(struct udpprobeinfo &upi, int sd,
   unsigned short realcheck; /* the REAL checksum */
   int res;
   int decoy;
+  struct eth_nfo eth, *ethptr;
+
+  ethptr = hss->fill_eth_nfo(&eth, ethsd);
 
   /* if (!patternbyte) patternbyte = (get_random_uint() % 60) + 65; */
   memset(data, patternbyte, datalen);
@@ -3050,7 +3109,7 @@ int send_closedudp_probe(struct udpprobeinfo &upi, int sd,
   }
 
   /* check that required fields are there and not too silly */
-  if ( !victim || !sport || !dport || (!eth && sd < 0)) {
+  if (!sport || !dport) {
     error("%s: One or more of your parameters suck!", __func__);
     return 1;
   }
@@ -3065,7 +3124,7 @@ int send_closedudp_probe(struct udpprobeinfo &upi, int sd,
     udp->uh_ulen = htons(8 + datalen);
 
     /* OK, now we should be able to compute a valid checksum */
-    realcheck = magic_tcpudp_cksum(source, victim, IPPROTO_UDP,
+    realcheck = magic_tcpudp_cksum(source, hss->target->v4hostip(), IPPROTO_UDP,
 				   sizeof(struct udp_hdr) + datalen, (char *) udp);
 #if STUPID_SOLARIS_CHECKSUM_BUG
     udp->uh_sum = sizeof(struct udp_hdr) + datalen;
@@ -3081,27 +3140,27 @@ int send_closedudp_probe(struct udpprobeinfo &upi, int sd,
     ip->ip_ttl = myttl;
     ip->ip_p = IPPROTO_UDP;
     ip->ip_src.s_addr = source->s_addr;
-    ip->ip_dst.s_addr= victim->s_addr;
+    ip->ip_dst.s_addr= hss->target->v4hostip()->s_addr;
   
-    upi.ipck = in_cksum((unsigned short *)ip, sizeof(struct ip));
+    hss->upi.ipck = in_cksum((unsigned short *)ip, sizeof(struct ip));
 #if HAVE_IP_IP_SUM
-    ip->ip_sum = upi.ipck;
+    ip->ip_sum = hss->upi.ipck;
 #endif
   
     /* OK, now if this is the real she-bang (ie not a decoy) then
        we stick all the inph0 in our upi */
     if (decoy == o.decoyturn) {   
-      upi.iptl = 28 + datalen;
-      upi.ipid = id;
-      upi.sport = sport;
-      upi.dport = dport;
-      upi.udpck = realcheck;
-      upi.udplen = 8 + datalen;
-      upi.patternbyte = patternbyte;
-      upi.target.s_addr = ip->ip_dst.s_addr;
+      hss->upi.iptl = 28 + datalen;
+      hss->upi.ipid = id;
+      hss->upi.sport = sport;
+      hss->upi.dport = dport;
+      hss->upi.udpck = realcheck;
+      hss->upi.udplen = 8 + datalen;
+      hss->upi.patternbyte = patternbyte;
+      hss->upi.target.s_addr = ip->ip_dst.s_addr;
     }
   
-    if ((res = send_ip_packet(sd, eth, packet, ntohs(ip->ip_len))) == -1)
+    if ((res = send_ip_packet(rawsd, ethptr, packet, ntohs(ip->ip_len))) == -1)
       {
         gh_perror("send_ip_packet in %s", __func__);
         return 1;
