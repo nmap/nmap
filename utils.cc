@@ -351,7 +351,7 @@ int Send(int sd, const void *msg, size_t len, int flags) {
   unsigned int sentlen = 0;
 
   do {
-    res = send(sd,(char *) msg + sentlen, len - sentlen, 0);
+    res = send(sd,(char *) msg + sentlen, len - sentlen, flags);
     if (res > 0)
       sentlen += res;
   } while(sentlen < len && (res != -1 || socket_errno() == EINTR));
