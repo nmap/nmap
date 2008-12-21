@@ -186,7 +186,9 @@ void Target::FreeInternal() {
     Called when the IP changes */
 void Target::GenerateIPString() {
   struct sockaddr_in *sin = (struct sockaddr_in *) &targetsock;
+#if HAVE_IPV6
   struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) &targetsock;
+#endif
 
   if (inet_ntop(sin->sin_family, (sin->sin_family == AF_INET)? 
                 (char *) &sin->sin_addr : 
