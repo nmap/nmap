@@ -287,8 +287,7 @@ int send_rpc_query(Target *target_host, unsigned short portno,
     if ((tcp_rpc_socket = socket(sock.ss_family, SOCK_STREAM, IPPROTO_TCP)) == -1)
       pfatal("Socket troubles in %s", __func__);
     /* I should unblock the socket here and timeout the connect() */
-    res = connect(tcp_rpc_socket, (struct sockaddr *) &sock, 
-		  sizeof(struct sockaddr_storage));
+    res = connect(tcp_rpc_socket, (struct sockaddr *) &sock, socklen);
     if (res == -1) {
       if (o.debugging) {
 	gh_perror("Failed to connect to port %d of %s in %s",
@@ -329,7 +328,7 @@ int send_rpc_query(Target *target_host, unsigned short portno,
       if (o.debugging > 1)
 	hdump((unsigned char *) rpch, sizeof(struct rpc_hdr));
       res = sendto(udp_rpc_socket, (char *)rpch, sizeof(struct rpc_hdr), 0,
-		   (struct sockaddr *) &sock, sizeof(struct sockaddr_storage));
+		   (struct sockaddr *) &sock, socklen);
       if (res == -1)
 	err = socket_errno();
      } while(res == -1 && (err == EINTR || err == ENOBUFS));
