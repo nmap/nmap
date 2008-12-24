@@ -18,7 +18,20 @@ same code) won't show up again.
 ---
 -- @output
 -- Host script results:
--- |_ smb-enum-processes: Idle, _Total, System, wmiprvse, VMwareUser, VMwareTray, smss, csrss, winlogon, services, lsass, logon.scr, spoolsv, msdtc, VMwareService, svchost, alg, explorer
+-- |  smb-enum-processes:  
+-- |  -+-Idle(0)---System(8)---SMSS(140)-+-WINLOGON(160)-+-SERVICES(212)-+-spoolsv(432)
+-- |   |                                 |               |               +-mstask(536)
+-- |   |                                 |               |               +-WinMgmt(592)
+-- |   |                                 |               |               +-svchost(620)
+-- |   |                                 |               |               `-regsvc(1136)
+-- |   |                                 |               `-LSASS(224)
+-- |   |                                 `-CSRSS(164)
+-- |   +-Unknown(296)---explorer(344)-+-firefox(636)---WinRAR(736)
+-- |   |                              +-keyfinder(848)
+-- |   |                              `-CMD(956)
+-- |   +-Unknown(400)---IEXPLORE(1036)
+-- |_  `-Unknown(840)---DRWTSN32(1192)
+-- 
 -- --
 -- Host script results:
 -- |  smb-enum-processes:   
