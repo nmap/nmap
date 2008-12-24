@@ -1030,21 +1030,16 @@ function negotiate_protocol(smb)
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [12]"
 	end
 
-	-- Get the domain as a Unicode string
 	local ch, dummy
 	domain = ""
 	server = ""
 
+	-- Get the domain as a Unicode string
+	-- Note: This can be null, some configurations of Samba leave this off
 	pos, ch, dummy = bin.unpack("<CC", data, pos)
-	if(dummy == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [13]"
-	end
 	while ch ~= nil and ch ~= 0 do
 		domain = domain .. string.char(ch)
 		pos, ch, dummy = bin.unpack("<CC", data, pos)
-		if(dummy == nil) then
-			return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [14]"
-		end
 	end
 
 	-- Get the server name as a Unicode string
