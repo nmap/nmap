@@ -81,6 +81,26 @@ TRANSFER_SYNTAX = string.char(0x04, 0x5d, 0x88, 0x8a, 0xeb, 0x1c, 0xc9, 0x11, 0x
 -- The 'referent_id' value is ignored, as far as I can tell, so this value is passed for it. No, it isn't random. :)
 REFERENT_ID = 0x50414d4e
 
+-- The maximum length of a packet fragment
+MAX_FRAGMENT = 0x800
+
+---The number of SAMR records to pull at once. This was originally 1, but since I've written 
+-- proper fragmentation code, I've successfully done it with 110 users, although I'd be surprised
+-- if you couldn't go a lot higher. I had some issues that I suspect was UNIX truncating packets, 
+-- so I scaled it back. 
+local SAMR_GROUPSIZE = 20
+
+---The number of LSA RIDs to check at once. I've successfully tested with up to about 110. Note that
+-- due to very long message sizes, Wireshark might truncate packets if you have more than 30 together, 
+-- so for debugging, setting this to 30 might be a plan. Like SAMR, I scaled this back due to UNIX
+-- truncation. 
+local LSA_GROUPSIZE  = 20
+
+---The number of consecutive empty groups to stop after. Basically, this means that after 
+-- <code>LSA_MINEMPTY</code> groups of <code>LSA_GROUPSIZE</code> users come back empty, we give
+-- up. Raising this could find more users, but at the expense of more packets. 
+local LSA_MINEMPTY = 10
+
 --- This is a wrapper around the SMB class, designed to get SMB going quickly for MSRPC calls. This will
 --  connect to the SMB server, negotiate the protocol, open a session, connect to the IPC$ share, and
 --  open the named pipe given by 'path'. When this successfully returns, the 'smbstate' table can be immediately 
@@ -180,8 +200,8 @@ function bind(smbstate, interface_uuid, interface_version, transfer_syntax)
 				0x0048,     -- Frag length
 				0x0000,     -- Auth length
 				0x41414141, -- Call ID (I use 'AAAA' because it's easy to recognize)
-				0x10b8,     -- Max transmit frag
-				0x10b8,     -- Max receive frag
+				MAX_FRAGMENT, -- Max transmit frag
+				MAX_FRAGMENT, -- Max receive frag
 				0x00000000, -- Assoc group
 				0x01,       -- Number of items
 				0x00,       -- Padding/alignment
@@ -200,7 +220,12 @@ function bind(smbstate, interface_uuid, interface_version, transfer_syntax)
 				2                  -- Syntax version
 			)
 
-	status, result = smb.send_transaction(smbstate, 0x0026, "", data)
+	status, result = smb.write_file(smbstate, data, 0)
+	if(status ~= true) then
+		return false, result
+	end
+
+	status, result = smb.read_file(smbstate, 0, MAX_FRAGMENT)
 	if(status ~= true) then
 		return false, result
 	end
@@ -213,6 +238,9 @@ function bind(smbstate, interface_uuid, interface_version, transfer_syntax)
 
 	-- Extract the first part from the resposne
 	pos, result['version_major'], result['version_minor'], result['packet_type'], result['packet_flags'], result['data_representation'], result['frag_length'], result['auth_length'], result['call_id'] = bin.unpack("<CCCC>I<SSI", data)
+	if(result['call_id'] == nil) then
+		return false, "MSRPC: ERROR: Ran off the end of SMB packet; likely due to server truncation"
+	end
 
 	-- Check if the packet tyep was a fault
 	if(result['packet_type'] == 0x03) then -- MSRPC_FAULT
@@ -241,13 +269,22 @@ function bind(smbstate, interface_uuid, interface_version, transfer_syntax)
 
 	-- If we made it this far, then we have a valid Bind() result. Pull out some more parameters. 
 	pos, result['max_transmit_frag'], result['max_receive_frag'], result['assoc_group'], result['secondary_address_length'] = bin.unpack("SSIS", data, pos)
+	if(result['secondary_address_length'] == nil) then
+		return false, "MSRPC: ERROR: Ran off the end of SMB packet; likely due to server truncation"
+	end
 
 	-- Read the secondary address
 	pos, result['secondary_address'] = bin.unpack(string.format("<A%d", result['secondary_address_length']), data, pos)
+	if(result['secondary_address'] == nil) then
+		return false, "MSRPC: ERROR: Ran off the end of SMB packet; likely due to server truncation"
+	end
 	pos = pos + ((4 - ((pos - 1) % 4)) % 4); -- Alignment -- don't ask how I came up with this, it was a lot of drawing, and there's probably a far better way
 
 	-- Read the number of results
 	pos, result['num_results'] = bin.unpack("<C", data, pos)
+	if(result['num_results'] == nil) then
+		return false, "MSRPC: ERROR: Ran off the end of SMB packet; likely due to server truncation"
+	end
 	pos = pos + ((4 - ((pos - 1) % 4)) % 4); -- Alignment
 
 	-- Verify we got back what we expected
@@ -257,6 +294,9 @@ function bind(smbstate, interface_uuid, interface_version, transfer_syntax)
 
 	-- Read in the last bits
 	pos, result['ack_result'], result['align'], result['transfer_syntax'], result['syntax_version'] = bin.unpack("<SSA16I", data, pos)
+	if(result['syntax_version'] == nil) then
+		return false, "MSRPC: ERROR: Ran off the end of SMB packet; likely due to server truncation"
+	end
 
 	return true, result
 end
@@ -275,13 +315,17 @@ end
 --@param opnum     The operating number (ie, the function). Find this in the MSRPC documentation or with a packet logger. 
 --@param arguments The marshalled arguments to pass to the function. Currently, marshalling is all done manually. 
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
---        useful one being 'arguments', which are the values returned by the server. 
+--        useful one being 'arguments', which are the values returned by the server. If the packet is fragmented, the fragments
+--        will be reassembled and 'arguments' will represent all the arguments; however, the rest of the result table will represent
+--        the most recent fragment. 
 local function call_function(smbstate, opnum, arguments)
 	local i
 	local status, result
 	local parameters, data
 	local pos, align
 	local result
+	local first = true
+	local is_first, is_last
 
 	data = bin.pack("<CCCC>I<SSIISSA",
 				0x05,        -- Version (major)
@@ -301,47 +345,79 @@ local function call_function(smbstate, opnum, arguments)
 	stdnse.print_debug(3, "MSRPC: Calling function 0x%02x with %d bytes of arguments", string.len(arguments), opnum)
 
 	-- Pass the information up to the smb layer
-	status, result = smb.send_transaction(smbstate, 0x0026, "", data)
+	status, result = smb.write_file(smbstate, data, 0)
 	if(status ~= true) then
 		return false, result
 	end
 
-	-- Make these easier to access. 
-	parameters = result['parameters']
-	data       = result['data']
+	-- Loop over the fragments
+	local arguments = ""
+	repeat
+		-- Read the information from the smb layer
+		status, result = smb.read_file(smbstate, 0, 0x1001)
+		if(status ~= true) then
+			return false, result
+		end
+	
+		-- Make these easier to access. 
+		parameters = result['parameters']
+		data       = result['data']
+	
+		-- Extract the first part from the resposne
+		pos, result['version_major'], result['version_minor'], result['packet_type'], result['packet_flags'], result['data_representation'], result['frag_length'], result['auth_length'], result['call_id'] = bin.unpack("<CCCC>I<SSI", data)
+		if(result['call_id'] == nil) then
+			return false, "MSRPC: ERROR: Ran off the end of SMB packet; likely due to server truncation"
+		end
 
-	-- Extract the first part from the resposne
-	pos, result['version_major'], result['version_minor'], result['packet_type'], result['packet_flags'], result['data_representation'], result['frag_length'], result['auth_length'], result['call_id'] = bin.unpack("<CCCC>I<SSI", data)
+		-- Check if we're fragmented
+		is_first = (bit.band(result['packet_flags'], 0x01) == 0x01)
+		is_last  = (bit.band(result['packet_flags'], 0x02) == 0x02)
 
-	-- Check if there was an error
-	if(result['packet_type'] == 0x03) then -- MSRPC_FAULT
-		return false, "MSRPC call returned a fault (packet type)"
-	end
-	if(bit.band(result['packet_flags'], 0x20) == 0x20) then
-		return false, "MSRPC call returned a fault (flags)"
-	end
-	if(result['auth_length'] ~= 0) then
-		return false, "MSRPC call returned an 'auth length', which we don't know how to deal with"
-	end
-	if(bit.band(result['packet_flags'], 0x03) ~= 0x03) then
-		return false, "MSRPC call returned a fragmented packet, which we don't know how to handle"
-	end
-	if(result['packet_type'] ~= 0x02) then
-		return false, "MSRPC call returned an unexpected packet type (not RESPONSE)"
-	end
-	if(result['call_id'] ~= 0x41414141) then
-		return false, "MSRPC call returned an incorrect 'call_id' value"
-	end
+		-- We have a fragmented packet, make sure it's the first (if we're on the first)
+		if(first == true and is_first == false) then
+			return false, "MSRPC: First fragment doesn't have proper 'first' (0x01) flag set"
+		end
 
-	-- Extract some more
-	pos, result['alloc_hint'], result['context_id'], result['cancel_count'], align = bin.unpack("<ISCC", data, pos)
+		-- We have a fragmented packet, make sure it isn't the first (if we aren't on the first)
+		if(first == false and is_first) then
+			return false, "MSRPC: Middle (or last) fragment doesn't have proper 'first' (0x01) flag set"
+		end
 
-	-- Rest is the arguments
-	result['arguments'] = string.sub(data, pos)
+		-- Check if there was an error
+		if(result['packet_type'] == 0x03) then -- MSRPC_FAULT
+			return false, "MSRPC call returned a fault (packet type)"
+		end
+		if(bit.band(result['packet_flags'], 0x20) == 0x20) then
+			return false, "MSRPC call returned a fault (flags)"
+		end
+		if(result['auth_length'] ~= 0) then
+			return false, "MSRPC call returned an 'auth length', which we don't know how to deal with"
+		end
+		if(result['packet_type'] ~= 0x02) then
+			return false, "MSRPC call returned an unexpected packet type (not RESPONSE)"
+		end
+		if(result['call_id'] ~= 0x41414141) then
+			return false, "MSRPC call returned an incorrect 'call_id' value"
+		end
+	
+		-- Extract some more
+		pos, result['alloc_hint'], result['context_id'], result['cancel_count'], align = bin.unpack("<ISCC", data, pos)
+		if(align == nil) then
+			return false, "MSRPC: ERROR: Ran off the end of SMB packet; likely due to server truncation"
+		end
+
+		-- Rest is the arguments
+		arguments = arguments .. string.sub(data, pos)
+
+		-- No longer the 'first'
+		first = false
+	until is_last == true
+
+	result['arguments'] = arguments
+
 	stdnse.print_debug(3, "MSRPC: Function call successful, %d bytes of returned argumenst", string.len(result['arguments']))
 
 	return true, result
-
 end
 
 ---A proxy to a <code>msrpctypes</code> function that converts a ShareType to an english string. 
@@ -1054,15 +1130,20 @@ end
 --@param smbstate       The SMB state table
 --@param domain_handle  The domain handle, returned by <code>samr_opendomain</code>
 --@param index          The index of the user to check; the first user is 0, next is 1, etc.
+--@param count          [optional] The number of users to return; you may want to be careful about going too high. Default: 1. 
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful ones being 'names', a list of all the usernames, and 'details', a further list of tables with the elements
 --        'name', 'fullname', and 'description' (note that any of them can be nil if the server didn't return a value). Finally,
 --        'flags' is the numeric flags for the user, while 'flags_list' is an array of strings, representing the flags.
-function samr_querydisplayinfo(smbstate, domain_handle, index)
+function samr_querydisplayinfo(smbstate, domain_handle, index, count)
 	local i, j
 	local status, result
 	local arguments
 	local pos, align
+
+	if(count == nil) then
+		count = 1
+	end
 
 	-- This loop is because, in my testing, if I asked for all the results at once, it would blow up (ERR_BUFFER_OVERFLOW). So, instead,
 	-- I put a little loop here and grab the names individually. 
@@ -1078,10 +1159,10 @@ function samr_querydisplayinfo(smbstate, domain_handle, index)
 	arguments = arguments .. msrpctypes.marshall_int32(index)
 
 --		[in]        uint32 max_entries,
-	arguments = arguments .. msrpctypes.marshall_int32(1)
+	arguments = arguments .. msrpctypes.marshall_int32(count)
 
 --		[in]        uint32 buf_size,
-	arguments = arguments .. msrpctypes.marshall_int32(0)
+	arguments = arguments .. msrpctypes.marshall_int32(0x7FFFFFFF)
 
 --		[out]       uint32 total_size,
 --		[out]       uint32 returned_size,
@@ -1110,7 +1191,6 @@ function samr_querydisplayinfo(smbstate, domain_handle, index)
 
 --		[out]       uint32 returned_size,
 	pos, result['returned_size'] = msrpctypes.unmarshall_int32(arguments, pos)
-
 --		[out,switch_is(level)] samr_DispInfo info
 	pos, result['info'] = msrpctypes.unmarshall_samr_DispInfo(arguments, pos)
 	if(pos == nil) then
@@ -1966,10 +2046,10 @@ function winreg_queryvalue(smbstate, handle, value)
 	arguments = arguments .. msrpctypes.marshall_winreg_Type_ptr("REG_NONE")
 
 --		[in,out,size_is(*size),length_is(*length)] uint8 *data,
-	arguments = arguments .. msrpctypes.marshall_int8_array_ptr("", 520)
+	arguments = arguments .. msrpctypes.marshall_int8_array_ptr("", 1000000)
 
 --		[in,out] uint32 *size,
-	arguments = arguments .. msrpctypes.marshall_int32_ptr(520)
+	arguments = arguments .. msrpctypes.marshall_int32_ptr(1000000)
 
 --		[in,out] uint32 *length
 	arguments = arguments .. msrpctypes.marshall_int32_ptr(0)
@@ -1991,9 +2071,7 @@ function winreg_queryvalue(smbstate, handle, value)
 --		[in,ref] policy_handle *handle,
 --		[in] winreg_String value_name,
 --		[in,out] winreg_Type *type,
-	pos, 
-	pos = pos + 4
-	pos, result['type'] = msrpctypes.unmarshall_winreg_Type(arguments, pos)
+	pos, result['type'] = msrpctypes.unmarshall_winreg_Type_ptr(arguments, pos)
 
 --		[in,out,size_is(*size),length_is(*length)] uint8 *data,
 	pos, result['data'] = msrpctypes.unmarshall_int8_array_ptr(arguments, pos)
@@ -2004,6 +2082,8 @@ function winreg_queryvalue(smbstate, handle, value)
 			_, result['value'] = bin.unpack("<I", result['data'])
 		elseif(result['type'] == "REG_SZ" or result['type'] == "REG_MULTI_SZ" or result['type'] == "REG_EXPAND_SZ") then
 			_, result['value'] = msrpctypes.unicode_to_string(result['data'], 1, #result['data'] / 2)
+		elseif(result['type'] == "REG_BINARY") then
+			result['value'] = result['data']
 		else
 			stdnse.print_debug("MSRPC ERROR: Unknown type: %s\n\n", result['type'])
 			result['value'] = result['type']
@@ -2019,6 +2099,7 @@ function winreg_queryvalue(smbstate, handle, value)
 	pos, result['length'] = msrpctypes.unmarshall_int32_ptr(arguments, pos)
 
 	pos, result['return'] = msrpctypes.unmarshall_int32(arguments, pos)
+
 	if(result['return'] == nil) then
 		return false, "Read off the end of the packet (winreg.queryvalue)"
 	end
@@ -2074,4 +2155,349 @@ function winreg_closekey(smbstate, handle)
 
 	return true, result
 end
- 
+
+---Attempt to enumerate users using SAMR functions. 
+--
+--@param host The host object. 
+--@return (status, result) If status is false, result is an error message. Otherwise, result
+-- is an array of tables, each of which contain the following fields:
+-- * name
+-- * fullname
+-- * description
+-- * rid
+-- * domain
+-- * typestr
+-- * source
+-- * flags[]
+function samr_enum_users(host)
+	local i, j
+
+	stdnse.print_debug(3, "Entering enum_samr()")
+
+	local smbstate
+	local bind_result, connect4_result, enumdomains_result
+	local connect_handle
+	local status, smbstate
+	local response = {}
+
+	-- Create the SMB session
+	status, smbstate = msrpc.start_smb(host, msrpc.SAMR_PATH)
+
+	if(status == false) then
+		return false, smbstate
+	end
+
+	-- Bind to SAMR service
+	status, bind_result = msrpc.bind(smbstate, msrpc.SAMR_UUID, msrpc.SAMR_VERSION, nil)
+	if(status == false) then
+		msrpc.stop_smb(smbstate)
+		return false, bind_result
+	end
+
+	-- Call connect4()
+	status, connect4_result = msrpc.samr_connect4(smbstate, host.ip)
+	if(status == false) then
+		msrpc.stop_smb(smbstate)
+		return false, connect4_result
+	end
+
+	-- Save the connect_handle
+	connect_handle = connect4_result['connect_handle']
+
+	-- Call EnumDomains()
+	status, enumdomains_result = msrpc.samr_enumdomains(smbstate, connect_handle)
+	if(status == false) then
+		msrpc.stop_smb(smbstate)
+		return false, enumdomains_result
+	end
+
+	-- If no domains were returned, go back with an error
+	if(#enumdomains_result['sam']['entries'] == 0) then
+		msrpc.stop_smb(smbstate)
+		return false, "Couldn't find any domains"
+	end
+
+	-- Now, loop through the domains and find the users
+	for i = 1, #enumdomains_result['sam']['entries'], 1 do
+
+		local domain = enumdomains_result['sam']['entries'][i]['name']
+		-- We don't care about the 'builtin' domain, in all my tests it's empty
+		if(domain ~= 'Builtin') then
+			local sid
+			local domain_handle
+			local opendomain_result, querydisplayinfo_result
+
+			-- Call LookupDomain()
+			status, lookupdomain_result = msrpc.samr_lookupdomain(smbstate, connect_handle, domain)
+			if(status == false) then
+				msrpc.stop_smb(smbstate)
+				return false, lookupdomain_result
+			end
+
+			-- Save the sid
+			sid = lookupdomain_result['sid']
+	
+			-- Call OpenDomain()
+			status, opendomain_result = msrpc.samr_opendomain(smbstate, connect_handle, sid)
+			if(status == false) then
+				msrpc.stop_smb(smbstate)
+				return false, opendomain_result
+			end
+
+			-- Save the domain handle
+			domain_handle = opendomain_result['domain_handle']
+
+			-- Loop as long as we're getting valid results	
+			j = 0
+			repeat
+				-- Call QueryDisplayInfo()
+				status, querydisplayinfo_result = msrpc.samr_querydisplayinfo(smbstate, domain_handle, j, SAMR_GROUPSIZE)
+				if(status == false) then
+					msrpc.stop_smb(smbstate)
+					return false, querydisplayinfo_result
+				end
+
+				-- Save the response
+				if(querydisplayinfo_result['info'] ~= nil and querydisplayinfo_result['info']['entries'] ~= nil) then
+					local k
+					for k = 1, #querydisplayinfo_result['info']['entries'], 1 do
+						local array = {}
+						local l
+	
+						-- The reason these are all indexed from '1' is because we request names one at a time. 
+						array['name']        = querydisplayinfo_result['info']['entries'][k]['account_name']
+						array['fullname']    = querydisplayinfo_result['info']['entries'][k]['full_name']
+						array['description'] = querydisplayinfo_result['info']['entries'][k]['description']
+						array['rid']         = querydisplayinfo_result['info']['entries'][k]['rid']
+						array['domain']      = domain
+						array['type']        = 'SID_NAME_USER'
+						array['typestr']     = 'User'
+						array['source']      = 'SAMR Enumeration'
+						array['flags']       = querydisplayinfo_result['info']['entries'][k]['acct_flags']
+
+						-- Convert each element in the 'flags' array into the equivalent string
+						for l = 1, #array['flags'], 1 do
+							array['flags'][l] = msrpc.samr_AcctFlags_tostr(array['flags'][l])
+						end
+	
+						-- Add it to the array
+						response[#response + 1] = array
+					end
+				end
+				j = j + SAMR_GROUPSIZE
+			until querydisplayinfo_result['return'] == 0
+
+			-- Close the domain handle
+			msrpc.samr_close(smbstate, domain_handle)
+		end -- Checking for 'builtin'
+	end -- Domain loop
+
+	-- Close the connect handle
+	msrpc.samr_close(smbstate, connect_handle)
+
+	-- Stop the SAMR SMB
+	msrpc.stop_smb(smbstate)
+
+	stdnse.print_debug(3, "Leaving enum_samr()")
+
+	return true, response
+end
+
+---Attempt to enumerate users using LSA functions.
+--
+--@param host The host object. 
+--@return status, result -- if status is false, result is an error message; otherwise, result is 
+--        an array of tables, each containing the following elements:
+-- * name
+-- * rid
+-- * domain
+-- * typestr
+-- * source
+function lsa_enum_users(host)
+
+	local smbstate
+	local response = {}
+	local status, smbstate, bind_result, openpolicy2_result, lookupnames2_result, lookupsids2_result
+
+	stdnse.print_debug(3, "Entering enum_lsa()")
+
+	-- Create the SMB session
+	status, smbstate = msrpc.start_smb(host, msrpc.LSA_PATH)
+	if(status == false) then
+		return false, smbstate
+	end
+
+	-- Bind to LSA service
+	status, bind_result = msrpc.bind(smbstate, msrpc.LSA_UUID, msrpc.LSA_VERSION, nil)
+	if(status == false) then
+		msrpc.stop_smb(smbstate)
+		return false, bind_result
+	end
+
+	-- Open the LSA policy
+	status, openpolicy2_result = msrpc.lsa_openpolicy2(smbstate, host.ip)
+	if(status == false) then
+		msrpc.stop_smb(smbstate)
+		return false, openpolicy2_result
+	end
+
+	-- Start with some common names, as well as the name returned by the negotiate call
+	-- Vista doesn't like a 'null' after the server name, so fix that (TODO: the way I strip the null here feels hackish, is there a better way?)
+	names = {"administrator", "guest", "test", smbstate['domain'], string.sub(smbstate['server'], 1, #smbstate['server'] - 1) }
+
+	-- Get the server's name from nbstat
+	local result, server_name = netbios.get_server_name(host.ip)
+	if(result == true) then
+		names[#names + 1] = server_name
+	end
+
+	-- Get the logged in user from nbstat
+	local result, user_name = netbios.get_user_name(host.ip)
+	if(result == true) then
+		names[#names + 1] = user_name
+	end
+
+	-- Look up the names, if any are valid than the server's SID will be returned
+	status, lookupnames2_result = msrpc.lsa_lookupnames2(smbstate, openpolicy2_result['policy_handle'], names)
+	if(status == false) then
+		msrpc.stop_smb(smbstate)
+		return false, lookupnames2_result
+	end
+	-- Loop through the domains returned and find the users in each
+	for i = 1, #lookupnames2_result['domains']['domains'], 1 do
+		local domain = lookupnames2_result['domains']['domains'][i]['name']
+		local sid	= lookupnames2_result['domains']['domains'][i]['sid']
+		local sids   = { }
+
+		-- Start by looking up 500 and up
+		for j = 500, 500 + LSA_GROUPSIZE, 1 do 
+			sids[#sids + 1] = sid .. "-" .. j 
+		end
+
+		status, lookupsids2_result = msrpc.lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], sids)
+		if(status == false) then
+			stdnse.print_debug(1, string.format("Error looking up RIDs: %s", lookupsids2_result))
+		else
+			-- Put the details for each name into an array
+			-- NOTE: Be sure to mirror any changes here in the next bit! 
+			for j = 1, #lookupsids2_result['names']['names'], 1 do
+				if(lookupsids2_result['names']['names'][j]['sid_type'] ~= "SID_NAME_UNKNOWN") then
+					local result = {}
+					result['name']    = lookupsids2_result['names']['names'][j]['name']
+					result['rid']	  = 500 + j - 1
+					result['domain']  = domain
+					result['type']    = lookupsids2_result['names']['names'][j]['sid_type']
+					result['typestr'] = msrpc.lsa_SidType_tostr(result['type'])
+					result['source']  = "LSA Bruteforce"
+					table.insert(response, result)
+				end
+			end
+		end
+
+		-- Start at RID 1000
+		local start      = 1000
+		-- Keep track of the number of consecutive empty groups
+		local empty      = 0
+		repeat
+			-- Keep track of the number of names we found in this group
+			local used_names = 0
+
+			local sids = {}
+			for j = start, start + LSA_GROUPSIZE, 1 do 
+				sids[#sids + 1] = sid .. "-" .. j
+			end
+
+			-- Try converting this group of RIDs into names
+			status, lookupsids2_result = msrpc.lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], sids)
+			if(status == false) then
+				stdnse.print_debug(1, string.format("Error looking up RIDs: %s", lookupsids2_result))
+			else
+				-- Put the details for each name into an array
+				for j = 1, #lookupsids2_result['names']['names'], 1 do
+					if(lookupsids2_result['names']['names'][j]['sid_type'] ~= "SID_NAME_UNKNOWN") then
+						local result = {}
+						result['name']    = lookupsids2_result['names']['names'][j]['name']
+						result['rid']	  = start + j - 1
+						result['domain']  = domain
+						result['type']    = lookupsids2_result['names']['names'][j]['sid_type']
+						result['typestr'] = msrpc.lsa_SidType_tostr(result['type'])
+						result['source']  = "LSA Bruteforce"
+						table.insert(response, result)
+
+						-- Increment the number of names we've found
+						used_names = used_names + 1
+					end
+				end
+			end
+
+
+			-- Either increment or reset the number of empty groups
+			if(used_names == 0) then
+				empty = empty + 1
+			else
+				empty = 0
+			end
+
+			-- Go to the next set of RIDs
+			start = start + LSA_GROUPSIZE
+		until (status == false or (empty == LSA_MINEMPTY))
+	end
+
+	-- Close the handle
+	msrpc.lsa_close(smbstate, openpolicy2_result['policy_handle'])
+
+	msrpc.stop_smb(smbstate)
+
+	stdnse.print_debug(3, "Leaving enum_lsa()")
+
+	return true, response
+end
+
+---Gets the best possible list of user accounts on the remote system using every available method. 
+--
+-- TODO: Caching, store this in the registry
+--
+--@param host The host object. 
+--@return (status, result, names) If status is false, result is an error message; otherwise, result
+--        is an array of users indexed by username and names is a sorted array of names. 
+function get_user_list(host)
+	local status_samr, result_samr
+	local status_lsa,  result_lsa
+	local response = {}
+	local names = {}
+	local i, v
+
+	status_lsa,  result_lsa  = lsa_enum_users(host)
+	if(status_lsa == false) then
+		stdnse.print_debug("MSRPC: Failed to enumerate users through LSA: %s", result_lsa)
+	else
+		for i = 1, #result_lsa, 1 do
+			if(result_lsa[i]['name'] ~= nil and result_lsa[i]['type'] == "SID_NAME_USER") then
+				response[result_lsa[i]['domain'] .. '\\' .. result_lsa[i]['name']] = result_lsa[i]
+			end
+		end
+	end
+
+	status_samr, result_samr = samr_enum_users(host)
+	if(status_samr == false) then
+		stdnse.print_debug("MSRPC: Failed to enumerate users through SAMR: %s", result_samr)
+	else
+		for i = 1, #result_samr, 1 do
+			if(result_samr[i]['name'] ~= nil and result_samr[i]['type'] == "SID_NAME_USER") then
+				response[result_samr[i]['domain'] .. '\\' .. result_samr[i]['name']] = result_samr[i]
+			end
+		end
+	end
+
+	if(status_samr == false and status_lsa == false) then
+		return false, "MSRPC: Couldn't enumerate users; see debug output for more information"
+	end
+
+	for i, v in pairs(response) do
+		table.insert(names, i)
+	end
+	table.sort(names, function(a,b) return a:lower() < b:lower() end )
+
+	return true, response, names
+end
+

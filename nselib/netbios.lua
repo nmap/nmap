@@ -353,6 +353,9 @@ function do_nbstat(host)
 			rrlength = rrlength - 18
 		end
 
+		if(rrlength > 0) then
+			rrlength = rrlength - 1
+		end
 		pos, statistics = bin.unpack(string.format(">A%d", rrlength), result, pos)
 
 		-- Put it in the registry, in case anybody else needs it

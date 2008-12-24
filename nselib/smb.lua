@@ -66,9 +66,9 @@
 -- If that's successful, <code>SMB_COM_SESSION_SETUP_ANDX</code> is sent. It is essentially the logon
 -- packet, where the username, domain, and password are sent to the server for verification. 
 -- The username and password are generally picked up from the program parameters, which are
--- set when running a script, or from the registry [TODO: Where?], which are set by other 
--- scripts. However, they can also be passed as parameters to the function, which will 
--- override any other username/password set. 
+-- set when running a script, or from the registry (<code>nmap.registry[<ip>]['smbaccounts'])
+-- where it can be set by other scripts (for example, smb-brute.nse). However, they can also 
+-- be passed as parameters to the function, which will override any other username/password set. 
 --
 -- If a username is set without a password, then a NULL session is started. If a login fails,
 -- we attempt to log in as the 'GUEST' account with a blank password. If that fails, we try
@@ -151,6 +151,8 @@ status_names = {}
 local mutexes = setmetatable({}, {__mode = "k"});
 --local debug_mutex = nmap.mutex("SMB-DEBUG")
 
+local TIMEOUT = 5000
+
 ---Returns the mutex that should be used by the current connection. This mutex attempts
 -- to use the name, first, then falls back to the IP if no name was returned. 
 --
@@ -220,7 +222,7 @@ end
 function get_status_name(status)
 
 	if(status_names[status] == nil) then
-		-- If the name wasn't found in the array, do a linear search on it (TODO: Why is this happening??)
+		-- If the name wasn't found in the array, do a linear search on it (TODO: Why is this happening??) (XXX: I think I fixed this)
 		for i, v in pairs(status_names) do
 			if(v == status) then
 				return i
@@ -380,6 +382,7 @@ function start_raw(host, port)
 	local status, err
 	local socket = nmap.new_socket()
 
+	socket:set_timeout(TIMEOUT)
 	status, err = socket:connect(host.ip, port, "tcp")
 
 	if(status == false) then
@@ -486,6 +489,7 @@ function start_netbios(host, port, name)
 				);
 
 		stdnse.print_debug(3, "SMB: Connecting to %s", host.ip)
+		socket:set_timeout(TIMEOUT)
 		status, err = socket:connect(host.ip, port, "tcp")
 		if(status == false) then
 			socket:close()
@@ -499,7 +503,7 @@ function start_netbios(host, port, name)
 			socket:close()
 			return false, "SMB: Failed to send: " .. err
 		end
-		socket:set_timeout(5000)
+		socket:set_timeout(TIMEOUT)
 	
 		-- Receive the session response
 		stdnse.print_debug(3, "SMB: Receiving NetBIOS session response")
@@ -509,6 +513,9 @@ function start_netbios(host, port, name)
 			return false, "SMB: Failed to close socket: " .. result
 		end
 		pos, result, flags, length = bin.unpack(">CCS", result)
+		if(length == nil) then
+			return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [1]"
+		end
 	
 		-- Check for a position session response (0x82)
 		if result == 0x82 then
@@ -747,6 +754,11 @@ local function smb_encode_header(smb, command)
 	-- the server that we deal in ASCII. 
 	local flags2 = bit.bor(0x4000, 0x0040, 0x0001) -- SMB_FLAGS2_32BIT_STATUS | SMB_FLAGS2_IS_LONG_NAME | SMB_FLAGS2_KNOWS_LONG_NAMES
 
+	-- TreeID should never ever be 'nil', but it seems to happen once in awhile so print an error
+	if(smb['tid'] == nil) then
+		return false, string.format("SMB: ERROR: TreeID value was set to nil on host %s", smb['ip'])
+	end
+
 	local header = bin.pack("<CCCCCICSSLSSSSS",
 				sig:byte(1),  -- Header
 				sig:byte(2),  -- Header
@@ -824,10 +836,10 @@ function smb_read(smb)
 	local status, result
 	local pos, netbios_length, length, header, parameter_length, parameters, data_length, data
 
+	stdnse.print_debug(3, "SMB: Receiving SMB packet")
+
 	-- Receive the response -- we make sure to receive at least 4 bytes, the length of the NetBIOS length
-	-- [TODO] set the timeout length per jah's strategy:
-	--   http://seclists.org/nmap-dev/2008/q3/0702.html
-	smb['socket']:set_timeout(5000)
+	smb['socket']:set_timeout(TIMEOUT)
 	status, result = smb['socket']:receive_bytes(4);
 
 	-- Make sure the connection is still alive
@@ -839,7 +851,7 @@ function smb_read(smb)
 	-- The NetBIOS header is 24 bits, big endian
 	pos, netbios_length   = bin.unpack(">I", result)
 	if(netbios_length == nil) then
-		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [1]"
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [2]"
 	end
 	-- Make the length 24 bits
 	netbios_length = bit.band(netbios_length, 0x00FFFFFF)
@@ -850,10 +862,9 @@ function smb_read(smb)
 	-- If we haven't received enough bytes, try and get the rest (fragmentation!)
 	if(#result < length) then
 		local new_result
-		status, new_result = smb['socket']:receive_bytes(netbios_length)
-
 		stdnse.print_debug(1, "SMB: Received a fragmented packet, attempting to receive the rest of it (got %d bytes, need %d)", #result, length)
 
+		status, new_result = smb['socket']:receive_bytes(netbios_length - #result)
 		-- Make sure the connection is still alive
 		if(status ~= true) then
 			return false, "SMB: Failed to receive bytes: " .. result
@@ -872,31 +883,31 @@ function smb_read(smb)
 	-- The header is 32 bytes.
 	pos, header   = bin.unpack("<A32", result, pos)
 	if(header == nil) then
-		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [2]"
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [3]"
 	end
 
 	-- The parameters length is a 1-byte value.
 	pos, parameter_length = bin.unpack("<C",     result, pos)
 	if(parameter_length == nil) then
-		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [3]"
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [4]"
 	end
 
 	-- Double the length parameter, since parameters are two-byte values. 
 	pos, parameters       = bin.unpack(string.format("<A%d", parameter_length*2), result, pos)
 	if(parameters == nil) then
-		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [4]"
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [5]"
 	end
 
 	-- The data length is a 2-byte value. 
 	pos, data_length      = bin.unpack("<S",     result, pos)
 	if(data_length == nil) then
-		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [5]"
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [6]"
 	end
 
 	-- Read that many bytes of data.
 	pos, data             = bin.unpack(string.format("<A%d", data_length),        result, pos)
 	if(data == nil) then
-		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [6]"
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [7]"
 	end
 
 	stdnse.print_debug(3, "SMB: Received %d bytes", string.len(result))
@@ -967,15 +978,18 @@ function negotiate_protocol(smb)
 
 	-- Check if we fell off the packet (if that happened, the last parameter will be nil)
 	if(mid == nil) then
-		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [7]"
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [8]"
 	end
 
 	-- Parse the parameter section
 	pos, dialect = bin.unpack("<S", parameters)
+	if(dialect == nil) then
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [9]"
+	end
 
 	-- Check if we ran off the packet
 	if(dialect == nil) then
-		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [8]"
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [10]"
 	end
 	-- Check if the server didn't like our requested protocol
 	if(dialect ~= 0) then
@@ -983,7 +997,9 @@ function negotiate_protocol(smb)
 	end
 
 	pos, security_mode, max_mpx, max_vc, max_buffer, max_raw_buffer, session_key, capabilities, time, timezone, key_length = bin.unpack("<CSSIIIILsC", parameters, pos)
-
+	if(capabilities == nil) then
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [11]"
+	end
 	-- Some broken implementations of SMB don't send these variables
 	if(time == nil) then
 		time = 0
@@ -1010,6 +1026,9 @@ function negotiate_protocol(smb)
 	-- Data section
 	-- This one's a little messier, because I don't appear to have unicode support
 	pos, server_challenge = bin.unpack(string.format("<A%d", key_length), data)
+	if(server_challenge == nil) then
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [12]"
+	end
 
 	-- Get the domain as a Unicode string
 	local ch, dummy
@@ -1017,17 +1036,25 @@ function negotiate_protocol(smb)
 	server = ""
 
 	pos, ch, dummy = bin.unpack("<CC", data, pos)
+	if(dummy == nil) then
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [13]"
+	end
 	while ch ~= nil and ch ~= 0 do
 		domain = domain .. string.char(ch)
 		pos, ch, dummy = bin.unpack("<CC", data, pos)
+		if(dummy == nil) then
+			return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [14]"
+		end
 	end
 
 	-- Get the server name as a Unicode string
+	-- Note: This can be nil, Samba leaves this off
 	pos, ch, dummy = bin.unpack("<CC", data, pos)
 	while ch ~= nil and ch ~= 0 do
 		server = server .. string.char(ch)
 		pos, ch, dummy = bin.unpack("<CC", data, pos)
 	end
+
 
 	-- Fill out smb variables
 	smb['security_mode']    = security_mode
@@ -1074,15 +1101,24 @@ end
 ---Determines which username is going to be used, based on the function parameters, the registry, and 
 -- the nmap arguments (in that order).
 --
+--@param ip       The ip address, used when reading from the registry
 --@param username [optional] The function parameter version, which will override all others if set. 
 --@return The highest priority username that's set.
--- TODO: Get username from the registry
-local function get_username(username)
+local function get_username(ip, username)
 
 	if(username ~= nil) then
 		stdnse.print_debug(2, "SMB: Using username passed as a parameter: %s", username)
 	else
-		if(nmap.registry.args.smbusername ~= nil) then
+		if(nmap.registry[ip] ~= nil and nmap.registry[ip]['smbaccounts'] ~= nil and next(nmap.registry[ip]['smbaccounts']) ~= nil) then
+			if(nmap.registry[ip]['smbaccounts']['administrator'] ~= nil) then
+				-- If we found an administrator account, use it first
+				username = "administrator"
+			else
+				-- Otherwise, use whichever is first
+				username, _ = next(nmap.registry[ip]['smbaccounts'])
+			end
+			stdnse.print_debug(2, "SMB: Using username found in the registry: %s", username)
+		elseif(nmap.registry.args.smbusername ~= nil) then
 			username = nmap.registry.args.smbusername
 			stdnse.print_debug(2, "SMB: Using username passed as an nmap parameter (smbusername): %s", username)
 		elseif(nmap.registry.args.smbuser ~= nil) then
@@ -1125,6 +1161,7 @@ end
 --
 -- The output passwords are hashed based on the hash type. 
 --
+--@param ip       The ip address of the host, used for registry lookups. 
 --@param username The username, which is used for v2 passwords. 
 --@param domain The username, which is used for v2 passwords. 
 --@param password [optional] The overriding password. 
@@ -1132,7 +1169,7 @@ end
 --@param challenge The server challenge.
 --@param hash_type The way in which to hash the password. 
 --@return (lm_response, ntlm_response) The two strings that can be sent directly back to the server. 
-local function get_password_response(username, domain, password, password_hash, challenge, hash_type)
+local function get_password_response(ip, username, domain, password, password_hash, challenge, hash_type)
 
 	local lm_hash   = nil
 	local ntlm_hash = nil
@@ -1141,7 +1178,10 @@ local function get_password_response(username, domain, password, password_hash, 
 	if(password ~= nil) then
 		stdnse.print_debug(2, "SMB: Using password passed as a parameter")
 	else
-		if(nmap.registry.args.smbpassword ~= nil) then
+		if(nmap.registry[ip] ~= nil and nmap.registry[ip]['smbaccounts'] ~= nil and nmap.registry[ip]['smbaccounts'][username] ~= nil) then
+			password = nmap.registry[ip]['smbaccounts'][username]
+			stdnse.print_debug(2, "SMB: Using password found in the registry")
+		elseif(nmap.registry.args.smbpassword ~= nil) then
 			password = nmap.registry.args.smbpassword
 			stdnse.print_debug(2, "SMB: Using password passed as an nmap parameter (smbpassword)")
 		elseif(nmap.registry.args.smbpass ~= nil) then
@@ -1253,24 +1293,25 @@ end
 --@param password      [optional] The password to override with. 
 --@param password_hash [optional] The password hash to override this (shouldn't be used along with password). 
 --@param hash_type     [optional] The type of hash to override with. 
+--@param use_default   [optional] If set, will attempt anonymous/guest. Default: true.
 --@return An array of tables, each of which contain a 'username', 'domain', 'lanman', 'ntlm'. 
-local function get_logins(ip, challenge, username, domain, password, password_hash, hash_type)
+local function get_logins(ip, challenge, username, domain, password, password_hash, hash_type, use_default)
 
 	local response = {}
 
 	-- If we don't have OpenSSL, don't bother with any of this
 	if(have_ssl == true) then
 		-- We choose *one* username to try, here. First, see if the user set a username
-		-- in the function parameters, then in the registry [TODO], then as an nmap 
+		-- in the function parameters, then in the registry, then as an nmap 
 		-- parameter, then disable it. 
 	
 		-- If a username was found, look for a domain and password
-		username = get_username(username)
+		username = get_username(ip, username)
 		domain   = get_domain(domain)
 		hash_type = get_hash_type(hash_type)
 
 		if(username ~= nil) then
-			lm_response, ntlm_response = get_password_response(username, domain, password, password_hash, challenge, hash_type)
+			lm_response, ntlm_response = get_password_response(ip, username, domain, password, password_hash, challenge, hash_type)
 
 			if(lm_response ~= nil and ntlm_response ~= nil) then
 				local data = {}
@@ -1293,24 +1334,25 @@ local function get_logins(ip, challenge, username, domain, password, password_ha
 		stdnse.print_debug(1, "SMB: ERROR: Couldn't find OpenSSL library, only checking Guest and/or Anonymous accounts")
 	end
 
-	local data
-	-- Add guest account
-	stdnse.print_debug(2, "SMB: Going to try guest account before attempting anonymous")
-
-	data = {}
-	data['username'] = 'guest'
-	data['domain'] = ''
-	data['lanman'] = ''
-	data['ntlm'] = ''
-	response[#response + 1] = data
-
-	-- Add the anonymous account
-	data = {}
-	data['username'] = ''
-	data['domain'] = ''
-	data['lanman'] = ''
-	data['ntlm'] = ''
-	response[#response + 1] = data
+	-- Check if we're using default accounts
+	if(use_default == nil or use_default == true) then
+		local data
+		-- Add guest account
+		data = {}
+		data['username'] = 'guest'
+		data['domain'] = ''
+		data['lanman'] = ''
+		data['ntlm'] = ''
+		response[#response + 1] = data
+	
+		-- Add the anonymous account
+		data = {}
+		data['username'] = ''
+		data['domain'] = ''
+		data['lanman'] = ''
+		data['ntlm'] = ''
+		response[#response + 1] = data
+	end
 
 	return response
 end
@@ -1333,21 +1375,23 @@ end
 --@param domain       [optional] Overrides the domain to use. 
 --@param password     [optional] Overrides the password to use. Will use Nmap parameters or registry by default.
 --@param hash_type    [optional] Overrides the hash type to use (can be v1, LM, NTLM, LMv2, v2). Default is 'NTLM'.
+--@param use_default  [optional] If set, will attempt anonymous/guest. Default: true.
+--@param log_errors   [optional] If set, will display login. Default: true. 
 --@return (status, result) If status is false, result is an error message. Otherwise, result is nil and the following
 --        elements are added to the smb table:
 --    *  'uid'         The UserID for the session
 --    *  'is_guest'    If set, the username wasn't found so the user was automatically logged in as the guest account
 --    *  'os'          The operating system
 --    *  'lanmanager'  The servers's LAN Manager
-function start_session(smb, username, domain, password, password_hash, hash_type)
+function start_session(smb, username, domain, password, password_hash, hash_type, use_default, log_errors)
 	local i
 	local status, result
 	local header, parameters, data
 	local pos
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid 
 	local andx_command, andx_reserved, andx_offset, action
-	local os, lanmanager, domain
-	local logins = get_logins(smb['ip'], smb['server_challenge'], username, domain, password, password_hash, hash_type)
+	local os, lanmanager
+	local logins = get_logins(smb['ip'], smb['server_challenge'], username, domain, password, password_hash, hash_type, use_default)
 
 	header     = smb_encode_header(smb, command_codes['SMB_COM_SESSION_SETUP_ANDX'])
 
@@ -1358,7 +1402,7 @@ function start_session(smb, username, domain, password, password_hash, hash_type
 					0xFF,               -- ANDX -- no further commands
 					0x00,               -- ANDX -- Reserved (0)
 					0x0000,             -- ANDX -- next offset
-					0x1000,             -- Max buffer size
+					0xFFFF,             -- Max buffer size
 					0x0001,             -- Max multiplexes
 					0x0000,             -- Virtual circuit num
 					smb['session_key'], -- The session key
@@ -1394,7 +1438,7 @@ function start_session(smb, username, domain, password, password_hash, hash_type
 		pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 
 		if(mid == nil) then
-			return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [9]"
+			return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [17]"
 		end
 
 		-- Check if we're successful
@@ -1403,11 +1447,14 @@ function start_session(smb, username, domain, password, password_hash, hash_type
 			-- Parse the parameters
 			pos, andx_command, andx_reserved, andx_offset, action = bin.unpack("<CCSS", parameters)
 			if(action == nil) then
-				return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [10]"
+				return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [18]"
 			end
 
 			-- Parse the data
 			pos, os, lanmanager, domain = bin.unpack("<zzz", data)
+			if(domain == nil) then
+				return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [19]"
+			end
 		
 			-- Fill in the smb object and smb string
 			smb['uid']        = uid
@@ -1423,21 +1470,27 @@ function start_session(smb, username, domain, password, password_hash, hash_type
 			end
 
 			-- Check if they were logged in as a guest
-			if(smb['is_guest'] == 1) then
-				stdnse.print_debug(1, "SMB: Login as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", logins[i]['domain'], string_or_blank(logins[i]['username']))
-			else
-				stdnse.print_debug(1, "SMB: Login as %s\\%s succeeded", logins[i]['domain'], string_or_blank(logins[i]['username']))
+			if(log_errors == nil or log_errors == true) then
+				if(smb['is_guest'] == 1) then
+					stdnse.print_debug(1, "SMB: Login as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", logins[i]['domain'], string_or_blank(logins[i]['username']))
+				else
+					stdnse.print_debug(1, "SMB: Login as %s\\%s succeeded", logins[i]['domain'], string_or_blank(logins[i]['username']))
+				end
 			end
 		
 			return true
 
 		else
 			-- This username failed, print a warning and keep going
-			stdnse.print_debug(1, "SMB: Login as %s\\%s failed (%s), trying next login", logins[i]['domain'], string_or_blank(logins[i]['username']), get_status_name(status))
+			if(log_errors == nil or log_errors == true) then
+				stdnse.print_debug(1, "SMB: Login as %s\\%s failed (%s)", logins[i]['domain'], string_or_blank(logins[i]['username']), get_status_name(status))
+			end
 		end
 	end
 
-	stdnse.print_debug(1, "SMB: ERROR: All logins failed, sorry it didn't work out!")
+	if(log_errors == nil or log_errors == true) then
+		stdnse.print_debug(1, "SMB: ERROR: All logins failed, sorry it didn't work out!")
+	end
 	return false, get_status_name(status)
 
 end
@@ -1492,7 +1545,7 @@ function tree_connect(smb, path)
 	-- Check if we were allowed in
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(mid == nil) then
-		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [11]"
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [20]"
 	end
 
 	if(status ~= 0) then
@@ -1531,7 +1584,7 @@ function tree_disconnect(smb)
 	-- Check if there was an error
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(mid == nil) then
-		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [12]"
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [21]"
 	end
 	if(status ~= 0) then
 		return false, get_status_name(status)
@@ -1577,7 +1630,7 @@ function logoff(smb)
 	-- Check if there was an error
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(mid == nil) then
-		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [13]"
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [22]"
 	end
 	if(status ~= 0) then
 		return false, get_status_name(status)
@@ -1613,14 +1666,14 @@ function create_file(smb, path)
 					string.len(path), -- Path length
 					0x00000016,       -- Create flags
 					0x00000000,       -- Root FID
-					0x0002019F,       -- Access mask
+					0x02000000,       -- Access mask
 					0x0000000000000000, -- Allocation size
 					0x00000000,         -- File attributes
 					0x00000003,         -- Share attributes
 					0x00000001,         -- Disposition
-					0x00400040,         -- Create options
+					0x00000000,         -- Create options
 					0x00000002,         -- Impersonation
-					0x01                -- Security flags
+					0x00                -- Security flags
 				)
 
 	data = bin.pack("z", path)
@@ -1641,7 +1694,7 @@ function create_file(smb, path)
 	-- Check if we were allowed in
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(mid == nil) then
-		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [14]"
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [23]"
 	end
 	if(status ~= 0) then
 		return false, get_status_name(status)
@@ -1650,7 +1703,7 @@ function create_file(smb, path)
 	-- Parse the parameters
 	pos, andx_command, andx_reserved, andx_offset, oplock_level, fid, create_action, created, last_access, last_write, last_change, attributes, allocation_size, end_of_file, filetype, ipc_state, is_directory = bin.unpack("<CCSCSILLLLILLSSC", parameters)
 	if(is_directory == nil) then
-		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [15]"
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [24]"
 	end
 
 	-- Fill in the smb string
@@ -1669,8 +1722,164 @@ function create_file(smb, path)
 	smb['is_directory']    = is_directory
 	
 	return true
-	
 end
+
+--- This sends a SMB request to read from a file (or a pipe). 
+--
+--@param smb    The SMB object associated with the connection
+--@param offset The offset to read from (ignored if it's a pipe)
+--@param count  The maximum number of bytes to read
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table
+--        containing a lot of different elements, the most important one being 'fid', the handle to the opened file. 
+function read_file(smb, offset, count)
+	local header, parameters, data
+	local pos
+	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
+	local andx_command, andx_reserved, andx_offset
+	local remaining, data_compaction_mode, reserved_1, data_length_low, data_offset, data_length_high, reserved_2, reserved_3
+	local response = {}
+
+	header = smb_encode_header(smb, command_codes['SMB_COM_READ_ANDX'])
+	parameters = bin.pack("<CCSSISSISI",
+					0xFF,   -- ANDX no further commands
+					0x00,   -- ANDX reserved
+					0x0000, -- ANDX offset
+					smb['fid'], -- FID
+					offset,     -- Offset
+					count,      -- Max count low
+					count,      -- Min count
+					0xFFFFFFFF, -- Reserved
+					0,          -- Remaining
+					0x00000000  -- High offset
+				)
+
+	data = ""
+
+	-- Send the create file
+	stdnse.print_debug(2, "SMB: Sending SMB_COM_READ_ANDX")
+	result, err = smb_send(smb, header, parameters, data)
+	if(result == false) then
+		return false, err
+	end
+
+	-- Read the result
+	status, header, parameters, data = smb_read(smb)
+	if(status ~= true) then
+		return false, header
+	end
+
+	-- Check if we were allowed in
+	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
+	
+	if(mid == nil) then
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [25]"
+	end
+	if(status ~= 0) then
+		return false, get_status_name(status)
+	end
+
+	-- Parse the parameters
+	pos, andx_command, andx_reserved, andx_offset, remaining, data_compaction_mode, reserved_1, data_length_low, data_offset, data_length_high, reserved_2, reserved_3 = bin.unpack("<CCSSSSSSISI", parameters)
+	if(reserved_3 == nil) then
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [26]"
+	end
+
+	response['remaining']   = remaining
+	response['data_length'] = bit.bor(data_length_low, bit.lshift(data_length_high, 16))
+
+
+	-- data_start is the offset of the beginning of the data section -- we use this to calculate where the read data lives
+	local data_start = #header + 1 + #parameters + 2 
+	if(data_offset < data_start) then
+		return false, "SMB: Start of data isn't in data section"
+	end
+
+	-- Figure out the offset into the data section
+	data_offset = data_offset - data_start
+
+	-- Make sure we don't run off the edge of the packet
+	if(data_offset + response['data_length'] > #data) then
+		return false, "SMB: Data returned runs off the end of the packet"
+	end
+
+	-- Pull the data string out of the data
+	response['data'] = string.sub(data, data_offset + 1, data_offset + response['data_length'])
+
+	return true, response
+end
+
+--- This sends a SMB request to write to a file (or a pipe). 
+--
+--@param smb        The SMB object associated with the connection
+--@param write_data The data to write
+--@param offset     The offset to write it to (ignored for pipes)
+--@param path       The path of the file or pipe to open
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table
+--        containing a lot of different elements, the most important one being 'fid', the handle to the opened file. 
+function write_file(smb, write_data, offset)
+	local header, parameters, data
+	local pos
+	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
+	local andx_command, andx_reserved, andx_offset
+	local response = {}
+
+	header = smb_encode_header(smb, command_codes['SMB_COM_WRITE_ANDX'])
+	parameters = bin.pack("<CCSSIISSSSSI",
+					0xFF,   -- ANDX no further commands
+					0x00,   -- ANDX reserved
+					0x0000, -- ANDX offset
+					smb['fid'], -- FID
+					offset,     -- Offset
+					0xFFFFFFFF, -- Reserved
+					0x0008,     -- Write mode (Message start, don't write raw, don't return remaining, don't write through
+					#write_data,-- Remaining
+					0x0000,     -- Data length high
+					#write_data,-- Data length low -- TODO: set this properly (to the 2-byte value)
+					0x003F,     -- Data offset
+					0x00000000  -- Data offset high
+				)
+
+	data = write_data
+
+	-- Send the create file
+	stdnse.print_debug(2, "SMB: Sending SMB_COM_WRITE_ANDX")
+	result, err = smb_send(smb, header, parameters, data)
+	if(result == false) then
+		return false, err
+	end
+
+
+	-- Read the result
+	status, header, parameters, data = smb_read(smb)
+	if(status ~= true) then
+		return false, header
+	end
+
+	-- Check if we were allowed in
+	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
+	if(mid == nil) then
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [27]"
+	end
+	if(status ~= 0) then
+		return false, get_status_name(status)
+	end
+
+	-- Parse the parameters
+	pos, andx_command, andx_reserved, andx_offset, count_low, remaining, count_high, reserved  = bin.unpack("<CCSSSSS", parameters)
+	if(reserved == nil) then
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [28]"
+	end
+
+	response['count_low']  = count_low
+	response['remaining']  = remaining
+	response['count_high'] = count_high
+	response['reserved']   = count_reserved
+
+	return true, response
+end
+
+
+
 
 ---This is the core of making MSRPC calls. It sends out a MSRPC packet with the given parameters and data. 
 -- Don't confuse these parameters and data with SMB's concepts of parameters and data -- they are completely
@@ -1742,7 +1951,7 @@ function send_transaction(smb, func, function_parameters, function_data)
 	-- Check if it worked
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(mid == nil) then
-		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [16]"
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [29]"
 	end
 	if(status ~= 0) then
 		if(status_names[status] == nil) then
@@ -1755,7 +1964,7 @@ function send_transaction(smb, func, function_parameters, function_data)
 	-- Parse the parameters
 	pos, total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2 = bin.unpack("<SSSSSSSSSCC", parameters)
 	if(reserved2 == nil) then
-		return false, "SMB: SMB server didn't comply with standards (incorrect data was returned) [17]"
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [30]"
 	end
 
 	-- Convert the parameter/data offsets into something more useful (the offset into the data section)
@@ -1868,11 +2077,12 @@ status_codes =
 	NT_STATUS_WERR_ACCESS_DENIED     = 0x00000005,
 	NT_STATUS_WERR_INVALID_NAME      = 0x0000007b,
 	NT_STATUS_WERR_UNKNOWN_LEVEL     = 0x0000007c,
+	NT_STATUS_WERR_MORE_DATA         = 0x000000ea,
 	NT_STATUS_NO_MORE_ITEMS          = 0x00000103,
 	NT_STATUS_MORE_ENTRIES           = 0x00000105,
 	NT_STATUS_SOME_NOT_MAPPED        = 0x00000107,
 	DOS_STATUS_UNKNOWN_ERROR         = 0x00010001,
-	DOS_STATUS_UNKNOWN_ERROR_2       = 0x00010002,
+	DOS_STATUS_NONSPECIFIC_ERROR     = 0x00010002,
 	DOS_STATUS_DIRECTORY_NOT_FOUND   = 0x00030001,
 	DOS_STATUS_ACCESS_DENIED         = 0x00050001,
 	DOS_STATUS_INVALID_FID           = 0x00060001,

@@ -436,8 +436,11 @@ int process_mainloop(lua_State *L) {
     while (!running_scripts.empty()) {
       current = *(running_scripts.begin());
 
-      if (current.rr.host->timedOut(&now))
-        state = LUA_ERRRUN;
+      if (current.rr.host->timedOut(&now)) {
+        printf("thread (%p) timed out\n", (void *) current.thread);
+        SCRIPT_ENGINE_TRY(process_finalize(L, current.registry_idx));
+        continue;
+      }
       else
         state = lua_resume(current.thread, current.resume_arguments);
 

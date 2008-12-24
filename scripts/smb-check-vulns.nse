@@ -61,6 +61,9 @@ author = "Ron Bowes"
 copyright = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive"}
+-- Set the runlevel to >2 so this runs last (so if it DOES crash something, it doesn't
+-- till other scans have had a chance to run)
+runlevel = 2
 
 require 'msrpc'
 require 'smb'
@@ -181,6 +184,7 @@ end
 
 
 action = function(host)
+
 	local status, result
 	local response = " \n"
 	local found = false

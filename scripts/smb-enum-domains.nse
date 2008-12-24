@@ -57,6 +57,7 @@ hostrule = function(host)
 end
 
 action = function(host)
+
 	local response = " \n"
 	local status, smbstate
 	local i, j

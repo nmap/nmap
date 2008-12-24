@@ -63,6 +63,8 @@ Entry{ category = "version", filename = "skypev2-version.nse" }
 Entry{ category = "intrusive", filename = "smb-check-vulns.nse" }
 Entry{ category = "discovery", filename = "smb-enum-domains.nse" }
 Entry{ category = "intrusive", filename = "smb-enum-domains.nse" }
+Entry{ category = "discovery", filename = "smb-enum-processes.nse" }
+Entry{ category = "intrusive", filename = "smb-enum-processes.nse" }
 Entry{ category = "discovery", filename = "smb-enum-sessions.nse" }
 Entry{ category = "intrusive", filename = "smb-enum-sessions.nse" }
 Entry{ category = "discovery", filename = "smb-enum-shares.nse" }

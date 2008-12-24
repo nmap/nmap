@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added smb-enum-processes.nse, a script that allows a user with administrator
+  credentials to view a tree of the processes running on the remote system
+  (uses HKEY_PERFORMANCE_DATA hive). [Ron Bowes]
+
 o A problem that caused OS detection to fail for most hosts in a
   certain was fixed. It happened when sending raw Ethernet frames
   (by default on Windows or on other platforms with --send-eth) to

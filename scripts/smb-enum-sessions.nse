@@ -247,6 +247,7 @@ local function winreg_enum_rids(host)
 end
 
 action = function(host)
+
 	local response = " \n"
 
 	local status1, status2

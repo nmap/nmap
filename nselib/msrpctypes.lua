@@ -289,7 +289,7 @@ end
 --                (for the pointer data), or ALL (for both together). Generally, unless the 
 --                referent_id is split from the data (for example, in an array), you will want 
 --                ALL. 
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>
 --@param func     The function that's used to process the body data (only called if it isn't a null
 --                pointer). This function has to conform to a specific prototype, see above. 
@@ -311,6 +311,10 @@ local function unmarshall_ptr(location, data, pos, func, args, result)
 	if(location == HEAD or location == ALL) then
 		local referent_id
 		pos, referent_id = bin.unpack("<I", data, pos)
+		if(referent_id == nil) then
+			stdnse.print_debug(1, "MSRPC: ERROR: Ran off the end of a packet in unmarshall_ptr(). Please report!")
+		end
+
 		if(location == HEAD) then
 			if(referent_id == 0) then
 				result = false
@@ -435,7 +439,7 @@ end
 -- whether or not to null-terminate a string, or whether or not to pad an int16. If different types are
 -- required, you're probably out of luck.
 -- 
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@param count    The number of elements in the array. 
 --@param func     The function to call to unmarshall each parameter. Has to match a specific prototype; 
@@ -454,6 +458,9 @@ local function unmarshall_array(data, pos, count, func, args)
 	end
 
 	pos, max_count = bin.unpack("<I", data, pos)
+	if(max_count == nil) then
+		stdnse.print_debug(1, "MSRPC: ERROR: Ran off the end of a packet in unmarshall_array(). Please report!")
+	end
 
 	-- Unmarshall the header, which will be referent_ids and base types. 
 	for i = 1, count, 1 do
@@ -483,7 +490,7 @@ end
 -- func(location, data, pos, result, <args>)
 --</code>
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@param func     The function to call to unmarshall each parameter. Has to match a specific prototype; 
 --                see the function comment. 
@@ -594,6 +601,9 @@ function unmarshall_unicode(data, pos, do_null)
 	end
 
 	pos, max, offset, actual = bin.unpack("<III", data, pos)
+	if(actual == nil) then
+		stdnse.print_debug(1, "MSRPC: ERROR: Ran off the end of a packet in unmarshall_unicode(). Please report!")
+	end
 
 	pos, str = unicode_to_string(data, pos, actual, do_null, true)
 
@@ -604,7 +614,7 @@ end
 
 ---Unmarshall a pointer to a unicode string. 
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@param do_null [optional] Assumes a null is at the end of the string. Default false. 
 --@return (pos, result) The new position and the string. 
@@ -695,7 +705,7 @@ end
 
 --- Unmarshall an int64. See <code>marshall_int64</code> for more information. 
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@return (pos, int64) The new position, and the value. 
 function unmarshall_int64(data, pos)
@@ -703,6 +713,9 @@ function unmarshall_int64(data, pos)
 
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_int64()"))
 	pos, value = bin.unpack("<l", data, pos)
+	if(value == nil) then
+		stdnse.print_debug(1, "MSRPC: ERROR: Ran off the end of a packet in unmarshall_int64(). Please report!")
+	end
 	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_int64()"))
 
 	return pos, value
@@ -710,7 +723,7 @@ end
 
 --- Unmarshall an int32. See <code>marshall_int32</code> for more information. 
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@return (pos, int32) The new position, and the value. 
 function unmarshall_int32(data, pos)
@@ -718,6 +731,9 @@ function unmarshall_int32(data, pos)
 
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_int32()"))
 	pos, value = bin.unpack("<I", data, pos)
+	if(value == nil) then
+		stdnse.print_debug(1, "MSRPC: ERROR: Ran off the end of a packet in unmarshall_int32(). Please report!")
+	end
 	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_int32()"))
 
 	return pos, value
@@ -735,6 +751,9 @@ function unmarshall_int16(data, pos, pad)
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_int16()"))
 
 	pos, value = bin.unpack("<S", data, pos)
+	if(value == nil) then
+		stdnse.print_debug(1, "MSRPC: ERROR: Ran off the end of a packet in unmarshall_int16(). Please report!")
+	end
 
 	if(pad == nil or pad == true) then
 		pos = pos + 2
@@ -757,6 +776,9 @@ function unmarshall_int8(data, pos, pad)
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_int8()"))
 
 	pos, value = bin.unpack("<C", data, pos)
+	if(value == nil) then
+		stdnse.print_debug(1, "MSRPC: ERROR: Ran off the end of a packet in unmarshall_int8(). Please report!")
+	end
 
 	if(pad == nil or pad == true) then
 		pos = pos + 3
@@ -918,7 +940,14 @@ function unmarshall_int8_array(data, pos, pad)
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_int8_array()"))
 
 	pos, max, offset, actual = bin.unpack("<III", data, pos)
+	if(actual == nil) then
+		stdnse.print_debug(1, "MSRPC: ERROR: Ran off the end of a packet in unmarshall_int8_array(). Please report!")
+	end
+
 	pos, str = bin.unpack("<A"..actual, data, pos)
+	if(str == nil) then
+		stdnse.print_debug(1, "MSRPC: ERROR: Ran off the end of a packet in unmarshall_int8_array() [2]. Please report!")
+	end
 
 	-- Do the alignment (note the "- 1", it's there because of 1-based arrays)
 	if(pad == nil or pad == true) then
@@ -997,6 +1026,9 @@ function unmarshall_NTTIME(data, pos)
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_NTTIME()"))
 
 	pos, time = bin.unpack("<L", data, pos)
+	if(time == nil) then
+		stdnse.print_debug(1, "MSRPC: ERROR: Ran off the end of a packet in unmarshall_NTTIME(). Please report!")
+	end
 
 	if(time ~= 0) then
 		time = (time / 10000000) - 11644473600
@@ -1033,6 +1065,36 @@ function unmarshall_NTTIME_ptr(data, pos)
 
 	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_NTTIME_ptr()"))
 	return pos, time
+end
+
+---Unmarshall a SYSTEMTIME structure, converting it to a standard representation. The structure is a 
+-- follows:
+--
+-- <code>
+--	 typedef struct _SYSTEMTIME {
+--	   WORD wYear;
+--	   WORD wMonth;
+--	   WORD wDayOfWeek;
+--	   WORD wDay;
+--	   WORD wHour;
+--	   WORD wMinute;
+--	   WORD wSecond;
+--	   WORD wMilliseconds;
+--	 } SYSTEMTIME
+-- </code>
+--
+--@param data The data packet. 
+--@param pos  The position within the data. 
+--@return (pos, time) The new position, and the time in seconds since 1970. 
+function unmarshall_SYSTEMTIME(data, pos)
+	local date = {}
+
+	pos, date['year'], date['month'], _, date['day'], date['hour'], date['min'], date['sec'], _ = bin.unpack("<SSSSSSSS", data, pos)
+	if(date['sec'] == nil) then
+		stdnse.print_debug(1, "MSRPC: ERROR: Ran off the end of a packet in unmarshall_SYSTEMTIME(). Please report!")
+	end
+
+	return pos, os.time(date)
 end
 
 ---Unmarshalls a <code>hyper</code>. I have no idea what a <code>hyper</code> is, just that it seems
@@ -1143,6 +1205,7 @@ end
 --@param pos     The position within the data. 
 --@param table   The table to use for lookups. The keys should be the names, and the values should be 
 --               the numbers. 
+--@return (pos, array) The new position, and a table representing the enumeration values. 
 local function unmarshall_Enum32_array(data, pos, table)
 	local array = {}
 	local i, v
@@ -1161,6 +1224,23 @@ local function unmarshall_Enum32_array(data, pos, table)
 	return pos, array
 end
 
+---Unmarshall raw data. 
+--@param data    The data packet. 
+--@param pos     The position within the data. 
+--@param length  The number of bytes to unmarshall. 
+--@return (pos, data) The new position in the packet, and a string representing the raw data. 
+function unmarshall_raw(data, pos, length)
+	local val
+	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_raw()"))
+
+	pos, val = bin.unpack(string.format("A%d", length), data, pos)
+	if(val == nil) then
+		stdnse.print_debug(1, "MSRPC: ERROR: Ran off the end of a packet in unmarshall_raw(). Please report!")
+	end
+
+	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_raw()"))
+	return pos, val
+end
 
 
 -------------------------------------
@@ -1202,6 +1282,9 @@ local function unmarshall_guid(data, pos)
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_guid()"))
 
 	pos, guid['time_low'], guid['time_high'], guid['time_hi_and_version'], guid['clock_seq'], guid['node'] = bin.unpack("<ISSA2A6", data, pos)
+	if(guid['node'] == nil) then
+		stdnse.print_debug(1, "MSRPC: ERROR: Ran off the end of a packet in unmarshall_guid(). Please report!")
+	end
 
 	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_guid()"))
 	return pos, guid
@@ -1237,7 +1320,7 @@ function unmarshall_policy_handle(data, pos)
 	local policy_handle = {}
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_policy_handle()"))
 
-	pos, policy_handle['handle_type'] = bin.unpack("<I", data, pos)
+	pos, policy_handle['handle_type'] = unmarshall_int32(data, pos)
 	pos, policy_handle['uuid']        = unmarshall_guid(data, pos)
 
 	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_policy_handle()"))
@@ -1260,7 +1343,7 @@ end
 --    } dom_sid;
 --</code>
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_dom_sid2(data, pos)
@@ -1269,16 +1352,20 @@ function unmarshall_dom_sid2(data, pos)
 
 	-- Read the SID from the packet
 	local sid = {}
-	pos, sid['count']          = bin.unpack("<I", data, pos)
-	pos, sid['sid_rev_num']    = bin.unpack("<C", data, pos)
-	pos, sid['num_auths']      = bin.unpack("<C", data, pos)
+	pos, sid['count']          = unmarshall_int32(data, pos)
+	pos, sid['sid_rev_num']    = unmarshall_int8(data, pos, false)
+	pos, sid['num_auths']      = unmarshall_int8(data, pos, false)
+
 	-- Note that authority is big endian (I guess it's an array, not really an integer like we're handling it)
-	pos, sid['authority_high'], sid['authority_low'] = bin.unpack(">SI", data, pos)
+    pos, sid['authority_high'], sid['authority_low'] = bin.unpack(">SI", data, pos)
+	if(sid['authority_low'] == nil) then
+		stdnse.print_debug(1, "MSRPC: ERROR: Ran off the end of a packet in unmarshall_dom_sid2(). Please report!")
+	end
 	sid['authority'] = bit.bor(bit.lshift(sid['authority_high'], 32), sid['authority_low'])
 
 	sid['sub_auths']   = {}
 	for i = 1, sid['num_auths'], 1 do
-		pos, sid['sub_auths'][i] = bin.unpack("<I", data, pos)
+		pos, sid['sub_auths'][i] = unmarshall_int32(data, pos)
 	end
 
 	-- Convert the SID to a string
@@ -1294,7 +1381,7 @@ end
 ---Unmarshall a pointer to a <code>dom_sid2</code> struct. See the <code>unmarshall_dom_sid2</code> function
 -- for more information. 
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_dom_sid2_ptr(data, pos)
@@ -1452,7 +1539,9 @@ local function unmarshall_lsa_String_internal(location, data, pos, result)
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_lsa_String_internal()"))
 
 	if(location == HEAD or location == ALL) then
-		pos, length, size = bin.unpack("<SS", data, pos)
+		pos, length = unmarshall_int16(data, pos, false)
+		pos, size   = unmarshall_int16(data, pos, false)
+
 		pos, str = unmarshall_ptr(HEAD, data, pos, unmarshall_unicode, {false})
 	end
 
@@ -1702,7 +1791,7 @@ end
 --                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
 --                referent_id is split from the data (for example, in an array), you will want 
 --                ALL. 
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@param result   This is required when unmarshalling the BODY section, which always comes after 
 --                unmarshalling the HEAD. It is the result returned for this parameter during the 
@@ -1779,7 +1868,7 @@ end
 --                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
 --                referent_id is split from the data (for example, in an array), you will want 
 --                ALL. 
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@param result   This is required when unmarshalling the BODY section, which always comes after 
 --                unmarshalling the HEAD. It is the result returned for this parameter during the 
@@ -1853,7 +1942,7 @@ end
 --                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
 --                referent_id is split from the data (for example, in an array), you will want 
 --                ALL. 
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@param result   This is required when unmarshalling the BODY section, which always comes after 
 --                unmarshalling the HEAD. It is the result returned for this parameter during the 
@@ -1866,7 +1955,9 @@ local function unmarshall_lsa_StringLarge(location, data, pos, result)
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_lsa_StringLarge()"))
 
 	if(location == HEAD or location == ALL) then
-		pos, length, size = bin.unpack("<SS", data, pos)
+		pos, length = unmarshall_int16(data, pos, false)
+		pos, size   = unmarshall_int16(data, pos, false)
+
 		pos, str = unmarshall_ptr(HEAD, data, pos, unmarshall_unicode, {false})
 	end
 
@@ -1891,7 +1982,7 @@ end
 --                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
 --                referent_id is split from the data (for example, in an array), you will want 
 --                ALL. 
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@param result   This is required when unmarshalling the BODY section, which always comes after 
 --                unmarshalling the HEAD. It is the result returned for this parameter during the 
@@ -1928,7 +2019,7 @@ end
 --    } lsa_RefDomainList;
 --</code>
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_lsa_RefDomainList(data, pos)
@@ -1950,7 +2041,7 @@ end
 ---Unmarshall a pointer to a <code>lsa_RefDomainList</code>. See the <code>unmarshall_lsa_RefDomainList</code> function
 -- for more information. 
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_lsa_RefDomainList_ptr(data, pos)
@@ -1972,7 +2063,7 @@ end
 --    } lsa_TransSidArray2;
 --</code>
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_lsa_TransSidArray2(data, pos)
@@ -2139,7 +2230,7 @@ end
 ---Unmarshall a <code>lsa_TransNameArray2</code> structure. See the <code>marshall_lsa_TransNameArray2</code> for more
 -- information. 
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_lsa_TransNameArray2(data, pos)
@@ -2403,7 +2494,9 @@ function unmarshall_winreg_StringBuf(data, pos)
 	local str
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_winreg_StringBuf()"))
 
-	pos, length, size = bin.unpack("<SS", data, pos)
+	pos, length = unmarshall_int16(data, pos, false)
+	pos, size   = unmarshall_int16(data, pos, false)
+
 	pos, str = unmarshall_ptr(ALL, data, pos, unmarshall_unicode, {true})
 
 	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_winreg_StringBuf()"))
@@ -2819,7 +2912,7 @@ function unmarshall_srvsvc_NetShareCtr0(data, pos)
 	local result = {}
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_srvsvc_NetShareCtr0()"))
 
-	pos, count = bin.unpack("<I", data, pos)
+	pos, count = unmarshall_int32(data, pos)
 
 	pos, result['array'] = unmarshall_ptr(ALL, data, pos, unmarshall_array, {count, unmarshall_srvsvc_NetShareInfo0, {}})
 
@@ -2972,7 +3065,7 @@ function unmarshall_srvsvc_NetShareCtr(data, pos)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_srv_NetShareCtr()"))
 
-	pos, level = bin.unpack("<I", data, pos)
+	pos, level = unmarshall_int32(data, pos)
 
 	if(level == 0) then
 		pos, result = unmarshall_ptr(ALL, data, pos, unmarshall_srvsvc_NetShareCtr0, {})
@@ -3008,7 +3101,7 @@ end
 --
 --@param level    The level to request. Different levels will return different results, but also require
 --                different access levels to call. 
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype. This may be
 --                <code>nil</code> if there was an error. 
@@ -3155,7 +3248,7 @@ function unmarshall_srvsvc_NetSessCtr10(data, pos)
 	local result = {}
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_srvsvc_NetSessCtr10()"))
 
-	pos, count = bin.unpack("<I", data, pos)
+	pos, count = unmarshall_int32(data, pos)
 
 	pos, result['array'] = unmarshall_ptr(ALL, data, pos, unmarshall_array, {count, unmarshall_srvsvc_NetSessInfo10, {}})
 
@@ -3200,7 +3293,7 @@ end
 
 ---Unmarshall the top-level NetShareCtr. This is a union; see the marshall function for more information. 
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype. Can be 
 --                <code>nil</code> if there's an error. 
@@ -3249,7 +3342,7 @@ end
 --
 -- Note that Wireshark (at least, the version I'm using, 1.0.3) gets this wrong, so be careful. 
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_srvsvc_Statistics(data, pos)
@@ -3283,7 +3376,7 @@ end
 --
 -- See <code>unmarshall_srvsvc_Statistics</code> for more information. 
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_srvsvc_Statistics_ptr(data, pos)
@@ -3615,7 +3708,7 @@ end
 --                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
 --                referent_id is split from the data (for example, in an array), you will want 
 --                ALL. 
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@param result   This is required when unmarshalling the BODY section, which always comes after 
 --                unmarshalling the HEAD. It is the result returned for this parameter during the 
@@ -3651,7 +3744,7 @@ end
 --    } samr_SamArray;
 --</code>
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_samr_SamArray(data, pos)
@@ -3668,7 +3761,7 @@ end
 ---Unmarshall a pointer to a <code>samr_SamArray</code> type. See <code>unmarshall_samr_SamArray</code> for
 -- more information. 
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_samr_SamArray_ptr(data, pos)
@@ -3698,7 +3791,7 @@ end
 --                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
 --                referent_id is split from the data (for example, in an array), you will want 
 --                ALL. 
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@param result   This is required when unmarshalling the BODY section, which always comes after 
 --                unmarshalling the HEAD. It is the result returned for this parameter during the 
@@ -3740,7 +3833,7 @@ end
 --    } samr_DispInfoGeneral;
 --</code>
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_samr_DispInfoGeneral(data, pos)
@@ -3767,7 +3860,7 @@ end
 --    } samr_DispInfo;
 --</code>
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype. It may also return
 --                <code>nil</code>, if there was an error. 
@@ -3802,7 +3895,7 @@ end
 --	} samr_DomInfo1;
 --</code>
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_samr_DomInfo1(data, pos)
@@ -3828,7 +3921,7 @@ end
 --	} samr_DomInfo8;
 --</code>
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_samr_DomInfo8(data, pos)
@@ -3852,7 +3945,7 @@ end
 --	} samr_DomInfo12;
 --</code>
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_samr_DomInfo12(data, pos)
@@ -3886,7 +3979,7 @@ end
 --	} samr_DomainInfo;
 --</code>
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype. May return
 --                <code>nil</code> if there was an error. 
@@ -3915,7 +4008,7 @@ end
 ---Unmarshall a pointer to a <code>samr_DomainInfo</code>. See <code>unmarshall_samr_DomainInfo</code> for
 -- more information. 
 --
---@param data     The data packet being processed. 
+--@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype. May return
 --                <code>nil</code> if there was an error. 
@@ -3928,6 +4021,10 @@ function unmarshall_samr_DomainInfo_ptr(data, pos)
 	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_samr_DomainInfo_ptr()"))
 	return pos, result
 end
+
+
+
+
 
 
 

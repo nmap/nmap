@@ -191,7 +191,9 @@ function check_shares(host, shares)
 				stdnse.print_debug(3, "EnumShares: Access was denied")
 				denied_shares[#denied_shares + 1] = shares[i]
 			else
-				stdnse.print_debug(3, "ERROR: EnumShares: Share didn't pan out: %s", err)
+				-- If we're here, an error that we weren't prepared for came up. 
+				smb.stop(smbstate)
+				return false, string.format("Error while checking shares: %s", err)
 			end
 		else
 			-- Add it to allowed shares
@@ -244,6 +246,7 @@ local function get_share_info(host, name)
 end
 
 action = function(host)
+
 	local enum_result
 	local result, shared
 	local response = " \n"
