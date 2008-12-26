@@ -2798,6 +2798,8 @@ static UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
         hss->destroyAllOutstandingProbes();
     } else if (!USI->ping_scan && port_state != PORT_UNKNOWN) {
       ultrascan_port_probe_update(USI, hss, probeI, port_state, &USI->now);
+    } else {
+      hss->destroyOutstandingProbe(probeI);
     }
     probe = NULL;
   }
