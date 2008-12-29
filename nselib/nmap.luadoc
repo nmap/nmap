@@ -163,15 +163,24 @@ function mutex(object)
 
 --- Creates a new exception handler.
 --
--- This function returns another function, an exception handler. The returned
--- function takes a variable number of arguments, which are assumed to be the
--- return values of another function. It checks the return values for an
--- exception, which is signaled when the first return value is false. If there
--- is an exception, the script will stop immediately and produce no output. An
--- optional handler function can be called before the script is stopped. In the
--- error handler function you can perform any clean-up operations, such as
--- closing a socket.
--- @param handler Exception handler function (optional).
+-- This function returns an exception handler function. The exception handler is
+-- meant to be wrapped around other function calls that may raise an exception.
+-- A function raises an exception by making its first return value false and its
+-- second return value a message describing the error. When an exception occurs,
+-- the exception handler optionally calls a user-provided cleanup function, then
+-- terminates the script. When an exception does not occur (the wrapped
+-- function's first return value is true), the exception handler strips off the
+-- first return value and returns the rest.
+--
+-- The optional cleanup function is passed as the sole argument to
+-- <code>new_try</code>. It can be used to release sockets or other resources
+-- before the script terminates.
+--
+-- A function that may raise an exception must follow the return protocol
+-- understood by this function: on an exception its return values are false
+-- followed by an error message; on success its return values are true followed
+-- by any other results.
+-- @param handler User cleanup function (optional).
 -- @usage
 -- local result, socket, try, catch
 -- 
