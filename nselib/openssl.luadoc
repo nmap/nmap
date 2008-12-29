@@ -153,12 +153,12 @@ function hmac(algorithm, key, message)
 -- encrypted (default false).
 function encrypt(algorithm, key, iv, data, padding)
 
---- Descrypt data with a given algorithm, key, and initialization vector.
+--- Decrypt data with a given algorithm, key, and initialization vector.
 -- @param algorithm Any of the strings returned by
 -- <code>openssl.supported_ciphers</code>.
 -- @param key Key.
 -- @param iv Initialization vector.
--- @param data Data to encrypt.
+-- @param data Data to decrypt.
 -- @param padding If true, then the final block must be padded correctly
 -- (default false).
 function decrypt(algorithm, key, iv, data, padding)
