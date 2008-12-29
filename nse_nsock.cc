@@ -1547,16 +1547,3 @@ static int l_dnet_send_ethernet(lua_State *L){
 	eth_send(udata->eth, packet, packetsz);
 	return 0;
 }
-
-int l_clock_ms(lua_State *L){
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	// no rounding error 
-	// unless the number is greater than 100,000,000,000,000
-	double usec = 0.0; //MAX_INT*1000 =    4 294 967 296 000 <- miliseconds since epoch should fit
-	usec = tv.tv_sec*1000; 
-	usec += (int)(tv.tv_usec/1000);	// make sure it's integer.
-	
-	lua_pushnumber(L, usec);
-	return 1;
-}

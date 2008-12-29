@@ -104,7 +104,8 @@ function set_port_state(host, port, state)
 -- completed. It is a string, one of: <code>"hardmatched"</code>,
 -- <code>"softmatched"</code>, <code>"nomatch"</code>,
 -- <code>"tcpwrapped"</code>, or <code>"incomplete"</code>.
--- <code>"hardmatched"</code> is almost always used, as it signifies a
+-- <code>"hardmatched"</code> is almost always used (and is the default),
+-- as it signifies a
 -- successful match. The other possible states are generally only used for
 -- standard version detection rather than the NSE enhancement.
 -- @param host Host table, containing an <code>ip</code> field.
@@ -494,3 +495,11 @@ function ethernet_send(packet)
 -- @see new_dnet, ethernet_open
 -- @usage dnet:ethernet_close()
 function ethernet_close()
+
+--- Writes to a log file.
+--
+-- Writes <code>string</code> to <code>file</code> ("stdout" or "stderr").
+-- Use stdnse.print_debug to print debug information based on the
+-- debugging level.
+-- @see stdnse.print_debug
+function log_write(file, string)

@@ -5,14 +5,17 @@
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 local assert = assert;
-local tonumber = tonumber;
 local error = error;
-local concat = table.concat;
-local nmap = require"nmap";
-local max = math.max
-local ceil = math.ceil
-local type = type
 local pairs = pairs
+local tonumber = tonumber;
+local type = type
+
+local ceil = math.ceil
+local max = math.max
+local format = string.format;
+local concat = table.concat;
+
+local nmap = require "nmap";
 
 local EMPTY = {}; -- Empty constant table
 
@@ -22,19 +25,19 @@ module(... or "stdnse");
 -- than or equal to a given level.
 -- 
 -- This is a convenience wrapper around
--- <code>nmap.print_debug_unformatted</code>. The first optional numeric
--- argument, <code>verbosity</code>, is used as the verbosity level necessary
+-- <code>nmap.log_write</code>. The first optional numeric
+-- argument, <code>level</code>, is used as the debugging level necessary
 -- to print the message (it defaults to 1 if omitted). All remaining arguments
 -- are processed with Lua's <code>string.format</code> function.
--- @param level Optional verbosity level.
+-- @param level Optional debugging level.
 -- @param fmt Format string.
 -- @param ... Arguments to format.
 print_debug = function(level, fmt, ...)
-  local verbosity = tonumber(level);
-  if verbosity then
-    nmap.print_debug_unformatted(verbosity, fmt:format(...));
-  else
-    nmap.print_debug_unformatted(1, level:format(fmt, ...));
+  local l, d = tonumber(level), nmap.debugging();
+  if l and l <= d then
+    nmap.log_write("stdout", format(fmt, ...));
+  elseif not l and 1 <= d then
+    nmap.log_write("stdout", format(level, fmt, ...));
   end
 end
 
