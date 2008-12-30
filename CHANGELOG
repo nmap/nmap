@@ -40,9 +40,9 @@ o [Zenmap] The crash reporter is more respectful of user privacy. It
   private so it will not appear on the public bug tracker. [David]
 
 o [Zenmap] Internationalization has been fixed [David]. Currently
-  there are two partial translations:
-    Brazilian Portuguese by Adriano Monteiro Marques
+  Zenmap has two translations:
     German by Chris Leick
+    Brazilian Portuguese by Adriano Monteiro Marques (partial)
 
 o [NSE] host.os table is now properly a 1 based array (was 0). [Patrick]
 
