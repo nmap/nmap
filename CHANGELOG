@@ -217,6 +217,9 @@ o A script could be executed twice if it was given with the --script
   option, also in the "version" category, and version detection (-sV)
   was requested. This has been fixed. [David]
 
+o Nsock now supports setting debugging (SO_DEBUG) on a socket after its
+  creation with nsi_set_debug(). [Kris]
+
 o Fixed port number representation in some of Nmap's and all of Nsock's
   output.  Incorrect conversion modifiers were being used which caused
   high ports to wrap around and be shown as negative values. [Kris]
