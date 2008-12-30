@@ -2328,11 +2328,11 @@ void HostScanStats::getTiming(struct ultra_timing_vals *tmng) {
 /* Define a score for a ping probe, for the purposes of deciding whether one
    probe should be preferred to another. The order, from most preferred to least
    preferred, is
-      Raw TCP (not SYN to an open port)
+      Raw TCP (not filtered, not SYN to an open port)
       ICMP information queries (echo request, timestamp request, netmask req)
       ARP
       Raw TCP (SYN to an open port)
-      UDP, IP protocol, or other ICMP
+      UDP, IP protocol, or other ICMP (including filtered TCP)
       TCP connect
       Anything else
    Raw TCP SYN to an open port is given a low preference because of the risk of
@@ -2344,7 +2344,9 @@ static unsigned int pingprobe_score(const probespec *pspec, int state) {
 
   switch (pspec->type) {
     case PS_TCP:
-      if (pspec->pd.tcp.flags == TH_SYN && (state == PORT_OPEN || state == PORT_UNKNOWN))
+      if (state == PORT_FILTERED) /* Received an ICMP error. */
+        score = 2;
+      else if (pspec->pd.tcp.flags == TH_SYN && (state == PORT_OPEN || state == PORT_UNKNOWN))
         score = 3;
       else
         score = 6;
