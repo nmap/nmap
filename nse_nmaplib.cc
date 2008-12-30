@@ -443,7 +443,7 @@ static int l_log_write (lua_State *L)
 
 static int new_try_finalize (lua_State *L)
 {
-  if (!lua_isboolean(L, 1))
+  if (!(lua_isboolean(L, 1) || lua_isnoneornil(L, 1)))
     error("finalizing a non-conforming function that did not first "
           "return a boolean");
   if (!lua_toboolean(L, 1))
