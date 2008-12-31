@@ -442,7 +442,7 @@ until found:<indexterm><primary>data files</primary><secondary>directory search 
 <filename>--datadir/</filename>; 
 <filename>$NMAPDIR/</filename>;<indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm>
 <filename>~/.nmap/</filename> (not searched on Windows);<indexterm><primary sortas="nmap directory"><filename>.nmap</filename> directory</primary></indexterm>
-NMAPDATADIR/ or<indexterm><primary>NMAPDATADIR</primary></indexterm>
+<literal>NMAPDATADIR</literal>/ or<indexterm><primary>NMAPDATADIR</primary></indexterm>
 <filename>./</filename>.  A <filename>scripts/</filename> subdirectory
 is also tried in each of these.</para>
 
@@ -827,7 +827,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
       Lua, we have written or integrated many extension libraries which make
       script writing more powerful and convenient. These libraries (sometimes called modules) are compiled if necessary and installed along with 
 	  Nmap. They have their own directory, <filename>nselib</filename>, which
-	  is installed in the configured datadir. Scripts need only 
+	  is installed in the configured Nmap data directory. Scripts need only 
       <ulink url="http://www.lua.org/manual/5.1/manual.html#pdf-require">
       <literal>require</literal>
       </ulink> the default libraries in order to use them.
@@ -2407,7 +2407,7 @@ stored inside the registry.<indexterm><primary>registry
 and <literal>open|filtered</literal><indexterm><primary><literal>open|filtered</literal> port state</primary></indexterm>
 port on the hosts.  The combination can grow quite large, so portrules should be kept as simple as possible.  Save any heavy computation for the script's <literal>action</literal>.</para>
 
-<para>Next, a <ulink url="http://www.lua.org/manual/5.1/manual.html#2.11">Lua thread</ulink> is created for each of the matching script-target combinations.  Each thread
+<para>Next, a Lua thread is created for each of the matching script-target combinations.  Each thread
 is stored with pertinent information such as the runlevel, target, target port (if applicable), host and port tables
 (passed to the <literal>action</literal>), and the script type (service or host script).
 The <function>mainloop</function> function then processes each runlevel grouping of threads in order.
