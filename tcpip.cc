@@ -2719,36 +2719,6 @@ return -1;
 }
 
 
-struct dnet_collector_route_nfo {
-  struct sys_route *routes;
-  int numroutes;
-  int capacity; /* Capacity of routes or ifaces, depending on context */
-  struct interface_info *ifaces;
-  int numifaces;
-};
-
-static int collect_dnet_routes(const struct route_entry *entry, void *arg) {
-  struct dnet_collector_route_nfo *dcrn = (struct dnet_collector_route_nfo *) arg;
-  /* Make sure that it is the proper type of route ... */
-  if (entry->route_dst.addr_type != ADDR_TYPE_IP || entry->route_gw.addr_type != ADDR_TYPE_IP)
-    return 0; /* Not interested in IPv6 routes at the moment ... */
-  
-  /* Make sure we have room for the new route */
-  if (dcrn->numroutes >= dcrn->capacity) {
-    dcrn->capacity <<= 2;
-    dcrn->routes = (struct sys_route *) safe_realloc(dcrn->routes, 
-						     dcrn->capacity * sizeof(struct sys_route));
-  }
-  
-  /* Now for the important business */
-  dcrn->routes[dcrn->numroutes].dest = entry->route_dst.addr_ip;
-  addr_btom(entry->route_dst.addr_bits, &dcrn->routes[dcrn->numroutes].netmask, sizeof(dcrn->routes[dcrn->numroutes].netmask));
-  dcrn->routes[dcrn->numroutes].gw.s_addr = entry->route_gw.addr_ip;
-  dcrn->numroutes++;
-
-  return 0;
-}
-
 #if WIN32
 static int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
   struct dnet_collector_route_nfo *dcrn = (struct dnet_collector_route_nfo *) arg;
@@ -3126,6 +3096,38 @@ static struct sys_route *getsysroutes_proc(FILE *routefp, int *howmany) {
 
   *howmany = numroutes;
   return routes;
+}
+
+struct dnet_collector_route_nfo {
+  struct sys_route *routes;
+  int numroutes;
+  int capacity; /* Capacity of routes or ifaces, depending on context */
+  struct interface_info *ifaces;
+  int numifaces;
+};
+
+/* This is the callback for the call to route_loop in getsysroutes_dnet. It
+   takes a route entry and adds it into the dnet_collector_route_nfo struct. */
+static int collect_dnet_routes(const struct route_entry *entry, void *arg) {
+  struct dnet_collector_route_nfo *dcrn = (struct dnet_collector_route_nfo *) arg;
+  /* Make sure that it is the proper type of route ... */
+  if (entry->route_dst.addr_type != ADDR_TYPE_IP || entry->route_gw.addr_type != ADDR_TYPE_IP)
+    return 0; /* Not interested in IPv6 routes at the moment ... */
+  
+  /* Make sure we have room for the new route */
+  if (dcrn->numroutes >= dcrn->capacity) {
+    dcrn->capacity <<= 2;
+    dcrn->routes = (struct sys_route *) safe_realloc(dcrn->routes, 
+						     dcrn->capacity * sizeof(struct sys_route));
+  }
+  
+  /* Now for the important business */
+  dcrn->routes[dcrn->numroutes].dest = entry->route_dst.addr_ip;
+  addr_btom(entry->route_dst.addr_bits, &dcrn->routes[dcrn->numroutes].netmask, sizeof(dcrn->routes[dcrn->numroutes].netmask));
+  dcrn->routes[dcrn->numroutes].gw.s_addr = entry->route_gw.addr_ip;
+  dcrn->numroutes++;
+
+  return 0;
 }
 
 /* This is a helper for getsysroutes_dnet. Once the table of routes is in
