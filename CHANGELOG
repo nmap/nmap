@@ -1,5 +1,15 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o When a system route can't be matched up directly with an interface
+  by comparing addresses, Nmap now tries to match the route through
+  another route. This helps for instance with a PPP connection where
+  the default route's gateway address is routed through a different
+  route, the one associated with the address of the PPP device. The
+  problem would show itself as an inability to scan through the
+  default route and the error message
+    WARNING: Unable to find appropriate interface for system route to ...
+  [David]
+
 o Added smb-enum-processes.nse, a script that allows a user with administrator
   credentials to view a tree of the processes running on the remote system
   (uses HKEY_PERFORMANCE_DATA hive). [Ron Bowes]
