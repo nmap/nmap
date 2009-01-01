@@ -2729,8 +2729,6 @@ struct dnet_collector_route_nfo {
 
 static int collect_dnet_routes(const struct route_entry *entry, void *arg) {
   struct dnet_collector_route_nfo *dcrn = (struct dnet_collector_route_nfo *) arg;
-  int i;
-
   /* Make sure that it is the proper type of route ... */
   if (entry->route_dst.addr_type != ADDR_TYPE_IP || entry->route_gw.addr_type != ADDR_TYPE_IP)
     return 0; /* Not interested in IPv6 routes at the moment ... */
@@ -2746,22 +2744,8 @@ static int collect_dnet_routes(const struct route_entry *entry, void *arg) {
   dcrn->routes[dcrn->numroutes].dest = entry->route_dst.addr_ip;
   addr_btom(entry->route_dst.addr_bits, &dcrn->routes[dcrn->numroutes].netmask, sizeof(dcrn->routes[dcrn->numroutes].netmask));
   dcrn->routes[dcrn->numroutes].gw.s_addr = entry->route_gw.addr_ip;
-  /* Now determine which interface the route relates to */
-  u32 mask;
-  struct sockaddr_in *sin;
-  for(i = 0; i < dcrn->numifaces; i++) {
-    sin = (struct sockaddr_in *) &dcrn->ifaces[i].addr;
-    mask = htonl((unsigned long) (0-1) << (32 - dcrn->ifaces[i].netmask_bits));
-    if ((sin->sin_addr.s_addr & mask) == (entry->route_gw.addr_ip & mask)) {
-      dcrn->routes[dcrn->numroutes].device = &dcrn->ifaces[i];
-      break;
-    } 
-  }
-  if (i == dcrn->numifaces) {
-    error("WARNING: Unable to find appropriate interface for system route to %s", addr_ntoa(&entry->route_gw));
-    return 0;
-  }
   dcrn->numroutes++;
+
   return 0;
 }
 
@@ -3144,24 +3128,87 @@ static struct sys_route *getsysroutes_proc(FILE *routefp, int *howmany) {
   return routes;
 }
 
+/* This is a helper for getsysroutes_dnet. Once the table of routes is in
+   place, this function assigns each to an interface and removes any routes
+   that can't be assigned. */
+static struct dnet_collector_route_nfo *sysroutes_dnet_find_interfaces(struct dnet_collector_route_nfo *dcrn) {
+  struct interface_info *ifaces;
+  u32 mask;
+  struct sockaddr_in *sin;
+  int numifaces = 0;
+  int i, j;
+
+  ifaces = getinterfaces(&numifaces);
+  for (i = 0; i < dcrn->numroutes; i++) {
+    /* First we match up routes whose gateway address directly matches the
+       address of an interface. */
+    for (j = 0; j < numifaces; j++) {
+      sin = (struct sockaddr_in *) &ifaces[j].addr;
+      mask = htonl((unsigned long) (0-1) << (32 - ifaces[j].netmask_bits));
+      if ((sin->sin_addr.s_addr & mask) == (dcrn->routes[i].gw.s_addr & mask)) {
+        dcrn->routes[i].device = &ifaces[j];
+        break;
+      }
+    }
+  }
+
+  /* Find any remaining routes that don't yet have an interface, and try to
+     match them up with the interface of another route. This handles "two-step"
+     routes like sometimes exist with PPP, where the gateway address of the
+     default route doesn't match an interface address, but the gateway address
+     goes through another route that does have an interface. */
+  bool changed;
+  do {
+    changed = false;
+    for (i = 0; i < dcrn->numroutes; i++) {
+      if (dcrn->routes[i].device != NULL)
+        continue;
+      /* Does this route's gateway go through another route with an assigned
+         interface? */
+      for (j = 0; j < dcrn->numroutes; j++) {
+        if (dcrn->routes[i].gw.s_addr == dcrn->routes[j].dest
+            && dcrn->routes[j].device != NULL) {
+          dcrn->routes[i].device = dcrn->routes[j].device;
+          changed = true;
+        }
+      }
+    }
+  } while (changed);
+
+  /* Cull any routes that still don't have an interface. */
+  i = 0;
+  while (i < dcrn->numroutes) {
+    if (dcrn->routes[i].device == NULL) {
+      error("WARNING: Unable to find appropriate interface for system route to %s", inet_ntoa(dcrn->routes[i].gw));
+      /* Remove this entry from the table. */
+      memmove(dcrn->routes + i, dcrn->routes + i + 1, sizeof(dcrn->routes[0]) * (dcrn->numroutes - i - 1));
+      dcrn->numroutes--;
+    } else {
+      i++;
+    }
+  }
+
+  return dcrn;
+}
+
 /* Read system routes via libdnet. */
 static struct sys_route *getsysroutes_dnet(int *howmany) {
   struct dnet_collector_route_nfo dcrn;
-  struct interface_info *ifaces;
-  int numifaces = 0;
 
-  ifaces = getinterfaces(&numifaces);
   dcrn.capacity = 128;
   dcrn.routes = (struct sys_route *) safe_zalloc(dcrn.capacity * sizeof(struct sys_route));
-  dcrn.ifaces = ifaces;
-  dcrn.numifaces = numifaces;
   dcrn.numroutes = 0;
+  dcrn.ifaces = NULL;
+  dcrn.numifaces = 0;
   route_t *dr = route_open();
   if (!dr) fatal("%s: route_open() failed", __func__);
   if (route_loop(dr, collect_dnet_routes, &dcrn) != 0) {
     fatal("%s: route_loop() failed", __func__);
   }
   route_close(dr);
+
+  /* Now match up the routes to interfaces. */
+  sysroutes_dnet_find_interfaces(&dcrn);
 
   *howmany = dcrn.numroutes;
   return dcrn.routes;
