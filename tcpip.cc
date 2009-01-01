@@ -3042,6 +3042,131 @@ static int nmaskcmp(const void *a, const void *b) {
   else return 1;
 }
 
+/* Read system routes from a handle to a /proc/net/route file. */
+static struct sys_route *getsysroutes_proc(FILE *routefp, int *howmany) {
+  struct sys_route *routes = NULL;
+  int route_capacity = 128;
+  struct interface_info *ifaces;
+  char buf[1024];
+  char iface[16];
+  char *p, *endptr;
+  struct interface_info *ii;
+  u32 mask;
+  struct sockaddr_in *sin;
+  int numifaces = 0, numroutes = 0;
+  int i;
+
+  ifaces = getinterfaces(&numifaces);
+  routes = (struct sys_route *) safe_zalloc(route_capacity * sizeof(struct sys_route));
+  (void) fgets(buf, sizeof(buf), routefp); /* Kill the first line (column headers) */
+  while(fgets(buf,sizeof(buf), routefp)) {
+    p = strtok(buf, " \t\n");
+    if (!p) {
+      error("Could not find interface in /proc/net/route line");
+      continue;
+    }
+    if (*p == '*')
+      continue; /* Deleted route -- any other valid reason for
+                   a route to start with an asterict? */
+    Strncpy(iface, p, sizeof(iface));
+    p = strtok(NULL, " \t\n");
+    endptr = NULL;
+    routes[numroutes].dest = strtoul(p, &endptr, 16);
+    if (!endptr || *endptr) {
+      error("Failed to determine Destination from /proc/net/route");
+      continue;
+    }
+
+    /* Now for the gateway */
+    p = strtok(NULL, " \t\n");
+    if (!p) break;
+    endptr = NULL;
+    routes[numroutes].gw.s_addr = strtoul(p, &endptr, 16);
+    if (!endptr || *endptr) {
+      error("Failed to determine gw for %s from /proc/net/route", iface);
+    }
+    for(i=0; i < 5; i++) {
+      p = strtok(NULL, " \t\n");
+      if (!p) break;
+    }
+    if (!p) {
+      error("Failed to find field %d in /proc/net/route", i + 2);
+      continue;
+    }
+    endptr = NULL;
+    routes[numroutes].netmask = strtoul(p, &endptr, 16);
+    if (!endptr || *endptr) {
+      error("Failed to determine mask from /proc/net/route");
+      continue;
+    }
+    for(i=0; i < numifaces; i++) {
+      if (!strcmp(iface, ifaces[i].devfullname)) {
+        routes[numroutes].device = &ifaces[i];
+        break;
+      }
+    }
+    if (i == numifaces) {
+      error("Failed to find device %s which was referenced in /proc/net/route", iface);
+      continue;
+    }
+
+    /* Now to deal with some alias nonsense ... at least on Linux
+       this file will just list the short name, even though IP
+       information (such as source address) from an alias must be
+       used.  So if the purported device can't reach the gateway,
+       try to find a device that starts with the same short
+       devname, but can (e.g. eth0 -> eth0:3) */
+    ii = &ifaces[i];
+    mask = htonl((unsigned long) (0-1) << (32 - ii->netmask_bits));	
+    sin = (struct sockaddr_in *) &ii->addr;
+    if (routes[numroutes].gw.s_addr && (sin->sin_addr.s_addr & mask) != 
+        (routes[numroutes].gw.s_addr & mask)) {
+      for(i=0; i < numifaces; i++) {
+        if (ii == &ifaces[i]) continue;
+        if (strcmp(ii->devname, ifaces[i].devname) == 0) {
+          sin = (struct sockaddr_in *) &ifaces[i].addr;
+          if ((sin->sin_addr.s_addr & mask) == 
+              (routes[numroutes].gw.s_addr & mask)) {
+            routes[numroutes].device = &ifaces[i];
+          }
+        }
+      }
+    }
+
+    numroutes++;
+    if (numroutes >= route_capacity) {
+      route_capacity <<= 2;
+      routes = (struct sys_route *) safe_realloc(routes, route_capacity * sizeof(struct sys_route));
+    }
+  }
+
+  *howmany = numroutes;
+  return routes;
+}
+
+/* Read system routes via libdnet. */
+static struct sys_route *getsysroutes_dnet(int *howmany) {
+  struct dnet_collector_route_nfo dcrn;
+  struct interface_info *ifaces;
+  int numifaces = 0;
+
+  ifaces = getinterfaces(&numifaces);
+  dcrn.capacity = 128;
+  dcrn.routes = (struct sys_route *) safe_zalloc(dcrn.capacity * sizeof(struct sys_route));
+  dcrn.ifaces = ifaces;
+  dcrn.numifaces = numifaces;
+  dcrn.numroutes = 0;
+  route_t *dr = route_open();
+  if (!dr) fatal("%s: route_open() failed", __func__);
+  if (route_loop(dr, collect_dnet_routes, &dcrn) != 0) {
+    fatal("%s: route_loop() failed", __func__);
+  }
+  route_close(dr);
+
+  *howmany = dcrn.numroutes;
+  return dcrn.routes;
+}
+
 /* Parse the system routing table, converting each route into a
    sys_route entry.  Returns an array of sys_routes.  numroutes is set
    to the number of routes in the array.  The routing table is only
@@ -3049,141 +3174,39 @@ static int nmaskcmp(const void *a, const void *b) {
    The returned route array is sorted by netmask with the most
    specific matches first. */
 struct sys_route *getsysroutes(int *howmany) {
-  int route_capacity = 128;
   static struct sys_route *routes = NULL;
   static int numroutes = 0;
   FILE *routefp;
-  char buf[1024];
-  char iface[16];
-  char *p, *endptr;
-  struct interface_info *ifaces;
-  int numifaces = 0;
   int i;
-  u32 mask;
-  struct sockaddr_in *sin;
-  struct interface_info *ii;
 
   if (!howmany) fatal("NULL howmany ptr passed to %s()", __func__);
 
-  if (!routes) {
-    routes = (struct sys_route *) safe_zalloc(route_capacity * sizeof(struct sys_route));
-    ifaces = getinterfaces(&numifaces);
-    /* First let us try Linux-style /proc/net/route */
-    routefp = fopen("/proc/net/route", "r");
-    if (routefp) {
-      (void) fgets(buf, sizeof(buf), routefp); /* Kill the first line (column headers) */
-      while(fgets(buf,sizeof(buf), routefp)) {
-	p = strtok(buf, " \t\n");
-	if (!p) {
-	  error("Could not find interface in /proc/net/route line");
-	  continue;
-	}
-	if (*p == '*')
-	  continue; /* Deleted route -- any other valid reason for
-		       a route to start with an asterict? */
-	Strncpy(iface, p, sizeof(iface));
-	p = strtok(NULL, " \t\n");
-	endptr = NULL;
-	routes[numroutes].dest = strtoul(p, &endptr, 16);
-	if (!endptr || *endptr) {
-	  error("Failed to determine Destination from /proc/net/route");
-	  continue;
-	}
-
-	/* Now for the gateway */
-	p = strtok(NULL, " \t\n");
-	if (!p) break;
-	endptr = NULL;
-	routes[numroutes].gw.s_addr = strtoul(p, &endptr, 16);
-	if (!endptr || *endptr) {
-	  error("Failed to determine gw for %s from /proc/net/route", iface);
-	}
-	for(i=0; i < 5; i++) {
-	  p = strtok(NULL, " \t\n");
-	  if (!p) break;
-	}
-	if (!p) {
-	  error("Failed to find field %d in /proc/net/route", i + 2);
-	  continue;
-	}
-	endptr = NULL;
-	routes[numroutes].netmask = strtoul(p, &endptr, 16);
-	if (!endptr || *endptr) {
-	  error("Failed to determine mask from /proc/net/route");
-	  continue;
-	}
-	for(i=0; i < numifaces; i++) {
-	  if (!strcmp(iface, ifaces[i].devfullname)) {
-	    routes[numroutes].device = &ifaces[i];
-	    break;
-	  }
-	}
-	if (i == numifaces) {
-	  error("Failed to find device %s which was referenced in /proc/net/route", iface);
-	  continue;
-	}
-
-	/* Now to deal with some alias nonsense ... at least on Linux
-	   this file will just list the short name, even though IP
-	   information (such as source address) from an alias must be
-	   used.  So if the purported device can't reach the gateway,
-	   try to find a device that starts with the same short
-	   devname, but can (e.g. eth0 -> eth0:3) */
-	ii = &ifaces[i];
-	mask = htonl((unsigned long) (0-1) << (32 - ii->netmask_bits));	
-	sin = (struct sockaddr_in *) &ii->addr;
-	if (routes[numroutes].gw.s_addr && (sin->sin_addr.s_addr & mask) != 
-	    (routes[numroutes].gw.s_addr & mask)) {
-	  for(i=0; i < numifaces; i++) {
-	    if (ii == &ifaces[i]) continue;
-	    if (strcmp(ii->devname, ifaces[i].devname) == 0) {
-	      sin = (struct sockaddr_in *) &ifaces[i].addr;
-	      if ((sin->sin_addr.s_addr & mask) == 
-		  (routes[numroutes].gw.s_addr & mask)) {
-		routes[numroutes].device = &ifaces[i];
-	      }
-	    }
-	  }
-	}
-
-	numroutes++;
-	if (numroutes >= route_capacity) {
-	  route_capacity <<= 2;
-	  routes = (struct sys_route *) safe_realloc(routes, route_capacity * sizeof(struct sys_route));
-	}
-      }
-    } else {
-      struct dnet_collector_route_nfo dcrn;
-      dcrn.routes = routes;
-      dcrn.numroutes = numroutes;
-      dcrn.capacity = route_capacity;
-      dcrn.ifaces = ifaces;
-      dcrn.numifaces = numifaces;
-      route_t *dr = route_open();
-      if (!dr) fatal("%s: route_open() failed", __func__);
-      if (route_loop(dr, collect_dnet_routes, &dcrn) != 0) {
-	fatal("%s: route_loop() failed", __func__);
-      }
-      route_close(dr);
-      /* These values could have changed in the callback */
-      route_capacity = dcrn.capacity;
-      numroutes = dcrn.numroutes;
-      routes = dcrn.routes;
-    }
-
-    /* Ensure that the route array is sorted by netmask */
-    for(i=1; i < numroutes; i++) {
-      if (ntohl(routes[i].netmask) > ntohl(routes[i-1].netmask)) 
-	break;
-    }
-
-    if (i < numroutes) {
-      /* they're not sorted ... better take care of that */
-      qsort(routes, numroutes, sizeof(routes[0]), nmaskcmp);
-    }
+  if (routes != NULL) {
+    /* We have it cached. */
+    *howmany = numroutes;
+    return routes;
   }
 
-  *howmany = numroutes;
+  /* First let us try Linux-style /proc/net/route */
+  routefp = fopen("/proc/net/route", "r");
+  if (routefp)
+    routes = getsysroutes_proc(routefp, howmany);
+  else
+    routes = getsysroutes_dnet(howmany);
+
+  numroutes = *howmany;
+
+  /* Ensure that the route array is sorted by netmask */
+  for(i=1; i < numroutes; i++) {
+    if (ntohl(routes[i].netmask) > ntohl(routes[i-1].netmask)) 
+      break;
+  }
+
+  if (i < numroutes) {
+    /* they're not sorted ... better take care of that */
+    qsort(routes, numroutes, sizeof(routes[0]), nmaskcmp);
+  }
+
   return routes;
 }
 
