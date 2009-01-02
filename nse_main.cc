@@ -67,9 +67,6 @@ int process_mainloop(lua_State* L);
 int process_waiting2running(lua_State* L, int resume_arguments);
 int process_finalize(lua_State* L, unsigned int registry_idx);
 
-// post execution
-int cleanup_threads(std::list<struct thread_record> trs);
-
 void ScriptResult::set_output (const char *out)
 {
   output = std::string(out);
