@@ -2603,7 +2603,7 @@ static void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
 
   ultrascan_host_pspec_update(USI, hss, probe->pspec(), newstate);
 
-  if (rcvdtime != NULL) {
+  if (rcvdtime != NULL && adjust_timing) {
     /* This probe received a positive response. Consider making it the new
        timing ping probe. */
     if (pingprobe_is_better(probe->pspec(), PORT_UNKNOWN, &hss->target->pingprobe, hss->target->pingprobe_state)) {
@@ -2638,7 +2638,7 @@ static void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
 
   changed = ultrascan_port_pspec_update(USI, hss, pspec, newstate);
 
-  if (rcvdtime != NULL) {
+  if (rcvdtime != NULL && adjust_timing) {
     /* This probe received a positive response. Consider making it the new
        timing ping probe. */
     if (pingprobe_is_better(probe->pspec(), newstate, &hss->target->pingprobe, hss->target->pingprobe_state)) {
@@ -3572,7 +3572,7 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
 	    u8 protocol = probe->protocol();
 	    u16 dport = probe->dport();
 
-	    ultrascan_port_probe_update(USI, host, probeI, newportstate, &USI->now);
+	    ultrascan_port_probe_update(USI, host, probeI, newportstate, &USI->now, adjust_timing);
 	    host->target->ports.setStateReason(dport, protocol, current_reason, 0, 0);
 	  }
 	}
@@ -3696,6 +3696,7 @@ static bool get_arp_result(UltraScanInfo *USI, struct timeval *stime) {
 static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   bool goodone = false;
   bool timedout = false;
+  bool adjust_timing = true;
   struct timeval rcvdtime;
   struct ip *ip = NULL;
   struct ip *ip_icmp = NULL;
@@ -3964,6 +3965,13 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	  }
       current_reason = icmp->icmp_code+ER_ICMPCODE_MOD;
 	  if (newstate == PORT_UNKNOWN) break;
+          if (hss->target->v4hostip()->s_addr != ip->ip_src.s_addr) {
+            /* If it's not directly from the remote host we don't alter our
+               timing for it. */
+            adjust_timing = false;
+            if (o.debugging > 2)
+              log_write(LOG_PLAIN, "ICMP response from %s is not from target (%s); not adjusting timing.\n", inet_ntoa(ip->ip_src), hss->target->targetipstr());
+          }
 	  goodone = true;
 	}
       }
@@ -4012,14 +4020,14 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   if (goodone) {
     reason_sip = (ip->ip_src.s_addr == hss->target->v4hostip()->s_addr) ? 0 : ip->ip_src.s_addr;
     if (probe->isPing())
-      ultrascan_ping_update(USI, hss, probeI, &rcvdtime);
+      ultrascan_ping_update(USI, hss, probeI, &rcvdtime, adjust_timing);
     else {
       /* Save these values so we can use them after ultrascan_port_probe_update
          deletes probe. */
       u8 protocol = probe->protocol();
       u16 dport = probe->dport();
 
-      ultrascan_port_probe_update(USI, hss, probeI, newstate, &rcvdtime);
+      ultrascan_port_probe_update(USI, hss, probeI, newstate, &rcvdtime, adjust_timing);
       if(USI->prot_scan)  
          hss->target->ports.setStateReason(protocol, IPPROTO_IP, 
                                           current_reason, ip->ip_ttl, reason_sip);
@@ -4046,9 +4054,9 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 
 	    if (probe->protocol() == IPPROTO_ICMP) {
 	      if (probe->isPing())
-		ultrascan_ping_update(USI, hss, probeI, &rcvdtime);
+		ultrascan_ping_update(USI, hss, probeI, &rcvdtime, adjust_timing);
 	      else {
-		ultrascan_port_probe_update(USI, hss, probeI, PORT_OPEN, &rcvdtime);
+		ultrascan_port_probe_update(USI, hss, probeI, PORT_OPEN, &rcvdtime, adjust_timing);
 		icmp = (struct icmp *) ((char *)ip_icmp + 4 * ip_icmp->ip_hl);
 		reason_sip = (ip_icmp->ip_src.s_addr == protoscanicmphackaddy.sin_addr.s_addr) ? 0 : ip_icmp->ip_src.s_addr;
 		if(!icmp->icmp_code && !icmp->icmp_type) 
@@ -4555,7 +4563,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 
   if (goodone && newstate != HOST_UNKNOWN) {  
     if (probe->isPing())
-      ultrascan_ping_update(USI, hss, probeI, &USI->now);
+      ultrascan_ping_update(USI, hss, probeI, &USI->now, adjust_timing);
     else {
       ultrascan_host_probe_update(USI, hss, probeI, newstate, &rcvdtime, adjust_timing);
       /* If the host is up, we can forget our other probes. */
