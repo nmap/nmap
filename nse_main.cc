@@ -736,10 +736,17 @@ int process_pickScriptsForPort(lua_State* L, Target* target, Port* port, std::li
   return SCRIPT_ENGINE_SUCCESS;
 }
 
-/* Create a new lua thread and prepare it for execution
- * we store target info in the thread so that the mainloop
- * knows where to put the script result. File closure is expected
- * at stack index -2.
+/* Create a new lua thread and prepare it for execution we store target info in
+ * the thread so that the mainloop knows where to put the script result. File
+ * closure is expected at stack index -2. (Index -1 has the boolean result of
+ * the hostrule or portrule, not used here.)
+ *
+ * The thread will have on its stack 3 values if it is a host script, or 4 if it
+ * is a port script:
+ *   1: environment table
+ *   2: action closure
+ *   3: host table
+ *   4: port table (port scripts only)
  * */
 int process_preparethread(lua_State* L, struct thread_record *tr){
 
@@ -772,9 +779,9 @@ int process_preparethread(lua_State* L, struct thread_record *tr){
   tr->runlevel = lua_tonumber(L, -1);
   lua_pop(L, 1);
 
-  // move the script action closure into the thread
+  // move the environment table and script action closure into the thread
   lua_getfield(L, -1, ACTION); // action closure
-  lua_xmove(L, thread, 2);
+  lua_xmove(L, thread, 2); // env, action
   lua_pop(L, 1); // filename
   lua_setfenv(L, -2); // reset old env
   lua_pop(L, 1); // file closure
