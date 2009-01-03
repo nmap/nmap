@@ -2617,7 +2617,7 @@ static void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
       /* Make this the new global ping host, but only if the old one is not
          waiting for any probes. */
       if (USI->gstats->pinghost == NULL
-          || USI->gstats->pinghost->probes_outstanding_empty()) {
+          || USI->gstats->pinghost->num_probes_active == 0) {
         if (o.debugging > 1)
           log_write(LOG_PLAIN, "Changing global ping host to %s.\n", hss->target->targetipstr());
         USI->gstats->pinghost = hss;
@@ -3175,7 +3175,7 @@ static void doAnyPings(UltraScanInfo *USI) {
 
   /* Next come global pings. We never send more than one of these at at time. */
   if (USI->gstats->pinghost != NULL && USI->gstats->pinghost->target->pingprobe_state != PORT_UNKNOWN &&
-      USI->gstats->pinghost->probes_outstanding_empty() &&
+      USI->gstats->pinghost->num_probes_active == 0 &&
       USI->gstats->probes_sent >= USI->gstats->lastping_sent_numprobes + 20 && 
       TIMEVAL_SUBTRACT(USI->now, USI->gstats->lastrcvd) > USI->perf.pingtime && 
       TIMEVAL_SUBTRACT(USI->now, USI->gstats->lastping_sent) > USI->perf.pingtime && 
@@ -4800,7 +4800,8 @@ static void processData(UltraScanInfo *USI) {
       nextProbeI++;
       /* If a global ping probe times out, we want to get rid of it so a new
          host can take its place. */
-      if (TIMEVAL_SUBTRACT(USI->now, (*probeI)->sent) > (long) pinghost->probeTimeout()) {
+      if ((*probeI)->isPing()
+          && TIMEVAL_SUBTRACT(USI->now, (*probeI)->sent) > (long) pinghost->probeTimeout()) {
         if (o.debugging)
           log_write(LOG_STDOUT, "Destroying timed-out global ping from %s.\n", pinghost->target->targetipstr());
 	pinghost->destroyOutstandingProbe(probeI);
