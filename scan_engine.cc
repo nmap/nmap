@@ -4808,7 +4808,8 @@ static void processData(UltraScanInfo *USI) {
           && TIMEVAL_SUBTRACT(USI->now, (*probeI)->sent) > (long) pinghost->probeTimeout()) {
         if (o.debugging)
           log_write(LOG_STDOUT, "Destroying timed-out global ping from %s.\n", pinghost->target->targetipstr());
-	pinghost->destroyOutstandingProbe(probeI);
+        /* ultrascan_ping_update destroys the probe. */
+        ultrascan_ping_update(USI, pinghost, probeI, NULL);
       }
     }
   }
