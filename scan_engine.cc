@@ -2307,7 +2307,7 @@ void HostScanStats::getTiming(struct ultra_timing_vals *tmng) {
 
   /* Use the per-host value if a pingport has been found or very few probes
      have been sent */
-  if (target->pingprobe_state != PORT_UNKNOWN || numprobes_sent < 80) {
+  if (target->pingprobe.type != PS_NONE || numprobes_sent < 80) {
     *tmng = timing;
     return;
   }
@@ -3174,7 +3174,8 @@ static void doAnyPings(UltraScanInfo *USI) {
   }
 
   /* Next come global pings. We never send more than one of these at at time. */
-  if (USI->gstats->pinghost != NULL && USI->gstats->pinghost->target->pingprobe_state != PORT_UNKNOWN &&
+  if (USI->gstats->pinghost != NULL &&
+      USI->gstats->pinghost->target->pingprobe.type != PS_NONE &&
       USI->gstats->pinghost->num_probes_active == 0 &&
       USI->gstats->probes_sent >= USI->gstats->lastping_sent_numprobes + 20 && 
       TIMEVAL_SUBTRACT(USI->now, USI->gstats->lastrcvd) > USI->perf.pingtime && 
