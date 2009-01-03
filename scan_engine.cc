@@ -2172,16 +2172,16 @@ void HostScanStats::markProbeTimedout(list<UltraProbe *>::iterator probeI) {
 }
 
 bool HostScanStats::completed() {
-  /* If there are probes active or awaiting retransmission, we are not done. */
-  if (num_probes_active != 0 || num_probes_waiting_retransmit != 0
-    || !probe_bench.empty() || !retry_stack.empty()) {
-    return false;
-  }
-
   /* With ping scan, we are done once we know the host is up or down. */
   if (USI->ping_scan && ((target->flags & HOST_UP)
     || (target->flags & HOST_DOWN) || target->weird_responses)) {
     return true;
+  }
+
+  /* If there are probes active or awaiting retransmission, we are not done. */
+  if (num_probes_active != 0 || num_probes_waiting_retransmit != 0
+    || !probe_bench.empty() || !retry_stack.empty()) {
+    return false;
   }
 
   /* With other types of scan, we are done when there are no more ports to
