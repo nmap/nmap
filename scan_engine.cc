@@ -3969,7 +3969,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 		  sizeof(struct ip));
 	    break;
 	  }
-      current_reason = icmp->icmp_code+ER_ICMPCODE_MOD;
+	  current_reason = icmp->icmp_code+ER_ICMPCODE_MOD;
 	  if (newstate == PORT_UNKNOWN) break;
           if (hss->target->v4hostip()->s_addr != ip->ip_src.s_addr) {
             /* If it's not directly from the remote host we don't alter our
