@@ -241,6 +241,9 @@ o Upgraded the OpenSSL shipped for Windows to 0.9.8i. [Kris]
 o The SSLv2-support NSE script no longer prints duplicate cyphers if
   they exist in the server's supported cypher list. [Kris]
 
+o The robots.txt NSE script is now silent instead of printing "is empty
+  or has no disallowed entries". [Kris]
+
 o Updated IANA assignment IP list for random IP (-iR)
   generation. [Kris]
 

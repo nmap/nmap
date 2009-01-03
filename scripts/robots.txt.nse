@@ -81,7 +81,7 @@ action = function(host, port)
 	dis_count = parse_robots(answer.body, output)
 
 	if dis_count == 0 then 
-		return "is empty or has no disallowed entries"
+		return
 	end
 
 	-- verbose/debug mode, print 50 entries
