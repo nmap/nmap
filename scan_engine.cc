@@ -4392,6 +4392,9 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           } else {
             goodone = true;
             newstate = HOST_DOWN;
+            adjust_timing = false;
+            if (o.debugging > 2)
+              log_write(LOG_PLAIN, "ICMP response from %s is not from target (%s); not adjusting timing.\n", inet_ntoa(ip->ip_src), hss->target->targetipstr());
           }
           if (o.debugging) {
 	    if (ping->code == 3)
