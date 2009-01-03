@@ -2614,6 +2614,14 @@ static void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
       }
       hss->target->pingprobe = *probe->pspec();
       hss->target->pingprobe_state = PORT_UNKNOWN;
+      /* Make this the new global ping host, but only if the old one is not
+         waiting for any probes. */
+      if (USI->gstats->pinghost == NULL
+          || USI->gstats->pinghost->probes_outstanding_empty()) {
+        if (o.debugging > 1)
+          log_write(LOG_PLAIN, "Changing global ping host to %s.\n", hss->target->targetipstr());
+        USI->gstats->pinghost = hss;
+      }
     }
   }
 
