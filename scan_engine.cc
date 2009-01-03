@@ -471,9 +471,6 @@ public:
      in this value. */
   unsigned int num_probes_waiting_retransmit;
   unsigned int num_probes_outstanding() { return probes_outstanding.size(); }
-  /* Call this instead of checking for num_probes_outstanding() == 0 because it
-     avoids a potential traversal of the list to find the size. */
-  unsigned int probes_outstanding_empty() { return probes_outstanding.empty(); }
 
   /* The bench is a stock of probes (compacted into just the
      probespec) that have met the current maximum tryno, and are on
