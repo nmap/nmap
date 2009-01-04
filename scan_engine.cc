@@ -3971,13 +3971,6 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	  }
 	  current_reason = icmp->icmp_code+ER_ICMPCODE_MOD;
 	  if (newstate == PORT_UNKNOWN) break;
-          if (hss->target->v4hostip()->s_addr != ip->ip_src.s_addr) {
-            /* If it's not directly from the remote host we don't alter our
-               timing for it. */
-            adjust_timing = false;
-            if (o.debugging > 2)
-              log_write(LOG_PLAIN, "ICMP response from %s is not from target (%s); not adjusting timing.\n", inet_ntoa(ip->ip_src), hss->target->targetipstr());
-          }
 	  goodone = true;
 	}
       }
@@ -4389,9 +4382,6 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           } else {
             goodone = true;
             newstate = HOST_DOWN;
-            adjust_timing = false;
-            if (o.debugging > 2)
-              log_write(LOG_PLAIN, "ICMP response from %s is not from target (%s); not adjusting timing.\n", inet_ntoa(ip->ip_src), hss->target->targetipstr());
           }
           if (o.debugging) {
 	    if (ping->code == 3)
