@@ -2851,12 +2851,12 @@ o Nmap now allows multiple ignored port states.  If a 65K-port scan
   exact port numbers for each state in the XML, use -d3 for now.
 
 o Nmap now ignores certain ICMP error message rate limiting (rather
-  than slowing down to accomidate it) in cases such as SYN scan where
+  than slowing down to accommodate it) in cases such as SYN scan where
   an ICMP message and no response mean the same thing (port filtered).
   This is currently only done at timing level Aggressive (-T4) or
   higher, though we may make it the default if we don't hear problems
   with it.  In addition, the --defeat-rst-ratelimit option has been
-  added, which causes Nmap not to slow down to accomidate RST rate
+  added, which causes Nmap not to slow down to accommodate RST rate
   limits when encountered.  For a SYN scan, this may cause closed
   ports to be labeled 'filtered' becuase Nmap refused to slow down
   enough to correspond to the rate limiting.  Learn more about this
