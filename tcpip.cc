@@ -2718,6 +2718,13 @@ for(i=0; i < numdevs; i++) {
 return -1;
 }
 
+struct dnet_collector_route_nfo {
+  struct sys_route *routes;
+  int numroutes;
+  int capacity; /* Capacity of routes or ifaces, depending on context */
+  struct interface_info *ifaces;
+  int numifaces;
+};
 
 #if WIN32
 static int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
@@ -3097,14 +3104,6 @@ static struct sys_route *getsysroutes_proc(FILE *routefp, int *howmany) {
   *howmany = numroutes;
   return routes;
 }
-
-struct dnet_collector_route_nfo {
-  struct sys_route *routes;
-  int numroutes;
-  int capacity; /* Capacity of routes or ifaces, depending on context */
-  struct interface_info *ifaces;
-  int numifaces;
-};
 
 /* This is the callback for the call to route_loop in getsysroutes_dnet. It
    takes a route entry and adds it into the dnet_collector_route_nfo struct. */
