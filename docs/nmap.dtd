@@ -323,6 +323,7 @@
 <!ELEMENT finished	EMPTY >
 <!ATTLIST finished	time		%attr_numeric;	#REQUIRED 
                         timestr		CDATA	        #IMPLIED
+			elapsed		%attr_numeric;	#REQUIRED
 >
 
 <!ELEMENT hosts		EMPTY >

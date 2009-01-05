@@ -1957,7 +1957,7 @@ void printfinaloutput() {
   Strncpy(mytime, ctime(&timep), sizeof(mytime));
   chomp(mytime);
   
-  log_write(LOG_XML, "<runstats><finished time=\"%lu\" timestr=\"%s\"/><hosts up=\"%d\" down=\"%d\" total=\"%d\" />\n", (unsigned long) timep, mytime, o.numhosts_up, o.numhosts_scanned - o.numhosts_up, o.numhosts_scanned);
+  log_write(LOG_XML, "<runstats><finished time=\"%lu\" timestr=\"%s\" elapsed=\"%.2f\"/><hosts up=\"%d\" down=\"%d\" total=\"%d\" />\n", (unsigned long) timep, mytime, o.TimeSinceStartMS(&tv) / 1000.0, o.numhosts_up, o.numhosts_scanned - o.numhosts_up, o.numhosts_scanned);
 
   log_write(LOG_XML, "<!-- Nmap done at %s; %d %s (%d %s up) scanned in %.2f seconds -->\n", mytime, o.numhosts_scanned, (o.numhosts_scanned == 1)? "IP address" : "IP addresses", o.numhosts_up, (o.numhosts_up == 1)? "host" : "hosts",  o.TimeSinceStartMS(&tv) / 1000.0 );
   log_write(LOG_NORMAL|LOG_MACHINE, "# Nmap done at %s -- %d %s (%d %s up) scanned in %.2f seconds\n", mytime, o.numhosts_scanned, (o.numhosts_scanned == 1)? "IP address" : "IP addresses", o.numhosts_up, (o.numhosts_up == 1)? "host" : "hosts", o.TimeSinceStartMS(&tv) / 1000.0 );

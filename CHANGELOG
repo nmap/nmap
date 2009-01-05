@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o An "elapsed" attribute has been added to the XML output, representing
+  the total scan time in seconds (floating point). [Kris]
+
 o When a system route can't be matched up directly with an interface
   by comparing addresses, Nmap now tries to match the route through
   another route. This helps for instance with a PPP connection where
