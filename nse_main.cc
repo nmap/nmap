@@ -376,6 +376,26 @@ void script_scan_free() {
     lua_close(L_script_scan);
 }
 
+/* Return a user-presentation string showing the target of a thread_record. It's
+   just "<target>" for host scripts and "<target>:<port>" for port scripts. At
+   higher debug levels the address of the thread is included. The result is
+   returned in a static buffer. */
+static const char *thread_id_str(const thread_record &thr) {
+  static char buf[128];
+
+  if (thr.rr.type == 0) /* hostrule */
+    Snprintf(buf, sizeof(buf), "%s", thr.rr.host->targetipstr());
+  else /* portrule */
+    Snprintf(buf, sizeof(buf), "%s:%d", thr.rr.host->targetipstr(), thr.rr.port->portno);
+
+  if (o.debugging > 1) {
+    char *p = strchr(buf, '\0');
+    Snprintf(p, sizeof(buf) + (p - buf), " (thread %p)", (void *) thr.thread);
+  }
+
+  return buf;
+}
+
 void log_script_started(const thread_record &thr) {
   const char *filename;
 
@@ -384,15 +404,8 @@ void log_script_started(const thread_record &thr) {
   assert(filename != NULL);
   lua_pop(thr.thread, 1);
 
-  if (thr.rr.type == 0) /* hostrule */
-    log_write(LOG_STDOUT,
-      "%s: Starting '%s' against %s (thread %p).\n", SCRIPT_ENGINE,
-      filename, thr.rr.host->targetipstr(), (void *) thr.thread);
-  else /* portrule */
-    log_write(LOG_STDOUT,
-      "%s: Starting '%s' against %s:%d (thread %p).\n", SCRIPT_ENGINE,
-      filename, thr.rr.host->targetipstr(),
-      thr.rr.port->portno, (void *) thr.thread);
+  log_write(LOG_STDOUT, "%s: Starting %s against %s.\n", SCRIPT_ENGINE,
+      filename, thread_id_str(thr));
 }
 
 void log_script_finished(const thread_record &thr) {
@@ -403,15 +416,8 @@ void log_script_finished(const thread_record &thr) {
   assert(filename != NULL);
   lua_pop(thr.thread, 1);
 
-  if (thr.rr.type == 0) /* hostrule */
-    log_write(LOG_STDOUT,
-      "%s: Finished '%s' against %s (thread %p).\n", SCRIPT_ENGINE,
-      filename, thr.rr.host->targetipstr(), (void *) thr.thread);
-  else /* portrule */
-    log_write(LOG_STDOUT,
-      "%s: Finished '%s' against %s:%d (thread %p).\n", SCRIPT_ENGINE,
-      filename, thr.rr.host->targetipstr(), thr.rr.port->portno,
-      (void *) thr.thread);
+  log_write(LOG_STDOUT, "%s: Finished %s against %s.\n", SCRIPT_ENGINE,
+      filename, thread_id_str(thr));
 }
 
 void log_script_timeout(const thread_record &thr) {
