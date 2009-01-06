@@ -376,6 +376,60 @@ void script_scan_free() {
     lua_close(L_script_scan);
 }
 
+void log_script_started(const thread_record &thr) {
+  const char *filename;
+
+  lua_getfield(thr.thread, 1, FILENAME);
+  filename = lua_tostring(thr.thread, -1);
+  assert(filename != NULL);
+  lua_pop(thr.thread, 1);
+
+  if (thr.rr.type == 0) /* hostrule */
+    log_write(LOG_STDOUT,
+      "Starting '%s' against %s (thread %p).\n",
+      filename, thr.rr.host->targetipstr(), (void *) thr.thread);
+  else /* portrule */
+    log_write(LOG_STDOUT,
+      "Starting '%s' against %s:%d (thread %p).\n",
+      filename, thr.rr.host->targetipstr(),
+      thr.rr.port->portno, (void *) thr.thread);
+}
+
+void log_script_finished(const thread_record &thr) {
+  const char *filename;
+
+  lua_getfield(thr.thread, 1, FILENAME);
+  filename = lua_tostring(thr.thread, -1);
+  assert(filename != NULL);
+  lua_pop(thr.thread, 1);
+
+  if (thr.rr.type == 0) /* hostrule */
+    log_write(LOG_STDOUT,
+      "Finished '%s' against %s (thread %p).\n",
+      filename, thr.rr.host->targetipstr(), (void *) thr.thread);
+  else /* portrule */
+    log_write(LOG_STDOUT,
+      "Finished '%s' against %s:%d (thread %p).\n",
+      filename, thr.rr.host->targetipstr(), thr.rr.port->portno,
+      (void *) thr.thread);
+}
+
+void log_script_timeout(const thread_record &thr) {
+  /* The script's filename cannot be accessed when a thread's target times out
+     because we do not have access to the thread's environment while it is
+     yielded. */
+  log_write(LOG_STDOUT, "%s: target %s timed out.\n", SCRIPT_ENGINE,
+    thr.rr.host->targetipstr());
+}
+
+void log_script_error(const thread_record &thr) {
+  const char* errmsg;
+  
+  /* The error message is what's on top of the stack. */
+  errmsg = lua_tostring(thr.thread, -1);
+  log_write(LOG_STDOUT, "%s: %s\n", SCRIPT_ENGINE, errmsg);
+}
+
 int process_mainloop(lua_State *L) {
   int state;
   int unfinished = running_scripts.size() + waiting_scripts.size();
@@ -391,21 +445,7 @@ int process_mainloop(lua_State *L) {
   SCRIPT_ENGINE_DEBUGGING(
     log_write(LOG_STDOUT, "Running %d script threads:\n", unfinished);
     for (iter = running_scripts.begin(); iter != running_scripts.end(); iter++)
-    {
-      const char *filename;
-      lua_getfield(iter->thread, 1, FILENAME);
-      assert((filename = lua_tostring(iter->thread, -1)) != NULL);
-      if (iter->rr.type == 0) /* hostrule */
-        log_write(LOG_STDOUT,
-          "Starting '%s' against %s (thread %p).\n",
-          filename, iter->rr.host->targetipstr(), (void *) iter->thread);
-      else /* portrule */
-        log_write(LOG_STDOUT,
-          "Starting '%s' against %s:%d (thread %p).\n",
-          filename, iter->rr.host->targetipstr(),
-          iter->rr.port->portno, (void *) iter->thread);
-      lua_pop(iter->thread, 1);
-    }
+      log_script_started(*iter);
   )
 
   // while there are scripts in running or waiting state, we loop.
@@ -454,10 +494,8 @@ int process_mainloop(lua_State *L) {
       current = *(running_scripts.begin());
 
       if (current.rr.host->timedOut(&now)) {
-        if (o.verbose >= 2) {
-          log_write(LOG_STDOUT, "%s: target %s timed out.\n", SCRIPT_ENGINE,
-            current.rr.host->targetipstr());
-        }
+        if (o.debugging || o.verbose > 1)
+          log_script_timeout(current);
         SCRIPT_ENGINE_TRY(process_finalize(L, current.registry_idx));
         continue;
       }
@@ -478,6 +516,9 @@ int process_mainloop(lua_State *L) {
         // we first check if it produced output
         // then we release the thread and remove it from the
         // running_scripts list
+
+        if (o.debugging)
+          log_script_finished(current);
 
         if(lua_isstring (current.thread, 2)) { // FIXME
                     ScriptResult sr;
@@ -502,10 +543,8 @@ int process_mainloop(lua_State *L) {
       } else {
         // this script returned because of an error
         // print the failing reason if the verbose level is high enough
-        SCRIPT_ENGINE_DEBUGGING(
-          const char* errmsg = lua_tostring(current.thread, -1);
-          log_write(LOG_STDOUT, "%s: %s\n", SCRIPT_ENGINE, errmsg);
-        )
+        if (o.debugging)
+          log_script_error(current);
         SCRIPT_ENGINE_TRY(process_finalize(L, current.registry_idx));
       }
     } // while
@@ -535,18 +574,6 @@ int has_target_finished(Target *target) {
 int process_finalize(lua_State* L, unsigned int registry_idx) {
   luaL_unref(L, LUA_REGISTRYINDEX, registry_idx);
   struct thread_record thr = running_scripts.front();
-
-  SCRIPT_ENGINE_DEBUGGING(
-    if (thr.rr.type == 0) /* hostrule */
-      log_write(LOG_STDOUT,
-        "Finished script against %s (thread %p).\n",
-        thr.rr.host->targetipstr(), (void *) thr.thread);
-    else /* portrule */
-      log_write(LOG_STDOUT,
-        "Finished script against %s:%d (thread %p).\n",
-        thr.rr.host->targetipstr(), thr.rr.port->portno,
-        (void *) thr.thread);
-  )
 
   running_scripts.pop_front();
 
