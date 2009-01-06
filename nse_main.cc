@@ -386,11 +386,11 @@ void log_script_started(const thread_record &thr) {
 
   if (thr.rr.type == 0) /* hostrule */
     log_write(LOG_STDOUT,
-      "Starting '%s' against %s (thread %p).\n",
+      "%s: Starting '%s' against %s (thread %p).\n", SCRIPT_ENGINE,
       filename, thr.rr.host->targetipstr(), (void *) thr.thread);
   else /* portrule */
     log_write(LOG_STDOUT,
-      "Starting '%s' against %s:%d (thread %p).\n",
+      "%s: Starting '%s' against %s:%d (thread %p).\n", SCRIPT_ENGINE,
       filename, thr.rr.host->targetipstr(),
       thr.rr.port->portno, (void *) thr.thread);
 }
@@ -405,11 +405,11 @@ void log_script_finished(const thread_record &thr) {
 
   if (thr.rr.type == 0) /* hostrule */
     log_write(LOG_STDOUT,
-      "Finished '%s' against %s (thread %p).\n",
+      "%s: Finished '%s' against %s (thread %p).\n", SCRIPT_ENGINE,
       filename, thr.rr.host->targetipstr(), (void *) thr.thread);
   else /* portrule */
     log_write(LOG_STDOUT,
-      "Finished '%s' against %s:%d (thread %p).\n",
+      "%s: Finished '%s' against %s:%d (thread %p).\n", SCRIPT_ENGINE,
       filename, thr.rr.host->targetipstr(), thr.rr.port->portno,
       (void *) thr.thread);
 }
