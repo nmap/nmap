@@ -388,6 +388,26 @@ int process_mainloop(lua_State *L) {
   std::list<struct thread_record>::iterator iter;
   struct timeval now;
 
+  SCRIPT_ENGINE_DEBUGGING(
+    log_write(LOG_STDOUT, "Running %d script threads:\n", unfinished);
+    for (iter = running_scripts.begin(); iter != running_scripts.end(); iter++)
+    {
+      const char *filename;
+      lua_getfield(iter->thread, 1, FILENAME);
+      assert((filename = lua_tostring(iter->thread, -1)) != NULL);
+      if (iter->rr.type == 0) /* hostrule */
+        log_write(LOG_STDOUT,
+          "Starting '%s' against %s (thread %p).\n",
+          filename, iter->rr.host->targetipstr(), (void *) iter->thread);
+      else /* portrule */
+        log_write(LOG_STDOUT,
+          "Starting '%s' against %s:%d (thread %p).\n",
+          filename, iter->rr.host->targetipstr(),
+          iter->rr.port->portno, (void *) iter->thread);
+      lua_pop(iter->thread, 1);
+    }
+  )
+
   // while there are scripts in running or waiting state, we loop.
   // we rely on nsock_loop to protect us from busy loops when
   // all scripts are waiting.
@@ -516,6 +536,18 @@ int process_finalize(lua_State* L, unsigned int registry_idx) {
   luaL_unref(L, LUA_REGISTRYINDEX, registry_idx);
   struct thread_record thr = running_scripts.front();
 
+  SCRIPT_ENGINE_DEBUGGING(
+    if (thr.rr.type == 0) /* hostrule */
+      log_write(LOG_STDOUT,
+        "Finished script against %s (thread %p).\n",
+        thr.rr.host->targetipstr(), (void *) thr.thread);
+    else /* portrule */
+      log_write(LOG_STDOUT,
+        "Finished script against %s:%d (thread %p).\n",
+        thr.rr.host->targetipstr(), thr.rr.port->portno,
+        (void *) thr.thread);
+  )
+
   running_scripts.pop_front();
 
   if (has_target_finished(thr.rr.host))
@@ -628,16 +660,6 @@ int process_preparehost(lua_State* L, Target* target, std::list<struct thread_re
       SCRIPT_ENGINE_TRY(process_preparethread(L, &tr));
 
       torun_threads.push_back(tr);
-
-      SCRIPT_ENGINE_DEBUGGING(
-        lua_getfenv(L, -2); // file closure environment
-        lua_getfield(L, -1, FILENAME);
-        log_write(LOG_STDOUT, "%s: Will run %s against %s\n",
-          SCRIPT_ENGINE,
-          lua_tostring(L, -1),
-          target->targetipstr());
-        lua_pop(L, 2);
-      )
     }
     lua_pop(L, 2); // boolean and file closure
   }
@@ -717,16 +739,6 @@ int process_pickScriptsForPort(lua_State* L, Target* target, Port* port, std::li
       SCRIPT_ENGINE_TRY(process_preparethread(L, &tr));
 
       torun_threads.push_back(tr);
-
-      SCRIPT_ENGINE_DEBUGGING(
-        lua_getfenv(L, -2); // file closure environment
-        lua_getfield(L, -1, FILENAME);
-        log_write(LOG_STDOUT, "%s: Will run %s against %s\n",
-          SCRIPT_ENGINE,
-          lua_tostring(L, -1),
-          target->targetipstr());
-        lua_pop(L, 2);
-      )
     }
     lua_pop(L, 2); // boolean and file closure
   }
