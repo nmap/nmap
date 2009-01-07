@@ -44,7 +44,7 @@
 -- remove references to Samba. 
 --
 --@author Ron Bowes <ron@skullsecurity.net>
---@copyright See nmap's COPYING for licence
+--@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -----------------------------------------------------------------------
 module(... or "msrpc", package.seeall)
 

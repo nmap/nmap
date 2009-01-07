@@ -13,7 +13,7 @@
 -- And my primary inspiration was PsTools, specifically, pstasklist.exe. 
 --
 --@author Ron Bowes <ron@skullsecurity.net>
---@copyright See nmap's COPYING for licence
+--@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -----------------------------------------------------------------------
 module(... or "msrpcperformance", package.seeall)
 
