@@ -2112,7 +2112,7 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
     if (hss->timing.cwnd > USI->perf.max_cwnd)
       hss->timing.cwnd = USI->perf.max_cwnd;
   }
-  /* If probe->tryno == 0 and rcvdtime == NULL, do nothing. */
+  /* If !probe->isPing() and rcvdtime == NULL, do nothing. */
 
   /* If packet drops are particularly bad, enforce a delay between
      packet sends (useful for cases such as UDP scan where responses
