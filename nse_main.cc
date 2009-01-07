@@ -398,18 +398,21 @@ static const char *thread_id_str(const thread_record &thr) {
 }
 
 void log_script_started(const thread_record &thr) {
-  log_write(LOG_STDOUT, "%s: Starting %s against %s.\n",
-    SCRIPT_ENGINE, thr.filename.c_str(), thread_id_str(thr));
+  log_write(LOG_STDOUT, "%s (%.3fs): Starting %s against %s.\n",
+    SCRIPT_ENGINE, o.TimeSinceStartMS() / 1000.0,
+    thr.filename.c_str(), thread_id_str(thr));
 }
 
 void log_script_finished(const thread_record &thr) {
-  log_write(LOG_STDOUT, "%s: Finished %s against %s.\n",
-    SCRIPT_ENGINE, thr.filename.c_str(), thread_id_str(thr));
+  log_write(LOG_STDOUT, "%s (%.3fs): Finished %s against %s.\n",
+    SCRIPT_ENGINE, o.TimeSinceStartMS() / 1000.0,
+    thr.filename.c_str(), thread_id_str(thr));
 }
 
 void log_script_timeout(const thread_record &thr) {
-  log_write(LOG_STDOUT, "%s: Stopped %s against %s because of host timeout.\n",
-    SCRIPT_ENGINE, thr.filename.c_str(), thread_id_str(thr));
+  log_write(LOG_STDOUT, "%s (%.3fs): Stopped %s against %s because of host timeout.\n",
+    SCRIPT_ENGINE, o.TimeSinceStartMS() / 1000.0,
+    thr.filename.c_str(), thread_id_str(thr));
 }
 
 void log_script_error(const thread_record &thr) {
@@ -417,8 +420,9 @@ void log_script_error(const thread_record &thr) {
   
   /* The error message is what's on top of the stack. */
   errmsg = lua_tostring(thr.thread, -1);
-  log_write(LOG_STDOUT, "%s: %s against %s ended with error: %s\n",
-    SCRIPT_ENGINE, thr.filename.c_str(), thread_id_str(thr), errmsg);
+  log_write(LOG_STDOUT, "%s (%.3fs): %s against %s ended with error: %s\n",
+    SCRIPT_ENGINE, o.TimeSinceStartMS() / 1000.0,
+    thr.filename.c_str(), thread_id_str(thr), errmsg);
 }
 
 int process_mainloop(lua_State *L) {
