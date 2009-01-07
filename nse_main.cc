@@ -437,11 +437,11 @@ int process_mainloop(lua_State *L) {
   std::list<struct thread_record>::iterator iter;
   struct timeval now;
 
-  SCRIPT_ENGINE_DEBUGGING(
+  if (o.debugging || o.scriptTrace()) {
     log_write(LOG_STDOUT, "Running %d script threads:\n", unfinished);
     for (iter = running_scripts.begin(); iter != running_scripts.end(); iter++)
       log_script_started(*iter);
-  )
+  }
 
   // while there are scripts in running or waiting state, we loop.
   // we rely on nsock_loop to protect us from busy loops when
@@ -489,7 +489,7 @@ int process_mainloop(lua_State *L) {
       current = *(running_scripts.begin());
 
       if (current.rr.host->timedOut(&now)) {
-        if (o.debugging || o.verbose > 1)
+        if (o.debugging || o.verbose > 1 || o.scriptTrace())
           log_script_timeout(current);
         SCRIPT_ENGINE_TRY(process_finalize(L, current.registry_idx));
         continue;
@@ -512,7 +512,7 @@ int process_mainloop(lua_State *L) {
         // then we release the thread and remove it from the
         // running_scripts list
 
-        if (o.debugging)
+        if (o.debugging || o.scriptTrace())
           log_script_finished(current);
 
         if(lua_isstring (current.thread, 2)) { // FIXME
@@ -538,7 +538,7 @@ int process_mainloop(lua_State *L) {
       } else {
         // this script returned because of an error
         // print the failing reason if the verbose level is high enough
-        if (o.debugging)
+        if (o.debugging || o.scriptTrace())
           log_script_error(current);
         SCRIPT_ENGINE_TRY(process_finalize(L, current.registry_idx));
       }
