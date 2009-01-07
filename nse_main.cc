@@ -30,6 +30,7 @@ struct run_record {
 
 struct thread_record {
   lua_State* thread;
+  std::string filename;
   int resume_arguments;
   unsigned int registry_idx; // index in the main state registry
   double runlevel;
@@ -397,35 +398,18 @@ static const char *thread_id_str(const thread_record &thr) {
 }
 
 void log_script_started(const thread_record &thr) {
-  const char *filename;
-
-  lua_getfield(thr.thread, 1, FILENAME);
-  filename = lua_tostring(thr.thread, -1);
-  assert(filename != NULL);
-  lua_pop(thr.thread, 1);
-
-  log_write(LOG_STDOUT, "%s: Starting %s against %s.\n", SCRIPT_ENGINE,
-      filename, thread_id_str(thr));
+  log_write(LOG_STDOUT, "%s: Starting %s against %s.\n",
+    SCRIPT_ENGINE, thr.filename.c_str(), thread_id_str(thr));
 }
 
 void log_script_finished(const thread_record &thr) {
-  const char *filename;
-
-  lua_getfield(thr.thread, 1, FILENAME);
-  filename = lua_tostring(thr.thread, -1);
-  assert(filename != NULL);
-  lua_pop(thr.thread, 1);
-
-  log_write(LOG_STDOUT, "%s: Finished %s against %s.\n", SCRIPT_ENGINE,
-      filename, thread_id_str(thr));
+  log_write(LOG_STDOUT, "%s: Finished %s against %s.\n",
+    SCRIPT_ENGINE, thr.filename.c_str(), thread_id_str(thr));
 }
 
 void log_script_timeout(const thread_record &thr) {
-  /* The script's filename cannot be accessed when a thread's target times out
-     because we do not have access to the thread's environment while it is
-     yielded. */
-  log_write(LOG_STDOUT, "%s: target %s timed out.\n", SCRIPT_ENGINE,
-    thr.rr.host->targetipstr());
+  log_write(LOG_STDOUT, "%s: Stopped %s against %s because of host timeout.\n",
+    SCRIPT_ENGINE, thr.filename.c_str(), thread_id_str(thr));
 }
 
 void log_script_error(const thread_record &thr) {
@@ -433,7 +417,8 @@ void log_script_error(const thread_record &thr) {
   
   /* The error message is what's on top of the stack. */
   errmsg = lua_tostring(thr.thread, -1);
-  log_write(LOG_STDOUT, "%s: %s\n", SCRIPT_ENGINE, errmsg);
+  log_write(LOG_STDOUT, "%s: %s against %s ended with error: %s\n",
+    SCRIPT_ENGINE, thr.filename.c_str(), thread_id_str(thr), errmsg);
 }
 
 int process_mainloop(lua_State *L) {
@@ -799,6 +784,7 @@ int process_preparethread(lua_State* L, struct thread_record *tr){
   lua_pushvalue(L, -2); // File closure
   lua_getfenv(L, -1); // get script file environment
   lua_getfield(L, -1, FILENAME); // get its filename
+  tr->filename = lua_tostring(L, -1); // cache it in the thread structure
 
   lua_createtable(L, 0, 11); // new environment
   lua_pushvalue(L, -2); // script filename
