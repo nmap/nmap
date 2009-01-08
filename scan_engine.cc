@@ -367,8 +367,8 @@ public:
 
 struct send_delay_nfo {
   unsigned int delayms; /* Milliseconds to delay between probes */
-  /* The number of successful and dropped probes since the last time delayms
-     was changed */
+  /* The number of successful and dropped probes since the last time the delay
+     was changed. The ratio controls when the rate drops. */
   unsigned int goodRespSinceDelayChanged;
   unsigned int droppedRespSinceDelayChanged;
   struct timeval last_boost; /* Most recent time of increase to delayms.  Init to creation time. */
@@ -1069,7 +1069,7 @@ static int scantype_no_response_means(stype scantype) {
   return 0; /* Unreached */
 }
 
-HostScanStats::HostScanStats(Target *t, UltraScanInfo *UltraSI) { 
+HostScanStats::HostScanStats(Target *t, UltraScanInfo *UltraSI) {
   target = t; 
   USI=UltraSI; 
   next_portidx = 0; 
@@ -1166,7 +1166,6 @@ unsigned long HostScanStats::probeExpireTime(const UltraProbe *probe) {
    true. */
 bool HostScanStats::sendOK(struct timeval *when) {
   struct ultra_timing_vals tmng;
-  int packTime;
   list<UltraProbe *>::iterator probeI;
   struct timeval probe_to, earliest_to, sendTime;
   long tdiff;
@@ -1187,18 +1186,19 @@ bool HostScanStats::sendOK(struct timeval *when) {
   }
 
   if (rld.rld_waiting) {
-    packTime = TIMEVAL_MSEC_SUBTRACT(rld.rld_waittime, USI->now);
-    if (packTime <= 0) {
-      if (when) *when = USI->now;
+    if (TIMEVAL_AFTER(rld.rld_waittime, USI->now)) {
+      if (when)
+        *when = rld.rld_waittime;
+      return false;
+    } else {
+      if (when)
+        *when = USI->now;
       return true;
     }
-    if (when) *when = rld.rld_waittime;
-    return false;
   }
 
   if (sdn.delayms) {
-    packTime = TIMEVAL_MSEC_SUBTRACT(USI->now, lastprobe_sent);
-    if (packTime < (int) sdn.delayms) {
+    if (TIMEVAL_MSEC_SUBTRACT(USI->now, lastprobe_sent) < (int) sdn.delayms) {
       if (when) { TIMEVAL_MSEC_ADD(*when, lastprobe_sent, sdn.delayms); }
       return false;
     }
@@ -1230,7 +1230,7 @@ bool HostScanStats::sendOK(struct timeval *when) {
   // Will any scan delay affect this?
   if (sdn.delayms) {    
     TIMEVAL_MSEC_ADD(sendTime, lastprobe_sent, sdn.delayms);
-    if (TIMEVAL_MSEC_SUBTRACT(sendTime, USI->now) < 0)
+    if (TIMEVAL_BEFORE(sendTime, USI->now))
       sendTime = USI->now;
     tdiff = TIMEVAL_MSEC_SUBTRACT(earliest_to, sendTime);
     
@@ -1701,6 +1701,9 @@ bool UltraScanInfo::numIncompleteHostsLessThan(unsigned int n) {
   return count < n;
 }
 
+static bool pingprobe_is_better(const probespec *new_probe, int new_state,
+                                const probespec *old_probe, int old_state);
+
   /* Removes any hosts that have completed their scans from the incompleteHosts
      list, and remove any hosts from completedHosts which have exceeded their
      lifetime.  Returns the number of hosts removed. */
@@ -1771,6 +1774,16 @@ int UltraScanInfo::removeCompletedHosts() {
       completedHosts.push_front(hss);
       incompleteHosts.erase(hostI);
       hostsRemoved++;
+      /* Consider making this host the new global ping host during its
+         retirement in the completed hosts list. */
+      HostScanStats *pinghost = gstats->pinghost;
+      if ((pinghost == NULL && hss->target->pingprobe.type != PS_NONE)
+          || (pinghost != NULL && pinghost->num_probes_active == 0
+              && !pingprobe_is_better(&pinghost->target->pingprobe, pinghost->target->pingprobe_state, &hss->target->pingprobe, hss->target->pingprobe_state))) {
+        if (o.debugging > 1)
+          log_write(LOG_PLAIN, "Changing global ping host to %s.\n", hss->target->targetipstr());
+        gstats->pinghost = hss;
+      }
       if (timedout) gstats->num_hosts_timedout++;
       hss->target->stopTimeOutClock(&now);
     }
@@ -2072,12 +2085,12 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
     if (o.debugging > 1)
       log_write(LOG_PLAIN, "Ultrascan DROPPED %sprobe packet to %s detected\n", probe->isPing()? "PING " : "", hss->target->targetipstr());
     // Drops often come in big batches, but we only want one decrease per batch.
-    if (TIMEVAL_SUBTRACT(probe->sent, hss->timing.last_drop) > 0) {
+    if (TIMEVAL_AFTER(probe->sent, hss->timing.last_drop)) {
       hss->timing.cwnd = USI->perf.low_cwnd;
       hss->timing.ssthresh = (int) MAX(hss->num_probes_active / USI->perf.host_drop_ssthresh_divisor, 2);
       hss->timing.last_drop = USI->now;
     }
-    if (TIMEVAL_SUBTRACT(probe->sent, USI->gstats->timing.last_drop) > 0) {
+    if (TIMEVAL_AFTER(probe->sent, USI->gstats->timing.last_drop)) {
       USI->gstats->timing.cwnd = MAX(USI->perf.low_cwnd, USI->gstats->timing.cwnd / USI->perf.group_drop_cwnd_divisor);
       USI->gstats->timing.ssthresh = (int) MAX(USI->gstats->num_probes_active / USI->perf.group_drop_ssthresh_divisor, 2);
       USI->gstats->timing.last_drop = USI->now;
@@ -2102,12 +2115,12 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
 
     if (hss->timing.cwnd < hss->timing.ssthresh) {
       /* In slow start mode */
-      hss->timing.cwnd += 1.0 * hss->cc_scale();
+      hss->timing.cwnd += ping_magnifier * hss->cc_scale();
       if (hss->timing.cwnd > hss->timing.ssthresh)
 	hss->timing.cwnd = hss->timing.ssthresh;
     } else {
       /* Congestion avoidance mode */
-      hss->timing.cwnd += 1.0 / hss->timing.cwnd * hss->cc_scale();
+      hss->timing.cwnd += ping_magnifier / hss->timing.cwnd * hss->cc_scale();
     }
     if (hss->timing.cwnd > USI->perf.max_cwnd)
       hss->timing.cwnd = USI->perf.max_cwnd;
@@ -2380,7 +2393,7 @@ static bool pingprobe_is_better(const probespec *new_probe, int new_state,
   return pingprobe_score(new_probe, new_state) > pingprobe_score(old_probe, old_state);
 }
 
-static void ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
+static bool ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
                                         const probespec *pspec, int newstate);
 
 /* Like ultrascan_port_probe_update(), except it is called with just a
@@ -2566,25 +2579,28 @@ static const char *readhoststate(int state) {
   return NULL;
 }
 
-/* Update state of the host in hss based on its current state and newstate. */
-static void ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
+/* Update state of the host in hss based on its current state and newstate.
+   Returns true if the state was changed. */
+static bool ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
                                         const probespec *pspec, int newstate) {
+  unsigned int oldstate = hss->target->flags;
   /* If the host is already up, ignore any further updates. */
   if (hss->target->flags != HOST_UP) {
     assert(newstate == HOST_UP || newstate == HOST_DOWN);
     hss->target->flags = newstate;
   }
+  return hss->target->flags != oldstate;
 }
 
 /* Called when a new status is determined for host in hss (eg. it is
    found to be up or down by a ping/ping_arp scan.  The probe that led
    to this new decision is in probeI.  This function needs to update
-   timing information and other stats as appropriate. If rcvdtime is
-   NULL or adjust_timing is false, packet stats are not updated. */
+   timing information and other stats as appropriate. If
+   adjust_timing_hint is false, packet stats are not updated. */
 static void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss, 
 				        list<UltraProbe *>::iterator probeI,
 				        int newstate, struct timeval *rcvdtime,
-				        bool adjust_timing = true) {
+				        bool adjust_timing_hint = true) {
   UltraProbe *probe = *probeI;
 
   if (o.debugging > 1) {
@@ -2594,32 +2610,43 @@ static void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
     log_write(LOG_STDOUT, "%s called for machine %s state %s -> %s (trynum %d time: %ld)\n", __func__, hss->target->targetipstr(), readhoststate(hss->target->flags), readhoststate(newstate), probe->tryno, (long) TIMEVAL_SUBTRACT(tv, probe->sent));
   }
 
+  ultrascan_host_pspec_update(USI, hss, probe->pspec(), newstate);
+
   ultrascan_adjust_timeouts(USI, hss, probe, rcvdtime);
+
+  /* Decide whether to adjust timing. We and together a bunch of conditions.
+     First, don't adjust timing if adjust_timing_hint is false. */
+  bool adjust_timing = adjust_timing_hint;
+  bool adjust_ping = adjust_timing_hint;
+
+  /* If we got a response that meant "down", then it was an ICMP error. These
+     are often rate-limited (RFC 1812) or generated by a different host. We only
+     allow such responses to increase, not decrease, scanning speed by
+     disallowing drops (probe->tryno > 0), and we don't allow changing the ping
+     probe to something that's likely to get dropped. */
+  if (rcvdtime != NULL && newstate == HOST_DOWN) {
+    if (probe->tryno > 0) {
+      if (adjust_timing && o.debugging > 1)
+        log_write(LOG_PLAIN, "Response for %s means new state is down; not adjusting timing.\n", hss->target->targetipstr());
+      adjust_timing = false;
+    }
+    adjust_ping = false;
+  }
+
   if (adjust_timing)
     ultrascan_adjust_timing(USI, hss, probe, rcvdtime);
 
-  ultrascan_host_pspec_update(USI, hss, probe->pspec(), newstate);
-
-  if (rcvdtime != NULL && adjust_timing) {
-    /* This probe received a positive response. Consider making it the new
-       timing ping probe. */
-    if (pingprobe_is_better(probe->pspec(), PORT_UNKNOWN, &hss->target->pingprobe, hss->target->pingprobe_state)) {
-      if (o.debugging > 1) {
-	char buf[32];
-	probespec2ascii(probe->pspec(), buf, sizeof(buf));
-	log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), buf);
-      }
-      hss->target->pingprobe = *probe->pspec();
-      hss->target->pingprobe_state = PORT_UNKNOWN;
-      /* Make this the new global ping host, but only if the old one is not
-         waiting for any probes. */
-      if (USI->gstats->pinghost == NULL
-          || USI->gstats->pinghost->num_probes_active == 0) {
-        if (o.debugging > 1)
-          log_write(LOG_PLAIN, "Changing global ping host to %s.\n", hss->target->targetipstr());
-        USI->gstats->pinghost = hss;
-      }
+  /* If this probe received a positive response, consider making it the new
+     timing ping probe. */
+  if (rcvdtime != NULL && adjust_ping
+      && pingprobe_is_better(probe->pspec(), PORT_UNKNOWN, &hss->target->pingprobe, hss->target->pingprobe_state)) {
+    if (o.debugging > 1) {
+      char buf[32];
+      probespec2ascii(probe->pspec(), buf, sizeof(buf));
+      log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), buf);
     }
+    hss->target->pingprobe = *probe->pspec();
+    hss->target->pingprobe_state = PORT_UNKNOWN;
   }
 
   hss->destroyOutstandingProbe(probeI);
@@ -2631,59 +2658,61 @@ static void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
    Nmap port state table as appropriate.  If rcvdtime is NULL or we got
    unimportant packet, packet stats are not updated.  If you don't have an
    UltraProbe list iterator, you may need to call ultrascan_port_psec_update()
-   instead. If rcvdtime is NULL or adjust_timing is false, packet stats are not
+   instead. If adjust_timing_hint is false, packet stats are not
    updated. */
 static void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
  					list<UltraProbe *>::iterator probeI,
 					int newstate, struct timeval *rcvdtime,
-					bool adjust_timing = true) {
+					bool adjust_timing_hint = true) {
   UltraProbe *probe = *probeI;
   const probespec *pspec = probe->pspec();
-  bool changed = false;
 
-  changed = ultrascan_port_pspec_update(USI, hss, pspec, newstate);
-
-  if (rcvdtime != NULL && adjust_timing) {
-    /* This probe received a positive response. Consider making it the new
-       timing ping probe. */
-    if (pingprobe_is_better(probe->pspec(), newstate, &hss->target->pingprobe, hss->target->pingprobe_state)) {
-      if (o.debugging > 1) {
-	char buf[32];
-	probespec2ascii(probe->pspec(), buf, sizeof(buf));
-	log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), buf);
-      }
-      hss->target->pingprobe = *probe->pspec();
-      hss->target->pingprobe_state = newstate;
-    }
-  }
+  ultrascan_port_pspec_update(USI, hss, pspec, newstate);
 
   ultrascan_adjust_timeouts(USI, hss, probe, rcvdtime);
 
-  if (adjust_timing &&
-     /* If we got a response that meant "filtered", then it was an ICMP error.
-        These are often rate-limited (RFC 1812) or generated by a different
-        host. At -T4 and above we consider only the first such response
-        (probe->tryno == 0) for timing purposes and ignore the rest. */
-     ((changed && newstate != PORT_FILTERED) || USI->noresp_open_scan || probe->tryno == 0 || o.timing_level < 4) &&
-     /* Do not slow down if we are in --defeat-rst-ratelimit mode and the new
-        state is closed|filtered. We don't care if it's closed|filtered because
-        of a RST or a timeout because they both mean the same thing. */
-     !(o.defeat_rst_ratelimit && newstate == PORT_CLOSEDFILTERED && probe->tryno > 0)) {
-    ultrascan_adjust_timing(USI, hss, probe, rcvdtime);
-    if (rcvdtime != NULL && probe->tryno > hss->max_successful_tryno) {
-      /* We got a positive response to a higher tryno than we've seen so far. */
-      hss->max_successful_tryno = probe->tryno;
-      if (o.debugging)
-        log_write(LOG_STDOUT, "Increased max_successful_tryno for %s to %d (packet drop)\n", hss->target->targetipstr(), hss->max_successful_tryno);
-      if (hss->max_successful_tryno > ((o.timing_level >= 4)? 4 : 3)) {
-        unsigned int olddelay = hss->sdn.delayms;
-        hss->boostScanDelay();
-        if (o.verbose && hss->sdn.delayms != olddelay) 
-           log_write(LOG_STDOUT, "Increasing send delay for %s from %d to %d due to max_successful_tryno increase to %d\n", 
-           hss->target->targetipstr(), olddelay, hss->sdn.delayms, 
-           hss->max_successful_tryno);
-      }
+  /* Decide whether to adjust timing. We and together a bunch of conditions.
+     First, don't adjust timing if adjust_timing_hint is false. */
+  bool adjust_timing = adjust_timing_hint;
+  bool adjust_ping = adjust_timing_hint;
+
+  /* If we got a response that meant "filtered", then it was an ICMP error.
+     These are often rate-limited (RFC 1812) or generated by a different host.
+     We only allow such responses to increase, not decrease, scanning speed by
+     not considering drops (probe->tryno > 0), and we don't allow changing the
+     ping probe to something that's likely to get dropped. */
+  if (rcvdtime != NULL && newstate == PORT_FILTERED && !USI->noresp_open_scan) {
+    if (probe->tryno > 0) {
+      if (adjust_timing && o.debugging > 1)
+        log_write(LOG_PLAIN, "Response for %s means new state is filtered; not adjusting timing.\n", hss->target->targetipstr());
+      adjust_timing = false;
     }
+    adjust_ping = false;
+  }
+  /* Do not slow down if we are in --defeat-rst-ratelimit mode and the new
+     state is closed|filtered. We don't care if it's closed|filtered because
+     of a RST or a timeout because they both mean the same thing. */
+  if (rcvdtime != NULL
+      && o.defeat_rst_ratelimit && newstate == PORT_CLOSEDFILTERED) {
+    if (probe->tryno > 0)
+      adjust_timing = false;
+    adjust_ping = false;
+  }
+
+  if (adjust_timing)
+    ultrascan_adjust_timing(USI, hss, probe, rcvdtime);
+
+  /* If this probe received a positive response, consider making it the new
+     timing ping probe. */
+  if (rcvdtime != NULL && adjust_ping
+      && pingprobe_is_better(probe->pspec(), newstate, &hss->target->pingprobe, hss->target->pingprobe_state)) {
+    if (o.debugging > 1) {
+      char buf[32];
+      probespec2ascii(probe->pspec(), buf, sizeof(buf));
+      log_write(LOG_PLAIN, "Changing ping technique for %s to %s\n", hss->target->targetipstr(), buf);
+    }
+    hss->target->pingprobe = *probe->pspec();
+    hss->target->pingprobe_state = newstate;
   }
 
   hss->destroyOutstandingProbe(probeI);
@@ -3325,7 +3354,7 @@ static void printAnyStats(UltraScanInfo *USI) {
         log_write(LOG_PLAIN, "   %s: %d/%d/%d/%d/%d/%d %.2f/%d/%d %li/%d/%d\n", hss->target->targetipstr(),
                   hss->num_probes_active, hss->freshPortsLeft(), 
                   (int) hss->retry_stack.size(),
-                  hss->num_probes_outstanding(), 
+                  hss->num_probes_outstanding(),
                   hss->num_probes_waiting_retransmit, (int) hss->probe_bench.size(),
                   hosttm.cwnd, hosttm.ssthresh, hss->sdn.delayms, 
                   hss->probeTimeout(), hss->target->to.srtt, 

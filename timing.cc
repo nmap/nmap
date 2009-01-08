@@ -275,7 +275,6 @@ void RateMeter::stop(const struct timeval *now) {
    now. If now is NULL, get the current time with gettimeofday. */
 void RateMeter::update(double amount, const struct timeval *now) {
   struct timeval tv;
-  static int clockwarn = 0;
   double diff;
   double interval;
   double count;
@@ -300,23 +299,17 @@ void RateMeter::update(double amount, const struct timeval *now) {
   /* How long since the last update? */
   diff = TIMEVAL_SUBTRACT(*now, last_update_tv) / 1000000.0;
 
-  /* On my SMP Linux 2.6.20 system, I'm getting very occasional values
-     like "now=1214173867.8027; last_update_tv=1214173867.8065".
-     Unless I'm missing something, I think my gettimeofday may have
-     decreased by 38 microseconds.  Perhaps due to SMP and the old
-     kernel.  Anyway, I think I'll just treat decreases of up to 1ms
-     as zero -Fyodor 
-     Updated to allow up to 5ms due to crash:
-     RateMeter::update: negative time delta; now=1217210189.144224; last_update_tv=1217210189.148486 */
-  if (diff < 0 && diff > -0.005) {
-    if (!clockwarn) {
-      error("Warning: RateMeter::update: negative time delta; now=%lu.%lu; last_update_tv=%lu.%lu", (unsigned long) now->tv_sec, (unsigned long) now->tv_usec, (unsigned long) last_update_tv.tv_sec, (unsigned long) last_update_tv.tv_usec);
-      clockwarn = 1;
-    }
+  if (diff < -current_rate_history)
+    /* This happened farther in the past than we care about. */
+    return;
+
+  if (diff < 0.0) {
+    /* If the event happened in the past, just add it into the total and don't
+       change last_update_tv, as if it had happened at the same time as the most
+       recent event. */
+    now = &last_update_tv;
     diff = 0.0;
   }
-  if (diff < 0.0)
-    fatal("RateMeter::update: negative time delta; now=%lu.%lu; last_update_tv=%lu.%lu", (unsigned long) now->tv_sec, (unsigned long) now->tv_usec, (unsigned long) last_update_tv.tv_sec, (unsigned long) last_update_tv.tv_usec);
 
   /* Find out how far back in time to look. We want to look back
      current_rate_history seconds, or to when the last update occurred,
