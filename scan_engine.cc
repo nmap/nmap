@@ -2699,8 +2699,24 @@ static void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
     adjust_ping = false;
   }
 
-  if (adjust_timing)
+  if (adjust_timing) {
     ultrascan_adjust_timing(USI, hss, probe, rcvdtime);
+
+    if (rcvdtime != NULL && probe->tryno > hss->max_successful_tryno) {
+      /* We got a positive response to a higher tryno than we've seen so far. */
+      hss->max_successful_tryno = probe->tryno;
+      if (o.debugging)
+        log_write(LOG_STDOUT, "Increased max_successful_tryno for %s to %d (packet drop)\n", hss->target->targetipstr(), hss->max_successful_tryno);
+      if (hss->max_successful_tryno > ((o.timing_level >= 4)? 4 : 3)) {
+        unsigned int olddelay = hss->sdn.delayms;
+        hss->boostScanDelay();
+        if (o.verbose && hss->sdn.delayms != olddelay) 
+           log_write(LOG_STDOUT, "Increasing send delay for %s from %d to %d due to max_successful_tryno increase to %d\n", 
+           hss->target->targetipstr(), olddelay, hss->sdn.delayms, 
+           hss->max_successful_tryno);
+      }
+    }
+  }
 
   /* If this probe received a positive response, consider making it the new
      timing ping probe. */
