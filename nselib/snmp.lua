@@ -291,7 +291,7 @@ end
 -- @param PDU SNMP Protocol Data Unit to be encapsulated in the packet.
 -- @param version SNMP version, default <code>0</code> (SNMP V1).
 -- @param commStr community string, if not already supplied in registry or as
--- script argument.
+-- the snmpcommunity script argument.
 function buildPacket(PDU, version, commStr)
    local comm = nmap.registry.args.snmpcommunity
    if (not comm) then comm = nmap.registry.snmpcommunity end
