@@ -231,9 +231,11 @@ IE(DFI=N%T=FA-104%TG=FF%TOSI=Z%CD=S%SI=S%DLI=S)
 # Samsung ML-2571N printer, Main Firmware Version: OS 1.01.01.18 05-03-2007, Network Firmware Version: V4.02.05(ML-2571N) 04-25-2007
 # Xerox Phaser 3125/N network printer
 # Samsung 6555N Scanner/Printer/Copier
+# Dell Remote Access Controller in a Dell Power Edge 2650, 3.12 (Build 04.26)
 # VxWorks? -- Ed.
-Fingerprint 3Com SuperStack 3 Switch 4300, Samsung ML-2571N or 6555N printer, or Xerox Phaser 3125N printer
+Fingerprint 3Com SuperStack 3 Switch 4300, Dell PowerEdge 2650 remote access controller, Samsung ML-2571N or 6555N printer, or Xerox Phaser 3125N printer
 Class 3Com | embedded || switch
+Class Dell | embedded || remote management
 Class Samsung | embedded || printer
 Class Xerox | embedded || printer
 SEQ(SP=B-15%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=96-A0%TI=I%II=I%SS=S%TS=U)
@@ -716,10 +718,11 @@ IE(DFI=N%T=3B-45%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # airnet awr014g
 # D-Link Wbr-2310, Hardware Version: A1, Firmware Version: 1.01
 # Trendnet TEW 432brp, H/W B2.1R
-Fingerprint WAP: Airnet AWR014G; D-Link DI-524, DI-604, DI-624, or WBR-2310; or TRENDnet TEW-432BRP
-Class Airnet | embedded || WAP
-Class D-Link | embedded || WAP
-Class TRENDnet | embedded || WAP
+# TrendNet TEW-452BRP, Copyright (c) 1996-2001 Express Logic Inc. * ThreadX JADE/Green Hills Version G4.0.4.0
+Fingerprint WAP: Airnet AWR014G; D-Link DI-524, DI-604, DI-624, or WBR-2310; or TRENDnet TEW-432BRP or TEW-452BRP (ThreadX)
+Class Airnet | ThreadX || WAP
+Class D-Link | ThreadX || WAP
+Class TRENDnet | ThreadX || WAP
 SEQ(SP=B-15%GCD=FA7F|1F4FE|2EF7D|3E9FC|4E47B|5DEFA%ISR=96-A0%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B0%O2=M5B0%O3=M5B0%O4=M5B0%O5=M5B0%O6=M5B0)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -2242,7 +2245,7 @@ IE(DFI=S%T=3B-45%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # Darwin removed> 9.6.0 Darwin Kernel Version 9.6.0: Mon Nov 24 17:39:01 PST 2008; root:xnu-1228.9.59~1/RELEASE_PPC Power Macintosh
 Fingerprint Apple Mac OS X 10.5 - 10.5.6 (Leopard) (Darwin 9.0.0b5 - 9.6.0)
 Class Apple | Mac OS X | 10.5.X | general purpose
-SEQ(SP=F0-10C%GCD=<7%ISR=FA-10C%TI=RD%II=RI%TS=3|4)
+SEQ(SP=F0-10C%GCD=<7%ISR=FA-10E%TI=RD%II=RI%TS=3|4)
 OPS(O1=M5B4NW1NNT11SLL|M5B4NW2NNT11SLL|M5B4NW3NNT11SLL%O2=M5B4NW1NNT11SLL|M5B4NW2NNT11SLL|M5B4NW3NNT11SLL%O3=M5B4NW1NNT11|M5B4NW2NNT11|M5B4NW3NNT11%O4=M5B4NW1NNT11SLL|M5B4NW2NNT11SLL|M5B4NW3NNT11SLL%O5=M5B4NW1NNT11SLL|M5B4NW2NNT11SLL|M5B4NW3NNT11SLL%O6=M5B4NNT11SLL)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
 ECN(R=Y%DF=Y%T=3B-45%TG=40%W=FFFF%O=M5B4NW1SLL|M5B4NW2SLL|M5B4NW3SLL%CC=N%Q=)
@@ -5562,7 +5565,8 @@ IE(DFI=S%T=3B-45%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Compaq Tru64 UNIX V5.1B
 # OpenVMS/Alpha V8.2
-Fingerprint Compaq Tru64 UNIX 5.1B or HP OpenVMS 8.2
+# OpenVMS (TM) Alpha Operating System, Version V8.3
+Fingerprint Compaq Tru64 UNIX 5.1B or HP OpenVMS 8.2 - 8.3
 Class Compaq | Tru64 UNIX | 5.X | general purpose
 Class HP | OpenVMS | 8.X | general purpose
 SEQ(SP=FB-107%GCD=<7%ISR=FF-109%TI=I%II=I%SS=S%TS=U)
@@ -5634,8 +5638,10 @@ IE(DFI=S%T=FA-104%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Crestron Electronics, Product: MC2E, Firmware: v4.000.0226
 # Crestron Pro2 processor
-Fingerprint Crestron MC2E or PRO2 control and automation system
-Class Crestron | embedded || specialized
+# MP2e firmware 4.000.0226
+# Crestron QM-RMC with firmware 4.000.0226
+Fingerprint Crestron MC2E, MP2E, PRO2, or QM-RMC control and automation system (2-Series)
+Class Crestron | 2-Series || specialized
 SEQ(SP=EE-10C%GCD=<7%ISR=103-10D%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=3E80%W2=3E80%W3=3E80%W4=3E80%W5=3E80%W6=3E80)
@@ -6284,9 +6290,13 @@ U1(DF=N%T=FA-104%TG=FF%TOS=0%IPL=38%UN=914|915|916|918|919%RIPL=G%RID=G%RIPCK=G%
 IE(DFI=S%T=FA-104%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Dedicated Micros Digital Sprite 2, Version 4.4 (029)
-Fingerprint Dedicated Micros Digital Sprite 2 multi-channel DVR
+# Crestron AV2 with a C2ENET-2 card, firmware 3.155.1240
+# Crestron CP2e and firmware 3.155.1240
+# Crestron TPS-6x touchpanel with firmware 3.001.0030
+Fingerprint Crestron AV2 or CP2E automation system or TPS-6x touchpanel (2-Series), or Dedicated Micros Digital Sprite 2 DVR
+Class Crestron | 2-Series || specialized
 Class Dedicated Micros | embedded || media device
-SEQ(SP=FE-10A%GCD=<7%ISR=105-111%TI=I%II=I%SS=S%TS=U)
+SEQ(SP=FE-10A%GCD=<7%ISR=103-111%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=3E80%W2=3E80%W3=3E80%W4=3E80%W5=3E80%W6=3E80)
 ECN(R=Y%DF=N%T=1B-25%TG=20%W=3E80%O=M5B4%CC=N%Q=)
@@ -6993,10 +7003,12 @@ IE(DFI=N%T=FA-104%TG=FF%TOSI=Z%CD=S%SI=S%DLI=S)
 # Mitel 3300CX IP PBX controller with 7.1 firmware. Probably using VxWorks.
 # Enterasys SecureStack B2, Model B2G124-48
 # Hewlett-Packard Integrity Integrated Lights-Out 2 Revision T.03.06
-Fingerprint Enterasys SecureStack B2 switch, HP Integrity iLO 2 remote management interface, or Mitel 3300CX PBX controller
+# Ethernet Routing Switch 5520-48T-PWR, HW:34       FW:5.0.0.4   SW:v5.1.0.014
+# VxWorks? --Ed.
+Fingerprint Enterasys SecureStack B2 switch, HP Integrity iLO 2 remote management interface, Mitel 3300CX PBX controller, or Nortel 5520 switch
 Class Enterasys | embedded || switch
-Class Mitel | embedded || PBX
 Class HP | iLO || remote management
+Class Mitel | embedded || PBX
 SEQ(SP=93-9D%GCD=<7%ISR=9A-A4%TI=I%II=I%SS=O|S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -12221,7 +12233,8 @@ IE(DFI=N%T=37-41%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # NetBSD  1.5.2 NetBSD 1.5.2 (GENERIC) #3: Sat Aug 18 23:37:05 CEST 2001
 # NRG (Nashuatec Ricoh Gstetner group) Color Laserprinter DSc428
 # SAVIN, RNPB53BDA, 8055, System/Copy     1.14.1
-Fingerprint NetBSD 1.5.2; Lanier LS232c, NRG DSc428, or Savin 8055 printer; or Panasonic Network Camera (BB-HCM331, BB-HCM381, BCL-30A, BL-C1CE, or BL-C10CE)
+# NetBSD 1.4.2 NetBSD 1.4.2 (DVASK) #0: Thu Jun 22 10:06:44 CEST 2000 vax, MicroVAX II
+Fingerprint NetBSD 1.4.2 - 1.5.2; Lanier LS232c, NRG DSc428, or Savin 8055 printer; or Panasonic Network Camera (BB-HCM331, BB-HCM381, BCL-30A, BL-C1CE, or BL-C10CE)
 Class Lanier | embedded || printer
 Class NetBSD | NetBSD | 1.X | general purpose
 Class NRG | embedded || printer
@@ -14709,7 +14722,8 @@ IE(DFI=N%T=3B-45%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # Archlinux with a 2.6.25 kernel
 # 2.6.18-92.1.10.el5xen #1 SMP Tue Aug 5 08:11:18 EDT 2008 x86_64 x86_64 x86_64 GNU/Linux
 # 2.6.26.3-1/ArchLinux
-Fingerprint Linux 2.6.17 - 2.6.26
+# Linux 2.6.27-9-generic #1 SMP Thu Nov 20 21:57:00 UTC 2008 i686 GNU/Linux
+Fingerprint Linux 2.6.17 - 2.6.27
 Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=B3-D2%GCD=<7%ISR=BA-D7%TI=Z%II=I%TS=8)
 OPS(O1=M400CST11NW1|M400CST11NW2|M400CST11NW3|M400CST11NW4|M400CST11NW5|M400CST11NW6|M400CST11NW7|M400CST11NW9|M400CST11NWA|M400CST11NWB%O2=M400CST11NW1|M400CST11NW2|M400CST11NW3|M400CST11NW4|M400CST11NW5|M400CST11NW6|M400CST11NW7|M400CST11NW9|M400CST11NWA|M400CST11NWB%O3=M400CNNT11NW1|M400CNNT11NW2|M400CNNT11NW3|M400CNNT11NW4|M400CNNT11NW5|M400CNNT11NW6|M400CNNT11NW7|M400CNNT11NW9|M400CNNT11NWA|M400CNNT11NWB%O4=M400CST11NW1|M400CST11NW2|M400CST11NW3|M400CST11NW4|M400CST11NW5|M400CST11NW6|M400CST11NW7|M400CST11NW9|M400CST11NWA|M400CST11NWB%O5=M400CST11NW1|M400CST11NW2|M400CST11NW3|M400CST11NW4|M400CST11NW5|M400CST11NW6|M400CST11NW7|M400CST11NW9|M400CST11NWA|M400CST11NWB%O6=M400CST11)
@@ -16324,7 +16338,7 @@ IE(DFI=N%T=3B-45%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Ubuntu Linux 2.6.22-7-server #1 SMP Mon Jun 25 18:37:07 GMT 2007 i686 GNU/Linux
 # Linux Ubuntu Gusty Server 2.6.22-14-server
-# Linux wintermute 2.6.22.9-smp #26 SMP Sat May 3 19:00:06 CDT 2008 i686 AMD Athlon(tm)64 X2 Dual Core Processor  3800+ AuthenticAMD GNU/Linux
+# Linux 2.6.22.9-smp #26 SMP Sat May 3 19:00:06 CDT 2008 i686 AMD Athlon(tm)64 X2 Dual Core Processor  3800+ AuthenticAMD GNU/Linux
 Fingerprint Linux 2.6.22
 Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=CB-D9%GCD=<7%ISR=EA-F4%TI=Z%II=I%TS=7)
@@ -17257,7 +17271,7 @@ U1(DF=N%T=3B-45%TG=40%TOS=C0%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=
 IE(DFI=N%T=3B-45%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Linux 2.6.27-desktop-0.rc8.2mnb #1 SMP Thu Oct 2 06:11:56 EDT 2008 i686 Intel(R) Core(TM)2 Quad CPU    Q6600  @ 2.40GHz GNU/Linux
-# Linux cyclone.whotookspaz.org 2.6.27.4 #1 PREEMPT Wed Oct 29 01:23:19 EDT 2008 i686 Intel(R) Celeron(R) CPU 2.50GHz GenuineIntel GNU/Linux (Arch Linux)
+# Linux 2.6.27.4 #1 PREEMPT Wed Oct 29 01:23:19 EDT 2008 i686 Intel(R) Celeron(R) CPU 2.50GHz GenuineIntel GNU/Linux (Arch Linux)
 Fingerprint Linux 2.6.27
 Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=B9-D5%GCD=<7%ISR=C3-CD%TI=Z%II=I%TS=A)
@@ -17564,7 +17578,7 @@ IE(DFI=N%T=3B-45%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 # 2.6.20-16-generic #2 SMP
 # Linux 2.6.8.1-25mdk #1 Tue May 31 12:00:26 MDT 2005 i686 Pentium III (Coppermine) unknown GNU/Linux
 # Rad-Hat ES4;   Linux 2.6.9-42.0.3.ELsmp #1 SMP Mon Sep 25 17:28:02 EDT 2006 i686 i686 i386 GNU/Linux
-# Linux vincent 2.4.20-8 #1 Thu Mar 13 17:54:28 EST 2003 i686 i686 i386 GNU/Linux - Red Hat 9
+# Linux 2.4.20-8 #1 Thu Mar 13 17:54:28 EST 2003 i686 i686 i386 GNU/Linux - Red Hat 9
 Fingerprint Linux 2.6.8 - 2.6.20
 Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=C5-D1%GCD=<7%ISR=C7-D7%TI=Z%II=I%TS=U)
@@ -18470,7 +18484,8 @@ U1(DF=N%T=3B-45%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # Microsoft Windows 2000 Server [Winver: Version 5.0 (Build 2195: Service Pack 4)]
-Fingerprint Microsoft Windows 2000 Server SP4
+# Windows XP Professional Version 2002 Service Pack 3
+Fingerprint Microsoft Windows 2000 Server SP4 or XP Professional SP3
 Class Microsoft | Windows | 2000 | general purpose
 SEQ(SP=FE-108%GCD=<7%ISR=106-110%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
@@ -21363,7 +21378,8 @@ IE(DFI=S%T=7B-85%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 # Microsoft Windows XP Home SP2 (English) [Winver: Build.2600.xpsp_sp2_gdr.050301-1519: Service Pack 2]
 # Microsoft Windows XP Pro SP2 (English) [Winver: Version 5.1 (build 2600.xpsp_sp2_gdr.050301-1519: Service Pack 2)]
 # Microsoft Windows XP Corporate SP2 (English) [Winver: Version 5.1 (Build 2600.xpsp_sp2_gdr.050301-1519 : Service Pack 2)]
-Fingerprint Microsoft Windows XP SP2
+# Microsoft Windows XP Media Center service pack 3 version 5.1 build 2600.xpsp.080413-2111
+Fingerprint Microsoft Windows XP SP2 or SP3
 Class Microsoft | Windows | XP | general purpose
 SEQ(SP=100-10C%GCD=<7%ISR=101-10B%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW1NNT00NNS|M5B4NW2NNT00NNS%O2=M5B4NW1NNT00NNS|M5B4NW2NNT00NNS%O3=M5B4NW1NNT00|M5B4NW2NNT00%O4=M5B4NW1NNT00NNS|M5B4NW2NNT00NNS%O5=M5B4NW1NNT00NNS|M5B4NW2NNT00NNS%O6=|M5B4NNT00NNS)
@@ -22920,8 +22936,10 @@ U1(DF=N%T=3B-45%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=I%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # SB5100E-2.3.2.3-SCM00-NOSH
-Fingerprint Motorola SURFboard SB5100E cable modem
+# HP Procurve 2650 Switch Model HP J4899A
+Fingerprint HP ProCurve 2650 switch or Motorola SURFboard SB5100E cable modem
 Class Motorola | embedded || broadband router
+Class HP | embedded || switch
 SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=99-A3%TI=I|RD%TS=U)
 OPS(O1=M200NW0%O2=M200NW0%O3=M200NW0%O4=M200NW0%O5=M200NW0%O6=M200)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -24012,7 +24030,7 @@ U1(DF=N%T=5F-69%TG=80%TOS=0%IPL=70%UN=0%RIPL=G%RIPCK=G%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=5F-69%TG=80%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Nortel Ethernet Routing Switch 5530-24TFD, BOSS 4.2, HW:32  FW:4.2.0.12  SW:v4.2.0.002
-Fingerprint Nortel 5530-24TFD Ethernet Routing Switch
+Fingerprint Nortel 5530 Ethernet Routing Switch
 Class Nortel | embedded || router
 SEQ(SP=94-A2%GCD=<7%ISR=9F-A9%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
@@ -24032,7 +24050,7 @@ IE(DFI=S%T=3B-45%TG=40%TOSI=Z%CD=S%SI=S%DLI=S)
 # *** BOSS 5.0 SSH                                            ***
 #  *** HW:31       FW:5.0.0.2   SW:v5.0.0.011                  ***
 # Nortel v5.0.1.0 Ethernet routing switch
-Fingerprint Nortel 5520 ethernet routing switch
+Fingerprint Nortel 5520 Ethernet Routing Switch
 Class Nortel | embedded || switch
 SEQ(SP=95-9F%GCD=<7%ISR=9B-A5%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
@@ -26478,8 +26496,10 @@ U1(DF=N%T=3B-45%TG=40%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=3B-45%TG=40%TOSI=Z%CD=S%SI=S%DLI=S)
 
 # Siemens SX451 WLAN DSL, OS: Supertask! (RTOS) by Micro Digital Inc. (http://www.smx-rtos.com/ussw/)
-Fingerprint Siemens Gigaset SX541 wireless DSL modem
+# U.S. Robotics USR9111 wireless DSL router
+Fingerprint Siemens Gigaset SX541 or USRobotics USR9111 wireless DSL modem
 Class Siemens | embedded || WAP
+Class USRobotics | embedded || WAP
 SEQ(SP=0-16%GCD=<7|64|C8|12C|190|1F4%ISR=4B-55%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M578%O2=M578%O3=M280%O4=M578%O5=M218%O6=M109)
 WIN(W1=1770%W2=1770%W3=1770%W4=1770%W5=1770%W6=1770)
@@ -28519,7 +28539,8 @@ IE(DFI=N%T=3B-45%TG=40%TOSI=Z%CD=S%SI=S%DLI=S)
 # VMWare ESX 3.5 entreprise server, "vmotion" IP address
 # ESX Server 3i Update 2 build 110271
 # ESXi Server 3.5.0u2-110271
-Fingerprint VMware ESX Server 3.0.1 - 3.5
+# ESX 3.5.0 v120505
+Fingerprint VMware ESX Server 3.0.1 - 3.5.0
 Class VMware | ESX Server | 3.0.X | specialized
 SEQ(SP=FC-108%GCD=<7%ISR=FF-111%TI=Z%II=RI%TS=7)
 OPS(O1=M5B4NW1NNT11%O2=M5B4NW1NNT11%O3=M5B4NW1NNT11%O4=M5B4NW1NNT11%O5=M5B4NW1NNT11%O6=M5B4NNT11)
@@ -30146,7 +30167,7 @@ T4(R=Y%DF=N%T=3B-45%TG=40%W=5DC%S=A%A=Z%F=R%O=%RD=0%Q=)
 T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=FA-104%TG=FF%TOS=0%IPL=38%UN=0%RIPL=15C%RID=1042%RIPCK=Z%RUCK=0%RUL=G%RUD=G)
+U1(DF=N%T=FA-104%TG=FF%TOS=0%IPL=38%UN=0%RIPL=15C%RID=4210%RIPCK=Z%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=FA-104%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # FreeBSD 7.1-PRERELEASE FreeBSD 7.1-PRERELEASE #8: Tue Nov 18 20:28:43 MST 2008 i386
@@ -30371,9 +30392,10 @@ U1(DF=N%T=73-7D%TG=80%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=97F3%RUL=G%RUD
 IE(DFI=N%T=73-7D%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # VMWare ESXi, Update 3 (embedded version of VMWare ESX)
-Fingerprint VMware ESXi update 3
+# VMWare ESX version 3.5.0 (build 64607), Linux 2.4.21-47.0.1.ELvmnix #1 Thu Nov 29 17:50:29 PST 2007 i686 i686 i386 GNU/Linux
+Fingerprint VMware ESX Server 3.5.0
 Class VMware | ESX Server || specialized
-SEQ(SP=F4-10C%GCD=<7%ISR=105-111%TI=Z%II=RI%TS=7)
+SEQ(SP=F4-10C%GCD=<7%ISR=100-111%TI=Z%II=RI%TS=7)
 OPS(O1=M5B4NW1NNT11%O2=M5B4NW1NNT11%O3=M5B4NW1NNT11%O4=M5B4NW1NNT11%O5=M5B4NW1NNT11%O6=M5B4NNT11)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
 ECN(R=Y%DF=Y%T=3B-45%TG=40%W=FFFF%O=M5B4NW1%CC=N%Q=)
@@ -30724,7 +30746,7 @@ T4(R=Y%DF=N%T=3B-45%TG=40%W=2000%S=A%A=Z%F=R%O=%RD=0%Q=)
 T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=3B-45%TG=40%TOS=68%IPL=38%UN=0%RIPL=G%RID=1042%RIPCK=Z%RUCK=0%RUL=G%RUD=G)
+U1(DF=N%T=3B-45%TG=40%TOS=68%IPL=38%UN=0%RIPL=G%RID=4210%RIPCK=Z%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%TOSI=68%CD=S%SI=S%DLI=S)
 
 # 1701HG Gateway, Software Version: 3.17.5
@@ -30929,7 +30951,7 @@ T4(R=Y%DF=N%T=1E%TG=20%W=2238%S=A%A=Z%F=R%O=%RD=0%Q=)
 T5(R=Y%DF=N%T=1E%TG=20%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 T6(R=Y%DF=N%T=1E%TG=20%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=1E%TG=20%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=FA-104%TG=FF%TOS=0%IPL=38%UN=0%RIPL=G%RID=1042%RIPCK=Z%RUCK=0%RUL=G%RUD=G)
+U1(DF=N%T=FA-104%TG=FF%TOS=0%IPL=38%UN=0%RIPL=G%RID=4210%RIPCK=Z%RUCK=0%RUL=G%RUD=G)
 IE(DFI=S%T=FA-104%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Cisco AP1231G 12.3(8)JEC2 IOS Filename: c1200-k9w7-mx.123-8.JEC2
@@ -31528,3 +31550,20 @@ T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=FA-104%TG=FF%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=FA-104%TG=FF%TOSI=Z%CD=S%SI=S%DLI=S)
+
+# MacBook Pro running Macos X 10.5.5
+Fingerprint Apple Mac OS X 10.5.5 (Leopard)
+Class Apple | Mac OS X | 10.5.X | general purpose
+SEQ(SP=FF-109%GCD=<7%ISR=104-10E%TI=I%II=I%SS=S%TS=U)
+OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
+WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
+ECN(R=Y%DF=N%T=7B-85%TG=80%W=FAF0%O=M5B4%CC=N%Q=)
+T1(R=Y%DF=N%T=7B-85%TG=80%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=N)
+T3(R=Y%DF=N%T=7B-85%TG=80%W=FAF0%S=O%A=S+%F=AS%O=M5B4%RD=0%Q=)
+T4(R=Y%DF=N%T=7B-85%TG=80%W=7FFF%S=A%A=Z%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=N%T=7B-85%TG=80%W=FAF0%S=O%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=N%T=7B-85%TG=80%W=7FFF%S=A%A=Z%F=R%O=%RD=0%Q=)
+T7(R=N)
+U1(R=N)
+IE(DFI=N%T=7B-85%TG=80%TOSI=Z%CD=S%SI=S%DLI=S)
