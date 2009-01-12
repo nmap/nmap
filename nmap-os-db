@@ -29474,7 +29474,7 @@ IE(DFI=N%T=FA-104%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Patton/Inalp (www.patton.com) Smartnode 4960 VoIP Gateway. OS is Smartware 4.2.
 Fingerprint Patton SmartNode 4960 VoIP gateway (SmartWare 4.2)
-Class Patton | SmartWare | 4.2 | VoIP gateway
+Class Patton | SmartWare | 4.X | VoIP gateway
 SEQ(SP=0-1D%GCD=0|8000|10000|18000|20000|28000%ISR=0-FB%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
