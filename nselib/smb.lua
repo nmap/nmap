@@ -1490,7 +1490,7 @@ function start_session(smb, username, domain, password, password_hash, hash_type
 
 end
  
---- Sends out SMB_COM_SESSION_TREE_CONNECT_ANDX, which attempts to connect to a share. 
+--- Sends out <code>SMB_COM_SESSION_TREE_CONNECT_ANDX</code>, which attempts to connect to a share. 
 -- Sends the following:
 -- * Password (for share-level security, which we don't support)
 -- * Share name
@@ -1500,7 +1500,7 @@ end
 -- * Tree ID
 --
 --@param smb    The SMB object associated with the connection
---@param path   The path to connect (eg, "\\servername\C$")
+--@param path   The path to connect (eg, <code>"\\servername\C$"</code>)
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a 
 --        table with the following elements:
 --      * 'tid'         The TreeID for the session
@@ -1808,7 +1808,6 @@ end
 --@param smb        The SMB object associated with the connection
 --@param write_data The data to write
 --@param offset     The offset to write it to (ignored for pipes)
---@param path       The path of the file or pipe to open
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table
 --        containing a lot of different elements, the most important one being 'fid', the handle to the opened file. 
 function write_file(smb, write_data, offset)

@@ -158,7 +158,7 @@ end
 --- A wrapper around the <code>smb.stop</code> function. I only created it to add symmetry, so client code
 --  doesn't have to call both msrpc and smb functions.
 --
---@param smbstate The SMB state table. 
+--@param state The SMB state table. 
 function stop_smb(state)
 	smb.stop(state)
 end

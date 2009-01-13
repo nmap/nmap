@@ -792,7 +792,7 @@ end
 --- Marshall a pointer to an int64. If the pointer is null, it simply marshalls the 
 -- integer '0'. Otherwise, it uses a referent id followed by the integer. 
 --
---@param int32 The value of the integer pointer
+--@param int64 The value of the integer pointer
 --@return A string representing the marshalled data. 
 function marshall_int64_ptr(int64)
 	local result
@@ -2503,10 +2503,10 @@ function unmarshall_winreg_StringBuf(data, pos)
 	return pos, str
 end
 
----Marshall a winreg_StringBuffer pointer. Same as <code>marshall_winreg_StringBuf, except
--- the string can be 'nil'. 
+---Marshall a winreg_StringBuffer pointer. Same as <code>marshall_winreg_StringBuf</code>, except
+-- the string can be <code>nil</code>. 
 --
---@param str The string to marshall. Can be nil. 
+--@param table The string to marshall. Can be <code>nil</code>.
 --@param max_length [optional] The maximum size of the buffer, in characters. Defaults to the length of the string, including the null. 
 --@return A string representing the marshalled data. 
 function marshall_winreg_StringBuf_ptr(table, max_length)
@@ -3099,8 +3099,6 @@ end
 -- Not all of them are implemented, however; look at the code to see which are implemented (at the 
 -- time of this writing, it's 0, 1, and 2). 
 --
---@param level    The level to request. Different levels will return different results, but also require
---                different access levels to call. 
 --@param data     The data being processed. 
 --@param pos      The position within <code>data</code>. 
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype. This may be
