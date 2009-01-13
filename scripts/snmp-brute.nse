@@ -3,6 +3,13 @@ Attempts to find an SNMP community string by brute force guessing.
 ]]
 -- 2008-07-03
 
+---
+-- @args snmpcommunity The SNMP community string to use. If supplied, this
+-- script will not run.
+-- @args snmplist The filename of a list of community strings to try.
+-- @args userdb The filename of an alternate username database.
+-- @args passdb The filename of an alternate password database.
+
 author = "Philip Pickering <pgpickering@gmail.com>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -12,7 +19,7 @@ categories = {"intrusive", "auth"}
 require "shortport"
 require "snmp"
 
--- runs before SNMPsysdesr.nse
+-- runs before snmp-sysdescr.nse
 runlevel = 1
 
 portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})

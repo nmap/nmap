@@ -16,6 +16,8 @@
 -- password in <code>"mypass  #!comment: blah"</code> contain a space, two
 -- spaces, or do they just separate the password from the comment?
 --
+-- @args userdb The filename of an alternate username database.
+-- @args passdb The filename of an alternate password database.
 -- @author Kris Katterjohn 06/2008
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
