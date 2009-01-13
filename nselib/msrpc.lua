@@ -1215,8 +1215,6 @@ end
 --@param domain_handle  The domain_handle, returned by <code>samr_opendomain</code>
 --@param level          The level, which determines which type of information to query for. See the @return section
 --                      for details. 
---@param result       [optional] A 'result' to add the entries to. This lets us call this function multiple times, 
---                      for multiple levels, and keep the results in one place. 
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, 
 --        and the values that are returned are dependent on the 'level' settings:
 --        Level 1:

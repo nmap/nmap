@@ -2506,7 +2506,7 @@ end
 ---Marshall a winreg_StringBuffer pointer. Same as <code>marshall_winreg_StringBuf</code>, except
 -- the string can be <code>nil</code>. 
 --
---@param table The string to marshall. Can be <code>nil</code>.
+--@param table The table representing the String.
 --@param max_length [optional] The maximum size of the buffer, in characters. Defaults to the length of the string, including the null. 
 --@return A string representing the marshalled data. 
 function marshall_winreg_StringBuf_ptr(table, max_length)
