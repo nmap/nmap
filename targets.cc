@@ -283,7 +283,8 @@ TargetGroup* load_exclude(FILE *fExclude, char *szExclude) {
    * in the file, and reset the file */
   if (1 == b_file) {
     while ((char *)0 != fgets(acBuf,sizeof(acBuf), fExclude)) {
-      if ((char *)0 == strchr(acBuf, '\n')) {
+      /* the last line can contain no newline, then we have to check for EOF */
+      if ((char *)0 == strchr(acBuf, '\n') && !feof(fExclude)) {
         fatal("Exclude file line %d was too long to read.  Exiting.", iLine);
       }
       pc=strtok(acBuf, "\t\n ");	
@@ -317,7 +318,7 @@ TargetGroup* load_exclude(FILE *fExclude, char *szExclude) {
     /* If we are parsing a file load the exclude list from that */
     while ((char *)0 != fgets(acBuf, sizeof(acBuf), fExclude)) {
       ++iLine;
-      if ((char *)0 == strchr(acBuf, '\n')) {
+      if ((char *)0 == strchr(acBuf, '\n') && !feof(fExclude)) {
         fatal("Exclude file line %d was too long to read.  Exiting.", iLine);
       }
   

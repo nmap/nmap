@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The --excludefile option correctly handles files with no terminating
+  newline instead of claiming "Exclude file line 0 was too long to
+  read." [Henri Doreau]
+
 o Nsock handles a certain Windows connect error, WSAEADDRNOTAVAIL
   (errno 10049), preventing an assertion failure that looked like
     Strange connect error from 203.65.42.255 (10049): No such file or directory
