@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nsock handles a certain Windows connect error, WSAEADDRNOTAVAIL
+  (errno 10049), preventing an assertion failure that looked like
+    Strange connect error from 203.65.42.255 (10049): No such file or directory
+    Assertion failed: 0, file .\src\nsock_core.c, line 290
+  The error could be seen by running a version scan against a
+  broadcast address. Thanks to Tilo Köppe and James Liu for reporting
+  the problem. [David]
+
 o NSE prints messages in debugging mode whenever a script starts or
   finishes [Patrick, David].
 
