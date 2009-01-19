@@ -23,13 +23,14 @@ end
 --- Return a portrule that returns true when given an open port matching a
 -- single port number or a list of port numbers.
 -- @param port A single port number or a list of port numbers.
--- @param _proto The protocol to match against, default <code>"tcp"</code>.
--- @param _state A state or table of states to match against, default
+-- @param _proto The protocol or list of protocols to match against, default
+-- <code>"tcp"</code>.
+-- @param _state A state or list of states to match against, default
 -- {<code>"open"</code>, <code>"open|filtered"</code>}.
 -- @return Function for the portrule.
 -- @usage portrule = shortport.portnumber({80, 443})
 portnumber = function(port, _proto, _state)
-	local port_table, state_table
+	local port_table, state_table, proto_table
 	local proto = _proto or "tcp"
 	local state = _state or {"open", "open|filtered"}
 
@@ -45,10 +46,16 @@ portnumber = function(port, _proto, _state)
 		state_table = state
 	end	
 
+	if(type(proto) == "string") then
+		proto_table = {proto}
+	elseif(type(proto) == "table") then
+		proto_table = proto
+	end	
+
 	return function(host, port)
 		return includes(state_table, port.state)
 			and includes(port_table, port.number)
-			and port.protocol == proto
+			and includes(proto_table, port.protocol)
 	end
 end
 
@@ -62,13 +69,14 @@ end
 -- available) the service assigned to the port in <code>nmap-services</code>
 -- (e.g. <code>"http"</code> for TCP port 80). 
 -- @param service Service name or a list of names to run against.
--- @param _proto The protocol to match against, default <code>"tcp"</code>.
+-- @param _proto The protocol or list of protocols to match against, default
+-- <code>"tcp"</code>.
 -- @param _state A state or list of states to match against, default
 -- {<code>"open"</code>, <code>"open|filtered"</code>}.
 -- @return Function for the portrule.
 -- @usage portrule = shortport.service("ftp")
 service = function(service, _proto, _state)
-	local service_table, state_table
+	local service_table, state_table, proto_table
 	local state = _state or {"open", "open|filtered"}
 	local proto = _proto or "tcp"
 
@@ -84,10 +92,16 @@ service = function(service, _proto, _state)
 		state_table = state
 	end	
 
+	if(type(proto) == "string") then
+		proto_table = {proto}
+	elseif(type(proto) == "table") then
+		proto_table = proto
+	end	
+
 	return function(host, port)
 		return includes(state_table, port.state)
 			and includes(service_table, port.service)
-			and port.protocol == proto
+			and includes(proto_table, port.protocol)
 	end
 end
 
@@ -102,7 +116,8 @@ end
 -- @usage portrule = shortport.port_or_service(22,"ssh"). 
 -- @param _port A single port number or a list of port numbers.
 -- @param _service Service name or a list of names to run against.
--- @param proto The protocol to match against, default <code>"tcp"</code>.
+-- @param proto The protocol or list of protocols to match against, default
+-- <code>"tcp"</code>.
 -- @param _state A state or list of states to match against, default
 -- {<code>"open"</code>, <code>"open|filtered"</code>}.
 -- @return Function for the portrule.
