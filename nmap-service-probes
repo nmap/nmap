@@ -1995,7 +1995,7 @@ match ssh m|^SSH-([\d.]+)-PSFTPd PE\. Secure FTP Server ready\r?\n| p/PSFTPd ssh
 match ssh m|^SSH-([\d.]+)-BlueArcSSH_([\d.]+)\r?\n| p/BlueArc sshd/ v/$2/ i/protocol $1/ d/storage-misc/
 match ssh m|^SSH-([.\d]+)-Zyxel SSH server\r?\n| p/ZyXEL ZyWALL sshd/ o/ZyNOS/ d/security-misc/ i/protocol $1/
 match ssh m|^SSH-([.\d]+)-paramiko_([\w-_.]+)\r?\n| p/Paramiko Python sshd/ v/$2/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-USHA SSHv([\w-_.]+)\r?\n| p/ConnectUPS SNMP card sshd/ v/$2/ i/protocol $1/ d/remote-management/
+match ssh m|^SSH-([\d.]+)-USHA SSHv([\w-_.]+)\r?\n| p/ConnectUPS SNMP card sshd/ v/$2/ i/protocol $1/ d/remote management/
 match ssh m|^SSH-2\.0-SSH_0\.2\r?\n$| p/3com WAP sshd/ d/WAP/ v/0.2/ i/protocol 2.0/
 match ssh m|^SSH-([\d.]+)-CoreFTP-([\w-_.]+)\r?\n| p/CoreFTP sshd/ v/$2/ i/protocol $1/
 
