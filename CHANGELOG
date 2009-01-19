@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap now reports a proper error message when you combine an IPv6
+  scan (-6) with random IPv4 address selection (-iR). [Henri Doreau]
+
 o The --excludefile option correctly handles files with no terminating
   newline instead of claiming "Exclude file line 0 was too long to
   read." [Henri Doreau]
