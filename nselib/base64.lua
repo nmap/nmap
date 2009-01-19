@@ -6,6 +6,7 @@
 
 module(... or "base64",package.seeall)
 
+require 'bin'
 
 -- todo: make metatable/index --> '' for b64dctable
 
