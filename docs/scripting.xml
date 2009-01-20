@@ -1739,7 +1739,7 @@ end
 	want information about. Doing so involves first creating two socket options by calling <function>nmap.new_socket</function>.  Next we define an error-handling <function>catch</function> function which closes those sockets if failure is detected.  At this point we can safely use object methods such as <function>open</function>, 
 	<function>close</function>, 
 	<function>send</function> and
-	<function>receive</function> to operate on the network socket.  In this case we call <function>connect</function> to make the connections.  NSE's exception handling mechanism.<indexterm><primary>exceptions in NSE</primary></indexterm>
+	<function>receive</function> to operate on the network socket.  In this case we call <function>connect</function> to make the connections.  NSE's exception handling mechanism<indexterm><primary>exceptions in NSE</primary></indexterm>
         is used to avoid excessive error-handling code.  We simply wrap the networking calls in a <function>try</function> call which will in turn call our <function>catch</function> function if anything goes wrong.</para>
 
 
