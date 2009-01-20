@@ -487,7 +487,7 @@ class scan_diff_test(unittest.TestCase):
         for host, h_diff in diff:
             for hunk in h_diff:
                 if hunk.type == HOST_STATE_CHANGE:
-                    self.assertTrue(hunk.a_state == Port.UNKNOWN)
+                    self.assertTrue(hunk.a_state == Host.UNKNOWN)
                     self.assertTrue(hunk.b_state == u"up")
                     break
             else:
@@ -499,7 +499,14 @@ class scan_diff_test(unittest.TestCase):
         b = Scan()
         b.load_from_file("test-scans/empty.xml")
         diff = scan_diff(a, b)
-        self.assertTrue(len(diff) == 0)
+        for host, h_diff in diff:
+            for hunk in h_diff:
+                if hunk.type == HOST_STATE_CHANGE:
+                    self.assertTrue(hunk.a_state == u"up")
+                    self.assertTrue(hunk.b_state == Port.UNKNOWN)
+                    break
+            else:
+                fail("No host state change found.")
 
     def test_diff_is_effective(self):
         """Test that a scan diff is effective.

@@ -36,6 +36,12 @@ Here is a sample of the text output:
 		Add ipv4 address 10.242.160.155.
 		Add hostname ywnleu-108.example.com.
 		1000 tcp ports are filtered.
+	fiyrownc-307.example.com (10.65.53.252):
+		Host is unknown, was up.
+		Remove ipv4 address 10.65.53.252.
+		Remove hostname fiyrownc-307.example.com.
+		8089/tcp is unknown, was open.
+		999 tcp ports changed state from filtered to unknown.
 
 Here is an abbreviated sample of the XML output:
 

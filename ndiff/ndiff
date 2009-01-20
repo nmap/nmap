@@ -447,10 +447,9 @@ def scan_diff(a, b):
     for id in all_host_ids:
         host_a = a_hosts.get(id)
         host_b = b_hosts.get(id)
-        if host_b is not None and host_b.state != Host.UNKNOWN:
-            h_diff = host_diff(host_a or Host(), host_b or Host())
-            if len(h_diff) > 0:
-                diff.append((host_a or host_b, h_diff))
+        h_diff = host_diff(host_a or Host(), host_b or Host())
+        if len(h_diff) > 0:
+            diff.append((host_a or host_b, h_diff))
     return diff
 
 def warn(str):
