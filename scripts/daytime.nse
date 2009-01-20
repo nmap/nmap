@@ -17,6 +17,6 @@ action = function(host, port)
 	local status, result = comm.exchange(host, port, "dummy", {lines=1, proto=port.proto})
 
 	if status then
-		return "Daytime: " .. result
+		return result
 	end
 end
