@@ -1496,7 +1496,7 @@ way.</para>
 
     <para>In addition to all of the scan methods discussed previously,
     Nmap offers options for specifying which ports are scanned and
-    whether the scan order is randomized or sequential.  By default, Nmap scans all ports up to and including 1024 as well as higher numbered ports listed in the <filename>nmap-services</filename> file for the protocol(s) being scanned.
+    whether the scan order is randomized or sequential.  By default, Nmap scans the most common 1,000 ports for each protocol.
     <indexterm><primary>default ports</primary></indexterm>
     </para>
 
@@ -1520,14 +1520,14 @@ way.</para>
           is allowed if you specify it
           explicitly. For IP protocol scanning (<option>-sO</option>), this option
           specifies the protocol numbers you wish to scan for
-          (0-255).</para>
+          (0&ndash;255).</para>
 
           <para>When scanning both TCP and UDP ports, you can specify
           a particular protocol by preceding the port numbers by <literal>T:</literal>
           or <literal>U:</literal>. The qualifier lasts until you specify another
           qualifier. For example, the argument <option>-p
           U:53,111,137,T:21-25,80,139,8080</option> would scan UDP
-          ports 53,111,and 137, as well as the listed TCP ports. Note
+          ports 53, 111,and 137, as well as the listed TCP ports. Note
           that to scan both UDP and TCP, you have to specify
           <option>-sU</option> and at least one TCP scan type (such as
           <option>-sS</option>, <option>-sF</option>, or
@@ -1599,7 +1599,7 @@ way.</para>
         </term>
         <listitem>
         <indexterm><primary>--port-ratio</primary></indexterm>
-        <para>Scans all ports in <filename>nmap-services</filename> file with a ratio greater than the number specified as the argument. (New format <filename>nmap-services</filename> only.)</para>
+        <para>Scans all ports in <filename>nmap-services</filename> file with a ratio greater than the number specified as the argument.</para>
         </listitem>
       </varlistentry>
 
@@ -1609,7 +1609,7 @@ way.</para>
         </term>
         <listitem>
         <indexterm><primary>--top-ports</primary></indexterm>
-        <para>Scans the N highest-ratio ports found in <filename>nmap-services</filename> file. (New format <filename>nmap-services</filename> only.)</para>
+        <para>Scans the N highest-ratio ports found in <filename>nmap-services</filename> file.</para>
         </listitem>
       </varlistentry>
 
