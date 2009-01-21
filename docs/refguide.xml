@@ -1599,7 +1599,7 @@ way.</para>
         </term>
         <listitem>
         <indexterm><primary>--port-ratio</primary></indexterm>
-        <para>Scans all ports in <filename>nmap-services</filename> file with a ratio greater than the number specified as the argument. (new format <filename>nmap-services</filename> only.)</para>
+        <para>Scans all ports in <filename>nmap-services</filename> file with a ratio greater than the number specified as the argument. (New format <filename>nmap-services</filename> only.)</para>
         </listitem>
       </varlistentry>
 
@@ -1609,7 +1609,7 @@ way.</para>
         </term>
         <listitem>
         <indexterm><primary>--top-ports</primary></indexterm>
-        <para>Scans the N highest-ratio ports found in <filename>nmap-services</filename> file. (new format <filename>nmap-services</filename> only.)</para>
+        <para>Scans the N highest-ratio ports found in <filename>nmap-services</filename> file. (New format <filename>nmap-services</filename> only.)</para>
         </listitem>
       </varlistentry>
 
