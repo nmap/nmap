@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Update Windows installer to handle Windows 7 (tested with the Beta
+  build 7000) [Rob Nicholls]
+
 o Nmap now reports a proper error message when you combine an IPv6
   scan (-6) with random IPv4 address selection (-iR). [Henri Doreau]
 

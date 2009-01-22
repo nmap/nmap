@@ -288,7 +288,8 @@ Section "WinPcap" SecWinPcap
 
   ; Check windows version
   ReadRegStr $R0 HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion" CurrentVersion
-  StrCmp $R0 '6.0' vista_files
+  StrCpy $R0 $R0 2 
+  StrCmp $R0 '6.' vista_files
 
   File Packet.dll
   File WanPacket.dll
