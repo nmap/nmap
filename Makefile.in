@@ -31,6 +31,11 @@ ZENMAPDIR = zenmap
 NDIFFDIR = ndiff
 PYTHON = @PYTHON@
 DEFS = @DEFS@ -DNMAP_NAME=\"$(NMAP_NAME)\" -DNMAP_URL=\"$(NMAP_URL)\" -DNMAP_PLATFORM=\"$(NMAP_PLATFORM)\" -DNMAPDATADIR=\"$(nmapdatadir)\"
+# With GCC, add extra security checks to source code.
+# http://gcc.gnu.org/ml/gcc-patches/2004-09/msg02055.html
+# Level 1 only makes changes that don't affect "conforming" programs,
+# while level 2 enforces additional restrictions.
+DEFS += -D_FORTIFY_SOURCE=2
 # For mtrace debugging -- see MTRACE define in main.cc for instructions
 # Should only be enabled during debugging and not in any real release.
 # DEFS += -DMTRACE=1
