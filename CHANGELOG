@@ -786,9 +786,9 @@ o Fix a bug in the NSE http library which would cause some scripts to
   Files\Nmap\nselib/http.lua:77: attempt to call field 'parse' (a nil
   value) [Jah]
 
-o Fixed a Makefile problem (race condition) which could lead to build
-  failures when launching make in parallel mode (e.g. -j4). [Michal
-  Januszewski]
+o Fixed a couple of Makefile problems (race condition) which could
+  lead to build failures when launching make in parallel mode (e.g.
+  -j4). [Michal Januszewski, Chris Clements]
 
 o Added new addrow() function to NSE tab library.  It allows
   developers to add a whole row at once rather than doing a separate

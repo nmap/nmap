@@ -112,7 +112,7 @@ nsock_build: $(NSOCKDIR)/src/Makefile nbase_build
 	@echo Compiling libnsock;
 	cd $(NSOCKDIR)/src && $(MAKE)
 
-ncat_build: $(NCATDIR)/Makefile
+ncat_build: $(NCATDIR)/Makefile nbase_build nsock_build
 	cd $(NCATDIR) && $(MAKE)
 
 lua_build: $(LIBLUADIR)/Makefile
