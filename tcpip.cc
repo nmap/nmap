@@ -3019,7 +3019,16 @@ static struct sys_route *getsysroutes_proc(FILE *routefp, int *howmany) {
 
   ifaces = getinterfaces(&numifaces);
   routes = (struct sys_route *) safe_zalloc(route_capacity * sizeof(struct sys_route));
-  (void) fgets(buf, sizeof(buf), routefp); /* Kill the first line (column headers) */
+
+  /* Kill the first line (column headers) */
+  errno = 0;
+  if (fgets(buf, sizeof(buf), routefp) == NULL) {
+    if (errno)
+      error("Read error in /proc/net/route");
+    else
+      error("Premature EOF in /proc/net/route");
+    goto done;
+  }
   while(fgets(buf,sizeof(buf), routefp)) {
     p = strtok(buf, " \t\n");
     if (!p) {
@@ -3101,6 +3110,7 @@ static struct sys_route *getsysroutes_proc(FILE *routefp, int *howmany) {
     }
   }
 
+done:
   *howmany = numroutes;
   return routes;
 }
