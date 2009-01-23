@@ -1,4 +1,4 @@
-Nmap 4.76 ( http://nmap.org )
+Nmap 4.77BETA ( http://nmap.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -11,12 +11,13 @@ HOST DISCOVERY:
   -sL: List Scan - simply list targets to scan
   -sP: Ping Scan - go no further than determining if host is online
   -PN: Treat all hosts as online -- skip host discovery
-  -PS/PA/PU [portlist]: TCP SYN/ACK or UDP discovery to given ports
+  -PS/PA/PU[portlist]: TCP SYN/ACK or UDP discovery to given ports
   -PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes
-  -PO [protocol list]: IP Protocol Ping
+  -PO[protocol list]: IP Protocol Ping
   -n/-R: Never do DNS resolution/Always resolve [default: sometimes]
   --dns-servers <serv1[,serv2],...>: Specify custom DNS servers
   --system-dns: Use OS's DNS resolver
+  --traceroute: Trace hop path to each host
 SCAN TECHNIQUES:
   -sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans
   -sU: UDP Scan
@@ -25,8 +26,6 @@ SCAN TECHNIQUES:
   -sI <zombie host[:probeport]>: Idle scan
   -sO: IP protocol scan
   -b <FTP relay host>: FTP bounce scan
-  --traceroute: Trace hop path to each host
-  --reason: Display the reason a port is in a particular state
 PORT SPECIFICATION AND SCAN ORDER:
   -p <port ranges>: Only scan specified ports
     Ex: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080
@@ -54,7 +53,7 @@ OS DETECTION:
 TIMING AND PERFORMANCE:
   Options which take <time> are in milliseconds, unless you append 's'
   (seconds), 'm' (minutes), or 'h' (hours) to the value (e.g. 30m).
-  -T[0-5]: Set timing template (higher is faster)
+  -T<0-5>: Set timing template (higher is faster)
   --min-hostgroup/max-hostgroup <size>: Parallel host scan group sizes
   --min-parallelism/max-parallelism <time>: Probe parallelization
   --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout <time>: Specifies
@@ -81,6 +80,7 @@ OUTPUT:
   -oA <basename>: Output in the three major formats at once
   -v: Increase verbosity level (use twice or more for greater effect)
   -d[level]: Set or increase debugging level (Up to 9 is meaningful)
+  --reason: Display the reason a port is in a particular state
   --open: Only show open (or possibly open) ports
   --packet-trace: Show all packets sent and received
   --iflist: Print host interfaces and routes (for debugging)

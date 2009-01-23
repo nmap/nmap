@@ -1,12 +1,12 @@
 .\"     Title: nmap
 .\"    Author: Gordon \(lqFyodor\(rq Lyon
 .\" Generator: DocBook XSL Stylesheets v1.74.0 <http://docbook.sf.net/>
-.\"      Date: 12/08/2008
+.\"      Date: 01/22/2009
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap First Edition
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "12/08/2008" "Nmap First Edition" "Nmap Reference Guide"
+.TH "NMAP" "1" "01/22/2009" "Nmap First Edition" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * (re)Define some macros
 .\" -----------------------------------------------------------------
@@ -277,7 +277,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .ps -1
 .nf
 .BB lightgray
-Nmap 4\&.76 ( http://nmap\&.org )
+Nmap 4\&.77BETA ( http://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -290,12 +290,13 @@ HOST DISCOVERY:
   \-sL: List Scan \- simply list targets to scan
   \-sP: Ping Scan \- go no further than determining if host is online
   \-PN: Treat all hosts as online \-\- skip host discovery
-  \-PS/PA/PU [portlist]: TCP SYN/ACK or UDP discovery to given ports
+  \-PS/PA/PU[portlist]: TCP SYN/ACK or UDP discovery to given ports
   \-PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes
-  \-PO [protocol list]: IP Protocol Ping
+  \-PO[protocol list]: IP Protocol Ping
   \-n/\-R: Never do DNS resolution/Always resolve [default: sometimes]
   \-\-dns\-servers <serv1[,serv2],\&.\&.\&.>: Specify custom DNS servers
   \-\-system\-dns: Use OS\'s DNS resolver
+  \-\-traceroute: Trace hop path to each host
 SCAN TECHNIQUES:
   \-sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans
   \-sU: UDP Scan
@@ -304,8 +305,6 @@ SCAN TECHNIQUES:
   \-sI <zombie host[:probeport]>: Idle scan
   \-sO: IP protocol scan
   \-b <FTP relay host>: FTP bounce scan
-  \-\-traceroute: Trace hop path to each host
-  \-\-reason: Display the reason a port is in a particular state
 PORT SPECIFICATION AND SCAN ORDER:
   \-p <port ranges>: Only scan specified ports
     Ex: \-p22; \-p1\-65535; \-p U:53,111,137,T:21\-25,80,139,8080
@@ -333,7 +332,7 @@ OS DETECTION:
 TIMING AND PERFORMANCE:
   Options which take <time> are in milliseconds, unless you append \'s\'
   (seconds), \'m\' (minutes), or \'h\' (hours) to the value (e\&.g\&. 30m)\&.
-  \-T[0\-5]: Set timing template (higher is faster)
+  \-T<0\-5>: Set timing template (higher is faster)
   \-\-min\-hostgroup/max\-hostgroup <size>: Parallel host scan group sizes
   \-\-min\-parallelism/max\-parallelism <time>: Probe parallelization
   \-\-min\-rtt\-timeout/max\-rtt\-timeout/initial\-rtt\-timeout <time>: Specifies
@@ -360,6 +359,7 @@ OUTPUT:
   \-oA <basename>: Output in the three major formats at once
   \-v: Increase verbosity level (use twice or more for greater effect)
   \-d[level]: Set or increase debugging level (Up to 9 is meaningful)
+  \-\-reason: Display the reason a port is in a particular state
   \-\-open: Only show open (or possibly open) ports
   \-\-packet\-trace: Show all packets sent and received
   \-\-iflist: Print host interfaces and routes (for debugging)
@@ -989,9 +989,7 @@ This vulnerability was widespread in 1997 when Nmap was released, but has largel
 .SH "Port Specification and Scan Order"
 .\" port specification
 .PP
-In addition to all of the scan methods discussed previously, Nmap offers options for specifying which ports are scanned and whether the scan order is randomized or sequential\&. By default, Nmap scans all ports up to and including 1024 as well as higher numbered ports listed in the
-\FCnmap\-services\F[]
-file for the protocol(s) being scanned\&.
+In addition to all of the scan methods discussed previously, Nmap offers options for specifying which ports are scanned and whether the scan order is randomized or sequential\&. By default, Nmap scans the most common 1,000 ports for each protocol\&.
 .\" default ports
 .PP
 \fB\-p \fR\fB\fIport ranges\fR\fR (Only scan specified ports) .\" -p
@@ -1000,14 +998,14 @@ This option specifies which ports you want to scan and overrides the default\&. 
 \FC1\-1023\F[])\&. The beginning and/or end values of a range may be omitted, causing Nmap to use 1 and 65535, respectively\&. So you can specify
 \fB\-p\-\fR
 to scan ports from 1 through 65535\&. Scanning port zero.\" port zero
-is allowed if you specify it explicitly\&. For IP protocol scanning (\fB\-sO\fR), this option specifies the protocol numbers you wish to scan for (0\-255)\&.
+is allowed if you specify it explicitly\&. For IP protocol scanning (\fB\-sO\fR), this option specifies the protocol numbers you wish to scan for (0\(en255)\&.
 .sp
 When scanning both TCP and UDP ports, you can specify a particular protocol by preceding the port numbers by
 \FCT:\F[]
 or
 \FCU:\F[]\&. The qualifier lasts until you specify another qualifier\&. For example, the argument
 \fB\-p U:53,111,137,T:21\-25,80,139,8080\fR
-would scan UDP ports 53,111,and 137, as well as the listed TCP ports\&. Note that to scan both UDP and TCP, you have to specify
+would scan UDP ports 53, 111,and 137, as well as the listed TCP ports\&. Note that to scan both UDP and TCP, you have to specify
 \fB\-sU\fR
 and at least one TCP scan type (such as
 \fB\-sS\fR,
@@ -1057,9 +1055,7 @@ for sequential port scanning instead\&.
 .\" --port-ratio
 Scans all ports in
 \FCnmap\-services\F[]
-file with a ratio greater than the number specified as the argument\&. (new format
-\FCnmap\-services\F[]
-only\&.)
+file with a ratio greater than the number specified as the argument\&.
 .RE
 .PP
 \fB\-\-top\-ports <integer of 1 or greater>\fR
@@ -1067,9 +1063,7 @@ only\&.)
 .\" --top-ports
 Scans the N highest\-ratio ports found in
 \FCnmap\-services\F[]
-file\&. (new format
-\FCnmap\-services\F[]
-only\&.)
+file\&.
 .RE
 .SH "Service and Version Detection"
 .\" version detection
@@ -1255,7 +1249,7 @@ Runs a script scan (like
 \FC$NMAPDIR/\F[];.\" NMAPDIR environment variable
 \FC~/\&.nmap/\F[]
 (not searched on Windows);.\" .nmap directory
-NMAPDATADIR/ or.\" NMAPDATADIR
+\FCNMAPDATADIR\F[]/ or.\" NMAPDATADIR
 \FC\&./\F[]\&. A
 \FCscripts/\F[]
 subdirectory is also tried in each of these\&.
