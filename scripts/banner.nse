@@ -1,5 +1,5 @@
 description = [[
-A simple banner grabber which connects to an open TCP port and prints out anything issued by the listening service.
+A simple banner grabber which connects to an open TCP port and prints out anything sent by the listening service within five seconds.
 
 The banner will be truncated to fit into a single line, but an extra line may be printed for every
 increase in the level of verbosity requested on the command line.
@@ -68,21 +68,11 @@ end
 
 
 ---
--- Returns a number of milliseconds for use as a socket timeout value.
+-- Returns a number of milliseconds for use as a socket timeout value (defaults to 5 seconds).
 --
--- The number is based on nmap's timing level:
--- * -T0 = 6000 ms
--- * -T1 = 5000 ms
--- * -T2 = 4000 ms
--- * -T3 = 3000 ms
--- * -T4 = 2500 ms
--- * -T5 = 2000 ms
 -- @return Number of milliseconds.
 function get_timeout()
-
-  local timeout = {[0] = 6000, 5000, 4000, 3000, 2500, 2000}
-  return timeout[nmap.timing_level()] or 3000
-
+  return 5000
 end
 
 
