@@ -375,6 +375,9 @@ o Nsock now uses fselect() to work around problems with select() not
   needed for Ncat to work properly on that platform. See
   http://seclists.org/nmap-dev/2008/q3/0766.html. [Kris]
 
+o Removed trailing null bytes from Ncat's responses in HTTP proxy
+  mode. [David]
+
 o Reduced memory consumption for some longer-running scans by removing
   completed hosts from the lists after two minutes.  These hosts are
   kept around in case there is a late response, but this draws the
