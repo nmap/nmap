@@ -6,23 +6,23 @@ o Added Ncat, a much-improved reimplementation of the venerable Netcat
   tool which adds modern features and makes use of Nmap's efficient
   networking libraries.  Features include SSL support, proxy
   connections (client or server, socks4 or connect-based, with or
-  without authentication, optionally chained), TCP or UDP connection
+  without authentication, optionally chained), TCP and UDP connection
   redirection, connection brokering (facilitating connections between
   machines which are behind NAT gateways), and much more.  It is
   cross-platform (Linux, Windows, Mac, etc.) and supports IPv6 as well
   as standard IPv4.  See http://nmap.org/ncat/ for details.  It is now
   included in our binary packages (Windows, Linux, and Mac OS X), and
-  built by default.  You can omit it with the --without-ncat configure
-  option.
+  built by default.  You can skip it with the --without-ncat configure
+  option.  Thanks to Kris and David for their great work on this!
 
-o Added the Ndiff utility, which compares the results of Nmap scans.
-  This makes it trivial to scan your networks on a regular basis and
-  create a report (XML or text format) listing the new/removed hosts,
-  newly open/closed ports, changed operating systems, etc.  See
-  http://nmap.org/ndiff/ and ndiff/README for more information. It is
-  included in our binary packages and built by default, though you can
-  prevent it from being built and installed by specifying the
-  --without-ndiff configure flag.  Thanks to David and Michael
+o Added the Ndiff utility, which compares the results of two Nmap
+  scans and describes the new/removed hosts, newly open/cosed ports,
+  changed operating systems, etc.  This makes it trivial to scan your
+  networks on a regular basis and create a report (XML or text format)
+  on all the changes.  See http://nmap.org/ndiff/ and ndiff/README for
+  more information. Ndiff is included in our binary packages and built
+  by default, though you can prevent it from being built by specifying
+  the --without-ndiff configure flag.  Thanks to David and Michael
   Pattrick for their great work on this.
 
 o Released Nmap Network Scanning: The Official Nmap Project Guide to
@@ -34,22 +34,21 @@ o Released Nmap Network Scanning: The Official Nmap Project Guide to
   demonstrates how to apply those features to quickly solve real-world
   tasks.  It was briefly the #1 selling computer book on Amazon.
   Translations to the German, Korean, and Brazilian Portuguese
-  languages are forthcoming.  For more, see http://nmap.org/book/.
-  More than half of the book is free online at
-  http://nmap.org/book/toc.html.
+  languages are forthcoming.  More than half of the book is already
+  free online.  For more, see http://nmap.org/book/.
 
 o David spent more than a month working on algorithms to improve port
   scan performance while retaining or improving accuracy.  The changes
   are described at http://seclists.org/nmap-dev/2009/q1/0054.html. He
   was able to reduce our "benchmark scan time" (which involves many
   different scan types from many source networks to many targets) from
-  1879 seconds to 1321.  That is a 30% time reduction without harming
-  accuracy!
+  1879 seconds to 1321 without harming accuracy.  That is a 30% time
+  reduction!
 
-o Introduced NSE documentation portal, with docs on every NSE script
-  and library included with Nmap. See http://nmap.org/nsedoc/.  Script
-  documentation was improved substantially in the process.  The NSEDoc
-  documentation format which scripts and libraries must use is
+o Introduced the NSE documentation portal, which documents every NSE
+  script and library included with Nmap. See http://nmap.org/nsedoc/.
+  Script documentation was improved substantially in the process.
+  Scripts and libraries must use the new NSEDoc format, which is
   described at http://nmap.org/book/nsedoc.html.  Thanks to Patrick
   and David for their great work on this.
 
@@ -79,49 +78,29 @@ o Integrated all of your OS detection fingerprint submissions and
   phones, routers, oscilloscopes, employee timeclocks, etc. Keep those
   submissions coming!
 
-o Added three new nselib modules: msrpc, netbios, and smb. As the
-  names suggest, they contain common code for scripts using MSRPC,
-  NetBIOS, and SMB. These modules allow scripts to extract a great
-  deal of information from hosts running Windows, particularly Windows
+o Ron Bowes embarked on a massive MSRPC/NETBIOS project to allow Nmap
+  to interrogate Windows machines much more completely.  He added
+  three new nselib modules: msrpc, netbios, and smb. As the names
+  suggest, they contain common code for scripts using MSRPC, NetBIOS,
+  and SMB. These modules allow scripts to extract a great deal of
+  information from hosts running Windows, particularly Windows
   2000. New or updated scripts using the modules are:
     nbstat.nse: get NetBIOS names and MAC address.
-    smb-enumdomains.nse: enumerate domains and policies.
-    smb-enumsessions.nse: enumerate logins and SMB sessions.
-    smb-enumshares.nse: enumerate network shares.
-    smb-enumusers.nse: enumerate users and information about them.
+    smb-enum-domains.nse: enumerate domains and policies.
+    smb-enum-processes.nse: allows a user with administrator
+       credentials to view a tree of the processes running on the
+       remote system (uses HKEY_PERFORMANCE_DATA hive).
+    smb-enum-sessions.nse: enumerate logins and SMB sessions.
+    smb-enum-shares.nse: enumerate network shares.
+    smb-enum-users.nse: enumerate users and information about them.
     smb-os-discovery.nse: get operating system over SMB (replaces
       netbios-smb-os-discovery.nse).
     smb-security-mode.nse: determine if a host uses user-level or
       share-level security, and what other security features it
       supports.
-    smb-serverstats.nse: grab statistics such as network traffic
+    smb-server-stats.nse: grab statistics such as network traffic
       counts.
-    smb-systeminfo.nse: get lots of information from the registry.
-  [Ron Bowes]
-
-o Zenmap now runs ndiff to do its "Compare Results" function. This
-  completely replaces the old diff view. The diff window size is now
-  more flexible (for user resizing) as well. [David]
-
-o Improved port scan performance by changing the list of high priority
-  ports which Nmap shifts closer to the beginning of scans because
-  they are more likely to be responsive.  We based the change on
-  empirical data from large-scale scanning.  The new list is:
-    21, 22, 23, 25, 53, 80, 110, 111, 113, 135, 139, 143, 199, 256,
-    443, 445, 554, 587, 993, 995, 1025, 1720, 1723, 3306, 3389, 5900, 
-    8080, 8888 [Fyodor, David]
-
-o Added smb-enum-processes.nse, a script that allows a user with administrator
-  credentials to view a tree of the processes running on the remote system
-  (uses HKEY_PERFORMANCE_DATA hive). [Ron Bowes]
-
-o [NSE] Almost all scripts were renamed to be more consistent.  They
-  are now all lowercase and most of them start with the name of the
-  service name they query.  Words are separated by hyphens.
-
-o [NSE] Now that scripts are better named, the "Id" field has been
-  removed and the script name (sans the .nse or directory path
-  information) is used in script oputput instead.
+    smb-system-info.nse: get lots of information from the registry.
 
 o A problem that caused OS detection to fail for most hosts in a
   certain case was fixed. It happened when sending raw Ethernet frames
@@ -132,6 +111,52 @@ o A problem that caused OS detection to fail for most hosts in a
   to Michael Head for running tests and especially Trent Snyder for
   testing and finding the cause of the problem. [David]
 
+o Zenmap now runs ndiff to for its "Compare Results" function. This
+  completely replaces the old diff view. The diff window size is now
+  more flexible for user resizing as well. [David]
+
+o Added a Russian translation of the Nmap Reference Guide by Guz
+  Alexander. We now have translations in 15 languages available from
+  http://nmap.org/docs.html. More volunteer translators are welcome,
+  as we are still missing some important languages. Translation
+  instructions are available from that docs.html page.
+
+o Update Windows installer to handle Windows 7 (tested with the Beta
+  build 7000) [Rob Nicholls]
+
+o Improved port scan performance by changing the list of high priority
+  ports which Nmap shifts closer to the beginning of scans because
+  they are more likely to be responsive.  We based the change on
+  empirical data from large-scale scanning.  The new port list is:
+    21, 22, 23, 25, 53, 80, 110, 111, 113, 135, 139, 143, 199, 256,
+    443, 445, 554, 587, 993, 995, 1025, 1720, 1723, 3306, 3389, 5900, 
+    8080, 8888 [Fyodor, David]
+
+o [NSE] Almost all scripts were renamed to be more consistent.  They
+  are now all lowercase and most of them start with the name of the
+  service name they query.  Words are separated by hyphens. [David,
+  Fyodor]
+
+o [NSE] Now that scripts are better named, the "Id" field has been
+  removed and the script name (sans the .nse or directory path
+  information) is used in script output instead. [David]
+
+o [NSE] Added banner.nse, a simple script which connects to open TCP
+  ports and prints out anything sent in the first five seconds by the
+  listening service. [Jah]
+
+o [NSE] Added a new OpenSSL library with functions for multiprecision
+  integer arithmetic, hashing, HMAC, symmetric encryption and
+  symmetric decryption. [Sven]
+
+o [Zenmap] Internationalization has been fixed [David]. Currently
+  Zenmap has two translations:
+    o German by Chris Leick
+    o Brazilian Portuguese by Adriano Monteiro Marques (partial)
+  For details on using an existing translation or localizing Zenmap
+  into your own native language, see
+  http://nmap.org/book/zenmap-lang.html. [David]
+
 o Zenmap no longer outputs XML elements and attributes that are not in
   the Nmap XML DTD. This was done mostly by removing things from
   Zenmap's output, and adding a few new optional things to the Nmap
@@ -141,39 +166,33 @@ o Zenmap no longer outputs XML elements and attributes that are not in
   commonly used with Nmap. Because of these changes the
   xmloutputversion has been increased to 1.03. [David]
 
+o The NSE registry now persists across host groups so that values
+  stored in it will remain until they are explicitly removed or Nmap
+  execution ends. [David]
+
 o Enhanced the AS Numbers script (ASN.nse) to better consolidate
   results and bail out if the DNS server doesn't support the ASN
   queries. [Jah]
 
-o [NSE] Added a new OpenSSL library with functions for multiprecision
-  integer arithmetics, hashing, HMAC, symmetric encryption and
-  symmetric decryption. [Sven]
-
-o Complete re-write of the marshalling logic for Microsoft RPC calls. 
+o Complete re-write of the marshaling logic for Microsoft RPC calls. 
   [Ron Bowes]
 
-o Added vulnerability checks for MS08-067 as well as an unfixed 
-  denial of service in the Windows 2000 registry service.
-  [Ron Bowes]
-
-o Added a script that checks for ms08-067-vulnerable hosts 
-  (smb-check-vulns.nse) using the smb nselib. [Ron Bowes]
-
-o Added a Russian translation of the Nmap Reference Guide by Guz
-  Alexander. We now have translations in 15 languages available from
-  http://nmap.org/docs.html. More volunteer translaters are welcome,
-  as we are still missing some important languages (particularly
-  German!). Translation instructions are available from that docs.html
-  page.
+o Added a script that checks for ms08-067-vulnerable hosts
+  (smb-check-vulns.nse) using the smb nselib. It also checks for an
+  unfixed denial of service vulnerability Ron discovered in the
+  Windows 2000 registry service. [Ron Bowes]
 
 o [Zenmap] Text size is larger on Mac OS X thanks to a new included
   gtkrc file. [David]
 
-o Update Windows installer to handle Windows 7 (tested with the Beta
-  build 7000) [Rob Nicholls]
+o Reduced memory consumption for some longer-running scans by removing
+  completed hosts from the lists after two minutes.  These hosts are
+  kept around in case there is a late response, but this draws the
+  line on how long we wait and hence keep this information in memory.
+  See http://seclists.org/nmap-dev/2008/q3/0902.html for more. [Kris]
 
 o The Windows installer now uses Zenmap binaries built using Python
-  2.6.1 rather than 2.5.1.
+  2.6.1 rather than 2.5.1 [Fyodor]
 
 o When a system route can't be matched up directly with an interface
   by comparing addresses, Nmap now tries to match the route through
@@ -185,22 +204,37 @@ o When a system route can't be matched up directly with an interface
     WARNING: Unable to find appropriate interface for system route to ...
   [David]
 
-o Most script names were changed to make them more consistent.
-  [Fyodor, David]
+o Removed a code comment which simply declared /* WANKER ALERT! */ for
+  no good reason. [Fyodor]
 
 o NSE prints messages in debugging mode whenever a script starts or
   finishes [Patrick, David].
 
+o [Ncat] The -l option can now be specified w/o a port number to
+  listen on Ncat's default port number (31337).
+
+o [Zenmap] The Nmap output window now scrolls automatically as a scan
+  progresses. [David]
+
+o [NSE] We now have a canonical way for scripts to check for
+  dependency libraries such as OpenSSL.  This allows them to handle
+  the issue gracefully (by exiting or doing some of their work if
+  possible) rather than flooding the console with error messages as
+  before. See http://nmap.org/nsedoc/modules/openssl.html. [Pattrick,
+  David, Fyodor]
+
 o Nmap now reports a proper error message when you combine an IPv6
   scan (-6) with random IPv4 address selection (-iR). [Henri Doreau]
+
+o Nmap now builds with the _FORTIFY_SOURCE=2 define.  With modern
+  versions of GCC, this adds extra buffer overflow protection and
+  other security checks.  It is described at
+  http://gcc.gnu.org/ml/gcc-patches/2004-09/msg02055.html. [David,
+  Doug]
 
 o The --excludefile option correctly handles files with no terminating
   newline instead of claiming "Exclude file line 0 was too long to
   read." [Henri Doreau]
-
-o [NSE] Added banner.nse, a simple script which connects to open TCP
-  ports and prints out anything sent in the first five seconds by the
-  listening service. [Jah]
 
 o [NSE] Changed the datafiles library to remove constraining input
   checks, move nmap.fetch_file() to read_from_file(), and make
@@ -216,8 +250,9 @@ o Nsock handles a certain Windows connect error, WSAEADDRNOTAVAIL
   broadcast address. Thanks to Tilo Köppe and James Liu for reporting
   the problem. [David]
 
-o An "elapsed" attribute has been added to the XML output, representing
-  the total scan time in seconds (floating point). [Kris]
+o An "elapsed" attribute has been added to the XML output (in the
+  "finished" tag), representing the total Nmap scanning time in
+  seconds (floating point). [Kris]
 
 o Fixed a division by zero error in the packet rate measuring code
   that could cause a display of infinity packets per seconds near the
@@ -232,39 +267,26 @@ o Fixed a bug in the IP validation code which would have let a specially
   Nmap to segfault.  Thanks to ithilgore of sock-raw.homeunix.org for
   the very detailed bug report. [Kris]
 
-o [Zenmap] The crash reporter now enhances user privacy by showing all
-  the information that will be submitted so you can edit it to remove
-  identifying information such as the name of your home directory. If
-  you provide an email address the report will be marked private so it
-  will not appear on the public bug tracker. [David]
-
-o [Zenmap] Internationalization has been fixed [David]. Currently
-  Zenmap has two translations:
-    o German by Chris Leick
-    o Brazilian Portuguese by Adriano Monteiro Marques (partial)
+o [Zenmap] The crash reporter further enhances user privacy by showing
+  all the information that will be submitted so you can edit it to
+  remove identifying information such as the name of your home
+  directory. If you provide an email address the report will be marked
+  private so it will not appear on the public bug tracker. [David]
 
 o [Zenmap] Zenmap now parses and records XSL stylesheet information
   from Nmap XML files, so files saved by Zenmap will be viewable in a
   web browser just like those produced by Nmap. [David]
 
-o A possible Lua stack overflow in dns.lua was fixed. Lua detects
+o A possible Lua stack overflow in the DNS module was fixed. Lua detects
   these sorts of overflows and quits. [David]
-
-o Nmap now builds with the _FORTIFY_SOURCE=2 define.  With modern
-  versions of GCC, this adds extra buffer overflow protection and
-  other security checks.  It is described at
-  http://gcc.gnu.org/ml/gcc-patches/2004-09/msg02055.html. [David,
-  Doug]
-
-o The NSE registry now persists across host groups so that values
-  stored in it will remain until they are explicitly removed or Nmap
-  execution ends. [David]
 
 o [NSE] Improved html-title script to support http-alt and https-alt
   (with SSL) and to handle a wider variety of redirects. [Jah]
 
-o Removed a code comment which simply declared /* WANKER ALERT! */ for
-  no good reason. [Fyodor]
+o NSE scripts that require a list of DNS servers (currently only
+  ASN.nse) now work when IPv6 scanning. Previously it gave an error
+  message: "Failed to send dns query.  Response from dns.query(): 9".
+  [Jah, David]
 
 o [Zenmap] Added a workaround for a crash
     GtkWarning: could not open display
@@ -281,25 +303,27 @@ o http-auth.nse now properly checks for default authentication
 o Renamed irc-zombie.nse to auth-spoof and improved its description
   and output a bit. [Fyodor]
 
-o Removed ripeQuery.nse because we now have the much more robust
+o Removed some unnecessary "demo" category NSE scripts: echoTest,
+  chargenTest, showHTTPVersion, and showSMTPVersion.nse.  Moved
+  daytimeTest from the "demo" category to "discovery".  Removed
+  showHTMLTitle from the "demo" category, but it remains in the
+  "default" and "safe" categories. This leaves just smtp-open-relay in
+  the undocumented "demo" category. [Fyodor]
+
+o [NSE] Removed ripeQuery.nse because we now have the much more robust
   whois.nse which handles all the major registries. [Fyodor]
 
-o [Zenmap] Profile updates: The -sS option was added to the "Intense
-  scan plus UDP" and "Slow comprehensive scan" profiles.  The -PN (ping
-  only) option was added to "Quick traceroute". [David]
-
-o Removed showSSHVersion.nse. Its only real claim to fame was the
-  ability to trick some SSH servers (including at least OpenSSH
+o [NSE] Removed showSSHVersion.nse. Its only real claim to fame was
+  the ability to trick some SSH servers (including at least OpenSSH
   4.3p2-9etch3) into not logging the connection.  This trick doesn't
   seem to work with newer versions of OpenSSH, as my
   openssh-server-4.7p1-4.fc8 does log the connection. Without the
   stealth advantage, the script has no real benefit over version
   detection or the upcoming banner grabbing script. [Fyodor]
 
-o NSE scripts that require a list of DNS servers (currently only
-  ASN.nse) now work when IPv6 scanning. Previously it gave an error
-  message: "Failed to send dns query.  Response from dns.query(): 9".
-  [Jah, David]
+o [Zenmap] Profile updates: The -sS option was added to the "Intense
+  scan plus UDP" and "Slow comprehensive scan" profiles.  The -PN (ping
+  only) option was added to "Quick traceroute". [David]
 
 o [NSE} The smtp-commands script output is now more compact. [Jason
   DePriest, David]
@@ -307,13 +331,6 @@ o [NSE} The smtp-commands script output is now more compact. [Jason
 o [Zenmap] Added a simple workaround for a bug in PyXML (an add-on
   Python XML library) that caused a crash. The crash would happen when
   loading an XML file and looked like "KeyError: 0". [David]
-
-o Removed some unecessary "demo" category NSE scripts: echoTest,
-  chargenTest, showHTTPVersion, and showSMTPVersion.nse.  Moved
-  daytimeTest from the "demo" category to "discovery".  Removed
-  showHTMLTitle from the "demo" category, but it remains in the
-  "default" and "safe" categories. This leaves just smtp-open-relay in
-  the undocumented "demo" category. [Fyodor]
 
 o A crash caused by an incorrect test condition was fixed. It would
   happen when running a ping scan other than a protocol ping, without
@@ -325,26 +342,23 @@ o [Zenmap] The keyboard shortcut for "Save to Directory" has been
   changed from Ctrl+v to Ctrl+Alt+s so as not to conflict with the
   usual paste shortcut [Jah, Michael].
 
-o [Ncat] The -l option can now be specified w/o a port number to
-  listen on Ncat's default port number (31337).
-
 o Nmap now quits if you give a "backwards" port or protocol range like
   -p 20-10. The issue was noted by Arturo "Buanzo" Busleiman. [David]
 
 o Fixed a bug which caused Nmap to infer an improper distance against
-  some hosts when performaing OS detection against a group whose
+  some hosts when performing OS detection against a group whose
   distance varies between members. [David, Fyodor]
 
 o [Zenmap] Host information windows are now like any other windows,
   and will not become unclosable by having their controls offscreen.
   Thanks to Robert Mead for the bug report.
 
-o showHTMLTitle.nse can now follow (non-standard) relative redirects,
-  and may do a DNS lookup to find if the redirected-to host has the
-  same IP address as the scanned host. [Jah]
+o [NSE] showHTMLTitle can now follow (non-standard) relative
+  redirects, and may do a DNS lookup to find if the redirected-to host
+  has the same IP address as the scanned host. [Jah]
 
-o Enhanced the tohex() function in the NSE stdnse library to support strings
-  and added options to control the formatting. [Sven]
+o [NSE] Enhanced the tohex() function in the stdnse library to support
+  strings and added options to control the formatting. [Sven]
 
 o [NSE] The http module tries to deal with non-standards-compliant
   HTTP traffic, particularly responses in which the header fields are
@@ -368,8 +382,6 @@ o The HTTP_open_proxy.nse script was updated to match Google Web
 o Enhanced the ssh service detection signatures to properly
   detect protocol version 2 services. [Matt Selsky]
 
-o [Zenmap] The Nmap output window now scrolls automatically. [David]
-
 o Nsock now uses fselect() to work around problems with select() not
   working properly on non-socket descriptors on Windows.  This was
   needed for Ncat to work properly on that platform. See
@@ -378,26 +390,13 @@ o Nsock now uses fselect() to work around problems with select() not
 o Removed trailing null bytes from Ncat's responses in HTTP proxy
   mode. [David]
 
-o Reduced memory consumption for some longer-running scans by removing
-  completed hosts from the lists after two minutes.  These hosts are
-  kept around in case there is a late response, but this draws the
-  line on how long we wait and hence keep this information in memory.
-  See http://seclists.org/nmap-dev/2008/q3/0902.html for more. [Kris]
-
-o [NSE] daytime.nse now runs against TCP ports in additon to the UDP
+o [NSE] daytime.nse now runs against TCP ports in addition to the UDP
   ports it already handled. The output format was also
   improved. [David]
 
 o XML output now contains the full path to nmap.xml on Windows. The
   path is converted to a file:// URL to provide better compatibility
   across browsers. [Jah]
-
-o [NSE] We now have a cononical way for scripts to check for
-  dependency libraries such as OpenSSL.  This allows them to handle
-  the issue gracefully (by exiting or doing some of their work if
-  possible) rather than flooding the console with error messages as
-  before. See http://nmap.org/nsedoc/modules/openssl.html. [Pattrick,
-  David, Fyodor]
 
 o Made DNS timeouts in NSE a bit more aggressive at higher timing
   levels such as -T4 and -T5. [Jah]
@@ -455,6 +454,12 @@ o [Zenmap] Fixed a crash related to the use of NmapOptions in
   ops.input_filename) rather than the newer dict-style
   interface. [Jah]
 
+o Split parallel DNS resolution and system DNS resolution into
+  separate functions. Previously system DNS resolution was encapsulated
+  inside the parallel DNS function, inside a big if block. Now the if
+  is on the outside and decides which of the two functions to
+  call. [David]
+
 o [NSE] Remove "\r\r" in script output. If you print "\r\n", the
   Windows C library will transform it to "\r\r\n". So we just print
   "\n" with no special case for Windows.  Also fixed
@@ -470,14 +475,14 @@ o OS scan point matching code can now handle tests worth zero
 
 o [Zenmap] Catch the exceptions that are cause when there's no XML
   output file, an empty one, or one that's half-complete. You can
-  cause these three situations, respectively, with: nmap -V, nmap
-  --iflist, or nmap nonexistant.host.  Also remove the target
+  cause these three situations, respectively, with: "nmap -V", "nmap
+  --iflist", or "nmap nonexistent.host".  Also remove the target
   requirement for scans because you should be able to run commands
   such as "nmap --iflist" from Zenmap. [David]
 
 o [Zenmap] Guard against the topology graph becoming empty in the
   middle of an animation.  This could happen if you removed a scan
-  from the list of scans durign an animation. The error looked like:
+  from the list of scans during an animation. The error looked like:
     File "usr/lib/python2.5/site-packages/radialnet/gui/RadialNet.py",
     line 1533, in __livens_up AttributeError: 'NoneType' object has no
     attribute 'get_nodes' [David]
@@ -487,12 +492,6 @@ o [Zenmap] Fixed a crash which could occur when you entered a command
   crashes found in the crash report tracker too.  Zenmap users really
   are capable of finding every possible edge case which could cause a
   crash :).
-
-o Split parallel DNS resolution and system DNS resolution into
-  separate functions. Previously system DNS resolution was encapulated
-  inside the parallel DNS function, inside a big if block. Now the if
-  is on the outside and decides which of the two functions to
-  call. [David]
 
 Nmap 4.76 [2008-9-12]
 
