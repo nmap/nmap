@@ -1,6 +1,6 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-Nmap 4.77BETA [2009-1-22]
+Nmap 4.85BETA1 [2009-1-23]
 
 o Added Ncat, a much-improved reimplementation of the venerable Netcat
   tool which adds modern features and makes use of Nmap's efficient
@@ -19,11 +19,11 @@ o Added the Ndiff utility, which compares the results of Nmap scans.
   This makes it trivial to scan your networks on a regular basis and
   create a report (XML or text format) listing the new/removed hosts,
   newly open/closed ports, changed operating systems, etc.  See
-  http://nmap.org/ndiff/ and ndiff/README for more information. Thanks
-  to David and Michael Pattrick for their great work on this.  It is
+  http://nmap.org/ndiff/ and ndiff/README for more information. It is
   included in our binary packages and built by default, though you can
   prevent it from being built and installed by specifying the
-  --without-ndiff configure flag.
+  --without-ndiff configure flag.  Thanks to David and Michael
+  Pattrick for their great work on this.
 
 o Released Nmap Network Scanning: The Official Nmap Project Guide to
   Network Discovery and Security Scanning.  From explaining port
@@ -99,6 +99,10 @@ o Added three new nselib modules: msrpc, netbios, and smb. As the
     smb-systeminfo.nse: get lots of information from the registry.
   [Ron Bowes]
 
+o Zenmap now runs ndiff to do its "Compare Results" function. This
+  completely replaces the old diff view. The diff window size is now
+  more flexible (for user resizing) as well. [David]
+
 o Improved port scan performance by changing the list of high priority
   ports which Nmap shifts closer to the beginning of scans because
   they are more likely to be responsive.  We based the change on
@@ -106,7 +110,6 @@ o Improved port scan performance by changing the list of high priority
     21, 22, 23, 25, 53, 80, 110, 111, 113, 135, 139, 143, 199, 256,
     443, 445, 554, 587, 993, 995, 1025, 1720, 1723, 3306, 3389, 5900, 
     8080, 8888 [Fyodor, David]
-
 
 o Added smb-enum-processes.nse, a script that allows a user with administrator
   credentials to view a tree of the processes running on the remote system
@@ -163,9 +166,8 @@ o Added a Russian translation of the Nmap Reference Guide by Guz
   German!). Translation instructions are available from that docs.html
   page.
 
-o Zenmap now runs ndiff to do its "Compare Results" function. This
-  completely replaces the old diff view. ndiff is now required to do
-  comparisons in Zenmap. [David]
+o [Zenmap] Text size is larger on Mac OS X thanks to a new included
+  gtkrc file. [David]
 
 o Update Windows installer to handle Windows 7 (tested with the Beta
   build 7000) [Rob Nicholls]
@@ -282,6 +284,10 @@ o Renamed irc-zombie.nse to auth-spoof and improved its description
 o Removed ripeQuery.nse because we now have the much more robust
   whois.nse which handles all the major registries. [Fyodor]
 
+o [Zenmap] Profile updates: The -sS option was added to the "Intense
+  scan plus UDP" and "Slow comprehensive scan" profiles.  The -PN (ping
+  only) option was added to "Quick traceroute". [David]
+
 o Removed showSSHVersion.nse. Its only real claim to fame was the
   ability to trick some SSH servers (including at least OpenSSH
   4.3p2-9etch3) into not logging the connection.  This trick doesn't
@@ -318,6 +324,9 @@ o A crash caused by an incorrect test condition was fixed. It would
 o [Zenmap] The keyboard shortcut for "Save to Directory" has been
   changed from Ctrl+v to Ctrl+Alt+s so as not to conflict with the
   usual paste shortcut [Jah, Michael].
+
+o [Ncat] The -l option can now be specified w/o a port number to
+  listen on Ncat's default port number (31337).
 
 o Nmap now quits if you give a "backwards" port or protocol range like
   -p 20-10. The issue was noted by Arturo "Buanzo" Busleiman. [David]
@@ -361,6 +370,11 @@ o Enhanced the ssh service detection signatures to properly
 
 o [Zenmap] The Nmap output window now scrolls automatically. [David]
 
+o Nsock now uses fselect() to work around problems with select() not
+  working properly on non-socket descriptors on Windows.  This was
+  needed for Ncat to work properly on that platform. See
+  http://seclists.org/nmap-dev/2008/q3/0766.html. [Kris]
+
 o Reduced memory consumption for some longer-running scans by removing
   completed hosts from the lists after two minutes.  These hosts are
   kept around in case there is a late response, but this draws the
@@ -402,6 +416,13 @@ o Upgraded the OpenSSL binaries shipped in our Windows installer to
 o [NSE] The SSLv2-support script no longer prints duplicate cyphers if
   they exist in the server's supported cypher list. [Kris]
 
+o Fix compilation w/IPv6 support on Solaris by checking for inet_addr
+  in -lnsr before using APR_CHECK_WORKING_GETNAMEINFO in
+  configure. [David]
+
+o Removed the nbase_md5.* and nbase_sha1.* files because our
+  new nse_openssl library includes that functionality. [David]
+
 o The robots.txt NSE script is now silent when there are no
   interesting results, rather than printing that robots.txt "is empty
   or has no disallowed entries". [Kris]
@@ -412,6 +433,11 @@ o Fixed a file (socket) descriptor leak which could occur when connect
   "Socket creation in sendConnectScanProbe: Too many open files (24)"
   [David]
 
+o [Zenmap] Made floating host details windows into normal toplevel
+  windows. This avoid a problem where the edge of a window could be
+  off the edge of a screen and it would not be closable. The bug was
+  reported by Robert Mead. [David]
+
 o Use TIMEVAL_AFTER(...) instead of TIMEVAL_SUBTRACT(...) > 0 when
   deciding whether a probe response counts as a drop for scan delay
   purposes.  This prevents an integer overflow which could
@@ -420,6 +446,11 @@ o Use TIMEVAL_AFTER(...) instead of TIMEVAL_SUBTRACT(...) > 0 when
 o Reorganized macosx/Makefile to make it easier to add in new packages
   such as Ncat and Ndiff. Also removed the bogus clean-nmap and
   clean-zenmap targets. [David]
+
+o [Zenmap] Fixed a crash related to the use of NmapOptions in
+  ScanNotebook.py using the old interface (ops.num_random_targes,
+  ops.input_filename) rather than the newer dict-style
+  interface. [Jah]
 
 o [NSE] Remove "\r\r" in script output. If you print "\r\n", the
   Windows C library will transform it to "\r\r\n". So we just print
@@ -433,6 +464,26 @@ o Updated IANA assignment IP list for random IP (-iR)
 o OS scan point matching code can now handle tests worth zero
   points. We now assign zero points to ignore a couple tests which
   proved ineffective. [David]
+
+o [Zenmap] Catch the exceptions that are cause when there's no XML
+  output file, an empty one, or one that's half-complete. You can
+  cause these three situations, respectively, with: nmap -V, nmap
+  --iflist, or nmap nonexistant.host.  Also remove the target
+  requirement for scans because you should be able to run commands
+  such as "nmap --iflist" from Zenmap. [David]
+
+o [Zenmap] Guard against the topology graph becoming empty in the
+  middle of an animation.  This could happen if you removed a scan
+  from the list of scans durign an animation. The error looked like:
+    File "usr/lib/python2.5/site-packages/radialnet/gui/RadialNet.py",
+    line 1533, in __livens_up AttributeError: 'NoneType' object has no
+    attribute 'get_nodes' [David]
+
+o [Zenmap] Fixed a crash which could occur when you entered a command
+  containing only whitespace.  David fixed various other possible
+  crashes found in the crash report tracker too.  Zenmap users really
+  are capable of finding every possible edge case which could cause a
+  crash :).
 
 o Split parallel DNS resolution and system DNS resolution into
   separate functions. Previously system DNS resolution was encapulated
