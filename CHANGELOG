@@ -473,12 +473,12 @@ o OS scan point matching code can now handle tests worth zero
   points. We now assign zero points to ignore a couple tests which
   proved ineffective. [David]
 
-o [Zenmap] Catch the exceptions that are cause when there's no XML
+o [Zenmap] Catch the exceptions that are caused when there's no XML
   output file, an empty one, or one that's half-complete. You can
   cause these three situations, respectively, with: "nmap -V", "nmap
-  --iflist", or "nmap nonexistent.host".  Also remove the target
-  requirement for scans because you should be able to run commands
-  such as "nmap --iflist" from Zenmap. [David]
+  --iflist", or "nmap 0".  Also remove the target requirement for scans
+  because you should be able to run commands such as "nmap --iflist"
+  from Zenmap. [David]
 
 o [Zenmap] Guard against the topology graph becoming empty in the
   middle of an animation.  This could happen if you removed a scan
