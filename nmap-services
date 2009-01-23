@@ -60,7 +60,7 @@ priv-mail	24/tcp	0.001154	# any private mail system
 priv-mail	24/udp	0.000329	# any private mail system
 smtp	25/tcp	0.131314	# Simple Mail Transfer
 smtp	25/udp	0.001285	# Simple Mail Transfer
-unknown	26/tcp	0.007991
+rsftp	26/tcp	0.007991	# RSFTP
 nsw-fe	27/tcp	0.000138	# NSW User System FE
 nsw-fe	27/udp	0.000395	# NSW User System FE
 unknown	28/tcp	0.000050
@@ -948,7 +948,7 @@ unknown	621/tcp	0.000088
 unknown	621/udp	0.000661
 unknown	622/tcp	0.000038
 unknown	623/tcp	0.000151
-unknown	623/udp	0.007929
+asf-rmcp	623/udp	0.007929	# ASF Remote Management and Control
 unknown	624/tcp	0.000038
 apple-xsrvr-admin	625/tcp	0.001869	# Apple Mac Xserver admin
 apple-imap-admin	626/tcp	0.000025	# Apple IMAP mail admin
@@ -985,7 +985,7 @@ unknown	643/udp	0.001982
 unknown	644/tcp	0.000038
 unknown	644/udp	0.000991
 unknown	645/tcp	0.000025
-unknown	646/tcp	0.006549
+ldp	646/tcp	0.006549	# Label Distribution
 unknown	647/tcp	0.000050
 unknown	648/tcp	0.000577
 unknown	648/udp	0.000330
@@ -1012,8 +1012,8 @@ unknown	661/tcp	0.000050
 unknown	662/tcp	0.000013
 unknown	662/udp	0.000330
 unknown	663/tcp	0.000050
-unknown	664/tcp	0.000063
-unknown	664/udp	0.003634
+secure-aux-bus	664/tcp	0.000063
+secure-aux-bus	664/udp	0.003634
 unknown	665/tcp	0.000063
 doom	666/tcp	0.000289	# Id Software Doom
 doom	666/udp	0.000956	# doom Id Software
@@ -1039,8 +1039,8 @@ unknown	681/tcp	0.000038
 unknown	681/udp	0.000991
 unknown	682/tcp	0.000063
 unknown	682/udp	0.002643
-unknown	683/tcp	0.000176
-unknown	683/udp	0.003304
+corba-iiop	683/tcp	0.000176
+corba-iiop	683/udp	0.003304
 unknown	684/tcp	0.000113
 unknown	684/udp	0.002313
 unknown	685/tcp	0.000038
@@ -1225,7 +1225,7 @@ unknown	785/tcp	0.000025
 unknown	785/udp	0.000330
 concert	786/tcp	0.000100
 concert	786/udp	0.002900
-unknown	787/tcp	0.001455
+qsc	787/tcp	0.001455
 unknown	787/udp	0.000330
 unknown	788/tcp	0.000038
 unknown	788/udp	0.000330
@@ -1554,9 +1554,9 @@ unknown	987/udp	0.000330
 unknown	988/tcp	0.000050
 unknown	988/udp	0.000661
 ftps-data	989/tcp	0.000063	# ftp protocol, data, over TLS/SSL
-unknown	989/udp	0.006277
+ftps-data	989/udp	0.006277	# ftp protocol, data, over TLS/SSL
 ftps	990/tcp	0.005570	# ftp protocol, control, over TLS/SSL
-unknown	990/udp	0.004625
+ftps	990/udp	0.004625	# ftp protocol, control, over TLS/SSL
 unknown	991/tcp	0.000038
 telnets	992/tcp	0.000903	# telnet protocol over TLS/SSL
 imaps	993/tcp	0.027199	# imap4 protocol over TLS/SSL
@@ -1565,13 +1565,13 @@ ircs	994/tcp	0.000038	# irc protocol over TLS/SSL
 pop3s	995/tcp	0.029921	# POP3 protocol over TLS/SSL
 unknown	995/udp	0.000991
 xtreelic	996/tcp	0.000100	# XTREE License Server
-vsinet	996/udp	0.106311
+vsinet	996/udp	0.073362
 maitrd	997/tcp	0.000038
-maitrd	997/udp	0.106196
+maitrd	997/udp	0.073247
 busboy	998/tcp	0.000100
-puparp	998/udp	0.106344
+puparp	998/udp	0.073395
 garcon	999/tcp	0.000966
-applix	999/udp	0.106180	# Applix ac
+applix	999/udp	0.073230	# Applix ac
 cadlock	1000/tcp	0.003149
 ock	1000/udp	0.002142
 unknown	1001/tcp	0.000364
@@ -1639,9 +1639,9 @@ iad3	1032/tcp	0.001719	# BBN IAD
 iad3	1032/udp	0.006705	# BBN IAD
 netinfo	1033/tcp	0.001342	# Netinfo is apparently on many OS X boxes.
 unknown	1033/udp	0.003964
-unknown	1034/tcp	0.001064
+zincite-a	1034/tcp	0.001064	# Zincite.A backdoor
 activesync-notify	1034/udp	0.005173	# Windows Mobile device ActiveSync Notifications
-unknown	1035/tcp	0.001216
+multidropper	1035/tcp	0.001216	# A Multidropper Adware, or PhoneFree
 unknown	1035/udp	0.001982
 unknown	1036/tcp	0.001216
 unknown	1036/udp	0.004295
@@ -1673,16 +1673,16 @@ unknown	1049/tcp	0.002357
 unknown	1049/udp	0.003304
 java-or-OTGfileshare	1050/tcp	0.001669	# J2EE nameserver, also OTG, also called Disk/Application extender. Could also be MiniCommand backdoor OTGlicenseserv
 unknown	1050/udp	0.001652
-unknown	1051/tcp	0.000760
-unknown	1051/udp	0.001321
-unknown	1052/tcp	0.000760
-unknown	1052/udp	0.000991
+optima-vnet	1051/tcp	0.000760
+optima-vnet	1051/udp	0.001321
+ddt	1052/tcp	0.000760	# Dynamic DNS tools
+ddt	1052/udp	0.000991	# Dynamic DNS tools
 unknown	1053/tcp	0.002357
 unknown	1053/udp	0.001652
 unknown	1054/tcp	0.002357
 unknown	1054/udp	0.002643
-unknown	1055/tcp	0.000760
-unknown	1055/udp	0.001652
+ansyslmd	1055/tcp	0.000760
+ansyslmd	1055/udp	0.001652
 unknown	1056/tcp	0.002357
 unknown	1056/udp	0.002973
 unknown	1057/tcp	0.000380
@@ -1691,26 +1691,26 @@ nim	1058/tcp	0.001380
 nim	1058/udp	0.001466
 nimreg	1059/tcp	0.001342
 nimreg	1059/udp	0.001647
-unknown	1060/tcp	0.000760
-unknown	1060/udp	0.001652
+polestar	1060/tcp	0.000760
+polestar	1060/udp	0.001652
 unknown	1061/tcp	0.000380
 unknown	1061/udp	0.000991
-unknown	1062/tcp	0.000760
-unknown	1062/udp	0.000991
+veracity	1062/tcp	0.000760
+veracity	1062/udp	0.000991
 unknown	1063/tcp	0.000380
 unknown	1063/udp	0.000661
 unknown	1064/tcp	0.002357
 unknown	1064/udp	0.001982
 unknown	1065/tcp	0.002357
 unknown	1065/udp	0.002313
-unknown	1066/tcp	0.001901
-unknown	1066/udp	0.002643
+fpo-fns	1066/tcp	0.001901
+fpo-fns	1066/udp	0.002643
 instl_boots	1067/tcp	0.000728	# Installation Bootstrap Proto. Serv.
 instl_boots	1067/udp	0.001516	# Installation Bootstrap Proto. Serv.
 instl_bootc	1068/tcp	0.000941	# Installation Bootstrap Proto. Cli.
 instl_bootc	1068/udp	0.004778	# Installation Bootstrap Proto. Cli.
-unknown	1069/tcp	0.001901
-unknown	1069/udp	0.001982
+cognex-insight	1069/tcp	0.001901
+cognex-insight	1069/udp	0.001982
 unknown	1070/tcp	0.000380
 unknown	1070/udp	0.001321
 unknown	1071/tcp	0.002205
@@ -1925,7 +1925,7 @@ unknown	1215/udp	0.000661
 unknown	1216/tcp	0.000152
 unknown	1216/udp	0.000330
 unknown	1217/tcp	0.000152
-unknown	1218/tcp	0.001064
+aeroflight-ads	1218/tcp	0.001064	# AeroFlight ADs
 quicktime	1220/tcp	0.000151	# Apple Darwin and QuickTime Streaming Administration Servers
 unknown	1221/tcp	0.000076
 nerv	1222/tcp	0.000138	# SNI R&D network
@@ -2007,7 +2007,7 @@ unknown	1308/tcp	0.000076
 unknown	1309/tcp	0.000152
 unknown	1310/tcp	0.000380
 unknown	1310/udp	0.000330
-unknown	1311/tcp	0.000760
+rxmon	1311/tcp	0.000760
 unknown	1314/tcp	0.000076
 unknown	1314/udp	0.000330
 unknown	1315/tcp	0.000076
@@ -2517,7 +2517,7 @@ unknown	1695/udp	0.000661
 unknown	1696/udp	0.000330
 unknown	1699/tcp	0.000076
 unknown	1699/udp	0.000330
-unknown	1700/tcp	0.000836
+mps-raft	1700/tcp	0.000836
 unknown	1701/tcp	0.000076
 L2TP	1701/udp	0.076163
 unknown	1703/tcp	0.000076
@@ -2530,7 +2530,7 @@ unknown	1712/tcp	0.000076
 unknown	1712/udp	0.000330
 unknown	1713/tcp	0.000076
 unknown	1715/tcp	0.000076
-unknown	1717/tcp	0.000912
+fj-hdnet	1717/tcp	0.000912
 unknown	1718/tcp	0.000380
 h225gatedisc	1718/udp	0.012554	# H.225 gatekeeper discovery
 unknown	1719/tcp	0.000152
@@ -2565,8 +2565,8 @@ unknown	1766/udp	0.000330
 unknown	1767/udp	0.000330
 unknown	1773/udp	0.000330
 unknown	1779/udp	0.000330
-unknown	1782/tcp	0.000304
-unknown	1782/udp	0.004625
+hp-hcip	1782/tcp	0.000304
+hp-hcip	1782/udp	0.004625
 unknown	1783/tcp	0.000380
 unknown	1786/udp	0.000330
 unknown	1791/tcp	0.000076
@@ -2610,8 +2610,8 @@ unknown	1861/tcp	0.000076
 unknown	1861/udp	0.000661
 unknown	1862/tcp	0.000228
 unknown	1862/udp	0.000991
-unknown	1863/tcp	0.000684
-unknown	1864/tcp	0.000684
+msnp	1863/tcp	0.000684	# MSN Messenger
+paradym-31	1864/tcp	0.000684
 unknown	1871/tcp	0.000076
 unknown	1871/udp	0.000330
 unknown	1873/udp	0.000330
@@ -2822,7 +2822,7 @@ unknown	2100/tcp	0.000380
 unknown	2101/tcp	0.000076
 unknown	2101/udp	0.000991
 unknown	2102/udp	0.000330
-unknown	2103/tcp	0.002661
+zephyr-clt	2103/tcp	0.002661	# Zephyr serv-hm connection
 zephyr-clt	2103/udp	0.000758	# Zephyr serv-hm connection
 unknown	2104/tcp	0.000076
 zephyr-hm	2104/udp	0.000478	# Zephyr hostmanager
@@ -2857,13 +2857,13 @@ unknown	2140/udp	0.000661
 unknown	2142/tcp	0.000076
 unknown	2144/tcp	0.000380
 unknown	2144/udp	0.000330
-unknown	2148/tcp	0.000076
-unknown	2148/udp	0.005946
+veritas-ucl	2148/tcp	0.000076	# Veritas Universal Communication Layer
+veritas-ucl	2148/udp	0.005946	# Veritas Universal Communication Layer
 unknown	2150/tcp	0.000076
 unknown	2158/udp	0.000661
 unknown	2160/tcp	0.000380
 unknown	2160/udp	0.001982
-unknown	2161/tcp	0.001521
+apc-agent	2161/tcp	0.001521	# American Power Conversion
 unknown	2161/udp	0.001321
 unknown	2162/udp	0.000330
 unknown	2164/udp	0.000991
@@ -2980,7 +2980,7 @@ unknown	2380/udp	0.000330
 unknown	2381/tcp	0.000380
 unknown	2382/tcp	0.000152
 unknown	2382/udp	0.000661
-unknown	2383/tcp	0.001369
+ms-olap4	2383/tcp	0.001369	# MS OLAP 4
 unknown	2386/udp	0.000330
 unknown	2387/udp	0.000661
 unknown	2391/tcp	0.000076
@@ -3108,8 +3108,8 @@ unknown	2691/tcp	0.000076
 unknown	2692/udp	0.000330
 unknown	2695/udp	0.000330
 unknown	2700/tcp	0.000076
-unknown	2701/tcp	0.000836
-unknown	2702/tcp	0.000760
+sms-rcinfo	2701/tcp	0.000836
+sms-xfer	2702/tcp	0.000760
 unknown	2704/udp	0.000330
 unknown	2705/udp	0.000330
 unknown	2706/tcp	0.000076
@@ -3211,7 +3211,7 @@ unknown	2956/udp	0.000330
 unknown	2957/tcp	0.000076
 unknown	2958/tcp	0.000076
 unknown	2964/udp	0.000330
-unknown	2967/tcp	0.002357
+symantec-av	2967/tcp	0.002357	# Symantec AntiVirus (rtvscan.exe)
 symantec-av	2967/udp	0.006425	# Symantec AntiVirus (rtvscan.exe)
 unknown	2968/tcp	0.000152
 unknown	2969/udp	0.000330
@@ -3321,7 +3321,7 @@ unknown	3245/udp	0.000330
 kademlia	3246/udp	0.000857	# Kademlia P2P (mlnet)
 unknown	3254/udp	0.000330
 unknown	3256/udp	0.000330
-unknown	3260/tcp	0.001064
+iscsi	3260/tcp	0.001064	# iSCSI
 unknown	3261/tcp	0.000304
 unknown	3263/tcp	0.000076
 unknown	3263/udp	0.000330
@@ -3336,7 +3336,7 @@ unknown	3278/udp	0.000330
 unknown	3279/udp	0.000330
 unknown	3280/tcp	0.000076
 unknown	3281/tcp	0.000076
-unknown	3283/tcp	0.000760
+netassistant	3283/tcp	0.000760	# Apple Remote Desktop Net Assistant reporting feature
 netassistant	3283/udp	0.066072	# Apple Remote Desktop Net Assistant reporting feature
 unknown	3289/udp	0.000330
 unknown	3291/tcp	0.000076
@@ -3398,7 +3398,7 @@ unknown	3386/udp	0.000330
 unknown	3388/tcp	0.000076
 unknown	3388/udp	0.000330
 ms-term-serv	3389/tcp	0.083904	# Microsoft Remote Display Protocol
-unknown	3389/udp	0.004955
+ms-term-serv	3389/udp	0.004955	# Microsoft Remote Display Protocol
 unknown	3390/tcp	0.000228
 unknown	3391/udp	0.000330
 unknown	3392/udp	0.000330
@@ -3546,7 +3546,7 @@ unknown	3683/udp	0.000330
 unknown	3684/tcp	0.000152
 rendezvous	3689/tcp	0.002283	# Rendezvous Zeroconf (used by Apple/iTunes)
 unknown	3689/udp	0.000330
-unknown	3690/tcp	0.001597
+svn	3690/tcp	0.001597	# Subversion
 unknown	3692/udp	0.000330
 unknown	3697/tcp	0.000152
 unknown	3697/udp	0.000330
@@ -3743,7 +3743,7 @@ remoteanything	3998/udp	0.000610	# neoworx remote-anything reserved
 remoteanything	3999/tcp	0.000088	# neoworx remote-anything slave file browser
 unknown	3999/udp	0.000330
 remoteanything	4000/tcp	0.001794	# neoworx remote-anything slave remote control
-icq    4000/udp        0.006392        # AOL ICQ instant messaging client-server communication
+icq	4000/udp	0.006392	# AOL ICQ instant messaging clent-server communication
 unknown	4001/tcp	0.002129
 mlchat-proxy	4002/tcp	0.000765	# mlnet - MLChat P2P chat proxy
 unknown	4002/udp	0.000330
@@ -3946,7 +3946,7 @@ unknown	4433/tcp	0.000076
 unknown	4435/udp	0.000330
 unknown	4440/udp	0.000330
 unknown	4442/tcp	0.000076
-unknown	4443/tcp	0.000760
+pharos	4443/tcp	0.000760
 krb524	4444/tcp	0.001041	# Kerberos 5 to 4 ticket xlator
 krb524	4444/udp	0.016343
 unknown	4445/tcp	0.000228
@@ -3967,7 +3967,7 @@ unknown	4491/udp	0.000330
 unknown	4497/udp	0.000330
 unknown	4499/udp	0.000330
 sae-urn	4500/tcp	0.000038
-sae-urn	4500/udp	0.124467
+nat-t-ike	4500/udp	0.124467	# IKE Nat Traversal negotiation (RFC3947)
 unknown	4501/udp	0.000330
 unknown	4506/udp	0.000330
 unknown	4507/udp	0.000330
@@ -4173,7 +4173,7 @@ unknown	5043/udp	0.000330
 unknown	5048/udp	0.000661
 mmcc	5050/tcp	0.002584	# multimedia conference control tool
 mmcc	5050/udp	0.002636	# multimedia conference control tool
-unknown	5051/tcp	0.003649
+ida-agent	5051/tcp	0.003649	# Symantec Intruder Alert
 unknown	5051/udp	0.000330
 unknown	5052/tcp	0.000076
 unknown	5053/tcp	0.000076
@@ -4350,7 +4350,7 @@ unknown	5423/tcp	0.000076
 unknown	5423/udp	0.000330
 unknown	5424/udp	0.000330
 omid	5428/udp	0.000527	# OpenMosix Info Dissemination
-unknown	5431/tcp	0.000684
+park-agent	5431/tcp	0.000684
 postgresql	5432/tcp	0.004090	# PostgreSQL database server
 unknown	5433/tcp	0.000076
 unknown	5435/udp	0.000661
@@ -4432,7 +4432,7 @@ unknown	5652/udp	0.000330
 unknown	5660/udp	0.000330
 unknown	5663/udp	0.000330
 unknown	5665/tcp	0.000076
-unknown	5666/tcp	0.006614
+nrpe	5666/tcp	0.006614	# Nagios NRPE
 unknown	5667/tcp	0.000076
 unknown	5667/udp	0.000330
 unknown	5672/tcp	0.000076
@@ -4613,14 +4613,14 @@ ncd-pref	5997/tcp	0.000025	# NCD preferences telnet port
 ncd-diag	5998/tcp	0.000163	# NCD diagnostic telnet port
 ncd-conf	5999/tcp	0.000213	# NCD configuration telnet port
 X11	6000/tcp	0.005683	# X Window server
-unknown	6000/udp	0.003304
+X11	6000/udp	0.003304
 X11:1	6001/tcp	0.011730	# X Window server
-unknown	6001/udp	0.004625
+X11:1	6001/udp	0.004625
 X11:2	6002/tcp	0.001518	# X Window server
-unknown	6002/udp	0.001652
+X11:2	6002/udp	0.001652
 X11:3	6003/tcp	0.000351	# X Window server
 X11:4	6004/tcp	0.002597	# X Window server
-unknown	6004/udp	0.002973
+X11:4	6004/udp	0.002973
 X11:5	6005/tcp	0.000602	# X Window server
 X11:6	6006/tcp	0.000188	# X Window server
 X11:7	6007/tcp	0.000238	# X Window server
@@ -4647,7 +4647,7 @@ unknown	6051/tcp	0.000152
 unknown	6052/tcp	0.000076
 unknown	6055/tcp	0.000076
 unknown	6057/udp	0.000330
-unknown	6059/tcp	0.000760
+X11:59	6059/tcp	0.000760	# X Window server
 unknown	6060/tcp	0.000152
 unknown	6061/udp	0.000330
 unknown	6062/tcp	0.000076
@@ -4874,7 +4874,7 @@ unknown	6779/tcp	0.000228
 unknown	6780/tcp	0.000076
 unknown	6784/udp	0.000991
 unknown	6788/tcp	0.000380
-unknown	6789/tcp	0.000760
+ibm-db2-admin	6789/tcp	0.000760	# IBM DB2
 unknown	6789/udp	0.000330
 unknown	6792/tcp	0.000228
 unknown	6800/udp	0.000330
@@ -5264,15 +5264,15 @@ http-alt	8000/tcp	0.009710	# A common alternative http port
 unknown	8000/udp	0.001652
 unknown	8001/tcp	0.000532
 unknown	8001/udp	0.001982
-unknown	8002/tcp	0.001216
+teradataordbms	8002/tcp	0.001216	# Teradata ORDBMS
 unknown	8003/tcp	0.000076
 unknown	8005/tcp	0.000076
 unknown	8006/tcp	0.000076
 ajp12	8007/tcp	0.000477	# Apache JServ Protocol 1.x
-unknown	8008/tcp	0.006843
+http	8008/tcp	0.006843	# IBM HTTP server
 unknown	8008/udp	0.000330
 ajp13	8009/tcp	0.004642	# Apache JServ Protocol 1.3
-unknown	8010/tcp	0.002129
+xmpp	8010/tcp	0.002129	# XMPP File Transfer
 unknown	8010/udp	0.001652
 unknown	8011/tcp	0.000304
 unknown	8014/tcp	0.000076
@@ -5343,10 +5343,10 @@ unknown	8181/udp	0.001982
 unknown	8182/udp	0.000330
 unknown	8185/udp	0.000330
 unknown	8189/tcp	0.000152
-unknown	8192/tcp	0.000760
-unknown	8193/tcp	0.000760
-unknown	8193/udp	0.002973
-unknown	8194/tcp	0.000760
+sophos	8192/tcp	0.000760	# Sophos Remote Management System
+sophos	8193/tcp	0.000760	# Sophos Remote Management System
+sophos	8193/udp	0.002973	# Sophos Remote Management System
+sophos	8194/tcp	0.000760	# Sophos Remote Management System
 unknown	8199/udp	0.000330
 unknown	8200/tcp	0.000228
 unknown	8201/tcp	0.000076
@@ -5583,9 +5583,9 @@ unknown	8994/tcp	0.000380
 unknown	8996/tcp	0.000152
 unknown	8998/udp	0.000661
 unknown	8999/tcp	0.000076
-unknown	9000/tcp	0.002129
-unknown	9000/udp	0.001652
-unknown	9001/tcp	0.001216
+cslistener	9000/tcp	0.002129	# CSlistener
+cslistener	9000/udp	0.001652	# CSlistener
+tor-orport	9001/tcp	0.001216	# Tor ORPort
 unknown	9001/udp	0.001652
 unknown	9002/tcp	0.000380
 unknown	9002/udp	0.000661
@@ -5679,8 +5679,8 @@ unknown	9196/udp	0.000330
 unknown	9197/tcp	0.000152
 unknown	9198/tcp	0.000152
 unknown	9199/udp	0.001982
-unknown	9200/tcp	0.000228
-unknown	9200/udp	0.007268
+wap-wsp	9200/tcp	0.000228	# WAP connectionless session services
+wap-wsp	9200/udp	0.007268	# WAP connectionless session services
 unknown	9202/tcp	0.000076
 unknown	9206/udp	0.000661
 unknown	9207/tcp	0.000532
@@ -5790,9 +5790,9 @@ unknown	9589/udp	0.000661
 unknown	9592/tcp	0.000076
 unknown	9593/tcp	0.000760
 unknown	9593/udp	0.000330
-unknown	9594/tcp	0.000760
-unknown	9595/tcp	0.000760
-unknown	9595/udp	0.000991
+msgsys	9594/tcp	0.000760	# Message System
+pds	9595/tcp	0.000760	# Ping Discovery System
+pds	9595/udp	0.000991	# Ping Discovery System
 unknown	9598/udp	0.000330
 unknown	9599/udp	0.000661
 unknown	9600/tcp	0.000152
@@ -6985,7 +6985,7 @@ unknown	14978/udp	0.000330
 unknown	14982/udp	0.000330
 unknown	14991/udp	0.000661
 unknown	14998/udp	0.000330
-unknown	15000/tcp	0.001064
+hydap	15000/tcp	0.001064	# Hypack Hydrographic Software Packages Data Acquisition
 unknown	15001/tcp	0.000152
 unknown	15002/tcp	0.000380
 unknown	15003/tcp	0.000380
