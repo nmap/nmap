@@ -32,8 +32,7 @@
     <para>
     Ndiff is a tool to aid in the comparison of Nmap scans. Specifically, it
     takes two Nmap XML output files and prints the differences between them:
-    hosts coming up and down, ports becoming open or closed, and things like
-    that.
+    hosts coming up and down, ports becoming open or closed, etc.
     </para>
 
     <para>
@@ -135,8 +134,8 @@
     Google Summer of Code. Michael designed the program and led the
     discussion of its output formats. He wrote versions of the program
     in Perl and C++, but the summer ended shortly after it was decided
-    to rewrite the program in Python for the sake of Windows
-    compatibility. This Python version is written by David Fifield.
+    to rewrite the program in Python for the sake of Windows (and Zenmap)
+    compatibility. This Python version was written by David Fifield.
     </para>
   </refsect1>
 
