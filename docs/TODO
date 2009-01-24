@@ -1,0 +1,350 @@
+TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
+
+o Consider making the TODO list public
+  o Probably remove all of the "done" items since that is easier than
+    reviewing them.
+  o Might as well add to insecure.org/nmap/data/
+  o Maybe a bug tracker is a better approach.
+
+o Deal with new Python 2.6 Zenmap build warnings:
+  C:\Python26\lib\site-packages\py2exe\build_exe.py:16: DeprecationWarning: the sets module is deprecated
+  import sets
+
+o NSE should offer some way to sleep/yeield for a given amount of
+  time.  This would allow other scripts to run while a script has
+  nothing to do.  Possible uses:
+  o Many services have rate limits (or you might just want to use them
+    for politeness).  For example, a web site spidering application
+    might want to limit HTTP requests to some number per second to avoid
+    pissing off the target webmaster more than is necessary (or prevent
+    getting auto-blocked).  Similarly, whois servers often will block
+    IPs which query them too often in a short period.  Or maybe you
+    don't want to exceed the threshold limits of an IDS.
+
+o Find way to document NSE library script arguments and perhaps have
+  them bubble up to scripts themselves.  For example, I had to read
+  the SNMP library source code to determine the script argument to
+  specify the SNMP community name for snmp-sysdescr
+  (http://nmap.org/nsedoc/scripts/snmp-sysdescr.html).  Maybe we could
+  just standardize on something like we do with SMB library and the
+  scripts which call it (http://nmap.org/nsedoc/modules/smb.html,
+  http://nmap.org/nsedoc/scripts/smb-check-vulns.html). [David]
+
+o Look into memory consumption of UDP scans with -p- and large
+  hostgroups.  See if there is a way to prevent them from eating up gigs
+  of RAM.
+
+o Write Ncat users' guide, demonstrating all the neat stuff you can do
+  with it.  This should probably be in DocBook XML so it can be an NNS
+  chapter.  You might want to query nmap-dev for ieas of neat things
+  people do with ncat (or look around for what people do with nc).
+  Testing it out for examples might expose areas for improvement as
+  well. [David]
+
+o Fix the directory function(s) in nse_fs.cc to be usable by scripts and
+  improve flexibility. [this entry added by Patrick]
+
+o NSE Performance in general
+
+o Look into whether we should loosen/change the global congestion
+  control system to address possible cases of one target host with many
+  dropped packets slowing down the whole group.  See
+  http://seclists.org/nmap-dev/2008/q1/0096.html .
+  o One possibility: Look into whether we should increase the
+    frequency of port scan pings.  See
+    http://seclists.org/nmap-dev/2008/q1/0096.html . Note that Fyodor
+    already increased them a bit in 2008.  Might not need more.
+  o Related possibility: Fix --nogcc to gracefully handle ping scans.
+    Right now it seems to go WAY TOO FAST (e.g. severqal thousand
+    packets per second on my DSL line).
+
+o Ask Coverity if they'll scan latest version of Nmap.
+
+o Start project to make Nmap a Featured Article on Wikipedia.
+
+o Add Nmap web board.
+ 
+o Create Nmap wiki
+
+o Look at Dario Ciccarone's email from 5/1/07 about IPID sequence
+  issues, and consider adding IPID sequence test for closed-port-tcp as
+  they apparently can be different.
+
+o libnmap organization for UNIX and Windows
+  o Then change Nmap and Zenmap to simply call this library
+
+o Open proxy NSE script?
+
+o [NSE] We may want to consider a better exception handling method -- one
+  which doesn't require wrapping every I/O line in its own try function
+  call.
+
+o Consider adding boolean expressions to --script arguments.  For
+  example, see Patrick's implementation at
+  http://seclists.org/nmap-dev/2008/q3/0300.html .
+
+o Figure out what to do about NSE mutexes:
+  http://seclists.org/nmap-dev/2008/q3/0276.html .
+
+o Consider whether to let Zenmap Topology graph export the images to
+  svg/png/etc.  Also think about printing.
+
+o Perhaps --traceroute should set currenths->distance because right
+  now, I do an -O scan against scanme.nmap.org, and it does not figure
+  out the distance.  So the fingerprint shows no distance element and
+  Nmap doesn't print "Network Distance" in the results line.  That may
+  be OK (Nmap probably isn't receiving the probe response needed for
+  this, and maybe doesn't want to print the TG), but even when I do
+  --traceroute I get no distance printed.  Yet Nmap clearly knows the
+  distance since the traceroute shows all the hops up to and including
+  the target (scanme.nmap.org).
+
+o Look into building RPMs with SSL support. Statically linking to
+  OpenSSL on Linux for the RPMs didn't work for me last time I
+  tried. [Fyodor]
+
+o Improve the "run Zenmap as root" menu item to work on distributions
+  without su-to-root.  We might even want to improve Zenmap so that it
+  itself does not have to run as root, and just executes Nmap that
+  way.  Rather than not showing Zenmap as root on the Menu of
+  non-working systems, it might be better to have it but let it give
+  an error message (and then, perhaps, run as nonroot) so that users
+  of those distributions are more likely to contribute a fix.  We also
+  might want to look at how the distributions themselves package Zenmap.
+
+o Change Nmap signature files to use the .sig extension rather than
+  .gpg.txt, as that seems to be what gpg recommends.  In fact, gpg
+  will automatically verify the right file if it exists after dropping
+  the .sig (or .asc) extension.  I may need to configure .htaccess to
+  serve .sig files properly.  Update nmap-install.xml
+  accordingly. Suggested by tic at eternalrealm.net by email on 7/13/08.
+
+o Fix this overflow:
+  Stats: 93:57:40 elapsed; 254868 hosts completed (2048 up), 2048 undergoing UDP Scan
+  UDP Scan Timing: About 11.34% done; ETC: 03:21 (-688:-41:-48 remaining)
+
+o Do -p- Internet UDP scans.
+
+o Consider adding the rtt value for each host, at least in verbose
+  mode, to Nmap output.
+
+o NSE-INF: Would be great if NSE scripts could be made to NOT run as
+  root.
+
+o Look a bit more at default version detection timing.
+
+o Deal with UDP retransmission for version detection ( I think I
+  should just do a second run of all probes for UDP if it fails to
+  match anything).  The advantage there is that no retransmissions are
+  neccessary if the service is found.  Then again, per-probe
+  retransmission would let us redo the most likely probes (the one(s)
+  that match the port number) quickly.  Lost packets should probably
+  affect ideal_parallelism.
+
+o Figure out why I [Fyodor] get a bunch of "Operation not permitted" errors
+when I launch a scan on SYN such as: 
+   /home/fyodor/nmap-exp/fyodor-perf/nmap -nogcc -T4 -n -v -p- --portpingfreq 250 -oA /home/fyodor/nmap-misc/logs/WorldScan/portpingfreq/logs/portpingfreq-250-1%T-%D 67.15.236.34 67.15.236.36 81.174.236.66 81.174.236.119 170.140.20.160 170.140.20.174 202.138.180.9 202.138.180.17 202.138.180.132 209.20.64.112
+   The errors look like:
+   sendto in send_ip_packet: sendto(7, packet, 44, 0, 170.140.20.174, 16) => Operation not permitted
+Offending packet: TCP 64.13.134.4:59820 > 170.140.20.174:59120 S ttl=39 id=19927 iplen=44  seq=2425535549 win=4096 <mss 1460>
+sendto in send_ip_packet: sendto(7, packet, 44, 0, 67.15.236.36, 16) => Operation not permitted
+Offending packet: TCP 64.13.134.4:59820 > 67.15.236.36:15030 S ttl=57 id=50640 iplen=44  seq=2425535549 win=2048 <mss 1460>
+Discovered open port 49394/tcp on 170.140.20.174
+sendto in send_ip_packet: sendto(7, packet, 44, 0, 170.140.20.174, 16) => Operation not permitted
+Offending packet: TCP 64.13.134.4:59819 > 170.140.20.174:8256 S ttl=48 id=38510 iplen=44  seq=2425601084 win=1024 <mss 1460>
+
+o Get better password data for unpw -- perhaps from Solar Designer.
+
+o Consider making the ping scan default be more comprehensive.  Note
+  that I got 23% more Internet boxes found out of a 50K sample (see host
+  enumeration chapter of my book for details).  Maybe I should
+  experiment a bit more to ensure they are real boxes and not network
+  artifacts and figure out exactly which tests are helping the most.
+  If I do this change, I'll have to update the host enumeration chapter.
+
+o Nmaprc-related - Create a system to store Nmap defaults/preferences
+  in an nmaprc file.
+  o nmaprc should be in ~/.nmap on UNIX
+  o On Windows, we may need a registry key to find the .nmaprc
+  o Obtain Nmap data directory information from nmaprc at runtime rather than
+    compiled in -- among other advantages this is needed to make
+    relocateable rpm.
+  o Make RPM relocatable (requires somehow avoiding storing paths in the
+    binary)
+  o Perhaps Lua could be used for the TODO?
+  o .nmaprc for keeping defaults, etc.
+    o Nmaprc infrastructure, hook to new timing variables
+    o Nmaprc man page
+    o Default timing mode
+    o Default NSE arguments, such as user agent
+    o Maybe Default source IP (-S) argument
+    o should be a way to specify your own .nmaprc
+    o Maybe lets you add a directory and template for saving all
+     scans. 
+
+o Search for nmap on google news, on google web, and add appropriate
+  links to press page and the like.
+
+o Maybe nping -- like hping2 but uses Nmap infrastructure and to a
+  large degree the same command-line options as Nmap.
+
+o Think about Nmap or NSE http framework.  Scanning http paths to see
+  if they exist is in some ways similar to scanning to see which ports
+  are open.
+
+o Website: Create shr (shared) directory in svn, which will contain
+  directories shared between the Insecure.org network of sites
+  (e.g. templates, error, css).  Then sites such as sectools,
+  nmap.org, insecure.org can just check that out via externals
+  declaration (or, I suppose, symlink).  CSS directives will then use
+  /shr/css/insecdb.css etc. ). [Fyodor]
+
+o NSE Security Review
+ o Consider what, if any, vulnerabilities or security risks NSE has
+   with respect to buffer overflows, format string bugs, any other
+   maliciously formatted responses from target systems, etc.  Maybe
+   address the known risk of malicious scripts too.
+ o Consider that NSE runs scripts as root
+
+o Zenmap script selection interface for deciding which NSE scripts to
+  run.
+
+o Get new Zenmap logo
+ o consider putting back on top-right of command constructor wizard
+ (there used to be umit logo there).
+ o Maybe that can be done after the release by soliciting ideas.
+
+o Make Zenmap splash screen
+
+o nmap.cgi web interface for Nmap
+  -- Should have "demo" mode that only allows users to scan their own addy
+
+o Create or collect some great ./configure ascii art.
+
+o Add randomizer to configure script so that a random ASCII art from
+  docs/leet-nmap-ascii-art*.txt is printed.  I think I'll start naming
+  them leet-nmap-ascii-art-submittername.txt.
+
+o [Note: This one is too big to do right now, but is a good one to
+  keep in mind for later ]
+  Write a general scanning engine for abusing applications for port
+  scanning purposes. This would handle scanning through SOCKS and HTTP
+  proxies, and the existing FTP bounce scan would also be ported to this
+  engine. Proxy chaining must be supported.  According to
+  rembrandt@jpberlin.de, you can also do this with the "forwarding"
+  commands on imap servers.
+  o Before you start on this one, read the code for the main port
+  scanning engine code (ultra_scan()) and also the version detection
+  code (service_scan()).  And the version detection paper at
+  http://www.insecure.org/nmap/vscan/ .  If you understand all that,
+  you may be ready for this project :).  This is important, because it
+  is easy to do poorly.  The tough part is high performance and clean
+  code which is general enough that all these different applications
+  can be scanned through using the same basic engine.
+  o You may want to run your intended structure (the most important
+    Classes and such through nmap-dev before you begin serious coding).
+
+o Add general regression unit testing system to Nmap
+
+o Talk to Libpcap folks about incorporating (at least some of) my
+  changes from libpcap/NMAP_MODIFICATIONS.
+
+o Add --evil to set the RFC3514 evil bit.
+  ftp://ftp.rfc-editor.org/in-notes/rfc3514.txt
+  o We're not going to add this right now.
+
+o The Nmap web page is beginning to show its age.  Ah, who am I
+  kidding, it was showing its age 5 years ago :).  It could do with an
+  upgrade to XHTML+CSS.  It could also do with a whole redesign, but I
+  think that can be done as a second step after converting to
+  XHTML+CSS with roughly the same look.  Though adding a few more
+  modern touches (like hover interaction on the menu bar) wouldn't
+  hurt.  This is a moderatly big project, which will involve: o
+  Designing the new XHTML+CSS to look similar to the current HTML
+  pages, but be extensible enough that it can be redesigned in the
+  (near) future by mostly just changing the CSS and graphics.  
+    o Converting the existing Nmap pages to the new XHTML format.
+      This will likely include using open source programs and likely
+      modifying them or creating your own scripts to help with the
+      process.  To apply for this task, you need to have some web
+      development experience and an example XHTML+CSS web page you
+      have created online.
+
+o Provide an option to send a comment in scan packet data for target
+  network.  Examples: --comment "Scan conducted by Marc Reis from
+  SecOps, extension 2147" or --comment "pH33r my l3eT
+  s|&lt;iLLz!  I'll 0wN UR b0x!"
+  o Note, this shouldn't be implemented yet.
+
+o I should add code to Nmap to bail if sizeof(char) isn't 1.
+  Otherwise there could be security risks if it is not one on any
+  platforms.
+
+o consider changing status field from "up" and "down" to "online" and
+  "offline".
+
+o I need an output-autoflush option of some sort.  This could be
+  useful to ensure I get all the --packet_trace and debug data before
+  Nmap crashes.  Actually, I'm not sure that is so critical.
+
+o Consider implementing RPC scan with ultra_scan or something else.
+  Right now it is the only program using pos_scan.  On the other hand,
+  I'm not sure TCP rpc scanning is appropriate for ultra_scan.
+
+o Look at all the pcap functions, there are some like
+  pcap_findalldevs() which could be quite useful.  There are mails to
+  the Nmap list relating to suggested improvements --
+  http://seclists.org/lists/nmap-dev/2004/Apr-Jun/0024.html .
+  Actually I do indirectly use that for Windows. I wonder if they work
+  for UNIX?
+
+o Update Nmap entry on Linux Online -
+  http://www.linux.org/apps/AppId_1979.html
+
+o Proxy scan through
+  o Note mail from mugz about proxy scanning:
+    > #1 I use nmap to find "open" socks ports (stealth/random mode)
+    > #2 I use Sockcheck5 (which uses an existing proxy to run its
+    >    scan through) to determine which of the "open" ports are "unsecure"
+    > #3 I use sockbounce (or sockbounce4) which can be used to relay from
+    >    socks proxy to socks proxy to target and estabish tcp connections,
+    >    (telnet, ssh http, etc).
+    His later mail says:
+    > during that time, i found many 'open'  - a fairly high percentage,
+    > perhaps one in 30 were insecure.
+    > you might want to take a look at: http://blitzed.org/bopm/
+    > I use code from this to check the IP's with 'open' socks ports for
+    > insecurity (I had to tinker with it a bit to make it work like i wanted,
+    > the command line "bopchecker" seems to work well.
+
+
+o perhaps each 'match' line in nmap-service-probes should have a
+  maximum lines, bytes, and/or time by which a response should be
+  available.  Once that much time (or many bytes or lines) have passed,
+  that match can be considered 'failed' and ignored in subsequent runs.
+  Once all matches are considered failed, that probe is done.  This
+  could be a useful optimization and is arguably better than the less
+  granular 'totalwaitms'.  Or I could just have a simple function that
+  looks at whether a given regex could possibly match something
+  starting with the received data (not too hard since almost all of
+  the current regexes are anchored).  But before doing this, I should
+  look long and hard at how many of the probes have every match
+  capable of doing this.  In particular, many of the softmatch lines
+  don't offer many chars anchored at the front.
+
+o Add detection of duplicate machines via IP.ID uber-technique.
+   Maybe I should use uptime timestamps too.  Oh, and MAC addresses too.
+
+o Separate nbase into its own Windows library in the same way as Andy did
+   with iphlpapi .
+
+o Look into iplog ( http://ojnk.sourceforge.net/ ) -z option which is 
+  supposed to fool OS detection.
+
+o security audit of Nmap code
+
+o Nmap / Nmap-hackers FAQ
+
+o random tip database
+
+DONE:
