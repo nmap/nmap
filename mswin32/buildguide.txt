@@ -8,24 +8,27 @@ I. ZENMAP BUILD DEPENDENCIES
 I've listed the build dependencies for Zenmap, the versions I am using, and
 where to get them:
 
-GTK (2.10.11) - http://gladewin32.sourceforge.net
-Python (2.5.1) - http://www.python.org/download
-PyGTK (2.10.4) - http://ftp.gnome.org/pub/gnome/binaries/win32/pygtk
-PyCairo (1.2.6) - http://ftp.gnome.org/pub/gnome/binaries/win32/pycairo
-PyGObject (2.12.3) - http://ftp.gnome.org/pub/gnome/binaries/win32/pygobject
-Py2exe (0.6.6) - http://www.sourceforge.net/projects/py2exe
-
-Be sure to grab the PyGTK, PyCairo, etc. for Python 2.5 and not 2.4!
+GTK-Dev (2.12.9) - http://gladewin32.sourceforge.net
+  o gtk-dev-2.12.9-win32-2.exe
+Python (2.6.1) - http://www.python.org/download
+  o python-2.6.1.msi
+PyGTK (2.12.1-3) - http://ftp.gnome.org/pub/gnome/binaries/win32/pygtk
+  o pygtk-2.12.1-3.win32-py2.6.exe
+PyCairo (1.4.12-2) - http://ftp.gnome.org/pub/gnome/binaries/win32/pycairo
+  o pycairo-1.4.12-2.win32-py2.6.exe
+PyGObject (2.14.2-2) - http://ftp.gnome.org/pub/gnome/binaries/win32/pygobject
+  o pygobject-2.14.2-2.win32-py2.6.exe
+Py2exe (0.6.9) - http://www.sourceforge.net/projects/py2exe
+  o py2exe-0.6.9.win32-py2.6.exe
+Be sure to grab the PyGTK, PyCairo, etc. for Python 2.6!
 
 Using the default install directories in these installers is important,
-especially for Python (C:\Python25) and GTK (C:\GTK).  See Section IV if you
+especially for Python (C:\Python26) and GTK (C:\GTK).  See Section IV if you
 change the directories.
-
 
 II. OTHER REQUIREMENTS
 
-
-You'll need Microsoft Visual C++ 2005 and the Platform SDK for compilation.
+You'll need Microsoft Visual C++ 2008 for compilation.
 Directions for obtaining those are at:
 http://nmap.org/install/inst-windows.html#inst-win-source
 
@@ -57,4 +60,3 @@ If you have GTK installed to a different directory, follow the same directions
 as for Python, but edit the "set GTKDir" line.
 
 
--- Kris Katterjohn 08/2007
