@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o A new Zenmap translation: French, contributed by Gutek
+
 Nmap 4.85BETA1 [2009-1-23]
 
 o Added Ncat, a much-improved reimplementation of the venerable Netcat
