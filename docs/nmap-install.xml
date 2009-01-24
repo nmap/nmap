@@ -839,6 +839,13 @@ given in the next section.</para></listitem>
 
 </orderedlist>
 
+<para>If you wish to build an executable Nmap executable Windows
+installer or Zenmap executable,
+see <filename>docs/win32-installer-zenmap-buildguide.txt</filename> in
+Nmap SVN
+(also <ulink url="http://nmap.org/data/win32-installer-zenmap-buildguide.txt">available
+on the Nmap Web site</ulink>).</para>
+
 <para>Many people have asked whether Nmap can be compiled with the
 <application>gcc</application>/<application>g++</application> included
 with Cygwin or other compilers.  Some users have reported success with
