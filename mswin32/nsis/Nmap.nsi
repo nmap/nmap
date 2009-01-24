@@ -23,8 +23,8 @@
   ;Get installation folder from registry if available 
   InstallDirRegKey HKCU "Software\Nmap" "" 
  
-  !define VERSION "4.76"  
-  VIProductVersion "4.76.0.0"
+  !define VERSION "4.85BETA1"  
+  VIProductVersion "4.85.0.1"
   VIAddVersionKey /LANG=1033 "FileVersion" "${VERSION}"
   VIAddVersionKey /LANG=1033 "ProductName" "Nmap" 
   VIAddVersionKey /LANG=1033 "CompanyName" "Insecure.org" 
@@ -241,7 +241,7 @@ Section "Zenmap (GUI Frontend)" SecZenmap
   File ..\nmap-${VERSION}\ZENMAP_README
   File ..\nmap-${VERSION}\COPYING_HIGWIDGETS
   File ..\nmap-${VERSION}\msvcr71.dll
-  File ..\nmap-${VERSION}\python25.dll
+  File ..\nmap-${VERSION}\python26.dll
   File /r ..\nmap-${VERSION}\share
   File /r ..\nmap-${VERSION}\py2exe
   StrCpy $zenmapset "true"
@@ -259,7 +259,7 @@ Section "Ndiff" SecNdiff
   File ..\nmap-${VERSION}\ndiff.exe
   File ..\nmap-${VERSION}\NDIFF_README
   File ..\nmap-${VERSION}\msvcr71.dll
-  File ..\nmap-${VERSION}\python25.dll
+  File ..\nmap-${VERSION}\python26.dll
   File /r ..\nmap-${VERSION}\py2exe
 SectionEnd
  
@@ -339,7 +339,7 @@ Section "Uninstall"
   Delete "$INSTDIR\zenmap.exe"
   Delete "$INSTDIR\ndiff.exe"
   Delete "$INSTDIR\msvcr71.dll"
-  Delete "$INSTDIR\python25.dll"
+  Delete "$INSTDIR\python26.dll"
   Delete "$INSTDIR\NDIFF_README"
   Delete "$INSTDIR\ZENMAP_README"
   Delete "$INSTDIR\COPYING_HIGWIDGETS"
