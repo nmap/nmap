@@ -325,7 +325,7 @@ o [Zenmap] Profile updates: The -sS option was added to the "Intense
   scan plus UDP" and "Slow comprehensive scan" profiles.  The -PN (ping
   only) option was added to "Quick traceroute". [David]
 
-o [NSE} The smtp-commands script output is now more compact. [Jason
+o [NSE] The smtp-commands script output is now more compact. [Jason
   DePriest, David]
 
 o [Zenmap] Added a simple workaround for a bug in PyXML (an add-on
