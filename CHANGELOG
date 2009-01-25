@@ -437,8 +437,8 @@ o Fixed a file (socket) descriptor leak which could occur when connect
   "Socket creation in sendConnectScanProbe: Too many open files (24)"
   [David]
 
-o [Zenmap] Made floating host details windows into normal toplevel
-  windows. This avoid a problem where the edge of a window could be
+o [Zenmap] Made floating host details windows into normal top-level
+  windows. This avoids a problem where the edge of a window could be
   off the edge of a screen and it would not be closable. The bug was
   reported by Robert Mead. [David]
 
@@ -1030,7 +1030,7 @@ o The Nmap Windows self-installer now automatically installs the MS
 
 o Added advanced search functionality to Zenmap so that you can locate
   previous scans using criteria such as which ports were open, keywords
-  in the target names, OS detection results. etc.  Try it out with
+  in the target names, OS detection results, etc.  Try it out with
   Ctrl-F or "Tools->Search Scan Results". [Vladimir]
 
 o Nmap's special WinPcap installer now handles 64-bit Windows machines
@@ -1470,7 +1470,7 @@ o Zenmap can now be installed in and run in directories with a space
 
 o Fixed an assertion failure ("Target.cc:396: void
   Target::stopTimeOutClock(const timeval*): Assertion
-  'htn.toclock_running == true' failed.")caused when a host had NSE
+  'htn.toclock_running == true' failed.") caused when a host had NSE
   scripts in multiple runlevels.  This also fixes --host-timeout
   behavior in NSE. [Kris]
 
@@ -1519,7 +1519,7 @@ o Zenmap now shows a more helpful error message when there is an error
 
 o Zenmap now creates the directory ~/.zenmap-etc to store
   automatically generated GTK+ and Pango files. They used to go in the
-  application bundle but that doesn't work on a read-only filesystem
+  application bundle but that doesn't work on a read-only file system
   or disk image. This is what Wireshark does (~/.wireshark-etc),
   although the directory could be called anything. It doesn't have to
   persist across sessions.
@@ -2197,7 +2197,7 @@ o Combine the Zenmap setup scripts into one portable setup.py rather
   than having separate versions for Windows, Unix, and Mac OS X.
 
 o Removed a bunch of unnecessary/incomplete code and data files from
-  Zenmap. [ David]
+  Zenmap. [David]
 
 o In Nbase, switched from GNU's getopt() replacement functions to
   Ben Sittler's BSD-licensed (but GNU compatible) functions. [Kris]
@@ -2432,7 +2432,7 @@ o Fixed a bug in --iflist which would lead to crashes.  Thanks to
   Michael Lawler for the report, and Eddie for the fix.
 
 o Finished updating WinPcap to 4.01 (a few static libraries were
-  missed) [ Eddie ]
+  missed) [Eddie]
 
 o Added NSE support for buffered data reads. [Stoiko]
 
@@ -2486,7 +2486,7 @@ o Added more Nmap Scripting Engine scripts, bringing the total to 31.
 o Added the --reason option which explains WHY Nmap assigned a port
   status.  For example, a port could be listed as "filtered" because
   no response was received, or because an ICMP network unreachable
-  message was received. [ Eddie ]
+  message was received. [Eddie]
 
 o Integrated all of your 2nd generation OS detection submissions,
   increasing the database size by 68% since 4.21ALPHA4 to 699
@@ -2513,8 +2513,8 @@ o Added the NSE library (NSELib) which is a library of useful
 
 o Added --servicedb and --versiondb command-line options which allow
   you to specify a custom Nmap services (port to port number translation
-  and port frequency) file or version detection database. [ David
-  Fifield ]
+  and port frequency) file or version detection database. [David
+  Fifield]
 
 o The build dependencies were dramatically reduced by removing
   unnecessary header includes and moving header includes from .h
@@ -3095,7 +3095,7 @@ o Nmap now allows multiple ignored port states.  If a 65K-port scan
   the extraports directive 'ip', 'tcp', and 'udp' attributes which
   specify the corresponding port numbers in the given state in the
   same listing format as the nmaprun.scaninfo.services attribute, but
-  that part hasn't yet been implemented.  If you absoultely need the
+  that part hasn't yet been implemented.  If you absolutely need the
   exact port numbers for each state in the XML, use -d3 for now.
 
 o Nmap now ignores certain ICMP error message rate limiting (rather
@@ -3106,7 +3106,7 @@ o Nmap now ignores certain ICMP error message rate limiting (rather
   with it.  In addition, the --defeat-rst-ratelimit option has been
   added, which causes Nmap not to slow down to accommodate RST rate
   limits when encountered.  For a SYN scan, this may cause closed
-  ports to be labeled 'filtered' becuase Nmap refused to slow down
+  ports to be labeled 'filtered' because Nmap refused to slow down
   enough to correspond to the rate limiting.  Learn more about this
   new option at http://nmap.org/man/ .  Thanks to Martin
   Macok (martin.macok(a)underground.cz) for writing the patch that
@@ -3141,10 +3141,10 @@ o Nmap has traditionally required you to specify -T* timing options
   before any more granular options like --max-rtt-timeout, otherwise the
   general timing option would overwrite the value from your more
   specific request.  This has now been fixed so that the more specific
-  options always have precendence.  Thanks to Doug Hoyte for this patch.
+  options always have precedence.  Thanks to Doug Hoyte for this patch.
 
 o Fixed a couple possible memory leaks reported by Ted Kremenek
- (kremenek(a)cs.stanford.edu) from the Stanford University sofware
+ (kremenek(a)cs.stanford.edu) from the Stanford University software
  static analysis lab ("Checker" project).
 
 o Nmap now prints a warning when you specify a target name which
@@ -3228,7 +3228,7 @@ o WinPcap 3.1 binaries are now shipped in the Nmap tarball, along with
 
 o Fixed (I hope) a problem where aggressive --min-parallelization
   option values could cause Nmap to quit with the message "box(300, 100,
-  15) called (min,max,num)".  Thanks to  Richard van den Berg
+  15) called (min,max,num)".  Thanks to Richard van den Berg
   (richard.vandenberg(a)ins.com) for reporting the problem.
 
 o Fixed a rare crash bug thanks to a report and patch from Ganga
@@ -3505,7 +3505,7 @@ o Many of the Nmap low-level timing options take a value in
   milliseconds.  You can now append an 's', 'm', or 'h' to the value
   to give it in seconds, minutes, or hours instead.  So you can specify a
   45 minute host timeout with --host_timeout 45m rather than specifying
-  --host_timeout 2700000 and hoping you did the math right and have the 
+  --host_timeout 2700000 and hoping you did the math right and have the
   correct number of zeros.  This also now works for the
   --min_rtt_timeout, --max_rtt_timeout, --initial_rtt_timeout,
   --scan_delay, and --max_scan_delay options.
@@ -3658,7 +3658,7 @@ o Version detection softmatches (when Nmap determines the service
   Postfix) can now parse out the normal match line fields such as
   hostname, device type, and extra info.  For example, we may not know
   what vendor created an sshd, but we can still parse out the protocol
-  number.  This was a patch from  Doug Hoyte (doug(a)hcsw.org).
+  number.  This was a patch from Doug Hoyte (doug(a)hcsw.org).
 
 o Fixed a problem which caused UDP version scanning to fail to print
   the matched service.  Thanks to Martin Macok
@@ -3818,7 +3818,7 @@ o Applied a massive OS fingerprint update from Zhao Lei
 
 o Added 'leet ASCII art to the configurator!  ARTIST NOTE: If you think
   the ASCII art sucks, feel free to send me alternatives.  Note that
-  only people compiling the UNIX source code get this. (ASCII artist
+  only people compiling the UNIX source code get this (ASCII artist
   unknown).
 
 o Added OS, device type, and hostname detection using the service
@@ -3943,7 +3943,7 @@ o Fixed an Nmap version detection crash on Windows which led to the
 o Fixed some misspellings in docs/nmap.xml reported by Tom Sellers
   (TSellers(a)trustmark.com).
 
-o Applied some changes from  Gisle Vanem (giva(a)bgnett.no) to make
+o Applied some changes from Gisle Vanem (giva(a)bgnett.no) to make
   Nmap compile with Cygwin.
 
 o XML "osmatch" element now has a "line" attribute giving the
@@ -4098,7 +4098,7 @@ o Nmap now ships with and installs (in the same directory as other
   It supports tables, version detection, color-coded port states, and
   more.  The XML output has been augmented to include an
   xml-stylesheet directive pointing to nmap.xsl on the local
-  filesystem.  You can point to a different XSL file by providing the
+  file system.  You can point to a different XSL file by providing the
   filename or URL to the new --stylesheet argument.  Omit the
   xml-stylesheet directive entirely by specifying --no-stylesheet.
   The XML to HTML conversion can be done with an XSLT processor such
@@ -4108,10 +4108,10 @@ o Nmap now ships with and installs (in the same directory as other
   Perhaps some Mozilla wizard can fix that in either the XSL or the
   browser itself.  I hate having things work better in IE :).  It is
   often more convenient to have the stylesheet loaded from a URL
-  rather than the local filesystem, allowing the XML to be rendered on
+  rather than the local file system, allowing the XML to be rendered on
   any machine regardless of whether/where the XSL is installed.  For
   privacy reasons (avoid loading of an external URL when you view
-  results), Nmap uses the local filesystem by default.  If you would
+  results), Nmap uses the local file system by default.  If you would
   like the latest version of the stylesheet loaded from the web when
   rendering, specify --stylesheet http://nmap.org/data/nmap.xsl .
 
@@ -4850,7 +4850,7 @@ o Fixed (I hope) some Solaris Sun ONE compiler compilation problems
 
 o Fixed the --with-openssl configure option for people who have
   OpenSSL installed in a path not automatically found by their
-  compilers.  Thanks to  Marius Strobl (marius(a)alchemy.franken.de) for
+  compilers.  Thanks to Marius Strobl (marius(a)alchemy.franken.de) for
   the patch.
 
 o Made some portability changes for HP-UX and possibly other types of
@@ -4934,8 +4934,8 @@ o Updated the Nmap man page to discuss the new version scanning
   options (-sV, -A).
 
 o I now include nmap-version/aclocal.m4 in the distribution as this is
-  required to rebuild the configure script ( thanks to Dmitry V. Levin
-  (ldv(a)altlinux.org) for notifying me of the problem.
+  required to rebuild the configure script (thanks to Dmitry V. Levin
+  (ldv(a)altlinux.org) for notifying me of the problem).
 
 o Applied a patch from Dmitry V. Levin (ldv(a)altlinux.org) which
   detects whether the PCRE include file is <pcre.h> or <pcre
@@ -4951,7 +4951,7 @@ o Fixed compilation on Mac OS X - thanks to Brian Hatch
   access to Mac OS X boxes.
 
 o Stripped down libpcre build system to remove libtool dependency and
-  other cruft that Nmap doesn't need. (this was mostly a response to
+  other cruft that Nmap doesn't need (this was mostly a response to
   libtool-related issues on Mac OS X).
 
 o Added a new --version_trace option which causes Nmap to print out extensive
@@ -6213,7 +6213,7 @@ o Various minor fixes/changes/updates
 Nmap 2.54BETA27
 
 o Fixed bug that caused "adding open port" messages to be printed even
-  when verbose mode was not specified. (patch sent by Doug Hoyte.
+  when verbose mode was not specified (patch sent by Doug Hoyte).
 
 o Fixed bug in zombie:port option parsing in Idlescan as well a few
   other bugs in patch sent by Germano Caronni (gec(a)acm.org)
@@ -6632,7 +6632,7 @@ o Added very simple man pages for xnmap/nmapfe (lack of man pages for
 o Fixed a "Status: Down" machine name output problem in machine
   parseable logs found by Alek O. Komarnitsky (alek(a)ast.lmco.com)
 
-o Took some wierd files out of the doc directory (cd, grep , vi, and
+o Took some wierd files out of the doc directory (cd, grep, vi, and
   .swp)
 
 o Fixed some typos found by Thomas Klausner (wiz(a)danbala.ifoer.tuwien.ac.at)
@@ -6757,7 +6757,7 @@ o Changed NmapFE so that it always kills any running Nmap process when
 
 o Apparently some Linux (glibc) systems now come with a "strcasestr"
   function.  So I have made autoconf look for this and use the native
-  version if supported. (problem noted by Sami Farin
+  version if supported (problem noted by Sami Farin
   (sfarin(a)ratol.fi)).
 
 o Added a new attribute "Ignored State: xxx" to the machine parseable
@@ -6769,7 +6769,7 @@ o Added a new attribute "Ignored State: xxx" to the machine parseable
 o Merged in a patch sent in by Mipam (reinoud(a)ibbnet.org) which is
   apparently part of the OpenBSD Nmap "port".  Although Nmap seems to
   work fine for me on my OpenBSD 2.4 box, a couple OpenBSD users have
-  complained of problems.  Hopefully this will help. (it adds DLT_LOOP
+  complained of problems.  Hopefully this will help (it adds DLT_LOOP
   and DLT_ENC offset cases when reading from libpcap).
 
 o A few really minor bugfixes.
@@ -7007,7 +7007,7 @@ o Applied a socket binding patch from LaMont Jones
 o Made OS detection smart enough to first check scan results for a
   known closed port instead of immediately resorting to a random one.
   This improves OS detection against some machines behind packet
-  filters. (suggested by van Hauser)
+  filters (suggested by van Hauser).
 
 o Applied a shortcut suggestion by Thomas Reinke which can lead to a
   tremendous speedup against some firewalled hosts.
@@ -7034,7 +7034,7 @@ o Applied Lamont Granquist's (lamontg(a)u.washington.edu) Window scan
   add another scan that uses ACK packets and I don't want them to be
   confused).  -sW activates this scan type.  It is mostly effective
   against BSD, AIX, Digital UNIX, and various older HP/UX, SunOS, and
-  VAX. (See nmap-hackers mailing list archives for an extensive list).
+  VAX (See nmap-hackers mailing list archives for an extensive list).
 
 o Added various long options people expect to see like --version ,
   --help , --usage , etc.  Some of the new timing options are also long.
@@ -7207,8 +7207,8 @@ o Private test release
 Nmap 2.08
 
 o Bugfix for problem that can cause nmap to appear to "freeze up" for
-  long periods of time when run on some busy networks. (found by
-  Lamont Granquist)
+  long periods of time when run on some busy networks (found by
+  Lamont Granquist).
 
 Nmap 2.07
 
