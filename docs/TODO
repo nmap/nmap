@@ -145,13 +145,16 @@ o Figure out why I [Fyodor] get a bunch of "Operation not permitted" errors
 when I launch a scan on SYN such as: 
    /home/fyodor/nmap-exp/fyodor-perf/nmap -nogcc -T4 -n -v -p- --portpingfreq 250 -oA /home/fyodor/nmap-misc/logs/WorldScan/portpingfreq/logs/portpingfreq-250-1%T-%D 67.15.236.34 67.15.236.36 81.174.236.66 81.174.236.119 170.140.20.160 170.140.20.174 202.138.180.9 202.138.180.17 202.138.180.132 209.20.64.112
    The errors look like:
-   sendto in send_ip_packet: sendto(7, packet, 44, 0, 170.140.20.174, 16) => Operation not permitted
+sendto in send_ip_packet: sendto(7, packet, 44, 0, 170.140.20.174, 16) => Operation not permitted
 Offending packet: TCP 64.13.134.4:59820 > 170.140.20.174:59120 S ttl=39 id=19927 iplen=44  seq=2425535549 win=4096 <mss 1460>
 sendto in send_ip_packet: sendto(7, packet, 44, 0, 67.15.236.36, 16) => Operation not permitted
 Offending packet: TCP 64.13.134.4:59820 > 67.15.236.36:15030 S ttl=57 id=50640 iplen=44  seq=2425535549 win=2048 <mss 1460>
 Discovered open port 49394/tcp on 170.140.20.174
 sendto in send_ip_packet: sendto(7, packet, 44, 0, 170.140.20.174, 16) => Operation not permitted
 Offending packet: TCP 64.13.134.4:59819 > 170.140.20.174:8256 S ttl=48 id=38510 iplen=44  seq=2425601084 win=1024 <mss 1460>
+   May be related to connection tracking and high scan rates. See
+   http://seclists.org/nmap-dev/2008/q4/0652.html
+   http://www.shorewall.net/FAQ.htm#faq26
 
 o Get better password data for unpw -- perhaps from Solar Designer.
 
