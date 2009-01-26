@@ -1,4 +1,3 @@
-id = "MSRPC: Check vulnerabilities"
 description = [[
 Checks if a host is vulnerable to MS08-067, a Windows RPC vulnerability that
 can allow remote code execution. This script is intended to check for more
