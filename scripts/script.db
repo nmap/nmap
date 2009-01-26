@@ -22,6 +22,8 @@ Entry{ category = "auth", filename = "ftp-anon.nse" }
 Entry{ category = "safe", filename = "ftp-anon.nse" }
 Entry{ category = "default", filename = "ftp-bounce.nse" }
 Entry{ category = "intrusive", filename = "ftp-bounce.nse" }
+Entry{ category = "auth", filename = "ftp-brute.nse" }
+Entry{ category = "intrusive", filename = "ftp-brute.nse" }
 Entry{ category = "default", filename = "html-title.nse" }
 Entry{ category = "discovery", filename = "html-title.nse" }
 Entry{ category = "safe", filename = "html-title.nse" }
@@ -107,5 +109,3 @@ Entry{ category = "safe", filename = "upnp-info.nse" }
 Entry{ category = "discovery", filename = "whois.nse" }
 Entry{ category = "external", filename = "whois.nse" }
 Entry{ category = "safe", filename = "whois.nse" }
-Entry{ category = "auth", filename = "xampp-default-auth.nse" }
-Entry{ category = "vuln", filename = "xampp-default-auth.nse" }

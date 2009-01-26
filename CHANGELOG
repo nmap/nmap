@@ -2,6 +2,8 @@
 
 o A new Zenmap translation: French, contributed by Gutek
 
+o The xampp-default-auth.nse script was renamed to ftp-brute.nse.
+
 Nmap 4.85BETA1 [2009-1-23]
 
 o Added Ncat, a much-improved reimplementation of the venerable Netcat

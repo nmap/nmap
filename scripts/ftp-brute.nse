@@ -1,20 +1,20 @@
 description = [[
-Check if an XAMP or XAMPP FTP server uses a default username and password.
-
-XAMP is an Apache distribution designed for easy installation and
-administration.
+Tries to get FTP login credentials by guessing usernames and passwords.
 ]]
 
 ---
 -- @output
--- 21/tcp  open   ftp
--- |_ xampp-default-auth: Login success with u/p: nobody/xampp
+-- 21/tcp open  ftp
+-- |_ ftp-auth: Login success with u/p: nobody/xampp
+--
+-- 2008-11-06 Vlatko Kosturjak <kost@linux.hr>
+-- Modified xampp-default-auth script to generic ftp-brute script
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"auth", "vuln"}
+categories = {"auth", "intrusive"}
 
 require "shortport"
 
@@ -46,14 +46,15 @@ end
 action = function(host, port)
 	local res
 	local socket = nmap.new_socket()
+	local authcombinations = { 
+		{user="nobody", password="xampp"}, --- XAMPP default ftp
+	}
 
-	socket:connect(host.ip, port.number)
-	res = login(socket, "nobody", "e0e0e0e0")
-	socket:close()
-
-	socket:connect(host.ip, port.number)
-	res = login(socket, "nobody", "xampp")
-	socket:close()
+	for _, combination in pairs (authcombinations) do
+		socket:connect(host.ip, port.number)
+		res = login(socket, combination.user, combination.password)
+		socket:close()
+	end
 	
 	return  res
 end
