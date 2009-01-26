@@ -155,6 +155,9 @@ Offending packet: TCP 64.13.134.4:59819 > 170.140.20.174:8256 S ttl=48 id=38510 
    May be related to connection tracking and high scan rates. See
    http://seclists.org/nmap-dev/2008/q4/0652.html
    http://www.shorewall.net/FAQ.htm#faq26
+   Others have reported similar issues even without connection tracking.  See
+   http://seclists.org/nmap-dev/2006/q3/0277.html
+   http://seclists.org/nmap-dev/2007/q2/0292.html
 
 o Get better password data for unpw -- perhaps from Solar Designer.
 
