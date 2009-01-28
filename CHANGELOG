@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Made a few improvements to nmap.xsl (details:
+  http://seclists.org/nmap-dev/2009/q1/0210.html) [Tom Sellers]
+
 o A new Zenmap translation: French, contributed by Gutek
 
 o The xampp-default-auth.nse script was renamed to ftp-brute.nse.

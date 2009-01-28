@@ -653,16 +653,28 @@
 <!-- osfingerprint -->
 <!-- ............................................................ -->
 <xsl:template match="osfingerprint">
-	<br /><br />
-	<li>Cannot determine exact operating system.  Fingerprint provided below.</li>
+       <xsl:choose>
+               <xsl:when test="count(../osmatch)=0">
+                       <br /><br />
+                       <li>Cannot determine exact operating system.  Fingerprint provided below.</li>
+                       <li>If you know what OS is running on it, see http://nmap.org/submit/</li>
+               </xsl:when>
+               <xsl:otherwise>
+                       <br /><br />
+                       <li>OS Fingerprint requested at scan time and provided below.</li>
+               </xsl:otherwise>
+       </xsl:choose>
+
+
 	<table cellspacing="1">
 		<tr class="head">
     		<td>Operating System fingerprint</td>
 		</tr>
 		<tr>
-			<td><xsl:value-of select="@fingerprint" /></td>
+                       <td><pre><xsl:value-of select="@fingerprint" /></pre></td>
 		</tr>
 	</table>
+
 </xsl:template>
 <!-- ............................................................ -->
 
