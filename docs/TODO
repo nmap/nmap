@@ -6,6 +6,7 @@ o Even Zenmap 4.85BETA1 still linkifies various times and other
            Raw packets sent: 2071 (**94.448KB**) | Rcvd: 63 (3576B)
   Completed SYN Stealth Scan at 19:42, **24.47s** elapsed (4000 total ports)
   ompleted SYN Stealth Scan against 64.13.134.49 in **21.48s** (1 host left)
+  Uptime guess: **33.982** days (since Fri Dec 26 22:13:28 2008)
 
 o If it wouldn't bloat things too much, it would be nice to include
   ndiff in the Nmap win32 zip distribution files.
@@ -16,6 +17,9 @@ o Deal with GTK DLL problem with Nmap 4.85BETA1:
 o Deal with new Python 2.6 Zenmap build warnings:
   C:\Python26\lib\site-packages\py2exe\build_exe.py:16: DeprecationWarning: the sets module is deprecated
   import sets
+
+o Process the latest version detection submissions.  We now have more
+  than 1,700 of them queued up.
 
 o NSE should offer some way to sleep/yeield for a given amount of
   time.  This would allow other scripts to run while a script has
