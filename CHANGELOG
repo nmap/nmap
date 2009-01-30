@@ -1,11 +1,23 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 4.85BETA2 [2009-1-29]
+
+o Added some duplicate GTK DLLs to Windows installer, as a temporary
+  fix for this issue: http://seclists.org/nmap-dev/2009/q1/0207.html.
+  The problem caused a warning message complaining of problems finding
+  librsvg-2-2.dll to pop up 32 times before Zenmap would start.  We're
+  still looking for a better fix. [Fyodor, Rob, Jah]
+
 o Made a few improvements to nmap.xsl (details:
   http://seclists.org/nmap-dev/2009/q1/0210.html) [Tom Sellers]
 
-o A new Zenmap translation: French, contributed by Gutek
+o [Zenmap] New translation: French (contributed by Gutek)
 
-o The xampp-default-auth.nse script was renamed to ftp-brute.nse.
+o Updated the mswin32 installer build guide and posted it to
+  http://nmap.org/data/win32-installer-zenmap-buildguide.txt [Fyodor]
+
+o The xampp-default-auth.nse script was renamed to ftp-brute.nse since
+  it has become more general.
 
 Nmap 4.85BETA1 [2009-1-23]
 
