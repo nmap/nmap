@@ -256,8 +256,8 @@ void *realloc();
 #ifndef NMAP_VERSION
 /* Edit this definition only within the quotes, because it is read from this
    file by the makefiles. */
-#define NMAP_VERSION "4.85BETA1"
-#define NMAP_NUM_VERSION "4.85.0.1"
+#define NMAP_VERSION "4.85BETA2"
+#define NMAP_NUM_VERSION "4.85.0.2"
 #endif
 
 /* User configurable #defines: */
