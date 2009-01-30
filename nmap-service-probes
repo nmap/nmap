@@ -2959,7 +2959,7 @@ match ident m|^: USERID : UNIX : CacheFlow Server\r\n| p/CacheFlow identd/ o/Cac
 match ident m|^:USERID:OTHER:\d+-ident-is-a-completely-pointless-protocol-that-offers-no-security-or-traceability-at-all-so-take-this-and-log-it!\r\n| p/Fake identd/
 match ident m|^ : USERID : UNIX : ([-\w_]+)$| p/Klient identd/ i/IRC Nick $1/
 match ident m|^\r\n: ERROR : HIDDEN-USER\r\n$| p/Borderware Firewall identd/ d/firewall/
-match ident m|^ : USERID : UNIX : [a-z]{4,8}\r\n$| p/Windows XP identd/ o/Windows/
+match ident m|^ : USERID : UNIX : [a-z]{4,8}\r\n$| o/Windows/
 match ident m|^1 , 1 : USERID : OTHER : chuck-the-bsd-deamon\r\n$| p/widentd/
 match ident m|^,  : USERID : UNIX : [^\r\n]+\r\n$| p/FTPRush FTP client identd/ o/Windows/
 match ident m|^0 , 0 : ERROR : FORMAT-ERROR\r\n$| p/GTA GB-Ware firewall identd/ d/firewall/
