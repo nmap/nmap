@@ -240,7 +240,7 @@ Section "Zenmap (GUI Frontend)" SecZenmap
   File ..\nmap-${VERSION}\zenmap.exe
   File ..\nmap-${VERSION}\ZENMAP_README
   File ..\nmap-${VERSION}\COPYING_HIGWIDGETS
-  File ..\nmap-${VERSION}\python26.dll
+  File ..\nmap-${VERSION}\*.dll
   File /r ..\nmap-${VERSION}\share
   File /r ..\nmap-${VERSION}\py2exe
   StrCpy $zenmapset "true"
