@@ -1,10 +1,12 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Consider making the TODO list public
-  o Probably remove all of the "done" items since that is easier than
-    reviewing them.
-  o Might as well add to insecure.org/nmap/data/
-  o Maybe a bug tracker is a better approach.
+o Even Zenmap 4.85BETA1 still linkifies various times and other
+  non-hostname strings.  For example, (linkified parts are in *'s):
+  Nmap done: 1 IP address (1 host up) scanned in **27.02** seconds
+           Raw packets sent: 2071 (**94.448KB**) | Rcvd: 63 (3576B)
+  Completed SYN Stealth Scan at 19:42, **24.47s** elapsed (4000 total ports)
+  ompleted SYN Stealth Scan against 64.13.134.49 in **21.48s** (1 host left)
+
 
 o Deal with new Python 2.6 Zenmap build warnings:
   C:\Python26\lib\site-packages\py2exe\build_exe.py:16: DeprecationWarning: the sets module is deprecated
@@ -354,3 +356,11 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Consider making the TODO list public
+  o Done: http://seclists.org/nmap-dev/2009/q1/0175.html
+  o Probably remove all of the "done" items since that is easier than
+    reviewing them.
+  o Might as well add to insecure.org/nmap/data/
+  o Maybe a bug tracker is a better approach.
+
