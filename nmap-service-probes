@@ -815,7 +815,7 @@ match imap m|^\* OK \[CAPABILITY IMAP4rev1 .*?Courier-IMAP ready\. Copyright 199
 match imap m|^\* OK CommuniGate Pro IMAP Server ([-.\w]+) at ([-.\w]+) ready\r\n$| p/CommuniGate Pro imapd/ h/$1/ v/$2/
 # W-Imapd-SSL v2001adebian-6
 match imap m|^\* OK \[CAPABILITY IMAP4REV1 X-NETSCAPE LOGIN-REFERRALS STARTTLS AUTH=LOGIN\](\S+) IMAP4rev1 ([-.\w]+) at| p/UW-Imapd-SSL/ h/$1/ v/$2/
-match imap m|^\* OK Domino IMAP4 Server Release (\d[-.\w]+) +ready| p/Lotus Domino imapd/ v/$1/
+match imap m|^\* OK Domino IMAP4 Server Release (\d[-.\w ]+) +ready| p/Lotus Domino imapd/ v/$1/
 match imap m|^\* OK Domino IMAP4 Server Build V([\w_]+ Beta \w+) ready .*\r\n| p/Lotus Domino imapd/ v/$1/
 match imap m|^\* BYE Domino IMAP4 Server Unable to authenticate session\.| p/Lotus Domino imapd/ i/Unable to connect/
 
@@ -1695,12 +1695,12 @@ match smtp m|^220 ([-.\w]+) ESMTP VisNetic.MailServer.v([-.\w]+); | p/VisNetic M
 match smtp m|^220 ([-.\w]+) ESMTP Service. Welcome.\r\n$| p/CommuniGate Pro smtpd/ h/$1/
 match smtp m|^220 ([-.\w]+) Process Software ESMTP service V([-.\w]+) ready| p/Process Software smtpd/ h/$1/ v/$2/ o/OpenVMS/
 match smtp m|^220 ([-.\w]+) Mercury (\d[-.\w]+) ESMTP server ready\.\r\n$| p/Mercury Mail smtpd/ h/$1/ v/$2/
-match smtp m|^220 ([-.\w]+) ESMTP Service \(Lotus Domino Release (\d[-.\w]+)\) ready| p/Lotus Domino smtpd/ h/$1/ v/$2/
-match smtp m|^220 ([-.\w]+) ESMTP Service \(Lotus Domino (\d[-.\w]+)\) ready at| p/Lotus Domino smtpd/ h/$1/ v/$2/
-match smtp m|^220  ESMTP Service \(Lotus Domino Release (\d[-.\w]+)\) ready at | p/Lotus Domino smtpd/ v/$1/
+match smtp m|^220 ([-.\w]+) ESMTP Service \(Lotus Domino Release (\d[-.\w ]+)\) ready| p/Lotus Domino smtpd/ h/$1/ v/$2/
+match smtp m|^220 ([-.\w]+) ESMTP Service \(Lotus Domino (\d[-.\w ]+)\) ready at| p/Lotus Domino smtpd/ h/$1/ v/$2/
+match smtp m|^220  ESMTP Service \(Lotus Domino Release (\d[-.\w ]+)\) ready at | p/Lotus Domino smtpd/ v/$1/
 match smtp m|^220 ([-.\w]+) ESMTP Service \(Lotus Domino Build V([\w_]+) Beta (\w+)\) ready at | p/Lotus Domino smtpd/ h/$1/ v/$2 Beta $3/
 match smtp m|^220  ESMTP Service \(Lotus Domino Build V([\w_]+) Beta (\w+)\) ready at | p/Lotus Domino smtpd/ v/$1 Beta $2/
-match smtp m|^220 ([-.\w]+) ESMTP Service \(Lotus Domino Versione ([\w-_.]+)\) ready| p/Lotus Domino smtpd/ v/$2/ h/$1/ i/Italian/
+match smtp m|^220 ([-.\w]+) ESMTP Service \(Lotus Domino Versione ([\w-_. ]+)\) ready| p/Lotus Domino smtpd/ v/$2/ h/$1/ i/Italian/
 match smtp m|^220 ([-.\w]+) Lotus SMTP MTA Service Ready\r\n$| p/Lotus Notes SMTP/ h/$1/
 match smtp m|^220 ([-.\w]+) WebSTAR Mail Simple Mail Transfer Service Ready\r\n| p/WebSTAR SMTP server/ h/$1/
 match smtp m|^220 ([-.\w]+) SMTP NAVGW (\d[-.\w]+);| p/Norton Antivirus Gateway NAVGW/ h/$1/ v/$2/
