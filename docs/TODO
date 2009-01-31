@@ -18,6 +18,9 @@ o Deal with new Python 2.6 Zenmap build warnings:
   C:\Python26\lib\site-packages\py2exe\build_exe.py:16: DeprecationWarning: the sets module is deprecated
   import sets
 
+o Ncat: Get rid of sys_wrap stuff and use normal Nbase portability
+  code. [Kris]
+
 o Process the latest version detection submissions.  We now have more
   than 1,700 of them queued up.
 
