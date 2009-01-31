@@ -2752,6 +2752,7 @@ match honeypot m|^\r\nlogin: \0$| p/Network Flight Recorder BackOfficer Friendly
 match honeypot m|^\r\n[-\w_.]+ [\d.]+ - Unauthorized access \x07prohibited under penalty of law\.\r\n\r\nlogin: \xff\xfc\x01| p/Whiz Kid Technomagic Imaginary telnet honeypot/ o/Windows/
 match honeypot m|^Microsoft Windows XP \[Version [\d.]+\]\n\(C\) Copyright 1985-\d+ Microsoft Corp\.\n\nC:\\>| p/honeyd cmdexe.pl/
 
+match dlswpn m|(?<=.)IOS\x20\(tm\)\x20([-\d\w.]+).{20,30}\x20Version\x20([-\d\w.()]+),\x20|s p/Cisco $1 Router/ i/IOS $2/ o/IOS/ d/router/
 match tunnelvision m|^HELLO Welcome to Tunnel Vision \(([\d.]+)\)\n| p/Tunnel Vision VPN info/ v/$1/
 
 
