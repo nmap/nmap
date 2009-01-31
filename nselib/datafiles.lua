@@ -111,13 +111,13 @@ function parse_file(filename, ...)
   end
 
   -- is filename a member of common_files? is second parameter a key in common_files or is it a table?
-  if common_files[filename] and type( arg[1] ) == "string" and common_files[filename][arg[1]] then
-    data_struct = { common_files[filename][arg[1]] }
-  elseif common_files[filename] and #arg == 0 then
+  if common_files[filename] and type( (...) ) == "string" and common_files[filename][(...)] then
+    data_struct = { common_files[filename][(...)] }
+  elseif common_files[filename] and select("#", ...) == 0 then
     data_struct = { common_files[filename] }
-  elseif type( arg[1] ) == "table" then
-    data_struct = arg
-  elseif type( arg[1] ) ~= "table" then
+  elseif type( (...) ) == "table" then
+    data_struct = {...}
+  elseif type( (...) ) ~= "table" then
     return false, "Error in datafiles.parse_file: Expected second parameter as table."
   end
 
