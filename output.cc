@@ -1584,6 +1584,13 @@ static void write_merged_fpr(const FingerPrintResults *FPR,
                              bool isGoodFP, bool wrapit) {
   log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT, "TCP/IP fingerprint:\n%s\n",
             merge_fpr(FPR, currenths, isGoodFP, wrapit));
+
+  /* Added code here to print fingerprint to XML file any time it would be printed
+     to any other output format  */
+  char *xml_osfp = xml_convert(merge_fpr(FPR, currenths,  isGoodFP,  wrapit));
+  log_write(LOG_XML,"<osfingerprint fingerprint=\"%s\" />\n", xml_osfp);
+  free(xml_osfp);
+
 }
 
 /* Prints the formatted OS Scan output to stdout, logfiles, etc (but only
@@ -1704,12 +1711,6 @@ void printosscanoutput(Target *currenths) {
       write_merged_fpr(FPR, currenths, false, false);
   } else {
     assert(0);
-  }
-  
-  if (o.debugging || o.verbose) {
-    char *xml_osfp = xml_convert(merge_fpr(FPR, currenths, reason != NULL, reason != NULL));
-    log_write(LOG_XML,"<osfingerprint fingerprint=\"%s\" />\n", xml_osfp);
-    free(xml_osfp);
   }
   
   log_write(LOG_XML, "</os>\n");

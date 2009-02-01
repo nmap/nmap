@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The conditions for printing OS fingerprints to XML output are now
+  the same as are used to decide whether to print them in the other
+  formats. So they will be printed if submission is desirable,
+  otherwise they are only printed if debuging is enabled or verbosity
+  is 2 or higher. [Tom Sellers]
+
 o Fix Ncat compilation with the MingW windows compiler. [Gisle Vanem]
 
 Nmap 4.85BETA2 [2009-1-29]
