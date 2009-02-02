@@ -8,6 +8,9 @@ o The conditions for printing OS fingerprints to XML output are now
 
 o Fix Ncat compilation with the MingW windows compiler. [Gisle Vanem]
 
+o Updated IANA assignment IP list for random IP (-iR)
+  generation. [Kris]
+
 Nmap 4.85BETA2 [2009-1-29]
 
 o Added some duplicate GTK DLLs to Windows installer, as a temporary
