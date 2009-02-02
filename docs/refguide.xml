@@ -3077,7 +3077,7 @@ used to resume aborted scans.</para>
 The default is called
 <firstterm>interactive output</firstterm>,<indexterm><primary>interactive output</primary></indexterm>
 and it is sent to
-standard output (stdout).<indexterm><primary>stdout</primary></indexterm><indexterm><primary>standard output</primary></indexterm>
+standard output (stdout).<indexterm><primary>standard output</primary></indexterm>
 There is also
 <firstterm>normal output</firstterm>,<indexterm><primary>normal output</primary></indexterm>
 which is similar to interactive except that it
@@ -3122,7 +3122,7 @@ results in the format you specified to the standard output stream.  So the
 command <command>nmap -oX - target</command> will send only XML output to
 stdout.<indexterm><primary>output</primary><secondary>to stdout with <literal>-</literal></secondary></indexterm>
 Serious errors may still be printed to the normal error
-stream, stderr.<indexterm><primary>standard error</primary></indexterm><indexterm><primary>stderr</primary></indexterm>
+stream, stderr.<indexterm><primary>standard error</primary></indexterm>
 </para>
 
 <para>Unlike some Nmap arguments, the space between the logfile option
