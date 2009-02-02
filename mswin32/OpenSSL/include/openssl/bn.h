@@ -408,8 +408,8 @@ BIGNUM *BN_CTX_get(BN_CTX *ctx);
 void	BN_CTX_end(BN_CTX *ctx);
 int     BN_rand(BIGNUM *rnd, int bits, int top,int bottom);
 int     BN_pseudo_rand(BIGNUM *rnd, int bits, int top,int bottom);
-int	BN_rand_range(BIGNUM *rnd, BIGNUM *range);
-int	BN_pseudo_rand_range(BIGNUM *rnd, BIGNUM *range);
+int	BN_rand_range(BIGNUM *rnd, const BIGNUM *range);
+int	BN_pseudo_rand_range(BIGNUM *rnd, const BIGNUM *range);
 int	BN_num_bits(const BIGNUM *a);
 int	BN_num_bits_word(BN_ULONG);
 BIGNUM *BN_new(void);
@@ -530,6 +530,17 @@ int	BN_generate_prime_ex(BIGNUM *ret,int bits,int safe, const BIGNUM *add,
 int	BN_is_prime_ex(const BIGNUM *p,int nchecks, BN_CTX *ctx, BN_GENCB *cb);
 int	BN_is_prime_fasttest_ex(const BIGNUM *p,int nchecks, BN_CTX *ctx,
 		int do_trial_division, BN_GENCB *cb);
+
+int BN_X931_generate_Xpq(BIGNUM *Xp, BIGNUM *Xq, int nbits, BN_CTX *ctx);
+
+int BN_X931_derive_prime_ex(BIGNUM *p, BIGNUM *p1, BIGNUM *p2,
+			const BIGNUM *Xp, const BIGNUM *Xp1, const BIGNUM *Xp2,
+			const BIGNUM *e, BN_CTX *ctx, BN_GENCB *cb);
+int BN_X931_generate_prime_ex(BIGNUM *p, BIGNUM *p1, BIGNUM *p2,
+			BIGNUM *Xp1, BIGNUM *Xp2,
+			const BIGNUM *Xp,
+			const BIGNUM *e, BN_CTX *ctx,
+			BN_GENCB *cb);
 
 BN_MONT_CTX *BN_MONT_CTX_new(void );
 void BN_MONT_CTX_init(BN_MONT_CTX *ctx);

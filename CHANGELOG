@@ -8,6 +8,9 @@ o The conditions for printing OS fingerprints to XML output are now
 
 o Fix Ncat compilation with the MingW windows compiler. [Gisle Vanem]
 
+o Upgraded the OpenSSL binaries shipped in our Windows installer to
+  version 0.9.8j. [Kris]
+
 o Updated IANA assignment IP list for random IP (-iR)
   generation. [Kris]
 
