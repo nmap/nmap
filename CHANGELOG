@@ -11,6 +11,12 @@ o Fix Ncat compilation with the MingW windows compiler. [Gisle Vanem]
 o Updated IANA assignment IP list for random IP (-iR)
   generation. [Kris]
 
+o [Zenmap] Fixed a crash that happened when running a scan directly
+  from the command wizard without saving a profile [David]:
+    NmapParser.py", line 417, in set_target
+      self.ops.target_specs = target.split()
+    AttributeError: 'NoneType' object has no attribute 'split'
+
 Nmap 4.85BETA2 [2009-1-29]
 
 o Added some duplicate GTK DLLs to Windows installer, as a temporary
