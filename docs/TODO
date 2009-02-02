@@ -1,12 +1,14 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Even Zenmap 4.85BETA1 still linkifies various times and other
-  non-hostname strings.  For example, (linkified parts are in *'s):
-  Nmap done: 1 IP address (1 host up) scanned in **27.02** seconds
-           Raw packets sent: 2071 (**94.448KB**) | Rcvd: 63 (3576B)
-  Completed SYN Stealth Scan at 19:42, **24.47s** elapsed (4000 total ports)
-  ompleted SYN Stealth Scan against 64.13.134.49 in **21.48s** (1 host left)
-  Uptime guess: **33.982** days (since Fri Dec 26 22:13:28 2008)
+o Make Zenmap settings get upgraded when the Zenmap executable is
+  upgraded. The per-user configuration files such as scan_profile.usp
+  and zenmap.conf are never overwritten once installed by Zenmap, so
+  changes and fixes to those files don't reach anyone who has
+  installed Zenmap already. This is most noticeable with changes to
+  profiles and highlight definitions are notably affected. This fix
+  may involve hard-coding settings that are not normally configured by
+  users (like highlighting) or updating the per-user files at startup
+  (only those parts that haven't been changed by the user).
 
 o If it wouldn't bloat things too much, it would be nice to include
   ndiff in the Nmap win32 zip distribution files.
