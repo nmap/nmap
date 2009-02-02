@@ -67,8 +67,8 @@ end
 -- @param t The table.
 -- @param ... The elements to add to the row.
 function addrow(t, ...)
-	for i=1, arg['n'] do
-		add( t, i, tostring(arg[i]) )
+	for i=1, select("#", ...) do
+		add( t, i, tostring( ( select(i, ...)) ) )
 	end
 	nextrow( t )
 end
