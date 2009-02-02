@@ -1,5 +1,22 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Deal with GTK DLL problem with Nmap 4.85BETA1:
+  o Details on problem: http://seclists.org/nmap-dev/2009/q1/0207.html
+  o Quick workaround done for 4.85BETA2, but better solution needed.
+
+o If it wouldn't bloat things too much, it would be nice to include
+  ndiff in the Nmap win32 zip distribution files.
+
+o Reported NSE crash:
+  "Assertion failed - file ..\nse_main.cc line 314
+   lua_gettop(L_script_scan) == 0"
+  o He says: "After looking at this closer, it appears the assertion
+    occurs if I include the IP where the scan is run from. For us, I'm
+    running this on IP 57, which is a VMware Windows Server image.  If
+    I eliminate that IP from the range it successfully completed the
+    scan for all other devices."
+
+
 o Make Zenmap settings get upgraded when the Zenmap executable is
   upgraded. The per-user configuration files such as scan_profile.usp
   and zenmap.conf are never overwritten once installed by Zenmap, so
@@ -10,12 +27,6 @@ o Make Zenmap settings get upgraded when the Zenmap executable is
   users (like highlighting) or updating the per-user files at startup
   (only those parts that haven't been changed by the user).
 
-o If it wouldn't bloat things too much, it would be nice to include
-  ndiff in the Nmap win32 zip distribution files.
-
-o Deal with GTK DLL problem with Nmap 4.85BETA1:
-  o Details on problem: http://seclists.org/nmap-dev/2009/q1/0207.html
-
 o Deal with new Python 2.6 Zenmap build warnings:
   C:\Python26\lib\site-packages\py2exe\build_exe.py:16: DeprecationWarning: the sets module is deprecated
   import sets
@@ -25,7 +36,7 @@ o Ncat: Get rid of sys_wrap stuff and use normal Nbase portability
   code. [Kris]
 
 o Process the latest version detection submissions.  We now have more
-  than 1,700 of them queued up.
+  than 1,700 of them queued up. [Doug]
 
 o NSE should offer some way to sleep/yeield for a given amount of
   time.  This would allow other scripts to run while a script has
@@ -46,6 +57,11 @@ o Find way to document NSE library script arguments and perhaps have
   just standardize on something like we do with SMB library and the
   scripts which call it (http://nmap.org/nsedoc/modules/smb.html,
   http://nmap.org/nsedoc/scripts/smb-check-vulns.html). [David]
+
+o "SCRIPT ENGINE (250.600s): ./scripts/rpcinfo.nse against
+  a.b.c.d:<port> ended with error: ./nselib/datafiles.lua:114: attempt
+  to index global 'arg' (a nil value)"
+  -- http://seclists.org/nmap-dev/2009/q1/0227.html [Patrick]
 
 o Look into memory consumption of UDP scans with -p- and large
   hostgroups.  See if there is a way to prevent them from eating up gigs
@@ -128,6 +144,9 @@ o Improve the "run Zenmap as root" menu item to work on distributions
   an error message (and then, perhaps, run as nonroot) so that users
   of those distributions are more likely to contribute a fix.  We also
   might want to look at how the distributions themselves package Zenmap.
+
+o Consider enhancing the new OS submission system to handle version
+  detection too. [SOC task?]
 
 o Change Nmap signature files to use the .sig extension rather than
   .gpg.txt, as that seems to be what gpg recommends.  In fact, gpg
