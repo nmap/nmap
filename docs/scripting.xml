@@ -2034,7 +2034,7 @@ categories = {"discovery", "external"}
           <listitem>
             <para>
               Defines the <quote>class</quote> of the object being
-              modified: <literal>function</literal>,
+              documented: <literal>function</literal>,
               <literal>table</literal>, or <literal>module</literal>.
               Like <literal>@name</literal>, this is normally inferred
               automatically.
