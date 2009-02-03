@@ -1,6 +1,8 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Deal with GTK DLL problem with Nmap 4.85BETA1:
+o Deal with GTK DLL problem with Nmap 4.85BETA1: [Fyodor]
+  o David's installer seems to work--he's using a different GTK
+    distribution.  I'll try that.
   o Details on problem: http://seclists.org/nmap-dev/2009/q1/0207.html
   o Quick workaround done for 4.85BETA2, but better solution needed.
 
@@ -16,7 +18,6 @@ o Reported NSE crash:
     I eliminate that IP from the range it successfully completed the
     scan for all other devices."
 
-
 o Make Zenmap settings get upgraded when the Zenmap executable is
   upgraded. The per-user configuration files such as scan_profile.usp
   and zenmap.conf are never overwritten once installed by Zenmap, so
@@ -26,11 +27,6 @@ o Make Zenmap settings get upgraded when the Zenmap executable is
   may involve hard-coding settings that are not normally configured by
   users (like highlighting) or updating the per-user files at startup
   (only those parts that haven't been changed by the user).
-
-o Deal with new Python 2.6 Zenmap build warnings:
-  C:\Python26\lib\site-packages\py2exe\build_exe.py:16: DeprecationWarning: the sets module is deprecated
-  import sets
-  http://sourceforge.net/tracker/index.php?func=detail&aid=2314799&group_id=15583&atid=115583
 
 o Ncat: Get rid of sys_wrap stuff and use normal Nbase portability
   code. [Kris]
@@ -57,11 +53,6 @@ o Find way to document NSE library script arguments and perhaps have
   just standardize on something like we do with SMB library and the
   scripts which call it (http://nmap.org/nsedoc/modules/smb.html,
   http://nmap.org/nsedoc/scripts/smb-check-vulns.html). [David]
-
-o "SCRIPT ENGINE (250.600s): ./scripts/rpcinfo.nse against
-  a.b.c.d:<port> ended with error: ./nselib/datafiles.lua:114: attempt
-  to index global 'arg' (a nil value)"
-  -- http://seclists.org/nmap-dev/2009/q1/0227.html [Patrick]
 
 o Look into memory consumption of UDP scans with -p- and large
   hostgroups.  See if there is a way to prevent them from eating up gigs
@@ -98,6 +89,30 @@ o Start project to make Nmap a Featured Article on Wikipedia.
 o Add Nmap web board.
  
 o Create Nmap wiki
+
+o Consider rethinking Nmap's -s* syntax for specifing scan types
+  o Current problems with this -s syntax:
+    o We already use like 20 of the 26 letters, so we end up with
+      things like SCTP scan using -sY
+    o Can make Nmap command lines hard to read, particularly given
+      that we often need to improvise to find a letter which isn't
+      taken.
+    o Problemtatic for scan types -sI and -b which require arguments
+    o Inconsistencies.  For example, -sC and -sV do script scan and
+    version detection, respectively, and yet for OS detection we use
+    -sO.
+  o Possible solution:
+    o We might want to just give them normal option strings, so you
+      could do --maimon instead of -sM, for example.  For extremely
+      common options such as SYN scan, UDP scan, version detection, we
+      could perhaps find good single letter options as an alias to the
+      longer one.
+    o Another idea is to use something like --scantype syn,udp,sctp,
+      which is a lot longer for single-type scans, but shorter when
+      you're combining mulitiple ones.  Doesn't allow for individual
+      scan arguments easily.  I (Fyodor) think I prefer the idea above
+      of just givem them top level arguments.
+  o Obviously this will take some discussion/brainstorming on nmap-dev.
 
 o Look at Dario Ciccarone's email from 5/1/07 about IPID sequence
   issues, and consider adding IPID sequence test for closed-port-tcp as
@@ -145,7 +160,7 @@ o Improve the "run Zenmap as root" menu item to work on distributions
   of those distributions are more likely to contribute a fix.  We also
   might want to look at how the distributions themselves package Zenmap.
 
-o Consider enhancing the new OS submission system to handle version
+o Consider enhancing the new OS Assist system to handle version
   detection too. [SOC task?]
 
 o Change Nmap signature files to use the .sig extension rather than
@@ -166,6 +181,11 @@ o Consider adding the rtt value for each host, at least in verbose
 
 o NSE-INF: Would be great if NSE scripts could be made to NOT run as
   root.
+
+o Deal with new Python 2.6 Zenmap build warnings:
+  C:\Python26\lib\site-packages\py2exe\build_exe.py:16: DeprecationWarning: the sets module is deprecated
+  import sets
+  http://sourceforge.net/tracker/index.php?func=detail&aid=2314799&group_id=15583&atid=115583
 
 o Look a bit more at default version detection timing.
 
@@ -390,6 +410,11 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o "SCRIPT ENGINE (250.600s): ./scripts/rpcinfo.nse against
+  a.b.c.d:<port> ended with error: ./nselib/datafiles.lua:114: attempt
+  to index global 'arg' (a nil value)"
+  -- http://seclists.org/nmap-dev/2009/q1/0227.html [Patrick]
 
 o Consider making the TODO list public
   o Done: http://seclists.org/nmap-dev/2009/q1/0175.html
