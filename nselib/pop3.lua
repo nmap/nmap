@@ -143,14 +143,16 @@ end
 -- See RFC 2449.
 -- @param host Host to be queried.
 -- @param port Port to connect to.
--- @return Table containing capabilities.
+-- @return Table containing capabilities or nil on error.
+-- @return nil or String error message.
 function capabilities(host, port)
    local socket = nmap.new_socket()
    local capas = {}
-   if not socket:connect(host.ip, port.number) then return "no conn" end
-   
+   socket:set_timeout(10000)
+   if not socket:connect(host.ip, port.number) then return nil, "Could Not Connect" end
+
    status, line = socket:receive_lines(1)
-   if not stat(line) then return "no popconn" end
+   if not stat(line) then return nil, "No Response" end
    
    if string.find(line, "<[%p%w]+>") then capas.APOP = true end
    

@@ -24,8 +24,8 @@ require 'stdnse'
 portrule = shortport.port_or_service({110}, "pop3")
 
 action = function(host, port)
-  local capa = pop3.capabilities(host, port)
-  if capa then 
+  local capa, err = pop3.capabilities(host, port)
+  if type(capa) == "table" then
      -- Convert the capabilities table into an array of strings.
      local capstrings = {}
      local cap, args
@@ -43,6 +43,9 @@ action = function(host, port)
 	table.insert(capstrings, capstr)
      end
      return stdnse.strjoin(" ", capstrings)
+  elseif type(err) == "string" then
+     stdnse.print_debug(1, "%s: '%s' for %s", filename, err, host.ip)
+     return
   else
      return "server doesn't support CAPA"
   end
