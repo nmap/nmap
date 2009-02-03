@@ -8,8 +8,8 @@ I. ZENMAP BUILD DEPENDENCIES
 I've listed the build dependencies for Zenmap, the versions I am using, and
 where to get them:
 
-GTK-Dev (2.12.9) - http://gladewin32.sourceforge.net
-  o gtk-dev-2.12.9-win32-2.exe
+GTK+ All-in-one bundle (2.14.7)
+  o http://www.gtk.org/download-windows.html
 Python (2.6.1) - http://www.python.org/download
   o python-2.6.1.msi
 PyGTK (2.12.1-3) - http://ftp.gnome.org/pub/gnome/binaries/win32/pygtk
@@ -22,9 +22,14 @@ Py2exe (0.6.9) - http://www.sourceforge.net/projects/py2exe
   o py2exe-0.6.9.win32-py2.6.exe
 Be sure to grab the PyGTK, PyCairo, etc. for Python 2.6!
 
-Using the default install directories in these installers is important,
-especially for Python (C:\Python26) and GTK (C:\GTK).  See Section IV if you
-change the directories.
+The GTK all-in-one bundle is a zip file.  Unzip it into the directory
+c:\GTK.  The other components have installers-using the default
+install directories is important, especially for Python (C:\Python26)
+and GTK (C:\GTK).  See Section IV if you must change the directories.
+
+After installing GTK, creat C:\GTK\etc\gtk-2.0\gtkrc with the
+contents:
+gtk-theme-name = "MS-Windows"
 
 II. OTHER REQUIREMENTS
 
@@ -58,5 +63,4 @@ installed directory.
 
 If you have GTK installed to a different directory, follow the same directions
 as for Python, but edit the "set GTKDir" line.
-
 
