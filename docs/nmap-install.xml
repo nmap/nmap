@@ -793,8 +793,8 @@ changes discussed previously.</para></listitem>
 <listitem><para>Nmap requires the free WinPcap packet capture library.
 We build our own WinPcap installer which is available in the zip file
 as <filename>winpcap-nmap-<replaceable>version</replaceable>.exe</filename>,
-where <replaceable>version</replaceable> is the Nmap version rather
-than the WinPcap version.  Alternatively, you can obtain and install
+where <replaceable>version</replaceable> is the WinPcap version rather
+than the Nmap version.  Alternatively, you can obtain and install
 the latest version from <ulink url="http://www.winpcap.org" />.  You
 must install version 4.0 or later.</para></listitem>
 
