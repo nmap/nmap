@@ -269,9 +269,8 @@ match ftp m|^220 FTP Server - FileZilla\r\n| p/FileZilla ftpd/ o/Windows/
 match ftp m|^220-Welcome to ([A-Z]+) FTP Service\.\r\n220 All unauthorized access is logged\.\r\n| p/FileZilla ftpd/ h/$1/ o/Windows/
 match ftp m|^220.*\r\n220[- ]FileZilla Server version (\d[-.\w ]+)\r\n|s p/FileZilla ftpd/ v/$1/ o/Windows/
 match ftp m|^220-.*\r\n220-\r\n220 using FileZilla FileZilla Server version ([^\r\n]+)\r\n|s p/FileZilla ftpd/ v/$1/ o/Windows/
-# Netgear RP114 switch with integrated ftp server
-# Netgear RP114
-match ftp m|^220 ([-\w]+)? FTP version 1\.0 ready at | p/Netgear broadband router ftpd/ v/1.0/ d/router/
+# Netgear RP114 switch with integrated ftp server, also ZyXel P2302R VoIP
+match ftp m|^220 ([-\w]+)? FTP version 1\.0 ready at | p/Netgear broadband router or ZyXel VoIP adapter ftpd/ v/1.0/
 match ftp m|^220 ([-.\w]+) FTP server \(GNU inetutils (\d[-.\w ]+)\) ready\.\r\n| p/GNU Inetutils FTPd/ v/$2/ h/$1/
 match ftp m|^220 .* \(glftpd (\d[-.0-9a-zA-Z]+)_(\w+)(\+TLS)?\) ready\.\r\n| p/glFTPd/ v/$1/ i/$2/ o/Unix/
 match ftp m|^220 .* \(glFTPd (\d[-.0-9a-zA-Z]+)_(\w+) Linux\+TLS\) ready\.?\r\n| p/glFTPd/ v/$1/ i/$2/ o/Linux/
@@ -2117,7 +2116,7 @@ match telnet m|^\xff\xfb\x01\r\npassword: | p/Nortel Networks Instant Internet b
 # Network Appliance ONTAP 6.3.3 telnet
 match telnet m|^\xff\xfb\x01\xff\xfd\x18\xff\xfd#| p/Network Appliance Ontap telnetd/
 # Netgear RP114 broadband router
-match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\nPassword: | p/Netgear broadband router admin telnetd/ d/broadband router/
+match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\nPassword: | p/Netgear broadband router or ZyXel VoIP adapter telnetd/
 match telnet m|\xff\xfd\x18\xff\xfb\x01\x1b\[2J\x1b\[\?7l\x1b.*HP ([-.\w]+) ProCurve Switch ([-.\w]+)\r\n\rFirmware revision ([-.\w]+)\r\n\r\r| p/HP ProCurve Switch telnetd/ i/Model: $2; Firmware: $3/
 match telnet m|^Check Point FireWall-1 Client Authentication Server running on [-.\w]+\r\n\r\xff\xfb\x01\xff\xfe\x01\xff\xfb\x03User: | p/Check Point FireWall-1 Client Authenticaton Server/
 # Enterasys XP-8600 running E9.0.5.0
@@ -2884,9 +2883,10 @@ match http m|^HTTP/1\.1 401 Unauthorized\r\nConnection: close\r\nContent-Length:
 match http m|^HTTP/1\.1 501 Not Implemented\r\nCache-Control: no-cache, must-revalidate, max-age=0\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: \d+\r\nConnection: close\r\n\r\n<html><body><h1>Not Implemented</h1>Whatever the heck you just requested, I can't generate\.</body></html>| p/darkstat network analyzer httpd/ o/Unix/
 match http m|^\xff\xf0 400 Bad Request\r\n\r\n<HEAD><TITLE>400 Bad Request</TITLE></END>\r\n<BODY><H1>400 Bad Request</H1></BODY>| p/HP JetDirect printer embedded httpd/ d/printer/
 match http m|^HTTP/1\.0 400 Bad Request\r\n.*This is a WebSEAL error message template file\.|s p/Tivoli Access Manager WebSEAL httpd/
-# Keep this above the more general thttpd match below. -Doug
+# Keep this above the more general thttpd match lines below
 match http m|^UNKNOWN 400 Bad Request\r\nServer: thttpd\r\n.*<HTML>\n\t<HEAD><TITLE>Error</TITLE><LINK REL=\"stylesheet\" TYPE=\"text/css\" HREF=\"/std\.css\">.*Your request has bad syntax or is inherently impossible to satisfy|s p/Linksys NSLU2 http config/ i/embedded thttpd/ d/storage-misc/
 match http m|^UNKNOWN 400 Bad Request\r\nServer: thttpd/([\w.]+) \w+\r\n| p/thttpd/ v/$1/
+match http m|^UNKNOWN 400 Bad Request\r\nServer: \r\nContent-Type: text/html\r\n.*<H2>400 Bad Request</H2>\nYour request has bad syntax or is inherently impossible to satisfy\.\n|s p/thttpd/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: UnrealEngine UWeb Web Server Build (\d+)\r\n|s p/Unreal Tournament http admin/ v/Build $1/
 match http m|^HTTP/1\.0 405 Method Not Allowed\r\nAllow: GET, HEAD\r\n\r\n405 Method Not Allowed\r\n\r\n| p|D-Link printer/webcam http config|
 match http m|^HTTP/1\.0 400 Bad Request\r\nServer: WDaemon/([\d.]+)\r\n| p/World Client WDaemon httpd/ v/$1/ o/Windows/
@@ -2915,7 +2915,6 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nContent-Length: \d+\r\nContent-Type: text/h
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: ZNC ZNC ([\d.]+) - by prozac@rottenboy\.com\r\n| p/ZNC IRC bouncer http config/ v/$1/
 match http m|^HTTP/1\.0 -1 Internal Server Error\r\n\r\n| p/Panasonic webcam http config/ d/webcam/
 match http m|^HTTP/1\.1 401 Authorization Required\nServer: JBidWatcher/([\d.]+) \(Java\)\nWWW-Authenticate: Basic realm=\"JBidWatcher\"\n| p/JBidWatcher httpd/ i/Java/ v/$1/
-match http m|^UNKNOWN 400 Bad Request\r\nServer: \r\nContent-Type: text/html\r\n.*<H2>400 Bad Request</H2>\nYour request has bad syntax or is inherently impossible to satisfy\.\n|s p/Vonage http config/ d/VoIP adapter/
 match http m|^HTTP/1\.0 501 R\r\nContent-Type: text/html\r\n\r\nNot Implemented| p|D-Link router/Airlink NAS http config|
 match http m|^HTTP/1\.1 500 Internal server error\r\nContent-Length: 7\r\n\r\nBummah\.| p/Sendmail Mailstream Manager http config/
 match http m|^HTTP/1\.0 400 Bad Request\r\nServer: IngrianManagementConsole\r\n| p/Ingrian Management Console httpd/ d/security-misc/
@@ -2947,7 +2946,7 @@ match ident m|^0 , 0 : ERROR : UNKNOWN-ERROR\r\n$|
 match ident m|^0 , 0 : ERROR : INVALID-PORT\r\n$| p/FreeBSD identd/ o/FreeBSD/
 # pidentd-3.1a19-157
 match ident m|^ : ERROR : UNKNOWN-ERROR\r\n$| p/pidentd/
-match ident m|^0, 0 : ERROR : X-INVALID-REQUEST\r\n$| p/Minidentd/
+match ident m|^0, 0 : ERROR : X-INVALID-REQUEST\r\n$| p/Minidentd or fakeidentd/
 # http://packages.debian.org/unstable/net/ident2.html
 match ident m|^0 , 0 : ERROR : INVALID-PORT\r\n0 , 0 : ERROR : INVALID-PORT\r\n$| p/Ident2/
 # midentd 2.3.1 on Linux
@@ -3021,6 +3020,7 @@ match pop3 m|^\+OK POP3 server ready\r\n-ERR invalid command\r\n$| p/IBM OS 400 
 match pop3 m|^\+OK pop server ready\r\n$| p/MailGate pop3d/ o/Windows/
 match pop3 m|^\+OK POP3 server ready <[-\w]+>\r\n-ERR Invalid command\r\n$| p/SmarterMail pop3d/ o/Windows/
 match pop3 m|^\+OK POP3\r\n-ERR Invalid command in current state\.\r\n-ERR Invalid command in current state\.\r\n| p/hMailServer/ o/Windows/
+match pop3 m|^\+OK IMAPD ready\.\r\n-ERR Unknown command\.\r\n-ERR Unknown command\.\r\n| p/Dovecot pop3d/
 
 # Perdition
 match pop3-proxy m|^\+OK POP3 Ready ([-\w_.]+) \w+\r\n-ERR Null command, mate\r\n| p/Perdition pop3 proxy/ h/$1/
@@ -3101,7 +3101,7 @@ match telnet m|^\xff\xfe\"\xff\xfb\x01\xff\xfb\x03User : \r\n\r?SpeedTouch \(([-
 match telnet m|^\xff\xfe\x01\xff\xfd\x03\xff\xfd\x18\xff\xfd\x1f\xff\xfb\x03\xff\xfb\x01\r\nAccount Name: \r\nPassword: \r\nThis copy of the Ataman Telnetd Server is registered as licensed to:\r\n\t(.+)\r\n\r\nLogin failed: unknown user name, password or privilege incorrect\.\r\n| p/Ataman telnetd/ i/Registerd to $1/ o/Windows/
 match telnet m|^Password:\xff\xfb\x01\n\rTry again, you polio:\n\n\rTry again, you polio:\n| p/VLC Player telnetd/
 match telnet m=^\xff\xfb\x01\xff\xfb\x03\r\n\r\n\r\n +-+\r\n +\| Cyclades-PR4000: CyROS  V_([\d.]+)  \(.*\)     \|\r\n= p/Cyclades PR4000 router telnetd/ d/router/
-match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\nLogin: \r\n\r\nYou must supply a username\r\n\r\nLogin: \r\n\r\nYou must supply a username\r\n\r\nLogin: | p/Billion 741GE ADSL router telnetd/ d/router/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\nLogin: \r\n\r\nYou must supply a username\r\n\r\nLogin: \r\n\r\nYou must supply a username\r\n\r\nLogin: | p/Billion or D-Link aDSL router telnetd/ d/router/
 # Not sure if this is really a telnet service but many people reported it running on port23:
 match telnet m|^\xff\xfb\x01$| p/SMC SMC2870W Wireless Ethernet Bridge/ d/bridge/
 match telnet m|^\r\n\r\nThis is a FirstClass system, from Open Text Corporation\.\r\n\r\n\r\nFirstClass is an e-mail and conferencing system with a graphical user interface\.\r\n\r\n\r\nThe Command Line Interface is not available on this sy| p/FirstClass telnetd/ i/CLI disabled/
@@ -3137,6 +3137,7 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfb\x1fError2 negotiated with clien
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\nTOSHIBA Maintenance Shell\.   \n\rUser access verification\.\n\rlogin:| p/Toshiba print server telnetd/ d/print server/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\xff\xfb\x01\xff\xfb\x03\r\nLogin: \r\r\nPassword: \r\r\n\r\r\nLogin failed\r\r\n\r\r\nLogin: | p/Siemens SANTIS WAP telnetd/ d/WAP/
 match telnet m|^Password: \xff\xfb\x01\r\nWrong password\.\r\nPassword: \r\nWrong password\.\r\nPassword: | p/VLC media player telnetd/
+match telnet m|^\xff\xfb\x01\xff\xfd\x01\xff\xfe\x01\xff\xfd WxGoos-(\d+) v([\w-_.]+) | p/WxGoos-$1 Climate Monitor telnetd/ v/$2/ d/specialized/
 
 match transbase m|^\0\0\+\x04\0\0\0@TransBase Multiplexer error report:\nIllegal request| p/Transbase Database/
 
@@ -4693,7 +4694,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Allegro-Software-RomPager/([\d.]+)\
 match http m|^HTTP/1\.0 200 OK\r\nServer: SysMaster Web Server/([\d.]+)\r\nContent-Length: \d+\r\nConnection: close\r\nContent-type: text/html;\r\n\r\n<script>\nif\(document\.all\)\n\tlocation=\"app_ie\.htm\";\nelse\n\tlocation=\"app_mz\.htm\";\n</script>| p/Tornado M10 media center http config/ i/SysMaster httpd $1/ d/media device/
 match http m|^HTTP/1\.0 401 Authorization Required\r\nWWW-Authenticate: Basic realm=\"Linksys-CIT400\"\r\n| p/Linksys CIT400 VoIP phone http config/ d/VoIP phone/
 match http m|^HTTP/1\.0 200 OK\r\nAllow: GET, POST, OPTIONS\r\nServer: EDA HTTP LISTENER/([\d.]+)\r\n.*<form name=\"form\" action=\"webconsole\" method=\"POST\" >|s p/WebFOCUS httpd/ i/EDA httpd $1/
-match http m|^HTTP/1\.0 301 Moved Premanently\r\nLocation: https://[\d.]+/\r\nContent-type: text/html\r\n\r\n<html><head><title>Access Denied</title></head><body><h1>You must use SSL based http\(HTTPS\) server\.</h1></body></html>$| p/Netgear WG302v1 WAP http config/ d/WAP/
+match http m|^HTTP/1\.0 301 Moved Premanently\r\nLocation: https://[\d.]+/\r\nContent-type: text/html\r\n\r\n<html><head><title>Access Denied</title></head><body><h1>You must use SSL based http\(HTTPS\) server\.</h1></body></html>$| p/Netgear or Linksys WAP http config/ d/WAP/
 match http m|^HTTP/1\.0 200 OK\r\nServer: ARGUS/([\d.]+)\r\n.*\r\n<TITLE>Intel Wireless Gateway</TITLE>|s p/Intel Wireless Gateway http config/ d/WAP/ i/ARGUS httpd $1/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: \r\n.*WWW-Authenticate: Basic realm=\"Conceptronic C54APRA2\+\"\r\n\r\n|s p/Conceptronic C54APRA2+ WAP http config/ d/WAP/
 match http m|^HTTP/1\.0 401 Unauthorized\n.*\r\nWWW-Authenticate: Basic realm=\"AirStation\"\r\n|s p/Buffalo AirStation http config/ d/WAP/
