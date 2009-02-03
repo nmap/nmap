@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Revert the temporary GTK DLL workaround (r11899) which added
+  duplicate DLL files to the distribution.  David found that using a
+  different GTK download fixed the problem (see
+  docs/win32-installer-zenmap-buildguide.txt) and Fyodor was able to
+  reproduce and implement.
+
 o The conditions for printing OS fingerprints to XML output are now
   the same as are used to decide whether to print them in the other
   formats. So they will be printed if submission is desirable,
