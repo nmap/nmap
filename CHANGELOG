@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 4.85BETA3 [2009-2-2]
+
 o Revert the temporary GTK DLL workaround (r11899) which added
   duplicate DLL files to the distribution.  David found that using a
   different GTK download fixed the problem (see
@@ -12,19 +14,31 @@ o The conditions for printing OS fingerprints to XML output are now
   otherwise they are only printed if debuging is enabled or verbosity
   is 2 or higher. [Tom Sellers]
 
+o Removed some Brazilian poetry/lyrics from Zenmap source code
+  (NmapOutputViewer.py). We've seen enough of it in the debug logs. "E
+  nao se entrega, nao".
+
 o Fix Ncat compilation with the MingW windows compiler. [Gisle Vanem]
 
-o Upgraded the OpenSSL binaries shipped in our Windows installer to
-  version 0.9.8j. [Kris]
-
-o Updated IANA assignment IP list for random IP (-iR)
-  generation. [Kris]
+o Corrected some NSE libraries (datafiles, tab) which were using the
+  old arg table interface. [Patrick]
 
 o [Zenmap] Fixed a crash that happened when running a scan directly
   from the command wizard without saving a profile [David]:
     NmapParser.py", line 417, in set_target
       self.ops.target_specs = target.split()
     AttributeError: 'NoneType' object has no attribute 'split'
+
+o Fied an NSE pop3 library error which gave a message such as:
+  SCRIPT ENGINE (506.424s): ./scripts/pop3-capabilities.nse against
+  a.b.1.47:995 ended with error: ./scripts/pop3-capabilities.nse:32:
+  bad argument #1 to 'pairs' (table expected, got string) [Jah]
+
+o Upgraded the OpenSSL binaries shipped in our Windows installer to
+  version 0.9.8j. [Kris]
+
+o Updated IANA assignment IP list for random IP (-iR)
+  generation. [Kris]
 
 Nmap 4.85BETA2 [2009-1-29]
 
