@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Tweaked the file format of the topology icons
+  (firewall.png, padlock.png, etc.) in an attempt to improve
+  compatibility with some versions of GTK+. This may fix a crash like
+    File "radialnet/gui/Image.py", line 53, in get_pixbuf
+      self.__cache[icon + image_type] = gtk.gdk.pixbuf_new_from_file(file)
+    GError: Couldn't recognize the image file format for file 'radialnet/padlock.png'
+  Thanks to Trevor Bain for a report and help debugging [David].
+
 Nmap 4.85BETA3 [2009-2-2]
 
 o Revert the temporary GTK DLL workaround (r11899) which added
