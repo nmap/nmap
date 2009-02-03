@@ -777,7 +777,7 @@ system available from <ulink url="http://www.cygwin.com" />.  Here are the step-
 <listitem><para>Uncompress the zip file into the directory you want
 Nmap to reside in.  An example would be <filename>C:\Program
 Files</filename>.  A directory called
-<filename>nmap-version</filename> should be created, which includes
+<filename>nmap-<replaceable>version</replaceable></filename> should be created, which includes
 the Nmap executable and data files.  Microsoft Windows XP and Vista
 include zip extraction&mdash;just right-click on the file in
 <application>Explorer</application>.  If you do not have a Zip
