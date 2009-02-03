@@ -1,12 +1,12 @@
 .\"     Title: nmap
 .\"    Author: Gordon \(lqFyodor\(rq Lyon
 .\" Generator: DocBook XSL Stylesheets v1.74.0 <http://docbook.sf.net/>
-.\"      Date: 01/29/2009
+.\"      Date: 02/02/2009
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap First Edition
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "01/29/2009" "Nmap First Edition" "Nmap Reference Guide"
+.TH "NMAP" "1" "02/02/2009" "Nmap First Edition" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * (re)Define some macros
 .\" -----------------------------------------------------------------
@@ -277,7 +277,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .ps -1
 .nf
 .BB lightgray
-Nmap 4\&.85BETA2 ( http://nmap\&.org )
+Nmap 4\&.85BETA3 ( http://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -1746,7 +1746,7 @@ In addition to offering different output formats, Nmap provides options for cont
 .PP
 Nmap makes output available in five different formats\&. The default is called
 interactive output,.\" interactive output
-and it is sent to standard output (stdout)\&..\" stdout.\" standard output
+and it is sent to standard output (stdout)\&..\" standard output
 There is also
 normal output,.\" normal output
 which is similar to interactive except that it displays less runtime information and warnings since it is expected to be analyzed after the scan completes rather than interactively\&.
@@ -1774,7 +1774,7 @@ and fills standard output with the same interactive results it would have printe
 wasn\'t specified at all\&. You can change this by passing a hyphen character as the argument to one of the format types\&. This causes Nmap to deactivate interactive output, and instead print results in the format you specified to the standard output stream\&. So the command
 \fBnmap \-oX \- target\fR
 will send only XML output to stdout\&..\" output: to stdout with -
-Serious errors may still be printed to the normal error stream, stderr\&..\" standard error.\" stderr
+Serious errors may still be printed to the normal error stream, stderr\&..\" standard error
 .PP
 Unlike some Nmap arguments, the space between the logfile option flag (such as
 \fB\-oX\fR) and the filename or hyphen is mandatory\&. If you omit the flags and give arguments such as
