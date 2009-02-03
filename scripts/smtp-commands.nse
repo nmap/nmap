@@ -71,10 +71,11 @@ action = function(host, port)
 	
 	local try = nmap.new_try(catch)
 	
-	local attempt = try(socket:connect(host.ip, port.number, port.protocol))
+	local proto = (port.version and port.version.service_tunnel == "ssl" and "ssl") or port.protocol
+	local attempt = try(socket:connect(host.ip, port.number, proto))
 	if attempt then
 		if nmap.verbosity() >= 2 or nmap.debugging() >= 1 then -- only tell you it fails if you are debugging or verbose X 2
-			return "Problem connecting to " .. host.ip .. " on port " .. port.number .. " using protocol " .. port.protocol
+			return ("Problem connecting to %s on port %d using protocol %s%s"):format(host.ip, port.number, port.protocol, (proto == "ssl" and " (ssl)") or "")
 		else
 			return -- if you aren't debugging, just return with nothing
 		end
