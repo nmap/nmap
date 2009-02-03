@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] A better method of detecting the system locale is used, so
+  it should not be necessary to set the LANG environment variable on
+  Windows to get internationalized text. Thanks to Dirk Loss for the
+  suggestion. [David]
+
 o [Zenmap] Removed some unnecessary GTK+ files from the files
   installed by the Windows executable installer [David].
 
