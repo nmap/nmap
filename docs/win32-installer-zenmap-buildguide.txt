@@ -56,8 +56,8 @@ zip archive (nmap-<version>-setup.exe and nmap-<version>-win32.zip).
 IV. INSTALLATION PATHS / PROBLEMS
 
 
-If you have Python installed to a directory other than C:\Python25, then
-you need to edit the copy_and_compile.bat file under
+If you have Python installed to a directory other than the default mentioned
+above, then you need to edit the copy_and_compile.bat file under
 zenmap/install_scripts/windows and change the "set PythonEXE" line with your
 installed directory.
 
