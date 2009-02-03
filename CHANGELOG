@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Removed some unnecessary GTK+ files from the files
+  installed by the Windows executable installer [David].
+
 o [Zenmap] Tweaked the file format of the topology icons
   (firewall.png, padlock.png, etc.) in an attempt to improve
   compatibility with some versions of GTK+. This may fix a crash like
