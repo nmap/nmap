@@ -13,7 +13,7 @@ o [Zenmap] A better method of detecting the system locale is used, so
   suggestion. [David]
 
 o [Zenmap] Removed some unnecessary GTK+ files from the files
-  installed by the Windows executable installer [David].
+  installed by the Windows executable installer. [David]
 
 o [Zenmap] Tweaked the file format of the topology icons
   (firewall.png, padlock.png, etc.) in an attempt to improve
@@ -21,7 +21,7 @@ o [Zenmap] Tweaked the file format of the topology icons
     File "radialnet/gui/Image.py", line 53, in get_pixbuf
       self.__cache[icon + image_type] = gtk.gdk.pixbuf_new_from_file(file)
     GError: Couldn't recognize the image file format for file 'radialnet/padlock.png'
-  Thanks to Trevor Bain for a report and help debugging [David].
+  Thanks to Trevor Bain for a report and help debugging. [David]
 
 Nmap 4.85BETA3 [2009-2-2]
 
@@ -290,7 +290,7 @@ o Removed a code comment which simply declared /* WANKER ALERT! */ for
   no good reason. [Fyodor]
 
 o NSE prints messages in debugging mode whenever a script starts or
-  finishes [Patrick, David].
+  finishes. [Patrick, David]
 
 o [Ncat] The -l option can now be specified w/o a port number to
   listen on Ncat's default port number (31337).
@@ -422,7 +422,7 @@ o A crash caused by an incorrect test condition was fixed. It would
 
 o [Zenmap] The keyboard shortcut for "Save to Directory" has been
   changed from Ctrl+v to Ctrl+Alt+s so as not to conflict with the
-  usual paste shortcut [Jah, Michael].
+  usual paste shortcut. [Jah, Michael]
 
 o Nmap now quits if you give a "backwards" port or protocol range like
   -p 20-10. The issue was noted by Arturo "Buanzo" Busleiman. [David]
@@ -882,7 +882,7 @@ o Completion time estimates provided in verbose mode or when you hit a
 
 o Fixed a number of NSE scripts which used print_debug()
   incorrectly. See
-  http://seclists.org/nmap-dev/2008/q3/0470.html. [Sven Klemm].
+  http://seclists.org/nmap-dev/2008/q3/0470.html. [Sven Klemm]
 
 o [Zenmap] The Ports/Hosts view now provides full version detection
   values rather than just a simple summary. [Jurand Nogiec]
@@ -1575,7 +1575,7 @@ o Fix MingW compilation by adding a signal.h include to
 
 o Fix the test in our build system to determine if liblua is already
   available or not. For example, the test needed to link with -lm
-  since some systems require that.  [David].
+  since some systems require that. [David]
 
 o Added TIMEVAL_BEFORE and TIMEVAL_AFTER macros to test whether one
   timeval is earlier than another while avoiding possible integer
