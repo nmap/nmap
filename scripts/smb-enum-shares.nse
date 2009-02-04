@@ -161,7 +161,7 @@ function check_shares(host, shares)
 		share = share .. string.sub(set, random, random)
 	end
 
-	share = string.format("\\\\%s\\%s", host.ip, share)
+	share = string.format("%s", share)
 	stdnse.print_debug(2, "EnumShares: Trying a random share to see if server responds properly: %s", share)
 	status, err = smb.tree_connect(smbstate, share)
 	if(status == false) then
@@ -179,7 +179,7 @@ function check_shares(host, shares)
 	for i = 1, #shares, 1 do
 
 		-- Change the share to the '\\ip\share' format
-		local share = string.format("\\\\%s\\%s", host.ip, shares[i])
+		local share = string.format("%s", shares[i])
 
 		-- Try connecting to the tree
 		stdnse.print_debug(3, "EnumShares: Testing share %s", share)
@@ -192,8 +192,8 @@ function check_shares(host, shares)
 				denied_shares[#denied_shares + 1] = shares[i]
 			else
 				-- If we're here, an error that we weren't prepared for came up. 
-				smb.stop(smbstate)
-				return false, string.format("Error while checking shares: %s", err)
+--				smb.stop(smbstate)
+--				return false, string.format("Error while checking shares: %s", err)
 			end
 		else
 			-- Add it to allowed shares

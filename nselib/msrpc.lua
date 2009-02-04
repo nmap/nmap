@@ -1827,7 +1827,7 @@ function winreg_enumkey(smbstate, handle, index, name)
 --		[in,out,ref]    winreg_StringBuf *name,
 	-- NOTE: if the 'name' parameter here is set to 'nil', the service on a fully patched Windows 2000 system
 	-- may crash. 
-	arguments = arguments .. msrpctypes.marshall_winreg_StringBuf({name=name}, 520)
+	arguments = arguments .. msrpctypes.marshall_winreg_StringBuf({name=nil}, 520)
 
 --		[in,out,unique] winreg_StringBuf *keyclass,
 	arguments = arguments .. msrpctypes.marshall_winreg_StringBuf_ptr({name=nil})
