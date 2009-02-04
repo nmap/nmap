@@ -24,7 +24,7 @@
 #define FILES		 1
 #define DIRS		 2
 
-#define SCRIPT_ENGINE 			   "SCRIPT ENGINE"
+#define SCRIPT_ENGINE 			   "NSE"
 #define SCRIPT_ENGINE_LUA 		   "LUA INTERPRETER"
 #define SCRIPT_ENGINE_SUCCESS 		   0
 #define SCRIPT_ENGINE_ERROR	 	   2

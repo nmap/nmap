@@ -21,7 +21,7 @@
 #include <openssl/ssl.h>
 #endif
 
-#define SCRIPT_ENGINE			"SCRIPT ENGINE"
+#define SCRIPT_ENGINE			"NSE"
 #define NSOCK_WRAPPER			"NSOCK WRAPPER"
 #define NSOCK_WRAPPER_SUCCESS		0 
 #define NSOCK_WRAPPER_ERROR		2 
