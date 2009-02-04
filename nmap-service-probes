@@ -1241,7 +1241,7 @@ match pop3 m|^\+OK POP3 server ready <Jana-Server>\r\n| p/Jana POP3 server/ o/Wi
 match pop3 m|^\+OK AppleMailServer (\d[-.\w]+) POP3 server at ([-.\w]+) ready <\d| p/AppleMailServer pop3d/ h/$1/ v/$2/
 match pop3 m|\+OK <10\d+\.\d+@([-.\w]+)> \[XMail (\d[-.\w]+) \(([-./\w]+)\) POP3 Server\] service ready; | p/XMail pop3 server/ h/$1/ v/$2/ o/$3/
 # Mail-Enable pop3 server 1.704
-match pop3 m|^\+OK Welcome to MailEnable POP3 Server| p/MailEnable POP3 Server/
+match pop3 m|^\+OK Welcome to MailEnable POP3 Server| p/MailEnable POP3 Server/ o/Windows/
 match pop3 m|^\+OK ([-.\w]+) running Eudora Internet Mail Server (\d[-.\w]+) <.*>\r\n| p/Eudora Internet Mail Server pop3d/ h/$1/ v/$2/
 # Qpopper 4.0.3 on Linux
 # QPopper 4.0.4 FreeBSD
@@ -1285,6 +1285,7 @@ match pop3 m|^\+OK Le serveur POP3 Microsoft Exchange version ([\d.]+) est pr\xe
 match pop3 m|^\+OK Microsoft Exchange POP3 server verze ([\d.]+) je p\xf8ipraven\.\r\n| p/MS Exchange pop3d/ v/$1/ i/Czech/ o/Windows/
 match pop3 m|^\+OK Microsoft Exchange Server 2003 POP3 \xa6\xf8\xaaA\xbe\xb9\xaa\xa9\xa5\xbb ([\d.]+) \(([-\w_.]+)\) \xa5i\xa5H\xa8\xcf\xa5\xce\xa1C\r\n| p/MS Exchange 2003 pop3d/ v/$1/ i/Taiwanese?/ h/$2/ o/Windows/
 match pop3 m|^\+OK Servidor POP3 de Microsoft Exchange Server 2003 versi\xf3n ([\d.]+) \(([\w-_.]+)\) listo\.\r\n| p/MS Exchange 2003 pop3d/ v/$1/ i/Spanish/ h/$2/ o/Windows/
+match pop3 m|^\+OK Server POP3 di Microsoft Exchange Server 2003 versione ([\w-_.]+) \(([\w-_.]+)\) pronto\.\r\n| p/MS Exchange 2003 pop3d/ v/%1/ i/Italian/ h/$2/ o/Windows/
 
 match pop3 m|^\+OK Microsoft Exchange Server 2007 POP3 service ready\r\n| p/MS Exchange 2007 pop3d/ o/Windows/
 match pop3 m|^\+OK The Microsoft Exchange POP3 service is ready\.\r\n| p/MS Exchange 2007 pop3d/ o/Windows/
@@ -1602,7 +1603,8 @@ match smtp m|^220[ -]\]-:\^:-\[ ESMTP \]-:\^:-\[; .*\r\n| p/Merak Mail Server sm
 match smtp m|^220.*?MERCUR SMTP[\s-]Server \(v([^)]+)\) for ([-.\w ]+) ready at | p/LAN-ACES MERCUR smtp server/ v/$1/ o/$2/
 match smtp m|^220 ([-.+\w]+) MasqMail (\d[-.\w]+) ESMTP\r\n| p/MasqMail smtpd/ h/$1/ v/$2/
 # Barracuda Networks "Spam Firewall" embedded spam appliances
-match smtp m|^220 ([-.\w\d]+) ESMTP \([a-fA-F0-9]{32}\)\r\n| p/Barracuda Networks Spam Firewall/ i/spam filter smtpd/ h/$1/
+match smtp m|^220 ([-.\w\d]+) ESMTP \([a-fA-F0-9]{32}\)\r\n| p/Barracuda Networks Spam Firewall smtpd/ h/$1/
+match smtp m|^554 Service unavailable; Client host \[[\w-_.]+\] blocked using Barracuda Reputation;| p/Barracuda Networks Spam Firewall smtpd/ i/client blocked by Barracuda Reputation/
 # Cisco NetWorks ESMTP server IOS (tm) 5300 Software (C5300-IS-M) on Cisco 5300 Access Server
 match smtp m|^220 ([-.+\w]+) Cisco NetWorks ESMTP server\r\n| p/Cisco IOS NetWorks smtp server/ h/$1/ d/terminal server/ o/IOS/
 match smtp m|^220 ([-.+\w]+) Mercury/32 v(\d[-.\w]+) ESMTP server ready\.\r\n| p|Mercury/32 smtpd| h|$1| v|$2| o|Windows|
@@ -1655,12 +1657,13 @@ match smtp m/^220[- ].*\r\n220[- ]([^\r\n]+) ESMTP Exim /s p/Exim smtpd/ h/$1/
 match smtp m/^220 CheckPoint FireWall-1 secure ESMTP server\r\n$/ p/Checkpoint FireWall-1 smtpd/ d/firewall/
 match smtp m/^220 CheckPoint FireWall-1 secure SMTP server\r\n$/ p/Checkpoint FireWall-1 smtpd/ d/firewall/
 match smtp m|^220 ([-.+\w]+) running IBM AS/400 SMTP V([\w]+)| p|IBM AS/400 smtpd| h|$1| v|$2|
-match smtp m|^220 ([-.+\w]+) ESMTP MailEnable Service, Version: (\d[.\w]+)- ready at | p/MailEnable smptd/ h/$1/ v/$2/
-match smtp m/^220 ([-.+\w]+) ESMTP Mail Enable SMTP Service, Version: (\d[\w.]+)-- ready at/ p/MailEnable smptd/ h/$1/ v/$2/
+match smtp m|^220 ([-.+\w]+) ESMTP MailEnable Service, Version: (\d[.\w]+)- ready at | p/MailEnable smptd/ h/$1/ v/$2/ o/Windows/
+match smtp m/^220 ([-.+\w]+) ESMTP Mail Enable SMTP Service, Version: (\d[\w.]+)-- ready at/ p/MailEnable smptd/ h/$1/ v/$2/ o/Windows/
 # Enterprise version number seems to be preceeded by "0--"; Professional with "0-"
-match smtp m|^220 ([-.+\w]+) ESMTP MailEnable Service, Version: \d+--([\d.]+) ready at| p/MailEnable Enterprise smptd/ h/$1/ v/$2/
-match smtp m|^220 ([-.+\w]+) ESMTP MailEnable Service, Version: -(\d[\w.]+)- ready at| p/MailEnable smptd/ h/$1/ v/$2/
-match smtp m|^530 ([-.+\w]+) ESMTP MailEnable Service, Version: ([-\w_.]+) denied access at| p/MailEnable smptd/ h/$1/ v/$2/ i/Denied access/
+match smtp m|^220 ([-.+\w]+) ESMTP MailEnable Service, Version: \d+--([\d.]+) ready at| p/MailEnable Enterprise smptd/ h/$1/ v/$2/ o/Windows/
+# Catch-alls. Hyphens aren't making sense -Doug
+match smtp m|^220 ([-.+\w]+) ESMTP MailEnable Service, Version: ([\w-_.]+) ready at| p/MailEnable smptd/ h/$1/ v/$2/ o/Windows/
+match smtp m|^530 ([-.+\w]+) ESMTP MailEnable Service, Version: ([\w-_.]+) denied access at| p/MailEnable smptd/ h/$1/ v/$2/ i/Denied access/ o/Windows/
 match smtp m/^220 ([-.+\w]+) ESMTP CPMTA-([-.+\w]+) - NO UCE\r\n/ p/CPMTA/ h/$1/ v/$2/ i/qmail-derived/
 match smtp m|^220 ([-.+\w]+) SMTP/smap Ready\.\r\n| p/Smap/ i/from firewall toolkit/ h/$1/
 match smtp m|^220 ([-.+\w]+) ESMTP service \(Netscape Messaging Server ([-.+ \w]+) \(built| p/Netscape Messaging Server/ h/$1/ v/$2/
@@ -1674,7 +1677,6 @@ match smtp m|^220 \S+ \S+ ESMTP receiver fssmtpd(\d+) ready| p/fssmtpd/ v/$1/
 match smtp m/Failed to open configuration file.*exim/ p/Exim smtpd/ i/broken/
 match smtp m/^220 Trend Micro ESMTP ([-.+\w]+) ready\.\r\n$/ p/Trend Micro ESMTP/ v/$1/
 match smtp m|^220 Matrix SMTP Mail Server v([\w.]+) on <MATRIX_([\w]+)> Simple Mail Transfer Service Ready\r\n| p/Matrix SMTP Mail Server/ v/$1/ i/on Matrix $2/
-
 match smtp m|^220(\S+) WebShield SMTP V(\d\S.*?) Network Associates, Inc\. Ready at| p/Network Associates WebShield/ h/$1/ v/$2/
 match smtp m|^220(\S+) WebShielde(\w+)/SMTP Ready.| p/WebShielde$2 smtpd/ h/$1/
 match smtp m|^220 ([-.+\w]+) ESMTP MailMasher ready to boogie\r\n| p/MailMasher smtpd/ h/$1/
@@ -1704,6 +1706,7 @@ match smtp m|^220 ([-.\w]+) Lotus SMTP MTA Service Ready\r\n$| p/Lotus Notes SMT
 match smtp m|^220 ([-.\w]+) WebSTAR Mail Simple Mail Transfer Service Ready\r\n| p/WebSTAR SMTP server/ h/$1/
 match smtp m|^220 ([-.\w]+) SMTP NAVGW (\d[-.\w]+);| p/Norton Antivirus Gateway NAVGW/ h/$1/ v/$2/
 match smtp m|^220 ([-.\w]+) Kerio MailServer (\d[-.\w]+) ESMTP ready\r\n| p/Kerio MailServer/ h/$1/ v/$2/
+match smtp m|^220 ([-.\w]+) Kerio MailServer (\d[-.\w]+ patch \d+) ESMTP ready\r\n| p/Kerio MailServer/ h/$1/ v/$2/
 match smtp m|^220 YSmtp(\S+) ESMTP service ready| p/Yahoo! smtpd/ h/$1/
 match smtp m|^220 (\S+) GMX Mailservices ESMTP| p/GMX smtpd/ h/$1/
 match smtp m|^220 (\S+) ESMTP MailMax (\d[-.\w\d]+)| p/MailMax smtpd/ h/$1/ v/$2/
@@ -1716,6 +1719,7 @@ match smtp m|^220 Postini E?SMTP (\d+) [\w\d_\+-]+ ready| p/Postini smtpd/ v/$1/
 match smtp m|^220 ([\w\d-]+)\.hotmail\.com Sending unsolicited commercial| p/Hotmail smtpd/ h/$1/
 match smtp m|^220[-\s](\S+) \(IntraStore TurboSendmail\) E?SMTP Service ready| p/TurboSendmail smtpd/ h/$1/
 match smtp m|^220[-\s](\S+) E?SMTP Mirapoint (\d[^\;]+);| p/Mirapoint smtpd/ h/$1/ v/$2/
+match smtp m|^220 ([\w-_.]+) ESMTP Mirapoint Messaging Server MOS ([^;\r\n]+)[;\r\n]| p/Mirapoint Messaging Server MOS smtpd/ h/$1/ v/$2/
 match smtp m|^220[-\s](\S+) Trend Micro InterScan Messaging Security Suite, Version: (\d\S+) ready| p/Trend Micro InterScan smtpd/ h/$1/ v/$2/
 match smtp m|^220[-\s](\S+).*?Server ESMTP \(iPlanet Messaging Server (\d[^\(\)]+)| p/Sun iPlanet smtpd/ h/$1/ v/$2/
 match smtp m|^220[-\s](\S+) running Eudora Internet Mail Server (\d\S+)| p/Eudora smtpd/ h/$1/ v/$2/ o/Windows/
@@ -1734,8 +1738,9 @@ match smtp m|^220 (\S+) F-Secure Anti-Virus for Internet Mail ready| p/F-Secure 
 match smtp m|^220 (\S+) Welcome to SpamFilter for ISP SMTP Server v(\d\S+)| p/LogSat SMTP Proxy/ h/$1/ v/$2/
 match smtp m|^220-TrendMicro IMSS SMTP proxy\r\n| p/TrendMicro SMTP Proxy/
 match smtp m|^220 ?(\S+) ESMTP server \(InterMail v(\S+)| p/InterMail smtpd/ h/$1/ v/$2/
-match smtp m|^220 ([-\w_.]+) -- Server ESMTP \(Sun Java System Messaging Server ([\d.]+) \(built .*\)\)\r\n| p/SUN JSMS smtpd/ v/$2/ h/$1/
-match smtp m|^220 (\S+) -- Server ESMTP \(Sun Java System Messaging Server (\d[^\(\)]+)| p/SUN JSMS smtpd/ h/$1/ v/$2/
+match smtp m|^220 ([-\w_.]+) -- Server ESMTP \(Sun Java\(tm\) System Messaging Server ([\w-_.]+) \(built .*; (\d+)bit\)| p/Sun JSMS smtpd/ v/$2/ h/$1/ i/$3 bits/
+match smtp m|^220 ([-\w_.]+) -- Server ESMTP \(Sun Java System Messaging Server ([\d.]+) \(built .*\)\)\r\n| p/Sun JSMS smtpd/ v/$2/ h/$1/
+match smtp m|^220 (\S+) -- Server ESMTP \(Sun Java System Messaging Server (\d[^\(\)]+)| p/Sun JSMS smtpd/ h/$1/ v/$2/
 match smtp m|^220 jMailer SMTP Server\r\n$| p/jMailer smtpd/
 match smtp m/^220[- ][^ ]+ Smail-([^ ]+) .*ESMTP/s p/Smail-ESMTP/ v/$1/
 match smtp m/^220[- ][^ ]+ Smail-([^ ]+) / p/Smail/ v/$1/
@@ -1748,6 +1753,7 @@ match smtp m|^220 ([-\w_.]+) Mailmax version ([\d. ]+) ESMTP Mail Server Ready \
 match smtp m|^220 ([-\w_.]+) running IBM MVS SMTP CS V2R10 on .*\r\n| p/IBM MVS smtpd/ h/$1/ o/MVS/
 match smtp m|^220 [-\w_]+ ESMTP ([-\w_.]+) \(Debian/GNU\)\r\n| p/Postfix smtpd/ h/$1/ o/Linux/ i/Debian/
 match smtp m|^220 ESMTP \(Debian/GNU Mewwwwwww\)\r\n| p/Postfix smtpd/ o/Linux/ i/Debian/
+match smtp m|^220 ([\w-_.]+) [\w-_.]+ ESMTP Postfix \(Debian/GNU\)| p/Postfix smtpd/ o/Linux/ i/Debian/
 match smtp m|^220 ([-\w_.]+) ESMTP postfix NO UCE\r\n| p/Postfix smtpd/ h/$1/ i/whoson patch/
 match smtp m|^220 ([-\w_.]+) SMTPD Server - Postfix\r\n| p/Postfix smtpd/ h/$1/
 match smtp m|^220 ([-\w_.]+) ESMTP PostFix ([\d.]+)\r\n| p/Postfix smtpd/ h/$1/ v/$2/
@@ -1774,7 +1780,7 @@ match smtp m|^220 ([-\w_.]+) ESMTP MDaemon ([\d.]+) UNREGISTERED; .*\r\n| p/MDae
 match smtp m|^220[ -]([-\w_.]+) ESMTP MSA MDaemon ([\d.]+);| p/MDaemon smtpd/ i/MSA support/ v/$2/ h/$1/ o/Windows/
 match smtp m|^421 Sorry, SMTP server too busy right now \(193\); try again later\r\n| p/MDaemon smtpd/ i/Server too busy error/ o/Windows/
 match smtp m|^220 ([-\w_.]+) ESMTP HT Mail Server v([\d.]+); .*\r\n| p/Icewarp smtpd/ v/$2/ h/$1/
-match smtp m|^220 ([-\w_.]+) ESMTP IceWarp ([\d.]+);| p/Icewarp smtpd/ v/$2/ h/$1/
+match smtp m|^220 ([-\w_.]+) ESMTP IceWarp ([\d.]+)[; ]| p/Icewarp smtpd/ v/$2/ h/$1/
 match smtp m|^220 ([-\w_.]+) ESMTP Gruponet IE2020 ([\d./]+);\r\n| p/Gruponet mail appliance smtpd/ v/$2/ h/$1/ d/specialized/
 match smtp m|^220 ([-\w_.]+) mailfront ESMTP\r\n| p/mailfront smtpd/ h/$1/
 match smtp m|^220 ([-\w_.]+) SMTP Server SLmail ([\d.]+) Ready ESMTP spoken here\r\n| p/SLmail smtpd/ v/$2/ h/$1/ o/Windows/
@@ -1826,7 +1832,7 @@ match smtp m|^421 unable to read controls \(#4\.3\.0\)\r\n| p/Qmail smtpd/ i/qma
 match smtp m|^220 ([-\w_.]+) Miralix SMSGwSMTP Ready\r\n| p/Miralix SMTP2SMS Gateway/ h/$1/ o/Windows/
 match smtp m|^554 Please check your SMTP server is set to [-\w_.]+\.co\.uk\. Further help is available at| i/Wanadoo blocks smtp - NOT A REAL smtpd!/
 match smtp m|^554 Please check that your outgoing mail server settings are correct\. Contact your service provider's technical support for assistance\.\n| i/Wanadoo blocks smtp - NOT A REAL smtpd!/
-match smtp m|^220 ([-\w_.]+) V([-\d_.]+), OpenVMS V([\d.]+) Alpha ready at .* \r\n| p/OpenVMS smtpd/ v/$2/ h/$1/ i/OpenVMS $3/ o/OpenVMS/
+match smtp m|^220 ([-\w_.]+) V([\w-_.]+), OpenVMS V([\w-_.]+) Alpha ready at .* \r\n| p/OpenVMS smtpd/ v/$2/ h/$1/ i/OpenVMS $3; Alpha/ o/OpenVMS/
 match smtp m|^220 rblsmtpd\.local\r\n| p/rblsmtpd wrapped smtpd/ i/Connecting from banned IP/
 match smtp m|^rblsmtpd: [\d.]+ pid \d+:.*220 rblsmtpd\.local\r\n|s p/rblsmtpd wrapped smtpd/ i/Connecting from banned IP/
 match smtp m|^220 Welcome to the Advanced SMTP Server\r\n| p/SoftStack Advanced smtpd/ o/Windows/
@@ -1834,7 +1840,7 @@ match smtp m|^220  SurgeSMTP \(Version ([-\w_.]+)\) http://surgemail\.com\r\n| p
 match smtp m|^220 HMailServer ESMTP\r\n| p/HMailServer smtpd/ o/Windows/
 match smtp m|^220 SMTP-Server The Croatian Classic Hamster Ver\. [\d.]+ \(Podverzija ([\d.]+)\)\r\n| p/Classic Hamster smtpd/ v/$1/ i/Croatian/
 match smtp m|^220 I, CALLPILOT\[[\d.]+\], speak ESMTP\.  Talk to me\.\r\n| p/Nortel CallPilot imapd/ d/telecom-misc/
-match smtp m|^220 ([-\w_.]+) Welcome to RaidenMAILD SMTP service v([\d.]+),| p/RaidenMAILD smtpd/ v/$2/ h/$1/ o/Windows/
+match smtp m|^220 ([-\w_.]+) Welcome to RaidenMAILD E?SMTP service v([\d.]+),| p/RaidenMAILD smtpd/ v/$2/ h/$1/ o/Windows/
 match smtp m|^220 ESMTP [^ ]+ CMailServer ([\d.]+) SMTP Service Ready\r\n| p/Youngzsoft CMailServer smtpd/ v/$1/ o/Windows/
 match smtp m|^220 ESMTP on WinWebMail \[([\d.]+)\] ready\.  http://www\.winwebmail| p/WinWebMail smtpd/ v/$1/ o/Windows/
 match smtp m|^220-W E L C O M E   T O   Q U A R K M A I L   S M T P   S E R V I C E !\r\n220 ([-\w_.]+) ESMTP server \(quarkmail server - version ([\d.]+)\) ready| p/Quarkmail smtpd/ v/$2/ h/$1/
@@ -1862,14 +1868,15 @@ match smtp m|^220 ([\w-_.]+) ESMTP AnNyungSMTP ([\w-_.]+);| p/AnNyung smtpd/ h/$
 match smtp m|^220 DP-1820E\r\n| p/Panasonic DP-1820E printer smtpd/ d/printer/
 match smtp m|^220 ([\w-_.]+) -- Server ESMTP \(PMDF V([\d.]+)-| p/PMDF smtpd/ o/OpenVMS/ h/$1/ v/$2/
 match smtp m|^220 ([\w-_.]+) ESMTP SecurityGateway ([0-9]+.[0-9]+.[0-9]+)| p/ALT-N SecurityGateway smtpd/ h/$1/ v/$2/
-match smtp m|^220 ([\w-_.]+) VHCS2 [\w-_.]+ Rhea Managed ESMTP ([\w-_.]+)\r\n| p/Virtual Hosting Control System smtpd/ v/$1/
+match smtp m|^220 ([\w-_.]+) VHCS2 [\w-_.]+ (\w+) Managed ESMTP ([\w-_.]+)\r\n| p/Postfix smtpd/ i/Virtual Hosting Control System $3 $2/ h/$1/
+match smtp m|^220 ([\w-_.]+) ESMTP ispCP (.*) OMEGA Managed\r\n| p/Postfix smtpd/ i/ispCP OMEGA $2/ h/$1/
 # embyte
 match smtp m|^220.*Simple Mail Transfer Service Ready\. Version ([\d.]+)| p/Goodtech smtpd/ v/$1/
 match smtp m|^220.*SMTP Welcome to the IA eMailServer Corporate Edition Version: ([\d.]+ Build: [\d]+)| p/IA eMailServer Corporate/ v/$1/
 match smtp m|^220.*SMTP Welcome to the IA eMailServer Standard Edition Version: ([\d.]+ Build: [\d]+)| p/IA eMailServer Standard/ v/$1/
-
-# Giving problems: added a better match line to the Help probe -Doug
-#match smtp m|^220 ([-\w_.]+) ESMTP ([^;]+); [A-Z][a-z][a-z], .*\r\n| p/Merak Mail Server smtpd/ h/$1/ o/Windows/
+match smtp m|^220 ([\w-_.]+) bizsmtp ESMTP server ready\r\n| p/Bizanga bizsmtp smtpd/ h/$1/
+match smtp m|^220 ([\w-_.]+) ESMTP NetBox\(tm\)\r\n| p/NetBox smtpd/ h/$1/
+match smtp m|^220 ([\w-_.]+) StrongMail SMTP Service Version: (\S+) ready| p/StrongMail smtpd/ v/$2/ h/$1/
 
 match smtp-proxy m|^220 ([-\w_.]+) SMTP/DeleGate/([\d.]+) ready at .*\r\n| p/DeleGate smtpd/ v/$2/ h/$1/
 match smtp-proxy m|^220 ([-/.+\w]+) SMTP AnalogX Proxy (\d[-.\w]+) \(Release\) ready\r\n| p/AnalogX SMTP proxy/ h/$1/ v/$2/
@@ -1885,7 +1892,7 @@ match smtp-proxy m|^220 AVG ESMTP Proxy Server Beta - ([\d./]+) \[[\d.]+\]\r\n| 
 match smtp-proxy m|^220 AVG ESMTP Proxy Server ([\d./]+) \[[\d./]+\]\r\n| p/GriSoft anti-virus smtp proxy/ v/$1/ o/Windows/
 match smtp-proxy m|^554 ([\d.]+) ([-\w_.]+) No mail service\r\n| p/Symantec SGS smtp proxy/ v/$1/ h/$2/
 match smtp-proxy m|^220 ([-\w_.]+) ESMTP Scalix SMTP Relay ([\d.]+); .*\r\n| p/Scalix smtp relay/ v/$2/ h/$1/
-match smtp-proxy m|^220 Traffic Inspector SMTP Gate \(SPAM protected\), ver\. ([\d.]+), ready at.*\r\n| p/Smart-Soft spam filtering smtp-proxy/ v/$1/ o/Windows/
+match smtp-proxy m|^220 Traffic Inspector SMTP Gate \(SPAM protected\), ver\. ([\w-_.]+), ready at.*\r\n| p/Smart-Soft spam filtering smtp-proxy/ v/$1/ o/Windows/
 match smtp-proxy m|^220 mailwall SMTP Server \(Ikarus MailWall by David Grabenweger\) ready\r\n| p/Ikarus MailWall smtp-proxy/
 match smtp-proxy m|^220 ([-\w_.]+) ESMTP - eXpurgate ([\d.]+) \(| p/eXpurgate smtp proxy/ v/$2/ h/$1/
 match smtp-proxy m|^220 CCProxy ([\d.]+) SMTP Service Ready\(Unregistered\)\r\n| p/CCProxy smtp proxy/ v/$1/ i/Unregistered/ o/Windows/
@@ -1901,6 +1908,8 @@ match smtp-proxy m|^220 [-\w_.]+ avast! SMTP proxy ready\.\r\n| p/Avast! anti-vi
 match smtp-proxy m|^220 UserGate: SMTP service ready\r\n| p/UserGate smtp proxy/ o/Windows/
 match smtp-proxy m|^220 ([\w-_.]+) WebShielde1000/SMTP Ready\.\r\n| p/McAfee WebShield e1000 smtp proxy/ v/$1/ d/security-misc/
 match smtp-proxy m|^220 ([-\w_.]+) SCM3300/SMTP Ready\.\r\n| p/McAfee SCM3300 smtp proxy/ d/security-misc/ h/$1/
+match smtp-proxy m|^220 ([\w-_.]+) Welcome to SpamFilterISP SMTP Server v([\w-_.]+) - Unlicensed Evaluation Copy\r\n| p/SpamFilterISP smtp proxy/ h/$1/ v/$2/ i/evaluation copy/
+match smtp-proxy m|^220 arkoon Sendmail ready\. \r\n| p/Arkoon smtp proxy/
 
 match fw1-topology m|^[QY]\0\0\0$| p/Checkpoint FW1 Topology/ d/firewall/
 
@@ -2864,6 +2873,7 @@ match ftp m|^220 ICS FTP Server ready\r\n500 '\r': command not understood\.\r\n5
 match ftp m|^220 Welcome to pyftpd\. Happy downloading\.\r\n500 I'm gonna ignore this command\.\.\. maybe later\.\.\.\r\n| p/pyftpd/
 match ftp m|^220 Ready\r\n502 Not implemented\r\n$| p/Global Cache GC-100 ftpd/ d/media device/
 match ftp m|^220 FTP server ready\.\r\n530 Please login with USER and PASS\.\r\n$| p|TRENDnet/Hawking webcam ftpd| d/webcam/
+match ftp m|^220 ([\w-_.]+) server ready\.\r\n502 command  not implemented\.\r\n502 command  not implemented\.\r\n| p/Konica Minolta Bizhub printer smtpd/ d/printer/ h/$1/
 
 match flashconnect m|^FlashCONNECT ([\d.]+) invalid message\.\n$| p/Raining Data FlashCONNECT/ v/$1/
 
@@ -5832,6 +5842,11 @@ match smtp m|^220 ESMTP service ready\r\n250\x20ok\r\n| p/Rustock smtp backdoor/
 match smtp m|^220 Hello [A-Z][a-z]{2}, .*\r\n501 Command \"EHLO\" requires an argument\r\n| p/Lotus Notes smtpd/
 match smtp m|^220 ([-\w_.]+) ESMTP\r\n250-[-\w_.]+\r\n250-AUTH LOGIN CRAM-MD5 PLAIN\r\n250-AUTH=LOGIN CRAM-MD5 PLAIN\r\n250-PIPELINING\r\n250 8BITMIME\r\n| p/Access Remote PC smtpd/ o/Windows/ h/$1/
 match smtp m|^220 \[[\w-_.]+\] FTGate Server Ready\r\n250-([\w-_.]+)\r\n| p/Floosietek FTGate smtpd/ o/Windows/ h/$1/
+# NetWare GroupWise Internet Agent 7 SP3 beta
+match smtp m|^220 ([\w-_.]+) Ready\r\n250-.*\r\n250-AUTH LOGIN\r\n250-8BITMIME\r\n250-SIZE\r\n250 DSN\r\n| p/Novell NetWare GroupWise Internet Agent smtpd/ h/$1/ o/NetWare/
+match smtp m|^220 \[[\w-_.]+\] ESMTP Ready\r\n501 HELO requires domain address\r\n| p/Canon ImageRunner C5185 smtpd/ d/printer/
+match smtp m|^220 .* SMTP ready at .*\r\n501 Command \"EHLO\" requires an argument\r\n| p/Lotus Domino smtpd/
+match smtp m|^220 ([\w-_.]+)\r\n250-[\w-_.]+ Axigen ESMTP hello\r\n| p/Axigen smtpd/ h/$1/ o/Unix/
 
 match smtp-proxy m|^220 ([-\w_.]+) .*\r\n250-[-\w_.]+ supports the following ESMTP extensions:\r\n250-SIZE \d+\r\n250-DSN\r\n250-8bitmime\r\n250 OK\r\n| p/Trend Micro IMSS smtp proxy/ h/$1/
 
@@ -6039,6 +6054,7 @@ match smtp m|^220 \[[-\w_.]+\] Courier Mail Server ([-\w_.]+) ESMTP service read
 match smtp m|^220 ([-\w_.]+) ESMTP\r\n214-This is qpsmtpd \r\n214-See http://smtpd\.develooper\.com/\r\n| p/qpsmtpd smtpd/ h/$1/
 match smtp m|^220 ([-\w_.]+) ESMTP Generic Ready\r\n502 Command not implemented\.\r\n| p/MailMarshal smtpd/ h/$1/
 match smtp m|^220 ([-\w_.]+) ESMTP SubEthaSMTP\r\n214-This is the SubEthaSMTP ([\w-_.]+) server| p/SubEtha smtpd/ h/$1/ v/$2/
+match smtp m|^220 ([\w-_.]+) ESMTP.*information about Email Mx, please see http://www\.openwave\.com\r\n|s p/Openwave Email Mx smtpd/ h/$1/
 
 match smtp-proxy m|^220 SMTP service ready\r\n214-Commands:\r\n214-\tDATA\tRCPT\tMAIL\tQUIT\tRSET\r\n214 \tHELO\tVRFY\tEXPN\tHELP\tNOOP\r\n| p/WatchGuard smtp proxy/ d/firewall/
 match smtp-proxy m|^220 ready\r\n214-Commands:\r\n214-    HELO    MAIL    RCPT    DATA\r\n214-    RSET    NOOP    QUIT    HELP\r\n214-    VRFY    EXPN\r\n214-For more info use HELP <topic>\r\n214 End of HELP info\r\n| p/602LAN Suite smtpd/ o/Windows/
