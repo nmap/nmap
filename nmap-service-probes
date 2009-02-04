@@ -269,7 +269,7 @@ match ftp m|^220 FTP Server - FileZilla\r\n| p/FileZilla ftpd/ o/Windows/
 match ftp m|^220-Welcome to ([A-Z]+) FTP Service\.\r\n220 All unauthorized access is logged\.\r\n| p/FileZilla ftpd/ h/$1/ o/Windows/
 match ftp m|^220.*\r\n220[- ]FileZilla Server version (\d[-.\w ]+)\r\n|s p/FileZilla ftpd/ v/$1/ o/Windows/
 match ftp m|^220-.*\r\n220-\r\n220 using FileZilla FileZilla Server version ([^\r\n]+)\r\n|s p/FileZilla ftpd/ v/$1/ o/Windows/
-# Netgear RP114 switch with integrated ftp server, also ZyXel P2302R VoIP
+# Netgear RP114 switch with integrated ftp server or ZyXel P2302R VoIP
 match ftp m|^220 ([-\w]+)? FTP version 1\.0 ready at | p/Netgear broadband router or ZyXel VoIP adapter ftpd/ v/1.0/
 match ftp m|^220 ([-.\w]+) FTP server \(GNU inetutils (\d[-.\w ]+)\) ready\.\r\n| p/GNU Inetutils FTPd/ v/$2/ h/$1/
 match ftp m|^220 .* \(glftpd (\d[-.0-9a-zA-Z]+)_(\w+)(\+TLS)?\) ready\.\r\n| p/glFTPd/ v/$1/ i/$2/ o/Unix/
@@ -288,8 +288,8 @@ match ftp m|^220-Welcome to Cerberus FTP Server\r\n220 Created by Grant Averett\
 match ftp m|^421-Not currently accepting logins at this address\. Try back \r\n421 later\.\r\n| p/Cerberus ftpd/ o/Windows/ i/banned/
 match ftp m|^220 FTP print service:V-(\d[-.\w]+)/Use the network password for the ID if updating\.\r\n| p|Brother/HP printer ftpd| v/$1/ d/printer/
 match ftp m|^220- APC FTP server ready\.\r\n220 \r\n$| p/APC ftp server/ d/power-device/
-match ftp m|^220 ([-\w]+) FTP server \(Version (\d.[.\d]+) ([A-Z][a-z]{2} [A-Z][a-z]{2} [0-9]+ [0-9:]+ .* [21][0-9]+)\) ready\.\r\n| p/HP-UX 10.x ftpd/ h/$1/ v/$2/ o/HP-UX/ i/$3/
-match ftp m|^220 ([-\w]+) FTP server \(Version (\d[-.\w]+) [A-Z][a-z]{2} [A-Z][a-z]{2} .*\) ready\.\r\n| p/AIX ftpd/ h/$1/ v/$2/ o/AIX/
+# HP-UX 10.x or AIX
+match ftp m|^220 ([-\w]+) FTP server \(Version (\d[\w-_.]+) [A-Z][a-z]{2} [A-Z][a-z]{2} .*\) ready\.\r\n| p/HP-UX or AIX ftpd/ h/$1/ v/$2/ o/Unix/
 match ftp m|^220[- ]Roxen FTP server running on Roxen (\d[-.\w]+)/Pike (\d[-.\w]+)\r\n| p/Roxen ftp server/ v/$1/ i/Pike $2/
 # Debian packaged oftpd 0.3.6-51 on Linux 2.6.0-test4 Debian
 match ftp m|^220 Service ready for new user\.\r\n| p/oftpd/ o/Unix/
@@ -2115,7 +2115,7 @@ match telnet m|^login: \xff\xfd\x03\xff\xfb\x03\xff\xfb\x01| p/3Com OfficeConnec
 match telnet m|^\xff\xfb\x01\r\npassword: | p/Nortel Networks Instant Internet broadband router telnetd/ d/broadband router/
 # Network Appliance ONTAP 6.3.3 telnet
 match telnet m|^\xff\xfb\x01\xff\xfd\x18\xff\xfd#| p/Network Appliance Ontap telnetd/
-# Netgear RP114 broadband router
+# Netgear RP114 broadband router or ZyXel P2302R VoIP adapter
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\nPassword: | p/Netgear broadband router or ZyXel VoIP adapter telnetd/
 match telnet m|\xff\xfd\x18\xff\xfb\x01\x1b\[2J\x1b\[\?7l\x1b.*HP ([-.\w]+) ProCurve Switch ([-.\w]+)\r\n\rFirmware revision ([-.\w]+)\r\n\r\r| p/HP ProCurve Switch telnetd/ i/Model: $2; Firmware: $3/
 match telnet m|^Check Point FireWall-1 Client Authentication Server running on [-.\w]+\r\n\r\xff\xfb\x01\xff\xfe\x01\xff\xfb\x03User: | p/Check Point FireWall-1 Client Authenticaton Server/
@@ -3101,6 +3101,7 @@ match telnet m|^\xff\xfe\"\xff\xfb\x01\xff\xfb\x03User : \r\n\r?SpeedTouch \(([-
 match telnet m|^\xff\xfe\x01\xff\xfd\x03\xff\xfd\x18\xff\xfd\x1f\xff\xfb\x03\xff\xfb\x01\r\nAccount Name: \r\nPassword: \r\nThis copy of the Ataman Telnetd Server is registered as licensed to:\r\n\t(.+)\r\n\r\nLogin failed: unknown user name, password or privilege incorrect\.\r\n| p/Ataman telnetd/ i/Registerd to $1/ o/Windows/
 match telnet m|^Password:\xff\xfb\x01\n\rTry again, you polio:\n\n\rTry again, you polio:\n| p/VLC Player telnetd/
 match telnet m=^\xff\xfb\x01\xff\xfb\x03\r\n\r\n\r\n +-+\r\n +\| Cyclades-PR4000: CyROS  V_([\d.]+)  \(.*\)     \|\r\n= p/Cyclades PR4000 router telnetd/ d/router/
+# Billion 741GE or D-Link DSL2-300G
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\nLogin: \r\n\r\nYou must supply a username\r\n\r\nLogin: \r\n\r\nYou must supply a username\r\n\r\nLogin: | p/Billion or D-Link aDSL router telnetd/ d/router/
 # Not sure if this is really a telnet service but many people reported it running on port23:
 match telnet m|^\xff\xfb\x01$| p/SMC SMC2870W Wireless Ethernet Bridge/ d/bridge/
@@ -4694,6 +4695,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Allegro-Software-RomPager/([\d.]+)\
 match http m|^HTTP/1\.0 200 OK\r\nServer: SysMaster Web Server/([\d.]+)\r\nContent-Length: \d+\r\nConnection: close\r\nContent-type: text/html;\r\n\r\n<script>\nif\(document\.all\)\n\tlocation=\"app_ie\.htm\";\nelse\n\tlocation=\"app_mz\.htm\";\n</script>| p/Tornado M10 media center http config/ i/SysMaster httpd $1/ d/media device/
 match http m|^HTTP/1\.0 401 Authorization Required\r\nWWW-Authenticate: Basic realm=\"Linksys-CIT400\"\r\n| p/Linksys CIT400 VoIP phone http config/ d/VoIP phone/
 match http m|^HTTP/1\.0 200 OK\r\nAllow: GET, POST, OPTIONS\r\nServer: EDA HTTP LISTENER/([\d.]+)\r\n.*<form name=\"form\" action=\"webconsole\" method=\"POST\" >|s p/WebFOCUS httpd/ i/EDA httpd $1/
+# Netgear WG302v1 or Linksys WRT54G v8
 match http m|^HTTP/1\.0 301 Moved Premanently\r\nLocation: https://[\d.]+/\r\nContent-type: text/html\r\n\r\n<html><head><title>Access Denied</title></head><body><h1>You must use SSL based http\(HTTPS\) server\.</h1></body></html>$| p/Netgear or Linksys WAP http config/ d/WAP/
 match http m|^HTTP/1\.0 200 OK\r\nServer: ARGUS/([\d.]+)\r\n.*\r\n<TITLE>Intel Wireless Gateway</TITLE>|s p/Intel Wireless Gateway http config/ d/WAP/ i/ARGUS httpd $1/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: \r\n.*WWW-Authenticate: Basic realm=\"Conceptronic C54APRA2\+\"\r\n\r\n|s p/Conceptronic C54APRA2+ WAP http config/ d/WAP/
