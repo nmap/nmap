@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ndiff] Ndiff is now included in the Windows zip distribution. For
+  space reasons, it is not an executable compiled with py2exe as in
+  the executable installer, rather it is the Ndiff source code
+  (ndiff.py) and a batch file wrapper (ndiff.bat). Because it's not
+  precompiled, it's necessary to have a Python interpreter
+  installed. [David]
+
 o [Zenmap] A better method of detecting the system locale is used, so
   it should not be necessary to set the LANG environment variable on
   Windows to get internationalized text. Thanks to Dirk Loss for the
