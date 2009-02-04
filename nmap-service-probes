@@ -1820,7 +1820,6 @@ match smtp m|^220 shttp\.srv Simple Mail Transfer Service Ready\r\n| p/Small Hom
 match smtp m|^501 Domain must resolve\r\n$| p/odmrd/
 match smtp m|^220 ([-\w_.]+) ModusMail ESMTP Receiver Version ([\d.]+) Ready\r\n| p/ModusMail smtpd/ v/$2/ h/$1/ o/Windows/
 match smtp m|^220 mailmatrix SMTP Server \(Mail Matrix Server\) ready| p/Mail Matrix smtpd/ o/Windows/
-match smtp m|^220 $| p/OpenBSD spamd/
 match smtp m|^220-([-\w_.]+) ESMTP .* GoMail V([\d.]+);| p/GoMail mass mailing plugin smtpd/ v/$2/ h/$1/ o/Windows/
 match smtp m|^220 [-\w_.]+ Winmail Mail Server ESMTP ready\r\n| p/Winmail smtpd/ o/Windows/
 match smtp m|^220 ([-\w_.]+) ESMTP \(Code-Crafters Ability Mail Server ([\d.]+)\)\r\n| p/Code-Crafters Ability smtpd/ v/$2/ h/$1/ o/Windows/
@@ -5847,6 +5846,8 @@ match smtp m|^220 ([\w-_.]+) Ready\r\n250-.*\r\n250-AUTH LOGIN\r\n250-8BITMIME\r
 match smtp m|^220 \[[\w-_.]+\] ESMTP Ready\r\n501 HELO requires domain address\r\n| p/Canon ImageRunner C5185 smtpd/ d/printer/
 match smtp m|^220 .* SMTP ready at .*\r\n501 Command \"EHLO\" requires an argument\r\n| p/Lotus Domino smtpd/
 match smtp m|^220 ([\w-_.]+)\r\n250-[\w-_.]+ Axigen ESMTP hello\r\n| p/Axigen smtpd/ h/$1/ o/Unix/
+
+match smtp m|^220 $| p/OpenBSD spamd/
 
 match smtp-proxy m|^220 ([-\w_.]+) .*\r\n250-[-\w_.]+ supports the following ESMTP extensions:\r\n250-SIZE \d+\r\n250-DSN\r\n250-8bitmime\r\n250 OK\r\n| p/Trend Micro IMSS smtp proxy/ h/$1/
 
