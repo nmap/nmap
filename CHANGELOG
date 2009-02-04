@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o An integer overflow in the scan progress meter was fixed. It caused
+  nonsense output like
+    UDP Scan Timing: About 11.34% done; ETC: 03:21 (-688:-41:-48 remaining)
+  during very long scans. [Henri Doreau]
+
 o [Ndiff] Ndiff is now included in the Windows zip distribution. For
   space reasons, it is not an executable compiled with py2exe as in
   the executable installer, rather it is the Ndiff source code

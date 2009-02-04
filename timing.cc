@@ -554,49 +554,54 @@ bool ScanProgressMeter::printStatsIfNecessary(double perc_done,
 bool ScanProgressMeter::printStats(double perc_done, 
                                    const struct timeval *now) {
   struct timeval tvtmp;
-  long time_used_ms;
-  long time_needed_ms;
-  long time_left_ms;
-  long sec_left;
+  double time_used_s;
+  double time_needed_s;
+  double time_left_s;
   time_t timet;
   struct tm *ltime;
 
-  if (!now) {
-    gettimeofday(&tvtmp, NULL);
-    now = (const struct timeval *) &tvtmp;
-  }
-  
-  /* OK, now lets estimate the time to finish */
-  time_used_ms = TIMEVAL_MSEC_SUBTRACT(*now, begin);
-  time_needed_ms = (int) ((double) time_used_ms / perc_done);
-  time_left_ms = time_needed_ms - time_used_ms;
+
+  if (perc_done) { /* catch "divide by zero" attempts */
+    if (!now) {
+      gettimeofday(&tvtmp, NULL);
+      now = (const struct timeval *) &tvtmp;
+    }
+
+    /* OK, now lets estimate the time to finish */
+    time_used_s = difftime(now->tv_sec, begin.tv_sec);
+    time_needed_s = time_used_s / perc_done;
+    time_left_s = time_needed_s - time_used_s;
 
     /* Here we go! */
     last_print = *now;
-    TIMEVAL_MSEC_ADD(last_est, *now, time_left_ms);
+
+    /*TIMEVAL_MSEC_ADD(last_est, *now, (unsigned long)time_left_s*1000);*/
+    last_est = *now;
+    last_est.tv_sec += time_left_s;
+    
     timet = last_est.tv_sec;
     ltime = localtime(&timet);
     assert(ltime);
-
-    sec_left = time_left_ms / 1000;
-
-    // If we're less than 1% done we probably don't have enough
-    // data for decent timing estimates. Also with perc_done == 0
-    // these elements will be nonsensical.
-    if (perc_done < 0.01) {
-      log_write(LOG_STDOUT, "%s Timing: About %.2f%% done\n", 
-                scantypestr, perc_done * 100);
-      log_flush(LOG_STDOUT);
-    } else {
-      log_write(LOG_STDOUT, "%s Timing: About %.2f%% done; ETC: %02d:%02d (%li:%02li:%02li remaining)\n", 
-                scantypestr, perc_done * 100, ltime->tm_hour, ltime->tm_min, sec_left / 3600, 
-                (sec_left % 3600) / 60, sec_left % 60);
-      log_write(LOG_XML, "<taskprogress task=\"%s\" time=\"%lu\" percent=\"%.2f\" remaining=\"%li\" etc=\"%lu\" />\n",
-		scantypestr, (unsigned long) now->tv_sec,
-		perc_done * 100, sec_left, (unsigned long) last_est.tv_sec);
-      log_flush(LOG_STDOUT|LOG_XML);
-    }
-    return true;
+  }
+        
+  // If we're less than 1% done we probably don't have enough
+  // data for decent timing estimates. Also with perc_done == 0
+  // these elements will be nonsensical.
+  if (perc_done < 0.01) {
+    log_write(LOG_STDOUT, "%s Timing: About %.2f%% done\n",
+        scantypestr, perc_done * 100);
+    log_flush(LOG_STDOUT);
+  } else {
+    log_write(LOG_STDOUT, "%s Timing: About %.2f%% done; ETC: %02d:%02d (%lu:%02lu:%02lu remaining)\n",
+        scantypestr, perc_done * 100, ltime->tm_hour, ltime->tm_min, (unsigned long)(time_left_s / 3600),
+        ((unsigned long)time_left_s % 3600) / 60, ((unsigned long)time_left_s % 60));
+    log_write(LOG_XML, "<taskprogress task=\"%s\" time=\"%lu\" percent=\"%.2f\" remaining=\"%lu\" etc=\"%lu\" />\n",
+        scantypestr, (unsigned long) now->tv_sec,
+        perc_done * 100, (unsigned long)time_left_s, (unsigned long) last_est.tv_sec);
+    log_flush(LOG_STDOUT|LOG_XML);
+  }
+ 
+  return true;
 }
 
 /* Indicates that the task is beginning or ending, and that a message should
