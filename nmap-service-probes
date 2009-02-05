@@ -40,7 +40,9 @@ Probe TCP NULL q||
 # smtp services have lately been instituting an artificial pause (see
 # FEATURE('greet_pause') in Sendmail, for example)
 totalwaitms 6000
+
 match acap m|^\* ACAP \(IMPLEMENTATION \"CommuniGate Pro ACAP (\d[-.\w]+)\"\) | p/CommuniGate Pro ACAP server/ i/for mail client preference sharing/ v/$1/
+match acmp m|^ACMP Server Version ([\w-_.]+)\r\n| p/Aagon ACMP Inventory/ v/$1/
 match activemq m|^\0\0\0\xae\x01ActiveMQ\0\0\0| p/Apache ActiveMQ/
 
 # Microsoft ActiveSync Version 3.7 Build 3083 (It's used for syncing
@@ -587,6 +589,7 @@ match ftp m|^220 ([-\w_.]+) GridFTP Server ([\d.]+) \(gcc\w+, [-\d]+\) ready\.\r
 match ftp m|^220 ([-\w_.]+) ([A-Z]+ )?GridFTP Server ([\d.]+) (GSSAPI type Globus/GSI wu-\S+) \(gcc\w+, [-\d]+\) ready\.\r\n| p/Globus GridFTPd/ v/$3/ i/$4/ h/$1/
 match ftp m|^220 ([-\w_.]+) FTP server \(GridFTP Server ([\d.]+) \[(GSI patch v[\d\.]+)\] (wu-\S+) .+\) ready\.\r\n| p/Globus GridFTPd/ v/$2/ i/$4 $3/ h/$1/
 match ftp m|^220 Welcome to the OpenDreambox FTP service\.\r\n| p/Dreambox ftpd/ o/Linux/ d/media device/
+match ftp m|^220 Willkomen auf Ihrer Dreambox\.\r\n| p/Dreambox ftpd/ o/Linux/ d/media device/ i/German/
 match ftp m|^220 Welcome to the PLi dreambox FTP server\r\n| p/Dreambox ftpd/ i/PLi image/ o/Linux/ d/media device/
 match ftp m|^220 Welcome to the Pli Jade Server >> OpenDreambox FTP service <<\.\r\n| p/Dreambox ftpd/ i/PLi Jade image/ o/Linux/ d/media device/
 match ftp m|^220 ([-\w_.]+) FTP server \(KONICA FTPD version ([\d.]+)\) ready\.\r\n| p/Konica Minolta printer ftpd/ v/$2/ h/$1/ d/printer/
@@ -1120,18 +1123,19 @@ match mysql m|^.\0\0\0.*Host '[-\w_.]+' hat keine Berechtigung, sich mit diesem 
 match mysql m/^.\0\0\0...Al sistema '[-.\w]+' non e` consentita la connessione a questo server MySQL$/s p/MySQL/ i/unauthorized; Italian/
 match mysql m|^.\0\0\0\xffi?\x04?Host .* is blocked because of many connection errors\.|s p/MySQL/ i/blocked - too many connection errors/
 match mysql m|^.\0\0\0...Servidor '[-.\w]+' est\xe1 bloqueado por muchos errores de conexi\xf3n\.  Desbloquear con 'mysqladmin flush-hosts'|s p/MySQL/ i/Spanish; blocked - too many connection errors/
-
+match mysql m|^.\0\0\0...'Host' '[-.\w]+' n\xe3o tem permiss\xe3o para se conectar com este servidor MySQL| p/MySQL/ i/Spanish; unauthorized/
 
 match minisql m|^.\0\0\x000:23:([\d.]+)\n$|s p/Mini SQL/ v/$1/
 
 # MySQL 4.0.13
-match mysql m/^.\0\0\0.(3\.[-_~.\w]+)\0.*\x08\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0$/s p/MySQL/ v/$1/
-match mysql m/^.\0\0\0\n(3\.[-_~.\w]+)\0...\0/s p/MySQL/ v/$1/
-# r(null,2B,"'\0\0\0\n4.0.13\0\xdf\xbc\x02\0SC7)fHu5\0, \x08\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0")
-match mysql m/^.\0\0\0\n(4\.[-_~.\w]+)\0/s p/MySQL/ v/$1/
-match mysql m|^.\0\0\0\n(5\.[-_~.\w]+)\0|s p/MySQL/ v/$1/
-match mysql m|^.\0\0\0\n(6\.[-_~.\w]+)\0...\0|s p/MySQL/ v/$1/
+match mysql m/^.\0\0\0.(3\.[-_~.+\w]+)\0.*\x08\x02\0\0\0\0\0\0\0\0\0\0\0\0\0\0$/s p/MySQL/ v/$1/
+match mysql m/^.\0\0\0\n(3\.[-_~.+\w]+)\0...\0/s p/MySQL/ v/$1/
+match mysql m/^.\0\0\0\n(4\.[-_~.+\w]+)\0/s p/MySQL/ v/$1/
+match mysql m|^.\0\0\0\n(5\.[-_~.+\w]+)\0|s p/MySQL/ v/$1/
+match mysql m|^.\0\0\0\n(6\.[-_~.+\w]+)\0...\0|s p/MySQL/ v/$1/
 match mysql m|^.\0\0\0\xffj\x04'[\d.]+' .* MySQL|s p/MySQL/
+
+match mysql m|^.\0\0\0\n(0[\w-_.]+)\0| p/MySQL instance manager/ v/$1/
 
 match nbd m|^NBDMAGIC\0\0B| p/Network Block Device/
 
@@ -4604,7 +4608,7 @@ match http m|^HTTP/1\.0 200 OK\r\nServer: Camera Web Server/([\d.]+)\r\nAuther: 
 match http m|^HTTP/1\.0 200 OK\r\nServer: Web Server/([\d.]+)\r\nAuther: Steven Wu\r\n| p/D-Link print server http config/ v/$1/ d/print server/
 match http m|^HTTP/1\.0 401 Authorization Required\r\nconnection: Close\r\ncontent-type: text/html\r\nserver: NEWS/1\.4\.22 \(Funk\) \(Windows 2000\)\r\n| p/Juniper Steel-Belted Radius http config/ i/NEWS httpd 1.4.22 (Funk); Win2k/ o/Windows/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nDate: .*\r\nWWW-Authenticate: basic realm=IRC Services\r\nContent-Type: text/html\r\nContent-Length: 14\r\n\r\nAccess denied\.| p/ircservices httpd/
-match http m|^HTTP/1\.0 200 CREATED\r\nSet-Cookie: Ipswitch={| p/Ipswitch WhatsUp Professional httpd/ o/Windows/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nSet-Cookie: Ipswitch={| p/Ipswitch WhatsUp Professional httpd/ o/Windows/
 match http m|^HTTP/1\.0 200 OK.*\r\n\tThis machine cannot be used for administration\.\r\n|s p/Cisco Secure ACS httpd/ i/administration disabled/ d/router/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"Wusage\"\r\n| p/Wusage httpd/
 match http m|^HTTP/1\.1 401 \r\nServer: PrintSir WEBPORT ([\d.]+)\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"Default password:sitecom\"\r\n\r\n| p/Sitecom print server http config/ i/Webport httpd $1; default password sitecom/ d/print server/
@@ -4947,6 +4951,7 @@ match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: Virata-EmWeb/R([\d_]+)\r\n.*
 match http m|^HTTP/1\.0 302 Moved Temporarily\r\nDate: .*\r\nServer: SMSSMTPHTTP\r\n| p/Symantec smtp mail security http config/ o/Windows/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: MediabolicMWEB/([\w-_.]+)\r\n|s p/Mediabolic http config/ v/$1/ d/storage-misc/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Ubicom/([\w-_.]+)\r\n.*<title>SMC StreamEngine Router : Login</title>|s p/SMC StreamEngine router http config/ i/Ubicom httpd $1/ d/router/
+match http m|^HTTP/1\.1 200 OK\r\nServer: d-Box network\r\n\r\n| p/Dreambox streaming audio httpd/ d/media-device/
 
 #(insert http)
 
@@ -6254,15 +6259,15 @@ match omniback m|^\0\0\0.\xff\xfe1\x005\0\0\0 \0\x07\0\x01\0\[\x001\x002\0:\x001
 match omniback m|^\0\0\0.15\0 \x07\x01\[12:1\]\0 \x07\x02\[2003\]\0 \x07\x051\d+\0 INET\0 |s p|HP OpenView Omniback/Data Protector| o/Unix/
 
 # PostgreSQL 7.4
-match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0|s p/PostgreSQL DB/
-match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0Mnicht unterst.{1,2}tztes Frontend-Protokoll 65363\.19778: Server unterst.{1,2}tzt 1\.0 bis 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0|s p/PostgreSQL DB/ i/German/
-match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0MProtocole non support[e\xe9]e de l'interface 65363\.19778: le serveur supporte de 1\.0 [a\xe0] 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0|s p/PostgreSQL DB/ i/French/
-match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0Mprotocole non support\xe9e de l'interface 65363\.19778: le serveur supporte de 1\.0 \xe0 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0|s p/PostgreSQL DB/ i/French/
-match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0Mel protocolo 65363\.19778 no est..? soportado: servidor soporta 1\.0 hasta 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0|s p/PostgreSQL DB/ i/Spanish/
-match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0Mprotocolo 65363\.19778 n\xe3o \xe9 suportado: servidor suporta 1\.0 a 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0|s p/PostgreSQL DB/ i/Portugese/
-match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0Mprotocolo do cliente 65363\.19778 n\xe3o \xe9 suportado: servidor suporta 1\.0 a 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0|s p/PostgreSQL DB/ i/Portugese/
-match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0MProtocole non support\xc3\xa9e de l'interface 65363\.19778: le serveur supporte de 1\.0 \xc3\xa0 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0|s p/PostgreSQL DB/ i/French; Unicode support/
-match postgresql m|^E\0\0\0.SFATALT?\0C0A000\0Mnicht unterst\xc3\xbctztes Frontend-Protokoll 65363\.19778: Server unterst\xc3\xbctzt 1\.0 bis 3\.0\0Fpostmaster\.c\0L\d+\0RProcessStartupPacket\0\0|s p/PostgreSQL DB/ i/German; Unicode support/
+match postgresql m|^E\0\0\0.S\w+\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/
+match postgresql m|^E\0\0\0.S\w+\0C0A000\0Mnicht unterst.{1,2}tztes Frontend-Protokoll 65363\.19778: Server unterst.{1,2}tzt 1\.0 bis 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/German/
+match postgresql m|^E\0\0\0.S\w+\0C0A000\0MProtocole non support[e\xe9]e de l'interface 65363\.19778: le serveur supporte de 1\.0 [a\xe0] 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/French/
+match postgresql m|^E\0\0\0.S\w+\0C0A000\0Mprotocole non support\xe9e de l'interface 65363\.19778: le serveur supporte de 1\.0 \xe0 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/French/
+match postgresql m|^E\0\0\0.S\w+\0C0A000\0Mel protocolo 65363\.19778 no est..? soportado: servidor soporta 1\.0 hasta 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/Spanish/
+match postgresql m|^E\0\0\0.S\w+\0C0A000\0Mprotocolo 65363\.19778 n\xe3o \xe9 suportado: servidor suporta 1\.0 a 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/Portugese/
+match postgresql m|^E\0\0\0.S\w+\0C0A000\0Mprotocolo do cliente 65363\.19778 n.{4,6} suportado: servidor suporta 1\.0 a 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/Portugese/
+match postgresql m|^E\0\0\0.S\w+\0C0A000\0MProtocole non support\xc3\xa9e de l'interface 65363\.19778: le serveur supporte de 1\.0 \xc3\xa0 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/French; Unicode support/
+match postgresql m|^E\0\0\0.S\w+\0C0A000\0Mnicht unterst\xc3\xbctztes Frontend-Protokoll 65363\.19778: Server unterst\xc3\xbctzt 1\.0 bis 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/German; Unicode support/
 
 match postgresql m|^E\0\0\0\xb1S\xec\xb9\x98| p/PostgreSQL DB/
 
@@ -6940,7 +6945,8 @@ rarity 8
 ports 523,50000
 
 match ibm-db2 m|(?<=.)DB2/([^\0]+)\0\0\0\0\0\0\0\0\0.{1,3}\0\0\0\0\0\0\0SQL0(\d)(\d\d)(\d+)|s p/IBM DB2 Database Server/ v/$2.$3.$4/ o/$1/
-match ibm-db2 m|^\0\xa9\x10\0\0\x01\0\0SQLDB2RA\x01\0\x05\0.{10,13}SQLCA|s p/IBM DB2 Database Server/
+match ibm-db2 m|^\0\xa9\x10..\x01\0\0SQLDB2RA\x01\0\x05\0.{10,13}SQLCA|s p/IBM DB2 Database Server/
+
 
 ##############################NEXT PROBE##############################
 Probe TCP pervasive-relational q|\x43\x6c\x69\x65\x6e\x74\x20\x73\x74\x72\x69\x6e\x67\x20\x66\x6f\x72\x20\x50\x41\x52\x43\x20\x76\x65\x72\x73\x69\x6f\x6e\x20\x31\x20\x57\x69\x72\x65\x20\x45\x6e\x63\x72\x79\x70\x74\x69\x6f\x6e\x20\x76\x65\x72\x73\x69\x6f\x6e\x20\x31\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|
@@ -6948,6 +6954,7 @@ rarity 8
 ports 1583,3351
 
 match psql m|^\0{255}| p/Pervasive.SQL Server - Relational Engine/
+match psql m|^\0Server string for PARC version 1 Wire Encryption version 1\0| p/Pervasive.SQL Server - Relational Engine/ i/encrypted/
 
 
 ##############################NEXT PROBE##############################
