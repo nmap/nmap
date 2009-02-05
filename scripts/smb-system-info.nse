@@ -45,10 +45,6 @@ same code) won't show up again.
 -- |  Browsers
 -- |  |_ Internet Explorer 7.0000
 -- |_ |_ Firefox 3.0.3 (en-US)
--- 
--- @args smb* This script supports the <code>smbusername</code>,
--- <code>smbpassword</code>, <code>smbhash</code>, and <code>smbtype</code>
--- script arguments of the <code>smb</code> module.
 -----------------------------------------------------------------------
 
 

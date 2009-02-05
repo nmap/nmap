@@ -76,10 +76,6 @@ same code) won't show up again.
 -- |  | Priority: 4
 -- |  |_Thread Count: 1, Handle Count: 22
 -- ...
---
--- @args smb* This script supports the <code>smbusername</code>,
--- <code>smbpassword</code>, <code>smbhash</code>, and <code>smbtype</code>
--- script arguments of the <code>smb</code> module.
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"

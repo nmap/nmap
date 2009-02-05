@@ -42,10 +42,6 @@ set the username and password, etc.), but it probably won't ever require them.
 -- |  smb-security-mode: User-level authentication
 -- |  smb-security-mode: Challenge/response passwords supported
 -- |_ smb-security-mode: Message signing supported
--- 
--- @args smb* This script supports the <code>smbusername</code>,
--- <code>smbpassword</code>, <code>smbhash</code>, and <code>smbtype</code>
--- script arguments of the <code>smb</code> module.
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"

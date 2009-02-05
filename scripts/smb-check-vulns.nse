@@ -48,9 +48,6 @@ on the Nmap-dev mailing list and I'll add it to my list [Ron Bowes]).
 -- |  MS08-067: FIXED
 -- |_ regsvc DoS: VULNERABLE
 --
--- @args smb* This script supports the <code>smbusername</code>,
--- <code>smbpassword</code>, <code>smbhash</code>, and <code>smbtype</code>
--- script arguments of the <code>smb</code> module.
 -- @args unsafe If set, this script will run checks that, if the system isn't
 --       patched, are basically guaranteed to crash something. Remember that
 --       non-unsafe checks aren't necessarily safe either)

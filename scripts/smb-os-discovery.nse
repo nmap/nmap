@@ -24,11 +24,6 @@ they likely won't change the outcome in any meaningful way.
 -- |  LAN Manager: Windows 2000 LAN Manager
 -- |  Name: WORKGROUP\TEST1
 -- |_ System time: 2008-09-09 20:55:55 UTC-5
--- 
--- @args smb* This script supports the <code>smbusername</code>,
--- <code>smbpassword</code>, <code>smbhash</code>, and <code>smbtype</code>
--- script arguments of the <code>smb</code> module, but they are unlikely
--- to be required.
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"

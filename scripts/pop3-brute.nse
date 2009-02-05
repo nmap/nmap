@@ -6,8 +6,6 @@ Tries to log into a POP3 account by guessing usernames and passwords.
 -- @args pop3loginmethod The login method to use: <code>"USER"</code>
 -- (default), <code>"SASL-PLAIN"</code>, <code>"SASL-LOGIN"</code>,
 -- <code>"SASL-CRAM-MD5"</code>, or <code>"APOP"</code>.
--- @args userdb The filename of an alternate username database.
--- @args passdb The filename of an alternate password database.
 
 author = "Philip Pickering <pgpickering@gmail.com>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

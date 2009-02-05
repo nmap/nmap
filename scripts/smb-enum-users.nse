@@ -127,9 +127,6 @@ the code I wrote for this is largely based on the techniques used by them.
 -- |    |_ Type: Alias
 -- |_   |_ Domain: LOCALSYSTEM
 -- 
--- @args smb* This script supports the <code>smbusername</code>,
--- <code>smbpassword</code>, <code>smbhash</code>, and <code>smbtype</code>
--- script arguments of the <code>smb</code> module.
 -- @args lsaonly If set, script will only enumerate using an LSA bruteforce (requires less
 --       access than samr). Only set if you know what you're doing, you'll get better results
 --       by using the default options. 

@@ -54,10 +54,6 @@ test.
 -- |     |_ Comment: Default share
 -- |     |_ Users: 0, Max: <unlimited>
 -- |_    |_ Path: C:\
--- 
--- @args smb* This script supports the <code>smbusername</code>,
--- <code>smbpassword</code>, <code>smbhash</code>, and <code>smbtype</code>
--- script arguments of the <code>smb</code> module.
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"

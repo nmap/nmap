@@ -7,8 +7,6 @@ Attempts to find an SNMP community string by brute force guessing.
 -- @args snmpcommunity The SNMP community string to use. If supplied, this
 -- script will not run.
 -- @args snmplist The filename of a list of community strings to try.
--- @args userdb The filename of an alternate username database.
--- @args passdb The filename of an alternate password database.
 
 author = "Philip Pickering <pgpickering@gmail.com>"
 

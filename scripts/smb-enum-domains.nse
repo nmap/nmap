@@ -37,10 +37,6 @@ After the initial <code>bind</code> to SAMR, the sequence of calls is:
 -- |   |_ Password properties:
 -- |     |_  Password complexity requirements do not exist
 -- |_    |_  Administrator account cannot be locked out
--- 
--- @args smb* This script supports the <code>smbusername</code>,
--- <code>smbpassword</code>, <code>smbhash</code>, and <code>smbtype</code>
--- script arguments of the <code>smb</code> module.
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"

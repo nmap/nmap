@@ -27,10 +27,6 @@ up to version 1.0.3 (and possibly higher).
 -- |  |_ Permission errors: 1, System errors: 0
 -- |  |_ Print jobs spooled: 0
 -- |_ |_ Files opened (including pipes): 18
--- 
--- @args smb* This script supports the <code>smbusername</code>,
--- <code>smbpassword</code>, <code>smbhash</code>, and <code>smbtype</code>
--- script arguments of the <code>smb</code> module.
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"
