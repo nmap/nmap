@@ -557,6 +557,7 @@ bool ScanProgressMeter::printStats(double perc_done,
   double time_used_s;
   double time_needed_s;
   double time_left_s;
+  time_t timet;
   struct tm *ltime;
 
   last_print = *now;
@@ -586,7 +587,8 @@ bool ScanProgressMeter::printStats(double perc_done,
   last_est.tv_sec += time_left_s;
 
   /* Get the estimated time of day at completion */
-  ltime = localtime(&last_est.tv_sec);
+  timet = last_est.tv_sec;
+  ltime = localtime(&timet);
   assert(ltime);
 
   log_write(LOG_STDOUT, "%s Timing: About %.2f%% done; ETC: %02d:%02d (%.f:%02.f:%02.f remaining)\n",
