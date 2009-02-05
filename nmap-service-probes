@@ -846,30 +846,31 @@ match imap m|^\* OK Domino IMAP4 Server Build V([\w_]+ Beta \w+) ready .*\r\n| p
 match imap m|^\* BYE Domino IMAP4 Server Unable to authenticate session\.| p/Lotus Domino imapd/ i/Unable to connect/
 
 # MS Exchange
-match imap m|^\* OK Microsoft Exchange IMAP4rev1 server version ([-.\w]+) | p/Microsoft Exchange IMAP4rev1 server/ v/$1/ o/Windows/
-match imap m|^\* OK Microsoft Exchange 2000 IMAP4rev1 server version (\d[-.\w]+) \([-.\w]+\) ready\.\r\n| p/Microsoft Exchange 2000 IMAP4rev1 server/ v/$1/ o/Windows/
-match imap m|^\* BYE Connection refused\r\n| p/Microsoft Exchange IMAP server/ i/refused/ o/Windows/
-match imap m|^\* OK Microsoft Exchange Server ([\d]+) IMAP4rev1 server version (\d[-.\w]+) \(([-.\w]+)\) ready\.\r\n| p/Microsoft Exchange Server $1/ v/$2/ o/Windows/ h/$3/
-match imap m|^\* OK Der Microsoft Exchange Server \(IMAP4rev1, Version (\d[-.\w]+) \([-.\w]+\)\) steht zur Verf\xfcgung\.\r\n| p/Microsoft Exchange 2000 IMAP4rev1 server/ v/$1/ o/Windows/ i/German/
-match imap m|^\* OK Der Microsoft Exchange Server 2003 IMAP4rev1-Server, Version ([\d.]+) \(([-\w_.]+)\), steht zur Verf\xfcgung\.\r\n| p/Microsoft Exchange 2003 IMAP4rev1 server/ v/$1/ h/$2/ o/Windows/ i/German/
-match imap m|^\* OK Microsoft Exchange IMAP4rev1 kiszolg\xe1l\xf3 verzi\xf3 (\d[-.\w]+) \(([-.\w]+)\) k\xe9sz\r\n| p/Microsoft Exchange Server/ v/$1/ o/Windows/ h/$2/ i/Hungarian/
-match imap m|^\* OK Server Microsoft Exchange IMAP4rev1 verze ([\d.]+) \(([-\w_.]+)\) je p\xf8ipraven\.\r\n| p/Microsoft Exchange Server/ v/$1/ o/Windows/ h/$2/ i/Czech/
-match imap m|^\* OK La version ([\d.]+) \(([-\w_.]+)\) du serveur IMAP4rev1 Microsoft Exchange est pr\xeate\r\n| p/Microsoft Exchange Server/ v/$1/ o/Windows/ h/$2/ i/French/
-match imap m|^\* OK Microsoft Exchange Server 2003 IMAP4rev1 \xb7\xfe\xce\xf1\xc6\xf7\xb0\xe6\xb1\xbe ([\d.]+) \(([-\w_.]+)\)| p/Microsoft Exchange 2003 IMAP4rev1 server/ v/$1/ o/Windows/ h/$2/ i/Chinese/
-match imap m|^\* OK Microsoft Exchange Server 2007 IMAP4 service ready\r\n| p/Microsoft Exchange 2007 IMAP4/ o/Windows/
-match imap m|^\* OK The Microsoft Exchange IMAP4 service is ready\.\r\n| p/Microsoft Exchange 2007 IMAP4/ o/Windows/
-match imap m|^\* OK IMAP4rev1 Server DeskNow \(DeskNow ([\w-_.]+)\) ready\r\n| p/DeskNow IMAP4rev1/ v/$1/
+match imap m|^\* OK Microsoft Exchange IMAP4rev1 server version ([-.\w]+) | p/Microsoft Exchange imapd/ v/$1/ o/Windows/
+match imap m|^\* OK Microsoft Exchange 2000 IMAP4rev1 server version (\d[-.\w]+) \([-.\w]+\) ready\.\r\n| p/Microsoft Exchange 2000 imapd/ v/$1/ o/Windows/
+match imap m|^\* BYE Connection refused\r\n| p/Microsoft Exchange imapd/ i/refused/ o/Windows/
+match imap m|^\* OK Microsoft Exchange Server ([\d]+) IMAP4rev1 server version (\d[-.\w]+) \(([-.\w]+)\) ready\.\r\n| p/Microsoft Exchange Server $1 imapd/ v/$2/ o/Windows/ h/$3/
+match imap m|^\* OK Der Microsoft Exchange Server \(IMAP4rev1, Version (\d[-.\w]+) \([-.\w]+\)\) steht zur Verf\xfcgung\.\r\n| p/Microsoft Exchange 2000 imapd/ v/$1/ o/Windows/ i/German/
+match imap m|^\* OK Der Microsoft Exchange Server 2003 IMAP4rev1-Server, Version ([\d.]+) \(([-\w_.]+)\), steht zur Verf\xfcgung\.\r\n| p/Microsoft Exchange 2003 imapd/ v/$1/ h/$2/ o/Windows/ i/German/
+match imap m|^\* OK Microsoft Exchange IMAP4rev1 kiszolg\xe1l\xf3 verzi\xf3 (\d[-.\w]+) \(([-.\w]+)\) k\xe9sz\r\n| p/Microsoft Exchange Server imapd/ v/$1/ o/Windows/ h/$2/ i/Hungarian/
+match imap m|^\* OK Server Microsoft Exchange IMAP4rev1 verze ([\d.]+) \(([-\w_.]+)\) je p\xf8ipraven\.\r\n| p/Microsoft Exchange Server imapd/ v/$1/ o/Windows/ h/$2/ i/Czech/
+match imap m|^\* OK La version ([\d.]+) \(([-\w_.]+)\) du serveur IMAP4rev1 Microsoft Exchange est pr\xeate\r\n| p/Microsoft Exchange Server imapd/ v/$1/ o/Windows/ h/$2/ i/French/
+match imap m|^\* OK Microsoft Exchange Server 2003 IMAP4rev1 \xb7\xfe\xce\xf1\xc6\xf7\xb0\xe6\xb1\xbe ([\d.]+) \(([-\w_.]+)\)| p/Microsoft Exchange 2003 imapd/ v/$1/ o/Windows/ h/$2/ i/Chinese/
+match imap m|^\* OK Servidor IMAP4rev1de Microsoft Exchange Server 2003 versi\xf3n ([\w-_.]+) \(([\w-_.]+)\) listo\.\r\n| p/Microsoft Exchange Server 2003 imapd/ v/$1/ h/$2/ i/Spanish/ o/Windows/
+match imap m|^\* OK Microsoft Exchange Server 2007 IMAP4 service ready\r\n| p/Microsoft Exchange 2007 imapd/ o/Windows/
+match imap m|^\* OK The Microsoft Exchange IMAP4 service is ready\.\r\n| p/Microsoft Exchange 2007 imapd/ o/Windows/
+match imap m|^\* OK IMAP4rev1 Server DeskNow \(DeskNow ([\w-_.]+)\) ready\r\n| p/DeskNow imapd/ v/$1/
 
-match imap m|^\* OK \[CAPABILITY (IMAP4 )?IMAP4REV1 .*IMAP4rev1 (200\d\.[-.\w]+) at| p/UW Imapd/ v/$2/
-match imap m|^\* OK (?:\[CAPABILITY IMAP4[^\]]*?\] )?([-.\w]+) Cyrus IMAP4? v([-.\w\+]+) server ready\r\n| p/Cyrus IMAP4/ h/$1/ v/$2/
-match imap m|^\* OK ([-.\w]+) Cyrus IMAP4 v([-.\w\+]+)-Red Hat [-.\w\+]+ server ready\r\n| p/Cyrus IMAP4/ h/$1/ v/$2/ i/RedHat/ o/Linux/
+match imap m|^\* OK \[CAPABILITY (IMAP4 )?IMAP4REV1 .*IMAP4rev1 (200\d\.[-.\w]+) at| p/UW imapd/ v/$2/
+match imap m|^\* OK (?:\[CAPABILITY IMAP4[^\]]*?\] )?([-.\w]+) Cyrus IMAP4? v([-.\w\+]+) server ready\r\n| p/Cyrus imapd/ h/$1/ v/$2/
+match imap m|^\* OK ([-.\w]+) Cyrus IMAP4 v([-.\w\+]+)-Red Hat [-.\w\+]+ server ready\r\n| p/Cyrus imapd/ h/$1/ v/$2/ i/RedHat/ o/Linux/
 match imap m|^\* OK ([-\w_.]+) Cyrus IMAP4 v([-\w_.]+)-Debian| p/Cyrus imapd/ h/$1/ v/$2/ o/Linux/ i|Debian/Ubuntu|
-match imap m|^\* OK ([-.\w]+) Cyrus IMAP4 v([\w_.]+)-OS X ([\d.]+) server ready\r\n| p/Cyrus IMAP4/ v/$2/ h/$1/ i/Mac OS X $3/ o/Mac OS X/
-match imap m|^\* OK \[[^\]]+\] ([-\w_.]+) Cyrus IMAP4 v([-\w_.]+)-OS X Server ([\d.]+):| p/Cyrus IMAP4/ v/$2/ h/$1/ i/Mac OS X $3/ o/Mac OS X/
-match imap m|^\* OK (?:\[CAPABILITY IMAP4[^\]]*?\] )?([-.\w]+) Cyrus IMAP4? Murder v([-.\w]+) server ready\r\n| p/Cyrus IMAP4 Murder/ h/$1/ v/$2/
-match imap m|^\* OK \[.*] ([-.\w]+) Cyrus IMAP4 v([-.\w]+) server ready\r\n| p/Cyrus IMAP4/ h/$1/ v/$2/
+match imap m|^\* OK ([-.\w]+) Cyrus IMAP4 v([\w_.]+)-OS X ([\d.]+) server ready\r\n| p/Cyrus imapd/ v/$2/ h/$1/ i/Mac OS X $3/ o/Mac OS X/
+match imap m|^\* OK \[[^\]]+\] ([-\w_.]+) Cyrus IMAP4 v([-\w_.]+)-OS X Server ([\d.]+):| p/Cyrus imapd/ v/$2/ h/$1/ i/Mac OS X $3/ o/Mac OS X/
+match imap m|^\* OK (?:\[CAPABILITY IMAP4[^\]]*?\] )?([-.\w]+) Cyrus IMAP4? Murder v([-.\w]+) server ready\r\n| p/Cyrus Murder imapd/ h/$1/ v/$2/
+match imap m|^\* OK \[.*] ([-.\w]+) Cyrus IMAP4 v([-.\w]+) server ready\r\n| p/Cyrus imapd/ h/$1/ v/$2/
 
-match imap m|^\* OK Welcome to Binc IMAP v(\d[-.\w]+)| p/Binc IMAPd/ v/$1/
+match imap m|^\* OK Welcome to Binc IMAP v(\d[-.\w]+)| p/Binc imapd/ v/$1/
 match imap m|^\* OK ([-.\w]+) IMAP4rev1 AppleMailServer (\d[-.\w]+) ready\r\n| p/AppleMailServer imapd/ h/$1/ v/$2/
 match imap m/^\* OK IMAP4rev1 Server Classic Hamster (Vr.|Version) [\d.]+ \(Build ([\d.]+)\) greets you!\r\n/ p/Classic Hamster imapd/ v/$2/ o/Windows/
 match imap m|^\* OK ([-\w_.]+) Oracle Email Server esimap\t([\d.]+) \t  is ready\r\n| p/Oracle imapd/ v/$2/ h/$1/
@@ -916,6 +917,9 @@ match imap m|^\* OK WebSTAR Mail ready\r\n| p/WebSTAR imapd/ o/Mac OS X/
 match imap m|^\* OK \[CAPABILITY IMAP4rev1 UIDPLUS CHILDREN NAMESPACE THREAD=ORDEREDSUBJECT THREAD=REFERENCES SORT QUOTA IDLE AUTH=PLAIN ACL ACL2=UNION\] Atmail IMAP4 Server ready\. See COPYING for distribution information\.\r\n| p/Atmail imapd/
 match imap m|^\* OK Dovecot DA ready\.\r\n| p/Dovecot DirectAdmin imapd/
 match imap m|^\* OK Zarafa IMAP gateway ready\r\n| p/Zarafa imapd/
+match imap m|^\* OK AXIGEN ([\w-_.]+) \(Linux/i686\) IMAP4rev1 service is ready\r\n| p/Axigen imapd/ i|Linux/i686| v/$1/ o/Linux/
+match imap m|^\* BYE Hi This is the IMAP SSL Redirect\r\n| p/Lotus Domino secure imapd/ i/SSL redirect/
+match imap m|^\* OK Hi This is the IMAP SSL Server .*\r\n| p/Lotus Domino secure imapd/
 
 # Fairly General
 match imap m|^\* OK IMAP4rev1 server ready at \d\d/\d\d/\d\d \d\d:\d\d:\d\d \r\n| p/MailEnable Professional imapd/ o/Windows/
@@ -1259,6 +1263,7 @@ match pop3 m|^\+OK [Dd]ovecot ready\.\r\n| p/Dovecot pop3d/
 match pop3 m|^\+OK dovecot MUA ready\r\n| p/Dovecot MUA pop3d/
 match pop3 m|^\+OK [Dd]ovecot ready\. ?<.*@([-\w_.]+)>\r\n| p/Dovecot pop3d/ h/$1/
 match pop3 m|^\+OK [Dd]ovecot on ([\w-_.]+) ready\.\r\n| p/Dovecot pop3d/ h/$1/
+match pop3 m|^\+OK Dovecot ready -| p/Dovecot pop3d/
 # teapop 0.3.5 on Linux 2.4
 match pop3 m|^\+OK Teapop \[v?(\d[-.\w ]+)\] - Teaspoon stirs around again .*\r\n| p/Teapop pop3d/ v/$1/
 # Qpopper v4.0.5 on Linux 2.4.19
@@ -1291,6 +1296,7 @@ match pop3 m/^\+OK ([-.\w]+) Cyrus POP3 v(\d[-.\w]+) server ready </ p/Cyrus pop
 match pop3 m|^\+OK ([-.\w]+) Cyrus POP3 v(\d[-.\w]+)-Red Hat [-\d.]+ server ready <| p/Cyrus pop3d/ h/$1/ v/$2/ i/Red Hat/ o/Linux/
 match pop3 m|^\+OK ([-.\w]+) Cyrus POP3 v(\d[-.\w]+)-OS X ([\d.]+) server ready <| p/Cyrus pop3d/ v/$2/ h/$1/ i/Mac OS X $3/ o/Mac OS X/
 match pop3 m|^\+OK ([-\w_.]+) Cyrus POP3 v(\S+Debian\S+) server ready| p/Cyrus pop3d/ v/$2/ h/$1/ i/Debian/ o/Linux/
+match pop3 m|^\+OK <[\d.]+@([\w-_.]+)> [\w-_.]+ Cyrus POP3 v([\w-_.]+) server ready\r\n| p/Cyrus pop3d/ h/$1/ v/$2/
 match pop3 m/^\+OK X1 NT-POP3 Server ([-\w.]+) \(IMail ([^)]+)\)\r\n/ p/IMail pop3d/ h/$1/ v/$2/
 match pop3 m/^\+OK POP3 \[cppop (\d[^]]+)\] at \[/ p/cppop pop3d/ v/$1/
 match pop3 m|^\+OK POP3 ([-\w_.]+) \[cppop (\d[^]]+)\] at \[| p/cppop pop3d/ v/$2/ h/$1/
@@ -1353,7 +1359,8 @@ match pop3 m|^\+OK POP3 \[([-\w_.]+)\] v([\d.]+) server ready\r\n| p/UW Imap pop
 match pop3 m|^\+OK POP3 server ready <\w{11}>\r\n$| p/WebSTAR pop3 server/
 match pop3 m|^\+OK Kerio MailServer (\d[-.\w]+) POP3 server ready <([-.\w@:]+)>\r\n$| p/Kerio MailServer POP3 Server/ v/$1/ i/$2/
 match pop3 m|^\+OK Kerio MailServer (\d[-.\w]+) POP3 server ready <| p/Kerio MailServer POP3 Server/ v/$1/
-match pop3 m|^\+OK Kerio MailServer (\d[-.\w]+) patch ([\d.]+) POP3 server ready <[\d.]+@([-\w_.]+)>\r\n| p/Kerio MailServer POP3 Server/ v/$1 patch 2/ h/$3/
+match pop3 m|^\+OK Kerio MailServer (\d[-.\w]+) patch ([\d.]+) POP3 server ready <[\d.]+@\(null\)>\r\n| p/Kerio MailServer POP3 Server/ v/$1 patch $2/
+match pop3 m|^\+OK Kerio MailServer (\d[-.\w]+) patch ([\d.]+) POP3 server ready <[\d.]+@([-\w_.]+)>\r\n| p/Kerio MailServer POP3 Server/ v/$1 patch $2/ h/$3/
 match pop3 m/^\+OK POP3-Server Classic Hamster (Vr\.|Version) [\d.]+ \(Build ([\d.]+)\) greets you! <.*>\r\n/ p/Classic Hamster pop3d/ v/$2/ o/Windows/
 match pop3 m|^\+OK Stalker POP3 Server ([\w.]+) at ([-\w_.]+) ready <.*>\r\n| p/Stalker pop3d/ v/$1/ h/$2/ o/Mac OS/
 match pop3 m|^\+OK ([-\w_.]+) POP3 service \(iPlanet Messaging Server ([-\w_.\s]+) \(built .*\)\)\r\n| p/iPlanet pop3d/ v/$2/ h/$2/
@@ -1439,6 +1446,7 @@ match pop3 m|^\+OK POP3 on WinWebMail \[([-\w_.]+)\] ready\.  http://www\.winweb
 match pop3 m|^\+OK POP3 server \(Neon Mail Server System Advance ([-\w_.]+), [^)]*\) ready ([-\w_.]+)\. <| p/Neon Mail Server pop3d/ v/$1/ h/$2/
 match pop3 m|^\+OK WorldMail POP3 Server ([-\w_.]+) Ready <[\d.]+@([-\w_.]+)>\r\n| p/Eudora Worldmail pop3d/ v/$1/ h/$2/ o/Windows/
 match pop3 m|^\+OK Welcome to the Atmail POP3 server - Login with user@domain\.\r\n| p/Atmail pop3d/
+match pop3 m|^\+OK Dovecot DA ready\. <[\w-_.=]+@([\w-_.]+)>\r\n| p/Dovecot DirectAdmin pop3d/ h/$1/
 match pop3 m|^\+OK Dovecot DA ready\.\r\n| p/Dovecot DirectAdmin pop3d/
 match pop3 m|^Unable to open trace file \"/var/spool/popper/| p/popper pop3d/ i/Misconfigured/
 match pop3 m|^\+OK SocketMail v ([-\w_.]+) SocketMail POP3 Server Ready\r\n| p/SocketMail pop3d/ v/$1/
@@ -1479,6 +1487,7 @@ match pop3-proxy m|^\+OK \[ISafe POP3 Proxy\] \r\n| p/ISafe pop3 proxy/
 match pop3-proxy m|^\+OK <[\d.]+@([-\w_.]+)> \[ISafe POP3 Proxy\] \r\n| p/ISafe pop3 proxy/ h/$1/
 match pop3-proxy m|^\+OK UserGate: forward ready\r\n-ERR UserGate: Mistake of the protocol\r\n| p/UserGate pop3 proxy/ o/Windows/
 match pop3-proxy m|^\+OK kingate pop3 proxy\r\n| p/kingate pop3-proxy/
+match pop3-proxy m|^\+OK POP3 Proxy Server Ready\r\n| p/IronMail pop3-proxy/
 
 # http://echelon.pl/pubs/poppassd.html
 # you give it username, present password and new password, and
@@ -3068,6 +3077,7 @@ match pop3 m|^\+OK pop server ready\r\n$| p/MailGate pop3d/ o/Windows/
 match pop3 m|^\+OK POP3 server ready <[-\w]+>\r\n-ERR Invalid command\r\n$| p/SmarterMail pop3d/ o/Windows/
 match pop3 m|^\+OK POP3\r\n-ERR Invalid command in current state\.\r\n-ERR Invalid command in current state\.\r\n| p/hMailServer/ o/Windows/
 match pop3 m|^\+OK IMAPD ready\.\r\n-ERR Unknown command\.\r\n-ERR Unknown command\.\r\n| p/Dovecot pop3d/
+match pop3 m|^\+OK ([\w-_.]+) Welcome\r\n-ERR Invalid command \(\) \(\) p1=\(\)\r\n-ERR Invalid command \(\) \(\) p1=\(\)\r\n| p/SurgeMail pop3d/ h/$1/
 
 # Perdition
 match pop3-proxy m|^\+OK POP3 Ready ([-\w_.]+) \w+\r\n-ERR Null command, mate\r\n| p/Perdition pop3 proxy/ h/$1/
@@ -5144,6 +5154,7 @@ match imap m|^\* OK Gimap ready for requests from [\d\.]+ ([\w\d]+)| p/Google Gm
 match imap m|^\* OK .*IMAP4rev1 Server Completed\r\nGET BAD Protocol Error: Invalid IMAP command specified\r\n| p/Cisco imapd/
 # embyte
 match imap m|^\* OK  MailSite IMAP4 Server ([-.\w]+) ready| p/MailSite imapd/ v/$1/
+match imap m|^\* OK ([\w-_.]+) Welcome \(cimap\)\r\nGET BAD Invalid command \(/\)\r\n\* BAD - command line Insufficient tokens \(\)\r\n| p/SurgeMail imapd/ h/$1/
 
 # Server: CUPS/1.1
 match ipp m|^HTTP/1\.0 \d\d\d .*<TITLE>Home - CUPS ([\d.]+)</TITLE>.*SUMMARY=\"Common UNIX Printing System|s p/CUPS/ v/$1/
