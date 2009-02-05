@@ -30,6 +30,5 @@ if not exist "%PYTHON%" (
 	exit /B 1
 )
 
-"%PYTHON%" "%PROG%" %*
-
-endlocal
+rem This command chaining allows the exit code to propagate.
+endlocal & "%PYTHON%" "%PROG%" %*
