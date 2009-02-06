@@ -70,6 +70,11 @@ o Fix the directory function(s) in nse_fs.cc to be usable by scripts and
 
 o NSE Performance in general
 
+o Consider adding a way for requesting timing status updates at a
+  given interval (such as every 5 seconds) to XML and/or normal
+  output.  This would be useful for people who run Nmap from scripts
+  or other higher level applications.
+
 o Look into whether we should loosen/change the global congestion
   control system to address possible cases of one target host with many
   dropped packets slowing down the whole group.  See
