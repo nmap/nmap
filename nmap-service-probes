@@ -654,7 +654,7 @@ match ftp m|^220 ATAboy2X-\d+ FTP V([\w-_.]+) ready\n| p/ATAboy2X ftpd/ d/storag
 match ftp m|^220 Belkin Network USB Hub Ver ([\w-_.]+) FTP server\.\r\n| p/Belkin USB hub ftpd/ v/$1/
 match ftp m|^220-TCP/IP for VSE FTP Daemon Version ([\w-_.]+) | p/VSE ftpd/ v/$1/ o/VSE/
 match ftp m|^220 FTP server: Lexmark Optra LaserPrinter ready\r\n| p/Lexmark Optra LaserPrinter ftpd/ d/printer/
-match ftp m|^220 NSE \(AG 5000   v([\w-_.]+)\) FTP server ready\r\n| p/Nomadix Service Engine ftpd/ d/WAP/ v/$1/
+match ftp m|^220 NSE \(AG 5000   v([\w-_.]+)\) FTP server ready\r\n| p/Nomadix AG 5000 ftpd/ d/WAP/ v/$1/
 match ftp m|^220 Welcome to Easy File Sharing FTP Server!\r\n| p/Easy File Sharing ftpd/ o/Windows/
 match ftp m|^220- \*+\r\n220- \r\n220-      Welcome to Dream FTP Server\r\n220-      Copyright 2002 - 2004\r\n220-      BolinTech Inc\.\r\n| p/BolinTech Dream FTP Server/ o/Windows/
 match ftp m|^220 Welcome to the Netburner FTP server\.\r\n| p/Netburner embedded device ftpd/ d/specialized/
@@ -2184,6 +2184,7 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd'\xff\xfd\x1f\xff\xfd\0\xff\xfb\
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfd\x1f\xff\xfd\0\xff\xfb\0Microsoft \(R\) Windows \(TM\) Version (\d[-.\w]+) \(Build (\d+)\)\r\nWelcome to Microsoft Telnet Service \r\nTelnet Server Build (\d[-.\w]+)\n\rlogin: | p/Microsoft Windows telnetd/ v/$3/ i/OS version $1 build $2/ o/Windows/
 # Windows XP telnetd
 match telnet m|^\xff\xfd%\xff\xfb\x01\xff\xfb\x03\xff\xfd'\xff\xfd\x1f\xff\xfd\0\xff\xfb\0| p/Microsoft Windows XP telnetd/ o/Windows XP/
+match telnet m|^\r\nNo more connections are allowed to telnet server\. Please try again later\.\0| p/Microsoft Windows XP telnetd/ o/Windows XP/ i/no more connections allowed/
 # IRIX 6.5.18f telnetd
 match telnet m|^\xff\xfd\x18\xff\xfd \xff\xfd#\xff\xfd\$| p/IRIX telnetd/ v/6.X/ o/IRIX/
 # OS 400 V4R4M0
@@ -2555,11 +2556,11 @@ match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03ADSL2\+ Wireless Ro
 match telnet m|^\xff\xfb\x01Symbol Access Point User/Admin password: | p/Symbol WAP telnetd/ d/WAP/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x03\xff\xfb\x05\xff\xfd\x18\xff\xfd\x1f\xff\xfd \xff\xfd!\xff\xfe\"\xff\xfc\"Username Access Verification\r\n\r\nLogin :| p/Zelax router telnetd/ d/router/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03Broadband Cable Device Telnet Daemon\n\r\n\rEnter user:| p|SMC8013WG cable modem/WAP telnetd| d/WAP/
-match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\x1bmbedded Telnet Server \r\n\r\nWARNING:  Access allowed by authorized users only\.\r\n\r\n| p/WebStar DPX 2203 cable modem telnetd/ d/router/
+match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\x1bmbedded Telnet Server \r\n\r\nWARNING:  Access allowed by authorized users only\.\r\n\r\n| p/WebStar DPX 2203 cable modem telnetd/ d/broadband router/
 match telnet m|^\xff\xfb\x01\xff\xfd\x01\xff\xfb\x03\xff\xfd\x03\xff\xfb\x05\xff\xfd\x05Welcome to Telnet Server ([\d.]+)\r\n\x1b\[0m\x1b\[2J\x1b\[05;28HDimension Switch (ES-\w+)\x1b\[07;22H| p/Zyxel $2 dimension switch telnetd/ v/$1/ d/switch/
 match telnet m|^\r\n\r\nPassword required, but none set\r\n| p/Cisco catalyst switch telnetd/ i/no password set/ d/switch/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x03\xff\xfd\x18\xff\xfd\x1fWelcome to your TiVo\r\n\r\n=\[tivo:root\]-# | p/Tivo telnetd/ i/OPEN/ d/media device/
-match telnet m|^\xff\xfa\x18\x01\xff\xf0\xff\xfb\x01\xff\xfb\x03AMBIT Cable Modem\r\n\r\nlogin: | p/Ambit cable modem telnetd/ d/router/
+match telnet m|^\xff\xfa\x18\x01\xff\xf0\xff\xfb\x01\xff\xfb\x03AMBIT Cable Modem\r\n\r\nlogin: | p/Ambit cable modem telnetd/ d/broadband router/
 match telnet m|^\xff\xfb\x01\x1b\[2J\x1b\[0m\x1b\[1;1H\x1b\[2;1H\x1b\[3;1H\x1b\[4;1H ###      ###  ###########   ##########  #############| p/Nortel Baystack 470-48t switch telnetd/ d/switch/
 match telnet m|^\xff\xfb\x01AN-30 Ver\. ([\d.]+) \(c\) Copyright 2000-2002 Redline Communications Inc\.\r\n\r\nUsername:\0| p/Redline Communications AN-30 wireless bridge telnetd/ v/$1/ d/WAP/
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\r\nNortel Networks Layer2-3 GbE Switch Module\.\r\n\r\n\r\nEnter password: | p/Nortel Gbe switch telnetd/ d/switch/
@@ -2633,6 +2634,7 @@ match telnet m|^\xff\xfe\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03login: $| p/Axis 21
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\nZyXEL Corporation Embedded Telnet Server \(c\) 2000-2003\r\n| p/ZyZel Prestige cable modem telnetd/ d/broadband router/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\nHGW EC506 login: | p/Huawei EC506 WAP telnetd/ d/WAP/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\0\n\*\*\* Lantronix Universal Device Server \*\*\*\r\0\nSerial Number (\d+)  MAC address (\w+)\n\r\0Software version V([\w-_.]+) | p/Lantronix UDS10 ethernet-serial telnetd/ i/serial $1; MAC $2/ v/$3/ d/specialized/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\*\*\* Lantronix UDS1100 Device Server \*\*\*\r\0\nMAC address (\w+)\n\r\0Software version V([\w-_.]+) \((\d+)\) \r\0\nPassword :| p/Lantronix UDS1100 ethernet-serial telnetd/ i/MAC $1/ v/$2 $3/ d/specialized/
 match telnet m|^\xff\xfb\x03\xff\xfd\x03\xff\xfb\0\xff\xfd\0\xff\xfb\x01\r\nMinix  (.*)\r\n\r\n([\w-_.]+) login:| p/Minix telnetd/ o/Minix/ v/$1/ h/$2/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03BCM96338 ADSL Router\r\n| p/Broadcom BCM96338 aDSL router telnetd/ d/broadband router/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03DSL Router\.  Welcome!\r\nLogin: | p/Broadcom BCM96345 aDSL router telnetd/ d/broadband router/
@@ -2645,14 +2647,15 @@ match telnet m|^\xff\xfd\0\xff\xfd\x1fWelcome to MLDonkey ([\w-_.]+)\n\x1b\[36mW
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\n\r +\*+\n\r +\*   POSTEF ADSL Modem/Router ([\w-_.]+) | p/POSTEF $1 aDSL router telnetd/ d/broadband router/
 match telnet m|^\xff\xfd\x03\xff\xfb\x01\xff\xfb\x03Belkin Network USB Hub Ver ([\w-_.]+) TELNET server\.| p/Belkin network USB hub telnetd/ d/specialized/ v/$1/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\*+\r\n\r\* +\*\r\n\r\*   The Gemini Project   \*\r\n\r\* +\*\r\n\r\*+\r\n\r\r\n\rwelcome on your dreambox! - Kernel ([\w-_.]+) | p/Dreambox media device telnetd/ i/Linux kernel $1/ o/Linux/ d/media device/
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nPLi dm500 Garnet \d+ \(based on ([\w-_.]+)\)\r\n\rwelcome on your dreambox! - Kernel ([\w-_.]+) \([\d:]+\)\.\r\n\rdreambox login: | p/Dreambox 500 media device telnetd/ i/Linux kernel $2; PLi image Garnet, based on $1/ o/Linux/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nPLi dm500 Garnet \d+ \(based on ([\w-_.]+)\)\r\n\rwelcome on your dreambox! - Kernel ([\w-_.]+) \([\d:]+\)\.\r\n\rdreambox login: | p/Dreambox 500 media device telnetd/ i/Linux kernel $2; PLi image Garnet, based on $1/ o/Linux/ d/media device/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nPLi\xae jade dm7020si\r\n\r\r\n\rdm7020si login: | p/Dreambox 7020si media device telnetd/ i/PLi image jade/ d/media device/ o/Linux/
 match telnet m|^\xff\xfb\x01\xff\xfb\x01\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\n\*+\r\n\*          All rights reserved \(1997-2004\)              \*\r\n\*      Without the owner's prior written consent,| p/Huawei Quidway Eudemon firewall telnetd/ d/firewall/ 
 match telnet m|^Welcome to the DataStage Telnet Server\.\r\0\r\nEnter user name: | p/WebSphere DataStage telnetd/
 match telnet m|^\xff\xfb\x01\xff\xfd\x03-?>?\r\nHi, my name is :     ([^\r\n]+)\r\nHere is what I know about myself:\r\nModel:               VSX ([\w-_.]+)\r\nSerial Number:       (\w+)\r\nSoftware Version:    Release ([\w-_.]+) -| p/VSX $2 telnetd/ d/telecom-misc/ i/name $1; serial $3/ v/$4/
 match telnet m|^\r\nSorry, this system is engaged by a rlogin session\.\r\nHost IP address: ([\d.]+)\.\nLogin name: ([\w-_.]+)\.\n| p/3Com LANplex switch telnetd/ i/in use by $2 from $1/ d/switch/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\xff\xfb\x03\xff\xfb\x01\r\n\r\nUser Access Verification\r\n\r\nUsername: | p/Cisco ASA firewall telnetd/ d/firewall/
 match telnet m|^Connected\r\nUse log command to LOGON\r\n$| p/IBM 2218 Link Level Converter telnetd/ d/specialized/
-match telnet m|^\xff\xfb\x01\xff\xfb\x03Grandstream GXP1200 Command Shell\r\nPassword: | p/Grandstream GXP1200 VoIP phone telnetd/ d/VoIP phone/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03Grandstream (\w+) Command Shell\r\nPassword: | p/Grandstream $1 VoIP phone telnetd/ d/VoIP phone/
 match telnet m|^Welcome to LDK-300 system\. Press enter\.\r\nYour address is| p/LG Aria LDK-300 PBX telnetd/ d/PBX/
 match telnet m|^\d+-NENET AB Ethernet Com Card V([\w-_.]+)  Built .*\r\nDebugOutput: \d+  DebugLevel: \d+\r\nHit 0-4 to change debug level, S for socket status\r\n| p/NENET AB ethernet telnet config/ v/$1/
 match telnet m=^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03ADSL Router\r\nLogin (?:user|name): = p/aDSL router telnet config/ d/broadband router/
@@ -2682,10 +2685,11 @@ match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03Siemens ADSL SL-214
 match telnet m|^\xff\xfb\x03\xff\xfb\x01Alcatel-Lucent: A7510\r\nA7510_(R\d+) .*\r\n\r\n\r\nLogin: | p/Alcatel-Lucent A7510 Media Gateway telnetd/ v/$1/ d/telecom-misc/
 match telnet m|^\xff\xfd\x18\xff\xfd\x1f\xff\xfd!\xff\xfd\x17\xff\xfb\x01\xff\xfb\x03\xff\xfd \xff\xfd#\r\n\r\n Welcome to OpenVMS \(TM\) VAX Operating System, Version V([\w-_.]+)    \r\n\r\n\r\0Username: | p/MultiNet OpenVMS telnetd/ o/OpenVMS/ i/OpenVMS $1; VAX/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\n>>>  System ([\w-_.]+) - OpenVMS Alpha V([\w-_.]+)  <<<\r\n\r\n\rUsername: | p/OpenVMS telnetd/ h/$1/ o/OpenVMS/ i/OpenVMS $2; Alpha/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\n Welcome to OpenVMS \(TM\) Alpha Operating System, Version V([\w-_.]+)  \r\n\r\n\rUsername: | p/OpenVMS telnetd/ o/OpenVMS/ i/OpenVMS $1; Alpha/
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\r\nGbE2c Ethernet Blade Switch for HP c-Class BladeSystem\.\r\n\r\nCopyright\(C\)2003 Hewlett-Packard Development Company, L\.P\.\r\n\r\n\r\nEnter password: | p/HP GbE2c Ethernet Blade Switch telnetd/ d/switch/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nWelcome to \r\n\r\r\n\r       ###### .*Have a good time !! ;-\)\r\n\rCyberVia login:|s p/Cybervia media center telnetd/ d/media device/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\n\r\n\*+\r\n\*  Welcome to D-Link Wireless Print Server  \*\r\n\*             Telnet Console                \*\r\n\*+\r\n\r\nServer Name    :  ([\w-_.]+)\0\0\0\0\0\0\r\nServer Model   :  (DP-\w+)\0+\r\nF/W Version    :  ([\w-_.]+)\0\x06\0\0\0\0\r\nMAC Address    :  ([\w ]+)| p/D-Link $2 wireless print server telnetd/ h/$1/ i/FW $3; MAC $4/
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\*+\r\n\r\* +\*\r\n\r\*   The Gemini Project   \*\r\n\r\* +\*\r\n\r\*+\r\n\r\r\n\rOpenDreambox ([\w-_.]+) dm600pvr\r\n| p/Dreambox 600PVR telnetd/ i/OpenDreambox $1/ d/media-device/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\*+\r\n\r\* +\*\r\n\r\*   The Gemini Project   \*\r\n\r\* +\*\r\n\r\*+\r\n\r\r\n\rOpenDreambox ([\w-_.]+) (\w+)\r\n| p/Dreambox $1 telnetd/ i/OpenDreambox $2/ d/media-device/
 match telnet m|^\xff\xfe\"\xff\xfb\x01\x1b\[7m\x1b\[f\x1b\[9B\x1b\[9B\x1b\[5B  ArrowKey Or AZ:Move Cursor, Enter:Select, ESC:Escape, L:Line Draw, X:Redraw   \x1b\[0m\x1b<\x1b>\x1b\[\?25l\x1b\[0m\x1b\[2J\x1b\(B\x1b\)0\x0f\x1b\[7m\x1b\[f +Areca Technology Corporation RAID Controller| p/Areca RAID-Controller telnetd/ d/storage-misc/
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\x1b\[0m\x1b\[2J\x1b\[0m\x1b\[2J\x1b\[21;1H\x1b\[0m\*+\x1b\[22;1H\x1b\[0mMessage Area:\x1b\[24;1H\x1b\[7mCTRL\+R = Refresh +\x1b\[9;16H\x1b\[0mSSR22i Stackable Fast Ethernet Switch Console Management| p/Amer.com SSR22i switch telnetd/ d/switch/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03U\.S\. Robotics ADSL 4-Port Router\r\nLogin: | p/US Robotics ADSL router telnetd/ d/broadband router/
@@ -2694,6 +2698,16 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\n\r\0\*\*\* Mitsubishi ProjectorView Se
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03ROTAL Wireless ADSL2\+ Router RTA1025W \r\nSoftware Version: ([\w-_.]+)\r\nLogin name: | p/ROTAL ADSL WAP telnetd/ d/WAP/ v/$1/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03 === IMPORTANT ============================\r\n  Use 'passwd' to set your login password\r\n  this will disable telnet and enable SSH\r\n.*\r\n KAMIKAZE \(bleeding edge, (r\d+)\)|s p/OpenWRT telnetd/ i/Kamikaze $1/ d/WAP/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03                        =======================\r\n                               DSL-500B       \r\n                        =======================\r\nLogin:| p/D-Link DSL-500B telnetd/ d/broadband router/
+match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\n\r\n\r\nAG 5000\r\n\r\n\r\nLogin: | p/Nomadix AG 5000 telnetd/ d/WAP/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nWelcome to Linux \(ZEM500\) for MIPS\r\n\rKernel ([\w-_.]+) \w+ on an MIPS\r\n\rZEM500 login: | p/ZKSoftware ZEM500 fingerprint reader telnetd/ d/security-misc/ i/Linux $1; MIPS/
+match telnet m|^\xff\xfb\x01\xff\xfe\x01Connected\r\n\n\rAironet BR500E V([\w-_.]+)                Main Menu| p/Cisco Aironet BR500E telnetd/ v/$1/ d/WAP/
+match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03login: | p/D-Link WBR-1310 WAP telnetd/ d/WAP/
+match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03TrioLink \(ADSL IAD\)\r\nLogin: | p/Nortel-LG VoIP IAD telnetd/ d/PBX/
+match telnet m|^Linux ([\w-_.]+) \[INSTALL: [\d-]+\]\nLASTPATCH: [\d-:]+\n| p/Netkit-telnetd/ o/Linux/ i/Linux $1/
+match telnet m|^\xff\xfb\0\xff\xfd\0\xff\xfb\x01\xff\xfd\x01\xff\xfb\x03\xff\xfd\x03\x1b\[0;37;40m\x1b\[2J\x1b\[1;1HLogin Name:  | p/HP Remote Insight Lights-Out telnetd/ d/remote management/
+match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03Xcelerator IP \r\nLogin: | p/Vertical Xcelerator IP telnetd/ d/VoIP adapter/
+match telnet m|^Console is locked by another telnet/SSH application!\n| p/Arris tm602g cable modem telnetd/ i/console in use/ d/broadband router/
+match telnet m|^odec=\d+ u=\d+, p=\d+, i=\d+, max entries = \d+ \r\n\d+: IMGREQUEST: request_stats, image buffers available = \d+ \r\n\d+: MAIN: (\d+) images\(J=\d+, P=\d+, I=\d+\) stored on disk in last minute| p/Dedicated Micros Digital Sprite 2 DVR debug telnetd/ i/$1 images saved in last minute/ d/webcam/
 
 match telnet-proxy m|^nodnsquery/[\d.]+ is not authorized to use the telnet proxy\r\n| p/Gauntlet telnet proxy/
 match telnet-proxy m|^Eingabe Servername\[:Port\] : | p/JanaServer telnet proxy/ i/German/
@@ -3199,7 +3213,7 @@ match telnet m|^\r\n\r\nThis is a FirstClass system, from Open Text Corporation\
 match telnet m|^\xff\xfb\x01\r\nPassword:\r\nLogged in as guest\r\n| p/Linkstar Comsat router telnetd/ d/router/
 match telnet m|^\xff\xfb\x01Login: \r\nLogin: \r\nLogin: | p/Lingo VoIP config telnetd/ d/VoIP adapter/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\nuser: \r\npassword: \r\n\r\nuser: | p/KIRK Wireless Server 600 telnetd/ d/VoIP adapter/
-match telnet m|^\xff\xfb\x01\n\r-> \n\r-> \n\r-> | p/Coresma Phazer Docsis USB cable modem telnetd/ d/router/
+match telnet m|^\xff\xfb\x01\n\r-> \n\r-> \n\r-> | p/Coresma Phazer Docsis USB cable modem telnetd/ d/broadband router/
 match telnet m|^bad password\r\n$| p/Cybersitter CLI/
 match telnet m|^\xff\xfd\"\xff\xfb\x01SSE version ([\d.]+)\r\nCopyright [\d, ]+ by Motorola\r\nUsername:| p/Motorola Canopy telnetd/ i/SSE $1/ d/telecom-misc/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\n\[ORiNOCO-AP-[-\w]+\]> Please enter password: \r\nIncorrect Password\r\n\r\n\[ORiNOCO-AP-[-\w]+\]> Please enter password: \r\n| p/ORiNOCO wireless router telnetd/ d/router/
@@ -3225,6 +3239,8 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03Welcome to the Windows CE Telnet service
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\x1b\[2J\x1b\[H \n\r\0\x1b\[H\x1b\[JPASSaPORT CS-(\d+)  SW V([-\w_.]+) , HW V([-\w_.]+)\r\n\r\n| p/RADLINX PASSaPORT CS terminal server telnetd/ i/$1 ports; SW $2; HW $3/ d/terminal server/
 match telnet m|^\xff\xfb\x01\r\nlogin: \r\npassword: \r\nLogin incorrect!\r\n$| p/Netgear GS108T switch telnetd/ d/switch/
 match telnet m|^\xff\xfb\x01\xff\xfd\x01\xff\xfe\x01\xff\xfd\x03\xff\xfb\x03\*+\r\n\r\nThis session allows you to set the TCPIP parameters for your\r\nLexmark (\w+) Ethernet internal network device, with a hardware\r\naddress of (\w+) (\w+) | p/Lexmark $1 printer telnetd/ i/MAC $2; MAC2 $3/ d/printer/
+match telnet m|^\*+\r\n\r\nThis session allows you to set the TCPIP parameters for your\r\nLexmark (\w+) Ethernet internal network device, with a hardware\r\naddress of (\w+) (\w+) | p/Lexmark $1 printer telnetd/ i/MAC $2; MAC2 $3/ d/printer/
+match telnet m|^\*+\r\n\r\nThis session allows you to set the TCPIP parameters for your\r\nLexmark Optra LaserPrinter internal network device, \r\nwith a hardware address of (\w+)     (\w+)\r\n| p/Lexmark Optra LaserPrinter telnetd/ d/printer/ i/MAC $1; MAC2 $2/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfb\x1fError2 negotiated with client \d+ and get 1 char is a a d\. \n\r\n\r\*+\n\r\*\* +\*\*\n\r\*\* IP Phone firmware +V([\w-_.]+) | p/Thomson VoIP phone telnetd/ v/$1/ d/VoIP phone/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\nTOSHIBA Maintenance Shell\.   \n\rUser access verification\.\n\rlogin:| p/Toshiba print server telnetd/ d/print server/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\xff\xfb\x01\xff\xfb\x03\r\nLogin: \r\r\nPassword: \r\r\n\r\r\nLogin failed\r\r\n\r\r\nLogin: | p/Siemens SANTIS WAP telnetd/ d/WAP/
@@ -3422,7 +3438,7 @@ match http m|^HTTP/1\.0 302 Moved Temporarily\r\nserver: IronPort httpd/(\d[-.\w
 match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R(\d[-.\w]+)\r\nContent-Type: text/html\r\nExpires: .*\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n\r\n\n<html>\n<head><title>(CopperJet [-.+\w ]+)</title>| p/Allied Data CopperJet aDSL modem/ i/Embedded Virata-EmWeb $1; $2/ d/broadband router/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\nServer: dhttpd/(\d[-.\w]+)\r\n| p/dhttpd/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Snap Appliance, Inc\./(\d[-.\w]+)\r\n| p/Snap Appliance storage system webadmin/ v/$1/
-match http m|^HTTP/1\.0 200 OK\r\nPragma: no-cache\r\nContent-Type: text/html\r\n\r\n<HTML>\n<FRAMESET COLS=\"105,\*\" FRAMEBORDER=NO BORDER=0\nFRAMESPACING=0>\n<FRAME SRC=\"/side\.html\" SCROLLING=NO>\n<FRAME SRC=\"/startupdata\.html\">\n</FRAMESET>\n</HTML>\n$| p/Motorola cable modem webadmin/ d/router/
+match http m|^HTTP/1\.0 200 OK\r\nPragma: no-cache\r\nContent-Type: text/html\r\n\r\n<HTML>\n<FRAMESET COLS=\"105,\*\" FRAMEBORDER=NO BORDER=0\nFRAMESPACING=0>\n<FRAME SRC=\"/side\.html\" SCROLLING=NO>\n<FRAME SRC=\"/startupdata\.html\">\n</FRAMESET>\n</HTML>\n$| p/Motorola cable modem webadmin/ d/broadband router/
 match http m|^HTTP/1\.0 200 OK\nDate: .*\nServer: Intel NetportExpressPro/(\d[-.\w]+)\n| p/Intel NetportExpress Pro print server webadmin/ v/$1/ d/print server/
 match http m|^HTTP/1\.0 200 Ok\r\nContent-Type: text/html; charset=\"utf-8\"\r\n\r\n<HTTP>\r\n<HEAD>\r\n  <TITLE>MythTV Status</TITLE>| p/MythTV Linux PVR webadmin/ o/Linux/
 
@@ -3907,7 +3923,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Oracle Containers for J2EE\r\n.*<TI
 match http m|^HTTP/1\.0 \d\d\d .*\r\nContent-type: text/html\r\nCache-Control: public\r\nPragma: cache\r\nExpires: .*\r\nWWW-Authenticate: Basic realm=\"Linksys WRV54G\"\r\n| p/Linksys WRV54G router http config/ d/router/
 match http m|^HTTP/1\.0 \d\d\d .*\r\ncontent-length: \d+\r\ncontent-type: text/html\r\ndate: .*<title>MikroTik RouterOS Managing Webpage</title>|s p/MikroTik httpd/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Embedded HTTP Server v([\d.]+)\r\n.*<body bgcolor=\"#DAE3EB\"|s p/SMC wireless router http config/ i/Embedded httpd $1/
-match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Askey Software ([\d.]+)\r\n.*<title>Scientific.A..anta WebStar Cable Modem</title>.*|si p/Scientific Atlanta WebStar cable modem http config/ d/router/
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Askey Software ([\d.]+)\r\n.*<title>Scientific.A..anta WebStar Cable Modem</title>.*|si p/Scientific Atlanta WebStar cable modem http config/ d/broadband router/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nConnection: close\r\nServer: XES 8830 WindWeb/([\d.]+)\r\n| p|Xerox 8830 printer/plotter httpd| i/WinWeb $1/ d/printer/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Embedded HTTP Server USR([\w_.]+)\r\nWWW-Authenticate: Basic realm=\"([^"]+)\"\r\nConnection: close\r\n\r\n<| p/USR router http config/ i/Embedded httpd $1; Name $2/ d/router/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Embedded HTTP Server ([\w_.]+)\r\nWWW-Authenticate: Basic realm=\"(USR\d+)\"\r\nConnection: close\r\n\r\n| p/$2 wireless router http config/ i/Embedded httpd $1/ d/router/
@@ -4647,7 +4663,7 @@ match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"Wusa
 match http m|^HTTP/1\.1 401 \r\nServer: PrintSir WEBPORT ([\d.]+)\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"Default password:sitecom\"\r\n\r\n| p/Sitecom print server http config/ i/Webport httpd $1; default password sitecom/ d/print server/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Sphere V([^\r\n]+)\r\n| p/Ultima online sphere httpd/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: BlueDragon Server ([\d.]+)\r\n| p/New Atlanta BlueDragon httpd/ v/$1/
-match http m|^HTTP/1\.1 200 OK\r\nServer: WSTL CPE ([\d.]+)\r\n| p/Westel cable modem http config/ v/$1/ d/router/
+match http m|^HTTP/1\.1 200 OK\r\nServer: WSTL CPE ([\d.]+)\r\n| p/Westel cable modem http config/ v/$1/ d/broadband router/
 match http m|^HTTP/1\.1 200 OK\r\n.*\r\n<title>Welcome to VMware VirtualCenter ([\d.]+)</title>|s p/VMware VirtualCenter httpd/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: vdradmind/([-\w_.]+)\r\n| p/vdradmin http config/ v/$1/ o/Linux/
 match http m|^HTTP/1\.0 \d\d\d .*<TITLE>Actiontec MegaControl Panel</TITLE>|s p/Actiontec router http config/ d/router/
@@ -4675,9 +4691,9 @@ match http m|^HTTP/1\.0 200 Ok\r\nServer: httpd\r\n.*<script type=\"text/javascr
 match http m|^HTTP/1\.1 401 N/A\r\nServer: TP-LINK Router\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"TP-LINK Wireless AP WA501G\"| p/TP-LINK WA501G WAP http config/ d/WAP/
 match http m|^HTTP/1\.1 401 N/A\r\nServer: TP-LINK Router\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"TP-LINK Wireless Router WR541G/542G\"| p|TP-LINK WR541G/542G WAP http config| d/WAP/
 match http m|^HTTP/1\.1 401 N/A\r\nServer: Router\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"TP-LINK Wireless Router WR541G/542G\"\r\n| p|TP-LINK WR541G/542G WAP http config| d/WAP/
-match http m|^HTTP/1\.0 200 OK\r\nServer: Terayon/([\d.]+)\r\nContent-type: text/html\r\n\r\n<html><head><title>Cable Modem Information Center</title>| p/Terayon cable modem http config/ v/$1/ d/router/
+match http m|^HTTP/1\.0 200 OK\r\nServer: Terayon/([\d.]+)\r\nContent-type: text/html\r\n\r\n<html><head><title>Cable Modem Information Center</title>| p/Terayon cable modem http config/ v/$1/ d/broadband router/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Tornado/([-\w_.]+)\r\n| p/Puakma Tornado httpd/ v/$1/
-match http m|^<html><head><title>Cannot find server</title></head><body>\n<br>Access to this web page is currently unavailable\.<P><HR></BODY></HTML>\n$| p/Arris cm450 cable modem http config/ d/router/
+match http m|^<html><head><title>Cannot find server</title></head><body>\n<br>Access to this web page is currently unavailable\.<P><HR></BODY></HTML>\n$| p/Arris cm450 cable modem http config/ d/broadband router/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"RV082\"\r\n| p/Linksys RV082 VPN router http config/ d/router/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: \r\n.*WWW-Authenticate: Basic realm=\"Linksys WAG54GS|s p/Linksys WAG54GS broadband router http config/ d/broadband router/
 match http m|^HTTP/1\.1 \d\d\d .*href=\"images/favicon\.ico\">\n<title>NETGEAR ProSafe\x99 - Welcome to Configuration Manager Login</title>\n<!--\nCopyright \(c\) 2005-2006 TeamF1|s p/Netgear ProSafe FVS338 VPN firewall http config/ d/firewall/
