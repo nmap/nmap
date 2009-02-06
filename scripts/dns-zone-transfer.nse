@@ -263,17 +263,42 @@ end
 
 function parse_records(number, data, table, offset)
 	while number > 0 do
+		tab.nextrow(table)
 		offset = get_answer_record(table, data, offset)
 		number = number - 1
-		if number > 0 then tab.nextrow(table) end
 	end
 	return offset
 end
 
-function dump_zone_info(table, data, offset)
-	local answers, line
+-- An iterator that breaks up a concatentation of responses. In DNS over TCP,
+-- each response is prefixed by a two-byte length (RFC 1035 section 4.2.2).
+-- Reponses returned by this iterator include the two-byte length prefix.
+function responses_iter(data)
+	local offset = 1
+
+	return function()
+		local length, remaining, response
+
+		remaining = string.len(data) - offset + 1
+		if remaining == 0 then
+			return nil
+		end
+		assert(remaining >= 14 + 2)
+		length = bto16(data, offset)
+		assert(length <= remaining)
+		-- + 2 for the length field.
+		length = length + 2
+		response = string.sub(data, offset, offset + length - 1)
+		offset = offset + length
+		return response
+	end
+end
+
+function dump_zone_info(table, data)
+	local answers, line, offset
 	local questions, auth_answers, add_answers
 	
+	offset = 1
 	-- number of available records
 	questions = bto16(data, offset+6)
 	answers = bto16(data, offset+8)
@@ -363,8 +388,8 @@ action = function(host, port)
 	end
 
 	-- parse zone information from all returned packets
-	while(offset < length) do
-		offset = dump_zone_info(table, response_str, offset)
+	for r in responses_iter(response_str) do
+		dump_zone_info(table, r)
 	end
 
 	soc:close()

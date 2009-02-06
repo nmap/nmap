@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a DNS decoding bug in dns-zone-transfer.nse that created
+  garbage output and could crash Zenmap by including 0x0C bytes in XML
+  files. The Zenmap crash looked like
+    SAXParseException: .../zenmap-XXXXXX.xml:39:290: not well-formed (invalid token)
+  [David]
+
 o [NSEDoc] Scripts that use modules automatically have the script
   arguments defined by those modules included in their documentation.
   It's no longer necessary to manually supply @args for the arguments
