@@ -944,6 +944,8 @@ match imsp m|^\* OK Cyrus IMSP version (\d[-.\w]+) ready\r\n$| p/Cyrus IMSPd/ v/
 
 match infopark m|^\d+{infopark tcl-Interface-Server} {CM ([\w-_.]+)| p/Infopark Fiona TCL interface/ v/$1/
 
+match intranetchat m|^\d+\0FORWARD\0\x0b\xc2c\x0c\xc1a\x9f@| p/Intranet Chat Server/
+
 # ircd-hybrid 7 on Linux
 match irc m=^NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\nNOTICE AUTH :\*\*\* Checking Ident\r\nNOTICE AUTH :\*\*\* (No|Got) Ident response\r\nNOTICE AUTH :\*\*\* (Couldn't look up|Found) your hostname\r\n$= p/Hybrid-based ircd/
 match irc m=^NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\nNOTICE AUTH :\*\*\* Checking Ident\r\nNOTICE AUTH :\*\*\* (Couldn't look up|Found) your hostname\r\nNOTICE AUTH :\*\*\* (No|Got) Ident response\r\n$= p/Hybrid-based ircd/
@@ -1004,12 +1006,14 @@ match irc m|(^:[-.\w]+) NOTICE AUTH :BitlBee-IRCd initialized, please go on\r\n|
 match irc m|^Warning: Unable to read configuration file `.*/bitlbee\.conf'\.\n:[-\w_.]+\. NOTICE AUTH :BitlBee-IRCd initialized, please go on\r\n| p/BitlBee IRCd/
 
 match irc m|^:([-\w_.]+) NOTICE Auth :Looking up your hostname\.\.\.\r\n| p/Inspircd ircd/ h/$1/
+match inspircd-spanning-tree m|^CAPAB START\r\nCAPAB MODULES [\w-_]+\.so,| p/Inspircd spanning tree/
 
 # PTlink6.15.2 on Linux 2.4
 match irc m|^NOTICE AUTH :\*\*\* Hostname lookup disabled, using your numeric IP\r\nNOTICE AUTH :\*\*\* Checking Ident\r\n| p/PTlink ircd/
 match irc m|(^:[-.+\w]+) NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\n:[-.+\w]+ NOTICE AUTH :\*\*\* Checking Ident\n:[-.+\w]+ NOTICE AUTH :\*\*\* Found your hostname\n| p/Bahamut Dalnet ircd/ i/derived from DreamForge and Hybrid/ h/$1/
 
 match irc m|^ERROR Your host is trying to \(re\)connect too fast -- throttled\r\n| p/IRC2000 Pro ircd/
+match irc m|^IRCXPRO ([\w-_.]+)\r\nAUTHREQUEST :Authentication Required\r\n| p/IRCXPRO admin ircd/ v/$1/
 
 match irc-proxy m|^:.*!psyBNC@lam3rz\.de NOTICE \* :psyBNC([-.\w]+)\r\n| p/psyBNC/ v/$1/
 match irc-proxy m|^:.*!pb@lam3rz\.de NOTICE \* :pb([-.\w]+)\r\n| p/psyBNC/ v/$1/
@@ -5001,6 +5005,7 @@ match http m|^HTTP/1\.0 302 Moved Temporarily\r\nDate: .*\r\nServer: SMSSMTPHTTP
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: MediabolicMWEB/([\w-_.]+)\r\n|s p/Mediabolic http config/ v/$1/ d/storage-misc/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Ubicom/([\w-_.]+)\r\n.*<title>SMC StreamEngine Router : Login</title>|s p/SMC StreamEngine router http config/ i/Ubicom httpd $1/ d/router/
 match http m|^HTTP/1\.1 200 OK\r\nServer: d-Box network\r\n\r\n| p/Dreambox streaming audio httpd/ d/media-device/
+match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nDate: .*\r\nServer: jtvchat\r\n\r\n<html>\n<head><title>Justin\.tv chat servers</title>| p/justin.tv chat server httpd/
 
 #(insert http)
 
@@ -5233,6 +5238,7 @@ match ingrian-xml m|^<GenericError><Success>false</Success><FatalError>101</Fata
 
 # Jabber 1.4.2
 match jabber m|^<stream:stream xmlns:stream='http://etherx\.jabber\.org/streams' version='([\d.]+)'>| p/Jabber instant messaging server/ i/Protocol $1/
+match jabber m|^<stream:stream version='([\d.]+)' from='[\w-_.]+' xmlns:stream='http://etherx\.jabber\.org/streams'>| p/Jabber instant messaging server/ i/Protocol $1/
 
 match jabber m|^<\?xml version='1\.0'\?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx\.jabber\.org/streams' id='none' from='([-\w_.]+)' version='([\d.]+)'>| p/ejabberd/ h/$1/ i/Protocol $2/
 match jabber m|^<\?xml version='1\.0'\?><stream:stream xmlns:stream='http://etherx\.jabber\.org/streams' xmlns='jabber:server' xmlns:db='jabber:server:dialback'| p/ejabberd/
@@ -6066,6 +6072,7 @@ match irc m|^:([-\w_.]+) 451 \*  :Register first\.\r\n| p/ircu ircd inter-server
 match irc m|^:([-\w_.]+) 451 HELP :You have not registered\r\n| p/ircu ircd/ h/$1/
 match irc m|^:([-\w_.]+) 451  HELP :Register first\.\r\n| p/ircu ircd/ h/$1/
 match irc m|^NOTICE AUTH :\*\*\* Checking Ident\r\n:([-\w_.]+) 451 \*  :Register first\.\r\n| p/ircu ircd/ h/$1/
+match irc m|^:([\w-_.]+) 451 \* :Connection not registered\r\n| p/ngircd/ h/$1/
 
 match nntp m|^200 NNTP server ready\r\n100 Avaliable commands:\r\nARTICLE\r\nAUTHINFO\r\nBODY\r\nGROUP\r\nHEAD\r\nHELP\r\nIHAVE\r\nLAST\r\nLIST\r\nNEWGROUPS\r\nNEWNEWS\r\nNEXT\r\nPOST\r\nQUIT\r\nSLAVE\r\nSTAT\r\nXHDR\r\n\.\r\n| p/Hamster Playground nntpd/ o/Windows/
 match nntp m|^200 ([\w-_.]+) news server ready - posting ok\r\n100 Help text follows\r\n$| p/Intersquish nntpd/ h/$1/ o/Windows/
@@ -6536,10 +6543,13 @@ totalwaitms 7500
 
 match imsp m|^VIA: BAD IMSP busy\r\nFROM: BAD IMSP busy\r\nTO: BAD IMSP busy\r\n|
 
-match sip m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: PolycomSoundStationIP-SSIP_(\d+)-UA/([\d.]+)\r\n|s p/Polycom SoundPoint $1/ v/$2/ d/VoIP phone/
+match sip m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: PolycomSoundStationIP-SSIP_(\d+)-UA/([\w-_.]+)\r\n|s p/Polycom SoundPoint $1/ v/$2/ d/VoIP phone/
+match sip m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: PolycomSoundPointIP-SPIP_(\d+)-UA/([\w-_.]+)\r\n|s p/Polycom SoundPoint $1/ v/$2/ d/VoIP phone/
 match sip m|^SIP/2\.0 400 Invalid Contact information\r\n.*received=[\d.]+;ms-received-port=\d+;ms-received-cid=\d+\r\n|s p/Microsoft Live SIP client/ o/Windows/
 match sip m|^SIP/2\.0 501 Not Implemented.*\r\nServer: SJphone/([-\w_.]+) \(SJ Labs\)\r\n|s p/SJphone SIP client/ v/$1/
 match sip m|^SIP/2\.0 404 Not Found\r\n.*\r\nUser-Agent: Speedport ([\w-_. ]+) \(|s p/T-Com Speedport/ v/$1/ d/broadband router/
+match sip m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: X-Lite release ([\w-_. ]+)\r\n|s p/X-Lite SIP phone/ v/$1/ d/VoIP phone/
+match sip m|^SIP/2\.0 404 Not Found\r\n.*\r\nServer: Twinkle/([\w-_.]+)\r\n|s p/Twinkle softphone/ o/Linux/ v/$1/
 
 match sip-proxy m|^SIP/2\.0 404 Not Found\r\n.*\r\nUser-Agent: Asterisk PBX ([\w-_.]+)\r\n|s p/Asterisk PBX/ v/$1/ d/PBX/
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: OpenS[Ee][Rr] \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/OpenSER SIP Server/ v/$1/ i/$2/
@@ -6547,6 +6557,10 @@ match sip-proxy m|^SIP/2\.0 .*\r\nServer: Sip EXpress router \(([\w\d\.-]+) \(([
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: Cisco-SIPGateway/IOS-([-\d\w.]+)\r\n|s p/Cisco SIP Gateway/ i/IOS $1/ o/IOS/ d/router/
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: Sphericall/([\w-_.]+) Build/(\d+)\r\n|s p/Sphericall VoIP Gateway/ v/$1 build $2/ o/Windows/
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: CommuniGatePro/([\w-_.]+)\r\n|s p/CommuniGatePro VoIP Gateway/ v/$1/
+match sip-proxy m|^SIP/2\.0 .*\r\nServer: Sip EXpress router \(([\w-_.]+) OpenIMSCore \(i386/linux\)\)\r\n|s p/OpenIMSCore SIP EXpress router/ v/$1/ o/Linux/ i/Linux i386/
+match sip-proxy m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: FreeSWITCH-mod_sofia/([\w-_.]+)\r\n|s p/FreeSWITCH mod_sofia/ v/$1/
+match sip-proxy m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: 3CXPhoneSystem ([\w-_.]+)\r\n|s p/3CX PhoneSystem PBX/ v/$1/ o/Windows/
+match sip-proxy m|^SIP/2\.0 503 Remote end of tunnel is not connected\r\n.*\r\nWarning: \d+ \w+ \"Remote end of the bridge is not connected\"\r\n|s p/3CX PhoneSystem PBX/ o/Windows/ i/misconfigured/
 
 softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n.*Server: ([-\w\s/_.]+)\r\n|s p/$2/ i/Status: $1/
 softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n| i/SIP end point; Status: $1/
