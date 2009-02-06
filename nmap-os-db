@@ -30438,7 +30438,7 @@ IE(DFI=N|O|S|Y%T=3B-45%TG=40%TOSI=Z%CD=Z%SI=S%DLI=S)
 # Tandberg T1000 [TTC7-02] integrated Video Conferencing Unit
 # Tandberg Codec 2500, also known as: Tandberg 2500 Classic, Firmware=B10.3
 # Tandberg T1000 portable video conference codec
-Fingerprint Tandberg video conferencing system (990 MXP, 1000 MXP, or 2500)
+Fingerprint Tandberg video conferencing system (1000, 2500, or 990 MXP)
 Class Tandberg | embedded || webcam
 SEQ(SP=FD-109%GCD=<7%ISR=101-111%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
