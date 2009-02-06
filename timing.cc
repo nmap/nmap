@@ -560,6 +560,11 @@ bool ScanProgressMeter::printStats(double perc_done,
   time_t timet;
   struct tm *ltime;
 
+  if (!now) {
+    gettimeofday(&tvtmp, NULL);
+    now = (const struct timeval *) &tvtmp;
+  }
+
   last_print = *now;
 
   // If we're less than 1% done we probably don't have enough
@@ -570,11 +575,6 @@ bool ScanProgressMeter::printStats(double perc_done,
         scantypestr, perc_done * 100);
     log_flush(LOG_STDOUT);
     return true;
-  }
-
-  if (!now) {
-    gettimeofday(&tvtmp, NULL);
-    now = (const struct timeval *) &tvtmp;
   }
 
   /* OK, now lets estimate the time to finish */
