@@ -1,22 +1,16 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Deal with GTK DLL problem with Nmap 4.85BETA1: [Fyodor]
-  o David's installer seems to work--he's using a different GTK
-    distribution.  I'll try that.
-  o Details on problem: http://seclists.org/nmap-dev/2009/q1/0207.html
-  o Quick workaround done for 4.85BETA2, but better solution needed.
+o Fix XML escaping problem so that improper chars from NSE scripts or
+  elsewhere can't cause corrupt XML files.  See
+  http://seclists.org/nmap-dev/2009/q1/0316.html for an example.
+
+o Fix dns-zone-transfer infinite recursion bug descrobed at
+  http://seclists.org/nmap-dev/2009/q1/0317.html.  It sounds like the
+  best approach is to use our dns.lua library rather than having
+  dns-zone-transfer do its own DNS packet parsing.
 
 o If it wouldn't bloat things too much, it would be nice to include
   ndiff in the Nmap win32 zip distribution files.
-
-o Reported NSE crash:
-  "Assertion failed - file ..\nse_main.cc line 314
-   lua_gettop(L_script_scan) == 0"
-  o He says: "After looking at this closer, it appears the assertion
-    occurs if I include the IP where the scan is run from. For us, I'm
-    running this on IP 57, which is a VMware Windows Server image.  If
-    I eliminate that IP from the range it successfully completed the
-    scan for all other devices."
 
 o Make Zenmap settings get upgraded when the Zenmap executable is
   upgraded. The per-user configuration files such as scan_profile.usp
@@ -415,6 +409,23 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Reported NSE crash:
+  "Assertion failed - file ..\nse_main.cc line 314
+   lua_gettop(L_script_scan) == 0"
+  o He says: "After looking at this closer, it appears the assertion
+    occurs if I include the IP where the scan is run from. For us, I'm
+    running this on IP 57, which is a VMware Windows Server image.  If
+    I eliminate that IP from the range it successfully completed the
+    scan for all other devices."
+  o Seems to be fixed.  He can no longer reproduce the problem with
+    4.85BETA3.
+
+o Deal with GTK DLL problem with Nmap 4.85BETA1: [Fyodor]
+  o David's installer seems to work--he's using a different GTK
+    distribution.  I'll try that.  Works!  Done!
+  o Details on problem: http://seclists.org/nmap-dev/2009/q1/0207.html
+  o Quick workaround done for 4.85BETA2, but better solution needed.
 
 o "SCRIPT ENGINE (250.600s): ./scripts/rpcinfo.nse against
   a.b.c.d:<port> ended with error: ./nselib/datafiles.lua:114: attempt
