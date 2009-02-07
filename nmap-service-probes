@@ -2287,7 +2287,7 @@ match telnet m|^\xff\xfb\x01\r\nCopyright \(C\) 1999 by  Extreme Networks\r\r\n|
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03.*?ES-1000\x20Fast\x20Ethernet\x20Switch\x20Console| p/Marconi ES-1000/
 match telnet m|^\xff\xfb\x01login:\x20$| p/telnet/ i/generic/
 match telnet m|^\xff\xfb\x01\xff\xfd\x01\xff\xfb\x03\xff\xfd\x03\xff\xfb\x05\xff\xfd\x05Welcome to ([-\w_]+) Debug Terminal - \d*\n\r\n\r\n\rlogin:| p/hp StorageWorks SSL1016 tape autoloader telnetd/ i/Name: $1/
-match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\r\n\r\nWelcome to Print Server\r\n\r\nPS>| p/Micronet or Linksys print server telnetd/ d/print server/
+match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\r\n\r\nWelcome to Print Server\r\n\r\nPS>| p|Generic print server telnetd| d/print server/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\n\n\*+\r\n\*  Welcome to Print Server  \*\r\n\*     Telnet Console +\*\r\n\*+\r\n\r\nServer Name    :  ([-\w_.]+)\0\0\0\0\0\0\0\0\r\nServer Model   :  USB Print Server\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\r\nF/W Version    :  ([\d.]+)  \0\0\0\0\r\nMAC Address    :  ([\w ]+)\r\nUptime         :  ([^\r\n]+)\r\n| p/TRENDNet TE4100-PS1U telnetd/ v/$2/ h/$1/ i/MAC: $3; Uptime $4/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\n\n\*+\r\n\*  Welcome to Print Server  \*\r\n\*     Telnet Console        \*\r\n\*+\r\n\r\nServer Name    :  ([-\w_.]+)\r\nServer Model   :  Pocket Size Print Server\0\0\0\0\0\0\0\0\r\nF/W Version    :  ([\d.]+)  \0\0\0\0\r\nMAC Address    :  ([\w ]+)\r\nUptime         :  ([^\r\n]+)\r\n\nPlease Enter Password:| p/Lexmark W810 telnetd/ v/$2/ i/Name $1; MAC $3; Uptime $4/ d/printer/
 match telnet m|^\x1b\[0m\x1b\[2J\x1b\[01;28HCONEXANT SYSTEMS, INC\.\x1b\[02;19H ACCESS RUNNER ADSL CONSOLE PORT\x1b\[24;01H>>>\x1b\[24;01HLOGON PASSWORD>\x1b\[02;53H3\.\d+\x1b\[24;17H\x1b\[24;17H\x1b\[24;17H\x1b\[24;17H| p/Conexant Access Runner adsl router telnetd/ d/router/
@@ -2419,6 +2419,7 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\n\rlogin: | p/Cayman Gatorb
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03(\r\n)?User: | p/Aruba switch telnetd/ d/switch/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\(\w+\) \r\nUser: | p/Aruba switch telnetd/ d/switch/
 match telnet m|^login: \xff\xfb\x01\xff\xfb\x03| p|USR/Sagem router telnetd| d/router/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfb\0\xff\xfd\0login: | p/Sagem router telnetd/ d/router/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03Password: | p/Telindus router telnetd/ d/router/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\nBusyBox on dslmodem login: | p/Actiontec DSL router/ d/router/
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\xff\xfd\x1f\xff\xfd\x18| p/BladeCenter or TANDBERG Codec telnetd/
@@ -3946,6 +3947,7 @@ match http m|^HTTP/1\.0 403 Forbidden\r\nServer: Gordian Embedded([\d.]+)\r\n.*<
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Virata-EmWeb/R([\d_]+)\r\n.*<title>Cisco Systems, Inc\. VPN (\d+) Concentrator|s p/Cisco VPN $2 Concentrator http config/ i/Virata embedded httpd $1/ d/terminal server/
 match http m|^HTTP/1\.1 301 Moved Permanently\r\nServer: Web Server\r\nLocation: .*\r\nContent-Type: text/html\r\nContent-Length: \d+\r\n\r\n<HEAD><TITLE>Moved</TITLE></HEAD><BODY><A HREF=\".*\">Moved</A></BODY>\r\n$| p/Cisco VPN Concentrator http config/ d/terminal server/
 match http m|^HTTP/1\.1 301 Moved Permanently\r\nServer: Web Server\r\nLocation: https://[\d.]+/webvpn\.html\r\nContent-Type: text/html\r\nContent-Length: \d+\r\n\r\n<HEAD><TITLE>Moved</TITLE></HEAD><BODY><A HREF=\"https://[\d.]+/webvpn\.html\">Moved</A></BODY>\r\n| p/Cisco VPN Concentrator http config/ d/terminal server/
+match http m|^HTTP/1\.1 200 OK\r\nServer: Web Server\r\n.*\n<title>Cisco Systems, Inc\. VPN (\d+) Concentrator \[VPN-EPUL\]</title>|s p/Cisco VPN $1 Concentrator http config/ d/terminal server/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: BrowseAmp\r\n| p/BrowseAmp WinAmp webcontrol plugin/ o/Windows/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: IP_SHARER WEB ([\d.]+)\r\nWWW-Authenticate: Basic realm=\"(WGR614[^"]*)\"\r\nContent-type: text/html\r\n| p/Netgear $2 router http config/ i/IP_SHARER WEB httpd $1/ d/router/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><META HTTP-EQUIV=\"Content-type\" CONTENT=\"text/html; charset=iso-8859-1\">\r\n<TITLE>Dell Laser Printer (\w+)</TITLE>| p/Dell Laser Printer $1 http config/ d/printer/
@@ -3960,7 +3962,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: FileMakerPro/([\d.]+)\r\n|s p/FileM
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: AdSubtract ([\d.]+)\r\n| p/AdSubtract httpd/ v/$1/ o/Windows/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer:ATMEL Embedded Webserver\r\nWWW-Authenticate: Basic realm=\"Linksys WAP11\",\r\n\r\n| p/Linksys WAP11 http config/ i/ATMEL embedded httpd/ d/router/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nContent-Type: text/html\r\nWWW-Authenticate: Basic realm=\"Linksys WAP11\"\r\n\r\n| p/Linksys WAP11 http config/ d/router/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: bozohttpd/(\w+)\r\n| p/bozohttpd/ v/$1/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: bozohttpd/(\w+)\r\n|s p/bozohttpd/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\n.*Server: Null httpd ([\d.]+)\r\n|s p/Null httpd/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\nServer: Dune/([\d.]+)\r\n| p/Dune httpd/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Meredydd Luff's Surfboard/([\d.]+) \(UNIX/\w+\)\r\n| p/Surfboard httpd/ v/$1/ o/Unix/
@@ -4130,7 +4132,8 @@ match http m|^HTTP/1\.1 200 OK\r\n.*Server: Allegro-Software-RomPager/ ([\d.]+)\
 match http m|^HTTP/1\.0 \d\d\d .*\r\nWWW-Authenticate: Basic realm=\"Masterswitch\"\r\nServer: Allegro-Software-RomPager/([\d.]+)\r\n\r\n| p/APC Masterswitch power controller http interface/ i/Allegro RomPager $1/ d/power-device/
 match http m|^HTTP/1\.[01] 403 Forbidden\r\nContent-Type: text/html\r\nServer: Allegro-Software-RomPager/ *([\w-_.]+)\r\n.*<H1>Notice</H1>\nSomeone is currently logged into the APC Management Web Server\.<p>|s p/APC Masterswitch power controller http interface/ i/server busy; Allegro RomPager $1/ d/power-device/
 match http m|^HTTP/1\.0 401 Authorization Required\r\nWWW-Authenticate: BASIC realm=\"Administrator or User\"\r\n\r\nPassword Error\. \r\n\r\n$| p/D-Link web camera http config/ d/webcam/
-match http m|^HTTP/1\.0 \d\d\d .*\nContent-Length: \d+\n.*<B>Cable Modem Description :</B>.*<P>ZyXEL Prestige (\w+), HW V([\d.]+), SW ZyNOS V([\d.]+)\(|s p/Zyxel Prestige $1 router http config/ i/HW version $2; ZyNOS $3/ d/router/ o/ZyNOS/
+match http m|^HTTP/1\.0 \d\d\d .*\nContent-Length: \d+\n.*<B>Cable Modem Description :</B>.*<P>ZyXEL Prestige (\w+), HW V([\d.]+), SW ZyNOS V([\d.]+)\(|s p/Zyxel Prestige $1 router http config/ i/HW version $2; ZyNOS $3/ d/broadband router/ o/ZyNOS/
+match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: micro_httpd\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"ZyXEL\"\r\n| p/Zyxel Cable Modem http config/ d/broadband router/ i/micro_httpd/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: IP_SHARER WEB ([\d.]+)\r\nWWW-Authenticate: Basic realm=\"(NR[\w+]+)\"\r\nContent-type: text/html\r\n\r\n401 Unauthorized| p/Netgear $2 router http config/ i/IP_SHARER WEB httpd $1/ d/router/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: IP_SHARER WEB ([\w-_.]+)\r\nWWW-Authenticate: Basic realm=\"(FM\w+)\"\r\n| p/Netgear $2 http config/ d/broadband router/ i/IP_SHARER WEB httpd $1/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: IP_SHARER WEB ([\d.]+)\r\nWWW-Authenticate: Basic realm=\"(DG[\w]+)\"\r\nContent-type: text/html\r\n\r\n401 Unauthorized| p/Netgear $2 WAP http config/ i/IP_SHARER WEB httpd $1/ d/WAP/
@@ -4177,12 +4180,16 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: WEBrick/([\d.]+) \(Ruby/([\d.]+)
 match http m|^HTTP/1\.0 \d\d\d .*\r\nContent-Length: \d+\r\n.*<title>FRITZ!Box|s p/FRITZ!Box router http config/ d/router/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nContent-Length: \d+\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>404 Not Found \(ERR_NOT_FOUND\)</TITLE></HEAD><BODY><H1>404 Not Found</H1><BR>ERR_NOT_FOUND<HR><B>AR7 Webserver</B>| p/FRITZ!Box router http config/ i/TI AR7 chip/ d/router/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: WebCam2000/([\d.]+) \(Windows; http://www\.webcam2000\.info/\)\r\n| p/WebCam2000 httpd/ v/$1/ o/Windows/
+match http m|^HTTP/1\.0 401 Login failed!\r\nServer: micro_httpd\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"WRT54GXv2\"\r\n| p/Linksys WRT54GXv2 http config/ d/broadband router/ i/micro_httpd/
 match http m|^HTTP/1\.0 \d\d\d .*\r\n\r\n<HTML>\n<HEAD><TITLE>OpenWrt</TITLE>|s p/OpenWrt BusyBox httpd/ d/WAP/ o/Linux/
 match http m|^HTTP/1\.0 \d\d\d .*\n\t\t<title>OpenWrt Administrative Console</title>|s p/OpenWrt BusyBox httpd/ d/WAP/ o/Linux/
 match http m|^HTTP/1\.0 \d\d\d .*<meta http-equiv=\"refresh\" content=\"0; URL=/?cgi-bin/webif[\w/.]+sh\" />\n|s p/OpenWrt BusyBox httpd/ d/WAP/ o/Linux/
 match http m|^HTTP/1\.0 401 Unauthorized\r\n.*WWW-Authenticate: Basic realm=\"OpenWrt\"\r\n\r\n|s p/Linksys WRT OpenWrt http config/ d/WAP/ o/Linux/
 match http m|^HTTP/1\.0 401 Unauthorized\r\n.*WWW-Authenticate: Basic realm=\"WRT54GS\"\r\n|s p/Linksys WRT54GS WAP http config/ d/WAP/ o/Linux/
 match http m|^HTTP/1\.0 401 Unauthorized\r\n.*WWW-Authenticate: Basic realm=\"[Tt]omato\"\r\n|s p/Linksys WRT54G WAP http config/ d/WAP/ o/Linux/ i/Tomato firmware/
+match http m|^HTTP/1\.1 401 Unauthorized\r\n.*WWW-Authenticate: Basic realm=\"WRT(\w+)\"\r\n|s p/Linksys WRT$1 WAP http config/ d/WAP/ o/Linux/
+match http m|^HTTP/1\.0 401 Unauthorized\r\n.*WWW-Authenticate: Basic realm=\"Linksys WAG325N \"\r\n|s p/Linksys WAG325N WAP http config/ d/WAP/ o/Linux/
+match http m|^HTTP/1\.0 401 Unauthorized\r\n.*WWW-Authenticate: Basic realm=\"Linksys WRT(\w+)\"\r\n|s p/Linksys WRT$1 WAP http config/ d/WAP/ o/Linux/
 match http m|^HTTP/1\.0 \d\d\d .*\r\n\r\n.*var path='http://www\.axis\.com/cgi-bin/prodhelp\?prod=axis_(\d+)&ver=([\d.]+)|s p/AXIS $1 print server http config/ v/$2/
 match http m|^HTTP/1\.0 200 OK\r\nHTTP/1\.0 200 OK\r\nServer: ap\r\n.*<title>NetGear Remote Bridge Setup</title>|s p/Netgear ethernet Bridge http config/ d/bridge/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: Virata-EmWeb/R([\d_]+)\r\n.*\r\n\r\n<HTML>\n<HEAD>\n<TITLE>optiPoint ([\d.]+) Standard Home Page</TITLE>\n|s p/Siemens optiPoint $2 VoIP phone http config/ i/Virata embedded httpd $1/ d/VoIP phone/
@@ -4275,12 +4282,15 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nConnection: close\r\nContent-Type: text/htm
 match http m|^HTTP/1\.1 \d\d\d .*\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nExpires: \d+\r\nCache-Control: no-cache\r\nServer: Indy/([\d.]+)\r\nLocation: /allsensors\.htm\r\n\r\n<HTML><BODY><B>301 Moved Permanently</B></BODY></HTML>\r\n| p/Paessler PRTG Traffic Grapher httpd/ i/Indy httpd $1/ o/Windows/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nExpires: \d+\r\nCache-Control: no-cache\r\nServer: Indy/([\d.]+)\r\nLocation: /sensorlist\.htm\r\n\r\n| p/Paessler PRTG Traffic Grapher httpd/ i/Indy httpd $1/ o/Windows/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Indy/([\d.]+)\r\nWWW-Authenticate: Basic realm=\"Please enter your login for PRTG(\d)\"\r\n|s p/Paessler PRTG SNMP bandwidth monitor/ v/$2/ i/Indy httpd $1/ o/Windows/
-match http m|^HTTP/1\.1 301 Moved Permanently\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: 56\r\nExpires: 0\r\nCache-Control: no-cache\r\nServer: Indy/9\.0\.11\r\nLocation: /login\.htm\r\n\r\n<HTML><BODY><B>301 Moved Permanently</B></BODY></HTML>\r\n| p/Paessler PRTG Traffic Grapher httpd/ i/Indy httpd 9.0.11; Login required/ o/Windows/
+match http m|^HTTP/1\.1 301 Moved Permanently\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: 56\r\nExpires: 0\r\nCache-Control: no-cache\r\nServer: Indy/([\w-_.]+)\r\nLocation: /login\.htm\r\n\r\n<HTML><BODY><B>301 Moved Permanently</B></BODY></HTML>\r\n| p/Paessler PRTG Traffic Grapher httpd/ i/Indy httpd $1; Login required/ o/Windows/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: PRTG/([\w-_.]+)\r\n|s p/Paessler PRTG Traffic Grapher httpd/ v/$1/ i/Indy httpd/ o/Windows/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: _httpd\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"\.\"\r\nContent-type: text/html\r\nConnection: close\r\n\r\n<HTML><HEAD><TITLE>401 Unauthorized</TITLE></HEAD>\n<BODY BGCOLOR=\"#cc9999\"><H4>401 Unauthorized</H4>\nAuthorization required\.\n</BODY></HTML>\n| p/Kaspersky AntiVirus http admin/ v/4.X/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Indy/([\d.]+)\r\n.*\r\n<title>Server Monitor Lite</title>\r\n|s p/Pure Networking Server Monitor Lite http interface/ i/Indy httpd $1/
 match http m|^HTTP/1\.0 .*\r\nConnection: close\r\nDate: .*\r\nServer: JavaOpServer\r\n| p/JavaOp httpd/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: SmarterTools/([\d.]+)\r\n.*SmarterStats.*; Professional Edition - v\.([\d.]+) - Customer Login Page\r\n|s p/SmarterStats http interface/ v/$2/ i/SmarterTools httpd $1/
 match http m|^HTTP/1\.1 403 Forbidden \( Der Server hat den angegebenen URL verweigert\. Wenden Sie sich an den Serveradministrator\.| p/Microsoft IIS httpd/ i/German/ o/Windows/
+match http m|^HTTP/1\.1 403 Forbidden \( Le serveur a refus\xc3\xa9 l'URL \(Uniform Resource Locator\) sp\xc3\xa9cifi\xc3\xa9e\. Contactez l'administrateur du serveur\.| p/Microsoft IIS httpd/ i/French/ o/Windows/
+match http m|^HTTP/1\.1 403 Forbidden \( El servidor deneg\xc3\xb3 la direcci\xc3\xb3n URL \(Uniform Resource Locator\) especificada\. P\xc3\xb3ngase en contacto con el administrador del servidor\.| p/Microsoft IIS httpd/ i/Spanish/ o/Windows/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: Project Engine Server\r\n| p/Project Engine Server httpd/ o/Windows/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Indy/([\d.]+)\r\nWWW-Authenticate: Basic realm=\"NetStatus Professional\"\r\n|s p/NetStatus Professional/ i/Indy httpd $1/ o/Windows/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: McAfee-Agent-HttpSvr/([\d.]+)\r\n| p/McAfee Agent httpd/ v/$1/ o/Windows/
@@ -4522,6 +4532,7 @@ match http m|^HTTP/1\.0 200 NoPhrase\r\n.*\r\n<HTML>\r\n<HEAD>\r\n<TITLE>\[JMX R
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nLast-Modified: .*\r\nETag: \"[\w_]+\"\r\nAccept-Ranges: bytes\r\nContent-Length: 79\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n<html>\n<script language=javascript>\n\ntop\.location=\"/login\";\n\n</script>\n</html>\n| p|Fortinet VPN/firewall http config| d/firewall/
 match http m|^HTTP/1\.0 200 Ok\r\nServer: httpd\r\nDate: .*\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nExpires: 0\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<script>\ntop\.location\.href=\"/login_en\.htm\";\n</script>\n\n| p/Siemens Gigaset SE505 WAP http config/ d/WAP/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nConnection: close\r\nServer: Gigaset ([^\r\n]+)\r\n| p/Siemens Gigaset $1 WAP http config/ d/WAP/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nConnection: Keep-Alive\r\nServer: Siemens Gigaset C450 IP\r\n| p/Siemens Gigaset C450 IP VoIP phone http config/ d/VoIP phone/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nConnection: Keep-Alive\r\nServer: Siemens Gigaset ([^\r\n]+)\r\n| p/Siemens Gigaset $1 WAP http config/ d/WAP/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nWWW-Authenticate: Basic realm=\"dbox\"\r\n\r\nAccess denied\.\r\n| p/Dbox2 Neutrino httpd/ d/media device/
 match http m|^HTTP/1\.0 \d\d\d .*\r\n.*<meta http-equiv=\"powerstate\" content=\"Switch Port7,0\">\n<meta http-equiv=\"powerstate\" content=\"Switch Port8,0\">\n<TITLE>ExpPowerControl</TITLE>|s p/Expert Power Control NET http config/ d/power-device/
@@ -4534,7 +4545,7 @@ match http m|^HTTP/1\.0 200 Ok Welcome to VOC\r\nServer: Voodoo chat daemon ver 
 match http m|^HTTP/1\.0 200 OK\r\nServer: AP HTTP Server\r\nSet-Cookie: LogIn=0\r\n.*<frame name=\"top\" src=\"/cgibin/entry\" marginwidth=\"10\" marginheight=\"10\" scrolling=\"auto\" frameborder=\"0\">\n    <frame name=\"center\" src=\"/user/images/selected/logslct\.gif|s p/Nortel Integrated Conference bridge http config/ i/AP HTTPd/ d/bridge/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Polycom SoundPoint IP Telephone HTTPd\r\n| p/Polycom SoundPoint VoIP phone http config/ d/VoIP phone/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: BISW_SDR\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"WebAdmin\"\r\nPragma: no-cache\r\n| p|Billion/TeleWell aDSL modem http config| d/broadband router/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Virata-EmWeb/R([\d_]+)\r\nContent-Type: text/html; charset=UTF-8\r\nExpires: .*<title>HP LaserJet (\d+)&nbsp;&nbsp;&nbsp;[\d.]+</title>|s p/HP LaserJet $2 printer http config/ i/Virata httpd $1/ d/printer/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Virata-EmWeb/R([\d_]+)\r\nContent-Type: text/html; charset=UTF-8\r\nExpires: .*<title>HP LaserJet (\d+)&nbsp;&nbsp;&nbsp;|s p/HP LaserJet $2 printer http config/ i/Virata httpd $1/ d/printer/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Length: \d+\r\nContent-Type: text/html\r\n.*getElementById\(\"cTextChg\"\)\.innerHTML = \"<p>Die soeben durchgef&uuml;hrte System&uuml;berpr&uuml;fung hat ergeben,<br>\" \+\n \"dass ihr Bildschirm nicht die minimal erforderliche Aufl\xf6sung hat\.</p>|s p/T-Com Speedport W 501V WAP http config/ i/German/ d/WAP/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: David-WebBox/([\w.]+) \((\d+)\)\r\n| p/David WebBox httpd/ v/$1.$2/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: micro_httpd\r\nDate: .*\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html>\r\n<head>\r\n<title>Scientific-Altanta WebStar Cable Modem</title>| p/Scientific Atlanta Webstar DPC2100 http config/ i/micro_httpd/ d/broadband router/
@@ -4605,6 +4616,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: SentinelProtectionServe
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: WatchGuard Firewall\r\nwww-authenticate: Digest realm=\"WatchGuard Firebox Local User\"| p/WatchGuard Firewall http config/ d/firewall/
 match http m|^HTTP/1\.1 200 OK\r\nServer: InterNiche Technologies WebServer ([\d.]+)\r\nDate: .*\r\nContent-type: text/html\r\nConnection: Close\r\n\r\n<html>\r\n<head>\r\n<title>CAN@Net II| p/InterNiche CAN@net II ethernet bridge http config/ v/$1/ d/bridge/
 match http m|^HTTP/1\.1 200 OK\r\nDate:.*<title>Welcome to VMware ESX Server ([\d.]+)</title>\n\n|s p/VMware ESX Server httpd/ v/$1/
+match http m|^HTTP/1\.1 200 OK\r\nDate: .*document\.write\(\"<title>\" \+ ID_ESX_Welcome \+ \"</title>|s p/VMware ESX Server httpd/
 match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/html.*\n<meta name=robots content=\"none\">\n<title>Secure&#32;Access&#32;SSL&#32;VPN</title>\n\n|s p/Juniper Networks Secure Access SSL VPN http config/ d/security-misc/
 match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/html.*\n<meta name=robots content=\"none\">\n<title>Sign&#32;in&#32;to&#32;begin&#32;\xf92\0\0\xa8o\xee\"\xa8o\xee\"sion&#46;</title>\n\n|s p/Juniper Networks Secure Access SSL VPN http config/ d/security-misc/
 match http m|^HTTP/1\.0 200 OK\r\nServer: RapidLogic/([\d.]+)\r\nMIME-version: 1\.0\r\nContent-type: text/html\r\n\r\n<HTML>\n<HEAD>\n  <TITLE>WireSpeed Dual Connect</TITLE>\n\n| p/Westell WireSpeed Dual Connect aDSL router http config/ i/RapidLogic http $1/ d/router/
@@ -4638,7 +4650,7 @@ match http m|^HTTP/1\.1 200 OK\r\nConnection: Keep-Alive\r\nAccept-Ranges: bytes
 match http m|^HTTP/1\.0 200 Ok\nDate: .*\nContent-type: text/html\n\n<font size=\"-4\">\nIf you can read this, you are sitting too close to the monitor\.\n</font>\n| p/Unknown trojan/ i/**BACKDOOR**/ o/Windows/
 match http m|^HTTP/1\.1 401 Authorization Required\r\nServer: servermgrd\r\nSupportsXMLRPC\r\nSupportsBinaryPlist\r\nContent-Type: \xe2\x80\xa0%\xc6\x92<\r\n| p/Mac OS X Server Admin http config/ o/Mac OS X/
 match http m|^HTTP/1\.0 200 OK\r\n.*<meta http-equiv=\"refresh\" content=\"0; URL=/cgi-bin/status\.sh\" />\n\t\t<title>La Fonera</title>|s p/La Fonera WAP http config/ d/WAP/
-match http m|^<html>\n<title>DES-1226G +</title>\n| p/D-Link DES-1226G switch http config/ d/switch/
+match http m|^<html>\n<title>DES-(\w+) +(Login)?</title>\n| p/D-Link DES-$1 switch http config/ d/switch/
 match http m|^HTTP/1\.0 200 OK\r\nServer: RapidLogic/([\d.]+)\r\n.*<title>Broadaband Voice Telephone Adapter</title>\r\n|s p/VG112-D51 VoIP CPE http config/ i/RapidLogic httpd $1/ d/VoIP adapter/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"Browser\"\r\nContent-Type: text/html\r\nServer: Allegro-Software-RomPager/([\d.]+)\r\n\r\n<HTML>\n<HEAD>\n<TITLE>Protected Object</TITLE>\n</HEAD>\n<BODY>\n<H1>Protected Object</H1>\n<br>This page requires a login to access\.<br><br>You have <b>failed to login properly</b>\.  Try again\.<P>\n\n</BODY>\n</HTML>\n| p/Kronos 4500 Clock http config/ i/Allegro httpd $1/ o/VxWorks/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWww-Authenticate: Basic REALM=\"snom\"\r\nContent-Type: text/plain\r\nContent-Length: 22\r\n\r\nUnauthorized request\r\n| p/Snom 300 VoIP phone http config/ d/VoIP phone/
@@ -4839,15 +4851,14 @@ match http m|^HTTP/1\.0 200 OK\r\nServer: RapidLogic/([-\w_.]+)\r\nMIME-version:
 match http m|^HTTP/1\.0 200 OK\r\nServer: RapidLogic/([\w-_.]+)\r\nMIME-version: 1\.0\r\n.*<title>802\.11g AP setup page</title>.*function doLogin\(\)\n{\nvar f=document\.submit_form ;\t\nf\.submit_login_password\.value;|s p/3Com OfficeConnect WAP http config/ i/RapidLogic httpd $1/ d/WAP/
 match http m|^HTTP/1\.0 200 Ok\rServer: httpd\r.*\t\r\r<TITLE>3Com - OfficeConnect Wireless Cable/DSL Router</TITLE>|s p/3Com OfficeConnect WAP http config/ d/WAP/
 match http m|^HTTP/1\.0 200 OK\r\nContent-type: text/html\n\n<html>\n<head>\n<meta name=\"description\" content=\"Belkin ([-\w_.+]+)\">\n| p/Belkin $1 WAP http config/ d/WAP/
-match http m|^HTTP/1\.0 200 OK\r\nCache-control: no-cache\r\nServer: Ubicom/([-\w_.]+)\r\n.*<title>D-Link Print Server - Server Information</title>|s p/D-Link print server http config/ d/print server/ i/Ubicom httpd $1/
-match http m|^HTTP/1\.0 200 OK\r\nCache-control: no-cache\r\nServer: Ubicom/([-\w_.]+)\r\n.*href=\"/substyle_DIR-655\.css\"|s p/D-Link DIR-655 WAP http config/ d/WAP/ i/Ubicom httpd $1/
+match http m|^HTTP/1\.0 200 OK\r\nCache-control: no-cache\r\nServer: Ubicom/([\w-_.]+)\r\n.*<title>D-Link Print Server - Server Information</title>|s p/D-Link print server http config/ d/print server/ i/Ubicom httpd $1/
+match http m|^HTTP/1\.0 200 OK\r\nCache-control: no-cache\r\nServer: Ubicom/([\w-_.]+)\r\n.*href=\"/substyle_DIR-(6\d+)\.css\"|s p/D-Link DIR-$2 WAP http config/ d/WAP/ i/Ubicom httpd $1/
 match http m|^HTTP/1\.0 200 200 OK\r\nServer: Ubicom/([\w-_.]+)\r\n.*<!--@TEMPLATE:build/cooker/webgen/cooker_nonav_template\.html@-->|s p/D-Link DIR-625 WAP http config/ d/WAP/ i/Ubicom httpd $1/
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: ActiveGrid/([-\w_.]+)\r\n| p/ActiveGrid httpd/ v/$1/
 match http m|^HTTP/1\.0 200 OK\r\nServer: ISS-HttpMod/([-\w_.]+)\r\n| p/Intelligent Security Systems webcam httpd/ d/webcam/ v/$1/
 match http m|^HTTP/1\.0 200 OK\r\nDate: .*\r\nServer: Hiawatha v([-\w_.]+)\r\n| p/Hiawatha httpd/ v/$1/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: \r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"Linksys RVS4000\n \"| p/Linksys RVS4000 security router http config/ d/broadband router/
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: httpdevil/([-\w_.]+)\r\n| p/httpdevil/
-match http m|^HTTP/1\.0 401 Login failed!\r\nServer: micro_httpd\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"WRT54GXv2\"\r\n| p/Linksys WRT54GXv2 http config/ d/broadband router/ i/micro_httpd/
 match http m|^HTTP/1\.0 200 OK\r\nServer: ADSM_HTTP/([-\w_.]+)\r\nContent-type: text/html\n\n<HEAD>\n<TITLE>\nServer Administration\n</TITLE>.*<META NAME=\"IBMproductVersion\" CONTENT=\"([\d.]+)\">|s p/IBM AIX Storage Management http config/ d/storage-misc/ o/AIX/ v/$1/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: Conexant-EmWeb/R([\d_]+)\r\n.*WWW-Authenticate: Basic realm=\"Connecting to router\".*\(C\) Copyright \w+ Allied Telesis|s p/Allied Telesis broadband router http config/ i/Conexant httpd $1/ d/broadband router/
 match http m|^HTTP/1\.[01] \d\d\d .*\nServer: TIB/Rendezvous ([-\w_.]+)\n|s p/TIB Rendezvous http config/ v/$1/
@@ -4865,7 +4876,7 @@ match http m|^HTTP/1\.0 200 Ok\r\nServer: \r\n.*<title>RWO-CPE-PLUS-G Login Page
 match http m|^HTTP/1\.1 200 OK.*\r\nServer: Web Server\r\n.*<TITLE>Netgear System Login</TITLE>.*<IMG SRC = \"/base/images/Netgear_fsm7328s_banner\.gif\"|s p/Netgear FSM7328S switch http config/ d/switch/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: FM Web Publishing\r\n|s p/FileMaker Web Publishing httpd/
 match http m|^HTTP/1\.1 \d\d\d Snakelet output follows\r\nServer: Snakelets/([-\w_.]+) Python/([-\w_.]+)\r\n| p/Snakelets httpd/ i/Python $2/ v/$1/
-match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: PRINT_SERVER WEB ([\d.]+)\r\nContent-type: text/html\r\nWWW-Authenticate: Basic realm=\"NETGEAR PS121v2\"\r\n| p/Netgear PS121v2 print server http config/ d/print server/ v/$1/
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: PRINT_SERVER WEB ([\d.]+)\r\nContent-type: text/html\r\nWWW-Authenticate: Basic realm=\"NETGEAR PS121v2\"\r\n| p/Netgear PS121v2 print server http config/ d/print server/ i/PRINT_SERVER WEB httpd $1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDocuCentre Color (\d+) -|s p/Fuji Xerox DocuCentre Color $1 http config/ d/printer/
 match http m|^HTTP/1\.1 \d\d\d .*Fuji Xerox Co\..*\r\n<TITLE>B6300 -|s p/Fuji Xerox B6300 printer http config/ d/printer/
 match http m|^HTTP/1\.0 \d\d\d .*Server: Boa/([-\w_.]+) \(with Intersil Extensions\)\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"CONNECT2AIR AP-600RP-USB LOGIN Enter Password \(default is connect\)\"\r\n|s p/Fujitsu Siemens CONNECT2AIR AP-600RP-USB WAP http config/ d/WAP/ i/Boa httpd $1; default passwd "connect"/
@@ -4904,7 +4915,7 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Minix httpd ([\w-_.]+)\r\n| p/Mi
 match http m|^HTTP/1\.1 200 Ok\r\nServer: micro_httpd\r\n.*<title>ADSL Router</title>\r\n\r\n\r\n<script language=\"javascript\">\r\n<!--\r\nvar ModemVer='(DSL-[\w-_.+]+)';|s p/D-Link $1 http config/ d/broadband router/
 match http m|^HTTP/1\.0 200 OK\r\n.*<TITLE>HTML-Konfiguration</TITLE>\n<SCRIPT language=\"JavaScript\" src=\"/cgi-bin/webcm\?getpage=\.\./html/js_top\.txt\"|s p/T-Com Speedport W501V http config/ i/German/ d/broadband router/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nCache-Control: must-revalidate, no-store\r\nConnection: close\r\n\r\n<html>\n<style>\ntable\.stat th, table\.stat td {\n  font-family:\tVerdana, Geneva, sans-serif;\n  font-size : 11px;\n  color: blue;\n  border: 0px solid;\n  white-space: nowrap;\n}\n| p/Linksys SPA942 VoIP phone http config/ d/VoIP phone/
-match http m|^HTTP/1\.1 200 OK\r\nMIME-Version: 1\.0\r\nServer: OKIDATA-HTTPD/([\w-_.]+)\r\n.*<title>([\w-_.+]+)</title>|s p/Oki $2 printer http config/ d/printer/ i/OKIDATA httpd $1/
+match http m|^HTTP/1\.1 200 OK\r\nMIME-Version: 1\.0\r\nServer: OKIDATA-HTTPD/([\w-_.]+)\r\n.*<title>([^<]+)</title>|s p/Oki $2 printer http config/ d/printer/ i/OKIDATA httpd $1/
 match http m|^HTTP/1\.0 200 OK\r\nServer: NetPort Software ([\w-_.]+)\r\n.*<title>([^-<\r\n]+) - VSX 8000</title>\n<link rel=\"stylesheet\" href=\"sabrestyle\.css\"|s p/Polycom VSX 8000 http config/ d/telecom-misc/ i/$2; NetPort httpd $1/
 match http m|^HTTP/1\.0 200 OK\r\nServer: NetPort Software ([\w-_.]+)\r\n.*<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n    <meta http-equiv=\"no-cache\">\n    <link rel=\"stylesheet\" href=\"sabre\.css\"|s p/Polycom VSX 8000 http config/ d/telecom-misc/ i/NetPort httpd $1/
 match http m|^HTTP/1\.0 303 Redirecting\r\nServer: httpd/[\d.]+ Python/([\d.]+)\r\n.*Cache-Control: no-store,no-cache,must-revalidate,max-age=0,post-check=0,pre-check=0\r\n.*<title>: Redirecting\n</title>\n<meta http-equiv=\"Refresh\" content=\"0; URL=http://([\w-_.]+):\d+/login\"|s p/Ironport Mailflow http config/ d/specialized/ i/Python $1/ h/$2/
@@ -4954,7 +4965,7 @@ match http m|^HTTP/1\.0 200 OK\r\nServer: IP_SHARER WEB ([\w-_.]+)\r\nContent-ty
 match http m|^HTTP/1\.1 200 OK\r\nContent-Length: \d+\r\nContent-Type: text/html;\r\n.*<TITLE>Aastra ([\w-_.+]+)</TITLE>|s p/Aastra $1 VoIP phone http config/ d/VoIP phone/
 match http m|^HTTP/1\.0 200 OK\r\n.*<img src=\"images/chumby_logo\.png\">.*<font size=10>Welcome to Chumby</font>|s p/Chumby chumbhttpd/ d/media device/
 match http m|^HTTP/1\.1 200 OK\n.*<resolved count='\d+' ommitted='\d+' chumbhowld_ver='([\w-_.]+)'>|s p/Chumby chumbhowld/ v/$1/ d/media device/
-match http m|^HTTP/1\.0 200 OK\r\nConnection: Close\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n<html>\r\n    <head>\r\n        <script language=\"javascript\">\r\n\t\t\t\t\tif \(window != top\) {\r\n\t\t\t\t\t\t// Load page in the top frame\.\r\n\t| p/Dell OpenManage httpd/ d/remote management/
+match http m|^HTTP/1\.0 200 OK\r\nConnection: Close\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n<html>\r\n.*if \(window != top\) {\r\n\t\t\t\t\t\t// Load page in the top frame\.\r\n\t|s p/Dell OpenManage httpd/ d/remote management/
 match http m|^HTTP/1\.1 401 Authorization Required\r\nWWW-Authenticate: Basic realm=\"Linksys BEFSR41v3\"\r\n| p/Linksys BEFSR41v3 http config/ d/broadband router/
 match http m|^HTTP/1\.1 200 OK\r\n.*<title>ZyWALL ([\w-_.+]+)</title>|s p/ZyXEL ZyWALL $1 http config/ d/security-misc/
 match http m|^HTTP/1\.1 200 OK\r\nContent-length: \d+\r\nExpires: -1\r\nContent-type: application/sxp\r\nPragma: no-cache\r\nCache-control: no-cache\r\n\r\n\(ls \)| p/Xen http config/ o/Linux/
@@ -5006,6 +5017,26 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: MediabolicMWEB/([\w-_.]+)\r\n|s p/M
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Ubicom/([\w-_.]+)\r\n.*<title>SMC StreamEngine Router : Login</title>|s p/SMC StreamEngine router http config/ i/Ubicom httpd $1/ d/router/
 match http m|^HTTP/1\.1 200 OK\r\nServer: d-Box network\r\n\r\n| p/Dreambox streaming audio httpd/ d/media-device/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nDate: .*\r\nServer: jtvchat\r\n\r\n<html>\n<head><title>Justin\.tv chat servers</title>| p/justin.tv chat server httpd/
+match http m|^HTTP/1\.0 200 OK\r\n.*\r\n<TITLE>bric_web_gui</TITLE>\r\n</HEAD>\r\n<BODY bgcolor=\"#555577\">\r\n<!-- URL's used in the movie-->\r\n<!-- text used in the movie-->|s p/Comrex Access BRIC http config/ d/telecom-misc/
+match http m|^HTTP/1\.0 200 OK\r\nServer: RapidLogic/([\w-_.]+)\r\n.*<!-- saved from url=\(\d+\)http://internet\.e-mail -->.* \r\n<link href=\"miniAP\.css\"|s p/3Com 7760 WAP http config/ d/WAP/ i/RapidLogic httpd $1/
+match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: I\.T\. Watchdogs, Inc\. Embedded Web Server \(v([\w-_.]+)\)\r\n| p/I.T. Watchdogs Embedded httpd/ v/$1/ d/specialized/
+match http m|^HTTP/1\.0 200 \r\nServer: A-B WWW/([\w-_.]+)\r\n.*<title>1763-([^<]+)</title>\r\n|s p/MicroLogix 1763-$2 logic controller http config/ i/A-B WWW $1/ d/specialized/
+match http m|^HTTP/1\.0 200 OK\r\nPragma:no-cache\r\n.*<title>IBM NPS 540\+/542\+; IP address:|s p|IBM NPS 540+/542+ print server http config| d/print server/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: UltiDev Cassini/([\w-_.]+)\r\n| p/UltiDev Cassini httpd/ v/$1/ o/Windows/
+match http m|^HTTP/1\.1 200 .*\r\nServer: Swiftbase Ltd\. Embedded Web Server \(v([\w-_.]+)\)\r\n.*<TITLE>Swift-CM2</TITLE>|s p/Swiftbase Ltd. Climate Monitor http config/ v/$1/ d/specialized/
+match http m|^HTTP/1\.1 200 .*\r\nServer: Allegro-Software-RomPager/([\w-_.]+)\r\n.*<title>\nLexmark C500</title>|s p/Lexmark C500 printer http config/ i/Allegro RomPager httpd $1/ d/printer/
+match http m|^HTTP/1\.1 200 OK\r\nServer: Unknown/0\.0 UPnP/([\w-_.]+) GlobespanVirata-EmWeb/R([\w-_.]+)\r\n.*<title>JetSpeed 500 i</title>|s p/Intracom JetSpeed 500i http config/ d/broadband router/ i/Globespan Virata httpd $2; UPnP $1/
+match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: micro_httpd\r\n.*WWW-Authenticate: Basic realm=\"Siemens ADSL SL2-141\"\r\n|s p/Siemens SL2-141 ADSL router http config/ d/broadband router/ i/micro_httpd/
+match http m|^HTTP/1\.0 200 Document follows\r\nServer: PRINT_SERVER WEB ([\w-_.]+)\r\n.*<title>Print Server Setup</title>.*name=\"main\" src=\"ps_stat\.htm\"|s p/LevelOne FPS-3001TXU print server http config/ d/print server/ i/PRINT_SERVER WEB httpd $1/
+match http m|^HTTP/1\.0 401 Not Authorized\r\nServer: RapidLogic/([\w-_.]+)\r\nMIME-version: 1\.0\r\nContent-type: text/html\r\nWWW-Authenticate: Basic realm=\"Modem Secure\"\r\n| p/Westell Wirespeed DSL modem http config/ d/broadband router/ i/RapidLogic httpd $1/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: NT40\r\n.*<title>NT([\w-_.]+) - Multiprotocol chat tool</title></head><body><BR><BR><center><b>NT4\.0 Network</b><br><br>Server: ([\w-_.]+) - \(([\w-_.]+)\)<br>Local users connected: (\d+) // Connected to \d+ servers</center><br>Service uptime: ([\d:]+)<br>|s p/NT4.0 Multiprotocol Chat httpd/ v/$1/ i/Name $2; Users $4; Uptime $5/ h/$3/
+match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: http server\r\nDate: .*\r\nCache-Control: no-cache,no-store\r\nWWW-Authenticate: Basic realm=\"Citadel\"\r\n| p/Atera Networks Citadel firewall http config/ d/firewall/
+match http m|^HTTP/1\.0 200 .*\r\nServer: IST OIS\r\n.*<title>Phone&nbsp;Station&nbsp;Information</title>|s p/AllWorx 9212 VoIP phone http config/ d/VoIP phone/
+match http m|^HTTP/1\.0 200 OK\r\nServer: RapidLogic/([\w-_.]+)\r\nMIME-version: 1\.0\r\nContent-type: text/html\r\nExtend-sharp-setting-status: \d+\r\n.*<title>MX-M450U</title>|s p/Sharp MX-M450U copier http config/ d/printer/ i/RapidLogic httpd $1/
+match http m|^HTTP/1\.0 401 Unauthorized\r\nDate: .*\r\nServer: Agranat-EmWeb/R([\w-_.]+)\r\nWWW-Authenticate: Basic realm=\"GbE2c Ethernet Blade Switch for HP c-Class BladeSystem\"\r\n\r\n401 Unauthorized\r\n| p/HP GbE2c Ethernet Blade Switch http config/ d/switch/ i/Agranat httpd $1/
+match http m|^HTTP/1\.1 200 Okay\r\n.*\r\nServer: PLT Scheme\r\n|s p/PLT Scheme httpd/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Swazoo ([\w-_.]+) Smalltalk Web Server\r\n| p/Swazoo Smalltalk httpd/ v/$1/
+match http m|^HTTP/1\.1 401 OK\r\nContent-Length: 0\r\nConnection: Keep-Alive\r\nWWW-Authenticate: Basic realm=\"/\"\r\nContent-Type: text/html\r\nCache-Control: no-cache\r\nEXT: UCoS, UPnP/1\.0, UDI/1\.0\r\n| p/Universal Devices Insteon home automation http config/ d/specialized/
 
 #(insert http)
 
@@ -5161,6 +5192,7 @@ match http-proxy m|^HTTP/1\.0 500 Internal Server Error\r\nCache-control: no-cac
 match http-proxy m|^HTTP/1\.[01] \d\d\d .*\r\nServer: approx/([\w-_.]+) Ocamlnet/([\w-_.]+)\r\n|s p/Approx http proxy/ v/$1/ i/Ocamlnet $2/
 match http-proxy m|^HTTP/1\.1 401 Unauthorized\nWWW-Authenticate: Basic realm=\"Anti-Spam SMTP Proxy \(ASSP\) Configuration\"\nContent-type: text/html\nServer: ASSP/([\w-_.]+)\(\)\n| p/Anti-Spam SMTP Proxy http config/ v/$1/
 match http-proxy m|^HTTP/1\.0 \d\d\d .*<b>Bad request format\.\n\t\t</b><p>Please, check URL\.<p>\t\t<hr>\t\tGenerated by <a href=\"http://www\.kingate\.net\"> kingate\(([\w-_.]+)-win32\)</a>\.</body></html>\0\0|s p/kingate http proxy/ v/$1/ o/Windows/
+match http-proxy m|^\njava\.net\.UnknownHostException: /\r\n\tat java\.net\.PlainSocketImpl\.connect\(Unknown Source\)\r\n| p/Apache JMeter http proxy/
 
 match mas-financial m|^409 Invalid Protocol PVXAS/1\.0\r\n| p/MAS200 Financial System/ o/Windows/
 match mas-financial m|^The Host cannot run the specified program\.$| p/MAS200 Financial System/ o/Windows/
