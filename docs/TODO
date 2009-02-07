@@ -214,7 +214,10 @@ Offending packet: TCP 64.13.134.4:59819 > 170.140.20.174:8256 S ttl=48 id=38510 
    http://seclists.org/nmap-dev/2006/q3/0277.html
    http://seclists.org/nmap-dev/2007/q2/0292.html
 
-o Get better password data for unpw -- perhaps from Solar Designer.
+o Get better password data for unpw
+  o perhaps from Solar Designer.
+  o perhaps add phpbb hack data (there is at least a list of 28,635
+    passwords in phpbb_users.sql, and possibly more in other files.
 
 o Consider making the ping scan default be more comprehensive.  Note
   that I got 23% more Internet boxes found out of a 50K sample (see host
