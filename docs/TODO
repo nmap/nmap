@@ -22,6 +22,11 @@ o Make Zenmap settings get upgraded when the Zenmap executable is
   users (like highlighting) or updating the per-user files at startup
   (only those parts that haven't been changed by the user).
 
+o Consider converting this file to emacs org-mode
+  (http://orgmode.org/) format. [Fyodor]
+  o That format is still plain text and can be read/edited by vi
+    users, etc.
+
 o Ncat: Get rid of sys_wrap stuff and use normal Nbase portability
   code. [Kris]
 
@@ -61,6 +66,22 @@ o Write Ncat users' guide, demonstrating all the neat stuff you can do
 
 o Fix the directory function(s) in nse_fs.cc to be usable by scripts and
   improve flexibility. [this entry added by Patrick]
+
+o Device categorization improvements
+  o Examine Nmap's device categorization in nmap-os-deb and
+    nmap-service-probes.  Decide if some small categories which have
+    never really took off should be consolidated, or whether others
+    should be split off.  For example, maybe there are some groups in
+    'specialized' or other misc. categories which are now large enough
+    to split off.  Personally, I wouldn't give anything its own
+    category unless there are at least half a dozen of them and no
+    other category really fits them well.  We should use a combined
+    system for nmap-os-db and nmap-service-probes.
+  o Add a classification sect1 to os-detection.xml
+    (http://nmap.org/book/osdetect.html) to cover how Nmap handles OS
+    classification.  It should include a list with descriptions of
+    each device type recognized by Nmap.  Version-detection.xml should
+    reference (link to) it in the approprate place.
 
 o NSE Performance in general
 
