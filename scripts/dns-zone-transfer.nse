@@ -153,7 +153,7 @@ function parse_domain(data, offset)
 		ptr = bto16(data, offset)
 	end
 
-	return offset+1, string.gsub(strbuf.dump(record), 0, '.')
+	return offset+1, strbuf.dump(record)
 end 
 
 --- Build RFC 1035 root domain name from the name of the DNS server
