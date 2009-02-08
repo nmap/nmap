@@ -3644,7 +3644,7 @@ IE(DFI=N%T=FA-104%TG=FF%TOSI=Z%CD=S%SI=S%DLI=S)
 
 # Bosch Divar Security Systems embedded operating system
 Fingerprint Bosch Divar security system
-Class Bosch | embedded || security system
+Class Bosch | embedded || security-misc
 SEQ(SP=C-16%GCD=1E848|3D090|5B8D8|7A120|98968%ISR=9F-A9%TI=I%II=I%SS=S%TS=A)
 OPS(O1=M5B4NW0NNT11%O2=M578NW0NNT11%O3=M280NW0NNT11%O4=M5B4NW0NNT11%O5=M218NW0NNT11%O6=M109NNT11)
 WIN(W1=21F0%W2=2088%W3=2258%W4=21F0%W5=20C0%W6=209D)
@@ -5144,7 +5144,7 @@ IE(DFI=S%T=3B-45%TG=40%TOSI=Z%CD=S%SI=S%DLI=S)
 Fingerprint Cisco Micro Webserver 200, HP WP110 print server, Tektronix TDS3034B oscilloscope, or Xerox Document Centre 405 printer
 Class Cisco | embedded || web server
 Class HP | embedded || print server
-Class Tektronix | embedded || oscilloscope
+Class Tektronix | embedded || specialized
 Class Xerox | embedded || printer
 SEQ(SP=B-15%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=97-A1%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
@@ -5366,7 +5366,7 @@ IE(DFI=S%T=FC-106%TG=FF%TOSI=Z%CD=S%SI=S%DLI=S)
 Fingerprint Cisco 2900-series, 3650, or 3750 switch; 7206VXR router; or uBR925 or uBR7111 cable modem (IOS 12.1 - 12.2)
 Class Cisco | IOS | 12.X | router
 Class Cisco | IOS | 12.X | switch
-Class Cisco | IOS | 12.X | broadband modem
+Class Cisco | IOS | 12.X | broadband router
 SEQ(SP=101-10D%GCD=<7%ISR=FF-111%TI=Z%II=RI%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M109)
 WIN(W1=1020%W2=1020%W3=1020%W4=1020%W5=1020%W6=1020)
@@ -9413,7 +9413,7 @@ IE(DFI=N%T=1B-25%TG=20%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Hioki 8855 Memory Hicorder Digital Oscilloscope, The software version is 2.53
 Fingerprint Hioki MEMORY HiCORDER 8855 digital oscilloscope
-Class Hioki | embedded || oscilloscope
+Class Hioki | embedded || specialized
 SEQ(SP=0-5%GCD=64|C8|12C|190|1F4%ISR=4B-55%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=4470%W2=4470%W3=4470%W4=4470%W5=4470%W6=4470)
@@ -12888,7 +12888,7 @@ IE(DFI=S%T=3B-45%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Juniper Steel-Belted Radius Enterprise Edition version 5.30.2009 on a Windows 2000 Server with SP4 appliance
 Fingerprint Juniper Networks Steel-Belted Radius (SBR) server (runs Win2K SP4)
-Class Juniper | Windows | 2000 | authentication server
+Class Juniper | Windows | 2000 | security-misc
 SEQ(SP=FF-109%GCD=<7%ISR=106-110%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -24647,7 +24647,7 @@ IE(DFI=S%T=37-41%TG=40%TOSI=Z%CD=S%SI=S%DLI=S)
 
 # Mirapoint M2500 Server Mirapoint Operative System 3.6.5
 Fingerprint Mirapoint Messaging Operating System 3.6.5
-Class Mirapoint | embedded || mail server
+Class Mirapoint | embedded || specialized
 SEQ(SP=F4-10A%GCD=<7%ISR=FE-110%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M564NW1NNT11%O2=M564NW1NNT11%O3=M564NW1NNT11%O4=M564NW1NNT11%O5=M564NW1NNT11%O6=M564NNT11)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -25109,7 +25109,7 @@ IE(DFI=N%T=1A-24%TG=20%TOSI=S%CD=S%SI=S%DLI=S)
 
 # NCR 5688 Automated Teller Machine
 Fingerprint NCR 5676 or 5688 automated teller machine
-Class NCR | embedded || ATM
+Class NCR | embedded || specialized
 SEQ(SP=8F-99%GCD=<7%ISR=90-9A%TI=I|RD%II=I%SS=S%TS=U)
 OPS(R=N)
 WIN(R=N)
@@ -27972,7 +27972,7 @@ IE(DFI=S%T=FA-104%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Sanyo PLC-XU88 network-attached video projector.
 Fingerprint Sanyo PLC-XU88 digital video projector
-Class Sanyo | embedded || projector
+Class Sanyo | embedded || media device
 SEQ(SP=0-93%GCD=1000|2000|3000|4000|5000%ISR=36-EA%TI=I%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=80%W2=80%W3=80%W4=80%W5=80%W6=80)
@@ -29375,7 +29375,7 @@ IE(DFI=N%T=73-7D%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # Sony Bravia BE2 LCD TV (KDL-40X4500)
 Fingerprint Sony Bravia BE2 LCD TV
-Class Sony | embedded || TV
+Class Sony | embedded || media device
 SEQ(SP=CA-D6%GCD=<7%ISR=D6-E0%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -30753,7 +30753,7 @@ IE(DFI=N%T=72-7C%TG=80%TOSI=Z%CD=Z%SI=S%DLI=S)
 
 # Toshiba Digital television set (REGZA series)
 Fingerprint Toshiba REGZA TV
-Class Toshiba | embedded || TV
+Class Toshiba | embedded || media device
 SEQ(SP=BE-C8%GCD=<7%ISR=C4-CE%TI=Z%II=I%TS=A|C)
 OPS(O1=NNT11|M5B4ST11NW1%O2=NNT11|M5B4ST11NW1%O3=NNT11|M5B4NNT11NW1%O4=NNT11|M5B4ST11NW1%O5=NNT11|M5B4ST11NW1%O6=NNT11|M5B4ST11)
 WIN(W1=10F8%W2=10F8%W3=10F8%W4=10F8%W5=10F8%W6=10F8)
@@ -30770,7 +30770,7 @@ IE(DFI=N%T=3B-45%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Toshiba Magnia SG10, Linux toshiba.toshiba.loc 2.4.18-3custom #3 Tue Aug 13 15:10:18 PDT 2002 i686 unknown
 Fingerprint Toshiba Magnia SG10 server appliance (Linux 2.4.18)
-Class Toshiba | Linux | 2.4.X | server appliance
+Class Toshiba | Linux | 2.4.X | general purpose
 SEQ(SP=C9-D3%GCD=<7%ISR=CD-D7%TI=Z%II=I%TS=U)
 OPS(R=N)
 WIN(R=N)
