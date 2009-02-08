@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] New translation: Croatian (contributed by Vlatko Kosturjak).
+
 o Fixed a DNS decoding bug in dns-zone-transfer.nse that created
   garbage output and could crash Zenmap by including 0x0C bytes in XML
   files. The Zenmap crash looked like
