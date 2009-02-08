@@ -887,66 +887,63 @@ log_write(LOG_PLAIN, "%d service%s unrecognized despite returning data. If you k
 }
 
 
-/* Note that this escapes newlines, which is generally needed in
-   attributes to avoid parser normalization, but might not be needed
-   or desirable in XML content outside of attributes.  So if we find
-   some cases where we don't want \r\n\t escaped, we'll have to add a
-   parameter to control this. */
-char* xml_convert (const char* str) {
-  char *temp, ch=0, prevch = 0, *p;
-  int strl = strlen(str);
-  temp = (char *) safe_malloc(strl*6+1);
-  char *end = temp + strl * 6 + 1;
-  for (p = temp;(prevch = ch, ch = *str);str++) {
-    const char *a;
-    if ((unsigned char) ch > 0x7F) {
-      /* Escape anything outside of ASCII--we have to emit UTF-8 and an easy
-         way to do that is to emit ASCII. */
-      char buf[32];
-      Snprintf(buf, sizeof(buf), "&#x%02X;", (unsigned char) ch);
-      a = buf;
+/* Escape a string for inclusion in XML. This gets <>&, "' for attribute values,
+   -- for inside comments, and characters with value > 0x7F. It also gets
+   control characters with value < 0x20 to avoid parser normalization of \r\n\t
+   in attribute values. If this is not desired in some cases, we'll have to add
+   a parameter to control this. */
+char *xml_convert(const char *str) {
+  /* result is the result buffer; n + 1 is the allocated size. Double the
+     allocation when space runs out. */
+  char *result = NULL;
+  size_t n = 0, len;
+  const char *p;
+  int i;
+
+  i = 0;
+  for (p = str; *p != '\0'; p++) {
+    const char *repl;
+    char buf[32];
+
+    if (*p == '<')
+      repl = "&lt;";
+    else if (*p == '>')
+      repl = "&gt;";
+    else if (*p == '&')
+      repl = "&amp;";
+    else if (*p == '"')
+      repl = "&quot;";
+    else if (*p == '\'')
+      repl = "&apos;";
+    else if (*p == '-' && p > str && *(p - 1) == '-') {
+      /* Escape -- for comments. */
+      repl = "&#45;";
+    } else if (*p < 0x20 || (unsigned char) *p > 0x7F) {
+      /* Escape control characters and anything outside of ASCII. We have to
+         emit UTF-8 and an easy way to do that is to emit ASCII. */
+      Snprintf(buf, sizeof(buf), "&#x%x;", (unsigned char) *p);
+      repl = buf;
     } else {
-      switch (ch) {
-      case '\t':
-        a = "&#x9;";
-        break;
-      case '\r':
-        a = "&#xd;";
-        break;
-      case '\n':
-        a = "&#xa;";
-        break;
-      case '<':
-        a = "&lt;";
-        break;
-      case '>':
-        a = "&gt;";
-        break;
-      case '&':
-        a =  "&amp;";
-        break;
-      case '"':
-        a = "&quot;";
-        break;
-      case '\'':
-        a = "&apos;";
-        break;
-      case '-': 
-        if (prevch == '-') { /* Must escape -- for comments */
-          a =  "&#45;";
-          break;
-        }
-      default:
-        *p++ = ch;
-        continue;
-      }
+      /* Unescaped character. */
+      buf[0] = *p;
+      buf[1] = '\0';
+      repl = buf;
     }
-    assert(end - p > 1);
-    Strncpy(p,a, end - p - 1); p += strlen(a); // SAFE
+
+    len = strlen(repl);
+    /* Double the size of the result buffer if necessary. */
+    if (i + len > n) {
+      n = (i + len) * 2;
+      result = (char *) safe_realloc(result, n + 1);
+    }
+    memcpy(result + i, repl, len);
+    i += len;
   }
-  *p = 0;
-  temp = (char *) safe_realloc(temp,strlen(temp)+1);
-  return temp;
+  /* Trim to length. (Also does initial allocation when str is empty.) */
+  result = (char *) safe_realloc(result, i + 1);
+  result[i] = '\0';
+
+  return result;
 }
 
 char *logfilename(const char *str, struct tm *tm)
