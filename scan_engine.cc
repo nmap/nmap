@@ -3761,7 +3761,6 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   UltraProbe *probe = NULL;
   unsigned int trynum = 0;
   unsigned int pingseq = 0;
-  bool goodseq;
   int newstate = PORT_UNKNOWN;
   unsigned int probenum;
   unsigned int listsz;
@@ -3849,9 +3848,9 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       
       /* Find the probe that provoked this response. */
       for (probenum = 0; probenum < listsz && !goodone; probenum++) {
+	bool goodseq = false;
 	probeI--;
 	probe = *probeI;
-	goodseq = false; 
 
 	if (o.af() != AF_INET || probe->protocol() != IPPROTO_TCP)
 	  continue;
@@ -4034,7 +4033,6 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       for(probenum = 0; probenum < listsz && !goodone; probenum++) {
 	probeI--;
 	probe = *probeI;
-	goodseq = false; 
 	newstate = PORT_UNKNOWN;
 
 	if (o.af() != AF_INET || probe->protocol() != IPPROTO_UDP)
@@ -4148,7 +4146,6 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   unsigned int trynum = 0;
   unsigned int pingseq = 0;
   unsigned int requiredbytes;
-  bool goodseq;
   int newstate = HOST_UNKNOWN;
   unsigned int probenum;
   unsigned int listsz;
@@ -4309,7 +4306,6 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           for (probenum = 0; probenum < listsz; probenum++) {
             probeI--;
             probe = *probeI;
-            goodseq = false;
 
             if (o.af() != AF_INET || probe->protocol() != IPPROTO_TCP)
               continue;
@@ -4397,7 +4393,6 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           for (probenum = 0; probenum < listsz; probenum++) {
             probeI--;
             probe = *probeI;
-            goodseq = false;
 
             if (o.af() != AF_INET || probe->protocol() != ip2->ip_p)
               continue;
@@ -4468,9 +4463,9 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 
       /* Find the probe that provoked this response. */
       for (probenum = 0; probenum < listsz && !goodone; probenum++) {
+        bool goodseq = false;
         probeI--;
         probe = *probeI;
-        goodseq = false;
 
         if (o.af() != AF_INET || probe->protocol() != IPPROTO_TCP)
           continue;
@@ -4539,7 +4534,6 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       for(probenum = 0; probenum < listsz && !goodone; probenum++) {
 	probeI--;
 	probe = *probeI;
-	goodseq = false; 
 
 	if (o.af() != AF_INET || probe->protocol() != IPPROTO_UDP)
 	  continue;
