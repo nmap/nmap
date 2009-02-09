@@ -64,6 +64,11 @@ o Write Ncat users' guide, demonstrating all the neat stuff you can do
   Testing it out for examples might expose areas for improvement as
   well. [David]
 
+o [Ndiff] Rethink the output format. In particular, I would like to
+  always have the old state on the left and the new state on the
+  right: "was filtered, is open," not "is open, was filtered." I also
+  like the context diff–like output of MadHat's nmap-diff. [David]
+
 o Fix the directory function(s) in nse_fs.cc to be usable by scripts and
   improve flexibility. [this entry added by Patrick]
 
