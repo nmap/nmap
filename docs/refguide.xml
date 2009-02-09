@@ -3990,7 +3990,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
       <command>nmap -sS -O scanme.nmap.org/24</command>
     </para>
     <para>Launches a stealth SYN scan against each machine that is
-    up out of the 255 machines on <quote>class C</quote> network where
+    up out of the 256 IPs on <quote>class C</quote> sized network where
     Scanme resides. It also tries to determine what
     operating system is running on each host that is up and
     running. This requires root privileges because of the SYN scan
