@@ -521,7 +521,11 @@ int process_mainloop(lua_State *L) {
           SCRIPT_ENGINE_TRY(process_getScriptId(thread, &sr));
                     lua_getfield(thread, 2, "gsub");
                     lua_pushvalue(thread, 2); // output FIXME
-                    lua_pushliteral(thread, "[^%w%s%p]");
+                    /* Escape any character outside the range 32-126 except for
+                       tab, carriage return, and line feed. This makes the
+                       string safe for screen display as well as XML (see
+                       section 2.2 of the XML spec). */
+                    lua_pushliteral(thread, "[^\t\r\n\040-\176]");
                     lua_pushcclosure(thread, escape_char, 0);
                     lua_call(thread, 3, 1);
           sr.set_output(lua_tostring(thread, -1));
