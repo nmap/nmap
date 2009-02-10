@@ -4,7 +4,7 @@ o Fix XML escaping problem so that improper chars from NSE scripts or
   elsewhere can't cause corrupt XML files.  See
   http://seclists.org/nmap-dev/2009/q1/0316.html for an example. [David]
 
-o Fix dns-zone-transfer infinite recursion bug descrobed at
+o Fix dns-zone-transfer infinite recursion bug described at
   http://seclists.org/nmap-dev/2009/q1/0317.html.  It sounds like the
   best approach is to use our dns.lua library rather than having
   dns-zone-transfer do its own DNS packet parsing.
@@ -13,7 +13,7 @@ o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
 
 o Write Ncat users' guide, demonstrating all the neat stuff you can do
   with it.  This should probably be in DocBook XML so it can be an NNS
-  chapter.  You might want to query nmap-dev for ieas of neat things
+  chapter.  You might want to query nmap-dev for list of neat things
   people do with ncat (or look around for what people do with nc).
   Testing it out for examples might expose areas for improvement as
   well. [David]
@@ -23,7 +23,7 @@ o Consider adding a way for requesting timing status updates at a
   output.  This would be useful for people who run Nmap from scripts
   or other higher level applications. [David]
 
-o NSE should offer some way to sleep/yeield for a given amount of
+o NSE should offer some way to sleep/yield for a given amount of
   time.  This would allow other scripts to run while a script has
   nothing to do.  Possible uses:
   o Many services have rate limits (or you might just want to use them
@@ -75,7 +75,7 @@ o Process the latest version detection submissions.  We now have more
 o [Ndiff] Rethink the output format. In particular, I would like to
   always have the old state on the left and the new state on the
   right: "was filtered, is open," not "is open, was filtered." I also
-  like the context diff–like output of MadHat's nmap-diff. [David]
+  like the context diff output of MadHat's nmap-diff. [David]
 
 o Look into memory consumption of UDP scans with -p- and large
   hostgroups.  See if there is a way to prevent them from eating up gigs
@@ -117,7 +117,7 @@ o Consider rethinking Nmap's -s* syntax for specifing scan types
     o Can make Nmap command lines hard to read, particularly given
       that we often need to improvise to find a letter which isn't
       taken.
-    o Problemtatic for scan types -sI and -b which require arguments
+    o Problematic for scan types -sI and -b which require arguments
     o Inconsistencies.  For example, -sC and -sV do script scan and
     version detection, respectively, and yet for OS detection we use
     -sO.
