@@ -479,14 +479,14 @@ end
 -- @param pos Starting position in packet.
 -- @return Position after decoding.
 -- @return Decoded domain, or <code>nil</code> on error.
-local function decStr(data, pos)
+function decStr(data, pos)
    local function dec(data, pos, limit)
       local partlen
       local parts = {}
       local part
 
       -- Avoid infinite recursion on malformed compressed messages.
-      limit = limit or 1
+      limit = limit or 3
       if limit < 0 then
          return pos, nil
       end

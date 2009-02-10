@@ -54,6 +54,7 @@ require('stdnse')
 require('listop')
 require('bit')
 require('tab')
+require('dns')
 
 author = 'Eddie Bell <ejlbell@gmail.com>'
 license = 'Same as Nmap--See http://nmap.org/book/man-legal.html'
@@ -122,38 +123,7 @@ end
 --@param data String of data.
 --@param offset Offset in the string to read the domain name.
 function parse_domain(data, offset)
-	local i, x, record, line, ptr
-
-	record = strbuf.new()
-	x = string.byte(data, offset)
-	ptr = bto16(data, offset)
-
-	while not(x == 0) do 
-		-- if the first two bits are '11' then the next 14 
-		-- point to another location in the packet
-		if(bit.band(ptr, 49152) == 49152) then
- 			ptr, line = parse_domain(data, bit.band(ptr, 16383) + 3)
-			record = record .. line
-			offset = offset + 1
-			break
-		end
-
-		-- RFC 1035 format name
-		for i=0, x-1 do
-			offset = offset + 1
-			record = record .. string.char(string.byte(data, offset))
-		end
-
-		offset = offset + 1
-
-		-- replace length byte with a period
-		record = record .. '.'
-		
-		x = string.byte(data, offset)
-		ptr = bto16(data, offset)
-	end
-
-	return offset+1, strbuf.dump(record)
+	return dns.decStr(data, offset)
 end 
 
 --- Build RFC 1035 root domain name from the name of the DNS server
@@ -286,8 +256,8 @@ function responses_iter(data)
 		assert(remaining >= 14 + 2)
 		length = bto16(data, offset)
 		assert(length <= remaining)
-		-- + 2 for the length field.
-		length = length + 2
+		-- Skip over the length field.
+		offset = offset + 2
 		response = string.sub(data, offset, offset + length - 1)
 		offset = offset + length
 		return response
@@ -300,13 +270,13 @@ function dump_zone_info(table, data)
 	
 	offset = 1
 	-- number of available records
-	questions = bto16(data, offset+6)
-	answers = bto16(data, offset+8)
-	auth_answers = bto16(data, offset+10)
-	add_answers = bto16(data, offset+12)
+	questions = bto16(data, offset+4)
+	answers = bto16(data, offset+6)
+	auth_answers = bto16(data, offset+8)
+	add_answers = bto16(data, offset+10)
 
 	-- move to beginning of first section
-	offset = offset + 14
+	offset = offset + 12
 
 	if questions > 1 then
 		return 'More then 1 question record, something has gone wrong'
