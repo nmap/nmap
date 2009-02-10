@@ -2,36 +2,26 @@ TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
 o Fix XML escaping problem so that improper chars from NSE scripts or
   elsewhere can't cause corrupt XML files.  See
-  http://seclists.org/nmap-dev/2009/q1/0316.html for an example.
+  http://seclists.org/nmap-dev/2009/q1/0316.html for an example. [David]
 
 o Fix dns-zone-transfer infinite recursion bug descrobed at
   http://seclists.org/nmap-dev/2009/q1/0317.html.  It sounds like the
   best approach is to use our dns.lua library rather than having
   dns-zone-transfer do its own DNS packet parsing.
 
-o If it wouldn't bloat things too much, it would be nice to include
-  ndiff in the Nmap win32 zip distribution files.
+o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
 
-o Make Zenmap settings get upgraded when the Zenmap executable is
-  upgraded. The per-user configuration files such as scan_profile.usp
-  and zenmap.conf are never overwritten once installed by Zenmap, so
-  changes and fixes to those files don't reach anyone who has
-  installed Zenmap already. This is most noticeable with changes to
-  profiles and highlight definitions are notably affected. This fix
-  may involve hard-coding settings that are not normally configured by
-  users (like highlighting) or updating the per-user files at startup
-  (only those parts that haven't been changed by the user).
+o Write Ncat users' guide, demonstrating all the neat stuff you can do
+  with it.  This should probably be in DocBook XML so it can be an NNS
+  chapter.  You might want to query nmap-dev for ieas of neat things
+  people do with ncat (or look around for what people do with nc).
+  Testing it out for examples might expose areas for improvement as
+  well. [David]
 
-o Consider converting this file to emacs org-mode
-  (http://orgmode.org/) format. [Fyodor]
-  o That format is still plain text and can be read/edited by vi
-    users, etc.
-
-o Ncat: Get rid of sys_wrap stuff and use normal Nbase portability
-  code. [Kris]
-
-o Process the latest version detection submissions.  We now have more
-  than 1,700 of them queued up. [Doug]
+o Consider adding a way for requesting timing status updates at a
+  given interval (such as every 5 seconds) to XML and/or normal
+  output.  This would be useful for people who run Nmap from scripts
+  or other higher level applications. [David]
 
 o NSE should offer some way to sleep/yeield for a given amount of
   time.  This would allow other scripts to run while a script has
@@ -43,31 +33,53 @@ o NSE should offer some way to sleep/yeield for a given amount of
     getting auto-blocked).  Similarly, whois servers often will block
     IPs which query them too often in a short period.  Or maybe you
     don't want to exceed the threshold limits of an IDS.
+  o Example current scripts which might benefit: sql-injection, whois
+    (possibly), pop3-brute, etc.
+  o If we don't currently have a way for a cpu-bound NSE script to
+    yield, then perhaps this could help us implement such a mechanism.
+    But maybe coroutine.yield already does the trick.
 
-o Find way to document NSE library script arguments and perhaps have
-  them bubble up to scripts themselves.  For example, I had to read
-  the SNMP library source code to determine the script argument to
-  specify the SNMP community name for snmp-sysdescr
-  (http://nmap.org/nsedoc/scripts/snmp-sysdescr.html).  Maybe we could
-  just standardize on something like we do with SMB library and the
-  scripts which call it (http://nmap.org/nsedoc/modules/smb.html,
-  http://nmap.org/nsedoc/scripts/smb-check-vulns.html). [David]
+o Consider converting this file to emacs org-mode
+  (http://orgmode.org/) format. [Fyodor]
+  o That format is still plain text and can be read/edited by vi
+    users, etc.
 
-o Look into memory consumption of UDP scans with -p- and large
-  hostgroups.  See if there is a way to prevent them from eating up gigs
-  of RAM.
+o Look into whether we should loosen/change the global congestion
+  control system to address possible cases of one target host with many
+  dropped packets slowing down the whole group.  See
+  http://seclists.org/nmap-dev/2008/q1/0096.html .
+  * Related possibility: Fix --nogcc to gracefully handle ping scans.
+    Right now it seems to go WAY TOO FAST (e.g. several thousand
+    packets per second on my DSL line).
 
-o Write Ncat users' guide, demonstrating all the neat stuff you can do
-  with it.  This should probably be in DocBook XML so it can be an NNS
-  chapter.  You might want to query nmap-dev for ieas of neat things
-  people do with ncat (or look around for what people do with nc).
-  Testing it out for examples might expose areas for improvement as
-  well. [David]
+o Make Zenmap settings get upgraded when the Zenmap executable is
+  upgraded. The per-user configuration files such as scan_profile.usp
+  and zenmap.conf are never overwritten once installed by Zenmap, so
+  changes and fixes to those files don't reach anyone who has
+  installed Zenmap already. This is most noticeable with changes to
+  profiles and highlight definitions are notably affected. This fix
+  may involve hard-coding settings that are not normally configured by
+  users (like highlighting) or updating the per-user files at startup
+  (only those parts that haven't been changed by the user).
+
+o Look at Dario Ciccarone's email from 5/1/07 about IPID sequence
+  issues, and consider adding IPID sequence test for closed-port-tcp as
+  they apparently can be different. [David]
+
+o Ncat: Get rid of sys_wrap stuff and use normal Nbase portability
+  code. [Kris]
+
+o Process the latest version detection submissions.  We now have more
+  than 1,700 of them queued up. [Doug]
 
 o [Ndiff] Rethink the output format. In particular, I would like to
   always have the old state on the left and the new state on the
   right: "was filtered, is open," not "is open, was filtered." I also
   like the context diff–like output of MadHat's nmap-diff. [David]
+
+o Look into memory consumption of UDP scans with -p- and large
+  hostgroups.  See if there is a way to prevent them from eating up gigs
+  of RAM.
 
 o Fix the directory function(s) in nse_fs.cc to be usable by scripts and
   improve flexibility. [this entry added by Patrick]
@@ -88,24 +100,7 @@ o Device categorization improvements
     each device type recognized by Nmap.  Version-detection.xml should
     reference (link to) it in the approprate place.
 
-o NSE Performance in general
-
-o Consider adding a way for requesting timing status updates at a
-  given interval (such as every 5 seconds) to XML and/or normal
-  output.  This would be useful for people who run Nmap from scripts
-  or other higher level applications.
-
-o Look into whether we should loosen/change the global congestion
-  control system to address possible cases of one target host with many
-  dropped packets slowing down the whole group.  See
-  http://seclists.org/nmap-dev/2008/q1/0096.html .
-  o One possibility: Look into whether we should increase the
-    frequency of port scan pings.  See
-    http://seclists.org/nmap-dev/2008/q1/0096.html . Note that Fyodor
-    already increased them a bit in 2008.  Might not need more.
-  o Related possibility: Fix --nogcc to gracefully handle ping scans.
-    Right now it seems to go WAY TOO FAST (e.g. severqal thousand
-    packets per second on my DSL line).
+o Work on NSE Performance in general
 
 o Ask Coverity if they'll scan latest version of Nmap.
 
@@ -138,10 +133,6 @@ o Consider rethinking Nmap's -s* syntax for specifing scan types
       scan arguments easily.  I (Fyodor) think I prefer the idea above
       of just givem them top level arguments.
   o Obviously this will take some discussion/brainstorming on nmap-dev.
-
-o Look at Dario Ciccarone's email from 5/1/07 about IPID sequence
-  issues, and consider adding IPID sequence test for closed-port-tcp as
-  they apparently can be different.
 
 o libnmap organization for UNIX and Windows
   o Then change Nmap and Zenmap to simply call this library
@@ -438,6 +429,23 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Look into whether we should increase the frequency of port scan
+  pings.  See http://seclists.org/nmap-dev/2008/q1/0096.html . Note
+  that Fyodor already increased them a bit in 2008.  Might not need
+  more.  [David did extensive testing of this one already]
+
+o Find way to document NSE library script arguments and perhaps have
+  them bubble up to scripts themselves.  For example, I had to read
+  the SNMP library source code to determine the script argument to
+  specify the SNMP community name for snmp-sysdescr
+  (http://nmap.org/nsedoc/scripts/snmp-sysdescr.html).  Maybe we could
+  just standardize on something like we do with SMB library and the
+  scripts which call it (http://nmap.org/nsedoc/modules/smb.html,
+  http://nmap.org/nsedoc/scripts/smb-check-vulns.html). [David]
+
+o If it wouldn't bloat things too much, it would be nice to include
+  ndiff in the Nmap win32 zip distribution files.
 
 o Reported NSE crash:
   "Assertion failed - file ..\nse_main.cc line 314
