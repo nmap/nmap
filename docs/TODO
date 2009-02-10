@@ -11,6 +11,10 @@ o Fix dns-zone-transfer infinite recursion bug described at
 
 o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
 
+o Ncat --allow/--deny bug: "--allow and --deny only support host
+  specification by IP address, and give no warning when you use
+  another form such as a host name." [David]
+
 o Write Ncat users' guide, demonstrating all the neat stuff you can do
   with it.  This should probably be in DocBook XML so it can be an NNS
   chapter.  You might want to query nmap-dev for list of neat things
