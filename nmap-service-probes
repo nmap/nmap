@@ -2516,8 +2516,8 @@ match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\x1b\[0m\x1b\[2J\x1b\[01;00H
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nSportster Pro ([\d.]+) Image Sagem D-BOX2 - Kernel ([-\w_.]+) | p/Sagem D-BOX2 Sportster Pro telnetd/ v/$1/ i/linux kernel $2/ o/Linux/ d/media device/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n.*Sagem D-BOX2 - Kernel ([-\w_.]+) |s p/Sagem D-BOX2 telnetd/ i/linux kernel $1/ o/Linux/ d/media device/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\0\r\n\*\*\* Lantronix Universal Device Server \*\*\*\r\n\r\0Serial Number (\d+)  MAC address ([\w:]+)\r\n\r\0Software Version V([\d.]+) \((\d+)\)\r\0\r\n\r\n\r\0Press Enter to go into Setup Mode \r\n\r\0| p/Lantronix Universal Device Server telnetd/ v/$3.$4/ i/Serial $1; MAC $2/
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03Fritz!Box web password: | p/AVM FritzBox 7170 telnetd/ d/broadband router/
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nFritz!Box web password: | p/AVM FritzBox telnetd/ d/broadband router/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03Fritz!Box web password: | p/AVM FRITZ!Box 7170 telnetd/ d/broadband router/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nFritz!Box web password: | p/AVM FRITZ!Box telnetd/ d/broadband router/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nDD-WRT v([-\w_+. ]+) Date:| p/DD-WRT telnetd/ v/$1/ d/WAP/ o/Linux/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nDD-WRT v([^\r\n]+)\r\n| p/DD-WRT telnetd/ v/$1/ d/WAP/ o/Linux/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03DD-WRT v([^\r\n]+)\r\n| p/DD-WRT telnetd/ v/$1/ d/WAP/ o/Linux/
@@ -3284,7 +3284,7 @@ match zabbix m|^ZBXD\x01\x10\0\0\0\0\0\0\0ZBX_NOTSUPPORTED| p/Zabbix Monitoring 
 ##############################NEXT PROBE##############################
 Probe TCP GetRequest q|GET / HTTP/1.0\r\n\r\n|
 rarity 1
-ports 1,70,79,80-85,88,113,139,143,280,497,505,514,515,540,554,591,620,631,783,888,898,900,901,993,995,1026,1080,1214,1220,1234,1311,1314,1344,1503,1610,1611,1830,1900,2001,2002,2030,2064,2160,2306,2396,2525,2715,2869,3000,3002,3052,3128,3280,3372,3531,3689,4000,4660,4711,5000,5427,5060,5222,5269,5432,5800-5803,5900,6103,6346,6544,6600,6699,6969,7002,7007,7070,7402,7776,8000-8010,8080-8085,8118,8181,8443,8880-8888,9000,9001,9030,9050,9080,9090,9999,10000,10005,11371,13013,13666,13722,14534,15000,17988,18264,40193,50000,55555
+ports 1,70,79,80-85,88,113,139,143,280,497,505,514,515,540,554,591,620,631,783,888,898,900,901,993,995,1026,1080,1214,1220,1234,1311,1314,1344,1503,1610,1611,1830,1900,2001,2002,2030,2064,2160,2306,2396,2525,2715,2869,3000,3002,3052,3128,3280,3372,3531,3689,4000,4444,4660,4711,5000,5427,5060,5222,5269,5432,5800-5803,5900,6103,6346,6544,6600,6699,6969,7002,7007,7070,7402,7776,8000-8010,8080-8085,8118,8181,8443,8880-8888,9000,9001,9030,9050,9080,9090,9999,10000,10005,11371,13013,13666,13722,14534,15000,17988,18264,40193,50000,55555
 sslports 443,4443
 
 match ajp13 m|^AB\0\x13\x04\x01\x90\0\x0bBad Request\0\0\0AB\0\x02\x05\x01$| p/Apache Jserv/
@@ -5067,6 +5067,15 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Axigen-Webmail\r\n|s p/Axigen webma
 match http m|^HTTP/1\.1 400 Bad Request\r\nServer: Linux, UPnP/([\w-_.]+), AR680W Ver ([\w-_.]+)\r\n| p/AirLink 101 AR680W WAP http config/ o/Linux/ i/UPnP $1/ v/$2/ d/WAP/
 match http m|^HTTP/1\.0 200 .*\r\nServer: Allegro-Software-RomPager/([\w-_.]+)\r\n\r\n<HTML><HEAD>\n<META NAME=\"GENERATOR\" CONTENT=\"Microsoft FrontPage 3\.0\">\n<TITLE></TITLE>.*<frame NAME=\"fInfo\" scrolling=\"no\" noresize src=\"/html/Hlogin\.html\"|s p/Amer.com SSR22i switch http config/ d/switch/ i/Allegro RomPager httpd $1/
 match http m|^HTTP/1\.1 301 Moved Permanently\r\nDate: .*\r\nServer: eSoft\r\nX-Powered-By: PHP/([\w-_.]+)\r\nLocation: https://ThreatWall/\r\n| p/eSoft ThreatWall IPS http config/ i/PHP $1/ d/security-misc/
+match http m|^HTTP/1\.0 200 OK\r\nServer: NetPort Software ([\w-_.]+)\r\nDate: .*\r\nContent-type: text/html\r\n\r\n<html>\n<head>\n<title>(.*) - VSX 7000A</title>| p/Polycom VSX 7000A http config/ i/NetPort httpd $1; name $2/
+match http m|^HTTP/1\.1 301 Moved Permanently\r\nServer: Virata-EmWeb/R([\w-_.]+)\r\nLocation: https://[\w-_.]+/\+webvpn\+/index\.html\r\n| p/Cisco WebVPN http config/ i/Virata httpd $1/ d/security-misc/
+match http m|^HTTP/1\.0 200 OK\r\nServer: dtHTTPd/([\w-_.]+)\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nConnection: close\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.0 Transitional//EN\"><HTML><HEAD><TITLE>UX-D1200SE</TITLE>| p/Sharp Broadband UX-D1200SE Fax http config/ d/printer/ i/dtHTTPd $1/
+match http m|^HTTP/1\.1 200 OK\r\nServer: Conexant-EmWeb/R([\w-_.]+) SIPGT/([\w-_.]+)\r\n.*<title>Login page</title>.*<img src=\"images/ixlogga\.gif\"|s p/Intertex IX68 WAP http config/ d/WAP/ i/Conexant httpd $1; SIPGT $2/
+match http m|^HTTP/1\.0 404 Not Found\r\nContent-Length: \d+\r\nContent-Type: text/html\r\n\r\n.*<title>NOTE: The requested URL could not be retrieved</title>.*background-image: url\(/html/de/images/bg_ramp\.jpg\);\r\n|s p/AVM FRITZ!Box WAP http config/ d/WAP/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: lighttpd[/ ]([\d.]+)( \([^)]+\))?\r\n|si p/lighttpd/ v/$1/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: lighttpd|si p/lighttpd/
+match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: micro_httpd\r\nCache-Control: no-cache\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"U\.S\. Robotics ADSL Router\"\r\n| p/US Robotics USR9107A ADSL http config/ d/broadband router/ i/micro_httpd/
+match http m|^HTTP/1\.0 200 Ok\r\nServer: httpd\r\nDate: .*<SCRIPT language=Javascript src=\"language_us\.js\"></SCRIPT>\n<SCRIPT>assign_var\(\);</SCRIPT>\n<SCRIPT language=JavaScript src=\"showMenu\.js\"></SCRIPT>\n<SCRIPT>\n\tvar helpItem \t='indexa';|s p/Belkin N1 F5D8231-4 WAP http config/ d/WAP/
 
 #(insert http)
 
@@ -5223,6 +5232,7 @@ match http-proxy m|^HTTP/1\.[01] \d\d\d .*\r\nServer: approx/([\w-_.]+) Ocamlnet
 match http-proxy m|^HTTP/1\.1 401 Unauthorized\nWWW-Authenticate: Basic realm=\"Anti-Spam SMTP Proxy \(ASSP\) Configuration\"\nContent-type: text/html\nServer: ASSP/([\w-_.]+)\(\)\n| p/Anti-Spam SMTP Proxy http config/ v/$1/
 match http-proxy m|^HTTP/1\.0 \d\d\d .*<b>Bad request format\.\n\t\t</b><p>Please, check URL\.<p>\t\t<hr>\t\tGenerated by <a href=\"http://www\.kingate\.net\"> kingate\(([\w-_.]+)-win32\)</a>\.</body></html>\0\0|s p/kingate http proxy/ v/$1/ o/Windows/
 match http-proxy m|^\njava\.net\.UnknownHostException: /\r\n\tat java\.net\.PlainSocketImpl\.connect\(Unknown Source\)\r\n| p/Apache JMeter http proxy/
+match http-proxy m|^HTTP/1\.1 403 Bad Protocol\r\n.*<H1>I2P ERROR: NON-HTTP PROTOCOL</H1>The request uses a bad protocol\. The I2P HTTP Proxy supports http:// requests ONLY\. Other protocols such as https:// and ftp:// are not allowed\.<BR>|s p/I2P http proxy/
 
 match mas-financial m|^409 Invalid Protocol PVXAS/1\.0\r\n| p/MAS200 Financial System/ o/Windows/
 match mas-financial m|^The Host cannot run the specified program\.$| p/MAS200 Financial System/ o/Windows/
@@ -5540,8 +5550,7 @@ match http m|^HTTP/1\.1 302 Found\r\nDate: .*\r\nServer: CompaqHTTPServer/([\d.]
 match http m|^HTTP/1\.0 400 Ungueltige Anfrage\r\nServer: Web Sharing\r\n| p/Mac OS Personal Web Sharing/ i/German/ o/Mac OS/
 match http m|^HTTP/1\.1 405 Method Not Allowed\r\nContent-Type:text/html\r\n\r\n<HTML><HEAD><TITLE>Remote Insight</TITLE></HEAD><BODY>\r\n<H1>Request Error</H1>\r\nHTTP/1\.1 405 Method Not Allowed\r\n</BODY></HTML>\r\n| p/Compaq Integrated Lights-Out http config/ d/remote management/
 match http m|^HTTP/1\.0 400 Bad Request\r\nServer: Web Sharing\r\nContent-type: text/html\r\n\r\n<HTML><TITLE>400 Bad Request</TITLE>The URL you requested could not be understood by the server\.  Do not include double slashes or colon characters in the URL\.</HTML>\r\n\r\n| p/Apple Personal Websharing httpd/ o/Mac OS/
-match http m|^HTTP/1\.0 \d\d\d .*\r\n.*Server: lighttpd[/ ]([\d.]+)( \([^)]+\))?\r\n|si p/lighttpd/ v/$1/
-match http m|^HTTP/1\.0 \d\d\d .*\r\n.*Server: lighttpd|si p/lighttpd/
+match http m|^HTTP/1\.0|
 match http m|^Command Not Reconized\r\n$| p/Microsiga httpd/
 match http m|^HTTP/1\.0 405 Method Not Allowed\r\nAllow: GET, HEAD, POST, PUT\r\n\r\n$| p/Lexmark printer http config/ d/printer/
 match http m|^HTTP/1\.0 405-metode ikke tillatt\r\nTillatt: GET, HEAD, POST, PUT\r\n\r\n$| p/Lexmark printer http config/ i/Norwegian/ d/printer/
@@ -6534,6 +6543,8 @@ match http m|^HTTP/1\.0 200 OK\nContent-Type: text/html; charset=utf-8\nConnecti
 match http m|^HTTP/1\.0 403 Forbidden\r\n.*\r\n<title>Abilis CPX - 403 forbidden</title>|s p/Abilis CPX http config/ d/PBX/
 match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nCache-Control: no-cache\r\nServer: WEBCAM\r\nCONTENT-LENGTH:\d+\r\n\r\n\r\nHTTP requested /nice%20ports%2C/Tri%6Eity\.txt%2ebak was not found  UID (\d+) PID (\d+)\n| p/Pixord IP Camera http config/ d/webcam/ i/UID $1; PID $2/
 match http m|^<html>\n<link rel=stylesheet href=form\.css>\n<body onload='document\.login\.passwd\.focus\(\)'>\n<form name=login method=POST>\n.*<td bgcolor=#C1D6FF>&nbsp;System Name &nbsp; : ([\w-_.]+)\n.*&nbsp;MAC Address &nbsp;&nbsp; : ([\w-]+)\n|s p/Web-Smart Gigabit Ethernet Switch http config/ d/switch/ h/$1/ i/MAC $2/
+match http m|^HTTP/1\.0 404 Not Found\r\n\r\nThis page does not exist or you are not authorized to view it| p/Google Search Appliance httpd/ d/specialized/
+match http m|^HTTP/1\.0 404 Document Follows\r\nContent-Type: text/html\r\nContent-Length: \d+\r\n\r\n<HEAD><TITLE>404 Not Found</TITLE></HEAD>\r\n<BODY><H1>404 Not Found</H1>\r\nUrl '/NICE%20PORTS%2C\\TRI%6EITY\.TXT%2EBAK' not found on server<P>\r\n</BODY>| p/HP StorageWorks MSL4048 http config/ d/storage-misc/
 
 match http-proxy m|^HTTP/1\.0 404 Error\r\n.*<HTML><HEAD><TITLE>Extra Systems Proxy Server</TITLE>|s p/Extra Systems http proxy/ o/Windows/
 match http-proxy m|^HTTP/1\.1 502 Bad Gateway\r\nConnection : close\r\n.*\n<title>The requested URL could not be retrieved</title>\n<link href=\"http://passthrough\.fw-notify\.net/static/default\.css\"|s p/Astaro firewall http proxy/ d/firewall/
