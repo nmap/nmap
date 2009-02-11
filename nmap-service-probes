@@ -4800,7 +4800,6 @@ match http m|^HTTP/1\.1 403 Forbidden\r\nDate: .*\r\nServer: RoamAbout Switch Ma
 match http m|^HTTP/1\.1 200 .*Server: Virata-EmWeb/R([-\w_.]+)\r\n.*<title>NBX NetSet</title>\n<META NAME=\"robots\" CONTENT=\"noindex,noarchive,nofollow\">\n<!-- \(c\) Copyright, 3Com Corporation or its subsidiaries|s p/3Com NBX NetSet VoIP adapter http config/ d/VoIP adapter/ i/Virata httpd $1/
 match http m|^HTTP/1\.1 200 .*Server: Virata-EmWeb/R([-\w_.]+)\r\n.*<title> HP Color LaserJet ([-\w_.]+)|s p/HP Color LaserJet http config/ d/printer/ i/Virata httpd $1/
 match http m|^<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">\n<html>\n  <head>\n    <title>404 Entity Not Found</title>\n.*The requested file or stream was not found on this server\.|s p/Icecast streaming media server/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: *Linux/([-\w_.]+), UPnP/([-\w_.]+), TwonkyVision UPnP SDK/([-\w_.]+)\r\n|s p/TwonkyMedia UPnP Server/ v/$3/ i/Linux $1; UPnP $2/ o/Linux/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Virata-EmWeb/R([\d_]+)\r\n.*<TITLE>optiPoint420Advance Home Page</TITLE>|s p/Siemans optiPoint 420 Advance http config/ i/Virata httpd $1/ d/VoIP phone/
 match http m|^HTTP/1\.0 403 too few slashes in URI /\r\nContent-type: text/html\r\n\r\n| p|apt-cache/apt-proxy httpd| o/Linux/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: CosminexusComponentContainer\r\n|s p/Cosminexus httpd/
@@ -5082,6 +5081,7 @@ match http m|^<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01 Transitional//EN\" 
 match http m|^HTTP/1\.1 200\r\n.*<TITLE>ProjectorView Control System</TITLE>.*CODE=com\.mitsubishi\.x500u\.X500UApplet\.class\r\n|s p/Mitsubishi Projector XD1000 http config/ d/projector/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: micro_httpd\r\nCache-Control: no-cache\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"Wireless Router\"\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<HTML><HEAD><TITLE>401 Unauthorized</TITLE></HEAD>\n<BODY BGCOLOR=\"#cc9999\"><H4>401 Unauthorized</H4>\nAuthorization required\.\n| p/Asus wl-600g WAP http config/ d/WAP/
 match http m|^HTTP/1\.0 301 Moved Permanently\r\nCache-Control: no-cache\r\nConnection: close\r\nPragma: no-cache\r\nLocation: /TopAccess/default\.htm\r\nServer: TOSHIBA TEC CORPORATION\r\n| p/Toshiba Tec printer http config/ d/printer/
+match http m|^HTTP/1\.0 303 See Other\r\nLocation: http://[\w-_.]+:8080\r\n\0 .*\rContent-Length: 0\r\n\r\n| p|Toshiba e-STUDIO 233 copier/printer/fax http config| d/printer/
 match http m|^HTTP/1\.0 200 OK\r\nServer: InterNiche Technologies WebServer ([\w-_.]+)\r\n| p/InterNiche Technologies httpd/ v/$1/
 match http m|^HTTP/1\.1 302 Redirect\r\nServer: GoAhead-Webs\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nContent-Type: text/html\r\nLocation: http://[\w-_.]+/index\.asp\r\n\r\n<html><head></head><body>\r\n\t\tThis document has moved to a new| p/Dell PowerConnect 3024 switch http config/ i/GoAhead embedded httpd/ d/switch/
 match http m|^HTTP/1\.1 200 OK\n\n<html>\n<head>\n<title>Touchstone Status</title>| p/Arris Touchstone cable modem http config/ d/broadband router/
@@ -5091,6 +5091,9 @@ match http m|^HTTP/1\.0 200 .*\r\nServer: Linux/([\w-_.]+), UPnP/([\w-_.]+), Fre
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: GlobalSCAPE-Secure Server/([\w-_.]+)\r\n| p/GlobalSCAPE CuteFTP secure httpd/ v/$1/ o/Windows/
 match http m|^<html>\n\n<head>\n<title>HTML-Konfiguration</title>\n\n<SCRIPT language=\"JavaScript\">\n<!--\n\n\nfunction rahmen\(but,high\)| p|Targa WR500/Speedport WV500V WAP http config| i/Bitswitcher firmware/ d/WAP/
 match http m|^\[ menu  \]   - Control packet filtering\r\n5 - Logs            \[ menu  \]   - Alarm and log control\r\n6HTTP/1\.0 200 OK\r\n.*<font color=\"#ffffff\">Aironet BR500E V([\w-_.]+)</td>|s p/Aironet BR500E WAP http config/ d/WAP/ v/$1/
+match http m|^HTTP/1\.1 401 Authorization Required\r\nDate: .*\r\nServer: mini-http/([\w-_.]+) \(unix\)\r\nConnection: close\r\nContent-Type: text/html\r\nWWW-Authenticate: Basic realm=user\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2\.0//EN\">| p/Kemp 2500 load balancer http config/ d/load balancer/ o/Unix/ i/mini-http $1/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: \"Pi3Web/([\w-_.]+)\"\r\n|s p/Pi3Web httpd/ v/$1/
+match http m|^HTTP/1\.0 401 Authorization Required\r\nWWW-Authenticate: Basic realm=\"VoIP841\"\r\n.*\r\nServer: simple httpd ([\w-_.]+)\r\n|s p/Philips DECT VoIP841 http config/ i/simple httpd $1/ d/VoIP phone/
 
 #(insert http)
 
@@ -5450,8 +5453,10 @@ match utsvc m|^protocolErrorInf error=Missing\\040hw\\040string\\040from\\040:\\
 
 match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nCONTENT-TYPE: text/xml\r\nContent-Length: .*<modelName>Xbox 360</modelName>.*<serialNumber>(\w+)</serialNumber>|s p/XBox 360 XML httpd/ i/Serial number $1/ d/game console/
 match upnp m|^HTTP/1.1 400 Bad Request\r\n\r\n$| p/Microsoft Windows UPnP/ o/Windows/
-match upnp m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nConnection: close\r\nServer: Microsoft-Windows-NT/(\d[-.\w]+) UPnP/(\d[-.\w]+) UPnP-Device-Host/(\d[-.\w]+)\r\n| p/Microsoft UPnP/ v/$2/ i/UPnP Device Host: $3/ o/Windows NT $1/
-match upnp m|^HTTP/1\.1 200 .*\r\nSERVER: Linux/([\w-_.]+), UPnP/([\d.]+), MediaTomb/([\w-_.]+)\r\n|s p/MediaTomb upnp/ v/$3/ i/Kernel $1; UPnP $2/ o/Linux/
+match upnp m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nConnection: close\r\nServer: Microsoft-Windows-NT/(\d[-.\w]+) UPnP/(\d[-.\w]+) UPnP-Device-Host/(\d[-.\w]+)\r\n| p/Microsoft Windows UPnP/ v/$2/ i/UPnP Device Host: $3/ o/Windows NT $1/
+match upnp m|^HTTP/1\.1 200 .*\r\nSERVER: Linux/([\w-_.]+), UPnP/([\d.]+), MediaTomb/([\w-_.]+)\r\n|s p/MediaTomb UPnP/ v/$3/ i/Kernel $1; UPnP $2/ o/Linux/
+match upnp m|^HTTP/1\.1 \d\d\d .*\r\nServer: *Linux/([-\w_.]+), UPnP/([-\w_.]+), TwonkyVision UPnP SDK/([-\w_.]+)\r\n|s p/TwonkyMedia UPnP/ i/Linux $1; UPnP $2; SDK $3/ o/Linux/
+match upnp m|^HTTP/1\.1 \d\d\d .*\r\nServer: *Linux/([\w-_.]+), UPnP/([\w-_.]+), pvConnect UPnP SDK/([\w-_.]+)\r\n.*<title>TwonkyMedia</title>|s p/TwonkyMedia UPnP/ i/Linux $1; UPnP $2; pvConnect SDK $3/ o/Linux/
 
 # UUCP 1.06.2 on Linux 2.4.X
 # Taylor UUCP 1.06.2 on Slackware
@@ -5607,6 +5612,7 @@ match http m|^HTTP/1\.1 404 Not Found\r\nServer: Cisco AWARE ([\w-_.]+)\r\n| p/C
 match http m|^HTTP/1\.1 200 OK\r\nPragma: no-cache\r\nx-responding-server: ([\w-_.]+)\r\nX-dmUser: (.*)\r\nMS-Author-Via: DAV\r\n| p/CrushFTP DAV httpd/ h/$1/ i/User $2/
 match http m|^HTTP/1\.1 302 Moved Temporarily\r\nLocation: /login\r\n\r\n$| p/Bizanga IMP Email http config/
 match http m|^HTTP/1\.0 501 Not Implemented\t\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>Not Implemented</TITLE></HEAD><BODY><h3>Error: HTTP Method Not Implemented</h3></BODY></HTML>| p/Zonealarm Z100G WAP http config/ d/WAP/
+match http m|^HTTP/1\.0 302 \r\nLocation: ,\r\n\r\n$| p/BlackBox LWU0200-POE-M ethernet-optical bridge http config/ d/bridge/
 
 match http-proxy m|^HTTP/1\.1 503 Service Unavailable\r\ndate: .*\r\nconnection: close\r\n\r\n<html><body><pre><h1>Service unavailable</h1></pre></body></html>\n| p/HTTP Replicator proxy/
 match http-proxy m|^HTTP/1\.1 400 Bad Request\r\n.*This is a WebSEAL error message template file\.|s p/IBM WebSEAL reverse http proxy/ d/security-misc/
