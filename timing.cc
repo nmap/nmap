@@ -442,7 +442,7 @@ ScanProgressMeter::ScanProgressMeter(const char *stypestr) {
   gettimeofday(&begin, NULL);
   last_print_test = begin;
   memset(&last_print, 0, sizeof(last_print));
-  memset(&last_est, 0, sizeof(last_print));
+  memset(&last_est, 0, sizeof(last_est));
   beginOrEndTask(&begin, NULL, true);
 }
 
