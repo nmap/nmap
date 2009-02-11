@@ -513,8 +513,6 @@ bool ScanProgressMeter::printStatsIfNecessary(double perc_done,
 					       const struct timeval *now) {
   struct timeval tvtmp;
   double time_left_s;
-  double prev_est_time_left_s; /* Time left as per prev. estimate */
-  double change_abs_s; /* absolute value of change */
   bool printit = false;
 
   if (!now) {
@@ -537,19 +535,19 @@ bool ScanProgressMeter::printStatsIfNecessary(double perc_done,
   if (time_left_s < 30)
     return false; /* No point in updating when it is virtually finished. */
 
-  /* If we have not printed before, or if our previous ETC has elapsed, print
-     a new one */
-  if (last_print.tv_sec == 0)
+  if (last_est.tv_sec == 0) {
+    /* We don't have an estimate yet (probably means a low completion). */
     printit = true;
-  else {
-    /* If the estimate changed by more than X minutes, and if that
-       change represents at least X% of the time remaining, print
-       it.  */
-    prev_est_time_left_s = difftime(last_est.tv_sec, now->tv_sec);
-    change_abs_s = ABS(prev_est_time_left_s - time_left_s);
-    if (prev_est_time_left_s <= 0)
-      printit = true;
-    else if (o.debugging || (change_abs_s > 180 && change_abs_s > .05 * MAX(time_left_s, prev_est_time_left_s)))
+  } else if (TIMEVAL_AFTER(*now, last_est)) {
+    /* The last estimate we printed has passed. Print a new one. */
+    printit = true;
+  } else {
+    /* If the estimate changed by more than 3 minutes, and if that change
+       represents at least 5% of the total time, print it. */
+    double prev_est_total_time_s = difftime(last_est.tv_sec, begin.tv_sec);
+    double prev_est_time_left_s = difftime(last_est.tv_sec, last_print.tv_sec);
+    double change_abs_s = ABS(prev_est_time_left_s - time_left_s);
+    if (o.debugging || (change_abs_s > 15 && change_abs_s > .05 * prev_est_total_time_s))
       printit = true;
   }
 
