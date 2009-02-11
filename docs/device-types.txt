@@ -1,0 +1,96 @@
+general purpose
+A device without a specific intended purpose. These devices usually run a general purpose operating system like Windows or Linux and are capable of performing nearly any task. In the nmap-service-probes file these devices are indicated by a lack of a d// tag.
+
+bridge
+Devices that connect 2 or more networks together.
+*** Suggest moving some of these to the WAP or router category
+
+broadband router
+A consumer device for connecting a network to the internet via cable, ADSL, fiber optics, etc. May provide services like Network Address Translation (NAT), a firewall, port forwarding, etc. 
+*** Possibly split into "broadband router" and "broadband modem" where modem counts only devices that actually plug into a cable or DSL connection
+
+cluster
+A device that coordinates a group of computers working together.
+*** Suggest using specialized instead
+
+firewall
+A device dedicated to protecting other devices or networks. Usually these devices use inbound packet filtering but also may use outbound filtering or application level filtering.
+
+game console
+A consumer entertainment device intended primarily for playing video games. Examples are Nintendo, Xbox, Playstation, etc.
+
+hub
+A device that joins 2 or more network segments by re-broadcasting all traffic. These devices are distinct from switches which selectively transmit packets only to relevant destinations.
+
+load balancer
+A device that distributes inbound traffic to multiple devices to ease the load on those devices.
+
+media device
+A consumer device for watching media such as movies, television, pictures, etc. Examples: satellite TV systems, Video Disk Recorders (VDRs), music streaming devices.
+
+PBX
+Private Branch eXchanges are devices used for routing telephone calls to multiple phones in an organization. The telephones may be connected via Plain Old Telephone Service (POTS) or Voice Over IP (VoIP).
+
+PDA
+Portable Digital Assistants are handheld consumer devices used for organization, browsing the mobile web, playing games, etc.
+
+phone
+*** Suggest merge with PDA
+
+power device
+These are devices such as Uninterruptable Power Supplies (UPSs) or high-end surge protectors usually intended for data-centres.
+
+print server
+These are devices that connect a non-network capable printer to a network so it can accept print jobs via the network.
+
+printer
+Network enabled printers.
+
+projector
+Devices that illuminate a screen or a wall for a presentation.
+*** Newish category. I think there are some projectors classified as specialized. Alternatively use media device
+
+remote managment
+Devices usually installed in data-centres so that equipment can be managed or monitored remotely.
+
+router
+A device that connects multiple networks. They are distinct from hubs and switches because they route packets between 2 different networks as opposed to extending one network.
+
+security-misc
+Any device intended to protect other devices or networks that doesn't fall into the category of firewall. Examples include email filtering devices, Intrusion Detection Systems (IDSs), Intrusion Prevention Systems (IPSs) etc.
+
+specialized
+The catch-all category. If a device doesn't fall into one of the other categories, it is specialized. Examples are very diverse and include everything from ethernet to serial bridges, oscilloscopes and other lab equipment, weather and climate monitors, and more.
+*** Should ethernet->serial bridges be bridge category?
+
+storage-misc
+Devices for storing data and making it accessible to clients over the network. Sometimes these are known as Network Attached Storage (NAS) devices.
+
+switch
+A device that extends a network by selectively re-broadcasting packets. Switches are distinct from hubs which re-broadcast all packets.
+
+telecom-misc
+Device used by telephone systems that aren't PBXs. Examples include Digital Subscriber Line Access Multiplexer (DSLAM), Time Sharing User (TSU), and Integrated Services Digital Network (ISDN) systems.
+
+terminal
+A device with a keyboard and monitor with the primary purpose of communicating directly with a terminal server or mainframe which is generally more powerful than a "dumb terminal".
+
+terminal server
+A device that provides terminal facilities to clients over a network.
+
+VoIP adapter
+A device for providing Voice Over IP (VoIP) service that doesn't itself include phone facilities. A phone must be plugged into these adapters to place or receive calls.
+
+VoIP phone
+A device for providing Voice Over IP (VoIP) service that includes phone hardware.
+
+WAP
+Wireless Access Points are devices that clients can use to connect to a network without using physical wires. Usually these devices use radio technology like 802.11b but sometimes they may use infra-red or other technology.
+
+webcam
+A device that takes pictures with a camera, digitizes them, and makes them available over a network. This includes everything from consumer webcams used for internet chatting to Digital Video Recorders (DVRs) and professional security systems.
+*** Suggest distinction between consumer webcams and security systems
+
+X-ray machine
+A medical device.
+*** Suggest using specialized instead
