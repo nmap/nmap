@@ -475,19 +475,34 @@ bool ScanProgressMeter::mayBePrinted(const struct timeval *now) {
 
   if (last_print.tv_sec == 0) {
     /* We've never printed before -- the rules are less stringent */
-    if (TIMEVAL_MSEC_SUBTRACT(*now, begin) > 30000)
+    if (difftime(now->tv_sec, begin.tv_sec) > 30)
       return true;
-    else return false;
+    else
+      return false;
   } 
 
-  if (TIMEVAL_MSEC_SUBTRACT(*now, last_print_test) < 3000) 
+  if (difftime(now->tv_sec, last_print_test.tv_sec) < 3)
     return false;  /* No point even checking too often */
 
   /* We'd never want to print more than once per 30 seconds */
-  if (TIMEVAL_MSEC_SUBTRACT(*now, last_print) < 30000)
+  if (difftime(now->tv_sec, last_print.tv_sec) < 30)
     return false;
 
   return true;
+}
+
+/* Return an estimate of the time remaining if a process was started at begin
+   and is perc_done of the way finished. Returns inf if perc_done == 0.0. */
+static double estimate_time_left(double perc_done,
+                                 const struct timeval *begin,
+                                 const struct timeval *now) {
+  double time_used_s;
+  double time_needed_s;
+
+  time_used_s = difftime(now->tv_sec, begin->tv_sec);
+  time_needed_s = time_used_s / perc_done;
+
+  return time_needed_s - time_used_s;
 }
 
 /* Prints an estimate of when this scan will complete.  It only does
@@ -497,18 +512,16 @@ bool ScanProgressMeter::mayBePrinted(const struct timeval *now) {
 bool ScanProgressMeter::printStatsIfNecessary(double perc_done, 
 					       const struct timeval *now) {
   struct timeval tvtmp;
-  long time_used_ms;
-  long time_needed_ms;
-  long time_left_ms;
-  long prev_est_time_left_ms; /* Time left as per prev. estimate */
-  long change_abs_ms; /* absolute value of change */
+  double time_left_s;
+  double prev_est_time_left_s; /* Time left as per prev. estimate */
+  double change_abs_s; /* absolute value of change */
   bool printit = false;
 
   if (!now) {
     gettimeofday(&tvtmp, NULL);
     now = (const struct timeval *) &tvtmp;
   }
-  
+
   if (!mayBePrinted(now))
     return false;
 
@@ -519,12 +532,9 @@ bool ScanProgressMeter::printStatsIfNecessary(double perc_done,
 
   assert(perc_done <= 1.0);
 
-  /* OK, now lets estimate the time to finish */
-  time_used_ms = TIMEVAL_MSEC_SUBTRACT(*now, begin);
-  time_needed_ms = (int) ((double) time_used_ms / perc_done);
-  time_left_ms = time_needed_ms - time_used_ms;
+  time_left_s = estimate_time_left(perc_done, &begin, now);
 
-  if (time_left_ms < 30000)
+  if (time_left_s < 30)
     return false; /* No point in updating when it is virtually finished. */
 
   /* If we have not printed before, or if our previous ETC has elapsed, print
@@ -535,27 +545,25 @@ bool ScanProgressMeter::printStatsIfNecessary(double perc_done,
     /* If the estimate changed by more than X minutes, and if that
        change represents at least X% of the time remaining, print
        it.  */
-    prev_est_time_left_ms = TIMEVAL_MSEC_SUBTRACT(last_est, *now);
-    change_abs_ms = ABS(prev_est_time_left_ms - time_left_ms);
-    if (prev_est_time_left_ms <= 0)
+    prev_est_time_left_s = difftime(last_est.tv_sec, now->tv_sec);
+    change_abs_s = ABS(prev_est_time_left_s - time_left_s);
+    if (prev_est_time_left_s <= 0)
       printit = true;
-    else if (o.debugging || (change_abs_ms > 180000 && change_abs_ms > .05 * MAX(time_left_ms, prev_est_time_left_ms)))
+    else if (o.debugging || (change_abs_s > 180 && change_abs_s > .05 * MAX(time_left_s, prev_est_time_left_s)))
       printit = true;
   }
 
   if (printit) {
      return printStats(perc_done, now);
   } 
+
   return false;
 }
-
 
 /* Prints an estimate of when this scan will complete.  */
 bool ScanProgressMeter::printStats(double perc_done, 
                                    const struct timeval *now) {
   struct timeval tvtmp;
-  double time_used_s;
-  double time_needed_s;
   double time_left_s;
   time_t timet;
   struct tm *ltime;
@@ -577,11 +585,8 @@ bool ScanProgressMeter::printStats(double perc_done,
     return true;
   }
 
-  /* OK, now lets estimate the time to finish */
-  time_used_s = difftime(now->tv_sec, begin.tv_sec);
-  time_needed_s = time_used_s / perc_done;
-  /* Add 0.5 to get the effect of rounding when truncating to an integer. */
-  time_left_s = time_needed_s - time_used_s + 0.5;
+  /* Add 0.5 to get the effect of rounding in integer calculations. */
+  time_left_s = estimate_time_left(perc_done, &begin, now) + 0.5;
 
   last_est = *now;
   last_est.tv_sec += time_left_s;
