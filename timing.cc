@@ -529,7 +529,7 @@ bool ScanProgressMeter::printStatsIfNecessary(double perc_done,
 
   /* If we have not printed before, or if our previous ETC has elapsed, print
      a new one */
-  if (last_print.tv_sec < 0)
+  if (last_print.tv_sec == 0)
     printit = true;
   else {
     /* If the estimate changed by more than X minutes, and if that
