@@ -100,13 +100,12 @@ action = function(host, port)
 	local dayLabel
 	
 	if days == 1 then
-		dayLabel = " day, "
+		dayLabel = "day"
 	else
-		dayLabel = " days, "
+		dayLabel = "days"
 	end
 	
-	result = result .. "\n  System uptime: " .. days .. dayLabel .. hours .. ":" .. minutes .. ":" .. seconds
-	result = result .. " (" .. tostring(uptime) .. " timeticks)"
+	result = result .. "\n" .. string.format("  System uptime: %d %s, %d:%02d:%05.2f (%s timeticks)", days, dayLabel, hours, minutes, seconds, tostring(uptime))
 	
 	return result
 end
