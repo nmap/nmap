@@ -1557,7 +1557,7 @@ void UltraScanInfo::Init(vector<Target *> &Targets, struct scan_lists *pts, styp
    changes after initialization. */
 unsigned int UltraScanInfo::numProbesPerHost()
 {
-  unsigned int numprobes;
+  unsigned int numprobes = 0;
 
   if (tcp_scan) {
     numprobes = ports->tcp_count;
@@ -2403,7 +2403,7 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
 					HostScanStats *hss, 
 					const probespec *pspec,
 					int newstate) {
-  u16 portno;
+  u16 portno = 0;
   u8 proto = 0;
   int oldstate = PORT_TESTING;
   Port *currentp;
