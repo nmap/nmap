@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] The --send-only and --recv-only options now work in listen
+  mode as well as connect mode. [David]
+
 o [Ncat] An error in formatting bytes with the high bit set in hex dump output
   was fixed. [David]
 
