@@ -1790,7 +1790,6 @@ int nmap_main(int argc, char *argv[]) {
       o.scriptversion = 1;
 #endif
 
-      keyWasPressed(); // Check if a status message should be printed
       service_scan(Targets);
     }
 
