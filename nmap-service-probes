@@ -623,7 +623,7 @@ match ftp m|^220 RICOH Aficio MP C2500 FTP server \(([\d.]+)\) ready\.\r\n| p/Ri
 match ftp m|^220 FTP Services for ClearPath MCP:  Server version ([\d.]+)\r\n| p/Unisys ClearPath MCP ftpd/ v/$1/
 match ftp m|^220 Nut/OS FTP ([\d.]+) beta ready at| p|Nut/OS Demo ftpd| v/$1/ o|Nut/OS|
 match ftp m|^ftpd - accept the connection from [\d.]+\n220-eDVR FTP Server v([\d.]+) \(c\)Copyright WebGate Inc\. \w+-\w+\r\n220-Welcome to (DS\w+)\r\n220 You will be disconnected after 180 seconds of inactivity\.\r\n| p/WebGate $2 eDVR camera ftpd/ v/$1/ d/webcam/
-match ftp m|^220 AXIS ([\d/+]+) FTP Network Print Server V([-\w_.]+) | p/AXIS $1 print server ftpd/ v/$2/ d/print server/
+match ftp m|^220 AXIS (.+) FTP Network Print Server V([-\w_.]+) | p/AXIS $1 print server ftpd/ v/$2/ d/print server/
 match ftp m|^220 AXIS ([\d/+]+) FTP Print Server V([-\w_.]+) | p/AXIS $1 print server ftpd/ v/$2/ d/print server/
 match ftp m|^220 Canon iN-E5 FTP Print Server V([-\w_.]+) | p/Canon iN-E5 print server ftpd/ v/$1/ d/print server/
 match ftp m|^220 FTP-Backupspace\r\n$| p/STRATO backup ftpd/
@@ -947,6 +947,8 @@ match imsp m|^\* OK Cyrus IMSP version (\d[-.\w]+) ready\r\n$| p/Cyrus IMSPd/ v/
 match infopark m|^\d+{infopark tcl-Interface-Server} {CM ([\w-_.]+)| p/Infopark Fiona TCL interface/ v/$1/
 
 match intranetchat m|^\d+\0FORWARD\0\x0b\xc2c\x0c\xc1a\x9f@| p/Intranet Chat Server/
+
+match ir-alerts m|^\x12\0\0\0\0Lexmark T640\0| p/Lexmark T640 IR alerts/ d/printer/
 
 # ircd-hybrid 7 on Linux
 match irc m=^NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\nNOTICE AUTH :\*\*\* Checking Ident\r\nNOTICE AUTH :\*\*\* (No|Got) Ident response\r\nNOTICE AUTH :\*\*\* (Couldn't look up|Found) your hostname\r\n$= p/Hybrid-based ircd/
@@ -2549,7 +2551,7 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n(NE[-\d]+) NetEngine IAD ([\d.]+) \r
 match telnet m|^\x1b\[0m\x1b\[2J\x1b\[01;24HHUAWEI TECHNOLOGIES,CO\.,LTD\.\x1b\[02;19H ACCESS RUNNER ADSL CONSOLE PORT\x1b| p/Huawei Access Runner aDSL telnetd/ d/broadband router/
 match telnet m|^\xff\xfb\x01\xff\xfe\x01\n\r\n\r\n\r\n\n\n\n\r\t=+\n\r\t +Samsung SWL-6100AP Configuration\n\r\t| p/Samsung SWL-6100AP telnetd/ d/WAP/
 match telnet m|^\r\nEfficient 5871 IDSL Router \(5871-601 / 5871-001 HW\) v([-\d.]+) Ready\r\n| p/Efficient Networks 5871 IDSL router telnetd/ v/$1/ d/broadband router/
-match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\n\r +\*+\n\r +Welcome to ([-\w_.]+)\n\r +\*+\n\r\n\rD-Link Inc\., Software Release R([-\w_.]+)\(| p/D-Link aDSL router telnetd/ h/$1/ v/$2/ d/broadband router/
+match telnet m=^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\n\r +\*+\n\r +Welcome to [-\w_.]+\n\r +\*+\n\r\n\rD-Link (Corp|Inc)\., Software Release R([-\w_.]+)[\r\n(]= p/D-Link aDSL router telnetd/ v/$2/ d/broadband router/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03BCM96348 ADSL Router\r\nLogin: | p|NetComm/Belkin aDSL router telnetd| d/broadband router/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\nCopyright \(c\) 2004 - 2006 3Com Corporation\. All rights reserved\.\r\n\n\r\n\r\0Username: \n\r\0Password: \n\r\0\r\n\r\nCopyright \(c\) 2004 - 2006 3Com Corporation\. All rights reserved\.\r\n\n\r\n\r\0Username: | p/3Com WX4400 WAP telnetd/ d/WAP/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\n\n\*+\r\n\*  Welcome to D-Link Print Server  \*\r\n\* +Telnet Console +\*\r\n\*+\r\n\r\nServer Name    :  ([-\w_.]+)\0+\r\nServer Model   :  (DP-\w+)\0+\r\nF/W Version    :  ([\d.]+)  \0\0\0\0\r\nMAC Address    :  ([\w ]+)\r\nUptime         :  ([^\r\n]+)\r\n\nPlease Enter Password: | p/D-Link $2 print server telnetd/ h/$1/ i/FW version $3; MAC $4; Uptime $5/ d/print server/
@@ -3300,6 +3302,8 @@ match backupexec-remote m|^\xf6\xff\xff\xff\x10\0\0\0\0\0\0\0\0\0\0\0$| p/Verita
 match backdoor m|^:[-\w_.]+ 451 GET :\r\n| p/**BACKDOOR**/ o/Windows/
 match backdoor m|^<HTML>\n<HEAD>\n<TITLE>Directory /</TITLE>\n<BASE HREF=\"file:/\">\n</HEAD>\n<BODY>\n<H1>Directory listing of /</H1>| p/No-auth shell/ i/**BACKDOOR**/ o/Unix/
 
+match bentley-projectwise m|^ACKNOSEC$| p/Bentley Systems ProjectWise/
+
 match bittorrent m|^Nice try\.\.\.\r\n$| p/Transmission Bittorrent client/
 
 match csta m|^<HTML>\r\n<HEAD>\r\n<TITLE>CSTA-Mono Server Home Page </TITLE>\r\n| p/Alcatel OmniPCX Enterprise/ d/PBX/
@@ -3620,7 +3624,7 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nDate: .*\r\nServer: WebLogic Server ([\d
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nDate: .*\r\n\r\n.*<META NAME=\"GENERATOR\" CONTENT=\"WebLogic Server\">\n|s p/WebLogic httpd/
 # Samba 3.0.0rc4-Debian
 match http m|^HTTP/1\.0 401 Authorization Required\r\nWWW-Authenticate: Basic realm=\"SWAT\"\r\n| p/Samba SWAT administration server/
-match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nDate: .*\r\nExpires: .*\r\nContent-type: text/html\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3\.2//EN\">\n<HTML>\n<HEAD>\n<TITLE>Samba Web Administration Tool</TITLE>| p/Samba SWAT administration server/
+match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nDate: .*\n<TITLE>Samba Web Administration Tool</TITLE>|s p/Samba SWAT administration server/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>.*</TITLE></HEAD><BODY><H1>.*</H1>Samba is configured to deny access from this client\n<br>Check your \"hosts allow\" and \"hosts deny\" options in smb\.conf <p></BODY></HTML>\r\n\r\n$| p/Samba SWAT administration server/ i/Access denied/
 match http m|^HTTP/1\.0 500 Server Error\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>500 Server Error</TITLE></HEAD><BODY><H1>500 Server Error</H1>chdir failed - the server is not configured correctly<p></BODY></HTML>\r\n\r\n| p/Samba SWAT administration server/ i/broken/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: icecast/(\d[-.\w]+)\r\n| p/Icecast streaming media server/ v/$1/
@@ -5128,6 +5132,11 @@ match http m|^HTTP/1\.0 200 .*<title>BPA430 Web Configuration Pages</title></hea
 match http m|^HTTP/1\.0 200 Document follows\r\nServer: ADH-Web\r\n.*<meta name=\"author\" content=\"Dedicated Micros \(info@dmicros\.com\)\">\r\n|s p/Dedicated Micros Digital Sprite 2 DVR http config/ i/ADH-Web httpd/ d/media device/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"FR114W\"\r\nContent-type: text/html\r\n\r\n401 Unauthorized| p/NetGear FR114W WAP http config/ d/WAP/
 match http m|^HTTP/1\.0 200 .*\r\nServer: Mbedthis-Appweb/([\w-_.]+)\r\n.*<title>Openstage IP Phone User</title>.*<meta name='author' content='Siemens AG,|s p/Siemens Openstage VoIP phone http config/ d/VoIP phone/ i/Mbedthis httpd $1/
+match http m|^HTTP/1\.1 404 Not Found\r\nServer: Splunkd\r\n| p/Splunkd httpd/
+match http m|^HTTP/1\.0 200 OK\r\n.*<!-- General javascripts -->.*var path='http://www\.axis\.com/cgi-bin/prodhelp\?prod=axis_([\w-_.]+)&ver=([\w-_.]+)&|s p/AXIS $1 print server http config/ v/$2/ d/print server/
+match http m|^HTTP/1\.1 401 Unauthorized\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nServer: Indy/([\w-_.]+)\r\nWWW-Authenticate: Basic realm=\"KutinSoft Reboot Service\"\r\n| p/KutinSoft reboot service http config/ o/Windows/ i/Indy httpd $1/
+match http m|^HTTP/1\.1 200 OK\r\n.*VMware Server provides a virtual machine platform, which can be managed by VMware VirtualCenter Server\.\">\r\n\r\n<title>VMware Server 2</title>|s p/VMware Server 2 http config/
+match http m|^HTTP/1\.1 200 OK\r\nServer: VNC Server Enterprise Edition/([\w-_.]+) \(r(\d+)\)\r\n.*<applet code=\"vncviewer/VNCViewer\.class\" archive=\"vncviewer\.jar\".*<param name=\"port\" value=\"(\d+)\">|s p/VNC Server Enterprise Edition httpd/ v/$1 r$2/ i/VNC port $3/
 
 #(insert http)
 
@@ -5280,7 +5289,7 @@ match http-proxy m|^HTTP/1\.0 407 Proxy Authentication required\r\nDate: .*\r\nC
 match http-proxy m|^HTTP/1\.1 503 Freenet is starting up\r\n| p/Freenet FProxy/
 match http-proxy m|^HTTP/1\.[01] .*\r\nServer: Mikrotik HttpProxy\r\n|s p/Mikrotik http proxy/
 match http-proxy m|^HTTP/1\.0 500 Internal Server Error\r\nCache-control: no-cache\r\nContent-type: text/html\r\n\r\n<HTML><HEAD><TITLE>SpoonProxy V([\w-_.]+) Error</TITLE>| p/Pi-Soft SpoonProxy http proxy/ v/$1/ o/Windows/
-match http-proxy m|^HTTP/1\.[01] \d\d\d .*\r\nServer: approx/([\w-_.]+) Ocamlnet/([\w-_.]+)\r\n|s p/Approx http proxy/ v/$1/ i/Ocamlnet $2/
+match http-proxy m|^HTTP/1\.[01] \d\d\d .*\r\nServer: approx/([\w-_.~+]+) Ocamlnet/([\w-_.]+)\r\n|s p/Approx http proxy/ v/$1/ i/Ocamlnet $2/
 match http-proxy m|^HTTP/1\.1 401 Unauthorized\nWWW-Authenticate: Basic realm=\"Anti-Spam SMTP Proxy \(ASSP\) Configuration\"\nContent-type: text/html\nServer: ASSP/([\w-_.]+)\(\)\n| p/Anti-Spam SMTP Proxy http config/ v/$1/
 match http-proxy m|^HTTP/1\.0 \d\d\d .*<b>Bad request format\.\n\t\t</b><p>Please, check URL\.<p>\t\t<hr>\t\tGenerated by <a href=\"http://www\.kingate\.net\"> kingate\(([\w-_.]+)-win32\)</a>\.</body></html>\0\0|s p/kingate http proxy/ v/$1/ o/Windows/
 match http-proxy m|^\njava\.net\.UnknownHostException: /\r\n\tat java\.net\.PlainSocketImpl\.connect\(Unknown Source\)\r\n| p/Apache JMeter http proxy/
@@ -6416,6 +6425,9 @@ match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0
 
 match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01@\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.\x05\0\x01\0\x04\x11\0\0\0\0\x01\0\xad\x05\0\0|s p|IBM OS/400 microsoft-ds| o|OS/400|
 
+# Xerox WorkCentre Pro c3545 and Xerox DocumentCentre 425
+match microsoft-ds m|^\0\0\0.\xffSMBr\0\0\0\0\x81\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\r\x03\0|s p/Xerox printer microsoft-ds/ d/printer/
+
 # Microsoft Windows XP SP1
 # Windows 2000
 match msrpc m|^\x05\0\r\x03\x10\0\0\0\x18\0\0\0....\x04\0\x01\x05\0\0\0\0$|s p/Microsoft Windows RPC/ o/Windows/
@@ -6465,7 +6477,8 @@ match serversettingsd m|^\0\0\x004main\0\0\x01\0\0\0\0\x0c\0\0\0\0\0\0\0\x0c\0\0
 match symantec-esm m|^\0\x01#$| p/Symantec Enterprise Security Manager/
 # Windows 2000 Server Wins name resolution service
 # Windows NT 4.0 Wins
-match wins m|^\0\0\0\x1e\xffS\xad\x80\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\x07\xe9\0\0\0\x01\0\0\x81\0\x02| p/Microsoft Windows Wins/ o/Windows/
+# Windows 2003 WINS service
+match wins m|^\0\0\0\x1e\xffS\xad\x80\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0...\0\0\x01\0\0\x81\0\x02|s p/Microsoft Windows Wins/ o/Windows/
 
 match sap-its m|^\0\0\0\x0c\x01\x03\0\0\0\0\x07.\0\0\0\0\0\0\x07.Content-Type:  text/html; charset=Windows-\d+\r\n\r\n<!--\r\n This page was created by the \r\n SAP Internet Transaction Server|s p/SAP Internet Transaction Server/
 
@@ -6494,9 +6507,6 @@ match font-service m|^\0\0\x02\0\0\0\0\0\0\0\0\0\x07\0\0\0\0 \x10\0....X\.Org Fo
 match font-service m|^\0\0\x02\0\0\0\0\0\0\0\0\0\x07\0\0\0\0.......The X\.Org Group|s p/X.Org X Font Server/ o/Unix/
 match font-service m|^\0\0\x02\0\0\0\0\0\0\0\0\0\x04\0\0\0\0.......HD\0@|s p/X Font Server for TrueType Fonts/ o/Unix/
 match networkaudio m|^\0\x19\x02\0\x02\0\x07\0Protocol version mismatch\0| p|Network Audio System|
-
-# ichat-proxy; only two bytes might be too generic (Brandon)
-match ichat-proxy m|^\x05\xff$| p/Apple iChat Server file transfer proxy/ o/Mac OS X/
 
 match retrospect m|^\0\xca\0\0\0\0\0\x04\0\0\0\0\0\0\x02\($| p/Dantz Retrospect backup client/
 
@@ -6838,7 +6848,7 @@ match ms-sql-m m|^\x05..ServerName;([\w\-]+);InstanceName;[\w\-]+;IsClustered;\w
 ##############################NEXT PROBE##############################
 Probe UDP NTPRequest q|\xe3\x00\x04\xfa\x00\x01\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xc5\x4f\x23\x4b\x71\xb1\x52\xf3|
 rarity 5
-ports 123
+ports 123,5353
 match ntp m|^\$[\x01-\x0f]..............................................$|s p/NTP/ v/v4/
 match ntp m|^\xe4\0..............................................$|s p/NTP/ v/v4/ i/unsynchronized/
 match ntp m|^\x1c[\x01-\x0f]..............................................$|s p/NTP/ v/v3/
@@ -6847,6 +6857,9 @@ match ntp m|^\xdc[\x00-\x0f]..............................................$|s p/
 # Solaris Internet Name Server (42/udp), see ien116.txt
 match nameserver m|^help\r\n\r\n\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01| p/Solaris Internet Name Server/ i/IEN 116/ o/Solaris/
 
+match mdns m|^\0\0\x84\0\0\0\0\x05\0\0\0\0.Lexmark ([\x20-\x7f]+)\x0c_host-config\x04_udp\x05local\0|s p/Lexmark $1 printer mdns/ d/printer/
+
+softmatch mdns m|^\0\0\x84\0\0\0\0\x05\0\0\0\0|
 
 # These first two probes only serve to determine the NTP version
 # Nessus uses.  The third will match even a newer one, but just show
@@ -7025,9 +7038,9 @@ match crossmatchverifier m|^Settings\r\nGain\x20(\d+)\r\nContrast\x20(\d+)\r\nTi
 
 Probe TCP Socks5 q|\x05\x04\x00\x01\x02\x80\x05\x01\x00\x03\x0agoogle.com\x00\x50GET / HTTP/1.0\r\n\r\n|
 rarity 8
-ports 199,1080,1090,1095,1100,1105,1109,3128,6588,6660-6669,8000,8008,8080,8088
+ports 199,1080,1090,1095,1100,1105,1109,3128,6588,6660-6669,7777,8000,8008,8010,8080,8088
 
-match socks5 m|^\x05\0\x05\0\0\x01.{6}HTTP|s i/No authentication; connection ok/
+match socks5 m|^\x05\0\x05\0\0\x01.{6}HTTP|s i/No authentication required; connection ok/
 match socks5 m|^\x05\0\x05\x01| i/No authentication; general failure/
 match socks5 m|^\x05\0\x05\x02| i/No authentication; connection not allowed by ruleset/
 match socks5 m|^\x05\0\x05\x03| i/No authentication; network unreachable/
@@ -7039,9 +7052,13 @@ match socks5 m|^\x05\0\x05\x08| i/No authentication; address type not supported/
 
 match socks5 m|^\x05\x01| i/GSSAPI authentication required/
 match socks5 m|^\x05\x02| i|Username/password authentication required|
-# would like to see this in a fingerprint
-#match socks5 m|^\x05\x80| i/Unknown authentication required/
 
+match socks5 m|^\x05\xFF$| i/No acceptable authentication method/
+
+# When server doesn't buffer our probe properly. Seen on XMPP socks servers like Apple iChat, PyMSN, jabberd
+match socks5 m|^\x05\0$| i/No authentication; connection failed/
+
+softmatch socks5 m|^\x05|
 
 # The following probe is designed to check the status of a SOCKS4 implementation.
 #
