@@ -1182,7 +1182,7 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
 
    <row>
     <entry><literal>product</literal>, <literal>version</literal>, <literal>extrainfo</literal>, <literal>hostname</literal>, <literal>ostype</literal>, <literal>devicetype</literal></entry>
-    <entry>These five variables are described in <xref linkend="vscan-versioninfo"/>.
+    <entry>These five variables are the same as those described under <replaceable>versioninfo</replaceable> in <xref linkend="vscan-db-match"/>.
    </entry>
    </row>
 
