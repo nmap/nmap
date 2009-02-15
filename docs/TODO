@@ -22,6 +22,10 @@ o Write Ncat users' guide, demonstrating all the neat stuff you can do
   Testing it out for examples might expose areas for improvement as
   well. [David]
 
+o Ncat documentation should note that no SSL certificate verification
+  is done (maybe we should offer an option to do so, if OpenSSL makes
+  that easy).
+
 o Consider adding a way for requesting timing status updates at a
   given interval (such as every 5 seconds) to XML and/or normal
   output.  This would be useful for people who run Nmap from scripts
