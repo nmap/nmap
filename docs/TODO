@@ -26,6 +26,9 @@ o Ncat documentation should note that no SSL certificate verification
   is done (maybe we should offer an option to do so, if OpenSSL makes
   that easy).
 
+o Ncat -- perhaps connection brokering should support UDP as well as
+  (its existing support for) TCP?
+
 o Consider adding a way for requesting timing status updates at a
   given interval (such as every 5 seconds) to XML and/or normal
   output.  This would be useful for people who run Nmap from scripts
