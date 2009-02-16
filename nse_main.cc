@@ -35,7 +35,22 @@ struct thread_record {
   unsigned int registry_idx; // index in the main state registry
   double runlevel;
   struct run_record rr;
+  std::string get_id();
 };
+
+/* Gets the basename of a script filename and removes any ".nse" extension. */
+std::string thread_record::get_id() {
+  char *abbrev;
+
+  abbrev = path_get_basename(filename.c_str());
+  if (abbrev == NULL)
+    /* On memory error just return the whole filename. */
+    return filename;
+  if (nse_check_extension(SCRIPT_ENGINE_EXTENSION, abbrev))
+    abbrev[strlen(abbrev) - strlen(SCRIPT_ENGINE_EXTENSION)] = '\0';
+
+  return std::string(abbrev);
+}
 
 int current_hosts = 0;
 int errfunc = 0;
@@ -56,7 +71,6 @@ int process_preparehost(lua_State* L, Target* target, std::list<struct thread_re
 int process_preparethread(lua_State* L, struct thread_record* tr);
 
 // helper functions
-int process_getScriptId(lua_State* L, ScriptResult * ssr);
 int process_pickScriptsForPort(
     lua_State* L,
     Target* target,
@@ -517,8 +531,8 @@ int process_mainloop(lua_State *L) {
 
         if(lua_isstring (current.thread, 2)) { // FIXME
                     ScriptResult sr;
+                    sr.set_id(current.get_id().c_str());
                     lua_State *thread = current.thread;
-          SCRIPT_ENGINE_TRY(process_getScriptId(thread, &sr));
                     lua_getfield(thread, 2, "gsub");
                     lua_pushvalue(thread, 2); // output FIXME
                     /* Escape any character outside the range 32-126 except for
@@ -610,47 +624,6 @@ int process_waiting2running(lua_State* L, int resume_arguments) {
   //running_scripts.push_front((*iter));
   running_scripts.push_back((*iter));
   waiting_scripts.erase(iter);
-
-  return SCRIPT_ENGINE_SUCCESS;
-}
-
-/* Gets the basename of a script filename and removes any ".nse" extension. */
-static char *abbreviate_script_filename(const char *filename) {
-  char *abbrev;
-
-  abbrev = path_get_basename(filename);
-  if (abbrev == NULL)
-    return NULL;
-  if (nse_check_extension(SCRIPT_ENGINE_EXTENSION, abbrev))
-    abbrev[strlen(abbrev) - strlen(SCRIPT_ENGINE_EXTENSION)] = '\0';
-
-  return abbrev;
-}
-
-/* Tries to get the script id (based on the filename) and stores it in the
- * script scan result structure. If someone changed the filename field to a
- * nonstring we complain. */
-int process_getScriptId(lua_State* L, ScriptResult *sr) {
-  const char *filename;
-  char *id;
-
-  lua_getfield(L, 1, FILENAME);
-  filename = lua_tostring(L, -1);
-  if (filename == NULL) {
-    error("%s: The script's 'filename' entry was changed to: %s",
-      SCRIPT_ENGINE, luaL_typename(L, -1));
-    return SCRIPT_ENGINE_ERROR;
-  }
-  lua_pop(L, 1);
-
-  id = abbreviate_script_filename(filename);
-  if (id == NULL) {
-    /* On error just use the filename. */
-    sr->set_id(filename);
-  } else {
-    sr->set_id(id);
-    free(id);
-  }
 
   return SCRIPT_ENGINE_SUCCESS;
 }
