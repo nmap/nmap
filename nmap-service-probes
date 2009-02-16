@@ -588,7 +588,8 @@ match ftp m|^220  \(Ver\. ([^)]+)\) [A-Z][a-z]{2} \d+ 20\d+ ready\.\r\n| p|Canon
 match ftp m|^220 Cisco \(([\d.]+)\) FTP server ready\r\n| p/Cisco ftpd/ v/$1/ o/IOS/
 match ftp m|^220 ISOS FTP Server \(([\d.]+)\) ready\r\n| p/Xavi 7768 WAP ftpd/ v/$1/ d/WAP/
 match ftp m|^220- smallftpd ([\d.]+)\r\n220- check http://smallftpd\.free\.fr| p/smallftpd/ v/$1/ o/Windows/
-match ftp m|^220 ([-\w_.]+) GridFTP Server ([\d.]+) \(gcc\w+, [-\d]+\) ready\.\r\n| p/Globus GridFTPd/ v/$2/ h/$1/
+match ftp m|^220 ([-\w_.]+) GridFTP Server ([\w-_.]+) \((gcc\w+), [-\d]+\) ready\.\r\n| p/Globus GridFTPd/ v/$2/ i/$3/ h/$1/
+match ftp m|^220 ([\w-_.]+) GridFTP Server ([\w-_.]+) \((gcc\w+), [-\d]+\) \[Globus Toolkit ([\w-_.]+)\] ready\.\r\n| p/Globus GridFTPd/ v/$2/ i/Globus Toolkit $4; $3/ h/$1/
 match ftp m|^220 ([-\w_.]+) ([A-Z]+ )?GridFTP Server ([\d.]+) (GSSAPI type Globus/GSI wu-\S+) \(gcc\w+, [-\d]+\) ready\.\r\n| p/Globus GridFTPd/ v/$3/ i/$4/ h/$1/
 match ftp m|^220 ([-\w_.]+) FTP server \(GridFTP Server ([\d.]+) \[(GSI patch v[\d\.]+)\] (wu-\S+) .+\) ready\.\r\n| p/Globus GridFTPd/ v/$2/ i/$4 $3/ h/$1/
 match ftp m|^220 Welcome to the OpenDreambox FTP service\.\r\n| p/Dreambox ftpd/ o/Linux/ d/media device/
@@ -639,7 +640,8 @@ match ftp m|^220 Welcome to zFTPServer\r\n| p/zFTPServer/ o/Windows/
 match ftp m|^220 FRITZ!Box Fon WLAN (\d+) FTP server ready\.\r\n| p/FRITZ!Box $1 WAP ftpd/ d/WAP/
 match ftp m|^220 ([-\w_.]+) FTP Server \(Oracle XML DB/Oracle9i Enterprise Edition Release ([\d.]+) - 64bit Production\) ready\.\r\n| p/Oracle XML DB ftpd/ h/$1/ v/$2/ i/64 bits/
 match ftp m|^220 RICOH Aficio MP 2510 FTP server \(([-\w_.]+)\) ready\.\r\n| p/RICOH Aficio MP 2510 printer ftpd/ d/printer/ v/$1/
-match ftp m|^220 Dell Color Laser 3110cn\r\n$| p/Dell Color Laser 3110cn printer ftpd/ d/printer/
+match ftp m|^220 Dell Color Laser (\w+)\r\n| p/Dell Color Laser $1 printer ftpd/ d/printer/
+match ftp m|^220 Dell MFP Laser (\w+)\r\n| p/Dell MFP Laser $1 printer ftpd/ d/printer/
 match ftp m|^220 CompuMaster SRL, WT-6500 Ftp Server \(Version ([\d.]+)\)\.\r\n| p/CompuMaster WT-6500 ThinClient ftpd/ v/$1/ o/Windows/
 match ftp m|^211 Hello \[[-\w_.]+\], Secure/IP Authentication Server ([-\w_.]+) at your service\.\r\n| p|OpenVMS Secure/IP ftpd| v/$1/ o/OpenVMS/
 match ftp m|^220  HP166XC V([-\w_.]+) FUSION FTP server \(Version ([-\w_.]+)\) ready\.\r\n| p/HP166XC $1 Logic Analyzer ftpd/ i/FUSION ftpd $2/ d/specialized/
@@ -691,11 +693,11 @@ match ftp m|^220-Sami FTP Server ([\w-_.]+)\r\n| p/KarjaSoft Sami ftpd/ v/$1/ o/
 match ftp m|^220 DrFTPD ([\w-_.]+) http://drftpd\.org\r\n| p/DrFTPD/ v/$1/
 match ftp m|^220 Conti FTP Server ready\r\n| p/Conti ftpd/ o/Windows/
 match ftp m|^220 Welcome to Mobile File Service\r\n\r\n| p|HTC P4000 PDA/Phone ftpd| d/PDA/
-match ftp m|^220 Dell Color Laser 1320c\r\n| p/Dell Color Laser 1320c ftpd/ d/printer/
 match ftp m|^220 Welcome to Topfield PVR FTP server\r\n| p/Topfield HDPVR satellite decoder ftpd/ d/media device/
 match ftp m|^220 ([\w-_.]+) FTP server \(WS2000 FTPD Server\) ready\.\r\n| p|Motorola/Symbol WS2000 WAP ftpd| d/WAP/ h/$1/
 match ftp m|^220  ADH FTP SERVER READY TYPE HELP FOR HELP \r\n| p/AD Network Video Dedicated Micros DVR ftpd/ d/webcam/
 match ftp m|^220 TDS400 FTP Service \(Version ([\w-_.]+)\)\.\r\n| p/TDS400 printer ftpd/ d/printer/ v/$1/
+match ftp m|^220 ---freeFTPd 1\.0---warFTPd 1\.65---\r\n| p/Nepenthes HoneyTrap fake vulnerable ftpd/
 
 # not already sure about the next. maybe too generic? it exists already above a signature for openftpd. embyte
 match ftp m|^220 OpenFTPD server([^ ]+)?| p/OpenFTPD/ v/$1/
@@ -764,7 +766,7 @@ match gnatbox m|^GBPK\xfb\xf7n\x93W\xaf\x86\x93x@\xa9\x0e\xca\*\x9bS\0| p/GNATBo
 match gkrellm m|^<error>\nClient limit exceeded\.\n| p/GKrellM System Monitor/
 match gkrellm m|^<error>\nConnection not allowed from .*\n| p/GKrellM System Monitor/
 
-match gopher m|^3Connection to 207\.250\.128\.187 is denied -- no authorization\.\r\n$|
+match gopher m|^3Connection to [\d.]+ is denied -- no authorization\.\r\n$|
 match g6-remote m|^200 1400\r\n$| p/G6 ftpd remote admin/ o/Windows/
 
 match giop m|^GIOP\x01...\0\0\0\0|s p/CORBA naming service/
@@ -802,6 +804,7 @@ match http m|^HTTP/1\.1 408 Request Time-Out\r\nConnection: Close\r\n\r\n$| p/Ko
 match http m|^HTTP/1\.1 400 Bad Request\r\n.*\r\n\r\n<h1>Bad Request \(Invalid Verb\)</h1>|s p/Microsoft IIS httpd/ o/Windows/
 match http m|^HTTP/1\.1 \d\d\d .*\nServer: Motion/([\d.]+)\n.*\nContent-type: image/jpeg\n|s p/Motion webcam httpd/ v/$1/
 match http m|^<HTML><BODY><CENTER>Authentication failed</CENTER></BODY></HTML>\r\n$| p/InterSect Alliance SNARE http config/
+match http m|^HTTP/1\.1 408 Request Timeout\nContent-Length:0\nContent-Type:text/html;charset=UTF-8\n\n$| p/Finchsync PocketPC Synchonizer httpd/
 
 match http-proxy m=^HTTP/1\.[01] \d\d\d .*\r\n(Server|Proxy-agent): iPlanet-Web-Proxy-Server/([\d.]+)\r\n=s p/iPlanet web proxy/ v/$2/
 
@@ -1086,6 +1089,7 @@ match melange m|^\+\+\+Online\r\n>> Melange Chat Server \(Version (\d[-.\w]+)\),
 match metasploit m|^\n.*=\[ msf v([^\r\n]+)\r?\n.*\d+ exploits.*\d+ payloads.*\d+ encoders.*\d+ nops.*msf > $|s p/Metasploit Framework msfd/ v/$1/
 match midas m|^MIDASd v([\w.]+) connection accepted\n\xff| p/midasd/ v/$1/
 match mpd m|^OK MPD ([\d.]+)\n$| p/Music Player Daemon/ v/$1/
+match mpich2 m|^([\d.]+) \d+\0{240,250}$| p/MPICH2/ v/$1/
 # lopster 1.2.0.1 on Linux 1.1
 match mserv m|^200 Mserv (\d[-.\w]+) \(c\) James Ponder [-\d]+ - Type: USER <username>\r\n\.\r\n| p/Mserv music server/ v/$1/
 
@@ -1932,6 +1936,7 @@ match smtp m|^220.*SMTP Welcome to the IA eMailServer Standard Edition Version: 
 match smtp m|^220 ([\w-_.]+) bizsmtp ESMTP server ready\r\n| p/Bizanga bizsmtp smtpd/ h/$1/
 match smtp m|^220 ([\w-_.]+) ESMTP NetBox\(tm\)\r\n| p/NetBox smtpd/ h/$1/
 match smtp m|^220 ([\w-_.]+) StrongMail SMTP Service Version: (\S+) ready| p/StrongMail smtpd/ v/$2/ h/$1/
+match smtp m|^421 Service not available, closing transmission channel\r\n$| p/Oki 3200N laser printer smtpd/ i/service disabled/ d/printer/
 
 match smtp-proxy m|^220 ([-\w_.]+) SMTP/DeleGate/([\d.]+) ready at .*\r\n| p/DeleGate smtpd/ v/$2/ h/$1/
 match smtp-proxy m|^220 ([-/.+\w]+) SMTP AnalogX Proxy (\d[-.\w]+) \(Release\) ready\r\n| p/AnalogX SMTP proxy/ h/$1/ v/$2/
@@ -2730,6 +2735,8 @@ match telnet m|^odec=\d+ u=\d+, p=\d+, i=\d+, max entries = \d+ \r\n\d+: IMGREQU
 match telnet m|^\r\nSiemens 5940 T1E1 \[COMBO\] Router \([\w-_.]+\) v([\w-_.]+) Ready\r\n\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\xff\xfe\x01Username: | p/Siemens 5940 T1E1 router telnetd/ d/router/ v/$1/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\nWelcome to Dinion-IP-NWC [\d.]+ from [\d.]+\r\n| p/Dinion IP NWC webcam telnetd/ d/webcam/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03                        =======================\r\n                        Welcome to ZXDSL 831II\r\n                        =======================\r\nLogin:| p/ZXDSL 831II ADSL modem telnetd/ d/broadband router/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03Welcome to the Agilent PNA Network Analyzer at ([\w-_.]+)\r\n\r\nSCPI> | p/Agilent PNA Network Analyzer SCPI telnetd/ d/specialized/ h/$1/
+match telnet m=^\xff\xfb\x01\xff\xfb\x03\r\n\r\n#\r\n\| ELSA LANCOM DSL/([\w-_.]+) Office\r\n\| Ver\. ([\w-_.]+) / ([\w-_.]+)\r\n\| SN\.  (\w+)\r\n\| Copyright \(c\) ELSA AG, Aachen\r\n\r\n= p|ELSA Lancom DSL/$1 Office router telnetd| d/router/ v/$2 $3/ i/Serial $4/
 
 match telnet-proxy m|^nodnsquery/[\d.]+ is not authorized to use the telnet proxy\r\n| p/Gauntlet telnet proxy/
 match telnet-proxy m|^Eingabe Servername\[:Port\] : | p/JanaServer telnet proxy/ i/German/
@@ -3060,6 +3067,8 @@ match http m|^HTTP/1\.1 511 Not Implemented\r\n\r\n$| p|SMC Barricade/Netgear ht
 match http m|^HTTP/1\.1 400 Bad Request\r\n.*document\.write\(document\.nxp\.skin\.getProductName\(\)\);\n      document\.write\('Security Console :: Error</title>'\);\n|s p/Rapid7 NeXpose http config/ d/security-misc/
 match http m|^HTTP/1\.1 200 OK\r\nServer: peerguardnf/([\w-_.]+) \(Unix\)\r\nX-Powered-By: You need to wind it\r\n| p/Phoenix Labs PeerGuardian httpd/ v/$1/ o/Unix/
 match http m|^HTTP/0\.0 400 Bad Request\r\nServer: ([\w-_.]+) \d+/Service Pack (\d+), UPnP/[\d.]+, TVersity Media Server\r\n| p/TVersity Media Server httpd/ v/$1 SP $2/ o/Windows/
+match http m|^HTTP/1\.0 500 Internal Server Error\r\n.*<h2>Error parsing HTTP header</h2><pre>\njava\.net\.ProtocolException: Cannot handle non-GET, non-POST, non-HEAD request\n\tat org\.globus\.wsrf\.container\.ServiceThread\.parseHeaders\(ServiceThread\.java:1103\)\n|s p/Globus Toolkit Java Container httpd/
+match http m|^HTTP/1\.0 404 Not Found\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>HTTP 404 File not found</TITLE></HEAD><BODY TEXT=BLACK BGCOLOR=WHITE>The requested file was not found</BODY></HTML>| p/Websense Block Message httpd/
 
 match http-proxy m|^HTTP/1\.0 400 Bad Request\r\nContent-Type: text/html\r\nPragma: no-cache\r\nConnection: close\r\nContent-Type: text/html; charset=utf-8\r\n\r\n<html><body>Invalid request<P><HR><i>This message was created by WinRoute Proxy</i></body></html>| p/WinRoute http proxy/ o/Windows/
 match http-proxy m|^514 Authentication required\.\r\n$| p/Tor control port/ i/Authentication required/
@@ -3393,6 +3402,7 @@ match gopher m|^HTTP/1\.0 200 Ok\r\nMIME-Version: 1\.0\r\nServer: GopherWEB/(\d[
 match gopher m|^0'/GET / HTTP/1\.0' doesn't exist!\t\terror\.host\t1\r\n\.\r\n$| p/Bucktooth gopherd/
 match gopher m|^3 --6 Bad Request\. \r\n\.\r\n$| p/Windows gopherd/ o/Windows/
 match gopher m|^3 --6 Ung\xfcltige Anforderung\. \r\n\.\r\n$| p/Windows gopherd/ i/German/ o/Windows/
+match gopher m|^3'/GET / HTTP/1\.0' does not exist \(no handler found\)\t\terror\.host\t1\r\n| p/pygopherd/
 match gopher-proxy m|^3That item is not currently available\.\r\n$| p/Symantec gopher proxy/
 
 # GoverLan Remote Admin/Control (Tom Sellers)
@@ -5077,7 +5087,7 @@ match http m|^HTTP/1\.1 200 OK\r\nServer: Unknown/0\.0 UPnP/([\w-_.]+) Globespan
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: micro_httpd\r\n.*WWW-Authenticate: Basic realm=\"Siemens ADSL SL2-141\"\r\n|s p/Siemens SL2-141 ADSL router http config/ d/broadband router/ i/micro_httpd/
 match http m|^HTTP/1\.0 200 Document follows\r\nServer: PRINT_SERVER WEB ([\w-_.]+)\r\n.*<title>Print Server Setup</title>.*name=\"main\" src=\"ps_stat\.htm\"|s p/LevelOne FPS-3001TXU print server http config/ d/print server/ i/PRINT_SERVER WEB httpd $1/
 match http m|^HTTP/1\.0 401 Not Authorized\r\nServer: RapidLogic/([\w-_.]+)\r\nMIME-version: 1\.0\r\nContent-type: text/html\r\nWWW-Authenticate: Basic realm=\"Modem Secure\"\r\n| p/Westell Wirespeed DSL modem http config/ d/broadband router/ i/RapidLogic httpd $1/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: NT40\r\n.*<title>NT([\w-_.]+) - Multiprotocol chat tool</title></head><body><BR><BR><center><b>NT4\.0 Network</b><br><br>Server: ([\w-_.]+) - \(([\w-_.]+)\)<br>Local users connected: (\d+) // Connected to \d+ servers</center><br>Service uptime: ([\d:]+)<br>|s p/NT4.0 Multiprotocol Chat httpd/ v/$1/ i/Name $2; Users $4; Uptime $5/ h/$3/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: NT40\r\n.*<title>NT([\w-_.]+) - Multiprotocol chat tool</title></head><body><BR><BR><center><b>NT4\.0 Network</b><br><br>Server: (\S+) - \(([\w-_.]+)\)<br>Local users connected: (\d+) // Connected to \d+ servers</center><br>Service uptime: ([\d:]+)<br>|s p/NT4.0 Multiprotocol Chat httpd/ v/$1/ i/Name $2; Users $4; Uptime $5/ h/$3/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: http server\r\nDate: .*\r\nCache-Control: no-cache,no-store\r\nWWW-Authenticate: Basic realm=\"Citadel\"\r\n| p/Atera Networks Citadel firewall http config/ d/firewall/
 match http m|^HTTP/1\.0 200 .*\r\nServer: IST OIS\r\n.*<title>Phone&nbsp;Station&nbsp;Information</title>|s p/AllWorx 9212 VoIP phone http config/ d/VoIP phone/
 match http m|^HTTP/1\.0 200 OK\r\nServer: RapidLogic/([\w-_.]+)\r\nMIME-version: 1\.0\r\nContent-type: text/html\r\nExtend-sharp-setting-status: \d+\r\n.*<title>MX-M450U</title>|s p/Sharp MX-M450U copier http config/ d/printer/ i/RapidLogic httpd $1/
@@ -5143,6 +5153,7 @@ match http m|^HTTP/1\.0 200 OK\r\nServer: PasteWSGIServer/([\w-_.]+) Python/([\w
 match http m|^HTTP/1\.0 200 .*\r\nServer: wg_httpd/([\w-_.]+)\(based Boa/([\w-_.]+)\)\r\n.*<title>WebEye Index Page</title>\n<meta name=\"generator\" content=\"WebGateInc\">|s p/WebGateInc WebEye webcam http config/ i/wg_httpd $1 based on Boa $2/ d/webcam/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Nano HTTPD library\r\n|s p/Ferhat Ayaz's Nano httpd/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: Transmission\r\nWWW-Authenticate: Basic realm=\"Transmission\"\r\n| p/Transmission BitTorrent management httpd/
+match http m|^HTTP/1\.1 200 .*<meta http-equiv=\"Refresh\" content=\"2; url=/transmission/web/\">\r\n.*<p>redirecting to <a href=\"/transmission/web\">/transmission/web/</a></p>|s p/Transmission BitTorrent management httpd/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: GoAhead-Webs\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"WebAdmin\"\r\n.*<p>Access to this document requires a User ID</p>|s p/TeleWell TW-EA510 ADSL router http config/ d/broadband router/ i/GoAhead httpd/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Enigma2 WebInterface Server ([\w-_.]+) \r\n|s p/Enigma2 dreambox http config/ d/media device/ v/$1/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: DPH-140\r\nWWW-Authenticate: Digest realm=\"DPH-140\"| p/D-Link DPH-140 VoIP phone http config/ d/VoIP phone/
@@ -5182,12 +5193,21 @@ match http m|^HTTP/1\.1 302 Not Found\r\nConnection: close\r\nLocation: /user/lo
 match http m|^HTTP/1\.1 303 See Other\r\nContent-Type: text/html\r\nContent-Length: 0\r\nLocation: https://[\d.]+:443/webvpn\.html\r\nSet-Cookie: webvpncontext=| p/Cisco WebVPN http config/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nExpires: -1\r\n Cache-Control: no-cache\r\n.*<title>Contivity VPN Client</title>|s p/Contivity VPN Client httpd/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n.*<title>RemoteView</title>.*<frame name=\"menu\" src=\"Menu_main\.htm\" target=\"parent\.work\"|s p/Kguard Security DVR http config/ d/webcam/
+match http m|^HTTP/1\.0 200 OK\r\n.*<title>LaCie Network Space NAS</title>.*<meta http-equiv=\"refresh\" content=\"0;url=/cgi-bin/public/login\">|s p/LaCie Network Space NAS http config/ d/storage-misc/
+match http m|^HTTP/1\.0 200 OK\r\nServer: Development/([\w-_.]+) Python/([\w-_.]+)\r\n| p/Google AppEngine httpd/ v/$1/ i/Python $2/
+match http m|^HTTP/1\.0 200 OK\r\nContent-type: text/html\r\n\r\n<html><head><title>APC Back-UPS HS 500\(BackUPS500\0\)</title>| p/APC Back-UPS HS 500 http config/ d/power-device/
+match http m|^HTTP/1\.1 500 Internal Server Error\r\nConnection: close\r\nContent-Type: text/plain\r\nContent-Length: 16\r\n\r\nEAccessViolation$| p/TiVo Desktop Server http config/ o/Windows/
+match http m|^HTTP/1\.0 401 Not Authorized\r\nServer: RapidLogic/([\w-_.]+)\r\nMIME-version: 1\.0\r\nContent-type: text/html\r\nWWW-Authenticate: Basic realm=\"Secure Realm\"\r\n\r\n\r\nAuthorization Required\r\n\r\n$| p/3Com OfficeConnect WAP http config/ d/WAP/ i/RapidLogic httpd $1/
+match http m|^HTTP/1\.1 400 Bad Request\r\nConnection: close\r\n\r\n.*<br>Ability Mail Server ([\w-_.]+) by Code-Crafters<br>|s p/Ability Mail Server http config/ v/$1/ o/Windows/
+match http m|^HTTP/1\.1 200 OK\r\nContent-Length: \d+\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html><head><title>Available Databases - Banshee DAAP Browser</title>| p/Banshee DAAP browser httpd/
+match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\nConnection: Keep-Alive\r\nServer: FlashCom/([\w-_.]+)\r\nCache-Control: no-cache\r\nContent-Length: \d+\r\n\r\n<html><head><title>Wowza Media Server Pro Unlimited ([\w-_.]+) build(\d+)</title>| p/Wowza Media Server Pro Unlimited http config/ v/$2 build $3/ i/FlashCom httpd $1/
 
 #(insert http)
 
 
 # Maybe too generic?
 match http m|^HTTP/1\.0 302 Found\r\nLocation: /html/en/index\.html\r\n\r\n$| p/peercast.org/
+match http m|^HTTP/1\.0 404 Not found\r\n\r\n<HEAD><TITLE>File Not Found</TITLE></HEAD>\n<BODY><H1>File Not Found</H1></BODY>\n$| p/Bacula http config/
 
 # This one can cause false results!
 # Found a better one and put it in FourOhFour
@@ -5222,7 +5242,7 @@ match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nServer: Jana-Server/(\d[-.\w]+)\r\n| 
 match http-proxy m|^HTTP/1\.0 400 Bad Request\nContent-Type: text/html\n\n<HTML><HEAD><TITLE>DansGuardian - | p/DansGuardian HTTP proxy/
 match http-proxy m|^HTTP/1\.0 400 Bad Request\r\nServer: FreeProxy/(\d[-.\w]+)\r\n| p/FreeProxy/ v/$1/
 # EZproxy for Linux 2.2d GA (2003-09-01) - http://www.usefulutilities.com
-match http-proxy m|HTTP/1\.0 \d\d\d .*\r\nServer: EZproxy\r\n|s p/EZproxy web proxy/
+match http-proxy m|HTTP/1\.[01] \d\d\d .*\r\nServer: EZproxy\r\n|s p/EZproxy web proxy/
 # http://bfilter.sourceforge.net/
 match http-proxy m|^HTTP/1\.0 400 Bad Request\r\n.*\r\n\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4\.01 Transitional//EN\">\r\n<html>\r\n<head>\r\n  <title>BFilter Error</title>|s p/Bfilter proxy/
 match http-proxy m|^HTTP/1\.0 501 Not Implemented\r\n.*<STRONG>\nUnsupported Request Protocol\n</STRONG>\n</UL>\n<P>\nBFilter does not support all request methods for all access protocols\.\n|s p/Bfilter proxy/
@@ -5231,6 +5251,7 @@ match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nServer: tinyproxy/(\d[-.\w]+)\r\n| p/
 match http-proxy m|^HTTP/1\.1 502 Proxy Error \( The Uniform Resource Locator \(URL\) does not use a recognized protocol\. Either the protocol is not supported or the request was not typed correctly\. Confirm that a valid protocol is in use \(for example, HTTP for a Web request\)\.| p/Microsoft ISA Server http proxy/ o/Windows/
 match http-proxy m|^HTTP/1\.1 502 Proxy Error \( L'URL \(Uniform Resource Locator\) n'utilise pas de protocole reconnu\. Soit le protocole n'est pas pris en charge, soit la demande n'a pas \xe9t\xe9 tap\xe9e correctement\.| p/Microsoft ISA Server Web Proxy/ i/French/ o/Windows/
 match http-proxy m|^HTTP/1\.1 407 Proxy Authentication Required \( The ISA Server requires authorization to fulfill the request\. Access to the Web Proxy service is denied\.  \)\r\n| p/Microsoft ISA Server Web Proxy/ i/Proxy auth required/ o/Windows/
+match http-proxy m|^HTTP/1\.1 407 Proxy Authentication Required \( El servidor ISA requiere autorizaci\xc3\xb3n para completar la petici\xc3\xb3n\. Acceso denegado al servicio de proxy web\.  \)\r\n| p/Microsoft ISA Server Web Proxy/ i/Spanish; Proxy auth required/ o/Windows/
 match http-proxy m|^IsException=TRUE\r\nExceptionMsg=| p/Microsoft ISA Server Web Proxy/ o/Windows/
 # Privoxy 3.0.0 Filtering Web Proxy - http://www.privoxy.org
 match http-proxy m|^HTTP/1\.0 400 Invalid header received from browser\r\n\r\n$| p|Junkbuster/Privoxy webproxy|
@@ -5276,7 +5297,8 @@ match http-proxy m|^HTTP/1\.1 403 Forbidden\r\nServer: Eplicator/([\d.]+)\r\n| p
 match http-proxy m|^AdsGone Blocked HTML Ad$| p/AdsGone http proxy/ o/Windows/
 match http-proxy m|^<font face=verdana size=1>AdsGone (\d+)  Blocked HTML Ad</font>$| p/AdsGone $1 http proxy/ o/Windows/
 match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nContent-Type: text/html\r\nPragma: no-cache\r\n\r\n<html>\n<head>\n<title>Proxy\+ WWW Admin interface</title>\n\n| p/Fortech Proxy+ http admin/ o/Windows/
-match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nContent-Type: text/html\r\nProxy-Connection: close\r\nConnection: close\r\nContent-Length: \d+\r\n\r\n<HTML><HEAD>\n<TITLE>Access Denied</TITLE>\n</HEAD>.*\n<big>Access Denied \(policy_denied\)</big>\n|s p/BlueCoat SG-400 http proxy/
+match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nContent-Type: text/html.*\r\nProxy-Connection: close\r\nConnection: close\r\nContent-Length: \d+\r\n\r\n<HTML><HEAD>\n<TITLE>Access Denied</TITLE>\n</HEAD>.*\n<big>Access Denied \(policy_denied\)</big>\n|s p/BlueCoat SG-400 http proxy/
+match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nContent-Type: text/html.*\r\nProxy-Connection: close\r\nConnection: close\r\nContent-Length: \d+\r\n\r\n<HTML><HEAD>\n<TITLE>Request Error</TITLE>\n</HEAD>.*\n<big>Request Error \(invalid_request\)</big>\n|s p/BlueCoat http proxy/
 match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nServer: BlueCoat-Security-Appliance\r\n|s p/BlueCoat http proxy/
 match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nProxy-agent: BlueCoat-WinProxy\r\n| p/BlueCoat WinProxy http proxy/ o/Windows/
 match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nServer: Sawmill/([-\w_.]+)\r\n|s p/BlueCoat Sawmill http proxy config/ v/$1/
@@ -5552,6 +5574,7 @@ match upnp m|^HTTP/1\.1 200 .*\r\nSERVER: Linux/([\w-_.]+), UPnP/([\d.]+), Media
 match upnp m|^HTTP/1\.1 \d\d\d .*\r\nServer: *Linux/([-\w_.]+), UPnP/([-\w_.]+), TwonkyVision UPnP SDK/([-\w_.]+)\r\n|s p/TwonkyMedia UPnP/ i/Linux $1; UPnP $2; SDK $3/ o/Linux/
 match upnp m|^HTTP/1\.1 \d\d\d .*\r\nServer: *Linux/([\w-_.]+), UPnP/([\w-_.]+), pvConnect UPnP SDK/([\w-_.]+)\r\n.*<title>TwonkyMedia</title>|s p/TwonkyMedia UPnP/ i/Linux $1; UPnP $2; pvConnect SDK $3/ o/Linux/
 match upnp m|^HTTP/1\.1 \d\d\d .*\r\nContent-Type:  text/xml; charset=\"UTF-8\"\r\nServer: Orb Media Server, WINDOWS, UPnP/([\w-_.]+), Intel MicroStack/([\w-_.]+)\r\n| p/Orb Media Server UPnP/ o/Windows/ i/UPnP $1; Intel MicroStack $2/
+match upnp m|^HTTP/1\.0 \d\d\d .*\r\nServer: OpenWRT/kamikaze UPnP/([\w-_.]+) miniupnpd/([\w-_.]+)\r\n|s p/miniupnpd $2/ i/OpenWRT kamikaze firmware; UPnP $1/ o/Linux/ d/broadband router/
 
 # UUCP 1.06.2 on Linux 2.4.X
 # Taylor UUCP 1.06.2 on Slackware
@@ -6682,8 +6705,8 @@ match http m|^HTTP/1\.0 404 Document Follows\r\nContent-Type: text/html\r\nConte
 match http-proxy m|^HTTP/1\.0 404 Error\r\n.*<HTML><HEAD><TITLE>Extra Systems Proxy Server</TITLE>|s p/Extra Systems http proxy/ o/Windows/
 match http-proxy m|^HTTP/1\.1 502 Bad Gateway\r\nConnection : close\r\n.*\n<title>The requested URL could not be retrieved</title>\n<link href=\"http://passthrough\.fw-notify\.net/static/default\.css\"|s p/Astaro firewall http proxy/ d/firewall/
 
-match upnp m|^HTTP/1\.0 404 Not Found\r\nSERVER: Linux/([\w-_.]+), UPnP/([\d.]+), Portable SDK for UPnP devices/([\w-_.]+)\r\n| p/Linux Internet Gateway Device upnp/ i/kernel $1; UPnP $2; SDK $3/ o/Linux/
-match upnp m|^HTTP/1\.0 400 Bad Request\r\nSERVER: TP-LINK Wireless Router WR541G/5http://www\.tp-link\.com, UPnP/([\d.]+)\r\n| p/TP-LINK WAP upnp/ d/WAP/ i/UPnP $1/
+match upnp m|^HTTP/1\.0 \d\d\d .*\r\nSERVER: Linux/([\w-_.]+), UPnP/([\d.]+), Portable SDK for UPnP devices/([\w-_.]+)\r\n| p/Portable SDK for UPnP devices/ v/$3/ i/kernel $1; UPnP $2/ o/Linux/
+match upnp m|^HTTP/1\.0 \d\d\d .*\r\nSERVER: TP-LINK Wireless Router ([\w-_./]+)http://www\.tp-link\.com, UPnP/([\d.]+)\r\n| p/TP-LINK $1 WAP upnp/ d/WAP/ i/UPnP $2/
 
 ##############################NEXT PROBE##############################
 # ftp://ftp.rfc-editor.org/in-notes/rfc1179.txt
