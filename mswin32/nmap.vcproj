@@ -174,7 +174,7 @@
 				DelayLoadDLLs="packet.dll,wpcap.dll,iphlpapi.dll"
 				ProgramDatabaseFile=".\Release/nmap.pdb"
 				SubSystem="1"
-				OptimizeForWindows98="1"
+				OptimizeForWindows98="0"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -259,6 +259,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\nse_binlib.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_bit.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\nse_debug.cc"
 				>
 			</File>
@@ -283,19 +291,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\nse_pcrelib.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\nse_binlib.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\nse_openssl.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\nse_bit.cc"
+				RelativePath="..\nse_pcrelib.cc"
 				>
 			</File>
 			<File
@@ -452,6 +452,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\nse_binlib.h"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_bit.h"
+				>
+			</File>
+			<File
 				RelativePath="..\nse_debug.h"
 				>
 			</File>
@@ -480,19 +488,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\nse_pcrelib.h"
-				>
-			</File>
-			<File
-				RelativePath="..\nse_binlib.h"
-				>
-			</File>
-			<File
 				RelativePath="..\nse_openssl.h"
 				>
 			</File>
 			<File
-				RelativePath="..\nse_bit.h"
+				RelativePath="..\nse_pcrelib.h"
 				>
 			</File>
 			<File
