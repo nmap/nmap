@@ -35,11 +35,11 @@ struct thread_record {
   unsigned int registry_idx; // index in the main state registry
   double runlevel;
   struct run_record rr;
-  std::string get_id();
+  std::string get_id() const;
 };
 
 /* Gets the basename of a script filename and removes any ".nse" extension. */
-std::string thread_record::get_id() {
+std::string thread_record::get_id() const {
   char *abbrev;
 
   abbrev = path_get_basename(filename.c_str());
@@ -414,19 +414,19 @@ static const char *thread_id_str(const thread_record &thr) {
 void log_script_started(const thread_record &thr) {
   log_write(LOG_STDOUT, "%s (%.3fs): Starting %s against %s.\n",
     SCRIPT_ENGINE, o.TimeSinceStartMS() / 1000.0,
-    thr.filename.c_str(), thread_id_str(thr));
+    thr.get_id().c_str(), thread_id_str(thr));
 }
 
 void log_script_finished(const thread_record &thr) {
   log_write(LOG_STDOUT, "%s (%.3fs): Finished %s against %s.\n",
     SCRIPT_ENGINE, o.TimeSinceStartMS() / 1000.0,
-    thr.filename.c_str(), thread_id_str(thr));
+    thr.get_id().c_str(), thread_id_str(thr));
 }
 
 void log_script_timeout(const thread_record &thr) {
   log_write(LOG_STDOUT, "%s (%.3fs): Stopped %s against %s because of host timeout.\n",
     SCRIPT_ENGINE, o.TimeSinceStartMS() / 1000.0,
-    thr.filename.c_str(), thread_id_str(thr));
+    thr.get_id().c_str(), thread_id_str(thr));
 }
 
 void log_script_error(const thread_record &thr) {
@@ -436,7 +436,7 @@ void log_script_error(const thread_record &thr) {
   errmsg = lua_tostring(thr.thread, -1);
   log_write(LOG_STDOUT, "%s (%.3fs): %s against %s ended with error: %s\n",
     SCRIPT_ENGINE, o.TimeSinceStartMS() / 1000.0,
-    thr.filename.c_str(), thread_id_str(thr), errmsg);
+    thr.get_id().c_str(), thread_id_str(thr), errmsg);
 }
 
 int process_mainloop(lua_State *L) {
