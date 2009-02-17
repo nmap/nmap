@@ -110,6 +110,9 @@ o Prepare for Summer of Code
   o Decide which applicants we want, and who would be best for
     mentoring them.
 
+o [Ncat] Decide if we let people set up authenticated proxies using
+  --listen and --proxy-auth together (right now we don't support that).
+
 o Make Zenmap settings get upgraded when the Zenmap executable is
   upgraded. The per-user configuration files such as scan_profile.usp
   and zenmap.conf are never overwritten once installed by Zenmap, so
