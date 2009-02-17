@@ -206,6 +206,11 @@ o Consider adding boolean expressions to --script arguments.  For
   example, see Patrick's implementation at
   http://seclists.org/nmap-dev/2008/q3/0300.html .
 
+o Consider whether we should include some sort of NSE debugger.  Or we
+  could include something simpler.  For example, some developers (such
+  as Ron) already make use of Patrick's traceback.nse in their
+  experimental trees.
+
 o Figure out what to do about NSE mutexes:
   http://seclists.org/nmap-dev/2008/q3/0276.html .
 
