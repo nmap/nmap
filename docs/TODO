@@ -1,19 +1,20 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Fix XML escaping problem so that improper chars from NSE scripts or
-  elsewhere can't cause corrupt XML files.  See
-  http://seclists.org/nmap-dev/2009/q1/0316.html for an example. [David]
-
-o Fix dns-zone-transfer infinite recursion bug described at
-  http://seclists.org/nmap-dev/2009/q1/0317.html.  It sounds like the
-  best approach is to use our dns.lua library rather than having
-  dns-zone-transfer do its own DNS packet parsing.
-
 o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
+
+o Look at Dario Ciccarone's email from 5/1/07 about IPID sequence
+  issues, and consider adding IPID sequence test for closed-port-tcp as
+  they apparently can be different. [David]
 
 o Ncat --allow/--deny bug: "--allow and --deny only support host
   specification by IP address, and give no warning when you use
-  another form such as a host name." [David]
+  another form such as a host name." Should probably use same syntax
+  as --exclude. We also want to at least do verification at the
+  beginning to make sure all the entries are legitimately formed.  We
+  probably want to do things like DNS resolution at the beginning
+  too. Otherwise we might have a DNS failure when we actually get a
+  connection and perhaps have to reject the connection wrongly, or
+  risk a false negative.  [David]
 
 o Write Ncat users' guide, demonstrating all the neat stuff you can do
   with it.  This should probably be in DocBook XML so it can be an NNS
@@ -21,13 +22,6 @@ o Write Ncat users' guide, demonstrating all the neat stuff you can do
   people do with ncat (or look around for what people do with nc).
   Testing it out for examples might expose areas for improvement as
   well. [David]
-
-o Ncat documentation should note that no SSL certificate verification
-  is done (maybe we should offer an option to do so, if OpenSSL makes
-  that easy).
-
-o Ncat -- perhaps connection brokering should support UDP as well as
-  (its existing support for) TCP?
 
 o Consider adding a way for requesting timing status updates at a
   given interval (such as every 5 seconds) to XML and/or normal
@@ -49,11 +43,32 @@ o NSE should offer some way to sleep/yield for a given amount of
   o If we don't currently have a way for a cpu-bound NSE script to
     yield, then perhaps this could help us implement such a mechanism.
     But maybe coroutine.yield already does the trick.
+  o The mechanism needs to be documented, and ideally should be
+    implemented in at least one of the scripts shipped with Nmap.
 
 o Consider converting this file to emacs org-mode
   (http://orgmode.org/) format. [Fyodor]
   o That format is still plain text and can be read/edited by vi
     users, etc.
+
+o [Ncat] The sys_wrap.c/.h code contains a whole bunch of capitalized
+  versions of system calls (Fork(), Socket(), Sscanf(), etc.) which
+  are mostly the same as the standard version except that they cause
+  ncat to quit if they are triggered.  They also may be used partially
+  for portability.  The main issues are:
+   1) Because the function quits in the case of errors, it doesn't
+      always have the context to print a useful error message (and
+      even when it does, it often doesn't -- for example Fopen could
+      print the filename, but doesn't.)  Also, sometimes these
+      functions are called when quitting really isn't the desired
+      outcome of an error.
+   2) Some could be replaced by code in nbase, for example, Malloc
+      basically does the same thing as our safe_malloc already used
+      throughout Nmap.
+  So we should probably consider simplifying/removing this code to the
+  extent possible.  But we need to remember to add error detection to
+  the callers where necessary rather than blindly switching from
+  (e.g.) Connect() to connect(). [Kris or David]
 
 o Look into whether we should loosen/change the global congestion
   control system to address possible cases of one target host with many
@@ -62,38 +77,6 @@ o Look into whether we should loosen/change the global congestion
   * Related possibility: Fix --nogcc to gracefully handle ping scans.
     Right now it seems to go WAY TOO FAST (e.g. several thousand
     packets per second on my DSL line).
-
-o Make Zenmap settings get upgraded when the Zenmap executable is
-  upgraded. The per-user configuration files such as scan_profile.usp
-  and zenmap.conf are never overwritten once installed by Zenmap, so
-  changes and fixes to those files don't reach anyone who has
-  installed Zenmap already. This is most noticeable with changes to
-  profiles and highlight definitions are notably affected. This fix
-  may involve hard-coding settings that are not normally configured by
-  users (like highlighting) or updating the per-user files at startup
-  (only those parts that haven't been changed by the user).
-
-o Look at Dario Ciccarone's email from 5/1/07 about IPID sequence
-  issues, and consider adding IPID sequence test for closed-port-tcp as
-  they apparently can be different. [David]
-
-o Ncat: Get rid of sys_wrap stuff and use normal Nbase portability
-  code. [Kris]
-
-o Process the latest version detection submissions.  We now have more
-  than 1,700 of them queued up. [Doug]
-
-o [Ndiff] Rethink the output format. In particular, I would like to
-  always have the old state on the left and the new state on the
-  right: "was filtered, is open," not "is open, was filtered." I also
-  like the context diff output of MadHat's nmap-diff. [David]
-
-o Look into memory consumption of UDP scans with -p- and large
-  hostgroups.  See if there is a way to prevent them from eating up gigs
-  of RAM.
-
-o Fix the directory function(s) in nse_fs.cc to be usable by scripts and
-  improve flexibility. [this entry added by Patrick]
 
 o Device categorization improvements
   o Examine Nmap's device categorization in nmap-os-deb and
@@ -110,6 +93,73 @@ o Device categorization improvements
     classification.  It should include a list with descriptions of
     each device type recognized by Nmap.  Version-detection.xml should
     reference (link to) it in the approprate place.
+    [Doug has done some initial work on this.  For example, see
+     nmap/docs/device-types.txt]
+
+o [NSE] Open proxy detection script?
+  o We have http-open-proxy.nse, but we should probably either extrand
+  that to handle other types of proxies (such as SOCKS and HTTP
+  CONNECT) or create more scripts to handle those other proxy types.
+
+o Prepare for Summer of Code
+  o Brainstorm for ideas
+  o Create new ideas page
+  o Apply to participate in program again
+  o Advertise for applicants
+  o Evaluate applicants
+  o Decide which applicants we want, and who would be best for
+    mentoring them.
+
+o Make Zenmap settings get upgraded when the Zenmap executable is
+  upgraded. The per-user configuration files such as scan_profile.usp
+  and zenmap.conf are never overwritten once installed by Zenmap, so
+  changes and fixes to those files don't reach anyone who has
+  installed Zenmap already. This is most noticeable with changes to
+  profiles and highlight definitions are notably affected. This fix
+  may involve hard-coding settings that are not normally configured by
+  users (like highlighting) or updating the per-user files at startup
+  (only those parts that haven't been changed by the user).
+
+o Process the latest version detection submissions.  We now have more
+  than 1,700 of them queued up. [Doug]
+
+o [Ndiff] Rethink the output format. In particular, I would like to
+  always have the old state on the left and the new state on the
+  right: "was filtered, is open," not "is open, was filtered." I also
+  like the context diff output of MadHat's nmap-diff. [David]
+
+o [Ncat] Consider supporting server certificate verification when used
+  in client SSL mode.
+  o For now we document in user's guide that it is not secure.
+  o If we're going to verify cert's etc., we need to also make sure we
+    are actually using secure ciphers.  We may need to update nsock to
+    support cipher selection, because we want fast ones for version
+    detection, but usually want secure ones for NSE and/or ncat.
+  o Do we want to check all this by default, or offer an option for
+    it?  Doing it by default is more secure, though it can be annoying
+    when a certificate has expired, is self-signed, you connect to
+    domain.com when the certificate is for www.domain.com, etc.  If it
+    is done by deault, we might just print an error message.  Whreas
+    if we have a special option, it may be OK to exit and refuse the
+    connection.
+  o What certs should we allow?  Same as the browsers do?  Maybe get
+    rid of Comodo?  Maybe we should fail to recognize any certs with MD5
+    in the trust chain?
+  o What about people who are running their own SSL service and just
+    want to specify the cert file they use, because they generated it
+    themself and not from a trusted CA.
+  o Need to check expiration, domain, etc. if we're checking certs at
+    all.
+  o We can probably get away with not doing revocation checking, as
+    long as we document that we don't.
+
+
+o Look into memory consumption of UDP scans with -p- and large
+  hostgroups.  See if there is a way to prevent them from eating up gigs
+  of RAM.
+
+o Fix the directory function(s) in nse_fs.cc to be usable by scripts and
+  improve flexibility. [this entry added by Patrick]
 
 o Work on NSE Performance in general
 
@@ -147,8 +197,6 @@ o Consider rethinking Nmap's -s* syntax for specifing scan types
 
 o libnmap organization for UNIX and Windows
   o Then change Nmap and Zenmap to simply call this library
-
-o Open proxy NSE script?
 
 o [NSE] We may want to consider a better exception handling method -- one
   which doesn't require wrapping every I/O line in its own try function
@@ -196,10 +244,6 @@ o Change Nmap signature files to use the .sig extension rather than
   the .sig (or .asc) extension.  I may need to configure .htaccess to
   serve .sig files properly.  Update nmap-install.xml
   accordingly. Suggested by tic at eternalrealm.net by email on 7/13/08.
-
-o Fix this overflow:
-  Stats: 93:57:40 elapsed; 254868 hosts completed (2048 up), 2048 undergoing UDP Scan
-  UDP Scan Timing: About 11.34% done; ETC: 03:21 (-688:-41:-48 remaining)
 
 o Do -p- Internet UDP scans.
 
@@ -440,6 +484,34 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Fix this overflow:
+  Stats: 93:57:40 elapsed; 254868 hosts completed (2048 up), 2048 undergoing UDP Scan
+  UDP Scan Timing: About 11.34% done; ETC: 03:21 (-688:-41:-48 remaining)
+  [Done by David and Henri Doreau]
+
+o Ncat -- perhaps connection brokering should support UDP as well as
+  (its existing support for) TCP?  Actually this does raise issues
+  such as deciding what list of UDP systems to forward a packet too.
+  Its obviously not like TCP where you have a list of open
+  connections.  Ncat could build such a list, but, for example, would
+  never know when to remove the host.  For now, David is just going to
+  adjust the error message to encourage people to email nmap-dev
+  describing their usage scenario if they want this feature.
+
+o Ncat documentation should note that no SSL certificate verification
+  is done (maybe we should offer an option to do so, if OpenSSL makes
+  that easy).
+  o Done in the new Ncat user's guide
+
+o Fix dns-zone-transfer infinite recursion bug described at
+  http://seclists.org/nmap-dev/2009/q1/0317.html.  It sounds like the
+  best approach is to use our dns.lua library rather than having
+  dns-zone-transfer do its own DNS packet parsing.
+
+o Fix XML escaping issue so that improper chars from NSE scripts or
+  elsewhere can't cause corrupt XML files.  See
+  http://seclists.org/nmap-dev/2009/q1/0316.html for an example. [David]
 
 o Look into whether we should increase the frequency of port scan
   pings.  See http://seclists.org/nmap-dev/2008/q1/0096.html . Note
