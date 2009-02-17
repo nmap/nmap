@@ -96,7 +96,7 @@ end
 -- For example, the address 139.104.32.123 becomes { 139, 104, 32, 123 }.
 -- @usage
 -- local a, b, c, d;
--- local t, err = get_parts_as_number( "139.104.32.123" )
+-- local t, err = ipOps.get_parts_as_number( "139.104.32.123" )
 -- if t then a, b, c, d = unpack( t ) end
 -- @param ip  String representing an IPv4 or IPv6 address.  Shortened notation
 -- is permitted.

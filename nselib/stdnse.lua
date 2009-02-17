@@ -46,7 +46,7 @@ end
 -- This is Lua's <code>table.concat</code> function with the parameters
 -- swapped for coherence.
 -- @usage
--- strjoin(", ", {"Anna", "Bob", "Charlie", "Dolores"})
+-- stdnse.strjoin(", ", {"Anna", "Bob", "Charlie", "Dolores"})
 -- --> "Anna, Bob, Charlie, Dolores"
 -- @param delimiter String to delimit each element of the list.
 -- @param list Array of strings to concatenate.
@@ -59,7 +59,7 @@ end
 
 --- Split a string at a given delimiter, which may be a pattern.
 -- @usage
--- strsplit(",%s*", "Anna, Bob, Charlie, Dolores")
+-- stdnse.strsplit(",%s*", "Anna, Bob, Charlie, Dolores")
 -- --> { "Anna", "Bob", "Charlie", "Dolores" }
 -- @param pattern Pattern that separates the desired strings.
 -- @param text String to split.
