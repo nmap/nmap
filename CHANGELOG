@@ -20,6 +20,10 @@ o [NSEDoc] Scripts that use modules automatically have the script
   It's no longer necessary to manually supply @args for the arguments
   in the modules you use. [David]
 
+o Nmap wins LinuxQuestions.Org Network Security Application of the
+  Year for the sixth year in a row! See
+  http://seclists.org/nmap-dev/2009/q1/0395.html.
+
 o An integer overflow in the scan progress meter was fixed. It caused
   nonsense output like
     UDP Scan Timing: About 11.34% done; ETC: 03:21 (-688:-41:-48 remaining)
