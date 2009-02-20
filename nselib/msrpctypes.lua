@@ -89,7 +89,7 @@
 --
 -- The datatypes used here are modelled after the datatypes used by Microsoft's functions. Each function that represents
 -- a struct will have the struct definition in its comment; and that struct (or the closest representation to it) will be 
--- returned. Often, this requires scripts to access something like <code>result['names']['names'][0]['name'], which is
+-- returned. Often, this requires scripts to access something like <code>result['names']['names'][0]['name']</code>, which is
 -- rather unwieldy, but I decided that following Microsoft's definitions was the most usable way for many reasons. I find
 -- the best way to figure out how to work a function is to call a print_table()-style function on the result and look at
 -- how the response is laid out. 
@@ -97,10 +97,8 @@
 -- Many datatypes are automatically encoded when sent and decoded when received to make life easier for developers. Some 
 -- examples are:
 -- * All absolute time values will be seconds from 1970
--- * All relative time values will be in seconds (this includes the <code>hyper</code> datatype); when possible, the 
---   milliseconds/microseconds (as far down as we have access to) will be preserved as a decimal
--- * All enumerations will be a string representing the constant (which can be converted to a user-readable string using 
---   one of the <code>_tostr</code> functions); what that means is, enumeration values are never used, only the names
+-- * All relative time values will be in seconds (this includes the <code>hyper</code> datatype); when possible, the milliseconds/microseconds (as far down as we have access to) will be preserved as a decimal
+-- * All enumerations will be a string representing the constant (which can be converted to a user-readable string using one of the <code>_tostr</code> functions); what that means is, enumeration values are never used, only the names
 -- * SIDs will be converted to user-readable strings in the standard format (S-x-y-...)
 -- * GUIDs are stored as tables of values; however, I might change this to a string representation at some point
 
