@@ -13,6 +13,11 @@ cluster
 A device that coordinates a group of computers working together.
 *** Suggest using specialized instead
 
+encryption accelerator (6)
+A VPN gateway.
+Example: Cisco VPN 3030 Concentrator VPN platform
+*** Maybe merge with another category or change to "VPN gateway" as that's what all examples currently are.
+
 firewall
 A device dedicated to protecting other devices or networks. Usually these devices use inbound packet filtering but also may use outbound filtering or application level filtering.
 
@@ -50,6 +55,9 @@ projector
 Devices that illuminate a screen or a wall for a presentation.
 *** Newish category. I think there are some projectors classified as specialized. Alternatively use media device
 
+proxy server (13)
+Any kind of proxy server, including web proxies and other devices that, for example, cache data or understand other high-level protocols.
+
 remote managment
 Devices usually installed in data-centres so that equipment can be managed or monitored remotely.
 
@@ -81,6 +89,10 @@ A device that provides terminal facilities to clients over a network.
 VoIP adapter
 A device for providing Voice Over IP (VoIP) service that doesn't itself include phone facilities. A phone must be plugged into these adapters to place or receive calls.
 
+VoIP gateway (18)
+A device that converts between VoIP protocols and normal telephone traffic. Also may convert different VoIP protocols.
+Example: Avaya Office IP403 VoIP gateway
+
 VoIP phone
 A device for providing Voice Over IP (VoIP) service that includes phone hardware.
 
@@ -90,6 +102,10 @@ Wireless Access Points are devices that clients can use to connect to a network 
 webcam
 A device that takes pictures with a camera, digitizes them, and makes them available over a network. This includes everything from consumer webcams used for internet chatting to Digital Video Recorders (DVRs) and professional security systems.
 *** Suggest distinction between consumer webcams and security systems
+
+web server (2)
+An appliance that serves primarily HTTP, not a general-purpose OS running a web server.
+*** Suggest removal; current devices' classification is tenuous.
 
 X-ray machine
 A medical device.
