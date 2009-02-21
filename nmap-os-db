@@ -6219,7 +6219,7 @@ IE(DFI=N%T=3B-45%TG=40%TOSI=Z%CD=S%SI=S%DLI=S)
 # D-Link DIR-100 Router with switch firmware 2.00_b5_sw
 Fingerprint D-Link DIR-100 DSL router or Motorola Canopy cluster management module 2.2
 Class D-Link | embedded || broadband router
-Class Motorola | embedded || router
+Class Motorola | embedded || specialized
 SEQ(SP=8B-99%GCD=<7%ISR=97-A3%TI=I%II=I%SS=S%TS=1|2)
 OPS(O1=M5A8NW0NNT11%O2=M5A8NW0NNT11%O3=M5A8NW0NNT11%O4=M5A8NW0NNT11%O5=M5A8NW0NNT11%O6=M5A8NNT11)
 WIN(W1=43E0%W2=4110%W3=423C%W4=43E0%W5=4180%W6=403D)
@@ -24765,7 +24765,7 @@ IE(DFI=N%T=FA-104%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Motorola BackHaul, CANOPY 8.1.5 BH20-DES
 # CANOPY 8.1.4 AP-DES CANOPYBOOT 1.0
-Fingerprint Motorola Canopy bridge
+Fingerprint Motorola Canopy wireless bridge
 Class Motorola | embedded || bridge
 SEQ(SP=0-5%GCD=FA7F|1F4FE|2EF7D|3E9FC|4E47B%ISR=95-9F%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B0%O2=M578%O3=M280%O4=M5B0%O5=M218%O6=M109)
@@ -24782,7 +24782,7 @@ U1(DF=N%T=19-23%TG=20%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=19-23%TG=20%TOSI=Z%CD=S%SI=S%DLI=S)
 
 # Canopy Lite - 5.4GHz - Subscriber Module, CANOPY 8.2 SM-DES
-Fingerprint Motorola Canopy router
+Fingerprint Motorola Canopy wireless bridge
 Class Motorola | embedded || bridge
 SEQ(SP=0-16%GCD=FA7F|1F4FE|2EF7D|3E9FC|4E47B%ISR=97-A1%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B0%O2=M578%O3=M280%O4=M5B0%O5=M218%O6=M109)
