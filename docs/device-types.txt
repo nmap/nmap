@@ -1,28 +1,23 @@
 general purpose
-A device without a specific intended purpose. These devices usually run a general purpose operating system like Windows or Linux and are capable of performing nearly any task. In the nmap-service-probes file these devices are indicated by a lack of a d// tag.
+This category contains general-purpose operating systems like Linux and
+Windows. In the nmap-service-probes file this class is indicated by a
+lack of a
+d//<indexterm><primary><literal>d//</literal> (device type) version detection field</primary></indexterm>
+field.
 
 bridge (15)
-Devices that connect 2 or more networks together.
-*** Suggest moving some of these to the WAP or router category
+A bridge combines two or more subnetworks into one. With a bridge this
+happens at a lower level than with a router.
 
 broadband router (241)
 A consumer device for connecting a network to the internet via cable, ADSL, fiber optics, etc. May provide services like Network Address Translation (NAT), a firewall, port forwarding, etc. 
 *** Possibly split into "broadband router" and "broadband modem" where modem counts only devices that actually plug into a cable or DSL connection
 
-cluster (3)
-A device that coordinates a group of computers working together.
-*** Suggest using specialized instead
-
-encryption accelerator (6)
-A VPN gateway.
-Example: Cisco VPN 3030 Concentrator VPN platform
-*** Maybe merge with another category or change to "VPN gateway" as that's what all examples currently are.
-
 firewall (128)
 A device dedicated to protecting other devices or networks. Usually these devices use inbound packet filtering but also may use outbound filtering or application level filtering.
 
 game console (16)
-A consumer entertainment device intended primarily for playing video games. Examples are Nintendo, Xbox, Playstation, etc.
+A consumer entertainment device intended primarily for playing video games. Examples are Nintendo, Xbox, PlayStation, etc.
 
 hub (1)
 A device that joins 2 or more network segments by re-broadcasting all traffic. These devices are distinct from switches which selectively transmit packets only to relevant destinations.
@@ -40,20 +35,18 @@ PDA (12)
 Portable Digital Assistants are handheld consumer devices used for organization, browsing the mobile web, playing games, etc.
 
 phone (22)
-*** Suggest merge with PDA
+Network-capable telephones that are not VoIP phones. Devices in this category are typically mobile phones.
 
 power device (45)
 These are devices such as Uninterruptable Power Supplies (UPSs) or high-end surge protectors usually intended for data-centres.
 
-print server (100)
-These are devices that connect a non-network capable printer to a network so it can accept print jobs via the network.
-
 printer (371)
-Network enabled printers.
+Network-enabled printers, including printers with an embedded print
+server.
 
-projector (3)
-Devices that illuminate a screen or a wall for a presentation.
-*** Newish category. I think there are some projectors classified as specialized. Alternatively use media device
+print server (100)
+A print server connects a printer to a network. Printers that contain
+their own print server go in the "printer" category instead.
 
 proxy server (13)
 Any kind of proxy server, including web proxies and other devices that, for example, cache data or understand other high-level protocols.
@@ -101,12 +94,18 @@ Wireless Access Points are devices that clients can use to connect to a network 
 
 webcam (100)
 A device that takes pictures with a camera, digitizes them, and makes them available over a network. This includes everything from consumer webcams used for internet chatting to Digital Video Recorders (DVRs) and professional security systems.
-*** Suggest distinction between consumer webcams and security systems
 
-web server (2)
-An appliance that serves primarily HTTP, not a general-purpose OS running a web server.
-*** Suggest removal; current devices' classification is tenuous.
+----
 
-X-ray machine (2)
-A medical device.
-*** Suggest using specialized instead
+Proposed changes
+
+Move X-ray machine (2) to specialized.
+
+Move cluster (3) to specialized.
+
+Move projector (3) to media device. I didn't find any projectors miscategorized
+as "specialized" -David.
+
+Move encryption accelerator (6) to proxy server.
+
+Move web server (2) to general purpose or specialized.
