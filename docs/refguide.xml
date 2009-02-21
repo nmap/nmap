@@ -161,17 +161,18 @@ simplest case is to specify a target IP address or hostname for scanning.</para>
 
 <para>Sometimes you wish to scan a whole network of adjacent hosts.
 For this, Nmap supports
-CIDR-style addressing.<indexterm><primary>CIDR (Classless Inter-Domain Routing)</primary></indexterm>
-You can append
-/<replaceable>numbits</replaceable> to an IP address or hostname and
+CIDR-style<indexterm><primary>CIDR (Classless Inter-Domain Routing)</primary></indexterm>
+addressing.  You can append
+/<replaceable>numbits</replaceable> to an IPv4 address or hostname and
 Nmap will scan every IP address for which the first
 <replaceable>numbits</replaceable> are the same as for the reference
 IP or hostname given.  For example, 192.168.10.0/24 would scan the 256
 hosts between 192.168.10.0 (binary: <literal>11000000 10101000
 00001010 00000000</literal>) and 192.168.10.255 (binary: <literal>11000000 10101000
 00001010 11111111</literal>), inclusive.
-192.168.10.40/24 would do exactly the same thing.  Given that the host
-scanme.nmap.org is at the IP address 64.13.134.52, the specification
+192.168.10.40/24 would scan exactly the same targets.  Given that the host
+<literal>scanme.nmap.org</literal><indexterm><primary><literal>scanme.nmap.org</literal></primary></indexterm>
+is at the IP address 64.13.134.52, the specification
 scanme.nmap.org/16 would scan the 65,536 IP addresses between
 64.13.0.0 and 64.13.255.255.  The smallest allowed value is /0,
 which scans the whole Internet.  The largest value is /32, which scans
@@ -180,11 +181,13 @@ just the named host or IP address because all address bits are fixed.</para>
 <indexterm><primary>address ranges</primary></indexterm>
 <para>CIDR notation is short but not always flexible enough.  For example, you
 might want to scan 192.168.0.0/16 but skip any IPs ending with .0 or
-.255 because they are commonly broadcast addresses.  Nmap supports
+.255 because they may be used as subnet network and broadcast addresses.  Nmap supports
 this through octet range addressing.  Rather than specify a normal IP
-address, you can specify a comma separated list of numbers or ranges
+address, you can specify a comma-separated list of numbers or ranges
 for each octet.  For example, 192.168.0-255.1-254 will skip all
-addresses in the range that end in .0 and or .255.  Ranges need not be
+addresses in the range that end in .0 or .255, and 192.168.3-5,7.1 will
+scan the four addresses 192.168.3.1, 192.168.4.1, 192.168.5.1, and
+192.168.7.1.  Ranges need not be
 limited to the final octets: the specifier
 0-255.0-255.13.37 will perform an Internet-wide scan for all IP
 addresses ending in 13.37.  This sort of broad sampling can be useful
@@ -196,7 +199,7 @@ IPv6 because they are rarely useful.</para>
 
 <para>Nmap accepts multiple host specifications on the command line,
 and they don't need to be the same type.  The command <command>nmap
-scanme.nmap.org 192.168.0.0/16 10.0.0,1,3-7.0-255</command> does what
+scanme.nmap.org 192.168.0.0/8 10.0.0,1,3-7.0-255</command> does what
 you would expect.</para>
 
 <para>While targets are usually specified on the command lines, the following options are also available to control target selection:</para>
