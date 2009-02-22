@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] The syntax accepted by the --allow, --deny, --allowfile, and
+  --denyfile options is now the same as Nmap's target specifications.
+  Additionally any errors in the allow or deny specifications are
+  reported when the program starts, not deferred until a connection is
+  received. [David]
+
 o [Ncat] The --send-only and --recv-only options now work in listen
   mode as well as connect mode. [David]
 
