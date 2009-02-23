@@ -562,3 +562,17 @@ int luaopen_nmap (lua_State *L)
 
   return 1;
 }
+
+/* Register C functions that belong in the stdnse namespace. They are loaded
+   from here in stdnse.lua. */
+int luaopen_stdnse_c (lua_State *L)
+{
+  static const luaL_reg stdnse_clib [] = {
+    {"sleep", l_nsock_sleep},
+    {NULL, NULL}
+  };
+
+  luaL_register(L, "stdnse.c", stdnse_clib);
+
+  return 1;
+}

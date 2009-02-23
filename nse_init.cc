@@ -252,6 +252,7 @@ int init_lua (lua_State *L)
 #ifdef HAVE_OPENSSL
     {OPENSSLLIBNAME, luaopen_openssl}, // openssl bindings
 #endif
+    {"stdnse.c", luaopen_stdnse_c},
   };
 
   luaL_openlibs(L); // opens all standard libraries

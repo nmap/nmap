@@ -17,9 +17,30 @@ local concat = table.concat;
 
 local nmap = require "nmap";
 
+local c_funcs = require "stdnse.c";
+
 local EMPTY = {}; -- Empty constant table
 
 module(... or "stdnse");
+
+-- Load C functions from stdnse.c into this namespace.
+for k, v in pairs(c_funcs) do
+  _M[k] = v
+end
+-- Remove visibility of the stdnse.c table.
+c = nil
+
+--- Sleeps for a given amount of time.
+--
+-- This causes the program to yield control and not regain it until the time
+-- period has elapsed. The time may have a fractional part. Internally, the
+-- timer provides millisecond resolution.
+-- @name sleep
+-- @class function
+-- @param t Time to sleep, in seconds.
+-- @usage stdnse.sleep(1.5)
+
+-- sleep is a C function defined in nse_nmaplib.cc.
 
 --- Prints a formatted debug message if the current verbosity level is greater
 -- than or equal to a given level.

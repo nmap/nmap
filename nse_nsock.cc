@@ -950,6 +950,25 @@ void l_nsock_clear_buf(lua_State *L, l_nsock_udata* udata){
 	udata->bufused=0;
 }
 
+static void l_nsock_sleep_handler(nsock_pool nsp, nsock_event nse, void *udata) {
+  lua_State *L = (lua_State*) udata;
+  assert(nse_status(nse) == NSE_STATUS_SUCCESS);
+  process_waiting2running(L, 0);
+}
+
+int l_nsock_sleep(lua_State *L) {
+  double secs = luaL_checknumber(L, 1);
+  int msecs;
+
+  if (secs < 0)
+    luaL_error(L, "Argument to sleep (%f) must not be negative\n", secs);
+  /* Convert to milliseconds for nsock_timer_create. */
+  msecs = (int) (secs * 1000 + 0.5);
+  nsock_timer_create(nsp, l_nsock_sleep_handler, msecs, L);
+
+  return lua_yield(L, 0);
+}
+
 /****************** NCAP_SOCKET ***********************************************/ 
 #ifdef WIN32
 /* From tcpip.cc. Gets pcap device name from dnet name. */

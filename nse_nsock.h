@@ -10,6 +10,7 @@ extern "C" {
 int luaopen_nsock(lua_State *);
 int l_nsock_new(lua_State *);
 int l_nsock_loop(int tout);
+int l_nsock_sleep(lua_State *L);
 
 int l_dnet_new(lua_State *);
 int l_dnet_open(lua_State *);
