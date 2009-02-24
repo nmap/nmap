@@ -3402,6 +3402,23 @@ even if this option is not specified.
 </listitem>
 </varlistentry>
 
+      <varlistentry>
+        <term>
+          <option>--stats-every <replaceable>time</replaceable></option> (Print periodic timing stats)
+          <indexterm><primary><option>--stats-every</option></primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+          Periodically prints a timing status message after each
+          interval of <replaceable>time</replaceable>. The time is a
+          specification of the kind described in
+          <xref linkend="man-performance"/>; so for example, use
+          <command>--stats-every 10s</command> to get a status update
+          every 10 seconds. Updates are printed to interactive output
+          (the screen) and XML output.
+          </para>
+        </listitem>
+      </varlistentry>
 
       <varlistentry>
         <term>

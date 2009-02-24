@@ -674,6 +674,8 @@ int nmap_main(int argc, char *argv[]) {
       {"min-rate", required_argument, 0, 0},
       {"max_rate", required_argument, 0, 0},
       {"max-rate", required_argument, 0, 0},
+      {"stats_every", required_argument, 0, 0},
+      {"stats-every", required_argument, 0, 0},
       {0, 0, 0, 0}
     };
 
@@ -937,6 +939,10 @@ int nmap_main(int argc, char *argv[]) {
       } else if(optcmp(long_options[option_index].name, "max-rate") == 0) {
         if (sscanf(optarg, "%f", &o.max_packet_send_rate) != 1 || o.max_packet_send_rate <= 0.0)
           fatal("Argument to --max-rate must be a positive floating-point number");
+      } else if(optcmp(long_options[option_index].name, "stats-every") == 0) {
+	l = tval2msecs(optarg);
+	if (l < 0) fatal("Argument to --stats-every cannot be negative.");
+        o.stats_interval = (double) l / 1000.0;
       } else {
 	fatal("Unknown long option (%s) given@#!$#$", long_options[option_index].name);
       }

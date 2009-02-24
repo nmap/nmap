@@ -184,6 +184,8 @@ class NmapOps {
   float min_packet_send_rate;
   /* The requested maximum packet sending rate, or 0.0 if unset. */
   float max_packet_send_rate;
+  /* The requested auto stats printing interval, or 0.0 if unset. */
+  float stats_interval;
   int randomize_hosts;
   int spoofsource; /* -S used */
   int fastscan;

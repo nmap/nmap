@@ -116,6 +116,7 @@
 #include <stdlib.h>
 
 #include "nmap_tty.h"
+#include "utils.h"
 #include "NmapOps.h"
 
 extern NmapOps o;
@@ -240,6 +241,8 @@ void tty_init()
    print a status message */
 bool keyWasPressed()
 {
+  /* Where we keep the automatic stats printing schedule. */
+  static struct timeval stats_time = { 0 };
   int c;
 
   if (o.noninteractive)
@@ -282,5 +285,30 @@ bool keyWasPressed()
        return true;
     }
   }
+
+  /* Check if we need to print a status update according to the --stats-every
+     option. */
+  if (o.stats_interval != 0.0) {
+    struct timeval now;
+
+    gettimeofday(&now, NULL);
+    if (stats_time.tv_sec == 0) {
+      /* Initialize the scheduled stats time. */
+      stats_time = *o.getStartTime();
+      TIMEVAL_ADD(stats_time, stats_time, (time_t) (o.stats_interval * 1000000));
+    }
+
+    if (TIMEVAL_AFTER(now, stats_time)) {
+      /* Advance to the next print time. */
+      TIMEVAL_ADD(stats_time, stats_time, (time_t) (o.stats_interval * 1000000));
+      /* If it's still in the past, catch it up to the present. */
+      if (TIMEVAL_AFTER(now, stats_time))
+        stats_time = now;
+      printStatusMessage();
+      /* Instruct the caller to print status too. */
+      return true;
+    }
+  }
+
   return false;
 }
