@@ -1646,6 +1646,46 @@ void HostOsScan::makeFP(HostOsScanStats *hss) {
   hss->FP = FP;
 }
 
+/* Fill in a struct AVal with a value based on the IP ID sequence generation
+   class (one of the IPID_SEQ_* constants). If ipid_seqclass is such that the
+   test result should be omitted, the function returns NULL and doesn't modify
+   *av. Otherwise, it returns av after filling in the information. */
+static struct AVal *make_aval_ipid_seq(struct AVal *av, char *attribute,
+                                       int ipid_seqclass, int ipids[NUM_SEQ_SAMPLES]) {
+  char buf[32];
+
+  switch(ipid_seqclass) {
+  case IPID_SEQ_CONSTANT:
+    snprintf(buf, sizeof(buf), "%X", ipids[0]);
+    break;
+  case IPID_SEQ_INCR:
+    strncpy(buf, "I", sizeof(buf));
+    break;
+  case IPID_SEQ_BROKEN_INCR:
+    strncpy(buf, "BI", sizeof(buf));
+    break;
+  case IPID_SEQ_RPI:
+    strncpy(buf, "RI", sizeof(buf));
+    break;
+  case IPID_SEQ_RD:
+    strncpy(buf, "RD", sizeof(buf));
+    break;
+  case IPID_SEQ_ZERO:
+    strncpy(buf, "Z", sizeof(buf));
+    break;
+  default:
+    /* Signal to omit test result. */
+    return NULL;
+    break;
+  }
+
+  av->attribute = attribute;
+  assert(sizeof(av->value) >= sizeof(buf));
+  strcpy(av->value, buf);
+
+  return av;
+}
+
 void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   int i,j;
   u32 seq_diffs[NUM_SEQ_SAMPLES];
@@ -1797,74 +1837,12 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   } else {
     icmp_ipid_seqclass = IPID_SEQ_UNKNOWN;
   }
-    
-  /* TI: TCP IP ID sequence generation algorithm */
-  switch(tcp_ipid_seqclass) {
-  case IPID_SEQ_CONSTANT:
-    seq_AVs[avnum].attribute = (char*)"TI";
-    sprintf(seq_AVs[avnum].value, "%X", hss->ipid.tcp_ipids[0]);
-    avnum++;
-    break;
-  case IPID_SEQ_INCR:
-    seq_AVs[avnum].attribute = (char*)"TI";
-    strcpy(seq_AVs[avnum].value, "I");
-    avnum++;
-    break;
-  case IPID_SEQ_BROKEN_INCR:
-    seq_AVs[avnum].attribute = (char*)"TI";
-    strcpy(seq_AVs[avnum].value, "BI");
-    avnum++;
-    break;
-  case IPID_SEQ_RPI:
-    seq_AVs[avnum].attribute = (char*)"TI";
-    strcpy(seq_AVs[avnum].value, "RI");
-    avnum++;
-    break;
-  case IPID_SEQ_RD:
-    seq_AVs[avnum].attribute = (char*)"TI";
-    strcpy(seq_AVs[avnum].value, "RD");
-    avnum++;
-    break;
-  case IPID_SEQ_ZERO:
-    seq_AVs[avnum].attribute = (char*)"TI";
-    strcpy(seq_AVs[avnum].value, "Z");
-    avnum++;
-    break;
-  }
 
-  /* II: ICMP IP ID sequence generation algorithm */
-  switch(icmp_ipid_seqclass) {
-  case IPID_SEQ_CONSTANT:
-    seq_AVs[avnum].attribute = (char*)"II";
-    sprintf(seq_AVs[avnum].value, "%X", hss->ipid.icmp_ipids[0]);
+  /* This fills in TI=Z or something like that. */
+  if (make_aval_ipid_seq(&seq_AVs[avnum], (char *) "TI", tcp_ipid_seqclass, hss->ipid.tcp_ipids) != NULL)
     avnum++;
-    break;
-  case IPID_SEQ_INCR:
-    seq_AVs[avnum].attribute = (char*)"II";
-    strcpy(seq_AVs[avnum].value, "I");
+  if (make_aval_ipid_seq(&seq_AVs[avnum], (char *) "II", icmp_ipid_seqclass, hss->ipid.icmp_ipids) != NULL)
     avnum++;
-    break;
-  case IPID_SEQ_BROKEN_INCR:
-    seq_AVs[avnum].attribute = (char*)"II";
-    strcpy(seq_AVs[avnum].value, "BI");
-    avnum++;
-    break;
-  case IPID_SEQ_RPI:
-    seq_AVs[avnum].attribute = (char*)"II";
-    strcpy(seq_AVs[avnum].value, "RI");
-    avnum++;
-    break;
-  case IPID_SEQ_RD:
-    seq_AVs[avnum].attribute = (char*)"II";
-    strcpy(seq_AVs[avnum].value, "RD");
-    avnum++;
-    break;
-  case IPID_SEQ_ZERO:
-    seq_AVs[avnum].attribute = (char*)"II";
-    strcpy(seq_AVs[avnum].value, "Z");
-    avnum++;
-    break;	  
-  }
 
   /* SS: Shared IP ID sequence boolean */
   if ( (tcp_ipid_seqclass == IPID_SEQ_INCR ||
