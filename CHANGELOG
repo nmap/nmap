@@ -5,6 +5,9 @@ o The new --stats-every option takes a time interval that controls how
   when Nmap is run by another program as a subprocess. Thanks to
   Aleksandar Petrinic for the initial implementation. [David]
 
+o [NSE] A new function stdnse.sleep allows a script to sleep for a
+  given time (and yield control to other scripts). [David]
+
 o [Ncat] The syntax accepted by the --allow, --deny, --allowfile, and
   --denyfile options is now the same as Nmap's target specifications.
   Additionally any errors in the allow or deny specifications are
