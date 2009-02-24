@@ -2,19 +2,14 @@ TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
 o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
 
+o Defensive coding review of ncat_proxy.* [David]
+
 o Look at Dario Ciccarone's email from 5/1/07 about IPID sequence
   issues, and consider adding IPID sequence test for closed-port-tcp as
   they apparently can be different. [David]
-
-o Ncat --allow/--deny bug: "--allow and --deny only support host
-  specification by IP address, and give no warning when you use
-  another form such as a host name." Should probably use same syntax
-  as --exclude. We also want to at least do verification at the
-  beginning to make sure all the entries are legitimately formed.  We
-  probably want to do things like DNS resolution at the beginning
-  too. Otherwise we might have a DNS failure when we actually get a
-  connection and perhaps have to reject the connection wrongly, or
-  risk a false negative.  [David]
+  o Also fix bug which causes SEQ to not be printed if the TCP open
+    port tests fail to produce results, even though the II and
+    (upcoming) CI tests may have useful results. [David]
 
 o Write Ncat users' guide, demonstrating all the neat stuff you can do
   with it.  This should probably be in DocBook XML so it can be an NNS
@@ -23,33 +18,23 @@ o Write Ncat users' guide, demonstrating all the neat stuff you can do
   Testing it out for examples might expose areas for improvement as
   well. [David]
 
-o Consider adding a way for requesting timing status updates at a
-  given interval (such as every 5 seconds) to XML and/or normal
-  output.  This would be useful for people who run Nmap from scripts
-  or other higher level applications. [David]
-
-o NSE should offer some way to sleep/yield for a given amount of
-  time.  This would allow other scripts to run while a script has
-  nothing to do.  Possible uses:
-  o Many services have rate limits (or you might just want to use them
-    for politeness).  For example, a web site spidering application
-    might want to limit HTTP requests to some number per second to avoid
-    pissing off the target webmaster more than is necessary (or prevent
-    getting auto-blocked).  Similarly, whois servers often will block
-    IPs which query them too often in a short period.  Or maybe you
-    don't want to exceed the threshold limits of an IDS.
-  o Example current scripts which might benefit: sql-injection, whois
-    (possibly), pop3-brute, etc.
-  o If we don't currently have a way for a cpu-bound NSE script to
-    yield, then perhaps this could help us implement such a mechanism.
-    But maybe coroutine.yield already does the trick.
-  o The mechanism needs to be documented, and ideally should be
-    implemented in at least one of the scripts shipped with Nmap.
-
 o Consider converting this file to emacs org-mode
   (http://orgmode.org/) format. [Fyodor]
   o That format is still plain text and can be read/edited by vi
     users, etc.
+
+o Determine what we should do about the IE.DLI OS detection test
+  o It appears that of the 1657 results for this test in nmap-os-db,
+    1656 are DLI=S and the remaining one is DLI=100
+    o Is the test not working right (producing the proper results
+      against targets), or is it just a generally useless test for
+      which virtually all targets respond the same way?
+  o Are there other "useless" tests in nmap-os-db?  It is worth
+    checking, IMHO.
+
+o [Ncat] Let people set up authenticated proxies using
+  --listen and --proxy-auth together (right now we don't support
+  that). [David]
 
 o [Ncat] The sys_wrap.c/.h code contains a whole bunch of capitalized
   versions of system calls (Fork(), Socket(), Sscanf(), etc.) which
@@ -110,9 +95,6 @@ o Prepare for Summer of Code
   o Decide which applicants we want, and who would be best for
     mentoring them.
 
-o [Ncat] Decide if we let people set up authenticated proxies using
-  --listen and --proxy-auth together (right now we don't support that).
-
 o Make Zenmap settings get upgraded when the Zenmap executable is
   upgraded. The per-user configuration files such as scan_profile.usp
   and zenmap.conf are never overwritten once installed by Zenmap, so
@@ -155,7 +137,6 @@ o [Ncat] Consider supporting server certificate verification when used
     all.
   o We can probably get away with not doing revocation checking, as
     long as we document that we don't.
-
 
 o Look into memory consumption of UDP scans with -p- and large
   hostgroups.  See if there is a way to prevent them from eating up gigs
@@ -492,6 +473,39 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o NSE should offer some way to sleep/yield for a given amount of
+  time.  This would allow other scripts to run while a script has
+  nothing to do.  Possible uses:
+  o Many services have rate limits (or you might just want to use them
+    for politeness).  For example, a web site spidering application
+    might want to limit HTTP requests to some number per second to avoid
+    pissing off the target webmaster more than is necessary (or prevent
+    getting auto-blocked).  Similarly, whois servers often will block
+    IPs which query them too often in a short period.  Or maybe you
+    don't want to exceed the threshold limits of an IDS.
+  o Example current scripts which might benefit: sql-injection, whois
+    (possibly), pop3-brute, etc.
+  o If we don't currently have a way for a cpu-bound NSE script to
+    yield, then perhaps this could help us implement such a mechanism.
+    But maybe coroutine.yield already does the trick.
+  o The mechanism needs to be documented, and ideally should be
+    implemented in at least one of the scripts shipped with Nmap.
+
+o Consider adding a way for requesting timing status updates at a
+  given interval (such as every 5 seconds) to XML and/or normal
+  output.  This would be useful for people who run Nmap from scripts
+  or other higher level applications. [David]
+
+o Ncat --allow/--deny bug: "--allow and --deny only support host
+  specification by IP address, and give no warning when you use
+  another form such as a host name." Should probably use same syntax
+  as --exclude. We also want to at least do verification at the
+  beginning to make sure all the entries are legitimately formed.  We
+  probably want to do things like DNS resolution at the beginning
+  too. Otherwise we might have a DNS failure when we actually get a
+  connection and perhaps have to reject the connection wrongly, or
+  risk a false negative.  [David]
 
 o Fix this overflow:
   Stats: 93:57:40 elapsed; 254868 hosts completed (2048 up), 2048 undergoing UDP Scan
