@@ -1647,8 +1647,6 @@ void HostOsScan::makeFP(HostOsScanStats *hss) {
 }
 
 void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
-  if (!hss->si.responses) return;
-  
   int i,j;
   u32 seq_diffs[NUM_SEQ_SAMPLES];
   u32 ts_diffs[NUM_SEQ_SAMPLES];
@@ -1666,6 +1664,9 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   int tsnewval = 0;
 
   struct AVal *seq_AVs;
+
+  seq_AVs = (struct AVal *) safe_zalloc(sizeof(struct AVal) * 7);
+  avnum = 0;
 
   /* Now we make sure there are no gaps in our response array ... */
   for(i=0, j=0; i < NUM_SEQ_SAMPLES; i++) {
@@ -1691,57 +1692,12 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   }
   
   hss->si.responses = j; /* Just for assurance */
-  seq_avg_rate /= hss->si.responses - 1;
-  seq_rate = seq_avg_rate;
 
-  /* Now we look at TCP Timestamp sequence prediction */
-  /* Battle plan:
-     1) Compute average increments per second, and variance in incr. per second 
-     2) If any are 0, set to constant
-     3) If variance is high, set to random incr. [ skip for now ]
-     4) if ~10/second, set to appropriate thing
-     5) Same with ~100/sec
-  */
-  if (hss->si.ts_seqclass == TS_SEQ_UNKNOWN && hss->si.responses >= 2) {
-    avg_ts_hz = 0.0;
-    for(i=0; i < hss->si.responses - 1; i++) {
-      double dhz;
-
-      dhz = (double) ts_diffs[i] / (time_usec_diffs[i] / 1000000.0);
-      /*       printf("ts incremented by %d in %li usec -- %fHZ\n", ts_diffs[i], time_usec_diffs[i], dhz); */
-      avg_ts_hz += dhz / ( hss->si.responses - 1);
-    }
-
-    if (avg_ts_hz > 0 && avg_ts_hz < 5.66) { /* relatively wide range because sampling time so short and frequency so slow */
-      hss->si.ts_seqclass = TS_SEQ_2HZ;
-      hss->si.lastboot = hss->seq_send_times[0].tv_sec - (hss->si.timestamps[0] / 2); 
-    }
-    else if (avg_ts_hz > 70 && avg_ts_hz < 150) {
-      hss->si.ts_seqclass = TS_SEQ_100HZ;
-      hss->si.lastboot = hss->seq_send_times[0].tv_sec - (hss->si.timestamps[0] / 100);
-    }
-    else if (avg_ts_hz > 724 && avg_ts_hz < 1448) {
-      hss->si.ts_seqclass = TS_SEQ_1000HZ;
-      hss->si.lastboot = hss->seq_send_times[0].tv_sec - (hss->si.timestamps[0] / 1000); 
-    }
-    else if (avg_ts_hz > 0) {
-      hss->si.ts_seqclass = TS_SEQ_OTHER_NUM;
-      hss->si.lastboot = hss->seq_send_times[0].tv_sec - (hss->si.timestamps[0] / (unsigned int)(0.5 + avg_ts_hz));
-    }
-    
-    if (hss->si.lastboot && (hss->seq_send_times[0].tv_sec - hss->si.lastboot > 63072000)) {
-      /* Up 2 years?  Perhaps, but they're probably lying. */
-      if (o.debugging) {
-        error("Ignoring claimed %s uptime of %lu days", 
-	      hss->target->targetipstr(),
-              (hss->seq_send_times[0].tv_sec - hss->si.lastboot) / 86400);
-      }
-      hss->si.lastboot = 0;
-    }
-  }
-  
   /* Time to look at the TCP ISN predictability */
   if (hss->si.responses >= 4 && o.scan_delay <= 1000) {
+
+    seq_avg_rate /= hss->si.responses - 1;
+    seq_rate = seq_avg_rate;
 
     /* First calculate the GCD */
     seq_gcd = gcd_n_uint(hss->si.responses -1, seq_diffs);
@@ -1793,191 +1749,245 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
       }
     }
 
-    /* Time to generate the SEQ probe line of the fingerprint */
-    hss->FP_TSeq = (FingerPrint *) safe_zalloc(sizeof(FingerPrint));
-    hss->FP_TSeq->name = "SEQ";
-    seq_AVs = (struct AVal *) safe_zalloc(sizeof(struct AVal) * 7);
-    hss->FP_TSeq->results = seq_AVs;
-    avnum = 0;
-
     seq_AVs[avnum].attribute = (char*)"SP";
     sprintf(seq_AVs[avnum].value, "%X", hss->si.index);
-    seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+    avnum++;
     seq_AVs[avnum].attribute = (char*)"GCD";
     sprintf(seq_AVs[avnum].value, "%X", seq_gcd);
-    seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
+    avnum++;
     seq_AVs[avnum].attribute = (char*)"ISR";     
     sprintf(seq_AVs[avnum].value, "%X", (unsigned int) seq_rate);
-
-    /* Now it is time to deal with IPIDs */
-    good_tcp_ipid_num = 0;
-    good_icmp_ipid_num = 0;
-    
-    for(i=0; i < NUM_SEQ_SAMPLES; i++) {
-      if (hss->ipid.tcp_ipids[i] != -1) {
-	if (good_tcp_ipid_num < i) {
-	  hss->ipid.tcp_ipids[good_tcp_ipid_num] = hss->ipid.tcp_ipids[i];
-	}
-	good_tcp_ipid_num++;
-      }
-      
-      if (hss->ipid.icmp_ipids[i] != -1) {
-	if (good_icmp_ipid_num < i) {
-	  hss->ipid.icmp_ipids[good_icmp_ipid_num] = hss->ipid.icmp_ipids[i];
-	}
-	good_icmp_ipid_num++;
-      }
-    }
-    
-    if (good_tcp_ipid_num >= 3) {
-      tcp_ipid_seqclass = get_ipid_sequence(good_tcp_ipid_num, hss->ipid.tcp_ipids, islocalhost(hss->target->v4hostip()));
-    } else {
-      tcp_ipid_seqclass = IPID_SEQ_UNKNOWN;
-    }
-    /* Only print tcp ipid seqclass in the final report. */
-    hss->si.ipid_seqclass = tcp_ipid_seqclass;
-    
-    if (good_icmp_ipid_num >= 2) {
-      icmp_ipid_seqclass = get_ipid_sequence(good_icmp_ipid_num, hss->ipid.icmp_ipids, islocalhost(hss->target->v4hostip()));
-    } else {
-      icmp_ipid_seqclass = IPID_SEQ_UNKNOWN;
-    }
-    
-    /* TI: TCP IP ID sequence generation algorithm */
-    switch(tcp_ipid_seqclass) {
-    case IPID_SEQ_CONSTANT:
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = (char*)"TI";
-      sprintf(seq_AVs[avnum].value, "%X", hss->ipid.tcp_ipids[0]);
-      break;
-    case IPID_SEQ_INCR:
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = (char*)"TI";
-      strcpy(seq_AVs[avnum].value, "I");
-      break;
-    case IPID_SEQ_BROKEN_INCR:
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = (char*)"TI";
-      strcpy(seq_AVs[avnum].value, "BI");
-      break;
-    case IPID_SEQ_RPI:
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = (char*)"TI";
-      strcpy(seq_AVs[avnum].value, "RI");
-      break;
-    case IPID_SEQ_RD:
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = (char*)"TI";
-      strcpy(seq_AVs[avnum].value, "RD");
-      break;
-    case IPID_SEQ_ZERO:
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = (char*)"TI";
-      strcpy(seq_AVs[avnum].value, "Z");
-      break;
-    }
-
-    /* II: ICMP IP ID sequence generation algorithm */
-    switch(icmp_ipid_seqclass) {
-    case IPID_SEQ_CONSTANT:
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = (char*)"II";
-      sprintf(seq_AVs[avnum].value, "%X", hss->ipid.icmp_ipids[0]);
-      break;
-    case IPID_SEQ_INCR:
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = (char*)"II";
-      strcpy(seq_AVs[avnum].value, "I");
-      break;
-    case IPID_SEQ_BROKEN_INCR:
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = (char*)"II";
-      strcpy(seq_AVs[avnum].value, "BI");
-      break;
-    case IPID_SEQ_RPI:
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = (char*)"II";
-      strcpy(seq_AVs[avnum].value, "RI");
-      break;
-    case IPID_SEQ_RD:
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = (char*)"II";
-      strcpy(seq_AVs[avnum].value, "RD");
-      break;
-    case IPID_SEQ_ZERO:
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = (char*)"II";
-      strcpy(seq_AVs[avnum].value, "Z");
-      break;	  
-    }
-
-	/* SS: Shared IP ID sequence boolean */
-	if ( (tcp_ipid_seqclass == IPID_SEQ_INCR ||
-		  tcp_ipid_seqclass == IPID_SEQ_BROKEN_INCR ||
-		  tcp_ipid_seqclass == IPID_SEQ_RPI) &&
-		 (icmp_ipid_seqclass == IPID_SEQ_INCR ||
-		  icmp_ipid_seqclass == IPID_SEQ_BROKEN_INCR ||
-		  icmp_ipid_seqclass == IPID_SEQ_RPI)) {
-	  /* Both are incremental. Thus we have "SS" test. Check if they
-		 are in the same sequence. */
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = (char*)"SS";
-	  int avg = (hss->ipid.tcp_ipids[good_tcp_ipid_num-1] - hss->ipid.tcp_ipids[0]) / (good_tcp_ipid_num - 1);
-	  if ( hss->ipid.icmp_ipids[0] < hss->ipid.tcp_ipids[good_tcp_ipid_num-1] + 3 * avg) {
-		strcpy(seq_AVs[avnum].value, "S");
-	  } else {
-		strcpy(seq_AVs[avnum].value, "O");
-	  }
-	}
-
-    /* TCP Timestamp option sequencing */
-    switch(hss->si.ts_seqclass) {
-
-    case TS_SEQ_ZERO:
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = (char*)"TS";
-      strcpy(seq_AVs[avnum].value, "0");
-      break;
-    case TS_SEQ_2HZ:
-    case TS_SEQ_100HZ:
-    case TS_SEQ_1000HZ:
-    case TS_SEQ_OTHER_NUM:
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = (char*)"TS";
-
-      /* Here we "cheat" a little to make the classes correspond more
-	 closely to common real-life frequencies (particularly 100)
-	 which aren't powers of two. */
-      if (avg_ts_hz <= 5.66) {
-	/* 1 would normally range from 1.4 - 2.82, but we expand that
-	   to 0 - 5.66, so we won't ever even get a value of 2.  Needs
-	   to be wide because our test is so fast that it is hard to
-	   match slow frequencies exactly.  */
-	tsnewval = 1;
-      } else if (avg_ts_hz > 70 && avg_ts_hz <= 150) {
-	/* mathematically 7 would be 90.51 - 181, but we change to 70-150 to 
-	   better align with common freq 100 */
-	tsnewval = 7;
-      } else if (avg_ts_hz > 150 && avg_ts_hz <= 350) {
-	/* would normally be 181 - 362.  Now aligns better with 200 */
-	tsnewval = 8;
-      } else {
-	/* Do a log base2 rounded to nearest int */
-	tsnewval = (unsigned int)(0.5 + log(avg_ts_hz)/log(2.0));
-      }
-
-      sprintf(seq_AVs[avnum].value, "%X", tsnewval);
-      break;
-    case TS_SEQ_UNSUPPORTED:
-      seq_AVs[avnum].next = &seq_AVs[avnum+1]; avnum++;
-      seq_AVs[avnum].attribute = (char*)"TS";
-      strcpy(seq_AVs[avnum].value, "U");
-      break;
-    }
+    avnum++;
   }
   else {
     log_write(LOG_PLAIN,
 			  "Insufficient responses for TCP sequencing (%d), OS detection may be less accurate\n", hss->si.responses);
+  }
+
+  /* Now it is time to deal with IPIDs */
+  good_tcp_ipid_num = 0;
+  good_icmp_ipid_num = 0;
+  
+  for(i=0; i < NUM_SEQ_SAMPLES; i++) {
+    if (hss->ipid.tcp_ipids[i] != -1) {
+      if (good_tcp_ipid_num < i) {
+        hss->ipid.tcp_ipids[good_tcp_ipid_num] = hss->ipid.tcp_ipids[i];
+      }
+      good_tcp_ipid_num++;
+    }
+    
+    if (hss->ipid.icmp_ipids[i] != -1) {
+      if (good_icmp_ipid_num < i) {
+        hss->ipid.icmp_ipids[good_icmp_ipid_num] = hss->ipid.icmp_ipids[i];
+      }
+      good_icmp_ipid_num++;
+    }
+  }
+  
+  if (good_tcp_ipid_num >= 3) {
+    tcp_ipid_seqclass = get_ipid_sequence(good_tcp_ipid_num, hss->ipid.tcp_ipids, islocalhost(hss->target->v4hostip()));
+  } else {
+    tcp_ipid_seqclass = IPID_SEQ_UNKNOWN;
+  }
+  /* Only print tcp ipid seqclass in the final report. */
+  hss->si.ipid_seqclass = tcp_ipid_seqclass;
+  
+  if (good_icmp_ipid_num >= 2) {
+    icmp_ipid_seqclass = get_ipid_sequence(good_icmp_ipid_num, hss->ipid.icmp_ipids, islocalhost(hss->target->v4hostip()));
+  } else {
+    icmp_ipid_seqclass = IPID_SEQ_UNKNOWN;
+  }
+    
+  /* TI: TCP IP ID sequence generation algorithm */
+  switch(tcp_ipid_seqclass) {
+  case IPID_SEQ_CONSTANT:
+    seq_AVs[avnum].attribute = (char*)"TI";
+    sprintf(seq_AVs[avnum].value, "%X", hss->ipid.tcp_ipids[0]);
+    avnum++;
+    break;
+  case IPID_SEQ_INCR:
+    seq_AVs[avnum].attribute = (char*)"TI";
+    strcpy(seq_AVs[avnum].value, "I");
+    avnum++;
+    break;
+  case IPID_SEQ_BROKEN_INCR:
+    seq_AVs[avnum].attribute = (char*)"TI";
+    strcpy(seq_AVs[avnum].value, "BI");
+    avnum++;
+    break;
+  case IPID_SEQ_RPI:
+    seq_AVs[avnum].attribute = (char*)"TI";
+    strcpy(seq_AVs[avnum].value, "RI");
+    avnum++;
+    break;
+  case IPID_SEQ_RD:
+    seq_AVs[avnum].attribute = (char*)"TI";
+    strcpy(seq_AVs[avnum].value, "RD");
+    avnum++;
+    break;
+  case IPID_SEQ_ZERO:
+    seq_AVs[avnum].attribute = (char*)"TI";
+    strcpy(seq_AVs[avnum].value, "Z");
+    avnum++;
+    break;
+  }
+
+  /* II: ICMP IP ID sequence generation algorithm */
+  switch(icmp_ipid_seqclass) {
+  case IPID_SEQ_CONSTANT:
+    seq_AVs[avnum].attribute = (char*)"II";
+    sprintf(seq_AVs[avnum].value, "%X", hss->ipid.icmp_ipids[0]);
+    avnum++;
+    break;
+  case IPID_SEQ_INCR:
+    seq_AVs[avnum].attribute = (char*)"II";
+    strcpy(seq_AVs[avnum].value, "I");
+    avnum++;
+    break;
+  case IPID_SEQ_BROKEN_INCR:
+    seq_AVs[avnum].attribute = (char*)"II";
+    strcpy(seq_AVs[avnum].value, "BI");
+    avnum++;
+    break;
+  case IPID_SEQ_RPI:
+    seq_AVs[avnum].attribute = (char*)"II";
+    strcpy(seq_AVs[avnum].value, "RI");
+    avnum++;
+    break;
+  case IPID_SEQ_RD:
+    seq_AVs[avnum].attribute = (char*)"II";
+    strcpy(seq_AVs[avnum].value, "RD");
+    avnum++;
+    break;
+  case IPID_SEQ_ZERO:
+    seq_AVs[avnum].attribute = (char*)"II";
+    strcpy(seq_AVs[avnum].value, "Z");
+    avnum++;
+    break;	  
+  }
+
+  /* SS: Shared IP ID sequence boolean */
+  if ( (tcp_ipid_seqclass == IPID_SEQ_INCR ||
+        tcp_ipid_seqclass == IPID_SEQ_BROKEN_INCR ||
+        tcp_ipid_seqclass == IPID_SEQ_RPI) &&
+       (icmp_ipid_seqclass == IPID_SEQ_INCR ||
+        icmp_ipid_seqclass == IPID_SEQ_BROKEN_INCR ||
+        icmp_ipid_seqclass == IPID_SEQ_RPI)) {
+    /* Both are incremental. Thus we have "SS" test. Check if they
+       are in the same sequence. */
+    seq_AVs[avnum].attribute = (char*)"SS";
+    int avg = (hss->ipid.tcp_ipids[good_tcp_ipid_num-1] - hss->ipid.tcp_ipids[0]) / (good_tcp_ipid_num - 1);
+    if ( hss->ipid.icmp_ipids[0] < hss->ipid.tcp_ipids[good_tcp_ipid_num-1] + 3 * avg) {
+      strcpy(seq_AVs[avnum].value, "S");
+    } else {
+      strcpy(seq_AVs[avnum].value, "O");
+    }
+    avnum++;
+  }
+
+  /* Now we look at TCP Timestamp sequence prediction */
+  /* Battle plan:
+     1) Compute average increments per second, and variance in incr. per second 
+     2) If any are 0, set to constant
+     3) If variance is high, set to random incr. [ skip for now ]
+     4) if ~10/second, set to appropriate thing
+     5) Same with ~100/sec
+  */
+  if (hss->si.ts_seqclass == TS_SEQ_UNKNOWN && hss->si.responses >= 2) {
+    avg_ts_hz = 0.0;
+    for(i=0; i < hss->si.responses - 1; i++) {
+      double dhz;
+
+      dhz = (double) ts_diffs[i] / (time_usec_diffs[i] / 1000000.0);
+      /*       printf("ts incremented by %d in %li usec -- %fHZ\n", ts_diffs[i], time_usec_diffs[i], dhz); */
+      avg_ts_hz += dhz / ( hss->si.responses - 1);
+    }
+
+    if (avg_ts_hz > 0 && avg_ts_hz < 5.66) { /* relatively wide range because sampling time so short and frequency so slow */
+      hss->si.ts_seqclass = TS_SEQ_2HZ;
+      hss->si.lastboot = hss->seq_send_times[0].tv_sec - (hss->si.timestamps[0] / 2); 
+    }
+    else if (avg_ts_hz > 70 && avg_ts_hz < 150) {
+      hss->si.ts_seqclass = TS_SEQ_100HZ;
+      hss->si.lastboot = hss->seq_send_times[0].tv_sec - (hss->si.timestamps[0] / 100);
+    }
+    else if (avg_ts_hz > 724 && avg_ts_hz < 1448) {
+      hss->si.ts_seqclass = TS_SEQ_1000HZ;
+      hss->si.lastboot = hss->seq_send_times[0].tv_sec - (hss->si.timestamps[0] / 1000); 
+    }
+    else if (avg_ts_hz > 0) {
+      hss->si.ts_seqclass = TS_SEQ_OTHER_NUM;
+      hss->si.lastboot = hss->seq_send_times[0].tv_sec - (hss->si.timestamps[0] / (unsigned int)(0.5 + avg_ts_hz));
+    }
+    
+    if (hss->si.lastboot && (hss->seq_send_times[0].tv_sec - hss->si.lastboot > 63072000)) {
+      /* Up 2 years?  Perhaps, but they're probably lying. */
+      if (o.debugging) {
+        error("Ignoring claimed %s uptime of %lu days", 
+	      hss->target->targetipstr(),
+              (hss->seq_send_times[0].tv_sec - hss->si.lastboot) / 86400);
+      }
+      hss->si.lastboot = 0;
+    }
+  }
+
+  switch(hss->si.ts_seqclass) {
+
+  case TS_SEQ_ZERO:
+    seq_AVs[avnum].attribute = (char*)"TS";
+    strcpy(seq_AVs[avnum].value, "0");
+    avnum++;
+    break;
+  case TS_SEQ_2HZ:
+  case TS_SEQ_100HZ:
+  case TS_SEQ_1000HZ:
+  case TS_SEQ_OTHER_NUM:
+    seq_AVs[avnum].attribute = (char*)"TS";
+
+    /* Here we "cheat" a little to make the classes correspond more
+       closely to common real-life frequencies (particularly 100)
+       which aren't powers of two. */
+    if (avg_ts_hz <= 5.66) {
+      /* 1 would normally range from 1.4 - 2.82, but we expand that
+         to 0 - 5.66, so we won't ever even get a value of 2.  Needs
+         to be wide because our test is so fast that it is hard to
+         match slow frequencies exactly.  */
+      tsnewval = 1;
+    } else if (avg_ts_hz > 70 && avg_ts_hz <= 150) {
+      /* mathematically 7 would be 90.51 - 181, but we change to 70-150 to 
+         better align with common freq 100 */
+      tsnewval = 7;
+    } else if (avg_ts_hz > 150 && avg_ts_hz <= 350) {
+      /* would normally be 181 - 362.  Now aligns better with 200 */
+      tsnewval = 8;
+    } else {
+      /* Do a log base2 rounded to nearest int */
+      tsnewval = (unsigned int)(0.5 + log(avg_ts_hz)/log(2.0));
+    }
+
+    sprintf(seq_AVs[avnum].value, "%X", tsnewval);
+    avnum++;
+    break;
+  case TS_SEQ_UNSUPPORTED:
+    seq_AVs[avnum].attribute = (char*)"TS";
+    strcpy(seq_AVs[avnum].value, "U");
+    avnum++;
+    break;
+  }
+
+  /* Link up the AVals. */
+  for (i = 0; i < avnum - 1; i++)
+    seq_AVs[i].next = &seq_AVs[i + 1];
+  seq_AVs[i].next = NULL;
+
+  /* Now generate the SEQ line of the fingerprint if there are any test results
+     in seq_AVs. */
+  if (avnum == 0) {
+    free(seq_AVs);
+  } else {
+    hss->FP_TSeq = (FingerPrint *) safe_zalloc(sizeof(FingerPrint));
+    hss->FP_TSeq->name = "SEQ";
+    hss->FP_TSeq->results = seq_AVs;
   }
 }
 

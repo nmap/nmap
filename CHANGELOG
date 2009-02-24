@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o OS fingerprints now include the SEQ.II test (ICMP IP ID sequence
+  generation) even if there are no other SEQ test results. [David]
+
 o The new --stats-every option takes a time interval that controls how
   often timing status updates are printed. It's intended to be used
   when Nmap is run by another program as a subprocess. Thanks to
