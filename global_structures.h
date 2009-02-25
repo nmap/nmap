@@ -215,6 +215,7 @@ struct seq_info {
 /* Different kinds of Ipids. */
 struct ipid_info {
   int tcp_ipids[NUM_SEQ_SAMPLES];
+  int tcp_closed_ipids[NUM_SEQ_SAMPLES];
   int icmp_ipids[NUM_SEQ_SAMPLES];
 };
 

@@ -743,6 +743,7 @@ void HostOsScanStats::initScanStats() {
 
   for (i=0; i<NUM_SEQ_SAMPLES; i++) {
     ipid.tcp_ipids[i] = -1;
+    ipid.tcp_closed_ipids[i] = -1;
     ipid.icmp_ipids[i] = -1;
   }
   
@@ -1505,6 +1506,11 @@ bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int l
 	  
       if(isPktUseful) {
         probeI = hss->getActiveProbe(OFP_T1_7, testno-NUM_SEQ_SAMPLES-7);
+
+        /* Closed-port TCP IP ID sequence numbers (SEQ.CI). Uses T5, T6, and T7.
+           T5 starts at NUM_SEQ_SAMPLES + 11. */
+        if (testno >= NUM_SEQ_SAMPLES+11 && testno < NUM_SEQ_SAMPLES+14)
+          hss->ipid.tcp_closed_ipids[testno-(NUM_SEQ_SAMPLES+11)] = ntohs(ip->ip_id);
       }
     }
   }
@@ -1699,13 +1705,15 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   double avg_ts_hz = 0.0; /* Avg. amount that timestamps incr. each second */
   u32 seq_gcd = 1;
   int tcp_ipid_seqclass; /* TCP IPID SEQ TYPE defines in nmap.h */
+  int tcp_closed_ipid_seqclass; /* TCP IPID SEQ TYPE defines in nmap.h */
   int icmp_ipid_seqclass; /* ICMP IPID SEQ TYPE defines in nmap.h */
-  int good_tcp_ipid_num, good_icmp_ipid_num;
+  int good_tcp_ipid_num, good_tcp_closed_ipid_num, good_icmp_ipid_num;
   int tsnewval = 0;
 
   struct AVal *seq_AVs;
 
-  seq_AVs = (struct AVal *) safe_zalloc(sizeof(struct AVal) * 7);
+  /* Need 8 AVals for SP, GCD, ISR, TI, CTI, II, SS, TS. */
+  seq_AVs = (struct AVal *) safe_zalloc(sizeof(struct AVal) * 8);
   avnum = 0;
 
   /* Now we make sure there are no gaps in our response array ... */
@@ -1806,6 +1814,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
 
   /* Now it is time to deal with IPIDs */
   good_tcp_ipid_num = 0;
+  good_tcp_closed_ipid_num = 0;
   good_icmp_ipid_num = 0;
   
   for(i=0; i < NUM_SEQ_SAMPLES; i++) {
@@ -1814,6 +1823,13 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
         hss->ipid.tcp_ipids[good_tcp_ipid_num] = hss->ipid.tcp_ipids[i];
       }
       good_tcp_ipid_num++;
+    }
+    
+    if (hss->ipid.tcp_closed_ipids[i] != -1) {
+      if (good_tcp_closed_ipid_num < i) {
+        hss->ipid.tcp_ipids[good_tcp_closed_ipid_num] = hss->ipid.tcp_closed_ipids[i];
+      }
+      good_tcp_closed_ipid_num++;
     }
     
     if (hss->ipid.icmp_ipids[i] != -1) {
@@ -1829,8 +1845,14 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   } else {
     tcp_ipid_seqclass = IPID_SEQ_UNKNOWN;
   }
-  /* Only print tcp ipid seqclass in the final report. */
+  /* Only print open tcp ipid seqclass in the final report. */
   hss->si.ipid_seqclass = tcp_ipid_seqclass;
+  
+  if (good_tcp_closed_ipid_num >= 2) {
+    tcp_closed_ipid_seqclass = get_ipid_sequence(good_tcp_closed_ipid_num, hss->ipid.tcp_closed_ipids, islocalhost(hss->target->v4hostip()));
+  } else {
+    tcp_closed_ipid_seqclass = IPID_SEQ_UNKNOWN;
+  }
   
   if (good_icmp_ipid_num >= 2) {
     icmp_ipid_seqclass = get_ipid_sequence(good_icmp_ipid_num, hss->ipid.icmp_ipids, islocalhost(hss->target->v4hostip()));
@@ -1840,6 +1862,8 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
 
   /* This fills in TI=Z or something like that. */
   if (make_aval_ipid_seq(&seq_AVs[avnum], (char *) "TI", tcp_ipid_seqclass, hss->ipid.tcp_ipids) != NULL)
+    avnum++;
+  if (make_aval_ipid_seq(&seq_AVs[avnum], (char *) "CI", tcp_closed_ipid_seqclass, hss->ipid.tcp_closed_ipids) != NULL)
     avnum++;
   if (make_aval_ipid_seq(&seq_AVs[avnum], (char *) "II", icmp_ipid_seqclass, hss->ipid.icmp_ipids) != NULL)
     avnum++;
