@@ -19480,7 +19480,7 @@ IE(R=N)
 
 # 2.6.18-6-686 #1 SMP i686 GNU\Linux (VMware, Debian 4, network supervising)
 Fingerprint Linux 2.6.18 (Debian 4, VMware)
-Class Linux | Linux | 2.6.X | specialized
+Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=C4-CE%GCD=1-5%ISR=C6-D0%TI=Z%II=I%TS=4|5)
 OPS(O1=M5B4ST11NW3%O2=M5B4ST11NW3%O3=M5B4NNT11NW3%O4=M5B4ST11NW3%O5=M5B4ST11NW3%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -19497,7 +19497,7 @@ IE(DFI=N%T=3B-45%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Linux 2.6.18-4-686 Debian 4.0
 Fingerprint Linux 2.6.18 (Debian 4.0, x86)
-Class Linux | Linux | 2.6.X | specialized
+Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=BE-C8%GCD=1-5%ISR=C0-CA%TI=Z%II=I%TS=8)
 OPS(O1=M5ACST11NW2%O2=M5ACST11NW2%O3=M5ACNNT11NW2%O4=M5ACST11NW2%O5=M5ACST11NW2%O6=M5ACST11)
 WIN(W1=1680%W2=1680%W3=1680%W4=1680%W5=1680%W6=1680)
@@ -19514,7 +19514,7 @@ IE(DFI=N%T=3B-45%TG=40%TOSI=S%CD=S%SI=S%DLI=S)
 
 # Linux 2.6.9-42.ELsmp #1 SMP Wed Jul 12 23:32:02 EDT 2006 x86_64 x86_64 x86_64 GNU/Linux Redhat Enterprise Linux AS release 4 AMD64
 Fingerprint Linux 2.6.9-42.ELsmp (Red Hat Enterprise Linux AS release 4, x86_64)
-Class Linux | Linux | 2.6.X | specialized
+Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=BE-C8%GCD=1-5%ISR=C3-CD%TI=Z%II=I%TS=A)
 OPS(O1=M400CST11NW4%O2=M400CST11NW4%O3=M400CNNT11NW4%O4=M400CST11NW4%O5=M400CST11NW4%O6=M400CST11)
 WIN(W1=7FFF%W2=7FFF%W3=7FFF%W4=7FFF%W5=7FFF%W6=7FFF)
