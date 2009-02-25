@@ -7,38 +7,53 @@ field.
 
 bridge (15)
 A bridge combines two or more subnetworks into one. With a bridge this
-happens at a lower level than with a router.
+happens at a lower level than with a router. This category also includes
+things like Ethernet-to-serial bridges.
 
 broadband router (241)
-A consumer device for connecting a network to the internet via cable, ADSL, fiber optics, etc. May provide services like Network Address Translation (NAT), a firewall, port forwarding, etc. 
-*** Possibly split into "broadband router" and "broadband modem" where modem counts only devices that actually plug into a cable or DSL connection
+Devices in this category connect a network to the Internet via cable,
+ADSL, fiber optics, etc. Some of these devices provide network address
+translation, a firewall, port forwarding, or other services.
 
 firewall (128)
-A device dedicated to protecting other devices or networks. Usually these devices use inbound packet filtering but also may use outbound filtering or application level filtering.
+A firewall controls what traffic is allowed into or out of a network.
+Some also have additional capabilities. This category doesn't include
+general-purpose operating systems that happen to come with a firewall,
+but it does include OS distributions purpose-built to work only as a
+firewall.
 
 game console (16)
-A consumer entertainment device intended primarily for playing video games. Examples are Nintendo, Xbox, PlayStation, etc.
+A video game console like the Xbox or PlayStation.
 
 hub (1)
-A device that joins 2 or more network segments by re-broadcasting all traffic. These devices are distinct from switches which selectively transmit packets only to relevant destinations.
+A hub joins network segments by re-broadcasting all traffic. Hubs are
+distinct from switches, which selectively transmit packets only to
+relevant destinations.
 
 load balancer (17)
-A device that distributes inbound traffic to multiple devices to ease the load on those devices.
+A device that distributes inbound traffic to multiple devices to ease
+the load on those devices.
 
 media device (150)
-A consumer device for watching media such as movies, television, pictures, etc. Examples: satellite TV systems, Video Disk Recorders (VDRs), music streaming devices.
+This category includes all kinds of audiovisual equipment, including
+portable music players, home audio systems, TVs, and projectors.
 
 PBX (21)
-Private Branch eXchanges are devices used for routing telephone calls to multiple phones in an organization. The telephones may be connected via Plain Old Telephone Service (POTS) or Voice Over IP (VoIP).
+A private branch exchange, or PBX, routes telephone calls within a
+private organization and connects them to the public telephone network
+or VoIP.
 
 PDA (12)
-Portable Digital Assistants are handheld consumer devices used for organization, browsing the mobile web, playing games, etc.
+A handheld computer. Devices that are also telephones go in the "phone"
+category.
 
 phone (22)
-Network-capable telephones that are not VoIP phones. Devices in this category are typically mobile phones.
+A network-capable telephone that is not a VoIP phone. Devices in this
+category are typically mobile phones.
 
-power device (45)
-These are devices such as Uninterruptable Power Supplies (UPSs) or high-end surge protectors usually intended for data-centres.
+power-device (45)
+Miscellaneous power devices like uninterruptable power supplies and
+surge protectors.
 
 printer (371)
 Network-enabled printers, including printers with an embedded print
@@ -49,51 +64,64 @@ A print server connects a printer to a network. Printers that contain
 their own print server go in the "printer" category instead.
 
 proxy server (13)
-Any kind of proxy server, including web proxies and other devices that, for example, cache data or understand other high-level protocols.
+Any kind of proxy, including web proxies and other servers that cache
+data or understand high-level protocols.
 
 remote managment (51)
-Devices usually installed in data-centres so that equipment can be managed or monitored remotely.
+Devices that allow servers or other equipment to be monitored or managed
+remotely.
 
 router (310)
-A device that connects multiple networks. They are distinct from hubs and switches because they route packets between 2 different networks as opposed to extending one network.
+Routers connect multiple networks. They are distinct from hubs and
+switches because they route packets between different networks as
+opposed to extending one network.
 
 security-misc (43)
-Any device intended to protect other devices or networks that doesn't fall into the category of firewall. Examples include email filtering devices, Intrusion Detection Systems (IDSs), Intrusion Prevention Systems (IPSs) etc.
+Any security device that doesn't fall into the "firewall" category
+belongs in this category. This includes intrusion detection and
+prevention systems.
 
 specialized (108)
-The catch-all category. If a device doesn't fall into one of the other categories, it is specialized. Examples are very diverse and include everything from ethernet to serial bridges, oscilloscopes and other lab equipment, weather and climate monitors, and more.
-*** Should ethernet->serial bridges be bridge category?
+The catch-all category. If a device doesn't fall into one of the other
+categories, it is specialized. Examples in this category are diverse and
+include such things as clocks, oscilloscopes, climate sensors, and more.
 
 storage-misc (101)
-Devices for storing data and making it accessible to clients over the network. Sometimes these are known as Network Attached Storage (NAS) devices.
+Data storage devices like tape decks and network-attached storage
+applicances.
 
 switch (274)
-A device that extends a network by selectively re-broadcasting packets. Switches are distinct from hubs which re-broadcast all packets.
+A device that extends a network by selectively re-broadcasting packets.
+Switches are distinct from hubs, which broadcast all packets.
 
 telecom-misc (24)
-Device used by telephone systems that aren't PBXs. Examples include Digital Subscriber Line Access Multiplexer (DSLAM), Time Sharing User (TSU), and Integrated Services Digital Network (ISDN) systems.
+Devices used by telephone systems that aren't PBXs, like voicemail and
+ISDN systems.
 
 terminal (9)
-A device with a keyboard and monitor with the primary purpose of communicating directly with a terminal server or mainframe which is generally more powerful than a "dumb terminal".
+A device with a keyboard and monitor with the primary purpose of
+communicating directly with a terminal server or mainframe.
 
 terminal server (24)
-A device that provides terminal facilities to clients over a network.
+A device providing terminal facilities to clients over a network.
 
 VoIP adapter (52)
-A device for providing Voice Over IP (VoIP) service that doesn't itself include phone facilities. A phone must be plugged into these adapters to place or receive calls.
-
-VoIP gateway (18)
-A device that converts between VoIP protocols and normal telephone traffic. Also may convert different VoIP protocols.
-Example: Avaya Office IP403 VoIP gateway
+A device that converts between voice over IP (VoIP) protocols and normal
+telephone traffic. Also may convert different VoIP protocols.
 
 VoIP phone (81)
-A device for providing Voice Over IP (VoIP) service that includes phone hardware.
+A phone capable of a VoIP protocol.
 
 WAP (298)
-Wireless Access Points are devices that clients can use to connect to a network without using physical wires. Usually these devices use radio technology like 802.11b but sometimes they may use infra-red or other technology.
+Wireless access points offer a wireless connection to a network. Most
+work with radio technology like 802.11b but some use infra-red or
+something else. Devices that could also be put in another category, like
+wireless broadband routers, are put in the WAP category because WAPs
+require special network considerations.
 
 webcam (100)
-A device that takes pictures with a camera, digitizes them, and makes them available over a network. This includes everything from consumer webcams used for internet chatting to Digital Video Recorders (DVRs) and professional security systems.
+Any kind of camera that stores or transmits pictures or video. This
+includes everything from consumer webcams to security system cameras.
 
 ----
 
@@ -109,3 +137,11 @@ as "specialized" -David.
 Move encryption accelerator (6) to proxy server.
 
 Move web server (2) to general purpose or specialized.
+
+Put Ethernet-serial bridges in the "bridge" category.
+
+Put the http-proxy matches in nmap-service-probes into the "proxy
+server" category if they are from a dedicated proxy device. Some of them
+are "security-misc" currently.
+
+Merge VoIP gateway into VoIP adapter.
