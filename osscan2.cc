@@ -1712,7 +1712,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
 
   struct AVal *seq_AVs;
 
-  /* Need 8 AVals for SP, GCD, ISR, TI, CTI, II, SS, TS. */
+  /* Need 8 AVals for SP, GCD, ISR, TI, CI, II, SS, TS. */
   seq_AVs = (struct AVal *) safe_zalloc(sizeof(struct AVal) * 8);
   avnum = 0;
 
