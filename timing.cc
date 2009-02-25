@@ -587,7 +587,7 @@ bool ScanProgressMeter::printStats(double perc_done,
   time_left_s = estimate_time_left(perc_done, &begin, now) + 0.5;
 
   last_est = *now;
-  last_est.tv_sec += time_left_s;
+  last_est.tv_sec += (time_t)time_left_s;
 
   /* Get the estimated time of day at completion */
   timet = last_est.tv_sec;
