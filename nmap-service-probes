@@ -646,7 +646,7 @@ match ftp m|^220 Dell MFP Laser (\w+)\r\n| p/Dell MFP Laser $1 printer ftpd/ d/p
 match ftp m|^220 CompuMaster SRL, WT-6500 Ftp Server \(Version ([\d.]+)\)\.\r\n| p/CompuMaster WT-6500 ThinClient ftpd/ v/$1/ o/Windows/
 match ftp m|^211 Hello \[[-\w_.]+\], Secure/IP Authentication Server ([-\w_.]+) at your service\.\r\n| p|OpenVMS Secure/IP ftpd| v/$1/ o/OpenVMS/
 match ftp m|^220  HP166XC V([-\w_.]+) FUSION FTP server \(Version ([-\w_.]+)\) ready\.\r\n| p/HP166XC $1 Logic Analyzer ftpd/ i/FUSION ftpd $2/ d/specialized/
-match ftp m|^220 FTP Server, type 'quote help' for help\r\n$| p/Polycom VSX 8000 ftpd/ d/telecom-misc/
+match ftp m|^220 FTP Server, type 'quote help' for help\r\n$| p/Polycom VSX 8000 ftpd/ d/webcam/
 match ftp m|^550 no more people, max connections is reached\r\n| p/Avalaunch XBOX ftpd/ d/game console/ i/Max connections reached/
 match ftp m|^220 Fastream IQ FTP Server\r\n| p/Fastream IQ ftpd/ o/Windows/
 match ftp m|^220 RICOH Aficio SP C811DN FTP server \(([-\w_.]+)\) ready\.\r\n| p/Ricoh Aficio SP C811DN printer ftpd/ v/$1/ d/printer/
@@ -1254,7 +1254,7 @@ match pharos m/^PSCOM(\xb6|\$)\0\0.*AUTHENTICATE/s p/Pharos Notify/ i/printing c
 match poweroff m|^201 Welcome to Poweroff ([\d.]+) created by Jorgen Bosman\r\n| p/Poweroffd/ v/$1/ o/Windows/
 
 match prelude-manager m|^\x01\x04\0\0\0\0\0\rD| p/Prelude IDS manager/
-match polycom-mgc m|^NotAuthorized\0\0\0\0\0\0\0\0\0\0\0\0| p/Polycom VSX 8000 MGC Manager/ d/telecom-misc/
+match polycom-mgc m|^NotAuthorized\0\0\0\0\0\0\0\0\0\0\0\0| p/Polycom VSX 8000 MGC Manager/ d/webcam/
 
 # This one is probably too specific... need more submissions
 match pyro m|^PYRO\0\x04\0\x12\0\0\0\x10\0\0\0\0\0\0| p/Python Remote Object Nameserver/
@@ -2639,7 +2639,7 @@ match telnet m|^\xff\xfb\x01\r\nVoIP Phone V([-\w_.]+) settings\r\nPassword:| p/
 match telnet m|^\xff\xfb\x01\r\nAIRAYA login: $| p/Airaya WAP config telnetd/ d/WAP/
 match telnet m|^\xff\xfb\x03\xff\xfd\x03\xff\xfb\x01Welcome to VCSCDCS2\r\r\nTANDBERG Codec Release L([\d.]+)\r\r\n| p/Tandberg T150 Personal VoIP phone telnetd/ d/VoIP phone/ i/Tandberg codec $1/
 match telnet m=^\d+\|Connected to foobar2000 Control Server v([\d.]+)= p/Foobar2000 remote control telnetd/ v/$1/ o/Windows/
-match telnet m|^\xff.\x01\0?\xff\xfd.*Welcome to ViewStation.*Password:|s p/Polycom ViewStation Video Conferencing telnetd/ d/telecom-misc/
+match telnet m|^\xff.\x01\0?\xff\xfd.*Welcome to ViewStation.*Password:|s p/Polycom ViewStation Video Conferencing telnetd/ d/webcam/
 match telnet m|^AD6680 Gateway Software\r\n[-\w_]+  \(MAC  ([\w:]+)\)\r\n| p/Netcomm V300 VoIP adapter telnetd/ d/VoIP adapter/ i/MAC $1/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\r\n\r([\d.]+)\r\n\rLinux ([-\w_.]+) on a armv4tl \([\d:]+\)\r\n\r([-\w_.]+) login:| p/AXIS webcam telnetd/ v/$1/ i/Linux $2/ o/Linux/ d/webcam/ h/$3/
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\r\nHP ProLiant BL p-Class C-GbE2 Interconnect Switch A\.\r\n| p/HP ProLiant switch telnetd/ d/switch/
@@ -3890,7 +3890,7 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Apache  -OOPS Development Organi
 match http m|^HTTP/1\.0 200 OK\nDATE: .*\nPragma: no-cache\nServer: Delta UPSentry\n| p/Sentry Bulldog UPS httpd/
 match http m|^HTTP/1\.[01] \d\d\d .*Server: Gatling/([\d.]+)\r\n|s p/Gatling httpd/ v/$1/
 # PolyCom ViewStation 128
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Viavideo-Web\r\n|s p/PolyCom ViewStation/ d/webcam/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Viavideo-Web\r\n|s p/Polycom ViewStation/ d/webcam/
 match http m|^HTTP/1\.0 \d\d\d .*\nDate: .*\nMIME-version: [\d.]+\nServer: Micro-HTTP/([\d.]+)\nContent-type: text/html\n.*Copyright Tektronix, Inc\.|s p/Tektronix printer httpd/ d/printer/ i|Micro-HTTP/$1|
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: IBM HTTP Server/([\w]+)\r\n| p/IBM httpd/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: SAlive/ ([\d.]+)\r\n|s p/Servers Alive network monitor/ v/$1/ o/Windows/
@@ -4496,7 +4496,7 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Agranat-EmWeb/R([-\w_.]+)\r\nWWW
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Niagara Web Server/([\d.]+)\r\nNiagara-Release: ([-\w_.]+)\r\n|s p/Sun Niagara httpd/ v/$1/ i/Niagara release $2/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: HTTP\r\n.*<title>Inventel</title>|s p/Inventel router http config/ d/router/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: Nanox WebServer\r\n| p/Nanox Web Digital Video Recorder http config/ d/media device/
-match http m|^HTTP/1\.0 200 OK\r\nServer: NetPort Software ([\d.]+)\r\nDate:.* - VSX 7000</title>|s p/Polycom VSX 7000 video conferencer http config/ i/NetPort httpd $1/ d/telecom-misc/
+match http m|^HTTP/1\.0 200 OK\r\nServer: NetPort Software ([\d.]+)\r\nDate:.* - VSX 7000</title>|s p/Polycom VSX 7000 video conferencer http config/ i/NetPort httpd $1/ d/webcam/
 match http m|^HTTP/1\.0 200 OK\r\nServer: Firewall\r\n.*<TITLE>WatchGuard Configuration Settings</TITLE>|s p/Watchguard Firebox Soho Firewall http config/ d/firewall/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nWWW-Authenticate: Digest  realm=\"spa user\", domain=\"/\".*<title>Sipura SPA Configuration</title>|s p/Sipura SPA VoIP http config/ d/VoIP adapter/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: ipMonitor ([\d.]+)\r\n| p/MediaHouse ipMonitor httpd/ v/$1/ o/Windows/
@@ -4519,8 +4519,8 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Oracle_Web_Listener/([\d.]+)Ente
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: VOMwebserver v([\d.]+)\r\n|s p/VOMwebserver/ v/$1/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: RapidLogic/([\d.]+)\r\n.*<TITLE>Net2Phone Init Page</TITLE>|s p/Net2Phone VoIP adapter http config/ i/RapidLogic embedded httpd $1/ d/VoIP adapter/
 
-match http m|^HTTP/1\.0 \d\d\d .*\r\n.*<title>IT Temperature Monitor: ([^<]+)</title>.*<TD>Model:</TD><TD width=10 rowspan=3><BR></TD><TD>([-\w_.]+)</TD><TD width=20 rowspan=3><BR></TD><TD>Firmware Version:</TD><TD width=10 rowspan=3><BR></TD><TD>([\d.]+)</TD>|s p/Sensatronics $2 remote temperature monitor httpd/ i/name $1; Firmware version $3/
-match http m|^HTTP/1\.0 \d\d\d .*\r\n.*<title>IT Temperature monitor: ([^<]+)</title>.*<TD>Model:</TD><TD width=10 rowspan=7><BR></TD><TD>([-\w_.]+)</TD>.*<TD>Firmware Version:</TD><TD>([\d.]+)</TD>|s p/Sensatronics $2 remote temperature monitor httpd/ i/name $1; Firmware version $3/
+match http m|^HTTP/1\.0 \d\d\d .*\r\n.*<title>IT Temperature Monitor: ([^<]+)</title>.*<TD>Model:</TD><TD width=10 rowspan=3><BR></TD><TD>([-\w_.]+)</TD><TD width=20 rowspan=3><BR></TD><TD>Firmware Version:</TD><TD width=10 rowspan=3><BR></TD><TD>([\d.]+)</TD>|s p/Sensatronics $2 remote temperature monitor httpd/ d/specialized/ i/name $1; Firmware version $3/
+match http m|^HTTP/1\.0 \d\d\d .*\r\n.*<title>IT Temperature monitor: ([^<]+)</title>.*<TD>Model:</TD><TD width=10 rowspan=7><BR></TD><TD>([-\w_.]+)</TD>.*<TD>Firmware Version:</TD><TD>([\d.]+)</TD>|s p/Sensatronics $2 remote temperature monitor httpd/ d/specialized/ i/name $1; Firmware version $3/
 
 match http m|^HTTP/1\.1 \d\d\d .*\r\n.*<font color=#FFFFFF size=5>Cisco ATA 186 \(SIP\)</font>|s p/Cisco ATA 186 SIP http config/ d/VoIP adapter/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: AKCP Embedded Web Server| p/AKCP embedded httpd/
@@ -4946,7 +4946,7 @@ match http m|^HTTP/1\.[01] \d\d\d .*\nServer: TIB/Rendezvous ([-\w_.]+)\n|s p/TI
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Snug/([-\w_.]+)\r\n|s p/Snug httpd/ o/Windows/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: (ZNC )?ZNC ([-\w_.]+) (by prozac )?- http://znc\.sourceforge\.net\r\n| p/ZNC IRC bounce http config/ v/$2/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: IP_SHARER WEB ([-\w_.]+)\r\nWWW-Authenticate: Basic realm=\"FWG114P\"\r\n| p/Netgear FWG114P wireless firewall http config/ i/IP_SHARER httpd $1/ d/firewall/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: NetPort Software ([\d.]+)\r\n.*\n<title>([-\w_.]+) - VSX 8000</title>|s p/Polycom VSX 8000 http config/ d/media device/ i/NetPort httpd $1/ h/$2/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: NetPort Software ([\d.]+)\r\n.*\n<title>([-\w_.]+) - VSX 8000</title>|s p/Polycom VSX 8000 http config/ d/webcam/ i/NetPort httpd $1/ h/$2/
 match http m|^HTTP/1\.0 \d\d\d .*Server: Grandstream GXP2000 ([-\w_.]+)\r\n\r\n|s p/Grandstream GXP2000 http config/ d/VoIP adapter/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: D-Link Internet Camera\r\n.*<title>DCS-5300W</title>|s p/D-Link DCS-5300W webcam http config/ d/webcam/
 match http m|^HTTP/1\.0 200 Ok\r\nServer: micro_httpd\r\n.*var isRouter\t='1' \? '1' : '0';\r\nvar\tisPS\t\t='' \? '' : '0';\r\nvar isAPmode\r\nif\('vlan1' =='' .. '1'=='0'\)\r\n\tisAPmode='1';\r\nelse\tisAPmode='0';\r\nvar bssid = '([\w:]+)';|s p/Belkin WAP http config/ d/WAP/ i/micro_httpd; BSSID $1/
@@ -4999,8 +4999,8 @@ match http m|^HTTP/1\.1 200 Ok\r\nServer: micro_httpd\r\n.*<title>ADSL Router</t
 match http m|^HTTP/1\.0 200 OK\r\n.*<TITLE>HTML-Konfiguration</TITLE>\n<SCRIPT language=\"JavaScript\" src=\"/cgi-bin/webcm\?getpage=\.\./html/js_top\.txt\"|s p/T-Com Speedport W501V http config/ i/German/ d/broadband router/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nCache-Control: must-revalidate, no-store\r\nConnection: close\r\n\r\n<html>\n<style>\ntable\.stat th, table\.stat td {\n  font-family:\tVerdana, Geneva, sans-serif;\n  font-size : 11px;\n  color: blue;\n  border: 0px solid;\n  white-space: nowrap;\n}\n| p/Linksys SPA942 VoIP phone http config/ d/VoIP phone/
 match http m|^HTTP/1\.1 200 OK\r\nMIME-Version: 1\.0\r\nServer: OKIDATA-HTTPD/([\w-_.]+)\r\n.*<title>([^<]+)</title>|s p/Oki $2 printer http config/ d/printer/ i/OKIDATA httpd $1/
-match http m|^HTTP/1\.0 200 OK\r\nServer: NetPort Software ([\w-_.]+)\r\n.*<title>([^-<\r\n]+) - VSX 8000</title>\n<link rel=\"stylesheet\" href=\"sabrestyle\.css\"|s p/Polycom VSX 8000 http config/ d/telecom-misc/ i/$2; NetPort httpd $1/
-match http m|^HTTP/1\.0 200 OK\r\nServer: NetPort Software ([\w-_.]+)\r\n.*<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n    <meta http-equiv=\"no-cache\">\n    <link rel=\"stylesheet\" href=\"sabre\.css\"|s p/Polycom VSX 8000 http config/ d/telecom-misc/ i/NetPort httpd $1/
+match http m|^HTTP/1\.0 200 OK\r\nServer: NetPort Software ([\w-_.]+)\r\n.*<title>([^-<\r\n]+) - VSX 8000</title>\n<link rel=\"stylesheet\" href=\"sabrestyle\.css\"|s p/Polycom VSX 8000 http config/ d/webcam/ i/$2; NetPort httpd $1/
+match http m|^HTTP/1\.0 200 OK\r\nServer: NetPort Software ([\w-_.]+)\r\n.*<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n    <meta http-equiv=\"no-cache\">\n    <link rel=\"stylesheet\" href=\"sabre\.css\"|s p/Polycom VSX 8000 http config/ d/webcam/ i/NetPort httpd $1/
 match http m|^HTTP/1\.0 303 Redirecting\r\nServer: httpd/[\d.]+ Python/([\d.]+)\r\n.*Cache-Control: no-store,no-cache,must-revalidate,max-age=0,post-check=0,pre-check=0\r\n.*<title>: Redirecting\n</title>\n<meta http-equiv=\"Refresh\" content=\"0; URL=http://([\w-_.]+):\d+/login\"|s p/Ironport Mailflow http config/ d/specialized/ i/Python $1/ h/$2/
 match http m|^<html><head><title>Task Manager Server Report</title></head>| p/Dolbey Fusion Focus Task Manager httpd/ o/Windows/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: XGATE-Webs\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"NB(\w+) Wireless Router\"\r\n| p/NetComm NB$1 WAP http config/ d/WAP/ i/XGATE-Webs/
@@ -5143,7 +5143,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Axigen-Webmail\r\n|s p/Axigen webma
 match http m|^HTTP/1\.1 400 Bad Request\r\nServer: Linux, UPnP/([\w-_.]+), AR680W Ver ([\w-_.]+)\r\n| p/AirLink 101 AR680W WAP http config/ o/Linux/ i/UPnP $1/ v/$2/ d/WAP/
 match http m|^HTTP/1\.0 200 .*\r\nServer: Allegro-Software-RomPager/([\w-_.]+)\r\n\r\n<HTML><HEAD>\n<META NAME=\"GENERATOR\" CONTENT=\"Microsoft FrontPage 3\.0\">\n<TITLE></TITLE>.*<frame NAME=\"fInfo\" scrolling=\"no\" noresize src=\"/html/Hlogin\.html\"|s p/Amer.com SSR22i switch http config/ d/switch/ i/Allegro RomPager httpd $1/
 match http m|^HTTP/1\.1 301 Moved Permanently\r\nDate: .*\r\nServer: eSoft\r\nX-Powered-By: PHP/([\w-_.]+)\r\nLocation: https://ThreatWall/\r\n| p/eSoft ThreatWall IPS http config/ i/PHP $1/ d/security-misc/
-match http m|^HTTP/1\.0 200 OK\r\nServer: NetPort Software ([\w-_.]+)\r\nDate: .*\r\nContent-type: text/html\r\n\r\n<html>\n<head>\n<title>(.*) - VSX 7000A</title>| p/Polycom VSX 7000A http config/ i/NetPort httpd $1; name $2/
+match http m|^HTTP/1\.0 200 OK\r\nServer: NetPort Software ([\w-_.]+)\r\nDate: .*\r\nContent-type: text/html\r\n\r\n<html>\n<head>\n<title>(.*) - VSX 7000A</title>| p/Polycom VSX 7000A http config/ d/webcam/ i/NetPort httpd $1; name $2/
 match http m|^HTTP/1\.1 301 Moved Permanently\r\nServer: Virata-EmWeb/R([\w-_.]+)\r\nLocation: https://[\w-_.]+/\+webvpn\+/index\.html\r\n| p/Cisco WebVPN http config/ i/Virata httpd $1/ d/security-misc/
 match http m|^HTTP/1\.0 200 OK\r\nServer: dtHTTPd/([\w-_.]+)\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nConnection: close\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.0 Transitional//EN\"><HTML><HEAD><TITLE>UX-D1200SE</TITLE>| p/Sharp Broadband UX-D1200SE Fax http config/ d/printer/ i/dtHTTPd $1/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Conexant-EmWeb/R([\w-_.]+) SIPGT/([\w-_.]+)\r\n.*<title>Login page</title>.*<img src=\"images/ixlogga\.gif\"|s p/Intertex IX68 WAP http config/ d/WAP/ i/Conexant httpd $1; SIPGT $2/
