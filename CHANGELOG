@@ -1,5 +1,14 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o There is a new OS detection test called SEQ.CI. Like TI and II, CI
+  classifies the target's IP ID sequence generation algorithm. CI is
+  based on the responses received to the probes sent to a closed port.
+  The algorithm for closed ports has been observed to differ from that
+  for open ports, though for what operating systems this happens is
+  not yet known. The new test won't have an effect until new
+  fingerprints containing it are added to nmap-os-db. Dario Ciccarone
+  suggested this enhancement. [David]
+
 o OS fingerprints now include the SEQ.II test (ICMP IP ID sequence
   generation) even if there are no other SEQ test results. [David]
 
