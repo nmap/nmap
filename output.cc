@@ -1656,7 +1656,7 @@ void printosscanoutput(Target *currenths) {
       log_write(LOG_PLAIN, "\n");
 
       if (o.debugging || o.verbose > 1)
-        write_merged_fpr(FPR, currenths, reason != NULL, true);
+        write_merged_fpr(FPR, currenths, reason == NULL, true);
     } else {
       /* No perfect matches. */
       if ((o.verbose > 1 || o.debugging) && reason)
