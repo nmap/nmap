@@ -6367,7 +6367,7 @@ match nntp m|^200 NNTP server ready\r\n100 Avaliable commands:\r\nARTICLE\r\nAUT
 match nntp m|^200 ([\w-_.]+) news server ready - posting ok\r\n100 Help text follows\r\n$| p/Intersquish nntpd/ h/$1/ o/Windows/
 
 match printer m|^([-\w_.]+): lpd: Illegal service request\n$| p/lpd/ h/$1/
-match printer m|^\x01Socket 288 received unknown command 0x48 with arguments ELP$| p/RPM Print Manager lpd/ o/Windows/
+match printer m|^\x01Socket \d+ received unknown command 0x48 with arguments ELP$| p/RPM Print Manager lpd/ o/Windows/
 
 match print-monitor m|^false;error while receiving message from client\n$| p/Genius Bytes print monitor/
 
