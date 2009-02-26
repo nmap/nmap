@@ -1,12 +1,12 @@
 .\"     Title: nmap
 .\"    Author: Gordon \(lqFyodor\(rq Lyon
 .\" Generator: DocBook XSL Stylesheets v1.74.0 <http://docbook.sf.net/>
-.\"      Date: 02/02/2009
+.\"      Date: 02/23/2009
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap First Edition
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "02/02/2009" "Nmap First Edition" "Nmap Reference Guide"
+.TH "NMAP" "1" "02/23/2009" "Nmap First Edition" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * (re)Define some macros
 .\" -----------------------------------------------------------------
@@ -397,21 +397,25 @@ SEE THE MAN PAGE FOR MANY MORE OPTIONS, DESCRIPTIONS, AND EXAMPLES
 .PP
 Everything on the Nmap command\-line that isn\'t an option (or option argument) is treated as a target host specification\&. The simplest case is to specify a target IP address or hostname for scanning\&.
 .PP
-Sometimes you wish to scan a whole network of adjacent hosts\&. For this, Nmap supports CIDR\-style addressing\&..\" CIDR (Classless Inter-Domain Routing)
-You can append /\fInumbits\fR
-to an IP address or hostname and Nmap will scan every IP address for which the first
+Sometimes you wish to scan a whole network of adjacent hosts\&. For this, Nmap supports CIDR\-style.\" CIDR (Classless Inter-Domain Routing)
+addressing\&. You can append /\fInumbits\fR
+to an IPv4 address or hostname and Nmap will scan every IP address for which the first
 \fInumbits\fR
 are the same as for the reference IP or hostname given\&. For example, 192\&.168\&.10\&.0/24 would scan the 256 hosts between 192\&.168\&.10\&.0 (binary:
 \FC11000000 10101000 00001010 00000000\F[]) and 192\&.168\&.10\&.255 (binary:
-\FC11000000 10101000 00001010 11111111\F[]), inclusive\&. 192\&.168\&.10\&.40/24 would do exactly the same thing\&. Given that the host scanme\&.nmap\&.org is at the IP address 64\&.13\&.134\&.52, the specification scanme\&.nmap\&.org/16 would scan the 65,536 IP addresses between 64\&.13\&.0\&.0 and 64\&.13\&.255\&.255\&. The smallest allowed value is /0, which scans the whole Internet\&. The largest value is /32, which scans just the named host or IP address because all address bits are fixed\&.
+\FC11000000 10101000 00001010 11111111\F[]), inclusive\&. 192\&.168\&.10\&.40/24 would scan exactly the same targets\&. Given that the host
+\FCscanme\&.nmap\&.org\F[].\" scanme.nmap.org
+is at the IP address 64\&.13\&.134\&.52, the specification scanme\&.nmap\&.org/16 would scan the 65,536 IP addresses between 64\&.13\&.0\&.0 and 64\&.13\&.255\&.255\&. The smallest allowed value is /0, which scans the whole Internet\&. The largest value is /32, which scans just the named host or IP address because all address bits are fixed\&.
 .\" address ranges
 .PP
-CIDR notation is short but not always flexible enough\&. For example, you might want to scan 192\&.168\&.0\&.0/16 but skip any IPs ending with \&.0 or \&.255 because they are commonly broadcast addresses\&. Nmap supports this through octet range addressing\&. Rather than specify a normal IP address, you can specify a comma separated list of numbers or ranges for each octet\&. For example, 192\&.168\&.0\-255\&.1\-254 will skip all addresses in the range that end in \&.0 and or \&.255\&. Ranges need not be limited to the final octets: the specifier 0\-255\&.0\-255\&.13\&.37 will perform an Internet\-wide scan for all IP addresses ending in 13\&.37\&. This sort of broad sampling can be useful for Internet surveys and research\&.
+CIDR notation is short but not always flexible enough\&. For example, you might want to scan 192\&.168\&.0\&.0/16 but skip any IPs ending with \&.0 or \&.255 because they may be used as subnet network and broadcast addresses\&. Nmap supports this through octet range addressing\&. Rather than specify a normal IP address, you can specify a comma\-separated list of numbers or ranges for each octet\&. For example, 192\&.168\&.0\-255\&.1\-254 will skip all addresses in the range that end in \&.0 or \&.255, and 192\&.168\&.3\-5,7\&.1 will scan the four addresses 192\&.168\&.3\&.1, 192\&.168\&.4\&.1, 192\&.168\&.5\&.1, and 192\&.168\&.7\&.1\&. Either side of a range may be omitted; the default values are 0 on the left and 255 on the right\&. Using
+\FC\-\F[]
+by itself is the same as 0\-255, but remember to use 0\- in the first octet so the target specification doesn\'t look like a command\-line option\&. Ranges need not be limited to the final octets: the specifier 0\-255\&.0\-255\&.13\&.37 will perform an Internet\-wide scan for all IP addresses ending in 13\&.37\&. This sort of broad sampling can be useful for Internet surveys and research\&.
 .PP
 IPv6 addresses can only be specified by their fully qualified IPv6 address or hostname\&. CIDR and octet ranges aren\'t supported for IPv6 because they are rarely useful\&.
 .PP
 Nmap accepts multiple host specifications on the command line, and they don\'t need to be the same type\&. The command
-\fBnmap scanme\&.nmap\&.org 192\&.168\&.0\&.0/16 10\&.0\&.0,1,3\-7\&.0\-255\fR
+\fBnmap scanme\&.nmap\&.org 192\&.168\&.0\&.0/8 10\&.0\&.0,1,3\-7\&.\-\fR
 does what you would expect\&.
 .PP
 While targets are usually specified on the command lines, the following options are also available to control target selection:
@@ -1938,6 +1942,17 @@ system call\&. This feature is automatically enabled by the debug option (\fB\-d
 and the results are stored in XML log files even if this option is not specified\&.
 .RE
 .PP
+\fB\-\-stats\-every \fR\fB\fItime\fR\fR (Print periodic timing stats) .\" --stats-every
+.RS 4
+Periodically prints a timing status message after each interval of
+\fItime\fR\&. The time is a specification of the kind described in
+the section called \(lq\c
+.SH-xref "Timing and Performance\c"
+\&\(rq; so for example, use
+\fB\-\-stats\-every 10s\fR
+to get a status update every 10 seconds\&. Updates are printed to interactive output (the screen) and XML output\&.
+.RE
+.PP
 \fB\-\-packet\-trace\fR (Trace packets and data sent and received) .\" --packet-trace
 .RS 4
 Causes Nmap to print a summary of every packet sent or received\&. This is often used for debugging, but is also a valuable way for new users to understand exactly what Nmap is doing under the covers\&. To avoid printing thousands of lines, you may want to specify a limited number of ports to scan, such as
@@ -2235,9 +2250,9 @@ option enables verbose mode\&.
 .\" -O: example of
 \fBnmap \-sS \-O scanme\&.nmap\&.org/24\fR
 .PP
-Launches a stealth SYN scan against each machine that is up out of the 255 machines on
+Launches a stealth SYN scan against each machine that is up out of the 256 IPs on
 \(lqclass C\(rq
-network where Scanme resides\&. It also tries to determine what operating system is running on each host that is up and running\&. This requires root privileges because of the SYN scan and OS detection\&.
+sized network where Scanme resides\&. It also tries to determine what operating system is running on each host that is up and running\&. This requires root privileges because of the SYN scan and OS detection\&.
 .PP
 .\" -p: example of
 \fBnmap \-sV \-p 22,53,110,143,4564 198\&.116\&.0\-255\&.1\-127\fR
