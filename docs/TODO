@@ -23,6 +23,17 @@ o Consider converting this file to emacs org-mode
   o That format is still plain text and can be read/edited by vi
     users, etc.
 
+o [Ncat] --talk should probably be changed (in the code and
+  documentation) to --chat, as Ncat chat has a
+  much nicer ring to it, IMHO.  --talk should remain as an alias to
+  --chat, but we don't need to document it.
+
+o [Ncat] --chat should probably only allow reasonable chars, to avoid
+  cntrl-chars, etc..  We could also consider a way for people to choose
+  usernames.  We should probably make --ssl work.  If nothing else, it
+  might be useful if you want to reduce the number of people
+  connecting with telnet, etc. rather than ncat.
+
 o Determine what we should do about the IE.DLI OS detection test
   o It appears that of the 1657 results for this test in nmap-os-db,
     1656 are DLI=S and the remaining one is DLI=100
@@ -35,6 +46,9 @@ o Determine what we should do about the IE.DLI OS detection test
 o [Ncat] Let people set up authenticated proxies using
   --listen and --proxy-auth together (right now we don't support
   that). [David]
+
+o [Ncat] Can we use it as an IPv4 <-> IPv6 gateway?  If so (or if we
+  can add it), it should be added to the ncat guide feature list.
 
 o [Ncat] The sys_wrap.c/.h code contains a whole bunch of capitalized
   versions of system calls (Fork(), Socket(), Sscanf(), etc.) which
