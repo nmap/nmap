@@ -69,6 +69,25 @@ o [Ncat] The sys_wrap.c/.h code contains a whole bunch of capitalized
   the callers where necessary rather than blindly switching from
   (e.g.) Connect() to connect(). [Kris or David]
 
+o [Ncat] We should probably make it work without OpenSSL.  When I try
+  ./configure --without-openssl on latest svn Nmap, Ncat build fails
+  with:
+       gcc -MM -I../libpcap -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -I. -I.. -I../nsock/include/ -I../nbase ncat_main.c ncat_connect.c ncat_core.c ncat_listen.c ncat_proxy.c ncat_broker.c ncat_hostmatch.c ncat_ssl.c util.c sys_wrap.c > makefile.dep
+       make[2]: Leaving directory `/mondo/fyodor/nmap/ncat'
+       make[2]: Entering directory `/mondo/fyodor/nmap/ncat'
+       gcc -I../libpcap -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -I. -I.. -I../nsock/include/ -I../nbase  -c ncat_main.c -o ncat_main.o
+       ncat_main.c: In function ‘main’:
+       ncat_main.c:536: error: ‘struct options’ has no member named ‘ssl’
+       ncat_main.c: In function ‘ncat_listen_mode’:
+       ncat_main.c:646: error: ‘struct options’ has no member named ‘ssl’
+       ncat_main.c:646: error: ‘struct options’ has no member named ‘sslcert’
+       ncat_main.c:646: error: ‘struct options’ has no member named ‘sslkey’
+       make[2]: *** [ncat_main.o] Error 1
+       make[2]: Leaving directory `/mondo/fyodor/nmap/ncat'
+       make[1]: *** [ncat_build] Error 2
+       make[1]: Leaving directory `/mondo/fyodor/nmap'
+       make: *** [static] Error 2
+
 o Look into whether we should loosen/change the global congestion
   control system to address possible cases of one target host with many
   dropped packets slowing down the whole group.  See
