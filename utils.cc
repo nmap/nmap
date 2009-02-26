@@ -317,9 +317,11 @@ iptr = (unsigned int *) bytes;
      pos = *iptr; iptr++;
    }
    pos %= i+1;
-   memcpy(tmp, arr + elem_sz * i, elem_sz);
-   memcpy(arr + elem_sz * i, arr + elem_sz * pos, elem_sz);
-   memcpy(arr + elem_sz * pos, tmp, elem_sz);
+   if ((unsigned) i != pos) { /* memcpy is undefined when source and dest overlap. */
+     memcpy(tmp, arr + elem_sz * i, elem_sz);
+     memcpy(arr + elem_sz * i, arr + elem_sz * pos, elem_sz);
+     memcpy(arr + elem_sz * pos, tmp, elem_sz);
+   }
  }
  free(bytes);
  free(tmp);
