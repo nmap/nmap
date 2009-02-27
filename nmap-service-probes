@@ -7295,7 +7295,7 @@ ports 6163,61613
 match stomp m|^ERROR\nmessage:Unknown STOMP action:.+ org\.apache\.activemq\.|s p/Apache ActiveMQ/
 
 # The following line matches IPDS (IBM's Intelligent Printer Data Stream) on port 9600
-match ipds m|^%%\[ Error: syntaxerror; Offending Command:|s p/IPDS Service/ d/printer/
+# match ipds m|^%%\[ Error: syntaxerror; Offending Command:|s p/IPDS Service/ d/printer/
 
 ##############################NEXT PROBE##############################
 # memcache, text mode protocol
