@@ -123,7 +123,9 @@ end
 --@param data String of data.
 --@param offset Offset in the string to read the domain name.
 function parse_domain(data, offset)
-	return dns.decStr(data, offset)
+	local offset, domain = dns.decStr(data, offset)
+	domain = domain or "<parse error>"
+	return offset, domain
 end 
 
 --- Build RFC 1035 root domain name from the name of the DNS server

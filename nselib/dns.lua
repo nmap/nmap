@@ -486,7 +486,7 @@ function decStr(data, pos)
       local part
 
       -- Avoid infinite recursion on malformed compressed messages.
-      limit = limit or 3
+      limit = limit or 10
       if limit < 0 then
          return pos, nil
       end
