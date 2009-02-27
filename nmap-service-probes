@@ -429,6 +429,7 @@ match ftp m|^421 Too many connections for this IP address, please try again late
 match ftp m|^220 Tornado-vxWorks \(VxWorks([\d.]+)\) FTP server ready\r\n| p/Tornado vxWorks ftpd/ v/$1/
 match ftp m|^220 [-\w_.]+ FTP server \(UNIX\(r\) System V Release 4\.0\) ready\.\r\n| p/UNIX System V Release 4.0 ftpd/
 match ftp m|^220 ([-\w_.]+) FTP Server \(Oracle XML DB/Oracle9i Enterprise Edition Release ([\d.]+) - Production\) ready\.\r\n| p/Oracle Enterprise XML DB ftpd/ v/$2/ h/$1/
+match ftp m|^220 ([-\w_.]+) FTP Server \(Oracle XML DB/Oracle9i Release ([\d.]+) - Production\) ready\.\r\n| p/Oracle XML DB ftpd/ v/$2/ h/$1/
 match ftp m|^220 ([-\w_.]+) FTP Server \(Oracle XML DB/Oracle Database 10g Enterprise Edition Release ([\d.]+) - Production\) ready\.\r\n| p/Oracle 10g Enterprise XML DB ftpd/ v/$2/ h/$1/
 match ftp m|^220 ([-\w_.]+) FTP Server \(Oracle XML DB/Personal Oracle9i Release ([\d.]+) - Production\) ready\.\r\n| p/Personal Oracle XML DB ftpd/ v/$1/ h/$1/
 match ftp m|^220 ([-\w_.]+) PacketShaper FTP server ready\.\r\n| p/PacketShaper ftpd/ h/$1/ o/Windows/
@@ -5719,6 +5720,7 @@ match hpilo-virtual-media m|^#\0\x04\0$| p/HP Integrated Lights Out Virtual Medi
 
 match xmpp m|^</stream:stream>$| p/Wildfire XMPP Client/
 
+match printer m|^An lpd test connection was completed successfully\r\n|s p/Lexmark lpd service/ d/printer/
 
 ##############################NEXT PROBE##############################
 Probe TCP HTTPOptions q|OPTIONS / HTTP/1.0\r\n\r\n|
@@ -6789,7 +6791,7 @@ rarity 6
 ports 515,2947,3333
 match printer m|^\0$| 
 match printer m|^default: unknown printer\n$| p/Solaris lpd/ o/Solaris/
-# Microsoft Windows 2000 serverr LPD
+# Microsoft Windows 2000 server LPD
 match printer m|^\x01\x01$| p/Microsoft lpd/
 # Blackbox Terminal Server (IOLAN v4.03.00 a CDi)
 # Chase IOLAN terminal server lpd
@@ -7292,6 +7294,8 @@ rarity 8
 ports 6163,61613
 match stomp m|^ERROR\nmessage:Unknown STOMP action:.+ org\.apache\.activemq\.|s p/Apache ActiveMQ/
 
+# The following line matches IPDS (IBM's Intelligent Printer Data Stream) on port 9600
+match ipds m|^%%\[ Error: syntaxerror; Offending Command:|s p/IPDS Service/ d/printer/
 
 ##############################NEXT PROBE##############################
 # memcache, text mode protocol
@@ -7324,7 +7328,7 @@ softmatch firebird m|^\0\0\0\x03\0\0\0.\0\0\0.|s p/Firebird RDBMS/
 Probe TCP ibm-db2-das q|\0\0\0\0\x44\x42\x32\x44\x41\x53\x20\x20\x20\x20\x20\x20\x01\x04\0\0\0\x10\x39\x7a\0\x01\0\0\0\0\0\0\0\0\0\0\x01\x0c\0\0\0\0\0\0\x0c\0\0\0\x0c\0\0\0\x04|
 rarity 8
 ports 523,50000
-match ibm-db2 m|^\0\0\0\0DB2DAS\x20\x20\x20\x20\x20\x20\x01\x04\0\0\0\x109z\0\x05\0\0\0\0\0\0\0\0\0\0\$\xf7\0\0\0\0\0\0\x9b\0\0\0\x0c\0\0\0Z\0\0\0\x10\0\0\0\x0c\0\0\0L\0\0\0\0\0\0\0\$\0\0\0\x0c\0\0\0O\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x10\0\0\0\x0c\0\0\0L\0\0\0\0\0\0\0\x19\0\0\0\x0c\0\0\0\x04\0\0\x04\xb8SQL0(\d)(\d\d)(\d+)|s p/IBM DB2 Database Server/ v/$1.$2.$3/
+match ibm-db2 m|^\0\0\0\0DB2DAS\x20\x20\x20\x20\x20\x20.{28}\x9b\0\0\0\x0c\0\0\0Z\0\0\0\x10\0\0\0\x0c\0\0\0L\0\0\0\0\0\0\0\$\0\0\0\x0c\0\0\0O\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x10\0\0\0\x0c\0\0\0L\0\0\0\0\0\0\0\x19\0\0\0\x0c\0\0\0\x04\0\0\x04\xb8SQL0(\d)(\d\d)(\d+)|s p/IBM DB2 Database Server/ v/$1.$2.$3/
 
 
 ##############################NEXT PROBE##############################
