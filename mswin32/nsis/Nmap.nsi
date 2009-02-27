@@ -246,13 +246,13 @@ Section "Zenmap (GUI Frontend)" SecZenmap
   StrCpy $zenmapset "true"
 SectionEnd
 
-Section "Ncat (Netcat Replacement)" SecNcat
+Section "Ncat (Modern Netcat reincarnation)" SecNcat
   SetOutPath "$INSTDIR"
   SetOverwrite on
   File ..\nmap-${VERSION}\ncat.exe
 SectionEnd
 
-Section "Ndiff" SecNdiff
+Section "Ndiff (Scan comparison tool)" SecNdiff
   SetOutPath "$INSTDIR" 
   SetOverwrite on 
   File ..\nmap-${VERSION}\ndiff.exe
