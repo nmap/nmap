@@ -2,6 +2,10 @@ TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
 o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
 
+o Ncat Windows issue where you make a connection and then take several
+  seconds to type in a line to the server, Ncat wrongly times out when
+  trying to write your line to the remote server. [David]
+
 o Defensive coding review of ncat_proxy.* [David]
 
 o Look at Dario Ciccarone's email from 5/1/07 about IPID sequence
