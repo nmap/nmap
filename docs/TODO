@@ -123,8 +123,8 @@ o [NSE] Open proxy detection script?
   that to handle other types of proxies (such as SOCKS and HTTP
   CONNECT) or create more scripts to handle those other proxy types.
 
-o [Ncat] Wouldn't it be nice if we could support --exec (I'm not sure
-  what we should do with --sh-exec) on Windows?
+o [Ncat] Wouldn't it be nice if we could support --exec (and maybe
+  some sort of partial-emulated --sh-exec) on Windows?
 
 o Prepare for Summer of Code
   o Brainstorm for ideas
