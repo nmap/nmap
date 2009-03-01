@@ -34,6 +34,27 @@ local stdnse = require 'stdnse'
 -- the table also has an entry named "status" which contains the http status code of the request
 -- in case of an error status is nil
 
+--- Recursively copy into a table any elements from another table whose key it
+-- doesn't have.
+local function table_augment(to, from)
+  for k, v in pairs(from) do
+    if to[v] then
+      table_copy(to[v], from[v])
+    else
+      to[v] = from[v]
+    end
+  end
+end
+
+--- Get a suitable hostname string from the argument, which may be either a
+-- string or a host table.
+local function get_hostname(host)
+  if type(host) == "table" then
+    return host.targetname or ( host.name ~= '' and host.name ) or host.ip
+  else
+    return host
+  end
+end
 
 --- Fetches a resource with a GET request.
 --
@@ -51,23 +72,21 @@ local stdnse = require 'stdnse'
 -- @see http.request
 get = function( host, port, path, options )
   options = options or {}
-  local presets = {Host=host,Connection="close",['User-Agent']="Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"}
-  if type(host) == 'table' then
-    presets['Host'] = host.targetname or ( host.name ~= '' and host.name ) or host.ip
-  end
 
-  local header = options.header or {}
-  for key,value in pairs(presets) do
-    header[key] = header[key] or value
-  end
+  -- Private copy of the options table, used to add default header fields.
+  local mod_options = {
+    header = {
+      Host = get_hostname(host),
+      Connection = "close",
+      ["User-Agent"]  = "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
+    }
+  }
+  -- Add any other options into the local copy.
+  table_augment(mod_options, options)
 
-  local data = "GET "..path.." HTTP/1.1\r\n"
-  for key,value in pairs(header) do
-    data = data .. key .. ": " .. value .. "\r\n"
-  end
-  data = data .. "\r\n"
+  local data = "GET " .. path .. " HTTP/1.1\r\n"
 
-  return request( host, port, data, options )
+  return request( host, port, data, mod_options )
 end
 
 --- Parses a URL and calls <code>http.get</code> with the result.
@@ -111,7 +130,8 @@ end
 -- a table for further options.
 -- @param host The host to query.
 -- @param port The port on the host.
--- @param data Data to send initially to the host.
+-- @param data Data to send initially to the host, like a <code>GET</code> line.
+-- Should end in a single <code>\r\n</code>.
 -- @param options A table of options. It may have any of these fields:
 -- * <code>timeout</code>: A timeout used for socket operations.
 -- * <code>header</code>: A table containing additional headers to be used for the request.
@@ -133,6 +153,12 @@ request = function( host, port, data, options )
     end
     port = port.number
   end
+
+  -- Build the header.
+  for key, value in pairs(options.header or {}) do
+    data = data .. key .. ": " .. value .. "\r\n"
+  end
+  data = data .. "\r\n"
 
   local result = {status=nil,["status-line"]=nil,header={},body=""}
   local socket = nmap.new_socket()
