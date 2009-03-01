@@ -15,6 +15,23 @@ o Look at Dario Ciccarone's email from 5/1/07 about IPID sequence
     port tests fail to produce results, even though the II and
     (upcoming) CI tests may have useful results. [David]
 
+o Ncat user guide should probably discuss proxy
+  chaining somewhere (maybe the proxy section)
+
+o [Ncat] Why does Ncat require enclosure in a while loop to answer
+  repeated UDP queries, but not TCP?  For example, see the "Emulating
+  Diagnostic Services" section of the Ncat user's guide.
+
+o Ncat user guide "Emulating Diagnostic Services" page has a very long
+  UDP chargen server line which causes wrapping problems in web browsers
+  (e.g. it widens the page substantially).  It should probably be
+  split into multiple lines.
+
+o Ncat user guide proxying section says "The only exception is when
+  listing a proxy host by IPv6 address; then the port is required."
+  Why would we require a port number for IPv6 rather than just use the
+  same defaults as we do for IPv4?
+
 o Write Ncat users' guide, demonstrating all the neat stuff you can do
   with it.  This should probably be in DocBook XML so it can be an NNS
   chapter.  You might want to query nmap-dev for list of neat things
@@ -50,6 +67,9 @@ o Determine what we should do about the IE.DLI OS detection test
 o [Ncat] Let people set up authenticated proxies using
   --listen and --proxy-auth together (right now we don't support
   that). [David]
+
+o [Ncat] When acting as an HTTP proxy, shouldn't we support the GET
+  method?  Is that what most browsers use?
 
 o [Ncat] Can we use it as an IPv4 <-> IPv6 gateway?  If so (or if we
   can add it), it should be added to the ncat guide feature list.
