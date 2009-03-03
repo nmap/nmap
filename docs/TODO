@@ -31,13 +31,13 @@ o Ncat --chat should probably announce to everyone (including the new
 o [Ncat] Wouldn't it be nice if we could support --exec (and maybe
   some sort of partial-emulated --sh-exec) on Windows? [David]
 
+o [Ncat] Defensive coding review of Ncat --chat (talk)
+
 o [Ncat] When acting as an HTTP proxy, we should support GET mode as
   well as CONNECT so that it works as a non-SSL proxy in browsers such
   as firefox.
 
 o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
-
-o Defensive coding review of ncat_proxy.* [David]
 
 o Figure out and document (in at least the Ncat user's guide) the best way to use Ncat for chaining
   through proxies.  One option is this sort of thing:
@@ -542,6 +542,8 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Defensive coding review of ncat_proxy.* [David]
 
 o Process the latest version detection submissions.  We now have more
   than 1,700 of them queued up. [Doug]
