@@ -4,7 +4,7 @@ o Version detection used to omit the "ssl/" service name prefix if an
   SSL-tunneled port didn't respond to any version probes. Now it keeps
   "ssl/" as an indication that SSL was discovered, even if the service
   behind it wasn't identified. Kristof Boeynaems reported the problem
-  and contributed a patch.
+  and contributed a patch. [David]
 
 o [Ncat] The --talk option has been renamed --chat. --talk remains as an
   undocumented alias.

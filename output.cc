@@ -455,36 +455,25 @@ int print_iflist(void) {
    namebuf to 0 length if there is no room.*/
 static void getNmapServiceName(struct serviceDeductions *sd, int state, 
 			       char *namebuf, int buflen) {
-  char *dst = namebuf;
-  int lenremaining = buflen;
+  const char *tunnel_prefix;
   int len;
-  if (buflen < 1) return;
 
-  if (sd->service_tunnel == SERVICE_TUNNEL_SSL) {
-    if (lenremaining < 5) goto overflow;
-    strncpy(dst, "ssl/", lenremaining);
-    dst += 4;
-    lenremaining -= 4;
-  } 
+  if (sd->service_tunnel == SERVICE_TUNNEL_SSL)
+    tunnel_prefix = "ssl/";
+  else
+    tunnel_prefix = "";
 
-  if (sd->name && (sd->service_tunnel != SERVICE_TUNNEL_SSL || 
-		   sd->dtype == SERVICE_DETECTION_PROBED)) {
-    if (o.servicescan && state == PORT_OPEN && sd->name_confidence <= 5) 
-      len = Snprintf(dst, lenremaining, "%s?", sd->name);
-    else len = Snprintf(dst, lenremaining, "%s", sd->name);
+  if (sd->name != NULL && strcmp(sd->name, "unknown") != 0) {
+    /* The port has a name and the name is not "unknown". How confident are we? */
+    if (o.servicescan && state == PORT_OPEN && sd->name_confidence <= 5)
+      len = Snprintf(namebuf, buflen, "%s%s?", tunnel_prefix, sd->name);
+    else
+      len = Snprintf(namebuf, buflen, "%s%s", tunnel_prefix, sd->name);
   } else {
-    len = Snprintf(dst, lenremaining, "%s", "unknown");
+    len = Snprintf(namebuf, buflen, "%sunknown", tunnel_prefix);
   }
-  if (len > lenremaining || len < 0) goto overflow;
-  dst += len;
-  lenremaining -= len;
-
-  if (lenremaining < 1) goto overflow;
-  *dst = '\0';
-  return;
-
- overflow:
-  *namebuf = '\0';  
+  if (len >= buflen || len < 0)
+    namebuf[0] = '\0';
 }
 
 #ifndef NOLUA
