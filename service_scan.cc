@@ -2310,7 +2310,6 @@ list<ServiceNFO *>::iterator svc;
 					  *(*svc)->devicetype_matched? (*svc)->devicetype_matched : NULL, 
 					  shouldWePrintFingerprint(*svc) ? (*svc)->getServiceFingerprint(NULL) : NULL);
    }  else {
-     if ((*svc)->getServiceFingerprint(NULL))
        (*svc)->port->setServiceProbeResults((*svc)->probe_state, NULL,
 					    (*svc)->tunnel, NULL, NULL, NULL, NULL, NULL, NULL,
 					    (*svc)->getServiceFingerprint(NULL));
