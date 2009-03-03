@@ -1,59 +1,71 @@
-TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
+MTODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
+o NSE memory issues (and gh_list assert failure) [David]
+  o See this thread: http://seclists.org/nmap-dev/2009/q1/0532.html
 
 o Ncat Windows issue where you make a connection and then take several
   seconds to type in a line to the server, Ncat wrongly times out when
   trying to write your line to the remote server. [David]
 
-o Defensive coding review of ncat_proxy.* [David]
-
-o Look at Dario Ciccarone's email from 5/1/07 about IPID sequence
-  issues, and consider adding IPID sequence test for closed-port-tcp as
-  they apparently can be different. [David]
-  o Also fix bug which causes SEQ to not be printed if the TCP open
-    port tests fail to produce results, even though the II and
-    (upcoming) CI tests may have useful results. [David]
-
-o Ncat user guide should probably discuss proxy
-  chaining somewhere (maybe the proxy section)
-
-o [Ncat] Why does Ncat require enclosure in a while loop to answer
-  repeated UDP queries, but not TCP?  For example, see the "Emulating
-  Diagnostic Services" section of the Ncat user's guide.
-
-o Ncat user guide "Emulating Diagnostic Services" page has a very long
-  UDP chargen server line which causes wrapping problems in web browsers
-  (e.g. it widens the page substantially).  It should probably be
-  split into multiple lines.
-
-o Ncat user guide proxying section says "The only exception is when
-  listing a proxy host by IPv6 address; then the port is required."
-  Why would we require a port number for IPv6 rather than just use the
-  same defaults as we do for IPv4?
-
-o Write Ncat users' guide, demonstrating all the neat stuff you can do
-  with it.  This should probably be in DocBook XML so it can be an NNS
-  chapter.  You might want to query nmap-dev for list of neat things
-  people do with ncat (or look around for what people do with nc).
-  Testing it out for examples might expose areas for improvement as
-  well. [David]
-
-o Consider converting this file to emacs org-mode
-  (http://orgmode.org/) format. [Fyodor]
-  o That format is still plain text and can be read/edited by vi
-    users, etc.
+o Ncat write timeout problems cause client to quit due to write
+  timeout sometimes. [David]
+  Examples:
+   o yes | ncat localhost
+   o when we paste a few lines into the terminal window in an Ncat chat
 
 o [Ncat] --talk should probably be changed (in the code and
   documentation) to --chat, as Ncat chat has a
   much nicer ring to it, IMHO.  --talk should remain as an alias to
-  --chat, but we don't need to document it.
+  --chat, but we don't need to document it. [David]
 
 o [Ncat] --chat should probably only allow reasonable chars, to avoid
   cntrl-chars, etc..  We could also consider a way for people to choose
   usernames.  We should probably make --ssl work.  If nothing else, it
   might be useful if you want to reduce the number of people
   connecting with telnet, etc. rather than ncat.
+
+o Ncat --chat should probably announce to everyone (including the new
+  person) when someone connects.  This tells the new person their
+  username, and lets everyone else know about the new connection. [David]
+
+o [Ncat] Wouldn't it be nice if we could support --exec (and maybe
+  some sort of partial-emulated --sh-exec) on Windows? [David]
+
+o [Ncat] When acting as an HTTP proxy, we should support GET mode as
+  well as CONNECT so that it works as a non-SSL proxy in browsers such
+  as firefox.
+
+o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
+
+o Defensive coding review of ncat_proxy.* [David]
+
+o Figure out and document (in at least the Ncat user's guide) the best way to use Ncat for chaining
+  through proxies.  One option is this sort of thing:
+  ncat -l localhost 1234 --sh-exec "ncat --proxy A.A.A.A B.B.B.B"
+  ncat --proxy localhost:1234 C.C.C.C
+  If you had two proxies A.A.A.A and B.B.B.B, connecting to C.C.C.C.
+  With another listener/--sh-exec pair for each additional proxy.
+  But perhaps we can make it easier by adding it to the syntax.
+
+o [Ncat] Why does Ncat require enclosure in a while loop to answer
+  repeated UDP queries, but not TCP?  For example, see the "Emulating
+  Diagnostic Services" section of the Ncat user's guide.
+  o Note: http://seclists.org/nmap-dev/2009/q1/0133.html
+
+o Ncat user guide "Emulating Diagnostic Services" page has a very long
+  UDP chargen server line which causes wrapping problems in web browsers
+  (e.g. it widens the page substantially).  It should probably be
+  split into multiple lines. [David]
+
+o Ncat user guide proxying section says "The only exception is when
+  listing a proxy host by IPv6 address; then the port is required."
+  Why would we require a port number for IPv6 rather than just use the
+  same defaults as we do for IPv4?
+
+o Consider converting this file to emacs org-mode
+  (http://orgmode.org/) format. [Fyodor]
+  o That format is still plain text and can be read/edited by vi
+    users, etc.
 
 o Determine what we should do about the IE.DLI OS detection test
   o It appears that of the 1657 results for this test in nmap-os-db,
@@ -67,9 +79,6 @@ o Determine what we should do about the IE.DLI OS detection test
 o [Ncat] Let people set up authenticated proxies using
   --listen and --proxy-auth together (right now we don't support
   that). [David]
-
-o [Ncat] When acting as an HTTP proxy, shouldn't we support the GET
-  method?  Is that what most browsers use?
 
 o [Ncat] Can we use it as an IPv4 <-> IPv6 gateway?  If so (or if we
   can add it), it should be added to the ncat guide feature list.
@@ -143,9 +152,6 @@ o [NSE] Open proxy detection script?
   that to handle other types of proxies (such as SOCKS and HTTP
   CONNECT) or create more scripts to handle those other proxy types.
 
-o [Ncat] Wouldn't it be nice if we could support --exec (and maybe
-  some sort of partial-emulated --sh-exec) on Windows?
-
 o Prepare for Summer of Code
   o Brainstorm for ideas
   o Create new ideas page
@@ -164,9 +170,6 @@ o Make Zenmap settings get upgraded when the Zenmap executable is
   may involve hard-coding settings that are not normally configured by
   users (like highlighting) or updating the per-user files at startup
   (only those parts that haven't been changed by the user).
-
-o Process the latest version detection submissions.  We now have more
-  than 1,700 of them queued up. [Doug]
 
 o [Ndiff] Rethink the output format. In particular, I would like to
   always have the old state on the left and the new state on the
@@ -472,6 +475,12 @@ o I need an output-autoflush option of some sort.  This could be
   useful to ensure I get all the --packet_trace and debug data before
   Nmap crashes.  Actually, I'm not sure that is so critical.
 
+o We added the SEQ.CI value in Feb 2009 with 0 matchpoints.  At some
+  point (once we have some real-life values) we need to evaluate whether
+  we want to give it points.  A good time to do that would be when we
+  next do fingerprint integration, so we will actually have examples
+  of .CI in the nmap-os-db.
+
 o Consider implementing RPC scan with ultra_scan or something else.
   Right now it is the only program using pos_scan.  On the other hand,
   I'm not sure TCP rpc scanning is appropriate for ultra_scan.
@@ -533,6 +542,23 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Process the latest version detection submissions.  We now have more
+  than 1,700 of them queued up. [Doug]
+
+o Write Ncat users' guide, demonstrating all the neat stuff you can do
+  with it.  This should probably be in DocBook XML so it can be an NNS
+  chapter.  You might want to query nmap-dev for list of neat things
+  people do with ncat (or look around for what people do with nc).
+  Testing it out for examples might expose areas for improvement as
+  well. [David]
+
+o Look at Dario Ciccarone's email from 5/1/07 about IPID sequence
+  issues, and consider adding IPID sequence test for closed-port-tcp as
+  they apparently can be different. [David]
+  o Also fix bug which causes SEQ to not be printed if the TCP open
+    port tests fail to produce results, even though the II and
+    (upcoming) CI tests may have useful results. [David]
 
 o NSE should offer some way to sleep/yield for a given amount of
   time.  This would allow other scripts to run while a script has
