@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] The --talk option has been renamed --chat. --talk remains as an
+  undocumented alias.
+
 o There is a new OS detection test called SEQ.CI. Like TI and II, CI
   classifies the target's IP ID sequence generation algorithm. CI is
   based on the responses received to the probes sent to a closed port.
