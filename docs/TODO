@@ -62,6 +62,10 @@ o Ncat user guide proxying section says "The only exception is when
   Why would we require a port number for IPv6 rather than just use the
   same defaults as we do for IPv4?
 
+o Nmap should treat ports named "unknown" in nmap-services the same
+  way (from a naming perspective) as it treats ports which are not
+  listed at all.  See http://seclists.org/nmap-dev/2009/q1/0589.html.
+
 o Consider converting this file to emacs org-mode
   (http://orgmode.org/) format. [Fyodor]
   o That format is still plain text and can be read/edited by vi
