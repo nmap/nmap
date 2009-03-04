@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed the install-zenmap make target for Solaris portability.
+  Solaris /bin/sh does not have test(1) -e. [Daniel Roethlisberger]
+
 o Version detection used to omit the "ssl/" service name prefix if an
   SSL-tunneled port didn't respond to any version probes. Now it keeps
   "ssl/" as an indication that SSL was discovered, even if the service

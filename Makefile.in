@@ -227,7 +227,7 @@ install-zenmap: $(ZENMAPDIR)/setup.py
 	$(INSTALL) -c -m 644 docs/zenmap.1 $(DESTDIR)$(mandir)/man1/
 # Create a symlink from nmapfe to zenmap if nmapfe doesn't exist or is
 # already a link.
-	if [ ! -e $(DESTDIR)$(bindir)/nmapfe -o -L $(DESTDIR)$(bindir)/nmapfe ]; then \
+	if [ ! -f $(DESTDIR)$(bindir)/nmapfe -o -L $(DESTDIR)$(bindir)/nmapfe ]; then \
 		ln -sf zenmap $(DESTDIR)$(bindir)/nmapfe; \
 	fi
 # Create a symlink from xnmap to zenmap unconditionally.
