@@ -1347,7 +1347,7 @@ int nmap_main(int argc, char *argv[]) {
   if (o.ipprotscan) {
 	  if (portlist) getpts(portlist, &ports);
 	  else getpts((char *) (o.fastscan ? "[P:0-]" : "0-"), &ports);  // Default protocols to scan
-  } else {
+  } else if (!o.pingscan && !o.listscan) {
     gettoppts(o.topportlevel, portlist, &ports);
   }
 
