@@ -7,7 +7,40 @@ o Added two new SMB/MSRPC scripts:
     smb-pwdump.nse: Uses executables from the Pwdump6 project to 
        dump password hashes from a remote machine (and optionally
        crack them with Rainbow Crack). Pwdump6 files have to be 
-       downloaded separately
+       downloaded separately [Ron Bowes]
+
+o Improved operating system support for smb-enum-sessions; previous
+  revisions worked on Windows 2003 or Windows 2000, but never both. 
+  Currently, it is tested and working on both versions.  [Ron Bowes]
+
+o Refactored SMB and MSRPC scripts significantly, moving much of the
+  code into the smb.lua and msrpc.lua modules where it can be leveraged
+  by other scripts. For example, the user enumeration functions are
+  used by smb-brute.nse. [Ron Bowes]
+
+o Added bindings for the service control (SVCCTL) and at service (ATSVC)
+  services. These are both related to running processes on the remote 
+  system (identical to how PsExec-style scripts work). These bindings
+  are used by smb-pwdump.nse. [Ron Bowes]
+
+o Refactored SMB authentication code into its own module, smbauth.lua. 
+  Improved scripts' ability to store and retrieve login information 
+  discovered by modules such as smb-brute.nse. [Ron Bowes]
+
+o Added message signing to SMB. Connections will no longer fail if the
+  server requires message signatures. This is a rare case, but comes up
+  on occasion. If a server allows but doesn't require message signing, 
+  smb.lua will negotiate signing. This improves security by preventing
+  man in the middle attacks. [Ron Bowes]
+
+o Implemented extended security negotiations in SMB. Creates no 
+  noticeable change from the user's perspective, but it's a more modern
+  protocol. [Ron Bowes]
+
+o Implemetned file-management functions in SMB, including file upload, 
+  file download, and file delete. Only leverages by smb-pwdump.nse at
+  the moment, these functions give scripts the ability to perform 
+  checks against the filesystem of a server. [Ron Bowes]
 
 o Fixed the install-zenmap make target for Solaris portability.
   Solaris /bin/sh does not have test(1) -e. [Daniel Roethlisberger]
