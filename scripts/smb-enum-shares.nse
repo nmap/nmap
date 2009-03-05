@@ -1,21 +1,25 @@
 description = [[
 Attempts to list shares using the <code>srvsvc.NetShareEnumAll</code> MSRPC function and
-retrieve more information about them using <code>srvsvc.NetShareGetInfo</code>.
+retrieve more information about them using <code>srvsvc.NetShareGetInfo</code>. If access
+to those functions is denied, a list of common share names are checked. 
+
+Finding open shares is useful to a penetration tester because there may be private files
+shared, or, if it's writable, it could be a good place to drop a Trojan or to infect a file
+that's already there. Knowing where the share is could make those kinds of tests more useful, 
+except that determiing where the share is requires administrative privileges already. 
 
 Running <code>NetShareEnumAll</code> will work anonymously against Windows 2000, and 
 requires a user-level account on any other Windows version. Calling <code>NetShareGetInfo</code> 
-requires an administrator account on every version of Windows I (Ron Bowes) tested. 
+requires an administrator account on all versions of Windows up to 2003, as well as Windows Vista
+and Windows 7, if UAC is turned down. 
 
-Although <code>NetShareEnumAll</code> is restricted on certain systems, making a connection to
-a share to check whether or not it exists will always work. So, if <code>NetShareEnumAll</code> 
-fails, a list of common shares will be checked. 
+Even if <code>NetShareEnumAll</code> is restricted, attempting to connect to a share will always
+reveal its existence. So, if <code>NetShareEnumAll</code> fails, a pre-generated list of shares,
+based on a large test network, are used. If any of those succeed, they are recorded. 
 
-After a list of shares is found, we attempt to connect to each of them anonymously, which lets 
-us divide them into the classes "anonymous" and "restricted." 
-
-When possible, once the list of shares is determined, <code>NetShareGetInfo</code> is called 
-to get additional information on them. Odds are this will fail, unless we're doing an authenticated 
-test. 
+After a list of shares is found, the script attempts to connect to each of them anonymously, 
+which divides them into "anonymous", for shares that the NULL user can connect to, or "restricted",
+for shares that require a user account. 
 ]]
 
 ---
@@ -67,51 +71,6 @@ require 'stdnse'
 
 hostrule = function(host)
 	return smb.get_port(host) ~= nil
-end
-
----Attempts to enumerate the shares on a remote system using MSRPC calls. This will likely fail 
--- against a modern system, but will succeed against Windows 2000. 
---
---@param host The host object. 
---@return Status (true or false).
---@return List of shares (if status is true) or an an error string (if status is false).
-local function samr_enum_shares(host)
-
-	local status, smbstate
-	local bind_result, netshareenumall_result
-	local shares
-	local i, v
-
-	-- Create the SMB session
-	status, smbstate = msrpc.start_smb(host, msrpc.SRVSVC_PATH)
-	if(status == false) then
-		return false, smbstate
-	end
-
-	-- Bind to SRVSVC service
-	status, bind_result = msrpc.bind(smbstate, msrpc.SRVSVC_UUID, msrpc.SRVSVC_VERSION, nil)
-	if(status == false) then
-		smb.stop(smbstate)
-		return false, bind_result
-	end
-
-	-- Call netsharenumall
-	status, netshareenumall_result = msrpc.srvsvc_netshareenumall(smbstate, host.ip)
-	if(status == false) then
-		smb.stop(smbstate)
-		return false, netshareenumall_result
-	end
-
-	-- Stop the SMB session
-	smb.stop(smbstate)
-
-	-- Convert the share list to an array
-	shares = {}
-	for i, v in pairs(netshareenumall_result['ctr']['array']) do
-		shares[#shares + 1] = v['name']
-	end
-
-	return true, shares
 end
 
 ---Attempts to connect to a list of shares as the anonymous user, returning which ones
@@ -205,42 +164,6 @@ function check_shares(host, shares)
     return true, allowed_shares, denied_shares
 end
 
----Attempts to retrieve additional information about a share. Will fail unless we have 
--- administrative access. 
---
---@param host The host object. 
---@return Status (true or false).
---@return List of shares (if status is true) or an an error string (if status is false).
-local function get_share_info(host, name)
-	local status, smbstate
-	local response = {}
-
-	-- Create the SMB session
-	status, smbstate = msrpc.start_smb(host, msrpc.SRVSVC_PATH)
-	if(status == false) then
-		return false, smbstate
-	end
-
-	-- Bind to SRVSVC service
-	status, bind_result = msrpc.bind(smbstate, msrpc.SRVSVC_UUID, msrpc.SRVSVC_VERSION, nil)
-	if(status == false) then
-		smb.stop(smbstate)
-		return false, bind_result
-	end
-
-	-- Call NetShareGetInfo
-	status, netsharegetinfo_result = msrpc.srvsvc_netsharegetinfo(smbstate, host.ip, name, 2)
-	if(status == false) then
-		smb.stop(smbstate)
-		return false, netsharegetinfo_result
-	end
-
-	smb.stop(smbstate)
-
-	return true, netsharegetinfo_result
-
-end
-
 action = function(host)
 
 	local enum_result
@@ -250,7 +173,7 @@ action = function(host)
 	local allowed, denied
 
 	-- Try and do this the good way, make a MSRPC call to get the shares
-	enum_result, shares = samr_enum_shares(host)
+	enum_result, shares = msrpc.enum_shares(host)
 
 	-- If that failed, try doing it with brute force. This almost certainly won't find everything, but it's the
 	-- best we can do. 
@@ -295,7 +218,7 @@ action = function(host)
 	else
 		response = response .. string.format("Anonymous shares:\n")
 		for i = 1, #allowed, 1 do
-			local status, info = get_share_info(host, allowed[i])
+			local status, info = msrpc.get_share_info(host, allowed[i])
 
 			response = response .. string.format("   %s\n", allowed[i])
 
@@ -317,7 +240,7 @@ action = function(host)
 
 		response = response .. string.format("Restricted shares:\n")
 		for i = 1, #denied, 1 do
-			local status, info = get_share_info(host, denied[i])
+			local status, info = msrpc.get_share_info(host, denied[i])
 
 			response = response .. string.format("   %s\n", denied[i])
 

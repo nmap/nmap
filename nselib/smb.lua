@@ -1,21 +1,25 @@
---- Server Message Block (SMB, also known as CIFS) traffic.
+---Implements functionality related to Server Message Block (SMB, also known 
+-- as CIFS) traffic, which is a Windows protocol.
 --
--- SMB traffic is normally sent to/from ports 139 or 445 of Windows systems, some of them
--- properly and many of them not. Samba implements it, as do many printers and other embedded
--- devices. Although the protocol has been documented decently well by Samba and others, 
--- many 3rd party implementations are broken or make assumptions. 
+-- SMB traffic is normally sent to/from ports 139 or 445 of Windows systems. Other systems
+-- implement SMB as well, including Samba and a lot of embedded devices. Some of them implement
+-- it properly and many of them not. Although the protocol has been documented decently 
+-- well by Samba and others, many 3rd party implementations are broken or make assumptions. 
+-- Even Samba's and Windows' implementations aren't completely compatiable. As a result, 
+-- creating an implementation that accepts everything is a bit of a minefield. 
 --
--- Naturally, I do the same; however, that being said, this has been tested against every
--- broken implementation we could find, and will accept (or fail gracefully) against any 
--- bad implementations we could find. 
+-- Where possible, this implementation, since it's intended for scanning, will attempt to 
+-- accept any invalid implementations it can, and fail gracefully if it can't. This has
+-- been tested against a great number of weird implementations, and it now works against 
+-- all of them. 
 --
 -- The intention of this library is to eventually handle all aspects of the SMB protocol.
--- That being said, I'm only implementing the pieces that I find myself needing. If you 
+-- That being said, I'm only implementing the pieces that I (Ron Bowes) need. If you 
 -- require something more, let me know and I'll put it on my todo list. 
 --
--- A programmer using this library must already have some knowledge of the SMB protocol, 
--- although a lot isn't necessary. You can pick up a lot by looking at the code that uses
--- this. The basic login/logoff is this:
+-- A programmer using this library should already have some knowledge of the SMB protocol, 
+-- although a lot isn't necessary. You can pick up a lot by looking at the code. The basic
+-- login/logoff is this:
 --
 --<code>
 -- [connect]
@@ -30,6 +34,7 @@
 -- S->C SMB_COM_TREE_DISCONNECT
 -- C->S SMB_COM_LOGOFF_ANDX
 -- S->C SMB_COM_LOGOFF_ANDX
+-- [disconnect]
 --</code>
 --
 -- In terms of functions here, the protocol is:
@@ -61,76 +66,53 @@
 -- "NT LM 0.12", which is the most commonly supported one. Among other things, the server's 
 -- response contains the host's security level, the system time, and the computer/domain name. 
 -- Some systems will refuse to use that protocol and return "-1" or "1" instead of 0. If that's 
--- detected, we kill the connection (because the protocol following will be unexpected). 
+-- detected, we kill the connection (because the protocol following won't work). 
 --
 -- If that's successful, <code>SMB_COM_SESSION_SETUP_ANDX</code> is sent. It is essentially the logon
 -- packet, where the username, domain, and password are sent to the server for verification. 
 -- The username and password are generally picked up from the program parameters, which are
--- set when running a script, or from the registry (<code>nmap.registry[<ip>]['smbaccounts'])
--- where it can be set by other scripts (for example, smb-brute.nse). However, they can also 
--- be passed as parameters to the function, which will override any other username/password set. 
+-- set when running a script, or from the registry where it can be set by other scripts (for 
+-- example, <code>smb-brute.nse</code>). However, they can also be passed as parameters to the 
+-- function, which will override any other username/password set. 
 --
--- If a username is set without a password, then a NULL session is started. If a login fails,
--- we attempt to log in as the 'GUEST' account with a blank password. If that fails, we try
--- setting up a NULL session. Starting a NULL session will always work, but we may not get
--- any further (<code>tree_connect</code> might fail). 
+-- If a username and password are set, they are used for the first login attempt. If a login fails,
+-- or they weren't set, a connection as the 'GUEST' account with a blank password is attempted. If
+-- that fails, then a NULL session is established, which should always work. The username/password
+-- will give the highest access level, GUEST will give lower access, and NULL will give the lowest
+-- (often, NULL will give no access). 
 --
--- In terms of the login protocol, by default, we sent only NTLMv1 authentication, Lanman
--- isn't sent at all. The reason for this is, NTLMv2 isn't supported by every system (and I 
--- don't know how to do message signing on the v2 protocols), and doesn't have a significant security
--- advantage over NTLMv1 for performing single scans (the major change in NTLMv2 is incorporating 
--- a client challenge). Lanman is somewhat insecure, though, so I don't send it at all. These options 
--- can, however, be overridden either through script parameters or registry settings.
---
--- Lanman v1 is a fairly weak protocol, although it's still fairly difficult to break. NTLMv1 is a slightly more secure
--- protocol (although not much) -- it's also fairly difficult to reverse, though. Windows clients, by default send LMv1 and
--- NTLMv1 together, but every modern Windows server will accept NTLM alone, so I opted to use that. LMv2 and NTLMv2 are
--- slightly more secure, and they let the client specify random data (to help fight malicious servers with pre-
--- generated tables). LMv2 and NTLMv2 are identical, except that NTLMv2 has a longer client challenge. LMv2 can be sent
--- alone, but NTLMv2 can't.
---
--- Another interesting aspect of the password hashing is that the original password isn't even necessary, the
--- password's hash can be used instead. This hash can be dumped from memory of a live system by tools such as
--- pwdump and fgdump, or read straight from the SAM file (maybe some day, I'll do an Nmap script to dump it). 
--- This means that if a password file is recovered, it doesn't even need to be cracked before it can be used here.
+-- The actual login protocol used by <code>SMB_COM_SESSION_SETUP_ANDX</code> is explained in detail
+-- in <code>smbauth.lua</code>. 
 --
 -- Thanks go to Christopher R. Hertel and his book Implementing CIFS, which 
 -- taught me everything I know about Microsoft's protocols. Additionally, I used Samba's
--- list of error codes for my constants, although I don't believe they would be covered
+-- list of error codes for my constants. Although I don't believe they would be covered
 -- by GPL, since they're public now anyways, but I'm not a lawyer and, if somebody feels
 -- differently, let me know and we can sort this out. 
 --
--- Scripts that use this module can use the script arguments
--- <code>smbusername</code>, <code>smbpassword</code>, <code>smbhash</code>,
+-- Scripts that use this module can use the script arguments listed below
 -- example of using these script arguments:
 -- <code>
--- nmap --script=smb-<script>.nse --script-args=smbuser=ron,smbpass=iagotest2k3 <host>
+-- nmap --script=smb-<script>.nse --script-args=smbuser=ron,smbpass=iagotest2k3,smbbasic=1,smbsign=force <host>
 -- </code>
 -- 
---@args  smbusername The SMB username to log in with. The forms "DOMAIN\username" and "username@DOMAIN"
---                   are not understood. To set a domain, use the <code>smbdomain</code> argument. 
---@args  smbdomain   The domain to log in with. If you aren't in a domained environment, then anything
---                   will (should?) be accepted by the server. 
---@args  smbpassword The password to connect with. Be cautious with this, since some servers will lock
---                   accounts if the incorrect password is given. Although it's rare that the
---                   Administrator account can be locked out, in the off chance that it can, you could
---                   get yourself in trouble. 
---@args  smbhash     A password hash to use when logging in. This is given as a single hex string (32
---                   characters) or a pair of hex strings (both 32 characters, optionally separated by a 
---                   single character). These hashes are the LanMan or NTLM hash of the user's password,
---                   and are stored on disk or in memory. They can be retrieved from memory
---                   using the fgdump or pwdump tools. 
---@args  smbtype     The type of SMB authentication to use. These are the possible options:
--- * <code>v1</code>: Sends LMv1 and NTLMv1.
--- * <code>LMv1</code>: Sends LMv1 only.
--- * <code>NTLMv1</code>: Sends NTLMv1 only (default).
--- * <code>v2</code>: Sends LMv2 and NTLMv2.
--- * <code>LMv2</code>: Sends LMv2 only.
---                   The default, <code>NTLMv1</code>, is a pretty
---                   decent compromise between security and compatibility. If you are paranoid, you might 
---                   want to use <code>v2</code> or <code>lmv2</code> for this. (Actually, if you're paranoid, you should be 
---                   avoiding this protocol altogether :P). If you're using an extremely old system, you 
---                   might need to set this to <code>v1</code> or <code>lm</code>, which are less secure but more compatible. 
+--@args  smbbasic    Forces the authentication to use basic security, as opposed to "extended security". 
+--                   Against most modern systems, extended security should work, but there may be cases
+--                   where you want to force basic. There's a chance that you'll get better results for 
+--                   enumerating users if you turn on basic authentication. 
+--@args smbsign      Controls whether or not server signatures are checked in SMB packets. By default, on Windows,
+--                   server signatures aren't enabled or required. By default, this library will always sign 
+--                   packets if it knows how, and will check signatures if the server says to. Possible values are:
+-- * <code>force<code>:      Always check server signatures, even if server says it doesn't support them (will 
+--                           probably fail, but is technically more secure). 
+-- * <code>negotiate</code>: [default] Use signatures if server supports them. 
+-- * <code>ignore</code>:    Never check server signatures. Not recommended. 
+-- * <code>disable</code>:   Don't send signatures, at all, and don't check the server's. not recommended. 
+--                   More information on signatures can be found in <code>smbauth.lua</code>.
+--@args smbport      Override the default port choice. If <code>smbport</code> is open, it's used. It's assumed
+--                   to be the same protocol as port 445, not port 139. Since it probably isn't possible to change
+--                   Windows' ports normally, this is mostly useful if you're bouncing through a relay or something. 
+--                   
 --@author Ron Bowes <ron@skullsecurity.net>
 --@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -----------------------------------------------------------------------
@@ -139,8 +121,9 @@ module(... or "smb", package.seeall)
 require 'bit'
 require 'bin'
 require 'netbios'
+require 'nsedebug'
+require 'smbauth'
 require 'stdnse'
-have_ssl = (nmap.have_ssl() and pcall(require, "openssl"))
 
 -- These arrays are filled in with constants at the bottom of this file
 command_codes = {}
@@ -249,6 +232,16 @@ function get_port(host)
 	local port_u137 = nmap.get_port_state(host, {number=137, protocol="udp"})
 	local port_t139 = nmap.get_port_state(host, {number=139, protocol="tcp"})
 	local port_t445 = nmap.get_port_state(host, {number=445, protocol="tcp"})
+	local custom_port = nil
+
+	if(nmap.registry.args.smbport ~= nil) then
+		custom_port = nmap.get_port_state(host, {number=tonumber(nmap.registry.args.smbport), protocol="tcp"})
+	end
+
+	-- Try a user-defined port first
+	if(custom_port ~= nil and custom_port.state == "open") then
+		return custom_port.number
+	end
 
 	if(port_t445 ~= nil and port_t445.state == "open") then
 		 -- tcp/445 is open, we're good
@@ -270,7 +263,7 @@ end
 --@param string The base string. 
 --@param blank  The string to return if <code>string</code> was blank
 --@return Either <code>string</code> or, if it was blank, <code>blank</code>
-function string_or_blank(string, blank)
+local function string_or_blank(string, blank)
 	if(string == nil or string == "") then
 		if(blank == nil) then
 			return "<blank>"
@@ -279,6 +272,77 @@ function string_or_blank(string, blank)
 		end
 	else
 		return string
+	end
+end
+
+---Turn off extended security negotiations for this connection. There are a few reasons you might want to
+-- do that, the main ones being that extended security is going to be marginally slower and it's not going
+-- to give the same level of information in some cases (namely, it doesn't present the server's name). 
+--@param smb The SMB state table. 
+function disable_extended(smb)
+	smb['extended_security'] = false
+end
+
+---Writes the given account to the registry. There are several places where accounts are stored:
+-- * registry['usernames'][username]        => true
+-- * registry['smbaccounts'][username]      => password
+-- * registry[ip]['smbaccounts'][username]  => password
+-- * registry[ip]['smbaccount']['username'] => username
+-- * registry[ip]['smbaccount']['password'] => password
+-- * registry[ip]['smbaccount']['is_admin'] => true or false
+--
+-- The final place, 'smbaccount', is reserved for the "best" account. This is an administrator
+-- account, if one's found; otherwise, it's the first account discovered that isn't <code>guest</code>. 
+--
+-- This has to be called while no SMB connections are made, since it potentially makes its own connection.
+--
+--@param ip       The ip address of the host
+--@param username The username to add. 
+--@param password The password to add. 
+function add_account(host, username, password)
+	local best_account = false
+
+	-- Save the username in a global list
+	if(nmap.registry.usernames == nil) then
+		nmap.registry.usernames = {}
+	end
+	nmap.registry.usernames[username] = true
+
+	-- Save the username/password pair in a global list
+	if(nmap.registry.smbaccounts == nil) then
+		nmap.registry.smbaccounts = {}
+	end
+	nmap.registry.smbaccounts[username] = password
+
+	-- Save the username/password pair for the server with the others
+	if(nmap.registry[host.ip] == nil) then
+		nmap.registry[host.ip] = {}
+	end
+	if(nmap.registry[host.ip]['smbaccounts'] == nil) then
+		nmap.registry[host.ip]['smbaccounts'] = {}
+	end
+	nmap.registry[host.ip]['smbaccounts'][username] = password
+
+	-- Don't bother saving if our account is guest or blank (those are tried anyways)
+	if(string.lower(username) ~= "guest" and string.lower(username) ~= "") then
+		-- Save the new account if this is our first one, or our other account isn't an admin
+		if(nmap.registry[host.ip]['smbaccount'] == nil or nmap.registry[host.ip]['smbaccount']['is_admin'] == false) then
+			local result
+	
+			nmap.registry[host.ip]['smbaccount'] = {}
+			nmap.registry[host.ip]['smbaccount']['username'] = username
+			nmap.registry[host.ip]['smbaccount']['password'] = password
+	
+			-- Try getting information about "IPC$". This determines whether or not the user is administrator
+			-- since only admins can get share info. 
+			nmap.registry[host.ip]['smbaccount']['is_admin'], _ = msrpc.get_share_info(host, "IPC$")
+	
+			if(nmap.registry[host.ip]['smbaccount']['is_admin'] == true) then
+				stdnse.print_debug(1, "SMB: Saved an administrative account: %s", username)
+			else
+				stdnse.print_debug(1, "SMB: Saved a non-administrative account: %s", username)
+			end
+		end
 	end
 end
 
@@ -294,9 +358,17 @@ function start(host)
 	local status, result
 	local state = {}
 
-	state['uid']  = 0
-	state['tid']  = 0
-	state['ip']   = host.ip
+	state['uid']      = 0
+	state['tid']      = 0
+	state['ip']       = host.ip
+	state['sequence'] = -1
+
+	-- Check whether or not the user requested basic authentication
+	if(nmap.registry.args.smbbasic == nil) then
+		state['extended_security'] = true
+	else
+		state['extended_security'] = false
+	end
 
 	-- Store the name of the server
 	status, result = netbios.get_server_name(host.ip)
@@ -312,9 +384,9 @@ function start(host)
 
 	lock_mutex(state, "start(1)")
 
-	if(port == 445) then
+	if(port ~= 139) then
 		status, state['socket'] = start_raw(host, port)
-		state['port'] = 445
+		state['port'] = port
 
 		if(status == false) then
 			unlock_mutex(state, "start(1)")
@@ -322,9 +394,9 @@ function start(host)
 		end
 		return true, state
 
-	elseif(port == 139) then
+	else
 		status, state['socket'] = start_netbios(host, port)
-		state['port'] = 139
+		state['port'] = port
 		if(status == false) then
 			unlock_mutex(state, "start(2)")
 			return false, state['socket']
@@ -336,6 +408,76 @@ function start(host)
 	unlock_mutex(state, "start(3)")
 
 	return false, "SMB: Couldn't find a valid port to check"
+end
+
+---Initiates a SMB connection over whichever port it can, then optionally sends the common
+-- initialization packets. Note that each packet depends on the previous one, so if you want
+-- to go all the way up to create_file, you have to set all parameters. 
+--
+-- If anything fails, we back out of the connection and return an error, so the calling functino
+-- doesn't have to call smb.stop(). 
+--
+--@param host               The host object. 
+--@param negotiate_protocol [optional] If 'true', send the protocol negotiation. Default: false. 
+--@param start_session      [optional] If 'true', start the session. Default: false. 
+--@param tree_connect       [optional] The tree to connect to, if given (eg. "IPC$" or "C$"). If not given, 
+--                          packet isn't sent. 
+--@param create_file        [optional] The path and name of the file (or pipe) that's created, if given. If 
+--                          not given, packet isn't sent. 
+--@param disable_extended   [optional] If set to true, disables extended security negotiations. 
+function start_ex(host, negotiate_protocol, start_session, tree_connect, create_file, disable_extended)
+	local smbstate
+	local status, err
+
+	-- Begin the SMB session
+	status, smbstate = smb.start(host)
+	if(status == false) then
+		return false, smbstate
+	end
+
+	-- Disable extended security if it was requested
+	if(disable_extended == true) then
+		smb.disable_extended(smbstate)
+	end
+
+	if(negotiate_protocol == true) then
+		-- Negotiate the protocol
+		status, err = smb.negotiate_protocol(smbstate)
+		if(status == false) then
+			smb.stop(smbstate)
+			return false, err
+		end
+
+		if(start_session == true) then	
+			-- Start up a session
+			status, err = smb.start_session(smbstate)
+			if(status == false) then
+				smb.stop(smbstate)
+				return false, err
+			end
+
+			if(tree_connect ~= nil) then
+				-- Connect to share
+				status, err = smb.tree_connect(smbstate, tree_connect)
+				if(status == false) then
+					smb.stop(smbstate)
+					return false, err
+				end
+
+				if(create_file ~= nil) then
+					-- Try to connect to requested pipe
+					status, err = smb.create_file(smbstate, create_file)
+					if(status == false) then
+						smb.stop(smbstate)
+						return false, err
+					end
+				end
+			end
+		end
+	end
+
+	-- Return everything
+	return true, smbstate
 end
 
 --- Kills the SMB connection, closes the socket, and releases the mutex. Because of the mutex 
@@ -537,179 +679,6 @@ function start_netbios(host, port, name)
 	return false, "SMB: Couldn't find a NetBIOS name that works for the server. Sorry!"
 end
 
----Generate the Lanman v1 hash (LMv1). The generated hash is incredibly easy to reverse, because the input
--- is padded or truncated to 14 characters, then split into two 7-character strings. Each of these strings
--- are used as a key to encrypt the string, "KGS!@#$%" in DES. Because the keys are no longer than 
--- 7-characters long, it's pretty trivial to bruteforce them. 
---
---@param password the password to hash
---@return (status, hash) If status is true, the hash is returned; otherwise, an error message is returned.
-function lm_create_hash(password)
-	if(have_ssl ~= true) then
-		return false, "SMB: OpenSSL not present"
-	end
-
-	local str1, str2
-	local key1, key2
-	local result
-
-	-- Convert the password to uppercase
-	password = string.upper(password)
-
-	-- If password is under 14 characters, pad it to 14
-	if(#password < 14) then
-		password = password .. string.rep(string.char(0), 14 - #password)
-	end
-
-	-- Take the first and second half of the password (note that if it's longer than 14 characters, it's truncated)
-	str1 = string.sub(password, 1, 7)
-	str2 = string.sub(password, 8, 14)
-
-	-- Generate the keys
-	key1 = openssl.DES_string_to_key(str1)
-	key2 = openssl.DES_string_to_key(str2)
-
-	-- Encrypt the string "KGS!@#$%" with each half, and concatenate it
-	result = openssl.encrypt("DES", key1, nil, "KGS!@#$%") .. openssl.encrypt("DES", key2, nil, "KGS!@#$%")
-
-	return true, result
-end
-
----Generate the NTLMv1 hash. This hash is quite a bit better than LMv1, and is far easier to generate. Basically,
--- it's the MD4 of the Unicode password. 
---
---@param password the password to hash
---@return (status, hash) If status is true, the hash is returned; otherwise, an error message is returned.
-function ntlm_create_hash(password)
-	if(have_ssl ~= true) then
-		return false, "SMB: OpenSSL not present"
-	end
-
-	local i
-	local unicode = ""
-
-	for i = 1, #password, 1 do
-		unicode = unicode .. bin.pack("<S", string.byte(password, i))
-	end
-
-	return true, openssl.md4(unicode)
-end
-
----Create the Lanman response to send back to the server. To do this, the Lanman password is padded to 21 
--- characters and split into three 7-character strings. Each of those strings is used as a key to encrypt
--- the server challenge. The three encrypted strings are concatenated and returned. 
---
---@param lanman    The LMv1 hash
---@param challenge The server's challenge. 
---@return (status, response) If status is true, the response is returned; otherwise, an error message is returned.
-function lm_create_response(lanman, challenge)
-	if(have_ssl ~= true) then
-		return false, "SMB: OpenSSL not present"
-	end
-
-	local str1, str2, str3
-	local key1, key2, key3
-	local result
-
-	-- Pad the hash to 21 characters
-	lanman = lanman .. string.rep(string.char(0), 21 - #lanman)
-
-	-- Take the first and second half of the password (note that if it's longer than 14 characters, it's truncated)
-	str1 = string.sub(lanman, 1,  7)
-	str2 = string.sub(lanman, 8,  14)
-	str3 = string.sub(lanman, 15, 21)
-
-	-- Generate the keys
-	key1 = openssl.DES_string_to_key(str1)
-	key2 = openssl.DES_string_to_key(str2)
-	key3 = openssl.DES_string_to_key(str3)
-
-	-- Encrypt the challenge with each key
-	result = openssl.encrypt("DES", key1, nil, challenge) .. openssl.encrypt("DES", key2, nil, challenge) .. openssl.encrypt("DES", key3, nil, challenge) 
-
-	return true, result
-end
-
----Create the NTLM response to send back to the server. This is actually done the exact same way as the Lanman hash,
--- so I call the <code>Lanman</code> function. 
---
---@param ntlm      The NTLMv1 hash
---@param challenge The server's challenge. 
---@return (status, response) If status is true, the response is returned; otherwise, an error message is returned.
-function ntlm_create_response(ntlm, challenge)
-	return lm_create_response(ntlm, challenge)
-end
-
----Create the NTLMv2 hash, which is based on the NTLMv1 hash (for easy upgrading), the username, and the domain. 
--- Essentially, the NTLM hash is used as a HMAC-MD5 key, which is used to hash the unicode domain concatenated 
--- with the unicode username. 
---
---@param ntlm     The NTLMv1 hash. 
---@param username The username we're using. 
---@param domain   The domain. 
---@return (status, response) If status is true, the response is returned; otherwise, an error message is returned.
-function ntlmv2_create_hash(ntlm, username, domain)
-	if(have_ssl ~= true) then
-		return false, "SMB: OpenSSL not present"
-	end
-
-	local unicode = ""
-
-	username = string.upper(username)
-	domain   = string.upper(domain)
-
-	for i = 1, #username, 1 do
-		unicode = unicode .. bin.pack("<S", string.byte(username, i))
-	end
-
-	for i = 1, #domain, 1 do
-		unicode = unicode .. bin.pack("<S", string.byte(domain, i))
-	end
-
-	return true, openssl.hmac("MD5", ntlm, unicode)
-end
-
----Create the LMv2 response, which can be sent back to the server. This is identical to the <code>NTLMv2</code> function, 
--- except that it uses an 8-byte client challenge. 
---
--- The reason for LMv2 is a long and twisted story. Well, not really. The reason is basically that the v1 hashes
--- are always 24-bytes, and some servers expect 24 bytes, but the NTLMv2 hash is more than 24 bytes. So, the only
--- way to keep pass-through compatibility was to have a v2-hash that was guaranteed to be 24 bytes. So LMv1 was
--- born -- it has a 16-byte hash followed by the 8-byte client challenge, for a total of 24 bytes. And now you've
--- learned something
---
---@param ntlm      The NVLMv1 hash.
---@param username  The username we're using. 
---@param domain    The domain. 
---@param challenge The server challenge. 
---@return (status, response) If status is true, the response is returned; otherwise, an error message is returned.
-function lmv2_create_response(ntlm, username, domain, challenge)
-	return ntlmv2_create_response(ntlm, username, domain, challenge, 8)
-end
-
----Create the NTLMv2 response, which can be sent back to the server. This is done by using the HMAC-MD5 algorithm
--- with the NTLMv2 hash as a key, and the server challenge concatenated with the client challenge for the data. 
--- The resulting hash is concatenated with the client challenge and returned.
---
--- The "proper" implementation for this uses a certain structure for the client challenge, involving the time
--- and computer name and stuff (if you don't do this, Wireshark tells you it's a malformed packet). In my tests, 
--- however, I couldn't get Vista to recognize a client challenge longer than 24 bytes, and this structure was
--- guaranteed to be much longer than 24 bytes. So, I just use a random string generated by OpenSSL. I've tested
--- it on every Windows system from Windows 2000 to Windows Vista, and it has always worked. 
-function ntlmv2_create_response(ntlm, username, domain, challenge, client_challenge_length)
-	if(have_ssl ~= true) then
-		return false, "SMB: OpenSSL not present"
-	end
-
-	local client_challenge = openssl.rand_bytes(client_challenge_length)
-	local ntlmv2_hash
-
-	status, ntlmv2_hash = ntlmv2_create_hash(ntlm, username, domain)
-
-	return true, openssl.hmac("MD5", ntlmv2_hash, challenge .. client_challenge) .. client_challenge
-end
-
-
 --- Creates a string containing a SMB packet header. The header looks like this:
 -- 
 --<code>
@@ -752,7 +721,17 @@ local function smb_encode_header(smb, command)
 	local flags  = bit.bor(0x10, 0x08) -- SMB_FLAGS_CANONICAL_PATHNAMES | SMB_FLAGS_CASELESS_PATHNAMES
 	-- These flags are less deprecated. We negotiate 32-bit status codes and long names. We also don't include Unicode, which tells
 	-- the server that we deal in ASCII. 
-	local flags2 = bit.bor(0x4000, 0x0040, 0x0001) -- SMB_FLAGS2_32BIT_STATUS | SMB_FLAGS2_IS_LONG_NAME | SMB_FLAGS2_KNOWS_LONG_NAMES
+	local flags2 = bit.bor(0x4000, 0x2000, 0x0040, 0x0001) -- SMB_FLAGS2_32BIT_STATUS | SMB_FLAGS2_EXECUTE_ONLY_READS | SMB_FLAGS2_IS_LONG_NAME | SMB_FLAGS2_KNOWS_LONG_NAMES
+
+	-- Unless the user's disabled the security signature, add it
+	if(nmap.registry.args.smbsign ~= "disable") then
+		flags2 = bit.bor(flags2, 0x0004) -- SMB_FLAGS2_SECURITY_SIGNATURE
+	end
+		
+
+	if(smb['extended_security'] == true) then
+		flags2 = bit.bor(flags2, 0x0800) -- SMB_EXTENDED_SECURITY
+	end
 
 	-- TreeID should never ever be 'nil', but it seems to happen once in awhile so print an error
 	if(smb['tid'] == nil) then
@@ -804,6 +783,68 @@ local function smb_encode_data(data)
 	return bin.pack("<SA", string.len(data), data)
 end
 
+---Sign the message, if possible. This is done by replacing the signature with the sequence
+-- number, creating a hash, then putting that hash in the signature location. 
+--@param smb  The smb state object.
+--@param body The body of the packet that's being signed.
+--@return The body of the packet, with the signature in place.
+local function message_sign(smb, body)
+	smb['sequence'] = smb['sequence'] + 1
+
+	if(smb['mac_key'] == nil) then
+		stdnse.print_debug(3, "SMB: Not signing message (missing mac_key)")
+		return body
+	elseif(nmap.registry.args.smbsign == "disable") then
+		stdnse.print_debug(3, "SMB: Not signing message (disabled by user)")
+
+		return body
+	end
+
+	-- Convert the sequence number to a string
+	local sequence = bin.pack("<L", smb['sequence'])
+	-- Create a new string, with the sequence number in place
+	local new_packet = string.sub(body, 1, 14) .. sequence .. string.sub(body, 23)
+	-- Calculate the signature
+	local signature = smbauth.calculate_signature(smb['mac_key'], new_packet)
+
+	return string.sub(body, 1, 14) .. signature .. string.sub(body, 23)
+end
+
+---Check the signature of the message. This is the opposite of <code>message_sign</code>, 
+-- and works the same way (replaces the signature with the sequence number, calculates
+-- hash, checks)
+--@param smb  The smb state object.
+--@param body The body of the packet that's being checked. 
+--@return A true/false value -- true if the packet was signed properly, false if it wasn't. 
+local function message_check_signature(smb, body)
+	smb['sequence'] = smb['sequence'] + 1
+
+	if(smb['mac_key'] == nil) then
+		stdnse.print_debug(3, "SMB: Not signing message (missing mac_key)")
+		return true
+	elseif(nmap.registry.args.smbsign ~= "force" and bit.band(smb['security_mode'], 0x0A) ~= 0) then
+		stdnse.print_debug(3, "SMB: Not signing message (server doesn't support it -- default)")
+		return true
+	elseif(nmap.registry.args.smbsign == "disable" or nmap.registry.args.smbsign == "ignore") then
+		stdnse.print_debug(3, "SMB: Not signing message (disabled by user)")
+		return true
+	end
+
+	-- Pull out the signature that they used
+	local signature  = string.sub(body, 15, 22)
+
+	-- Turn the sequence into a string
+	local sequence   = bin.pack("<L", smb['sequence'])
+	-- Create a new string, with the sequence number in place
+	local new_packet = string.sub(body, 1, 14) .. sequence .. string.sub(body, 23)
+
+	-- Calculate the proper signature
+	local real_signature = smbauth.calculate_signature(smb['mac_key'], new_packet)
+
+	-- Validate the signature
+	return signature == real_signature
+end
+
 --- Prepends the NetBIOS header to the packet, which is essentially the length, encoded
 --  in 4 bytes of big endian, and sends it out. The length field is actually 17 or 24 bits 
 --  wide, depending on whether or not we're using raw, but that shouldn't matter. 
@@ -817,8 +858,12 @@ end
 function smb_send(smb, header, parameters, data)
     local encoded_parameters = smb_encode_parameters(parameters)
     local encoded_data       = smb_encode_data(data)
-    local len = string.len(header) + string.len(encoded_parameters) + string.len(encoded_data)
-    local out = bin.pack(">I<AAA", len, header, encoded_parameters, encoded_data)
+	local body               = header .. encoded_parameters .. encoded_data
+
+	-- Calculate the message signature
+	body = message_sign(smb, body)
+
+    local out = bin.pack(">I<A", string.len(body), body)
 
 	stdnse.print_debug(3, "SMB: Sending SMB packet (len: %d)", string.len(out))
     return smb['socket']:send(out)
@@ -828,11 +873,14 @@ end
 --  and data.
 --
 --@param smb The SMB object associated with the connection
+--@param read_data [optional] This function will read the data section if and only if
+--       this value is true. This is a workaround for a bug in the tree connect packet,
+--       where the length is set incorrectly. Default: true. 
 --@return (status, header, parameters, data) If status is true, the header, 
 --        parameters, and data are all the raw arrays (with the lengths already
 --        removed). If status is false, header contains an error message and parameters/
 --        data are undefined. 
-function smb_read(smb)
+function smb_read(smb, read_data)
 	local status, result
 	local pos, netbios_length, length, header, parameter_length, parameters, data_length, data
 
@@ -876,8 +924,14 @@ function smb_read(smb)
 	end
 
 	if(#result ~= length) then
-		stdnse.print_debug(1, "SMB: Received wrong number of bytes, there will likely be issues (recieved %d, expected %d)", #result, length)
-		return false, string.format("Didn't receive the expected number of bytes; recieved %d, expected %d. This will almost certainly cause some errors.", #result, length)
+		stdnse.print_debug(1, "SMB: ERROR: Received wrong number of bytes, there will likely be issues (recieved %d, expected %d)", #result, length)
+		return false, string.format("SMB: ERROR: Didn't receive the expected number of bytes; recieved %d, expected %d. This will almost certainly cause some errors.", #result, length)
+	end
+
+	-- Check the message signature (ignoring the first four bytes, which are the netbios header)
+	local good_signature = message_check_signature(smb, string.sub(result, 5))
+	if(good_signature == false) then
+		return false, "SMB: ERROR: Server returned invalid signature"
 	end
 
 	-- The header is 32 bytes.
@@ -905,9 +959,13 @@ function smb_read(smb)
 	end
 
 	-- Read that many bytes of data.
-	pos, data             = bin.unpack(string.format("<A%d", data_length),        result, pos)
-	if(data == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [7]"
+	if(read_data == nil or read_data == true) then
+		pos, data             = bin.unpack(string.format("<A%d", data_length),        result, pos)
+		if(data == nil) then
+			return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [7]"
+		end
+	else
+		data = nil
 	end
 
 	stdnse.print_debug(3, "SMB: Received %d bytes", string.len(result))
@@ -948,9 +1006,6 @@ function negotiate_protocol(smb)
 	local header, parameters, data
 	local pos
 	local header1, header2, header3, ehader4, command, status, flags, flags2, pid_high, signature, unused, pid, mid
-	local dialect, security_mode, max_mpx, max_vc, max_buffer, max_raw_buffer, session_key, capabilities, time, timezone, key_length
-	local server_challenge, date, timezone_str
-	local domain, server
 
 	header     = smb_encode_header(smb, command_codes['SMB_COM_NEGOTIATE'])
 
@@ -981,404 +1036,100 @@ function negotiate_protocol(smb)
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [8]"
 	end
 
+	-- Since this is the first response seen, check any necessary flags here
+	if(bit.band(flags2, 0x0800) ~= 0x0800) then
+		smb['extended_security'] = false
+	end
+
 	-- Parse the parameter section
-	pos, dialect = bin.unpack("<S", parameters)
-	if(dialect == nil) then
+	pos, smb['dialect'] = bin.unpack("<S", parameters)
+	if(smb['dialect'] == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [9]"
 	end
 
 	-- Check if we ran off the packet
-	if(dialect == nil) then
+	if(smb['dialect'] == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [10]"
 	end
 	-- Check if the server didn't like our requested protocol
-	if(dialect ~= 0) then
-		return false, string.format("Server negotiated an unknown protocol (#%d) -- aborting", dialect)
+	if(smb['dialect'] ~= 0) then
+		return false, string.format("Server negotiated an unknown protocol (#%d) -- aborting", smb['dialect'])
 	end
 
-	pos, security_mode, max_mpx, max_vc, max_buffer, max_raw_buffer, session_key, capabilities, time, timezone, key_length = bin.unpack("<CSSIIIILsC", parameters, pos)
-	if(capabilities == nil) then
+	pos, smb['security_mode'], smb['max_mpx'], smb['max_vc'], smb['max_buffer'], smb['max_raw_buffer'], smb['session_key'], smb['capabilities'], smb['time'], smb['timezone'], smb['key_length'] = bin.unpack("<CSSIIIILsC", parameters, pos)
+	if(smb['capabilities'] == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [11]"
 	end
 	-- Some broken implementations of SMB don't send these variables
-	if(time == nil) then
+	if(smb['time'] == nil) then
 		time = 0
 	end
-	if(timezone == nil) then
+	if(smb['timezone'] == nil) then
 		timezone = 0
 	end
-	if(key_length == nil) then
+	if(smb['key_length'] == nil) then
 		key_length = 0
 	end
 
 	-- Convert the time and timezone to more useful values
-	time = (time / 10000000) - 11644473600
-	date = os.date("%Y-%m-%d %H:%M:%S", time)
-	timezone = -(timezone / 60)
-	if(timezone == 0) then
-		timezone_str = "UTC+0"
-	elseif(timezone < 0) then
-		timezone_str = "UTC-" .. math.abs(timezone)
+	smb['time'] = (smb['time'] / 10000000) - 11644473600
+	smb['date'] = os.date("%Y-%m-%d %H:%M:%S", smb['time'])
+	smb['timezone'] = -(smb['timezone'] / 60)
+	if(smb['timezone'] == 0) then
+		smb['timezone_str'] = "UTC+0"
+	elseif(smb['timezone'] < 0) then
+		smb['timezone_str'] = "UTC-" .. math.abs(smb['timezone'])
 	else
-		timezone_str = "UTC+" .. timezone
+		smb['timezone_str'] = "UTC+" .. smb['timezone']
 	end
 
 	-- Data section
-	-- This one's a little messier, because I don't appear to have unicode support
-	pos, server_challenge = bin.unpack(string.format("<A%d", key_length), data)
-	if(server_challenge == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [12]"
-	end
+	if(smb['extended_security'] == true) then
+		pos, smb['server_challenge'] = bin.unpack(string.format("<A%d", smb['key_length']), data)
+		if(smb['server_challenge'] == nil) then
+			return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [12]"
+		end
 
-	local ch, dummy
-	domain = ""
-	server = ""
-
-	-- Get the domain as a Unicode string
-	-- Note: This can be null, some configurations of Samba leave this off
-	pos, ch, dummy = bin.unpack("<CC", data, pos)
-	while ch ~= nil and ch ~= 0 do
-		domain = domain .. string.char(ch)
+		pos, smb['server_guid'] = bin.unpack("<A16", data, pos)
+		if(smb['server_guid'] == nil) then
+			return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [12]"
+		end
+	else
+		pos, smb['server_challenge'] = bin.unpack(string.format("<A%d", smb['key_length']), data)
+		if(smb['server_challenge'] == nil) then
+			return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [12]"
+		end
+	
+		-- Get the domain as a Unicode string
+		local ch, dummy
+		smb['domain'] = ""
+		smb['server'] = ""
+	
 		pos, ch, dummy = bin.unpack("<CC", data, pos)
-	end
-
-	-- Get the server name as a Unicode string
-	-- Note: This can be nil, Samba leaves this off
-	pos, ch, dummy = bin.unpack("<CC", data, pos)
-	while ch ~= nil and ch ~= 0 do
-		server = server .. string.char(ch)
+--		if(dummy == nil) then
+--			return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [13]"
+--		end
+		while ch ~= nil and ch ~= 0 do
+			smb['domain'] = smb['domain'] .. string.char(ch)
+			pos, ch, dummy = bin.unpack("<CC", data, pos)
+			if(dummy == nil) then
+				return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [14]"
+			end
+		end
+	
+		-- Get the server name as a Unicode string
+		-- Note: This can be nil, Samba leaves this off
 		pos, ch, dummy = bin.unpack("<CC", data, pos)
+		while ch ~= nil and ch ~= 0 do
+			smb['server'] = smb['server'] .. string.char(ch)
+			pos, ch, dummy = bin.unpack("<CC", data, pos)
+		end
 	end
-
-
-	-- Fill out smb variables
-	smb['security_mode']    = security_mode
-	smb['max_mpx']          = max_mpx
-	smb['max_vc']           = max_vc
-	smb['max_buffer']       = max_buffer
-	smb['max_raw_buffer']   = max_raw_buffer
-	smb['session_key']      = session_key
-	smb['capabilities']     = capabilities
-	smb['time']             = time
-	smb['date']             = date
-	smb['timezone']         = timezone
-	smb['timezone_str']     = timezone_str
-	smb['server_challenge'] = server_challenge
-	smb['domain']           = domain
-	smb['server']           = server
 
 	return true
 end
 
----Determines which hash type is going to be used, based on the function parameters, the registry, and 
--- the nmap arguments (in that order).
---
---@param hash_type [optional] The function parameter version, which will override all others if set. 
---@return The highest priority hash type that's set.
-local function get_hash_type(hash_type)
-	
-	if(hash_type ~= nil) then
-		stdnse.print_debug(2, "SMB: Using logon type passed as a parameter: %s", hash_type)
-	else
-		if(nmap.registry.args.smbtype ~= nil) then
-			hash_type = nmap.registry.args.smbtype
-			stdnse.print_debug(2, "SMB: Using logon type passed as an nmap parameter: %s", hash_type)
-		else
-			hash_type = "ntlm"
-			stdnse.print_debug(2, "SMB: Using default logon type: %s", hash_type)
-		end
-	end
-
-	return string.lower(hash_type)
-end
-
-
----Determines which username is going to be used, based on the function parameters, the registry, and 
--- the nmap arguments (in that order).
---
---@param ip       The ip address, used when reading from the registry
---@param username [optional] The function parameter version, which will override all others if set. 
---@return The highest priority username that's set.
-local function get_username(ip, username)
-
-	if(username ~= nil) then
-		stdnse.print_debug(2, "SMB: Using username passed as a parameter: %s", username)
-	else
-		if(nmap.registry[ip] ~= nil and nmap.registry[ip]['smbaccounts'] ~= nil and next(nmap.registry[ip]['smbaccounts']) ~= nil) then
-			if(nmap.registry[ip]['smbaccounts']['administrator'] ~= nil) then
-				-- If we found an administrator account, use it first
-				username = "administrator"
-			else
-				-- Otherwise, use whichever is first
-				username, _ = next(nmap.registry[ip]['smbaccounts'])
-			end
-			stdnse.print_debug(2, "SMB: Using username found in the registry: %s", username)
-		elseif(nmap.registry.args.smbusername ~= nil) then
-			username = nmap.registry.args.smbusername
-			stdnse.print_debug(2, "SMB: Using username passed as an nmap parameter (smbusername): %s", username)
-		elseif(nmap.registry.args.smbuser ~= nil) then
-			username = nmap.registry.args.smbuser
-			stdnse.print_debug(2, "SMB: Using username passed as an nmap parameter (smbuser): %s", username)
-		else
-			username = nil
-			stdnse.print_debug(2, "SMB: Couldn't find a username to use, not logging in")
-		end
-	end
-
-	return username
-end
-
----Determines which domain is going to be used, based on the function parameters, the registry, and 
--- the nmap arguments (in that order).
---
---@param domain [optional] The function parameter version, which will override all others if set. 
---@return The highest priority domain that's set.
-local function get_domain(domain)
-
-	if(domain ~= nil) then
-		stdnse.print_debug(2, "SMB: Using domain passed as a parameter: %s", domain)
-	else
-		if(nmap.registry.args.smbdomain ~= nil) then
-			domain = nmap.registry.args.smbdomain
-			stdnse.print_debug(2, "SMB: Using domain passed as an nmap parameter: %s", domain)
-		else
-			domain = ""
-			stdnse.print_debug(2, "SMB: Couldn't find domain to use, using blank")
-		end
-	end
-
-	return domain
-end
-
----Generate the Lanman and NTLM password hashes. The password itself is taken from the function parameters,
--- the registry, and the nmap arguments (in that order). If no password is set, then the password hash
--- is used (which is read from all the usual places). If neither is set, then a blank password is used. 
---
--- The output passwords are hashed based on the hash type. 
---
---@param ip       The ip address of the host, used for registry lookups. 
---@param username The username, which is used for v2 passwords. 
---@param domain The username, which is used for v2 passwords. 
---@param password [optional] The overriding password. 
---@param password_hash [optional] The overriding password hash. Shouldn't be set if password is set. 
---@param challenge The server challenge.
---@param hash_type The way in which to hash the password. 
---@return (lm_response, ntlm_response) The two strings that can be sent directly back to the server. 
-local function get_password_response(ip, username, domain, password, password_hash, challenge, hash_type)
-
-	local lm_hash   = nil
-	local ntlm_hash = nil
-
-	-- Check if there's a password set
-	if(password ~= nil) then
-		stdnse.print_debug(2, "SMB: Using password passed as a parameter")
-	else
-		if(nmap.registry[ip] ~= nil and nmap.registry[ip]['smbaccounts'] ~= nil and nmap.registry[ip]['smbaccounts'][username] ~= nil) then
-			password = nmap.registry[ip]['smbaccounts'][username]
-			stdnse.print_debug(2, "SMB: Using password found in the registry")
-		elseif(nmap.registry.args.smbpassword ~= nil) then
-			password = nmap.registry.args.smbpassword
-			stdnse.print_debug(2, "SMB: Using password passed as an nmap parameter (smbpassword)")
-		elseif(nmap.registry.args.smbpass ~= nil) then
-			password = nmap.registry.args.smbpass
-			stdnse.print_debug(2, "SMB: Using password passed as an nmap parameter (smbpass)")
-		else
-			password = nil
-			stdnse.print_debug(2, "SMB: Couldn't find password to use, checking for a useable hash")
-		end
-	end
-
-	-- If we got a password, hash it, otherwise, try getting a hash from the standard places
-	if(password ~= nil) then
-		-- Check if the password is blank; don't bother hashing a blank password
-		if(password == "") then
-			return "", ""
-		end
-
-		status, lm_hash   = lm_create_hash(password)
-		status, ntlm_hash = ntlm_create_hash(password)
-	else
-		local hashes = nil
-
-		if(nmap.registry.args.smbhash ~= nil) then
-			hashes = nmap.registry.args.smbhash
-
-			if(string.find(hashes, "^" .. string.rep("%x%x", 16) .. "$")) then
-				stdnse.print_debug(2, "SMB: Found a 16-byte hex string")
-				lm_hash   = bin.pack("H", hashes:sub(1, 32))
-				ntlm_hash = bin.pack("H", hashes:sub(1, 32))
-			elseif(string.find(hashes, "^" .. string.rep("%x%x", 32) .. "$")) then
-				stdnse.print_debug(2, "SMB: Found a 32-byte hex string")
-				lm_hash   = bin.pack("H", hashes:sub(1, 32))
-				ntlm_hash = bin.pack("H", hashes:sub(33, 64))
-			elseif(string.find(hashes, "^" .. string.rep("%x%x", 16) .. "." .. string.rep("%x%x", 16) .. "$")) then
-				stdnse.print_debug(2, "SMB: Found two 16-byte hex strings")
-				lm_hash   = bin.pack("H", hashes:sub(1, 32))
-				ntlm_hash = bin.pack("H", hashes:sub(34, 65))
-			else
-				stdnse.print_debug(1, "SMB: ERROR: Hash(es) provided in an invalid format (should be 32, 64, or 65 hex characters)")
-				lm_hash = nil
-				ntlm_hash = nil
-			end
-		end
-	end
-
-	-- At this point, we should have a good lm_hash and ntlm_hash if we're getting one
-	if(lm_hash == nil or ntlm_hash == nil) then
-		stdnse.print_debug(2, "SMB: Couldn't determine which password to use, using a blank one")
-		return "", ""
-	end
-
-	-- Output what we've got so far
-	stdnse.print_debug(2, "SMB: Lanman hash: %s", stdnse.tohex(lm_hash))
-	stdnse.print_debug(2, "SMB: NTLM   hash: %s", stdnse.tohex(ntlm_hash))
-			
-	-- Hash the password the way the user wants
-	if(hash_type == "v1") then
-		-- LM and NTLM are hashed with their respective algorithms
-		stdnse.print_debug(2, "SMB: Creating v1 response")
-		status, lm_response   = lm_create_response(lm_hash, challenge)
-		status, ntlm_response = ntlm_create_response(ntlm_hash, challenge)
-	elseif(hash_type == "lm") then
-		-- LM is hashed with its algorithm, NTLM is blank
-		stdnse.print_debug(2, "SMB: Creating LMv1 response")
-		status, lm_response   = lm_create_response(lm_hash, challenge)
-		        ntlm_response = ""
-	elseif(hash_type == "ntlm") then
-		-- LM and NTLM both use the NTLM algorithm
-		stdnse.print_debug(2, "SMB: Creating NTLMv1 response")
-		status, lm_response   = ntlm_create_response(ntlm_hash, challenge)
-		status, ntlm_response = ntlm_create_response(ntlm_hash, challenge)
-	elseif(hash_type == "v2") then
-		-- LM and NTLM are hashed with their respective v2 algorithms
-		stdnse.print_debug(2, "SMB: Creating v2 response")
-		status, lm_response   = lmv2_create_response(ntlm_hash, username, domain, challenge)
-		status, ntlm_response = ntlmv2_create_response(ntlm_hash, username, domain, challenge, 24)
-	elseif(hash_type == "lmv2") then
-		-- LM is hashed with its v2 algorithm, NTLM is blank
-		stdnse.print_debug(2, "SMB: Creating LMv2 response")
-		status, lm_response   = lmv2_create_response(ntlm_hash, username, domain, challenge)
-		        ntlm_response = ""
-	else
-		-- Default to NTLMv1
-		stdnse.print_debug(1, "SMB: Invalid login type specified, using default (NTLM)")
-		status, lm_response   = ntlm_create_response(ntlm_hash, challenge)
-		status, ntlm_response = ntlm_create_response(ntlm_hash, challenge)
-	end
-
-	stdnse.print_debug(2, "SMB: Lanman response: %s", stdnse.tohex(lm_response))
-	stdnse.print_debug(2, "SMB: NTLM   response: %s", stdnse.tohex(ntlm_response))
-
-	return lm_response, ntlm_response
-end
-
----Retrieves an array of logins to use, based on the various sources that logins can come from. Only one 
--- username/password pair are used, since it's very easy to lock out accounts on SMB servers. The first place
--- checked is the parameters passed to this function -- if they're set, that's what's used. If not, the registry
--- is checked (to see if another script set a username/password). If that fails, Nmap's arguments are checked. 
--- If that fails, no username/password is returned. 
---
--- In addition to the username/password pair, the 'guest' account may be returned with a blank password, and
--- the anonymous account (blank username/password) is returned. 
---
---@param ip            The IP of the host, which is used to look up the password in the registry.
---@param challenge     The challenge string sent by the server. 
---@param username      [optional] The username to override with. 
---@param domain        [optional] The domain to override with. 
---@param password      [optional] The password to override with. 
---@param password_hash [optional] The password hash to override this (shouldn't be used along with password). 
---@param hash_type     [optional] The type of hash to override with. 
---@param use_default   [optional] If set, will attempt anonymous/guest. Default: true.
---@return An array of tables, each of which contain a 'username', 'domain', 'lanman', 'ntlm'. 
-local function get_logins(ip, challenge, username, domain, password, password_hash, hash_type, use_default)
-
-	local response = {}
-
-	-- If we don't have OpenSSL, don't bother with any of this
-	if(have_ssl == true) then
-		-- We choose *one* username to try, here. First, see if the user set a username
-		-- in the function parameters, then in the registry, then as an nmap 
-		-- parameter, then disable it. 
-	
-		-- If a username was found, look for a domain and password
-		username = get_username(ip, username)
-		domain   = get_domain(domain)
-		hash_type = get_hash_type(hash_type)
-
-		if(username ~= nil) then
-			lm_response, ntlm_response = get_password_response(ip, username, domain, password, password_hash, challenge, hash_type)
-
-			if(lm_response ~= nil and ntlm_response ~= nil) then
-				local data = {}
-				data['username'] = username
-				data['domain']   = domain
-				data['lanman']   = lm_response
-				data['ntlm']     = ntlm_response
-				response[#response + 1] = data
-			end
-
-			if(lm_response == nil) then
-				lm_response = ""
-			end
-			if(ntlm_response == nil) then
-				ntlm_response = ""
-			end
-
-		end
-	else
-		stdnse.print_debug(1, "SMB: ERROR: Couldn't find OpenSSL library, only checking Guest and/or Anonymous accounts")
-	end
-
-	-- Check if we're using default accounts
-	if(use_default == nil or use_default == true) then
-		local data
-		-- Add guest account
-		data = {}
-		data['username'] = 'guest'
-		data['domain'] = ''
-		data['lanman'] = ''
-		data['ntlm'] = ''
-		response[#response + 1] = data
-	
-		-- Add the anonymous account
-		data = {}
-		data['username'] = ''
-		data['domain'] = ''
-		data['lanman'] = ''
-		data['ntlm'] = ''
-		response[#response + 1] = data
-	end
-
-	return response
-end
-
---- Sends out SMB_COM_SESSION_SETUP_ANDX, which attempts to log a user in. 
--- Sends the following:
--- * Negotiated parameters (multiplexed connections, virtual circuit, capabilities)
--- * Passwords (plaintext, unicode, lanman, ntlm, lmv2, ntlmv2, etc)
--- * Account name
--- * OS (I just send "Nmap")
--- * Native LAN Manager (no clue what that is, but it seems to be ignored)
---
--- Receives the following:
--- * User ID
--- * Server OS
---
---@param smb          The SMB object associated with the connection
---@param username     [optional] Overrides the account name to use. Will use Nmap parameters or registry by 
---                    default, or NULL session if it isn't set anywhere
---@param domain       [optional] Overrides the domain to use. 
---@param password     [optional] Overrides the password to use. Will use Nmap parameters or registry by default.
---@param hash_type    [optional] Overrides the hash type to use (can be v1, LM, NTLM, LMv2, v2). Default is 'NTLM'.
---@param use_default  [optional] If set, will attempt anonymous/guest. Default: true.
---@param log_errors   [optional] If set, will display login. Default: true. 
---@return (status, result) If status is false, result is an error message. Otherwise, result is nil and the following
---        elements are added to the smb table:
---    *  'uid'         The UserID for the session
---    *  'is_guest'    If set, the username wasn't found so the user was automatically logged in as the guest account
---    *  'os'          The operating system
---    *  'lanmanager'  The servers's LAN Manager
-function start_session(smb, username, domain, password, password_hash, hash_type, use_default, log_errors)
+function start_session_basic(smb, overrides, use_default, log_errors)
 	local i
 	local status, result
 	local header, parameters, data
@@ -1386,12 +1137,17 @@ function start_session(smb, username, domain, password, password_hash, hash_type
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid 
 	local andx_command, andx_reserved, andx_offset, action
 	local os, lanmanager
-	local logins = get_logins(smb['ip'], smb['server_challenge'], username, domain, password, password_hash, hash_type, use_default)
 
-	header     = smb_encode_header(smb, command_codes['SMB_COM_SESSION_SETUP_ANDX'])
+	local accounts  = smbauth.get_accounts(smb['ip'], overrides, use_default)
 
-	-- Loop through the credentials returned by get_logins() (there should be 2 or 3)
-	for i = 1, #logins, 1 do
+	header = smb_encode_header(smb, command_codes['SMB_COM_SESSION_SETUP_ANDX'])
+
+	-- Loop through the credentials returned by get_accounts() (there should be 1 - 3, but we make no assumptions)
+	for i = 1, #accounts, 1 do
+		local lanman, ntlm
+
+		lanman, ntlm, smb['mac_key'] = smbauth.get_password_hashes(smb['ip'], accounts[i]['username'], accounts[i]['domain'], accounts[i]['hash_type'], overrides, smb['server_challenge'], false)
+
 		-- Parameters
 		parameters = bin.pack("<CCSSSSISSII", 
 					0xFF,               -- ANDX -- no further commands
@@ -1401,21 +1157,22 @@ function start_session(smb, username, domain, password, password_hash, hash_type
 					0x0001,             -- Max multiplexes
 					0x0000,             -- Virtual circuit num
 					smb['session_key'], -- The session key
-					#logins[i]['lanman'], -- ANSI/Lanman password length
-					#logins[i]['ntlm'],   -- Unicode/NTLM password length
-					0,                  -- Reserved
+					#lanman,            -- ANSI/Lanman password length
+					#ntlm,              -- Unicode/NTLM password length
+					0x00000000,         -- Reserved
 	                0x00000050          -- Capabilities
 				)
 	
 		-- Data is a list of strings, terminated by a blank one. 
 		data       = bin.pack("<AAzzzz", 
-					logins[i]['lanman'],   -- ANSI/Lanman password
-					logins[i]['ntlm'],     -- Unicode/NTLM password
-					logins[i]['username'], -- Account
-					logins[i]['domain'],   -- Domain
-					"Nmap",                -- OS
-					"Native Lanman"        -- Native LAN Manager
+					lanman,                 -- ANSI/Lanman password
+					ntlm,                   -- Unicode/NTLM password
+					accounts[i]['username'],-- Account
+					accounts[i]['domain'],  -- Domain
+					"Nmap",                 -- OS
+					"Native Lanman"         -- Native LAN Manager
 				)
+
 		-- Send the session setup request
 		stdnse.print_debug(2, "SMB: Sending SMB_COM_SESSION_SETUP_ANDX")
 		result, err = smb_send(smb, header, parameters, data)
@@ -1457,7 +1214,7 @@ function start_session(smb, username, domain, password, password_hash, hash_type
 			smb['os']         = os
 			smb['lanmanager'] = lanmanager
 
-			-- Check if they're using an un-supported system [TODO: once I sort this out, remove the warning]
+			-- Check if they're using an un-supported system
 			if(os == nil or lanmanager == nil or domain == nil) then
 				stdnse.print_debug(1, "SMB: WARNING: the server is using a non-standard SMB implementation; your mileage may vary (%s)", smb['ip'])
 			elseif(os == "Unix" or string.sub(lanmanager, 1, 5) == "Samba") then
@@ -1467,18 +1224,21 @@ function start_session(smb, username, domain, password, password_hash, hash_type
 			-- Check if they were logged in as a guest
 			if(log_errors == nil or log_errors == true) then
 				if(smb['is_guest'] == 1) then
-					stdnse.print_debug(1, "SMB: Login as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", logins[i]['domain'], string_or_blank(logins[i]['username']))
+					stdnse.print_debug(1, "SMB: Login as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", accounts[i]['domain'], string_or_blank(accounts[i]['username']))
 				else
-					stdnse.print_debug(1, "SMB: Login as %s\\%s succeeded", logins[i]['domain'], string_or_blank(logins[i]['username']))
+					stdnse.print_debug(1, "SMB: Login as %s\\%s succeeded", accounts[i]['domain'], string_or_blank(accounts[i]['username']))
 				end
 			end
-		
+
+			-- Set the initial sequence number
+			smb['sequence'] = 1
+
 			return true
 
 		else
 			-- This username failed, print a warning and keep going
 			if(log_errors == nil or log_errors == true) then
-				stdnse.print_debug(1, "SMB: Login as %s\\%s failed (%s)", logins[i]['domain'], string_or_blank(logins[i]['username']), get_status_name(status))
+				stdnse.print_debug(1, "SMB: Login as %s\\%s failed (%s)", accounts[i]['domain'], string_or_blank(accounts[i]['username']), get_status_name(status))
 			end
 		end
 	end
@@ -1486,8 +1246,177 @@ function start_session(smb, username, domain, password, password_hash, hash_type
 	if(log_errors == nil or log_errors == true) then
 		stdnse.print_debug(1, "SMB: ERROR: All logins failed, sorry it didn't work out!")
 	end
-	return false, get_status_name(status)
 
+	return false, get_status_name(status)
+end
+
+function start_session_extended(smb, overrides, use_default, log_errors)
+	local i
+	local status, status_name, result
+	local header, parameters, data
+	local pos
+	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid 
+	local andx_command, andx_reserved, andx_offset, action, security_blob_length
+	local os, lanmanager
+
+	local accounts  = smbauth.get_accounts(smb['ip'], overrides, use_default)
+
+	-- Loop through the credentials returned by get_accounts() (there should be 1 - 3, but we make no assumptions)
+	for i = 1, #accounts, 1 do
+		-- These are loop variables
+		local security_blob = nil
+		local security_blob_length = 0
+
+		-- This loop takes care of the multiple packets that "extended security" requires
+		repeat
+			-- Get the new security blob, passing the old security blob as a parameter. If there was no previous security blob, then nil is passed, which creates a new one
+			status, security_blob, smb['mac_key'] = smbauth.get_security_blob(security_blob, smb['ip'], accounts[i]['username'], accounts[i]['domain'], accounts[i]['hash_type'], overrides, use_defaults)
+
+			-- There was an error processing the security blob	
+			if(status == false) then
+				return false, string.format("SMB: ERROR: Security blob: %s", security_blob)
+			end
+	
+			header     = smb_encode_header(smb, command_codes['SMB_COM_SESSION_SETUP_ANDX'])
+			-- Parameters
+			parameters = bin.pack("<CCSSSSISII", 
+						0xFF,               -- ANDX -- no further commands
+						0x00,               -- ANDX -- Reserved (0)
+						0x0000,             -- ANDX -- next offset
+						0xFFFF,             -- Max buffer size
+						0x0001,             -- Max multiplexes
+						0x0000,             -- Virtual circuit num
+						smb['session_key'], -- The session key
+						#security_blob,     -- Security blob length
+						0x00000000,         -- Reserved
+		                0x80000050          -- Capabilities
+					)
+		
+			-- Data is a list of strings, terminated by a blank one. 
+			data       = bin.pack("<Azzz", 
+						security_blob,         -- Security blob
+						"Nmap",                -- OS
+						"Native Lanman",       -- Native LAN Manager
+						""                     -- Primary domain
+					)
+	
+			-- Send the session setup request
+			stdnse.print_debug(2, "SMB: Sending SMB_COM_SESSION_SETUP_ANDX")
+			result, err = smb_send(smb, header, parameters, data)
+			if(result == false) then
+				return false, err
+			end
+		
+			-- Read the result
+			status, header, parameters, data = smb_read(smb)
+			if(status ~= true) then
+				return false, header
+			end
+		
+			-- Check if we were allowed in
+			pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
+			if(mid == nil) then
+				return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [17]"
+				end
+			smb['uid'] = uid
+
+			-- Get a human readable name
+			status_name = get_status_name(status)
+	
+			-- Only parse the parameters if it's ok or if we're going to keep going
+			if(status_name == "NT_STATUS_OK" or status_name == "NT_STATUS_MORE_PROCESSING_REQUIRED") then
+				-- Parse the parameters
+				pos, andx_command, andx_reserved, andx_offset, action, security_blob_length = bin.unpack("<CCSSS", parameters)
+				if(security_blob_length == nil) then
+					return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [18]"
+				end
+				smb['is_guest']   = bit.band(action, 1)
+		
+				-- Parse the data
+				pos, security_blob, os, lanmanager = bin.unpack(string.format("<A%dzz", security_blob_length), data)
+				if(lanmanager == nil) then
+					return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [19]"
+				end
+				smb['os']         = os
+				smb['lanmanager'] = lanmanager
+	
+				-- If it's ok, do a cleanup and return true
+				if(status_name == "NT_STATUS_OK") then
+					-- Check if they're using an un-supported system
+					if(os == nil or lanmanager == nil) then
+						stdnse.print_debug(1, "SMB: WARNING: the server is using a non-standard SMB implementation; your mileage may vary (%s)", smb['ip'])
+					elseif(os == "Unix" or string.sub(lanmanager, 1, 5) == "Samba") then
+						stdnse.print_debug(1, "SMB: WARNING: the server appears to be Unix; your mileage may vary.")
+					end
+				
+					-- Check if they were logged in as a guest
+					if(log_errors == nil or log_errors == true) then
+						if(smb['is_guest'] == 1) then
+							stdnse.print_debug(1, string.format("SMB: Extended login as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", accounts[i]['domain'], string_or_blank(accounts[i]['username'])))
+						else
+							stdnse.print_debug(1, string.format("SMB: Extended login as %s\\%s succeeded", accounts[i]['domain'], string_or_blank(accounts[i]['username'])))
+						end
+					end
+	
+					-- Set the initial sequence number
+					smb['sequence'] = 1
+
+					return true
+				end -- Status is ok
+			end -- Should we parse the parameters/data?
+		until status_name ~= "NT_STATUS_MORE_PROCESSING_REQUIRED"
+
+		-- Display a message to the user, and try the next account
+		if(log_errors == nil or log_errors == true) then
+			stdnse.print_debug(1, "SMB: Extended login as %s\\%s failed (%s)", accounts[i]['domain'], string_or_blank(accounts[i]['username']), status_name)
+		end
+
+		-- Reset the user id and security_blob
+		smb['uid'] = 0
+
+	end -- Loop over the accounts
+	
+	if(log_errors == nil or log_errors == true) then
+		stdnse.print_debug(1, "SMB: ERROR: All logins failed, sorry it didn't work out!")
+	end
+
+	return false, status_name
+end
+
+--- Sends out SMB_COM_SESSION_SETUP_ANDX, which attempts to log a user in. 
+-- Sends the following:
+-- * Negotiated parameters (multiplexed connections, virtual circuit, capabilities)
+-- * Passwords (plaintext, unicode, lanman, ntlm, lmv2, ntlmv2, etc)
+-- * Account name
+-- * OS (I just send "Nmap")
+-- * Native LAN Manager (no clue what that is, but it seems to be ignored)
+--
+-- Receives the following:
+-- * User ID
+-- * Server OS
+--
+--@param smb          The SMB object associated with the connection
+--@param username     [optional] Overrides the account name to use. Will use Nmap parameters or registry by 
+--                    default, or NULL session if it isn't set anywhere
+--@param domain       [optional] Overrides the domain to use. 
+--@param password     [optional] Overrides the password to use. Will use Nmap parameters or registry by default.
+--@param hash_type    [optional] Overrides the hash type to use (can be v1, LM, NTLM, LMv2, v2). Default is 'NTLM'.
+--@param use_defaults  [optional] If set, will attempt anonymous/guest. Default: true.
+--@param log_errors   [optional] If set, will display login. Default: true. 
+--@return (status, result) If status is false, result is an error message. Otherwise, result is nil and the following
+--        elements are added to the smb table:
+--    *  'uid'         The UserID for the session
+--    *  'is_guest'    If set, the username wasn't found so the user was automatically logged in as the guest account
+--    *  'os'          The operating system
+--    *  'lanmanager'  The servers's LAN Manager
+function start_session(smb, username, domain, password, password_hash, hash_type, use_defaults, log_errors)
+	local overrides = { username=username, domain=domain, password=password, password_hash=password_hash, hash_type=hash_type }
+
+	if(smb['extended_security'] == true) then
+		return start_session_extended(smb, overrides, use_defaults, log_errors)
+	else
+		return start_session_basic(smb, overrides, use_defaults, log_errors)
+	end
 end
  
 --- Sends out <code>SMB_COM_SESSION_TREE_CONNECT_ANDX</code>, which attempts to connect to a share. 
@@ -1545,6 +1474,10 @@ function tree_connect(smb, path)
 
 	if(status ~= 0) then
 		return false, get_status_name(status)
+	end
+
+	if(tid == 0 or tonumber(tid) == 0) then
+		return false, "SMB: ERROR: Server didn't establish a proper tree connection (likely an embedded system)"
 	end
 
 	smb['tid'] = tid
@@ -1622,16 +1555,24 @@ function logoff(smb)
 		return false, header
 	end
 
+	-- Reset session variables (note: this has to come after the smb_read(), otherwise the message signatures cause a problem
+	smb['uid']      = 0
+	smb['sequence'] = -1
+	smb['mac_key']  = nil
+
 	-- Check if there was an error
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(mid == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [22]"
 	end
+
+	if(status == 0xc0000022) then
+		stdnse.print_debug(1, "SMB: ERROR: Access was denied in 'logoff', indicating a problem with your message signatures")
+		return false, "SMB: ERROR: Access was denied in 'logoff', indicating a problem with your message signatures"
+	end
 	if(status ~= 0) then
 		return false, get_status_name(status)
 	end
-
-	smb['uid'] = 0
 
 	return true
 	
@@ -1664,11 +1605,11 @@ function create_file(smb, path)
 					0x02000000,       -- Access mask
 					0x0000000000000000, -- Allocation size
 					0x00000000,         -- File attributes
-					0x00000003,         -- Share attributes
-					0x00000001,         -- Disposition
+					0x00000007,         -- Share attributes
+					0x00000000,         -- Disposition
 					0x00000000,         -- Create options
 					0x00000002,         -- Impersonation
-					0x00                -- Security flags
+					0x01                -- Security flags
 				)
 
 	data = bin.pack("z", path)
@@ -1681,7 +1622,7 @@ function create_file(smb, path)
 	end
 
 	-- Read the result
-	status, header, parameters, data = smb_read(smb)
+	status, header, parameters, data = smb_read(smb, false)
 	if(status ~= true) then
 		return false, header
 	end
@@ -1701,7 +1642,7 @@ function create_file(smb, path)
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [24]"
 	end
 
-	-- Fill in the smb string
+	-- Fill in the smb table
 	smb['oplock_level']    = oplock_level
 	smb['fid']             = fid
 	smb['create_action']   = create_action
@@ -1872,8 +1813,96 @@ function write_file(smb, write_data, offset)
 	return true, response
 end
 
+--- This sends a SMB request to close a file (or a pipe). 
+--
+--@param smb        The SMB object associated with the connection
+--@return (status, result) If status is false, result is an error message. Otherwise, result is undefined. 
+function close_file(smb)
+	local header, parameters, data
+	local pos
+	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
+	local andx_command, andx_reserved, andx_offset
+	local response = {}
 
+	header = smb_encode_header(smb, command_codes['SMB_COM_CLOSE'])
+	parameters = bin.pack("<SI",
+					smb['fid'], -- FID
+					0xFFFFFFFF  -- Last write (unspecified)
+				)
 
+	data = ""
+
+	-- Send the close file
+	stdnse.print_debug(2, "SMB: Sending SMB_CLOSE")
+	result, err = smb_send(smb, header, parameters, data)
+	if(result == false) then
+		return false, err
+	end
+
+	-- Read the result
+	status, header, parameters, data = smb_read(smb)
+	if(status ~= true) then
+		return false, header
+	end
+
+	-- Check if the close was successful
+	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
+	if(mid == nil) then
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [27]"
+	end
+	if(status ~= 0) then
+		return false, get_status_name(status)
+	end
+
+	-- Close response has no parameters or data
+	return true, response
+end
+
+--- This sends a SMB request to delete a file (or a pipe). 
+--
+--@param smb    The SMB object associated with the connection
+--@param path   The path of the file to delete
+--@return (status, result) If status is false, result is an error message. Otherwise, result is undefined. 
+function delete_file(smb, path)
+	local header, parameters, data
+	local pos
+	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
+	local andx_command, andx_reserved, andx_offset
+
+	header = smb_encode_header(smb, command_codes['SMB_COM_DELETE'])
+	parameters = bin.pack("<S",
+					0x0000 -- Search attributes
+				)
+
+	data = bin.pack("<Cz", 
+					0x04, -- Ascii formatted filename
+					path)
+
+	-- Send the close file
+	stdnse.print_debug(2, "SMB: Sending SMB_CLOSE")
+	result, err = smb_send(smb, header, parameters, data)
+	if(result == false) then
+		return false, err
+	end
+
+	-- Read the result
+	status, header, parameters, data = smb_read(smb)
+	if(status ~= true) then
+		return false, header
+	end
+
+	-- Check if the close was successful
+	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
+	if(mid == nil) then
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [27]"
+	end
+	if(status ~= 0) then
+		return false, get_status_name(status)
+	end
+
+	-- Close response has no parameters or data
+	return true
+end
 
 ---This is the core of making MSRPC calls. It sends out a MSRPC packet with the given parameters and data. 
 -- Don't confuse these parameters and data with SMB's concepts of parameters and data -- they are completely
@@ -1883,25 +1912,29 @@ end
 -- MSRPC call, make the call, then unwrap the SMB stuff from it before returning. 
 --
 --@param smb    The SMB object associated with the connection
---@param func   The function to call. The only one I've tested is 0x26, named pipes. 
 --@param function_parameters The parameter data to pass to the function. This is untested, since none of the
 --       transactions I've done have required parameters. 
 --@param function_data   The data to send with the packet. This is basically the next protocol layer
+--@param pipe [optional] The pipe to transact on. Default: "\PIPE\". 
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table 
 --        containing 'parameters' and 'data', representing the parameters and data returned by the server. 
-function send_transaction(smb, func, function_parameters, function_data)
+function send_transaction_named_pipe(smb, function_parameters, function_data, pipe)
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
 	local header, parameters, data
 	local parameters_offset, data_offset
 	local total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2
 	local response = {}
 
+	if(pipe == nil) then
+		pipe = "\\PIPE\\"
+	end
+
 	-- Header is 0x20 bytes long (not counting NetBIOS header).
 	header = smb_encode_header(smb, command_codes['SMB_COM_TRANSACTION']) -- 0x25 = SMB_COM_TRANSACTION
 
 	-- 0x20 for SMB header, 0x01 for parameters header, 0x20 for parameters length, 0x02 for data header, 0x07 for "\PIPE\"
-	parameters_offset = 0x20 + 0x01 + 0x20 + 0x02 + 0x07
-	data_offset       = 0x20 + 0x01 + 0x20 + 0x02 + 0x07 + string.len(function_parameters)
+	parameters_offset = 0x20 + 0x01 + 0x20 + 0x02 + (#pipe + 1)
+	data_offset       = 0x20 + 0x01 + 0x20 + 0x02 + (#pipe + 1) + string.len(function_parameters)
 
 	-- Parameters are 0x20 bytes long. 
 	parameters = bin.pack("<SSSSCCSISSSSSCCSS",
@@ -1920,12 +1953,12 @@ function send_transaction(smb, func, function_parameters, function_data)
 					data_offset,                     -- Data offset.
 					0x02,                            -- Number of 'setup' words (only ever seen '2').
 					0x00,                            -- Reserved.
-					func,                            -- Function to call.
+					0x0026,                          -- Function to call.
 					smb['fid']                       -- Handle to open file
 				)
 
 	-- \PIPE\ is 0x07 bytes long. 
-	data = bin.pack("<z", "\\PIPE\\");
+	data = bin.pack("<z", pipe);
 	data = data .. function_parameters;
 	data = data .. function_data
 
@@ -1977,9 +2010,207 @@ function send_transaction(smb, func, function_parameters, function_data)
 	return true, response
 end
 
+function send_transaction_waitnamedpipe(smb, priority, pipe)
+	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
+	local header, parameters, data
+	local parameters_offset, data_offset
+	local total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2
+	local response = {}
+	local padding = ""
 
+	-- Header is 0x20 bytes long (not counting NetBIOS header).
+	header = smb_encode_header(smb, command_codes['SMB_COM_TRANSACTION']) -- 0x25 = SMB_COM_TRANSACTION
 
+	-- Parameters are 0x20 bytes long. 
+	parameters = bin.pack("<SSSSCCSISSSSSCCSS",
+					0,                               -- Total parameter count. 
+					0,                               -- Total data count. 
+					0x000,                           -- Max parameter count.
+					0x400,                           -- Max data count.
+					0x00,                            -- Max setup count.
+					0x00,                            -- Reserved.
+					0x0000,                          -- Flags (0x0000 = 2-way transaction, don't disconnect TIDs).
+					30,                              -- Timeout (0x00000000 = return immediately).
+					0x0000,                          -- Reserved.
+					0,                               -- Parameter bytes.
+					0,                               -- Parameter offset.
+					0,                               -- Data bytes.
+					0,                               -- Data offset.
+					0x02,                            -- Number of 'setup' words (only ever seen '2').
+					0x00,                            -- Reserved.
+					0x0053,                          -- Function to call.
+					priority                         -- Handle to open file
+				)
 
+	while(((#pipe + 1 + #padding) % 4) ~= 0) do
+		padding = padding .. string.char(0)
+	end
+	data = bin.pack("<zA", pipe, padding);
+
+	-- Send the transaction request
+	stdnse.print_debug(2, "SMB: Sending SMB_COM_TRANSACTION (WaitNamedPipe)")
+	result, err = smb_send(smb, header, parameters, data)
+	if(result == false) then
+		return false, err
+	end
+
+	-- Read the result
+	status, header, parameters, data = smb_read(smb)
+	if(status ~= true) then
+		return false, header
+	end
+
+	-- Check if it worked
+	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
+	if(mid == nil) then
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [31]"
+	end
+	if(status ~= 0) then
+		if(status_names[status] == nil) then
+			return false, string.format("Unknown SMB error: 0x%08x\n", status)
+		else
+			return false, status_names[status]
+		end
+	end
+
+	-- Parse the parameters
+	pos, total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2 = bin.unpack("<SSSSSSSSSCC", parameters)
+	if(reserved2 == nil) then
+		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [32]"
+	end
+
+	-- TODO: Do I actually need anything from here?
+
+	return true, response
+end
+
+---Upload a file from the local machine to the remote machine, on the given share. 
+-- 
+--@param host       The host object
+--@param localfile  The file on the local machine, relative to the nmap path
+--@param share      The share to upload it to (eg, C$). 
+--@param remotefile The remote file on the machine. It is relative to the share's root. 
+function file_upload(host, localfile, share, remotefile)
+	local status, smbstate
+	local chunk = 1024
+
+	local filename = nmap.fetchfile(localfile)
+	if(filename == nil) then
+		return false, "Couldn't find the file"
+	end
+
+	-- Create the SMB session
+	status, smbstate = smb.start_ex(host, true, true, share, remotefile)
+	if(status == false) then
+		return false, smbstate
+	end
+
+	local handle = io.open(filename, "r")
+	local data = handle:read(chunk)
+
+	local i = 0
+	while(data ~= nil and #data > 0) do
+	
+		status, err = smb.write_file(smbstate, data, i)
+		if(status == false) then
+			smb.stop(smbstate)
+			return false, err
+		end
+
+		data = handle:read(chunk)
+		i = i + chunk
+	end
+	
+	handle:close()
+	status, err = smb.close_file(smbstate)
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, err
+	end
+
+	-- Stop the session
+	smb.stop(smbstate)
+
+	return true
+end
+
+---Delete a file from the remote machine
+-- 
+--@param host       The host object
+--@param share      The share to upload it to (eg, C$). 
+--@param remotefile The remote file on the machine. It is relative to the share's root. 
+--@return (status, err) If status is false, err is an error message. Otherwise, err is undefined. 
+function file_delete(host, share, remotefile)
+	local status, smbstate, err
+
+	-- Create the SMB session
+	status, smbstate = smb.start_ex(host, true, true, share)
+	if(status == false) then
+		return false, smbstate
+	end
+
+	status, err = smb.delete_file(smbstate, remotefile)
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, err
+	end
+
+	-- Stop the session
+	smb.stop(smbstate)
+
+	return true
+end
+
+--- Converts numbered Windows version strings (<code>"Windows 5.0"</code>, <code>"Windows 5.1"</code>) to names (<code>"Windows 2000"</code>, <code>"Windows XP"</code>). 
+--@param os The numbered OS version.
+--@return The actual name of the OS (or the same as the <code>os</code> parameter if no match was found).
+function get_windows_version(os)
+
+	if(os == "Windows 5.0") then
+		return "Windows 2000"
+	elseif(os == "Windows 5.1")then
+		return "Windows XP"
+	end
+
+	return os
+
+end
+
+---Retrieve information about the host's operating system. This should always be possible to call, as long as there isn't already
+-- a SMB session established. 
+--
+--@param host The host object
+--@return (status, data) If status is true, data is a table of values; otherwise, data is an error message. 
+function get_os(host)
+    local state
+    local status, smbstate
+
+	local response = {}
+
+    -- Start up SMB
+    status, smbstate = smb.start_ex(host, true, true, nil, nil, true)
+    if(status == false) then
+		return false, smbstate
+    end
+
+	-- See if we actually got something
+    if(smbstate['os'] == nil and smbstate['lanmanager'] == nil) then
+		return false, "Server didn't return OS details"
+	end
+
+	-- Convert blank values to something useful
+	response['os']           = string_or_blank(smbstate['os'],           "Unknown")
+	response['lanmanager']   = string_or_blank(smbstate['lanmanager'],   "Unknown")
+	response['domain']       = string_or_blank(smbstate['domain'],       "Unknown")
+	response['server']       = string_or_blank(smbstate['server'],       "Unknown")
+	response['date']         = string_or_blank(smbstate['date'],         "Unknown")
+	response['timezone_str'] = string_or_blank(smbstate['timezone_str'], "Unknown")
+
+    -- Kill SMB
+    smb.stop(smbstate)
+
+	return true, response
+end
 
 command_codes = 
 {
@@ -2067,20 +2298,48 @@ end
 status_codes = 
 {
 	NT_STATUS_OK = 0x0000,
-	NT_STATUS_WERR_BADFILE           = 0x00000002,
-	NT_STATUS_WERR_ACCESS_DENIED     = 0x00000005,
-	NT_STATUS_WERR_INVALID_NAME      = 0x0000007b,
-	NT_STATUS_WERR_UNKNOWN_LEVEL     = 0x0000007c,
-	NT_STATUS_WERR_MORE_DATA         = 0x000000ea,
-	NT_STATUS_NO_MORE_ITEMS          = 0x00000103,
-	NT_STATUS_MORE_ENTRIES           = 0x00000105,
-	NT_STATUS_SOME_NOT_MAPPED        = 0x00000107,
-	DOS_STATUS_UNKNOWN_ERROR         = 0x00010001,
-	DOS_STATUS_NONSPECIFIC_ERROR     = 0x00010002,
-	DOS_STATUS_DIRECTORY_NOT_FOUND   = 0x00030001,
-	DOS_STATUS_ACCESS_DENIED         = 0x00050001,
-	DOS_STATUS_INVALID_FID           = 0x00060001,
-	DOS_STATUS_INVALID_NETWORK_NAME  = 0x00060002,
+	NT_STATUS_WERR_BADFILE                      = 0x00000002,
+	NT_STATUS_WERR_ACCESS_DENIED                = 0x00000005,
+	NT_STATUS_WERR_INVALID_NAME                 = 0x0000007b,
+	NT_STATUS_WERR_UNKNOWN_LEVEL                = 0x0000007c,
+	NT_STATUS_WERR_MORE_DATA                    = 0x000000ea,
+	NT_STATUS_NO_MORE_ITEMS                     = 0x00000103,
+	NT_STATUS_MORE_ENTRIES                      = 0x00000105,
+	NT_STATUS_SOME_NOT_MAPPED                   = 0x00000107,
+	NT_STATUS_SERVICE_REQUEST_TIMEOUT           = 0x0000041D,
+	NT_STATUS_SERVICE_NO_THREAD                 = 0x0000041E,
+	NT_STATUS_SERVICE_DATABASE_LOCKED           = 0x0000041F,
+	NT_STATUS_SERVICE_ALREADY_RUNNING           = 0x00000420,
+	NT_STATUS_INVALID_SERVICE_ACCOUNT           = 0x00000421,
+	NT_STATUS_SERVICE_DISABLED                  = 0x00000422,
+	NT_STATUS_CIRCULAR_DEPENDENCY               = 0x00000423,
+	NT_STATUS_SERVICE_DOES_NOT_EXIST            = 0x00000424,
+	NT_STATUS_SERVICE_CANNOT_ACCEPT_CTRL        = 0x00000425,
+	NT_STATUS_SERVICE_NOT_ACTIVE                = 0x00000426,
+	NT_STATUS_FAILED_SERVICE_CONTROLLER_CONNECT = 0x00000427,
+	NT_STATUS_EXCEPTION_IN_SERVICE              = 0x00000428,
+	NT_STATUS_DATABASE_DOES_NOT_EXIST           = 0x00000429,
+	NT_STATUS_SERVICE_SPECIFIC_ERROR            = 0x0000042a,
+	NT_STATUS_PROCESS_ABORTED                   = 0x0000042b,
+	NT_STATUS_SERVICE_DEPENDENCY_FAIL           = 0x0000042c,
+	NT_STATUS_SERVICE_LOGON_FAILED              = 0x0000042d,
+	NT_STATUS_SERVICE_START_HANG                = 0x0000042e,
+	NT_STATUS_INVALID_SERVICE_LOCK              = 0x0000042f,
+	NT_STATUS_SERVICE_MARKED_FOR_DELETE         = 0x00000430,
+	NT_STATUS_SERVICE_EXISTS                    = 0x00000431,
+	NT_STATUS_ALREADY_RUNNING_LKG               = 0x00000432,
+	NT_STATUS_SERVICE_DEPENDENCY_DELETED        = 0x00000433,
+	NT_STATUS_BOOT_ALREADY_ACCEPTED             = 0x00000434,
+	NT_STATUS_SERVICE_NEVER_STARTED             = 0x00000435,
+	NT_STATUS_DUPLICATE_SERVICE_NAME            = 0x00000436,
+	NT_STATUS_DIFFERENT_SERVICE_ACCOUNT         = 0x00000437,
+	NT_STATUS_CANNOT_DETECT_DRIVER_FAILURE      = 0x00000438,
+	DOS_STATUS_UNKNOWN_ERROR                    = 0x00010001,
+	DOS_STATUS_NONSPECIFIC_ERROR                = 0x00010002,
+	DOS_STATUS_DIRECTORY_NOT_FOUND              = 0x00030001,
+	DOS_STATUS_ACCESS_DENIED                    = 0x00050001,
+	DOS_STATUS_INVALID_FID                      = 0x00060001,
+	DOS_STATUS_INVALID_NETWORK_NAME             = 0x00060002,
 	NT_STATUS_BUFFER_OVERFLOW = 0x80000005,
 	NT_STATUS_UNSUCCESSFUL = 0xc0000001,
 	NT_STATUS_NOT_IMPLEMENTED = 0xc0000002,

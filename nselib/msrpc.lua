@@ -75,6 +75,16 @@ WINREG_PATH     = "\\winreg"
 WINREG_UUID     = string.char(0x01, 0xd0, 0x8c, 0x33, 0x44, 0x22, 0xf1, 0x31, 0xaa, 0xaa, 0x90, 0x00, 0x38, 0x00, 0x10, 0x03)
 WINREG_VERSION  = 1
 
+-- The path, UUID, and version for SVCCTL
+SVCCTL_PATH    = "\\svcctl"
+SVCCTL_UUID    = string.char(0x81, 0xbb, 0x7a, 0x36, 0x44, 0x98, 0xf1, 0x35, 0xad, 0x32, 0x98, 0xf0, 0x38, 0x00, 0x10, 0x03)
+SVCCTL_VERSION = 2
+
+-- The path, UUID, and version for ATSVC
+ATSVC_PATH     = "\\atsvc"
+ATSVC_UUID     = string.char(0x82, 0x06, 0xf7, 0x1f, 0x51, 0x0a, 0xe8, 0x30, 0x07, 0x6d, 0x74, 0x0b, 0xe8, 0xce, 0xe9, 0x8b)
+ATSVC_VERSION  = 1
+
 -- This is the only transfer syntax I've seen in the wild, not that I've looked hard. It seems to work well. 
 TRANSFER_SYNTAX = string.char(0x04, 0x5d, 0x88, 0x8a, 0xeb, 0x1c, 0xc9, 0x11, 0x9f, 0xe8, 0x08, 0x00, 0x2b, 0x10, 0x48, 0x60)
 
@@ -111,48 +121,11 @@ local LSA_MINEMPTY = 10
 --
 --@param host The host object. 
 --@param path The path to the named pipe; for example, msrpc.SAMR_PATH or msrpc.SRVSVC_PATH. 
+--@param disable_extended [optional] If set to 'true', disables extended security negotiations. 
 --@return (status, smbstate) if status is false, smbstate is an error message. Otherwise, smbstate is
 --        required for all further calls. 
-function start_smb(host, path)
-	local smbstate
-	local status, err
-
-	-- Begin the SMB session
-    status, smbstate = smb.start(host)
-    if(status == false) then
-        return false, smbstate
-    end
-
-	-- Negotiate the protocol
-    status, err = smb.negotiate_protocol(smbstate)
-    if(status == false) then
-        smb.stop(smbstate)   
-        return false, err
-    end
-
-    -- Start up a null session
-    status, err = smb.start_session(smbstate)
-    if(status == false) then
-        smb.stop(smbstate)   
-        return false, err
-    end
-
-    -- Connect to IPC$ share
-    status, err = smb.tree_connect(smbstate, "IPC$")
-    if(status == false) then
-        smb.stop(smbstate)   
-        return false, err
-    end
-
-    -- Try to connect to requested pipe
-    status, err = smb.create_file(smbstate, path)
-    if(status == false) then
-        smb.stop(smbstate)   
-        return false, err
-    end
-
-	-- Return everything
-	return true, smbstate
+function start_smb(host, path, disable_extended)
+	return smb.start_ex(host, true, true, "IPC$", path, disable_extended)
 end
 
 --- A wrapper around the <code>smb.stop</code> function. I only created it to add symmetry, so client code
@@ -336,7 +309,7 @@ local function call_function(smbstate, opnum, arguments)
 				0x18 + string.len(arguments), -- Frag length (0x18 = the size of this data)
 				0x0000,      -- Auth length
 				0x41414141,  -- Call ID (I use 'AAAA' because it's easy to recognize)
-				0x00000100,  -- Alloc hint
+				0x00000038,  -- Alloc hint
 				0x0000,      -- Context ID
 				opnum,       -- Opnum
 				arguments
@@ -1827,7 +1800,7 @@ function winreg_enumkey(smbstate, handle, index, name)
 --		[in,out,ref]    winreg_StringBuf *name,
 	-- NOTE: if the 'name' parameter here is set to 'nil', the service on a fully patched Windows 2000 system
 	-- may crash. 
-	arguments = arguments .. msrpctypes.marshall_winreg_StringBuf({name=nil}, 520)
+	arguments = arguments .. msrpctypes.marshall_winreg_StringBuf({name=""}, 520)
 
 --		[in,out,unique] winreg_StringBuf *keyclass,
 	arguments = arguments .. msrpctypes.marshall_winreg_StringBuf_ptr({name=nil})
@@ -1952,7 +1925,7 @@ function winreg_queryinfokey(smbstate, handle)
 	arguments = msrpctypes.marshall_policy_handle(handle)
 
 --		[in,out,ref] winreg_String *classname,
-	arguments = arguments .. msrpctypes.marshall_winreg_String("", 2048)
+	arguments = arguments .. msrpctypes.marshall_winreg_String({name=""}, 2048)
 
 --		[out,ref] uint32 *num_subkeys,
 --		[out,ref] uint32 *max_subkeylen,
@@ -2082,8 +2055,10 @@ function winreg_queryvalue(smbstate, handle, value)
 			_, result['value'] = msrpctypes.unicode_to_string(result['data'], 1, #result['data'] / 2)
 		elseif(result['type'] == "REG_BINARY") then
 			result['value'] = result['data']
+		elseif(result['type'] == "REG_NONE") then
+			result['value'] = ""
 		else
-			stdnse.print_debug("MSRPC ERROR: Unknown type: %s\n\n", result['type'])
+			stdnse.print_debug("MSRPC ERROR: Unknown type: %s", result['type'])
 			result['value'] = result['type']
 		end
 	else
@@ -2154,6 +2129,592 @@ function winreg_closekey(smbstate, handle)
 	return true, result
 end
 
+--- Calls the function <code>OpenSCManagerA</code>, which gets a handle to the service manager. Should be closed with
+-- <code>CloseServiceHandle</code> when finished. 
+--
+--@param smbstate    The SMB state table
+--@param machinename The name or IP of the machine. 
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
+--        representing the "out" parameters.  
+function svcctl_openscmanagera(smbstate, machinename)
+	local i, j
+	local status, result
+	local arguments
+	local pos, align
+
+	stdnse.print_debug(2, "MSRPC: Calling OpenSCManagerA() [%s]", smbstate['ip'])
+
+--        [in] [string,charset(UTF16)] uint16 *MachineName,
+	arguments = msrpctypes.marshall_ascii_ptr("\\\\" .. machinename)
+
+--        [in] [string,charset(UTF16)] uint16 *DatabaseName,
+	arguments = arguments .. msrpctypes.marshall_ascii_ptr(nil)
+
+--        [in] uint32 access_mask,
+--	arguments = arguments .. msrpctypes.marshall_int32(0x000f003f) 
+	arguments = arguments .. msrpctypes.marshall_int32(0x00000002) 
+
+--        [out,ref] policy_handle *handle
+
+	-- Do the call
+	status, result = call_function(smbstate, 0x1b, arguments)
+	if(status ~= true) then
+		return false, result
+	end
+
+	stdnse.print_debug(3, "MSRPC: OpenSCManagerA() returned successfully")
+
+	-- Make arguments easier to use
+	arguments = result['arguments']
+	pos = 1
+
+--        [in] [string,charset(UTF16)] uint16 *MachineName,
+--        [in] [string,charset(UTF16)] uint16 *DatabaseName,
+--        [in] uint32 access_mask,
+--        [out,ref] policy_handle *handle
+	pos, result['handle'] = msrpctypes.unmarshall_policy_handle(arguments, pos)
+
+	pos, result['return'] = msrpctypes.unmarshall_int32(arguments, pos)
+	if(result['return'] == nil) then
+		return false, "Read off the end of the packet (svcctl.openscmanagera)"
+	end
+	if(result['return'] ~= 0) then
+		return false, smb.get_status_name(result['return']) .. " (svcctl.openscmanagera)"
+	end
+
+	return true, result
+end
+
+
+--- Calls the function <code>OpenSCManagerW</code>, which gets a handle to the service manager. Should be closed with
+-- <code>CloseServiceHandle</code> when finished. 
+--
+--@param smbstate    The SMB state table
+--@param machinename The name or IP of the machine. 
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
+--        representing the "out" parameters.  
+function svcctl_openscmanagerw(smbstate, machinename)
+	local i, j
+	local status, result
+	local arguments
+	local pos, align
+
+--	if(1 == 1) then
+--		return svcctl_openscmanagera(smbstate, machinename)
+--	end
+
+	stdnse.print_debug(2, "MSRPC: Calling OpenSCManagerW() [%s]", smbstate['ip'])
+
+--        [in] [string,charset(UTF16)] uint16 *MachineName,
+	arguments = msrpctypes.marshall_unicode_ptr("\\\\" .. machinename, true)
+
+--        [in] [string,charset(UTF16)] uint16 *DatabaseName,
+	arguments = arguments .. msrpctypes.marshall_unicode_ptr(nil, true)
+
+--        [in] uint32 access_mask,
+	arguments = arguments .. msrpctypes.marshall_int32(0x000f003f) 
+--	arguments = arguments .. msrpctypes.marshall_int32(0x00000002) 
+
+--        [out,ref] policy_handle *handle
+
+	-- Do the call
+	status, result = call_function(smbstate, 0x0f, arguments)
+	if(status ~= true) then
+		return false, result
+	end
+
+	stdnse.print_debug(3, "MSRPC: OpenSCManagerW() returned successfully")
+
+	-- Make arguments easier to use
+	arguments = result['arguments']
+	pos = 1
+
+--        [in] [string,charset(UTF16)] uint16 *MachineName,
+--        [in] [string,charset(UTF16)] uint16 *DatabaseName,
+--        [in] uint32 access_mask,
+--        [out,ref] policy_handle *handle
+	pos, result['handle'] = msrpctypes.unmarshall_policy_handle(arguments, pos)
+
+	pos, result['return'] = msrpctypes.unmarshall_int32(arguments, pos)
+	if(result['return'] == nil) then
+		return false, "Read off the end of the packet (svcctl.openscmanagerw)"
+	end
+	if(result['return'] ~= 0) then
+		return false, smb.get_status_name(result['return']) .. " (svcctl.openscmanagerw)"
+	end
+
+	return true, result
+end
+
+
+--- Calls the function <code>CloseServiceHandle</code>, which releases a handle.
+--
+--@param smbstate  The SMB state table
+--@param handle    The handle to be closed. 
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
+--        representing the "out" parameters.  
+function svcctl_closeservicehandle(smbstate, handle)
+	local i, j
+	local status, result
+	local arguments
+	local pos, align
+
+	stdnse.print_debug(2, "MSRPC: Calling CloseServiceHandle() [%s]", smbstate['ip'])
+
+--        [in,out,ref] policy_handle *handle
+	arguments = msrpctypes.marshall_policy_handle(handle)
+
+
+	-- Do the call
+	status, result = call_function(smbstate, 0x00, arguments)
+	if(status ~= true) then
+		return false, result
+	end
+
+	stdnse.print_debug(3, "MSRPC: OpenSCManagerA() returned successfully")
+
+	-- Make arguments easier to use
+	arguments = result['arguments']
+	pos = 1
+
+--        [in,out,ref] policy_handle *handle
+	pos, result['handle'] = msrpctypes.unmarshall_policy_handle(arguments, pos)
+
+	pos, result['return'] = msrpctypes.unmarshall_int32(arguments, pos)
+	if(result['return'] == nil) then
+		return false, "Read off the end of the packet (svcctl.closeservicehandle)"
+	end
+	if(result['return'] ~= 0) then
+		return false, smb.get_status_name(result['return']) .. " (svcctl.closeservicehandle)"
+	end
+
+	return true, result
+end
+
+--- Calls the function <code>CreateServiceW</code>, which creates a service on the remote machine. This should
+-- be deleted with <code>DeleteService</code> when finished. 
+--
+--@param smbstate  The SMB state table
+--@param handle    The handle created by <code>OpenSCManagerW</code>
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
+--        representing the "out" parameters.  
+function svcctl_createservicew(smbstate, handle, service_name, display_name, path)
+	local i, j
+	local status, result
+	local arguments
+	local pos, align
+
+	stdnse.print_debug(2, "MSRPC: Calling CreateServiceW() [%s]", smbstate['ip'])
+
+--        [in,ref] policy_handle *scmanager_handle,
+	arguments = msrpctypes.marshall_policy_handle(handle)
+
+--        [in] [string,charset(UTF16)] uint16 ServiceName[],
+	arguments = arguments .. msrpctypes.marshall_unicode(service_name, true)
+
+--        [in] [string,charset(UTF16)] uint16 *DisplayName,
+	arguments = arguments .. msrpctypes.marshall_unicode_ptr(display_name, true)
+
+--        [in] uint32 desired_access,
+	arguments = arguments .. msrpctypes.marshall_int32(0x000f01ff) -- Access: Max
+
+--        [in] uint32 type,
+	arguments = arguments .. msrpctypes.marshall_int32(0x00000010) -- Type: own process
+
+--        [in] uint32 start_type,
+	arguments = arguments .. msrpctypes.marshall_int32(0x00000003) -- Start: Demand
+
+--        [in] uint32 error_control,
+	arguments = arguments .. msrpctypes.marshall_int32(0x00000000) -- Error: Ignore
+
+--        [in] [string,charset(UTF16)] uint16 binary_path[],
+	arguments = arguments .. msrpctypes.marshall_unicode(path, true)
+
+--        [in] [string,charset(UTF16)] uint16 *LoadOrderGroupKey,
+	arguments = arguments .. msrpctypes.marshall_unicode_ptr(nil)
+
+--        [in,out] uint32 *TagId,
+	arguments = arguments .. msrpctypes.marshall_int32_ptr(nil)
+
+--        [in,size_is(dependencies_size)] uint8 *dependencies,
+	arguments = arguments .. msrpctypes.marshall_int8_ptr(nil)
+
+--        [in] uint32 dependencies_size,
+	arguments = arguments .. msrpctypes.marshall_int32(0)
+
+--        [in] [string,charset(UTF16)] uint16 *service_start_name,
+	arguments = arguments .. msrpctypes.marshall_unicode_ptr(nil)
+
+--        [in,size_is(password_size)] uint8 *password,
+	arguments = arguments .. msrpctypes.marshall_int8_ptr(nil)
+
+--        [in] uint32 password_size,
+	arguments = arguments .. msrpctypes.marshall_int32(0)
+
+--        [out,ref] policy_handle *handle
+
+
+
+	-- Do the call
+	status, result = call_function(smbstate, 0x0c, arguments)
+	if(status ~= true) then
+		return false, result
+	end
+
+	stdnse.print_debug(3, "MSRPC: CreateServiceW() returned successfully")
+
+	-- Make arguments easier to use
+	arguments = result['arguments']
+	pos = 1
+
+--        [in,ref] policy_handle *scmanager_handle,
+--        [in] [string,charset(UTF16)] uint16 ServiceName[],
+--        [in] [string,charset(UTF16)] uint16 *DisplayName,
+--        [in] uint32 desired_access,
+--        [in] uint32 type,
+--        [in] uint32 start_type,
+--        [in] uint32 error_control,
+--        [in] [string,charset(UTF16)] uint16 binary_path[],
+--        [in] [string,charset(UTF16)] uint16 *LoadOrderGroupKey,
+--        [in,out] uint32 *TagId,
+	pos, result['TagId'] = msrpctypes.unmarshall_int32_ptr(arguments, pos)
+	
+--        [in,size_is(dependencies_size)] uint8 *dependencies,
+--        [in] uint32 dependencies_size,
+--        [in] [string,charset(UTF16)] uint16 *service_start_name,
+--        [in,size_is(password_size)] uint8 *password,
+--        [in] uint32 password_size,
+--        [out,ref] policy_handle *handle
+	pos, result['handle'] = msrpctypes.unmarshall_policy_handle(arguments, pos)
+
+	pos, result['return'] = msrpctypes.unmarshall_int32(arguments, pos)
+	if(result['return'] == nil) then
+		return false, "Read off the end of the packet (svcctl.createservicew)"
+	end
+	if(result['return'] ~= 0) then
+		return false, smb.get_status_name(result['return']) .. " (svcctl.createservicew)"
+	end
+
+	return true, result
+end
+
+--- Calls the function <code>DeleteService</code>, which deletes a service on the remote machine. This service
+-- has to opened with <code>OpenServiceW</code> or similar functions. 
+--
+--@param smbstate  The SMB state table.
+--@param handle    The handle to delete, opened with <code>OpenServiceW</code> or similar. 
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
+--        representing the "out" parameters.  
+function svcctl_deleteservice(smbstate, handle)
+	local i, j
+	local status, result
+	local arguments
+	local pos, align
+
+	stdnse.print_debug(2, "MSRPC: Calling DeleteService() [%s]", smbstate['ip'])
+
+--        [in,ref] policy_handle *handle
+	arguments = msrpctypes.marshall_policy_handle(handle)
+
+
+	-- Do the call
+	status, result = call_function(smbstate, 0x02, arguments)
+	if(status ~= true) then
+		return false, result
+	end
+
+	stdnse.print_debug(3, "MSRPC: DeleteService() returned successfully")
+
+	-- Make arguments easier to use
+	arguments = result['arguments']
+	pos = 1
+
+
+--        [in,ref] policy_handle *handle
+
+
+	pos, result['return'] = msrpctypes.unmarshall_int32(arguments, pos)
+	if(result['return'] == nil) then
+		return false, "Read off the end of the packet (svcctl.deleteservice)"
+	end
+	if(result['return'] ~= 0) then
+		return false, smb.get_status_name(result['return']) .. " (svcctl.deleteservice)"
+	end
+
+	return true, result
+end
+
+--- Calls the function <code>OpenServiceW</code>, which gets a handle to the service.  Should be closed with
+-- <code>CloseServiceHandle</code> when finished. 
+--
+--@param smbstate The SMB state table.
+--@param handle   A handle to the policy manager, opened with <code>OpenSCManagerW</code> or similar. 
+--@param name     The name of the service. 
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
+--        representing the "out" parameters.  
+function svcctl_openservicew(smbstate, handle, name)
+	local i, j
+	local status, result
+	local arguments
+	local pos, align
+
+	stdnse.print_debug(2, "MSRPC: Calling OpenServiceW() [%s]", smbstate['ip'])
+
+--        [in,ref] policy_handle *scmanager_handle,
+	arguments = msrpctypes.marshall_policy_handle(handle)
+
+--        [in] [string,charset(UTF16)] uint16 ServiceName[],
+	arguments = arguments .. msrpctypes.marshall_unicode(name, true)
+
+--        [in] uint32 access_mask,
+	arguments = arguments .. msrpctypes.marshall_int32(0x000f01ff)
+--        [out,ref] policy_handle *handle
+
+
+	-- Do the call
+	status, result = call_function(smbstate, 0x10, arguments)
+	if(status ~= true) then
+		return false, result
+	end
+
+	stdnse.print_debug(3, "MSRPC: OpenServiceW() returned successfully")
+
+	-- Make arguments easier to use
+	arguments = result['arguments']
+	pos = 1
+
+--        [in,ref] policy_handle *scmanager_handle,
+--        [in] [string,charset(UTF16)] uint16 ServiceName[],
+--        [in] uint32 access_mask,
+--        [out,ref] policy_handle *handle
+	pos, result['handle'] = msrpctypes.unmarshall_policy_handle(arguments, pos)
+
+	pos, result['return'] = msrpctypes.unmarshall_int32(arguments, pos)
+	if(result['return'] == nil) then
+		return false, "Read off the end of the packet (svcctl.openservicew)"
+	end
+	if(result['return'] ~= 0) then
+		return false, smb.get_status_name(result['return']) .. " (svcctl.openservicew)"
+	end
+
+	return true, result
+end
+
+--- Calls the function <code>StartServiceW</code>, which starts a service. Requires a handle
+-- created by <code>OpenServiceW</code>. 
+--
+--@param smbstate The SMB state table.
+--@param handle   The handle, opened by <code>OpenServiceW</code>.
+--@param args     An array of strings representing the arguments. 
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
+--        representing the "out" parameters.
+function svcctl_startservicew(smbstate, handle, args)
+	local i, j
+	local status, result
+	local arguments
+	local pos, align
+	stdnse.print_debug(2, "MSRPC: Calling StartServiceW() [%s]", smbstate['ip'])
+
+--        [in,ref] policy_handle *handle,
+	arguments = msrpctypes.marshall_policy_handle(handle)
+
+--        [in] uint32 NumArgs,
+	if(args == nil) then
+		arguments = arguments .. msrpctypes.marshall_int32(0)
+	else
+		arguments = arguments .. msrpctypes.marshall_int32(#args)
+	end
+
+--        [in/*FIXME:,length_is(NumArgs)*/] [string,charset(UTF16)] uint16 *Arguments
+	arguments = arguments .. msrpctypes.marshall_unicode_array_ptr(args, true)
+
+	-- Do the call
+	status, result = call_function(smbstate, 0x13, arguments)
+	if(status ~= true) then
+		return false, result
+	end
+
+	stdnse.print_debug(3, "MSRPC: StartServiceW() returned successfully")
+
+	-- Make arguments easier to use
+	arguments = result['arguments']
+	pos = 1
+
+--        [in,ref] policy_handle *handle,
+--        [in] uint32 NumArgs,
+--        [in/*FIXME:,length_is(NumArgs)*/] [string,charset(UTF16)] uint16 *Arguments
+
+	pos, result['return'] = msrpctypes.unmarshall_int32(arguments, pos)
+	if(result['return'] == nil) then
+		return false, "Read off the end of the packet (svcctl.startservicew)"
+	end
+	if(result['return'] ~= 0) then
+		return false, smb.get_status_name(result['return']) .. " (svcctl.startservicew)"
+	end
+
+	return true, result
+
+end
+
+--- Calls the function <code>ControlService</code>, which can send various commands to the service. 
+--
+--@param smbstate The SMB state table.
+--@param handle   The handle, opened by <code>OpenServiceW</code>.
+--@param control  The command to send. See <code>svcctl_ControlCode</code> in <code>msrpctypes.lua</code>. 
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
+--        representing the "out" parameters.
+function svcctl_controlservice(smbstate, handle, control)
+	local i, j
+	local status, result
+	local arguments
+	local pos, align
+
+	stdnse.print_debug(2, "MSRPC: Calling ControlService() [%s]", smbstate['ip'])
+
+--        [in,ref] policy_handle *handle,
+	arguments = msrpctypes.marshall_policy_handle(handle)
+
+--        [in] uint32 control,
+	arguments = arguments .. msrpctypes.marshall_svcctl_ControlCode(control)
+
+--        [out,ref] SERVICE_STATUS *service_status
+
+
+	-- Do the call
+	status, result = call_function(smbstate, 0x01, arguments)
+	if(status ~= true) then
+		return false, result
+	end
+
+	stdnse.print_debug(3, "MSRPC: ControlService() returned successfully")
+
+	-- Make arguments easier to use
+	arguments = result['arguments']
+	pos = 1
+
+--        [in,ref] policy_handle *handle,
+--        [in] uint32 control,
+--        [out,ref] SERVICE_STATUS *service_status
+	pos, result['service_status'] = msrpctypes.unmarshall_SERVICE_STATUS(arguments, pos)
+
+	pos, result['return'] = msrpctypes.unmarshall_int32(arguments, pos)
+	if(result['return'] == nil) then
+		return false, "Read off the end of the packet (svcctl.controlservice)"
+	end
+	if(result['return'] ~= 0) then
+		return false, smb.get_status_name(result['return']) .. " (svcctl.controlservice)"
+	end
+
+	return true, result
+
+end
+
+
+--- Calls the function <code>QueryServiceStatus</code>, which gets the state information about the service. 
+--
+--@param smbstate The SMB state table.
+--@param handle   The handle, opened by <code>OpenServiceW</code>.
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
+--        representing the "out" parameters.
+function svcctl_queryservicestatus(smbstate, handle, control)
+	local i, j
+	local status, result
+	local arguments
+	local pos, align
+
+	stdnse.print_debug(2, "MSRPC: Calling QueryServiceStatus() [%s]", smbstate['ip'])
+
+--        [in,ref] policy_handle *handle,
+	arguments = msrpctypes.marshall_policy_handle(handle)
+
+--        [out,ref] SERVICE_STATUS *service_status
+
+
+	-- Do the call
+	status, result = call_function(smbstate, 0x06, arguments)
+	if(status ~= true) then
+		return false, result
+	end
+
+	stdnse.print_debug(3, "MSRPC: QueryServiceStatus() returned successfully")
+
+	-- Make arguments easier to use
+	arguments = result['arguments']
+	pos = 1
+
+--        [in,ref] policy_handle *handle,
+--        [out,ref] SERVICE_STATUS *service_status
+	pos, result['service_status'] = msrpctypes.unmarshall_SERVICE_STATUS(arguments, pos)
+
+	pos, result['return'] = msrpctypes.unmarshall_int32(arguments, pos)
+	if(result['return'] == nil) then
+		return false, "Read off the end of the packet (svcctl.queryservicestatus)"
+	end
+	if(result['return'] ~= 0) then
+		return false, smb.get_status_name(result['return']) .. " (svcctl.queryservicestatus)"
+	end
+
+	return true, result
+end
+
+---Calls the function <code>JobAdd</code>, which schedules a process to be run on the remote 
+-- machine. This requires administrator privileges to run, and the command itself runs as
+-- SYSTEM. 
+--@param smbstate The SMB state table.
+--@param server   The IP or Hostname of the server (seems to be ignored but it's a good idea to have it)
+--@param command  The command to run on the remote machine. The appropriate file(s) already 
+--                have to be there, and this should be a full path. 
+--@param time     (optional) The time at which to run the command. Default: 5 seconds from 
+--                when the user logged in. 
+function atsvc_jobadd(smbstate, server, command, time)
+	local i, j
+	local status, result
+	local arguments
+	local pos, align
+
+	-- Set up the time
+	if(time == nil) then
+		-- TODO
+	end
+
+	stdnse.print_debug(2, "MSRPC: Calling AddJob(%s) [%s]", command, smbstate['ip'])
+
+--        [in,unique,string,charset(UTF16)] uint16 *servername,
+	arguments = msrpctypes.marshall_unicode_ptr(server, true)
+
+--        [in] atsvc_JobInfo *job_info,
+	arguments = arguments .. msrpctypes.marshall_atsvc_JobInfo(command, time)
+--        [out,ref]    uint32 *job_id
+
+
+	-- Do the call
+	status, result = call_function(smbstate, 0x00, arguments)
+	if(status ~= true) then
+		return false, result
+	end
+
+	stdnse.print_debug(3, "MSRPC: AddJob() returned successfully")
+
+	-- Make arguments easier to use
+	arguments = result['arguments']
+	pos = 1
+
+--        [in,unique,string,charset(UTF16)] uint16 *servername,
+--        [in] atsvc_JobInfo *job_info,
+--        [out,ref]    uint32 *job_id
+	pos, result['job_id'] = msrpctypes.unmarshall_int32(arguments, pos)
+
+	pos, result['return'] = msrpctypes.unmarshall_int32(arguments, pos)
+	if(result['return'] == nil) then
+		return false, "Read off the end of the packet (atsvc.addjob())"
+	end
+	if(result['return'] ~= 0) then
+		return false, smb.get_status_name(result['return']) .. " (atsvc.addjob())"
+	end
+
+	return true, result
+end
+
 ---Attempt to enumerate users using SAMR functions. 
 --
 --@param host The host object. 
@@ -2179,23 +2740,23 @@ function samr_enum_users(host)
 	local response = {}
 
 	-- Create the SMB session
-	status, smbstate = msrpc.start_smb(host, msrpc.SAMR_PATH)
+	status, smbstate = start_smb(host, SAMR_PATH, true)
 
 	if(status == false) then
 		return false, smbstate
 	end
 
 	-- Bind to SAMR service
-	status, bind_result = msrpc.bind(smbstate, msrpc.SAMR_UUID, msrpc.SAMR_VERSION, nil)
+	status, bind_result = bind(smbstate, SAMR_UUID, SAMR_VERSION, nil)
 	if(status == false) then
-		msrpc.stop_smb(smbstate)
+		stop_smb(smbstate)
 		return false, bind_result
 	end
 
 	-- Call connect4()
-	status, connect4_result = msrpc.samr_connect4(smbstate, host.ip)
+	status, connect4_result = samr_connect4(smbstate, host.ip)
 	if(status == false) then
-		msrpc.stop_smb(smbstate)
+		stop_smb(smbstate)
 		return false, connect4_result
 	end
 
@@ -2203,15 +2764,15 @@ function samr_enum_users(host)
 	connect_handle = connect4_result['connect_handle']
 
 	-- Call EnumDomains()
-	status, enumdomains_result = msrpc.samr_enumdomains(smbstate, connect_handle)
+	status, enumdomains_result = samr_enumdomains(smbstate, connect_handle)
 	if(status == false) then
-		msrpc.stop_smb(smbstate)
+		stop_smb(smbstate)
 		return false, enumdomains_result
 	end
 
 	-- If no domains were returned, go back with an error
 	if(#enumdomains_result['sam']['entries'] == 0) then
-		msrpc.stop_smb(smbstate)
+		stop_smb(smbstate)
 		return false, "Couldn't find any domains"
 	end
 
@@ -2226,9 +2787,9 @@ function samr_enum_users(host)
 			local opendomain_result, querydisplayinfo_result
 
 			-- Call LookupDomain()
-			status, lookupdomain_result = msrpc.samr_lookupdomain(smbstate, connect_handle, domain)
+			status, lookupdomain_result = samr_lookupdomain(smbstate, connect_handle, domain)
 			if(status == false) then
-				msrpc.stop_smb(smbstate)
+				stop_smb(smbstate)
 				return false, lookupdomain_result
 			end
 
@@ -2236,9 +2797,9 @@ function samr_enum_users(host)
 			sid = lookupdomain_result['sid']
 	
 			-- Call OpenDomain()
-			status, opendomain_result = msrpc.samr_opendomain(smbstate, connect_handle, sid)
+			status, opendomain_result = samr_opendomain(smbstate, connect_handle, sid)
 			if(status == false) then
-				msrpc.stop_smb(smbstate)
+				stop_smb(smbstate)
 				return false, opendomain_result
 			end
 
@@ -2249,9 +2810,9 @@ function samr_enum_users(host)
 			j = 0
 			repeat
 				-- Call QueryDisplayInfo()
-				status, querydisplayinfo_result = msrpc.samr_querydisplayinfo(smbstate, domain_handle, j, SAMR_GROUPSIZE)
+				status, querydisplayinfo_result = samr_querydisplayinfo(smbstate, domain_handle, j, SAMR_GROUPSIZE)
 				if(status == false) then
-					msrpc.stop_smb(smbstate)
+					stop_smb(smbstate)
 					return false, querydisplayinfo_result
 				end
 
@@ -2275,7 +2836,7 @@ function samr_enum_users(host)
 
 						-- Convert each element in the 'flags' array into the equivalent string
 						for l = 1, #array['flags'], 1 do
-							array['flags'][l] = msrpc.samr_AcctFlags_tostr(array['flags'][l])
+							array['flags'][l] = samr_AcctFlags_tostr(array['flags'][l])
 						end
 	
 						-- Add it to the array
@@ -2286,15 +2847,15 @@ function samr_enum_users(host)
 			until querydisplayinfo_result['return'] == 0
 
 			-- Close the domain handle
-			msrpc.samr_close(smbstate, domain_handle)
+			samr_close(smbstate, domain_handle)
 		end -- Checking for 'builtin'
 	end -- Domain loop
 
 	-- Close the connect handle
-	msrpc.samr_close(smbstate, connect_handle)
+	samr_close(smbstate, connect_handle)
 
 	-- Stop the SAMR SMB
-	msrpc.stop_smb(smbstate)
+	stop_smb(smbstate)
 
 	stdnse.print_debug(3, "Leaving enum_samr()")
 
@@ -2320,28 +2881,35 @@ function lsa_enum_users(host)
 	stdnse.print_debug(3, "Entering enum_lsa()")
 
 	-- Create the SMB session
-	status, smbstate = msrpc.start_smb(host, msrpc.LSA_PATH)
+	status, smbstate = start_smb(host, LSA_PATH, true)
 	if(status == false) then
 		return false, smbstate
 	end
 
 	-- Bind to LSA service
-	status, bind_result = msrpc.bind(smbstate, msrpc.LSA_UUID, msrpc.LSA_VERSION, nil)
+	status, bind_result = bind(smbstate, LSA_UUID, LSA_VERSION, nil)
 	if(status == false) then
-		msrpc.stop_smb(smbstate)
+		stop_smb(smbstate)
 		return false, bind_result
 	end
 
 	-- Open the LSA policy
-	status, openpolicy2_result = msrpc.lsa_openpolicy2(smbstate, host.ip)
+	status, openpolicy2_result = lsa_openpolicy2(smbstate, host.ip)
 	if(status == false) then
-		msrpc.stop_smb(smbstate)
+		stop_smb(smbstate)
 		return false, openpolicy2_result
 	end
 
 	-- Start with some common names, as well as the name returned by the negotiate call
 	-- Vista doesn't like a 'null' after the server name, so fix that (TODO: the way I strip the null here feels hackish, is there a better way?)
-	names = {"administrator", "guest", "test", smbstate['domain'], string.sub(smbstate['server'], 1, #smbstate['server'] - 1) }
+	names = {"administrator", "guest", "test"}
+	-- These aren't always sent back (especially with 'extended security')
+	if(smbstate['domain'] ~= nil) then
+		names[#names + 1] = smbstate['domain']
+	end
+	if(smbstate['server'] ~= nil) then
+		names[#names + 1] = string.sub(smbstate['server'], 1, #smbstate['server'] - 1) 
+	end
 
 	-- Get the server's name from nbstat
 	local result, server_name = netbios.get_server_name(host.ip)
@@ -2356,9 +2924,9 @@ function lsa_enum_users(host)
 	end
 
 	-- Look up the names, if any are valid than the server's SID will be returned
-	status, lookupnames2_result = msrpc.lsa_lookupnames2(smbstate, openpolicy2_result['policy_handle'], names)
+	status, lookupnames2_result = lsa_lookupnames2(smbstate, openpolicy2_result['policy_handle'], names)
 	if(status == false) then
-		msrpc.stop_smb(smbstate)
+		stop_smb(smbstate)
 		return false, lookupnames2_result
 	end
 	-- Loop through the domains returned and find the users in each
@@ -2372,7 +2940,7 @@ function lsa_enum_users(host)
 			sids[#sids + 1] = sid .. "-" .. j 
 		end
 
-		status, lookupsids2_result = msrpc.lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], sids)
+		status, lookupsids2_result = lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], sids)
 		if(status == false) then
 			stdnse.print_debug(1, string.format("Error looking up RIDs: %s", lookupsids2_result))
 		else
@@ -2385,7 +2953,7 @@ function lsa_enum_users(host)
 					result['rid']	  = 500 + j - 1
 					result['domain']  = domain
 					result['type']    = lookupsids2_result['names']['names'][j]['sid_type']
-					result['typestr'] = msrpc.lsa_SidType_tostr(result['type'])
+					result['typestr'] = lsa_SidType_tostr(result['type'])
 					result['source']  = "LSA Bruteforce"
 					table.insert(response, result)
 				end
@@ -2406,24 +2974,34 @@ function lsa_enum_users(host)
 			end
 
 			-- Try converting this group of RIDs into names
-			status, lookupsids2_result = msrpc.lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], sids)
+			status, lookupsids2_result = lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], sids)
 			if(status == false) then
 				stdnse.print_debug(1, string.format("Error looking up RIDs: %s", lookupsids2_result))
 			else
 				-- Put the details for each name into an array
 				for j = 1, #lookupsids2_result['names']['names'], 1 do
-					if(lookupsids2_result['names']['names'][j]['sid_type'] ~= "SID_NAME_UNKNOWN") then
-						local result = {}
-						result['name']    = lookupsids2_result['names']['names'][j]['name']
-						result['rid']	  = start + j - 1
-						result['domain']  = domain
-						result['type']    = lookupsids2_result['names']['names'][j]['sid_type']
-						result['typestr'] = msrpc.lsa_SidType_tostr(result['type'])
-						result['source']  = "LSA Bruteforce"
-						table.insert(response, result)
+					-- Determine the RID
+					local name = lookupsids2_result['names']['names'][j]['name']
+					local rid = start + j - 1
+					local typenum = lookupsids2_result['names']['names'][j]['sid_type']
+					local typestr = lsa_SidType_tostr(typenum)
 
-						-- Increment the number of names we've found
-						used_names = used_names + 1
+					-- Check if the username matches the rid (one server we discovered returned every user as valid, 
+					-- this is to prevent that infinite loop)
+					if(tonumber(name) ~= rid) then
+						if(lookupsids2_result['names']['names'][j]['sid_type'] ~= "SID_NAME_UNKNOWN") then
+							local result = {}
+							result['name']    = name
+							result['rid']	  = rid
+							result['domain']  = domain
+							result['type']    = typenum
+							result['typestr'] = typestr
+							result['source']  = "LSA Bruteforce"
+							table.insert(response, result)
+	
+							-- Increment the number of names we've found
+							used_names = used_names + 1
+						end
 					end
 				end
 			end
@@ -2442,9 +3020,9 @@ function lsa_enum_users(host)
 	end
 
 	-- Close the handle
-	msrpc.lsa_close(smbstate, openpolicy2_result['policy_handle'])
+	lsa_close(smbstate, openpolicy2_result['policy_handle'])
 
-	msrpc.stop_smb(smbstate)
+	stop_smb(smbstate)
 
 	stdnse.print_debug(3, "Leaving enum_lsa()")
 
@@ -2498,4 +3076,454 @@ function get_user_list(host)
 
 	return true, response, names
 end
+
+---Create a "service" on a remote machine. This service is linked to an executable that is already
+-- on the system. The name of the service can be whatever you want it to be. The service is created
+-- in the "stopped" state with "manual" startup, and it ignores errors. The 'servicename' is what
+-- people will see on the system while the service is running, and what'll stay there is something
+-- happens that the service can't be deleted properly. 
+--
+-- Note that this (and the other "service" functions) are highly invasive. They make configuration
+-- changes to the machine that can potentially affect stability. 
+--
+-- The reason that this and the other "service" functions don't require a <code>smbstate</code> 
+-- object is that I wanted them to be independent. If a service fails to start, I don't want it 
+-- to affect the program's ability to stop and delete the service. Every service function is
+-- independent. 
+--
+--@param host        The host object. 
+--@param servicename The name of the service to create. 
+--@param path        The path and filename on the remote system. 
+--@return (status, err) If status is <code>false</code>, <code>err</code> is an error message; 
+--        otherwise, err is undefined. 
+function service_create(host, servicename, path)
+	local status, smbstate, bind_result, open_result, create_result, close_result
+
+	stdnse.print_debug(1, "Creating service: %s (%s)", servicename, path)
+
+	-- Create the SMB session
+	status, smbstate = start_smb(host, SVCCTL_PATH)
+	if(status == false) then
+		return false, smbstate
+	end
+
+	-- Bind to SVCCTL service
+	status, bind_result = bind(smbstate, SVCCTL_UUID, SVCCTL_VERSION, nil)
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, bind_result
+	end
+
+	-- Open the service manager
+	stdnse.print_debug(2, "Opening the remote service manager")
+	status, open_result = svcctl_openscmanagerw(smbstate, host.ip)
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, open_result
+	end
+
+	-- Create the service
+	stdnse.print_debug(2, "Creating the service", servicename)
+	status, create_result = svcctl_createservicew(smbstate, open_result['handle'], servicename, servicename, path)
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, create_result
+	end
+	-- Close the handle to the service
+	status, close_result = svcctl_closeservicehandle(smbstate, create_result['handle'])
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, close_result
+	end
+
+	-- Close the service manager
+	status, close_result = svcctl_closeservicehandle(smbstate, open_result['handle'])
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, close_result
+	end
+
+	smb.stop(smbstate)
+
+	return true
+end
+
+---Start a service on the remote machine based on its name. For example, to start the registry 
+-- service, this can be called on "RemoteRegistry". 
+--
+-- If you start a service on a machine, you should also stop it when you're finished. Every service
+-- running is extra attack surface for a potential attacker
+--
+--@param host        The host object. 
+--@param servicename The name of the service to start. 
+--@param args        [optional] The arguments to pass to the service. Most built-in services don't
+--                   require arguments. 
+--@return (status, err) If status is <code>false</code>, <code>err</code> is an error message; 
+--        otherwise, err is undefined. 
+function service_start(host, servicename, args)
+	local status, smbstate, bind_result, open_result, open_service_result, start_result, close_result, query_result
+
+	stdnse.print_debug(1, "Starting service: %s", servicename)
+
+	-- Create the SMB session
+	status, smbstate = start_smb(host, SVCCTL_PATH)
+	if(status == false) then
+		return false, smbstate
+	end
+
+	-- Bind to SVCCTL service
+	status, bind_result = bind(smbstate, SVCCTL_UUID, SVCCTL_VERSION, nil)
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, bind_result
+	end
+
+	-- Open the service manager
+	stdnse.print_debug(1, "Opening the remote service manager")
+	status, open_result = svcctl_openscmanagerw(smbstate, host.ip)
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, open_result
+	end
+
+	-- Get a handle to the service
+	stdnse.print_debug(2, "Getting a handle to the service")
+	status, open_service_result = svcctl_openservicew(smbstate, open_result['handle'], servicename)
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, open_service_result
+	end
+
+	-- Start it
+	stdnse.print_debug(2, "Starting the service")
+	status, start_result = svcctl_startservicew(smbstate, open_service_result['handle'], args)
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, start_result
+	end
+
+	-- Wait for it to start
+	stdnse.print_debug(2, "Waiting for the service to start")
+	repeat
+		status, query_result = svcctl_queryservicestatus(smbstate, open_service_result['handle'])
+		if(status == false) then
+			smb.stop(smbstate)
+			return false, query_result
+		end
+	until query_result['service_status']['controls_accepted'][1] == "SERVICE_CONTROL_STOP"
+
+	-- Close the handle to the service
+	status, close_result = svcctl_closeservicehandle(smbstate, open_service_result['handle'])
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, close_result
+	end
+
+	-- Close the service manager
+	status, close_result = svcctl_closeservicehandle(smbstate, open_result['handle'])
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, close_result
+	end
+
+	smb.stop(smbstate)
+
+	return true
+end
+
+---Stop a service on the remote machine based on its name. For example, to stop the registry 
+-- service, this can be called on "RemoteRegistry". 
+--
+-- This can be called on a service that's already stopped without hurting anything (just keep in mind
+-- that an error will be returned). 
+-- 
+--@param host        The host object. 
+--@param servicename The name of the service to stop. 
+--@return (status, err) If status is <code>false</code>, <code>err</code> is an error message; 
+--        otherwise, err is undefined. 
+function service_stop(host, servicename)
+	local status, smbstate, bind_result, open_result, open_service_result, control_result, close_result, query_result
+
+	stdnse.print_debug(1, "Stopping service: %s", servicename)
+
+	-- Create the SMB session
+	status, smbstate = start_smb(host, SVCCTL_PATH)
+	if(status == false) then
+		return false, smbstate
+	end
+
+	-- Bind to SVCCTL service
+	status, bind_result = bind(smbstate, SVCCTL_UUID, SVCCTL_VERSION, nil)
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, bind_result
+	end
+
+	-- Open the service manager
+	stdnse.print_debug(2, "Opening the remote service manager")
+	status, open_result = svcctl_openscmanagerw(smbstate, host.ip)
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, open_result
+	end
+
+	-- Get a handle to the service
+	stdnse.print_debug(2, "Getting a handle to the service")
+	status, open_service_result = svcctl_openservicew(smbstate, open_result['handle'], servicename)
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, open_service_result
+	end
+
+	-- Stop it
+	stdnse.print_debug(2, "Stopping the service")
+	status, control_result = svcctl_controlservice(smbstate, open_service_result['handle'], "SERVICE_CONTROL_STOP")
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, control_result
+	end
+
+	-- Wait for it to stop (TODO: Make this better)
+	stdnse.print_debug(2, "Waiting for the service to stop")
+	repeat
+		status, query_result = svcctl_queryservicestatus(smbstate, open_service_result['handle'])
+		if(status == false) then
+			smb.stop(smbstate)
+			return false, query_result
+		end
+	until query_result['service_status']['controls_accepted'][1] == nil
+
+	-- Close the handle to the service
+	status, close_result = svcctl_closeservicehandle(smbstate, open_service_result['handle'])
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, close_result
+	end
+
+	-- Close the service manager
+	status, close_result = svcctl_closeservicehandle(smbstate, open_result['handle'])
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, close_result
+	end
+
+	smb.stop(smbstate)
+
+	return true
+end 
+
+---Delete a service on the remote machine based on its name. I don't recommend deleting any services that
+-- you didn't create. 
+-- 
+--@param host        The host object. 
+--@param servicename The name of the service to delete. 
+--@return (status, err) If status is <code>false</code>, <code>err</code> is an error message; 
+--        otherwise, err is undefined. 
+function service_delete(host, servicename)
+	local status, smbstate, bind_result, open_result, open_service_result, delete_result, close_result
+
+	stdnse.print_debug(1, "Deleting service: %s", servicename)
+
+	-- Create the SMB session
+	status, smbstate = start_smb(host, SVCCTL_PATH)
+	if(status == false) then
+		return false, smbstate
+	end
+
+	-- Bind to SVCCTL service
+	status, bind_result = bind(smbstate, SVCCTL_UUID, SVCCTL_VERSION, nil)
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, bind_result
+	end
+
+	-- Open the service manager
+	stdnse.print_debug(2, "Opening the remote service manager")
+	status, open_result = svcctl_openscmanagerw(smbstate, host.ip)
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, open_result
+	end
+
+	-- Get a handle to the service
+	stdnse.print_debug(2, "Getting a handle to the service: %s", servicename)
+	status, open_service_result = svcctl_openservicew(smbstate, open_result['handle'], servicename)
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, open_service_result
+	end
+
+	-- Delete the service
+	stdnse.print_debug(2, "Deleting the service")
+	status, delete_result = svcctl_deleteservice(smbstate, open_service_result['handle'])
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, delete_result
+	end
+
+	-- Close the handle to the service
+	status, close_result = svcctl_closeservicehandle(smbstate, open_service_result['handle'])
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, close_result
+	end
+
+	-- Close the service manager
+	status, close_result = svcctl_closeservicehandle(smbstate, open_result['handle'])
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, close_result
+	end
+
+	smb.stop(smbstate)
+
+	return true
+end
+
+---Retrieves statistical information about the given server. This function requires administrator privileges
+-- to run, and is present on all Windows versions, so it's a useful way to check whether or not an account
+-- is administrative. 
+--@param host       The host object
+--@return (status, data) If status is false, data is an error message; otherwise, data is a table of information
+--        about the server. 
+function get_server_stats(host)
+	local stats
+
+	-- Create the SMB session
+	status, smbstate = start_smb(host, SRVSVC_PATH)
+	if(status == false) then
+		return false, smbstate
+	end
+   
+	-- Bind to SRVSVC service
+	status, bind_result = bind(smbstate, SRVSVC_UUID, SRVSVC_VERSION, nil)
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, bind_result
+	end
+   
+	-- Call netservergetstatistics for 'server'
+	status, netservergetstatistics_result = srvsvc_netservergetstatistics(smbstate, host.ip)
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, netservergetstatistics_result
+	end
+   
+	-- Stop the session
+	smb.stop(smbstate)
+   
+	-- Build the response   
+	local stats = netservergetstatistics_result['stat']
+
+	-- Convert the date to a string
+	stats['start_str'] = os.date("%Y-%m-%d %H:%M:%S", stats['start'])
+
+	-- Get the period and convert it to a proper time offset
+	stats['period'] = os.time() - stats['start']
+	if(stats['period'] > 60 * 60 * 24) then
+		stats['period_str'] = string.format("%dd%dh%02dm%02ds", stats['period'] / (60*60*24), (stats['period'] % (60*60*24)) / 3600, (stats['period'] % 3600) / 60, stats['period'] % 60)
+	elseif(stats['period'] > 60 * 60) then
+		stats['period_str'] = string.format("%dh%02dm%02ds", stats['period'] / 3600, (stats['period'] % 3600) / 60, stats['period'] % 60)
+	else
+		stats['period_str'] = string.format("%02dm%02ds", stats['period'] / 60, stats['period'] % 60)
+	end
+   
+	-- Combine the 64-bit values
+	stats['bytessent'] = bit.bor(bit.lshift(stats['bytessent_high'], 32), stats['bytessent_low'])
+	stats['bytesrcvd'] = bit.bor(bit.lshift(stats['bytesrcvd_high'], 32), stats['bytesrcvd_low'])
+
+	-- Sidestep divide-by-zero errors (probabyl won't come up, but I'd rather be safe)
+	if(stats['period'] == 0) then
+		stats['period'] = 1
+	end
+   
+  	-- Get the bytes/second values
+	stats['bytessentpersecond'] = stats['bytessent'] / stats['period']
+	stats['bytesrcvdpersecond'] = stats['bytesrcvd'] / stats['period']
+
+	return true, stats
+end
+
+---Attempts to enumerate the shares on a remote system using MSRPC calls. Without a user account,
+-- this will likely fail against a modern system, but will succeed against Windows 2000. 
+--
+--@param host The host object. 
+--@return Status (true or false).
+--@return List of shares (if status is true) or an an error string (if status is false).
+function enum_shares(host)
+
+	local status, smbstate
+	local bind_result, netshareenumall_result
+	local shares
+	local i, v
+
+	-- Create the SMB session
+	status, smbstate = start_smb(host, SRVSVC_PATH)
+	if(status == false) then
+		return false, smbstate
+	end
+
+	-- Bind to SRVSVC service
+	status, bind_result = bind(smbstate, SRVSVC_UUID, SRVSVC_VERSION, nil)
+	if(status == false) then
+		smb.stop(smbstate) 
+		return false, bind_result
+	end
+
+	-- Call netsharenumall
+	status, netshareenumall_result = srvsvc_netshareenumall(smbstate, host.ip)
+	if(status == false) then
+		smb.stop(smbstate) 
+		return false, netshareenumall_result
+	end
+
+	-- Stop the SMB session
+	smb.stop(smbstate)
+
+	-- Convert the share list to an array
+	shares = {}
+	for i, v in pairs(netshareenumall_result['ctr']['array']) do
+		shares[#shares + 1] = v['name']
+	end
+
+	return true, shares
+end
+
+
+---Attempts to retrieve additional information about a share. Will fail unless we have 
+-- administrative access. 
+--
+--@param host The host object. 
+--@return Status (true or false).
+--@return A table of information about the share (if status is true) or an an error string (if 
+--        status is false).
+function get_share_info(host, name)
+	local status, smbstate
+	local response = {}
+
+	-- Create the SMB session
+	status, smbstate = start_smb(host, SRVSVC_PATH)
+	if(status == false) then
+		return false, smbstate
+	end
+
+	-- Bind to SRVSVC service
+	status, bind_result = bind(smbstate, SRVSVC_UUID, SRVSVC_VERSION, nil)
+	if(status == false) then
+		smb.stop(smbstate) 
+		return false, bind_result
+	end
+
+	-- Call NetShareGetInfo
+	status, netsharegetinfo_result = srvsvc_netsharegetinfo(smbstate, host.ip, name, 2)
+	if(status == false) then
+		smb.stop(smbstate) 
+		return false, netsharegetinfo_result
+	end
+
+	smb.stop(smbstate)
+
+	return true, netsharegetinfo_result
+end
+
 

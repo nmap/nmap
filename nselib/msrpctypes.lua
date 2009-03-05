@@ -124,7 +124,7 @@ function string_to_unicode(string, do_null)
 	local i
 	local result = ""
 
-	stdnse.print_debug(4, string.format("MSRPC: Entering string_to_unicode(string = %s)", string))
+	stdnse.print_debug(4, "MSRPC: Entering string_to_unicode(string = %s)", string)
 
 	if(do_null == nil) then
 		do_null = false
@@ -559,9 +559,40 @@ function marshall_unicode(str, do_null, max_length)
 	return result
 end
 
+--- Marshall a null-teriminated ascii string, with the length/maxlength prepended. Very similar
+-- to <code>marshall_unicode</code>, except it's ascii and the null terminator is always used. 
+--
+--@param str        The string to marshall. 
+--@param max_length [optional] The maximum length; default: actual length. 
+function marshall_ascii(str, max_length)
+	local buffer_length
+	local result
+	local padding = ""
+
+	buffer_length = string.len(str) + 1
+
+	if(max_length == nil) then
+		max_length = buffer_length
+	end
+
+	while((string.len(str .. string.char(0) .. padding) % 4) ~= 0) do
+		padding = padding .. string.char(0)
+	end
+
+	result = bin.pack("<IIIzA", 
+				max_length,
+				0,
+				buffer_length,
+				str,
+				padding
+			)
+
+	return result
+end
+
 --- Marshall a pointer to a unicode string. 
 --
---@param str The string to insert. Cannot be nil. 
+--@param str The string to insert. Can be nil. 
 --@param do_null [optional] Appends a null to the end of the string. Default false. 
 --@param max_length [optional] Sets a max length that's different than the string's length. Length
 --                  is in characters, not bytes. 
@@ -574,6 +605,19 @@ function marshall_unicode_ptr(str, do_null, max_length)
 	result = marshall_ptr(ALL, marshall_unicode, {str, do_null, max_length}, str)
 
 	stdnse.print_debug(4, string.format("MSRPC: Leaving marshall_unicode()"))
+
+	return result
+end
+
+--- Marshall a pointer to an ascii string. 
+--
+--@param str The string to insert. Can be nil. 
+--@param max_length [optional] Sets a max length that's different than the string's length. 
+--@return A string representing the marshalled data. 
+function marshall_ascii_ptr(str, max_length)
+	local result
+
+	result = marshall_ptr(ALL, marshall_ascii, {str, max_length}, str)
 
 	return result
 end
@@ -624,6 +668,41 @@ function unmarshall_unicode_ptr(data, pos, do_null)
 	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_unicode_ptr()"))
 
 	return pos, result
+end
+
+---Marshall an array of unicode strings. This is a perfect demonstration of how to use 
+-- <code>marshall_array</code>. 
+--
+--@param strings The array of strings to marshall
+--@param do_null [optional] Appends a null to the end of the string. Default false. 
+--@return A string representing the marshalled data. 
+function marshall_unicode_array(strings, do_null)
+	local array = {}
+	local result
+
+	for i = 1, #strings, 1 do
+		array[i] = {}
+		array[i]['func'] = marshall_ptr
+		array[i]['args'] = {marshall_unicode, {strings[i], do_null}, strings[i]}
+	end
+
+	result = marshall_array(array)
+
+	return result
+end
+
+---Marshall a pointer to an array of unicode strings. See <code>marshall_unicode_array</code>
+-- for more information. 
+--
+--@param strings The array of strings to marshall
+--@param do_null [optional] Appends a null to the end of the string. Default false. 
+--@return A string representing the marshalled data. 
+function marshall_unicode_array_ptr(strings, do_null)
+	local result
+
+	result = marshall_ptr(ALL, marshall_unicode_array, {strings, do_null}, strings)
+
+	return result
 end
 
 --- Marshall an int64. This is simply an 8-byte integer inserted into the buffer, nothing fancy. 
@@ -1196,6 +1275,34 @@ local function unmarshall_Enum16(data, pos, table, default, pad)
 	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_Enum16()"))
 	return pos, default
 end
+
+---Marshall an entry in a table. Basically, converts the string to a number based on the entries in
+-- <code>table</code> before sending. Multiple values can be ORed together (like flags) by separating
+-- them with pipes ("|"). 
+--
+--@param val The value to look up. Can be multiple values with pipes between, eg, "A|B|C". 
+--@param table The table to use for lookups. The keys should be the names, and the values should be 
+--             the numbers. 
+--@param pad [optional] If set, will ensure that we end up on an even multiple of 4. Default: true. 
+--@return A string representing the marshalled data. 
+local function marshall_Enum8(val, table, pad)
+	local result = 0
+	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_Enum8()"))
+
+	local vals = stdnse.strsplit("|", val)
+	local i
+
+	for i = 1, #vals, 1 do
+		result = bit.bor(result, table[vals[i]])
+	end
+	
+	result = marshall_int8(result, pad)
+
+	stdnse.print_debug(4, string.format("MSRPC: Leaving marshall_Enum8()"))
+	return result
+end
+
+
 
 ---Similar to <code>unmarshall_Enum32</code>, except it'll return every value that could be ANDed together to
 -- create the resulting value (except a 0 value). This is effective for parsing flag data types.
@@ -2470,13 +2577,19 @@ function marshall_winreg_StringBuf(table, max_length)
 		end
 	end
 
-	if(name == nil) then
+	-- For some reason, 0-length strings are handled differently (no null terminator)...
+	if(name == "") then
 		length = 0
+		result = bin.pack("<SSA", length * 2, max_length * 2, marshall_ptr(ALL, marshall_unicode, {name, false, max_length}, name))
 	else
-		length = string.len(name) + 1
-	end
+		if(name == nil) then
+			length = 0
+		else
+			length = string.len(name) + 1
+		end
 
-	result = bin.pack("<SSA", length * 2, max_length * 2, marshall_ptr(ALL, marshall_unicode, {name, true, max_length}, name))
+		result = bin.pack("<SSA", length * 2, max_length * 2, marshall_ptr(ALL, marshall_unicode, {name, true, max_length}, name))
+	end
 
 	stdnse.print_debug(4, string.format("MSRPC: Leaving marshall_winreg_StringBuf()"))
 	return result
@@ -4019,8 +4132,363 @@ function unmarshall_samr_DomainInfo_ptr(data, pos)
 end
 
 
+----------------------------------
+--       SVCCTL
+-- (dependencies: MISC)
+----------------------------------
+
+local svcctl_ControlCode = 
+{
+	SERVICE_CONTROL_CONTINUE       = 0x00000003,
+	SERVICE_CONTROL_INTERROGATE    = 0x00000004,
+	SERVICE_CONTROL_NETBINDADD     = 0x00000007,
+	SERVICE_CONTROL_NETBINDDISABLE = 0x0000000A,
+	SERVICE_CONTROL_NETBINDENABLE  = 0x00000009,
+	SERVICE_CONTROL_NETBINDREMOVE  = 0x00000008,
+	SERVICE_CONTROL_PARAMCHANGE    = 0x00000006,
+	SERVICE_CONTROL_PAUSE          = 0x00000002,
+	SERVICE_CONTROL_STOP           = 0x00000001,
+}
+local svcctl_ControlCode_str = 
+{
+	SERVICE_CONTROL_CONTINUE       = "Notifies a paused service that it should resume.",
+	SERVICE_CONTROL_INTERROGATE    = "Notifies a service that it should report its current status information to the service control manager.",
+	SERVICE_CONTROL_NETBINDADD     = "Notifies a network service that there is a new component for binding. Deprecated.",
+	SERVICE_CONTROL_NETBINDDISABLE = "Notifies a network service that one of its bindings has been disabled. Deprecated.",
+	SERVICE_CONTROL_NETBINDENABLE  = "Notifies a network service that a disabled binding has been enabled. Deprecated",
+	SERVICE_CONTROL_NETBINDREMOVE  = "Notifies a network service that a component for binding has been removed. Deprecated",
+	SERVICE_CONTROL_PARAMCHANGE    = "Notifies a service that its startup parameters have changed.",
+	SERVICE_CONTROL_PAUSE          = "Notifies a service that it should pause.",
+	SERVICE_CONTROL_STOP           = "Notifies a service that it should stop."
+}
 
 
+---Marshall a <code>svcctl_ControlCode</code>. This datatype is tied to the table above with that 
+-- name. 
+--
+--@param flags The value to marshall, as a string
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
+--        found. 
+function marshall_svcctl_ControlCode(flags)
+	local result
+	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_svcctl_ControlCode()"))
+
+	result = marshall_Enum32(flags, svcctl_ControlCode)
+
+	stdnse.print_debug(4, string.format("MSRPC: Leaving marshall_svcctl_ControlCode()"))
+	return result
+end
+
+---Unmarshall a <code>svcctl_ControlCode</code>. This datatype is tied to the table with that name. 
+--
+--@param data The data packet. 
+--@param pos  The position within the data. 
+--@return (pos, str) The new position, and the string representing the datatype. 
+function unmarshall_svcctl_ControlCode(data, pos)
+	local str
+	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_svcctl_ControlCode()"))
+
+	pos, str = unmarshall_Enum32_array(data, pos, svcctl_ControlCode)
+
+	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_svcctl_ControlCode()"))
+	return pos, str
+end
+
+---Convert a <code>svcctl_ControlCode</code> value to a string that can be shown to the user. This is
+-- based on the <code>_str</table> table. 
+--
+--@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
+--@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found. 
+function svcctl_ControlCode_tostr(val)
+	local result
+	stdnse.print_debug(4, string.format("MSRPC: Entering svcctl_ControlCode_tostr()"))
+
+	result = svcctl_ControlCode_str[val]
+
+	stdnse.print_debug(4, string.format("MSRPC: Leaving svcctl_ControlCode_tostr()"))
+	return result
+end
+
+local svcctl_Type =
+{
+    SERVICE_TYPE_KERNEL_DRIVER       = 0x01,
+    SERVICE_TYPE_FS_DRIVER           = 0x02,
+    SERVICE_TYPE_ADAPTER             = 0x04,
+    SERVICE_TYPE_RECOGNIZER_DRIVER   = 0x08,
+    SERVICE_TYPE_DRIVER              = 0x0B,
+    SERVICE_TYPE_WIN32_OWN_PROCESS   = 0x10,
+    SERVICE_TYPE_WIN32_SHARE_PROCESS = 0x20,
+    SERVICE_TYPE_WIN32               = 0x30
+}
+
+---Marshall a <code>svcctl_Type</code>. This datatype is tied to the table above with that 
+-- name. 
+--
+--@param flags The value to marshall, as a string
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
+--        found. 
+function marshall_svcctl_Type(flags)
+	local result
+	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_svcctl_Type()"))
+
+	result = marshall_Enum32(flags, svcctl_Type)
+
+	stdnse.print_debug(4, string.format("MSRPC: Leaving marshall_svcctl_Type()"))
+	return result
+end
+
+---Unmarshall a <code>svcctl_Type</code>. This datatype is tied to the table with that name. 
+--
+--@param data The data packet. 
+--@param pos  The position within the data. 
+--@return (pos, str) The new position, and the string representing the datatype. 
+function unmarshall_svcctl_Type(data, pos)
+	local str
+	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_svcctl_Type()"))
+
+	pos, str = unmarshall_Enum32_array(data, pos, svcctl_Type)
+
+	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_svcctl_Type()"))
+	return pos, str
+end
+
+---Convert a <code>svcctl_Type</code> value to a string that can be shown to the user. This is
+-- based on the <code>_str</table> table. 
+--
+--@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
+--@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found. 
+function svcctl_Type_tostr(val)
+	local result
+	stdnse.print_debug(4, string.format("MSRPC: Entering svcctl_Type_tostr()"))
+
+	result = svcctl_Type_str[val]
+
+	stdnse.print_debug(4, string.format("MSRPC: Leaving svcctl_Type_tostr()"))
+	return result
+end
+
+
+
+local svcctl_State =
+{
+    SERVICE_STATE_ACTIVE   = 0x01,
+    SERVICE_STATE_INACTIVE = 0x02,
+    SERVICE_STATE_ALL      = 0x03
+}
+---Marshall a <code>svcctl_State</code>. This datatype is tied to the table above with that 
+-- name. 
+--
+--@param flags The value to marshall, as a string
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
+--        found. 
+function marshall_svcctl_State(flags)
+	local result
+	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_svcctl_State()"))
+
+	result = marshall_Enum32(flags, svcctl_State)
+
+	stdnse.print_debug(4, string.format("MSRPC: Leaving marshall_svcctl_State()"))
+	return result
+end
+
+---Unmarshall a <code>svcctl_State</code>. This datatype is tied to the table with that name. 
+--
+--@param data The data packet. 
+--@param pos  The position within the data. 
+--@return (pos, str) The new position, and the string representing the datatype. 
+function unmarshall_svcctl_State(data, pos)
+	local str
+	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_svcctl_State()"))
+
+	pos, str = unmarshall_Enum32_array(data, pos, svcctl_State)
+
+	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_svcctl_State()"))
+	return pos, str
+end
+
+---Convert a <code>svcctl_State</code> value to a string that can be shown to the user. This is
+-- based on the <code>_str</table> table. 
+--
+--@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
+--@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found. 
+function svcctl_State_tostr(val)
+	local result
+	stdnse.print_debug(4, string.format("MSRPC: Entering svcctl_State_tostr()"))
+
+	result = svcctl_State_str[val]
+
+	stdnse.print_debug(4, string.format("MSRPC: Leaving svcctl_State_tostr()"))
+	return result
+end
+
+
+---Unmarshall a SERVICE_STATUS struct, converting it to a table. The structure is as
+-- follows:
+--
+-- <code>
+--    typedef struct {
+--        uint32 type;
+--        uint32 state;
+--        uint32 controls_accepted;
+--        WERROR win32_exit_code;
+--        uint32 service_exit_code;
+--        uint32 check_point;
+--        uint32 wait_hint;
+--    } SERVICE_STATUS;
+-- </code>
+--
+--@param data The data packet. 
+--@param pos  The position within the data. 
+--@return (pos, table) The new position, and the table of values. 
+function unmarshall_SERVICE_STATUS(data, pos)
+	local result = {}
+
+	pos, result['type']              = unmarshall_svcctl_Type(data, pos)
+	pos, result['state']             = unmarshall_svcctl_State(data, pos)
+	pos, result['controls_accepted'] = unmarshall_svcctl_ControlCode(data, pos)
+	pos, result['win32_exit_code']   = unmarshall_int32(data, pos)
+	pos, result['service_exit_code'] = unmarshall_int32(data, pos)
+	pos, result['check_point']       = unmarshall_int32(data, pos)
+	pos, result['wait_hint']         = unmarshall_int32(data, pos)
+
+    return pos, result
+end
+
+
+
+local atsvc_DaysOfMonth = 
+{
+	First           =       0x00000001,
+	Second          =       0x00000002,
+	Third           =       0x00000004,
+	Fourth          =       0x00000008,
+	Fifth           =       0x00000010,
+	Sixth           =       0x00000020,
+	Seventh         =       0x00000040,
+	Eight           =       0x00000080,
+	Ninth           =       0x00000100,
+	Tenth           =       0x00000200,
+	Eleventh        =       0x00000400,
+	Twelfth         =       0x00000800,
+	Thitteenth      =       0x00001000,
+	Fourteenth      =       0x00002000,
+	Fifteenth       =       0x00004000,
+	Sixteenth       =       0x00008000,
+	Seventeenth     =       0x00010000,
+	Eighteenth      =       0x00020000,
+	Ninteenth       =       0x00040000,
+	Twentyth        =       0x00080000,
+	Twentyfirst     =       0x00100000,
+	Twentysecond    =       0x00200000,
+	Twentythird     =       0x00400000,
+	Twentyfourth    =       0x00800000,
+	Twentyfifth     =       0x01000000,
+	Twentysixth     =       0x02000000,
+	Twentyseventh   =       0x04000000,
+	Twentyeighth    =       0x08000000,
+	Twentyninth     =       0x10000000,
+	Thirtieth       =       0x20000000,
+	Thirtyfirst     =       0x40000000
+}
+
+---Marshall a <code>atsvc_DaysOfMonth</code>. This datatype is tied to the table above with that 
+-- name. 
+--
+--@param flags The value to marshall, as a string
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
+--        found. 
+function marshall_atsvc_DaysOfMonth(flags)
+	local result
+	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_atsvc_DaysOfMonth()"))
+
+	result = marshall_Enum32(flags, atsvc_DaysOfMonth)
+
+	stdnse.print_debug(4, string.format("MSRPC: Leaving marshall_atsvc_DaysOfMonth()"))
+	return result
+end
+
+
+local atsvc_Flags =
+{
+	JOB_RUN_PERIODICALLY    = 0x01,
+	JOB_EXEC_ERROR          = 0x02,
+	JOB_RUNS_TODAY          = 0x04,
+	JOB_ADD_CURRENT_DATE    = 0x08,
+	JOB_NONINTERACTIVE      = 0x10
+}
+---Marshall a <code>atsvc_Flags</code>. This datatype is tied to the table above with that 
+-- name. 
+--
+--@param flags The value to marshall, as a string
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
+--        found. 
+function marshall_atsvc_Flags(flags)
+	local result
+	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_atsvc_Flags()"))
+
+	result = marshall_Enum8(flags, atsvc_Flags, false)
+
+	stdnse.print_debug(4, string.format("MSRPC: Leaving marshall_atsvc_Flags()"))
+	return result
+end
+
+
+local atsvc_DaysOfWeek = 
+{
+	DAYSOFWEEK_MONDAY    = 0x01,
+	DAYSOFWEEK_TUESDAY   = 0x02,
+	DAYSOFWEEK_WEDNESDAY = 0x04,
+	DAYSOFWEEK_THURSDAY  = 0x08,
+	DAYSOFWEEK_FRIDAY    = 0x10,
+	DAYSOFWEEK_SATURDAY  = 0x20,
+	DAYSOFWEEK_SUNDAY    = 0x40
+}
+---Marshall a <code>atsvc_DaysOfWeek</code>. This datatype is tied to the table above with that 
+-- name. 
+--
+--@param flags The value to marshall, as a string
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
+--        found. 
+function marshall_atsvc_DaysOfWeek(flags)
+	local result
+	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_atsvc_DaysOfWeek()"))
+
+	result = marshall_Enum8(flags, atsvc_DaysOfWeek, false)
+
+	stdnse.print_debug(4, string.format("MSRPC: Leaving marshall_atsvc_DaysOfWeek()"))
+	return result
+end
+
+---Marshall a JobInfo struct. The structure is as follows:
+--
+--<code>
+--    typedef struct {
+--        uint32 job_time;
+--        atsvc_DaysOfMonth days_of_month;
+--        atsvc_DaysOfWeek days_of_week;
+--        atsvc_Flags flags;
+--        [string,charset(UTF16)] uint16 *command;
+--    } atsvc_JobInfo;
+--</code>
+--
+--@param command The command to run. This has to be just the command, no parameters; if a 
+--               program requires parameters, then the best way to run it is through a batch
+--               file. 
+--@param time The time at which to run the job, in milliseconds from midnight. 
+function marshall_atsvc_JobInfo(command, time)
+	local result = ""
+
+	result = result .. marshall_int32(time)                       -- Job time
+	result = result .. marshall_int32(0)                          -- Day of month
+	result = result .. marshall_int8(0, false)                    -- Day of week
+io.write("Length = " .. #result .. "\n")
+	result = result .. marshall_atsvc_Flags("JOB_NONINTERACTIVE") -- Flags
+io.write("Length = " .. #result .. "\n\n\n")
+	result = result .. marshall_int16(0, false)                   -- Padding
+	result = result .. marshall_unicode_ptr(command, true)        -- Command
+
+	return result
+end
 
 
 

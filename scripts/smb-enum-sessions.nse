@@ -1,29 +1,42 @@
 description = [[
-Enumerates the users logged into a system either locally or through an SMB share.
+Enumerates the users logged into a system either locally or through an SMB share. The local users 
+can be logged on either physically on the machine, or through a terminal services session. 
+Connections to a SMB share are, for example, people connected to fileshares or making RPC calls. 
+Nmap's connection will also show up, and is generally identified by the one that connected "0 
+seconds ago". 
 
-Enumerating the local and terminal services users is done by reading the remote registry. Keys stored under
-<code>HKEY_USERS</code> are SIDs that represent the currently logged in users, and those SIDs can be converted
-to proper names by using the <code>lsar.LsaLookupSids</code> function. Doing this requires any access higher than
-anonymous. Guests, users, or administrators are all able to perform this request on the operating
-systems I (Ron Bowes) tested. 
+From the perspective of a penetration tester, the SMB Sessions is probably the most useful
+part of this program, especially because it doesn't require a high level of access. On, for 
+example, a file server, there might be a dozen or more users connected at the same time. Based 
+on the usernames, it might tell the tester what types of files are stored on the share. 
 
-Enumerating SMB connections is done using the <code>srvsvc.netsessenum</code> function, which returns who's
-logged in, when they logged in, and how long they've been idle for. Unfortunately, I couldn't find
-a way to get the user's domain with this function, so the domain isn't printed. The level of access
-required for this varies between Windows versions, but in Windows 2000 anybody (including the 
-anonymous account) can access this, and in Windows 2003 a user or administrator account is 
-required.
+Since the IP they're connected from and the account is revealed, the information here can also
+provide extra targets to test, as well as a username that's likely valid on that target. Additionally,
+since a strong username to ip correlation is given, it can be a boost to a social engineering 
+attack. 
 
-Since both of these are related to users being logged into the server, it seemed logical to combine
-them into a single script. 
+Enumerating the logged in users is done by reading the remote registry (and therefore won't 
+work against Vista, which disables it by default). Keys stored under <code>HKEY_USERS</code> are 
+SIDs that represent the connected users, and those SIDs can be converted to proper names by using 
+the <code>lsar.LsaLookupSids</code> function. Doing this requires any access higher than 
+anonymous; guests, users, or administrators are all able to perform this request on Windows 2000,
+XP, 2003, and Vista. 
 
-I learned the idea and technique for this from sysinternals' tool, PsLoggedOn.exe. I use similar
-function calls to what they use, so thanks go out to them. Thanks also to Matt Gardenghi, for requesting
-this script.
+Enumerating SMB connections is done using the <code>srvsvc.netsessenum</code> function, which 
+returns the usernames that are logged in, when they logged in, and how long they've been idle 
+for. The level of access required for this varies between Windows versions, but in Windows 
+2000 anybody (including the anonymous account) can access this, and in Windows 2003 a user 
+or administrator account is required.
 
-WARNING: I have experienced crashes in regsvc.exe while making registry calls against a fully patched Windows 
-2000 system; I've fixed the issue that caused it, but there's no guarantee that it (or a similar vuln in the
-same code) won't show up again.
+I learned the idea and technique for this from sysinternals' tool, PsLoggedOn.exe. I (Ron 
+Bowes) use similar function calls to what they use (although I didn't use their source), 
+so thanks go out to them. Thanks also to Matt Gardenghi, for requesting this script.  
+
+WARNING: I have experienced crashes in regsvc.exe while making registry calls
+against a fully patched Windows 2000 system; I've fixed the issue that caused it,
+but there's no guarantee that it (or a similar vuln in the same code) won't show
+up again. Since the process automatically restarts, it doesn't negatively impact
+the system, besides showing a message box to the user.
 ]]
 
 ---
@@ -221,7 +234,11 @@ local function winreg_enum_rids(host)
 					else
 						result['name'] = lookupsids2_result['names']['names'][1]['name']
 						result['type'] = lookupsids2_result['names']['names'][1]['sid_type']
-						result['domain'] = lookupsids2_result['domains']['domains'][1]['name']
+						if(lookupsids2_result['domains'] ~= nil and lookupsids2_result['domains']['domains'] ~= nil and lookupsids2_result['domains']['domains'][1] ~= nil) then
+							result['domain'] = lookupsids2_result['domains']['domains'][1]['name']
+						else
+							result['domain'] = ""
+						end
 					end
 	
 					if(result['type'] ~= "SID_NAME_WKN_GRP") then -- Don't show "well known" accounts
@@ -242,7 +259,10 @@ local function winreg_enum_rids(host)
 	return true, results
 end
 
+
+--_G.TRACEBACK = TRACEBACK or {}
 action = function(host)
+--    TRACEBACK[coroutine.running()] = true;
 
 	local response = " \n"
 
@@ -258,7 +278,9 @@ action = function(host)
 			response = response .. "|_ <nobody>\n"
 		else
 			for i = 1, #users, 1 do
-				response = response .. string.format("|_ %s\\%s since %s\n", users[i]['domain'], users[i]['name'], users[i]['changed_date'])
+				if(users[i]['name'] ~= nil) then
+					response = response .. string.format("|_ %s\\%s since %s\n", users[i]['domain'], users[i]['name'], users[i]['changed_date'])
+				end
 			end
 		end
 	end

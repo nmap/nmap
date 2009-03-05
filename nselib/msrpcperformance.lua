@@ -27,11 +27,21 @@ require 'msrpctypes'
 --                              message), and a table representing the datatype, if any.
 local function parse_perf_title_database(data, pos)
 	local result = {}
+	local i = 1
 
 	repeat
 		local number, name
 		pos, number, name = bin.unpack("<zz", data, pos)
+
+		if(number == nil) then
+			return false, "Couldn't parse the title database: end of string encountered early"
+		elseif(tonumber(number) == nil) then -- Not sure if this actually happens, but it doesn't hurt to check
+			stdnse.print_debug(1, "MSRPC: ERROR: Couldn't parse the title database: string found where number expected (%d: '%s')", i, number)
+			return false, "Couldn't parse the title database"
+		end
+
 		result[tonumber(number)] = name
+		i = i + 1
 	until pos >= #data
 
 	return true, pos, result
@@ -451,12 +461,12 @@ function get_performance_data(host, objects)
 	-- Parse the title database
 	pos = 1
 	status, pos, result['title_database'] = parse_perf_title_database(queryvalue_result['value'], pos)
-	result['title_database'][0] = "<null>"
-
 	if(status == false) then
 		msrpc.stop_smb(smbstate)
 		return false, pos
 	end
+	result['title_database'][0] = "<null>"
+
 
 	if(objects ~= nil and #objects > 0) then
 		-- Query for the objects

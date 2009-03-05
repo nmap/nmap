@@ -1,5 +1,14 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added two new SMB/MSRPC scripts:
+    smb-brute.nse: Bruteforce to discover SMB accounts. Has advanced
+       features, such as lockout detection, username validation, 
+       username enumeration, and optimized case detection. 
+    smb-pwdump.nse: Uses executables from the Pwdump6 project to 
+       dump password hashes from a remote machine (and optionally
+       crack them with Rainbow Crack). Pwdump6 files have to be 
+       downloaded separately
+
 o Fixed the install-zenmap make target for Solaris portability.
   Solaris /bin/sh does not have test(1) -e. [Daniel Roethlisberger]
 

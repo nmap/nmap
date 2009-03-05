@@ -255,10 +255,10 @@ function do_nbstat(host)
 	local encoded_name = name_encode("*")
 	local statistics
 
-	stdnse.print_debug(1, "Performing nbstat on host '%s'", host)
+	stdnse.print_debug(3, "Performing nbstat on host '%s'", host)
 	-- Check if it's cased in the registry for this host
 	if(nmap.registry["nbstat_names_" .. host] ~= nil) then
-		stdnse.print_debug(1, " |_ [using cached value]")
+		stdnse.print_debug(3, " |_ [using cached value]")
 		return true, nmap.registry["nbstat_names_" .. host], nmap.registry["nbstat_statistics_" .. host]
 	end
 

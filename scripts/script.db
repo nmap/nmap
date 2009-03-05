@@ -62,6 +62,8 @@ Entry{ category = "default", filename = "rpcinfo.nse" }
 Entry{ category = "safe", filename = "rpcinfo.nse" }
 Entry{ category = "discovery", filename = "rpcinfo.nse" }
 Entry{ category = "version", filename = "skypev2-version.nse" }
+Entry{ category = "intrusive", filename = "smb-brute.nse" }
+Entry{ category = "auth", filename = "smb-brute.nse" }
 Entry{ category = "intrusive", filename = "smb-check-vulns.nse" }
 Entry{ category = "discovery", filename = "smb-enum-domains.nse" }
 Entry{ category = "intrusive", filename = "smb-enum-domains.nse" }
@@ -76,6 +78,7 @@ Entry{ category = "intrusive", filename = "smb-enum-users.nse" }
 Entry{ category = "default", filename = "smb-os-discovery.nse" }
 Entry{ category = "discovery", filename = "smb-os-discovery.nse" }
 Entry{ category = "safe", filename = "smb-os-discovery.nse" }
+Entry{ category = "intrusive", filename = "smb-pwdump.nse" }
 Entry{ category = "discovery", filename = "smb-security-mode.nse" }
 Entry{ category = "safe", filename = "smb-security-mode.nse" }
 Entry{ category = "discovery", filename = "smb-server-stats.nse" }

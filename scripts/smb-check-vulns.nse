@@ -1,11 +1,17 @@
 description = [[
 Checks if a host is vulnerable to MS08-067, a Windows RPC vulnerability that
-can allow remote code execution. This script is intended to check for more
+can allow remote code execution. This script will be expanded to check for more
 vulnerabilities in the future.
 
 WARNING: These checks are dangerous, and are very likely to bring down a server. 
 These should not be run in a production environment unless you (and, more importantly,
 the business) understand the risks! 
+
+As a system administrator, performing these kinds of checks is crucial, because 
+a lot more damage can be done by a worm or a hacker using this vulnerability than
+by a scanner. Penetration testers, on the other hand, might not want to use this
+script -- crashing services is not generally a good way of sneaking through a 
+network. 
 
 If you set the script parameter 'unsafe', then scripts will run that are almost 
 (or totally) guaranteed to crash a vulnerable system; do NOT specify <code>unsafe</code>
@@ -14,7 +20,7 @@ not crash a system, they're just less likely to.
 
 MS08-067 -- Checks if a host is vulnerable to MS08-067, a Windows RPC vulnerability that
 can allow remote code execution.  Checking for MS08-067 is very dangerous, as the check 
-is likelyto crash systems. On a fairly wide scan conducted by Brandon Enright, we determined
+is likely to crash systems. On a fairly wide scan conducted by Brandon Enright, we determined
 that on average, a vulnerable system is more likely to crash than to survive
 the check. Out of 82 vulnerable systems, 52 crashed. 
 

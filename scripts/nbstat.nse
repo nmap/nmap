@@ -91,9 +91,13 @@ action = function(host)
 	end
 
 	-- Format the Mac address in the standard way
-	mac = string.format("%02x:%02x:%02x:%02x:%02x:%02x", statistics:byte(1), statistics:byte(2), statistics:byte(3), statistics:byte(4), statistics:byte(5), statistics:byte(6))
-	-- Samba doesn't set the Mac address
-	if(mac == "00:00:00:00:00:00") then
+	if(#statistics >= 6) then
+		mac = string.format("%02x:%02x:%02x:%02x:%02x:%02x", statistics:byte(1), statistics:byte(2), statistics:byte(3), statistics:byte(4), statistics:byte(5), statistics:byte(6))
+		-- Samba doesn't set the Mac address
+		if(mac == "00:00:00:00:00:00") then
+			mac = "<unknown>"
+		end
+	else
 		mac = "<unknown>"
 	end
 

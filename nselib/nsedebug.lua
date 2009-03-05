@@ -27,7 +27,7 @@ function tostr(data, indent)
 
 	-- Check the type
 	if(type(data) == "nil") then
-		str = str .. (" "):rep(indent) .. data .. "\n"
+		str = str .. (" "):rep(indent) .. "nil\n"
 	elseif(type(data) == "string") then
 		str = str .. (" "):rep(indent) .. data .. "\n"
 	elseif(type(data) == "number") then

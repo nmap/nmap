@@ -1,13 +1,19 @@
-
 description = [[
-Pulls a list of processes from the remote server over SMB (using the remote registry service and 
-HKEY_PERFORMANCE_DATA). 
+Pulls a list of processes from the remote server over SMB. This will determine
+all running processes, their process IDs, and their parent processes. It is done
+by querying the remote registry service, which is disabled by default on Vista; on 
+all other Windows versions, it requires Administrator privilges. 
 
-Requires Administrator access. 
+Since this requires administrator privileges, it isn't especially useful for a 
+penetration tester, since they can effectively do the same thing with metasploit
+or other tools. It does, however, provide for a quick way to get process lists 
+for a bunch of systems at the same time. 
 
-WARNING: I have experienced crashes in regsvc.exe while making registry calls against a fully patched Windows 
-2000 system; I've fixed the issue that caused it, but there's no guarantee that it (or a similar vuln in the
-same code) won't show up again.
+WARNING: I have experienced crashes in regsvc.exe while making registry calls 
+against a fully patched Windows 2000 system; I've fixed the issue that caused it,
+but there's no guarantee that it (or a similar vuln in the same code) won't show 
+up again. Since the process automatically restarts, it doesn't negatively impact 
+the system, besides showing a message box to the user. 
 ]]
 
 ---
@@ -34,48 +40,24 @@ same code) won't show up again.
 -- 
 -- --
 -- Host script results:
--- |  smb-enum-processes:   
--- |  Idle
--- |  | PID: 0, Parent: 0 [Idle]
--- |  | Priority: 0
--- |  |_Thread Count: 1, Handle Count: 0
--- |  System
--- |  | PID: 4, Parent: 0 [Idle]
--- |  | Priority: 8
--- |  |_Thread Count: 48, Handle Count: 392
--- |  VMwareUser
--- |  | PID: 212, Parent: 1832 [explorer]
--- |  | Priority: 8
--- |  |_Thread Count: 1, Handle Count: 45
--- |  VMwareTray
--- |  | PID: 240, Parent: 1832 [explorer]
--- |  | Priority: 8
--- |  |_Thread Count: 1, Handle Count: 41
--- |  smss
--- |  | PID: 252, Parent: 4 [System]
--- |  | Priority: 11
--- |  |_Thread Count: 3, Handle Count: 19
--- |  csrss
--- |  | PID: 300, Parent: 252 [smss]
--- |  | Priority: 13
--- |  |_Thread Count: 10, Handle Count: 347
--- |  winlogon
--- |  | PID: 324, Parent: 252 [smss]
--- |  | Priority: 13
--- |  |_Thread Count: 18, Handle Count: 513
--- |  services
--- |  | PID: 372, Parent: 324 [winlogon]
--- |  | Priority: 9
--- |  |_Thread Count: 17, Handle Count: 275
--- |  lsass
--- |  | PID: 384, Parent: 324 [winlogon]
--- |  | Priority: 9
--- |  |_Thread Count: 29, Handle Count: 415
--- |  logon.scr
--- |  | PID: 868, Parent: 324 [winlogon]
--- |  | Priority: 4
--- |  |_Thread Count: 1, Handle Count: 22
--- ...
+-- |  smb-enum-processes:  
+-- |  Idle [0] (parent: 0, priority: 0, threads: 1, handles: 0)
+-- |  System [8] (parent: 0, priority: 8, threads: 34, handles: 190)
+-- |  smss [140] (parent: 8, priority: 11, threads: 6, handles: 33)
+-- |  winlogon [160] (parent: 140, priority: 13, threads: 14, handles: 335)
+-- |  csrss [164] (parent: 140, priority: 13, threads: 10, handles: 229)
+-- |  services [212] (parent: 160, priority: 9, threads: 33, handles: 462)
+-- |  lsass [224] (parent: 160, priority: 9, threads: 13, handles: 267)
+-- |  SPOOLSV [412] (parent: 212, priority: 8, threads: 10, handles: 95)
+-- |  svchost [448] (parent: 212, priority: 8, threads: 24, handles: 369)
+-- |  mstask [516] (parent: 212, priority: 8, threads: 6, handles: 89)
+-- |  VMwareService.e [572] (parent: 212, priority: 13, threads: 4, handles: 95)
+-- |  winmgmt [648] (parent: 212, priority: 8, threads: 3, handles: 89)
+-- |  cmd [700] (parent: 212, priority: 8, threads: 1, handles: 28)
+-- |  explorer [720] (parent: 620, priority: 8, threads: 10, handles: 239)
+-- |  VMwareUser [748] (parent: 720, priority: 8, threads: 1, handles: 30)
+-- |  VMwareTray [764] (parent: 720, priority: 8, threads: 1, handles: 30)
+-- |_ regsvc [868] (parent: 212, priority: 8, threads: 4, handles: 76)
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"
@@ -264,7 +246,7 @@ action = function(host)
 			end
 		end
 		response = ' \n' .. psl_print(psl)
-	elseif(nmap.verbosity() > 0) then
+	elseif(nmap.verbosity() > 1) then
 		for i = 1, #names, 1 do
 			local name = names[i]
 			if(name ~= '_Total') then
@@ -275,9 +257,7 @@ action = function(host)
 
 --				response = response .. string.format("%6d %24s (Parent: %24s, Priority: %4d, Threads: %4d, Handles: %4d)\n", process[name]['ID Process'], name, parent, process[name]['Priority Base'], process[name]['Thread Count'], process[name]['Handle Count'])
 
-				response = response .. string.format("%s [%d]\n", name, process[name]['ID Process'])
-				response = response .. string.format("| Parent: %s [%s]\n", process[name]['Creating Process ID'], parent)
-				response = response .. string.format("| Priority: %s, Thread Count: %s, Handle Count: %s\n", process[name]['Priority Base'], process[name]['Thread Count'], process[name]['Handle Count'])
+				response = response .. string.format("%s [%d] (parent: %s, priority: %s, threads: %s, handles: %s)\n", name, process[name]['ID Process'], process[name]['Creating Process ID'], process[name]['Priority Base'], process[name]['Thread Count'], process[name]['Handle Count'])
 			end
 			
 		end

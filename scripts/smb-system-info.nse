@@ -1,20 +1,21 @@
-
 description = [[
 Pulls back information about the remote system from the registry. Getting all
 of the information requires an administrative account, although a user account
 will still get a lot of it. Guest probably won't get any, nor will anonymous. 
 This goes for all operating systems, including Windows 2000. 
 
-Windows Vista doesn't appear to have the WINREG binding (or it's different and
-I don't know it), so this doesn't support Vista at all. 
+Windows Vista disables remote registry access by default, so unless itw as enabled, 
+this script won't work.
 
 If you know of more information stored in the Windows registry that could be interesting, 
 post a message to the nmap-dev mailing list and I (Ron Bowes) will add it to my todo list. 
 Adding new checks to this is extremely easy. 
 
-WARNING: I have experienced crashes in regsvc.exe while making registry calls against a fully patched Windows 
-2000 system; I've fixed the issue that caused it, but there's no guarantee that it (or a similar vuln in the
-same code) won't show up again.
+WARNING: I have experienced crashes in regsvc.exe while making registry calls
+against a fully patched Windows 2000 system; I've fixed the issue that caused it,
+but there's no guarantee that it (or a similar vuln in the same code) won't show
+up again. Since the process automatically restarts, it doesn't negatively impact
+the system, besides showing a message box to the user.
 ]]
 
 ---
@@ -202,6 +203,10 @@ action = function(host)
 	
 			response = response .. string.format("Hardware\n")
 			for i = 0, result['number_of_processors'] - 1, 1 do
+				if(result['status-processornamestring'..i] == false) then
+					result['status-processornamestring'..i] = "Unknown"
+				end
+
 				response = response .. string.format("|_ CPU %d: %s [%dmhz %s]\n", i, result['processornamestring'..i], result['~mhz'..i], result['vendoridentifier'..i])
 				response = response .. string.format("|_ Identifier %d: %s\n",  i, result['identifier'..i])
 			end

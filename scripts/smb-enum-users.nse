@@ -1,29 +1,37 @@
 description = [[
 Attempts to enumerate the users on a remote Windows system, with as much
 information as possible, through two different techniques (both over MSRPC,
-which uses port 445 or 139). Some SAMR functions are used to enumerate users, 
-and bruteforce LSA guessing is attempted. 
+which uses port 445 or 139; see <code>smb.lua</code>). The goal of this script
+is to discover all user accounts that exist on a remote system. This can be
+helpful for administration, by seeing who has an account on a server, or for 
+penetration testing or network footprinting, by determining which accounts 
+exist on a system. 
 
-By default, both SAMR enumeration and LSA bruteforcing are used; however, these
-can be fine tuned using Nmap parameters. For the most possible information, 
-leave the defaults; however, there are advantages to using them individually. 
+A penetration tester who is examining servers may wish to determine the
+purpose of a server. By getting a list of who has access to it, the tester
+might get a better idea (if financial people have accounts, it probably 
+relates to financial information). Additionally, knowing which accounts
+exist on a system (or on multiple systems) allows the pen-tester to build a
+dictionary of possible usernames for bruteforces, such as a SMB bruteforce
+or a Telnet bruteforce. These accounts may be helpful for other purposes, 
+such as using the accounts in Web applications on this or other servers. 
+
+From a pen-testers perspective, retrieving the list of users on any 
+given server creates endless possibilities. 
+
+Users are enumerated in two different ways:  using SAMR enumeration or 
+LSA bruteforcing. By default, both are used, but they have specific
+advantages and disadvantages. Using both is a great default, but in certain
+circumstances it may be best to give preference to one. 
 
 Advantages of using SAMR enumeration:
-* Stealthier (requires one packet/user account, whereas LSA uses at least 10
-  packets while SAMR uses half that; additionally, LSA makes a lot of noise in 
-  the Windows event log (LSA enumeration is the only script I (Ron Bowes) have 
-  been called on by the administrator of a box I was testing against). 
+* Stealthier (requires one packet/user account, whereas LSA uses at least 10 packets while SAMR uses half that; additionally, LSA makes a lot of noise in the Windows event log (LSA enumeration is the only script I (Ron Bowes) have been called on by the administrator of a box I was testing against). 
 * More information is returned (more than just the username).
-* Every account will be found, since they're being enumerated with a function 
-  that's designed to enumerate users.
+* Every account will be found, since they're being enumerated with a function that's designed to enumerate users.
 
 Advantages of using LSA bruteforcing:
-* More accounts are returned (system accounts, groups, and aliases are returned,
-  not just users).
-* Requires a lower-level account to run on Windows XP and higher (a 'guest' account
-  can be used, whereas SAMR enumeration requires a 'user' account; especially useful
-  when only guest access is allowed, or when an account has a blank password (which 
-  effectively gives it guest access)). 
+* More accounts are returned (system accounts, groups, and aliases are returned, not just users).
+* Requires a lower-level account to run on Windows XP and higher (a 'guest' account can be used, whereas SAMR enumeration requires a 'user' account; especially useful when only guest access is allowed, or when an account has a blank password (which effectively gives it guest access)). 
 
 SAMR enumeration is done with the  <code>QueryDisplayInfo</code> function. 
 If this succeeds, it will return a detailed list of users, along with descriptions,

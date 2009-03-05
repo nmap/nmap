@@ -1,14 +1,21 @@
 description = [[
 Attempts to determine the operating system, computer name, domain, and current
-time  over the SMB protocol (ports 445 or 139). This is done by starting a 
-session with the anonymous account (or with a proper user account, if one is 
-given); in response to a session starting, the server will send back all this
+time over the SMB protocol (ports 445 or 139 -- for more information, see 
+<code>smb.lua</code>). This is done by starting a session with the anonymous 
+account (or with a proper user account, if one is given -- likely doesn't make
+a difference); in response to a session starting, the server will send back all this
 information. 
 
 Some systems, like Samba, will blank out their name (and only send their domain). 
 Other systems (like embedded printers) will simply leave out the information. Other
 systems will blank out various pieces (some will send back '0' for the current
 time, for example). 
+
+Retrieving the name and operating system of a server is a vital step in targeting
+an attack against it, and this script makes that retrieval easy. Additionally, if
+a penetration tester is choosing between multiple targets, the time can help identify
+servers that are being poorly maintained (for more information/random thoughts on
+using the time, see <http://www.skullsecurity.org/blog/?p=76>. 
 
 Although the standard <code>smb*</code> script arguments can be used, 
 they likely won't change the outcome in any meaningful way. 
@@ -55,81 +62,17 @@ end
 
 action = function(host)
 
-	local state
-	local status, err
-
-	-- Start up SMB
-	status, state = smb.start(host)
+	local status, result = smb.get_os(host)
 
 	if(status == false) then
 		if(nmap.debugging() > 0) then
-			return "ERROR: " .. state
+			return "smb-os-discovery: ERROR: " .. result
 		else
 			return nil
 		end
 	end
 
-	-- Negotiate protocol
-	status, err = smb.negotiate_protocol(state)
-
-	if(status == false) then
-		stdnse.print_debug(2, "Negotiate session failed")
-		smb.stop(state)
-		if(nmap.debugging() > 0) then
-			return "ERROR: " .. err
-		else
-			return nil
-		end
-	end
-
-	-- Start a session
-	status, err = smb.start_session(state, "")
-	if(status == false) then
-		smb.stop(state)
-		if(nmap.debugging() > 0) then
-			return "ERROR: " .. err
-		else
-			return nil
-		end
-	end
-
-	-- Kill SMB
-	smb.stop(state)
-
-	if(state['os'] == nil and state['lanmanager'] == nil) then
-		if(nmap.debugging() > 0) then
-			return "Server didn't return OS details"
-		else
-			return nil
-		end
-	end
-
-	if(state['os'] == nil) then
-		state['os'] = "Unknown"
-	end
-
-	if(state['lanmanager'] == nil) then
-		state['lanmanager'] = "Unknown"
-	end
-
-	if(state['domain'] == nil) then
-		state['domain'] = "Unknown"
-	end
-
-	if(state['server'] == nil) then
-		state['server'] = "Unknown"
-	end
-
-	if(state['date'] == nil) then
-		state['date'] = "Unknown"
-	end
-
-	if(state['timezone_str'] == nil) then
-		state['timezone_str'] = ""
-	end
-
-	
-	return string.format("%s\nLAN Manager: %s\nName: %s\\%s\nSystem time: %s %s\n", get_windows_version(state['os']), state['lanmanager'], state['domain'], state['server'], state['date'], state['timezone_str'])
+	return string.format("%s\nLAN Manager: %s\nName: %s\\%s\nSystem time: %s %s\n", get_windows_version(result['os']), result['lanmanager'], result['domain'], result['server'], result['date'], result['timezone_str'])
 end
 
 
