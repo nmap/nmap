@@ -133,6 +133,10 @@ o Look into whether we should loosen/change the global congestion
     Right now it seems to go WAY TOO FAST (e.g. several thousand
     packets per second on my DSL line).
 
+o [nsock] Fix Makefile to handle dependencies correctly (if that turns
+  out to be the problem).  See
+  http://seclists.org/nmap-dev/2009/q1/0629.html.
+
 o We should document an official way to compile/test refguide.xml so
   people can more easily test their changes to it.  This will probably
   involve moving legal-notices.xml into /nmap/docs, among other
