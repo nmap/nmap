@@ -93,6 +93,21 @@ easier. For each file, just do:
 
 and just send us the patch: file.c.patch.
 
+Style
+-----
+
+When contributing new code, we suggest using two-space indents with no
+tabs.  This is generally the default in emacs, and Vim users can
+achieve it by adding rules such as the following to .vimrc:
+
+if getcwd() =~ '/nmap'
+    set nocindent
+    set expandtab
+    set softtabstop=2
+    set shiftwidth=2
+    set copyindent
+endif
+
 
 Credits
 -------
