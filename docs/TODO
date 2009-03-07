@@ -133,6 +133,11 @@ o Look into whether we should loosen/change the global congestion
     Right now it seems to go WAY TOO FAST (e.g. several thousand
     packets per second on my DSL line).
 
+o We should document an official way to compile/test refguide.xml so
+  people can more easily test their changes to it.  This will probably
+  involve moving legal-notices.xml into /nmap/docs, among other
+  things.
+
 o Device categorization improvements
   o Examine Nmap's device categorization in nmap-os-deb and
     nmap-service-probes.  Decide if some small categories which have
