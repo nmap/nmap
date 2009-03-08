@@ -457,7 +457,7 @@ does not have to be <literal>nse</literal>.</para>
 subdirectory of the Nmap data directory by default (see
 <xref linkend="data-files"/>). For efficiency, scripts are indexed in
 a database stored
-in <filename>scripts/script.db</filename>.<indexterm><primary><filename>script.db</filename></primary></indexterm>
+in <filename>scripts/script.db</filename>,<indexterm><primary><filename>script.db</filename></primary></indexterm>
 which lists the category or categories in which each script belongs.
 Give the argument <literal>all</literal> to execute all scripts in the
 Nmap script database.</para>
