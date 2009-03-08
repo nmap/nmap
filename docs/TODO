@@ -37,6 +37,15 @@ o [Ncat] When acting as an HTTP proxy, we should support GET mode as
   well as CONNECT so that it works as a non-SSL proxy in browsers such
   as firefox.
 
+o Prepare for Summer of Code
+  o Brainstorm for ideas
+  o Create new ideas page
+  o Apply to participate in program again
+  o Advertise for applicants
+  o Evaluate applicants
+  o Decide which applicants we want, and who would be best for
+    mentoring them.
+
 o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
 
 o Figure out and document (in at least the Ncat user's guide) the best way to use Ncat for chaining
@@ -165,14 +174,17 @@ o [NSE] Open proxy detection script?
   that to handle other types of proxies (such as SOCKS and HTTP
   CONNECT) or create more scripts to handle those other proxy types.
 
-o Prepare for Summer of Code
-  o Brainstorm for ideas
-  o Create new ideas page
-  o Apply to participate in program again
-  o Advertise for applicants
-  o Evaluate applicants
-  o Decide which applicants we want, and who would be best for
-    mentoring them.
+o Ping scans always seem to say "0 [hosts] undergoing Ping Scan" when
+  you request stats, rather than the proper number.  For an example,
+  try a command such as "nmap -iR 10000 -sP -n" and then press enter
+  during the scan.  Here are some examples of the bad output:
+  Stats: 0:01:10 elapsed; 0 hosts completed (0 up), 0 undergoing Ping Scan
+  Ping Scan Timing: About 24.03% done; ETC: 22:42 (0:03:41 remaining)
+  Stats: 2:21:13 elapsed; 106496 hosts completed (575 up), 0 undergoing Ping Scan
+  Ping Scan Timing: About 76.83% done; ETC: 22:37 (0:01:12 remaining)
+  Stats: 0:03:28 elapsed; 4096 hosts completed (284 up), 0 undergoing Ping Scan
+  Ping Scan Timing: About 3.06% done; ETC: 22:44 (0:03:07 remaining)
+
 
 o Make Zenmap settings get upgraded when the Zenmap executable is
   upgraded. The per-user configuration files such as scan_profile.usp
