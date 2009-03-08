@@ -218,6 +218,21 @@ o Look into memory consumption of UDP scans with -p- and large
   hostgroups.  See if there is a way to prevent them from eating up gigs
   of RAM.
 
+o When I scan large groups of hosts with OS detection enabled, I get
+  groups of warnings like:
+  Insufficient responses for TCP sequencing (0), OS detection may be less accurate
+  Insufficient responses for TCP sequencing (0), OS detection may be less accurate
+  Insufficient responses for TCP sequencing (0), OS detection may be less accurate
+  Insufficient responses for TCP sequencing (0), OS detection may be less accurate
+  Insufficient responses for TCP sequencing (0), OS detection may be less accurate
+  Note how it doesn't even tell the relevant IP address, and it isn't
+  included in an individual host section.  We should probably either
+  include it in the section for an individual host, like we do with
+  "OSScan results may be unreliable because we could not find at least
+  1 open and 1 closed port", or (not quite as
+  good) include the relevant IP address in the error message.  And we
+  may or may not want to require verbose mode.
+
 o Fix the directory function(s) in nse_fs.cc to be usable by scripts and
   improve flexibility. [this entry added by Patrick]
 
