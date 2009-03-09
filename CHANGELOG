@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Fixed a crash when something that looked like a format
+  specifier (like %y) appeared in a profile. The error message was
+    ValueError: unsupported format character 'y' (0x79)
+  [David]
+
 o Added two new SMB/MSRPC scripts:
     smb-brute.nse: Bruteforce to discover SMB accounts. Has advanced
        features, such as lockout detection, username validation, 
