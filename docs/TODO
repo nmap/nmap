@@ -1,41 +1,30 @@
 MTODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o NSE memory issues (and gh_list assert failure) [David]
-  o See this thread: http://seclists.org/nmap-dev/2009/q1/0532.html
-
-o Ncat Windows issue where you make a connection and then take several
-  seconds to type in a line to the server, Ncat wrongly times out when
-  trying to write your line to the remote server. [David]
-
-o Ncat write timeout problems cause client to quit due to write
-  timeout sometimes. [David]
-  Examples:
-   o yes | ncat localhost
-   o when we paste a few lines into the terminal window in an Ncat chat
-
-o [Ncat] --talk should probably be changed (in the code and
-  documentation) to --chat, as Ncat chat has a
-  much nicer ring to it, IMHO.  --talk should remain as an alias to
-  --chat, but we don't need to document it. [David]
-
 o [Ncat] --chat should probably only allow reasonable chars, to avoid
-  cntrl-chars, etc..  We could also consider a way for people to choose
-  usernames.  We should probably make --ssl work.  If nothing else, it
-  might be useful if you want to reduce the number of people
-  connecting with telnet, etc. rather than ncat.
+  cntrl-chars, etc.
 
 o Ncat --chat should probably announce to everyone (including the new
   person) when someone connects.  This tells the new person their
   username, and lets everyone else know about the new connection. [David]
 
-o [Ncat] Wouldn't it be nice if we could support --exec (and maybe
-  some sort of partial-emulated --sh-exec) on Windows? [David]
+o [Ncat] As SSL server it should not crash when someone connects in
+  w/o SSL and does ^C.  When David tried it during our chat, the ncat
+  servr "ncat --broker --ssl-key test-key.pem --ssl-cert test-cert.pem
+  --ssl --chat -l"  crashed with: SSL_accept():
+  error:00000000:lib(0):func(0):reason(0).  Also, when a Windows SSL
+  clients joined and then left, the server died with "Broken pipe
 
 o [Ncat] Defensive coding review of Ncat --chat (talk)
+
+o [Ncat] Wouldn't it be nice if we could support --exec (and maybe
+  some sort of partial-emulated --sh-exec) on Windows? [David]
 
 o [Ncat] When acting as an HTTP proxy, we should support GET mode as
   well as CONNECT so that it works as a non-SSL proxy in browsers such
   as firefox.
+
+o NSE memory issues (and gh_list assert failure) [David]
+  o See this thread: http://seclists.org/nmap-dev/2009/q1/0532.html
 
 o Prepare for Summer of Code
   o Brainstorm for ideas
@@ -47,6 +36,9 @@ o Prepare for Summer of Code
     mentoring them.
 
 o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
+
+o [Ncat] We should consider a way for people to choose
+  usernames in --chat.  
 
 o Figure out and document (in at least the Ncat user's guide) the best way to use Ncat for chaining
   through proxies.  One option is this sort of thing:
@@ -61,24 +53,22 @@ o [Ncat] Why does Ncat require enclosure in a while loop to answer
   Diagnostic Services" section of the Ncat user's guide.
   o Note: http://seclists.org/nmap-dev/2009/q1/0133.html
 
-o Ncat user guide "Emulating Diagnostic Services" page has a very long
-  UDP chargen server line which causes wrapping problems in web browsers
-  (e.g. it widens the page substantially).  It should probably be
-  split into multiple lines. [David]
-
-o Ncat user guide proxying section says "The only exception is when
-  listing a proxy host by IPv6 address; then the port is required."
-  Why would we require a port number for IPv6 rather than just use the
-  same defaults as we do for IPv4?
-
-o Nmap should treat ports named "unknown" in nmap-services the same
-  way (from a naming perspective) as it treats ports which are not
-  listed at all.  See http://seclists.org/nmap-dev/2009/q1/0589.html.
-
 o Consider converting this file to emacs org-mode
   (http://orgmode.org/) format. [Fyodor]
   o That format is still plain text and can be read/edited by vi
     users, etc.
+
+o [Ncat] Maybe we should create an SSL cert with no passphrase during
+  Ncat compilation or install process so that if someone specifies
+  Ncat -l and --ssl with no --ssl-cert and --ssl-key, we already have
+  one for them, and it is a slightly better one (since the private key
+  isn't known) than if we distributed a key.  Obviously it is still
+  subject to MITM attacks since there is no domain validation going
+  on.  But people who need that will have to buy a key from a
+  certificate authority in any case.  We could create the key by using
+  the "openssl" command line tool as shown in
+  http://nmap.org/ncat/guide/ncat-advanced.html#ncat-ssl, or maybe
+  better to have a way for ncat to do it using openssl calls.
 
 o Determine what we should do about the IE.DLI OS detection test
   o All of the 1656 results for this test in nmap-os-db are DLI=S.
@@ -144,6 +134,8 @@ o Look into whether we should loosen/change the global congestion
 o [nsock] Fix Makefile to handle dependencies correctly (if that turns
   out to be the problem).  See
   http://seclists.org/nmap-dev/2009/q1/0629.html.
+  o Or it may be related to SVN timestampling.  See
+  http://seclists.org/nmap-dev/2009/q1/0632.html.
 
 o We should document an official way to compile/test refguide.xml so
   people can more easily test their changes to it.  This will probably
@@ -581,6 +573,42 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Nmap should treat ports named "unknown" in nmap-services the same
+  way (from a naming perspective) as it treats ports which are not
+  listed at all.  See http://seclists.org/nmap-dev/2009/q1/0589.html.
+
+o Ncat user guide "Emulating Diagnostic Services" page has a very long
+  UDP chargen server line which causes wrapping problems in web browsers
+  (e.g. it widens the page substantially).  It should probably be
+  split into multiple lines. [David]
+
+o Ncat user guide proxying section says "The only exception is when
+  listing a proxy host by IPv6 address; then the port is required."
+  Why would we require a port number for IPv6 rather than just use the
+  same defaults as we do for IPv4?
+  [David explained that this is because to do otherwise would be
+  ambiguous because IPv6 uses : for separaters, so we wouldn't know
+  how to handle things like FF::10:80]
+
+o [Ncat] Perhaps we should make --ssl work in --chat.  If nothing
+  else, it might be useful if you want to reduce the number of people
+  connecting with telnet, etc. rather than ncat.
+
+o [Ncat] --talk should probably be changed (in the code and
+  documentation) to --chat, as Ncat chat has a
+  much nicer ring to it, IMHO.  --talk should remain as an alias to
+  --chat, but we don't need to document it. [David]
+
+o Ncat Windows issue where you make a connection and then take several
+  seconds to type in a line to the server, Ncat wrongly times out when
+  trying to write your line to the remote server. [David]
+
+o Ncat write timeout problems cause client to quit due to write
+  timeout sometimes. [David]
+  Examples:
+   o yes | ncat localhost
+   o when we paste a few lines into the terminal window in an Ncat chat
 
 o Defensive coding review of ncat_proxy.* [David]
 
