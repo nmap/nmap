@@ -178,10 +178,10 @@ o Ping scans always seem to say "0 [hosts] undergoing Ping Scan" when
   you request stats, rather than the proper number.  For an example,
   try a command such as "nmap -iR 10000 -sP -n" and then press enter
   during the scan.  Here are some examples of the bad output:
+  Stats: 25:34:33 elapsed; 991232 hosts completed (72530 up), 0 undergoing Ping Scan
+  Ping Scan Timing: About 53.69% done; ETC: 22:49 (0:00:09 remaining)
   Stats: 0:01:10 elapsed; 0 hosts completed (0 up), 0 undergoing Ping Scan
   Ping Scan Timing: About 24.03% done; ETC: 22:42 (0:03:41 remaining)
-  Stats: 2:21:13 elapsed; 106496 hosts completed (575 up), 0 undergoing Ping Scan
-  Ping Scan Timing: About 76.83% done; ETC: 22:37 (0:01:12 remaining)
   Stats: 0:03:28 elapsed; 4096 hosts completed (284 up), 0 undergoing Ping Scan
   Ping Scan Timing: About 3.06% done; ETC: 22:44 (0:03:07 remaining)
 
