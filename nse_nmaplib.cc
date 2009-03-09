@@ -376,7 +376,6 @@ static int l_set_port_state (lua_State *L)
 static int l_set_port_version (lua_State *L)
 {
   static const enum serviceprobestate opversion[] = {
-    PROBESTATE_INITIAL,
     PROBESTATE_FINISHED_HARDMATCHED,
     PROBESTATE_FINISHED_SOFTMATCHED,
     PROBESTATE_FINISHED_NOMATCH,
