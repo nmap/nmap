@@ -81,8 +81,7 @@ o Consider converting this file to emacs org-mode
     users, etc.
 
 o Determine what we should do about the IE.DLI OS detection test
-  o It appears that of the 1657 results for this test in nmap-os-db,
-    1656 are DLI=S and the remaining one is DLI=100
+  o All of the 1656 results for this test in nmap-os-db are DLI=S.
     o Is the test not working right (producing the proper results
       against targets), or is it just a generally useless test for
       which virtually all targets respond the same way?
