@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ndiff] Added a workaround for a bug in PyXML. The bug would cause a
+  crash that looked like "KeyError: 0". Fyodor reported the error.
+  [David]
+
 o [Zenmap] Fixed a crash when something that looked like a format
   specifier (like %y) appeared in a profile. The error message was
     ValueError: unsupported format character 'y' (0x79)

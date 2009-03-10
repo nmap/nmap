@@ -543,7 +543,7 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
     def startElementAux(self, name, attrs):
         if name == u"nmaprun":
             assert self.parent_element() == None
-            if u"start" in attrs:
+            if attrs.has_key(u"start"):
                 start_timestamp = int(attrs.get(u"start"))
                 self.scan.start_date = datetime.datetime.fromtimestamp(start_timestamp)
         elif name == u"scaninfo":
@@ -633,14 +633,14 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
             assert self.current_host is not None
             if self.current_spec is None:
                 return
-            if u"state" not in attrs:
+            if not attrs.has_key(u"state"):
                 warn("state element of port %s is missing the \"state\" attribute; assuming \"unknown\"." % Port.spec_to_string(self.current_spec))
                 return
             state = attrs[u"state"]
             self.current_host.add_port(self.current_spec, state)
         elif name == u"finished":
             assert self.parent_element() == u"runstats"
-            if u"time" in attrs:
+            if attrs.has_key(u"time"):
                 end_timestamp = int(attrs.get(u"time"))
                 self.scan.end_date = datetime.datetime.fromtimestamp(end_timestamp)
 
