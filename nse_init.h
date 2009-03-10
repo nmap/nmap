@@ -1,16 +1,6 @@
 #ifndef NSE_INIT
 #define NSE_INIT
 
-extern "C" {
-	#include "lua.h"
-	#include "lualib.h"
-	#include "lauxlib.h"
-}
-
-#include <vector>
-#include <string>
-#include <string.h>
-
 // initialize the lua state
 // opens the standard libraries and the nmap lua library
 int init_lua(lua_State* L);

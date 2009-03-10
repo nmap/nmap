@@ -1,3 +1,9 @@
+
+extern "C" {
+  #include "lua.h"
+  #include "lauxlib.h"
+}
+
 #include <math.h>
 
 #include "nmap.h"

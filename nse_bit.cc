@@ -8,6 +8,11 @@
  * the most recent copy can be found at http://rrt.sc3d.org/Software/Lua/
  **/
 
+extern "C" {
+  #include "lauxlib.h"
+  #include "lua.h"
+}
+
 #include "nse_bit.h"
 
 typedef long long Integer;

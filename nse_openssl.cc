@@ -18,9 +18,12 @@
 #include <openssl/evp.h>
 #include <openssl/err.h>
 
+extern "C" {
+  #include "lua.h"
+  #include "lauxlib.h"
+}
+
 #include "nse_openssl.h"
-#include "lua.h"
-#include "lauxlib.h"
 
 typedef struct bignum_data {
   BIGNUM * bn;

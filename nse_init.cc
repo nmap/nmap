@@ -1,3 +1,14 @@
+
+extern "C" {
+  #include "lua.h"
+  #include "lauxlib.h"
+  #include "lualib.h" /* for libraries */
+}
+
+#include <vector>
+#include <string>
+#include <string.h>
+
 #include "nse_init.h"
 #include "nse_nmaplib.h"
 #include "nse_macros.h"

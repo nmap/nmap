@@ -1,12 +1,6 @@
 #ifndef NMAP_LUA_NSOCK_H
 #define NMAP_LUA_NSOCK_H
 
-extern "C" {
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
-}
-
 int luaopen_nsock(lua_State *);
 int l_nsock_new(lua_State *);
 int l_nsock_loop(int tout);

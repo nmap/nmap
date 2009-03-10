@@ -1,3 +1,13 @@
+
+extern "C" {
+  #include "lua.h"
+  #include "lauxlib.h"
+}
+
+#include <vector>
+#include <string>
+#include <string.h>
+
 #ifndef WIN32
 #include "dirent.h"
 #endif

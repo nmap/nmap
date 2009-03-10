@@ -1,12 +1,8 @@
-#include "nse_nsock.h"
-#include "nse_macros.h"
 
-#include "nse_debug.h"
-
-#include "nsock.h"
-#include "nmap_error.h"
-/* #include "osscan.h" */
-#include "NmapOps.h"
+extern "C" {
+  #include "lua.h"
+  #include "lauxlib.h"
+}
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +10,13 @@
 #include <sstream>
 #include <iomanip>
 
+#include "nse_nsock.h"
+#include "nse_macros.h"
+#include "nse_debug.h"
+
+#include "nsock.h"
+#include "nmap_error.h"
+#include "NmapOps.h"
 #include "utils.h"
 #include "tcpip.h"
 

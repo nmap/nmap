@@ -1,17 +1,16 @@
 #ifndef NMAP_LUA_H
 #define NMAP_LUA_H
 
-extern "C" {
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
-}
-
 #include <vector>
 #include <list>
 #include <string>
 #include <string.h>
 #include <iostream>
+
+extern "C" {
+  #include "lua.h"
+  #include "lauxlib.h"
+}
 
 class ScriptResult
 {

@@ -1,12 +1,6 @@
 #ifndef NSE_NMAPLIB
 #define NSE_NMAPLIB
 
-extern "C" {
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
-}
-
 class Target;
 class Port;
 
