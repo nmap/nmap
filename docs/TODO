@@ -23,6 +23,9 @@ o [Ncat] When acting as an HTTP proxy, we should support GET mode as
   well as CONNECT so that it works as a non-SSL proxy in browsers such
   as firefox.
 
+o [Ndiff] Maybe Ndiff should display changes to version detection and
+  OS detection information?
+
 o NSE memory issues (and gh_list assert failure) [David]
   o See this thread: http://seclists.org/nmap-dev/2009/q1/0532.html
 
