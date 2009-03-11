@@ -42,6 +42,7 @@ struct thread_record {
 /* Gets the basename of a script filename and removes any ".nse" extension. */
 std::string thread_record::get_id() const {
   char *abbrev;
+  std::string result;
 
   abbrev = path_get_basename(filename.c_str());
   if (abbrev == NULL)
@@ -49,8 +50,10 @@ std::string thread_record::get_id() const {
     return filename;
   if (nse_check_extension(SCRIPT_ENGINE_EXTENSION, abbrev))
     abbrev[strlen(abbrev) - strlen(SCRIPT_ENGINE_EXTENSION)] = '\0';
+  result = abbrev;
+  free(abbrev);
 
-  return std::string(abbrev);
+  return result;
 }
 
 int current_hosts = 0;
