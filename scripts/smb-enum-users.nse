@@ -99,7 +99,8 @@ the code I wrote for this is largely based on the techniques used by them.
 -- @output
 -- Host script results:
 -- |  smb-enum-users:
--- |_ TESTBOX\Administrator, EXTERNAL\DnsAdmins, TESTBOX\Guest, EXTERNAL\HelpServicesGroup, EXTERNAL\PARTNERS$, TESTBOX\SUPPORT_388945a0
+-- |_ TESTBOX\Administrator, EXTERNAL\DnsAdmins, TESTBOX\Guest, 
+--    EXTERNAL\HelpServicesGroup, EXTERNAL\PARTNERS$, TESTBOX\SUPPORT_388945a0
 -- 
 -- Host script results:
 -- |  smb-enum-users:
