@@ -241,3 +241,21 @@ function tohex( s, options )
   return hex
 end
 
+---Either return the string itself, or return "<blank>" (or the value of the second parameter) if the string
+-- was blank or nil.
+--
+--@param string The base string.
+--@param blank  The string to return if <code>string</code> was blank
+--@return Either <code>string</code> or, if it was blank, <code>blank</code>
+function string_or_blank(string, blank)
+  if(string == nil or string == "") then
+    if(blank == nil) then
+      return "<blank>"
+    else
+      return blank
+    end
+  else
+    return string
+  end
+end
+

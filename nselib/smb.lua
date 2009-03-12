@@ -258,23 +258,6 @@ function get_port(host)
 	return nil
 end
 
----Either return the string itself, or return "<blank>" (or the value of the second parameter) if the string
--- was blank or nil. 
---@param string The base string. 
---@param blank  The string to return if <code>string</code> was blank
---@return Either <code>string</code> or, if it was blank, <code>blank</code>
-local function string_or_blank(string, blank)
-	if(string == nil or string == "") then
-		if(blank == nil) then
-			return "<blank>"
-		else
-			return blank
-		end
-	else
-		return string
-	end
-end
-
 ---Turn off extended security negotiations for this connection. There are a few reasons you might want to
 -- do that, the main ones being that extended security is going to be marginally slower and it's not going
 -- to give the same level of information in some cases (namely, it doesn't present the server's name). 
@@ -1224,9 +1207,9 @@ function start_session_basic(smb, overrides, use_default, log_errors)
 			-- Check if they were logged in as a guest
 			if(log_errors == nil or log_errors == true) then
 				if(smb['is_guest'] == 1) then
-					stdnse.print_debug(1, "SMB: Login as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", accounts[i]['domain'], string_or_blank(accounts[i]['username']))
+					stdnse.print_debug(1, "SMB: Login as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", accounts[i]['domain'], stdnse.string_or_blank(accounts[i]['username']))
 				else
-					stdnse.print_debug(1, "SMB: Login as %s\\%s succeeded", accounts[i]['domain'], string_or_blank(accounts[i]['username']))
+					stdnse.print_debug(1, "SMB: Login as %s\\%s succeeded", accounts[i]['domain'], stdnse.string_or_blank(accounts[i]['username']))
 				end
 			end
 
@@ -1238,7 +1221,7 @@ function start_session_basic(smb, overrides, use_default, log_errors)
 		else
 			-- This username failed, print a warning and keep going
 			if(log_errors == nil or log_errors == true) then
-				stdnse.print_debug(1, "SMB: Login as %s\\%s failed (%s)", accounts[i]['domain'], string_or_blank(accounts[i]['username']), get_status_name(status))
+				stdnse.print_debug(1, "SMB: Login as %s\\%s failed (%s)", accounts[i]['domain'], stdnse.string_or_blank(accounts[i]['username']), get_status_name(status))
 			end
 		end
 	end
@@ -1352,9 +1335,9 @@ function start_session_extended(smb, overrides, use_default, log_errors)
 					-- Check if they were logged in as a guest
 					if(log_errors == nil or log_errors == true) then
 						if(smb['is_guest'] == 1) then
-							stdnse.print_debug(1, string.format("SMB: Extended login as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", accounts[i]['domain'], string_or_blank(accounts[i]['username'])))
+							stdnse.print_debug(1, string.format("SMB: Extended login as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", accounts[i]['domain'], stdnse.string_or_blank(accounts[i]['username'])))
 						else
-							stdnse.print_debug(1, string.format("SMB: Extended login as %s\\%s succeeded", accounts[i]['domain'], string_or_blank(accounts[i]['username'])))
+							stdnse.print_debug(1, string.format("SMB: Extended login as %s\\%s succeeded", accounts[i]['domain'], stdnse.string_or_blank(accounts[i]['username'])))
 						end
 					end
 	
@@ -1368,7 +1351,7 @@ function start_session_extended(smb, overrides, use_default, log_errors)
 
 		-- Display a message to the user, and try the next account
 		if(log_errors == nil or log_errors == true) then
-			stdnse.print_debug(1, "SMB: Extended login as %s\\%s failed (%s)", accounts[i]['domain'], string_or_blank(accounts[i]['username']), status_name)
+			stdnse.print_debug(1, "SMB: Extended login as %s\\%s failed (%s)", accounts[i]['domain'], stdnse.string_or_blank(accounts[i]['username']), status_name)
 		end
 
 		-- Reset the user id and security_blob
@@ -2199,12 +2182,12 @@ function get_os(host)
 	end
 
 	-- Convert blank values to something useful
-	response['os']           = string_or_blank(smbstate['os'],           "Unknown")
-	response['lanmanager']   = string_or_blank(smbstate['lanmanager'],   "Unknown")
-	response['domain']       = string_or_blank(smbstate['domain'],       "Unknown")
-	response['server']       = string_or_blank(smbstate['server'],       "Unknown")
-	response['date']         = string_or_blank(smbstate['date'],         "Unknown")
-	response['timezone_str'] = string_or_blank(smbstate['timezone_str'], "Unknown")
+	response['os']           = stdnse.string_or_blank(smbstate['os'],           "Unknown")
+	response['lanmanager']   = stdnse.string_or_blank(smbstate['lanmanager'],   "Unknown")
+	response['domain']       = stdnse.string_or_blank(smbstate['domain'],       "Unknown")
+	response['server']       = stdnse.string_or_blank(smbstate['server'],       "Unknown")
+	response['date']         = stdnse.string_or_blank(smbstate['date'],         "Unknown")
+	response['timezone_str'] = stdnse.string_or_blank(smbstate['timezone_str'], "Unknown")
 
     -- Kill SMB
     smb.stop(smbstate)

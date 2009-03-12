@@ -21,12 +21,9 @@ up to version 1.0.3 (and possibly higher).
 -- @output
 -- Host script results:
 -- |  smb-server-stats:
--- |  Server statistics collected since 2008-10-17 09:32:41 (4d0h24m29s):
--- |  |_ Traffic 133467 bytes (0.38b/s) sent, 167696 bytes (0.48b/s) received
--- |  |_ Failed logins: 5
--- |  |_ Permission errors: 1, System errors: 0
--- |  |_ Print jobs spooled: 0
--- |_ |_ Files opened (including pipes): 18
+-- |  Server statistics collected since 2008-12-12 14:53:27 (89d17h37m48s):
+-- |  |_ 22884718 bytes (2.95 b/s) sent, 28082489 bytes (3.62 b/s) received
+-- |_ |_ 5759 failed logins, 16 permission errors, 0 system errors, 0 print jobs, 1273 files opened
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"
@@ -58,11 +55,8 @@ action = function(host)
 	end
 
 	response = response .. string.format("Server statistics collected since %s (%s):\n", stats['start_str'], stats['period_str'])
-	response = response .. string.format("|_ Traffic %d bytes (%.2f b/s) sent, %d bytes (%.2f b/s) received\n", stats['bytessent'], stats['bytessentpersecond'], stats['bytesrcvd'], stats['bytesrcvdpersecond'])
-	response = response .. string.format("|_ Failed logins: %d\n", stats['pwerrors'])
-	response = response .. string.format("|_ Permission errors: %d, System errors: %d\n", stats['permerrors'], stats['syserrors'])
-	response = response .. string.format("|_ Print jobs spooled: %s\n", stats['jobsqueued'])
-	response = response .. string.format("|_ Files opened (including pipes): %d\n", stats['fopens'])
+	response = response .. string.format("|_ %d bytes (%.2f b/s) sent, %d bytes (%.2f b/s) received\n", stats['bytessent'], stats['bytessentpersecond'], stats['bytesrcvd'], stats['bytesrcvdpersecond'])
+	response = response .. string.format("|_ %d failed logins, %d permission errors, %d system errors, %d print jobs, %d files opened\n", stats['pwerrors'], stats['permerrors'], stats['syserrors'], stats['jobsqueued'], stats['fopens'])
 
 	return response
 end
