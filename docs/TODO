@@ -109,6 +109,23 @@ o [Ncat] Let people set up authenticated proxies using
   --listen and --proxy-auth together (right now we don't support
   that). [David]
 
+o With --version-trace (may be a problem with other uses of nsock
+  tracing too), I often get dozens of "wait_for_events" reports in a
+  row in a very short period, flooding the logs.  For example, with
+  the command "nmap -sV --version-trace www.google.com", I get:
+  NSOCK (22.3570s) Callback: WRITE SUCCESS for EID 283 [74.125.19.147:443]
+  NSOCK (22.3570s) msevent_delete (IOD #4) (EID #283)
+  NSOCK (22.3570s) wait_for_events
+  NSOCK (22.3570s) wait_for_events
+  NSOCK (22.3570s) wait_for_events
+  NSOCK (22.3570s) wait_for_events
+  NSOCK (22.3570s) wait_for_events
+  NSOCK (22.3570s) wait_for_events
+  NSOCK (22.3570s) wait_for_events
+  NSOCK (22.3570s) wait_for_events
+  NSOCK (22.3570s) wait_for_events
+  [Goes on for pages]
+
 o [Ncat] Can we use it as an IPv4 <-> IPv6 gateway?  If so (or if we
   can add it), it should be added to the ncat guide feature list.
 
