@@ -3749,7 +3749,7 @@ local samr_PasswordProperties =
 }
 local samr_PasswordProperties_str = 
 {
-	DOMAIN_PASSWORD_COMPLEX         = "Compexity requirements exit",
+	DOMAIN_PASSWORD_COMPLEX         = "Compexity requirements exist",
 	DOMAIN_PASSWORD_NO_ANON_CHANGE  = "Must be logged in to change password",
 	DOMAIN_PASSWORD_NO_CLEAR_CHANGE = "Cannot change passwords in cleartext",
 	DOMAIN_PASSWORD_LOCKOUT_ADMINS  = "Admin account can be locked out",
