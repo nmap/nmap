@@ -51,6 +51,30 @@ o Figure out and document (in at least the Ncat user's guide) the best way to us
   With another listener/--sh-exec pair for each additional proxy.
   But perhaps we can make it easier by adding it to the syntax.
 
+o Ncat verbose mode (-v) should probably only give important messages,
+  such as perhaps a message once you connect successfully to a port,
+  or a message if the connection attempt times out.  An Ncat version
+  banner (with URL) like Nmap has might be warranted (in verbose
+  mode).  Currently, Ncat floods you with (mostly) useless debugging
+  information like this with a single -v (this output, on the other
+  hand, might be useful for a debugging option):
+  # ncat -C -v scanme.nmap.org 80
+  NSOCK (0.0000s) TCP connection requested to 64.13.134.52:80 (IOD #1) EID 8
+  NSOCK (0.0200s) Callback: CONNECT SUCCESS for EID 8 [64.13.134.52:80]
+  NSOCK (0.0200s) Read request from IOD #1 [64.13.134.52:80] (timeout: -1ms) EID 18
+  NSOCK (0.0200s) Read request for 0 bytes from IOD #2 (peer unspecified) EID 26
+  GET / HTTP/1.0
+  NSOCK (4.4280s) Callback READ SUCCESS for EID 26 (peer unspecified) (15 bytes)
+  NSOCK (4.4280s) Write request for 16 bytes to IOD #1 EID 35 [64.13.134.52:80]
+  NSOCK (4.4280s) Callback: WRITE SUCCESS for EID 35 [64.13.134.52:80]
+  NSOCK (4.4280s) Read request for 0 bytes from IOD #2 (peer unspecified) EID 42
+  For comparison, here is what Eric Jackson's nc (The nc available in
+  Fedora 10's package repository) shows in verbose mode for the same
+  connection:
+  # nc -v scanme.nmap.org 80
+  Connection to scanme.nmap.org 80 port [tcp/http] succeeded!
+  GET / HTTP/1.0
+
 o [Ncat] Why does Ncat require enclosure in a while loop to answer
   repeated UDP queries, but not TCP?  For example, see the "Emulating
   Diagnostic Services" section of the Ncat user's guide.
