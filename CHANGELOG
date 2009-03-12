@@ -1,5 +1,20 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] In --chat mode (formerly --talk), the server announces to
+  everyone when someone connects or disconnects. Besides letting you
+  know who's connected, this also informs you of your "user name" as
+  soon as you connect. [David]
+
+o [Ncat] In --chat mode, the server escapes potentially dangerous
+  control characters before sending them to clients. [David]
+
+o [Ncat] The --exec and --sh-exec options now work on Windows. [David]
+
+o [Ncat] Ncat now works interactively on Windows. Before,
+  peculiarities in the way Windows handles reading from the keyboard
+  meant that typing interactively into Ncat would cause it to quit
+  with a write timeout. [David]
+
 o [Ndiff] Added a workaround for a bug in PyXML. The bug would cause a
   crash that looked like "KeyError: 0". Fyodor reported the error.
   [David]
