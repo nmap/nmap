@@ -206,7 +206,7 @@
 <!ATTLIST service
 			name		CDATA		#REQUIRED
 			conf		%service_confs;	#REQUIRED
-                        method          (table|detection|probed) #REQUIRED
+                        method          (table|probed)  #REQUIRED
                         version         CDATA           #IMPLIED
                         product         CDATA           #IMPLIED
                         extrainfo       CDATA           #IMPLIED
