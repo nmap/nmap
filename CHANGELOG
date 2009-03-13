@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] A crash was fixed that would happen when you ran a scan
+  that didn't produce any host output (like "nmap --iflist") and then
+  tried to remove it from the inventory. [David]
+  The crash looked like
+    ValueError: list.remove(x): x not in list
+
 o [Ncat] In --chat mode (formerly --talk), the server announces to
   everyone when someone connects or disconnects. Besides letting you
   know who's connected, this also informs you of your "user name" as
