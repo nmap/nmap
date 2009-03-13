@@ -113,8 +113,6 @@
 
 using namespace std;
 extern NmapOps o;
-enum pingstyle { pingstyle_unknown, pingstyle_rawtcp, pingstyle_rawudp, pingstyle_connecttcp, 
-		 pingstyle_icmp };
 
 /* Gets the host number (index) of target in the hostbatch array of
  pointers.  Note that the target MUST EXIST in the array or all
