@@ -568,20 +568,6 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
         return self.element_stack[-1]
 
     def startElement(self, name, attrs):
-        """This method keeps track of element_stack. The real parsing work is
-        done in startElementAux."""
-        self.startElementAux(name, attrs)
-
-        self.element_stack.append(name)
-
-    def endElement(self, name):
-        """This method keeps track of element_stack. The real parsing work is
-        done in endElementAux."""
-        self.element_stack.pop()
-
-        self.endElementAux(name)
-
-    def startElementAux(self, name, attrs):
         if name == u"nmaprun":
             assert self.parent_element() == None
             if attrs.has_key(u"start"):
@@ -685,7 +671,11 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
                 end_timestamp = int(attrs.get(u"time"))
                 self.scan.end_date = datetime.datetime.fromtimestamp(end_timestamp)
 
-    def endElementAux(self, name):
+        self.element_stack.append(name)
+
+    def endElement(self, name):
+        self.element_stack.pop()
+
         if name == u"nmaprun":
             self.scanned_ports = None
         elif name == u"host":
