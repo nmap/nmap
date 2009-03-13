@@ -71,7 +71,7 @@ class partition_port_state_changes_test(unittest.TestCase):
             partition = partition_port_state_changes(h_diff)
             for group in partition:
                 for hunk in group:
-                    self.assertTrue(hunk.type == PORT_STATE_CHANGE)
+                    self.assertTrue(isinstance(hunk, PortStateChangeHunk))
 
     def test_equivalence(self):
         for host, h_diff in self.diff:
@@ -94,7 +94,7 @@ class consolidate_port_state_changes_test(unittest.TestCase):
         for host, h_diff in self.diff:
             consolidated = consolidate_port_state_changes(h_diff, 0)
             for hunk in h_diff:
-                self.assertTrue(hunk.type != PORT_STATE_CHANGE)
+                self.assertTrue(not isinstance(hunk, PortStateChangeHunk))
 
     def test_conservation(self):
         pre_length = 0
@@ -131,7 +131,7 @@ class port_diff_test(unittest.TestCase):
         b = Port((20, "tcp"))
         diff = port_diff(a, b)
         self.assertTrue(len(diff) == 1)
-        self.assertTrue(diff[0].type == PORT_ID_CHANGE)
+        self.assertTrue(isinstance(diff[0], PortIdChangeHunk))
 
     def test_state_change(self):
         spec = (10, "tcp")
@@ -141,7 +141,7 @@ class port_diff_test(unittest.TestCase):
         b.state = "closed"
         diff = port_diff(a, b)
         self.assertTrue(len(diff) == 1)
-        self.assertTrue(diff[0].type == PORT_STATE_CHANGE)
+        self.assertTrue(isinstance(diff[0], PortStateChangeHunk))
 
     def test_id_state_change(self):
         a = Port((10, "tcp"))
@@ -212,20 +212,20 @@ class host_test(unittest.TestCase):
 def host_apply_diff(host, diff):
     """Apply a host diff to the given host."""
     for hunk in diff:
-        if hunk.type == HOST_STATE_CHANGE:
+        if isinstance(hunk, HostStateChangeHunk):
             assert host.state == hunk.a_state
             host.state = hunk.b_state
-        elif hunk.type == HOST_ADDRESS_ADD:
+        elif isinstance(hunk, HostAddressAddHunk):
             host.add_address(hunk.address_type, hunk.address)
-        elif hunk.type == HOST_ADDRESS_REMOVE:
+        elif isinstance(hunk, HostAddressRemoveHunk):
             host.remove_address(hunk.address_type, hunk.address)
-        elif hunk.type == HOST_HOSTNAME_ADD:
+        elif isinstance(hunk, HostHostnameAddHunk):
             host.add_hostname(hunk.hostname)
-        elif hunk.type == HOST_HOSTNAME_REMOVE:
+        elif isinstance(hunk, HostHostnameRemoveHunk):
             host.remove_hostname(hunk.hostname)
-        elif hunk.type == PORT_ID_CHANGE:
+        elif isinstance(hunk, PortIdChangeHunk):
             host.swap_ports(hunk.a_spec, hunk.b_spec)
-        elif hunk.type == PORT_STATE_CHANGE:
+        elif isinstance(hunk, PortStateChangeHunk):
             port = host.ports[hunk.spec]
             assert port.state == hunk.a_state
             host.add_port(hunk.spec, hunk.b_state)
@@ -234,8 +234,8 @@ def host_apply_diff(host, diff):
 
 class host_diff_test(unittest.TestCase):
     """Test the host_diff function."""
-    PORT_DIFF_HUNK_TYPES = (PORT_ID_CHANGE, PORT_STATE_CHANGE)
-    HOST_DIFF_HUNK_TYPES = (HOST_STATE_CHANGE,) + PORT_DIFF_HUNK_TYPES
+    PORT_DIFF_HUNK_TYPES = (PortIdChangeHunk, PortStateChangeHunk)
+    HOST_DIFF_HUNK_TYPES = (HostStateChangeHunk,) + PORT_DIFF_HUNK_TYPES
 
     def test_empty(self):
         a = Host()
@@ -258,7 +258,7 @@ class host_diff_test(unittest.TestCase):
         diff = host_diff(a, b)
         self.assertTrue(len(diff) > 0)
         for hunk in diff:
-            self.assertTrue(hunk.type in self.HOST_DIFF_HUNK_TYPES)
+            self.assertTrue(isinstance(hunk, self.HOST_DIFF_HUNK_TYPES))
 
     def test_state_change_unknown(self):
         a = Host()
@@ -267,11 +267,11 @@ class host_diff_test(unittest.TestCase):
         diff = host_diff(a, b)
         self.assertTrue(len(diff) > 0)
         for hunk in diff:
-            self.assertTrue(hunk.type in self.HOST_DIFF_HUNK_TYPES)
+            self.assertTrue(isinstance(hunk, self.HOST_DIFF_HUNK_TYPES))
         diff = host_diff(b, a)
         self.assertTrue(len(diff) > 0)
         for hunk in diff:
-            self.assertTrue(hunk.type in self.HOST_DIFF_HUNK_TYPES)
+            self.assertTrue(isinstance(hunk, self.HOST_DIFF_HUNK_TYPES))
 
     def test_port_state_change(self):
         a = Host()
@@ -282,7 +282,7 @@ class host_diff_test(unittest.TestCase):
         diff = host_diff(a, b)
         self.assertTrue(len(diff) > 0)
         for hunk in diff:
-            self.assertTrue(hunk.type in self.PORT_DIFF_HUNK_TYPES)
+            self.assertTrue(isinstance(hunk, self.PORT_DIFF_HUNK_TYPES))
 
     def test_port_state_change_unknown(self):
         a = Host()
@@ -291,11 +291,11 @@ class host_diff_test(unittest.TestCase):
         diff = host_diff(a, b)
         self.assertTrue(len(diff) > 0)
         for hunk in diff:
-            self.assertTrue(hunk.type in self.PORT_DIFF_HUNK_TYPES)
+            self.assertTrue(isinstance(hunk, self.PORT_DIFF_HUNK_TYPES))
         diff = host_diff(b, a)
         self.assertTrue(len(diff) > 0)
         for hunk in diff:
-            self.assertTrue(hunk.type in self.PORT_DIFF_HUNK_TYPES)
+            self.assertTrue(isinstance(hunk, self.PORT_DIFF_HUNK_TYPES))
 
     def test_port_state_change_multi(self):
         a = Host()
@@ -309,7 +309,7 @@ class host_diff_test(unittest.TestCase):
         diff = host_diff(a, b)
         self.assertTrue(len(diff) > 0)
         for hunk in diff:
-            self.assertTrue(hunk.type in self.PORT_DIFF_HUNK_TYPES)
+            self.assertTrue(isinstance(hunk, self.PORT_DIFF_HUNK_TYPES))
 
     def test_address_add(self):
         a = Host()
@@ -319,7 +319,7 @@ class host_diff_test(unittest.TestCase):
         diff = host_diff(a, b)
         self.assertTrue(len(diff) > 0)
         for hunk in diff:
-            self.assertTrue(hunk.type == HOST_ADDRESS_ADD)
+            self.assertTrue(isinstance(hunk, HostAddressAddHunk))
 
     def test_address_add(self):
         a = Host()
@@ -329,7 +329,7 @@ class host_diff_test(unittest.TestCase):
         diff = host_diff(a, b)
         self.assertTrue(len(diff) > 0)
         for hunk in diff:
-            self.assertTrue(hunk.type == HOST_ADDRESS_REMOVE)
+            self.assertTrue(isinstance(hunk, HostAddressRemoveHunk))
 
     def test_address_add(self):
         a = Host()
@@ -339,7 +339,7 @@ class host_diff_test(unittest.TestCase):
         diff = host_diff(a, b)
         self.assertTrue(len(diff) > 0)
         for hunk in diff:
-            self.assertTrue(hunk.type in (HOST_ADDRESS_ADD, HOST_ADDRESS_REMOVE))
+            self.assertTrue(isinstance(hunk, (HostAddressAddHunk, HostAddressRemoveHunk)))
 
     def test_hostname_add(self):
         a = Host()
@@ -349,7 +349,7 @@ class host_diff_test(unittest.TestCase):
         diff = host_diff(a, b)
         self.assertTrue(len(diff) > 0)
         for hunk in diff:
-            self.assertTrue(hunk.type == HOST_HOSTNAME_ADD)
+            self.assertTrue(isinstance(hunk, HostHostnameAddHunk))
 
     def test_hostname_remove(self):
         a = Host()
@@ -359,7 +359,7 @@ class host_diff_test(unittest.TestCase):
         diff = host_diff(a, b)
         self.assertTrue(len(diff) > 0)
         for hunk in diff:
-            self.assertTrue(hunk.type == HOST_HOSTNAME_REMOVE)
+            self.assertTrue(isinstance(hunk, HostHostnameRemoveHunk))
 
     def test_hostname_change(self):
         a = Host()
@@ -369,7 +369,7 @@ class host_diff_test(unittest.TestCase):
         diff = host_diff(a, b)
         self.assertTrue(len(diff) > 0)
         for hunk in diff:
-            self.assertTrue(hunk.type in (HOST_HOSTNAME_ADD, HOST_HOSTNAME_REMOVE))
+            self.assertTrue(isinstance(hunk, (HostHostnameAddHunk, HostHostnameRemoveHunk)))
 
     def test_diff_is_effective(self):
         """Test that a host diff is effective.
@@ -486,7 +486,7 @@ class scan_diff_test(unittest.TestCase):
         diff = scan_diff(a, b)
         for host, h_diff in diff:
             for hunk in h_diff:
-                if hunk.type == HOST_STATE_CHANGE:
+                if isinstance(hunk, HostStateChangeHunk):
                     self.assertTrue(hunk.a_state == Host.UNKNOWN)
                     self.assertTrue(hunk.b_state == u"up")
                     break
@@ -501,7 +501,7 @@ class scan_diff_test(unittest.TestCase):
         diff = scan_diff(a, b)
         for host, h_diff in diff:
             for hunk in h_diff:
-                if hunk.type == HOST_STATE_CHANGE:
+                if isinstance(hunk, HostStateChangeHunk):
                     self.assertTrue(hunk.a_state == u"up")
                     self.assertTrue(hunk.b_state == Port.UNKNOWN)
                     break

@@ -177,98 +177,153 @@ class Scan(object):
         finally:
             f.close()
 
-# The types of each possible diff hunk.
-(HOST_STATE_CHANGE, HOST_ADDRESS_ADD, HOST_ADDRESS_REMOVE,
-    HOST_HOSTNAME_ADD, HOST_HOSTNAME_REMOVE,
-    PORT_ID_CHANGE, PORT_STATE_CHANGE) = range(0, 7)
 
+# What follows are all the possible diff hunk types. Each is capable of redering
+# itself to a string or to an XML DOM fragment.
 class DiffHunk(object):
     """A DiffHunk is a single unit of a diff. Each one represents one atomic
     change: a host state change, port state change, and so on."""
-    def __init__(self, type):
-        self.type = type
 
     def to_string(self):
         """Return a human-readable string representation of this hunk."""
-        if self.type == HOST_STATE_CHANGE:
-            return u"Host is %s, was %s." % (self.b_state, self.a_state)
-        elif self.type == HOST_ADDRESS_ADD:
-            return u"Add %s address %s." % (self.address_type, self.address)
-        elif self.type == HOST_ADDRESS_REMOVE:
-            return u"Remove %s address %s." % (self.address_type, self.address)
-        elif self.type == HOST_HOSTNAME_ADD:
-            return u"Add hostname %s." % self.hostname
-        elif self.type == HOST_HOSTNAME_REMOVE:
-            return u"Remove hostname %s." % self.hostname
-        elif self.type == PORT_ID_CHANGE:
-            return u"Service on %s is now running on %s." % (Port.spec_to_string(self.a_spec), Port.spec_to_string(self.b_spec))
-        elif self.type == PORT_STATE_CHANGE:
-            if self.a_state == Port.UNKNOWN:
-                return u"%s is %s." % (Port.spec_to_string(self.spec), self.b_state)
-            else:
-                return u"%s is %s, was %s." % (Port.spec_to_string(self.spec), self.b_state, self.a_state)
-        else:
-            assert False
+        raise Exception(u"The to_string method must be overridden.")
 
     def to_dom_fragment(self, document):
         """Return an XML DocumentFragment representation of this hunk."""
+        raise Exception(u"The to_dom_fragment method must be overridden.")
+
+class HostStateChangeHunk(DiffHunk):
+    def __init__(self, a_state, b_state):
+        self.a_state = a_state
+        self.b_state = b_state
+
+    def to_string(self):
+        return u"Host is %s, was %s." % (self.b_state, self.a_state)
+
+    def to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
-        if self.type == HOST_STATE_CHANGE:
-            elem = document.createElement(u"host-state-change")
-            elem.setAttribute(u"a-state", self.a_state)
-            elem.setAttribute(u"b-state", self.b_state)
-            frag.appendChild(elem)
-        elif self.type == HOST_ADDRESS_ADD:
-            elem = document.createElement(u"host-address-add")
-            frag.appendChild(elem)
-            address_elem = document.createElement("address")
-            address_elem.setAttribute(u"addrtype", self.address_type)
-            address_elem.setAttribute(u"addr", self.address)
-            elem.appendChild(address_elem)
-        elif self.type == HOST_ADDRESS_REMOVE:
-            elem = document.createElement(u"host-address-remove")
-            frag.appendChild(elem)
-            address_elem = document.createElement("address")
-            address_elem.setAttribute(u"addrtype", self.address_type)
-            address_elem.setAttribute(u"addr", self.address)
-            elem.appendChild(address_elem)
-        elif self.type == HOST_HOSTNAME_ADD:
-            elem = document.createElement(u"host-hostname-add")
-            frag.appendChild(elem)
-            address_elem = document.createElement("hostname")
-            address_elem.setAttribute(u"name", self.hostname)
-            elem.appendChild(address_elem)
-        elif self.type == HOST_HOSTNAME_REMOVE:
-            elem = document.createElement(u"host-hostname-remove")
-            frag.appendChild(elem)
-            address_elem = document.createElement("hostname")
-            address_elem.setAttribute(u"name", self.hostname)
-            elem.appendChild(address_elem)
-        elif self.type == PORT_ID_CHANGE:
-            elem = document.createElement(u"port-id-change")
-            elem.setAttribute(u"a-portid", unicode(self.a_spec[0]))
-            elem.setAttribute(u"a-protocol", self.a_spec[1])
-            elem.setAttribute(u"b-portid", unicode(self.b_spec[0]))
-            elem.setAttribute(u"b-protocol", self.b_spec[1])
-            frag.appendChild(elem)
-        elif self.type == PORT_STATE_CHANGE:
-            elem = document.createElement(u"port-state-change")
-            elem.setAttribute(u"portid", unicode(self.spec[0]))
-            elem.setAttribute(u"protocol", self.spec[1])
-            elem.setAttribute(u"a-state", self.a_state)
-            elem.setAttribute(u"b-state", self.b_state)
-            frag.appendChild(elem)
-        else:
-            assert False
+        elem = document.createElement(u"host-state-change")
+        elem.setAttribute(u"a-state", self.a_state)
+        elem.setAttribute(u"b-state", self.b_state)
+        frag.appendChild(elem)
         return frag
 
+class HostAddressAddHunk(DiffHunk):
+    def __init__(self, address_type, address):
+        self.address_type = address_type
+        self.address = address
+
+    def to_string(self):
+        return u"Add %s address %s." % (self.address_type, self.address)
+
+    def to_dom_fragment(self, document):
+        frag = document.createDocumentFragment()
+        elem = document.createElement(u"host-address-add")
+        frag.appendChild(elem)
+        address_elem = document.createElement(u"address")
+        address_elem.setAttribute(u"addrtype", self.address_type)
+        address_elem.setAttribute(u"addr", self.address)
+        elem.appendChild(address_elem)
+        return frag
+
+class HostAddressRemoveHunk(DiffHunk):
+    def __init__(self, address_type, address):
+        self.address_type = address_type
+        self.address = address
+
+    def to_string(self):
+        return u"Remove %s address %s." % (self.address_type, self.address)
+
+    def to_dom_fragment(self, document):
+        frag = document.createDocumentFragment()
+        elem = document.createElement(u"host-address-remove")
+        frag.appendChild(elem)
+        address_elem = document.createElement(u"address")
+        address_elem.setAttribute(u"addrtype", self.address_type)
+        address_elem.setAttribute(u"addr", self.address)
+        elem.appendChild(address_elem)
+        return frag
+
+class HostHostnameAddHunk(DiffHunk):
+    def __init__(self, hostname):
+        self.hostname = hostname
+
+    def to_string(self):
+        return u"Add hostname %s." % self.hostname
+
+    def to_dom_fragment(self, document):
+        frag = document.createDocumentFragment()
+        elem = document.createElement(u"host-hostname-add")
+        frag.appendChild(elem)
+        address_elem = document.createElement(u"hostname")
+        address_elem.setAttribute(u"name", self.hostname)
+        elem.appendChild(address_elem)
+        return frag
+
+class HostHostnameRemoveHunk(DiffHunk):
+    def __init__(self, hostname):
+        self.hostname = hostname
+
+    def to_string(self):
+        return u"Remove hostname %s." % self.hostname
+
+    def to_dom_fragment(self, document):
+        frag = document.createDocumentFragment()
+        elem = document.createElement(u"host-hostname-remove")
+        frag.appendChild(elem)
+        address_elem = document.createElement("hostname")
+        address_elem.setAttribute(u"name", self.hostname)
+        elem.appendChild(address_elem)
+        return frag
+
+class PortIdChangeHunk(DiffHunk):
+    def __init__(self, a_spec, b_spec):
+        self.a_spec = a_spec
+        self.b_spec = b_spec
+
+    def to_string(self):
+        return u"Service on %s is now running on %s." % (Port.spec_to_string(self.a_spec), Port.spec_to_string(self.b_spec))
+
+    def to_dom_fragment(self, document):
+        frag = document.createDocumentFragment()
+        elem = document.createElement(u"port-id-change")
+        elem.setAttribute(u"a-portid", unicode(self.a_spec[0]))
+        elem.setAttribute(u"a-protocol", self.a_spec[1])
+        elem.setAttribute(u"b-portid", unicode(self.b_spec[0]))
+        elem.setAttribute(u"b-protocol", self.b_spec[1])
+        frag.appendChild(elem)
+        return frag
+
+class PortStateChangeHunk(DiffHunk):
+    def __init__(self, spec, a_state, b_state):
+        self.spec = spec
+        self.a_state = a_state
+        self.b_state = b_state
+
+    def to_string(self):
+        if self.a_state == Port.UNKNOWN:
+            return u"%s is %s." % (Port.spec_to_string(self.spec), self.b_state)
+        else:
+            return u"%s is %s, was %s." % (Port.spec_to_string(self.spec), self.b_state, self.a_state)
+
+    def to_dom_fragment(self, document):
+        frag = document.createDocumentFragment()
+        elem = document.createElement(u"port-state-change")
+        elem.setAttribute(u"portid", unicode(self.spec[0]))
+        elem.setAttribute(u"protocol", self.spec[1])
+        elem.setAttribute(u"a-state", self.a_state)
+        elem.setAttribute(u"b-state", self.b_state)
+        frag.appendChild(elem)
+        return frag
+
+
 def partition_port_state_changes(diff):
-    """Partition a list of PORT_STATE_CHANGE diff hunks into equivalence classes
+    """Partition a list of PortStateChangeHunks into equivalence classes
     based on the tuple (protocol, a_state, b_state). The partition is returned
     as a list of lists of hunks."""
     transitions = {}
     for hunk in diff:
-        if hunk.type != PORT_STATE_CHANGE:
+        if not isinstance(hunk, PortStateChangeHunk):
             continue
         a_state = hunk.a_state
         b_state = hunk.b_state
@@ -277,7 +332,7 @@ def partition_port_state_changes(diff):
     return transitions.values()
 
 def consolidate_port_state_changes(diff, threshold = 0):
-    """Return a list of list of PORT_STATE_CHANGE diff hunks, where each list
+    """Return a list of list of PortStateChangeHunks, where each list
     contains hunks with the same partition and state change. A group of hunks is
     returned in the list of lists only when its length exceeds threshold. Any
     hunks moved to the list of lists are removed from diff in place. This is to
@@ -371,15 +426,10 @@ def port_diff(a, b):
     """Diff two Ports. The return value is a list of DiffHunks."""
     diff = []
     if a.spec != b.spec:
-        hunk = DiffHunk(PORT_ID_CHANGE)
-        hunk.a_spec = a.spec
-        hunk.b_spec = b.spec
+        hunk = PortIdChangeHunk(a.spec, b.spec)
         diff.append(hunk)
     if a.state != b.state:
-        hunk = DiffHunk(PORT_STATE_CHANGE)
-        hunk.spec = b.spec
-        hunk.a_state = a.state
-        hunk.b_state = b.state
+        hunk = PortStateChangeHunk(b.spec, a.state, b.state)
         diff.append(hunk)
     return diff
 
@@ -389,14 +439,10 @@ def addresses_diff(a, b):
     a_addresses = set(a)
     b_addresses = set(b)
     for addrtype, addr in a_addresses - b_addresses:
-        hunk = DiffHunk(HOST_ADDRESS_REMOVE)
-        hunk.address_type = addrtype
-        hunk.address = addr
+        hunk = HostAddressRemoveHunk(addrtype, addr)
         diff.append(hunk)
     for addrtype, addr in b_addresses - a_addresses:
-        hunk = DiffHunk(HOST_ADDRESS_ADD)
-        hunk.address_type = addrtype
-        hunk.address = addr
+        hunk = HostAddressAddHunk(addrtype, addr)
         diff.append(hunk)
     return diff
 
@@ -407,12 +453,10 @@ def hostnames_diff(a, b):
     b_hostnames = set(b)
 
     for hostname in a_hostnames - b_hostnames:
-        hunk = DiffHunk(HOST_HOSTNAME_REMOVE)
-        hunk.hostname = hostname
+        hunk = HostHostnameRemoveHunk(hostname)
         diff.append(hunk)
     for hostname in b_hostnames - a_hostnames:
-        hunk = DiffHunk(HOST_HOSTNAME_ADD)
-        hunk.hostname = hostname
+        hunk = HostHostnameAddHunk(hostname)
         diff.append(hunk)
     return diff
 
@@ -420,10 +464,7 @@ def host_diff(a, b):
     """Diff two Hosts. The return value is a list of DiffHunks."""
     diff = []
     if a.state != b.state:
-        hunk = DiffHunk(HOST_STATE_CHANGE)
-        hunk.id = a.get_id()
-        hunk.a_state = a.state
-        hunk.b_state = b.state
+        hunk = HostStateChangeHunk(a.state, b.state)
         diff.append(hunk)
 
     diff.extend(addresses_diff(a.addresses, b.addresses))
