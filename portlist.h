@@ -166,8 +166,8 @@ struct serviceDeductions {
   const char *devicetype;
   // SERVICE_TUNNEL_NONE or SERVICE_TUNNEL_SSL
   enum service_tunnel_type service_tunnel; 
-  // This is the combined version of the three fields above.  It will be 
-  // zero length if unavailable.
+  // This is a combined representation of product, version, and extrainfo.
+  // It will be zero length if unavailable.
   char fullversion[128];
   // if we should give the user a service fingerprint to submit, here it is.  Otherwise NULL.
   const char *service_fp; 
