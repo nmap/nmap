@@ -31,6 +31,16 @@ o Prepare for Summer of Code
   o Decide which applicants we want, and who would be best for
     mentoring them.
 
+o When I start ncat chat with this tcsh command:
+  ncat -l --chat scanme.nmap.org < /dev/null >& /dev/null &
+  The first client to connect to the chat becomes user0 and doesn't
+  work quite right.  Messages user0 type get transmitted to other
+  clients, but user0 does not see their messages.  Nore does user0 get
+  the normal connection announcement upon connecting.  If I quit
+  user0, the next client to connect becomes user0 again and has the
+  same problem.  If I start ncat on the server with "ncat -l --chat
+  scanme.nmap.org" (no redirection), other clients can connect with no problems.
+
 o Ncat verbose mode (-v) should probably only give important messages,
   such as perhaps a message once you connect successfully to a port,
   or a message if the connection attempt times out.  An Ncat version
