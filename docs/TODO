@@ -1,33 +1,26 @@
 MTODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o [Ncat] --chat should probably only allow reasonable chars, to avoid
-  cntrl-chars, etc.
+o [Ncat] Wouldn't it be nice if we could support --exec (and maybe
+  some sort of partial-emulated --sh-exec) on Windows? [David]
+  o Almost working!  We found some problems with "ncat.exe -v -l
+  --sh-exec "ncat -v scanme.nmap.org"
+
+o Nmap 4.85BETA4 release [Fyodor]
+
+o [Ndiff] Maybe Ndiff should display changes to version detection and
+  OS detection information? [David]
+
+o SoC ideas page [Fyodor]
 
 o Ncat --chat should probably announce to everyone (including the new
   person) when someone connects.  This tells the new person their
   username, and lets everyone else know about the new connection. [David]
-
-o [Ncat] As SSL server it should not crash when someone connects in
-  w/o SSL and does ^C.  When David tried it during our chat, the ncat
-  servr "ncat --broker --ssl-key test-key.pem --ssl-cert test-cert.pem
-  --ssl --chat -l"  crashed with: SSL_accept():
-  error:00000000:lib(0):func(0):reason(0).  Also, when a Windows SSL
-  clients joined and then left, the server died with "Broken pipe
-
-o [Ncat] Defensive coding review of Ncat --chat (talk)
-
-o [Ncat] Wouldn't it be nice if we could support --exec (and maybe
-  some sort of partial-emulated --sh-exec) on Windows? [David]
+  o We should also tell the new person (and possibly everyone on the
+   channel) the list of existing participants.
 
 o [Ncat] When acting as an HTTP proxy, we should support GET mode as
   well as CONNECT so that it works as a non-SSL proxy in browsers such
   as firefox.
-
-o [Ndiff] Maybe Ndiff should display changes to version detection and
-  OS detection information?
-
-o NSE memory issues (and gh_list assert failure) [David]
-  o See this thread: http://seclists.org/nmap-dev/2009/q1/0532.html
 
 o Prepare for Summer of Code
   o Brainstorm for ideas
@@ -38,26 +31,13 @@ o Prepare for Summer of Code
   o Decide which applicants we want, and who would be best for
     mentoring them.
 
-o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
-
-o [Ncat] We should consider a way for people to choose
-  usernames in --chat.  
-
-o Figure out and document (in at least the Ncat user's guide) the best way to use Ncat for chaining
-  through proxies.  One option is this sort of thing:
-  ncat -l localhost 1234 --sh-exec "ncat --proxy A.A.A.A B.B.B.B"
-  ncat --proxy localhost:1234 C.C.C.C
-  If you had two proxies A.A.A.A and B.B.B.B, connecting to C.C.C.C.
-  With another listener/--sh-exec pair for each additional proxy.
-  But perhaps we can make it easier by adding it to the syntax.
-
 o Ncat verbose mode (-v) should probably only give important messages,
   such as perhaps a message once you connect successfully to a port,
   or a message if the connection attempt times out.  An Ncat version
   banner (with URL) like Nmap has might be warranted (in verbose
   mode).  Currently, Ncat floods you with (mostly) useless debugging
   information like this with a single -v (this output, on the other
-  hand, might be useful for a debugging option):
+  hand, might be useful for a debugging option): [David]
   # ncat -C -v scanme.nmap.org 80
   NSOCK (0.0000s) TCP connection requested to 64.13.134.52:80 (IOD #1) EID 8
   NSOCK (0.0200s) Callback: CONNECT SUCCESS for EID 8 [64.13.134.52:80]
@@ -75,10 +55,30 @@ o Ncat verbose mode (-v) should probably only give important messages,
   Connection to scanme.nmap.org 80 port [tcp/http] succeeded!
   GET / HTTP/1.0
 
+o Add version detection signiture for Ncat chat once we finalize the
+  announce format.
+
+o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
+
+o NSE memory issues (and gh_list assert failure) [David]
+  o See this thread: http://seclists.org/nmap-dev/2009/q1/0532.html
+
 o [Ncat] Why does Ncat require enclosure in a while loop to answer
   repeated UDP queries, but not TCP?  For example, see the "Emulating
   Diagnostic Services" section of the Ncat user's guide.
   o Note: http://seclists.org/nmap-dev/2009/q1/0133.html
+
+o [Ncat] We should (maybe) consider a way for people to choose
+  usernames in --chat.  
+
+o Figure out and document (in at least the Ncat user's guide) the best
+  way to use Ncat for chaining through proxies.  One option is this
+  sort of thing:
+  ncat -l localhost 1234 --sh-exec "ncat --proxy A.A.A.A B.B.B.B"
+  ncat --proxy localhost:1234 C.C.C.C
+  If you had two proxies A.A.A.A and B.B.B.B, connecting to C.C.C.C.
+  With another listener/--sh-exec pair for each additional proxy.
+  But perhaps we can make it easier by adding it to the syntax.
 
 o Consider converting this file to emacs org-mode
   (http://orgmode.org/) format. [Fyodor]
@@ -126,9 +126,6 @@ o With --version-trace (may be a problem with other uses of nsock
   NSOCK (22.3570s) wait_for_events
   [Goes on for pages]
 
-o [Ncat] Can we use it as an IPv4 <-> IPv6 gateway?  If so (or if we
-  can add it), it should be added to the ncat guide feature list.
-
 o [Ncat] The sys_wrap.c/.h code contains a whole bunch of capitalized
   versions of system calls (Fork(), Socket(), Sscanf(), etc.) which
   are mostly the same as the standard version except that they cause
@@ -147,25 +144,6 @@ o [Ncat] The sys_wrap.c/.h code contains a whole bunch of capitalized
   extent possible.  But we need to remember to add error detection to
   the callers where necessary rather than blindly switching from
   (e.g.) Connect() to connect(). [Kris or David]
-
-o [Ncat] We should probably make it work without OpenSSL.  When I try
-  ./configure --without-openssl on latest svn Nmap, Ncat build fails
-  with:
-       gcc -MM -I../libpcap -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -I. -I.. -I../nsock/include/ -I../nbase ncat_main.c ncat_connect.c ncat_core.c ncat_listen.c ncat_proxy.c ncat_broker.c ncat_hostmatch.c ncat_ssl.c util.c sys_wrap.c > makefile.dep
-       make[2]: Leaving directory `/mondo/fyodor/nmap/ncat'
-       make[2]: Entering directory `/mondo/fyodor/nmap/ncat'
-       gcc -I../libpcap -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -I. -I.. -I../nsock/include/ -I../nbase  -c ncat_main.c -o ncat_main.o
-       ncat_main.c: In function ‘main’:
-       ncat_main.c:536: error: ‘struct options’ has no member named ‘ssl’
-       ncat_main.c: In function ‘ncat_listen_mode’:
-       ncat_main.c:646: error: ‘struct options’ has no member named ‘ssl’
-       ncat_main.c:646: error: ‘struct options’ has no member named ‘sslcert’
-       ncat_main.c:646: error: ‘struct options’ has no member named ‘sslkey’
-       make[2]: *** [ncat_main.o] Error 1
-       make[2]: Leaving directory `/mondo/fyodor/nmap/ncat'
-       make[1]: *** [ncat_build] Error 2
-       make[1]: Leaving directory `/mondo/fyodor/nmap'
-       make: *** [static] Error 2
 
 o Look into whether we should loosen/change the global congestion
   control system to address possible cases of one target host with many
@@ -617,6 +595,41 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [Ncat] Can we use it as an IPv4 <-> IPv6 gateway?  If so (or if we
+  can add it), it should be added to the ncat guide feature list.
+  o Yes, David tried it with --sh-exec and it worked.
+
+o [Ncat] We should probably make it work without OpenSSL.  When I try
+  ./configure --without-openssl on latest svn Nmap, Ncat build fails
+  with:
+       gcc -MM -I../libpcap -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -I. -I.. -I../nsock/include/ -I../nbase ncat_main.c ncat_connect.c ncat_core.c ncat_listen.c ncat_proxy.c ncat_broker.c ncat_hostmatch.c ncat_ssl.c util.c sys_wrap.c > makefile.dep
+       make[2]: Leaving directory `/mondo/fyodor/nmap/ncat'
+       make[2]: Entering directory `/mondo/fyodor/nmap/ncat'
+       gcc -I../libpcap -DHAVE_CONFIG_H -D_FORTIFY_SOURCE=2 -I. -I.. -I../nsock/include/ -I../nbase  -c ncat_main.c -o ncat_main.o
+       ncat_main.c: In function ‘main’:
+       ncat_main.c:536: error: ‘struct options’ has no member named ‘ssl’
+       ncat_main.c: In function ‘ncat_listen_mode’:
+       ncat_main.c:646: error: ‘struct options’ has no member named ‘ssl’
+       ncat_main.c:646: error: ‘struct options’ has no member named ‘sslcert’
+       ncat_main.c:646: error: ‘struct options’ has no member named ‘sslkey’
+       make[2]: *** [ncat_main.o] Error 1
+       make[2]: Leaving directory `/mondo/fyodor/nmap/ncat'
+       make[1]: *** [ncat_build] Error 2
+       make[1]: Leaving directory `/mondo/fyodor/nmap'
+       make: *** [static] Error 2
+
+o [Ncat] Defensive coding review of Ncat --chat (talk)
+
+o [Ncat] As SSL server it should not crash when someone connects in
+  w/o SSL and does ^C.  When David tried it during our chat, the ncat
+  servr "ncat --broker --ssl-key test-key.pem --ssl-cert test-cert.pem
+  --ssl --chat -l"  crashed with: SSL_accept():
+  error:00000000:lib(0):func(0):reason(0).  Also, when a Windows SSL
+  clients joined and then left, the server died with "Broken pipe
+
+o [Ncat] --chat should probably only allow reasonable chars, to avoid
+  cntrl-chars, etc.
 
 o Nmap should treat ports named "unknown" in nmap-services the same
   way (from a naming perspective) as it treats ports which are not
