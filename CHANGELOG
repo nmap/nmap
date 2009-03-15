@@ -136,6 +136,11 @@ o Nmap wins LinuxQuestions.Org Network Security Application of the
   Year for the sixth year in a row! See
   http://seclists.org/nmap-dev/2009/q1/0395.html.
 
+o [Zenmap] Removed some unnecessary (mostly GTK+-related) files from
+  the Windows installer--nmap-4.85BETA4-setup.exe is now smaller than
+  it has ever been since Nmap 4.22SOC6, which was released in August
+  2007! [David]
+
 o Fixed the install-zenmap make target for Solaris portability.
   Solaris /bin/sh does not have test(1) -e. [Daniel Roethlisberger]
 
