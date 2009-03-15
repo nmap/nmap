@@ -34,7 +34,7 @@ winbuild:
 # Install the ndiff batch file wrapper in the zip distribution.
 	cp ../ndiff/ndiff nmap-$(NMAP_VERSION)/ndiff.py
 	cp python-wrap.bat nmap-$(NMAP_VERSION)/ndiff.bat
-	zip nmap-$(NMAP_VERSION)-win32.zip nmap-$(NMAP_VERSION)
+	zip -r nmap-$(NMAP_VERSION)-win32.zip nmap-$(NMAP_VERSION)
 # Remove ndiff.py and ndiff.bat for the installer because it has ndiff.exe.
 	rm -f nmap-$(NMAP_VERSION)/ndiff.py nmap-$(NMAP_VERSION)/ndiff.bat
 	cd ../zenmap && install_scripts/windows/copy_and_compile.bat
