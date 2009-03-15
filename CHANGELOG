@@ -1,36 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [Zenmap] A crash was fixed that would happen when you ran a scan
-  that didn't produce any host output (like "nmap --iflist") and then
-  tried to remove it from the inventory. [David]
-  The crash looked like
-    ValueError: list.remove(x): x not in list
+Nmap 4.85BETA4 [2009-3-15]
 
-o [Ncat] In --chat mode (formerly --talk), the server announces to
-  everyone when someone connects or disconnects. Besides letting you
-  know who's connected, this also informs you of your "user name" as
-  soon as you connect. [David]
-
-o [Ncat] In --chat mode, the server escapes potentially dangerous
-  control characters before sending them to clients. [David]
-
-o [Ncat] The --exec and --sh-exec options now work on Windows. [David]
-
-o [Ncat] Ncat now works interactively on Windows. Before,
-  peculiarities in the way Windows handles reading from the keyboard
-  meant that typing interactively into Ncat would cause it to quit
-  with a write timeout. [David]
-
-o [Ndiff] Added a workaround for a bug in PyXML. The bug would cause a
-  crash that looked like "KeyError: 0". Fyodor reported the error.
-  [David]
-
-o [Zenmap] Fixed a crash when something that looked like a format
-  specifier (like %y) appeared in a profile. The error message was
-    ValueError: unsupported format character 'y' (0x79)
-  [David]
-
-o Added two new SMB/MSRPC scripts:
+o Added two new SMB/MSRPC NSE scripts:
     smb-brute.nse: Bruteforce to discover SMB accounts. Has advanced
        features, such as lockout detection, username validation, 
        username enumeration, and optimized case detection. 
@@ -39,14 +11,97 @@ o Added two new SMB/MSRPC scripts:
        crack them with Rainbow Crack). Pwdump6 files have to be 
        downloaded separately [Ron Bowes]
 
-o Improved operating system support for smb-enum-sessions; previous
-  revisions worked on Windows 2003 or Windows 2000, but never both. 
-  Currently, it is tested and working on both versions.  [Ron Bowes]
+o [Ncat] The --exec and --sh-exec options now work on Windows. This
+  was a big job, considering that Windows doesn't even have a fork()
+  call and has all sorts of socket idiosyncrasies. [David]
 
-o Refactored SMB and MSRPC scripts significantly, moving much of the
-  code into the smb.lua and msrpc.lua modules where it can be leveraged
-  by other scripts. For example, the user enumeration functions are
-  used by smb-brute.nse. [Ron Bowes]
+o Doug performed one of the largest version detection integration runs
+  ever, processing 1,746 submissions and 18 corrections.  We are now
+  current with all submissions up to February 3.  Keep them coming.
+  The version detection database has grown to 5,476 signatures for 510
+  application protocols. Doug posted his notes on the integration at
+  http://hcsw.org/blog.pl/37.  We now have 1,868 http server
+  signatures, and the number of gopher signatures has bumped up from 5
+  to 6.
+
+o Released the new Ncat guide which contains practical real-life Ncat
+  usage examples for Ncat's major features.  It complements the more
+  option-centric man page.  Read it here: http://nmap.org/ncat/guide/
+  [David, Fyodor]
+
+o [Ndiff] Ndiff is now included in the Windows zip distribution. For
+  space reasons, it is not an executable compiled with py2exe as in
+  the executable installer, rather it is the Ndiff source code
+  (ndiff.py) and a batch file wrapper (ndiff.bat). Because it's not
+  precompiled, it's necessary to have a Python interpreter
+  installed. [David]
+
+o The new --stats-every option takes a time interval that controls how
+  often timing status updates are printed. It's intended to be used
+  when Nmap is run by another program as a subprocess. Thanks to
+  Aleksandar Petrinic for the initial implementation. [David]
+
+o [NSE] A new function stdnse.sleep allows a script to sleep for a
+  given time (and yield control to other scripts). [David]
+
+o [Ncat] In --chat mode (formerly --talk), the server now announces to
+  everyone when someone connects or disconnects. Besides letting you
+  know who's connected, this also informs you of your "user name" as
+  soon as you connect. [David]
+
+o [Ncat] Ncat now works interactively on Windows. Before,
+  peculiarities in the way Windows handles reading from the keyboard
+  meant that typing interactively into Ncat would cause it to quit
+  with a write timeout. [David]
+
+o Refactored SMB and MSRPC NSE scripts significantly, moving much of
+  the code into the smb.lua and msrpc.lua modules where it can be
+  leveraged by other scripts. For example, the user enumeration
+  functions are used by smb-brute.nse. [Ron Bowes]
+
+o [Ncat] The syntax accepted by the --allow, --deny, --allowfile, and
+  --denyfile options is now the same as Nmap's target specifications.
+  Additionally any errors in the allow or deny specifications are
+  reported when the program starts, not deferred until a connection is
+  received. [David]
+
+o You can now use '-' by itself in a target IP specification to mean
+  0-255, so you could scan 192.168.-.-.  An asterisk can also still be
+  used as an octet wildcard, but then you have to deal with shell
+  escaping on many platforms. [David]
+
+o Nmap was discovered in another movie!  In the Russian film
+  Khottabych, teenage hacker Gena uses Nmap (and telnet) to hack
+  Microsoft.  In response, MS sends a pretty female hacker to flush
+  him out.  More details and screenshots: http://nmap.org/movies.html.
+
+o Improved operating system support for the smb-enum-sessions NSE
+  script; previous revisions worked on Windows 2003 or Windows 2000,
+  but never both.  Currently, it is tested and working on both
+  versions.  [Ron Bowes]
+
+o Implemented file-management functions in SMB, including file upload, 
+  file download, and file delete. Only leverages by smb-pwdump.nse at
+  the moment, these functions give scripts the ability to perform 
+  checks against the filesystem of a server. [Ron Bowes]
+
+o [Zenmap] A crash was fixed that occurred when you ran a scan
+  that didn't produce any host output (like "nmap --iflist") and then
+  tried to remove it from the inventory. [David]
+  The crash looked like
+    ValueError: list.remove(x): x not in list
+
+o [Ncat] In --chat mode, the server escapes potentially dangerous
+  control characters (in octal) before sending them to
+  clients. [David]
+
+o [Ndiff] Added a workaround for a bug in PyXML. The bug would cause a
+  crash that looked like "KeyError: 0". [David]
+
+o [Zenmap] Fixed a crash when something that looked like a format
+  specifier (like %y) appeared in a profile. The error message was
+    ValueError: unsupported format character 'y' (0x79)
+  [David]
 
 o Added bindings for the service control (SVCCTL) and at service (ATSVC)
   services. These are both related to running processes on the remote 
@@ -63,14 +118,16 @@ o Added message signing to SMB. Connections will no longer fail if the
   smb.lua will negotiate signing. This improves security by preventing
   man in the middle attacks. [Ron Bowes]
 
-o Implemented extended security negotiations in SMB. Creates no 
-  noticeable change from the user's perspective, but it's a more modern
-  protocol. [Ron Bowes]
+o Fixed the daytime.nse script to work for UDP again (it was checking
+  a "proto" field when the field name is actually "protocol"). [Jah]
 
-o Implemetned file-management functions in SMB, including file upload, 
-  file download, and file delete. Only leverages by smb-pwdump.nse at
-  the moment, these functions give scripts the ability to perform 
-  checks against the filesystem of a server. [Ron Bowes]
+o Implemented extended security negotiations in the NSE SMB
+  module. Creates no noticeable change from the user's perspective,
+  but it's a more modern protocol. [Ron Bowes]
+
+o Nmap wins LinuxQuestions.Org Network Security Application of the
+  Year for the sixth year in a row! See
+  http://seclists.org/nmap-dev/2009/q1/0395.html.
 
 o Fixed the install-zenmap make target for Solaris portability.
   Solaris /bin/sh does not have test(1) -e. [Daniel Roethlisberger]
@@ -84,37 +141,24 @@ o Version detection used to omit the "ssl/" service name prefix if an
 o [Ncat] The --talk option has been renamed --chat. --talk remains as an
   undocumented alias.
 
-o There is a new OS detection test called SEQ.CI. Like TI and II, CI
+o There is a new OS detection test named SEQ.CI. Like TI and II, CI
   classifies the target's IP ID sequence generation algorithm. CI is
   based on the responses received to the probes sent to a closed port.
   The algorithm for closed ports has been observed to differ from that
-  for open ports, though for what operating systems this happens is
-  not yet known. The new test won't have an effect until new
-  fingerprints containing it are added to nmap-os-db. Dario Ciccarone
-  suggested this enhancement. [David]
+  for open ports on some operating systems (though we don't yet know
+  which ones).  The new test won't have an effect until new
+  fingerprints containing it are added to nmap-os-db. We got the idea
+  from some notes sent in by Dario Ciccarone. [David,Fyodor]
 
 o OS fingerprints now include the SEQ.II test (ICMP IP ID sequence
-  generation) even if there are no other SEQ test results. [David]
-
-o The new --stats-every option takes a time interval that controls how
-  often timing status updates are printed. It's intended to be used
-  when Nmap is run by another program as a subprocess. Thanks to
-  Aleksandar Petrinic for the initial implementation. [David]
-
-o [NSE] A new function stdnse.sleep allows a script to sleep for a
-  given time (and yield control to other scripts). [David]
-
-o [Ncat] The syntax accepted by the --allow, --deny, --allowfile, and
-  --denyfile options is now the same as Nmap's target specifications.
-  Additionally any errors in the allow or deny specifications are
-  reported when the program starts, not deferred until a connection is
-  received. [David]
+  generation) even if there are no other SEQ test results. The
+  previous omission of SEQ.II in that case was a bug. [David]
 
 o [Ncat] The --send-only and --recv-only options now work in listen
   mode as well as connect mode. [David]
 
-o [Ncat] An error in formatting bytes with the high bit set in hex dump output
-  was fixed. [David]
+o [Ncat] An error in formatting bytes with the high bit set in hex
+  dump output was fixed. [David]
 
 o [Zenmap] New translation: Croatian (contributed by Vlatko Kosturjak).
 
@@ -125,36 +169,46 @@ o Fixed a DNS decoding bug in dns-zone-transfer.nse that created
   Thanks to Anino Belan and Eric Nickel for sending in affected log
   files. [David]
 
-o Nmap was discovered in another movie!  In the Russian film
-  Khottabych, teenage hacker Gena uses Nmap (and telnet) to hack
-  Microsoft.  In response, MS sends a pretty female hacker to flush
-  him out.  More details and screenshots: http://nmap.org/movies.html.
-
 o [NSEDoc] Scripts that use modules automatically have the script
   arguments defined by those modules included in their documentation.
   It's no longer necessary to manually supply @args for the arguments
-  in the modules you use. [David]
-
-o Nmap wins LinuxQuestions.Org Network Security Application of the
-  Year for the sixth year in a row! See
-  http://seclists.org/nmap-dev/2009/q1/0395.html.
+  in the modules you use. For those who haven't seen the NSEDoc portal
+  yet, check out http://nmap.org/nsedoc/. [David]
 
 o An integer overflow in the scan progress meter was fixed. It caused
   nonsense output like
     UDP Scan Timing: About 11.34% done; ETC: 03:21 (-688:-41:-48 remaining)
   during very long scans. [Henri Doreau]
 
-o [Ndiff] Ndiff is now included in the Windows zip distribution. For
-  space reasons, it is not an executable compiled with py2exe as in
-  the executable installer, rather it is the Ndiff source code
-  (ndiff.py) and a batch file wrapper (ndiff.bat). Because it's not
-  precompiled, it's necessary to have a Python interpreter
-  installed. [David]
-
 o [Zenmap] A better method of detecting the system locale is used, so
   it should not be necessary to set the LANG environment variable on
   Windows to get internationalized text. Thanks to Dirk Loss for the
   suggestion. [David]
+
+o [Ncat] Added a number of automated tests for ensuring that Ncat is
+  working correctly.  They are in /ncat/test in SVN. [David]
+
+o [Ncat] Now builds again when using the --without-openssl
+  option. [David]
+
+o [Zenmap] Fix auto-scroll behavior while Nmap is producing output, as
+  that previously failed in some cases involving wide lines in
+  output. [David]
+
+o [Zenmap] The network topology feature (Radialnet) has been
+  internationalized so its strings will be localized as well (as soon
+  as the relevant language's translation files are updated.  To help
+  out, see http://nmap.org/book/zenmap-lang.html. Some remaining search
+  interface elements were internationalized as well. [David]
+
+o Improved the efficiency of the xml_convert() routine which handles
+  XML escaping.  It was so inefficient that this stupid little routine
+  was noticeably slowing Nmap down in some cases. [David]
+
+o Removed 9 OS detection device types which only had one or two
+  instances in our whole database (ATM, TV, oscilloscope, etc.) and
+  made some other cleanups as well. We plan to enhance this even
+  further for the next release. [Fyodor,David,Doug]
 
 o [Zenmap] Removed some unnecessary GTK+ files from the files
   installed by the Windows executable installer. [David]
@@ -167,6 +221,14 @@ o [Zenmap] Tweaked the file format of the topology icons
     GError: Couldn't recognize the image file format for file 'radialnet/padlock.png'
   Thanks to Trevor Bain for a report and help debugging. [David]
 
+o Removed a bunch of unnecessary files (mostly GTK related) from the
+  Win32 exe installer to reduce its size. [David]
+
+o Fixed an NSE crash (assertion error) which looked like
+  "nsock_core.c:293: handle_connect_result: Assertion `0'
+  failed". Brandon reported the bug, which was fixed by Doug and
+  David.  See http://seclists.org/nmap-dev/2009/q1/0546.html.
+
 Nmap 4.85BETA3 [2009-2-2]
 
 o Revert the temporary GTK DLL workaround (r11899) which added
@@ -178,7 +240,7 @@ o Revert the temporary GTK DLL workaround (r11899) which added
 o The conditions for printing OS fingerprints to XML output are now
   the same as are used to decide whether to print them in the other
   formats. So they will be printed if submission is desirable,
-  otherwise they are only printed if debuging is enabled or verbosity
+  otherwise they are only printed if debugging is enabled or verbosity
   is 2 or higher. [Tom Sellers]
 
 o Removed some Brazilian poetry/lyrics from Zenmap source code
@@ -196,7 +258,7 @@ o [Zenmap] Fixed a crash that happened when running a scan directly
       self.ops.target_specs = target.split()
     AttributeError: 'NoneType' object has no attribute 'split'
 
-o Fied an NSE pop3 library error which gave a message such as:
+o Fixed an NSE pop3 library error which gave a message such as:
   SCRIPT ENGINE (506.424s): ./scripts/pop3-capabilities.nse against
   a.b.1.47:995 ended with error: ./scripts/pop3-capabilities.nse:32:
   bad argument #1 to 'pairs' (table expected, got string) [Jah]
