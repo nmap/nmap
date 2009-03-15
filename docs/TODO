@@ -208,7 +208,6 @@ o Ping scans always seem to say "0 [hosts] undergoing Ping Scan" when
   Stats: 0:03:28 elapsed; 4096 hosts completed (284 up), 0 undergoing Ping Scan
   Ping Scan Timing: About 3.06% done; ETC: 22:44 (0:03:07 remaining)
 
-
 o Make Zenmap settings get upgraded when the Zenmap executable is
   upgraded. The per-user configuration files such as scan_profile.usp
   and zenmap.conf are never overwritten once installed by Zenmap, so
@@ -219,10 +218,11 @@ o Make Zenmap settings get upgraded when the Zenmap executable is
   users (like highlighting) or updating the per-user files at startup
   (only those parts that haven't been changed by the user).
 
-o [Ndiff] Rethink the output format. In particular, I would like to
-  always have the old state on the left and the new state on the
-  right: "was filtered, is open," not "is open, was filtered." I also
-  like the context diff output of MadHat's nmap-diff. [David]
+o [Ndiff] Rethink the output format. David says: In particular, I
+  would like to always have the old state on the left and the new
+  state on the right: "was filtered, is open," not "is open, was
+  filtered." I also like the context diff output of MadHat's
+  nmap-diff. [David]
 
 o [Ncat] Consider supporting server certificate verification when used
   in client SSL mode.
@@ -422,7 +422,7 @@ o Nmaprc-related - Create a system to store Nmap defaults/preferences
     relocateable rpm.
   o Make RPM relocatable (requires somehow avoiding storing paths in the
     binary)
-  o Perhaps Lua could be used for the TODO?
+  o Perhaps Lua could be used as the format?
   o .nmaprc for keeping defaults, etc.
     o Nmaprc infrastructure, hook to new timing variables
     o Nmaprc man page
@@ -436,7 +436,7 @@ o Nmaprc-related - Create a system to store Nmap defaults/preferences
 o Search for nmap on google news, on google web, and add appropriate
   links to press page and the like.
 
-o Maybe nping -- like hping2 but uses Nmap infrastructure and to a
+o Maybe nping -- like hping3 but uses Nmap infrastructure and to a
   large degree the same command-line options as Nmap.
 
 o Think about Nmap or NSE http framework.  Scanning http paths to see
@@ -573,7 +573,6 @@ o Proxy scan through
     > I use code from this to check the IP's with 'open' socks ports for
     > insecurity (I had to tinker with it a bit to make it work like i wanted,
     > the command line "bopchecker" seems to work well.
-
 
 o perhaps each 'match' line in nmap-service-probes should have a
   maximum lines, bytes, and/or time by which a response should be
