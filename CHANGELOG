@@ -102,6 +102,14 @@ o [Zenmap] Fixed a crash when something that looked like a format
     ValueError: unsupported format character 'y' (0x79)
   [David]
 
+o A bug was fixed in route finding on BSD Unix. The libdnet function
+  addr_stob didn't handle the special case of the sa_len member of
+  struct sockaddr being equal to 0 and accessed unrelated memory past
+  the end of the sockaddr. A symptom of this was the fatal error
+    nexthost: failed to determine route to ...
+  which was caused by the default route being assigned a netmask other
+  than 0.0.0.0. [David]
+
 o Added bindings for the service control (SVCCTL) and at service (ATSVC)
   services. These are both related to running processes on the remote 
   system (identical to how PsExec-style scripts work). These bindings

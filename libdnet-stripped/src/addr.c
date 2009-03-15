@@ -385,11 +385,17 @@ addr_stob(const struct sockaddr *sa, uint16_t *bits)
 	} else
 #endif
 	{
-#ifdef HAVE_SOCKADDR_SA_LEN
-		if ((len = sa->sa_len - IP_ADDR_LEN) > IP_ADDR_LEN)
-#endif
-		len = IP_ADDR_LEN;
 		p = (u_char *)&so->sin.sin_addr.s_addr;
+#ifdef HAVE_SOCKADDR_SA_LEN
+		len = sa->sa_len - ((void *) p - (void *) sa);
+		/* Handles the special case of sa->sa_len == 0. */
+		if (len < 0)
+			len = 0;
+		else if (len > IP_ADDR_LEN)
+			len = IP_ADDR_LEN;
+#else
+		len = IP_ADDR_LEN;
+#endif
 	}
 	for (n = i = 0; i < len; i++, n += 8) {
 		if (p[i] != 0xff)
