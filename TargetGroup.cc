@@ -186,8 +186,12 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
     addy[0] = r = hostexp;
     /* First we break the expression up into the four parts of the IP address
        + the optional '/mask' */
-    target_net = strtok(hostexp, "/");
-    s = strtok(NULL, "");    /* find the end of the token from hostexp */
+    target_net = hostexp;
+    s = strchr(hostexp, '/'); /* Find the slash if there is one */
+    if (s) {
+      *s = '\0';  /* Make sure target_net is terminated before the /## */
+      s++; /* Point s at the netmask */
+    }
     netmask  = ( s ) ? atoi(s) : 32;
     if ((int) netmask < 0 || netmask > 32) {
       error("Illegal netmask value (%d), must be /0 - /32 .  Assuming /32 (one host)", netmask);

@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a strtok issue between load_exclude and
+  TargetGroup::parse_expr that caused only the first exclude on
+  a line to be loaded as well as an invalid read into free()'d
+  memory in load_exclude(). [Brandon, David]
+
 Nmap 4.85BETA4 [2009-3-15]
 
 o Added two new SMB/MSRPC NSE scripts by Ron Bowes:
