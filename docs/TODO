@@ -1,22 +1,22 @@
 MTODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o [Ncat] Wouldn't it be nice if we could support --exec (and maybe
-  some sort of partial-emulated --sh-exec) on Windows? [David]
-  o Almost working!  We found some problems with "ncat.exe -v -l
-  --sh-exec "ncat -v scanme.nmap.org"
-
-o Nmap 4.85BETA4 release [Fyodor]
+o When I start ncat chat with this tcsh command:
+  ncat -l --chat scanme.nmap.org < /dev/null >& /dev/null &
+  The first client to connect to the chat becomes user0 and doesn't
+  work quite right.  Messages user0 type get transmitted to other
+  clients, but user0 does not see their messages.  Nore does user0 get
+  the normal connection announcement upon connecting.  If I quit
+  user0, the next client to connect becomes user0 again and has the
+  same problem.  If I start ncat on the server with "ncat -l --chat
+  scanme.nmap.org" (no redirection), other clients can connect with no problems.
 
 o [Ndiff] Maybe Ndiff should display changes to version detection and
   OS detection information? [David]
+ o Version detection done, now just needs OS detection.
 
-o SoC ideas page [Fyodor]
-
-o Ncat --chat should probably announce to everyone (including the new
-  person) when someone connects.  This tells the new person their
-  username, and lets everyone else know about the new connection. [David]
-  o We should also tell the new person (and possibly everyone on the
-   channel) the list of existing participants.
+o Ncat chat should bomine the "already connected" user list into one
+  line, like:
+  <announce> already connected: 69.232.238.42 is connected as <user5>, 206.81.65.43 as <user4>, 69.232.238.42 as <user6>
 
 o [Ncat] When acting as an HTTP proxy, we should support GET mode as
   well as CONNECT so that it works as a non-SSL proxy in browsers such
@@ -30,16 +30,6 @@ o Prepare for Summer of Code
   o Evaluate applicants
   o Decide which applicants we want, and who would be best for
     mentoring them.
-
-o When I start ncat chat with this tcsh command:
-  ncat -l --chat scanme.nmap.org < /dev/null >& /dev/null &
-  The first client to connect to the chat becomes user0 and doesn't
-  work quite right.  Messages user0 type get transmitted to other
-  clients, but user0 does not see their messages.  Nore does user0 get
-  the normal connection announcement upon connecting.  If I quit
-  user0, the next client to connect becomes user0 again and has the
-  same problem.  If I start ncat on the server with "ncat -l --chat
-  scanme.nmap.org" (no redirection), other clients can connect with no problems.
 
 o Ncat verbose mode (-v) should probably only give important messages,
   such as perhaps a message once you connect successfully to a port,
@@ -67,6 +57,11 @@ o Ncat verbose mode (-v) should probably only give important messages,
 
 o Add version detection signiture for Ncat chat once we finalize the
   announce format.
+
+o When you do ncat -h, Ncat should probably show the Nmap version
+  number rather than (currently) 0.2.  Also ncat in -v mode should
+  show that same header.
+
 
 o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
 
@@ -604,6 +599,21 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Ncat --chat should probably announce to everyone (including the new
+  person) when someone connects.  This tells the new person their
+  username, and lets everyone else know about the new connection. [David]
+  o We should also tell the new person (and possibly everyone on the
+   channel) the list of existing participants.
+
+o SoC ideas page [Fyodor]
+
+o Nmap 4.85BETA4 release [Fyodor]
+
+o [Ncat] Wouldn't it be nice if we could support --exec (and maybe
+  some sort of partial-emulated --sh-exec) on Windows? [David]
+  o Almost working!  We found some problems with "ncat.exe -v -l
+  --sh-exec "ncat -v scanme.nmap.org"
 
 o [Ncat] Can we use it as an IPv4 <-> IPv6 gateway?  If so (or if we
   can add it), it should be added to the ncat guide feature list.
