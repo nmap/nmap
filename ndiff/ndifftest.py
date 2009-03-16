@@ -77,9 +77,9 @@ class partition_port_state_changes_test(unittest.TestCase):
         for host, h_diff in self.diff:
             partition = partition_port_state_changes(h_diff)
             for group in partition:
-                key = (group[0].spec[1], group[0].a_state, group[0].b_state)
+                key = (group[0].spec[1], group[0].a_port.state, group[0].b_port.state)
                 for hunk in group:
-                    self.assertTrue(key == (hunk.spec[1], hunk.a_state, hunk.b_state))
+                    self.assertTrue(key == (hunk.spec[1], hunk.a_port.state, hunk.b_port.state))
 
 class consolidate_port_state_changes_test(unittest.TestCase):
     """Test the consolidate_port_state_changes function."""
@@ -151,6 +151,34 @@ class port_diff_test(unittest.TestCase):
         diff = port_diff(a, b)
         self.assertTrue(len(diff) > 1)
 
+class service_test(unittest.TestCase):
+    """Test the Service class."""
+    def test_to_string(self):
+        serv = Service()
+        self.assertTrue(serv.to_string() == u"")
+        serv.name = u"ftp"
+        self.assertTrue(serv.to_string() == serv.name)
+
+    def test_version_to_string(self):
+        serv = Service()
+        self.assertTrue(serv.version_to_string() == u"")
+        serv = Service()
+        serv.product = u"FooBar"
+        self.assertTrue(len(serv.version_to_string()) > 0)
+        serv = Service()
+        serv.version = u"1.2.3"
+        self.assertTrue(len(serv.version_to_string()) > 0)
+        serv = Service()
+        serv.extrainfo = u"misconfigured"
+        self.assertTrue(len(serv.version_to_string()) > 0)
+        serv = Service()
+        serv.product = u"FooBar"
+        serv.version = u"1.2.3"
+        # Must match Nmap output.
+        self.assertTrue(serv.version_to_string() == u"%s %s" % (serv.product, serv.version))
+        serv.extrainfo = u"misconfigured"
+        self.assertTrue(serv.version_to_string() == u"%s %s (%s)" % (serv.product, serv.version, serv.extrainfo))
+
 class host_test(unittest.TestCase):
     """Test the Host class."""
     def test_empty(self):
@@ -178,14 +206,26 @@ class host_test(unittest.TestCase):
         spec = (10, "tcp")
         port = h.ports[spec]
         self.assertTrue(port.state == Port.UNKNOWN, "Port state is %s, expected %s." % (port.get_state_string(), "unknown"))
-        h.add_port(spec, "open")
+        h.add_port(Port(spec, "open"))
         self.assertTrue(len(h.get_known_ports()) == 1)
         port = h.ports[spec]
         self.assertTrue(port.state == "open", "Port state is %s, expected %s." % (port.get_state_string(), "open"))
-        h.add_port(spec, "closed")
+        h.add_port(Port(spec, "closed"))
         self.assertTrue(len(h.get_known_ports()) == 1)
         port = h.ports[spec]
         self.assertTrue(port.state == "closed", "Port state is %s, expected %s." % (port.get_state_string(), "closed"))
+
+        spec = (22, "tcp")
+        port = h.ports[spec]
+        self.assertTrue(port.state == Port.UNKNOWN, "Port state is %s, expected %s." % (port.get_state_string(), "unknown"))
+        port = Port(spec)
+        port.state = "open"
+        port.service.name = "ssh"
+        h.add_port(port)
+        self.assertTrue(len(h.get_known_ports()) == 2)
+        port = h.ports[spec]
+        self.assertTrue(port.state == "open", "Port state is %s, expected %s." % (port.get_state_string(), "open"))
+        self.assertTrue(port.service.name == "ssh", "Port service.name is %s, expected %s." % (port.service.name, "ssh"))
 
     def test_swap_ports(self):
         h = Host()
@@ -196,13 +236,13 @@ class host_test(unittest.TestCase):
         self.assertTrue(h.ports[spec_b].state == Port.UNKNOWN)
         self.assertTrue(h.ports[spec_a].spec == spec_a)
         self.assertTrue(h.ports[spec_b].spec == spec_b)
-        h.add_port(spec_a, "open")
+        h.add_port(Port(spec_a, "open"))
         h.swap_ports(spec_a, spec_b)
         self.assertTrue(h.ports[spec_a].state == Port.UNKNOWN)
         self.assertTrue(h.ports[spec_b].state == "open")
         self.assertTrue(h.ports[spec_a].spec == spec_a)
         self.assertTrue(h.ports[spec_b].spec == spec_b)
-        h.add_port(spec_a, "closed")
+        h.add_port(Port(spec_a, "closed"))
         h.swap_ports(spec_a, spec_b)
         self.assertTrue(h.ports[spec_a].state == "open")
         self.assertTrue(h.ports[spec_b].state == "closed")
@@ -227,8 +267,9 @@ def host_apply_diff(host, diff):
             host.swap_ports(hunk.a_spec, hunk.b_spec)
         elif isinstance(hunk, PortStateChangeHunk):
             port = host.ports[hunk.spec]
-            assert port.state == hunk.a_state
-            host.add_port(hunk.spec, hunk.b_state)
+            assert port.state == hunk.a_port.state
+            host.add_port(Port(hunk.spec, hunk.b_port.state))
+            host.ports[hunk.spec].service = hunk.b_port.service
         else:
             assert False
 
@@ -245,8 +286,8 @@ class host_diff_test(unittest.TestCase):
 
     def test_self(self):
         h = Host()
-        h.add_port((10, "tcp"), "open")
-        h.add_port((22, "tcp"), "closed")
+        h.add_port(Port((10, "tcp"), "open"))
+        h.add_port(Port((22, "tcp"), "closed"))
         diff = host_diff(h, h)
         self.assertTrue(len(diff) == 0)
 
@@ -277,8 +318,8 @@ class host_diff_test(unittest.TestCase):
         a = Host()
         b = Host()
         spec = (10, "tcp")
-        a.add_port(spec, "open")
-        b.add_port(spec, "closed")
+        a.add_port(Port(spec, "open"))
+        b.add_port(Port(spec, "closed"))
         diff = host_diff(a, b)
         self.assertTrue(len(diff) > 0)
         for hunk in diff:
@@ -287,7 +328,7 @@ class host_diff_test(unittest.TestCase):
     def test_port_state_change_unknown(self):
         a = Host()
         b = Host()
-        b.add_port((10, "tcp"), "open")
+        b.add_port(Port((10, "tcp"), "open"))
         diff = host_diff(a, b)
         self.assertTrue(len(diff) > 0)
         for hunk in diff:
@@ -300,12 +341,12 @@ class host_diff_test(unittest.TestCase):
     def test_port_state_change_multi(self):
         a = Host()
         b = Host()
-        a.add_port((10, "tcp"), "open")
-        a.add_port((20, "tcp"), "closed")
-        a.add_port((30, "tcp"), "open")
-        b.add_port((10, "tcp"), "open")
-        b.add_port((20, "tcp"), "open")
-        b.add_port((30, "tcp"), "open")
+        a.add_port(Port((10, "tcp"), "open"))
+        a.add_port(Port((20, "tcp"), "closed"))
+        a.add_port(Port((30, "tcp"), "open"))
+        b.add_port(Port((10, "tcp"), "open"))
+        b.add_port(Port((20, "tcp"), "open"))
+        b.add_port(Port((30, "tcp"), "open"))
         diff = host_diff(a, b)
         self.assertTrue(len(diff) > 0)
         for hunk in diff:
@@ -377,12 +418,12 @@ class host_diff_test(unittest.TestCase):
         the hosts become the same."""
         a = Host()
         b = Host()
-        a.add_port((10, "tcp"), "open")
-        a.add_port((20, "tcp"), "closed")
-        a.add_port((40, "udp"), "open|filtered")
-        b.add_port((10, "tcp"), "open")
-        b.add_port((30, "tcp"), "open")
-        a.add_port((40, "udp"), "open")
+        a.add_port(Port((10, "tcp"), "open"))
+        a.add_port(Port((20, "tcp"), "closed"))
+        a.add_port(Port((40, "udp"), "open|filtered"))
+        b.add_port(Port((10, "tcp"), "open"))
+        b.add_port(Port((30, "tcp"), "open"))
+        a.add_port(Port((40, "udp"), "open"))
         a.hostnames = ["a", "localhost"]
         a.hostnames = ["b", "localhost", "b.example.com"]
         diff = host_diff(a, b)

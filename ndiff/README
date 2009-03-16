@@ -22,15 +22,19 @@ Here is a sample of the text output:
 		Host is up, was unknown.
 		Add ipv4 address 10.214.143.33.
 		Add hostname cuvtdnray-504.example.com.
-		3389/tcp is open.
+		+3389/tcp open microsoft-rdp Microsoft Terminal Service
 		999 tcp ports are filtered.
 	scnqxez-842.example.com (10.189.71.117):
 		Remove hostname scnqxez-842.example.com.
 	10.226.19.80:
-		21/tcp is open, was filtered.
-		23/tcp is open, was filtered.
-		80/tcp is open, was filtered.
-		8701/tcp is filtered, was open.
+		-21/tcp filtered  
+		+21/tcp open ftp Netgear broadband router ftpd 1.0
+		-23/tcp filtered  
+		+23/tcp open telnet Netgear broadband router admin telnetd
+		-80/tcp filtered  
+		+80/tcp open http Embedded Allegro RomPager webserver 4.07 UPnP/1.0 (ZyXEL ZyWALL 2)
+		-8701/tcp open unknown 
+		+8701/tcp filtered  
 	ywnleu-108.example.com (10.242.160.155):
 		Host is up, was unknown.
 		Add ipv4 address 10.242.160.155.
@@ -40,7 +44,7 @@ Here is a sample of the text output:
 		Host is unknown, was up.
 		Remove ipv4 address 10.65.53.252.
 		Remove hostname fiyrownc-307.example.com.
-		8089/tcp is unknown, was open.
+		-8089/tcp open upnp Microsoft Windows UPnP
 		999 tcp ports changed state from filtered to unknown.
 
 Here is an abbreviated sample of the XML output:

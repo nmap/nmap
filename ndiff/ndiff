@@ -28,18 +28,19 @@ PORT_STATE_CHANGE_CONSOLIDATION_THRESHOLD = 10
 PORT_STATE_CHANGE_DOUBLE_CONSOLIDATION_CHAR_THRESHOLD = 80
 
 class Port(object):
-    """A single port, consisting of a port specification and a state. A
-    specification, or "spec," is the 2-tuple (number, protocol). So (10, "tcp")
-    corresponds to the port 10/tcp. Port states are strings."""
+    """A single port, consisting of a port specification, a state, and a service
+    version. A specification, or "spec," is the 2-tuple (number, protocol). So
+    (10, "tcp") corresponds to the port 10/tcp. Port states are strings."""
     # This represents an "unknown" port state, the state a port is in when it
     # has not been scanned. It must not compare equal with any real Nmap port
     # state like "open", "closed", etc. For future compatibility's sake, always
     # compare against Port.UNKNOWN, not the literal string "unknown".
     UNKNOWN = "unknown"
 
-    def __init__(self, spec):
+    def __init__(self, spec, state = None):
         self.spec = spec
-        self.state = Port.UNKNOWN
+        self.state = state or Port.UNKNOWN
+        self.service = Service()
 
     def get_state_string(self):
         return Port.state_to_string(self.state)
@@ -65,6 +66,43 @@ class PortDict(dict):
 
     def __len__(self):
         raise ValueError(u"__len__ is not defined for objects of type PortDict.")
+
+class Service(object):
+    """A service version as determined by -sV scan. Also contains the looked-up
+    port name if -sV wasn't used."""
+    def __init__(self):
+        self.name = None
+        self.product = None
+        self.version = None
+        self.extrainfo = None
+        # self.hostname = None
+        # self.ostype = None
+        # self.devicetype = None
+        # self.tunnel = None
+
+    def __eq__(self, other):
+        return self.name == other.name \
+            and self.product == other.product \
+            and self.version == other.version \
+            and self.extrainfo == other.extrainfo
+
+    def to_string(self):
+        """Get a string like in the SERVICE column of Nmap output."""
+        if self.name is None:
+            return u""
+        else:
+            return self.name
+
+    def version_to_string(self):
+        """Get a string like in the VERSION column of Nmap output."""
+        parts = []
+        if self.product is not None:
+            parts.append(self.product)
+        if self.version is not None:
+            parts.append(self.version)
+        if self.extrainfo is not None:
+            parts.append(u"(%s)" % self.extrainfo)
+        return u" ".join(parts)
 
 class Host(object):
     """A single host, with a state (unknown, up, or down), addresses, and a
@@ -112,10 +150,8 @@ class Host(object):
 
         return unicode(id(self))
 
-    def add_port(self, spec, state):
-        """Add a port in the given state."""
-        port = self.ports[spec]
-        port.state = state
+    def add_port(self, port):
+        self.ports[port.spec] = port
 
     def swap_ports(self, spec_a, spec_b):
         """Swap the ports given by the two specs. This is used when a service is
@@ -295,27 +331,47 @@ class PortIdChangeHunk(DiffHunk):
         return frag
 
 class PortStateChangeHunk(DiffHunk):
-    def __init__(self, spec, a_state, b_state):
+    def __init__(self, spec, a_port, b_port):
         self.spec = spec
-        self.a_state = a_state
-        self.b_state = b_state
+        self.a_port = a_port
+        self.b_port = b_port
 
     def to_string(self):
-        if self.a_state == Port.UNKNOWN:
-            return u"%s is %s." % (Port.spec_to_string(self.spec), self.b_state)
-        else:
-            return u"%s is %s, was %s." % (Port.spec_to_string(self.spec), self.b_state, self.a_state)
+        lines = []
+        a_str = u"%s %s" % (self.a_port.service.to_string(), self.a_port.service.version_to_string())
+        b_str = u"%s %s" % (self.b_port.service.to_string(), self.b_port.service.version_to_string())
+        if self.a_port.state != Port.UNKNOWN:
+            lines.append("-%s %s %s" % (Port.spec_to_string(self.a_port.spec), self.a_port.state, a_str))
+        if self.b_port.state != Port.UNKNOWN:
+            lines.append("+%s %s %s" % (Port.spec_to_string(self.b_port.spec), self.b_port.state, b_str))
+        return u"\n".join(lines)
+
+    def service_elem(service, document, name):
+        """Create a service element."""
+        elem = document.createElement(name)
+        if service.name is not None:
+            elem.setAttribute(u"name", service.name)
+        if service.product is not None:
+            elem.setAttribute(u"product", service.product)
+        if service.version is not None:
+            elem.setAttribute(u"version", service.version)
+        if service.extrainfo is not None:
+            elem.setAttribute(u"extrainfo", service.extrainfo)
+        return elem
+    service_elem = staticmethod(service_elem)
 
     def to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
         elem = document.createElement(u"port-state-change")
         elem.setAttribute(u"portid", unicode(self.spec[0]))
         elem.setAttribute(u"protocol", self.spec[1])
-        elem.setAttribute(u"a-state", self.a_state)
-        elem.setAttribute(u"b-state", self.b_state)
+        elem.setAttribute(u"a-state", self.a_port.state)
+        elem.setAttribute(u"b-state", self.b_port.state)
         frag.appendChild(elem)
+        if not self.a_port.service == self.b_port.service:
+            elem.appendChild(self.service_elem(self.a_port.service, document, u"a-service"))
+            elem.appendChild(self.service_elem(self.b_port.service, document, u"b-service"))
         return frag
-
 
 def partition_port_state_changes(diff):
     """Partition a list of PortStateChangeHunks into equivalence classes
@@ -325,8 +381,8 @@ def partition_port_state_changes(diff):
     for hunk in diff:
         if not isinstance(hunk, PortStateChangeHunk):
             continue
-        a_state = hunk.a_state
-        b_state = hunk.b_state
+        a_state = hunk.a_port.state
+        b_state = hunk.b_port.state
         protocol = hunk.spec[1]
         transitions.setdefault((protocol, a_state, b_state), []).append(hunk)
     return transitions.values()
@@ -373,10 +429,10 @@ class ScanDiff(object):
             h_diff_copy = h_diff[:]
             cons_port_state_changes = consolidate_port_state_changes(h_diff_copy, PORT_STATE_CHANGE_CONSOLIDATION_THRESHOLD)
             for hunk in h_diff_copy:
-                print >> f, u"\t" + hunk.to_string();
+                print >> f, u"\n".join(u"\t" + s for s in hunk.to_string().split(u"\n"));
             for group in cons_port_state_changes:
-                a_state = group[0].a_state
-                b_state = group[0].b_state
+                a_state = group[0].a_port.state
+                b_state = group[0].b_port.state
                 protocol = group[0].spec[1]
                 port_list = [hunk.spec[0] for hunk in group]
                 port_list_string = render_port_list(port_list)
@@ -428,8 +484,8 @@ def port_diff(a, b):
     if a.spec != b.spec:
         hunk = PortIdChangeHunk(a.spec, b.spec)
         diff.append(hunk)
-    if a.state != b.state:
-        hunk = PortStateChangeHunk(b.spec, a.state, b.state)
+    if not (a.state == b.state and a.service == b.service):
+        hunk = PortStateChangeHunk(b.spec, a, b)
         diff.append(hunk)
     return diff
 
@@ -558,7 +614,7 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
         self.scanned_ports = {}
         self.current_host = None
         self.current_extraports = []
-        self.current_spec = None
+        self.current_port = None
 
     def parent_element(self):
         """Return the name of the element containing the current one, or None if
@@ -654,17 +710,26 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
             except KeyError:
                 warn(u"port element of host %s missing the \"protocol\" attribute; skipping." % self.current_host.format_name())
                 return
-            self.current_spec = portid, protocol
+            self.current_port = Port((portid, protocol))
         elif name == u"state":
             assert self.parent_element() == u"port"
             assert self.current_host is not None
-            if self.current_spec is None:
+            if self.current_port is None:
                 return
             if not attrs.has_key(u"state"):
-                warn("state element of port %s is missing the \"state\" attribute; assuming \"unknown\"." % Port.spec_to_string(self.current_spec))
+                warn("state element of port %s is missing the \"state\" attribute; assuming \"unknown\"." % Port.spec_to_string(self.current_port.spec))
                 return
-            state = attrs[u"state"]
-            self.current_host.add_port(self.current_spec, state)
+            self.current_port.state = attrs[u"state"]
+            self.current_host.add_port(self.current_port)
+        elif name == u"service":
+            assert self.parent_element() == u"port"
+            assert self.current_host is not None
+            if self.current_port is None:
+                return
+            self.current_port.service.name = attrs.get(u"name")
+            self.current_port.service.product = attrs.get(u"product")
+            self.current_port.service.version = attrs.get(u"version")
+            self.current_port.service.extrainfo = attrs.get(u"extrainfo")
         elif name == u"finished":
             assert self.parent_element() == u"runstats"
             if attrs.has_key(u"time"):
@@ -689,12 +754,12 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
                         if spec in known_specs:
                             continue
                         assert self.current_host.ports[spec].state == Port.UNKNOWN
-                        self.current_host.add_port(spec, extraports_state)
+                        self.current_host.add_port(Port(spec, state = extraports_state))
 
             self.current_host = None
             self.current_extraports = []
         elif name == u"port":
-            self.current_spec = None
+            self.current_port = None
 
 def usage():
     print u"""\
