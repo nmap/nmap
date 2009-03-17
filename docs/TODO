@@ -62,7 +62,6 @@ o When you do ncat -h, Ncat should probably show the Nmap version
   number rather than (currently) 0.2.  Also ncat in -v mode should
   show that same header.
 
-
 o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
 
 o NSE memory issues (and gh_list assert failure) [David]
