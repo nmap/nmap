@@ -233,8 +233,8 @@ int NmapOutputTable::printableSize() {
   // roles then the maximal rowlen needs to be adjusted.
   for(i = 0; i < numRows; i++) {
     cell = getCellAddy(i, 0);
-    if(cell->fullrow && cell->strlength > rowlen)
-      rowlen = cell->strlength;
+    if(cell->fullrow && cell->strlength + 1 > rowlen)
+      rowlen = cell->strlength + 1;  /* Account for the newline with the +1 */
   }
   
   return rowlen * numRows;
