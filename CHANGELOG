@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Ndiff now includes service and OS detection differences. [David]
+
 o Fixed a strtok issue between load_exclude and
   TargetGroup::parse_expr that caused only the first exclude on
   a line to be loaded as well as an invalid read into free()'d

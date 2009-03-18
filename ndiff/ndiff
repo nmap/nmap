@@ -807,7 +807,8 @@ def usage():
     print u"""\
 Usage: %s [option] FILE1 FILE2
 Compare two Nmap XML files and display a list of their differences.
-Differences include host state changes and port state changes.
+Differences include host state changes, port state changes, and changes to
+service and OS detection.
 
   -h, --help     display this help
   -v, --verbose  don't consolidate long port lists into just a count
