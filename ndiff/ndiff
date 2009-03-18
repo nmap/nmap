@@ -119,6 +119,7 @@ class Host(object):
         self.addresses = []
         self.hostnames = []
         self.ports = PortDict()
+        self.os = []
 
     def get_id(self):
         """Return an id that is used to determine if hosts are "the same" across
@@ -730,6 +731,13 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
             self.current_port.service.product = attrs.get(u"product")
             self.current_port.service.version = attrs.get(u"version")
             self.current_port.service.extrainfo = attrs.get(u"extrainfo")
+        elif name == u"osmatch":
+            assert self.parent_element() == u"os"
+            assert self.current_host is not None
+            if not attrs.has_key(u"name"):
+                warn("osmatch element of host %s is missing the \"name\" attribute; skipping." % self.current_host.format_name())
+                return
+            self.current_host.os.append(attrs[u"name"])
         elif name == u"finished":
             assert self.parent_element() == u"runstats"
             if attrs.has_key(u"time"):

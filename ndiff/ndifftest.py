@@ -487,6 +487,13 @@ class scan_test(unittest.TestCase):
         self.assertTrue(len(host.hostnames) == 1)
         self.assertTrue(host.hostnames[0] == u"scanme.nmap.org")
 
+    def test_os(self):
+        """Test that OS information is recorded."""
+        scan = Scan()
+        scan.load_from_file("test-scans/os.xml")
+        host = scan.hosts[0]
+        self.assertTrue(len(host.os) > 0)
+
 # This test is commented out because Nmap XML doesn't store any information
 # about down hosts, not even the fact that they are down. Recovering the list of
 # scanned hosts to infer which ones are down would involve parsing the targets
