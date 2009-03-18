@@ -110,6 +110,18 @@ The host had a hostname in the A scan that it didn't have in the B scan.
 <!ELEMENT host-hostname-remove (hostname)>
 
 <!--
+The host gained an OS in the B scan that it didn't have in the A scan.
+-->
+<!ELEMENT host-os-add EMPTY>
+<!attlist host-os-add name #REQUIRED>
+
+<!--
+The host had an OS in the A scan that it didn't have in the B scan.
+-->
+<!ELEMENT host-os-remove EMPTY>
+<!attlist host-os-remove name #REQUIRED>
+
+<!--
 The services that were running on two ports were swapped between the A
 and B scans. The portid and protocol attributes give the A and B port
 specifications. The portid attributes are just decimal port numbers and

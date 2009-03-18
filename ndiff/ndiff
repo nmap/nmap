@@ -313,6 +313,34 @@ class HostHostnameRemoveHunk(DiffHunk):
         elem.appendChild(address_elem)
         return frag
 
+class HostOsAddHunk(DiffHunk):
+    def __init__(self, os):
+        self.os = os
+
+    def to_string(self):
+        return u"Add OS \"%s\"." % self.os
+
+    def to_dom_fragment(self, document):
+        frag = document.createDocumentFragment()
+        elem = document.createElement(u"host-os-add")
+        elem.setAttribute(u"name", self.os)
+        frag.appendChild(elem)
+        return frag
+
+class HostOsRemoveHunk(DiffHunk):
+    def __init__(self, os):
+        self.os = os
+
+    def to_string(self):
+        return u"Remove OS \"%s\"." % self.os
+
+    def to_dom_fragment(self, document):
+        frag = document.createDocumentFragment()
+        elem = document.createElement(u"host-os-remove")
+        elem.setAttribute(u"name", self.os)
+        frag.appendChild(elem)
+        return frag
+
 class PortIdChangeHunk(DiffHunk):
     def __init__(self, a_spec, b_spec):
         self.a_spec = a_spec
@@ -531,6 +559,12 @@ def host_diff(a, b):
     all_specs.sort()
     for spec in all_specs:
         diff.extend(port_diff(a.ports[spec], b.ports[spec]))
+
+    for os in set(a.os) - set(b.os):
+        diff.append(HostOsRemoveHunk(os))
+    for os in set(b.os) - set(a.os):
+        diff.append(HostOsAddHunk(os))
+
     return diff
 
 def scan_diff(a, b):
