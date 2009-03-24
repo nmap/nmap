@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] The "Scan Output" expanders in the diff window now behave
+  more naturally. Some strange behavior on Windows was noted by Jah.
+  [David]
+
 o [Zenmap] Zenmap no longer shows an error message when running Nmap
   with options that cause a zero-length XML file to be produced (like
   --iflist). [David]
