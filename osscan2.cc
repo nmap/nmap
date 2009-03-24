@@ -1806,10 +1806,9 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
     seq_AVs[avnum].attribute = (char*)"ISR";     
     sprintf(seq_AVs[avnum].value, "%X", (unsigned int) seq_rate);
     avnum++;
-  }
-  else {
-    log_write(LOG_PLAIN,
-			  "Insufficient responses for TCP sequencing (%d), OS detection may be less accurate\n", hss->si.responses);
+  } else if (hss->si.responses > 0) {
+    if (o.debugging)
+      log_write(LOG_PLAIN, "Insufficient responses from %s for TCP sequencing (%d), OS detection may be less accurate\n", hss->target->targetipstr(), hss->si.responses);
   }
 
   /* Now it is time to deal with IPIDs */
