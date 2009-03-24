@@ -214,33 +214,6 @@ void NmapOutputTable::addItemFormatted(unsigned int row,
   }
 }
 
-// Returns the maximum size neccessary to create a printableTable() (the 
-// actual size could be less);
-int NmapOutputTable::printableSize() {
-
-  struct NmapOutputTableCell *cell;
-  int rowlen = 0;
-  unsigned int i;
-
-  for(i = 0; i < numColumns; i++) {
-    rowlen += maxColLen[i]; 
-  }
-
-  /* Add the delimeter between each column, and the final newline */
-  rowlen += numColumns;
-
-  // if one of the fullrow tables is larger than the single column
-  // roles then the maximal rowlen needs to be adjusted.
-  for(i = 0; i < numRows; i++) {
-    cell = getCellAddy(i, 0);
-    if(cell->fullrow && cell->strlength + 1 > rowlen)
-      rowlen = cell->strlength + 1;  /* Account for the newline with the +1 */
-  }
-  
-  return rowlen * numRows;
-
-}
-
 /* True if every column in nrow is empty */
 bool NmapOutputTable::emptyRow(unsigned int nrow) {
 	NmapOutputTableCell *cell;
@@ -267,18 +240,16 @@ bool NmapOutputTable::emptyRow(unsigned int nrow) {
  // All blank rows are removed from the returned string
 char *NmapOutputTable::printableTable(int *size) {
   unsigned int col, row;
-  int maxsz = printableSize();
-  char *p;
+  int p = 0; /* The offset into tableout */
   int clen = 0;
   int i;
   struct NmapOutputTableCell *cell;
   int validthisrow;
 
-  if (maxsz >= tableoutsz) {
-    tableoutsz = maxsz + 1;
-    tableout = (char *) safe_realloc(tableout, tableoutsz);
+  if (tableoutsz == 0) {
+    tableoutsz = 512; /* Start us off with half a k */
+    tableout = (char *) safe_malloc(tableoutsz);
   }
-  p = tableout;
 
   for(row = 0; row < numRows; row++) {
     validthisrow = 0;
@@ -288,27 +259,38 @@ char *NmapOutputTable::printableTable(int *size) {
 
     cell = getCellAddy(row, 0);
     if(cell->fullrow && cell->strlength > 0) {
-      memcpy(p, cell->str,  cell->strlength);
+      /* Full rows are easy, just make sure we have the space + \n\0 */
+      if (cell->strlength + p + 2 > tableoutsz) {
+	tableoutsz = (cell->strlength + p + 2) * 2;
+	tableout = (char *) safe_realloc(tableout, tableoutsz);
+      }
+      memcpy(tableout + p, cell->str,  cell->strlength);
       p += cell->strlength;
     } else {
       for(col = 0; col < numColumns; col++) {
         cell = getCellAddy(row, col);
         clen = maxColLen[col];
+	/* Cells get padded with an extra space + \n\0 */
+	if (clen + p + 3 > tableoutsz) {
+	  tableoutsz = (cell->strlength + p + 2) * 2;
+	  tableout = (char *) safe_realloc(tableout, tableoutsz);
+	}
         if (cell->strlength > 0) {
-          memcpy(p, cell->str,  cell->strlength);
+          memcpy(tableout + p, cell->str,  cell->strlength);
           p += cell->strlength;
           validthisrow++;
         }
         // No point leaving trailing spaces ...
         if (validthisrow < itemsInRow[row]) {
           for(i=cell->strlength; i <= clen; i++) // one extra because of space between columns
-            *(p++) = ' ';
+            *(tableout + p++) = ' ';
         }
       }
     }
-    *(p++) = '\n';
+    *(tableout + p++) = '\n';
   }
-  *p = '\0';
-  if (size) *size = p - tableout;
+  *(tableout + p) = '\0';
+
+  if (size) *size = p;
   return tableout;
 }

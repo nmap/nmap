@@ -142,10 +142,6 @@ class NmapOutputTable {
   void addItemFormatted(unsigned int row, unsigned int column, bool fullrow, const char *fmt, ...)
 	  __attribute__ ((format (printf, 4, 5)));
 
-  // Returns the maximum size neccessary to create a printableTable() (the 
-  // actual size could be less);
-  int printableSize();
-
   // This function sticks the entire table into a character buffer.
   // Note that the buffer is likely to be reused if you call the
   // function again, and it will also be invalidated if you free the
