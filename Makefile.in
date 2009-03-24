@@ -223,7 +223,7 @@ build-zenmap: $(ZENMAPDIR)/setup.py $(ZENMAPDIR)/zenmapCore/Version.py
 
 install-zenmap: $(ZENMAPDIR)/setup.py
 	$(INSTALL) -d $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1
-	cd $(ZENMAPDIR) && $(PYTHON) setup.py install --prefix "$(prefix)" $(if $(DESTDIR),--root "$(DESTDIR)")
+	cd $(ZENMAPDIR) && $(PYTHON) setup.py install --prefix "$(prefix)" --force $(if $(DESTDIR),--root "$(DESTDIR)")
 	$(INSTALL) -c -m 644 docs/zenmap.1 $(DESTDIR)$(mandir)/man1/
 # Create a symlink from nmapfe to zenmap if nmapfe doesn't exist or is
 # already a link.
