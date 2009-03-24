@@ -1,35 +1,14 @@
 MTODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o When I start ncat chat with this tcsh command:
-  ncat -l --chat scanme.nmap.org < /dev/null >& /dev/null &
-  The first client to connect to the chat becomes user0 and doesn't
-  work quite right.  Messages user0 type get transmitted to other
-  clients, but user0 does not see their messages.  Nore does user0 get
-  the normal connection announcement upon connecting.  If I quit
-  user0, the next client to connect becomes user0 again and has the
-  same problem.  If I start ncat on the server with "ncat -l --chat
-  scanme.nmap.org" (no redirection), other clients can connect with no problems.
+o Final polishing of our GSoC pages. [Fyodor]
 
-o [Ndiff] Maybe Ndiff should display changes to version detection and
-  OS detection information? [David]
- o Version detection done, now just needs OS detection.
+o Advertise widely for Nmap GSoC applicants [Fyodor]
 
-o Ncat chat should bomine the "already connected" user list into one
-  line, like:
-  <announce> already connected: 69.232.238.42 is connected as <user5>, 206.81.65.43 as <user4>, 69.232.238.42 as <user6>
-
-o [Ncat] When acting as an HTTP proxy, we should support GET mode as
-  well as CONNECT so that it works as a non-SSL proxy in browsers such
-  as firefox.
-
-o Prepare for Summer of Code
-  o Brainstorm for ideas
-  o Create new ideas page
-  o Apply to participate in program again
-  o Advertise for applicants
-  o Evaluate applicants
-  o Decide which applicants we want, and who would be best for
-    mentoring them.
+o [Ndiff] Rethink the output format. David says: In particular, I
+  would like to always have the old state on the left and the new
+  state on the right: "was filtered, is open," not "is open, was
+  filtered." I also like the context diff output of MadHat's
+  nmap-diff. [David]
 
 o Ncat verbose mode (-v) should probably only give important messages,
   such as perhaps a message once you connect successfully to a port,
@@ -53,14 +32,99 @@ o Ncat verbose mode (-v) should probably only give important messages,
   connection:
   # nc -v scanme.nmap.org 80
   Connection to scanme.nmap.org 80 port [tcp/http] succeeded!
-  GET / HTTP/1.0
-
-o Add version detection signiture for Ncat chat once we finalize the
-  announce format.
+  GET / HTTP/1.0 [David]
 
 o When you do ncat -h, Ncat should probably show the Nmap version
   number rather than (currently) 0.2.  Also ncat in -v mode should
-  show that same header.
+  show that same header. [David]
+
+o [Ncat] When acting as an HTTP proxy, we should support GET mode as
+  well as CONNECT so that it works as a non-SSL proxy in browsers such
+  as firefox. [David]
+
+o [Ncat] Let people set up authenticated proxies using
+  --listen and --proxy-auth together (right now we don't support
+  that). [David]
+
+o [Ncat] Maybe we should create an SSL cert with no passphrase during
+  Ncat compilation or install process so that if someone specifies
+  Ncat -l and --ssl with no --ssl-cert and --ssl-key, we already have
+  one for them, and it is a slightly better one (since the private key
+  isn't known) than if we distributed a key.  Obviously it is still
+  subject to MITM attacks since there is no domain validation going
+  on.  But people who need that will have to buy a key from a
+  certificate authority in any case.  We could create the key by using
+  the "openssl" command line tool as shown in
+  http://nmap.org/ncat/guide/ncat-advanced.html#ncat-ssl, or maybe
+  better to have a way for ncat to do it using openssl calls.
+
+o [Ncat] Consider supporting server certificate verification when used
+  in client SSL mode.
+  o For now we document in user's guide that it is not secure.
+  o Maybe we can do an ssh-style approach where we just print the
+    fingerprint and expect the ncat client user to ensure it is the
+    right one?
+  o If we're going to verify cert's etc., we need to also make sure we
+    are actually using secure ciphers.  We may need to update nsock to
+    support cipher selection, because we want fast ones for version
+    detection, but usually want secure ones for NSE and/or ncat.
+  o Do we want to check all this by default, or offer an option for
+    it?  Doing it by default is more secure, though it can be annoying
+    when a certificate has expired, is self-signed, you connect to
+    domain.com when the certificate is for www.domain.com, etc.  If it
+    is done by deault, we might just print an error message.  Whreas
+    if we have a special option, it may be OK to exit and refuse the
+    connection.
+  o What certs should we allow?  Same as the browsers do?  Maybe get
+    rid of Comodo?  Maybe we should fail to recognize any certs with MD5
+    in the trust chain?
+  o What about people who are running their own SSL service and just
+    want to specify the cert file they use, because they generated it
+    themself and not from a trusted CA.
+  o Need to check expiration, domain, etc. if we're checking certs at
+    all.
+  o We can probably get away with not doing revocation checking, as
+    long as we document that we don't.
+
+o Determine what we should do about the IE.DLI OS detection test [David]
+  o All of the 1656 results for this test in nmap-os-db are DLI=S.
+    o Is the test not working right (producing the proper results
+      against targets), or is it just a generally useless test for
+      which virtually all targets respond the same way?
+  o Are there other "useless" tests in nmap-os-db?  It is worth
+    checking, IMHO.
+  o We're going to get rid of IE.DLI, IE.SI, U1.RUL, and maybe TOS and
+    TOSI tests.
+
+o Prepare for Summer of Code
+  o Brainstorm for ideas
+  o Create new ideas page
+  o Apply to participate in program again
+  o Advertise for applicants
+  o Evaluate applicants
+  o Decide which applicants we want, and who would be best for
+    mentoring them.
+
+o Device categorization improvements
+  o Examine Nmap's device categorization in nmap-os-deb and
+    nmap-service-probes.  Decide if some small categories which have
+    never really took off should be consolidated, or whether others
+    should be split off.  For example, maybe there are some groups in
+    'specialized' or other misc. categories which are now large enough
+    to split off.  Personally, I wouldn't give anything its own
+    category unless there are at least half a dozen of them and no
+    other category really fits them well.  We should use a combined
+    system for nmap-os-db and nmap-service-probes.
+  o Add a classification sect1 to os-detection.xml
+    (http://nmap.org/book/osdetect.html) to cover how Nmap handles OS
+    classification.  It should include a list with descriptions of
+    each device type recognized by Nmap.  Version-detection.xml should
+    reference (link to) it in the approprate place.
+    [Doug has done some initial work on this.  For example, see
+     nmap/docs/device-types.txt]
+
+o Add version detection signiture for Ncat chat once we finalize the
+  announce format.
 
 o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
 
@@ -71,9 +135,6 @@ o [Ncat] Why does Ncat require enclosure in a while loop to answer
   repeated UDP queries, but not TCP?  For example, see the "Emulating
   Diagnostic Services" section of the Ncat user's guide.
   o Note: http://seclists.org/nmap-dev/2009/q1/0133.html
-
-o [Ncat] We should (maybe) consider a way for people to choose
-  usernames in --chat.  
 
 o Figure out and document (in at least the Ncat user's guide) the best
   way to use Ncat for chaining through proxies.  One option is this
@@ -88,30 +149,6 @@ o Consider converting this file to emacs org-mode
   (http://orgmode.org/) format. [Fyodor]
   o That format is still plain text and can be read/edited by vi
     users, etc.
-
-o [Ncat] Maybe we should create an SSL cert with no passphrase during
-  Ncat compilation or install process so that if someone specifies
-  Ncat -l and --ssl with no --ssl-cert and --ssl-key, we already have
-  one for them, and it is a slightly better one (since the private key
-  isn't known) than if we distributed a key.  Obviously it is still
-  subject to MITM attacks since there is no domain validation going
-  on.  But people who need that will have to buy a key from a
-  certificate authority in any case.  We could create the key by using
-  the "openssl" command line tool as shown in
-  http://nmap.org/ncat/guide/ncat-advanced.html#ncat-ssl, or maybe
-  better to have a way for ncat to do it using openssl calls.
-
-o Determine what we should do about the IE.DLI OS detection test
-  o All of the 1656 results for this test in nmap-os-db are DLI=S.
-    o Is the test not working right (producing the proper results
-      against targets), or is it just a generally useless test for
-      which virtually all targets respond the same way?
-  o Are there other "useless" tests in nmap-os-db?  It is worth
-    checking, IMHO.
-
-o [Ncat] Let people set up authenticated proxies using
-  --listen and --proxy-auth together (right now we don't support
-  that). [David]
 
 o With --version-trace (may be a problem with other uses of nsock
   tracing too), I often get dozens of "wait_for_events" reports in a
@@ -168,24 +205,6 @@ o We should document an official way to compile/test refguide.xml so
   involve moving legal-notices.xml into /nmap/docs, among other
   things.
 
-o Device categorization improvements
-  o Examine Nmap's device categorization in nmap-os-deb and
-    nmap-service-probes.  Decide if some small categories which have
-    never really took off should be consolidated, or whether others
-    should be split off.  For example, maybe there are some groups in
-    'specialized' or other misc. categories which are now large enough
-    to split off.  Personally, I wouldn't give anything its own
-    category unless there are at least half a dozen of them and no
-    other category really fits them well.  We should use a combined
-    system for nmap-os-db and nmap-service-probes.
-  o Add a classification sect1 to os-detection.xml
-    (http://nmap.org/book/osdetect.html) to cover how Nmap handles OS
-    classification.  It should include a list with descriptions of
-    each device type recognized by Nmap.  Version-detection.xml should
-    reference (link to) it in the approprate place.
-    [Doug has done some initial work on this.  For example, see
-     nmap/docs/device-types.txt]
-
 o [NSE] Open proxy detection script?
   o We have http-open-proxy.nse, but we should probably either extrand
   that to handle other types of proxies (such as SOCKS and HTTP
@@ -212,55 +231,10 @@ o Make Zenmap settings get upgraded when the Zenmap executable is
   users (like highlighting) or updating the per-user files at startup
   (only those parts that haven't been changed by the user).
 
-o [Ndiff] Rethink the output format. David says: In particular, I
-  would like to always have the old state on the left and the new
-  state on the right: "was filtered, is open," not "is open, was
-  filtered." I also like the context diff output of MadHat's
-  nmap-diff. [David]
-
-o [Ncat] Consider supporting server certificate verification when used
-  in client SSL mode.
-  o For now we document in user's guide that it is not secure.
-  o If we're going to verify cert's etc., we need to also make sure we
-    are actually using secure ciphers.  We may need to update nsock to
-    support cipher selection, because we want fast ones for version
-    detection, but usually want secure ones for NSE and/or ncat.
-  o Do we want to check all this by default, or offer an option for
-    it?  Doing it by default is more secure, though it can be annoying
-    when a certificate has expired, is self-signed, you connect to
-    domain.com when the certificate is for www.domain.com, etc.  If it
-    is done by deault, we might just print an error message.  Whreas
-    if we have a special option, it may be OK to exit and refuse the
-    connection.
-  o What certs should we allow?  Same as the browsers do?  Maybe get
-    rid of Comodo?  Maybe we should fail to recognize any certs with MD5
-    in the trust chain?
-  o What about people who are running their own SSL service and just
-    want to specify the cert file they use, because they generated it
-    themself and not from a trusted CA.
-  o Need to check expiration, domain, etc. if we're checking certs at
-    all.
-  o We can probably get away with not doing revocation checking, as
-    long as we document that we don't.
 
 o Look into memory consumption of UDP scans with -p- and large
   hostgroups.  See if there is a way to prevent them from eating up gigs
   of RAM.
-
-o When I scan large groups of hosts with OS detection enabled, I get
-  groups of warnings like:
-  Insufficient responses for TCP sequencing (0), OS detection may be less accurate
-  Insufficient responses for TCP sequencing (0), OS detection may be less accurate
-  Insufficient responses for TCP sequencing (0), OS detection may be less accurate
-  Insufficient responses for TCP sequencing (0), OS detection may be less accurate
-  Insufficient responses for TCP sequencing (0), OS detection may be less accurate
-  Note how it doesn't even tell the relevant IP address, and it isn't
-  included in an individual host section.  We should probably either
-  include it in the section for an individual host, like we do with
-  "OSScan results may be unreliable because we could not find at least
-  1 open and 1 closed port", or (not quite as
-  good) include the relevant IP address in the error message.  And we
-  may or may not want to require verbose mode.
 
 o Fix the directory function(s) in nse_fs.cc to be usable by scripts and
   improve flexibility. [this entry added by Patrick]
@@ -361,11 +335,6 @@ o Consider adding the rtt value for each host, at least in verbose
 
 o NSE-INF: Would be great if NSE scripts could be made to NOT run as
   root.
-
-o Deal with new Python 2.6 Zenmap build warnings:
-  C:\Python26\lib\site-packages\py2exe\build_exe.py:16: DeprecationWarning: the sets module is deprecated
-  import sets
-  http://sourceforge.net/tracker/index.php?func=detail&aid=2314799&group_id=15583&atid=115583
 
 o Look a bit more at default version detection timing.
 
@@ -598,6 +567,52 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [Ncat] We should (maybe) consider a way for people to choose
+  usernames in --chat.
+  o Removing this for now.  We can add it back if we decide we really
+    want this.
+
+o Deal with new Python 2.6 Zenmap build warnings:
+  C:\Python26\lib\site-packages\py2exe\build_exe.py:16: DeprecationWarning: the sets module is deprecated
+  import sets
+  http://sourceforge.net/tracker/index.php?func=detail&aid=2314799&group_id=15583&atid=115583
+  [Bug in py2exe, will probably be fixed with a new version of py2exe
+  once it is released and we upgrade.  This isn't causing us any major
+  problem anyway.]
+
+o When I scan large groups of hosts with OS detection enabled, I get
+  groups of warnings like:
+  Insufficient responses for TCP sequencing (0), OS detection may be less accurate
+  Insufficient responses for TCP sequencing (0), OS detection may be less accurate
+  Insufficient responses for TCP sequencing (0), OS detection may be less accurate
+  Insufficient responses for TCP sequencing (0), OS detection may be less accurate
+  Insufficient responses for TCP sequencing (0), OS detection may be less accurate
+  Note how it doesn't even tell the relevant IP address, and it isn't
+  included in an individual host section.  We should probably either
+  include it in the section for an individual host, like we do with
+  "OSScan results may be unreliable because we could not find at least
+  1 open and 1 closed port", or (not quite as
+  good) include the relevant IP address in the error message.  And we
+  may or may not want to require verbose mode.
+
+o Ncat chat should bomine the "already connected" user list into one
+  line, like:
+  <announce> already connected: 69.232.238.42 is connected as <user5>, 206.81.65.43 as <user4>, 69.232.238.42 as <user6>
+
+o [Ndiff] Maybe Ndiff should display changes to version detection and
+  OS detection information? [David]
+ o Version detection done, now just needs OS detection.
+
+o When I start ncat chat with this tcsh command:
+  ncat -l --chat scanme.nmap.org < /dev/null >& /dev/null &
+  The first client to connect to the chat becomes user0 and doesn't
+  work quite right.  Messages user0 type get transmitted to other
+  clients, but user0 does not see their messages.  Nore does user0 get
+  the normal connection announcement upon connecting.  If I quit
+  user0, the next client to connect becomes user0 again and has the
+  same problem.  If I start ncat on the server with "ncat -l --chat
+  scanme.nmap.org" (no redirection), other clients can connect with no problems.
 
 o Ncat --chat should probably announce to everyone (including the new
   person) when someone connects.  This tells the new person their
