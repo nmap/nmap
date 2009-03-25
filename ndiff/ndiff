@@ -292,9 +292,9 @@ class HostHostnameAddHunk(DiffHunk):
         frag = document.createDocumentFragment()
         elem = document.createElement(u"host-hostname-add")
         frag.appendChild(elem)
-        address_elem = document.createElement(u"hostname")
-        address_elem.setAttribute(u"name", self.hostname)
-        elem.appendChild(address_elem)
+        hostname_elem = document.createElement(u"hostname")
+        hostname_elem.setAttribute(u"name", self.hostname)
+        elem.appendChild(hostname_elem)
         return frag
 
 class HostHostnameRemoveHunk(DiffHunk):
@@ -308,9 +308,9 @@ class HostHostnameRemoveHunk(DiffHunk):
         frag = document.createDocumentFragment()
         elem = document.createElement(u"host-hostname-remove")
         frag.appendChild(elem)
-        address_elem = document.createElement("hostname")
-        address_elem.setAttribute(u"name", self.hostname)
-        elem.appendChild(address_elem)
+        hostname_elem = document.createElement("hostname")
+        hostname_elem.setAttribute(u"name", self.hostname)
+        elem.appendChild(hostname_elem)
         return frag
 
 class HostOsAddHunk(DiffHunk):
