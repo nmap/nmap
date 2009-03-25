@@ -24746,6 +24746,7 @@ IE(DFI=N%T=FA-104%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
 # Canon CLC-iR C2620
 # Cisco Security Monitoring, Analysis and Response System (MARS)
 # Linux 2.4.17_mvl21-malta-mips_fp_le (root@localhost.localdomain) (gcc version 2.95.3 20010315 (release/MontaVista)) #1 Mon Aug 27 17:17:05 PDT 2007 (Actiontec M1000 DSL modem, F/W: QA01.5: 3.60.3.0.8.1)
+# Linux 2.4.17_mvl21-malta-mips_fp_le (gcc version 2.95.3 20010315 (release/MontaVista)) #1 Fri Nov 3 17:08:02 SGT 2006 (branded Telkom M100WR - provided by Telkom, the South African telecoms company)
 # Vonage VOIP phone adapter and router. Model VT2142
 Fingerprint MontaVista embedded Linux 2.4.17
 Class MontaVista | Linux | 2.4.X | general purpose
@@ -30521,23 +30522,6 @@ T6(R=Y%DF=N%T=F9-103%TG=FF%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=F9-103%TG=FF%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=F9-103%TG=FF%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
 IE(DFI=N%T=F9-103%TG=FF%TOSI=S%CD=S%SI=S%DLI=S)
-
-# Linux 2.4.17_mvl21-malta-mips_fp_le (gcc version 2.95.3 20010315 (release/MontaVista)) #1 Fri Nov 3 17:08:02 SGT 2006 (branded Telkom M100WR - provided by Telkom, the South African telecoms company)
-Fingerprint Telkom Mega 100 WR DSL modem (MontaVista embedded Linux 2.4.17)
-Class Telkom | Linux | 2.4.X | broadband router
-SEQ(SP=C4-CE%GCD=1-6%ISR=CA-D4%TI=Z%II=I%TS=7)
-OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
-WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
-ECN(R=Y%DF=Y%T=3B-45%TG=40%W=16D0%O=M5B4NNSNW0%CC=N%Q=)
-T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
-T2(R=N)
-T3(R=N)
-T4(R=N)
-T5(R=Y%DF=Y%T=FA-104%TG=FF%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=N)
-T7(R=N)
-U1(DF=N%T=FA-104%TG=FF%TOS=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUL=G%RUD=G)
-IE(DFI=N%T=FA-104%TG=FF%TOSI=40%CD=S%SI=S%DLI=S)
 
 # Telsey Videostation provided by an italian internet provider called Fastweb. It runs on a 2.4.19 linux kernel customized by Fastweb.
 Fingerprint Telsey IP Video Station media server
