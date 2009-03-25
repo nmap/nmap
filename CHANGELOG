@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nbase has grown routines for calculating Adler32 and CRC32C
+  checksums. [Daniel Roethlisberger]
+
 o [Zenmap] The "Scan Output" expanders in the diff window now behave
   more naturally. Some strange behavior on Windows was noted by Jah.
   [David]
