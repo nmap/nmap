@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] The --exec and --sh-exec options now work in UDP mode like
+  they do in TCP mode: the server handles multiple concurrent clients
+  and doesn't have to be restarted after each one. Marius Sturm
+  provided the patch.
+
 o Version 4.85BETA4 had a bug in the implementation of the new SEQ.CI
   test that could cause a closed-port IP ID to be written into the
   array for the SEQ.TI test and cause erroneous results. The bug was
