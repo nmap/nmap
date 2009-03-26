@@ -114,6 +114,18 @@ o Prepare for Summer of Code
   o Decide which applicants we want, and who would be best for
     mentoring them.
 
+o [Zenmap] Should probably give some sort of widget indication that a
+  scan is running.  Now that we can start multiple scans at once, the
+  "scan" button goes back to being unpressed while the scan is
+  runnign.  As some scans take minutes or more to show output, it is
+  not always clear whether they are still properly running.  We should
+  probably have some sort of widget, such as the throbber used in web
+  browsers, to show that Nmap is still running.  It could be fore a
+  specific scan (kind of like how you have a separate throbber for
+  each tab on a web browser), or a global one which means at least one
+  scan is running.  Or maybe a different sort of indication is in
+  order.
+
 o Device categorization improvements
   o Examine Nmap's device categorization in nmap-os-deb and
     nmap-service-probes.  Decide if some small categories which have
