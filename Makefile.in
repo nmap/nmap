@@ -112,7 +112,7 @@ nsock_build: $(NSOCKDIR)/src/Makefile nbase_build
 	@echo Compiling libnsock;
 	cd $(NSOCKDIR)/src && $(MAKE)
 
-ncat_build: $(NCATDIR)/Makefile nbase_build nsock_build
+ncat_build: $(NCATDIR)/Makefile nbase_build nsock_build $(NCATDIR)/ncat.h
 	cd $(NCATDIR) && $(MAKE)
 
 lua_build: $(LIBLUADIR)/Makefile
@@ -202,6 +202,10 @@ install-nmap: $(TARGET)
 	$(INSTALL) -c -m 644 nmap-service-probes $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 nmap-protocols $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 nmap-mac-prefixes $(DESTDIR)$(nmapdatadir)/
+
+# Update the Ncat version number.
+$(NCATDIR)/ncat.h: nmap.h
+	sed -i -e 's/^#[ \t]*define[ \t]\+NCAT_VERSION[ \t]\+\(".*"\)/#define NCAT_VERSION "$(NMAP_VERSION)"/' $@
 
 # Update the version number used by Zenmap.
 $(ZENMAPDIR)/zenmapCore/Version.py $(ZENMAPDIR)/share/zenmap/config/zenmap_version: nmap.h
