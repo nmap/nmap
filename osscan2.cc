@@ -1826,7 +1826,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
     
     if (hss->ipid.tcp_closed_ipids[i] != -1) {
       if (good_tcp_closed_ipid_num < i) {
-        hss->ipid.tcp_ipids[good_tcp_closed_ipid_num] = hss->ipid.tcp_closed_ipids[i];
+        hss->ipid.tcp_closed_ipids[good_tcp_closed_ipid_num] = hss->ipid.tcp_closed_ipids[i];
       }
       good_tcp_closed_ipid_num++;
     }

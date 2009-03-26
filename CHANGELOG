@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Version 4.85BETA4 had a bug in the implementation of the new SEQ.CI
+  test that could cause a closed-port IP ID to be written into the
+  array for the SEQ.TI test and cause erroneous results. The bug was
+  found and fixed by Guillaume Prigent.
+
 o Nbase has grown routines for calculating Adler32 and CRC32C
   checksums. [Daniel Roethlisberger]
 
