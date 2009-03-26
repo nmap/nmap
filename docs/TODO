@@ -38,6 +38,15 @@ o When you do ncat -h, Ncat should probably show the Nmap version
   number rather than (currently) 0.2.  Also ncat in -v mode should
   show that same header. [David]
 
+o When you specify multiple comma-separated arguments to --script,
+  those arguments seem to get lost when the Nmap command is printed in
+  Nmap's output files.  For example, I run the command:
+  nmap -oN - --script=discovery,intrusive scanme.nmap.org
+  The output includes:
+  # Nmap 4.85BETA4 scan initiated Thu Mar 26 15:40:05 2009 as: ./nmap
+    -oN - --script=discovery scanme.nmap.org
+  Note the missing ",intrusive" in the script argument.
+
 o [Ncat] When acting as an HTTP proxy, we should support GET mode as
   well as CONNECT so that it works as a non-SSL proxy in browsers such
   as firefox. [David]
