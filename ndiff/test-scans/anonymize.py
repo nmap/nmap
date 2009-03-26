@@ -2,13 +2,12 @@
 
 # Anonymize an Nmap XML file, replacing host name and IP addresses with random
 # anonymous ones. Anonymized names will be consistent between runs of the
-# program. Give a file name as an argument. The anonymized file is written to
-# stdout.
+# program. Any servicefp attributes are removed. Give a file name as an
+# argument. The anonymized file is written to stdout.
 #
 # The anonymization is not rigorous. This program just matches regular
 # expressions against things that look like address and host names. It is
-# possible that it will leave some identifying information, for example a host
-# name split across lines in a service fingerprint.
+# possible that it will leave some identifying information.
 
 import hashlib
 import random
@@ -99,6 +98,7 @@ def anonymize_file(f):
         line = re.sub(ipv6_re, repl_addr, line)
         line = re.sub(r'<hostname name="([^"]*)"', repl_hostname_name, line)
         line = re.sub(r'\bhostname="([^"]*)"', repl_hostname, line)
+        line = re.sub(r' *\bservicefp="([^"]*)"', r'', line)
         yield line
 
 def main():
