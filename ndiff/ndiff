@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# ndiff
+# Ndiff
 #
 # This programs reads two Nmap XML files and displays a list of their
 # differences.

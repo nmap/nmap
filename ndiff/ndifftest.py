@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Unit tests for ndiff.
+# Unit tests for Ndiff.
 
 import unittest
 import xml.dom.minidom
