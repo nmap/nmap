@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The following OS detection tests are no longer included in OS
+  fingerprints: U1.RUL, U1.TOS, IE.DLI, IE.SI, and IE.TOSI. URL, DLI,
+  and SI were found not be helpful in distinguishing operating systems
+  because they didn't vary. TOS and TOSI were disabled in 4.85BETA1
+  but now they are not included in prints at all. [David]
+
 o [Ncat] The --exec and --sh-exec options now work in UDP mode like
   they do in TCP mode: the server handles multiple concurrent clients
   and doesn't have to be restarted after each one. Marius Sturm

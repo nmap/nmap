@@ -2453,11 +2453,11 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
   unsigned char *datastart, *dataend;
 
 #if !defined(SOLARIS) && !defined(SUNOS) && !defined(IRIX) && !defined(HPUX)
-  numtests = 12;
+  numtests = 10;
 #else
   /* We don't do RID test under these operating systems, thus the
         number of test is 1 less. */
-  numtests = 11;
+  numtests = 9;
 #endif
 
   if (hss->FP_TUdp) return false;
@@ -2504,12 +2504,6 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
   /* TTL */
   AVs[current_testno].attribute = (char*)"T";
   sprintf(AVs[current_testno].value, "%d", ip->ip_ttl);
-
-  current_testno++;
-
-  /* TOS of the response */
-  AVs[current_testno].attribute = (char*)"TOS";
-  sprintf(AVs[current_testno].value, "%hX", ip->ip_tos);
 
   current_testno++;
 
@@ -2582,15 +2576,6 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
 
   current_testno++;
 
-  /* UDP length ... */
-  AVs[current_testno].attribute = (char*)"RUL";
-  if(ntohs(udp->uh_ulen) == 308)
-	strcpy(AVs[current_testno].value, "G"); /* The "expected" good value */
-  else
-	sprintf(AVs[current_testno].value, "%hX", ntohs(udp->uh_ulen));
-
-  current_testno++;
-
   /* Finally we ensure the data is OK */
   datastart = ((unsigned char *)udp) + 8;
   dataend = (unsigned char *)  ip + ntohs(ip->ip_len);
@@ -2620,7 +2605,7 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
 bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, struct ip *ip, int replyNo) {
   assert(replyNo==0 || replyNo==1);
 
-  int numtests = 7;
+  int numtests = 4;
   struct AVal *AVs;
   struct ip *ip1, *ip2;
   struct icmp *icmp1, *icmp2;
@@ -2699,29 +2684,6 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, struct ip *ip, int reply
   
   current_testno++;
 
-  /* Type of service. Test values:
-   * Z. Both are zero;
-   * NN. Both use the same non-zero number;
-   * S. Both use the TOS that the sender uses;
-   * O. Other.
-   */
-  AVs[current_testno].attribute = (char*)"TOSI";
-  value1 = ip1->ip_tos;
-  value2 = ip2->ip_tos;
-  if (value1 == value2){
-    if (value1 == 0)
-      strcpy(AVs[current_testno].value, "Z");
-    else
-      sprintf(AVs[current_testno].value, "%hX", value1);
-  }
-  else if (value1 == IP_TOS_DEFAULT && value2 == IP_TOS_RELIABILITY)
-    /* the same with sender */
-    strcpy(AVs[current_testno].value, "S");
-  else
-    strcpy(AVs[current_testno].value, "O");
-
-  current_testno++;
-    
   /* ICMP Code value. Test values:
    * [Value]. Both set Code to the same value [Value];
    * S. Both use the Code that the sender uses;
@@ -2743,56 +2705,6 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, struct ip *ip, int reply
     strcpy(AVs[current_testno].value, "O");
 
   current_testno++;
-
-  /* Sequence Number value in Icmp echo reply. SI test values:
-   * Z. Both are set to zero;
-   * [value]. Both set Seq to the same value [Value];
-   * S. Both use the Seq value that the sender uses;
-   * O. Other.
-   */
-  AVs[5].attribute = (char*)"SI";
-  value1 = ntohs(icmp1->icmp_seq);
-  value2 = ntohs(icmp2->icmp_seq);
-  if (value1 == value2) {
-    if (value1 == 0)
-      strcpy(AVs[current_testno].value, "Z");
-    else
-      sprintf(AVs[current_testno].value, "%hX", value1);
-  }
-  else if (value1 == this->icmpEchoSeq && value2 == this->icmpEchoSeq + 1)
-    /* Both echo the ones from the probes. */
-    strcpy(AVs[current_testno].value, "S");
-  else {
-    /*
-      if (o.debugging)
-      printf("Seq value in icmp replies from %s aren't the same with the sender. Seq1 = %d\tSeq2 = %d\n",
-      hss->target->targetipstr(), value1, value2);
-    */
-    strcpy(AVs[current_testno].value, "O");
-  }
-
-  current_testno++;
-
-  /* ICMP data length. Pattens:
-   * [Value]. Both truncted to a specific value;
-   * S. Both the same with the sender;
-   * O. Other.
-   */
-  AVs[current_testno].attribute = (char*)"DLI";
-  value1 = ntohs(ip1->ip_len) - 4 * ip1->ip_hl - 8;
-  value2 = ntohs(ip2->ip_len) - 4 * ip2->ip_hl - 8;
-  if (value1 == value2){
-    if (value1 == 0)
-      strcpy(AVs[current_testno].value, "Z");
-    else
-      sprintf(AVs[current_testno].value, "%hX", value1);
-  }
-  else if (value1 == 120 && value2 == 150)
-    /* the same as in the corresponding probe */
-    strcpy(AVs[current_testno].value, "S");
-  else
-	/* */
-    strcpy(AVs[current_testno].value, "O");
 
   hss->FP_TIcmp= (FingerPrint *) safe_zalloc(sizeof(FingerPrint));
   hss->FP_TIcmp->name = "IE";
