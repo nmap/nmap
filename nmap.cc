@@ -319,7 +319,7 @@ printf("%s %s ( %s )\n"
        "  nmap -v -A scanme.nmap.org\n"
        "  nmap -v -sP 192.168.0.0/16 10.0.0.0/8\n"
        "  nmap -v -iR 10000 -PN -p 80\n"
-       "SEE THE MAN PAGE FOR MANY MORE OPTIONS, DESCRIPTIONS, AND EXAMPLES\n", NMAP_NAME, NMAP_VERSION, NMAP_URL);
+       "SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES\n", NMAP_NAME, NMAP_VERSION, NMAP_URL);
   exit(rc);
 }
 
