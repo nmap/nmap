@@ -379,9 +379,8 @@ int luaopen_nsock (lua_State *L)
   luaL_newmetatable(L, "nsock_proxy");
 
   nsp = nsp_new(NULL);
-  //nsp_settrace(nsp, o.debugging, o.getStartTime());
   if (o.scriptTrace())
-    nsp_settrace(nsp, 5, o.getStartTime());
+    nsp_settrace(nsp, NSOCK_TRACE_LEVEL, o.getStartTime());
 
   return 0;
 }

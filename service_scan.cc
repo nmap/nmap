@@ -2422,7 +2422,7 @@ int service_scan(vector<Target *> &Targets) {
   }
 
   if (o.versionTrace()) {
-    nsp_settrace(nsp, 5, o.getStartTime());
+    nsp_settrace(nsp, NSOCK_TRACE_LEVEL, o.getStartTime());
   }
 
   launchSomeServiceProbes(nsp, SG);

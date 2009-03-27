@@ -1193,7 +1193,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
     fatal("Unable to create nsock pool in %s()", __func__);
 
   if ((lasttrace = o.packetTrace()))
-    nsp_settrace(dnspool, 5, o.getStartTime());
+    nsp_settrace(dnspool, NSOCK_TRACE_LEVEL, o.getStartTime());
   
   connect_dns_servers();
 
@@ -1215,7 +1215,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
     if (o.packetTrace() != lasttrace) {
       lasttrace = !lasttrace;
       if (lasttrace)
-	nsp_settrace(dnspool, 5, o.getStartTime());
+	nsp_settrace(dnspool, NSOCK_TRACE_LEVEL, o.getStartTime());
       else nsp_settrace(dnspool, 0, o.getStartTime());
     }
     nsock_loop(dnspool, timeout);
