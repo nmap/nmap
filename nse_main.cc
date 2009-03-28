@@ -501,7 +501,7 @@ int process_mainloop(lua_State *L) {
       }
 
     // Run the garbage collecter. FIXME: This can error in a __gc metamethod
-    lua_gc(L, LUA_GCSTEP, 5);
+    lua_gc(L, LUA_GC_COLLECT, 0);
 
     while (!running_scripts.empty()) {
       current = *(running_scripts.begin());
