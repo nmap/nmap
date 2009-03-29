@@ -95,6 +95,14 @@ o [Ncat] Consider supporting server certificate verification when used
   o We can probably get away with not doing revocation checking, as
     long as we document that we don't.
 
+o NSEDoc script/module documentation pages should probably provide a
+  link to the script/module source code (except for C modules).  The
+  link format should probably be of the form
+  http://nmap.org/data/scripts/[script].nse and
+  /data/nselib/[module].lua.  NSEdoc can assume they already exist
+  there, as we'll probably put them there using the same system we use
+  to copy other stuff to the data dir.
+
 o Determine what we should do about the IE.DLI OS detection test [David]
   o All of the 1656 results for this test in nmap-os-db are DLI=S.
     o Is the test not working right (producing the proper results
