@@ -1,15 +1,49 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 4.85BETA5
+
+o Ron (in just a few hours of furious coding) added remote detection
+  of the Conficker worm to smb-check-vulns. It is based on new
+  research by Tillmann Werner and Felix Leder.  You can scan your
+  network for Conficker with a command like: nmap -PN -T4 -p139,445
+  --script=smb-check-vulns --script-args safe=1 [targetnetworks]
+
+o Ndiff now includes service (version detection) and OS detection
+  differences. [David]
+
+o [Ncat] The --exec and --sh-exec options now work in UDP mode like
+  they do in TCP mode: the server handles multiple concurrent clients
+  and doesn't have to be restarted after each one. Marius Sturm
+  provided the patch.
+
+o [Ncat] The -v option (used alone) no longer floods the screen with
+  debugging messages. With just -v, we now only print the most
+  important status messages such as "Connected to ...", a startup
+  banner, and error messages.  At -vv, minor debugging messages are
+  enabled, such as what command is being executed by --sh-exec.  With
+  -vvv you get detailed debugging messages. [David]
+
+o [Ncat] Chat mode now lets other participants know when someone
+  connects or disconnects, and it also broadcasts a current list of
+  participants at such times. [David]
+
+o [Ncat] Fixed a socket handling bug which could occur when you
+  redirect Ncat stdin, such as "ncat -l --chat < /dev/null".  The next
+  user to connect would end up with file descriptor 0 (which is
+  normally stdin) and thus confuse Ncat. [David]
+
+o [Zenmap] The "Scan Output" expanders in the diff window now behave
+  more naturally. Some strange behavior on Windows was noted by Jah.
+  [David]
+
 o The following OS detection tests are no longer included in OS
   fingerprints: U1.RUL, U1.TOS, IE.DLI, IE.SI, and IE.TOSI. URL, DLI,
   and SI were found not be helpful in distinguishing operating systems
   because they didn't vary. TOS and TOSI were disabled in 4.85BETA1
   but now they are not included in prints at all. [David]
 
-o [Ncat] The --exec and --sh-exec options now work in UDP mode like
-  they do in TCP mode: the server handles multiple concurrent clients
-  and doesn't have to be restarted after each one. Marius Sturm
-  provided the patch.
+o The compile-time Nmap ASCII dragon is now more ferocious thanks to
+  better teeth alignment. [David]
 
 o Version 4.85BETA4 had a bug in the implementation of the new SEQ.CI
   test that could cause a closed-port IP ID to be written into the
@@ -17,22 +51,38 @@ o Version 4.85BETA4 had a bug in the implementation of the new SEQ.CI
   found and fixed by Guillaume Prigent.
 
 o Nbase has grown routines for calculating Adler32 and CRC32C
-  checksums. [Daniel Roethlisberger]
-
-o [Zenmap] The "Scan Output" expanders in the diff window now behave
-  more naturally. Some strange behavior on Windows was noted by Jah.
-  [David]
+  checksums. This is needed for future SCTP support. [Daniel
+  Roethlisberger]
 
 o [Zenmap] Zenmap no longer shows an error message when running Nmap
   with options that cause a zero-length XML file to be produced (like
   --iflist). [David]
 
-o Ndiff now includes service and OS detection differences. [David]
+o Fixed an off-by-one error in printableSize() which could cause Nmap
+  to crash while reporting NSE results. Also, NmapOutputTable's memory
+  allocation strategy was improved to conserve memory. [Brandon,
+  Patrick]
+
+o [Zenmap] We now give the --force option to setup.py for installation
+  to ensure that it replaces all files. [David]
+
+o Nmap's --packet-trace, --version-trace, and --script-trace now use
+  an Nsock trace level of 2 rather than 5.  This removes some
+  superfluous lines which can flood the screen. [David]
+
+o [Zenmap] Fixed a crash which could occur when loading the help URL
+   if the path contains multibyte characters. [David]
+
+o [Ncat] The version number is now matched to the Nmap release it came
+  with rather than always being 0.2. [David]
 
 o Fixed a strtok issue between load_exclude and
   TargetGroup::parse_expr that caused only the first exclude on
   a line to be loaded as well as an invalid read into free()'d
   memory in load_exclude(). [Brandon, David]
+
+o NSE's garbage collection system (for cleaning up sockets from
+  completed threads, etc.) has been improved. [Patrick]
 
 Nmap 4.85BETA4 [2009-3-15]
 
