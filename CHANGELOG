@@ -5,8 +5,8 @@ Nmap 4.85BETA5
 o Ron (in just a few hours of furious coding) added remote detection
   of the Conficker worm to smb-check-vulns. It is based on new
   research by Tillmann Werner and Felix Leder.  You can scan your
-  network for Conficker with a command like: nmap -PN -T4 -p139,445
-  --script=smb-check-vulns --script-args safe=1 [targetnetworks]
+  network for Conficker with a command like: nmap -PN -T4 -p139,445 -n
+  -v --script=smb-check-vulns --script-args safe=1 [targetnetworks]
 
 o Ndiff now includes service (version detection) and OS detection
   differences. [David]
