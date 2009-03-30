@@ -101,7 +101,7 @@ local NOTRUN     = 4
 -- tests I did, it crashed once. This is not a guarantee. 
 --
 --@param host The host object. 
---@return (status, result) If status if alse, result is an error code; otherwise, result is either 
+--@return (status, result) If status is false, result is an error code; otherwise, result is either 
 --        <code>VULNERABLE</code> for vulnerable, <code>PATCHED</code> for not vulnerable, 
 --        <code>UNKNOWN</code> if there was an error (likely vulnerable), and <code>NOTRUN</code>
 --        if this check was disabled. 
@@ -208,7 +208,7 @@ end
 -- The crash occurs when the string sent to winreg_enumkey() function is null. 
 --
 --@param host The host object. 
---@return (status, result) If status if alse, result is an error code; otherwise, result is either 
+--@return (status, result) If status is false, result is an error code; otherwise, result is either 
 --        <code>VULNERABLE</code> for vulnerable or <code>PATCHED</code> for not vulnerable. If the check
 --        was skipped, <code>NOTRUN</code> is returned. 
 function check_winreg_Enum_crash(host)
