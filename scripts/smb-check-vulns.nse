@@ -1,7 +1,7 @@
 description = [[
 Check for vulnerabilities:
 * MS08-067, a Windows RPC vulnerability
-* Connficker, an infection by the Connficker worm
+* Conficker, an infection by the Conficker worm
 * Unnamed regsvc DoS, a denial-of-service vulnerability I accidentically found in Windows 2003
 
 WARNING: These checks are dangerous, and are very likely to bring down a server. 
@@ -31,8 +31,8 @@ the check. Out of 82 vulnerable systems, 52 crashed.
 At the same time, MS08-067 is extremely critical to fix. Metasploit has a working and
 stable exploit for it, and any system vulnerable can very easily be compromised. 
 
-Connficker -- Checks if a host is infected with a known Connficker strain. This check
-is based on the simple connficker scanner found on this page:
+Conficker -- Checks if a host is infected with a known Conficker strain. This check
+is based on the simple conficker scanner found on this page:
 http://iv.cs.uni-bonn.de/wg/cs/applications/containing-conficker
 Thanks to the folks who wrote that scanner!
 
@@ -57,7 +57,7 @@ on the Nmap-dev mailing list and I'll add it to my list [Ron Bowes]).
 -- Host script results:
 -- |  smb-check-vulns:
 -- |  MS08-067: FIXED
--- |  Connficker: Likely INFECTED
+-- |  Conficker: Likely INFECTED
 -- |_ regsvc DoS: VULNERABLE
 --
 -- @args unsafe If set, this script will run checks that, if the system isn't
@@ -148,10 +148,10 @@ function check_ms08_067(host)
 end
 
 
----Check if the server is infected with Connficker. This can be detected by a modified MS08-067 patch, 
+---Check if the server is infected with Conficker. This can be detected by a modified MS08-067 patch, 
 -- which rejects a different illegal string than the official patch rejects. 
 --
--- Based loosely on the Simple Connficker Scanner, found here:
+-- Based loosely on the Simple Conficker Scanner, found here:
 -- http://iv.cs.uni-bonn.de/wg/cs/applications/containing-conficker/
 --
 -- If there's a licensing issue, please let me (Ron Bowes) know so I can fix it
@@ -159,7 +159,7 @@ end
 --@param host The host object. 
 --@return (status, result) If status is false, result is an error code; otherwise, result is either 
 --        <code>VULNERABLE</code> for infected or <code>PATCHED</code> for not infected.
-function check_connficker(host)
+function check_conficker(host)
 	local status, smbstate
 	local bind_result, netpathcompare_result
 
@@ -279,21 +279,21 @@ action = function(host)
 		end
 	end
 
-	-- Check for Connficker
-	status, result = check_connficker(host)
+	-- Check for Conficker
+	status, result = check_conficker(host)
 	if(status == false) then
 		if(nmap.debugging() > 0) then
 			if(result == "NT_STATUS_BAD_NETWORK_NAME") then
-				response = response .. "Connficker: ERROR: Network name not found (required service has crashed)\n"
+				response = response .. "Conficker: ERROR: Network name not found (required service has crashed)\n"
 			else
-				response = response .. "Connficker: ERROR: " .. result .. "\n"
+				response = response .. "Conficker: ERROR: " .. result .. "\n"
 			end
 		end
 	else
 		if(result == PATCHED) then
-			response = response .. "Connficker: Likely CLEAN\n"
+			response = response .. "Conficker: Likely CLEAN\n"
 		else
-			response = response .. "Connficker: Likely INFECTED\n"
+			response = response .. "Conficker: Likely INFECTED\n"
 			found = true
 		end
 	end

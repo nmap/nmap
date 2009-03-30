@@ -9,9 +9,9 @@ for Windows versions before Vista.
 
 This script is specifically targeted towards security auditors or penetration testers. 
 One example of its use, suggested by Brandon Enright, was hooking up smb-brute.nse to the
-database of usernames and passwords used by the Connficker worm (the password list can be
+database of usernames and passwords used by the Conficker worm (the password list can be
 found here, among other places <http://www.skullsecurity.org/wiki/index.php/Passwords>. 
-Then, the network is scanned and all systems that would be infected by Connficker are 
+Then, the network is scanned and all systems that would be infected by Conficker are 
 discovered. 
 
 From the penetration tester perspective its use is pretty obvious. By discovering weak passwords
