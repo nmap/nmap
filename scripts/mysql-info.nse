@@ -3,8 +3,8 @@ Connects to a MySQL server and prints information such as the protocol and
 version numbers, thread ID, status, capabilities, and the password salt.
 
 If service detection is performed and the server appears to be blocking
-our host or is blocked because of too many connections, then this script isn't run
-(see the portrule).
+our host or is blocked because of too many connections, then this script
+isn't run (see the portrule).
 ]]
 
 ---

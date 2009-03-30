@@ -1,6 +1,7 @@
 description = [[
 Checks if a web server is vulnerable to directory traversal by attempting to
-retrieve <code>/etc/passwd</code> using various traversal methods such as requesting <code>../../../../etc/passwd</code>.
+retrieve <code>/etc/passwd</code> using various traversal methods such as
+requesting <code>../../../../etc/passwd</code>.
 ]]
 
 -- 07/20/2007:
