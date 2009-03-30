@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] A bug was fixed that caused a crash when doing a keyword:
+  or target: search over hosts that had a MAC address. [David] The
+  crash output was
+      File "zenmapCore\SearchResult.pyo", line 86, in match_keyword
+      File "zenmapCore\SearchResult.pyo", line 183, in match_target
+    TypeError: argument of type 'NoneType' is not iterable
+
 Nmap 4.85BETA5
 
 o Ron (in just a few hours of furious coding) added remote detection
