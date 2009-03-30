@@ -282,12 +282,10 @@ action = function(host)
 	-- Check for Conficker
 	status, result = check_conficker(host)
 	if(status == false) then
-		if(nmap.debugging() > 0) then
-			if(result == "NT_STATUS_BAD_NETWORK_NAME") then
-				response = response .. "Conficker: ERROR: Network name not found (required service has crashed)\n"
-			else
-				response = response .. "Conficker: ERROR: " .. result .. "\n"
-			end
+		if(result == "NT_STATUS_BAD_NETWORK_NAME") then
+			response = response .. "Conficker: ERROR: Network name not found (required service has crashed)\n"
+		else
+			response = response .. "Conficker: ERROR: " .. result .. "\n"
 		end
 	else
 		if(result == PATCHED) then
