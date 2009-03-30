@@ -197,6 +197,10 @@ end
 --@param challenge The server's challenge. 
 --@return (status, response) If status is true, the response is returned; otherwise, an error message is returned.
 function ntlm_create_response(ntlm, challenge)
+	if(have_ssl ~= true) then
+		return false, "SMB: OpenSSL not present"
+	end
+
 	return lm_create_response(ntlm, challenge)
 end
 
@@ -207,6 +211,9 @@ end
 --@param ntlm_response The NTLM response. 
 --@param is_extended Should be set if extended security negotiations are being used. 
 function ntlm_create_mac_key(ntlm_hash, ntlm_response, is_extended)
+	if(have_ssl ~= true) then
+		return false, "SMB: OpenSSL not present"
+	end
 	if(is_extended) then
 		return openssl.md4(ntlm_hash)
 	else
@@ -221,6 +228,10 @@ end
 --@param ntlm_response The NTLM response. 
 --@param is_extended Should be set if extended security negotiations are being used. 
 function lm_create_mac_key(lm_hash, lm_response, is_extended)
+	if(have_ssl ~= true) then
+		return false, "SMB: OpenSSL not present"
+	end
+
 	if(is_extended) then
 		return string.sub(lm_hash, 1, 8) .. string.rep(string.char(0), 8)
 	else
@@ -264,6 +275,10 @@ end
 --@param challenge The server challenge. 
 --@return (status, response) If status is true, the response is returned; otherwise, an error message is returned.
 function lmv2_create_response(ntlm, username, domain, challenge)
+	if(have_ssl ~= true) then
+		return false, "SMB: OpenSSL not present"
+	end
+
 	return ntlmv2_create_response(ntlm, username, domain, challenge, 8)
 end
 
@@ -644,7 +659,11 @@ end
 --            sent, except with the signature slot replaced with the sequence number. 
 --@return The 8-byte signature. The signature is equal to the first eight bytes of md5(mac_key .. smb_data)
 function calculate_signature(mac_key, data)
-	return string.sub(openssl.md5(mac_key .. data), 1, 8)
+	if(have_ssl) then
+		return string.sub(openssl.md5(mac_key .. data), 1, 8)
+	else
+		return string.rep(string.char(0), 8)
+	end
 end
 
 
