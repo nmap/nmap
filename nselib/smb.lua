@@ -2283,6 +2283,7 @@ status_codes =
 	NT_STATUS_OK = 0x0000,
 	NT_STATUS_WERR_BADFILE                      = 0x00000002,
 	NT_STATUS_WERR_ACCESS_DENIED                = 0x00000005,
+	NT_STATUS_WERR_UNKNOWN_57                   = 0x00000057,
 	NT_STATUS_WERR_INVALID_NAME                 = 0x0000007b,
 	NT_STATUS_WERR_UNKNOWN_LEVEL                = 0x0000007c,
 	NT_STATUS_WERR_MORE_DATA                    = 0x000000ea,

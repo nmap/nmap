@@ -778,6 +778,79 @@ function srvsvc_netpathcompare(smbstate, server, path1, path2, pathtype, pathfla
 end
 
 
+---Call the NetPathCanonicalize() function, which is the target of ms08-067. 
+--
+--@param smbstate  The SMB state table
+--@param server    The IP or Hostname of the server (seems to be ignored but it's a good idea to have it)
+--@param path      The path to canonicalize
+--@return (status, result, error_result) If status is false, result is an error message and error_result is
+--        the result table. Otherwise, result is a table of values. 
+function srvsvc_netpathcanonicalize(smbstate, server, path)
+	local i, j
+	local status, result
+	local arguments
+	local pos, align
+
+	stdnse.print_debug(2, "MSRPC: Calling NetPathCanonicalize(%s) [%s]", path, smbstate['ip'])
+
+--        [in]   [string,charset(UTF16)] uint16 *server_unc,
+	arguments = msrpctypes.marshall_unicode_ptr(server, true)
+--        [in]   [string,charset(UTF16)] uint16 path[],
+	arguments = arguments .. msrpctypes.marshall_unicode(path, true)
+--        [out]  [size_is(maxbuf)] uint8 can_path[],
+--        [in]   uint32 maxbuf,
+	arguments = arguments .. msrpctypes.marshall_int32(2)
+
+--        [in]   [string,charset(UTF16)] uint16 prefix[],
+	arguments = arguments .. msrpctypes.marshall_unicode("\\", true)
+
+--        [in,out] uint32 pathtype,
+	arguments = arguments .. msrpctypes.marshall_int32(1)
+--        [in]    uint32 pathflags
+	arguments = arguments .. msrpctypes.marshall_int32(1)
+
+
+	-- Do the call
+	status, result = call_function(smbstate, 0x1F, arguments)
+	if(status ~= true) then
+		return false, result
+	end
+
+	stdnse.print_debug(3, "MSRPC: NetPathCanonicalize() returned successfully")
+
+	-- Make arguments easier to use
+	arguments = result['arguments']
+	pos = 1
+
+--        [in]   [string,charset(UTF16)] uint16 *server_unc,
+--        [in]   [string,charset(UTF16)] uint16 path[],
+--        [out]  [size_is(maxbuf)] uint8 can_path[],A
+--        [in]   uint32 maxbuf,
+--        [in]   [string,charset(UTF16)] uint16 prefix[],
+--        [in,out] uint32 pathtype,
+--        [in]    uint32 pathflags
+
+	-- NOTE: This isn't being done correctly.. due to Wireshark's broken parsing, 
+	-- and Samba's possibly-broken definition, I'm not sure how this is supposed
+	-- to be parsed. 
+	pos, result['max_count'] = msrpctypes.unmarshall_int32(arguments, pos)
+	pos, result['can_path']  = msrpctypes.unmarshall_int32(arguments, pos)
+	pos, result['type']      = msrpctypes.unmarshall_int32(arguments, pos) 
+	pos, result['return']    = msrpctypes.unmarshall_int32(arguments, pos)
+
+	if(result['return'] == nil) then
+		return false, "Read off the end of the packet (srvsvc.netpathcanonicalize)"
+	end
+	if(result['return'] ~= 0) then
+		return false, smb.get_status_name(result['return']) .. " (srvsvc.netpathcanonicalize)", result
+	end
+
+	return true, result
+
+end
+
+
+
 
 
 ---A proxy to a <code>msrpctypes</code> function that converts a PasswordProperties to an english string. 
