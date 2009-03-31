@@ -1331,8 +1331,8 @@ static char *num_to_string_sigdigits(double d, unsigned int digits) {
     shift = -digits;
   } else {
     shift = floor(log10(fabs(d))) - digits + 1;
-    d = floor(d / pow(10, shift) + 0.5);
-    d = d * pow(10, shift);
+    d = floor(d / pow(10.0, shift) + 0.5);
+    d = d * pow(10.0, shift);
   }
 
   n = Snprintf(buf, sizeof(buf), "%.*f", MAX(0, -shift), d);
