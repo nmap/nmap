@@ -270,20 +270,20 @@ action = function(host)
 		if(nmap.debugging() > 0) then
 			response = response .. "MS08-067: ERROR: " .. result .. "\n"
 		end
-	end
-
-	if(result == VULNERABLE) then
-		response = response .. "MS08-067: VULNERABLE\n"
-		found = true
-	elseif(result == UNKNOWN) then
-		response = response .. "MS08-067: LIKELY VULNERABLE (host stopped responding)\n"
-	elseif(result == NOTRUN) then
-		response = response .. "MS08-067: NOT RUN\n"
-	elseif(result == INFECTED) then
-		response = response .. "MS08-067: PATCHED (possibly by Conficker)\n"
 	else
-		if(nmap.verbosity() > 0) then
-			response = response .. "MS08-067: FIXED\n"
+		if(result == VULNERABLE) then
+			response = response .. "MS08-067: VULNERABLE\n"
+			found = true
+		elseif(result == UNKNOWN) then
+			response = response .. "MS08-067: LIKELY VULNERABLE (host stopped responding)\n"
+		elseif(result == NOTRUN) then
+			response = response .. "MS08-067: NOT RUN\n"
+		elseif(result == INFECTED) then
+			response = response .. "MS08-067: PATCHED (possibly by Conficker)\n"
+		else
+			if(nmap.verbosity() > 0) then
+				response = response .. "MS08-067: FIXED\n"
+			end
 		end
 	end
 
