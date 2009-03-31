@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Host status messages (up/down) are now uniform between ping scanning
+  and port scanning. They used to vary slighly, but now they all look
+  like
+    Host <host> is up.
+    Host <host> is down.
+  In addition, the reason for a host being up is now printed for port
+  scans just as for ping scans, with the --reason option. [David]
+
 o [Zenmap] A typo that led to a crash if the ndiff subprocess
   terminated with an error was fixed. [David] The message was
     File "zenmapGUI\DiffCompare.pyo", line 331, in check_ndiff_process

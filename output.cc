@@ -1326,7 +1326,6 @@ static void write_xml_initial_hostinfo(Target *currenths,
    for all hosts (even down ones) to be resolved */
 void write_host_status(Target *currenths, int resolve_all) {
   char hostname[1200];
-  char reasonbuf[512];
 
   if (o.listscan) {
     /* write "unknown" to stdout, machine, and xml */
@@ -1356,42 +1355,21 @@ void write_host_status(Target *currenths, int resolve_all) {
     }
   } 
 
-  else if (o.pingscan) {
+  else {  /* Ping scan / port scan. */
 
-	if(o.reason && currenths->flags & HOST_UP)
-		Snprintf(reasonbuf, 512, "%s.\n", target_reason_str(currenths));
-	else
-		Snprintf(reasonbuf, 512, ".\n");
-	
     write_xml_initial_hostinfo(currenths, 
 			       (currenths->flags & HOST_UP)? "up" : "down");
-    if (currenths->flags & HOST_UP) {
-      log_write(LOG_PLAIN,"Host %s appears to be up%s", currenths->NameIP(hostname, sizeof(hostname)), reasonbuf);
-      log_write(LOG_MACHINE,"Host: %s (%s)\tStatus: Up\n", currenths->targetipstr(), currenths->HostName());
-    } else if (o.verbose || resolve_all) {
-      if (resolve_all)
-	log_write(LOG_PLAIN,"Host %s appears to be down.\n", currenths->NameIP(hostname, sizeof(hostname)));
-      else log_write(LOG_STDOUT,"Host %s appears to be down.\n", currenths->NameIP(hostname, sizeof(hostname)));
-      log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Down\n", currenths->targetipstr(), currenths->HostName());
-    }
-  } 
-
-  else {   /* Normal case (non ping/list scan or smurf address) */
-    write_xml_initial_hostinfo(currenths, 
-			       (currenths->flags & HOST_UP)? "up" : "down");
-    if (o.verbose) {
+    if (o.pingscan || o.verbose) {
       if (currenths->flags & HOST_UP) {
-	log_write(LOG_STDOUT, "Host %s appears to be up ... good.\n", 
-		  currenths->NameIP(hostname, sizeof(hostname)));
-      } else {
-
-	if (resolve_all) {   
-	  log_write(LOG_PLAIN,"Host %s appears to be down, skipping it.\n", currenths->NameIP(hostname, sizeof(hostname)));
-	}
-	else {
-	  log_write(LOG_STDOUT,"Host %s appears to be down, skipping it.\n", currenths->NameIP(hostname, sizeof(hostname)));
-	}
-	log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Down\n", currenths->targetipstr(), currenths->HostName());
+        log_write(LOG_PLAIN, "Host %s is up", currenths->NameIP(hostname, sizeof(hostname)));
+        if (o.reason)
+          log_write(LOG_PLAIN, ", %s", target_reason_str(currenths));
+        log_write(LOG_PLAIN, ".\n");
+        log_write(LOG_MACHINE,"Host: %s (%s)\tStatus: Up\n", currenths->targetipstr(), currenths->HostName());
+      } else if (o.verbose || resolve_all) {
+        log_write(resolve_all ? LOG_PLAIN : LOG_STDOUT,
+                  "Host %s is down.\n", currenths->NameIP(hostname, sizeof(hostname)));
+        log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Down\n", currenths->targetipstr(), currenths->HostName());
       }
     }
   }
