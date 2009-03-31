@@ -1320,6 +1320,27 @@ static void write_xml_initial_hostinfo(Target *currenths,
   log_flush_all();
 }
 
+/* Convert a number to a string, keeping the given number of significant digits.
+   The result is returned in a static buffer. */
+static char *num_to_string_sigdigits(double d, unsigned int digits) {
+  static char buf[32];
+  int shift;
+  int n;
+
+  if (d == 0.0) {
+    shift = -digits;
+  } else {
+    shift = floor(log10(fabs(d))) - digits + 1;
+    d = floor(d / pow(10, shift) + 0.5);
+    d = d * pow(10, shift);
+  }
+
+  n = Snprintf(buf, sizeof(buf), "%.*f", MAX(0, -shift), d);
+  assert(n > 0 && n < (int) sizeof(buf));
+
+  return buf;
+}
+
 /* Writes host status info to the log streams (including STDOUT).  An
    example is "Host: 10.11.12.13 (foo.bar.example.com)\tStatus: Up\n" to 
    machine log.  resolve_all should be passed nonzero if the user asked
@@ -1364,7 +1385,10 @@ void write_host_status(Target *currenths, int resolve_all) {
         log_write(LOG_PLAIN, "Host %s is up", currenths->NameIP(hostname, sizeof(hostname)));
         if (o.reason)
           log_write(LOG_PLAIN, ", %s", target_reason_str(currenths));
+        if (currenths->to.srtt != -1)
+          log_write(LOG_PLAIN, " (%ss latency)", num_to_string_sigdigits(currenths->to.srtt / 1000000.0, 2));
         log_write(LOG_PLAIN, ".\n");
+
         log_write(LOG_MACHINE,"Host: %s (%s)\tStatus: Up\n", currenths->targetipstr(), currenths->HostName());
       } else if (o.verbose || resolve_all) {
         log_write(resolve_all ? LOG_PLAIN : LOG_STDOUT,
