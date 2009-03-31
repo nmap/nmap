@@ -563,12 +563,17 @@ void NmapOps::setSpoofMACAddress(u8 *mac_data) {
 
 #ifndef NOLUA
 void NmapOps::chooseScripts(char* argument) {
-	char *ap;
+	char *p;
 
-	ap = strtok(argument, ",");
-	while(ap != NULL) {
-		chosenScripts.push_back(std::string(ap));
-		ap = strtok(NULL, ",");
+	for (;;) {
+		p = strchr(argument, ',');
+		if (p == NULL) {
+			chosenScripts.push_back(std::string(argument));
+			break;
+		} else {
+			chosenScripts.push_back(std::string(argument, p - argument));
+			argument = p + 1;
+		}
 	}
 }
 #endif
