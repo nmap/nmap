@@ -296,7 +296,7 @@ action = function(host)
 			response = response .. "Conficker: ERROR: " .. result .. "\n"
 		end
 	else
-		if(result == PATCHED) then
+		if(result == CLEAN) then
 			response = response .. "Conficker: Likely CLEAN\n"
 		else
 			response = response .. "Conficker: Likely INFECTED\n"
