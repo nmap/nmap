@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] A typo that led to a crash if the ndiff subprocess
+  terminated with an error was fixed. [David] The message was
+    File "zenmapGUI\DiffCompare.pyo", line 331, in check_ndiff_process
+  UnboundLocalError: local variable 'error_test' referenced before assignment
+
 o [Zenmap] A crash was fixed:
       File "zenmapGUI\SearchGUI.pyo", line 582, in operator_changed
     KeyError: "Syst\xc3\xa8me d'Exploitation"
