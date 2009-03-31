@@ -1621,7 +1621,6 @@ int nmap_main(int argc, char *argv[]) {
 	if (!currenths)
 	  break;
       }
-      o.numhosts_scanned++;
     
       if (currenths->flags & HOST_UP && !o.listscan) 
 	o.numhosts_up++;

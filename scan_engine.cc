@@ -4873,6 +4873,9 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
   }
 #endif
 
+  // Set the variable for status printing
+  o.numhosts_scanning = Targets.size();
+
   startTimeOutClocks(Targets);
   USI = new UltraScanInfo(Targets, ports, scantype);
 
