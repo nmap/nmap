@@ -1,8 +1,36 @@
 MTODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Final polishing of our GSoC pages. [Fyodor]
+o Ask Coverity if they'll scan latest version of Nmap. [Fyodor]
 
-o Advertise widely for Nmap GSoC applicants [Fyodor]
+o SVN check out /nmap as an external in a directory named svn or src
+  or nmapsvn or something under nmap.org web tree.  Then redirect the
+  individual nmap.org/data/ files, where needed, to the nmapsvn
+  instead.  and update nmap-dev Makefile not to copy them to the
+  /data/ dir anymore. Then update the nsedoc system to generate proper
+  links to the new script/nselib locations. [Fyodor]
+
+o Merge patrick/nse-lua-merge for easier-to-maintain and simpler
+  codebase once David and Patrick are happy with it. [David]
+
+o [Zenmap] Should probably give some sort of widget indication that a
+  scan is running.  Now that we can start multiple scans at once, the
+  "scan" button goes back to being unpressed while the scan is
+  runnign.  As some scans take minutes or more to show output, it is
+  not always clear whether they are still properly running.  We should
+  probably have some sort of widget, such as the throbber used in web
+  browsers, to show that Nmap is still running.  It could be fore a
+  specific scan (kind of like how you have a separate throbber for
+  each tab on a web browser), or a global one which means at least one
+  scan is running.  Or maybe a different sort of indication is in
+  order. [David]
+
+o Change Nmap signature files to use the .sig extension rather than
+  .gpg.txt, as that seems to be what gpg recommends.  In fact, gpg
+  will automatically verify the right file if it exists after dropping
+  the .sig (or .asc) extension.  I may need to configure .htaccess to
+  serve .sig files properly.  Update nmap-install.xml
+  accordingly. Suggested by tic at eternalrealm.net by email on
+  7/13/08. [Fyodor]
 
 o [Ndiff] Rethink the output format. David says: In particular, I
   would like to always have the old state on the left and the new
@@ -10,33 +38,9 @@ o [Ndiff] Rethink the output format. David says: In particular, I
   filtered." I also like the context diff output of MadHat's
   nmap-diff. [David]
 
-o Ncat verbose mode (-v) should probably only give important messages,
-  such as perhaps a message once you connect successfully to a port,
-  or a message if the connection attempt times out.  An Ncat version
-  banner (with URL) like Nmap has might be warranted (in verbose
-  mode).  Currently, Ncat floods you with (mostly) useless debugging
-  information like this with a single -v (this output, on the other
-  hand, might be useful for a debugging option): [David]
-  # ncat -C -v scanme.nmap.org 80
-  NSOCK (0.0000s) TCP connection requested to 64.13.134.52:80 (IOD #1) EID 8
-  NSOCK (0.0200s) Callback: CONNECT SUCCESS for EID 8 [64.13.134.52:80]
-  NSOCK (0.0200s) Read request from IOD #1 [64.13.134.52:80] (timeout: -1ms) EID 18
-  NSOCK (0.0200s) Read request for 0 bytes from IOD #2 (peer unspecified) EID 26
-  GET / HTTP/1.0
-  NSOCK (4.4280s) Callback READ SUCCESS for EID 26 (peer unspecified) (15 bytes)
-  NSOCK (4.4280s) Write request for 16 bytes to IOD #1 EID 35 [64.13.134.52:80]
-  NSOCK (4.4280s) Callback: WRITE SUCCESS for EID 35 [64.13.134.52:80]
-  NSOCK (4.4280s) Read request for 0 bytes from IOD #2 (peer unspecified) EID 42
-  For comparison, here is what Eric Jackson's nc (The nc available in
-  Fedora 10's package repository) shows in verbose mode for the same
-  connection:
-  # nc -v scanme.nmap.org 80
-  Connection to scanme.nmap.org 80 port [tcp/http] succeeded!
-  GET / HTTP/1.0 [David]
-
-o When you do ncat -h, Ncat should probably show the Nmap version
-  number rather than (currently) 0.2.  Also ncat in -v mode should
-  show that same header. [David]
+o Look into building RPMs with SSL support. Statically linking to
+  OpenSSL on Linux for the RPMs didn't work for me last time I
+  tried. [Fyodor]
 
 o When you specify multiple comma-separated arguments to --script,
   those arguments seem to get lost when the Nmap command is printed in
@@ -45,7 +49,7 @@ o When you specify multiple comma-separated arguments to --script,
   The output includes:
   # Nmap 4.85BETA4 scan initiated Thu Mar 26 15:40:05 2009 as: ./nmap
     -oN - --script=discovery scanme.nmap.org
-  Note the missing ",intrusive" in the script argument.
+  Note the missing ",intrusive" in the script argument. [David]
 
 o [Ncat] When acting as an HTTP proxy, we should support GET mode as
   well as CONNECT so that it works as a non-SSL proxy in browsers such
@@ -103,16 +107,6 @@ o NSEDoc script/module documentation pages should probably provide a
   there, as we'll probably put them there using the same system we use
   to copy other stuff to the data dir.
 
-o Determine what we should do about the IE.DLI OS detection test [David]
-  o All of the 1656 results for this test in nmap-os-db are DLI=S.
-    o Is the test not working right (producing the proper results
-      against targets), or is it just a generally useless test for
-      which virtually all targets respond the same way?
-  o Are there other "useless" tests in nmap-os-db?  It is worth
-    checking, IMHO.
-  o We're going to get rid of IE.DLI, IE.SI, U1.RUL, and maybe TOS and
-    TOSI tests.
-
 o Prepare for Summer of Code
   o Brainstorm for ideas
   o Create new ideas page
@@ -121,18 +115,6 @@ o Prepare for Summer of Code
   o Evaluate applicants
   o Decide which applicants we want, and who would be best for
     mentoring them.
-
-o [Zenmap] Should probably give some sort of widget indication that a
-  scan is running.  Now that we can start multiple scans at once, the
-  "scan" button goes back to being unpressed while the scan is
-  runnign.  As some scans take minutes or more to show output, it is
-  not always clear whether they are still properly running.  We should
-  probably have some sort of widget, such as the throbber used in web
-  browsers, to show that Nmap is still running.  It could be fore a
-  specific scan (kind of like how you have a separate throbber for
-  each tab on a web browser), or a global one which means at least one
-  scan is running.  Or maybe a different sort of indication is in
-  order.
 
 o Device categorization improvements
   o Examine Nmap's device categorization in nmap-os-deb and
@@ -152,18 +134,58 @@ o Device categorization improvements
     [Doug has done some initial work on this.  For example, see
      nmap/docs/device-types.txt]
 
+o Remove obsolete tests from nmap-os-db itself. [David]
+
 o Add version detection signiture for Ncat chat once we finalize the
   announce format.
 
+o Make a way to start a scan from the profile editor without creating
+  a profile, then remove the command wizard.  This is partial
+  implementation of
+  http://www.bamsoftware.com/wiki/Nmap/ZenmapCommandLine. [David]
+
+o Ping scans always seem to say "0 [hosts] undergoing Ping Scan" when
+  you request stats, rather than the proper number.  For an example,
+  try a command such as "nmap -iR 10000 -sP -n" and then press enter
+  during the scan.  Here are some examples of the bad output: Stats:
+  25:34:33 elapsed; 991232 hosts completed (72530 up), 0 undergoing
+  Ping Scan Ping Scan Timing: About 53.69% done; ETC: 22:49 (0:00:09
+  remaining) Stats: 0:01:10 elapsed; 0 hosts completed (0 up), 0
+  undergoing Ping Scan Ping Scan Timing: About 24.03% done; ETC: 22:42
+  (0:03:41 remaining) Stats: 0:03:28 elapsed; 4096 hosts completed
+  (284 up), 0 undergoing Ping Scan Ping Scan Timing: About 3.06% done;
+  ETC: 22:44 (0:03:07 remaining) [David]
+
+o Canonicalize the "host up" messages for port scan and ping scan so
+  that instead of things like "Host scanme.nmap.org (64.13.134.52)
+  appears to be up ... good." we standardize in both cases on
+  something like: "Host scanme.nmap.org (64.13.134.52) is up (.75s
+  latency)".  Note the addition of the latency value, which is our
+  srtt value for the host.  This will only show in ping scan and
+  verbose port scan because the line doesn't appear without verbose
+  mode. [David]
+
+o Consider making the ping scan default be more comprehensive.  Note
+  that I got 23% more Internet boxes found out of a 50K sample (see host
+  enumeration chapter of my book for details).  Maybe I should
+  experiment a bit more to ensure they are real boxes and not network
+  artifacts and figure out exactly which tests are helping the most.
+  If I do this change, I'll have to update the host enumeration chapter.
+
+o Do an OS detection integration run -- last was based on 1/8/09.
+
+===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT==
+
+o Optimize NSE Performance--e.g. measure the current performance and
+  see what can be improved in terms of scheduling scan threads,
+  determining how many to run concurrently, looking at CPU load items,
+  etc.
+
 o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
 
-o NSE memory issues (and gh_list assert failure) [David]
-  o See this thread: http://seclists.org/nmap-dev/2009/q1/0532.html
-
-o [Ncat] Why does Ncat require enclosure in a while loop to answer
-  repeated UDP queries, but not TCP?  For example, see the "Emulating
-  Diagnostic Services" section of the Ncat user's guide.
-  o Note: http://seclists.org/nmap-dev/2009/q1/0133.html
+o Think about Nmap or NSE http framework.  Scanning http paths to see
+  if they exist is in some ways similar to scanning to see which ports
+  are open.
 
 o Figure out and document (in at least the Ncat user's guide) the best
   way to use Ncat for chaining through proxies.  One option is this
@@ -174,46 +196,26 @@ o Figure out and document (in at least the Ncat user's guide) the best
   With another listener/--sh-exec pair for each additional proxy.
   But perhaps we can make it easier by adding it to the syntax.
 
+o Consider whether we should include some sort of NSE debugger.  Or we
+  could include something simpler.  For example, some developers (such
+  as Ron) already make use of Patrick's traceback.nse in their
+  experimental trees.
+
 o Consider converting this file to emacs org-mode
   (http://orgmode.org/) format. [Fyodor]
   o That format is still plain text and can be read/edited by vi
     users, etc.
 
-o With --version-trace (may be a problem with other uses of nsock
-  tracing too), I often get dozens of "wait_for_events" reports in a
-  row in a very short period, flooding the logs.  For example, with
-  the command "nmap -sV --version-trace www.google.com", I get:
-  NSOCK (22.3570s) Callback: WRITE SUCCESS for EID 283 [74.125.19.147:443]
-  NSOCK (22.3570s) msevent_delete (IOD #4) (EID #283)
-  NSOCK (22.3570s) wait_for_events
-  NSOCK (22.3570s) wait_for_events
-  NSOCK (22.3570s) wait_for_events
-  NSOCK (22.3570s) wait_for_events
-  NSOCK (22.3570s) wait_for_events
-  NSOCK (22.3570s) wait_for_events
-  NSOCK (22.3570s) wait_for_events
-  NSOCK (22.3570s) wait_for_events
-  NSOCK (22.3570s) wait_for_events
-  [Goes on for pages]
+o [Zenmap] The Search dialogue is helpful for finding a certain scan
+  you've performed recently, but we should probably also offer a similar
+  function for searching for certain applications/hosts within a scan
+  (e.g. find all the hosts running Apache).  This new functionality
+  might be a find option or some other mechanism rather than being
+  part of the Search dialogue proper.
 
-o [Ncat] The sys_wrap.c/.h code contains a whole bunch of capitalized
-  versions of system calls (Fork(), Socket(), Sscanf(), etc.) which
-  are mostly the same as the standard version except that they cause
-  ncat to quit if they are triggered.  They also may be used partially
-  for portability.  The main issues are:
-   1) Because the function quits in the case of errors, it doesn't
-      always have the context to print a useful error message (and
-      even when it does, it often doesn't -- for example Fopen could
-      print the filename, but doesn't.)  Also, sometimes these
-      functions are called when quitting really isn't the desired
-      outcome of an error.
-   2) Some could be replaced by code in nbase, for example, Malloc
-      basically does the same thing as our safe_malloc already used
-      throughout Nmap.
-  So we should probably consider simplifying/removing this code to the
-  extent possible.  But we need to remember to add error detection to
-  the callers where necessary rather than blindly switching from
-  (e.g.) Connect() to connect(). [Kris or David]
+o [Zenmap] More complete implementation of ZenmapCommandLine/profile
+  editor improvement ideas. See
+  http://www.bamsoftware.com/wiki/Nmap/ZenmapCommandLine. [David]
 
 o Look into whether we should loosen/change the global congestion
   control system to address possible cases of one target host with many
@@ -239,17 +241,6 @@ o [NSE] Open proxy detection script?
   that to handle other types of proxies (such as SOCKS and HTTP
   CONNECT) or create more scripts to handle those other proxy types.
 
-o Ping scans always seem to say "0 [hosts] undergoing Ping Scan" when
-  you request stats, rather than the proper number.  For an example,
-  try a command such as "nmap -iR 10000 -sP -n" and then press enter
-  during the scan.  Here are some examples of the bad output:
-  Stats: 25:34:33 elapsed; 991232 hosts completed (72530 up), 0 undergoing Ping Scan
-  Ping Scan Timing: About 53.69% done; ETC: 22:49 (0:00:09 remaining)
-  Stats: 0:01:10 elapsed; 0 hosts completed (0 up), 0 undergoing Ping Scan
-  Ping Scan Timing: About 24.03% done; ETC: 22:42 (0:03:41 remaining)
-  Stats: 0:03:28 elapsed; 4096 hosts completed (284 up), 0 undergoing Ping Scan
-  Ping Scan Timing: About 3.06% done; ETC: 22:44 (0:03:07 remaining)
-
 o Make Zenmap settings get upgraded when the Zenmap executable is
   upgraded. The per-user configuration files such as scan_profile.usp
   and zenmap.conf are never overwritten once installed by Zenmap, so
@@ -260,17 +251,9 @@ o Make Zenmap settings get upgraded when the Zenmap executable is
   users (like highlighting) or updating the per-user files at startup
   (only those parts that haven't been changed by the user).
 
-
 o Look into memory consumption of UDP scans with -p- and large
   hostgroups.  See if there is a way to prevent them from eating up gigs
   of RAM.
-
-o Fix the directory function(s) in nse_fs.cc to be usable by scripts and
-  improve flexibility. [this entry added by Patrick]
-
-o Work on NSE Performance in general
-
-o Ask Coverity if they'll scan latest version of Nmap.
 
 o Start project to make Nmap a Featured Article on Wikipedia.
 
@@ -313,11 +296,6 @@ o Consider adding boolean expressions to --script arguments.  For
   example, see Patrick's implementation at
   http://seclists.org/nmap-dev/2008/q3/0300.html .
 
-o Consider whether we should include some sort of NSE debugger.  Or we
-  could include something simpler.  For example, some developers (such
-  as Ron) already make use of Patrick's traceback.nse in their
-  experimental trees.
-
 o Figure out what to do about NSE mutexes:
   http://seclists.org/nmap-dev/2008/q3/0276.html .
 
@@ -334,10 +312,6 @@ o Perhaps --traceroute should set currenths->distance because right
   distance since the traceroute shows all the hops up to and including
   the target (scanme.nmap.org).
 
-o Look into building RPMs with SSL support. Statically linking to
-  OpenSSL on Linux for the RPMs didn't work for me last time I
-  tried. [Fyodor]
-
 o Improve the "run Zenmap as root" menu item to work on distributions
   without su-to-root.  We might even want to improve Zenmap so that it
   itself does not have to run as root, and just executes Nmap that
@@ -350,17 +324,7 @@ o Improve the "run Zenmap as root" menu item to work on distributions
 o Consider enhancing the new OS Assist system to handle version
   detection too. [SOC task?]
 
-o Change Nmap signature files to use the .sig extension rather than
-  .gpg.txt, as that seems to be what gpg recommends.  In fact, gpg
-  will automatically verify the right file if it exists after dropping
-  the .sig (or .asc) extension.  I may need to configure .htaccess to
-  serve .sig files properly.  Update nmap-install.xml
-  accordingly. Suggested by tic at eternalrealm.net by email on 7/13/08.
-
 o Do -p- Internet UDP scans.
-
-o Consider adding the rtt value for each host, at least in verbose
-  mode, to Nmap output.
 
 o NSE-INF: Would be great if NSE scripts could be made to NOT run as
   root.
@@ -398,13 +362,6 @@ o Get better password data for unpw
   o perhaps add phpbb hack data (there is at least a list of 28,635
     passwords in phpbb_users.sql, and possibly more in other files.
 
-o Consider making the ping scan default be more comprehensive.  Note
-  that I got 23% more Internet boxes found out of a 50K sample (see host
-  enumeration chapter of my book for details).  Maybe I should
-  experiment a bit more to ensure they are real boxes and not network
-  artifacts and figure out exactly which tests are helping the most.
-  If I do this change, I'll have to update the host enumeration chapter.
-
 o Nmaprc-related - Create a system to store Nmap defaults/preferences
   in an nmaprc file.
   o nmaprc should be in ~/.nmap on UNIX
@@ -430,10 +387,6 @@ o Search for nmap on google news, on google web, and add appropriate
 
 o Maybe nping -- like hping3 but uses Nmap infrastructure and to a
   large degree the same command-line options as Nmap.
-
-o Think about Nmap or NSE http framework.  Scanning http paths to see
-  if they exist is in some ways similar to scanning to see which ports
-  are open.
 
 o Website: Create shr (shared) directory in svn, which will contain
   directories shared between the Insecure.org network of sites
@@ -524,11 +477,7 @@ o I should add code to Nmap to bail if sizeof(char) isn't 1.
   platforms.
 
 o consider changing status field from "up" and "down" to "online" and
-  "offline".
-
-o I need an output-autoflush option of some sort.  This could be
-  useful to ensure I get all the --packet_trace and debug data before
-  Nmap crashes.  Actually, I'm not sure that is so critical.
+  "offline".  Actually, maybe we don't want this after all.
 
 o We added the SEQ.CI value in Feb 2009 with 0 matchpoints.  At some
   point (once we have some real-life values) we need to evaluate whether
@@ -596,6 +545,102 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o I need an output-autoflush option of some sort.  This could be
+  useful to ensure I get all the --packet_trace and debug data before
+  Nmap crashes.  Actually, I'm not sure that is so critical.
+  o Killing it for now, not sure that it even is needed.
+
+o Fix the directory function(s) in nse_fs.cc to be usable by scripts and
+  improve flexibility. [this entry added by Patrick]
+
+o [Ncat] The sys_wrap.c/.h code contains a whole bunch of capitalized
+  versions of system calls (Fork(), Socket(), Sscanf(), etc.) which
+  are mostly the same as the standard version except that they cause
+  ncat to quit if they are triggered.  They also may be used partially
+  for portability.  The main issues are:
+   1) Because the function quits in the case of errors, it doesn't
+      always have the context to print a useful error message (and
+      even when it does, it often doesn't -- for example Fopen could
+      print the filename, but doesn't.)  Also, sometimes these
+      functions are called when quitting really isn't the desired
+      outcome of an error.
+   2) Some could be replaced by code in nbase, for example, Malloc
+      basically does the same thing as our safe_malloc already used
+      throughout Nmap.
+  So we should probably consider simplifying/removing this code to the
+  extent possible.  But we need to remember to add error detection to
+  the callers where necessary rather than blindly switching from
+  (e.g.) Connect() to connect(). [Kris or David]
+
+o With --version-trace (may be a problem with other uses of nsock
+  tracing too), I often get dozens of "wait_for_events" reports in a
+  row in a very short period, flooding the logs.  For example, with
+  the command "nmap -sV --version-trace www.google.com", I get:
+  NSOCK (22.3570s) Callback: WRITE SUCCESS for EID 283 [74.125.19.147:443]
+  NSOCK (22.3570s) msevent_delete (IOD #4) (EID #283)
+  NSOCK (22.3570s) wait_for_events
+  NSOCK (22.3570s) wait_for_events
+  NSOCK (22.3570s) wait_for_events
+  NSOCK (22.3570s) wait_for_events
+  NSOCK (22.3570s) wait_for_events
+  NSOCK (22.3570s) wait_for_events
+  NSOCK (22.3570s) wait_for_events
+  NSOCK (22.3570s) wait_for_events
+  NSOCK (22.3570s) wait_for_events
+  [Goes on for pages]
+
+o NSE memory issues (and gh_list assert failure) [David]
+  o See this thread: http://seclists.org/nmap-dev/2009/q1/0532.html
+  o We're taking this out for now since the new nse-lua-merge
+  tenatively looks like it fixes this.
+
+o [Ncat] Why does Ncat require enclosure in a while loop to answer
+  repeated UDP queries, but not TCP?  For example, see the "Emulating
+  Diagnostic Services" section of the Ncat user's guide.
+  o Note: http://seclists.org/nmap-dev/2009/q1/0133.html
+
+o Determine what we should do about the IE.DLI OS detection test [David]
+  o All of the 1656 results for this test in nmap-os-db are DLI=S.
+    o Is the test not working right (producing the proper results
+      against targets), or is it just a generally useless test for
+      which virtually all targets respond the same way?
+  o Are there other "useless" tests in nmap-os-db?  It is worth
+    checking, IMHO.
+  o We're going to get rid of IE.DLI, IE.SI, U1.RUL, and maybe TOS and
+    TOSI tests.
+
+o When you do ncat -h, Ncat should probably show the Nmap version
+  number rather than (currently) 0.2.  Also ncat in -v mode should
+  show that same header. [David]
+
+o Ncat verbose mode (-v) should probably only give important messages,
+  such as perhaps a message once you connect successfully to a port,
+  or a message if the connection attempt times out.  An Ncat version
+  banner (with URL) like Nmap has might be warranted (in verbose
+  mode).  Currently, Ncat floods you with (mostly) useless debugging
+  information like this with a single -v (this output, on the other
+  hand, might be useful for a debugging option): [David]
+  # ncat -C -v scanme.nmap.org 80
+  NSOCK (0.0000s) TCP connection requested to 64.13.134.52:80 (IOD #1) EID 8
+  NSOCK (0.0200s) Callback: CONNECT SUCCESS for EID 8 [64.13.134.52:80]
+  NSOCK (0.0200s) Read request from IOD #1 [64.13.134.52:80] (timeout: -1ms) EID 18
+  NSOCK (0.0200s) Read request for 0 bytes from IOD #2 (peer unspecified) EID 26
+  GET / HTTP/1.0
+  NSOCK (4.4280s) Callback READ SUCCESS for EID 26 (peer unspecified) (15 bytes)
+  NSOCK (4.4280s) Write request for 16 bytes to IOD #1 EID 35 [64.13.134.52:80]
+  NSOCK (4.4280s) Callback: WRITE SUCCESS for EID 35 [64.13.134.52:80]
+  NSOCK (4.4280s) Read request for 0 bytes from IOD #2 (peer unspecified) EID 42
+  For comparison, here is what Eric Jackson's nc (The nc available in
+  Fedora 10's package repository) shows in verbose mode for the same
+  connection:
+  # nc -v scanme.nmap.org 80
+  Connection to scanme.nmap.org 80 port [tcp/http] succeeded!
+  GET / HTTP/1.0 [David]
+
+o Final polishing of our GSoC pages. [Fyodor]
+
+o Advertise widely for Nmap GSoC applicants [Fyodor]
 
 o [Ncat] We should (maybe) consider a way for people to choose
   usernames in --chat.
