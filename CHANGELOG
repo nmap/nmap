@@ -1,13 +1,36 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 4.85BETA6 [2009-03-31]
+
+o Fixed some bugs with the Conficker detection script
+ (smb-check-vulns) [Ron]:
+ o SMB response timeout raised to 20s from 5s to compensate for
+   slow/overloaded systems and networks.
+ o MSRPC now only signs messages if OpenSSL is available (avoids an
+   error).
+ o Better error checking for MS08-067 patch
+ o Fixed forgotten endian-modifier (caused problems on big-endian
+   systems such as Solaris on SPARC).
+
 o Host status messages (up/down) are now uniform between ping scanning
-  and port scanning. They used to vary slighly, but now they all look
-  like
+  and port scanning and include more information. They used to vary
+  slightly, but now all look like
     Host <host> is up (Xs latency).
     Host <host> is down.
-  The latency is Nmap's estimate of the round trip time. In addition, the
-  reason for a host being up is now printed for port scans just as for
-  ping scans, with the --reason option. [David]
+  The new latency information is Nmap's estimate of the round trip
+  time. In addition, the reason for a host being up is now printed for
+  port scans just as for ping scans, with the --reason option. [David]
+
+o Version detection now has a generic match line for SSLv3 servers,
+  which matches more servers than the already-existing set of specific
+  match lines. The match line found 13% more SSL servers in a test.
+  Note that Nmap will not be able to do SSL scan-through against a
+  small fraction of these servers, those that are SSLv3-only or
+  TLSv1-only, because that ability is not yet built into Nsock. There
+  is also a new version detection probe that works against SSLv2-only
+  servers. These have shown themselves to be very rare, so that probe
+  is not sent by default. Kristof Boeynaems provided the patch and did
+  the testing.
 
 o [Zenmap] A typo that led to a crash if the ndiff subprocess
   terminated with an error was fixed. [David] The message was
@@ -22,25 +45,32 @@ o [Zenmap] A crash was fixed:
   internal data structure. The string will be untranslated until that
   part of the code can be rewritten. [David]
 
-o Version detection now has a generic match line for SSLv3 servers,
-  which matches more servers than the already-existing set of specific
-  match lines. The match line found 13% more SSL servers in a test.
-  Note that Nmap will not be able to do SSL scan-through against a
-  small fraction of these servers, those that are SSLv3-only or
-  TLSv1-only, because that ability is not yet built into Nsock. There
-  is also a new version detection probe that works against SSLv2-only
-  servers. These have shown themselves to be very rare, so that probe
-  is not sent by default. Kristof Boeynaems provided the patch and did
-  the testing.
-
 o [Zenmap] A bug was fixed that caused a crash when doing a keyword:
-  or target: search over hosts that had a MAC address. [David] The
-  crash output was
+  or target: search over hosts that had a MAC address. [David] 
+  The crash output was
       File "zenmapCore\SearchResult.pyo", line 86, in match_keyword
       File "zenmapCore\SearchResult.pyo", line 183, in match_target
     TypeError: argument of type 'NoneType' is not iterable
 
-Nmap 4.85BETA5
+o Fixed a bug which prevented all comma-separated --script arguments
+  from being shown in Nmap normal and XML output files where they show
+  the original Nmap command. [David]
+
+o Fixed ping scanner's runtime statistics system so that instead of
+  saying "0 undergoing Ping Scan" it gives the actual number of hosts in
+  the group (e.g. 4096). [David]
+
+o [Zenmap] A crash was fixed in displaying the "Error creating the
+  per-user configuration directory" dialog:
+      File "zenmap", line 104, in <module>
+      File "zenmapGUI\App.pyo", line 129, in run
+    UnicodeDecodeError: 'utf8' codec can't decode bytes in position 43-45:
+                        invalid data
+  The crash would only happen to users with paths containing
+  multibyte characters in a non-UTF-8 locale, who also had some error
+  preventing the creation of the directory. [David]
+
+Nmap 4.85BETA5 [2009-03-30]
 
 o Ron (in just a few hours of furious coding) added remote detection
   of the Conficker worm to smb-check-vulns. It is based on new
