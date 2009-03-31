@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] A crash was fixed:
+      File "zenmapGUI\SearchGUI.pyo", line 582, in operator_changed
+    KeyError: "Syst\xc3\xa8me d'Exploitation"
+  The text could be different, because the error was caused by
+  translating a string that was also being used as an index into an
+  internal data structure. The string will be untranslated until that
+  part of the code can be rewritten. [David]
+
 o Version detection now has a generic match line for SSLv3 servers,
   which matches more servers than the already-existing set of specific
   match lines. The match line found 13% more SSL servers in a test.
