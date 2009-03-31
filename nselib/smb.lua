@@ -134,7 +134,7 @@ status_names = {}
 local mutexes = setmetatable({}, {__mode = "k"});
 --local debug_mutex = nmap.mutex("SMB-DEBUG")
 
-local TIMEOUT = 5000
+local TIMEOUT = 20000
 
 ---Returns the mutex that should be used by the current connection. This mutex attempts
 -- to use the name, first, then falls back to the IP if no name was returned. 
