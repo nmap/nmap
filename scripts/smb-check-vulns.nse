@@ -87,6 +87,8 @@ local VULNERABLE = 1
 local PATCHED    = 2
 local UNKNOWN    = 3
 local NOTRUN     = 4
+local INFECTED   = 5
+local CLEAN      = 6
 
 ---Check if the server is patched for MS08-067. This is done by calling NetPathCompare with an 
 -- illegal string. If the string is accepted, then the server is vulnerable; if it's rejected, then
@@ -103,8 +105,8 @@ local NOTRUN     = 4
 --@param host The host object. 
 --@return (status, result) If status is false, result is an error code; otherwise, result is either 
 --        <code>VULNERABLE</code> for vulnerable, <code>PATCHED</code> for not vulnerable, 
---        <code>UNKNOWN</code> if there was an error (likely vulnerable), and <code>NOTRUN</code>
---        if this check was disabled. 
+--        <code>UNKNOWN</code> if there was an error (likely vulnerable), <code>NOTRUN</code>
+--        if this check was disabled, and <code>INFECTED</code> if it was patched by Conficker. 
 function check_ms08_067(host)
 	if(nmap.registry.args.safe ~= nil) then
 		return true, NOTRUN
@@ -136,10 +138,13 @@ function check_ms08_067(host)
 	msrpc.stop_smb(smbstate)
 
 	if(status == false) then
-		if(string.find(netpathcompare_result, "INVALID_NAME") == nil) then
-			return true, UNKNOWN
-		else
+		if(string.find(netpathcompare_result, "UNKNOWN_57") ~= nil) then
+			return true, INFECTED
+		elseif(string.find(netpathcompare_result, "INVALID_NAME") ~= nil) then
 			return true, PATCHED
+		else
+io.write(string.format("\n\n%s\n\n", netpathcompare_result))
+			return true, UNKNOWN
 		end
 	end
 
@@ -158,7 +163,7 @@ end
 --
 --@param host The host object. 
 --@return (status, result) If status is false, result is an error code; otherwise, result is either 
---        <code>VULNERABLE</code> for infected or <code>PATCHED</code> for not infected.
+--        <code>INFECTED</code> for infected or <code>CLEAN</code> for not infected.
 function check_conficker(host)
 	local status, smbstate
 	local bind_result, netpathcompare_result
@@ -188,16 +193,16 @@ function check_conficker(host)
 
 	if(status == false) then
 		if(string.find(netpathcanonicalize_result, "INVALID_NAME")) then
-			return true, PATCHED
+			return true, CLEAN
 		elseif(string.find(netpathcanonicalize_result, "UNKNOWN_57") ~= nil and error_result['can_path'] == 0x5c450000) then
-			return true, VULNERABLE
+			return true, INFECTED
 		else
-			return false, "Unexpected error: " .. netpathcanonicalize_result
+			return false, "Unexpected error (couldn't determine infection): " .. netpathcanonicalize_result
 		end
 	end
 
 
-	return true, PATCHED
+	return true, CLEAN
 end
 
 ---While writing <code>smb-enum-sessions</code> I discovered a repeatable null-pointer dereference 
@@ -266,6 +271,7 @@ action = function(host)
 			response = response .. "MS08-067: ERROR: " .. result .. "\n"
 		end
 	end
+
 	if(result == VULNERABLE) then
 		response = response .. "MS08-067: VULNERABLE\n"
 		found = true
@@ -273,6 +279,8 @@ action = function(host)
 		response = response .. "MS08-067: LIKELY VULNERABLE (host stopped responding)\n"
 	elseif(result == NOTRUN) then
 		response = response .. "MS08-067: NOT RUN\n"
+	elseif(result == INFECTED) then
+		response = response .. "MS08-067: PATCHED (possibly by Conficker)\n"
 	else
 		if(nmap.verbosity() > 0) then
 			response = response .. "MS08-067: FIXED\n"
