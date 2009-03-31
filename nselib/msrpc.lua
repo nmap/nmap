@@ -241,7 +241,7 @@ function bind(smbstate, interface_uuid, interface_version, transfer_syntax)
 	end
 
 	-- If we made it this far, then we have a valid Bind() result. Pull out some more parameters. 
-	pos, result['max_transmit_frag'], result['max_receive_frag'], result['assoc_group'], result['secondary_address_length'] = bin.unpack("SSIS", data, pos)
+	pos, result['max_transmit_frag'], result['max_receive_frag'], result['assoc_group'], result['secondary_address_length'] = bin.unpack("<SSIS", data, pos)
 	if(result['secondary_address_length'] == nil) then
 		return false, "MSRPC: ERROR: Ran off the end of SMB packet; likely due to server truncation"
 	end
