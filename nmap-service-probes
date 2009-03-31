@@ -6485,6 +6485,9 @@ match nut m|^Commands: VER REQ HELP LISTVARS LOGOUT LOGIN PASSWORD LISTRW VARTYP
 match webster m/^DICTIONARY server protocol:\r\n\r\nContact name is/ p/Webster dictionary server/
 
 ##############################NEXT PROBE##############################
+# SSLv3 ClientHello probe. Will be able to reliably identify the SSL version
+# used, unless the server is running SSLv2 only. Note that it will also detect
+# TLSv1-only servers, based on a failed handshake alert.
 Probe TCP SSLSessionReq q|\x16\x03\0\0S\x01\0\0O\x03\0?G\xd7\xf7\xba,\xee\xea\xb2`~\xf3\0\xfd\x82{\xb9\xd5\x96\xc8w\x9b\xe6\xc4\xdb<=\xdbo\xef\x10n\0\0(\0\x16\0\x13\0\x0a\0f\0\x05\0\x04\0e\0d\0c\0b\0a\0`\0\x15\0\x12\0\x09\0\x14\0\x11\0\x08\0\x06\0\x03\x01\0|
 
 rarity 3
@@ -6505,25 +6508,16 @@ match login m|^\0\r\nlogin: \^W\^@\^@\^@\^| p/VxWorks logind/ o/VxWorks/
 
 match maxdb m|^.Rejected bad connect packet\0$|s p/SAP MaxDB/
 
-# OpenSSL/0.9.7aa
-match ssl m|^\x16\x03\0\0J\x02\0\0F\x03\0| p/OpenSSL/
-
-# Don't think these 2 are correct:
-#match ssl m|^\x16\x03\0\x04#\x02\0\0F\x03\0| p/Apache Tomcat SSL/
-#match ssl m|^\x16\x03\0\0\*\x02\0\0&\x03\0| p/Apache mod_ssl/
+# OpenSSL/0.9.7aa, 0.9.8e
+match ssl m|^\x16\x03\0\0J\x02\0\0F\x03\0| p/OpenSSL/ i/SSLv3/
 
 # Microsoft-IIS/5.0 - note that OpenSSL must go above this one because this is more general
 match ssl m|^\x16\x03\0..\x02\0\0F\x03\0|s p/Microsoft IIS SSL/ o/Windows/
 # Novell Netware 6 Enterprise Web server 5.1 https
 # Novell Netware Ldap over SSL or enterprise web server 5.1 over SSL
 match ssl m|^\x16\x03\0\0:\x02\0\x006\x03\0| p/Novell Netware SSL/ o/NetWare/
-# Very generic:
-match ssl m|^\x16\x03\0\0\*\x02\0\0&\x03\0|
 # Cisco IDS 4.1 Appliance
 match ssl m|^\x16\x03\0\0\*\x02\0\0&\x03\0\xd10:\xbd\\\x8e\xe3\x15\x1c\x0fZ\xe4\x04\x87\x07\xc0\x82\xa9\xd4\x0e\x9c1LXk\xd1\xd2\x0b\x1a\xc6/p\0\0\n\0\x16\x03\0\x026\x0b\0\x022\0| p/Cisco IDS SSL/ d/firewall/
-# These Nessus match lines might be problematic:
-match ssl m|^\x15\x03\0\0\x02\x02\($| p/Nessus security scanner/ 
-match ssl m|^\x16\x03\x01\0J\x02\0\0F\x03\x01| p/Nessus security scanner/
 # PGP Corporation Keyserver Web Console 7.0 - custom Apache 1.3
 # PGP LDAPS Keyserver 8.X
 match ssl m|^\x16\x03\0\0\+\x02\0\0'\x03\0...\?|s p/PGP Corporation product SSL/
@@ -6548,6 +6542,33 @@ match tor m|^\x16\x03\0\0\*\x02\0\0&\x03\0.*T[oO][rR]1.*[\x00-\x20]([-\w_.]+) <i
 # Sophos Message Router
 match ssl/sophos m|^\x16\x03\0.*Router\$([a-zA-Z0-9_-]+).*Sophos EM Certification Manager|s p/Sophos Message Router/ h/$1/
 match ssl/sophos m|^\x16\x03\0.*Sophos EM Certification Manager|s p/Sophos Message Router/
+
+# Generic: TLSv1 Handshake error
+match ssl m|^\x15\x03\0\0\x02\x02\($| p/TLSv1/
+
+# Generic: SSLv3 ServerHello
+match ssl m|^\x16\x03\0..\x02...\x03\0| p/SSLv3/
+
+##############################NEXT PROBE##############################
+# SSLv2-compatible ClientHello, 39 ciphers offered.
+# Will elicit a ServerHello from most SSL implementations, apart from those
+# that are TLSv1-only or SSLv3-only. As it comes after the SSLv3 probe
+# (SSLSessionReq), its only added value is the detection of SSLv2-only servers.
+# SSLv2-only servers are rare so this probe has a high rarity.
+Probe TCP SSLv23SessionReq q|\x80\x9e\x01\x03\x01\x00u\x00\x00\x00 \x00\x00f\x00\x00e\x00\x00d\x00\x00c\x00\x00b\x00\x00:\x00\x009\x00\x008\x00\x005\x00\x004\x00\x003\x00\x002\x00\x00/\x00\x00\x1b\x00\x00\x1a\x00\x00\x19\x00\x00\x18\x00\x00\x17\x00\x00\x16\x00\x00\x15\x00\x00\x14\x00\x00\x13\x00\x00\x12\x00\x00\x11\x00\x00\n\x00\x00\t\x00\x00\x08\x00\x00\x06\x00\x00\x05\x00\x00\x04\x00\x00\x03\x07\x00\xc0\x06\x00@\x04\x00\x80\x03\x00\x80\x02\x00\x80\x01\x00\x80\x00\x00\x02\x00\x00\x01\xe4i<+\xf6\xd6\x9b\xbb\xd3\x81\x9f\xbf\x15\xc1@\xa5o\x14,M \xc4\xc7\xe0\xb6\xb0\xb2\x1f\xf9)\xe8\x98|
+
+rarity 8
+ports 443,444,548,636,993,1241,1311,2000,4444,5550,7210,7272,8009,8194,9001
+fallback GetRequest
+
+# SSLv2 ServerHello
+match ssl m|^..\x04\0.\0\x02| p/SSLv2/
+
+# TLSv1 ServerHello, compatible with SSLv2:
+match ssl m|^\x16\x03\x01..\x02...\x03\x01| p/TLSv1/
+
+# SSLv3 ServerHello, compatible with SSLv2:
+match ssl m|^\x16\x03\0..\x02...\x03\0| p/SSLv3/
 
 
 # SMB Negotiate Protocol

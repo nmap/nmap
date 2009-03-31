@@ -1,5 +1,16 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Version detection now has a generic match line for SSLv3 servers,
+  which matches more servers than the already-existing set of specific
+  match lines. The match line found 13% more SSL servers in a test.
+  Note that Nmap will not be able to do SSL scan-through against a
+  small fraction of these servers, those that are SSLv3-only or
+  TLSv1-only, because that ability is not yet built into Nsock. There
+  is also a new version detection probe that works against SSLv2-only
+  servers. These have shown themselves to be very rare, so that probe
+  is not sent by default. Kristof Boeynaems provided the patch and did
+  the testing.
+
 o [Zenmap] A bug was fixed that caused a crash when doing a keyword:
   or target: search over hosts that had a MAC address. [David] The
   crash output was
