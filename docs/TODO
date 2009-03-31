@@ -174,7 +174,7 @@ o Consider making the ping scan default be more comprehensive.  Note
 
 o Do an OS detection integration run -- last was based on 1/8/09.
 
-===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT==
+===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
 
 o Optimize NSE Performance--e.g. measure the current performance and
   see what can be improved in terms of scheduling scan threads,
