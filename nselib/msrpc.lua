@@ -3461,6 +3461,8 @@ end
 --        about the server. 
 function get_server_stats(host)
 	local stats
+	local status
+	local smbstate
 
 	-- Create the SMB session
 	status, smbstate = start_smb(host, SRVSVC_PATH)
