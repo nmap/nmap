@@ -277,7 +277,7 @@ action = function(host)
 		elseif(result == UNKNOWN) then
 			response = response .. "MS08-067: LIKELY VULNERABLE (host stopped responding)\n"
 		elseif(result == NOTRUN) then
-			response = response .. "MS08-067: NOT RUN\n"
+			response = response .. "MS08-067: Check disabled (remove 'safe=1' argument to run)\n"
 		elseif(result == INFECTED) then
 			response = response .. "MS08-067: PATCHED (possibly by Conficker)\n"
 		else
@@ -316,7 +316,7 @@ action = function(host)
 			found = true
 		elseif(result == NOTRUN) then
 			if(nmap.verbosity() > 0) then
-				response = response .. "regsvc DoS: NOT RUN (add --script-args=unsafe=1 to run)\n"
+				response = response .. "regsvc DoS: Check disabled (add --script-args=unsafe=1 to run)\n"
 			end
 		else
 			if(nmap.verbosity() > 0) then
