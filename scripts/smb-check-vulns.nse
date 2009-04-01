@@ -194,7 +194,8 @@ function check_conficker(host)
 	if(status == false) then
 		if(string.find(netpathcanonicalize_result, "INVALID_NAME")) then
 			return true, CLEAN
-		elseif(string.find(netpathcanonicalize_result, "UNKNOWN_57") ~= nil and error_result['can_path'] == 0x5c450000) then
+		--elseif(string.find(netpathcanonicalize_result, "UNKNOWN_57") ~= nil and error_result['can_path'] == 0x5c450000) then
+		elseif(string.find(netpathcanonicalize_result, "UNKNOWN_57") ~= nil) then
 			return true, INFECTED
 		else
 			return false, "Unexpected error (couldn't determine infection): " .. netpathcanonicalize_result
