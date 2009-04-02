@@ -23,6 +23,19 @@ o Improvements to the Conficker detection script (smb-check-vulns):
     The other improved message is for
     NT_STATUS_OBJECT_NAME_NOT_FOUND. [David]
 
+o The NSEDoc portal at http://nmap.org/nsedoc/ now provides download
+  links from the script and module pages to browse or download recent versions
+  of the code.  It isn't quite as up-to-date as obtaining them from
+  svn directly, but may be more convenient. For an example, see
+  http://nmap.org/nsedoc/scripts/smb-check-vulns.html. [David, Fyodor]
+
+o A copy of the Nmap public svn repository (/nmap, plus its zenmap,
+  nsock, nbase, and ncat externals) is now available at
+  http://nmap.org/svn/.  We'll be updating this regularly, but it may
+  be slightly behind the SVN version.  This is particularly useful
+  when you need to link to files in the tree, since browsers generally
+  don't handle svn:// repository links. [Fyodor]
+
 o Declare a couple msrpc.lua variables as local to avoid a potential
   deadlock between smb-server-stats.nse instances. [Ron]
 
