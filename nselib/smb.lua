@@ -1109,11 +1109,6 @@ function negotiate_protocol(smb)
 		end
 	end
 
-	-- Attempt to fix a bug where an empty server challenges causes an error
-	if(smb['server_challenge'] == "") then
-		smb['server_challenge'] = "AAAAAAAA"
-	end
-
 	return true
 end
 
