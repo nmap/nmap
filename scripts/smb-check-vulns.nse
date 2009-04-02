@@ -152,6 +152,41 @@ io.write(string.format("\n\n%s\n\n", netpathcompare_result))
 	return true, VULNERABLE
 end
 
+-- Help messages for the more common errors seen by the Conficker check.
+CONFICKER_ERROR_HELP = {
+	-- http://seclists.org/nmap-dev/2009/q1/0918.html "non-Windows boxes (Samba on Linux/OS X, or a printer)"
+	-- http://www.skullsecurity.org/blog/?p=209#comment-156
+	--   "That means either it isn’t a Windows machine, or the service is
+	--    either crashed or not running. That may indicate a failed (or
+	--    successful) exploit attempt, or just a locked down system.
+	--    NT_STATUS_OBJECT_NAME_NOT_FOUND can be returned if the browser
+	--    service is disabled. There are at least two ways that can happen:
+	--    1) The service itself is disabled in the services list.
+	--    2) The registry key HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Browser\Parameters\MaintainServerList
+	--       is set to Off/False/No rather than Auto or yes.
+	--    On these systems, if you reenable the browser service, then the
+	--    test will complete."
+	["NT_STATUS_OBJECT_NAME_NOT_FOUND"] = 
+[[UNKNOWN; not Windows, or Windows with disabled browser service (CLEAN); or Windows with crashed browser service (possibly INFECTED).
+|  If you know the remote system is Windows, try rebooting it and scanning
+|_ again. (Error NT_STATUS_OBJECT_NAME_NOT_FOUND)]],
+	-- http://www.skullsecurity.org/blog/?p=209#comment-100
+	--   "That likely means that the server has been locked down, so we
+	--    don’t have access to the necessary pipe. Fortunately, that means
+	--    that neither does Conficker — NT_STATUS_ACCESS_DENIED probably
+	--    means you’re ok."
+	["NT_STATUS_ACCESS_DENIED"] =
+[[Likely CLEAN; access was denied.
+|  If you have a login, try using --script-args=smbuser=xxx,smbpass=yyy
+|  (replace xxx and yyy with your username and password). Also try
+|_ smbdomain=zzz if you know the domain. (Error NT_STATUS_ACCESS_DENIED)]],
+	-- The cause of these two is still unknown.
+	-- ["NT_STATUS_NOT_SUPPORTED"] =
+	-- [[]]
+	-- http://thatsbroken.com/?cat=5 (doesn't seem common)
+	-- ["NT_STATUS_REQUEST_NOT_ACCEPTED"] =
+	-- [[]]
+}
 
 ---Check if the server is infected with Conficker. This can be detected by a modified MS08-067 patch, 
 -- which rejects a different illegal string than the official patch rejects. 
@@ -198,7 +233,8 @@ function check_conficker(host)
 		elseif(string.find(netpathcanonicalize_result, "UNKNOWN_57") ~= nil) then
 			return true, INFECTED
 		else
-			return false, "Unexpected error (couldn't determine infection): " .. netpathcanonicalize_result
+			local help = CONFICKER_ERROR_HELP[netpathcanonicalize_result] or "UNKNOWN (can't determine infection); got error " .. netpathcanonicalize_result
+			return false, help
 		end
 	end
 
@@ -294,7 +330,7 @@ action = function(host)
 		if(result == "NT_STATUS_BAD_NETWORK_NAME") then
 			response = response .. "Conficker: ERROR: Network name not found (required service has crashed)\n"
 		else
-			response = response .. "Conficker: ERROR: " .. result .. "\n"
+			response = response .. "Conficker: " .. result .. "\n"
 		end
 	else
 		if(result == CLEAN) then
