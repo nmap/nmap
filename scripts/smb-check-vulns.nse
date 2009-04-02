@@ -154,6 +154,8 @@ end
 
 -- Help messages for the more common errors seen by the Conficker check.
 CONFICKER_ERROR_HELP = {
+	["NT_STATUS_BAD_NETWORK_NAME"] =
+[[UNKNOWN; Network name not found (required service has crashed). (Error NT_STATUS_BAD_NETWORK_NAME)]],
 	-- http://seclists.org/nmap-dev/2009/q1/0918.html "non-Windows boxes (Samba on Linux/OS X, or a printer)"
 	-- http://www.skullsecurity.org/blog/?p=209#comment-156
 	--   "That means either it isn’t a Windows machine, or the service is
@@ -233,8 +235,7 @@ function check_conficker(host)
 		elseif(string.find(netpathcanonicalize_result, "UNKNOWN_57") ~= nil) then
 			return true, INFECTED
 		else
-			local help = CONFICKER_ERROR_HELP[netpathcanonicalize_result] or "UNKNOWN (can't determine infection); got error " .. netpathcanonicalize_result
-			return false, help
+			return false, netpathcanonicalize_result
 		end
 	end
 
@@ -327,11 +328,8 @@ action = function(host)
 	-- Check for Conficker
 	status, result = check_conficker(host)
 	if(status == false) then
-		if(result == "NT_STATUS_BAD_NETWORK_NAME") then
-			response = response .. "Conficker: ERROR: Network name not found (required service has crashed)\n"
-		else
-			response = response .. "Conficker: " .. result .. "\n"
-		end
+		local msg = CONFICKER_ERROR_HELP[result] or "UNKNOWN; got error " .. result
+		response = response .. "Conficker: " .. msg .. "\n"
 	else
 		if(result == CLEAN) then
 			response = response .. "Conficker: Likely CLEAN\n"
