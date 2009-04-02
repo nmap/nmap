@@ -1,5 +1,31 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 4.85BETA7 [2009-04-1]
+
+o Improvements to the Conficker detection script (smb-check-vulns):
+  o Treat any NetPathCanonicalize()return code of 0x57 as indicative
+    of a vulnerable machine. We (and all the other scanners) used to
+    require the 0x57 return code as well as a canonicalized path
+    string including 0x5c450000.  Tenable confirmed an infected
+    system which returned a 0x00000000 path, so we now treat any
+    return code of 0x57 as indicative of an infection. [Ron]
+  o Add workaround for crash in older versions of OpenSSL which would
+    occur when we received a blank authentication challenge string
+    from the server.  The error looked like: evp_enc.c(282): OpenSSL
+    internal error, assertion failed: inl > 0". [Ron]
+  o Add helpful text for the two most common errors seen in the
+    Conficker check in smb-check-vulns.nse.  So instead of saying
+    things like "Error: NT_STATUS_ACCESS_DENIED", output is like:
+    |  Conficker: Likely CLEAN; access was denied.
+    |  |  If you have a login, try using --script-args=smbuser=xxx,smbpass=yyy
+    |  |  (replace xxx and yyy with your username and password). Also try
+    |  |_ smbdomain=zzz if you know the domain. (Error NT_STATUS_ACCESS_DENIED)
+    The other improved message is for
+    NT_STATUS_OBJECT_NAME_NOT_FOUND. [David]
+
+o Declare a couple msrpc.lua variables as local to avoid a potential
+  deadlock between smb-server-stats.nse instances. [Ron]
+
 Nmap 4.85BETA6 [2009-03-31]
 
 o Fixed some bugs with the Conficker detection script
