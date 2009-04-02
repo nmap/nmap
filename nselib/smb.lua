@@ -1045,13 +1045,13 @@ function negotiate_protocol(smb)
 	end
 	-- Some broken implementations of SMB don't send these variables
 	if(smb['time'] == nil) then
-		time = 0
+		smb['time'] = 0
 	end
 	if(smb['timezone'] == nil) then
-		timezone = 0
+		smb['timezone'] = 0
 	end
 	if(smb['key_length'] == nil) then
-		key_length = 0
+		smb['key_length'] = 0
 	end
 
 	-- Convert the time and timezone to more useful values
@@ -1107,6 +1107,11 @@ function negotiate_protocol(smb)
 			smb['server'] = smb['server'] .. string.char(ch)
 			pos, ch, dummy = bin.unpack("<CC", data, pos)
 		end
+	end
+
+	-- Attempt to fix a bug where an empty server challenges causes an error
+	if(smb['server_challenge'] == "") then
+		smb['server_challenge'] = "AAAAAAAA"
 	end
 
 	return true
