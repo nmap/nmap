@@ -3,12 +3,11 @@
 Nmap 4.85BETA7 [2009-04-1]
 
 o Improvements to the Conficker detection script (smb-check-vulns):
-  o Treat any NetPathCanonicalize()return code of 0x57 as indicative
-    of a vulnerable machine. We (and all the other scanners) used to
-    require the 0x57 return code as well as a canonicalized path
-    string including 0x5c450000.  Tenable confirmed an infected
-    system which returned a 0x00000000 path, so we now treat any
-    return code of 0x57 as indicative of an infection. [Ron]
+  o Reduce false negative rate.  We (and all the other scanners) used
+    to require the 0x57 return code as well as a canonicalized path
+    string including 0x5c450000.  Tenable confirmed an infected system
+    which returned a 0x00000000 path, so we now treat any hosting
+    returning code 0x57 as likely infected. [Ron]
   o Add workaround for crash in older versions of OpenSSL which would
     occur when we received a blank authentication challenge string
     from the server.  The error looked like: evp_enc.c(282): OpenSSL
