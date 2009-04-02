@@ -184,8 +184,15 @@ function lm_create_response(lanman, challenge)
 	key2 = openssl.DES_string_to_key(str2)
 	key3 = openssl.DES_string_to_key(str3)
 
+	-- Print a warning message if a blank challenge is received, and create a phony challenge. A blank challenge is
+	-- invalid in the protocol, and causes some versions of OpenSSL to abort with no possible error handling. 
+	if(challenge == "") then
+		stdnse.print_debug(1, "SMB: ERROR: Server returned invalid (blank) challenge value (should be 8 bytes); failing login to avoid OpenSSL crash.")
+		challenge = "AAAAAAAA"
+	end
+
 	-- Encrypt the challenge with each key
-	result = openssl.encrypt("DES", key1, nil, challenge) .. openssl.encrypt("DES", key2, nil, challenge) .. openssl.encrypt("DES", key3, nil, challenge) 
+	result = openssl.encrypt("DES", key1, nil, challenge) .. openssl.encrypt("DES", key2, nil, challenge) .. openssl.encrypt("DES", key3, nil, challenge)
 
 	return true, result
 end
