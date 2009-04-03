@@ -2,7 +2,7 @@ description = [[
 Check for vulnerabilities:
 * MS08-067, a Windows RPC vulnerability
 * Conficker, an infection by the Conficker worm
-* Unnamed regsvc DoS, a denial-of-service vulnerability I accidentically found in Windows 2003
+* Unnamed regsvc DoS, a denial-of-service vulnerability I accidentically found in Windows 2000
 
 WARNING: These checks are dangerous, and are very likely to bring down a server. 
 These should not be run in a production environment unless you (and, more importantly,
