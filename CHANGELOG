@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Worked around a GTK+ bug on Windows reported by Henry Nymann.
+  It caused a crash when opening the Hosts Viewer on a host that had OS
+  information. A window appeared saying simply "Runtime Error!". [David]
+
 o [Zenmap] Gracefully handle unrecognized port states in the hosts
   viewer. Apparently old versions of Nmap can return a state of
   "unknown". This prevents this crash:
