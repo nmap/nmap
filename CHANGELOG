@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Gracefully handle unrecognized port states in the hosts
+  viewer. Apparently old versions of Nmap can return a state of
+  "unknown". This prevents this crash:
+      File "radialnet\gui\NodeNotebook.pyo", line 107, in __init__
+      File "radialnet\gui\NodeNotebook.pyo", line 257, in __create_widgets
+    KeyError: u'unknown'
+  [David]
+
 Nmap 4.85BETA7 [2009-04-1]
 
 o Improvements to the Conficker detection script (smb-check-vulns):
