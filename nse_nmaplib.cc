@@ -243,7 +243,10 @@ static int aux_mutex (lua_State *L)
       lua_call(L, 2, 1);
       lua_replace(L, lua_upvalueindex(2));
       if (!lua_isnil(L, lua_upvalueindex(2))) // waiting threads had a thread
-        process_waiting2running(lua_tothread(L, lua_upvalueindex(2)), 0);
+      {
+        assert(lua_isthread(L, lua_upvalueindex(2)));
+        nse_restore(lua_tothread(L, lua_upvalueindex(2)), 0);
+      }
       return 0;
     case 2: // trylock
       if (lua_isnil(L, lua_upvalueindex(2)))
@@ -281,7 +284,7 @@ static int l_mutex (lua_State *L)
   return 1; // aux_mutex closure
 }
 
-static Target *get_target (lua_State *L, int index)
+Target *get_target (lua_State *L, int index)
 {
   Target *target;
   luaL_checktype(L, index, LUA_TTABLE);
@@ -298,7 +301,7 @@ static Target *get_target (lua_State *L, int index)
   return target;
 }
 
-static Port *get_port (lua_State *L, Target *target, int index)
+Port *get_port (lua_State *L, Target *target, int index)
 {
   Port *port = NULL;
   int portno, protocol;

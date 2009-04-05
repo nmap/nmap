@@ -11,8 +11,8 @@ extern "C" {
 #include <iomanip>
 
 #include "nse_nsock.h"
+#include "nse_main.h"
 #include "nse_macros.h"
-#include "nse_debug.h"
 
 #include "nsock.h"
 #include "nmap_error.h"
@@ -39,10 +39,6 @@ extern "C" {
 
 extern NmapOps o;
 
-// defined in nse_main.cc but also declared here
-// to keep the .h files clean
-int process_waiting2running(lua_State *L, int resume_arguments);
-
 static int l_nsock_connect(lua_State *L);
 static int l_nsock_send(lua_State *L);
 static int l_nsock_receive(lua_State *L);
@@ -60,10 +56,10 @@ static int l_nsock_ncap_register(lua_State *L);
 static int l_nsock_pcap_receive(lua_State *L);
 
 
-void l_nsock_connect_handler(nsock_pool nsp, nsock_event nse, void *lua_state);
-void l_nsock_send_handler(nsock_pool nsp, nsock_event nse, void *lua_state);
-void l_nsock_receive_handler(nsock_pool nsp, nsock_event nse, void *lua_state);
-void l_nsock_receive_buf_handler(nsock_pool nsp, nsock_event nse, void *lua_state);
+void l_nsock_connect_handler(nsock_pool nsp, nsock_event nse, void *yield);
+void l_nsock_send_handler(nsock_pool nsp, nsock_event nse, void *yield);
+void l_nsock_receive_handler(nsock_pool nsp, nsock_event nse, void *yield);
+void l_nsock_receive_buf_handler(nsock_pool nsp, nsock_event nse, void *yield);
 
 int l_nsock_check_buf(lua_State *L);
 
@@ -73,6 +69,24 @@ void l_nsock_trace(nsock_iod nsiod, const char* message, int direction);
 const char* inet_ntop_both(int af, const void* v_addr, char* ipstring);
 unsigned short inet_port_both(int af, const void* v_addr);
 
+/* size_t table_length (lua_State *L, int index)
+ *
+ * Returns the length of the table at index index.
+ * This length is the number of elements, not just array elements.
+ */
+static size_t table_length (lua_State *L, int index)
+{
+  size_t len = 0;
+  lua_pushvalue(L, index);
+  lua_pushnil(L);
+  while (lua_next(L, -2) != 0)
+  {
+    len++;
+    lua_pop(L, 1);
+  }
+  lua_pop(L, 1); // table
+  return len;
+}
 
 static std::string hexify (const char *str, size_t len)
 {
@@ -142,7 +156,7 @@ static int proxy_gc (lua_State *L)
   if (lua_next(L, -2) != 0)
   {
     lua_State *thread = lua_tothread(L, -2);
-    process_waiting2running(thread, 0);
+    nse_restore(thread, 0);
     lua_pushnil(L);
     lua_replace(L, -2); // replace boolean
     lua_settable(L, -3); // remove thread from waiting
@@ -167,7 +181,6 @@ static void new_proxy (lua_State *L)
  */
 static int socket_lock (lua_State *L)
 {
-  luaL_checkudata(L, 1, "nsock");
   lua_settop(L, 1);
   lua_rawgeti(L, LUA_ENVIRONINDEX, THREAD_PROXY);
   lua_pushthread(L);
@@ -190,7 +203,7 @@ static int socket_lock (lua_State *L)
     lua_pushboolean(L, true);
     lua_settable(L, -3);
     lua_pop(L, 1); // CONNECT_WAITING
-    lua_pushboolean(L, false);
+    return lua_yield(L, 0);
   } else
   {
     // There is room for this thread to open sockets. Make a new proxy userdata
@@ -240,13 +253,18 @@ struct ncap_socket{
 				 * address this structure. */
 };
 
+struct yield {
+	lua_State *thread; /* thread to resume */
+	struct l_nsock_udata *udata; /* self reference */
+} yield;
+
 /*
  *
  */ 
 struct ncap_request{
 	int suspended;		/* is the thread suspended? (lua_yield) */
-	lua_State *L;		/* lua_State of current process
-				 * or NULL if process isn't suspended */ 
+	//lua_State *L;		/* lua_State of current process or NULL if process isn't suspended */ 
+	struct yield *yield;
 	nsock_event_id nseid;	/* nse for this specific lua_State */
 	struct timeval end_time;
 	char *key;		/* (free) zero-terminated key used in map to 
@@ -269,14 +287,15 @@ struct ncap_request{
         			 * we need to use this. */ 
 };
 
-
 struct l_nsock_udata {
 	int timeout;
 	nsock_iod nsiod;
 	void *ssl_session;
+	struct yield yield;
 	/*used for buffered reading */
 	int bufidx; /*index inside lua's registry */
 	int bufused;
+	int rbuf_args[3]; /* indices in lua registry for receive_buf args */
 	
 	struct ncap_socket  *ncap_socket;
 	struct ncap_request *ncap_request;
@@ -295,11 +314,9 @@ int luaopen_nsock (lua_State *L)
    * connect function.
    */
   static const char connect[] =
-    "local yield, connect, socket_lock = ...;\n"
+    "local connect, socket_lock = ...;\n"
     "return function(socket, ...)\n"
-    "  while not socket_lock(socket) do\n"
-    "    yield();\n"
-    "  end\n"
+    "  repeat until socket_lock(socket) == true;\n"
     "  return connect(socket, ...);\n"
     "end";
 
@@ -354,12 +371,9 @@ int luaopen_nsock (lua_State *L)
   /* Load the connect function */
   if (luaL_loadstring(L, connect) != 0)
     fatal("connect did not compile!");
-  lua_getglobal(L, "coroutine");
-  lua_getfield(L, -1, "yield");
-  lua_replace(L, -2); // remove coroutine table
   lua_pushcclosure(L, l_nsock_connect, 0);
   lua_pushcclosure(L, socket_lock, 0);
-  lua_call(L, 3, 1); // leave connect function on stack...
+  lua_call(L, 2, 1); // leave connect function on stack...
   lua_pushvalue(L, LUA_GLOBALSINDEX);
   lua_setfenv(L, -2); // set the connect function's environment to _G
 
@@ -395,6 +409,9 @@ int l_nsock_new(lua_State *L) {
 	udata->timeout = DEFAULT_TIMEOUT;
 	udata->bufidx = LUA_NOREF;
 	udata->bufused= 0;
+	udata->rbuf_args[0] = LUA_NOREF;
+	udata->rbuf_args[1] = LUA_NOREF;
+	udata->rbuf_args[2] = LUA_NOREF;
 	udata->ncap_socket	= NULL;
 	udata->ncap_request	= NULL;
 	udata->ncap_cback_ref	= 0;
@@ -473,18 +490,18 @@ static int l_nsock_connect(lua_State *L) {
 		case 't':
 			if (strcmp(how, "tcp")) goto error;
 			nsock_connect_tcp(nsp, udata->nsiod, l_nsock_connect_handler, 
-					udata->timeout, L, dest->ai_addr, dest->ai_addrlen, port);
+					udata->timeout, &udata->yield, dest->ai_addr, dest->ai_addrlen, port);
 			break;
 		case 'u':
 			if (strcmp(how, "udp")) goto error;
 			nsock_connect_udp(nsp, udata->nsiod, l_nsock_connect_handler, 
-					L, dest->ai_addr, dest->ai_addrlen, port);
+					&udata->yield, dest->ai_addr, dest->ai_addrlen, port);
 			break;
 		case 's':
 			if (strcmp(how, "ssl")) goto error;
 #ifdef HAVE_OPENSSL
 			nsock_connect_ssl(nsp, udata->nsiod, l_nsock_connect_handler, 
-					udata->timeout, L, dest->ai_addr, dest->ai_addrlen, port, 
+					udata->timeout, &udata->yield, dest->ai_addr, dest->ai_addrlen, port, 
 					udata->ssl_session);
 			break;
 #else
@@ -498,6 +515,7 @@ static int l_nsock_connect(lua_State *L) {
 	}
 
 	freeaddrinfo(dest);
+	udata->yield.thread = L;
 	return lua_yield(L, 0);
 
 error:
@@ -506,17 +524,18 @@ error:
 	return 0;
 }
 
-void l_nsock_connect_handler(nsock_pool nsp, nsock_event nse, void *lua_state) {
-	lua_State *L = (lua_State*) lua_state;
+void l_nsock_connect_handler(nsock_pool nsp, nsock_event nse, void *yield) {
+	struct yield *y = (struct yield *) yield;
+	lua_State *L = y->thread;
 
 	if(o.scriptTrace()) {
 		l_nsock_trace(nse_iod(nse), "CONNECT", TO);
 	}
 
 	if(l_nsock_checkstatus(L, nse) == NSOCK_WRAPPER_SUCCESS) {
-		process_waiting2running((lua_State*) lua_state, 1);
+		nse_restore(y->thread, 1);
 	} else {
-		process_waiting2running((lua_State*) lua_state, 2);
+		nse_restore(y->thread, 2);
 	}
 }
 
@@ -536,17 +555,19 @@ static int l_nsock_send(lua_State *L) {
 	if(o.scriptTrace())
 		l_nsock_trace(udata->nsiod, hexify(string, string_len).c_str(), TO);
 
-	nsock_write(nsp, udata->nsiod, l_nsock_send_handler, udata->timeout, L, string, string_len);
+	nsock_write(nsp, udata->nsiod, l_nsock_send_handler, udata->timeout, &udata->yield, string, string_len);
+	udata->yield.thread = L;
 	return lua_yield(L, 0);
 }
 
-void l_nsock_send_handler(nsock_pool nsp, nsock_event nse, void *lua_state) {
-	lua_State *L = (lua_State*) lua_state;
+void l_nsock_send_handler(nsock_pool nsp, nsock_event nse, void *yield) {
+	struct yield *y = (struct yield *) yield;
+	lua_State *L = y->thread;
 	
 	if(l_nsock_checkstatus(L, nse) == NSOCK_WRAPPER_SUCCESS) {
-		process_waiting2running((lua_State*) lua_state, 1);
+		nse_restore(y->thread, 1);
 	} else {
-		process_waiting2running((lua_State*) lua_state, 2);
+		nse_restore(y->thread, 2);
 	}
 }
 
@@ -560,8 +581,9 @@ static int l_nsock_receive(lua_State *L) {
 		return 2;	
 	}
 
-	nsock_read(nsp, udata->nsiod, l_nsock_receive_handler, udata->timeout, L);
+	nsock_read(nsp, udata->nsiod, l_nsock_receive_handler, udata->timeout, &udata->yield);
 
+	udata->yield.thread = L;
 	return lua_yield(L, 0);
 }
 
@@ -577,8 +599,10 @@ static int l_nsock_receive_lines(lua_State *L) {
 		return 2;	
 	}
 
-	nsock_readlines(nsp, udata->nsiod, l_nsock_receive_handler, udata->timeout, L, nlines);
+	nsock_readlines(nsp, udata->nsiod, l_nsock_receive_handler, udata->timeout, &udata->yield, nlines);
 
+
+	udata->yield.thread = L;
 	return lua_yield(L, 0);
 }
 
@@ -594,13 +618,15 @@ static int l_nsock_receive_bytes(lua_State *L) {
 		return 2;	
 	}
 
-	nsock_readbytes(nsp, udata->nsiod, l_nsock_receive_handler, udata->timeout, L, nbytes);
+	nsock_readbytes(nsp, udata->nsiod, l_nsock_receive_handler, udata->timeout, &udata->yield, nbytes);
 
+	udata->yield.thread = L;
 	return lua_yield(L, 0);
 }
 
-void l_nsock_receive_handler(nsock_pool nsp, nsock_event nse, void *lua_state) {
-	lua_State *L = (lua_State*) lua_state;
+void l_nsock_receive_handler(nsock_pool nsp, nsock_event nse, void *yield) {
+	struct yield *y = (struct yield *) yield;
+	lua_State *L = y->thread;
 	char* rcvd_string;
 	int rcvd_len = 0;
 
@@ -611,9 +637,9 @@ void l_nsock_receive_handler(nsock_pool nsp, nsock_event nse, void *lua_state) {
 			l_nsock_trace(nse_iod(nse), hexify(rcvd_string, (size_t) rcvd_len).c_str(), FROM);
 
 		lua_pushlstring(L, rcvd_string, rcvd_len);
-		process_waiting2running((lua_State*) lua_state, 2);
+		nse_restore(y->thread, 2);
 	} else {
-		process_waiting2running((lua_State*) lua_state, 2);
+		nse_restore(y->thread, 2);
 	}
 }
 
@@ -726,6 +752,8 @@ static int l_nsock_gc(lua_State *L){
 		return 0;	
 	}else{
 	//FIXME - check wheter close returned true!!
+	for (int i = 0; i < 3; i++)
+		luaL_unref(L, LUA_REGISTRYINDEX, udata->rbuf_args[i]);
 		l_nsock_close(L);
 	}
 	return 0;
@@ -779,9 +807,11 @@ static int l_nsock_set_timeout(lua_State *L) {
 /* buffered I/O */
 static int l_nsock_receive_buf(lua_State *L) {
 	l_nsock_udata* udata = (l_nsock_udata*) luaL_checkudata(L, 1, "nsock");
-	if(lua_gettop(L)==2){ 
-		/*we were called with 2 arguments only - push the default third one*/
-		lua_pushboolean(L,true);
+	lua_settop(L, 3);
+	udata->yield.udata = udata;
+	for (int i = 0; i < 3; i++) { /* compatibility, clean up someday */
+		lua_pushvalue(L, i+1); /* argument 1-3 */
+		udata->rbuf_args[i] = luaL_ref(L, LUA_REGISTRYINDEX);
 	}
 	if(udata->nsiod == NULL) {
 		lua_pushboolean(L, false);
@@ -792,7 +822,7 @@ static int l_nsock_receive_buf(lua_State *L) {
 		lua_pushstring(L,"");
 		udata->bufidx = luaL_ref(L, LUA_REGISTRYINDEX);
 		udata->bufused=1;
-		nsock_read(nsp, udata->nsiod, l_nsock_receive_buf_handler, udata->timeout, L);
+		nsock_read(nsp, udata->nsiod, l_nsock_receive_buf_handler, udata->timeout, &udata->yield);
 	}else if(udata->bufused==-1){ /*error message is inside the buffer*/
 		lua_pushboolean(L,false); 
 		lua_rawgeti(L, LUA_REGISTRYINDEX, udata->bufidx);
@@ -804,20 +834,29 @@ static int l_nsock_receive_buf(lua_State *L) {
 			/*if we didn't have enough data in the buffer another nsock_read()
 			 * was scheduled - its callback will put us in running state again
 			 */
-			return lua_yield(L,3);
+			udata->yield.thread = L;
+			return lua_yield(L, 0);
 		}
 		return 2;
 	}
 	/*yielding with 3 arguments since we need them when the callback arrives */
-	return lua_yield(L, 3);
+	udata->yield.thread = L;
+	return lua_yield(L, 0);
 }
 
-void l_nsock_receive_buf_handler(nsock_pool nsp, nsock_event nse, void *lua_state) {
-	lua_State *L = (lua_State*) lua_state;
+void l_nsock_receive_buf_handler(nsock_pool nsp, nsock_event nse, void *yield) {
+	struct yield *y = (struct yield *) yield;
+	l_nsock_udata *udata = y->udata;
+	lua_State *L= y->thread;
 	char* rcvd_string;
 	int rcvd_len = 0;
 	int tmpidx;
-	l_nsock_udata* udata = (l_nsock_udata*) luaL_checkudata(L, 1, "nsock");
+	/* set stack values, this all needs fixing... */
+	for (int i = 0; i < 3; i++) {
+		lua_rawgeti(L, LUA_REGISTRYINDEX, udata->rbuf_args[i]);
+		luaL_unref(L, LUA_REGISTRYINDEX, udata->rbuf_args[i]);
+		udata->rbuf_args[i] = LUA_NOREF;
+	}
 	if(l_nsock_checkstatus(L, nse) == NSOCK_WRAPPER_SUCCESS) {
 		
 		//l_nsock_checkstatus pushes true on the stack in case of success
@@ -841,7 +880,7 @@ void l_nsock_receive_buf_handler(nsock_pool nsp, nsock_event nse, void *lua_stat
 		 */
 			return;
 		}
-		process_waiting2running((lua_State*) lua_state, 2);
+		nse_restore(y->thread, 2);
 	} else {
 		if(udata->bufused>1){ 
 		/*error occured after we read into some data into the buffer
@@ -857,9 +896,9 @@ void l_nsock_receive_buf_handler(nsock_pool nsp, nsock_event nse, void *lua_stat
 			l_nsock_clear_buf(L, udata);
 			udata->bufidx=tmpidx;
 			udata->bufused=-1;
-			process_waiting2running((lua_State*) lua_state, 2);
+			nse_restore(y->thread, 2);
 		}else{ /*buffer should be empty */
-			process_waiting2running((lua_State*) lua_state, 2);
+			nse_restore(y->thread, 2);
 		}
 	}
 }
@@ -903,7 +942,7 @@ int l_nsock_check_buf(lua_State *L ){
 	/*the stack contains on top the indices where we want to seperate */
 	if(lua_isnil(L,-1)){ /*not found anything try to read more data*/
 		lua_pop(L,2);
-		nsock_read(nsp, udata->nsiod, l_nsock_receive_buf_handler, udata->timeout, L);
+		nsock_read(nsp, udata->nsiod, l_nsock_receive_buf_handler, udata->timeout, &udata->yield);
 		lua_pushboolean(L,keeppattern);
 		return NSOCK_WRAPPER_BUFFER_MOREREAD;
 	}else{
@@ -955,7 +994,7 @@ void l_nsock_clear_buf(lua_State *L, l_nsock_udata* udata){
 static void l_nsock_sleep_handler(nsock_pool nsp, nsock_event nse, void *udata) {
   lua_State *L = (lua_State*) udata;
   assert(nse_status(nse) == NSE_STATUS_SUCCESS);
-  process_waiting2running(L, 0);
+  nse_restore(L, 0);
 }
 
 int l_nsock_sleep(lua_State *L) {
@@ -1196,7 +1235,7 @@ static int l_nsock_ncap_register(lua_State *L){
 	
 	TIMEVAL_MSEC_ADD(nr->end_time, now, udata->timeout);
 	nr->key   = strdup(hex((char*)testdata, testdatasz));
-	nr->L     = L;
+	nr->yield     = &udata->yield;
 	nr->ncap_cback_ref = udata->ncap_cback_ref;
 	/* always create new event. */
 	nr->nseid = nsock_pcap_read_packet(nsp, 
@@ -1238,6 +1277,7 @@ int l_nsock_pcap_receive(lua_State *L){
 	/* no data yet? suspend thread */
 	nr->suspended = 1;
 	
+	udata->yield.thread = L;
 	return lua_yield(L, 0);
 }
 
@@ -1272,7 +1312,7 @@ void l_nsock_pcap_receive_handler(nsock_pool nsp, nsock_event nse, void *userdat
 	
 	switch(nse_status(nse)) {
 	case NSE_STATUS_SUCCESS:{
-		char *key = ncap_request_do_callback(nse, nr->L, nr->ncap_cback_ref);
+		char *key = ncap_request_do_callback(nse, nr->yield->thread, nr->ncap_cback_ref);
 		
 		/* processes threads that receive every packet */
 		this_event_restored += ncap_request_set_results(nse, "");
@@ -1383,7 +1423,7 @@ void ncap_request_set_result(nsock_event nse, struct ncap_request *nr) {
 /* if lua thread was suspended, restore it. If it wasn't, just return results 
  * (push them on the stack and return) */
 int ncap_restore_lua(ncap_request *nr){
-	lua_State *L = nr->L;
+	lua_State *L = nr->yield->thread;
 
 	if(nr->r_success){
 		lua_pushboolean(L, true);
@@ -1397,7 +1437,7 @@ int ncap_restore_lua(ncap_request *nr){
 		lua_pushnil(L);
 	}
 	bool suspended  = nr->suspended;
-	nr->L 		   = NULL;
+	//nr->L 		   = NULL; // FIXME ??
 	nr->ncap_cback_ref = 0;	/* this ref is freed in different place (on udata->ncap_cback_ref) */
 	if(nr->key) free(nr->key);
 	if(nr->r_status) free(nr->r_status);
@@ -1407,9 +1447,10 @@ int ncap_restore_lua(ncap_request *nr){
 	free(nr);
 	
 	if(suspended) 	/* lua process is  suspended */
-		return process_waiting2running(L, 4);
+		nse_restore(L, 4);
 	else			/* not suspended, just pass output */
 		return 4;
+	return 0;
 }
 
 

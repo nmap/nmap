@@ -698,8 +698,6 @@ int nmap_main(int argc, char *argv[]) {
 		o.chooseScripts(optarg);
 	} else if(optcmp(long_options[option_index].name,"script-args")==0){
 		o.scriptargs=strdup(optarg);
-		if(script_check_args()!=0)
-			fatal("Error parsing --script-args\n");
 	}else if (optcmp(long_options[option_index].name, "script-trace") == 0) {
 		o.scripttrace = 1;
 	} else if (optcmp(long_options[option_index].name, "script-updatedb") == 0){
@@ -1581,6 +1579,9 @@ int nmap_main(int argc, char *argv[]) {
 	// disable warnings
   	o.max_ips_to_scan = o.numhosts_scanned; 
   }
+  if (o.servicescan)
+    o.scriptversion = 1;
+  open_nse();
 #endif
   
   /* Time to create a hostgroup state object filled with all the requested
@@ -1782,9 +1783,6 @@ int nmap_main(int argc, char *argv[]) {
 
     if (o.servicescan) {
       o.current_scantype = SERVICE_SCAN; 
-#ifndef NOLUA
-      o.scriptversion = 1;
-#endif
 
       service_scan(Targets);
     }
@@ -1907,7 +1905,7 @@ void nmap_free_mem() {
   if (o.extra_payload) free(o.extra_payload);
   if (o.ipoptions) free(o.ipoptions);
 #ifndef NOLUA
-  script_scan_free();
+  close_nse();
   free(o.scriptargs);
 #endif
 }

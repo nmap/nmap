@@ -1,6 +1,8 @@
 #ifndef NSE_MACROS
 #define NSE_MACROS
 
+#define NSE_WAITING_TO_RUNNING "WAITING_TO_RUNNING"
+
 #define HOSTRULE	"hostrule"
 #define HOSTTESTS	"hosttests"
 #define PORTRULE	"portrule"

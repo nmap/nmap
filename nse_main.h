@@ -9,6 +9,7 @@
 
 extern "C" {
   #include "lua.h"
+  #include "lualib.h"
   #include "lauxlib.h"
 }
 
@@ -27,17 +28,14 @@ class ScriptResult
 typedef std::vector<ScriptResult> ScriptResults;
 
 class Target;
-int script_scan(std::vector<Target *> &targets);
+
 int script_updatedb();
 void script_scan_free();
 
-//parses the arguments provided to scripts via nmap's --script-args option 
-int script_check_args();
+void nse_restore (lua_State *, int);
 
-int process_waiting2running(lua_State *, int);
-
-/* Useful auxiliary functions */
-size_t table_length(lua_State *, int);
-
+int open_nse (void);
+int script_scan(std::vector<Target *> &targets);
+void close_nse (void);
 
 #endif
