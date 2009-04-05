@@ -23,8 +23,8 @@
   ;Get installation folder from registry if available 
   InstallDirRegKey HKCU "Software\Nmap" "" 
  
-  !define VERSION "4.85BETA1"  
-  VIProductVersion "4.85.0.1"
+  !define VERSION "4.85BETA7"  
+  VIProductVersion "4.85.0.7"
   VIAddVersionKey /LANG=1033 "FileVersion" "${VERSION}"
   VIAddVersionKey /LANG=1033 "ProductName" "Nmap" 
   VIAddVersionKey /LANG=1033 "CompanyName" "Insecure.org" 
@@ -160,7 +160,8 @@ Section "Nmap Core Files" SecCore
   File ..\..\nmap-rpc 
   File ..\..\nmap-service-probes 
   File ..\..\nmap-services 
-  File ..\Release\nmap.exe 
+  File ..\Release\nmap.exe
+  File ..\Release\nse_main.lua
   File ..\..\docs\nmap.xsl 
   File ..\nmap_performance.reg 
   File ..\..\README-WIN32 
@@ -328,7 +329,8 @@ Section "Uninstall"
   Delete "$INSTDIR\nmap-services" 
   Delete "$INSTDIR\nmap.exe" 
   Delete "$INSTDIR\nmap.xsl" 
-  Delete "$INSTDIR\nmap_performance.reg" 
+  Delete "$INSTDIR\nmap_performance.reg"  
+  Delete "$INSTDIR\nse_main.lua"  
   Delete "$INSTDIR\README-WIN32" 
   Delete "$INSTDIR\icon1.ico"
   Delete "$INSTDIR\libeay32.dll"

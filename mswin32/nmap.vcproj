@@ -107,7 +107,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy &quot;$(SolutionDir)..\scripts&quot; &quot;.\$(ConfigurationName)\scripts\&quot; /e /y &amp;&amp; xcopy &quot;$(SolutionDir)..\nselib\*.lua&quot; &quot;$(SolutionDir)\$(ConfigurationName)\nselib\&quot; /y &amp;&amp; xcopy &quot;$(SolutionDir)\OpenSSL\bin\*.dll&quot; &quot;$(SolutionDir)\$(ConfigurationName)\&quot; /y"
+				CommandLine="xcopy &quot;$(SolutionDir)..\scripts&quot; &quot;.\$(ConfigurationName)\scripts\&quot; /e /y &amp;&amp; xcopy &quot;$(SolutionDir)..\nselib\*.lua&quot; &quot;$(SolutionDir)\$(ConfigurationName)\nselib\&quot; /y &amp;&amp; xcopy &quot;$(SolutionDir)\OpenSSL\bin\*.dll&quot; &quot;$(SolutionDir)\$(ConfigurationName)\&quot; /y &amp;&amp; xcopy &quot;$(SolutionDir)..\nse_main.lua&quot; &quot;$(SolutionDir)\$(ConfigurationName)\&quot; /y"
 			/>
 		</Configuration>
 		<Configuration
@@ -199,7 +199,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy &quot;$(SolutionDir)..\scripts&quot; &quot;.\$(ConfigurationName)\scripts\&quot; /e /y &amp;&amp; xcopy &quot;$(SolutionDir)..\nselib\*.lua&quot; &quot;$(SolutionDir)\$(ConfigurationName)\nselib\&quot; /y &amp;&amp; xcopy &quot;$(SolutionDir)..\nselib\data\*.*&quot; &quot;$(SolutionDir)\$(ConfigurationName)\nselib\data\&quot; /y &amp;&amp; xcopy &quot;$(SolutionDir)\OpenSSL\bin\*.dll&quot; &quot;$(SolutionDir)\$(ConfigurationName)\&quot; /y"
+				CommandLine="xcopy &quot;$(SolutionDir)..\scripts&quot; &quot;.\$(ConfigurationName)\scripts\&quot; /e /y &amp;&amp; xcopy &quot;$(SolutionDir)..\nselib\*.lua&quot; &quot;$(SolutionDir)\$(ConfigurationName)\nselib\&quot; /y &amp;&amp; xcopy &quot;$(SolutionDir)..\nselib\data\*.*&quot; &quot;$(SolutionDir)\$(ConfigurationName)\nselib\data\&quot; /y &amp;&amp; xcopy &quot;$(SolutionDir)\OpenSSL\bin\*.dll&quot; &quot;$(SolutionDir)\$(ConfigurationName)\&quot; /y &amp;&amp; xcopy &quot;$(SolutionDir)..\nse_main.lua&quot; &quot;$(SolutionDir)\$(ConfigurationName)\&quot; /y"
 			/>
 		</Configuration>
 	</Configurations>
