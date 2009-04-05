@@ -24,22 +24,6 @@ o [Zenmap] Should probably give some sort of widget indication that a
   scan is running.  Or maybe a different sort of indication is in
   order. [David]
 
-o Improvements to presentation of version detection
-  information. [Brandon]
-  o Allow longer strings.  Right now it can be 128 chars for the
-    fullversion info, I think.  But that isn't enough for this useful
-    information-packed string: "Apache httpd 2.0.52 ((Red Hat)
-    mod_perl/1.99_16 Perl/v5.8.5 DAV/2 mod_jk/1.2.19 PHP/4.3.9
-    mod_python/3.1.3 Python/2.3.4 mod_ssl/2.0.52 OpenSSL/0.9.7a)".
-    After discussion w/Brandon, we're going to allow 160 chars total.
-  o Instead of omitting all information when version info string too
-    long, we're going to truncate and allow 157 characters, plus
-    ellipses (...)
-  o Brandon says: "my final gripe is that the full version string is
-    constructed as <product><space><version><space>(<extrainfo>).
-    but, even if product or version are blank, the spaces are still
-    there"
-
 o Change Nmap signature files to use the .sig extension rather than
   .gpg.txt, as that seems to be what gpg recommends.  In fact, gpg
   will automatically verify the right file if it exists after dropping
@@ -561,6 +545,22 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Improvements to presentation of version detection
+  information. [Brandon]
+  o Allow longer strings.  Right now it can be 128 chars for the
+    fullversion info, I think.  But that isn't enough for this useful
+    information-packed string: "Apache httpd 2.0.52 ((Red Hat)
+    mod_perl/1.99_16 Perl/v5.8.5 DAV/2 mod_jk/1.2.19 PHP/4.3.9
+    mod_python/3.1.3 Python/2.3.4 mod_ssl/2.0.52 OpenSSL/0.9.7a)".
+    After discussion w/Brandon, we're going to allow 160 chars total.
+  o Instead of omitting all information when version info string too
+    long, we're going to truncate and allow 157 characters, plus
+    ellipses (...)
+  o Brandon says: "my final gripe is that the full version string is
+    constructed as <product><space><version><space>(<extrainfo>).
+    but, even if product or version are blank, the spaces are still
+    there"
 
 o I need an output-autoflush option of some sort.  This could be
   useful to ensure I get all the --packet_trace and debug data before

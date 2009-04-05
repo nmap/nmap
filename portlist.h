@@ -159,7 +159,7 @@ struct serviceDeductions {
   enum service_tunnel_type service_tunnel; 
   // This is a combined representation of product, version, and extrainfo.
   // It will be zero length if unavailable.
-  char fullversion[128];
+  char fullversion[160];
   // if we should give the user a service fingerprint to submit, here it is.  Otherwise NULL.
   const char *service_fp; 
   enum service_detection_type dtype; // definition above

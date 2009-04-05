@@ -1,5 +1,18 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Expanded and tweaked the product/version/info of service scans in an
+  attempt to reduce the number of warnings like "Warning: Servicescan
+  failed to fill info_template...".  Parts of this change include:
+  o Improved the text of the warning to be less confusing
+  o Increased the internal version info buffer to 256 chars from 128
+  o Increased the final version string length to 160 from 128 chars
+  o Changed the behavior when constructing the final version string so
+    that if it runs out of space, rather than dropping the output of that
+    template it truncates the template with ...
+  o Fixed the printing of unneeded spaces between templates when one of the
+    templates isn't going to be printed at all.
+  [Brandon]
+
 o [Zenmap] Worked around a GTK+ bug on Windows reported by Henry Nymann.
   It caused a crash when opening the Hosts Viewer on a host that had OS
   information. A window appeared saying simply "Runtime Error!". [David]

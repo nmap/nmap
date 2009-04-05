@@ -147,26 +147,67 @@ Port::~Port() {
 // out sd->fullversion.  If unavailable, it will be set to zero length.
 static void populateFullVersionString(struct serviceDeductions *sd) {
   char *dst = sd->fullversion;
-  unsigned int spaceleft = sizeof(sd->fullversion) - 1;
+  unsigned int spaceleft = sizeof(sd->fullversion) - 1; // Leave room for \0
+  int needpad = 0;  // Do we need to pad a space between the next template?
 
   dst[0] = '\0';
 
-  if (sd->product && spaceleft >= strlen(sd->product)) {
-    strncat(dst, sd->product, spaceleft);
-    spaceleft -= strlen(sd->product);
+  /* Sometimes there is really great product/version/extra information
+   * available that won't quite fit.  Rather than just drop that information
+   * this routine will truncate the string that is too long with "...".
+   * If there are fewer than 8 characters left don't bother and just skip
+   * that bit of information.
+   */
+
+  if (sd->product && spaceleft >= 8) {
+    if (spaceleft < strlen(sd->product)) {
+      strncat(dst, sd->product, spaceleft - 3);  // Leave room for "..."
+      strncat(dst, "...", spaceleft);
+      spaceleft = 0;
+    }
+    else {
+      strncat(dst, sd->product, spaceleft);
+      spaceleft -= strlen(sd->product);
+    }
+    needpad = 1;
   }
 
-  if (sd->version && spaceleft >= (strlen(sd->version) + 1)) {
-    strncat(dst, " ", spaceleft);
-    strncat(dst, sd->version, spaceleft);
-    spaceleft -= strlen(sd->version) + 1;
+  if (sd->version && spaceleft >= 8) {
+    if (needpad) {
+      strncat(dst, " ", spaceleft);
+      spaceleft--;
+    }
+    
+    if (spaceleft < strlen(sd->version)) {
+      strncat(dst, sd->version, spaceleft - 3);
+      strncat(dst, "...", spaceleft);
+      spaceleft = 0;
+    }
+    else {
+      strncat(dst, sd->version, spaceleft);
+      spaceleft -= strlen(sd->version);
+    }
+    needpad = 1;
   }
 
-  if (sd->extrainfo && spaceleft >= (strlen(sd->extrainfo) + 3)) {
-    strncat(dst, " (", spaceleft);
-    strncat(dst, sd->extrainfo, spaceleft);
+  if (sd->extrainfo && spaceleft >= 8) {
+    if (needpad) {
+      strncat(dst, " ", spaceleft);
+      spaceleft--;
+    }
+    // This time we need to trucate inside of the () so we have spaceleft - 2
+    strncat(dst, "(", spaceleft);
+    if (spaceleft - 2 < strlen(sd->extrainfo)) {
+      strncat(dst, sd->extrainfo, spaceleft - 5);
+      strncat(dst, "...", spaceleft - 2);
+      spaceleft = 1;  // Fit the paren
+    }
+    else {
+      strncat(dst, sd->extrainfo, spaceleft);
+      spaceleft -= (strlen(sd->extrainfo) + 2);
+    }
     strncat(dst, ")", spaceleft);
-    spaceleft -= strlen(sd->extrainfo) + 3;
+    spaceleft--;
   }
 
 }
@@ -296,12 +337,12 @@ void Port::setServiceProbeResults(enum serviceprobestate sres,
 	else 
 		serviceprobe_fp = NULL;
 
-	serviceprobe_product = cstringSanityCheck(product, 64);
-	serviceprobe_version = cstringSanityCheck(version, 64);
-	serviceprobe_extrainfo = cstringSanityCheck(extrainfo, 128);
-	serviceprobe_hostname = cstringSanityCheck(hostname, 64);
-	serviceprobe_ostype = cstringSanityCheck(ostype, 64);
-	serviceprobe_devicetype = cstringSanityCheck(devicetype, 64);
+	serviceprobe_product = cstringSanityCheck(product, 80);
+	serviceprobe_version = cstringSanityCheck(version, 80);
+	serviceprobe_extrainfo = cstringSanityCheck(extrainfo, 256);
+	serviceprobe_hostname = cstringSanityCheck(hostname, 80);
+	serviceprobe_ostype = cstringSanityCheck(ostype, 32);
+	serviceprobe_devicetype = cstringSanityCheck(devicetype, 32);
 }
 
 /* Sets the results of an RPC scan.  if rpc_status is not

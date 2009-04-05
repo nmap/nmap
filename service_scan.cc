@@ -155,10 +155,10 @@ public:
   // is placed in these 6 strings.  Otherwise the string will be 0 length.
   char product_matched[80];
   char version_matched[80];
-  char extrainfo_matched[128];
-  char hostname_matched[128];
-  char ostype_matched[64];
-  char devicetype_matched[64];
+  char extrainfo_matched[256];
+  char hostname_matched[80];
+  char ostype_matched[32];
+  char devicetype_matched[32];
   enum service_tunnel_type tunnel; /* SERVICE_TUNNEL_NONE, SERVICE_TUNNEL_SSL */
   // This stores our SSL session id, which will help speed up subsequent
   // SSL connections.  It's overwritten each time.  void* is used so we don't
@@ -445,7 +445,7 @@ const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int bufle
   int i;
   static char product[80];
   static char version[80];
-  static char info[128];
+  static char info[256];  /* We will truncate with ... later */
   static char hostname[80];
   static char ostype[32];
   static char devicetype[32];
@@ -770,8 +770,10 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, int subjectlen,
   if (product_template) {
     rc = dotmplsubst(subject, subjectlen, ovector, nummatches, product_template, product, productlen);
     if (rc != 0) {
-      error("Warning: Servicescan failed to fill product_template (subjectlen: %d). Too long? Match string was line %d: v/%s/%s/%s", subjectlen, deflineno, (product_template)? product_template : "",
-	    (version_template)? version_template : "", (info_template)? info_template : "");
+      error("Warning: Servicescan failed to fill product_template (subjectlen: %d, productlen: %d). Capture exceeds length? Match string was line %d: v/%s/%s/%s", subjectlen, productlen, deflineno,
+	    (product_template)? product_template : "",
+	    (version_template)? version_template : "",
+	    (info_template)? info_template : "");
       if (productlen > 0) *product = '\0';
       retval = -1;
     }
@@ -780,8 +782,10 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, int subjectlen,
   if (version_template) {
     rc = dotmplsubst(subject, subjectlen, ovector, nummatches, version_template, version, versionlen);
     if (rc != 0) {
-      error("Warning: Servicescan failed to fill version_template (subjectlen: %d). Too long? Match string was line %d: v/%s/%s/%s", subjectlen, deflineno, (product_template)? product_template : "",
-	    (version_template)? version_template : "", (info_template)? info_template : "");
+      error("Warning: Servicescan failed to fill version_template (subjectlen: %d, versionlen: %d). Capture exceeds length? Match string was line %d: v/%s/%s/%s", subjectlen, versionlen, deflineno,
+	    (product_template)? product_template : "",
+	    (version_template)? version_template : "",
+	    (info_template)? info_template : "");
       if (versionlen > 0) *version = '\0';
       retval = -1;
     }
@@ -790,8 +794,10 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, int subjectlen,
   if (info_template) {
     rc = dotmplsubst(subject, subjectlen, ovector, nummatches, info_template, info, infolen);
     if (rc != 0) {
-      error("Warning: Servicescan failed to fill info_template (subjectlen: %d). Too long? Match string was line %d: v/%s/%s/%s", subjectlen, deflineno, (product_template)? product_template : "",
-	    (version_template)? version_template : "", (info_template)? info_template : "");
+      error("Warning: Servicescan failed to fill info_template (subjectlen: %d, infolen: %d). Capture exceeds length? Match string was line %d: v/%s/%s/%s", subjectlen, infolen, deflineno,
+	    (product_template)? product_template : "",
+	    (version_template)? version_template : "",
+	    (info_template)? info_template : "");
       if (infolen > 0) *info = '\0';
       retval = -1;
     }
@@ -800,7 +806,8 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, int subjectlen,
   if (hostname_template) {
     rc = dotmplsubst(subject, subjectlen, ovector, nummatches, hostname_template, hostname, hostnamelen);
     if (rc != 0) {
-      error("Warning: Servicescan failed to fill hostname_template (subjectlen: %d). Too long? Match string was line %d: h/%s/", subjectlen, deflineno, (hostname_template)? hostname_template : "");
+      error("Warning: Servicescan failed to fill hostname_template (subjectlen: %d, hostnamelen: %d). Capture exceeds length? Match string was line %d: h/%s/", subjectlen, hostnamelen, deflineno,
+	    (hostname_template)? hostname_template : "");
       if (hostnamelen > 0) *hostname = '\0';
       retval = -1;
     }
@@ -809,7 +816,8 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, int subjectlen,
   if (ostype_template) {
     rc = dotmplsubst(subject, subjectlen, ovector, nummatches, ostype_template, ostype, ostypelen);
     if (rc != 0) {
-      error("Warning: Servicescan failed to fill ostype_template (subjectlen: %d). Too long? Match string was line %d: p/%s/", subjectlen, deflineno, (ostype_template)? ostype_template : "");
+      error("Warning: Servicescan failed to fill ostype_template (subjectlen: %d, ostypelen: %d). Capture exceeds length? Match string was line %d: p/%s/", subjectlen, ostypelen, deflineno,
+	    (ostype_template)? ostype_template : "");
       if (ostypelen > 0) *ostype = '\0';
       retval = -1;
     }
@@ -818,7 +826,8 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, int subjectlen,
   if (devicetype_template) {
     rc = dotmplsubst(subject, subjectlen, ovector, nummatches, devicetype_template, devicetype, devicetypelen);
     if (rc != 0) {
-      error("Warning: Servicescan failed to fill devicetype_template (subjectlen: %d). Too long? Match string was line %d: d/%s/", subjectlen, deflineno, (devicetype_template)? devicetype_template : "");
+      error("Warning: Servicescan failed to fill devicetype_template (subjectlen: %d, devicetypelen: %d). Too long? Match string was line %d: d/%s/", subjectlen, devicetypelen, deflineno,
+	    (devicetype_template)? devicetype_template : "");
       if (devicetypelen > 0) *devicetype = '\0';
       retval = -1;
     }
