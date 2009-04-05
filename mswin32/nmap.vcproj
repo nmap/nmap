@@ -275,10 +275,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\nse_init.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\nse_main.cc"
 				>
 			</File>
@@ -465,10 +461,6 @@
 			</File>
 			<File
 				RelativePath="..\nse_fs.h"
-				>
-			</File>
-			<File
-				RelativePath="..\nse_init.h"
 				>
 			</File>
 			<File
