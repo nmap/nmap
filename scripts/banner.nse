@@ -61,7 +61,7 @@ function grab_banner(host, port)
     return nil
   end
 
-  return response
+  return response:match("^%s*(.-)%s*$");
 
 end
 
