@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Ncat can now run as an authenticated proxy in HTTP proxy mode. Use
+  the --proxy-auth option to give a username and password that will be
+  required of users of the proxy. Only the insecure Basic
+  authentication method is supported. [David]
+
 o Expanded and tweaked the product/version/info of service scans in an
   attempt to reduce the number of warnings like "Warning: Servicescan
   failed to fill info_template...".  Parts of this change include:
