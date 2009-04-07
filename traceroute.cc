@@ -678,7 +678,7 @@ Traceroute::trace (vector < Target * >&Targets) {
     u16 total_size, total_complete;
 
     if (o.af () == AF_INET6) {
-        error ("Traceroute does not support ipv6\n");
+        error("Traceroute does not support ipv6");
         return;
     }
 

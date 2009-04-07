@@ -875,7 +875,7 @@ int nmap_main(int argc, char *argv[]) {
 	Snprintf(buf, sizeof(buf), "%s.xml", logfilename(optarg, tm));
 	xmlfilename = strdup(buf);
       } else if (strcmp(long_options[option_index].name, "thc") == 0) {
-	printf("!!Greets to Van Hauser, Plasmoid, Skyper and the rest of THC!!\n");
+	log_write(LOG_STDOUT, "!!Greets to Van Hauser, Plasmoid, Skyper and the rest of THC!!\n");
 	exit(0);
       } else if (strcmp(long_options[option_index].name, "badsum") == 0) {
 	o.badsum = 1;
@@ -1022,7 +1022,7 @@ int nmap_main(int argc, char *argv[]) {
     case 'h': printusage(argv[0], 0); break;
     case '?': printusage(argv[0], -1); break;
     case 'I': 
-      printf("WARNING: identscan (-I) no longer supported.  Ignoring -I\n");
+      error("WARNING: identscan (-I) no longer supported.  Ignoring -I");
       break;
       // o.identscan++; break;
     case 'i': 
@@ -1226,7 +1226,7 @@ int nmap_main(int argc, char *argv[]) {
       }
       break;
     case 'V': 
-      printf("\n%s version %s ( %s )\n", NMAP_NAME, NMAP_VERSION, NMAP_URL); 
+      log_write(LOG_STDOUT, "\n%s version %s ( %s )\n", NMAP_NAME, NMAP_VERSION, NMAP_URL); 
       exit(0);
       break;
     case 'v': o.verbose++; break;
@@ -1317,12 +1317,12 @@ int nmap_main(int argc, char *argv[]) {
   }
 
  if(o.traceroute && (o.idlescan || o.connectscan)) {
-    error("Warning: Traceroute does not support idle or connect scan, disabling...\n");
+    error("Warning: Traceroute does not support idle or connect scan, disabling...");
     o.traceroute = 0;
   }
 
   if(o.traceroute && !o.isr00t) {
-    error("Warning: Traceroute has to be run as root, disabling...\n");
+    error("Warning: Traceroute has to be run as root, disabling...");
     o.traceroute = 0;
   }
 
@@ -1350,7 +1350,7 @@ int nmap_main(int argc, char *argv[]) {
 
 #ifdef WIN32
   if (o.sendpref & PACKET_SEND_IP) {
-	  error("WARNING: raw IP (rather than raw ethernet) packet sending attempted on Windows. This probably won't work.  Consider --send-eth next time.\n");
+	  error("WARNING: raw IP (rather than raw ethernet) packet sending attempted on Windows. This probably won't work.  Consider --send-eth next time.");
   }
 #endif
   if (spoofmac) {
@@ -2812,7 +2812,7 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
   }
 
   if (foundsomething && o.debugging > 1)
-    error("Fetchfile found %s", filename_returned);
+    log_write(LOG_PLAIN, "Fetchfile found %s", filename_returned);
 
   return foundsomething;
 

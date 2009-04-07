@@ -152,7 +152,7 @@ int main(int argc, char *argv[]) {
 
 #ifdef __amigaos__
 	if(!OpenLibs()) {
-		printf("Couldn't open TCP/IP Stack Library(s)!\n");
+		error("Couldn't open TCP/IP Stack Library(s)!");
 		exit(20);
 	}
 	MiamiBPFInit((struct Library *)MiamiBase, (struct Library *)SocketBase);
