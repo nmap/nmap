@@ -1663,7 +1663,7 @@ ServiceGroup::ServiceGroup(vector<Target *> &Targets, AllProbes *AP) {
   if (o.timing_level == 3) desired_par = 10;
   if (o.timing_level == 4) desired_par = 15;
   if (o.timing_level >= 5) desired_par = 20;
-  // TODO: Come up with better ways to determine ideal_services
+  // TODO: Come up with better ways to determine ideal_parallelism
   ideal_parallelism = box(o.min_parallelism, o.max_parallelism? o.max_parallelism : 100, desired_par);
 }
 
