@@ -483,11 +483,11 @@ class HostDiff(object):
         # State.
         if self.state_changed:
             if host_a.state is not None:
-                print >> f, u"-Host appears to be %s." % host_a.state
+                print >> f, u"-Host is %s." % host_a.state
             if host_b.state is not None:
-                print >> f, u"+Host appears to be %s." % host_b.state
+                print >> f, u"+Host is %s." % host_b.state
         elif verbose:
-            print >> f, u" Host appears to be %s." % host_b.state
+            print >> f, u" Host is %s." % host_b.state
 
         # Extraports.
         if self.extraports_changed:
