@@ -30,25 +30,14 @@
     <title>Description</title>
 
     <para>
-    Ndiff is a tool to aid in the comparison of Nmap scans. Specifically, it
-    takes two Nmap XML output files and prints the differences between them:
-    hosts coming up and down, ports becoming open or closed, etc.
+    Ndiff is a tool to aid in the comparison of Nmap scans. It takes two
+    Nmap XML output files and prints the differences between them: hosts
+    coming up and down, ports becoming open or closed, etc.
     </para>
 
     <para>
-    Ndiff compares two scans at a time. The <quote>before</quote> scan
-    is called the A scan and the <quote>after</quote> scan is the B
-    scan. The letters A and B are used to avoid giving the impression
-    that scans must be given in time order. They do not; it's possible
-    to get a <quote>backward</quote> diff from a newer scan to an older
-    scan.
-    </para>
-
-    <para>
-    Ndiff can produce output in human-readable text or machine-readable
-    XML formats. Use the <option>--text</option> and
-    <option>--xml</option> options to control which. Output goes to
-    standard output.
+    Ndiff compares two scans at a time. The first scan is called the A
+    scan and the second scan is called the B scan.
     </para>
   </refsect1>
 
@@ -60,7 +49,7 @@
         <term><option>-h</option></term>
         <term><option>--help</option></term>
         <listitem>
-	  <para>
+          <para>
           Show a help message and exit.
           </para>
         </listitem>
@@ -70,24 +59,8 @@
         <term><option>--verbose</option></term>
         <listitem>
           <para>
-          Do not consolidate long port lists into a simple count. When
-          a host is up in the B scan that was not present in the A scan,
-          commonly most of its ports will change from the state
-          "unknown" to "closed" or "filtered". If the port list is very
-          long, it will be consolidated into a line like
-<screen>994 tcp ports changed state from unknown to filtered.
-</screen>
-          With <option>--verbose</option>, all 994 ports will be listed:
-<screen>The following tcp ports changed state from unknown to filtered:
-        1,3,4,6,7,9,13,17,19-21,23,24,26,30,32,
-33,37,42,43,49,79,81-85,88-90,99,100,106,109-11
-1,119,125,135,139,143,144,146,161,163,179,199,2
-</screen>
-          and so on.
-          </para>
-          <para>
-          In XML output, every port is always listed explictly.
-          <option>--verbose</option> has no effect.
+          Include all hosts and ports in the output, not only those that
+          have changed.
           </para>
         </listitem>
       </varlistentry>
@@ -103,9 +76,7 @@
         <term><option>--xml</option></term>
         <listitem>
           <para>
-          Write output in machine-readable text format. For a
-          description of the XML format see the
-          <filename>nmap.dtd</filename> file in the Ndiff distribution.
+          This option is not currently supported.
           </para>
         </listitem>
       </varlistentry>

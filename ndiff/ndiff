@@ -14,190 +14,33 @@
 # based on a design by Michael Pattrick
 
 import datetime
+import difflib
 import getopt
 import sys
 import time
 import xml.sax
 import xml.dom.minidom
 
-# Port state transitions with more than this many occurrences are consolidated
-# into one text output entry.
-PORT_STATE_CHANGE_CONSOLIDATION_THRESHOLD = 10
-# Consolidated port state ranges whose *character length* is greater than this
-# will be doubly consolidated into just a count of ports in text output.
-PORT_STATE_CHANGE_DOUBLE_CONSOLIDATION_CHAR_THRESHOLD = 80
+verbose = False
 
-class Port(object):
-    """A single port, consisting of a port specification, a state, and a service
-    version. A specification, or "spec," is the 2-tuple (number, protocol). So
-    (10, "tcp") corresponds to the port 10/tcp. Port states are strings."""
-    # This represents an "unknown" port state, the state a port is in when it
-    # has not been scanned. It must not compare equal with any real Nmap port
-    # state like "open", "closed", etc. For future compatibility's sake, always
-    # compare against Port.UNKNOWN, not the literal string "unknown".
-    UNKNOWN = "unknown"
-
-    def __init__(self, spec, state = None):
-        self.spec = spec
-        self.state = state or Port.UNKNOWN
-        self.service = Service()
-
-    def get_state_string(self):
-        return Port.state_to_string(self.state)
-
-    def state_to_string(state):
-        return unicode(state)
-    state_to_string = staticmethod(state_to_string)
-
-    def spec_to_string(spec):
-        return u"%d/%s" % spec
-    spec_to_string = staticmethod(spec_to_string)
-
-class PortDict(dict):
-    """This is a dict that creates and inserts a new Port on demand when a
-    looked-up value isn't found."""
-    def __getitem__(self, key):
-        try:
-            port = dict.__getitem__(self, key)
-        except KeyError:
-            port = Port(key)
-            self[key] = port
-        return port
-
-    def __len__(self):
-        raise ValueError(u"__len__ is not defined for objects of type PortDict.")
-
-class Service(object):
-    """A service version as determined by -sV scan. Also contains the looked-up
-    port name if -sV wasn't used."""
-    def __init__(self):
-        self.name = None
-        self.product = None
-        self.version = None
-        self.extrainfo = None
-        # self.hostname = None
-        # self.ostype = None
-        # self.devicetype = None
-        # self.tunnel = None
-
-    def __eq__(self, other):
-        return self.name == other.name \
-            and self.product == other.product \
-            and self.version == other.version \
-            and self.extrainfo == other.extrainfo
-
-    def to_string(self):
-        """Get a string like in the SERVICE column of Nmap output."""
-        if self.name is None:
-            return u""
-        else:
-            return self.name
-
-    def version_to_string(self):
-        """Get a string like in the VERSION column of Nmap output."""
-        parts = []
-        if self.product is not None:
-            parts.append(self.product)
-        if self.version is not None:
-            parts.append(self.version)
-        if self.extrainfo is not None:
-            parts.append(u"(%s)" % self.extrainfo)
-        return u" ".join(parts)
-
-class Host(object):
-    """A single host, with a state (unknown, up, or down), addresses, and a
-    dict mapping port specs to Ports."""
-    # This represents an "unknown" host state, the state a host is in when it
-    # hasn't been scanned. It must not compare equal with the real Nmap host
-    # states "up" and "down". For future compatibility's sake, always compare
-    # against Host.UNKNOWN, not the literal string "unknown".
-    UNKNOWN = "unknown"
-
-    def __init__(self):
-        self.state = self.UNKNOWN
-        # Addresses are represented as (address_type, address) tuples.
-        self.addresses = []
-        self.hostnames = []
-        self.ports = PortDict()
-        self.os = []
-
-    def get_id(self):
-        """Return an id that is used to determine if hosts are "the same" across
-        scans."""
-        if len(self.addresses) > 0:
-            return sorted(self.addresses)[0]
-        if len(self.hostnames) > 0:
-            return sorted(self.hostnames)[0]
-        return id(self)
-
-    def format_name(self):
-        """Return a human-readable identifier for this host."""
-        address = None
-        for address_type in (u"ipv4", u"ipv6", u"mac"):
-            addrs = [addr for addr in self.addresses if addr[0] == address_type]
-            if len(addrs) > 0:
-                address = addrs[0][1]
-                break
-        hostname = None
-        if len(self.hostnames) > 0:
-            hostname = self.hostnames[0]
-        if hostname is not None:
-            if address is not None:
-                return u"%s (%s)" % (hostname, address)
-            else:
-                return hostname
-        elif address is not None:
-            return address
-
-        return unicode(id(self))
-
-    def add_port(self, port):
-        self.ports[port.spec] = port
-
-    def swap_ports(self, spec_a, spec_b):
-        """Swap the ports given by the two specs. This is used when a service is
-        moved from one port to another."""
-        port_a = self.ports[spec_a]
-        port_b = self.ports[spec_b]
-        assert port_a.spec == spec_a
-        assert port_b.spec == spec_b
-        port_a.spec, port_b.spec = port_b.spec, port_a.spec
-        self.ports[spec_a], self.ports[spec_b] = \
-            self.ports[spec_b], self.ports[spec_a]
-
-    def get_known_ports(self):
-        """Return a list of all this host's Ports that are not in the unknown
-        state."""
-        return [p for p in self.ports.values() if p.state != Port.UNKNOWN]
-
-    def add_address(self, address_type, address):
-        if address not in self.addresses:
-            self.addresses.append((address_type, address))
-
-    def remove_address(self, address_type, address):
-        try:
-            self.addresses.remove((address_type, address))
-        except ValueError:
-            pass
-
-    def add_hostname(self, hostname):
-        if hostname not in self.hostnames:
-            self.hostnames.append(hostname)
-
-    def remove_hostname(self, hostname):
-        try:
-            self.hostnames.remove(hostname)
-        except ValueError:
-            pass
+NDIFF_XML_VERSION = u"1"
 
 class Scan(object):
     """A single Nmap scan, corresponding to a single invocation of Nmap. It is a
     container for a list of hosts. It also has utility methods to load itself
     from an Nmap XML file."""
     def __init__(self):
+        self.version = None
         self.start_date = None
         self.end_date = None
         self.hosts = []
+
+    def find_host(self, id):
+        for host in self.hosts:
+            if host.get_id() == id:
+                return host
+        else:
+            return None
 
     def load(self, f):
         """Load a scan from the Nmap XML in the file-like object f."""
@@ -214,385 +57,708 @@ class Scan(object):
         finally:
             f.close()
 
+class Host(object):
+    """A single host, with a state, addresses, host names, a dict mapping port
+    specs to Ports, and a list of OS matches. Host states are strings, or None
+    for "unknown"."""
+    def __init__(self):
+        self.state = None
+        self.addresses = []
+        self.hostnames = []
+        self.ports = {}
+        self.extraports = {}
+        self.os = []
 
-# What follows are all the possible diff hunk types. Each is capable of redering
-# itself to a string or to an XML DOM fragment.
-class DiffHunk(object):
-    """A DiffHunk is a single unit of a diff. Each one represents one atomic
-    change: a host state change, port state change, and so on."""
+    def get_id(self):
+        """Return an id that is used to determine if hosts are "the same" across
+        scans."""
+        if len(self.addresses) > 0:
+            return str(sorted(self.addresses)[0])
+        if len(self.hostnames) > 0:
+            return str(sorted(self.hostnames)[0])
+        return id(self)
 
-    def to_string(self):
-        """Return a human-readable string representation of this hunk."""
-        raise Exception(u"The to_string method must be overridden.")
+    def format_name(self):
+        """Return a human-readable identifier for this host."""
+        address_s = u", ".join(a.s for a in sorted(self.addresses))
+        hostname_s = u", ".join(sorted(self.hostnames))
+        if len(hostname_s) > 0:
+            if len(address_s) > 0:
+                return u"%s (%s)" % (hostname_s, address_s)
+            else:
+                return hostname_s
+        elif len(address_s) > 0:
+            return address_s
+        else:
+            return u"<no name>"
 
-    def to_dom_fragment(self, document):
-        """Return an XML DocumentFragment representation of this hunk."""
-        raise Exception(u"The to_dom_fragment method must be overridden.")
+    def add_port(self, port):
+        self.ports[port.spec] = port
 
-class HostStateChangeHunk(DiffHunk):
-    def __init__(self, a_state, b_state):
-        self.a_state = a_state
-        self.b_state = b_state
+    def add_address(self, address):
+        if address not in self.addresses:
+            self.addresses.append(address)
 
-    def to_string(self):
-        return u"Host is %s, was %s." % (self.b_state, self.a_state)
+    def add_hostname(self, hostname):
+        if hostname not in self.hostnames:
+            self.hostnames.append(hostname)
 
-    def to_dom_fragment(self, document):
+    def is_extraports(self, state):
+        return state is None or state in self.extraports
+
+    def extraports_string(self):
+        list = [(count, state) for (state, count) in self.extraports.items()]
+        # Reverse-sort by count.
+        list.sort(reverse = True)
+        return u", ".join([u"%d %s ports" % (count, state) for (count, state) in list])
+
+    def state_to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
-        elem = document.createElement(u"host-state-change")
-        elem.setAttribute(u"a-state", self.a_state)
-        elem.setAttribute(u"b-state", self.b_state)
+        if self.state is not None:
+            elem = document.createElement(u"status")
+            elem.setAttribute(u"state", self.state)
+            frag.appendChild(elem)
+        return frag
+
+    def hostname_to_dom_fragment(self, document, hostname):
+        frag = document.createDocumentFragment()
+        elem = document.createElement(u"hostname")
+        elem.setAttribute(u"name", hostname)
         frag.appendChild(elem)
         return frag
 
-class HostAddressAddHunk(DiffHunk):
-    def __init__(self, address_type, address):
-        self.address_type = address_type
-        self.address = address
-
-    def to_string(self):
-        return u"Add %s address %s." % (self.address_type, self.address)
-
-    def to_dom_fragment(self, document):
+    def extraports_to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
-        elem = document.createElement(u"host-address-add")
-        frag.appendChild(elem)
-        address_elem = document.createElement(u"address")
-        address_elem.setAttribute(u"addrtype", self.address_type)
-        address_elem.setAttribute(u"addr", self.address)
-        elem.appendChild(address_elem)
+        for state, count in self.extraports.items():
+            elem = document.createElement(u"extraports")
+            elem.setAttribute(u"state", state)
+            elem.setAttribute(u"count", unicode(count))
+            frag.appendChild(elem)
         return frag
 
-class HostAddressRemoveHunk(DiffHunk):
-    def __init__(self, address_type, address):
-        self.address_type = address_type
-        self.address = address
-
-    def to_string(self):
-        return u"Remove %s address %s." % (self.address_type, self.address)
-
-    def to_dom_fragment(self, document):
+    def os_to_dom_fragment(self, document, os):
         frag = document.createDocumentFragment()
-        elem = document.createElement(u"host-address-remove")
-        frag.appendChild(elem)
-        address_elem = document.createElement(u"address")
-        address_elem.setAttribute(u"addrtype", self.address_type)
-        address_elem.setAttribute(u"addr", self.address)
-        elem.appendChild(address_elem)
-        return frag
-
-class HostHostnameAddHunk(DiffHunk):
-    def __init__(self, hostname):
-        self.hostname = hostname
-
-    def to_string(self):
-        return u"Add hostname %s." % self.hostname
-
-    def to_dom_fragment(self, document):
-        frag = document.createDocumentFragment()
-        elem = document.createElement(u"host-hostname-add")
-        frag.appendChild(elem)
-        hostname_elem = document.createElement(u"hostname")
-        hostname_elem.setAttribute(u"name", self.hostname)
-        elem.appendChild(hostname_elem)
-        return frag
-
-class HostHostnameRemoveHunk(DiffHunk):
-    def __init__(self, hostname):
-        self.hostname = hostname
-
-    def to_string(self):
-        return u"Remove hostname %s." % self.hostname
-
-    def to_dom_fragment(self, document):
-        frag = document.createDocumentFragment()
-        elem = document.createElement(u"host-hostname-remove")
-        frag.appendChild(elem)
-        hostname_elem = document.createElement("hostname")
-        hostname_elem.setAttribute(u"name", self.hostname)
-        elem.appendChild(hostname_elem)
-        return frag
-
-class HostOsAddHunk(DiffHunk):
-    def __init__(self, os):
-        self.os = os
-
-    def to_string(self):
-        return u"Add OS \"%s\"." % self.os
-
-    def to_dom_fragment(self, document):
-        frag = document.createDocumentFragment()
-        elem = document.createElement(u"host-os-add")
-        elem.setAttribute(u"name", self.os)
+        elem = document.createElement(u"osmatch")
+        elem.setAttribute(u"name", os)
         frag.appendChild(elem)
         return frag
 
-class HostOsRemoveHunk(DiffHunk):
-    def __init__(self, os):
-        self.os = os
-
-    def to_string(self):
-        return u"Remove OS \"%s\"." % self.os
-
     def to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
-        elem = document.createElement(u"host-os-remove")
-        elem.setAttribute(u"name", self.os)
+        elem = document.createElement(u"host")
+
+        if self.state is not None:
+            elem.appendChild(self.state_to_dom_fragment(document))
+
+        for addr in self.addresses:
+            elem.appendChild(addr.to_dom_fragment(document))
+
+        if len(self.hostnames) > 0:
+            hostnames_elem = document.createElement(u"hostnames")
+            for hostname in self.hostnames:
+                hostnames_elem.appendChild(self.hostname_to_dom_fragment(document, hostname))
+            elem.appendChild(hostnames_elem)
+
+        ports_elem = document.createElement(u"ports")
+        ports_elem.appendChild(self.extraports_to_dom_fragment(document))
+        for port in sorted(self.ports.values()):
+            if not self.is_extraports(port.state):
+                ports_elem.appendChild(port.to_dom_fragment(document))
+        if ports_elem.hasChildNodes():
+            elem.appendChild(ports_elem)
+
+        if len(self.os) > 0:
+            os_elem = document.createElement(u"os")
+            for os in self.os:
+                os_elem.appendChild(self.os_to_dom_fragment(document, os))
+            elem.appendChild(os_elem)
+
         frag.appendChild(elem)
         return frag
 
-class PortIdChangeHunk(DiffHunk):
-    def __init__(self, a_spec, b_spec):
-        self.a_spec = a_spec
-        self.b_spec = b_spec
+class Address(object):
+    def __init__(self, s):
+        self.s = s
 
-    def to_string(self):
-        return u"Service on %s is now running on %s." % (Port.spec_to_string(self.a_spec), Port.spec_to_string(self.b_spec))
+    def __eq__(self, other):
+        return self.__cmp__(other) == 0
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return hash(self.sort_key())
+
+    def __cmp__(self, other):
+        return cmp(self.sort_key(), other.sort_key())
+
+    def __str__(self):
+        return str(self.s)
+
+    def __unicode__(self):
+        return self.s
+
+    def new(type, s):
+        if type == u"ipv4":
+            return IPv4Address(s)
+        elif type == u"ipv6":
+            return IPv6Address(s)
+        elif type == u"mac":
+            return MACAddress(s)
+        else:
+            raise ValueError(u"Unknown address type %s." % type)
+    new = staticmethod(new)
 
     def to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
-        elem = document.createElement(u"port-id-change")
-        elem.setAttribute(u"a-portid", unicode(self.a_spec[0]))
-        elem.setAttribute(u"a-protocol", self.a_spec[1])
-        elem.setAttribute(u"b-portid", unicode(self.b_spec[0]))
-        elem.setAttribute(u"b-protocol", self.b_spec[1])
+        elem = document.createElement(u"address")
+        elem.setAttribute(u"addr", self.s)
+        elem.setAttribute(u"addrtype", self.type)
         frag.appendChild(elem)
         return frag
 
-class PortStateChangeHunk(DiffHunk):
-    def __init__(self, spec, a_port, b_port):
+# The sort_key method in the Address subclasses determines the order in which
+# addresses are displayed. We do IPv4, then IPV6, then MAC.
+
+class IPv4Address(Address):
+    type = property(lambda self: u"ipv4")
+    def sort_key(self):
+        return (0, self.s)
+
+class IPv6Address(Address):
+    type = property(lambda self: u"ipv6")
+    def sort_key(self):
+        return (1, self.s)
+
+class MACAddress(Address):
+    type = property(lambda self: u"mac")
+    def sort_key(self):
+        return (2, self.s)
+
+class Port(object):
+    """A single port, consisting of a port specification, a state, and a service
+    version. A specification, or "spec," is the 2-tuple (number, protocol). So
+    (10, "tcp") corresponds to the port 10/tcp. Port states are strings, or None
+    for "unknown"."""
+    def __init__(self, spec, state = None):
         self.spec = spec
-        self.a_port = a_port
-        self.b_port = b_port
+        self.state = state
+        self.service = Service()
 
-    def to_string(self):
-        lines = []
-        a_str = u"%s %s" % (self.a_port.service.to_string(), self.a_port.service.version_to_string())
-        b_str = u"%s %s" % (self.b_port.service.to_string(), self.b_port.service.version_to_string())
-        if self.a_port.state != Port.UNKNOWN:
-            lines.append("-%s %s %s" % (Port.spec_to_string(self.a_port.spec), self.a_port.state, a_str))
-        if self.b_port.state != Port.UNKNOWN:
-            lines.append("+%s %s %s" % (Port.spec_to_string(self.b_port.spec), self.b_port.state, b_str))
-        return u"\n".join(lines)
+    def state_string(self):
+        if self.state is None:
+            return u"unknown"
+        else:
+            return unicode(self.state)
 
-    def service_elem(service, document, name):
-        """Create a service element."""
-        elem = document.createElement(name)
-        if service.name is not None:
-            elem.setAttribute(u"name", service.name)
-        if service.product is not None:
-            elem.setAttribute(u"product", service.product)
-        if service.version is not None:
-            elem.setAttribute(u"version", service.version)
-        if service.extrainfo is not None:
-            elem.setAttribute(u"extrainfo", service.extrainfo)
-        return elem
-    service_elem = staticmethod(service_elem)
+    def spec_string(self):
+        return u"%d/%s" % self.spec
+
+    def __cmp__(self, other):
+        d = cmp(self.spec, other.spec)
+        if d != 0:
+            return d
+        return cmp((self.spec, self.service), (other.spec, other.service))
 
     def to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
-        elem = document.createElement(u"port-state-change")
+        elem = document.createElement(u"port")
         elem.setAttribute(u"portid", unicode(self.spec[0]))
         elem.setAttribute(u"protocol", self.spec[1])
-        elem.setAttribute(u"a-state", self.a_port.state)
-        elem.setAttribute(u"b-state", self.b_port.state)
+        if self.state is not None:
+            state_elem = document.createElement(u"state")
+            state_elem.setAttribute(u"state", self.state)
+            elem.appendChild(state_elem)
+        elem.appendChild(self.service.to_dom_fragment(document))
         frag.appendChild(elem)
-        if not self.a_port.service == self.b_port.service:
-            elem.appendChild(self.service_elem(self.a_port.service, document, u"a-service"))
-            elem.appendChild(self.service_elem(self.b_port.service, document, u"b-service"))
         return frag
 
-def partition_port_state_changes(diff):
-    """Partition a list of PortStateChangeHunks into equivalence classes
-    based on the tuple (protocol, a_state, b_state). The partition is returned
-    as a list of lists of hunks."""
-    transitions = {}
-    for hunk in diff:
-        if not isinstance(hunk, PortStateChangeHunk):
-            continue
-        a_state = hunk.a_port.state
-        b_state = hunk.b_port.state
-        protocol = hunk.spec[1]
-        transitions.setdefault((protocol, a_state, b_state), []).append(hunk)
-    return transitions.values()
+class Service(object):
+    """A service version as determined by -sV scan. Also contains the looked-up
+    port name if -sV wasn't used."""
+    def __init__(self):
+        self.name = None
+        self.product = None
+        self.version = None
+        self.extrainfo = None
+        self.tunnel = None
 
-def consolidate_port_state_changes(diff, threshold = 0):
-    """Return a list of list of PortStateChangeHunks, where each list
-    contains hunks with the same partition and state change. A group of hunks is
-    returned in the list of lists only when its length exceeds threshold. Any
-    hunks moved to the list of lists are removed from diff in place. This is to
-    avoid overwhelming the output with a flood of "is filtered, was unknown"
-    messages."""
-    partition = partition_port_state_changes(diff)
-    consolidated = []
-    for group in partition:
-        if len(group) > threshold:
-            for hunk in group:
-                diff.remove(hunk)
-            consolidated.append(group)
-    return consolidated
+        # self.hostname = None
+        # self.ostype = None
+        # self.devicetype = None
+
+    def __eq__(self, other):
+        return self.name == other.name \
+            and self.product == other.product \
+            and self.version == other.version \
+            and self.extrainfo == other.extrainfo
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def name_string(self):
+        parts = []
+        if self.tunnel is not None:
+            parts.append(self.tunnel)
+        if self.name is not None:
+            parts.append(self.name)
+
+        if len(parts) == 0:
+            return None
+        else:
+            return u"/".join(parts)
+
+    def version_string(self):
+        """Get a string like in the VERSION column of Nmap output."""
+        parts = []
+        if self.product is not None:
+            parts.append(self.product)
+        if self.version is not None:
+            parts.append(self.version)
+        if self.extrainfo is not None:
+            parts.append(u"(%s)" % self.extrainfo)
+
+        if len(parts) == 0:
+            return None
+        else:
+            return u" ".join(parts)
+
+    def to_dom_fragment(self, document):
+        frag = document.createDocumentFragment()
+        elem = document.createElement(u"service")
+        for attr in (u"name", u"product", u"version", u"extrainfo", u"tunnel"):
+            v = getattr(self, attr)
+            if v is None:
+                continue
+            elem.setAttribute(attr, v)
+        if len(elem.attributes) > 0:
+            frag.appendChild(elem)
+        return frag
+
+def format_banner(scan):
+    """Format a startup banner more or less like Nmap does."""
+    parts = [u"Nmap"]
+    if scan.version is not None:
+        parts.append(scan.version)
+    if scan.start_date is not None:
+        parts.append(u"at %s" % scan.start_date.strftime("%Y-%m-%d %H:%M"))
+    return u" ".join(parts)
 
 class ScanDiff(object):
-    """A complete diff of two scans. It is a container for two scans and the
-    diff between them, which is a list of (scan, host_diff) tuples as returned
-    by scan_diff."""
+    """A complete diff of two scans. It is a container for two scans and a dict
+    mapping hosts to HostDiffs."""
     def __init__(self, scan_a, scan_b):
         """Create a ScanDiff from the "before" scan_a and the "after" scan_b."""
         self.scan_a = scan_a
         self.scan_b = scan_b
-        self.diff = scan_diff(scan_a, scan_b)
+        self.hosts = []
+        self.host_diffs = {}
 
-    def print_text(self, f = sys.stdout, verbose = False):
+        self.diff()
+
+    def diff(self):
+        a_ids = [h.get_id() for h in self.scan_a.hosts]
+        b_ids = [h.get_id() for h in self.scan_b.hosts]
+        for id in sorted(set(a_ids).union(set(b_ids))):
+            # Currently we never consider diffing hosts with a different id
+            # (address or host name), which could lead to better diffs.
+            host_a = self.scan_a.find_host(id)
+            host_b = self.scan_b.find_host(id)
+            h_diff = HostDiff(host_a or Host(), host_b or Host())
+            if h_diff.cost > 0 or verbose:
+                host = host_a or host_b
+                self.hosts.append(host)
+                self.host_diffs[host] = h_diff
+
+    def print_text(self, f = sys.stdout):
         """Print this diff in a human-readable text form."""
-        if self.scan_a.start_date is not None:
-            start_date_a_str = self.scan_a.start_date.ctime()
+        banner_a = format_banner(self.scan_a)
+        banner_b = format_banner(self.scan_b)
+        if banner_a != banner_b:
+            print >> f, u"-%s" % banner_a
+            print >> f, u"+%s" % banner_b
         else:
-            start_date_a_str = u"<unknown date>"
-        if self.scan_b.start_date is not None:
-            start_date_b_str = self.scan_b.start_date.ctime()
-        else:
-            start_date_b_str = u"<unknown date>"
-        print >> f, "%s -> %s" % (start_date_a_str, start_date_b_str)
-        for host, h_diff in self.diff:
-            print >> f, "%s:" % host.format_name()
-            h_diff_copy = h_diff[:]
-            cons_port_state_changes = consolidate_port_state_changes(h_diff_copy, PORT_STATE_CHANGE_CONSOLIDATION_THRESHOLD)
-            for hunk in h_diff_copy:
-                print >> f, u"\n".join(u"\t" + s for s in hunk.to_string().split(u"\n"));
-            for group in cons_port_state_changes:
-                a_state = group[0].a_port.state
-                b_state = group[0].b_port.state
-                protocol = group[0].spec[1]
-                port_list = [hunk.spec[0] for hunk in group]
-                port_list_string = render_port_list(port_list)
-                if verbose or len(port_list_string) <= \
-                   PORT_STATE_CHANGE_DOUBLE_CONSOLIDATION_CHAR_THRESHOLD:
-                    if a_state == Port.UNKNOWN:
-                        print >> f, u"\tThe following %d %s ports are %s:" % (len(port_list), protocol, b_state)
-                    else:
-                        print >> f, u"\tThe following %d %s ports changed state from %s to %s:" % (len(port_list), protocol, a_state, b_state)
-                    print >> f, u"\t\t" + port_list_string
-                else:
-                    if a_state == Port.UNKNOWN:
-                        print >> f, u"\t%d %s ports are %s." % (len(port_list), protocol, b_state)
-                    else:
-                        print >> f, u"\t%d %s ports changed state from %s to %s." % (len(port_list), protocol, a_state, b_state)
+            print >> f, u" %s" % banner_a
+
+        for host in self.hosts:
+            print
+
+            h_diff = self.host_diffs[host]
+            h_diff.print_text(f)
 
     def print_xml(self, f = sys.stdout):
         impl = xml.dom.minidom.getDOMImplementation()
         document = impl.createDocument(None, u"nmapdiff", None)
         root = document.documentElement
+        root.setAttribute(u"version", NDIFF_XML_VERSION)
         scandiff_elem = document.createElement(u"scandiff")
-        if self.scan_a.start_date is not None:
-            a_start_date_str = unicode(int(time.mktime(self.scan_a.start_date.timetuple())))
-            scandiff_elem.setAttribute(u"a-start", a_start_date_str)
-        if self.scan_b.start_date is not None:
-            b_start_date_str = unicode(int(time.mktime(self.scan_b.start_date.timetuple())))
-            scandiff_elem.setAttribute(u"b-start", b_start_date_str)
         root.appendChild(scandiff_elem)
-        for host, h_diff in self.diff:
-            host_elem = document.createElement(u"host")
-            scandiff_elem.appendChild(host_elem)
-            for (address_type, address) in host.addresses:
-                address_elem = document.createElement(u"address")
-                address_elem.setAttribute(u"addrtype", address_type)
-                address_elem.setAttribute(u"addr", address)
-                host_elem.appendChild(address_elem)
-            for hostname in host.hostnames:
-                hostname_elem = document.createElement(u"hostname")
-                hostname_elem.setAttribute(u"name", hostname)
-                host_elem.appendChild(hostname_elem)
-            for hunk in h_diff:
-                host_elem.appendChild(hunk.to_dom_fragment(document))
+
+        for host in self.hosts:
+            h_diff = self.host_diffs[host]
+            frag = h_diff.to_dom_fragment(document)
+            scandiff_elem.appendChild(frag)
+
         document.writexml(f, addindent = u"  ", newl = u"\n", encoding = "UTF-8")
         document.unlink()
 
-def port_diff(a, b):
-    """Diff two Ports. The return value is a list of DiffHunks."""
-    diff = []
-    if a.spec != b.spec:
-        hunk = PortIdChangeHunk(a.spec, b.spec)
-        diff.append(hunk)
-    if not (a.state == b.state and a.service == b.service):
-        hunk = PortStateChangeHunk(b.spec, a, b)
-        diff.append(hunk)
-    return diff
+class HostDiff(object):
+    """A diff of two Hosts. It contains the two hosts, variables describing what
+    changed, and a list of PortDiffs and OS differences."""
+    def __init__(self, host_a, host_b):
+        self.host_a = host_a
+        self.host_b = host_b
+        self.state_changed = False
+        self.id_changed = False
+        self.os_changed = False
+        self.extraports_changed = False
+        self.ports = []
+        self.port_diffs = {}
+        self.os_diffs = []
+        self.cost = 0
 
-def addresses_diff(a, b):
-    """Diff two lists of addresses. The return value is a list of DiffHunks."""
-    diff = []
-    a_addresses = set(a)
-    b_addresses = set(b)
-    for addrtype, addr in a_addresses - b_addresses:
-        hunk = HostAddressRemoveHunk(addrtype, addr)
-        diff.append(hunk)
-    for addrtype, addr in b_addresses - a_addresses:
-        hunk = HostAddressAddHunk(addrtype, addr)
-        diff.append(hunk)
-    return diff
+        self.diff()
 
-def hostnames_diff(a, b):
-    """Diff two lists of hostnames. The return value is a list of DiffHunks."""
-    diff = []
-    a_hostnames = set(a)
-    b_hostnames = set(b)
+    def diff(self):
+        if self.host_a.state != self.host_b.state:
+            self.state_changed = True
+            self.cost += 1
 
-    for hostname in a_hostnames - b_hostnames:
-        hunk = HostHostnameRemoveHunk(hostname)
-        diff.append(hunk)
-    for hostname in b_hostnames - a_hostnames:
-        hunk = HostHostnameAddHunk(hostname)
-        diff.append(hunk)
-    return diff
+        if set(self.host_a.addresses) != set(self.host_b.addresses) \
+           or set(self.host_a.hostnames) != set(self.host_b.hostnames):
+            self.id_changed = True
+            self.cost += 1
 
-def host_diff(a, b):
-    """Diff two Hosts. The return value is a list of DiffHunks."""
-    diff = []
-    if a.state != b.state:
-        hunk = HostStateChangeHunk(a.state, b.state)
-        diff.append(hunk)
+        all_specs = list(set(self.host_a.ports.keys()).union(set(self.host_b.ports.keys())))
+        all_specs.sort()
+        for spec in all_specs:
+            # Currently we only compare ports with the same spec. This ignores
+            # the possibility that a service is moved lock, stock, and barrel to
+            # another port.
+            port_a = self.host_a.ports.get(spec)
+            port_b = self.host_b.ports.get(spec)
+            diff = PortDiff(port_a or Port(spec), port_b or Port(spec))
+            if self.include_diff(diff):
+                port = port_a or port_b
+                self.ports.append(port)
+                self.port_diffs[port] = diff
+                self.cost += diff.cost
 
-    diff.extend(addresses_diff(a.addresses, b.addresses))
-    diff.extend(hostnames_diff(a.hostnames, b.hostnames))
+        os_diffs = difflib.SequenceMatcher(None, self.host_a.os, self.host_b.os)
+        self.os_diffs = os_diffs.get_opcodes()
+        os_cost = len([x for x in self.os_diffs if x[0] != "equal"])
+        if os_cost > 0:
+            self.os_changed = True
+        self.cost += os_cost
 
-    all_specs = list(set(a.ports.keys()).union(set(b.ports.keys())))
-    all_specs.sort()
-    for spec in all_specs:
-        diff.extend(port_diff(a.ports[spec], b.ports[spec]))
+        extraports_a = tuple((count, state) for (state, count) in self.host_a.extraports.items())
+        extraports_b = tuple((count, state) for (state, count) in self.host_b.extraports.items())
+        if extraports_a != extraports_b:
+            self.extraports_changed = True
+            self.cost += 1
 
-    for os in set(a.os) - set(b.os):
-        diff.append(HostOsRemoveHunk(os))
-    for os in set(b.os) - set(a.os):
-        diff.append(HostOsAddHunk(os))
+    def include_diff(self, diff):
+        # Don't include the diff if the states are only extraports. Include all
+        # diffs, even those with cost == 0, in verbose mode.
+        if self.host_a.is_extraports(diff.port_a.state) and \
+           self.host_b.is_extraports(diff.port_b.state):
+            return False
+        elif verbose:
+            return True
+        return diff.cost > 0
 
-    return diff
+    def print_text(self, f = sys.stdout):
+        host_a = self.host_a
+        host_b = self.host_b
 
-def scan_diff(a, b):
-    """Diff two scans. The return value is a list of tuples. Each tuple has the
-    form (scan, host_diff), where scan is either a or b, whichever is present in
-    one of the scans (preferring a if both are present), and host_diff is the
-    host diff as returned by host_diff."""
-    diff = []
-    a_hosts = dict((host.get_id(), host) for host in a.hosts)
-    b_hosts = dict((host.get_id(), host) for host in b.hosts)
-    all_host_ids = set(a_hosts.keys()).union(set(b_hosts.keys()))
-    for id in all_host_ids:
-        host_a = a_hosts.get(id)
-        host_b = b_hosts.get(id)
-        h_diff = host_diff(host_a or Host(), host_b or Host())
-        if len(h_diff) > 0:
-            diff.append((host_a or host_b, h_diff))
-    return diff
+        # Names and addresses.
+        if self.id_changed:
+            if host_a.state is not None:
+                print >> f, u"-%s:" % host_a.format_name()
+            if self.host_b.state is not None:
+                print >> f, u"+%s:" % host_b.format_name()
+        else:
+            print >> f, u" %s:" % host_a.format_name()
 
-def warn(str):
-    """Print a warning to stderr."""
-    print >> sys.stderr, str
+        # State.
+        if self.state_changed:
+            if host_a.state is not None:
+                print >> f, u"-Host appears to be %s." % host_a.state
+            if host_b.state is not None:
+                print >> f, u"+Host appears to be %s." % host_b.state
+        elif verbose:
+            print >> f, u" Host appears to be %s." % host_b.state
+
+        # Extraports.
+        if self.extraports_changed:
+            if host_a.state is not None:
+                print >> f, u"-Not shown: %s" % host_a.extraports_string()
+            if host_b.state is not None:
+                print >> f, u"+Not shown: %s" % host_b.extraports_string()
+        elif verbose:
+            print >> f, u" Not shown: %s" % host_a.extraports_string()
+
+        # Port table.
+        port_table = Table(u"** * * *")
+        if host_a.state is None:
+            mark = u"+"
+        elif host_b.state is None:
+            mark = u"-"
+        else:
+            mark = u" "
+        port_table.append((mark, u"PORT", u"STATE", u"SERVICE", u"VERSION"))
+
+        for port in self.ports:
+            diff = self.port_diffs[port]
+            port_a = diff.port_a
+            port_b = diff.port_b
+            if diff.cost == 0:
+                if verbose:
+                    port_table.append((u" ", port.spec_string(), port.state_string(), port.service.name_string(), port.service.version_string()))
+            else:
+                if not host_a.is_extraports(port_a.state):
+                    port_table.append((u"-", port_a.spec_string(), port_a.state_string(), port_a.service.name_string(), port_a.service.version_string()))
+                if not host_a.is_extraports(port_b.state):
+                    port_table.append((u"+", port_b.spec_string(), port_b.state_string(), port_b.service.name_string(), port_b.service.version_string()))
+
+        if len(port_table) > 1:
+            print >> f, port_table
+
+        # OS changes.
+        if self.os_changed or verbose:
+            if len(host_a.os) > 0:
+                if len(host_b.os) > 0:
+                    print >> f, u" OS details:"
+                else:
+                    print >> f, u"-OS details:"
+            elif len(host_b.os) > 0:
+                print >> f, u"+OS details:"
+            # os_diffs is a list of 5-tuples returned by difflib.SequenceMatcher.
+            for op, i1, i2, j1, j2 in self.os_diffs:
+                if op == "replace" or op == "delete":
+                    for i in range(i1, i2):
+                        print >> f, "-  %s" % host_a.os[i]
+                if op == "replace" or op == "insert":
+                    for i in range(j1, j2):
+                        print >> f, "+  %s" % host_b.os[i]
+                if op == "equal":
+                    for i in range(i1, i2):
+                        print >> f, "   %s" % host_a.os[i]
+
+    def to_dom_fragment(self, document):
+        host_a = self.host_a
+        host_b = self.host_b
+
+        frag = document.createDocumentFragment()
+        hostdiff_elem = document.createElement(u"hostdiff")
+        frag.appendChild(hostdiff_elem)
+
+        if host_a.state is None or host_b.state is None:
+            # The host is missing in one scan. Output the whole thing.
+            if host_a.state is not None:
+                a_elem = document.createElement(u"a")
+                a_elem.appendChild(host_a.to_dom_fragment(document))
+                hostdiff_elem.appendChild(a_elem)
+            elif host_b.state is not None:
+                b_elem = document.createElement(u"b")
+                b_elem.appendChild(host_b.to_dom_fragment(document))
+                hostdiff_elem.appendChild(b_elem)
+            return frag
+
+        host_elem = document.createElement(u"host")
+
+        # State.
+        if host_a.state == host_b.state:
+            if verbose:
+                host_elem.appendChild(host_a.state_to_dom_fragment(document))
+        else:
+            a_elem = document.createElement(u"a")
+            a_elem.appendChild(host_a.state_to_dom_fragment(document))
+            host_elem.appendChild(a_elem)
+            b_elem = document.createElement(u"b")
+            b_elem.appendChild(host_b.state_to_dom_fragment(document))
+            host_elem.appendChild(b_elem)
+
+        # Addresses.
+        addrset_a = set(host_a.addresses)
+        addrset_b = set(host_b.addresses)
+        for addr in sorted(addrset_a.intersection(addrset_b)):
+            host_elem.appendChild(addr.to_dom_fragment(document))
+        a_elem = document.createElement(u"a")
+        for addr in sorted(addrset_a - addrset_b):
+            a_elem.appendChild(addr.to_dom_fragment(document))
+        if a_elem.hasChildNodes():
+            host_elem.appendChild(a_elem)
+        b_elem = document.createElement(u"b")
+        for addr in sorted(addrset_b - addrset_a):
+            b_elem.appendChild(addr.to_dom_fragment(document))
+        if b_elem.hasChildNodes():
+            host_elem.appendChild(b_elem)
+
+        # Host names.
+        hostnames_elem = document.createElement(u"hostnames")
+        hostnameset_a = set(host_a.hostnames)
+        hostnameset_b = set(host_b.hostnames)
+        for hostname in sorted(hostnameset_a.intersection(hostnameset_b)):
+            hostnames_elem.appendChild(host_a.hostname_to_dom_fragment(document, hostname))
+        a_elem = document.createElement(u"a")
+        for hostname in sorted(hostnameset_a - hostnameset_b):
+            a_elem.appendChild(host_a.hostname_to_dom_fragment(document, hostname))
+        if a_elem.hasChildNodes():
+            hostnames_elem.appendChild(a_elem)
+        b_elem = document.createElement(u"b")
+        for hostname in sorted(hostnameset_b - hostnameset_a):
+            b_elem.appendChild(host_b.hostname_to_dom_fragment(document, hostname))
+        if b_elem.hasChildNodes():
+            hostnames_elem.appendChild(b_elem)
+        if hostnames_elem.hasChildNodes():
+            host_elem.appendChild(hostnames_elem)
+
+        ports_elem = document.createElement(u"ports")
+        # Extraports.
+        if host_a.extraports == host_b.extraports:
+            ports_elem.appendChild(host_a.extraports_to_dom_fragment(document))
+        else:
+            a_elem = document.createElement(u"a")
+            a_elem.appendChild(host_a.extraports_to_dom_fragment(document))
+            ports_elem.appendChild(a_elem)
+            b_elem = document.createElement(u"b")
+            b_elem.appendChild(host_b.extraports_to_dom_fragment(document))
+            ports_elem.appendChild(b_elem)
+        # Port list.
+        for port in self.ports:
+            p_diff = self.port_diffs[port]
+            if p_diff.cost == 0:
+                if verbose:
+                    ports_elem.appendChild(port.to_dom_fragment(document))
+            else:
+                ports_elem.appendChild(p_diff.to_dom_fragment(document))
+        if ports_elem.hasChildNodes():
+            host_elem.appendChild(ports_elem)
+
+        # OS changes.
+        if self.os_changed or verbose:
+            os_elem = document.createElement(u"os")
+            # os_diffs is a list of 5-tuples returned by difflib.SequenceMatcher.
+            for op, i1, i2, j1, j2 in self.os_diffs:
+                if op == "replace" or op == "delete":
+                    a_elem = document.createElement(u"a")
+                    for i in range(i1, i2):
+                        a_elem.appendChild(host_a.os_to_dom_fragment(document, host_a.os[i]))
+                    os_elem.appendChild(a_elem)
+                if op == "replace" or op == "insert":
+                    b_elem = document.createElement(u"b")
+                    for i in range(j1, j2):
+                        b_elem.appendChild(host_b.os_to_dom_fragment(document, host_b.os[i]))
+                    os_elem.appendChild(b_elem)
+                if op == "equal":
+                    for i in range(i1, i2):
+                        os_elem.appendChild(host_a.os_to_dom_fragment(document, host_a.os[i]))
+            if os_elem.hasChildNodes():
+                host_elem.appendChild(os_elem)
+
+        hostdiff_elem.appendChild(host_elem)
+
+        return frag
+
+class PortDiff(object):
+    """A diff of two Ports. It contains the two ports and the cost of changing
+    one into the other. If the cost is 0 then the two ports are the same."""
+    def __init__(self, port_a, port_b):
+        self.port_a = port_a
+        self.port_b = port_b
+        self.cost = 0
+
+        self.diff()
+
+    def diff(self):
+        if self.port_a.spec != self.port_b.spec:
+            self.cost += 1
+
+        if self.port_a.state != self.port_b.state:
+            self.cost += 1
+
+        if self.port_a.service != self.port_b.service:
+            self.cost += 1
+
+    def to_dom_fragment(self, document):
+        frag = document.createDocumentFragment()
+        portdiff_elem = document.createElement(u"portdiff")
+        frag.appendChild(portdiff_elem)
+        a_elem = document.createElement(u"a")
+        b_elem = document.createElement(u"b")
+        portdiff_elem.appendChild(a_elem)
+        portdiff_elem.appendChild(b_elem)
+
+        a_elem.appendChild(self.port_a.to_dom_fragment(document))
+        b_elem.appendChild(self.port_b.to_dom_fragment(document))
+
+        return frag
+
+class Table(object):
+    """A table of character data, like NmapOutputTable."""
+    def __init__(self, template):
+        """template is a string consisting of "*" and other characters. Each "*"
+        is a left-justified space-padded field. All other characters are copied
+        to the output."""
+        self.widths = []
+        self.rows = []
+        self.prefix = u""
+        self.padding = []
+        j = 0
+        while j < len(template) and template[j] != "*":
+            j += 1
+        self.prefix = template[:j]
+        j += 1
+        i = j
+        while j < len(template):
+            while j < len(template) and template[j] != "*":
+                j += 1
+            self.padding.append(template[i:j])
+            j += 1
+            i = j
+
+    def append(self, row):
+        strings = []
+
+        row = list(row)
+        # Remove trailing Nones.
+        while len(row) > 0 and row[-1] is None:
+            row.pop()
+
+        for i in range(len(row)):
+            if row[i] is None:
+                s = u""
+            else:
+                s = str(row[i])
+            if i == len(self.widths):
+                self.widths.append(len(s))
+            elif len(s) > self.widths[i]:
+                self.widths[i] = len(s)
+            strings.append(s)
+        self.rows.append(strings)
+
+    def __len__(self):
+        return len(self.rows)
+
+    def __str__(self):
+        lines = []
+        for row in self.rows:
+            parts = [self.prefix]
+            i = 0
+            while i < len(row):
+                parts.append(row[i].ljust(self.widths[i]))
+                if i < len(self.padding):
+                    parts.append(self.padding[i])
+                i += 1
+            lines.append(u"".join(parts).rstrip())
+        return u"\n".join(lines)
 
 def parse_port_list(port_list):
     """Parse a port list like
     "1-1027,1029-1033,1040,1043,1050,1058-1059,1067-1068,1076,1080,1083-1084"
     into a list of numbers. Raises ValueError if the port list is somehow
-    invalid. This function and parse_port_list are rough inverses."""
+    invalid."""
     result = set()
     if port_list == u"":
         return list(result)
@@ -613,27 +779,9 @@ def parse_port_list(port_list):
     result.sort()
     return result
 
-def render_port_list(ports):
-    """Render a list of numbers into a string like
-    "1-1027,1029-1033,1040,1043,1050,1058-1059,1067-1068,1076,1080,1083-1084".
-    This function and parse_port_list are rough inverses."""
-    ports = ports[:]
-    ports.sort()
-    chunks = []
-    i = 0
-    while i < len(ports):
-        start = i
-        i += 1
-        while i < len(ports) and i - start == ports[i] - ports[start]:
-            i += 1
-        if i - start == 1:
-            chunks.append(u"%d" % ports[start])
-        elif i - start == 1:
-            chunks.append(u"%d" % ports[start])
-            chunks.append(u"%d" % ports[i - 1])
-        else:
-            chunks.append(u"%d-%d" % (ports[start], ports[i - 1]))
-    return u",".join(chunks)
+def warn(str):
+    """Print a warning to stderr."""
+    print >> sys.stderr, str
 
 class NmapContentHandler(xml.sax.handler.ContentHandler):
     """The xml.sax ContentHandler for the XML parser. It contains a Scan object
@@ -648,7 +796,6 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
 
         self.scanned_ports = {}
         self.current_host = None
-        self.current_extraports = []
         self.current_port = None
 
     def parent_element(self):
@@ -679,6 +826,7 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
             if attrs.has_key(u"start"):
                 start_timestamp = int(attrs.get(u"start"))
                 self.scan.start_date = datetime.datetime.fromtimestamp(start_timestamp)
+            self.scan.version = attrs.get(u"version")
         elif name == u"scaninfo":
             assert self.parent_element() == u"nmaprun"
             try:
@@ -720,7 +868,7 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
                 warn(u"%s element of host %s is missing the \"addr\" attribute; skipping." % (name, self.current_host.format_name()))
                 return
             addrtype = attrs.get(u"addrtype", u"ipv4")
-            self.current_host.add_address(addrtype, addr)
+            self.current_host.add_address(Address.new(addrtype, addr))
         elif name == u"hostname":
             assert self.parent_element() == u"hostnames"
             assert self.current_host is not None
@@ -737,11 +885,18 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
                 state = attrs[u"state"]
             except KeyError:
                 warn(u"%s element of host %s is missing the \"state\" attribute; assuming \"unknown\"." % (name, self.current_host.format_name()))
-                state = Port.UNKNOWN
-            if state in self.current_extraports:
+                state = None
+            if state in self.current_host.extraports:
                 warn(u"Duplicate extraports state \"%s\" in host %s." % (state, self.current_host.format_name()))
-            # Perhaps check for count == 0.
-            self.current_extraports.append(state)
+            try:
+                count = int(attrs[u"count"])
+            except KeyError:
+                warn(u"%s element of host %s is missing the \"count\" attribute; assuming 0." % (name, self.current_host.format_name()))
+                count = 0
+            except ValueError:
+                warn(u"Can't convert extraports count \"%s\" to an integer in host %s; assuming 0." % (attrs[u"count"], self.current_host.format_name()))
+                count = 0
+            self.current_host.extraports[state] = count
         elif name == u"port":
             assert self.parent_element() == u"ports"
             assert self.current_host is not None
@@ -767,7 +922,7 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
             if self.current_port is None:
                 return
             if not attrs.has_key(u"state"):
-                warn(u"%s element of port %s is missing the \"state\" attribute; assuming \"unknown\"." % (name, Port.spec_to_string(self.current_port.spec)))
+                warn(u"%s element of port %s is missing the \"state\" attribute; assuming \"unknown\"." % (name, self.current_port.spec_string()))
                 return
             self.current_port.state = attrs[u"state"]
             self.current_host.add_port(self.current_port)
@@ -780,6 +935,7 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
             self.current_port.service.product = attrs.get(u"product")
             self.current_port.service.version = attrs.get(u"version")
             self.current_port.service.extrainfo = attrs.get(u"extrainfo")
+            self.current_port.service.tunnel = attrs.get(u"tunnel")
         elif name == u"osmatch":
             assert self.parent_element() == u"os"
             assert self.current_host is not None
@@ -797,20 +953,19 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
         if name == u"nmaprun":
             self.scanned_ports = None
         elif name == u"host":
-            if len(self.current_extraports) == 1:
-                extraports_state = self.current_extraports[0]
-                known_ports = self.current_host.get_known_ports()
-                known_specs = set(port.spec for port in known_ports)
+            if len(self.current_host.extraports) == 1:
+                # We can infer the state of unlisted ports.
+                extraports_state = self.current_host.extraports.keys()[0]
+                known_specs = self.current_host.ports.keys()
                 for protocol in self.scanned_ports:
                     for portid in self.scanned_ports[protocol]:
                         spec = portid, protocol
                         if spec in known_specs:
                             continue
-                        assert self.current_host.ports[spec].state == Port.UNKNOWN
+                        assert spec not in self.current_host.ports
                         self.current_host.add_port(Port(spec, state = extraports_state))
 
             self.current_host = None
-            self.current_extraports = []
         elif name == u"port":
             self.current_port = None
 
@@ -822,9 +977,9 @@ Differences include host state changes, port state changes, and changes to
 service and OS detection.
 
   -h, --help     display this help
-  -v, --verbose  don't consolidate long port lists into just a count
+  -v, --verbose  also show hosts and ports that haven't changed.
   --text         display output in text format (default)
-  --xml          display output in XML format\
+  --xml          display output in XML format (not supported)\
 """ % sys.argv[0]
 
 def usage_error(msg):
@@ -833,8 +988,8 @@ def usage_error(msg):
     sys.exit(1)
 
 def main():
+    global verbose
     output_format = None
-    verbose = False
 
     try:
         opts, input_filenames = getopt.gnu_getopt(sys.argv[1:], "hv", ["help", "text", "verbose", "xml"])
@@ -849,15 +1004,15 @@ def main():
             verbose = True
         elif o == "--text":
             if output_format is not None and output_format != "text":
-                usage_error("contradictory output format options.")
+                usage_error(u"contradictory output format options.")
             output_format = "text"
         elif o == "--xml":
             if output_format is not None and output_format != "xml":
-                usage_error("contradictory output format options.")
+                usage_error(u"contradictory output format options.")
             output_format = "xml"
 
     if len(input_filenames) != 2:
-        usage_error("need exactly two input filenames.")
+        usage_error(u"need exactly two input filenames.")
 
     if output_format is None:
         output_format = "text"
@@ -873,7 +1028,7 @@ def main():
     diff = ScanDiff(scan_a, scan_b)
 
     if output_format == "text":
-        diff.print_text(verbose = verbose)
+        diff.print_text()
     elif output_format == "xml":
         diff.print_xml()
 

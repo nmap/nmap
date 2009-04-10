@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ndiff] The output has been changed to look like Nmap's output and
+  be easier to read. See the Ndiff README file for an example. The XML
+  output is now based on Nmap's XML output as well. Zenmap's diff
+  viewer shows the new output with syntax highlighting. [David]
+
 o [Zenmap] The "Cancel" has been restored to the main screen. It will
   cancel the scan that is currently being displayed.
 

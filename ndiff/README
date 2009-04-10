@@ -2,80 +2,56 @@ Ndiff
 
 Ndiff is a tool to aid in the comparison of Nmap scans. Specifically, it
 takes two Nmap XML output files and prints the differences between them:
-hosts coming up and down, ports becoming open or closed, and things like
-that.
+hosts coming up and down, ports becoming open or closed, service and OS
+changes.
 
 To install, run (as root)
 	python setup.py install
 It's also possible to run the program from within the distribution
 without installing it.
 
-Use "ndiff --help" for usage instructions. Output can be in
-human-readable text format ("ndiff --text") or machine-readable XML
-format ("ndiff --xml").
+Use "ndiff --help" for usage instructions.
 
-Here is a sample of the text output:
+Here is a sample of the output:
 
-	$ ./ndiff test-scans/random-1.xml test-scans/random-2.xml
-	Thu Sep 11 11:39:32 2008 -> Tue Sep 16 13:59:22 2008
-	cuvtdnray-504.example.com (10.214.143.33):
-		Host is up, was unknown.
-		Add ipv4 address 10.214.143.33.
-		Add hostname cuvtdnray-504.example.com.
-		+3389/tcp open microsoft-rdp Microsoft Terminal Service
-		999 tcp ports are filtered.
-	scnqxez-842.example.com (10.189.71.117):
-		Remove hostname scnqxez-842.example.com.
-	10.226.19.80:
-		-21/tcp filtered  
-		+21/tcp open ftp Netgear broadband router ftpd 1.0
-		-23/tcp filtered  
-		+23/tcp open telnet Netgear broadband router admin telnetd
-		-80/tcp filtered  
-		+80/tcp open http Embedded Allegro RomPager webserver 4.07 UPnP/1.0 (ZyXEL ZyWALL 2)
-		-8701/tcp open unknown 
-		+8701/tcp filtered  
-	ywnleu-108.example.com (10.242.160.155):
-		Host is up, was unknown.
-		Add ipv4 address 10.242.160.155.
-		Add hostname ywnleu-108.example.com.
-		1000 tcp ports are filtered.
-	fiyrownc-307.example.com (10.65.53.252):
-		Host is unknown, was up.
-		Remove ipv4 address 10.65.53.252.
-		Remove hostname fiyrownc-307.example.com.
-		-8089/tcp open upnp Microsoft Windows UPnP
-		999 tcp ports changed state from filtered to unknown.
+$ ./ndiff test-scans/random-1.xml test-scans/random-2.xml
+-Nmap 4.75 at 2008-09-11 11:39
++Nmap 4.76 at 2008-09-16 13:59
 
-Here is an abbreviated sample of the XML output:
+-scnqxez-842.example.com (10.189.71.117):
++10.189.71.117:
+ Host appears to be up.
+ Not shown: 995 filtered ports
+ PORT    STATE  SERVICE  VERSION
+ 20/tcp  closed ftp-data
+ 21/tcp  open   ftp      ProFTPD 1.3.1
+ 80/tcp  open   http     Apache httpd
+ 443/tcp open   http     Apache httpd
+ 873/tcp closed rsync
 
-	$ ./ndiff --xml test-scans/random-1.xml test-scans/random-2.xml
-	<?xml version="1.0" encoding="UTF-8"?>
-	<nmapdiff>
-	  <scandiff a-start="1221154772" b-start="1221595162">
-	    <host>
-	      <address addr="10.214.143.33" addrtype="ipv4"/>
-	      <hostname name="cuvtdnray-504.example.com"/>
-	      <host-state-change a-state="unknown" b-state="up"/>
-	      <host-address-add>
-		<address addr="10.214.143.33" addrtype="ipv4"/>
-	      </host-address-add>
-	      <host-hostname-add>
-		<hostname name="cuvtdnray-504.example.com"/>
-	      </host-hostname-add>
-	      <port-state-change a-state="unknown" b-state="filtered" portid="1" protocol="tcp"/>
-	      <port-state-change a-state="unknown" b-state="filtered" portid="3" protocol="tcp"/>
-	      <port-state-change a-state="unknown" b-state="filtered" portid="4" protocol="tcp"/>
-	    </host>
-	    <host>
-	      <address addr="10.189.71.117" addrtype="ipv4"/>
-	      <hostname name="scnqxez-842.example.com"/>
-	      <host-hostname-remove>
-		<hostname name="scnqxez-842.example.com"/>
-	      </host-hostname-remove>
-	    </host>
-	  </scandiff>
-	</nmapdiff>
++cuvtdnray-504.example.com (10.214.143.33):
++Host appears to be up.
++Not shown: 999 filtered ports
++PORT     STATE SERVICE       VERSION
++3389/tcp open  microsoft-rdp Microsoft Terminal Service
+
+ 10.226.19.80:
+ Host appears to be up.
+-Not shown: 999 filtered ports
++Not shown: 997 filtered ports
+ PORT     STATE    SERVICE VERSION
+-21/tcp   filtered
++21/tcp   open     ftp     Netgear broadband router ftpd 1.0
+-23/tcp   filtered
++23/tcp   open     telnet  Netgear broadband router admin telnetd
+-80/tcp   filtered
++80/tcp   open     http    Embedded Allegro RomPager webserver 4.07 UPnP/1.0 (ZyXEL ZyWALL 2)
+-8701/tcp open     unknown
++8701/tcp filtered
+
+
+Use -v or --verbose to see all hosts and ports, not just those that have
+changed.
 
 Ndiff started as a project by Michael Pattrick <mpattrick@rhinovirus.org>
 during the 2008 Google Summer of Code. Michael designed the program and
