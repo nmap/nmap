@@ -1,9 +1,9 @@
 Ndiff
 
 Ndiff is a tool to aid in the comparison of Nmap scans. Specifically, it
-takes two Nmap XML output files and prints the differences between them:
-hosts coming up and down, ports becoming open or closed, service and OS
-changes.
+takes two Nmap XML output files and prints the differences between them.
+It is capable of showing changes in host states (up or down), port
+states (open, closed, etc.), and changes in service and OS detection.
 
 To install, run (as root)
 	python setup.py install
@@ -15,39 +15,37 @@ Use "ndiff --help" for usage instructions.
 Here is a sample of the output:
 
 $ ./ndiff test-scans/random-1.xml test-scans/random-2.xml
--Nmap 4.75 at 2008-09-11 11:39
-+Nmap 4.76 at 2008-09-16 13:59
+-Nmap 4.85BETA4 at 2009-03-24 17:34
++Nmap 4.85BETA4 at 2009-03-25 16:35
 
--scnqxez-842.example.com (10.189.71.117):
-+10.189.71.117:
- Host appears to be up.
- Not shown: 995 filtered ports
- PORT    STATE  SERVICE  VERSION
- 20/tcp  closed ftp-data
- 21/tcp  open   ftp      ProFTPD 1.3.1
- 80/tcp  open   http     Apache httpd
- 443/tcp open   http     Apache httpd
- 873/tcp closed rsync
+ 10.137.81.38:
+ OS details:
+   FreeBSD 6.2-RELEASE
+   Apple AirPort Extreme WAP v7.3.2
++  APC Network Management Card (AOS 3.3.5)
++  Apple iPod touch audio player (iPhone OS 2.1)
 
-+cuvtdnray-504.example.com (10.214.143.33):
-+Host appears to be up.
-+Not shown: 999 filtered ports
-+PORT     STATE SERVICE       VERSION
-+3389/tcp open  microsoft-rdp Microsoft Terminal Service
++10.181.218.66:
++Host is up.
++Not shown: 998 closed ports
++PORT     STATE    SERVICE    VERSION
++222/tcp  open     rsh-spx
++8080/tcp filtered http-proxy
 
- 10.226.19.80:
- Host appears to be up.
--Not shown: 999 filtered ports
-+Not shown: 997 filtered ports
- PORT     STATE    SERVICE VERSION
--21/tcp   filtered
-+21/tcp   open     ftp     Netgear broadband router ftpd 1.0
--23/tcp   filtered
-+23/tcp   open     telnet  Netgear broadband router admin telnetd
--80/tcp   filtered
-+80/tcp   open     http    Embedded Allegro RomPager webserver 4.07 UPnP/1.0 (ZyXEL ZyWALL 2)
--8701/tcp open     unknown
-+8701/tcp filtered
+-bpdygf-130.example.com (10.188.226.230):
+-Host is up.
+-Not shown: 1000 filtered ports
+
+ ysqxnovik-508.example.com (10.253.52.142):
+ PORT     STATE  SERVICE    VERSION
++1503/tcp closed imtc-mcs
+-4567/tcp open   tcpwrapped
+-OS details:
+-  HP 4000M ProCurve switch (J4121A)
+-  Nortel 5530 Ethernet Routing Switch
+-  Nortel 5520 Ethernet Routing Switch
+-  Sun StorageTek 6140 NAS device
+-  FreeBSD 6.2-RELEASE
 
 
 Use -v or --verbose to see all hosts and ports, not just those that have
