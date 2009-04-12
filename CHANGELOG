@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] The Nmap Script Engine has been rewritten in Lua for better
+  maintainibility and improved functionality. Please see
+  http://seclists.org/nmap-dev/2009/q2/0090.html and
+  http://seclists.org/nmap-dev/2009/q1/0047.html for
+  more information [Patrick].
+
 o [Ndiff] The output has been changed to look like Nmap's output and
   be easier to read. See the Ndiff README file for an example. The XML
   output is now based on Nmap's XML output as well. Zenmap's diff
