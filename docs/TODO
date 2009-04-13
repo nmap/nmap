@@ -1,16 +1,12 @@
-MTODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
+TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
+
+o Go through all the SoC applicants and decide who we want to accept
+  and start communicating with them. [David,Fyodor]
+
+ o Decide which applicants we want, and who would be best for
+    mentoring them.
 
 o Ask Coverity if they'll scan latest version of Nmap. [Fyodor]
-
-o SVN check out /nmap as an external in a directory named svn or src
-  or nmapsvn or something under nmap.org web tree.  Then redirect the
-  individual nmap.org/data/ files, where needed, to the nmapsvn
-  instead.  and update nmap-dev Makefile not to copy them to the
-  /data/ dir anymore. Then update the nsedoc system to generate proper
-  links to the new script/nselib locations. [Fyodor]
-
-o Merge patrick/nse-lua-merge for easier-to-maintain and simpler
-  codebase once David and Patrick are happy with it. [David]
 
 o [Zenmap] Should probably give some sort of widget indication that a
   scan is running.  Now that we can start multiple scans at once, the
@@ -42,22 +38,9 @@ o Look into building RPMs with SSL support. Statically linking to
   OpenSSL on Linux for the RPMs didn't work for me last time I
   tried. [Fyodor]
 
-o When you specify multiple comma-separated arguments to --script,
-  those arguments seem to get lost when the Nmap command is printed in
-  Nmap's output files.  For example, I run the command:
-  nmap -oN - --script=discovery,intrusive scanme.nmap.org
-  The output includes:
-  # Nmap 4.85BETA4 scan initiated Thu Mar 26 15:40:05 2009 as: ./nmap
-    -oN - --script=discovery scanme.nmap.org
-  Note the missing ",intrusive" in the script argument. [David]
-
 o [Ncat] When acting as an HTTP proxy, we should support GET mode as
   well as CONNECT so that it works as a non-SSL proxy in browsers such
   as firefox. [David]
-
-o [Ncat] Let people set up authenticated proxies using
-  --listen and --proxy-auth together (right now we don't support
-  that). [David]
 
 o [Ncat] Maybe we should create an SSL cert with no passphrase during
   Ncat compilation or install process so that if someone specifies
@@ -99,23 +82,6 @@ o [Ncat] Consider supporting server certificate verification when used
   o We can probably get away with not doing revocation checking, as
     long as we document that we don't.
 
-o NSEDoc script/module documentation pages should probably provide a
-  link to the script/module source code (except for C modules).  The
-  link format should probably be of the form
-  http://nmap.org/data/scripts/[script].nse and
-  /data/nselib/[module].lua.  NSEdoc can assume they already exist
-  there, as we'll probably put them there using the same system we use
-  to copy other stuff to the data dir.
-
-o Prepare for Summer of Code
-  o Brainstorm for ideas
-  o Create new ideas page
-  o Apply to participate in program again
-  o Advertise for applicants
-  o Evaluate applicants
-  o Decide which applicants we want, and who would be best for
-    mentoring them.
-
 o Device categorization improvements
   o Examine Nmap's device categorization in nmap-os-deb and
     nmap-service-probes.  Decide if some small categories which have
@@ -134,7 +100,10 @@ o Device categorization improvements
     [Doug has done some initial work on this.  For example, see
      nmap/docs/device-types.txt]
 
-o Remove obsolete tests from nmap-os-db itself. [David]
+o Document that U1.RID gives "G" as long as all the data bytes in the
+  echoed response data are "C" as expected.  This G code is still
+  given even when the response is truncated, including if there are 0
+  bytes echoed. [David]
 
 o Add version detection signiture for Ncat chat once we finalize the
   announce format.
@@ -143,27 +112,6 @@ o Make a way to start a scan from the profile editor without creating
   a profile, then remove the command wizard.  This is partial
   implementation of
   http://www.bamsoftware.com/wiki/Nmap/ZenmapCommandLine. [David]
-
-o Ping scans always seem to say "0 [hosts] undergoing Ping Scan" when
-  you request stats, rather than the proper number.  For an example,
-  try a command such as "nmap -iR 10000 -sP -n" and then press enter
-  during the scan.  Here are some examples of the bad output: Stats:
-  25:34:33 elapsed; 991232 hosts completed (72530 up), 0 undergoing
-  Ping Scan Ping Scan Timing: About 53.69% done; ETC: 22:49 (0:00:09
-  remaining) Stats: 0:01:10 elapsed; 0 hosts completed (0 up), 0
-  undergoing Ping Scan Ping Scan Timing: About 24.03% done; ETC: 22:42
-  (0:03:41 remaining) Stats: 0:03:28 elapsed; 4096 hosts completed
-  (284 up), 0 undergoing Ping Scan Ping Scan Timing: About 3.06% done;
-  ETC: 22:44 (0:03:07 remaining) [David]
-
-o Canonicalize the "host up" messages for port scan and ping scan so
-  that instead of things like "Host scanme.nmap.org (64.13.134.52)
-  appears to be up ... good." we standardize in both cases on
-  something like: "Host scanme.nmap.org (64.13.134.52) is up (.75s
-  latency)".  Note the addition of the latency value, which is our
-  srtt value for the host.  This will only show in ping scan and
-  verbose port scan because the line doesn't appear without verbose
-  mode. [David]
 
 o Consider making the ping scan default be more comprehensive.  Note
   that I got 23% more Internet boxes found out of a 50K sample (see host
@@ -545,6 +493,68 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Canonicalize the "host up" messages for port scan and ping scan so
+  that instead of things like "Host scanme.nmap.org (64.13.134.52)
+  appears to be up ... good." we standardize in both cases on
+  something like: "Host scanme.nmap.org (64.13.134.52) is up (.75s
+  latency)".  Note the addition of the latency value, which is our
+  srtt value for the host.  This will only show in ping scan and
+  verbose port scan because the line doesn't appear without verbose
+  mode. [David]
+
+o Ping scans always seem to say "0 [hosts] undergoing Ping Scan" when
+  you request stats, rather than the proper number.  For an example,
+  try a command such as "nmap -iR 10000 -sP -n" and then press enter
+  during the scan.  Here are some examples of the bad output: Stats:
+  25:34:33 elapsed; 991232 hosts completed (72530 up), 0 undergoing
+  Ping Scan Ping Scan Timing: About 53.69% done; ETC: 22:49 (0:00:09
+  remaining) Stats: 0:01:10 elapsed; 0 hosts completed (0 up), 0
+  undergoing Ping Scan Ping Scan Timing: About 24.03% done; ETC: 22:42
+  (0:03:41 remaining) Stats: 0:03:28 elapsed; 4096 hosts completed
+  (284 up), 0 undergoing Ping Scan Ping Scan Timing: About 3.06% done;
+  ETC: 22:44 (0:03:07 remaining) [David]
+
+
+o Remove obsolete tests from nmap-os-db itself. [David]
+
+o Prepare for Summer of Code
+ * Brainstorm for ideas
+ * Create new ideas page
+ * Apply to participate in program again
+ * Advertise for applicants
+ * Evaluate applicants
+
+o NSEDoc script/module documentation pages should probably provide a
+  link to the script/module source code (except for C modules).  The
+  link format should probably be of the form
+  http://nmap.org/data/scripts/[script].nse and
+  /data/nselib/[module].lua.  NSEdoc can assume they already exist
+  there, as we'll probably put them there using the same system we use
+  to copy other stuff to the data dir.
+
+o [Ncat] Let people set up authenticated proxies using
+  --listen and --proxy-auth together (right now we don't support
+  that). [David]
+
+o When you specify multiple comma-separated arguments to --script,
+  those arguments seem to get lost when the Nmap command is printed in
+  Nmap's output files.  For example, I run the command:
+  nmap -oN - --script=discovery,intrusive scanme.nmap.org
+  The output includes:
+  # Nmap 4.85BETA4 scan initiated Thu Mar 26 15:40:05 2009 as: ./nmap
+    -oN - --script=discovery scanme.nmap.org
+  Note the missing ",intrusive" in the script argument. [David]
+
+o Merge patrick/nse-lua-merge for easier-to-maintain and simpler
+  codebase once David and Patrick are happy with it. [David]
+
+o SVN check out /nmap as an external in a directory named svn or src
+  or nmapsvn or something under nmap.org web tree.  Then redirect the
+  individual nmap.org/data/ files, where needed, to the nmapsvn
+  instead.  and update nmap-dev Makefile not to copy them to the
+  /data/ dir anymore. Then update the nsedoc system to generate proper
+  links to the new script/nselib locations. [Fyodor]
 
 o Improvements to presentation of version detection
   information. [Brandon]
