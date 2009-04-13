@@ -1,10 +1,7 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Go through all the SoC applicants and decide who we want to accept
-  and start communicating with them. [David,Fyodor]
-
- o Decide which applicants we want, and who would be best for
-    mentoring them.
+o Finalize GSoC applicant research, communication, and selection
+  [David, Fyodor]
 
 o Ask Coverity if they'll scan latest version of Nmap. [Fyodor]
 
@@ -27,12 +24,6 @@ o Change Nmap signature files to use the .sig extension rather than
   serve .sig files properly.  Update nmap-install.xml
   accordingly. Suggested by tic at eternalrealm.net by email on
   7/13/08. [Fyodor]
-
-o [Ndiff] Rethink the output format. David says: In particular, I
-  would like to always have the old state on the left and the new
-  state on the right: "was filtered, is open," not "is open, was
-  filtered." I also like the context diff output of MadHat's
-  nmap-diff. [David]
 
 o Look into building RPMs with SSL support. Statically linking to
   OpenSSL on Linux for the RPMs didn't work for me last time I
@@ -100,11 +91,6 @@ o Device categorization improvements
     [Doug has done some initial work on this.  For example, see
      nmap/docs/device-types.txt]
 
-o Document that U1.RID gives "G" as long as all the data bytes in the
-  echoed response data are "C" as expected.  This G code is still
-  given even when the response is truncated, including if there are 0
-  bytes echoed. [David]
-
 o Add version detection signiture for Ncat chat once we finalize the
   announce format.
 
@@ -120,7 +106,8 @@ o Consider making the ping scan default be more comprehensive.  Note
   artifacts and figure out exactly which tests are helping the most.
   If I do this change, I'll have to update the host enumeration chapter.
 
-o Do an OS detection integration run -- last was based on 1/8/09.
+o Do an OS detection integration run -- last was based on
+  1/8/09. [David]
 
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
 
@@ -493,6 +480,23 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Go through all the SoC applicants and decide who we want to accept
+  and start communicating with them. [David,Fyodor]
+ o Decide which applicants we want, and who would be best for
+    mentoring them.
+
+o Document that U1.RID gives "G" as long as all the data bytes in the
+  echoed response data are "C" as expected.  This G code is still
+  given even when the response is truncated, including if there are 0
+  bytes echoed. [David]
+
+o [Ndiff] Rethink the output format. David says: In particular, I
+  would like to always have the old state on the left and the new
+  state on the right: "was filtered, is open," not "is open, was
+  filtered." I also like the context diff output of MadHat's
+  nmap-diff. [David]
+
 
 o Canonicalize the "host up" messages for port scan and ping scan so
   that instead of things like "Host scanme.nmap.org (64.13.134.52)
