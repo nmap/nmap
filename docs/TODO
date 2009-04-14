@@ -99,6 +99,10 @@ o Make a way to start a scan from the profile editor without creating
   implementation of
   http://www.bamsoftware.com/wiki/Nmap/ZenmapCommandLine. [David]
 
+o Consider adding NSE script logical operator selection feature.
+  Patrick has a good initial implementation.  See this thread:
+  http://seclists.org/nmap-dev/2009/q2/0100.html
+
 o Consider making the ping scan default be more comprehensive.  Note
   that I got 23% more Internet boxes found out of a 50K sample (see host
   enumeration chapter of my book for details).  Maybe I should
