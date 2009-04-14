@@ -6721,7 +6721,12 @@ match X11 m|^\x01\0\x0b\0\0\0.\0..\0\0\0\0..\xff\xff\?\0\x01\0\0\0.\0\xff\xff\x0
 match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0..\xff\xff\?\0\x01\0\0\0.\0\xff\xff\x01.\x01\x01\x08 \x08\xfe...\0Hummingbird Communications Ltd\..\x01\x01|s p/Hummingbird Exceed X server/ v/6.X/ o/Windows/
 # General catch-alls
 match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0..\xff\xff.\0\x01\0\0..\0\xff\xff......\x08\xfe...\0Hummingbird Communications Ltd\.|s p/Hummingbird Exceed X server/ o/Windows/
-match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0..\xff\xff.*Hummingbird Ltd\.|s p/Hummingbird Exceed X server/ o/Windows/
+# This Hummingbird match isn't quite generic enough in some casses.
+# I'm not sure what all of the X11 flags are though so rather than
+# just make it more generic, I'll comment it out and include a more generic
+# one below.  [Brandon]
+#match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0..\xff\xff.*Hummingbird Ltd\.|s p/Hummingbird Exceed X server/ o/Windows/
+match X11 m|^\x01\0\x0b\0\0......?\0\0\0...?\xff\xff.*Hummingbird Ltd\.|s p/Hummingbird Exceed X server/ o/Windows/
 match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0..\xff\xff\?\0.\0\0..\0\xff\xff......\x08....\0DECWINDOWS compatibility\. Hummingbird|s p/Hummingbird Exceed X server/ i/DECWINDOWS compatibility/ o/Windows/
 match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0..\xff\xff\?\0.\0\0..\0\xff\xff......\x08....\0DECWINDOWS DigitalEquipmentCorporation, eXcursion|s p/DEC eXcursion X server/ o/Windows/
 match X11 m|^\x01\0\x0b\0\0......\0\0\0..\xff\xff\?\0.\0\0..\0\xff\xff.*Hewlett-Packard Company\0|s p/Hewlett-Packard X server/ o/HP-UX/
