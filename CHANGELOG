@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Ncat's HTTP proxy now supports the GET, HEAD, and POST methods in
+  addition to the CONNECT tunneling method, so it can be used as a
+  proxy with an ordinary web browser. [David]
+
 o [Nbase] The checksum functions now have an nbase_ prefix.  This
   should prevent name collisions with internal but exported functions
   in shared libraries Nmap links against (e.g. adler32() in zlib).
