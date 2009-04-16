@@ -2400,7 +2400,7 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, struct ip *ip, int replyN
   AVs[current_testno].attribute = (char*)"RD";
   length = (int) ntohs(ip->ip_len) - 4 * ip->ip_hl -4 * tcp->th_off;
   if ((tcp->th_flags & TH_RST) && length>0) {
-    sprintf(AVs[current_testno].value, "%08lX", crc32(((u8 *)tcp) + 4 * tcp->th_off, length));
+    sprintf(AVs[current_testno].value, "%08lX", nbase_crc32(((u8 *)tcp) + 4 * tcp->th_off, length));
   }
   else {
     strcpy(AVs[current_testno].value, "0");

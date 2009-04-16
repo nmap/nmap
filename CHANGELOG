@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Nbase] The checksum functions now have an nbase_ prefix.  This
+  should prevent name collisions with internal but exported functions
+  in shared libraries Nmap links against (e.g. adler32() in zlib).
+  Such collisions seem to confuse the runtime linker on some platforms.
+  [Daniel Roethlisberger]
+
 o [NSE] The Nmap Script Engine has been rewritten in Lua for better
   maintainibility and improved functionality. Please see
   http://seclists.org/nmap-dev/2009/q2/0090.html and
