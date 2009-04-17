@@ -219,34 +219,32 @@ function check_conficker(host)
 		return false, bind_result
 	end
 
-	-- Call netpathcanonicalize
-	local path = "\\..\\"
-	local error_result
-	status, netpathcanonicalize_result, error_result = msrpc.srvsvc_netpathcanonicalize(smbstate, host.ip, path)
+	-- Try checking a valid string to find Conficker.D
+	status, netpathcanonicalize_result, error_result = msrpc.srvsvc_netpathcanonicalize(smbstate, host.ip, "\\")
+	if(status == true and netpathcanonicalize_result['can_path'] == 0x5c45005c) then
+		msrpc.stop_smb(smbstate)
+		return true, INFECTED2
+	end
 
-	-- Stop the SMB session
-	msrpc.stop_smb(smbstate)
+	-- Try checking an illegal string ("\..\") to find Conficker.C and earlier
+	local error_result
+	status, netpathcanonicalize_result, error_result = msrpc.srvsvc_netpathcanonicalize(smbstate, host.ip, "\\..\\")
+
 	if(status == false) then
 		if(string.find(netpathcanonicalize_result, "INVALID_NAME")) then
+			msrpc.stop_smb(smbstate)
 			return true, CLEAN
-		--elseif(string.find(netpathcanonicalize_result, "UNKNOWN_57") ~= nil and error_result['can_path'] == 0x5c450000) then
 		elseif(string.find(netpathcanonicalize_result, "UNKNOWN_57") ~= nil) then
+			msrpc.stop_smb(smbstate)
 			return true, INFECTED
 		else
+			msrpc.stop_smb(smbstate)
 			return false, netpathcanonicalize_result
 		end
 	end
 
-	-- Try a check that supposedly finds Conficker.E
-	local path = "\\"
-	local error_result
-	status, netpathcanonicalize_result, error_result = msrpc.srvsvc_netpathcanonicalize(smbstate, host.ip, path)
-
 	-- Stop the SMB session
 	msrpc.stop_smb(smbstate)
-	if(error_result['can_path'] == 0x5c45005c) then
-		return true, INFECTED2
-	end
 
 	return true, CLEAN
 end
@@ -345,7 +343,7 @@ action = function(host)
 			response = response .. "Conficker: Likely INFECTED\n"
 			found = true
 		elseif(result == INFECTED2) then
-			response = response .. "Conficker: Likely INFECTED (by Conficker.D or higher)"
+			response = response .. "Conficker: Likely INFECTED (by Conficker.D or higher)\n"
 			found = true
 		else
 			response = response .. "Conficker: Unknown response received (" .. result .. ")"
