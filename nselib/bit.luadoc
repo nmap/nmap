@@ -23,10 +23,6 @@
 
 module "bit"
 
---- Cast <code>a</code> to an internal integer type.
--- @param a Number.
-function cast(a)
-
 --- Returns the one's complement of <code>a</code>.
 -- @param a Number.
 -- @return The one's complement of <code>a</code>.
