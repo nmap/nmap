@@ -88,7 +88,8 @@ local PATCHED    = 2
 local UNKNOWN    = 3
 local NOTRUN     = 4
 local INFECTED   = 5
-local CLEAN      = 6
+local INFECTED2  = 6
+local CLEAN      = 7
 
 ---Check if the server is patched for MS08-067. This is done by calling NetPathCompare with an 
 -- illegal string. If the string is accepted, then the server is vulnerable; if it's rejected, then
@@ -219,15 +220,12 @@ function check_conficker(host)
 	end
 
 	-- Call netpathcanonicalize
---	status, netpathcanonicalize_result = msrpc.srvsvc_netpathcanonicalize(smbstate, host.ip, "\\a", "\\test\\")
-	
 	local path = "\\..\\"
 	local error_result
 	status, netpathcanonicalize_result, error_result = msrpc.srvsvc_netpathcanonicalize(smbstate, host.ip, path)
 
 	-- Stop the SMB session
 	msrpc.stop_smb(smbstate)
-
 	if(status == false) then
 		if(string.find(netpathcanonicalize_result, "INVALID_NAME")) then
 			return true, CLEAN
@@ -239,6 +237,16 @@ function check_conficker(host)
 		end
 	end
 
+	-- Try a check that supposedly finds Conficker.E
+	local path = "\\"
+	local error_result
+	status, netpathcanonicalize_result, error_result = msrpc.srvsvc_netpathcanonicalize(smbstate, host.ip, path)
+
+	-- Stop the SMB session
+	msrpc.stop_smb(smbstate)
+	if(error_result['can_path'] == 0x5c45005c) then
+		return true, INFECTED2
+	end
 
 	return true, CLEAN
 end
@@ -333,9 +341,14 @@ action = function(host)
 	else
 		if(result == CLEAN) then
 			response = response .. "Conficker: Likely CLEAN\n"
-		else
+		elseif(result == INFECTED) then
 			response = response .. "Conficker: Likely INFECTED\n"
 			found = true
+		elseif(result == INFECTED2) then
+			response = response .. "Conficker: Likely INFECTED (by Conficker.D or higher)"
+			found = true
+		else
+			response = response .. "Conficker: Unknown response received (" .. result .. ")"
 		end
 	end
 
