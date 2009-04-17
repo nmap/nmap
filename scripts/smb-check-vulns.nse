@@ -207,7 +207,7 @@ function check_conficker(host)
 	local bind_result, netpathcompare_result
 
 	-- Create the SMB session
-	status, smbstate = msrpc.start_smb(host, "\\\\BROWSER")
+	status, smbstate = msrpc.start_smb(host, "\\\\BROWSER", true)
 	if(status == false) then
 		return false, smbstate
 	end
