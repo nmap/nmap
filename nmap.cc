@@ -2812,7 +2812,7 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
   }
 
   if (foundsomething && o.debugging > 1)
-    log_write(LOG_PLAIN, "Fetchfile found %s", filename_returned);
+    log_write(LOG_PLAIN, "Fetchfile found %s\n", filename_returned);
 
   return foundsomething;
 
