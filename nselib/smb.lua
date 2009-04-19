@@ -103,7 +103,7 @@
 --@args smbsign      Controls whether or not server signatures are checked in SMB packets. By default, on Windows,
 --                   server signatures aren't enabled or required. By default, this library will always sign 
 --                   packets if it knows how, and will check signatures if the server says to. Possible values are:
--- * <code>force<code>:      Always check server signatures, even if server says it doesn't support them (will 
+-- * <code>force</code>:      Always check server signatures, even if server says it doesn't support them (will 
 --                           probably fail, but is technically more secure). 
 -- * <code>negotiate</code>: [default] Use signatures if server supports them. 
 -- * <code>ignore</code>:    Never check server signatures. Not recommended. 
