@@ -4557,8 +4557,9 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         if (o.debugging)
           log_write(LOG_STDOUT, "In response to UDP-ping, we got UDP packet back from %s port %hu (trynum = %d)\n", inet_ntoa(ip->ip_src), htons(udp->uh_sport), trynum);
       }
-    } else if (!USI->ptech.rawprotoscan && o.debugging) {
-      error("Found whacked packet protocol %d in %s.", ip->ip_p, __func__);
+    } else if (!USI->ptech.rawprotoscan) {
+      if (o.debugging > 2)
+        error("Received packet with protocol %d; ignoring.", ip->ip_p);
     }
 
     /* Check for a protocol reply */
