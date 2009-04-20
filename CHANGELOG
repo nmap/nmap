@@ -18,7 +18,7 @@ o [Nbase] The checksum functions now have an nbase_ prefix.  This
   [Daniel Roethlisberger]
 
 o [NSE] The Nmap Script Engine has been rewritten in Lua for better
-  maintainibility and improved functionality. Please see
+  maintainability and improved functionality. Please see
   http://seclists.org/nmap-dev/2009/q2/0090.html and
   http://seclists.org/nmap-dev/2009/q1/0047.html for
   more information [Patrick].
@@ -28,8 +28,8 @@ o [Ndiff] The output has been changed to look like Nmap's output and
   output is now based on Nmap's XML output as well. Zenmap's diff
   viewer shows the new output with syntax highlighting. [David]
 
-o [Zenmap] The "Cancel" has been restored to the main screen. It will
-  cancel the scan that is currently being displayed.
+o [Zenmap] The "Cancel" button has been restored to the main screen.
+  It will cancel the scan that is currently being displayed.
 
 o Ncat can now run as an authenticated proxy in HTTP proxy mode. Use
   the --proxy-auth option to give a username and password that will be
