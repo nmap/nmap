@@ -1,5 +1,68 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 4.85BETA8 [2009-04-21]
+
+o Ncat's HTTP proxy now supports the GET, HEAD, and POST methods in
+  addition to the CONNECT tunneling method, so it can be used as a
+  proxy with an ordinary web browser.[David]
+
+o Ncat can now run as an authenticated proxy in HTTP proxy mode. Use
+  --proxy-auth to provide a username and password that will be required
+  of proxy users. Only the insecure (not encrypted) Basic authentication
+  method is supported. [David]
+
+o Ndiff's text output has been redone to look more like Nmap output
+  and be easier to read. See the Ndiff README file for an example. The
+  XML output is now based on Nmap's XML output as well. Zenmap's diff
+  viewer now shows the new output with syntax highlighting. [David]
+
+o The new versions of the Conficker Internet worm ban infected systems
+  from visiting Insecure.Org and Nmap.Org.  We take that as a
+  compliment to the effectiveness of our remote Conficker scanner.
+  They also ban DNS substrings "honey" (for the Honeynet Project),
+  "doxpara" (for Dan Kaminsky's site), "tenablese" for Tenable
+  Security, "coresecur" for Core Security Technologies, and
+  "iv.cs.uni" for those meddlesome (to the Conficker authors)
+  researchers at the University of Bonn.  For people who can't reach
+  nmap.org due to infection, I've mirrored this release at
+  http://sectools.org/nmap/. [Fyodor]
+
+o New Conficker versions eliminate the loophole we were using to
+  detect them with smb-check-vulns,nse, so we've added new methods
+  which work with the newest variants. Here are the Conficker-related
+  improvements since BETA7:
+  o Added new p2p-conficker script which detects Conficker using its
+    P2P update ports rather than MSRPC.  This is based on some new
+    research by Symantec. See
+    http://nmap.org/nsedoc/scripts/p2p-conficker.html [Ron]
+  o Since new Conficker variants prevent detection by our previous
+    MSRPC check in smb-check-vulns, we've added a new check which still
+    works. It involves calling netpathcanonicalize on "\" rather than
+    "\..\" and checking for a different return value.  It was discovered
+    by Felix Leder and Tillmann Werner.
+  o Improved smb-check-vulns Conficker error message text to be more
+    useful. [David]
+  o smb-check-vulns now defaults to using basic login rather than
+    extended logins as this seems to work better on some machines.
+  o Recommended command for a fast Conficker scan:
+    nmap -p139,445 --script p2p-conficker,smb-os-discovery,smb-check-vulns \
+    --script-args checkconficker=1,safe=1 -T4 [target networks]
+  o Recommended command for a more comprehensive (but slower) scan:
+    nmap --script p2p-conficker,smb-os-discovery,smb-check-vulns -p- \
+    --script-args checkall=1,safe=1 -T4 [target networks]
+
+o [NSE] The Nmap Script Engine core (C++) was rewritten in Lua for
+  code simplicity and extensibility. See
+  http://seclists.org/nmap-dev/2009/q2/0090.html and
+  http://seclists.org/nmap-dev/2009/q1/0047.html. [Patrick]
+
+o [Zenmap] The "Cancel" button has been restored to the main screen.
+  It will cancel the scan that is currently being displayed.
+
+o Fixed an SMB library bug which could case a nil-pointer exception
+  when scanning broken SMB implementations. Reported by Steve
+  Horejsi. [Ron]
+
 o [Ndiff] The setup.py installation script now suggests installing the
   python-dev package in a certain error situation. Previously the
   error message it printed was misleading:
@@ -7,34 +70,15 @@ o [Ndiff] The setup.py installation script now suggests installing the
     /usr/lib/python2.6/config/Makefile (No such file or directory)
   The change was suggested by Aaron Leininger. [David]
 
-o Ncat's HTTP proxy now supports the GET, HEAD, and POST methods in
-  addition to the CONNECT tunneling method, so it can be used as a
-  proxy with an ordinary web browser. [David]
-
 o [Nbase] The checksum functions now have an nbase_ prefix.  This
   should prevent name collisions with internal but exported functions
   in shared libraries Nmap links against (e.g. adler32() in zlib).
   Such collisions seem to confuse the runtime linker on some platforms.
   [Daniel Roethlisberger]
 
-o [NSE] The Nmap Script Engine has been rewritten in Lua for better
-  maintainability and improved functionality. Please see
-  http://seclists.org/nmap-dev/2009/q2/0090.html and
-  http://seclists.org/nmap-dev/2009/q1/0047.html for
-  more information [Patrick].
-
-o [Ndiff] The output has been changed to look like Nmap's output and
-  be easier to read. See the Ndiff README file for an example. The XML
-  output is now based on Nmap's XML output as well. Zenmap's diff
-  viewer shows the new output with syntax highlighting. [David]
-
-o [Zenmap] The "Cancel" button has been restored to the main screen.
-  It will cancel the scan that is currently being displayed.
-
-o Ncat can now run as an authenticated proxy in HTTP proxy mode. Use
-  the --proxy-auth option to give a username and password that will be
-  required of users of the proxy. Only the insecure Basic
-  authentication method is supported. [David]
+o Fixed banner.nse to remove surrounding whitespace from banners. For
+  example, this avoids a superfluous carriage return and newline at the
+  end of SSH greetings. [Patrick]
 
 o Expanded and tweaked the product/version/info of service scans in an
   attempt to reduce the number of warnings like "Warning: Servicescan
@@ -49,6 +93,19 @@ o Expanded and tweaked the product/version/info of service scans in an
     templates isn't going to be printed at all.
   [Brandon]
 
+o Improved the service scan DB to remove certain problematic regex
+  patterns which could lead to PCRE_MATCHLIMIT errors. For example,
+  instances of ".*\r\n.*" and ".*\n.*\n" were generally collapsed to
+  ".*" as long as the DOTALL (/s) modifier was set. [Brandon]
+
+o Changed some error() calls (which were more informational than error
+  messages) to use log_write() instead, and changed a few f?printf()
+  calls into error() or log_write(). [Brandon]
+
+o [Ncat] Fixed a bug in the resolve() function which could cause Ncat
+  to resolve names using the wrong address family (such as AF_INET
+  rather than AF_INET6) in some rare cases. [Daniel Roethlisberger]
+
 o [Zenmap] Worked around a GTK+ bug on Windows reported by Henry Nymann.
   It caused a crash when opening the Hosts Viewer on a host that had OS
   information. A window appeared saying simply "Runtime Error!". [David]
@@ -60,6 +117,11 @@ o [Zenmap] Gracefully handle unrecognized port states in the hosts
       File "radialnet\gui\NodeNotebook.pyo", line 257, in __create_widgets
     KeyError: u'unknown'
   [David]
+
+o Rewrote the debugging error message "Found whacked packet protocol
+  17 in get_ping_pcap_result" because we decided that receiving a UDP
+  packet during TCP ping scan is not egregious enough to qualify as
+  "whacked". [David]
 
 Nmap 4.85BETA7 [2009-04-1]
 
