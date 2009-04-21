@@ -29,14 +29,14 @@ out to everybody who contributed!
 --       it doesn't matter if any open ports were detected. 
 --
 -- @usage
--- # Default modes:
+-- # Run the scripts against host(s) that appear to be Windows
 -- nmap --script p2p-conficker,smb-os-discovery,smb-check-vulns --script-args=safe=1 -T4 -p445 <host>
 -- sudo nmap -sU -sS --script p2p-conficker,smb-os-discovery,smb-check-vulns --script-args=safe=1 -T4 -p U:137,T:139 <host>
 --
--- # Run regardless of which port is open (*recommended*)
--- nmap -sP --script p2p-conficker,smb-os-discovery,smb-check-vulns --script-args=checkconficker=1,safe=1 -T4 <host>
+-- # Run the scripts against all active hosts (recommended)
+-- nmap -p139,445 --script p2p-conficker,smb-os-discovery,smb-check-vulns --script-args=checkconficker=1,safe=1 -T4 <host>
 --
--- # Check every port (slow!)
+-- # Run scripts against all 65535 ports (slow)
 -- nmap --script p2p-conficker,smb-os-discovery,smb-check-vulns -p- --script-args=checkall=1,safe=1 <host>
 --
 -- # Base checks on a different ip address (NATed)
