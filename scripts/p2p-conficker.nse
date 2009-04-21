@@ -554,13 +554,12 @@ local function go(host)
 				end
 			end
 
-			if((i % 10) == 0) then
-				io.write(i .. "\n")
-			end
+--			if((i % 10) == 0) then
+--				io.write(i .. "\n")
+--			end
 		end
 	end
 
-io.write("AAAAAAAAAAAAAAAAAA\n\n\n")
 
 	-- Generate ports based on the ip and time
 	local seed = math.floor((os.time() - 345600) / 604800)
