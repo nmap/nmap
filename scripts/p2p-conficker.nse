@@ -545,16 +545,22 @@ local function go(host)
 			if(not(is_blacklisted_port(i))) then
 				local tcp = nmap.get_port_state(host, {number=i, protocol="tcp"})
 				if(tcp ~= nil and tcp.state == "open") then
-					tcp_ports[i] = "true"
+					tcp_ports[i] = true
 				end
 	
 				local udp = nmap.get_port_state(host, {number=i, protocol="udp"})
 				if(udp ~= nil and (udp.state == "open" or udp.state == "open|filtered")) then
-					udp_ports[i] = "true"
+					udp_ports[i] = true
 				end
+			end
+
+			if((i % 10) == 0) then
+				io.write(i .. "\n")
 			end
 		end
 	end
+
+io.write("AAAAAAAAAAAAAAAAAA\n\n\n")
 
 	-- Generate ports based on the ip and time
 	local seed = math.floor((os.time() - 345600) / 604800)
