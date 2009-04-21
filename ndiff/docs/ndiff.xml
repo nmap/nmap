@@ -76,7 +76,9 @@
         <term><option>--xml</option></term>
         <listitem>
           <para>
-          This option is not currently supported.
+          Write output in machine-readable XML format. The document
+          structure is defined in the file
+          <filename>ndiff.dtd</filename> included in the distribution.
           </para>
         </listitem>
       </varlistentry>
