@@ -30,17 +30,17 @@ out to everybody who contributed!
 --
 -- @usage
 -- # Default modes:
--- nmap --script p2p-conficker.nse -p445 <host>
--- sudo nmap -sU -sS --script p2p-conficker.nse -p U:137,T:139 <host>
+-- nmap --script p2p-conficker,smb-os-discovery,smb-check-vulns --script-args=safe=1 -T4 -p445 <host>
+-- sudo nmap -sU -sS --script p2p-conficker,smb-os-discovery,smb-check-vulns --script-args=safe=1 -T4 -p U:137,T:139 <host>
 --
--- # Run regardless of which port is open
--- nmap --script p2p-conficker.nse -p445 --script-args=checkconficker=1 <host>
+-- # Run regardless of which port is open (*recommended*)
+-- nmap -sP --script p2p-conficker,smb-os-discovery,smb-check-vulns --script-args=checkconficker=1,safe=1 -T4 <host>
 --
 -- # Check every port (slow!)
--- nmap --script p2p-conficker.nse -p- --script-args=checkall=1 <host>
+-- nmap --script p2p-conficker,smb-os-discovery,smb-check-vulns -p- --script-args=checkall=1,safe=1 <host>
 --
 -- # Base checks on a different ip address (NATed)
--- nmap --script p2p-conficker.nse -p445 --script-args=realip=\"192.168.1.65\" <host>
+-- nmap --script p2p-conficker,smb-os-discovery -p445 --script-args=realip=\"192.168.1.65\" <host>
 --
 -- @output
 -- Clean machine:
