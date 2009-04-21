@@ -1,8 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Finalize GSoC applicant research, communication, and selection
-  [David, Fyodor]
-
 o Ask Coverity if they'll scan latest version of Nmap. [Fyodor]
 
 o [Zenmap] Should probably give some sort of widget indication that a
@@ -28,10 +25,6 @@ o Change Nmap signature files to use the .sig extension rather than
 o Look into building RPMs with SSL support. Statically linking to
   OpenSSL on Linux for the RPMs didn't work for me last time I
   tried. [Fyodor]
-
-o [Ncat] When acting as an HTTP proxy, we should support GET mode as
-  well as CONNECT so that it works as a non-SSL proxy in browsers such
-  as firefox. [David]
 
 o [Ncat] Maybe we should create an SSL cert with no passphrase during
   Ncat compilation or install process so that if someone specifies
@@ -112,6 +105,9 @@ o Consider making the ping scan default be more comprehensive.  Note
 
 o Do an OS detection integration run -- last was based on
   1/8/09. [David]
+
+o [Ncat] Make proxy server mode work on Windows (this is the last
+  remaining fork() dependency in Ncat).
 
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
 
@@ -484,6 +480,13 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [Ncat] When acting as an HTTP proxy, we should support GET mode as
+  well as CONNECT so that it works as a non-SSL proxy in browsers such
+  as firefox. [David]
+
+o Finalize GSoC applicant research, communication, and selection
+  [David, Fyodor]
 
 o Go through all the SoC applicants and decide who we want to accept
   and start communicating with them. [David,Fyodor]
