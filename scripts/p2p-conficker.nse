@@ -37,10 +37,10 @@ out to everybody who contributed!
 -- nmap -p139,445 --script p2p-conficker,smb-os-discovery,smb-check-vulns --script-args=checkconficker=1,safe=1 -T4 <host>
 --
 -- # Run scripts against all 65535 ports (slow)
--- nmap --script p2p-conficker,smb-os-discovery,smb-check-vulns -p- --script-args=checkall=1,safe=1 <host>
+-- nmap --script p2p-conficker,smb-os-discovery,smb-check-vulns -p- --script-args=checkall=1,safe=1 -T4 <host>
 --
 -- # Base checks on a different ip address (NATed)
--- nmap --script p2p-conficker,smb-os-discovery -p445 --script-args=realip=\"192.168.1.65\" <host>
+-- nmap --script p2p-conficker,smb-os-discovery -p445 --script-args=realip=\"192.168.1.65\" -T4 <host>
 --
 -- @output
 -- Clean machine:
