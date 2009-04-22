@@ -45,11 +45,11 @@ o New Conficker versions eliminate the loophole we were using to
   o smb-check-vulns now defaults to using basic login rather than
     extended logins as this seems to work better on some
     machines. [Ron]
-  o Recommended command for a fast Conficker scan:
-    nmap -p139,445 --script p2p-conficker,smb-os-discovery,smb-check-vulns \
+  o Recommended command for a fast Conficker scan (combine into 1 line):
+    nmap -p139,445 --script p2p-conficker,smb-os-discovery,smb-check-vulns
     --script-args checkconficker=1,safe=1 -T4 [target networks]
   o Recommended command for a more comprehensive (but slower) scan:
-    nmap --script p2p-conficker,smb-os-discovery,smb-check-vulns -p- \
+    nmap --script p2p-conficker,smb-os-discovery,smb-check-vulns -p-
     --script-args checkall=1,safe=1 -T4 [target networks]
 
 o [NSE] The Nmap Script Engine core (C++) was rewritten in Lua for
