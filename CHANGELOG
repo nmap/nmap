@@ -39,11 +39,12 @@ o New Conficker versions eliminate the loophole we were using to
     MSRPC check in smb-check-vulns, we've added a new check which still
     works. It involves calling netpathcanonicalize on "\" rather than
     "\..\" and checking for a different return value.  It was discovered
-    by Felix Leder and Tillmann Werner.
+    by Felix Leder and Tillmann Werner. [Ron]
   o Improved smb-check-vulns Conficker error message text to be more
     useful. [David]
   o smb-check-vulns now defaults to using basic login rather than
-    extended logins as this seems to work better on some machines.
+    extended logins as this seems to work better on some
+    machines. [Ron]
   o Recommended command for a fast Conficker scan:
     nmap -p139,445 --script p2p-conficker,smb-os-discovery,smb-check-vulns \
     --script-args checkconficker=1,safe=1 -T4 [target networks]
@@ -57,7 +58,7 @@ o [NSE] The Nmap Script Engine core (C++) was rewritten in Lua for
   http://seclists.org/nmap-dev/2009/q1/0047.html. [Patrick]
 
 o [Zenmap] The "Cancel" button has been restored to the main screen.
-  It will cancel the scan that is currently being displayed.
+  It will cancel the scan that is currently being displayed. [David]
 
 o Fixed an SMB library bug which could case a nil-pointer exception
   when scanning broken SMB implementations. Reported by Steve
