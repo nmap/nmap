@@ -253,10 +253,10 @@ struct ncap_socket{
 				 * address this structure. */
 };
 
-struct yield {
+struct nsock_yield {
 	lua_State *thread; /* thread to resume */
 	struct l_nsock_udata *udata; /* self reference */
-} yield;
+};
 
 /*
  *
@@ -264,7 +264,7 @@ struct yield {
 struct ncap_request{
 	int suspended;		/* is the thread suspended? (lua_yield) */
 	//lua_State *L;		/* lua_State of current process or NULL if process isn't suspended */ 
-	struct yield *yield;
+	struct nsock_yield *yield;
 	nsock_event_id nseid;	/* nse for this specific lua_State */
 	struct timeval end_time;
 	char *key;		/* (free) zero-terminated key used in map to 
@@ -291,7 +291,7 @@ struct l_nsock_udata {
 	int timeout;
 	nsock_iod nsiod;
 	void *ssl_session;
-	struct yield yield;
+	struct nsock_yield yield;
 	/*used for buffered reading */
 	int bufidx; /*index inside lua's registry */
 	int bufused;
@@ -525,7 +525,7 @@ error:
 }
 
 void l_nsock_connect_handler(nsock_pool nsp, nsock_event nse, void *yield) {
-	struct yield *y = (struct yield *) yield;
+	struct nsock_yield *y = (struct nsock_yield *) yield;
 	lua_State *L = y->thread;
 
 	if(o.scriptTrace()) {
@@ -561,7 +561,7 @@ static int l_nsock_send(lua_State *L) {
 }
 
 void l_nsock_send_handler(nsock_pool nsp, nsock_event nse, void *yield) {
-	struct yield *y = (struct yield *) yield;
+	struct nsock_yield *y = (struct nsock_yield *) yield;
 	lua_State *L = y->thread;
 	
 	if(l_nsock_checkstatus(L, nse) == NSOCK_WRAPPER_SUCCESS) {
@@ -625,7 +625,7 @@ static int l_nsock_receive_bytes(lua_State *L) {
 }
 
 void l_nsock_receive_handler(nsock_pool nsp, nsock_event nse, void *yield) {
-	struct yield *y = (struct yield *) yield;
+	struct nsock_yield *y = (struct nsock_yield *) yield;
 	lua_State *L = y->thread;
 	char* rcvd_string;
 	int rcvd_len = 0;
@@ -845,7 +845,7 @@ static int l_nsock_receive_buf(lua_State *L) {
 }
 
 void l_nsock_receive_buf_handler(nsock_pool nsp, nsock_event nse, void *yield) {
-	struct yield *y = (struct yield *) yield;
+	struct nsock_yield *y = (struct nsock_yield *) yield;
 	l_nsock_udata *udata = y->udata;
 	lua_State *L= y->thread;
 	char* rcvd_string;
