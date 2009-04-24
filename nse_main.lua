@@ -150,16 +150,21 @@ do
         filename = self.filename,
       }, {__index = _G});
     setfenv(file_closure, env);
+    local unique_value = {}; -- to test valid yield
     local function main (...)
       file_closure(); -- loads script globals
-      return env.action(yield(env[rule](...)));
+      return env.action(yield(unique_value, env[rule](...)));
     end
     setfenv(main, env);
     -- This thread allows us to load the script's globals in the
     -- same Lua thread the action and rule functions will execute in.
     local co = create(main);
-    local s, rule_return = resume(co, ...);
-    if s and rule_return then
+    local s, value, rule_return = resume(co, ...);
+    if s and value ~= unique_value then
+      print_debug(1,
+    "A thread for %s yielded unexpectedly in the file or %s function:\n%s\n",
+          self.filename, rule, traceback(co));
+    elseif s and rule_return then
       local thread = setmetatable({
         co = co,
         env = env,
