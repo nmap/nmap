@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Made calling of checked allocation functions more uniform and
+  removed some unnecessary code. [Fotis Hantzis]
+
 Nmap 4.85BETA8 [2009-04-21]
 
 o Ncat's HTTP proxy now supports the GET, HEAD, and POST methods in
