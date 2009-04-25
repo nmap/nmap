@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] In SSL mode, Ncat now always uses secure connections, meaning
+  that it uses only good ciphers and doesn't use SSLv2. Certificates
+  can optionally be verified with the --ssl-verify and --ssl-trustfile
+  options. Nsock provides the option of making SSL connections that
+  prioritize either speed or security; Ncat uses security while
+  version detection and NSE continue to use speed. [David]
+
 o [Ncat] Made calling of checked allocation functions more uniform and
   removed some unnecessary code. [Fotis Hantzis]
 

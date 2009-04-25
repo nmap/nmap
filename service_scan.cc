@@ -2425,6 +2425,11 @@ int service_scan(vector<Target *> &Targets) {
     nsp_settrace(nsp, NSOCK_TRACE_LEVEL, o.getStartTime());
   }
 
+#if HAVE_OPENSSL
+  /* We don't care about connection security in version detection. */
+  nsp_ssl_init_max_speed(nsp);
+#endif
+
   launchSomeServiceProbes(nsp, SG);
 
   // How long do we have before timing out?

@@ -395,6 +395,10 @@ int luaopen_nsock (lua_State *L)
   nsp = nsp_new(NULL);
   if (o.scriptTrace())
     nsp_settrace(nsp, NSOCK_TRACE_LEVEL, o.getStartTime());
+#if HAVE_OPENSSL
+  /* Value speed over security in SSL connections. */
+  nsp_ssl_init_max_speed(nsp);
+#endif
 
   return 0;
 }
