@@ -23,8 +23,8 @@
   ;Get installation folder from registry if available 
   InstallDirRegKey HKCU "Software\Nmap" "" 
  
-  !define VERSION "4.85BETA7"  
-  VIProductVersion "4.85.0.7"
+  !define VERSION "4.85BETA8"  
+  VIProductVersion "4.85.0.8"
   VIAddVersionKey /LANG=1033 "FileVersion" "${VERSION}"
   VIAddVersionKey /LANG=1033 "ProductName" "Nmap" 
   VIAddVersionKey /LANG=1033 "CompanyName" "Insecure.org" 
