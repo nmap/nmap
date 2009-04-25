@@ -333,7 +333,7 @@ int script_updatedb (void)
     "  local categories = rawget(env, 'categories')\n"
     "  assert(type(categories) == 'table', script.."
     "    ' categories field is not a table')\n"
-    "  local basename = assert(match(script, '([^\\/]-%.nse)$'))\n"
+    "  local basename = assert(match(script, '[/\\]?([^/\\]-%.nse)$'))\n"
     "  table.sort(categories)\n"
     "  for j, category in ipairs(categories) do\n"
     "    db:write('Entry { category = \"', lower(category),"
