@@ -841,7 +841,7 @@ given in the next section.</para></listitem>
 
 </orderedlist>
 
-<para>If you wish to build an executable Nmap executable Windows
+<para>If you wish to build an Nmap executable Windows
 installer or Zenmap executable,
 see <filename>docs/win32-installer-zenmap-buildguide.txt</filename> in
 Nmap SVN
