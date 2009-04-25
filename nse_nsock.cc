@@ -1240,6 +1240,8 @@ static int l_nsock_ncap_register(lua_State *L){
 	TIMEVAL_MSEC_ADD(nr->end_time, now, udata->timeout);
 	nr->key   = strdup(hex((char*)testdata, testdatasz));
 	nr->yield     = &udata->yield;
+    udata->yield.thread = L;
+    udata->yield.udata = udata;
 	nr->ncap_cback_ref = udata->ncap_cback_ref;
 	/* always create new event. */
 	nr->nseid = nsock_pcap_read_packet(nsp, 
@@ -1273,6 +1275,8 @@ int l_nsock_pcap_receive(lua_State *L){
 	 * udata during this request */
 	struct ncap_request *nr = udata->ncap_request;
 	udata->ncap_request = NULL;
+	udata->yield.thread = L;
+	udata->yield.udata = udata;
 	
 	/* ready to receive data? don't suspend thread*/
 	if(nr->received) /*data already received*/
@@ -1281,7 +1285,6 @@ int l_nsock_pcap_receive(lua_State *L){
 	/* no data yet? suspend thread */
 	nr->suspended = 1;
 	
-	udata->yield.thread = L;
 	return lua_yield(L, 0);
 }
 
