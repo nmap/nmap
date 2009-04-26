@@ -7,8 +7,13 @@ o [Ncat] In SSL mode, Ncat now always uses secure connections, meaning
   prioritize either speed or security; Ncat uses security while
   version detection and NSE continue to use speed. [David]
 
-o [Ncat] Made calling of checked allocation functions more uniform and
-  removed some unnecessary code. [Fotis Hantzis]
+o The official Windows binaries are now compiled with MS Visual C++
+  2008 Express Edition SP1 rather than the RTM version. We also now
+  distribute the matching SP1 version of the MS runtime components
+  (vcredist_x86.exe). [Fyodor]
+
+o [Ncat] Minor code cleanup of Ncat memory allocation and string
+  duplication calls. [Ithilgore]
 
 Nmap 4.85BETA8 [2009-04-21]
 
