@@ -198,7 +198,8 @@ o [NSE] Web application fingerprinting script.  Would be great to be
   regular expressions or other tests in a script, it should use a
   signature file like Nmap OS and version detection do.  Might work in
   combination with URL grinder to check for applications at
-  default/common locations.
+  default/common locations. See also a script that does favicon
+  fingerprinting at http://seclists.org/nmap-dev/2008/q4/0583.html .
 
 o NSE Security Review
  o Consider what, if any, vulnerabilities or security risks NSE has
