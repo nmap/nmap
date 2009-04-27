@@ -373,7 +373,8 @@ local function run (threads)
   print_debug(1, "NSE Script Threads (%d) running:", #threads);
   while #threads > 0 do
     local thread = remove(threads);
-    thread:d("Starting %THREAD against %s.", thread.host.ip)
+    thread:d("Starting %THREAD against %s%s.", thread.host.ip,
+        thread.port and ":"..thread.port.number or "");
     running[thread.co], total = thread, total + 1;
     hosts[thread.host] = hosts[thread.host] or {};
     hosts[thread.host][thread.co] = true;
@@ -438,7 +439,8 @@ local function run (threads)
             cnse.port_set_output(thread.host, thread.port, thread.id, result);
           end
         end
-        thread:d("Finished %THREAD against %s", thread.host.ip);
+        thread:d("Finished %THREAD against %s%s.", thread.host.ip,
+            thread.port and ":"..thread.port.number or "");
       end
 
       -- Any more threads running for this host?
