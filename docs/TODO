@@ -1,5 +1,9 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Make 4.85BETA9 release [Fyodor]
+
+o Build x86 VM instance for RPM building.
+
 o Ask Coverity if they'll scan latest version of Nmap. [Fyodor]
 
 o [Zenmap] Should probably give some sort of widget indication that a
@@ -87,8 +91,8 @@ o Device categorization improvements
 o Add version detection signiture for Ncat chat once we finalize the
   announce format.
 
-o Make a way to start a scan from the profile editor without creating
-  a profile, then remove the command wizard.  This is partial
+o [Zenmap] Make a way to start a scan from the profile editor without
+  creating a profile, then remove the command wizard.  This is partial
   implementation of
   http://www.bamsoftware.com/wiki/Nmap/ZenmapCommandLine. [David]
 
@@ -106,24 +110,110 @@ o Consider making the ping scan default be more comprehensive.  Note
 o Wherever practical, fix compiler warnings when compiling Nmap with
   VC++ 2008 Express SP1 (there aren't many).
 
-o Do an OS detection integration run -- last was based on
-  1/8/09. [David]
-
 o [Ncat] Make proxy server mode work on Windows (this is the last
   remaining fork() dependency in Ncat).
 
+o Do an OS detection integration run -- last was based on
+  1/8/09. [David]
+
+
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
 
-o Optimize NSE Performance--e.g. measure the current performance and
+o [NSE] Think about Nmap or NSE http framework.  Scanning http paths to see
+  if they exist is in some ways similar to scanning to see which ports
+  are open.
+
+o [NSE] http improvements
+ o Spidering library+scripts?  How should the spider store the results
+   and make them available to other scripts?  How do we limit
+   bandwidth consumption and total amount of data stored?
+ o URL grinder checks for existence of applications in common/default
+   paths.
+ o Cookie support?
+ o HTTP keepalive, pipelining, etc.?
+
+o [NSE] BasicHTML/XML parser?
+
+o [NSE] Make sure all our HTTP scripts transparently support SSL
+  servers too.
+
+o [NSE] Make NSE work better for SSL tunneled services in general by
+  supporting them easily in the libraries.  For example, I don't think
+  irc-info.nse currently works against all the servers which tunnel
+  over SSL.  Maybe augment comm library, etc.
+
+o [NSE] Optimize NSE Performance--e.g. measure the current performance and
   see what can be improved in terms of scheduling scan threads,
   determining how many to run concurrently, looking at CPU load items,
   etc.
 
-o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
+o [NSE] Consider whether we should include some sort of NSE debugger.  Or we
+  could include something simpler.  For example, some developers (such
+  as Ron) already make use of Patrick's traceback.nse in their
+  experimental trees.
 
-o Think about Nmap or NSE http framework.  Scanning http paths to see
-  if they exist is in some ways similar to scanning to see which ports
-  are open.
+o [NSE] Open proxy detection script?
+  o We have http-open-proxy.nse, but we should probably either extrand
+  that to handle other types of proxies (such as SOCKS and HTTP
+  CONNECT) or create more scripts to handle those other proxy types.
+
+o [NSE] We may want to consider a better exception handling method --
+  one which doesn't require wrapping every I/O line in its own try
+  function call.  David says "Lua has an internal "exception handling"
+  mechanism based on a function called pcall, which is implemented
+  with setjmp/longjmp.  ou can wrap a function call in it and the
+  function will return there whenever there's an unhandled error.
+  Something based on that would be better [than the current system], I
+  think."
+
+o [NSE] Consider adding boolean expressions to --script arguments.  For
+  example, see Patrick's implementation at
+  http://seclists.org/nmap-dev/2008/q3/0300.html .
+
+o [NSE] Figure out what to do about NSE mutexes:
+  http://seclists.org/nmap-dev/2008/q3/0276.html .  Patrick has some
+  ideas for this in his SoC09 proposal:
+   "Adding a cleanup system for NSE that is called periodically
+    similar to nsock_loop. There would be a registration system
+    allowing C libraries to register a Lua function that will run
+    periodically to check for irresolvable deadlock or simply dead
+    resources. For example, the nmap library would register a mutex
+    cleanup handler which would inspect all mutexes looking for a dead
+    thread or circular dependencies. The nsock library could register
+    a handler that checks for unused sockets. The nsock may save a
+    strong reference to the thread that owns the socket and inspect it
+    to determine if the thread is dead."
+
+o [NSE] NSE-INF: Would be great if NSE scripts could be made to NOT
+  run as root.
+
+o [NSE] NFS query script for checking exports, etc.?
+
+o [NSE] Improve username/password library?  Maybe work in combination
+  with Ncrack dev.
+
+o [NSE] Web application fingerprinting script.  Would be great to be
+  able to take a URL and determine things like "this is Joomla" or
+  "this is Plone" or "Mediawiki" or whatever. Rather than hard code
+  regular expressions or other tests in a script, it should use a
+  signature file like Nmap OS and version detection do.  Might work in
+  combination with URL grinder to check for applications at
+  default/common locations.
+
+o NSE Security Review
+ o Consider what, if any, vulnerabilities or security risks NSE has
+   with respect to buffer overflows, format string bugs, any other
+   maliciously formatted responses from target systems, etc.  Maybe
+   address the known risk of malicious scripts too.
+ o Consider that NSE runs scripts as root
+
+o [NSE] High speed brute force HTTP authentication.  Possibly POST and
+   GET brute force cracking.
+
+o [NSE] Add desired SoC09 infrastructure ideas to this TODO to the
+  extent they don't already exist.
+
+o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
 
 o Figure out and document (in at least the Ncat user's guide) the best
   way to use Ncat for chaining through proxies.  One option is this
@@ -133,11 +223,6 @@ o Figure out and document (in at least the Ncat user's guide) the best
   If you had two proxies A.A.A.A and B.B.B.B, connecting to C.C.C.C.
   With another listener/--sh-exec pair for each additional proxy.
   But perhaps we can make it easier by adding it to the syntax.
-
-o Consider whether we should include some sort of NSE debugger.  Or we
-  could include something simpler.  For example, some developers (such
-  as Ron) already make use of Patrick's traceback.nse in their
-  experimental trees.
 
 o Consider converting this file to emacs org-mode
   (http://orgmode.org/) format. [Fyodor]
@@ -173,11 +258,6 @@ o We should document an official way to compile/test refguide.xml so
   people can more easily test their changes to it.  This will probably
   involve moving legal-notices.xml into /nmap/docs, among other
   things.
-
-o [NSE] Open proxy detection script?
-  o We have http-open-proxy.nse, but we should probably either extrand
-  that to handle other types of proxies (such as SOCKS and HTTP
-  CONNECT) or create more scripts to handle those other proxy types.
 
 o Make Zenmap settings get upgraded when the Zenmap executable is
   upgraded. The per-user configuration files such as scan_profile.usp
@@ -226,17 +306,6 @@ o Consider rethinking Nmap's -s* syntax for specifing scan types
 o libnmap organization for UNIX and Windows
   o Then change Nmap and Zenmap to simply call this library
 
-o [NSE] We may want to consider a better exception handling method -- one
-  which doesn't require wrapping every I/O line in its own try function
-  call.
-
-o Consider adding boolean expressions to --script arguments.  For
-  example, see Patrick's implementation at
-  http://seclists.org/nmap-dev/2008/q3/0300.html .
-
-o Figure out what to do about NSE mutexes:
-  http://seclists.org/nmap-dev/2008/q3/0276.html .
-
 o Consider whether to let Zenmap Topology graph export the images to
   svg/png/etc.  Also think about printing.
 
@@ -263,9 +332,6 @@ o Consider enhancing the new OS Assist system to handle version
   detection too. [SOC task?]
 
 o Do -p- Internet UDP scans.
-
-o NSE-INF: Would be great if NSE scripts could be made to NOT run as
-  root.
 
 o Look a bit more at default version detection timing.
 
@@ -323,7 +389,7 @@ o Nmaprc-related - Create a system to store Nmap defaults/preferences
 o Search for nmap on google news, on google web, and add appropriate
   links to press page and the like.
 
-o Maybe nping -- like hping3 but uses Nmap infrastructure and to a
+o Nping -- like hping3 but uses Nmap infrastructure and to a
   large degree the same command-line options as Nmap.
 
 o Website: Create shr (shared) directory in svn, which will contain
@@ -332,13 +398,6 @@ o Website: Create shr (shared) directory in svn, which will contain
   nmap.org, insecure.org can just check that out via externals
   declaration (or, I suppose, symlink).  CSS directives will then use
   /shr/css/insecdb.css etc. ). [Fyodor]
-
-o NSE Security Review
- o Consider what, if any, vulnerabilities or security risks NSE has
-   with respect to buffer overflows, format string bugs, any other
-   maliciously formatted responses from target systems, etc.  Maybe
-   address the known risk of malicious scripts too.
- o Consider that NSE runs scripts as root
 
 o Zenmap script selection interface for deciding which NSE scripts to
   run.
@@ -414,9 +473,6 @@ o I should add code to Nmap to bail if sizeof(char) isn't 1.
   Otherwise there could be security risks if it is not one on any
   platforms.
 
-o consider changing status field from "up" and "down" to "online" and
-  "offline".  Actually, maybe we don't want this after all.
-
 o We added the SEQ.CI value in Feb 2009 with 0 matchpoints.  At some
   point (once we have some real-life values) we need to evaluate whether
   we want to give it points.  A good time to do that would be when we
@@ -483,6 +539,11 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o consider changing status field from "up" and "down" to "online" and
+  "offline".  Actually, maybe we don't want this after all.
+  online/offline look pretty similar, and they're longer too.  I'm
+  taking this out of the TODO.
 
 o [Ncat] When acting as an HTTP proxy, we should support GET mode as
   well as CONNECT so that it works as a non-SSL proxy in browsers such
