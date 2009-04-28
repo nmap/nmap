@@ -132,6 +132,14 @@ o [NSE] Consider whether we need script.db for performance reasons at
   all or should just read through all the scripts and parse on the fly.
   See: [http://seclists.org/nmap-dev/2009/q2/0221.html]
 
+o [NSE] We may want to consider a better exception handling method --
+  one which doesn't require wrapping every I/O line in its own try
+  function call.  David says "Lua has an internal "exception handling"
+  mechanism based on a function called pcall, which is implemented
+  with setjmp/longjmp.  ou can wrap a function call in it and the
+  function will return there whenever there's an unhandled error.
+  Something based on that would be better [than the current system], I
+  think."
 
 o [NSE] Make NSE work better for SSL tunneled services in general by
   supporting them easily in the libraries.  For example, I don't think
@@ -169,15 +177,6 @@ o [NSE] Open proxy detection script
   o We have http-open-proxy.nse, but we should probably either extrand
   that to handle other types of proxies (such as SOCKS and HTTP
   CONNECT) or create more scripts to handle those other proxy types.
-
-o [NSE] We may want to consider a better exception handling method --
-  one which doesn't require wrapping every I/O line in its own try
-  function call.  David says "Lua has an internal "exception handling"
-  mechanism based on a function called pcall, which is implemented
-  with setjmp/longjmp.  ou can wrap a function call in it and the
-  function will return there whenever there's an unhandled error.
-  Something based on that would be better [than the current system], I
-  think."
 
 o [NSE] Would be great if NSE scripts could be made to NOT
   run as root if they don't have to.
