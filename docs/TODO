@@ -1,22 +1,26 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Make 4.85BETA9 release [Fyodor]
+o Build x86 VM instance for RPM building. [Fyodor]
 
-o Build x86 VM instance for RPM building.
+o Look into building RPMs with SSL support. Statically linking to
+  OpenSSL on Linux for the RPMs didn't work for me last time I
+  tried. [Fyodor]
+
+o Make 4.85BETA9 release [Fyodor]
 
 o Ask Coverity if they'll scan latest version of Nmap. [Fyodor]
 
 o [Zenmap] Should probably give some sort of widget indication that a
   scan is running.  Now that we can start multiple scans at once, the
   "scan" button goes back to being unpressed while the scan is
-  runnign.  As some scans take minutes or more to show output, it is
+  running.  As some scans take minutes or more to show output, it is
   not always clear whether they are still properly running.  We should
   probably have some sort of widget, such as the throbber used in web
   browsers, to show that Nmap is still running.  It could be fore a
   specific scan (kind of like how you have a separate throbber for
   each tab on a web browser), or a global one which means at least one
   scan is running.  Or maybe a different sort of indication is in
-  order. [David]
+  order (like a timer). [David]
 
 o Change Nmap signature files to use the .sig extension rather than
   .gpg.txt, as that seems to be what gpg recommends.  In fact, gpg
@@ -25,10 +29,6 @@ o Change Nmap signature files to use the .sig extension rather than
   serve .sig files properly.  Update nmap-install.xml
   accordingly. Suggested by tic at eternalrealm.net by email on
   7/13/08. [Fyodor]
-
-o Look into building RPMs with SSL support. Statically linking to
-  OpenSSL on Linux for the RPMs didn't work for me last time I
-  tried. [Fyodor]
 
 o [Ncat] Maybe we should create an SSL cert with no passphrase during
   Ncat compilation or install process so that if someone specifies
@@ -42,33 +42,10 @@ o [Ncat] Maybe we should create an SSL cert with no passphrase during
   http://nmap.org/ncat/guide/ncat-advanced.html#ncat-ssl, or maybe
   better to have a way for ncat to do it using openssl calls.
 
-o [Ncat] Consider supporting server certificate verification when used
-  in client SSL mode.
-  o For now we document in user's guide that it is not secure.
-  o Maybe we can do an ssh-style approach where we just print the
-    fingerprint and expect the ncat client user to ensure it is the
-    right one?
-  o If we're going to verify cert's etc., we need to also make sure we
-    are actually using secure ciphers.  We may need to update nsock to
-    support cipher selection, because we want fast ones for version
-    detection, but usually want secure ones for NSE and/or ncat.
-  o Do we want to check all this by default, or offer an option for
-    it?  Doing it by default is more secure, though it can be annoying
-    when a certificate has expired, is self-signed, you connect to
-    domain.com when the certificate is for www.domain.com, etc.  If it
-    is done by deault, we might just print an error message.  Whreas
-    if we have a special option, it may be OK to exit and refuse the
-    connection.
-  o What certs should we allow?  Same as the browsers do?  Maybe get
-    rid of Comodo?  Maybe we should fail to recognize any certs with MD5
-    in the trust chain?
-  o What about people who are running their own SSL service and just
-    want to specify the cert file they use, because they generated it
-    themself and not from a trusted CA.
-  o Need to check expiration, domain, etc. if we're checking certs at
-    all.
-  o We can probably get away with not doing revocation checking, as
-    long as we document that we don't.
+o Generate a list of trusted SSL certificates to ship with Ncat (by
+  extracting f rom Mozilla or similar), and install them with
+  Ncat. Decide how these certificat es should be preferred to any
+  system-provided certs, if any.
 
 o Device categorization improvements
   o Examine Nmap's device categorization in nmap-os-deb and
@@ -105,10 +82,15 @@ o Consider making the ping scan default be more comprehensive.  Note
   enumeration chapter of my book for details).  Maybe I should
   experiment a bit more to ensure they are real boxes and not network
   artifacts and figure out exactly which tests are helping the most.
-  If I do this change, I'll have to update the host enumeration chapter.
+  If I do this change, I'll have to update the host enumeration
+  chapter.  For UDP probing purposes, we should test whether including
+  extra data in the packet (e.g. --data-length) helps in general, and
+  for services such as 53 and 137, we should probably send proper
+  protocol headers (e.g. a DNS server status message) so that we
+  receive responses from listening services.
 
 o Wherever practical, fix compiler warnings when compiling Nmap with
-  VC++ 2008 Express SP1 (there aren't many).
+  VC++ 2008 Express SP1 (there aren't many). [David]
 
 o [Ncat] Make proxy server mode work on Windows (this is the last
   remaining fork() dependency in Ncat).
@@ -116,23 +98,35 @@ o [Ncat] Make proxy server mode work on Windows (this is the last
 o Do an OS detection integration run -- last was based on
   1/8/09. [David]
 
-
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
 
-o [NSE] Think about Nmap or NSE http framework.  Scanning http paths to see
-  if they exist is in some ways similar to scanning to see which ports
-  are open.
+o [NSE] Consider adding boolean expressions to --script arguments.  For
+  example, see Patrick's implementation at
+  http://seclists.org/nmap-dev/2008/q3/0300.html .
 
 o [NSE] http improvements
  o Spidering library+scripts?  How should the spider store the results
    and make them available to other scripts?  How do we limit
    bandwidth consumption and total amount of data stored?
  o URL grinder checks for existence of applications in common/default
-   paths.
- o Cookie support?
- o HTTP keepalive, pipelining, etc.?
+   paths. Scanning http paths to see if they exist is in some ways
+   similar to scanning to see which ports are open.
+ o Cookie suppport?  Might be useful for spidering sites which use it
+   for authentication/authorization/personalization.
+ o HTTP keepalive? May make spidering/grinding/auth cracking more efficient
+ o Pipeliing? May make spidering/grinding/auth cracking more efficient
+ o Consider POST/HEAD support. See
+   http://seclists.org/nmap-dev/2009/q1/0889.html.
 
-o [NSE] BasicHTML/XML parser?
+o [NSE] Improve username/password library (the database files
+  themselves).  We don't have very good lists at the moment.  Maybe
+  work in combination with Ncrack dev.
+
+o [NSE] High speed brute force HTTP authentication.  Possibly POST and
+   GET/HEAD brute force cracking.
+
+o [NSE] BasicHTML/XML parser?  For example, Sven Klemm wrote a script
+  which uses libxml2: http://seclists.org/nmap-dev/2008/q3/0462.html
 
 o [NSE] Make sure all our HTTP scripts transparently support SSL
   servers too.
@@ -152,7 +146,7 @@ o [NSE] Consider whether we should include some sort of NSE debugger.  Or we
   as Ron) already make use of Patrick's traceback.nse in their
   experimental trees.
 
-o [NSE] Open proxy detection script?
+o [NSE] Open proxy detection script
   o We have http-open-proxy.nse, but we should probably either extrand
   that to handle other types of proxies (such as SOCKS and HTTP
   CONNECT) or create more scripts to handle those other proxy types.
@@ -165,10 +159,6 @@ o [NSE] We may want to consider a better exception handling method --
   function will return there whenever there's an unhandled error.
   Something based on that would be better [than the current system], I
   think."
-
-o [NSE] Consider adding boolean expressions to --script arguments.  For
-  example, see Patrick's implementation at
-  http://seclists.org/nmap-dev/2008/q3/0300.html .
 
 o [NSE] Figure out what to do about NSE mutexes:
   http://seclists.org/nmap-dev/2008/q3/0276.html .  Patrick has some
@@ -184,13 +174,10 @@ o [NSE] Figure out what to do about NSE mutexes:
     strong reference to the thread that owns the socket and inspect it
     to determine if the thread is dead."
 
-o [NSE] NSE-INF: Would be great if NSE scripts could be made to NOT
-  run as root.
+o [NSE] Would be great if NSE scripts could be made to NOT
+  run as root if they don't have to.
 
 o [NSE] NFS query script for checking exports, etc.?
-
-o [NSE] Improve username/password library?  Maybe work in combination
-  with Ncrack dev.
 
 o [NSE] Web application fingerprinting script.  Would be great to be
   able to take a URL and determine things like "this is Joomla" or
@@ -199,7 +186,17 @@ o [NSE] Web application fingerprinting script.  Would be great to be
   signature file like Nmap OS and version detection do.  Might work in
   combination with URL grinder to check for applications at
   default/common locations. See also a script that does favicon
-  fingerprinting at http://seclists.org/nmap-dev/2008/q4/0583.html .
+  scanning TODO item.
+
+o Finish (or write new) favicon fingerprinting script. See
+  http://seclists.org/nmap-dev/2008/q4/0583.html .  May need to do
+  some more scanning and increase the DB size a bit.  May or may not
+  want to combine this as part of a larger webapp fingerprinting
+  script.
+
+o [NSE] Consider whether we need script.db for performance reasons at
+  all or should just read through all the scripts and parse on the fly.
+  See: [http://seclists.org/nmap-dev/2009/q2/0221.html]
 
 o NSE Security Review
  o Consider what, if any, vulnerabilities or security risks NSE has
@@ -208,13 +205,21 @@ o NSE Security Review
    address the known risk of malicious scripts too.
  o Consider that NSE runs scripts as root
 
-o [NSE] High speed brute force HTTP authentication.  Possibly POST and
-   GET brute force cracking.
-
-o [NSE] Add desired SoC09 infrastructure ideas to this TODO to the
-  extent they don't already exist.
-
 o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
+
+o Look at etc/payloads.conf in unicornscan-0.4.7 and see if they have
+  any which we don't have, but should, for our version detection.
+  They have a decent collection there.
+
+o For at least our UDP ping probes, Nmap should probably notice if it
+  is a very well known service port such as 53, 161, or 137 and send
+  an appropriate probe packet (server status for DNS, public community
+  string query for SNMP, etc) rather than empty data in that case.
+  This is similar to the way our IP protocol probes automatically
+  include common headers such as TCP and UDP if that common protocol
+  is given.  Good probes for these services are already available in
+  nmap-service-probes, though we might want to make a custom file for
+  this.
 
 o Figure out and document (in at least the Ncat user's guide) the best
   way to use Ncat for chaining through proxies.  One option is this
@@ -540,6 +545,37 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] Add desired SoC09 infrastructure ideas to this TODO to the
+  extent they don't already exist.
+
+o [Ncat] Consider supporting server certificate verification when used
+  in client SSL mode.
+  o For now we document in user's guide that it is not secure.
+  o Maybe we can do an ssh-style approach where we just print the
+    fingerprint and expect the ncat client user to ensure it is the
+    right one?
+  o If we're going to verify cert's etc., we need to also make sure we
+    are actually using secure ciphers.  We may need to update nsock to
+    support cipher selection, because we want fast ones for version
+    detection, but usually want secure ones for NSE and/or ncat.
+  o Do we want to check all this by default, or offer an option for
+    it?  Doing it by default is more secure, though it can be annoying
+    when a certificate has expired, is self-signed, you connect to
+    domain.com when the certificate is for www.domain.com, etc.  If it
+    is done by deault, we might just print an error message.  Whreas
+    if we have a special option, it may be OK to exit and refuse the
+    connection.
+  o What certs should we allow?  Same as the browsers do?  Maybe get
+    rid of Comodo?  Maybe we should fail to recognize any certs with MD5
+    in the trust chain?
+  o What about people who are running their own SSL service and just
+    want to specify the cert file they use, because they generated it
+    themself and not from a trusted CA.
+  o Need to check expiration, domain, etc. if we're checking certs at
+    all.
+  o We can probably get away with not doing revocation checking, as
+    long as we document that we don't.
 
 o consider changing status field from "up" and "down" to "online" and
   "offline".  Actually, maybe we don't want this after all.
