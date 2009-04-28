@@ -191,7 +191,7 @@ function query(dname, options)
    while((not status) and srv and srvI < #srv) do
       srvI = srvI + 1
       host = srv[srvI]
-      status, response = sendPackets(data, host, port, options.sendCount)
+      status, response = sendPackets(data, host, port, options.timeout, options.sendCount)
    end
 
    -- if we got any response:
