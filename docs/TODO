@@ -104,6 +104,40 @@ o [NSE] Consider adding boolean expressions to --script arguments.  For
   example, see Patrick's implementation at
   http://seclists.org/nmap-dev/2008/q3/0300.html .
 
+o [NSE] Optimize NSE Performance--e.g. measure the current performance and
+  see what can be improved in terms of scheduling scan threads,
+  determining how many to run concurrently, looking at CPU load items,
+  etc.
+
+o [NSE] Consider whether we should include some sort of NSE debugger.  Or we
+  could include something simpler.  For example, some developers (such
+  as Ron) already make use of Patrick's traceback.nse in their
+  experimental trees.
+
+o [NSE] Figure out what to do about NSE mutexes:
+  http://seclists.org/nmap-dev/2008/q3/0276.html .  Patrick has some
+  ideas for this in his SoC09 proposal:
+   "Adding a cleanup system for NSE that is called periodically
+    similar to nsock_loop. There would be a registration system
+    allowing C libraries to register a Lua function that will run
+    periodically to check for irresolvable deadlock or simply dead
+    resources. For example, the nmap library would register a mutex
+    cleanup handler which would inspect all mutexes looking for a dead
+    thread or circular dependencies. The nsock library could register
+    a handler that checks for unused sockets. The nsock may save a
+    strong reference to the thread that owns the socket and inspect it
+    to determine if the thread is dead."
+
+o [NSE] Consider whether we need script.db for performance reasons at
+  all or should just read through all the scripts and parse on the fly.
+  See: [http://seclists.org/nmap-dev/2009/q2/0221.html]
+
+
+o [NSE] Make NSE work better for SSL tunneled services in general by
+  supporting them easily in the libraries.  For example, I don't think
+  irc-info.nse currently works against all the servers which tunnel
+  over SSL.  Maybe augment comm library, etc.
+
 o [NSE] http improvements
  o Spidering library+scripts?  How should the spider store the results
    and make them available to other scripts?  How do we limit
@@ -131,21 +165,6 @@ o [NSE] BasicHTML/XML parser?  For example, Sven Klemm wrote a script
 o [NSE] Make sure all our HTTP scripts transparently support SSL
   servers too.
 
-o [NSE] Make NSE work better for SSL tunneled services in general by
-  supporting them easily in the libraries.  For example, I don't think
-  irc-info.nse currently works against all the servers which tunnel
-  over SSL.  Maybe augment comm library, etc.
-
-o [NSE] Optimize NSE Performance--e.g. measure the current performance and
-  see what can be improved in terms of scheduling scan threads,
-  determining how many to run concurrently, looking at CPU load items,
-  etc.
-
-o [NSE] Consider whether we should include some sort of NSE debugger.  Or we
-  could include something simpler.  For example, some developers (such
-  as Ron) already make use of Patrick's traceback.nse in their
-  experimental trees.
-
 o [NSE] Open proxy detection script
   o We have http-open-proxy.nse, but we should probably either extrand
   that to handle other types of proxies (such as SOCKS and HTTP
@@ -159,20 +178,6 @@ o [NSE] We may want to consider a better exception handling method --
   function will return there whenever there's an unhandled error.
   Something based on that would be better [than the current system], I
   think."
-
-o [NSE] Figure out what to do about NSE mutexes:
-  http://seclists.org/nmap-dev/2008/q3/0276.html .  Patrick has some
-  ideas for this in his SoC09 proposal:
-   "Adding a cleanup system for NSE that is called periodically
-    similar to nsock_loop. There would be a registration system
-    allowing C libraries to register a Lua function that will run
-    periodically to check for irresolvable deadlock or simply dead
-    resources. For example, the nmap library would register a mutex
-    cleanup handler which would inspect all mutexes looking for a dead
-    thread or circular dependencies. The nsock library could register
-    a handler that checks for unused sockets. The nsock may save a
-    strong reference to the thread that owns the socket and inspect it
-    to determine if the thread is dead."
 
 o [NSE] Would be great if NSE scripts could be made to NOT
   run as root if they don't have to.
@@ -193,10 +198,6 @@ o Finish (or write new) favicon fingerprinting script. See
   some more scanning and increase the DB size a bit.  May or may not
   want to combine this as part of a larger webapp fingerprinting
   script.
-
-o [NSE] Consider whether we need script.db for performance reasons at
-  all or should just read through all the scripts and parse on the fly.
-  See: [http://seclists.org/nmap-dev/2009/q2/0221.html]
 
 o NSE Security Review
  o Consider what, if any, vulnerabilities or security risks NSE has
