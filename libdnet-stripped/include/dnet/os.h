@@ -118,8 +118,8 @@
 #  if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 #   define __flexarr	[]
 #  elif defined(_WIN32)
-/* MS VC++ */
-#   define __flexarr	[]
+/* MS VC++ -- using [] works but gives a "nonstandard extension" warning */
+#   define __flexarr	[1]
 #  else
 /* Some other non-C99 compiler. Approximate with [1]. */
 #   define __flexarr	[1]

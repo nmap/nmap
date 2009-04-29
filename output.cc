@@ -1322,15 +1322,16 @@ static void write_xml_initial_hostinfo(Target *currenths,
 
 /* Convert a number to a string, keeping the given number of significant digits.
    The result is returned in a static buffer. */
-static char *num_to_string_sigdigits(double d, unsigned int digits) {
+static char *num_to_string_sigdigits(double d, int digits) {
   static char buf[32];
   int shift;
   int n;
 
+  assert(digits >= 0);
   if (d == 0.0) {
     shift = -digits;
   } else {
-    shift = floor(log10(fabs(d))) - digits + 1;
+    shift = (int) floor(log10(fabs(d))) - digits + 1;
     d = floor(d / pow(10.0, shift) + 0.5);
     d = d * pow(10.0, shift);
   }
