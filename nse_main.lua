@@ -286,7 +286,9 @@ local function get_chosen_scripts (rules)
     assert(cnse.updatedb(), "could not update script database!");
     t, path = assert(cnse.fetchfile_absolute(script_dbpath));
   end
-  local db_closure = assert(loadfile(path));
+  local db_closure = assert(loadfile(path),
+    "database appears to be corrupt or out of date;\n"..
+    "\tplease update using: nmap --script-updatedb");
 
   local chosen_scripts, entry_rules, files_loaded = {}, {}, {};
 
