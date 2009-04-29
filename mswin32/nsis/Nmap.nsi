@@ -251,6 +251,7 @@ Section "Ncat (Modern Netcat reincarnation)" SecNcat
   SetOutPath "$INSTDIR"
   SetOverwrite on
   File ..\nmap-${VERSION}\ncat.exe
+  File ..\nmap-${VERSION}\ca-bundle.crt
 SectionEnd
 
 Section "Ndiff (Scan comparison tool)" SecNdiff
