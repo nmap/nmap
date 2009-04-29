@@ -191,7 +191,7 @@ action = function( host )
 
     status, retval = pcall( get_next_action, tracking, host.ip )
     if not status then
-    stdnse.print_debug( "%s %s pcall caught an exception in get_next_action: %s.", filename, ip, retval )
+    stdnse.print_debug( "%s %s pcall caught an exception in get_next_action: %s.", filename, host.ip, retval )
     else tracking = retval end
 
     if tracking.this_db then
@@ -202,13 +202,13 @@ action = function( host )
       -- analyse data
       status, retval = pcall( analyse_response, tracking, host.ip, response, data )
       if not status then
-      stdnse.print_debug( "%s %s pcall caught an exception in analyse_response: %s.", filename, ip, retval )
+      stdnse.print_debug( "%s %s pcall caught an exception in analyse_response: %s.", filename, host.ip, retval )
       else data = retval end
 
       -- get next action
       status, retval = pcall( get_next_action, tracking, host.ip )
       if not status then
-        stdnse.print_debug( "%s %s pcall caught an exception in get_next_action: %s.", filename, ip, retval )
+        stdnse.print_debug( "%s %s pcall caught an exception in get_next_action: %s.", filename, host.ip, retval )
         if not tracking.last_db then tracking.last_db, tracking.this_db = tracking.this_db or tracking.next_db, nil end
       else tracking = retval end
     end
