@@ -21,6 +21,9 @@ o The official Windows binaries are now compiled with MS Visual C++
 o [Ncat] Minor code cleanup of Ncat memory allocation and string
   duplication calls. [Ithilgore]
 
+o Updated IANA assignment IP list for random IP (-iR)
+  generation. [Kris]
+
 Nmap 4.85BETA8 [2009-04-21]
 
 o Ncat's HTTP proxy now supports the GET, HEAD, and POST methods in
