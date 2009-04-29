@@ -7,6 +7,12 @@ o [Ncat] In SSL mode, Ncat now always uses secure connections, meaning
   prioritize either speed or security; Ncat uses security while
   version detection and NSE continue to use speed. [David]
 
+o [Ncat] To enable certificate verification on systems whose default
+  trusted certificate stores aren't eaily usable by OpenSSL, we
+  install a set extracted from Windows in the file ca-bundle.crt. The
+  trusted contents of this file are added to whatever default trusted
+  certificates the operating system may provide. [David]
+
 o The official Windows binaries are now compiled with MS Visual C++
   2008 Express Edition SP1 rather than the RTM version. We also now
   distribute the matching SP1 version of the MS runtime components

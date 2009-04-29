@@ -90,6 +90,7 @@ uses.
 %defattr(-,root,root)
 %doc %{_prefix}/share/man/man1/ncat.1.gz
 %{_bindir}/ncat
+%{_datadir}/ncat
 
 %endif
 
