@@ -95,6 +95,10 @@ o Wherever practical, fix compiler warnings when compiling Nmap with
 o [Ncat] Make proxy server mode work on Windows (this is the last
   remaining fork() dependency in Ncat).
 
+o Further investigate Nmap Proxy patch by Zoltan Panczel and Ferenc
+  Spala.  See http://nmap-dev.fw.hu/ and
+  http://seclists.org/nmap-dev/2009/q1/0255.html .
+
 o Do an OS detection integration run -- last was based on
   1/8/09. [David]
 
