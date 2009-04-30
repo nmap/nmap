@@ -249,25 +249,14 @@ do
 end
 
 -- check_rules(rules)
--- Ensures reserved rules are not explicitly specified.
 -- Adds the "default" category if no rules were specified.
--- Adds reserved rules that were internally specified (--sV for "version").
+-- Adds other implicitly specified rules (e.g. "version")
 --
 -- Arguments:
 --   rules  The array of rules to check.
 local function check_rules (rules)
-  local reserved = {
-    version = not not cnse.scriptversion,
-  };
-  for i, rule in ipairs(rules) do
-    if reserved[lower(rule)] ~= nil then
-      error("explicitly specifying rule '"..rule.."' is prohibited");
-    end
-  end
-  if cnse.default and #rules == 0 then rules[1] = "default"; end
-  for rule, option in pairs(reserved) do
-    if option then rules[#rules+1] = rule; end
-  end
+  if cnse.default and #rules == 0 then rules[1] = "default" end
+  if cnse.scriptversion then rules[#rules+1] = "version" end
 end
 
 -- chosen_scripts = get_chosen_scripts(rules)
@@ -290,42 +279,86 @@ local function get_chosen_scripts (rules)
     "database appears to be corrupt or out of date;\n"..
     "\tplease update using: nmap --script-updatedb");
 
-  local chosen_scripts, entry_rules, files_loaded = {}, {}, {};
+  local chosen_scripts, entry_rules, used_rules, files_loaded = {}, {}, {}, {};
 
-  -- Initialize entry_rules with the list of rules provided by the user.
-  -- Each element of entry_rules may refer to another canonical element.
-  -- Here the lower-case rule points to the potentially mixed-case rule
-  -- provided by the user.
-  for i, rule in ipairs(rules) do
-    entry_rules[lower(rule)] = rule;
-    entry_rules[rule] = false;
+  -- Tokens that are allowed in script rules (--script)
+  local protected_lua_tokens = {
+    ["and"] = true,
+    ["or"] = true,
+    ["not"] = true,
+  };
+  -- Globalize all names in str that are not protected_lua_tokens
+  local function globalize (str)
+    local lstr = lower(str);
+    if protected_lua_tokens[lstr] then
+      return lstr;
+    else
+      return 'm("'..str..'")';
+    end
+  end
+  -- Escape a magic character by prepending the '%' escape character
+  local function escape_magic (str)
+    return "%"..str;
   end
 
-  -- Start by loading scripts by category. This function is run on each
-  -- Entry in script.db.
+  for i, rule in ipairs(rules) do
+    rule = match(rule, "^%s*(.-)%s*$"); -- strip surrounding whitespace
+    used_rules[rule] = false; -- has not been used yet
+    -- Globalize all `names`, all visible characters not ',', '(', ')', and ';'
+    local globalized_rule =
+        gsub(rule, "[\033-\039\042-\043\045-\058\060-\126]+", globalize);
+    -- Precompile the globalized rule
+    local compiled_rule, err = loadstring("return "..globalized_rule, "rule");
+    if not compiled_rule then
+      err = err:match("rule\"]:%d+:(.+)$"); -- remove (luaL_)where in code
+      error("Bad script rule:\n\t"..rule.." -> "..err);
+    end
+    entry_rules[globalized_rule] = {
+      original_rule = rule,
+      compiled_rule = compiled_rule,
+    };
+  end
+
+  -- Checks if a given script, script_entry, should be loaded. A script_entry
+  -- should be in the form: { filename = "name.nse", categories = { ... } }
   local function entry (script_entry)
-    local category, filename = script_entry.category, script_entry.filename;
-    assert(type(category) == "string" and type(filename) == "string");
+    local categories, filename = script_entry.categories, script_entry.filename;
+    assert(type(categories) == "table" and type(filename) == "string",
+        "script database appears corrupt, try `nmap --script-updatedb`");
+    local escaped_basename = match(filename, "([^/\\]-)%.nse$") or
+                             match(filename, "([^/\\]-)$");
 
-    -- Don't load a file more than once.
-    if files_loaded[filename] then return end
+    local r_categories = {all = true}; -- A reverse table of categories
+    for i, category in ipairs(categories) do
+      assert(type(category) == "string", "bad entry in script database");
+      r_categories[lower(category)] = true; -- Lowercase the entry
+    end
+    -- A matching function for each script rule.
+    -- If the pattern directly matches a category (e.g. "all"), then
+    -- we return true. Otherwise we test if it is a filename or if
+    -- the script_entry.filename matches the pattern.
+    local function m (pattern)
+      -- Check categories
+      if r_categories[lower(pattern)] then return true end
+      -- Check filename with wildcards
+      pattern = gsub(pattern, "%.nse$", ""); -- remove optional extension
+      pattern = gsub(pattern, "[%^%$%(%)%%%.%[%]%+%-%?]", escape_magic);
+      pattern = gsub(pattern, "%*", ".*"); -- change to Lua wildcard
+      pattern = "^"..pattern.."$"; -- anchor to beginning and end
+      return not not find(escaped_basename, pattern);
+    end
+    local env = {m = m};
 
-    -- Do we have a rule for this category (or an "all" rule)?
-    if entry_rules[category] ~= nil or
-        entry_rules.all ~= nil and category ~= "version" then
-      local index = entry_rules[category] ~= nil and category or "all";
-      local mark = entry_rules[index];
-      -- mark may point to the actual mixed case category passed via command
-      -- line
-      if type(mark) == "boolean" then
-        entry_rules[index] = true;
-      else
-        entry_rules[mark] = true;
+    for globalized_rule, rule_table in pairs(entry_rules) do
+      if setfenv(rule_table.compiled_rule, env)() then -- run the compiled rule
+        local t, path = cnse.fetchfile_absolute(filename);
+        assert(t == "file", filename.." is not a file!");
+        if not files_loaded[path] then
+          chosen_scripts[#chosen_scripts+1] = Script.new(path);
+          used_rules[rule_table.original_rule] = true;
+          files_loaded[path] = true;
+        end
       end
-      local t, path = cnse.fetchfile_absolute(filename);
-      assert(t == "file", filename.." is not a file!");
-      chosen_scripts[#chosen_scripts+1] = Script.new(path);
-      files_loaded[filename] = true;
     end
   end
 
@@ -333,14 +366,14 @@ local function get_chosen_scripts (rules)
   db_closure(); -- Load the scripts
 
   -- Now load any scripts listed by name rather than by category.
-  for rule, loaded in pairs(entry_rules) do
+  for rule, loaded in pairs(used_rules) do
     if not loaded then -- attempt to load the file/directory
       local t, path = cnse.fetchfile_absolute(rule);
       if t == nil then -- perhaps omitted the extension?
         t, path = cnse.fetchfile_absolute(rule..".nse");
       end
       if t == nil then
-        error("No such category, filename or directory: '"..rule.."'");
+        error("'"..rule.."' did not match a category, filename, or directory");
       elseif t == "file" and not files_loaded[path] then
         chosen_scripts[#chosen_scripts+1] = Script.new(path);
         files_loaded[path] = true;

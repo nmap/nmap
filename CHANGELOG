@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added Boolean Operators for --script. You may now use a boolean
+  operator ("and", "or", or "not") combined with categories, filenames,
+  and filenames with a '*', wildcard, to match many files.  This change
+  requires the script database to be recompiled. Please see the thread at
+  http://seclists.org/nmap-dev/2009/q2/0100.html for more
+  information. [Patrick]
+
 o [Ncat] In SSL mode, Ncat now always uses secure connections, meaning
   that it uses only good ciphers and doesn't use SSLv2. Certificates
   can optionally be verified with the --ssl-verify and --ssl-trustfile

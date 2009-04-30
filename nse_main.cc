@@ -335,10 +335,11 @@ int script_updatedb (void)
     "    ' categories field is not a table')\n"
     "  local basename = assert(match(script, '[/\\\\]?([^/\\\\]-%.nse)$'))\n"
     "  table.sort(categories)\n"
+    "  db:write('Entry { filename = \"', basename, '\", categories = {')\n"
     "  for j, category in ipairs(categories) do\n"
-    "    db:write('Entry { category = \"', lower(category),"
-    "      '\", filename = \"', basename, '\" }\\n')\n"
+    "    db:write(' \"', lower(category), '\",')\n"
     "  end\n"
+    "  db:write(' } }\\n')\n"
     "end\n"
     "db:close()\n";
   int status = SCRIPT_ENGINE_SUCCESS;
