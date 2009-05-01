@@ -738,6 +738,7 @@ function analyse_response( tracking, ip, response, data )
       -- redirected to a previously queried service - accept as result
       data = data[nextdb]
       data.id = nextdb
+      nextdb = nil
     elseif have_objects and ( data.iana > 1 ) and not table.concat( tracking.completed, " " ):match( nmap.registry.whois.whoisdb.arin.id ) then
       -- two redirects to IANA - query ARIN next (which we should probably have done already!)
       nextdb = nmap.registry.whois.whoisdb.arin.id
@@ -745,6 +746,7 @@ function analyse_response( tracking, ip, response, data )
       -- two redirects to IANA - accept result from ARIN
       data = data[nmap.registry.whois.whoisdb.arin.id]
       data.id = nmap.registry.whois.whoisdb.arin.id
+      nextdb = nil
     end
 
     -- cache our analysis
