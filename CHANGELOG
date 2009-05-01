@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Unbreak hostname resolution on BSD systems where a recently
+  fixed libc bug caused getaddrinfo(3) to fail unless a socket type
+  hint is provided. Patch originally provided by Hajimu UMEMOTO of
+  FreeBSD. [Daniel Roethlisberger]
+
 o [NSE] Added Boolean Operators for --script. You may now use a boolean
   operator ("and", "or", or "not") combined with categories, filenames,
   and filenames with a '*', wildcard, to match many files.  This change
