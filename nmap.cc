@@ -1765,19 +1765,20 @@ int nmap_main(int argc, char *argv[]) {
       ultra_scan(Targets, &ports, IPPROT_SCAN);
     
     /* These lame functions can only handle one target at a time */
-    for(targetno = 0; targetno < Targets.size(); targetno++) {
-      currenths = Targets[targetno];
-      if (o.idlescan) {
+    if (o.idlescan) {
+      for(targetno = 0; targetno < Targets.size(); targetno++) {
          o.current_scantype = IDLE_SCAN;
          keyWasPressed(); // Check if a status message should be printed
-         idle_scan(currenths, ports.tcp_ports, 
+         idle_scan(Targets[targetno], ports.tcp_ports, 
 				ports.tcp_count, idleProxy, &ports);
       }
-      if (o.bouncescan) {
+    }
+    if (o.bouncescan) {
+      for(targetno = 0; targetno < Targets.size(); targetno++) {
          o.current_scantype = BOUNCE_SCAN;
          keyWasPressed(); // Check if a status message should be printed
 	if (ftp.sd <= 0) ftp_anon_connect(&ftp);
-	if (ftp.sd > 0) bounce_scan(currenths, ports.tcp_ports, 
+	if (ftp.sd > 0) bounce_scan(Targets[targetno], ports.tcp_ports, 
 				    ports.tcp_count, &ftp);
       }
     }
@@ -1797,15 +1798,15 @@ int nmap_main(int argc, char *argv[]) {
         troute->resolveHops();
     }
 
-    for(targetno = 0; targetno < Targets.size(); targetno++) {
-      currenths = Targets[targetno];
-    
+    if (o.servicescan || o.rpcscan) {
       /* This scantype must be after any TCP or UDP scans since it
        * get's it's port scan list from the open port list of the current
        * host rather than port list the user specified.
        */
-      if (o.servicescan || o.rpcscan)  pos_scan(currenths, NULL, 0, RPC_SCAN);
-		}
+      for(targetno = 0; targetno < Targets.size(); targetno++)
+        pos_scan(Targets[targetno], NULL, 0, RPC_SCAN);
+    }
+
 #ifndef NOLUA
     if(o.script || o.scriptversion) {
 	    script_scan(Targets);
