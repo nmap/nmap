@@ -296,10 +296,6 @@ local function get_chosen_scripts (rules)
       return 'm("'..str..'")';
     end
   end
-  -- Escape a magic character by prepending the '%' escape character
-  local function escape_magic (str)
-    return "%"..str;
-  end
 
   for i, rule in ipairs(rules) do
     rule = match(rule, "^%s*(.-)%s*$"); -- strip surrounding whitespace
@@ -342,7 +338,7 @@ local function get_chosen_scripts (rules)
       if r_categories[lower(pattern)] then return true end
       -- Check filename with wildcards
       pattern = gsub(pattern, "%.nse$", ""); -- remove optional extension
-      pattern = gsub(pattern, "[%^%$%(%)%%%.%[%]%+%-%?]", escape_magic);
+      pattern = gsub(pattern, "[%^%$%(%)%%%.%[%]%+%-%?]", "%%%1"); -- esc magic
       pattern = gsub(pattern, "%*", ".*"); -- change to Lua wildcard
       pattern = "^"..pattern.."$"; -- anchor to beginning and end
       return not not find(escaped_basename, pattern);
