@@ -38,10 +38,10 @@ local stdnse = require 'stdnse'
 -- doesn't have.
 local function table_augment(to, from)
   for k, v in pairs(from) do
-    if to[v] then
-      table_copy(to[v], from[v])
+    if type( to[k] ) == 'table' then
+      table_augment(to[k], from[k])
     else
-      to[v] = from[v]
+      to[k] = from[k]
     end
   end
 end
