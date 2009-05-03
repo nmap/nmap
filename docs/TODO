@@ -116,11 +116,16 @@ o [NSE] Optimize NSE Performance--e.g. measure the current performance and
 o [NSE] Consider whether we should include some sort of NSE debugger.  Or we
   could include something simpler.  For example, some developers (such
   as Ron) already make use of Patrick's traceback.nse in their
-  experimental trees.
+  experimental trees.  For some inspiration/ideas, look at Diman's NSE
+  debugger (http://seclists.org/nmap-dev/2008/q1/0228.html) and also
+  Patrick's traceback.nse 
 
 o [NSE] Figure out what to do about NSE mutexes:
-  http://seclists.org/nmap-dev/2008/q3/0276.html .  Patrick has some
-  ideas for this in his SoC09 proposal:
+  http://seclists.org/nmap-dev/2008/q3/0276.html . In particular, they
+  are not currently cleaned up if a thread dies or otherwise exits
+  without unlocking them and can cause endless deadlocks which are
+  annoying to users and can be difficult to debug :(.  Patrick has
+  some ideas for this in his SoC09 proposal:
    "Adding a cleanup system for NSE that is called periodically
     similar to nsock_loop. There would be a registration system
     allowing C libraries to register a Lua function that will run
@@ -132,6 +137,9 @@ o [NSE] Figure out what to do about NSE mutexes:
     strong reference to the thread that owns the socket and inspect it
     to determine if the thread is dead."
 
+o [NSE] Make it a warning rather than error if a script in script.db
+   can't be found. [Patrick]
+
 o [NSE] Consider whether we need script.db for performance reasons at
   all or should just read through all the scripts and parse on the fly.
   See: [http://seclists.org/nmap-dev/2009/q2/0221.html]
@@ -140,15 +148,15 @@ o [NSE] We may want to consider a better exception handling method --
   one which doesn't require wrapping every I/O line in its own try
   function call.  David says "Lua has an internal "exception handling"
   mechanism based on a function called pcall, which is implemented
-  with setjmp/longjmp.  ou can wrap a function call in it and the
+  with setjmp/longjmp.  You can wrap a function call in it and the
   function will return there whenever there's an unhandled error.
   Something based on that would be better [than the current system], I
   think."
 
-o [NSE] Make NSE work better for SSL tunneled services in general by
-  supporting them easily in the libraries.  For example, I don't think
-  irc-info.nse currently works against all the servers which tunnel
-  over SSL.  Maybe augment comm library, etc.
+o [NSE] Open proxy detection script
+  o We have http-open-proxy.nse, but we should probably either extrand
+  that to handle other types of proxies (such as SOCKS and HTTP
+  CONNECT) or create more scripts to handle those other proxy types.
 
 o [NSE] http improvements
  o Spidering library+scripts?  How should the spider store the results
@@ -177,10 +185,11 @@ o [NSE] BasicHTML/XML parser?  For example, Sven Klemm wrote a script
 o [NSE] Make sure all our HTTP scripts transparently support SSL
   servers too.
 
-o [NSE] Open proxy detection script
-  o We have http-open-proxy.nse, but we should probably either extrand
-  that to handle other types of proxies (such as SOCKS and HTTP
-  CONNECT) or create more scripts to handle those other proxy types.
+o [NSE] Make NSE work better for SSL tunneled services in general by
+  supporting them easily in the libraries.  For example, I don't think
+  irc-info.nse currently works against all the servers which tunnel
+  over SSL.  Maybe augment comm library, etc.
+
 
 o [NSE] Would be great if NSE scripts could be made to NOT
   run as root if they don't have to.
