@@ -37,6 +37,11 @@ o [Ncat] Minor code cleanup of Ncat memory allocation and string
 o Updated IANA assignment IP list for random IP (-iR)
   generation. [Kris]
 
+o Fixed a bug in the su-to-zenmap.sh script so that, in the cases
+  where it calls su, it uses the proper -c option rather than
+  -C. [Michal Januszewski, Henry Gebhardt]
+
+
 Nmap 4.85BETA8 [2009-04-21]
 
 o Ncat's HTTP proxy now supports the GET, HEAD, and POST methods in
