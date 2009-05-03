@@ -755,9 +755,9 @@ static int l_nsock_gc(lua_State *L){
 	if(udata->nsiod == NULL) { //socket obviously got closed already - so no finalization needed
 		return 0;	
 	}else{
-	//FIXME - check wheter close returned true!!
-	for (int i = 0; i < 3; i++)
-		luaL_unref(L, LUA_REGISTRYINDEX, udata->rbuf_args[i]);
+		//FIXME - check wheter close returned true!!
+		for (int i = 0; i < 3; i++)
+			luaL_unref(L, LUA_REGISTRYINDEX, udata->rbuf_args[i]);
 		l_nsock_close(L);
 	}
 	return 0;
@@ -766,7 +766,7 @@ static int l_nsock_gc(lua_State *L){
 static int l_nsock_close(lua_State *L) {
 	l_nsock_udata* udata = (l_nsock_udata*) luaL_checkudata(L, 1, "nsock");
 
-    socket_unlock(L, 1); // Unlock the socket.
+	socket_unlock(L, 1); // Unlock the socket.
 
 	/* Never ever collect nse-pcap connections. */
 	if(udata->ncap_socket){
