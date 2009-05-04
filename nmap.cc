@@ -1641,6 +1641,7 @@ int nmap_main(int argc, char *argv[]) {
 	log_write(LOG_XML, "</host>\n");
 	log_flush_all();
 	delete currenths;
+	o.numhosts_scanned++;
 	continue;
       }
     
