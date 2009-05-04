@@ -529,7 +529,6 @@ do {
 	goto batchfull;
       }
       hs->current_batch_sz++;
-      o.numhosts_scanned++;
 }
 
   if (hs->current_batch_sz < hs->max_batch_sz &&

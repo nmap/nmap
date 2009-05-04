@@ -1607,7 +1607,7 @@ int nmap_main(int argc, char *argv[]) {
 	num_host_exp_groups = 0;
 	/* Now grab any new expressions */
 	while(num_host_exp_groups < o.ping_group_sz && 
-	      (!o.max_ips_to_scan ||  o.max_ips_to_scan > o.numhosts_scanned + num_host_exp_groups) &&
+	      (!o.max_ips_to_scan ||  o.max_ips_to_scan > o.numhosts_scanned + Targets.size() + num_host_exp_groups) &&
 	      (host_spec = grab_next_host_spec(inputfd, argc, fakeargv))) {
 	  // For purposes of random scan
 	  host_exp_group[num_host_exp_groups++] = strdup(host_spec);
@@ -1653,6 +1653,7 @@ int nmap_main(int argc, char *argv[]) {
 	 rare cases, such IPs CAN be port successfully scanned and even connected to */
       if (!(currenths->flags & HOST_UP)) {
 	delete currenths;
+	o.numhosts_scanned++;
 	continue;
       }
 
@@ -1685,7 +1686,7 @@ int nmap_main(int argc, char *argv[]) {
 	if (Targets.size() > 0 && 
 	    strcmp(Targets[Targets.size() - 1]->deviceName(), currenths->deviceName())) {
 	  returnhost(hstate);
-	  o.numhosts_scanned--; o.numhosts_up--;
+	  o.numhosts_up--;
 	  break;
 	}
 	o.decoys[o.decoyturn] = currenths->v4source();
@@ -1847,6 +1848,8 @@ int nmap_main(int argc, char *argv[]) {
       log_write(LOG_XML, "</host>\n");
     }
     log_flush_all();
+
+    o.numhosts_scanned += Targets.size();
   
     /* Free all of the Targets */
     while(!Targets.empty()) {
