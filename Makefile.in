@@ -91,7 +91,7 @@ all: @LUA_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @DNET_BUILD@ @NBASE_BUILD@ @NSOCK_BUI
 	$(MAKE) $(TARGET) $(BUILDZENMAP) $(BUILDNDIFF)
 
 $(TARGET): @LUA_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(OBJS)
-	echo Compiling nmap
+	@echo Compiling nmap
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
