@@ -1607,7 +1607,7 @@ int nmap_main(int argc, char *argv[]) {
 	num_host_exp_groups = 0;
 	/* Now grab any new expressions */
 	while(num_host_exp_groups < o.ping_group_sz && 
-	      (!o.max_ips_to_scan ||  o.max_ips_to_scan > o.numhosts_scanned + Targets.size() + num_host_exp_groups) &&
+	      (!o.max_ips_to_scan || o.max_ips_to_scan > o.numhosts_scanned + (int) Targets.size() + num_host_exp_groups) &&
 	      (host_spec = grab_next_host_spec(inputfd, argc, fakeargv))) {
 	  // For purposes of random scan
 	  host_exp_group[num_host_exp_groups++] = strdup(host_spec);
