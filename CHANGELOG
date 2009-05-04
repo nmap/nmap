@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] When using --send-only, Ncat will now close the network
+  connection and terminate after receiving EOF on standard input.
+  [Daniel Roethlisberger]
+
 o [Ncat] Unbreak hostname resolution on BSD systems where a recently
   fixed libc bug caused getaddrinfo(3) to fail unless a socket type
   hint is provided. Patch originally provided by Hajimu UMEMOTO of
