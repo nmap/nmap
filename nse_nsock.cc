@@ -88,7 +88,7 @@ static size_t table_length (lua_State *L, int index)
   return len;
 }
 
-static std::string hexify (const char *str, size_t len)
+static std::string hexify (const unsigned char *str, size_t len)
 {
   size_t num = 0;
   std::ostringstream ret;
@@ -557,7 +557,7 @@ static int l_nsock_send(lua_State *L) {
 	}
 
 	if(o.scriptTrace())
-		l_nsock_trace(udata->nsiod, hexify(string, string_len).c_str(), TO);
+		l_nsock_trace(udata->nsiod, hexify((unsigned char *) string, string_len).c_str(), TO);
 
 	nsock_write(nsp, udata->nsiod, l_nsock_send_handler, udata->timeout, &udata->yield, string, string_len);
 	udata->yield.thread = L;
@@ -638,7 +638,7 @@ void l_nsock_receive_handler(nsock_pool nsp, nsock_event nse, void *yield) {
 		rcvd_string = nse_readbuf(nse, &rcvd_len);
 
 		if(o.scriptTrace())
-			l_nsock_trace(nse_iod(nse), hexify(rcvd_string, (size_t) rcvd_len).c_str(), FROM);
+			l_nsock_trace(nse_iod(nse), hexify((unsigned char *) rcvd_string, (size_t) rcvd_len).c_str(), FROM);
 
 		lua_pushlstring(L, rcvd_string, rcvd_len);
 		nse_restore(y->thread, 2);
@@ -870,7 +870,7 @@ void l_nsock_receive_buf_handler(nsock_pool nsp, nsock_event nse, void *yield) {
 		rcvd_string = nse_readbuf(nse, &rcvd_len);
 		
 		if(o.scriptTrace())
-			l_nsock_trace(nse_iod(nse), hexify(rcvd_string, (size_t) rcvd_len).c_str(), FROM);
+			l_nsock_trace(nse_iod(nse), hexify((unsigned char *) rcvd_string, (size_t) rcvd_len).c_str(), FROM);
 		/* push the buffer and what we received from nsock on the stack and
 		 * concatenate both*/
 		lua_rawgeti(L, LUA_REGISTRYINDEX, udata->bufidx);
