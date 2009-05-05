@@ -569,6 +569,7 @@ Nmap script database.</para>
     <sect2 id="nse-script-selection">
       <title>Script Selection</title>
       <indexterm><primary><option>--script</option></primary></indexterm>
+      <indexterm><primary>script selection</primary></indexterm>
 
       <para>
       The <option>--script</option> option takes a comma-separated list
@@ -610,6 +611,7 @@ Nmap script database.</para>
         </varlistentry>
       </variablelist>
 
+      <indexterm><primary>wildcards</primary><secondary>in script selection</secondary></indexterm>
       <para>
       When referring to scripts from <filename>script.db</filename> by
       name, you can use a shell-style &lsquo;<literal>*</literal>&rsquo;
@@ -630,6 +632,7 @@ Nmap script database.</para>
         </varlistentry>
       </variablelist>
 
+      <indexterm><primary>Boolean expressions in script selection</primary></indexterm>
       <para>
       More complicated script selection can be done using the
       <literal>and</literal>, <literal>or</literal>, and
@@ -730,31 +733,43 @@ Nmap script database.</para>
 
 
     <sect2 id="nse-usage-examples">
-      <title>Usage Examples</title>
-      <para> 
-	A simple script scan using the default set of scripts:
-      </para>
-      <para>
-        <indexterm><primary><option>-sC</option></primary><secondary>example of</secondary></indexterm>
-        <command>nmap -sC example.com</command>
-      </para>
-      <para> 
-	Executing a specific script with tracing enabled:
-      </para>
-      <para>
-        <indexterm><primary><option>--script</option></primary><secondary>example of</secondary></indexterm>
-        <indexterm><primary><option>--script-trace</option></primary><secondary>example of</secondary></indexterm>
-        <command>nmap --script=./showSSHVersion.nse --script-trace example.com</command>
-      </para>
+      <title>Complete Examples</title>
 
-      <para> 
-	Execute all scripts in the <filename>mycustomscripts</filename> directory as well as all default scripts in the <literal>safe</literal> category:
-      </para>
-      <para>
-        <command>nmap --script=mycustomscripts,safe example.com</command>
-      </para>
+      <variablelist>
+        <varlistentry>
+          <term><command>nmap -sC example.com</command></term>
+          <listitem>
+          <para>A simple script scan using the default set of
+          scripts.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <indexterm><primary><option>--script-trace</option></primary><secondary>example of</secondary></indexterm>
+          <term><command>nmap --script smb-os-discovery --script-trace example.com</command></term>
+          <listitem>
+          <para>Execute a specific script with script tracing.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <indexterm><primary><option>--script-args</option></primary><secondary>example of</secondary></indexterm>
+          <term><command>nmap --script snmp-sysdescr --script-args snmpcommunity=admin example.com</command></term>
+          <listitem>
+          <para>Run an individual script that takes a script
+          argument.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><command>nmap --script mycustomscripts,safe example.com</command></term>
+          <listitem>
+          <para>Execute all scripts in the
+          <filename>mycustomscripts</filename> directory as well as all
+          scripts in the <literal>safe</literal> category.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
     </sect2>
   </sect1>
+
   <sect1 id="nse-script-format">
     <title>Script Format</title>
     <para>NSE scripts consist of two&ndash;five descriptive fields along with either a port or host rule defining when the script should be executed and an action block containing the actual script instructions. Values can be assigned to the descriptive fields just as you would assign any other Lua variables.  Their names must be lowercase as shown in this section.</para>
