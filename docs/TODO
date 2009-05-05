@@ -40,12 +40,10 @@ o [Ncat] Maybe we should create an SSL cert with no passphrase during
   certificate authority in any case.  We could create the key by using
   the "openssl" command line tool as shown in
   http://nmap.org/ncat/guide/ncat-advanced.html#ncat-ssl, or maybe
-  better to have a way for ncat to do it using openssl calls.
+  better to have a way for ncat to do it using openssl calls. [David]
 
-o Generate a list of trusted SSL certificates to ship with Ncat (by
-  extracting f rom Mozilla or similar), and install them with
-  Ncat. Decide how these certificat es should be preferred to any
-  system-provided certs, if any.
+o Do an OS detection integration run -- last was based on
+  1/8/09. [David]
 
 o Device categorization improvements
   o Examine Nmap's device categorization in nmap-os-deb and
@@ -68,14 +66,8 @@ o Device categorization improvements
 o Add version detection signiture for Ncat chat once we finalize the
   announce format.
 
-o [Zenmap] Make a way to start a scan from the profile editor without
-  creating a profile, then remove the command wizard.  This is partial
-  implementation of
-  http://www.bamsoftware.com/wiki/Nmap/ZenmapCommandLine. [David]
-
-o Consider adding NSE script logical operator selection feature.
-  Patrick has a good initial implementation.  See this thread:
-  http://seclists.org/nmap-dev/2009/q2/0100.html
+o NSE script logical operator stuff is now documented in
+  scripting.xml--add to refguide.xml as well. [David/Patrick]
 
 o Consider making the ping scan default be more comprehensive.  Note
   that I got 23% more Internet boxes found out of a 50K sample (see host
@@ -89,24 +81,70 @@ o Consider making the ping scan default be more comprehensive.  Note
   protocol headers (e.g. a DNS server status message) so that we
   receive responses from listening services.
 
-o Wherever practical, fix compiler warnings when compiling Nmap with
-  VC++ 2008 Express SP1 (there aren't many). [David]
+o Once we're done with host discovery empirical research, add it to
+  host-discovery.xml.  Would be great to show the best combinations to
+  use for a given number of probes, the efficiency of the common probes
+  by themselves, etc.
 
 o [Ncat] Make proxy server mode work on Windows (this is the last
   remaining fork() dependency in Ncat).
 
-o Further investigate Nmap Proxy patch by Zoltan Panczel and Ferenc
-  Spala.  See http://nmap-dev.fw.hu/ and
-  http://seclists.org/nmap-dev/2009/q1/0255.html .
+o [Zenmap] Make a way to start a scan from the profile editor without
+  creating a profile, then remove the command wizard.  This is partial
+  implementation of
+  http://www.bamsoftware.com/wiki/Nmap/ZenmapCommandLine. [David]
 
-o Do an OS detection integration run -- last was based on
-  1/8/09. [David]
+o [NSE] Make it a warning rather than error if a script in script.db
+   can't be found. [Patrick]
+
+o [NSE] Correct nsock_connect to unlock the socket slot if the
+  connection fails.  When a socket is closed, it is unlocked so the
+  arbitrator can potentially open up a socket for another thread. But
+  Patrick discovered that a socket is not automatically unlocked when
+  a connection fails or times out, only when it is closed
+  explicitly. So that could hold up socket allocation for other
+  threads until garbage collection.  May be a cause of slowness or
+  possibly deadlocks. [Patrick]
 
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
 
-o [NSE] Consider adding boolean expressions to --script arguments.  For
-  example, see Patrick's implementation at
-  http://seclists.org/nmap-dev/2008/q3/0300.html .
+o Scanning through proxies
+ o Nmap should be able to scan through proxy servers, particularly now
+   that we have an NSE script for detectiong open proxies and now that
+   Ncat can act as proxy client or server.
+ o Requirements:
+   o Should be able to chain through multiple proxy servers of different
+     types
+   o Support IPv4 and v6
+   o Need to figure out how to get good performance.  Pool of
+     connections to proxy or proxies for concurrency?  HTTP pipelining?
+   o Support the different varieties of proxies: socks4, socks4a,
+     socks5, HTTP GET (if possible), HTTP CONNECT.  Note that GET
+     proxies present some challenges since the error messages may not
+     be standard, etc.
+   o Maybe auto-detect the proxy type so that Nmap can try the most
+     efficient scanning method first?
+ o Implementation ideas: 
+   o There is a patch by Zoltan Panczel (http://nmap-dev.fw.hu) and it
+     has been improved by Jacob Appelbaum in nmap-exp/ioerror/ .  This
+     patch doesn't handle things like parallelization, but it may be a
+     great proof of concept.
+   o This might not be appropriate for ultra_scan ... perhaps would be
+     better to write a general scanning engine for abusing
+     applications for port scanning purposes.  This could handle
+     scanning through proxies and the existing FTP bounce scan would
+     also be ported to this engine.  rembrandt at jpberlin.de tells me
+     that you can also do this with the "forwarding" commands on IMAP
+     servers.  Whoever does this should probably start by reading the
+     code for the main port scanning engine (ultra_scan()) and also
+     the version detection code (service_scan()).  And the version
+     detection paper at http://nmap.org/book/vscan.html.  If you
+     understand all that, you may be ready for this project :).  This
+     is important, because it is easy to do poorly.  The tough part is
+     high performance and clean code which is general enough that all
+     these different applications can be scanned through using the
+     same basic engine.  You should run your ideas by nmap-dev in as
+     much detail as possible before starting.
 
 o [NSE] Optimize NSE Performance--e.g. measure the current performance and
   see what can be improved in terms of scheduling scan threads,
@@ -137,9 +175,6 @@ o [NSE] Figure out what to do about NSE mutexes:
     strong reference to the thread that owns the socket and inspect it
     to determine if the thread is dead."
 
-o [NSE] Make it a warning rather than error if a script in script.db
-   can't be found. [Patrick]
-
 o [NSE] Consider whether we need script.db for performance reasons at
   all or should just read through all the scripts and parse on the fly.
   See: [http://seclists.org/nmap-dev/2009/q2/0221.html]
@@ -157,6 +192,14 @@ o [NSE] Open proxy detection script
   o We have http-open-proxy.nse, but we should probably either extrand
   that to handle other types of proxies (such as SOCKS and HTTP
   CONNECT) or create more scripts to handle those other proxy types.
+
+o [NSE] Make sure all our HTTP scripts transparently support SSL
+  servers too.
+
+o [NSE] Make NSE work better for SSL tunneled services in general by
+  supporting them easily in the libraries.  For example, I don't think
+  irc-info.nse currently works against all the servers which tunnel
+  over SSL.  Maybe augment comm library, etc.
 
 o [NSE] http improvements
  o Spidering library+scripts?  How should the spider store the results
@@ -182,15 +225,6 @@ o [NSE] High speed brute force HTTP authentication.  Possibly POST and
 o [NSE] BasicHTML/XML parser?  For example, Sven Klemm wrote a script
   which uses libxml2: http://seclists.org/nmap-dev/2008/q3/0462.html
 
-o [NSE] Make sure all our HTTP scripts transparently support SSL
-  servers too.
-
-o [NSE] Make NSE work better for SSL tunneled services in general by
-  supporting them easily in the libraries.  For example, I don't think
-  irc-info.nse currently works against all the servers which tunnel
-  over SSL.  Maybe augment comm library, etc.
-
-
 o [NSE] Would be great if NSE scripts could be made to NOT
   run as root if they don't have to.
 
@@ -205,6 +239,20 @@ o [NSE] Web application fingerprinting script.  Would be great to be
   default/common locations. See also a script that does favicon
   scanning TODO item.
 
+o [NSE] Figure out a way to support people who want to do script scan,
+  but not port scan or ping scan.  One option would be to allow
+  --script to list scan (-sL), but perhaps a better option is to
+  provide a way to disable port scanning in the same way as we offer
+  -PN to disable ping scanning.  As an example of this need, David had
+  to write special code to avoid ping/port scanning when doing a
+  whois.nse survey for
+  http://www.bamsoftware.com/wiki/Nmap/EffectivenessOfPingProbes.  The
+  key for this task is to figure out how to do it from a user
+  interface perspective and then implement and document it.  We've
+  already been going in the direction of allowing script scanning in
+  more types of scans--a while back we started allowing it with -sP
+  ping scans due to high demand.
+
 o Finish (or write new) favicon fingerprinting script. See
   http://seclists.org/nmap-dev/2008/q4/0583.html .  May need to do
   some more scanning and increase the DB size a bit.  May or may not
@@ -218,7 +266,19 @@ o NSE Security Review
    address the known risk of malicious scripts too.
  o Consider that NSE runs scripts as root
 
-o Ncat SSL issues.  See http://seclists.org/nmap-dev/2009/q1/0319.html
+o Ncat SSLv2 issues.  See
+  http://seclists.org/nmap-dev/2009/q1/0319.html.  A big part of it is
+  done, which was enhanced version detection probes to detect more SSL
+  servers, The defect that remains is that Nsock can't connect to a
+  small fraction of servers (including some of the ones detected by
+  the new version probe). They are the servers that do only SSLv3 or
+  TLSv1 and don't respond to a SSLv2-compatible ClientHello.  Even
+  though most servers don't support SSLv2, they usually respond to the
+  ClientHello and just don't offer any SSLv2 features.
+
+o Integrate SCTP scanning support.  See Daniel Roethlisberger's branch
+  in nmap-exp/daniel/nmap-sctp.  As of 4/30/09, he is nearing
+  completion.  See http://seclists.org/nmap-dev/2009/q2/0270.html.
 
 o Look at etc/payloads.conf in unicornscan-0.4.7 and see if they have
   any which we don't have, but should, for our version detection.
@@ -437,25 +497,6 @@ o Add randomizer to configure script so that a random ASCII art from
   docs/leet-nmap-ascii-art*.txt is printed.  I think I'll start naming
   them leet-nmap-ascii-art-submittername.txt.
 
-o [Note: This one is too big to do right now, but is a good one to
-  keep in mind for later ]
-  Write a general scanning engine for abusing applications for port
-  scanning purposes. This would handle scanning through SOCKS and HTTP
-  proxies, and the existing FTP bounce scan would also be ported to this
-  engine. Proxy chaining must be supported.  According to
-  rembrandt@jpberlin.de, you can also do this with the "forwarding"
-  commands on imap servers.
-  o Before you start on this one, read the code for the main port
-  scanning engine code (ultra_scan()) and also the version detection
-  code (service_scan()).  And the version detection paper at
-  http://www.insecure.org/nmap/vscan/ .  If you understand all that,
-  you may be ready for this project :).  This is important, because it
-  is easy to do poorly.  The tough part is high performance and clean
-  code which is general enough that all these different applications
-  can be scanned through using the same basic engine.
-  o You may want to run your intended structure (the most important
-    Classes and such through nmap-dev before you begin serious coding).
-
 o Add general regression unit testing system to Nmap
 
 o Talk to Libpcap folks about incorporating (at least some of) my
@@ -512,22 +553,6 @@ o Look at all the pcap functions, there are some like
 o Update Nmap entry on Linux Online -
   http://www.linux.org/apps/AppId_1979.html
 
-o Proxy scan through
-  o Note mail from mugz about proxy scanning:
-    > #1 I use nmap to find "open" socks ports (stealth/random mode)
-    > #2 I use Sockcheck5 (which uses an existing proxy to run its
-    >    scan through) to determine which of the "open" ports are "unsecure"
-    > #3 I use sockbounce (or sockbounce4) which can be used to relay from
-    >    socks proxy to socks proxy to target and estabish tcp connections,
-    >    (telnet, ssh http, etc).
-    His later mail says:
-    > during that time, i found many 'open'  - a fairly high percentage,
-    > perhaps one in 30 were insecure.
-    > you might want to take a look at: http://blitzed.org/bopm/
-    > I use code from this to check the IP's with 'open' socks ports for
-    > insecurity (I had to tinker with it a bit to make it work like i wanted,
-    > the command line "bopchecker" seems to work well.
-
 o perhaps each 'match' line in nmap-service-probes should have a
   maximum lines, bytes, and/or time by which a response should be
   available.  Once that much time (or many bytes or lines) have passed,
@@ -558,6 +583,23 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Further investigate Nmap Proxy patch by Zoltan Panczel and Ferenc
+  Spala.  See http://nmap-dev.fw.hu/ and
+  http://seclists.org/nmap-dev/2009/q1/0255.html . [Discussed it and
+  then added new proxy feature item]
+
+o Wherever practical, fix compiler warnings when compiling Nmap with
+  VC++ 2008 Express SP1 (there aren't many). [David]
+
+o [NSE] Consider adding boolean expressions to --script arguments.  For
+  example, see Patrick's implementation at
+  http://seclists.org/nmap-dev/2008/q3/0300.html .
+
+o Generate a list of trusted SSL certificates to ship with Ncat (by
+  extracting f rom Mozilla or similar), and install them with
+  Ncat. Decide how these certificat es should be preferred to any
+  system-provided certs, if any. [David]
 
 o [NSE] Add desired SoC09 infrastructure ideas to this TODO to the
   extent they don't already exist.
