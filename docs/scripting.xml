@@ -194,6 +194,13 @@ Nmap done: 1 IP address (1 host up) scanned in 0.33 seconds
           are generally only used for script debugging and development.  Script scanning is also included as part of the <option>-A</option> (aggressive scan) option.
     </para>
 
+    <para>
+    Scripts are not run in a sandbox and thus could accidentally or
+    maliciously damage your system or invade your privacy.  Never run
+    scripts from third parties unless you trust the authors or have
+    carefully audited the scripts yourself.
+    </para>
+
     <sect2 id="nse-categories"><title>Script Categories</title>
     <indexterm><primary>script categories</primary></indexterm>
 
@@ -402,7 +409,6 @@ and <literal>vuln</literal>.  Category names are not case sensitive.  The follow
         </varlistentry>
 
     </variablelist>
-
     </sect2>
 
     <sect2 id="nse-cmd-line-args">
@@ -427,104 +433,51 @@ and <literal>vuln</literal>.  Category names are not case sensitive.  The follow
      <varlistentry>
         <term>
           <indexterm><primary><option>--script</option></primary></indexterm>
-          <option>--script <replaceable>predicate</replaceable>|<replaceable>directory</replaceable>|<replaceable>filename</replaceable></option></term>
+          <option>--script <replaceable>filename</replaceable>|<replaceable>category</replaceable>|<replaceable>directory</replaceable>|<replaceable>expression</replaceable>|all<optional>,...</optional></option></term>
 
 <listitem>
 
 <para>
-Turns on the use of NSE for script scanning and specifies the scripts to be
-loaded and possibly run. The argument to --script is a comma seperated list of
-predicates, files or directories of scripts. A predicate is used to load a
-script based on categories or filename. Any one of these comma delimited
-strings is first interpretted as a predicate and then as a file or directory
-if the predicate was not used to load a script.
+Runs a script scan using the comma-separated list of filenames, script
+categories, and directories. Each element in the list may also be a
+Boolean expression describing a more complex set of scripts. Each
+element is interpreted first as an expression, then as a category, and
+finally as a file or directory name. The special argument
+<literal>all</literal> makes every script in Nmap's script database
+eligible to run.
 </para>
 
 <para>
-A --script predicate is a case-insensitive boolean equation made up of
-categories, filenames or a filename pattern conforming to a basic pattern. The
-boolean operators are the same as in Lua: <literal>and</literal>,
-<literal>or<literal> and <literal>not</literal>. Using these boolean operators,
-you may form equations that give you tight control over which scripts may be
-run in a flexible and easy manner. Typically, these predicates must be quoted
-in the shell as they often contain spaces or other special shell characters.
+File and directory names may be relative or absolute. Absolute names are
+used directly. Relative paths are looked for in the following places
+until found:
+<indexterm><primary>data files</primary><secondary>directory search order</secondary></indexterm><indexterm><primary>scripts, location of</primary></indexterm>
+<simplelist>
+<member><option>--datadir</option></member>
+<member><envar>$NMAPDIR</envar></member><indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm>
+<member><filename>~/.nmap</filename> (not searched on Windows)</member><indexterm><primary sortas="nmap directory"><filename>.nmap</filename> directory</primary></indexterm>
+<member><varname>NMAPDATADIR</varname></member><indexterm><primary><varname>NMAPDATADIR</varname></primary></indexterm>
+<member>the current directory</member>
+</simplelist>
+A <filename>scripts</filename> subdirectory is also tried in each of
+these.
 </para>
 
 <para>
-When NSE first attempts to intepret a string as a predicate, each category,
-filename or filename pattern is considered a boolean variable, true or
-false. When this predicate is tested for a script in the script database:
-(1) a category is only true if the script entry
-is of that category; (2) a filename is only true if the
-script entry has the same filename (optionally ignoring the extension);
-or (3) a filename pattern is only true if the script entry in the
-database has a filename that matches the pattern. The category "all" matches
-all script entires. A filename pattern may be expressed using an appropriately
-placed <literal>*</literal> character which expands to 0 or more characters in
-the filename. A couple predicate examples at this point may prove illustrative:
-
---script "intrusive"
-
-Matches scripts that are under the intrusive category.
-
---script "all and not intrusive"
-
-Matches scripts all scripts that not under the intrusive category.
-
---script "safe or http-brute"
-
-Matches scripts that are under the safe category or have the filename
-"http-brute".
-
---script "discovery or http-*"
-
-Matches scripts that are under the discovery category or have a filename
-beginning with "http-".
-
---script "(all and not intrusive) or (
-
-You may use parenthesis to force operator associations.  A script predicate
-conforms to a very strict syntax which is included here in ABNF notation:
-
-<programlisting>
-predicate = exp / ("(" exp ")")
-exp       = name / predicate binop predicate / unop predicate
-binop     = "and" / "or"
-unop      = "not"
-name      = %x21-%x27 /
-            %x2A-%x2B /
-            %x2D-%x3A /
-            %x3C-%x7E ; All visible characteres except ',', '(', ')', and ';'
-</programlisting>
+When a directory name is given, Nmap loads every file in the directory
+whose name ends with <filename>.nse</filename>. All other files are
+ignored and directories are not searched recursively. When a filename is
+given, it does not have to have the <filename>.nse</filename> extension;
+it will be added automatically if necessary.
 </para>
 
 <para>
-If using the string as a predicate did not result in any files being loaded,
-then NSE finally attempts to interpret the string as a script filename or
-directory. You may specify a script or directory of scripts as an absolute
-or relative path.  Absolute paths are used as supplied. Relative paths are
-searched for in the following places until found:<indexterm><primary>data
-files</primary><secondary>directory search
-order</secondary></indexterm><indexterm><primary>scripts, location
-of</primary></indexterm> <filename>--datadir/</filename>;
-<filename>$NMAPDIR/</filename>;<indexterm><primary><envar>NMAPDIR</envar>
-environment variable</primary></indexterm> <filename>~/.nmap/</filename> (not
-    searched on Windows);<indexterm><primary sortas="nmap
-directory"><filename>.nmap</filename> directory</primary></indexterm>
-<literal>NMAPDATADIR</literal>/
-or<indexterm><primary>NMAPDATADIR</primary></indexterm>
-<filename>./</filename>.  A <filename>scripts/</filename> subdirectory is also
-tried in each of these.
-</para>
-<para>
-If a directory is specified and found, Nmap loads all NSE
-scripts (any filenames ending with <literal>.nse</literal>) from that
-directory. Filenames without the <literal>nse</literal> extension are
-ignored. Nmap does not search recursively into subdirectories to find
-scripts.  If individual file names are specified, the file extension
-does not have to be <literal>nse</literal>.
+See <xref linkend="nse-script-selection"/> for examples and a full
+explanation of the <option>--script</option> option.
 </para>
 
+<indexterm><primary>script database</primary><see><filename>script.db</filename></see></indexterm>
+<indexterm><primary>scripts, location of</primary></indexterm>
 <para>Nmap scripts are stored in a <filename>scripts</filename>
 subdirectory of the Nmap data directory by default (see
 <xref linkend="data-files"/>). For efficiency, scripts are indexed in
@@ -533,13 +486,6 @@ in <filename>scripts/script.db</filename>,<indexterm><primary><filename>script.d
 which lists the category or categories in which each script belongs.
 Give the argument <literal>all</literal> to execute all scripts in the
 Nmap script database.</para>
-
-<para>Scripts are not run in a sandbox and thus could accidentally or
-maliciously damage your system or invade your privacy.  Never run scripts from
-third parties unless you trust the authors or have carefully audited the
-scripts yourself.</para>
-
-
           </listitem>
         </varlistentry>
 
@@ -549,7 +495,7 @@ scripts yourself.</para>
             <option>--script-args</option>
           </term>
           <listitem>
-            <para>provides arguments to the scripts. See <xref
+            <para>Provides arguments to the scripts. See <xref
 			linkend="nse-args"/> for a detailed explanation.</para>
           </listitem>
         </varlistentry>
@@ -620,6 +566,133 @@ scripts yourself.</para>
       </para>
     </sect2>
 
+    <sect2 id="nse-script-selection">
+      <title>Script Selection</title>
+      <indexterm><primary><option>--script</option></primary></indexterm>
+
+      <para>
+      The <option>--script</option> option takes a comma-separated list
+      of categories, filenames, and directory names. Some simple
+      examples of its use:
+      </para>
+
+      <variablelist>
+        <varlistentry>
+          <term><command>nmap --script default,safe</command></term>
+          <listitem>
+          <para>Loads all scripts in the <literal>default</literal> and
+          <literal>safe</literal> categories.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><command>nmap --script smb-os-discovery</command></term>
+          <listitem>
+          <para>Loads only the <filename>smb-os-discovery.nse</filename>
+          script. Note that the <filename>.nse</filename> extension is
+          optional.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><command>nmap --script default,banner,/home/user/customscripts</command></term>
+          <listitem>
+          <para>Loads the script in the <literal>default</literal>
+          category, the <filename>banner.nse</filename> script, and all
+          <filename>.nse</filename> files in the directory
+          <filename>/home/user/customscripts</filename>.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><command>nmap --script all</command></term>
+          <listitem>
+          <para>Loads every script in
+          <filename>script.db</filename>.<indexterm><primary><filename>script.db</filename></primary></indexterm></para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para>
+      When referring to scripts from <filename>script.db</filename> by
+      name, you can use a shell-style &lsquo;<literal>*</literal>&rsquo;
+      wildcard.
+      </para>
+
+      <variablelist>
+        <varlistentry>
+          <term><command>nmap --script "http-*"</command></term>
+          <listitem>
+          <para>Loads all scripts whose name starts with
+          <filename>http-</filename>, such as
+          <filename>http-auth.nse</filename> and
+          <filename>http-open-proxy.nse</filename>. The argument to
+          <option>--script</option> had to be in quotes to protect the
+          wildcard from the shell.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para>
+      More complicated script selection can be done using the
+      <literal>and</literal>, <literal>or</literal>, and
+      <literal>not</literal> operators to build Boolean expressions. The
+      operators have the same
+      <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#2.5.3">precedence</ulink>
+      as in Lua: <literal>not</literal> is the highest, followed by
+      <literal>and</literal> and then <literal>or</literal>. You can
+      alter precedence by using parentheses. Because expressions contain
+      space characters it is necessary to quote
+      them.
+      </para>
+
+      <variablelist>
+        <varlistentry>
+          <term><command>nmap --script "not intrusive"</command></term>
+          <listitem>
+          <para>Loads every script except for those in the
+          <literal>intrusive</literal> category.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><command>nmap --script "default or safe"</command></term>
+          <listitem>
+          <para>This is functionally equivalent to
+          <command>nmap --script "default,safe"</command>. It loads all
+          scripts that are in the <literal>default</literal> category or
+          the <literal>safe</literal> category or both.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><command>nmap --script "default and safe"</command></term>
+          <listitem>
+          <para>Loads those scripts that are in
+          <emphasis>both</emphasis> the <literal>default</literal> and
+          <literal>safe</literal> categories.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><command>nmap --script "(default or safe or intrusive) and not http-*"</command></term>
+          <listitem>
+          <para>Loads scripts in the <literal>default</literal>,
+          <literal>safe</literal>, or <literal>intrusive</literal>
+          categories, except for those whose names start with
+          <filename>http-</filename>.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para>
+      Names in a Boolean expression may be a category, a filename from
+      <filename>script.db</filename>, or <literal>all</literal>. A name
+      is any sequence of characters not containing
+      &lsquo;<literal>&nbsp;</literal>&rsquo;,
+      &lsquo;<literal>,</literal>&rsquo;,
+      &lsquo;<literal>(</literal>&rsquo;,
+      &lsquo;<literal>)</literal>&rsquo;, or
+      &lsquo;<literal>;</literal>&rsquo;, except for the sequences
+      <literal>and</literal>, <literal>or</literal>, and
+      <literal>not</literal>, which are operators.
+      </para>
+    </sect2>
+
 	<sect2 id="nse-args">
       <title>Arguments to Scripts</title>
       <indexterm><primary>script arguments</primary></indexterm>
@@ -636,9 +709,7 @@ scripts yourself.</para>
 	  </para>
 	  <para>
 <indexterm><primary><option>--script-args</option></primary><secondary>example of</secondary></indexterm>
-<userinput>
-$ nmap -sC --script-args user=foo,pass=bar,whois={whodb=nofollow+ripe}
-</userinput>
+<command>nmap -sC --script-args user=foo,pass=bar,whois={whodb=nofollow+ripe}</command>
 	  </para>
 	  <para>
 	  The aforementioned command results in this Lua table:
@@ -665,9 +736,7 @@ $ nmap -sC --script-args user=foo,pass=bar,whois={whodb=nofollow+ripe}
       </para>
       <para>
         <indexterm><primary><option>-sC</option></primary><secondary>example of</secondary></indexterm>
-        <userinput> 
-	  $ nmap -sC example.com
-      </userinput>
+        <command>nmap -sC example.com</command>
       </para>
       <para> 
 	Executing a specific script with tracing enabled:
@@ -675,18 +744,14 @@ $ nmap -sC --script-args user=foo,pass=bar,whois={whodb=nofollow+ripe}
       <para>
         <indexterm><primary><option>--script</option></primary><secondary>example of</secondary></indexterm>
         <indexterm><primary><option>--script-trace</option></primary><secondary>example of</secondary></indexterm>
-        <userinput> 
-	  $ nmap --script=./showSSHVersion.nse --script-trace example.com
-      </userinput>
+        <command>nmap --script=./showSSHVersion.nse --script-trace example.com</command>
       </para>
 
       <para> 
 	Execute all scripts in the <filename>mycustomscripts</filename> directory as well as all default scripts in the <literal>safe</literal> category:
       </para>
       <para>
-        <userinput> 
-	  $ nmap --script=mycustomscripts,safe example.com
-      </userinput>
+        <command>nmap --script=mycustomscripts,safe example.com</command>
       </para>
     </sect2>
   </sect1>
