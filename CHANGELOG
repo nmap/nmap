@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] There is now a little indicator that animates while a scan
+  is running, to provide some reassurance for thos long-running scans.
+  [David]
+
 o [Ncat] When using --send-only, Ncat will now close the network
   connection and terminate after receiving EOF on standard input.
   [Daniel Roethlisberger]
