@@ -613,34 +613,9 @@ end
 -- hextobin("\\41\\42\\43")       --> "ABC"
 -- hextobin("   41   42    43  ") --> "ABC"
 function hextobin(str)
-        local ret = ""
-        local a,b
-        if not str then -- nil
-        	return ""
-        end
-        for c in string.gmatch(str, "[0-9a-fA-F][0-9a-fA-F]") do
-        	a = string.byte(c:sub(1,1))
-        	b = string.byte(c:sub(2,2))
-        	if     a >= string.byte('a') then -- 97>a-f
-        		a = a - string.byte('a') + 10
-        	elseif a >= string.byte('A') then -- 65>A-F
-        		a = a - string.byte('A') + 10
-        	else -- 48> 0-9
-        		a = a - string.byte('0')
-        	end
-        	if     b >= string.byte('a') then -- 97>a-f
-        		b = b - string.byte('a') + 10
-        	elseif b >= string.byte('A') then -- 65>A-F
-        		b = b - string.byte('A') + 10
-        	else -- 48> 0-9
-        		b = b - string.byte('0')
-        	end
-        	--io.write(string.format(">%s %i %i\n",c, a, b))
-                ret = ret .. string.char(a*16 + b)
-        end
-
-        --io.write(string.format(">%s|%s<\n",bintohex(ret), str))
-        return ret
+        return (string.gsub(str, "%X*(%x%x)%X*", function(a)
+            return string.char(tonumber(a, 16));
+        end));
 end
 
 
