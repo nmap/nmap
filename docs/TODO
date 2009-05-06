@@ -386,7 +386,9 @@ o libnmap organization for UNIX and Windows
   o Then change Nmap and Zenmap to simply call this library
 
 o Consider whether to let Zenmap Topology graph export the images to
-  svg/png/etc.  Also think about printing.
+  svg/png/etc.  Also think about printing.  Note that João Medeiros
+  has written a Umit patch to do this:
+  http://trac.umitproject.org/ticket/316.
 
 o Perhaps --traceroute should set currenths->distance because right
   now, I do an -O scan against scanme.nmap.org, and it does not figure
