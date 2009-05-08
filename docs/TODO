@@ -106,6 +106,22 @@ o [NSE] Correct nsock_connect to unlock the socket slot if the
   threads until garbage collection.  May be a cause of slowness or
   possibly deadlocks. [Patrick]
 
+o [NSE] Get rid of ceil so that floating point NSE runlevels work
+  again (some scripts, including (smb-brute) rely on this.  They got
+  broken with the NSE core lua rewrite. [Patrick].
+
+o [NSE] Solve segfault issue which occurs when Nsock events call back
+  on a thread that has already ended (e.g. timeout, crash, early exit,
+  whatever) and been garbage collected.  May want to just nsi_delete
+  all nsock sockets immediately upon thread ending.  For an example of
+  this type of segfault, see
+  http://seclists.org/nmap-dev/2009/q2/0289.html. David says " I think
+  in the interests of getting this in a stable release, we should use
+  that strategy of closing all a thread's sockets. That ought to fix
+  all the problems above.  Not to rule out a more thoughtful redesign
+  in the future." [David,Patrick]
+
+
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
 
 o Scanning through proxies
@@ -174,6 +190,15 @@ o [NSE] Figure out what to do about NSE mutexes:
     a handler that checks for unused sockets. The nsock may save a
     strong reference to the thread that owns the socket and inspect it
     to determine if the thread is dead."
+  David later says: "After some discussion we decided to start more
+  modestly, first by ensuring that a scripts mutexes are released when
+  it dies for whatever reason. I have a hunch that this is the cause
+  of most deadlocks. It was certainly the cause of two whois.nse
+  deadlocks I found. Then, the next step if deadlocks continue to be a
+  problem, is to do automatic detection and just print out a list of
+  what scripts are involved. It could be that several smb scripts are
+  deadlocked, or as in the case I observed where whois.nse was locked
+  with itself."
 
 o [NSE] Consider whether we need script.db for performance reasons at
   all or should just read through all the scripts and parse on the fly.
@@ -204,7 +229,9 @@ o [NSE] Make NSE work better for SSL tunneled services in general by
 o [NSE] http improvements
  o Spidering library+scripts?  How should the spider store the results
    and make them available to other scripts?  How do we limit
-   bandwidth consumption and total amount of data stored?
+   bandwidth consumption and total amount of data stored?  Might want
+   to look at enumeration script at
+   http://seclists.org/nmap-dev/2009/q1/0889.html
  o URL grinder checks for existence of applications in common/default
    paths. Scanning http paths to see if they exist is in some ways
    similar to scanning to see which ports are open.
