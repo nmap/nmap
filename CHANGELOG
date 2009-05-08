@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] The command wizard has been removed. The profile editor has
+  the same capabilities with a better interface that doesn't require
+  clicking through many screens. The profile editor now has its own
+  "Scan" button that lets you run an edited command line immediately
+  without saving a new profile. The profile editor now comes up
+  showing the current command rather than being blank. [David]
+
 o [Ncat] Ncat now automatically generates a temporary keypair and
   certificate in memory when you don't use the --ssl-key and
   --ssl-cert options. [David]
