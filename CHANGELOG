@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Ncat now automatically generates a temporary keypair and
+  certificate in memory when you don't use the --ssl-key and
+  --ssl-cert options. [David]
+
 o [Zenmap] There is now a little indicator that animates while a scan
   is running, to provide some reassurance for thos long-running scans.
   [David]
