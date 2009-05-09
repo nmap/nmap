@@ -121,6 +121,8 @@ o [NSE] Solve segfault issue which occurs when Nsock events call back
   all the problems above.  Not to rule out a more thoughtful redesign
   in the future." [David,Patrick]
 
+o Deal with Ncat newline problem.  See this thread:
+  http://seclists.org/nmap-dev/2009/q2/0325.html
 
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
 
