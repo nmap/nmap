@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] The HTTP proxy now works on Windows. [David]
+
 o [Zenmap] The command wizard has been removed. The profile editor has
   the same capabilities with a better interface that doesn't require
   clicking through many screens. The profile editor now has its own
