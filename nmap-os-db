@@ -33183,7 +33183,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # APC Environmental Manager model APC9340 v3.5.6, with embedded Network Management Card AOS v3.5.7
 Fingerprint APC 9340 Network Management Card (AOS 3.5.7)
-Class APC | AOS | 3.X | power-misc
+Class APC | AOS | 3.X | power-device
 SEQ(SP=DE-E8%GCD=1-6%ISR=E6-F0%TI=RI%TS=A)
 OPS(O1=M5B4NW0NNSNNT11%O2=M578NW0NNSNNT11%O3=M280NW0NNT11%O4=M5B4NW0NNSNNT11%O5=M218NW0NNSNNT11%O6=|M109NNSNNT11)
 WIN(W1=10F8%W2=1044%W3=112C%W4=10F8%W5=1060%W6=0|10CD)
@@ -34205,7 +34205,7 @@ IE(DFI=N%T=45%TG=80%CD=S)
 
 # Liebert UPS, OpenComms WebCard  Firmware Version  2.000.1, Nfinity Power System, Device Firmware Version V5007
 Fingerprint Liebert Nfinity UPS
-Class Liebert | embedded || UPS
+Class Liebert | embedded || power-device
 SEQ(SP=B-17%GCD=4D8|9B0|E88|1360|1838%ISR=8A-94%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=%O2=%O3=%O4=%O5=%O6=)
 WIN(W1=111C%W2=111C%W3=111C%W4=111C%W5=111C%W6=111C)
