@@ -1029,9 +1029,12 @@ IE(R=N)
 # Dell PowerConnect 3448
 # Dell Blade chassis switch module: Powerconnect 5316M
 # PowerConnect 5324, Software Version 2.0.0.40, Boot Version 1.0.2.02
-Fingerprint Allied Telesis AT-8000S; Dell PowerConnect 3448, 5316M, or 5324; or Linksys SFE2000P, SRW2024, SRW2048, or SRW224G4 switch
+# TP-LINK TL-SL3428 switch
+Fingerprint Allied Telesis AT-8000S; Dell PowerConnect 3448, 5316M, or 5324; Linksys SFE2000P, SRW2024, SRW2048, or SRW224G4; or TP-Link TL-SL3428 switch
 Class Allied Telesis | embedded || switch
+Class Dell | embedded || switch
 Class Linksys | embedded || switch
+Class TP-Link | embedded || switch
 SEQ(SP=F4-10A%GCD=1-6%ISR=100-10E%TI=RD%II=RI%TS=U)
 OPS(O1=%O2=%O3=%O4=%O5=%O6=)
 WIN(W1=200%W2=200%W3=200%W4=200%W5=200%W6=200)
@@ -2359,6 +2362,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Darwin 8.10.2 Darwin Kernel Version 8.10.2: Wed Jun 20 21:49:49 PDT 2007; root:xnu-792.22.6~1/RELEASE_I386 i386 i386
 # Darwin 8.11.0 Darwin Kernel Version 8.11.0: Wed Oct 10 18:26:00 PDT 2007; root:xnu-792.24.17~1/RELEASE_PPC Power Macintosh powerpc
 # Darwin 8.11.1 Darwin Kernel Version 8.11.1: Wed Oct 10 18:23:28 PDT 2007; root:xnu-792.25.20~1/RELEASE_I386 i386 i386
+# AppleTV running v2.3.1
 Fingerprint Apple Mac OS X 10.4.8 - 10.4.11 (Tiger) (Darwin 8.8.0 - 8.11.1)
 Class Apple | Mac OS X | 10.4.X | general purpose
 SEQ(SP=BC-10C%GCD=1-6%ISR=C7-111%TI=I%II=I%SS=S%TS=1)
@@ -5408,7 +5412,8 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Cisco WS-C3550-24-PWR (PowerPC) C3550-I5K2L2Q3-M, Version 12.1(22)EA6
 # Catalyst 3550 Series WS-C3550-24-SMI IOS VERSION: 12.2(25)SEB4
 # Cisco 4506 Sup 4 running: Catalyst 4000 L3 Switch Software (cat4000-I5K91S-M), Version 12.2(25)EW, RELEASE SOFTWARE (fc1)
-Fingerprint Cisco 500, 2000-, 3000-, 4000-, or 5000-series switch; or 2500- or 4500-series router (IOS 12.1 - 12.2)
+# Cisco Catalyst 6506 (IOS 12.2)
+Fingerprint Cisco 500, 2000-, 3000-, 4000-, 5000-series, or 6506 switch; or 2500- or 4500-series router (IOS 12.1 - 12.2)
 Class Cisco | IOS | 12.X | router
 Class Cisco | IOS | 12.X | switch
 SEQ(SP=F6-107%GCD=1-6%ISR=F5-10E%TI=Z%II=RI%TS=U)
@@ -6057,6 +6062,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # Compaq Tru64 UNIX V5.1 (Rev. 732)
 # VMS v7.3-1
+# VMS 7.3-1 on a VAX
 Fingerprint Compaq Tru64 UNIX 5.1 or HP OpenVMS 7.3-1
 Class Compaq | Tru64 UNIX | 5.X | general purpose
 Class HP | OpenVMS | 7.X | general purpose
@@ -6415,7 +6421,8 @@ U1(DF=N%T=19-23%TG=20%IPL=38%UN=127|128%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=19-23%TG=20%CD=S)
 
 # D-Link DGS-3324SR xStack 24-Port Layer3 Gigabit Stack Switch
-Fingerprint D-Link DGS-3324SR or DSG-3612G switch
+# D-Link DES-3828 switch
+Fingerprint D-Link DGS-3324SR, DSG-3612G, or DES-3828 switch
 Class D-Link | embedded || switch
 SEQ(SP=8B-95%GCD=1-6%ISR=91-9B%TI=I%II=RI%SS=O|S%TS=1)
 OPS(O1=M5A4NW0NNT11%O2=M5A4NW0NNT11%O3=M5A4NW0NNT11%O4=M5A4NW0NNT11%O5=M5A4NW0NNT11%O6=M5A4NNT11)
@@ -6868,9 +6875,11 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Dell laser printer 1600n V1.11(1600n)
 # Dell Laser MFP 1600n OS Ver. 1.21 Nic ver. 1.11
 # samsung ML-2150 series printer
-Fingerprint 3Com OfficeConnect 56K LAN modem, or Dell 1600n or Samsung ML-2150 printer
+# "Schneider Electric TSX Premium" (an automaton), module running the OS is a TSX P57 353A, I do think it's "PSOSystem", as the FTP service banner talks about "PSOSystem Network Utilities", http://www.windriver.com/products/run-time_technologies/Real-Time_Operating_Systems/pSOS/
+Fingerprint 3Com OfficeConnect 56K LAN modem, Dell 1600n or Samsung ML-2150 printer, or Schneider Electric TSX Premium logic controller
 Class Dell | embedded || printer
 Class Samsung | embedded || printer
+Class Schneider | embedded || specialized
 SEQ(SP=C-46%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=97-BB%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -7508,8 +7517,10 @@ U1(DF=N%T=FA-104%TG=FF%IPL=38%UN=0%RIPL=G%RID=4210%RIPCK=I%RUCK=G%RUD=G)
 IE(DFI=N%T=FA-104%TG=FF%CD=S)
 
 # Enerium 200; Energy monitoring device
-Fingerprint Enerdis Enerium 200 energy monitoring device
+# Mitsubishi Electric Projector XD1000
+Fingerprint Enerdis Enerium 200 energy monitoring device or Mitsubishi XD1000 projector
 Class Enerdis | embedded || power-device
+Class Mitsubishi | embedded || media device
 SEQ(SP=F8-10C%GCD=1-6%ISR=100-114%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M400%O2=M400%O3=M400%O4=M400%O5=M400%O6=M400)
 WIN(W1=1FF%W2=1FF%W3=1FF%W4=1FF%W5=1FF%W6=1FF)
@@ -9734,7 +9745,8 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # HP Officejet 7400
 # HP Deskjet 6840
 # HP Officejet Pro K550
-Fingerprint HP DeskJet 6127 or 6840, Officejet 7400, Officejet Pro K550, or Photosmart 8400 printer
+# HP Photosmart 2710 all-in-one printer
+Fingerprint HP DeskJet 6127 or 6840, Officejet 7400, Officejet Pro K550, or Photosmart 2710 or 8400 printer
 Class HP | embedded || printer
 SEQ(SP=B-15%GCD=1E848|3D090|5B8D8|7A120|98968|B71B0%ISR=9F-A9%TI=I%II=I%SS=S%TS=A)
 OPS(O1=M5B4NW0NNSNNT11%O2=M578NW0NNSNNT11%O3=M280NW0NNT11%O4=M5B4NW0NNSNNT11%O5=M218NW0NNSNNT11%O6=M109NNSNNT11)
@@ -9893,7 +9905,8 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # HP Color LaserJet CP4005 Printer. The web interface reports the following in the "Server:" header: "HP-ChaiSOE/1.0".
 # HP LaserJet P3005, Firmware Version   : V.33.55, HP JetDirect       : J7979E
 # LaserJet 2420
-Fingerprint HP LaserJet 2420, P3005, or CP4005 printer
+# HP LaserJet P4014, Model:CB507A, Firmware: 20080528 04.045.2
+Fingerprint HP LaserJet 2420, P3005, CP4005, or P4014 printer
 Class HP | embedded || printer
 SEQ(SP=FD-10B%GCD=1-6%ISR=102-110%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
@@ -16478,7 +16491,8 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Linux 2.6.20-15-server #2 SMP Sun Apr 15 07:41:34 UTC 2007 i686 GNU/Linux (Ubuntu Feisty Fawn Server)
 # Linux 2.6.20-16-server #2 SMP Sun Sep 23 19:57:25 UTC 2007 i686 GNU/Linux [Ubuntu 7.4 Server]
 # Linux 2.6.19.2-grsec #10 Sat Oct 6 23:01:44 CEST 2007 i686 GNU/Linux (Debian)
-Fingerprint Linux 2.6.19 - 2.6.20
+# Debian testing squeeze/sid, Linux is 2.6.26
+Fingerprint Linux 2.6.19 - 2.6.26
 Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=BD-D3%GCD=1-6%ISR=B8-D4%TI=Z%II=I%TS=7)
 OPS(O1=M400CST11NW5%O2=M400CST11NW5%O3=M400CNNT11NW5%O4=M400CST11NW5%O5=M400CST11NW5%O6=M400CST11)
@@ -19294,7 +19308,8 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Polycom HDX 9002 videoconferencing system
 # Linux 2.6.23.1-49.fc8 #1 SMP Thu Nov 8 21:41:26 EST 2007 i686 i686 i386 GNU/Linux
 # Linux 2.6.26.08-std111-amd64 #1 SMP Sat Nov 15 10:51:05 UTC 2008 x86_64 Intel(R) Core(TM)2 Duo CPU E8400 @ 3.00GHz GenuineIntel GNU/Linux (SysrescCD-1.1.2 kernel)
-#  Linux 2.6.27.19-170.2.35.fc10.i686 #1 SMP Mon Feb 23 13:21:22 EST 2009 i686 i686 i386 GNU/Linux
+# Linux 2.6.27.19-170.2.35.fc10.i686 #1 SMP Mon Feb 23 13:21:22 EST 2009 i686 i686 i386 GNU/Linux
+# Blue Coat Director, SG-ME 5.2.2.1 #31532 2007.11.16-161943, Linux version 2.6.10-1.14_FC2.progeny.1.permeo.10 (builder@cantona.bcstx.cacheflow.com) (gcc version 3.3.3 20040412 (Red Hat Linux 3.3.3-7)) #1 Thu Oct 12 18:17:34 EDT 2006
 Fingerprint Linux 2.6.9 - 2.6.27
 Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=AF-DA%GCD=1-6%ISR=B9-D9%TI=Z%II=I%TS=A)
@@ -19351,6 +19366,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Linux server 2.6.27-7, Ubuntu server 8.10
 # DD-WRT v24 SP1
 # Emtec HDD Movie Cube S800 Type EKHDD500S800
+# Linux 2.6.23 #1 PREEMPT Fri Mar 7 09:49:52 CET 2008 armv5tel unknown
 Fingerprint Linux 2.6.9 - 2.6.28
 Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=A6-D1%GCD=1-6%ISR=B4-DF%TI=Z%II=I%TS=7)
@@ -21082,8 +21098,8 @@ Fingerprint Microsoft Windows Server 2003 SP1 or SP2
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=FB-10B%GCD=1-6%ISR=100-10E%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
-WIN(W1=4000|FAF0%W2=4000|FAF0%W3=4000|FAF0%W4=4000|FAF0%W5=4000|FAF0%W6=4000|FAF0)
-ECN(R=Y%DF=N%T=7B-85%TG=80%W=4000|FAF0%O=M5B4NW0NNS%CC=N%Q=)
+WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
+ECN(R=Y%DF=N%T=7B-85%TG=80%W=FAF0%O=M5B4NW0NNS%CC=N%Q=)
 T1(R=Y%DF=N%T=7B-85%TG=80%S=O%A=S+%F=AS%RD=0%Q=)
 T2(R=N)
 T3(R=N)
@@ -21113,7 +21129,9 @@ U1(DF=N%T=7B-85%TG=80%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=7B-85%TG=80%CD=Z)
 
 # Version 5.2 (Build 3790.srv03_sp2_gdr.070304-2240 : Service Pack 2)
-Fingerprint Microsoft Windows Server 2003 SP2
+# Microsoft Windows Xp Professional versione 2002 Service Pack 2
+Fingerprint Microsoft Windows XP SP2 or Server 2003 SP2
+Class Microsoft | Windows | XP | general purpose
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=FF-109%GCD=1-6%ISR=105-10F%TI=I|RD%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
@@ -22252,8 +22270,10 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # MS Windows Version 6.0 (Build 6000)
 # version 6.0 (Build 6001:Service Pack 1)
 # Ver 6.0 Build 6001:Service Pack 1, Windows Vista Ultimate
-Fingerprint Microsoft Windows Vista SP0 or SP1
+# Windows Server 2008 Standard Edition SP1 x64
+Fingerprint Microsoft Windows Vista SP0 or SP1 or Server 2008 SP1
 Class Microsoft | Windows | Vista | general purpose
+Class Microsoft | Windows | 2008 | general purpose
 SEQ(SP=E4-10A%GCD=1-6%ISR=F5-111%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST11%O5=M5B4NW8ST11%O6=M5B4ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -22298,9 +22318,12 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # Version 6.0 (Build 6001:Service Pack 1)) (VMware)
 # Windows Server 2008
 # Windows 7 Ultimate - Microsoft Windows Version 6.1 (Build 7000)
-Fingerprint Microsoft Windows Vista SP0 or SP1, or Windows Server 2008
+# Windows 7 Ultimate (Build 7000)
+# Windows 7 RC1
+Fingerprint Microsoft Windows Vista SP0 or SP1, Server 2008, or Windows 7 Ultimate (build 7000)
 Class Microsoft | Windows | Vista | general purpose
 Class Microsoft | Windows | 2008 | general purpose
+Class Microsoft | Windows | 7 | general purpose
 SEQ(SP=D2-11B%GCD=1-6%ISR=F9-113%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4ST11|M5B4NW8ST11%O2=M5B4ST11|M5B4NW8ST11%O3=M5B4NNT11|M5B4NW8NNT11%O4=M5B4ST11|M5B4NW8ST11%O5=M5B4ST11|M5B4NW8ST11%O6=M5B4ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -23114,7 +23137,8 @@ U1(DF=N%T=7B-85%TG=80%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=7B-85%TG=80%CD=Z)
 
 # Microsoft Windows  [Winver: Version 5.1 (build 2600.xpsp_sp2_gdr.070227-2254: Service Pack 2)]
-Fingerprint Microsoft Windows XP SP2
+# Windows XP SP3
+Fingerprint Microsoft Windows XP SP2 or SP3
 Class Microsoft | Windows | XP | general purpose
 SEQ(SP=F9-105%GCD=1-6%ISR=108-112%TI=I%II=I%SS=S%TS=0)
 OPS(O1=NNT11|M5B4NW0NNT00NNS%O2=NNT11|M5B4NW0NNT00NNS%O3=NNT11|M5B4NW0NNT00%O4=NNT11|M5B4NW0NNT00NNS%O5=NNT11|M5B4NW0NNT00NNS%O6=NNT11|M5B4NNT00NNS)
@@ -23456,7 +23480,8 @@ U1(R=N)
 IE(DFI=S%T=7B-85%TG=80%CD=Z)
 
 # Version 5.1(Build 2600.xpsp_sp2_gdr.070227-2251:Service Pack 2)
-Fingerprint Microsoft Windows XP SP2
+# Microsoft Windows XP Home Edition version 2002 with SP3
+Fingerprint Microsoft Windows XP SP2 or SP3
 Class Microsoft | Windows | XP | general purpose
 SEQ(SP=102-10C%GCD=1-6%ISR=107-111%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
@@ -28568,7 +28593,8 @@ U1(DF=N%T=FA-104%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=FA-104%TG=FF%CD=S)
 
 # Sharp AR-M351N Printer
-Fingerprint Sharp AR-M351N printer
+# Sharp AR-C260M copier/printer
+Fingerprint Sharp AR-C260M or AR-M351N printer
 Class Sharp | embedded || printer
 SEQ(SP=0-5A%GCD=1-6|10001|20002|30003|40004|50005|60006%ISR=94-9E%TI=I%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
@@ -30822,6 +30848,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # ESX Server 3i Update 2 build 110271
 # ESXi Server 3.5.0u2-110271
 # ESX 3.5.0 v120505
+# ESXi 3.5 Update 4
 Fingerprint VMware ESX Server 3.0.1 - 3.5.0
 Class VMware | ESX Server | 3.0.X | specialized
 SEQ(SP=F0-108%GCD=1-6%ISR=FF-111%TI=Z%II=RI%TS=7)
@@ -35844,3 +35871,37 @@ T6(R=Y%DF=N%T=1B-25%TG=20%W=0%S=A%A=S%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=1B-25%TG=20%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=1B-25%TG=20%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=1B-25%TG=20%CD=S)
+
+# ADSL modem - Intertex IX66 edflc
+Fingerprint Intertex IX66-EDFLC ADSL modem
+Class Intertex | embedded || broadband router
+SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=99-A3%TI=I%TS=1)
+OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
+WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
+ECN(R=Y%DF=N%T=3B-45%TG=40%W=2000%O=M5B4NW0%CC=N%Q=)
+T1(R=Y%DF=N%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=N)
+T3(R=Y%DF=N%T=3B-45%TG=40%W=2000%S=O%A=O%F=A%O=NNT11%RD=0%Q=)
+T4(R=Y%DF=N%T=3B-45%TG=40%W=2000%S=A%A=Z%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
+T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=1042%RIPCK=Z%RUCK=0%RUD=G)
+IE(R=N)
+
+# Linux 2.6.26-1-686 #1 SMP Fri Mar 13 18:08:45 UTC 2009 i686 GNU/Linux
+Fingerprint Linux 2.6.26
+Class Linux | Linux | 2.6.X | general purpose
+SEQ(SP=C3-CD%GCD=1-6%ISR=CD-D7%TI=Z%II=I%TS=8)
+OPS(O1=M5B4ST11NW5%O2=M5B4ST11NW5%O3=M5B4NNT11NW5%O4=M5B4ST11NW5%O5=M5B4ST11NW5%O6=M5B4ST11)
+WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=16D0%O=M5B4NNSNW5%CC=N%Q=)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=N)
+T3(R=N)
+T4(R=N)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
+T7(R=N)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
