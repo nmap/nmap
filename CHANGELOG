@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The SEQ.CI OS detection test introduced in 4.85BETA4 now has some
+  examples in nmap-os-db and has been assigned a MatchPoints value of
+  50. [David]
+
 o [Ncat] The HTTP proxy now works on Windows. [David]
 
 o [Zenmap] The command wizard has been removed. The profile editor has

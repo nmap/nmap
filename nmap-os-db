@@ -32,7 +32,7 @@
 # are used when there are no perfect matches to determine which OS
 # fingerprint matches a target machine most closely.
 MatchPoints
-SEQ(SP=25%GCD=75%ISR=25%TI=100%CI=0%II=100%SS=80%TS=100)
+SEQ(SP=25%GCD=75%ISR=25%TI=100%CI=50%II=100%SS=80%TS=100)
 OPS(O1=20%O2=20%O3=20%O4=20%O5=20%O6=20)
 WIN(W1=15%W2=15%W3=15%W4=15%W5=15%W6=15)
 ECN(R=100%DF=20%T=15%TG=15%W=15%O=15%CC=100%Q=20)
