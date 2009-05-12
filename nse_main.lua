@@ -58,8 +58,6 @@ local traceback = debug.traceback;
 
 local write = io.write;
 
-local ceil = math.ceil;
-
 local byte = string.byte;
 local format = string.format;
 local find = string.find;
@@ -168,7 +166,7 @@ do
       local thread = setmetatable({
         co = co,
         env = env,
-        runlevel = ceil(tonumber(rawget(env, "runlevel")) or 1),
+        runlevel = tonumber(rawget(env, "runlevel")) or 1,
         identifier = tostring(co),
         info = format("'%s' (%s)", self.short_basename, tostring(co));
         type = rule == "hostrule" and "host" or "port",
@@ -242,7 +240,7 @@ do
       categories = rawget(env, "categories"),
       author = rawget(env, "author"),
       license = rawget(env, "license"),
-      runlevel = ceil(tonumber(rawget(env, "runlevel")) or 1),
+      runlevel = tonumber(rawget(env, "runlevel")) or 1,
       threads = {},
     }, {__index = Script, __metatable = Script});
   end
@@ -554,7 +552,7 @@ return function (hosts)
 
   sort(runlevels);
   for i, runlevel in ipairs(runlevels) do
-    print_verbose(1, "Starting runlevel %s scan", tostring(runlevel));
+    print_verbose(1, "Starting runlevel %g scan", runlevel);
     run(threads[runlevel]);
   end
 
