@@ -1,26 +1,24 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o We added the SEQ.CI value in Feb 2009 with 0 matchpoints.  At some
+  point (once we have some real-life values) we need to evaluate whether
+  we want to give it points.  A good time to do that would be when we
+  next do fingerprint integration, so we will actually have examples
+  of .CI in the nmap-os-db.
+
+o [NSE] Get rid of ceil so that floating point NSE runlevels work
+  again (some scripts, including (smb-brute) rely on this.  They got
+  broken with the NSE core lua rewrite. [Patrick].
+
+o Make 4.85BETA9 release [Fyodor]
+
 o Build x86 VM instance for RPM building. [Fyodor]
 
 o Look into building RPMs with SSL support. Statically linking to
   OpenSSL on Linux for the RPMs didn't work for me last time I
   tried. [Fyodor]
 
-o Make 4.85BETA9 release [Fyodor]
-
 o Ask Coverity if they'll scan latest version of Nmap. [Fyodor]
-
-o [Zenmap] Should probably give some sort of widget indication that a
-  scan is running.  Now that we can start multiple scans at once, the
-  "scan" button goes back to being unpressed while the scan is
-  running.  As some scans take minutes or more to show output, it is
-  not always clear whether they are still properly running.  We should
-  probably have some sort of widget, such as the throbber used in web
-  browsers, to show that Nmap is still running.  It could be fore a
-  specific scan (kind of like how you have a separate throbber for
-  each tab on a web browser), or a global one which means at least one
-  scan is running.  Or maybe a different sort of indication is in
-  order (like a timer). [David]
 
 o Change Nmap signature files to use the .sig extension rather than
   .gpg.txt, as that seems to be what gpg recommends.  In fact, gpg
@@ -29,21 +27,6 @@ o Change Nmap signature files to use the .sig extension rather than
   serve .sig files properly.  Update nmap-install.xml
   accordingly. Suggested by tic at eternalrealm.net by email on
   7/13/08. [Fyodor]
-
-o [Ncat] Maybe we should create an SSL cert with no passphrase during
-  Ncat compilation or install process so that if someone specifies
-  Ncat -l and --ssl with no --ssl-cert and --ssl-key, we already have
-  one for them, and it is a slightly better one (since the private key
-  isn't known) than if we distributed a key.  Obviously it is still
-  subject to MITM attacks since there is no domain validation going
-  on.  But people who need that will have to buy a key from a
-  certificate authority in any case.  We could create the key by using
-  the "openssl" command line tool as shown in
-  http://nmap.org/ncat/guide/ncat-advanced.html#ncat-ssl, or maybe
-  better to have a way for ncat to do it using openssl calls. [David]
-
-o Do an OS detection integration run -- last was based on
-  1/8/09. [David]
 
 o Device categorization improvements
   o Examine Nmap's device categorization in nmap-os-deb and
@@ -86,14 +69,6 @@ o Once we're done with host discovery empirical research, add it to
   use for a given number of probes, the efficiency of the common probes
   by themselves, etc.
 
-o [Ncat] Make proxy server mode work on Windows (this is the last
-  remaining fork() dependency in Ncat).
-
-o [Zenmap] Make a way to start a scan from the profile editor without
-  creating a profile, then remove the command wizard.  This is partial
-  implementation of
-  http://www.bamsoftware.com/wiki/Nmap/ZenmapCommandLine. [David]
-
 o [NSE] Make it a warning rather than error if a script in script.db
    can't be found. [Patrick]
 
@@ -105,10 +80,6 @@ o [NSE] Correct nsock_connect to unlock the socket slot if the
   explicitly. So that could hold up socket allocation for other
   threads until garbage collection.  May be a cause of slowness or
   possibly deadlocks. [Patrick]
-
-o [NSE] Get rid of ceil so that floating point NSE runlevels work
-  again (some scripts, including (smb-brute) rely on this.  They got
-  broken with the NSE core lua rewrite. [Patrick].
 
 o [NSE] Solve segfault issue which occurs when Nsock events call back
   on a thread that has already ended (e.g. timeout, crash, early exit,
@@ -123,6 +94,16 @@ o [NSE] Solve segfault issue which occurs when Nsock events call back
 
 o Deal with Ncat newline problem.  See this thread:
   http://seclists.org/nmap-dev/2009/q2/0325.html
+
+o For at least our UDP ping probes, Nmap should probably notice if it
+  is a very well known service port such as 53, 161, or 137 and send
+  an appropriate probe packet (server status for DNS, public community
+  string query for SNMP, etc) rather than empty data in that case.
+  This is similar to the way our IP protocol probes automatically
+  include common headers such as TCP and UDP if that common protocol
+  is given.  Good probes for these services are already available in
+  nmap-service-probes, though we might want to make a custom file for
+  this.  We should probably do this for port scanning as well.
 
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
 
@@ -175,6 +156,10 @@ o [NSE] Consider whether we should include some sort of NSE debugger.  Or we
   experimental trees.  For some inspiration/ideas, look at Diman's NSE
   debugger (http://seclists.org/nmap-dev/2008/q1/0228.html) and also
   Patrick's traceback.nse 
+
+o Add Nmap web board.
+ 
+o Create Nmap wiki
 
 o [NSE] Figure out what to do about NSE mutexes:
   http://seclists.org/nmap-dev/2008/q3/0276.html . In particular, they
@@ -309,19 +294,14 @@ o Integrate SCTP scanning support.  See Daniel Roethlisberger's branch
   in nmap-exp/daniel/nmap-sctp.  As of 4/30/09, he is nearing
   completion.  See http://seclists.org/nmap-dev/2009/q2/0270.html.
 
+o Consider whether to let Zenmap Topology graph export the images to
+  svg/png/etc.  Also think about printing.  Note that João Medeiros
+  has written a Umit patch to do this:
+  http://trac.umitproject.org/ticket/316.
+
 o Look at etc/payloads.conf in unicornscan-0.4.7 and see if they have
   any which we don't have, but should, for our version detection.
   They have a decent collection there.
-
-o For at least our UDP ping probes, Nmap should probably notice if it
-  is a very well known service port such as 53, 161, or 137 and send
-  an appropriate probe packet (server status for DNS, public community
-  string query for SNMP, etc) rather than empty data in that case.
-  This is similar to the way our IP protocol probes automatically
-  include common headers such as TCP and UDP if that common protocol
-  is given.  Good probes for these services are already available in
-  nmap-service-probes, though we might want to make a custom file for
-  this.
 
 o Figure out and document (in at least the Ncat user's guide) the best
   way to use Ncat for chaining through proxies.  One option is this
@@ -383,10 +363,6 @@ o Look into memory consumption of UDP scans with -p- and large
 
 o Start project to make Nmap a Featured Article on Wikipedia.
 
-o Add Nmap web board.
- 
-o Create Nmap wiki
-
 o Consider rethinking Nmap's -s* syntax for specifing scan types
   o Current problems with this -s syntax:
     o We already use like 20 of the 26 letters, so we end up with
@@ -414,11 +390,6 @@ o Consider rethinking Nmap's -s* syntax for specifing scan types
 o libnmap organization for UNIX and Windows
   o Then change Nmap and Zenmap to simply call this library
 
-o Consider whether to let Zenmap Topology graph export the images to
-  svg/png/etc.  Also think about printing.  Note that João Medeiros
-  has written a Umit patch to do this:
-  http://trac.umitproject.org/ticket/316.
-
 o Perhaps --traceroute should set currenths->distance because right
   now, I do an -O scan against scanme.nmap.org, and it does not figure
   out the distance.  So the fingerprint shows no distance element and
@@ -443,7 +414,8 @@ o Consider enhancing the new OS Assist system to handle version
 
 o Do -p- Internet UDP scans.
 
-o Look a bit more at default version detection timing.
+o Look a bit more at default version detection timing.  Particularly
+  deciding the number of probes to run in parallel.
 
 o Deal with UDP retransmission for version detection ( I think I
   should just do a second run of all probes for UDP if it fails to
@@ -471,7 +443,7 @@ Offending packet: TCP 64.13.134.4:59819 > 170.140.20.174:8256 S ttl=48 id=38510 
    http://seclists.org/nmap-dev/2006/q3/0277.html
    http://seclists.org/nmap-dev/2007/q2/0292.html
 
-o Get better password data for unpw
+o Get better password data for unpw/ncrack
   o perhaps from Solar Designer.
   o perhaps add phpbb hack data (there is at least a list of 28,635
     passwords in phpbb_users.sql, and possibly more in other files.
@@ -564,12 +536,6 @@ o I should add code to Nmap to bail if sizeof(char) isn't 1.
   Otherwise there could be security risks if it is not one on any
   platforms.
 
-o We added the SEQ.CI value in Feb 2009 with 0 matchpoints.  At some
-  point (once we have some real-life values) we need to evaluate whether
-  we want to give it points.  A good time to do that would be when we
-  next do fingerprint integration, so we will actually have examples
-  of .CI in the nmap-os-db.
-
 o Consider implementing RPC scan with ultra_scan or something else.
   Right now it is the only program using pos_scan.  On the other hand,
   I'm not sure TCP rpc scanning is appropriate for ultra_scan.
@@ -614,6 +580,41 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [Zenmap] Make a way to start a scan from the profile editor without
+  creating a profile, then remove the command wizard.  This is partial
+  implementation of
+  http://www.bamsoftware.com/wiki/Nmap/ZenmapCommandLine. [David]
+
+o [Ncat] Make proxy server mode work on Windows (this is the last
+  remaining fork() dependency in Ncat).
+
+o Do an OS detection integration run -- last was based on
+  1/8/09. [David]
+
+o [Ncat] Maybe we should create an SSL cert with no passphrase during
+  Ncat compilation or install process so that if someone specifies
+  Ncat -l and --ssl with no --ssl-cert and --ssl-key, we already have
+  one for them, and it is a slightly better one (since the private key
+  isn't known) than if we distributed a key.  Obviously it is still
+  subject to MITM attacks since there is no domain validation going
+  on.  But people who need that will have to buy a key from a
+  certificate authority in any case.  We could create the key by using
+  the "openssl" command line tool as shown in
+  http://nmap.org/ncat/guide/ncat-advanced.html#ncat-ssl, or maybe
+  better to have a way for ncat to do it using openssl calls. [David]
+
+o [Zenmap] Should probably give some sort of widget indication that a
+  scan is running.  Now that we can start multiple scans at once, the
+  "scan" button goes back to being unpressed while the scan is
+  running.  As some scans take minutes or more to show output, it is
+  not always clear whether they are still properly running.  We should
+  probably have some sort of widget, such as the throbber used in web
+  browsers, to show that Nmap is still running.  It could be fore a
+  specific scan (kind of like how you have a separate throbber for
+  each tab on a web browser), or a global one which means at least one
+  scan is running.  Or maybe a different sort of indication is in
+  order (like a timer). [David]
 
 o Further investigate Nmap Proxy patch by Zoltan Panczel and Ferenc
   Spala.  See http://nmap-dev.fw.hu/ and
