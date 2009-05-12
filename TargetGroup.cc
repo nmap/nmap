@@ -378,7 +378,7 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
   struct sockaddr_in *sin = (struct sockaddr_in *) ss;
   struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) ss;
   startover: /* to handle nmap --resume where I have already
-    scanned many of the IPs */  
+              * scanned many of the IPs */  
   assert(ss);
   assert(sslen);
 
@@ -414,9 +414,9 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
     }
     /* Set the IP to the current value of everything */
     sin->sin_addr.s_addr = htonl(addresses[0][current[0]] << 24 | 
-      addresses[1][current[1]] << 16 |
-      addresses[2][current[2]] << 8 | 
-      addresses[3][current[3]]);
+                                 addresses[1][current[1]] << 16 |
+                                 addresses[2][current[2]] <<  8 | 
+                                 addresses[3][current[3]]);
     
     /* Now we nudge up to the next IP */
     for(octet = 3; octet >= 0; octet--) {
@@ -505,7 +505,7 @@ int TargetGroup::return_last_host() {
    this class instance is used -- the array is NOT copied.
  */
 HostGroupState::HostGroupState(int lookahead, int rnd, 
-             char *expr[], int numexpr) {
+                               char *expr[], int numexpr) {
   assert(lookahead > 0);
   hostbatch = (Target **) safe_zalloc(sizeof(Target *) * lookahead);
   max_batch_sz = lookahead;
