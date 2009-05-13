@@ -979,7 +979,7 @@ service and OS detection.
   -h, --help     display this help
   -v, --verbose  also show hosts and ports that haven't changed.
   --text         display output in text format (default)
-  --xml          display output in XML format (not supported)\
+  --xml          display output in XML format\
 """ % sys.argv[0]
 
 def usage_error(msg):
