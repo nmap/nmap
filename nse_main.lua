@@ -32,13 +32,11 @@ local _G = _G;
 local assert = assert;
 local collectgarbage = collectgarbage;
 local error = error;
-local getfenv = getfenv;
 local ipairs = ipairs;
 local loadfile = loadfile;
 local loadstring = loadstring;
 local next = next;
 local pairs = pairs;
-local pcall = pcall;
 local rawget = rawget;
 local select = select;
 local setfenv = setfenv;
@@ -50,13 +48,10 @@ local unpack = unpack;
 
 local create = coroutine.create;
 local resume = coroutine.resume;
-local running = coroutine.running;
 local status = coroutine.status;
 local yield = coroutine.yield;
 
 local traceback = debug.traceback;
-
-local write = io.write;
 
 local byte = string.byte;
 local format = string.format;
