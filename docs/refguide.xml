@@ -2013,6 +2013,12 @@ way.</para>
     <man>at <ulink url="http://nmap.org/book/nse-usage.html#nse-categories" />.</man>
     <notman>in <xref linkend="nse-categories"/>.</notman></para>
 
+    <para>
+    Scripts are not run in a sandbox and thus could accidentally or
+    maliciously damage your system or invade your privacy.  Never run
+    scripts from third parties unless you trust the authors or have
+    carefully audited the scripts yourself.
+    </para>
     
     <para>The Nmap Scripting Engine is described in detail
 <man>at <ulink url="http://nmap.org/book/nse.html" /></man>
@@ -2036,42 +2042,129 @@ way.</para>
       </varlistentry>
 
       <varlistentry>
-        <term><option>--script <replaceable>script-categories</replaceable>|<replaceable>directory</replaceable>|<replaceable>filename</replaceable>|all</option><indexterm significance="preferred"><primary><option>--script</option></primary></indexterm></term>
+        <term>
+          <option>--script <replaceable>filename</replaceable>|<replaceable>category</replaceable>|<replaceable>directory</replaceable>|<replaceable>expression</replaceable>|all<optional>,...</optional></option>
+          <indexterm><primary><option>--script</option></primary></indexterm>
+        </term>
 
 <listitem>
-<para>Runs a script scan (like <option>-sC</option>) using the comma-separated list of
-script categories, individual scripts, or directories containing
-scripts, rather than the default set. Nmap first tries to interpret the
-arguments as categories, then (if that fails) as files or
-directories. A script or directory of scripts may be specified as an
-absolute or relative path. Absolute paths are used as
-supplied. Relative paths are searched for in the following places
-until found:<indexterm><primary>data files</primary><secondary>directory search order</secondary></indexterm><indexterm><primary>scripts, location of</primary></indexterm>
-<filename>--datadir/</filename>; 
-<filename>$NMAPDIR/</filename>;<indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm>
-<filename>~/.nmap/</filename> (not searched on Windows);<indexterm><primary sortas="nmap directory"><filename>.nmap</filename> directory</primary></indexterm>
-<literal>NMAPDATADIR</literal>/ or<indexterm><primary>NMAPDATADIR</primary></indexterm>
-<filename>./</filename>.  A <filename>scripts/</filename> subdirectory
-is also tried in each of these.</para>
 
-<para>If a directory is specified and found, Nmap loads all NSE
-scripts (any filenames ending with <literal>.nse</literal>) from that
-directory. Filenames without the <literal>nse</literal> extension are
-ignored. Nmap does not search recursively into subdirectories to find
-scripts.  If individual file names are specified, the file extension
-does not have to be <literal>nse</literal>.</para>
+<para>
+Runs a script scan using the comma-separated list of filenames, script
+categories, and directories. Each element in the list may also be a
+Boolean expression describing a more complex set of scripts. Each
+element is interpreted first as an expression, then as a category, and
+finally as a file or directory name. The special argument
+<literal>all</literal> makes every script in Nmap's script database
+eligible to run.
+</para>
 
+<para>
+File and directory names may be relative or absolute. Absolute names are
+used directly. Relative paths are looked for in the following places
+until found:
+<indexterm><primary>data files</primary><secondary>directory search order</secondary></indexterm><indexterm><primary>scripts, location of</primary></indexterm>
+<simplelist>
+<member><option>--datadir</option></member>
+<member><envar>$NMAPDIR</envar></member><indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm>
+<member><filename>~/.nmap</filename> (not searched on Windows)</member><indexterm><primary sortas="nmap directory"><filename>.nmap</filename> directory</primary></indexterm>
+<member><varname>NMAPDATADIR</varname></member><indexterm><primary><varname>NMAPDATADIR</varname></primary></indexterm>
+<member>the current directory</member>
+</simplelist>
+A <filename>scripts</filename> subdirectory is also tried in each of
+these.
+</para>
+
+<para>
+When a directory name is given, Nmap loads every file in the directory
+whose name ends with <filename>.nse</filename>. All other files are
+ignored and directories are not searched recursively. When a filename is
+given, it does not have to have the <filename>.nse</filename> extension;
+it will be added automatically if necessary.
+</para>
+
+<indexterm><primary>script database</primary><see><filename>script.db</filename></see></indexterm>
+<indexterm><primary>scripts, location of</primary></indexterm>
 <para>Nmap scripts are stored in a <filename>scripts</filename>
 subdirectory of the Nmap data directory by default
+<xref linkend="data-files"/>). For efficiency, scripts are indexed in
+a database stored
 <man>(see <ulink url="http://nmap.org/book/data-files.html"/>).</man>
 <notman>(see <xref linkend="data-files"/>).</notman> For efficiency,
 scripts are indexed in a database stored
-in <filename>scripts/script.db</filename>.<indexterm><primary><filename>script.db</filename></primary></indexterm>
-which lists the category or categories in which each script belongs.
-Give the argument <literal>all</literal> to execute all scripts in the
-Nmap script database.</para>
+in <filename>scripts/script.db</filename>,<indexterm><primary><filename>script.db</filename></primary></indexterm>
+which lists the category or categories in which each script belongs.</para>
 
-<para>Malicious scripts are not run in a sandbox and thus could damage your system or invade your privacy.  Never run scripts from third parties unless you trust the authors or have carefully audited the scripts yourself.</para>
+      <indexterm><primary>wildcards</primary><secondary>in script selection</secondary></indexterm>
+      <para>
+      When referring to scripts from <filename>script.db</filename> by
+      name, you can use a shell-style &lsquo;<literal>*</literal>&rsquo;
+      wildcard.
+      </para>
+
+      <variablelist>
+        <varlistentry>
+          <term><command>nmap --script "http-*"</command></term>
+          <listitem>
+          <para>Loads all scripts whose name starts with
+          <filename>http-</filename>, such as
+          <filename>http-auth.nse</filename> and
+          <filename>http-open-proxy.nse</filename>. The argument to
+          <option>--script</option> had to be in quotes to protect the
+          wildcard from the shell.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <indexterm><primary>Boolean expressions in script selection</primary></indexterm>
+      <para>
+      More complicated script selection can be done using the
+      <literal>and</literal>, <literal>or</literal>, and
+      <literal>not</literal> operators to build Boolean expressions. The
+      operators have the same
+      <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#2.5.3">precedence</ulink>
+      as in Lua: <literal>not</literal> is the highest, followed by
+      <literal>and</literal> and then <literal>or</literal>. You can
+      alter precedence by using parentheses. Because expressions contain
+      space characters it is necessary to quote
+      them.
+      </para>
+
+      <variablelist>
+        <varlistentry>
+          <term><command>nmap --script "not intrusive"</command></term>
+          <listitem>
+          <para>Loads every script except for those in the
+          <literal>intrusive</literal> category.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><command>nmap --script "default or safe"</command></term>
+          <listitem>
+          <para>This is functionally equivalent to
+          <command>nmap --script "default,safe"</command>. It loads all
+          scripts that are in the <literal>default</literal> category or
+          the <literal>safe</literal> category or both.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><command>nmap --script "default and safe"</command></term>
+          <listitem>
+          <para>Loads those scripts that are in
+          <emphasis>both</emphasis> the <literal>default</literal> and
+          <literal>safe</literal> categories.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><command>nmap --script "(default or safe or intrusive) and not http-*"</command></term>
+          <listitem>
+          <para>Loads scripts in the <literal>default</literal>,
+          <literal>safe</literal>, or <literal>intrusive</literal>
+          categories, except for those whose names start with
+          <filename>http-</filename>.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
 
 </listitem>
 </varlistentry>
