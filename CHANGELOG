@@ -62,7 +62,7 @@ o Regenerate script.db to remove references to non-existent
   smb-check-vulns-2.nse is not a file!"  The script.db entries are now
   sorted again to make diffs easier to read. [David,Patrick]
 
-o Fixed --script-update on Windows--it was adding bogus backslashes
+o Fixed --script-updatedb on Windows--it was adding bogus backslashes
   preceding file names in the generated script.db. Reported by
   Michael Patrick at http://seclists.org/nmap-dev/2009/q2/0192.html,
   and fixed by Jah.  The error message was also improved.
