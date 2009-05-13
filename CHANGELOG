@@ -11,7 +11,7 @@ o Integrated all of your 1,156 of your OS detection submissions and
   http://seclists.org/nmap-dev/2009/q2/0335.html. [David]
 
 o [Ncat] A whole lot of work was done by David to improve SSL
-  security and functionality too:
+  security and functionality:
   o Ncat now does certificate domain and trust validation against
     trusted certificate lists if you specify --ssl-verify.
   o [Ncat] To enable SSL certificate verification on systems whose
