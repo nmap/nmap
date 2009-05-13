@@ -4,7 +4,7 @@ o Integrated all of your OS detection submissions (1,156) and
   corrections (50) since January 8.  Please keep them coming!  The
   second generation OS detection DB has grown 14% and now has more
   than 2,000 fingerprints.  That is more than we ever had with the
-  first sytem.  The 243 new fingerprints include Microsoft Windows 7
+  first system.  The 243 new fingerprints include Microsoft Windows 7
   beta, Linux 2.6.28, and much more.  See
   http://seclists.org/nmap-dev/2009/q2/0335.html. [David]
 
