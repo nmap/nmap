@@ -344,9 +344,9 @@ local function get_chosen_scripts (rules)
         assert(t == "file", filename.." is not a file!");
         if not files_loaded[path] then
           chosen_scripts[#chosen_scripts+1] = Script.new(path);
-          used_rules[rule_table.original_rule] = true;
           files_loaded[path] = true;
         end
+        used_rules[rule_table.original_rule] = true;
       end
     end
   end
