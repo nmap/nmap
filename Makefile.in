@@ -11,7 +11,7 @@ mandir = @mandir@
 srcdir = @srcdir@
 nmapdatadir = @datadir@/nmap
 deskdir = $(prefix)/share/applications
-NMAPDEVDIR=~/nmap-dev
+NMAPDEVDIR=~/nmap-private-dev
 
 export NBASEDIR=@NBASEDIR@
 export NSOCKDIR=@NSOCKDIR@
