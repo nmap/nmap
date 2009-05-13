@@ -1234,6 +1234,8 @@ To reflect those different uses and to simplify the choice of which scripts to r
 \FCdefault\F[]\&. These are all described
 at \m[blue]\fB\%http://nmap.org/book/nse-usage.html#nse-categories\fR\m[]\&.
 .PP
+Scripts are not run in a sandbox and thus could accidentally or maliciously damage your system or invade your privacy\&. Never run scripts from third parties unless you trust the authors or have carefully audited the scripts yourself\&.
+.PP
 The Nmap Scripting Engine is described in detail
 at \m[blue]\fB\%http://nmap.org/book/nse.html\fR\m[]
 
@@ -1245,37 +1247,115 @@ Performs a script scan using the default set of scripts\&. It is equivalent to
 \fB\-\-script=default\fR\&. Some of the scripts in this category are considered intrusive and should not be run against a target network without permission\&.
 .RE
 .PP
-\fB\-\-script \fR\fB\fIscript\-categories\fR\fR\fB|\fR\fB\fIdirectory\fR\fR\fB|\fR\fB\fIfilename\fR\fR\fB|all\fR.\" --script
+\fB\-\-script \fR\fB\fIfilename\fR\fR\fB|\fR\fB\fIcategory\fR\fR\fB|\fR\fB\fIdirectory\fR\fR\fB|\fR\fB\fIexpression\fR\fR\fB|all\fR\fB[,\&.\&.\&.]\fR .\" --script
 .RS 4
-Runs a script scan (like
-\fB\-sC\fR) using the comma\-separated list of script categories, individual scripts, or directories containing scripts, rather than the default set\&. Nmap first tries to interpret the arguments as categories, then (if that fails) as files or directories\&. A script or directory of scripts may be specified as an absolute or relative path\&. Absolute paths are used as supplied\&. Relative paths are searched for in the following places until found:.\" data files: directory search order.\" scripts, location of
-\FC\-\-datadir/\F[];
-\FC$NMAPDIR/\F[];.\" NMAPDIR environment variable
-\FC~/\&.nmap/\F[]
-(not searched on Windows);.\" .nmap directory
-\FCNMAPDATADIR\F[]/ or.\" NMAPDATADIR
-\FC\&./\F[]\&. A
-\FCscripts/\F[]
+Runs a script scan using the comma\-separated list of filenames, script categories, and directories\&. Each element in the list may also be a Boolean expression describing a more complex set of scripts\&. Each element is interpreted first as an expression, then as a category, and finally as a file or directory name\&. The special argument
+\FCall\F[]
+makes every script in Nmap\'s script database eligible to run\&.
+.sp
+File and directory names may be relative or absolute\&. Absolute names are used directly\&. Relative paths are looked for in the following places until found:
+.\" data files: directory search order.\" scripts, location of
+.RS 4
+\fB\-\-datadir\fR
+.RE
+.RS 4
+\fB$NMAPDIR\fR
+.RE
+.RS 4
+\FC~/\&.nmap\F[] (not searched on Windows)
+.RE
+.RS 4
+\fINMAPDATADIR\fR
+.RE
+.RS 4
+the current directory
+.RE
+A
+\FCscripts\F[]
 subdirectory is also tried in each of these\&.
 .sp
-If a directory is specified and found, Nmap loads all NSE scripts (any filenames ending with
-\FC\&.nse\F[]) from that directory\&. Filenames without the
-\FCnse\F[]
-extension are ignored\&. Nmap does not search recursively into subdirectories to find scripts\&. If individual file names are specified, the file extension does not have to be
-\FCnse\F[]\&.
-.sp
+When a directory name is given, Nmap loads every file in the directory whose name ends with
+\FC\&.nse\F[]\&. All other files are ignored and directories are not searched recursively\&. When a filename is given, it does not have to have the
+\FC\&.nse\F[]
+extension; it will be added automatically if necessary\&.
+.\" script database
+.\" scripts, location of
 Nmap scripts are stored in a
 \FCscripts\F[]
 subdirectory of the Nmap data directory by default
+Chapter\ \&14, Understanding and Customizing Nmap Data Files)\&. For efficiency, scripts are indexed in a database stored
 (see \m[blue]\fB\%http://nmap.org/book/data-files.html\fR\m[])\&.
 
 For efficiency, scripts are indexed in a database stored in
-\FCscripts/script\&.db\F[]\&..\" script.db
-which lists the category or categories in which each script belongs\&. Give the argument
-\FCall\F[]
-to execute all scripts in the Nmap script database\&.
+\FCscripts/script\&.db\F[],.\" script.db
+which lists the category or categories in which each script belongs\&.
+.\" wildcards: in script selection
+When referring to scripts from
+\FCscript\&.db\F[]
+by name, you can use a shell\-style \(oq\FC*\F[]\(cq wildcard\&.
+.PP
+\fBnmap \-\-script "http\-*"\fR
+.RS 4
+Loads all scripts whose name starts with
+\FChttp\-\F[], such as
+\FChttp\-auth\&.nse\F[]
+and
+\FChttp\-open\-proxy\&.nse\F[]\&. The argument to
+\fB\-\-script\fR
+had to be in quotes to protect the wildcard from the shell\&.
+.RE
 .sp
-Malicious scripts are not run in a sandbox and thus could damage your system or invade your privacy\&. Never run scripts from third parties unless you trust the authors or have carefully audited the scripts yourself\&.
+.\" Boolean expressions in script selection
+More complicated script selection can be done using the
+\FCand\F[],
+\FCor\F[], and
+\FCnot\F[]
+operators to build Boolean expressions\&. The operators have the same
+\m[blue]\fBprecedence\fR\m[]\&\s-2\u[9]\d\s+2
+as in Lua:
+\FCnot\F[]
+is the highest, followed by
+\FCand\F[]
+and then
+\FCor\F[]\&. You can alter precedence by using parentheses\&. Because expressions contain space characters it is necessary to quote them\&.
+.PP
+\fBnmap \-\-script "not intrusive"\fR
+.RS 4
+Loads every script except for those in the
+\FCintrusive\F[]
+category\&.
+.RE
+.PP
+\fBnmap \-\-script "default or safe"\fR
+.RS 4
+This is functionally equivalent to
+\fBnmap \-\-script "default,safe"\fR\&. It loads all scripts that are in the
+\FCdefault\F[]
+category or the
+\FCsafe\F[]
+category or both\&.
+.RE
+.PP
+\fBnmap \-\-script "default and safe"\fR
+.RS 4
+Loads those scripts that are in
+\fIboth\fR
+the
+\FCdefault\F[]
+and
+\FCsafe\F[]
+categories\&.
+.RE
+.PP
+\fBnmap \-\-script "(default or safe or intrusive) and not http\-*"\fR
+.RS 4
+Loads scripts in the
+\FCdefault\F[],
+\FCsafe\F[], or
+\FCintrusive\F[]
+categories, except for those whose names start with
+\FChttp\-\F[]\&.
+.RE
 .RE
 .PP
 \fB\-\-script\-args \fR\fB\fIname1\fR\fR\fB=\fR\fB\fIvalue1\fR\fR\fB,\fR\fB\fIname2\fR\fR\fB={\fR\fB\fIname3\fR\fR\fB=\fR\fB\fIvalue3\fR\fR\fB},\fR\fB\fIname4\fR\fR\fB=\fR\fB\fIvalue4\fR\fR .\" --script-args .\" script arguments
@@ -1670,7 +1750,7 @@ because accuracy there requires probe consistency, but most pinging and portscan
 \fB\-\-ip\-options \fR\fB\fIS|R [route]|L [route]|T|U \&.\&.\&. \fR\fR\fB;\fR \fB\-\-ip\-options \fR\fB\fIhex string\fR\fR (Send packets with specified ip options) .\" --ip-options .\" IP options
 .RS 4
 The
-\m[blue]\fBIP protocol\fR\m[]\&\s-2\u[9]\d\s+2
+\m[blue]\fBIP protocol\fR\m[]\&\s-2\u[10]\d\s+2
 offers several options which may be placed in packet headers\&. Unlike the ubiquitous TCP options, IP options are rarely seen due to practicality and security concerns\&. In fact, many Internet routers block the most dangerous options such as source routing\&. Yet options can still be useful in some cases for determining and manipulating the network route to target machines\&. For example, you may be able to use the record route option to determine a path to a target even when more traditional traceroute\-style approaches fail\&. Or if your packets are being dropped by a certain firewall, you may be able to specify a different route with the strict or loose source routing options\&.
 .sp
 The most powerful way to specify IP options is to simply pass in values as the argument to
@@ -1840,10 +1920,10 @@ be directed to the given filename\&. Nmap includes a document type definition (D
 \m[blue]\fB\%http://nmap.org/data/nmap.dtd\fR\m[]\&.
 .sp
 XML offers a stable format that is easily parsed by software\&. Free XML parsers are available for all major computer languages, including C/C++, Perl, Python, and Java\&. People have even written bindings for most of these languages to handle Nmap output and execution specifically\&. Examples are
-\m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[10]\d\s+2
+\m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[11]\d\s+2
 .\" Nmap::Scanner
 and
-\m[blue]\fBNmap::Parser\fR\m[]\&\s-2\u[11]\d\s+2
+\m[blue]\fBNmap::Parser\fR\m[]\&\s-2\u[12]\d\s+2
 .\" Nmap::Parser
 in Perl CPAN\&. In almost all cases that a non\-trivial application interfaces with Nmap, XML is the preferred format\&.
 .sp
@@ -2078,7 +2158,7 @@ line being the only IPv6 give away\&.
 While IPv6 hasn\'t exactly taken the world by storm, it gets significant use in some (usually Asian) countries and most modern operating systems support it\&. To use Nmap with IPv6, both the source and target of your scan must be configured for IPv6\&. If your ISP (like most of them) does not allocate IPv6 addresses to you, free tunnel brokers are widely available and work fine with Nmap\&. I use the free IPv6 tunnel broker.\" IPv6 tunnel broker
 service at
 \m[blue]\fB\%http://www.tunnelbroker.net\fR\m[]\&. Other tunnel brokers are
-\m[blue]\fBlisted at Wikipedia\fR\m[]\&\s-2\u[12]\d\s+2\&. 6to4 tunnels are another popular, free approach\&.
+\m[blue]\fBlisted at Wikipedia\fR\m[]\&\s-2\u[13]\d\s+2\&. 6to4 tunnels are another popular, free approach\&.
 .RE
 .PP
 \fB\-A\fR (Aggressive scan options) .\" -A
@@ -2392,7 +2472,7 @@ If you received these files with a written license agreement or contract stating
 This
 Nmap Reference Guide
 is (C) 2005\(en2009 Insecure\&.Com LLC\&. It is hereby placed under version 2\&.5 of the
-\m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[13]\d\s+2\&. This allows you redistribute and modify the work as you desire, as long as you credit the original source\&. Alternatively, you may choose to treat this document as falling under the same license as Nmap itself (discussed previously)\&.
+\m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[14]\d\s+2\&. This allows you redistribute and modify the work as you desire, as long as you credit the original source\&. Alternatively, you may choose to treat this document as falling under the same license as Nmap itself (discussed previously)\&.
 .SS "Source Code Availability and Community Contributions"
 .PP
 Source is provided to this software because we believe users have a right to know exactly what a program is going to do before they run it\&. This also allows you to audit the software for security holes (none have been found so far)\&.
@@ -2420,31 +2500,31 @@ Nmap should never be installed with special privileges (e\&.g\&. suid root) for 
 .SS "Third\-Party Software"
 .PP
 This product includes software developed by the
-\m[blue]\fBApache Software Foundation\fR\m[]\&\s-2\u[14]\d\s+2\&. A modified version of the
-\m[blue]\fBLibpcap portable packet capture library\fR\m[]\&\s-2\u[15]\d\s+2.\" libpcap
+\m[blue]\fBApache Software Foundation\fR\m[]\&\s-2\u[15]\d\s+2\&. A modified version of the
+\m[blue]\fBLibpcap portable packet capture library\fR\m[]\&\s-2\u[16]\d\s+2.\" libpcap
 is distributed along with Nmap\&. The Windows version of Nmap utilized the Libpcap\-derived
-\m[blue]\fBWinPcap library\fR\m[]\&\s-2\u[16]\d\s+2.\" WinPcap
+\m[blue]\fBWinPcap library\fR\m[]\&\s-2\u[17]\d\s+2.\" WinPcap
 instead\&. Regular expression support is provided by the
-\m[blue]\fBPCRE library\fR\m[]\&\s-2\u[17]\d\s+2,.\" Perl Compatible Regular Expressions (PCRE)
+\m[blue]\fBPCRE library\fR\m[]\&\s-2\u[18]\d\s+2,.\" Perl Compatible Regular Expressions (PCRE)
 which is open\-source software, written by Philip Hazel\&..\" Hazel, Philip
 Certain raw networking functions use the
-\m[blue]\fBLibdnet\fR\m[]\&\s-2\u[18]\d\s+2.\" libdnet
+\m[blue]\fBLibdnet\fR\m[]\&\s-2\u[19]\d\s+2.\" libdnet
 networking library, which was written by Dug Song\&..\" Song, Dug
 A modified version is distributed with Nmap\&. Nmap can optionally link with the
-\m[blue]\fBOpenSSL cryptography toolkit\fR\m[]\&\s-2\u[19]\d\s+2.\" OpenSSL
+\m[blue]\fBOpenSSL cryptography toolkit\fR\m[]\&\s-2\u[20]\d\s+2.\" OpenSSL
 for SSL version detection support\&. The Nmap Scripting Engine uses an embedded version of the
-\m[blue]\fBLua programming language\fR\m[]\&\s-2\u[20]\d\s+2\&..\" Lua programming language
+\m[blue]\fBLua programming language\fR\m[]\&\s-2\u[21]\d\s+2\&..\" Lua programming language
 All of the third\-party software described in this paragraph is freely redistributable under BSD\-style software licenses\&.
 .SS "United States Export Control.\" export control"
 .PP
 Nmap only uses encryption when compiled with the optional OpenSSL support and linked with OpenSSL\&. When compiled without OpenSSL support, Insecure\&.Com LLC believes that Nmap is not subject to U\&.S\&.
-\m[blue]\fBExport Administration Regulations (EAR)\fR\m[]\&\s-2\u[21]\d\s+2
+\m[blue]\fBExport Administration Regulations (EAR)\fR\m[]\&\s-2\u[22]\d\s+2
 export control\&. As such, there is no applicable ECCN (explort control classification number) and exportation does not require any special license, permit, or other governmental authorization\&.
 .PP
 When compiled with OpenSSL support or distributed as source code, Insecure\&.Com LLC believes that Nmap falls under U\&.S\&. ECCN
-\m[blue]\fB5D002\fR\m[]\&\s-2\u[22]\d\s+2
+\m[blue]\fB5D002\fR\m[]\&\s-2\u[23]\d\s+2
 (\(lqInformation Security Software\(rq)\&. We distribute Nmap under the TSU exception for publicly available encryption software defined in
-\m[blue]\fBEAR 740\&.13(e)\fR\m[]\&\s-2\u[23]\d\s+2\&.
+\m[blue]\fBEAR 740\&.13(e)\fR\m[]\&\s-2\u[24]\d\s+2\&.
 .SH "Author"
 .PP
 \fBGordon \(lqFyodor\(rq Lyon\fR
@@ -2504,76 +2584,81 @@ Lua programming language
 \%http://lua.org
 .RE
 .IP " 9." 4
+precedence
+.RS 4
+\%http://www.lua.org/manual/5.1/manual.html#2.5.3
+.RE
+.IP "10." 4
 IP protocol
 .RS 4
 \%http://www.rfc-editor.org/rfc/rfc791.txt
 .RE
-.IP "10." 4
+.IP "11." 4
 Nmap::Scanner
 .RS 4
 \%http://sourceforge.net/projects/nmap-scanner/
 .RE
-.IP "11." 4
+.IP "12." 4
 Nmap::Parser
 .RS 4
 \%http://nmapparser.wordpress.com/
 .RE
-.IP "12." 4
+.IP "13." 4
 listed at Wikipedia
 .RS 4
 \%http://en.wikipedia.org/wiki/List_of_IPv6_tunnel_brokers
 .RE
-.IP "13." 4
+.IP "14." 4
 Creative Commons Attribution License
 .RS 4
 \%http://creativecommons.org/licenses/by/2.5/
 .RE
-.IP "14." 4
+.IP "15." 4
 Apache Software Foundation
 .RS 4
 \%http://www.apache.org
 .RE
-.IP "15." 4
+.IP "16." 4
 Libpcap portable packet capture library
 .RS 4
 \%http://www.tcpdump.org
 .RE
-.IP "16." 4
+.IP "17." 4
 WinPcap library
 .RS 4
 \%http://www.winpcap.org
 .RE
-.IP "17." 4
+.IP "18." 4
 PCRE library
 .RS 4
 \%http://www.pcre.org
 .RE
-.IP "18." 4
+.IP "19." 4
 Libdnet
 .RS 4
 \%http://libdnet.sourceforge.net
 .RE
-.IP "19." 4
+.IP "20." 4
 OpenSSL cryptography toolkit
 .RS 4
 \%http://www.openssl.org
 .RE
-.IP "20." 4
+.IP "21." 4
 Lua programming language
 .RS 4
 \%http://www.lua.org
 .RE
-.IP "21." 4
+.IP "22." 4
 Export Administration Regulations (EAR)
 .RS 4
 \%http://www.access.gpo.gov/bis/ear/ear_data.html
 .RE
-.IP "22." 4
+.IP "23." 4
 5D002
 .RS 4
 \%http://www.access.gpo.gov/bis/ear/pdf/ccl5-pt2.pdf
 .RE
-.IP "23." 4
+.IP "24." 4
 EAR 740.13(e)
 .RS 4
 \%http://www.access.gpo.gov/bis/ear/pdf/740.pdf
