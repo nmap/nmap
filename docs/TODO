@@ -105,6 +105,16 @@ o For at least our UDP ping probes, Nmap should probably notice if it
   nmap-service-probes, though we might want to make a custom file for
   this.  We should probably do this for port scanning as well.
 
+o [Ncat] In verbose mode, print when an SSL connection is established
+  successfully and give the leaf certificate hash to make it easier to
+  verify when connecting to a machine where you can't or don't want to
+  use --ssl-verify (e.g. connecting to an ncat ssl server where it
+  created its own key).  While we're at it, we might want to print
+  some other information from the leaf node, such as organizationName
+  and maybe localityName, countryName or something.  We don't want to
+  be too verbose, but 1 line would be great and 2-3 might be
+  acceptable.
+
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
 
 o Scanning through proxies
