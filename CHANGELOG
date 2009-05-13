@@ -1,10 +1,27 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o The SEQ.CI OS detection test introduced in 4.85BETA4 now has some
-  examples in nmap-os-db and has been assigned a MatchPoints value of
-  50. [David]
+o Integrated all of your OS detection submissions (1,156) and
+  corrections (50) since January 8.  Please keep them coming!  The
+  second generation OS detection DB has grown 14% and now has more
+  than 2,000 fingerprints.  That is more than we ever had with the
+  first sytem.  The 243 new fingerprints include Microsoft Windows 7
+  beta, Linux 2.6.28, and much more.  See
+  http://seclists.org/nmap-dev/2009/q2/0335.html. [David]
 
 o [Ncat] The HTTP proxy now works on Windows. [David]
+
+o Fixed a bug in the new NSE Lua core which caused it to round
+  fractional runlevel values to the next integer. This could cause
+  dependency problems for the smb-* scripts and others which rely on
+  floating point runlevel values (e.g. that smb-bruete at runlevel 0.5
+  will run before smb-system-info at the default runlevel of 1).
+
+o [NSE] Added Boolean Operators for --script. You may now use a boolean
+  operator ("and", "or", or "not") combined with categories, filenames,
+  and filenames with a '*', wildcard, to match many files.  This change
+  requires the script database to be recompiled. Please see the thread at
+  http://seclists.org/nmap-dev/2009/q2/0100.html for more
+  information. [Patrick]
 
 o [Zenmap] The command wizard has been removed. The profile editor has
   the same capabilities with a better interface that doesn't require
@@ -17,9 +34,20 @@ o [Ncat] Ncat now automatically generates a temporary keypair and
   certificate in memory when you don't use the --ssl-key and
   --ssl-cert options. [David]
 
+o [Ncat] To enable SSL certificate verification on systems whose
+  default trusted certificate stores aren't easily usable by OpenSSL,
+  we install a set of certificates extracted from Windows in the file
+  ca-bundle.crt. The trusted contents of this file are added to
+  whatever default trusted certificates the operating system may
+  provide. [David]
+
 o [Zenmap] There is now a little indicator that animates while a scan
   is running, to provide some reassurance for thos long-running scans.
   [David]
+
+o The SEQ.CI OS detection test introduced in 4.85BETA4 now has some
+  examples in nmap-os-db and has been assigned a MatchPoints value of
+  50. [David]
 
 o [Ncat] When using --send-only, Ncat will now close the network
   connection and terminate after receiving EOF on standard input.
@@ -30,12 +58,8 @@ o [Ncat] Unbreak hostname resolution on BSD systems where a recently
   hint is provided. Patch originally provided by Hajimu UMEMOTO of
   FreeBSD. [Daniel Roethlisberger]
 
-o [NSE] Added Boolean Operators for --script. You may now use a boolean
-  operator ("and", "or", or "not") combined with categories, filenames,
-  and filenames with a '*', wildcard, to match many files.  This change
-  requires the script database to be recompiled. Please see the thread at
-  http://seclists.org/nmap-dev/2009/q2/0100.html for more
-  information. [Patrick]
+o [NSE] Fixed bug in the DNS library which caused the error message
+  "nselib/dns.lua:54: 'for' limit must be a number". [Jah]
 
 o [Ncat] In SSL mode, Ncat now always uses secure connections, meaning
   that it uses only good ciphers and doesn't use SSLv2. Certificates
@@ -44,17 +68,11 @@ o [Ncat] In SSL mode, Ncat now always uses secure connections, meaning
   prioritize either speed or security; Ncat uses security while
   version detection and NSE continue to use speed. [David]
 
-o [Ncat] To enable SSL certificate verification on systems whose
-  default trusted certificate stores aren't easily usable by OpenSSL,
-  we install a set of certificates extracted from Windows in the file
-  ca-bundle.crt. The trusted contents of this file are added to
-  whatever default trusted certificates the operating system may
-  provide. [David]
-
 o The official Windows binaries are now compiled with MS Visual C++
   2008 Express Edition SP1 rather than the RTM version. We also now
   distribute the matching SP1 version of the MS runtime components
-  (vcredist_x86.exe). [Fyodor]
+  (vcredist_x86.exe). A number of compiler warnings were fixed
+  too. [Fyodor,David]
 
 o [Ncat] Minor code cleanup of Ncat memory allocation and string
   duplication calls. [Ithilgore]
@@ -62,10 +80,51 @@ o [Ncat] Minor code cleanup of Ncat memory allocation and string
 o Updated IANA assignment IP list for random IP (-iR)
   generation. [Kris]
 
+o Fixed a bug which could cause -iR to only scan the first
+  host group and then terminate prematurely.  The problem related to the
+  way hosts are counted by o.numhosts_scanned. [David]
+
 o Fixed a bug in the su-to-zenmap.sh script so that, in the cases
   where it calls su, it uses the proper -c option rather than
   -C. [Michal Januszewski, Henry Gebhardt]
 
+o Overhaul the NSE documentation "Usage and Examples" section and add
+  many more examples: http://nmap.org/book/nse-usage.html [David]
+
+o [NSE] Made hexify in nse_nsock.cc take an unsigned char * to work
+  around an assertion in Visual C++ in Debug mode. The isprint,
+  isalpha, etc. functions from ctype.h have an assertion that the
+  value of the character passed in is <= 255. If you pass a character
+  whose value is >= 128, it is cast to an unsigned int, making it a
+  large positive number and failing the assertion. This is the same
+  thing that was reported in
+  http://seclists.org/nmap-dev/2007/q2/0257.html, in regard to
+  non-ASCII characters in nmap-mac-prefixes. [David]
+
+o Fixed Solaris 10 compilation by renaming a yield structure which
+  conflicted with a yeild function declared in unistd.h on that
+  platform. [Pieter Bowman, Patrick]
+
+o [NSE] Fixed a segmentation fault which could occur in scripts which
+  use the NSE pcap library. The problem was reported by Lionel Cons
+  and fixed by Patrick.
+
+o [NSE] Port script start/finish debug messages now show the target
+  port number as well as the host/IP. [Jah]
+
+o Fixed script.db on Windows--it was adding bogus backslashes
+  preceeding file names. Reported by Michael Patrick at
+  http://seclists.org/nmap-dev/2009/q2/0192.html, and fixed by Jah.
+  The error message was also improved.
+
+o Regenerate script.db to remove references to non-existant
+  smb-check-vulns-2.nse. This caused the following error messages when
+  people used the --script=all option: "nse_main.lua:319:
+  smb-check-vulns-2.nse is not a file!"  The script.db entries are now
+  sorted again to make diffs easier to read. [David,Patrick]
+
+o [NSE] Fixed http.table_argument so that user-supplied HTTP headers
+  are now properly sent in HTTP requests. [Jah]
 
 Nmap 4.85BETA8 [2009-04-21]
 
