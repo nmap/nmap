@@ -994,8 +994,7 @@ def main():
     try:
         opts, input_filenames = getopt.gnu_getopt(sys.argv[1:], "hv", ["help", "text", "verbose", "xml"])
     except getopt.GetoptError, e:
-        print >> sys.stderr, u"%s: %s" % (sys.argv[0], e.msg)
-        sys.exit(1)
+        usage_error(u"%s: %s" % (sys.argv[0], e.msg))
     for o, a in opts:
         if o == "-h" or o == "--help":
             usage()
