@@ -180,14 +180,24 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
     target_net = hostexp;
     s = strchr(hostexp, '/'); /* Find the slash if there is one */
     if (s) {
+      char *tail;
+      long netmask_long;
+      
       *s = '\0';  /* Make sure target_net is terminated before the /## */
       s++;        /* Point s at the netmask */
-    }
-    netmask  = ( s ) ? atoi(s) : 32;
-    if ((int) netmask < 0 || netmask > 32) {
-      error("Illegal netmask value (%d), must be /0 - /32 .  Assuming /32 (one host)", netmask);
+      if (!isdigit(*s)) {
+        error("Illegal netmask value, must be /0 - /32 .  Assuming /32 (one host)");
+        netmask = 32;
+      } else {
+        netmask_long = strtol(s, (char**) &tail, 10);
+        if (*tail != '\0' || tail == s || netmask_long < 0 || netmask_long > 32) {
+          error("Illegal netmask value, must be /0 - /32 .  Assuming /32 (one host)");
+          netmask = 32;
+        } else
+          netmask = (u32) netmask_long;
+      }
+    } else
       netmask = 32;
-    }
     for(i=0; *(hostexp + i); i++) 
       if (isupper((int) *(hostexp +i)) || islower((int) *(hostexp +i))) {
         namedhost = 1;
@@ -236,13 +246,14 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
       targets_type = IPV4_RANGES;
       i=0;
 
-      while(*++r) {
+      while(*r) {
         if (*r == '.' && ++i < 4) {
           *r = '\0';
           addy[i] = r + 1;
         }
         else if (*r != '*' && *r != ',' && *r != '-' && !isdigit((int)*r)) 
           fatal("Invalid character in host specification.  Note in particular that square brackets [] are no longer allowed.  They were redundant and can simply be removed.");
+        *r++;
       }
       if (i != 3) fatal("Invalid target host specification: %s", target_expr);
       
