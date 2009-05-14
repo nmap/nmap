@@ -117,6 +117,10 @@ o [Ncat] In verbose mode, print when an SSL connection is established
 
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
 
+o [Ncat] In verbose mode, I'd like to see clock time and maybe in/out
+  traffic stats when a client connection ends.  Maybe it could use a
+  format similar to what Nmap provides.
+
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now
    that we have an NSE script for detectiong open proxies and now that
