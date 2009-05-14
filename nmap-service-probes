@@ -5971,7 +5971,7 @@ match domain m|^\0\x06\x81\x82\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x0
 ##############################NEXT PROBE##############################
 Probe TCP DNSVersionBindReq q|\0\x1E\0\x06\x01\0\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03|
 rarity 3
-ports 53,135,512-514,543,544,628,1029,13783,1521,2068,2105,2967,5323,5520,5530,5555,6543,7000,7008
+ports 53,135,512-514,543,544,628,1029,13783,2068,2105,2967,5323,5520,5530,5555,6543,7000,7008
 match domain m|\x07version\x04bind.*\x0cdnsmasq-([-\w._ ]+)$|s p/dnsmasq/ v/$1/
 match domain m|\x07version\x04bind.*[\x03-\x14]([-\w._ ]{3,20})|s p/ISC BIND/ v/$1/
 match domain m|\x07version\x04bind.*[\x03-\x14]BIND ([-\w._]{3,20})|s p/ISC BIND/ v/$1/
@@ -6038,11 +6038,6 @@ match login m|^\x01rlogind: Host name for your address \([\d.]+\) unknown\.\r\n|
 # OpenBSD 2.3
 # Solaris 9
 match login m|^\x01rlogind: Permission denied\.\r\n$|
-
-
-# RedHat 7.3 - Oracle TNS Listener Oracle 8.1.7
-# Oracle 8.1.6.1.0 on Linux 2.2.X
-match oracle-tns m|^\0\x1c\0\0\x04\x01\0\0\0.\0\0|s p/Oracle TNS Listener/
 
 # HP-UX 11 Kerberized rlogin
 match klogin m|^\x01rlogind: Login Incorrect\.\r\n$| p/HP-UX kerberized rlogin/ o/HP-UX/
@@ -7147,10 +7142,11 @@ match wms m|^\x01\0\0.\xce\xfa\x0b\xb0.\0\0\0MMS .\0{7}.{9}\0\0\0\x01\0\x04\0\0\
 ##############################NEXT PROBE##############################
 Probe TCP oracle-tns q|\0Z\0\0\x01\0\0\0\x016\x01,\0\0\x08\0\x7F\xFF\x7F\x08\0\0\0\x01\0 \0:\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\04\xE6\0\0\0\x01\0\0\0\0\0\0\0\0(CONNECT_DATA=(COMMAND=version))|
 rarity 7
-ports 1035,1521,1522,1525,1574,1748,1754
+ports 1035,1521,1522,1525,1526,1574,1748,1754
 match oracle-tns m|^\0.\0\0[\x02\x04]\0\0\0.*TNSLSNR for ([-.+/ \w]{2,20}): Version ([-\d.]+) - Production|s p/Oracle TNS Listener/ v/$2 (for $1)/
 match dbsnmp m|^\0.\0\0\x02\0\0\0.*\(IAGENT = \(AGENT_VERSION = ([\d.]+)\)\(RPC_VERSION = ([\d.]+)\)\)|s p/Oracle Intelligent Agent/ v/$1/ i/RPC v$2/
-match oracle-tns m|^\0.\0\0[\x02\x04]\0\0\0|s p/Oracle TNS Listener/
+match oracle m|^\0\x20\0\0\x02\0\0\0\x016\0\0\x08\0\x7f\xff\x01\0\0\0\0\x20|s p/Oracle Database/
+softmatch oracle-tns m|^\0.\0\0[\x02\x04]\0\0\0|s p/Oracle TNS Listener/
 match dbsnmp m|^\0,\0\0\x04\0\0\0\"\0\0 \(CONNECT_DATA=\(COMMAND=version\)\)| p/Oracle DBSNMP/
 
 ##############################NEXT PROBE##############################

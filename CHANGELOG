@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Improved the Oracle DB version detection signatures. [Tom Sellers]
+
 Nmap 4.85BETA9 [2009-05-12]
 
 o Integrated all of your 1,156 of your OS detection submissions and
