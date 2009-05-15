@@ -1,32 +1,10 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o We added the SEQ.CI value in Feb 2009 with 0 matchpoints.  At some
-  point (once we have some real-life values) we need to evaluate whether
-  we want to give it points.  A good time to do that would be when we
-  next do fingerprint integration, so we will actually have examples
-  of .CI in the nmap-os-db.
-
-o [NSE] Get rid of ceil so that floating point NSE runlevels work
-  again (some scripts, including (smb-brute) rely on this.  They got
-  broken with the NSE core lua rewrite. [Patrick].
-
-o Make 4.85BETA9 release [Fyodor]
-
 o Build x86 VM instance for RPM building. [Fyodor]
 
 o Look into building RPMs with SSL support. Statically linking to
   OpenSSL on Linux for the RPMs didn't work for me last time I
   tried. [Fyodor]
-
-o Ask Coverity if they'll scan latest version of Nmap. [Fyodor]
-
-o Change Nmap signature files to use the .sig extension rather than
-  .gpg.txt, as that seems to be what gpg recommends.  In fact, gpg
-  will automatically verify the right file if it exists after dropping
-  the .sig (or .asc) extension.  I may need to configure .htaccess to
-  serve .sig files properly.  Update nmap-install.xml
-  accordingly. Suggested by tic at eternalrealm.net by email on
-  7/13/08. [Fyodor]
 
 o Device categorization improvements
   o Examine Nmap's device categorization in nmap-os-deb and
@@ -46,12 +24,6 @@ o Device categorization improvements
     [Doug has done some initial work on this.  For example, see
      nmap/docs/device-types.txt]
 
-o Add version detection signiture for Ncat chat once we finalize the
-  announce format.
-
-o NSE script logical operator stuff is now documented in
-  scripting.xml--add to refguide.xml as well. [David/Patrick]
-
 o Consider making the ping scan default be more comprehensive.  Note
   that I got 23% more Internet boxes found out of a 50K sample (see host
   enumeration chapter of my book for details).  Maybe I should
@@ -68,6 +40,9 @@ o Once we're done with host discovery empirical research, add it to
   host-discovery.xml.  Would be great to show the best combinations to
   use for a given number of probes, the efficiency of the common probes
   by themselves, etc.
+
+o Add version detection signiture for Ncat chat once we finalize the
+  announce format.
 
 o [NSE] Make it a warning rather than error if a script in script.db
    can't be found. [Patrick]
@@ -115,7 +90,27 @@ o [Ncat] In verbose mode, print when an SSL connection is established
   be too verbose, but 1 line would be great and 2-3 might be
   acceptable.
 
+o We added the SEQ.CI value in Feb 2009 with 0 matchpoints.  At some
+  point (once we have some real-life values) we need to evaluate whether
+  we want to give it points.  A good time to do that would be when we
+  next do fingerprint integration, so we will actually have examples
+  of .CI in the nmap-os-db. [David]
+
+o [NSE] Get rid of ceil so that floating point NSE runlevels work
+  again (some scripts, including (smb-brute) rely on this.  They got
+  broken with the NSE core lua rewrite. [David,Patrick].
+
+o NSE script logical operator stuff is now documented in
+  scripting.xml--add to refguide.xml as well. [David/Patrick]
+
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
+
+o We should probably check for a system Lua in a "lua5.1" directory
+  rather than just "lua", as Debian and also my Fedora 10 systems seem
+  to have that.  See
+  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=527997. [Note,
+  Fyodor asked the bug reporter Jan Nordholz on 5/14/09 if he could
+  write a patch]
 
 o [Ncat] In verbose mode, I'd like to see clock time and maybe in/out
   traffic stats when a client connection ends.  Maybe it could use a
@@ -594,6 +589,26 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Change Nmap signature files to use the .sig extension rather than
+  .gpg.txt, as that seems to be what gpg recommends.  In fact, gpg
+  will automatically verify the right file if it exists after dropping
+  the .sig (or .asc) extension.  I may need to configure .htaccess to
+  serve .sig files properly.  Update nmap-install.xml
+  accordingly. Suggested by tic at eternalrealm.net by email on
+  7/13/08. [Fyodor]
+  * Rename existing files, add symlink from the old .gpg.txt to .asc
+    versions
+  * Add appropriate .htaccess content type if needed for downloads
+   - not needed since I decided on .asc extension rather than .sig
+  * Update the generation scripts
+  * Update the book documentation -
+    http://nmap.org/book/install.html#inst-integrity
+
+o Ask Coverity if they'll scan latest version of Nmap. [Fyodor asked
+  David Maxwell on 5/14/09 ]
+
+o Make 4.85BETA9 release [Fyodor]
 
 o [Zenmap] Make a way to start a scan from the profile editor without
   creating a profile, then remove the command wizard.  This is partial
