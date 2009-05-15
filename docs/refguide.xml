@@ -124,10 +124,14 @@ Nmap done: 1 IP address (1 host up) scanned in 17.00 seconds
 </screen>
 </example>
 
-<para>The newest version of Nmap can be obtained from <ulink
-url="http://nmap.org" />.  The newest version of the man
-page is available at <ulink
-url="http://nmap.org/book/man.html"/>.</para>
+<para>The newest version of Nmap can be obtained from
+<ulink url="http://nmap.org" />.  The newest version of this man page
+is available at <ulink url="http://nmap.org/book/man.html"/>.
+<notbook>It is also included as a chapter of <citetitle>Nmap Network
+Scanning: The Official Nmap Project Guide to Network Discovery and
+Security Scanning</citetitle> (see
+<ulink url="http://nmap.org/book/"/>).</notbook>
+</para>
 
   </refsect1>
 
@@ -2085,13 +2089,13 @@ it will be added automatically if necessary.
 
 <indexterm><primary>script database</primary><see><filename>script.db</filename></see></indexterm>
 <indexterm><primary>scripts, location of</primary></indexterm>
+
 <para>Nmap scripts are stored in a <filename>scripts</filename>
 subdirectory of the Nmap data directory by default
-<xref linkend="data-files"/>). For efficiency, scripts are indexed in
-a database stored
 <man>(see <ulink url="http://nmap.org/book/data-files.html"/>).</man>
-<notman>(see <xref linkend="data-files"/>).</notman> For efficiency,
-scripts are indexed in a database stored
+<notman>(see <xref linkend="data-files"/>).</notman>
+For efficiency, scripts are indexed in
+a database stored
 in <filename>scripts/script.db</filename>,<indexterm><primary><filename>script.db</filename></primary></indexterm>
 which lists the category or categories in which each script belongs.</para>
 
@@ -4147,6 +4151,31 @@ overwhelming requests.  Specify <option>--open</option> to only see
 
   </refsect1>
 
+<notbook>
+<refsect1 id='man-book'>
+    <title>Nmap Book</title>
+    <!-- This paragraph is a bit jumbled together for man page rendering purposes, where extra newlines were causing problems -->
+    <para>While this reference guide details all material Nmap
+    options, it can't fully demonstrate how to apply those features to
+    quickly solve real-world tasks.  For that, we
+    released <notweb><citetitle>Nmap Network Scanning: The Official
+    Nmap Project Guide to Network Discovery and Security
+    Scanning</citetitle>.</notweb><web><ulink url="http://nmap.org/book/"><citetitle>Nmap
+    Network Scanning: The Official Nmap Project Guide to Network
+    Discovery and Security Scanning</citetitle></ulink>.</web> Topics
+    include subverting firewalls and intrusion detection systems,
+    optimizing Nmap performance, and automating common networking
+    tasks with the Nmap Scripting Engine.  Hints and instructions are
+    provided for common Nmap tasks such as taking network inventory,
+    penetration testing, detecting rogue wireless access points, and
+    quashing network worm outbreaks.  Examples and diagrams show
+    actual communication on the wire.  More than half of the book is
+    available free online.  See <ulink url="http://nmap.org/book"/>
+    for more information.</para>
+
+</refsect1>
+</notbook>
+
   <refsect1 id='man-bugs'>
     <title>Bugs</title>
     <indexterm><primary>bugs, reporting</primary></indexterm>
@@ -4180,7 +4209,7 @@ overwhelming requests.  Specify <option>--open</option> to only see
 
   <refsect1 id='man-author'>
     <title>Author</title>
-    <para>Fyodor 
+    <para>Gordon <quote>Fyodor</quote> Lyon
     <email>fyodor@insecure.org</email>
     (<ulink url="http://insecure.org" />)
     </para>

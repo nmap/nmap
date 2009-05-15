@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+          "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd"
+[
+<!ENTITY refguide SYSTEM "refguide.xml">
+<!ENTITY legal-notices SYSTEM "legal-notices.xml">
+<!ENTITY nmap-usage SYSTEM "nmap-usage.xml">
+]>
+
+<!-- This is sort of a lame hack needed for generating the nroff (man page) version of refguide.xml. I used to use book.xml directly, but that causes an extra "author" section to be added and is different than what I do for the other (ncat, zenmap) man pages. -->
+<book>
+&refguide;
+</book>
+
+

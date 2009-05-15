@@ -1,12 +1,12 @@
 .\"     Title: nmap
-.\"    Author: Gordon \(lqFyodor\(rq Lyon
+.\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.74.0 <http://docbook.sf.net/>
-.\"      Date: 05/12/2009
+.\"      Date: 05/14/2009
 .\"    Manual: Nmap Reference Guide
-.\"    Source: Nmap First Edition
+.\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "05/12/2009" "Nmap First Edition" "Nmap Reference Guide"
+.TH "NMAP" "1" "05/14/2009" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * (re)Define some macros
 .\" -----------------------------------------------------------------
@@ -204,12 +204,12 @@ when it cannot determine which of the two states describe a port\&. The port tab
 In addition to the interesting ports table, Nmap can provide further information on targets, including reverse DNS names, operating system guesses, device types, and MAC addresses\&.
 .PP
 A typical Nmap scan is shown in
-Example\ \&15.1\&. The only Nmap arguments used in this example are
+Example\ \&1\&. The only Nmap arguments used in this example are
 \fB\-A\fR, to enable OS and version detection, script scanning, and traceroute;
 \fB\-T4\fR
 for faster execution; and then the two target hostnames\&.
 .PP
-\fBExample\ \&15.1.\ \&A representative Nmap scan\fR
+\fBExample\ \&1.\ \&A representative Nmap scan\fR
 .\" -A: example of
 .sp
 .if n \{\
@@ -261,8 +261,9 @@ Nmap done: 1 IP address (1 host up) scanned in 17\&.00 seconds
 .\}
 .PP
 The newest version of Nmap can be obtained from
-\m[blue]\fB\%http://nmap.org\fR\m[]\&. The newest version of the man page is available at
+\m[blue]\fB\%http://nmap.org\fR\m[]\&. The newest version of this man page is available at
 \m[blue]\fB\%http://nmap.org/book/man.html\fR\m[]\&.
+It is also included as a chapter of Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning (see \m[blue]\fB\%http://nmap.org/book/\fR\m[])\&.
 .SH "Options Summary"
 .PP
 This options summary is printed when Nmap is run with no arguments, and the latest version is always available at
@@ -1283,7 +1284,6 @@ extension; it will be added automatically if necessary\&.
 Nmap scripts are stored in a
 \FCscripts\F[]
 subdirectory of the Nmap data directory by default
-Chapter\ \&14, Understanding and Customizing Nmap Data Files)\&. For efficiency, scripts are indexed in a database stored
 (see \m[blue]\fB\%http://nmap.org/book/data-files.html\fR\m[])\&.
 
 For efficiency, scripts are indexed in a database stored in
@@ -2352,6 +2352,13 @@ since first sending a couple probes to determine whether a host is up is wastefu
 \fBnmap \-PN \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
 .PP
 This scans 4096 IPs for any web servers (without pinging them) and saves the output in grepable and XML formats\&.
+.SH "Nmap Book"
+.PP
+While this reference guide details all material Nmap options, it can\'t fully demonstrate how to apply those features to quickly solve real\-world tasks\&. For that, we released
+Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning\&.
+Topics include subverting firewalls and intrusion detection systems, optimizing Nmap performance, and automating common networking tasks with the Nmap Scripting Engine\&. Hints and instructions are provided for common Nmap tasks such as taking network inventory, penetration testing, detecting rogue wireless access points, and quashing network worm outbreaks\&. Examples and diagrams show actual communication on the wire\&. More than half of the book is available free online\&. See
+\m[blue]\fB\%http://nmap.org/book\fR\m[]
+for more information\&.
 .SH "Bugs"
 .\" bugs, reporting
 .PP
@@ -2374,7 +2381,9 @@ nmap\-dev
 (recommended) or to Fyodor directly\&.
 .SH "Author"
 .PP
-Fyodor
+Gordon
+\(lqFyodor\(rq
+Lyon
 \FCfyodor@insecure\&.org\F[]
 (\m[blue]\fB\%http://insecure.org\fR\m[])
 .PP
@@ -2472,7 +2481,7 @@ If you received these files with a written license agreement or contract stating
 This
 Nmap Reference Guide
 is (C) 2005\(en2009 Insecure\&.Com LLC\&. It is hereby placed under version 2\&.5 of the
-\m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[14]\d\s+2\&. This allows you redistribute and modify the work as you desire, as long as you credit the original source\&. Alternatively, you may choose to treat this document as falling under the same license as Nmap itself (discussed previously)\&.
+\m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[15]\d\s+2\&. This allows you redistribute and modify the work as you desire, as long as you credit the original source\&. Alternatively, you may choose to treat this document as falling under the same license as Nmap itself (discussed previously)\&.
 .SS "Source Code Availability and Community Contributions"
 .PP
 Source is provided to this software because we believe users have a right to know exactly what a program is going to do before they run it\&. This also allows you to audit the software for security holes (none have been found so far)\&.
@@ -2500,48 +2509,31 @@ Nmap should never be installed with special privileges (e\&.g\&. suid root) for 
 .SS "Third\-Party Software"
 .PP
 This product includes software developed by the
-\m[blue]\fBApache Software Foundation\fR\m[]\&\s-2\u[15]\d\s+2\&. A modified version of the
-\m[blue]\fBLibpcap portable packet capture library\fR\m[]\&\s-2\u[16]\d\s+2.\" libpcap
+\m[blue]\fBApache Software Foundation\fR\m[]\&\s-2\u[16]\d\s+2\&. A modified version of the
+\m[blue]\fBLibpcap portable packet capture library\fR\m[]\&\s-2\u[17]\d\s+2.\" libpcap
 is distributed along with Nmap\&. The Windows version of Nmap utilized the Libpcap\-derived
-\m[blue]\fBWinPcap library\fR\m[]\&\s-2\u[17]\d\s+2.\" WinPcap
+\m[blue]\fBWinPcap library\fR\m[]\&\s-2\u[18]\d\s+2.\" WinPcap
 instead\&. Regular expression support is provided by the
-\m[blue]\fBPCRE library\fR\m[]\&\s-2\u[18]\d\s+2,.\" Perl Compatible Regular Expressions (PCRE)
+\m[blue]\fBPCRE library\fR\m[]\&\s-2\u[19]\d\s+2,.\" Perl Compatible Regular Expressions (PCRE)
 which is open\-source software, written by Philip Hazel\&..\" Hazel, Philip
 Certain raw networking functions use the
-\m[blue]\fBLibdnet\fR\m[]\&\s-2\u[19]\d\s+2.\" libdnet
+\m[blue]\fBLibdnet\fR\m[]\&\s-2\u[20]\d\s+2.\" libdnet
 networking library, which was written by Dug Song\&..\" Song, Dug
 A modified version is distributed with Nmap\&. Nmap can optionally link with the
-\m[blue]\fBOpenSSL cryptography toolkit\fR\m[]\&\s-2\u[20]\d\s+2.\" OpenSSL
+\m[blue]\fBOpenSSL cryptography toolkit\fR\m[]\&\s-2\u[21]\d\s+2.\" OpenSSL
 for SSL version detection support\&. The Nmap Scripting Engine uses an embedded version of the
-\m[blue]\fBLua programming language\fR\m[]\&\s-2\u[21]\d\s+2\&..\" Lua programming language
+\m[blue]\fBLua programming language\fR\m[]\&\s-2\u[22]\d\s+2\&..\" Lua programming language
 All of the third\-party software described in this paragraph is freely redistributable under BSD\-style software licenses\&.
 .SS "United States Export Control.\" export control"
 .PP
 Nmap only uses encryption when compiled with the optional OpenSSL support and linked with OpenSSL\&. When compiled without OpenSSL support, Insecure\&.Com LLC believes that Nmap is not subject to U\&.S\&.
-\m[blue]\fBExport Administration Regulations (EAR)\fR\m[]\&\s-2\u[22]\d\s+2
+\m[blue]\fBExport Administration Regulations (EAR)\fR\m[]\&\s-2\u[23]\d\s+2
 export control\&. As such, there is no applicable ECCN (explort control classification number) and exportation does not require any special license, permit, or other governmental authorization\&.
 .PP
 When compiled with OpenSSL support or distributed as source code, Insecure\&.Com LLC believes that Nmap falls under U\&.S\&. ECCN
-\m[blue]\fB5D002\fR\m[]\&\s-2\u[23]\d\s+2
+\m[blue]\fB5D002\fR\m[]\&\s-2\u[24]\d\s+2
 (\(lqInformation Security Software\(rq)\&. We distribute Nmap under the TSU exception for publicly available encryption software defined in
-\m[blue]\fBEAR 740\&.13(e)\fR\m[]\&\s-2\u[24]\d\s+2\&.
-.SH "Author"
-.PP
-\fBGordon \(lqFyodor\(rq Lyon\fR
-.RS 4
-Author.
-.RE
-.SH "Copyright"
-.br
-.PP
-Copyright \(co 2009 by Insecure.Com LLC. All rights reserved, except where noted.
-.PP
-Copyright \(co 2009 by Insecure.Com LLC. All rights reserved. Except where noted otherwise in this work, no part may be reproduced or transmitted in any form or by any means, electronic or mechanical, including photocopying, recording, or by any information storage or retrieval system, without the prior written permission of the copyright owner.
-.PP
-Nmap is a registered trademark of Insecure.Com LLC. Other product and company names mentioned herein may be the trademarks of their respective owners. Where those designations appear in this book, and the publisher was aware of a trademark claim, the designations have been printed with initial capital letters or in all capitals.
-.PP
-The authors and publisher have taken care in the preparation of this book, but make no expressed or implied warranty of any kind and assume no responsibility for errors or omissions. No liability is assumed for incidental or consequential damages in connection with or arising out of the use of the information or programs contained herein.
-.sp
+\m[blue]\fBEAR 740\&.13(e)\fR\m[]\&\s-2\u[25]\d\s+2\&.
 .SH "Notes"
 .IP " 1." 4
 RFC 1122
@@ -2609,56 +2601,63 @@ listed at Wikipedia
 \%http://en.wikipedia.org/wiki/List_of_IPv6_tunnel_brokers
 .RE
 .IP "14." 4
+Nmap
+    Network Scanning: The Official Nmap Project Guide to Network
+    Discovery and Security Scanning
+.RS 4
+\%http://nmap.org/book/
+.RE
+.IP "15." 4
 Creative Commons Attribution License
 .RS 4
 \%http://creativecommons.org/licenses/by/2.5/
 .RE
-.IP "15." 4
+.IP "16." 4
 Apache Software Foundation
 .RS 4
 \%http://www.apache.org
 .RE
-.IP "16." 4
+.IP "17." 4
 Libpcap portable packet capture library
 .RS 4
 \%http://www.tcpdump.org
 .RE
-.IP "17." 4
+.IP "18." 4
 WinPcap library
 .RS 4
 \%http://www.winpcap.org
 .RE
-.IP "18." 4
+.IP "19." 4
 PCRE library
 .RS 4
 \%http://www.pcre.org
 .RE
-.IP "19." 4
+.IP "20." 4
 Libdnet
 .RS 4
 \%http://libdnet.sourceforge.net
 .RE
-.IP "20." 4
+.IP "21." 4
 OpenSSL cryptography toolkit
 .RS 4
 \%http://www.openssl.org
 .RE
-.IP "21." 4
+.IP "22." 4
 Lua programming language
 .RS 4
 \%http://www.lua.org
 .RE
-.IP "22." 4
+.IP "23." 4
 Export Administration Regulations (EAR)
 .RS 4
 \%http://www.access.gpo.gov/bis/ear/ear_data.html
 .RE
-.IP "23." 4
+.IP "24." 4
 5D002
 .RS 4
 \%http://www.access.gpo.gov/bis/ear/pdf/ccl5-pt2.pdf
 .RE
-.IP "24." 4
+.IP "25." 4
 EAR 740.13(e)
 .RS 4
 \%http://www.access.gpo.gov/bis/ear/pdf/740.pdf
