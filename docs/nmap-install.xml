@@ -154,21 +154,21 @@ sub 2048g/A50A6A94 2005-04-24
 <para>For every Nmap package download file
 (e.g. <filename>nmap-4.76.tar.bz2</filename> and
 <filename>nmap-4.76-win32.zip</filename>), there is a corresponding
-file in the <filename>sigs</filename> directory with <literal>.gpg.txt</literal> appended
-to the name (e.g. <filename>nmap-4.76.tar.bz2.gpg.txt</filename>).
+file in the <filename>sigs</filename> directory with <literal>.asc</literal> appended
+to the name (e.g. <filename>nmap-4.76.tar.bz2.asc</filename>).
 This is the detached signature file.</para>
 
 <para>With the proper PGP key in your keyring and the detached
 signature file downloaded, verifying an Nmap release takes a single
 GPG command, as shown in <xref
-linkend="ex-gpg-verify-nmap-release-good" xrefstyle="select: label nopage"/>.  If the file has been
+linkend="ex-gpg-verify-nmap-release-good" xrefstyle="select: label nopage"/>.  That example assumes that the verified file can be found in the same directory by simply removing <quote>.asc</quote> from the signature filename.  When that isn't the case, simply pass the target filename as the final argument to GPG.  If the file has been
 tampered with, the results will look like <xref
 linkend="ex-gpg-verify-nmap-release-bad" xrefstyle="select: label nopage"/>.</para>
 
 <example id="ex-gpg-verify-nmap-release-good">
 <title>Verifying PGP key fingerprints (Successful)</title>
 <screen>
-flog&gt; gpg --verify nmap-4.76.tar.bz2.gpg.txt  nmap-4.76.tar.bz2
+flog&gt; gpg --verify nmap-4.76.tar.bz2.asc 
 gpg: Signature made Fri 12 Sep 2008 02:03:59 AM PDT using DSA key ID 6B9355D0
 gpg: Good signature from "Nmap Project Signing Key (http://www.insecure.org/)"
 </screen></example>
@@ -176,13 +176,13 @@ gpg: Good signature from "Nmap Project Signing Key (http://www.insecure.org/)"
 <example id="ex-gpg-verify-nmap-release-bad">
 <title>Detecting a bogus file</title>
 <screen>
-flog&gt; gpg --verify nmap-4.76.tar.bz2.gpg.txt nmap-4.76-hacked.tar.bz2 
+flog&gt; gpg --verify nmap-4.76.tar.bz2.asc nmap-4.76-hacked.tar.bz2
 gpg: Signature made Fri 12 Sep 2008 02:03:59 AM PDT using DSA key ID 6B9355D0
 gpg: BAD signature from "Nmap Project Signing Key (http://www.insecure.org/)"
 </screen></example>
 
 <para>While PGP signatures are the recommended validation technique,
-SHA1 and MD5 (among other)
+SHA2, SHA1, and MD5 (among other)
 hashes<indexterm><primary>hashes, cryptographic</primary></indexterm><indexterm><primary>digests, cryptographic</primary></indexterm>
 are made available for more casual
 validation.  An attacker who can manipulate your Internet traffic in
@@ -196,8 +196,7 @@ file, there is a corresponding file in the <filename>sigs</filename> directory w
 (e.g. <filename>nmap-4.76.tar.bz2.digest.txt</filename>).  An example
 is shown in <xref linkend="ex-digest-file" xrefstyle="select: label nopage" />.  This is the detached
 signature file. The hashes from the digest file can be verified using common tools such as
-<application>sha1sum</application>, <application>md5sum</application>,
-or <application>gpg</application>, as shown in <xref
+<application>gpg</application>, <application>sha1sum</application>, or <application>md5sum</application>, as shown in <xref
 linkend="ex-digest-file-verify" />.</para>
 
 <example id="ex-digest-file">
@@ -221,12 +220,13 @@ nmap-4.76.tgz: SHA512 = 826CD89F 7930A765 C9FE9B41 1DAFD113 2C883857 2A3A9503
 <example id="ex-digest-file-verify">
 <title>Verifying Nmap hashes</title>
 <screen>
+flog&gt; gpg --print-md sha256 nmap-4.76.tgz 
+nmap-4.76.tgz: 0E960E05 53EB7647 0C8517A0 038092A3 969DB65C BE23C03F D6DAEF1A
+               CDCC9658
 flog&gt; sha1sum nmap-4.76.tgz 
 4374cf9ca8822c285de9d00e8f6706d0bcfaa403  nmap-4.76.tgz
 flog&gt; md5sum nmap-4.76.tgz
 54b5c9e3f44c1adde17df68170eb7cfe  nmap-4.76.tgz
-flog&gt; gpg --print-md sha1 nmap-4.76.tgz 
-nmap-4.76.tgz: 4374 CF9C A882 2C28 5DE9  D00E 8F67 06D0 BCFA A403
 </screen></example>
 
 <para>While releases from Nmap.Org are signed as described in this
