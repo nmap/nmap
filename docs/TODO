@@ -70,6 +70,12 @@ o [NSE] Solve segfault issue which occurs when Nsock events call back
 o Deal with Ncat newline problem.  See this thread:
   http://seclists.org/nmap-dev/2009/q2/0325.html
 
+o --script-args should allow a wider range of characters, and should
+  give a more useful error message if it receives chars it really
+  can't handle for some reason.  For an example, try
+  "--script-args=smbuser=admin,smbpass=pass^word".  For more details,
+  see Ron's report at http://seclists.org/nmap-dev/2009/q2/0378.html.
+
 o For at least our UDP ping probes, Nmap should probably notice if it
   is a very well known service port such as 53, 161, or 137 and send
   an appropriate probe packet (server status for DNS, public community
