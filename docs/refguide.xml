@@ -124,13 +124,11 @@ Nmap done: 1 IP address (1 host up) scanned in 17.00 seconds
 </screen>
 </example>
 
+<!-- This para is a bit jumbled together for man page rendering reasons -->
 <para>The newest version of Nmap can be obtained from
 <ulink url="http://nmap.org" />.  The newest version of this man page
 is available at <ulink url="http://nmap.org/book/man.html"/>.
-<notbook>It is also included as a chapter of <citetitle>Nmap Network
-Scanning: The Official Nmap Project Guide to Network Discovery and
-Security Scanning</citetitle> (see
-<ulink url="http://nmap.org/book/"/>).</notbook>
+<notbook>It is also included as a chapter of <web><ulink url="http://nmap.org/book/"><citetitle>Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning</citetitle></ulink>.</web><notweb><citetitle>Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning</citetitle> (see <ulink url="http://nmap.org/book/"/>).</notweb></notbook>
 </para>
 
   </refsect1>

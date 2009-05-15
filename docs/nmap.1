@@ -620,11 +620,11 @@ In addition to the unusual TCP and UDP host discovery types discussed previously
 ping
 program\&. Nmap sends an ICMP type 8 (echo request) packet to the target IP addresses, expecting a type 0 (echo reply) in return from available hosts\&..\" ICMP echo
 Unfortunately for network explorers, many hosts and firewalls now block these packets, rather than responding as required by
-\m[blue]\fBRFC 1122\fR\m[]\&\s-2\u[1]\d\s+2\&. For this reason, ICMP\-only scans are rarely reliable enough against unknown targets over the Internet\&. But for system administrators monitoring an internal network, they can be a practical and efficient approach\&. Use the
+\m[blue]\fBRFC 1122\fR\m[]\&\s-2\u[2]\d\s+2\&. For this reason, ICMP\-only scans are rarely reliable enough against unknown targets over the Internet\&. But for system administrators monitoring an internal network, they can be a practical and efficient approach\&. Use the
 \fB\-PE\fR
 option to enable this echo request behavior\&.
 .sp
-While echo request is the standard ICMP ping query, Nmap does not stop there\&. The ICMP standard (\m[blue]\fBRFC 792\fR\m[]\&\s-2\u[2]\d\s+2) also specifies timestamp request, information request, and address mask request packets as codes 13, 15, and 17, respectively\&. While the ostensible purpose for these queries is to learn information such as address masks and current times, they can easily be used for host discovery\&. A system that replies is up and available\&. Nmap does not currently implement information request packets, as they are not widely supported\&. RFC 1122 insists that
+While echo request is the standard ICMP ping query, Nmap does not stop there\&. The ICMP standard (\m[blue]\fBRFC 792\fR\m[]\&\s-2\u[3]\d\s+2) also specifies timestamp request, information request, and address mask request packets as codes 13, 15, and 17, respectively\&. While the ostensible purpose for these queries is to learn information such as address masks and current times, they can easily be used for host discovery\&. A system that replies is up and available\&. Nmap does not currently implement information request packets, as they are not widely supported\&. RFC 1122 insists that
 \(lqa host SHOULD NOT implement these messages\(rq\&. Timestamp and address mask queries can be sent with the
 \fB\-PP\fR
 and
@@ -647,7 +647,7 @@ This host discovery method looks for either responses using the same protocol as
 \fB\-PR\fR (ARP Ping) .\" -PR .\" ARP ping
 .RS 4
 One of the most common Nmap usage scenarios is to scan an ethernet LAN\&. On most LANs, especially those using private address ranges specified by
-\m[blue]\fBRFC 1918\fR\m[]\&\s-2\u[3]\d\s+2, the vast majority of IP addresses are unused at any given time\&. When Nmap tries to send a raw IP packet such as an ICMP echo request, the operating system must determine the destination hardware (ARP) address corresponding to the target IP so that it can properly address the ethernet frame\&. This is often slow and problematic, since operating systems weren\'t written with the expectation that they would need to do millions of ARP requests against unavailable hosts in a short time period\&.
+\m[blue]\fBRFC 1918\fR\m[]\&\s-2\u[4]\d\s+2, the vast majority of IP addresses are unused at any given time\&. When Nmap tries to send a raw IP packet such as an ICMP echo request, the operating system must determine the destination hardware (ARP) address corresponding to the target IP so that it can properly address the ethernet frame\&. This is often slow and problematic, since operating systems weren\'t written with the expectation that they would need to do millions of ARP requests against unavailable hosts in a short time period\&.
 .sp
 ARP scan puts Nmap and its optimized algorithms in charge of ARP requests\&. And if it gets a response back, Nmap doesn\'t even need to worry about the IP\-based ping packets since it already knows the host is up\&. This makes ARP scan much faster and more reliable than IP\-based scans\&. So it is done by default when scanning ethernet hosts that Nmap detects are on a local ethernet network\&. Even if different ping types (such as
 \fB\-PE\fR
@@ -788,7 +788,7 @@ call than with raw packets, making it less efficient\&. The system call complete
 \fB\-sU\fR (UDP scans) .\" -sU .\" UDP scan
 .RS 4
 While most popular services on the Internet run over the TCP protocol,
-\m[blue]\fBUDP\fR\m[]\&\s-2\u[4]\d\s+2
+\m[blue]\fBUDP\fR\m[]\&\s-2\u[5]\d\s+2
 services are widely deployed\&. DNS, SNMP, and DHCP (registered ports 53, 161/162, and 67/68) are three of the most common\&. Because UDP scanning is generally slower and more difficult than TCP, some security auditors ignore these ports\&. This is a mistake, as exploitable UDP services are quite common and attackers certainly don\'t ignore the whole protocol\&. Fortunately, Nmap can help inventory UDP ports\&.
 .sp
 UDP scan is activated with the
@@ -815,7 +815,7 @@ to skip slow hosts\&.
 These three scan types (even more are possible with the
 \fB\-\-scanflags\fR
 option described in the next section) exploit a subtle loophole in the
-\m[blue]\fBTCP RFC\fR\m[]\&\s-2\u[5]\d\s+2
+\m[blue]\fBTCP RFC\fR\m[]\&\s-2\u[6]\d\s+2
 to differentiate between
 \FCopen\F[]
 and
@@ -904,7 +904,7 @@ He described the technique in
 Phrack
 Magazine issue #49 (November 1996)\&..\" Phrack
 Nmap, which included this technique, was released two issues later\&. This technique is exactly the same as NULL, FIN, and Xmas scans, except that the probe is FIN/ACK\&. According to
-\m[blue]\fBRFC 793\fR\m[]\&\s-2\u[5]\d\s+2
+\m[blue]\fBRFC 793\fR\m[]\&\s-2\u[6]\d\s+2
 (TCP), a RST packet should be generated in response to such a probe whether the port is open or closed\&. However, Uriel noticed that many BSD\-derived systems simply drop the packet if the port is open\&.
 .RE
 .PP
@@ -977,7 +977,7 @@ at the same time)\&. If no response is received after retransmissions, the proto
 .PP
 \fB\-b \fR\fB\fIFTP relay host\fR\fR (FTP bounce scan) .\" -b .\" FTP bounce scan
 .RS 4
-An interesting feature of the FTP protocol (\m[blue]\fBRFC 959\fR\m[]\&\s-2\u[6]\d\s+2) is support for so\-called proxy FTP connections\&. This allows a user to connect to one FTP server, then ask that files be sent to a third\-party server\&. Such a feature is ripe for abuse on many levels, so most servers have ceased supporting it\&. One of the abuses this feature allows is causing the FTP server to port scan other hosts\&. Simply ask the FTP server to send a file to each interesting port of a target host in turn\&. The error message will describe whether the port is open or not\&. This is a good way to bypass firewalls because organizational FTP servers are often placed where they have more access to other internal hosts than any old Internet host would\&. Nmap supports FTP bounce scan with the
+An interesting feature of the FTP protocol (\m[blue]\fBRFC 959\fR\m[]\&\s-2\u[7]\d\s+2) is support for so\-called proxy FTP connections\&. This allows a user to connect to one FTP server, then ask that files be sent to a third\-party server\&. Such a feature is ripe for abuse on many levels, so most servers have ceased supporting it\&. One of the abuses this feature allows is causing the FTP server to port scan other hosts\&. Simply ask the FTP server to send a file to each interesting port of a target host in turn\&. The error message will describe whether the port is open or not\&. This is a good way to bypass firewalls because organizational FTP servers are often placed where they have more access to other internal hosts than any old Internet host would\&. Nmap supports FTP bounce scan with the
 \fB\-b\fR
 option\&. It takes an argument of the form
 \fIusername\fR:\fIpassword\fR@\fIserver\fR:\fIport\fR\&.
@@ -1179,7 +1179,7 @@ or
 class, which means that they increment the ID field in the IP header for each packet they send\&. This makes them vulnerable to several advanced information gathering and spoofing attacks\&.
 .\" uptime guess
 .PP
-Another bit of extra information enabled by OS detection is a guess at a target\'s uptime\&. This uses the TCP timestamp option (\m[blue]\fBRFC 1323\fR\m[]\&\s-2\u[7]\d\s+2) to guess when a machine was last rebooted\&. The guess can be inaccurate due to the timestamp counter not being initialized to zero or the counter overflowing and wrapping around, so it is printed only in verbose mode\&.
+Another bit of extra information enabled by OS detection is a guess at a target\'s uptime\&. This uses the TCP timestamp option (\m[blue]\fBRFC 1323\fR\m[]\&\s-2\u[8]\d\s+2) to guess when a machine was last rebooted\&. The guess can be inaccurate due to the timestamp counter not being initialized to zero or the counter overflowing and wrapping around, so it is printed only in verbose mode\&.
 .PP
 
 A paper documenting the workings, usage, and customization of OS detection is available at \m[blue]\fB\%http://nmap.org/book/osdetect.html\fR\m[]\&.
@@ -1219,7 +1219,7 @@ value (such as 1) speeds Nmap up, though you miss out on retries which could pot
 .\" Nmap Scripting Engine (NSE)
 .PP
 The Nmap Scripting Engine (NSE) is one of Nmap\'s most powerful and flexible features\&. It allows users to write (and share) simple scripts (using the
-\m[blue]\fBLua programming language\fR\m[]\&\s-2\u[8]\d\s+2,
+\m[blue]\fBLua programming language\fR\m[]\&\s-2\u[9]\d\s+2,
 .\" Lua programming language) to automate a wide variety of networking tasks\&. Those scripts are executed in parallel with the speed and efficiency you expect from Nmap\&. Users can rely on the growing and diverse set of scripts distributed with Nmap, or write their own to meet custom needs\&.
 .PP
 Tasks we had in mind when creating the system include network discovery, more sophisticated version detection, vulnerability detection\&. NSE can even be used for vulnerability exploitation\&.
@@ -1311,7 +1311,7 @@ More complicated script selection can be done using the
 \FCor\F[], and
 \FCnot\F[]
 operators to build Boolean expressions\&. The operators have the same
-\m[blue]\fBprecedence\fR\m[]\&\s-2\u[9]\d\s+2
+\m[blue]\fBprecedence\fR\m[]\&\s-2\u[10]\d\s+2
 as in Lua:
 \FCnot\F[]
 is the highest, followed by
@@ -1750,7 +1750,7 @@ because accuracy there requires probe consistency, but most pinging and portscan
 \fB\-\-ip\-options \fR\fB\fIS|R [route]|L [route]|T|U \&.\&.\&. \fR\fR\fB;\fR \fB\-\-ip\-options \fR\fB\fIhex string\fR\fR (Send packets with specified ip options) .\" --ip-options .\" IP options
 .RS 4
 The
-\m[blue]\fBIP protocol\fR\m[]\&\s-2\u[10]\d\s+2
+\m[blue]\fBIP protocol\fR\m[]\&\s-2\u[11]\d\s+2
 offers several options which may be placed in packet headers\&. Unlike the ubiquitous TCP options, IP options are rarely seen due to practicality and security concerns\&. In fact, many Internet routers block the most dangerous options such as source routing\&. Yet options can still be useful in some cases for determining and manipulating the network route to target machines\&. For example, you may be able to use the record route option to determine a path to a target even when more traditional traceroute\-style approaches fail\&. Or if your packets are being dropped by a certain firewall, you may be able to specify a different route with the strict or loose source routing options\&.
 .sp
 The most powerful way to specify IP options is to simply pass in values as the argument to
@@ -1920,10 +1920,10 @@ be directed to the given filename\&. Nmap includes a document type definition (D
 \m[blue]\fB\%http://nmap.org/data/nmap.dtd\fR\m[]\&.
 .sp
 XML offers a stable format that is easily parsed by software\&. Free XML parsers are available for all major computer languages, including C/C++, Perl, Python, and Java\&. People have even written bindings for most of these languages to handle Nmap output and execution specifically\&. Examples are
-\m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[11]\d\s+2
+\m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[12]\d\s+2
 .\" Nmap::Scanner
 and
-\m[blue]\fBNmap::Parser\fR\m[]\&\s-2\u[12]\d\s+2
+\m[blue]\fBNmap::Parser\fR\m[]\&\s-2\u[13]\d\s+2
 .\" Nmap::Parser
 in Perl CPAN\&. In almost all cases that a non\-trivial application interfaces with Nmap, XML is the preferred format\&.
 .sp
@@ -2158,7 +2158,7 @@ line being the only IPv6 give away\&.
 While IPv6 hasn\'t exactly taken the world by storm, it gets significant use in some (usually Asian) countries and most modern operating systems support it\&. To use Nmap with IPv6, both the source and target of your scan must be configured for IPv6\&. If your ISP (like most of them) does not allocate IPv6 addresses to you, free tunnel brokers are widely available and work fine with Nmap\&. I use the free IPv6 tunnel broker.\" IPv6 tunnel broker
 service at
 \m[blue]\fB\%http://www.tunnelbroker.net\fR\m[]\&. Other tunnel brokers are
-\m[blue]\fBlisted at Wikipedia\fR\m[]\&\s-2\u[13]\d\s+2\&. 6to4 tunnels are another popular, free approach\&.
+\m[blue]\fBlisted at Wikipedia\fR\m[]\&\s-2\u[14]\d\s+2\&. 6to4 tunnels are another popular, free approach\&.
 .RE
 .PP
 \fB\-A\fR (Aggressive scan options) .\" -A
@@ -2536,76 +2536,74 @@ When compiled with OpenSSL support or distributed as source code, Insecure\&.Com
 \m[blue]\fBEAR 740\&.13(e)\fR\m[]\&\s-2\u[25]\d\s+2\&.
 .SH "Notes"
 .IP " 1." 4
+Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning
+.RS 4
+\%http://nmap.org/book/
+.RE
+.IP " 2." 4
 RFC 1122
 .RS 4
 \%http://www.rfc-editor.org/rfc/rfc1122.txt
 .RE
-.IP " 2." 4
+.IP " 3." 4
 RFC 792
 .RS 4
 \%http://www.rfc-editor.org/rfc/rfc792.txt
 .RE
-.IP " 3." 4
+.IP " 4." 4
 RFC 1918
 .RS 4
 \%http://www.rfc-editor.org/rfc/rfc1918.txt
 .RE
-.IP " 4." 4
+.IP " 5." 4
 UDP
 .RS 4
 \%http://www.rfc-editor.org/rfc/rfc768.txt
 .RE
-.IP " 5." 4
+.IP " 6." 4
 TCP RFC
 .RS 4
 \%http://www.rfc-editor.org/rfc/rfc793.txt
 .RE
-.IP " 6." 4
+.IP " 7." 4
 RFC 959
 .RS 4
 \%http://www.rfc-editor.org/rfc/rfc959.txt
 .RE
-.IP " 7." 4
+.IP " 8." 4
 RFC 1323
 .RS 4
 \%http://www.rfc-editor.org/rfc/rfc1323.txt
 .RE
-.IP " 8." 4
+.IP " 9." 4
 Lua programming language
 .RS 4
 \%http://lua.org
 .RE
-.IP " 9." 4
+.IP "10." 4
 precedence
 .RS 4
 \%http://www.lua.org/manual/5.1/manual.html#2.5.3
 .RE
-.IP "10." 4
+.IP "11." 4
 IP protocol
 .RS 4
 \%http://www.rfc-editor.org/rfc/rfc791.txt
 .RE
-.IP "11." 4
+.IP "12." 4
 Nmap::Scanner
 .RS 4
 \%http://sourceforge.net/projects/nmap-scanner/
 .RE
-.IP "12." 4
+.IP "13." 4
 Nmap::Parser
 .RS 4
 \%http://nmapparser.wordpress.com/
 .RE
-.IP "13." 4
+.IP "14." 4
 listed at Wikipedia
 .RS 4
 \%http://en.wikipedia.org/wiki/List_of_IPv6_tunnel_brokers
-.RE
-.IP "14." 4
-Nmap
-    Network Scanning: The Official Nmap Project Guide to Network
-    Discovery and Security Scanning
-.RS 4
-\%http://nmap.org/book/
 .RE
 .IP "15." 4
 Creative Commons Attribution License
