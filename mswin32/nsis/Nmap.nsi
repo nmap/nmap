@@ -344,6 +344,7 @@ Section "Uninstall"
   Delete "$INSTDIR\ZENMAP_README"
   Delete "$INSTDIR\COPYING_HIGWIDGETS"
   Delete "$INSTDIR\ncat.exe"
+  Delete "$INSTDIR\ca-bundle.crt"
   ;Delete specific subfolders (NB: custom scripts in scripts folder will be lost)
   RMDir /r "$INSTDIR\nselib"
   RMDir /r "$INSTDIR\scripts"
