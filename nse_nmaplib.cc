@@ -413,7 +413,7 @@ static int l_set_port_version (lua_State *L)
   if (!lua_istable(L, -1))
     luaL_error(L, "port 'version' field must be a table");
   const char
-    *name           = (lua_getfield(L, 4, "name")  ,     lua_tostring(L, -1)),
+    *name           = (lua_getfield(L, 4, "name"),       lua_tostring(L, -1)),
     *product        = (lua_getfield(L, 4, "product"),    lua_tostring(L, -1)),
     *version        = (lua_getfield(L, 4, "version"),    lua_tostring(L, -1)),
     *extrainfo      = (lua_getfield(L, 4, "extrainfo"),  lua_tostring(L, -1)),
