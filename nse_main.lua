@@ -340,13 +340,18 @@ local function get_chosen_scripts (rules)
 
     for globalized_rule, rule_table in pairs(entry_rules) do
       if setfenv(rule_table.compiled_rule, env)() then -- run the compiled rule
-        local t, path = cnse.fetchfile_absolute(filename);
-        assert(t == "file", filename.." is not a file!");
-        if not files_loaded[path] then
-          chosen_scripts[#chosen_scripts+1] = Script.new(path);
-          files_loaded[path] = true;
-        end
         used_rules[rule_table.original_rule] = true;
+        local t, path = cnse.fetchfile_absolute(filename);
+        if t == "file" then
+          if not files_loaded[path] then
+            chosen_scripts[#chosen_scripts+1] = Script.new(path);
+            files_loaded[path] = true;
+            -- do not break so other rules can be marked as used
+          end
+        else
+          log_error("Warning: Could not load '%s': %s", filename, path);
+          break;
+        end
       end
     end
   end
