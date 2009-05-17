@@ -469,12 +469,14 @@ static int l_nsock_connect(lua_State *L) {
 	
 	error_id = getaddrinfo(addr, NULL, NULL, &dest);
 	if (error_id) {
+        socket_unlock(L, 1);
 		error = gai_strerror(error_id);
 		lua_pushboolean(L, false);
 		lua_pushstring(L, error);
 		return 2;
 	}
         if (dest == NULL) {
+        socket_unlock(L, 1);
 		lua_pushboolean(L, false);
 		lua_pushstring(L, "getaddrinfo returned success but no addresses");
 		return 2;
@@ -509,6 +511,7 @@ static int l_nsock_connect(lua_State *L) {
 					udata->ssl_session);
 			break;
 #else
+            socket_unlock(L, 1);
 			lua_pushboolean(L, false);
 			lua_pushstring(L, "Sorry, you don't have OpenSSL\n");
 			return 2;
@@ -523,6 +526,7 @@ static int l_nsock_connect(lua_State *L) {
 	return lua_yield(L, 0);
 
 error:
+    socket_unlock(L, 1);
 	freeaddrinfo(dest);
 	luaL_argerror(L, 4, "invalid connection method");
 	return 0;
