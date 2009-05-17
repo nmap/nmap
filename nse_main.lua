@@ -192,8 +192,9 @@ do
   function Script.new (filename)
     assert(type(filename) == "string", "string expected");
     if not find(filename, "%.nse$") then
-      log_error("Warning: Loading '"..filename..
-          "' - the recommended file extension is '.nse'.");
+      log_error(
+          "Warning: Loading '%s' -- the recommended file extension is '.nse'.",
+          filename);
     end
     local file_closure = assert(loadfile(filename));
     -- Give the closure its own environment, with global access
