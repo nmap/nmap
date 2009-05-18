@@ -44,29 +44,6 @@ o Once we're done with host discovery empirical research, add it to
 o Add version detection signiture for Ncat chat once we finalize the
   announce format.
 
-o [NSE] Make it a warning rather than error if a script in script.db
-   can't be found. [Patrick]
-
-o [NSE] Correct nsock_connect to unlock the socket slot if the
-  connection fails.  When a socket is closed, it is unlocked so the
-  arbitrator can potentially open up a socket for another thread. But
-  Patrick discovered that a socket is not automatically unlocked when
-  a connection fails or times out, only when it is closed
-  explicitly. So that could hold up socket allocation for other
-  threads until garbage collection.  May be a cause of slowness or
-  possibly deadlocks. [Patrick]
-
-o [NSE] Solve segfault issue which occurs when Nsock events call back
-  on a thread that has already ended (e.g. timeout, crash, early exit,
-  whatever) and been garbage collected.  May want to just nsi_delete
-  all nsock sockets immediately upon thread ending.  For an example of
-  this type of segfault, see
-  http://seclists.org/nmap-dev/2009/q2/0289.html. David says " I think
-  in the interests of getting this in a stable release, we should use
-  that strategy of closing all a thread's sockets. That ought to fix
-  all the problems above.  Not to rule out a more thoughtful redesign
-  in the future." [David,Patrick]
-
 o Deal with Ncat newline problem.  See this thread:
   http://seclists.org/nmap-dev/2009/q2/0325.html
 
@@ -101,13 +78,6 @@ o We added the SEQ.CI value in Feb 2009 with 0 matchpoints.  At some
   we want to give it points.  A good time to do that would be when we
   next do fingerprint integration, so we will actually have examples
   of .CI in the nmap-os-db. [David]
-
-o [NSE] Get rid of ceil so that floating point NSE runlevels work
-  again (some scripts, including (smb-brute) rely on this.  They got
-  broken with the NSE core lua rewrite. [David,Patrick].
-
-o NSE script logical operator stuff is now documented in
-  scripting.xml--add to refguide.xml as well. [David/Patrick]
 
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
 
@@ -595,6 +565,36 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] Correct nsock_connect to unlock the socket slot if the
+  connection fails.  When a socket is closed, it is unlocked so the
+  arbitrator can potentially open up a socket for another thread. But
+  Patrick discovered that a socket is not automatically unlocked when
+  a connection fails or times out, only when it is closed
+  explicitly. So that could hold up socket allocation for other
+  threads until garbage collection.  May be a cause of slowness or
+  possibly deadlocks. [Patrick]
+
+o [NSE] Solve segfault issue which occurs when Nsock events call back
+  on a thread that has already ended (e.g. timeout, crash, early exit,
+  whatever) and been garbage collected.  May want to just nsi_delete
+  all nsock sockets immediately upon thread ending.  For an example of
+  this type of segfault, see
+  http://seclists.org/nmap-dev/2009/q2/0289.html. David says " I think
+  in the interests of getting this in a stable release, we should use
+  that strategy of closing all a thread's sockets. That ought to fix
+  all the problems above.  Not to rule out a more thoughtful redesign
+  in the future." [David,Patrick]
+
+o [NSE] Make it a warning rather than error if a script in script.db
+   can't be found. [Patrick]
+
+o [NSE] Get rid of ceil so that floating point NSE runlevels work
+  again (some scripts, including (smb-brute) rely on this.  They got
+  broken with the NSE core lua rewrite. [David,Patrick].
+
+o NSE script logical operator stuff is now documented in
+  scripting.xml--add to refguide.xml as well. [David/Patrick]
 
 o Change Nmap signature files to use the .sig extension rather than
   .gpg.txt, as that seems to be what gpg recommends.  In fact, gpg
