@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Patched configure.ac to detect Lua include and library files in
+  "lua5.1" subdirectories of /usr/include and the like. Apparently
+  Debian puts them there. We still check the likes of
+  /usr/include/lua.h and /usr/include/lua/lua.h as well. [Jan
+  Christoph Nordholz]
+
 o Fixed an assertion failure which could occur on at least SPARC Linux
   The error looked like "nsock_core.c:294: handle_connect_result:
   Assertion `0' failed. Aborted". [David Fifield, Fabio Pedretti]
