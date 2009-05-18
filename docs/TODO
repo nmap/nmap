@@ -6,6 +6,16 @@ o Look into building RPMs with SSL support. Statically linking to
   OpenSSL on Linux for the RPMs didn't work for me last time I
   tried. [Fyodor]
 
+o Nmap UNIX distro build script should regenerate script.db. [Fyodor]
+
+o Ensure that when I build a distribution package on UNIX (e.g. make
+  distro), it builds what is in the Nmap directory I am calling it
+  from rather than a particular SVN version.  I'm going to start
+  building packages from a special "clean" directory which is
+  different than the one I do development work in.  Also, I want to be
+  sure that any changes in that dir are included in the release, even
+  if they aren't check in yet. [Fyodor]
+
 o Device categorization improvements
   o Examine Nmap's device categorization in nmap-os-deb and
     nmap-service-probes.  Decide if some small categories which have
