@@ -86,6 +86,85 @@ const char *inet_ntop_both(int af, const void *v_addr, char *ipstring);
 
 unsigned short inet_port_both(int af, const void *v_addr);
 
+static nsock_pool nsp;
+
+/*
+ * Structure with nsock pcap descriptor.
+ * shared between many lua threads
+ */
+struct ncap_socket
+{
+  nsock_iod nsiod;                               /* nsock pcap desc */
+  int references;                                /* how many lua threads use
+                                                  * this */
+  char *key;                                     /* (free) zero-terminated key
+                                                  * used in map to * address
+                                                  * this structure. */
+};
+
+struct nsock_yield
+{
+  lua_State *thread;                             /* thread to resume */
+  struct l_nsock_udata *udata;                   /* self reference */
+};
+
+/*
+ *
+ */
+struct ncap_request
+{
+  int suspended;                                 /* is the thread suspended?
+                                                  * (lua_yield) */
+  // lua_State *L; /* lua_State of current process or NULL if process isn't
+  // suspended */ 
+  struct nsock_yield *yield;
+  nsock_event_id nseid;                          /* nse for this specific
+                                                  * lua_State */
+  struct timeval end_time;
+  char *key;                                     /* (free) zero-terminated key
+                                                  * used in map to * address
+                                                  * this structure (hexified
+                                                  * 'test') */
+
+  bool received;                                 /* are results ready? */
+
+  bool r_success;                                /* true-> okay,data ready to
+                                                  * pass to user * flase-> this 
+                                                  * statusstring contains error 
+                                                  * description */
+  char *r_status;                                /* errorstring */
+
+  unsigned char *r_layer2;
+  size_t r_layer2_len;
+  unsigned char *r_layer3;
+  size_t r_layer3_len;
+  size_t packetsz;
+
+  int ncap_cback_ref;                            /* just copy of
+                                                  * udata->ncap_cback_ref *
+                                                  * because we don't have
+                                                  * access to udata in place *
+                                                  * we need to use this. */
+};
+
+struct l_nsock_udata
+{
+  int timeout;
+  nsock_iod nsiod;
+  void *ssl_session;
+  struct nsock_yield yield;
+  /* used for buffered reading */
+  int bufidx;                                    /* index inside lua's registry 
+                                                  */
+  int bufused;
+  int rbuf_args[3];                              /* indices in lua registry for 
+                                                  * receive_buf args */
+
+  struct ncap_socket *ncap_socket;
+  struct ncap_request *ncap_request;
+  int ncap_cback_ref;
+};
+
 /* size_t table_length (lua_State *L, int index)
  *
  * Returns the length of the table at index index.
@@ -143,6 +222,20 @@ static std::string hexify(const unsigned char *str, size_t len)
   }
   return ret.str();
 }
+
+/* Thread index in nsock userdata environment.
+ */
+#define THREAD_I  1
+
+static void set_thread (lua_State *L, int index, struct l_nsock_udata *n)
+{
+  lua_getfenv(L, index);
+  lua_pushthread(L);
+  lua_rawseti(L, -2, THREAD_I);
+  lua_pop(L, 1); /* nsock udata environment */
+  n->yield.thread = L;
+}
+
 
 /* Some constants used for enforcing a limit on the number of open sockets
  * in use by threads. The maximum value between MAX_PARALLELISM and
@@ -260,84 +353,6 @@ static void socket_unlock(lua_State * L, int index)
   lua_pop(L, 2);                       // socket, SOCKET_PROXY
 }
 
-static nsock_pool nsp;
-
-/*
- * Structure with nsock pcap descriptor.
- * shared between many lua threads
- */
-struct ncap_socket
-{
-  nsock_iod nsiod;                               /* nsock pcap desc */
-  int references;                                /* how many lua threads use
-                                                  * this */
-  char *key;                                     /* (free) zero-terminated key
-                                                  * used in map to * address
-                                                  * this structure. */
-};
-
-struct nsock_yield
-{
-  lua_State *thread;                             /* thread to resume */
-  struct l_nsock_udata *udata;                   /* self reference */
-};
-
-/*
- *
- */
-struct ncap_request
-{
-  int suspended;                                 /* is the thread suspended?
-                                                  * (lua_yield) */
-  // lua_State *L; /* lua_State of current process or NULL if process isn't
-  // suspended */ 
-  struct nsock_yield *yield;
-  nsock_event_id nseid;                          /* nse for this specific
-                                                  * lua_State */
-  struct timeval end_time;
-  char *key;                                     /* (free) zero-terminated key
-                                                  * used in map to * address
-                                                  * this structure (hexified
-                                                  * 'test') */
-
-  bool received;                                 /* are results ready? */
-
-  bool r_success;                                /* true-> okay,data ready to
-                                                  * pass to user * flase-> this 
-                                                  * statusstring contains error 
-                                                  * description */
-  char *r_status;                                /* errorstring */
-
-  unsigned char *r_layer2;
-  size_t r_layer2_len;
-  unsigned char *r_layer3;
-  size_t r_layer3_len;
-  size_t packetsz;
-
-  int ncap_cback_ref;                            /* just copy of
-                                                  * udata->ncap_cback_ref *
-                                                  * because we don't have
-                                                  * access to udata in place *
-                                                  * we need to use this. */
-};
-
-struct l_nsock_udata
-{
-  int timeout;
-  nsock_iod nsiod;
-  void *ssl_session;
-  struct nsock_yield yield;
-  /* used for buffered reading */
-  int bufidx;                                    /* index inside lua's registry 
-                                                  */
-  int bufused;
-  int rbuf_args[3];                              /* indices in lua registry for 
-                                                  * receive_buf args */
-
-  struct ncap_socket *ncap_socket;
-  struct ncap_request *ncap_request;
-  int ncap_cback_ref;
-};
 
 void l_nsock_clear_buf(lua_State * L, l_nsock_udata * udata);
 
@@ -445,6 +460,8 @@ int l_nsock_new(lua_State * L)
       (struct l_nsock_udata *) lua_newuserdata(L, sizeof(struct l_nsock_udata));
   luaL_getmetatable(L, "nsock");
   lua_setmetatable(L, -2);
+  lua_createtable(L, 1, 0); /* room for thread in array */
+  lua_setfenv(L, -2);
   udata->nsiod = NULL;
   udata->ssl_session = NULL;
   udata->timeout = DEFAULT_TIMEOUT;
@@ -577,7 +594,7 @@ static int l_nsock_connect(lua_State * L)
   }
 
   freeaddrinfo(dest);
-  udata->yield.thread = L;
+  set_thread(L, 1, udata);
   return lua_yield(L, 0);
 
 error:
@@ -630,7 +647,7 @@ static int l_nsock_send(lua_State * L)
 
   nsock_write(nsp, udata->nsiod, l_nsock_send_handler, udata->timeout,
       &udata->yield, string, string_len);
-  udata->yield.thread = L;
+  set_thread(L, 1, udata);
   return lua_yield(L, 0);
 }
 
@@ -665,7 +682,7 @@ static int l_nsock_receive(lua_State * L)
   nsock_read(nsp, udata->nsiod, l_nsock_receive_handler, udata->timeout,
       &udata->yield);
 
-  udata->yield.thread = L;
+  set_thread(L, 1, udata);
   return lua_yield(L, 0);
 }
 
@@ -687,7 +704,7 @@ static int l_nsock_receive_lines(lua_State * L)
   nsock_readlines(nsp, udata->nsiod, l_nsock_receive_handler, udata->timeout,
       &udata->yield, nlines);
 
-  udata->yield.thread = L;
+  set_thread(L, 1, udata);
   return lua_yield(L, 0);
 }
 
@@ -709,7 +726,7 @@ static int l_nsock_receive_bytes(lua_State * L)
   nsock_readbytes(nsp, udata->nsiod, l_nsock_receive_handler, udata->timeout,
       &udata->yield, nbytes);
 
-  udata->yield.thread = L;
+  set_thread(L, 1, udata);
   return lua_yield(L, 0);
 }
 
@@ -972,13 +989,13 @@ static int l_nsock_receive_buf(lua_State * L)
     {
       /* if we didn't have enough data in the buffer another nsock_read() was
        * scheduled - its callback will put us in running state again */
-      udata->yield.thread = L;
+      set_thread(L, 1, udata);
       return lua_yield(L, 0);
     }
     return 2;
   }
   /* yielding with 3 arguments since we need them when the callback arrives */
-  udata->yield.thread = L;
+  set_thread(L, 1, udata);
   return lua_yield(L, 0);
 }
 
@@ -1467,7 +1484,7 @@ static int l_nsock_ncap_register(lua_State * L)
   TIMEVAL_MSEC_ADD(nr->end_time, now, udata->timeout);
   nr->key = strdup(hex((char *) testdata, testdatasz));
   nr->yield = &udata->yield;
-  udata->yield.thread = L;
+  set_thread(L, 1, udata);
   udata->yield.udata = udata;
   nr->ncap_cback_ref = udata->ncap_cback_ref;
   /* always create new event. */
@@ -1505,7 +1522,7 @@ int l_nsock_pcap_receive(lua_State * L)
   struct ncap_request *nr = udata->ncap_request;
 
   udata->ncap_request = NULL;
-  udata->yield.thread = L;
+  set_thread(L, 1, udata);
   udata->yield.udata = udata;
 
   /* ready to receive data? don't suspend thread */
