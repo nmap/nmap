@@ -579,8 +579,10 @@ else
 
   # If they didn't specify it, we try to find it
   if test $have_lua != yes; then
-    AC_CHECK_HEADERS(lua.h lua/lua.h,
-      AC_CHECK_LIB(lua, lua_call, [have_lua=yes; break],, [-lm]))
+    AC_CHECK_HEADERS([lua.h lua/lua.h lua5.1/lua.h],
+      AC_CHECK_LIB(lua, lua_call, [have_lua=yes; LIBLUA_LIBS="-llua"; CPPFLAGS="-I/usr/include/lua $CPPFLAGS"; break],, [-lm])
+      AC_CHECK_LIB(lua5.1, lua_call, [have_lua=yes; LIBLUA_LIBS="-llua5.1"; CPPFLAGS="-I/usr/include/lua5.1 $CPPFLAGS"; break],, [-lm])
+    )
 
     AC_LANG_PUSH(C++)
     AC_MSG_CHECKING([for lua version >= 501])
@@ -590,7 +592,6 @@ else
     	have_lua=yes, have_lua=no)
     AC_LANG_POP(C++)
   
-    LIBLUA_LIBS="-llua"
     LUA_DEPENDS=""
     LUA_BUILD=""
     LUA_CLEAN=""
