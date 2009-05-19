@@ -108,15 +108,10 @@ struct nsock_yield
   struct l_nsock_udata *udata;                   /* self reference */
 };
 
-/*
- *
- */
 struct ncap_request
 {
   int suspended;                                 /* is the thread suspended?
                                                   * (lua_yield) */
-  // lua_State *L; /* lua_State of current process or NULL if process isn't
-  // suspended */ 
   struct nsock_yield *yield;
   nsock_event_id nseid;                          /* nse for this specific
                                                   * lua_State */
@@ -796,8 +791,6 @@ void l_nsock_trace(nsock_iod nsiod, const char *message, int direction)
 
 const char *inet_ntop_both(int af, const void *v_addr, char *ipstring)
 {
-//  char* ipstring = (char*) safe_malloc(sizeof(char) * INET6_ADDRSTRLEN);
-
   if (af == AF_INET)
   {
     inet_ntop(AF_INET, &((struct sockaddr_in *) v_addr)->sin_addr,
