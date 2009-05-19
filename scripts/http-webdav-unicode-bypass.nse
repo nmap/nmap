@@ -69,7 +69,7 @@ local function go_single(host, port, folder)
 
 		stdnse.print_debug(1, "http-webdav-unicode-bypass: Found protected folder (401): %s", folder)
 
-		vuln_response = get_response(host, port, folder .. "%c0%af")
+		vuln_response = get_response(host, port, "/%c0%af" .. string.sub(folder, 2))
 		if(vuln_response.status == 207) then
 			stdnse.print_debug(1, "http-webdav-unicode-bypass: Folder seems vulnerable: %s", folder)
 			return enum_results.VULNERABLE
@@ -98,12 +98,12 @@ local function go(host, port)
 	end
 
 	if(folder_file == nil) then
-		return false, "Couldn't find folders.lse (should be in nselib/data)"
+		return false, "Couldn't find folders.lst (should be in nselib/data)"
 	end
 
 	local file = io.open(folder_file, "r")
 	if not file then
-		return false, "Couldn't find folders.lse (should be in nselib/data)"
+		return false, "Couldn't find folders.lst (should be in nselib/data)"
 	end
 
 	while true do
