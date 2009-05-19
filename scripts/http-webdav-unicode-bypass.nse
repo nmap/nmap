@@ -89,7 +89,6 @@ local function go(host, port)
 	local results = {}
 	local is_vulnerable = true
 
-
 	local folder_file
 	if(nmap.registry.args.folderdb ~= nil) then
 		folder_file = nmap.fetchfile(nmap.registry.args.folderdb)
@@ -134,6 +133,12 @@ local function go(host, port)
 end
 
 action = function(host, port)
+	-- Start by checking if '/' is protected -- if it is, we can't do the tests
+	local result = go_single(host, port, "/")
+	if(result == enum_results.NOT_VULNERABLE) then
+		return "Could not determine vulnerability, since root folder is password protected"
+	end
+
 	if(nmap.registry.args.webdavfolder ~= nil) then
 		local folder = nmap.registry.args.webdavfolder
 		local result = go_single(host, port, "/" .. folder)
