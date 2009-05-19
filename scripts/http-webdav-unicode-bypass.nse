@@ -24,7 +24,7 @@ As of now, it takes about 13 seconds for me to scan a local server for every fol
 -- @args basefolder The folder to start in; eg, "/web" will try "/web/xxx"
 -----------------------------------------------------------------------
 
-author = "Ron Bowes <ron@skullsecurity.net>"
+author = "Ron Bowes <ron@skullsecurity.net> and Andrew Orr"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery"}
 
