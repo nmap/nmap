@@ -135,6 +135,7 @@ end
 -- @param options A table of options. It may have any of these fields:
 -- * <code>timeout</code>: A timeout used for socket operations.
 -- * <code>header</code>: A table containing additional headers to be used for the request.
+-- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override)
 request = function( host, port, data, options )
   options = options or {}
 
@@ -158,7 +159,14 @@ request = function( host, port, data, options )
   for key, value in pairs(options.header or {}) do
     data = data .. key .. ": " .. value .. "\r\n"
   end
+  if(options.content ~= nil and options.header['Content-Length'] == nil) then
+    data = data .. "Content-Length: " .. string.len(options.content) .. "\r\n"
+  end
   data = data .. "\r\n"
+
+  if(options.content ~= nil) then
+    data = data .. options.content
+  end
 
   local result = {status=nil,["status-line"]=nil,header={},body=""}
   local socket = nmap.new_socket()
