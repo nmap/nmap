@@ -1,14 +1,9 @@
 description = [[
-This module is based on Metasplit's auxiliary module, modules/auxiliary/scanner/http/wmap_dir_webdav_unicode_bypass.rb. 
-It attempts to bypass authentication using the WebDAV IIS6 Unicode vulnerability discovered by Kingcope. The vulnerability 
-appears to be exploitable where WebDAV is enabled on the IIS6 server, and any protected folder requires either Basic, 
-Digest or NTLM authentication.
+Checks for a vulnerability in IIS6 that allows arbitrary users to access secured WebDAV folders by searching for a password-protected folder and attempting to access it. As of May 2009, this vulnerability is unpatched. 
 
-A list of well known folders is used (almost 900) by default. Each one is checked, and if returns an authentication
-request (401), another attempt is tried with the malicious encoding. If that attempt returns a successful result (207), 
-the folder is marked as vulnerable. 
+A list of well known folders (almost 900) is used by default. Each one is checked, and if returns an authentication request (401), another attempt is tried with the malicious encoding. If that attempt returns a successful result (207), 
 
-As of now, it takes about 13 seconds for me to scan a local server for every folder. 
+The module is based on Metasplit's auxiliary module, modules/auxiliary/scanner/http/wmap_dir_webdav_unicode_bypass.rb. 
 ]]
 
 ---
