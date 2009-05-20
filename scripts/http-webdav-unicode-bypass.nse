@@ -3,7 +3,7 @@ Checks for a vulnerability in IIS6 that allows arbitrary users to access secured
 
 A list of well known folders (almost 900) is used by default. Each one is checked, and if returns an authentication request (401), another attempt is tried with the malicious encoding. If that attempt returns a successful result (207), 
 
-The module is based on Metasplit's auxiliary module, modules/auxiliary/scanner/http/wmap_dir_webdav_unicode_bypass.rb. 
+The module is based on the Metasplit modules/auxiliary/scanner/http/wmap_dir_webdav_unicode_bypass.rb auxiliary module.
 ]]
 
 ---
