@@ -93,8 +93,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#undef PCAP_TIMEOUT_IGNORED
-
 #undef HAVE_STRUCT_IP
 
 #undef HAVE_NANOSLEEP

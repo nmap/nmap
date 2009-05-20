@@ -4813,10 +4813,6 @@ _ACEOF
 #define LINUX 1
 _ACEOF
 
-    cat >>confdefs.h <<\_ACEOF
-#define PCAP_TIMEOUT_IGNORED 1
-_ACEOF
-  # libpcap doesn't even LOOK at the timeout you give it under Linux
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-apple-darwin*)

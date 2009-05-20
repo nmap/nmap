@@ -177,7 +177,6 @@ case "$host" in
     ;;
   *-linux*)
     AC_DEFINE(LINUX)
-    AC_DEFINE(PCAP_TIMEOUT_IGNORED)  # libpcap doesn't even LOOK at the timeout you give it under Linux
     LDFLAGS="-Wl,-E $LDFLAGS" # needed for nse-C-module support
     ;;
   *-apple-darwin*)
