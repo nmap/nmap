@@ -21,7 +21,7 @@ The module is based on the Metasploit modules/auxiliary/scanner/http/wmap_dir_we
 
 author = "Ron Bowes <ron@skullsecurity.net> and Andrew Orr"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery"}
+categories = {"vuln", "intrusive"}
 
 require "http"
 require "nsedebug"
