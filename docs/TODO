@@ -119,6 +119,15 @@ o [NSE] Get rid of ceil so that floating point NSE runlevels work
 o NSE script logical operator stuff is now documented in
   scripting.xml--add to refguide.xml as well. [David/Patrick]
 
+o Fix NSEdoc to better escape single-quotes in fields.  If we can't do
+  that for some reason, we need to document it better.  For example,
+  when we initially tried generating nsedoc for
+  http-webdav-unicode-bypass.nse, NSEdoc was listing it as a module
+  named "s auxiliary module", apparently because this line exited in
+  the description field:
+  This module is based on Metasplit's auxiliary module, modules/auxiliary/scanner/http/wmap_dir_webdav_unicode_bypass.rb. 
+  (For full example, see scripts/http-webdav-unicode-bypass.nse r13345)
+
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
 
 o We should probably check for a system Lua in a "lua5.1" directory
