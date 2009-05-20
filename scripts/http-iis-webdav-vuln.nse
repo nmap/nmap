@@ -12,7 +12,7 @@ The module is based on the Metasploit modules/auxiliary/scanner/http/wmap_dir_we
 --
 -- @output
 -- 80/tcp open  http    syn-ack
--- |_ http-webdav-unicode-bypass: Vulnerable folders discovered: /secret, /webdav
+-- |_ http-iis-webdav-vuln: Vulnerable folders discovered: /secret, /webdav
 --
 -- @args webdavfolder Selects a single folder to use, instead of using a built-in list
 -- @args folderdb The filename of an alternate list of folders.
@@ -62,18 +62,18 @@ local function go_single(host, port, folder)
 	if(response.status == 401) then
 		local vuln_response
 
-		stdnse.print_debug(1, "http-webdav-unicode-bypass: Found protected folder (401): %s", folder)
+		stdnse.print_debug(1, "http-iis-webdav-vuln: Found protected folder (401): %s", folder)
 
 		vuln_response = get_response(host, port, "/%c0%af" .. string.sub(folder, 2))
 		if(vuln_response.status == 207) then
-			stdnse.print_debug(1, "http-webdav-unicode-bypass: Folder seems vulnerable: %s", folder)
+			stdnse.print_debug(1, "http-iis-webdav-vuln: Folder seems vulnerable: %s", folder)
 			return enum_results.VULNERABLE
 		else
-			stdnse.print_debug(2, "http-webdav-unicode-bypass: Folder not vulnerable: %s", folder)
+			stdnse.print_debug(2, "http-iis-webdav-vuln: Folder not vulnerable: %s", folder)
 			return enum_results.NOT_VULNERABLE
 		end
 	else
-		stdnse.print_debug(3, "http-webdav-unicode-bypass: Not a protected folder (%s): %s", response['status-line'], folder)
+		stdnse.print_debug(3, "http-iis-webdav-vuln: Not a protected folder (%s): %s", response['status-line'], folder)
 		return enum_results.UNKNOWN
 	end
 end
