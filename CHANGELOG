@@ -12,6 +12,10 @@ o Fixed an assertion failure which could occur on at least SPARC Linux
 
 o Improved the Oracle DB version detection signatures. [Tom Sellers]
 
+o Updated nmap-mac-prefixes with the latest MAC address prefix data
+  from http://standards.ieee.org/regauth/oui/oui.txt as of
+  5/20/09. [Fyodor]
+
 Nmap 4.85BETA9 [2009-05-12]
 
 o Integrated all of your 1,156 of your OS detection submissions and
