@@ -145,7 +145,7 @@ action = function(host, port)
 	response = get_response(host, port, "/")
 	if(response.status == 501) then
 		-- WebDAV is disabled
-		stdnse.pring_debug(1, "http-iis-webdav-vuln: WebDAV is DISABLED (PROPFIND failed).")
+		stdnse.print_debug(1, "http-iis-webdav-vuln: WebDAV is DISABLED (PROPFIND failed).")
 		return "WebDAV is DISABLED. Server is not currently vulnerable."
 	else
 		if(response.status == 207) then
