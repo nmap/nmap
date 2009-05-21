@@ -78,7 +78,13 @@ local function go_single(host, port, folder)
 			return enum_results.NOT_VULNERABLE
 		end
 	else
-		stdnse.print_debug(3, "http-iis-webdav-vuln: Not a protected folder (%s): %s", response['status-line'], folder)
+		if(response['status-line'] ~= nil) then
+			stdnse.print_debug(3, "http-iis-webdav-vuln: Not a protected folder (%s): %s", response['status-line'], folder)
+		elseif(response['status'] ~= nil) then
+			stdnse.print_debug(3, "http-iis-webdav-vuln: Not a protected folder (%s): %s", response['status'], folder)
+		else
+			stdnse.print_debug(3, "http-iis-webdav-vuln: Not a protected folder: %s",folder)
+		end
 		return enum_results.UNKNOWN
 	end
 end
@@ -153,7 +159,13 @@ action = function(host, port)
 			stdnse.print_debug(1, "http-iis-webdav-vuln: WebDAV is ENABLED (PROPFIND was successful).")
 		else
 			-- probably not running IIS 5.0/5.1/6.0
-			stdnse.print_debug(1, "http-iis-webdav-vuln: PROPFIND request failed with \"%s\".", response['status-line'])
+			if(response['status-line'] ~= nil) then
+				stdnse.print_debug(1, "http-iis-webdav-vuln: PROPFIND request failed with \"%s\".", response['status-line'])
+			elseif(response['status'] ~= nil) then
+				stdnse.print_debug(1, "http-iis-webdav-vuln: PROPFIND request failed with \"%s\".", response['status'])
+			else
+				stdnse.print_debug(1, "http-iis-webdav-vuln: PROPFIND request failed.")
+			end
 			return "ERROR: This web server is not supported." 
 		end
 	end
