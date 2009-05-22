@@ -4,6 +4,13 @@ Checks for a vulnerability in IIS 5.1/6.0 that allows arbitrary users to access 
 A list of well known folders (almost 900) is used by default. Each one is checked, and if returns an authentication request (401), another attempt is tried with the malicious encoding. If that attempt returns a successful result (207), then the folder is marked as vulnerable.
 
 This script is based on the Metasploit modules/auxiliary/scanner/http/wmap_dir_webdav_unicode_bypass.rb auxiliary module.
+
+For more information on this vulnerability and script, see:
+* http://blog.zoller.lu/2009/05/iis-6-webdac-auth-bypass-and-data.html
+* http://seclists.org/fulldisclosure/2009/May/att-0134/IIS_Advisory_pdf
+* http://www.skullsecurity.org/blog/?p=271
+* http://www.kb.cert.org/vuls/id/787932
+* http://www.microsoft.com/technet/security/advisory/971492.mspx
 ]]
 
 ---
