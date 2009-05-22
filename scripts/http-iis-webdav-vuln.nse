@@ -8,7 +8,7 @@ This script is based on the Metasploit modules/auxiliary/scanner/http/wmap_dir_w
 
 ---
 -- @usage
--- nmap --script smb-enum-users.nse -p445 <host>
+-- nmap --script http-iis-webdav-vuln -p80,8080 <host>
 --
 -- @output
 -- 80/tcp open  http    syn-ack
