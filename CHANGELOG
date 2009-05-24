@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Fixed a crash, introduced in 4.85BETA4, that happened when
+  searching scan results by date. [David] The error message was
+      File "zenmapGUI\SearchGUI.pyo", line 816, in set_date
+    TypeError: argument must be sequence of length 9, not 3
+
 o Patched configure.ac to detect Lua include and library files in
   "lua5.1" subdirectories of /usr/include and the like. Apparently
   Debian puts them there. We still check the likes of
