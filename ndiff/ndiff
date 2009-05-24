@@ -491,12 +491,13 @@ class HostDiff(object):
 
         # Extraports.
         if self.extraports_changed:
-            if host_a.state is not None:
+            if len(host_a.extraports) > 0:
                 print >> f, u"-Not shown: %s" % host_a.extraports_string()
-            if host_b.state is not None:
+            if len(host_b.extraports) > 0:
                 print >> f, u"+Not shown: %s" % host_b.extraports_string()
         elif verbose:
-            print >> f, u" Not shown: %s" % host_a.extraports_string()
+            if len(host_a.extraports) > 0:
+                print >> f, u" Not shown: %s" % host_a.extraports_string()
 
         # Port table.
         port_table = Table(u"** * * *")
