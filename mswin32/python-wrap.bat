@@ -1,6 +1,6 @@
 @echo off
 
-rem This batch file searches for a Python interpreted and uses it to run a
+rem This batch file searches for a Python interpreter and uses it to run a
 rem script. It displays an error message if not Python is found. The script
 rem to run must have the same filename as the batch file, with an extension of
 rem .py rather than .bat.
