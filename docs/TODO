@@ -51,6 +51,8 @@ o Once we're done with host discovery empirical research, add it to
   use for a given number of probes, the efficiency of the common probes
   by themselves, etc.
 
+o Finish and apply SCTP patch
+
 o Add version detection signiture for Ncat chat once we finalize the
   announce format.
 
