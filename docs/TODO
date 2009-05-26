@@ -1,5 +1,7 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Evaluate Joao's proxy scripts/changes. [David]
+
 o Build x86 VM instance for RPM building. [Fyodor]
 
 o Look into building RPMs with SSL support. Statically linking to
@@ -53,17 +55,40 @@ o Once we're done with host discovery empirical research, add it to
 
 o Finish and apply SCTP patch
 
-o Add version detection signiture for Ncat chat once we finalize the
-  announce format.
-
 o Deal with Ncat newline problem.  See this thread:
-  http://seclists.org/nmap-dev/2009/q2/0325.html
+  http://seclists.org/nmap-dev/2009/q2/0325.html [David,Jah]
 
 o --script-args should allow a wider range of characters, and should
   give a more useful error message if it receives chars it really
   can't handle for some reason.  For an example, try
   "--script-args=smbuser=admin,smbpass=pass^word".  For more details,
   see Ron's report at http://seclists.org/nmap-dev/2009/q2/0378.html.
+
+o [Ncat] In verbose mode, print when an SSL connection is established
+  successfully and give the leaf certificate hash to make it easier to
+  verify when connecting to a machine where you can't or don't want to
+  use --ssl-verify (e.g. connecting to an ncat ssl server where it
+  created its own key).  While we're at it, we might want to print
+  some other information from the leaf node, such as organizationName
+  and maybe localityName, countryName or something.  We don't want to
+  be too verbose, but 1 line would be great and 2-3 might be
+  acceptable. [David]
+
+o Fix NSEdoc to better escape single-quotes in fields.  If we can't do
+  that for some reason, we need to document it better.  For example,
+  when we initially tried generating nsedoc for
+  http-webdav-unicode-bypass.nse, NSEdoc was listing it as a module
+  named "s auxiliary module", apparently because this line exited in
+  the description field:
+  This module is based on Metasplit's auxiliary module, modules/auxiliary/scanner/http/wmap_dir_webdav_unicode_bypass.rb. 
+  (For full example, see scripts/http-webdav-unicode-bypass.nse
+  r13345) [David/SoC]
+
+o Some of the -PS443 scans (and maybe other ones) we've been running
+  have been missing the Nmap line telling how many packets were
+  sent/received, even though we had verbose mode. [David]
+
+===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
 
 o For at least our UDP ping probes, Nmap should probably notice if it
   is a very well known service port such as 53, 161, or 137 and send
@@ -75,69 +100,9 @@ o For at least our UDP ping probes, Nmap should probably notice if it
   nmap-service-probes, though we might want to make a custom file for
   this.  We should probably do this for port scanning as well.
 
-o [Ncat] In verbose mode, print when an SSL connection is established
-  successfully and give the leaf certificate hash to make it easier to
-  verify when connecting to a machine where you can't or don't want to
-  use --ssl-verify (e.g. connecting to an ncat ssl server where it
-  created its own key).  While we're at it, we might want to print
-  some other information from the leaf node, such as organizationName
-  and maybe localityName, countryName or something.  We don't want to
-  be too verbose, but 1 line would be great and 2-3 might be
-  acceptable.
-
-o We added the SEQ.CI value in Feb 2009 with 0 matchpoints.  At some
-  point (once we have some real-life values) we need to evaluate whether
-  we want to give it points.  A good time to do that would be when we
-  next do fingerprint integration, so we will actually have examples
-  of .CI in the nmap-os-db. [David]
-
-o [NSE] Make it a warning rather than error if a script in script.db
-   can't be found. [Patrick]
-
-o [NSE] Correct nsock_connect to unlock the socket slot if the
-  connection fails.  When a socket is closed, it is unlocked so the
-  arbitrator can potentially open up a socket for another thread. But
-  Patrick discovered that a socket is not automatically unlocked when
-  a connection fails or times out, only when it is closed
-  explicitly. So that could hold up socket allocation for other
-  threads until garbage collection.  May be a cause of slowness or
-  possibly deadlocks. [Patrick]
-
-o [NSE] Solve segfault issue which occurs when Nsock events call back
-  on a thread that has already ended (e.g. timeout, crash, early exit,
-  whatever) and been garbage collected.  May want to just nsi_delete
-  all nsock sockets immediately upon thread ending.  For an example of
-  this type of segfault, see
-  http://seclists.org/nmap-dev/2009/q2/0289.html. David says " I think
-  in the interests of getting this in a stable release, we should use
-  that strategy of closing all a thread's sockets. That ought to fix
-  all the problems above.  Not to rule out a more thoughtful redesign
-  in the future." [David,Patrick]
-
-o [NSE] Get rid of ceil so that floating point NSE runlevels work
-  again (some scripts, including (smb-brute) rely on this.  They got
-  broken with the NSE core lua rewrite. [David,Patrick].
-
-o NSE script logical operator stuff is now documented in
-  scripting.xml--add to refguide.xml as well. [David/Patrick]
-
-o Fix NSEdoc to better escape single-quotes in fields.  If we can't do
-  that for some reason, we need to document it better.  For example,
-  when we initially tried generating nsedoc for
-  http-webdav-unicode-bypass.nse, NSEdoc was listing it as a module
-  named "s auxiliary module", apparently because this line exited in
-  the description field:
-  This module is based on Metasplit's auxiliary module, modules/auxiliary/scanner/http/wmap_dir_webdav_unicode_bypass.rb. 
-  (For full example, see scripts/http-webdav-unicode-bypass.nse r13345)
-
-===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
-
-o We should probably check for a system Lua in a "lua5.1" directory
-  rather than just "lua", as Debian and also my Fedora 10 systems seem
-  to have that.  See
-  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=527997. [Note,
-  Fyodor asked the bug reporter Jan Nordholz on 5/14/09 if he could
-  write a patch]
+o Look at etc/payloads.conf in unicornscan-0.4.7 and see if they have
+  any which we don't have, but should, for our version detection.
+  They have a decent collection there.
 
 o [Ncat] In verbose mode, I'd like to see clock time and maybe in/out
   traffic stats when a client connection ends.  Maybe it could use a
@@ -334,10 +299,6 @@ o Consider whether to let Zenmap Topology graph export the images to
   svg/png/etc.  Also think about printing.  Note that João Medeiros
   has written a Umit patch to do this:
   http://trac.umitproject.org/ticket/316.
-
-o Look at etc/payloads.conf in unicornscan-0.4.7 and see if they have
-  any which we don't have, but should, for our version detection.
-  They have a decent collection there.
 
 o Figure out and document (in at least the Ncat user's guide) the best
   way to use Ncat for chaining through proxies.  One option is this
@@ -616,6 +577,52 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o We should probably check for a system Lua in a "lua5.1" directory
+  rather than just "lua", as Debian and also my Fedora 10 systems seem
+  to have that.  See
+  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=527997. [Note,
+  Fyodor asked the bug reporter Jan Nordholz on 5/14/09 if he could
+  write a patch. Jan sent in a patch, it worked, Fyodor checked it in.]
+
+o [NSE] Get rid of ceil so that floating point NSE runlevels work
+  again (some scripts, including (smb-brute) rely on this.  They got
+  broken with the NSE core lua rewrite. [David].
+
+o NSE script logical operator stuff is now documented in
+  scripting.xml--add to refguide.xml as well. [David/Patrick]
+
+o [NSE] Correct nsock_connect to unlock the socket slot if the
+  connection fails.  When a socket is closed, it is unlocked so the
+  arbitrator can potentially open up a socket for another thread. But
+  Patrick discovered that a socket is not automatically unlocked when
+  a connection fails or times out, only when it is closed
+  explicitly. So that could hold up socket allocation for other
+  threads until garbage collection.  May be a cause of slowness or
+  possibly deadlocks. [Patrick]
+
+o [NSE] Solve segfault issue which occurs when Nsock events call back
+  on a thread that has already ended (e.g. timeout, crash, early exit,
+  whatever) and been garbage collected.  May want to just nsi_delete
+  all nsock sockets immediately upon thread ending.  For an example of
+  this type of segfault, see
+  http://seclists.org/nmap-dev/2009/q2/0289.html. David says " I think
+  in the interests of getting this in a stable release, we should use
+  that strategy of closing all a thread's sockets. That ought to fix
+  all the problems above.  Not to rule out a more thoughtful redesign
+  in the future." [David,Patrick]
+
+o We added the SEQ.CI value in Feb 2009 with 0 matchpoints.  At some
+  point (once we have some real-life values) we need to evaluate whether
+  we want to give it points.  A good time to do that would be when we
+  next do fingerprint integration, so we will actually have examples
+  of .CI in the nmap-os-db. [David]
+
+o [NSE] Make it a warning rather than error if a script in script.db
+   can't be found. [Patrick]
+
+o Add version detection signature for Ncat chat once we finalize the
+  announce format. [David]
 
 o Change Nmap signature files to use the .sig extension rather than
   .gpg.txt, as that seems to be what gpg recommends.  In fact, gpg
