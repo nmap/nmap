@@ -2605,7 +2605,7 @@ non-responsive because Nmap didn't wait long enough for a rate-limited
 RST response.  With a SYN
 scan, the non-response results in the port being labeled
 <literal>filtered</literal> rather than the <literal>closed</literal>
-state we see when RST packets are received.  This optional is useful
+state we see when RST packets are received.  This option is useful
 when you only care about open ports, and distinguishing between
 <literal>closed</literal> and <literal>filtered</literal> ports isn't
 worth the extra time.</para>
