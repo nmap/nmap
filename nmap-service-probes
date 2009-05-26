@@ -1113,7 +1113,7 @@ match mupdate m|\* OK MUPDATE \"([-.\w]+)\" \"Cyrus Murder\" \"v([-.\w]+)\" \"mu
 softmatch napster m|^1$|
 
 # Ncat --chat mode, since 4.85BETA4
-match ncat-chat m|^<announce> [\d.]+ is connected as <\w+>\.\n<announce> already connected: (.*?)\.\n| p/Ncat chat/ i/users: $1/
+match ncat-chat m|^<announce> [\d.:a-f]+ is connected as <\w+>\.\n<announce> already connected: (.*?)\.\n| p/Ncat chat/ i/users: $1/
 
 match netop m|^\xd6\x81\x81\0\0\xf9\0\xf9\xee\xe3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0| p/NetOp Remote Control/
 
