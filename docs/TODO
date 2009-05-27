@@ -36,6 +36,36 @@ o Device categorization improvements
     [Doug has done some initial work on this.  For example, see
      nmap/docs/device-types.txt]
 
+o [NSE] Deadlock identification and correction:
+  o Release mutexes upon script death.
+  o Add detection for deadlocks and print which threads are involved.
+  o use above results to make a strategy for automatic deadlock resolution.
+  o Original entry: Figure out what to do about NSE mutexes:
+  http://seclists.org/nmap-dev/2008/q3/0276.html . In particular, they
+  are not currently cleaned up if a thread dies or otherwise exits
+  without unlocking them and can cause endless deadlocks which are
+  annoying to users and can be difficult to debug :(.  Patrick has
+  some ideas for this in his SoC09 proposal:
+   "Adding a cleanup system for NSE that is called periodically
+    similar to nsock_loop. There would be a registration system
+    allowing C libraries to register a Lua function that will run
+    periodically to check for irresolvable deadlock or simply dead
+    resources. For example, the nmap library would register a mutex
+    cleanup handler which would inspect all mutexes looking for a dead
+    thread or circular dependencies. The nsock library could register
+    a handler that checks for unused sockets. The nsock may save a
+    strong reference to the thread that owns the socket and inspect it
+    to determine if the thread is dead."
+  David later says: "After some discussion we decided to start more
+  modestly, first by ensuring that a scripts mutexes are released when
+  it dies for whatever reason. I have a hunch that this is the cause
+  of most deadlocks. It was certainly the cause of two whois.nse
+  deadlocks I found. Then, the next step if deadlocks continue to be a
+  problem, is to do automatic detection and just print out a list of
+  what scripts are involved. It could be that several smb scripts are
+  deadlocked, or as in the case I observed where whois.nse was locked
+  with itself."
+
 o Consider making the ping scan default be more comprehensive.  Note
   that I got 23% more Internet boxes found out of a 50K sample (see host
   enumeration chapter of my book for details).  Maybe I should
@@ -48,12 +78,17 @@ o Consider making the ping scan default be more comprehensive.  Note
   protocol headers (e.g. a DNS server status message) so that we
   receive responses from listening services.
 
+o [Ncat] Have --ssl-cert and --ssl-key send a certificate in connect
+  mode so that client certificate auth can be done. [David/Venkat]
+
 o Once we're done with host discovery empirical research, add it to
   host-discovery.xml.  Would be great to show the best combinations to
   use for a given number of probes, the efficiency of the common probes
   by themselves, etc.
 
-o Finish and apply SCTP patch
+o Integrate SCTP scanning support.  See Daniel Roethlisberger's branch
+  in nmap-exp/daniel/nmap-sctp.  As of 4/30/09, he is nearing
+  completion.  See http://seclists.org/nmap-dev/2009/q2/0270.html.
 
 o Deal with Ncat newline problem.  See this thread:
   http://seclists.org/nmap-dev/2009/q2/0325.html [David,Jah]
@@ -88,7 +123,26 @@ o Some of the -PS443 scans (and maybe other ones) we've been running
   have been missing the Nmap line telling how many packets were
   sent/received, even though we had verbose mode. [David]
 
+
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
+
+o Review NSE Nsock Socket Allocation:
+  o Release socket locks on connection failure or timeout.
+  o Track active sockets in the nsock library and don't rely on
+      garbage collection for reallocation.
+
+o [NSE] Open proxy detection script
+  o We have http-open-proxy.nse, but we should probably either extrand
+  that to handle other types of proxies (such as SOCKS and HTTP
+  CONNECT) or create more scripts to handle those other proxy types.
+
+o [NSE] Make sure all our HTTP scripts transparently support SSL
+  servers too.
+
+o [NSE] Make NSE work better for SSL tunneled services in general by
+  supporting them easily in the libraries.  For example, I don't think
+  irc-info.nse currently works against all the servers which tunnel
+  over SSL.  Maybe augment comm library, etc.
 
 o For at least our UDP ping probes, Nmap should probably notice if it
   is a very well known service port such as 53, 161, or 137 and send
@@ -158,35 +212,12 @@ o [NSE] Consider whether we should include some sort of NSE debugger.  Or we
   debugger (http://seclists.org/nmap-dev/2008/q1/0228.html) and also
   Patrick's traceback.nse 
 
+o [NSE] Look into moving packet module to C for better performance
+  [Patrick]
+
 o Add Nmap web board.
  
 o Create Nmap wiki
-
-o [NSE] Figure out what to do about NSE mutexes:
-  http://seclists.org/nmap-dev/2008/q3/0276.html . In particular, they
-  are not currently cleaned up if a thread dies or otherwise exits
-  without unlocking them and can cause endless deadlocks which are
-  annoying to users and can be difficult to debug :(.  Patrick has
-  some ideas for this in his SoC09 proposal:
-   "Adding a cleanup system for NSE that is called periodically
-    similar to nsock_loop. There would be a registration system
-    allowing C libraries to register a Lua function that will run
-    periodically to check for irresolvable deadlock or simply dead
-    resources. For example, the nmap library would register a mutex
-    cleanup handler which would inspect all mutexes looking for a dead
-    thread or circular dependencies. The nsock library could register
-    a handler that checks for unused sockets. The nsock may save a
-    strong reference to the thread that owns the socket and inspect it
-    to determine if the thread is dead."
-  David later says: "After some discussion we decided to start more
-  modestly, first by ensuring that a scripts mutexes are released when
-  it dies for whatever reason. I have a hunch that this is the cause
-  of most deadlocks. It was certainly the cause of two whois.nse
-  deadlocks I found. Then, the next step if deadlocks continue to be a
-  problem, is to do automatic detection and just print out a list of
-  what scripts are involved. It could be that several smb scripts are
-  deadlocked, or as in the case I observed where whois.nse was locked
-  with itself."
 
 o [NSE] Consider whether we need script.db for performance reasons at
   all or should just read through all the scripts and parse on the fly.
@@ -200,19 +231,6 @@ o [NSE] We may want to consider a better exception handling method --
   function will return there whenever there's an unhandled error.
   Something based on that would be better [than the current system], I
   think."
-
-o [NSE] Open proxy detection script
-  o We have http-open-proxy.nse, but we should probably either extrand
-  that to handle other types of proxies (such as SOCKS and HTTP
-  CONNECT) or create more scripts to handle those other proxy types.
-
-o [NSE] Make sure all our HTTP scripts transparently support SSL
-  servers too.
-
-o [NSE] Make NSE work better for SSL tunneled services in general by
-  supporting them easily in the libraries.  For example, I don't think
-  irc-info.nse currently works against all the servers which tunnel
-  over SSL.  Maybe augment comm library, etc.
 
 o [NSE] http improvements
  o Spidering library+scripts?  How should the spider store the results
@@ -290,10 +308,6 @@ o Ncat SSLv2 issues.  See
   TLSv1 and don't respond to a SSLv2-compatible ClientHello.  Even
   though most servers don't support SSLv2, they usually respond to the
   ClientHello and just don't offer any SSLv2 features.
-
-o Integrate SCTP scanning support.  See Daniel Roethlisberger's branch
-  in nmap-exp/daniel/nmap-sctp.  As of 4/30/09, he is nearing
-  completion.  See http://seclists.org/nmap-dev/2009/q2/0270.html.
 
 o Consider whether to let Zenmap Topology graph export the images to
   svg/png/etc.  Also think about printing.  Note that João Medeiros
