@@ -1892,28 +1892,10 @@ static int get_next_target_probe(UltraScanInfo *USI, HostScanStats *hss,
     hss->sent_arp = true;
     return 0;
   } else if (USI->ping_scan) {
-    if (USI->ptech.rawtcpscan) {
-      pspec->type = PS_TCP;
-      pspec->proto = IPPROTO_TCP;
-      if ((o.pingtype & PINGTYPE_TCP_USE_ACK)
-        && hss->next_ackportpingidx < USI->ports->ack_ping_count) {
-        pspec->pd.tcp.dport = USI->ports->ack_ping_ports[hss->next_ackportpingidx++];
-        pspec->pd.tcp.flags = TH_ACK;
-        return 0;
-      }
-      if ((o.pingtype & PINGTYPE_TCP_USE_SYN)
-        && hss->next_synportpingidx < USI->ports->syn_ping_count) {
-        pspec->pd.tcp.dport = USI->ports->syn_ping_ports[hss->next_synportpingidx++];
-        pspec->pd.tcp.flags = TH_SYN;
-        return 0;
-      }
-    }
-    if (USI->ptech.rawudpscan && hss->next_udpportpingidx < USI->ports->udp_ping_count) {
-      pspec->type = PS_UDP;
-      pspec->proto = IPPROTO_UDP;
-      pspec->pd.udp.dport = USI->ports->udp_ping_ports[hss->next_udpportpingidx++];
-      return 0;
-    }
+    /* This is ordered to try probes of higher effectiveness first:
+         -PE -PS -PA -PP -PU
+       -PA is slightly better than -PS when combined with -PE, but give -PS an
+       edge because it is less likely to be dropped by firewalls. */
     if (USI->ptech.rawicmpscan) {
       pspec->type = PS_ICMP;
       pspec->proto = IPPROTO_ICMP;
@@ -1923,6 +1905,26 @@ static int get_next_target_probe(UltraScanInfo *USI, HostScanStats *hss,
         pspec->pd.icmp.code = 0;
         return 0;
       }
+    }
+    if (USI->ptech.rawtcpscan) {
+      pspec->type = PS_TCP;
+      pspec->proto = IPPROTO_TCP;
+      if ((o.pingtype & PINGTYPE_TCP_USE_SYN)
+        && hss->next_synportpingidx < USI->ports->syn_ping_count) {
+        pspec->pd.tcp.dport = USI->ports->syn_ping_ports[hss->next_synportpingidx++];
+        pspec->pd.tcp.flags = TH_SYN;
+        return 0;
+      }
+      if ((o.pingtype & PINGTYPE_TCP_USE_ACK)
+        && hss->next_ackportpingidx < USI->ports->ack_ping_count) {
+        pspec->pd.tcp.dport = USI->ports->ack_ping_ports[hss->next_ackportpingidx++];
+        pspec->pd.tcp.flags = TH_ACK;
+        return 0;
+      }
+    }
+    if (USI->ptech.rawicmpscan) {
+      pspec->type = PS_ICMP;
+      pspec->proto = IPPROTO_ICMP;
       if ((o.pingtype & PINGTYPE_ICMP_MASK) && !hss->sent_icmp_mask) {
         hss->sent_icmp_mask = true;
         pspec->pd.icmp.type = ICMP_MASK;
@@ -1935,6 +1937,12 @@ static int get_next_target_probe(UltraScanInfo *USI, HostScanStats *hss,
         pspec->pd.icmp.code = 0;
         return 0;
       }
+    }
+    if (USI->ptech.rawudpscan && hss->next_udpportpingidx < USI->ports->udp_ping_count) {
+      pspec->type = PS_UDP;
+      pspec->proto = IPPROTO_UDP;
+      pspec->pd.udp.dport = USI->ports->udp_ping_ports[hss->next_udpportpingidx++];
+      return 0;
     }
     if (USI->ptech.rawprotoscan) {
       pspec->type = PS_PROTO;

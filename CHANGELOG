@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o There is a new default ping probe set: -PE -PS443 -PA80 -PP. In
+  exhaustive testing of 90 different probes, this one emerged as the
+  best four-probe combination, finding 14% more Internet hosts than
+  the previous default, -PE -PA80. The default for nonroot users is
+  -PS80,443, replacing the previous default of -PS80. In addition,
+  ping probes are now sent in order of effectiveness (-PE first) so
+  that less likely probes may not have to be sent. [David/Fyodor]
+
 o [Zenmap] Fixed a crash, introduced in 4.85BETA4, that happened when
   searching scan results by date. [David] The error message was
       File "zenmapGUI\SearchGUI.pyo", line 816, in set_date

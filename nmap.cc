@@ -450,10 +450,17 @@ static char *grab_next_host_spec(FILE *inputfd, int argc, char **fakeargv) {
 
 void validate_scan_lists(scan_lists &ports, NmapOps &o){
 	if (o.pingtype == PINGTYPE_UNKNOWN) {
-		if (o.isr00t && o.pf() == PF_INET) o.pingtype = DEFAULT_PING_TYPES;
-		else o.pingtype = PINGTYPE_TCP; // if nonr00t or IPv6
-		getpts_simple(DEFAULT_TCP_PROBE_PORT_SPEC, SCAN_TCP_PORT, &ports.ack_ping_ports, &ports.ack_ping_count);
-		assert(ports.ack_ping_count > 0);
+		if (o.isr00t && o.pf() == PF_INET) {
+			o.pingtype = DEFAULT_PING_TYPES;
+			getpts_simple(DEFAULT_PING_ACK_PORT_SPEC, SCAN_TCP_PORT,
+				&ports.ack_ping_ports, &ports.ack_ping_count);
+			getpts_simple(DEFAULT_PING_SYN_PORT_SPEC, SCAN_TCP_PORT,
+				&ports.syn_ping_ports, &ports.syn_ping_count);
+		} else {
+			o.pingtype = PINGTYPE_TCP; // if nonr00t or IPv6
+			getpts_simple(DEFAULT_PING_CONNECT_PORT_SPEC, SCAN_TCP_PORT,
+				&ports.syn_ping_ports, &ports.syn_ping_count);
+		}
 	}
 
 	if ((o.pingtype & PINGTYPE_TCP) && (!o.isr00t || o.pf() != PF_INET)) {

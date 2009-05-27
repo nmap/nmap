@@ -266,12 +266,11 @@ void *realloc();
 #define MAX_TIMEOUTS MAX_SOCKETS   /* How many timed out connection attempts 
 				      in a row before we decide the host is 
 				      dead? */
-#define DEFAULT_TCP_PROBE_PORT_SPEC "80" /* The ports TCP probes go to if
+#define DEFAULT_TCP_PROBE_PORT_SPEC "80" /* The ports TCP ping probes go to if
                                             unspecified by user -- uber hackers
                                             change this to 113 */
-#define DEFAULT_UDP_PROBE_PORT_SPEC "31338" /* The port UDP probes (esp. "ping"
-                                               probes) go to if unspecified by
-                                               user */
+#define DEFAULT_UDP_PROBE_PORT_SPEC "31338" /* The port UDP ping probes go to
+                                               if unspecified by user */
 #define DEFAULT_PROTO_PROBE_PORT_SPEC "1,2,4" /* The IPProto ping probes to use
                                                  if unspecified by user */
 
@@ -341,7 +340,18 @@ void *realloc();
 #define PINGTYPE_ARP 1024
 #define PINGTYPE_PROTO 2048
 
-#define DEFAULT_PING_TYPES PINGTYPE_TCP|PINGTYPE_TCP_USE_ACK|PINGTYPE_ICMP_PING
+/* Empirically determined optimum combinations of different numbers of probes:
+     -PE
+     -PE -PA80
+     -PE -PA80 -PS443
+     -PE -PA80 -PS443 -PP
+     -PE -PA80 -PS443 -PP -PU40125
+   We use the four-probe combination. */
+#define DEFAULT_PING_TYPES (PINGTYPE_ICMP_PING|PINGTYPE_TCP|PINGTYPE_TCP_USE_ACK|PINGTYPE_TCP_USE_SYN|PINGTYPE_ICMP_TS)
+#define DEFAULT_PING_ACK_PORT_SPEC "80"
+#define DEFAULT_PING_SYN_PORT_SPEC "443"
+/* For nonroot. */
+#define DEFAULT_PING_CONNECT_PORT_SPEC "80,443"
 
 /* OS scan */
 #define OS_SCAN_DEFAULT 9
