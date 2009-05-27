@@ -673,10 +673,10 @@ you would expect.</para>
           request behavior.</para>
 
           <para>While echo request is the standard ICMP ping query,
-          Nmap does not stop there.  The ICMP standard
-          <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc792.txt">RFC 792</ulink><indexterm><primary>RFC 792</primary></indexterm>
+          Nmap does not stop there.  The ICMP standards
+          (<ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc792.txt">RFC 792</ulink><indexterm><primary>RFC 792</primary></indexterm>
           and
-          <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc950.txt">RFC 950</ulink><indexterm><primary>RFC 950</primary></indexterm>
+          <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc950.txt">RFC 950</ulink><indexterm><primary>RFC 950</primary></indexterm>)
           also specify timestamp request, information
           request, and address mask request packets as codes 13, 15,
           and 17, respectively.  While the ostensible purpose for
