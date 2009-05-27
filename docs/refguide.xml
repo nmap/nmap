@@ -333,19 +333,18 @@ you would expect.</para>
     discovery can find those machines in a sparsely allocated sea of
     IP addresses.</para>
 
-    <para>If no host discovery options are given, Nmap
-          sends a TCP ACK
-          packet destined for port 80 and an ICMP echo request query
-          to each target machine.  An exception to this is that an ARP scan is
-          used for any targets which are on a local ethernet network.
-          For unprivileged Unix shell users, a SYN packet is sent
-          instead of the ACK using the <function>connect</function>
-          system call.<indexterm><primary>unprivileged users</primary><secondary>limitations of</secondary></indexterm>
-          These defaults are equivalent to the
-          <option>-PA -PE</option> options.  This host discovery is
-          often sufficient when scanning local networks, but a more
-          comprehensive set of discovery probes is recommended for
-          security auditing.</para>
+    <para>If no host discovery options are given, Nmap sends an ICMP
+    echo request, a TCP SYN packet to port 443, and TCP ACK packet to
+    port 80, and an ICMP timestamp request. These defaults are
+    equivalent to the <option>-PE -PS443 -PA80 -PP</option> options.
+    An exception to this is that an ARP scan is used for any targets
+    which are on a local ethernet network. For unprivileged Unix shell
+    users, the default probes are a SYN packet to ports 80 and 443 using
+    the <function>connect</function> system
+    call.<indexterm><primary>unprivileged users</primary><secondary>limitations of</secondary></indexterm>
+    This host discovery is often sufficient when scanning local
+    networks, but a more comprehensive set of discovery probes is
+    recommended for security auditing.</para>
     
     <para>The <option>-P*</option> options (which select
     ping types) can be combined.  You can increase your odds of
@@ -427,9 +426,10 @@ you would expect.</para>
            reply to broadcast queries.</para>
 
            <para>The <option>-sP</option> option sends an ICMP echo
-           request and a TCP ACK packet to port 80 by default.  When
-           executed by an unprivileged user, only a SYN packet is sent
-           (using a <function>connect</function> call) to port 80 on
+           request, TCP SYN to port 443, TCP ACK to port 80, and an ICMP
+           timestamp request by default.  When
+           executed by an unprivileged user, only SYN packets are sent
+           (using a <function>connect</function> call) to ports 80 and 443 on
            the target.  When a privileged user tries to scan targets
            on a local ethernet network, ARP requests
            are used unless
@@ -438,7 +438,7 @@ you would expect.</para>
            discovery probe types (the <option>-P*</option> options,
            excluding <option>-PN</option>) for greater flexibility.
            If any of those probe type and port number options are
-           used, the default probes (ACK and echo request) are
+           used, the default probes are
            overridden.  When strict firewalls are in place between the
            source host running Nmap and the target network, using
            those advanced techniques is recommended.  Otherwise hosts
