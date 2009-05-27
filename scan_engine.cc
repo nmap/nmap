@@ -4190,7 +4190,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       if (current_reason == ER_DESTUNREACH)
         current_reason = ping->code + ER_ICMPCODE_MOD;
 
-      /* Echo reply, Timestamp reply, or Address Mask Reply */
+      /* Echo reply, Timestamp reply, or Address Mask Reply. RFCs 792 and 950. */
       if (USI->ptech.rawicmpscan && (ping->type == 0 || ping->type == 14 || ping->type == 18)) {
         memset(&sin, 0, sizeof(sin));
         sin.sin_addr.s_addr = ip->ip_src.s_addr;
@@ -4225,6 +4225,11 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 
           /* Ensure the connection info matches. */
           if (hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
+            continue;
+          /* Don't match a timestamp request with an echo reply, for example. */
+          if ((ping->type == 0 && probe->pspec()->pd.icmp.type != 8) ||
+              (ping->type == 14 && probe->pspec()->pd.icmp.type != 13) ||
+              (ping->type == 18 && probe->pspec()->pd.icmp.type != 17))
             continue;
 
           /* Sometimes we get false results when scanning localhost with

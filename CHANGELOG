@@ -8,6 +8,10 @@ o There is a new default ping probe set: -PE -PS443 -PA80 -PP. In
   ping probes are now sent in order of effectiveness (-PE first) so
   that less likely probes may not have to be sent. [David/Fyodor]
 
+o Fixed a bug where an ICMP echo, timestamp, or address mask reply
+  could be matched up with the wrong ICMP probe if more than one ICMP
+  probe type was being sent (as with the new default ping). [David]
+
 o [Zenmap] Fixed a crash, introduced in 4.85BETA4, that happened when
   searching scan results by date. [David] The error message was
       File "zenmapGUI\SearchGUI.pyo", line 816, in set_date
