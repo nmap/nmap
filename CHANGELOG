@@ -3104,7 +3104,7 @@ o Updated IANA assignment IP list for random IP (-iR)
 4.22SOC6 [2007-8-29]
 
 o Included David's major massping migration project.  The same
-  underlying engine is now uses for ping scanning as for port
+  underlying engine is now used for ping scanning as for port
   scanning.  We hope this will lead to better performance and
   accuracy, as well as helping to de-bloat Nmap.  Please test it out
   and report your results to nmap-dev!  For more details, see
