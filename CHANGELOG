@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Operating system icons are now always loaded as PNGs, even on
+  platforms that support SVG images.  Loading PNGs was over ten times
+  faster in some tests [Josh]
+
 o There is a new default ping probe set: -PE -PS443 -PA80 -PP. In
   exhaustive testing of 90 different probes, this one emerged as the
   best four-probe combination, finding 14% more Internet hosts than
