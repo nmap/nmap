@@ -1,4 +1,5 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o Fixed a bug with the --defeat-rst-ratelimit option [Josh]
 
 o [Zenmap] Operating system icons are now always loaded as PNGs, even on
   platforms that support SVG images.  Loading PNGs was over ten times

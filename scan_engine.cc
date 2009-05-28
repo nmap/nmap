@@ -2688,11 +2688,16 @@ static void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
     }
     adjust_ping = false;
   }
-  /* Do not slow down if we are in --defeat-rst-ratelimit mode and the new
-     state is closed|filtered. We don't care if it's closed|filtered because
-     of a RST or a timeout because they both mean the same thing. */
+  /* Do not slow down if 
+     1)  we are in --defeat-rst-ratelimit mode
+     2)  the new state is closed 
+     3)  this is not a UDP scan (other scans where noresp_open_scan is true
+         aren't possible with the --defeat-rst-ratelimit option)
+     We don't care if it's closed because of a RST or a timeout
+     because they both mean the same thing. */
   if (rcvdtime != NULL
-      && o.defeat_rst_ratelimit && newstate == PORT_CLOSEDFILTERED) {
+      && o.defeat_rst_ratelimit && newstate == PORT_CLOSED
+      && !USI->noresp_open_scan) {
     if (probe->tryno > 0)
       adjust_timing = false;
     adjust_ping = false;
