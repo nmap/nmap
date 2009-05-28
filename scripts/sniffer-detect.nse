@@ -24,16 +24,6 @@ hostrule = function(host, port)
 		nmap.get_interface_link(host.interface) == 'ethernet'
 end
 
---[[
-function bintohex(str)
-        local b = ""
-        for c in string.gmatch(str, ".") do
-                b = string.format('%s%02x',b, string.byte(c))
-        end
-        return b
-end
---]]
-
 callback = function(packetsz, layer2, layer3)
 	return string.sub(layer2, 0, 12)
 end
