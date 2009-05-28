@@ -37,6 +37,11 @@ o Updated nmap-mac-prefixes with the latest MAC address prefix data
   from http://standards.ieee.org/regauth/oui/oui.txt as of
   5/20/09. [Fyodor]
 
+o [Ncat] Now Ncat can send a certificate in connect mode for client authentication
+  using --ssl-cert and --ssl-key options.Ncat sends client certificate which is added
+  using --ssl-cert and --ssl-key only when it is requested by ssl server otherwise not.
+  [Venkat]
+
 Nmap 4.85BETA9 [2009-05-12]
 
 o Integrated all of your 1,156 of your OS detection submissions and
