@@ -54,11 +54,12 @@ local yield = coroutine.yield;
 local traceback = debug.traceback;
 
 local byte = string.byte;
-local format = string.format;
 local find = string.find;
+local format = string.format;
 local gsub = string.gsub;
 local lower = string.lower;
 local match = string.match;
+local sub = string.sub;
 
 local insert = table.insert;
 local remove = table.remove;
@@ -490,14 +491,67 @@ local function run (threads)
   progress "endTask";
 end
 
-do -- Load script arguments
-  local args = gsub((cnse.scriptargs or ""), "=([%w_]+)", "=\"%1\"");
-  local argsf, err = loadstring("return {"..args.."}", "Script Arguments");
-  if not argsf then
-    error("failed to parse --script-args:\n"..args.."\n"..err);
-  else
-    nmap.registry.args = argsf();
+do -- Load script arguments (--script-args)
+  local args = cnse.scriptargs or "";
+
+  -- Parse a string in 'str' at 'start'.
+  local function parse_string (str, start)
+    -- Unquoted
+    local uqi, uqj, uqm = find(str,
+        "^%s*([^'\"%s{},=][^%s{},=]*)%s*[},=]", start);
+    -- Quoted
+    local qi, qj, q, qm = find(str, "^%s*(['\"])(.-[^\\])%1%s*[},=]", start);
+    -- Empty Quote
+    local eqi, eqj = find(str, "^%s*(['\"])%1%s*[},=]", start);
+    if uqi then
+      return uqm, uqj-1;
+    elseif qi then
+      return gsub(qm, "\\"..q, q), qj-1;
+    elseif eqi then
+      return "", eqj-1;
+    else
+      error("Value around '"..sub(str, start, start+10)..
+          "' is invalid or is unterminated by a valid seperator");
+    end
   end
+  -- Takes 'str' at index 'start' and parses a table. 
+  -- Returns the table and the place in the string it finished reading.
+  local function parse_table (str, start)
+    local _, j = find(str, "^%s*{", start);
+    local t = {}; -- table we return
+    local tmp, nc; -- temporary and next character inspected
+
+    while true do
+      j = j+1; -- move past last token
+
+      _, j, nc = find(str, "^%s*(%S)", j);
+
+      if nc == "}" then -- end of table
+        return t, j;
+      else -- try to read key/value pair, or array value
+        local av = false; -- this is an array value?
+        if nc == "{" then -- array value
+          av, tmp, j = true, parse_table(str, j);
+        else
+          tmp, j = parse_string(str, j);
+        end
+        nc = sub(str, j+1, j+1); -- next token
+        if not av and nc == "=" then -- key/value?
+          _, j, nc = find(str, "^%s*(%S)", j+2);
+          if nc == "{" then
+            t[tmp], j = parse_table(str, j);
+          else -- regular string
+            t[tmp], j = parse_string(str, j);
+          end
+          nc = sub(str, j+1, j+1); -- next token
+        else -- not key/value pair, save array value
+          t[#t+1] = tmp;
+        end
+        if nc == "," then j = j+1 end -- skip "," token
+      end
+    end
+  end
+  nmap.registry.args = parse_table("{"..args.."}", 1);
 end
 
 -- Load all user chosen scripts
