@@ -701,24 +701,45 @@ Nmap script database.</para>
       <indexterm><primary>script arguments</primary></indexterm>
       <para>
       Arguments may be passed to NSE scripts using the
-	  <option>--script-args</option> option. The script arguments are generally
-	  name-value pairs. They are provided to scripts as a Lua table named
-	  <literal>args</literal> inside <literal><link
-	  linkend="nse-api-registry">nmap.registry</link></literal>.
-	  The argument names are keys for the corresponding values. The values can be
-	  either strings or tables. Subtables can be used to pass arguments to 
-	  scripts with finer granularity, such as passing different usernames for
-	  different scripts. Here is a typical Nmap invocation with script arguments:
-	  </para>
+      <option>--script-args</option> option. The arguments describe a table of
+      key-value pairs and possibly array values. Array values in this case have
+      omitted numerical keys.  The arguments are provided to scripts as a Lua
+      table named <literal>args</literal> inside <literal><link
+      linkend="nse-api-registry">nmap.registry</link></literal>.
+      </para>
+      <para>
+      Similar to Lua table constructor syntax, we delimit key-value pairs and
+      array values by commas. A key-value pair is separated by an equal sign.
+      Each successive array value is accessed by implicit integer keys,
+      starting from 1.  Array values do not necessarily need to appear after
+      all key-value pairs or in succession. They are typically used to
+      enumerate a list of items, such as proxy hosts or usernames.
+      </para>
+      <para>
+      A point of divergence is the acceptance of (possibly unquoted) strings
+      containing many illegal characters.  A key, value, or an array value may
+      be a sequence of characters not including <literal>'{', '}', ',',
+      '='</literal> or whitespace. You may overcome this restriction by using
+      quotes (single or double) to allow all characters within the quotation
+      marks.  Naturally, the quote delimiter cannot appear within your quoted
+      string unless you escape the quote using a backslash. A backslash is only
+      used to escape quotation marks in this special case; in all other cases a
+      backslash is interpreted literally.  A value in a key-value pair or an
+      array value may also be a nested table delimited by, as in Lua,
+      <literal>'{' and '}'</literal>.  Note that nested subtables are commonly
+      used to pass arguments to scripts with finer granularity, such as passing
+      different usernames for different scripts.
+      </para>
+      <para>Here is a typical Nmap invocation with script arguments: </para>
 	  <para>
 <indexterm><primary><option>--script-args</option></primary><secondary>example of</secondary></indexterm>
-<command>nmap -sC --script-args user=foo,pass=bar,whois={whodb=nofollow+ripe}</command>
+<command>nmap -sC --script-args user=foo,pass=',{}=bar',whois={whodb=nofollow+ripe},userdb=C:\Some\Path\To\File</command>
 	  </para>
 	  <para>
 	  The aforementioned command results in this Lua table:
           </para>
 <programlisting>
-{user="foo",pass="bar",whois={whodb="nofollow+ripe"}}
+{user="foo",pass=",{}=bar",whois={whodb="nofollow+ripe"},userdb="C:\\Some\\Path\\To\\File"}
 </programlisting>
  
 	  <para>You could therefore access the username (<literal>foo</literal>)
