@@ -18,6 +18,9 @@ o Ensure that when I build a distribution package on UNIX (e.g. make
   sure that any changes in that dir are included in the release, even
   if they aren't check in yet. [Fyodor]
 
+o Consider applying Joao M's topology saving feature.  See
+  http://seclists.org/nmap-dev/2009/q2/0409.html
+
 o Device categorization improvements
   o Examine Nmap's device categorization in nmap-os-deb and
     nmap-service-probes.  Decide if some small categories which have
