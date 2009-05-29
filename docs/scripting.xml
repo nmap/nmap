@@ -492,11 +492,11 @@ Nmap script database.</para>
         <varlistentry>
           <term>
             <indexterm><primary><option>--script-args</option></primary></indexterm>
-            <option>--script-args</option>
+            <option>--script-args <replaceable>args</replaceable></option>
           </term>
           <listitem>
-            <para>Provides arguments to the scripts. See <xref
-			linkend="nse-args"/> for a detailed explanation.</para>
+            <para>Provides arguments to the scripts. See
+            <xref linkend="nse-args"/> for a detailed explanation.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
@@ -702,55 +702,57 @@ Nmap script database.</para>
       <para>
       Arguments may be passed to NSE scripts using the
       <option>--script-args</option> option. The arguments describe a table of
-      key-value pairs and possibly array values. Array values in this case have
-      omitted numerical keys.  The arguments are provided to scripts as a Lua
-      table named <literal>args</literal> inside <literal><link
-      linkend="nse-api-registry">nmap.registry</link></literal>.
+      key-value pairs and possibly array values. The arguments are provided to
+      scripts as a table in the registry called
+      <varname>nmap.registry.args</varname>.
       </para>
       <para>
-      Similar to Lua table constructor syntax, we delimit key-value pairs and
-      array values by commas. A key-value pair is separated by an equal sign.
-      Each successive array value is accessed by implicit integer keys,
-      starting from 1.  Array values do not necessarily need to appear after
-      all key-value pairs or in succession. They are typically used to
-      enumerate a list of items, such as proxy hosts or usernames.
-      </para>
-      <para>
-      A point of divergence is the acceptance of (possibly unquoted) strings
-      containing many illegal characters.  A key, value, or an array value may
-      be a sequence of characters not including <literal>'{', '}', ',',
-      '='</literal> or whitespace. You may overcome this restriction by using
-      quotes (single or double) to allow all characters within the quotation
-      marks.  Naturally, the quote delimiter cannot appear within your quoted
-      string unless you escape the quote using a backslash. A backslash is only
+      The syntax for script arguments is similar to Lua's table constructor
+      syntax. Arguments are a comma-separated list of
+      <literal>name=value</literal> pairs. Names and values may be strings not
+      containing whitespace or the characters
+      &lsquo;<literal>{</literal>&rsquo;,
+      &lsquo;<literal>}</literal>&rsquo;,
+      &lsquo;<literal>=</literal>&rsquo;, or
+      &lsquo;<literal>,</literal>&rsquo;.
+      To include one of these characters in a string, enclose the string in
+      single or double quotes. Within a quoted string,
+      &lsquo;<literal>\</literal>&rsquo; escapes a quote. A backslash is only
       used to escape quotation marks in this special case; in all other cases a
-      backslash is interpreted literally.  A value in a key-value pair or an
-      array value may also be a nested table delimited by, as in Lua,
-      <literal>'{' and '}'</literal>.  Note that nested subtables are commonly
-      used to pass arguments to scripts with finer granularity, such as passing
-      different usernames for different scripts.
+      backslash is interpreted literally.
       </para>
-      <para>Here is a typical Nmap invocation with script arguments: </para>
-	  <para>
+      <para>
+      Values may also be tables enclosed in <literal>{}</literal>, just as in
+      Lua. A table may contain simple string values, for example a list of proxy
+      hosts; or more name-value pairs, including nested tables.
+      Nested subtables are commonly used to pass arguments specific to one
+      script, in a table named after the script. That is what is happening with
+      the <varname>whois</varname> table in the example below.
+      </para>
+      
+      <para>Here is a typical Nmap invocation with script arguments:
+<informalexample>
 <indexterm><primary><option>--script-args</option></primary><secondary>example of</secondary></indexterm>
+<literallayout>
 <command>nmap -sC --script-args user=foo,pass=',{}=bar',whois={whodb=nofollow+ripe},userdb=C:\Some\Path\To\File</command>
-	  </para>
-	  <para>
-	  The aforementioned command results in this Lua table:
-          </para>
+</literallayout>
+</informalexample>
+      That command results in this Lua table:
 <programlisting>
 {user="foo",pass=",{}=bar",whois={whodb="nofollow+ripe"},userdb="C:\\Some\\Path\\To\\File"}
 </programlisting>
- 
-	  <para>You could therefore access the username (<literal>foo</literal>)
-	  inside your script with this statement:</para>
-     
-          <para><literal>local username = nmap.registry.args.user</literal></para>
-
-          <para>Subtables used to override
-	  options for scripts are usually named after the script to ease retrieval.
-	  </para>
-	</sect2>
+      You could then access the username <literal>"foo"</literal> inside
+      your script with this statement:
+<programlisting>
+local username = nmap.registry.args.user
+</programlisting>
+      </para>
+      <para>
+      The online NSE Documentation Portal at <ulink
+      url="http://nmap.org/nsedoc/"/> lists the arguments that each script
+      accepts.
+      </para>
+    </sect2>
 
 
     <sect2 id="nse-usage-examples">

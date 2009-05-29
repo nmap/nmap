@@ -2174,26 +2174,29 @@ which lists the category or categories in which each script belongs.</para>
 </varlistentry>
       
 	  <varlistentry>
-        <term><option>--script-args <replaceable>name1</replaceable>=<replaceable>value1</replaceable>,<replaceable>name2</replaceable>={<replaceable>name3</replaceable>=<replaceable>value3</replaceable>,<replaceable>array_value1</replaceable>},<replaceable>name4</replaceable>=<replaceable>value4</replaceable>,<replaceable>array_value2</replaceable></option>
+        <term><option>--script-args <replaceable>name1</replaceable>=<replaceable>value1</replaceable>,<replaceable>name2</replaceable>={<replaceable>name3</replaceable>=<replaceable>value3</replaceable>},<replaceable>name4</replaceable>={<replaceable>value4</replaceable>,<replaceable>value5</replaceable>}</option>
         <indexterm significance="preferred"><primary><option>--script-args</option></primary></indexterm>
         <indexterm><primary>script arguments</primary><seealso><option>--script-args</option></seealso></indexterm></term>
 
 <listitem>
 <para>
-Lets you provide arguments to NSE scripts. Arguments are a comma separated list
-of <literal>name=value</literal> pairs or array values within a table.  Array
-values are simply values with implicit ordered numeric keys. Array Values as
-well as Keys and Values in key-value pairs may be strings of characters not
-including <literal>"{", "}", "=", ","<literal> or whitespace.  You may quote
-these strings to allow all characters.  The quote delimiter must be escaped by
-a backslash if used inside the quoted string. A backslash is only used as an
-escape mechanism for quote delimiters in quoted strings; in all other contexts
-it is interpreted literally. Array Values and Values in key-value pairs are
-allowed to be nested tables delimited by <literal>{</literal> and
-<literal>}</literal>.  An example of script arguments: <literal>--script-args
-auth={user=foo,pass=',{}=bar'},userdb=C:\Path\To\File</literal>.  See NSE's
-online script documentation at http://nmap.org/nsedoc for each script's
-accepted arguments.
+Lets you provide arguments to NSE scripts. Arguments are a comma-separated list
+of <literal>name=value</literal> pairs. Names and values may be strings not
+containing whitespace or the characters
+&lsquo;<literal>{</literal>&rsquo;,
+&lsquo;<literal>}</literal>&rsquo;,
+&lsquo;<literal>=</literal>&rsquo;, or
+&lsquo;<literal>,</literal>&rsquo;.
+To include one of these characters in a string, enclose the string in single or
+double quotes. Within a quoted string, &lsquo;<literal>\</literal>&rsquo;
+escapes a quote. A backslash is only used to escape quotation marks in this
+special case; in all other cases a backslash is interpreted literally. Values
+may also be tables enclosed in <literal>{}</literal>, just as in Lua. A table
+may contain simple string values or more name-value pairs, including nested
+tables. An example of script arguments:
+<option>--script-args auth={user=foo,pass=',{}=bar'},userdb=C:\Path\To\File</option>.
+The online NSE Documentation Portal at <ulink url="http://nmap.org/nsedoc/"/>
+lists the arguments that each script accepts.
 </para>
 </listitem>
 
