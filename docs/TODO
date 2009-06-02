@@ -1,7 +1,11 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Finish up, evaluation, integrate Joao's proxy
-  scripts/changes. [Joao, David]
+o [NSE] Open proxy detection scripts
+  o We have http-open-proxy.nse, but we should probably either extrand
+  that to handle other types of proxies (such as SOCKS and HTTP
+  CONNECT) or create more scripts to handle those other proxy
+  types. [Joao, David]
+  o Joao has written scripts, just need to finish up, evaluate, integrate.
 
 o Build x86 VM instance for RPM building. [Fyodor]
 
@@ -19,8 +23,13 @@ o Ensure that when I build a distribution package on UNIX (e.g. make
   sure that any changes in that dir are included in the release, even
   if they aren't check in yet. [Fyodor]
 
-o Consider applying Joao M's topology saving feature.  See
-  http://seclists.org/nmap-dev/2009/q2/0409.html
+o Consider whether to let Zenmap Topology graph export the images to
+  svg/png/etc.  Also think about printing.  Note that João Medeiros
+  has written a Umit patch to do this:
+  http://trac.umitproject.org/ticket/316.
+  - Now he has Nmap patch:
+    http://seclists.org/nmap-dev/2009/q2/0409.html
+  - Consider integrating.
 
 o Device categorization improvements
   o Examine Nmap's device categorization in nmap-os-deb and
@@ -81,17 +90,20 @@ o Some of the -PS443 scans (and maybe other ones) we've been running
   have been missing the Nmap line telling how many packets were
   sent/received, even though we had verbose mode. [David/Josh]
 
+o Get set up for Coverity scan of latest version to see if it catches
+  any important issues before stable release. [Fyodor]
+
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
+
+o -PO1 and "-sO -p1" seem to send ICMP ping packets with an ICMP ID
+  field of 0, which we found that a small percentage of hosts drop
+  (61.13% responded with 0, 62% with a random value).  So we might as
+  well randomize them in these cases.
 
 o Review NSE Nsock Socket Allocation:
   o Release socket locks on connection failure or timeout.
   o Track active sockets in the nsock library and don't rely on
       garbage collection for reallocation.
-
-o [NSE] Open proxy detection script
-  o We have http-open-proxy.nse, but we should probably either extrand
-  that to handle other types of proxies (such as SOCKS and HTTP
-  CONNECT) or create more scripts to handle those other proxy types.
 
 o [NSE] Make sure all our HTTP scripts transparently support SSL
   servers too.
@@ -266,11 +278,6 @@ o Ncat SSLv2 issues.  See
   though most servers don't support SSLv2, they usually respond to the
   ClientHello and just don't offer any SSLv2 features.
 
-o Consider whether to let Zenmap Topology graph export the images to
-  svg/png/etc.  Also think about printing.  Note that João Medeiros
-  has written a Umit patch to do this:
-  http://trac.umitproject.org/ticket/316.
-
 o Figure out and document (in at least the Ncat user's guide) the best
   way to use Ncat for chaining through proxies.  One option is this
   sort of thing:
@@ -328,6 +335,11 @@ o Make Zenmap settings get upgraded when the Zenmap executable is
 o Look into memory consumption of UDP scans with -p- and large
   hostgroups.  See if there is a way to prevent them from eating up gigs
   of RAM.
+
+o Zenmap should be able to export normal Nmap output
+
+o Zenmanp should perhaps be able to print Nmap output (if not too much
+  of a pain to implement.)
 
 o Start project to make Nmap a Featured Article on Wikipedia.
 
@@ -515,9 +527,6 @@ o Look at all the pcap functions, there are some like
   Actually I do indirectly use that for Windows. I wonder if they work
   for UNIX?
 
-o Update Nmap entry on Linux Online -
-  http://www.linux.org/apps/AppId_1979.html
-
 o perhaps each 'match' line in nmap-service-probes should have a
   maximum lines, bytes, and/or time by which a response should be
   available.  Once that much time (or many bytes or lines) have passed,
@@ -548,6 +557,12 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Update Nmap entry on Linux Online -
+  http://www.linux.org/apps/AppId_1979.html
+  - Screw it, the site does not seem to be maintained at all.  They
+  aren't taking updates as of 6/2/09, and even Firefox shows latest
+  update as 0.9.1.
 
 o [Ncat] In verbose mode, print when an SSL connection is established
   successfully and give the leaf certificate hash to make it easier to
