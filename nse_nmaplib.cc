@@ -218,10 +218,11 @@ static int l_clock_ms (lua_State *L)
 
 static int aux_mutex (lua_State *L)
 {
+  enum what {LOCK, DONE, TRYLOCK, RUNNING};
   static const char * op[] = {"lock", "done", "trylock", "running", NULL};
   switch (luaL_checkoption(L, 1, NULL, op))
   {
-    case 0: // lock
+    case LOCK:
       if (lua_isnil(L, lua_upvalueindex(2))) // check running
       {
         lua_pushthread(L);
@@ -231,10 +232,10 @@ static int aux_mutex (lua_State *L)
       lua_pushthread(L);
       lua_rawseti(L, lua_upvalueindex(1), lua_objlen(L, lua_upvalueindex(1))+1);
       return lua_yield(L, 0);
-    case 1: // done
+    case DONE:
       lua_pushthread(L);
       if (!lua_equal(L, -1, lua_upvalueindex(2)))
-        luaL_error(L, "%s", "Do not have a lock on this mutex");
+        luaL_error(L, "%s", "do not have a lock on this mutex");
       lua_getfield(L, LUA_REGISTRYINDEX, "_LOADED");
       lua_getfield(L, -1, "table");
       lua_getfield(L, -1, "remove");
@@ -242,13 +243,10 @@ static int aux_mutex (lua_State *L)
       lua_pushinteger(L, 1);
       lua_call(L, 2, 1);
       lua_replace(L, lua_upvalueindex(2));
-      if (!lua_isnil(L, lua_upvalueindex(2))) // waiting threads had a thread
-      {
-        assert(lua_isthread(L, lua_upvalueindex(2)));
+      if (lua_isthread(L, lua_upvalueindex(2))) // waiting threads had a thread
         nse_restore(lua_tothread(L, lua_upvalueindex(2)), 0);
-      }
       return 0;
-    case 2: // trylock
+    case TRYLOCK:
       if (lua_isnil(L, lua_upvalueindex(2)))
       {
         lua_pushthread(L);
@@ -258,7 +256,7 @@ static int aux_mutex (lua_State *L)
       else
         lua_pushboolean(L, false);
       return 1;
-    case 3: // running
+    case RUNNING:
       lua_pushvalue(L, lua_upvalueindex(2));
       return 1;
   }
@@ -269,7 +267,7 @@ static int l_mutex (lua_State *L)
 {
   int t = lua_type(L, 1);
   if (t == LUA_TNONE || t == LUA_TNIL || t == LUA_TBOOLEAN || t == LUA_TNUMBER)
-    luaL_argerror(L, 1, "Object expected");
+    luaL_argerror(L, 1, "object expected");
   lua_pushvalue(L, 1);
   lua_gettable(L, lua_upvalueindex(1));
   if (lua_isnil(L, -1))
