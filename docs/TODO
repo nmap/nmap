@@ -1,6 +1,7 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Evaluate Joao's proxy scripts/changes. [David]
+o Finish up, evaluation, integrate Joao's proxy
+  scripts/changes. [Joao, David]
 
 o Build x86 VM instance for RPM building. [Fyodor]
 
@@ -69,26 +70,6 @@ o [NSE] Deadlock identification and correction:
   deadlocked, or as in the case I observed where whois.nse was locked
   with itself."
 
-o Consider making the ping scan default be more comprehensive.  Note
-  that I got 23% more Internet boxes found out of a 50K sample (see host
-  enumeration chapter of my book for details).  Maybe I should
-  experiment a bit more to ensure they are real boxes and not network
-  artifacts and figure out exactly which tests are helping the most.
-  If I do this change, I'll have to update the host enumeration
-  chapter.  For UDP probing purposes, we should test whether including
-  extra data in the packet (e.g. --data-length) helps in general, and
-  for services such as 53 and 137, we should probably send proper
-  protocol headers (e.g. a DNS server status message) so that we
-  receive responses from listening services.
-
-o [Ncat] Have --ssl-cert and --ssl-key send a certificate in connect
-  mode so that client certificate auth can be done. [David/Venkat]
-
-o Once we're done with host discovery empirical research, add it to
-  host-discovery.xml.  Would be great to show the best combinations to
-  use for a given number of probes, the efficiency of the common probes
-  by themselves, etc.
-
 o Integrate SCTP scanning support.  See Daniel Roethlisberger's branch
   in nmap-exp/daniel/nmap-sctp.  As of 4/30/09, he is nearing
   completion.  See http://seclists.org/nmap-dev/2009/q2/0270.html.
@@ -96,36 +77,9 @@ o Integrate SCTP scanning support.  See Daniel Roethlisberger's branch
 o Deal with Ncat newline problem.  See this thread:
   http://seclists.org/nmap-dev/2009/q2/0325.html [David,Jah]
 
-o --script-args should allow a wider range of characters, and should
-  give a more useful error message if it receives chars it really
-  can't handle for some reason.  For an example, try
-  "--script-args=smbuser=admin,smbpass=pass^word".  For more details,
-  see Ron's report at http://seclists.org/nmap-dev/2009/q2/0378.html.
-
-o [Ncat] In verbose mode, print when an SSL connection is established
-  successfully and give the leaf certificate hash to make it easier to
-  verify when connecting to a machine where you can't or don't want to
-  use --ssl-verify (e.g. connecting to an ncat ssl server where it
-  created its own key).  While we're at it, we might want to print
-  some other information from the leaf node, such as organizationName
-  and maybe localityName, countryName or something.  We don't want to
-  be too verbose, but 1 line would be great and 2-3 might be
-  acceptable. [David]
-
-o Fix NSEdoc to better escape single-quotes in fields.  If we can't do
-  that for some reason, we need to document it better.  For example,
-  when we initially tried generating nsedoc for
-  http-webdav-unicode-bypass.nse, NSEdoc was listing it as a module
-  named "s auxiliary module", apparently because this line exited in
-  the description field:
-  This module is based on Metasplit's auxiliary module, modules/auxiliary/scanner/http/wmap_dir_webdav_unicode_bypass.rb. 
-  (For full example, see scripts/http-webdav-unicode-bypass.nse
-  r13345) [David/SoC]
-
 o Some of the -PS443 scans (and maybe other ones) we've been running
   have been missing the Nmap line telling how many packets were
-  sent/received, even though we had verbose mode. [David]
-
+  sent/received, even though we had verbose mode. [David/Josh]
 
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
 
@@ -594,6 +548,53 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [Ncat] In verbose mode, print when an SSL connection is established
+  successfully and give the leaf certificate hash to make it easier to
+  verify when connecting to a machine where you can't or don't want to
+  use --ssl-verify (e.g. connecting to an ncat ssl server where it
+  created its own key).  While we're at it, we might want to print
+  some other information from the leaf node, such as organizationName
+  and maybe localityName, countryName or something.  We don't want to
+  be too verbose, but 1 line would be great and 2-3 might be
+  acceptable. [David]
+
+o Fix NSEdoc to better escape single-quotes in fields.  If we can't do
+  that for some reason, we need to document it better.  For example,
+  when we initially tried generating nsedoc for
+  http-webdav-unicode-bypass.nse, NSEdoc was listing it as a module
+  named "s auxiliary module", apparently because this line exited in
+  the description field:
+  This module is based on Metasplit's auxiliary module, modules/auxiliary/scanner/http/wmap_dir_webdav_unicode_bypass.rb. 
+  (For full example, see scripts/http-webdav-unicode-bypass.nse
+  r13345) [David/SoC]
+
+o --script-args should allow a wider range of characters, and should
+  give a more useful error message if it receives chars it really
+  can't handle for some reason.  For an example, try
+  "--script-args=smbuser=admin,smbpass=pass^word".  For more details,
+  see Ron's report at
+  http://seclists.org/nmap-dev/2009/q2/0378.html.
+
+o [Ncat] Have --ssl-cert and --ssl-key send a certificate in connect
+  mode so that client certificate auth can be done. [David/Venkat]
+
+o Once we're done with host discovery empirical research, add it to
+  host-discovery.xml.  Would be great to show the best combinations to
+  use for a given number of probes, the efficiency of the common probes
+  by themselves, etc.
+
+o Consider making the ping scan default be more comprehensive.  Note
+  that I got 23% more Internet boxes found out of a 50K sample (see host
+  enumeration chapter of my book for details).  Maybe I should
+  experiment a bit more to ensure they are real boxes and not network
+  artifacts and figure out exactly which tests are helping the most.
+  If I do this change, I'll have to update the host enumeration
+  chapter.  For UDP probing purposes, we should test whether including
+  extra data in the packet (e.g. --data-length) helps in general, and
+  for services such as 53 and 137, we should probably send proper
+  protocol headers (e.g. a DNS server status message) so that we
+  receive responses from listening services.
 
 o We should probably check for a system Lua in a "lua5.1" directory
   rather than just "lua", as Debian and also my Fedora 10 systems seem
