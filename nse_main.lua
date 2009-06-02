@@ -395,10 +395,10 @@ local function run (threads)
   -- yielded until Nsock wakes them. After being awakened with
   -- nse_restore, waiting threads become pending and later are moved all
   -- at once back to running.
-  local running, waiting, pending = {}, {}, {}
+  local running, waiting, pending = {}, {}, {};
   -- hosts maps a host to a list of threads for that host.
-  local hosts, total = {}, 0
-  local current
+  local hosts, total = {}, 0;
+  local current;
   local progress = cnse.scan_progress_meter(NAME);
 
   print_debug(1, "NSE Script Threads (%d) running:", #threads);
