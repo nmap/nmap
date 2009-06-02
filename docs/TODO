@@ -1,12 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o [NSE] Open proxy detection scripts
-  o We have http-open-proxy.nse, but we should probably either extrand
-  that to handle other types of proxies (such as SOCKS and HTTP
-  CONNECT) or create more scripts to handle those other proxy
-  types. [Joao, David]
-  o Joao has written scripts, just need to finish up, evaluate, integrate.
-
 o Build x86 VM instance for RPM building. [Fyodor]
 
 o Look into building RPMs with SSL support. Statically linking to
@@ -22,6 +15,15 @@ o Ensure that when I build a distribution package on UNIX (e.g. make
   different than the one I do development work in.  Also, I want to be
   sure that any changes in that dir are included in the release, even
   if they aren't check in yet. [Fyodor]
+
+o Release 4.85BETA10
+
+o [NSE] Open proxy detection scripts
+  o We have http-open-proxy.nse, but we should probably either extrand
+  that to handle other types of proxies (such as SOCKS and HTTP
+  CONNECT) or create more scripts to handle those other proxy
+  types. [Joao, David]
+  o Joao has written scripts, just need to finish up, evaluate, integrate.
 
 o Consider whether to let Zenmap Topology graph export the images to
   svg/png/etc.  Also think about printing.  Note that João Medeiros
@@ -79,6 +81,9 @@ o [NSE] Deadlock identification and correction:
   deadlocked, or as in the case I observed where whois.nse was locked
   with itself."
 
+o [Ncat] Solve EOF issues which crop up when piping to an external
+  command. See http://seclists.org/nmap-dev/2009/q2/0528.html. [David]
+
 o Integrate SCTP scanning support.  See Daniel Roethlisberger's branch
   in nmap-exp/daniel/nmap-sctp.  As of 4/30/09, he is nearing
   completion.  See http://seclists.org/nmap-dev/2009/q2/0270.html.
@@ -94,6 +99,8 @@ o Get set up for Coverity scan of latest version to see if it catches
   any important issues before stable release. [Fyodor]
 
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
+
+o [Ncat] Maybe --chat should imply -l.  And Maybe --broker should too?
 
 o -PO1 and "-sO -p1" seem to send ICMP ping packets with an ICMP ID
   field of 0, which we found that a small percentage of hosts drop
