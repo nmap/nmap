@@ -216,6 +216,13 @@ static int l_clock_ms (lua_State *L)
   return 1;
 }
 
+/* The actual mutex returned by the nmap.mutex function.
+ * This function has 4 upvalues:
+ * (1) Table (array) of waiting threads.
+ * (2) The running thread or nil.
+ * (3) A unique table key used for destructors.
+ * (4) The destructor function, aux_mutex_done.
+ */
 static int aux_mutex (lua_State *L)
 {
   enum what {LOCK, DONE, TRYLOCK, RUNNING};
@@ -227,6 +234,9 @@ static int aux_mutex (lua_State *L)
       {
         lua_pushthread(L);
         lua_replace(L, lua_upvalueindex(2)); // set running
+        lua_pushvalue(L, lua_upvalueindex(3)); // unique identifier
+        lua_pushvalue(L, lua_upvalueindex(4)); // aux_mutex_done closure
+        nse_destructor(L, 'a');
         return 0;
       }
       lua_pushthread(L);
@@ -236,6 +246,10 @@ static int aux_mutex (lua_State *L)
       lua_pushthread(L);
       if (!lua_equal(L, -1, lua_upvalueindex(2)))
         luaL_error(L, "%s", "do not have a lock on this mutex");
+      /* remove destructor */
+      lua_pushvalue(L, lua_upvalueindex(3));
+      nse_destructor(L, 'r');
+      /* set new thread to lock the mutex */
       lua_getfield(L, LUA_REGISTRYINDEX, "_LOADED");
       lua_getfield(L, -1, "table");
       lua_getfield(L, -1, "remove");
@@ -244,7 +258,14 @@ static int aux_mutex (lua_State *L)
       lua_call(L, 2, 1);
       lua_replace(L, lua_upvalueindex(2));
       if (lua_isthread(L, lua_upvalueindex(2))) // waiting threads had a thread
-        nse_restore(lua_tothread(L, lua_upvalueindex(2)), 0);
+      {
+        lua_State *thread = lua_tothread(L, lua_upvalueindex(2));
+        lua_pushvalue(L, lua_upvalueindex(3)); // destructor key
+        lua_pushvalue(L, lua_upvalueindex(4)); // destructor
+        lua_xmove(L, thread, 2);
+        nse_destructor(thread, 'a');
+        nse_restore(thread, 0);
+      }
       return 0;
     case TRYLOCK:
       if (lua_isnil(L, lua_upvalueindex(2)))
@@ -263,6 +284,20 @@ static int aux_mutex (lua_State *L)
   return 0;
 }
 
+/* This is the mutex destructor called when a thread ends but failed to 
+ * unlock the mutex.
+ * It has 1 upvalue: The nmap.mutex function closure.
+ */
+static int aux_mutex_done (lua_State *L)
+{
+  lua_State *thread = lua_tothread(L, 1);
+  lua_pushvalue(L, lua_upvalueindex(1)); // aux_mutex, actual mutex closure
+  lua_pushliteral(L, "done");
+  lua_xmove(L, thread, 2);
+  if (lua_pcall(thread, 1, 0, 0) != 0) lua_pop(thread, 1); // pop error msg
+  return 0;
+}
+
 static int l_mutex (lua_State *L)
 {
   int t = lua_type(L, 1);
@@ -274,9 +309,14 @@ static int l_mutex (lua_State *L)
   {
     lua_newtable(L); // waiting threads
     lua_pushnil(L); // running thread
-    lua_pushcclosure(L, aux_mutex, 2);
+    lua_newtable(L); // unique object as an identifier
+    lua_pushnil(L); // placeholder for aux_mutex_done
+    lua_pushcclosure(L, aux_mutex, 4);
+    lua_pushvalue(L, -1); // mutex closure
+    lua_pushcclosure(L, aux_mutex_done, 1);
+    lua_setupvalue(L, -2, 4); // replace nil upvalue with aux_mutex_done
     lua_pushvalue(L, 1); // "mutex object"
-    lua_pushvalue(L, -2); // function
+    lua_pushvalue(L, -2); // mutex function
     lua_settable(L, lua_upvalueindex(1)); // Add to mutex table
   }
   return 1; // aux_mutex closure

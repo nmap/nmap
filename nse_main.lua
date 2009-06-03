@@ -26,6 +26,9 @@
 
 local NAME = "NSE";
 
+local WAITING_TO_RUNNING = "NSE_WAITING_TO_RUNNING";
+local DESTRUCTOR = "NSE_DESTRUCTOR";
+
 local _R = debug.getregistry(); -- The registry
 local _G = _G;
 
@@ -128,6 +131,14 @@ do
     end
   end
 
+  function Thread:close ()
+    local ch = self.close_handlers;
+    for key, destructor_t in pairs(ch) do
+      destructor_t.destructor(destructor_t.thread, key);
+      ch[key] = nil;
+    end
+  end
+
   -- thread = Script:new_thread(rule, ...)
   -- Creates a new thread for the script Script.
   -- Arguments:
@@ -166,6 +177,7 @@ do
         identifier = tostring(co),
         info = format("'%s' (%s)", self.short_basename, tostring(co));
         type = rule == "hostrule" and "host" or "port",
+        close_handlers = {},
       }, {
         __metatable = Thread,
         __index = function (thread, k) return Thread[k] or self[k] end
@@ -396,6 +408,7 @@ local function run (threads)
   -- nse_restore, waiting threads become pending and later are moved all
   -- at once back to running.
   local running, waiting, pending = {}, {}, {};
+  local all = setmetatable({}, {__mode = "kv"}); -- base coroutine to Thread
   -- hosts maps a host to a list of threads for that host.
   local hosts, total = {}, 0;
   local current;
@@ -406,17 +419,32 @@ local function run (threads)
     local thread = remove(threads);
     thread:d("Starting %THREAD against %s%s.", thread.host.ip,
         thread.port and ":"..thread.port.number or "");
-    running[thread.co], total = thread, total + 1;
+    all[thread.co], running[thread.co], total = thread, thread, total+1;
     hosts[thread.host] = hosts[thread.host] or {};
     hosts[thread.host][thread.co] = true;
   end
 
-  -- This WAITING_TO_RUNNING function is called by nse_restore in
-  -- nse_main.cc.
-  _R.WAITING_TO_RUNNING = function (co, ...)
+  -- _R[WAITING_TO_RUNNING] is called by nse_restore in nse_main.cc
+  _R[WAITING_TO_RUNNING] = function (co, ...)
     if waiting[co] then -- ignore a thread not waiting
       pending[co], waiting[co] = waiting[co], nil;
       pending[co].args = {n = select("#", ...), ...};
+    end
+  end
+  -- _R[DESTRUCTOR] is called by nse_destructor in nse_main.cc
+  _R[DESTRUCTOR] = function (what, co, key, destructor)
+    local thread = all[co] or current;
+    print(thread, what, co, key, destructor)
+    if thread then
+      local ch = thread.close_handlers;
+      if what == "add" then
+        ch[key] = {
+          thread = co,
+          destructor = destructor
+        };
+      elseif what == "remove" then
+        ch[key] = nil;
+      end
     end
   end
 
@@ -441,6 +469,7 @@ local function run (threads)
       if cnse.timedOut(thread.host) then
         waiting[co] = nil;
         thread:d("%THREAD target timed out");
+        thread:close();
       end
     end
 
@@ -453,6 +482,7 @@ local function run (threads)
         hosts[thread.host][co] = nil;
         thread:d("%THREAD threw an error!\n%s\n",
             traceback(co, tostring(result)));
+        thread:close();
       elseif status(co) == "suspended" then
         waiting[co] = thread;
       elseif status(co) == "dead" then
@@ -472,6 +502,7 @@ local function run (threads)
         end
         thread:d("Finished %THREAD against %s%s.", thread.host.ip,
             thread.port and ":"..thread.port.number or "");
+        thread:close();
       end
 
       -- Any more threads running for this host?

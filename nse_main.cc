@@ -23,6 +23,10 @@
 #define NSE_MAIN "NSE_MAIN" /* the main function */
 #define NSE_TRACEBACK "NSE_TRACEBACK"
 
+/* string keys used in interface with nse_main.lua */
+#define NSE_WAITING_TO_RUNNING "NSE_WAITING_TO_RUNNING"
+#define NSE_DESTRUCTOR "NSE_DESTRUCTOR"
+
 extern NmapOps o;
 
 int current_hosts = LUA_NOREF;
@@ -470,6 +474,35 @@ void nse_restore (lua_State *L, int number)
      other arguments. */
   if (lua_pcall(L, number+1, 0, 0) != 0)
     fatal("nse_restore: WAITING_TO_RUNNING error!\n%s", lua_tostring(L, -1));
+}
+
+/* This function adds (what = 'a') or removes (what 'r') a destructor
+ * from the Thread owning the running Lua thread (L). We call the nse_main.lua
+ * function _R.NSE_DESTRUCTOR in order to add (or remove) the destructor to
+ * the Thread's close handler table.
+ *
+ * what == 'r', destructor key on stack
+ * what == 'a', destructor key and destructor on stack
+ */
+void nse_destructor (lua_State *L, char what)
+{
+  assert(what == 'a' || what == 'r');
+  lua_getfield(L, LUA_REGISTRYINDEX, NSE_DESTRUCTOR);
+  lua_pushstring(L, what == 'a' ? "add" : "remove");
+  lua_pushthread(L);
+  if (what == 'a')
+  {
+    lua_pushvalue(L, -5); /* destructor key */
+    lua_pushvalue(L, -5); /* destructor */
+  }
+  else
+  {
+    lua_pushvalue(L, -4); /* destructor key */
+    lua_pushnil(L); /* no destructor, we are removing */
+  }
+  if (lua_pcall(L, 4, 0, 0) != 0)
+    fatal("nse_destructor: NSE_DESTRUCTOR error!\n%s", lua_tostring(L, -1));
+  lua_pop(L, what == 'a' ? 2 : 1);
 }
 
 static lua_State *L_NSE = NULL;

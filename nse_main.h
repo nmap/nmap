@@ -32,7 +32,9 @@ class Target;
 int script_updatedb();
 void script_scan_free();
 
+/* API */
 void nse_restore (lua_State *, int);
+void nse_destructor (lua_State *, char);
 
 int open_nse (void);
 int script_scan(std::vector<Target *> &targets);
