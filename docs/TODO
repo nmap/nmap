@@ -51,8 +51,33 @@ o Device categorization improvements
     [Doug has done some initial work on this.  For example, see
      nmap/docs/device-types.txt]
 
-o [NSE] Deadlock identification and correction:
-  o Release mutexes upon script death.
+o [NSE] Release mutexes upon script death to prevent certain deadlocks
+  [Patrick, David]
+
+o [Ncat] Solve EOF issues which crop up when piping to an external
+  command. See http://seclists.org/nmap-dev/2009/q2/0528.html. [David]
+
+o Integrate SCTP scanning support.  See Daniel Roethlisberger's branch
+  in nmap-exp/daniel/nmap-sctp.  As of 4/30/09, he is nearing
+  completion.  See http://seclists.org/nmap-dev/2009/q2/0270.html.
+
+o Deal with Ncat newline problem.  See this thread:
+  http://seclists.org/nmap-dev/2009/q2/0325.html [David,Jah]
+
+o Some of the -PS443 scans (and maybe other ones) we've been running
+  have been missing the Nmap line telling how many packets were
+  sent/received, even though we had verbose mode. [David/Josh]
+
+o Get set up for Coverity scan of latest version to see if it catches
+  any important issues before stable release. [Fyodor]
+
+===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
+
+o [NSE] Track active sockets in the nsock library binding and don't
+  rely on garbage collection for reallocation. Can probably wait until
+  post-stable release for integration. [Patrick]
+
+o Deadlock identification and correction:
   o Add detection for deadlocks and print which threads are involved.
   o use above results to make a strategy for automatic deadlock resolution.
   o Original entry: Figure out what to do about NSE mutexes:
@@ -81,36 +106,12 @@ o [NSE] Deadlock identification and correction:
   deadlocked, or as in the case I observed where whois.nse was locked
   with itself."
 
-o [Ncat] Solve EOF issues which crop up when piping to an external
-  command. See http://seclists.org/nmap-dev/2009/q2/0528.html. [David]
-
-o Integrate SCTP scanning support.  See Daniel Roethlisberger's branch
-  in nmap-exp/daniel/nmap-sctp.  As of 4/30/09, he is nearing
-  completion.  See http://seclists.org/nmap-dev/2009/q2/0270.html.
-
-o Deal with Ncat newline problem.  See this thread:
-  http://seclists.org/nmap-dev/2009/q2/0325.html [David,Jah]
-
-o Some of the -PS443 scans (and maybe other ones) we've been running
-  have been missing the Nmap line telling how many packets were
-  sent/received, even though we had verbose mode. [David/Josh]
-
-o Get set up for Coverity scan of latest version to see if it catches
-  any important issues before stable release. [Fyodor]
-
-===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
-
 o [Ncat] Maybe --chat should imply -l.  And Maybe --broker should too?
 
 o -PO1 and "-sO -p1" seem to send ICMP ping packets with an ICMP ID
   field of 0, which we found that a small percentage of hosts drop
   (61.13% responded with 0, 62% with a random value).  So we might as
   well randomize them in these cases.
-
-o Review NSE Nsock Socket Allocation:
-  o Release socket locks on connection failure or timeout.
-  o Track active sockets in the nsock library and don't rely on
-      garbage collection for reallocation.
 
 o [NSE] Make sure all our HTTP scripts transparently support SSL
   servers too.
@@ -564,6 +565,9 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] Release socket locks on connection failure or
+  timeout. [Patrick]
 
 o Update Nmap entry on Linux Online -
   http://www.linux.org/apps/AppId_1979.html
