@@ -17,6 +17,30 @@
 #include <string.h>
 
 #include "dnet.h"
+#include "crc32ct.h"
+
+/* CRC-32C (Castagnoli). Public domain. */
+static unsigned long
+_crc32c(unsigned char *buf, int len)
+{
+	int i;
+	unsigned long crc32 = ~0L;
+	unsigned long result;
+	unsigned char byte0, byte1, byte2, byte3;
+
+	for (i = 0; i < len; i++) {
+		CRC32C(crc32, buf[i]);
+	}
+
+	result = ~crc32;
+
+	byte0 =  result        & 0xff;
+	byte1 = (result >>  8) & 0xff;
+	byte2 = (result >> 16) & 0xff;
+	byte3 = (result >> 24) & 0xff;
+	crc32 = ((byte0 << 24) | (byte1 << 16) | (byte2 <<  8) | byte3);
+	return crc32;
+}
 
 ssize_t
 ip_add_option(void *buf, size_t len, int proto,
@@ -122,6 +146,13 @@ ip_checksum(void *buf, size_t len)
 			udp->uh_sum = ip_cksum_carry(sum);
 			if (!udp->uh_sum)
 				udp->uh_sum = 0xffff;	/* RFC 768 */
+		}
+	} else if (ip->ip_p == IP_PROTO_SCTP) {
+		struct sctp_hdr *sctp = (struct sctp_hdr *)((u_char *)ip + hl);
+
+		if (len >= SCTP_HDR_LEN) {
+			sctp->sh_sum = 0;
+			sctp->sh_sum = htonl(_crc32c((u_char *)sctp, len));
 		}
 	} else if (ip->ip_p == IP_PROTO_ICMP || ip->ip_p == IP_PROTO_IGMP) {
 		struct icmp_hdr *icmp = (struct icmp_hdr *)((u_char *)ip + hl);

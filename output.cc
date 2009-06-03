@@ -509,7 +509,7 @@ static char* formatScriptOutput(ScriptResult sr) {
    output and the XML output.  It is pretty ugly -- in particular I
    should write helper functions to handle the table creation */
 void printportoutput(Target *currenths, PortList *plist) {
-  char protocol[4];
+  char protocol[MAX_IPPROTOSTRLEN+1];
   char rpcinfo[64];
   char rpcmachineinfo[64];
   char portinfo[64];
@@ -701,11 +701,11 @@ void printportoutput(Target *currenths, PortList *plist) {
     }
   } else {
     current = NULL;
-    while( (current=plist->nextPort(current, TCPANDUDP, 0))!=NULL ) {
+    while( (current=plist->nextPort(current, TCPANDUDPANDSCTP, 0))!=NULL ) {
       if (!plist->isIgnoredState(current->state)) {
 	if (!first) log_write(LOG_MACHINE,", ");
 	else first = 0;
-	strcpy(protocol,(current->proto == IPPROTO_TCP)? "tcp": "udp");
+	strcpy(protocol, IPPROTO2STR(current->proto));
 	Snprintf(portinfo, sizeof(portinfo), "%d/%s", current->portno, protocol);
 	state = statenum2str(current->state);
 	current->getServiceDeductions(&sd);
@@ -1205,9 +1205,10 @@ char outpbuf[128];
    in sequential order for space savings and easier to read output */
 void output_ports_to_machine_parseable_output(struct scan_lists *ports, 
 					      int tcpscan, int udpscan,
-					      int protscan) {
+					      int sctpscan, int protscan) {
   int tcpportsscanned = ports->tcp_count;
   int udpportsscanned = ports->udp_count;
+  int sctpportsscanned = ports->sctp_count;
   int protsscanned = ports->prot_count;
  log_write(LOG_MACHINE, "# Ports scanned: TCP(%d;", tcpportsscanned);
  if (tcpportsscanned)
@@ -1215,6 +1216,9 @@ void output_ports_to_machine_parseable_output(struct scan_lists *ports,
  log_write(LOG_MACHINE, ") UDP(%d;", udpportsscanned);
  if (udpportsscanned)
    output_rangelist_given_ports(LOG_MACHINE, ports->udp_ports, udpportsscanned);
+ log_write(LOG_MACHINE, ") SCTP(%d;", sctpportsscanned);
+ if (sctpportsscanned)
+   output_rangelist_given_ports(LOG_MACHINE, ports->sctp_ports, sctpportsscanned);
  log_write(LOG_MACHINE, ") PROTOCOLS(%d;", protsscanned);
  if (protsscanned)
    output_rangelist_given_ports(LOG_MACHINE, ports->prots, protsscanned);
@@ -1279,6 +1283,10 @@ void output_xml_scaninfo_records(struct scan_lists *scanlist) {
     doscaninfo("fin", "tcp", scanlist->tcp_ports, scanlist->tcp_count);
   if (o.udpscan) 
     doscaninfo("udp", "udp", scanlist->udp_ports, scanlist->udp_count);
+  if (o.sctpinitscan) 
+    doscaninfo("sctpinit", "sctp", scanlist->sctp_ports, scanlist->sctp_count);
+  if (o.sctpcookieechoscan) 
+    doscaninfo("sctpcookieecho", "sctp", scanlist->sctp_ports, scanlist->sctp_count);
   if (o.ipprotscan) 
     doscaninfo("ipproto", "ip", scanlist->prots, scanlist->prot_count); 
   log_flush_all();
@@ -1782,7 +1790,7 @@ void printserviceinfooutput(Target *currenths) {
   for (i=0; i<MAX_SERVICE_INFO_FIELDS; i++)
     hostname_tbl[i][0] = ostype_tbl[i][0] = devicetype_tbl[i][0] = '\0';
 
-  while ((p = currenths->ports.nextPort(p, TCPANDUDP, PORT_OPEN))) {
+  while ((p = currenths->ports.nextPort(p, TCPANDUDPANDSCTP, PORT_OPEN))) {
     // The following 2 lines (from portlist.h) tell us that we don't
     // need to worry about free()ing anything in the serviceDeductions struct.
       // pass in an allocated struct serviceDeductions (don't wory about initializing, and

@@ -184,6 +184,8 @@ const char *proto2ascii(u8 proto, bool uppercase) {
     return uppercase? "TCP" : "tcp"; break;
   case IPPROTO_UDP:
     return uppercase? "UDP" : "udp"; break;
+  case IPPROTO_SCTP:
+    return uppercase? "SCTP" : "sctp"; break;
   case IPPROTO_IP:
     return uppercase? "IP" : "ip"; break;
   default:
@@ -427,6 +429,7 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
   struct ip *ip = (struct ip *) packet;
   struct tcp_hdr *tcp = NULL;
   struct udp_hdr *udp = NULL;
+  struct sctp_hdr *sctp = NULL;
   char ipinfo[512];
   char srchost[INET6_ADDRSTRLEN], dsthost[INET6_ADDRSTRLEN];
   char *p;
@@ -549,6 +552,14 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
     Snprintf(protoinfo, sizeof(protoinfo), "UDP %s:%d > %s:%d %s",
 	     srchost, ntohs(udp->uh_sport), dsthost, ntohs(udp->uh_dport),
 	     ipinfo);
+  } else if (ip->ip_p == IPPROTO_SCTP && frag_off) {
+      Snprintf(protoinfo, sizeof(protoinfo), "SCTP %s:?? > %s:?? fragment %s (incomplete)", srchost, dsthost, ipinfo);
+  } else if (ip->ip_p == IPPROTO_SCTP) {
+    sctp =  (struct sctp_hdr *) (packet + sizeof(struct ip));
+
+    Snprintf(protoinfo, sizeof(protoinfo), "SCTP %s:%d > %s:%d %s",
+	     srchost, ntohs(sctp->sh_sport), dsthost, ntohs(sctp->sh_dport),
+	     ipinfo);
   } else if (ip->ip_p == IPPROTO_ICMP && frag_off) {
       Snprintf(protoinfo, sizeof(protoinfo), "ICMP %s > %s fragment %s (incomplete)", srchost, dsthost, ipinfo);
   } else if (ip->ip_p == IPPROTO_ICMP) {
@@ -577,6 +588,7 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
       if (pktlen + 8 < len) {
         tcp = (struct tcp_hdr *) ((char *) ip2 + (ip2->ip_hl * 4));
         udp = (struct udp_hdr *) ((char *) ip2 + (ip2->ip_hl * 4));
+        sctp = (struct sctp_hdr *) ((char *) ip2 + (ip2->ip_hl * 4));
       }
       ip2dst = inet_ntoa(ip2->ip_dst);
       switch (ping->code) {
@@ -594,6 +606,8 @@ static const char *ippackethdrinfo(const u8 *packet, u32 len) {
 	  Snprintf(icmptype, sizeof icmptype, "port %u unreachable", ntohs(udp->uh_dport));
 	else if (ip2->ip_p == IPPROTO_TCP && tcp)
 	  Snprintf(icmptype, sizeof icmptype, "port %u unreachable", ntohs(tcp->th_dport));
+	else if (ip2->ip_p == IPPROTO_SCTP && sctp)
+	  Snprintf(icmptype, sizeof icmptype, "port %u unreachable", ntohs(sctp->sh_dport));
 	else
 	  strcpy(icmptype, "port unreachable");
 	break;
@@ -1759,6 +1773,69 @@ int send_udp_raw( int sd, struct eth_nfo *eth,
 
   free(packet);
   return res;
+}
+
+/* Builds an SCTP packet (including an IP header) by packing the fields
+   with the given information.  It allocates a new buffer to store the
+   packet contents, and then returns that buffer.  The packet is not
+   actually sent by this function.  Caller must delete the buffer when
+   finished with the packet.  The packet length is returned in
+   packetlen, which must be a valid int pointer. */
+u8 *build_sctp_raw(const struct in_addr *source, const struct in_addr *victim,
+		  int ttl, u16 ipid, u8 tos, bool df,
+		  u8 *ipopt, int ipoptlen,
+		  u16 sport, u16 dport,
+		  u32 vtag, char *chunks, int chunkslen,
+		  char *data, u16 datalen, u32 *outpacketlen)
+{
+  int packetlen = sizeof(struct ip) + ipoptlen + sizeof(struct sctp_hdr) + chunkslen + datalen;
+  u8 *packet = (u8 *) safe_malloc(packetlen);
+  struct ip *ip = (struct ip *) packet;
+  struct sctp_hdr *sctp = (struct sctp_hdr *) ((u8*)ip + sizeof(struct ip) + ipoptlen);
+  static int myttl = 0;
+  
+  /* check that required fields are there and not too silly */
+  assert(victim);
+  assert(source);
+  assert(ipoptlen%4==0);
+  
+  /* Time to live */
+  if (ttl == -1) {
+    myttl = (get_random_uint() % 23) + 37;
+  } else {
+    myttl = ttl;
+  }
+  
+  sctp->sh_sport = htons(sport);
+  sctp->sh_dport = htons(dport);
+  sctp->sh_sum   = 0;
+  sctp->sh_vtag  = htonl(vtag);
+  
+  if (chunks)
+    memcpy((u8*)sctp + sizeof(struct sctp_hdr), chunks, chunkslen);
+  
+  if (data)
+    memcpy((u8*)sctp + sizeof(struct sctp_hdr) + chunkslen, data, datalen);
+  
+  /* RFC 2960 originally defined Adler32 checksums, which was later
+   * revised to CRC32C in RFC 3309 and RFC 4960 respectively.
+   * Nmap uses CRC32C by default, unless --adler32 is given. */
+  if (o.adler32)
+    sctp->sh_sum = htonl(nbase_adler32((unsigned char*)sctp,
+                   sizeof(struct sctp_hdr) + chunkslen + datalen));
+  else
+    sctp->sh_sum = htonl(nbase_crc32c((unsigned char*)sctp,
+                   sizeof(struct sctp_hdr) + chunkslen + datalen));
+
+  if (o.badsum)
+    --sctp->sh_sum;
+
+  fill_ip_raw(ip, packetlen, ipopt, ipoptlen,
+	tos, ipid, df?IP_DF:0, myttl, IPPROTO_SCTP,
+	source, victim);
+  
+  *outpacketlen = packetlen;
+  return packet;
 }
 
 /* Builds an IP packet (including an IP header) by packing the fields

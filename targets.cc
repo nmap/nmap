@@ -483,7 +483,7 @@ do {
 	 3) We are doing a raw-mode portscan or osscan OR
 	 4) We are on windows and doing ICMP ping */
       if (o.isr00t && o.af() == AF_INET && 
-	  ((pingtype & (PINGTYPE_TCP|PINGTYPE_UDP|PINGTYPE_PROTO|PINGTYPE_ARP)) || o.RawScan()
+	  ((pingtype & (PINGTYPE_TCP|PINGTYPE_UDP|PINGTYPE_SCTP_INIT|PINGTYPE_PROTO|PINGTYPE_ARP)) || o.RawScan()
 #ifdef WIN32
 	   || (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))
 #endif // WIN32

@@ -123,6 +123,7 @@ class NmapOps {
 
   bool TCPScan(); /* Returns true if at least one chosen scan type is TCP */
   bool UDPScan(); /* Returns true if at least one chosen scan type is UDP */
+  bool SCTPScan(); /* Returns true if at least one chosen scan type is SCTP */
 
   /* Returns true if at least one chosen scan type uses raw packets.
      It does not currently cover cases such as TCP SYN ping scan which
@@ -222,8 +223,10 @@ class NmapOps {
   void setMaxHostGroupSz(unsigned int sz);
   unsigned int maxTCPScanDelay() { return max_tcp_scan_delay; }
   unsigned int maxUDPScanDelay() { return max_udp_scan_delay; }
+  unsigned int maxSCTPScanDelay() { return max_sctp_scan_delay; }
   void setMaxTCPScanDelay(unsigned int delayMS) { max_tcp_scan_delay = delayMS; }
   void setMaxUDPScanDelay(unsigned int delayMS) { max_udp_scan_delay = delayMS; }
+  void setMaxSCTPScanDelay(unsigned int delayMS) { max_sctp_scan_delay = delayMS; }
 
   /* Sets the Name of the XML stylesheet to be printed in XML output.
      If this is never called, a default stylesheet distributed with
@@ -291,6 +294,8 @@ class NmapOps {
   int rpcscan;
   int synscan;
   int udpscan;
+  int sctpinitscan;
+  int sctpcookieechoscan;
   int windowscan;
   int xmasscan;
   int noresolve;
@@ -314,6 +319,7 @@ class NmapOps {
   bool log_errors;
   bool traceroute;
   bool reason;
+  bool adler32;
 
 #ifndef NOLUA
   int script;
@@ -347,6 +353,7 @@ class NmapOps {
   int max_retransmissions;
   unsigned int max_tcp_scan_delay;
   unsigned int max_udp_scan_delay;
+  unsigned int max_sctp_scan_delay;
   unsigned int min_host_group_sz;
   unsigned int max_host_group_sz;
   void Initialize();

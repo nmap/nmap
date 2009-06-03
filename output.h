@@ -171,7 +171,7 @@ int log_open(int logt, int append, char *filename);
    in sequential order for space savings and easier to read output */
 void output_ports_to_machine_parseable_output(struct scan_lists *ports, 
 					      int tcpscan, int udpscan,
-					      int protscan);
+					      int sctpscan, int protscan);
 
 /* Similar to output_ports_to_machine_parseable_output, this function
    outputs the XML version, which is scaninfo records of each scan

@@ -218,6 +218,11 @@ void *realloc();
 #include <arpa/inet.h>
 #endif
 
+/* For systems without SCTP in netinet/in.h, such as MacOS X */
+#ifndef IPPROTO_SCTP
+#define IPPROTO_SCTP 132
+#endif
+
 /* Keep assert() defined for security reasons */
 #undef NDEBUG
 
@@ -271,6 +276,9 @@ void *realloc();
                                             change this to 113 */
 #define DEFAULT_UDP_PROBE_PORT_SPEC "31338" /* The port UDP ping probes go to
                                                if unspecified by user */
+#define DEFAULT_SCTP_PROBE_PORT_SPEC "80" /* The port SCTP probes go to
+                                             if unspecified by
+                                             user */
 #define DEFAULT_PROTO_PROBE_PORT_SPEC "1,2,4" /* The IPProto ping probes to use
                                                  if unspecified by user */
 
@@ -288,6 +296,10 @@ void *realloc();
 
 #ifndef MAX_UDP_SCAN_DELAY
 #define MAX_UDP_SCAN_DELAY 1000
+#endif
+
+#ifndef MAX_SCTP_SCAN_DELAY
+#define MAX_SCTP_SCAN_DELAY 1000
 #endif
 
 /* Maximum number of extra hostnames, OSs, and devices, we
@@ -339,6 +351,7 @@ void *realloc();
 #define PINGTYPE_UDP  512
 #define PINGTYPE_ARP 1024
 #define PINGTYPE_PROTO 2048
+#define PINGTYPE_SCTP_INIT 4096
 
 /* Empirically determined optimum combinations of different numbers of probes:
      -PE

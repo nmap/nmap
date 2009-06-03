@@ -58,11 +58,11 @@
 <!ENTITY % hostname_types "(PTR)" >
 
 <!-- see output.c:output_xml_scaninfo_records for scan types -->
-<!ENTITY % scan_types "(syn|ack|bounce|connect|null|xmas|window|maimon|fin|udp|ipproto)" >
+<!ENTITY % scan_types "(syn|ack|bounce|connect|null|xmas|window|maimon|fin|udp|sctpinit|sctpcookieecho|ipproto)" >
 
 <!-- <!ENTITY % ip_versions "(ipv4)" > -->
 
-<!ENTITY % port_protocols "(ip|tcp|udp)" >
+<!ENTITY % port_protocols "(ip|tcp|udp|sctp)" >
 
 <!-- I don't know exactly what these are, but the values were enumerated via:
      grep "conf=" *

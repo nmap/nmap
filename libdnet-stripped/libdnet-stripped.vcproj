@@ -270,6 +270,10 @@
 				RelativePath=".\include\dnet\udp.h"
 				>
 			</File>
+			<File
+				RelativePath=".\include\dnet\sctp.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"

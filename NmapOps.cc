@@ -238,6 +238,7 @@ void NmapOps::Initialize() {
   max_host_group_sz = 100000; // don't want to be restrictive unless user sets
   max_tcp_scan_delay = MAX_TCP_SCAN_DELAY;
   max_udp_scan_delay = MAX_UDP_SCAN_DELAY;
+  max_sctp_scan_delay = MAX_SCTP_SCAN_DELAY;
   max_ips_to_scan = 0;
   extra_payload_length = 0;
   extra_payload = NULL;
@@ -258,6 +259,8 @@ void NmapOps::Initialize() {
   listscan = pingscan = allowall = ackscan = bouncescan = connectscan = 0;
   rpcscan = nullscan = xmasscan = fragscan = synscan = windowscan = 0;
   maimonscan = idlescan = finscan = udpscan = ipprotscan = noresolve = 0;
+  sctpinitscan = 0;
+  sctpcookieechoscan = 0;
   append_output = 0;
   memset(logfd, 0, sizeof(FILE *) * LOG_NUM_FILES);
   ttl = -1;
@@ -266,6 +269,7 @@ void NmapOps::Initialize() {
   gettimeofday(&start_time, NULL);
   pTrace = vTrace = false;
   reason = false;
+  adler32 = false;
   if (datadir) free(datadir);
   datadir = NULL;
   if (xsl_stylesheet) free(xsl_stylesheet);
@@ -305,6 +309,10 @@ void NmapOps::Initialize() {
   sourcesocklen = 0;
 }
 
+bool NmapOps::SCTPScan() {
+  return sctpinitscan|sctpcookieechoscan;
+}
+
 bool NmapOps::TCPScan() {
   return ackscan|bouncescan|connectscan|finscan|idlescan|maimonscan|nullscan|synscan|windowscan|xmasscan;
 }
@@ -318,9 +326,9 @@ bool NmapOps::UDPScan() {
      IPv6 is being used.  It will return false in those cases where a
      RawScan is not neccessarily used. */
 bool NmapOps::RawScan() {
-  if (ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|osscan|synscan|udpscan|windowscan|xmasscan)
+  if (ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|osscan|synscan|udpscan|windowscan|xmasscan|sctpinitscan|sctpcookieechoscan)
     return true;
-  if (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS|PINGTYPE_TCP_USE_ACK|PINGTYPE_UDP))
+  if (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS|PINGTYPE_TCP_USE_ACK|PINGTYPE_UDP|PINGTYPE_SCTP_INIT))
     return true;
 
    return false; 
@@ -336,11 +344,11 @@ void NmapOps::ValidateOptions() {
 
 
   /* Insure that at least one scantype is selected */
-  if (TCPScan() + UDPScan() + ipprotscan + listscan + pingscan == 0) {
+  if (TCPScan() + UDPScan() + SCTPScan() + ipprotscan + listscan + pingscan == 0) {
     if (isr00t && af() == AF_INET)
       synscan++;
     else connectscan++;
-    //    if (verbose) error("No tcp, udp, or ICMP scantype specified, assuming %s scan. Use -sP if you really don't want to portscan (and just want to see what hosts are up).", synscan? "SYN Stealth" : "vanilla tcp connect()");
+    //    if (verbose) error("No TCP, UDP, SCTP or ICMP scantype specified, assuming %s scan. Use -sP if you really don't want to portscan (and just want to see what hosts are up).", synscan? "SYN Stealth" : "vanilla tcp connect()");
   }
 
   if (pingtype != PINGTYPE_NONE && spoofsource) {
@@ -364,11 +372,15 @@ void NmapOps::ValidateOptions() {
    fatal("Sorry, UDP Ping (-PU) only works if you are root (because we need to read raw responses off the wire) and only for IPv4 (cause fyodor is too lazy right now to add IPv6 support and nobody has sent a patch)");
  }
 
+ if ((pingtype & PINGTYPE_SCTP_INIT) && (!isr00t || af() != AF_INET)) {
+   fatal("Sorry, SCTP INIT Ping (-PY) only works if you are root (because we need to read raw responses off the wire) and only for IPv4 (cause fyodor is too lazy right now to add IPv6 support and nobody has sent a patch)");
+  }
+
  if ((pingtype & PINGTYPE_PROTO) && (!isr00t || af() != AF_INET)) {
    fatal("Sorry, IPProto Ping (-PO) only works if you are root (because we need to read raw responses off the wire) and only for IPv4");
  }
 
- if (ipprotscan + (TCPScan() || UDPScan()) + listscan + pingscan > 1) {
+ if (ipprotscan + (TCPScan() || UDPScan() || SCTPScan()) + listscan + pingscan > 1) {
    fatal("Sorry, the IPProtoscan, Listscan, and Pingscan (-sO, -sL, -sP) must currently be used alone rather than combined with other scan types.");
  }
 
@@ -376,7 +388,7 @@ void NmapOps::ValidateOptions() {
     fatal("-PN (skip ping) is incompatable with -sP (ping scan).  If you only want to enumerate hosts, try list scan (-sL)");
   }
 
- if (pingscan && (TCPScan() || UDPScan() || ipprotscan || listscan)) {
+ if (pingscan && (TCPScan() || UDPScan() || SCTPScan() || ipprotscan || listscan)) {
    fatal("Ping scan is not valid with any other scan types (the other ones all include a ping scan");
  }
 
@@ -394,7 +406,7 @@ void NmapOps::ValidateOptions() {
 /* We start with stuff users should not do if they are not root */
   if (!isr00t) {
     
-    if (ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|synscan|udpscan|windowscan|xmasscan) {
+    if (ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|synscan|udpscan|windowscan|xmasscan|sctpinitscan|sctpcookieechoscan) {
       fatal("You requested a scan type which requires %s.", privreq);
     }
     
@@ -477,7 +489,7 @@ void NmapOps::ValidateOptions() {
     fatal("--min-rate=%g must be less than or equal to --max-rate=%g", min_packet_send_rate, max_packet_send_rate);
   }
   
-  if (af() == AF_INET6 && (generate_random_ips|numdecoys|osscan|bouncescan|fragscan|ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|synscan|udpscan|windowscan|xmasscan)) {
+  if (af() == AF_INET6 && (generate_random_ips|numdecoys|osscan|bouncescan|fragscan|ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|synscan|udpscan|windowscan|xmasscan|sctpinitscan|sctpcookieechoscan)) {
     fatal("Sorry -- IPv6 support is currently only available for connect() scan (-sT), ping scan (-sP), and list scan (-sL).  OS detection, random targets and decoys are also not supported with IPv6.  Further support is under consideration.");
   }
 

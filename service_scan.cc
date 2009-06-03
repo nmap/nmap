@@ -98,6 +98,7 @@
 #include "nsock.h"
 #include "Target.h"
 #include "utils.h"
+#include "protocols.h"
 
 #include "nmap_tty.h"
 
@@ -1244,6 +1245,9 @@ int AllProbes::isExcluded(unsigned short port, int proto) {
   } else if (proto == IPPROTO_UDP) {
     p = excludedports.udp_ports;
     count = excludedports.udp_count;
+  } else if (proto == IPPROTO_SCTP) {
+    p = excludedports.sctp_ports;
+    count = excludedports.sctp_count;
   } else {
     fatal("Bad proto number (%d) specified in %s", proto, __func__);
   }
@@ -1630,7 +1634,7 @@ ServiceGroup::ServiceGroup(vector<Target *> &Targets, AllProbes *AP) {
       num_hosts_timedout++;
       continue;
     }
-    while((nxtport = Targets[targetno]->ports.nextPort(nxtport, TCPANDUDP, PORT_OPEN))) {
+    while((nxtport = Targets[targetno]->ports.nextPort(nxtport, TCPANDUDPANDSCTP, PORT_OPEN))) {
       svc = new ServiceNFO(AP);
       svc->target = Targets[targetno];
       svc->portno = nxtport->portno;
@@ -1648,7 +1652,7 @@ ServiceGroup::ServiceGroup(vector<Target *> &Targets, AllProbes *AP) {
     if (Targets[targetno]->timedOut(&now)) {
       continue;
     }
-    while((nxtport = Targets[targetno]->ports.nextPort(nxtport, TCPANDUDP, PORT_OPENFILTERED))) {
+    while((nxtport = Targets[targetno]->ports.nextPort(nxtport, TCPANDUDPANDSCTP, PORT_OPENFILTERED))) {
       svc = new ServiceNFO(AP);
       svc->target = Targets[targetno];
       svc->portno = nxtport->portno;
@@ -2350,7 +2354,8 @@ static void remove_excluded_ports(AllProbes *AP, ServiceGroup *SG) {
     svc = *i;
     if (AP->isExcluded(svc->portno, svc->proto)) {
 
-      if (o.debugging) log_write(LOG_PLAIN, "EXCLUDING %d/%s\n", svc->portno, svc->proto==IPPROTO_TCP ? "tcp" : "udp");
+      if (o.debugging) log_write(LOG_PLAIN, "EXCLUDING %d/%s\n", svc->portno,
+          IPPROTO2STR(svc->proto));
 
       svc->port->setServiceProbeResults(PROBESTATE_EXCLUDED, NULL, 
 					SERVICE_TUNNEL_NONE,

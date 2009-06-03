@@ -19,6 +19,7 @@
 #include <dnet/icmp.h>
 #include <dnet/tcp.h>
 #include <dnet/udp.h>
+#include <dnet/sctp.h>
 
 #include <dnet/intf.h>
 #include <dnet/route.h>

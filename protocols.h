@@ -111,4 +111,16 @@ struct protocol_list {
 int addprotocolsfromservmask(char *mask, u8 *porttbl);
 struct protoent *nmap_getprotbynum(int num);
 
+#define MAX_IPPROTOSTRLEN 4
+#define IPPROTO2STR(p)		\
+  ((p)==IPPROTO_TCP ? "tcp" :	\
+   (p)==IPPROTO_UDP ? "udp" :	\
+   (p)==IPPROTO_SCTP ? "sctp" :	\
+   "n/a")
+#define IPPROTO2STR_UC(p)	\
+  ((p)==IPPROTO_TCP ? "TCP" :	\
+   (p)==IPPROTO_UDP ? "UDP" :	\
+   (p)==IPPROTO_SCTP ? "SCTP" :	\
+   "N/A")
+
 #endif

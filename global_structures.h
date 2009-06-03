@@ -97,9 +97,9 @@
 class TargetGroup;
 class Target;
 
-/* Stores "port info" which is TCP/UDP ports or RPC program ids */
+/* Stores "port info" which is TCP/UDP/SCTP ports or RPC program ids */
 struct portinfo {
-   unsigned long portno; /* TCP/UDP port or RPC program id or IP protocool */
+   unsigned long portno; /* TCP/UDP/SCTP port or RPC program id or IP protocool */
    short trynum;
    int sd[3]; /* Socket descriptors for connect_scan */
    struct timeval sent[3]; 
@@ -218,10 +218,12 @@ struct scan_lists {
 	unsigned short *syn_ping_ports;
 	unsigned short *ack_ping_ports;
 	unsigned short *udp_ping_ports;
+	unsigned short *sctp_ping_ports;
 	unsigned short *proto_ping_ports;
 	int syn_ping_count;
 	int ack_ping_count;
 	int udp_ping_count;
+	int sctp_ping_count;
 	int proto_ping_count;
 	//the above fields are only used for host discovery
 	//the fields below are only used for port scanning
@@ -229,10 +231,12 @@ struct scan_lists {
 	int tcp_count;
 	unsigned short *udp_ports;
 	int udp_count;
+	unsigned short *sctp_ports;
+	int sctp_count;
 	unsigned short *prots;
 	int prot_count;
 };
 
-typedef enum { STYPE_UNKNOWN, HOST_DISCOVERY, ACK_SCAN, SYN_SCAN, FIN_SCAN, XMAS_SCAN, UDP_SCAN, CONNECT_SCAN, NULL_SCAN, WINDOW_SCAN, RPC_SCAN, MAIMON_SCAN, IPPROT_SCAN, PING_SCAN, PING_SCAN_ARP, IDLE_SCAN, BOUNCE_SCAN, SERVICE_SCAN, OS_SCAN, SCRIPT_SCAN, TRACEROUTE, REF_TRACEROUTE}stype;
+typedef enum { STYPE_UNKNOWN, HOST_DISCOVERY, ACK_SCAN, SYN_SCAN, FIN_SCAN, XMAS_SCAN, UDP_SCAN, CONNECT_SCAN, NULL_SCAN, WINDOW_SCAN, SCTP_INIT_SCAN, SCTP_COOKIE_ECHO_SCAN, RPC_SCAN, MAIMON_SCAN, IPPROT_SCAN, PING_SCAN, PING_SCAN_ARP, IDLE_SCAN, BOUNCE_SCAN, SERVICE_SCAN, OS_SCAN, SCRIPT_SCAN, TRACEROUTE, REF_TRACEROUTE}stype;
 
 #endif /*GLOBAL_STRUCTURES_H */

@@ -150,6 +150,7 @@ struct pingtech {
     connecttcpscan: 1,
     rawtcpscan: 1,
     rawudpscan: 1,
+    rawsctpscan: 1,
     rawprotoscan: 1;
 };
 

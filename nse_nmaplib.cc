@@ -14,6 +14,7 @@ extern "C" {
 #include "nmap_rpc.h"
 #include "nmap_dns.h"
 #include "osscan.h"
+#include "protocols.h"
 
 /* #include "output.h"  UNNECESSARY?? */
 
@@ -115,7 +116,7 @@ void set_portinfo(lua_State *L, Port* port) {
   lua_pushstring(L, sd.name);
   lua_setfield(L, -2, "service");
 
-  lua_pushstring(L, (port->proto == IPPROTO_TCP)? "tcp": "udp");
+  lua_pushstring(L, IPPROTO2STR(port->proto));
   lua_setfield(L, -2, "protocol");
 
   lua_newtable(L);
@@ -353,7 +354,8 @@ Port *get_port (lua_State *L, Target *target, int index)
   portno = (int) lua_tointeger(L, -2);
   protocol = strcmp(lua_tostring(L, -1), "tcp") == 0 ? IPPROTO_TCP :
              strcmp(lua_tostring(L, -1), "udp") == 0 ? IPPROTO_UDP :
-             luaL_error(L, "port 'protocol' field must be \"udp\" or \"tcp\"");
+             strcmp(lua_tostring(L, -1), "sctp") == 0 ? IPPROTO_SCTP :
+             luaL_error(L, "port 'protocol' field must be \"udp\", \"sctp\" or \"tcp\"");
   while ((port = target->ports.nextPort(port, protocol, PORT_UNKNOWN)) != NULL)
     if (port->portno == portno)
       break;

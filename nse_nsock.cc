@@ -20,6 +20,7 @@ extern "C"
 #include "NmapOps.h"
 #include "utils.h"
 #include "tcpip.h"
+#include "protocols.h"
 
 #if HAVE_OPENSSL
 #  include <openssl/ssl.h>
@@ -754,9 +755,7 @@ void l_nsock_receive_handler(nsock_pool nsp, nsock_event nse, void *yield)
 void l_nsock_trace(nsock_iod nsiod, const char *message, int direction)
 {
   int status;
-
   int protocol;
-
   int af;
 
   struct sockaddr local;
@@ -773,7 +772,7 @@ void l_nsock_trace(nsock_iod nsiod, const char *message, int direction)
         &local, &remote, sizeof(sockaddr));
     log_write(LOG_STDOUT, "%s: %s %s:%d %s %s:%d | %s\n",
         SCRIPT_ENGINE,
-        (protocol == IPPROTO_TCP) ? "TCP" : "UDP",
+        IPPROTO2STR_UC(protocol),
         inet_ntop_both(af, &local, ipstring_local),
         inet_port_both(af, &local),
         (direction == TO) ? ">" : "<",

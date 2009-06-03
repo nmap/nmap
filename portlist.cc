@@ -95,6 +95,7 @@
 #include "nmap.h"
 #include "NmapOps.h"
 #include "services.h"
+#include "protocols.h"
 #include "nmap_rpc.h"
 #include "tcpip.h"
 
@@ -257,7 +258,7 @@ int Port::getServiceDeductions(struct serviceDeductions *sd) {
     populateFullVersionString(sd);
     return 0;
   } else if (serviceprobe_results == PROBESTATE_EXCLUDED) {
-    service = nmap_getservbyport(htons(portno), (proto == IPPROTO_TCP)? "tcp" : "udp");
+    service = nmap_getservbyport(htons(portno), IPPROTO2STR(proto));
 
     if (service) sd->name = service->s_name;
 
@@ -274,7 +275,7 @@ int Port::getServiceDeductions(struct serviceDeductions *sd) {
   }
 
   // So much for service detection or RPC.  Maybe we can find it in the file
-  service = nmap_getservbyport(htons(portno), (proto == IPPROTO_TCP)? "tcp" : "udp");
+  service = nmap_getservbyport(htons(portno), IPPROTO2STR(proto));
   if (service) {
     sd->dtype = SERVICE_DETECTION_TABLE;
     sd->name = service->s_name;
@@ -388,6 +389,7 @@ void Port::setRPCProbeResults(int rpcs, unsigned long rpcp,
 #define INPROTO2PORTLISTPROTO(p)		\
   ((p)==IPPROTO_TCP ? PORTLIST_PROTO_TCP :	\
    (p)==IPPROTO_UDP ? PORTLIST_PROTO_UDP :	\
+   (p)==IPPROTO_SCTP ? PORTLIST_PROTO_SCTP :	\
    PORTLIST_PROTO_IP)
 
 
@@ -540,12 +542,12 @@ int PortList::getStateCounts(int state){
    first "afterthisport".  Then supply the most recent returned port
    for each subsequent call.  When no more matching ports remain, NULL
    will be returned.  To restrict returned ports to just one protocol,
-   specify IPPROTO_TCP or IPPROTO_UDP for allowed_protocol. A TCPANDUDP
-   for allowed_protocol matches either. A 0 for allowed_state matches 
-   all possible states. This function returns ports in numeric
-   order from lowest to highest, except that if you ask for both TCP &
-   UDP, every TCP port will be returned before we start returning UDP
-   ports */
+   specify IPPROTO_TCP, IPPROTO_UDP or IPPROTO_SCTP for
+   allowed_protocol. A TCPANDUDPANDSCTP for allowed_protocol matches
+   either. A 0 for allowed_state matches all possible states. This
+   function returns ports in numeric order from lowest to highest,
+   except that if you ask for both TCP, UDP & SCTP, every TCP port
+   will be returned before we start returning UDP and SCTP ports */
 Port *PortList::nextPort(Port *afterthisport, 
 			 int allowed_protocol, int allowed_state) {
   int proto;
@@ -559,8 +561,10 @@ Port *PortList::nextPort(Port *afterthisport,
     mapped_pno = port_map[proto][afterthisport->portno];
     mapped_pno++; //  we're interested in next port after current
   }else { // running for the first time
-    if(allowed_protocol == TCPANDUDP)	// if both protocols, then first search TCP
+    if (allowed_protocol == TCPANDUDPANDSCTP)
       proto = INPROTO2PORTLISTPROTO(IPPROTO_TCP);
+    else if (allowed_protocol == UDPANDSCTP)
+      proto = INPROTO2PORTLISTPROTO(IPPROTO_UDP);
     else
       proto = INPROTO2PORTLISTPROTO(allowed_protocol);
     mapped_pno = 0;
@@ -574,9 +578,15 @@ Port *PortList::nextPort(Port *afterthisport,
     }
   }
   
-  /* if all protocols, than after TCP search UDP */
-  if(allowed_protocol == TCPANDUDP && proto == INPROTO2PORTLISTPROTO(IPPROTO_TCP))
-    return(nextPort(NULL, IPPROTO_UDP, allowed_state));
+  /* if all protocols, than after TCP search UDP & SCTP */
+  if((!afterthisport && allowed_protocol == TCPANDUDPANDSCTP) ||
+      (afterthisport && proto == INPROTO2PORTLISTPROTO(IPPROTO_TCP)))
+    return(nextPort(NULL, UDPANDSCTP, allowed_state));
+
+  /* if all protocols, than after UDP search SCTP */
+  if((!afterthisport && allowed_protocol == UDPANDSCTP) ||
+      (afterthisport && proto == INPROTO2PORTLISTPROTO(IPPROTO_UDP)))
+    return(nextPort(NULL, IPPROTO_SCTP, allowed_state));
   
   return(NULL); 
 }

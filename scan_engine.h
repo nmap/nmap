@@ -107,6 +107,11 @@ struct probespec_udpdata {
   u16 dport;
 };
 
+struct probespec_sctpdata {
+  u16 dport;
+  u8 chunktype;
+};
+
 struct probespec_icmpdata {
   u8 type;
   u8 code;
@@ -119,6 +124,7 @@ struct probespec_icmpdata {
 #define PS_ICMP 4
 #define PS_ARP 5
 #define PS_CONNECTTCP 6
+#define PS_SCTP 7
 
 /* The size of this structure is critical, since there can be tens of
    thousands of them stored together ... */
@@ -130,6 +136,7 @@ typedef struct probespec {
   union {
     struct probespec_tcpdata tcp; /* If type is PS_TCP or PS_CONNECTTCP. */
     struct probespec_udpdata udp; /* PS_UDP */
+    struct probespec_sctpdata sctp; /* PS_SCTP */
     struct probespec_icmpdata icmp; /* PS_ICMP */
     /* Nothing needed for PS_ARP, since src mac and target IP are
        avail from target structure anyway */

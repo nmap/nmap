@@ -445,9 +445,12 @@ Index: libdnet-stripped/src/intf-win32.c
  		} else
  			return (-1);
 
-Added eth_get_pcap_devname() that matches up a dnet name to its pcap
-equivalent by matching hardwar addresses.  It's similar to the code
-used in eth_open()
+o Added eth_get_pcap_devname() that matches up a dnet name to its pcap
+  equivalent by matching hardwar addresses.  It's similar to the code
+  used in eth_open()
+
+o Added SCTP support.  Not including patches since the SCTP changes
+  will be included in the next libdnet release. [Daniel Roethlisberger]
 
 o Handle the case of sa_len == 0 (meaning 0.0.0.0) in addr_stob.
 Index: src/addr.c

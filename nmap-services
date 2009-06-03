@@ -31,9 +31,11 @@ rje	5/udp	0.000593	# Remote Job Entry
 unknown	6/tcp	0.000502
 echo	7/tcp	0.004855
 echo	7/udp	0.024679
+echo	7/sctp	0.000000
 unknown	8/tcp	0.000013
 discard	9/tcp	0.003764	# sink null
 discard	9/udp	0.015733	# sink null
+discard	9/sctp	0.000000	# sink null
 unknown	10/tcp	0.000063
 systat	11/tcp	0.000075	# Active Users
 systat	11/udp	0.000577	# Active Users
@@ -50,10 +52,13 @@ chargen	19/tcp	0.002559	# ttytst source Character Generator
 chargen	19/udp	0.015865	# ttytst source Character Generator
 ftp-data	20/tcp	0.001079	# File Transfer [Default Data]
 ftp-data	20/udp	0.001878	# File Transfer [Default Data]
+ftp-data	20/sctp	0.000000	# File Transfer [Default Data]
 ftp	21/tcp	0.197667	# File Transfer [Control]
 ftp	21/udp	0.004844	# File Transfer [Control]
+ftp	21/sctp	0.000000	# File Transfer [Control]
 ssh	22/tcp	0.182286	# Secure Shell Login
 ssh	22/udp	0.003905	# Secure Shell Login
+ssh	22/sctp	0.000000	# Secure Shell Login
 telnet	23/tcp	0.221265
 telnet	23/udp	0.006211
 priv-mail	24/tcp	0.001154	# any private mail system
@@ -153,6 +158,7 @@ finger	79/tcp	0.006022
 finger	79/udp	0.000956
 http	80/tcp	0.484143	# World Wide Web HTTP
 http	80/udp	0.035767	# World Wide Web HTTP
+http	80/sctp	0.000000	# World Wide Web HTTP
 hosts2-ns	81/tcp	0.012056	# HOSTS2 Name Server
 hosts2-ns	81/udp	0.001005	# HOSTS2 Name Server
 xfer	82/tcp	0.002923	# XFER Utility
@@ -323,6 +329,7 @@ xdmcp	177/udp	0.018551	# X Display Manager Control Protocol
 nextstep	178/udp	0.000346	# NextStep Window Server
 bgp	179/tcp	0.010538	# Border Gateway Protocol
 bgp	179/udp	0.000494	# Border Gateway Protocol
+bgp	179/sctp	0.000000	# Border Gateway Protocol
 ris	180/tcp	0.000038	# Intergraph
 ris	180/udp	0.000478	# Intergraph
 unify	181/tcp	0.000025
@@ -660,6 +667,7 @@ cvc_hostd	442/tcp	0.000138
 cvc_hostd	442/udp	0.000774
 https	443/tcp	0.208669	# secure http (SSL)
 https	443/udp	0.010840
+https	443/sctp	0.000000
 snpp	444/tcp	0.004466	# Simple Network Paging Protocol
 snpp	444/udp	0.000873	# Simple Network Paging Protocol
 microsoft-ds	445/tcp	0.056944	# SMB directly over IP
@@ -1865,8 +1873,9 @@ unknown	1164/udp	0.000330
 unknown	1165/tcp	0.000152
 unknown	1166/tcp	0.000152
 unknown	1166/udp	0.000330
-unknown	1167/tcp	0.000076
-phone	1167/udp	0.000593	# conference calling
+cisco-ipsla	1167/tcp	0.000076	# Cisco IP SLAs Control Protocol
+cisco-ipsla	1167/udp	0.000593	# Cisco IP SLAs Control Protocol
+cisco-ipsla	1167/sctp	0.000000	# Cisco IP SLAs Control Protocol
 unknown	1168/tcp	0.000076
 unknown	1168/udp	0.000330
 unknown	1169/tcp	0.000380
@@ -2586,7 +2595,9 @@ unknown	1808/tcp	0.000076
 unknown	1811/tcp	0.000076
 unknown	1812/tcp	0.000152
 radius	1812/udp	0.053839	# RADIUS authentication protocol (RFC 2138)
+radius	1812/sctp	0.000000	# RADIUS authentication protocol (RFC 2138)
 radacct	1813/udp	0.010429	# RADIUS accounting protocol (RFC 2139)
+radacct	1813/sctp	0.000000	# RADIUS accounting protocol (RFC 2139)
 unknown	1814/udp	0.000330
 unknown	1815/udp	0.000330
 unknown	1818/udp	0.000330
@@ -2893,6 +2904,7 @@ unknown	2222/tcp	0.000608
 msantipiracy	2222/udp	0.047902	# Microsoft Office OS X antipiracy network monitor
 unknown	2223/udp	0.010902
 unknown	2224/tcp	0.000076
+rcip-itu	2225/sctp	0.000000	# Resource Connection Initiation Protocol
 unknown	2226/udp	0.000330
 ivs-video	2232/tcp	0.000151	# IVS Video default
 ivs-video	2232/udp	0.000626	# IVS Video default
@@ -2998,6 +3010,7 @@ unknown	2417/udp	0.000330
 unknown	2418/tcp	0.000076
 unknown	2418/udp	0.000330
 unknown	2425/tcp	0.000076
+mgcp-gateway	2427/sctp	0.000000
 unknown	2429/udp	0.000330
 venus	2430/tcp	0.000050
 venus	2430/udp	0.000478
@@ -3189,7 +3202,9 @@ unknown	2901/udp	0.000330
 unknown	2902/tcp	0.000076
 extensisportfolio	2903/tcp	0.000100	# Portfolio Server by Extensis Product Group
 unknown	2903/udp	0.000330
-unknown	2904/udp	0.000330
+m2ua	2904/udp	0.000330	# SIGTRAN M2UA
+m2ua	2904/sctp	0.000000	# SIGTRAN M2UA
+m3ua	2905/sctp	0.000000	# SIGTRAN M3UA
 unknown	2908/tcp	0.000076
 unknown	2908/udp	0.000661
 unknown	2909/tcp	0.000228
@@ -3203,7 +3218,9 @@ unknown	2928/udp	0.000330
 unknown	2930/tcp	0.000076
 unknown	2932/udp	0.000330
 unknown	2940/udp	0.000330
-unknown	2944/udp	0.000330
+megaco-h248	2944/udp	0.000330	# Megaco H-248 (Text)
+megaco-h248	2944/sctp	0.000000	# Megaco H-248 (Text)
+h248-binary	2945/sctp	0.000000	# Megaco H-248 (Binary)
 wap-push	2948/udp	0.000791	# Windows Mobile devices often have this
 unknown	2950/udp	0.000330
 unknown	2951/udp	0.000330
@@ -3275,6 +3292,7 @@ unknown	3080/tcp	0.000076
 sj3	3086/tcp	0.000050	# SJ3 (kanji input)
 unknown	3089/tcp	0.000076
 unknown	3094/udp	0.000661
+itu-bicc-stc	3097/sctp	0.000000	# ITU-T Q.1902.1/Q.2150.3
 unknown	3099/udp	0.000330
 unknown	3102/tcp	0.000076
 unknown	3102/udp	0.000330
@@ -3488,6 +3506,7 @@ unknown	3544/udp	0.000661
 unknown	3546/tcp	0.000304
 unknown	3551/tcp	0.000380
 unknown	3555/udp	0.000330
+m2pa	3565/sctp	0.000000	# M2PA
 unknown	3569/udp	0.000991
 unknown	3571/udp	0.000330
 unknown	3573/udp	0.000330
@@ -3630,8 +3649,11 @@ unknown	3853/tcp	0.000152
 unknown	3856/tcp	0.000076
 unknown	3859/tcp	0.000152
 unknown	3860/tcp	0.000076
-unknown	3863/tcp	0.000152
-unknown	3868/tcp	0.000076
+asap-tcp	3863/tcp	0.000152	# RSerPool ASAP (TCP)
+asap-sctp	3863/sctp	0.000000	# RSerPool ASAP (SCTP)
+asap-sctp-tls	3864/sctp	0.000000	# RSerPool ASAP/TLS (SCTP)
+diameter	3868/tcp	0.000076	# DIAMETER
+diameter	3868/sctp	0.000000	# DIAMETER
 unknown	3869/tcp	0.000228
 unknown	3869/udp	0.000330
 unknown	3870/tcp	0.000152
@@ -4048,6 +4070,8 @@ unknown	4712/tcp	0.000076
 unknown	4713/udp	0.000330
 unknown	4726/udp	0.000330
 unknown	4734/udp	0.000330
+ipfix	4739/sctp	0.000000	# IP Flow Info Export
+ipfixs	4740/sctp	0.000000	# IP Flow Info Export over DTLS
 unknown	4741/udp	0.000330
 unknown	4743/udp	0.000330
 unknown	4745/tcp	0.000076
@@ -4184,8 +4208,10 @@ unknown	5056/udp	0.000330
 unknown	5059/udp	0.000330
 sip	5060/tcp	0.010613	# Session Initiation Protocol (SIP)
 sip	5060/udp	0.044350	# Session Initiation Protocol (SIP)
-unknown	5061/tcp	0.000228
-unknown	5061/udp	0.000330
+sip	5060/sctp	0.000000	# Session Initiation Protocol (SIP)
+sip-tls	5061/tcp	0.000228	# SIP-TLS
+sip-tls	5061/udp	0.000330	# SIP-TLS
+sip-tls	5061/sctp	0.000000	# SIP-TLS
 unknown	5063/tcp	0.000152
 unknown	5066/tcp	0.000076
 unknown	5068/udp	0.000330
@@ -4202,6 +4228,8 @@ unknown	5087/tcp	0.000228
 unknown	5088/tcp	0.000076
 unknown	5090/tcp	0.000076
 unknown	5090/udp	0.000330
+car	5090/sctp	0.000000	# Candidate AR
+cxtp	5091/sctp	0.000000	# Context Transfer Protocol
 unknown	5093/udp	0.003304
 unknown	5094/udp	0.000330
 unknown	5095/tcp	0.000076
@@ -4435,7 +4463,9 @@ unknown	5665/tcp	0.000076
 nrpe	5666/tcp	0.006614	# Nagios NRPE
 unknown	5667/tcp	0.000076
 unknown	5667/udp	0.000330
-unknown	5672/tcp	0.000076
+amqp	5672/tcp	0.000076	# AMQP
+amqp	5672/sctp	0.000000	# AMQP
+v5ua	5675/sctp	0.000000	# V5UA application port
 unknown	5678/tcp	0.000228
 activesync	5679/tcp	0.000590	# Microsoft ActiveSync PDY synchronization
 canna	5680/tcp	0.000151	# Canna (Japanese Input)
@@ -5133,6 +5163,7 @@ unknown	7609/udp	0.000330
 unknown	7613/udp	0.000661
 unknown	7617/udp	0.000330
 unknown	7625/tcp	0.000380
+simco	7626/sctp	0.000000	# SImple Middlebox COnfiguration (SIMCO)
 unknown	7627/tcp	0.000380
 unknown	7628/tcp	0.000076
 unknown	7630/udp	0.000330
@@ -5432,8 +5463,9 @@ unknown	8455/udp	0.000330
 unknown	8458/udp	0.000330
 unknown	8468/udp	0.000330
 unknown	8470/tcp	0.000076
-unknown	8471/tcp	0.000076
-unknown	8471/udp	0.000330
+pim-port	8471/tcp	0.000076	# PIM over Reliable Transport
+pim-port	8471/udp	0.000330	# PIM over Reliable Transport
+pim-port	8471/sctp	0.000000	# PIM over Reliable Transport
 unknown	8472/tcp	0.000076
 unknown	8473/udp	0.000330
 unknown	8474/tcp	0.000076
@@ -5624,7 +5656,8 @@ unknown	9079/udp	0.000661
 unknown	9080/tcp	0.000380
 unknown	9080/udp	0.000330
 unknown	9081/tcp	0.000228
-unknown	9084/tcp	0.000076
+aurora	9084/tcp	0.000076	# IBM AURORA Performance Visualizer
+aurora	9084/sctp	0.000000	# IBM AURORA Performance Visualizer
 unknown	9085/udp	0.000330
 unknown	9086/udp	0.000330
 unknown	9088/udp	0.000330
@@ -5890,8 +5923,12 @@ unknown	9893/udp	0.000330
 unknown	9894/udp	0.000330
 unknown	9897/udp	0.000661
 unknown	9898/tcp	0.000228
-unknown	9900/tcp	0.000380
+sctp-tunneling	9899/sctp	0.000000	# SCTP Tunneling
+iua	9900/tcp	0.000380	# IUA
+iua	9900/sctp	0.000000	# IUA
 unknown	9901/tcp	0.000076
+enrp-sctp	9901/sctp	0.000000	# ENRP server channel
+enrp-sctp-tls	9902/sctp	0.000000	# ENRP/TLS server channel
 unknown	9908/tcp	0.000076
 unknown	9909/tcp	0.000076
 unknown	9910/tcp	0.000076
@@ -6367,8 +6404,11 @@ unknown	11982/udp	0.000330
 unknown	11988/udp	0.000330
 unknown	11991/udp	0.000330
 unknown	11997/udp	0.000330
+wmereceiving	11997/sctp	0.000000	# WorldMailExpress
 unknown	11998/udp	0.000330
+wmedistribution	11998/sctp	0.000000	# WorldMailExpress
 unknown	11999/udp	0.000330
+wmereporting	11999/sctp	0.000000	# WorldMailExpress
 cce4x	12000/tcp	0.000427	# ClearCommerce Engine 4.x (www.clearcommerce.com)
 unknown	12000/udp	0.000661
 unknown	12001/tcp	0.000076
@@ -6807,7 +6847,8 @@ unknown	13989/udp	0.000330
 unknown	13992/udp	0.000330
 unknown	13996/udp	0.000330
 unknown	14000/tcp	0.000380
-unknown	14001/tcp	0.000076
+sua	14001/tcp	0.000076	# SUA
+sua	14001/sctp	0.000000	# SUA
 unknown	14006/udp	0.000330
 unknown	14034/udp	0.000330
 unknown	14035/udp	0.000330
@@ -8369,6 +8410,7 @@ unknown	20039/udp	0.000654
 unknown	20041/udp	0.000654
 unknown	20045/udp	0.000654
 unknown	20048/udp	0.000654
+nfsrdma	20049/sctp	0.000000	# Network File System (NFS) over RDMA
 unknown	20052/tcp	0.000076
 unknown	20055/udp	0.000654
 unknown	20056/udp	0.000654

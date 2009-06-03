@@ -81,7 +81,8 @@ static int ports (lua_State *L)
   Port *current = NULL;
   lua_newtable(L);
   for (int i = 0; states[i] != PORT_HIGHEST_STATE; i++)
-    while ((current = plist->nextPort(current, TCPANDUDP, states[i])) != NULL)
+    while ((current = plist->nextPort(current, TCPANDUDPANDSCTP,
+            states[i])) != NULL)
     {
       lua_newtable(L);
       set_portinfo(L, current);

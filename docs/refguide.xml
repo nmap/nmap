@@ -322,12 +322,12 @@ you would expect.</para>
     ubiquitous <application>ping</application> tool. Users can skip
     the ping step entirely with a list scan (<option>-sL</option>) or
     by disabling ping (<option>-PN</option>), or engage the network
-    with arbitrary combinations of multi-port TCP SYN/ACK, UDP, and
-    ICMP probes. The goal of these probes is to solicit responses
-    which demonstrate that an IP address is actually active (is being
-    used by a host or network device). On many networks, only a small
-    percentage of IP addresses are active at any given time. This is
-    particularly common with private address space
+    with arbitrary combinations of multi-port TCP SYN/ACK, UDP, SCTP
+    INIT and ICMP probes. The goal of these probes is to solicit
+    responses which demonstrate that an IP address is actually active
+    (is being used by a host or network device). On many networks,
+    only a small percentage of IP addresses are active at any given
+    time. This is particularly common with private address space
     such as 10.0.0.0/8. That network has 16 million IPs, but I have
     seen it used by companies with less than a thousand machines. Host
     discovery can find those machines in a sparsely allocated sea of
@@ -644,6 +644,63 @@ you would expect.</para>
 
       <varlistentry>
         <term>
+        <option>-PY <replaceable>port list</replaceable></option> (SCTP INIT Ping)
+          <indexterm><primary><option>-PY</option></primary></indexterm>
+          <indexterm><primary>SCTP INIT ping</primary></indexterm>
+        </term>
+        <listitem>
+
+          <para>This option sends an SCTP packet containing a minimal
+          INIT chunk.  The default destination port is 80 (configurable
+          at compile time by changing
+          <varname>DEFAULT_SCTP_PROBE_PORT_SPEC</varname>
+          <indexterm><primary><varname>DEFAULT_SCTP_PROBE_PORT_SPEC</varname></primary></indexterm>
+          in <filename>nmap.h</filename>).
+          <indexterm><primary><filename>nmap.h</filename></primary></indexterm>
+          Alternate ports can be specified as a parameter. The syntax
+          is the same as for the
+          <option>-p</option> except that port type specifiers like
+          <literal>S:</literal> are not allowed. Examples are
+          <option>-PY22</option> and
+          <option>-PY22,80,179,5060</option>. Note that there
+          can be no space between <option>-PY</option> and the port
+          list. If multiple probes are specified they will be sent in
+          parallel.</para>
+
+          <para>The INIT chunk suggests to the remote system that you
+          are attempting to establish an association.  Normally the
+          destination port will be closed, and an ABORT chunk will be
+          sent back.  If the port happens to be open, the target will
+          take the second step of an SCTP
+          four-way-handshake<indexterm><primary>four-way handshake</primary></indexterm>
+          by responding with an INIT-ACK chunk. If the machine running
+          Nmap has a functional SCTP stack, then it tears down the
+          nascent association by responding with an ABORT chunk rather
+          than sending a COOKIE-ECHO chunk which would be the next step
+          in the four-way-handshake.  The ABORT packet is sent by the
+          kernel of the machine running Nmap in response to the
+          unexpected INIT-ACK, not by Nmap itself.</para>
+
+          <para>Nmap does not care whether the port is open or closed.
+          Either the ABORT or INIT-ACK response discussed previously tell
+          Nmap that the host is available and responsive.</para>
+
+          <para>On Unix boxes, only the privileged user
+          <literal>root</literal><indexterm><primary>privileged users</primary></indexterm>
+          is generally able to send and receive raw SCTP
+          packets.<indexterm><primary>raw packets</primary></indexterm>
+          Using SCTP INIT Pings is currently not possible for unprivileged
+          users.<indexterm><primary>unprivileged users</primary><secondary>limitations of</secondary></indexterm>
+          The same limitation applies to IPv6, which is currently not
+          supported for
+          SCTP INIT Ping.<indexterm><primary>IPv6</primary><secondary>limitations of</secondary></indexterm>
+          </para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
         <option>-PE</option>;
         <option>-PP</option>;
         <option>-PM</option> (ICMP Ping Types)
@@ -654,9 +711,9 @@ you would expect.</para>
         </term>
         <listitem>
 
-          <para>In addition to the unusual TCP and UDP host discovery
-          types discussed previously, Nmap can send the standard
-          packets sent by the ubiquitous
+          <para>In addition to the unusual TCP, UDP and SCTP host
+          discovery types discussed previously, Nmap can send the
+          standard packets sent by the ubiquitous
           <application>ping</application> program.  Nmap sends an ICMP
           type 8 (echo request) packet to the target IP addresses,
           expecting a type 0 (echo reply) in return from available
@@ -709,17 +766,17 @@ you would expect.</para>
           which sends IP packets with the specified protocol number
           set in their IP header.  The protocol list
           takes the same format as do port lists in the
-          previously discussed TCP and UDP host discovery options.  If
-          no protocols are specified, the default is to send multiple
+          previously discussed TCP, UDP and SCTP host discovery options.
+          If no protocols are specified, the default is to send multiple
           IP packets for ICMP (protocol 1), IGMP (protocol 2), and
           IP-in-IP (protocol 4).  The default protocols can be
           configured at compile-time by changing
           <varname>DEFAULT_PROTO_PROBE_PORT_SPEC</varname><indexterm><primary><varname>DEFAULT_PROTO_PROBE_PORT_SPEC</varname></primary></indexterm>
           in <filename>nmap.h</filename>.
-          Note that for the ICMP, IGMP, TCP (protocol 6), and UDP
-          (protocol 17), the packets are sent with the proper protocol
-          headers while other protocols are sent with no additional data
-          beyond the IP header (unless the
+          Note that for the ICMP, IGMP, TCP (protocol 6), UDP
+          (protocol 17) and SCTP (protocol 132), the packets are sent
+          with the proper protocol headers while other protocols are
+          sent with no additional data beyond the IP header (unless the
           <option>--data-length</option> option is specified).</para>
 
           <para>This host discovery method looks for either responses
@@ -899,11 +956,12 @@ options from across the Internet might show that port as <literal>filtered</lite
   <indexterm><primary><literal>open</literal> port state</primary></indexterm>
   open</term>
   <listitem><para>An application is actively accepting TCP
-  connections or UDP packets on this port.  Finding these is often the
-  primary goal of port scanning.  Security-minded people know that
-  each open port is an avenue for attack.  Attackers and pen-testers
-  want to exploit the open ports, while administrators try to close or
-  protect them with firewalls without thwarting legitimate users.
+  connections, UDP datagrams or SCTP associations on this port.
+  Finding these is often the primary goal of port scanning.
+  Security-minded people know that each open port is an avenue for attack.
+  Attackers and pen-testers want to exploit the open ports, while
+  administrators try to close or protect them with firewalls without
+  thwarting legitimate users.
   Open ports are also interesting for non-security scans because they show
   services available for use on the network.
   </para></listitem></varlistentry>
@@ -1019,8 +1077,10 @@ discussed in the individual scan type entries.</para>
 
 <para>This section documents the dozen or so port scan
 techniques supported by Nmap.  Only one method may be used at a time,
-except that UDP scan (<option>-sU</option>) may be combined with any
-one of the TCP scan types.  As a memory aid, port scan type options
+except that UDP scan (<option>-sU</option>) and any one of the
+SCTP scan types (<option>-sY</option>, <option>-sZ</option>)
+may be combined with any one of the TCP scan types.
+As a memory aid, port scan type options
 are of the form <option>-s<replaceable>C</replaceable></option>, where
 <replaceable>C</replaceable> is a prominent character in the scan
 name, usually the first.  The one exception to this is the deprecated
@@ -1156,6 +1216,44 @@ your UDP scans up include scanning more hosts in parallel, doing a
 quick scan of just the popular ports first, scanning from behind the
 firewall, and using <option>--host-timeout</option> to skip slow
 hosts.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sY</option> (SCTP INIT scan)
+<indexterm><primary><option>-sY</option></primary></indexterm>
+<indexterm><primary>SCTP INIT scan</primary></indexterm>
+</term>
+        <listitem>
+
+<para>
+  <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc4960.txt">SCTP</ulink>
+is a relatively new alternative to the TCP and UDP protocols,
+combining most characteristics of TCP and UDP, and also adding
+new features like multi-homing and multi-streaming.  It is mostly
+being used for SS7/SIGTRAN related services but has the potential
+to be used for other applications as well.
+
+SCTP INIT scan is the SCTP equivalent of a TCP SYN scan.
+It can be performed quickly, scanning thousands of ports per
+second on a fast network not hampered by restrictive firewalls.
+Like SYN scan, INIT scan is relatively unobtrusive and stealthy,
+since it never completes SCTP associations.  It also allows clear,
+reliable differentiation between the <literal>open</literal>,
+<literal>closed</literal>, and <literal>filtered</literal>
+states.</para>
+
+<para>This technique is often referred to as half-open scanning,
+because you don't open a full SCTP association. You send an INIT
+chunk, as if you are going to open a real association and then wait
+for a response. An INIT-ACK chunk indicates the port is listening
+(open), while an ABORT chunk is indicative of a non-listener. If no
+response is received after several retransmissions, the port is
+marked as filtered.  The port is also marked filtered if an ICMP
+unreachable error (type 3, code 1, 2, 3, 9, 10, or 13) is
+received.</para>
 
         </listitem>
       </varlistentry>
@@ -1345,6 +1443,35 @@ example, a SYN scan considers no-response to indicate a
 does for the base scan type, except that it will use the TCP flags you
 specify instead.  If you don't specify a base type, SYN scan is
 used.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sZ</option> (SCTP COOKIE ECHO scan)
+<indexterm><primary><option>-sZ</option></primary></indexterm>
+<indexterm><primary>SCTP COOKIE ECHO scan</primary></indexterm>
+</term>
+        <listitem>
+
+<para>
+SCTP COOKIE ECHO scan is a more advanced SCTP scan.  It takes
+advantage of the fact that SCTP implementations should silently
+drop packets containing COOKIE ECHO chunks on open ports, but
+send an ABORT if the port is closed.
+
+The advantage of this scan type is that it is not as obvious a
+port scan than an INIT scan.  Also, there may be non-stateful
+firewall rulesets blocking INIT chunks, but not COOKIE ECHO
+chunks.  Don't be fooled into thinking that this will make a
+port scan invisible; a good IDS will be able to detect SCTP
+COOKIE ECHO scans too.
+
+The downside is that SCTP COOKIE ECHO scans cannot differentiate
+between <literal>open</literal> and <literal>filtered</literal>
+ports, leaving you with the state <literal>open|filtered</literal>
+in both cases.</para>
 
         </listitem>
       </varlistentry>
@@ -3148,12 +3275,37 @@ support the option completely, as does UDP scan.</para>
         <listitem>
 
 
-          <para>Asks Nmap to use an invalid TCP or UDP checksum for
+          <para>Asks Nmap to use an invalid TCP, UDP or SCTP checksum for
   packets sent to target hosts.  Since virtually all
   host IP stacks properly drop these packets, any responses received
   are likely coming from a firewall or IDS that didn't bother to
   verify the checksum.  For more details on this technique, see <ulink
   url="http://nmap.org/p60-12.html"/></para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--adler32</option> (Use deprecated Adler32 instead of CRC32C for SCTP checksums)
+        <indexterm><primary><option>--adler32</option></primary></indexterm>
+        <indexterm><primary>CRC32C checksum</primary></indexterm>
+        <indexterm><primary>Adler32 checksum</primary></indexterm>
+        <indexterm><primary>SCTP checksum</primary></indexterm>
+        <indexterm><primary>checksums</primary></indexterm>
+        </term>
+        <listitem>
+
+
+          <para>Asks Nmap to use the deprecated Adler32 algorithm
+  for calculating the SCTP checksum.  If <option>--adler32</option>
+  is not given, CRC-32C (Castagnoli) is used.
+  <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc2960.txt">RFC 2960</ulink>
+  originally defined Adler32 as checksum algorithm for SCTP;
+  <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc4960.txt">RFC 4960</ulink>
+  later redefined the SCTP checksums to use CRC-32C.  Current SCTP
+  implementations should be using CRC-32C, but in order to elicit
+  responses from old, legacy SCTP implementations, it may be
+  preferrable to use Adler32.</para>
         </listitem>
       </varlistentry>
 

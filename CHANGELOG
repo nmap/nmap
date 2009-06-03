@@ -1,5 +1,23 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added initial SCTP port scanning support to Nmap.  SCTP is
+  a layer 4 protocol used mostly for telephony related applications.
+  This brings the following new features:
+  o SCTP INIT chunk port scan (-sY): open ports return an INIT-ACK
+    chunk, closed ones an ABORT chunk.  This is the SCTP equivalent
+    of a TCP SYN stealth scan.
+  o SCTP COOKIE-ECHO chunk port scan (-sZ): open ports are silent,
+    closed ports return an ABORT chunk.
+  o SCTP INIT chunk ping probes (-PY): host discovery using SCTP
+    INIT chunk packets.
+  o SCTP-specific IP protocol scan (-sO -p sctp).
+  o SCTP-specific traceroute support (--traceroute).
+  o The ability to use the deprecated Adler32 algorithm as specified
+    in RFC 2960 instead of CRC32C from RFC 4960 (--adler32).
+  o 42 well-known SCTP ports were added to the nmap-services file.
+  Part of the work on SCTP support was kindly sponsored by
+  Compass Security AG, Switzerland.  [Daniel Roethlisberger]
+
 o [Zenmap] The Topology tab now has a "Save Snapshot" button that allows
   saving the current topology display as PNG, PostScript, PDF, and SVG.
   [Joao Medeiros]

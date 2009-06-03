@@ -113,7 +113,8 @@
 #define PORT_HIGHEST_STATE 9 /* ***IMPORTANT -- BUMP THIS UP WHEN STATES ARE 
 				ADDED *** */
  
-#define TCPANDUDP IPPROTO_MAX
+#define TCPANDUDPANDSCTP IPPROTO_MAX
+#define UDPANDSCTP (IPPROTO_MAX + 1)
 
 #define CONF_NONE 0
 #define CONF_LOW 1
@@ -254,8 +255,9 @@ class Port {
 enum portlist_proto {	// PortList Protocols
   PORTLIST_PROTO_TCP	= 0,
   PORTLIST_PROTO_UDP	= 1,
-  PORTLIST_PROTO_IP	= 2,
-  PORTLIST_PROTO_MAX	= 3
+  PORTLIST_PROTO_SCTP	= 2,
+  PORTLIST_PROTO_IP	= 3,
+  PORTLIST_PROTO_MAX	= 4
 };
 
 class PortList {
@@ -281,12 +283,12 @@ class PortList {
    first "afterthisport".  Then supply the most recent returned port
    for each subsequent call.  When no more matching ports remain, NULL
    will be returned.  To restrict returned ports to just one protocol,
-   specify IPPROTO_TCP or IPPROTO_UDP for allowed_protocol. A TCPANDUDP
-   for allowed_protocol matches either. A 0 for allowed_state matches 
-   all possible states. This function returns ports in numeric
-   order from lowest to highest, except that if you ask for both TCP &
-   UDP, every TCP port will be returned before we start returning UDP
-   ports */
+   specify IPPROTO_TCP, IPPROTO_UDP or UPPROTO_SCTP for
+   allowed_protocol. A TCPANDUDPANDSCTP for allowed_protocol matches
+   either. A 0 for allowed_state matches all possible states. This
+   function returns ports in numeric order from lowest to highest,
+   except that if you ask for TCP, UDP & SCTP, all TCP ports will be
+   returned before we start returning UDP and finally SCTP ports */
    Port *nextPort(Port *afterthisport, 
   	          int allowed_protocol, int allowed_state);
 

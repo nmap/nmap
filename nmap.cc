@@ -216,7 +216,7 @@ printf("%s %s ( %s )\n"
        "  -sL: List Scan - simply list targets to scan\n"
        "  -sP: Ping Scan - go no further than determining if host is online\n"
        "  -PN: Treat all hosts as online -- skip host discovery\n"
-       "  -PS/PA/PU[portlist]: TCP SYN/ACK or UDP discovery to given ports\n"
+       "  -PS/PA/PU/PY[portlist]: TCP SYN/ACK, UDP or SCTP discovery to given ports\n"
        "  -PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes\n"
        "  -PO[protocol list]: IP Protocol Ping\n"
        "  -n/-R: Never do DNS resolution/Always resolve [default: sometimes]\n"
@@ -229,6 +229,7 @@ printf("%s %s ( %s )\n"
        "  -sN/sF/sX: TCP Null, FIN, and Xmas scans\n"
        "  --scanflags <flags>: Customize TCP scan flags\n"
        "  -sI <zombie host[:probeport]>: Idle scan\n"
+       "  -sY/sZ: SCTP INIT/COOKIE-ECHO scans\n"
        "  -sO: IP protocol scan\n"
        "  -b <FTP relay host>: FTP bounce scan\n"
        "PORT SPECIFICATION AND SCAN ORDER:\n"
@@ -280,7 +281,8 @@ printf("%s %s ( %s )\n"
        "  --ip-options <options>: Send packets with specified ip options\n"
        "  --ttl <val>: Set IP time-to-live field\n"
        "  --spoof-mac <mac address/prefix/vendor name>: Spoof your MAC address\n"
-       "  --badsum: Send packets with a bogus TCP/UDP checksum\n"
+       "  --badsum: Send packets with a bogus TCP/UDP/SCTP checksum\n"
+       "  --adler32: Use deprecated Adler32 instead of CRC32C for SCTP checksums\n"
        "OUTPUT:\n"
        "  -oN/-oX/-oS/-oG <file>: Output scan in normal, XML, s|<rIpt kIddi3,\n"
        "     and Grepable format, respectively, to the given filename.\n"
@@ -673,6 +675,7 @@ int nmap_main(int argc, char *argv[]) {
       {"min-rate", required_argument, 0, 0},
       {"max_rate", required_argument, 0, 0},
       {"max-rate", required_argument, 0, 0},
+      {"adler32", no_argument, 0, 0},
       {"stats_every", required_argument, 0, 0},
       {"stats-every", required_argument, 0, 0},
       {0, 0, 0, 0}
@@ -936,6 +939,8 @@ int nmap_main(int argc, char *argv[]) {
       } else if(optcmp(long_options[option_index].name, "max-rate") == 0) {
         if (sscanf(optarg, "%f", &o.max_packet_send_rate) != 1 || o.max_packet_send_rate <= 0.0)
           fatal("Argument to --max-rate must be a positive floating-point number");
+      } else if (optcmp(long_options[option_index].name, "adler32") == 0) {
+        o.adler32 = true;
       } else if(optcmp(long_options[option_index].name, "stats-every") == 0) {
 	l = tval2msecs(optarg);
 	if (l < 0) fatal("Argument to --stats-every cannot be negative.");
@@ -1120,6 +1125,19 @@ int nmap_main(int argc, char *argv[]) {
 	  assert(ports.udp_ping_count > 0);
 	}
       }
+      else if (*optarg == 'Y') {
+	if (ports.sctp_ping_count > 0)
+	  fatal("Only one -PY option is allowed. Combine port ranges with commas.");
+	o.pingtype |= (PINGTYPE_SCTP_INIT);
+	if (*(optarg + 1) != '\0') {
+	  getpts_simple(optarg + 1, SCAN_SCTP_PORT, &ports.sctp_ping_ports, &ports.sctp_ping_count);
+	  if (ports.sctp_ping_count <= 0)
+	    fatal("Bogus argument to -PY: %s", optarg + 1);
+	} else {
+	  getpts_simple(DEFAULT_SCTP_PROBE_PORT_SPEC, SCAN_SCTP_PORT, &ports.sctp_ping_ports, &ports.sctp_ping_count);
+	  assert(ports.sctp_ping_count > 0);
+	}
+      }
       else if (*optarg == 'B') {
 	if (ports.ack_ping_count > 0)
 	  fatal("Only one -PB, -PA, or -PT option is allowed. Combine port ranges with commas.");
@@ -1193,6 +1211,8 @@ int nmap_main(int argc, char *argv[]) {
 	case 'V':  o.servicescan = 1; break;
 	case 'W':  o.windowscan = 1; break;
 	case 'X':  o.xmasscan++; break;
+	case 'Y':  o.sctpinitscan = 1; break;
+	case 'Z':  o.sctpcookieechoscan = 1; break;
 	default:  error("Scantype %c not supported\n",*p); printusage(argv[0], -1); break;
 	}
 	p++;
@@ -1220,6 +1240,7 @@ int nmap_main(int argc, char *argv[]) {
 	o.setMaxRttTimeout(1250);
 	o.setInitialRttTimeout(500);
         o.setMaxTCPScanDelay(10);
+        o.setMaxSCTPScanDelay(10);
         o.setMaxRetransmissions(6);
       } else if (*optarg == '5' || (strcasecmp(optarg, "Insane") == 0)) {
 	o.timing_level = 5;
@@ -1228,6 +1249,7 @@ int nmap_main(int argc, char *argv[]) {
 	o.setInitialRttTimeout(250);
 	o.host_timeout = 900000;
         o.setMaxTCPScanDelay(5);
+        o.setMaxSCTPScanDelay(5);
         o.setMaxRetransmissions(2);
       } else {
 	fatal("Unknown timing mode (-T argument).  Use either \"Paranoid\", \"Sneaky\", \"Polite\", \"Normal\", \"Aggressive\", \"Insane\" or a number from 0 (Paranoid) to 5 (Insane)");
@@ -1259,6 +1281,7 @@ int nmap_main(int argc, char *argv[]) {
     o.scan_delay = pre_scan_delay;
     if (o.scan_delay > o.maxTCPScanDelay()) o.setMaxTCPScanDelay(o.scan_delay);
     if (o.scan_delay > o.maxUDPScanDelay()) o.setMaxUDPScanDelay(o.scan_delay);
+    if (o.scan_delay > o.maxSCTPScanDelay()) o.setMaxSCTPScanDelay(o.scan_delay);
     o.max_parallelism = 1;
     if(pre_max_parallelism != -1)
       fatal("You can't use --max-parallelism with --scan-delay.");
@@ -1266,6 +1289,7 @@ int nmap_main(int argc, char *argv[]) {
   if (pre_max_scan_delay != -1) {
     o.setMaxTCPScanDelay(pre_max_scan_delay);
     o.setMaxUDPScanDelay(pre_max_scan_delay);
+    o.setMaxSCTPScanDelay(pre_max_scan_delay);
   }
   if (pre_init_rtt_timeout != -1) o.setInitialRttTimeout(pre_init_rtt_timeout);
   if (pre_min_rtt_timeout != -1) o.setMinRttTimeout(pre_min_rtt_timeout);
@@ -1360,7 +1384,7 @@ int nmap_main(int argc, char *argv[]) {
   }
 
   // Uncomment the following line to use the common lisp port spec test suite
-  //printf("port spec: (%d %d %d)\n", ports.tcp_count, ports.udp_count, ports.prot_count); exit(0);
+  //printf("port spec: (%d %d %d %d)\n", ports.tcp_count, ports.udp_count, ports.stcp_count, ports.prot_count); exit(0);
 
 #ifdef WIN32
   if (o.sendpref & PACKET_SEND_IP) {
@@ -1421,6 +1445,8 @@ int nmap_main(int argc, char *argv[]) {
    */
   if ((o.TCPScan()) && ports.tcp_count == 0)
     error("WARNING: a TCP scan type was requested, but no tcp ports were specified.  Skipping this scan type.");
+  if (o.SCTPScan() && ports.sctp_count == 0)
+    error("WARNING: a SCTP scan type was requested, but no sctp ports were specified.  Skipping this scan type.");
   if (o.UDPScan() && ports.udp_count == 0)
     error("WARNING: UDP scan was requested, but no udp ports were specified.  Skipping this scan type.");
   if (o.ipprotscan && ports.prot_count == 0)
@@ -1517,7 +1543,7 @@ int nmap_main(int argc, char *argv[]) {
   /* Before we randomize the ports scanned, lets output them to machine 
      parseable output */
   if (o.verbose)
-    output_ports_to_machine_parseable_output(&ports, o.TCPScan(), o.udpscan, o.ipprotscan);
+    output_ports_to_machine_parseable_output(&ports, o.TCPScan(), o.UDPScan(), o.SCTPScan(), o.ipprotscan);
 
   /* more fakeargv junk, BTW malloc'ing extra space in argv[0] doesn't work */
   if (quashargv) {
@@ -1547,7 +1573,7 @@ int nmap_main(int argc, char *argv[]) {
     log_write(LOG_PLAIN, "--------------- Timing report ---------------\n");
     log_write(LOG_PLAIN, "  hostgroups: min %d, max %d\n", o.minHostGroupSz(), o.maxHostGroupSz());
     log_write(LOG_PLAIN, "  rtt-timeouts: init %d, min %d, max %d\n", o.initialRttTimeout(), o.minRttTimeout(), o.maxRttTimeout());
-    log_write(LOG_PLAIN, "  max-scan-delay: TCP %d, UDP %d\n", o.maxTCPScanDelay(), o.maxUDPScanDelay());
+    log_write(LOG_PLAIN, "  max-scan-delay: TCP %d, UDP %d, SCTP %d\n", o.maxTCPScanDelay(), o.maxUDPScanDelay(), o.maxSCTPScanDelay());
     log_write(LOG_PLAIN, "  parallelism: min %d, max %d\n", o.min_parallelism, o.max_parallelism);
     log_write(LOG_PLAIN, "  max-retries: %d, host-timeout: %ld\n", o.getMaxRetransmissions(), o.host_timeout);
     log_write(LOG_PLAIN, "  min-rate: %g, max-rate: %g\n", o.min_packet_send_rate, o.max_packet_send_rate);
@@ -1561,6 +1587,8 @@ int nmap_main(int argc, char *argv[]) {
     PortList::initializePortMap(IPPROTO_TCP, ports.tcp_ports, ports.tcp_count);
   if (o.UDPScan())
     PortList::initializePortMap(IPPROTO_UDP, ports.udp_ports, ports.udp_count);
+  if (o.SCTPScan())
+    PortList::initializePortMap(IPPROTO_SCTP, ports.sctp_ports, ports.sctp_count);
   
   if  (randomize) {
     if (ports.tcp_count) {
@@ -1570,6 +1598,8 @@ int nmap_main(int argc, char *argv[]) {
     }
     if (ports.udp_count) 
       shortfry(ports.udp_ports, ports.udp_count); 
+    if (ports.sctp_count) 
+      shortfry(ports.sctp_ports, ports.sctp_count); 
     if (ports.prot_count) 
       shortfry(ports.prots, ports.prot_count); 
   }
@@ -1775,6 +1805,12 @@ int nmap_main(int argc, char *argv[]) {
     
     if (o.connectscan)
       ultra_scan(Targets, &ports, CONNECT_SCAN);
+    
+    if (o.sctpinitscan)
+      ultra_scan(Targets, &ports, SCTP_INIT_SCAN);
+    
+    if (o.sctpcookieechoscan)
+      ultra_scan(Targets, &ports, SCTP_COOKIE_ECHO_SCAN);
     
     if (o.ipprotscan)
       ultra_scan(Targets, &ports, IPPROT_SCAN);
@@ -2136,12 +2172,14 @@ void getpts(const char *origexpr, struct scan_lists *ports) {
   u8 *porttbl;
   int range_type = 0;
   int portwarning = 0;
-  int i, tcpi, udpi, proti;
+  int i, tcpi, udpi, sctpi, proti;
 
   if (o.TCPScan())
     range_type |= SCAN_TCP_PORT;
   if (o.UDPScan())
     range_type |= SCAN_UDP_PORT;
+  if (o.SCTPScan())
+    range_type |= SCAN_SCTP_PORT;
   if (o.ipprotscan)
     range_type |= SCAN_PROTOCOLS;
 
@@ -2150,22 +2188,25 @@ void getpts(const char *origexpr, struct scan_lists *ports) {
   getpts_aux(origexpr,      // Pass on the expression
              0,             // Don't start off nested
              porttbl,       // Our allocated port table
-             range_type,    // Defaults to TCP/UDP/Protos
+             range_type,    // Defaults to TCP/UDP/SCTP/Protos
              &portwarning); // No, we haven't warned them about dup ports yet
 
   ports->tcp_count = 0;
   ports->udp_count = 0;
+  ports->sctp_count = 0;
   ports->prot_count = 0;
   for(i = 0; i <= 65535; i++) {
     if (porttbl[i] & SCAN_TCP_PORT)
       ports->tcp_count++;
     if (porttbl[i] & SCAN_UDP_PORT)
       ports->udp_count++;
+    if (porttbl[i] & SCAN_SCTP_PORT)
+      ports->sctp_count++;
     if (porttbl[i] & SCAN_PROTOCOLS && i < 256)
       ports->prot_count++;
   }
 
-  if (range_type != 0 && 0 == (ports->tcp_count + ports->udp_count + ports->prot_count))
+  if (range_type != 0 && 0 == (ports->tcp_count + ports->udp_count + ports->sctp_count + ports->prot_count))
     fatal("No ports specified -- If you really don't want to scan any ports use ping scan...");
 
   if (ports->tcp_count) {
@@ -2174,15 +2215,20 @@ void getpts(const char *origexpr, struct scan_lists *ports) {
   if (ports->udp_count) {
     ports->udp_ports = (unsigned short *)safe_zalloc(ports->udp_count * sizeof(unsigned short));
   }
+  if (ports->sctp_count) {
+    ports->sctp_ports = (unsigned short *)safe_zalloc(ports->sctp_count * sizeof(unsigned short));
+  }
   if (ports->prot_count) {
     ports->prots = (unsigned short *)safe_zalloc(ports->prot_count * sizeof(unsigned short));
   }
 
-  for(i=tcpi=udpi=proti=0; i <= 65535; i++) {
+  for(i=tcpi=udpi=sctpi=proti=0; i <= 65535; i++) {
     if (porttbl[i] & SCAN_TCP_PORT)
       ports->tcp_ports[tcpi++] = i;
     if (porttbl[i] & SCAN_UDP_PORT)
       ports->udp_ports[udpi++] = i;
+    if (porttbl[i] & SCAN_SCTP_PORT)
+      ports->sctp_ports[sctpi++] = i;
     if (porttbl[i] & SCAN_PROTOCOLS && i < 256)
       ports->prots[proti++] = i;
   }
@@ -2192,7 +2238,7 @@ void getpts(const char *origexpr, struct scan_lists *ports) {
 
 /* This function is like getpts except it only allocates space for and stores
   values into one unsigned short array, instead of an entire scan_lists struct
-  For that reason, T:, U:, and P: restrictions are not allowed and only one
+  For that reason, T:, U:, S: and P: restrictions are not allowed and only one
   bit in range_type may be set. */
 void getpts_simple(const char *origexpr, int range_type,
                    unsigned short **list, int *count) {
@@ -2262,6 +2308,11 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
       if (*current_range == 'U' && *++current_range == ':') {
           current_range++;
           range_type = SCAN_UDP_PORT;
+          continue;
+      }
+      if (*current_range == 'S' && *++current_range == ':') {
+          current_range++;
+          range_type = SCAN_SCTP_PORT;
           continue;
       }
       if (*current_range == 'P' && *++current_range == ':') {
@@ -2381,6 +2432,10 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
               nmap_getservbyport(htons(rangestart), "udp")) {
             porttbl[rangestart] |= SCAN_UDP_PORT;
           }
+          if ((range_type & SCAN_SCTP_PORT) &&
+              nmap_getservbyport(htons(rangestart), "sctp")) {
+            porttbl[rangestart] |= SCAN_SCTP_PORT;
+          }
           if ((range_type & SCAN_PROTOCOLS) &&
               nmap_getprotbynum(htons(rangestart))) {
             porttbl[rangestart] |= SCAN_PROTOCOLS;
@@ -2412,6 +2467,7 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
 void free_scan_lists(struct scan_lists *ports) {
   if (ports->tcp_ports) free(ports->tcp_ports);
   if (ports->udp_ports) free(ports->udp_ports);
+  if (ports->sctp_ports) free(ports->sctp_ports);
   if (ports->prots) free(ports->prots);
   if (ports->syn_ping_ports) free(ports->syn_ping_ports);
   if (ports->ack_ping_ports) free(ports->ack_ping_ports);
@@ -2513,6 +2569,8 @@ const char *scantype2str(stype scantype) {
   case CONNECT_SCAN: return "Connect Scan"; break;
   case NULL_SCAN: return "NULL Scan"; break;
   case WINDOW_SCAN: return "Window Scan"; break;
+  case SCTP_INIT_SCAN: return "SCTP INIT Scan"; break;
+  case SCTP_COOKIE_ECHO_SCAN: return "SCTP COOKIE-ECHO Scan"; break;
   case RPC_SCAN: return "RPCGrind Scan"; break;
   case MAIMON_SCAN: return "Maimon Scan"; break;
   case IPPROT_SCAN: return "IPProto Scan"; break;

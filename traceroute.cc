@@ -248,14 +248,16 @@ Traceroute::getTraceProbe (Target * t) {
 
     probe = t->pingprobe;
     /* If this is an IP protocol probe, fill in some fields for some common
-       protocols. We cheat and store them in the TCP-, UDP-, and ICMP-specific
-       fields. Traceroute::sendProbe checks for them there. */
+       protocols. We cheat and store them in the TCP-, UDP-, SCTP- and
+       ICMP-specific fields. Traceroute::sendProbe checks for them there. */
     if (probe.type == PS_PROTO) {
         if (probe.proto == IPPROTO_TCP) {
             probe.pd.tcp.flags = TH_ACK;
             probe.pd.tcp.dport = get_random_u16();
         } else if (probe.proto == IPPROTO_UDP) {
             probe.pd.udp.dport = get_random_u16();
+        } else if (probe.proto == IPPROTO_SCTP) {
+            probe.pd.sctp.dport = get_random_u16();
         } else if (probe.proto == IPPROTO_ICMP) {
             probe.pd.icmp.type = ICMP_ECHO;
         }
@@ -274,6 +276,7 @@ Traceroute::readTraceResponses () {
     struct icmp *icmp2 = NULL;
     struct tcp_hdr *tcp = NULL;
     struct udp_hdr *udp = NULL;
+    struct sctp_hdr *sctp = NULL;
     struct link_header linkhdr;
     unsigned int bytes;
     struct timeval rcvdtime;
@@ -311,6 +314,11 @@ Traceroute::readTraceResponses () {
                 if (ntohs(ip2->ip_len) - (ip2->ip_hl * 4) < 2)
                     break;
                 sport = ntohs (udp->uh_sport);
+            } else if (ip2->ip_p == IPPROTO_SCTP) {
+                sctp = (struct sctp_hdr *) ((u8 *) ip2 + ip2->ip_hl * 4);
+                if (ntohs(ip2->ip_len) - (ip2->ip_hl * 4) < 2)
+                    break;
+                sport = ntohs(sctp->sh_sport);
             } else if (ip2->ip_p == IPPROTO_ICMP) {
                 icmp2 = (struct icmp *) ((char *) ip2 + 4 * ip2->ip_hl);
                 if (ntohs(ip2->ip_len) - (ip2->ip_hl * 4) < 8)
@@ -475,6 +483,43 @@ Traceroute::readTraceResponses () {
                 tg->ttl = tg->start_ttl + 1;
         }
         break;
+    case IPPROTO_SCTP:
+        sctp = (struct sctp_hdr *) ((char *) ip + 4 * ip->ip_hl);
+
+        if (TraceGroups.find(ip->ip_src.s_addr) != TraceGroups.end())
+            tg = TraceGroups[ip->ip_src.s_addr];
+        else
+            break;
+
+        if (tg->TraceProbes.find(ntohs(sctp->sh_dport)) != tg->TraceProbes.end())
+            tp = tg->TraceProbes[ntohs(sctp->sh_dport)];
+        else
+            break;
+
+        /* already got the sctp packet for this group,
+         * could be a left over abort or init-ack */
+        if (tp->ipreplysrc.s_addr)
+            break;
+
+        /* We might have got a late reply */
+        if (tp->timing.getState() == P_TIMEDOUT)
+            tp->timing.setState(P_OK);
+        else
+            tg->decRemaining();
+
+        tp->timing.recvTime = rcvdtime;
+        tp->ipreplysrc = ip->ip_src;
+        tg->repliedPackets++;
+        /* The probe was the reply from a ttl guess */
+        if (tp->probeType() == PROBE_TTL) {
+            tg->setHopDistance(get_initial_ttl_guess(ip->ip_ttl), ip->ip_ttl);
+            tg->start_ttl = tg->ttl = tg->hopDistance;
+        } else {
+            tg->gotReply = true;
+            if (tg->start_ttl < tg->ttl)
+                tg->ttl = tg->start_ttl + 1;
+        }
+        break;
     default:
         ;
     }
@@ -616,9 +661,9 @@ Traceroute::sendProbe (TraceProbe * tp) {
         else
             source = o.decoys[decoy];
 
-        /* For TCP, UDP, and ICMP, also check if the probe is an IP proto probe
-           whose protocol happens to be one of those protocols. The
-           protocol-specific fields will have been filled in by
+        /* For TCP, UDP, SCTP and ICMP, also check if the probe is an IP
+           proto probe whose protocol happens to be one of those protocols.
+           The protocol-specific fields will have been filled in by
            Traceroute::getTraceProbe. */
         if (tp->probe.type == PS_TCP
             || (tp->probe.type == PS_PROTO && tp->probe.proto == IPPROTO_TCP)) {
@@ -633,6 +678,22 @@ Traceroute::sendProbe (TraceProbe * tp) {
                                     get_random_u8 (), false,
                                     NULL, 0, tp->sport,
                                     tp->probe.pd.udp.dport, o.extra_payload, o.extra_payload_length, &packetlen);
+        } else if (tp->probe.type == PS_SCTP
+            || (tp->probe.type == PS_PROTO && tp->probe.proto == IPPROTO_SCTP)) {
+            struct sctp_chunkhdr_init chunk;
+            sctp_pack_chunkhdr_init(&chunk, SCTP_INIT, 0,
+                                    sizeof(struct sctp_chunkhdr_init),
+                                    get_random_u32()/*itag*/,
+                                    32768, 10, 2048,
+                                    get_random_u32()/*itsn*/);
+            packet = build_sctp_raw(&source, &tp->ipdst, tp->ttl,
+                                    get_random_u16(), get_random_u8(),
+                                    false, NULL, 0,
+                                    tp->sport, tp->probe.pd.sctp.dport,
+                                    0UL, (char*)&chunk,
+                                    sizeof(struct sctp_chunkhdr_init),
+                                    o.extra_payload, o.extra_payload_length,
+                                    &packetlen);
         } else if (tp->probe.type == PS_ICMP
             || (tp->probe.type == PS_PROTO && tp->probe.proto == IPPROTO_ICMP)) {
             packet = build_icmp_raw (&source, &tp->ipdst, tp->ttl, 0, 0, false,
@@ -951,6 +1012,8 @@ Traceroute::outputTarget (Target * t) {
         log_write(LOG_PLAIN, "\nTRACEROUTE (using port %d/%s)\n", tg->probe.pd.tcp.dport, proto2ascii(tg->probe.proto));
     } else if (tg->probe.type == PS_UDP) {
         log_write(LOG_PLAIN, "\nTRACEROUTE (using port %d/%s)\n", tg->probe.pd.udp.dport, proto2ascii(tg->probe.proto));
+    } else if (tg->probe.type == PS_SCTP) {
+        log_write(LOG_PLAIN, "\nTRACEROUTE (using port %d/%s)\n", tg->probe.pd.sctp.dport, proto2ascii(tg->probe.proto));
     } else if (tg->probe.type == PS_ICMP || tg->probe.type == PS_PROTO) {
         struct protoent *proto = nmap_getprotbynum(htons(tg->probe.proto));
         log_write(LOG_PLAIN, "\nTRACEROUTE (using proto %d/%s)\n", tg->probe.proto, proto?proto->p_name:"unknown");
@@ -982,6 +1045,8 @@ Traceroute::outputXMLTrace(TraceGroup * tg) {
 	log_write(LOG_XML, "port=\"%d\" ", tg->probe.pd.tcp.dport);
     } else if (tg->probe.type == PS_UDP) {
 	log_write(LOG_XML, "port=\"%d\" ", tg->probe.pd.udp.dport);
+    } else if (tg->probe.type == PS_SCTP) {
+        log_write(LOG_XML, "port=\"%d\" ", tg->probe.pd.sctp.dport);
     } else if (tg->probe.type == PS_ICMP || tg->probe.type == PS_PROTO) {
         struct protoent *proto = nmap_getprotbynum(htons(tg->probe.proto));
         if (proto == NULL)
@@ -1108,7 +1173,7 @@ TraceGroup::retransmissions (vector < TraceProbe * >&retrans) {
         if (droppedPackets > 10 && (droppedPackets /
                                     ((double) droppedPackets + repliedPackets) > threshold)) {
             if (!scanDelay)
-                scanDelay = (probe.type == PS_TCP) ? 5 : 50;
+                scanDelay = (probe.type == PS_TCP || probe.type == PS_SCTP) ? 5 : 50;
             else
                 scanDelay = MIN (scanDelay * 2, MAX (scanDelay, 800));
             droppedPackets = 0;
