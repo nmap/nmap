@@ -1324,7 +1324,13 @@ int nmap_main(int argc, char *argv[]) {
     }
   }
 
- if(o.traceroute && (o.idlescan || o.connectscan)) {
+#if HAVE_IPV6
+  if(o.af() == AF_INET6 && o.traceroute) {
+     error("Warning: Traceroute does not support IPv6, disabling...");
+     o.traceroute = 0;
+  } else
+#endif
+  if(o.traceroute && (o.idlescan || o.connectscan)) {
     error("Warning: Traceroute does not support idle or connect scan, disabling...");
     o.traceroute = 0;
   }

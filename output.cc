@@ -293,7 +293,7 @@ static char * getServiceXMLBuf(struct serviceDeductions *sd) {
 void win32_warn_raw_sockets(const char *devname) {
   static set<string> shown_names;
 
-  if (shown_names.find(devname) == shown_names.end()) {
+  if (devname != NULL && shown_names.find(devname) == shown_names.end()) {
     error("WARNING: Using raw sockets because %s is not an ethernet device. This probably won't work on Windows.\n", devname);
     shown_names.insert(devname);
   }
