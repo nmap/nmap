@@ -4028,7 +4028,7 @@ T7(R=Y%DF=N%T=7B-85%TG=80%W=FAF0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=FA-104%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=FA-104%TG=FF%CD=S)
 
-# SuperDOS - very old OS...but still working
+# SuperDOS - very old OS...but still working. Still sold by www.dccs.com.
 Fingerprint Bluebird SuperDOS
 Class Bluebird | SuperDOS || general purpose
 SEQ(SP=FA-104%GCD=1-6%ISR=F3-FD%TI=I%II=I%SS=S%TS=U)
