@@ -5,6 +5,12 @@
 -- The actual arguments passed to the anonymous main function:
 --   [1] The list of hosts we run against.
 --
+-- When making changes to this code, please ensure you do not add any
+-- code relying global indexing. Instead, create a local below for the
+-- global you need access to. This protects the engine from possible
+-- replacements made to the global environment, speeds up access, and
+-- documents dependencies.
+--
 -- A few notes about the safety of the engine, that is, the ability for
 -- a script developer to crash or otherwise stall NSE. The purpose of noting
 -- these attack vectors is more to show the difficulty in accidently
