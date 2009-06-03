@@ -595,7 +595,7 @@ end
 -- main(hosts)
 -- This is the main function we return to NSE (on the C side) which actually
 -- runs a scan against an array of hosts. nse_main.cc gets this function
--- by calling loadfile on nse_main.lua.
+-- by loading and executing nse_main.lua.
 -- Arguments:
 --   hosts  An array of hosts to scan.
 return function (hosts)
