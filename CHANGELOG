@@ -1,4 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
+o [Zenmap] The Topology tab now has a "Save Snapshot" button that allows
+  saving the current topology display as PNG, PostScript, PDF, and SVG.
+  [Joao Medeiros]
+
 o Fixed a bug with the --defeat-rst-ratelimit option [Josh]
 
 o [Zenmap] Operating system icons are now always loaded as PNGs, even on
