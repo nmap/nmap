@@ -434,7 +434,6 @@ local function run (threads)
   -- _R[DESTRUCTOR] is called by nse_destructor in nse_main.cc
   _R[DESTRUCTOR] = function (what, co, key, destructor)
     local thread = all[co] or current;
-    print(thread, what, co, key, destructor)
     if thread then
       local ch = thread.close_handlers;
       if what == "add" then
