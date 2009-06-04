@@ -1,11 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o [NSE] Script scanning does not seem to work on Fyodor's Linux
-  machines after being installed from latest SVN (or 4.85BETA9) and run
-  as a non-root user (it works fine as root).  The command "nmap -sC
-  localhost" leads to NSE failure messages which differ based on the
-  exact version run.
-
 o Build x86 VM instance for RPM building. [Fyodor]
 
 o Look into building RPMs with SSL support. Statically linking to
@@ -574,6 +568,13 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] Script scanning does not seem to work on Fyodor's Linux
+  machines after being installed from latest SVN (or 4.85BETA9) and run
+  as a non-root user (it works fine as root).  The command "nmap -sC
+  localhost" leads to NSE failure messages which differ based on the
+  exact version run. [Was a relatively simple permissions problem in
+  our Makefile.in -- I fixed it]
 
 o [NSE] Release socket locks on connection failure or
   timeout. [Patrick]
