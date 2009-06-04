@@ -182,8 +182,8 @@ o Scanning through proxies
      same basic engine.  You should run your ideas by nmap-dev in as
      much detail as possible before starting.
 
-o [Ncat] Support SCTP now that Nmap does. Hopefully Daniel
-  Roethlisberger will take this one on.
+o [Ncat] Support SCTP now that Nmap does. Daniel
+  Roethlisberger is working on this.
 
 o [NSE] Optimize NSE Performance--e.g. measure the current performance and
   see what can be improved in terms of scheduling scan threads,
