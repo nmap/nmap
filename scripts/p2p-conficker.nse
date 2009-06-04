@@ -24,26 +24,26 @@ from public sources (most notably the port blacklisting was found by David Fifie
 out to everybody who contributed! 
 ]]
 
---       <pre>nmap -p445 -T4 --script=p2p-conficker --script-args=realip=\"192.168.1.65\" x.x.x.x</pre>
+--       <pre>nmap -p445 -T4 -vv --script=p2p-conficker --script-args=realip=\"192.168.1.65\" x.x.x.x</pre>
 -- @args checkconficker If set to '1' or 'true', the script will always run on active hosts, 
 --       it doesn't matter if any open ports were detected. 
 --
 -- @usage
 -- # Run the scripts against host(s) that appear to be Windows
--- nmap --script p2p-conficker,smb-os-discovery,smb-check-vulns --script-args=safe=1 -T4 -p445 <host>
--- sudo nmap -sU -sS --script p2p-conficker,smb-os-discovery,smb-check-vulns --script-args=safe=1 -T4 -p U:137,T:139 <host>
+-- nmap --script p2p-conficker,smb-os-discovery,smb-check-vulns --script-args=safe=1 -T4 -vv -p445 <host>
+-- sudo nmap -sU -sS --script p2p-conficker,smb-os-discovery,smb-check-vulns --script-args=safe=1 -vv -T4 -p U:137,T:139 <host>
 --
 -- # Run the scripts against all active hosts (recommended)
--- nmap -p139,445 --script p2p-conficker,smb-os-discovery,smb-check-vulns --script-args=checkconficker=1,safe=1 -T4 <host>
+-- nmap -p139,445 -vv --script p2p-conficker,smb-os-discovery,smb-check-vulns --script-args=checkconficker=1,safe=1 -T4 <host>
 --
 -- # Run scripts against all 65535 ports (slow)
--- nmap --script p2p-conficker,smb-os-discovery,smb-check-vulns -p- --script-args=checkall=1,safe=1 -T4 <host>
+-- nmap --script p2p-conficker,smb-os-discovery,smb-check-vulns -p- --script-args=checkall=1,safe=1 -vv -T4 <host>
 --
 -- # Base checks on a different ip address (NATed)
--- nmap --script p2p-conficker,smb-os-discovery -p445 --script-args=realip=\"192.168.1.65\" -T4 <host>
+-- nmap --script p2p-conficker,smb-os-discovery -p445 --script-args=realip=\"192.168.1.65\" -vv -T4 <host>
 --
 -- @output
--- Clean machine:
+-- Clean machine (results printed only if extra verbosity ("-vv")is specified):
 -- Host script results:
 -- |  p2p-conficker: Checking for Conficker.C or higher...
 -- |  | Check 1 (port 44329/tcp): CLEAN (Couldn't connect)
@@ -52,7 +52,7 @@ out to everybody who contributed!
 -- |  | Check 4 (port 52600/udp): CLEAN (Failed to receive data)
 -- |_ |_ 0/4 checks: Host is CLEAN or ports are blocked
 -- 
--- Infected machine:
+-- Infected machine (results always printed):
 -- Host script results:
 -- |  p2p-conficker: Checking for Conficker.C or higher...
 -- |  | Check 1 (port 18707/tcp): INFECTED (Received valid data)
@@ -615,7 +615,7 @@ local function go(host)
 	end
 
 	-- Remove the response if verbose is turned off
-	if(nmap.verbosity() < 2) then
+	if(count == 0 and nmap.verbosity() < 2) then
 		response = ""
 	else
 		response = response .. "|_ "
@@ -623,7 +623,11 @@ local function go(host)
 	
     -- Check how many INFECTED hits we got
     if(count == 0) then
-        response = response .. string.format("%d/%d checks are positive: Host is CLEAN or ports are blocked\n", count, checks)
+	if (nmap.verbosity() > 1) then
+		response = response .. string.format("%d/%d checks are positive: Host is CLEAN or ports are blocked\n", count, checks)
+	else
+		response = nil
+	end
     else
         response = response .. string.format("%d/%d checks are positive: Host is likely INFECTED\n", count, checks)
     end
