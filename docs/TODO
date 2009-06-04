@@ -109,7 +109,10 @@ o Deadlock identification and correction:
 o Consider making it easier to tell whether scripts were specified by
   name on the command-line (rather than default or by class) so they
   have the option of providing extra verbosity in that case.  For
-  example, see http://seclists.org/nmap-dev/2009/q2/0563.html
+  example, see http://seclists.org/nmap-dev/2009/q2/0563.html.  We
+  could either provide a special function for scripts to determine
+  that, or we could magically adjust nmap.verbosity() when called by
+  those scripts.
 
 o [Ncat] Maybe --chat should imply -l.  And Maybe --broker should too?
 
