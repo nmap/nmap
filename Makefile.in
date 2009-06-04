@@ -249,9 +249,9 @@ NSE_LIB_LUA_FILES = nselib/*.lua
 install-nse: $(TARGET)
 	$(INSTALL) -c -m 644 nse_main.lua $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -d $(DESTDIR)$(nmapdatadir)/scripts
-	cp -f $(NSE_FILES) $(DESTDIR)$(nmapdatadir)/scripts
+	$(INSTALL) -c -m 644 $(NSE_FILES) $(DESTDIR)$(nmapdatadir)/scripts
 	$(INSTALL) -d $(DESTDIR)$(nmapdatadir)/nselib
-	cp -f $(NSE_LIB_LUA_FILES) $(DESTDIR)$(nmapdatadir)/nselib
+	$(INSTALL) -c -m 644 $(NSE_LIB_LUA_FILES) $(DESTDIR)$(nmapdatadir)/nselib
 
 install-ncat: $(NCATDIR)/ncat
 	@cd $(NCATDIR) && $(MAKE) install
