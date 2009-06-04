@@ -614,12 +614,18 @@ local function go(host)
 		end
 	end
 
-
+	-- Remove the response if verbose is turned off
+	if(nmap.verbosity() < 2) then
+		response = ""
+	else
+		response = response .. "|_ "
+	end
+	
     -- Check how many INFECTED hits we got
     if(count == 0) then
-        response = response .. string.format("|_ %d/%d checks: Host is CLEAN or ports are blocked\n", count, checks)
+        response = response .. string.format("%d/%d checks are positive: Host is CLEAN or ports are blocked\n", count, checks)
     else
-        response = response .. string.format("|_ %d/%d checks: Host is likely INFECTED\n", count, checks)
+        response = response .. string.format("%d/%d checks are positive: Host is likely INFECTED\n", count, checks)
     end
 
 
