@@ -274,7 +274,7 @@ void *realloc();
 #define DEFAULT_TCP_PROBE_PORT_SPEC "80" /* The ports TCP ping probes go to if
                                             unspecified by user -- uber hackers
                                             change this to 113 */
-#define DEFAULT_UDP_PROBE_PORT_SPEC "31338" /* The port UDP ping probes go to
+#define DEFAULT_UDP_PROBE_PORT_SPEC "40125" /* The port UDP ping probes go to
                                                if unspecified by user */
 #define DEFAULT_SCTP_PROBE_PORT_SPEC "80" /* The port SCTP probes go to
                                              if unspecified by

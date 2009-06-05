@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Changed the ICMP ping probes to use a random non-zero ICMP id.  Some hosts
+  seem to drop probes when ICMP id is 0 [Josh Marlow]
+
+o Changed the default UDP ping port to 40125.  This appears to be a
+  better port based on tests done by David [Josh Marlow]
+
 o [Ncat] Handling of newlines on Windows has been improved. CRLF is
   automatically converted to bare LF when input is from the console, but
   not when it is from a pipe or a file. No newline translation is done

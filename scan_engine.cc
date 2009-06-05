@@ -3155,10 +3155,17 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 			       &packetlen);
 	break;
       case IPPROTO_ICMP:
+    u16 icmp_ident;
+
+    /* Some hosts do not respond to ICMP requests if the identifier is 0. */
+    do {
+      icmp_ident = get_random_u16();
+    } while (icmp_ident == 0);
+
 	packet = build_icmp_raw(&o.decoys[decoy], hss->target->v4hostip(),
 				o.ttl, ipid, IP_TOS_DEFAULT, false,
 				o.ipoptions, o.ipoptionslen,
-				0, 0, 8, 0,
+				0, icmp_ident, 8, 0,
 				o.extra_payload, o.extra_payload_length,
 				&packetlen);
 	break;

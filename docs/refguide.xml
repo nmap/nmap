@@ -611,7 +611,7 @@ you would expect.</para>
           specified) UDP packet to the given ports.  The port list
           takes the same format as with the previously discussed
           <option>-PS</option> and <option>-PA</option> options.  If
-          no ports are specified, the default is 31338.  This default
+          no ports are specified, the default is 40125.  This default
           can be configured at compile-time by changing
           <varname>DEFAULT_UDP_PROBE_PORT_SPEC</varname><indexterm><primary><varname>DEFAULT_UDP_PROBE_PORT_SPEC</varname></primary></indexterm>
           in <filename>nmap.h</filename>.<indexterm><primary><filename>nmap.h</filename></primary></indexterm>
@@ -627,7 +627,7 @@ you would expect.</para>
           a down or unreachable host.  A lack of response is also
           interpreted this way.  If an open port is reached, most
           services simply ignore the empty packet and fail to return
-          any response.  This is why the default probe port is 31338,
+          any response.  This is why the default probe port is 40125,
           which is highly unlikely to be in use.  A few services, such
           as the Character Generator (chargen) protocol, will respond to an empty UDP packet, and thus
           disclose to Nmap that the machine is available.</para>
