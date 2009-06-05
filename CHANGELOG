@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added another case to NmapOps::RawScan() to cover the case where we are using
+  a SYN ping scan and issuing raw packets.  This fixes a bug wherein nmap would
+  not display the "Raw packets sent..." message [Josh Marlow]
+
 o Changed the ICMP ping probes to use a random non-zero ICMP id.  Some hosts
   seem to drop probes when ICMP id is 0 [Josh Marlow]
 

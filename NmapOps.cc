@@ -321,14 +321,14 @@ bool NmapOps::UDPScan() {
   return udpscan;
 }
 
-  /* this function does not currently cover cases such as TCP SYN ping
-     scan which can go either way based on whether the user is root or
-     IPv6 is being used.  It will return false in those cases where a
-     RawScan is not neccessarily used. */
 bool NmapOps::RawScan() {
   if (ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|osscan|synscan|udpscan|windowscan|xmasscan|sctpinitscan|sctpcookieechoscan)
     return true;
   if (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS|PINGTYPE_TCP_USE_ACK|PINGTYPE_UDP|PINGTYPE_SCTP_INIT))
+    return true;
+  /* A SYN scan will only generate raw packets if nmap is running as root and is
+     not issuing IPv6 packets.  Otherwise, it becomes a connect scan. */
+  if ((pingtype & PINGTYPE_TCP_USE_SYN) && (af() == AF_INET) && isr00t)
     return true;
 
    return false; 
