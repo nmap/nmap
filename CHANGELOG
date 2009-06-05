@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Handling of newlines on Windows has been improved. CRLF is
+  automatically converted to bare LF when input is from the console, but
+  not when it is from a pipe or a file. No newline translation is done
+  on output (it was being done before). This makes it possible to
+  transfer binary files with Ncat on Windows without any corruption.
+  [David]
+
 o Added initial SCTP port scanning support to Nmap.  SCTP is
   a layer 4 protocol used mostly for telephony related applications.
   This brings the following new features:
