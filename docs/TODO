@@ -1,6 +1,7 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Build x86 VM instance for RPM building. [Fyodor]
+o Build x86 and x86-64 VM instances for RPM building. [Fyodor]
+ * I think I'll use CentOS 5.3
 
 o Look into building RPMs with SSL support. Statically linking to
   OpenSSL on Linux for the RPMs didn't work for me last time I
@@ -185,8 +186,9 @@ o Scanning through proxies
      same basic engine.  You should run your ideas by nmap-dev in as
      much detail as possible before starting.
 
-o [Ncat] Support SCTP now that Nmap does. Daniel
-  Roethlisberger is working on this.
+o [Ncat] Support SCTP now that Nmap does. 
+  - See client support patch by Daniel Roethlisberger: 
+    http://seclists.org/nmap-dev/2009/q2/0609.html
 
 o [NSE] Optimize NSE Performance--e.g. measure the current performance and
   see what can be improved in terms of scheduling scan threads,
