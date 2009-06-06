@@ -116,10 +116,6 @@
 #define TCPANDUDPANDSCTP IPPROTO_MAX
 #define UDPANDSCTP (IPPROTO_MAX + 1)
 
-#define CONF_NONE 0
-#define CONF_LOW 1
-#define CONF_HIGH 2
-
 enum serviceprobestate {
   PROBESTATE_INITIAL=1, // No probes started yet
   PROBESTATE_NULLPROBE, // Is working on the NULL Probe
