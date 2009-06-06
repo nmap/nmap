@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Tweaked validate_scan_lists so as to handle -SP and -SA at the same time when
+  running nmap as nonroot or using IPv6.  It now combines the two port lists
+  [Josh Marlow]
+
 o Added another case to NmapOps::RawScan() to cover the case where we are using
   a SYN ping scan and issuing raw packets.  This fixes a bug wherein nmap would
   not display the "Raw packets sent..." message [Josh Marlow]

@@ -450,6 +450,21 @@ static char *grab_next_host_spec(FILE *inputfd, int argc, char **fakeargv) {
   return host_spec;
 }
 
+static int insert_port_into_merge_list(unsigned short *mlist,
+						int *merged_port_count, int idx,
+						unsigned short p) {
+	int i;
+	// make sure the port isn't already in the list
+	for (i = 0; i < idx; i++) {
+		if (mlist[i] == p) {
+			(*merged_port_count)--;
+			return idx;
+		}
+	}
+	mlist[idx] = p;
+	return idx + 1;
+}
+
 void validate_scan_lists(scan_lists &ports, NmapOps &o){
 	if (o.pingtype == PINGTYPE_UNKNOWN) {
 		if (o.isr00t && o.pf() == PF_INET) {
@@ -467,13 +482,40 @@ void validate_scan_lists(scan_lists &ports, NmapOps &o){
 
 	if ((o.pingtype & PINGTYPE_TCP) && (!o.isr00t || o.pf() != PF_INET)) {
     		// We will have to do a connect() style ping 
-		if (ports.syn_ping_count && ports.ack_ping_count) {
-			fatal("Cannot use both SYN and ACK ping probes if you are nonroot or using IPv6");
-		}
 		// Pretend we wanted SYN probes all along.
 		if (ports.ack_ping_count > 0) { 
-			ports.syn_ping_count = ports.ack_ping_count;
-			ports.syn_ping_ports = ports.ack_ping_ports;
+			// Combine the ACK and SYN ping port lists since they both reduce to
+			// SYN probes in this case
+			int merged_port_count, i, j = 0;
+			unsigned short *merged_port_list = NULL;
+
+			merged_port_count = ports.ack_ping_count + ports.syn_ping_count;
+			merged_port_list =
+				(unsigned short *) safe_zalloc(merged_port_count * sizeof(unsigned short));
+
+			for (i = 0; i < ports.syn_ping_count; i++) {
+				j = insert_port_into_merge_list(merged_port_list,
+									&merged_port_count, j,
+									ports.syn_ping_ports[i]);
+			}
+			for (i = 0; i < ports.ack_ping_count; i++) {
+				j = insert_port_into_merge_list(merged_port_list,
+									&merged_port_count, j,
+									ports.ack_ping_ports[i]);
+			}
+
+			// if there were duplicate ports then we can save some memory
+			if (merged_port_count < (ports.ack_ping_count + ports.syn_ping_count)) {
+				merged_port_list = (unsigned short*)
+					safe_realloc(merged_port_list, merged_port_count);
+			}
+
+			// clean up a bit
+			free(ports.syn_ping_ports);
+			free(ports.ack_ping_ports);
+
+			ports.syn_ping_count = merged_port_count;
+			ports.syn_ping_ports = merged_port_list;
 			ports.ack_ping_count = 0;
 			ports.ack_ping_ports = NULL;
 		}
