@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Rewrote the port list merging code in validate_scan_lists to be more
+  maintainable [Josh Marlow]
+
 o [Ncat] Made Ncat compile with versions of OpenSSL before 0.9.7. It
   would fail in ncat_openssl.c with the message "structure has no
   member named `it'". The problem was reported by Jaroslav Fojtik.

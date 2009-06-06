@@ -450,19 +450,50 @@ static char *grab_next_host_spec(FILE *inputfd, int argc, char **fakeargv) {
   return host_spec;
 }
 
-static int insert_port_into_merge_list(unsigned short *mlist,
-						int *merged_port_count, int idx,
+static void insert_port_into_merge_list(unsigned short *mlist,
+						int *merged_port_count,
 						unsigned short p) {
 	int i;
 	// make sure the port isn't already in the list
-	for (i = 0; i < idx; i++) {
+	for (i = 0; i < *merged_port_count; i++) {
 		if (mlist[i] == p) {
-			(*merged_port_count)--;
-			return idx;
+			return;
 		}
 	}
-	mlist[idx] = p;
-	return idx + 1;
+	mlist[*merged_port_count] = p;
+    (*merged_port_count)++;
+}
+
+static unsigned short *merge_port_lists(unsigned short *port_list1, int count1,
+                                        unsigned short *port_list2, int count2,
+                                        int *merged_port_count) {
+    int i;
+    unsigned short *merged_port_list = NULL;
+
+    *merged_port_count = 0;
+
+    merged_port_list =
+        (unsigned short *) safe_zalloc((count1 + count2) * sizeof(unsigned short));
+
+    for (i = 0; i < count1; i++) {
+        insert_port_into_merge_list(merged_port_list,
+                            merged_port_count,
+                            port_list1[i]);
+    }
+    for (i = 0; i < count2; i++) {
+        insert_port_into_merge_list(merged_port_list,
+                            merged_port_count,
+                            port_list2[i]);
+    }
+
+    // if there were duplicate ports then we can save some memory
+    if (*merged_port_count < (count1 + count2)) {
+        merged_port_list = (unsigned short*)
+            safe_realloc(merged_port_list,
+                         (*merged_port_count) * sizeof(unsigned short));
+    }
+
+    return merged_port_list;
 }
 
 void validate_scan_lists(scan_lists &ports, NmapOps &o){
@@ -486,30 +517,13 @@ void validate_scan_lists(scan_lists &ports, NmapOps &o){
 		if (ports.ack_ping_count > 0) { 
 			// Combine the ACK and SYN ping port lists since they both reduce to
 			// SYN probes in this case
-			int merged_port_count, i, j = 0;
-			unsigned short *merged_port_list = NULL;
+			unsigned short *merged_port_list;
+			int merged_port_count;
 
-			merged_port_count = ports.ack_ping_count + ports.syn_ping_count;
-			merged_port_list =
-				(unsigned short *) safe_zalloc(merged_port_count * sizeof(unsigned short));
-
-			for (i = 0; i < ports.syn_ping_count; i++) {
-				j = insert_port_into_merge_list(merged_port_list,
-									&merged_port_count, j,
-									ports.syn_ping_ports[i]);
-			}
-			for (i = 0; i < ports.ack_ping_count; i++) {
-				j = insert_port_into_merge_list(merged_port_list,
-									&merged_port_count, j,
-									ports.ack_ping_ports[i]);
-			}
-
-			// if there were duplicate ports then we can save some memory
-			if (merged_port_count < (ports.ack_ping_count + ports.syn_ping_count)) {
-				merged_port_list = (unsigned short*)
-					safe_realloc(merged_port_list,
-                                 merged_port_count * sizeof(unsigned short));
-			}
+			merged_port_list = merge_port_lists(
+					ports.syn_ping_ports, ports.syn_ping_count,
+					ports.ack_ping_ports, ports.ack_ping_count,
+					&merged_port_count);
 
 			// clean up a bit
 			free(ports.syn_ping_ports);
