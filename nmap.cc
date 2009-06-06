@@ -507,7 +507,8 @@ void validate_scan_lists(scan_lists &ports, NmapOps &o){
 			// if there were duplicate ports then we can save some memory
 			if (merged_port_count < (ports.ack_ping_count + ports.syn_ping_count)) {
 				merged_port_list = (unsigned short*)
-					safe_realloc(merged_port_list, merged_port_count);
+					safe_realloc(merged_port_list,
+                                 merged_port_count * sizeof(unsigned short));
 			}
 
 			// clean up a bit
