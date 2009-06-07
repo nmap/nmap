@@ -100,70 +100,7 @@ uses.
 
 %changelog
 
-* Mon Sep 08 2008 David Fifield (david(a)bamsoftware.com)
-- Build with --with-openssl rather than --without-openssl.
+* Sat Jun 06 2009 Fyodor (fyodor(a)insecure.org)
+- Removed changelog entries as SVN is a more authoritative source. Execute:
+- svn log --username guest --password "" svn://svn.insecure.org/nmap/nmap.spec.in
 
-* Sun Aug 17 2008 Kris Katterjohn (katterjohn(a)gmail.com)
-- Added the Ncat subpackage
-
-* Thu Nov 08 2007 David Fifield (david(a)bamsoftware.com)
-- Split the zenmap subpackage into its own spec file.
-
-* Tue Nov 06 2007 David Fifield (david(a)bamsoftware.com)
-- Fix the Zenmap build on 64-bit architectures (where %{_libdir} is
-  "/usr/lib64" but Python modules may not be installed there) and make
-  it work with different versions of Python.
-
-* Sun Nov 04 2007 David Fifield (david(a)bamsoftware.com)
-- Add a zenmap subpackage.
-
-* Wed Oct 31 2007 David Fifield (david(a)bamsoftware.com)
-- Remove references to buildfe (build the NmapFE frontend).
-
-* Sat Sep 01 2004 Stephane Loeuillet (stephane.loeuillet(a)tiscali.fr)
-- Place .desktop file under ${prefix}/share/applications rather than
-  ${prefix}/share/gnome/apps/Utilities
-
-* Mon Dec 16 2002 Matthieu Verbert (mve(a)zurich.ibm.com)
-- Place man pages under ${prefix}/share/man rather than ${prefix}/man
-
-* Fri Jun 01 2001 GOMEZ Henri (hgomez(a)slib.fr)
-- Patch which checks that $RPM_BUILD_ROOT is not "/" before rm'ing it.
-
-* Tue Mar 06 2001 Ben Reed <ben(a)opennms.org>
-- changed spec to handle not building the frontend
-
-* Thu Dec 30 1999 Fyodor (fyodor(a)insecure.org)
-- Updated description
-- Eliminated source1 (nmapfe.desktop) directive and simply packaged it with Nmap
-- Fixed nmap distribution URL (source0)
-- Added this .rpm to base Nmap distribution
-
-* Mon Dec 13 1999 Tim Powers <timp(a)redhat.com>
-- based on origional spec file from
-	http://nmap.org/download.html
-- general cleanups, removed lots of commenrts since it made the spec hard to
-	read
-- changed group to Applications/System
-- quiet setup
-- no need to create dirs in the install section, "make
-	prefix=$RPM_BUILD_ROOT&{prefix} install" does this.
-- using defined %{prefix}, %{version} etc. for easier/quicker maint.
-- added docs
-- gzip man pages
-- strip after files have been installed into buildroot
-- created separate package for the frontend so that Gtk+ isn't needed for the
-	CLI nmap 
-- not using -f in files section anymore, no need for it since there aren't that
-	many files/dirs
-- added desktop entry for gnome
-
-* Sun Jan 10 1999 Fyodor (fyodor(a)insecure.org)
-- Merged in spec file sent in by Ian Macdonald <ianmacd(a)xs4all.nl>
-
-* Tue Dec 29 1998 Fyodor (fyodor(a)insecure.org)
-- Made some changes, and merged in another .spec file sent in
-  by Oren Tirosh <oren(a)hishome.net>
-
-* Mon Dec 21 1998 Riku Meskanen (mesrik(a)cc.jyu.fi)
-- initial build for RH 5.x
