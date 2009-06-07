@@ -47,7 +47,7 @@ o Added initial SCTP port scanning support to Nmap.  SCTP is
   Part of the work on SCTP support was kindly sponsored by
   Compass Security AG, Switzerland.  [Daniel Roethlisberger]
 
-o [Zenmap] The Topology tab now has a "Save Snapshot" button that allows
+o [Zenmap] The Topology tab now has a "Save Graphic" button that allows
   saving the current topology display as PNG, PostScript, PDF, and SVG.
   [Joao Medeiros]
 
