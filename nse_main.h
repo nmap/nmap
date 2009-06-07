@@ -29,15 +29,28 @@ typedef std::vector<ScriptResult> ScriptResults;
 
 class Target;
 
-int script_updatedb();
-void script_scan_free();
 
 /* API */
 void nse_restore (lua_State *, int);
 void nse_destructor (lua_State *, char);
 
-int open_nse (void);
-int script_scan(std::vector<Target *> &targets);
+void open_nse (void);
+void script_scan (std::vector<Target *> &targets);
 void close_nse (void);
+
+int script_updatedb (void);
+
+#define SCRIPT_ENGINE "NSE"
+
+#ifdef WIN32
+#  define SCRIPT_ENGINE_LUA_DIR "scripts\\"
+#  define SCRIPT_ENGINE_LIB_DIR "nselib\\"
+#else
+#  define SCRIPT_ENGINE_LUA_DIR "scripts/"
+#  define SCRIPT_ENGINE_LIB_DIR "nselib/"
+#endif
+
+#define SCRIPT_ENGINE_DATABASE "script.db"
+#define SCRIPT_ENGINE_EXTENSION ".nse"
 
 #endif

@@ -9,7 +9,6 @@
 #include "nse_pcrelib.h"
 #include "nse_openssl.h"
 #include "nse_debug.h"
-#include "nse_macros.h"
 
 #include "nmap.h"
 #include "nmap_error.h"
@@ -26,6 +25,8 @@
 /* string keys used in interface with nse_main.lua */
 #define NSE_WAITING_TO_RUNNING "NSE_WAITING_TO_RUNNING"
 #define NSE_DESTRUCTOR "NSE_DESTRUCTOR"
+
+#define MAX_FILENAME_LEN 4096
 
 extern NmapOps o;
 
@@ -146,7 +147,7 @@ static int dump_dir (lua_State *L)
   luaL_checkstring(L, 1);
   lua_pushcclosure(L, nse_scandir, 0);
   lua_pushvalue(L, 1);
-  lua_pushinteger(L, FILES);
+  lua_pushinteger(L, NSE_FILES);
   lua_call(L, 2, 1);
   return 1;
 }
@@ -179,7 +180,7 @@ static int unref (lua_State *L)
 
 static int updatedb (lua_State *L)
 {
-  lua_pushboolean(L, script_updatedb() == SCRIPT_ENGINE_SUCCESS);
+  lua_pushboolean(L, script_updatedb());
   return 1;
 }
 
@@ -347,7 +348,7 @@ int script_updatedb (void)
     "  db:write(' } }\\n')\n"
     "end\n"
     "db:close()\n";
-  int status = SCRIPT_ENGINE_SUCCESS;
+  int status = 1;
   lua_State *L;
 
   log_write(LOG_STDOUT, "%s: Updating rule database.\n", SCRIPT_ENGINE);
@@ -371,7 +372,7 @@ int script_updatedb (void)
   {
     error("%s: error while updating Script Database:\n%s\n",
         SCRIPT_ENGINE, lua_tostring(L, -1));
-    status = SCRIPT_ENGINE_ERROR;
+    status = 0;
   }
   else
     log_write(LOG_STDOUT, "NSE script database updated successfully.\n");
@@ -508,22 +509,21 @@ void nse_destructor (lua_State *L, char what)
 
 static lua_State *L_NSE = NULL;
 
-int open_nse (void)
+void open_nse (void)
 {
-  if (L_NSE != NULL) return SCRIPT_ENGINE_SUCCESS;
+  if (L_NSE == NULL)
+  {
+    if ((L_NSE = luaL_newstate()) == NULL)
+      fatal("%s: failed to open a Lua state!", SCRIPT_ENGINE);
+    lua_atpanic(L_NSE, panic);
 
-  if ((L_NSE = luaL_newstate()) == NULL)
-    fatal("%s: failed to open a Lua state!", SCRIPT_ENGINE);
-  lua_atpanic(L_NSE, panic);
-
-  if (lua_cpcall(L_NSE, init_main, (void *) &o.chosenScripts) != 0)
-    fatal("%s: failed to initialize the script engine:\n%s\n", SCRIPT_ENGINE, 
-        lua_tostring(L_NSE, -1));
-
-  return SCRIPT_ENGINE_SUCCESS;
+    if (lua_cpcall(L_NSE, init_main, (void *) &o.chosenScripts) != 0)
+      fatal("%s: failed to initialize the script engine:\n%s\n", SCRIPT_ENGINE, 
+          lua_tostring(L_NSE, -1));
+  }
 }
 
-int script_scan (std::vector<Target *> &targets)
+void script_scan (std::vector<Target *> &targets)
 {
   o.current_scantype = SCRIPT_SCAN;
 
@@ -534,10 +534,7 @@ int script_scan (std::vector<Target *> &targets)
   {
     error("%s: Script Engine Scan Aborted.\nAn error was thrown by the "
           "engine: %s", SCRIPT_ENGINE, lua_tostring(L_NSE, -1));
-    return SCRIPT_ENGINE_ERROR;
   }
-  else
-    return SCRIPT_ENGINE_SUCCESS;
 }
 
 void close_nse (void)

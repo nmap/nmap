@@ -13,11 +13,12 @@ extern "C" {
 #endif
 
 #include "errno.h"
-#include "nse_macros.h"
 #include "nse_fs.h"
 #include "nmap.h"
 #include "nmap_error.h"
 #include "NmapOps.h"
+
+#define MAX_FILENAME_LEN 4096
 
 extern NmapOps o;
 
@@ -89,13 +90,13 @@ int nse_scandir (lua_State *L) {
   if (dir == INVALID_HANDLE_VALUE)
   {
     error("%s: No files in '%s\\*'", SCRIPT_ENGINE, dirname);
-    return SCRIPT_ENGINE_ERROR;
+    return 0;
   }
 
   while(!(morefiles == FALSE && GetLastError() == ERROR_NO_MORE_FILES)) {
     // if we are looking for files and this file doesn't end with .nse or
     // is a directory, then we don't look further at it
-    if(files_or_dirs == FILES) {
+    if(files_or_dirs == NSE_FILES) {
       if(!((nse_check_extension(SCRIPT_ENGINE_EXTENSION, entry.cFileName))
             && !(entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
           )) {
@@ -105,7 +106,7 @@ int nse_scandir (lua_State *L) {
 
       // if we are looking for dirs and this dir
       // isn't a directory, then we don't look further at it
-    } else if(files_or_dirs == DIRS) {
+    } else if(files_or_dirs == NSE_DIRS) {
       if(!(entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
         morefiles = FindNextFile(dir, &entry);
         continue;
@@ -143,7 +144,7 @@ int nse_scandir (lua_State *L) {
   dir = opendir(dirname);
   if(dir == NULL) {
     error("%s: Could not open directory '%s'.", SCRIPT_ENGINE, dirname);
-    return SCRIPT_ENGINE_ERROR;
+    return 0;
   }
 
   // note that if there is a symlink in the dir, we have to rely on
@@ -159,7 +160,7 @@ int nse_scandir (lua_State *L) {
 
     // if we are looking for files and this file doesn't end with .nse and
     // isn't a file or a link, then we don't look further at it
-    if(files_or_dirs == FILES) {
+    if(files_or_dirs == NSE_FILES) {
       if(!(nse_check_extension(SCRIPT_ENGINE_EXTENSION, entry->d_name)
            && (S_ISREG(stat_entry.st_mode)
                || S_ISLNK(stat_entry.st_mode))
@@ -169,7 +170,7 @@ int nse_scandir (lua_State *L) {
 
       // if we are looking for dirs and this dir
       // isn't a dir or a link, then we don't look further at it
-    } else if(files_or_dirs == DIRS) {
+    } else if(files_or_dirs == NSE_DIRS) {
       if(!(S_ISDIR(stat_entry.st_mode)
            || S_ISLNK(stat_entry.st_mode)
           )) {

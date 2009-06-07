@@ -464,10 +464,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\nse_macros.h"
-				>
-			</File>
-			<File
 				RelativePath="..\nse_main.h"
 				>
 			</File>

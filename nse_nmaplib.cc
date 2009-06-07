@@ -20,7 +20,6 @@ extern "C" {
 
 #include "nse_nmaplib.h"
 #include "nse_nsock.h"
-#include "nse_macros.h"
 
 #define SCRIPT_ENGINE_PUSHSTRING_NOTNULL(c_str, str) if(c_str != NULL) {\
   lua_pushstring(L, c_str); \
@@ -604,7 +603,6 @@ int luaopen_nmap (lua_State *L)
   lua_pushcclosure(L, luaopen_nsock, 0);
   lua_pushliteral(L, "nsock");
   lua_call(L, 1, 0);
-  SCRIPT_ENGINE_TRY(l_dnet_open(L));
 
   lua_settop(L, 1); // just nmap lib on stack
 

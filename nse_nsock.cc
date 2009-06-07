@@ -13,7 +13,6 @@ extern "C"
 
 #include "nse_nsock.h"
 #include "nse_main.h"
-#include "nse_macros.h"
 
 #include "nsock.h"
 #include "nmap_error.h"
@@ -82,6 +81,8 @@ int l_nsock_check_buf(lua_State * L);
 int l_nsock_checkstatus(lua_State * L, nsock_event nse);
 
 void l_nsock_trace(nsock_iod nsiod, const char *message, int direction);
+
+static void l_dnet_open(lua_State * L); /* open dnet metatable */
 
 const char *inet_ntop_both(int af, const void *v_addr, char *ipstring);
 
@@ -444,6 +445,8 @@ int luaopen_nsock(lua_State * L)
   /* Value speed over security in SSL connections. */
   nsp_ssl_init_max_speed(nsp);
 #endif
+
+  l_dnet_open(L); /* open dnet metatable */
 
   return 0;
 }
@@ -1744,7 +1747,7 @@ static luaL_reg l_dnet[] = {
   {NULL, NULL}
 };
 
-int l_dnet_open(lua_State * L)
+void l_dnet_open(lua_State * L)
 {
   luaL_newmetatable(L, "dnet");
   lua_createtable(L, 0, 5);
@@ -1753,7 +1756,6 @@ int l_dnet_open(lua_State * L)
   lua_pushliteral(L, "");
   lua_setfield(L, -2, "__metatable");  // protect metatable
   lua_pop(L, 1);
-  return NSOCK_WRAPPER_SUCCESS;
 }
 
 struct l_dnet_udata
