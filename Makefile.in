@@ -129,9 +129,18 @@ static:
 debug:
 	$(MAKE) DBGFLAGS="-O0 -g -pg -ftest-coverage -fprofile-arcs"
 
-# Make the Nmap tarball
-distro:
-	cd $(NMAPDEVDIR) && $(MAKE) distro
+# CALL THIS FROM ONE COMPUTER AND CHECK IN RESULTS BEFORE DOING ANYONE
+# DOES A MAKE RELEASE
+prerelease:
+	cd $(NMAPDEVDIR) && $(MAKE) prerelease
+
+# Make just the Nmap tarballs
+release-tarballs:
+	cd $(NMAPDEVDIR) && $(MAKE) release-tarballs
+
+# Make the tarballs and RPMs (which are built from tarball)
+release-rpms:
+	cd $(NMAPDEVDIR) && $(MAKE) release-rpms
 
 # Update the web site
 web:
