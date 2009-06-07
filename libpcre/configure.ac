@@ -491,10 +491,6 @@ AC_CONFIG_FILES(
 # Make the generated script files executable.
 AC_CONFIG_COMMANDS([script-chmod], [chmod a+x pcre-config])
 
-# Make sure that pcre_chartables.c is removed in case the method for
-# creating it was changed by reconfiguration.
-AC_CONFIG_COMMANDS([delete-old-chartables], [rm -f pcre_chartables.c])
-
 AC_OUTPUT
 
 dnl end configure.ac

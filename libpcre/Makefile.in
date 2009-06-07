@@ -265,21 +265,7 @@ all: config.h
 
 .SUFFIXES:
 .SUFFIXES: .c .o .obj
-am--refresh:
-	@:
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
-	@for dep in $?; do \
-	  case '$(am__configure_deps)' in \
-	    *$$dep*) \
-	      echo ' cd $(srcdir) && $(AUTOMAKE) --gnu '; \
-	      cd $(srcdir) && $(AUTOMAKE) --gnu  \
-		&& exit 0; \
-	      exit 1;; \
-	  esac; \
-	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu  Makefile'; \
-	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu  Makefile
+
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -751,7 +737,7 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 
 .MAKE: install-am install-strip
 
-.PHONY: CTAGS GTAGS all all-am am--refresh check check-am clean \
+.PHONY: CTAGS GTAGS all all-am check check-am clean \
 	clean-binPROGRAMS clean-generic clean-libLIBRARIES \
 	clean-noinstPROGRAMS ctags dist dist-all dist-bzip2 dist-gzip \
 	dist-shar dist-tarZ dist-zip distcheck distclean \

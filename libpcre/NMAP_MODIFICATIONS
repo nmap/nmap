@@ -145,6 +145,60 @@ o Added pcre_winconfig.h for Windows.  LibPCRE used to include config.h in
 #include "config.h"
 #endif
 
+o Removed this pcre_chartables deletion code from configure.ac:
+--- configure.ac	(revision 13598)
++++ configure.ac	(working copy)
+@@ -491,10 +491,6 @@
+ # Make the generated script files executable.
+ AC_CONFIG_COMMANDS([script-chmod], [chmod a+x pcre-config])
+ 
+-# Make sure that pcre_chartables.c is removed in case the method for
+-# creating it was changed by reconfiguration.
+-AC_CONFIG_COMMANDS([delete-old-chartables], [rm -f pcre_chartables.c])
+-
+ AC_OUTPUT
+ 
+ dnl end configure.ac
 
-o Regenerated everything with 'automake; aclocal; autoconf'
+o Removed Makefile.am since it doesn't even seem to regenerate without a bunch of files which were previously deleted (e.g. NEWS, etc.)
+
+o Removed the code from Makefile.in which regenerates Makefile.am when it's out of date:
+--- Makefile.in	(revision 13598)
++++ Makefile.in	(working copy)
+@@ -265,21 +265,7 @@
+ 
+ .SUFFIXES:
+ .SUFFIXES: .c .o .obj
+-am--refresh:
+-	@:
+-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+-	@for dep in $?; do \
+-	  case '$(am__configure_deps)' in \
+-	    *$$dep*) \
+-	      echo ' cd $(srcdir) && $(AUTOMAKE) --gnu '; \
+-	      cd $(srcdir) && $(AUTOMAKE) --gnu  \
+-		&& exit 0; \
+-	      exit 1;; \
+-	  esac; \
+-	done; \
+-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu  Makefile'; \
+-	cd $(top_srcdir) && \
+-	  $(AUTOMAKE) --gnu  Makefile
++
+ .PRECIOUS: Makefile
+ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
+ 	@case '$?' in \
+@@ -751,7 +737,7 @@
+ 
+ .MAKE: install-am install-strip
+ 
+-.PHONY: CTAGS GTAGS all all-am am--refresh check check-am clean \
++.PHONY: CTAGS GTAGS all all-am check check-am clean \
+ 	clean-binPROGRAMS clean-generic clean-libLIBRARIES \
+ 	clean-noinstPROGRAMS ctags dist dist-all dist-bzip2 dist-gzip \
+ 	dist-shar dist-tarZ dist-zip distcheck distclean \
+
+
+
+o Regenerated everything with 'aclocal; autoconf'
 
